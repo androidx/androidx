@@ -45,8 +45,7 @@ inline fun <reified T : Record> ReadRecordsRequest(
     )
 
 /**
- * Request object to read [Record]s in Android Health Platform determined by time range and other
- * filters.
+ * Request object to read [Record]s in Health Connect determined by time range and other filters.
  *
  * Returned collection will contain a
  * [androidx.health.connect.client.response.ReadRecordsResponse.pageToken] if number of records
@@ -89,7 +88,7 @@ constructor(
         dataOriginFilter: Set<DataOrigin> = emptySet(),
         ascendingOrder: Boolean = true,
         pageSize: Int = 1000,
-        pageToken: String? = null
+        pageToken: String? = null,
     ) : this(
         recordType = recordType,
         timeRangeFilter = timeRangeFilter,
@@ -113,7 +112,7 @@ constructor(
             ascendingOrder = ascendingOrder,
             pageSize = pageSize,
             pageToken = newPageToken,
-            deduplicateStrategy = deduplicateStrategy
+            deduplicateStrategy = deduplicateStrategy,
         )
     }
 

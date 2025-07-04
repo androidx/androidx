@@ -59,6 +59,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,7 +79,7 @@ class BottomNavigationTest {
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -106,7 +107,7 @@ class BottomNavigationTest {
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -119,6 +120,7 @@ class BottomNavigationTest {
             .assertHasClickAction()
     }
 
+    @Ignore // b/422735600
     @Test
     fun bottomNavigation_size() {
         val height = 56.dp
@@ -138,14 +140,14 @@ class BottomNavigationTest {
                 val items = listOf("Songs", "Artists", "Playlists")
 
                 BottomNavigation(
-                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset)
                 ) {
                     items.forEachIndexed { index, item ->
                         BottomNavigationItem(
                             icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                             label = { Text(item) },
                             selected = selectedItem == index,
-                            onClick = { selectedItem = index }
+                            onClick = { selectedItem = index },
                         )
                     }
                 }
@@ -172,7 +174,7 @@ class BottomNavigationTest {
                             modifier =
                                 Modifier.onGloballyPositioned { coords ->
                                     itemCoords[index] = coords
-                                }
+                                },
                         )
                     }
                 }
@@ -207,7 +209,7 @@ class BottomNavigationTest {
         ) {
             Box {
                 BottomNavigation(
-                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
+                    windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset)
                 ) {
                     repeat(4) { index ->
                         BottomNavigationItem(
@@ -218,7 +220,7 @@ class BottomNavigationTest {
                             modifier =
                                 Modifier.onGloballyPositioned { coords ->
                                     itemCoords[index] = coords
-                                }
+                                },
                         )
                     }
                 }
@@ -273,7 +275,7 @@ class BottomNavigationTest {
                         icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                         label = { Text("ItemText") },
                         selected = true,
-                        onClick = {}
+                        onClick = {},
                     )
                 }
             }
@@ -316,7 +318,7 @@ class BottomNavigationTest {
                         label = { Text("ItemText") },
                         selected = false,
                         onClick = {},
-                        alwaysShowLabel = false
+                        alwaysShowLabel = false,
                     )
                 }
             }
@@ -346,7 +348,7 @@ class BottomNavigationTest {
                         icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                         label = null,
                         selected = false,
-                        onClick = {}
+                        onClick = {},
                     )
                 }
             }
@@ -397,7 +399,7 @@ class BottomNavigationTest {
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = { clicks++ }
+                    onClick = { clicks++ },
                 )
             }
         }

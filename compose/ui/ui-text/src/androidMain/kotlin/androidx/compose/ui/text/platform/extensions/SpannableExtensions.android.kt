@@ -85,7 +85,7 @@ internal fun Spannable.setSpan(span: Any, start: Int, end: Int) {
 internal fun Spannable.setTextIndent(
     textIndent: TextIndent?,
     contextFontSize: Float,
-    density: Density
+    density: Density,
 ) {
     textIndent?.let { indent ->
         if (indent.firstLine == 0.sp && indent.restLine == 0.sp) return@let
@@ -106,7 +106,7 @@ internal fun Spannable.setTextIndent(
             setSpan(
                 LeadingMarginSpan.Standard(ceil(firstLine).toInt(), ceil(restLine).toInt()),
                 0,
-                length
+                length,
             )
         }
     }
@@ -124,7 +124,7 @@ internal fun Spannable.setBulletSpans(
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     contextFontSize: Float,
     density: Density,
-    textIndent: TextIndent?
+    textIndent: TextIndent?,
 ) {
     val textIndentPx =
         textIndent?.let {
@@ -138,23 +138,24 @@ internal fun Spannable.setBulletSpans(
         } ?: 0f
     annotations.fastForEach {
         (it.item as? Bullet)?.let { bullet ->
-            val bulletSize = resolveBulletTextUnitToPx(bullet.size, contextFontSize, density)
+            val bulletWidthPx = resolveBulletTextUnitToPx(bullet.width, contextFontSize, density)
+            val bulletHeightPx = resolveBulletTextUnitToPx(bullet.height, contextFontSize, density)
             val gapWidthPx = resolveBulletTextUnitToPx(bullet.padding, contextFontSize, density)
-            if (!bulletSize.isNaN() && !gapWidthPx.isNaN()) {
+            if (!bulletWidthPx.isNaN() && !bulletHeightPx.isNaN() && !gapWidthPx.isNaN()) {
                 setSpan(
                     CustomBulletSpan(
                         shape = bullet.shape,
-                        bulletWidthPx = bulletSize,
-                        bulletHeightPx = bulletSize,
+                        bulletWidthPx = bulletWidthPx,
+                        bulletHeightPx = bulletHeightPx,
                         gapWidthPx = gapWidthPx,
                         density = density,
                         brush = bullet.brush,
                         alpha = bullet.alpha,
                         drawStyle = bullet.drawStyle,
-                        textIndentPx = textIndentPx
+                        textIndentPx = textIndentPx,
                     ),
                     it.start,
-                    it.end
+                    it.end,
                 )
             }
         }
@@ -168,7 +169,7 @@ internal fun Spannable.setBulletSpans(
 private fun resolveBulletTextUnitToPx(
     size: TextUnit,
     contextFontSize: Float,
-    density: Density
+    density: Density,
 ): Float {
     if (size == TextUnit.Unspecified) return contextFontSize
     return when (size.type) {
@@ -185,7 +186,7 @@ internal fun Spannable.setLineHeight(
     lineHeight: TextUnit,
     contextFontSize: Float,
     density: Density,
-    lineHeightStyle: LineHeightStyle
+    lineHeightStyle: LineHeightStyle,
 ) {
     val resolvedLineHeight = resolveLineHeightInPx(lineHeight, contextFontSize, density)
     if (!resolvedLineHeight.isNaN()) {
@@ -204,7 +205,7 @@ internal fun Spannable.setLineHeight(
                     preserveMinimumHeight = lineHeightStyle.mode == LineHeightStyle.Mode.Minimum,
                 ),
             start = 0,
-            end = length
+            end = length,
         )
     }
 }
@@ -213,7 +214,7 @@ internal fun Spannable.setLineHeight(
 internal fun Spannable.setLineHeight(
     lineHeight: TextUnit,
     contextFontSize: Float,
-    density: Density
+    density: Density,
 ) {
     val resolvedLineHeight = resolveLineHeightInPx(lineHeight, contextFontSize, density)
     if (!resolvedLineHeight.isNaN()) {
@@ -224,7 +225,7 @@ internal fun Spannable.setLineHeight(
 private fun resolveLineHeightInPx(
     lineHeight: TextUnit,
     contextFontSize: Float,
-    density: Density
+    density: Density,
 ): Float {
     return when (lineHeight.type) {
         TextUnitType.Sp -> {
@@ -357,7 +358,7 @@ private fun Spannable.setFontAttributes(
                 fontFamily = contextTextStyle.fontFamily,
                 fontWeight = contextTextStyle.fontWeight,
                 fontStyle = contextTextStyle.fontStyle,
-                fontSynthesis = contextTextStyle.fontSynthesis
+                fontSynthesis = contextTextStyle.fontSynthesis,
             )
         } else {
             null
@@ -371,12 +372,12 @@ private fun Spannable.setFontAttributes(
                     spanStyle.fontFamily,
                     spanStyle.fontWeight ?: FontWeight.Normal,
                     spanStyle.fontStyle ?: FontStyle.Normal,
-                    spanStyle.fontSynthesis ?: FontSynthesis.All
+                    spanStyle.fontSynthesis ?: FontSynthesis.All,
                 )
             ),
             start,
             end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
     }
 }
@@ -394,7 +395,7 @@ private fun Spannable.setFontAttributes(
 internal fun flattenFontStylesAndApply(
     contextFontSpanStyle: SpanStyle?,
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-    block: (SpanStyle, Int, Int) -> Unit
+    block: (SpanStyle, Int, Int) -> Unit,
 ) {
     // quick way out for single SpanStyle or empty list.
     if (spanStyles.size <= 1) {
@@ -402,7 +403,7 @@ internal fun flattenFontStylesAndApply(
             block(
                 contextFontSpanStyle.merge(spanStyles[0].item),
                 spanStyles[0].start,
-                spanStyles[0].end
+                spanStyles[0].end,
             )
         }
         return
@@ -440,7 +441,7 @@ internal fun flattenFontStylesAndApply(
                         lastTransitionOffsets,
                         transitionOffset,
                         spanStyle.start,
-                        spanStyle.end
+                        spanStyle.end,
                     )
             ) {
                 mergedSpanStyle = mergedSpanStyle.merge(spanStyle.item)
@@ -457,7 +458,7 @@ internal fun flattenFontStylesAndApply(
 @Suppress("DEPRECATION")
 private fun createLetterSpacingSpan(
     letterSpacing: TextUnit,
-    density: Density
+    density: Density,
 ): MetricAffectingSpan? {
     return when (letterSpacing.type) {
         TextUnitType.Sp -> with(density) { LetterSpacingSpanPx(letterSpacing.toPx()) }
@@ -481,10 +482,10 @@ private fun Spannable.setShadow(shadow: Shadow?, start: Int, end: Int) {
                 it.color.toArgb(),
                 it.offset.x,
                 it.offset.y,
-                correctBlurRadius(it.blurRadius)
+                correctBlurRadius(it.blurRadius),
             ),
             start,
-            end
+            end,
         )
     }
 }
@@ -510,7 +511,7 @@ internal fun Spannable.setLocaleList(localeList: LocaleList?, start: Int, end: I
                 LocaleSpan(locale.platformLocale)
             },
             start,
-            end
+            end,
         )
     }
 }
@@ -519,7 +520,7 @@ internal fun Spannable.setLocaleList(localeList: LocaleList?, start: Int, end: I
 private fun Spannable.setGeometricTransform(
     textGeometricTransform: TextGeometricTransform?,
     start: Int,
-    end: Int
+    end: Int,
 ) {
     textGeometricTransform?.let {
         setSpan(ScaleXSpan(it.scaleX), start, end)
@@ -540,7 +541,7 @@ internal fun Spannable.setFontSize(fontSize: TextUnit, density: Density, start: 
                 setSpan(
                     AbsoluteSizeSpan(/* size */ fontSize.toPx().roundToInt(), /* dip */ false),
                     start,
-                    end
+                    end,
                 )
             }
         TextUnitType.Em -> {
@@ -556,7 +557,7 @@ internal fun Spannable.setTextDecoration(textDecoration: TextDecoration?, start:
         val textDecorationSpan =
             TextDecorationSpan(
                 isUnderlineText = TextDecoration.Underline in it,
-                isStrikethroughText = TextDecoration.LineThrough in it
+                isStrikethroughText = TextDecoration.LineThrough in it,
             )
         setSpan(textDecorationSpan, start, end)
     }

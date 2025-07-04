@@ -23,7 +23,7 @@ import java.time.Instant
 public class TimeRange
 internal constructor(
     public val startDateTimeMillis: Instant,
-    public val endDateTimeMillis: Instant
+    public val endDateTimeMillis: Instant,
 ) {
     /** Returns whether the [TimeRange] contains a given point in time. */
     public operator fun contains(dateTimeMillis: Instant): Boolean =

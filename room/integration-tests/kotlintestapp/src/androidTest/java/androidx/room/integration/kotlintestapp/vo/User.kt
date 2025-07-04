@@ -24,5 +24,5 @@ import androidx.room.PrimaryKey
 data class User(
     @PrimaryKey var userId: String,
     @Embedded(prefix = "email_") var email: Email,
-    @Embedded(prefix = "secondary_email_") var secondaryEmail: Email?
+    @Embedded(prefix = "secondary_email_") var secondaryEmail: Email?,
 )

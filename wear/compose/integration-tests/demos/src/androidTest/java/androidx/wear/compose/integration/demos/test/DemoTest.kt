@@ -76,7 +76,7 @@ class DemoTest {
         root.visitDemos(
             visitedDemos = visitedDemos,
             path = listOf(root),
-            fastForwardClock = fastForwardClock
+            fastForwardClock = fastForwardClock,
         )
 
         // Ensure that we visited all the demos we expected to, in the order we expected to.
@@ -91,7 +91,7 @@ class DemoTest {
     private fun DemoCategory.visitDemos(
         visitedDemos: MutableList<Demo>,
         path: List<DemoCategory>,
-        fastForwardClock: Boolean
+        fastForwardClock: Boolean,
     ) {
         demos.forEach { demo ->
             visitedDemos.add(demo)
@@ -110,7 +110,7 @@ class DemoTest {
     private fun Demo.visit(
         visitedDemos: MutableList<Demo>,
         path: List<DemoCategory>,
-        fastForwardClock: Boolean
+        fastForwardClock: Boolean,
     ) {
         Log.d("TEST", "Visit ${this.navigationTitle(path)}")
         if (fastForwardClock) {
@@ -195,7 +195,7 @@ private val List<Demo>.navigationTitle: String
  */
 private fun DemoCategory.filter(
     path: List<DemoCategory> = emptyList(),
-    predicate: (path: List<DemoCategory>, demo: Demo) -> Boolean
+    predicate: (path: List<DemoCategory>, demo: Demo) -> Boolean,
 ): DemoCategory {
     val newPath = path + this
     return DemoCategory(
@@ -209,7 +209,7 @@ private fun DemoCategory.filter(
                     if (predicate(newPath, demo)) demo else null
                 }
             }
-        }
+        },
     )
 }
 

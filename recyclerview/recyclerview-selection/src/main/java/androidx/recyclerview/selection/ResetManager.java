@@ -21,10 +21,11 @@ import static androidx.recyclerview.selection.Shared.DEBUG;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;

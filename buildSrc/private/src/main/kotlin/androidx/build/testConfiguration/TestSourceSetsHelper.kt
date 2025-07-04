@@ -17,6 +17,7 @@
 package androidx.build.testConfiguration
 
 import androidx.build.multiplatformExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.variant.TestVariant
 import com.android.build.api.variant.Variant
 import org.gradle.api.Project
@@ -55,11 +56,25 @@ internal fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCo
         ?.find { it.name == "androidTest" }
         ?.let { testSourceFileCollections.add(it.kotlin.sourceDirectories) }
 
-    // Add kotlin-multiplatform androidInstrumentedTest target source sets
+    // Add kotlin-multiplatform androidInstrumentedTest target source sets when com.android.library
+    // plugin is applied
     multiplatformExtension
         ?.targets
         ?.filterIsInstance<KotlinAndroidTarget>()
-        ?.mapNotNull { it.compilations.find { it.name == "releaseAndroidTest" } }
+        ?.mapNotNull {
+            it.compilations.find { compilation -> compilation.name == "releaseAndroidTest" }
+        }
+        ?.flatMap { it.allKotlinSourceSets }
+        ?.mapTo(testSourceFileCollections) { it.kotlin.sourceDirectories }
+
+    // Add kotlin-multiplatform androidInstrumentedTest target source sets when AGP KMP plugin is
+    // applied
+    multiplatformExtension
+        ?.targets
+        ?.filterIsInstance<KotlinMultiplatformAndroidLibraryTarget>()
+        ?.mapNotNull {
+            it.compilations.find { compilation -> compilation.name == "instrumentedTest" }
+        }
         ?.flatMap { it.allKotlinSourceSets }
         ?.mapTo(testSourceFileCollections) { it.kotlin.sourceDirectories }
     return testSourceFileCollections

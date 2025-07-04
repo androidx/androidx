@@ -61,7 +61,7 @@ class ViewPager2Activity : BaseActivity() {
                 ActivityCompat.requestPermissions(
                     this,
                     REQUIRED_PERMISSIONS,
-                    REQUEST_CODE_PERMISSIONS
+                    REQUEST_CODE_PERMISSIONS,
                 )
             }
         } else {
@@ -91,7 +91,7 @@ class ViewPager2Activity : BaseActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 

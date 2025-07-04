@@ -40,7 +40,7 @@ class ExerciseStateInfoTest {
         assertThat(
                 ExerciseStateInfo(
                     ExerciseState.AUTO_ENDED_PERMISSION_LOST,
-                    ExerciseEndReason.UNKNOWN
+                    ExerciseEndReason.UNKNOWN,
                 )
             )
             .isEqualTo(

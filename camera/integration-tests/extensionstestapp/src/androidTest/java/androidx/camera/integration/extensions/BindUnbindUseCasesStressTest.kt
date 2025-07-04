@@ -37,6 +37,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.StressTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -141,17 +142,18 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
             imageCapture,
-            verificationTarget = VERIFICATION_TARGET_PREVIEW
+            verificationTarget = VERIFICATION_TARGET_PREVIEW,
         )
     }
 
     @Test
     fun bindUnbindUseCases_checkImageCaptureInEachTime_withPreviewImageCapture(): Unit =
         runBlocking {
+            assumePcsSupportedForImageCapture(context)
             bindUseCases_checkOutput_thenUnbindAll_repeatedly(
                 preview,
                 imageCapture,
-                verificationTarget = VERIFICATION_TARGET_IMAGE_CAPTURE
+                verificationTarget = VERIFICATION_TARGET_IMAGE_CAPTURE,
             )
         }
 
@@ -163,7 +165,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         preview: Preview,
         imageCapture: ImageCapture,
         verificationTarget: Int,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
             // Arrange.
@@ -181,7 +183,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture).toTypedArray()
+                    *listOfNotNull(preview, imageCapture).toTypedArray(),
                 )
             }
 
@@ -195,7 +197,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
                 val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
                 imageCapture.takePicture(
                     Executors.newSingleThreadExecutor(),
-                    imageCaptureCaptureSuccessMonitor.createCaptureCallback()
+                    imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
                 )
 
                 // Assert: checks that the captured image of ImageCapture can be received
@@ -213,17 +215,18 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             bindUseCases_unbindAll_repeatedly_thenCheckOutput(
                 preview,
                 imageCapture,
-                verificationTarget = VERIFICATION_TARGET_PREVIEW
+                verificationTarget = VERIFICATION_TARGET_PREVIEW,
             )
         }
 
     @Test
     fun checkImageCapture_afterBindUnbindUseCasesRepeatedly_withPreviewImageCapture(): Unit =
         runBlocking {
+            assumePcsSupportedForImageCapture(context)
             bindUseCases_unbindAll_repeatedly_thenCheckOutput(
                 preview,
                 imageCapture,
-                verificationTarget = VERIFICATION_TARGET_IMAGE_CAPTURE
+                verificationTarget = VERIFICATION_TARGET_IMAGE_CAPTURE,
             )
         }
 
@@ -235,7 +238,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         preview: Preview,
         imageCapture: ImageCapture,
         verificationTarget: Int,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         lateinit var previewFrameAvailableMonitor: PreviewFrameAvailableMonitor
 
@@ -255,7 +258,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture).toTypedArray()
+                    *listOfNotNull(preview, imageCapture).toTypedArray(),
                 )
 
                 // Clean it up: do not unbind at the last time
@@ -275,7 +278,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
             imageCapture.takePicture(
                 Executors.newSingleThreadExecutor(),
-                imageCaptureCaptureSuccessMonitor.createCaptureCallback()
+                imageCaptureCaptureSuccessMonitor.createCaptureCallback(),
             )
 
             // Assert: checks that the captured image of ImageCapture can be received
@@ -329,7 +332,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             object : SurfaceTextureProvider.SurfaceTextureCallback {
                 override fun onSurfaceTextureReady(
                     surfaceTexture: SurfaceTexture,
-                    resolution: Size
+                    resolution: Size,
                 ) {
                     if (texId == INVALID_TEX_ID) {
                         texId = GLUtil.getTexIdFromGLContext()
@@ -337,7 +340,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
                     surfaceTexture.attachToGLContext(texId)
                     surfaceTexture.setOnFrameAvailableListener(
                         onFrameAvailableListener,
-                        frameAvailableHandler
+                        frameAvailableHandler,
                     )
 
                     surfaceTextureLatch.countDown()

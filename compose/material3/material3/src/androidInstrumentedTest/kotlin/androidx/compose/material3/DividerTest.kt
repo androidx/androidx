@@ -82,7 +82,7 @@ class DividerTest {
             .setMaterialContentForSizeAssertions {
                 HorizontalDivider(
                     modifier = Modifier.padding(start = indent),
-                    thickness = thickness
+                    thickness = thickness,
                 )
             }
             .assertHeightIsEqualTo(thickness)

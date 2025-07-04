@@ -36,7 +36,7 @@ class CursorKotlinUseIssueDetectorTest {
                     }
                 }
             """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                     .within("src")
             )
@@ -70,7 +70,7 @@ class CursorKotlinUseIssueDetectorTest {
                     return block(this)
                 }
             """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                     .within("src")
             )
@@ -94,7 +94,7 @@ class CursorKotlinUseIssueDetectorTest {
                     }
                 }
             """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                     .within("src"),
             )
@@ -119,9 +119,9 @@ class CursorKotlinUseIssueDetectorTest {
                   }
                 }
             """
-                            .trimIndent()
+                            .trimIndent(),
                     )
-                    .within("src"),
+                    .within("src")
             )
             .issues(CursorKotlinUseIssueDetector.ISSUE)
             .run()

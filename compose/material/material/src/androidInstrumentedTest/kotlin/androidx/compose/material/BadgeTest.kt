@@ -121,7 +121,7 @@ class BadgeTest {
                 density = rule.density,
                 shape = CircleShape,
                 shapeColor = errorColor,
-                backgroundColor = Color.White
+                backgroundColor = Color.White,
             )
     }
 
@@ -140,7 +140,7 @@ class BadgeTest {
                 anchorBounds.right +
                     BadgeHorizontalOffset +
                     max((BadgeRadius - badgeBounds.width) / 2, 0.dp),
-            expectedTop = -badgeBounds.height / 2
+            expectedTop = -badgeBounds.height / 2,
         )
     }
 
@@ -160,7 +160,7 @@ class BadgeTest {
                     BadgeWithContentHorizontalOffset +
                     4.dp +
                     max((BadgeWithContentRadius - badgeBounds.width) / 2, 0.dp),
-            expectedTop = -badgeBounds.height / 2
+            expectedTop = -badgeBounds.height / 2,
         )
     }
 
@@ -179,7 +179,7 @@ class BadgeTest {
             BadgeWithContentHorizontalOffset + BadgeWithContentHorizontalPadding
         badge.assertPositionInRootIsEqualTo(
             expectedLeft = anchorBounds.right + totalBadgeHorizontalOffset,
-            expectedTop = -badgeBounds.height / 2
+            expectedTop = -badgeBounds.height / 2,
         )
     }
 
@@ -192,7 +192,7 @@ class BadgeTest {
                     text = { Text("Text") },
                     selected = true,
                     onClick = { count.value += 1 },
-                    modifier = Modifier.testTag("tab")
+                    modifier = Modifier.testTag("tab"),
                 )
             }
         }
@@ -210,7 +210,7 @@ class BadgeTest {
                     text = { Badge { Text("Text") } },
                     modifier = Modifier.testTag("tab"),
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -237,7 +237,7 @@ class BadgeTest {
                     text = { Badge { Text("Text") } },
                     modifier = Modifier.testTag("tab"),
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -258,11 +258,11 @@ class BadgeTest {
                 modifier =
                     Modifier.testTag(TestBadgeTag).semantics {
                         this.contentDescription = "more than 99 new email"
-                    }
+                    },
             ) {
                 Text(
                     "inbox",
-                    Modifier.semantics { this.contentDescription = "inbox" }.testTag(TestAnchorTag)
+                    Modifier.semantics { this.contentDescription = "inbox" }.testTag(TestAnchorTag),
                 )
             }
         }

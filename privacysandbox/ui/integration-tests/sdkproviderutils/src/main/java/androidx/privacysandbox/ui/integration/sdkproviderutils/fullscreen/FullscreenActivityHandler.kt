@@ -40,7 +40,7 @@ import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.C
 
 class FullscreenActivityHandler(
     private val sdkContext: Context,
-    private val activityHolder: ActivityHolder
+    private val activityHolder: ActivityHolder,
 ) {
 
     private val activity = activityHolder.getActivity()
@@ -61,7 +61,7 @@ class FullscreenActivityHandler(
 
     fun buildLayout(
         @ScreenOrientation screenOrientation: Int,
-        @BackNavigation backNavigation: Int
+        @BackNavigation backNavigation: Int,
     ) {
         initUI(screenOrientation)
         registerDestroyActivityButton(backNavigation)
@@ -82,7 +82,7 @@ class FullscreenActivityHandler(
             object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(
                     view: WebView,
-                    request: WebResourceRequest
+                    request: WebResourceRequest,
                 ): Boolean {
                     return false
                 }

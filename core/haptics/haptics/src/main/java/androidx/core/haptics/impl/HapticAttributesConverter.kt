@@ -128,7 +128,7 @@ internal object HapticAttributesConverter {
         @JvmStatic
         fun createVibrationAttributes(
             vibrationUsage: Int,
-            vibrationFlags: Int
+            vibrationFlags: Int,
         ): VibrationAttributes {
             return VibrationAttributes.Builder()
                 .setUsage(vibrationUsage)
@@ -200,10 +200,7 @@ internal object HapticAttributesConverter {
         @JvmStatic @HapticAttributes.Flag fun fromAudioAttributesFlags(): Int = 0
 
         @JvmStatic
-        fun createAudioAttributes(
-            usage: Int,
-            contentType: Int,
-        ): AudioAttributes =
+        fun createAudioAttributes(usage: Int, contentType: Int): AudioAttributes =
             AudioAttributes.Builder().setUsage(usage).setContentType(contentType).build()
 
         @JvmStatic

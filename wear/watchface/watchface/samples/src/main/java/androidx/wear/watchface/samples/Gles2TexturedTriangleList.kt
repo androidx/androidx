@@ -28,7 +28,7 @@ import java.nio.FloatBuffer
 internal class Gles2TexturedTriangleList(
     private val program: Program,
     triangleCoords: FloatArray,
-    private val textureCoords: FloatArray
+    private val textureCoords: FloatArray,
 ) {
     init {
         require(triangleCoords.size % (VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX) == 0) {
@@ -159,7 +159,7 @@ internal class Gles2TexturedTriangleList(
         fun bind(
             mvpMatrix: FloatArray?,
             vertexBuffer: FloatBuffer?,
-            textureCoordinatesBuffer: FloatBuffer?
+            textureCoordinatesBuffer: FloatBuffer?,
         ) {
             // Pass the MVP matrix to OpenGL.
             GLES20.glUniformMatrix4fv(
@@ -167,7 +167,7 @@ internal class Gles2TexturedTriangleList(
                 1 /* count */,
                 false /* transpose */,
                 mvpMatrix,
-                0 /* offset */
+                0, /* offset */
             )
             if (CHECK_GL_ERRORS) {
                 checkGlError("glUniformMatrix4fv")
@@ -180,7 +180,7 @@ internal class Gles2TexturedTriangleList(
                 GLES20.GL_FLOAT,
                 false /* normalized */,
                 VERTEX_STRIDE,
-                vertexBuffer
+                vertexBuffer,
             )
             if (CHECK_GL_ERRORS) {
                 checkGlError("glVertexAttribPointer")
@@ -193,7 +193,7 @@ internal class Gles2TexturedTriangleList(
                 GLES20.GL_FLOAT,
                 false /* normalized */,
                 TEXTURE_COORDS_VERTEX_STRIDE,
-                textureCoordinatesBuffer
+                textureCoordinatesBuffer,
             )
             if (CHECK_GL_ERRORS) {
                 checkGlError("glVertexAttribPointer")

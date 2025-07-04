@@ -59,12 +59,7 @@ public fun <K> objectLongMapOf(key1: K, value1: Long): ObjectLongMap<K> =
  * Returns a new [ObjectLongMap] with only [key1] and [key2] associated with [value1] and [value2],
  * respectively.
  */
-public fun <K> objectLongMapOf(
-    key1: K,
-    value1: Long,
-    key2: K,
-    value2: Long,
-): ObjectLongMap<K> =
+public fun <K> objectLongMapOf(key1: K, value1: Long, key2: K, value2: Long): ObjectLongMap<K> =
     MutableObjectLongMap<K>().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -137,10 +132,8 @@ public fun <K> objectLongMapOf(
 public fun <K> mutableObjectLongMapOf(): MutableObjectLongMap<K> = MutableObjectLongMap()
 
 /** Returns a new [MutableObjectLongMap] with only [key1] associated with [value1]. */
-public fun <K> mutableObjectLongMapOf(
-    key1: K,
-    value1: Long,
-): MutableObjectLongMap<K> = MutableObjectLongMap<K>().also { map -> map[key1] = value1 }
+public fun <K> mutableObjectLongMapOf(key1: K, value1: Long): MutableObjectLongMap<K> =
+    MutableObjectLongMap<K>().also { map -> map[key1] = value1 }
 
 /**
  * Returns a new [MutableObjectLongMap] with only [key1] and [key2] associated with [value1] and
@@ -230,7 +223,7 @@ public fun <K> mutableObjectLongMapOf(
  * @param builderAction Lambda in which the [MutableObjectLongMap] can be populated.
  */
 public inline fun <K> buildObjectLongMap(
-    builderAction: MutableObjectLongMap<K>.() -> Unit,
+    builderAction: MutableObjectLongMap<K>.() -> Unit
 ): ObjectLongMap<K> {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableObjectLongMap<K>().apply(builderAction)
@@ -495,7 +488,7 @@ public sealed class ObjectLongMap<K> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: K, value: Long) -> CharSequence
+        crossinline transform: (key: K, value: Long) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

@@ -84,7 +84,7 @@ class BottomSheetNavigationView : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val navigationView =
             requireActivity().layoutInflater.inflate(R.layout.bottom_bar_menu, container, false)

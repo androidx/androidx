@@ -54,7 +54,7 @@ class BoringLayoutFactoryTest {
             ForegroundColorSpan(0xFF00FF00.toInt()),
             0,
             5,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
         assertThat(measure(text, TextPaint(), TextDirectionHeuristics.FIRSTSTRONG_LTR)).isNotNull()
     }
@@ -78,7 +78,7 @@ class BoringLayoutFactoryTest {
                 paint = paint,
                 width = width,
                 metrics = metrics,
-                includePadding = false
+                includePadding = false,
             )
 
         assertThat(boringLayout.text).isEqualTo(text)
@@ -103,7 +103,7 @@ class BoringLayoutFactoryTest {
                 paint = paint,
                 width = width,
                 metrics = metrics,
-                includePadding = true
+                includePadding = true,
             )
 
         assertThat(boringLayout.text).isEqualTo(text)
@@ -139,7 +139,7 @@ class BoringLayoutFactoryTest {
                 paint = paint,
                 width = metrics.width,
                 metrics = metrics,
-                includePadding = true
+                includePadding = true,
             )
         assertThat(boringLayout.getLineAscent(0)).isEqualTo(metrics.top)
         assertThat(boringLayout.getLineDescent(0)).isEqualTo(metrics.bottom)
@@ -156,7 +156,7 @@ class BoringLayoutFactoryTest {
                 paint = paint,
                 width = metrics.width,
                 metrics = metrics,
-                includePadding = false
+                includePadding = false,
             )
 
         assertThat(boringLayout.getLineAscent(0)).isEqualTo(metrics.ascent)
@@ -195,7 +195,7 @@ class BoringLayoutFactoryTest {
                 width = width,
                 metrics = metrics,
                 ellipsize = TextUtils.TruncateAt.END,
-                ellipsizedWidth = width
+                ellipsizedWidth = width,
             )
 
         assertThat(boringLayout.getEllipsisCount(0)).isEqualTo(0)
@@ -215,7 +215,7 @@ class BoringLayoutFactoryTest {
                 width = width,
                 metrics = metrics,
                 ellipsize = TextUtils.TruncateAt.END,
-                ellipsizedWidth = width / 2
+                ellipsizedWidth = width / 2,
             )
 
         assertThat(boringLayout.getEllipsisCount(0)).isGreaterThan(0)

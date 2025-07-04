@@ -88,7 +88,7 @@ class PullToRefreshIndicatorTest {
                     modifier = Modifier.size(containerSize).testTag(INDICATOR_TAG),
                     state = state,
                     isRefreshing = true,
-                    threshold = verticalOffsetDp
+                    threshold = verticalOffsetDp,
                 )
             }
             LaunchedEffect(true) { state.animateToThreshold() }
@@ -126,7 +126,7 @@ class PullToRefreshIndicatorTest {
                 PullToRefreshDefaults.Indicator(
                     modifier = Modifier.testTag(INDICATOR_TAG),
                     state = rememberPullToRefreshState(),
-                    isRefreshing = true
+                    isRefreshing = true,
                 )
             }
         }

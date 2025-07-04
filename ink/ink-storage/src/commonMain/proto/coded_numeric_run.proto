@@ -1,0 +1,35 @@
+// Copyright 2024-2025 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Proto definitions for delta-coded storage of Ink strokes.
+
+syntax = "proto2";
+
+package androidx.ink.storage.proto;
+
+// Efficiently encodes a sequence of numbers, compressed lossily using delta
+// coding (but sequences of integers can be represented exactly).  The first
+// value in the represented sequence is equal to `offset + scale * deltas[0]`,
+// and each successive Nth value is equal to `value[N-1] + scale * deltas[N]`.
+//
+// When representing a sequence of integers, the `scale` and `offset` fields
+// must be integral (or omitted, and their default values used).  Otherwise,
+// this can represent a sequence of floating point numbers at whatever level of
+// precision yields a good tradeoff between accuracy and gzip-compressibility of
+// the delta sequence.
+message CodedNumericRun {
+  repeated sint32 deltas = 1 [packed = true];
+  optional float scale = 2 [default = 1];
+  optional float offset = 3;
+}

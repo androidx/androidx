@@ -34,12 +34,10 @@ public interface OnItemVisibilityChangedDelegate {
      *
      * <p>The start index is inclusive, and the end index is exclusive. For example, if only the
      * first item in a list is visible, the start and end indices would be 0 and 1,
-     * respectively. If no items are visible, the indices will be set to -1.
+     * respectively.
      *
-     * @param startIndex the index (inclusive) of the first visible element, or -1 if no items
-     *                   are visible
-     * @param endIndex   the index (exclusive) of the last visible element, or -1 if no items
-     *                   are visible
+     * @param startIndex the index (inclusive) of the first visible element
+     * @param endIndex   the index (exclusive) of the last visible element
      * @param callback   the {@link OnDoneCallback} to trigger when the client finishes handling
      *                   the event
      */

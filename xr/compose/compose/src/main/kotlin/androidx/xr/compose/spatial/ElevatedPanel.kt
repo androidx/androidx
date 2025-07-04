@@ -19,7 +19,7 @@ package androidx.xr.compose.spatial
 import android.view.View
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,20 +35,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
-import androidx.xr.compose.platform.LocalPanelEntity
+import androidx.xr.compose.platform.LocalCoreEntity
+import androidx.xr.compose.platform.LocalCoreMainPanelEntity
+import androidx.xr.compose.platform.LocalOpaqueEntity
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 import androidx.xr.compose.subspace.rememberComposeView
+import androidx.xr.compose.subspace.rememberCorePanelEntity
+import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.Meter.Companion.meters
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.Dimensions
 import androidx.xr.scenecore.PanelEntity
 
 internal object ElevatedPanelDefaults {
@@ -58,35 +60,28 @@ internal object ElevatedPanelDefaults {
 }
 
 /**
- * Defines the "root view" of this ElevatedPanel such that nested ElevatedPanels can all reference
- * the root view that they are attached to.
- */
-internal val LocalRootView = compositionLocalOf<View?> { null }
-
-/**
- * This is the base panel underlying the implementations of ElevatedSurface, ElevatedPopup, and
- * ElevatedDialog. It allows creating a panel at a specific size and offset.
+ * This is the base panel underlying the implementations of SpatialElevation, SpatialPopup, and
+ * SpatialDialog. It allows creating a panel at a specific size and offset.
  */
 @Composable
 internal fun ElevatedPanel(
-    spatialElevationLevel: SpatialElevationLevel,
+    elevation: Dp,
     contentSize: IntSize,
     shape: SpatialShape = ElevatedPanelDefaults.shape,
     contentOffset: Offset? = null,
-    transitionSpec:
-        @Composable
-        Transition.Segment<SpatialElevationLevel>.() -> FiniteAnimationSpec<Float> =
-        {
-            spring()
-        },
+    elevationTransitionSpec: @Composable Transition.Segment<Dp>.() -> FiniteAnimationSpec<Dp> = {
+        spring()
+    },
     content: @Composable () -> Unit,
 ) {
-    val parentView = LocalRootView.current ?: LocalView.current
+    val parentView = LocalView.current
     val zDepth by
-        updateTransition(targetState = spatialElevationLevel, label = "restingLevelTransition")
-            .animateFloat(transitionSpec = transitionSpec, label = "zDepth") { state ->
-                state.level
-            }
+        updateTransition(targetState = elevation, label = "restingLevelTransition").animateDp(
+            transitionSpec = elevationTransitionSpec,
+            label = "zDepth",
+        ) { state ->
+            state
+        }
     var parentViewSize by remember { mutableStateOf(parentView.size) }
     DisposableEffect(parentView) {
         val listener =
@@ -107,8 +102,8 @@ internal fun ElevatedPanel(
 }
 
 /**
- * This is the base panel underlying the implementations of ElevatedSurface, ElevatedPopup, and
- * ElevatedDialog. It allows creating a panel at a specific size and [Pose].
+ * This is the base panel underlying the implementations of SpatialElevation, SpatialPopup, and
+ * SpatialDialog. It allows creating a panel at a specific size and [Pose].
  */
 @Composable
 internal fun ElevatedPanel(
@@ -117,58 +112,42 @@ internal fun ElevatedPanel(
     pose: Pose? = null,
     content: @Composable () -> Unit,
 ) {
-    val parentView = LocalRootView.current ?: LocalView.current
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val parentPanelEntity = LocalPanelEntity.current ?: session.mainPanelEntity
-    val density = LocalDensity.current
-    var panelEntity by remember { mutableStateOf<PanelEntity?>(null) }
-    val meterSize = contentSize.toMeterSize(density)
-
-    val view = rememberComposeView {
-        CompositionLocalProvider(
-            LocalRootView provides parentView,
-            LocalPanelEntity provides panelEntity,
-        ) {
-            Box(Modifier.alpha(if (pose == null) 0.0f else 1.0f)) { content() }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        panelEntity =
-            session.createPanelEntity(
+    val parentEntity = LocalCoreEntity.current ?: LocalCoreMainPanelEntity.current ?: return
+    val view = rememberComposeView()
+    val panelEntity =
+        rememberCorePanelEntity(shape = shape) {
+            PanelEntity.create(
+                session = session,
                 view = view,
-                surfaceDimensionsPx = meterSize.toCorePixelDimensions(density),
-                dimensions = meterSize.toCoreMeterDimensions(),
-                name = "ElevatedSurface:${view.id}",
+                pixelDimensions = contentSize.run { IntSize2d(width, height) },
+                name = "ElevatedPanel:${view.id}",
             )
-        onDispose {
-            panelEntity?.dispose()
-            panelEntity = null
+        }
+    // TODO(b/416093964): Does ElevatedPanel's alpha still need to be dependent on Pose?
+    view.setContent {
+        CompositionLocalProvider(LocalOpaqueEntity provides panelEntity) {
+            Box(Modifier.alpha(if (pose == null) 0.0f else 1.0f)) { content() }
         }
     }
 
     LaunchedEffect(pose) {
         if (pose != null) {
-            panelEntity?.setPose(pose)
+            panelEntity.entity.setPose(pose)
         }
     }
 
     LaunchedEffect(contentSize) {
-        val width = contentSize.width.toFloat()
-        val height = contentSize.height.toFloat()
+        val width = contentSize.width
+        val height = contentSize.height
 
-        panelEntity?.setSize(Dimensions(width = width, height = height, depth = 0f))
-        if (shape is SpatialRoundedCornerShape) {
-            panelEntity?.setCornerRadius(
-                Meter.fromPixel(shape.computeCornerRadius(width, height, density), density).value
-            )
-        }
+        panelEntity.size = IntVolumeSize(width = width, height = height, depth = 0)
     }
 
-    LaunchedEffect(parentPanelEntity) { panelEntity?.setParent(parentPanelEntity) }
+    LaunchedEffect(parentEntity) { panelEntity.entity.parent = parentEntity.entity }
 }
 
-/** A [Position] based on [Meter]s. */
+/** A 3D vector where each coordinate is [Meter]s. */
 internal data class MeterPosition(
     val x: Meter = 0.meters,
     val y: Meter = 0.meters,
@@ -185,26 +164,6 @@ internal data class MeterPosition(
 
     fun toVector3() = Vector3(x = x.toM(), y = y.toM(), z = z.toM())
 }
-
-/** Represents a 3D size using [Meter] units. */
-internal data class MeterSize(
-    public val width: Meter = 0.meters,
-    public val height: Meter = 0.meters,
-    public val depth: Meter = 0.meters,
-)
-
-private fun IntSize.toMeterSize(density: Density) =
-    MeterSize(
-        Meter.fromPixel(width.toFloat(), density),
-        Meter.fromPixel(height.toFloat(), density),
-        0.meters,
-    )
-
-private fun MeterSize.toCoreMeterDimensions() = Dimensions(width.toM(), height.toM(), depth.toM())
-
-// TODO(b/355735174) Update to PixelDimensions when SceneCore provides a proper API surface.
-private fun MeterSize.toCorePixelDimensions(density: Density) =
-    Dimensions(width.toPx(density), height.toPx(density), depth.toPx(density))
 
 internal val View.size
     get() = IntSize(width, height)

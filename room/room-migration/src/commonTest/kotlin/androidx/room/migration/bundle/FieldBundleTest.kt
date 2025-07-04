@@ -28,7 +28,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         val copy =
             FieldBundle(
@@ -36,7 +36,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         assertThat(bundle.isSchemaEqual(copy)).isTrue()
     }
@@ -49,7 +49,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         val copy =
             FieldBundle(
@@ -57,7 +57,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = true,
-                defaultValue = null
+                defaultValue = null,
             )
         assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
@@ -70,7 +70,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         val copy =
             FieldBundle(
@@ -78,7 +78,7 @@ class FieldBundleTest {
                 columnName = "foo2",
                 affinity = "text",
                 isNonNull = true,
-                defaultValue = null
+                defaultValue = null,
             )
         assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
@@ -91,7 +91,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         val copy =
             FieldBundle(
@@ -99,7 +99,7 @@ class FieldBundleTest {
                 columnName = "foo2",
                 affinity = "int",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }
@@ -112,7 +112,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         val copy =
             FieldBundle(
@@ -120,7 +120,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = false,
-                defaultValue = null
+                defaultValue = null,
             )
         assertThat(bundle.isSchemaEqual(copy)).isTrue()
     }
@@ -133,7 +133,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = true,
-                defaultValue = null
+                defaultValue = null,
             )
         val copy =
             FieldBundle(
@@ -141,7 +141,7 @@ class FieldBundleTest {
                 columnName = "foo",
                 affinity = "text",
                 isNonNull = true,
-                defaultValue = "bar"
+                defaultValue = "bar",
             )
         assertThat(bundle.isSchemaEqual(copy)).isFalse()
     }

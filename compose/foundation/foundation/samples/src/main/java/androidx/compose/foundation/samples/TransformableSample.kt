@@ -86,7 +86,7 @@ fun TransformableSample() {
                 }
                 .fillMaxSize()
                 .border(1.dp, Color.Green),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 "\uD83C\uDF55",
@@ -97,7 +97,7 @@ fun TransformableSample() {
                         scaleX = scale
                         scaleY = scale
                         rotationZ = rotation
-                    }
+                    },
             )
         }
     }
@@ -138,7 +138,7 @@ fun TransformableSampleInsideScroll() {
                     }
                     .fillMaxSize()
                     .border(1.dp, Color.Green),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     "\uD83C\uDF55",
@@ -149,7 +149,7 @@ fun TransformableSampleInsideScroll() {
                             scaleX = scale
                             scaleY = scale
                             rotationZ = rotation
-                        }
+                        },
                 )
             }
         }
@@ -195,18 +195,18 @@ fun TransformableAnimateBySample() {
                                     rotationDegrees = 90f,
                                     zoomAnimationSpec = spring(),
                                     panAnimationSpec = tween(durationMillis = 1000),
-                                    rotationAnimationSpec = spring()
+                                    rotationAnimationSpec = spring(),
                                 )
                             }
                         },
                         onDoubleTap = {
                             coroutineScope.launch { state.animateBy(1 / scale, -offset, -rotation) }
-                        }
+                        },
                     )
                 }
                 .fillMaxSize()
                 .border(1.dp, Color.Green),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 "\uD83C\uDF55",
@@ -217,7 +217,7 @@ fun TransformableAnimateBySample() {
                         scaleX = scale
                         scaleY = scale
                         rotationZ = rotation
-                    }
+                    },
             )
         }
     }

@@ -152,7 +152,7 @@ class AmbiguousColumnResolverTest {
     @Database(
         entities = [User::class, Comment::class, Avatar::class],
         version = 1,
-        exportSchema = false
+        exportSchema = false,
     )
     internal abstract class TestDatabase : RoomDatabase() {
         abstract fun getDao(): TestDao
@@ -247,25 +247,11 @@ class AmbiguousColumnResolverTest {
         fun getUserCommentEmbeddedAliased(): List<UserAndCommentAliased>
     }
 
-    @Entity
-    data class User(
-        @PrimaryKey val id: Int,
-        val name: String,
-    )
+    @Entity data class User(@PrimaryKey val id: Int, val name: String)
 
-    @Entity
-    data class Comment(
-        @PrimaryKey val id: Int,
-        val userId: Int,
-        val text: String,
-    )
+    @Entity data class Comment(@PrimaryKey val id: Int, val userId: Int, val text: String)
 
-    @Entity
-    data class Avatar(
-        @PrimaryKey val userId: Int,
-        val url: String,
-        val data: ByteBuffer,
-    )
+    @Entity data class Avatar(@PrimaryKey val userId: Int, val url: String, val data: ByteBuffer)
 
     data class UserAndAvatar(
         @Embedded val user: User,

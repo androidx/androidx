@@ -62,7 +62,7 @@ class SendBroadcastActionTest {
         val componentName =
             ComponentName(
                 "androidx.glance.appwidget.action",
-                "androidx.glance.appwidget.action.TestBroadcastReceiver"
+                "androidx.glance.appwidget.action.TestBroadcastReceiver",
             )
         val modifiers =
             GlanceModifier.clickable(actionSendBroadcast(intentActionString, componentName))
@@ -89,7 +89,7 @@ class SendBroadcastActionTest {
         val componentName =
             ComponentName(
                 "androidx.glance.appwidget.action",
-                "androidx.glance.appwidget.action.TestBroadcastReceiver"
+                "androidx.glance.appwidget.action.TestBroadcastReceiver",
             )
         val modifiers = GlanceModifier.clickable(actionSendBroadcast(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())

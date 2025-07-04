@@ -45,7 +45,7 @@ fun HoverableSample() {
             Modifier.size(128.dp)
                 .background(if (isHovered) Color.Red else Color.Blue)
                 .hoverable(interactionSource = interactionSource),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(if (isHovered) "Hovered" else "Unhovered")
     }

@@ -10,17 +10,34 @@ package androidx.compose.runtime.saveable {
   }
 
   public final class RememberSaveableKt {
-    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.MutableState<T> rememberSaveable(Object?[] inputs, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, optional String? key, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
-    method @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object?[] inputs, optional androidx.compose.runtime.saveable.Saver<T,?> saver, optional String? key, kotlin.jvm.functions.Function0<? extends T> init);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.MutableState<T> rememberSaveable(Object?[] inputs, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, optional String? key, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object?[] inputs, optional androidx.compose.runtime.saveable.Saver<T,?> saver, optional String? key, kotlin.jvm.functions.Function0<? extends T> init);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object![], androidx.compose.runtime.saveable.Saver<T!,? extends java.lang.Object!>?, String?, kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.MutableState<T> rememberSaveable(Object?[] inputs, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
+    method @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object?[] inputs, androidx.compose.runtime.saveable.Saver<T,?> saver, kotlin.jvm.functions.Function0<? extends T> init);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object![], androidx.compose.runtime.saveable.Saver<T!,? extends java.lang.Object!>, kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
+    method @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object?[] inputs, kotlin.jvm.functions.Function0<? extends T> init);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object![], kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int);
+  }
+
+  public final class RememberSerializableKt {
+    method @androidx.compose.runtime.Composable public static inline <reified T> androidx.compose.runtime.MutableState<T> rememberSerializable(Object?[] inputs, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
+    method @androidx.compose.runtime.Composable public static inline <reified T> T rememberSerializable(Object?[] inputs, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends T> init);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! rememberSerializable(Object![]!, androidx.savedstate.serialization.SavedStateConfiguration!, kotlin.jvm.functions.Function0<? extends T!>!, androidx.compose.runtime.Composer!, int, int);
+    method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.MutableState<T> rememberSerializable(Object?[] inputs, kotlinx.serialization.KSerializer<T> stateSerializer, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
+    method @androidx.compose.runtime.Composable public static <T> T rememberSerializable(Object?[] inputs, kotlinx.serialization.KSerializer<T> serializer, optional androidx.savedstate.serialization.SavedStateConfiguration configuration, kotlin.jvm.functions.Function0<? extends T> init);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T rememberSerializable(Object![], kotlinx.serialization.KSerializer<T!>, androidx.savedstate.serialization.SavedStateConfiguration?, kotlin.jvm.functions.Function0<? extends T!>, androidx.compose.runtime.Composer?, int, int);
   }
 
   public interface SaveableStateHolder {
     method @androidx.compose.runtime.Composable public void SaveableStateProvider(Object key, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void SaveableStateProvider(Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method public void removeState(Object key);
   }
 
   public final class SaveableStateHolderKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.runtime.saveable.SaveableStateHolder rememberSaveableStateHolder();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.runtime.saveable.SaveableStateHolder rememberSaveableStateHolder(androidx.compose.runtime.Composer?, int);
   }
 
   public interface SaveableStateRegistry {
@@ -37,7 +54,7 @@ package androidx.compose.runtime.saveable {
   public final class SaveableStateRegistryKt {
     method public static androidx.compose.runtime.saveable.SaveableStateRegistry SaveableStateRegistry(java.util.Map<java.lang.String,? extends java.util.List<? extends java.lang.Object?>>? restoredValues, kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Boolean> canBeSaved);
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.saveable.SaveableStateRegistry?> getLocalSaveableStateRegistry();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.saveable.SaveableStateRegistry?> LocalSaveableStateRegistry;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.saveable.SaveableStateRegistry?> LocalSaveableStateRegistry;
   }
 
   public interface Saver<Original, Saveable> {

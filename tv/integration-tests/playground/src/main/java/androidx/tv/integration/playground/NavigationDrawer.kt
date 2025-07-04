@@ -81,9 +81,9 @@ fun ModalNavigationDrawer() {
                         Brush.verticalGradient(
                             listOf(
                                 Color.DarkGray.copy(alpha = 0.2f),
-                                Color.LightGray.copy(alpha = 0.2f)
+                                Color.LightGray.copy(alpha = 0.2f),
                             )
-                        )
+                        ),
                 ) {
                     CommonBackground(startPadding = 90.dp)
                 }
@@ -119,19 +119,16 @@ private fun NavigationDrawerScope.Sidebar(direction: MutableState<LayoutDirectio
                 .padding(12.dp)
                 .selectableGroup(),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         NavigationDrawerItem(
             selected = true,
             onClick = {},
             leadingContent = {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = null,
-                )
+                Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             },
             supportingContent = { Text("Switch account") },
-            trailingContent = { NavigationDrawerItemDefaults.TrailingBadge("NEW") }
+            trailingContent = { NavigationDrawerItemDefaults.TrailingBadge("NEW") },
         ) {
             Text(text = "Hi there")
         }

@@ -29,7 +29,7 @@ import org.intellij.lang.annotations.Language
 internal class JSONConstraintSet(
     @Language("json5") content: String,
     @Language("json5") overrideVariables: String? = null,
-    override val extendFrom: ConstraintSet? = null
+    override val extendFrom: ConstraintSet? = null,
 ) : EditableJSONLayout(content), DerivedConstraintSet {
     private val overridedVariables = HashMap<String, Float>()
     private val overrideVariables = overrideVariables

@@ -2,7 +2,13 @@
     <string name="app_name">PDF Viewer Sample App</string>
     <string name="launch_string">Open Pdf</string>
     <string name="search_string">Search</string>
-    <string name="tab_view_string">Tab View</string>
-    <string name="pdf_fragment_v2_string">Pdf Fragment v2</string>
-    <string name="single_pdf_string">Single Pdf</string>
+    <string name="tab_view_string">Tab View V1</string>
+    <string name="pdf_fragment_v2_string">Single PDF V2</string>
+    <string name="tab_view_string_v2">Tab View V2</string>
+    <string name="single_pdf_string">Single PDF V1</string>
+    <string name="styled_pdf_fragment_name">Single Styled PDF V2</string>
+    <string name="xml_styled_pdf_fragment_name">Single XML Styled PDF V2</string>
+    <string name="page_object_pdf_string">PageObject Pdf</string>
+    <string name="save_pdf_string">Save Pdf</string>
+    <string name="compose_fragment">Compose PDF</string>
 </resources>

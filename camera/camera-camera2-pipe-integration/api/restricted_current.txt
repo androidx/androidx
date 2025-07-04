@@ -31,6 +31,7 @@ package androidx.camera.camera2.pipe.integration.interop {
     method public static androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo from(androidx.camera.core.CameraInfo cameraInfo);
     method public <T> T? getCameraCharacteristic(android.hardware.camera2.CameraCharacteristics.Key<T> key);
     method public String getCameraId();
+    property @kotlin.jvm.JvmSynthetic public String cameraId;
     field public static final androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.Companion Companion;
   }
 

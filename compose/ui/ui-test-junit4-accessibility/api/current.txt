@@ -1,0 +1,15 @@
+// Signature format: 4.0
+package androidx.compose.ui.test.junit4.accessibility {
+
+  public final class AndroidComposeTestRuleExt_androidKt {
+    method @RequiresApi(34) public static <R extends org.junit.rules.TestRule, A extends androidx.activity.ComponentActivity> void disableAccessibilityChecks(androidx.compose.ui.test.junit4.AndroidComposeTestRule<R,A>);
+    method @RequiresApi(34) public static <R extends org.junit.rules.TestRule, A extends androidx.activity.ComponentActivity> void enableAccessibilityChecks(androidx.compose.ui.test.junit4.AndroidComposeTestRule<R,A>, optional com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator accessibilityValidator);
+  }
+
+  public final class ComposeTestRuleExt_androidKt {
+    method @RequiresApi(34) public static void disableAccessibilityChecks(androidx.compose.ui.test.junit4.ComposeTestRule);
+    method @RequiresApi(34) public static void enableAccessibilityChecks(androidx.compose.ui.test.junit4.ComposeTestRule, optional com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator accessibilityValidator);
+  }
+
+}
+

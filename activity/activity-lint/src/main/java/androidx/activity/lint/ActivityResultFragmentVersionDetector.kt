@@ -53,8 +53,8 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
                             ActivityResultFragmentVersionDetector::class.java,
                             EnumSet.of(Scope.JAVA_FILE, Scope.GRADLE_FILE),
                             Scope.JAVA_FILE_SCOPE,
-                            Scope.GRADLE_SCOPE
-                        )
+                            Scope.GRADLE_SCOPE,
+                        ),
                 )
                 .addMoreInfo(
                     "https://developer.android.com/training/permissions/requesting#make-the-request"
@@ -82,6 +82,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         }
     }
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407493719
     override fun checkDslPropertyAssignment(
         context: GradleContext,
         property: String,
@@ -89,7 +90,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         parent: String,
         parentParent: String?,
         valueCookie: Any,
-        statementCookie: Any
+        statementCookie: Any,
     ) {
         if (locations.isEmpty()) {
             return
@@ -102,7 +103,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
                 reportIssue(
                     (lmLibrary as? LintModelAndroidLibrary)?.resolvedCoordinates.toString(),
                     context,
-                    false
+                    false,
                 )
             }
             checkedImplementationDependencies = true
@@ -126,7 +127,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
                         ISSUE,
                         expression,
                         location,
-                        "Upgrade Fragment version to at least $FRAGMENT_VERSION."
+                        "Upgrade Fragment version to at least $FRAGMENT_VERSION.",
                     )
                 }
             }

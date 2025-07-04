@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.10.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.0-alpha04)" variant="all" version="8.10.0-alpha04">
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`receiver` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for my-action"
+        errorLine1="        mContext.registerReceiver(receiver, IntentFilter(action))"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/core/widget/RemoteViewsCompatTest.kt"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"

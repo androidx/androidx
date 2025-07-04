@@ -210,27 +210,27 @@ class SnackbarHostTest {
         }
         assertEquals(
             Long.MAX_VALUE,
-            SnackbarDuration.Indefinite.toMillis(true, accessibilityManager)
+            SnackbarDuration.Indefinite.toMillis(true, accessibilityManager),
         )
         assertEquals(
             Long.MAX_VALUE,
-            SnackbarDuration.Indefinite.toMillis(false, accessibilityManager)
+            SnackbarDuration.Indefinite.toMillis(false, accessibilityManager),
         )
         assertEquals(
             mockDurationControl,
-            SnackbarDuration.Long.toMillis(true, accessibilityManager)
+            SnackbarDuration.Long.toMillis(true, accessibilityManager),
         )
         assertEquals(
             mockDurationNonControl,
-            SnackbarDuration.Long.toMillis(false, accessibilityManager)
+            SnackbarDuration.Long.toMillis(false, accessibilityManager),
         )
         assertEquals(
             mockDurationControl,
-            SnackbarDuration.Short.toMillis(true, accessibilityManager)
+            SnackbarDuration.Short.toMillis(true, accessibilityManager),
         )
         assertEquals(
             mockDurationNonControl,
-            SnackbarDuration.Short.toMillis(false, accessibilityManager)
+            SnackbarDuration.Short.toMillis(false, accessibilityManager),
         )
     }
 

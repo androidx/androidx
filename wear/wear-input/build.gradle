@@ -21,12 +21,12 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -38,7 +38,6 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
     testImplementation(project(":wear:wear-input-testing"))
@@ -51,18 +50,16 @@ android {
     defaultConfig {
         minSdk = 25
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.input"
 }
 
 androidx {
     name = "Android Wear Input"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.WEAR_INPUT
     inceptionYear = "2020"
     description = "Android Wear Support Input"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:wear-input-samples"))
+    enableRobolectric()
 }

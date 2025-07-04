@@ -19,13 +19,23 @@ package androidx.sqlite.driver
 import android.database.sqlite.SQLiteDatabase
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.db.framework.FrameworkSQLiteDatabase
 
 /**
  * A [SQLiteDriver] implemented by [android.database] and that uses the Android's SDK SQLite APIs.
+ *
+ * This driver internally has a connection pool and a opened connection from it is safe to be used
+ * in a multi-thread and concurrent environment.
  */
 public class AndroidSQLiteDriver : SQLiteDriver {
+
+    @Suppress("INAPPLICABLE_JVM_NAME") // Due to KT-31420
+    @get:JvmName("hasConnectionPool")
+    override val hasConnectionPool: Boolean
+        get() = true
+
     override fun open(fileName: String): SQLiteConnection {
         val database = SQLiteDatabase.openOrCreateDatabase(fileName, null)
-        return AndroidSQLiteConnection(database)
+        return SupportSQLiteConnection(FrameworkSQLiteDatabase(database))
     }
 }

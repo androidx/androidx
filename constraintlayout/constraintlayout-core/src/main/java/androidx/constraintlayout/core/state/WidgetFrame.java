@@ -16,7 +16,6 @@
 
 package androidx.constraintlayout.core.state;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.motion.CustomAttribute;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.utils.TypedBundle;
@@ -28,6 +27,8 @@ import androidx.constraintlayout.core.parser.CLObject;
 import androidx.constraintlayout.core.parser.CLParsingException;
 import androidx.constraintlayout.core.widgets.ConstraintAnchor;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.Set;

@@ -29,6 +29,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ComposeUiFlags.isPointerInteropFilterDispatchingFixEnabled
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -64,7 +66,7 @@ import androidx.compose.ui.viewinterop.AndroidViewHolder
  */
 fun Modifier.pointerInteropFilter(
     requestDisallowInterceptTouchEvent: (RequestDisallowInterceptTouchEvent)? = null,
-    onTouchEvent: (MotionEvent) -> Boolean
+    onTouchEvent: (MotionEvent) -> Boolean,
 ): Modifier =
     composed(
         inspectorInfo =
@@ -133,9 +135,11 @@ internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
  * possible (during [PointerEventPass.Initial]) so that the Android View can react to down and up
  * events before Compose PointerInputModifiers normally would.
  *
- * When the type of event is a movement event, we dispatch to the Android View during
- * [PointerEventPass.Final] to allow Compose PointerInputModifiers to react to movement first, which
- * mimics a parent [ViewGroup] intercepting the event stream.
+ * When the type of event is a movement event, we start dispatching to the Android View during
+ * [PointerEventPass.Initial] if we have unconsumed events. In order to respect the Compose nested
+ * pointer input ordering, during this time we won't consume the event so Compose can take over if
+ * needed during their Main pass, we only consume during the [PointerEventPass.Initial] pass if the
+ * view requested disallow intercept.
  *
  * Whenever we are about to call [onTouchEvent], we check to see if anything in Compose consumed any
  * aspect of the pointer input changes, and if they did, we intercept the stream and dispatch
@@ -180,18 +184,21 @@ internal class PointerInteropFilter : PointerInputModifier {
     private enum class DispatchToViewState {
         /** We have yet to dispatch a new event stream to the child Android View. */
         Unknown,
+
         /**
          * We have dispatched to the child Android View and it wants to continue to receive events
          * for the current event stream.
          */
         Dispatching,
+
         /**
          * We intercepted the event stream, or the Android View no longer wanted to receive events
          * for the current event stream.
          */
-        NotDispatching
+        NotDispatching,
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     override val pointerInputFilter =
         object : PointerInputFilter() {
 
@@ -200,12 +207,25 @@ internal class PointerInteropFilter : PointerInputModifier {
             override val shareWithSiblings
                 get() = true
 
+            /**
+             * Last pointer input event that was sent to the Main Pass. We save this so we don't
+             * send the same event to the view over 2 different passes.
+             */
+            private var lastEventDispatchedToInitialPass: PointerEvent? = null
+
             override fun onPointerEvent(
                 pointerEvent: PointerEvent,
                 pass: PointerEventPass,
-                bounds: IntSize
+                bounds: IntSize,
             ) {
                 val changes = pointerEvent.changes
+
+                val isMoveEvent =
+                    changes.fastAll {
+                        !it.changedToDownIgnoreConsumed() && !it.changedToUpIgnoreConsumed()
+                    }
+
+                val hasUnconsumedMove = isMoveEvent && changes.fastAll { !it.isConsumed }
 
                 // If we were told to disallow intercept, or if the event was a down or up event,
                 // we dispatch to Android as early as possible.  If the event is a move event and
@@ -215,14 +235,40 @@ internal class PointerInteropFilter : PointerInputModifier {
                     disallowIntercept ||
                         changes.fastAny {
                             it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
-                        }
+                        } ||
+                        (hasUnconsumedMove && isPointerInteropFilterDispatchingFixEnabled)
 
                 if (state !== DispatchToViewState.NotDispatching) {
                     if (pass == PointerEventPass.Initial && dispatchDuringInitialTunnel) {
-                        dispatchToView(pointerEvent)
+                        lastEventDispatchedToInitialPass = pointerEvent
+                        val shouldConsumeNow = !isMoveEvent || disallowIntercept
+                        dispatchToView(pointerEvent, shouldConsumeNow)
                     }
-                    if (pass == PointerEventPass.Final && !dispatchDuringInitialTunnel) {
-                        dispatchToView(pointerEvent)
+
+                    // the view requested disallow during the initial pass,
+                    // consume the events before we bubble them up to Compose.
+                    if (
+                        pass == PointerEventPass.Main &&
+                            isMoveEvent &&
+                            pointerEvent == lastEventDispatchedToInitialPass &&
+                            disallowIntercept &&
+                            isPointerInteropFilterDispatchingFixEnabled
+                    ) {
+                        changes.fastForEach { it.consume() }
+                    }
+
+                    val dispatchToFinalCriteria =
+                        if (isPointerInteropFilterDispatchingFixEnabled) {
+                            pass == PointerEventPass.Final &&
+                                !dispatchDuringInitialTunnel &&
+                                // this was already dispatched during the initial pass
+                                pointerEvent != lastEventDispatchedToInitialPass
+                        } else {
+                            pass == PointerEventPass.Final && !dispatchDuringInitialTunnel
+                        }
+
+                    if (dispatchToFinalCriteria) {
+                        dispatchToView(pointerEvent, true)
                     }
                 }
                 if (pass == PointerEventPass.Final) {
@@ -230,6 +276,21 @@ internal class PointerInteropFilter : PointerInputModifier {
                     // and we reset.
                     if (changes.fastAll { it.changedToUpIgnoreConsumed() }) {
                         reset()
+                    }
+
+                    if (
+                        pointerEvent == lastEventDispatchedToInitialPass &&
+                            isMoveEvent &&
+                            isPointerInteropFilterDispatchingFixEnabled
+                    ) {
+                        // we've reached the final pass, if the motion event that was sent
+                        // during the initial pass was consumed, it means Compose claimed it
+                        // so we should stop dispatching to the View
+                        if (changes.fastAny { it.isConsumed } && !disallowIntercept) {
+                            stopDispatching(pointerEvent)
+                        } else {
+                            changes.fastForEach { it.consume() }
+                        }
                     }
                 }
             }
@@ -249,6 +310,7 @@ internal class PointerInteropFilter : PointerInputModifier {
             private fun reset() {
                 state = DispatchToViewState.Unknown
                 disallowIntercept = false
+                lastEventDispatchedToInitialPass = null
             }
 
             /**
@@ -262,22 +324,12 @@ internal class PointerInteropFilter : PointerInputModifier {
              * @param pointerEvent The change to dispatch.
              * @return The resulting changes (fully consumed or untouched).
              */
-            private fun dispatchToView(pointerEvent: PointerEvent) {
-
+            private fun dispatchToView(pointerEvent: PointerEvent, shouldConsume: Boolean) {
                 val changes = pointerEvent.changes
 
                 if (changes.fastAny { it.isConsumed }) {
                     // We should no longer dispatch to the Android View.
-                    if (state === DispatchToViewState.Dispatching) {
-                        // If we were dispatching, send ACTION_CANCEL.
-                        pointerEvent.toCancelMotionEventScope(
-                            this.layoutCoordinates?.localToRoot(Offset.Zero)
-                                ?: error("layoutCoordinates not set")
-                        ) { motionEvent ->
-                            onTouchEvent(motionEvent)
-                        }
-                    }
-                    state = DispatchToViewState.NotDispatching
+                    stopDispatching(pointerEvent)
                 } else {
                     // Dispatch and update our state with the result.
                     pointerEvent.toMotionEventScope(
@@ -301,11 +353,29 @@ internal class PointerInteropFilter : PointerInputModifier {
                     }
                     if (state === DispatchToViewState.Dispatching) {
                         // If the Android View claimed the event, consume all changes.
-                        changes.fastForEach { it.consume() }
+                        if (isPointerInteropFilterDispatchingFixEnabled) {
+                            if (shouldConsume) changes.fastForEach { it.consume() }
+                        } else {
+                            changes.fastForEach { it.consume() }
+                        }
+
                         pointerEvent.internalPointerEvent?.suppressMovementConsumption =
                             !disallowIntercept
                     }
                 }
+            }
+
+            private fun stopDispatching(pointerEvent: PointerEvent) {
+                if (state === DispatchToViewState.Dispatching) {
+                    // If we were dispatching, send ACTION_CANCEL.
+                    pointerEvent.toCancelMotionEventScope(
+                        this.layoutCoordinates?.localToRoot(Offset.Zero)
+                            ?: error("layoutCoordinates not set")
+                    ) { motionEvent ->
+                        onTouchEvent(motionEvent)
+                    }
+                }
+                state = DispatchToViewState.NotDispatching
             }
         }
 }

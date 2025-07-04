@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.unwrapRepeatedAnnotationsFromContainer
 import com.google.devtools.ksp.symbol.AnnotationUseSiteTarget
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -45,25 +44,19 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
 
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
-        containerAnnotation: KClass<out Annotation>?
-    ): List<XAnnotationBox<T>> {
+        containerAnnotation: KClass<out Annotation>?,
+    ): List<XAnnotation> {
         // we'll try both because it can be the container or the annotation itself.
         // try container first
         if (containerAnnotation != null) {
             // if container also repeats, this won't work but we don't have that use case
             findAnnotations(containerAnnotation).firstOrNull()?.let {
-                return KspAnnotationBox(
-                        env = env,
-                        annotation = it,
-                        annotationClass = containerAnnotation.java,
-                    )
-                    .getAsAnnotationBoxArray<T>("value")
-                    .toList()
+                return KspAnnotation(env = env, ksAnnotated = it).getAsAnnotationList("value")
             }
         }
         // didn't find anything with the container, try the annotation class
         return findAnnotations(annotation)
-            .map { KspAnnotationBox(env = env, annotationClass = annotation.java, annotation = it) }
+            .map { KspAnnotation(env = env, ksAnnotated = it) }
             .toList()
     }
 
@@ -75,7 +68,7 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
 
     override fun hasAnnotation(
         annotation: KClass<out Annotation>,
-        containerAnnotation: KClass<out Annotation>?
+        containerAnnotation: KClass<out Annotation>?,
     ): Boolean {
         return annotations().any {
             it.isSameAnnotationClass(annotation) ||
@@ -86,7 +79,7 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
     private class KSAnnotatedDelegate(
         env: KspProcessingEnv,
         private val delegate: KSAnnotated,
-        private val useSiteFilter: UseSiteFilter
+        private val useSiteFilter: UseSiteFilter,
     ) : KspAnnotated(env) {
         override fun annotations(): Sequence<KSAnnotation> {
             return delegate.annotations.filter { useSiteFilter.accept(env, it) }
@@ -139,38 +132,38 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
             val NO_USE_SITE_OR_FIELD: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.FIELD,
-                    acceptedTargets = setOf(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY)
+                    acceptedTargets = setOf(AnnotationTarget.FIELD, AnnotationTarget.PROPERTY),
                 )
             val NO_USE_SITE_OR_METHOD_PARAMETER: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.PARAM,
-                    acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER)
+                    acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER),
                 )
             val NO_USE_SITE_OR_GETTER: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.GET,
-                    acceptedTargets = setOf(AnnotationTarget.PROPERTY_GETTER)
+                    acceptedTargets = setOf(AnnotationTarget.PROPERTY_GETTER),
                 )
             val NO_USE_SITE_OR_SETTER: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.SET,
-                    acceptedTargets = setOf(AnnotationTarget.PROPERTY_SETTER)
+                    acceptedTargets = setOf(AnnotationTarget.PROPERTY_SETTER),
                 )
             val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.SETPARAM,
-                    acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER)
+                    acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER),
                 )
             val NO_USE_SITE_OR_RECEIVER: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.RECEIVER,
-                    acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER)
+                    acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER),
                 )
             val FILE: UseSiteFilter =
                 Impl(
                     acceptedSiteTarget = AnnotationUseSiteTarget.FILE,
                     acceptedTargets = setOf(AnnotationTarget.FILE),
-                    acceptNoTarget = false
+                    acceptNoTarget = false,
                 )
 
             internal fun KSAnnotation.getDeclaredTargets(
@@ -181,10 +174,8 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
                     annotationDeclaration.annotations
                         .firstOrNull { it.isSameAnnotationClass(kotlin.annotation.Target::class) }
                         ?.let { targetAnnotation ->
-                            KspAnnotation(env, targetAnnotation)
-                                .asAnnotationBox(kotlin.annotation.Target::class.java)
-                                .value
-                                .allowedTargets
+                            KspAnnotation(env, targetAnnotation)["allowedTargets"]?.asEnumList()
+                                ?.map { AnnotationTarget.valueOf(it.name) }
                         }
                         ?.toSet() ?: emptySet()
                 val javaTargets =
@@ -193,11 +184,9 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
                             it.isSameAnnotationClass(java.lang.annotation.Target::class)
                         }
                         ?.let { targetAnnotation ->
-                            KspAnnotation(env, targetAnnotation)
-                                .asAnnotationBox(java.lang.annotation.Target::class.java)
-                                .value
-                                .value
-                                .toList()
+                            KspAnnotation(env, targetAnnotation)["value"]?.asEnumList()?.map {
+                                ElementType.valueOf(it.name)
+                            }
                         }
                         ?.flatMap { it.toAnnotationTargets() }
                         ?.toSet() ?: emptySet()
@@ -219,7 +208,7 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
                         listOf(
                             AnnotationTarget.FUNCTION,
                             AnnotationTarget.PROPERTY_GETTER,
-                            AnnotationTarget.PROPERTY_SETTER
+                            AnnotationTarget.PROPERTY_SETTER,
                         )
                     ElementType.PARAMETER -> listOf(AnnotationTarget.VALUE_PARAMETER)
                     ElementType.CONSTRUCTOR -> listOf(AnnotationTarget.CONSTRUCTOR)
@@ -236,7 +225,7 @@ internal sealed class KspAnnotated(val env: KspProcessingEnv) : InternalXAnnotat
         fun create(
             env: KspProcessingEnv,
             delegate: KSAnnotated?,
-            filter: UseSiteFilter
+            filter: UseSiteFilter,
         ): KspAnnotated {
             return delegate?.let { KSAnnotatedDelegate(env, it, filter) } ?: NotAnnotated(env)
         }

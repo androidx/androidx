@@ -68,7 +68,7 @@ fun MenuWithScrollStateSample() {
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            scrollState = scrollState
+            scrollState = scrollState,
         ) {
             repeat(30) {
                 DropdownMenuItem(onClick = { /* Handle item! */ }) { Text("Item ${it + 1}") }

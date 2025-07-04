@@ -61,7 +61,7 @@ internal class SnapshotThreadLocal<T> {
 internal class ThreadMap(
     private val size: Int,
     private val keys: LongArray,
-    private val values: Array<Any?>
+    private val values: Array<Any?>,
 ) {
     fun get(key: Long): Any? {
         val index = find(key)

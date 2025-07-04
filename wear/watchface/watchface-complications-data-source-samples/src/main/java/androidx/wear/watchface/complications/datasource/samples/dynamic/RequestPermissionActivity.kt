@@ -40,7 +40,7 @@ class RequestPermissionActivity : Activity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         if (grantResults contentEquals intArrayOf(PERMISSION_GRANTED)) {
             setResult(RESULT_OK)

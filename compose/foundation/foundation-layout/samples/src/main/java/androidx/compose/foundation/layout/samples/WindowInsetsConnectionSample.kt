@@ -35,7 +35,7 @@ fun windowInsetsNestedScrollDemo() {
             Modifier.fillMaxSize() // fill the window
                 .imePadding() // pad out the bottom for the IME
                 .imeNestedScroll(), // scroll IME at the bottom
-        reverseLayout = true // First item is at the bottom
+        reverseLayout = true, // First item is at the bottom
     ) {
         // content
         items(50) { Text("Hello World") }

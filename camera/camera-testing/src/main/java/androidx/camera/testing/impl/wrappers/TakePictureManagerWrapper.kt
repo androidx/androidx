@@ -57,7 +57,7 @@ import kotlinx.atomicfu.atomic
  */
 public class TakePictureManagerWrapper(
     imageCaptureControl: ImageCaptureControl,
-    private val fakeCameras: List<FakeCamera>
+    private val fakeCameras: List<FakeCamera>,
 ) : TakePictureManager {
     // Try to keep the fake as close to real as possible
     private val managerDelegate = TakePictureManagerImpl(imageCaptureControl)
@@ -91,7 +91,7 @@ public class TakePictureManagerWrapper(
             } else {
                 Logger.w(
                     TAG,
-                    "Ignoring ${camera.cameraControlInternal} as it's not FakeCameraControl!"
+                    "Ignoring ${camera.cameraControlInternal} as it's not FakeCameraControl!",
                 )
             }
         }
@@ -108,7 +108,7 @@ public class TakePictureManagerWrapper(
             } else {
                 Logger.w(
                     TAG,
-                    "Ignoring ${camera.cameraControlInternal} as it's not FakeCameraControl!"
+                    "Ignoring ${camera.cameraControlInternal} as it's not FakeCameraControl!",
                 )
             }
         }
@@ -155,7 +155,7 @@ public class TakePictureManagerWrapper(
     private fun completeCapturingRequest() {
         Log.d(
             TAG,
-            "completeCapturingRequest: capturingRequest = ${managerDelegate.capturingRequest}"
+            "completeCapturingRequest: capturingRequest = ${managerDelegate.capturingRequest}",
         )
         managerDelegate.capturingRequest?.apply {
             runOnMainThread { // onCaptureStarted, onImageCaptured etc. are @MainThread annotated
@@ -175,7 +175,7 @@ public class TakePictureManagerWrapper(
                         if (secondaryOutputResults != null) {
                             Logger.w(
                                 TAG,
-                                "Simultaneous capture not supported, outputFileOptions = $outputFileOptions"
+                                "Simultaneous capture not supported, outputFileOptions = $outputFileOptions",
                             )
                         }
                         onFinalResult(
@@ -247,13 +247,13 @@ public class TakePictureManagerWrapper(
                     "createImageProxy: failed for cropRect = ${takePictureRequest.cropRect}" +
                         " which may happen due to a high resolution not being supported" +
                         ", trying again with 640x480",
-                    e
+                    e,
                 )
 
                 val bytesPacket =
                     takePictureRequest.convertBitmapToBytes(
                         createBitmap(640, 480),
-                        Rect(0, 0, 640, 480)
+                        Rect(0, 0, 640, 480),
                     )
                 Logger.d(TAG, "createImageProxy: bytesPacket size = ${bytesPacket.size}")
 
@@ -273,7 +273,7 @@ public class TakePictureManagerWrapper(
 
     private fun TakePictureRequest.convertBitmapToBytes(
         bitmap: Bitmap,
-        cropRect: Rect = this.cropRect
+        cropRect: Rect = this.cropRect,
     ): Packet<ByteArray> {
         val inputPacket =
             Packet.of(
@@ -284,7 +284,7 @@ public class TakePictureManagerWrapper(
                 cropRect,
                 rotationDegrees,
                 Matrix(),
-                FakeCameraCaptureResult()
+                FakeCameraCaptureResult(),
             )
 
         return bitmap2JpegBytes.apply(Bitmap2JpegBytes.In.of(inputPacket, jpegQuality))

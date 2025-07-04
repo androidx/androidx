@@ -62,9 +62,7 @@ class LazyPagingItemsPreviewTest {
 fun PagingPreview() {
     val data = List(50) { it }
     val flow = MutableStateFlow(PagingData.from(data))
-    CompositionLocalProvider(
-        LocalInspectionMode provides true,
-    ) {
+    CompositionLocalProvider(LocalInspectionMode provides true) {
         // Use StandardTestDispatcher so we don't start collecting on PagingData
         val lazyPagingItems = flow.collectAsLazyPagingItems(StandardTestDispatcher())
         LazyColumn(Modifier.height(500.dp)) {
@@ -82,9 +80,7 @@ fun PagingPreview() {
 fun EmptyPreview() {
     val data = emptyList<Int>()
     val flow = MutableStateFlow(PagingData.from(data))
-    CompositionLocalProvider(
-        LocalInspectionMode provides true,
-    ) {
+    CompositionLocalProvider(LocalInspectionMode provides true) {
         // Use StandardTestDispatcher so we don't start collecting on PagingData
         val lazyPagingItems = flow.collectAsLazyPagingItems(StandardTestDispatcher())
         LazyColumn(Modifier.height(500.dp)) {

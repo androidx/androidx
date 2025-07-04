@@ -53,7 +53,7 @@ class FileClassLoaderFactoryTest {
         val classLoader =
             fileClassLoaderFactory.createClassLoaderFor(
                 testSdkConfig,
-                javaClass.classLoader!!.parent!!
+                javaClass.classLoader!!.parent!!,
             )
 
         val loadedEntryPointClass = classLoader.loadClass(testSdkConfig.entryPoint)
@@ -78,7 +78,7 @@ class FileClassLoaderFactoryTest {
         val fileClassLoaderFactory =
             FileClassLoaderFactory(
                 ThrowingSdkStorage(exception = Exception("Something wrong")),
-                fallback
+                fallback,
             )
 
         fileClassLoaderFactory.createClassLoaderFor(testSdkConfig, javaClass.classLoader!!.parent!!)
@@ -105,7 +105,7 @@ class FileClassLoaderFactoryTest {
 
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
-            parent: ClassLoader
+            parent: ClassLoader,
         ): ClassLoader {
             assertThat(sdkConfig).isEqualTo(expectedSdkConfig)
             assertThat(parent).isEqualTo(expectedParent)
@@ -120,7 +120,7 @@ class FileClassLoaderFactoryTest {
         val testStorage =
             TestLocalSdkStorage(
                 context,
-                rootFolder = File(context.cacheDir, "FileClassLoaderFactoryTest")
+                rootFolder = File(context.cacheDir, "FileClassLoaderFactoryTest"),
             )
 
         return testStorage.dexFilesFor(testSdkConfig)

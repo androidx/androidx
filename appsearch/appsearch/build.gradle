@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -29,7 +29,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -45,6 +45,7 @@ dependencies {
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.core:core:1.9.0")
+    implementation(libs.guavaAndroid)
 
     annotationProcessor(project(":appsearch:appsearch-compiler"))
 
@@ -69,7 +70,7 @@ dependencies {
 
 androidx {
     name = "AppSearch"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'
 }

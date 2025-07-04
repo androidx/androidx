@@ -19,11 +19,13 @@ package androidx.wear.compose.foundation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.lerp
 import kotlin.math.PI
@@ -51,16 +53,16 @@ public fun CurvedScope.curvedComposable(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
     rotationLocked: Boolean = false,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ): Unit =
     add(
         CurvedComposableChild(
             curvedLayoutDirection.absoluteClockwise(),
             radialAlignment,
             rotationLocked,
-            content
+            content,
         ),
-        modifier
+        modifier,
     )
 
 /**
@@ -74,35 +76,41 @@ public fun CurvedScope.curvedComposable(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for " +
         "Wear OS 1.4. A newer overload is available with additional parameter to control rotation.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 public fun CurvedScope.curvedComposable(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ): Unit =
     add(
         CurvedComposableChild(
             curvedLayoutDirection.absoluteClockwise(),
             radialAlignment,
             false,
-            content
+            content,
         ),
-        modifier
+        modifier,
     )
 
 internal class CurvedComposableChild(
     val clockwise: Boolean,
     val radialAlignment: CurvedAlignment.Radial,
     val rotationLocked: Boolean,
-    val content: @Composable BoxScope.() -> Unit
+    val content: @Composable BoxScope.() -> Unit,
 ) : CurvedChild() {
     lateinit var placeable: Placeable
 
     @Composable
-    override fun SubComposition() {
+    override fun SubComposition(semanticProperties: CurvedSemanticProperties) {
         // Ensure we have a 1-1 match between CurvedComposable and composable child
-        Box(content = content)
+        Box(
+            content = content,
+            modifier =
+                if (semanticProperties.hasInfo()) {
+                    Modifier.semantics { with(semanticProperties) { applySemantics() } }
+                } else Modifier,
+        )
     }
 
     override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
@@ -120,7 +128,7 @@ internal class CurvedComposableChild(
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
-        parentThickness: Float
+        parentThickness: Float,
     ): PartialLayoutInfo {
         val parentInnerRadius = parentOuterRadius - parentThickness
 
@@ -128,7 +136,7 @@ internal class CurvedComposableChild(
         val (myInnerRadius, myOuterRadius) =
             computeAnnulusRadii(
                 lerp(parentOuterRadius, parentInnerRadius, radialAlignment.ratio),
-                radialAlignment.ratio
+                radialAlignment.ratio,
             )
 
         val sweepRadians = 2f * asin(placeable.width / 2f / myInnerRadius)
@@ -136,7 +144,7 @@ internal class CurvedComposableChild(
             sweepRadians,
             myOuterRadius,
             thickness = myOuterRadius - myInnerRadius,
-            measureRadius = (myInnerRadius + myOuterRadius) / 2 // !?
+            measureRadius = (myInnerRadius + myOuterRadius) / 2, // !?
         )
     }
 
@@ -145,7 +153,7 @@ internal class CurvedComposableChild(
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float = parentStartAngleRadians.also { this.parentSweepRadians = parentSweepRadians }
 
     override fun (Placeable.PlacementScope).placeIfNeeded() =
@@ -183,7 +191,7 @@ internal fun (Placeable.PlacementScope).place(
     layoutInfo: CurvedLayoutInfo,
     parentSweepRadians: Float,
     clockwise: Boolean,
-    rotationLocked: Boolean = false
+    rotationLocked: Boolean = false,
 ) {
     with(layoutInfo) {
         // Distance from the center of the CurvedRow to the top left of the component.
@@ -216,7 +224,7 @@ internal fun (Placeable.PlacementScope).place(
                         // Rotate around the center of the placeable.
                         transformOrigin = TransformOrigin.Center
                     }
-                }
+                },
         )
     }
 }

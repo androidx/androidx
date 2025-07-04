@@ -52,7 +52,7 @@ class ProgressIndicatorScreenshotTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 indicatorColor = Color.Green,
-                trackColor = Color.LightGray
+                trackColor = Color.LightGray,
             )
         }
 
@@ -74,7 +74,7 @@ class ProgressIndicatorScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 indicatorColor = Color.Green,
                 trackColor = Color.LightGray,
-                strokeWidth = 10.dp
+                strokeWidth = 10.dp,
             )
         }
         rule.waitForIdle()
@@ -93,7 +93,7 @@ class ProgressIndicatorScreenshotTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = 0.4f,
                 indicatorColor = Color.Green,
-                trackColor = Color.LightGray
+                trackColor = Color.LightGray,
             )
         }
 
@@ -112,7 +112,7 @@ class ProgressIndicatorScreenshotTest {
                 startAngle = -45f,
                 endAngle = 225f,
                 indicatorColor = Color.Green,
-                trackColor = Color.LightGray
+                trackColor = Color.LightGray,
             )
         }
 
@@ -130,7 +130,7 @@ class ProgressIndicatorScreenshotTest {
                 progress = 0.4f,
                 indicatorColor = Color.Green,
                 trackColor = Color.Yellow,
-                strokeWidth = 10.dp
+                strokeWidth = 10.dp,
             )
         }
 

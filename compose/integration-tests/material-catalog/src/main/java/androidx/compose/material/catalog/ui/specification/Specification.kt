@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Specification(
     specifications: List<Specification>,
-    onSpecificationClick: (specification: Specification) -> Unit
+    onSpecificationClick: (specification: Specification) -> Unit,
 ) {
     SpecificationScaffold(topBarTitle = stringResource(id = R.string.compose_material_catalog)) {
         paddingValues ->
@@ -48,7 +48,7 @@ fun Specification(
                 item {
                     Text(
                         text = stringResource(id = R.string.specifications),
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                     Spacer(modifier = Modifier.height(SpecificationPadding))
                 }
@@ -68,7 +68,7 @@ fun Specification(
                         )
                     )
                     .asPaddingValues(),
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
         )
     }
 }

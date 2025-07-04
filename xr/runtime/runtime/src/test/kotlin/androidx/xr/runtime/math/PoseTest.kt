@@ -353,7 +353,7 @@ class PoseTest {
             Pose.fromLookAt(
                 eye = Vector3.Zero,
                 target = Vector3(0f, 0f, 10f),
-                up = Vector3(0f, 1f, 0f)
+                up = Vector3(0f, 1f, 0f),
             )
 
         assertTranslation(underTest.translation, 0f, 0f, 0f)

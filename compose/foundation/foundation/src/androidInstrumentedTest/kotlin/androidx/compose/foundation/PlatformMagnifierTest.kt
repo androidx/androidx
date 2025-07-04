@@ -56,7 +56,7 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = Offset.Zero,
                 magnifierCenter = Offset.Unspecified,
-                zoom = Float.NaN
+                zoom = Float.NaN,
             )
         }
 
@@ -71,7 +71,7 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = Offset.Zero,
                 magnifierCenter = Offset.Unspecified,
-                zoom = 1f
+                zoom = 1f,
             )
 
             assertThat(magnifier.magnifier.zoom).isEqualTo(1f)
@@ -79,7 +79,7 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = Offset.Zero,
                 magnifierCenter = Offset.Unspecified,
-                zoom = 2f
+                zoom = 2f,
             )
 
             assertThat(magnifier.magnifier.zoom).isEqualTo(2f)
@@ -94,7 +94,7 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = Offset.Zero,
                 magnifierCenter = Offset.Unspecified,
-                zoom = 1f
+                zoom = 1f,
             )
 
             assertThat(magnifier.magnifier.zoom).isEqualTo(1f)
@@ -102,7 +102,7 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = Offset.Zero,
                 magnifierCenter = Offset.Unspecified,
-                zoom = Float.NaN
+                zoom = Float.NaN,
             )
 
             assertThat(magnifier.magnifier.zoom).isEqualTo(1f)
@@ -117,7 +117,7 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = Offset.Zero,
                 magnifierCenter = VIEW_SIZE.center.toOffset(),
-                zoom = Float.NaN
+                zoom = Float.NaN,
             )
         }
 
@@ -144,14 +144,14 @@ class PlatformMagnifierTest {
             magnifier.update(
                 sourceCenter = VIEW_SIZE.center.toOffset(),
                 magnifierCenter = Offset.Unspecified,
-                zoom = Float.NaN
+                zoom = Float.NaN,
             )
             val initialMagnifierPosition = magnifier.magnifier.position!!.toIntOffset()
 
             magnifier.update(
                 sourceCenter = (VIEW_SIZE.center + magnifierDelta).toOffset(),
                 magnifierCenter = Offset.Unspecified,
-                zoom = Float.NaN
+                zoom = Float.NaN,
             )
 
             assertThat(magnifier.magnifier.position!!.toIntOffset())

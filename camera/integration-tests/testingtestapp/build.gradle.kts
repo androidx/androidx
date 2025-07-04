@@ -18,12 +18,14 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
 }
 
 android {
+    compileSdk = 35
+
     namespace = "androidx.camera.integration.testingtestapp"
 
     defaultConfig {
@@ -69,6 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.core)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.espressoCore)
     implementation(libs.testRunner)
     implementation(libs.hiltAndroidTesting)
     implementation(libs.testCore)

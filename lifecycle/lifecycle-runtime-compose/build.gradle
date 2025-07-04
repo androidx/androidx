@@ -21,7 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -32,28 +33,22 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        namespace = "androidx.lifecycle.runtime.compose"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
-
         compileSdk = 35
-        aarMetadata.minCompileSdk = 35
-
+        namespace = "androidx.lifecycle.runtime.compose"
         optimization {
             it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(
-                new File(project.projectDir, "proguard-rules.pro")
-            )
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
         }
     }
-    jvmStubs()
-    linuxX64Stubs()
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -61,8 +56,14 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.compose.runtime:runtime:1.7.1")
+                api("androidx.annotation:annotation:1.9.1")
+                api(project(":compose:runtime:runtime"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
             }
         }
 
@@ -93,22 +94,84 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
             dependsOn(nonAndroidMain)
         }
 
-        linuxx64StubsMain {
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
             dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        jsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        jsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+                implementation(libs.kotlinTestJs)
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+                implementation(libs.kotlinTestWasm)
+            }
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
         }
     }
 }
 
-androidx {
-    name = "Lifecycle Runtime Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    inceptionYear = "2021"
-    description = "Compose integration with Lifecycle"
-    metalavaK2UastEnabled = false
-    samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
+dependencies {
+    lintPublish(project(":lifecycle:lifecycle-runtime-compose-lint"))
 }
 
+androidx {
+    name = "Lifecycle Runtime Compose"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2021"
+    description = "Compose integration with Lifecycle"
+    samples(project(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
+}

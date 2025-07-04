@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -43,7 +44,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
@@ -53,7 +53,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest() {
     override val pointerAreaTag = "selectionContainer"
 
@@ -75,6 +75,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                         textContent = text,
                         rule = rule,
                         textToolbar = textToolbar,
+                        spyTextActionModeCallback = spyTextActionModeCallback,
                         hapticFeedback = hapticFeedback,
                         getActual = { selection.value },
                     ) {
@@ -99,7 +100,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag)
+            modifier = Modifier.testTag(pointerAreaTag),
         ) {
             Box(Modifier.padding(32.dp), Alignment.Center) {
                 BasicText(
@@ -107,7 +108,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                     style = style,
                     maxLines = maxLinesState.value,
                     overflow = overflowState.value,
-                    modifier = Modifier.width(100.dp).testTag(textTag)
+                    modifier = Modifier.width(100.dp).testTag(textTag),
                 )
             }
         }

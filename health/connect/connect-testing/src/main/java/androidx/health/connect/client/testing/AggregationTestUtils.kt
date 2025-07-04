@@ -35,7 +35,7 @@ import java.time.Duration
 @JvmOverloads
 public fun AggregationResult(
     dataOrigins: Set<DataOrigin> = emptySet(),
-    metrics: Map<AggregateMetric<Any>, Any> = emptyMap()
+    metrics: Map<AggregateMetric<Any>, Any> = emptyMap(),
 ): AggregationResult {
     val longValuesMap = mutableMapOf<String, Long>()
     val doubleValuesMap = mutableMapOf<String, Double>()

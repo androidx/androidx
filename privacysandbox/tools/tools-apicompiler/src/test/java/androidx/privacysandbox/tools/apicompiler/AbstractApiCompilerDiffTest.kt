@@ -31,7 +31,7 @@ abstract class AbstractApiCompilerDiffTest : AbstractDiffTest() {
 
     override fun generateSources(inputSources: List<Source>, outputDirectory: Path): List<Source> {
         val result = compileWithPrivacySandboxKspCompiler(inputSources, extraProcessorOptions)
-        CompilationTestHelper.assertThat(result).succeeds()
+        CompilationTestHelper.assertThat(result).succeedsExcludingOptInWarnings()
         val sources = result.generatedSources
 
         // Writing generated sources to expected output directory.

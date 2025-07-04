@@ -205,7 +205,7 @@ internal fun ImeEditCommandScope.setComposingRegion(start: Int, end: Int) = edit
 internal fun ImeEditCommandScope.setComposingText(
     text: String,
     newCursorPosition: Int,
-    annotations: List<PlacedAnnotation>? = null
+    annotations: List<PlacedAnnotation>? = null,
 ) = edit {
     val compositionRange = composition
     if (compositionRange != null) {
@@ -215,7 +215,7 @@ internal fun ImeEditCommandScope.setComposingText(
             setComposition(
                 compositionRange.start,
                 compositionRange.start + text.length,
-                annotations
+                annotations,
             )
         }
     } else {
@@ -261,7 +261,7 @@ internal fun ImeEditCommandScope.setComposingText(
  */
 internal fun ImeEditCommandScope.deleteSurroundingText(
     lengthBeforeCursor: Int,
-    lengthAfterCursor: Int
+    lengthAfterCursor: Int,
 ) = edit {
     requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
@@ -295,7 +295,7 @@ internal fun ImeEditCommandScope.deleteSurroundingText(
  */
 internal fun ImeEditCommandScope.deleteSurroundingTextInCodePoints(
     lengthBeforeCursor: Int,
-    lengthAfterCursor: Int
+    lengthAfterCursor: Int,
 ) = edit {
     requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +

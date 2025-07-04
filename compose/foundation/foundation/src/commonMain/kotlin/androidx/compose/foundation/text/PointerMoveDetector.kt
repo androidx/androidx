@@ -35,7 +35,7 @@ import kotlinx.coroutines.isActive
  */
 internal suspend fun PointerInputScope.detectMoves(
     pointerEventPass: PointerEventPass = PointerEventPass.Initial,
-    onMove: (Offset) -> Unit
+    onMove: (Offset) -> Unit,
 ) = coroutineScope {
     val currentContext = currentCoroutineContext()
     awaitPointerEventScope {

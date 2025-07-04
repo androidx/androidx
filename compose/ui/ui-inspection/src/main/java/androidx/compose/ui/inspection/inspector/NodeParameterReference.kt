@@ -33,7 +33,7 @@ class NodeParameterReference(
     val anchorId: Int,
     val kind: ParameterKind,
     val parameterIndex: Int,
-    val indices: IntList
+    val indices: IntList,
 ) {
     // For testing:
     override fun toString(): String {
@@ -46,5 +46,5 @@ class NodeParameterReference(
 enum class ParameterKind {
     Normal,
     MergedSemantics,
-    UnmergedSemantics
+    UnmergedSemantics,
 }

@@ -65,7 +65,7 @@ class ImageAnalysisTest(
     private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @ExtensionMode.Mode private val extensionMode: Int,
-    @CameraSelector.LensFacing private val lensFacing: Int
+    @CameraSelector.LensFacing private val lensFacing: Int,
 ) {
     companion object {
         val context: Context = ApplicationProvider.getApplicationContext()
@@ -160,7 +160,7 @@ class ImageAnalysisTest(
                 extensionsCameraSelector,
                 preview,
                 imageCapture,
-                imageAnalysis
+                imageAnalysis,
             )
         }
 
@@ -181,11 +181,11 @@ class ImageAnalysisTest(
         val injectAnalysisSize =
             getOutputSizes(ImageFormat.YUV_420_888).minBy { it.width * it.height }
         // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
-        extensionsManager.setVendorExtenderFactory {
+        extensionsManager.setVendorExtenderFactory { _, _ ->
             object : VendorExtender {
                 override fun isExtensionAvailable(
                     cameraId: String,
-                    characteristicsMap: MutableMap<String, CameraCharacteristics>
+                    characteristicsMap: MutableMap<String, CameraCharacteristics>,
                 ) = true
 
                 override fun getSupportedYuvAnalysisResolutions(): Array<Size> {
@@ -198,7 +198,7 @@ class ImageAnalysisTest(
                             ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                             getOutputSizes(
                                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-                            )
+                            ),
                         )
                     )
                 }
@@ -224,7 +224,7 @@ class ImageAnalysisTest(
                 extensionsCameraSelector,
                 preview,
                 imageCapture,
-                imageAnalysis
+                imageAnalysis,
             )
 
             // 3. Assert
@@ -237,11 +237,11 @@ class ImageAnalysisTest(
         runBlocking {
             // 1. Arrange
             // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
-            extensionsManager.setVendorExtenderFactory {
+            extensionsManager.setVendorExtenderFactory { _, _ ->
                 object : VendorExtender {
                     override fun isExtensionAvailable(
                         cameraId: String,
-                        characteristicsMap: MutableMap<String, CameraCharacteristics>
+                        characteristicsMap: MutableMap<String, CameraCharacteristics>,
                     ) = true
 
                     override fun getSupportedYuvAnalysisResolutions(): Array<Size> {
@@ -255,7 +255,7 @@ class ImageAnalysisTest(
                                 ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                                 getOutputSizes(
                                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
-                                )
+                                ),
                             )
                         )
                     }
@@ -270,7 +270,7 @@ class ImageAnalysisTest(
             extensionsCameraSelector =
                 extensionsManager.getExtensionEnabledCameraSelector(
                     baseCameraSelector,
-                    extensionMode
+                    extensionMode,
                 )
             assertThat(
                     extensionsManager.isImageAnalysisSupported(baseCameraSelector, extensionMode)
@@ -288,7 +288,7 @@ class ImageAnalysisTest(
                         extensionsCameraSelector,
                         preview,
                         imageCapture,
-                        imageAnalysis
+                        imageAnalysis,
                     )
                 }
             }

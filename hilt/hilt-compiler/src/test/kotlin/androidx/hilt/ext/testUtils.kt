@@ -28,7 +28,7 @@ val GENERATED_TYPE =
         "javax.annotation.Generated"
     }
 
-val GENERATED_ANNOTATION = "@Generated(\"androidx.hilt.AndroidXHiltProcessor\")"
+const val GENERATED_ANNOTATION = "@Generated(\"androidx.hilt.AndroidXHiltProcessor\")"
 
 object Sources {
     val LISTENABLE_WORKER by lazy {

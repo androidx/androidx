@@ -40,7 +40,7 @@ import android.content.SharedPreferences
 @SuppressLint("ApplySharedPref")
 public inline fun SharedPreferences.edit(
     commit: Boolean = false,
-    action: SharedPreferences.Editor.() -> Unit
+    action: SharedPreferences.Editor.() -> Unit,
 ) {
     val editor = edit()
     action(editor)

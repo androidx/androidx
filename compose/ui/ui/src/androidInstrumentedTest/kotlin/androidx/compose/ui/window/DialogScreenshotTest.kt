@@ -75,7 +75,7 @@ class DialogScreenshotTest {
                     Modifier.graphicsLayer(
                             shadowElevation = elevation,
                             shape = RoundedCornerShape(percent = 15),
-                            clip = true
+                            clip = true,
                         )
                         .size(200.dp)
                         .background(Color(0xFFA896B0))
@@ -89,7 +89,7 @@ class DialogScreenshotTest {
             .assertAgainstGolden(
                 screenshotRule,
                 "dialogWithElevation",
-                matcher = MSSIMMatcher(threshold = 0.999)
+                matcher = MSSIMMatcher(threshold = 0.999),
             )
     }
 }

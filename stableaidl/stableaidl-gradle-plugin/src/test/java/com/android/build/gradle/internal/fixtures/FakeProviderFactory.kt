@@ -21,7 +21,7 @@ import org.gradle.api.provider.ProviderFactory
 
 class FakeProviderFactory(
     private val originalFactory: ProviderFactory,
-    private val gradleProperties: Map<String, Any>
+    private val gradleProperties: Map<String, Any>,
 ) : ProviderFactory by originalFactory {
 
     override fun gradleProperty(propertyName: String): Provider<String> {

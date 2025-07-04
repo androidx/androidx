@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,19 +39,17 @@ import java.util.Collections
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class Mesh
-/** Only for use within the ink library. Constructs a [Mesh] from native pointer. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public constructor(
+private constructor(
     /**
      * This is the raw pointer address of an `ink::Mesh` that has been heap allocated to be owned
      * solely by this JVM [Mesh] object. The C++ `Mesh` object is cheap to copy because internally
      * it keeps a `shared_ptr` to its (immutable) data. This class is responsible for freeing the
      * `Mesh` through its [finalize] method.
      */
-    private var nativeAddress: Long
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long
 ) {
 
-    public val format: MeshFormat = MeshFormat(MeshNative.allocCopyOfFormat(nativeAddress))
+    public val format: MeshFormat = MeshFormat.wrapNative(MeshNative.newCopyOfFormat(nativePointer))
 
     /**
      * Read-only access to the raw data of the vertices of the [Mesh]. Every [vertexStride] bytes in
@@ -66,14 +64,14 @@ public constructor(
      * become invalid.
      */
     public val rawVertexData: ByteBuffer =
-        (MeshNative.createRawVertexBuffer(nativeAddress) ?: ByteBuffer.allocate(0))
+        (MeshNative.createRawVertexBuffer(nativePointer) ?: ByteBuffer.allocate(0))
             .asReadOnlyBuffer()
 
     /** The number of bytes used to represent a vertex in the [rawVertexData]. */
-    public val vertexStride: Int = MeshNative.getVertexStride(nativeAddress)
+    public val vertexStride: Int = MeshNative.getVertexStride(nativePointer)
 
     /** The number of vertices in the mesh. */
-    public val vertexCount: Int = MeshNative.getVertexCount(nativeAddress)
+    public val vertexCount: Int = MeshNative.getVertexCount(nativePointer)
 
     /**
      * Read-only access to the raw data of the triangle indices of the [Mesh]. Every element in this
@@ -91,7 +89,7 @@ public constructor(
      * become invalid.
      */
     public val rawTriangleIndexData: ShortBuffer =
-        (MeshNative.createRawTriangleIndexBuffer(nativeAddress) ?: ByteBuffer.allocate(0))
+        (MeshNative.createRawTriangleIndexBuffer(nativePointer) ?: ByteBuffer.allocate(0))
             .asReadOnlyBuffer()
             .asShortBuffer()
 
@@ -99,21 +97,21 @@ public constructor(
      * The number of triangles represented in [rawTriangleIndexData]. The number of triangle indices
      * is therefore 3 * [triangleCount].
      */
-    public val triangleCount: Int = MeshNative.getTriangleCount(nativeAddress)
+    public val triangleCount: Int = MeshNative.getTriangleCount(nativePointer)
 
     /** The bounding box of the vertex positions. */
     public val bounds: Box? =
-        BoxAccumulator().apply { MeshNative.fillBounds(nativeAddress, this) }.box
+        BoxAccumulator().apply { MeshNative.fillBounds(nativePointer, this) }.box
 
     /** The transforms used to convert packed attributes into their actual values. */
     public val vertexAttributeUnpackingParams: List<MeshAttributeUnpackingParams> = run {
-        val attributeCount = MeshNative.getAttributeCount(nativeAddress)
+        val attributeCount = MeshNative.getAttributeCount(nativePointer)
         Collections.unmodifiableList(
             (0 until attributeCount).map {
                 val offsets = FloatArray(MAX_ATTRIBUTE_UNPACKING_PARAM_COMPONENTS)
                 val scales = FloatArray(MAX_ATTRIBUTE_UNPACKING_PARAM_COMPONENTS)
                 val componentCount =
-                    MeshNative.fillAttributeUnpackingParams(nativeAddress, it, offsets, scales)
+                    MeshNative.fillAttributeUnpackingParams(nativePointer, it, offsets, scales)
                 MeshAttributeUnpackingParams.create(
                     offsets.sliceArray((0 until componentCount)),
                     scales.sliceArray((0 until componentCount)),
@@ -122,14 +120,11 @@ public constructor(
         )
     }
 
-    /** Only for use within the ink library. Returns the native address held by this [Mesh]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun getNativeAddress(): Long = nativeAddress
-
     /**
      * Only for tests - creates a new empty [Mesh]. Since a [Mesh] is immutable, this serves no
      * practical purpose outside of tests.
      */
-    @VisibleForTesting internal constructor() : this(MeshNative.allocNativeNewEmptyMesh())
+    @VisibleForTesting internal constructor() : this(MeshNative.createEmpty())
 
     /**
      * Retrieve the vertex position from index [vertexIndex] (which can be up to, but not including,
@@ -140,61 +135,64 @@ public constructor(
         require(vertexIndex >= 0 && vertexIndex < vertexCount) {
             "vertexIndex=$vertexIndex must be between 0 and vertexCount=$vertexCount."
         }
-        MeshNative.fillPosition(nativeAddress, vertexIndex, outPosition)
+        MeshNative.fillPosition(nativePointer, vertexIndex, outPosition)
     }
 
     override fun toString(): String {
-        return "Mesh(bounds=$bounds, vertexCount=$vertexCount, nativeAddress=$nativeAddress)"
+        return "Mesh(bounds=$bounds, vertexCount=$vertexCount, nativePointer=$nativePointer)"
     }
 
     protected fun finalize() {
         // NOMUTANTS--Not tested post garbage collection.
-        if (nativeAddress == 0L) return
-        MeshNative.freeNative(nativeAddress)
-        nativeAddress = 0L
+        MeshNative.free(nativePointer)
     }
 
     /** Declared primarily as a target for extension functions. */
     public companion object {
         // The maximum number of components in [MeshAttributeUnpackingParams].
         private const val MAX_ATTRIBUTE_UNPACKING_PARAM_COMPONENTS = 4
+
+        /** Construct a [Mesh] from an unowned heap-allocated native pointer to a C++ `Mesh`. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun wrapNative(unownedNativePointer: Long): Mesh = Mesh(unownedNativePointer)
     }
 }
 
 /**
  * Helper object to contain native JNI calls. The alternative to this is putting the methods in
- * [Mesh] itself (passes down an unused `jobject`, and doesn't work for native calls used by
- * constructors), or in [Mesh.Companion] (makes the `JNI_METHOD` naming a little less clear).
+ * [Mesh] itself (doesn't work for native calls used by constructors), or in [Mesh.Companion] (makes
+ * the `JNI_METHOD` naming a little less clear).
  */
+@UsedByNative
 private object MeshNative {
     init {
         NativeLoader.load()
     }
 
-    @UsedByNative external fun freeNative(nativeAddress: Long)
+    @UsedByNative external fun free(nativePointer: Long)
 
     /**
      * Returns a direct [ByteBuffer] wrapped around the contents of `ink::Mesh::RawVertexData`. It
      * will be writeable, so be sure to only expose a read-only wrapper of it.
      */
-    @UsedByNative external fun createRawVertexBuffer(nativeAddress: Long): ByteBuffer?
+    @UsedByNative external fun createRawVertexBuffer(nativePointer: Long): ByteBuffer?
 
-    @UsedByNative external fun getVertexStride(nativeAddress: Long): Int
+    @UsedByNative external fun getVertexStride(nativePointer: Long): Int
 
-    @UsedByNative external fun getVertexCount(nativeAddress: Long): Int
+    @UsedByNative external fun getVertexCount(nativePointer: Long): Int
 
     /** Like [createRawVertexBuffer], but with `ink::Mesh::RawIndexData`. */
-    @UsedByNative external fun createRawTriangleIndexBuffer(nativeAddress: Long): ByteBuffer?
+    @UsedByNative external fun createRawTriangleIndexBuffer(nativePointer: Long): ByteBuffer?
 
-    @UsedByNative external fun getTriangleCount(nativeAddress: Long): Int
+    @UsedByNative external fun getTriangleCount(nativePointer: Long): Int
 
-    @UsedByNative external fun getAttributeCount(nativeAddress: Long): Int
+    @UsedByNative external fun getAttributeCount(nativePointer: Long): Int
 
     /**
      * Sets the given [BoxAccumulator] to the bounds of the mesh, including resetting the object if
      * the mesh has no bounds.
      */
-    @UsedByNative external fun fillBounds(nativeAddress: Long, boxAccumulator: BoxAccumulator)
+    @UsedByNative external fun fillBounds(nativePointer: Long, boxAccumulator: BoxAccumulator)
 
     /**
      * Set the given [offsets] and [scales] arrays (each of which must have at least
@@ -207,7 +205,7 @@ private object MeshNative {
      */
     @UsedByNative
     external fun fillAttributeUnpackingParams(
-        nativeAddress: Long,
+        nativePointer: Long,
         attributeIndex: Int,
         offsets: FloatArray,
         scales: FloatArray,
@@ -216,10 +214,10 @@ private object MeshNative {
     /**
      * Return the address of a newly allocated copy of the `ink::MeshFormat` belonging to this mesh.
      */
-    @UsedByNative external fun allocCopyOfFormat(nativeAddress: Long): Long
+    @UsedByNative external fun newCopyOfFormat(nativePointer: Long): Long
 
     @UsedByNative
-    external fun fillPosition(nativeAddress: Long, vertexIndex: Int, outPosition: MutableVec)
+    external fun fillPosition(nativePointer: Long, vertexIndex: Int, outPosition: MutableVec)
 
-    @VisibleForTesting @UsedByNative external fun allocNativeNewEmptyMesh(): Long
+    @VisibleForTesting @UsedByNative external fun createEmpty(): Long
 }

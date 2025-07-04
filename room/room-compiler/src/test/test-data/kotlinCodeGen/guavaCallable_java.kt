@@ -23,7 +23,7 @@ public class MyDao_Impl(
     this.__db = __db
   }
 
-  public override fun getListenableFuture(arg: Array<String?>?): ListenableFuture<MyEntity?>? {
+  public override fun getListenableFuture(arg: Array<out String?>?): ListenableFuture<MyEntity?>? {
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = if (arg == null) 1 else arg.size

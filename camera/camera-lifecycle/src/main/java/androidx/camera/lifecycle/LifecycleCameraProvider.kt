@@ -15,10 +15,9 @@
  */
 package androidx.camera.lifecycle
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraProvider
@@ -27,9 +26,11 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
+import androidx.camera.core.ExperimentalSessionConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -42,17 +43,36 @@ import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Provides access to a camera which has its opening and closing controlled by a [LifecycleOwner].
+ *
+ * This allows configuring multiple instances with different [Context] and [CameraXConfig]. The use
+ * cases can be bound to different camera providers simultaneously, but only one [LifecycleOwner]
+ * can be [active][Lifecycle.State.RESUMED] at a time.
+ *
+ * The sample shows how to configure and create two camera providers differently.
+ *
+ * @sample androidx.camera.lifecycle.samples.configureAndCreateInstances
  */
-// TODO: Remove the annotation when LifecycleCameraProvider is ready to be public.
-@RestrictTo(Scope.LIBRARY_GROUP)
+@ExperimentalCameraProviderConfiguration
 public interface LifecycleCameraProvider : CameraProvider {
     /**
-     * Returns `true` if the [UseCase] is bound to a lifecycle. Otherwise returns `false`.
+     * Returns `true` if this [UseCase] is bound to a lifecycle or included in a bound
+     * [SessionConfig]. Otherwise returns `false`.
      *
      * After binding a use case, use cases remain bound until the lifecycle reaches a
      * [Lifecycle.State.DESTROYED] state or if is unbound by calls to [unbind] or [unbindAll].
      */
     public fun isBound(useCase: UseCase): Boolean
+
+    /**
+     * Returns `true` if the [SessionConfig] is bound to a lifecycle. Otherwise returns `false`.
+     *
+     * After binding a [SessionConfig], this [SessionConfig] remains bound until the lifecycle
+     * reaches a [Lifecycle.State.DESTROYED] state or if is unbound by calls to [unbind] or
+     * [unbindAll].
+     */
+    @SuppressLint("NullAnnotationGroup")
+    @ExperimentalSessionConfig
+    public fun isBound(sessionConfig: SessionConfig): Boolean
 
     /**
      * Unbinds all specified use cases from the lifecycle provider.
@@ -70,6 +90,24 @@ public interface LifecycleCameraProvider : CameraProvider {
      * @throws UnsupportedOperationException If called in concurrent mode.
      */
     public fun unbind(vararg useCases: UseCase?): Unit
+
+    /**
+     * Unbinds the [SessionConfig] from the lifecycle provider.
+     *
+     * This [SessionConfig] contains the [UseCase]s to be detached from the camera. This will
+     * initiate a close of every open camera which has zero [UseCase] associated with it at the end
+     * of this call.
+     *
+     * After unbinding the [SessionConfig], another [SessionConfig] can be bound again and its
+     * [UseCase]s can be bound to another [Lifecycle].
+     *
+     * @param sessionConfig The sessionConfig that contains the collection of use cases to remove.
+     * @throws IllegalStateException If not called on main thread.
+     * @throws UnsupportedOperationException If called in concurrent mode.
+     */
+    @SuppressLint("NullAnnotationGroup")
+    @ExperimentalSessionConfig
+    public fun unbind(sessionConfig: SessionConfig): Unit
 
     /**
      * Unbinds all use cases from the lifecycle provider and removes them from CameraX.
@@ -109,9 +147,8 @@ public interface LifecycleCameraProvider : CameraProvider {
      * and the use case binding will not change. Attempting to bind the same use case to multiple
      * camera selectors is also an error and will not change the binding.
      *
-     * If different use cases are bound to different camera selectors that resolve to distinct
-     * cameras, but the same lifecycle, only one of the cameras will operate at a time. The
-     * non-operating camera will not become active until it is the only camera with use cases bound.
+     * Binding different use cases to the same lifecycle with different camera selectors that
+     * resolve to distinct cameras is an error, resulting in an exception.
      *
      * The [Camera] returned is determined by the given camera selector, plus other internal
      * requirements, possibly from use case configurations. The camera returned from bindToLifecycle
@@ -138,7 +175,7 @@ public interface LifecycleCameraProvider : CameraProvider {
     public fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
-        vararg useCases: UseCase?
+        vararg useCases: UseCase?,
     ): Camera
 
     /**
@@ -156,7 +193,63 @@ public interface LifecycleCameraProvider : CameraProvider {
     public fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
-        useCaseGroup: UseCaseGroup
+        useCaseGroup: UseCaseGroup,
+    ): Camera
+
+    /**
+     * Binds a [SessionConfig] to a [LifecycleOwner].
+     *
+     * A [SessionConfig] encapsulates the configuration required for a camera session. This
+     * includes:
+     * - A collection of [UseCase] instances defining the desired camera functionality.
+     * - Session parameters to be applied to the camera.
+     * - Common properties such as the field-of-view defined by [androidx.camera.core.ViewPort].
+     * - [androidx.camera.core.CameraEffect]s to be applied for image processing.
+     *
+     * The state of the lifecycle will determine when the cameras are open, started, stopped and
+     * closed. When started, the use cases contained in the given [SessionConfig] receive camera
+     * data and the parameters of [SessionConfig] are used for configuring the camera including
+     * common field of view, effects and the session parameters.
+     *
+     * Binding to a lifecycleOwner in state currently in [Lifecycle.State.STARTED] or greater will
+     * also initialize and start data capture. If the camera was already running this may cause a
+     * new initialization to occur temporarily stopping data from the camera before restarting it.
+     *
+     * Updates the [SessionConfig] for a given [LifecycleOwner] by invoking [bindToLifecycle] again
+     * with the new [SessionConfig]. There is no need to call [unbind] or [unbindAll]; the previous
+     * [SessionConfig] and its associated [UseCase]s will be implicitly unbound. This behavior also
+     * applies when rebinding to the same [LifecycleOwner] with a different [CameraSelector], such
+     * as when switching the camera's lens facing.
+     *
+     * **Important Restrictions:**
+     * - You cannot bind a [SessionConfig] to a [LifecycleOwner] that already has individual
+     *   [UseCase]s or a [UseCaseGroup] bound to it.
+     * - A [SessionConfig] bound to a [LifecycleOwner] cannot contain [UseCase]s that are already
+     *   bound to a different [LifecycleOwner].
+     *
+     * Violating these restrictions will result in an [IllegalStateException].
+     *
+     * The [Camera] returned is determined by the given camera selector, plus other internal
+     * requirements, possibly from use case configurations. The camera returned from bindToLifecycle
+     * may differ from the camera determined solely by a camera selector. If the camera selector
+     * can't resolve a valid camera under the requirements, an IllegalArgumentException will be
+     * thrown.
+     *
+     * @throws UnsupportedOperationException If the camera is configured in concurrent mode. For
+     *   example, if a list of [SingleCameraConfig]s was bound to the lifecycle already.
+     * @throws IllegalStateException if either of the following conditions is met:
+     * - A [UseCase] or [SessionConfig] is already bound to the same [LifecycleOwner].
+     * - A [UseCase] contained within the [SessionConfig] is already bound to a different
+     *   [LifecycleOwner].
+     *
+     * @sample androidx.camera.lifecycle.samples.bindSessionConfigToLifecycle
+     */
+    @SuppressLint("NullAnnotationGroup")
+    @ExperimentalSessionConfig
+    public fun bindToLifecycle(
+        lifecycleOwner: LifecycleOwner,
+        cameraSelector: CameraSelector,
+        sessionConfig: SessionConfig,
     ): Camera
 
     /**
@@ -258,7 +351,7 @@ public interface LifecycleCameraProvider : CameraProvider {
             return Futures.transform(
                 lifecycleCameraProvider.initAsync(context, cameraXConfig),
                 { lifecycleCameraProvider },
-                CameraXExecutors.directExecutor()
+                CameraXExecutors.directExecutor(),
             )
         }
     }

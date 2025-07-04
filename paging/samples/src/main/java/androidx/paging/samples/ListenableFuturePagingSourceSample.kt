@@ -42,7 +42,7 @@ lateinit var networkExecutor: Executor
 fun listenableFuturePagingSourceSample() {
     class MyListenableFuturePagingSource(
         val myBackend: GuavaBackendService,
-        val searchTerm: String
+        val searchTerm: String,
     ) : ListenableFuturePagingSource<String, Item>() {
         override fun loadFuture(
             params: LoadParams<String>
@@ -54,10 +54,10 @@ fun listenableFuturePagingSourceSample() {
                         LoadResult.Page(
                             data = response!!.items,
                             prevKey = response.prev,
-                            nextKey = response.next
+                            nextKey = response.next,
                         )
                     },
-                    networkExecutor
+                    networkExecutor,
                 )
                 // Retrofit calls that return the body type throw either IOException for
                 // network failures, or HttpException for any non-2xx HTTP status codes.
@@ -66,12 +66,12 @@ fun listenableFuturePagingSourceSample() {
                 .catching(
                     IOException::class.java,
                     { t: IOException? -> LoadResult.Error(t!!) },
-                    networkExecutor
+                    networkExecutor,
                 )
                 .catching(
                     HttpException::class.java,
                     { t: HttpException? -> LoadResult.Error(t!!) },
-                    networkExecutor
+                    networkExecutor,
                 )
         }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="BanSynchronizedMethods"
@@ -49,7 +49,7 @@
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
-        errorLine1="    private synchronized Drawable getCachedDrawable(@NonNull final Context context,"
+        errorLine1="    private synchronized Drawable getCachedDrawable(final @NonNull Context context,"
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
@@ -58,7 +58,7 @@
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
-        errorLine1="    private synchronized boolean addDrawableToCache(@NonNull final Context context, final long key,"
+        errorLine1="    private synchronized boolean addDrawableToCache(final @NonNull Context context, final long key,"
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
@@ -547,7 +547,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Context wrap(@NonNull final Context context) {"
+        errorLine1="    public static Context wrap(final @NonNull Context context) {"
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>

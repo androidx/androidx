@@ -39,7 +39,7 @@ class GetPublicKeyCredentialDomException
 constructor(val domError: DomError, errorMessage: CharSequence? = null) :
     GetPublicKeyCredentialException(
         TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION + SEPARATOR + domError.type,
-        errorMessage
+        errorMessage,
     ) {
     internal companion object {
         internal const val TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION: String =
@@ -54,7 +54,7 @@ constructor(val domError: DomError, errorMessage: CharSequence? = null) :
                     type,
                     prefix,
                     msg,
-                    GetPublicKeyCredentialDomException(UnknownError())
+                    GetPublicKeyCredentialDomException(UnknownError()),
                 )
             } catch (t: FrameworkClassParsingException) {
                 // Parsing failed but don't crash the process. Instead just output a response

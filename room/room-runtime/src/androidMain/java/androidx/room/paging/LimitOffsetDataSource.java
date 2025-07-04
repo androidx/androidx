@@ -18,13 +18,14 @@ package androidx.room.paging;
 
 import android.database.Cursor;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
 import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteQuery;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -49,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 @SuppressWarnings("deprecation")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;
@@ -63,8 +64,7 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
     protected LimitOffsetDataSource(@NonNull RoomDatabase db,
             @NonNull SupportSQLiteQuery query,
             boolean inTransaction,
-            @NonNull
-                    String... tables) {
+                                String @NonNull ... tables) {
         this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, tables);
     }
 
@@ -73,7 +73,7 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
             @NonNull SupportSQLiteQuery query,
             boolean inTransaction,
             boolean registerObserverImmediately,
-            @NonNull String... tables) {
+            String @NonNull ... tables) {
         this(db, RoomSQLiteQuery.copyFrom(query), inTransaction, registerObserverImmediately,
                 tables);
     }
@@ -82,7 +82,7 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
             @NonNull RoomDatabase db,
             @NonNull RoomSQLiteQuery query,
             boolean inTransaction,
-            @NonNull String... tables) {
+            String @NonNull ... tables) {
         this(db, query, inTransaction, true /*register registerObserverImmediately*/, tables);
     }
 
@@ -91,7 +91,7 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
             @NonNull RoomSQLiteQuery query,
             boolean inTransaction,
             boolean registerObserverImmediately,
-            @NonNull String... tables) {
+            String @NonNull ... tables) {
         mDb = db;
         mSourceQuery = query;
         mInTransaction = inTransaction;
@@ -144,14 +144,12 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
         return super.isInvalid();
     }
 
-    @NonNull
     @SuppressWarnings("WeakerAccess")
-    protected List<T> convertRows(@NonNull Cursor cursor) {
+    protected @NonNull List<T> convertRows(@NonNull Cursor cursor) {
         return convertRows(new CursorSQLiteStatement(cursor));
     }
 
-    @NonNull
-    protected List<T> convertRows(@NonNull SQLiteStatement statement) {
+    protected @NonNull List<T> convertRows(@NonNull SQLiteStatement statement) {
         throw new UnsupportedOperationException(
                 "Unexpected call to a function with no implementation that Room is supposed to "
                     + "generate. Please file a bug at: "
@@ -211,8 +209,7 @@ public abstract class LimitOffsetDataSource<T> extends androidx.paging.Positiona
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressWarnings("deprecation")
-    @NonNull
-    public List<T> loadRange(int startPosition, int loadCount) {
+    public @NonNull List<T> loadRange(int startPosition, int loadCount) {
         final RoomSQLiteQuery sqLiteQuery = getSQLiteQuery(startPosition, loadCount);
         if (mInTransaction) {
             mDb.beginTransaction();

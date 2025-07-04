@@ -29,10 +29,8 @@ import com.google.common.collect.SetMultimap
 
 /** Propositions for [Multimap] subjects. */
 open class MultimapSubject<K, V>
-internal constructor(
-    actual: Multimap<K, V>?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : Subject<Multimap<K, V>>(actual, metadata, typeDescriptionOverride = "multimap") {
+internal constructor(actual: Multimap<K, V>?, metadata: FailureMetadata = FailureMetadata()) :
+    Subject<Multimap<K, V>>(actual, metadata, typeDescriptionOverride = "multimap") {
 
     /** Fails if the multimap is not empty. */
     fun isEmpty() {

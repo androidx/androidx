@@ -61,7 +61,7 @@ class CircularIndeterminateProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -98,7 +98,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.setContentWithTheme {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -117,7 +117,7 @@ class CircularDeterminateProgressIndicatorTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = 1f,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -137,7 +137,7 @@ class CircularDeterminateProgressIndicatorTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = 0f,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -159,7 +159,7 @@ class CircularDeterminateProgressIndicatorTest {
                 startAngle = 0f,
                 endAngle = 180f,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -182,7 +182,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.setContentWithTheme {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -198,7 +198,7 @@ class CircularDeterminateProgressIndicatorTest {
         rule.setContentWithTheme {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
-                progress = progress.value
+                progress = progress.value,
             )
         }
 
@@ -216,7 +216,7 @@ class CircularDeterminateProgressIndicatorTest {
                 progress = 0.5f,
                 strokeWidth = 2.dp,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()
@@ -239,7 +239,7 @@ class CircularDeterminateProgressIndicatorTest {
                 progress = 0.5f,
                 strokeWidth = 8.dp,
                 indicatorColor = Color.Yellow,
-                trackColor = Color.Red
+                trackColor = Color.Red,
             )
         }
         rule.waitForIdle()

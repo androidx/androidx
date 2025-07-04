@@ -40,7 +40,7 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-actual annotation class ConstructedBy(
+public actual annotation class ConstructedBy(
     /**
      * The 'expect' declaration of an 'object' that implements
      * [androidx.room.RoomDatabaseConstructor] and is able to instantiate a

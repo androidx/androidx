@@ -734,7 +734,7 @@ class LazyListFocusMoveTest(param: FocusDirectionWrapper) {
                     state = state,
                     reverseLayout = param.reverseLayout,
                     content = content,
-                    userScrollEnabled = userScrollEnabled
+                    userScrollEnabled = userScrollEnabled,
                 )
             Up,
             Down ->
@@ -746,7 +746,7 @@ class LazyListFocusMoveTest(param: FocusDirectionWrapper) {
                     state = state,
                     reverseLayout = param.reverseLayout,
                     content = content,
-                    userScrollEnabled = userScrollEnabled
+                    userScrollEnabled = userScrollEnabled,
                 )
             else -> unsupportedDirection()
         }
@@ -757,7 +757,7 @@ class LazyListFocusMoveTest(param: FocusDirectionWrapper) {
         size: Dp,
         param: Param,
         state: LazyListState = rememberLazyListState(),
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         when (focusDirection) {
             Left,
@@ -770,7 +770,7 @@ class LazyListFocusMoveTest(param: FocusDirectionWrapper) {
                     modifier = Modifier.size(size),
                     state = state,
                     reverseLayout = param.reverseLayout,
-                    content = content
+                    content = content,
                 )
             Up,
             Down ->
@@ -778,7 +778,7 @@ class LazyListFocusMoveTest(param: FocusDirectionWrapper) {
                     modifier = Modifier.size(size),
                     state = state,
                     reverseLayout = param.reverseLayout,
-                    content = content
+                    content = content,
                 )
             else -> unsupportedDirection()
         }

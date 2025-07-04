@@ -31,7 +31,7 @@ class RealWorld4_DataModel_09() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f1: String by mutableStateOf(smallRange().map { createSomeText() }.joinToString("\n"))
@@ -42,7 +42,7 @@ class RealWorld4_DataModel_09() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f5: RealWorld4_DataModel_10 by mutableStateOf(RealWorld4_DataModel_10())
@@ -57,7 +57,7 @@ class RealWorld4_DataModel_06() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f4: Color by
@@ -65,7 +65,7 @@ class RealWorld4_DataModel_06() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f5: Int by mutableStateOf(random.nextInt())
@@ -75,7 +75,7 @@ class RealWorld4_DataModel_06() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f8: Color by
@@ -83,7 +83,7 @@ class RealWorld4_DataModel_06() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f9: Int by mutableStateOf(random.nextInt())
@@ -99,7 +99,7 @@ class RealWorld4_DataModel_08() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f3: Int by mutableStateOf(random.nextInt())
@@ -132,7 +132,7 @@ class RealWorld4_DataModel_05() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f2: Color by
@@ -140,7 +140,7 @@ class RealWorld4_DataModel_05() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f3: Color by
@@ -148,7 +148,7 @@ class RealWorld4_DataModel_05() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f4: Boolean by mutableStateOf(random.nextBoolean())
@@ -168,7 +168,7 @@ class RealWorld4_DataModel_00() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f6: String by mutableStateOf(smallRange().map { createSomeText() }.joinToString("\n"))
@@ -185,7 +185,7 @@ class RealWorld4_DataModel_02() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f4: Int by mutableStateOf(random.nextInt())
@@ -198,7 +198,7 @@ class RealWorld4_DataModel_02() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
 }
@@ -225,7 +225,7 @@ class RealWorld4_DataModel_01() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f3: Boolean by mutableStateOf(random.nextBoolean())
@@ -249,7 +249,7 @@ class RealWorld4_DataModel_03() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f1: RealWorld4_DataModel_04 by mutableStateOf(RealWorld4_DataModel_04())
@@ -259,7 +259,7 @@ class RealWorld4_DataModel_03() {
             Color(
                 red = random.nextInt(255),
                 green = random.nextInt(255),
-                blue = random.nextInt(255)
+                blue = random.nextInt(255),
             )
         )
     var f4: Boolean by mutableStateOf(random.nextBoolean())

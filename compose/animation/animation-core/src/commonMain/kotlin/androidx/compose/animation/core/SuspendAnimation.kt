@@ -45,7 +45,7 @@ public suspend fun animate(
     targetValue: Float,
     initialVelocity: Float = 0f,
     animationSpec: AnimationSpec<Float> = spring(),
-    block: (value: Float, velocity: Float) -> Unit
+    block: (value: Float, velocity: Float) -> Unit,
 ) {
     animate(Float.VectorConverter, initialValue, targetValue, initialVelocity, animationSpec, block)
 }
@@ -69,7 +69,7 @@ public suspend fun animateDecay(
     initialValue: Float,
     initialVelocity: Float,
     animationSpec: FloatDecayAnimationSpec,
-    block: (value: Float, velocity: Float) -> Unit
+    block: (value: Float, velocity: Float) -> Unit,
 ) {
     val anim = DecayAnimation(animationSpec, initialValue, initialVelocity)
     AnimationState(initialValue, initialVelocity).animate(anim) {
@@ -96,7 +96,7 @@ public suspend fun <T, V : AnimationVector> animate(
     targetValue: T,
     initialVelocity: T? = null,
     animationSpec: AnimationSpec<T> = spring(),
-    block: (value: T, velocity: T) -> Unit
+    block: (value: T, velocity: T) -> Unit,
 ) {
     val initialVelocityVector =
         initialVelocity?.let { typeConverter.convertToVector(it) }
@@ -107,7 +107,7 @@ public suspend fun <T, V : AnimationVector> animate(
             initialValue = initialValue,
             targetValue = targetValue,
             typeConverter = typeConverter,
-            initialVelocityVector = initialVelocityVector
+            initialVelocityVector = initialVelocityVector,
         )
     AnimationState(typeConverter, initialValue, initialVelocityVector).animate(anim) {
         block(value, typeConverter.convertFromVector(velocityVector))
@@ -139,7 +139,7 @@ public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
     targetValue: T,
     animationSpec: AnimationSpec<T> = spring(),
     sequentialAnimation: Boolean = false,
-    block: AnimationScope<T, V>.() -> Unit = {}
+    block: AnimationScope<T, V>.() -> Unit = {},
 ) {
     val anim =
         TargetBasedAnimation(
@@ -147,12 +147,12 @@ public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
             initialValue = value,
             targetValue = targetValue,
             typeConverter = typeConverter,
-            initialVelocityVector = velocityVector
+            initialVelocityVector = velocityVector,
         )
     animate(
         anim,
         if (sequentialAnimation) lastFrameTimeNanos else AnimationConstants.UnspecifiedTime,
-        block
+        block,
     )
 }
 
@@ -181,19 +181,19 @@ public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
 public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateDecay(
     animationSpec: DecayAnimationSpec<T>,
     sequentialAnimation: Boolean = false,
-    block: AnimationScope<T, V>.() -> Unit = {}
+    block: AnimationScope<T, V>.() -> Unit = {},
 ) {
     val anim =
         DecayAnimation<T, V>(
             animationSpec = animationSpec,
             initialValue = value,
             initialVelocityVector = velocityVector,
-            typeConverter = typeConverter
+            typeConverter = typeConverter,
         )
     animate(
         anim,
         if (sequentialAnimation) lastFrameTimeNanos else AnimationConstants.UnspecifiedTime,
-        block
+        block,
     )
 }
 
@@ -220,7 +220,7 @@ public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateDecay(
 internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
     animation: Animation<T, V>,
     startTimeNanos: Long = AnimationConstants.UnspecifiedTime,
-    block: AnimationScope<T, V>.() -> Unit = {}
+    block: AnimationScope<T, V>.() -> Unit = {},
 ) {
     val initialValue = animation.getValueFromNanos(0)
     val initialVelocityVector = animation.getVelocityVectorFromNanos(0)
@@ -238,7 +238,7 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
                             targetValue = animation.targetValue,
                             startTimeNanos = it,
                             isRunning = true,
-                            onCancel = { isRunning = false }
+                            onCancel = { isRunning = false },
                         )
                         .apply {
                             // First frame
@@ -247,7 +247,7 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
                                 durationScale,
                                 animation,
                                 this@animate,
-                                block
+                                block,
                             )
                         }
             }
@@ -261,7 +261,7 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
                         targetValue = animation.targetValue,
                         startTimeNanos = startTimeNanos,
                         isRunning = true,
-                        onCancel = { isRunning = false }
+                        onCancel = { isRunning = false },
                     )
                     .apply {
                         // First frame
@@ -270,7 +270,7 @@ internal suspend fun <T, V : AnimationVector> AnimationState<T, V>.animate(
                             coroutineContext.durationScale,
                             animation,
                             this@animate,
-                            block
+                            block,
                         )
                     }
         }
@@ -328,7 +328,7 @@ private fun <T, V : AnimationVector> AnimationScope<T, V>.doAnimationFrameWithSc
     durationScale: Float,
     anim: Animation<T, V>,
     state: AnimationState<T, V>,
-    block: AnimationScope<T, V>.() -> Unit
+    block: AnimationScope<T, V>.() -> Unit,
 ) {
     val playTimeNanos =
         if (durationScale == 0f) {
@@ -345,7 +345,7 @@ private fun <T, V : AnimationVector> AnimationScope<T, V>.doAnimationFrame(
     playTimeNanos: Long,
     anim: Animation<T, V>,
     state: AnimationState<T, V>,
-    block: AnimationScope<T, V>.() -> Unit
+    block: AnimationScope<T, V>.() -> Unit,
 ) {
     lastFrameTimeNanos = frameTimeNanos
     value = anim.getValueFromNanos(playTimeNanos)

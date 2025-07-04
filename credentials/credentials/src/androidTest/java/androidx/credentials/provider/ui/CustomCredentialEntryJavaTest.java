@@ -145,7 +145,7 @@ public class CustomCredentialEntryJavaTest {
     public void build_nullIcon_defaultIconSet() {
         CustomCredentialEntry entry = constructEntryWithRequiredParams();
         assertThat(TestUtilsKt.equals(entry.getIcon(),
-                Icon.createWithResource(mContext, R.drawable.ic_other_sign_in))).isTrue();
+                Icon.createWithResource(mContext, R.drawable.adx_ic_other_sign_in))).isTrue();
     }
     @Test
     public void builder_setPreferredDefaultIconBit_retrieveSetIconBit() {

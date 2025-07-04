@@ -35,10 +35,8 @@ internal typealias FileMoveObserver = (String?) -> Unit
  * see: b/37017033, b/279997241
  */
 @Suppress("DEPRECATION")
-internal class MulticastFileObserver
-private constructor(
-    val path: String,
-) : FileObserver(path, MOVED_TO) {
+internal class MulticastFileObserver private constructor(val path: String) :
+    FileObserver(path, MOVED_TO) {
     /**
      * The actual listeners. We are using a CopyOnWriteArrayList because this field is modified by
      * the companion object.

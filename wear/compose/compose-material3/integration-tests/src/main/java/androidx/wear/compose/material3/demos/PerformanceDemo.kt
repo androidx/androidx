@@ -48,7 +48,7 @@ fun PerformanceDemos() {
             Statistic(
                 "Current clock speed $it",
                 "$currentCpuClockSpeed",
-                currentCpuClockSpeed > 1000
+                currentCpuClockSpeed > 1000,
             )
         }
         item { Statistic("Total memory", "$totalMemory", totalMemory > 1000f) }
@@ -61,7 +61,7 @@ private fun Statistic(label: String, value: String, passed: Boolean) {
         onClick = {},
         modifier = Modifier.fillMaxWidth(),
         icon = { PassFailIcon(passed) },
-        label = { Text("$label = $value") }
+        label = { Text("$label = $value") },
     )
 }
 
@@ -70,7 +70,7 @@ private fun PassFailIcon(passed: Boolean) {
     Icon(
         imageVector = if (passed) Icons.Filled.Check else Icons.Filled.Close,
         contentDescription = if (passed) "Passed" else "Failed",
-        tint = if (passed) Color.Green else Color.Red
+        tint = if (passed) Color.Green else Color.Red,
     )
 }
 

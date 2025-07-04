@@ -22,7 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +32,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.SimpleRow
 import androidx.compose.ui.Wrap
 import androidx.compose.ui.background
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.padding
@@ -51,9 +57,13 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.spatial.RelativeLayoutBounds
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -63,6 +73,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 import kotlin.math.sqrt
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -94,7 +105,7 @@ class OnGlobalRectChangedTest {
                             modifier =
                                 Modifier.onLayoutRectChanged(0, 0) {
                                     wrap1Position = it.boundsInWindow
-                                }
+                                },
                         )
                     } else {
                         Wrap(
@@ -103,7 +114,7 @@ class OnGlobalRectChangedTest {
                             modifier =
                                 Modifier.onLayoutRectChanged(0, 0) {
                                     wrap2Position = it.boundsInWindow
-                                }
+                                },
                         )
                     }
                 }
@@ -134,7 +145,7 @@ class OnGlobalRectChangedTest {
                     modifier =
                         Modifier.onLayoutRectChanged(0, 0) {
                             realChildSize = it.boundsInRoot.size.width
-                        }
+                        },
                 )
             }
         }
@@ -168,10 +179,10 @@ class OnGlobalRectChangedTest {
                                 Modifier.onLayoutRectChanged(0, 0) { rect ->
                                     childGlobalPosition = rect.boundsInRoot.offset()
                                     latch.countDown()
-                                }
+                                },
                         )
                     }
-                }
+                },
             )
         }
 
@@ -199,21 +210,21 @@ class OnGlobalRectChangedTest {
                         minWidth = 10,
                         minHeight = 10,
                         modifier =
-                            Modifier.onLayoutRectChanged(0, 0) { wrap1OnPositionedCalled = true }
+                            Modifier.onLayoutRectChanged(0, 0) { wrap1OnPositionedCalled = true },
                     )
                     Wrap(
                         minWidth = 10,
                         minHeight = 10,
                         modifier =
-                            Modifier.onLayoutRectChanged(0, 0) { wrap2OnPositionedCalled = true }
+                            Modifier.onLayoutRectChanged(0, 0) { wrap2OnPositionedCalled = true },
                     ) {
                         Wrap(
                             minWidth = 10,
                             minHeight = 10,
-                            modifier = Modifier.onLayoutRectChanged(0, 0) { latch.countDown() }
+                            modifier = Modifier.onLayoutRectChanged(0, 0) { latch.countDown() },
                         )
                     }
-                }
+                },
             )
         }
 
@@ -270,6 +281,38 @@ class OnGlobalRectChangedTest {
             assertFalse(lambda1Called)
             assertFalse(layoutCalled)
             assertFalse(placementCalled)
+        }
+    }
+
+    @Test
+    fun columnCenteringHasCorrectPosition() {
+        var padding by mutableStateOf(0.dp)
+        var lastOffsetFromRectChanged: IntOffset? = null
+        var lastOffsetFromGloballyPositioned: IntOffset? = null
+
+        rule.setContent {
+            Column(
+                modifier = Modifier.size(200.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box(
+                    modifier =
+                        Modifier.padding(top = padding)
+                            .onLayoutRectChanged(0, 0) {
+                                lastOffsetFromRectChanged = it.positionInRoot
+                            }
+                            .onGloballyPositioned {
+                                lastOffsetFromGloballyPositioned = it.positionInRoot().round()
+                            }
+                            .size(100.dp)
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertNotNull(lastOffsetFromGloballyPositioned)
+            assertNotNull(lastOffsetFromRectChanged)
+            assertEquals(lastOffsetFromGloballyPositioned, lastOffsetFromRectChanged)
         }
     }
 
@@ -375,7 +418,7 @@ class OnGlobalRectChangedTest {
                         Modifier.onLayoutRectChanged(0, 0) {
                             coordinates = it.boundsInWindow
                             positionedLatch.countDown()
-                        }
+                        },
                 ) { _, _ ->
                     layout(100, 200) {}
                 }
@@ -394,7 +437,7 @@ class OnGlobalRectChangedTest {
 
         assertTrue(
             "OnPositioned is not called when the container scrolled",
-            positionedLatch.await(1, TimeUnit.SECONDS)
+            positionedLatch.await(1, TimeUnit.SECONDS),
         )
 
         rule.runOnIdle { assertThat(abs(view.getYInWindow().toInt() - coordinates!!.top) <= 1) }
@@ -414,7 +457,7 @@ class OnGlobalRectChangedTest {
                         .onLayoutRectChanged(0, 0) {
                             coordinates = it.boundsInWindow
                             positionedLatch.countDown()
-                        }
+                        },
             ) { _, _ ->
                 layout(100, 200) {}
             }
@@ -432,7 +475,7 @@ class OnGlobalRectChangedTest {
 
         assertTrue(
             "OnPositioned is not called when the container scrolled",
-            positionedLatch.await(1, TimeUnit.SECONDS)
+            positionedLatch.await(1, TimeUnit.SECONDS),
         )
 
         rule.runOnIdle { assertEquals(5, coordinates!!.left) }
@@ -470,7 +513,7 @@ class OnGlobalRectChangedTest {
                         Modifier.onLayoutRectChanged(0, 0) {
                             coordinates = it.boundsInWindow
                             positionedLatch.countDown()
-                        }
+                        },
                 ) { _, constraints ->
                     layout(constraints.maxWidth, constraints.maxHeight) {}
                 }
@@ -487,7 +530,7 @@ class OnGlobalRectChangedTest {
 
         assertTrue(
             "OnPositioned is not called when the container moved",
-            positionedLatch.await(1, TimeUnit.SECONDS)
+            positionedLatch.await(1, TimeUnit.SECONDS),
         )
 
         rule.runOnIdle { assertEquals(startY - 100, coordinates!!.top) }
@@ -572,6 +615,62 @@ class OnGlobalRectChangedTest {
     }
 
     @Test
+    fun testPositionInRootFromRelativeLayoutBoundsForItemsInLazyColumn() {
+        val itemCount = 20
+        val positionInRootFromRelativeLayoutBounds = Array(itemCount) { IntOffset.Max }
+        val positionInRootExpected = Array(itemCount) { IntOffset.Max }
+        val lazystate = LazyListState()
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LazyColumn(Modifier.size(200.dp, 400.dp), lazystate) {
+                    // This Lazy Column fits exactly 4 items in the viewport
+                    repeat(itemCount) { id ->
+                        item {
+                            Box(
+                                Modifier.size(100.dp)
+                                    .onLayoutRectChanged(0, 0) {
+                                        positionInRootFromRelativeLayoutBounds[id] =
+                                            it.positionInRoot
+                                    }
+                                    .onGloballyPositioned {
+                                        positionInRootExpected[id] = it.positionInRoot().round()
+                                    }
+                                    .padding(10.dp)
+                                    .background(Color.Gray)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.runOnIdle {
+            repeat(4) {
+                assertEquals(positionInRootExpected[it], positionInRootFromRelativeLayoutBounds[it])
+            }
+        }
+        // Scroll by 1/2 an item, to verify the offset change of the existing items is tracked.
+        rule.runOnIdle { runBlocking { lazystate.scrollBy(50f) } }
+        rule.runOnIdle {
+            assertEquals(0, lazystate.firstVisibleItemIndex)
+            repeat(5) {
+                val id = it
+                assertEquals(positionInRootExpected[id], positionInRootFromRelativeLayoutBounds[id])
+            }
+        }
+
+        // Scroll to item #10 to bring in a new set of items, and verify they are getting the right
+        // position from RelativeLayoutBounds
+        rule.runOnIdle { runBlocking { lazystate.scrollToItem(10, 20) } }
+        rule.runOnIdle {
+            assertEquals(10, lazystate.firstVisibleItemIndex)
+            repeat(4) {
+                val id = 10 + it
+                assertEquals(positionInRootExpected[id], positionInRootFromRelativeLayoutBounds[id])
+            }
+        }
+    }
+
+    @Test
     fun testRepositionTriggersCallback() {
         val left = mutableStateOf(30)
         var realLeft: Int? = null
@@ -639,7 +738,7 @@ class OnGlobalRectChangedTest {
             if (toggle) {
                 FixedSize(
                     30,
-                    Modifier.padding(10).onLayoutRectChanged(0, 0) { rect = it }
+                    Modifier.padding(10).onLayoutRectChanged(0, 0) { rect = it },
                 ) { /* no-op */
                 }
             }
@@ -668,6 +767,34 @@ class OnGlobalRectChangedTest {
     }
 
     @Test
+    fun testDrawOnlyUpdates() {
+        var rect: RelativeLayoutBounds? = null
+        var offset by mutableStateOf(IntOffset(0, 0))
+        rule.setContent {
+            FixedSize(
+                30,
+                Modifier.offset { offset }.onLayoutRectChanged(1, 2000) { rect = it },
+            ) { /* no-op */
+            }
+        }
+
+        // Even though debounce is set to 2s, the callback should get called right away because
+        // throttle is non-zero
+        rule.runOnIdle {
+            val rect = rect!!
+            assertEquals(IntRect(0, 0, 30, 30), rect.boundsInRoot)
+            offset = IntOffset(10, 10)
+        }
+
+        // This ensures that, even though only draw got affected (through layer offset change), the
+        // rect should get updated immediately because throttle is set to 1
+        rule.runOnIdle {
+            val rect = rect!!
+            assertEquals(IntRect(10, 10, 40, 40), rect.boundsInRoot)
+        }
+    }
+
+    @Test
     fun testLayerBoundsPositionInMovedWindow() {
         var coords: IntRect? = null
         var alignment by mutableStateOf(Alignment.Center)
@@ -678,7 +805,7 @@ class OnGlobalRectChangedTest {
                         30,
                         Modifier.padding(10).background(Color.Red).onLayoutRectChanged(0, 0) {
                             coords = it.boundsInWindow
-                        }
+                        },
                     ) { /* no-op */
                     }
                 }
@@ -730,7 +857,7 @@ class OnGlobalRectChangedTest {
         val lambda: (RelativeLayoutBounds) -> Unit = {}
         assertEquals(
             Modifier.onLayoutRectChanged(0, 0, lambda),
-            Modifier.onLayoutRectChanged(0, 0, lambda)
+            Modifier.onLayoutRectChanged(0, 0, lambda),
         )
     }
 
@@ -741,7 +868,7 @@ class OnGlobalRectChangedTest {
         val lambda2: (RelativeLayoutBounds) -> Unit = { print("bar") }
         Assert.assertNotEquals(
             Modifier.onLayoutRectChanged(0, 0, lambda1),
-            Modifier.onLayoutRectChanged(0, 0, lambda2)
+            Modifier.onLayoutRectChanged(0, 0, lambda2),
         )
     }
 
@@ -919,5 +1046,98 @@ class OnGlobalRectChangedTest {
         // Currently, it's possible to capture rectInfo and re-calculate occlusions
         // The new calculation should reflect one less occluding box
         assertThat(box0Bounds!!.calculateOcclusions().size).isEqualTo(1)
+    }
+
+    @Test
+    fun rectChangedBoundsInModifierChain() {
+        val boxSizePx = 100
+        val paddingPx = 10
+        val offsetPx = 130
+        val childBoxSizePx = 60
+        val siblingBoxSizePx = 55
+
+        var bounds0 = IntRect.Zero
+        var bounds1 = IntRect.Zero
+        var bounds2 = IntRect.Zero
+        var bounds3 = IntRect.Zero // child
+        var bounds4 = IntRect.Zero // sibling
+        rule.setContent {
+            with(rule.density) {
+                Column {
+                    Box(
+                        Modifier.size(boxSizePx.toDp())
+                            .onLayoutRectChanged(0, 0) { bounds0 = it.boundsInRoot }
+                            .padding(all = paddingPx.toDp())
+                            .onLayoutRectChanged(0, 0) { bounds1 = it.boundsInRoot }
+                            .offset(x = offsetPx.toDp(), y = offsetPx.toDp())
+                            .onLayoutRectChanged(0, 0) { bounds2 = it.boundsInRoot }
+                    ) {
+                        Box(
+                            Modifier.size(childBoxSizePx.toDp()).onLayoutRectChanged(0, 0) {
+                                bounds3 = it.boundsInRoot
+                            }
+                        )
+                    }
+                    Box(
+                        Modifier.size(siblingBoxSizePx.toDp()).onLayoutRectChanged(0, 0) {
+                            bounds4 = it.boundsInRoot
+                        }
+                    )
+                }
+            }
+        }
+        assertEquals(IntOffset.Zero, bounds0.topLeft)
+        assertEquals(IntSize(boxSizePx, boxSizePx), bounds0.size)
+
+        // After padding
+        val sizeAfterPadding = boxSizePx - (paddingPx * 2)
+        assertEquals(IntOffset(paddingPx, paddingPx), bounds1.topLeft)
+        assertEquals(IntSize(sizeAfterPadding, sizeAfterPadding), bounds1.size)
+
+        // After offset
+        assertEquals(IntOffset(paddingPx + offsetPx, paddingPx + offsetPx), bounds2.topLeft)
+        assertEquals(IntSize(sizeAfterPadding, sizeAfterPadding), bounds2.size)
+
+        // Child Box
+        assertEquals(IntOffset(paddingPx + offsetPx, paddingPx + offsetPx), bounds3.topLeft)
+        assertEquals(IntSize(childBoxSizePx, childBoxSizePx), bounds3.size)
+
+        // Sibling Box
+        assertEquals(IntOffset(0, boxSizePx), bounds4.topLeft)
+        assertEquals(IntSize(siblingBoxSizePx, siblingBoxSizePx), bounds4.size)
+    }
+
+    @Test
+    fun correctPositionInRootWhenOffsetIsProvidedByLayoutCooperation() {
+        with(rule.density) {
+            val containerSize = 100
+            val width = 50
+            val height = 40
+            var actualPosition: IntOffset = IntOffset.Max
+            rule.setContent {
+                Layout(
+                    content = {
+                        Box(
+                            Modifier.requiredSize(width.toDp(), height.toDp()).onLayoutRectChanged(
+                                0,
+                                0,
+                            ) {
+                                actualPosition = it.positionInRoot
+                            }
+                        )
+                    }
+                ) { measurables, _ ->
+                    val placeable =
+                        measurables.first().measure(Constraints.fixed(containerSize, containerSize))
+                    layout(containerSize, containerSize) { placeable.place(0, 0) }
+                }
+            }
+
+            rule.runOnIdle {
+                val expectedLeft = ((containerSize - width) / 2)
+                val expectedTop = ((containerSize - height) / 2)
+                assertThat(actualPosition).isEqualTo(IntOffset(expectedLeft, expectedTop))
+            }
+        }
     }
 }

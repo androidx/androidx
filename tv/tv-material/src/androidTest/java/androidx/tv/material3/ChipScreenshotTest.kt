@@ -51,18 +51,12 @@ class ChipScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     private val leadingIcon =
         @Composable {
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "Favourite icon",
-            )
+            Icon(imageVector = Icons.Default.Favorite, contentDescription = "Favourite icon")
         }
 
     private val trailingIcon =
         @Composable {
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "Favourite icon",
-            )
+            Icon(imageVector = Icons.Default.Favorite, contentDescription = "Favourite icon")
         }
 
     private val wrapperTestTag = "chipWrapper"

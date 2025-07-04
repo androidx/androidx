@@ -265,7 +265,7 @@ actual fun Popup(
     offset: IntOffset,
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val popupPositioner =
         remember(alignment, offset) { AlignmentOffsetPositionProvider(alignment, offset) }
@@ -274,7 +274,7 @@ actual fun Popup(
         popupPositionProvider = popupPositioner,
         onDismissRequest = onDismissRequest,
         properties = properties,
-        content = content
+        content = content,
     )
 }
 
@@ -294,7 +294,7 @@ actual fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
@@ -311,7 +311,7 @@ actual fun Popup(
                 composeView = view,
                 density = density,
                 initialPositionProvider = popupPositionProvider,
-                popupId = popupId
+                popupId = popupId,
             )
             .apply {
                 setContent(parentComposition) {
@@ -324,7 +324,7 @@ actual fun Popup(
                             }
                             // Hide the popup while we can't position it correctly
                             .alpha(if (canCalculatePosition) 1f else 0f),
-                        currentContent
+                        currentContent,
                     )
                 }
             }
@@ -336,7 +336,7 @@ actual fun Popup(
             onDismissRequest = onDismissRequest,
             properties = properties,
             testTag = testTag,
-            layoutDirection = layoutDirection
+            layoutDirection = layoutDirection,
         )
         onDispose {
             popupLayout.disposeComposition()
@@ -350,7 +350,7 @@ actual fun Popup(
             onDismissRequest = onDismissRequest,
             properties = properties,
             testTag = testTag,
-            layoutDirection = layoutDirection
+            layoutDirection = layoutDirection,
         )
     }
 
@@ -386,7 +386,7 @@ actual fun Popup(
                 // sufficient, and the coordinates are also re-calculated on every frame.
                 val parentCoordinates = childCoordinates.parentLayoutCoordinates!!
                 popupLayout.updateParentLayoutCoordinates(parentCoordinates)
-            }
+            },
     ) { _, _ ->
         popupLayout.parentLayoutDirection = layoutDirection
         layout(0, 0) {}
@@ -476,7 +476,7 @@ internal class PopupLayout(
             PopupLayoutHelperImpl29()
         } else {
             PopupLayoutHelperImpl()
-        }
+        },
 ) : AbstractComposeView(composeView.context), ViewRootForInspector {
     private val windowManager =
         composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -595,8 +595,11 @@ internal class PopupLayout(
             // platform default. Therefore, we create a new measure spec for width, which
             // corresponds to the full screen width. We do the same for height, even if
             // ViewRootImpl gives it to us from the first measure.
-            val displayWidthMeasureSpec = makeMeasureSpec(displayWidth, MeasureSpec.AT_MOST)
-            val displayHeightMeasureSpec = makeMeasureSpec(displayHeight, MeasureSpec.AT_MOST)
+            val visibleDisplayBounds = getVisibleDisplayBounds()
+            val displayWidthMeasureSpec =
+                makeMeasureSpec(visibleDisplayBounds.width, MeasureSpec.AT_MOST)
+            val displayHeightMeasureSpec =
+                makeMeasureSpec(visibleDisplayBounds.height, MeasureSpec.AT_MOST)
             super.internalOnMeasure(displayWidthMeasureSpec, displayHeightMeasureSpec)
         }
     }
@@ -612,18 +615,6 @@ internal class PopupLayout(
             popupLayoutHelper.updateViewLayout(windowManager, this, params)
         }
     }
-
-    private val displayWidth: Int
-        get() {
-            val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
-        }
-
-    private val displayHeight: Int
-        get() {
-            val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
-        }
 
     /** Taken from PopupWindow */
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -750,11 +741,7 @@ internal class PopupLayout(
         val popupContentSize = popupContentSize ?: return
 
         val windowSize =
-            previousWindowVisibleFrame.let {
-                popupLayoutHelper.getWindowVisibleDisplayFrame(composeView, it)
-                val bounds = it.toIntBounds()
-                IntSize(width = bounds.width, height = bounds.height)
-            }
+            getVisibleDisplayBounds().let { IntSize(width = it.width, height = it.height) }
 
         var popupPosition = IntOffset.Zero
         snapshotStateObserver.observeReads(this, onCommitAffectingPopupPosition) {
@@ -763,7 +750,7 @@ internal class PopupLayout(
                     parentBounds,
                     windowSize,
                     parentLayoutDirection,
-                    popupContentSize
+                    popupContentSize,
                 )
         }
 
@@ -851,6 +838,12 @@ internal class PopupLayout(
         }
     }
 
+    private fun getVisibleDisplayBounds(): IntRect =
+        previousWindowVisibleFrame.let {
+            popupLayoutHelper.getWindowVisibleDisplayFrame(composeView, it)
+            it.toIntBounds()
+        }
+
     private companion object {
         private val onCommitAffectingPopupPosition = { popupLayout: PopupLayout ->
             if (popupLayout.isAttachedToWindow) {
@@ -874,7 +867,7 @@ private object Api33Impl {
                 .findOnBackInvokedDispatcher()
                 ?.registerOnBackInvokedCallback(
                     OnBackInvokedDispatcher.PRIORITY_OVERLAY,
-                    backCallback
+                    backCallback,
                 )
         }
     }
@@ -900,7 +893,7 @@ internal interface PopupLayoutHelper {
     fun updateViewLayout(
         windowManager: WindowManager,
         popupView: View,
-        params: ViewGroup.LayoutParams
+        params: ViewGroup.LayoutParams,
     )
 }
 
@@ -916,7 +909,7 @@ private open class PopupLayoutHelperImpl : PopupLayoutHelper {
     override fun updateViewLayout(
         windowManager: WindowManager,
         popupView: View,
-        params: ViewGroup.LayoutParams
+        params: ViewGroup.LayoutParams,
     ) {
         windowManager.updateViewLayout(popupView, params)
     }
@@ -937,9 +930,7 @@ internal fun View.isFlagSecureEnabled(): Boolean {
     return false
 }
 
-private fun PopupProperties.flagsWithSecureFlagInherited(
-    isParentFlagSecureEnabled: Boolean,
-): Int =
+private fun PopupProperties.flagsWithSecureFlagInherited(isParentFlagSecureEnabled: Boolean): Int =
     when {
         this.inheritSecurePolicy && isParentFlagSecureEnabled ->
             this.flags or WindowManager.LayoutParams.FLAG_SECURE

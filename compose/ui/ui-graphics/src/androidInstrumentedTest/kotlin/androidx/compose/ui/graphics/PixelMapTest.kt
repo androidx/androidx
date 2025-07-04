@@ -85,7 +85,7 @@ class PixelMapTest {
                 width = 3,
                 height = 2,
                 buffer = IntArray(subsectionWidth * subsectionHeight + bufferOffset),
-                bufferOffset = bufferOffset
+                bufferOffset = bufferOffset,
             )
 
         Assert.assertEquals(Color.Red, pixelmap[1, 0])

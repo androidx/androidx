@@ -60,7 +60,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 NVoHXHontTwtO53p8hfMfrqxjDMhTMvoQQrE0snPp4M4O4XFb1gtWxe4+/co
                 GWJfjeJcjuJgAWv03SM/qye4NU6rjO0OKQD4hN6j9PunMH088PHQxzo2yMUj
                 H5vYOgVLUML2KewE+QTlBAtjW0g0Qk4mgZtg/g+5KP69IAQAAA==
-                """
+                """,
         )
 
     private val LocaleListStub: TestFile =
@@ -97,7 +97,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 8jQa7QMuvSMsT+tO50z1CwqfroVxRgVjGE2kRFW6+cWYiLNZmv+G5ap1gbt/
                 U8lS9ZSKM6HiYA4r9N0jP6cZ3Bq21YZ2kxQAfMreo/b7JzB9PPDx0Mcq1sjF
                 Ix+PsX4ClqKCjRPYKYopqinmhraU6gw52RRuitk/ysbdOTQEAAA=
-                """
+                """,
         )
 
     override fun getDetector() = LocaleInvalidLanguageTagDetector()
@@ -120,7 +120,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                     }
                 """
                 ),
-                LocaleStub
+                LocaleStub,
             )
             .run()
             .expectClean()
@@ -142,7 +142,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 ),
                 LocaleStub,
-                LocaleListStub
+                LocaleListStub,
             )
             .run()
             .expectClean()
@@ -164,7 +164,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 ),
                 LocaleStub,
-                LocaleListStub
+                LocaleListStub,
             )
             .run()
             .expectClean()
@@ -186,7 +186,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                     }
                 """
                 ),
-                LocaleStub
+                LocaleStub,
             )
             .run()
             .expect(
@@ -215,7 +215,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 ),
                 LocaleStub,
-                LocaleListStub
+                LocaleListStub,
             )
             .run()
             .expect(
@@ -244,7 +244,7 @@ class LocaleInvalidLanguageTagDetectorTest : LintDetectorTest() {
                 """
                 ),
                 LocaleStub,
-                LocaleListStub
+                LocaleListStub,
             )
             .run()
             .expect(

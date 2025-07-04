@@ -26,7 +26,7 @@ data class Destination(
     val args: List<Argument>,
     val actions: List<Action>,
     val nested: List<Destination> = emptyList(),
-    val included: List<IncludedDestination> = emptyList()
+    val included: List<IncludedDestination> = emptyList(),
 ) {
 
     companion object {
@@ -40,7 +40,7 @@ data class Destination(
                         } else {
                             specifiedPackage
                         }
-                    ClassName.get(classPackage, name.substringAfterLast('.'))
+                    ClassName.get(classPackage, name.replace("\\\$", "_").substringAfterLast('.'))
                 }
                 id != null -> ClassName.get(id.packageName, id.javaIdentifier.toCamelCase())
                 else -> null

@@ -45,7 +45,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
 
             @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
             public @interface Describe { }
-            """
+            """,
         )
 
     @Test
@@ -64,7 +64,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                 public class DummyClass {
                     @Describe public void emptyMethod() {}
                 }
-                """
+                """,
             )
         )
         checkSources(
@@ -75,7 +75,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                 class DummyClass {
                     @Describe fun emptyMethod() {}
                 }
-                """
+                """,
             )
         )
     }
@@ -89,7 +89,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                         "field1:I",
                         "field2:Ljava/lang/String;",
                         "field3:Ljava/lang/Object;",
-                        "field4:Ljava/util/List;"
+                        "field4:Ljava/util/List;",
                     )
             }
         }
@@ -107,8 +107,8 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe T field3;
                     @Describe List<String> field4;
                 }
-                """
-            ),
+                """,
+            )
         )
         checkSources(
             Source.kotlin(
@@ -121,7 +121,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe val field3: T = TODO()
                     @Describe val field4: List<String> = TODO()
                 }
-                """
+                """,
             )
         )
     }
@@ -172,7 +172,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe static <P extends Foo & Collection<?>> P method11() { return null; }
                 }
                 interface Foo {}
-                """
+                """,
             )
         )
         checkSources(
@@ -196,7 +196,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     }
                 }
                 interface Foo
-                """
+                """,
             )
         )
     }
@@ -239,7 +239,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     class Foo {}
                     class Bar {}
                 }
-                """
+                """,
             )
         )
         checkSources(
@@ -269,7 +269,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     class Foo
                     class Bar
                 }
-                """
+                """,
             )
         )
     }
@@ -293,7 +293,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe void method3(double realNumber1, float realNumber2) { }
                     @Describe void method4(long bigNumber, short littlerNumber) { }
                 }
-                """
+                """,
             )
         )
         checkSources(
@@ -307,7 +307,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe fun method3(realNumber1: Double, realNumber2: Float) {}
                     @Describe fun method4(bigNumber: Long, littlerNumber: Short) {}
                 }
-                """
+                """,
             )
         )
     }
@@ -321,7 +321,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                         "method1(Ljava/lang/Object;)V",
                         "method2()Ljava/lang/Object;",
                         "method3(Ljava/util/ArrayList;)Ljava/util/List;",
-                        "method4()Ljava/util/Map;"
+                        "method4()Ljava/util/Map;",
                     )
             }
         }
@@ -341,7 +341,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe List<String> method3(ArrayList<Integer> list) { return null; }
                     @Describe Map<String, Object> method4() { return null; }
                 }
-                """
+                """,
             )
         )
         checkSources(
@@ -355,7 +355,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe fun method3(list: ArrayList<Integer>): List<String> = TODO()
                     @Describe fun method4(): Map<String, Object> = TODO()
                 }
-                """
+                """,
             )
         )
     }
@@ -367,7 +367,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "method1(Landroidx/room/test/DataClass;)V",
-                        "method2()Landroidx/room/test/DataClass;"
+                        "method2()Landroidx/room/test/DataClass;",
                     )
             }
         }
@@ -377,7 +377,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                 """
                 package androidx.room.test;
                 class DataClass {}
-                """
+                """,
             ),
             Source.java(
                 "androidx.room.test.DummyClass",
@@ -387,7 +387,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe void method1(DataClass data) { }
                     @Describe DataClass method2() { return null; }
                 }
-                """
+                """,
             ),
         )
         checkSources(
@@ -400,8 +400,8 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe fun method2(): DataClass = TODO()
                 }
                 class DataClass
-                """
-            ),
+                """,
+            )
         )
     }
 
@@ -414,7 +414,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                         "method1(Landroidx/room/test/DataClass\$MemberInnerData;)V",
                         "method2(Landroidx/room/test/DataClass\$StaticInnerData;)V",
                         "method3(Landroidx/room/test/DataClass\$EnumData;)V",
-                        "method4()Landroidx/room/test/DataClass\$StaticInnerData;"
+                        "method4()Landroidx/room/test/DataClass\$StaticInnerData;",
                     )
             }
         }
@@ -428,7 +428,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     static class StaticInnerData { }
                     enum EnumData { VALUE1, VALUE2 }
                 }
-                """
+                """,
             ),
             Source.java(
                 "androidx.room.test.DummyClass",
@@ -440,7 +440,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe void method3(DataClass.EnumData enumData) { }
                     @Describe DataClass.StaticInnerData method4() { return null; }
                 }
-                """
+                """,
             ),
         )
         checkSources(
@@ -459,8 +459,8 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     class StaticInnerData
                     enum class EnumData { VALUE1, VALUE2 }
                 }
-                """
-            ),
+                """,
+            )
         )
     }
 
@@ -473,7 +473,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                         "method1([Landroidx/room/test/DataClass;)V",
                         "method2()[Landroidx/room/test/DataClass;",
                         "method3([I)V",
-                        "method4([I)V"
+                        "method4([I)V",
                     )
             }
         }
@@ -483,7 +483,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                 """
                 package androidx.room.test;
                 class DataClass {}
-                """
+                """,
             ),
             Source.java(
                 "androidx.room.test.DummyClass",
@@ -495,7 +495,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe void method3(int[] array) { }
                     @Describe void method4(int... array) { }
                 }
-                """
+                """,
             ),
         )
         checkSources(
@@ -510,15 +510,15 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe fun method4(vararg array: Int) {}
                 }
                 class DataClass
-                """
-            ),
+                """,
+            )
         )
     }
 
     private fun runTest(
         vararg sources: Source,
         kotlincArgs: List<String> = emptyList(),
-        handler: (XTestInvocation) -> Unit
+        handler: (XTestInvocation) -> Unit,
     ) {
         if (isPreCompiled) {
             val compiled = compileFiles(listOf(*sources) + describeAnnotation)
@@ -536,13 +536,13 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                 sources = newSources,
                 handler = handler,
                 classpath = compiled,
-                kotlincArguments = kotlincArgs
+                kotlincArguments = kotlincArgs,
             )
         } else {
             runProcessorTest(
                 sources = listOf(*sources) + describeAnnotation,
                 handler = handler,
-                kotlincArguments = kotlincArgs
+                kotlincArguments = kotlincArgs,
             )
         }
     }

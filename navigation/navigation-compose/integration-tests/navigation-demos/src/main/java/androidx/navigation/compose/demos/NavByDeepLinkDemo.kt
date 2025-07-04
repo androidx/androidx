@@ -69,7 +69,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
             TextField(
                 value = state.value,
                 onValueChange = { state.value = it },
-                placeholder = { Text("Enter userId here") }
+                placeholder = { Text("Enter userId here") },
             )
         }
         Divider(color = Color.Black)
@@ -77,7 +77,7 @@ fun ProfileWithDeepLink(navController: NavController, uri: String) {
             // navigate with deeplink
             onClick = { navController.navigate(Uri.parse(uri + state.value)) },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = "Navigate By DeepLink")
         }

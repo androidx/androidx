@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.integration.testapp
 
+import android.widget.TextView
 import androidx.privacysandbox.tools.integration.testsdk.MySdk
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -39,7 +40,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class MainActivityTest {
-
     @get:Rule val scenarioRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Before fun setUp() = runBlocking { getActivity().loadSdk() }
@@ -68,6 +68,29 @@ class MainActivityTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         onView(withId(R.id.sandboxedSdkView)).check(matches(hasChildCount(1)))
+    }
+
+    @Test
+    fun remoteRendering_afterGetAdapter_works(): Unit = runTest {
+        onView(withId(R.id.sandboxedSdkView)).check(matches(hasChildCount(0)))
+
+        getActivity().getUiAdapterAndRenderAd()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        onView(withId(R.id.sandboxedSdkView)).check(matches(hasChildCount(1)))
+    }
+
+    @Test
+    fun nativeUiPresentation_works(): Unit = runTest {
+        val appOwnedTextView = getActivity().findViewById<TextView>(R.id.appOwnedTextView)
+        assertThat(appOwnedTextView.text).isEqualTo("Text from app")
+        onView(withId(R.id.remoteUiView)).check(matches(hasChildCount(0)))
+
+        getActivity().renderNativeAd()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        assertThat(appOwnedTextView.text).isEqualTo("Text from SDK")
+        onView(withId(R.id.remoteUiView)).check(matches(hasChildCount(1)))
     }
 
     private suspend fun getActivity(): MainActivity = suspendCancellableCoroutine {

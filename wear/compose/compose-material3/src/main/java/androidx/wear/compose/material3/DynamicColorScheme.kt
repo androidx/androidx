@@ -20,7 +20,9 @@ import android.content.Context
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.ColorRes
+import androidx.annotation.FloatRange
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 /**
  * Creates a dynamic color scheme.
@@ -32,9 +34,7 @@ import androidx.compose.ui.graphics.Color
  *
  * @param context The context required to get system resource data.
  */
-public fun dynamicColorScheme(
-    context: Context,
-): ColorScheme? =
+public fun dynamicColorScheme(context: Context): ColorScheme? =
     if (!isDynamicColorSchemeEnabled(context)) {
         null
     } else {
@@ -56,7 +56,7 @@ public fun dynamicColorScheme(
             onSecondaryContainer =
                 ResourceHelper.getColor(
                     context,
-                    android.R.color.system_on_secondary_container_dark
+                    android.R.color.system_on_secondary_container_dark,
                 ),
             tertiary = ResourceHelper.getColor(context, android.R.color.system_tertiary_fixed),
             tertiaryDim =
@@ -73,7 +73,7 @@ public fun dynamicColorScheme(
             surfaceContainerHigh =
                 ResourceHelper.getColor(
                     context,
-                    android.R.color.system_surface_container_high_dark
+                    android.R.color.system_surface_container_high_dark,
                 ),
             onSurface = ResourceHelper.getColor(context, android.R.color.system_on_surface_dark),
             onSurfaceVariant =
@@ -85,9 +85,12 @@ public fun dynamicColorScheme(
             onBackground =
                 ResourceHelper.getColor(context, android.R.color.system_on_background_dark),
             error = ResourceHelper.getColor(context, android.R.color.system_error_dark),
-            onError = ResourceHelper.getColor(context, android.R.color.system_on_error_dark),
             errorContainer =
                 ResourceHelper.getColor(context, android.R.color.system_error_container_dark),
+            errorDim =
+                ResourceHelper.getColor(context, android.R.color.system_error_container_dark)
+                    .setLuminance(68f),
+            onError = ResourceHelper.getColor(context, android.R.color.system_on_error_dark),
             onErrorContainer =
                 ResourceHelper.getColor(context, android.R.color.system_on_error_container_dark),
         )
@@ -102,6 +105,23 @@ private object ResourceHelper {
     fun getColor(context: Context, @ColorRes id: Int): Color {
         return Color(context.resources.getColor(id, context.theme))
     }
+}
+
+/**
+ * Set the luminance(tone) of this color. Chroma may decrease because chroma has a different maximum
+ * for any given hue and luminance.
+ *
+ * @param newLuminance 0 <= newLuminance <= 100; invalid values are corrected.
+ */
+internal fun Color.setLuminance(@FloatRange(from = 0.0, to = 100.0) newLuminance: Float): Color {
+    if ((newLuminance < 0.0001) or (newLuminance > 99.9999)) {
+        return Color(CamUtils.argbFromLstar(newLuminance.toDouble()))
+    }
+
+    val baseCam: Cam = Cam.fromInt(this.toArgb())
+    val baseColor = Cam.getInt(baseCam.hue, baseCam.chroma, newLuminance)
+
+    return Color(baseColor)
 }
 
 private const val DYNAMIC_THEMING_SETTING_NAME = "dynamic_color_theme_enabled"

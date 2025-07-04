@@ -26,6 +26,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.CameraIdentifier;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
@@ -175,6 +176,11 @@ public class Camera2PhysicalCameraInfoImpl implements CameraInfo {
 
     @Override
     public @NonNull Set<CameraInfo> getPhysicalCameraInfos() {
+        throw new UnsupportedOperationException("Physical camera doesn't support this function");
+    }
+
+    @Override
+    public @NonNull CameraIdentifier getCameraIdentifier() {
         throw new UnsupportedOperationException("Physical camera doesn't support this function");
     }
 

@@ -27,17 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SectionHeader(
-    modifier: Modifier = Modifier,
-    uiModel: SectionHeaderUiModel,
-) {
+fun SectionHeader(modifier: Modifier = Modifier, uiModel: SectionHeaderUiModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.padding(start = 16.dp, end = 12.dp)
+        modifier = modifier.padding(start = 16.dp, end = 12.dp),
     ) {
         Title(
             title = uiModel.title,
-            modifier = Modifier.weight(1f).padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
+            modifier = Modifier.weight(1f).padding(top = 8.dp, bottom = 8.dp, end = 8.dp),
         )
     }
 }
@@ -48,6 +45,6 @@ private fun Title(title: String, modifier: Modifier) {
         text = title,
         style = SquadTheme.typography.medium.s14,
         color = SquadTheme.colors.sectionHeaderTitle,
-        modifier = modifier
+        modifier = modifier,
     )
 }

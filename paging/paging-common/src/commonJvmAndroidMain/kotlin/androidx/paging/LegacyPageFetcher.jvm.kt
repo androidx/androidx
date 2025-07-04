@@ -31,7 +31,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
     private val notifyDispatcher: CoroutineDispatcher,
     private val fetchDispatcher: CoroutineDispatcher,
     val pageConsumer: PageConsumer<V>,
-    private val keyProvider: KeyProvider<K>
+    private val keyProvider: KeyProvider<K>,
 ) {
     private val detached = AtomicBoolean(false)
 
@@ -81,7 +81,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         } else {
             loadStateManager.setState(
                 type,
-                if (value.data.isEmpty()) NotLoading.Complete else NotLoading.Incomplete
+                if (value.data.isEmpty()) NotLoading.Complete else NotLoading.Incomplete,
             )
         }
     }
@@ -121,12 +121,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
 
         loadStateManager.setState(LoadType.PREPEND, Loading)
 
-        val loadParams =
-            LoadParams.Prepend(
-                key,
-                config.pageSize,
-                config.enablePlaceholders,
-            )
+        val loadParams = LoadParams.Prepend(key, config.pageSize, config.enablePlaceholders)
         scheduleLoad(LoadType.PREPEND, loadParams)
     }
 
@@ -138,12 +133,7 @@ internal class LegacyPageFetcher<K : Any, V : Any>(
         }
 
         loadStateManager.setState(LoadType.APPEND, Loading)
-        val loadParams =
-            LoadParams.Append(
-                key,
-                config.pageSize,
-                config.enablePlaceholders,
-            )
+        val loadParams = LoadParams.Append(key, config.pageSize, config.enablePlaceholders)
         scheduleLoad(LoadType.APPEND, loadParams)
     }
 

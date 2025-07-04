@@ -24,6 +24,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Logger
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.CameraAvailabilityUtil.assumeDeviceHasFrontCamera
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -49,26 +50,24 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class EffectsFragmentDeviceTest(
     private val implName: String,
-    private val cameraConfig: CameraXConfig
+    private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraControllerFragmentTest.testCameraRule,
-            CameraUtil.PreTestCameraIdList(cameraConfig)
+            CameraUtil.PreTestCameraIdList(cameraConfig),
         )
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.RECORD_AUDIO
+            android.Manifest.permission.RECORD_AUDIO,
         )
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -89,7 +88,7 @@ class EffectsFragmentDeviceTest(
                 EffectsFragment::class.java,
                 null,
                 R.style.AppTheme,
-                null
+                null,
             )
         fragment = fragmentScenario.getFragment()
     }
@@ -106,6 +105,8 @@ class EffectsFragmentDeviceTest(
 
     @Test
     fun toggleCameraLatencyTest() {
+        assumeDeviceHasFrontCamera()
+
         // Arrange: use COMPATIBLE mode to get an accurate measurement.
         instrumentation.runOnMainSync {
             fragment.previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
@@ -204,7 +205,7 @@ class EffectsFragmentDeviceTest(
         fun data() =
             listOf(
                 arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
             )
     }
 }

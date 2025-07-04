@@ -278,8 +278,8 @@ package androidx.core.widget {
     method public android.widget.RemoteViews getItemView(int position);
     method public int getViewTypeCount();
     method public boolean hasStableIds();
-    property public final int itemCount;
-    property public final int viewTypeCount;
+    property public int itemCount;
+    property public int viewTypeCount;
   }
 
   public static final class RemoteViewsCompat.RemoteCollectionItems.Builder {

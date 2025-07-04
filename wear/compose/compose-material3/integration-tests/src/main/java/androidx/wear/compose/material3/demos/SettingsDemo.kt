@@ -35,7 +35,7 @@ fun SettingsDemo() {
         item {
             SettingsChip(
                 painterResourceId = R.drawable.ic_settings_connectivity,
-                text = "Connectivity"
+                text = "Connectivity",
             )
         }
         // Display
@@ -50,7 +50,7 @@ fun SettingsDemo() {
         item {
             SettingsChip(
                 painterResourceId = R.drawable.ic_settings_apps,
-                text = "Apps & Notifications"
+                text = "Apps & Notifications",
             )
         }
         // Google
@@ -71,7 +71,7 @@ fun SettingsDemo() {
         item {
             SettingsChip(
                 painterResourceId = R.drawable.ic_settings_health_profile,
-                text = "Health Profile"
+                text = "Health Profile",
             )
         }
         // Location
@@ -82,14 +82,14 @@ fun SettingsDemo() {
         item {
             SettingsChip(
                 painterResourceId = R.drawable.ic_settings_emergency,
-                text = "Safety and Emergency"
+                text = "Safety and Emergency",
             )
         }
         // Accessibility
         item {
             SettingsChip(
                 painterResourceId = R.drawable.ic_settings_accessibility,
-                text = "Accessibility"
+                text = "Accessibility",
             )
         }
         // Security
@@ -108,6 +108,6 @@ private fun SettingsChip(painterResourceId: Int, text: String) {
         modifier = Modifier.fillMaxSize(),
         colors = ButtonDefaults.filledTonalButtonColors(),
         icon = { Icon(painter = painterResource(painterResourceId), contentDescription = text) },
-        label = { Text(text) }
+        label = { Text(text) },
     )
 }

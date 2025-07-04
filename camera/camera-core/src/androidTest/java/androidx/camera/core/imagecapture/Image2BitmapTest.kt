@@ -68,7 +68,7 @@ class Image2BitmapTest {
                 Rect(0, 0, Utils.WIDTH, Utils.HEIGHT),
                 rotationDegrees,
                 Matrix(),
-                Utils.CAMERA_CAPTURE_RESULT
+                Utils.CAMERA_CAPTURE_RESULT,
             )
         val inputDecodedBitmap = ImageUtil.createBitmapFromImageProxy(yuvImage)
 
@@ -117,7 +117,7 @@ class Image2BitmapTest {
                 Rect(0, 0, Utils.WIDTH, Utils.HEIGHT),
                 rotationDegrees,
                 Matrix(),
-                Utils.CAMERA_CAPTURE_RESULT
+                Utils.CAMERA_CAPTURE_RESULT,
             )
         val inputDecodedBitmap = BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.size)
 

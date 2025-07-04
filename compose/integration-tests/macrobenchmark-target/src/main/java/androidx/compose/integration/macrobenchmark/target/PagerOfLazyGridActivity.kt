@@ -72,7 +72,7 @@ private fun HorizontalPagerOfLazyGrid(pages: Int = 100, gridItems: Int = 100) {
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.semantics { contentDescription = "Pager" }
+            modifier = Modifier.semantics { contentDescription = "Pager" },
         ) { page: Int ->
             Grid(gridItems, page)
         }
@@ -82,10 +82,7 @@ private fun HorizontalPagerOfLazyGrid(pages: Int = 100, gridItems: Int = 100) {
 @Composable
 private fun Grid(itemCount: Int, pageNum: Int) {
     val text = remember(pageNum) { "Hello + $pageNum" }
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Fixed(3),
-    ) {
+    LazyVerticalGrid(modifier = Modifier.fillMaxSize(), columns = GridCells.Fixed(3)) {
         items(itemCount, contentType = { "cell" }) { _ ->
             Button(onClick = {}) { Text(text = text) }
         }

@@ -23,5 +23,5 @@ import androidx.compose.material.ExperimentalMaterialApi
 internal enum class AnchoredDraggableTestValue {
     A,
     B,
-    C
+    C,
 }

@@ -42,7 +42,7 @@ class TextViewCompoundDrawablesApiDetectorTest {
                     textView.setCompoundDrawableTintList(csl)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -84,7 +84,7 @@ src/com/example/CustomActivity.kt:11: Warning: Use TextViewCompat.setCompoundDra
                     textView.setCompoundDrawableTintMode(PorterDuff.Mode.DST)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

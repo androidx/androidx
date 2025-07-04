@@ -234,7 +234,7 @@ internal constructor(internal val type: KeyType) {
         ): () -> PagingSource<Key, Value> =
             SuspendingPagingSourceFactory(
                 delegate = { LegacyPagingSource(fetchDispatcher, create()) },
-                dispatcher = fetchDispatcher
+                dispatcher = fetchDispatcher,
             )
     }
 
@@ -389,7 +389,7 @@ internal constructor(internal val type: KeyType) {
         val key: K?,
         val initialLoadSize: Int,
         val placeholdersEnabled: Boolean,
-        val pageSize: Int
+        val pageSize: Int,
     ) {
         init {
             if (type != LoadType.REFRESH && key == null) {
@@ -405,7 +405,7 @@ internal constructor(internal val type: KeyType) {
         val prevKey: Any?,
         val nextKey: Any?,
         val itemsBefore: Int = COUNT_UNDEFINED,
-        val itemsAfter: Int = COUNT_UNDEFINED
+        val itemsAfter: Int = COUNT_UNDEFINED,
     ) {
         init {
             if (itemsBefore < 0 && itemsBefore != COUNT_UNDEFINED) {
@@ -469,14 +469,14 @@ internal constructor(internal val type: KeyType) {
 
             internal fun <ToValue : Any, Value : Any> convert(
                 result: BaseResult<ToValue>,
-                function: Function<List<ToValue>, List<Value>>
+                function: Function<List<ToValue>, List<Value>>,
             ) =
                 BaseResult(
                     data = convert(function, result.data),
                     prevKey = result.prevKey,
                     nextKey = result.nextKey,
                     itemsBefore = result.itemsBefore,
-                    itemsAfter = result.itemsAfter
+                    itemsAfter = result.itemsAfter,
                 )
         }
     }
@@ -484,7 +484,7 @@ internal constructor(internal val type: KeyType) {
     internal enum class KeyType {
         POSITIONAL,
         PAGE_KEYED,
-        ITEM_KEYED
+        ITEM_KEYED,
     }
 
     internal abstract suspend fun load(params: Params<Key>): BaseResult<Value>
@@ -494,7 +494,7 @@ internal constructor(internal val type: KeyType) {
     internal companion object {
         internal fun <A, B> convert(
             function: Function<List<A>, List<B>>,
-            source: List<A>
+            source: List<A>,
         ): List<B> {
             val dest = function.apply(source)
             if (dest.size != source.size) {

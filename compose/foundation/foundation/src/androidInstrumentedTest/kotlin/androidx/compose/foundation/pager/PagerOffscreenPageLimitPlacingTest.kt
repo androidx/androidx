@@ -51,7 +51,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     beyondViewportPageCount = 1,
                     orientation = it.orientation,
                     pageSpacing = it.pageSpacing,
-                    contentPadding = it.mainAxisContentPadding
+                    contentPadding = it.mainAxisContentPadding,
                 )
             }
 
@@ -95,7 +95,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     beyondViewportPageCount = 2,
                     orientation = it.orientation,
                     pageSpacing = it.pageSpacing,
-                    contentPadding = it.mainAxisContentPadding
+                    contentPadding = it.mainAxisContentPadding,
                 )
             }
 
@@ -130,7 +130,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     beyondViewportPageCount = 0,
                     orientation = it.orientation,
                     pageSpacing = it.pageSpacing,
-                    contentPadding = it.mainAxisContentPadding
+                    contentPadding = it.mainAxisContentPadding,
                 )
             }
 
@@ -162,7 +162,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     pageSize = PageSize.Fixed(pageSizeDp),
                     beyondViewportPageCount = it.beyondViewportPageCount,
                     orientation = it.orientation,
-                    pageSpacing = it.pageSpacing
+                    pageSpacing = it.pageSpacing,
                 )
             }
 
@@ -174,7 +174,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                                 SingleParamConfig(
                                     orientation = orientation,
                                     pageSpacing = pageSpacing,
-                                    beyondViewportPageCount = 2
+                                    beyondViewportPageCount = 2,
                                 )
                             )
                         }
@@ -205,12 +205,12 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                     param.confirmPageIsInCorrectPosition(
                         pagerState.currentPage,
                         lastVisible + 1,
-                        pagerState.currentPageOffsetFraction
+                        pagerState.currentPageOffsetFraction,
                     )
                     param.confirmPageIsInCorrectPosition(
                         pagerState.currentPage,
                         lastVisible + 2,
-                        pagerState.currentPageOffsetFraction
+                        pagerState.currentPageOffsetFraction,
                     )
                     resetTestCase(initialIndex)
                 }
@@ -227,7 +227,7 @@ class PagerOffscreenPageLimitPlacingTest : SingleParamBasePagerTest() {
                                 SingleParamConfig(
                                     orientation = orientation,
                                     pageSpacing = pageSpacing,
-                                    mainAxisContentPadding = contentPadding
+                                    mainAxisContentPadding = contentPadding,
                                 )
                             )
                         }

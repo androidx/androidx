@@ -63,8 +63,7 @@ import kotlin.math.roundToInt
 // TODO: b/149825331 add documentation references to Scaffold here and samples for using
 // BottomNavigation inside a Scaffold
 /**
- * <a href="https://material.io/components/bottom-navigation" class="external"
- * target="_blank">Material Design bottom navigation</a>.
+ * [Material Design bottom navigation](https://material.io/components/bottom-navigation)
  *
  * Bottom navigation bars allow movement between primary destinations in an app.
  *
@@ -104,13 +103,13 @@ fun BottomNavigation(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationDefaults.Elevation,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     Surface(
         color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
-        modifier = modifier
+        modifier = modifier,
     ) {
         Row(
             Modifier.fillMaxWidth()
@@ -118,14 +117,13 @@ fun BottomNavigation(
                 .defaultMinSize(minHeight = BottomNavigationHeight)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            content = content
+            content = content,
         )
     }
 }
 
 /**
- * <a href="https://material.io/components/bottom-navigation" class="external"
- * target="_blank">Material Design bottom navigation</a>.
+ * [Material Design bottom navigation](https://material.io/components/bottom-navigation)
  *
  * Bottom navigation bars allow movement between primary destinations in an app.
  *
@@ -160,14 +158,13 @@ fun BottomNavigation(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationDefaults.Elevation,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     BottomNavigation(ZeroInsets, modifier, backgroundColor, contentColor, elevation, content)
 }
 
 /**
- * <a href="https://material.io/components/bottom-navigation" class="external"
- * target="_blank">Material Design bottom navigation</a> item.
+ * [Material Design bottom navigation](https://material.io/components/bottom-navigation)
  *
  * The recommended configuration for a BottomNavigationItem depends on how many items there are
  * inside a [BottomNavigation]:
@@ -208,7 +205,7 @@ fun RowScope.BottomNavigationItem(
     alwaysShowLabel: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
     selectedContentColor: Color = LocalContentColor.current,
-    unselectedContentColor: Color = selectedContentColor.copy(alpha = ContentAlpha.medium)
+    unselectedContentColor: Color = selectedContentColor.copy(alpha = ContentAlpha.medium),
 ) {
     val styledLabel: @Composable (() -> Unit)? =
         label?.let {
@@ -230,10 +227,10 @@ fun RowScope.BottomNavigationItem(
                 enabled = enabled,
                 role = Role.Tab,
                 interactionSource = interactionSource,
-                indication = ripple
+                indication = ripple,
             )
             .weight(1f),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         BottomNavigationTransition(selectedContentColor, unselectedContentColor, selected) {
             progress ->
@@ -242,7 +239,7 @@ fun RowScope.BottomNavigationItem(
             BottomNavigationItemBaselineLayout(
                 icon = icon,
                 label = styledLabel,
-                iconPositionAnimationProgress = animationProgress
+                iconPositionAnimationProgress = animationProgress,
             )
         }
     }
@@ -279,12 +276,12 @@ private fun BottomNavigationTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    content: @Composable (animationProgress: Float) -> Unit
+    content: @Composable (animationProgress: Float) -> Unit,
 ) {
     val animationProgress by
         animateFloatAsState(
             targetValue = if (selected) 1f else 0f,
-            animationSpec = BottomNavigationAnimationSpec
+            animationSpec = BottomNavigationAnimationSpec,
         )
 
     val color = lerp(inactiveColor, activeColor, animationProgress)
@@ -311,7 +308,7 @@ private fun BottomNavigationTransition(
 private fun BottomNavigationItemBaselineLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
-    @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
+    @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float,
 ) {
     Layout({
         Box(Modifier.layoutId("icon")) { icon() }
@@ -347,7 +344,7 @@ private fun BottomNavigationItemBaselineLayout(
                 labelPlaceable!!,
                 iconPlaceable,
                 constraints,
-                iconPositionAnimationProgress
+                iconPositionAnimationProgress,
             )
         }
     }
@@ -356,7 +353,7 @@ private fun BottomNavigationItemBaselineLayout(
 /** Places the provided [iconPlaceable] in the vertical center of the provided [constraints] */
 private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
-    constraints: Constraints
+    constraints: Constraints,
 ): MeasureResult {
     val height = constraints.constrainHeight(BottomNavigationHeight.roundToPx())
     val iconY = (height - iconPlaceable.height) / 2
@@ -387,7 +384,7 @@ private fun MeasureScope.placeLabelAndIcon(
     labelPlaceable: Placeable,
     iconPlaceable: Placeable,
     constraints: Constraints,
-    @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float
+    @FloatRange(from = 0.0, to = 1.0) iconPositionAnimationProgress: Float,
 ): MeasureResult {
     val firstBaseline = labelPlaceable[FirstBaseline]
     val baselineOffset = CombinedItemTextBaseline.roundToPx()

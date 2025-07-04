@@ -22,7 +22,6 @@ import android.content.UriMatcher;
 import android.net.Uri;
 
 import androidx.core.util.Predicate;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +30,6 @@ import org.robolectric.RobolectricTestRunner;
 /**
  * Tests for {@link UriMatcherCompat}
  */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class UriMatcherCompatTest {
     static final int ROOT = 0;

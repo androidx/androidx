@@ -41,7 +41,7 @@ internal fun initializeTest(activity: MainActivity, params: CameraParams?, confi
         activity.updateLog(
             "ABORTED: Camera1 API cannot access camera with id:" + config.camera,
             false,
-            false
+            false,
         )
         return
     }
@@ -251,7 +251,7 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
 internal fun runMultiPhotoChainTest(
     activity: MainActivity,
     params: CameraParams,
-    config: TestConfig
+    config: TestConfig,
 ) {
 
     // Cannot chain with Camera 1, run default test

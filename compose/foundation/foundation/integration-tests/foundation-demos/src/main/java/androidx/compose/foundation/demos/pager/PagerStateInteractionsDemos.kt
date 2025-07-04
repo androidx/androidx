@@ -40,7 +40,7 @@ val PagerStateInteractions =
         },
         ComposableDemo("Moving Pages Programmatically and Observing Changes") {
             StateDrivenPageWithMonitor()
-        }
+        },
     )
 
 @Composable
@@ -96,7 +96,7 @@ private fun StateMonitoringCustomPageSize() {
             modifier = Modifier.weight(0.9f),
             state = pagerState,
             pageSize = PageSize.Fixed(96.dp),
-            flingBehavior = fling
+            flingBehavior = fling,
         ) {
             PagerItem(it)
         }

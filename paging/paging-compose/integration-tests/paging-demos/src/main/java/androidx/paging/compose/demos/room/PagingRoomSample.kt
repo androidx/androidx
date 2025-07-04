@@ -107,7 +107,7 @@ fun PagingRoomDemo() {
                 Text(
                     text = "counter=$counter index=$index ${user?.name} ${user?.id}",
                     fontSize = 50.sp,
-                    modifier = Modifier.clickable { counter++ }
+                    modifier = Modifier.clickable { counter++ },
                 )
             }
         }
@@ -128,5 +128,5 @@ val Names =
         "Noah",
         "Olivia",
         "Emma",
-        "Ava"
+        "Ava",
     )

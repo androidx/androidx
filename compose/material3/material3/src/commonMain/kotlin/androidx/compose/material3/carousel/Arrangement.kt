@@ -32,7 +32,7 @@ internal class Arrangement(
     val mediumSize: Float,
     val mediumCount: Int,
     val largeSize: Float,
-    val largeCount: Int
+    val largeCount: Int,
 ) {
 
     private fun isValid(): Boolean {
@@ -105,7 +105,7 @@ internal class Arrangement(
             targetMediumSize: Float,
             mediumCounts: IntArray,
             targetLargeSize: Float,
-            largeCounts: IntArray
+            largeCounts: IntArray,
         ): Arrangement? {
             var lowestCostArrangement: Arrangement? = null
             var priority = 1
@@ -180,7 +180,7 @@ internal class Arrangement(
             mediumCount: Int,
             mediumSize: Float,
             largeCount: Int,
-            largeSize: Float
+            largeSize: Float,
         ): Arrangement {
             val totalItemCount = largeCount + mediumCount + smallCount
             val availableSpaceWithoutSpacing = availableSpace - ((totalItemCount - 1) * itemSpacing)
@@ -211,7 +211,7 @@ internal class Arrangement(
                     smallCount,
                     arrangedSmallSize,
                     mediumCount,
-                    largeCount
+                    largeCount,
                 )
             arrangedMediumSize = (arrangedLargeSize + arrangedSmallSize) / 2f
 
@@ -241,7 +241,7 @@ internal class Arrangement(
                 arrangedMediumSize,
                 mediumCount,
                 arrangedLargeSize,
-                largeCount
+                largeCount,
             )
         }
 
@@ -267,7 +267,7 @@ internal class Arrangement(
             smallCount: Int,
             smallSize: Float,
             mediumCount: Int,
-            largeCount: Int
+            largeCount: Int,
         ): Float {
             return ((availableSpace -
                 (smallCount.toFloat() + mediumCount.toFloat() / 2f) * smallSize) /

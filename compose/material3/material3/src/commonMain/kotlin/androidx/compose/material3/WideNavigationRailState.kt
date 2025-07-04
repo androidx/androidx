@@ -35,14 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 
-@ExperimentalMaterial3ExpressiveApi
 /** Possible values of [WideNavigationRailState]. */
 enum class WideNavigationRailValue {
     /** The state of the rail when it is collapsed. */
     Collapsed,
 
     /** The state of the rail when it is expanded. */
-    Expanded
+    Expanded,
 }
 
 /**
@@ -51,7 +50,6 @@ enum class WideNavigationRailValue {
  *
  * @see rememberWideNavigationRailState to construct the default implementation.
  */
-@ExperimentalMaterial3ExpressiveApi
 interface WideNavigationRailState {
     /** Whether the state is currently animating */
     val isAnimating: Boolean
@@ -83,7 +81,6 @@ interface WideNavigationRailState {
 }
 
 /** Create and [remember] a [WideNavigationRailState]. */
-@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun rememberWideNavigationRailState(
     initialValue: WideNavigationRailValue = WideNavigationRailValue.Collapsed
@@ -91,18 +88,13 @@ fun rememberWideNavigationRailState(
     // TODO: Load the motionScheme tokens from the component tokens file.
     val animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
     return rememberSaveable(saver = WideNavigationRailStateImpl.Saver(animationSpec)) {
-        WideNavigationRailStateImpl(
-            initialValue = initialValue,
-            animationSpec = animationSpec,
-        )
+        WideNavigationRailStateImpl(initialValue = initialValue, animationSpec = animationSpec)
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val WideNavigationRailValue.isExpanded
     get() = this == WideNavigationRailValue.Expanded
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal operator fun WideNavigationRailValue.not(): WideNavigationRailValue {
     return if (this == WideNavigationRailValue.Collapsed) {
         WideNavigationRailValue.Expanded
@@ -111,7 +103,6 @@ internal operator fun WideNavigationRailValue.not(): WideNavigationRailValue {
     }
 }
 
-@ExperimentalMaterial3ExpressiveApi
 internal class WideNavigationRailStateImpl(
     var initialValue: WideNavigationRailValue,
     private val animationSpec: AnimationSpec<Float>,
@@ -152,7 +143,7 @@ internal class WideNavigationRailStateImpl(
     override suspend fun toggle() {
         internalState.animateTo(
             targetValue = if (targetValue.isExpanded) Collapsed else Expanded,
-            animationSpec = animationSpec
+            animationSpec = animationSpec,
         )
     }
 
@@ -166,17 +157,14 @@ internal class WideNavigationRailStateImpl(
         private const val Expanded = 1f
 
         /** The default [Saver] implementation for [WideNavigationRailState]. */
-        fun Saver(
-            animationSpec: AnimationSpec<Float>,
-        ) =
+        fun Saver(animationSpec: AnimationSpec<Float>) =
             Saver<WideNavigationRailState, WideNavigationRailValue>(
                 save = { it.targetValue },
-                restore = { WideNavigationRailStateImpl(it, animationSpec) }
+                restore = { WideNavigationRailStateImpl(it, animationSpec) },
             )
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class ModalWideNavigationRailState(
     state: WideNavigationRailState,
     density: Density,
@@ -243,7 +231,7 @@ internal class ModalWideNavigationRailState(
     private suspend fun animateTo(
         targetValue: WideNavigationRailValue,
         animationSpec: AnimationSpec<Float> = this.animationSpec,
-        velocity: Float = anchoredDraggableState.lastVelocity
+        velocity: Float = anchoredDraggableState.lastVelocity,
     ) {
         anchoredDraggableState.anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
             val targetOffset = anchors.positionOf(latestTarget)
@@ -266,10 +254,7 @@ internal class ModalWideNavigationRailState(
 internal class RailPredictiveBackState {
     var swipeEdgeMatchesRail by mutableStateOf(true)
 
-    fun update(
-        isSwipeEdgeLeft: Boolean,
-        isRtl: Boolean,
-    ) {
+    fun update(isSwipeEdgeLeft: Boolean, isRtl: Boolean) {
         swipeEdgeMatchesRail = (isSwipeEdgeLeft && !isRtl) || (!isSwipeEdgeLeft && isRtl)
     }
 }

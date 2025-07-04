@@ -82,7 +82,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @RequiresApi(Build.VERSION_CODES.O)
 class FrameBufferRenderer(
     private val frameBufferRendererCallbacks: RenderCallback,
-    @SuppressLint("ListenerLast") private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS
+    @SuppressLint("ListenerLast") private val syncStrategy: SyncStrategy = SyncStrategy.ALWAYS,
 ) : GLRenderer.RenderCallback {
 
     private val mClear = AtomicBoolean(false)
@@ -92,7 +92,7 @@ class FrameBufferRenderer(
         config: EGLConfig,
         surface: Surface,
         width: Int,
-        height: Int
+        height: Int,
     ): EGLSurface? = null
 
     fun clear() {
@@ -130,7 +130,7 @@ class FrameBufferRenderer(
                             egl.eglClientWaitSyncKHR(
                                 syncKhr,
                                 EGLExt.EGL_SYNC_FLUSH_COMMANDS_BIT_KHR,
-                                EGLExt.EGL_FOREVER_KHR
+                                EGLExt.EGL_FOREVER_KHR,
                             )
                         if (status != EGLExt.EGL_CONDITION_SATISFIED_KHR) {
                             Log.w(TAG, "warning waiting on sync object: $status")

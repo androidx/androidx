@@ -21,13 +21,14 @@ import androidx.paging.LoadState.NotLoading
 import kotlin.jvm.JvmName
 
 /** Collection of pagination [LoadState]s - refresh, prepend, and append. */
+@Suppress("DataClassDefinition")
 public data class LoadStates(
     /** [LoadState] corresponding to [LoadType.REFRESH] loads. */
     public val refresh: LoadState,
     /** [LoadState] corresponding to [LoadType.PREPEND] loads. */
     public val prepend: LoadState,
     /** [LoadState] corresponding to [LoadType.APPEND] loads. */
-    public val append: LoadState
+    public val append: LoadState,
 ) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public inline fun forEach(op: (LoadType, LoadState) -> Unit) {
@@ -67,7 +68,7 @@ public data class LoadStates(
             LoadStates(
                 refresh = NotLoading.Incomplete,
                 prepend = NotLoading.Incomplete,
-                append = NotLoading.Incomplete
+                append = NotLoading.Incomplete,
             )
     }
 }

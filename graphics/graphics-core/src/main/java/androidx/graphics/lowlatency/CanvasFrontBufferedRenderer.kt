@@ -71,7 +71,7 @@ class CanvasFrontBufferedRenderer<T>
 constructor(
     surfaceView: SurfaceView,
     callback: Callback<T>,
-    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
+    @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888,
 ) {
 
     /** Target SurfaceView for rendering */
@@ -165,7 +165,7 @@ constructor(
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
-                height: Int
+                height: Int,
             ) {
                 mSurfaceView?.let { update(it, width, height) }
             }
@@ -182,7 +182,7 @@ constructor(
 
             override fun surfaceRedrawNeededAsync(
                 holder: SurfaceHolder,
-                drawingFinished: Runnable
+                drawingFinished: Runnable,
             ) {
                 renderMultiBufferedLayerInternal(callback = drawingFinished)
             }
@@ -205,7 +205,7 @@ constructor(
             Log.w(
                 TAG,
                 "Invalid dimensions provided, width and height must be > 0. " +
-                    "width: $width height: $height"
+                    "width: $width height: $height",
             )
             return
         }
@@ -265,7 +265,7 @@ constructor(
                             @SuppressLint("WrongConstant")
                             override fun onBufferReady(
                                 hardwareBuffer: HardwareBuffer,
-                                syncFenceCompat: SyncFenceCompat?
+                                syncFenceCompat: SyncFenceCompat?,
                             ) {
                                 if (frontBufferSurfaceControl.isValid()) {
                                     val transaction =
@@ -280,7 +280,7 @@ constructor(
                                                     null
                                                 } else {
                                                     syncFenceCompat
-                                                }
+                                                },
                                             ) { releaseFence ->
                                                 mFrontBufferReleaseFence?.close()
                                                 mFrontBufferReleaseFence = releaseFence
@@ -288,7 +288,7 @@ constructor(
                                             .setVisibility(frontBufferSurfaceControl, true)
                                             .reparent(
                                                 frontBufferSurfaceControl,
-                                                parentSurfaceControl
+                                                parentSurfaceControl,
                                             )
                                     if (
                                         transformHint !=
@@ -296,19 +296,19 @@ constructor(
                                     ) {
                                         transaction.setBufferTransform(
                                             frontBufferSurfaceControl,
-                                            transformHint
+                                            transformHint,
                                         )
                                     }
                                     mCallback?.onFrontBufferedLayerRenderComplete(
                                         frontBufferSurfaceControl,
-                                        transaction
+                                        transaction,
                                     )
                                     transaction.commit()
                                     singleBufferedCanvasRenderer?.isVisible = true
                                 }
                                 syncFenceCompat?.close()
                             }
-                        }
+                        },
                     )
                     .apply { colorSpace = mColorSpace }
 
@@ -366,7 +366,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to front buffered layer when " +
-                    "CanvasFrontBufferedRenderer has been released"
+                    "CanvasFrontBufferedRenderer has been released",
             )
         }
     }
@@ -405,7 +405,7 @@ constructor(
      */
     internal fun renderMultiBufferedLayerInternal(
         params: Collection<T> = Collections.emptyList(),
-        callback: Runnable? = null
+        callback: Runnable? = null,
     ) {
         if (isValid()) {
             mParams.addAll(params)
@@ -414,7 +414,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to the multi buffered layer when " +
-                    "CanvasFrontBufferedRenderer has been released"
+                    "CanvasFrontBufferedRenderer has been released",
             )
         }
     }
@@ -436,7 +436,7 @@ constructor(
         multiBufferedCanvasRenderer: CanvasBufferedRenderer,
         transform: Int,
         buffer: HardwareBuffer,
-        fence: SyncFenceCompat?
+        fence: SyncFenceCompat?,
     ) {
         if (
             frontBufferSurfaceControl != null &&
@@ -470,7 +470,7 @@ constructor(
             mCallback?.onMultiBufferedLayerRenderComplete(
                 frontBufferSurfaceControl,
                 parentSurfaceControl,
-                transaction
+                transaction,
             )
             transaction.commit()
         }
@@ -519,7 +519,7 @@ constructor(
                                     multiBufferRenderer,
                                     transform,
                                     result.hardwareBuffer,
-                                    result.fence
+                                    result.fence,
                                 )
                             }
                     }
@@ -529,7 +529,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to clear front buffer after CanvasFrontBufferRenderer " +
-                    "has been released"
+                    "has been released",
             )
         }
     }
@@ -593,7 +593,7 @@ constructor(
                                     multiBufferedCanvasRenderer,
                                     transform,
                                     result.hardwareBuffer,
-                                    result.fence
+                                    result.fence,
                                 )
                                 onComplete?.run()
                             }
@@ -604,7 +604,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to render to the multi buffered layer when " +
-                    "CanvasFrontBufferedRenderer has been released"
+                    "CanvasFrontBufferedRenderer has been released",
             )
         }
     }
@@ -630,7 +630,7 @@ constructor(
             Log.w(
                 TAG,
                 "Attempt to cancel rendering to front buffer after " +
-                    "CanvasFrontBufferRenderer has been released"
+                    "CanvasFrontBufferRenderer has been released",
             )
         }
     }
@@ -739,7 +739,7 @@ constructor(
             canvas: Canvas,
             bufferWidth: Int,
             bufferHeight: Int,
-            params: Collection<T>
+            params: Collection<T>,
         )
 
         /**
@@ -758,7 +758,7 @@ constructor(
         @WorkerThread
         fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }
@@ -784,7 +784,7 @@ constructor(
         fun onMultiBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
             multiBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }

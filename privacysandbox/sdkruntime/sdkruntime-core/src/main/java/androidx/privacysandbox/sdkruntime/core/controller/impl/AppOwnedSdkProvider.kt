@@ -16,16 +16,16 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
-import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
 /** Fetches all registered [AppOwnedSdkSandboxInterfaceCompat] from [SdkSandboxController]. */
+@RequiresApi(34)
 internal class AppOwnedSdkProvider private constructor(private val providerImpl: ProviderImpl) {
 
     fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
@@ -43,6 +43,7 @@ internal class AppOwnedSdkProvider private constructor(private val providerImpl:
     }
 
     /** Implementation for AdServices V8. */
+    @RequiresApi(34)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
     private class ApiAdServicesV8Impl(private val controller: SdkSandboxController) : ProviderImpl {
         @DoNotInline
@@ -53,11 +54,8 @@ internal class AppOwnedSdkProvider private constructor(private val providerImpl:
     }
 
     companion object {
-        @SuppressLint("NewApi") // For supporting DP Builds
         fun create(controller: SdkSandboxController): AppOwnedSdkProvider {
-            return if (
-                BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 || AdServicesInfo.isDeveloperPreview()
-            ) {
+            return if (BuildCompat.AD_SERVICES_EXTENSION_INT >= 8) {
                 AppOwnedSdkProvider(ApiAdServicesV8Impl(controller))
             } else {
                 AppOwnedSdkProvider(NoOpImpl())

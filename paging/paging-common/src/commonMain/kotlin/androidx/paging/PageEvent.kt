@@ -41,7 +41,7 @@ internal sealed class PageEvent<T : Any> {
     data class StaticList<T : Any>(
         val data: List<T>,
         val sourceLoadStates: LoadStates? = null,
-        val mediatorLoadStates: LoadStates? = null
+        val mediatorLoadStates: LoadStates? = null,
     ) : PageEvent<T>() {
         override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> {
             return StaticList(
@@ -81,7 +81,7 @@ internal sealed class PageEvent<T : Any> {
     }
 
     // Intentional to prefer Refresh, Prepend, Append constructors from Companion.
-    @Suppress("DataClassPrivateConstructor")
+    @Suppress("DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
     data class Insert<T : Any>
     private constructor(
         val loadType: LoadType,
@@ -89,7 +89,7 @@ internal sealed class PageEvent<T : Any> {
         val placeholdersBefore: Int,
         val placeholdersAfter: Int,
         val sourceLoadStates: LoadStates,
-        val mediatorLoadStates: LoadStates? = null
+        val mediatorLoadStates: LoadStates? = null,
     ) : PageEvent<T>() {
         init {
             require(loadType == APPEND || placeholdersBefore >= 0) {
@@ -129,7 +129,7 @@ internal sealed class PageEvent<T : Any> {
                 originalPageOffsets = it.originalPageOffsets,
                 data = it.data.map { item -> transform(item) },
                 hintOriginalPageOffset = it.hintOriginalPageOffset,
-                hintOriginalIndices = it.hintOriginalIndices
+                hintOriginalIndices = it.hintOriginalIndices,
             )
         }
 
@@ -149,7 +149,7 @@ internal sealed class PageEvent<T : Any> {
                 originalPageOffsets = it.originalPageOffsets,
                 data = data,
                 hintOriginalPageOffset = it.hintOriginalPageOffset,
-                hintOriginalIndices = originalIndices
+                hintOriginalIndices = originalIndices,
             )
         }
 
@@ -166,7 +166,7 @@ internal sealed class PageEvent<T : Any> {
                 originalPageOffsets = it.originalPageOffsets,
                 data = data,
                 hintOriginalPageOffset = it.hintOriginalPageOffset,
-                hintOriginalIndices = originalIndices
+                hintOriginalIndices = originalIndices,
             )
         }
 
@@ -176,7 +176,7 @@ internal sealed class PageEvent<T : Any> {
                 placeholdersBefore: Int,
                 placeholdersAfter: Int,
                 sourceLoadStates: LoadStates,
-                mediatorLoadStates: LoadStates? = null
+                mediatorLoadStates: LoadStates? = null,
             ) =
                 Insert(
                     REFRESH,
@@ -191,31 +191,15 @@ internal sealed class PageEvent<T : Any> {
                 pages: List<TransformablePage<T>>,
                 placeholdersBefore: Int,
                 sourceLoadStates: LoadStates,
-                mediatorLoadStates: LoadStates? = null
-            ) =
-                Insert(
-                    PREPEND,
-                    pages,
-                    placeholdersBefore,
-                    -1,
-                    sourceLoadStates,
-                    mediatorLoadStates,
-                )
+                mediatorLoadStates: LoadStates? = null,
+            ) = Insert(PREPEND, pages, placeholdersBefore, -1, sourceLoadStates, mediatorLoadStates)
 
             fun <T : Any> Append(
                 pages: List<TransformablePage<T>>,
                 placeholdersAfter: Int,
                 sourceLoadStates: LoadStates,
-                mediatorLoadStates: LoadStates? = null
-            ) =
-                Insert(
-                    APPEND,
-                    pages,
-                    -1,
-                    placeholdersAfter,
-                    sourceLoadStates,
-                    mediatorLoadStates,
-                )
+                mediatorLoadStates: LoadStates? = null,
+            ) = Insert(APPEND, pages, -1, placeholdersAfter, sourceLoadStates, mediatorLoadStates)
 
             /**
              * Empty refresh, used to convey initial state.
@@ -259,7 +243,7 @@ internal sealed class PageEvent<T : Any> {
         val minPageOffset: Int,
         /** Largest [TransformablePage.originalPageOffsets] to drop; inclusive */
         val maxPageOffset: Int,
-        val placeholdersRemaining: Int
+        val placeholdersRemaining: Int,
     ) : PageEvent<T>() {
 
         init {
@@ -296,10 +280,8 @@ internal sealed class PageEvent<T : Any> {
      * Uses two LoadStates objects instead of CombinedLoadStates so that consumers like
      * PagingDataPresenter can define behavior of convenience properties
      */
-    data class LoadStateUpdate<T : Any>(
-        val source: LoadStates,
-        val mediator: LoadStates? = null,
-    ) : PageEvent<T>() {
+    data class LoadStateUpdate<T : Any>(val source: LoadStates, val mediator: LoadStates? = null) :
+        PageEvent<T>() {
 
         override fun toString(): String {
             return appendMediatorStatesIfNotNull(mediator) {

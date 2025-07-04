@@ -50,4 +50,25 @@ public interface PerceptionManager {
 
     /** Returns the list of all known trackables. */
     public val trackables: Collection<Trackable>
+
+    /** Hand tracking information for the left [Hand]. Only available on supported platforms. */
+    public val leftHand: Hand?
+
+    /** Hand tracking information for the right [Hand]. Only available on supported platforms. */
+    public val rightHand: Hand?
+
+    /** AR device tracking information. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val arDevice: ArDevice
+
+    /** View Cameras information. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val viewCameras: List<ViewCamera>
+
+    /** [Earth] tracking information. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val earth: Earth
+
+    /** Collection of [DepthMap]s for the current frame */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val depthMaps: List<DepthMap>
+
+    /** Face tracking information for the face. Only available on supported platforms. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val userFace: Face?
 }

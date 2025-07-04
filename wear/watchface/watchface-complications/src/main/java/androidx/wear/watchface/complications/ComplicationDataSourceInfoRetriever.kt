@@ -76,7 +76,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
          * Details of the complication data source for that complication, or `null` if no
          * complication data source is currently configured.
          */
-        public val info: ComplicationDataSourceInfo?
+        public val info: ComplicationDataSourceInfo?,
     )
 
     private inner class ProviderInfoServiceConnection : ServiceConnection {
@@ -117,7 +117,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
         context: Context
     ) : this(
         context,
-        Intent(ACTION_GET_COMPLICATION_CONFIG).apply { setPackage(PROVIDER_INFO_SERVICE_PACKAGE) }
+        Intent(ACTION_GET_COMPLICATION_CONFIG).apply { setPackage(PROVIDER_INFO_SERVICE_PACKAGE) },
     )
 
     /** Exception thrown if the service disconnects. */
@@ -146,7 +146,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     @Throws(ServiceDisconnectedException::class)
     public suspend fun retrieveComplicationDataSourceInfo(
         watchFaceComponent: ComponentName,
-        watchFaceComplicationIds: IntArray
+        watchFaceComplicationIds: IntArray,
     ): Array<Result>? =
         TraceEvent("ComplicationDataSourceInfoRetriever.retrieveComplicationDataSourceInfo").use {
             synchronized(lock) {
@@ -178,7 +178,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     @RequiresApi(Build.VERSION_CODES.R)
     public suspend fun retrievePreviewComplicationData(
         complicationDataSourceComponent: ComponentName,
-        complicationType: ComplicationType
+        complicationType: ComplicationType,
     ): ComplicationData? =
         TraceEvent("ComplicationDataSourceInfoRetriever.requestPreviewComplicationData").use {
             synchronized(lock) {
@@ -195,7 +195,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
                     !service.requestPreviewComplicationData(
                         complicationDataSourceComponent,
                         complicationType.toWireComplicationType(),
-                        callback
+                        callback,
                     )
                 ) {
                     callback.safeUnlinkToDeath()
@@ -206,7 +206,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
     private class PreviewComplicationDataCallback(
         val service: IProviderInfoService,
-        var continuation: CancellableContinuation<ComplicationData?>?
+        var continuation: CancellableContinuation<ComplicationData?>?,
     ) : IPreviewComplicationDataCallback.Stub() {
         val deathObserver: IBinder.DeathRecipient =
             IBinder.DeathRecipient {
@@ -262,7 +262,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
                 Log.e(
                     TAG,
                     "Error ComplicationDataSourceInfoRetriever.close called when already closed",
-                    Throwable()
+                    Throwable(),
                 )
             } else {
                 closed = true
@@ -326,27 +326,27 @@ public class ComplicationDataSourceInfo(
                                 name.take(ShortTextComplicationData.MAX_TEXT_LENGTH)
                             )
                             .build(),
-                        contentDescription
+                        contentDescription,
                     )
                     .setMonochromaticImage(MonochromaticImage.Builder(icon).build())
                     .build()
             ComplicationType.LONG_TEXT ->
                 LongTextComplicationData.Builder(
                         PlainComplicationText.Builder(name).build(),
-                        contentDescription
+                        contentDescription,
                     )
                     .setMonochromaticImage(MonochromaticImage.Builder(icon).build())
                     .build()
             ComplicationType.SMALL_IMAGE ->
                 SmallImageComplicationData.Builder(
                         SmallImage.Builder(icon, SmallImageType.ICON).build(),
-                        contentDescription
+                        contentDescription,
                     )
                     .build()
             ComplicationType.MONOCHROMATIC_IMAGE ->
                 MonochromaticImageComplicationData.Builder(
                         MonochromaticImage.Builder(icon).build(),
-                        contentDescription
+                        contentDescription,
                     )
                     .build()
             ComplicationType.PHOTO_IMAGE ->
@@ -402,7 +402,7 @@ public class ComplicationDataSourceInfo(
             name,
             icon,
             type.toWireComplicationType(),
-            componentName
+            componentName,
         )
 }
 
@@ -413,5 +413,5 @@ public fun WireComplicationProviderInfo.toApiComplicationDataSourceInfo() =
         providerName!!,
         providerIcon!!,
         fromWireType(complicationType),
-        providerComponentName
+        providerComponentName,
     )

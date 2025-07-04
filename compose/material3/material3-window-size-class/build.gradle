@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -34,17 +33,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.material3.windowsizeclass"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
-
         compileSdk = 35
-        aarMetadata.minCompileSdk = 35
     }
     jvmStubs()
     linuxX64Stubs()
@@ -55,10 +44,10 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                implementation("androidx.compose.ui:ui-util:1.7.1")
-                api("androidx.compose.runtime:runtime:1.7.1")
-                api("androidx.compose.ui:ui:1.7.1")
-                api("androidx.compose.ui:ui-unit:1.7.1")
+                implementation("androidx.compose.ui:ui-util:1.8.1")
+                api("androidx.compose.runtime:runtime:1.8.1")
+                api("androidx.compose.ui:ui:1.8.2")
+                api("androidx.compose.ui:ui-unit:1.8.1")
             }
         }
 
@@ -118,12 +107,10 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Material 3 Window Size Class"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2022"
     description = "Provides window size classes for building responsive UIs"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 

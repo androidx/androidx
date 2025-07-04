@@ -1,8 +1,8 @@
 # extra dependencies that are used in importMaven
 
 [versions]
-okio = "3.1.0"
-ktor = "2.0.2"
+okio = "3.13.0"
+ktor = "3.1.3"
 log4j = "2.17.2"
 [libraries]
 

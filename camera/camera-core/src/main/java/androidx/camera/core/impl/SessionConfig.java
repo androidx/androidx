@@ -29,6 +29,7 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
+import androidx.camera.core.internal.HighSpeedFpsModifier;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
 import com.google.auto.value.AutoValue;
@@ -53,7 +54,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * CaptureRequest}.
  */
 public final class SessionConfig {
-    public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
+    /** Regular session type. */
+    public static final int SESSION_TYPE_REGULAR = SessionConfiguration.SESSION_REGULAR;
+    /** High-speed session type. */
+    public static final int SESSION_TYPE_HIGH_SPEED = SessionConfiguration.SESSION_HIGH_SPEED;
+    /** The default session type. */
+    public static final int DEFAULT_SESSION_TYPE = SESSION_TYPE_REGULAR;
     // Current supported session template values and the bigger index in the list, the
     // priority is higher.
     private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
@@ -658,12 +664,26 @@ public final class SessionConfig {
         /**
          * Add a surface to the set that the session repeatedly writes data to.
          *
-         * <p>The dynamic range of this surface will default to {@link DynamicRange#SDR}. To
-         * manually set the dynamic range, use
+         * <p> The dynamic range of this surface will default to {@link DynamicRange#SDR},
+         * the physical camera ID to null and the mirror mode to
+         * {@link MirrorMode#MIRROR_MODE_UNSPECIFIED}. To manually set them, use
          * {@link #addSurface(DeferrableSurface, DynamicRange, String, int)}.
          */
         public @NonNull Builder addSurface(@NonNull DeferrableSurface surface) {
-            return addSurface(surface, DynamicRange.SDR, null,
+            return addSurface(surface, DynamicRange.SDR);
+        }
+
+        /**
+         * Add a surface with the provided dynamic range to the set that the session repeatedly
+         * writes data to.
+         *
+         * <p> The physical camera ID of this surface will default to null and the mirror mode will
+         * default to {@link MirrorMode#MIRROR_MODE_UNSPECIFIED}. To manually set them, use
+         * {@link #addSurface(DeferrableSurface, DynamicRange, String, int)}.
+         */
+        public @NonNull Builder addSurface(@NonNull DeferrableSurface surface,
+                @NonNull DynamicRange dynamicRange) {
+            return addSurface(surface, dynamicRange, null,
                     MirrorMode.MIRROR_MODE_UNSPECIFIED);
         }
 
@@ -792,6 +812,7 @@ public final class SessionConfig {
         private static final String TAG = "ValidatingBuilder";
         private final SurfaceSorter mSurfaceSorter = new SurfaceSorter();
         private boolean mValid = true;
+        private StringBuilder mInvalidReason = new StringBuilder();
         private boolean mTemplateSet = false;
         private List<ErrorListener> mErrorListeners = new ArrayList<>();
 
@@ -860,6 +881,7 @@ public final class SessionConfig {
                                 + "of surfaces";
                 Logger.d(TAG, errorMessage);
                 mValid = false;
+                mInvalidReason.append(errorMessage);
             }
 
             if (sessionConfig.getSessionType() != mSessionType
@@ -869,6 +891,7 @@ public final class SessionConfig {
                         "Invalid configuration due to that two non-default session types are set";
                 Logger.d(TAG, errorMessage);
                 mValid = false;
+                mInvalidReason.append(errorMessage);
             } else {
                 if (sessionConfig.getSessionType() != DEFAULT_SESSION_TYPE) {
                     mSessionType = sessionConfig.getSessionType();
@@ -883,6 +906,7 @@ public final class SessionConfig {
                                     + "configs are set";
                     Logger.d(TAG, errorMessage);
                     mValid = false;
+                    mInvalidReason.append(errorMessage);
                 } else {
                     mPostviewOutputConfig = sessionConfig.mPostviewOutputConfig;
                 }
@@ -908,7 +932,12 @@ public final class SessionConfig {
 
             if (!mCaptureConfigBuilder.getExpectedFrameRateRange().equals(expectedFrameRateRange)) {
                 mValid = false;
-                Logger.d(TAG, "Different ExpectedFrameRateRange values");
+
+                String errorMessage = "Different ExpectedFrameRateRange values; current = "
+                        + mCaptureConfigBuilder.getExpectedFrameRateRange() + ", new = "
+                        + expectedFrameRateRange;
+                Logger.e(TAG, errorMessage);
+                mInvalidReason.append(errorMessage);
             }
         }
 
@@ -946,6 +975,14 @@ public final class SessionConfig {
             return mTemplateSet && mValid;
         }
 
+        /** Gets the reason(s) for {@link #isValid} returning false. */
+        public @NonNull String getInvalidReason() {
+            if (!mTemplateSet) {
+                return "Template is not set";
+            }
+            return mInvalidReason.toString();
+        }
+
         /**
          * Builds an instance of a SessionConfig that has all the combined parameters of the
          * SessionConfig that have been added to the ValidatingBuilder.
@@ -957,6 +994,13 @@ public final class SessionConfig {
 
             List<OutputConfig> outputConfigs = new ArrayList<>(mOutputConfigs);
             mSurfaceSorter.sort(outputConfigs);
+
+            if (mSessionType == SESSION_TYPE_HIGH_SPEED) {
+                // HighSpeedFpsModifier may modify the expected frame rate range for
+                // mCaptureConfigBuilder.
+                new HighSpeedFpsModifier().modifyFpsForPreviewOnlyRepeating(outputConfigs,
+                        mCaptureConfigBuilder);
+            }
 
             ErrorListener errorListener = null;
             // Creates an error listener to notify errors to the underlying error listeners.

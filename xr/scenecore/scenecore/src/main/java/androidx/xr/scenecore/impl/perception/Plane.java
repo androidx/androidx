@@ -18,9 +18,10 @@ package androidx.xr.scenecore.impl.perception;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,19 +29,18 @@ import java.util.List;
 /**
  * A Plane is a type of Trackable that maps to a real world plane (e.g. a floor, a wall, or a table)
  */
-// TODO: b/329875042 - Add a utility to convert this to an ARCore plane.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class Plane implements Trackable {
     private static final String TAG = "PerceptionPlane";
-    ArrayList<Anchor> attachedAnchors = new ArrayList<>();
-    Long planeId = 0L;
-    @PerceptionLibraryConstants.OpenXrSpaceType int referenceSpaceType = 0;
+    ArrayList<Anchor> mAttachedAnchors = new ArrayList<>();
+    Long mPlaneId = 0L;
+    @PerceptionLibraryConstants.OpenXrSpaceType int mReferenceSpaceType = 0;
 
     public Plane(
             @SuppressWarnings("AutoBoxing") @NonNull Long planeId,
             @PerceptionLibraryConstants.OpenXrSpaceType int referenceSpaceType) {
-        this.planeId = planeId;
-        this.referenceSpaceType = referenceSpaceType;
+        mPlaneId = planeId;
+        mReferenceSpaceType = referenceSpaceType;
     }
 
     /**
@@ -52,18 +52,17 @@ public class Plane implements Trackable {
      *     current time will be used.
      */
     @Override
-    @Nullable
-    public Anchor createAnchor(
+    public @Nullable Anchor createAnchor(
             @NonNull Pose pose, @SuppressWarnings("AutoBoxing") @Nullable Long timeNs) {
         Anchor.AnchorData anchorData =
-                createAnchorOnPlane(planeId, pose, timeNs == null ? -1 : timeNs);
+                createAnchorOnPlane(mPlaneId, pose, timeNs == null ? -1 : timeNs);
         if (anchorData == null) {
             Log.i(TAG, "Failed to create an anchor.");
             return null;
         }
-        Log.i(TAG, "Creating an anchor result:" + anchorData.anchorToken);
+        Log.i(TAG, "Creating an anchor result:" + anchorData.mAnchorToken);
         Anchor anchor = new Anchor(anchorData);
-        attachedAnchors.add(anchor);
+        mAttachedAnchors.add(anchor);
         return anchor;
     }
 
@@ -74,16 +73,14 @@ public class Plane implements Trackable {
      *     uptimeNanos() at which to get the pose, in nanoseconds. If time is null or negative, the
      *     current time will be used.
      */
-    @Nullable
-    public PlaneData getData(@SuppressWarnings("AutoBoxing") @Nullable Long timeNs) {
-        return getPlaneData(planeId, referenceSpaceType, timeNs == null ? -1 : timeNs);
+    public @Nullable PlaneData getData(@SuppressWarnings("AutoBoxing") @Nullable Long timeNs) {
+        return getPlaneData(mPlaneId, mReferenceSpaceType, timeNs == null ? -1 : timeNs);
     }
 
     /** Returns all anchors attached to this trackable. */
-    @NonNull
     @Override
-    public List<Anchor> getAnchors() {
-        return attachedAnchors;
+    public @NonNull List<Anchor> getAnchors() {
+        return mAttachedAnchors;
     }
 
     private native PlaneData getPlaneData(
@@ -162,7 +159,7 @@ public class Plane implements Trackable {
          * The pose of the center of the plane. The positive y-axis of the pose will point
          * perpendicular out of the plane's surface.
          */
-        @NonNull public final Pose centerPose;
+        public final @NonNull Pose centerPose;
 
         /** The width of the plane. */
         public final float extentWidth;
@@ -171,10 +168,10 @@ public class Plane implements Trackable {
         public final float extentHeight;
 
         /** The direction of the plane. */
-        @NonNull public final Plane.Type type;
+        public final Plane.@NonNull Type type;
 
         /** A label that can be used to determine the type of object that the plane is. */
-        @NonNull public final Plane.Label label;
+        public final Plane.@NonNull Label label;
 
         public PlaneData(
                 @NonNull Pose centerPose,

@@ -321,13 +321,13 @@ class RequiresWindowSdkExtensionTests {
             embeddingCompat.setOverlayAttributesCalculator(calculator)
             assertEquals(
                 calculator,
-                embeddingCompat.overlayController!!.overlayAttributesCalculator
+                embeddingCompat.overlayController!!.overlayAttributesCalculator,
             )
 
             embeddingCompat.updateOverlayAttributes("", OverlayAttributes())
             verify(embeddingCompat.overlayController)!!.updateOverlayAttributes(
                 "",
-                OverlayAttributes()
+                OverlayAttributes(),
             )
 
             val executor = mock<Executor>()
@@ -335,7 +335,7 @@ class RequiresWindowSdkExtensionTests {
             verify(embeddingCompat.overlayController)!!.addOverlayInfoCallback(
                 eq(""),
                 eq(executor),
-                any()
+                any(),
             )
 
             embeddingCompat.removeOverlayInfoCallback {}
@@ -381,7 +381,7 @@ class RequiresWindowSdkExtensionTests {
                 spy(
                     OverlayControllerImpl(
                         embeddingExtension,
-                        EmbeddingAdapter(PredicateAdapter(classLoader))
+                        EmbeddingAdapter(PredicateAdapter(classLoader)),
                     )
                 )
             } else {

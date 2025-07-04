@@ -489,11 +489,11 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
             Row {
                 AndroidView(
                     factory = { FocusableView(it).apply { view1 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState1 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState1 = it },
                 )
                 AndroidView(
                     factory = { FocusableView(it).apply { view2 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState2 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState2 = it },
                 )
             }
         }
@@ -521,11 +521,11 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
             Row {
                 AndroidView(
                     factory = { FocusableView(it).apply { view1 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState1 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState1 = it },
                 )
                 AndroidView(
                     factory = { FocusableView(it).apply { view2 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState2 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState2 = it },
                 )
             }
         }
@@ -662,7 +662,7 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
                         linearLayout.addView(composeView)
                     }
                 },
-                Modifier.safeContentPadding()
+                Modifier.safeContentPadding(),
             )
         }
         rule.runOnIdle {

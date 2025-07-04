@@ -28,15 +28,15 @@ class ReplaceWithDetectorMethodTest {
         val input =
             arrayOf(
                 javaSample("replacewith.ReplaceWithUsageJava"),
-                javaSample("replacewith.StaticMethodExplicitClass")
+                javaSample("replacewith.StaticMethodExplicitClass"),
             )
 
         val expected =
             """
-src/replacewith/StaticMethodExplicitClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/StaticMethodExplicitClass.java:25: Hint: Replacement available [ReplaceWith]
         ReplaceWithUsageJava.toString(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 
@@ -58,10 +58,10 @@ Fix for src/replacewith/StaticMethodExplicitClass.java line 25: Replace with `th
 
         val expected =
             """
-src/replacewith/MethodImplicitThis.java:33: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodImplicitThis.java:33: Hint: Replacement available [ReplaceWith]
         oldMethod(null);
         ~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 
@@ -83,10 +83,10 @@ Fix for src/replacewith/MethodImplicitThis.java line 33: Replace with `newMethod
 
         val expected =
             """
-src/replacewith/MethodExplicitThis.java:33: Information: Replacement available [ReplaceWith]
+src/replacewith/MethodExplicitThis.java:33: Hint: Replacement available [ReplaceWith]
         this.oldMethod(null);
              ~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 

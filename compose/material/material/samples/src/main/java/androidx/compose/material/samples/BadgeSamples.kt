@@ -45,7 +45,7 @@ fun BottomNavigationItemWithBadge() {
                                 modifier =
                                     Modifier.semantics {
                                         contentDescription = "$badgeNumber new notifications"
-                                    }
+                                    },
                             )
                         }
                     }
@@ -54,7 +54,7 @@ fun BottomNavigationItemWithBadge() {
                 }
             },
             selected = false,
-            onClick = {}
+            onClick = {},
         )
     }
 }

@@ -25,7 +25,7 @@ data class PublicKeyCredentialRpEntity(val name: String, val id: String)
 data class PublicKeyCredentialUserEntity(
     val name: String,
     val id: ByteArray,
-    val displayName: String
+    val displayName: String,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -35,7 +35,7 @@ data class PublicKeyCredentialParameters(val type: String, val alg: Long)
 data class PublicKeyCredentialDescriptor(
     val type: String,
     val id: ByteArray,
-    val transports: List<String>
+    val transports: List<String>,
 )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -43,5 +43,5 @@ data class AuthenticatorSelectionCriteria(
     val authenticatorAttachment: String,
     val residentKey: String,
     val requireResidentKey: Boolean = false,
-    val userVerification: String = "preferred"
+    val userVerification: String = "preferred",
 )

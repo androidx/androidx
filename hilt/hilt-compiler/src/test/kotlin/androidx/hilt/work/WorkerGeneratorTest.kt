@@ -37,7 +37,7 @@ class WorkerGeneratorTest {
             package androidx.hilt.work.test;
 
             public class Foo { }
-            """
+            """,
             )
 
         val myWorker =
@@ -62,7 +62,7 @@ class WorkerGeneratorTest {
                     super(context, params);
                 }
             }
-            """
+            """,
             )
 
         val expected =
@@ -79,7 +79,7 @@ class WorkerGeneratorTest {
             @AssistedFactory
             public interface MyWorker_AssistedFactory extends WorkerAssistedFactory<MyWorker> {
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -89,9 +89,10 @@ class WorkerGeneratorTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            kotlincArguments = listOf("-jvm-target=11"),
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.generatedSource(expected)
         }
@@ -119,7 +120,7 @@ class WorkerGeneratorTest {
                     super(context, params);
                 }
             }
-            """
+            """,
             )
 
         val expected =
@@ -151,7 +152,7 @@ class WorkerGeneratorTest {
                 @StringKey("androidx.hilt.work.test.MyWorker")
                 WorkerAssistedFactory<? extends ListenableWorker> bind(MyWorker_AssistedFactory factory);
             }
-            """
+            """,
             )
 
         runProcessorTest(
@@ -160,9 +161,10 @@ class WorkerGeneratorTest {
                     myWorker,
                     Sources.LISTENABLE_WORKER,
                     Sources.WORKER,
-                    Sources.WORKER_PARAMETERS
+                    Sources.WORKER_PARAMETERS,
                 ),
-            createProcessingSteps = { listOf(WorkerStep()) }
+            kotlincArguments = listOf("-jvm-target=11"),
+            createProcessingSteps = { listOf(WorkerStep()) },
         ) {
             it.generatedSource(expected)
         }

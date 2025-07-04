@@ -35,17 +35,20 @@ import kotlin.reflect.KClass
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.compile.JavaCompile
-import org.jetbrains.kotlin.gradle.internal.KaptTask
+import org.jetbrains.kotlin.gradle.tasks.BaseKapt
 
 internal class AndroidPluginIntegration(private val common: CommonIntegration) {
+
     private val agpBasePluginId = "com.android.base"
+    private val agpKmpPluginId = "com.android.kotlin.multiplatform.library"
 
     // Map of variant name to schema configuration
     private val configuredVariants = mutableMapOf<String, SchemaConfiguration>()
 
-    fun withAndroid(project: Project, roomExtension: RoomExtension) {
-        project.plugins.withId(agpBasePluginId) { configureRoomForAndroid(project, roomExtension) }
-    }
+    fun withAndroid(project: Project, roomExtension: RoomExtension) =
+        listOf(agpBasePluginId, agpKmpPluginId).forEach { agpPluginId ->
+            project.plugins.withId(agpPluginId) { configureRoomForAndroid(project, roomExtension) }
+        }
 
     private fun configureRoomForAndroid(project: Project, roomExtension: RoomExtension) {
         // TODO(b/277899741): Validate version of Room supports the AP options configured by plugin.
@@ -79,7 +82,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun configureAndroidVariant(
         project: Project,
         roomExtension: RoomExtension,
-        variant: ComponentIdentity
+        variant: ComponentIdentity,
     ) {
         val androidVariantTaskNames = AndroidVariantsTaskNames(variant.name)
 
@@ -98,7 +101,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
             common.createArgumentProvider(
                 schemaConfiguration = config,
                 roomOptions = roomExtension.toOptions(),
-                task = apTask
+                task = apTask,
             )
         }
         configureJavaTasks(project, androidVariantTaskNames, argProviderFactory)
@@ -113,7 +116,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
             variant.sources.assets?.addGeneratedSourceDirectory(
                 project.tasks.register(
                     "copyRoomSchemasToAndroidTestAssets${variant.name.capitalize()}",
-                    RoomSimpleCopyTask::class.java
+                    RoomSimpleCopyTask::class.java,
                 ) { task ->
                     val config = configuredVariants[variant.name]
                     project.check(config != null, isFatal = true) {
@@ -143,7 +146,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun forSchemaConfiguration(
         roomExtension: RoomExtension,
         variant: ComponentIdentity,
-        block: (SchemaConfiguration) -> Unit
+        block: (SchemaConfiguration) -> Unit,
     ) {
         var currentPriority = Int.MAX_VALUE
         roomExtension.schemaConfigurations.configureEach { config ->
@@ -172,7 +175,7 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun configureJavaTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
-        argumentProviderFactory: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider,
     ) =
         project.tasks.withType(JavaCompile::class.java).configureEach { task ->
             if (androidVariantsTaskNames.isJavaCompile(task.name)) {
@@ -184,20 +187,22 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun configureKaptTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
-        argumentProviderFactory: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider,
     ) =
         project.plugins.withId("kotlin-kapt") {
-            project.tasks.withType(KaptTask::class.java).configureEach { task ->
+            project.tasks.withType(BaseKapt::class.java).configureEach { task ->
                 if (androidVariantsTaskNames.isKaptTask(task.name)) {
                     val argProvider = argumentProviderFactory.invoke(task)
                     // TODO: Update once KT-58009 is fixed.
                     try {
                         // Because of KT-58009, we need to add a `listOf(argProvider)` instead
                         // of `argProvider`.
+                        @Suppress("DEPRECATION") // b/418799397
                         task.annotationProcessorOptionProviders.add(listOf(argProvider))
                     } catch (e: Throwable) {
                         // Once KT-58009 is fixed, adding `listOf(argProvider)` will fail, we will
                         // pass `argProvider` instead, which is the correct way.
+                        @Suppress("DEPRECATION") // b/418799397
                         task.annotationProcessorOptionProviders.add(argProvider)
                     }
                 }
@@ -207,12 +212,12 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
     private fun configureKspTasks(
         project: Project,
         androidVariantsTaskNames: AndroidVariantsTaskNames,
-        argumentProviderFactory: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider,
     ) =
         project.plugins.withId("com.google.devtools.ksp") {
             fun <T : Task> configureEach(
                 kclass: KClass<T>,
-                block: T.(RoomArgumentProvider) -> Unit
+                block: T.(RoomArgumentProvider) -> Unit,
             ) {
                 project.tasks.withType(kclass.java).configureEach { task ->
                     if (androidVariantsTaskNames.isKspTaskJvm(task.name)) {
@@ -238,13 +243,24 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
 
         private val kspTaskAndroidName = "ksp${variantName.capitalize()}KotlinAndroid"
 
-        val taskNames = setOf(javaCompileName, kaptTaskName, kspTaskJvmName, kspTaskAndroidName)
+        private val kspTaskAndroidKmpName = "ksp${variantName.capitalize()}"
+
+        val taskNames =
+            setOf(
+                javaCompileName,
+                kaptTaskName,
+                kspTaskJvmName,
+                kspTaskAndroidName,
+                kspTaskAndroidKmpName,
+            )
 
         fun isJavaCompile(taskName: String) = taskName == javaCompileName
 
         fun isKaptTask(taskName: String) = taskName == kaptTaskName
 
         fun isKspTaskJvm(taskName: String) =
-            taskName == kspTaskJvmName || taskName == kspTaskAndroidName
+            taskName == kspTaskJvmName ||
+                taskName == kspTaskAndroidName ||
+                taskName == kspTaskAndroidKmpName
     }
 }

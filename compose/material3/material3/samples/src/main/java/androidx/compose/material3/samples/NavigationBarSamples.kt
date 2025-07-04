@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -46,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -63,18 +61,17 @@ fun ShortNavigationBarSample() {
                 icon = {
                     Icon(
                         if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 label = { Text(item) },
                 selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                onClick = { selectedItem = index },
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -88,7 +85,7 @@ fun ShortNavigationBarWithHorizontalItemsSample() {
     Column {
         Text(
             "Note: this is configuration is better displayed in medium screen sizes.",
-            Modifier.padding(16.dp)
+            Modifier.padding(16.dp),
         )
 
         Spacer(Modifier.height(32.dp))
@@ -101,12 +98,12 @@ fun ShortNavigationBarWithHorizontalItemsSample() {
                         Icon(
                             if (selectedItem == index) selectedIcons[index]
                             else unselectedIcons[index],
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     },
                     label = { Text(item) },
                     selected = selectedItem == index,
-                    onClick = { selectedItem = index }
+                    onClick = { selectedItem = index },
                 )
             }
         }
@@ -129,12 +126,12 @@ fun NavigationBarSample() {
                 icon = {
                     Icon(
                         if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],
-                        contentDescription = item
+                        contentDescription = item,
                     )
                 },
                 label = { Text(item) },
                 selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                onClick = { selectedItem = index },
             )
         }
     }
@@ -154,13 +151,13 @@ fun NavigationBarWithOnlySelectedLabelsSample() {
                 icon = {
                     Icon(
                         if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],
-                        contentDescription = item
+                        contentDescription = item,
                     )
                 },
                 label = { Text(item) },
                 selected = selectedItem == index,
                 onClick = { selectedItem = index },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
             )
         }
     }

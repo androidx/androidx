@@ -39,7 +39,7 @@ internal object ProviderConnectionManager {
         val handlerThread =
             HandlerThread(
                 "ProviderConnectionManager",
-                Process.THREAD_PRIORITY_BACKGROUND + Process.THREAD_PRIORITY_MORE_FAVORABLE
+                Process.THREAD_PRIORITY_BACKGROUND + Process.THREAD_PRIORITY_MORE_FAVORABLE,
             )
         handlerThread.start()
         return handlerThread.getLooper()

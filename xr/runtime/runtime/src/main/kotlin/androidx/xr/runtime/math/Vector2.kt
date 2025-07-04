@@ -55,14 +55,20 @@ public class Vector2 @JvmOverloads constructor(public val x: Float = 0F, public 
     /** Returns a new vector multiplied by a scalar amount */
     public inline operator fun times(c: Float): Vector2 = Vector2(x * c, y * c)
 
-    /** Returns a new vector with the product of this vector and the [other] vector. */
+    /**
+     * Returns a new vector with each component of this vector multiplied by each corresponding
+     * component of the [other] vector.
+     */
     public inline operator fun times(other: Vector2): Vector2 =
         Vector2(this.x * other.x, this.y * other.y)
 
     /** Returns a new vector with this vector divided by a scalar amount. */
     public inline operator fun div(c: Float): Vector2 = Vector2(x / c, y / c)
 
-    /** Returns a new vector with this vector divided by the [other] vector. */
+    /**
+     * Returns a new vector with each component of this vector divided by each corresponding
+     * component of the [other] vector.
+     */
     public inline operator fun div(other: Vector2): Vector2 = Vector2(x / other.x, y / other.y)
 
     /** Returns a normalized version of this vector. */

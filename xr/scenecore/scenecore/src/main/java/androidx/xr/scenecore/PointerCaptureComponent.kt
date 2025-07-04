@@ -19,6 +19,10 @@ package androidx.xr.scenecore
 import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.internal.InputEventListener as RtInputEventListener
+import androidx.xr.runtime.internal.JxrPlatformAdapter
+import androidx.xr.runtime.internal.PointerCaptureComponent as RtPointerCaptureComponent
 import java.util.concurrent.Executor
 
 /**
@@ -32,7 +36,7 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class PointerCaptureComponent
 private constructor(
-    private val runtime: JxrPlatformAdapter,
+    private val platformAdapter: JxrPlatformAdapter,
     private val entityManager: EntityManager,
     private val executor: Executor,
     private val stateListener: StateListener,
@@ -41,19 +45,18 @@ private constructor(
 
     private var attachedEntity: Entity? = null
 
-    private val rtInputEventListener =
-        JxrPlatformAdapter.InputEventListener { rtEvent ->
-            inputEventListener.onInputEvent(rtEvent.toInputEvent(entityManager))
-        }
+    private val rtInputEventListener = RtInputEventListener { rtEvent ->
+        inputEventListener.onInputEvent(rtEvent.toInputEvent(entityManager))
+    }
 
     private val rtStateListener =
-        JxrPlatformAdapter.PointerCaptureComponent.StateListener { pcState: Int ->
+        RtPointerCaptureComponent.StateListener { pcState: Int ->
             when (pcState) {
-                JxrPlatformAdapter.PointerCaptureComponent.POINTER_CAPTURE_STATE_PAUSED ->
+                RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED ->
                     stateListener.onStateChanged(POINTER_CAPTURE_STATE_PAUSED)
-                JxrPlatformAdapter.PointerCaptureComponent.POINTER_CAPTURE_STATE_ACTIVE ->
+                RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE ->
                     stateListener.onStateChanged(POINTER_CAPTURE_STATE_ACTIVE)
-                JxrPlatformAdapter.PointerCaptureComponent.POINTER_CAPTURE_STATE_STOPPED ->
+                RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED ->
                     stateListener.onStateChanged(POINTER_CAPTURE_STATE_STOPPED)
                 else -> {
                     Log.e(TAG, "Unknown pointer capture state received: ${pcState}")
@@ -63,7 +66,11 @@ private constructor(
         }
 
     private val rtComponent by lazy {
-        runtime.createPointerCaptureComponent(executor, rtStateListener, rtInputEventListener)
+        platformAdapter.createPointerCaptureComponent(
+            executor,
+            rtStateListener,
+            rtInputEventListener,
+        )
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -73,7 +80,7 @@ private constructor(
             [
                 POINTER_CAPTURE_STATE_PAUSED,
                 POINTER_CAPTURE_STATE_ACTIVE,
-                POINTER_CAPTURE_STATE_STOPPED
+                POINTER_CAPTURE_STATE_STOPPED,
             ]
     )
     internal annotation class PointerCaptureState
@@ -115,6 +122,7 @@ private constructor(
         private const val TAG: String = "PointerCaptureComponent"
 
         /** Factory function for creating [PointerCaptureComponent] instances. */
+        @Suppress("ExecutorRegistration")
         @JvmStatic
         public fun create(
             session: Session,
@@ -123,8 +131,8 @@ private constructor(
             inputListener: InputEventListener,
         ): PointerCaptureComponent =
             PointerCaptureComponent(
-                session.runtime,
-                session.entityManager,
+                session.platformAdapter,
+                session.scene.entityManager,
                 executor,
                 stateListener,
                 inputListener,

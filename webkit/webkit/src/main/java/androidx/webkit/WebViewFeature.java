@@ -19,17 +19,18 @@ package androidx.webkit;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
+import android.webkit.WebStorage;
 import android.webkit.WebView;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
-import androidx.core.os.CancellationSignal;
 import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.jspecify.annotations.NonNull;
@@ -49,10 +50,13 @@ import java.util.concurrent.Executor;
  */
 public class WebViewFeature {
 
-    private WebViewFeature() {}
+    private WebViewFeature() {
+    }
 
     /**
+     *
      */
+    @SuppressLint("UnsafeOptInUsageError") // Don't mark WebViewSupportFeature as experimental.
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
             VISUAL_STATE_CALLBACK,
@@ -115,12 +119,21 @@ public class WebViewFeature {
             BACK_FORWARD_CACHE,
             DEFAULT_TRAFFICSTATS_TAGGING,
             DELETE_BROWSING_DATA,
+            PRERENDER_WITH_URL,
+            SAVE_STATE,
+            NAVIGATION_CALLBACK_BASIC,
+            CACHE_PROVIDER,
+            PAYMENT_REQUEST,
+            WEBVIEW_BUILDER,
+            WARM_UP_RENDERER_PROCESS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
-    public @interface WebViewSupportFeature {}
+    public @interface WebViewSupportFeature {
+    }
 
     /**
+     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @StringDef(value = {
@@ -130,39 +143,39 @@ public class WebViewFeature {
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
-    public @interface WebViewStartupFeature {}
+    public @interface WebViewStartupFeature {
+    }
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
+     * {@link WebViewCompat#postVisualStateCallback(WebView, long,
      * WebViewCompat.VisualStateCallback)}, and {@link
-     * WebViewClientCompat#onPageCommitVisible(
-     * android.webkit.WebView, String)}.
+     * WebViewClientCompat#onPageCommitVisible(WebView, String)}.
      */
     public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#getOffscreenPreRaster(WebSettings)}, and
-     * {@link androidx.webkit.WebSettingsCompat#setOffscreenPreRaster(WebSettings, boolean)}.
+     * {@link WebSettingsCompat#getOffscreenPreRaster(WebSettings)}, and
+     * {@link WebSettingsCompat#setOffscreenPreRaster(WebSettings, boolean)}.
      */
     public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#getSafeBrowsingEnabled(WebSettings)}, and
-     * {@link androidx.webkit.WebSettingsCompat#setSafeBrowsingEnabled(WebSettings, boolean)}.
+     * {@link WebSettingsCompat#getSafeBrowsingEnabled(WebSettings)}, and
+     * {@link WebSettingsCompat#setSafeBrowsingEnabled(WebSettings, boolean)}.
      */
     public static final String SAFE_BROWSING_ENABLE = "SAFE_BROWSING_ENABLE";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#getDisabledActionModeMenuItems(WebSettings)}, and
-     * {@link androidx.webkit.WebSettingsCompat#setDisabledActionModeMenuItems(WebSettings, int)}.
+     * {@link WebSettingsCompat#getDisabledActionModeMenuItems(WebSettings)}, and
+     * {@link WebSettingsCompat#setDisabledActionModeMenuItems(WebSettings, int)}.
      */
     @SuppressLint("IntentName") // False positive: this constant is not to be used for Intents.
     public static final String DISABLED_ACTION_MODE_MENU_ITEMS =
@@ -170,28 +183,27 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#startSafeBrowsing(Context, ValueCallback)}.
+     * This feature covers {@link WebViewCompat#startSafeBrowsing(Context, ValueCallback)}.
      */
     public static final String START_SAFE_BROWSING = "START_SAFE_BROWSING";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set, ValueCallback)}.
+     * {@link WebViewCompat#setSafeBrowsingAllowlist(Set, ValueCallback)}.
      */
     public static final String SAFE_BROWSING_ALLOWLIST = "SAFE_BROWSING_ALLOWLIST";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
+     * {@link WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
      *
      * <p>This is functionally equivalent to {@link #SAFE_BROWSING_ALLOWLIST}: both constants
      * represent the same range of compatibility across Android OS versions and WebView versions.
      *
      * @deprecated Please use {@link #SAFE_BROWSING_ALLOWLIST} and {@link
-     * androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
+     * WebViewCompat#setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
      */
     @Deprecated
     public static final String SAFE_BROWSING_WHITELIST = "SAFE_BROWSING_WHITELIST";
@@ -199,7 +211,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#getSafeBrowsingPrivacyPolicyUrl()}.
+     * {@link WebViewCompat#getSafeBrowsingPrivacyPolicyUrl()}.
      */
     public static final String SAFE_BROWSING_PRIVACY_POLICY_URL =
             "SAFE_BROWSING_PRIVACY_POLICY_URL";
@@ -256,7 +268,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebViewClientCompat#onReceivedError(android.webkit.WebView, WebResourceRequest,
+     * {@link WebViewClientCompat#onReceivedError(WebView, WebResourceRequest,
      * WebResourceErrorCompat)}.
      */
     public static final String RECEIVE_WEB_RESOURCE_ERROR = "RECEIVE_WEB_RESOURCE_ERROR";
@@ -264,7 +276,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, WebResourceRequest,
+     * {@link WebViewClientCompat#onReceivedHttpError(WebView, WebResourceRequest,
      * WebResourceResponse)}.
      */
     public static final String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
@@ -272,8 +284,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebViewClientCompat#shouldOverrideUrlLoading(android.webkit.WebView,
-     * WebResourceRequest)}.
+     * {@link WebViewClientCompat#shouldOverrideUrlLoading(WebView, WebResourceRequest)}.
      */
     public static final String SHOULD_OVERRIDE_WITH_REDIRECTS =
             "SHOULD_OVERRIDE_WITH_REDIRECTS";
@@ -281,7 +292,7 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
+     * {@link WebViewClientCompat#onSafeBrowsingHit(WebView,
      * WebResourceRequest, int, SafeBrowsingResponseCompat)}.
      */
     public static final String SAFE_BROWSING_HIT = "SAFE_BROWSING_HIT";
@@ -347,16 +358,14 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebMessagePortCompat#postMessage(WebMessageCompat)}.
+     * This feature covers {@link WebMessagePortCompat#postMessage(WebMessageCompat)}.
      */
     public static final String WEB_MESSAGE_PORT_POST_MESSAGE =
             "WEB_MESSAGE_PORT_POST_MESSAGE";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebMessagePortCompat#close()}.
+     * This feature covers {@link WebMessagePortCompat#close()}.
      */
     public static final String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";
 
@@ -372,9 +381,9 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebMessagePortCompat#setWebMessageCallback(
+     * {@link WebMessagePortCompat#setWebMessageCallback(
      * WebMessagePortCompat.WebMessageCallbackCompat)}, and
-     * {@link androidx.webkit.WebMessagePortCompat#setWebMessageCallback(Handler,
+     * {@link WebMessagePortCompat#setWebMessageCallback(Handler,
      * WebMessagePortCompat.WebMessageCallbackCompat)}.
      */
     public static final String WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK =
@@ -382,15 +391,13 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#createWebMessageChannel(WebView)}.
+     * This feature covers {@link WebViewCompat#createWebMessageChannel(WebView)}.
      */
     public static final String CREATE_WEB_MESSAGE_CHANNEL = "CREATE_WEB_MESSAGE_CHANNEL";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
+     * This feature covers {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
      */
     public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
 
@@ -405,19 +412,19 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.WebViewCompat#getWebViewClient(WebView)}
+     * This feature covers {@link WebViewCompat#getWebViewClient(WebView)}
      */
     public static final String GET_WEB_VIEW_CLIENT = "GET_WEB_VIEW_CLIENT";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.WebViewCompat#getWebChromeClient(WebView)}
+     * This feature covers {@link WebViewCompat#getWebChromeClient(WebView)}
      */
     public static final String GET_WEB_CHROME_CLIENT = "GET_WEB_CHROME_CLIENT";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.WebViewCompat#getWebViewRenderProcess(WebView)}
+     * This feature covers {@link WebViewCompat#getWebViewRenderProcess(WebView)}
      */
     public static final String GET_WEB_VIEW_RENDERER = "GET_WEB_VIEW_RENDERER";
 
@@ -428,10 +435,10 @@ public class WebViewFeature {
     public static final String WEB_VIEW_RENDERER_TERMINATE = "WEB_VIEW_RENDERER_TERMINATE";
 
     /**
-     i* Feature for {@link #isFeatureSupported(String)}.
+     * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#getWebViewRenderProcessClient(WebView)},
-     * {@link androidx.webkit.WebViewCompat#setWebViewRenderProcessClient(WebView, WebViewRenderProcessClient)},
+     * {@link WebViewCompat#getWebViewRenderProcessClient(WebView)},
+     * {@link WebViewCompat#setWebViewRenderProcessClient(WebView, WebViewRenderProcessClient)},
      */
     public static final String WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE =
             "WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE";
@@ -476,23 +483,21 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
+     * This feature covers {@link WebViewCompat#addWebMessageListener(WebView,
      * String, Set, WebViewCompat.WebMessageListener)} and {@link
-     * WebViewCompat#removeWebMessageListener(android.webkit.WebView, String)}.
+     * WebViewCompat#removeWebMessageListener(WebView, String)}.
      */
     public static final String WEB_MESSAGE_LISTENER = "WEB_MESSAGE_LISTENER";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers {@link WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView,
-     * String, Set)}.
+     * This feature covers {@link WebViewCompat#addDocumentStartJavaScript(WebView, String, Set)}.
      */
     public static final String DOCUMENT_START_SCRIPT = "DOCUMENT_START_SCRIPT";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
+     * This feature covers {@link ProxyConfig.Builder#setReverseBypassEnabled(boolean)}
      */
     public static final String PROXY_OVERRIDE_REVERSE_BYPASS = "PROXY_OVERRIDE_REVERSE_BYPASS";
 
@@ -507,7 +512,6 @@ public class WebViewFeature {
      * This feature covers
      * {@link WebSettingsCompat#setEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings, boolean)}and
      * {@link WebSettingsCompat#getEnterpriseAuthenticationAppLinkPolicyEnabled(WebSettings)}.
-     *
      */
     public static final String ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY =
             "ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY";
@@ -521,36 +525,32 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isStartupFeatureSupported(Context, String)}.
-     * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDataDirectorySuffix(Context, String)}.
+     * This feature covers {@link ProcessGlobalConfig#setDataDirectorySuffix(Context, String)}.
      */
     public static final String STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX =
             "STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX";
 
     /**
      * Feature for {@link #isStartupFeatureSupported(Context, String)}.
-     * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
+     * This feature covers {@link ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
      */
     public static final String STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS =
             "STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS";
 
     /**
      * Feature for {@link #isStartupFeatureSupported(Context, String)}.
-     * This feature covers
-     * {@link androidx.webkit.ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
+     * This feature covers {@link ProcessGlobalConfig#setDirectoryBasePaths(Context, File, File)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES =
             "STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)],
-     * {@link androidx.webkit.WebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)},
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getRequestedWithHeaderAllowList(WebSettings)}, and
-     * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setRequestedWithHeaderAllowList(WebSettings, Set)}.
+     * {@link WebSettingsCompat#getRequestedWithHeaderOriginAllowList(WebSettings)},
+     * {@link WebSettingsCompat#setRequestedWithHeaderOriginAllowList(WebSettings, Set)},
+     * {@link ServiceWorkerWebSettingsCompat#getRequestedWithHeaderOriginAllowList()},
+     * {@link ServiceWorkerWebSettingsCompat#setRequestedWithHeaderOriginAllowList(Set)}
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String REQUESTED_WITH_HEADER_ALLOW_LIST =
@@ -559,8 +559,8 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
-     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
+     * {@link WebSettingsCompat#getUserAgentMetadata(WebSettings)}, and
+     * {@link WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)}.
      */
     public static final String USER_AGENT_METADATA = "USER_AGENT_METADATA";
 
@@ -583,8 +583,8 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
-     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     * {@link WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     * {@link WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
      */
     public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR =
             "ATTRIBUTION_REGISTRATION_BEHAVIOR";
@@ -592,8 +592,8 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebViewMediaIntegrityApiStatusConfig)}
-     * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
+     * {@link WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebViewMediaIntegrityApiStatusConfig)}
+     * {@link WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
      */
     public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS =
             "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
@@ -601,24 +601,24 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#isAudioMuted(WebView)}
-     * {@link androidx.webkit.WebViewCompat#setAudioMuted(WebView, boolean)}
+     * {@link WebViewCompat#isAudioMuted(WebView)}
+     * {@link WebViewCompat#setAudioMuted(WebView, boolean)}
      */
     public static final String MUTE_AUDIO = "MUTE_AUDIO";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
-     * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
+     * {@link WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
+     * {@link WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
      */
     public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setSpeculativeLoadingStatus(WebSettings, int)}
-     * {@link androidx.webkit.WebSettingsCompat#getSpeculativeLoadingStatus(WebSettings)}}
+     * {@link WebSettingsCompat#setSpeculativeLoadingStatus(WebSettings, int)}
+     * {@link WebSettingsCompat#getSpeculativeLoadingStatus(WebSettings)}}
      */
     public static final String SPECULATIVE_LOADING =
             "SPECULATIVE_LOADING_STATUS";
@@ -626,30 +626,130 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheEnabled(WebSettings, boolean)}
-     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheEnabled(WebSettings)}
+     * {@link WebSettingsCompat#setBackForwardCacheEnabled(WebSettings, boolean)}
+     * {@link WebSettingsCompat#getBackForwardCacheEnabled(WebSettings)}
      */
     public static final String BACK_FORWARD_CACHE = "BACK_FORWARD_CACHE";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.Profile#prefetchUrlAsync(String, CancellationSignal, SpeculativeLoadingParameters, OutcomeReceiverCompat)}
-     * {@link androidx.webkit.Profile#prefetchUrlAsync(String, CancellationSignal, OutcomeReceiverCompat)}
-     * {@link androidx.webkit.Profile#clearPrefetchAsync(String, OutcomeReceiverCompat)}
+     * {@link Profile#prefetchUrlAsync(String, CancellationSignal, Executor, SpeculativeLoadingParameters, OutcomeReceiverCompat)}
+     * {@link Profile#prefetchUrlAsync(String, CancellationSignal, Executor, OutcomeReceiverCompat)}
+     * {@link Profile#clearPrefetchAsync(String, Executor, OutcomeReceiverCompat)}
      */
     @Profile.ExperimentalUrlPrefetch
-    public static final String PROFILE_URL_PREFETCH = "PREFETCH_URL_V2";
+    public static final String PROFILE_URL_PREFETCH = "PREFETCH_URL_V5";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#setDefaultTrafficStatsTag(int)}}
+     */
+    public static final String DEFAULT_TRAFFICSTATS_TAGGING = "DEFAULT_TRAFFICSTATS_TAGGING";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setDefaultTrafficStatsTag(int)}}
+     * {@link WebStorageCompat#deleteBrowsingData(WebStorage, Executor, Runnable)},
+     * {@link WebStorageCompat#deleteBrowsingData(WebStorage, Runnable)},
+     * {@link WebStorageCompat#deleteBrowsingDataForSite(WebStorage, String, Executor, Runnable)},
+     * {@link WebStorageCompat#deleteBrowsingDataForSite(WebStorage, String, Runnable)}
      */
-    public static final String DEFAULT_TRAFFICSTATS_TAGGING = "DEFAULT_TRAFFICSTATS_TAGGING";
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String DELETE_BROWSING_DATA = "DELETE_BROWSING_DATA";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebViewCompat#prerenderUrl(WebView, String, CancellationSignal,
+     * Executor, SpeculativeLoadingParameters, PrerenderOperationCallback)}}
+     */
+    @WebViewCompat.ExperimentalUrlPrerender
+    public static final String PRERENDER_WITH_URL = "PRERENDER_URL_V2";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#setSpeculativeLoadingConfig(SpeculativeLoadingConfig)}
+     */
+    @Profile.ExperimentalUrlPrefetch
+    public static final String SPECULATIVE_LOADING_CONFIG = "SPECULATIVE_LOADING_CONFIG_V2";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#saveState}.
+     */
+    @WebViewCompat.ExperimentalSaveState
+    public static final String SAVE_STATE = "SAVE_STATE";
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#getWebNavigationClient(WebView)};
+     * This feature covers
+     * {@link WebViewCompat#setWebNavigationClient(WebView, WebNavigationClient)};
+     * This feature covers {@link Navigation#didCommitErrorPage()}.
+     * This feature covers {@link Navigation#getPage()}.
+     * This feature covers {@link Navigation#isBack()}.
+     * This feature covers {@link Navigation#isForward()}.
+     * This feature covers {@link Navigation#isHistory()}.
+     * This feature covers {@link Navigation#isRestore()}.
+     * This feature covers {@link Navigation#isReload()}.
+     * This feature covers {@link Navigation#wasInitiatedByPage()}.
+     * This feature covers {@link Navigation#isSameDocument()}.
+     * This feature covers {@link Navigation#didCommit()}.
+     * This feature covers the initial version of {@link Page}.
+     */
+    public static final String NAVIGATION_CALLBACK_BASIC = "WEB_VIEW_NAVIGATION_CLIENT_BASIC_USAGE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link WebViewCompat#setShouldCacheProvider(boolean)}.
+     */
+    @WebViewCompat.ExperimentalCacheProvider
+    public static final String CACHE_PROVIDER = "CACHE_PROVIDER";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebSettingsCompat#setPaymentRequestEnabled(WebSettings, boolean)},
+     * {@link WebSettingsCompat#getPaymentRequestEnabled(WebSettings)},
+     * {@link WebSettingsCompat#setHasEnrolledInstrumentEnabled(WebSettings, boolean)}, and
+     * {@link WebSettingsCompat#getHasEnrolledInstrumentEnabled(WebSettings)},
+     */
+    public static final String PAYMENT_REQUEST = "PAYMENT_REQUEST";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers:
+     * {@link WebViewBuilder#build(Context)},
+     * {@link WebViewBuilder#build(Context, AttributeSet)},
+     * {@link WebViewBuilder#build(Context, AttributeSet, int)} and
+     * {@link WebViewBuilder#build(Context, AttributeSet, int, int)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String WEBVIEW_BUILDER = "WEBVIEW_BUILDER";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link WebResourceResponseCompat#setCookies(List)}, as well as
+     * {@link WebSettingsCompat#setCookiesIncludedInShouldInterceptRequest(WebSettings, boolean)} and
+     * {@link ServiceWorkerWebSettingsCompat#setIncludeCookiesOnShouldInterceptRequestEnabled(boolean)}.
+     */
+    public static final String COOKIE_INTERCEPT = "COOKIE_INTERCEPT";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers {@link Profile#warmUpRendererProcess}.
+     */
+    @Profile.ExperimentalWarmUpRendererProcess
+    public static final String WARM_UP_RENDERER_PROCESS = "WARM_UP_RENDERER_PROCESS";
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers {@link Profile#setOriginMatchedHeader(String, String, Set)},
+     * {@link Profile#clearOriginMatchedHeader(String)}, and {@link Profile#clearAllOriginMatchedHeaders()}.
+     */
+    public static final String ORIGIN_MATCHED_HEADERS = "ORIGIN_MATCHED_HEADERS";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
@@ -657,9 +757,9 @@ public class WebViewFeature {
      * device, and the WebView APK on the device.
      *
      * <p class="note"><b>Note:</b> This method is different from
-     * {@link WebViewFeature#isStartupFeatureSupported(Context, String)} and this method only accepts
-     * certain features. Please verify that the correct feature checking method is used for a
-     * particular feature.
+     * {@link WebViewFeature#isStartupFeatureSupported(Context, String)} and this method only
+     * accepts certain features. Please verify that the correct feature checking method is used for
+     * a particular feature.
      *
      * <p class="note"><b>Note:</b> If this method returns {@code false}, it is not safe to invoke
      * the methods requiring the desired feature. Furthermore, if this method returns {@code false}
@@ -686,7 +786,7 @@ public class WebViewFeature {
      * the methods requiring the desired feature. Furthermore, if this method returns {@code false}
      * for a particular feature, any callback guarded by that feature will not be invoked.
      *
-     * @param context a Context to access application assets This value cannot be null.
+     * @param context        a Context to access application assets This value cannot be null.
      * @param startupFeature the startup feature to be checked
      * @return whether the feature is supported given the current platform SDK and WebView version
      */

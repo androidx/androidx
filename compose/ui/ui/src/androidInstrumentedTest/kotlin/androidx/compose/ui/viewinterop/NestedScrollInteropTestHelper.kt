@@ -98,7 +98,7 @@ internal open class InspectableNestedScrollConnection() : NestedScrollConnection
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
     ): Offset {
         consumedDownChain += consumed
         notConsumedByChild += available
@@ -128,7 +128,11 @@ internal open class InspectableNestedScrollConnection() : NestedScrollConnection
 
 internal class TestNestedScrollParentView(context: Context, attrs: AttributeSet) :
     CoordinatorLayout(context, attrs) {
-
+    var reportConsumedOnPreFling = false
+    var reportConsumedOnFling = false
+    var nestedPreFlingCalled = false
+    var nestedFlingCalled = false
+    var onNestedScrollNonTouchStartedCount = 0
     private val unconsumed = IntArray(2)
     val unconsumedOffset: Offset
         get() = unconsumed.toReversedOffset()
@@ -137,13 +141,13 @@ internal class TestNestedScrollParentView(context: Context, attrs: AttributeSet)
     val offeredToParentOffset: Offset
         get() = offeredToParent.toReversedOffset()
 
-    private val velocityOfferedToParent = FloatArray(2)
-    val velocityOfferedToParentOffset: Velocity
-        get() = velocityOfferedToParent.toReversedVelocity()
+    private val velocityDuringPreFlingPass = FloatArray(2)
+    val velocityDuringPreFlingPassOffset: Velocity
+        get() = velocityDuringPreFlingPass.toReversedVelocity()
 
-    private val velocityUnconsumed = FloatArray(2)
-    val velocityUnconsumedOffset: Velocity
-        get() = velocityUnconsumed.toReversedVelocity()
+    private val velocityDuringFlingPass = FloatArray(2)
+    val velocityDuringFlingPassOffset: Velocity
+        get() = velocityDuringFlingPass.toReversedVelocity()
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
         super.onNestedPreScroll(target, dx, dy, consumed, type)
@@ -152,8 +156,13 @@ internal class TestNestedScrollParentView(context: Context, attrs: AttributeSet)
     }
 
     override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
-        unconsumed.fill(0)
-        offeredToParent.fill(0)
+        if (axes != ViewCompat.SCROLL_AXIS_NONE) {
+            unconsumed.fill(0)
+            offeredToParent.fill(0)
+        }
+        if (type == ViewCompat.TYPE_NON_TOUCH) {
+            onNestedScrollNonTouchStartedCount++
+        }
         return super.onStartNestedScroll(child, target, axes, type)
     }
 
@@ -164,7 +173,7 @@ internal class TestNestedScrollParentView(context: Context, attrs: AttributeSet)
         dxUnconsumed: Int,
         dyUnconsumed: Int,
         type: Int,
-        consumed: IntArray
+        consumed: IntArray,
     ) {
         super.onNestedScroll(
             target,
@@ -173,27 +182,29 @@ internal class TestNestedScrollParentView(context: Context, attrs: AttributeSet)
             dxUnconsumed,
             dyUnconsumed,
             type,
-            consumed
+            consumed,
         )
         unconsumed[0] += dxConsumed
         unconsumed[1] += dyConsumed
     }
 
     override fun onNestedPreFling(target: View, velocityX: Float, velocityY: Float): Boolean {
-        velocityOfferedToParent[0] += velocityX
-        velocityOfferedToParent[1] += velocityY
-        return super.onNestedPreFling(target, velocityX, velocityY)
+        velocityDuringPreFlingPass[0] += velocityX
+        velocityDuringPreFlingPass[1] += velocityY
+        nestedPreFlingCalled = true
+        return super.onNestedPreFling(target, velocityX, velocityY) || reportConsumedOnPreFling
     }
 
     override fun onNestedFling(
         target: View,
         velocityX: Float,
         velocityY: Float,
-        consumed: Boolean
+        consumed: Boolean,
     ): Boolean {
-        velocityUnconsumed[0] += velocityX
-        velocityUnconsumed[0] += velocityY
-        return super.onNestedFling(target, velocityX, velocityY, consumed)
+        velocityDuringFlingPass[0] += velocityX
+        velocityDuringFlingPass[1] += velocityY
+        nestedFlingCalled = true
+        return super.onNestedFling(target, velocityX, velocityY, consumed) || reportConsumedOnFling
     }
 }
 
@@ -206,7 +217,7 @@ internal class AllConsumingInspectableConnection : InspectableNestedScrollConnec
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
     ): Offset {
         super.onPostScroll(consumed, available, source)
         return available
@@ -260,7 +271,7 @@ internal fun NestedScrollInteropTestApp(modifier: Modifier = Modifier, content: 
 internal fun NestedScrollDeepNested(
     modifier: Modifier,
     enabled: Boolean,
-    connection: NestedScrollConnection? = null
+    connection: NestedScrollConnection? = null,
 ) {
     // Box (Compose) + AndroidView (View) +
     // Box (Compose)
@@ -289,7 +300,7 @@ internal fun ComposeInViewWithNestedScrollInterop() {
             Box(
                 modifier =
                     Modifier.padding(16.dp).height(56.dp).fillMaxWidth().background(Color.Gray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(item.toString())
             }
@@ -302,7 +313,7 @@ internal fun ComposeInViewWithNestedScrollInterop() {
 internal fun NestedScrollInteropWithView(
     modifier: Modifier = Modifier,
     enabled: Boolean,
-    recyclerViewConsumptionTracker: RecyclerViewConsumptionTracker
+    recyclerViewConsumptionTracker: RecyclerViewConsumptionTracker,
 ) {
     NestedScrollInteropTestApp(modifier) { context ->
         LayoutInflater.from(context)
@@ -319,7 +330,7 @@ internal fun NestedScrollInteropWithView(
                             override fun onFling(velocityX: Int, velocityY: Int): Boolean {
                                 recyclerViewConsumptionTracker.trackVelocityConsumed(
                                     velocityX,
-                                    velocityY
+                                    velocityY,
                                 )
                                 return false
                             }
@@ -334,7 +345,7 @@ internal fun ActivityScenario<*>.createActivityWithComposeContent(
     @LayoutRes layout: Int,
     enableInterop: Boolean,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     onActivity { activity ->
         activity.setTheme(R.style.Theme_MaterialComponents_Light)
@@ -366,7 +377,7 @@ internal fun RecyclerViewAndroidView(interopEnabled: Boolean) {
                 }
                 .also { ViewCompat.setNestedScrollingEnabled(it, interopEnabled) }
         },
-        modifier = Modifier.testTag(AndroidViewContainer)
+        modifier = Modifier.testTag(AndroidViewContainer),
     )
 }
 

@@ -18,9 +18,15 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.wear.compose.foundation.CurvedModifier
+import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.TimeTextDefaults
+import androidx.wear.compose.material3.curvedText
+import androidx.wear.compose.material3.timeTextCurvedText
+import androidx.wear.compose.material3.timeTextSeparator
 
 @Sampled
 @Composable
@@ -32,11 +38,27 @@ fun TimeTextClockOnly() {
 @Sampled
 @Composable
 fun TimeTextWithStatus() {
+    val style = TimeTextDefaults.timeTextStyle()
     val primaryStyle =
         TimeTextDefaults.timeTextStyle(color = MaterialTheme.colorScheme.primaryContainer)
-    TimeText {
-        text("ETA 12:48", style = primaryStyle)
-        separator()
-        time()
+    TimeText { time ->
+        timeTextCurvedText("ETA 12:48", style = primaryStyle)
+        timeTextSeparator(style)
+        timeTextCurvedText(time)
+    }
+}
+
+@Sampled
+@Composable
+fun TimeTextWithStatusEllipsized() {
+    val style = TimeTextDefaults.timeTextStyle()
+    TimeText { time ->
+        curvedText(
+            "Long status that should be ellipsized.",
+            CurvedModifier.weight(1f),
+            overflow = TextOverflow.Ellipsis,
+        )
+        timeTextSeparator(style)
+        timeTextCurvedText(time)
     }
 }

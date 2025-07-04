@@ -41,6 +41,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -56,6 +57,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Text
@@ -168,11 +170,13 @@ class SwipeDismissableNavHostTest {
 
         // As the finger is still 'down', the background should be visible.
         rule.onNodeWithText(START).assertExists()
+        // Assert that the foreground screen still holds the focus
+        rule.onNodeWithTag(TEST_TAG_NEXT).assertIsFocused()
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun does_not_navigate_back_to_previous_level_after_swipe_api_35() {
+    @SdkSuppress(minSdkVersion = 36)
+    fun does_not_navigate_back_to_previous_level_after_swipe_api_36() {
 
         rule.setContentWithBackPressedDispatcher { SwipeDismissWithNavigation() }
 
@@ -180,14 +184,14 @@ class SwipeDismissableNavHostTest {
         rule.onNodeWithText(START).performClick()
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
 
-        // Should now display "start".
+        // Should not display "start".
         rule.onNodeWithText(START).assertDoesNotExist()
     }
 
     @ExperimentalTestApi
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-    fun displays_previous_screen_during_predictive_back_api_35() {
+    @SdkSuppress(minSdkVersion = 36)
+    fun displays_previous_screen_during_predictive_back_api_36() {
 
         rule.setContentWithBackPressedDispatcher { SwipeDismissWithNavigation() }
 
@@ -205,6 +209,8 @@ class SwipeDismissableNavHostTest {
 
         // As the finger is still 'down', the background should be visible.
         rule.onNodeWithText(START).assertExists()
+        // Assert that the foreground screen still holds the focus
+        rule.onNodeWithTag(TEST_TAG_NEXT).assertIsFocused()
     }
 
     @Test
@@ -224,7 +230,7 @@ class SwipeDismissableNavHostTest {
                         var toggle by rememberSaveable { mutableStateOf(false) }
                         Box(
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             Column {
                                 ToggleButton(
@@ -233,11 +239,7 @@ class SwipeDismissableNavHostTest {
                                     content = { Text(text = if (toggle) "On" else "Off") },
                                     modifier = Modifier.testTag("ToggleButton"),
                                 )
-                                Button(
-                                    onClick = { navController.navigate(NEXT) },
-                                ) {
-                                    Text("Go")
-                                }
+                                Button(onClick = { navController.navigate(NEXT) }) { Text("Go") }
                             }
                         }
                     }
@@ -273,7 +275,7 @@ class SwipeDismissableNavHostTest {
                         Column(
                             modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             ToggleButton(
                                 checked = toggle,
@@ -281,11 +283,7 @@ class SwipeDismissableNavHostTest {
                                 content = { Text(text = if (toggle) "On" else "Off") },
                                 modifier = Modifier.testTag("ToggleButton"),
                             )
-                            Button(
-                                onClick = { navController.navigate(NEXT) },
-                            ) {
-                                Text("Go")
-                            }
+                            Button(onClick = { navController.navigate(NEXT) }) { Text("Go") }
                         }
                     }
                 }
@@ -296,16 +294,12 @@ class SwipeDismissableNavHostTest {
                         Column(
                             modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                             verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Button(onClick = { ++counter }, modifier = Modifier.testTag(COUNTER)) {
                                 Text("$counter")
                             }
-                            Button(
-                                onClick = { navController.navigate(START) },
-                            ) {
-                                Text("Jump")
-                            }
+                            Button(onClick = { navController.navigate(START) }) { Text("Jump") }
                         }
                     }
                 }
@@ -454,25 +448,31 @@ class SwipeDismissableNavHostTest {
     @Composable
     fun SwipeDismissWithNavigation(
         navController: NavHostController = rememberSwipeDismissableNavController(),
-        userSwipeEnabled: Boolean = true
+        userSwipeEnabled: Boolean = true,
     ) {
         SwipeDismissableNavHost(
             navController = navController,
             startDestination = START,
             modifier = Modifier.testTag(TEST_TAG),
-            userSwipeEnabled = userSwipeEnabled
+            userSwipeEnabled = userSwipeEnabled,
         ) {
             composable(START) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CompactChip(
-                        onClick = { navController.navigate(NEXT) },
-                        label = { Text(text = START) }
-                    )
+                    ScalingLazyColumn(modifier = Modifier.testTag(TEST_TAG_START)) {
+                        item {
+                            CompactChip(
+                                onClick = { navController.navigate(NEXT) },
+                                label = { Text(text = START) },
+                            )
+                        }
+                    }
                 }
             }
-            composable("next") {
+            composable(NEXT) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(NEXT)
+                    ScalingLazyColumn(modifier = Modifier.testTag(TEST_TAG_NEXT)) {
+                        item { Text(NEXT) }
+                    }
                 }
             }
         }
@@ -482,7 +482,7 @@ class SwipeDismissableNavHostTest {
      * Depending on API level, either swipes right on the view with TEST_TAG, or presses back button
      */
     private fun goBack() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             rule.runOnIdle { backPressedDispatcher.onBackPressed() }
         } else {
             rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
@@ -509,3 +509,5 @@ private const val NEXT = "next"
 private const val START = "start"
 private const val COUNTER = "counter"
 private const val TEST_TAG = "test-item"
+private const val TEST_TAG_NEXT = "test-tag-next"
+private const val TEST_TAG_START = "test-tag-start"

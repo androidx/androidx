@@ -31,7 +31,7 @@ val DEVICE_TYPE_STRING_TO_INT_MAP =
         DeviceTypes.RING to Device.TYPE_RING,
         DeviceTypes.SCALE to Device.TYPE_SCALE,
         DeviceTypes.SMART_DISPLAY to Device.TYPE_SMART_DISPLAY,
-        DeviceTypes.WATCH to Device.TYPE_WATCH
+        DeviceTypes.WATCH to Device.TYPE_WATCH,
     )
 
 val DEVICE_TYPE_INT_TO_STRING_MAP: Map<Int, String> =

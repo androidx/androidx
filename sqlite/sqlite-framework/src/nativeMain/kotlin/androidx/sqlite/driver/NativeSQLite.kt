@@ -47,7 +47,7 @@ import sqlite3.sqlite3_errmsg16
             SQLITE_OPEN_NOMUTEX,
             SQLITE_OPEN_FULLMUTEX,
             SQLITE_OPEN_NOFOLLOW,
-            SQLITE_OPEN_EXRESCODE
+            SQLITE_OPEN_EXRESCODE,
         ],
 )
 @Retention(AnnotationRetention.SOURCE)

@@ -42,7 +42,7 @@ abstract class BasePagingTest {
                 PagingSource.LoadParams.Refresh(
                     key = null,
                     loadSize = 1,
-                    placeholdersEnabled = true
+                    placeholdersEnabled = true,
                 )
             ) as LoadResult.Page
         assertThat(onlyLoadFirst.data).containsExactly(entity1)
@@ -52,7 +52,7 @@ abstract class BasePagingTest {
                 PagingSource.LoadParams.Refresh(
                     key = null,
                     loadSize = 2,
-                    placeholdersEnabled = true
+                    placeholdersEnabled = true,
                 )
             ) as LoadResult.Page
         assertThat(loadAll.data).containsExactlyElementsIn(sampleEntities)
@@ -75,7 +75,7 @@ abstract class BasePagingTest {
                 PagingSource.LoadParams.Refresh(
                     key = null,
                     loadSize = 1,
-                    placeholdersEnabled = true
+                    placeholdersEnabled = true,
                 )
             ) as LoadResult.Page
         assertThat(onlyLoadFirst.data).containsExactly(entity2)
@@ -85,7 +85,7 @@ abstract class BasePagingTest {
                 PagingSource.LoadParams.Refresh(
                     key = null,
                     loadSize = 2,
-                    placeholdersEnabled = true
+                    placeholdersEnabled = true,
                 )
             ) as LoadResult.Page
         assertThat(loadAll.data).containsExactlyElementsIn(listOf(entity2, entity3))

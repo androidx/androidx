@@ -127,13 +127,13 @@ class TestRuleExecutesLayoutPassesWhenWaitingForIdleTest {
                             left: Int,
                             top: Int,
                             right: Int,
-                            bottom: Int
+                            bottom: Int,
                         ) {
                             viewLayouts++
                             super.onLayout(changed, left, top, right, bottom)
                         }
                     }
-                }
+                },
             )
 
             LaunchedEffect(Unit) {

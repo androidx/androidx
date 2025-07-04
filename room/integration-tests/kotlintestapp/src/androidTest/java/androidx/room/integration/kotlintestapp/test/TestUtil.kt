@@ -36,7 +36,7 @@ class TestUtil {
         fun <T> observeOnMainThread(
             liveData: LiveData<T>,
             provider: LifecycleOwner,
-            observer: Observer<T>
+            observer: Observer<T>,
         ) {
             val futureTask = FutureTask { liveData.observe(provider, observer) }
             ArchTaskExecutor.getInstance().executeOnMainThread(futureTask)
@@ -63,7 +63,7 @@ class TestUtil {
                 mPetId = id,
                 mUserId = id,
                 mName = UUID.randomUUID().toString(),
-                mAdoptionDate = Date()
+                mAdoptionDate = Date(),
             )
         }
     }

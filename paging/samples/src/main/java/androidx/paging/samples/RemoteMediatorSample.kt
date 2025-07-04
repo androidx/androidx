@@ -67,7 +67,7 @@ fun remoteMediatorItemKeyedSample() {
     class ExampleRemoteMediator(
         private val query: String,
         private val database: RoomDb,
-        private val networkService: ExampleBackendService
+        private val networkService: ExampleBackendService,
     ) : RemoteMediator<Int, User>() {
         val userDao = database.userDao()
 
@@ -86,7 +86,7 @@ fun remoteMediatorItemKeyedSample() {
 
         override suspend fun load(
             loadType: LoadType,
-            state: PagingState<Int, User>
+            state: PagingState<Int, User>,
         ): MediatorResult {
             return try {
                 // The network load method takes an optional `after=<user.id>` parameter. For every
@@ -156,7 +156,7 @@ fun remoteMediatorPageKeyedSample() {
     class ExampleRemoteMediator(
         private val query: String,
         private val database: RoomDb,
-        private val networkService: ExampleBackendService
+        private val networkService: ExampleBackendService,
     ) : RemoteMediator<Int, User>() {
         val userDao = database.userDao()
         val remoteKeyDao = database.remoteKeyDao()
@@ -176,7 +176,7 @@ fun remoteMediatorPageKeyedSample() {
 
         override suspend fun load(
             loadType: LoadType,
-            state: PagingState<Int, User>
+            state: PagingState<Int, User>,
         ): MediatorResult {
             return try {
                 // The network load method takes an optional [String] parameter. For every page

@@ -41,5 +41,5 @@ public enum class StartupMode {
      * See
      * [Hot startup documentation](https://developer.android.com/topic/performance/vitals/launch-time#hot)
      */
-    HOT
+    HOT,
 }

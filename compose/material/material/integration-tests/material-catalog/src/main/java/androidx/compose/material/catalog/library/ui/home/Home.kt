@@ -34,12 +34,12 @@ fun Home(
     components: List<Component>,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
-    onComponentClick: (component: Component) -> Unit
+    onComponentClick: (component: Component) -> Unit,
 ) {
     CatalogScaffold(
         topBarTitle = stringResource(id = R.string.compose_material),
         theme = theme,
-        onThemeChange = onThemeChange
+        onThemeChange = onThemeChange,
     ) { paddingValues ->
         BoxWithConstraints {
             val cellsCount = maxOf((maxWidth / HomeCellMinSize).toInt(), 1)
@@ -53,11 +53,11 @@ fun Home(
                             component = component,
                             onClick = onComponentClick,
                             index = index,
-                            cellsCount = cellsCount
+                            cellsCount = cellsCount,
                         )
                     }
                 },
-                contentPadding = paddingValues
+                contentPadding = paddingValues,
             )
         }
     }

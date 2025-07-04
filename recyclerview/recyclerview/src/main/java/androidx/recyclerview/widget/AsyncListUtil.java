@@ -20,10 +20,11 @@ import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A utility class that supports asynchronous content loading.
@@ -150,8 +151,7 @@ public class AsyncListUtil<T> {
      * @return The data item at the given position or <code>null</code> if it has not been loaded
      *         yet.
      */
-    @Nullable
-    public T getItem(int position) {
+    public @Nullable T getItem(int position) {
         if (position < 0 || position >= mItemCount) {
             throw new IndexOutOfBoundsException(position + " is not within 0 and " + mItemCount);
         }
@@ -475,7 +475,7 @@ public class AsyncListUtil<T> {
          *             <code>itemCount</code>.
          */
         @WorkerThread
-        public abstract void fillData(@NonNull T[] data, int startPosition, int itemCount);
+        public abstract void fillData(T @NonNull [] data, int startPosition, int itemCount);
 
         /**
          * Recycle the objects created in {@link #fillData} if necessary.
@@ -485,7 +485,7 @@ public class AsyncListUtil<T> {
          * @param itemCount The data item count.
          */
         @WorkerThread
-        public void recycleData(@NonNull T[] data, int itemCount) {
+        public void recycleData(T @NonNull [] data, int itemCount) {
         }
 
         /**
@@ -552,7 +552,7 @@ public class AsyncListUtil<T> {
          * @param outRange The visible item range.
          */
         @UiThread
-        public abstract void getItemRangeInto(@NonNull int[] outRange);
+        public abstract void getItemRangeInto(int @NonNull [] outRange);
 
         /**
          * Compute a wider range of items that will be loaded for smoother scrolling.
@@ -573,7 +573,8 @@ public class AsyncListUtil<T> {
          * @param scrollHint The scroll direction hint.
          */
         @UiThread
-        public void extendRangeInto(@NonNull int[] range, @NonNull int[] outRange, int scrollHint) {
+        public void extendRangeInto(int @NonNull [] range, int @NonNull [] outRange,
+                int scrollHint) {
             final int fullRange = range[1] - range[0] + 1;
             final int halfRange = fullRange / 2;
             outRange[0] = range[0] - (scrollHint == HINT_SCROLL_DESC ? fullRange : halfRange);

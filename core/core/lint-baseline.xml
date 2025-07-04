@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha08)" variant="all" version="8.8.0-alpha08">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="NewApi"
@@ -570,51 +570,6 @@
 
     <issue
         id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_MANIFEST = 1 &lt;&lt; 0;"
-        errorLine2="                                                  ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_DYNAMIC = 1 &lt;&lt; 1;"
-        errorLine2="                                                 ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_DYNAMIC = 1 &lt;&lt; 1;"
-        errorLine2="                                                      ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_PINNED = 1 &lt;&lt; 2;"
-        errorLine2="                                                ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: ShortcutManager.FLAG_MATCH_MANIFEST, ShortcutManager.FLAG_MATCH_DYNAMIC, ShortcutManager.FLAG_MATCH_PINNED, ShortcutManager.FLAG_MATCH_CACHED"
-        errorLine1="    public static final int FLAG_MATCH_PINNED = 1 &lt;&lt; 2;"
-        errorLine2="                                                     ~">
-        <location
-            file="src/main/java/androidx/core/content/pm/ShortcutManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
         message="Must be one of: Callback.DISPATCH_MODE_STOP, Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE"
         errorLine1="                super(compat.getDispatchMode());"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -885,7 +840,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 33)"
+        message="Unnecessary; `SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 33)"
         errorLine1="        } else if (SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
@@ -1043,42 +998,6 @@
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/ActivityCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"/>
     </issue>
 
     <issue
@@ -1389,7 +1308,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1407,7 +1326,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1524,7 +1443,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 24)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1632,7 +1551,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 33)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 33)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1668,7 +1587,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 24)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1902,7 +1821,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 28)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 28)"
         errorLine1="                    } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1911,7 +1830,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 31)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 31)"
         errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2280,7 +2199,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 24)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2379,7 +2298,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2388,7 +2307,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2406,7 +2325,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here (`SDK_INT` ≥ 21 and &lt; 24)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is always true here (`SDK_INT` ≥ 21 and &lt; 24)"
         errorLine1="            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2424,7 +2343,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2442,7 +2361,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 26)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 20` is always true here (`SDK_INT` ≥ 21 and &lt; 26)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 20) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2577,7 +2496,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 30)"
+        message="Unnecessary; `SDK_INT >= 20` is always true here (`SDK_INT` ≥ 21 and &lt; 30)"
         errorLine1="        } else if (SDK_INT >= 20) {"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
@@ -2595,7 +2514,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is never true here (`SDK_INT` ≥ 21 and &lt; 26)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP` is always true here (`SDK_INT` ≥ 21 and &lt; 26)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2739,7 +2658,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2892,7 +2811,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2901,7 +2820,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3090,7 +3009,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 30)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 30)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3108,7 +3027,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 30)"
+        message="Unnecessary; `Build.VERSION.SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 30)"
         errorLine1="        } else if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3144,7 +3063,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 21` is never true here (`SDK_INT` ≥ 21 and &lt; 28)"
+        message="Unnecessary; `SDK_INT >= 21` is always true here (`SDK_INT` ≥ 21 and &lt; 28)"
         errorLine1="        } else if (SDK_INT >= 21) {"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
@@ -3225,7 +3144,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 29)"
+        message="Unnecessary; `SDK_INT >= 20` is always true here (`SDK_INT` ≥ 21 and &lt; 29)"
         errorLine1="            } else if (SDK_INT >= 20) {"
         errorLine2="                       ~~~~~~~~~~~~~">
         <location
@@ -3234,7 +3153,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 29)"
+        message="Unnecessary; `SDK_INT >= 20` is always true here (`SDK_INT` ≥ 21 and &lt; 29)"
         errorLine1="            } else if (SDK_INT >= 20) {"
         errorLine2="                       ~~~~~~~~~~~~~">
         <location
@@ -3261,7 +3180,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT >= 20` is never true here (`SDK_INT` ≥ 21 and &lt; 23)"
+        message="Unnecessary; `SDK_INT >= 20` is always true here (`SDK_INT` ≥ 21 and &lt; 23)"
         errorLine1="        } else if (SDK_INT >= 20) {"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
@@ -4087,33 +4006,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setLabeledBy(View label) {"
-        errorLine2="                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setLabeledBy(View root, int virtualDescendantId) {"
-        errorLine2="                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public AccessibilityNodeInfoCompat getLabeledBy() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public List&lt;AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4798,6 +4690,15 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
         errorLine2="               ~~~~~~~~~~~">
         <location
@@ -4845,15 +4746,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public CharSequence title;"
-        errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"/>
     </issue>
@@ -5212,8 +5104,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setIcon(IconCompat icon) {"
-        errorLine2="                               ~~~~~~~~~~">
+        errorLine1="        public @NonNull Builder setIcon(IconCompat icon) {"
+        errorLine2="                                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"/>
     </issue>
@@ -5383,8 +5275,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Typeface createFromFamiliesWithDefault(Object family) {"
-        errorLine2="                                                     ~~~~~~">
+        errorLine1="    protected @Nullable Typeface createFromFamiliesWithDefault(Object family) {"
+        errorLine2="                                                               ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"/>
     </issue>
@@ -5392,8 +5284,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontFamilyFilesResourceEntry(Context context,"
-        errorLine2="                                                           ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontFamilyFilesResourceEntry(Context context,"
+        errorLine2="                                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"/>
     </issue>
@@ -5419,8 +5311,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontInfo(Context context,"
-        errorLine2="                                       ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontInfo(Context context,"
+        errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi26Impl.java"/>
     </issue>
@@ -5653,8 +5545,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontInfo(Context context,"
-        errorLine2="                                       ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontInfo(Context context,"
+        errorLine2="                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"/>
     </issue>
@@ -5662,8 +5554,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Typeface createFromFontFamilyFilesResourceEntry(Context context,"
-        errorLine2="                                                           ~~~~~~~">
+        errorLine1="    public @Nullable Typeface createFromFontFamilyFilesResourceEntry(Context context,"
+        errorLine2="                                                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"/>
     </issue>

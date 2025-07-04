@@ -42,7 +42,7 @@ internal expect fun String.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
     startIndex: Int,
-    endIndex: Int
+    endIndex: Int,
 )
 
 /**
@@ -260,7 +260,7 @@ class PartialGapBuffer(var text: String) {
                 charArray,
                 charArray.size - rightCopyCount,
                 end,
-                end + rightCopyCount
+                end + rightCopyCount,
             )
 
             // Copy given text into buffer
@@ -270,7 +270,7 @@ class PartialGapBuffer(var text: String) {
                 GapBuffer(
                     charArray,
                     initGapStart = leftCopyCount + text.length,
-                    initGapEnd = charArray.size - rightCopyCount
+                    initGapEnd = charArray.size - rightCopyCount,
                 )
             bufStart = start - leftCopyCount
             bufEnd = end + rightCopyCount

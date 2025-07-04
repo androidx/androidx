@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitChildren
 import androidx.compose.ui.unit.LayoutDirection
@@ -51,7 +52,7 @@ import androidx.compose.ui.unit.LayoutDirection.Rtl
  */
 internal fun FocusTargetNode.customFocusSearch(
     focusDirection: FocusDirection,
-    layoutDirection: LayoutDirection
+    layoutDirection: LayoutDirection,
 ): FocusRequester {
     val focusProperties = fetchFocusProperties()
     return when (focusDirection) {
@@ -78,17 +79,16 @@ internal fun FocusTargetNode.customFocusSearch(
         Exit -> {
             val scope = CancelIndicatingFocusBoundaryScope(focusDirection)
             with(focusProperties) {
-                val focusTransactionManager = focusTransactionManager
-                val generationBefore = focusTransactionManager?.generation ?: 0
+                val focusOwner = requireOwner().focusOwner
+                val activeNodeBefore = focusOwner.activeFocusTargetNode
                 if (focusDirection == Enter) {
                     scope.onEnter()
                 } else {
                     scope.onExit()
                 }
-                val generationAfter = focusTransactionManager?.generation ?: 0
                 if (scope.isCanceled) {
                     Cancel
-                } else if (generationBefore != generationAfter) {
+                } else if (activeNodeBefore !== focusOwner.activeFocusTargetNode) {
                     Redirect
                 } else {
                     Default
@@ -113,7 +113,7 @@ internal fun FocusTargetNode.focusSearch(
     focusDirection: FocusDirection,
     layoutDirection: LayoutDirection,
     previouslyFocusedRect: Rect?,
-    onFound: (FocusTargetNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean,
 ): Boolean? {
     return when (focusDirection) {
         Next,
@@ -168,19 +168,8 @@ internal val FocusTargetNode.activeChild: FocusTargetNode?
     }
 
 internal fun FocusTargetNode.findActiveFocusNode(): FocusTargetNode? {
-    when (focusState) {
-        Active,
-        Captured -> return this
-        ActiveParent -> {
-            visitChildren(Nodes.FocusTarget) { node ->
-                node.findActiveFocusNode()?.let {
-                    return it
-                }
-            }
-            return null
-        }
-        Inactive -> return null
-    }
+    val activeNode = requireOwner().focusOwner.activeFocusTargetNode
+    return if (activeNode != null && activeNode.isAttached) activeNode else null
 }
 
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")

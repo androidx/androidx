@@ -72,7 +72,7 @@ public class AnnotationProcessorKtTest {
         @Document.CreationTimestampMillis val creationTimestampMillis: Long = 0L,
         @Document.StringProperty(
             indexingType = AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES,
-            tokenizerType = AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN
+            tokenizerType = AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN,
         )
         val string: String? = null,
     )
@@ -121,7 +121,7 @@ public class AnnotationProcessorKtTest {
         @Document.BooleanProperty val boxBoolean: Boolean,
         @Document.BooleanProperty val unboxBoolean: Boolean = false,
         @Document.BytesProperty val unboxByteArr: ByteArray,
-        @Document.DocumentProperty val card: Card
+        @Document.DocumentProperty val card: Card,
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -178,7 +178,7 @@ public class AnnotationProcessorKtTest {
         @Document.StringProperty val nonNullList: List<String>,
         @Document.StringProperty val nullableList: List<String>?,
         @Document.BooleanProperty val nonNullBoolean: Boolean,
-        @Document.BooleanProperty val nullableBoolean: Boolean?
+        @Document.BooleanProperty val nullableBoolean: Boolean?,
     ) {}
 
     @Test
@@ -206,7 +206,7 @@ public class AnnotationProcessorKtTest {
         @Document.DocumentProperty val nonNullCustomTypes: List<Gift>,
         @Document.DocumentProperty val nullableCustomTypes: List<Gift>?,
         @Document.EmbeddingProperty val nonNullEmbeddings: List<EmbeddingVector>,
-        @Document.EmbeddingProperty val nullableEmbeddings: List<EmbeddingVector>?
+        @Document.EmbeddingProperty val nullableEmbeddings: List<EmbeddingVector>?,
     ) {}
 
     @Test
@@ -304,7 +304,7 @@ public class AnnotationProcessorKtTest {
             boxBoolean = true,
             unboxBoolean = false,
             unboxByteArr = byteArrayOf(1, 2, 3),
-            card = card1
+            card = card1,
         )
     }
 }

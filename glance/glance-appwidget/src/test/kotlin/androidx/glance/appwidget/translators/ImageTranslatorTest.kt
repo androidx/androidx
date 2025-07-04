@@ -75,7 +75,7 @@ class ImageTranslatorTest {
                 context.runAndTranslate {
                     Image(
                         provider = ImageProvider(expectedBitmap),
-                        contentDescription = "2x1 bitmap"
+                        contentDescription = "2x1 bitmap",
                     )
                 }
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
@@ -148,7 +148,7 @@ class ImageTranslatorTest {
                     Image(
                         provider = ImageProvider(R.drawable.oval),
                         contentDescription = "oval",
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
                 }
 
@@ -167,7 +167,7 @@ class ImageTranslatorTest {
                     Image(
                         provider = ImageProvider(R.drawable.oval),
                         contentDescription = "oval",
-                        contentScale = ContentScale.Fit
+                        contentScale = ContentScale.Fit,
                     )
                 }
 
@@ -186,7 +186,7 @@ class ImageTranslatorTest {
                     Image(
                         provider = ImageProvider(R.drawable.oval),
                         contentDescription = "oval",
-                        contentScale = ContentScale.FillBounds
+                        contentScale = ContentScale.FillBounds,
                     )
                 }
 
@@ -220,10 +220,7 @@ class ImageTranslatorTest {
         fakeCoroutineScope.runTest {
             val rv =
                 context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = "",
-                    )
+                    Image(provider = ImageProvider(R.drawable.oval), contentDescription = "")
                 }
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
@@ -277,7 +274,7 @@ class ImageTranslatorTest {
                     Image(
                         provider = ImageProvider(R.drawable.oval),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorProvider(Color.Gray))
+                        colorFilter = ColorFilter.tint(ColorProvider(Color.Gray)),
                     )
                 }
 
@@ -295,7 +292,7 @@ class ImageTranslatorTest {
                     Image(
                         provider = ImageProvider(R.drawable.oval),
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(colorProvider)
+                        colorFilter = ColorFilter.tint(colorProvider),
                     )
                 }
 
@@ -309,10 +306,7 @@ class ImageTranslatorTest {
         fakeCoroutineScope.runTest {
             val rv =
                 context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = null,
-                    )
+                    Image(provider = ImageProvider(R.drawable.oval), contentDescription = null)
                 }
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))

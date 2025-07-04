@@ -35,6 +35,7 @@ import androidx.glance.GlanceModifier
  * for details on why it is important to label a view as being the background, and why you will want
  * to set the [cornerRadius] of the same view.
  */
-fun GlanceModifier.appWidgetBackground(): GlanceModifier = this.then(AppWidgetBackgroundModifier)
+public fun GlanceModifier.appWidgetBackground(): GlanceModifier =
+    this.then(AppWidgetBackgroundModifier)
 
 internal object AppWidgetBackgroundModifier : GlanceModifier.Element

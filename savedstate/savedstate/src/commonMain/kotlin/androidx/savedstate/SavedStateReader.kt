@@ -16,20 +16,12 @@
 
 @file:JvmName("SavedStateReaderKt")
 @file:JvmMultifileClass
-@file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.savedstate
 
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
-
-@PublishedApi internal const val DEFAULT_BOOLEAN: Boolean = false
-@PublishedApi internal const val DEFAULT_CHAR: Char = 0.toChar()
-@PublishedApi internal const val DEFAULT_FLOAT: Float = 0F
-@PublishedApi internal const val DEFAULT_DOUBLE: Double = 0.0
-@PublishedApi internal const val DEFAULT_INT: Int = 0
-@PublishedApi internal const val DEFAULT_LONG: Long = 0L
 
 /**
  * An inline class that encapsulates an opaque [SavedState], and provides an API for reading the
@@ -40,478 +32,630 @@ import kotlin.jvm.JvmName
 @JvmInline
 public expect value class SavedStateReader
 @PublishedApi
-internal constructor(
-    @PublishedApi internal val source: SavedState,
-) {
+internal constructor(private val source: SavedState) {
 
     /**
-     * Retrieves a [Boolean] value associated with the specified [key].
+     * Retrieves a [Boolean] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getBoolean(key: String): Boolean
+    public fun getBoolean(key: String): Boolean
 
     /**
-     * Retrieves a [Boolean] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
+     * Retrieves a [Boolean] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getBooleanOrElse(key: String, defaultValue: () -> Boolean): Boolean
+    public fun getBooleanOrNull(key: String): Boolean?
 
     /**
-     * Retrieves a [Char] value associated with the specified [key].
+     * Retrieves a [Char] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     */
-    public inline fun getChar(key: String): Char
-
-    /**
-     * Retrieves a [Char] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getCharOrElse(key: String, defaultValue: () -> Char): Char
-
-    /**
-     * Retrieves a [CharSequence] value associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getCharSequence(key: String): CharSequence
+    public fun getChar(key: String): Char
 
     /**
-     * Retrieves a [CharSequence] value associated with the specified [key], or returns
-     * [defaultValue] if the [key] is not found or the associated value has the wrong type.
+     * Retrieves a [Char] value associated with the specified [key], or `null` if this [SavedState]
+     * does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getCharSequenceOrElse(
-        key: String,
-        defaultValue: () -> CharSequence
-    ): CharSequence
+    public fun getCharOrNull(key: String): Char?
 
     /**
-     * Retrieves a [Double] value associated with the specified [key].
+     * Retrieves a [CharSequence] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     */
-    public inline fun getDouble(key: String): Double
-
-    /**
-     * Retrieves a [Double] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getDoubleOrElse(key: String, defaultValue: () -> Double): Double
-
-    /**
-     * Retrieves a [Float] value associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getFloat(key: String): Float
+    public fun getCharSequence(key: String): CharSequence
 
     /**
-     * Retrieves a [Float] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
+     * Retrieves a [CharSequence] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getFloatOrElse(key: String, defaultValue: () -> Float): Float
+    public fun getCharSequenceOrNull(key: String): CharSequence?
 
     /**
-     * Retrieves an [Int] value associated with the specified [key].
+     * Retrieves a [Double] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     */
-    public inline fun getInt(key: String): Int
-
-    /**
-     * Retrieves a [Int] value associated with the specified [key], or returns [defaultValue] if the
-     * [key] is not found or the associated value has the wrong type.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getIntOrElse(key: String, defaultValue: () -> Int): Int
-
-    /**
-     * Retrieves an [Long] value associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getLong(key: String): Long
+    public fun getDouble(key: String): Double
 
     /**
-     * Retrieves a [Long] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
+     * Retrieves a [Double] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long
+    public fun getDoubleOrNull(key: String): Double?
 
     /**
-     * Retrieves a [String] value associated with the specified [key].
+     * Retrieves a [Float] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
-     */
-    public inline fun getString(key: String): String
-
-    /**
-     * Retrieves a [String] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getStringOrElse(key: String, defaultValue: () -> String): String
-
-    /**
-     * Retrieves a [List] of elements of [Int] associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getIntList(key: String): List<Int>
+    public fun getFloat(key: String): Float
 
     /**
-     * Retrieves a [List] of elements of [Int] associated with the specified [key], or a default
-     * value if the [key] doesn't exist.
+     * Retrieves a [Float] value associated with the specified [key], or `null` if this [SavedState]
+     * does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getIntListOrElse(key: String, defaultValue: () -> List<Int>): List<Int>
+    public fun getFloatOrNull(key: String): Float?
 
     /**
-     * Retrieves a [List] of elements of [String] associated with the specified [key].
+     * Retrieves an [Int] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
-     */
-    public inline fun getStringList(key: String): List<String>
-
-    /**
-     * Retrieves a [List] of elements of [String] associated with the specified [key], or a default
-     * value if the [key] doesn't exist.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getStringListOrElse(
-        key: String,
-        defaultValue: () -> List<String>
-    ): List<String>
-
-    /**
-     * Retrieves a [List] of elements of [CharArray] associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getCharSequenceList(key: String): List<CharSequence>
+    public fun getInt(key: String): Int
 
     /**
-     * Retrieves a [List] of elements of [CharSequence] associated with the specified [key], or a
-     * default value if the [key] doesn't exist.
+     * Retrieves an [Int] value associated with the specified [key], or `null` if this [SavedState]
+     * does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getCharSequenceListOrElse(
-        key: String,
-        defaultValue: () -> List<CharSequence>
-    ): List<CharSequence>
+    public fun getIntOrNull(key: String): Int?
 
     /**
-     * Retrieves a [BooleanArray] value associated with the specified [key].
+     * Retrieves a [Long] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
-     */
-    public inline fun getBooleanArray(key: String): BooleanArray
-
-    /**
-     * Retrieves a [BooleanArray] value associated with the specified [key], or a default value if
-     * the [key] doesn't exist.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getBooleanArrayOrElse(
-        key: String,
-        defaultValue: () -> BooleanArray
-    ): BooleanArray
-
-    /**
-     * Retrieves a [CharArray] value associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getCharArray(key: String): CharArray
+    public fun getLong(key: String): Long
 
     /**
-     * Retrieves a [CharArray] value associated with the specified [key], or a default value if the
-     * [key] doesn't exist.
+     * Retrieves a [Long] value associated with the specified [key], or `null` if this [SavedState]
+     * does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * **Note:** This method returns a nullable primitive, causing auto-boxing on JVM targets.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getCharArrayOrElse(key: String, defaultValue: () -> CharArray): CharArray
+    public fun getLongOrNull(key: String): Long?
 
     /**
-     * Retrieves a [CharArray] value associated with the specified [key].
+     * Retrieves a [String] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
-     */
-    public inline fun getCharSequenceArray(key: String): Array<CharSequence>
-
-    /**
-     * Retrieves a [CharArray] value associated with the specified [key], or a default value if the
-     * [key] doesn't exist.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getCharSequenceArrayOrElse(
-        key: String,
-        defaultValue: () -> Array<CharSequence>
-    ): Array<CharSequence>
-
-    /**
-     * Retrieves a [DoubleArray] value associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getDoubleArray(key: String): DoubleArray
+    public fun getString(key: String): String
 
     /**
-     * Retrieves a [DoubleArray] value associated with the specified [key], or a default value if
-     * the [key] doesn't exist.
+     * Retrieves a [String] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getDoubleArrayOrElse(
-        key: String,
-        defaultValue: () -> DoubleArray
-    ): DoubleArray
+    public fun getStringOrNull(key: String): String?
 
     /**
-     * Retrieves a [FloatArray] value associated with the specified [key].
+     * Retrieves a [List] of [String] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getIntList(key: String): List<Int>
+
+    /**
+     * Retrieves a [List] of [Int] values associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getIntListOrNull(key: String): List<Int>?
+
+    /**
+     * Retrieves a [List] of [SavedState] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getSavedStateList(key: String): List<SavedState>
+
+    /**
+     * Retrieves a [List] of [SavedState] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getSavedStateListOrNull(key: String): List<SavedState>?
+
+    /**
+     * Retrieves a [List] of [String] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getStringList(key: String): List<String>
+
+    /**
+     * Retrieves a [List] of [String] values associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getStringListOrNull(key: String): List<String>?
+
+    /**
+     * Retrieves a [List] of [CharSequence] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getCharSequenceList(key: String): List<CharSequence>
+
+    /**
+     * Retrieves a [List] of [CharSequence] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getCharSequenceListOrNull(key: String): List<CharSequence>?
+
+    /**
+     * Retrieves a [BooleanArray] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getFloatArray(key: String): FloatArray
+    public fun getBooleanArray(key: String): BooleanArray
 
     /**
-     * Retrieves a [FloatArray] value associated with the specified [key], or a default value if the
-     * [key] doesn't exist.
+     * Retrieves a [BooleanArray] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getFloatArrayOrElse(key: String, defaultValue: () -> FloatArray): FloatArray
+    public fun getBooleanArrayOrNull(key: String): BooleanArray?
 
     /**
-     * Retrieves a [IntArray] value associated with the specified [key].
+     * Retrieves a [CharSequence] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
-     */
-    public inline fun getIntArray(key: String): IntArray
-
-    /**
-     * Retrieves a [IntArray] value associated with the specified [key], or a default value if the
-     * [key] doesn't exist.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getIntArrayOrElse(key: String, defaultValue: () -> IntArray): IntArray
-
-    /**
-     * Retrieves a [LongArray] value associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getLongArray(key: String): LongArray
+    public fun getCharArray(key: String): CharArray
 
     /**
-     * Retrieves a [LongArray] value associated with the specified [key], or a default value if the
-     * [key] doesn't exist.
+     * Retrieves a [CharArray] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getLongArrayOrElse(key: String, defaultValue: () -> LongArray): LongArray
+    public fun getCharArrayOrNull(key: String): CharArray?
 
     /**
-     * Retrieves a [Array] of [String] value associated with the specified [key].
+     * Retrieves an [Array] of [CharSequence] values associated with the specified [key], or throws
+     * an [IllegalArgumentException] if this [SavedState] does not contain a valid value for the
+     * key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getCharSequenceArray(key: String): Array<CharSequence>
+
+    /**
+     * Retrieves an [Array] of [CharSequence] values associated with the specified [key], or `null`
+     * if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getCharSequenceArrayOrNull(key: String): Array<CharSequence>?
+
+    /**
+     * Retrieves a [DoubleArray] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getStringArray(key: String): Array<String>
+    public fun getDoubleArray(key: String): DoubleArray
 
     /**
-     * Retrieves a [Array] of [String] value associated with the specified [key], or a default value
-     * if the [key] doesn't exist.
+     * Retrieves a [DoubleArray] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getStringArrayOrElse(
-        key: String,
-        defaultValue: () -> Array<String>
-    ): Array<String>
+    public fun getDoubleArrayOrNull(key: String): DoubleArray?
 
     /**
-     * Retrieves a [SavedState] object associated with the specified [key].
+     * Retrieves a [FloatArray] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getSavedState(key: String): SavedState
+    public fun getFloatArray(key: String): FloatArray
 
     /**
-     * Retrieves a [SavedState] object associated with the specified [key], or a default value if
-     * the [key] doesn't exist.
+     * Retrieves a [FloatArray] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getSavedStateOrElse(key: String, defaultValue: () -> SavedState): SavedState
+    public fun getFloatArrayOrNull(key: String): FloatArray?
+
+    /**
+     * Retrieves a [IntArray] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getIntArray(key: String): IntArray
+
+    /**
+     * Retrieves a [IntArray] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getIntArrayOrNull(key: String): IntArray?
+
+    /**
+     * Retrieves a [LongArray] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getLongArray(key: String): LongArray
+
+    /**
+     * Retrieves a [LongArray] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getLongArrayOrNull(key: String): LongArray?
+
+    /**
+     * Retrieves an [Array] of [SavedState] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getSavedStateArray(key: String): Array<SavedState>
+
+    /**
+     * Retrieves an [Array] of [SavedState] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getSavedStateArrayOrNull(key: String): Array<SavedState>?
+
+    /**
+     * Retrieves an [Array] of [String] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getStringArray(key: String): Array<String>
+
+    /**
+     * Retrieves an [Array] of [String] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getStringArrayOrNull(key: String): Array<String>?
+
+    /**
+     * Retrieves a [SavedState] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getSavedState(key: String): SavedState
+
+    /**
+     * Retrieves a [SavedState] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getSavedStateOrNull(key: String): SavedState?
 
     /**
      * Returns the number of key-value pairs in the [SavedState].
      *
      * @return The size of the [SavedState].
      */
-    public inline fun size(): Int
+    public fun size(): Int
 
     /**
      * Checks if the [SavedState] is empty (contains no key-value pairs).
      *
      * @return `true` if the [SavedState] is empty, `false` otherwise.
      */
-    public inline fun isEmpty(): Boolean
+    public fun isEmpty(): Boolean
 
     /**
      * Checks if the [SavedState] contains a null reference for the specified [key].
@@ -520,7 +664,7 @@ internal constructor(
      * @return `true` if the [SavedState] contains a null reference for the [key], `false`
      *   otherwise.
      */
-    public inline fun isNull(key: String): Boolean
+    public fun isNull(key: String): Boolean
 
     /**
      * Checks if the [SavedState] contains the specified [key].
@@ -528,7 +672,7 @@ internal constructor(
      * @param key The [key] to check for.
      * @return `true` if the [SavedState] contains the [key], `false` otherwise.
      */
-    public inline operator fun contains(key: String): Boolean
+    public operator fun contains(key: String): Boolean
 
     /**
      * Checks if the two specified [SavedState] are *deeply* equal to one another.
@@ -559,6 +703,15 @@ internal constructor(
     public fun contentDeepHashCode(): Int
 
     /**
+     * Returns a string representation of the contents of this [SavedState] as if it is a [List].
+     * Nested [SavedState] are treated as lists too.
+     *
+     * If any of [SavedState] contains itself on any nesting level that reference is rendered as
+     * `"[...]"` to prevent recursion.
+     */
+    public fun contentDeepToString(): String
+
+    /**
      * Returns a new [Map] containing all key-value pairs from the [SavedState].
      *
      * The returned [Map] does not preserve the entry iteration order of the [SavedState].
@@ -572,15 +725,10 @@ internal constructor(
 }
 
 @PublishedApi
-internal inline fun keyNotFoundError(key: String): Nothing {
-    throw IllegalArgumentException("No saved state was found associated with the key '$key'.")
-}
-
-@PublishedApi
-internal inline fun valueNotFoundError(key: String): Nothing {
-    throw IllegalStateException(
-        "The saved state value associated with the key '$key' is " +
-            "either null or not of the expected type. This might happen if the value was saved " +
-            "with a different type or if the saved state has been modified unexpectedly."
+internal fun keyOrValueNotFoundError(key: String): Nothing {
+    throw IllegalArgumentException(
+        "No valid saved state was found for the key '$key'. It may be missing, null, or not of " +
+            "the expected type. This can occur if the value was saved with a different type or " +
+            "if the saved state was modified unexpectedly."
     )
 }

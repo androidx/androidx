@@ -43,23 +43,23 @@ class MemoryUsageQueryTest {
                     SubMetric.HeapSize to 3067,
                     SubMetric.RssAnon to 47260,
                     SubMetric.RssFile to 67668,
-                    SubMetric.RssShmem to 1160
+                    SubMetric.RssShmem to 1160,
                 )
             assertEquals(
                 expected,
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.benchmark.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Last
-                )
+                    mode = MemoryUsageMetric.Mode.Last,
+                ),
             )
             assertEquals(
                 expected,
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.benchmark.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Max
-                )
+                    mode = MemoryUsageMetric.Mode.Max,
+                ),
             )
         }
     }
@@ -80,8 +80,8 @@ class MemoryUsageQueryTest {
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.constraintlayout.compose.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Last
-                )
+                    mode = MemoryUsageMetric.Mode.Last,
+                ),
             )
             assertEquals(
                 mapOf(
@@ -93,8 +93,8 @@ class MemoryUsageQueryTest {
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.constraintlayout.compose.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Max
-                )
+                    mode = MemoryUsageMetric.Mode.Max,
+                ),
             )
         }
     }
@@ -116,8 +116,8 @@ class MemoryUsageQueryTest {
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "com.android.systemui.people",
-                    mode = MemoryUsageMetric.Mode.Last
-                )
+                    mode = MemoryUsageMetric.Mode.Last,
+                ),
             )
         }
     }

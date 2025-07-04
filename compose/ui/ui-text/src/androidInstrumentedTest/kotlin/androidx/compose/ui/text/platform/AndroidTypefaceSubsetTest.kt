@@ -55,14 +55,14 @@ class AndroidTypefaceSubsetTest {
             FontTestData.FONT_800_REGULAR,
             FontTestData.FONT_800_ITALIC,
             FontTestData.FONT_900_REGULAR,
-            FontTestData.FONT_900_ITALIC
+            FontTestData.FONT_900_ITALIC,
         )
 
     @Suppress("DEPRECATION")
     private fun androidTypefaceFromFontFamily(
         context: Context,
         fontFamily: FontFamily,
-        necessaryStyles: List<Pair<FontWeight, FontStyle>>? = null
+        necessaryStyles: List<Pair<FontWeight, FontStyle>>? = null,
     ): AndroidTypeface {
         @Suppress("DEPRECATION")
         return Typeface(context, fontFamily, necessaryStyles) as AndroidTypeface
@@ -77,8 +77,8 @@ class AndroidTypefaceSubsetTest {
                 fontFamily,
                 listOf(
                     Pair(FontWeight.W400, FontStyle.Normal),
-                    Pair(FontWeight.W700, FontStyle.Normal)
-                )
+                    Pair(FontWeight.W700, FontStyle.Normal),
+                ),
             )
 
         val typefaceFromSubset =
@@ -96,8 +96,8 @@ class AndroidTypefaceSubsetTest {
                 fontFamily,
                 listOf(
                     Pair(FontWeight.W400, FontStyle.Normal),
-                    Pair(FontWeight.W700, FontStyle.Normal)
-                )
+                    Pair(FontWeight.W700, FontStyle.Normal),
+                ),
             )
 
         val typefaceFromSubset =
@@ -115,8 +115,8 @@ class AndroidTypefaceSubsetTest {
                 fontFamily,
                 listOf(
                     Pair(FontWeight.W400, FontStyle.Normal),
-                    Pair(FontWeight.W700, FontStyle.Normal)
-                )
+                    Pair(FontWeight.W700, FontStyle.Normal),
+                ),
             )
 
         val typefaceFromSubset =

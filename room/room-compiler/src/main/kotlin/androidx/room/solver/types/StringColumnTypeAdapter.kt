@@ -29,7 +29,7 @@ class StringColumnTypeAdapter private constructor(out: XType) :
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             if (out.nullability == XNullability.NONNULL) {
@@ -50,7 +50,7 @@ class StringColumnTypeAdapter private constructor(out: XType) :
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             if (out.nullability == XNullability.NONNULL) {

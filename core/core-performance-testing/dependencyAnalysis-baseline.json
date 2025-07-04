@@ -1,0 +1,13 @@
+{
+  "projectPath": ":core:core-performance-testing",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
+        "resolvedVersion": "1.7.3"
+      },
+      "fromConfiguration": "implementation"
+    }
+  ]
+}

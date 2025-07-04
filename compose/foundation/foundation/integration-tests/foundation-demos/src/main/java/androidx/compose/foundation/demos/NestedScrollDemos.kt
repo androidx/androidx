@@ -70,7 +70,7 @@ private fun OuterLvl1(outerOuterIndex: Int) {
                 .height(350.dp)
                 .background(Color.Yellow),
         reverseLayout = true,
-        contentPadding = PaddingValues(60.dp)
+        contentPadding = PaddingValues(60.dp),
     ) {
         repeat(3) { outerIndex ->
             item { InnerColumn(outerOuterIndex, outerIndex) }
@@ -97,12 +97,12 @@ private fun InnerColumn(outerOuterIndex: Int, outerIndex: Int) {
                     .fillMaxWidth()
                     .background(Color.Magenta)
                     .border(2.dp, Color.Yellow),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     modifier = Modifier.focusable(),
                     text = "$outerOuterIndex : $outerIndex : $innerIndex",
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
                 )
             }
         }
@@ -132,7 +132,7 @@ fun NestedScrollConnectionSample() {
         Column {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = "Scroll Connection PreScroll available: $availableOffset"
+                text = "Scroll Connection PreScroll available: $availableOffset",
             )
 
             // our list with build in nested scroll support that will notify us about its scroll
@@ -140,7 +140,7 @@ fun NestedScrollConnectionSample() {
                 items(100) { index ->
                     Text(
                         "I'm item $index",
-                        modifier = Modifier.fillMaxWidth().focusable().padding(16.dp)
+                        modifier = Modifier.fillMaxWidth().focusable().padding(16.dp),
                     )
                 }
             }
@@ -154,7 +154,7 @@ fun SimpleColumnNestedScrollSample() {
 
     Column(
         Modifier.fillMaxWidth().background(Color.Red).verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Text(modifier = Modifier.fillMaxWidth(), text = "Outer Scrollable Column")
 
@@ -175,10 +175,7 @@ fun SimpleColumn(label: String) {
         Text(modifier = Modifier.fillMaxWidth(), text = "$label INNER, scrollable only")
 
         for (i in 0 until 20) {
-            Text(
-                modifier = Modifier.fillMaxWidth().focusable(),
-                text = "Text $i",
-            )
+            Text(modifier = Modifier.fillMaxWidth().focusable(), text = "Text $i")
         }
     }
 }

@@ -28,6 +28,6 @@ class Employee(
         MTV,
         PIT,
         CHI,
-        NYC
+        NYC,
     }
 }

@@ -29,14 +29,16 @@ class AnimationCoreIssueRegistry : IssueRegistry() {
         get() =
             listOf(
                 TransitionDetector.UnusedTransitionTargetStateParameter,
-                UnrememberedAnimatableDetector.UnrememberedAnimatable,
-                ArcAnimationSpecTypeDetector.ArcAnimationSpecTypeIssue
+                ArcAnimationSpecTypeDetector.ArcAnimationSpecTypeIssue,
             )
+
+    // Now handled by RememberInComposition
+    override val deletedIssues = listOf("UnrememberedAnimatable")
 
     override val vendor =
         Vendor(
             vendorName = "Jetpack Compose",
             identifier = "androidx.compose.animation.core",
-            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128",
         )
 }

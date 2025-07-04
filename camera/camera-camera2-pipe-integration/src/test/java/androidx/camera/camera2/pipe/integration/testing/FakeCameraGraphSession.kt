@@ -51,7 +51,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     enum class RequestStatus {
         TOTAL_CAPTURE_DONE,
         FAILED,
-        ABORTED
+        ABORTED,
     }
 
     var startRepeatingSignal = CompletableDeferred(TOTAL_CAPTURE_DONE) // already completed
@@ -81,7 +81,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         convergedTimeLimitNs: Long,
-        lockedTimeLimitNs: Long
+        lockedTimeLimitNs: Long,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
@@ -89,7 +89,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     override suspend fun lock3AForCapture(
         lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
-        timeLimitNs: Long
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
@@ -98,7 +98,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         triggerAf: Boolean,
         waitForAwb: Boolean,
         frameLimit: Int,
-        timeLimitNs: Long
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
@@ -154,7 +154,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         awbMode: AwbMode?,
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
+        awbRegions: List<MeteringRectangle>?,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
@@ -165,7 +165,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         awb: Boolean?,
         unlockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
-        timeLimitNs: Long
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
@@ -180,14 +180,14 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         awbMode: AwbMode?,
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
+        awbRegions: List<MeteringRectangle>?,
     ): Deferred<Result3A> {
         return CompletableDeferred(Result3A(Result3A.Status.OK))
     }
 
     private fun MutableList<Request>.notifyLastRequestListeners(
         request: Request,
-        status: RequestStatus
+        status: RequestStatus,
     ) {
         val requestMetadata = FakeRequestMetadata(request = request)
         last().listeners.forEach { listener ->
@@ -198,7 +198,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
                     listener.onFailed(
                         requestMetadata,
                         FrameNumber(0),
-                        FakeRequestFailure(requestMetadata, FrameNumber(0))
+                        FakeRequestFailure(requestMetadata, FrameNumber(0)),
                     )
                 ABORTED -> listener.onRequestSequenceAborted(requestMetadata)
             }

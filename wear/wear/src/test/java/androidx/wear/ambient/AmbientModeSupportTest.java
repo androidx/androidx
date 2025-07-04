@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
@@ -29,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class AmbientModeSupportTest {
     private ActivityScenario<AmbientModeSupportTestActivity> mScenario;

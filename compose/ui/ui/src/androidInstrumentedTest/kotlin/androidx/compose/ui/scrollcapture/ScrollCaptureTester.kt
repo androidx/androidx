@@ -135,7 +135,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
     suspend fun <T> capture(
         target: ScrollCaptureTarget,
         captureWindowHeight: Int,
-        block: suspend CaptureSessionScope.() -> T
+        block: suspend CaptureSessionScope.() -> T,
     ): T =
         withContext(AndroidUiDispatcher.Main) {
             val callback = target.callback
@@ -173,12 +173,12 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
                                         captureOffset.x,
                                         captureOffset.y,
                                         captureOffset.x + captureWidth,
-                                        captureOffset.y + captureWindowHeight
+                                        captureOffset.y + captureWindowHeight,
                                     )
                                 val resultCaptureArea =
                                     callback.onScrollCaptureImageRequest(
                                         session,
-                                        requestedCaptureArea
+                                        requestedCaptureArea,
                                     )
 
                                 // Empty results shouldn't produce an image.
@@ -193,7 +193,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
                                     }
                                 return CaptureResult(
                                     bitmap = bitmap,
-                                    capturedRect = resultCaptureArea
+                                    capturedRect = resultCaptureArea,
                                 )
                             }
                         }
@@ -210,7 +210,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
     private suspend inline fun <T> withSurfaceBitmaps(
         width: Int,
         height: Int,
-        crossinline block: suspend (Surface, ReceiveChannel<Bitmap>) -> T
+        crossinline block: suspend (Surface, ReceiveChannel<Bitmap>) -> T,
     ): T = coroutineScope {
         // ImageReader gives us the Surface that we'll provide to the session.
         ImageReader.newInstance(
@@ -221,7 +221,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
                 // made,
                 // so we don't need multiple images.
                 /* maxImages= */ 1,
-                USAGE_GPU_SAMPLED_IMAGE or USAGE_GPU_COLOR_OUTPUT
+                USAGE_GPU_SAMPLED_IMAGE or USAGE_GPU_COLOR_OUTPUT,
             )
             .use { imageReader ->
                 val bitmapsChannel = Channel<Bitmap>(capacity = Channel.RENDEZVOUS)
@@ -258,7 +258,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
         val imageAvailableChannel = Channel<Unit>(capacity = Channel.CONFLATED)
         setOnImageAvailableListener(
             { imageAvailableChannel.trySend(Unit) },
-            Handler(Looper.getMainLooper())
+            Handler(Looper.getMainLooper()),
         )
         val context = currentCoroutineContext()
 
@@ -301,7 +301,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend inline fun <E> ReceiveChannel<E>.receiveWithTimeout(
         timeoutMillis: Long,
-        crossinline timeoutMessage: () -> String
+        crossinline timeoutMessage: () -> String,
     ): E = select {
         onReceive { it }
         onTimeout(timeoutMillis) { fail(timeoutMessage()) }
@@ -319,7 +319,7 @@ class ScrollCaptureTester(private val rule: ComposeContentTestRule) {
 @RequiresApi(31)
 suspend fun ScrollCaptureTester.captureBitmapsVertically(
     target: ScrollCaptureTarget,
-    captureHeight: Int
+    captureHeight: Int,
 ): List<Bitmap> = capture(target, captureHeight) { buildList { captureAllFromTop(::add) } }
 
 @RequiresApi(31)
@@ -399,7 +399,7 @@ suspend fun ScrollCaptureCallback.onScrollCaptureStart(session: ScrollCaptureSes
 @RequiresApi(31)
 suspend fun ScrollCaptureCallback.onScrollCaptureImageRequest(
     session: ScrollCaptureSession,
-    captureArea: Rect
+    captureArea: Rect,
 ): Rect = suspendCancellableCoroutine { continuation ->
     onScrollCaptureImageRequest(session, continuation.createCancellationSignal(), captureArea) {
         continuation.resume(it)

@@ -99,7 +99,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
                 startCaptureValidationActivity(
                     testType,
                     cameraId,
-                    extensionTestResultMap.keys.elementAt(position)
+                    extensionTestResultMap.keys.elementAt(position),
                 )
             }
     }
@@ -128,7 +128,7 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
             this,
             intent,
             imageValidationActivityRequestCode,
-            null
+            null,
         )
     }
 }

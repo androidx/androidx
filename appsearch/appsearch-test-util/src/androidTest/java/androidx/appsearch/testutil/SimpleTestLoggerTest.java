@@ -22,8 +22,8 @@ import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
-import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
@@ -37,7 +37,7 @@ public class SimpleTestLoggerTest {
         assertThat(logger.mCallStats).isNull();
         assertThat(logger.mPutDocumentStats).isNull();
         assertThat(logger.mInitializeStats).isNull();
-        assertThat(logger.mSearchStats).isNull();
+        assertThat(logger.mQueryStats).isNull();
         assertThat(logger.mRemoveStats).isNull();
         assertThat(logger.mOptimizeStats).isNull();
         assertThat(logger.mSetSchemaStats).isEmpty();
@@ -52,7 +52,7 @@ public class SimpleTestLoggerTest {
         logger.logStats(new PutDocumentStats.Builder("package", "db").build());
         logger.logStats(new InitializeStats.Builder().build());
         logger.logStats(
-                new SearchStats.Builder(SearchStats.VISIBILITY_SCOPE_UNKNOWN, "package").build());
+                new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_UNKNOWN, "package").build());
         logger.logStats(new RemoveStats.Builder("package", "db").build());
         logger.logStats(new OptimizeStats.Builder().build());
         logger.logStats(new SetSchemaStats.Builder("package", "db").build());
@@ -61,7 +61,7 @@ public class SimpleTestLoggerTest {
         assertThat(logger.mCallStats).isNotNull();
         assertThat(logger.mPutDocumentStats).isNotNull();
         assertThat(logger.mInitializeStats).isNotNull();
-        assertThat(logger.mSearchStats).isNotNull();
+        assertThat(logger.mQueryStats).isNotNull();
         assertThat(logger.mRemoveStats).isNotNull();
         assertThat(logger.mOptimizeStats).isNotNull();
         assertThat(logger.mSetSchemaStats).isNotNull();

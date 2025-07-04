@@ -27,7 +27,7 @@ import com.google.devtools.ksp.symbol.Origin
 internal sealed class KSTypeVarianceResolverScope(
     val annotated: KSAnnotated,
     private val container: KSDeclaration?,
-    private val asMemberOf: KspType?
+    private val asMemberOf: KspType?,
 ) {
     /**
      * Checks whether we need wildcard resolution at all. It is only necessary if either the method
@@ -122,10 +122,7 @@ internal sealed class KSTypeVarianceResolverScope(
         override fun isValOrReturnType() = true
     }
 
-    internal class PropertyType(
-        val field: KspFieldElement,
-        asMemberOf: KspType?,
-    ) :
+    internal class PropertyType(val field: KspFieldElement, asMemberOf: KspType?) :
         KSTypeVarianceResolverScope(
             annotated = field.declaration,
             container = field.enclosingElement.declaration,
@@ -136,10 +133,7 @@ internal sealed class KSTypeVarianceResolverScope(
         override fun isValOrReturnType() = field.isFinal()
     }
 
-    internal class MethodReturnType(
-        val method: KspMethodElement,
-        asMemberOf: KspType?,
-    ) :
+    internal class MethodReturnType(val method: KspMethodElement, asMemberOf: KspType?) :
         KSTypeVarianceResolverScope(
             annotated = method.declaration,
             container = method.enclosingElement.declaration,

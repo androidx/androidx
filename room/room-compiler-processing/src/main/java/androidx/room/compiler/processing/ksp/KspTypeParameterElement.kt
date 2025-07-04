@@ -27,7 +27,7 @@ import com.squareup.javapoet.TypeVariableName
 
 internal class KspTypeParameterElement(
     env: KspProcessingEnv,
-    override val declaration: KSTypeParameter
+    override val declaration: KSTypeParameter,
 ) :
     KspElement(env, declaration),
     XTypeParameterElement,

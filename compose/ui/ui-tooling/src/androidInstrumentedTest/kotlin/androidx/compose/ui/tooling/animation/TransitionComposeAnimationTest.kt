@@ -70,9 +70,9 @@ class TransitionComposeAnimationTest {
                 setOf(
                     TransitionClockTest.EnumState.One,
                     TransitionClockTest.EnumState.Two,
-                    TransitionClockTest.EnumState.Three
+                    TransitionClockTest.EnumState.Three,
                 ),
-                composeAnimation.states
+                composeAnimation.states,
             )
         }
     }

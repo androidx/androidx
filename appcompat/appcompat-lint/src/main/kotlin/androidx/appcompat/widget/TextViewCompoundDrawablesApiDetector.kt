@@ -36,9 +36,9 @@ class TextViewCompoundDrawablesApiDetector :
             MethodLocation(
                 "android.widget.TextView",
                 "setCompoundDrawableTintList",
-                "android.content.res.ColorStateList"
+                "android.content.res.ColorStateList",
             ),
-            "Use `TextViewCompat.setCompoundDrawableTintList()`"
+            "Use `TextViewCompat.setCompoundDrawableTintList()`",
         ),
         // Suggest using TextViewCompat.setCompoundDrawableTintMode instead of
         // TextView.setCompoundDrawableTintMode
@@ -46,10 +46,10 @@ class TextViewCompoundDrawablesApiDetector :
             MethodLocation(
                 "android.widget.TextView",
                 "setCompoundDrawableTintMode",
-                "android.graphics.PorterDuff.Mode"
+                "android.graphics.PorterDuff.Mode",
             ),
-            "Use `TextViewCompat.setCompoundDrawableTintMode()`"
-        )
+            "Use `TextViewCompat.setCompoundDrawableTintMode()`",
+        ),
     ) {
     companion object {
         internal val NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS: Issue =
@@ -63,8 +63,8 @@ class TextViewCompoundDrawablesApiDetector :
                 Severity.WARNING,
                 Implementation(
                     TextViewCompoundDrawablesApiDetector::class.java,
-                    Scope.JAVA_FILE_SCOPE
-                )
+                    Scope.JAVA_FILE_SCOPE,
+                ),
             )
     }
 }

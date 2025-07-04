@@ -21,13 +21,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -37,24 +37,25 @@ dependencies {
     // Classes and types that are only needed at runtime
     implementation(libs.atomicFu)
     implementation(libs.kotlinStdlib)
-    implementation(libs.kotlinCoroutinesGuava)
     implementation(libs.kotlinCoroutinesTest)
     implementation(project(":camera:camera-camera2-pipe"))
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation("org.robolectric:annotations:4.14")
+    testImplementation("org.robolectric:sandbox:4.14")
+    testImplementation(libs.kotlinCoroutinesCore)
 }
 
 android {
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
+    compileSdk = 35
+
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.camera2.pipe.testing"
 }
 
@@ -67,11 +68,12 @@ tasks.withType(KotlinCompile).configureEach {
 
 androidx {
     name = "Camera2 Pipe Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "Testing components for the Camera2 Pipe Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
     doNotDocumentReason = "Not shipped externally"
+    enableRobolectric()
 }

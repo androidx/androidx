@@ -17,12 +17,15 @@
 package androidx.wear.compose.material.dialog
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -246,19 +249,18 @@ class DialogWithMaterialSlcBehaviourTest {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("Start Screen")
                 }
-                Dialog(
-                    showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
-                ) {
+                Dialog(showDialog = showDialog, onDismissRequest = { showDialog = false }) {
                     AlertWithMaterialSlc(
                         title = {},
                         negativeButton = { Button(onClick = {}, content = {}) },
                         positiveButton = { Button(onClick = {}, content = {}) },
-                        content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
+                        content = {
+                            Text("Dialog", modifier = Modifier.fillMaxWidth().testTag(TEST_TAG))
+                        },
                     )
                 }
             }
@@ -276,18 +278,17 @@ class DialogWithMaterialSlcBehaviourTest {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("Label")
                 }
-                Dialog(
-                    showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
-                ) {
+                Dialog(showDialog = showDialog, onDismissRequest = { showDialog = false }) {
                     AlertWithMaterialSlc(
                         icon = {},
                         title = {},
-                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                        message = {
+                            Text("Text", modifier = Modifier.fillMaxWidth().testTag(TEST_TAG))
+                        },
                         content = {},
                     )
                 }
@@ -306,18 +307,17 @@ class DialogWithMaterialSlcBehaviourTest {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("Label")
                 }
-                Dialog(
-                    showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
-                ) {
+                Dialog(showDialog = showDialog, onDismissRequest = { showDialog = false }) {
                     ConfirmationWithMaterialSlc(
                         onTimeout = { showDialog = false },
                         icon = {},
-                        content = { Text("Dialog", modifier = Modifier.testTag(TEST_TAG)) },
+                        content = {
+                            Text("Dialog", modifier = Modifier.fillMaxWidth().testTag(TEST_TAG))
+                        },
                     )
                 }
             }
@@ -335,14 +335,11 @@ class DialogWithMaterialSlcBehaviourTest {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Chip(onClick = { showDialog = true }, label = { Text("Show") })
                 }
-                Dialog(
-                    showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
-                ) {
+                Dialog(showDialog = showDialog, onDismissRequest = { showDialog = false }) {
                     Text("Text", modifier = Modifier.testTag(TEST_TAG))
                 }
             }
@@ -361,18 +358,17 @@ class DialogWithMaterialSlcBehaviourTest {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(if (dismissed) dismissedText else "Label")
                 }
-                Dialog(
-                    showDialog = !dismissed,
-                    onDismissRequest = { dismissed = true },
-                ) {
+                Dialog(showDialog = !dismissed, onDismissRequest = { dismissed = true }) {
                     AlertWithMaterialSlc(
                         icon = {},
                         title = {},
-                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                        message = {
+                            Text("Text", modifier = Modifier.fillMaxWidth().testTag(TEST_TAG))
+                        },
                         content = {},
                     )
                 }
@@ -442,7 +438,7 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
                         Chip(
                             label = { Text("Chip") },
                             onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
+                            modifier = Modifier.testTag(CHIP_TAG),
                         )
                     }
                 },
@@ -470,7 +466,7 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
                         Chip(
                             label = { Text("Chip") },
                             onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
+                            modifier = Modifier.testTag(CHIP_TAG),
                         )
                     }
                 },
@@ -539,7 +535,7 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
                         Chip(
                             label = { Text("Chip") },
                             onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
+                            modifier = Modifier.testTag(CHIP_TAG),
                         )
                     }
                 },
@@ -592,7 +588,7 @@ class DialogWithMaterialSlcContentSizeAndPositionTest {
                         Chip(
                             label = { Text("Chip") },
                             onClick = {},
-                            modifier = Modifier.testTag(CHIP_TAG)
+                            modifier = Modifier.testTag(CHIP_TAG),
                         )
                     }
                 },
@@ -891,7 +887,7 @@ class DialogWithMaterialSlcContentColorTest {
         Assert.assertEquals(overrideColor, actualColor)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_correct_background_color_on_alert_for_buttons() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
@@ -900,12 +896,12 @@ class DialogWithMaterialSlcContentColorTest {
                 negativeButton = {},
                 positiveButton = {},
                 content = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_correct_background_color_on_alert_for_chips() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
@@ -913,12 +909,12 @@ class DialogWithMaterialSlcContentColorTest {
                 title = {},
                 message = {},
                 content = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun gives_correct_background_color_on_ConfirmationWithMaterialSlc() {
         verifyBackgroundColor(expected = { MaterialTheme.colors.background }) {
@@ -936,14 +932,16 @@ class DialogWithMaterialSlcContentColorTest {
         val overrideColor = Color.Yellow
 
         rule.setContentWithTheme {
-            AlertWithMaterialSlc(
-                title = {},
-                negativeButton = {},
-                positiveButton = {},
-                content = {},
-                backgroundColor = overrideColor,
-                modifier = Modifier.testTag(TEST_TAG),
-            )
+            Box(Modifier.windowInsetsPadding(WindowInsets.Companion.navigationBars)) {
+                AlertWithMaterialSlc(
+                    title = {},
+                    negativeButton = {},
+                    positiveButton = {},
+                    content = {},
+                    backgroundColor = overrideColor,
+                    modifier = Modifier.testTag(TEST_TAG),
+                )
+            }
         }
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(overrideColor, 100.0f)
@@ -955,13 +953,15 @@ class DialogWithMaterialSlcContentColorTest {
         val overrideColor = Color.Yellow
 
         rule.setContentWithTheme {
-            AlertWithMaterialSlc(
-                title = {},
-                message = {},
-                content = {},
-                backgroundColor = overrideColor,
-                modifier = Modifier.testTag(TEST_TAG),
-            )
+            Box(Modifier.windowInsetsPadding(WindowInsets.Companion.navigationBars)) {
+                AlertWithMaterialSlc(
+                    title = {},
+                    message = {},
+                    content = {},
+                    backgroundColor = overrideColor,
+                    modifier = Modifier.testTag(TEST_TAG),
+                )
+            }
         }
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(overrideColor, 100.0f)
@@ -973,12 +973,14 @@ class DialogWithMaterialSlcContentColorTest {
         val overrideColor = Color.Yellow
 
         rule.setContentWithTheme {
-            ConfirmationWithMaterialSlc(
-                onTimeout = {},
-                content = {},
-                backgroundColor = overrideColor,
-                modifier = Modifier.testTag(TEST_TAG),
-            )
+            Box(Modifier.windowInsetsPadding(WindowInsets.Companion.navigationBars)) {
+                ConfirmationWithMaterialSlc(
+                    onTimeout = {},
+                    content = {},
+                    backgroundColor = overrideColor,
+                    modifier = Modifier.testTag(TEST_TAG),
+                )
+            }
         }
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(overrideColor, 100.0f)
@@ -987,13 +989,18 @@ class DialogWithMaterialSlcContentColorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyBackgroundColor(
         expected: @Composable () -> Color,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val testBackground = Color.White
         var expectedBackground = Color.Transparent
 
         rule.setContentWithTheme {
-            Box(modifier = Modifier.fillMaxSize().background(testBackground)) {
+            Box(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .windowInsetsPadding(WindowInsets.Companion.navigationBars)
+                        .background(testBackground)
+            ) {
                 expectedBackground = expected()
                 content()
             }
@@ -1055,7 +1062,7 @@ class DialogWithMaterialSlcTextStyleTest {
                 title = { Text("Title") },
                 negativeButton = {},
                 positiveButton = {},
-                content = { actualTextStyle = LocalTextStyle.current }
+                content = { actualTextStyle = LocalTextStyle.current },
             )
         }
 

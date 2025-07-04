@@ -45,12 +45,7 @@ public class MediaRouterActiveScanThrottlingHelperTest {
     @Before
     public void setUp() {
         resetCountDownLatch();
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                mCountDownLatch.countDown();
-            }
-        };
+        mRunnable = () -> mCountDownLatch.countDown();
     }
 
     @Test

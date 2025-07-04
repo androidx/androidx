@@ -20,6 +20,6 @@ package androidx.compose.runtime
     AnnotationTarget.CLASS,
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY,
-    AnnotationTarget.TYPEALIAS
+    AnnotationTarget.TYPEALIAS,
 )
-annotation class ComposeCompilerApi
+public annotation class ComposeCompilerApi

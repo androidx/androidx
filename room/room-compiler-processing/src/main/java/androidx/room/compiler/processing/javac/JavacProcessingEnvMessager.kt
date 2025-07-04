@@ -30,7 +30,7 @@ internal class JavacProcessingEnvMessager(val delegate: Messager) : XMessager() 
         msg: String,
         element: XElement?,
         annotation: XAnnotation?,
-        annotationValue: XAnnotationValue?
+        annotationValue: XAnnotationValue?,
     ) {
         if (element == null) {
             delegate.printMessage(kind, msg)

@@ -69,7 +69,7 @@ public class EncoderProfilesProviderFallback(
     public fun resolveProvider(
         cameraId: String,
         quirks: Quirks,
-        cameraManager: CameraManagerCompat
+        cameraManager: CameraManagerCompat,
     ): EncoderProfilesProvider {
         var provider: EncoderProfilesProvider? = null
         val characteristics = cameraManager.getCameraCharacteristicsCompat(cameraId)
@@ -83,7 +83,7 @@ public class EncoderProfilesProviderFallback(
                 provider =
                     SizeFilteredEncoderProfilesProvider(
                         provider,
-                        characteristics.getPrivateFormatSizes()
+                        characteristics.getPrivateFormatSizes(),
                     )
             }
         }
@@ -107,7 +107,7 @@ public class EncoderProfilesProviderFallback(
      */
     private fun needFallback(
         characteristics: CameraCharacteristicsCompat,
-        provider: EncoderProfilesProvider
+        provider: EncoderProfilesProvider,
     ): Boolean = characteristics.isExternalCamera() && !provider.hasProfile(QUALITY_HIGH)
 
     /**

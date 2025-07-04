@@ -57,7 +57,7 @@ class BloodGlucoseRecordTest {
                         specimenSource = BloodGlucoseRecord.SPECIMEN_SOURCE_SERUM,
                         mealType = MealType.MEAL_TYPE_LUNCH,
                         relationToMeal = BloodGlucoseRecord.RELATION_TO_MEAL_FASTING,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )

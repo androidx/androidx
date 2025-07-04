@@ -246,10 +246,7 @@ class ToggleButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleCheckboxButton(
-        enabled: Boolean = true,
-        checked: Boolean = true,
-    ) {
+    private fun sampleCheckboxButton(enabled: Boolean = true, checked: Boolean = true) {
         CheckboxButton(
             icon = { TestIcon() },
             label = { Text("ToggleButton") },
@@ -281,10 +278,7 @@ class ToggleButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleSwitchButton(
-        enabled: Boolean = true,
-        checked: Boolean = true,
-    ) {
+    private fun sampleSwitchButton(enabled: Boolean = true, checked: Boolean = true) {
         SwitchButton(
             icon = { TestIcon() },
             label = { Text("ToggleButton") },
@@ -300,7 +294,7 @@ class ToggleButtonScreenshotTest {
     private fun sampleSplitSwitchButton(
         checked: Boolean = true,
         enabled: Boolean = true,
-        contentPadding: PaddingValues = SwitchButtonDefaults.ContentPadding
+        contentPadding: PaddingValues = SwitchButtonDefaults.ContentPadding,
     ) {
         SplitSwitchButton(
             label = { Text("SplitToggleButton") },
@@ -311,13 +305,13 @@ class ToggleButtonScreenshotTest {
             onContainerClick = {},
             toggleContentDescription = "",
             modifier = Modifier.testTag(TEST_TAG),
-            contentPadding = contentPadding
+            contentPadding = contentPadding,
         )
     }
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {

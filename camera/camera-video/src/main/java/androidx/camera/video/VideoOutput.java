@@ -92,10 +92,14 @@ public interface VideoOutput {
     /**
      * Called when a new {@link Surface} has been requested by a video frame producer.
      *
-     * @param timebase the video source timebase
+     * @param request the request for a surface which contains the requirements of the
+     *                surface and methods for completing the request.
+     * @param timebase the video source timebase.
+     * @param hasGlProcessing whether the video recording pipeline involves OpenGL processing.
      */
     @RestrictTo(Scope.LIBRARY)
-    default void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
+    default void onSurfaceRequested(@NonNull SurfaceRequest request, @NonNull Timebase timebase,
+            boolean hasGlProcessing) {
         onSurfaceRequested(request);
     }
 
@@ -155,7 +159,8 @@ public interface VideoOutput {
      * Returns the {@link VideoCapabilities} information of the {@link VideoOutput}.
      */
     @RestrictTo(Scope.LIBRARY)
-    default @NonNull VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo) {
+    default @NonNull VideoCapabilities getMediaCapabilities(@NonNull CameraInfo cameraInfo,
+            int sessionType) {
         return VideoCapabilities.EMPTY;
     }
 }

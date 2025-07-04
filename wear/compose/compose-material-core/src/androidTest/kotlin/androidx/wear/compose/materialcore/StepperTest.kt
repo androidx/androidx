@@ -161,7 +161,7 @@ public class StepperTest {
         rule.setContent {
             StepperWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                decreaseIcon = { TestImage(Modifier.size(24.dp), iconTag) }
+                decreaseIcon = { TestImage(Modifier.size(24.dp), iconTag) },
             ) {}
         }
 
@@ -176,7 +176,7 @@ public class StepperTest {
         rule.setContent {
             StepperWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                increaseIcon = { TestImage(Modifier.size(24.dp), iconTag) }
+                increaseIcon = { TestImage(Modifier.size(24.dp), iconTag) },
             ) {}
         }
         rule.waitForIdle()
@@ -191,9 +191,7 @@ public class StepperTest {
         val contentTag = "contentTag_test"
 
         rule.setContent {
-            StepperWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
+            StepperWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {
                 TestText("Testing", modifier = Modifier.testTag(contentTag).fillMaxHeight())
             }
         }
@@ -219,7 +217,7 @@ public class StepperTest {
         rule.setContent {
             StepperWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                backgroundColor = testColor
+                backgroundColor = testColor,
             ) {}
         }
         rule
@@ -237,7 +235,7 @@ public class StepperTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 0f,
                 steps = 5,
-                increaseIcon = { TestImage(Modifier.size(24.dp), testContentDescription) }
+                increaseIcon = { TestImage(Modifier.size(24.dp), testContentDescription) },
             ) {}
         }
 
@@ -259,7 +257,7 @@ public class StepperTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 value = 0f,
                 steps = 5,
-                decreaseIcon = { TestImage(Modifier.size(24.dp), testContentDescription) }
+                decreaseIcon = { TestImage(Modifier.size(24.dp), testContentDescription) },
             ) {}
         }
 
@@ -281,7 +279,7 @@ public class StepperTest {
             expectedIncreaseIconData = +1,
             expectedDecreaseIconData = -1,
             enabledButtonProviderValues = arrayOf(LocalContentTestData provides +1),
-            disabledButtonProviderValues = arrayOf(LocalContentTestData provides -1)
+            disabledButtonProviderValues = arrayOf(LocalContentTestData provides -1),
         )
     }
 
@@ -294,7 +292,7 @@ public class StepperTest {
             expectedIncreaseIconData = -1,
             expectedDecreaseIconData = +1,
             enabledButtonProviderValues = arrayOf(LocalContentTestData provides +1),
-            disabledButtonProviderValues = arrayOf(LocalContentTestData provides -1)
+            disabledButtonProviderValues = arrayOf(LocalContentTestData provides -1),
         )
     }
 
@@ -307,7 +305,7 @@ public class StepperTest {
             expectedIncreaseIconData = +1,
             expectedDecreaseIconData = +1,
             enabledButtonProviderValues = arrayOf(LocalContentTestData provides +1),
-            disabledButtonProviderValues = arrayOf(LocalContentTestData provides -1)
+            disabledButtonProviderValues = arrayOf(LocalContentTestData provides -1),
         )
     }
 
@@ -332,7 +330,7 @@ public class StepperTest {
         backgroundColor: Color = Color.Black,
         enabledButtonProviderValues: Array<ProvidedValue<*>> = arrayOf(),
         disabledButtonProviderValues: Array<ProvidedValue<*>> = arrayOf(),
-        content: @Composable BoxScope.() -> Unit
+        content: @Composable BoxScope.() -> Unit,
     ) =
         Stepper(
             modifier = modifier,
@@ -356,7 +354,7 @@ public class StepperTest {
         expectedIncreaseIconData: Int,
         expectedDecreaseIconData: Int,
         enabledButtonProviderValues: Array<ProvidedValue<*>> = arrayOf(),
-        disabledButtonProviderValues: Array<ProvidedValue<*>> = arrayOf()
+        disabledButtonProviderValues: Array<ProvidedValue<*>> = arrayOf(),
     ) {
         var increaseIconData = 0
         var decreaseIconData = 0
@@ -370,7 +368,7 @@ public class StepperTest {
                 enabledButtonProviderValues = enabledButtonProviderValues,
                 disabledButtonProviderValues = disabledButtonProviderValues,
                 decreaseIcon = { decreaseIconData = LocalContentTestData.current },
-                increaseIcon = { increaseIconData = LocalContentTestData.current }
+                increaseIcon = { increaseIconData = LocalContentTestData.current },
             ) {}
         }
 
@@ -381,7 +379,7 @@ public class StepperTest {
     private fun ComposeContentTestRule.initDefaultStepper(
         state: MutableState<Float>,
         valueRange: ClosedFloatingPointRange<Float>,
-        steps: Int
+        steps: Int,
     ) {
         setContent {
             StepperWithDefaults(
@@ -389,7 +387,7 @@ public class StepperTest {
                 onValueChange = { state.value = it },
                 valueRange = valueRange,
                 steps = steps,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
     }

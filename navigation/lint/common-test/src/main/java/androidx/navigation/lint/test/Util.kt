@@ -40,7 +40,7 @@ fun kotlinAndBytecodeStub(
     filepath: String,
     checksum: Long,
     @Language("kotlin") source: String,
-    vararg bytecode: String
+    vararg bytecode: String,
 ) = CompatKotlinAndBytecodeStub(filename, filepath, checksum, source, *bytecode)
 
 /**
@@ -65,7 +65,7 @@ fun bytecodeStub(
     filepath: String,
     checksum: Long,
     @Language("kotlin") source: String,
-    vararg bytecode: String
+    vararg bytecode: String,
 ) = CompatKotlinAndBytecodeStub(filename, filepath, checksum, source, *bytecode)
 
 /**
@@ -78,5 +78,5 @@ class CompatKotlinAndBytecodeStub(
     val filepath: String,
     val checksum: Long,
     @Language("kotlin") val source: String,
-    vararg val bytecode: String
+    vararg val bytecode: String,
 )

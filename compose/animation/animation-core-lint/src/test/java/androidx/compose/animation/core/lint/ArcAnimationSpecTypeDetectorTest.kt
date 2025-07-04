@@ -109,7 +109,7 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 xLaU0rYcnvtbZKrvXkrZc3+UbnqXutg9nfLSzg/Uzkr6HsWgBAPcp1ifH8Ay
                 QiBiVF1ZiJ9S9hbi+llpoxPcmINzQVldxUp59EG54A62KL8gZJW4qI9KG2tt
                 rLexgWtU4nqbZtzsg+VoYLMPP0eY41aOIMftv/zlm/jsAgAA
-                """
+                """,
         )
 
     // Simplified version of Offset.kt in geometry package
@@ -141,7 +141,7 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 oZ3m9NAY66XX1jhsQ/Dt/5pmj8FYZRXlGihtvGHwlYnAHGOQm0XMM5Z/BzCE
                 MM8XcpzFYv5RhGHOytco1DBSw2gNY6gwxXgNE5i8BjlMYZpzh9BhxiH4AWXo
                 H/7lAQAA
-                """
+                """,
         )
 
     // Simplified classes of ui/unit package
@@ -187,7 +187,7 @@ class ArcAnimationSpecTypeDetectorTest : LintDetectorTest() {
                 nmpopzk9NsZ66bU1DrsQfPefotlTMNZYRbkGSluvKL8wEVhkDHKziCXGyvcA
                 RhHm+XKOC/iT/xJhjLPKDQoxxmNMxJhElSmmYkxj5gbkMIs5zh1Ch3mH4Au3
                 DmZN4gEAAA==
-                """
+                """,
         )
 
     @Test
@@ -215,19 +215,19 @@ fun test() {
                 ),
                 ArcAnimationSpecStub,
                 GeometryStub,
-                UnitStub
+                UnitStub,
             )
             .run()
             .expect(
-                """src/foo/test.kt:14: Information: Arc animation is intended for 2D values such as Offset, IntOffset or DpOffset.
+                """src/foo/test.kt:14: Hint: Arc animation is intended for 2D values such as Offset, IntOffset or DpOffset.
 Otherwise, the animation might not be what you expect. [ArcAnimationSpecTypeIssue]
     ArcAnimationSpec<Float>(ArcAbove)
     ~~~~~~~~~~~~~~~~
-src/foo/test.kt:15: Information: Arc animation is intended for 2D values such as Offset, IntOffset or DpOffset.
+src/foo/test.kt:15: Hint: Arc animation is intended for 2D values such as Offset, IntOffset or DpOffset.
 Otherwise, the animation might not be what you expect. [ArcAnimationSpecTypeIssue]
     ArcAnimationSpec<String>(ArcAbove)
     ~~~~~~~~~~~~~~~~
-0 errors, 0 warnings"""
+0 errors, 0 warnings, 2 hints"""
             )
     }
 }

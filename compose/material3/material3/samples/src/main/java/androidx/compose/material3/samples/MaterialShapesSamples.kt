@@ -46,7 +46,7 @@ fun AllShapes() {
         LazyVerticalGrid(
             columns = GridCells.FixedSize(64.dp),
             contentPadding = PaddingValues(2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             allMaterialShapes().forEach { polygon ->
                 item {
@@ -99,6 +99,6 @@ private fun allMaterialShapes(): List<RoundedPolygon> {
         MaterialShapes.PixelCircle,
         MaterialShapes.PixelTriangle,
         MaterialShapes.Bun,
-        MaterialShapes.Heart
+        MaterialShapes.Heart,
     )
 }

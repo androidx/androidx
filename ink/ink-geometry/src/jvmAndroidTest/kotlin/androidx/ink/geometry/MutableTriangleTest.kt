@@ -93,7 +93,7 @@ class MutableTriangleTest {
             ImmutableTriangle(
                 ImmutableVec(10f, 11f),
                 ImmutableVec(12f, 13f),
-                ImmutableVec(14f, 15f)
+                ImmutableVec(14f, 15f),
             )
 
         triangle.populateFrom(other)
@@ -187,7 +187,7 @@ class MutableTriangleTest {
             MutableTriangle(
                 MutableVec(1.01f, 2.02f),
                 MutableVec(3.03f, 4.04f),
-                MutableVec(5.05f, 6.06f)
+                MutableVec(5.05f, 6.06f),
             )
 
         assertThat(triangle.isAlmostEqual(other, 0.1f)).isTrue()

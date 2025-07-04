@@ -19,9 +19,9 @@ package androidx.compose.foundation.internal
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.text.AnnotatedString
 
-internal expect fun ClipEntry.readText(): String?
+internal expect suspend fun ClipEntry.readText(): String?
 
-internal expect fun ClipEntry.readAnnotatedString(): AnnotatedString?
+internal expect suspend fun ClipEntry.readAnnotatedString(): AnnotatedString?
 
 internal expect fun AnnotatedString?.toClipEntry(): ClipEntry?
 

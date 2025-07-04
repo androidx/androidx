@@ -44,7 +44,7 @@ class MethodSpecHelperTest(
     // and source files
     val preCompiledCode: Boolean,
     val shouldMarkParamsFinal: Boolean,
-    val ignoreOwner: Boolean
+    val ignoreOwner: Boolean,
 ) {
     @Test
     fun javaOverrides() {
@@ -84,7 +84,7 @@ class MethodSpecHelperTest(
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -169,7 +169,7 @@ class MethodSpecHelperTest(
                 internal abstract val abstractVal: String
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -216,7 +216,7 @@ class MethodSpecHelperTest(
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -258,7 +258,7 @@ class MethodSpecHelperTest(
                 suspend fun s4(args : I1<String>): String
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -280,7 +280,7 @@ class MethodSpecHelperTest(
                 override fun receiveList(argsInParent : List<Book>):Unit
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -301,7 +301,7 @@ class MethodSpecHelperTest(
                 override fun receiveList(argsInParent : List<String>):Unit
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source, ignoreInheritedMethods = true)
     }
@@ -326,7 +326,7 @@ class MethodSpecHelperTest(
                 override fun receiveList(argsInParent : List<EnumType>):Unit
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -348,7 +348,7 @@ class MethodSpecHelperTest(
             interface Baz : Parent {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -375,7 +375,7 @@ class MethodSpecHelperTest(
                 //override fun getFirstItemId(): Long
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -395,7 +395,7 @@ class MethodSpecHelperTest(
                     void varargT(T... t);
                     void arrayT(T[] t);
                 }
-            """
+            """,
             )
         val impl =
             Source.java(
@@ -405,7 +405,7 @@ class MethodSpecHelperTest(
             public interface Baz extends Base<Integer> {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source, impl)
     }
@@ -422,7 +422,7 @@ class MethodSpecHelperTest(
                 var y:Int
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val javaImpl =
             Source.java(
@@ -440,7 +440,7 @@ class MethodSpecHelperTest(
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(myInterface, javaImpl)
     }
@@ -461,7 +461,7 @@ class MethodSpecHelperTest(
                     set(value) {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         overridesCheck(source)
     }
@@ -470,7 +470,7 @@ class MethodSpecHelperTest(
     private fun overridesCheck(
         vararg sources: Source,
         ignoreInheritedMethods: Boolean = false,
-        kotlincArgs: List<String> = emptyList()
+        kotlincArgs: List<String> = emptyList(),
     ) {
         val (sources: List<Source>, classpath: List<File>) =
             if (preCompiledCode) {
@@ -483,12 +483,12 @@ class MethodSpecHelperTest(
             buildMethodsViaJavaPoet(
                 sources = sources,
                 classpath = classpath,
-                ignoreInheritedMethods = ignoreInheritedMethods
+                ignoreInheritedMethods = ignoreInheritedMethods,
             )
         runProcessorTest(
             sources = sources + Source.kotlin("Placeholder.kt", ""),
             classpath = classpath,
-            kotlincArguments = kotlincArgs
+            kotlincArguments = kotlincArgs,
         ) { invocation ->
             val (target, methods) = invocation.getOverrideTestTargets(ignoreInheritedMethods)
             methods.forEachIndexed { index, method ->
@@ -506,7 +506,7 @@ class MethodSpecHelperTest(
     private fun buildMethodsViaJavaPoet(
         sources: List<Source>,
         classpath: List<File>,
-        ignoreInheritedMethods: Boolean
+        ignoreInheritedMethods: Boolean,
     ): List<String> {
         lateinit var result: List<String>
         runKaptTest(sources = sources, classpath = classpath) { invocation ->
@@ -519,7 +519,7 @@ class MethodSpecHelperTest(
                         generateFromJavapoet(
                                 it,
                                 MoreTypes.asDeclared(element.asType()),
-                                invocation.javaTypeUtils
+                                invocation.javaTypeUtils,
                             )
                             .toSignature()
                     }
@@ -556,7 +556,7 @@ class MethodSpecHelperTest(
     private fun generateFromJavapoet(
         method: ExecutableElement,
         owner: DeclaredType,
-        typeUtils: Types
+        typeUtils: Types,
     ): MethodSpec.Builder {
         return overrideWithoutAnnotations(elm = method, owner = owner, typeUtils = typeUtils)
     }
@@ -583,7 +583,7 @@ class MethodSpecHelperTest(
     private fun overrideWithoutAnnotations(
         elm: ExecutableElement,
         owner: DeclaredType,
-        typeUtils: Types
+        typeUtils: Types,
     ): MethodSpec.Builder {
         if (ignoreOwner) {
             return MethodSpec.overriding(elm)

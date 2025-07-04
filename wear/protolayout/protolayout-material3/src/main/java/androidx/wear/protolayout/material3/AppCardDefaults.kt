@@ -27,6 +27,7 @@ import androidx.wear.protolayout.LayoutElementBuilders.Row
 import androidx.wear.protolayout.ModifiersBuilders.Padding
 import androidx.wear.protolayout.material3.Typography.TypographyToken
 import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
 internal object AppCardDefaults {
     /**
@@ -50,7 +51,7 @@ internal object AppCardDefaults {
         time: LayoutElement?,
         label: LayoutElement?,
         avatar: LayoutElement?,
-        style: AppCardStyle
+        style: AppCardStyle,
     ): LayoutElement {
         val verticalElementBuilder: Column.Builder =
             Column.Builder().setWidth(expand()).setHorizontalAlignment(HORIZONTAL_ALIGN_START)
@@ -68,17 +69,17 @@ internal object AppCardDefaults {
                                 .setWidth(expand())
                                 .build()
                         }
-                        .orElse(null),
-                    verticalSpacer(style.labelToAvatarSpaceDp)
+                        .getOrNull(),
+                    verticalSpacer(style.labelToAvatarSpaceDp),
                 )
                 .addElement(time, verticalSpacer(style.labelToTimeSpaceDp))
 
         ContainerWithSpacersBuilder<LayoutElement>(
-                { it: LayoutElement? -> verticalElementBuilder.addContent(it!!) },
-                if (headerBuilder.isEmpty) null else headerSlot.build()
+                { element: LayoutElement? -> verticalElementBuilder.addContent(element!!) },
+                if (headerBuilder.isEmpty) null else headerSlot.build(),
             )
             .addElement(title, horizontalSpacer(style.headerToTitleSpaceDp))
-            .addElement(content, horizontalSpacer(style.titleToContentSpaceDp))
+            .addElement(content)
 
         return verticalElementBuilder.build()
     }
@@ -91,12 +92,11 @@ internal constructor(
     @Dimension(unit = DP) internal val labelToTimeSpaceDp: Int,
     @Dimension(unit = DP) internal val labelToAvatarSpaceDp: Int,
     @Dimension(unit = DP) internal val headerToTitleSpaceDp: Int,
-    @Dimension(unit = DP) internal val titleToContentSpaceDp: Int,
     @TypographyToken internal val titleTypography: Int,
     @TypographyToken internal val contentTypography: Int,
     @TypographyToken internal val labelTypography: Int,
     @TypographyToken internal val timeTypography: Int,
-    @Dimension(unit = DP) internal val avatarSize: Int
+    @Dimension(unit = DP) internal val avatarSize: Int,
 ) {
     public companion object {
         /** The default spacer width or height that should be between different elements. */
@@ -121,7 +121,6 @@ internal constructor(
                 labelToTimeSpaceDp = DEFAULT_SPACE_DP,
                 labelToAvatarSpaceDp = DEFAULT_SPACE_DP,
                 avatarSize = 16,
-                titleToContentSpaceDp = 0,
                 headerToTitleSpaceDp = SMALL_SPACE_DP,
                 titleTypography = Typography.LABEL_SMALL,
                 contentTypography = Typography.BODY_SMALL,
@@ -145,7 +144,6 @@ internal constructor(
                 labelToTimeSpaceDp = DEFAULT_SPACE_DP,
                 labelToAvatarSpaceDp = DEFAULT_SPACE_DP,
                 avatarSize = 16,
-                titleToContentSpaceDp = SMALL_SPACE_DP,
                 headerToTitleSpaceDp = SMALL_SPACE_DP,
                 titleTypography = Typography.LABEL_MEDIUM,
                 contentTypography = Typography.LABEL_SMALL,
@@ -169,12 +167,11 @@ internal constructor(
                 labelToTimeSpaceDp = DEFAULT_SPACE_DP,
                 labelToAvatarSpaceDp = DEFAULT_SPACE_DP,
                 avatarSize = 18,
-                titleToContentSpaceDp = DEFAULT_SPACE_DP,
                 headerToTitleSpaceDp = DEFAULT_SPACE_DP,
                 titleTypography = Typography.TITLE_MEDIUM,
                 contentTypography = Typography.LABEL_SMALL,
                 timeTypography = Typography.BODY_MEDIUM,
-                labelTypography = Typography.LABEL_SMALL,
+                labelTypography = Typography.TITLE_SMALL,
             )
     }
 }

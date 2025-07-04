@@ -60,11 +60,11 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
                     TextStyle(
                         textAlign = TextAlign.Center,
                         fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 10.sp
+                        fontSize = 10.sp,
                     ),
                 outputTransformation = {
                     replace(1, 2, "bbbb") // "zbbbbz"
-                }
+                },
             )
         }
         rule.onNodeWithTag(Tag).assertTextEquals("zbbbbz")
@@ -105,9 +105,9 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
                     TextStyle(
                         textAlign = TextAlign.Left,
                         fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 10.sp
+                        fontSize = 10.sp,
                     ),
-                outputTransformation = { replace(indexOfA, indexOfA + 1, replacement) }
+                outputTransformation = { replace(indexOfA, indexOfA + 1, replacement) },
             )
         }
         rule.onNodeWithTag(Tag).assertTextEquals("zzzzzzzz${replacement}z")
@@ -136,11 +136,11 @@ class TextFieldOutputTransformationGesturesIntegrationTest {
                     TextStyle(
                         textAlign = TextAlign.Center,
                         fontFamily = TEST_FONT_FAMILY,
-                        fontSize = 10.sp
+                        fontSize = 10.sp,
                     ),
                 outputTransformation = {
                     insert(1, "bbbb") // "zbbbbz"
-                }
+                },
             )
         }
         rule.onNodeWithTag(Tag).assertTextEquals("zbbbbz")

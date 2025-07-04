@@ -16,8 +16,11 @@
 
 package androidx.camera.camera2.internal;
 
+import static java.util.Collections.emptyList;
+
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
@@ -398,6 +401,21 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     }
 
     @Override
+    @NonNull
+    public List<CaptureRequest> createHighSpeedRequestList(@NonNull CaptureRequest request)
+            throws CameraAccessException {
+        CameraCaptureSession cameraCaptureSession =
+                Preconditions.checkNotNull(mCameraCaptureSessionCompat).toCameraCaptureSession();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && cameraCaptureSession instanceof CameraConstrainedHighSpeedCaptureSession) {
+            return Api23Impl.createHighSpeedRequestList(
+                    (CameraConstrainedHighSpeedCaptureSession) cameraCaptureSession, request);
+        } else {
+            return emptyList();
+        }
+    }
+
+    @Override
     public int captureSingleRequest(@NonNull CaptureRequest request, @NonNull Executor executor,
             CameraCaptureSession.@NonNull CaptureCallback listener) throws CameraAccessException {
         Preconditions.checkNotNull(mCameraCaptureSessionCompat,
@@ -621,6 +639,14 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
         static Surface getInputSurface(CameraCaptureSession cameraCaptureSession) {
             return cameraCaptureSession.getInputSurface();
+        }
+
+        @NonNull
+        static List<CaptureRequest> createHighSpeedRequestList(
+                @NonNull CameraConstrainedHighSpeedCaptureSession constrainedHighSpeedSession,
+                @NonNull CaptureRequest captureRequest)
+                throws CameraAccessException {
+            return constrainedHighSpeedSession.createHighSpeedRequestList(captureRequest);
         }
     }
 }

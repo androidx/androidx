@@ -19,7 +19,6 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.InternalXAnnotated
 import androidx.room.compiler.processing.XAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XRawType
@@ -54,7 +53,7 @@ internal abstract class JavacType(
             env.wrap<JavacType>(
                 typeMirror = it,
                 kotlinType = KmClassContainer.createFor(env, element)?.type,
-                elementNullability = element.nullability
+                elementNullability = element.nullability,
             )
         }
     }
@@ -81,7 +80,7 @@ internal abstract class JavacType(
         XTypeName(
             typeMirror.safeTypeName(),
             XTypeName.UNAVAILABLE_KTYPE_NAME,
-            maybeNullability ?: XNullability.UNKNOWN
+            maybeNullability ?: XNullability.UNKNOWN,
         )
     }
 
@@ -89,14 +88,14 @@ internal abstract class JavacType(
 
     override fun <T : Annotation> getAnnotations(
         annotation: KClass<T>,
-        containerAnnotation: KClass<out Annotation>?
-    ): List<XAnnotationBox<T>> {
+        containerAnnotation: KClass<out Annotation>?,
+    ): List<XAnnotation> {
         throw UnsupportedOperationException("No plan to support XAnnotationBox.")
     }
 
     override fun hasAnnotation(
         annotation: KClass<out Annotation>,
-        containerAnnotation: KClass<out Annotation>?
+        containerAnnotation: KClass<out Annotation>?,
     ): Boolean {
         val annotationClassName: String = annotation.java.canonicalName!!
         return getAllAnnotations().any { it.qualifiedName == annotationClassName }
@@ -110,9 +109,8 @@ internal abstract class JavacType(
                     // TODO(b/313473892): Checking if an annotation needs to be unwrapped can be
                     //  expensive with the XProcessing API, especially if we don't really care about
                     //  annotation values, so do a quick check on the AnnotationMirror first to
-                    // decide
-                    //  if its repeatable. Remove this once we've optimized the general solution in
-                    //  unwrapRepeatedAnnotationsFromContainer()
+                    //  decide if its repeatable. Remove this once we've optimized the general
+                    //  solution in unwrapRepeatedAnnotationsFromContainer()
                     if (annotation.mirror.isRepeatable()) {
                         annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
                     } else {
@@ -165,7 +163,7 @@ internal abstract class JavacType(
             env.wrap<JavacType>(
                 typeMirror = it,
                 kotlinType = (kotlinType as? KmTypeContainer)?.extendsBound,
-                elementNullability = maybeNullability
+                elementNullability = maybeNullability,
             )
         }
     }

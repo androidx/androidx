@@ -84,7 +84,7 @@ internal class StepperTestCase : LayeredComposeTestCase() {
             valueRange = 1f..4f,
             increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
             decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-            steps = 2
+            steps = 2,
         ) {}
     }
 

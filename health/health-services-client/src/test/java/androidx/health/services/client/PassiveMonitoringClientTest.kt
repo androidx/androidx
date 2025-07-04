@@ -80,7 +80,7 @@ class PassiveMonitoringClientTest {
         client =
             ServiceBackedPassiveMonitoringClient(
                 context,
-                ConnectionManager(context, context.mainLooper)
+                ConnectionManager(context, context.mainLooper),
             )
         service = FakeServiceStub()
 
@@ -91,7 +91,7 @@ class PassiveMonitoringClientTest {
             .setComponentNameAndServiceForBindServiceForIntent(
                 Intent().setPackage(packageName).setAction(action),
                 ComponentName(packageName, ServiceBackedPassiveMonitoringClient.CLIENT),
-                service
+                service,
             )
     }
 
@@ -114,7 +114,7 @@ class PassiveMonitoringClientTest {
                     dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
                     shouldUserActivityInfoBeRequested = true,
                     dailyGoals = setOf(),
-                    healthEventTypes = setOf()
+                    healthEventTypes = setOf(),
                 )
 
             client.setPassiveListenerService(FakeListenerService::class.java, config)
@@ -139,7 +139,7 @@ class PassiveMonitoringClientTest {
                     dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
                     shouldUserActivityInfoBeRequested = true,
                     dailyGoals = setOf(),
-                    healthEventTypes = setOf()
+                    healthEventTypes = setOf(),
                 )
 
             var exception: Exception? = null
@@ -165,7 +165,7 @@ class PassiveMonitoringClientTest {
                     dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
                     shouldUserActivityInfoBeRequested = true,
                     dailyGoals = setOf(),
-                    healthEventTypes = setOf()
+                    healthEventTypes = setOf(),
                 )
             val callback = FakeCallback()
             client.setPassiveListenerCallback(config, callback)
@@ -186,7 +186,7 @@ class PassiveMonitoringClientTest {
                     dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
                     shouldUserActivityInfoBeRequested = true,
                     dailyGoals = setOf(),
-                    healthEventTypes = setOf()
+                    healthEventTypes = setOf(),
                 )
             val callback = FakeCallback()
             client.setPassiveListenerCallback(config, callback)
@@ -209,7 +209,7 @@ class PassiveMonitoringClientTest {
                 dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
                 shouldUserActivityInfoBeRequested = true,
                 dailyGoals = setOf(),
-                healthEventTypes = setOf()
+                healthEventTypes = setOf(),
             )
         val callback = FakeCallback()
         client.setPassiveListenerCallback(config, callback)
@@ -235,7 +235,7 @@ class PassiveMonitoringClientTest {
                 dataTypes = setOf(STEPS_DAILY, CALORIES_DAILY),
                 shouldUserActivityInfoBeRequested = true,
                 dailyGoals = setOf(),
-                healthEventTypes = setOf()
+                healthEventTypes = setOf(),
             )
         val callback = FakeCallback()
         client.setPassiveListenerCallback(config, callback)
@@ -330,7 +330,7 @@ class PassiveMonitoringClientTest {
 
         override fun registerPassiveListenerService(
             request: PassiveListenerServiceRegistrationRequest,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             if (callingAppHasPermissions) {
                 registerServiceRequests += request
@@ -343,7 +343,7 @@ class PassiveMonitoringClientTest {
         override fun registerPassiveListenerCallback(
             request: PassiveListenerCallbackRegistrationRequest,
             callback: IPassiveListenerCallback,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             registerCallbackRequests += request
             registeredCallbacks += callback
@@ -352,7 +352,7 @@ class PassiveMonitoringClientTest {
 
         override fun unregisterPassiveListenerService(
             packageName: String,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             unregisterServicePackageNames += packageName
             statusCallbackAction.invoke(statusCallback)
@@ -360,7 +360,7 @@ class PassiveMonitoringClientTest {
 
         override fun unregisterPassiveListenerCallback(
             packageName: String,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             unregisterCallbackPackageNames += packageName
             statusCallbackAction.invoke(statusCallback)
@@ -371,7 +371,7 @@ class PassiveMonitoringClientTest {
                 supportedDataTypesPassiveMonitoring = setOf(STEPS, DISTANCE),
                 supportedDataTypesPassiveGoals = setOf(CALORIES_TOTAL),
                 supportedHealthEventTypes = setOf(HealthEvent.Type.FALL_DETECTED),
-                supportedUserActivityStates = setOf(UserActivityState.USER_ACTIVITY_PASSIVE)
+                supportedUserActivityStates = setOf(UserActivityState.USER_ACTIVITY_PASSIVE),
             )
         }
     }

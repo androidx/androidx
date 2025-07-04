@@ -104,7 +104,7 @@ class MetricResultTest {
             assertEquals(
                 it.toDouble(),
                 MetricResult.getPercentile(listOf(0.0, 25.0, 50.0, 75.0, 100.0), it),
-                0.01
+                0.01,
             )
         }
     }

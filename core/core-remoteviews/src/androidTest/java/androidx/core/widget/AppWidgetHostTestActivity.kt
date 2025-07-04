@@ -74,8 +74,8 @@ public class AppWidgetHostTestActivity : Activity() {
             hostView,
             FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            ),
         )
 
         fun pxToDp(px: Int): Int {
@@ -93,7 +93,7 @@ public class AppWidgetHostTestActivity : Activity() {
         if (Build.VERSION.SDK_INT >= 31) {
             optionsBundle.putParcelableArrayList(
                 OPTION_APPWIDGET_SIZES,
-                arrayListOf(SizeF(width.toFloat(), height.toFloat()))
+                arrayListOf(SizeF(width.toFloat(), height.toFloat())),
             )
         }
 

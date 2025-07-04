@@ -31,7 +31,7 @@ private constructor(private val registryImpl: RegistryImpl) {
 
     fun registerSdkSandboxClientImportanceListener(
         executor: Executor,
-        listenerCompat: SdkSandboxClientImportanceListenerCompat
+        listenerCompat: SdkSandboxClientImportanceListenerCompat,
     ) = registryImpl.registerSdkSandboxClientImportanceListener(executor, listenerCompat)
 
     fun unregisterSdkSandboxClientImportanceListener(
@@ -41,7 +41,7 @@ private constructor(private val registryImpl: RegistryImpl) {
     private interface RegistryImpl {
         fun registerSdkSandboxClientImportanceListener(
             executor: Executor,
-            listenerCompat: SdkSandboxClientImportanceListenerCompat
+            listenerCompat: SdkSandboxClientImportanceListenerCompat,
         )
 
         fun unregisterSdkSandboxClientImportanceListener(
@@ -53,7 +53,7 @@ private constructor(private val registryImpl: RegistryImpl) {
     private class NoOpImpl : RegistryImpl {
         override fun registerSdkSandboxClientImportanceListener(
             executor: Executor,
-            listenerCompat: SdkSandboxClientImportanceListenerCompat
+            listenerCompat: SdkSandboxClientImportanceListenerCompat,
         ) {
             // do nothing
         }
@@ -73,13 +73,13 @@ private constructor(private val registryImpl: RegistryImpl) {
         private val compatToPlatformMap =
             hashMapOf<
                 SdkSandboxClientImportanceListenerCompat,
-                SdkSandboxClientImportanceListener
+                SdkSandboxClientImportanceListener,
             >()
 
         @DoNotInline
         override fun registerSdkSandboxClientImportanceListener(
             executor: Executor,
-            listenerCompat: SdkSandboxClientImportanceListenerCompat
+            listenerCompat: SdkSandboxClientImportanceListenerCompat,
         ) {
             synchronized(compatToPlatformMap) {
                 val platformListener: SdkSandboxClientImportanceListener =

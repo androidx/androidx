@@ -42,6 +42,10 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
+
 import org.reactivestreams.Publisher;
 
 import java.util.Collection;
@@ -50,10 +54,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
-
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-import io.reactivex.Single;
 
 @SuppressWarnings("SameParameterValue")
 @Dao

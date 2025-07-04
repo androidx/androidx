@@ -20,15 +20,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
-import androidx.annotation.UiContext
 
 internal object ContextCompatHelper {
-    /**
-     * Given a [UiContext], check if it is a [ContextWrapper]. If so, we need to unwrap it and
-     * return the actual [UiContext] within.
-     */
-    @UiContext
-    internal fun unwrapUiContext(@UiContext context: Context): Context {
+
+    /** Return the base context from a context wrapper. */
+    internal fun unwrapContext(context: Context): Context {
         var iterator = context
 
         while (iterator is ContextWrapper) {
@@ -45,10 +41,6 @@ internal object ContextCompatHelper {
             iterator = iterator.baseContext
         }
 
-        // TODO(b/259148796): This code path is not needed for APIs R and above. However, that is
-        //  not clear and also not enforced anywhere. Once we move to version-based implementations,
-        //  this ambiguity will no longer exist. Again for clarity, on APIs before R, UiContexts are
-        //  Activities or InputMethodServices, so we should never reach this point.
-        throw IllegalArgumentException("Context $context is not a UiContext")
+        return context
     }
 }

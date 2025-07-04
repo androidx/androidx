@@ -34,6 +34,6 @@ package androidx.annotation
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.ANNOTATION_CLASS,
     AnnotationTarget.CLASS,
-    AnnotationTarget.VALUE_PARAMETER
+    AnnotationTarget.VALUE_PARAMETER,
 )
 public annotation class WorkerThread

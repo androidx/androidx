@@ -98,9 +98,7 @@ class TextButtonScreenshotTest {
 
     @Test
     fun text_button_with_corner_animation() = verifyScreenshot {
-        sampleTextButton(
-            shapes = TextButtonDefaults.animatedShapes(),
-        )
+        sampleTextButton(shapes = TextButtonDefaults.animatedShapes())
     }
 
     @Test
@@ -109,8 +107,8 @@ class TextButtonScreenshotTest {
             shapes =
                 TextButtonDefaults.animatedShapes(
                     shape = CutCornerShape(15.dp),
-                    pressedShape = RoundedCornerShape(15.dp)
-                ),
+                    pressedShape = RoundedCornerShape(15.dp),
+                )
         )
     }
 
@@ -120,7 +118,7 @@ class TextButtonScreenshotTest {
             onClick = {},
             colors = TextButtonDefaults.filledTextButtonColors(),
             enabled = enabled,
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {
             Text(text = "ABC")
         }
@@ -132,7 +130,7 @@ class TextButtonScreenshotTest {
             onClick = {},
             colors = TextButtonDefaults.filledTonalTextButtonColors(),
             enabled = enabled,
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {
             Text(text = "ABC")
         }
@@ -145,7 +143,7 @@ class TextButtonScreenshotTest {
             colors = TextButtonDefaults.outlinedTextButtonColors(),
             border = ButtonDefaults.outlinedButtonBorder(enabled),
             enabled = enabled,
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {
             Text(text = "ABC")
         }
@@ -156,14 +154,14 @@ class TextButtonScreenshotTest {
         enabled: Boolean = true,
         shapes: TextButtonShapes = TextButtonDefaults.shapes(),
         modifier: Modifier = Modifier,
-        interactionSource: MutableInteractionSource? = null
+        interactionSource: MutableInteractionSource? = null,
     ) {
         TextButton(
             onClick = {},
             enabled = enabled,
             shapes = shapes,
             modifier = modifier.testTag(TEST_TAG),
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         ) {
             Text(text = "ABC")
         }
@@ -171,7 +169,7 @@ class TextButtonScreenshotTest {
 
     private fun verifyScreenshot(
         methodName: String = testName.methodName,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             Box(

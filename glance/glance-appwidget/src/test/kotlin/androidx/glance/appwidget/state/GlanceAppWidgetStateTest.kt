@@ -49,7 +49,7 @@ class GlanceAppWidgetStateTest {
             GlanceState.deleteStore(
                 context,
                 PreferencesGlanceStateDefinition,
-                createUniqueRemoteUiName(appWidgetId.appWidgetId)
+                createUniqueRemoteUiName(appWidgetId.appWidgetId),
             )
         }
     }

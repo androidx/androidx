@@ -55,21 +55,21 @@ internal fun GradleRunner.buildAndFail(vararg arguments: String, block: (String)
 
 internal fun GradleRunner.buildAndAssertThatOutput(
     vararg arguments: String,
-    assertBlock: StringSubject.() -> (Unit)
+    assertBlock: StringSubject.() -> (Unit),
 ) {
     this.build(*arguments) { assertBlock(assertThat(it)) }
 }
 
 internal fun GradleRunner.buildAndFailAndAssertThatOutput(
     vararg arguments: String,
-    assertBlock: StringSubject.() -> (Unit)
+    assertBlock: StringSubject.() -> (Unit),
 ) {
     this.buildAndFail(*arguments) { assertBlock(assertThat(it)) }
 }
 
 internal fun List<String>.requireInOrder(
     vararg toFind: String,
-    predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) }
+    predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
 ): List<String> {
     var remaining = toFind.filter { it.isNotBlank() }.toMutableList()
     for (line in this) {

@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class LinearLayoutManagerRemoveShownItemsTest(
     private val config: Config,
-    private val extraLayoutSpaceItems: Int
+    private val extraLayoutSpaceItems: Int,
 ) : BaseLinearLayoutManagerTest() {
 
     companion object {
@@ -48,7 +48,7 @@ class LinearLayoutManagerRemoveShownItemsTest(
                                 Config(orientation, reverseLayout, stackFromEnd).apply {
                                     mItemCount = Config.DEFAULT_ITEM_COUNT
                                 },
-                                extraLayoutSpaceItems
+                                extraLayoutSpaceItems,
                             )
                         }
                     }
@@ -65,7 +65,7 @@ class LinearLayoutManagerRemoveShownItemsTest(
             config,
             true,
             RecyclerView.LayoutParams(500, 500),
-            RecyclerView.LayoutParams(500, 500)
+            RecyclerView.LayoutParams(500, 500),
         )
 
         val startingAdapterPosition = 10 // Item with label 11
@@ -90,11 +90,11 @@ class LinearLayoutManagerRemoveShownItemsTest(
             assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
             assertEquals(
                 expectedResultingAdapterPosition,
-                llm.findFirstCompletelyVisibleItemPosition()
+                llm.findFirstCompletelyVisibleItemPosition(),
             )
             assertEquals(
                 expectedResultingAdapterPosition,
-                llm.findLastCompletelyVisibleItemPosition()
+                llm.findLastCompletelyVisibleItemPosition(),
             )
             assertEquals(expectedResultingAdapterPosition, llm.findLastVisibleItemPosition())
         }
@@ -136,11 +136,11 @@ class LinearLayoutManagerRemoveShownItemsTest(
             assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
             assertEquals(
                 expectedResultingAdapterPosition,
-                llm.findFirstCompletelyVisibleItemPosition()
+                llm.findFirstCompletelyVisibleItemPosition(),
             )
             assertEquals(
                 expectedResultingAdapterPosition + 1,
-                llm.findLastCompletelyVisibleItemPosition()
+                llm.findLastCompletelyVisibleItemPosition(),
             )
             assertEquals(expectedResultingAdapterPosition + 1, llm.findLastVisibleItemPosition())
         }
@@ -155,7 +155,7 @@ class LinearLayoutManagerRemoveShownItemsTest(
             config,
             true,
             RecyclerView.LayoutParams(500, 500),
-            RecyclerView.LayoutParams(500, 500)
+            RecyclerView.LayoutParams(500, 500),
         )
 
         val startingAdapterPosition = 10 // Item with label 11
@@ -182,11 +182,11 @@ class LinearLayoutManagerRemoveShownItemsTest(
             assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
             assertEquals(
                 expectedResultingAdapterPosition,
-                llm.findFirstCompletelyVisibleItemPosition()
+                llm.findFirstCompletelyVisibleItemPosition(),
             )
             assertEquals(
                 expectedResultingAdapterPosition,
-                llm.findLastCompletelyVisibleItemPosition()
+                llm.findLastCompletelyVisibleItemPosition(),
             )
             assertEquals(expectedResultingAdapterPosition, llm.findLastVisibleItemPosition())
         }
@@ -197,7 +197,7 @@ class LinearLayoutManagerRemoveShownItemsTest(
 
         override fun calculateExtraLayoutSpace(
             state: RecyclerView.State,
-            extraLayoutSpace: IntArray
+            extraLayoutSpace: IntArray,
         ) {
             when (extraLayoutSpaceItems) {
                 0 -> super.calculateExtraLayoutSpace(state, extraLayoutSpace)

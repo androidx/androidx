@@ -18,6 +18,7 @@ package androidx.build.importMaven
 
 import org.apache.logging.log4j.kotlin.logger
 import org.gradle.api.Project
+import org.gradle.api.artifacts.verification.DependencyVerificationMode
 import org.gradle.testfixtures.ProjectBuilder
 import java.io.File
 import java.util.UUID
@@ -44,6 +45,13 @@ object ProjectService {
             }
         ).withName("importMaven")
             .build()
+            .also {
+                // Enables us to download .asc files if they exist whilst not failing for
+                // dependencies that do not have the .asc file. Do not set the mode to OFF as that
+                // stops downloading .asc files even if they do exist
+                it.gradle.startParameter.dependencyVerificationMode =
+                    DependencyVerificationMode.LENIENT
+            }
     }
 
     private fun randomProjectFolder(): File {

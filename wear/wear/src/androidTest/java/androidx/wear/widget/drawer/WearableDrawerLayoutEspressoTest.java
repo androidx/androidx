@@ -97,6 +97,7 @@ public class WearableDrawerLayoutEspressoTest {
 
     @Mock WearableNavigationDrawerView.OnItemSelectedListener mNavDrawerItemSelectedListener;
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void openingNavigationDrawerDoesNotCloseActionDrawer() {
         // GIVEN a drawer layout with a peeking action and navigation drawer
@@ -121,6 +122,7 @@ public class WearableDrawerLayoutEspressoTest {
         assertTrue(actionDrawer.isPeeking());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void swipingDownNavigationDrawerDoesNotCloseActionDrawer() {
         // GIVEN a drawer layout with a peeking action and navigation drawer
@@ -140,7 +142,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.action_drawer)).check(matches(isPeeking()));
     }
 
-
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void firstNavDrawerItemShouldBeSelectedInitially() {
         // GIVEN a top drawer
@@ -239,6 +241,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.navigation_drawer)).check(matches(isOpened(true)));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void actionDrawerShouldOpenWhenCalledInOnCreate() {
         // GIVEN an activity with only an action drawer which is opened in onCreate
@@ -253,6 +256,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.action_drawer)).check(matches(isOpened(true)));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void drawerContentViewShouldOnlyInflateOnceOpened() {
         // GIVEN a launched activity with only an action drawer
@@ -316,6 +320,7 @@ public class WearableDrawerLayoutEspressoTest {
                                 MAX_WAIT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void openedNavDrawerShouldPreventSwipeToClose() {
         // GIVEN an activity which calls openDrawer(Gravity.TOP) in onCreate
@@ -329,6 +334,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.navigation_drawer)).check(matches(not(allowsSwipeToClose())));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void closedNavDrawerShouldNotPreventSwipeToClose() {
         // GIVEN an activity which doesn't start with the nav drawer open
@@ -338,6 +344,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.navigation_drawer)).check(matches(allowsSwipeToClose()));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void scrolledDownActionDrawerCanScrollUpWhenReOpened() {
         // GIVEN a freshly launched activity
@@ -438,6 +445,7 @@ public class WearableDrawerLayoutEspressoTest {
         verify(mockClickListener).onMenuItemClick(any(MenuItem.class));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void changingActionDrawerItemShouldUpdateView() {
         // GIVEN a drawer layout with an open action drawer
@@ -462,6 +470,7 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withText("Modified item")).check(matches(isDisplayed()));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void removingActionDrawerItemShouldUpdateView() {
         // GIVEN a drawer layout with an open action drawer
@@ -523,6 +532,7 @@ public class WearableDrawerLayoutEspressoTest {
                 .perform(waitForMatchingView(withText("New Item"), MAX_WAIT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427565061
     @Test
     public void flingInHorizontalScrollerDoesNotPeekDrawers() {
         // Note that this test uses a different activity to implement the list...

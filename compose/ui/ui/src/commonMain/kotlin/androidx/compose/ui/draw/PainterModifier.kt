@@ -63,7 +63,7 @@ fun Modifier.paint(
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Inside,
     alpha: Float = DefaultAlpha,
-    colorFilter: ColorFilter? = null
+    colorFilter: ColorFilter? = null,
 ) =
     this then
         PainterElement(
@@ -72,7 +72,7 @@ fun Modifier.paint(
             alignment = alignment,
             contentScale = contentScale,
             alpha = alpha,
-            colorFilter = colorFilter
+            colorFilter = colorFilter,
         )
 
 /**
@@ -92,7 +92,7 @@ private data class PainterElement(
     val alignment: Alignment,
     val contentScale: ContentScale,
     val alpha: Float,
-    val colorFilter: ColorFilter?
+    val colorFilter: ColorFilter?,
 ) : ModifierNodeElement<PainterNode>() {
     override fun create(): PainterNode {
         return PainterNode(
@@ -151,7 +151,7 @@ private class PainterNode(
     var alignment: Alignment = Alignment.Center,
     var contentScale: ContentScale = ContentScale.Inside,
     var alpha: Float = DefaultAlpha,
-    var colorFilter: ColorFilter? = null
+    var colorFilter: ColorFilter? = null,
 ) : LayoutModifierNode, Modifier.Node(), DrawModifierNode {
 
     /**
@@ -166,7 +166,7 @@ private class PainterNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(modifyConstraints(constraints))
         return layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
@@ -174,7 +174,7 @@ private class PainterNode(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int {
         return if (useIntrinsicSize) {
             val constraints = modifyConstraints(Constraints(maxHeight = height))
@@ -187,7 +187,7 @@ private class PainterNode(
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int {
         return if (useIntrinsicSize) {
             val constraints = modifyConstraints(Constraints(maxHeight = height))
@@ -200,7 +200,7 @@ private class PainterNode(
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int {
         return if (useIntrinsicSize) {
             val constraints = modifyConstraints(Constraints(maxWidth = width))
@@ -213,7 +213,7 @@ private class PainterNode(
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int {
         return if (useIntrinsicSize) {
             val constraints = modifyConstraints(Constraints(maxWidth = width))
@@ -262,7 +262,7 @@ private class PainterNode(
             // the provided bounds
             return constraints.copy(
                 minWidth = constraints.maxWidth,
-                minHeight = constraints.maxHeight
+                minHeight = constraints.maxHeight,
             )
         }
 
@@ -330,7 +330,7 @@ private class PainterNode(
             alignment.align(
                 IntSize(scaledSize.width.fastRoundToInt(), scaledSize.height.fastRoundToInt()),
                 IntSize(size.width.fastRoundToInt(), size.height.fastRoundToInt()),
-                layoutDirection
+                layoutDirection,
             )
 
         val dx = alignedPosition.x.toFloat()

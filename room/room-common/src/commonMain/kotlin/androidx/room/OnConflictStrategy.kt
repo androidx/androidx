@@ -26,7 +26,7 @@ import androidx.annotation.IntDef
     OnConflictStrategy.ROLLBACK,
     OnConflictStrategy.ABORT,
     OnConflictStrategy.FAIL,
-    OnConflictStrategy.IGNORE
+    OnConflictStrategy.IGNORE,
 )
 public annotation class OnConflictStrategy {
     public companion object {

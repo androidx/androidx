@@ -34,28 +34,28 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
     fun <T> create(
         tableNames: Array<out String>,
         inTransaction: Boolean,
-        callableFunction: Callable<T?>
+        callableFunction: Callable<T?>,
     ): LiveData<T> {
         return RoomCallableTrackingLiveData(
             database = database,
             container = this,
             inTransaction = inTransaction,
             tableNames = tableNames,
-            callableFunction = callableFunction
+            callableFunction = callableFunction,
         )
     }
 
     fun <T> create(
         tableNames: Array<out String>,
         inTransaction: Boolean,
-        lambdaFunction: (SQLiteConnection) -> T?
+        lambdaFunction: (SQLiteConnection) -> T?,
     ): LiveData<T> {
         return RoomLambdaTrackingLiveData(
             database = database,
             container = this,
             inTransaction = inTransaction,
             tableNames = tableNames,
-            lambdaFunction = lambdaFunction
+            lambdaFunction = lambdaFunction,
         )
     }
 

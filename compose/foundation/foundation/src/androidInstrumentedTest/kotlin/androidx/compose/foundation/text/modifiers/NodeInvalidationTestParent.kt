@@ -163,7 +163,7 @@ abstract class NodeInvalidationTestParent {
             TextOverflow.Ellipsis,
             true,
             10,
-            1
+            1,
         )
     }
 
@@ -174,13 +174,13 @@ abstract class NodeInvalidationTestParent {
         val overflow: TextOverflow,
         val softWrap: Boolean,
         val maxLines: Int,
-        val minLines: Int
+        val minLines: Int,
     )
 
     data class DrawParams(
         val style: TextStyle,
         val color: ColorProducer? = null,
         val brush: Brush? = null,
-        val alpha: Float = Float.NaN
+        val alpha: Float = Float.NaN,
     )
 }

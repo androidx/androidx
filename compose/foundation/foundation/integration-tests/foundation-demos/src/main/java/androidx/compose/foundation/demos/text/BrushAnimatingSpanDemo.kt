@@ -70,7 +70,7 @@ fun BrushAnimatingSpanDemo() {
                 value = preWordCount.toFloat(),
                 onValueChange = { preWordCount = it.roundToInt() },
                 valueRange = 0f..16f,
-                steps = 16
+                steps = 16,
             )
 
             Text("Highlight Word Count")
@@ -78,7 +78,7 @@ fun BrushAnimatingSpanDemo() {
                 value = highlightWordCount.toFloat(),
                 onValueChange = { highlightWordCount = it.roundToInt() },
                 valueRange = 0f..20f,
-                steps = 16
+                steps = 16,
             )
 
             Text("Post Word Count")
@@ -86,7 +86,7 @@ fun BrushAnimatingSpanDemo() {
                 value = postWordCount.toFloat(),
                 onValueChange = { postWordCount = it.roundToInt() },
                 valueRange = 0f..16f,
-                steps = 16
+                steps = 16,
             )
 
             BrushAnimatingSpanText(
@@ -94,7 +94,7 @@ fun BrushAnimatingSpanDemo() {
                 highlightWordCount = highlightWordCount,
                 postWordCount = postWordCount,
                 animatable = animatable,
-                animatable2 = animatable2
+                animatable2 = animatable2,
             )
             Button(
                 onClick = {
@@ -104,14 +104,14 @@ fun BrushAnimatingSpanDemo() {
                         launch {
                             animatable2.animateTo(
                                 1f,
-                                tween(highlightWordCount * 100, easing = LinearEasing)
+                                tween(highlightWordCount * 100, easing = LinearEasing),
                             )
                         }
                         delay(300)
                         launch {
                             animatable.animateTo(
                                 1f,
-                                tween(highlightWordCount * 100, easing = LinearEasing)
+                                tween(highlightWordCount * 100, easing = LinearEasing),
                             )
                         }
                     }
@@ -139,7 +139,7 @@ fun BrushAnimatingSpanText(
     highlightWordCount: Int,
     postWordCount: Int,
     animatable: Animatable<Float, AnimationVector1D>,
-    animatable2: Animatable<Float, AnimationVector1D>
+    animatable2: Animatable<Float, AnimationVector1D>,
 ) {
     val (text, start, end) =
         remember(preWordCount, highlightWordCount, postWordCount) {
@@ -167,7 +167,7 @@ fun BrushAnimatingSpanText(
                 end,
                 textLayoutResult.value,
                 animatable,
-                animatable2
+                animatable2,
             )
         }
 
@@ -180,7 +180,7 @@ fun calculateAnnotatedString(
     end: Int,
     textLayoutResult: TextLayoutResult?,
     animatable: Animatable<Float, AnimationVector1D>,
-    animatable2: Animatable<Float, AnimationVector1D>
+    animatable2: Animatable<Float, AnimationVector1D>,
 ): AnnotatedString {
     textLayoutResult ?: return text
     val startLine = textLayoutResult.getLineForOffset(start)
@@ -195,7 +195,7 @@ fun calculateAnnotatedString(
                 leftPosition = firstLineLeft,
                 rightPosition = lastLineRight,
                 leftOffset = start,
-                rightOffset = end
+                rightOffset = end,
             )
     } else {
         for (i in (startLine..endLine)) {
@@ -206,7 +206,7 @@ fun calculateAnnotatedString(
                             leftPosition = firstLineLeft,
                             rightPosition = textLayoutResult.getLineRight(i),
                             leftOffset = start,
-                            rightOffset = textLayoutResult.getLineEnd(i)
+                            rightOffset = textLayoutResult.getLineEnd(i),
                         )
                     }
                     endLine -> {
@@ -214,7 +214,7 @@ fun calculateAnnotatedString(
                             leftPosition = textLayoutResult.getLineLeft(i),
                             rightPosition = lastLineRight,
                             leftOffset = textLayoutResult.getLineStart(i),
-                            rightOffset = end
+                            rightOffset = end,
                         )
                     }
                     else -> {
@@ -222,7 +222,7 @@ fun calculateAnnotatedString(
                             leftPosition = textLayoutResult.getLineLeft(i),
                             rightPosition = textLayoutResult.getLineRight(i),
                             leftOffset = textLayoutResult.getLineStart(i),
-                            rightOffset = textLayoutResult.getLineEnd(i)
+                            rightOffset = textLayoutResult.getLineEnd(i),
                         )
                     }
                 }
@@ -245,14 +245,14 @@ fun calculateAnnotatedString(
                                                 x =
                                                     segment.leftPosition -
                                                         lines.allLeftWidth(index),
-                                                y = 0f
+                                                y = 0f,
                                             ),
                                         to =
                                             Offset(
                                                 x =
                                                     segment.rightPosition +
                                                         lines.allRightWidth(index),
-                                                y = 0f
+                                                y = 0f,
                                             ),
                                         colors =
                                             listOf(
@@ -260,7 +260,7 @@ fun calculateAnnotatedString(
                                                 Color.Blue,
                                                 Color.Gray,
                                                 Color.Black,
-                                                Color.Black
+                                                Color.Black,
                                             ),
                                         colorStops =
                                             listOf(
@@ -268,20 +268,20 @@ fun calculateAnnotatedString(
                                                 animationValue,
                                                 (animationValue + animationValue2) / 2,
                                                 animationValue2,
-                                                1f
-                                            )
+                                                1f,
+                                            ),
                                     )
                                 }
                             }
                     ),
                 start = segment.leftOffset,
-                end = segment.rightOffset
+                end = segment.rightOffset,
             )
         }
     return AnnotatedString(
         text.text,
         paragraphStyles = text.paragraphStyles,
-        spanStyles = text.spanStyles + brushSpans
+        spanStyles = text.spanStyles + brushSpans,
     )
 }
 

@@ -39,7 +39,7 @@ class CountCallsFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         onCreateViewCount++
         return super.onCreateView(inflater, container, savedInstanceState)

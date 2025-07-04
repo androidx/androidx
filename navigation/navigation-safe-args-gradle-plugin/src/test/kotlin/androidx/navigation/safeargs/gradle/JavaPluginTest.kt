@@ -56,7 +56,7 @@ class JavaPluginTest : BasePluginTest() {
                     implementation "$NAVIGATION_RUNTIME"
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
         runGradle("assembleNotfooDebug", "assembleFooDebug")
             .assertSuccessfulTask("assembleNotfooDebug")

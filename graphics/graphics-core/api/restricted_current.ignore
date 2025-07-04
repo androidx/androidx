@@ -1,5 +1,7 @@
 // Baseline format: 1.0
 AddedMethod: androidx.graphics.opengl.GLRenderer#GLRenderer():
     Added constructor androidx.graphics.opengl.GLRenderer()
+AddedMethod: androidx.graphics.opengl.egl.EGLConfigAttributes#getAttrs():
+    Added method androidx.graphics.opengl.egl.EGLConfigAttributes.getAttrs()
 AddedMethod: androidx.graphics.opengl.egl.EGLManager#EGLManager():
     Added constructor androidx.graphics.opengl.egl.EGLManager()

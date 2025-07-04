@@ -98,7 +98,7 @@ fun ShapeDemo() {
 fun MaterialShapeDemo() {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val shape = MaterialShapes.Clover4Leaf.toShape()
 
@@ -107,7 +107,7 @@ fun MaterialShapeDemo() {
             onClick = { /* on-click*/ },
             modifier = Modifier.requiredSize(48.dp),
             shape = shape,
-            border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.error)
+            border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.error),
         ) {
             Icon(
                 Icons.Outlined.AccessibilityNew,
@@ -123,13 +123,13 @@ fun MaterialShapeDemo() {
                     .border(BorderStroke(width = 2.dp, Color.Red), shape)
                     .clip(shape)
                     .background(MaterialTheme.colorScheme.primary),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
                 Icons.Outlined.AccessibilityNew,
                 contentDescription = "Localized description",
                 modifier = Modifier.requiredSize(36.dp),
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = MaterialTheme.colorScheme.onPrimary,
             )
         }
 
@@ -158,7 +158,7 @@ fun MaterialShapeMorphDemo() {
         animateFloatAsState(
             targetValue = if (isPressed) 1f else 0f,
             label = "progress",
-            animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec()
+            animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
         )
     val morphShape = remember {
         object : Shape {
@@ -168,7 +168,7 @@ fun MaterialShapeMorphDemo() {
             override fun createOutline(
                 size: Size,
                 layoutDirection: LayoutDirection,
-                density: Density
+                density: Density,
             ): Outline {
                 matrix.reset()
                 matrix.scale(size.width, size.height)
@@ -182,7 +182,7 @@ fun MaterialShapeMorphDemo() {
         onClick = { /* on-click*/ },
         modifier = Modifier.requiredSize(48.dp),
         shape = morphShape,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         Icon(
             Icons.Outlined.AccessAlarms,

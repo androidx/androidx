@@ -123,7 +123,7 @@ class LayoutInspectorTree {
         children.forEach { buildNodesFor(it) }
 
         val root = rootByComposition[composition] ?: return
-        val subCompositions = children.mapNotNull { resultByComposition[it] }
+        val subCompositions = sort(children.mapNotNull { resultByComposition[it] })
         var result = builder.convert(composition, root, subCompositions)
         val singleSubComposition = children.singleOrNull()
         if (result.nodes.isEmpty() && result.ownerView == null && singleSubComposition != null) {
@@ -131,7 +131,7 @@ class LayoutInspectorTree {
             // Everything from this unowned composition was pushed to its single sub-composition.
             // Remove the result of the sub-composition and use that result for this composition.
             resultByComposition.remove(singleSubComposition)?.let {
-                result = SubCompositionResult(composition, it.ownerView, it.nodes)
+                result = SubCompositionResult(composition, it.ownerView, it.nodes, result.listIndex)
             }
         }
         resultByComposition[composition] = result
@@ -173,7 +173,7 @@ class LayoutInspectorTree {
         node: InspectorNode,
         kind: ParameterKind,
         maxRecursions: Int,
-        maxInitialIterableSize: Int
+        maxInitialIterableSize: Int,
     ): List<NodeParameter> {
         val parameters = node.parametersByKind(kind)
         return parameters.mapIndexed { index, parameter ->
@@ -186,7 +186,7 @@ class LayoutInspectorTree {
                 kind,
                 index,
                 maxRecursions,
-                maxInitialIterableSize
+                maxInitialIterableSize,
             )
         }
     }
@@ -203,7 +203,7 @@ class LayoutInspectorTree {
         startIndex: Int,
         maxElements: Int,
         maxRecursions: Int,
-        maxInitialIterableSize: Int
+        maxInitialIterableSize: Int,
     ): NodeParameter? {
         val parameters = node.parametersByKind(reference.kind)
         if (reference.parameterIndex !in parameters.indices) {
@@ -220,8 +220,13 @@ class LayoutInspectorTree {
             startIndex,
             maxElements,
             maxRecursions,
-            maxInitialIterableSize
+            maxInitialIterableSize,
         )
+    }
+
+    private fun sort(compositions: List<SubCompositionResult>): List<SubCompositionResult> {
+        val anyIndices = compositions.any { it.listIndex >= 0 }
+        return if (anyIndices) compositions.sortedBy { it.listIndex } else compositions
     }
 
     private fun castValue(parameter: ParameterInformation): Any? {

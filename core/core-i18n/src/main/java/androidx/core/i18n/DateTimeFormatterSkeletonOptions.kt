@@ -52,7 +52,7 @@ internal constructor(
     private val minute: Minute,
     private val second: Second,
     private val fractionalSecond: FractionalSecond,
-    private val timezone: Timezone
+    private val timezone: Timezone,
 ) {
 
     // Date fields
@@ -548,7 +548,7 @@ internal constructor(
         private var minute: Minute = Minute.NONE,
         private var second: Second = Second.NONE,
         private var fractionalSecond: FractionalSecond = FractionalSecond.NONE,
-        private var timezone: Timezone = Timezone.NONE
+        private var timezone: Timezone = Timezone.NONE,
     ) {
 
         /**
@@ -678,7 +678,7 @@ internal constructor(
                 minute,
                 second,
                 fractionalSecond,
-                timezone
+                timezone,
             )
         }
     } // end of Builder class

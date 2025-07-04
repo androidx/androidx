@@ -22,7 +22,6 @@ import android.telecom.CallAudioState
 import android.telecom.CallAudioState.ROUTE_EARPIECE
 import android.telecom.CallAudioState.ROUTE_WIRED_HEADSET
 import android.telecom.CallEndpoint
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallEndpointUuidTracker
@@ -48,7 +47,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class CallSessionLegacyTest : BaseTelecomTest() {
     val mSessionId: Int = 444
@@ -76,7 +74,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 CallEndpointCompat(
                     btDeviceName,
                     CallEndpointCompat.TYPE_BLUETOOTH,
-                    ParcelUuid.fromString(UUID.randomUUID().toString())
+                    ParcelUuid.fromString(UUID.randomUUID().toString()),
                 )
             // verify the matching function evaluates that as equal even though the MAC
             // address was not set in the CallEndpointCompat
@@ -84,7 +82,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 CallSessionLegacy.Api28PlusImpl.bluetoothDeviceMatchesEndpoint(
                     btName = btDeviceName,
                     btAddress = btDeviceAddress,
-                    endpoint
+                    endpoint,
                 )
             )
         }
@@ -108,7 +106,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 CallEndpointCompat(
                     btDeviceName,
                     CallEndpointCompat.TYPE_BLUETOOTH,
-                    ParcelUuid.fromString(UUID.randomUUID().toString())
+                    ParcelUuid.fromString(UUID.randomUUID().toString()),
                 )
             endpoint.mMackAddress = "1234"
             // assert different MAC addresses
@@ -118,7 +116,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 CallSessionLegacy.Api28PlusImpl.bluetoothDeviceMatchesEndpoint(
                     btName = btDeviceName,
                     btAddress = btDeviceAddress,
-                    endpoint
+                    endpoint,
                 )
             )
         }
@@ -133,11 +131,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
     fun testRemovalOfEarpieceEndpointIfWiredEndpointIsPresent() {
         setUpBackwardsCompatTest()
         runBlocking {
-            val callSession =
-                initCallSessionLegacy(
-                    coroutineContext,
-                    null,
-                )
+            val callSession = initCallSessionLegacy(coroutineContext, null)
             val supportedRouteMask = ROUTE_EARPIECE or ROUTE_WIRED_HEADSET
             callSession.setAvailableCallEndpoints(
                 CallAudioState(false, ROUTE_WIRED_HEADSET, supportedRouteMask)
@@ -158,31 +152,27 @@ class CallSessionLegacyTest : BaseTelecomTest() {
     fun testPlatformEndpointsAreRemappedToExistingEndpoints() {
         setUpBackwardsCompatTest()
         runBlocking {
-            val callSession =
-                initCallSessionLegacy(
-                    coroutineContext,
-                    null,
-                )
+            val callSession = initCallSessionLegacy(coroutineContext, null)
             val supportedRouteMask = CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER
 
             val platformEndpoints =
                 EndpointUtils.toCallEndpointsCompat(
                     CallAudioState(false, CallAudioState.ROUTE_EARPIECE, supportedRouteMask),
-                    mSessionId
+                    mSessionId,
                 )
 
             val platformEarpiece = platformEndpoints[0]
             assertEquals(CallEndpointCompat.TYPE_EARPIECE, platformEarpiece.type)
             assertEquals(
                 mEarpieceEndpoint,
-                callSession.toRemappedCallEndpointCompat(platformEarpiece)
+                callSession.toRemappedCallEndpointCompat(platformEarpiece),
             )
 
             val platformSpeaker = platformEndpoints[1]
             assertEquals(CallEndpointCompat.TYPE_SPEAKER, platformSpeaker.type)
             assertEquals(
                 mSpeakerEndpoint,
-                callSession.toRemappedCallEndpointCompat(platformSpeaker)
+                callSession.toRemappedCallEndpointCompat(platformSpeaker),
             )
         }
     }
@@ -196,11 +186,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
     fun testOnCallAudioStateChangedWithNullActiveDevice() {
         setUpBackwardsCompatTest()
         runBlocking {
-            val callSession =
-                initCallSessionLegacy(
-                    coroutineContext,
-                    null,
-                )
+            val callSession = initCallSessionLegacy(coroutineContext, null)
 
             val supportedRouteMask =
                 CallAudioState.ROUTE_BLUETOOTH or
@@ -216,7 +202,7 @@ class CallSessionLegacyTest : BaseTelecomTest() {
             assertEquals(CallEndpointCompat.TYPE_BLUETOOTH, currentCallEndpoint!!.type)
             assertEquals(
                 EndpointUtils.endpointTypeToString(CallEndpointCompat.TYPE_BLUETOOTH),
-                currentCallEndpoint.name
+                currentCallEndpoint.name,
             )
         }
     }

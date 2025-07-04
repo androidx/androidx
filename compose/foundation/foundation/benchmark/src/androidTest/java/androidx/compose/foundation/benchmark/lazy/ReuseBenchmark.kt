@@ -117,9 +117,7 @@ private fun ComposeBenchmarkRule.benchmarkCreateFor(content: @Composable () -> U
     createBenchmark { SubcomposeLayoutReuseTestCase(reusableSlots = 0, content) }
 }
 
-private fun ComposeBenchmarkRule.createBenchmark(
-    testCase: () -> SubcomposeLayoutReuseTestCase,
-) {
+private fun ComposeBenchmarkRule.createBenchmark(testCase: () -> SubcomposeLayoutReuseTestCase) {
     runBenchmarkFor(testCase) {
         runOnUiThread {
             setupContent()
@@ -127,7 +125,7 @@ private fun ComposeBenchmarkRule.createBenchmark(
         }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 getTestCase().clearContent()
                 doFramesUntilIdle()
@@ -140,9 +138,7 @@ private fun ComposeBenchmarkRule.createBenchmark(
     }
 }
 
-private fun ComposeBenchmarkRule.disposeBenchmark(
-    testCase: () -> SubcomposeLayoutReuseTestCase,
-) {
+private fun ComposeBenchmarkRule.disposeBenchmark(testCase: () -> SubcomposeLayoutReuseTestCase) {
     runBenchmarkFor(testCase) {
         runOnUiThread {
             setupContent()
@@ -154,7 +150,7 @@ private fun ComposeBenchmarkRule.disposeBenchmark(
             getTestCase().clearContent()
             doFramesUntilIdle()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 getTestCase().initContent()
                 doFramesUntilIdle()

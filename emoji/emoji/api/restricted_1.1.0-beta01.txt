@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.emoji.text {
 
   @AnyThread public class EmojiCompat {
@@ -16,8 +16,8 @@ package androidx.emoji.text {
     method @CheckResult public CharSequence! process(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
     method @CheckResult public CharSequence! process(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, @androidx.emoji.text.EmojiCompat.ReplaceStrategy int);
     method public void registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static androidx.emoji.text.EmojiCompat! reset(androidx.emoji.text.EmojiCompat.Config);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static androidx.emoji.text.EmojiCompat! reset(androidx.emoji.text.EmojiCompat!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static androidx.emoji.text.EmojiCompat! reset(androidx.emoji.text.EmojiCompat.Config);
     method public void unregisterInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void updateEditorInfoAttrs(android.view.inputmethod.EditorInfo);
     field public static final String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
@@ -123,9 +123,9 @@ package androidx.emoji.text {
   }
 
   @AnyThread @RequiresApi(19) public final class MetadataRepo {
+    method public static androidx.emoji.text.MetadataRepo! create(android.content.res.AssetManager, String!) throws java.io.IOException;
     method public static androidx.emoji.text.MetadataRepo! create(android.graphics.Typeface, java.io.InputStream) throws java.io.IOException;
     method public static androidx.emoji.text.MetadataRepo! create(android.graphics.Typeface, java.nio.ByteBuffer) throws java.io.IOException;
-    method public static androidx.emoji.text.MetadataRepo! create(android.content.res.AssetManager, String!) throws java.io.IOException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public char[]! getEmojiCharArray();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.text.emoji.flatbuffer.MetadataList! getMetadataList();
   }

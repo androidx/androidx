@@ -42,7 +42,7 @@ class MotionSchemeTest {
         lateinit var fastEffectsSpec: FiniteAnimationSpec<Float>
         lateinit var slowEffectsSpec: FiniteAnimationSpec<Float>
         rule.setMaterialContent(lightColorScheme()) {
-            motionScheme = LocalMotionScheme.current
+            motionScheme = MaterialTheme.motionScheme
             defaultSpatialSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
             fastSpatialSpec = MotionSchemeKeyTokens.FastSpatial.value()
             slowSpatialSpec = MotionSchemeKeyTokens.SlowSpatial.value()
@@ -59,5 +59,23 @@ class MotionSchemeTest {
             assertThat(motionScheme.fastEffectsSpec<Float>()).isEqualTo(fastEffectsSpec)
             assertThat(motionScheme.slowEffectsSpec<Float>()).isEqualTo(slowEffectsSpec)
         }
+    }
+
+    @Test
+    fun readLocalMotionScheme() {
+        lateinit var mainMotionScheme: MotionScheme
+        lateinit var nestedMotionScheme: MotionScheme
+        rule.setContent {
+            MaterialTheme {
+                mainMotionScheme = MaterialTheme.LocalMotionScheme.current
+
+                MaterialTheme(motionScheme = MotionScheme.expressive()) {
+                    nestedMotionScheme = MaterialTheme.LocalMotionScheme.current
+                }
+            }
+        }
+
+        assertThat(mainMotionScheme).isEqualTo(MotionScheme.standard())
+        assertThat(nestedMotionScheme).isEqualTo(MotionScheme.expressive())
     }
 }

@@ -42,7 +42,7 @@ class KspSyntheticFileMemberContainerTest {
                 """
             annotation class MyAnnotation
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val appSrc =
             Source.kotlin(
@@ -51,7 +51,7 @@ class KspSyntheticFileMemberContainerTest {
                 @MyAnnotation
                 val appMember = 1
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runKspTest(sources = listOf(annotation, appSrc)) { invocation ->
             val elements = invocation.kspResolver.getSymbolsWithAnnotation("MyAnnotation").toList()
@@ -64,7 +64,7 @@ class KspSyntheticFileMemberContainerTest {
                         assertWithMessage(it.toString()).that(owner).isNotNull()
                         KspSyntheticFileMemberContainer(
                                 invocation.processingEnv as KspProcessingEnv,
-                                owner!!
+                                owner!!,
                             )
                             .asClassName()
                     }
@@ -92,7 +92,7 @@ class KspSyntheticFileMemberContainerTest {
                     }
                 }
                 """
-                        .trimIndent()
+                        .trimIndent(),
                 ),
                 Source.java(
                     "${pkg}JavaClass",
@@ -107,7 +107,7 @@ class KspSyntheticFileMemberContainerTest {
                     }
                 }
                 """
-                        .trimIndent()
+                        .trimIndent(),
                 ),
                 Source.kotlin(
                     "$pkg/KotlinClass.kt",
@@ -123,7 +123,7 @@ class KspSyntheticFileMemberContainerTest {
                     }
                 }
                 """
-                        .trimIndent()
+                        .trimIndent(),
                 ),
                 Source.kotlin(
                     "KotlinClass.kt",
@@ -138,8 +138,8 @@ class KspSyntheticFileMemberContainerTest {
                     }
                 }
                 """
-                        .trimIndent()
-                )
+                        .trimIndent(),
+                ),
             )
         val lib = compileFiles(buildSources("lib"))
         runKspTest(sources = buildSources("app"), classpath = lib) { invocation ->
@@ -151,7 +151,7 @@ class KspSyntheticFileMemberContainerTest {
                     val synthetic =
                         KspSyntheticFileMemberContainer(
                             invocation.processingEnv as KspProcessingEnv,
-                            owner!!
+                            owner!!,
                         )
                     assertWithMessage(qName)
                         .that(target.asClassName())

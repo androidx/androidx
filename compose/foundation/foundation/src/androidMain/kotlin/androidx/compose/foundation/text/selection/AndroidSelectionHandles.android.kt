@@ -99,8 +99,8 @@ internal actual fun SelectionHandle(
                     modifier =
                         semanticsModifier.requiredSizeIn(
                             minWidth = minTouchTargetSize.width,
-                            minHeight = minTouchTargetSize.height
-                        )
+                            minHeight = minTouchTargetSize.height,
+                        ),
                 ) {
                     SelectionHandleIcon(
                         modifier = Modifier,
@@ -121,11 +121,7 @@ internal actual fun SelectionHandle(
 
 @Composable
 /*@VisibleForTesting*/
-internal fun SelectionHandleIcon(
-    modifier: Modifier,
-    iconVisible: () -> Boolean,
-    isLeft: Boolean,
-) {
+internal fun SelectionHandleIcon(modifier: Modifier, iconVisible: () -> Boolean, isLeft: Boolean) {
     Spacer(modifier.size(HandleWidth, HandleHeight).drawSelectionHandle(iconVisible, isLeft))
 }
 
@@ -202,7 +198,7 @@ internal fun CacheDrawScope.createHandleImage(radius: Float): ImageBitmap {
         this,
         layoutDirection,
         canvas,
-        Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat())
+        Size(imageBitmap.width.toFloat(), imageBitmap.height.toFloat()),
     ) {
         // Clear the previously rendered portion within this ImageBitmap as we could
         // be re-using it
@@ -220,7 +216,7 @@ internal fun CacheDrawScope.createHandleImage(radius: Float): ImageBitmap {
 internal fun HandlePopup(
     positionProvider: OffsetProvider,
     handleReferencePoint: Alignment,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val popupPositionProvider =
         remember(handleReferencePoint, positionProvider) {

@@ -31,7 +31,7 @@ internal class KspMessager(private val logger: KSPLogger) : XMessager() {
         msg: String,
         element: XElement?,
         annotation: XAnnotation?,
-        annotationValue: XAnnotationValue?
+        annotationValue: XAnnotationValue?,
     ) {
         if (element == null) {
             internalPrintMessage(kind, msg)

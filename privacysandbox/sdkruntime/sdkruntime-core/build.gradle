@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,9 +50,9 @@ dependencies {
 }
 
 android {
-    lintOptions {
+    lint {
         // All components could be loaded from another app via client library
-        disable("BanKeepAnnotation")
+        disable.add("BanKeepAnnotation")
     }
 
     namespace = "androidx.privacysandbox.sdkruntime.core"
@@ -62,8 +62,7 @@ android {
 
 androidx {
     name = "SdkRuntime Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Provides shared components for SdkRuntime libraries"
-    legacyDisableKotlinStrictApiMode = true
 }

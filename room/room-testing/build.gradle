@@ -22,9 +22,10 @@
  * modifying its settings.
  */
 
+
 import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -34,14 +35,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.room.testing"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     ios()
     jvm()
@@ -96,13 +89,10 @@ androidXMultiplatform {
     }
 }
 
-
 androidx {
     name = "Room Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Room Testing"
-    legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

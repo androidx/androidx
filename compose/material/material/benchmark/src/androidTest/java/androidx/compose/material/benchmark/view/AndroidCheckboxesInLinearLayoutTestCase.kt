@@ -36,7 +36,7 @@ class AndroidCheckboxesInLinearLayoutTestCase(private val amountOfCheckboxes: In
         column.layoutParams =
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT,
             )
         repeat(amountOfCheckboxes) {
             val row = LinearLayout(activity)
@@ -44,21 +44,21 @@ class AndroidCheckboxesInLinearLayoutTestCase(private val amountOfCheckboxes: In
             row.layoutParams =
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
             val text = TextView(activity)
             text.text = "Check Me!"
             text.layoutParams =
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
             val checkbox = CheckBox(activity)
             checkbox.isChecked = false
             checkbox.layoutParams =
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
 
             val space = View(activity)

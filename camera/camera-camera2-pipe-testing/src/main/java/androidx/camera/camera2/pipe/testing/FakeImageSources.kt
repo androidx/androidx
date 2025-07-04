@@ -44,7 +44,7 @@ public class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : 
 
     override fun createImageSource(
         cameraStream: CameraStream,
-        imageSourceConfig: ImageSourceConfig
+        imageSourceConfig: ImageSourceConfig,
     ): ImageSource {
         check(this[cameraStream.id] == null) {
             "Cannot create multiple ImageSource(s) from the same $cameraStream!"
@@ -55,7 +55,7 @@ public class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : 
                 cameraStream.id,
                 cameraStream.outputs.associate { it.id to it.size },
                 imageSourceConfig.capacity,
-                fakeImageReaders
+                fakeImageReaders,
             )
         synchronized(lock) { fakeImageSources.add(fakeImageSource) }
         return fakeImageSource

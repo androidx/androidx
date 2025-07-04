@@ -1,0 +1,37 @@
+{
+  "projectPath": ":input:input-motionprediction",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.10.1"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "testImplementation"
+    }
+  ]
+}

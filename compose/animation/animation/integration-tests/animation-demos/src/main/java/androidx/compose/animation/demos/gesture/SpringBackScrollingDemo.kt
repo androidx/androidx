@@ -109,7 +109,7 @@ fun SpringBackScrollingDemo() {
                                     animation.animateTo(
                                         springBackTarget,
                                         SpringSpec(dampingRatio = 0.8f, stiffness = 200f),
-                                        sequentialAnimation = true
+                                        sequentialAnimation = true,
                                     ) {
                                         scrollPosition = this.value
                                     }
@@ -163,19 +163,19 @@ private fun DrawScope.drawRects(animScroll: Float) {
     drawRect(
         pastelColors[startingColorIndex],
         topLeft = Offset(startingPos + 10, 0f),
-        size = rectSize
+        size = rectSize,
     )
 
     drawRect(
         pastelColors[(startingColorIndex + pastelColors.size - 1) % pastelColors.size],
         topLeft = Offset(startingPos + width + 10, 0f),
-        size = rectSize
+        size = rectSize,
     )
 
     drawRect(
         pastelColors[(startingColorIndex + pastelColors.size - 2) % pastelColors.size],
         topLeft = Offset(startingPos + width * 2 + 10, 0.0f),
-        size = rectSize
+        size = rectSize,
     )
 }
 
@@ -188,5 +188,5 @@ private val colors =
         Color(0xFF005582),
         Color(0xFF0086ad),
         Color(0xFF00c2c7),
-        Color(0xFF97ebdb)
+        Color(0xFF97ebdb),
     )

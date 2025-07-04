@@ -5,7 +5,7 @@ package androidx.tracing.perfetto {
     method public void beginSection(String sectionName);
     method public void endSection();
     method public boolean isEnabled();
-    property public final boolean isEnabled;
+    property public boolean isEnabled;
     field public static final androidx.tracing.perfetto.PerfettoSdkTrace INSTANCE;
   }
 

@@ -55,7 +55,7 @@ public inline fun <D> LoaderManager.initLoader(
     id: Int,
     loader: Loader<D>,
     crossinline onLoaderReset: () -> Unit = {},
-    crossinline onLoadFinished: (data: D) -> Unit
+    crossinline onLoadFinished: (data: D) -> Unit,
 ) {
     initLoader(
         id,
@@ -70,7 +70,7 @@ public inline fun <D> LoaderManager.initLoader(
             override fun onLoaderReset(loader: Loader<D>) {
                 onLoaderReset()
             }
-        }
+        },
     )
 }
 
@@ -104,7 +104,7 @@ public inline fun <D> LoaderManager.restartLoader(
     id: Int,
     loader: Loader<D>,
     crossinline onLoaderReset: () -> Unit = {},
-    crossinline onLoadFinished: (data: D) -> Unit
+    crossinline onLoadFinished: (data: D) -> Unit,
 ) {
     restartLoader(
         id,
@@ -119,6 +119,6 @@ public inline fun <D> LoaderManager.restartLoader(
             override fun onLoaderReset(loader: Loader<D>) {
                 onLoaderReset()
             }
-        }
+        },
     )
 }

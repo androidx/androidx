@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.compose.ui.test.accessibility {
+
+  public final class ComposeUiTestExt_androidKt {
+    method @SuppressCompatibility @RequiresApi(34) @androidx.compose.ui.test.ExperimentalTestApi public static void disableAccessibilityChecks(androidx.compose.ui.test.ComposeUiTest);
+    method @SuppressCompatibility @RequiresApi(34) @androidx.compose.ui.test.ExperimentalTestApi public static void enableAccessibilityChecks(androidx.compose.ui.test.ComposeUiTest, optional com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator accessibilityValidator);
+  }
+
+}
+

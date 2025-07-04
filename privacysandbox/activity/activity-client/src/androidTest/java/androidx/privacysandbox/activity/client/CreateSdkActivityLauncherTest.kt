@@ -22,6 +22,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.Intents.times
@@ -34,16 +35,30 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.Matchers.`is`
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
+@RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
-class CreateSdkActivityLauncherTest {
-    @get:Rule var activityScenarioRule = ActivityScenarioRule(TestActivity::class.java)
+class CreateSdkActivityLauncherTest(private val useManagedSdkActivityLauncher: Boolean) {
+    // Lifecycle-aware activity is used in the tests as both types of LocalSdkActivityLauncher
+    // (managed/unmanaged) can be created for it.
+    @get:Rule
+    var lifecycleAwareActivityScenarioRule =
+        ActivityScenarioRule(TestLifecycleAwareActivity::class.java)
 
     @get:Rule var intentsRule = IntentsRule()
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useManagedSdkActivityLauncher={0}")
+        fun data(): Array<Any> = arrayOf(arrayOf(true), arrayOf(false))
+    }
 
     private val sdkSandboxActivityMatcher =
         hasAction(`is`("android.app.sdksandbox.action.START_SANDBOXED_ACTIVITY"))
@@ -51,7 +66,8 @@ class CreateSdkActivityLauncherTest {
     @Before
     fun setUp() {
         // Intercepts intent to start sandboxed activity and immediately return a result.
-        // This allows us to avoid loading and setting up an SDK just for checking if activities are
+        // This allows us to avoid loading and setting up an SDK just for checking if activities
+        // are
         // launched.
         intending(sdkSandboxActivityMatcher)
             .respondWith(ActivityResult(Activity.RESULT_OK, Intent()))
@@ -59,7 +75,10 @@ class CreateSdkActivityLauncherTest {
 
     @Test
     fun returnedLauncher_launchesActivitiesWhenAllowed() = runBlocking {
-        val launcher = activityScenarioRule.withActivity { this.createSdkActivityLauncher { true } }
+        val launcher =
+            lifecycleAwareActivityScenarioRule.withActivity {
+                this.createSdkActivityLauncher { true }
+            }
 
         val result = launcher.launchSdkActivity(Binder())
 
@@ -70,7 +89,9 @@ class CreateSdkActivityLauncherTest {
     @Test
     fun returnedLauncher_rejectsActivityLaunchesAccordingToPredicate() = runBlocking {
         val launcher =
-            activityScenarioRule.withActivity { this.createSdkActivityLauncher { false } }
+            lifecycleAwareActivityScenarioRule.withActivity {
+                this.createSdkActivityLauncher { false }
+            }
 
         val result = launcher.launchSdkActivity(Binder())
 
@@ -80,7 +101,10 @@ class CreateSdkActivityLauncherTest {
 
     @Test
     fun returnedLauncher_rejectsActivityLaunchesWhenDisposed() = runBlocking {
-        val launcher = activityScenarioRule.withActivity { this.createSdkActivityLauncher { true } }
+        val launcher =
+            lifecycleAwareActivityScenarioRule.withActivity {
+                this.createSdkActivityLauncher { true }
+            }
         launcher.dispose()
 
         val result = launcher.launchSdkActivity(Binder())
@@ -90,8 +114,11 @@ class CreateSdkActivityLauncherTest {
     }
 
     @Test
-    fun returnedLauncher_disposeCanBeCalledMultipleTimes() = runBlocking {
-        val launcher = activityScenarioRule.withActivity { this.createSdkActivityLauncher { true } }
+    fun returnedManagedLauncher_disposeCanBeCalledMultipleTimes() = runBlocking {
+        val launcher =
+            lifecycleAwareActivityScenarioRule.withActivity {
+                this.createSdkActivityLauncher { true }
+            }
         launcher.dispose()
 
         val result = launcher.launchSdkActivity(Binder())
@@ -103,9 +130,14 @@ class CreateSdkActivityLauncherTest {
     }
 
     @Test
-    fun returnedLauncher_rejectsActivityLaunchesWhenHostActivityIsDestroyed() = runBlocking {
-        val launcher = activityScenarioRule.withActivity { this.createSdkActivityLauncher { true } }
-        activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
+    fun returnedManagedLauncher_rejectsActivityLaunchesWhenHostActivityIsDestroyed() = runBlocking {
+        assumeTrue(useManagedSdkActivityLauncher)
+
+        val launcher =
+            lifecycleAwareActivityScenarioRule.withActivity {
+                this.createManagedSdkActivityLauncher { true }
+            }
+        lifecycleAwareActivityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
 
         val result = launcher.launchSdkActivity(Binder())
 
@@ -114,15 +146,23 @@ class CreateSdkActivityLauncherTest {
     }
 
     @Test
-    fun returnedLauncher_rejectsActivityLaunchesWhenHostActivityWasAlreadyDestroyed() =
+    fun returnedManagedLauncher_rejectsActivityLaunchesWhenHostActivityWasAlreadyDestroyed() =
         runBlocking {
-            val activity = activityScenarioRule.withActivity { this }
-            activityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
-            val launcher = activity.createSdkActivityLauncher { true }
+            assumeTrue(useManagedSdkActivityLauncher)
+
+            val activity = lifecycleAwareActivityScenarioRule.withActivity { this }
+            lifecycleAwareActivityScenarioRule.scenario.moveToState(Lifecycle.State.DESTROYED)
+            val launcher = activity.createManagedSdkActivityLauncher { true }
 
             val result = launcher.launchSdkActivity(Binder())
 
             assertThat(result).isFalse()
             intended(sdkSandboxActivityMatcher, times(0))
         }
+
+    private fun <T> T.createSdkActivityLauncher(
+        allowLaunch: () -> Boolean
+    ): LocalSdkActivityLauncher where T : Activity, T : LifecycleOwner =
+        if (useManagedSdkActivityLauncher) this.createManagedSdkActivityLauncher(allowLaunch)
+        else this.createUnmanagedSdkActivityLauncher(allowLaunch)
 }

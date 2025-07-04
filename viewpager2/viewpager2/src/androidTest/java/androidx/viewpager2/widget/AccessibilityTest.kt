@@ -77,12 +77,12 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
                     if (targetPage - currentPage == 1) {
                         viewPager.performAccessibilityAction(
                             getNextPageAction(config.orientation, viewPager.isRtl),
-                            null
+                            null,
                         )
                     } else {
                         viewPager.performAccessibilityAction(
                             getPreviousPageAction(config.orientation, viewPager.isRtl),
-                            null
+                            null,
                         )
                     }
                 }

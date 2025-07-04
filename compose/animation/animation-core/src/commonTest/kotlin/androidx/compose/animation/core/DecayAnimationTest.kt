@@ -50,7 +50,7 @@ class DecayAnimationTest {
                 assertEquals(
                     velocity,
                     animWrapper.getVelocityVectorFromNanos(playTimeNanos).value,
-                    epsilon
+                    epsilon,
                 )
                 assertTrue(playTimeNanos < finishTimeNanos)
             } else {

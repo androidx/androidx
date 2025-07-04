@@ -43,7 +43,7 @@ class DensityForcedSizeTest {
             density = LocalDensity.current
             DensityForcedSize(
                 size = DpSize(30.dp, 40.dp),
-                modifier = Modifier.onPlaced { layoutCoordinates = it }
+                modifier = Modifier.onPlaced { layoutCoordinates = it },
             ) {
                 Spacer(modifier = Modifier.fillMaxSize())
             }
@@ -56,7 +56,7 @@ class DensityForcedSizeTest {
         assertEquals(
             with(density) { 40.dp.toPx() },
             layoutCoordinates!!.size.height.toFloat(),
-            0.5f
+            0.5f,
         )
     }
 
@@ -69,7 +69,7 @@ class DensityForcedSizeTest {
             density = LocalDensity.current
             DensityForcedSize(
                 size = DpSize(40.dp, 30.dp),
-                modifier = Modifier.onPlaced { layoutCoordinates = it }
+                modifier = Modifier.onPlaced { layoutCoordinates = it },
             ) {
                 Spacer(modifier = Modifier.fillMaxSize())
             }
@@ -82,7 +82,7 @@ class DensityForcedSizeTest {
         assertEquals(
             with(density) { 30.dp.toPx() },
             layoutCoordinates!!.size.height.toFloat(),
-            0.5f
+            0.5f,
         )
     }
 }

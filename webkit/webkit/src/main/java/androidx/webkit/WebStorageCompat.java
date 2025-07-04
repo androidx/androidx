@@ -21,7 +21,6 @@ import android.os.Looper;
 import android.webkit.WebStorage;
 
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.WebStorageAdapter;
@@ -44,8 +43,12 @@ import java.util.concurrent.Executor;
  * {@link androidx.webkit.Profile#getWebStorage()} if your app is using multiple
  * WebView profiles.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class WebStorageCompat {
+
+    /**
+     * Class is not intended to be instantiated.
+     */
+    private WebStorageCompat() {}
 
     /**
      * Delete all data stored by websites in the given WebStorage instance.
@@ -62,7 +65,6 @@ public final class WebStorageCompat {
     @RequiresFeature(name = WebViewFeature.DELETE_BROWSING_DATA,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void deleteBrowsingData(
             @NonNull WebStorage instance, @NonNull Executor executor,
             @NonNull Runnable doneCallback) {
@@ -86,7 +88,6 @@ public final class WebStorageCompat {
     @RequiresFeature(name = WebViewFeature.DELETE_BROWSING_DATA,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void deleteBrowsingData(
             @NonNull WebStorage instance, @NonNull Runnable doneCallback) {
         deleteBrowsingData(instance, r -> new Handler(Looper.getMainLooper()).post(r),
@@ -122,9 +123,7 @@ public final class WebStorageCompat {
      */
     @RequiresFeature(name = WebViewFeature.DELETE_BROWSING_DATA,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-
     @UiThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull String deleteBrowsingDataForSite(
             @NonNull WebStorage instance, @NonNull String site, @NonNull Executor executor,
             @NonNull Runnable doneCallback) {
@@ -149,7 +148,6 @@ public final class WebStorageCompat {
     @RequiresFeature(name = WebViewFeature.DELETE_BROWSING_DATA,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull String deleteBrowsingDataForSite(
             @NonNull WebStorage instance, @NonNull String site, @NonNull Runnable doneCallback) {
         return deleteBrowsingDataForSite(instance, site,

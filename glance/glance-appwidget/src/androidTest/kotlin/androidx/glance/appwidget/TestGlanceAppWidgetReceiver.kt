@@ -18,9 +18,12 @@ package androidx.glance.appwidget
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
+import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.state.PreferencesGlanceStateDefinition
 
 class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
@@ -45,6 +48,7 @@ class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
 object TestGlanceAppWidget : GlanceAppWidget() {
     public override var errorUiLayout: Int = 0
 
+    override var stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
     override var sizeMode: SizeMode = SizeMode.Single
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -60,6 +64,8 @@ object TestGlanceAppWidget : GlanceAppWidget() {
     private var onDeleteBlock: ((GlanceId) -> Unit)? = null
 
     var onProvidePreview: (@Composable TestGlanceAppWidget.(Int) -> Unit)? = null
+
+    var shouldThrowErrorWhenCreatingSession = false
 
     fun setOnDeleteBlock(block: (GlanceId) -> Unit) {
         onDeleteBlock = block
@@ -91,7 +97,7 @@ object TestGlanceAppWidget : GlanceAppWidget() {
 
     inline fun withProvidePreview(
         noinline previewBlock: @Composable TestGlanceAppWidget.(Int) -> Unit,
-        withBlock: () -> Unit
+        withBlock: () -> Unit,
     ) {
         val previousProvidePreview = onProvidePreview
         onProvidePreview = previewBlock
@@ -99,6 +105,34 @@ object TestGlanceAppWidget : GlanceAppWidget() {
             withBlock()
         } finally {
             onProvidePreview = previousProvidePreview
+        }
+    }
+
+    inline fun withErrorOnSessionCreation(block: () -> Unit) {
+        shouldThrowErrorWhenCreatingSession = true
+        try {
+            block()
+        } finally {
+            shouldThrowErrorWhenCreatingSession = false
+        }
+    }
+
+    override fun createAppWidgetSession(
+        context: Context,
+        id: AppWidgetId,
+        options: Bundle?,
+    ): AppWidgetSession {
+        return if (shouldThrowErrorWhenCreatingSession) error("Error creating app widget session")
+        else super.createAppWidgetSession(context, id, options)
+    }
+
+    inline fun withStateDefinition(stateDefinition: GlanceStateDefinition<*>?, block: () -> Unit) {
+        val previousStateDefinition = this.stateDefinition
+        this.stateDefinition = stateDefinition
+        try {
+            block()
+        } finally {
+            this.stateDefinition = previousStateDefinition
         }
     }
 }

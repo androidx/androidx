@@ -57,8 +57,8 @@ package androidx.room
  *
  * For SELECT queries, Room will infer the result contents from the method's return type and
  * generate the code that will automatically convert the query result into the method's return type.
- * For single result queries, the return type can be any data object (also known as POJOs). For
- * queries that return multiple values, you can use [java.util.List] or `Array`. In addition to
+ * For single result queries, the return type can be any data object (also known as data classes).
+ * For queries that return multiple values, you can use [java.util.List] or `Array`. In addition to
  * these, any query may return [android.database.Cursor] or any query result can be wrapped in a
  * [androidx.lifecycle.LiveData].
  *
@@ -100,8 +100,8 @@ package androidx.room
  * Additionally if the statement is an INSERT, UPDATE or DELETE then the return types, `Single<T>`,
  * `Maybe<T>` and `Completable` are supported.
  *
- * You can return arbitrary POJOs from your query methods as long as the fields of the POJO match
- * the column names in the query result.
+ * You can return arbitrary data classes from your query methods as long as the properties of the
+ * data class match the column names in the query result.
  *
  * For example, if you have class:
  * ```
@@ -119,9 +119,9 @@ package androidx.room
  * ```
  *
  * And Room will create the correct implementation to convert the query result into a `SongDuration`
- * object. If there is a mismatch between the query result and the fields of the POJO, and as long
- * as there is at least 1 field match, Room prints a [RoomWarnings.QUERY_MISMATCH] warning and sets
- * as many fields as it can.
+ * object. If there is a mismatch between the query result and the properties of the data class, and
+ * as long as there is at least 1 field match, Room prints a [RoomWarnings.QUERY_MISMATCH] warning
+ * and sets as many properties as it can.
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.BINARY)

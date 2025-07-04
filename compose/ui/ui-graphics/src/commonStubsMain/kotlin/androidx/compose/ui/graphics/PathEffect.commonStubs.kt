@@ -28,5 +28,5 @@ internal actual fun actualStampedPathEffect(
     shape: Path,
     advance: Float,
     phase: Float,
-    style: StampedPathEffectStyle
+    style: StampedPathEffectStyle,
 ): PathEffect = implementedInJetBrainsFork()

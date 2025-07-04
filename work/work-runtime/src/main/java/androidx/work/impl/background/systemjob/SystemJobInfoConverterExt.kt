@@ -21,6 +21,6 @@ import android.app.job.JobInfo
 import android.net.NetworkRequest
 import androidx.annotation.RequiresApi
 
-fun setRequiredNetworkRequest(builder: JobInfo.Builder, networkRequest: NetworkRequest?) {
+public fun setRequiredNetworkRequest(builder: JobInfo.Builder, networkRequest: NetworkRequest?) {
     builder.setRequiredNetwork(networkRequest)
 }

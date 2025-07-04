@@ -17,6 +17,7 @@
 package androidx.xr.arcore
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.runtime.TrackingState
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,8 +27,8 @@ class TrackingStateTest {
 
     @Test
     fun toString_returnsCorrectString() {
-        assertThat(TrackingState.Tracking.toString()).isEqualTo("Tracking")
-        assertThat(TrackingState.Paused.toString()).isEqualTo("Paused")
-        assertThat(TrackingState.Stopped.toString()).isEqualTo("Stopped")
+        assertThat(TrackingState.TRACKING.toString()).isEqualTo("TRACKING")
+        assertThat(TrackingState.PAUSED.toString()).isEqualTo("PAUSED")
+        assertThat(TrackingState.STOPPED.toString()).isEqualTo("STOPPED")
     }
 }

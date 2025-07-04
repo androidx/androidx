@@ -274,7 +274,7 @@ class WindowInsetsIgnoringVisibilityTest {
 
     private fun setContent(
         initialInsets: WindowInsetsCompat? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContent {
             AndroidView(
@@ -287,13 +287,13 @@ class WindowInsetsIgnoringVisibilityTest {
                         composeView,
                         ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        ),
                     )
                     composeView.setContent(content)
                     view
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }

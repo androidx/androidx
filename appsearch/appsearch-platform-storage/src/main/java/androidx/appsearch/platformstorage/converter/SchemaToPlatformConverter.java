@@ -25,10 +25,13 @@ import android.os.Build;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresExtension;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
+import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -137,12 +140,12 @@ public final class SchemaToPlatformConverter {
             // Check joinable value type.
             if (stringProperty.getJoinableValueType()
                     == AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                if (BuildCompat.T_EXTENSION_INT < AppSearchVersionUtil.TExtensionVersions.U_BASE) {
                     throw new UnsupportedOperationException(
                         "StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID is not supported"
                                 + " on this AppSearch implementation.");
                 }
-                ApiHelperForU.setJoinableValueType(platformBuilder,
+                ApiHelperForSdkExtensionUBase.setJoinableValueType(platformBuilder,
                         stringProperty.getJoinableValueType());
             }
 
@@ -221,21 +224,29 @@ public final class SchemaToPlatformConverter {
                             .setShouldIndexNestedProperties(
                                     documentProperty.shouldIndexNestedProperties());
             if (!documentProperty.getIndexableNestedProperties().isEmpty()) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                if (BuildCompat.T_EXTENSION_INT < AppSearchVersionUtil.TExtensionVersions.V_BASE) {
                     throw new UnsupportedOperationException(
                             "DocumentPropertyConfig.addIndexableNestedProperties is not supported "
                                     + "on this AppSearch implementation.");
                 }
-                ApiHelperForV.addIndexableNestedProperties(
-                        platformBuilder, documentProperty.getIndexableNestedProperties());
+                ApiHelperForSdkExtensionVBase.addIndexableNestedProperties(platformBuilder,
+                        documentProperty.getIndexableNestedProperties());
             }
             return platformBuilder.build();
         } else if (jetpackProperty instanceof AppSearchSchema.EmbeddingPropertyConfig) {
-            // TODO(b/326656531): Remove this once embedding search APIs are available.
-            // TODO(b/359959345): Remember to add the check for quantization when embedding has
-            //  become available but quantization has not yet.
-            throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
-                    + " is not available on this AppSearch implementation.");
+            if (!AppSearchVersionUtil.isAtLeastB()) {
+                throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                        + " is not available on this AppSearch implementation.");
+            }
+            AppSearchSchema.EmbeddingPropertyConfig embeddingProperty =
+                    (AppSearchSchema.EmbeddingPropertyConfig) jetpackProperty;
+            if (embeddingProperty.getQuantizationType()
+                    != AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE) {
+                // TODO(b/359959345): Remove this once embedding quantization is available.
+                throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_QUANTIZATION
+                        + " is not available on this AppSearch implementation.");
+            }
+            return ApiHelperForB.createPlatformEmbeddingPropertyConfig(embeddingProperty);
         } else if (jetpackProperty instanceof AppSearchSchema.BlobHandlePropertyConfig) {
             // TODO(b/273591938): Remove this once blob APIs are available.
             throw new UnsupportedOperationException(Features.BLOB_STORAGE
@@ -248,7 +259,7 @@ public final class SchemaToPlatformConverter {
 
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
-    @SuppressLint("WrongConstant")
+    @SuppressLint({"WrongConstant", "NewApi"}) // EmbeddingPropertyConfig incorrectly flagged
     private static AppSearchSchema.@NonNull PropertyConfig toJetpackProperty(
             android.app.appsearch.AppSearchSchema.@NonNull PropertyConfig platformProperty) {
         Preconditions.checkNotNull(platformProperty);
@@ -261,9 +272,9 @@ public final class SchemaToPlatformConverter {
                             .setCardinality(stringProperty.getCardinality())
                             .setIndexingType(stringProperty.getIndexingType())
                             .setTokenizerType(stringProperty.getTokenizerType());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE) {
                 jetpackBuilder.setJoinableValueType(
-                        ApiHelperForU.getJoinableValueType(stringProperty));
+                        ApiHelperForSdkExtensionUBase.getJoinableValueType(stringProperty));
             }
             // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
             // available in platform.
@@ -319,24 +330,31 @@ public final class SchemaToPlatformConverter {
                             .setCardinality(documentProperty.getCardinality())
                             .setShouldIndexNestedProperties(
                                     documentProperty.shouldIndexNestedProperties());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                List<String> indexableNestedProperties =
-                        ApiHelperForV.getIndexableNestedProperties(documentProperty);
+            if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.V_BASE) {
+                List<String> indexableNestedProperties = ApiHelperForSdkExtensionVBase
+                        .getIndexableNestedProperties(documentProperty);
                 jetpackBuilder.addIndexableNestedProperties(indexableNestedProperties);
             }
             return jetpackBuilder.build();
+        } else if (AppSearchVersionUtil.isAtLeastB() && platformProperty
+                instanceof android.app.appsearch.AppSearchSchema.EmbeddingPropertyConfig) {
+            // TODO(b/359959345): Update quantization once it becomes available in platform.
+            android.app.appsearch.AppSearchSchema.EmbeddingPropertyConfig embeddingProperty =
+                    (android.app.appsearch.AppSearchSchema
+                            .EmbeddingPropertyConfig) platformProperty;
+            return ApiHelperForB.createJetpackEmbeddingPropertyConfig(embeddingProperty);
         } else {
-            // TODO(b/326656531) : Add an entry for EmbeddingPropertyConfig once it becomes
-            //  available in platform.
             throw new IllegalArgumentException(
                     "Invalid property type " + platformProperty.getClass()
                             + ": " + platformProperty);
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    private static class ApiHelperForU {
-        private ApiHelperForU() {
+    @SuppressLint("NewApi")
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+            version = AppSearchVersionUtil.TExtensionVersions.U_BASE)
+    private static class ApiHelperForSdkExtensionUBase {
+        private ApiHelperForSdkExtensionUBase() {
             // This class is not instantiable.
         }
 
@@ -355,6 +373,13 @@ public final class SchemaToPlatformConverter {
         static int getJoinableValueType(
                 android.app.appsearch.AppSearchSchema.StringPropertyConfig stringPropertyConfig) {
             return stringPropertyConfig.getJoinableValueType();
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private static class ApiHelperForU {
+        private ApiHelperForU() {
+            // This class is not instantiable.
         }
 
         @DoNotInline
@@ -376,6 +401,31 @@ public final class SchemaToPlatformConverter {
     }
 
 
+    @SuppressLint("NewApi")
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU,
+            version = AppSearchVersionUtil.TExtensionVersions.V_BASE)
+    private static class ApiHelperForSdkExtensionVBase {
+        private ApiHelperForSdkExtensionVBase() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void addIndexableNestedProperties(
+                android.app.appsearch.AppSearchSchema.DocumentPropertyConfig.Builder
+                        platformBuilder,
+                @NonNull Collection<String> indexableNestedProperties) {
+            platformBuilder.addIndexableNestedProperties(indexableNestedProperties);
+        }
+
+
+        @DoNotInline
+        static List<String> getIndexableNestedProperties(
+                android.app.appsearch.AppSearchSchema.DocumentPropertyConfig
+                        platformDocumentProperty) {
+            return platformDocumentProperty.getIndexableNestedProperties();
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
@@ -389,23 +439,39 @@ public final class SchemaToPlatformConverter {
         }
 
         @DoNotInline
-        static void addIndexableNestedProperties(
-                android.app.appsearch.AppSearchSchema.DocumentPropertyConfig.Builder
-                        platformBuilder,
-                @NonNull Collection<String> indexableNestedProperties) {
-            platformBuilder.addIndexableNestedProperties(indexableNestedProperties);
-        }
-
-        @DoNotInline
         static List<String> getParentTypes(android.app.appsearch.AppSearchSchema platformSchema) {
             return platformSchema.getParentTypes();
         }
+    }
+
+    @RequiresApi(36)
+    @SuppressLint("NewApi") // EmbeddingPropertyConfig incorrectly flagged as 34-ext16
+    private static class ApiHelperForB {
+        private ApiHelperForB() {
+        }
 
         @DoNotInline
-        static List<String> getIndexableNestedProperties(
-                android.app.appsearch.AppSearchSchema.DocumentPropertyConfig
-                        platformDocumentProperty) {
-            return platformDocumentProperty.getIndexableNestedProperties();
+        @SuppressLint("WrongConstant")
+        static android.app.appsearch.AppSearchSchema.PropertyConfig
+                createPlatformEmbeddingPropertyConfig(
+                AppSearchSchema.@NonNull EmbeddingPropertyConfig jetpackEmbeddingProperty) {
+            return new android.app.appsearch.AppSearchSchema.EmbeddingPropertyConfig.Builder(
+                    jetpackEmbeddingProperty.getName())
+                    .setCardinality(jetpackEmbeddingProperty.getCardinality())
+                    .setIndexingType(jetpackEmbeddingProperty.getIndexingType())
+                    .build();
+        }
+
+        @DoNotInline
+        @SuppressLint("WrongConstant")
+        static AppSearchSchema.EmbeddingPropertyConfig createJetpackEmbeddingPropertyConfig(
+                android.app.appsearch.AppSearchSchema.@NonNull EmbeddingPropertyConfig
+                        platformEmbeddingProperty) {
+            return new AppSearchSchema.EmbeddingPropertyConfig.Builder(
+                    platformEmbeddingProperty.getName())
+                    .setCardinality(platformEmbeddingProperty.getCardinality())
+                    .setIndexingType(platformEmbeddingProperty.getIndexingType())
+                    .build();
         }
     }
 }

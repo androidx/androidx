@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,15 +33,11 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core:1.13.0")
     implementation("androidx.collection:collection:1.4.2")
-    implementation("androidx.tracing:tracing:1.0.0")
-
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
 }
 
 androidx {
     name = "Animation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_ANIMATION
     inceptionYear = "2018"
     description = "This library provides functionalities for creating and manipulating animations for API 14 and above."

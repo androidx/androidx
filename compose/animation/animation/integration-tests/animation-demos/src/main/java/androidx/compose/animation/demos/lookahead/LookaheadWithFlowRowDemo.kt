@@ -65,7 +65,7 @@ fun LookaheadWithFlowRowDemo() {
 
         Button(
             modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-            onClick = { isHorizontal = !isHorizontal }
+            onClick = { isHorizontal = !isHorizontal },
         ) {
             Text("Toggle")
         }
@@ -82,7 +82,7 @@ fun LookaheadWithFlowRowDemo() {
                         Modifier.height(50.dp)
                             .animateBounds(
                                 lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f)
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f),
                             )
                             .background(colors[0], RoundedCornerShape(10))
                     )
@@ -90,7 +90,7 @@ fun LookaheadWithFlowRowDemo() {
                         Modifier.height(50.dp)
                             .animateBounds(
                                 lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f),
                             )
                             .background(colors[1], RoundedCornerShape(10))
                     )
@@ -98,7 +98,7 @@ fun LookaheadWithFlowRowDemo() {
                         Modifier.height(50.dp)
                             .animateBounds(
                                 lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f)
+                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f),
                             )
                             .background(colors[2], RoundedCornerShape(10))
                     )
@@ -144,14 +144,14 @@ fun NestedFlowRowDemo() {
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.Center,
             verticalArrangement = Arrangement.Center,
-            maxItemsInEachRow = 3
+            maxItemsInEachRow = 3,
         ) {
             var expanded by remember { mutableStateOf(false) }
             Box(
                 modifier =
                     Modifier.animateBounds(
                             lookaheadScope = this@LookaheadScope,
-                            Modifier.widthIn(max = 600.dp)
+                            Modifier.widthIn(max = 600.dp),
                         )
                         .background(Color.Red)
             ) {
@@ -160,7 +160,7 @@ fun NestedFlowRowDemo() {
                     modifier =
                         Modifier.animateBounds(
                                 lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth().height(height.value)
+                                Modifier.fillMaxWidth().height(height.value),
                             )
                             .clickable { expanded = !expanded }
                 )

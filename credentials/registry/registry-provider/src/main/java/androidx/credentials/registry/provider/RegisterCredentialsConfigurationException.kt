@@ -30,7 +30,7 @@ package androidx.credentials.registry.provider
 public class RegisterCredentialsConfigurationException(errorMessage: CharSequence? = null) :
     RegisterCredentialsException(
         type = TYPE_REGISTER_CREDENTIALS_CONFIGURATION_EXCEPTION,
-        errorMessage = errorMessage
+        errorMessage = errorMessage,
     ) {
     private companion object {
         const val TYPE_REGISTER_CREDENTIALS_CONFIGURATION_EXCEPTION =

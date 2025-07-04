@@ -18,6 +18,7 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseTypes
 import java.time.Instant
 
 /**
@@ -62,21 +63,35 @@ public class ExerciseSegment(
         return result
     }
 
-    internal fun isCompatibleWith(sessionType: Int): Boolean {
-        if (UNIVERSAL_SESSION_TYPES.contains(sessionType)) {
-            return true
-        }
-        if (UNIVERSAL_SEGMENTS.contains(segmentType)) {
-            return true
-        }
-        return SESSION_TO_SEGMENTS_MAPPING[sessionType]?.contains(segmentType) ?: false
-    }
-
     override fun toString(): String {
         return "ExerciseSegment(startTime=$startTime, endTime=$endTime, segmentType=$segmentType, repetitions=$repetitions)"
     }
 
     companion object {
+        /**
+         * Is a segment type compatible with a session type.
+         *
+         * <p>For example, a swimming session can contain [EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE]
+         * segments, but can't contain [EXERCISE_SEGMENT_TYPE_YOGA] segments.
+         *
+         * @param segmentType the segment type to be contained within [sessionType].
+         * @param sessionType the session type that should contain [segmentType].
+         * @return True, if [sessionType] can contain the provided segment, otherwise false.
+         */
+        @JvmStatic
+        fun isSegmentTypeCompatibleWithSessionType(
+            @ExerciseSegmentTypes segmentType: Int,
+            @ExerciseTypes sessionType: Int,
+        ): Boolean {
+            if (UNIVERSAL_SESSION_TYPES.contains(sessionType)) {
+                return true
+            }
+            if (UNIVERSAL_SEGMENTS.contains(segmentType)) {
+                return true
+            }
+            return SESSION_TO_SEGMENTS_MAPPING[sessionType]?.contains(segmentType) ?: false
+        }
+
         /** Next Id: 68. */
 
         /** Use this type if the type of the exercise segment is not known. */
@@ -339,7 +354,7 @@ public class ExerciseSegment(
                 EXERCISE_SEGMENT_TYPE_SIT_UP,
                 EXERCISE_SEGMENT_TYPE_SQUAT,
                 EXERCISE_SEGMENT_TYPE_UPPER_TWIST,
-                EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING
+                EXERCISE_SEGMENT_TYPE_WEIGHTLIFTING,
             )
         internal val SWIMMING_SEGMENTS =
             setOf(
@@ -348,7 +363,7 @@ public class ExerciseSegment(
                 EXERCISE_SEGMENT_TYPE_SWIMMING_FREESTYLE,
                 EXERCISE_SEGMENT_TYPE_SWIMMING_BUTTERFLY,
                 EXERCISE_SEGMENT_TYPE_SWIMMING_MIXED,
-                EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER
+                EXERCISE_SEGMENT_TYPE_SWIMMING_OTHER,
             )
 
         private val SESSION_TO_SEGMENTS_MAPPING =
@@ -364,7 +379,7 @@ public class ExerciseSegment(
                         EXERCISE_SEGMENT_TYPE_YOGA,
                         EXERCISE_SEGMENT_TYPE_BIKING_STATIONARY,
                         EXERCISE_SEGMENT_TYPE_PILATES,
-                        EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING
+                        EXERCISE_SEGMENT_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
                     ),
                 ExerciseSessionRecord.EXERCISE_TYPE_GYMNASTICS to EXERCISE_SEGMENTS,
                 ExerciseSessionRecord.EXERCISE_TYPE_HIKING to

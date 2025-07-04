@@ -117,7 +117,7 @@ public class ExcludedSupportedSizesQuirk : Quirk {
     private fun getHuaweiP20LiteExcludedSizes(
         cameraId: String,
         imageFormat: Int,
-        klass: Class<*>?
+        klass: Class<*>?,
     ): List<Size> {
         val sizes: MutableList<Size> = ArrayList()
         // When klass is not null, the list for PRIVATE format should be returned.
@@ -136,7 +136,7 @@ public class ExcludedSupportedSizesQuirk : Quirk {
     private fun getSamsungJ7PrimeApi27AboveExcludedSizes(
         cameraId: String,
         imageFormat: Int,
-        klass: Class<*>?
+        klass: Class<*>?,
     ): List<Size> {
         val sizes: MutableList<Size> = ArrayList()
 
@@ -184,7 +184,7 @@ public class ExcludedSupportedSizesQuirk : Quirk {
     private fun getSamsungJ7Api27AboveExcludedSizes(
         cameraId: String,
         imageFormat: Int,
-        klass: Class<*>?
+        klass: Class<*>?,
     ): List<Size> {
         val sizes: MutableList<Size> = ArrayList()
 

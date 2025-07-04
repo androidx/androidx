@@ -36,7 +36,7 @@ internal class TestGlesWatchFaceService(
     var mockSystemTimeMillis: Long,
     var mockZoneId: ZoneId,
     var surfacHolderOverride: SurfaceHolder?,
-    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
+    var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState()
@@ -64,7 +64,7 @@ internal class TestGlesWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
@@ -72,7 +72,7 @@ internal class TestGlesWatchFaceService(
             surfaceHolder,
             watchState,
             complicationSlotsManager,
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
     }
 
@@ -90,18 +90,18 @@ internal class TestGlesWatchFaceService(
     override fun writeDirectBootPrefs(
         context: Context,
         fileName: String,
-        prefs: WallpaperInteractiveWatchFaceInstanceParams
+        prefs: WallpaperInteractiveWatchFaceInstanceParams,
     ) {}
 
     override fun readComplicationDataCacheByteArray(
         context: Context,
-        fileName: String
+        fileName: String,
     ): ByteArray? = null
 
     override fun writeComplicationDataCacheByteArray(
         context: Context,
         fileName: String,
-        byteArray: ByteArray
+        byteArray: ByteArray,
     ) {}
 
     override fun getSystemTimeProvider() =

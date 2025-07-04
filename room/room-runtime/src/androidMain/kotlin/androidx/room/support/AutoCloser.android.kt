@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 internal class AutoCloser(
     timeoutAmount: Long,
     timeUnit: TimeUnit,
-    private val watch: Watch = Watch { SystemClock.uptimeMillis() }
+    private val watch: Watch = Watch { SystemClock.uptimeMillis() },
 ) {
     // The unwrapped SupportSQLiteOpenHelper (i.e. not AutoClosingRoomOpenHelper)
     private lateinit var delegateOpenHelper: SupportSQLiteOpenHelper

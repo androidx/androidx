@@ -1,5 +1,6 @@
 package com.example.appsearch;
 
+import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.DocumentClassMappingContext;
@@ -65,6 +66,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
           .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("collectVec")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE)
+            .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.BlobHandlePropertyConfig.Builder("collectBlob")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .build())
           .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("arrBoxLong")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -116,6 +121,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
           .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("arrVec")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE)
+            .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.BlobHandlePropertyConfig.Builder("arrBlob")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("string")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -167,6 +176,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
           .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("vec")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setIndexingType(AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE)
+            .setQuantizationType(AppSearchSchema.EmbeddingPropertyConfig.QUANTIZATION_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.BlobHandlePropertyConfig.Builder("blob")
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .build())
           .build();
   }
@@ -254,6 +267,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (collectVecCopy != null) {
       EmbeddingVector[] collectVecConv = collectVecCopy.toArray(new EmbeddingVector[0]);
       builder.setPropertyEmbedding("collectVec", collectVecConv);
+    }
+    Collection<AppSearchBlobHandle> collectBlobCopy = document.collectBlob;
+    if (collectBlobCopy != null) {
+      AppSearchBlobHandle[] collectBlobConv = collectBlobCopy.toArray(new AppSearchBlobHandle[0]);
+      builder.setPropertyBlobHandle("collectBlob", collectBlobConv);
     }
     Long[] arrBoxLongCopy = document.arrBoxLong;
     if (arrBoxLongCopy != null) {
@@ -343,6 +361,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (arrVecCopy != null) {
       builder.setPropertyEmbedding("arrVec", arrVecCopy);
     }
+    AppSearchBlobHandle[] arrBlobCopy = document.arrBlob;
+    if (arrBlobCopy != null) {
+      builder.setPropertyBlobHandle("arrBlob", arrBlobCopy);
+    }
     String stringCopy = document.string;
     if (stringCopy != null) {
       builder.setPropertyString("string", stringCopy);
@@ -384,6 +406,10 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     EmbeddingVector vecCopy = document.vec;
     if (vecCopy != null) {
       builder.setPropertyEmbedding("vec", vecCopy);
+    }
+    AppSearchBlobHandle blobCopy = document.blob;
+    if (blobCopy != null) {
+      builder.setPropertyBlobHandle("blob", blobCopy);
     }
     return builder.build();
   }
@@ -459,6 +485,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (collectVecCopy != null) {
       collectVecConv = Arrays.asList(collectVecCopy);
     }
+    AppSearchBlobHandle[] collectBlobCopy = genericDoc.getPropertyBlobHandleArray("collectBlob");
+    List<AppSearchBlobHandle> collectBlobConv = null;
+    if (collectBlobCopy != null) {
+      collectBlobConv = Arrays.asList(collectBlobCopy);
+    }
     long[] arrBoxLongCopy = genericDoc.getPropertyLongArray("arrBoxLong");
     Long[] arrBoxLongConv = null;
     if (arrBoxLongCopy != null) {
@@ -529,6 +560,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
       }
     }
     EmbeddingVector[] arrVecConv = genericDoc.getPropertyEmbeddingArray("arrVec");
+    AppSearchBlobHandle[] arrBlobConv = genericDoc.getPropertyBlobHandleArray("arrBlob");
     String[] stringCopy = genericDoc.getPropertyStringArray("string");
     String stringConv = null;
     if (stringCopy != null && stringCopy.length != 0) {
@@ -579,6 +611,11 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     if (vecCopy != null && vecCopy.length != 0) {
       vecConv = vecCopy[0];
     }
+    AppSearchBlobHandle[] blobCopy = genericDoc.getPropertyBlobHandleArray("blob");
+    AppSearchBlobHandle blobConv = null;
+    if (blobCopy != null && blobCopy.length != 0) {
+      blobConv = blobCopy[0];
+    }
     Gift document = new Gift();
     document.namespace = namespaceConv;
     document.id = idConv;
@@ -591,6 +628,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.collectString = collectStringConv;
     document.collectGift = collectGiftConv;
     document.collectVec = collectVecConv;
+    document.collectBlob = collectBlobConv;
     document.arrBoxLong = arrBoxLongConv;
     document.arrUnboxLong = arrUnboxLongConv;
     document.arrBoxInteger = arrBoxIntegerConv;
@@ -605,6 +643,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.arrString = arrStringConv;
     document.arrGift = arrGiftConv;
     document.arrVec = arrVecConv;
+    document.arrBlob = arrBlobConv;
     document.string = stringConv;
     document.boxLong = boxLongConv;
     document.unboxLong = unboxLongConv;
@@ -619,6 +658,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     document.unboxByteArr = unboxByteArrConv;
     document.gift = giftConv;
     document.vec = vecConv;
+    document.blob = blobConv;
     return document;
   }
 }

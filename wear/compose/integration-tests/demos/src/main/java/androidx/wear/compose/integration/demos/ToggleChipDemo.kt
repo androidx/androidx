@@ -54,7 +54,7 @@ import androidx.wear.compose.material.ToggleChipDefaults
 @Composable
 fun ToggleChips(
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    description: String = "Toggle Chips"
+    description: String = "Toggle Chips",
 ) {
     val scrollState: ScalingLazyListState = rememberScalingLazyListState()
     var enabled by remember { mutableStateOf(true) }
@@ -80,7 +80,7 @@ fun ToggleChips(
                     text = description,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.caption1,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
         }
@@ -89,12 +89,7 @@ fun ToggleChips(
                 ToggleChip(
                     label = { Text("Checkbox") },
                     checked = checkBoxIconChecked,
-                    toggleControl = {
-                        Checkbox(
-                            checked = checkBoxIconChecked,
-                            enabled = enabled,
-                        )
-                    },
+                    toggleControl = { Checkbox(checked = checkBoxIconChecked, enabled = enabled) },
                     onCheckedChange = { checkBoxIconChecked = it },
                     enabled = enabled,
                 )
@@ -129,12 +124,7 @@ fun ToggleChips(
                 ToggleChip(
                     label = { Text("Switch") },
                     checked = switchIconChecked,
-                    toggleControl = {
-                        Switch(
-                            checked = switchIconChecked,
-                            enabled = enabled,
-                        )
-                    },
+                    toggleControl = { Switch(checked = switchIconChecked, enabled = enabled) },
                     onCheckedChange = { switchIconChecked = it },
                     enabled = enabled,
                 )
@@ -181,10 +171,7 @@ fun ToggleChips(
                                 ToggleChipDefaults.SwitchUncheckedIconColor
                         ),
                     toggleControl = {
-                        Switch(
-                            checked = switchIconWithSecondaryChecked,
-                            enabled = enabled,
-                        )
+                        Switch(checked = switchIconWithSecondaryChecked, enabled = enabled)
                     },
                     onCheckedChange = { switchIconWithSecondaryChecked = it },
                     appIcon = { DemoIcon(R.drawable.ic_airplanemode_active_24px) },
@@ -209,10 +196,7 @@ fun ToggleChips(
                                 ToggleChipDefaults.SwitchUncheckedIconColor
                         ),
                     toggleControl = {
-                        Switch(
-                            checked = switchIconWithIconChecked,
-                            enabled = enabled,
-                        )
+                        Switch(checked = switchIconWithIconChecked, enabled = enabled)
                     },
                     onCheckedChange = { switchIconWithIconChecked = it },
                     appIcon = {
@@ -230,14 +214,14 @@ fun ToggleChips(
                         Text(
                             "Long primary label split across multiple lines of text",
                             maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                         )
                     },
                     secondaryLabel = {
                         Text(
                             "Long secondary label split across multiple lines of text",
                             maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                         )
                     },
                     checked = switchIconWithIconChecked,
@@ -250,10 +234,7 @@ fun ToggleChips(
                                 ToggleChipDefaults.SwitchUncheckedIconColor
                         ),
                     toggleControl = {
-                        Switch(
-                            checked = switchIconWithIconChecked,
-                            enabled = enabled,
-                        )
+                        Switch(checked = switchIconWithIconChecked, enabled = enabled)
                     },
                     onCheckedChange = { switchIconWithIconChecked = it },
                     enabled = enabled,
@@ -266,7 +247,7 @@ fun ToggleChips(
                     text = "Split Toggle Chips",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.caption1,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
         }
@@ -349,11 +330,7 @@ fun ToggleChips(
                             uncheckedToggleControlColor =
                                 ToggleChipDefaults.SwitchUncheckedIconColor
                         ),
-                    toggleControl = {
-                        Switch(
-                            checked = enabled,
-                        )
-                    },
+                    toggleControl = { Switch(checked = enabled) },
                 )
             }
         }

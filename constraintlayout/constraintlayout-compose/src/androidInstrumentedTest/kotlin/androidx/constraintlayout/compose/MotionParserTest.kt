@@ -115,7 +115,7 @@ internal class MotionParserTest {
                             .trimIndent()
                     ),
                 transition = transition,
-                progress = 0f
+                progress = 0f,
             ) {
                 Box(modifier = Modifier.layoutId("id1"))
             }

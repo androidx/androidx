@@ -33,8 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://m3.material.io/components/divider/overview" class="external"
- * target="_blank">Material Design divider</a>.
+ * [Material Design divider](https://m3.material.io/components/divider/overview)
  *
  * A divider is a thin line that groups content in lists and layouts.
  *
@@ -62,8 +61,7 @@ fun HorizontalDivider(
     }
 
 /**
- * <a href="https://m3.material.io/components/divider/overview" class="external"
- * target="_blank">Material Design divider</a>.
+ * [Material Design divider](https://m3.material.io/components/divider/overview)
  *
  * A divider is a thin line that groups content in lists and layouts.
  *
@@ -92,7 +90,7 @@ fun VerticalDivider(
 
 @Deprecated(
     message = "Renamed to HorizontalDivider",
-    replaceWith = ReplaceWith("HorizontalDivider(modifier, thickness, color)")
+    replaceWith = ReplaceWith("HorizontalDivider(modifier, thickness, color)"),
 )
 @Composable
 fun Divider(

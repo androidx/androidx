@@ -22,34 +22,32 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
-    id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.navigation:navigation-runtime:2.5.1")
+    api(project(":hilt:hilt-lifecycle-viewmodel"))
+    api("androidx.navigation:navigation-runtime:2.9.0")
     api(libs.hiltAndroid)
-    ksp(libs.hiltCompiler)
 }
 
 androidx {
     name = "Navigation Hilt Extension"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.HILT_NAVIGATION
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {
     namespace = "androidx.hilt.navigation"
 }
+

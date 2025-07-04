@@ -40,7 +40,7 @@ internal const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
 
 class BaselineProfileProjectSetupRule(
     private val forceAgpVersion: String? = null,
-    private val addKotlinGradlePluginToClasspath: Boolean = false
+    private val addKotlinGradlePluginToClasspath: Boolean = false,
 ) : ExternalResource() {
 
     private val forcedTestAgpVersion = TestAgpVersion.fromVersionString(forceAgpVersion)
@@ -49,12 +49,7 @@ class BaselineProfileProjectSetupRule(
     val rootFolder = TemporaryFolder().also { it.create() }
 
     /** Represents a module with the app target plugin applied. */
-    val appTarget by lazy {
-        AppTargetModule(
-            rule = appTargetSetupRule,
-            name = appTargetName,
-        )
-    }
+    val appTarget by lazy { AppTargetModule(rule = appTargetSetupRule, name = appTargetName) }
 
     /** Represents a module with the consumer plugin applied. */
     val consumer by lazy {
@@ -62,7 +57,7 @@ class BaselineProfileProjectSetupRule(
             rule = consumerSetupRule,
             name = consumerName,
             producerName = producerName,
-            dependencyName = dependencyName
+            dependencyName = dependencyName,
         )
     }
 
@@ -82,12 +77,7 @@ class BaselineProfileProjectSetupRule(
 
     /** The managed device container name to use in the build.gradle file. */
     val managedDeviceContainerName: String
-        get() =
-            if (forcedTestAgpVersion.isAtLeast(TestAgpVersion.TEST_AGP_VERSION_8_1_0)) {
-                "allDevices"
-            } else {
-                "devices"
-            }
+        get() = "allDevices"
 
     // Temp folder for temp generated files that need to be referenced by a module.
     private val tempFolder by lazy { File(rootFolder.root, "temp").apply { mkdirs() } }
@@ -130,7 +120,7 @@ class BaselineProfileProjectSetupRule(
                     val props = Properties()
                     props.setProperty(
                         "org.gradle.jvmargs",
-                        "-Xmx4g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g"
+                        "-Xmx4g -XX:+UseParallelGC -XX:MaxMetaspaceSize=1g",
                     )
                     props.setProperty("android.useAndroidX", "true")
                     props.store(it, null)
@@ -271,7 +261,7 @@ class BaselineProfileProjectSetupRule(
             }
         return File(
             consumer.rootDir,
-            "build/intermediates/merged_art_profile/$variantName/$taskNameFolder/baseline-prof.txt"
+            "build/intermediates/merged_art_profile/$variantName/$taskNameFolder/baseline-prof.txt",
         )
     }
 
@@ -325,7 +315,7 @@ data class VariantProfile(
         buildType = buildType,
         profileFileLines = profileFileLines,
         startupFileLines = startupFileLines,
-        ftlFileLines = ftlFileLines
+        ftlFileLines = ftlFileLines,
     )
 }
 
@@ -346,18 +336,13 @@ interface Module {
                 """
                 $GRADLE_CODE_PRINT_TASK
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 }
 
-class DependencyModule(
-    val name: String,
-)
+class DependencyModule(val name: String)
 
-class AppTargetModule(
-    override val rule: ProjectSetupRule,
-    override val name: String,
-) : Module {
+class AppTargetModule(override val rule: ProjectSetupRule, override val name: String) : Module {
 
     fun setup(
         buildGradleContent: String =
@@ -410,7 +395,7 @@ class ProducerModule(
                         buildType = buildType,
                         profileFileLines = mapOf("my-$flavor-$buildType-profile" to profile),
                         startupFileLines =
-                            mapOf("my-$flavor-$buildType-startup=profile" to startupProfile)
+                            mapOf("my-$flavor-$buildType-startup=profile" to startupProfile),
                     )
                 )
             }
@@ -420,31 +405,28 @@ class ProducerModule(
             flavor = "free",
             buildType = "release",
             profile = freeReleaseProfileLines,
-            startupProfile = freeReleaseStartupProfileLines
+            startupProfile = freeReleaseStartupProfileLines,
         )
         addProfile(
             flavor = "free",
             buildType = "anotherRelease",
             profile = freeAnotherReleaseProfileLines,
-            startupProfile = freeAnotherReleaseStartupProfileLines
+            startupProfile = freeAnotherReleaseStartupProfileLines,
         )
         addProfile(
             flavor = "paid",
             buildType = "release",
             profile = paidReleaseProfileLines,
-            startupProfile = paidReleaseStartupProfileLines
+            startupProfile = paidReleaseStartupProfileLines,
         )
         addProfile(
             flavor = "paid",
             buildType = "anotherRelease",
             profile = paidAnotherReleaseProfileLines,
-            startupProfile = paidAnotherReleaseStartupProfileLines
+            startupProfile = paidAnotherReleaseStartupProfileLines,
         )
 
-        setup(
-            variantProfiles = variantProfiles,
-            otherPluginsBlock = otherPluginsBlock,
-        )
+        setup(variantProfiles = variantProfiles, otherPluginsBlock = otherPluginsBlock)
     }
 
     fun setupWithoutFlavors(
@@ -459,7 +441,7 @@ class ProducerModule(
                         flavor = null,
                         buildType = "release",
                         profileFileLines = mapOf("myTest" to releaseProfileLines),
-                        startupFileLines = mapOf("myStartupTest" to releaseStartupProfileLines)
+                        startupFileLines = mapOf("myStartupTest" to releaseStartupProfileLines),
                     )
                 ),
             otherPluginsBlock = otherPluginsBlock,
@@ -479,7 +461,7 @@ class ProducerModule(
                                     Fixtures.CLASS_1_METHOD_1,
                                     Fixtures.CLASS_2_METHOD_2,
                                     Fixtures.CLASS_2,
-                                    Fixtures.CLASS_1
+                                    Fixtures.CLASS_1,
                                 )
                         ),
                     startupFileLines =
@@ -489,7 +471,7 @@ class ProducerModule(
                                     Fixtures.CLASS_3_METHOD_1,
                                     Fixtures.CLASS_4_METHOD_1,
                                     Fixtures.CLASS_3,
-                                    Fixtures.CLASS_4
+                                    Fixtures.CLASS_4,
                                 )
                         ),
                 )
@@ -744,7 +726,7 @@ class ConsumerModule(
                 else "",
             addAppTargetPlugin = addAppTargetPlugin,
             baselineProfileBlock = baselineProfileBlock,
-            additionalGradleCodeBlock = additionalGradleCodeBlock
+            additionalGradleCodeBlock = additionalGradleCodeBlock,
         )
 
     fun setupWithBlocks(

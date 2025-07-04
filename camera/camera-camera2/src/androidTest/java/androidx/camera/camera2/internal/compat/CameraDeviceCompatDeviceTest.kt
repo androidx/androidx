@@ -125,12 +125,12 @@ class CameraDeviceCompatDeviceTest {
                 SessionConfigurationCompat.SESSION_REGULAR,
                 listOf(outputConfig),
                 Dispatchers.Default.asExecutor(),
-                stateCallback
+                stateCallback,
             )
         val deviceCompat =
             CameraDeviceCompat.toCameraDeviceCompat(
                 cameraDevice!!.openAsync().get(),
-                compatHandler!!
+                compatHandler!!,
             )
         try {
             deviceCompat.createCaptureSession(sessionConfig)
@@ -139,7 +139,7 @@ class CameraDeviceCompatDeviceTest {
             // stealing the camera), then we will skip the test.
             Assume.assumeTrue(
                 "Camera disconnected during test.",
-                e.reason != CameraAccessException.CAMERA_DISCONNECTED
+                e.reason != CameraAccessException.CAMERA_DISCONNECTED,
             )
             throw e
         }

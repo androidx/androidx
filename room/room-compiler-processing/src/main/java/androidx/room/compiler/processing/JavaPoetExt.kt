@@ -15,6 +15,7 @@
  */
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.util.sanitizeAsJavaMethodName
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -64,7 +65,7 @@ private fun AnnotationSpec.Builder.addAnnotationValue(annotationValue: XAnnotati
                     name,
                     "\$T.\$L",
                     asEnum().enclosingElement.asClassName().java,
-                    asEnum().name
+                    asEnum().name,
                 )
             hasTypeValue() -> addMember(name, "\$T.class", asType().asTypeName().java)
             hasStringValue() -> addMember(name, "\$S", asString())
@@ -161,7 +162,7 @@ object MethodSpecHelper {
         owner: XType =
             checkNotNull(elm.enclosingElement.type) {
                 "Cannot override method without enclosing class"
-            }
+            },
     ): MethodSpec.Builder {
         val asMember = elm.asMemberOf(owner)
         return overriding(executableElement = elm, resolvedType = asMember)
@@ -170,9 +171,16 @@ object MethodSpecHelper {
     private fun overriding(
         executableElement: XMethodElement,
         resolvedType: XMethodType = executableElement.executableType,
-        vararg paramModifiers: Modifier
+        vararg paramModifiers: Modifier,
     ): MethodSpec.Builder {
-        return MethodSpec.methodBuilder(executableElement.jvmName).apply {
+        val methodJvmName =
+            if (executableElement.hasValidJvmSourceName()) {
+                executableElement.jvmName
+            } else {
+                // Workaround for b/384600605
+                executableElement.jvmName.sanitizeAsJavaMethodName()
+            }
+        return MethodSpec.methodBuilder(methodJvmName).apply {
             addTypeVariables(
                 resolvedType.typeVariables.map { it.asTypeName().java as JTypeVariableName }
             )
@@ -184,7 +192,7 @@ object MethodSpecHelper {
                             // use
                             // the jvmName instead, which should be a valid java name.
                             executableElement.parameters[index].jvmName,
-                            *paramModifiers
+                            *paramModifiers,
                         )
                         .build()
                 )

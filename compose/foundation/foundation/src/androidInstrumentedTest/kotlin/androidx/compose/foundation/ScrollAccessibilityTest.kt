@@ -133,7 +133,7 @@ class ScrollAccessibilityTest(private val config: TestConfig) {
         createScrollableContent_StartAtStart()
         verifyNodeInfoScrollActions(
             expectForward = !config.reversed,
-            expectBackward = config.reversed
+            expectBackward = config.reversed,
         )
     }
 
@@ -148,7 +148,7 @@ class ScrollAccessibilityTest(private val config: TestConfig) {
         createScrollableContent_StartAtEnd()
         verifyNodeInfoScrollActions(
             expectForward = config.reversed,
-            expectBackward = !config.reversed
+            expectBackward = !config.reversed,
         )
     }
 
@@ -165,7 +165,7 @@ class ScrollAccessibilityTest(private val config: TestConfig) {
     private fun testAbsoluteDirection(
         canonicalTarget: Int,
         accessibilityAction: Int,
-        expectActionSuccess: Boolean
+        expectActionSuccess: Boolean,
     ) {
         val inverse = config.horizontal && config.rtl
         val target = if (!inverse) canonicalTarget else 100 - canonicalTarget - 1
@@ -179,7 +179,7 @@ class ScrollAccessibilityTest(private val config: TestConfig) {
     private fun testScrollAction(
         target: Int,
         accessibilityAction: Int,
-        expectActionSuccess: Boolean = true
+        expectActionSuccess: Boolean = true,
     ) {
         createScrollableContent_StartInMiddle()
         rule.onNodeWithText("$target").assertIsNotDisplayed()

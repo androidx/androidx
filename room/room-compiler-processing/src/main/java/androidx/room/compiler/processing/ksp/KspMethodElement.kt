@@ -34,13 +34,13 @@ import com.google.devtools.ksp.symbol.Modifier
 internal sealed class KspMethodElement(
     env: KspProcessingEnv,
     declaration: KSFunctionDeclaration,
-    val isSyntheticStatic: Boolean
+    val isSyntheticStatic: Boolean,
 ) :
     KspExecutableElement(env, declaration),
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = declaration,
-        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_METHOD
+        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_METHOD,
     ),
     XMethodElement {
 
@@ -84,7 +84,7 @@ internal sealed class KspMethodElement(
                         env = env,
                         enclosingElement = this@KspMethodElement,
                         parameter = param,
-                        parameterIndex = startIndex + index
+                        parameterIndex = startIndex + index,
                     )
                 }
             )
@@ -151,7 +151,7 @@ internal sealed class KspMethodElement(
     private class KspNormalMethodElement(
         env: KspProcessingEnv,
         declaration: KSFunctionDeclaration,
-        isSyntheticStatic: Boolean
+        isSyntheticStatic: Boolean,
     ) : KspMethodElement(env, declaration, isSyntheticStatic) {
         override val returnType: KspType by lazy {
             declaration
@@ -170,7 +170,7 @@ internal sealed class KspMethodElement(
     private class KspSuspendMethodElement(
         env: KspProcessingEnv,
         declaration: KSFunctionDeclaration,
-        isSyntheticStatic: Boolean
+        isSyntheticStatic: Boolean,
     ) : KspMethodElement(env, declaration, isSyntheticStatic) {
         override fun isSuspendFunction() = true
 
@@ -179,7 +179,7 @@ internal sealed class KspMethodElement(
                 .copyWithScope(
                     KSTypeVarianceResolverScope.MethodReturnType(
                         method = this,
-                        asMemberOf = enclosingElement.type
+                        asMemberOf = enclosingElement.type,
                     )
                 )
         }
@@ -194,7 +194,7 @@ internal sealed class KspMethodElement(
         fun create(
             env: KspProcessingEnv,
             declaration: KSFunctionDeclaration,
-            isSyntheticStatic: Boolean = false
+            isSyntheticStatic: Boolean = false,
         ): KspMethodElement {
             return if (declaration.modifiers.contains(Modifier.SUSPEND)) {
                 KspSuspendMethodElement(env, declaration, isSyntheticStatic)

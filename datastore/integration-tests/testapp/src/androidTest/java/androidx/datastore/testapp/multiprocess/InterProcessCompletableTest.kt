@@ -38,7 +38,7 @@ class InterProcessCompletableTest {
         val hostLatch: InterProcessCompletable<Value>,
         val remoteLatch: InterProcessCompletable<Value>,
         val hostValue: Value,
-        val remoteValue: Value
+        val remoteValue: Value,
     ) : IpcAction<IpcUnit>() {
         override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
             assertThat(hostLatch.await(subject)).isEqualTo(hostValue)
@@ -59,7 +59,7 @@ class InterProcessCompletableTest {
                         hostLatch = hostLatch,
                         remoteLatch = remoteLatch,
                         hostValue = Value("host"),
-                        remoteValue = Value("remote")
+                        remoteValue = Value("remote"),
                     )
                 )
             }

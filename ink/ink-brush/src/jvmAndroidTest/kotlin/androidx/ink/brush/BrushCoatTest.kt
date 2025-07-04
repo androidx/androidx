@@ -60,9 +60,9 @@ class BrushCoatTest {
     fun toString_returnsExpectedValues() {
         assertThat(BrushCoat().toString())
             .isEqualTo(
-                "BrushCoat(tips=[BrushTip(scale=(1.0, 1.0), " +
+                "BrushCoat(tip=BrushTip(scale=(1.0, 1.0), " +
                     "cornerRounding=1.0, slant=0.0, pinch=0.0, rotation=0.0, opacityMultiplier=1.0, " +
-                    "particleGapDistanceScale=0.0, particleGapDurationMillis=0, behaviors=[])], " +
+                    "particleGapDistanceScale=0.0, particleGapDurationMillis=0, behaviors=[]), " +
                     "paint=BrushPaint(textureLayers=[]))"
             )
     }
@@ -147,25 +147,31 @@ class BrushCoatTest {
         BrushPaint(
             listOf(
                 BrushPaint.TextureLayer(
-                    colorTextureUri = "ink://ink/texture:test-one",
+                    clientTextureId = "test-one",
                     sizeX = 123.45F,
                     sizeY = 678.90F,
                     offsetX = 0.123f,
                     offsetY = 0.678f,
                     rotation = 0.1f,
                     opacity = 0.123f,
+                    animationFrames = 1,
+                    animationRows = 1,
+                    animationColumns = 1,
                     BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                     BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
                     BrushPaint.TextureMapping.TILING,
                 ),
                 BrushPaint.TextureLayer(
-                    colorTextureUri = "ink://ink/texture:test-two",
+                    clientTextureId = "test-two",
                     sizeX = 256F,
                     sizeY = 256F,
                     offsetX = 0.456f,
                     offsetY = 0.567f,
                     rotation = 0.2f,
                     opacity = 0.987f,
+                    animationFrames = 1,
+                    animationRows = 1,
+                    animationColumns = 1,
                     BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                     BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
                     BrushPaint.TextureMapping.TILING,

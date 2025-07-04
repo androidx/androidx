@@ -27,7 +27,7 @@ import androidx.glance.GlanceModifier
  * specific circumstances.
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-class RemoteViewsRoot(private val maxDepth: Int) : EmittableWithChildren(maxDepth) {
+public class RemoteViewsRoot(private val maxDepth: Int) : EmittableWithChildren(maxDepth) {
     override var modifier: GlanceModifier = GlanceModifier
 
     override fun copy(): Emittable =

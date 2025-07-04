@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedMethod: androidx.benchmark.junit4.BenchmarkRule#getTestDefinition():
+    Added method androidx.benchmark.junit4.BenchmarkRule.getTestDefinition()
+AddedMethod: androidx.benchmark.junit4.BenchmarkRule#setTestDefinition(androidx.benchmark.TestDefinition):
+    Added method androidx.benchmark.junit4.BenchmarkRule.setTestDefinition(androidx.benchmark.TestDefinition)

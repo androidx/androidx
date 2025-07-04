@@ -37,7 +37,7 @@ class RxRemoteMediatorTest {
             object : RxRemoteMediator<Int, Int>() {
                 override fun loadSingle(
                     loadType: LoadType,
-                    state: PagingState<Int, Int>
+                    state: PagingState<Int, Int>,
                 ): Single<MediatorResult> {
                     fail("Unexpected call")
                 }
@@ -56,7 +56,7 @@ class RxRemoteMediatorTest {
             object : RxRemoteMediator<Int, Int>() {
                 override fun loadSingle(
                     loadType: LoadType,
-                    state: PagingState<Int, Int>
+                    state: PagingState<Int, Int>,
                 ): Single<MediatorResult> {
                     fail("Unexpected call")
                 }

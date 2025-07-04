@@ -18,8 +18,8 @@ package androidx.pdf.viewer.fragment.view
 
 import android.graphics.PointF
 import androidx.annotation.ColorInt
+import androidx.pdf.PdfPoint
 import androidx.pdf.view.Highlight
-import androidx.pdf.view.PdfPoint
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.model.HighlightData
 
@@ -27,7 +27,7 @@ import androidx.pdf.viewer.fragment.model.HighlightData
 internal class PdfViewManager(
     private val pdfView: PdfView,
     @ColorInt private val selectedHighlightColor: Int,
-    @ColorInt private val highlightColor: Int
+    @ColorInt private val highlightColor: Int,
 ) {
 
     fun setHighlights(highlightData: HighlightData) {
@@ -40,7 +40,7 @@ internal class PdfViewManager(
             highlights.addAll(highlightBound.toHighlight(highlightColor))
         }
 
-        pdfView.highlights = highlights
+        pdfView.setHighlights(highlights)
     }
 
     fun scrollToCurrentSearchResult(highlightData: HighlightData) {
@@ -64,7 +64,7 @@ internal class PdfViewManager(
                         position =
                             PdfPoint(
                                 selectedHighlight.pageNum,
-                                PointF(selectedBounds.left, selectedBounds.top)
+                                PointF(selectedBounds.left, selectedBounds.top),
                             )
                     )
                 }

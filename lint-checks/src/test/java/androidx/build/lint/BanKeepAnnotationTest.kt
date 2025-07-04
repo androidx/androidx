@@ -32,10 +32,7 @@ class BanKeepAnnotationTest :
 
     @Test
     fun `Detection of Keep annotation in Java sources`() {
-        val input =
-            arrayOf(
-                javaSample("androidx.KeepAnnotationUsageJava"),
-            )
+        val input = arrayOf(javaSample("androidx.KeepAnnotationUsageJava"))
 
         val expected =
             """
@@ -51,10 +48,7 @@ src/androidx/KeepAnnotationUsageJava.java:21: Error: Uses @Keep annotation [BanK
 
     @Test
     fun `Detection of Keep annotation in Kotlin sources`() {
-        val input =
-            arrayOf(
-                ktSample("androidx.KeepAnnotationUsageKotlin"),
-            )
+        val input = arrayOf(ktSample("androidx.KeepAnnotationUsageKotlin"))
 
         val expected =
             """

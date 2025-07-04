@@ -52,7 +52,7 @@ fun SelectableSurfaceSample() {
     Surface(
         selected = selected,
         onClick = { selected = !selected },
-        color = MaterialTheme.colors.background
+        color = MaterialTheme.colors.background,
     ) {
         Text(text = if (selected) "Selected" else "Not Selected", textAlign = TextAlign.Center)
     }
@@ -71,7 +71,7 @@ fun ToggleableSurfaceSample() {
                 MaterialTheme.colors.primary
             } else {
                 MaterialTheme.colors.background
-            }
+            },
     ) {
         Text(text = if (checked) "ON" else "OFF", textAlign = TextAlign.Center)
     }

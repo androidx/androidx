@@ -117,7 +117,7 @@ class ComponentActivityViewModelTest {
                 ViewModelProvider(
                     viewModelStore,
                     defaultViewModelProviderFactory,
-                    defaultViewModelCreationExtras
+                    defaultViewModelCreationExtras,
                 )["test", TestViewModel::class.java]
             }
             recreate()

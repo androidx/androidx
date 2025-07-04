@@ -14,32 +14,18 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(api = 34)
-
 package androidx.health.connect.client.impl.platform.aggregate
 
-import androidx.annotation.RequiresApi
-import androidx.health.connect.client.aggregate.AggregationResult
-import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.Record
 
-internal interface Aggregator<T, R> {
-    operator fun plusAssign(value: T)
+/**
+ * Interface to filter and aggregate records. Response [R] should be one of the aggregation response
+ * types defined by the API.
+ */
+internal interface Aggregator<T : Record, R> {
+
+    /** Filters and aggregates the parts of the record that are relevant for aggregation. */
+    fun filterAndAggregate(record: T)
 
     fun getResult(): R
-}
-
-internal abstract class SingeResultAggregator<T> : Aggregator<T, AggregationResult> {
-    abstract val doubleValues: Map<String, Double>
-    abstract val dataOrigins: Set<DataOrigin>
-
-    override fun getResult(): AggregationResult {
-        if (dataOrigins.isEmpty()) {
-            return emptyAggregationResult()
-        }
-        return AggregationResult(
-            longValues = emptyMap(),
-            doubleValues = doubleValues,
-            dataOrigins = dataOrigins
-        )
-    }
 }

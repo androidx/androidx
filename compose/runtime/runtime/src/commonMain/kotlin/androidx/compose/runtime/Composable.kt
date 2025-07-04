@@ -53,6 +53,6 @@ package androidx.compose.runtime
     // val foo: Int @Composable get() { ... }
     // var bar: Int
     //   @Composable get() { ... }
-    AnnotationTarget.PROPERTY_GETTER
+    AnnotationTarget.PROPERTY_GETTER,
 )
-annotation class Composable
+public annotation class Composable

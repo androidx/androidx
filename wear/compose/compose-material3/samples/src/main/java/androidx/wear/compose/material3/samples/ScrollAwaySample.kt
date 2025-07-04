@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ScrollInfoProvider
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.FilledTonalButton
@@ -34,7 +33,9 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ScreenStage
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.curvedText
 import androidx.wear.compose.material3.scrollAway
+import androidx.wear.compose.material3.timeTextSeparator
 
 @Sampled
 @Composable
@@ -42,17 +43,13 @@ fun ScrollAwaySample() {
     val state = rememberScalingLazyListState()
 
     Box(modifier = Modifier.fillMaxSize()) {
-        ScalingLazyColumn(
-            state = state,
-            modifier = Modifier.fillMaxSize(),
-            autoCentering = AutoCenteringParams(itemIndex = 10)
-        ) {
+        ScalingLazyColumn(state = state, modifier = Modifier.fillMaxSize()) {
             item {
                 ListHeader {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "ScalingLazyColumn",
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -73,13 +70,13 @@ fun ScrollAwaySample() {
                     scrollInfoProvider = ScrollInfoProvider(state),
                     screenStage = {
                         if (state.isScrollInProgress) ScreenStage.Scrolling else ScreenStage.Idle
-                    }
+                    },
                 ),
-            content = {
-                text("ScrollAway")
-                separator()
-                time()
-            }
+            content = { time ->
+                curvedText("ScrollAway")
+                timeTextSeparator()
+                curvedText(time)
+            },
         )
     }
 }

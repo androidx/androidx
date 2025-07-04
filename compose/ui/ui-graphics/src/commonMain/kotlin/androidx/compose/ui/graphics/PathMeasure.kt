@@ -47,7 +47,7 @@ interface PathMeasure {
         startDistance: Float,
         stopDistance: Float,
         destination: Path,
-        startWithMoveTo: Boolean = true
+        startWithMoveTo: Boolean = true,
     ): Boolean
 
     /** Assign a new path, or null to have none. */

@@ -39,16 +39,7 @@ abstract class ModuleInfoGenerator : DefaultTask() {
     @Input
     fun getSerialized(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        // media service/client tests are created from multiple projects, so we get multiple
-        // entries with the same TestModule.name. This code merges all the TestModule.path entries
-        // across the test modules with the same name.
-        val data =
-            testModules
-                .groupBy { it.name }
-                .map {
-                    TestModule(name = it.key, path = it.value.flatMap { module -> module.path })
-                }
-                .associateBy { it.name }
+        val data = testModules.associateBy { it.name }
         return gson.toJson(data)
     }
 
@@ -89,7 +80,7 @@ internal fun Project.addToModuleInfo(testName: String, projectIsolationEnabled: 
             it.testModules.add(
                 TestModule(
                     name = testName,
-                    path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
+                    path = listOf(projectDir.toRelativeString(getSupportRootFolder())),
                 )
             )
         }

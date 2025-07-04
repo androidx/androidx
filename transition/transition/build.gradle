@@ -5,18 +5,18 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
-    api(project(":core:core"))
+    api("androidx.core:core:1.16.0")
     implementation("androidx.collection:collection:1.4.2")
     compileOnly("androidx.fragment:fragment:1.7.0")
     compileOnly("androidx.appcompat:appcompat:1.0.1")
@@ -52,7 +52,7 @@ android {
 
 androidx {
     name = "Transition"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2016"
     description = "Android Transition Support Library"
     legacyDisableKotlinStrictApiMode = true

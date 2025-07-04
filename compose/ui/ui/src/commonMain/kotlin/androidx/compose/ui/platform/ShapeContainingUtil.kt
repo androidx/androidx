@@ -38,7 +38,7 @@ internal fun isInOutline(
     x: Float,
     y: Float,
     tmpTouchPointPath: Path? = null,
-    tmpOpPath: Path? = null
+    tmpOpPath: Path? = null,
 ): Boolean =
     when (outline) {
         is Outline.Rectangle -> isInRectangle(outline.rect, x, y)
@@ -55,7 +55,7 @@ private fun isInRoundedRect(
     x: Float,
     y: Float,
     touchPointPath: Path?,
-    opPath: Path?
+    opPath: Path?,
 ): Boolean {
     val rrect = outline.roundRect
 
@@ -122,7 +122,7 @@ private fun isWithinEllipse(
     y: Float,
     cornerRadius: CornerRadius,
     centerX: Float,
-    centerY: Float
+    centerY: Float,
 ): Boolean {
     val px = x - centerX
     val py = y - centerY
@@ -143,7 +143,7 @@ private fun isInPath(
     x: Float,
     y: Float,
     tmpTouchPointPath: Path?,
-    tmpOpPath: Path?
+    tmpOpPath: Path?,
 ): Boolean {
     val rect = Rect(x - 0.005f, y - 0.005f, x + 0.005f, y + 0.005f)
     val touchPointPath = tmpTouchPointPath ?: Path()

@@ -56,6 +56,37 @@ class Matrix4ExtTest {
     }
 
     @Test
+    fun unscaled_withNegativeScale_returnsUnscaledMatrix() {
+        val underTest =
+            Matrix4.fromTrs(Vector3(1f, 2f, 3f), Quaternion(1f, 2f, 3f, 4f), Vector3(-2f, -3f, -4f))
+        val underTestUnscaled = underTest.getUnscaled()
+        // TODO: b/367780918 - Update when negative scales are correctly handled.
+        assertMatrix(
+            underTestUnscaled,
+            Matrix4(
+                floatArrayOf(
+                    -0.13333327f,
+                    -0.9333334f,
+                    0.3333334f,
+                    0f,
+                    0.6666667f,
+                    -0.33333328f,
+                    -0.6666667f,
+                    0f,
+                    -0.73333347f,
+                    -0.13333333f,
+                    -0.6666666f,
+                    0f,
+                    1f,
+                    2f,
+                    3f,
+                    1f,
+                )
+            ),
+        )
+    }
+
+    @Test
     fun unscaled_withIdentityTranslationAndRotation_returnsUnscaledMatrix() {
         val underTest = Matrix4.fromTrs(Vector3.Zero, Quaternion.Identity, Vector3(2f, 3f, 4f))
         val underTestUnscaled = underTest.getUnscaled()

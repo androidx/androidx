@@ -95,7 +95,7 @@ class ModifierNodeOnDensityChangeTest {
                         override fun onPointerEvent(
                             pointerEvent: PointerEvent,
                             pass: PointerEventPass,
-                            bounds: IntSize
+                            bounds: IntSize,
                         ) {}
 
                         override fun onCancel() {

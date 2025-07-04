@@ -53,7 +53,7 @@ fun PopupDragDemo() {
                         }
                         .size(70.dp)
                         .background(Color.Green, CircleShape),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(text = "This is a popup!", textAlign = TextAlign.Center)
                 }

@@ -75,7 +75,7 @@ class EasingTest {
                         cubic[2] * BitmapSize,
                         cubic[3] * BitmapSize,
                         BitmapSize.toFloat(),
-                        BitmapSize.toFloat()
+                        BitmapSize.toFloat(),
                     )
                 }
 
@@ -99,7 +99,7 @@ class EasingTest {
                             Margin.toFloat() + y0 * BitmapSize,
                             Margin.toFloat() + x1 * BitmapSize,
                             Margin.toFloat() + y1 * BitmapSize,
-                            paint
+                            paint,
                         )
                         x0 = x1
                         y0 = y1

@@ -30,5 +30,5 @@ enum class Orientation {
      * Note: this value specifies just the axis, not the direction (left-to-right or right-to-left).
      * To support RTL cases, use `reverseDirection = true` on [scrollable] and [draggable].
      */
-    Horizontal
+    Horizontal,
 }

@@ -57,7 +57,7 @@ public class ReusableToast {
 
     /** Hide view by setting visibility to GONE. */
     public void hide() {
-        mView.setVisibility(View.GONE);
+        mView.setVisibility(View.INVISIBLE);
     }
 
     private void makeAutoHide() {

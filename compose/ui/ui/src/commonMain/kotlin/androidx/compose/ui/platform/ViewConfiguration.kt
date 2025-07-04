@@ -59,6 +59,10 @@ interface ViewConfiguration {
     val maximumFlingVelocity: Float
         get() = Float.MAX_VALUE
 
+    /** Minimum velocity to initiate a fling, as measured in pixels per second */
+    val minimumFlingVelocity: Float
+        get() = 0f
+
     /**
      * Margin in pixels around text line bounds where stylus handwriting gestures should be
      * supported.

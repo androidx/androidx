@@ -49,7 +49,7 @@ class MultiInstanceInvalidationTest {
     @Database(
         entities = [SampleEntity::class, AnotherSampleEntity::class],
         version = 1,
-        exportSchema = false
+        exportSchema = false,
     )
     abstract class SampleDatabase : RoomDatabase() {
         abstract fun dao(): SampleDao

@@ -63,7 +63,7 @@ class PreparedQueryResultAdapter(private val returnType: XType, private val quer
         stmtQueryVal: String,
         preparedStmtProperty: XPropertySpec?,
         dbProperty: XPropertySpec,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             val stmtMethod =
@@ -94,7 +94,7 @@ class PreparedQueryResultAdapter(private val returnType: XType, private val quer
                         returnType.asTypeName(),
                         "%L.%L()",
                         stmtQueryVal,
-                        stmtMethod
+                        stmtMethod,
                     )
                     addStatement("%N.setTransactionSuccessful()", dbProperty)
                     addStatement("return %L", resultVar)
@@ -137,7 +137,7 @@ class PreparedQueryResultAdapter(private val returnType: XType, private val quer
                 addStatement(
                     "$returnPrefix%M(%L)",
                     RoomTypeNames.CONNECTION_UTIL.packageMember(returnFunctionName),
-                    connectionVar
+                    connectionVar,
                 )
             }
         }

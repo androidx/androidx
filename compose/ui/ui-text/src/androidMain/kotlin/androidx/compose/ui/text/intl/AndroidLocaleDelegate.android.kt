@@ -37,7 +37,7 @@ internal class AndroidLocaleDelegateAPI23 : PlatformLocaleDelegate {
                 TAG,
                 "The language tag $languageTag is not well-formed. Locale is resolved " +
                     "to Undetermined. Note that underscore '_' is not a valid subtags delimiter and " +
-                    "must be replaced with '-'."
+                    "must be replaced with '-'.",
             )
         }
         return platformLocale
@@ -78,7 +78,7 @@ internal class AndroidLocaleDelegateAPI24 : PlatformLocaleDelegate {
                 TAG,
                 "The language tag $languageTag is not well-formed. Locale is resolved " +
                     "to Undetermined. Note that underscore '_' is not a valid subtag delimiter and " +
-                    "must be replaced with '-'."
+                    "must be replaced with '-'.",
             )
         }
         return platformLocale

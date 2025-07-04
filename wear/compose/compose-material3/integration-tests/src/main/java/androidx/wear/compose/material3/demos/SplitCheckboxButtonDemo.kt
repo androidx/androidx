@@ -45,14 +45,14 @@ fun SplitCheckboxButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
-                secondary = "Monday"
+                secondary = "Monday",
             )
         }
         item {
             DemoSplitCheckboxButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary label with at most three lines of content "
+                primary = "Primary label with at most three lines of content ",
             )
         }
         item {
@@ -60,7 +60,7 @@ fun SplitCheckboxButtonDemo() {
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary label with at most three lines of content",
-                secondary = "Secondary label with at most two lines of text"
+                secondary = "Secondary label with at most two lines of text",
             )
         }
         item {
@@ -78,7 +78,7 @@ fun SplitCheckboxButtonDemo() {
                     enabled = false,
                     initiallyChecked = initiallyChecked,
                     primary = "Primary label",
-                    secondary = "Secondary label"
+                    secondary = "Secondary label",
                 )
             }
         }
@@ -91,7 +91,7 @@ private fun DemoSplitCheckboxButton(
     initiallyChecked: Boolean,
     primary: String = "Primary label",
     primaryMaxLines: Int? = null,
-    secondary: String? = null
+    secondary: String? = null,
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
@@ -110,17 +110,9 @@ private fun DemoSplitCheckboxButton(
             Text(
                 primary,
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines
+                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines,
             )
         },
-        secondaryLabel =
-            secondary?.let {
-                {
-                    Text(
-                        secondary,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            },
+        secondaryLabel = secondary?.let { { Text(secondary, modifier = Modifier.fillMaxWidth()) } },
     )
 }

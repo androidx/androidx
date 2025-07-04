@@ -80,7 +80,7 @@ internal class KspFieldElement(
                 env = env,
                 field = this,
                 accessor = accessor,
-                isSyntheticStatic = false
+                isSyntheticStatic = false,
             )
         }
     }
@@ -97,13 +97,10 @@ internal class KspFieldElement(
         check(container is KspType?)
         return env.wrap(
                 originatingReference = declaration.type,
-                ksType = declaration.typeAsMemberOf(container?.ksType)
+                ksType = declaration.typeAsMemberOf(container?.ksType),
             )
             .copyWithScope(
-                KSTypeVarianceResolverScope.PropertyType(
-                    field = this,
-                    asMemberOf = container,
-                )
+                KSTypeVarianceResolverScope.PropertyType(field = this, asMemberOf = container)
             )
     }
 

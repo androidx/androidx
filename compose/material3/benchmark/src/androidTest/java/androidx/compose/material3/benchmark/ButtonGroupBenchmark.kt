@@ -16,11 +16,9 @@
 
 package androidx.compose.material3.benchmark
 
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
@@ -50,9 +48,9 @@ class ButtonGroupBenchmark {
 internal class ButtonGroupTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        ButtonGroup {
+        ButtonGroup(overflowIndicator = {}) {
             val options = listOf("A", "B", "C")
-            options.fastForEach { label -> Button(onClick = {}) { Text(label) } }
+            options.fastForEach { label -> clickableItem(onClick = {}, label = label) }
         }
     }
 

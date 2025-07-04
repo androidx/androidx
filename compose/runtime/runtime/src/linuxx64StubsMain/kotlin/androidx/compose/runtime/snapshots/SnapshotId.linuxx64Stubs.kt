@@ -85,6 +85,7 @@ internal actual class SnapshotIdArrayBuilder actual constructor(array: SnapshotI
     actual fun toArray(): SnapshotIdArray? = implementedInJetBrainsFork()
 }
 
+@Suppress("NOTHING_TO_INLINE")
 internal actual inline fun snapshotIdArrayOf(id: SnapshotId): SnapshotIdArray =
     implementedInJetBrainsFork()
 

@@ -167,6 +167,11 @@ public class CameraQuirks {
                         cameraCharacteristicsCompat))) {
             quirks.add(new CaptureSessionStuckWhenCreatingBeforeClosingCameraQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(
+                AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk.class,
+                AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk.load())) {
+            quirks.add(new AbnormalStreamWhenImageAnalysisBindWithTemplateRecordQuirk());
+        }
 
         Quirks cameraQuirks = new Quirks(quirks);
         Logger.d(TAG, "camera2 CameraQuirks = " + Quirks.toString(cameraQuirks));

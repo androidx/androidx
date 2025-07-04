@@ -102,6 +102,7 @@ public class ShortcutAdapter {
      * published. i.e. Any shortcut returned from queries toward
      * {@link androidx.core.content.pm.ShortcutManagerCompat} would not carry any document at all.
      *
+     * @param context the context used to provide the package and resources
      * @param document a document object annotated with
      *                 {@link androidx.appsearch.annotation.Document} that carries structured
      *                 data in a pre-defined format.

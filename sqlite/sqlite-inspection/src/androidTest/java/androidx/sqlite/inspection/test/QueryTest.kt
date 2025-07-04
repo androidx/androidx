@@ -55,7 +55,7 @@ class QueryTest {
             Column("nu", "NUMERIC"),
             Column("i", "INTEGER"),
             Column("r", "REAL"),
-            Column("b", "BLOB")
+            Column("b", "BLOB"),
         )
 
     private val table2: Table = Table("table2", Column("id", "INTEGER"), Column("name", "TEXT"))
@@ -74,7 +74,7 @@ class QueryTest {
                 table2 to arrayOf("1", "'A'"),
                 table2 to arrayOf("2", "'B'"),
                 table2 to arrayOf("3", "'C'"),
-                table2 to arrayOf("4", "'D'")
+                table2 to arrayOf("4", "'D'"),
             )
 
         val query = "select * from ${table1.name}"
@@ -86,7 +86,7 @@ class QueryTest {
                 listOf("500.0", 500, 500, 500.0, 500.0), // text|integer|integer|float|float
                 listOf("500", 500, 500, 500.0, 500), // text|integer|integer|float|integer
                 listOf(*repeat5(arrayOf<Any?>(5.toByte(), 0.toByte()))), // blob|blob|blob|blob|blob
-                listOf(*repeat5<Any?>(null)) // null|null|null|null|null
+                listOf(*repeat5<Any?>(null)), // null|null|null|null|null
             )
 
         val expectedTypes =
@@ -96,7 +96,7 @@ class QueryTest {
                 listOf("text", "integer", "integer", "float", "float"),
                 listOf("text", "integer", "integer", "float", "integer"),
                 listOf("blob", "blob", "blob", "blob", "blob"),
-                listOf("null", "null", "null", "null", "null")
+                listOf("null", "null", "null", "null", "null"),
             )
 
         val expectedColumnNames = table1.columns.map { it.name }
@@ -107,7 +107,7 @@ class QueryTest {
             query,
             expectedValues,
             expectedTypes,
-            expectedColumnNames
+            expectedColumnNames,
         )
     }
 
@@ -176,12 +176,12 @@ class QueryTest {
                 listOf(
                     table2 to arrayOf("1", "'A'"),
                     table2 to arrayOf("2", "'B'"),
-                    table2 to arrayOf("3", "'C'")
+                    table2 to arrayOf("3", "'C'"),
                 ),
             query = "select count(*) from (select * from table2 /* comment */)",
             expectedValues = listOf(listOf(3)),
             expectedTypes = listOf(listOf("integer")),
-            expectedColumnNames = listOf("count(*)")
+            expectedColumnNames = listOf("count(*)"),
         )
     }
 
@@ -252,7 +252,7 @@ class QueryTest {
                 listOf(
                     table2 to arrayOf("1", "'A'"),
                     table2 to arrayOf("2", "'B'"),
-                    table2 to arrayOf("3", "'C'")
+                    table2 to arrayOf("3", "'C'"),
                 ),
             query =
                 "select * from " +
@@ -261,7 +261,7 @@ class QueryTest {
             queryParams = listOf("1", "3"),
             expectedValues = listOf(listOf(2, "B")),
             expectedTypes = listOf(listOf("integer", "text")),
-            expectedColumnNames = table2.columns.map { it.name }
+            expectedColumnNames = table2.columns.map { it.name },
         )
     }
 
@@ -273,7 +273,7 @@ class QueryTest {
                 listOf(
                     table2 to arrayOf("1", "'A'"),
                     table2 to arrayOf("2", "'B'"),
-                    table2 to arrayOf("3", "'C'")
+                    table2 to arrayOf("3", "'C'"),
                 ),
             query = "select ? as col from ${table2.name}",
             queryParams = listOf("id"),
@@ -281,7 +281,7 @@ class QueryTest {
             // binding ? as Strings.
             expectedValues = listOf(listOf("id"), listOf("id"), listOf("id")),
             expectedTypes = listOf(listOf("text"), listOf("text"), listOf("text")),
-            expectedColumnNames = listOf("col")
+            expectedColumnNames = listOf("col"),
         )
     }
 
@@ -301,7 +301,7 @@ class QueryTest {
                 listOf("null", "null"),
                 listOf("float", "null"),
                 listOf("text", "null"),
-                listOf("null", "text")
+                listOf("null", "text"),
             )
 
         // when
@@ -330,7 +330,7 @@ class QueryTest {
             query = "select * from ${table2.name} where 1=0", // impossible condition
             expectedValues = emptyList(),
             expectedTypes = emptyList(),
-            expectedColumnNames = table2.columns.map { it.name }
+            expectedColumnNames = table2.columns.map { it.name },
         )
     }
 
@@ -342,13 +342,13 @@ class QueryTest {
                 listOf(
                     table2 to arrayOf("1", "'A'"),
                     table2 to arrayOf("null", "null"),
-                    table2 to arrayOf("null", "'C'")
+                    table2 to arrayOf("null", "'C'"),
                 ),
             query = "select * from ${table2.name}",
             expectedValues = listOf(listOf(1, "A"), listOf(null, null), listOf(null, "C")),
             expectedTypes =
                 listOf(listOf("integer", "text"), listOf("null", "null"), listOf("null", "text")),
-            expectedColumnNames = table2.columns.map { it.name }
+            expectedColumnNames = table2.columns.map { it.name },
         )
     }
 
@@ -385,7 +385,7 @@ class QueryTest {
                     createQueryCommand(
                         dbId,
                         "select * from table1 LIMIT 999999 OFFSET $recordCount",
-                        responseSizeLimitHint = responseSizeLimitHint
+                        responseSizeLimitHint = responseSizeLimitHint,
                     )
                 )
             assertThat(response.hasErrorOccurred()).isFalse()
@@ -414,7 +414,7 @@ class QueryTest {
                 table1 to repeat5("'abc'"),
                 table1 to repeat5("'xyz'"),
                 table2 to arrayOf("1", "'A'"),
-                table2 to arrayOf("2", "'B'")
+                table2 to arrayOf("2", "'B'"),
             )
 
         // query construction
@@ -438,7 +438,7 @@ class QueryTest {
             query,
             expectedValues,
             expectedTypes,
-            expectedColumnNames = columns1
+            expectedColumnNames = columns1,
         )
     }
 
@@ -449,7 +449,7 @@ class QueryTest {
         expectedValues: List<List<Any?>>,
         expectedTypes: List<List<String>>,
         expectedColumnNames: List<String>,
-        queryParams: List<String>? = null
+        queryParams: List<String>? = null,
     ) = runBlocking {
         // given
         val databaseInstance = database.createInstance(temporaryFolder)
@@ -590,7 +590,7 @@ class QueryTest {
     private fun <T> test_value64(
         value: T,
         fromCursor: (Cursor) -> T,
-        fromCellValue: (CellValue) -> T
+        fromCellValue: (CellValue) -> T,
     ) = runBlocking {
         val db = Database("db1", Table("t1", Column("c1", "INT"))).createInstance(temporaryFolder)
         testEnvironment.registerAlreadyOpenDatabases(listOf(db))
@@ -621,7 +621,7 @@ class QueryTest {
             listOf(
                 Database("ignored_1").createInstance(temporaryFolder), // extra testing value
                 databaseInstance,
-                Database("ignored_2").createInstance(temporaryFolder) // extra testing value
+                Database("ignored_2").createInstance(temporaryFolder), // extra testing value
             )
         )
         testEnvironment.sendCommand(createTrackDatabasesCommand())
@@ -631,7 +631,7 @@ class QueryTest {
     private suspend fun issueQuery(
         databaseId: Int,
         command: String,
-        queryParams: List<String?>? = null
+        queryParams: List<String?>? = null,
     ): QueryResponse = testEnvironment.issueQuery(databaseId, command, queryParams)
 
     private suspend fun querySchema(databaseId: Int): List<Table> =

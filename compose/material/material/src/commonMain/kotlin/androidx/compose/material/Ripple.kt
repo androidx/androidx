@@ -74,7 +74,7 @@ import androidx.compose.ui.unit.Dp
 fun ripple(
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
-    color: Color = Color.Unspecified
+    color: Color = Color.Unspecified,
 ): IndicationNodeFactory {
     return if (radius == Dp.Unspecified && color == Color.Unspecified) {
         if (bounded) return DefaultBoundedRipple else DefaultUnboundedRipple
@@ -120,7 +120,7 @@ fun ripple(
 fun ripple(
     color: ColorProducer,
     bounded: Boolean = true,
-    radius: Dp = Dp.Unspecified
+    radius: Dp = Dp.Unspecified,
 ): IndicationNodeFactory {
     return RippleNodeFactory(bounded, radius, color)
 }
@@ -203,7 +203,7 @@ val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration?> =
 @Immutable
 class RippleConfiguration(
     val color: Color = Color.Unspecified,
-    val rippleAlpha: RippleAlpha? = null
+    val rippleAlpha: RippleAlpha? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -232,12 +232,12 @@ private constructor(
     private val bounded: Boolean,
     private val radius: Dp,
     private val colorProducer: ColorProducer?,
-    private val color: Color
+    private val color: Color,
 ) : IndicationNodeFactory {
     constructor(
         bounded: Boolean,
         radius: Dp,
-        colorProducer: ColorProducer
+        colorProducer: ColorProducer,
     ) : this(bounded, radius, colorProducer, Color.Unspecified)
 
     constructor(bounded: Boolean, radius: Dp, color: Color) : this(bounded, radius, null, color)
@@ -312,7 +312,7 @@ private class DelegatingThemeAwareRippleNode(
                 } else {
                     RippleDefaults.rippleColor(
                         contentColor = currentValueOf(LocalContentColor),
-                        lightTheme = currentValueOf(LocalColors).isLight
+                        lightTheme = currentValueOf(LocalColors).isLight,
                     )
                 }
             }
@@ -324,7 +324,7 @@ private class DelegatingThemeAwareRippleNode(
             rippleConfiguration?.rippleAlpha
                 ?: RippleDefaults.rippleAlpha(
                     contentColor = currentValueOf(LocalContentColor),
-                    lightTheme = currentValueOf(LocalColors).isLight
+                    lightTheme = currentValueOf(LocalColors).isLight,
                 )
         }
 
@@ -335,7 +335,7 @@ private class DelegatingThemeAwareRippleNode(
                     bounded,
                     radius,
                     calculateColor,
-                    calculateRippleAlpha
+                    calculateRippleAlpha,
                 )
             )
     }
@@ -366,7 +366,7 @@ private val LightThemeHighContrastRippleAlpha =
         pressedAlpha = 0.24f,
         focusedAlpha = 0.24f,
         draggedAlpha = 0.16f,
-        hoveredAlpha = 0.08f
+        hoveredAlpha = 0.08f,
     )
 
 /**
@@ -383,7 +383,7 @@ private val LightThemeLowContrastRippleAlpha =
         pressedAlpha = 0.12f,
         focusedAlpha = 0.12f,
         draggedAlpha = 0.08f,
-        hoveredAlpha = 0.04f
+        hoveredAlpha = 0.04f,
     )
 
 /** Alpha levels for all content in a dark theme. */
@@ -392,5 +392,5 @@ private val DarkThemeRippleAlpha =
         pressedAlpha = 0.10f,
         focusedAlpha = 0.12f,
         draggedAlpha = 0.08f,
-        hoveredAlpha = 0.04f
+        hoveredAlpha = 0.04f,
     )

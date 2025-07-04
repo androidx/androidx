@@ -52,9 +52,9 @@ import androidx.work.impl.utils.unregisterNetworkCallbackCompat
  * https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/job/controllers/ConnectivityController.java}
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun NetworkStateTracker(
+public fun NetworkStateTracker(
     context: Context,
-    taskExecutor: TaskExecutor
+    taskExecutor: TaskExecutor,
 ): ConstraintTracker<NetworkState> {
     // Based on requiring ConnectivityManager#registerDefaultNetworkCallback - added in API 24.
     return if (Build.VERSION.SDK_INT >= 24) {
@@ -85,14 +85,26 @@ internal val ConnectivityManager.isActiveNetworkValidated: Boolean
 @Suppress("DEPRECATION")
 internal val ConnectivityManager.activeNetworkState: NetworkState
     get() {
-        // Use getActiveNetworkInfo() instead of getNetworkInfo(network) because it can detect VPNs.
-        val info = activeNetworkInfo
-        val isConnected = info != null && info.isConnected
-        val isValidated = isActiveNetworkValidated
-        val isMetered = ConnectivityManagerCompat.isActiveNetworkMetered(this)
-        val isNotRoaming = info != null && !info.isRoaming
-        return NetworkState(isConnected, isValidated, isMetered, isNotRoaming)
-    } // b/163342798
+        try {
+            // Use getActiveNetworkInfo() instead of getNetworkInfo(network) because it can detect
+            // VPNs.
+            val info = activeNetworkInfo
+            val isConnected = info != null && info.isConnected
+            val isValidated = isActiveNetworkValidated
+            val isMetered = ConnectivityManagerCompat.isActiveNetworkMetered(this)
+            val isNotRoaming = info != null && !info.isRoaming
+            return NetworkState(isConnected, isValidated, isMetered, isNotRoaming)
+        } catch (exception: SecurityException) {
+            // b/406629536 and b/163342798
+            Logger.get().error(TAG, "Unable to get active network state", exception)
+            return NetworkState(
+                isConnected = false,
+                isValidated = false,
+                isMetered = false,
+                isNotRoaming = true,
+            )
+        }
+    }
 
 @get:RequiresApi(28)
 internal val NetworkCapabilities.activeNetworkState: NetworkState
@@ -138,7 +150,7 @@ internal class NetworkStateTracker24(context: Context, taskExecutor: TaskExecuto
         object : NetworkCallback() {
             override fun onCapabilitiesChanged(
                 network: Network,
-                capabilities: NetworkCapabilities
+                capabilities: NetworkCapabilities,
             ) {
                 // The Network parameter is unreliable when a VPN app is running - use active
                 // network.

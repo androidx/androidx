@@ -26,7 +26,7 @@ internal class CompositionMetric(private val composable: String) : TraceMetric()
     @OptIn(ExperimentalMetricApi::class)
     override fun getMeasurements(
         captureInfo: CaptureInfo,
-        traceSession: TraceProcessor.Session
+        traceSession: TraceProcessor.Session,
     ): List<Measurement> {
         val shortName = composable.substringAfterLast(".")
 
@@ -48,9 +48,9 @@ internal class CompositionMetric(private val composable: String) : TraceMetric()
         return listOf(
             Measurement(
                 "${shortName}RecomposeDurMs",
-                durationsNs.sumOf { it }.nanoseconds.toDouble(DurationUnit.MILLISECONDS)
+                durationsNs.sumOf { it }.nanoseconds.toDouble(DurationUnit.MILLISECONDS),
             ),
-            Measurement("${shortName}RecomposeCount", durationsNs.count().toDouble())
+            Measurement("${shortName}RecomposeCount", durationsNs.count().toDouble()),
         )
     }
 }

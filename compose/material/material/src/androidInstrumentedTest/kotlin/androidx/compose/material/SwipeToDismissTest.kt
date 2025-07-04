@@ -61,7 +61,7 @@ class SwipeToDismissTest {
             SwipeToDismiss(
                 state = rememberDismissState(DismissValue.Default),
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) },
             )
         }
 
@@ -74,7 +74,7 @@ class SwipeToDismissTest {
             SwipeToDismiss(
                 state = rememberDismissState(DismissValue.DismissedToEnd),
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) },
             )
         }
 
@@ -88,7 +88,7 @@ class SwipeToDismissTest {
             SwipeToDismiss(
                 state = rememberDismissState(DismissValue.DismissedToStart),
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) },
             )
         }
 
@@ -102,7 +102,7 @@ class SwipeToDismissTest {
             SwipeToDismiss(
                 state = rememberDismissState(DismissValue.Default),
                 background = { Box(Modifier.fillMaxSize().testTag(backgroundTag)) },
-                dismissContent = { Box(Modifier.size(100.dp)) }
+                dismissContent = { Box(Modifier.size(100.dp)) },
             )
         }
 
@@ -118,7 +118,7 @@ class SwipeToDismissTest {
             SwipeToDismiss(
                 state = dismissState,
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+                dismissContent = { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) },
             )
         }
 
@@ -161,7 +161,7 @@ class SwipeToDismissTest {
                 state = dismissState,
                 directions = setOf(DismissDirection.StartToEnd),
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize()) }
+                dismissContent = { Box(Modifier.fillMaxSize()) },
             )
         }
 
@@ -184,7 +184,7 @@ class SwipeToDismissTest {
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize()) }
+                dismissContent = { Box(Modifier.fillMaxSize()) },
             )
         }
 
@@ -208,7 +208,7 @@ class SwipeToDismissTest {
                     state = dismissState,
                     directions = setOf(DismissDirection.StartToEnd),
                     background = {},
-                    dismissContent = { Box(Modifier.fillMaxSize()) }
+                    dismissContent = { Box(Modifier.fillMaxSize()) },
                 )
             }
         }
@@ -233,7 +233,7 @@ class SwipeToDismissTest {
                     state = dismissState,
                     directions = setOf(DismissDirection.EndToStart),
                     background = {},
-                    dismissContent = { Box(Modifier.fillMaxSize()) }
+                    dismissContent = { Box(Modifier.fillMaxSize()) },
                 )
             }
         }
@@ -257,7 +257,7 @@ class SwipeToDismissTest {
                 state = dismissState,
                 directions = setOf(),
                 background = {},
-                dismissContent = { Box(Modifier.fillMaxSize()) }
+                dismissContent = { Box(Modifier.fillMaxSize()) },
             )
         }
 

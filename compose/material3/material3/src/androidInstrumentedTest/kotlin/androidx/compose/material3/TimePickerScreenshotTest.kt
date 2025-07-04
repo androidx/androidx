@@ -18,8 +18,10 @@ package androidx.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -28,6 +30,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -120,6 +123,52 @@ class TimePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
 
         rule.assertAgainstGolden("timePicker_24h_rtl_${scheme.name}")
+    }
+
+    @Test
+    fun clockFace_24h_mid() {
+        val state =
+            AnalogTimePickerState(
+                TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = true)
+            )
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(
+                modifier = Modifier.testTag(TestTag).size(340.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                ClockFace(
+                    modifier = Modifier.then(ClockFaceSizeModifier()),
+                    state = state,
+                    colors = TimePickerDefaults.colors(),
+                    autoSwitchToMinute = true,
+                )
+            }
+        }
+
+        rule.assertAgainstGolden("timePicker_24h_mid${scheme.name}")
+    }
+
+    @Test
+    fun clockFace_24h_min() {
+        val state =
+            AnalogTimePickerState(
+                TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = true)
+            )
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(
+                modifier = Modifier.testTag(TestTag).size(300.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                ClockFace(
+                    modifier = Modifier.then(ClockFaceSizeModifier()),
+                    state = state,
+                    colors = TimePickerDefaults.colors(),
+                    autoSwitchToMinute = true,
+                )
+            }
+        }
+
+        rule.assertAgainstGolden("timePicker_24h_min${scheme.name}")
     }
 
     private fun ComposeContentTestRule.assertAgainstGolden(goldenName: String) {

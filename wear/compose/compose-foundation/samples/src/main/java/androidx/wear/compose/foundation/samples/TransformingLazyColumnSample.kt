@@ -22,30 +22,35 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.LocalTransformingLazyColumnItemScope
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material.Text
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 @Sampled
 @Preview
@@ -61,14 +66,14 @@ fun TransformingLazyColumnAnimateItemSample() {
         TransformingLazyColumn(
             state = state,
             contentPadding = PaddingValues(5.dp),
-            modifier = Modifier.background(Color.Black)
+            modifier = Modifier.background(Color.Black).fillMaxSize(),
         ) {
             items(list.size, key = { list[it] }) {
                 Text(
                     "Item ${list[it]}",
                     Modifier.animateItem().clickable {
                         list = list.filter { elem -> elem != list[it] }
-                    }
+                    },
                 )
             }
         }
@@ -76,13 +81,13 @@ fun TransformingLazyColumnAnimateItemSample() {
             "+",
             Modifier.align(Alignment.CenterStart).padding(horizontal = 5.dp).clickable {
                 if (list.size < 25) list = list + "${next++}"
-            }
+            },
         )
         Text(
             "S",
             Modifier.align(Alignment.CenterEnd).padding(horizontal = 5.dp).clickable {
                 list = list.shuffled()
-            }
+            },
         )
     }
 }
@@ -106,36 +111,38 @@ fun TransformingLazyColumnLettersSample() {
             Text(
                 alphabet[index],
                 modifier =
-                    Modifier.transformedHeight { originalHeight, scrollProgression ->
-                            if (scrollProgression.topOffsetFraction < 0f)
-                                (originalHeight * scrollProgression.bottomOffsetFraction /
-                                        (scrollProgression.bottomOffsetFraction -
-                                            scrollProgression.topOffsetFraction))
+                    Modifier.transformedHeight { measuredHeight, scrollProgress ->
+                            if (scrollProgress.topOffsetFraction < 0f)
+                                (measuredHeight * scrollProgress.bottomOffsetFraction /
+                                        (scrollProgress.bottomOffsetFraction -
+                                            scrollProgress.topOffsetFraction))
                                     .roundToInt()
-                            else originalHeight
+                            else measuredHeight
                         }
                         .graphicsLayer {
-                            val itemProgression = scrollProgress ?: return@graphicsLayer
-                            rotationY =
-                                -180f +
-                                    (itemProgression.topOffsetFraction +
-                                        itemProgression.bottomOffsetFraction) * 180f
-                            val scale =
-                                (itemProgression.bottomOffsetFraction -
-                                    max(itemProgression.topOffsetFraction, 0f)) /
-                                    (itemProgression.bottomOffsetFraction -
-                                        itemProgression.topOffsetFraction)
-                            scaleY = scale
-                            translationY = size.height * (scale - 1f) / 2f
+                            with(scrollProgress) {
+                                if (isUnspecified) {
+                                    return@graphicsLayer
+                                }
+                                rotationY =
+                                    -180f + (topOffsetFraction + bottomOffsetFraction) * 180f
+                                val scale =
+                                    (bottomOffsetFraction - max(topOffsetFraction, 0f)) /
+                                        (bottomOffsetFraction - topOffsetFraction)
+                                scaleY = scale
+                                translationY = size.height * (scale - 1f) / 2f
+                            }
                         }
                         .drawBehind {
-                            val colorProgress =
-                                scrollProgress?.let {
-                                    (it.topOffsetFraction + it.bottomOffsetFraction) / 2f
-                                } ?: 0f
-                            drawCircle(rainbowColor(colorProgress))
+                            with(scrollProgress) {
+                                if (isUnspecified) {
+                                    return@drawBehind
+                                }
+                                val colorProgress = (topOffsetFraction + bottomOffsetFraction) / 2f
+                                drawCircle(rainbowColor(colorProgress))
+                            }
                         }
-                        .padding(20.dp)
+                        .padding(20.dp),
             )
         }
     }
@@ -145,86 +152,73 @@ fun TransformingLazyColumnLettersSample() {
 @Composable
 fun TransformingLazyColumnRectangularBoxesSample() {
     TransformingLazyColumn {
-        items(count = 10) {
+        items(count = 100) {
             Text(
                 "Item $it",
                 modifier =
-                    Modifier.background(Color.Gray).padding(10.dp).transformedHeight {
-                        originalHeight,
-                        _ ->
-                        originalHeight / 2
-                    }
+                    Modifier.transformedHeight { originalHeight, _ -> originalHeight / 2 }
+                        .graphicsLayer {
+                            clip = true
+                            shape =
+                                object : Shape {
+                                    override fun createOutline(
+                                        size: Size,
+                                        layoutDirection: LayoutDirection,
+                                        density: Density,
+                                    ): Outline =
+                                        RectangleShape.createOutline(
+                                            size.copy(height = size.height / 2),
+                                            layoutDirection,
+                                            density,
+                                        )
+                                }
+                        }
+                        .background(Color.Gray)
+                        .padding(10.dp),
             )
         }
     }
 }
 
+@Sampled
 @Preview
-@Sampled
 @Composable
-fun TransformingLazyColumnImplicitSample() {
-    fun rainbowColor(progress: Float): Color {
-        val hue = progress * 360f
-        val saturation = 1f
-        val value = 1f
+fun TransformingLazyColumnScrollToItemSample() {
+    val state =
+        rememberTransformingLazyColumnState(
+            // Customize initial scroll position of the TransformingLazyColumn.
+            initialAnchorItemIndex = 10
+        )
+    val coroutineScope = rememberCoroutineScope()
 
-        return Color(android.graphics.Color.HSVToColor(floatArrayOf(hue, saturation, value)))
-    }
-
-    // Create a Box that automatically transform when in a TransformingLazyColumn
-    val implicitTransformingBox: @Composable (String) -> Unit = { text ->
-        val itemScope = LocalTransformingLazyColumnItemScope.current
-        Box(
-            Modifier.height(30.dp)
-                .then(
-                    itemScope?.let {
-                        with(it) {
-                            Modifier.graphicsLayer {
-                                    val itemProgression = scrollProgress ?: return@graphicsLayer
-                                    val scale =
-                                        (itemProgression.bottomOffsetFraction -
-                                            max(itemProgression.topOffsetFraction, 0f)) /
-                                            (itemProgression.bottomOffsetFraction -
-                                                itemProgression.topOffsetFraction)
-                                    scaleX = scale
-                                }
-                                .drawBehind {
-                                    val colorProgress =
-                                        scrollProgress?.let {
-                                            (it.topOffsetFraction + it.bottomOffsetFraction) / 2f
-                                        } ?: 0f
-                                    drawRect(rainbowColor(colorProgress))
-                                }
+    TransformingLazyColumn(
+        modifier = Modifier.background(Color.Black),
+        state = state,
+        contentPadding = PaddingValues(vertical = 20.dp),
+    ) {
+        items(count = 20) {
+            Text(
+                "Item $it",
+                modifier =
+                    Modifier.drawBehind {
+                            val isCentered =
+                                it == state.anchorItemIndex &&
+                                    abs(state.anchorItemScrollOffset) < size.height
+                            drawRect(if (isCentered) Color.Green else Color.DarkGray)
                         }
-                    } ?: Modifier.background(Color.Green)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            BasicText(text)
+                        .padding(5.dp)
+                        .clickable { coroutineScope.launch { state.scrollToItem(it) } },
+            )
         }
-    }
-    TransformingLazyColumn {
-        items(count = 10) { implicitTransformingBox("Before #$it") }
-        // The middle 3 boxes will not auto-transform
-        items(count = 3) { TransformExclusion { implicitTransformingBox("Middle #$it") } }
-        items(count = 10) { implicitTransformingBox("After #$it") }
-    }
-}
 
-@Sampled
-@Composable
-fun UsingListAnchorItemPositionInCompositionSample() {
-    val columnState = rememberTransformingLazyColumnState()
-    val isAtCenter by remember {
-        derivedStateOf {
-            columnState.anchorItemIndex == 0 && columnState.anchorItemScrollOffset == 0
+        item {
+            Text(
+                "Scroll to top",
+                modifier =
+                    Modifier.clickable { coroutineScope.launch { state.animateScrollToItem(0) } },
+            )
         }
     }
 
-    @Composable
-    fun ScrollToTopButton(@Suppress("UNUSED_PARAMETER") columnState: TransformingLazyColumnState) {}
-
-    if (!isAtCenter) {
-        ScrollToTopButton(columnState)
-    }
+    LaunchedEffect(state.anchorItemIndex) { println("Anchor item index: ${state.anchorItemIndex}") }
 }

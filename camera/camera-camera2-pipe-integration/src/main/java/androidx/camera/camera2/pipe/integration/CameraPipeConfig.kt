@@ -37,16 +37,15 @@ public class CameraPipeConfig private constructor() {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun from(
-            sharedCameraPipe: CameraPipe? = null,
             sharedAppContext: Context? = null,
-            sharedThreadConfig: CameraThreadConfig? = null
+            sharedThreadConfig: CameraThreadConfig? = null,
         ): CameraXConfig {
-            val cameraFactoryProvider =
-                CameraFactoryProvider(sharedCameraPipe, sharedAppContext, sharedThreadConfig)
+            val cameraFactoryProvider = CameraFactoryProvider(sharedAppContext, sharedThreadConfig)
             return CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)
                 .setDeviceSurfaceManagerProvider(::CameraSurfaceAdapter)
                 .setUseCaseConfigFactoryProvider(::CameraUseCaseAdapter)
+                .setConfigImplType(CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_PIPE)
                 .build()
         }
     }

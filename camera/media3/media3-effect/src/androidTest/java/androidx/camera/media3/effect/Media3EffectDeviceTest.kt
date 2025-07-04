@@ -17,17 +17,34 @@
 package androidx.camera.media3.effect
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Size
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.Threads.runOnMainSync
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.media3.effect.Contrast
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.junit.Assume.assumeTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,16 +54,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class Media3EffectDeviceTest {
+    val context: Context = ApplicationProvider.getApplicationContext()
+    val fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
+
+    @get:Rule
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(CameraUtil.PreTestCameraIdList())
 
     @Test
     fun closeAClosedEffect_throwsException() {
         // Arrange.
         val media3Effect =
             Media3Effect(
-                context = ApplicationProvider.getApplicationContext(),
+                context = context,
                 targets = CameraEffect.PREVIEW,
                 executor = mainThreadExecutor(),
-                errorListener = { throw it }
+                errorListener = { throw it },
             )
         var exception: Exception? = null
 
@@ -69,10 +92,10 @@ class Media3EffectDeviceTest {
         // Arrange: create a Media3Effect and a SurfaceRequest.
         val media3Effect =
             Media3Effect(
-                context = ApplicationProvider.getApplicationContext(),
+                context = context,
                 targets = CameraEffect.PREVIEW,
                 executor = mainThreadExecutor(),
-                errorListener = { throw it }
+                errorListener = { throw it },
             )
         val surfaceRequest = SurfaceRequest(Size(10, 10), FakeCamera()) {}
 
@@ -90,5 +113,82 @@ class Media3EffectDeviceTest {
             exception = e
         }
         assertThat(exception!!.message).contains("Surface request will not complete.")
+    }
+
+    @Test
+    fun addMedia3EffectWithoutAnyEffect_previewCanWork(): Unit = runBlocking {
+        val media3Effect =
+            Media3Effect(
+                context = context,
+                targets = CameraEffect.PREVIEW,
+                executor = mainThreadExecutor(),
+                errorListener = { throw it },
+            )
+        verifyPreviewWithMedia3Effect(media3Effect)
+    }
+
+    @Test
+    fun addMedia3EffectWithEffect_previewCanWork(): Unit = runBlocking {
+        val media3Effect =
+            Media3Effect(
+                context = context,
+                targets = CameraEffect.PREVIEW,
+                executor = mainThreadExecutor(),
+                errorListener = { throw it },
+            )
+        withContext(Dispatchers.Main) { media3Effect.setEffects(listOf(Contrast(0.5f))) }
+        verifyPreviewWithMedia3Effect(media3Effect)
+    }
+
+    @Test
+    fun addMedia3Effect_setEffectTwice_previewCanWork(): Unit = runBlocking {
+        val media3Effect =
+            Media3Effect(
+                context = context,
+                targets = CameraEffect.PREVIEW,
+                executor = mainThreadExecutor(),
+                errorListener = { throw it },
+            )
+
+        // Set Effect first time
+        withContext(Dispatchers.Main) { media3Effect.setEffects(listOf(Contrast(0.5f))) }
+
+        var frameLatch: CountDownLatch? = null
+        verifyPreviewWithMedia3Effect(media3Effect, onFrameAvailable = { frameLatch?.countDown() })
+
+        // Set Effect second time
+        withContext(Dispatchers.Main) { media3Effect.setEffects(listOf(Contrast(0.7f))) }
+
+        // Make sure the preview is still streaming.
+        frameLatch = CountDownLatch(5)
+        assertThat(frameLatch.await(10, TimeUnit.SECONDS)).isTrue()
+    }
+
+    suspend fun verifyPreviewWithMedia3Effect(
+        media3Effect: Media3Effect,
+        onFrameAvailable: (() -> Unit)? = null,
+    ) {
+        // Arrange.
+        val cameraProvider = ProcessCameraProvider.awaitInstance(context)
+        assumeTrue(cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA))
+        // Act: bindToLifecycle with the media3Effect
+        val frameLatch = CountDownLatch(5)
+        withContext(Dispatchers.Main) {
+            val preview = Preview.Builder().build()
+            preview.surfaceProvider =
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider { surfaceTexture ->
+                    frameLatch.countDown()
+                    onFrameAvailable?.invoke()
+                }
+
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                UseCaseGroup.Builder().addUseCase(preview).addEffect(media3Effect).build(),
+            )
+        }
+
+        // Assert: verify if frame is coming
+        assertThat(frameLatch.await(5, TimeUnit.SECONDS)).isTrue()
     }
 }

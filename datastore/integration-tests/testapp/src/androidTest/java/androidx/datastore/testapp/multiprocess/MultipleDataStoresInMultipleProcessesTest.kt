@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-// Parcelize object is testing internal implementation of datastore-core library
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-
 package androidx.datastore.testapp.multiprocess
 
 import androidx.datastore.testapp.multiprocess.ipcActions.ReadTextAction
@@ -65,7 +62,7 @@ internal class MultipleDataStoresInMultipleProcessesTest(
 ) {
 
     companion object {
-        @Suppress("unused") // test parameters
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING", "unused") // test parameters
         @get:JvmStatic
         @get:Parameters(name = "storage_{0}_multipleProcesses={1}_sameParentFolder={2}")
         val params = buildList {
@@ -115,14 +112,14 @@ internal class MultipleDataStoresInMultipleProcessesTest(
                     filePath = file1.canonicalPath,
                     storageVariant = storageVariant,
                     hostDatastoreScope = multiProcessRule.datastoreScope,
-                    subjects = arrayOf(subject1)
+                    subjects = arrayOf(subject1),
                 )
             val datastore2 =
                 createMultiProcessTestDatastore(
                     filePath = file2.canonicalPath,
                     storageVariant = storageVariant,
                     hostDatastoreScope = multiProcessRule.datastoreScope,
-                    subjects = arrayOf(subject2)
+                    subjects = arrayOf(subject2),
                 )
             val ds1Value = datastore1.data.stateIn(multiProcessRule.datastoreScope)
             val ds2Value = datastore2.data.stateIn(multiProcessRule.datastoreScope)
@@ -213,7 +210,7 @@ internal class ObserveFileAction(
                         stoppedObserving.complete(subject, IpcUnit)
                     }
                 },
-                initialValue = FooProto.getDefaultInstance()
+                initialValue = FooProto.getDefaultInstance(),
             )
         return IpcUnit
     }
@@ -221,9 +218,7 @@ internal class ObserveFileAction(
 
 /** Asserts the value of the [remoteProcessStateFlow] by waiting it to dispatch [expectedValue]. */
 @Parcelize
-internal class AssertRemoteObservedValue(
-    private val expectedValue: String,
-) : IpcAction<IpcUnit>() {
+internal class AssertRemoteObservedValue(private val expectedValue: String) : IpcAction<IpcUnit>() {
     override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
         subject.remoteProcessStateFlow.awaitValue(expectedValue)
         return IpcUnit

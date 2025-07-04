@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"메시지 템플릿 데모"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"여기에 메시지가 들어갑니다.\n추가 텍스트는 두 번째 줄에 입력됩니다."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"짧은 메시지 템플릿 데모"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"섹션으로 구분된 항목 템플릿 데모"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"라디오 버튼 섹션"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"섹션 전환"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"행이 많은 섹션"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"그리드 항목 섹션"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"창 템플릿 데모"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"장소 목록 템플릿 데모"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"장소 둘러보기"</string>

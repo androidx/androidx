@@ -53,7 +53,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
                     it.onStatementReady(
                         indices = indexVarNames,
                         stmtVarName = stmtVarName,
-                        scope = scope
+                        scope = scope,
                     )
                 }
             } else {
@@ -81,9 +81,9 @@ class GuavaImmutableMultimapQueryResultAdapter(
                 typeName =
                     builderClassName.parametrizedBy(
                         keyTypeArg.asTypeName(),
-                        valueTypeArg.asTypeName()
+                        valueTypeArg.asTypeName(),
                     ),
-                assignExpr = XCodeBlock.of(format = "%T.builder()", immutableClassName)
+                assignExpr = XCodeBlock.of(format = "%T.builder()", immutableClassName),
             )
 
             val tmpKeyVarName = scope.getTmpVar("_key")
@@ -113,7 +113,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
             addLocalVariable(
                 name = outVarName,
                 typeName = mapType,
-                assignExpr = XCodeBlock.of(format = "%L.build()", mapVarName)
+                assignExpr = XCodeBlock.of(format = "%L.build()", mapVarName),
             )
         }
     }

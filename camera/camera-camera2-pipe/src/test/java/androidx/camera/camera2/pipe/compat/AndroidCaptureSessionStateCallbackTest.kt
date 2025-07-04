@@ -45,7 +45,7 @@ internal class AndroidCaptureSessionStateCallbackTest {
             stateCallback = stateCallback,
             lastStateCallback = previousStateCallback,
             cameraErrorListener = cameraErrorListener,
-            callbackHandler = callbackHandler
+            callbackHandler = callbackHandler,
         )
 
     @Test

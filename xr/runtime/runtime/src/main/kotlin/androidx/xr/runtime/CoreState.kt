@@ -16,13 +16,27 @@
 
 package androidx.xr.runtime
 
-import androidx.annotation.RestrictTo
 import kotlin.time.ComparableTimeMark
 
 /**
  * Represents the state of the XR system at a specific point in time.
  *
+ * Instances of this class can be accessed via the [Session.state] [StateFlow] property. This class
+ * may include extension properties provided by implementations of the [StateExtender] interface
+ * found during [Session] creation.
+ *
  * @property timeMark at which the state was computed.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public data class CoreState(val timeMark: ComparableTimeMark) {}
+public class CoreState(public val timeMark: ComparableTimeMark) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CoreState) return false
+        if (timeMark != other.timeMark) return false
+        return true
+    }
+
+    override fun hashCode(): Int = timeMark.hashCode()
+
+    override fun toString(): String = "CoreState(timeMark=$timeMark)"
+}

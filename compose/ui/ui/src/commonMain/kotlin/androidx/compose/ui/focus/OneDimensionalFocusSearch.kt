@@ -28,6 +28,7 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitChildren
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -39,7 +40,7 @@ private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 internal fun FocusTargetNode.oneDimensionalFocusSearch(
     direction: FocusDirection,
-    onFound: (FocusTargetNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean,
 ): Boolean =
     when (direction) {
         Next -> forwardFocusSearch(onFound)
@@ -104,18 +105,17 @@ private fun FocusTargetNode.backwardFocusSearch(onFound: (FocusTargetNode) -> Bo
 private fun FocusTargetNode.generateAndSearchChildren(
     focusedItem: FocusTargetNode,
     direction: FocusDirection,
-    onFound: (FocusTargetNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean,
 ): Boolean {
     // Search among the currently available children.
     if (searchChildren(focusedItem, direction, onFound)) {
         return true
     }
 
-    val focusTransactionManager = requireTransactionManager()
-    val generationBeforeSearch = focusTransactionManager.generation
+    val activeNodeBeforeSearch = requireOwner().focusOwner.activeFocusTargetNode
     // Generate more items until searchChildren() finds a result.
     return searchBeyondBounds(direction) {
-        if (generationBeforeSearch != focusTransactionManager.generation) {
+        if (activeNodeBeforeSearch !== requireOwner().focusOwner.activeFocusTargetNode) {
             // A new focus change was triggered during searchBeyondBounds.
             true
         } else {
@@ -132,7 +132,7 @@ private fun FocusTargetNode.generateAndSearchChildren(
 private fun FocusTargetNode.searchChildren(
     focusedItem: FocusTargetNode,
     direction: FocusDirection,
-    onFound: (FocusTargetNode) -> Boolean
+    onFound: (FocusTargetNode) -> Boolean,
 ): Boolean {
     check(focusState == ActiveParent) {
         "This function should only be used within a parent that has focus."

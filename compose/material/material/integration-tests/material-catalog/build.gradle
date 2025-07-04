@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,10 +32,10 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(project(":core:core"))
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:ui:ui"))
+    implementation("androidx.core:core:1.15.0")
+    implementation("androidx.compose.runtime:runtime:1.7.5")
+    implementation("androidx.compose.foundation:foundation-layout:1.7.5")
+    implementation("androidx.compose.ui:ui:1.7.5")
     implementation(project(":compose:material:material"))
     implementation(project(":compose:material:material:material-samples"))
     implementation(project(":navigation:navigation-compose"))
@@ -43,7 +43,7 @@ dependencies {
 
 androidx {
     name = "Compose Material Catalog"
-    type = LibraryType.TEST_APPLICATION
+    type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2021"
     description = "This is a project for the Compose Material Catalog."
 }

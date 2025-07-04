@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import android.graphics.Color;
 
-import androidx.test.filters.SmallTest;
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection;
 
 import org.junit.Test;
@@ -31,35 +30,55 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 /** Test for {@link SplitAttributes} */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class SplitAttributesTest {
     @Test
     public void testSplitAttributesEquals() {
+        final AnimationParams animParams1 =
+                new AnimationParams.Builder()
+                        .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                        .setOpenAnimationResId(AnimationParams.DEFAULT_ANIMATION_RESOURCES_ID)
+                        .build();
         final SplitAttributes attrs1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                .setAnimationParams(animParams1)
                 .build();
+        final AnimationParams animParams2 =
+                new AnimationParams.Builder()
+                        .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                        .setOpenAnimationResId(AnimationParams.DEFAULT_ANIMATION_RESOURCES_ID)
+                        .build();
         final SplitAttributes attrs2 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                .setAnimationParams(animParams2)
                 .build();
+        final AnimationParams animParams3 =
+                new AnimationParams.Builder()
+                        .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                        .setOpenAnimationResId(AnimationParams.DEFAULT_ANIMATION_RESOURCES_ID)
+                        .build();
         final SplitAttributes attrs3 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                .setAnimationParams(animParams3)
                 .build();
+        final AnimationParams animParams4and5 =
+                new AnimationParams.Builder()
+                        .setAnimationBackground(
+                                AnimationBackground.createColorBackground(Color.BLUE))
+                        .setOpenAnimationResId(android.R.anim.fade_in)
+                        .build();
         final SplitAttributes attrs4 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
+                .setAnimationParams(animParams4and5)
                 .build();
         final SplitAttributes attrs5 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
+                .setAnimationParams(animParams4and5)
                 .build();
 
         assertNotEquals(attrs1, attrs2);
@@ -80,10 +99,11 @@ public class SplitAttributesTest {
 
     @Test
     public void testSplitAttributesEqualsUsingBuilderFromExistingInstance() {
+        final AnimationParams animParamsDefault = new AnimationParams.Builder().build();
         final SplitAttributes attrs1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
+                .setAnimationParams(animParamsDefault)
                 .build();
         final SplitAttributes attrs2 = new SplitAttributes.Builder(attrs1).build();
         assertEquals(attrs1, attrs2);

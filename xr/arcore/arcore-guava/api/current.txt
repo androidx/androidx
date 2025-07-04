@@ -1,0 +1,13 @@
+// Signature format: 4.0
+package androidx.xr.arcore.guava {
+
+  public final class GuavaAnchor {
+    method public static com.google.common.util.concurrent.ListenableFuture<java.util.UUID> persistAsync(androidx.xr.arcore.Anchor, androidx.xr.runtime.Session session);
+  }
+
+  public final class GuavaEarth {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.xr.arcore.AnchorCreateResult> createAnchorOnSurfaceAsync(androidx.xr.arcore.Earth, androidx.xr.runtime.Session session, double latitude, double longitude, double altitudeAboveSurface, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion, androidx.xr.arcore.Earth.Surface surface);
+  }
+
+}
+

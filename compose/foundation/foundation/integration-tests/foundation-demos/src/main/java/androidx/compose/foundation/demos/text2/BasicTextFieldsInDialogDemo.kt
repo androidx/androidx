@@ -60,7 +60,7 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = true)
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = true),
             ) {
                 SingleTextFieldDialog()
             }
@@ -69,7 +69,7 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true)
+                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true),
             ) {
                 SingleTextFieldDialog()
             }
@@ -78,7 +78,7 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false)
+                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false),
             ) {
                 SingleTextFieldDialog()
             }
@@ -89,15 +89,15 @@ private val dialogDemos =
                 properties =
                     DialogProperties(
                         usePlatformDefaultWidth = false,
-                        decorFitsSystemWindows = false
-                    )
+                        decorFitsSystemWindows = false,
+                    ),
             ) {
                 SingleTextFieldDialog()
             }
         },
         ComposableDemo("Show keyboard automatically") { onNavigateUp ->
             Dialog(onDismissRequest = onNavigateUp) { AutoFocusTextFieldDialog() }
-        }
+        },
     )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -117,7 +117,7 @@ fun BasicTextFieldsInDialogDemo() {
         Text(
             currentDemo.title,
             modifier = Modifier.fillMaxSize().wrapContentSize(),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
         Layout(content = { currentDemo.content { setDemoIndex(-1) } }) { measurables, _ ->
             check(measurables.isEmpty()) { "Dialog demo must only emit a Dialog composable." }
@@ -143,7 +143,7 @@ private fun AutoFocusTextFieldDialog() {
         BasicTextField(
             state = state,
             modifier = Modifier.focusRequester(focusRequester),
-            decorator = materialTextFieldDecorator(state)
+            decorator = materialTextFieldDecorator(state),
         )
     }
 }
@@ -154,7 +154,7 @@ internal fun materialTextFieldDecorator(
     state: TextFieldState,
     enabled: Boolean = true,
     lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
-    interactionSource: InteractionSource = MutableInteractionSource()
+    interactionSource: InteractionSource = MutableInteractionSource(),
 ) = TextFieldDecorator {
     TextFieldDefaults.TextFieldDecorationBox(
         value = state.text.toString(),
@@ -162,6 +162,6 @@ internal fun materialTextFieldDecorator(
         enabled = enabled,
         singleLine = lineLimits == TextFieldLineLimits.SingleLine,
         visualTransformation = VisualTransformation.None,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }

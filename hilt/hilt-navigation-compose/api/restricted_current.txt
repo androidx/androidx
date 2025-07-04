@@ -3,8 +3,11 @@ package androidx.hilt.navigation.compose {
 
   public final class HiltViewModelKt {
     method @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.lifecycle.ViewModelProvider.Factory? createHiltViewModelFactory(androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner);
-    method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM hiltViewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key);
-    method @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel, reified VMF> VM hiltViewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, kotlin.jvm.functions.Function1<? super VMF,? extends VM> creationCallback);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.lifecycle.ViewModelProvider.Factory? createHiltViewModelFactory(androidx.lifecycle.ViewModelStoreOwner, androidx.compose.runtime.Composer?, int);
+    method @Deprecated @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM hiltViewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM! hiltViewModel(androidx.lifecycle.ViewModelStoreOwner!, String!, androidx.compose.runtime.Composer!, int, int);
+    method @Deprecated @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel, reified VMF> VM hiltViewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, kotlin.jvm.functions.Function1<? super VMF,? extends VM> creationCallback);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel, VMF> VM! hiltViewModel(androidx.lifecycle.ViewModelStoreOwner!, String!, kotlin.jvm.functions.Function1<? super VMF!,? extends VM!>!, androidx.compose.runtime.Composer!, int, int);
   }
 
 }

@@ -34,7 +34,7 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
         token: Binder,
         activity: Activity,
         executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback
+        windowAreaSessionCallback: WindowAreaSessionCallback,
     ) {
         windowAreaSessionCallback.onSessionEnded(IllegalStateException("There are no WindowAreas"))
     }
@@ -43,7 +43,7 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
         token: Binder,
         activity: Activity,
         executor: Executor,
-        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
+        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
     ) {
         windowAreaPresentationSessionCallback.onSessionEnded(
             IllegalStateException("There are no WindowAreas")

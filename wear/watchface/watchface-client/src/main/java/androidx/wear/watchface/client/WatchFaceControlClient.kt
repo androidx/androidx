@@ -55,7 +55,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 /**
  * Connects to a watch face's WatchFaceControlService which allows the user to control the watch
  * face.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public interface WatchFaceControlClient : AutoCloseable {
 
     public companion object {
@@ -74,14 +80,14 @@ public interface WatchFaceControlClient : AutoCloseable {
         @Throws(ServiceNotBoundException::class, ServiceStartFailureException::class)
         public suspend fun createWatchFaceControlClient(
             context: Context,
-            watchFacePackageName: String
+            watchFacePackageName: String,
         ): WatchFaceControlClient =
             createWatchFaceControlClientImpl(
                 context,
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
                     setPackage(watchFacePackageName)
                 },
-                null
+                null,
             )
 
         /**
@@ -111,21 +117,21 @@ public interface WatchFaceControlClient : AutoCloseable {
         public suspend fun createWatchFaceRuntimeControlClient(
             context: Context,
             runtimePackageName: String,
-            resourceOnlyWatchFacePackageName: String
+            resourceOnlyWatchFacePackageName: String,
         ): WatchFaceControlClient =
             createWatchFaceControlClientImpl(
                 context,
                 Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
                     setPackage(runtimePackageName)
                 },
-                resourceOnlyWatchFacePackageName
+                resourceOnlyWatchFacePackageName,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public suspend fun createWatchFaceControlClientImpl(
             context: Context,
             intent: Intent,
-            resourceOnlyWatchFacePackageName: String?
+            resourceOnlyWatchFacePackageName: String?,
         ): WatchFaceControlClient {
             val deferredService = CompletableDeferred<IWatchFaceControlService>()
             val traceEvent = AsyncTraceEvent("WatchFaceControlClientImpl.bindService")
@@ -151,7 +157,7 @@ public interface WatchFaceControlClient : AutoCloseable {
                 context,
                 deferredService.await(),
                 serviceConnection,
-                resourceOnlyWatchFacePackageName
+                resourceOnlyWatchFacePackageName,
             )
         }
     }
@@ -196,7 +202,7 @@ public interface WatchFaceControlClient : AutoCloseable {
         "Creating a headless client without a watchface ID is deprecated",
         ReplaceWith(
             "[createHeadlessWatchFaceClient(String, ComponentName, DeviceConfig, Int, Int)]"
-        )
+        ),
     )
     @Suppress("DEPRECATION")
     @Throws(RemoteException::class)
@@ -262,14 +268,14 @@ public interface WatchFaceControlClient : AutoCloseable {
             "getOrCreateInteractiveWatchFaceClient(" +
                 "String, DeviceConfig, WatchUiState, UserStyleData?, Map<Int, ComplicationData>?," +
                 " Executor, Consumer<String>)"
-        )
+        ),
     )
     public suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: UserStyleData?,
-        slotIdToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
     ): InteractiveWatchFaceClient
 
     /**
@@ -312,14 +318,14 @@ public interface WatchFaceControlClient : AutoCloseable {
         userStyle: UserStyleData?,
         slotIdToComplicationData: Map<Int, ComplicationData>?,
         previewImageUpdateRequestedExecutor: Executor,
-        previewImageUpdateRequestedListener: Consumer<String>
+        previewImageUpdateRequestedListener: Consumer<String>,
     ): InteractiveWatchFaceClient =
         getOrCreateInteractiveWatchFaceClient(
             instanceId,
             deviceConfig,
             watchUiState,
             userStyle,
-            slotIdToComplicationData
+            slotIdToComplicationData,
         )
 
     @Throws(RemoteException::class) public fun getEditorServiceClient(): EditorServiceClient
@@ -361,7 +367,7 @@ public interface WatchFaceControlClient : AutoCloseable {
 @Deprecated("Use the WatchFaceMetadataClient instead.")
 public class DefaultComplicationDataSourcePolicyAndType(
     public val policy: DefaultComplicationDataSourcePolicy,
-    public val type: ComplicationType
+    public val type: ComplicationType,
 ) {
     @Suppress("DEPRECATION") // DefaultComplicationDataSourcePolicyAndType
     override fun equals(other: Any?): Boolean {
@@ -388,7 +394,7 @@ internal constructor(
     private val context: Context,
     private val service: IWatchFaceControlService,
     private val serviceConnection: ServiceConnection,
-    private val resourceOnlyWatchFacePackageName: String?
+    private val resourceOnlyWatchFacePackageName: String?,
 ) : WatchFaceControlClient {
     private var closed = false
 
@@ -401,7 +407,7 @@ internal constructor(
             InteractiveWatchFaceClientImpl(
                 it,
                 previewImageUpdateRequestedExecutor = null,
-                previewImageUpdateRequestedListener = null
+                previewImageUpdateRequestedListener = null,
             )
         }
 
@@ -409,13 +415,13 @@ internal constructor(
         "Creating a headless client without a watchface ID is deprecated",
         ReplaceWith(
             "[createHeadlessWatchFaceClient(String, ComponentName, DeviceConfig, Int, Int)]"
-        )
+        ),
     )
     override fun createHeadlessWatchFaceClient(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
         surfaceWidth: Int,
-        surfaceHeight: Int
+        surfaceHeight: Int,
     ): HeadlessWatchFaceClient? =
         TraceEvent("WatchFaceControlClientImpl.createHeadlessWatchFaceClient").use {
             requireNotClosed()
@@ -426,7 +432,7 @@ internal constructor(
                         deviceConfig.asWireDeviceConfig(),
                         surfaceWidth,
                         surfaceHeight,
-                        null
+                        null,
                     )
                 )
                 ?.let { HeadlessWatchFaceClientImpl(it) }
@@ -437,7 +443,7 @@ internal constructor(
         watchFaceName: ComponentName,
         deviceConfig: DeviceConfig,
         surfaceWidth: Int,
-        surfaceHeight: Int
+        surfaceHeight: Int,
     ): HeadlessWatchFaceClient? =
         TraceEvent("WatchFaceControlClientImpl.createHeadlessWatchFaceClient").use {
             requireNotClosed()
@@ -448,7 +454,7 @@ internal constructor(
                         deviceConfig.asWireDeviceConfig(),
                         surfaceWidth,
                         surfaceHeight,
-                        id
+                        id,
                     )
                 )
                 ?.let { HeadlessWatchFaceClientImpl(it) }
@@ -461,14 +467,14 @@ internal constructor(
                 "getOrCreateInteractiveWatchFaceClient(String, DeviceConfig, WatchUiState, " +
                     "UserStyleData?, Map<Int, ComplicationData>?, Executor, " +
                     "Consumer<String>)"
-            )
+            ),
     )
     override suspend fun getOrCreateInteractiveWatchFaceClient(
         id: String,
         deviceConfig: DeviceConfig,
         watchUiState: androidx.wear.watchface.client.WatchUiState,
         userStyle: UserStyleData?,
-        slotIdToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
     ): InteractiveWatchFaceClient =
         getOrCreateInteractiveWatchFaceClientImpl(
             id,
@@ -477,7 +483,7 @@ internal constructor(
             userStyle,
             slotIdToComplicationData,
             previewImageUpdateRequestedExecutor = null,
-            previewImageUpdateRequestedListener = null
+            previewImageUpdateRequestedListener = null,
         )
 
     override suspend fun getOrCreateInteractiveWatchFaceClient(
@@ -487,7 +493,7 @@ internal constructor(
         userStyle: UserStyleData?,
         slotIdToComplicationData: Map<Int, ComplicationData>?,
         previewImageUpdateRequestedExecutor: Executor,
-        previewImageUpdateRequestedListener: Consumer<String>
+        previewImageUpdateRequestedListener: Consumer<String>,
     ): InteractiveWatchFaceClient =
         getOrCreateInteractiveWatchFaceClientImpl(
             instanceId,
@@ -496,7 +502,7 @@ internal constructor(
             userStyle,
             slotIdToComplicationData,
             previewImageUpdateRequestedExecutor,
-            previewImageUpdateRequestedListener
+            previewImageUpdateRequestedListener,
         )
 
     private suspend fun getOrCreateInteractiveWatchFaceClientImpl(
@@ -506,7 +512,7 @@ internal constructor(
         userStyle: UserStyleData?,
         slotIdToComplicationData: Map<Int, ComplicationData>?,
         previewImageUpdateRequestedExecutor: Executor?,
-        previewImageUpdateRequestedListener: Consumer<String>?
+        previewImageUpdateRequestedListener: Consumer<String>?,
     ): InteractiveWatchFaceClient {
         requireNotClosed()
         val traceEvent =
@@ -535,18 +541,18 @@ internal constructor(
                             deviceConfig.hasLowBitAmbient,
                             deviceConfig.hasBurnInProtection,
                             deviceConfig.analogPreviewReferenceTimeMillis,
-                            deviceConfig.digitalPreviewReferenceTimeMillis
+                            deviceConfig.digitalPreviewReferenceTimeMillis,
                         ),
                         WatchUiState(watchUiState.inAmbientMode, watchUiState.interruptionFilter),
                         userStyle?.toWireFormat() ?: UserStyleWireFormat(emptyMap()),
                         slotIdToComplicationData?.map {
                             IdAndComplicationDataWireFormat(
                                 it.key,
-                                it.value.asWireComplicationData()
+                                it.value.asWireComplicationData(),
                             )
                         },
                         /* auxiliaryComponentPackageName = */ resourceOnlyWatchFacePackageName,
-                        /* auxiliaryComponentClassName = */ null
+                        /* auxiliaryComponentClassName = */ null,
                     ),
                     object : IPendingInteractiveWatchFace.Stub() {
                         override fun getApiVersion() =
@@ -562,7 +568,7 @@ internal constructor(
                                     InteractiveWatchFaceClientImpl(
                                         iInteractiveWatchFace,
                                         previewImageUpdateRequestedExecutor,
-                                        previewImageUpdateRequestedListener
+                                        previewImageUpdateRequestedListener,
                                     )
                                 )
                             }
@@ -577,7 +583,7 @@ internal constructor(
                                     )
                                 )
                             }
-                    }
+                    },
                 )
                 ?.let {
                     // There was an existing watchface.onInteractiveWatchFaceCreated
@@ -587,7 +593,7 @@ internal constructor(
                         InteractiveWatchFaceClientImpl(
                             it,
                             previewImageUpdateRequestedExecutor,
-                            previewImageUpdateRequestedListener
+                            previewImageUpdateRequestedListener,
                         )
                     )
                 }
@@ -629,11 +635,11 @@ internal constructor(
                                     it.fallbackSystemProvider,
                                     ComplicationType.fromWireType(it.defaultProviderType),
                                     ComplicationType.fromWireType(it.defaultProviderType),
-                                    ComplicationType.fromWireType(it.defaultProviderType)
+                                    ComplicationType.fromWireType(it.defaultProviderType),
                                 ),
-                                ComplicationType.fromWireType(it.defaultProviderType)
+                                ComplicationType.fromWireType(it.defaultProviderType),
                             )
-                        }
+                        },
                     )
             } else {
                 // Slow backwards compatible path.
@@ -651,7 +657,7 @@ internal constructor(
                     headlessClient.complicationSlotsState.mapValues {
                         DefaultComplicationDataSourcePolicyAndType(
                             it.value.defaultDataSourcePolicy,
-                            it.value.defaultDataSourceType
+                            it.value.defaultDataSourceType,
                         )
                     }
                 } finally {

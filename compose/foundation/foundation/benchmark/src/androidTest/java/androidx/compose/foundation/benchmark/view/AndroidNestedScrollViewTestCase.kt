@@ -35,14 +35,14 @@ class AndroidNestedScrollViewTestCase : AndroidTestCase, ToggleableTestCase {
         val scrollView =
             activity.layoutInflater.inflate(
                 androidx.compose.foundation.benchmark.R.layout.simple_store,
-                null
+                null,
             ) as ViewGroup
         visitImages(scrollView) { view ->
             val color =
                 Color(
                         red = Random.nextInt(256),
                         green = Random.nextInt(256),
-                        blue = Random.nextInt(256)
+                        blue = Random.nextInt(256),
                     )
                     .toArgb()
             view.setBackgroundColor(color)

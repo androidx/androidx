@@ -35,6 +35,12 @@ import sqlite3.sqlite3_threadsafe
  * A [SQLiteDriver] that uses a version of SQLite included with the host operating system.
  *
  * Usage of this driver expects that `libsqlite` can be found in the shared library path.
+ *
+ * The host's SQLite used by this driver might be compiled with different
+ * [threading modes](https://www.sqlite.org/threadsafe.html) which can be checked with
+ * [threadingMode]. Regardless of the mode compiled, this driver does not have an internal
+ * connection pool and whether the driver connections are thread-safe or not will be determined by
+ * the compiled threading mode of the host library.
  */
 public class NativeSQLiteDriver : SQLiteDriver {
 

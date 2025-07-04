@@ -11,6 +11,7 @@
       <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="9999" />
       <option name="IMPORT_LAYOUT_TABLE">
         <value>
+          <package name="" withSubpackages="true" static="false" module="true" />
           <package name="android" withSubpackages="true" static="true" />
           <emptyLine />
           <package name="androidx" withSubpackages="true" static="true" />

@@ -92,7 +92,7 @@ class AdIdManagerTest {
     fun testAdIdAsync() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val adIdManager = mockAdIdManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -117,7 +117,7 @@ class AdIdManagerTest {
 
         private fun mockAdIdManager(
             spyContext: Context,
-            isExtServices: Boolean
+            isExtServices: Boolean,
         ): android.adservices.adid.AdIdManager {
             val adIdManager = mock(android.adservices.adid.AdIdManager::class.java)
             // only mock the .get() method if using extServices version
@@ -143,7 +143,7 @@ class AdIdManagerTest {
                 .`when`(adIdManager)
                 .getAdId(
                     any<Executor>(),
-                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>(),
                 )
         }
 
@@ -151,7 +151,7 @@ class AdIdManagerTest {
             verify(adIdManager)
                 .getAdId(
                     any<Executor>(),
-                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>(),
                 )
         }
 

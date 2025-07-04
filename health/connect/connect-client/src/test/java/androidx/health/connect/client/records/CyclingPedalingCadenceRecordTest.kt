@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -34,7 +35,8 @@ class CyclingPedalingCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
             .isEqualTo(
@@ -43,7 +45,8 @@ class CyclingPedalingCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
     }
@@ -56,7 +59,8 @@ class CyclingPedalingCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1234L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
             .isEqualTo(
@@ -65,7 +69,8 @@ class CyclingPedalingCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1234L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
     }
@@ -78,7 +83,8 @@ class CyclingPedalingCadenceRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                samples = listOf()
+                metadata = Metadata.manualEntry(),
+                samples = listOf(),
             )
         }
     }
@@ -91,18 +97,19 @@ class CyclingPedalingCadenceRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata.manualEntry(),
                         samples =
                             listOf(
                                 CyclingPedalingCadenceRecord.Sample(
                                     Instant.ofEpochMilli(1234L),
-                                    80.0
+                                    80.0,
                                 )
-                            )
+                            ),
                     )
                     .toString()
             )
             .isEqualTo(
-                "CyclingPedalingCadenceRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, samples=[Sample(time=1970-01-01T00:00:01.234Z, revolutionsPerMinute=80.0)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+                "CyclingPedalingCadenceRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, samples=[Sample(time=1970-01-01T00:00:01.234Z, revolutionsPerMinute=80.0)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=3))"
             )
     }
 }

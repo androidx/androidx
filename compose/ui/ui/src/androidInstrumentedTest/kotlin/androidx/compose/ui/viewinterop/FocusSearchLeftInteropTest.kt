@@ -47,6 +47,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -448,6 +449,7 @@ class FocusSearchLeftInteropTest(private val moveFocusProgrammatically: Boolean)
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23) // b/387310914 -- flaky on API 21
     fun viewComposableInRow() {
         // Arrange.
         setContent {
@@ -516,11 +518,11 @@ class FocusSearchLeftInteropTest(private val moveFocusProgrammatically: Boolean)
             Row {
                 AndroidView(
                     factory = { FocusableView(it).apply { view2 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState2 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState2 = it },
                 )
                 AndroidView(
                     factory = { FocusableView(it).apply { view1 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState1 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState1 = it },
                 )
             }
         }
@@ -548,11 +550,11 @@ class FocusSearchLeftInteropTest(private val moveFocusProgrammatically: Boolean)
             Row {
                 AndroidView(
                     factory = { FocusableView(it).apply { view2 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState2 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState2 = it },
                 )
                 AndroidView(
                     factory = { FocusableView(it).apply { view1 = this } },
-                    modifier = Modifier.onFocusChanged { wrapperState1 = it }
+                    modifier = Modifier.onFocusChanged { wrapperState1 = it },
                 )
             }
         }

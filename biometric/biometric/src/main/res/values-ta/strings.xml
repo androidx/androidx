@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"பின்னோ பேட்டர்னோ கடவுச்சொல்லோ அமைக்கப்படவில்லை."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"பின், பேட்டர்ன், கடவுச்சொல் ஆகியவற்றை இந்தச் சாதனம் ஆதரிக்கவில்லை."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"கைரேகை ஐகான்"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"உள்ளடக்கக் காட்சியில் உள்ள \'கூடுதல் விருப்பங்கள்\' பட்டன் கிளிக் செய்யப்பட்டது."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"கைரேகையைப் பயன்படுத்து"</string>
     <string name="use_face_label" msgid="6533512708069459542">"முகத்தைப் பயன்படுத்து"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"பயோமெட்ரிக்ஸைப் பயன்படுத்து"</string>

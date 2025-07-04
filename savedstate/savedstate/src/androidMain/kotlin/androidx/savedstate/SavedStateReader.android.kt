@@ -16,7 +16,6 @@
 
 @file:JvmName("SavedStateReaderKt")
 @file:JvmMultifileClass
-@file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.savedstate
 
@@ -31,516 +30,774 @@ import androidx.core.os.BundleCompat.getParcelableArrayList
 import androidx.core.os.BundleCompat.getSerializable
 import androidx.core.os.BundleCompat.getSparseParcelableArray
 import java.io.Serializable
+import kotlin.reflect.KClass
 
 @Suppress("ValueClassDefinition")
 @JvmInline
 public actual value class SavedStateReader
 @PublishedApi
-internal actual constructor(
-    @PublishedApi internal actual val source: SavedState,
-) {
+internal actual constructor(private actual val source: SavedState) {
 
     /**
-     * Retrieves an [IBinder] object associated with the specified key.
+     * Retrieves an [IBinder] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The key to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalStateException If the key is not found.
-     */
-    public inline fun getBinder(key: String): IBinder {
-        if (key !in this) keyNotFoundError(key)
-        return source.getBinder(key) ?: valueNotFoundError(key)
-    }
-
-    /**
-     * Retrieves an [IBinder] value associated with the specified [key], or returns [defaultValue]
-     * if the [key] is not found or the associated value has the wrong type.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
-    public inline fun getBinderOrElse(key: String, defaultValue: () -> IBinder): IBinder {
-        if (key !in this) defaultValue()
-        return source.getBinder(key) ?: defaultValue()
-    }
-
-    public actual inline fun getBoolean(key: String): Boolean {
-        if (key !in this) keyNotFoundError(key)
-        return source.getBoolean(key, DEFAULT_BOOLEAN)
-    }
-
-    public actual inline fun getBooleanOrElse(key: String, defaultValue: () -> Boolean): Boolean {
-        if (key !in this) defaultValue()
-        return source.getBoolean(key, defaultValue())
-    }
-
-    public actual inline fun getChar(key: String): Char {
-        if (key !in this) keyNotFoundError(key)
-        return source.getChar(key, DEFAULT_CHAR)
-    }
-
-    public actual inline fun getCharSequence(key: String): CharSequence {
-        if (key !in this) keyNotFoundError(key)
-        return source.getCharSequence(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getCharSequenceOrElse(
-        key: String,
-        defaultValue: () -> CharSequence
-    ): CharSequence {
-        if (key !in this) defaultValue()
-        return source.getCharSequence(key) ?: defaultValue()
-    }
-
-    public actual inline fun getCharOrElse(key: String, defaultValue: () -> Char): Char {
-        if (key !in this) defaultValue()
-        return source.getChar(key, defaultValue())
-    }
-
-    public actual inline fun getDouble(key: String): Double {
-        if (key !in this) keyNotFoundError(key)
-        return source.getDouble(key, DEFAULT_DOUBLE)
-    }
-
-    public actual inline fun getDoubleOrElse(key: String, defaultValue: () -> Double): Double {
-        if (key !in this) defaultValue()
-        return source.getDouble(key, defaultValue())
-    }
-
-    public actual inline fun getFloat(key: String): Float {
-        if (key !in this) keyNotFoundError(key)
-        return source.getFloat(key, DEFAULT_FLOAT)
-    }
-
-    public actual inline fun getFloatOrElse(key: String, defaultValue: () -> Float): Float {
-        if (key !in this) defaultValue()
-        return source.getFloat(key, defaultValue())
-    }
-
-    public actual inline fun getInt(key: String): Int {
-        if (key !in this) keyNotFoundError(key)
-        return source.getInt(key, DEFAULT_INT)
-    }
-
-    public actual inline fun getIntOrElse(key: String, defaultValue: () -> Int): Int {
-        if (key !in this) defaultValue()
-        return source.getInt(key, defaultValue())
-    }
-
-    public actual inline fun getLong(key: String): Long {
-        if (key !in this) keyNotFoundError(key)
-        return source.getLong(key, DEFAULT_LONG)
-    }
-
-    public actual inline fun getLongOrElse(key: String, defaultValue: () -> Long): Long {
-        if (key !in this) defaultValue()
-        return source.getLong(key, defaultValue())
+    public fun getBinder(key: String): IBinder {
+        return source.getBinder(key) ?: keyOrValueNotFoundError(key)
     }
 
     /**
-     * Retrieves a [Parcelable] object associated with the specified key.
+     * Retrieves a [IBinder] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
      *
-     * @param key The key to retrieve the value for.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getBinderOrNull(key: String): IBinder? {
+        return source.getBinder(key)
+    }
+
+    public actual fun getBoolean(key: String): Boolean {
+        val result = source.getBoolean(key, false)
+        if (result == false) {
+            val reference = source.getBoolean(key, true)
+            if (reference == true) {
+                keyOrValueNotFoundError(key)
+            }
+        }
+        return result
+    }
+
+    @Suppress("AutoBoxing")
+    public actual fun getBooleanOrNull(key: String): Boolean? {
+        val result = source.getBoolean(key, false)
+        if (result == false) {
+            val reference = source.getBoolean(key, true) == true
+            if (reference == true) {
+                return null
+            }
+        }
+        return result
+    }
+
+    public actual fun getChar(key: String): Char {
+        val result = source.getChar(key, Char.MIN_VALUE)
+        if (result == Char.MIN_VALUE) {
+            val reference = source.getChar(key, Char.MAX_VALUE)
+            if (reference == Char.MAX_VALUE) {
+                keyOrValueNotFoundError(key)
+            }
+        }
+        return result
+    }
+
+    public actual fun getCharOrNull(key: String): Char? {
+        val result = source.getChar(key, Char.MIN_VALUE)
+        if (result == Char.MIN_VALUE) {
+            val reference = source.getChar(key, Char.MAX_VALUE)
+            if (reference == Char.MAX_VALUE) {
+                return null
+            }
+        }
+        return result
+    }
+
+    public actual fun getCharSequence(key: String): CharSequence {
+        return source.getCharSequence(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getCharSequenceOrNull(key: String): CharSequence? {
+        return source.getCharSequence(key)
+    }
+
+    public actual fun getDouble(key: String): Double {
+        val result = source.getDouble(key, Double.MIN_VALUE)
+        if (result == Double.MIN_VALUE) {
+            val reference = source.getDouble(key, Double.MAX_VALUE)
+            if (reference == Double.MAX_VALUE) {
+                keyOrValueNotFoundError(key)
+            }
+        }
+        return result
+    }
+
+    @Suppress("AutoBoxing")
+    public actual fun getDoubleOrNull(key: String): Double? {
+        val result = source.getDouble(key, Double.MIN_VALUE)
+        if (result == Double.MIN_VALUE) {
+            val reference = source.getDouble(key, Double.MAX_VALUE)
+            if (reference == Double.MAX_VALUE) {
+                return null
+            }
+        }
+        return result
+    }
+
+    public actual fun getFloat(key: String): Float {
+        val result = source.getFloat(key, Float.MIN_VALUE)
+        if (result == Float.MIN_VALUE) {
+            val reference = source.getFloat(key, Float.MAX_VALUE)
+            if (reference == Float.MAX_VALUE) {
+                keyOrValueNotFoundError(key)
+            }
+        }
+        return result
+    }
+
+    @Suppress("AutoBoxing")
+    public actual fun getFloatOrNull(key: String): Float? {
+        val result = source.getFloat(key, Float.MIN_VALUE)
+        if (result == Float.MIN_VALUE) {
+            val reference = source.getFloat(key, Float.MAX_VALUE)
+            if (reference == Float.MAX_VALUE) {
+                return null
+            }
+        }
+        return result
+    }
+
+    public actual fun getInt(key: String): Int {
+        val result = source.getInt(key, Int.MIN_VALUE)
+        if (result == Int.MIN_VALUE) {
+            val reference = source.getInt(key, Int.MAX_VALUE)
+            if (reference == Int.MAX_VALUE) {
+                keyOrValueNotFoundError(key)
+            }
+        }
+        return result
+    }
+
+    @Suppress("AutoBoxing")
+    public actual fun getIntOrNull(key: String): Int? {
+        val result = source.getInt(key, Int.MIN_VALUE)
+        if (result == Int.MIN_VALUE) {
+            val reference = source.getInt(key, Int.MAX_VALUE)
+            if (reference == Int.MAX_VALUE) {
+                return null
+            }
+        }
+        return result
+    }
+
+    public actual fun getLong(key: String): Long {
+        val result = source.getLong(key, Long.MIN_VALUE)
+        if (result == Long.MIN_VALUE) {
+            val reference = source.getLong(key, Long.MAX_VALUE)
+            if (reference == Long.MAX_VALUE) {
+                keyOrValueNotFoundError(key)
+            }
+        }
+        return result
+    }
+
+    @Suppress("AutoBoxing")
+    public actual fun getLongOrNull(key: String): Long? {
+        val result = source.getLong(key, Long.MIN_VALUE)
+        if (result == Long.MIN_VALUE) {
+            val reference = source.getLong(key, Long.MAX_VALUE)
+            if (reference == Long.MAX_VALUE) {
+                return null
+            }
+        }
+        return result
+    }
+
+    /**
+     * Retrieves a [Parcelable] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param parcelableClass The expected type of the value.
      * @return The value associated with the [key].
-     * @throws IllegalStateException If the key is not found.
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun <T : Parcelable> getParcelable(key: String, parcelableClass: KClass<T>): T {
+        return getParcelable(source, key, parcelableClass.java) ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves a [Parcelable] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param T The expected type of the value.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
     public inline fun <reified T : Parcelable> getParcelable(key: String): T {
-        if (key !in this) keyNotFoundError(key)
-        return getParcelable(source, key, T::class.java) ?: valueNotFoundError(key)
+        return getParcelable(key, T::class)
     }
 
     /**
-     * Retrieves a [Parcelable] value associated with the specified [key], or returns [defaultValue]
-     * if the [key] is not found or the associated value has the wrong type.
+     * Retrieves a [Parcelable] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @param parcelableClass The expected type of the value.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun <reified T : Parcelable> getParcelableOrElse(
-        key: String,
-        defaultValue: () -> T
-    ): T {
-        if (key !in this) defaultValue()
-        return getParcelable(source, key, T::class.java) ?: defaultValue()
+    public fun <T : Parcelable> getParcelableOrNull(key: String, parcelableClass: KClass<T>): T? {
+        return getParcelable(source, key, parcelableClass.java)
     }
 
     /**
-     * Retrieves a [Serializable] object associated with the specified key.
+     * Retrieves a [Parcelable] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
      *
-     * @param key The key to retrieve the value for.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param T The expected type of the value.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public inline fun <reified T : Parcelable> getParcelableOrNull(key: String): T? {
+        return getParcelableOrNull(key, T::class)
+    }
+
+    /**
+     * Retrieves a [Serializable] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param serializableClass The expected type of the value.
      * @return The value associated with the [key].
-     * @throws IllegalStateException If the key is not found.
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun <T : Serializable> getJavaSerializable(
+        key: String,
+        serializableClass: KClass<T>,
+    ): T {
+        return getSerializable(source, key, serializableClass.java) ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves a [Serializable] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @param T The expected type of the value.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
     public inline fun <reified T : Serializable> getJavaSerializable(key: String): T {
-        if (key !in this) keyNotFoundError(key)
-        return getSerializable(source, key, T::class.java) ?: valueNotFoundError(key)
+        return getJavaSerializable(key, T::class)
     }
 
     /**
-     * Retrieves a [Serializable] value associated with the specified [key], or returns
-     * [defaultValue] if the [key] is not found or the associated value has the wrong type.
+     * Retrieves a [Serializable] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @param serializableClass The expected type of the value.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun <reified T : Serializable> getJavaSerializableOrElse(
+    public fun <T : Serializable> getJavaSerializableOrNull(
         key: String,
-        defaultValue: () -> T
-    ): T {
-        if (key !in this) defaultValue()
-        return getSerializable(source, key, T::class.java) ?: defaultValue()
+        serializableClass: KClass<T>,
+    ): T? {
+        return getSerializable(source, key, serializableClass.java)
     }
 
     /**
-     * Retrieves a [Size] object associated with the specified key.
+     * Retrieves a [Serializable] value associated with the specified [key], or `null` if this
+     * [SavedState] does not contain a valid value for the key.
      *
-     * @param key The key to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalStateException If the key is not found.
-     */
-    public inline fun getSize(key: String): Size {
-        if (key !in this) keyNotFoundError(key)
-        return source.getSize(key) ?: valueNotFoundError(key)
-    }
-
-    /**
-     * Retrieves a [Size] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * @param T The expected type of the value.
+     * @return The value associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun getSizeOrElse(key: String, defaultValue: () -> Size): Size {
-        if (key !in this) defaultValue()
-        return source.getSize(key) ?: defaultValue()
+    public inline fun <reified T : Serializable> getJavaSerializableOrNull(key: String): T? {
+        return getJavaSerializableOrNull(key, T::class)
     }
 
     /**
-     * Retrieves a [SizeF] object associated with the specified key.
+     * Retrieves a [Size] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The key to retrieve the value for.
-     * @return The value associated with the [key].
-     * @throws IllegalStateException If the key is not found.
-     */
-    public inline fun getSizeF(key: String): SizeF {
-        if (key !in this) keyNotFoundError(key)
-        return source.getSizeF(key) ?: valueNotFoundError(key)
-    }
-
-    /**
-     * Retrieves a [SizeF] value associated with the specified [key], or returns [defaultValue] if
-     * the [key] is not found or the associated value has the wrong type.
-     *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
-     */
-    public inline fun getSizeFOrElse(key: String, defaultValue: () -> SizeF): SizeF {
-        if (key !in this) defaultValue()
-        return source.getSizeF(key) ?: defaultValue()
-    }
-
-    public actual inline fun getString(key: String): String {
-        if (key !in this) keyNotFoundError(key)
-        return source.getString(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getStringOrElse(key: String, defaultValue: () -> String): String {
-        if (key !in this) defaultValue()
-        return source.getString(key, defaultValue())
-    }
-
-    public actual inline fun getIntList(key: String): List<Int> {
-        if (key !in this) keyNotFoundError(key)
-        return source.getIntegerArrayList(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getIntListOrElse(
-        key: String,
-        defaultValue: () -> List<Int>
-    ): List<Int> {
-        if (key !in this) defaultValue()
-        return source.getIntegerArrayList(key) ?: defaultValue()
-    }
-
-    public actual inline fun getCharSequenceList(key: String): List<CharSequence> {
-        if (key !in this) keyNotFoundError(key)
-        return source.getCharSequenceArrayList(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getCharSequenceListOrElse(
-        key: String,
-        defaultValue: () -> List<CharSequence>
-    ): List<CharSequence> {
-        if (key !in this) defaultValue()
-        return source.getCharSequenceArrayList(key) ?: defaultValue()
-    }
-
-    public actual inline fun getStringList(key: String): List<String> {
-        if (key !in this) keyNotFoundError(key)
-        return source.getStringArrayList(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getStringListOrElse(
-        key: String,
-        defaultValue: () -> List<String>
-    ): List<String> {
-        if (key !in this) defaultValue()
-        return source.getStringArrayList(key) ?: defaultValue()
-    }
-
-    /**
-     * Retrieves a [List] of elements of [Parcelable] associated with the specified [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
      *
      * @param key The [key] to retrieve the value for.
      * @return The value associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getSize(key: String): Size {
+        return source.getSize(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves a [Size] value associated with the specified [key], or `null` if this [SavedState]
+     * does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getSizeOrNull(key: String): Size? {
+        return source.getSize(key)
+    }
+
+    /**
+     * Retrieves a [SizeF] value associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun getSizeF(key: String): SizeF {
+        return source.getSizeF(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves a [SizeF] value associated with the specified [key], or `null` if this [SavedState]
+     * does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the value for.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    public fun getSizeFOrNull(key: String): SizeF? {
+        return source.getSizeF(key)
+    }
+
+    @Suppress("ArrayReturn")
+    public actual fun getSavedStateArray(key: String): Array<SavedState> {
+        return getParcelableArray(key)
+    }
+
+    @Suppress("ArrayReturn", "NullableCollection")
+    public actual fun getSavedStateArrayOrNull(key: String): Array<SavedState>? {
+        return getParcelableArrayOrNull(key)
+    }
+
+    public actual fun getString(key: String): String {
+        return source.getString(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getStringOrNull(key: String): String? {
+        return source.getString(key)
+    }
+
+    public actual fun getIntList(key: String): List<Int> {
+        return source.getIntegerArrayList(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    @Suppress("NullableCollection")
+    public actual fun getIntListOrNull(key: String): List<Int>? {
+        return source.getIntegerArrayList(key)
+    }
+
+    public actual fun getCharSequenceList(key: String): List<CharSequence> {
+        return source.getCharSequenceArrayList(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    @Suppress("NullableCollection")
+    public actual fun getCharSequenceListOrNull(key: String): List<CharSequence>? {
+        return source.getCharSequenceArrayList(key)
+    }
+
+    public actual fun getSavedStateList(key: String): List<SavedState> {
+        return getParcelableList(key)
+    }
+
+    @Suppress("NullableCollection")
+    public actual fun getSavedStateListOrNull(key: String): List<SavedState>? {
+        return getParcelableListOrNull(key)
+    }
+
+    public actual fun getStringList(key: String): List<String> {
+        return source.getStringArrayList(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    @Suppress("NullableCollection")
+    public actual fun getStringListOrNull(key: String): List<String>? {
+        return source.getStringArrayList(key)
+    }
+
+    /**
+     * Retrieves a [List] of [Parcelable] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param parcelableClass The expected type of the values.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun <T : Parcelable> getParcelableList(
+        key: String,
+        parcelableClass: KClass<T>,
+    ): List<T> {
+        return getParcelableArrayList(source, key, parcelableClass.java)
+            ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves a [List] of [Parcelable] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param T The expected type of the values.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
     public inline fun <reified T : Parcelable> getParcelableList(key: String): List<T> {
-        if (key !in this) keyNotFoundError(key)
-        return getParcelableArrayList(source, key, T::class.java) ?: valueNotFoundError(key)
+        return getParcelableList(key, T::class)
     }
 
     /**
-     * Retrieves a [List] of elements of [Parcelable] associated with the specified [key], or a
-     * default value if the [key] doesn't exist.
+     * Retrieves a [List] of [Parcelable] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param parcelableClass The expected type of the values.
+     * @return The values associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun <reified T : Parcelable> getParcelableListOrElse(
+    @Suppress("NullableCollection")
+    public fun <T : Parcelable> getParcelableListOrNull(
         key: String,
-        defaultValue: () -> List<T>
-    ): List<T> {
-        if (key !in this) defaultValue()
-        return getParcelableArrayList(source, key, T::class.java) ?: defaultValue()
-    }
-
-    public actual inline fun getBooleanArray(key: String): BooleanArray {
-        if (key !in this) keyNotFoundError(key)
-        return source.getBooleanArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getBooleanArrayOrElse(
-        key: String,
-        defaultValue: () -> BooleanArray
-    ): BooleanArray {
-        if (key !in this) defaultValue()
-        return source.getBooleanArray(key) ?: defaultValue()
-    }
-
-    public actual inline fun getCharArray(key: String): CharArray {
-        if (key !in this) keyNotFoundError(key)
-        return source.getCharArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getCharArrayOrElse(
-        key: String,
-        defaultValue: () -> CharArray
-    ): CharArray {
-        if (key !in this) defaultValue()
-        return source.getCharArray(key) ?: defaultValue()
-    }
-
-    @Suppress("ArrayReturn")
-    public actual inline fun getCharSequenceArray(key: String): Array<CharSequence> {
-        if (key !in this) keyNotFoundError(key)
-        return source.getCharSequenceArray(key) ?: valueNotFoundError(key)
-    }
-
-    @Suppress("ArrayReturn")
-    public actual inline fun getCharSequenceArrayOrElse(
-        key: String,
-        defaultValue: () -> Array<CharSequence>
-    ): Array<CharSequence> {
-        if (key !in this) defaultValue()
-        return source.getCharSequenceArray(key) ?: defaultValue()
-    }
-
-    public actual inline fun getDoubleArray(key: String): DoubleArray {
-        if (key !in this) keyNotFoundError(key)
-        return source.getDoubleArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getDoubleArrayOrElse(
-        key: String,
-        defaultValue: () -> DoubleArray
-    ): DoubleArray {
-        if (key !in this) defaultValue()
-        return source.getDoubleArray(key) ?: defaultValue()
-    }
-
-    public actual inline fun getFloatArray(key: String): FloatArray {
-        if (key !in this) keyNotFoundError(key)
-        return source.getFloatArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getFloatArrayOrElse(
-        key: String,
-        defaultValue: () -> FloatArray
-    ): FloatArray {
-        if (key !in this) defaultValue()
-        return source.getFloatArray(key) ?: defaultValue()
-    }
-
-    public actual inline fun getIntArray(key: String): IntArray {
-        if (key !in this) keyNotFoundError(key)
-        return source.getIntArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getIntArrayOrElse(
-        key: String,
-        defaultValue: () -> IntArray
-    ): IntArray {
-        if (key !in this) defaultValue()
-        return source.getIntArray(key) ?: defaultValue()
-    }
-
-    public actual inline fun getLongArray(key: String): LongArray {
-        if (key !in this) keyNotFoundError(key)
-        return source.getLongArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getLongArrayOrElse(
-        key: String,
-        defaultValue: () -> LongArray
-    ): LongArray {
-        if (key !in this) defaultValue()
-        return source.getLongArray(key) ?: defaultValue()
-    }
-
-    public actual inline fun getStringArray(key: String): Array<String> {
-        if (key !in this) keyNotFoundError(key)
-        return source.getStringArray(key) ?: valueNotFoundError(key)
-    }
-
-    public actual inline fun getStringArrayOrElse(
-        key: String,
-        defaultValue: () -> Array<String>
-    ): Array<String> {
-        if (key !in this) defaultValue()
-        return source.getStringArray(key) ?: defaultValue()
+        parcelableClass: KClass<T>,
+    ): List<T>? {
+        return getParcelableArrayList(source, key, parcelableClass.java)
     }
 
     /**
-     * Retrieves an [Array] of elements of [Parcelable] associated with the specified [key].
+     * Retrieves a [List] of [Parcelable] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param T The expected type of the values.
+     * @return The value associated with the [key], or `null` if no valid value is found.
+     */
+    @Suppress("NullableCollection")
+    public inline fun <reified T : Parcelable> getParcelableListOrNull(key: String): List<T>? {
+        return getParcelableListOrNull(key, T::class)
+    }
+
+    public actual fun getBooleanArray(key: String): BooleanArray {
+        return source.getBooleanArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getBooleanArrayOrNull(key: String): BooleanArray? {
+        return source.getBooleanArray(key)
+    }
+
+    public actual fun getCharArray(key: String): CharArray {
+        return source.getCharArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getCharArrayOrNull(key: String): CharArray? {
+        return source.getCharArray(key)
+    }
+
+    @Suppress("ArrayReturn")
+    public actual fun getCharSequenceArray(key: String): Array<CharSequence> {
+        return source.getCharSequenceArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    @Suppress("ArrayReturn", "NullableCollection")
+    public actual fun getCharSequenceArrayOrNull(key: String): Array<CharSequence>? {
+        return source.getCharSequenceArray(key)
+    }
+
+    public actual fun getDoubleArray(key: String): DoubleArray {
+        return source.getDoubleArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getDoubleArrayOrNull(key: String): DoubleArray? {
+        return source.getDoubleArray(key)
+    }
+
+    public actual fun getFloatArray(key: String): FloatArray {
+        return source.getFloatArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getFloatArrayOrNull(key: String): FloatArray? {
+        return source.getFloatArray(key)
+    }
+
+    public actual fun getIntArray(key: String): IntArray {
+        return source.getIntArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getIntArrayOrNull(key: String): IntArray? {
+        return source.getIntArray(key)
+    }
+
+    public actual fun getLongArray(key: String): LongArray {
+        return source.getLongArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    public actual fun getLongArrayOrNull(key: String): LongArray? {
+        return source.getLongArray(key)
+    }
+
+    public actual fun getStringArray(key: String): Array<String> {
+        return source.getStringArray(key) ?: keyOrValueNotFoundError(key)
+    }
+
+    @Suppress("NullableCollection")
+    public actual fun getStringArrayOrNull(key: String): Array<String>? {
+        return source.getStringArray(key)
+    }
+
+    /**
+     * Retrieves an [Array] of [Parcelable] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param parcelableClass The expected type of the values.
+     * @return The values associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    @Suppress("ArrayReturn")
+    public fun <T : Parcelable> getParcelableArray(
+        key: String,
+        parcelableClass: KClass<T>,
+    ): Array<T> {
+        return getParcelableArrayOrNull(key, parcelableClass) ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves an [Array] of [Parcelable] values associated with the specified [key], or throws an
+     * [IllegalArgumentException] if this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param T The expected type of the values.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
     @Suppress("ArrayReturn")
     public inline fun <reified T : Parcelable> getParcelableArray(key: String): Array<T> {
-        if (key !in this) keyNotFoundError(key)
-        @Suppress("UNCHECKED_CAST")
-        return getParcelableArray(source, key, T::class.java) as? Array<T>
-            ?: valueNotFoundError(key)
+        return getParcelableArray(key, T::class)
     }
 
     /**
-     * Retrieves a [Array] of elements of [Parcelable] associated with the specified [key], or a
-     * default value if the [key] doesn't exist.
+     * Retrieves an [Array] of [Parcelable] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param parcelableClass The expected type of the values.
+     * @return The values associated with the [key], or `null` if no valid value is found.
      */
-    @Suppress("ArrayReturn")
-    public inline fun <reified T : Parcelable> getParcelableArrayOrElse(
+    @Suppress("ArrayReturn", "NullableCollection")
+    public fun <T : Parcelable> getParcelableArrayOrNull(
         key: String,
-        defaultValue: () -> Array<T>
-    ): Array<T> {
-        if (key !in this) defaultValue()
+        parcelableClass: KClass<T>,
+    ): Array<T>? {
         @Suppress("UNCHECKED_CAST")
-        return getParcelableArray(source, key, T::class.java) as? Array<T> ?: defaultValue()
+        return getParcelableArray(source, key, parcelableClass.java) as? Array<T>
     }
 
     /**
-     * Retrieves a [SparseArray] of elements of [Parcelable] associated with the specified [key].
+     * Retrieves an [Array] of [Parcelable] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @return The value associated with the [key].
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param T The expected type of the values.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    @Suppress("ArrayReturn", "NullableCollection")
+    public inline fun <reified T : Parcelable> getParcelableArrayOrNull(key: String): Array<T>? {
+        return getParcelableArrayOrNull(key, T::class)
+    }
+
+    /**
+     * Retrieves a [SparseArray] of [Parcelable] values associated with the specified [key], or
+     * throws an [IllegalArgumentException] if this [SavedState] does not contain a valid value for
+     * the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param parcelableClass The expected type of the values.
+     * @return The values associated with the [key].
      * @throws IllegalArgumentException If the [key] is not found.
-     * @throws IllegalStateException if associated value has wrong type.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
+     */
+    public fun <T : Parcelable> getSparseParcelableArray(
+        key: String,
+        parcelableClass: KClass<T>,
+    ): SparseArray<T> {
+        return getSparseParcelableArrayOrNull(key, parcelableClass) ?: keyOrValueNotFoundError(key)
+    }
+
+    /**
+     * Retrieves a [SparseArray] of [Parcelable] values associated with the specified [key], or
+     * throws an [IllegalArgumentException] if this [SavedState] does not contain a valid value for
+     * the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param T The expected type of the values.
+     * @return The values associated with the [key].
+     * @throws IllegalArgumentException If the [key] is not found.
+     * @throws IllegalArgumentException If associated value is `null`.
+     * @throws IllegalArgumentException if associated value has wrong type.
      */
     public inline fun <reified T : Parcelable> getSparseParcelableArray(
         key: String
     ): SparseArray<T> {
-        if (key !in this) keyNotFoundError(key)
-        return getSparseParcelableArray(source, key, T::class.java) as? SparseArray<T>
-            ?: valueNotFoundError(key)
+        return getSparseParcelableArray(key, T::class)
     }
 
     /**
-     * Retrieves a [SparseArray] of elements of [Parcelable] associated with the specified [key], or
-     * a default value if the [key] doesn't exist.
+     * Retrieves a [Array] of [Parcelable] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
      *
-     * @param key The [key] to retrieve the value for.
-     * @param defaultValue A function providing the default value to return if the key is not found
-     *   or the associated value has the wrong type.
-     * @return The value associated with the [key], or the result of [defaultValue] if the key is
-     *   not found or the associated value has the wrong type.
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param parcelableClass The expected type of the values.
+     * @return The values associated with the [key], or `null` if no valid value is found.
      */
-    public inline fun <reified T : Parcelable> getSparseParcelableArrayOrElse(
+    public fun <T : Parcelable> getSparseParcelableArrayOrNull(
         key: String,
-        defaultValue: () -> SparseArray<T>
-    ): SparseArray<T> {
-        if (key !in this) defaultValue()
-        return getSparseParcelableArray(source, key, T::class.java) as? SparseArray<T>
-            ?: defaultValue()
+        parcelableClass: KClass<T>,
+    ): SparseArray<T>? {
+        return getSparseParcelableArray(source, key, parcelableClass.java)
     }
 
-    public actual inline fun getSavedState(key: String): SavedState {
-        if (key !in this) keyNotFoundError(key)
-        return source.getBundle(key) ?: valueNotFoundError(key)
+    /**
+     * Retrieves a [Array] of [Parcelable] values associated with the specified [key], or `null` if
+     * this [SavedState] does not contain a valid value for the key.
+     *
+     * More specifically, a [SavedState] is considered to contain a valid value for a [key] if the
+     * [key] exists, the associated value is not `null`, and it is of the expected type.
+     *
+     * @param key The [key] to retrieve the values for.
+     * @param T The expected type of the values.
+     * @return The values associated with the [key], or `null` if no valid value is found.
+     */
+    public inline fun <reified T : Parcelable> getSparseParcelableArrayOrNull(
+        key: String
+    ): SparseArray<T>? {
+        return getSparseParcelableArrayOrNull(key, T::class)
     }
 
-    public actual inline fun getSavedStateOrElse(
-        key: String,
-        defaultValue: () -> SavedState
-    ): SavedState {
-        if (key !in this) defaultValue()
-        return source.getBundle(key) ?: defaultValue()
+    public actual fun getSavedState(key: String): SavedState {
+        return source.getBundle(key) ?: keyOrValueNotFoundError(key)
     }
 
-    public actual inline fun size(): Int = source.size()
+    @Suppress("NullableCollection")
+    public actual fun getSavedStateOrNull(key: String): SavedState? {
+        return source.getBundle(key)
+    }
 
-    public actual inline fun isEmpty(): Boolean = source.isEmpty
+    public actual fun size(): Int = source.size()
 
-    public actual inline fun isNull(key: String): Boolean {
+    public actual fun isEmpty(): Boolean = source.isEmpty
+
+    public actual fun isNull(key: String): Boolean {
         // Using `getString` to check for `null` is unreliable as it returns null for type
         // mismatches. To reliably determine if the value is actually `null`, we use the
         // deprecated `Bundle.get`.
-        @Suppress("DEPRECATION") return contains(key) && source[key] == null
+        @Suppress("DEPRECATION")
+        return contains(key) && source[key] == null
     }
 
-    public actual inline operator fun contains(key: String): Boolean = source.containsKey(key)
+    public actual operator fun contains(key: String): Boolean = source.containsKey(key)
 
     public actual fun contentDeepEquals(other: SavedState): Boolean =
         source.contentDeepEquals(other)
 
     public actual fun contentDeepHashCode(): Int = source.contentDeepHashCode()
+
+    public actual fun contentDeepToString(): String {
+        // in order not to overflow Int.MAX_VALUE
+        val length = source.size().coerceAtMost((Int.MAX_VALUE - 2) / 5) * 5 + 2
+        return buildString(length) { source.contentDeepToString(result = this, mutableListOf()) }
+    }
 
     public actual fun toMap(): Map<String, Any?> {
         return buildMap(capacity = source.size()) {
@@ -612,4 +869,45 @@ private fun SavedState.contentDeepHashCode(): Int {
     }
 
     return result
+}
+
+private fun SavedState.contentDeepToString(
+    result: StringBuilder,
+    processed: MutableList<SavedState>,
+) {
+    if (this in processed) {
+        result.append("[...]")
+        return
+    }
+    processed += this
+    result.append('[')
+
+    for ((i, k) in keySet().withIndex()) {
+        if (i != 0) {
+            result.append(", ")
+        }
+        result.append("$k=")
+        when (@Suppress("DEPRECATION") val element = this[k]) {
+            null -> result.append("null")
+            // container types
+            is SavedState -> element.contentDeepToString(result, processed)
+            is Array<*> -> result.append(element.contentDeepToString())
+
+            // primitive arrays
+            is ByteArray -> result.append(element.contentToString())
+            is ShortArray -> result.append(element.contentToString())
+            is IntArray -> result.append(element.contentToString())
+            is LongArray -> result.append(element.contentToString())
+            is FloatArray -> result.append(element.contentToString())
+            is DoubleArray -> result.append(element.contentToString())
+            is CharArray -> result.append(element.contentToString())
+            is BooleanArray -> result.append(element.contentToString())
+
+            // if nothing else works
+            else -> result.append(element.toString())
+        }
+    }
+
+    result.append(']')
+    processed.removeAt(processed.lastIndex)
 }

@@ -18,7 +18,7 @@ package androidx.recyclerview.widget;
 
 import android.util.SparseArray;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Array;
 

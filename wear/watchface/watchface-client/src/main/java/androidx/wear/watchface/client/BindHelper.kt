@@ -39,7 +39,7 @@ internal class BindHelper {
         fun bindService(
             context: Context,
             intent: Intent,
-            serviceConnection: ServiceConnection
+            serviceConnection: ServiceConnection,
         ): Boolean {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 // API 29 lets us specify an executor to avoid a round trip via the potentially
@@ -50,7 +50,7 @@ internal class BindHelper {
                 context.bindService(
                     intent,
                     serviceConnection,
-                    Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT
+                    Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT,
                 )
             }
         }
@@ -64,13 +64,13 @@ private class BindHelper29 {
         fun bindServiceWithImmediateExecutor(
             context: Context,
             intent: Intent,
-            serviceConnection: ServiceConnection
+            serviceConnection: ServiceConnection,
         ) =
             context.bindService(
                 intent,
                 Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT,
                 { command -> command.run() },
-                serviceConnection
+                serviceConnection,
             )
     }
 }

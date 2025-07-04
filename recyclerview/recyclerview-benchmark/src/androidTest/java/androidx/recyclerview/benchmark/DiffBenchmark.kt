@@ -61,43 +61,43 @@ class DiffBenchmark(val input: Input) {
                     Input(
                         name = "no_changes",
                         before = (0..1000).toList(),
-                        after = (0..1000).toList()
+                        after = (0..1000).toList(),
                     ),
                     Input(
                         name = "prepend",
                         before = (0..1000).toList(),
-                        after = (-100..-1).toList() + (0..1000)
+                        after = (-100..-1).toList() + (0..1000),
                     ),
                     Input(
                         name = "append",
                         before = (0..1000).toList(),
-                        after = (0..1000).toList() + (0..100)
+                        after = (0..1000).toList() + (0..100),
                     ),
                     Input(
                         name = "move_large_chunk",
                         before = (0..1000).toList(),
-                        after = (0..200).toList() + (301..1000).toList() + (201..300).toList()
+                        after = (0..200).toList() + (301..1000).toList() + (201..300).toList(),
                     ),
                     Input(
                         name = "delete_from_middle",
                         before = (0..1000).toList(),
-                        after = (0..200).toList() + (301..1000).toList()
+                        after = (0..200).toList() + (301..1000).toList(),
                     ),
                     Input(
                         name = "delete_1_item",
                         before = (0..1000).toList(),
-                        after = (0..299).toList() + (301..1000).toList()
+                        after = (0..299).toList() + (301..1000).toList(),
                     ),
                     Input(
                         name = "move_from_beginning_to_end",
                         before = (0..1000).toList(),
-                        after = (100..1000).toList() + (0..99).toList()
+                        after = (100..1000).toList() + (0..99).toList(),
                     ),
                     Input(
                         name = "move_from_end_to_beginning",
                         before = (0..1000).toList(),
-                        after = (900..1000).toList() + (0..899).toList()
-                    )
+                        after = (900..1000).toList() + (0..899).toList(),
+                    ),
                 )
                 .flatMap { listOf(it, it.copy(detectMoves = false)) }
                 .flatMap { listOf(it, it.copy(dispatchUpdates = false)) }
@@ -108,7 +108,7 @@ class DiffBenchmark(val input: Input) {
         val before: List<Int>,
         val after: List<Int>,
         val dispatchUpdates: Boolean = true,
-        val detectMoves: Boolean = true
+        val detectMoves: Boolean = true,
     ) {
         val callback =
             object : DiffUtil.Callback() {

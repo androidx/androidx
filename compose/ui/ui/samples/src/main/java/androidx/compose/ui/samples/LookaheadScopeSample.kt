@@ -77,7 +77,7 @@ fun approachLayoutSample() {
     // completes.
     fun Modifier.animateConstraints(
         sizeAnimation: DeferredTargetAnimation<IntSize, AnimationVector2D>,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
     ) =
         this.approachLayout(
             isMeasurementApproachInProgress = { lookaheadSize ->
@@ -115,9 +115,7 @@ fun approachLayoutSample() {
             .animateConstraints(sizeAnimation, coroutineScope)
             .clickable { fullWidth = !fullWidth }
     ) {
-        Box(
-            Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)),
-        )
+        Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)))
         Box(Modifier.weight(2f).fillMaxHeight().background(Color(0xffffcc5c)))
     }
 }
@@ -156,7 +154,7 @@ fun LookaheadLayoutCoordinatesSample() {
 
         override fun ApproachMeasureScope.approachMeasure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
             return layout(placeable.width, placeable.height) {

@@ -53,7 +53,7 @@ class CurvedRowTest {
                     color = ColorProvider(Color.Magenta),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
             .isEqualTo(
@@ -61,7 +61,7 @@ class CurvedRowTest {
                     color = ColorProvider(Color.Magenta),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
 
@@ -77,7 +77,7 @@ class CurvedRowTest {
                     modifier = GlanceModifier.padding(1.dp),
                     anchorDegrees = 5f,
                     anchorType = AnchorType.End,
-                    radialAlignment = RadialAlignment.Center
+                    radialAlignment = RadialAlignment.Center,
                 ) {}
             }
 
@@ -99,7 +99,7 @@ class CurvedRowTest {
                     curvedText(
                         text = "Hello World",
                         curvedModifier = GlanceCurvedModifier,
-                        style = CurvedTextStyle(color = ColorProvider(Color.Gray), fontSize = 24.sp)
+                        style = CurvedTextStyle(color = ColorProvider(Color.Gray), fontSize = 24.sp),
                     )
                 }
             }
@@ -153,7 +153,7 @@ class CurvedRowTest {
                     curvedLine(
                         color = ColorProvider(Color.Red),
                         curvedModifier =
-                            GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp)
+                            GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp),
                     )
                 }
             }

@@ -17,8 +17,11 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.sp
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.text.ParseException
@@ -159,7 +162,7 @@ class TextFieldBufferTest {
         val state =
             TextFieldBuffer(
                 initialValue = TextFieldCharSequence("hello", TextRange(2)),
-                originalValue = expectedValue
+                originalValue = expectedValue,
             )
         state.revertAllChanges()
         assertThat(state.toTextFieldCharSequence()).isEqualTo(expectedValue)
@@ -614,10 +617,69 @@ class TextFieldBufferTest {
         assertThat(state.text.toString()).isEqualTo("Hello")
     }
 
+    @Test
+    fun toTextFieldBuffer_canCallAddStyle() {
+        val state = TextFieldState("Hello", TextRange(3))
+        val buffer = state.toTextFieldBuffer()
+
+        buffer.addStyle(SpanStyle(), 0, buffer.length)
+        // should not crash.
+    }
+
+    @Test
+    fun canCallAddStyle_isTrueByDefault_ifOffsetMappingCalculatorPresent() {
+        val buffer =
+            TextFieldBuffer(
+                TextFieldCharSequence("hello"),
+                offsetMappingCalculator = OffsetMappingCalculator(),
+            )
+        assertThat(buffer.canCallAddStyle).isTrue()
+    }
+
+    @Test
+    fun addStyle_addsToOutputAnnotations_ifCreatedForOutputTransformation() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        // Act
+        val style = SpanStyle(fontSize = 12.sp)
+        buffer.canCallAddStyle = true
+        buffer.addStyle(style, 0, buffer.length)
+
+        // Assert
+        assertThat(buffer.outputTransformationAnnotations).hasSize(1)
+        assertThat(buffer.outputTransformationAnnotations?.get(0)?.item).isEqualTo(style)
+        assertThat(buffer.outputTransformationAnnotations?.get(0)?.start).isEqualTo(0)
+        assertThat(buffer.outputTransformationAnnotations?.get(0)?.end).isEqualTo(5)
+        assertThat(buffer.changes.changeCount).isEqualTo(0)
+    }
+
+    @Test
+    fun addStyle_crashes_ifNotCreatedForOutputTransformation() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        val style = SpanStyle(fontSize = 12.sp)
+        assertFailsWith<IllegalStateException>(
+            "You can add styling to a [TextFieldBuffer] only from an [OutputTransformation]."
+        ) {
+            buffer.addStyle(style, 0, buffer.length)
+        }
+    }
+
+    @Test
+    fun addStyle_notRangeTracked() {
+        val buffer = TextFieldBuffer(TextFieldCharSequence("hello"))
+        val style = SpanStyle(fontSize = 12.sp)
+
+        buffer.canCallAddStyle = true
+        buffer.addStyle(style, 0, buffer.length)
+        buffer.insert(2, "world") // expand where style is applied
+
+        assertThat(buffer.outputTransformationAnnotations?.get(0)?.start).isEqualTo(0)
+        assertThat(buffer.outputTransformationAnnotations?.get(0)?.end).isEqualTo(5)
+    }
+
     private fun testSelectionAdjustment(
         initial: String,
         transform: TextFieldBuffer.() -> Unit,
-        expected: String
+        expected: String,
     ) {
         val state = TextFieldBuffer(initial.parseAsTextEditState())
         state.transform()
@@ -653,7 +715,7 @@ class TextFieldBufferTest {
                     firstMark == -1 -> TextRange.Zero
                     secondMark == -1 -> TextRange(firstMark)
                     else -> TextRange(firstMark, secondMark)
-                }
+                },
         )
     }
 
@@ -670,7 +732,7 @@ class TextFieldBufferTest {
     private fun assertCommonPrefixAndSuffix(
         a: CharSequence,
         b: CharSequence,
-        expectedRanges: Pair<TextRange, TextRange>?
+        expectedRanges: Pair<TextRange, TextRange>?,
     ) {
         var result: Pair<TextRange, TextRange>? = null
         findCommonPrefixAndSuffix(a, b) { aStart, aEnd, bStart, bEnd ->

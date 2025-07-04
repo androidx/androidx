@@ -98,7 +98,7 @@ internal class WarmupManager(
             Log.d(
                 BenchmarkState.TAG,
                 "Warmup: t=%.3f, iter=%d, fastAvg=%3.0f, slowAvg=%3.0f"
-                    .format(totalDurationNs / 1e9, iteration, fastMovingAvg, slowMovingAvg)
+                    .format(totalDurationNs / 1e9, iteration, fastMovingAvg, slowMovingAvg),
             )
         }
     }

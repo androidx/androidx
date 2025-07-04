@@ -32,7 +32,7 @@ import kotlin.math.max
 internal class ComposeIdlingResource(
     private val composeRootRegistry: ComposeRootRegistry,
     private val clock: MainTestClockImpl,
-    private val mainRecomposer: Recomposer
+    private val mainRecomposer: Recomposer,
 ) : IdlingResource {
 
     private var hadAwaitersOnMainClock = false

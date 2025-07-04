@@ -52,7 +52,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     @Test
     fun singleReplace() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled { PartialGapBuffer(initText.text) }
+            val buffer = runWithMeasurementDisabled { PartialGapBuffer(initText.text) }
 
             buffer.replace(5, 10, "Android")
         }
@@ -61,7 +61,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     @Test
     fun replace10timesContinued() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled { PartialGapBuffer(initText.text) }
+            val buffer = runWithMeasurementDisabled { PartialGapBuffer(initText.text) }
 
             for (i in 0 until 10) {
                 buffer.replace(5 + i, 10 + i, "Android")
@@ -72,7 +72,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     @Test
     fun replace10timesDiscontinued() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled { PartialGapBuffer(initText.text) }
+            val buffer = runWithMeasurementDisabled { PartialGapBuffer(initText.text) }
 
             for (i in 0 until 10) {
                 if (i % 2 == 0) {
@@ -87,7 +87,7 @@ class GapBufferBenchmark(val initText: InitialText) {
     @Test
     fun toStringAfterReplace() {
         benchmarkRule.measureRepeated {
-            val buffer = runWithTimingDisabled {
+            val buffer = runWithMeasurementDisabled {
                 PartialGapBuffer(initText.text).apply { replace(5, 10, "Android") }
             }
 

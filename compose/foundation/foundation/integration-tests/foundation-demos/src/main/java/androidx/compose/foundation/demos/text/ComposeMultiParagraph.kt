@@ -69,7 +69,7 @@ fun TextDemoParagraph() {
                 append(text1)
                 withStyle(ParagraphStyle()) { append(text2) }
             },
-        style = TextStyle(fontSize = fontSize6)
+        style = TextStyle(fontSize = fontSize6),
     )
 }
 
@@ -103,16 +103,16 @@ fun TextDemoParagraphLineHeight() {
                         AnnotatedString.Range(
                             ParagraphStyle(lineHeight = 40.sp),
                             text1.length,
-                            text1.length + text2.length
+                            text1.length + text2.length,
                         ),
                         AnnotatedString.Range(
                             ParagraphStyle(lineHeight = 50.sp),
                             text1.length + text2.length,
-                            text1.length + text2.length + text3.length
-                        )
-                    )
+                            text1.length + text2.length + text3.length,
+                        ),
+                    ),
             ),
-        style = TextStyle(fontSize = fontSize6)
+        style = TextStyle(fontSize = fontSize6),
     )
 }
 
@@ -132,7 +132,7 @@ fun TextDemoParagraphIndent() {
                     append(text2)
                 }
             },
-        style = TextStyle(fontSize = fontSize6)
+        style = TextStyle(fontSize = fontSize6),
     )
 }
 
@@ -146,6 +146,6 @@ fun TextDemoParagraphTextDirection() {
                 withStyle(ParagraphStyle()) { append(ltrText) }
                 withStyle(ParagraphStyle()) { append(rtlText) }
             },
-        style = TextStyle(fontSize = fontSize6)
+        style = TextStyle(fontSize = fontSize6),
     )
 }

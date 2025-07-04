@@ -58,14 +58,14 @@ dependencies {
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation(project(":activity:activity"))
+    implementation("androidx.activity:activity:1.10.1")
     implementation(libs.material)
     implementation(libs.constraintLayout)
     implementation(libs.kotlinCoroutinesAndroid)
-    implementation("androidx.tracing:tracing:1.1.0")
+    implementation(project(":tracing:tracing"))
     implementation(libs.espressoIdlingResource)
 
-    androidTestImplementation(project(":activity:activity"))
+    androidTestImplementation("androidx.activity:activity:1.10.1")
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -75,4 +75,5 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(project(":tracing:tracing"))
 }

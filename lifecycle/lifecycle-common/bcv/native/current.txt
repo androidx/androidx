@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -50,6 +50,8 @@ abstract class androidx.lifecycle/Lifecycle { // androidx.lifecycle/Lifecycle|nu
         enum entry ON_START // androidx.lifecycle/Lifecycle.Event.ON_START|null[0]
         enum entry ON_STOP // androidx.lifecycle/Lifecycle.Event.ON_STOP|null[0]
 
+        final val entries // androidx.lifecycle/Lifecycle.Event.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.lifecycle/Lifecycle.Event> // androidx.lifecycle/Lifecycle.Event.entries.<get-entries>|<get-entries>#static(){}[0]
         final val targetState // androidx.lifecycle/Lifecycle.Event.targetState|{}targetState[0]
             final fun <get-targetState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.Event.targetState.<get-targetState>|<get-targetState>(){}[0]
 
@@ -70,6 +72,9 @@ abstract class androidx.lifecycle/Lifecycle { // androidx.lifecycle/Lifecycle|nu
         enum entry INITIALIZED // androidx.lifecycle/Lifecycle.State.INITIALIZED|null[0]
         enum entry RESUMED // androidx.lifecycle/Lifecycle.State.RESUMED|null[0]
         enum entry STARTED // androidx.lifecycle/Lifecycle.State.STARTED|null[0]
+
+        final val entries // androidx.lifecycle/Lifecycle.State.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/Lifecycle.State.entries.<get-entries>|<get-entries>#static(){}[0]
 
         final fun isAtLeast(androidx.lifecycle/Lifecycle.State): kotlin/Boolean // androidx.lifecycle/Lifecycle.State.isAtLeast|isAtLeast(androidx.lifecycle.Lifecycle.State){}[0]
         final fun valueOf(kotlin/String): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.State.valueOf|valueOf#static(kotlin.String){}[0]

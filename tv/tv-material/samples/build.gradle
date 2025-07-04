@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -42,9 +41,8 @@ dependencies {
 
 androidx {
     name = "Samples library for androidx.tv.material3 package"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     mavenVersion = LibraryVersions.TV_MATERIAL
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2022"
     description = "Contains the sample code for the APIs in the androidx.tv.material3 library"
 }

@@ -29,7 +29,7 @@ internal fun <T : Any> PageStore(
     pages: List<List<T>>,
     leadingNullCount: Int = COUNT_UNDEFINED,
     trailingNullCount: Int = COUNT_UNDEFINED,
-    indexOfInitialPage: Int = 0
+    indexOfInitialPage: Int = 0,
 ) =
     PageStore(
         localRefresh(
@@ -52,7 +52,7 @@ internal fun <T : Any> PageStore<T>.insertPage(
             isPrepend = isPrepend,
             page = page,
             originalPageOffset = 0,
-            placeholdersRemaining = placeholdersRemaining
+            placeholdersRemaining = placeholdersRemaining,
         )
     )
 
@@ -67,7 +67,7 @@ internal fun <T : Any> PageStore<T>.dropPages(
             loadType = if (isPrepend) PREPEND else APPEND,
             minPageOffset = minPageOffset,
             maxPageOffset = maxPageOffset,
-            placeholdersRemaining = placeholdersRemaining
+            placeholdersRemaining = placeholdersRemaining,
         )
     )
 
@@ -86,16 +86,12 @@ class PageStoreTest {
                 pages = mutableListOf(List(initialItems) { 'a' + it }),
                 leadingNullCount = 0,
                 trailingNullCount = initialNulls,
-                indexOfInitialPage = 0
+                indexOfInitialPage = 0,
             )
 
         val inserted = List(newItems) { 'a' + it + initialItems }
         val event =
-            data.insertPage(
-                isPrepend = false,
-                page = inserted,
-                placeholdersRemaining = newNulls,
-            )
+            data.insertPage(isPrepend = false, page = inserted, placeholdersRemaining = newNulls)
 
         // Assert list contents first (since this shows more obvious errors)...
         val expectedNulls =
@@ -113,34 +109,25 @@ class PageStoreTest {
                 startIndex = initialItems,
                 inserted = inserted,
                 newPlaceholdersAfter = newNulls,
-                oldPlaceholdersAfter = initialNulls
+                oldPlaceholdersAfter = initialNulls,
             ),
-            event
+            event,
         )
     }
 
-    private fun verifyPrepend(
-        initialItems: Int,
-        initialNulls: Int,
-        newItems: Int,
-        newNulls: Int,
-    ) {
+    private fun verifyPrepend(initialItems: Int, initialNulls: Int, newItems: Int, newNulls: Int) {
         val data =
             PageStore(
                 pages = mutableListOf(List(initialItems) { 'z' + it - initialItems - 1 }),
                 leadingNullCount = initialNulls,
                 trailingNullCount = 0,
-                indexOfInitialPage = 0
+                indexOfInitialPage = 0,
             )
 
         val endItemCount = newItems + initialItems
         val inserted = List(newItems) { 'z' + it - endItemCount - 1 }
         val event =
-            data.insertPage(
-                isPrepend = true,
-                page = inserted,
-                placeholdersRemaining = newNulls,
-            )
+            data.insertPage(isPrepend = true, page = inserted, placeholdersRemaining = newNulls)
 
         // Assert list contents first (since this shows more obvious errors)...
         val expectedNulls =
@@ -158,9 +145,9 @@ class PageStoreTest {
             PagingDataEvent.Prepend(
                 inserted = inserted,
                 newPlaceholdersBefore = newNulls,
-                oldPlaceholdersBefore = initialNulls
+                oldPlaceholdersBefore = initialNulls,
             ),
-            event
+            event,
         )
     }
 
@@ -176,75 +163,35 @@ class PageStoreTest {
 
     @Test
     fun insertPageEmpty() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 0,
-            newItems = 0,
-            newNulls = 0,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 0, newItems = 0, newNulls = 0)
 
     @Test
     fun insertPageSimple() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 0,
-            newItems = 2,
-            newNulls = 0,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 0, newItems = 2, newNulls = 0)
 
     @Test
     fun insertPageSimplePlaceholders() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 4,
-            newItems = 2,
-            newNulls = 2,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 4, newItems = 2, newNulls = 2)
 
     @Test
     fun insertPageInitPlaceholders() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 0,
-            newItems = 2,
-            newNulls = 3,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 0, newItems = 2, newNulls = 3)
 
     @Test
     fun insertPageInitJustPlaceholders() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 0,
-            newItems = 0,
-            newNulls = 3,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 0, newItems = 0, newNulls = 3)
 
     @Test
     fun insertPageInsertNulls() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 3,
-            newItems = 2,
-            newNulls = 2,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 3, newItems = 2, newNulls = 2)
 
     @Test
     fun insertPageRemoveNulls() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 7,
-            newItems = 2,
-            newNulls = 0,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 7, newItems = 2, newNulls = 0)
 
     @Test
     fun insertPageReduceNulls() =
-        verifyPrependAppend(
-            initialItems = 2,
-            initialNulls = 10,
-            newItems = 3,
-            newNulls = 4,
-        )
+        verifyPrependAppend(initialItems = 2, initialNulls = 10, newItems = 3, newNulls = 4)
 
     private fun verifyDropEnd(
         initialPages: List<List<Char>>,
@@ -262,7 +209,7 @@ class PageStoreTest {
                 pages = initialPages.toMutableList(),
                 leadingNullCount = 0,
                 trailingNullCount = initialNulls,
-                indexOfInitialPage = 0
+                indexOfInitialPage = 0,
             )
 
         assertEquals(initialPages.flatten() + List<Char?>(initialNulls) { null }, data.asList())
@@ -281,9 +228,9 @@ class PageStoreTest {
                 startIndex = initialPages.flatten().size - dropCount,
                 dropCount = dropCount,
                 newPlaceholdersAfter = newNulls,
-                oldPlaceholdersAfter = initialNulls
+                oldPlaceholdersAfter = initialNulls,
             ),
-            event
+            event,
         )
         val finalData = initialPages.subList(0, initialPages.size - pagesToDrop).flatten()
         assertEquals(finalData + List<Char?>(newNulls) { null }, data.asList())
@@ -305,12 +252,12 @@ class PageStoreTest {
                 pages = initialPages.reversed().toMutableList(),
                 leadingNullCount = initialNulls,
                 trailingNullCount = 0,
-                indexOfInitialPage = 0
+                indexOfInitialPage = 0,
             )
 
         assertEquals(
             List<Char?>(initialNulls) { null } + initialPages.reversed().flatten(),
-            data.asList()
+            data.asList(),
         )
 
         val event =
@@ -326,9 +273,9 @@ class PageStoreTest {
             PagingDataEvent.DropPrepend(
                 dropCount = dropCount,
                 oldPlaceholdersBefore = initialNulls,
-                newPlaceholdersBefore = newNulls
+                newPlaceholdersBefore = newNulls,
             ),
-            event
+            event,
         )
         val finalData = initialPages.take(initialPages.size - pagesToDrop).reversed().flatten()
         assertEquals(List<Char?>(newNulls) { null } + finalData, data.asList())
@@ -406,7 +353,7 @@ class PageStoreTest {
                 pages = mutableListOf(listOf('a')),
                 leadingNullCount = 1,
                 trailingNullCount = 1,
-                indexOfInitialPage = 0
+                indexOfInitialPage = 0,
             )
         assertFailsWith<IndexOutOfBoundsException> { storage.get(-1) }
         assertFailsWith<IndexOutOfBoundsException> { storage.get(4) }
@@ -417,12 +364,7 @@ class PageStoreTest {
     @Test
     fun snapshot_uncounted() {
         val pageStore =
-            PageStore(
-                insertEvent =
-                    localRefresh(
-                        pages = listOf(TransformablePage(listOf('a'))),
-                    )
-            )
+            PageStore(insertEvent = localRefresh(pages = listOf(TransformablePage(listOf('a')))))
 
         assertEquals<List<Char?>>(listOf('a'), pageStore.snapshot())
     }

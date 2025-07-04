@@ -86,6 +86,17 @@ limitations under the License.
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".HighSpeedVideoActivity"
+            android:exported="true"
+            android:label="High Speed Video Test App"
+            android:process=":high_speed_video"
+            android:taskAffinity="androidx.camera.integration.core.HighSpeedVideoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
         <service
             android:name=".CameraXService"
             android:exported="true"

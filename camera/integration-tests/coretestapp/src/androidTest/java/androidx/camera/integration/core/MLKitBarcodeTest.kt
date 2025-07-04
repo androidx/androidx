@@ -119,7 +119,7 @@ class MLKitBarcodeTest(private val resolution: Size) {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 CameraSelector.DEFAULT_FRONT_CAMERA,
-                imageAnalysis
+                imageAnalysis,
             )
         }
         assertBarcodeDetect(imageAnalysis)
@@ -134,7 +134,7 @@ class MLKitBarcodeTest(private val resolution: Size) {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
-                imageAnalysis
+                imageAnalysis,
             )
         }
         assertBarcodeDetect(imageAnalysis)
@@ -146,7 +146,7 @@ class MLKitBarcodeTest(private val resolution: Size) {
             MlKitAnalyzer(
                 listOf(barcodeScanner),
                 ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
-                ioExecutor()
+                ioExecutor(),
             ) { result ->
                 result.getValue(barcodeScanner)?.forEach {
                     if ("Hi, CamX!" == it.displayValue) {

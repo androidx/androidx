@@ -76,7 +76,7 @@ public class UseCaseThreads(
      */
     public inline fun <T> confineDeferredList(
         size: Int,
-        crossinline block: () -> List<Deferred<T>>
+        crossinline block: () -> List<Deferred<T>>,
     ): List<Deferred<T>> {
         val deferredList = List(size) { CompletableDeferred<T>() }
         sequentialScope.launch {
@@ -118,7 +118,7 @@ public class UseCaseThreads(
      */
     public inline fun <T> confineDeferredListSuspend(
         size: Int,
-        crossinline block: suspend () -> List<Deferred<T>>
+        crossinline block: suspend () -> List<Deferred<T>>,
     ): List<Deferred<T>> {
         val deferredList = List(size) { CompletableDeferred<T>() }
         sequentialScope.launch {

@@ -22,6 +22,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.Logger
@@ -183,8 +184,20 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
         return impl.getHighSpeedVideoSizesFor(fpsRange)
     }
 
-    public fun getOutputMinFrameDuration(format: Int, size: Size?): Long? {
-        return impl.getOutputMinFrameDuration(format, size)
+    /**
+     * Get the minimum frame duration for the format/size combination (in nanoseconds).
+     *
+     * @return a minimum frame duration > 0 in nanoseconds, or 0 if the minimum frame duration is
+     *   not available.
+     * @see StreamConfigurationMap.getOutputMinFrameDuration
+     */
+    public fun getOutputMinFrameDuration(format: Int, size: Size): Long {
+        try {
+            return impl.getOutputMinFrameDuration(format, size)
+        } catch (e: RuntimeException) {
+            warn(e) { "Unable to get min frame duration for format = $format and size = $size" }
+        }
+        return 0
     }
 
     /** Returns the [StreamConfigurationMap] represented by this object. */
@@ -211,7 +224,7 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
         @Throws(IllegalArgumentException::class)
         fun getHighSpeedVideoSizesFor(fpsRange: Range<Int>): Array<Size>?
 
-        fun getOutputMinFrameDuration(format: Int, size: Size?): Long?
+        fun getOutputMinFrameDuration(format: Int, size: Size): Long
 
         /** Returns the underlying [StreamConfigurationMap] instance. */
         fun unwrap(): StreamConfigurationMap?

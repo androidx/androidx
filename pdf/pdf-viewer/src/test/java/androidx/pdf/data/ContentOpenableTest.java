@@ -22,14 +22,12 @@ import android.net.Uri;
 import android.os.Parcel;
 
 import androidx.pdf.models.Dimensions;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link ContentOpenable}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class ContentOpenableTest {
 

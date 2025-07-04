@@ -40,12 +40,7 @@ public class OutputsTest {
     public fun setUp() {
         outputs.addAll(
             // Don't add the / prefix.
-            listOf(
-                "foo/a.txt",
-                "foo/b.txt",
-                "foo/bar/a.txt",
-                "foo/bar/baz/a.txt",
-            )
+            listOf("foo/a.txt", "foo/b.txt", "foo/bar/a.txt", "foo/bar/baz/a.txt")
         )
     }
 
@@ -84,7 +79,7 @@ public class OutputsTest {
     public fun sanitizeFilename() {
         assertEquals(
             "testFilename_one_Thing_two_other_",
-            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other]")
+            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other]"),
         )
     }
 
@@ -98,7 +93,7 @@ public class OutputsTest {
     public fun sanitizeFilename_withExtension() {
         assertEquals(
             "testFilename_one_Thing_two_other_.trace",
-            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other].trace")
+            Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other].trace"),
         )
     }
 
@@ -116,7 +111,7 @@ public class OutputsTest {
             assertFalse(path.startsWith("/"), "$path cannot start with a `/`.")
             assertFalse(
                 path.startsWith(basePath),
-                "Invalid relative path ($path), Base ($basePath)."
+                "Invalid relative path ($path), Base ($basePath).",
             )
         }
 
@@ -147,7 +142,7 @@ public class OutputsTest {
             file.writeText(file.name) // use name, as it's fairly unique
             Assert.assertEquals(
                 file.name,
-                Shell.executeScriptCaptureStdout("cat ${file.absolutePath}")
+                Shell.executeScriptCaptureStdout("cat ${file.absolutePath}"),
             )
         } finally {
             file.delete()

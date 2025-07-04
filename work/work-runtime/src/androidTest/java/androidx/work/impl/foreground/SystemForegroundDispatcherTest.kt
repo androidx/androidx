@@ -109,7 +109,7 @@ class SystemForegroundDispatcherTest {
                 Trackers(
                     context = context,
                     taskExecutor = taskExecutor,
-                    batteryChargingTracker = fakeChargingTracker
+                    batteryChargingTracker = fakeChargingTracker,
                 )
             )
         // Initialize dispatcher
@@ -352,7 +352,7 @@ class SystemForegroundDispatcherTest {
             .startForeground(
                 eq(firstId),
                 eq(FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE),
-                any<Notification>()
+                any<Notification>(),
             )
 
         dispatcher.onStartCommand(secondIntent)
@@ -401,7 +401,7 @@ class SystemForegroundDispatcherTest {
             createStartForegroundIntent(
                 context,
                 WorkGenerationalId(request.workSpec.id, 0),
-                metadata
+                metadata,
             )
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
@@ -470,7 +470,7 @@ class SystemForegroundDispatcherTest {
             createStartForegroundIntent(
                 context,
                 WorkGenerationalId(request.workSpec.id, 0),
-                metadata
+                metadata,
             )
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
@@ -479,7 +479,7 @@ class SystemForegroundDispatcherTest {
         verify(workManager, times(1))
             .stopForegroundWork(
                 WorkGenerationalId(request.workSpec.id, 0),
-                WorkInfo.STOP_REASON_FOREGROUND_SERVICE_TIMEOUT
+                WorkInfo.STOP_REASON_FOREGROUND_SERVICE_TIMEOUT,
             )
         verify(dispatcherCallback, times(1)).stop()
 

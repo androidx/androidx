@@ -35,7 +35,7 @@ val gradients: List<Color> =
         Color(0xff86f7fa),
         Color(0xffc8bbfd),
         Color(0xff86f7fa),
-        Color(0xff7057f5)
+        Color(0xff7057f5),
     )
 
 val gradientColors = gradients.map { it.toArgb() }.toIntArray()

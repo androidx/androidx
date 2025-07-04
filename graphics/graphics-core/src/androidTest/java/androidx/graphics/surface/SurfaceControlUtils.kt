@@ -43,7 +43,7 @@ internal class SurfaceControlUtils {
         @RequiresApi(Build.VERSION_CODES.Q)
         fun surfaceControlTestHelper(
             onSurfaceCreated: (SurfaceView, CountDownLatch) -> Unit,
-            verifyOutput: (Bitmap, Rect) -> Boolean
+            verifyOutput: (Bitmap, Rect) -> Boolean,
         ) {
             val setupLatch = CountDownLatch(1)
             var surfaceView: SurfaceView? = null
@@ -62,7 +62,7 @@ internal class SurfaceControlUtils {
                                 holder: SurfaceHolder,
                                 format: Int,
                                 width: Int,
-                                height: Int
+                                height: Int,
                             ) {
                                 // NO-OP
                             }
@@ -87,8 +87,8 @@ internal class SurfaceControlUtils {
                             coords[0],
                             coords[1],
                             coords[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                            coords[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT
-                        )
+                            coords[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        ),
                     )
                 }
             } finally {
@@ -133,7 +133,7 @@ internal class SurfaceControlUtils {
                                     executor.shutdownNow()
                                     commitLatch.countDown()
                                 }
-                            }
+                            },
                         )
                     }
                     transaction.commit()
@@ -172,25 +172,25 @@ internal class SurfaceControlUtils {
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
-                        coord[1]
+                        coord[1],
                     ) &&
                 // check  bottom right
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 1,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1,
                     ) &&
                 // check bottom left
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0],
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 1,
                     ) &&
                 // check center
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2,
                     )
         }
 
@@ -199,45 +199,45 @@ internal class SurfaceControlUtils {
             return Color.BLACK ==
                 bitmap.getPixel(
                     coord[0] + 19,
-                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                    coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2,
                 ) &&
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + 20,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2,
                     ) &&
                 // check top crop
                 Color.BLACK ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + 29
+                        coord[1] + 29,
                     ) &&
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + 30
+                        coord[1] + 30,
                     ) &&
                 // check right crop
                 Color.BLACK ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH - 10,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2,
                     ) &&
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 11,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT / 2,
                     ) &&
                 // check bottom crop
                 Color.BLACK ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 40
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 40,
                     ) &&
                 Color.RED ==
                     bitmap.getPixel(
                         coord[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH / 2,
-                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 41
+                        coord[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT - 41,
                     )
         }
 
@@ -257,7 +257,7 @@ internal class SurfaceControlUtils {
             colorTopLeft: Int,
             colorTopRight: Int,
             colorBottomRight: Int,
-            colorBottomLeft: Int
+            colorBottomLeft: Int,
         ): HardwareBuffer {
             return nGetQuadrantBuffer(
                 width,
@@ -265,7 +265,7 @@ internal class SurfaceControlUtils {
                 colorTopLeft,
                 colorTopRight,
                 colorBottomRight,
-                colorBottomLeft
+                colorBottomLeft,
             )
         }
 
@@ -277,7 +277,7 @@ internal class SurfaceControlUtils {
             colorTopLeft: Int,
             colorTopRight: Int,
             colorBottomRight: Int,
-            colorBottomLeft: Int
+            colorBottomLeft: Int,
         ): HardwareBuffer
 
         init {

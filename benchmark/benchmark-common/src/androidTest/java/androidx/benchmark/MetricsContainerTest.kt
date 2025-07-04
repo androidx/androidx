@@ -48,40 +48,10 @@ class MetricsContainerTest {
                 arrayOf(
                     FixedOutputCapture(
                         names = listOf("foo", "bar"),
-                        data = listOf(longArrayOf(0, 6), longArrayOf(2, 8), longArrayOf(4, 10))
+                        data = listOf(longArrayOf(0, 6), longArrayOf(2, 8), longArrayOf(4, 10)),
                     )
                 ),
-                repeatCount = 3
-            )
-        container.captureInit()
-        repeat(3) {
-            container.captureStart()
-            container.captureStop()
-        }
-        assertEquals(
-            listOf(
-                MetricResult("foo", listOf(0.0, 1.0, 2.0)),
-                MetricResult("bar", listOf(3.0, 4.0, 5.0))
-            ),
-            container.captureFinished(2) // divide measurements by 2
-        )
-    }
-
-    @Test
-    fun multiMetricCapture() {
-        val container =
-            MetricsContainer(
-                arrayOf(
-                    FixedOutputCapture(
-                        names = listOf("foo", "bar"),
-                        data = listOf(longArrayOf(0, 6), longArrayOf(2, 8), longArrayOf(4, 10))
-                    ),
-                    FixedOutputCapture(
-                        names = listOf("baz"),
-                        data = listOf(longArrayOf(12), longArrayOf(14), longArrayOf(16))
-                    ),
-                ),
-                repeatCount = 3
+                repeatCount = 3,
             )
         container.captureInit()
         repeat(3) {
@@ -92,9 +62,39 @@ class MetricsContainerTest {
             listOf(
                 MetricResult("foo", listOf(0.0, 1.0, 2.0)),
                 MetricResult("bar", listOf(3.0, 4.0, 5.0)),
-                MetricResult("baz", listOf(6.0, 7.0, 8.0))
             ),
-            container.captureFinished(2) // divide measurements by 2
+            container.captureFinished(2), // divide measurements by 2
+        )
+    }
+
+    @Test
+    fun multiMetricCapture() {
+        val container =
+            MetricsContainer(
+                arrayOf(
+                    FixedOutputCapture(
+                        names = listOf("foo", "bar"),
+                        data = listOf(longArrayOf(0, 6), longArrayOf(2, 8), longArrayOf(4, 10)),
+                    ),
+                    FixedOutputCapture(
+                        names = listOf("baz"),
+                        data = listOf(longArrayOf(12), longArrayOf(14), longArrayOf(16)),
+                    ),
+                ),
+                repeatCount = 3,
+            )
+        container.captureInit()
+        repeat(3) {
+            container.captureStart()
+            container.captureStop()
+        }
+        assertEquals(
+            listOf(
+                MetricResult("foo", listOf(0.0, 1.0, 2.0)),
+                MetricResult("bar", listOf(3.0, 4.0, 5.0)),
+                MetricResult("baz", listOf(6.0, 7.0, 8.0)),
+            ),
+            container.captureFinished(2), // divide measurements by 2
         )
     }
 
@@ -104,7 +104,7 @@ class MetricsContainerTest {
             Start,
             Paused,
             Resumed,
-            Stop
+            Stop,
         }
 
         var lastEvent: Event? = null

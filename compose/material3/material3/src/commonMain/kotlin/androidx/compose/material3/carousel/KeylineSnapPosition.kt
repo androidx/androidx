@@ -17,8 +17,6 @@
 package androidx.compose.material3.carousel
 
 import androidx.compose.foundation.gestures.snapping.SnapPosition
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -31,27 +29,45 @@ import kotlin.math.roundToInt
 internal fun getSnapPositionOffset(strategy: Strategy, itemIndex: Int, itemCount: Int): Int {
     if (!strategy.isValid) return 0
 
-    val numOfFocalKeylines =
-        strategy.defaultKeylines.lastFocalIndex - strategy.defaultKeylines.firstFocalIndex
-    val startStepsSize = strategy.startKeylineSteps.size + numOfFocalKeylines
-    val endStepsSize = strategy.endKeylineSteps.size + numOfFocalKeylines
-
+    // Default to snapping the first focal keyline to its resting position. This will cover
+    // snapping any item index that does not need shifting to bring it into the focal range.
+    // Meaning any index that is greater than startStepsSize and less than itemCount - endStepsSize.
     var offset =
         (strategy.defaultKeylines.firstFocal.unadjustedOffset - strategy.itemMainAxisSize / 2F)
             .roundToInt()
 
-    if (itemIndex < startStepsSize) {
-        var startIndex = max(0, startStepsSize - 1 - itemIndex)
-        startIndex = min(strategy.startKeylineSteps.size - 1, startIndex)
-        val startKeylines = strategy.startKeylineSteps[startIndex]
+    if (itemIndex <= strategy.startKeylineSteps.lastIndex) {
+        // Items at the start of the list will always align with their corresponding step index
+        // when in focus.
+        // Since keyline steps are in reverse order (default step to fist start/end step), get the
+        // step from last to first.
+        val stepIndex =
+            (strategy.startKeylineSteps.lastIndex - itemIndex).coerceIn(
+                0,
+                strategy.startKeylineSteps.lastIndex,
+            )
+        val startKeylines = strategy.startKeylineSteps[stepIndex]
         offset =
             (startKeylines.firstFocal.unadjustedOffset - strategy.itemMainAxisSize / 2f)
                 .roundToInt()
     }
-    if (itemCount > numOfFocalKeylines + 1 && itemIndex >= itemCount - endStepsSize) {
-        var endIndex = max(0, itemIndex - itemCount + endStepsSize)
-        endIndex = min(strategy.endKeylineSteps.size - 1, endIndex)
-        val endKeylines = strategy.endKeylineSteps[endIndex]
+
+    val lastItemIndex = itemCount - 1
+    if (
+        itemIndex >= lastItemIndex - strategy.endKeylineSteps.lastIndex &&
+            // If all items fall on focal keylines, skip the end steps
+            itemCount > strategy.defaultKeylines.focalCount
+    ) {
+        // The item index's distance from the end of itemCount will align with its corresponding
+        // end step.
+        // Since keylines steps are in reverse order (default step to final end step), get the step
+        // from last to first
+        val stepIndex =
+            (strategy.endKeylineSteps.lastIndex - (lastItemIndex - itemIndex)).coerceIn(
+                0,
+                strategy.endKeylineSteps.lastIndex,
+            )
+        val endKeylines = strategy.endKeylineSteps[stepIndex]
         offset =
             (endKeylines.firstFocal.unadjustedOffset - strategy.itemMainAxisSize / 2f).roundToInt()
     }
@@ -67,7 +83,7 @@ internal fun KeylineSnapPosition(pageSize: CarouselPageSize): SnapPosition =
             beforeContentPadding: Int,
             afterContentPadding: Int,
             itemIndex: Int,
-            itemCount: Int
+            itemCount: Int,
         ): Int {
             return getSnapPositionOffset(pageSize.strategy, itemIndex, itemCount)
         }

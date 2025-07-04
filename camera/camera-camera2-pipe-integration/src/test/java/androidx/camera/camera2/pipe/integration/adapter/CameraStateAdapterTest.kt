@@ -56,7 +56,7 @@ internal class CameraStateAdapterTest {
         val nextStateWhenGraphStateError =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.CLOSED,
-                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true)
+                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true),
             )
 
         assertThat(nextStateWhenGraphStateStarting!!.state).isEqualTo(CameraInternal.State.OPENING)
@@ -79,17 +79,17 @@ internal class CameraStateAdapterTest {
         val nextStateWhenGraphStateErrorWillRetry =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPENING,
-                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, willAttemptRetry = true)
+                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, willAttemptRetry = true),
             )
         val nextStateWhenGraphStateErrorRecoverableWillNotRetry =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPENING,
-                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, willAttemptRetry = false)
+                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, willAttemptRetry = false),
             )
         val nextStateWhenGraphStateErrorUnrecoverableWillNotRetry =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPENING,
-                GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false)
+                GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false),
             )
 
         assertThat(nextStateWhenGraphStateStarting).isEqualTo(null)
@@ -117,12 +117,12 @@ internal class CameraStateAdapterTest {
         val nextStateWhenGraphStateErrorRecoverable =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPEN,
-                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true)
+                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true),
             )
         val nextStateWhenGraphStateErrorUnrecoverable =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.OPEN,
-                GraphStateError(CameraError.ERROR_CAMERA_DISABLED, true)
+                GraphStateError(CameraError.ERROR_CAMERA_DISABLED, true),
             )
 
         assertThat(nextStateWhenGraphStateStarting).isEqualTo(null)
@@ -148,7 +148,7 @@ internal class CameraStateAdapterTest {
         val nextStateWhenGraphStateError =
             cameraStateAdapter.calculateNextState(
                 CameraInternal.State.CLOSING,
-                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true)
+                GraphStateError(CameraError.ERROR_CAMERA_LIMIT_EXCEEDED, true),
             )
 
         assertThat(nextStateWhenGraphStateStarting!!.state).isEqualTo(CameraInternal.State.OPENING)
@@ -226,7 +226,7 @@ internal class CameraStateAdapterTest {
         // We should transition to OPENING with an error code if we encounter errors during opening.
         cameraStateAdapter.onGraphStateUpdated(
             cameraGraph1,
-            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = true)
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = true),
         )
         val cameraStateWillRetry = cameraStateAdapter.cameraState.value!!
         assertThat(cameraStateWillRetry.type).isEqualTo(CameraState.Type.OPENING)
@@ -235,7 +235,7 @@ internal class CameraStateAdapterTest {
         // Now assume we've exceeded retries and will no longer retry.
         cameraStateAdapter.onGraphStateUpdated(
             cameraGraph1,
-            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false)
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false),
         )
         val cameraStateNotRetry = cameraStateAdapter.cameraState.value!!
         assertThat(cameraStateNotRetry.type).isEqualTo(CameraState.Type.PENDING_OPEN)
@@ -260,7 +260,7 @@ internal class CameraStateAdapterTest {
 
         cameraStateAdapter.onGraphStateUpdated(
             cameraGraph1,
-            GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false)
+            GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false),
         )
         val cameraState = cameraStateAdapter.cameraState.value!!
         assertThat(cameraState.type).isEqualTo(CameraState.Type.CLOSING)
@@ -279,7 +279,7 @@ internal class CameraStateAdapterTest {
         // We should transition to OPENING with an error code if we encounter errors during opening.
         cameraStateAdapter.onGraphStateUpdated(
             cameraGraph1,
-            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false)
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false),
         )
         val cameraState = cameraStateAdapter.cameraState.value!!
         assertThat(cameraState.type).isEqualTo(CameraState.Type.PENDING_OPEN)
@@ -297,7 +297,7 @@ internal class CameraStateAdapterTest {
 
         cameraStateAdapter.onGraphStateUpdated(
             cameraGraph1,
-            GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false)
+            GraphStateError(CameraError.ERROR_CAMERA_DISABLED, willAttemptRetry = false),
         )
         val cameraState = cameraStateAdapter.cameraState.value!!
         assertThat(cameraState.type).isEqualTo(CameraState.Type.CLOSED)
@@ -319,7 +319,7 @@ internal class CameraStateAdapterTest {
         // We should update the CLOSING state to include an error code.
         cameraStateAdapter.onGraphStateUpdated(
             cameraGraph1,
-            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false)
+            GraphStateError(CameraError.ERROR_CAMERA_DISCONNECTED, willAttemptRetry = false),
         )
         val cameraState = cameraStateAdapter.cameraState.value!!
         assertThat(cameraState.type).isEqualTo(CameraState.Type.CLOSING)

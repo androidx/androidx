@@ -22,15 +22,14 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -82,7 +81,7 @@ dependencies {
     implementation("androidx.test:core:1.5.0")
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
-    implementation(libs.testExtJunit)
+    implementation("androidx.test.ext:junit:1.2.1")
 
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":internal-testutils-ktx"))
@@ -97,7 +96,7 @@ dependencies {
 
 androidx {
     name = "Benchmark - Macrobenchmark"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
     legacyDisableKotlinStrictApiMode = true
@@ -114,6 +113,7 @@ tasks.withType(KotlinCompile).configureEach {
                 "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
         ]
     }
 }
@@ -135,5 +135,4 @@ androidx {
         targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
         targetAppVariant = "release"
     }
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

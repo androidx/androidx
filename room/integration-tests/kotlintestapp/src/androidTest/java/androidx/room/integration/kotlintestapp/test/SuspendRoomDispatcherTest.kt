@@ -20,6 +20,7 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.DefaultTaskExecutor
 import androidx.test.filters.SmallTest
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.Ignore
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -52,6 +53,7 @@ class SuspendRoomDispatcherTest : TestDatabaseTest() {
     }
 
     @Test
+    @Ignore("b/388063342")
     fun testIODispatcher() {
         runBlocking {
             booksDao.getBooksSuspend()

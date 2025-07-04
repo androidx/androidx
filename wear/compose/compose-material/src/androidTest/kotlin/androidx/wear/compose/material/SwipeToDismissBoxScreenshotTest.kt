@@ -103,7 +103,7 @@ class SwipeToDismissBoxScreenshotTest {
         layoutDirection: LayoutDirection,
         swipedPercentage: Float,
         isOnDismissOverload: Boolean = false,
-        goldenIdentifier: String = testName.methodName
+        goldenIdentifier: String = testName.methodName,
     ) {
         val screenShotSizeDp = SCREENSHOT_SIZE.dp
         rule.setContentWithTheme {
@@ -118,21 +118,21 @@ class SwipeToDismissBoxScreenshotTest {
 
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
-                LocalConfiguration provides fixedScreenSizeConfiguration
+                LocalConfiguration provides fixedScreenSizeConfiguration,
             ) {
                 val state = rememberSwipeToDismissBoxState()
                 if (isOnDismissOverload) {
                     SwipeToDismissBox(
                         onDismissed = {},
                         modifier = Modifier.testTag(TEST_TAG).size(screenShotSizeDp),
-                        state = state
+                        state = state,
                     ) { isBackground ->
                         boxContent(isBackground = isBackground)
                     }
                 } else {
                     SwipeToDismissBox(
                         modifier = Modifier.testTag(TEST_TAG).size(screenShotSizeDp),
-                        state = state
+                        state = state,
                     ) { isBackground ->
                         boxContent(isBackground = isBackground)
                     }

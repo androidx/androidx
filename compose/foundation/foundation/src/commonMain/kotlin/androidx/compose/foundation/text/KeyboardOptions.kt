@@ -88,7 +88,7 @@ class KeyboardOptions(
                     "showKeyboardOnFocus = showKeyboardOnFocus," +
                     "hintLocales = hintLocales" +
                     ")"
-            )
+            ),
     )
     constructor(
         capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
@@ -110,19 +110,19 @@ class KeyboardOptions(
 
     @Deprecated(
         "Please use the new constructor that takes optional platformImeOptions parameter.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
         autoCorrect: Boolean = Default.autoCorrectOrDefault,
         keyboardType: KeyboardType = KeyboardType.Unspecified,
-        imeAction: ImeAction = ImeAction.Default
+        imeAction: ImeAction = ImeAction.Default,
     ) : this(
         capitalization = capitalization,
         autoCorrectEnabled = autoCorrect,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        platformImeOptions = null
+        platformImeOptions = null,
     )
 
     @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
@@ -131,14 +131,14 @@ class KeyboardOptions(
         autoCorrect: Boolean = Default.autoCorrectOrDefault,
         keyboardType: KeyboardType = KeyboardType.Text,
         imeAction: ImeAction = ImeAction.Default,
-        platformImeOptions: PlatformImeOptions? = null
+        platformImeOptions: PlatformImeOptions? = null,
     ) : this(
         capitalization = capitalization,
         autoCorrectEnabled = autoCorrect,
         keyboardType = keyboardType,
         imeAction = imeAction,
         platformImeOptions = platformImeOptions,
-        showKeyboardOnFocus = Default.showKeyboardOnFocusOrDefault
+        showKeyboardOnFocus = Default.showKeyboardOnFocusOrDefault,
     )
 
     @Deprecated("Please use the autoCorrectEnabled property.", level = DeprecationLevel.WARNING)
@@ -150,7 +150,7 @@ class KeyboardOptions(
     @get:Suppress("GetterSetterNames")
     @Deprecated(
         "Included for binary compatibility. Use showKeyboardOnFocus.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     val shouldShowKeyboardOnFocus: Boolean
         get() = showKeyboardOnFocus ?: true
@@ -199,7 +199,7 @@ class KeyboardOptions(
             keyboardType = keyboardTypeOrDefault,
             imeAction = imeActionOrDefault,
             platformImeOptions = platformImeOptions,
-            hintLocales = hintLocalesOrDefault
+            hintLocales = hintLocalesOrDefault,
         )
 
     /**
@@ -216,7 +216,7 @@ class KeyboardOptions(
         imeAction: ImeAction = this.imeAction,
         platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
         @Suppress("AutoBoxing") showKeyboardOnFocus: Boolean? = null,
-        hintLocales: LocaleList? = null
+        hintLocales: LocaleList? = null,
     ): KeyboardOptions {
         return KeyboardOptions(
             capitalization = capitalization,
@@ -225,7 +225,7 @@ class KeyboardOptions(
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
             showKeyboardOnFocus = showKeyboardOnFocus,
-            hintLocales = hintLocales
+            hintLocales = hintLocales,
         )
     }
 
@@ -243,7 +243,7 @@ class KeyboardOptions(
                     "showKeyboardOnFocus = showKeyboardOnFocus ?: true," +
                     "hintLocales = hintLocales" +
                     ")"
-            )
+            ),
     )
     fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
@@ -252,7 +252,7 @@ class KeyboardOptions(
         imeAction: ImeAction = this.imeAction,
         platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
         @Suppress("AutoBoxing") showKeyboardOnFocus: Boolean? = this.showKeyboardOnFocusOrDefault,
-        hintLocales: LocaleList? = this.hintLocales
+        hintLocales: LocaleList? = this.hintLocales,
     ): KeyboardOptions {
         return KeyboardOptions(
             capitalization = capitalization,
@@ -261,7 +261,7 @@ class KeyboardOptions(
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
             showKeyboardOnFocus = showKeyboardOnFocus,
-            hintLocales = hintLocales
+            hintLocales = hintLocales,
         )
     }
 
@@ -271,7 +271,7 @@ class KeyboardOptions(
         autoCorrect: Boolean = this.autoCorrectOrDefault,
         keyboardType: KeyboardType = this.keyboardType,
         imeAction: ImeAction = this.imeAction,
-        platformImeOptions: PlatformImeOptions? = this.platformImeOptions
+        platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
     ): KeyboardOptions {
         return KeyboardOptions(
             capitalization = capitalization,
@@ -280,7 +280,7 @@ class KeyboardOptions(
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
             showKeyboardOnFocus = this.showKeyboardOnFocus,
-            hintLocales = this.hintLocales
+            hintLocales = this.hintLocales,
             // New properties must be added here even though this is deprecated. The deprecated copy
             // constructors should still work on instances created with newer library versions.
         )
@@ -288,13 +288,13 @@ class KeyboardOptions(
 
     @Deprecated(
         "Please use the new copy function that takes optional platformImeOptions parameter.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrectOrDefault,
         keyboardType: KeyboardType = this.keyboardType,
-        imeAction: ImeAction = this.imeAction
+        imeAction: ImeAction = this.imeAction,
     ): KeyboardOptions {
         return KeyboardOptions(
             capitalization = capitalization,
@@ -303,7 +303,7 @@ class KeyboardOptions(
             imeAction = imeAction,
             platformImeOptions = this.platformImeOptions,
             showKeyboardOnFocus = this.showKeyboardOnFocus,
-            hintLocales = this.hintLocales
+            hintLocales = this.hintLocales,
             // New properties must be added here even though this is deprecated. The deprecated copy
             // constructors should still work on instances created with newer library versions.
         )
@@ -388,7 +388,7 @@ class KeyboardOptions(
                 this.imeAction.takeUnless { it == ImeAction.Unspecified } ?: other.imeAction,
             platformImeOptions = this.platformImeOptions ?: other.platformImeOptions,
             showKeyboardOnFocus = this.showKeyboardOnFocus ?: other.showKeyboardOnFocus,
-            hintLocales = this.hintLocales ?: other.hintLocales
+            hintLocales = this.hintLocales ?: other.hintLocales,
         )
     }
 }

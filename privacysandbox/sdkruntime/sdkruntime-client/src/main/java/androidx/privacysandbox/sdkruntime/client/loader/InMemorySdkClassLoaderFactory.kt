@@ -34,7 +34,7 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
 
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
-            parent: ClassLoader
+            parent: ClassLoader,
         ): ClassLoader {
             try {
                 val buffers = arrayOfNulls<ByteBuffer>(sdkConfig.dexPaths.size)
@@ -46,7 +46,7 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
                 throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
                     "Failed to instantiate classloader",
-                    ex
+                    ex,
                 )
             }
         }
@@ -58,12 +58,12 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
 
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
-            parent: ClassLoader
+            parent: ClassLoader,
         ): ClassLoader {
             if (sdkConfig.dexPaths.size != 1) {
                 throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_SDK_SANDBOX_DISABLED,
-                    "Can't use InMemoryDexClassLoader - API 26 supports only single DEX"
+                    "Can't use InMemoryDexClassLoader - API 26 supports only single DEX",
                 )
             }
             try {
@@ -73,7 +73,7 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
                 throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
                     "Failed to instantiate classloader",
-                    ex
+                    ex,
                 )
             }
         }
@@ -82,11 +82,11 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
     private class FailImpl : InMemorySdkClassLoaderFactory() {
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
-            parent: ClassLoader
+            parent: ClassLoader,
         ): ClassLoader {
             throw LoadSdkCompatException(
                 LoadSdkCompatException.LOAD_SDK_SDK_SANDBOX_DISABLED,
-                "Can't use InMemoryDexClassLoader"
+                "Can't use InMemoryDexClassLoader",
             )
         }
     }

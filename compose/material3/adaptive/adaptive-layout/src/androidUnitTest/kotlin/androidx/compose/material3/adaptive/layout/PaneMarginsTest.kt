@@ -60,7 +60,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 100.dp, 0.dp, 0.dp),
                 emptyList(),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(with(mockPaneMargins) { MockPlacementScope().getPaneTop(0) }).isEqualTo(100)
     }
@@ -72,7 +72,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
@@ -90,7 +90,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 100.dp, 0.dp, 0.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
@@ -108,7 +108,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 100.dp, 0.dp, 0.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
@@ -136,7 +136,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 0.dp, 100.dp),
                 emptyList(),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) { MockPlacementScope().getPaneBottom(1024, MockLayoutHeight) }
@@ -151,14 +151,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Bottom = 930,
                             mockInset2Bottom = 960,
-                            mockInset3Bottom = 910
+                            mockInset3Bottom = 910,
                         )
                         .getPaneBottom(1024, MockLayoutHeight)
                 }
@@ -173,14 +173,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 0.dp, 200.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Bottom = 930,
                             mockInset2Bottom = 960,
-                            mockInset3Bottom = 910
+                            mockInset3Bottom = 910,
                         )
                         .getPaneBottom(1024, MockLayoutHeight)
                 }
@@ -195,14 +195,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 0.dp, 200.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Bottom = 930,
                             mockInset2Bottom = 960,
-                            mockInset3Bottom = 910
+                            mockInset3Bottom = 910,
                         )
                         .getPaneBottom(800, MockLayoutHeight)
                 }
@@ -224,7 +224,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(100.dp, 0.dp, 0.dp, 0.dp),
                 emptyList(),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(with(mockPaneMargins) { MockPlacementScope().getPaneLeft(0) }).isEqualTo(100)
     }
@@ -236,7 +236,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 110.dp, 0.dp),
                 emptyList(),
                 MockDensity,
-                LayoutDirection.Rtl
+                LayoutDirection.Rtl,
             )
         assertThat(with(mockPaneMargins) { MockPlacementScope().getPaneLeft(0) }).isEqualTo(110)
     }
@@ -248,14 +248,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Left = 30,
                             mockInset2Left = 60,
-                            mockInset3Left = 10
+                            mockInset3Left = 10,
                         )
                         .getPaneLeft(0)
                 }
@@ -270,14 +270,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(100.dp, 0.dp, 0.dp, 0.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Left = 30,
                             mockInset2Left = 60,
-                            mockInset3Left = 10
+                            mockInset3Left = 10,
                         )
                         .getPaneLeft(0)
                 }
@@ -292,14 +292,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(100.dp, 0.dp, 0.dp, 0.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Left = 30,
                             mockInset2Left = 60,
-                            mockInset3Left = 10
+                            mockInset3Left = 10,
                         )
                         .getPaneLeft(140)
                 }
@@ -324,7 +324,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 100.dp, 0.dp),
                 emptyList(),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) { MockPlacementScope().getPaneRight(1280, MockLayoutWidth) }
@@ -339,7 +339,7 @@ class PaneMarginsModifierTest {
                 PaddingValues(110.dp, 0.dp, 0.dp, 0.dp),
                 emptyList(),
                 MockDensity,
-                LayoutDirection.Rtl
+                LayoutDirection.Rtl,
             )
         assertThat(
                 with(mockPaneMargins) { MockPlacementScope().getPaneRight(1280, MockLayoutWidth) }
@@ -354,14 +354,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Right = 930,
                             mockInset2Right = 960,
-                            mockInset3Right = 910
+                            mockInset3Right = 910,
                         )
                         .getPaneRight(1280, MockLayoutWidth)
                 }
@@ -376,14 +376,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 200.dp, 0.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Right = 930,
                             mockInset2Right = 960,
-                            mockInset3Right = 910
+                            mockInset3Right = 910,
                         )
                         .getPaneRight(1280, MockLayoutWidth)
                 }
@@ -398,14 +398,14 @@ class PaneMarginsModifierTest {
                 PaddingValues(0.dp, 0.dp, 200.dp, 0.dp),
                 listOf(MockWindowInsetRulers1, MockWindowInsetRulers2, MockWindowInsetRulers3),
                 MockDensity,
-                MockLayoutDirection
+                MockLayoutDirection,
             )
         assertThat(
                 with(mockPaneMargins) {
                     MockPlacementScope(
                             mockInset1Right = 930,
                             mockInset2Right = 960,
-                            mockInset3Right = 910
+                            mockInset3Right = 910,
                         )
                         .getPaneRight(800, MockLayoutWidth)
                 }

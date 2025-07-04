@@ -57,7 +57,7 @@ class CutCornerShapeTest {
                 lineTo(10f, 150f)
                 lineTo(0f, 140f)
                 close()
-            }
+            },
         )
     }
 
@@ -82,7 +82,7 @@ class CutCornerShapeTest {
                 lineTo(size4, size.height)
                 lineTo(0f, size.height - size4)
                 close()
-            }
+            },
         )
     }
 
@@ -107,7 +107,7 @@ class CutCornerShapeTest {
                 lineTo(size3, size.height)
                 lineTo(0f, size.height - size3)
                 close()
-            }
+            },
         )
     }
 
@@ -138,7 +138,7 @@ class CutCornerShapeTest {
                     topStart = CornerSize(10.0f),
                     topEnd = CornerSize(3.dp),
                     bottomStart = CornerSize(10.0f),
-                    bottomEnd = CornerSize(50)
+                    bottomEnd = CornerSize(50),
                 )
             )
     }
@@ -151,14 +151,14 @@ class CutCornerShapeTest {
                         topStart = CornerSize(4.0f),
                         topEnd = CornerSize(3.0f),
                         bottomStart = CornerSize(3.dp),
-                        bottomEnd = CornerSize(50)
+                        bottomEnd = CornerSize(50),
                     )
                     .equals(
                         CutCornerShape(
                             topStart = CornerSize(4.0f),
                             topEnd = CornerSize(3.0f),
                             bottomStart = CornerSize(3.dp),
-                            bottomEnd = CornerSize(50)
+                            bottomEnd = CornerSize(50),
                         )
                     )
             )
@@ -173,14 +173,14 @@ class CutCornerShapeTest {
                         topStart = CornerSize(4.0f),
                         topEnd = CornerSize(3.0f),
                         bottomStart = CornerSize(3.dp),
-                        bottomEnd = CornerSize(50)
+                        bottomEnd = CornerSize(50),
                     )
                     .equals(
                         CutCornerShape(
                             topStart = CornerSize(4.0f),
                             topEnd = CornerSize(5.0f),
                             bottomStart = CornerSize(3.dp),
-                            bottomEnd = CornerSize(50)
+                            bottomEnd = CornerSize(50),
                         )
                     )
             )
@@ -192,12 +192,12 @@ class CutCornerShapeTest {
         assertEquals(
             CutCornerShape(topStart = 5.dp, topEnd = 6.dp, bottomEnd = 3.dp, bottomStart = 4.dp),
             CutCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 3.dp, bottomStart = 4.dp)
-                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
+                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp)),
         )
         assertEquals(
             CutCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 5.dp, bottomStart = 6.dp),
             CutCornerShape(topStart = 1.dp, topEnd = 2.dp, bottomEnd = 3.dp, bottomStart = 4.dp)
-                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
+                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp)),
         )
     }
 

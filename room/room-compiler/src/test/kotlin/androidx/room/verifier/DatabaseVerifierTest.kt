@@ -35,11 +35,11 @@ import androidx.room.vo.Constructor
 import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
-import androidx.room.vo.Field
-import androidx.room.vo.FieldGetter
-import androidx.room.vo.FieldSetter
-import androidx.room.vo.Fields
 import androidx.room.vo.PrimaryKey
+import androidx.room.vo.Properties
+import androidx.room.vo.Property
+import androidx.room.vo.PropertyGetter
+import androidx.room.vo.PropertySetter
 import java.sql.Connection
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.hasItem
@@ -74,7 +74,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
             invocation.context,
             mock(XElement::class.java),
             db.entities,
-            db.views
+            db.views,
         )!!
     }
 
@@ -89,10 +89,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             ColumnInfo("id", SQLTypeAffinity.INTEGER, "User"),
                             ColumnInfo("name", SQLTypeAffinity.TEXT, "User"),
                             ColumnInfo("lastName", SQLTypeAffinity.TEXT, "User"),
-                            ColumnInfo("ratio", SQLTypeAffinity.REAL, "User")
+                            ColumnInfo("ratio", SQLTypeAffinity.REAL, "User"),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -106,10 +106,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     QueryResultInfo(
                         listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER, "User"),
-                            ColumnInfo("lastName", SQLTypeAffinity.TEXT, "User")
+                            ColumnInfo("lastName", SQLTypeAffinity.TEXT, "User"),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -126,7 +126,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             ColumnInfo("lastName", SQLTypeAffinity.TEXT, "User"),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -152,7 +152,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             ColumnInfo("isUnique", SQLTypeAffinity.NULL, null),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -166,10 +166,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     QueryResultInfo(
                         listOf(
                             ColumnInfo("myId", SQLTypeAffinity.INTEGER, "User"),
-                            ColumnInfo("lastName", SQLTypeAffinity.TEXT, "User")
+                            ColumnInfo("lastName", SQLTypeAffinity.TEXT, "User"),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -186,7 +186,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             ColumnInfo("MAX(ratio)", SQLTypeAffinity.NULL, null)
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -203,7 +203,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             ColumnInfo("mergedName", SQLTypeAffinity.NULL, null)
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -218,10 +218,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                         listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER, "User"),
                             // unfortunately, we don't get this information
-                            ColumnInfo("mergedName", SQLTypeAffinity.NULL, null)
+                            ColumnInfo("mergedName", SQLTypeAffinity.NULL, null),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -258,10 +258,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     QueryResultInfo(
                         listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER, "User"),
-                            ColumnInfo("name", SQLTypeAffinity.TEXT, "User")
+                            ColumnInfo("name", SQLTypeAffinity.TEXT, "User"),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -285,10 +285,10 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     QueryResultInfo(
                         listOf(
                             ColumnInfo("id", SQLTypeAffinity.INTEGER, "User"),
-                            ColumnInfo("name", SQLTypeAffinity.TEXT, "User")
+                            ColumnInfo("name", SQLTypeAffinity.TEXT, "User"),
                         )
                     )
-                )
+                ),
             )
         }
     }
@@ -315,7 +315,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             field(
                                 "id",
                                 primitive(invocation.context, XTypeName.PRIMITIVE_INT),
-                                SQLTypeAffinity.INTEGER
+                                SQLTypeAffinity.INTEGER,
                             ),
                             field(
                                 "name",
@@ -323,11 +323,11 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                                     CommonTypeNames.STRING
                                 ),
                                 SQLTypeAffinity.TEXT,
-                                defaultValue = "(NO_SUCH_CONSTANT)"
-                            )
+                                defaultValue = "(NO_SUCH_CONSTANT)",
+                            ),
                         )
                     ),
-                    emptyList()
+                    emptyList(),
                 )
             invocation.assertCompilationResult {
                 hasErrorContaining("default value of column [name]")
@@ -355,23 +355,23 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     field(
                         "id",
                         primitive(context, XTypeName.PRIMITIVE_INT),
-                        SQLTypeAffinity.INTEGER
+                        SQLTypeAffinity.INTEGER,
                     ),
                     field(
                         "name",
                         context.processingEnv.requireType(CommonTypeNames.STRING),
-                        SQLTypeAffinity.TEXT
+                        SQLTypeAffinity.TEXT,
                     ),
                     field(
                         "lastName",
                         context.processingEnv.requireType(CommonTypeNames.STRING),
-                        SQLTypeAffinity.TEXT
+                        SQLTypeAffinity.TEXT,
                     ),
                     field(
                         "ratio",
                         primitive(context, XTypeName.PRIMITIVE_FLOAT),
-                        SQLTypeAffinity.REAL
-                    )
+                        SQLTypeAffinity.REAL,
+                    ),
                 )
             ),
             listOf(
@@ -381,15 +381,15 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     field(
                         "id",
                         primitive(context, XTypeName.PRIMITIVE_INT),
-                        SQLTypeAffinity.INTEGER
+                        SQLTypeAffinity.INTEGER,
                     ),
                     field(
                         "name",
                         context.processingEnv.requireType(CommonTypeNames.STRING),
-                        SQLTypeAffinity.TEXT
-                    )
+                        SQLTypeAffinity.TEXT,
+                    ),
                 )
-            )
+            ),
         )
     }
 
@@ -399,7 +399,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
             type = mock(XType::class.java),
             entities = entities,
             views = views,
-            daoMethods = emptyList(),
+            daoFunctions = emptyList(),
             version = -1,
             exportSchema = false,
             enableForeignKeys = false,
@@ -411,32 +411,32 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
     private fun entity(
         invocation: XTestInvocation,
         tableName: String,
-        vararg fields: Field
+        vararg fields: Property,
     ): Entity {
         val element = invocation.processingEnv.requireTypeElement("java.lang.String")
         return Entity(
             element = element,
             tableName = tableName,
             type = mock(XType::class.java),
-            fields = fields.toList(),
-            embeddedFields = emptyList(),
+            properties = fields.toList(),
+            embeddedProperties = emptyList(),
             indices = emptyList(),
-            primaryKey = PrimaryKey(null, Fields(fields.take(1)), false),
+            primaryKey = PrimaryKey(null, Properties(fields.take(1)), false),
             foreignKeys = emptyList(),
             constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
-            shadowTableName = null
+            shadowTableName = null,
         )
     }
 
-    private fun view(viewName: String, query: String, vararg fields: Field): DatabaseView {
+    private fun view(viewName: String, query: String, vararg fields: Property): DatabaseView {
         return DatabaseView(
             element = mock(XTypeElement::class.java),
             viewName = viewName,
             type = mock(XType::class.java),
             fields = fields.toList(),
-            embeddedFields = emptyList(),
+            embeddedProperties = emptyList(),
             query = SqlParser.parse(query),
-            constructor = Constructor(mock(XConstructorElement::class.java), emptyList())
+            constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
         )
     }
 
@@ -444,12 +444,12 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         name: String,
         type: XType,
         affinity: SQLTypeAffinity,
-        defaultValue: String? = null
-    ): Field {
+        defaultValue: String? = null,
+    ): Property {
         val element = mock(XFieldElement::class.java)
         doReturn(type).`when`(element).type
         val f =
-            Field(
+            Property(
                 element = element,
                 name = name,
                 type = type,
@@ -461,15 +461,15 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                     } else {
                         null
                     },
-                defaultValue = defaultValue
+                defaultValue = defaultValue,
             )
         assignGetterSetter(f, name, type)
         return f
     }
 
-    private fun assignGetterSetter(f: Field, name: String, type: XType) {
-        f.getter = FieldGetter(f.name, name, type, CallType.FIELD)
-        f.setter = FieldSetter(f.name, name, type, CallType.FIELD)
+    private fun assignGetterSetter(f: Property, name: String, type: XType) {
+        f.getter = PropertyGetter(f.name, name, type, CallType.PROPERTY)
+        f.setter = PropertySetter(f.name, name, type, CallType.PROPERTY)
     }
 
     private fun primitive(context: Context, typeName: XTypeName): XType {

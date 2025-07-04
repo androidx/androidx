@@ -146,6 +146,19 @@ public class GridTemplateTest {
     }
 
     @Test
+    public void createInstance_addMediaPlaybackActionAsFAB() {
+        GridTemplate template =
+                new GridTemplate.Builder()
+                        .setSingleList(TestUtils.getGridItemList(2))
+                        .setHeader(new Header.Builder()
+                                .setStartHeaderAction(Action.BACK)
+                                .build())
+                        .addAction(Action.MEDIA_PLAYBACK)
+                        .build();
+        assertThat(template.getActions()).containsExactly(Action.MEDIA_PLAYBACK);
+    }
+
+    @Test
     public void createInstance_addAction_appIconInvalid_throws() {
         assertThrows(
                 IllegalArgumentException.class,

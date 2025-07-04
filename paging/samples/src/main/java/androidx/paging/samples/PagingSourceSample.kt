@@ -64,7 +64,7 @@ fun itemKeyedPagingSourceSample() {
                 LoadResult.Page(
                     data = response.items,
                     prevKey = response.prev,
-                    nextKey = response.next
+                    nextKey = response.next,
                 )
             } catch (e: IOException) {
                 LoadResult.Error(e)
@@ -135,7 +135,7 @@ fun pageKeyedPage() {
     data class NetworkResponseObject(
         val items: List<Item>,
         val next: String,
-        val approximateItemsRemaining: Int
+        val approximateItemsRemaining: Int,
     )
 
     // The following shows how you use convert such a response loaded in PagingSource.load() to
@@ -145,7 +145,7 @@ fun pageKeyedPage() {
             data = items,
             prevKey = null, // this implementation can only append, can't load a prepend
             nextKey = next, // next token will be the params.key of a subsequent append load
-            itemsAfter = approximateItemsRemaining
+            itemsAfter = approximateItemsRemaining,
         )
 }
 
@@ -165,7 +165,7 @@ fun pageIndexedPage() {
             // This API defines that it's out of data when a page returns empty. When out of
             // data, we return `null` to signify no more pages should be loaded
             // If the response instead
-            nextKey = if (items.isNotEmpty()) pageNumber + 1 else null
+            nextKey = if (items.isNotEmpty()) pageNumber + 1 else null,
         )
     }
 }

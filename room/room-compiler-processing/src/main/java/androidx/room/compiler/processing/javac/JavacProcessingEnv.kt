@@ -56,7 +56,7 @@ internal class JavacProcessingEnv(
         XTypeElementStore(
             findElement = { qName -> delegate.elementUtils.getTypeElement(qName) },
             wrap = { typeElement -> JavacTypeElement.create(this, typeElement) },
-            getQName = { it.qualifiedName.toString() }
+            getQName = { it.qualifiedName.toString() },
         )
 
     override val messager: XMessager by lazy { JavacProcessingEnvMessager(delegate.messager) }
@@ -97,7 +97,7 @@ internal class JavacProcessingEnv(
             return wrap(
                 typeMirror = typeUtils.getPrimitiveType(it),
                 kotlinType = null,
-                elementNullability = XNullability.NONNULL
+                elementNullability = XNullability.NONNULL,
             )
         }
         // check no types, such as 'void'
@@ -105,7 +105,7 @@ internal class JavacProcessingEnv(
             return wrap(
                 typeMirror = typeUtils.getNoType(it),
                 kotlinType = null,
-                elementNullability = XNullability.NONNULL
+                elementNullability = XNullability.NONNULL,
             )
         }
         return findTypeElement(qName)?.type
@@ -126,7 +126,7 @@ internal class JavacProcessingEnv(
             env = this,
             typeMirror = typeUtils.getArrayType(type.typeMirror),
             nullability = XNullability.UNKNOWN,
-            knownComponentNullability = type.nullability
+            knownComponentNullability = type.nullability,
         )
     }
 
@@ -143,7 +143,7 @@ internal class JavacProcessingEnv(
             typeMirror = typeUtils.getDeclaredType(type.element, *args),
             // type elements cannot have nullability hence we don't synthesize anything here
             kotlinType = null,
-            elementNullability = type.element.nullability
+            elementNullability = type.element.nullability,
         )
     }
 
@@ -158,7 +158,7 @@ internal class JavacProcessingEnv(
                     (consumerSuper as? JavacType)?.typeMirror,
                 ),
             kotlinType = null,
-            elementNullability = null
+            elementNullability = null,
         )
     }
 
@@ -173,7 +173,7 @@ internal class JavacProcessingEnv(
                 JavacTypeVariableType(
                     env = this,
                     typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                    kotlinType = kotlinType
+                    kotlinType = kotlinType,
                 )
             }
             else -> {
@@ -194,7 +194,7 @@ internal class JavacProcessingEnv(
     inline fun <reified T : JavacType> wrap(
         typeMirror: TypeMirror,
         kotlinType: KmTypeContainer?,
-        elementNullability: XNullability?
+        elementNullability: XNullability?,
     ): T {
         return when (typeMirror.kind) {
             TypeKind.ARRAY ->
@@ -203,7 +203,7 @@ internal class JavacProcessingEnv(
                         JavacArrayType(
                             env = this,
                             typeMirror = MoreTypes.asArray(typeMirror),
-                            kotlinType = kotlinType
+                            kotlinType = kotlinType,
                         )
                     }
                     elementNullability != null -> {
@@ -211,14 +211,11 @@ internal class JavacProcessingEnv(
                             env = this,
                             typeMirror = MoreTypes.asArray(typeMirror),
                             nullability = elementNullability,
-                            knownComponentNullability = null
+                            knownComponentNullability = null,
                         )
                     }
                     else -> {
-                        JavacArrayType(
-                            env = this,
-                            typeMirror = MoreTypes.asArray(typeMirror),
-                        )
+                        JavacArrayType(env = this, typeMirror = MoreTypes.asArray(typeMirror))
                     }
                 }
             TypeKind.DECLARED ->
@@ -227,14 +224,14 @@ internal class JavacProcessingEnv(
                         JavacDeclaredType(
                             env = this,
                             typeMirror = MoreTypes.asDeclared(typeMirror),
-                            kotlinType = kotlinType
+                            kotlinType = kotlinType,
                         )
                     }
                     elementNullability != null -> {
                         JavacDeclaredType(
                             env = this,
                             typeMirror = MoreTypes.asDeclared(typeMirror),
-                            nullability = elementNullability
+                            nullability = elementNullability,
                         )
                     }
                     else -> {
@@ -247,20 +244,20 @@ internal class JavacProcessingEnv(
                         JavacTypeVariableType(
                             env = this,
                             typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                            kotlinType = kotlinType
+                            kotlinType = kotlinType,
                         )
                     }
                     elementNullability != null -> {
                         JavacTypeVariableType(
                             env = this,
                             typeMirror = MoreTypes.asTypeVariable(typeMirror),
-                            nullability = elementNullability
+                            nullability = elementNullability,
                         )
                     }
                     else -> {
                         JavacTypeVariableType(
                             env = this,
-                            typeMirror = MoreTypes.asTypeVariable(typeMirror)
+                            typeMirror = MoreTypes.asTypeVariable(typeMirror),
                         )
                     }
                 }
@@ -270,14 +267,14 @@ internal class JavacProcessingEnv(
                         DefaultJavacType(
                             env = this,
                             typeMirror = typeMirror,
-                            kotlinType = kotlinType
+                            kotlinType = kotlinType,
                         )
                     }
                     elementNullability != null -> {
                         DefaultJavacType(
                             env = this,
                             typeMirror = typeMirror,
-                            nullability = elementNullability
+                            nullability = elementNullability,
                         )
                     }
                     else -> {

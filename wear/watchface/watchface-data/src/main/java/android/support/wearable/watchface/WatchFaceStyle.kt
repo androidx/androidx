@@ -47,7 +47,7 @@ public open class WatchFaceStyle(
      * Escape hatch needed by WearOS to implement backwards compatibility. Note WearOS support for
      * obsolete WatchFaceStyle properties may be removed without notice.
      */
-    public val compatBundle: Bundle? = null
+    public val compatBundle: Bundle? = null,
 ) : Parcelable {
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -132,7 +132,7 @@ public open class WatchFaceStyle(
                         bundle.getBoolean(Constants.KEY_SHOW_UNREAD_INDICATOR),
                         bundle.getBoolean(Constants.KEY_HIDE_NOTIFICATION_INDICATOR),
                         bundle.getBoolean(Constants.KEY_ACCEPTS_TAPS),
-                        bundle
+                        bundle,
                     )
                 }
 

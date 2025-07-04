@@ -102,7 +102,7 @@ data class Example(
     val name: String,
     val description: String,
     val sourceUrl: String,
-    val content: @Composable () -> Unit
+    val content: @Composable () -> Unit,
 )
 
 private const val AppBarsBottomExampleDescription = "App bars: bottom examples"
@@ -125,7 +125,7 @@ val AppBarsTopExamples =
         Example(
             name = "SimpleTopAppBar",
             description = AppBarsTopExampleDescription,
-            sourceUrl = AppBarsTopExampleSourceUrl
+            sourceUrl = AppBarsTopExampleSourceUrl,
         ) {
             SimpleTopAppBar()
         }
@@ -138,7 +138,7 @@ val BackdropExamples =
         Example(
             name = "BackdropScaffoldSample",
             description = BackdropExampleDescription,
-            sourceUrl = BackdropExampleSourceUrl
+            sourceUrl = BackdropExampleSourceUrl,
         ) {
             BackdropScaffoldSample()
         }
@@ -151,7 +151,7 @@ val BadgeExamples =
         Example(
             name = "BottomNavigationItemWithBadge",
             description = BadgeExampleDescription,
-            sourceUrl = BadgeExampleSourceUrl
+            sourceUrl = BadgeExampleSourceUrl,
         ) {
             BottomNavigationItemWithBadge()
         }
@@ -164,17 +164,17 @@ val BottomNavigationExamples =
         Example(
             name = "BottomNavigationSample",
             description = BottomNavigationExampleDescription,
-            sourceUrl = BottomNavigationExampleSourceUrl
+            sourceUrl = BottomNavigationExampleSourceUrl,
         ) {
             BottomNavigationSample()
         },
         Example(
             name = "BottomNavigationWithOnlySelectedLabelsSample",
             description = BottomNavigationExampleDescription,
-            sourceUrl = BottomNavigationExampleSourceUrl
+            sourceUrl = BottomNavigationExampleSourceUrl,
         ) {
             BottomNavigationWithOnlySelectedLabelsSample()
-        }
+        },
     )
 
 private const val ButtonsExampleDescription = "Buttons examples"
@@ -184,31 +184,31 @@ val ButtonsExamples =
         Example(
             name = "ButtonSample",
             description = ButtonsExampleDescription,
-            sourceUrl = ButtonsExampleSourceUrl
+            sourceUrl = ButtonsExampleSourceUrl,
         ) {
             ButtonSample()
         },
         Example(
             name = "OutlinedButtonSample",
             description = ButtonsExampleDescription,
-            sourceUrl = ButtonsExampleSourceUrl
+            sourceUrl = ButtonsExampleSourceUrl,
         ) {
             OutlinedButtonSample()
         },
         Example(
             name = "TextButtonSample",
             description = ButtonsExampleDescription,
-            sourceUrl = ButtonsExampleSourceUrl
+            sourceUrl = ButtonsExampleSourceUrl,
         ) {
             TextButtonSample()
         },
         Example(
             name = "ButtonWithIconSample",
             description = ButtonsExampleDescription,
-            sourceUrl = ButtonsExampleSourceUrl
+            sourceUrl = ButtonsExampleSourceUrl,
         ) {
             ButtonWithIconSample()
-        }
+        },
     )
 
 private const val ButtonsFloatingActionButtonExampleDescription = "Floating action button examples"
@@ -219,28 +219,28 @@ val ButtonsFloatingActionButtonExamples =
         Example(
             name = "SimpleFab",
             description = ButtonsFloatingActionButtonExampleDescription,
-            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl
+            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl,
         ) {
             SimpleFab()
         },
         Example(
             name = "SimpleExtendedFabNoIcon",
             description = ButtonsFloatingActionButtonExampleDescription,
-            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl
+            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl,
         ) {
             SimpleExtendedFabNoIcon()
         },
         Example(
             name = "SimpleExtendedFabWithIcon",
             description = ButtonsFloatingActionButtonExampleDescription,
-            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl
+            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl,
         ) {
             SimpleExtendedFabWithIcon()
         },
         Example(
             name = "FluidExtendedFab",
             description = ButtonsFloatingActionButtonExampleDescription,
-            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl
+            sourceUrl = ButtonsFloatingActionButtonExampleSourceUrl,
         ) {
             FluidExtendedFab()
         },
@@ -253,17 +253,17 @@ val CardsExamples =
         Example(
             name = "CardSample",
             description = CardsExampleDescription,
-            sourceUrl = CardsExampleSourceUrl
+            sourceUrl = CardsExampleSourceUrl,
         ) {
             CardSample()
         },
         Example(
             name = "ClickableCardSample",
             description = CardsExampleDescription,
-            sourceUrl = CardsExampleSourceUrl
+            sourceUrl = CardsExampleSourceUrl,
         ) {
             ClickableCardSample()
-        }
+        },
     )
 
 private const val CheckboxesExampleDescription = "Checkboxes examples"
@@ -273,17 +273,17 @@ val CheckboxesExamples =
         Example(
             name = "CheckboxSample",
             description = CheckboxesExampleDescription,
-            sourceUrl = CheckboxesExampleSourceUrl
+            sourceUrl = CheckboxesExampleSourceUrl,
         ) {
             CheckboxSample()
         },
         Example(
             name = "TriStateCheckboxSample",
             description = CheckboxesExampleDescription,
-            sourceUrl = CheckboxesExampleSourceUrl
+            sourceUrl = CheckboxesExampleSourceUrl,
         ) {
             TriStateCheckboxSample()
-        }
+        },
     )
 
 private const val ChipsExampleDescription = "Chips examples"
@@ -293,31 +293,31 @@ val ChipsExamples =
         Example(
             name = "ChipSample",
             description = ChipsExampleDescription,
-            sourceUrl = ChipsExampleSourceUrl
+            sourceUrl = ChipsExampleSourceUrl,
         ) {
             ChipSample()
         },
         Example(
             name = "OutlinedChipWithIconSample",
             description = ChipsExampleDescription,
-            sourceUrl = ChipsExampleSourceUrl
+            sourceUrl = ChipsExampleSourceUrl,
         ) {
             OutlinedChipWithIconSample()
         },
         Example(
             name = "ChipGroupSingleLineSample",
             description = ChipsExampleDescription,
-            sourceUrl = ChipsExampleSourceUrl
+            sourceUrl = ChipsExampleSourceUrl,
         ) {
             ChipGroupSingleLineSample()
         },
         Example(
             name = "ChipGroupReflowSample",
             description = ChipsExampleDescription,
-            sourceUrl = ChipsExampleSourceUrl
+            sourceUrl = ChipsExampleSourceUrl,
         ) {
             ChipGroupReflowSample()
-        }
+        },
     )
 
 private const val DialogsExampleDescription = "Dialogs examples"
@@ -327,17 +327,17 @@ val DialogsExamples =
         Example(
             name = "AlertDialogSample",
             description = DialogsExampleDescription,
-            sourceUrl = DialogsExampleSourceUrl
+            sourceUrl = DialogsExampleSourceUrl,
         ) {
             AlertDialogSample()
         },
         Example(
             name = "CustomAlertDialogSample",
             description = DialogsExampleDescription,
-            sourceUrl = DialogsExampleSourceUrl
+            sourceUrl = DialogsExampleSourceUrl,
         ) {
             CustomAlertDialogSample()
-        }
+        },
     )
 
 // No divider samples
@@ -350,52 +350,52 @@ val ListsExamples =
         Example(
             name = "ClickableListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             ClickableListItems()
         },
         Example(
             name = "OneLineListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             OneLineListItems()
         },
         Example(
             name = "TwoLineListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             TwoLineListItems()
         },
         Example(
             name = "ThreeLineListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             ThreeLineListItems()
         },
         Example(
             name = "OneLineRtlLtrListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             OneLineRtlLtrListItems()
         },
         Example(
             name = "TwoLineRtlLtrListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             TwoLineRtlLtrListItems()
         },
         Example(
             name = "ThreeLineRtlLtrListItems",
             description = ListsExampleDescription,
-            sourceUrl = ListsExampleSourceUrl
+            sourceUrl = ListsExampleSourceUrl,
         ) {
             ThreeLineRtlLtrListItems()
-        }
+        },
     )
 
 private const val MenusExampleDescription = "Menus examples"
@@ -405,24 +405,24 @@ val MenusExamples =
         Example(
             name = "MenuSample",
             description = MenusExampleDescription,
-            sourceUrl = MenusExampleSourceUrl
+            sourceUrl = MenusExampleSourceUrl,
         ) {
             MenuSample()
         },
         Example(
             name = "MenuWithScrollStateSample",
             description = MenusExampleDescription,
-            sourceUrl = MenusExampleSourceUrl
+            sourceUrl = MenusExampleSourceUrl,
         ) {
             MenuWithScrollStateSample()
         },
         Example(
             name = "ExposedDropdownMenuSample",
             description = MenusExampleDescription,
-            sourceUrl = MenusExampleSourceUrl
+            sourceUrl = MenusExampleSourceUrl,
         ) {
             ExposedDropdownMenuSample()
-        }
+        },
     )
 
 private const val NavigationDrawerExampleDescription = "Navigation drawer examples"
@@ -432,17 +432,17 @@ val NavigationDrawerExamples =
         Example(
             name = "ModalDrawerSample",
             description = NavigationDrawerExampleDescription,
-            sourceUrl = NavigationDrawerExampleSourceUrl
+            sourceUrl = NavigationDrawerExampleSourceUrl,
         ) {
             ModalDrawerSample()
         },
         Example(
             name = "BottomDrawerSample",
             description = NavigationDrawerExampleDescription,
-            sourceUrl = NavigationDrawerExampleSourceUrl
+            sourceUrl = NavigationDrawerExampleSourceUrl,
         ) {
             BottomDrawerSample()
-        }
+        },
     )
 
 private const val ProgressIndicatorsExampleDescription = "Progress indicators examples"
@@ -453,17 +453,17 @@ val ProgressIndicatorsExamples =
         Example(
             name = "LinearProgressIndicatorSample",
             description = ProgressIndicatorsExampleDescription,
-            sourceUrl = ProgressIndicatorsExampleSourceUrl
+            sourceUrl = ProgressIndicatorsExampleSourceUrl,
         ) {
             LinearProgressIndicatorSample()
         },
         Example(
             name = "CircularProgressIndicatorSample",
             description = ProgressIndicatorsExampleDescription,
-            sourceUrl = ProgressIndicatorsExampleSourceUrl
+            sourceUrl = ProgressIndicatorsExampleSourceUrl,
         ) {
             CircularProgressIndicatorSample()
-        }
+        },
     )
 
 private const val RadioButtonsExampleDescription = "Radio buttons examples"
@@ -473,14 +473,14 @@ val RadioButtonsExamples =
         Example(
             name = "RadioButtonSample",
             description = RadioButtonsExampleDescription,
-            sourceUrl = RadioButtonsExampleSourceUrl
+            sourceUrl = RadioButtonsExampleSourceUrl,
         ) {
             RadioButtonSample()
         },
         Example(
             name = "RadioGroupSample",
             description = RadioButtonsExampleDescription,
-            sourceUrl = RadioButtonsExampleSourceUrl
+            sourceUrl = RadioButtonsExampleSourceUrl,
         ) {
             RadioGroupSample()
         },
@@ -496,17 +496,17 @@ val SheetsBottomExamples =
         Example(
             name = "BottomSheetScaffoldSample",
             description = SheetsBottomExampleDescription,
-            sourceUrl = SheetsBottomStandardExampleSourceUrl
+            sourceUrl = SheetsBottomStandardExampleSourceUrl,
         ) {
             BottomSheetScaffoldSample()
         },
         Example(
             name = "ModalBottomSheetSample",
             description = SheetsBottomExampleDescription,
-            sourceUrl = SheetsBottomModalExampleSourceUrl
+            sourceUrl = SheetsBottomModalExampleSourceUrl,
         ) {
             ModalBottomSheetSample()
-        }
+        },
     )
 
 private const val SlidersExampleDescription = "Sliders examples"
@@ -516,28 +516,28 @@ val SlidersExamples =
         Example(
             name = "SliderSample",
             description = SlidersExampleDescription,
-            sourceUrl = SlidersExampleSourceUrl
+            sourceUrl = SlidersExampleSourceUrl,
         ) {
             SliderSample()
         },
         Example(
             name = "StepsSliderSample",
             description = SlidersExampleDescription,
-            sourceUrl = SlidersExampleSourceUrl
+            sourceUrl = SlidersExampleSourceUrl,
         ) {
             StepsSliderSample()
         },
         Example(
             name = "RangeSliderSample",
             description = SlidersExampleDescription,
-            sourceUrl = SlidersExampleSourceUrl
+            sourceUrl = SlidersExampleSourceUrl,
         ) {
             RangeSliderSample()
         },
         Example(
             name = "StepRangeSliderSample",
             description = SlidersExampleDescription,
-            sourceUrl = SlidersExampleSourceUrl
+            sourceUrl = SlidersExampleSourceUrl,
         ) {
             StepRangeSliderSample()
         },
@@ -550,24 +550,24 @@ val SnackbarsExamples =
         Example(
             name = "ScaffoldWithSimpleSnackbar",
             description = SnackbarsExampleDescription,
-            sourceUrl = SnackbarsExampleSourceUrl
+            sourceUrl = SnackbarsExampleSourceUrl,
         ) {
             ScaffoldWithSimpleSnackbar()
         },
         Example(
             name = "ScaffoldWithCustomSnackbar",
             description = SnackbarsExampleDescription,
-            sourceUrl = SnackbarsExampleSourceUrl
+            sourceUrl = SnackbarsExampleSourceUrl,
         ) {
             ScaffoldWithCustomSnackbar()
         },
         Example(
             name = "ScaffoldWithCoroutinesSnackbar",
             description = SnackbarsExampleDescription,
-            sourceUrl = SnackbarsExampleSourceUrl
+            sourceUrl = SnackbarsExampleSourceUrl,
         ) {
             ScaffoldWithCoroutinesSnackbar()
-        }
+        },
     )
 
 private const val SwitchesExampleDescription = "Switches examples"
@@ -577,7 +577,7 @@ val SwitchesExamples =
         Example(
             name = "SwitchSample",
             description = SwitchesExampleDescription,
-            sourceUrl = SwitchesExampleSourceUrl
+            sourceUrl = SwitchesExampleSourceUrl,
         ) {
             SwitchSample()
         }
@@ -590,66 +590,66 @@ val TabsExamples =
         Example(
             name = "TextTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             TextTabs()
         },
         Example(
             name = "IconTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             IconTabs()
         },
         Example(
             name = "TextAndIconTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             TextAndIconTabs()
         },
         Example(
             name = "LeadingIconTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             LeadingIconTabs()
         },
         Example(
             name = "ScrollingTextTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             ScrollingTextTabs()
         },
         Example(
             name = "FancyTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             FancyTabs()
         },
         Example(
             name = "FancyIndicatorTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             FancyIndicatorTabs()
         },
         Example(
             name = "FancyIndicatorContainerTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             FancyIndicatorContainerTabs()
         },
         Example(
             name = "ScrollingFancyIndicatorContainerTabs",
             description = TabsExampleDescription,
-            sourceUrl = TabsExampleSourceUrl
+            sourceUrl = TabsExampleSourceUrl,
         ) {
             ScrollingFancyIndicatorContainerTabs()
-        }
+        },
     )
 
 private const val TextFieldsExampleDescription = "Text fields examples"
@@ -659,80 +659,80 @@ val TextFieldsExamples =
             Example(
                 name = "SimpleTextFieldSample",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 SimpleTextFieldSample()
             },
             Example(
                 name = "TextFieldWithInitialValueAndSelection",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextFieldWithInitialValueAndSelection()
             },
             Example(
                 name = "SimpleOutlinedTextFieldSample",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 SimpleOutlinedTextFieldSample()
             },
             Example(
                 name = "OutlinedTextFieldWithInitialValueAndSelection",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 OutlinedTextFieldWithInitialValueAndSelection()
             },
             Example(
                 name = "TextFieldWithIcons",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextFieldWithIcons()
             },
             Example(
                 name = "TextFieldWithPlaceholder",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextFieldWithPlaceholder()
             },
             Example(
                 name = "TextFieldWithErrorState",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextFieldWithErrorState()
             },
             Example(
                 name = "TextFieldWithHelperMessage",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextFieldWithHelperMessage()
             },
             Example(
                 name = "PasswordTextField",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 PasswordTextField()
             },
             Example(
                 name = "TextFieldWithHideKeyboardOnImeAction",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextFieldWithHideKeyboardOnImeAction()
             },
             Example(
                 name = "TextArea",
                 description = TextFieldsExampleDescription,
-                sourceUrl = TextFieldsExampleSourceUrl
+                sourceUrl = TextFieldsExampleSourceUrl,
             ) {
                 TextArea()
-            }
+            },
         )
         .map {
             // By default text field samples are minimal and don't have a `width` modifier to
@@ -750,29 +750,29 @@ val NavigationRailExamples =
         Example(
             name = "NavigationRailSample",
             description = NavigationRailExampleDescription,
-            sourceUrl = NavigationRailExampleSourceUrl
+            sourceUrl = NavigationRailExampleSourceUrl,
         ) {
             NavigationRailSample()
         },
         Example(
             name = "NavigationRailWithOnlySelectedLabelsSample",
             description = NavigationRailExampleDescription,
-            sourceUrl = NavigationRailExampleSourceUrl
+            sourceUrl = NavigationRailExampleSourceUrl,
         ) {
             NavigationRailWithOnlySelectedLabelsSample()
         },
         Example(
             name = "CompactNavigationRailSample",
             description = NavigationRailExampleDescription,
-            sourceUrl = NavigationRailExampleSourceUrl
+            sourceUrl = NavigationRailExampleSourceUrl,
         ) {
             CompactNavigationRailSample()
         },
         Example(
             name = "NavigationRailBottomAlignSample",
             description = NavigationRailExampleDescription,
-            sourceUrl = NavigationRailExampleSourceUrl
+            sourceUrl = NavigationRailExampleSourceUrl,
         ) {
             NavigationRailBottomAlignSample()
-        }
+        },
     )

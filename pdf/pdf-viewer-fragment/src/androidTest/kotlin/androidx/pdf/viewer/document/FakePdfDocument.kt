@@ -23,6 +23,7 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.util.Size
 import android.util.SparseArray
 import androidx.annotation.OpenForTesting
@@ -31,6 +32,8 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.SelectionBoundary
+import androidx.pdf.models.FormEditRecord
+import androidx.pdf.models.FormWidgetInfo
 import kotlin.random.Random
 
 /**
@@ -55,12 +58,28 @@ internal open class FakePdfDocument(
     override val isLinearized: Boolean = false,
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
     override val uri: Uri = Uri.parse("content://test.app/document.pdf"),
-    private val pageLinks: List<PdfDocument.PdfPageLinks> = emptyList()
+    private val pageLinks: List<PdfDocument.PdfPageLinks> = emptyList(),
 ) : PdfDocument {
     override val pageCount: Int = pages.size
 
     override fun getPageBitmapSource(pageNumber: Int): PdfDocument.BitmapSource {
         return FakeBitmapSource(pageNumber)
+    }
+
+    override suspend fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo> {
+        return listOf()
+    }
+
+    override suspend fun getFormWidgetInfos(pageNum: Int, types: IntArray): List<FormWidgetInfo> {
+        return listOf()
+    }
+
+    override suspend fun applyEdit(pageNum: Int, record: FormEditRecord): List<Rect> {
+        return listOf()
+    }
+
+    override suspend fun write(destination: ParcelFileDescriptor) {
+        return
     }
 
     override suspend fun getPageLinks(pageNumber: Int): PdfDocument.PdfPageLinks {
@@ -81,15 +100,19 @@ internal open class FakePdfDocument(
     override suspend fun getSelectionBounds(
         pageNumber: Int,
         start: PointF,
-        stop: PointF
+        stop: PointF,
     ): PageSelection {
         // TODO(b/376136631) provide a useful implementation when it's needed for testing
         return PageSelection(0, SelectionBoundary(0), SelectionBoundary(0), listOf())
     }
 
+    override suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection? {
+        return PageSelection(0, SelectionBoundary(0), SelectionBoundary(Int.MAX_VALUE), listOf())
+    }
+
     override suspend fun searchDocument(
         query: String,
-        pageRange: IntRange
+        pageRange: IntRange,
     ): SparseArray<List<PageMatchBounds>> {
         return searchResults
     }
@@ -98,7 +121,21 @@ internal open class FakePdfDocument(
         return pageRange.map { getPageInfo(it) }
     }
 
+    override suspend fun getPageInfos(
+        pageRange: IntRange,
+        pageInfoFlags: PdfDocument.PageInfoFlags,
+    ): List<PdfDocument.PageInfo> {
+        return listOf()
+    }
+
     override suspend fun getPageInfo(pageNumber: Int): PdfDocument.PageInfo {
+        return getPageInfo(pageNumber, PdfDocument.PageInfoFlags.of(0))
+    }
+
+    override suspend fun getPageInfo(
+        pageNumber: Int,
+        pageInfoFlags: PdfDocument.PageInfoFlags,
+    ): PdfDocument.PageInfo {
         val size = pages[pageNumber]
         return PdfDocument.PageInfo(pageNumber, size.y, size.x)
     }
@@ -125,7 +162,7 @@ internal open class FakePdfDocument(
                         255,
                         colorRng.nextInt(256),
                         colorRng.nextInt(256),
-                        colorRng.nextInt(256)
+                        colorRng.nextInt(256),
                     )
                 )
             }

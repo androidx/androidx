@@ -94,9 +94,9 @@ class CompositionDataTests {
                 502,
                 503,
                 504,
-                505
+                505,
             ),
-            list
+            list,
         )
     }
 
@@ -332,7 +332,7 @@ class CompositionDataTests {
 
 fun findAll(
     data: CompositionData,
-    predicate: (data: CompositionGroup) -> Boolean
+    predicate: (data: CompositionGroup) -> Boolean,
 ): List<CompositionGroup> {
     val result = mutableListOf<CompositionGroup>()
 

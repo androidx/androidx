@@ -28,14 +28,14 @@ package androidx.work
  * Note that the list of inputs to merge is in an unspecified order. You should not make assumptions
  * about the order of inputs.
  */
-abstract class InputMerger {
+public abstract class InputMerger {
     /**
      * Merges a list of [Data] and outputs a single Data object.
      *
      * @param inputs A list of [Data]
      * @return The merged output
      */
-    abstract fun merge(inputs: List<Data>): Data
+    public abstract fun merge(inputs: List<Data>): Data
 }
 
 private val TAG = Logger.tagWithPrefix("InputMerger")

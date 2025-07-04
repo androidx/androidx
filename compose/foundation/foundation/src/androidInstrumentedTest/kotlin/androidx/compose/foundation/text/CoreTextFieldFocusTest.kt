@@ -59,7 +59,7 @@ class CoreTextFieldFocusTest {
                 CoreTextField(
                     value = value,
                     onValueChange = {},
-                    modifier = Modifier.testTag("TextField")
+                    modifier = Modifier.testTag("TextField"),
                 )
             }
         }
@@ -84,7 +84,7 @@ class CoreTextFieldFocusTest {
                 CoreTextField(
                     value = value,
                     onValueChange = {},
-                    modifier = Modifier.testTag("TextField")
+                    modifier = Modifier.testTag("TextField"),
                 )
             }
         }
@@ -107,7 +107,7 @@ class CoreTextFieldFocusTest {
             CoreTextField(
                 value = value,
                 onValueChange = {},
-                modifier = Modifier.testTag("TextField")
+                modifier = Modifier.testTag("TextField"),
             )
         }
 
@@ -128,7 +128,7 @@ class CoreTextFieldFocusTest {
                 value = value,
                 onValueChange = {},
                 modifier = Modifier.testTag("TextField"),
-                readOnly = true
+                readOnly = true,
             )
         }
 

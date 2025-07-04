@@ -164,10 +164,7 @@ internal object ActivityEmbeddingOptionsImpl {
      * @param overlayCreateParams The [OverlayCreateParams] to launch the overlay container
      */
     @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
-    internal fun setOverlayCreateParams(
-        options: Bundle,
-        overlayCreateParams: OverlayCreateParams,
-    ) {
+    internal fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         options.putString(KEY_OVERLAY_TAG, overlayCreateParams.tag)
@@ -182,7 +179,7 @@ internal object ActivityEmbeddingOptionsImpl {
                 putInt(KEY_EMBEDDING_BOUNDS_ALIGNMENT, embeddingBounds.alignment.value)
                 putDimension(KEY_EMBEDDING_BOUNDS_WIDTH, embeddingBounds.width)
                 putDimension(KEY_EMBEDDING_BOUNDS_HEIGHT, embeddingBounds.height)
-            }
+            },
         )
     }
 
@@ -205,7 +202,7 @@ internal object ActivityEmbeddingOptionsImpl {
         return EmbeddingBounds(
             EmbeddingBounds.Alignment(embeddingBoundsBundle.getInt(KEY_EMBEDDING_BOUNDS_ALIGNMENT)),
             embeddingBoundsBundle.getDimension(KEY_EMBEDDING_BOUNDS_WIDTH),
-            embeddingBoundsBundle.getDimension(KEY_EMBEDDING_BOUNDS_HEIGHT)
+            embeddingBoundsBundle.getDimension(KEY_EMBEDDING_BOUNDS_HEIGHT),
         )
     }
 
@@ -260,7 +257,7 @@ internal object ActivityEmbeddingOptionsImpl {
                         putInt(KEY_EMBEDDING_BOUNDS_DIMENSION_VALUE, dimension.value)
                     }
                 }
-            }
+            },
         )
     }
 

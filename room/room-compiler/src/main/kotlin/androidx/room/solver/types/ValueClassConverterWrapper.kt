@@ -30,13 +30,13 @@ class ValueClassConverterWrapper(
     val valueTypeColumnAdapter: ColumnTypeAdapter,
     val affinity: SQLTypeAffinity,
     out: XType,
-    val valuePropertyName: String
+    val valuePropertyName: String,
 ) : ColumnTypeAdapter(out, affinity) {
     override fun readFromStatement(
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addTypeToValueClassStatement() {
@@ -46,12 +46,12 @@ class ValueClassConverterWrapper(
                     propertyValueVarName,
                     stmtVarName,
                     indexVarName,
-                    scope
+                    scope,
                 )
                 addStatement(
                     format = "%L = %L",
                     outVarName,
-                    XCodeBlock.ofNewInstance(out.asTypeName(), "%N", propertyValueVarName)
+                    XCodeBlock.ofNewInstance(out.asTypeName(), "%N", propertyValueVarName),
                 )
             }
             if (out.nullability == XNullability.NONNULL) {
@@ -69,7 +69,7 @@ class ValueClassConverterWrapper(
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             val propertyName = scope.getTmpVar("_$valuePropertyName")
@@ -80,7 +80,7 @@ class ValueClassConverterWrapper(
                         valueVarName,
                         valuePropertyName,
                         "Cannot bind NULLABLE value '$valuePropertyName' of inline " +
-                            "class '$out' to a NOT NULL column."
+                            "class '$out' to a NOT NULL column.",
                     )
                 } else {
                     XCodeBlock.of("%L?.%L", valueVarName, valuePropertyName)
@@ -91,7 +91,7 @@ class ValueClassConverterWrapper(
                     valueTypeColumnAdapter.outTypeName.copy(
                         nullable = out.nullability != XNullability.NONNULL
                     ),
-                assignExpr = assignmentBlock
+                assignExpr = assignmentBlock,
             )
 
             if (out.nullability == XNullability.NONNULL) {

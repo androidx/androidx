@@ -48,7 +48,7 @@ internal val CursorHandleWidth = CursorHandleHeight * 2f / (1 + Sqrt2)
 internal actual fun CursorHandle(
     offsetProvider: OffsetProvider,
     modifier: Modifier,
-    minTouchTargetSize: DpSize
+    minTouchTargetSize: DpSize,
 ) {
     val finalModifier =
         modifier.semantics {
@@ -66,9 +66,9 @@ internal actual fun CursorHandle(
                 modifier =
                     finalModifier.requiredSizeIn(
                         minWidth = minTouchTargetSize.width,
-                        minHeight = minTouchTargetSize.height
+                        minHeight = minTouchTargetSize.height,
                     ),
-                contentAlignment = Alignment.TopCenter
+                contentAlignment = Alignment.TopCenter,
             ) {
                 DefaultCursorHandle()
             }

@@ -158,7 +158,7 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
                     ProduceStateDoesNotAssignValue,
                     node,
                     context.getNameLocation(node),
-                    "produceState calls should assign `value` inside the producer lambda"
+                    "produceState calls should assign `value` inside the producer lambda",
                 )
             }
         }
@@ -179,8 +179,8 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ProduceStateDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

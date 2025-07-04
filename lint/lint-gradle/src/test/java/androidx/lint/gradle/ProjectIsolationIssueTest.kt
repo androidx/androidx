@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4
 class ProjectIsolationIssueTest :
     GradleLintDetectorTest(
         detector = DiscouragedGradleMethodDetector(),
-        issues = listOf(DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE)
+        issues = listOf(DiscouragedGradleMethodDetector.PROJECT_ISOLATION_ISSUE),
     ) {
     @Test
     fun `Test usage of TaskContainer#create`() {
@@ -144,5 +144,35 @@ class ProjectIsolationIssueTest :
                     .trimIndent()
             )
         check(input).expectClean()
+    }
+
+    @Test
+    fun `Test usage of evaluationDependsOn`() {
+        val input =
+            kotlin(
+                """
+                import org.gradle.api.Project
+
+                fun configure(project: Project) {
+                    project.evaluationDependsOn(":foo:bar")
+                    project.evaluationDependsOnChildren()
+                }
+            """
+                    .trimIndent()
+            )
+
+        val expected =
+            """
+            src/test.kt:4: Error: Avoid using method evaluationDependsOn [GradleProjectIsolation]
+                project.evaluationDependsOn(":foo:bar")
+                        ~~~~~~~~~~~~~~~~~~~
+            src/test.kt:5: Error: Avoid using method evaluationDependsOnChildren [GradleProjectIsolation]
+                project.evaluationDependsOnChildren()
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            2 errors, 0 warnings
+        """
+                .trimIndent()
+
+        check(input).expect(expected)
     }
 }

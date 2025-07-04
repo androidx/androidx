@@ -27,7 +27,7 @@ object SingleQuerySqlParser {
     fun <T> parse(
         input: String,
         visit: (statement: SQLiteParser.Sql_stmtContext, syntaxErrors: MutableList<String>) -> T,
-        fallback: (syntaxErrors: List<String>) -> T
+        fallback: (syntaxErrors: List<String>) -> T,
     ): T {
         val inputStream = CharStreams.fromString(input)
         val lexer = SQLiteLexer(inputStream)
@@ -42,7 +42,7 @@ object SingleQuerySqlParser {
                     line: Int,
                     charPositionInLine: Int,
                     msg: String,
-                    e: RecognitionException?
+                    e: RecognitionException?,
                 ) {
                     syntaxErrors.add(msg)
                 }

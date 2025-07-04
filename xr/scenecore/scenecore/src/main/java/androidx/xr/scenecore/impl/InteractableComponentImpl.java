@@ -18,44 +18,46 @@ package androidx.xr.scenecore.impl;
 
 import android.util.Log;
 
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity;
-import androidx.xr.scenecore.JxrPlatformAdapter.InputEventListener;
-import androidx.xr.scenecore.JxrPlatformAdapter.InteractableComponent;
+import androidx.xr.runtime.internal.Entity;
+import androidx.xr.runtime.internal.InputEventListener;
+import androidx.xr.runtime.internal.InteractableComponent;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 
 /** Implementation of [JxrPlatformAdapter.InteractableComponent]. */
 class InteractableComponentImpl implements InteractableComponent {
-    final InputEventListener consumer;
-    final Executor executor;
-    Entity entity;
+    final InputEventListener mConsumer;
+    final Executor mExecutor;
+    Entity mEntity;
 
     InteractableComponentImpl(Executor executor, InputEventListener consumer) {
-        this.consumer = consumer;
-        this.executor = executor;
+        mConsumer = consumer;
+        mExecutor = executor;
     }
 
     @Override
-    public boolean onAttach(Entity entity) {
-        if (this.entity != null) {
-            Log.e("Runtime", "Already attached to entity " + this.entity);
+    public boolean onAttach(@NonNull Entity entity) {
+        if (mEntity != null) {
+            Log.e("Runtime", "Already attached to entity " + mEntity);
             return false;
         }
-        this.entity = entity;
-        if (entity instanceof GltfEntityImplSplitEngine) {
-            ((GltfEntityImplSplitEngine) entity).setColliderEnabled(true);
+        mEntity = entity;
+        if (entity instanceof GltfEntityImpl) {
+            ((GltfEntityImpl) entity).setColliderEnabled(true);
         }
         // InputEvent type translation happens here.
-        entity.addInputEventListener(executor, consumer);
+        entity.addInputEventListener(mExecutor, mConsumer);
         return true;
     }
 
     @Override
-    public void onDetach(Entity entity) {
-        if (entity instanceof GltfEntityImplSplitEngine) {
-            ((GltfEntityImplSplitEngine) entity).setColliderEnabled(false);
+    public void onDetach(@NonNull Entity entity) {
+        if (entity instanceof GltfEntityImpl) {
+            ((GltfEntityImpl) entity).setColliderEnabled(false);
         }
-        entity.removeInputEventListener(consumer);
-        this.entity = null;
+        entity.removeInputEventListener(mConsumer);
+        mEntity = null;
     }
 }

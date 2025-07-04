@@ -41,7 +41,7 @@ class SeparatorsWithRemoteMediatorTest {
                         remoteLoadStatesOf(
                             prependLocal = NotLoading.Complete,
                             prependRemote = NotLoading.Complete,
-                        )
+                        ),
                 ),
                 generatePrepend(
                     originalPageOffset = -1,
@@ -50,8 +50,8 @@ class SeparatorsWithRemoteMediatorTest {
                         remoteLoadStatesOf(
                             prependLocal = NotLoading.Complete,
                             prependRemote = NotLoading.Complete,
-                        )
-                )
+                        ),
+                ),
             )
         assertFailsWith<IllegalArgumentException>(
             "Prepend after endOfPaginationReached already true is invalid"
@@ -59,7 +59,7 @@ class SeparatorsWithRemoteMediatorTest {
             PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
                 .flow
                 .toList()
@@ -95,7 +95,7 @@ class SeparatorsWithRemoteMediatorTest {
             PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
                 .flow
                 .toList()
@@ -174,7 +174,7 @@ class SeparatorsWithRemoteMediatorTest {
                 generatePrepend(
                     originalPageOffset = 1,
                     pages = listOf(),
-                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete),
                 ),
                 generatePrepend(
                     originalPageOffset = 2,
@@ -182,9 +182,9 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             prependLocal = NotLoading.Complete,
-                            prependRemote = NotLoading.Complete
-                        )
-                )
+                            prependRemote = NotLoading.Complete,
+                        ),
+                ),
             )
         val expected =
             listOf(
@@ -192,7 +192,7 @@ class SeparatorsWithRemoteMediatorTest {
                 generatePrepend(
                     originalPageOffset = 1,
                     pages = listOf(),
-                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete),
                 ),
                 generatePrepend(
                     // page offset becomes 0 here, as it's adjacent to page 0, the only page with
@@ -202,16 +202,16 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             prependLocal = NotLoading.Complete,
-                            prependRemote = NotLoading.Complete
-                        )
-                )
+                            prependRemote = NotLoading.Complete,
+                        ),
+                ),
             )
 
         val actual =
             PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
                 .flow
                 .toList()
@@ -227,7 +227,7 @@ class SeparatorsWithRemoteMediatorTest {
                 generatePrepend(
                     originalPageOffset = 1,
                     pages = listOf(),
-                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete),
                 ),
                 generatePrepend(
                     originalPageOffset = 2,
@@ -235,9 +235,9 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             prependLocal = NotLoading.Complete,
-                            prependRemote = NotLoading.Complete
-                        )
-                )
+                            prependRemote = NotLoading.Complete,
+                        ),
+                ),
             )
         val expected =
             listOf(
@@ -247,7 +247,7 @@ class SeparatorsWithRemoteMediatorTest {
                     // data.
                     originalPageOffset = 0,
                     pages = listOf(listOf("A")),
-                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(prependLocal = NotLoading.Complete),
                 ),
                 generatePrepend(
                     originalPageOffset = 2,
@@ -255,16 +255,16 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             prependLocal = NotLoading.Complete,
-                            prependRemote = NotLoading.Complete
-                        )
-                )
+                            prependRemote = NotLoading.Complete,
+                        ),
+                ),
             )
 
         val actual =
             PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = SOURCE_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
                 .flow
                 .toList()
@@ -280,7 +280,7 @@ class SeparatorsWithRemoteMediatorTest {
                 generateAppend(
                     originalPageOffset = 1,
                     pages = listOf(),
-                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete),
                 ),
                 generateAppend(
                     originalPageOffset = 2,
@@ -288,9 +288,9 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             appendLocal = NotLoading.Complete,
-                            appendRemote = NotLoading.Complete
-                        )
-                )
+                            appendRemote = NotLoading.Complete,
+                        ),
+                ),
             )
         val expected =
             listOf(
@@ -298,7 +298,7 @@ class SeparatorsWithRemoteMediatorTest {
                 generateAppend(
                     originalPageOffset = 1,
                     pages = listOf(),
-                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete),
                 ),
                 generateAppend(
                     // page offset becomes 0 here, as it's adjacent to page 0, the only page with
@@ -308,16 +308,16 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             appendLocal = NotLoading.Complete,
-                            appendRemote = NotLoading.Complete
-                        )
-                )
+                            appendRemote = NotLoading.Complete,
+                        ),
+                ),
             )
 
         val actual =
             PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = FULLY_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
                 .flow
                 .toList()
@@ -333,7 +333,7 @@ class SeparatorsWithRemoteMediatorTest {
                 generateAppend(
                     originalPageOffset = 1,
                     pages = listOf(),
-                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete),
                 ),
                 generateAppend(
                     originalPageOffset = 2,
@@ -341,9 +341,9 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             appendLocal = NotLoading.Complete,
-                            appendRemote = NotLoading.Complete
-                        )
-                )
+                            appendRemote = NotLoading.Complete,
+                        ),
+                ),
             )
         val expected =
             listOf(
@@ -353,7 +353,7 @@ class SeparatorsWithRemoteMediatorTest {
                     // data.
                     originalPageOffset = 0,
                     pages = listOf(listOf("END")),
-                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete)
+                    loadStates = remoteLoadStatesOf(appendLocal = NotLoading.Complete),
                 ),
                 generateAppend(
                     originalPageOffset = 2,
@@ -361,16 +361,16 @@ class SeparatorsWithRemoteMediatorTest {
                     loadStates =
                         remoteLoadStatesOf(
                             appendLocal = NotLoading.Complete,
-                            appendRemote = NotLoading.Complete
-                        )
-                )
+                            appendRemote = NotLoading.Complete,
+                        ),
+                ),
             )
 
         val actual =
             PagingData(pageEventFlow, dummyUiReceiver, dummyHintReceiver)
                 .insertSeparators(
                     terminalSeparatorType = SOURCE_COMPLETE,
-                    generator = LETTER_SEPARATOR_GENERATOR
+                    generator = LETTER_SEPARATOR_GENERATOR,
                 )
                 .flow
                 .toList()
@@ -395,36 +395,36 @@ private fun transformablePage(originalPageOffset: Int, data: List<String>) =
                         }
                     )
                 }
-            }
+            },
     )
 
 private fun generateRefresh(data: List<String>, loadStates: CombinedLoadStates) =
     remoteRefresh(
         pages = listOf(transformablePage(0, data)),
         source = loadStates.source,
-        mediator = loadStates.mediator ?: loadStates()
+        mediator = loadStates.mediator ?: loadStates(),
     )
 
 private fun generatePrepend(
     originalPageOffset: Int,
     pages: List<List<String>>,
-    loadStates: CombinedLoadStates
+    loadStates: CombinedLoadStates,
 ) =
     remotePrepend(
         pages = pages.map { data -> transformablePage(originalPageOffset, data) },
         placeholdersBefore = 0,
         source = loadStates.source,
-        mediator = loadStates.mediator ?: loadStates()
+        mediator = loadStates.mediator ?: loadStates(),
     )
 
 private fun generateAppend(
     originalPageOffset: Int,
     pages: List<List<String>>,
-    loadStates: CombinedLoadStates
+    loadStates: CombinedLoadStates,
 ) =
     remoteAppend(
         pages = pages.map { data -> transformablePage(originalPageOffset, data) },
         placeholdersAfter = 0,
         source = loadStates.source,
-        mediator = loadStates.mediator ?: loadStates()
+        mediator = loadStates.mediator ?: loadStates(),
     )

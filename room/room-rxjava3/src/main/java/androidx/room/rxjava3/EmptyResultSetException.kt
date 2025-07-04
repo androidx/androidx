@@ -25,4 +25,4 @@ package androidx.room.rxjava3
  * [io.reactivex.rxjava3.core.Single] contains a type argument of a collection (e.g.
  * `Single<List<Song>>`) the this exception is not thrown an an empty collection is emitted instead.
  */
-class EmptyResultSetException(message: String) : RuntimeException(message)
+public class EmptyResultSetException(message: String) : RuntimeException(message)

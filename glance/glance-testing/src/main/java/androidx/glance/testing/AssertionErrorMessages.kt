@@ -37,7 +37,7 @@ internal fun buildErrorMessageWithReason(errorMessageOnFail: String, reason: Str
 internal fun buildErrorReasonForIndexOutOfMatchedNodeBounds(
     matcherDescription: String,
     requestedIndex: Int,
-    actualCount: Int
+    actualCount: Int,
 ): String {
     return "Not enough node(s) matching condition: ($matcherDescription) " +
         "to get node at index '$requestedIndex'. Found '$actualCount' matching node(s)"
@@ -47,7 +47,7 @@ internal fun buildErrorReasonForIndexOutOfMatchedNodeBounds(
 internal fun buildErrorReasonForCountMismatch(
     matcherDescription: String,
     expectedCount: Int,
-    actualCount: Int
+    actualCount: Int,
 ): String {
     val sb = StringBuilder()
 
@@ -98,7 +98,7 @@ internal fun <R> buildGeneralErrorMessage(errorMessage: String, node: GlanceNode
  */
 internal fun <R> buildGeneralErrorMessage(
     errorMessage: String,
-    nodes: List<GlanceNode<R>>
+    nodes: List<GlanceNode<R>>,
 ): String {
     val sb = StringBuilder()
     sb.append(errorMessage)

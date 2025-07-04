@@ -101,7 +101,7 @@ class TestMenuHost(private val menu: Menu, private val menuInflater: MenuInflate
     override fun addMenuProvider(
         provider: MenuProvider,
         owner: LifecycleOwner,
-        state: Lifecycle.State
+        state: Lifecycle.State,
     ) {
         menuHostHelper.addMenuProvider(provider, owner, state)
     }

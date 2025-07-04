@@ -32,8 +32,8 @@ import kotlin.reflect.findAssociatedObject
  * annotated type.
  */
 @OptIn(ExperimentalAssociatedObjects::class)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun <T : RoomDatabase> findDatabaseConstructorAndInitDatabaseImpl(klass: KClass<*>): T {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun <T : RoomDatabase> findDatabaseConstructorAndInitDatabaseImpl(klass: KClass<*>): T {
     val constructor = klass.findAssociatedObject<ConstructedBy>() as? RoomDatabaseConstructor<*>
     checkNotNull(constructor) {
         "Cannot find the associated ${RoomDatabaseConstructor::class.qualifiedName} for " +

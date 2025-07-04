@@ -64,13 +64,10 @@ private fun TimePicker24hWithoutSecondsDemo() {
             },
             timePickerType = TimePickerType.HoursMinutes24H,
             // Initialize with last picked time on reopen
-            initialTime = timePickerTime
+            initialTime = timePickerTime,
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },

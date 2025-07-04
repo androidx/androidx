@@ -16,11 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
-import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
-
 import static com.google.common.truth.Truth.assertThat;
 
-import android.graphics.Rect;
 import android.os.Build;
 import android.os.Looper;
 
@@ -421,12 +418,6 @@ public final class FakeCameraControlTest {
     @Test
     public void canGetSessionConfig() {
         assertThat(mCameraControl.getSessionConfig()).isInstanceOf(SessionConfig.class);
-    }
-
-    @Test
-    public void providesSensorRectAccordingToMaxOutputSize() {
-        assertThat(mCameraControl.getSensorRect()).isEqualTo(
-                new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight()));
     }
 
     @Test

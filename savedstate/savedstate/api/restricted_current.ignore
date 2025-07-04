@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.savedstate.SavedStateReader#SavedStateReader(android.os.Bundle):
+    Binary breaking change: constructor androidx.savedstate.SavedStateReader(android.os.Bundle) has been removed from bytecode
+RemovedFromBytecode: androidx.savedstate.SavedStateWriter#SavedStateWriter(android.os.Bundle):
+    Binary breaking change: constructor androidx.savedstate.SavedStateWriter(android.os.Bundle) has been removed from bytecode
+
+
+RemovedFromJava: androidx.savedstate.SavedStateReader#SavedStateReader(android.os.Bundle):
+    Source breaking change: constructor androidx.savedstate.SavedStateReader(android.os.Bundle) can no longer be resolved from Java source
+RemovedFromJava: androidx.savedstate.SavedStateWriter#SavedStateWriter(android.os.Bundle):
+    Source breaking change: constructor androidx.savedstate.SavedStateWriter(android.os.Bundle) can no longer be resolved from Java source

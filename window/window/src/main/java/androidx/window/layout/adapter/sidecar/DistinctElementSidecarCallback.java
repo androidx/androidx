@@ -81,8 +81,8 @@ public class DistinctElementSidecarCallback implements SidecarCallback {
                 return;
             }
             mLastDeviceState = newDeviceState;
-            mCallback.onDeviceStateChanged(mLastDeviceState);
         }
+        mCallback.onDeviceStateChanged(newDeviceState);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class DistinctElementSidecarCallback implements SidecarCallback {
                 return;
             }
             mActivityWindowLayoutInfo.put(windowToken, newLayout);
-            mCallback.onWindowLayoutChanged(windowToken, newLayout);
         }
+        mCallback.onWindowLayoutChanged(windowToken, newLayout);
     }
 }

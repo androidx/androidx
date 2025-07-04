@@ -1,0 +1,65 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.sqlite:sqlite>
+open annotation class androidx.sqlite/DataType : kotlin/Annotation { // androidx.sqlite/DataType|null[0]
+    constructor <init>() // androidx.sqlite/DataType.<init>|<init>(){}[0]
+}
+
+abstract interface androidx.sqlite/SQLiteConnection : kotlin/AutoCloseable { // androidx.sqlite/SQLiteConnection|null[0]
+    abstract fun close() // androidx.sqlite/SQLiteConnection.close|close(){}[0]
+    abstract fun prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite/SQLiteConnection.prepare|prepare(kotlin.String){}[0]
+}
+
+abstract interface androidx.sqlite/SQLiteDriver { // androidx.sqlite/SQLiteDriver|null[0]
+    abstract fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite/SQLiteDriver.open|open(kotlin.String){}[0]
+}
+
+abstract interface androidx.sqlite/SQLiteStatement : kotlin/AutoCloseable { // androidx.sqlite/SQLiteStatement|null[0]
+    abstract fun bindBlob(kotlin/Int, kotlin/ByteArray) // androidx.sqlite/SQLiteStatement.bindBlob|bindBlob(kotlin.Int;kotlin.ByteArray){}[0]
+    abstract fun bindDouble(kotlin/Int, kotlin/Double) // androidx.sqlite/SQLiteStatement.bindDouble|bindDouble(kotlin.Int;kotlin.Double){}[0]
+    abstract fun bindLong(kotlin/Int, kotlin/Long) // androidx.sqlite/SQLiteStatement.bindLong|bindLong(kotlin.Int;kotlin.Long){}[0]
+    abstract fun bindNull(kotlin/Int) // androidx.sqlite/SQLiteStatement.bindNull|bindNull(kotlin.Int){}[0]
+    abstract fun bindText(kotlin/Int, kotlin/String) // androidx.sqlite/SQLiteStatement.bindText|bindText(kotlin.Int;kotlin.String){}[0]
+    abstract fun clearBindings() // androidx.sqlite/SQLiteStatement.clearBindings|clearBindings(){}[0]
+    abstract fun close() // androidx.sqlite/SQLiteStatement.close|close(){}[0]
+    abstract fun getBlob(kotlin/Int): kotlin/ByteArray // androidx.sqlite/SQLiteStatement.getBlob|getBlob(kotlin.Int){}[0]
+    abstract fun getColumnCount(): kotlin/Int // androidx.sqlite/SQLiteStatement.getColumnCount|getColumnCount(){}[0]
+    abstract fun getColumnName(kotlin/Int): kotlin/String // androidx.sqlite/SQLiteStatement.getColumnName|getColumnName(kotlin.Int){}[0]
+    abstract fun getColumnType(kotlin/Int): kotlin/Int // androidx.sqlite/SQLiteStatement.getColumnType|getColumnType(kotlin.Int){}[0]
+    abstract fun getDouble(kotlin/Int): kotlin/Double // androidx.sqlite/SQLiteStatement.getDouble|getDouble(kotlin.Int){}[0]
+    abstract fun getLong(kotlin/Int): kotlin/Long // androidx.sqlite/SQLiteStatement.getLong|getLong(kotlin.Int){}[0]
+    abstract fun getText(kotlin/Int): kotlin/String // androidx.sqlite/SQLiteStatement.getText|getText(kotlin.Int){}[0]
+    abstract fun isNull(kotlin/Int): kotlin/Boolean // androidx.sqlite/SQLiteStatement.isNull|isNull(kotlin.Int){}[0]
+    abstract fun reset() // androidx.sqlite/SQLiteStatement.reset|reset(){}[0]
+    abstract fun step(): kotlin/Boolean // androidx.sqlite/SQLiteStatement.step|step(){}[0]
+    open fun bindBoolean(kotlin/Int, kotlin/Boolean) // androidx.sqlite/SQLiteStatement.bindBoolean|bindBoolean(kotlin.Int;kotlin.Boolean){}[0]
+    open fun bindFloat(kotlin/Int, kotlin/Float) // androidx.sqlite/SQLiteStatement.bindFloat|bindFloat(kotlin.Int;kotlin.Float){}[0]
+    open fun bindInt(kotlin/Int, kotlin/Int) // androidx.sqlite/SQLiteStatement.bindInt|bindInt(kotlin.Int;kotlin.Int){}[0]
+    open fun getBoolean(kotlin/Int): kotlin/Boolean // androidx.sqlite/SQLiteStatement.getBoolean|getBoolean(kotlin.Int){}[0]
+    open fun getColumnNames(): kotlin.collections/List<kotlin/String> // androidx.sqlite/SQLiteStatement.getColumnNames|getColumnNames(){}[0]
+    open fun getFloat(kotlin/Int): kotlin/Float // androidx.sqlite/SQLiteStatement.getFloat|getFloat(kotlin.Int){}[0]
+    open fun getInt(kotlin/Int): kotlin/Int // androidx.sqlite/SQLiteStatement.getInt|getInt(kotlin.Int){}[0]
+}
+
+final class androidx.sqlite/SQLiteException : kotlin/RuntimeException { // androidx.sqlite/SQLiteException|null[0]
+    constructor <init>(kotlin/String) // androidx.sqlite/SQLiteException.<init>|<init>(kotlin.String){}[0]
+}
+
+final const val androidx.sqlite/SQLITE_DATA_BLOB // androidx.sqlite/SQLITE_DATA_BLOB|{}SQLITE_DATA_BLOB[0]
+    final fun <get-SQLITE_DATA_BLOB>(): kotlin/Int // androidx.sqlite/SQLITE_DATA_BLOB.<get-SQLITE_DATA_BLOB>|<get-SQLITE_DATA_BLOB>(){}[0]
+final const val androidx.sqlite/SQLITE_DATA_FLOAT // androidx.sqlite/SQLITE_DATA_FLOAT|{}SQLITE_DATA_FLOAT[0]
+    final fun <get-SQLITE_DATA_FLOAT>(): kotlin/Int // androidx.sqlite/SQLITE_DATA_FLOAT.<get-SQLITE_DATA_FLOAT>|<get-SQLITE_DATA_FLOAT>(){}[0]
+final const val androidx.sqlite/SQLITE_DATA_INTEGER // androidx.sqlite/SQLITE_DATA_INTEGER|{}SQLITE_DATA_INTEGER[0]
+    final fun <get-SQLITE_DATA_INTEGER>(): kotlin/Int // androidx.sqlite/SQLITE_DATA_INTEGER.<get-SQLITE_DATA_INTEGER>|<get-SQLITE_DATA_INTEGER>(){}[0]
+final const val androidx.sqlite/SQLITE_DATA_NULL // androidx.sqlite/SQLITE_DATA_NULL|{}SQLITE_DATA_NULL[0]
+    final fun <get-SQLITE_DATA_NULL>(): kotlin/Int // androidx.sqlite/SQLITE_DATA_NULL.<get-SQLITE_DATA_NULL>|<get-SQLITE_DATA_NULL>(){}[0]
+final const val androidx.sqlite/SQLITE_DATA_TEXT // androidx.sqlite/SQLITE_DATA_TEXT|{}SQLITE_DATA_TEXT[0]
+    final fun <get-SQLITE_DATA_TEXT>(): kotlin/Int // androidx.sqlite/SQLITE_DATA_TEXT.<get-SQLITE_DATA_TEXT>|<get-SQLITE_DATA_TEXT>(){}[0]
+
+final fun (androidx.sqlite/SQLiteConnection).androidx.sqlite/execSQL(kotlin/String) // androidx.sqlite/execSQL|execSQL@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
+final fun androidx.sqlite/throwSQLiteException(kotlin/Int, kotlin/String?): kotlin/Nothing // androidx.sqlite/throwSQLiteException|throwSQLiteException(kotlin.Int;kotlin.String?){}[0]

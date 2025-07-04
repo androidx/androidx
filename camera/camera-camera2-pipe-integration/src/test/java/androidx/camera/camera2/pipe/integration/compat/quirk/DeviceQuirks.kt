@@ -41,7 +41,8 @@ object DeviceQuirks {
         val quirks = loadQuirks(QuirkSettingsHolder.DEFAULT)
         for (quirk in quirks) {
             if (quirk.javaClass == quirkClass) {
-                @Suppress("UNCHECKED_CAST") return quirk as T
+                @Suppress("UNCHECKED_CAST")
+                return quirk as T
             }
         }
         return null

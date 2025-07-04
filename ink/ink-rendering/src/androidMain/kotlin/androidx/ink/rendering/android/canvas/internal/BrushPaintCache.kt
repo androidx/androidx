@@ -27,9 +27,10 @@ import android.os.Build
 import androidx.annotation.FloatRange
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.toArgb
-import androidx.ink.rendering.android.TextureBitmapStore
+import androidx.ink.geometry.Angle
 import androidx.ink.strokes.StrokeInput
 import java.util.WeakHashMap
 
@@ -185,6 +186,12 @@ internal class BrushPaintCache(
                                 // into account.
                             }
                         }
+
+                        // The texture rotation is specified as being around the center of the first
+                        // repetition,
+                        // so include a pivot point of 50% in both axes in texture UV space.
+                        it.preRotate(Angle.radiansToDegrees(textureLayer.rotation), 0.5f, 0.5f)
+
                         // The texture offset is specified as fractions of the texture size; in
                         // other words, it
                         // should be applied within texture UV space.
@@ -251,14 +258,14 @@ internal class BrushPaintCache(
                 // default. So setting it results in consistent behavior for Android P and for <= O
                 // when
                 // hardware acceleration is not available.
-                setFilterBitmap(true)
+                isFilterBitmap = true
             }
         val textureLayers = brushPaint.textureLayers
         if (textureLayers.isEmpty()) {
             // Early exit for efficiency.
             return PaintCacheData(paint)
         }
-        val bitmaps = textureLayers.map { textureStore.get(it.colorTextureUri) }
+        val bitmaps = textureLayers.map { textureStore[it.clientTextureId] }
         val bitmapShaders =
             textureLayers.zip(bitmaps) { layer, bitmap ->
                 if (bitmap == null) return@zip null
@@ -287,7 +294,7 @@ internal class BrushPaintCache(
                         ComposeShader(
                             shader,
                             acc,
-                            textureLayers[i - 1].blendMode.toPorterDuffMode()
+                            textureLayers[i - 1].blendMode.toPorterDuffMode(),
                         )
                 }
             }
@@ -329,7 +336,7 @@ internal class BrushPaintCache(
 
     /**
      * Obtains a [Paint] for the [BrushPaint] from the cache, creating it if necessary and updating
-     * its local transform. If [BrushPaint.TextureLayer.colorTextureUri] can't be resolved to a
+     * its local transform. If [BrushPaint.TextureLayer.colorTextureId] can't be resolved to a
      * bitmap for any layer, that layer is ignored.
      *
      * @param brushPaint Used to configure [Paint.shader].

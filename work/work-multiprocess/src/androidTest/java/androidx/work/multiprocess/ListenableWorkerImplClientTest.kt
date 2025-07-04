@@ -77,7 +77,7 @@ public class ListenableWorkerImplClientTest {
                 mContext.bindService(
                     any(Intent::class.java),
                     any(ServiceConnection::class.java),
-                    anyInt()
+                    anyInt(),
                 )
             )
             .thenReturn(false)

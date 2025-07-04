@@ -22,7 +22,10 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class MissingKeepAnnotationDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = TypeSafeDestinationMissingAnnotationDetector()
 
@@ -361,7 +364,7 @@ enum class DeepLinkArg
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expectClean()
@@ -388,7 +391,7 @@ enum class DeepLinkArg
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expect(
@@ -416,8 +419,6 @@ enum class TestEnum { ONE, TWO }
                 @Keep enum class TestEnum { ONE, TWO }
                 class DeepLink(val arg: TestEnum)
 
-                 class DeepLink
-
                 fun navigation() {
                     navDeepLink<DeepLink>()
                 }
@@ -425,7 +426,7 @@ enum class TestEnum { ONE, TWO }
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expectClean()
@@ -452,7 +453,7 @@ enum class TestEnum { ONE, TWO }
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expect(

@@ -66,7 +66,7 @@ class CompositionLocalTests {
                 LocalSomeTextComposition provides "Test1",
                 LocalSomeIntComposition provides 12,
                 LocalSomeOtherIntProvider provides 42,
-                LocalSomeStaticInt provides 50
+                LocalSomeStaticInt provides 50,
             ) {
                 assertEquals("Test1", LocalSomeTextComposition.current)
                 assertEquals(12, LocalSomeIntComposition.current)
@@ -74,7 +74,7 @@ class CompositionLocalTests {
                 assertEquals(50, LocalSomeStaticInt.current)
                 CompositionLocalProvider(
                     LocalSomeTextComposition provides "Test2",
-                    LocalSomeStaticInt provides 60
+                    LocalSomeStaticInt provides 60,
                 ) {
                     assertEquals("Test2", LocalSomeTextComposition.current)
                     assertEquals(12, LocalSomeIntComposition.current)
@@ -147,7 +147,7 @@ class CompositionLocalTests {
 
             CompositionLocalProvider(
                 LocalSomeTextComposition provides someText,
-                LocalSomeIntComposition provides 0
+                LocalSomeIntComposition provides 0,
             ) {
                 ReadStringCompositionLocal(compositionLocal = LocalSomeTextComposition)
 
@@ -185,14 +185,12 @@ class CompositionLocalTests {
 
             CompositionLocalProvider(
                 staticSomeTextCompositionLocal provides someText,
-                staticSomeIntCompositionLocal provides 0
+                staticSomeIntCompositionLocal provides 0,
             ) {
                 assertEquals(someText, staticSomeTextCompositionLocal.current)
                 assertEquals(0, staticSomeIntCompositionLocal.current)
 
-                ReadStringCompositionLocal(
-                    compositionLocal = staticSomeTextCompositionLocal,
-                )
+                ReadStringCompositionLocal(compositionLocal = staticSomeTextCompositionLocal)
 
                 TestSubcomposition {
                     assertEquals(someText, staticSomeTextCompositionLocal.current)
@@ -227,11 +225,9 @@ class CompositionLocalTests {
 
             CompositionLocalProvider(
                 LocalSomeTextComposition provides someText,
-                LocalSomeIntComposition provides 0
+                LocalSomeIntComposition provides 0,
             ) {
-                ReadStringCompositionLocal(
-                    compositionLocal = LocalSomeTextComposition,
-                )
+                ReadStringCompositionLocal(compositionLocal = LocalSomeTextComposition)
 
                 doSubCompose = testDeferredSubcomposition {
                     assertEquals(someText, LocalSomeTextComposition.current)
@@ -272,7 +268,7 @@ class CompositionLocalTests {
 
             CompositionLocalProvider(
                 staticSomeTextCompositionLocal provides someText,
-                staticSomeIntCompositionLocal provides 0
+                staticSomeIntCompositionLocal provides 0,
             ) {
                 assertEquals(someText, staticSomeTextCompositionLocal.current)
                 assertEquals(0, staticSomeIntCompositionLocal.current)
@@ -319,7 +315,7 @@ class CompositionLocalTests {
 
             CompositionLocalProvider(
                 staticSomeTextCompositionLocal provides someText,
-                staticSomeIntCompositionLocal provides 0
+                staticSomeIntCompositionLocal provides 0,
             ) {
                 assertEquals(someText, staticSomeTextCompositionLocal.current)
                 assertEquals(0, staticSomeIntCompositionLocal.current)
@@ -428,7 +424,7 @@ class CompositionLocalTests {
             if (includeProviders) {
                 CompositionLocalProvider(
                     local provides providedValue.value,
-                    static provides providedStatic.value
+                    static provides providedStatic.value,
                 ) {
                     Validate(providedValue.value)
                 }
@@ -462,9 +458,7 @@ class CompositionLocalTests {
 
         @Composable
         fun Test() {
-            CompositionLocalProvider(
-                LocalTest provides 1,
-            ) {
+            CompositionLocalProvider(LocalTest provides 1) {
                 CompositionLocalProvider(
                     *locals.map { it provides 3 }.toTypedArray(),
                     LocalTest provides 2,
@@ -543,12 +537,7 @@ class CompositionLocalTests {
                 val composition2 = Composition(EmptyApplier(), recomposer)
                 composition2.setContent {
                     CompositionLocalProvider(locals) {
-                        actualValues =
-                            setOf(
-                                local1.current,
-                                local2.current,
-                                staticLocal.current,
-                            )
+                        actualValues = setOf(local1.current, local2.current, staticLocal.current)
                     }
                 }
                 onDispose {
@@ -788,7 +777,7 @@ class CompositionLocalTests {
                 CompositionLocalProvider(SomeValue provides 1, LocalOtherValue providesDefault 1) {
                     CompositionLocalProvider(
                         SomeValue provides 2,
-                        LocalOtherValue providesDefault 2
+                        LocalOtherValue providesDefault 2,
                     ) {
                         valueSeen = LocalValue.current
                     }

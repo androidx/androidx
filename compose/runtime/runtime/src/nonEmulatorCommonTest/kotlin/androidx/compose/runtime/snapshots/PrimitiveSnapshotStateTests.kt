@@ -25,123 +25,134 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import kotlin.reflect.KCallable
+import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
+import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
-import org.junit.runners.Parameterized.Parameters
 
-private const val LogParameterizedCalls = false
+private const val ENABLE_LOGS = false
 
-@RunWith(Parameterized::class)
-class PrimitiveSnapshotStateTests<S, T>(
-    private val implementation: PrimitiveSnapshotStateImplementation<S, T>
-) {
+class PrimitiveSnapshotStateTests {
 
-    private val valueIterator = implementation.sampleValues.iterator()
+    // ---- Int
+    @Test fun testCreation_Int() = testCreation(intImpl)
 
-    private fun nextValue() = valueIterator.next()
+    @Test fun testReadValue_Int() = testReadValue(intImpl)
 
-    private fun logCall(functionInvocation: String) {
-        if (LogParameterizedCalls) {
-            println("Invoking $functionInvocation")
-        }
-    }
+    @Test fun testWriteValue_Int() = testWriteValue(intImpl)
 
-    @Test
-    fun testCreation() {
-        val initialValue = nextValue()
-        logCall("${implementation.creatorFunctionName}($initialValue)")
-        implementation.creator.invoke(initialValue)
-    }
+    // ---- Long
+    @Test fun testCreation_Long() = testCreation(longImpl)
 
-    @Test
-    fun testReadValue() {
-        val initialValue = nextValue()
-        logCall("${implementation.creatorFunctionName}($initialValue)")
-        val mutableState = implementation.creator.invoke(initialValue)
+    @Test fun testReadValue_Long() = testReadValue(longImpl)
 
-        logCall("mutableState.value")
-        val value = implementation.valueProperty.get(mutableState)
+    @Test fun testWriteValue_Long() = testWriteValue(longImpl)
 
-        assertEquals(
-            message =
-                "The $implementation's value did not contain the expected value after " +
-                    "being instantiated with value $initialValue",
-            expected = initialValue,
-            actual = value
-        )
-    }
+    // ---- Float
+    @Test fun testCreation_Float() = testCreation(floatImpl)
 
-    @Test
-    fun testWriteValue() {
-        val initialValue = nextValue()
-        logCall("${implementation.creatorFunctionName}($initialValue)")
-        val mutableState = implementation.creator.invoke(initialValue)
+    @Test fun testReadValue_Float() = testReadValue(floatImpl)
 
-        val nextValue = nextValue()
-        logCall("mutableState.value = $nextValue")
-        implementation.valueProperty.set(mutableState, nextValue)
+    @Test fun testWriteValue_Float() = testWriteValue(floatImpl)
 
-        assertEquals(
-            message =
-                "The $implementation's value did not contain the expected value after " +
-                    "being reassigned from $initialValue to $nextValue",
-            expected = nextValue,
-            actual = implementation.valueProperty.get(mutableState)
-        )
-    }
+    // ---- Double
+    @Test fun testCreation_Double() = testCreation(doubleImpl)
+
+    @Test fun testReadValue_Double() = testReadValue(doubleImpl)
+
+    @Test fun testWriteValue_Double() = testWriteValue(doubleImpl)
 
     companion object {
-        @JvmStatic
-        @Parameters(name = "{1}")
-        fun initParameters() =
-            arrayOf(
-                arrayOf(
-                    PrimitiveSnapshotStateImplementation(
-                        clazz = MutableIntState::class.java,
-                        creator = ::mutableIntStateOf,
-                        valueProperty = MutableIntState::intValue,
-                        sampleValues = generateSequence(1) { it + 1 }
-                    )
-                ),
-                arrayOf(
-                    PrimitiveSnapshotStateImplementation(
-                        clazz = MutableLongState::class.java,
-                        creator = ::mutableLongStateOf,
-                        valueProperty = MutableLongState::longValue,
-                        sampleValues = generateSequence(1) { it + 1 }
-                    )
-                ),
-                arrayOf(
-                    PrimitiveSnapshotStateImplementation(
-                        clazz = MutableFloatState::class.java,
-                        creator = ::mutableFloatStateOf,
-                        valueProperty = MutableFloatState::floatValue,
-                        sampleValues = generateSequence(1f) { it + 1 }
-                    )
-                ),
-                arrayOf(
-                    PrimitiveSnapshotStateImplementation(
-                        clazz = MutableDoubleState::class.java,
-                        creator = ::mutableDoubleStateOf,
-                        valueProperty = MutableDoubleState::value,
-                        sampleValues = generateSequence(1.0) { it + 1 }
-                    )
-                )
-            )
-
-        data class PrimitiveSnapshotStateImplementation<S, T>(
-            val clazz: Class<S>,
+        data class PrimitiveSnapshotStateImplementation<S : Any, T>(
+            val kClass: KClass<S>,
             val creator: (T) -> S,
             val valueProperty: KMutableProperty1<S, T>,
-            val sampleValues: Sequence<T>
+            val sampleValues: Sequence<T>,
         ) {
             val creatorFunctionName: String
                 get() = (creator as? KCallable<*>)?.name ?: "(Unknown Function)"
 
-            override fun toString(): String = clazz.simpleName
+            override fun toString(): String = kClass.simpleName ?: "(Unknown Class)"
+        }
+
+        private val intImpl =
+            PrimitiveSnapshotStateImplementation(
+                kClass = MutableIntState::class,
+                creator = ::mutableIntStateOf,
+                valueProperty = MutableIntState::intValue,
+                sampleValues = generateSequence(1) { it + 1 },
+            )
+
+        private val longImpl =
+            PrimitiveSnapshotStateImplementation(
+                kClass = MutableLongState::class,
+                creator = ::mutableLongStateOf,
+                valueProperty = MutableLongState::longValue,
+                sampleValues = generateSequence(1L) { it + 1 },
+            )
+
+        private val floatImpl =
+            PrimitiveSnapshotStateImplementation(
+                kClass = MutableFloatState::class,
+                creator = ::mutableFloatStateOf,
+                valueProperty = MutableFloatState::floatValue,
+                sampleValues = generateSequence(1f) { it + 1 },
+            )
+
+        private val doubleImpl =
+            PrimitiveSnapshotStateImplementation(
+                kClass = MutableDoubleState::class,
+                creator = ::mutableDoubleStateOf,
+                valueProperty = MutableDoubleState::doubleValue,
+                sampleValues = generateSequence(1.0) { it + 1 },
+            )
+
+        private fun <S : Any, T> testCreation(impl: PrimitiveSnapshotStateImplementation<S, T>) {
+            val initialValue = impl.sampleValues.first()
+
+            logCall("${impl.creatorFunctionName}($initialValue)")
+            impl.creator.invoke(initialValue)
+        }
+
+        private fun <S : Any, T> testReadValue(impl: PrimitiveSnapshotStateImplementation<S, T>) {
+            val initialValue = impl.sampleValues.first()
+
+            logCall("${impl.creatorFunctionName}($initialValue)")
+            val mutableState = impl.creator.invoke(initialValue)
+
+            logCall("mutableState.value")
+            val actualValue = impl.valueProperty.get(mutableState)
+
+            assertEquals(
+                expected = initialValue,
+                actual = actualValue,
+                message =
+                    "Expected $initialValue, but got $actualValue for ${impl.kClass.simpleName}",
+            )
+        }
+
+        private fun <S : Any, T> testWriteValue(impl: PrimitiveSnapshotStateImplementation<S, T>) {
+            val (initialValue, nextValue) = impl.sampleValues.take(2).toList()
+
+            logCall("${impl.creatorFunctionName}($initialValue)")
+            val mutableState = impl.creator.invoke(initialValue)
+
+            logCall("mutableState.value = $nextValue")
+            impl.valueProperty.set(mutableState, nextValue)
+
+            val actualValue = impl.valueProperty.get(mutableState)
+            assertEquals(
+                expected = nextValue,
+                actual = actualValue,
+                message =
+                    "Expected $nextValue after writing, but got $actualValue for ${impl.kClass.simpleName}",
+            )
+        }
+
+        private fun logCall(message: String) {
+            if (ENABLE_LOGS) {
+                println(message)
+            }
         }
     }
 }

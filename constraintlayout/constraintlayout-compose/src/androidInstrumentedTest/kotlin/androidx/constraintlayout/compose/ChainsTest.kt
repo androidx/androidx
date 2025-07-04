@@ -71,7 +71,7 @@ class ChainsTest {
             rule.setContent {
                 ConstraintLayout(
                     modifier = Modifier.size(rootSizePx.toDp()),
-                    constraintSet = constraintSet
+                    constraintSet = constraintSet,
                 ) {
                     Box(modifier = Modifier.background(Color.Red).layoutTestId("box0"))
                     Box(modifier = Modifier.background(Color.Blue).layoutTestId("box1"))
@@ -186,18 +186,18 @@ class ChainsTest {
                 box0.withChainParams(
                     startMargin = 0.dp,
                     endMargin = boxMargin, // Not applied since the next box is Gone
-                    endGoneMargin = boxGoneMargin
+                    endGoneMargin = boxGoneMargin,
                 ),
                 boxGone.withChainParams(
                     // None of these margins should apply since it's Gone
                     startMargin = 100.dp,
                     endMargin = 100.dp,
                     startGoneMargin = 100.dp,
-                    endGoneMargin = 100.dp
+                    endGoneMargin = 100.dp,
                 ),
                 box1,
                 box2.withHorizontalChainParams(startMargin = boxMargin, endMargin = 0.dp),
-                chainStyle = ChainStyle.Packed
+                chainStyle = ChainStyle.Packed,
             )
 
             constrain(box0) {
@@ -226,7 +226,7 @@ class ChainsTest {
         rule.setContent {
             ConstraintLayout(
                 modifier = Modifier.background(Color.LightGray).size(rootSize),
-                constraintSet = constraintSet
+                constraintSet = constraintSet,
             ) {
                 Box(modifier = Modifier.background(Color.Red).layoutTestId("box0"))
                 Box(modifier = Modifier.background(Color.Blue).layoutTestId("box1"))
@@ -268,18 +268,18 @@ class ChainsTest {
                 box0.withChainParams(
                     topMargin = 0.dp,
                     bottomMargin = boxMargin, // Not applied since the next box is Gone
-                    bottomGoneMargin = boxGoneMargin
+                    bottomGoneMargin = boxGoneMargin,
                 ),
                 boxGone.withChainParams(
                     // None of these margins should apply since it's Gone
                     topMargin = 100.dp,
                     bottomMargin = 100.dp,
                     topGoneMargin = 100.dp,
-                    bottomGoneMargin = 100.dp
+                    bottomGoneMargin = 100.dp,
                 ),
                 box1,
                 box2.withVerticalChainParams(topMargin = boxMargin, bottomMargin = 0.dp),
-                chainStyle = ChainStyle.Packed
+                chainStyle = ChainStyle.Packed,
             )
 
             constrain(box0) {
@@ -308,7 +308,7 @@ class ChainsTest {
         rule.setContent {
             ConstraintLayout(
                 modifier = Modifier.background(Color.LightGray).size(rootSize),
-                constraintSet = constraintSet
+                constraintSet = constraintSet,
             ) {
                 Box(modifier = Modifier.background(Color.Red).layoutTestId("box0"))
                 Box(modifier = Modifier.background(Color.Blue).layoutTestId("box1"))
@@ -359,7 +359,7 @@ class ChainsTest {
                             height = Dimension.value(boxSize)
                         }
                         createHorizontalChain(box0, box1.withChainParams(weight = 0.5f))
-                    }
+                    },
             ) {
                 Box(modifier = Modifier.background(Color.Red).layoutTestId("box0"))
                 Box(modifier = Modifier.background(Color.Blue).layoutTestId("box1"))
@@ -396,7 +396,7 @@ class ChainsTest {
                             height = Dimension.fillToConstraints
                         }
                         createVerticalChain(box0, box1.withChainParams(weight = 0.5f))
-                    }
+                    },
             ) {
                 Box(modifier = Modifier.background(Color.Red).layoutTestId("box0"))
                 Box(modifier = Modifier.background(Color.Blue).layoutTestId("box1"))

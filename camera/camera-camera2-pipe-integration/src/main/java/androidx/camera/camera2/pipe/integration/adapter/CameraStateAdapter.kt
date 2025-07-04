@@ -95,7 +95,7 @@ public class CameraStateAdapter @Inject constructor() {
 
     private fun postCameraState(
         internalState: CameraInternal.State,
-        stateError: CameraState.StateError? = null
+        stateError: CameraState.StateError? = null,
     ) {
         cameraInternalState.postValue(internalState)
         cameraState.setOrPostValue(CameraState.create(internalState.toCameraState(), stateError))
@@ -108,7 +108,7 @@ public class CameraStateAdapter @Inject constructor() {
      */
     internal fun calculateNextState(
         currentState: CameraInternal.State,
-        graphState: GraphState
+        graphState: GraphState,
     ): CombinedCameraState? =
         when (currentState) {
             CameraInternal.State.CLOSED ->
@@ -124,18 +124,18 @@ public class CameraStateAdapter @Inject constructor() {
                         if (graphState.willAttemptRetry) {
                             CombinedCameraState(
                                 CameraInternal.State.OPENING,
-                                graphState.cameraError.toCameraStateError()
+                                graphState.cameraError.toCameraStateError(),
                             )
                         } else {
                             if (isRecoverableError(graphState.cameraError)) {
                                 CombinedCameraState(
                                     CameraInternal.State.PENDING_OPEN,
-                                    graphState.cameraError.toCameraStateError()
+                                    graphState.cameraError.toCameraStateError(),
                                 )
                             } else {
                                 CombinedCameraState(
                                     CameraInternal.State.CLOSING,
-                                    graphState.cameraError.toCameraStateError()
+                                    graphState.cameraError.toCameraStateError(),
                                 )
                             }
                         }
@@ -151,12 +151,12 @@ public class CameraStateAdapter @Inject constructor() {
                         if (isRecoverableError(graphState.cameraError)) {
                             CombinedCameraState(
                                 CameraInternal.State.PENDING_OPEN,
-                                graphState.cameraError.toCameraStateError()
+                                graphState.cameraError.toCameraStateError(),
                             )
                         } else {
                             CombinedCameraState(
                                 CameraInternal.State.CLOSED,
-                                graphState.cameraError.toCameraStateError()
+                                graphState.cameraError.toCameraStateError(),
                             )
                         }
                     else -> null
@@ -168,7 +168,7 @@ public class CameraStateAdapter @Inject constructor() {
                     is GraphStateError ->
                         CombinedCameraState(
                             CameraInternal.State.CLOSING,
-                            graphState.cameraError.toCameraStateError()
+                            graphState.cameraError.toCameraStateError(),
                         )
                     else -> null
                 }
@@ -180,12 +180,12 @@ public class CameraStateAdapter @Inject constructor() {
                         if (isRecoverableError(graphState.cameraError)) {
                             CombinedCameraState(
                                 CameraInternal.State.PENDING_OPEN,
-                                graphState.cameraError.toCameraStateError()
+                                graphState.cameraError.toCameraStateError(),
                             )
                         } else {
                             CombinedCameraState(
                                 CameraInternal.State.CLOSED,
-                                graphState.cameraError.toCameraStateError()
+                                graphState.cameraError.toCameraStateError(),
                             )
                         }
                     else -> null
@@ -195,7 +195,7 @@ public class CameraStateAdapter @Inject constructor() {
 
     internal data class CombinedCameraState(
         val state: CameraInternal.State,
-        val error: CameraState.StateError? = null
+        val error: CameraState.StateError? = null,
     )
 
     public companion object {

@@ -29,8 +29,6 @@ internal interface CompilationTestRunner {
     // user visible name that we can print in assertions
     val name: String
 
-    fun canRun(params: TestCompilationParameters): Boolean
-
     fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult
 }
 

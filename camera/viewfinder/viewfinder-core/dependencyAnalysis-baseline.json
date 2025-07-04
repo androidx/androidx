@@ -1,0 +1,93 @@
+{
+  "projectPath": ":camera:viewfinder:viewfinder-core",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation-experimental",
+        "resolvedVersion": "1.4.1"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appcompat:appcompat",
+        "resolvedVersion": "1.1.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.concurrent:concurrent-futures-ktx",
+        "resolvedVersion": "1.1.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.concurrent:concurrent-futures",
+        "resolvedVersion": "1.1.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test.espresso:espresso-idling-resource",
+        "resolvedVersion": "3.6.1"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.auto.value:auto-value",
+        "resolvedVersion": "1.6.3"
+      },
+      "fromConfiguration": "annotationProcessor"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.guava:listenablefuture",
+        "resolvedVersion": "1.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.mockito:mockito-core",
+        "resolvedVersion": "4.8.0"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:shadowapi",
+        "resolvedVersion": "4.14"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

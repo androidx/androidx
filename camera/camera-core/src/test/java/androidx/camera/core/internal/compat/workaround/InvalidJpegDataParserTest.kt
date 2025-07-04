@@ -55,7 +55,7 @@ private val correctJpegByteArray1 =
             0x00,
             0xe6,
             0x01,
-            0x00
+            0x00,
         )
         .map { it.toByte() }
         .toByteArray()
@@ -80,7 +80,7 @@ private val correctJpegByteArray2 =
             0x99,
             0x99,
             0xff,
-            0xd9
+            0xd9,
         )
         .map { it.toByte() }
         .toByteArray()
@@ -129,7 +129,7 @@ private val problematicJpegByteArray =
             0x00,
             0xe6,
             0x01,
-            0x00
+            0x00,
         )
         .map { it.toByte() }
         .toByteArray()
@@ -200,7 +200,7 @@ private val problematicJpegByteArray2 =
             0x00,
             0x00,
             0x00,
-            0x00
+            0x00,
         )
         .map { it.toByte() }
         .toByteArray()
@@ -238,7 +238,7 @@ private val invalidNoSosData =
             0x00,
             0xe6,
             0x01,
-            0x00
+            0x00,
         )
         .map { it.toByte() }
         .toByteArray()
@@ -273,7 +273,7 @@ private val invalidNoEoiData =
             0x00,
             0xe6,
             0x01,
-            0x00
+            0x00,
         )
         .map { it.toByte() }
         .toByteArray()

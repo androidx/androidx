@@ -359,7 +359,7 @@ class RobolectricComposeTest {
                                         ++composableTapCount
                                     },
                                     onDoubleTap = { ++composableDoubleTapCount },
-                                    onLongPress = { ++composableLongTapCount }
+                                    onLongPress = { ++composableLongTapCount },
                                 )
                             }
                             .onGloballyPositioned { setupLatch.countDown() }
@@ -424,7 +424,7 @@ class RobolectricComposeTest {
                                     doubleTapLatch.countDown()
                                     ++composableDoubleTapCount
                                 },
-                                onLongPress = { ++composableLongTapCount }
+                                onLongPress = { ++composableLongTapCount },
                             )
                         }
                         .onGloballyPositioned { setupLatch.countDown() }
@@ -496,7 +496,7 @@ class RobolectricComposeTest {
                                     ++composableTapCount
                                 },
                                 onDoubleTap = { ++composableDoubleTapCount },
-                                onLongPress = { ++composableLongTapCount }
+                                onLongPress = { ++composableLongTapCount },
                             )
                         }
                         .onGloballyPositioned {
@@ -583,7 +583,7 @@ class RobolectricComposeTest {
                                     doubleTapLatch.countDown()
                                     ++composableDoubleTapCount
                                 },
-                                onLongPress = { ++composableLongTapCount }
+                                onLongPress = { ++composableLongTapCount },
                             )
                         }
                         .onGloballyPositioned {

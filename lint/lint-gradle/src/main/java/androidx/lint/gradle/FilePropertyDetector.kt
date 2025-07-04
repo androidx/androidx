@@ -93,13 +93,13 @@ class FilePropertyDetector : Detector(), Detector.UastScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(FilePropertyDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(FilePropertyDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         private val discouragedTypes =
             setOf(
                 "org.gradle.api.provider.Property<java.io.File>",
-                "org.gradle.api.provider.Property<File>"
+                "org.gradle.api.provider.Property<File>",
             )
     }
 }

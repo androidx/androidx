@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -28,7 +29,7 @@ version = "1.0-SNAPSHOT"
 // runtime.
 val writeConfigPropsTask = tasks.register("prepareEnvironmentProps", WriteProperties::class) {
     description =  "Generates a properties file with the current environment"
-    setOutputFile(project.layout.buildDirectory.map {
+    destinationFile.set(project.layout.buildDirectory.map {
         it.file("importMavenConfig.properties")
     })
     property("supportRoot", project.projectDir.resolve("../../").canonicalPath)
@@ -37,7 +38,7 @@ val writeConfigPropsTask = tasks.register("prepareEnvironmentProps", WriteProper
 val createPropertiesResourceDirectoryTask = tasks.register("createPropertiesResourceDirectory", Copy::class) {
     description = "Creates a directory with the importMaven properties which can be set" +
             " as an input directory to the java resources"
-    from(writeConfigPropsTask.map { it.outputFile })
+    from(writeConfigPropsTask.map { it.destinationFile })
     into(project.layout.buildDirectory.dir("environmentConfig"))
 }
 
@@ -50,7 +51,7 @@ java {
         }
     }
 }
-tasks.withType(KotlinCompile::class.java).configureEach { kotlinOptions { jvmTarget = "17" } }
+tasks.withType(KotlinCompile::class.java).configureEach { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
 
 dependencies {
     implementation(libs.kotlinGradlePlugin)

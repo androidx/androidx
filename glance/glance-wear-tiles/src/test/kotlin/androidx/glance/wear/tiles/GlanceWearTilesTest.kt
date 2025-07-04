@@ -50,7 +50,7 @@ class GlanceWearTilesTest {
             val compositionResult =
                 compose(
                     context = ApplicationProvider.getApplicationContext<Context>(),
-                    size = DpSize(100.dp, 50.dp)
+                    size = DpSize(100.dp, 50.dp),
                 ) {}
             assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(compositionResult.layout)
             assertThat(
@@ -67,7 +67,7 @@ class GlanceWearTilesTest {
             val compositionResult =
                 compose(
                     context = ApplicationProvider.getApplicationContext<Context>(),
-                    size = DpSize(100.dp, 50.dp)
+                    size = DpSize(100.dp, 50.dp),
                 ) {
                     Text("text content")
                 }

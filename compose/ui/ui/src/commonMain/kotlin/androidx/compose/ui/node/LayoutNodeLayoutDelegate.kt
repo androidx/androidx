@@ -28,9 +28,7 @@ import androidx.compose.ui.unit.Constraints
  * requests to its [measurePassDelegate] and [lookaheadPassDelegate] depending on whether the
  * request is specific to lookahead.
  */
-internal class LayoutNodeLayoutDelegate(
-    internal val layoutNode: LayoutNode,
-) {
+internal class LayoutNodeLayoutDelegate(internal val layoutNode: LayoutNode) {
     val outerCoordinator: NodeCoordinator
         get() = layoutNode.nodes.outerCoordinator
 
@@ -368,6 +366,13 @@ internal class LayoutNodeLayoutDelegate(
         measurePassDelegate.childDelegatesDirty = true
         lookaheadPassDelegate?.let { it.childDelegatesDirty = true }
     }
+
+    fun onRemovedFromLookaheadScope() {
+        lookaheadPassDelegate = null
+        // Clear lookahead invalidations when a LayoutNode is moved out of LookaheadScope.
+        lookaheadLayoutPending = false
+        lookaheadMeasurePending = false
+    }
 }
 
 /**
@@ -381,7 +386,7 @@ internal val LayoutNode.isOutMostLookaheadRoot: Boolean
 
 internal inline fun <T : Measurable> LayoutNode.updateChildMeasurables(
     destination: MutableVector<T>,
-    transform: (LayoutNode) -> T
+    transform: (LayoutNode) -> T,
 ) {
     forEachChildIndexed { i, layoutNode ->
         if (destination.size <= i) {
@@ -427,7 +432,7 @@ internal interface AlignmentLinesOwner : Measurable {
     fun layoutChildren()
 
     /** Recalculate the alignment lines if dirty, and layout children as needed. */
-    fun calculateAlignmentLines(): Map<out AlignmentLine, Int>
+    fun calculateAlignmentLines(): Map<AlignmentLine, Int>
 
     /**
      * Parent [AlignmentLinesOwner]. This will be the AlignmentLinesOwner for the same pass but for

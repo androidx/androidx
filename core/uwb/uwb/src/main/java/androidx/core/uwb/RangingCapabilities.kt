@@ -48,5 +48,5 @@ constructor(
     public val supportedSlotDurations: Set<Int>,
     public val supportedRangingUpdateRates: Set<Int>,
     public val isRangingIntervalReconfigureSupported: Boolean,
-    public val isBackgroundRangingSupported: Boolean
+    public val isBackgroundRangingSupported: Boolean,
 )

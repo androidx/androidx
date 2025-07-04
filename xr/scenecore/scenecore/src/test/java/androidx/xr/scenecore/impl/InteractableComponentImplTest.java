@@ -29,22 +29,27 @@ import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 
-import androidx.xr.extensions.node.Vec3;
+import androidx.xr.runtime.internal.Entity;
+import androidx.xr.runtime.internal.InputEventListener;
+import androidx.xr.runtime.internal.InteractableComponent;
 import androidx.xr.runtime.math.Pose;
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity;
-import androidx.xr.scenecore.JxrPlatformAdapter.InputEventListener;
-import androidx.xr.scenecore.JxrPlatformAdapter.InteractableComponent;
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider;
 import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
 import androidx.xr.scenecore.impl.perception.Session;
-import androidx.xr.scenecore.testing.FakeImpressApi;
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService;
-import androidx.xr.scenecore.testing.FakeXrExtensions;
-import androidx.xr.scenecore.testing.FakeXrExtensions.FakeInputEvent;
-import androidx.xr.scenecore.testing.FakeXrExtensions.FakeNode;
+
+import com.android.extensions.xr.XrExtensions;
+import com.android.extensions.xr.node.InputEvent;
+import com.android.extensions.xr.node.ShadowInputEvent;
+import com.android.extensions.xr.node.ShadowNode;
+import com.android.extensions.xr.node.Vec3;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
+import com.google.ar.imp.apibindings.FakeImpressApiImpl;
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -56,33 +61,48 @@ import java.util.concurrent.Executor;
 
 @RunWith(RobolectricTestRunner.class)
 public class InteractableComponentImplTest {
-    private final ActivityController<Activity> activityController =
+    private final ActivityController<Activity> mActivityController =
             Robolectric.buildActivity(Activity.class);
-    private final Activity activity = activityController.create().start().get();
-    private final FakeScheduledExecutorService fakeExecutor = new FakeScheduledExecutorService();
-    private final PerceptionLibrary perceptionLibrary = mock(PerceptionLibrary.class);
-    private final FakeXrExtensions fakeExtensions = new FakeXrExtensions();
-    private final FakeImpressApi fakeImpressApi = new FakeImpressApi();
-    private JxrPlatformAdapterAxr fakeRuntime;
-    SplitEngineSubspaceManager splitEngineSubspaceManager =
+    private final Activity mActivity = mActivityController.create().start().get();
+    private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
+    private final PerceptionLibrary mPerceptionLibrary = mock(PerceptionLibrary.class);
+    private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
+    private final FakeImpressApiImpl mFakeImpressApi = new FakeImpressApiImpl();
+    private JxrPlatformAdapterAxr mFakeRuntime;
+    SplitEngineSubspaceManager mSplitEngineSubspaceManager =
             Mockito.mock(SplitEngineSubspaceManager.class);
-    ImpSplitEngineRenderer splitEngineRenderer = Mockito.mock(ImpSplitEngineRenderer.class);
+    ImpSplitEngineRenderer mSplitEngineRenderer = Mockito.mock(ImpSplitEngineRenderer.class);
+
+    @Before
+    public void setUp() {
+        when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
+                .thenReturn(immediateFuture(mock(Session.class)));
+        mFakeRuntime =
+                JxrPlatformAdapterAxr.create(
+                        mActivity,
+                        mFakeExecutor,
+                        mXrExtensions,
+                        mFakeImpressApi,
+                        new EntityManager(),
+                        mPerceptionLibrary,
+                        mSplitEngineSubspaceManager,
+                        mSplitEngineRenderer,
+                        /* useSplitEngine= */ false,
+                        /* unscaledGravityAlignedActivitySpace= */ false);
+    }
+
+    @After
+    public void tearDown() {
+        // Dispose the runtime between test cases to clean up lingering references.
+        mFakeRuntime.dispose();
+    }
 
     private Entity createTestEntity() {
-        when(perceptionLibrary.initSession(eq(activity), anyInt(), eq(fakeExecutor)))
-                .thenReturn(immediateFuture(mock(Session.class)));
-        fakeRuntime =
-                JxrPlatformAdapterAxr.create(
-                        activity,
-                        fakeExecutor,
-                        fakeExtensions,
-                        fakeImpressApi,
-                        new EntityManager(),
-                        perceptionLibrary,
-                        splitEngineSubspaceManager,
-                        splitEngineRenderer,
-                        /* useSplitEngine= */ false);
-        return fakeRuntime.createEntity(new Pose(), "test", fakeRuntime.getActivitySpace());
+        return mFakeRuntime.createGroupEntity(new Pose(), "test", mFakeRuntime.getActivitySpace());
+    }
+
+    private void sendInputEvent(ShadowNode node, InputEvent inputEvent) {
+        node.getInputExecutor().execute(() -> node.getInputListener().accept(inputEvent));
     }
 
     @Test
@@ -93,18 +113,18 @@ public class InteractableComponentImplTest {
         InteractableComponent interactableComponent =
                 new InteractableComponentImpl(executor, inputEventListener);
         assertThat(entity.addComponent(interactableComponent)).isTrue();
-        FakeNode node = (FakeNode) ((AndroidXrEntity) entity).getNode();
+        ShadowNode node = ShadowNode.extract(((AndroidXrEntity) entity).getNode());
 
-        assertThat(node.getListener()).isNotNull();
-        assertThat(node.getExecutor()).isEqualTo(fakeExecutor);
+        assertThat(node.getInputListener()).isNotNull();
+        assertThat(node.getInputExecutor()).isEqualTo(mFakeExecutor);
 
-        FakeInputEvent inputEvent = new FakeInputEvent();
-        inputEvent.setOrigin(new Vec3(0, 0, 0));
-        inputEvent.setDirection(new Vec3(1, 1, 1));
-        node.sendInputEvent(inputEvent);
-        fakeExecutor.runAll();
+        InputEvent inputEvent =
+                ShadowInputEvent.create(
+                        /* origin= */ new Vec3(0, 0, 0), /* direction= */ new Vec3(1, 1, 1));
+        sendInputEvent(node, inputEvent);
+        mFakeExecutor.runAll();
 
-        assertThat(((AndroidXrEntity) entity).inputEventListenerMap).isNotEmpty();
+        assertThat(((AndroidXrEntity) entity).mInputEventListenerMap).isNotEmpty();
         verify(inputEventListener).onInputEvent(any());
     }
 
@@ -116,23 +136,23 @@ public class InteractableComponentImplTest {
         InteractableComponent interactableComponent =
                 new InteractableComponentImpl(executor, inputEventListener);
         assertThat(entity.addComponent(interactableComponent)).isTrue();
-        FakeNode node = (FakeNode) ((AndroidXrEntity) entity).getNode();
+        ShadowNode node = ShadowNode.extract(((AndroidXrEntity) entity).getNode());
 
-        assertThat(node.getListener()).isNotNull();
-        assertThat(node.getExecutor()).isEqualTo(fakeExecutor);
+        assertThat(node.getInputListener()).isNotNull();
+        assertThat(node.getInputExecutor()).isEqualTo(mFakeExecutor);
 
-        FakeInputEvent inputEvent = new FakeInputEvent();
-        inputEvent.setOrigin(new Vec3(0, 0, 0));
-        inputEvent.setDirection(new Vec3(1, 1, 1));
-        node.sendInputEvent(inputEvent);
-        fakeExecutor.runAll();
+        InputEvent inputEvent =
+                ShadowInputEvent.create(
+                        /* origin= */ new Vec3(0, 0, 0), /* direction= */ new Vec3(1, 1, 1));
+        sendInputEvent(node, inputEvent);
+        mFakeExecutor.runAll();
 
-        assertThat(((AndroidXrEntity) entity).inputEventListenerMap).isNotEmpty();
+        assertThat(((AndroidXrEntity) entity).mInputEventListenerMap).isNotEmpty();
         verify(inputEventListener).onInputEvent(any());
 
         entity.removeComponent(interactableComponent);
-        assertThat(node.getListener()).isNull();
-        assertThat(node.getExecutor()).isNull();
+        assertThat(node.getInputListener()).isNull();
+        assertThat(node.getInputExecutor()).isNull();
     }
 
     @Test
@@ -161,7 +181,7 @@ public class InteractableComponentImplTest {
 
     @Test
     public void interactableComponent_enablesColliderForGltfEntity() {
-        GltfEntityImplSplitEngine gltfEntity = mock(GltfEntityImplSplitEngine.class);
+        GltfEntityImpl gltfEntity = mock(GltfEntityImpl.class);
         Executor executor = directExecutor();
         InputEventListener inputEventListener = mock(InputEventListener.class);
         InteractableComponent interactableComponent =

@@ -62,7 +62,7 @@ public final class FakeAppConfig {
         FakeCameraFactory cameraFactory = createCameraFactory(availableCamerasSelector);
 
         final CameraFactory.Provider cameraFactoryProvider =
-                (ignored1, ignored2, ignored3, ignore4) -> cameraFactory;
+                (ignored1, ignored2, ignored3, ignore4, streamSpecsCalculator) -> cameraFactory;
 
         final CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                 (ignored1, ignored2, ignored3) -> new FakeCameraDeviceSurfaceManager();
@@ -72,8 +72,10 @@ public final class FakeAppConfig {
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
                 .setUseCaseConfigFactoryProvider(ignored -> {
                     List<FakeCamera> fakeCameras = new ArrayList<>();
+
                     for (String cameraId : cameraFactory.getAvailableCameraIds()) {
-                        fakeCameras.add((FakeCamera) cameraFactory.getCamera(cameraId));
+                        fakeCameras.add((FakeCamera) cameraFactory.getCamera(cameraId
+                        ));
                     }
 
                     return new FakeUseCaseConfigFactory(fakeCameras);

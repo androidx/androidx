@@ -70,7 +70,7 @@ class BasicTooltipTest {
                 positionProvider = EmptyPositionProvider(),
                 tooltip = {},
                 state = state,
-                modifier = Modifier.testTag(TOOLTIP_ANCHOR)
+                modifier = Modifier.testTag(TOOLTIP_ANCHOR),
             ) {
                 Box(modifier = Modifier.requiredSize(1.dp)) {}
             }
@@ -119,7 +119,7 @@ class BasicTooltipTest {
                 tooltip = {},
                 enableUserInput = false,
                 state = state,
-                modifier = Modifier.testTag(TOOLTIP_ANCHOR)
+                modifier = Modifier.testTag(TOOLTIP_ANCHOR),
             ) {
                 Box(modifier = Modifier.requiredSize(1.dp)) {}
             }
@@ -158,7 +158,7 @@ class BasicTooltipTest {
                 positionProvider = EmptyPositionProvider(),
                 tooltip = {},
                 state = state,
-                modifier = Modifier.testTag(TOOLTIP_ANCHOR)
+                modifier = Modifier.testTag(TOOLTIP_ANCHOR),
             ) {
                 Box(modifier = Modifier.requiredSize(1.dp)) {}
             }
@@ -197,7 +197,7 @@ class BasicTooltipTest {
                 /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
                 /* displayId = */ 0,
                 /* flags = */ 0,
-                /* classification = */ CLASSIFICATION_NONE
+                /* classification = */ CLASSIFICATION_NONE,
             )
 
         view.dispatchTouchEvent(downEvent)
@@ -227,7 +227,7 @@ class BasicTooltipTest {
                 /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
                 /* displayId = */ 0,
                 /* flags = */ 0,
-                /* classification = */ CLASSIFICATION_DEEP_PRESS
+                /* classification = */ CLASSIFICATION_DEEP_PRESS,
             )
 
         view.dispatchTouchEvent(deepPressMoveEvent)
@@ -243,7 +243,7 @@ private class EmptyPositionProvider : PopupPositionProvider {
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        popupContentSize: IntSize,
     ): IntOffset {
         return IntOffset(0, 0)
     }

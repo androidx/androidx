@@ -26,10 +26,7 @@ class ExerciseEventCapabilitiesTest {
     @Test
     fun golfShotEventCapabilities_roundTrip_returnsOriginal() {
         val originalGolfShotCapabilities =
-            GolfShotEventCapabilities(
-                isSupported = true,
-                isSwingTypeClassificationSupported = true,
-            )
+            GolfShotEventCapabilities(isSupported = true, isSwingTypeClassificationSupported = true)
 
         val proto = originalGolfShotCapabilities.toProto()
         val capabilities = ExerciseEventCapabilities.fromProto(proto) as GolfShotEventCapabilities

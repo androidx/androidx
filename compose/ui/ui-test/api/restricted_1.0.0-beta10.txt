@@ -5,8 +5,8 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performClick(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performGesture(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.GestureScope,kotlin.Unit> block);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollTo(androidx.compose.ui.test.SemanticsNodeInteraction);
-    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> void performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
     method public static void performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
+    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> void performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
   }
 
   public final class AndroidAssertions_androidKt {
@@ -232,16 +232,16 @@ package androidx.compose.ui.test {
   }
 
   public final class SemanticsNodeInteraction {
-    ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsMatcher matcher);
+    ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     method public void assertDoesNotExist();
     method public androidx.compose.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
     method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
   }
 
   public final class SemanticsNodeInteractionCollection {
-    ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsMatcher matcher);
+    ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> fetchSemanticsNodes(optional boolean atLeastOneRootRequired, optional String? errorMessageOnFail);
     method public operator androidx.compose.ui.test.SemanticsNodeInteraction get(int index);
   }

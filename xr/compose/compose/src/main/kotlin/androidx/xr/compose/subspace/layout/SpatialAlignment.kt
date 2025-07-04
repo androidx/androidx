@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Vector3
 import kotlin.math.roundToInt
@@ -27,7 +26,6 @@ import kotlin.math.roundToInt
  *
  * @see SpatialBiasAlignment
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialAlignment {
     /**
      * Provides the horizontal offset from the origin of the space to the origin of the content.
@@ -65,7 +63,13 @@ public interface SpatialAlignment {
      * An interface to calculate the position of a box of a certain width inside an available width.
      */
     public interface Horizontal {
-        /** @see horizontalOffset */
+        /**
+         * Provides the horizontal offset from the origin of the space to the origin of the content.
+         *
+         * @param width The content width in pixels.
+         * @param space The available space in pixels.
+         * @see [SpatialAlignment.horizontalOffset]
+         */
         public fun offset(width: Int, space: Int): Int
     }
 
@@ -74,7 +78,13 @@ public interface SpatialAlignment {
      * height.
      */
     public interface Vertical {
-        /** @see verticalOffset */
+        /**
+         * Provides the vertical offset from the origin of the space to the origin of the content.
+         *
+         * @param height The content height in pixels.
+         * @param space The available space in pixels.
+         * @see [SpatialAlignment.verticalOffset]
+         */
         public fun offset(height: Int, space: Int): Int
     }
 
@@ -82,7 +92,13 @@ public interface SpatialAlignment {
      * An interface to calculate the position of a box of a certain depth inside an available depth.
      */
     public interface Depth {
-        /** @see depthOffset */
+        /**
+         * Provides the depth offset from the origin of the space to the origin of the content.
+         *
+         * @param depth The content depth in pixels.
+         * @param space The available space in pixels.
+         * @see [SpatialAlignment.depthOffset]
+         */
         public fun offset(depth: Int, space: Int): Int
     }
 
@@ -99,27 +115,19 @@ public interface SpatialAlignment {
         @JvmStatic public val BottomRight: SpatialAlignment = SpatialBiasAlignment(1f, -1f, 0f)
 
         // Horizontal alignments
-        @JvmStatic
-        public val Left: SpatialBiasAlignment.Horizontal = SpatialBiasAlignment.Horizontal(-1f)
-        @JvmStatic
-        public val CenterHorizontally: SpatialBiasAlignment.Horizontal =
-            SpatialBiasAlignment.Horizontal(0f)
-        @JvmStatic
-        public val Right: SpatialBiasAlignment.Horizontal = SpatialBiasAlignment.Horizontal(1f)
+        @JvmStatic public val Left: Horizontal = SpatialBiasAlignment.Horizontal(-1f)
+        @JvmStatic public val CenterHorizontally: Horizontal = SpatialBiasAlignment.Horizontal(0f)
+        @JvmStatic public val Right: Horizontal = SpatialBiasAlignment.Horizontal(1f)
 
         // Vertical alignments
-        @JvmStatic
-        public val Bottom: SpatialBiasAlignment.Vertical = SpatialBiasAlignment.Vertical(-1f)
-        @JvmStatic
-        public val CenterVertically: SpatialBiasAlignment.Vertical =
-            SpatialBiasAlignment.Vertical(0f)
-        @JvmStatic public val Top: SpatialBiasAlignment.Vertical = SpatialBiasAlignment.Vertical(1f)
+        @JvmStatic public val Bottom: Vertical = SpatialBiasAlignment.Vertical(-1f)
+        @JvmStatic public val CenterVertically: Vertical = SpatialBiasAlignment.Vertical(0f)
+        @JvmStatic public val Top: Vertical = SpatialBiasAlignment.Vertical(1f)
 
         // Depth alignments
-        @JvmStatic public val Back: SpatialBiasAlignment.Depth = SpatialBiasAlignment.Depth(-1f)
-        @JvmStatic
-        public val CenterDepthwise: SpatialBiasAlignment.Depth = SpatialBiasAlignment.Depth(0f)
-        @JvmStatic public val Front: SpatialBiasAlignment.Depth = SpatialBiasAlignment.Depth(1f)
+        @JvmStatic public val Back: Depth = SpatialBiasAlignment.Depth(-1f)
+        @JvmStatic public val CenterDepthwise: Depth = SpatialBiasAlignment.Depth(0f)
+        @JvmStatic public val Front: Depth = SpatialBiasAlignment.Depth(1f)
     }
 }
 
@@ -130,7 +138,6 @@ public interface SpatialAlignment {
  * @param verticalBias Must be within the range of [-1, 1] with -1 being bottom and 1 being top.
  * @param depthBias Must be within the range of [-1, 1] with -1 being back and 1 being front.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialBiasAlignment(
     public val horizontalBias: Float,
     public val verticalBias: Float,

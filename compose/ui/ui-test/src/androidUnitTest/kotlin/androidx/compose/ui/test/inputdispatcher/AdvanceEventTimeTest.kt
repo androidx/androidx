@@ -19,7 +19,6 @@ package androidx.compose.ui.test.inputdispatcher
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.AndroidInputDispatcher
 import androidx.compose.ui.test.RobolectricMinSdk
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,14 +29,10 @@ import org.robolectric.annotation.Config
  * Tests if [AndroidInputDispatcher.advanceEventTime] works by sending three events with a delay in
  * between them.
  */
-@SmallTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @Config(minSdk = RobolectricMinSdk)
 class AdvanceEventTimeTest(private val config: TestConfig) : InputDispatcherTest() {
-    data class TestConfig(
-        val firstDelayMillis: Long,
-        val secondDelayMillis: Long,
-    )
+    data class TestConfig(val firstDelayMillis: Long, val secondDelayMillis: Long)
 
     companion object {
         private val anyPosition = Offset.Zero
@@ -48,12 +43,7 @@ class AdvanceEventTimeTest(private val config: TestConfig) : InputDispatcherTest
             return mutableListOf<TestConfig>().apply {
                 for (delay1 in listOf(0L, 23L)) {
                     for (delay2 in listOf(0L, 47L)) {
-                        add(
-                            TestConfig(
-                                firstDelayMillis = delay1,
-                                secondDelayMillis = delay2,
-                            )
-                        )
+                        add(TestConfig(firstDelayMillis = delay1, secondDelayMillis = delay2))
                     }
                 }
             }

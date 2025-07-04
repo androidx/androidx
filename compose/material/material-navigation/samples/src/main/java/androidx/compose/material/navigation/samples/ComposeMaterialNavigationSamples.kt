@@ -52,7 +52,7 @@ fun BottomSheetNavDemo() {
                     showSheet = {
                         navController.navigate(Destinations.Sheet + "?arg=From Home Screen")
                     },
-                    showFeed = { navController.navigate(Destinations.Feed) }
+                    showFeed = { navController.navigate(Destinations.Feed) },
                 )
             }
             composable(Destinations.Feed) { Text("Feed!") }
@@ -63,7 +63,7 @@ fun BottomSheetNavDemo() {
                     showAnotherSheet = {
                         navController.navigate(Destinations.Sheet + "?arg=${UUID.randomUUID()}")
                     },
-                    arg = arg
+                    arg = arg,
                 )
             }
         }

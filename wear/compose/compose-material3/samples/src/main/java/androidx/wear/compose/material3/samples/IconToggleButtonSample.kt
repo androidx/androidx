@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconToggleButton
 import androidx.wear.compose.material3.IconToggleButtonDefaults
 import androidx.wear.compose.material3.samples.icons.WifiOffIcon
@@ -47,14 +44,18 @@ fun IconToggleButtonSample() {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconToggleButton(
             checked = firstChecked,
             onCheckedChange = { firstChecked = !firstChecked },
             shapes = IconToggleButtonDefaults.animatedShapes(),
         ) {
-            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+            if (firstChecked) {
+                WifiOnIcon()
+            } else {
+                WifiOffIcon()
+            }
         }
 
         Spacer(modifier = Modifier.width(5.dp))
@@ -64,7 +65,11 @@ fun IconToggleButtonSample() {
             onCheckedChange = { secondChecked = !secondChecked },
             shapes = IconToggleButtonDefaults.animatedShapes(),
         ) {
-            Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+            if (secondChecked) {
+                WifiOnIcon()
+            } else {
+                WifiOffIcon()
+            }
         }
     }
 }
@@ -78,7 +83,7 @@ fun IconToggleButtonVariantSample() {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconToggleButton(
             checked = firstChecked,

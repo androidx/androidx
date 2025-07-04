@@ -88,7 +88,7 @@ class CreateEntryTest {
     fun constructor_emptyAccountName_throwsIAE() {
         Assert.assertThrows(
             "Expected empty account name to throw NPE",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             CreateEntry("", mPendingIntent)
         }
@@ -159,7 +159,7 @@ class CreateEntryTest {
                 PUBLIC_KEY_CREDENTIAL_COUNT,
                 TOTAL_COUNT,
                 AUTO_SELECT_BIT,
-                testBiometricPromptData()
+                testBiometricPromptData(),
             )
         } else {
             return CreateEntry(
@@ -171,7 +171,7 @@ class CreateEntryTest {
                 PASSWORD_COUNT,
                 PUBLIC_KEY_CREDENTIAL_COUNT,
                 TOTAL_COUNT,
-                AUTO_SELECT_BIT
+                AUTO_SELECT_BIT,
             )
         }
     }

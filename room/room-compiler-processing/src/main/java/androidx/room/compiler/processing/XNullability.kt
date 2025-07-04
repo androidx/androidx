@@ -35,5 +35,5 @@ enum class XNullability {
      * that does not have a nullability annotation or a Type in Kotlin where it is inferred from the
      * platform.
      */
-    UNKNOWN
+    UNKNOWN,
 }

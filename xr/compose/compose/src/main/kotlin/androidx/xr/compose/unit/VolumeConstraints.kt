@@ -16,6 +16,8 @@
 
 package androidx.xr.compose.unit
 
+import androidx.annotation.IntRange
+
 /**
  * Defines constraints for a 3D volume, specifying minimum and maximum values for width, height, and
  * depth.
@@ -33,13 +35,20 @@ package androidx.xr.compose.unit
  *   Defaults to [INFINITY].
  */
 public class VolumeConstraints(
-    public val minWidth: Int,
-    public val maxWidth: Int,
-    public val minHeight: Int,
-    public val maxHeight: Int,
-    public val minDepth: Int = 0,
-    public val maxDepth: Int = INFINITY,
+    @IntRange(from = 0) public val minWidth: Int = 0,
+    @IntRange(from = 0) public val maxWidth: Int = INFINITY,
+    @IntRange(from = 0) public val minHeight: Int = 0,
+    @IntRange(from = 0) public val maxHeight: Int = INFINITY,
+    @IntRange(from = 0) public val minDepth: Int = 0,
+    @IntRange(from = 0) public val maxDepth: Int = INFINITY,
 ) {
+    init {
+        require(maxWidth >= minWidth) { "maxWidth ($maxWidth) must be >= minWidth ($minWidth)." }
+        require(maxHeight >= minHeight) {
+            "maxHeight ($maxHeight) must be >= minHeight ($minHeight)."
+        }
+        require(maxDepth >= minDepth) { "maxDepth ($maxDepth) must be >= minDepth ($minDepth)." }
+    }
 
     /** Indicates whether the width is bounded (has a maximum value other than [INFINITY]). */
     @get:JvmName("hasBoundedWidth")

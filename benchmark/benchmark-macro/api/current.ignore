@@ -1,3 +1,9 @@
 // Baseline format: 1.0
-RemovedPackage: androidx.benchmark.perfetto:
-    Removed package androidx.benchmark.perfetto
+AddedMethod: androidx.benchmark.macro.BaselineProfileConfig.Builder#Builder(String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
+    Added constructor androidx.benchmark.macro.BaselineProfileConfig.Builder(String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)
+AddedMethod: androidx.benchmark.macro.BaselineProfileConfig.Builder#setOutputFilePrefix(String):
+    Added method androidx.benchmark.macro.BaselineProfileConfig.Builder.setOutputFilePrefix(String)
+
+
+InvalidNullConversion: androidx.benchmark.macro.BaselineProfileConfig#getOutputFilePrefix():
+    Attempted to change nullability of java.lang.String (from NONNULL to NULLABLE) in method androidx.benchmark.macro.BaselineProfileConfig.getOutputFilePrefix()

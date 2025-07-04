@@ -62,7 +62,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
     @JvmOverloads
     fun calculateBounds(
         bounds: FloatArray = FloatArray(4),
-        approximate: Boolean = true
+        approximate: Boolean = true,
     ): FloatArray {
         start.calculateBounds(bounds, approximate)
         val minX = bounds[0]
@@ -129,7 +129,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
                             interpolate(
                                 _morphMatch[i].first.points[it],
                                 _morphMatch[i].second.points[it],
-                                progress
+                                progress,
                             )
                         }
                     )
@@ -147,7 +147,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
                         lastCubic.control1X,
                         lastCubic.control1Y,
                         firstCubic.anchor0X,
-                        firstCubic.anchor0Y
+                        firstCubic.anchor0Y,
                     )
                 )
         }
@@ -173,7 +173,7 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
     inline fun forEachCubic(
         progress: Float,
         mutableCubic: MutableCubic = MutableCubic(),
-        callback: (MutableCubic) -> Unit
+        callback: (MutableCubic) -> Unit,
     ) {
         for (i in morphMatch.indices) {
             mutableCubic.interpolate(morphMatch[i].first, morphMatch[i].second, progress)

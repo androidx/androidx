@@ -88,7 +88,7 @@ class PlacementReusableNodeTest {
                 TestMultiplatformInteropView(
                     onAddedToPlatformHierarchy = { currentlyVisible = true },
                     onRemovedFromPlatformHierarchy = { currentlyVisible = false },
-                    modifier = Modifier.size(100.dp)
+                    modifier = Modifier.size(100.dp),
                 )
             }
         }
@@ -112,7 +112,7 @@ class PlacementReusableNodeTest {
                     TestMultiplatformInteropView(
                         onAddedToPlatformHierarchy = { currentlyVisible += index },
                         onRemovedFromPlatformHierarchy = { currentlyVisible -= index },
-                        modifier = Modifier.size(100.dp)
+                        modifier = Modifier.size(100.dp),
                     )
                 }
             }
@@ -142,7 +142,7 @@ private fun TestMultiplatformInteropView(
         modifier then
             TrackInteropPlacementModifierElement(
                 onAddedToPlatformHierarchy = onAddedToPlatformHierarchy,
-                onRemovedFromPlatformHierarchy = onRemovedFromPlatformHierarchy
+                onRemovedFromPlatformHierarchy = onRemovedFromPlatformHierarchy,
             )
     )
 }
@@ -154,7 +154,7 @@ private data class TrackInteropPlacementModifierElement(
     override fun create() =
         TrackInteropPlacementModifierNode(
             onAddedToPlatformHierarchy = onAddedToPlatformHierarchy,
-            onRemovedFromPlatformHierarchy = onRemovedFromPlatformHierarchy
+            onRemovedFromPlatformHierarchy = onRemovedFromPlatformHierarchy,
         )
 
     override fun update(node: TrackInteropPlacementModifierNode) {

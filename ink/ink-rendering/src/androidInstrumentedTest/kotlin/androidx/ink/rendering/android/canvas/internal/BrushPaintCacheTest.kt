@@ -24,8 +24,8 @@ import android.graphics.ComposeShader
 import android.graphics.Matrix
 import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.brush.color.Color as ComposeColor
-import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.strokes.StrokeInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -43,20 +43,20 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_positionOnlyWithTexture() {
-        var uriLoaded: String? = null
+        var textureIdLoaded: String? = null
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    uriLoaded = it
+                    textureIdLoaded = it
                     createBitmap(10, 20, Bitmap.Config.ARGB_8888)
                 }
             )
-        val fakeTextureUri = "ink://ink/texture:test-texture-one"
+        val fakeTextureId = "test-texture-one"
         val brushPaint =
             BrushPaint(
                 listOf(
                     BrushPaint.TextureLayer(
-                        fakeTextureUri,
+                        fakeTextureId,
                         sizeX = 30F,
                         sizeY = 40F,
                         origin = BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
@@ -74,7 +74,7 @@ class BrushPaintCacheTest {
                 StrokeInput(),
             )
 
-        assertThat(uriLoaded).isEqualTo(fakeTextureUri)
+        assertThat(textureIdLoaded).isEqualTo(fakeTextureId)
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isInstanceOf(BitmapShader::class.java)
         val expectedLocalMatrix =
@@ -109,20 +109,20 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_withStrokeToGraphicsObjectTransform_shouldHaveCorrectLocalMatrix() {
-        var uriLoaded: String? = null
+        var textureIdLoaded: String? = null
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    uriLoaded = it
+                    textureIdLoaded = it
                     createBitmap(10, 20, Bitmap.Config.ARGB_8888)
                 }
             )
-        val fakeTextureUri = "ink://ink/texture:test-texture-one"
+        val fakeTextureId = "test-texture-one"
         val brushPaint =
             BrushPaint(
                 listOf(
                     BrushPaint.TextureLayer(
-                        fakeTextureUri,
+                        fakeTextureId,
                         sizeX = 30F,
                         sizeY = 40F,
                         origin = BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
@@ -141,7 +141,7 @@ class BrushPaintCacheTest {
                 Matrix().apply { setScale(5F, 5F) },
             )
 
-        assertThat(uriLoaded).isEqualTo(fakeTextureUri)
+        assertThat(textureIdLoaded).isEqualTo(fakeTextureId)
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isInstanceOf(BitmapShader::class.java)
         val expectedLocalMatrix =
@@ -188,12 +188,12 @@ class BrushPaintCacheTest {
     fun obtain_forBrushPaintWithSizeUnitBrushSize() {
         val cache =
             BrushPaintCache(TextureBitmapStore { createBitmap(1, 1, Bitmap.Config.ARGB_8888) })
-        val textureUri = "ink://ink/texture:test-texture-one"
+        val textureId = "test-texture-one"
         val brushPaint =
             BrushPaint(
                 listOf(
                     BrushPaint.TextureLayer(
-                        textureUri,
+                        textureId,
                         sizeX = 2f,
                         sizeY = 3f,
                         sizeUnit = BrushPaint.TextureSizeUnit.BRUSH_SIZE,
@@ -207,7 +207,7 @@ class BrushPaintCacheTest {
                 ComposeColor.Red,
                 brushSize = 10f,
                 StrokeInput(),
-                StrokeInput()
+                StrokeInput(),
             )
 
         val expectedLocalMatrix =
@@ -229,7 +229,7 @@ class BrushPaintCacheTest {
                     ComposeColor.Red,
                     brushSize = 20f,
                     StrokeInput(),
-                    StrokeInput()
+                    StrokeInput(),
                 )
             )
             .isSameInstanceAs(paint)
@@ -242,28 +242,28 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_multipleTextureLayers() {
-        val urisLoaded: MutableList<String> = mutableListOf()
+        val textureIdsLoaded: MutableList<String> = mutableListOf()
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    urisLoaded.add(it)
+                    textureIdsLoaded.add(it)
                     createBitmap(/* width= */ 10, /* height= */ 20, Bitmap.Config.ARGB_8888)
                 }
             )
-        val fakeTextureUri1 = "ink://ink/texture:test-texture-one"
-        val fakeTextureUri2 = "ink://ink/texture:test-texture-two"
+        val fakeTextureId1 = "test-texture-one"
+        val fakeTextureId2 = "test-texture-two"
         val brushPaint =
             BrushPaint(
                 listOf(
-                    BrushPaint.TextureLayer(fakeTextureUri1, sizeX = 30F, sizeY = 40F),
-                    BrushPaint.TextureLayer(fakeTextureUri2, sizeX = 30F, sizeY = 40F),
+                    BrushPaint.TextureLayer(fakeTextureId1, sizeX = 30F, sizeY = 40F),
+                    BrushPaint.TextureLayer(fakeTextureId2, sizeX = 30F, sizeY = 40F),
                 )
             )
 
         val paint =
             cache.obtain(brushPaint, ComposeColor.Red, brushSize = 1f, StrokeInput(), StrokeInput())
 
-        assertThat(urisLoaded).containsExactly(fakeTextureUri1, fakeTextureUri2).inOrder()
+        assertThat(textureIdsLoaded).containsExactly(fakeTextureId1, fakeTextureId2).inOrder()
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isInstanceOf(ComposeShader::class.java)
         // Can't really assert in more detail because ComposeShader's fields are not readable.
@@ -271,15 +271,15 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_textureLayersThatDoNotLoadAreIgnored() {
-        val urisLoaded: MutableList<String> = mutableListOf()
-        val fakeBrokenTextureUri1 = "//fake/texture:broken:1"
-        val fakeWorkingTextureUri = "ink://ink/texture:test-texture-one"
-        val fakeBrokenTextureUri2 = "//fake/texture:broken:2"
+        val textureIdsLoaded: MutableList<String> = mutableListOf()
+        val fakeUnmappedTextureId1 = "unmapped-texture-one"
+        val fakeWorkingTextureId = "test-texture-one"
+        val fakeUnmappedTextureId2 = "unmapped-texture-two"
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    urisLoaded.add(it)
-                    if (it == fakeWorkingTextureUri) {
+                    textureIdsLoaded.add(it)
+                    if (it == fakeWorkingTextureId) {
                         createBitmap(/* width= */ 10, /* height= */ 20, Bitmap.Config.ARGB_8888)
                     } else {
                         null
@@ -289,17 +289,17 @@ class BrushPaintCacheTest {
         val brushPaint =
             BrushPaint(
                 listOf(
-                    BrushPaint.TextureLayer(fakeBrokenTextureUri1, sizeX = 30F, sizeY = 40F),
-                    BrushPaint.TextureLayer(fakeWorkingTextureUri, sizeX = 30F, sizeY = 40F),
-                    BrushPaint.TextureLayer(fakeBrokenTextureUri2, sizeX = 30F, sizeY = 40F),
+                    BrushPaint.TextureLayer(fakeUnmappedTextureId1, sizeX = 30F, sizeY = 40F),
+                    BrushPaint.TextureLayer(fakeWorkingTextureId, sizeX = 30F, sizeY = 40F),
+                    BrushPaint.TextureLayer(fakeUnmappedTextureId2, sizeX = 30F, sizeY = 40F),
                 )
             )
 
         val paint =
             cache.obtain(brushPaint, ComposeColor.Red, brushSize = 1f, StrokeInput(), StrokeInput())
 
-        assertThat(urisLoaded)
-            .containsExactly(fakeBrokenTextureUri1, fakeWorkingTextureUri, fakeBrokenTextureUri2)
+        assertThat(textureIdsLoaded)
+            .containsExactly(fakeUnmappedTextureId1, fakeWorkingTextureId, fakeUnmappedTextureId2)
             .inOrder()
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isInstanceOf(BitmapShader::class.java)
@@ -307,23 +307,23 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_textureLoadingDisabled() {
-        var uriLoaded: String? = null
+        var textureIdLoaded: String? = null
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    uriLoaded = it
+                    textureIdLoaded = it
                     null
                 }
             )
-        val fakeTextureUri = "ink://ink/texture:test-texture-one"
+        val fakeTextureId = "test-texture-one"
         val brushPaint =
-            BrushPaint(listOf(BrushPaint.TextureLayer(fakeTextureUri, sizeX = 30F, sizeY = 40F)))
+            BrushPaint(listOf(BrushPaint.TextureLayer(fakeTextureId, sizeX = 30F, sizeY = 40F)))
         val brushSize = 5f
 
         val paint =
             cache.obtain(brushPaint, ComposeColor.Red, brushSize, StrokeInput(), StrokeInput())
 
-        assertThat(uriLoaded).isEqualTo(fakeTextureUri)
+        assertThat(textureIdLoaded).isEqualTo(fakeTextureId)
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isNull()
 
@@ -336,30 +336,30 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_textureLoadingDisabledMultipleLayers() {
-        val urisLoaded: MutableList<String> = mutableListOf()
+        val textureIdsLoaded: MutableList<String> = mutableListOf()
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    urisLoaded.add(it)
+                    textureIdsLoaded.add(it)
                     null
                 }
             )
         val textureLayerWidth = 30F
         val textureLayerHeight = 40F
-        val fakeTextureUri1 = "ink://ink/texture:test-one"
-        val fakeTextureUri2 = "ink://ink/texture:test-two"
+        val fakeTextureId1 = "test-one"
+        val fakeTextureId2 = "test-two"
         val brushPaint =
             BrushPaint(
                 listOf(
-                    BrushPaint.TextureLayer(fakeTextureUri1, textureLayerWidth, textureLayerHeight),
-                    BrushPaint.TextureLayer(fakeTextureUri2, textureLayerWidth, textureLayerHeight),
+                    BrushPaint.TextureLayer(fakeTextureId1, textureLayerWidth, textureLayerHeight),
+                    BrushPaint.TextureLayer(fakeTextureId2, textureLayerWidth, textureLayerHeight),
                 )
             )
 
         val paint =
             cache.obtain(brushPaint, ComposeColor.Red, brushSize = 1f, StrokeInput(), StrokeInput())
 
-        assertThat(urisLoaded).containsExactly(fakeTextureUri1, fakeTextureUri2).inOrder()
+        assertThat(textureIdsLoaded).containsExactly(fakeTextureId1, fakeTextureId2).inOrder()
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isNull()
     }
@@ -382,7 +382,7 @@ class BrushPaintCacheTest {
                     ComposeColor.Blue,
                     brushSize,
                     StrokeInput(),
-                    StrokeInput()
+                    StrokeInput(),
                 )
             )
             .isSameInstanceAs(paint)
@@ -391,25 +391,25 @@ class BrushPaintCacheTest {
 
     @Test
     fun obtain_identityLocalMatrix() {
-        var uriLoaded: String? = null
+        var textureIdLoaded: String? = null
         val cache =
             BrushPaintCache(
                 TextureBitmapStore {
-                    uriLoaded = it
+                    textureIdLoaded = it
                     createBitmap(10, 20, Bitmap.Config.ARGB_8888)
                 }
             )
-        val fakeTextureUri = "ink://ink/texture:test-texture-one"
+        val fakeTextureId = "test-texture-one"
         val brushPaint =
             BrushPaint(
                 // Same size as the Bitmap.
-                listOf(BrushPaint.TextureLayer(fakeTextureUri, sizeX = 10F, sizeY = 20F))
+                listOf(BrushPaint.TextureLayer(fakeTextureId, sizeX = 10F, sizeY = 20F))
             )
 
         val paint =
             cache.obtain(brushPaint, ComposeColor.Red, brushSize = 1f, StrokeInput(), StrokeInput())
 
-        assertThat(uriLoaded).isEqualTo(fakeTextureUri)
+        assertThat(textureIdLoaded).isEqualTo(fakeTextureId)
         assertThat(paint.color).isEqualTo(Color.RED)
         assertThat(paint.shader).isInstanceOf(BitmapShader::class.java)
         Matrix().let {

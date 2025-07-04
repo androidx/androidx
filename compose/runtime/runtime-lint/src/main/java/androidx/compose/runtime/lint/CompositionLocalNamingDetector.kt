@@ -86,8 +86,8 @@ class CompositionLocalNamingDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     CompositionLocalNamingDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

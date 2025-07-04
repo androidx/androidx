@@ -51,7 +51,7 @@ internal class IndentationFixSpan : LeadingMarginSpan {
         start: Int,
         end: Int,
         first: Boolean,
-        layout: Layout?
+        layout: Layout?,
     ) {
         if (layout != null && paint != null) {
             val lineIndex = layout.getLineForOffset(start)

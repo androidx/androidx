@@ -61,7 +61,7 @@ class StreamConfigurationMapCompatTest {
         streamConfigurationMapCompat =
             StreamConfigurationMapCompat(
                 streamConfigurationMap,
-                OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+                OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
             )
     }
 

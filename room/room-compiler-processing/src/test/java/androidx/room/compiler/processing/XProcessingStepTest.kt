@@ -59,7 +59,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -76,7 +76,7 @@ class XProcessingStepTest {
                 override fun annotations(): Set<String> {
                     return setOf(
                         OtherAnnotation::class.qualifiedName!!,
-                        MainAnnotation::class.qualifiedName!!
+                        MainAnnotation::class.qualifiedName!!,
                     )
                 }
             }
@@ -99,7 +99,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val other =
             JavaFileObjects.forSourceString(
@@ -111,7 +111,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(main, other))
@@ -121,7 +121,7 @@ class XProcessingStepTest {
             .containsExactlyEntriesIn(
                 mapOf(
                     MainAnnotation::class to "foo.bar.Main",
-                    OtherAnnotation::class to "foo.bar.Other"
+                    OtherAnnotation::class to "foo.bar.Other",
                 )
             )
     }
@@ -135,7 +135,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -167,7 +167,7 @@ class XProcessingStepTest {
                 override fun annotations(): Set<String> {
                     return setOf(
                         OtherAnnotation::class.qualifiedName!!,
-                        MainAnnotation::class.qualifiedName!!
+                        MainAnnotation::class.qualifiedName!!,
                     )
                 }
             }
@@ -186,7 +186,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(main))
@@ -210,7 +210,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -218,7 +218,7 @@ class XProcessingStepTest {
                     elementPerRound[roundCounter++] =
                         listOf(
                             env.requireTypeElement("foo.bar.Main"),
-                            env.requireTypeElement("foo.bar.Main")
+                            env.requireTypeElement("foo.bar.Main"),
                         )
                     // trigger another round
                     elementsByAnnotation[MainAnnotation::class.qualifiedName]
@@ -243,7 +243,7 @@ class XProcessingStepTest {
                 override fun annotations(): Set<String> {
                     return setOf(
                         OtherAnnotation::class.qualifiedName!!,
-                        MainAnnotation::class.qualifiedName!!
+                        MainAnnotation::class.qualifiedName!!,
                     )
                 }
             }
@@ -262,7 +262,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(main))
@@ -304,7 +304,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val processingEnvPerRound = mutableMapOf<Int, XProcessingEnv>()
@@ -315,7 +315,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -344,7 +344,7 @@ class XProcessingStepTest {
                 override fun annotations(): Set<String> {
                     return setOf(
                         OtherAnnotation::class.qualifiedName!!,
-                        MainAnnotation::class.qualifiedName!!
+                        MainAnnotation::class.qualifiedName!!,
                     )
                 }
             }
@@ -389,7 +389,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val processingEnvPerRound = mutableMapOf<Int, XProcessingEnv>()
@@ -401,7 +401,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -430,7 +430,7 @@ class XProcessingStepTest {
                 override fun annotations(): Set<String> {
                     return setOf(
                         OtherAnnotation::class.qualifiedName!!,
-                        MainAnnotation::class.qualifiedName!!
+                        MainAnnotation::class.qualifiedName!!,
                     )
                 }
             }
@@ -453,8 +453,8 @@ class XProcessingStepTest {
             arguments =
                 TestCompilationArguments(
                     sources = listOf(main),
-                    symbolProcessorProviders = listOf(processorProvider)
-                )
+                    symbolProcessorProviders = listOf(processorProvider),
+                ),
         )
         // Makes sure processingSteps() was only called once, and that the xProcessingEnv was set.
         assertThat(xProcessingEnvs).hasSize(1)
@@ -482,7 +482,7 @@ class XProcessingStepTest {
             )
             class Main {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val other =
             JavaFileObjects.forSourceString(
@@ -494,7 +494,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val elementsByStep = mutableMapOf<XProcessingStep, XTypeElement>()
         // create a scenario where we can test caching between steps
@@ -506,7 +506,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -523,7 +523,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -552,7 +552,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -574,7 +574,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(main.toJFO()))
@@ -601,7 +601,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -631,7 +631,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val result =
@@ -640,8 +640,8 @@ class XProcessingStepTest {
                 arguments =
                     TestCompilationArguments(
                         sources = listOf(main),
-                        symbolProcessorProviders = listOf(processorProvider)
-                    )
+                        symbolProcessorProviders = listOf(processorProvider),
+                    ),
             )
         assertThat(returned).apply {
             isNotNull()
@@ -678,7 +678,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val other =
             JavaFileObjects.forSourceString(
@@ -690,7 +690,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
         val mainStep =
@@ -700,7 +700,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -719,7 +719,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -760,7 +760,7 @@ class XProcessingStepTest {
             )
             class Main {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val invokedLifecycles = mutableListOf<String>()
         val stepsProcessed = mutableListOf<XProcessingStep>()
@@ -773,7 +773,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         invokedLifecycles.add("processOver")
@@ -873,7 +873,7 @@ class XProcessingStepTest {
             )
             class Main {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val anotherSource =
             JavaFileObjects.forSourceString(
@@ -884,7 +884,7 @@ class XProcessingStepTest {
             @SingleTypeValueAnnotation(GeneratedType.class)
             class AnotherSource { }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         var round = 0
         val genClassName = ClassName.get("foo.bar", "GeneratedType")
@@ -895,7 +895,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -962,7 +962,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val stepsProcessed = mutableListOf<XProcessingStep>()
         val mainStep =
@@ -972,7 +972,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -988,7 +988,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1028,7 +1028,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         var executedLastRound = false
@@ -1045,7 +1045,7 @@ class XProcessingStepTest {
                                     override fun process(
                                         env: XProcessingEnv,
                                         elementsByAnnotation: Map<String, Set<XElement>>,
-                                        isLastRound: Boolean
+                                        isLastRound: Boolean,
                                     ): Set<XElement> {
                                         if (isLastRound) {
                                             executedLastRound = true
@@ -1064,8 +1064,8 @@ class XProcessingStepTest {
             arguments =
                 TestCompilationArguments(
                     sources = listOf(main),
-                    symbolProcessorProviders = listOf(processorProvider)
-                )
+                    symbolProcessorProviders = listOf(processorProvider),
+                ),
         )
 
         assertThat(executedLastRound).isTrue()
@@ -1091,7 +1091,7 @@ class XProcessingStepTest {
             class Other {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
         val mainStep =
@@ -1101,7 +1101,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1120,7 +1120,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1145,8 +1145,8 @@ class XProcessingStepTest {
             arguments =
                 TestCompilationArguments(
                     sources = listOf(main),
-                    symbolProcessorProviders = listOf(processorProvider)
-                )
+                    symbolProcessorProviders = listOf(processorProvider),
+                ),
         )
         assertThat(elementsByStep[mainStep]).containsExactly("foo.bar.Main")
         assertThat(elementsByStep[otherStep]).containsExactly("foo.bar.Other")
@@ -1169,7 +1169,7 @@ class XProcessingStepTest {
             )
             class Main {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val invokedLifecycles = mutableListOf<String>()
         val stepsProcessed = mutableListOf<XProcessingStep>()
@@ -1182,7 +1182,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         invokedLifecycles.add("processOver")
@@ -1239,8 +1239,8 @@ class XProcessingStepTest {
             arguments =
                 TestCompilationArguments(
                     sources = listOf(main),
-                    symbolProcessorProviders = listOf(processorProvider)
-                )
+                    symbolProcessorProviders = listOf(processorProvider),
+                ),
         )
         // Assert that mainStep was processed twice due to deferring
         assertThat(stepsProcessed).containsExactly(mainStep, mainStep)
@@ -1290,7 +1290,7 @@ class XProcessingStepTest {
             class Main {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val stepsProcessed = mutableListOf<XProcessingStep>()
         val mainStep =
@@ -1300,7 +1300,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1316,7 +1316,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1338,8 +1338,8 @@ class XProcessingStepTest {
             arguments =
                 TestCompilationArguments(
                     sources = listOf(main),
-                    symbolProcessorProviders = listOf(processorProvider)
-                )
+                    symbolProcessorProviders = listOf(processorProvider),
+                ),
         )
         assertThat(stepsProcessed).containsExactly(mainStep)
     }
@@ -1359,7 +1359,7 @@ class XProcessingStepTest {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val extra =
             Source.kotlin(
@@ -1371,7 +1371,7 @@ class XProcessingStepTest {
                 fun mainMethod(@AnywhereAnnotation param: String) {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val assertRound: (Int, List<XElement>) -> Unit = { roundIndex, roundReceivedElements ->
             if (roundIndex == 1) {
@@ -1397,7 +1397,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1428,8 +1428,8 @@ class XProcessingStepTest {
                 arguments =
                     TestCompilationArguments(
                         sources = listOf(main, extra),
-                        symbolProcessorProviders = listOf(processorProvider)
-                    )
+                        symbolProcessorProviders = listOf(processorProvider),
+                    ),
             )
         assertThat(compileResult.success).isTrue()
 
@@ -1456,7 +1456,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1483,7 +1483,7 @@ class XProcessingStepTest {
             class Other extends ToBeGenerated {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(listOf(main.toJFO()))
@@ -1512,7 +1512,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1534,7 +1534,7 @@ class XProcessingStepTest {
                 KspBasicAnnotationProcessor(
                     symbolProcessorEnvironment = environment,
                     config =
-                        XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true)
+                        XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true),
                 ) {
                 override fun processingSteps() = listOf(processingStep)
             }
@@ -1549,7 +1549,7 @@ class XProcessingStepTest {
             internal class Other : ToBeGenerated() {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val result =
@@ -1558,8 +1558,8 @@ class XProcessingStepTest {
                 arguments =
                     TestCompilationArguments(
                         sources = listOf(main),
-                        symbolProcessorProviders = listOf(processorProvider)
-                    )
+                        symbolProcessorProviders = listOf(processorProvider),
+                    ),
             )
         assertThat(result.success).isTrue()
         // no error due to invalid elements in last round because validation is skipped
@@ -1582,7 +1582,7 @@ class XProcessingStepTest {
                 }
             }
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .toJFO()
         val extra =
@@ -1595,7 +1595,7 @@ class XProcessingStepTest {
                 void mainMethod(@AnywhereAnnotation String param) {}
             }
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .toJFO()
         val assertRound: (Int, List<XElement>) -> Unit = { roundIndex, roundReceivedElements ->
@@ -1622,7 +1622,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     if (isLastRound) {
                         return emptySet()
@@ -1674,7 +1674,7 @@ class XProcessingStepTest {
             package foo
             class Foo { }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val invocations = mutableMapOf<XProcessingEnv.Backend, Int>()
         val step =
@@ -1684,7 +1684,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XElement> {
                     invocations[env.backend] = invocations.getOrDefault(env.backend, 0) + 1
                     val className = ClassName.get("foo", "Bar")
@@ -1702,12 +1702,7 @@ class XProcessingStepTest {
         runProcessorTest(sources = listOf(kotlinSrc), createProcessingSteps = { listOf(step) }) {}
         // 3 for each backend, 1st initial round, 2nd round due to new gen sources, 3rd round over
         assertThat(invocations)
-            .isEqualTo(
-                mapOf(
-                    XProcessingEnv.Backend.JAVAC to 3,
-                    XProcessingEnv.Backend.KSP to 3,
-                )
-            )
+            .isEqualTo(mapOf(XProcessingEnv.Backend.JAVAC to 3, XProcessingEnv.Backend.KSP to 3))
     }
 
     @Test
@@ -1719,7 +1714,7 @@ class XProcessingStepTest {
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> {
                     processedElementNamesByRound[round++] =
                         elementsByAnnotation.values.flatten().map { it.name }.toSet()
@@ -1745,7 +1740,7 @@ class XProcessingStepTest {
             @Retention(RetentionPolicy.RUNTIME)
             public @interface SomeAnnotation {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val main =
             JavaFileObjects.forSourceString(
@@ -1759,7 +1754,7 @@ class XProcessingStepTest {
               void validMethod() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         assertAbout(JavaSourcesSubjectFactory.javaSources())

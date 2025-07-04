@@ -54,7 +54,7 @@ class PositionIndicatorScreenshotTest {
             position = PositionIndicatorAlignment.Left,
             value = 0.2f,
             ltr = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -63,7 +63,7 @@ class PositionIndicatorScreenshotTest {
             position = PositionIndicatorAlignment.Left,
             value = 0.4f,
             ltr = false,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -72,7 +72,7 @@ class PositionIndicatorScreenshotTest {
             position = PositionIndicatorAlignment.Right,
             value = 0.3f,
             ltr = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -81,7 +81,7 @@ class PositionIndicatorScreenshotTest {
             position = PositionIndicatorAlignment.Right,
             value = 0.5f,
             ltr = false,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -90,7 +90,7 @@ class PositionIndicatorScreenshotTest {
             position = PositionIndicatorAlignment.End,
             value = 0.1f,
             ltr = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -99,7 +99,7 @@ class PositionIndicatorScreenshotTest {
             position = PositionIndicatorAlignment.End,
             value = 0.8f,
             ltr = false,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     private fun position_indicator_position_test(
@@ -114,7 +114,7 @@ class PositionIndicatorScreenshotTest {
                 PositionIndicator(
                     value = { value },
                     position = position,
-                    modifier = Modifier.testTag(TEST_TAG).background(Color.Black)
+                    modifier = Modifier.testTag(TEST_TAG).background(Color.Black),
                 )
             }
         }

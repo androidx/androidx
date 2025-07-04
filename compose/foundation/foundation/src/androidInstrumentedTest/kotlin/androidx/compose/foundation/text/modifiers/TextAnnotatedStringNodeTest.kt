@@ -56,7 +56,7 @@ class TextAnnotatedStringNodeTest {
             TextAnnotatedStringNode(
                 AnnotatedString("text"),
                 TextStyle.Default,
-                createFontFamilyResolver(context)
+                createFontFamilyResolver(context),
             )
         rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
@@ -96,7 +96,7 @@ class TextAnnotatedStringNodeTest {
                     BoxWithConstraints {
                         BasicText(
                             text = AnnotatedString(if (!flag) "" else "LOADED"),
-                            modifier = Modifier.testTag("target")
+                            modifier = Modifier.testTag("target"),
                         )
                     }
                 }
@@ -122,7 +122,7 @@ class TextAnnotatedStringNodeTest {
             TextAnnotatedStringElement(
                 AnnotatedString("til"),
                 TextStyle.Default,
-                createFontFamilyResolver(context)
+                createFontFamilyResolver(context),
             )
 
         val modifier =
@@ -150,7 +150,7 @@ class TextAnnotatedStringNodeTest {
             TextAnnotatedStringElement(
                 AnnotatedString("til"),
                 TextStyle.Default,
-                createFontFamilyResolver(context)
+                createFontFamilyResolver(context),
             )
 
         rule.setContent { Box(Modifier.fillMaxSize() then subject) }

@@ -1,6 +1,7 @@
 package a.b
 
 import android.os.Bundle
+import androidx.`annotation`.CheckResult
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.NavDirections
 import kotlin.Int
@@ -23,8 +24,10 @@ public class MainFragmentDirections private constructor() {
   }
 
   public companion object {
+    @CheckResult
     public fun previous(): NavDirections = ActionOnlyNavDirections(R.id.previous)
 
+    @CheckResult
     public fun next(main: String, optional: String = "bla"): NavDirections = Next(main, optional)
   }
 }

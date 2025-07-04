@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demostració d\'una plantilla de missatge"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"El missatge va aquí.\nMés text a la segona línia."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demostració d\'una plantilla de missatge curt"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demostració d\'una plantilla d\'elements amb seccions"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Secció de botons d\'opció"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Commuta la secció"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Secció amb moltes files"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Secció d\'elements de la quadrícula"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demostració d\'una plantilla de subfinestra"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demostració d\'una plantilla de llista de llocs"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Cerca llocs"</string>

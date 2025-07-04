@@ -1,0 +1,70 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("AndroidXComposePlugin")
+    id("com.google.devtools.ksp")
+    id("dagger.hilt.android.plugin")
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+    api(project(":hilt:hilt-lifecycle-viewmodel"))
+    api("androidx.compose.runtime:runtime:1.8.2")
+    api("androidx.compose.ui:ui:1.8.2")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.1")
+    api(libs.hiltAndroid)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.hiltAndroid)
+    androidTestImplementation(libs.hiltAndroidTesting)
+    kspAndroidTest(libs.hiltCompiler)
+    androidTestImplementation(project(":compose:test-utils"))
+}
+
+androidx {
+    name = "ViewModel Compose Hilt Extension"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    mavenVersion = LibraryVersions.HILT
+    inceptionYear = "2025"
+    description = "ViewModel Compose Hilt Extension"
+}
+
+android {
+    compileSdk = 35
+    defaultConfig {
+        testInstrumentationRunner "androidx.hilt.lifecycle.viewmodel.compose.TestRunner"
+    }
+    namespace = "androidx.hilt.lifecycle.viewmodel.compose"
+}
+

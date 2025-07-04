@@ -50,7 +50,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         lintChecks("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         lintPublish("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -100,7 +100,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         lintChecks 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         lintPublish 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -146,7 +146,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         anotherConfig("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         customApi("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -166,7 +166,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         anotherConfig 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         customApi 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -185,7 +185,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         debugImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         debugFlavorImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -204,7 +204,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         debugImplementation 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                         debugFlavorImplementation 'androidx.compose.ui:ui-test-manifest:1.2.0-beta02'
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -223,7 +223,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         androidFlavorTestImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """
+                """,
                     )
                     .indented()
             )
@@ -253,7 +253,7 @@ class GradleDebugConfigurationDetectorTest : LintDetectorTest() {
                         testImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                         testFlavorImplementation("androidx.compose.ui:ui-test-manifest:1.2.0-beta02")
                     }
-                """
+                """,
                     )
                     .indented()
             )

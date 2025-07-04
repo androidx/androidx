@@ -86,7 +86,7 @@ class TextStringContentCaptureTest {
                             InlineTextContent(
                                 placeholder = Placeholder(1.sp, 1.sp, PlaceholderVerticalAlign.Top)
                             ) {}
-                    )
+                    ),
             )
         }
 

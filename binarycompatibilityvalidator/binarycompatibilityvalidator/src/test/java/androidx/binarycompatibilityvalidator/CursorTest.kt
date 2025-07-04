@@ -30,7 +30,8 @@ class CursorTest {
         assertThat(cursor.currentLine).isEqualTo("two")
         cursor.nextLine()
         assertThat(cursor.currentLine).isEqualTo("three")
-        assertThat(cursor.hasNextRow()).isFalse()
+        cursor.nextLine()
+        assertThat(cursor.isFinished()).isTrue()
     }
 
     @Test
@@ -43,29 +44,53 @@ class CursorTest {
     }
 
     @Test
-    fun parseValidIdentifierValid() {
-        val input = "oneTwo3 four"
-        val cursor = Cursor(input)
-        val symbol = cursor.parseValidIdentifier()
-        assertThat(symbol).isEqualTo("oneTwo3")
-        assertThat("four").isEqualTo(cursor.currentLine)
+    fun parseIdentifiersThatArePossibleByEscaping() {
+        val validEscapedIdentifiers = listOf("123", "🙂", "identifiers can include spaces")
+        for (id in validEscapedIdentifiers) {
+            assertThat(Cursor(id).parseValidIdentifier()).isEqualTo(id)
+        }
     }
 
     @Test
-    fun parseValidIdentifierValidStartsWithUnderscore() {
-        val input = "_one_Two3 four"
-        val cursor = Cursor(input)
-        val symbol = cursor.parseValidIdentifier()
-        assertThat(symbol).isEqualTo("_one_Two3")
-        assertThat("four").isEqualTo(cursor.currentLine)
+    fun parseValidIdentifierDoesNotIncludeIllegalCharacters() {
+        val identifiersIncludingIllegalChar =
+            listOf(
+                "identifiers can't include :",
+                "identifiers can't include \\",
+                "identifiers can't include /",
+                "identifiers can't include ;",
+                "identifiers can't include (",
+                "identifiers can't include )",
+                "identifiers can't include <",
+                "identifiers can't include >",
+                "identifiers can't include [",
+                "identifiers can't include ]",
+                "identifiers can't include {",
+                "identifiers can't include }",
+                "identifiers can't include ?",
+                "identifiers can't include ,",
+            )
+        for (id in identifiersIncludingIllegalChar) {
+            val cursor = Cursor(id)
+            assertThat(cursor.parseValidIdentifier()).isEqualTo("identifiers can't include ")
+            assertThat(cursor.currentLine).isEqualTo(id.last().toString())
+        }
     }
 
     @Test
-    fun parseValidIdentifierInvalid() {
-        val input = "1twothree"
-        val cursor = Cursor(input)
-        val symbol = cursor.parseValidIdentifier()
-        assertThat(symbol).isNull()
+    fun parseIdentifierThatEndsWithASpaceAtEndOfLine() {
+        val cursor = Cursor("identifiers can include spaces at the end  //")
+        val id = cursor.parseValidIdentifier()
+        assertThat(id).isEqualTo("identifiers can include spaces at the end  ")
+        assertThat(cursor.currentLine).isEqualTo("//")
+    }
+
+    @Test
+    fun parseIdentifierThatEndsWithASpaceAtEndOfFunctionName() {
+        val cursor = Cursor("identifiers can include spaces at the end ()")
+        val id = cursor.parseValidIdentifier()
+        assertThat(id).isEqualTo("identifiers can include spaces at the end ")
+        assertThat(cursor.currentLine).isEqualTo("()")
     }
 
     @Test

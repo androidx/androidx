@@ -21,7 +21,6 @@ import static android.media.CamcorderProfile.QUALITY_HIGH;
 
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
 import static androidx.camera.core.internal.utils.SizeUtil.getArea;
-import static androidx.camera.video.internal.config.VideoConfigUtil.toVideoEncoderConfig;
 import static androidx.camera.video.internal.utils.EncoderProfilesUtil.deriveVideoProfile;
 import static androidx.camera.video.internal.utils.EncoderProfilesUtil.getFirstVideoProfile;
 
@@ -32,13 +31,11 @@ import android.os.Build;
 import android.util.Range;
 import android.util.Size;
 
-import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.VideoSpec;
-import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -73,7 +70,7 @@ public class ExtraSupportedQualityQuirk implements Quirk {
     public @Nullable Map<Integer, EncoderProfilesProxy> getExtraEncoderProfiles(
             @NonNull CameraInfoInternal cameraInfo,
             @NonNull EncoderProfilesProvider encoderProfilesProvider,
-            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         if (isMotoC()) {
             return getExtraEncoderProfilesForMotoC(cameraInfo, encoderProfilesProvider,
                     videoEncoderInfoFinder);
@@ -87,7 +84,7 @@ public class ExtraSupportedQualityQuirk implements Quirk {
     private @Nullable Map<Integer, EncoderProfilesProxy> getExtraEncoderProfilesForMotoC(
             @NonNull CameraInfoInternal cameraInfo,
             @NonNull EncoderProfilesProvider encoderProfilesProvider,
-            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
         if (!MOTO_C_FRONT_CAM_ID.equals(cameraInfo.getCameraId())
                 || encoderProfilesProvider.hasProfile(QUALITY_480P)) {
             return null;
@@ -115,7 +112,7 @@ public class ExtraSupportedQualityQuirk implements Quirk {
         Map<Integer, EncoderProfilesProxy> extraEncoderProfilesMap = new HashMap<>();
         extraEncoderProfilesMap.put(QUALITY_480P, profiles480p);
         // Update QUALITY_HIGH if necessary.
-        Size sizeHigh = new Size(videoProfileHigh.getWidth(), videoProfileHigh.getHeight());
+        Size sizeHigh = videoProfileHigh.getResolution();
         if (getArea(RESOLUTION_480P) > getArea(sizeHigh)) {
             extraEncoderProfilesMap.put(QUALITY_HIGH, profiles480p);
         }
@@ -124,9 +121,8 @@ public class ExtraSupportedQualityQuirk implements Quirk {
 
     private static @NonNull Range<Integer> getSupportedBitrateRange(
             EncoderProfilesProxy.@NonNull VideoProfileProxy videoProfile,
-            @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {
-        VideoEncoderInfo encoderInfo =
-                videoEncoderInfoFinder.apply(toVideoEncoderConfig(videoProfile));
+            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
+        VideoEncoderInfo encoderInfo = videoEncoderInfoFinder.find(videoProfile.getMediaType());
         return encoderInfo != null ? encoderInfo.getSupportedBitrateRange()
                 : VideoSpec.BITRATE_RANGE_AUTO;
     }

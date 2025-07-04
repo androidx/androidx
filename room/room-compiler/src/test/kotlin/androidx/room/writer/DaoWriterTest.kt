@@ -23,9 +23,9 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -43,14 +43,14 @@ class DaoWriterTest {
         singleDao(
             loadTestSource(
                 fileName = "databasewriter/input/ComplexDatabase.java",
-                qName = "foo.bar.ComplexDatabase"
+                qName = "foo.bar.ComplexDatabase",
             ),
             loadTestSource(
                 fileName = "daoWriter/input/ComplexDao.java",
-                qName = "foo.bar.ComplexDao"
+                qName = "foo.bar.ComplexDao",
             ),
             javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-            outputFileName = "ComplexDao.java"
+            outputFileName = "ComplexDao.java",
         )
     }
 
@@ -70,10 +70,10 @@ class DaoWriterTest {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/WriterDao.java",
-                qName = "foo.bar.WriterDao"
+                qName = "foo.bar.WriterDao",
             ),
             javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-            outputFileName = "WriterDao.java"
+            outputFileName = "WriterDao.java",
         )
     }
 
@@ -82,10 +82,10 @@ class DaoWriterTest {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/DeletionDao.java",
-                qName = "foo.bar.DeletionDao"
+                qName = "foo.bar.DeletionDao",
             ),
             javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-            outputFileName = "DeletionDao.java"
+            outputFileName = "DeletionDao.java",
         )
     }
 
@@ -94,10 +94,10 @@ class DaoWriterTest {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/UpdateDao.java",
-                qName = "foo.bar.UpdateDao"
+                qName = "foo.bar.UpdateDao",
             ),
             javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-            outputFileName = "UpdateDao.java"
+            outputFileName = "UpdateDao.java",
         )
     }
 
@@ -106,10 +106,10 @@ class DaoWriterTest {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/UpsertDao.java",
-                qName = "foo.bar.UpsertDao"
+                qName = "foo.bar.UpsertDao",
             ),
             javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-            outputFileName = "UpsertDao.java"
+            outputFileName = "UpsertDao.java",
         )
     }
 
@@ -117,7 +117,7 @@ class DaoWriterTest {
         vararg inputs: Source,
         javaLambdaSyntaxAvailable: Boolean = false,
         outputFileName: String,
-        handler: (XTestInvocation) -> Unit = {}
+        handler: (XTestInvocation) -> Unit = {},
     ) {
         val sources =
             listOf(
@@ -147,13 +147,17 @@ class DaoWriterTest {
                     COMMON.RX3_OBSERVABLE,
                     COMMON.PUBLISHER,
                     COMMON.PAGING_SOURCE,
-                    COMMON.LIMIT_OFFSET_PAGING_SOURCE
+                    COMMON.LIMIT_OFFSET_PAGING_SOURCE,
                 )
             )
-        runProcessorTestWithK1(sources = sources, classpath = libs) { invocation ->
+        runProcessorTest(
+            sources = sources,
+            classpath = libs,
+            kotlincArguments = listOf("-jvm-target=11"),
+        ) { invocation ->
             if (invocation.isKsp && !javaLambdaSyntaxAvailable) {
                 // Skip KSP backend without lambda syntax, it is a nonsensical combination.
-                return@runProcessorTestWithK1
+                return@runProcessorTest
             }
             val dao =
                 invocation.roundEnv
@@ -175,7 +179,7 @@ class DaoWriterTest {
                         baseContext = invocation.context,
                         element = dao,
                         dbType = dbType,
-                        dbVerifier = dbVerifier
+                        dbVerifier = dbVerifier,
                     )
                 val parsedDao = parser.process()
                 DaoWriter(
@@ -185,8 +189,8 @@ class DaoWriterTest {
                             TypeWriter.WriterContext(
                                 codeLanguage = CodeLanguage.JAVA,
                                 javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
-                                targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                            )
+                                targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                            ),
                     )
                     .write(invocation.processingEnv)
                 val outputSubFolder = outputFolder(invocation, javaLambdaSyntaxAvailable)
@@ -195,7 +199,7 @@ class DaoWriterTest {
                     val expectedSrc =
                         loadTestSource(
                             fileName = expectedFilePath,
-                            qName = parsedDao.implTypeName.canonicalName
+                            qName = parsedDao.implTypeName.canonicalName,
                         )
                     // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
                     // handy for big sweeping code gen changes. ;)
@@ -204,7 +208,7 @@ class DaoWriterTest {
                             checkNotNull(this.findGeneratedSource(expectedSrc.relativePath)) {
                                 "Couldn't find gen src: $expectedSrc"
                             },
-                            expectedFilePath
+                            expectedFilePath,
                         )
                     }
                     generatedSource(expectedSrc)
@@ -216,7 +220,7 @@ class DaoWriterTest {
 
     private fun outputFolder(
         invocation: XTestInvocation,
-        javaLambdaSyntaxAvailable: Boolean
+        javaLambdaSyntaxAvailable: Boolean,
     ): String {
         val backendFolder = invocation.processingEnv.backend.name.lowercase()
         val lambdaFolder = if (javaLambdaSyntaxAvailable) "withLambda" else "withoutLambda"

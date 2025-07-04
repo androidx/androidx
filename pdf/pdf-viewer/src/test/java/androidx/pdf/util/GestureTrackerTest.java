@@ -30,7 +30,6 @@ import android.view.MotionEvent;
 import androidx.pdf.util.GestureTracker.Gesture;
 import androidx.pdf.util.GestureTracker.GestureHandler;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +43,6 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.AbstractList;
 import java.util.List;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class GestureTrackerTest {
 

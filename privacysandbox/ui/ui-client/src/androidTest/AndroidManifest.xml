@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2022 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,18 +16,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- This override is okay because the associated tests only run on T+ -->
-    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
-    <application android:supportsRtl="true"
+    <application
+        android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-    <activity
-        android:name="androidx.privacysandbox.ui.client.test.UiLibActivity"
-        android:configChanges="orientation|screenSize"
-        android:exported="true"/>
-    <activity android:name=".SecondActivity"
-        android:exported="true"/>
+        <activity
+            android:name="androidx.privacysandbox.ui.client.test.UiLibActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true" />
+        <activity
+            android:name="androidx.privacysandbox.ui.client.test.SecondActivity"
+            android:exported="true" />
     </application>
-
     <queries>
         <package android:name="androidx.privacysandbox.ui.client.test" />
     </queries>
+
+    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
 </manifest>

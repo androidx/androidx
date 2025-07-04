@@ -21,12 +21,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -34,7 +35,7 @@ dependencies {
     api(project(":work:work-runtime"))
 
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.6.2")
-    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
@@ -49,17 +50,17 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinCoroutinesAndroid)
 }
 
 androidx {
     name = "WorkManager Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2018"
     description = "Android WorkManager testing library"
-    legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }
 
 android {

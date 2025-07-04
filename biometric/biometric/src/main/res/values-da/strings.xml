@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Der er ikke angivet pinkode, mønster eller adgangskode."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Denne enhed understøtter ikke pinkode, mønster eller adgangskode."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Ikon for fingeraftryk"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Når der klikkes på knappen Flere valgmuligheder i indholdsvisningen."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Brug fingeraftryk"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Brug ansigt"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Brug biometri"</string>

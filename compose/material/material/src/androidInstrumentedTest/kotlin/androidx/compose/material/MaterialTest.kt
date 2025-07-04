@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.width
 
 fun ComposeContentTestRule.setMaterialContent(
     modifier: Modifier = Modifier,
-    composable: @Composable () -> Unit
+    composable: @Composable () -> Unit,
 ) {
     setContent {
         MaterialTheme {
@@ -82,7 +82,7 @@ fun ComposeContentTestRule.setMaterialContentForSizeAssertions(
     parentMaxWidth: Dp = BigTestMaxWidth,
     parentMaxHeight: Dp = BigTestMaxHeight,
     // TODO : figure out better way to make it flexible
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): SemanticsNodeInteraction {
     setContent {
         MaterialTheme {

@@ -60,7 +60,7 @@ fun AnimatedContentWithInterruptions() {
                         slideOutVertically { it } + fadeOut(targetAlpha = 0.88f))
                     .apply { targetContentZIndex = -1f }
             }
-        }
+        },
     ) { state ->
         if (state == 0) {
             Box(modifier = Modifier.fillMaxSize().background(Color.Green))

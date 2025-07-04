@@ -21,5 +21,5 @@ import androidx.room.Relation
 class Cluster(
     @field:Embedded val mHivemind: Hivemind,
     @field:Relation(parentColumn = "mId", entity = Robot::class, entityColumn = "mHiveId")
-    val mRobotList: List<Robot>
+    val mRobotList: List<Robot>,
 )

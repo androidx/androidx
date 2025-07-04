@@ -107,6 +107,7 @@ public final class PlayServicesStorage {
              * using {@link
              * androidx.appsearch.app.SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage}).
              *
+             * @param context The context used as the parent of the created SearchContext
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
              */

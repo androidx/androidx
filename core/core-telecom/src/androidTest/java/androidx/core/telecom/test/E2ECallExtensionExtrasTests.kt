@@ -20,7 +20,6 @@ import android.Manifest
 import android.os.Build
 import android.telecom.Call
 import android.telecom.DisconnectCause
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
  * ([CallExtensionScopeImpl.EXTRA_VOIP_API_VERSION]).
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     companion object {
@@ -169,7 +167,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                             // Always send disconnect signal if possible.
                             assertEquals(
                                 CallControlResult.Success(),
-                                disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                                disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                             )
                         }
                     }

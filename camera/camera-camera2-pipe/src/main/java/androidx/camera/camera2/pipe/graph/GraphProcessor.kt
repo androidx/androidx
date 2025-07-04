@@ -75,11 +75,17 @@ internal interface GraphProcessor {
      *
      * This method will throw a checked exception if no repeating request has been configured.
      */
-    fun submit(parameters: Map<*, Any?>): Boolean
+    fun trigger(parameters: Map<*, Any?>): Boolean
+
+    /** Update [androidx.camera.camera2.pipe.Parameters] changes to current repeating request. */
+    fun updateGraphParameters(parameters: Map<*, Any?>)
+
+    /** Update [androidx.camera.camera2.pipe.Parameters] changes to current repeating request. */
+    fun update3AParameters(parameters: Map<*, Any?>)
 
     /**
-     * Indicates that internal parameters may have changed, and that the repeating request should be
-     * updated as soon as possible.
+     * Indicates that internal state may have changed, and that the repeating request may need to be
+     * re-issued.
      */
     fun invalidate()
 
@@ -94,9 +100,6 @@ internal interface GraphProcessor {
      * [GraphProcessor] is closed will immediately be aborted.
      */
     fun close()
-
-    /** Update [CameraGraph.Parameters] changes to current repeating request. */
-    fun updateParameters(parameters: Map<*, Any?>)
 }
 
 /** The graph processor handles *cross-session* state, such as the most recent repeating request. */
@@ -107,7 +110,6 @@ constructor(
     threads: Threads,
     private val cameraGraphId: CameraGraphId,
     private val cameraGraphConfig: CameraGraph.Config,
-    graphState3A: GraphState3A,
     graphListener3A: Listener3A,
     @ForCameraGraph graphListeners: List<@JvmSuppressWildcards Request.Listener>,
 ) : GraphProcessor, GraphListener {
@@ -143,10 +145,9 @@ constructor(
                 defaultParameters = defaultParameters,
                 requiredParameters = requiredParameters,
                 graphListeners = graphListeners + listOfNotNull(captureLimiter),
-                graphState3A = if (ignore3AState) null else graphState3A,
                 listeners = listOfNotNull(graphListener3A, captureLimiter),
-                shutdownScope = threads.globalScope,
-                dispatcher = threads.lightweightDispatcher
+                shutdownScope = threads.cameraPipeScope,
+                dispatcher = threads.lightweightDispatcher,
             )
 
         captureLimiter?.graphLoop = graphLoop
@@ -216,12 +217,19 @@ constructor(
     }
 
     /**
-     * Submit a request to the camera using only the current repeating request. If we don't have the
-     * current repeating request, and there are no repeating requests queued, this will return
-     * false. Otherwise, the method tries to submit the provided [parameters] and suspends until it
-     * finishes.
+     * Submit a one time request to the camera using the most recent repeating request.
+     *
+     * If a repeating request is not currently set, this method will return false and fail.
      */
-    override fun submit(parameters: Map<*, Any?>): Boolean = graphLoop.submit(parameters)
+    override fun trigger(parameters: Map<*, Any?>): Boolean = graphLoop.trigger(parameters)
+
+    override fun updateGraphParameters(parameters: Map<*, Any?>) {
+        graphLoop.graphParameters = parameters
+    }
+
+    override fun update3AParameters(parameters: Map<*, Any?>) {
+        graphLoop.graph3AParameters = parameters
+    }
 
     override fun invalidate() {
         graphLoop.invalidate()
@@ -236,8 +244,4 @@ constructor(
     }
 
     override fun toString(): String = "GraphProcessor(cameraGraph: $cameraGraphId)"
-
-    override fun updateParameters(parameters: Map<*, Any?>) {
-        graphLoop.graphParameters = parameters
-    }
 }

@@ -45,7 +45,7 @@ class PeriodicEnqueueIssueDetector : Detector(), SourceCodeScanner {
                 category = Category.CORRECTNESS,
                 severity = Severity.WARNING,
                 implementation =
-                    Implementation(PeriodicEnqueueIssueDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(PeriodicEnqueueIssueDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 
@@ -64,7 +64,7 @@ class PeriodicEnqueueIssueDetector : Detector(), SourceCodeScanner {
                 context.report(
                     ISSUE,
                     context.getLocation(method),
-                    message = "Use `enqueueUniquePeriodicWork()` instead of `enqueue()`"
+                    message = "Use `enqueueUniquePeriodicWork()` instead of `enqueue()`",
                 )
             }
         }

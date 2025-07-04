@@ -372,7 +372,7 @@ private const val ACTION_ARGUMENT_VALUE = "VALUE"
 @Suppress("DEPRECATION")
 fun NavigatorProvider.navDestination(
     @IdRes id: Int,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ): NavDestination = NavDestinationBuilder(this[NoOpNavigator::class], id).apply(builder).build()
 
 /**
@@ -381,7 +381,7 @@ fun NavigatorProvider.navDestination(
  */
 fun NavigatorProvider.navDestination(
     route: String,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ): NavDestination =
     NavDestinationBuilder(this[NoOpNavigator::class], route = route).apply(builder).build()
 
@@ -391,6 +391,6 @@ fun NavigatorProvider.navDestination(
  */
 inline fun <reified T : Any> NavigatorProvider.navDestination(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ): NavDestination =
     NavDestinationBuilder(this[NoOpNavigator::class], T::class, typeMap).apply(builder).build()

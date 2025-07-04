@@ -18,6 +18,8 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isXiaomiDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -27,7 +29,7 @@ import androidx.camera.core.impl.Quirk
  * the camera device.
  *
  * QuirkSummary
- * - Bug Id: 282871038, 369300443
+ * - Bug Id: 282871038, 369300443, 425588561, 426104225
  * - Description: Instructs CameraPipe to close the camera device before creating a new capture
  *   session to avoid undesirable behaviors
  *
@@ -35,10 +37,22 @@ import androidx.camera.core.impl.Quirk
  */
 @SuppressLint("CameraXQuirksClassDetector")
 public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
+
+    public fun shouldCloseCameraDevice(isExtensions: Boolean): Boolean =
+        if (
+            isXiaomiProblematicDevice || (isSamsungProblematicDevice && !isSamsungExynos7870Device)
+        ) {
+            // Xiaomi 14 Ultra and Samsung API 31 ~ 34 devices need to apply the quirk only when
+            // Extensions is enabled.
+            isExtensions
+        } else {
+            true
+        }
+
     public companion object {
         @JvmStatic
         public fun isEnabled(): Boolean {
-            if (Build.HARDWARE == "samsungexynos7870") {
+            if (isSamsungExynos7870Device) {
                 // On Exynos7870 platforms, when their 3A pipeline times out, recreating a capture
                 // session has a high chance of triggering use-after-free crashes. Closing the
                 // camera device helps reduce the likelihood of this happening.
@@ -51,8 +65,28 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
                 // OplusHansManager actively "freezes" app processes, which means we cannot delay
                 // closing the camera device for any amount of time.
                 return true
+            } else if (isXiaomiProblematicDevice) {
+                // When Extensions is enabled, switching modes might cause the black screen issue.
+                // Applying this quirk when Extensions is enabled will fix it.
+                return true
+            } else if (isSamsungProblematicDevice) {
+                // When Extensions is enabled, there might be some timing issue to cause the
+                // BindUnbindUseCasesStressTest to run fail easily. Applying this quirk will fix it.
+                return true
             }
             return false
         }
+
+        private val isSamsungExynos7870Device: Boolean = Build.HARDWARE == "samsungexynos7870"
+
+        // Xiaomi 14 Ultra and Xiaomi 14 to apply the quirk when Extensions is enabled.
+        private val isXiaomiProblematicDevice: Boolean =
+            isXiaomiDevice() && arrayOf("aurora", "houji").contains(Build.DEVICE.lowercase())
+
+        // Samsung API 31 ~ 34 devices to apply the quirk when Extensions is enabled.
+        private val isSamsungProblematicDevice: Boolean =
+            isSamsungDevice() &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }
 }

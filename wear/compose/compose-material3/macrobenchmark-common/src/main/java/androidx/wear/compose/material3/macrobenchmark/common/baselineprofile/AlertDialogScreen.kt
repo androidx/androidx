@@ -57,7 +57,7 @@ val AlertDialogScreen =
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AlertDialogWithConfirmAndDismiss()
                     AlertDialogWithEdgeButton()
@@ -70,14 +70,14 @@ val AlertDialogScreen =
                 device
                     .wait(
                         Until.findObject(By.desc(OpenAlertDialogWithConfirmAndDismiss)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()
                 device
                     .wait(
                         Until.findObject(By.desc(DismissAlertDialogWithConfirmAndDismiss)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()
@@ -85,14 +85,14 @@ val AlertDialogScreen =
                 device
                     .wait(
                         Until.findObject(By.desc(OpenAlertDialogWithEdgeButton)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()
                 device
                     .wait(
                         Until.findObject(By.desc(DismissAlertDialogWithEdgeButton)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()
@@ -100,21 +100,21 @@ val AlertDialogScreen =
                 device
                     .wait(
                         Until.findObject(By.desc(OpenAlertDialogWithContentGroups)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()
                 device
                     .wait(
                         Until.findObject(By.desc(DismissAlertDialogWithContentGroups)),
-                        FIND_OBJECT_TIMEOUT_MS
+                        FIND_OBJECT_TIMEOUT_MS,
                     )
                     .click()
                 device.waitForIdle()
 
                 device.wait(
                     Until.findObject(By.desc(OpenAlertDialogWithConfirmAndDismiss)),
-                    FIND_OBJECT_TIMEOUT_MS
+                    FIND_OBJECT_TIMEOUT_MS,
                 )
             }
     }
@@ -130,7 +130,7 @@ private fun AlertDialogWithConfirmAndDismiss() {
                     contentDescription = OpenAlertDialogWithConfirmAndDismiss
                 },
             onClick = { showDialog = true },
-            label = { Text("Confirm and Dismiss") }
+            label = { Text("Confirm and Dismiss") },
         )
     }
     AlertDialog(
@@ -141,7 +141,7 @@ private fun AlertDialogWithConfirmAndDismiss() {
                 painterResource(R.drawable.ic_favorite_rounded),
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = { Text("Enable Battery Saver Mode?") },
@@ -163,9 +163,9 @@ private fun AlertDialogWithConfirmAndDismiss() {
                 onClick = {
                     // Perform dismiss action here
                     showDialog = false
-                }
+                },
             )
-        }
+        },
     )
 }
 
@@ -180,7 +180,7 @@ private fun AlertDialogWithEdgeButton() {
                     contentDescription = OpenAlertDialogWithEdgeButton
                 },
             onClick = { showDialog = true },
-            label = { Text("Dialog with EdgeButton") }
+            label = { Text("Dialog with EdgeButton") },
         )
     }
 
@@ -192,7 +192,7 @@ private fun AlertDialogWithEdgeButton() {
                 painterResource(R.drawable.ic_favorite_rounded),
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = { Text("Mobile network is not currently available") },
@@ -203,9 +203,9 @@ private fun AlertDialogWithEdgeButton() {
                 onClick = {
                     // Perform confirm action here
                     showDialog = false
-                }
+                },
             )
-        }
+        },
     )
 }
 
@@ -220,7 +220,7 @@ private fun AlertDialogWithContentGroups() {
                     contentDescription = OpenAlertDialogWithContentGroups
                 },
             onClick = { showDialog = true },
-            label = { Text("Content Groups") }
+            label = { Text("Content Groups") },
         )
     }
     AlertDialog(
@@ -236,14 +236,14 @@ private fun AlertDialogWithContentGroups() {
                         contentDescription = DismissAlertDialogWithContentGroups
                     },
                 onClick = { showDialog = false },
-                label = { Text("Weather") }
+                label = { Text("Weather") },
             )
         }
         item {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text("Calendar") }
+                label = { Text("Calendar") },
             )
         }
         item { AlertDialogDefaults.GroupSeparator() }
@@ -251,14 +251,14 @@ private fun AlertDialogWithContentGroups() {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Never share") }
+                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Never share") },
             )
         }
         item {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Share always") }
+                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Share always") },
             )
         }
     }

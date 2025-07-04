@@ -189,7 +189,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
                     Modifier.width(300.dp)
                         .testTag(tag = tag)
                         .onSizeChanged { sizeNullable!!.value = it }
-                        .onGloballyPositioned { textFieldLayoutCoordinates = it }
+                        .onGloballyPositioned { textFieldLayoutCoordinates = it },
             )
         }
         val onTextField = rule.onNodeWithTag(pointerAreaTag)
@@ -274,7 +274,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
                     Modifier.width(300.dp)
                         .testTag(tag = tag)
                         .onSizeChanged { sizeNullable!!.value = it }
-                        .onGloballyPositioned { textFieldLayoutCoordinates = it }
+                        .onGloballyPositioned { textFieldLayoutCoordinates = it },
             )
         }
         assertThat(sizeNullable).isNotNull()

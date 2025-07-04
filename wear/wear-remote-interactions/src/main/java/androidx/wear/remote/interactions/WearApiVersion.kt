@@ -23,7 +23,7 @@ import com.google.wear.Sdk
 /** Provides wear sdk api version. */
 internal class WearApiVersion(val context: Context) {
 
-    // TODO(b/307543793): Reuse the generalized `WearApiVersionHelper` once available.
+    // TODO(b/411162268): Use `WearApiVersionHelper` for the SDK version check.
     /** Exposes version of wear sdk. Returns 0 if wear-sdk is not present. */
     val wearSdkVersion: Int
         get() {

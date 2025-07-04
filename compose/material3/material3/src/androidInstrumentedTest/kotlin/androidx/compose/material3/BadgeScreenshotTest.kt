@@ -52,7 +52,7 @@ class BadgeScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 BadgedBox(badge = { Badge() }) { Icon(Icons.Filled.Favorite, null) }
             }
@@ -66,7 +66,7 @@ class BadgeScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 BadgedBox(badge = { Badge() }) { Icon(Icons.Filled.Favorite, null) }
             }
@@ -80,7 +80,7 @@ class BadgeScreenshotTest {
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 BadgedBox(badge = { Badge { Text("8") } }) { Icon(Icons.Filled.Favorite, null) }
             }
@@ -94,7 +94,7 @@ class BadgeScreenshotTest {
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(
                 Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 BadgedBox(badge = { Badge { Text("8") } }) { Icon(Icons.Filled.Favorite, null) }
             }

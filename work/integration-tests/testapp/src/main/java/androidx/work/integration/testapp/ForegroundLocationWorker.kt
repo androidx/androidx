@@ -67,7 +67,7 @@ class ForegroundLocationWorker(context: Context, parameters: WorkerParameters) :
                 // No need for notifications starting S.
                 notificationManager.notify(
                     notificationId,
-                    getForegroundInfo(notificationId).notification
+                    getForegroundInfo(notificationId).notification,
                 )
             }
             delay(delayTime)

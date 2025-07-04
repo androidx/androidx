@@ -40,13 +40,13 @@ public fun MasterKey(
     authenticationRequired: Boolean = false,
     userAuthenticationValidityDurationSeconds: Int =
         MasterKey.getDefaultAuthenticationValidityDurationSeconds(),
-    requestStrongBoxBacked: Boolean = false
+    requestStrongBoxBacked: Boolean = false,
 ): MasterKey =
     MasterKey.Builder(context, keyAlias)
         .setKeyScheme(keyScheme)
         .setUserAuthenticationRequired(
             authenticationRequired,
-            userAuthenticationValidityDurationSeconds
+            userAuthenticationValidityDurationSeconds,
         )
         .setRequestStrongBoxBacked(requestStrongBoxBacked)
         .build()

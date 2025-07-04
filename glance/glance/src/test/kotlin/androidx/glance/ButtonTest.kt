@@ -57,7 +57,7 @@ class ButtonTest {
                         actionStartActivity<Activity>(
                             actionParametersOf(stringKey to string, intKey to int)
                         ),
-                    enabled = true
+                    enabled = true,
                 )
             }
 
@@ -95,7 +95,7 @@ class ButtonTest {
                     onClick = actionStartActivity<Activity>(),
                     modifier = GlanceModifier.fillMaxSize(),
                     maxLines = 3,
-                    style = TextStyle(fontSize = 12.sp)
+                    style = TextStyle(fontSize = 12.sp),
                 )
             }
 

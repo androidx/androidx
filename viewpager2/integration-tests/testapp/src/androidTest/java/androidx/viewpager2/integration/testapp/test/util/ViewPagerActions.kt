@@ -67,7 +67,7 @@ fun waitForInjectMotionEvents(): ViewAction {
 private class SwipeAction(val direction: Direction) : ViewAction {
     enum class Direction {
         FORWARD,
-        BACKWARD
+        BACKWARD,
     }
 
     override fun getDescription(): String = "Swiping $direction"
@@ -76,9 +76,9 @@ private class SwipeAction(val direction: Direction) : ViewAction {
         allOf(
             anyOf(
                 isAssignableFrom(ViewPager2::class.java),
-                isDescendantOfA(isAssignableFrom(ViewPager2::class.java))
+                isDescendantOfA(isAssignableFrom(ViewPager2::class.java)),
             ),
-            isDisplayingAtLeast(90)
+            isDisplayingAtLeast(90),
         )
 
     override fun perform(uiController: UiController, view: View) {

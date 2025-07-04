@@ -1,0 +1,46 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.lifecycle:lifecycle-viewmodel-savedstate>
+final class androidx.lifecycle/SavedStateHandle { // androidx.lifecycle/SavedStateHandle|null[0]
+    constructor <init>() // androidx.lifecycle/SavedStateHandle.<init>|<init>(){}[0]
+    constructor <init>(kotlin.collections/Map<kotlin/String, kotlin/Any?>) // androidx.lifecycle/SavedStateHandle.<init>|<init>(kotlin.collections.Map<kotlin.String,kotlin.Any?>){}[0]
+
+    final fun <#A1: kotlin/Any?> get(kotlin/String): #A1? // androidx.lifecycle/SavedStateHandle.get|get(kotlin.String){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> getMutableStateFlow(kotlin/String, #A1): kotlinx.coroutines.flow/MutableStateFlow<#A1> // androidx.lifecycle/SavedStateHandle.getMutableStateFlow|getMutableStateFlow(kotlin.String;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> getStateFlow(kotlin/String, #A1): kotlinx.coroutines.flow/StateFlow<#A1> // androidx.lifecycle/SavedStateHandle.getStateFlow|getStateFlow(kotlin.String;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> remove(kotlin/String): #A1? // androidx.lifecycle/SavedStateHandle.remove|remove(kotlin.String){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> set(kotlin/String, #A1?) // androidx.lifecycle/SavedStateHandle.set|set(kotlin.String;0:0?){0§<kotlin.Any?>}[0]
+    final fun clearSavedStateProvider(kotlin/String) // androidx.lifecycle/SavedStateHandle.clearSavedStateProvider|clearSavedStateProvider(kotlin.String){}[0]
+    final fun contains(kotlin/String): kotlin/Boolean // androidx.lifecycle/SavedStateHandle.contains|contains(kotlin.String){}[0]
+    final fun keys(): kotlin.collections/Set<kotlin/String> // androidx.lifecycle/SavedStateHandle.keys|keys(){}[0]
+    final fun savedStateProvider(): androidx.savedstate/SavedStateRegistry.SavedStateProvider // androidx.lifecycle/SavedStateHandle.savedStateProvider|savedStateProvider(){}[0]
+    final fun setSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.lifecycle/SavedStateHandle.setSavedStateProvider|setSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
+
+    final object Companion { // androidx.lifecycle/SavedStateHandle.Companion|null[0]
+        final fun createHandle(androidx.savedstate/SavedState?, androidx.savedstate/SavedState?): androidx.lifecycle/SavedStateHandle // androidx.lifecycle/SavedStateHandle.Companion.createHandle|createHandle(androidx.savedstate.SavedState?;androidx.savedstate.SavedState?){}[0]
+        final fun validateValue(kotlin/Any?): kotlin/Boolean // androidx.lifecycle/SavedStateHandle.Companion.validateValue|validateValue(kotlin.Any?){}[0]
+    }
+}
+
+final class androidx.lifecycle/SavedStateViewModelFactory : androidx.lifecycle/ViewModelProvider.Factory { // androidx.lifecycle/SavedStateViewModelFactory|null[0]
+    constructor <init>() // androidx.lifecycle/SavedStateViewModelFactory.<init>|<init>(){}[0]
+
+    final fun <#A1: androidx.lifecycle/ViewModel> create(kotlin.reflect/KClass<#A1>, androidx.lifecycle.viewmodel/CreationExtras): #A1 // androidx.lifecycle/SavedStateViewModelFactory.create|create(kotlin.reflect.KClass<0:0>;androidx.lifecycle.viewmodel.CreationExtras){0§<androidx.lifecycle.ViewModel>}[0]
+}
+
+final val androidx.lifecycle/DEFAULT_ARGS_KEY // androidx.lifecycle/DEFAULT_ARGS_KEY|{}DEFAULT_ARGS_KEY[0]
+    final fun <get-DEFAULT_ARGS_KEY>(): androidx.lifecycle.viewmodel/CreationExtras.Key<androidx.savedstate/SavedState> // androidx.lifecycle/DEFAULT_ARGS_KEY.<get-DEFAULT_ARGS_KEY>|<get-DEFAULT_ARGS_KEY>(){}[0]
+final val androidx.lifecycle/SAVED_STATE_REGISTRY_OWNER_KEY // androidx.lifecycle/SAVED_STATE_REGISTRY_OWNER_KEY|{}SAVED_STATE_REGISTRY_OWNER_KEY[0]
+    final fun <get-SAVED_STATE_REGISTRY_OWNER_KEY>(): androidx.lifecycle.viewmodel/CreationExtras.Key<androidx.savedstate/SavedStateRegistryOwner> // androidx.lifecycle/SAVED_STATE_REGISTRY_OWNER_KEY.<get-SAVED_STATE_REGISTRY_OWNER_KEY>|<get-SAVED_STATE_REGISTRY_OWNER_KEY>(){}[0]
+final val androidx.lifecycle/VIEW_MODEL_STORE_OWNER_KEY // androidx.lifecycle/VIEW_MODEL_STORE_OWNER_KEY|{}VIEW_MODEL_STORE_OWNER_KEY[0]
+    final fun <get-VIEW_MODEL_STORE_OWNER_KEY>(): androidx.lifecycle.viewmodel/CreationExtras.Key<androidx.lifecycle/ViewModelStoreOwner> // androidx.lifecycle/VIEW_MODEL_STORE_OWNER_KEY.<get-VIEW_MODEL_STORE_OWNER_KEY>|<get-VIEW_MODEL_STORE_OWNER_KEY>(){}[0]
+
+final fun (androidx.lifecycle.viewmodel/CreationExtras).androidx.lifecycle/createSavedStateHandle(): androidx.lifecycle/SavedStateHandle // androidx.lifecycle/createSavedStateHandle|createSavedStateHandle@androidx.lifecycle.viewmodel.CreationExtras(){}[0]
+final fun <#A: androidx.lifecycle/ViewModelStoreOwner & androidx.savedstate/SavedStateRegistryOwner> (#A).androidx.lifecycle/enableSavedStateHandles() // androidx.lifecycle/enableSavedStateHandles|enableSavedStateHandles@0:0(){0§<androidx.savedstate.SavedStateRegistryOwner&androidx.lifecycle.ViewModelStoreOwner>}[0]
+final fun <#A: kotlin/Any> (androidx.lifecycle/SavedStateHandle).androidx.lifecycle.serialization/saved(kotlinx.serialization/KSerializer<#A>, kotlin/String? = ..., androidx.savedstate.serialization/SavedStateConfiguration = ..., kotlin/Function0<#A>): kotlin.properties/ReadWriteProperty<kotlin/Any?, #A> // androidx.lifecycle.serialization/saved|saved@androidx.lifecycle.SavedStateHandle(kotlinx.serialization.KSerializer<0:0>;kotlin.String?;androidx.savedstate.serialization.SavedStateConfiguration;kotlin.Function0<0:0>){0§<kotlin.Any>}[0]
+final inline fun <#A: reified kotlin/Any> (androidx.lifecycle/SavedStateHandle).androidx.lifecycle.serialization/saved(kotlin/String? = ..., androidx.savedstate.serialization/SavedStateConfiguration = ..., noinline kotlin/Function0<#A>): kotlin.properties/ReadWriteProperty<kotlin/Any?, #A> // androidx.lifecycle.serialization/saved|saved@androidx.lifecycle.SavedStateHandle(kotlin.String?;androidx.savedstate.serialization.SavedStateConfiguration;kotlin.Function0<0:0>){0§<kotlin.Any>}[0]

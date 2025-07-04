@@ -18,13 +18,11 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@SmallTest
 @RunWith(JUnit4::class)
 class SelectableInfoTest {
     @Test
@@ -51,33 +49,21 @@ class SelectableInfoTest {
 
     @Test
     fun rawCrossedStatus_whenStartGreaterThanEnd_isCrossed() {
-        val selectableInfo =
-            getSelectableInfo(
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 0,
-            )
+        val selectableInfo = getSelectableInfo(rawStartHandleOffset = 1, rawEndHandleOffset = 0)
 
         assertThat(selectableInfo.rawCrossStatus).isEqualTo(CrossStatus.CROSSED)
     }
 
     @Test
     fun rawCrossedStatus_whenStartLessThanEnd_isNotCrossed() {
-        val selectableInfo =
-            getSelectableInfo(
-                rawStartHandleOffset = 0,
-                rawEndHandleOffset = 1,
-            )
+        val selectableInfo = getSelectableInfo(rawStartHandleOffset = 0, rawEndHandleOffset = 1)
 
         assertThat(selectableInfo.rawCrossStatus).isEqualTo(CrossStatus.NOT_CROSSED)
     }
 
     @Test
     fun rawCrossedStatus_whenStartEqualToEnd_isCollapsed() {
-        val selectableInfo =
-            getSelectableInfo(
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 1,
-            )
+        val selectableInfo = getSelectableInfo(rawStartHandleOffset = 1, rawEndHandleOffset = 1)
 
         assertThat(selectableInfo.rawCrossStatus).isEqualTo(CrossStatus.COLLAPSED)
     }
@@ -85,18 +71,10 @@ class SelectableInfoTest {
     @Test
     fun shouldRecomputeSelection_whenUnchanged_isFalse() {
         val info =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 1, rawEndHandleOffset = 2)
 
         val otherInfo =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 1, rawEndHandleOffset = 2)
 
         assertThat(info.shouldRecomputeSelection(otherInfo)).isFalse()
     }
@@ -104,18 +82,10 @@ class SelectableInfoTest {
     @Test
     fun shouldRecomputeSelection_whenSelectableChanged_isTrue() {
         val info =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 1, rawEndHandleOffset = 2)
 
         val otherInfo =
-            getSelectableInfo(
-                selectableId = 2L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 2L, rawStartHandleOffset = 1, rawEndHandleOffset = 2)
 
         assertThat(info.shouldRecomputeSelection(otherInfo)).isTrue()
     }
@@ -123,18 +93,10 @@ class SelectableInfoTest {
     @Test
     fun shouldRecomputeSelection_whenStartHandleChanged_isTrue() {
         val info =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 1, rawEndHandleOffset = 2)
 
         val otherInfo =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 0,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 0, rawEndHandleOffset = 2)
 
         assertThat(info.shouldRecomputeSelection(otherInfo)).isTrue()
     }
@@ -142,18 +104,10 @@ class SelectableInfoTest {
     @Test
     fun shouldRecomputeSelection_whenEndHandleChanged_isTrue() {
         val info =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 2,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 1, rawEndHandleOffset = 2)
 
         val otherInfo =
-            getSelectableInfo(
-                selectableId = 1L,
-                rawStartHandleOffset = 1,
-                rawEndHandleOffset = 3,
-            )
+            getSelectableInfo(selectableId = 1L, rawStartHandleOffset = 1, rawEndHandleOffset = 3)
 
         assertThat(info.shouldRecomputeSelection(otherInfo)).isTrue()
     }
@@ -173,7 +127,7 @@ class SelectableInfoTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = offset,
-                selectableId = selectableId
+                selectableId = selectableId,
             )
 
         assertThat(info.anchorForOffset(offset)).isEqualTo(expected)
@@ -194,7 +148,7 @@ class SelectableInfoTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Rtl,
                 offset = offset,
-                selectableId = selectableId
+                selectableId = selectableId,
             )
 
         assertThat(info.anchorForOffset(offset)).isEqualTo(expected)
@@ -216,7 +170,7 @@ class SelectableInfoTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Rtl,
                 offset = offset,
-                selectableId = selectableId
+                selectableId = selectableId,
             )
 
         assertThat(info.anchorForOffset(offset)).isEqualTo(expected)
@@ -238,7 +192,7 @@ class SelectableInfoTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = offset,
-                selectableId = selectableId
+                selectableId = selectableId,
             )
 
         assertThat(info.anchorForOffset(offset)).isEqualTo(expected)
@@ -254,14 +208,14 @@ class SelectableInfoTest {
                 selectableId = selectableId,
                 rtlRanges = emptyList(),
                 rtlLines = setOf(1),
-                lineBreaks = listOf(6, 7)
+                lineBreaks = listOf(6, 7),
             )
 
         val expected =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Rtl,
                 offset = offset,
-                selectableId = selectableId
+                selectableId = selectableId,
             )
 
         assertThat(info.anchorForOffset(offset)).isEqualTo(expected)
@@ -277,14 +231,14 @@ class SelectableInfoTest {
                 selectableId = selectableId,
                 rtlRanges = listOf(6..6),
                 rtlLines = emptySet(),
-                lineBreaks = listOf(6, 7)
+                lineBreaks = listOf(6, 7),
             )
 
         val expected =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = offset,
-                selectableId = selectableId
+                selectableId = selectableId,
             )
 
         assertThat(info.anchorForOffset(offset)).isEqualTo(expected)
@@ -303,15 +257,15 @@ class SelectableInfoTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = start,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = end,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         assertThat(info.makeSingleLayoutSelection(start, end)).isEqualTo(expected)
@@ -330,15 +284,15 @@ class SelectableInfoTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = start,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = end,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         assertThat(info.makeSingleLayoutSelection(start, end)).isEqualTo(expected)

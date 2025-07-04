@@ -31,12 +31,12 @@ private constructor(val context: Context, private val rxType: RxType) : QueryRes
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         // Add info that the type mirror is hardcoded into a Kotlin Nullable for Callable
         extras.putData(
             ObservableQueryResultBinderProvider.OriginalTypeArg::class,
-            ObservableQueryResultBinderProvider.OriginalTypeArg(declared)
+            ObservableQueryResultBinderProvider.OriginalTypeArg(declared),
         )
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
@@ -66,7 +66,7 @@ private constructor(val context: Context, private val rxType: RxType) : QueryRes
                     .requireArtifact(
                         context = context,
                         requiredType = it.version.rxMarkerClassName,
-                        missingArtifactErrorMsg = it.version.missingArtifactMessage
+                        missingArtifactErrorMsg = it.version.missingArtifactMessage,
                     )
             }
     }

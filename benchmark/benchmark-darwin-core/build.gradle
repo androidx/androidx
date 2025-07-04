@@ -6,7 +6,7 @@
  * modifying its settings.
  */
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 
@@ -54,7 +54,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Benchmarks - Darwin Core"
-    type = LibraryType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Core"
 }

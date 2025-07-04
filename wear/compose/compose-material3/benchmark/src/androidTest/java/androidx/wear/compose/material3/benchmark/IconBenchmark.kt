@@ -98,7 +98,7 @@ internal class IconTestCase(private val iconType: IconType) : LayeredComposeTest
                 defaultWidth = width,
                 defaultHeight = height,
                 viewportWidth = width.value,
-                viewportHeight = height.value
+                viewportHeight = height.value,
             )
             .build()
     private val imageBitmap =
@@ -131,5 +131,5 @@ internal class IconTestCase(private val iconType: IconType) : LayeredComposeTest
 enum class IconType {
     ImageVector,
     Bitmap,
-    Painter
+    Painter,
 }

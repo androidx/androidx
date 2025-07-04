@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.os.Build
 import android.view.ContextThemeWrapper
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -158,7 +159,7 @@ private class DialogWrapper(
     ComponentDialog(
         ContextThemeWrapper(
             composeView.context,
-            androidx.compose.material3.R.style.EdgeToEdgeFloatingDialogWindowTheme
+            androidx.compose.material3.R.style.EdgeToEdgeFloatingDialogWindowTheme,
         )
     ),
     ViewRootForInspector {
@@ -221,6 +222,19 @@ private class DialogWrapper(
         )
     }
 
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (
+            properties.dismissOnBackPress &&
+                event.isTracking &&
+                !event.isCanceled &&
+                keyCode == KeyEvent.KEYCODE_ESCAPE
+        ) {
+            onDismissRequest()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
         dialogLayout.layoutDirection =
             when (layoutDirection) {
@@ -242,7 +256,7 @@ private class DialogWrapper(
             } else {
                 WindowManager.LayoutParams.FLAG_SECURE.inv()
             },
-            WindowManager.LayoutParams.FLAG_SECURE
+            WindowManager.LayoutParams.FLAG_SECURE,
         )
     }
 
@@ -272,7 +286,7 @@ private class DialogWrapper(
                     WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
                 } else {
                     @Suppress("DEPRECATION") WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-                },
+                }
             )
         }
     }
@@ -297,10 +311,8 @@ private class DialogWrapper(
 }
 
 @Suppress("ViewConstructor")
-private class DialogLayout(
-    context: Context,
-    override val window: Window,
-) : AbstractComposeView(context), DialogWindowProvider {
+private class DialogLayout(context: Context, override val window: Window) :
+    AbstractComposeView(context), DialogWindowProvider {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
 

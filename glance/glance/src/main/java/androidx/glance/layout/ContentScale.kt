@@ -23,23 +23,23 @@ import androidx.glance.Image
  * to dictate how the image should be drawn within the [Image] element's bounding box.
  */
 @JvmInline
-value class ContentScale(private val value: Int) {
-    companion object {
+public value class ContentScale(private val value: Int) {
+    public companion object {
         /**
          * Scale the source uniformly (maintaining the source's aspect ratio) so that both
          * dimensions (width and height) of the source will be equal to or larger than the
          * corresponding dimension of the destination.
          */
-        val Crop: ContentScale = ContentScale(0)
+        public val Crop: ContentScale = ContentScale(0)
 
         /**
          * Scale the source uniformly (maintaining the source's aspect ratio) so that both
          * dimensions (width and height) of the source will be equal to or less than the
          * corresponding dimension of the destination
          */
-        val Fit: ContentScale = ContentScale(1)
+        public val Fit: ContentScale = ContentScale(1)
 
         /** Scale horizontal and vertically non-uniformly to fill the destination bounds. */
-        val FillBounds: ContentScale = ContentScale(2)
+        public val FillBounds: ContentScale = ContentScale(2)
     }
 }

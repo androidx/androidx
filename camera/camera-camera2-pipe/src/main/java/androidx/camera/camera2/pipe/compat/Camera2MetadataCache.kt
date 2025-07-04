@@ -56,7 +56,7 @@ constructor(
     private val threads: Threads,
     private val permissions: Permissions,
     private val cameraMetadataConfig: CameraPipe.CameraMetadataConfig,
-    private val timeSource: TimeSource
+    private val timeSource: TimeSource,
 ) : Camera2MetadataProvider {
 
     @GuardedBy("cache") private val cache = ArrayMap<String, CameraMetadata>()
@@ -81,7 +81,7 @@ constructor(
 
     override suspend fun getCameraExtensionMetadata(
         cameraId: CameraId,
-        extension: Int
+        extension: Int,
     ): CameraExtensionMetadata {
         synchronized(extensionCache) {
             val existing = extensionCache[cameraId.value]
@@ -114,7 +114,7 @@ constructor(
 
     override fun awaitCameraExtensionMetadata(
         cameraId: CameraId,
-        extension: Int
+        extension: Int,
     ): CameraExtensionMetadata {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             return Debug.trace("$cameraId#awaitExtensionMetadata") {
@@ -186,7 +186,7 @@ constructor(
                         characteristics,
                         this,
                         emptyMap(),
-                        cacheBlocklist
+                        cacheBlocklist,
                     )
 
                 Log.info {
@@ -215,7 +215,7 @@ constructor(
     private fun createCameraExtensionMetadata(
         cameraId: CameraId,
         redacted: Boolean,
-        extension: Int
+        extension: Int,
     ): Camera2CameraExtensionMetadata {
         val start = Timestamps.now(timeSource)
 
@@ -231,7 +231,7 @@ constructor(
                         redacted,
                         extension,
                         extensionCharacteristics,
-                        emptyMap()
+                        emptyMap(),
                     )
 
                 Log.info {
@@ -249,7 +249,7 @@ constructor(
             } catch (throwable: Throwable) {
                 throw IllegalStateException(
                     "Failed to load extension metadata for $cameraId!",
-                    throwable
+                    throwable,
                 )
             }
         }

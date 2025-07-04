@@ -27,8 +27,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * DividerItemDecoration is a {@link RecyclerView.ItemDecoration} that can be used as a divider
@@ -105,8 +105,7 @@ public class DividerItemDecoration extends RecyclerView.ItemDecoration {
     /**
      * @return the {@link Drawable} for this divider.
      */
-    @Nullable
-    public Drawable getDrawable() {
+    public @Nullable Drawable getDrawable() {
         return mDivider;
     }
 

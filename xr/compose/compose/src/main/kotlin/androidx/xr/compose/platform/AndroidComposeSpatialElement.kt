@@ -16,10 +16,15 @@
 
 package androidx.xr.compose.platform
 
+import android.os.Handler
+import android.os.Looper
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.compose.subspace.node.SubspaceLayoutNode
 import androidx.xr.compose.subspace.node.SubspaceOwner
+import androidx.xr.compose.unit.VolumeConstraints
+import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.PanelEntity
 
 /**
@@ -41,6 +46,15 @@ internal class AndroidComposeSpatialElement :
     SpatialElement(), SubspaceOwner, DefaultLifecycleObserver {
     override val root: SubspaceLayoutNode = SubspaceLayoutNode()
 
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
+    private val snapshotStateObserver: SnapshotStateObserver = SnapshotStateObserver {
+        if (handler.looper === Looper.myLooper()) {
+            it()
+        } else {
+            handler.post(it)
+        }
+    }
+
     internal var wrappedComposition: WrappedComposition? = null
 
     /**
@@ -50,6 +64,27 @@ internal class AndroidComposeSpatialElement :
     private var onSubspaceAvailable: ((LifecycleOwner) -> Unit)? = null
 
     private var windowLeashLayoutNode: SubspaceLayoutNode? = null
+
+    /**
+     * Whether a layout request has been made. If a layout request is made while a layout is in
+     * progress, the new request will be handled after the current layout is complete.
+     */
+    private var isLayoutRequested = false
+
+    /**
+     * Tracks whether a layout is currently in progress to avoid recursively triggering a layout.
+     */
+    private var isLayoutInProgress = false
+
+    internal var rootVolumeConstraints: VolumeConstraints = VolumeConstraints()
+        set(value) {
+            if (field != value) {
+                field = value
+                if (isAttachedToSpatialComposeScene) {
+                    requestRelayout()
+                }
+            }
+        }
 
     init {
         root.attach(this)
@@ -74,6 +109,7 @@ internal class AndroidComposeSpatialElement :
         super.onAttachedToSubspace(spatialComposeScene)
 
         spatialComposeScene.lifecycle.addObserver(this)
+        snapshotStateObserver.start()
         onSubspaceAvailable?.invoke(spatialComposeScene)
         onSubspaceAvailable = null
     }
@@ -82,6 +118,8 @@ internal class AndroidComposeSpatialElement :
         super.onDetachedFromSubspace(spatialComposeScene)
 
         spatialComposeScene.lifecycle.removeObserver(this)
+        snapshotStateObserver.stop()
+        snapshotStateObserver.clear()
     }
 
     override fun onAttach(node: SubspaceLayoutNode) {
@@ -105,11 +143,47 @@ internal class AndroidComposeSpatialElement :
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
-        // TODO: "Refresh the layout hierarchy."
+        // TODO: "Refresh the layout hierarchy." <- Can we just call refreshLayout() here?
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         root.detach()
+    }
+
+    // TODO: Consider adding stricter control over how this is called here, or at call sites, if it
+    // becomes too easy to generate superfluous layouts.
+    override fun requestRelayout() {
+        refreshLayout()
+    }
+
+    // TODO: Add unit tests.
+    private fun refreshLayout() {
+        if (isLayoutInProgress) {
+            isLayoutRequested = true
+            return
+        }
+
+        isLayoutRequested = false
+        isLayoutInProgress = true
+
+        snapshotStateObserver.observeReads(this, onLayoutStateValueChanged) {
+            val measureResults = root.measurableLayout.measure(rootVolumeConstraints)
+            (measureResults as SubspaceLayoutNode.SubspaceMeasurableLayout).placeAt(Pose.Identity)
+        }
+
+        Logger.log("AndroidComposeSpatialElement") { root.debugTreeToString() }
+        Logger.log("AndroidComposeSpatialElement") { root.debugEntityTreeToString() }
+
+        isLayoutInProgress = false
+        if (isLayoutRequested) {
+            refreshLayout()
+        }
+    }
+
+    public companion object {
+        private val onLayoutStateValueChanged: (AndroidComposeSpatialElement) -> Unit = {
+            it.requestRelayout()
+        }
     }
 }

@@ -40,10 +40,10 @@ fun DrawBackgroundShapedBrush() {
         Brush.horizontalGradient(
             colors = listOf(Color.Red, Color.Blue, Color.Green),
             startX = 0.0f,
-            endX = 500.0f
+            endX = 500.0f,
         )
     Text(
         "Text with gradient back",
-        Modifier.background(brush = gradientBrush, shape = CutCornerShape(8.dp)).padding(10.dp)
+        Modifier.background(brush = gradientBrush, shape = CutCornerShape(8.dp)).padding(10.dp),
     )
 }

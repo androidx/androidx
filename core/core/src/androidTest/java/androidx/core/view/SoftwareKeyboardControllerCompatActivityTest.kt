@@ -208,7 +208,7 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         // TODO: remove this if b/159103848 is resolved
         Assume.assumeFalse(
             "Unable to test: Cuttlefish devices default to the virtual keyboard being disabled.",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true)
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
         )
     }
 

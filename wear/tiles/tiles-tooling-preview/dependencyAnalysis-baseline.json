@@ -1,0 +1,20 @@
+{
+  "projectPath": ":wear:tiles:tiles-tooling-preview",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jspecify:jspecify",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":wear:protolayout:protolayout"
+      },
+      "toConfiguration": "api"
+    }
+  ]
+}

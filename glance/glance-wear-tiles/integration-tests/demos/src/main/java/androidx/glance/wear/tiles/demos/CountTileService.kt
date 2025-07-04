@@ -59,7 +59,7 @@ class CountTileService : GlanceTileService() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
-                GlanceModifier.semantics({ contentDescription = "demo of actionRunCallback" })
+                GlanceModifier.semantics({ contentDescription = "demo of actionRunCallback" }),
         ) {
             Text(
                 text = currentCount.toString(),
@@ -67,15 +67,15 @@ class CountTileService : GlanceTileService() {
                     TextStyle(
                         color = ColorProvider(Color.Gray),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
+                        fontSize = 20.sp,
+                    ),
             )
             Spacer(GlanceModifier.height(20.dp))
             Row(horizontalAlignment = Alignment.CenterHorizontally) {
                 Button(
                     text = "+2",
                     modifier = GlanceModifier.padding(5.dp).background(Color.Cyan),
-                    onClick = actionRunCallback<ClickAddAction>()
+                    onClick = actionRunCallback<ClickAddAction>(),
                 )
 
                 Spacer(GlanceModifier.width(10.dp))
@@ -83,7 +83,7 @@ class CountTileService : GlanceTileService() {
                 Button(
                     text = "*2",
                     modifier = GlanceModifier.padding(5.dp).background(Color.Green),
-                    onClick = actionRunCallback<ClickMultiplyAction>()
+                    onClick = actionRunCallback<ClickMultiplyAction>(),
                 )
 
                 Spacer(GlanceModifier.width(10.dp))
@@ -91,7 +91,7 @@ class CountTileService : GlanceTileService() {
                 Button(
                     text = "/2",
                     modifier = GlanceModifier.padding(5.dp).background(Color.Magenta),
-                    onClick = actionRunCallback<ClickDivideAction>()
+                    onClick = actionRunCallback<ClickDivideAction>(),
                 )
             }
         }

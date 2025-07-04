@@ -70,7 +70,7 @@ class RadioButtonTest {
                         RadioButton(
                             modifier = Modifier.testTag(item),
                             selected = (selected.value == item),
-                            onClick = { selected.value = item }
+                            onClick = { selected.value = item },
                         )
                     }
                 }
@@ -102,7 +102,7 @@ class RadioButtonTest {
                         RadioButton(
                             modifier = Modifier.testTag(item),
                             selected = (selected.value == item),
-                            onClick = { selected.value = item }
+                            onClick = { selected.value = item },
                         )
                     }
                 }
@@ -130,7 +130,7 @@ class RadioButtonTest {
                         RadioButton(
                             modifier = Modifier.testTag(item),
                             selected = (selected.value == item),
-                            onClick = { selected.value = item }
+                            onClick = { selected.value = item },
                         )
                     }
                 }
@@ -157,7 +157,7 @@ class RadioButtonTest {
                     RadioButton(
                         selected = true,
                         onClick = null,
-                        modifier = Modifier.semantics { focused = true }
+                        modifier = Modifier.semantics { focused = true },
                     )
                 }
             }
@@ -181,7 +181,7 @@ class RadioButtonTest {
                         RadioButton(
                             modifier = Modifier.testTag(item),
                             selected = (selected.value == item),
-                            onClick = { selected.value = item }
+                            onClick = { selected.value = item },
                         )
                     }
                 }

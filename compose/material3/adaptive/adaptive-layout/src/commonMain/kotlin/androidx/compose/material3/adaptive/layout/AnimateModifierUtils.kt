@@ -37,11 +37,15 @@ internal fun Placeable.PlacementScope.lookaheadOffset(lookaheadScope: LookaheadS
         lookaheadScopeCoordinates.localLookaheadPositionOf(coordinates!!).round()
     }
 
-internal fun Placeable.PlacementScope.convertOffsetToLookaheadCoordinates(
+internal fun Placeable.PlacementScope.convertOffsetToCurrentCoordinates(
     offset: IntOffset,
-    lookaheadScope: LookaheadScope
+    lookaheadScope: LookaheadScope,
 ): IntOffset =
     with(lookaheadScope) {
+        // The offset is based on the lookahead coordinates, so we need to convert it to the local
+        // placement scope's coordinates to place it in the correct position. We did that by
+        // acquiring the current origin offset under the lookahead coordinates and then subtracting
+        // it from the lookahead offset.
         offset - lookaheadScopeCoordinates.localPositionOf(coordinates!!, Offset.Zero).round()
     }
 

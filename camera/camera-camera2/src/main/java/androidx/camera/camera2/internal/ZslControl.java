@@ -37,6 +37,11 @@ interface ZslControl {
     void addZslConfig(SessionConfig.@NonNull Builder sessionConfigBuilder);
 
     /**
+     *  This method cleans up all resources used for ZSL capture.
+     */
+    void clearZslConfig();
+
+    /**
      * Sets the flag if zero-shutter lag needs to be disabled by user case config.
      *
      * <p> Zero-shutter lag will be disabled when any of the following conditions:

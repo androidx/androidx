@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE") // b/407927787
 
 package androidx.compose.foundation.lazy.grid
 
@@ -310,7 +310,7 @@ class LazyGridItemAppearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
-        expectedColorProvider: (x: Int, y: Int) -> Color?
+        expectedColorProvider: (x: Int, y: Int) -> Color?,
     ) {
         rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
             IntSize(crossAxisSize, mainAxisSize)
@@ -341,7 +341,7 @@ class LazyGridItemAppearanceAnimationTest {
         containerSize: Dp? = containerSizeDp,
         startIndex: Int = 0,
         crossAxisSize: Dp = crossAxisSizeDp,
-        content: LazyGridScope.() -> Unit
+        content: LazyGridScope.() -> Unit,
     ) {
         state = rememberLazyGridState(startIndex)
 
@@ -365,7 +365,7 @@ class LazyGridItemAppearanceAnimationTest {
                         }
                     )
                     .testTag(ContainerTag),
-            content = content
+            content = content,
         )
     }
 
@@ -374,7 +374,7 @@ class LazyGridItemAppearanceAnimationTest {
         color: Color,
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = crossAxisSizeDp,
-        animSpec: FiniteAnimationSpec<Float>? = AnimSpec
+        animSpec: FiniteAnimationSpec<Float>? = AnimSpec,
     ) {
         Box(
             Modifier.animateItem(fadeInSpec = animSpec, placementSpec = null, fadeOutSpec = null)

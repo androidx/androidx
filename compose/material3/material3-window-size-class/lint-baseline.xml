@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
 
     <issue
         id="PrimitiveInCollection"
@@ -22,7 +22,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method fromWidth has parameter supportedSizeClasses with type Set&lt;WindowWidthSizeClass>: replace with IntSet"
-        errorLine1="            supportedSizeClasses: Set&lt;WindowWidthSizeClass>"
+        errorLine1="            supportedSizeClasses: Set&lt;WindowWidthSizeClass>,"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>
@@ -31,7 +31,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method fromHeight has parameter supportedSizeClasses with type Set&lt;WindowHeightSizeClass>: replace with IntSet"
-        errorLine1="            supportedSizeClasses: Set&lt;WindowHeightSizeClass>"
+        errorLine1="            supportedSizeClasses: Set&lt;WindowHeightSizeClass>,"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/windowsizeclass/WindowSizeClass.kt"/>

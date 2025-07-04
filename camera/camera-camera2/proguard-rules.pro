@@ -14,3 +14,7 @@
 
 # This is necessary for default initialization using Camera2Config
 -keep public class androidx.camera.camera2.Camera2Config$DefaultProvider { *; }
+# This is used to workaround a framework issue. See b/397601512.
+-keepclassmembers class * extends android.hardware.camera2.CameraCaptureSession$CaptureCallback {
+    public void onReadoutStarted(android.hardware.camera2.CameraCaptureSession,android.hardware.camera2.CaptureRequest,long,long);
+}

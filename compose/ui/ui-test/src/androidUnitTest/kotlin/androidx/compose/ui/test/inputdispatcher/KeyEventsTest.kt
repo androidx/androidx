@@ -341,12 +341,12 @@ class KeyEventsTest : InputDispatcherTest() {
             keyDown,
             aKey.nativeKeyCode,
             expectedEventTime = initialRepeatDelay,
-            expectedRepeat = 1
+            expectedRepeat = 1,
         )
         recorder.events[2].verifyKeyEvent(
             keyUp,
             aKey.nativeKeyCode,
-            expectedEventTime = initialRepeatDelay
+            expectedEventTime = initialRepeatDelay,
         )
     }
 
@@ -365,7 +365,7 @@ class KeyEventsTest : InputDispatcherTest() {
             keyDown,
             oneKey.nativeKeyCode,
             expectedEventTime = initialRepeatDelay - 1,
-            expectedDownTime = initialRepeatDelay - 1
+            expectedDownTime = initialRepeatDelay - 1,
         )
     }
 
@@ -385,14 +385,14 @@ class KeyEventsTest : InputDispatcherTest() {
             keyDown,
             oneKey.nativeKeyCode,
             expectedEventTime = initialRepeatDelay - 1,
-            expectedDownTime = initialRepeatDelay - 1
+            expectedDownTime = initialRepeatDelay - 1,
         )
         recorder.events[2].verifyKeyEvent(
             keyDown,
             oneKey.nativeKeyCode,
             expectedEventTime = 2 * initialRepeatDelay - 1,
             expectedDownTime = initialRepeatDelay - 1,
-            expectedRepeat = 1
+            expectedRepeat = 1,
         )
     }
 
@@ -414,20 +414,20 @@ class KeyEventsTest : InputDispatcherTest() {
             keyDown,
             oneKey.nativeKeyCode,
             expectedEventTime = initialRepeatDelay - 1,
-            expectedDownTime = initialRepeatDelay - 1
+            expectedDownTime = initialRepeatDelay - 1,
         )
         recorder.events[2].verifyKeyEvent(
             keyDown,
             oneKey.nativeKeyCode,
             expectedEventTime = 2 * initialRepeatDelay - 1,
             expectedDownTime = initialRepeatDelay - 1,
-            expectedRepeat = 1
+            expectedRepeat = 1,
         )
         recorder.events[3].verifyKeyEvent(
             keyUp,
             oneKey.nativeKeyCode,
             expectedEventTime = 2 * initialRepeatDelay - 1,
-            expectedDownTime = initialRepeatDelay - 1
+            expectedDownTime = initialRepeatDelay - 1,
         )
     }
 
@@ -450,7 +450,7 @@ class KeyEventsTest : InputDispatcherTest() {
                 keyDown,
                 aKey.nativeKeyCode,
                 expectedEventTime = initialRepeatDelay,
-                expectedRepeat = 1
+                expectedRepeat = 1,
             )
 
         subject.advanceEventTime(subsequentRepeatDelay - 1) // t = 549
@@ -467,7 +467,7 @@ class KeyEventsTest : InputDispatcherTest() {
                 keyDown,
                 aKey.nativeKeyCode,
                 expectedEventTime = initialRepeatDelay + subsequentRepeatDelay,
-                expectedRepeat = 2
+                expectedRepeat = 2,
             )
 
         subject.advanceEventTime(subsequentRepeatDelay * 10) // t = 1050
@@ -481,7 +481,7 @@ class KeyEventsTest : InputDispatcherTest() {
                 keyDown,
                 aKey.nativeKeyCode,
                 expectedEventTime = (initialRepeatDelay + subsequentRepeatDelay * (i + 2)),
-                expectedRepeat = 3 + i
+                expectedRepeat = 3 + i,
             )
         }
     }
@@ -522,7 +522,7 @@ class KeyEventsTest : InputDispatcherTest() {
         recorder.events[0].verifyKeyEvent(
             keyDown,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[1].verifyKeyEvent(keyUp, key.nativeKeyCode)
     }
@@ -537,17 +537,17 @@ class KeyEventsTest : InputDispatcherTest() {
         recorder.events[0].verifyKeyEvent(
             keyDown,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[1].verifyKeyEvent(
             keyUp,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[2].verifyKeyEvent(
             keyDown,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[3].verifyKeyEvent(keyUp, key.nativeKeyCode)
     }

@@ -22,10 +22,10 @@ import android.util.DisplayMetrics
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.WindowMetrics as AndroidWindowMetrics
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.window.TestActivity
 import androidx.window.WindowTestUtils.Companion.assumePlatformBeforeU
 import androidx.window.WindowTestUtils.Companion.assumePlatformROrAbove
@@ -54,7 +54,7 @@ class DensityCompatHelperTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testDensityFromContext_UOrAbove() {
         assumePlatformUOrAbove()
@@ -65,7 +65,7 @@ class DensityCompatHelperTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testDensityFromConfiguration_beforeU() {
         assumePlatformBeforeU()
@@ -75,10 +75,7 @@ class DensityCompatHelperTest {
 
             @Suppress("DEPRECATION")
             val fakeWindowMetrics =
-                AndroidWindowMetrics(
-                    Rect(0, 0, 0, 0),
-                    WindowInsets.Builder().build(),
-                )
+                AndroidWindowMetrics(Rect(0, 0, 0, 0), WindowInsets.Builder().build())
 
             val density = helper.density(activity.resources.configuration, fakeWindowMetrics)
             val expectedDensity =
@@ -88,7 +85,7 @@ class DensityCompatHelperTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testDensityFromWindowMetrics_UOrAbove() {
         assumePlatformUOrAbove()

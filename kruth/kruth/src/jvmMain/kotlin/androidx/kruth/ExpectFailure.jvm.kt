@@ -131,7 +131,7 @@ class ExpectFailure : TestRule {
             throw AssertionError(
                 lenientFormat(
                     "ExpectFailure.whenTesting() caught multiple failures:\n\n%s\n\n%s\n",
-                    arrayOf(getStackTraceAsString(failure), getStackTraceAsString(captured))
+                    arrayOf(getStackTraceAsString(failure), getStackTraceAsString(captured)),
                 )
             )
         }
@@ -169,7 +169,7 @@ class ExpectFailure : TestRule {
         @CanIgnoreReturnValue
         fun <S : Subject<A>, A> expectFailureAbout(
             factory: Subject.Factory<S, A>,
-            assertionCallback: SimpleSubjectBuilderCallback<S, A>
+            assertionCallback: SimpleSubjectBuilderCallback<S, A>,
         ): AssertionError {
             return expectFailure { whenTesting ->
                 assertionCallback.invokeAssertion(whenTesting.about(factory))

@@ -43,7 +43,7 @@ class SecureTextFieldTest {
         rule.setMaterialContent {
             SecureTextField(
                 state = rememberTextFieldState("password"),
-                modifier = Modifier.testTag(TextFieldTag)
+                modifier = Modifier.testTag(TextFieldTag),
             )
         }
 
@@ -55,7 +55,7 @@ class SecureTextFieldTest {
         rule.setMaterialContent {
             OutlinedSecureTextField(
                 state = rememberTextFieldState("password"),
-                modifier = Modifier.testTag(TextFieldTag)
+                modifier = Modifier.testTag(TextFieldTag),
             )
         }
 

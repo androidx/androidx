@@ -50,6 +50,7 @@ class SparseArrayFilledBenchmarkTest(size: Int, sparse: Boolean) {
     }
 
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @Parameters(name = "size={0},sparse={1}")
         fun parameters() = buildParameters(listOf(10, 100, 1_000, 10_000), listOf(true, false))

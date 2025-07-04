@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -16,13 +16,13 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.1.0")
-    implementation(project(":appcompat:appcompat"))
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation(project(":asynclayoutinflater:asynclayoutinflater"))
 }
 
 androidx {
     name = "AsyncLayoutInflater AppCompat"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "A thread-safe LayoutInflater Factory that provides compatibility between " +
             "AsyncLayoutInflater and AppCompat."

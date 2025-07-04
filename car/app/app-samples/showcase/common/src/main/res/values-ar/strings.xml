@@ -140,7 +140,7 @@
     <string name="send_notification_title" msgid="4731688444696028193">"إرسال إشعار"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"تفعيل الإشعارات"</string>
     <string name="stop_notifications_title" msgid="3703892710275206239">"إيقاف الإشعارات"</string>
-    <string name="notification_title" msgid="5507590705935298176">"الإشعار"</string>
+    <string name="notification_title" msgid="5507590705935298176">"الإشعارات"</string>
     <string name="importance_title" msgid="9034862997821839831">"مدى الأهمية"</string>
     <string name="category_title" msgid="4783851267093259949">"الفئة"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"مستمر"</string>
@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"محطة وقود"</string>
     <string name="short_route" msgid="4831864276538141265">"مسار طريق قصير"</string>
     <string name="less_busy" msgid="310625272281710983">"أقل انشغالاً"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"المركبات الملائمة التي تشغل حيزًا كبيرًا"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"المركبات الملائمة العالية الإشغال"</string>
     <string name="long_route" msgid="4737969235741057506">"مسار الرحلة طويل"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"المتابعة لبدء التنقّل"</string>
     <string name="continue_route" msgid="5172258139245088080">"المتابعة إلى مسار الرحلة"</string>
@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"إصدار تجريبي لنموذج الرسالة"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"تظهر الرسالة هنا.\nالمزيد من النص في السطر الثاني."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"عرض توضيحي لنموذج رسالة قصيرة"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"عرض توضيحي لنموذج عناصر مُقسَّم"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"قسم \"زر الاختيار\""</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"تفعيل القسم أو إيقافه"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"قسم \"العديد من الصفوف\""</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"قسم عناصر الشبكة"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"إصدار تجريبي لنموذج اللوحة"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"إصدار تجريبي لنموذج قائمة الأماكن"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"تصفُّح الأماكن"</string>

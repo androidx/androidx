@@ -46,7 +46,7 @@ abstract class CloseDownstreamOnCloseTest<F : TestFile<F>>(private val testIO: T
             testIO.getStore(
                 serializerConfig = TestingSerializerConfig(),
                 scope = datastoreScope,
-                coordinatorProducer = { createSingleProcessCoordinator(testFile.path()) }
+                coordinatorProducer = { createSingleProcessCoordinator(testFile.path()) },
             ) {
                 testFile
             }

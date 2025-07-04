@@ -265,7 +265,7 @@ class SeekBarPreferenceTest {
                 val posY = location[1]
                 floatArrayOf(posX.toFloat(), posY.toFloat())
             },
-            Press.PINPOINT
+            Press.PINPOINT,
         )
     }
 

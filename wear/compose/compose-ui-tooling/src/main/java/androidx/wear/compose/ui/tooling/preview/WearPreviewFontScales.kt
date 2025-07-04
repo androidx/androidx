@@ -42,7 +42,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Fonts - Small",
-    fontScale = 0.94f
+    fontScale = 0.94f,
 )
 @Preview(
     device = WearDevices.SMALL_ROUND,
@@ -50,7 +50,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Fonts - Normal",
-    fontScale = 1f
+    fontScale = 1f,
 )
 @Preview(
     device = WearDevices.SMALL_ROUND,
@@ -58,7 +58,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Fonts - Medium",
-    fontScale = 1.06f
+    fontScale = 1.06f,
 )
 @Preview(
     device = WearDevices.SMALL_ROUND,
@@ -66,7 +66,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Fonts - Large",
-    fontScale = 1.12f
+    fontScale = 1.12f,
 )
 @Preview(
     device = WearDevices.SMALL_ROUND,
@@ -74,7 +74,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Fonts - Larger",
-    fontScale = 1.18f
+    fontScale = 1.18f,
 )
 @Preview(
     device = WearDevices.SMALL_ROUND,
@@ -82,6 +82,6 @@ import androidx.wear.tooling.preview.devices.WearDevices
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Fonts - Largest",
-    fontScale = 1.24f
+    fontScale = 1.24f,
 )
 public annotation class WearPreviewFontScales

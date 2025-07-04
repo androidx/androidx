@@ -21,14 +21,15 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("androidx.stableaidl")
 }
@@ -64,9 +65,9 @@ android {
 
 dependencies {
     api(libs.jspecify)
-    ksp("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.7.0")
     api("androidx.core:core:1.12.0")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     api("androidx.annotation:annotation-experimental:1.4.1")
     api(libs.guavaListenableFuture)
@@ -82,16 +83,17 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
-    androidTestImplementation("androidx.room:room-testing:2.6.1")
+    androidTestImplementation("androidx.room:room-testing:2.7.0")
     androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCoreKtx)
+    testImplementation(libs.kotlinCoroutinesTest)
     lintPublish(project(":work:work-runtime-lint"))
 }
 
@@ -104,9 +106,10 @@ ksp {
 
 androidx {
     name = "WorkManager Runtime"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
-    legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

@@ -43,9 +43,9 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
                     object : SdkLoader.ClassLoaderFactory {
                         override fun createClassLoaderFor(
                             sdkConfig: LocalSdkConfig,
-                            parent: ClassLoader
+                            parent: ClassLoader,
                         ) = parent
-                    }
+                    },
             )
         testSdkConfig = TestSdkConfigs.CURRENT_WITH_RESOURCES
     }

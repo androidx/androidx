@@ -59,7 +59,7 @@ object NoChild : LeakConfiguration() {
 @RunWith(Parameterized::class)
 class ActivityLeakTest(
     private val parentConfiguration: LeakConfiguration,
-    private val childConfiguration: LeakConfiguration
+    private val childConfiguration: LeakConfiguration,
 ) {
     companion object {
         @JvmStatic

@@ -66,7 +66,7 @@ internal fun DrawScope.debugDrawFeature(
     feature: Feature,
     colorScheme: FeatureColorScheme,
     backgroundColor: Color,
-    radius: Float
+    radius: Float,
 ) {
     val color = featureToColor(feature, colorScheme)
     val representativePoint = featureRepresentativePoint(feature)
@@ -79,7 +79,7 @@ internal fun DrawScope.debugDrawFeature(
         color.copy(0.2f),
         radius = radius + (radius * 0.6f),
         center = representativePoint,
-        style = Fill
+        style = Fill,
     )
 
     // Finally add a border around the representative point
@@ -87,7 +87,7 @@ internal fun DrawScope.debugDrawFeature(
         backgroundColor,
         radius = radius,
         center = representativePoint,
-        style = Stroke(radius / 4)
+        style = Stroke(radius / 4),
     )
 }
 
@@ -106,12 +106,7 @@ internal fun FeatureRepresentativePoint(
 
     Box(
         modifier
-            .offset {
-                IntOffset(
-                    (position.x).roundToInt(),
-                    (position.y).roundToInt(),
-                )
-            }
+            .offset { IntOffset((position.x).roundToInt(), (position.y).roundToInt()) }
             .drawWithContent {
                 drawContent()
                 debugDrawFeature(feature, colorScheme, backgroundColor, radius.toFloat())

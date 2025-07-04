@@ -34,7 +34,7 @@ internal object CaptureRequestParameterCompat {
             options.setCaptureRequestOptionWithPriority(
                 CaptureRequest.CONTROL_SETTINGS_OVERRIDE,
                 CameraMetadata.CONTROL_SETTINGS_OVERRIDE_ZOOM,
-                priority
+                priority,
             )
         }
     }

@@ -35,14 +35,14 @@ private val NONNULL_ANNOTATIONS =
     arrayOf(
         "androidx.annotation.NonNull",
         "org.jetbrains.annotations.NotNull",
-        "org.jspecify.annotations.NonNull"
+        "org.jspecify.annotations.NonNull",
     )
 
 private val NULLABLE_ANNOTATIONS =
     arrayOf(
         "androidx.annotation.Nullable",
         "org.jetbrains.annotations.Nullable",
-        "org.jspecify.annotations.Nullable"
+        "org.jspecify.annotations.Nullable",
     )
 
 /** Checks if any of the [annotations] are present on the [Element] or its [type]. */
@@ -101,7 +101,7 @@ internal fun suspendOverrides(
     overrider: ExecutableElement,
     overridden: ExecutableElement,
     owner: TypeElement,
-    typeUtils: Types
+    typeUtils: Types,
 ): Boolean {
     if (overrider.simpleName != overridden.simpleName) {
         return false
@@ -119,7 +119,7 @@ internal fun suspendOverrides(
     if (
         !typeUtils.isSubtype(
             typeUtils.erasure(owner.asType()),
-            typeUtils.erasure(overriddenType.asType())
+            typeUtils.erasure(overriddenType.asType()),
         )
     ) {
         return false
@@ -154,7 +154,7 @@ internal fun suspendOverrides(
     if (
         !typeUtils.isSameType(
             typeUtils.erasure(overriderContinuationTypeArg),
-            typeUtils.erasure(overriddenContinuationTypeArg)
+            typeUtils.erasure(overriddenContinuationTypeArg),
         )
     ) {
         return false
@@ -167,7 +167,7 @@ internal fun suspendOverrides(
                 if (
                     !typeUtils.isSameType(
                         typeUtils.erasure(overriderParam),
-                        typeUtils.erasure(overriddenParam)
+                        typeUtils.erasure(overriddenParam),
                     )
                 ) {
                     return false

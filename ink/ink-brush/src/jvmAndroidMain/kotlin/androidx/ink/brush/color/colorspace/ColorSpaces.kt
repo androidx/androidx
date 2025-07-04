@@ -44,7 +44,7 @@ public object ColorSpaces {
             c = 1 / 0.17883277,
             d = 0.28466892,
             e = 0.55991073,
-            f = -0.685490157
+            f = -0.685490157,
         )
 
     // PQ transfer with an SDR whitepoint of 203 nits
@@ -56,7 +56,7 @@ public object ColorSpaces {
             c = 32 / 2523.0,
             d = 2413 / 128.0,
             e = -2392 / 128.0,
-            f = 8192 / 1305.0
+            f = 8192 / 1305.0,
         )
 
     /**
@@ -88,7 +88,7 @@ public object ColorSpaces {
             -0.799f,
             2.399f,
             SrgbTransferParameters,
-            id = 2
+            id = 2,
         )
 
     /**
@@ -108,7 +108,7 @@ public object ColorSpaces {
             floatArrayOf(0.640f, 0.330f, 0.300f, 0.600f, 0.150f, 0.060f),
             Illuminant.D65,
             TransferParameters(1 / 0.45, 1 / 1.099, 0.099 / 1.099, 1 / 4.5, 0.081),
-            id = 4
+            id = 4,
         )
 
     /**
@@ -121,7 +121,7 @@ public object ColorSpaces {
             floatArrayOf(0.708f, 0.292f, 0.170f, 0.797f, 0.131f, 0.046f),
             Illuminant.D65,
             TransferParameters(1 / 0.45, 1 / 1.0993, 0.0993 / 1.0993, 1 / 4.5, 0.08145),
-            id = 5
+            id = 5,
         )
 
     /**
@@ -136,7 +136,7 @@ public object ColorSpaces {
             2.6,
             0.0f,
             1.0f,
-            id = 6
+            id = 6,
         )
 
     /**
@@ -149,7 +149,7 @@ public object ColorSpaces {
             floatArrayOf(0.680f, 0.320f, 0.265f, 0.690f, 0.150f, 0.060f),
             Illuminant.D65,
             SrgbTransferParameters,
-            id = 7
+            id = 7,
         )
 
     /**
@@ -162,7 +162,7 @@ public object ColorSpaces {
             Ntsc1953Primaries,
             Illuminant.C,
             TransferParameters(1 / 0.45, 1 / 1.099, 0.099 / 1.099, 1 / 4.5, 0.081),
-            id = 8
+            id = 8,
         )
 
     /**
@@ -175,7 +175,7 @@ public object ColorSpaces {
             floatArrayOf(0.630f, 0.340f, 0.310f, 0.595f, 0.155f, 0.070f),
             Illuminant.D65,
             TransferParameters(1 / 0.45, 1 / 1.099, 0.099 / 1.099, 1 / 4.5, 0.081),
-            id = 9
+            id = 9,
         )
 
     /**
@@ -190,7 +190,7 @@ public object ColorSpaces {
             2.2,
             0.0f,
             1.0f,
-            id = 10
+            id = 10,
         )
 
     /**
@@ -203,7 +203,7 @@ public object ColorSpaces {
             floatArrayOf(0.7347f, 0.2653f, 0.1596f, 0.8404f, 0.0366f, 0.0001f),
             Illuminant.D50,
             TransferParameters(1.8, 1.0, 0.0, 1 / 16.0, 0.031248),
-            id = 11
+            id = 11,
         )
 
     /**
@@ -218,7 +218,7 @@ public object ColorSpaces {
             1.0,
             -65504.0f,
             65504.0f,
-            id = 12
+            id = 12,
         )
 
     /**
@@ -233,7 +233,7 @@ public object ColorSpaces {
             1.0,
             -65504.0f,
             65504.0f,
-            id = 13
+            id = 13,
         )
 
     /**
@@ -290,7 +290,7 @@ public object ColorSpaces {
             0.0f,
             1.0f,
             Bt2020HlgTransferParameters,
-            id = 17
+            id = 17,
         )
 
     /**
@@ -315,7 +315,7 @@ public object ColorSpaces {
             0.0f,
             1.0f,
             Bt2020PqTransferParameters,
-            id = 18
+            id = 18,
         )
 
     /**
@@ -383,7 +383,7 @@ public object ColorSpaces {
             Unspecified,
             Bt2020Hlg,
             Bt2020Pq,
-            Oklab
+            Oklab,
         )
 
     internal fun transferHlgOetf(params: TransferParameters, x: Double): Double {

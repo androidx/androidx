@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="BanThreadSleep"
@@ -22,8 +22,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Button.java"/>
     </issue>
@@ -31,8 +31,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Button.java"/>
     </issue>
@@ -40,8 +40,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Chip.java"/>
     </issue>
@@ -49,8 +49,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Chip.java"/>
     </issue>
@@ -58,8 +58,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/CircularProgressIndicator.java"/>
     </issue>
@@ -67,8 +67,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/CircularProgressIndicator.java"/>
     </issue>
@@ -76,8 +76,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/CompactChip.java"/>
     </issue>
@@ -85,8 +85,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/CompactChip.java"/>
     </issue>
@@ -94,8 +94,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout.java"/>
     </issue>
@@ -103,8 +103,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/EdgeContentLayout.java"/>
     </issue>
@@ -112,8 +112,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/MultiButtonLayout.java"/>
     </issue>
@@ -121,8 +121,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/MultiButtonLayout.java"/>
     </issue>
@@ -130,8 +130,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"/>
     </issue>
@@ -139,8 +139,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"/>
     </issue>
@@ -148,8 +148,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout.java"/>
     </issue>
@@ -157,8 +157,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/layouts/PrimaryLayout.java"/>
     </issue>
@@ -184,8 +184,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Text.java"/>
     </issue>
@@ -193,8 +193,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/Text.java"/>
     </issue>
@@ -202,8 +202,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="LayoutElement can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public LayoutElementProto.LayoutElement toLayoutElementProto() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public LayoutElementProto.@NonNull LayoutElement toLayoutElementProto() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/TitleChip.java"/>
     </issue>
@@ -211,8 +211,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Fingerprint can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public Fingerprint getFingerprint() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public @Nullable Fingerprint getFingerprint() {"
+        errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/material/TitleChip.java"/>
     </issue>

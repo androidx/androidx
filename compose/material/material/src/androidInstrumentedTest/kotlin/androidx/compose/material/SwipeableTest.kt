@@ -94,7 +94,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -131,7 +131,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
-                orientation = Orientation.Vertical
+                orientation = Orientation.Vertical,
             )
         }
 
@@ -169,7 +169,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
                 orientation = Orientation.Horizontal,
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -197,7 +197,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
                 orientation = Orientation.Vertical,
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -225,7 +225,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
                 orientation = Orientation.Horizontal,
-                reverseDirection = true
+                reverseDirection = true,
             )
         }
 
@@ -258,7 +258,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
                 orientation = Orientation.Vertical,
-                reverseDirection = true
+                reverseDirection = true,
             )
         }
 
@@ -291,7 +291,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -346,7 +346,7 @@ class SwipeableTest {
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FixedThreshold(offsetDp) },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -396,7 +396,7 @@ class SwipeableTest {
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FixedThreshold(offsetDp) },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -445,7 +445,7 @@ class SwipeableTest {
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -494,7 +494,7 @@ class SwipeableTest {
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.25f) },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -543,7 +543,7 @@ class SwipeableTest {
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.75f) },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -599,7 +599,7 @@ class SwipeableTest {
                         }
                     },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -650,14 +650,14 @@ class SwipeableTest {
                         object : ThresholdConfig {
                             override fun Density.computeThreshold(
                                 fromValue: Float,
-                                toValue: Float
+                                toValue: Float,
                             ): Float {
                                 return 40 + 5 * sign(toValue - fromValue)
                             }
                         }
                     },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -705,7 +705,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(1f) },
                 orientation = Orientation.Horizontal,
-                velocityThreshold = velocityThresholdDp
+                velocityThreshold = velocityThresholdDp,
             )
         }
 
@@ -742,7 +742,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B", 200f to "C"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -766,7 +766,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
-                resistance = null
+                resistance = null,
             )
         }
 
@@ -816,7 +816,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
-                resistance = resistance
+                resistance = resistance,
             )
         }
 
@@ -844,7 +844,7 @@ class SwipeableTest {
                 anchors = mapOf(0f to "A"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
-                resistance = resistance
+                resistance = resistance,
             )
         }
 
@@ -873,7 +873,7 @@ class SwipeableTest {
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
                     orientation = Orientation.Horizontal,
-                    velocityThreshold = Dp.Infinity
+                    velocityThreshold = Dp.Infinity,
                 )
             }
 
@@ -913,7 +913,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -972,7 +972,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1023,7 +1023,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1096,7 +1096,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1162,7 +1162,7 @@ class SwipeableTest {
                     state = state,
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 )
             }
 
@@ -1190,7 +1190,7 @@ class SwipeableTest {
                     state = state,
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 )
             }
 
@@ -1219,7 +1219,7 @@ class SwipeableTest {
                     state = state,
                     anchors = mapOf(0f to "A", 100f to "B"),
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 )
             }
 
@@ -1248,7 +1248,7 @@ class SwipeableTest {
                 state = state,
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1276,7 +1276,7 @@ class SwipeableTest {
                         state = state!!,
                         anchors = mapOf(0f to "A", 100f to "B"),
                         thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                        orientation = Orientation.Horizontal
+                        orientation = Orientation.Horizontal,
                     )
                 )
             }
@@ -1303,11 +1303,11 @@ class SwipeableTest {
                         onValueChange = {
                             onStateChangeCallbacks += 1
                             state.value = it
-                        }
+                        },
                     ),
                 anchors = mapOf(0f to "A", 100f to "B"),
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1336,7 +1336,7 @@ class SwipeableTest {
                 state = swipeableState,
                 anchors = anchors.value,
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1366,7 +1366,7 @@ class SwipeableTest {
                 state = swipeableState.value,
                 anchors = anchors,
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1397,7 +1397,7 @@ class SwipeableTest {
                 state = swipeableState,
                 anchors = anchors.value,
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         }
 
@@ -1428,7 +1428,7 @@ class SwipeableTest {
                     state = swipeableState,
                     anchors = anchors.value,
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 )
             }
 
@@ -1460,7 +1460,7 @@ class SwipeableTest {
                 Modifier.swipeable(
                     state = rememberSwipeableState("A"),
                     anchors = anchors,
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 ) as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("swipeable")
             assertThat(modifier.valueOverride).isNull()
@@ -1474,7 +1474,7 @@ class SwipeableTest {
                     "interactionSource",
                     "thresholds",
                     "resistance",
-                    "velocityThreshold"
+                    "velocityThreshold",
                 )
         }
     }
@@ -1495,7 +1495,7 @@ class SwipeableTest {
                         state = swipeableState,
                         anchors = anchors.value,
                         thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                        orientation = Orientation.Horizontal
+                        orientation = Orientation.Horizontal,
                     )
             ) {
                 Column(Modifier.fillMaxWidth().testTag(swipeableTag).verticalScroll(scrollState)) {
@@ -1547,7 +1547,7 @@ class SwipeableTest {
                         state = swipeableState,
                         anchors = anchors.value,
                         thresholds = { _, _ -> FixedThreshold(56.dp) },
-                        orientation = Orientation.Horizontal
+                        orientation = Orientation.Horizontal,
                     )
             ) {
                 Column(Modifier.fillMaxWidth().testTag(swipeableTag).verticalScroll(scrollState)) {
@@ -1565,7 +1565,7 @@ class SwipeableTest {
                 center,
                 center.copy(y = centerY - 500, x = centerX),
                 durationMillis = 50,
-                endVelocity = 20000f
+                endVelocity = 20000f,
             )
         }
 
@@ -1580,7 +1580,7 @@ class SwipeableTest {
                 center,
                 center.copy(y = centerY + 500, x = centerX),
                 durationMillis = 50,
-                endVelocity = 20000f
+                endVelocity = 20000f,
             )
         }
 
@@ -1607,7 +1607,7 @@ class SwipeableTest {
                             state = swipeableState,
                             anchors = anchors.value,
                             thresholds = { _, _ -> FixedThreshold(56.dp) },
-                            orientation = Orientation.Horizontal
+                            orientation = Orientation.Horizontal,
                         )
                 ) {
                     Column(
@@ -1631,7 +1631,7 @@ class SwipeableTest {
                     center,
                     center.copy(y = centerY + 1500, x = centerX),
                     durationMillis = 50,
-                    endVelocity = 20000f
+                    endVelocity = 20000f,
                 )
             }
 
@@ -1652,7 +1652,7 @@ class SwipeableTest {
                     center,
                     center.copy(y = centerY + 1500, x = centerX),
                     durationMillis = 50,
-                    endVelocity = 20000f
+                    endVelocity = 20000f,
                 )
             }
 

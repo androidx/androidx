@@ -49,7 +49,7 @@ private class RecyclerViewAdapter(val items: Int) :
     RecyclerView.Adapter<RecyclerViewAsPagerViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
-        viewType: Int
+        viewType: Int,
     ): RecyclerViewAsPagerViewHolder {
         val view =
             LayoutInflater.from(parent.context)
@@ -65,6 +65,7 @@ private class RecyclerViewAdapter(val items: Int) :
     override fun getItemCount(): Int = items
 }
 
+@Suppress("PROPERTY_HIDES_JAVA_FIELD")
 private class RecyclerViewAsPagerViewHolder(val itemView: View) :
     RecyclerView.ViewHolder(itemView) {
     fun bind(item: String) {

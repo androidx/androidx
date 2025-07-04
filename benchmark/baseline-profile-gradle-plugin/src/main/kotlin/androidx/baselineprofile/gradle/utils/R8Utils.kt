@@ -96,7 +96,7 @@ abstract class GenerateDummyBaselineProfileTask : DefaultTask() {
                 project.tasks.maybeRegister<GenerateDummyBaselineProfileTask>(
                     "generate",
                     variant.name,
-                    "profileForR8RuleRewrite"
+                    "profileForR8RuleRewrite",
                 ) {
                     it.outputDir.set(
                         project.layout.buildDirectory.dir(
@@ -108,7 +108,7 @@ abstract class GenerateDummyBaselineProfileTask : DefaultTask() {
             @Suppress("UnstableApiUsage")
             variant.sources.baselineProfiles?.addGeneratedSourceDirectory(
                 taskProvider,
-                GenerateDummyBaselineProfileTask::outputDir
+                GenerateDummyBaselineProfileTask::outputDir,
             )
         }
     }

@@ -22,11 +22,11 @@ import androidx.compose.ui.Modifier
 fun Modifier.ifElse(
     condition: () -> Boolean,
     ifTrueModifier: Modifier,
-    ifFalseModifier: Modifier = Modifier
+    ifFalseModifier: Modifier = Modifier,
 ): Modifier = then(if (condition()) ifTrueModifier else ifFalseModifier)
 
 fun Modifier.ifElse(
     condition: Boolean,
     ifTrueModifier: Modifier,
-    ifFalseModifier: Modifier = Modifier
+    ifFalseModifier: Modifier = Modifier,
 ): Modifier = ifElse({ condition }, ifTrueModifier, ifFalseModifier)

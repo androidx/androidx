@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.TextUnit
 class AnnotatedTextInColumnTestCase(
     private val texts: List<AnnotatedString>,
     private val width: Dp,
-    private val fontSize: TextUnit
+    private val fontSize: TextUnit,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val color = mutableStateOf(Color.Black)

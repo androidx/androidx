@@ -77,7 +77,7 @@ class BasicTextMinSizeTest {
 fun MinSizeChangeLayout(
     isBig: () -> Boolean,
     onMeasure: (Int) -> Unit,
-    content: @Composable @UiComposable () -> Unit
+    content: @Composable @UiComposable () -> Unit,
 ) {
     Layout(
         modifier = Modifier.fillMaxWidth(),
@@ -92,7 +92,7 @@ fun MinSizeChangeLayout(
                         },
                     maxWidth = constraints.maxWidth,
                     minHeight = 0,
-                    maxHeight = constraints.maxHeight
+                    maxHeight = constraints.maxHeight,
                 )
             val placeables = measurables.map { it.measure(newConstraints) }
             onMeasure(placeables.first().width)
@@ -100,6 +100,6 @@ fun MinSizeChangeLayout(
                 placeables.forEachIndexed { _, it -> it.place(0, 0) }
             }
         },
-        content = content
+        content = content,
     )
 }

@@ -189,7 +189,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         val UNRESOLVED_SAMPLE_LINK =
@@ -204,7 +204,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         val MULTIPLE_FUNCTIONS_FOUND =
@@ -216,7 +216,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         val INVALID_SAMPLES_LOCATION =
@@ -230,7 +230,7 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

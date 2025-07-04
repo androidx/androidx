@@ -16,6 +16,9 @@
 
 package androidx.webkit;
 
+import android.webkit.CookieManager;
+import android.webkit.ServiceWorkerClient;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -28,6 +31,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -39,9 +43,11 @@ import java.util.Set;
 @AnyThread
 public abstract class ServiceWorkerWebSettingsCompat {
     /**
+     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ServiceWorkerWebSettingsCompat() {}
+    public ServiceWorkerWebSettingsCompat() {
+    }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
@@ -51,7 +57,8 @@ public abstract class ServiceWorkerWebSettingsCompat {
             WebSettings.LOAD_CACHE_ONLY
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface CacheMode {}
+    public @interface CacheMode {
+    }
 
     /**
      * Overrides the way the cache is used.
@@ -62,9 +69,9 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * returns true for {@link WebViewFeature#SERVICE_WORKER_CACHE_MODE}.
      *
      * @param mode the mode to use. One of {@link WebSettings#LOAD_DEFAULT},
-     * {@link WebSettings#LOAD_CACHE_ELSE_NETWORK}, {@link WebSettings#LOAD_NO_CACHE}
-     * or {@link WebSettings#LOAD_CACHE_ONLY}. The default value is
-     * {@link WebSettings#LOAD_DEFAULT}.
+     *             {@link WebSettings#LOAD_CACHE_ELSE_NETWORK}, {@link WebSettings#LOAD_NO_CACHE}
+     *             or {@link WebSettings#LOAD_CACHE_ONLY}. The default value is
+     *             {@link WebSettings#LOAD_DEFAULT}.
      * @see WebSettings#setCacheMode
      * @see #getCacheMode
      */
@@ -117,7 +124,6 @@ public abstract class ServiceWorkerWebSettingsCompat {
     public abstract boolean getAllowContentAccess();
 
     /**
-     *
      * Enables or disables file access within Service Workers.
      *
      * <p>
@@ -214,10 +220,45 @@ public abstract class ServiceWorkerWebSettingsCompat {
      * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}.
      *
      * @param allowList Set of origins to allow-list.
-     * @see WebSettingsCompat#setRequestedWithHeaderOriginAllowList(WebSettings, Set)
      * @throws IllegalArgumentException if the allow-list contains a malformed origin.
+     * @see WebSettingsCompat#setRequestedWithHeaderOriginAllowList(WebSettings, Set)
      */
     @RequiresFeature(name = WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void setRequestedWithHeaderOriginAllowList(@NonNull Set<String> allowList);
+
+    /**
+     * This method controls if the relevant {@code Cookie} header will be added to the
+     * {@link WebResourceRequest} object passed to
+     * {@link ServiceWorkerClient#shouldInterceptRequest(WebResourceRequest)}.
+     * It also enables the use of
+     * {@link WebResourceResponseCompat#setCookies(List)}, which will
+     * otherwise be ignored.
+     *
+     * <p>Prefer using this method over calling {@link CookieManager} as part of
+     * intercepting requests if it is necessary to access cookies, as this approach will provide
+     * the correct set of cookies for the request.
+     *
+     * <p>This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#COOKIE_INTERCEPT}.
+     *
+     * @param enabled Whether cookie access during request intercept should be enabled.
+     */
+    @RequiresFeature(name = WebViewFeature.COOKIE_INTERCEPT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public abstract void setIncludeCookiesOnShouldInterceptRequestEnabled(boolean enabled);
+
+    /**
+     * Returns whether cookie access during request intercept is enabled.
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
+     * {@link WebViewFeature#COOKIE_INTERCEPT}.
+     *
+     * @see #setIncludeCookiesOnShouldInterceptRequestEnabled(boolean)
+     */
+    @RequiresFeature(name = WebViewFeature.COOKIE_INTERCEPT,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public abstract boolean isIncludeCookiesOnShouldInterceptRequestEnabled();
 }

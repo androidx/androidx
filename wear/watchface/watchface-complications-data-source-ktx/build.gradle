@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -28,7 +28,6 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
 }
@@ -37,17 +36,15 @@ android {
     defaultConfig {
         minSdk = 26
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.watchface.complications.datasource.ktx"
 }
 
 androidx {
     name = "Android Wear Complications Data Source Ktx"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Kotlin suspend wrapper for Android Wear Complications Data Source"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }
 

@@ -207,7 +207,7 @@ class AppWidgetHostRule(
                     } else {
                         Log.i(
                             RECEIVER_TEST_TAG,
-                            "$i Boxing view is empty or is still loading, waiting..."
+                            "$i Boxing view is empty or is still loading, waiting...",
                         )
                         Log.i(RECEIVER_TEST_TAG, "Boxing view: $boxingView")
                         Thread.sleep(500)
@@ -264,7 +264,7 @@ class AppWidgetHostRule(
     fun setSizes(
         portraitSize: DpSize,
         landscapeSize: DpSize? = null,
-        updateRemoteViews: Boolean = true
+        updateRemoteViews: Boolean = true,
     ) {
         val (portrait, landscape) =
             if (landscapeSize != null) {
@@ -290,7 +290,7 @@ class AppWidgetHostRule(
                     AppWidgetManager.getInstance(mContext)
                         .updateAppWidgetOptions(
                             mAppWidgetId,
-                            optionsBundleOf(listOf(portrait, landscape))
+                            optionsBundleOf(listOf(portrait, landscape)),
                         )
                     hostView.waitForRemoteViews()
                 }
@@ -301,7 +301,7 @@ class AppWidgetHostRule(
     fun runAndObserveUntilDraw(
         condition: String = "Expected condition to be met within 5 seconds",
         run: () -> Unit = {},
-        test: () -> Boolean
+        test: () -> Boolean,
     ) {
         val hostView = mHostView
         val latch = CountDownLatch(1)
@@ -344,7 +344,7 @@ class AppWidgetHostRule(
     suspend fun waitAndTestForCondition(
         errorMessage: String,
         timeoutMs: Long = 600,
-        condition: (TestAppWidgetHostView) -> Boolean
+        condition: (TestAppWidgetHostView) -> Boolean,
     ) {
         val resume = Channel<Unit>(Channel.CONFLATED)
         fun test() = condition(mHostView)

@@ -27,14 +27,14 @@ import com.squareup.javapoet.ParameterizedTypeName
 /** Data class that represents a Hilt injected Worker */
 internal data class WorkerElement(
     val typeElement: XTypeElement,
-    val constructorElement: XConstructorElement
+    val constructorElement: XConstructorElement,
 ) {
     val className = typeElement.asClassName().toJavaPoet()
 
     val factoryClassName =
         ClassName.get(
             typeElement.packageName,
-            "${className.simpleNames().joinToString("_")}_AssistedFactory"
+            "${className.simpleNames().joinToString("_")}_AssistedFactory",
         )
 
     val factorySuperTypeName =
@@ -43,7 +43,7 @@ internal data class WorkerElement(
     val moduleClassName =
         ClassName.get(
             typeElement.packageName,
-            "${className.simpleNames().joinToString("_")}_HiltModule"
+            "${className.simpleNames().joinToString("_")}_HiltModule",
         )
 
     val dependencyRequests =

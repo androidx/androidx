@@ -46,7 +46,7 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         app:drawableTint="@android:color/black"
         app:drawableTintMode="src_in" />
 </LinearLayout>
-        """
+        """,
                 )
                 .indented()
                 .within("res")
@@ -68,7 +68,7 @@ class TextViewCompoundDrawablesXmlDetectorTest {
     private fun verifyCompoundDrawableLintPass(
         androidAttrName: String,
         appAttrName: String,
-        attrValue: String
+        attrValue: String,
     ) {
         val originalAttrDefinition = "android:$androidAttrName=\"$attrValue\""
 
@@ -86,7 +86,7 @@ class TextViewCompoundDrawablesXmlDetectorTest {
         android:layout_height="wrap_content"
         $originalAttrDefinition />
 </LinearLayout>
-        """
+        """,
                 )
                 .indented()
                 .within("res")
@@ -130,7 +130,7 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
         verifyCompoundDrawableLintPass(
             "drawableStart",
             "drawableStartCompat",
-            "@android:drawable/ic_delete"
+            "@android:drawable/ic_delete",
         )
     }
 
@@ -139,7 +139,7 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
         verifyCompoundDrawableLintPass(
             "drawableLeft",
             "drawableLeftCompat",
-            "@android:drawable/ic_delete"
+            "@android:drawable/ic_delete",
         )
     }
 
@@ -148,7 +148,7 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
         verifyCompoundDrawableLintPass(
             "drawableEnd",
             "drawableEndCompat",
-            "@android:drawable/ic_delete"
+            "@android:drawable/ic_delete",
         )
     }
 
@@ -157,7 +157,7 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
         verifyCompoundDrawableLintPass(
             "drawableRight",
             "drawableRightCompat",
-            "@android:drawable/ic_delete"
+            "@android:drawable/ic_delete",
         )
     }
 
@@ -166,7 +166,7 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
         verifyCompoundDrawableLintPass(
             "drawableTop",
             "drawableTopCompat",
-            "@android:drawable/ic_delete"
+            "@android:drawable/ic_delete",
         )
     }
 
@@ -175,7 +175,7 @@ Fix for res/layout-v23/text_view.xml line 9: Use app namespace instead of androi
         verifyCompoundDrawableLintPass(
             "drawableBottom",
             "drawableBottomCompat",
-            "@android:drawable/ic_delete"
+            "@android:drawable/ic_delete",
         )
     }
 

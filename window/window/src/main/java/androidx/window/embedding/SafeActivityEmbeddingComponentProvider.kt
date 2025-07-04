@@ -27,6 +27,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
+import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
@@ -37,6 +38,7 @@ import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.ActivityStackAttributesCalculatorParams
 import androidx.window.extensions.embedding.AnimationBackground
+import androidx.window.extensions.embedding.AnimationParams
 import androidx.window.extensions.embedding.DividerAttributes
 import androidx.window.extensions.embedding.EmbeddedActivityWindowInfo
 import androidx.window.extensions.embedding.ParentContainerInfo
@@ -64,7 +66,7 @@ import java.util.concurrent.Executor
 internal class SafeActivityEmbeddingComponentProvider(
     private val loader: ClassLoader,
     private val consumerAdapter: ConsumerAdapter,
-    private val windowExtensions: WindowExtensions
+    private val windowExtensions: WindowExtensions,
 ) {
     private val safeWindowExtensionsProvider = SafeWindowExtensionsProvider(loader)
 
@@ -92,7 +94,9 @@ internal class SafeActivityEmbeddingComponentProvider(
             2 -> hasValidVendorApiLevel2()
             in 3..4 -> hasValidVendorApiLevel3() // No additional API in 4.
             5 -> hasValidVendorApiLevel5()
-            in 6..Int.MAX_VALUE -> hasValidVendorApiLevel6()
+            6 -> hasValidVendorApiLevel6()
+            7 -> hasValidVendorApiLevel7()
+            in 8..Int.MAX_VALUE -> hasValidVendorApiLevel8()
             else -> false
         }
     }
@@ -206,6 +210,7 @@ internal class SafeActivityEmbeddingComponentProvider(
      * - [ActivityStack.Token]
      * - [WindowAttributes]
      * - [SplitInfo.Token]
+     * - [EmbeddingConfiguration.Builder.setDimAreaBehavior]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel5(): Boolean =
@@ -219,7 +224,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             isClassAnimationBackgroundValid() &&
             isClassActivityStackTokenValid() &&
             isClassWindowAttributesValid() &&
-            isClassSplitInfoTokenValid()
+            isClassSplitInfoTokenValid() &&
+            isClassEmbeddingConfigurationBuilderApi5Valid()
 
     /**
      * Vendor API level 6 includes the following methods:
@@ -243,6 +249,35 @@ internal class SafeActivityEmbeddingComponentProvider(
             isClassEmbeddedActivityWindowInfoValid() &&
             isClassDividerAttributesValid() &&
             isClassDividerAttributesBuilderValid()
+
+    /**
+     * Vendor API level 7 includes the following methods:
+     * - [SplitAttributes.getAnimationParams]
+     * - [SplitAttributes.Builder.setAnimationParams]
+     * - [DividerAttributes.isDraggingToFullscreenAllowed]
+     * - [DividerAttributes.Builder.setDraggingToFullscreenAllowed] and following classes:
+     * - [AnimationParams]
+     * - [AnimationParams.Builder]
+     */
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel7(): Boolean =
+        hasValidVendorApiLevel6() &&
+            isMethodGetAnimationParamsValid() &&
+            isMethodSetAnimationParamsValid() &&
+            isMethodIsDraggingToFullscreenAllowedValid() &&
+            isMethodSetDraggingToFullscreenAllowedValid() &&
+            isClassAnimationParamsValid() &&
+            isClassAnimationParamsBuilderValid()
+
+    /**
+     * Vendor API level 8 includes the following methods:
+     * - [EmbeddingConfiguration.Builder.setAutoSaveEmbeddingState]
+     */
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel8(): Boolean =
+        // TODO(b/289875940): adding #isClassEmbeddingConfigurationBuilderApi8Valid() when API
+        //                    finalized.
+        hasValidVendorApiLevel7()
 
     /**
      * Overlay features includes the following methods:
@@ -299,7 +334,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val isActivityEmbeddedMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "isActivityEmbedded",
-                    Activity::class.java
+                    Activity::class.java,
                 )
             isActivityEmbeddedMethod.isPublic &&
                 isActivityEmbeddedMethod.doesReturn(Boolean::class.java)
@@ -420,7 +455,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setFinishPrimaryWithSecondaryMethod =
                 splitPlaceholderRuleBuilderClass.getMethod(
                     "setFinishPrimaryWithSecondary",
-                    Int::class.java
+                    Int::class.java,
                 )
             setSplitRatioMethod.isPublic &&
                 setSplitRatioMethod.doesReturn(SplitPlaceholderRule.Builder::class.java) &&
@@ -440,7 +475,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setSplitInfoCallbackMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "setSplitInfoCallback",
-                    Consumer::class.java
+                    Consumer::class.java,
                 )
             setSplitInfoCallbackMethod.isPublic
         }
@@ -463,7 +498,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setSplitAttributesCalculatorMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "setSplitAttributesCalculator",
-                    Function::class.java
+                    Function::class.java,
                 )
             val clearSplitAttributesCalculatorMethod =
                 activityEmbeddingComponentClass.getMethod("clearSplitAttributesCalculator")
@@ -504,7 +539,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val activityRuleBuilderConstructor =
                 activityRuleBuilderClass.getDeclaredConstructor(
                     Predicate::class.java,
-                    Predicate::class.java
+                    Predicate::class.java,
                 )
             val setTagMethod = activityRuleBuilderClass.getMethod("setTag", String::class.java)
             activityRuleBuilderConstructor.isPublic &&
@@ -599,7 +634,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 splitPairRuleBuilderClass.getDeclaredConstructor(
                     Predicate::class.java,
                     Predicate::class.java,
-                    Predicate::class.java
+                    Predicate::class.java,
                 )
             val setDefaultSplitAttributesMethod =
                 splitPairRuleBuilderClass.getMethod(
@@ -622,7 +657,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                     Intent::class.java,
                     Predicate::class.java,
                     Predicate::class.java,
-                    Predicate::class.java
+                    Predicate::class.java,
                 )
             val setDefaultSplitAttributesMethod =
                 splitPlaceholderRuleBuilderClass.getMethod(
@@ -632,7 +667,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setFinishPrimaryWithPlaceholderMethod =
                 splitPlaceholderRuleBuilderClass.getMethod(
                     "setFinishPrimaryWithPlaceholder",
-                    Int::class.java
+                    Int::class.java,
                 )
             val setTagMethod =
                 splitPlaceholderRuleBuilderClass.getMethod("setTag", String::class.java)
@@ -663,7 +698,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 activityEmbeddingComponentClass.getMethod(
                     "updateSplitAttributes",
                     IBinder::class.java,
-                    SplitAttributes::class.java
+                    SplitAttributes::class.java,
                 )
             updateSplitAttributesMethod.isPublic
         }
@@ -691,7 +726,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 activityEmbeddingComponentClass.getMethod(
                     "registerActivityStackCallback",
                     Executor::class.java,
-                    Consumer::class.java
+                    Consumer::class.java,
                 )
             registerActivityStackCallbackMethod.isPublic
         }
@@ -701,7 +736,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val unregisterActivityStackCallbackMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "unregisterActivityStackCallback",
-                    Consumer::class.java
+                    Consumer::class.java,
                 )
             unregisterActivityStackCallbackMethod.isPublic
         }
@@ -714,7 +749,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 activityEmbeddingComponentClass.getMethod(
                     "pinTopActivityStack",
                     Int::class.java,
-                    SplitPinRule::class.java
+                    SplitPinRule::class.java,
                 )
             val unpinTopActivityStackMethod =
                 activityEmbeddingComponentClass.getMethod("unpinTopActivityStack", Int::class.java)
@@ -761,7 +796,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setAnimationBackgroundMethod =
                 splitAttributesBuilderClass.getMethod(
                     "setAnimationBackground",
-                    AnimationBackground::class.java
+                    AnimationBackground::class.java,
                 )
 
             createColorBackgroundMethod.isPublic &&
@@ -807,7 +842,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setWindowAttributesMethod =
                 splitAttributesBuilderClass.getMethod(
                     "setWindowAttributes",
-                    WindowAttributes::class.java
+                    WindowAttributes::class.java,
                 )
 
             getDimAreaBehaviorMethod.isPublic &&
@@ -827,6 +862,20 @@ internal class SafeActivityEmbeddingComponentProvider(
             createFromBinder.isPublic && createFromBinder.doesReturn(splitInfoTokenClass)
         }
 
+    private fun isClassEmbeddingConfigurationBuilderApi5Valid(): Boolean =
+        validateReflection("Class EmbeddingConfiguration.Builder is not valid") {
+            val EmbeddingConfigurationBuilderClass = EmbeddingConfiguration.Builder::class.java
+            val setAutoSaveEmbeddingStateMethod =
+                EmbeddingConfigurationBuilderClass.getMethod(
+                    "setDimAreaBehavior",
+                    DimAreaBehavior::class.java,
+                )
+            setAutoSaveEmbeddingStateMethod.isPublic &&
+                setAutoSaveEmbeddingStateMethod.doesReturn(
+                    EmbeddingConfiguration.Builder::class.java
+                )
+        }
+
     /** Vendor API level 6 validation methods */
     private fun isMethodGetEmbeddedActivityWindowInfoValid(): Boolean =
         validateReflection(
@@ -835,7 +884,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val getEmbeddedActivityWindowInfoMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "getEmbeddedActivityWindowInfo",
-                    Activity::class.java
+                    Activity::class.java,
                 )
             getEmbeddedActivityWindowInfoMethod.isPublic &&
                 getEmbeddedActivityWindowInfoMethod.doesReturn(
@@ -851,7 +900,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 activityEmbeddingComponentClass.getMethod(
                     "setEmbeddedActivityWindowInfoCallback",
                     Executor::class.java,
-                    Consumer::class.java
+                    Consumer::class.java,
                 )
             setEmbeddedActivityWindowInfoCallbackMethod.isPublic
         }
@@ -879,7 +928,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setDividerAttributesMethod =
                 splitAttributesBuilderClass.getMethod(
                     "setDividerAttributes",
-                    DividerAttributes::class.java
+                    DividerAttributes::class.java,
                 )
             setDividerAttributesMethod.isPublic &&
                 setDividerAttributesMethod.doesReturn(SplitAttributes.Builder::class.java)
@@ -950,6 +999,112 @@ internal class SafeActivityEmbeddingComponentProvider(
                 setDividerColorMethod.doesReturn(DividerAttributes.Builder::class.java)
         }
 
+    /** Vendor API level 7 validation methods */
+    private fun isMethodGetAnimationParamsValid(): Boolean =
+        validateReflection("SplitAttributes#getAnimationParams is not valid") {
+            val splitAttributesClass = SplitAttributes::class.java
+            val getAnimationParamsMethod = splitAttributesClass.getMethod("getAnimationParams")
+            getAnimationParamsMethod.isPublic &&
+                getAnimationParamsMethod.doesReturn(AnimationParams::class.java)
+        }
+
+    private fun isMethodSetAnimationParamsValid(): Boolean =
+        validateReflection("SplitAttributes#setAnimationParams is not valid") {
+            val splitAttributesBuilderClass = SplitAttributes.Builder::class.java
+            val setAnimationParamsMethod =
+                splitAttributesBuilderClass.getMethod(
+                    "setAnimationParams",
+                    AnimationParams::class.java,
+                )
+            setAnimationParamsMethod.isPublic &&
+                setAnimationParamsMethod.doesReturn(SplitAttributes.Builder::class.java)
+        }
+
+    private fun isMethodIsDraggingToFullscreenAllowedValid(): Boolean =
+        validateReflection("DividerAttributes#isDraggingToFullscreenAllowed is not valid") {
+            val dividerAttributesClass = DividerAttributes::class.java
+            val getDividerTypeMethod =
+                dividerAttributesClass.getMethod("isDraggingToFullscreenAllowed")
+            getDividerTypeMethod.isPublic && getDividerTypeMethod.doesReturn(Boolean::class.java)
+        }
+
+    private fun isMethodSetDraggingToFullscreenAllowedValid(): Boolean =
+        validateReflection(
+            "DividerAttributes.Builder#setDraggingToFullscreenAllowed is not valid"
+        ) {
+            val dividerAttributesBuilderClass = DividerAttributes.Builder::class.java
+            val setDividerColorMethod =
+                dividerAttributesBuilderClass.getMethod(
+                    "setDraggingToFullscreenAllowed",
+                    Boolean::class.java,
+                )
+            setDividerColorMethod.isPublic &&
+                setDividerColorMethod.doesReturn(DividerAttributes.Builder::class.java)
+        }
+
+    private fun isClassAnimationParamsValid(): Boolean =
+        validateReflection("Class AnimationParams is not valid") {
+            val animationParamsClass = AnimationParams::class.java
+            val animationResourcesIdDefaultField =
+                animationParamsClass.getDeclaredField("DEFAULT_ANIMATION_RESOURCES_ID")
+            val getAnimationBackgroundMethod =
+                animationParamsClass.getMethod("getAnimationBackground")
+            val getOpenAnimationResIdMethod =
+                animationParamsClass.getMethod("getOpenAnimationResId")
+            val getCloseAnimationResIdMethod =
+                animationParamsClass.getMethod("getCloseAnimationResId")
+            val getChangeAnimationResIdMethod =
+                animationParamsClass.getMethod("getChangeAnimationResId")
+            animationResourcesIdDefaultField.isPublic &&
+                getAnimationBackgroundMethod.isPublic &&
+                getAnimationBackgroundMethod.doesReturn(AnimationBackground::class.java) &&
+                getOpenAnimationResIdMethod.isPublic &&
+                getOpenAnimationResIdMethod.doesReturn(Int::class.java) &&
+                getCloseAnimationResIdMethod.isPublic &&
+                getCloseAnimationResIdMethod.doesReturn(Int::class.java) &&
+                getChangeAnimationResIdMethod.isPublic &&
+                getChangeAnimationResIdMethod.doesReturn(Int::class.java)
+        }
+
+    private fun isClassAnimationParamsBuilderValid(): Boolean =
+        validateReflection("Class AnimationParams.Builder is not valid") {
+            val animationParamsBuilderClass = AnimationParams.Builder::class.java
+            val setAnimationBackgroundMethod =
+                animationParamsBuilderClass.getMethod(
+                    "setAnimationBackground",
+                    AnimationBackground::class.java,
+                )
+            val setOpenAnimationResIdMethod =
+                animationParamsBuilderClass.getMethod("setOpenAnimationResId", Int::class.java)
+            val setCloseAnimationResIdMethod =
+                animationParamsBuilderClass.getMethod("setCloseAnimationResId", Int::class.java)
+            val setChangeAnimationResIdMethod =
+                animationParamsBuilderClass.getMethod("setChangeAnimationResId", Int::class.java)
+            setAnimationBackgroundMethod.isPublic &&
+                setAnimationBackgroundMethod.doesReturn(AnimationParams.Builder::class.java) &&
+                setOpenAnimationResIdMethod.isPublic &&
+                setOpenAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java) &&
+                setCloseAnimationResIdMethod.isPublic &&
+                setCloseAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java) &&
+                setChangeAnimationResIdMethod.isPublic &&
+                setChangeAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java)
+        }
+
+    /** Vendor API level 8 validation methods */
+    private fun isClassEmbeddingConfigurationBuilderApi8Valid(): Boolean =
+        validateReflection("Class EmbeddingConfiguration.Builder is not valid") {
+            val EmbeddingConfigurationBuilderClass = EmbeddingConfiguration.Builder::class.java
+            val setAutoSaveEmbeddingStateMethod =
+                EmbeddingConfigurationBuilderClass.getMethod(
+                    "setAutoSaveEmbeddingState",
+                    Boolean::class.java,
+                )
+            setAutoSaveEmbeddingStateMethod.isPublic &&
+                setAutoSaveEmbeddingStateMethod.doesReturn(
+                    EmbeddingConfiguration.Builder::class.java
+                )
+        }
+
     /** Overlay features validation methods */
     private fun isActivityStackGetTagValid(): Boolean =
         validateReflection("ActivityStack#getTag is not valid") {
@@ -964,7 +1119,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val getActivityStackTokenMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "getActivityStackToken",
-                    String::class.java
+                    String::class.java,
                 )
             getActivityStackTokenMethod.isPublic &&
                 getActivityStackTokenMethod.doesReturn(ActivityStack.Token::class.java)
@@ -991,7 +1146,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val getParentContainerInfoMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "getParentContainerInfo",
-                    ActivityStack.Token::class.java
+                    ActivityStack.Token::class.java,
                 )
             getParentContainerInfoMethod.isPublic &&
                 getParentContainerInfoMethod.doesReturn(ParentContainerInfo::class.java)
@@ -1002,7 +1157,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setActivityStackAttributesCalculatorMethod =
                 activityEmbeddingComponentClass.getMethod(
                     "setActivityStackAttributesCalculator",
-                    Function::class.java
+                    Function::class.java,
                 )
             setActivityStackAttributesCalculatorMethod.isPublic
         }
@@ -1020,7 +1175,7 @@ internal class SafeActivityEmbeddingComponentProvider(
                 activityEmbeddingComponentClass.getMethod(
                     "updateActivityStackAttributes",
                     ActivityStack.Token::class.java,
-                    ActivityStackAttributes::class.java
+                    ActivityStackAttributes::class.java,
                 )
             updateActivityStackAttributesMethod.isPublic
         }
@@ -1048,7 +1203,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             val setWindowAttributesMethod =
                 activityStackAttributesBuilderClass.getMethod(
                     "setWindowAttributes",
-                    WindowAttributes::class.java
+                    WindowAttributes::class.java,
                 )
             activityStackAttributesBuilderConstructor.isPublic &&
                 setRelativeBoundsMethod.isPublic &&

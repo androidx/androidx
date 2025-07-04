@@ -78,7 +78,7 @@ fun AnimatedItems(animateContentSize: Boolean) {
     Column {
         Row(
             Modifier.fillMaxWidth().padding(20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Button(onClick = { itemNum = min((itemNum + 1), 6) }) { Text("Add") }
             Button(onClick = { itemNum = max((itemNum - 1), 0) }) { Text("Remove") }
@@ -91,7 +91,7 @@ fun AnimatedItems(animateContentSize: Boolean) {
                         Item(
                             pastelColors[0],
                             "Expand Vertically + Fade In\nShrink " +
-                                "Vertically + Fade Out\n(Column Default)"
+                                "Vertically + Fade Out\n(Column Default)",
                         )
                     }
                     HorizontalTransition(visible = itemNum > 1) {
@@ -101,13 +101,13 @@ fun AnimatedItems(animateContentSize: Boolean) {
                         Item(
                             pastelColors[2],
                             "Slide In Horizontally + Fade In\nSlide Out Horizontally + " +
-                                "Fade Out"
+                                "Fade Out",
                         )
                     }
                     AnimatedVisibility(
                         visible = itemNum > 3,
                         enter = expandVertically(),
-                        exit = shrinkVertically()
+                        exit = shrinkVertically(),
                     ) {
                         Item(pastelColors[3], "Expand Vertically\nShrink Vertically")
                     }
@@ -118,7 +118,7 @@ fun AnimatedItems(animateContentSize: Boolean) {
                         Item(
                             pastelColors[0],
                             "Expand Vertically + Fade In + Slide In Vertically\n" +
-                                "Shrink Vertically + Fade Out + Slide Out Vertically"
+                                "Shrink Vertically + Fade Out + Slide Out Vertically",
                         )
                     }
                 }
@@ -163,8 +163,8 @@ fun HorizontalTransition(visible: Boolean, content: @Composable () -> Unit) {
                 // Set the end width for the shrink animation to a quarter of the full width.
                 targetWidth = { fullWidth -> fullWidth / 10 },
                 // Overwrites the default animation with tween for this shrink animation.
-                animationSpec = tween(durationMillis = 400)
-            ) + fadeOut()
+                animationSpec = tween(durationMillis = 400),
+            ) + fadeOut(),
     ) {
         content()
     }
@@ -180,7 +180,7 @@ fun SlideTransition(visible: Boolean, content: @Composable () -> Unit) {
                 // Offsets the content by 1/3 of its width to the left, and slide towards right
                 initialOffsetX = { fullWidth -> -fullWidth / 3 },
                 // Overwrites the default animation with tween for this slide animation.
-                animationSpec = tween(durationMillis = 200)
+                animationSpec = tween(durationMillis = 200),
             ) +
                 fadeIn(
                     // Overwrites the default animation with tween
@@ -190,8 +190,8 @@ fun SlideTransition(visible: Boolean, content: @Composable () -> Unit) {
             slideOutHorizontally(
                 // Overwrites the ending position of the slide-out to 200 (pixels) to the right
                 targetOffsetX = { 200 },
-                animationSpec = spring(stiffness = Spring.StiffnessHigh)
-            ) + fadeOut()
+                animationSpec = spring(stiffness = Spring.StiffnessHigh),
+            ) + fadeOut(),
     ) {
         content()
     }
@@ -211,7 +211,7 @@ fun FadeTransition(visible: Boolean, content: @Composable () -> Unit) {
             fadeOut(
                 // Overwrites the default animation with tween
                 animationSpec = tween(durationMillis = 250)
-            )
+            ),
     ) {
         content()
     }
@@ -227,7 +227,7 @@ fun FullyLoadedTransition(visible: Boolean, content: @Composable () -> Unit) {
                 // produce a parallax effect
                 initialOffsetY = { -40 }
             ) + expandVertically(expandFrom = Alignment.Top) + fadeIn(initialAlpha = 0.3f),
-        exit = slideOutVertically() + shrinkVertically() + fadeOut()
+        exit = slideOutVertically() + shrinkVertically() + fadeOut(),
     ) {
         content()
     }

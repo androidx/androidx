@@ -125,7 +125,7 @@ class ImageTest {
                 Image(
                     modifier = Modifier.testTag(contentTag),
                     contentDescription = null,
-                    bitmap = createImageBitmap()
+                    bitmap = createImageBitmap(),
                 )
             }
         }
@@ -140,11 +140,11 @@ class ImageTest {
             Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + 1))
             Assert.assertEquals(
                 pathArgb,
-                getPixel(imageStartX + (imageWidth / 2) - 1, imageStartY + (imageHeight / 2) + 1)
+                getPixel(imageStartX + (imageWidth / 2) - 1, imageStartY + (imageHeight / 2) + 1),
             )
             Assert.assertEquals(
                 bgColorArgb,
-                getPixel(imageStartX + (imageWidth / 2) - 2, imageStartY + (imageHeight / 2) - 5)
+                getPixel(imageStartX + (imageWidth / 2) - 2, imageStartY + (imageHeight / 2) - 5),
             )
             Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + imageHeight - 1))
         }
@@ -166,11 +166,11 @@ class ImageTest {
                         createImageBitmap(),
                         IntOffset(
                             imageWidth / 2 - subsectionWidth / 2,
-                            imageHeight / 2 - subsectionHeight / 2
+                            imageHeight / 2 - subsectionHeight / 2,
                         ),
-                        IntSize(subsectionWidth, subsectionHeight)
+                        IntSize(subsectionWidth, subsectionHeight),
                     ),
-                    null
+                    null,
                 )
             }
         }
@@ -188,15 +188,15 @@ class ImageTest {
                 pathArgb,
                 getPixel(
                     imageStartX + (subsectionWidth / 2) - 1,
-                    imageStartY + (subsectionHeight / 2) + 1
-                )
+                    imageStartY + (subsectionHeight / 2) + 1,
+                ),
             )
             Assert.assertEquals(
                 bgColorArgb,
                 getPixel(
                     imageStartX + (subsectionWidth / 2) - 2,
-                    imageStartY + (subsectionHeight / 2) - 5
-                )
+                    imageStartY + (subsectionHeight / 2) - 5,
+                ),
             )
             Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + subsectionHeight - 1))
 
@@ -208,7 +208,7 @@ class ImageTest {
             // Verify top right region outside the subsection has a white background
             Assert.assertEquals(
                 boxBgArgb,
-                getPixel(imageStartX + subsectionWidth - 1, imageStartY - 1)
+                getPixel(imageStartX + subsectionWidth - 1, imageStartY - 1),
             )
             Assert.assertEquals(boxBgArgb, getPixel(imageStartX + subsectionWidth, imageStartY - 1))
             Assert.assertEquals(boxBgArgb, getPixel(imageStartX + subsectionWidth, imageStartY))
@@ -216,26 +216,26 @@ class ImageTest {
             // Verify bottom left region outside the subsection has a white background
             Assert.assertEquals(
                 boxBgArgb,
-                getPixel(imageStartX - 1, imageStartY + subsectionHeight - 1)
+                getPixel(imageStartX - 1, imageStartY + subsectionHeight - 1),
             )
             Assert.assertEquals(
                 boxBgArgb,
-                getPixel(imageStartX - 1, imageStartY + subsectionHeight)
+                getPixel(imageStartX - 1, imageStartY + subsectionHeight),
             )
             Assert.assertEquals(boxBgArgb, getPixel(imageStartX, imageStartY + subsectionHeight))
 
             // Verify bottom right region outside the subsection has a white background
             Assert.assertEquals(
                 boxBgArgb,
-                getPixel(imageStartX + subsectionWidth - 1, imageStartY + subsectionHeight)
+                getPixel(imageStartX + subsectionWidth - 1, imageStartY + subsectionHeight),
             )
             Assert.assertEquals(
                 boxBgArgb,
-                getPixel(imageStartX + subsectionWidth, imageStartY + subsectionHeight)
+                getPixel(imageStartX + subsectionWidth, imageStartY + subsectionHeight),
             )
             Assert.assertEquals(
                 boxBgArgb,
-                getPixel(imageStartX + subsectionWidth, imageStartY + subsectionHeight - 1)
+                getPixel(imageStartX + subsectionWidth, imageStartY + subsectionHeight - 1),
             )
         }
     }
@@ -262,8 +262,8 @@ class ImageTest {
                         Modifier.testTag(contentTag)
                             .size(
                                 (imageComposableWidth / density).dp,
-                                (imageComposableHeight / density).dp
-                            )
+                                (imageComposableHeight / density).dp,
+                            ),
                 )
             }
         }
@@ -279,19 +279,19 @@ class ImageTest {
                 pathArgb,
                 getPixel(
                     imageStartX + (imageComposableWidth / 2) - 5,
-                    imageStartY + (imageComposableHeight / 2) + 5
-                )
+                    imageStartY + (imageComposableHeight / 2) + 5,
+                ),
             )
             Assert.assertEquals(
                 bgColorArgb,
                 getPixel(
                     imageStartX + (imageComposableWidth / 2),
-                    imageStartY + (imageComposableHeight / 2) - 10
-                )
+                    imageStartY + (imageComposableHeight / 2) - 10,
+                ),
             )
             Assert.assertEquals(
                 pathArgb,
-                getPixel(imageStartX, imageStartY + imageComposableHeight - 1)
+                getPixel(imageStartX, imageStartY + imageComposableHeight - 1),
             )
         }
     }
@@ -310,7 +310,7 @@ class ImageTest {
                 density,
                 LayoutDirection.Ltr,
                 Canvas(ImageBitmap),
-                Size(imageWidth.toFloat(), imageHeight.toFloat())
+                Size(imageWidth.toFloat(), imageHeight.toFloat()),
             ) {
                 drawRect(color = Color.Blue)
             }
@@ -326,11 +326,11 @@ class ImageTest {
                         Modifier.testTag(contentTag)
                             .size(
                                 (imageComposableWidth / density.density).dp,
-                                (imageComposableHeight / density.density).dp
+                                (imageComposableHeight / density.density).dp,
                             ),
                     // Scale the image non-uniformly within the bounds of the composable
                     contentScale = ContentScale.FillBounds,
-                    alignment = Alignment.BottomEnd
+                    alignment = Alignment.BottomEnd,
                 )
             }
         }
@@ -359,11 +359,11 @@ class ImageTest {
                         Modifier.testTag(contentTag)
                             .size(
                                 (imageComposableWidth / density).dp,
-                                (imageComposableHeight / density).dp
+                                (imageComposableHeight / density).dp,
                             ),
                     // Intentionally do not scale up the contents of the ImageBitmap
                     contentScale = ContentScale.Inside,
-                    alignment = Alignment.BottomEnd
+                    alignment = Alignment.BottomEnd,
                 )
             }
         }
@@ -379,11 +379,11 @@ class ImageTest {
             Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + 1))
             Assert.assertEquals(
                 pathArgb,
-                getPixel(imageStartX + (imageWidth / 2) - 1, imageStartY + (imageHeight / 2) + 1)
+                getPixel(imageStartX + (imageWidth / 2) - 1, imageStartY + (imageHeight / 2) + 1),
             )
             Assert.assertEquals(
                 bgColorArgb,
-                getPixel(imageStartX + (imageWidth / 2) - 2, imageStartY + (imageHeight / 2) - 5)
+                getPixel(imageStartX + (imageWidth / 2) - 2, imageStartY + (imageHeight / 2) - 5),
             )
             Assert.assertEquals(pathArgb, getPixel(imageStartX, imageStartY + imageHeight - 1))
         }
@@ -412,7 +412,7 @@ class ImageTest {
                     modifier =
                         Modifier.sizeIn(minWidth = minWidth, minHeight = minHeight).drawBehind {
                             vectorDrawn = true
-                        }
+                        },
                 )
             }
         }
@@ -427,25 +427,25 @@ class ImageTest {
             Assert.assertEquals(containerBgColor, getPixel(imageStartX - 1, imageStartY - 1))
             Assert.assertEquals(
                 containerBgColor,
-                getPixel(imageStartX + boxWidth + 1, imageStartY - 1)
+                getPixel(imageStartX + boxWidth + 1, imageStartY - 1),
             )
             Assert.assertEquals(
                 containerBgColor,
-                getPixel(imageStartX + boxWidth + 1, imageStartY + boxHeight + 1)
+                getPixel(imageStartX + boxWidth + 1, imageStartY + boxHeight + 1),
             )
             Assert.assertEquals(
                 containerBgColor,
-                getPixel(imageStartX - 1, imageStartY + boxHeight + 1)
+                getPixel(imageStartX - 1, imageStartY + boxHeight + 1),
             )
 
             Assert.assertEquals(imageColor, getPixel(imageStartX, imageStartY + 15))
             Assert.assertEquals(
                 containerBgColor,
-                getPixel(imageStartX + boxWidth - 2, imageStartY - 1)
+                getPixel(imageStartX + boxWidth - 2, imageStartY - 1),
             )
             Assert.assertEquals(
                 imageColor,
-                getPixel(imageStartX + boxWidth - 10, imageStartY + boxHeight - 2)
+                getPixel(imageStartX + boxWidth - 10, imageStartY + boxHeight - 2),
             )
             Assert.assertEquals(imageColor, getPixel(imageStartX, imageStartY + boxHeight - 2))
         }
@@ -472,7 +472,7 @@ class ImageTest {
                     Modifier.testTag(testTag)
                         .background(Color.Green)
                         .heightIn(max = (heightDp / 2f).dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
         }
 
@@ -507,7 +507,7 @@ class ImageTest {
                             }
                         }
                         .size(50.dp),
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.FillBounds,
             )
         }
 
@@ -527,7 +527,7 @@ class ImageTest {
             Image(
                 bitmap = ImageBitmap(100, 100),
                 modifier = Modifier.testTag(testTag),
-                contentDescription = "asdf"
+                contentDescription = "asdf",
             )
         }
         rule
@@ -545,7 +545,7 @@ class ImageTest {
                 Image(
                     painter = ColorPainter(Color.Red),
                     modifier = Modifier.testTag(testTag),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
         }
@@ -583,7 +583,7 @@ class ImageTest {
                 bitmap = sampleBitmap,
                 contentDescription = "FilterQuality None test",
                 modifier = Modifier.size(size.dp).testTag(testTag),
-                filterQuality = FilterQuality.None
+                filterQuality = FilterQuality.None,
             )
         }
 
@@ -614,7 +614,7 @@ class ImageTest {
                 painter = painterResource(id = R.drawable.webp_test),
                 null,
                 contentScale = ContentScale.None,
-                modifier = Modifier.wrapContentSize().testTag(testTag)
+                modifier = Modifier.wrapContentSize().testTag(testTag),
             )
         }
 

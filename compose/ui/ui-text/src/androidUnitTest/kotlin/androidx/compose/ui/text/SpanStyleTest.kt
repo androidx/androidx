@@ -541,7 +541,7 @@ class SpanStyleTest {
                 SpanStyle(
                     color = Color.Green, // overridden by RHS
                     fontWeight = FontWeight.Bold, // from LHS,
-                    fontFamily = FontFamily.Cursive // from RHS
+                    fontFamily = FontFamily.Cursive, // from RHS
                 )
             )
     }

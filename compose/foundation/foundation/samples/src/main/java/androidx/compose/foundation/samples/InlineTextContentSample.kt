@@ -53,7 +53,7 @@ fun InlineTextContentSample() {
                     Placeholder(
                         width = 0.5.em,
                         height = 0.5.em,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                        placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline,
                     )
                 ) {
                     // This [Box] will fill maximum size, which is specified by the [Placeholder]
@@ -61,7 +61,7 @@ fun InlineTextContentSample() {
                     // TextUnit,
                     // and are converted into pixel by text layout.
                     Box(modifier = Modifier.fillMaxSize().background(color = Color.Red))
-                }
+                },
             )
         )
 

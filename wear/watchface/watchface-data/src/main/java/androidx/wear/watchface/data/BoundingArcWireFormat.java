@@ -29,10 +29,13 @@ import androidx.wear.watchface.complications.data.ComplicationExperimental;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** Wire format for BoundingArc. */
+/** Wire format for BoundingArc.
+ * @deprecated use Watch Face Format instead
+*/
 // TODO(b/230364881): Mark as @RestrictTo when BoundingArc is no longer experimental.
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
+@Deprecated
 @ComplicationExperimental
 public final class BoundingArcWireFormat implements VersionedParcelable, Parcelable {
 

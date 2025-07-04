@@ -84,7 +84,7 @@ fun SimpleAlignByInRow() {
         Text(
             text = "Text 1",
             fontSize = 40.sp,
-            modifier = Modifier.alignByBaseline().background(color = Color.Red)
+            modifier = Modifier.alignByBaseline().background(color = Color.Red),
         )
         Text(text = "Text 2", modifier = Modifier.alignByBaseline().background(color = Color.Cyan))
     }

@@ -63,10 +63,10 @@ fun LookaheadWithBoxWithConstraints() {
                     Modifier.fillMaxHeight()
                         .animateBounds(
                             this@LookaheadScope,
-                            if (halfSize) Modifier.fillMaxSize(0.5f) else Modifier.fillMaxWidth()
+                            if (halfSize) Modifier.fillMaxSize(0.5f) else Modifier.fillMaxWidth(),
                         )
                         .background(pastelColors[2]),
-                    verticalArrangement = Arrangement.SpaceEvenly
+                    verticalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     Column(
                         Modifier.border(1.dp, Color.Black, RoundedCornerShape(5.dp))
@@ -75,7 +75,7 @@ fun LookaheadWithBoxWithConstraints() {
                         Text("Regular Row: ")
                         Row(
                             Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
                             MyButton()
                             MyButton()
@@ -85,14 +85,14 @@ fun LookaheadWithBoxWithConstraints() {
                         var animate by remember { mutableStateOf(false) }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { animate = true }
+                            modifier = Modifier.clickable { animate = true },
                         ) {
                             RadioButton(selected = animate, onClick = { animate = true })
                             Text("Animate Bounds")
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { animate = false }
+                            modifier = Modifier.clickable { animate = false },
                         ) {
                             RadioButton(selected = !animate, onClick = { animate = false })
                             Text("No animation")
@@ -102,7 +102,7 @@ fun LookaheadWithBoxWithConstraints() {
                                 if (animate) {
                                         Modifier.animateBounds(
                                             lookaheadScope = this@LookaheadScope,
-                                            Modifier.fillMaxWidth()
+                                            Modifier.fillMaxWidth(),
                                         )
                                     } else {
                                         Modifier.fillMaxWidth()
@@ -110,12 +110,12 @@ fun LookaheadWithBoxWithConstraints() {
                                     .then(
                                         Modifier.border(1.dp, Color.Black, RoundedCornerShape(5.dp))
                                             .padding(top = 20.dp, bottom = 20.dp)
-                                    ),
+                                    )
                             ) {
                                 Text("SubcomposeLayout: ")
                                 Row(
                                     Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
                                 ) {
                                     MyButton()
                                     MyButton()
@@ -127,7 +127,7 @@ fun LookaheadWithBoxWithConstraints() {
                             if (maxWidth > 300.dp) {
                                 Row(
                                     Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
                                 ) {
                                     MyButton()
                                     MyButton()
@@ -154,7 +154,7 @@ fun RowScope.MyButton() {
                 .padding(5.dp)
                 .height(40.dp)
                 .background(pastelColors[0], RoundedCornerShape(50)),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text("Button")
     }
@@ -168,7 +168,7 @@ fun MyButton() {
                 .padding(5.dp)
                 .height(40.dp)
                 .background(pastelColors[0], RoundedCornerShape(50)),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text("Button")
     }

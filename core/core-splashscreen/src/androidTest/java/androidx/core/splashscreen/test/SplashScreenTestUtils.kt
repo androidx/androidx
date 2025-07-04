@@ -40,7 +40,7 @@ private const val LAUNCH_TIMEOUT: Long = 10000
 fun startActivityWithSplashScreen(
     activityClass: KClass<out SplashScreenTestControllerHolder>,
     device: UiDevice,
-    intentModifier: ((Intent) -> Unit)? = null
+    intentModifier: ((Intent) -> Unit)? = null,
 ): SplashScreenTestController {
     // Start from the home screen
     InstrumentationRegistry.getInstrumentation()
@@ -68,7 +68,7 @@ fun startActivityWithSplashScreen(
             Instrumentation.ActivityMonitor(
                 activityClass.qualifiedName!!,
                 Instrumentation.ActivityResult(0, Intent()),
-                false
+                false,
             ) {
             override fun onStartActivity(intent: Intent?): Instrumentation.ActivityResult? {
                 return if (intent?.component?.packageName == BASIC_SAMPLE_PACKAGE) {
@@ -83,7 +83,7 @@ fun startActivityWithSplashScreen(
     context.startActivity(
         intent,
         // Force the splash screen to be shown with an icon
-        Bundle().apply { putInt(KEY_SPLASH_SCREEN_STYLE, SPLASH_SCREEN_STYLE_ICON) }
+        Bundle().apply { putInt(KEY_SPLASH_SCREEN_STYLE, SPLASH_SCREEN_STYLE_ICON) },
     )
     Assert.assertTrue(
         device.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), LAUNCH_TIMEOUT)

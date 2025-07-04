@@ -73,7 +73,7 @@ fun SimpleScaffoldWithTopBar() {
             Color(0xFFffe9d6.toInt()),
             Color(0xFFfffbd0.toInt()),
             Color(0xFFe3ffd9.toInt()),
-            Color(0xFFd0fff8.toInt())
+            Color(0xFFd0fff8.toInt()),
         )
 
     Scaffold(
@@ -84,7 +84,7 @@ fun SimpleScaffoldWithTopBar() {
                     IconButton(onClick = { /* "Open nav drawer" */ }) {
                         Icon(Icons.Filled.Menu, contentDescription = "Localized description")
                     }
-                }
+                },
             )
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -95,13 +95,13 @@ fun SimpleScaffoldWithTopBar() {
             LazyColumn(
                 // consume insets as scaffold doesn't do it by default
                 modifier = Modifier.consumeWindowInsets(innerPadding),
-                contentPadding = innerPadding
+                contentPadding = innerPadding,
             ) {
                 items(count = 100) {
                     Box(Modifier.fillMaxWidth().height(50.dp).background(colors[it % colors.size]))
                 }
             }
-        }
+        },
     )
 }
 
@@ -127,9 +127,9 @@ fun ScaffoldWithSimpleSnackbar() {
         content = { innerPadding ->
             Text(
                 text = "Body content",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -151,7 +151,7 @@ fun ScaffoldWithIndefiniteSnackbar() {
                             message = "Snackbar # ${++clickCount}",
                             actionLabel = "Action",
                             withDismissAction = true,
-                            duration = SnackbarDuration.Indefinite
+                            duration = SnackbarDuration.Indefinite,
                         )
                     }
                 }
@@ -162,9 +162,9 @@ fun ScaffoldWithIndefiniteSnackbar() {
         content = { innerPadding ->
             Text(
                 text = "Body content",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -196,7 +196,7 @@ fun ScaffoldWithCustomSnackbar() {
                     if (isError) {
                         ButtonDefaults.textButtonColors(
                             containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.error
+                            contentColor = MaterialTheme.colorScheme.error,
                         )
                     } else {
                         ButtonDefaults.textButtonColors(
@@ -210,11 +210,11 @@ fun ScaffoldWithCustomSnackbar() {
                     action = {
                         TextButton(
                             onClick = { if (isError) data.dismiss() else data.performAction() },
-                            colors = buttonColor
+                            colors = buttonColor,
                         ) {
                             Text(data.visuals.actionLabel ?: "")
                         }
-                    }
+                    },
                 ) {
                     Text(data.visuals.message)
                 }
@@ -228,7 +228,7 @@ fun ScaffoldWithCustomSnackbar() {
                         snackbarHostState.showSnackbar(
                             SnackbarVisualsWithError(
                                 "Snackbar # ${++clickCount}",
-                                isError = clickCount % 2 != 0
+                                isError = clickCount % 2 != 0,
                             )
                         )
                     }
@@ -240,9 +240,9 @@ fun ScaffoldWithCustomSnackbar() {
         content = { innerPadding ->
             Text(
                 text = "Custom Snackbar Demo",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -260,7 +260,7 @@ fun ScaffoldWithCoroutinesSnackbar() {
             val result =
                 snackbarHostState.showSnackbar(
                     message = "Snackbar # $index",
-                    actionLabel = "Action on $index"
+                    actionLabel = "Action on $index",
                 )
             when (result) {
                 SnackbarResult.ActionPerformed -> {
@@ -288,9 +288,9 @@ fun ScaffoldWithCoroutinesSnackbar() {
         content = { innerPadding ->
             Text(
                 "Snackbar demo",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -327,8 +327,8 @@ fun ScaffoldWithMultilineSnackbar() {
         content = { innerPadding ->
             Text(
                 text = "Multiline Snackbar Demo",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }

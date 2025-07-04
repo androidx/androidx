@@ -42,7 +42,7 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)

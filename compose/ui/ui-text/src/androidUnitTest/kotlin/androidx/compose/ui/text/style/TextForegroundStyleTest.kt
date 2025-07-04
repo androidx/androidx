@@ -184,7 +184,7 @@ class TextForegroundStyleTest {
             .isEqualTo(
                 TextForegroundStyle.from(
                     lerpDiscrete(defaultBrush, newBrush, 0.6f),
-                    lerp(0.4f, 0.7f, 0.6f)
+                    lerp(0.4f, 0.7f, 0.6f),
                 )
             )
     }

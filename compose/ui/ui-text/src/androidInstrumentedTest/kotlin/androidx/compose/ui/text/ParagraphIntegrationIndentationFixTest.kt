@@ -17,7 +17,12 @@
 package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +35,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,6 +82,49 @@ class ParagraphIntegrationIndentationFixTest {
     }
 
     @Test
+    fun drawParagraphIndentsCorrectly_whenPaintedRepeatedly() {
+        val width1 = charWidth * 3
+        val subject =
+            Paragraph(
+                text = ltrChar.repeat(repeatCount),
+                style =
+                    TextStyle(
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 1.sp,
+                        lineHeight = 24.sp,
+                        lineHeightStyle =
+                            LineHeightStyle(
+                                alignment = LineHeightStyle.Alignment.Center,
+                                trim = LineHeightStyle.Trim.None,
+                                mode = LineHeightStyle.Mode.Fixed,
+                            ),
+                    ),
+                maxLines = lastLine + 1,
+                overflow = TextOverflow.Ellipsis,
+                constraints = Constraints(maxWidth = width1),
+                density = Density(density = 1f),
+                fontFamilyResolver = UncachedFontFamilyResolver(getInstrumentation().context),
+            )
+
+        val width = subject.width.ceilToInt()
+        val height = subject.height.ceilToInt()
+        val bitmap = ImageBitmap(width, height)
+        val canvas = Canvas(bitmap)
+        val paint = Paint()
+        paint.color = Color.Black
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+
+        subject.paint(canvas, Color.Blue)
+        val initialPixels = bitmap.dumpFirstCharPixels()
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
+
+        subject.paint(canvas, Color.Blue)
+        val finalPixels = bitmap.dumpFirstCharPixels()
+
+        assertThat(initialPixels).isEqualTo(finalPixels)
+    }
+
+    @Test
     fun getLineLeftAndGetLineRight_Rtl() {
         val paragraph = paragraph(rtlChar.repeat(repeatCount))
         for (line in 0 until paragraph.lineCount) {
@@ -96,7 +145,7 @@ class ParagraphIntegrationIndentationFixTest {
         val paragraph =
             paragraph(
                 text = ltrChar.repeat(repeatCount),
-                textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp)
+                textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp),
             )
         for (line in 0 until paragraph.lineCount) {
             if (hasEdgeLetterSpacingBugFix()) {
@@ -236,7 +285,7 @@ class ParagraphIntegrationIndentationFixTest {
             paragraph(
                 text = ltrChar.repeat(repeatCount),
                 textIndent = TextIndent(firstLine = charWidth.sp, restLine = charWidth.sp),
-                letterSpacing = letterSpacing.sp
+                letterSpacing = letterSpacing.sp,
             )
         for (line in 0 until paragraph.lineCount) {
             assertThat(paragraph.getLineRight(line)).isEqualTo(paragraph.width)
@@ -331,7 +380,7 @@ class ParagraphIntegrationIndentationFixTest {
     private fun paragraph(
         text: String = "",
         textIndent: TextIndent = TextIndent.None,
-        letterSpacing: TextUnit = emLetterSpacing
+        letterSpacing: TextUnit = emLetterSpacing,
     ): Paragraph {
         val width = charWidth * 3
 
@@ -343,14 +392,20 @@ class ParagraphIntegrationIndentationFixTest {
                     fontSize = fontSize.sp,
                     textAlign = TextAlign.End,
                     letterSpacing = letterSpacing,
-                    textIndent = textIndent
+                    textIndent = textIndent,
                 ),
             maxLines = lastLine + 1,
             overflow = TextOverflow.Ellipsis,
             constraints = Constraints(maxWidth = width),
             density = Density(density = 1f),
             fontFamilyResolver =
-                UncachedFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context)
+                UncachedFontFamilyResolver(InstrumentationRegistry.getInstrumentation().context),
         )
+    }
+
+    private fun ImageBitmap.dumpFirstCharPixels(): IntArray {
+        val out = IntArray(charWidth * charWidth)
+        readPixels(out, width = charWidth, height = charWidth)
+        return out
     }
 }

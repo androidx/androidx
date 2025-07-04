@@ -32,5 +32,5 @@ internal actual fun MultiParagraph.drawMultiParagraph(
     shadow: Shadow?,
     decoration: TextDecoration?,
     drawStyle: DrawStyle?,
-    blendMode: BlendMode
+    blendMode: BlendMode,
 ): Unit = implementedInJetBrainsFork()

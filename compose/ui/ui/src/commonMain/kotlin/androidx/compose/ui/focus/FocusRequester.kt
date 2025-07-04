@@ -17,6 +17,7 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
@@ -48,7 +49,7 @@ private const val InvalidFocusRequesterInvocation =
  * @see androidx.compose.ui.focus.focusRequester
  */
 @Stable
-class FocusRequester {
+class FocusRequester @RememberInComposition constructor() {
 
     internal val focusRequesterNodes: MutableVector<FocusRequesterModifierNode> = mutableVectorOf()
 
@@ -62,7 +63,7 @@ class FocusRequester {
     @Deprecated(
         message = "use the version the has a FocusDirection",
         replaceWith = ReplaceWith("this.requestFocus()"),
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun requestFocus() {
         requestFocus(Enter)
@@ -108,7 +109,10 @@ class FocusRequester {
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
     fun captureFocus(): Boolean {
-        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        if (focusRequesterNodes.isEmpty()) {
+            println("$FocusWarning: $FocusRequesterNotInitialized")
+            return false
+        }
         focusRequesterNodes.forEach {
             if (it.captureFocus()) {
                 return true
@@ -131,7 +135,10 @@ class FocusRequester {
      * @sample androidx.compose.ui.samples.CaptureFocusSample
      */
     fun freeFocus(): Boolean {
-        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        if (focusRequesterNodes.isEmpty()) {
+            println("$FocusWarning: $FocusRequesterNotInitialized")
+            return false
+        }
         focusRequesterNodes.forEach {
             if (it.freeFocus()) {
                 return true
@@ -150,7 +157,10 @@ class FocusRequester {
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
     fun saveFocusedChild(): Boolean {
-        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        if (focusRequesterNodes.isEmpty()) {
+            println("$FocusWarning: $FocusRequesterNotInitialized")
+            return false
+        }
         focusRequesterNodes.forEach { if (it.saveFocusedChild()) return true }
         return false
     }
@@ -165,7 +175,10 @@ class FocusRequester {
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
     fun restoreFocusedChild(): Boolean {
-        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        if (focusRequesterNodes.isEmpty()) {
+            println("$FocusWarning: $FocusRequesterNotInitialized")
+            return false
+        }
         var success = false
         focusRequesterNodes.forEach { success = it.restoreFocusedChild() || success }
         return success
@@ -252,7 +265,10 @@ class FocusRequester {
     private inline fun findFocusTarget(onFound: (FocusTargetNode) -> Boolean): Boolean {
         check(this !== Default) { InvalidFocusRequesterInvocation }
         check(this !== Cancel) { InvalidFocusRequesterInvocation }
-        check(focusRequesterNodes.isNotEmpty()) { FocusRequesterNotInitialized }
+        if (focusRequesterNodes.isEmpty()) {
+            println("$FocusWarning: $FocusRequesterNotInitialized")
+            return false
+        }
         var success = false
         focusRequesterNodes.forEach { node ->
             node.visitChildren(Nodes.FocusTarget) {

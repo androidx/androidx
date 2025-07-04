@@ -21,15 +21,13 @@ import java.io.InputStream
 import javax.tools.JavaFileObject
 
 /** Abstraction for a generated resource file. */
-sealed class Resource(
-    val relativePath: String,
-) {
+sealed class Resource(val relativePath: String) {
     abstract fun openInputStream(): InputStream
 }
 
 internal class JavaFileObjectResource(
     relativePath: String,
-    private val fileObject: JavaFileObject
+    private val fileObject: JavaFileObject,
 ) : Resource(relativePath) {
     override fun openInputStream(): InputStream {
         return fileObject.openInputStream()

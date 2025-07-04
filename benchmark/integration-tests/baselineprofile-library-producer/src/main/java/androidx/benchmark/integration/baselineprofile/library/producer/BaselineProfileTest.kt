@@ -43,7 +43,7 @@ class BaselineProfileTest {
             profileBlock = {
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()
-            }
+            },
         )
     }
 

@@ -33,7 +33,7 @@ data class GeneratedDataPackage1D(val lastFrame: Long, val points: List<Generate
 fun DataGenerator.generateData1D(
     params: DataGenerationParams1D,
     lastValue: Any? = null,
-    lastFrame: Long
+    lastFrame: Long,
 ): GeneratedDataPackage1D {
 
     var frame = lastFrame
@@ -72,7 +72,7 @@ fun DataGenerator.generateData1D(
 /** Runnable for value graph data generation */
 fun DataGenerator.get1DRunnable(
     params: DataGenerationParams1D,
-    triggerDataListeners: (GeneratedDataPoint1D) -> Unit
+    triggerDataListeners: (GeneratedDataPoint1D) -> Unit,
 ): Runnable = Runnable {
     var lastValue: Any? = null
     var frameNumber = 1L

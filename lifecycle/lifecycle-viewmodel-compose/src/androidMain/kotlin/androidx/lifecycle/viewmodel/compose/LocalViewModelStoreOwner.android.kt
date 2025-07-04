@@ -22,5 +22,5 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 
 @Composable
-internal actual fun findViewTreeViewModelStoreOwner(): ViewModelStoreOwner? =
+internal actual fun findDefaultViewModelStoreOwner(): ViewModelStoreOwner? =
     LocalView.current.findViewTreeViewModelStoreOwner()

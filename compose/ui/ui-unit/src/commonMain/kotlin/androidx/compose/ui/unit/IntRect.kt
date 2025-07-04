@@ -32,6 +32,7 @@ import kotlin.math.absoluteValue
  * given origin.
  */
 @Immutable
+@Suppress("DataClassDefinition")
 data class IntRect(
     /** The offset of the left edge of this rectangle from the x axis. */
     @Stable val left: Int,
@@ -43,7 +44,7 @@ data class IntRect(
     @Stable val right: Int,
 
     /** The offset of the bottom edge of this rectangle from the y axis. */
-    @Stable val bottom: Int
+    @Stable val bottom: Int,
 ) {
     companion object {
 
@@ -115,7 +116,7 @@ data class IntRect(
             kotlin.math.max(left, other.left),
             kotlin.math.max(top, other.top),
             kotlin.math.min(right, other.right),
-            kotlin.math.min(bottom, other.bottom)
+            kotlin.math.min(bottom, other.bottom),
         )
     }
 
@@ -207,7 +208,7 @@ fun IntRect(offset: IntOffset, size: IntSize) =
         left = offset.x,
         top = offset.y,
         right = offset.x + size.width,
-        bottom = offset.y + size.height
+        bottom = offset.y + size.height,
     )
 
 /**
@@ -250,7 +251,7 @@ fun lerp(start: IntRect, stop: IntRect, fraction: Float): IntRect {
         lerp(start.left, stop.left, fraction),
         lerp(start.top, stop.top, fraction),
         lerp(start.right, stop.right, fraction),
-        lerp(start.bottom, stop.bottom, fraction)
+        lerp(start.bottom, stop.bottom, fraction),
     )
 }
 
@@ -261,7 +262,7 @@ fun IntRect.toRect(): Rect =
         left = left.toFloat(),
         top = top.toFloat(),
         right = right.toFloat(),
-        bottom = bottom.toFloat()
+        bottom = bottom.toFloat(),
     )
 
 /** Rounds a [Rect] to an [IntRect] */
@@ -271,5 +272,5 @@ fun Rect.roundToIntRect(): IntRect =
         left = left.fastRoundToInt(),
         top = top.fastRoundToInt(),
         right = right.fastRoundToInt(),
-        bottom = bottom.fastRoundToInt()
+        bottom = bottom.fastRoundToInt(),
     )

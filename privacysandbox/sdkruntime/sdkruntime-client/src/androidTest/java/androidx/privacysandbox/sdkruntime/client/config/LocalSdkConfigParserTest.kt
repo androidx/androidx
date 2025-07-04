@@ -64,8 +64,8 @@ class LocalSdkConfigParserTest {
                     resourceRemapping =
                         ResourceRemappingConfig(
                             rPackageClassName = "com.test.sdk.RPackage",
-                            packageId = 42
-                        )
+                            packageId = 42,
+                        ),
                 )
             )
     }
@@ -91,7 +91,7 @@ class LocalSdkConfigParserTest {
                     dexPaths = listOf("1.dex"),
                     entryPoint = "compat.sdk.provider",
                     javaResourcesRoot = null,
-                    resourceRemapping = null
+                    resourceRemapping = null,
                 )
             )
     }
@@ -106,7 +106,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "No compat-entrypoint tag found"
+            reason = "No compat-entrypoint tag found",
         )
     }
 
@@ -122,7 +122,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "Duplicate compat-entrypoint tag found"
+            reason = "Duplicate compat-entrypoint tag found",
         )
     }
 
@@ -136,7 +136,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "No dex-path tags found"
+            reason = "No dex-path tags found",
         )
     }
 
@@ -153,7 +153,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "Duplicate java-resources-root-path tag found"
+            reason = "Duplicate java-resources-root-path tag found",
         )
     }
 
@@ -176,7 +176,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "Duplicate resource-id-remapping tag found"
+            reason = "Duplicate resource-id-remapping tag found",
         )
     }
 
@@ -194,7 +194,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "No r-package-class tag found"
+            reason = "No r-package-class tag found",
         )
     }
 
@@ -214,7 +214,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "Duplicate r-package-class tag found"
+            reason = "Duplicate r-package-class tag found",
         )
     }
 
@@ -232,7 +232,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "No resources-package-id tag found"
+            reason = "No resources-package-id tag found",
         )
     }
 
@@ -252,7 +252,7 @@ class LocalSdkConfigParserTest {
                 </compat-config>
             """
                     .trimIndent(),
-            reason = "Duplicate resources-package-id tag found"
+            reason = "Duplicate resources-package-id tag found",
         )
     }
 
@@ -263,7 +263,7 @@ class LocalSdkConfigParserTest {
     private fun tryParse(
         xml: String,
         packageName: String = "sdkPackageName",
-        versionMajor: Int? = null
+        versionMajor: Int? = null,
     ): LocalSdkConfig {
         ByteArrayInputStream(xml.toByteArray()).use { inputStream ->
             return parse(inputStream, packageName, versionMajor)

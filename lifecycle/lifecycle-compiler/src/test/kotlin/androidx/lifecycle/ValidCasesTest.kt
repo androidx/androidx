@@ -55,7 +55,7 @@ class ValidCasesTest {
             .and()
             .generatesSources(
                 load("foo.InheritanceOk2Base_LifecycleAdapter", "expected"),
-                load("foo.InheritanceOk2Derived_LifecycleAdapter", "expected")
+                load("foo.InheritanceOk2Derived_LifecycleAdapter", "expected"),
             )
             .and()
             .generatesProGuardRule("foo.InheritanceOk2Base.pro")
@@ -70,7 +70,7 @@ class ValidCasesTest {
             .and()
             .generatesSources(
                 load("foo.InheritanceOk3Base_LifecycleAdapter", "expected"),
-                load("foo.InheritanceOk3Derived_LifecycleAdapter", "expected")
+                load("foo.InheritanceOk3Derived_LifecycleAdapter", "expected"),
             )
             .and()
             .generatesProGuardRule("foo.InheritanceOk3Base.pro")
@@ -96,7 +96,7 @@ class ValidCasesTest {
             .generatesSources(
                 load("foo.InterfaceOk2Base_LifecycleAdapter", "expected"),
                 load("foo.InterfaceOk2Derived_LifecycleAdapter", "expected"),
-                load("foo.InterfaceOk2Interface_LifecycleAdapter", "expected")
+                load("foo.InterfaceOk2Interface_LifecycleAdapter", "expected"),
             )
             .and()
             .generatesProGuardRule("foo.InterfaceOk2Base.pro")
@@ -113,7 +113,7 @@ class ValidCasesTest {
             .and()
             .generatesSources(
                 load("foo.DifferentPackagesBase1_LifecycleAdapter", "expected"),
-                load("bar.DifferentPackagesDerived1_LifecycleAdapter", "expected")
+                load("bar.DifferentPackagesDerived1_LifecycleAdapter", "expected"),
             )
             .and()
             .generatesProGuardRule("foo.DifferentPackagesBase1.pro")
@@ -128,7 +128,7 @@ class ValidCasesTest {
             .and()
             .generatesSources(
                 load("foo.DifferentPackagesBase2_LifecycleAdapter", "expected"),
-                load("bar.DifferentPackagesDerived2_LifecycleAdapter", "expected")
+                load("bar.DifferentPackagesDerived2_LifecycleAdapter", "expected"),
             )
             .and()
             .generatesProGuardRule("foo.DifferentPackagesPreBase2.pro")
@@ -170,7 +170,7 @@ class ValidCasesTest {
     private fun doesntGenerateClass(
         compile: CompileTester.SuccessfulCompilationClause,
         packageName: String,
-        className: String
+        className: String,
     ) {
         try {
             compile

@@ -111,7 +111,7 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
         r7ZWoSetF/oY3E0barCIxKDhnSsN84OGIM6fkNTJn0+5Pk2SPsanpL+m+Dt0
         Ne8eIePgnoOKgxWsOljDew7Wcf8ITMBG9QhzAssCS3StApbApsCUwAOBosBD
         gfcFPhD4UOCj5Ej9ByMF+2JjBwAA
-        """
+        """,
         )
 
     @Test
@@ -188,7 +188,7 @@ class ComposableFlowOperatorDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                flowStub
+                flowStub,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -342,7 +342,7 @@ src/androidx/compose/runtime/foo/test.kt:64: Error: Flow operator functions shou
             """
                 ),
                 Stubs.Composable,
-                flowStub
+                flowStub,
             )
             .run()
             .expectClean()

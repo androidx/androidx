@@ -105,7 +105,7 @@ class ComposeTapIntegrationBenchmark {
                     0,
                     arrayOf(PointerProperties(0)),
                     arrayOf(PointerCoords(0f, y)),
-                    rootView
+                    rootView,
                 )
 
             val up =
@@ -116,7 +116,7 @@ class ComposeTapIntegrationBenchmark {
                     0,
                     arrayOf(PointerProperties(0)),
                     arrayOf(PointerCoords(0f, y)),
-                    rootView
+                    rootView,
                 )
 
             benchmarkRule.measureRepeatedOnUiThread {
@@ -158,7 +158,7 @@ class ComposeTapIntegrationBenchmark {
                             }
                         }
                         .fillMaxWidth()
-                        .requiredHeight(itemHeightDp)
+                        .requiredHeight(itemHeightDp),
             )
         }
     }

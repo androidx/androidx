@@ -1,0 +1,6 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.runtime.saveable/rememberSaveable(kotlin/Array<out kotlin/Any?>, androidx.compose.runtime.saveable/Saver<#A, out kotlin/Any>, kotlin/String?, kotlin/Function0<#A>) from androidx.compose.runtime:runtime-saveable
+[linuxX64]: Removed declaration androidx.compose.runtime.saveable/rememberSaveable(kotlin/Array<out kotlin/Any?>, androidx.compose.runtime.saveable/Saver<#A, out kotlin/Any>, kotlin/String?, kotlin/Function0<androidx.compose.runtime/MutableState<#A>>) from androidx.compose.runtime:runtime-saveable
+[linuxX64]: Removed declaration androidx.compose.runtime.saveable/rememberSaveableStateHolder() from androidx.compose.runtime:runtime-saveable
+[linuxX64]: Removed declaration SaveableStateProvider(kotlin/Any, kotlin/Function0<kotlin/Unit>) from androidx.compose.runtime.saveable/SaveableStateHolder
+[linuxX64]: Added declaration SaveableStateProvider(kotlin/Any, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) to androidx.compose.runtime.saveable/SaveableStateHolder

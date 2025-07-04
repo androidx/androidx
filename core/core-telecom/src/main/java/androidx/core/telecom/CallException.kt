@@ -46,7 +46,7 @@ public class CallException(@CallErrorCode public val code: Int = ERROR_UNKNOWN) 
             ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME,
             ERROR_OPERATION_TIMED_OUT,
             ERROR_CALL_DOES_NOT_SUPPORT_HOLD,
-            ERROR_BLUETOOTH_DEVICE_IS_NULL
+            ERROR_BLUETOOTH_DEVICE_IS_NULL,
         )
         public annotation class CallErrorCode
 

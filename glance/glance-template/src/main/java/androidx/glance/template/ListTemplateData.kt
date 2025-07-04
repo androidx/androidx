@@ -31,10 +31,10 @@ package androidx.glance.template
  * @param listContent List of items by [ListTemplateItem]. Default to empty list.
  * @param listStyle The level of data details by [ListStyle]. Default to the [ListStyle.Full] level.
  */
-class ListTemplateData(
-    val headerBlock: HeaderBlock? = null,
-    val listContent: List<ListTemplateItem> = listOf(),
-    val listStyle: ListStyle = ListStyle.Full
+public class ListTemplateData(
+    public val headerBlock: HeaderBlock? = null,
+    public val listContent: List<ListTemplateItem> = listOf(),
+    public val listStyle: ListStyle = ListStyle.Full,
 ) {
 
     override fun hashCode(): Int {
@@ -72,10 +72,10 @@ class ListTemplateData(
  * @param imageBlock The image block for a list item defined by [ImageBlock].
  * @param actionBlock The item onClick action buttons defined by [ActionBlock].
  */
-class ListTemplateItem(
-    val textBlock: TextBlock,
-    val imageBlock: ImageBlock? = null,
-    val actionBlock: ActionBlock? = null,
+public class ListTemplateItem(
+    public val textBlock: TextBlock,
+    public val imageBlock: ImageBlock? = null,
+    public val actionBlock: ActionBlock? = null,
 ) {
 
     override fun hashCode(): Int {
@@ -109,12 +109,12 @@ class ListTemplateItem(
  * Brief style shows no header.
  */
 @JvmInline
-value class ListStyle private constructor(private val value: Int) {
-    companion object {
+public value class ListStyle private constructor(private val value: Int) {
+    public companion object {
         /** Show list data in full details relative to the platform. */
-        val Full: ListStyle = ListStyle(0)
+        public val Full: ListStyle = ListStyle(0)
 
         /** Show list data in minimal details relative to the platform. */
-        val Brief: ListStyle = ListStyle(1)
+        public val Brief: ListStyle = ListStyle(1)
     }
 }

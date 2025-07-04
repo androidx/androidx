@@ -43,41 +43,17 @@ internal object HctSolver {
     // Matrix used when converting from linear RGB to CAM16.
     private val SCALED_DISCOUNT_FROM_LINRGB: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                0.001200833568784504,
-                0.002389694492170889,
-                0.0002795742885861124,
-            ),
-            doubleArrayOf(
-                0.0005891086651375999,
-                0.0029785502573438758,
-                0.0003270666104008398,
-            ),
-            doubleArrayOf(
-                0.00010146692491640572,
-                0.0005364214359186694,
-                0.0032979401770712076,
-            ),
+            doubleArrayOf(0.001200833568784504, 0.002389694492170889, 0.0002795742885861124),
+            doubleArrayOf(0.0005891086651375999, 0.0029785502573438758, 0.0003270666104008398),
+            doubleArrayOf(0.00010146692491640572, 0.0005364214359186694, 0.0032979401770712076),
         )
 
     // Matrix used when converting from CAM16 to linear RGB.
     private val LINRGB_FROM_SCALED_DISCOUNT: Array<DoubleArray> =
         arrayOf(
-            doubleArrayOf(
-                1373.2198709594231,
-                -1100.4251190754821,
-                -7.278681089101213,
-            ),
-            doubleArrayOf(
-                -271.815969077903,
-                559.6580465940733,
-                -32.46047482791194,
-            ),
-            doubleArrayOf(
-                1.9622899599665666,
-                -57.173814538844006,
-                308.7233197812385,
-            ),
+            doubleArrayOf(1373.2198709594231, -1100.4251190754821, -7.278681089101213),
+            doubleArrayOf(-271.815969077903, 559.6580465940733, -32.46047482791194),
+            doubleArrayOf(1.9622899599665666, -57.173814538844006, 308.7233197812385),
         )
 
     // Weights for transforming a set of linear RGB coordinates to Y in XYZ.
@@ -464,7 +440,7 @@ internal object HctSolver {
         source: DoubleArray,
         coordinate: Double,
         target: DoubleArray,
-        axis: Int
+        axis: Int,
     ): DoubleArray {
         val t = intercept(source[axis], coordinate, target[axis])
         return lerpPoint(source, t, target)
@@ -611,7 +587,7 @@ internal object HctSolver {
         return CamUtils.argbFromLinrgbComponents(
             (left[0] + right[0]) / 2,
             (left[1] + right[1]) / 2,
-            (left[2] + right[2]) / 2
+            (left[2] + right[2]) / 2,
         )
     }
 

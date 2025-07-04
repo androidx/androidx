@@ -29,7 +29,7 @@ import org.antlr.v4.runtime.tree.TerminalNode
 class QueryVisitor(
     private val original: String,
     private val syntaxErrors: List<String>,
-    statement: ParseTree
+    statement: ParseTree,
 ) : SQLiteParserBaseVisitor<Void?>() {
     private val bindingExpressions = arrayListOf<BindParameterNode>()
     // table name alias mappings
@@ -130,7 +130,7 @@ class QueryVisitor(
                 tableNames.add(
                     Table(
                         unescapeIdentifier(tableName),
-                        unescapeIdentifier(tableAlias ?: tableName)
+                        unescapeIdentifier(tableAlias ?: tableName),
                     )
                 )
             }
@@ -184,7 +184,7 @@ class QueryVisitor(
                 "unicode",
                 "unlikely",
                 "upper",
-                "zeroblob"
+                "zeroblob",
             )
     }
 }
@@ -200,7 +200,7 @@ class SqlParser {
                     QueryVisitor(
                             original = input,
                             syntaxErrors = syntaxErrors,
-                            statement = statement
+                            statement = statement,
                         )
                         .createParsedQuery()
                 },
@@ -213,7 +213,7 @@ class SqlParser {
                         hasTopStarProjection = null,
                         syntaxErrors = syntaxErrors,
                     )
-                }
+                },
             )
 
         fun isValidIdentifier(input: String): Boolean =
@@ -235,7 +235,7 @@ class SqlParser {
 
 data class BindParameterNode(
     private val node: TerminalNode,
-    val isMultiple: Boolean // true if this is a multi-param node
+    val isMultiple: Boolean, // true if this is a multi-param node
 ) : TerminalNode by node
 
 enum class QueryType {
@@ -269,13 +269,13 @@ enum class SQLTypeAffinity {
                     XTypeName.PRIMITIVE_BYTE,
                     XTypeName.PRIMITIVE_CHAR,
                     XTypeName.PRIMITIVE_LONG,
-                    XTypeName.PRIMITIVE_SHORT
+                    XTypeName.PRIMITIVE_SHORT,
                 )
             REAL ->
                 withBoxedAndNullableTypes(
                     env,
                     XTypeName.PRIMITIVE_DOUBLE,
-                    XTypeName.PRIMITIVE_FLOAT
+                    XTypeName.PRIMITIVE_FLOAT,
                 )
             BLOB -> withBoxedAndNullableTypes(env, XTypeName.getArrayName(XTypeName.PRIMITIVE_BYTE))
             else -> null
@@ -289,7 +289,7 @@ enum class SQLTypeAffinity {
      */
     private fun withBoxedAndNullableTypes(
         env: XProcessingEnv,
-        vararg typeNames: XTypeName
+        vararg typeNames: XTypeName,
     ): List<XType> {
         return typeNames
             .flatMap { typeName ->
@@ -342,5 +342,5 @@ enum class Collate {
 
 enum class FtsVersion {
     FTS3,
-    FTS4
+    FTS4,
 }

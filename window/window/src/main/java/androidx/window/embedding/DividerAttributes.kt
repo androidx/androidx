@@ -52,7 +52,7 @@ private constructor(
     @RequiresWindowSdkExtension(6)
     private constructor(
         @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int = WIDTH_SYSTEM_DEFAULT,
-        @ColorInt color: Int = COLOR_SYSTEM_DEFAULT
+        @ColorInt color: Int = COLOR_SYSTEM_DEFAULT,
     ) : DividerAttributes(widthDp, color) {
 
         override fun equals(other: Any?): Boolean {
@@ -133,6 +133,10 @@ private constructor(
      * @property dragRange the range that a divider is allowed to be dragged. When the user drags
      *   the divider beyond this range, the system will choose to either fully expand the container
      *   or move the divider back into the range.
+     * @property isDraggingToFullscreenAllowed if `true`, the user is allowed to drag beyond the
+     *   specified range temporarily, and when dragging is finished, the system will choose to
+     *   either fully expand the larger container or move the divider back to the range limit.
+     *   Default to `false`.
      * @see SplitAttributes.Builder.setDividerAttributes
      */
     class DraggableDividerAttributes
@@ -141,22 +145,29 @@ private constructor(
         @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int = WIDTH_SYSTEM_DEFAULT,
         @ColorInt color: Int = COLOR_SYSTEM_DEFAULT,
         val dragRange: DragRange = DragRange.DRAG_RANGE_SYSTEM_DEFAULT,
+        val isDraggingToFullscreenAllowed: Boolean = false,
     ) : DividerAttributes(widthDp, color) {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is DraggableDividerAttributes) return false
-            return widthDp == other.widthDp && color == other.color && dragRange == other.dragRange
+            return widthDp == other.widthDp &&
+                color == other.color &&
+                dragRange == other.dragRange &&
+                isDraggingToFullscreenAllowed == other.isDraggingToFullscreenAllowed
         }
 
-        override fun hashCode(): Int = (widthDp * 31 + color) * 31 + dragRange.hashCode()
+        override fun hashCode(): Int =
+            (((widthDp * 31 + color) * 31 + dragRange.hashCode()) * 31 +
+                isDraggingToFullscreenAllowed.hashCode())
 
         override fun toString(): String =
-            DividerAttributes::class.java.simpleName +
+            DraggableDividerAttributes::class.java.simpleName +
                 "{" +
                 "width=$widthDp, " +
                 "color=$color, " +
-                "primaryContainerDragRange=$dragRange" +
+                "primaryContainerDragRange=$dragRange, " +
+                "isDraggingToFullscreenAllowed=$isDraggingToFullscreenAllowed" +
                 "}"
 
         /**
@@ -173,6 +184,8 @@ private constructor(
 
             private var dragRange: DragRange = DragRange.DRAG_RANGE_SYSTEM_DEFAULT
 
+            private var isDraggingToFullscreenAllowed: Boolean = false
+
             /**
              * The [DraggableDividerAttributes] builder constructor initialized by an existing
              * [DraggableDividerAttributes].
@@ -184,6 +197,7 @@ private constructor(
                 widthDp = original.widthDp
                 dragRange = original.dragRange
                 color = original.color
+                isDraggingToFullscreenAllowed = original.isDraggingToFullscreenAllowed
             }
 
             /**
@@ -229,6 +243,34 @@ private constructor(
             @RequiresWindowSdkExtension(6)
             fun setDragRange(dragRange: DragRange): Builder = apply { this.dragRange = dragRange }
 
+            /**
+             * Sets whether dragging to full screen is allowed.
+             *
+             * If `true`, the user is allowed to drag beyond the specified range temporarily. When
+             * dragging is finished, if the dragging position is below the
+             * [DragRange.SplitRatioDragRange.minRatio] or the default min ratio in
+             * [DragRange.DRAG_RANGE_SYSTEM_DEFAULT], the system will choose to either fully expand
+             * the secondary container or move the divider back to the range limit; if the dragging
+             * position is above the [DragRange.SplitRatioDragRange.maxRatio] or the default max
+             * ratio in [DragRange.DRAG_RANGE_SYSTEM_DEFAULT], the system will choose to either
+             * fully expand the primary container or move the divider back to the range limit.
+             *
+             * When the primary container is fully expanded, the secondary container is dismissed.
+             * When the secondary container is fully expanded, the primary container is hidden
+             * behind the secondary container, and the drag handle is displayed on the edge to allow
+             * the user to drag and bring back the primary container.
+             *
+             * Default to `false`.
+             *
+             * This is only supported on devices with Window SDK extensions version 7 and above. For
+             * devices with Window SDK extensions below version 7, dragging to fullscreen is always
+             * disabled.
+             */
+            @RequiresWindowSdkExtension(7)
+            fun setDraggingToFullscreenAllowed(allowed: Boolean): Builder = apply {
+                this.isDraggingToFullscreenAllowed = allowed
+            }
+
             /** Builds a [DividerAttributes] instance. */
             @RequiresWindowSdkExtension(6)
             fun build(): DraggableDividerAttributes =
@@ -236,6 +278,7 @@ private constructor(
                     widthDp = widthDp,
                     color = color,
                     dragRange = dragRange,
+                    isDraggingToFullscreenAllowed = isDraggingToFullscreenAllowed,
                 )
         }
     }
@@ -250,7 +293,6 @@ private constructor(
         /**
          * A drag range represented as an interval of the primary container's split ratios.
          *
-         * @constructor constructs a new [SplitRatioDragRange]
          * @property minRatio the minimum split ratio of the primary container that the user is
          *   allowed to drag to. When the divider is dragged beyond this ratio, the system will
          *   choose to either fully expand the secondary container, or move the divider back to this
@@ -259,6 +301,7 @@ private constructor(
          *   allowed to drag to. When the divider is dragged beyond this ratio, the system will
          *   choose to either fully expand the primary container, or move the divider back to this
          *   ratio.
+         * @constructor constructs a new [SplitRatioDragRange]
          * @throws IllegalArgumentException if the provided values are invalid.
          */
         class SplitRatioDragRange(
@@ -310,9 +353,15 @@ private constructor(
     companion object {
         /**
          * A special value to indicate that the system will choose a default value based on the
-         * display size and form factor.
+         * display size and form factor. Some devices may choose 0 as the default width, while the
+         * same app may be shown with a wider divider on other devices that have a different default
+         * value. If an app prefers to show a divider of a fixed width on all device, it should set
+         * the fixed width in [FixedDividerAttributes.Builder.setWidthDp] or
+         * [DraggableDividerAttributes.Builder.setWidthDp].
          *
          * @see DividerAttributes.widthDp
+         * @see FixedDividerAttributes.Builder.setWidthDp
+         * @see DraggableDividerAttributes.Builder.setWidthDp
          */
         const val WIDTH_SYSTEM_DEFAULT: Int = -1
 
@@ -321,6 +370,9 @@ private constructor(
         val NO_DIVIDER =
             object : DividerAttributes() {
                 override fun toString(): String = "NO_DIVIDER"
+
+                // Override #hashCode to return consistent value every time.
+                @Suppress("EqualsAndHashCode") override fun hashCode(): Int = toString().hashCode()
             }
 
         /** Specifies a fixed divider. Used by the XML rule parser and must match attrs.xml. */
@@ -342,13 +394,17 @@ private constructor(
             color: Int,
             dragRangeMinRatio: Float,
             dragRangeMaxRatio: Float,
+            isDraggingToFullscreenAllowed: Boolean,
         ): DividerAttributes {
             return when (type) {
                 TYPE_VALUE_FIXED ->
                     FixedDividerAttributes.Builder().setWidthDp(widthDp).setColor(color).build()
                 TYPE_VALUE_DRAGGABLE -> {
                     val builder =
-                        DraggableDividerAttributes.Builder().setWidthDp(widthDp).setColor(color)
+                        DraggableDividerAttributes.Builder()
+                            .setWidthDp(widthDp)
+                            .setColor(color)
+                            .setDraggingToFullscreenAllowed(isDraggingToFullscreenAllowed)
                     if (
                         dragRangeMinRatio == DRAG_RANGE_VALUE_UNSPECIFIED ||
                             dragRangeMaxRatio == DRAG_RANGE_VALUE_UNSPECIFIED
@@ -371,6 +427,7 @@ private constructor(
             type: Int,
             hasDragRangeMinRatio: Boolean,
             hasDragRangeMaxRatio: Boolean,
+            hasIsDraggingToFullscreenAllowed: Boolean,
         ) {
             if (type == TYPE_VALUE_DRAGGABLE) {
                 return
@@ -383,6 +440,11 @@ private constructor(
             if (hasDragRangeMaxRatio) {
                 throw IllegalArgumentException(
                     "Fixed divider does not allow attribute dragRangeMaxRatio!"
+                )
+            }
+            if (hasIsDraggingToFullscreenAllowed) {
+                throw IllegalArgumentException(
+                    "Fixed divider does not allow attribute isDraggingToFullscreenAllowed!"
                 )
             }
         }

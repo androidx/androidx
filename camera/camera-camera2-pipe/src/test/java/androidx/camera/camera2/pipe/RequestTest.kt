@@ -32,7 +32,7 @@ internal class RequestTest {
         Request(
             listOf(StreamId(1)),
             parameters = mapOf(CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY),
-            extras = mapOf(FakeMetadata.TEST_KEY to 42)
+            extras = mapOf(FakeMetadata.TEST_KEY to 42),
         )
 
     @Test
@@ -101,7 +101,7 @@ internal class RequestTest {
         assertThat(
                 request.getOrDefault(
                     CaptureRequest.CONTROL_AE_MODE,
-                    default = CaptureRequest.CONTROL_AE_MODE_ON
+                    default = CaptureRequest.CONTROL_AE_MODE_ON,
                 )
             )
             .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)

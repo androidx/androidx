@@ -64,7 +64,7 @@ class FontFamilyTest {
     fun `can add fallback font at same weight and style`() {
         FontFamily(
             Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic),
-            Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic)
+            Font(resId = resourceId1, weight = FontWeight.W900, style = FontStyle.Italic),
         )
     }
 }

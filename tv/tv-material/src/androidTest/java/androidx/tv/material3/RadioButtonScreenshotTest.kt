@@ -89,7 +89,7 @@ class RadioButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 RadioButton(
                     selected = false,
                     onClick = {},
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 )
             }
         }

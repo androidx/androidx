@@ -33,7 +33,6 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ import org.robolectric.RobolectricTestRunner;
 
 import java.io.File;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class AnnotationUtilsTest {
     @Test

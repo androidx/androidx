@@ -32,14 +32,14 @@ class ActivityResult(
     val resultCode: Int,
 
     /** The intent that carries the result data */
-    val data: Intent?
+    val data: Intent?,
 ) : Parcelable {
 
     internal constructor(
         parcel: Parcel
     ) : this(
         parcel.readInt(),
-        if (parcel.readInt() == 0) null else Intent.CREATOR.createFromParcel(parcel)
+        if (parcel.readInt() == 0) null else Intent.CREATOR.createFromParcel(parcel),
     )
 
     override fun toString(): String {

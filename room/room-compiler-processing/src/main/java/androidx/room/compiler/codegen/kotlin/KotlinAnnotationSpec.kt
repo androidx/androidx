@@ -24,8 +24,10 @@ import androidx.room.compiler.codegen.impl.XCodeBlockImpl
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.javapoet.KAnnotationSpec
 
-internal class KotlinAnnotationSpec(internal val actual: KAnnotationSpec) :
-    XSpec(), XAnnotationSpec {
+internal class KotlinAnnotationSpec(override val actual: KAnnotationSpec) :
+    KotlinSpec<KAnnotationSpec>(), XAnnotationSpec {
+
+    override fun toBuilder() = Builder(actual.toBuilder())
 
     internal class Builder(internal val actual: KAnnotationSpecBuilder) :
         XSpec.Builder(), XAnnotationSpec.Builder {

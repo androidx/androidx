@@ -99,14 +99,14 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                         matrix.translate(it.x, it.y)
                     }
                 },
-                inputMethodManager = inputMethodManager
+                inputMethodManager = inputMethodManager,
             )
         textInputService.startInput(
             value = TextFieldValue(""),
             textInputNode = null,
             imeOptions = ImeOptions.Default,
             onEditCommand = {},
-            onImeActionPerformed = {}
+            onImeActionPerformed = {},
         )
         inputConnection = textInputService.createInputConnection(EditorInfo())
     }
@@ -130,7 +130,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
@@ -144,7 +144,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -155,7 +155,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // No further updates since monitoring is off
@@ -181,7 +181,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Immediate update
@@ -193,7 +193,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -204,7 +204,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // No further updates since monitoring is off
@@ -225,7 +225,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(InputConnection.CURSOR_UPDATE_MONITOR)
@@ -240,7 +240,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Monitoring update
@@ -252,7 +252,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -270,7 +270,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Monitoring update
@@ -282,7 +282,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected2)
     }
@@ -301,7 +301,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(
@@ -317,7 +317,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -328,7 +328,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Monitoring update
@@ -340,7 +340,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected2)
     }
@@ -359,7 +359,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(
@@ -381,7 +381,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // No monitoring update
@@ -403,7 +403,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 density = defaultDensity,
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = fontFamilyResolver,
-                constraints = Constraints(maxWidth = width)
+                constraints = Constraints(maxWidth = width),
             )
 
         val paragraph =
@@ -413,7 +413,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 constraints = Constraints(maxWidth = width),
                 density = input.density,
                 fontFamilyResolver = fontFamilyResolver,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         return TextLayoutResult(input, paragraph, IntSize(width, ceil(paragraph.height).toInt()))

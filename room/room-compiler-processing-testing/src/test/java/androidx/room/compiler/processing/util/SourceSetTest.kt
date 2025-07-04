@@ -62,7 +62,7 @@ class SourceSetTest {
             val sourceSet =
                 SourceSet(
                     tempFolder.root,
-                    listOf(Source.java("$SOURCE_DIR.$SOURCE_CLASS", "public class A {}"))
+                    listOf(Source.java("$SOURCE_DIR.$SOURCE_CLASS", "public class A {}")),
                 )
             val path =
                 tempFolder.root.path +

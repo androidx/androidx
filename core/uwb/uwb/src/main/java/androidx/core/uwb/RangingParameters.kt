@@ -69,7 +69,7 @@ constructor(
     public val uwbRangeDataNtfConfig: UwbRangeDataNtfConfig? = null,
     @IntRange(from = RANGING_SLOT_DURATION_1_MILLIS, to = RANGING_SLOT_DURATION_2_MILLIS)
     public val slotDurationMillis: Long = RANGING_SLOT_DURATION_2_MILLIS,
-    public val isAoaDisabled: Boolean = false
+    public val isAoaDisabled: Boolean = false,
 ) {
     init {
         if (

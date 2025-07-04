@@ -82,7 +82,7 @@ class QuirkSettingsLoaderTest {
             setMetadataHolderService(
                 defaultQuirkEnabled = false,
                 forceEnabledQuirks = setOf(quirk1.name, quirk2.name),
-                forceDisabledQuirks = setOf(quirk3.name, quirk4.name)
+                forceDisabledQuirks = setOf(quirk3.name, quirk4.name),
             )
 
         // Act.
@@ -102,7 +102,7 @@ class QuirkSettingsLoaderTest {
             setMetadataHolderService(
                 defaultQuirkEnabled = true,
                 forceEnabledQuirks = setOf(quirk1.name, quirk2.name, "invalid.class.name"),
-                forceDisabledQuirks = setOf(String::class.java.name /*Not a Quirk*/)
+                forceDisabledQuirks = setOf(String::class.java.name /*Not a Quirk*/),
             )
 
         // Act.

@@ -74,7 +74,7 @@ class ListItemTest {
                     modifier = Modifier.testTag(ListItemTag),
                     headlineContent = { Text(text = "Test Text") },
                     onClick = onClick,
-                    selected = false
+                    selected = false,
                 )
             }
         }
@@ -101,13 +101,13 @@ class ListItemTest {
                     modifier = Modifier.testTag(openItemTag),
                     headlineContent = { Text(text = "Test Text") },
                     onClick = openItemOnClick,
-                    selected = false
+                    selected = false,
                 )
                 ListItem(
                     modifier = Modifier.testTag(closeItemTag),
                     headlineContent = { Text(text = "Test Text") },
                     onClick = closeItemOnClick,
-                    selected = false
+                    selected = false,
                 )
             }
         }
@@ -143,7 +143,7 @@ class ListItemTest {
                     headlineContent = { Text(text = "Test Text") },
                     onClick = {},
                     onLongClick = onLongClick,
-                    selected = false
+                    selected = false,
                 )
             }
         }
@@ -171,7 +171,7 @@ class ListItemTest {
                 modifier = Modifier.testTag(ListItemTag),
                 headlineContent = { Text(text = "Test Text") },
                 onClick = onClick,
-                selected = checkedState
+                selected = checkedState,
             )
         }
 
@@ -189,11 +189,11 @@ class ListItemTest {
                 headlineContent = {
                     Text(
                         text = "ListItemText",
-                        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}
+                        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -202,12 +202,12 @@ class ListItemTest {
 
         (textBounds.left - itemBounds.left).assertIsEqualTo(
             16.dp,
-            "padding between the start of the list item and the start of the text."
+            "padding between the start of the list item and the start of the text.",
         )
 
         (itemBounds.right - textBounds.right).assertIsEqualTo(
             16.dp,
-            "padding between the end of the text and the end of the list item."
+            "padding between the end of the text and the end of the list item.",
         )
     }
 
@@ -222,11 +222,11 @@ class ListItemTest {
                         modifier =
                             Modifier.fillMaxHeight().testTag(ListItemTextTag).semantics(
                                 mergeDescendants = true
-                            ) {}
+                            ) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -235,12 +235,12 @@ class ListItemTest {
 
         (textBounds.top - itemBounds.top).assertIsEqualTo(
             12.dp,
-            "padding between the top of the list item and the top of the text."
+            "padding between the top of the list item and the top of the text.",
         )
 
         (itemBounds.bottom - textBounds.bottom).assertIsEqualTo(
             12.dp,
-            "padding between the bottom of the text and the bottom of the list item."
+            "padding between the bottom of the text and the bottom of the list item.",
         )
     }
 
@@ -263,11 +263,11 @@ class ListItemTest {
                     Text(
                         text = "Test Text",
                         modifier =
-                            Modifier.testTag(ListItemTextTag).semantics(mergeDescendants = true) {}
+                            Modifier.testTag(ListItemTextTag).semantics(mergeDescendants = true) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -277,22 +277,22 @@ class ListItemTest {
 
         (iconBounds.top - itemBounds.top).assertIsEqualTo(
             12.dp,
-            "padding between the top of the list item and the top of the icon."
+            "padding between the top of the list item and the top of the icon.",
         )
 
         (itemBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             12.dp,
-            "padding between the bottom of the icon and the bottom of the list item."
+            "padding between the bottom of the icon and the bottom of the list item.",
         )
 
         (iconBounds.left - itemBounds.left).assertIsEqualTo(
             16.dp,
-            "padding between the start of the icon and the start of the list item."
+            "padding between the start of the icon and the start of the list item.",
         )
 
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             8.dp,
-            "padding between the end of the icon and the start of the text."
+            "padding between the end of the icon and the start of the text.",
         )
     }
 
@@ -317,11 +317,11 @@ class ListItemTest {
                         modifier =
                             Modifier.testTag(ListItemTextTag).fillMaxWidth().semantics(
                                 mergeDescendants = true
-                            ) {}
+                            ) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -332,22 +332,22 @@ class ListItemTest {
 
         (trailingContentBounds.top - itemBounds.top).assertIsEqualTo(
             12.dp,
-            "padding between the top of the list item and the top of the trailing content."
+            "padding between the top of the list item and the top of the trailing content.",
         )
 
         (itemBounds.bottom - trailingContentBounds.bottom).assertIsEqualTo(
             12.dp,
-            "padding between the bottom of the trailing content and the bottom of the list item."
+            "padding between the bottom of the trailing content and the bottom of the list item.",
         )
 
         (itemBounds.right - trailingContentBounds.right).assertIsEqualTo(
             16.dp,
-            "padding between the end of the trailing content and the end of the list item."
+            "padding between the end of the trailing content and the end of the list item.",
         )
 
         (trailingContentBounds.left - textBounds.right).assertIsEqualTo(
             8.dp,
-            "padding between the start of the trailing content and the end of the text."
+            "padding between the start of the trailing content and the end of the text.",
         )
     }
 
@@ -360,7 +360,7 @@ class ListItemTest {
                     modifier = Modifier.testTag(ListItemTag),
                     onClick = { selected = !selected },
                     headlineContent = { Text(text = "List item") },
-                    selected = selected
+                    selected = selected,
                 )
             }
         }
@@ -387,7 +387,7 @@ class ListItemTest {
                     onClick = {},
                     onLongClick = { selected = !selected },
                     headlineContent = { Text(text = "List item") },
-                    selected = selected
+                    selected = selected,
                 )
             }
         }
@@ -414,7 +414,7 @@ class ListItemTest {
                     onClick = {},
                     enabled = false,
                     headlineContent = { Text(text = "List Item") },
-                    selected = false
+                    selected = false,
                 )
             }
         }
@@ -432,7 +432,7 @@ class ListItemTest {
                     onClick = { enabled = false },
                     enabled = enabled,
                     headlineContent = { Text(text = "List Item") },
-                    selected = false
+                    selected = false,
                 )
             }
         }
@@ -457,7 +457,7 @@ class ListItemTest {
                 modifier = Modifier.testTag(ListItemTag),
                 headlineContent = { Text(text = "text") },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -471,7 +471,7 @@ class ListItemTest {
                 modifier = Modifier.testTag(ListItemTag),
                 headlineContent = { Text(text = "text") },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
         rule
@@ -490,11 +490,11 @@ class ListItemTest {
                         modifier =
                             Modifier.fillMaxWidth().testTag(DenseListItemTextTag).semantics(
                                 mergeDescendants = true
-                            ) {}
+                            ) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -503,12 +503,12 @@ class ListItemTest {
 
         (textBounds.left - itemBounds.left).assertIsEqualTo(
             12.dp,
-            "padding between the start of the list item and the start of the text."
+            "padding between the start of the list item and the start of the text.",
         )
 
         (itemBounds.right - textBounds.right).assertIsEqualTo(
             12.dp,
-            "padding between the end of the text and the end of the list item."
+            "padding between the end of the text and the end of the list item.",
         )
     }
 
@@ -523,11 +523,11 @@ class ListItemTest {
                         modifier =
                             Modifier.fillMaxHeight().testTag(DenseListItemTextTag).semantics(
                                 mergeDescendants = true
-                            ) {}
+                            ) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -536,12 +536,12 @@ class ListItemTest {
 
         (textBounds.top - itemBounds.top).assertIsEqualTo(
             12.dp,
-            "padding between the top of the list item and the top of the text."
+            "padding between the top of the list item and the top of the text.",
         )
 
         (itemBounds.bottom - textBounds.bottom).assertIsEqualTo(
             12.dp,
-            "padding between the bottom of the text and the bottom of the list item."
+            "padding between the bottom of the text and the bottom of the list item.",
         )
     }
 
@@ -566,11 +566,11 @@ class ListItemTest {
                         modifier =
                             Modifier.testTag(DenseListItemTextTag).semantics(
                                 mergeDescendants = true
-                            ) {}
+                            ) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -580,22 +580,22 @@ class ListItemTest {
 
         (iconBounds.top - itemBounds.top).assertIsEqualTo(
             10.dp,
-            "padding between the top of the list item and the top of the icon."
+            "padding between the top of the list item and the top of the icon.",
         )
 
         (itemBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             10.dp,
-            "padding between the bottom of the icon and the bottom of the list item."
+            "padding between the bottom of the icon and the bottom of the list item.",
         )
 
         (iconBounds.left - itemBounds.left).assertIsEqualTo(
             12.dp,
-            "padding between the start of the icon and the start of the list item."
+            "padding between the start of the icon and the start of the list item.",
         )
 
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             8.dp,
-            "padding between the end of the icon and the start of the text."
+            "padding between the end of the icon and the start of the text.",
         )
     }
 
@@ -620,11 +620,11 @@ class ListItemTest {
                         modifier =
                             Modifier.testTag(DenseListItemTextTag).fillMaxWidth().semantics(
                                 mergeDescendants = true
-                            ) {}
+                            ) {},
                     )
                 },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -635,22 +635,22 @@ class ListItemTest {
 
         (trailingContentBounds.top - itemBounds.top).assertIsEqualTo(
             10.dp,
-            "padding between the top of the list item and the top of the trailing content."
+            "padding between the top of the list item and the top of the trailing content.",
         )
 
         (itemBounds.bottom - trailingContentBounds.bottom).assertIsEqualTo(
             10.dp,
-            "padding between the bottom of the trailing content and the bottom of the list item."
+            "padding between the bottom of the trailing content and the bottom of the list item.",
         )
 
         (itemBounds.right - trailingContentBounds.right).assertIsEqualTo(
             12.dp,
-            "padding between the end of the trailing content and the end of the list item."
+            "padding between the end of the trailing content and the end of the list item.",
         )
 
         (trailingContentBounds.left - textBounds.right).assertIsEqualTo(
             8.dp,
-            "padding between the start of the trailing content and the end of the text."
+            "padding between the start of the trailing content and the end of the text.",
         )
     }
 
@@ -663,7 +663,7 @@ class ListItemTest {
                 modifier = Modifier.testTag(DenseListItemTag),
                 headlineContent = { Text(text = "text") },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
 
@@ -677,7 +677,7 @@ class ListItemTest {
                 modifier = Modifier.testTag(DenseListItemTag),
                 headlineContent = { Text(text = "text") },
                 onClick = {},
-                selected = false
+                selected = false,
             )
         }
         rule

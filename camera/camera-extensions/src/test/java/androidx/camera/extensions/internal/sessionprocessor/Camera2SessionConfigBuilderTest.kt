@@ -68,11 +68,11 @@ class Camera2SessionConfigBuilderTest {
         // Act
         builder.addSessionParameter(
             CaptureRequest.CONTROL_AWB_MODE,
-            CaptureRequest.CONTROL_AWB_MODE_OFF
+            CaptureRequest.CONTROL_AWB_MODE_OFF,
         )
         builder.addSessionParameter(
             CaptureRequest.CONTROL_AF_MODE,
-            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO
+            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO,
         )
 
         // Assert

@@ -22,8 +22,9 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+
+import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -38,26 +39,30 @@ dependencies {
 
     implementation("androidx.annotation:annotation:1.8.1")
     implementation(libs.truth)
+    implementation("com.google.ar:impress:0.0.4")
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(project(":kruth:kruth"))
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
+
+    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    implementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
 }
 
 android {
+    defaultConfig {
+        minSdk = 23
+    }
     namespace = "androidx.xr.runtime.testing"
-    sourceSets.main.resources.srcDirs += "src/main/resources"
 }
 
 androidx {
     name = "XR Fake Runtime"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "A fake implementation of the XR runtime used in unit tests."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

@@ -84,7 +84,7 @@ fun BackdropScaffoldSample() {
                     }
                 },
                 elevation = 0.dp,
-                backgroundColor = Color.Transparent
+                backgroundColor = Color.Transparent,
             )
         },
         backLayerContent = {
@@ -95,7 +95,7 @@ fun BackdropScaffoldSample() {
                             selection.value = it
                             scope.launch { scaffoldState.conceal() }
                         },
-                        text = { Text("Select $it") }
+                        text = { Text("Select $it") },
                     )
                 }
             }
@@ -109,12 +109,12 @@ fun BackdropScaffoldSample() {
                         icon = {
                             Icon(
                                 Icons.Default.Favorite,
-                                contentDescription = "Localized description"
+                                contentDescription = "Localized description",
                             )
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     )
 }

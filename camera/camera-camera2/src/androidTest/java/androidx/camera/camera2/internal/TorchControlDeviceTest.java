@@ -19,9 +19,11 @@ package androidx.camera.camera2.internal;
 import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.util.TestUtil;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
@@ -63,6 +65,8 @@ public class TorchControlDeviceTest {
 
     private TorchControl mTorchControl;
     private CameraUseCaseAdapter mCamera;
+    private Camera2CameraControlImpl mCameraControl;
+    private boolean mIsTorchStrengthSupported;
 
     @Before
     public void setUp() {
@@ -83,10 +87,10 @@ public class TorchControlDeviceTest {
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
         mCamera = CameraUtil.createCameraAndAttachUseCase(context, cameraSelector, imageAnalysis);
-        Camera2CameraControlImpl cameraControl =
-                TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
-
-        mTorchControl = cameraControl.getTorchControl();
+        mCameraControl = TestUtil.getCamera2CameraControlImpl(mCamera.getCameraControl());
+        mTorchControl = mCameraControl.getTorchControl();
+        mIsTorchStrengthSupported = mCamera.getCameraInfo().getMaxTorchStrengthLevel()
+                != CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED;
     }
 
     @After
@@ -112,5 +116,31 @@ public class TorchControlDeviceTest {
         future = mTorchControl.enableTorch(false);
         // Future should return with no exception
         future.get();
+    }
+
+    @Test(timeout = 5000L)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    public void setTorchStrengthLevel_futureCompleteWhenTorchIsOn()
+            throws ExecutionException, InterruptedException {
+        assumeTrue(mIsTorchStrengthSupported);
+
+        // Arrange: turn on the torch
+        mTorchControl.enableTorch(true).get();
+
+        // Act & Assert: the future completes
+        mTorchControl.setTorchStrengthLevel(
+                mCamera.getCameraInfo().getMaxTorchStrengthLevel()).get();
+    }
+
+    @Test(timeout = 5000L)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    public void setTorchStrengthLevel_futureCompleteWhenTorchIsOff()
+            throws ExecutionException, InterruptedException {
+        assumeTrue(mIsTorchStrengthSupported);
+
+        // Arrange: the torch is default off
+        // Act & Assert: the future completes
+        mTorchControl.setTorchStrengthLevel(
+                mCamera.getCameraInfo().getMaxTorchStrengthLevel()).get();
     }
 }

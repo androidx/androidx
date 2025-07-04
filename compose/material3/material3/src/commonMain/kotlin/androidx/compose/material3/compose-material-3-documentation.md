@@ -4,9 +4,9 @@ Compose Material 3
 
 # Package androidx.compose.material3
 
-Build Jetpack Compose UIs with <a href="https://m3.material.io" class="external" target="_blank">Material Design 3</a>, the next evolution of Material Design. Material 3 includes updated theming and components and Material You personalization features like dynamic color, and is designed to be cohesive with the new Android 12 visual style and system UI.
+Build Jetpack Compose UIs with <a href="https://m3.material.io" class="external" target="_blank">Material 3 Expressive</a>, the latest evolution of Material Design. M3 Expressive includes research-backed updates to theming, components, motion, typography, and more — all designed to help you make engaging and desirable products that users love. M3 Expressive compliments the Android 16 visual style and system UI.
 
-![Material You image](https://developer.android.com/images/reference/androidx/compose/material3/material-you.png)
+![Material Expressive image](https://developer.android.com/images/reference/androidx/compose/material3/material-expressive.png)
 
 In this page, you'll find documentation for types, properties, and functions available in the `androidx.compose.material3` package.
 

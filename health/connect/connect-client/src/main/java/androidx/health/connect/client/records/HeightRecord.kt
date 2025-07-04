@@ -15,7 +15,9 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.meters
@@ -28,12 +30,20 @@ public class HeightRecord(
     override val zoneOffset: ZoneOffset?,
     /** Height in [Length] unit. Required field. Valid range: 0-3 meters. */
     public val height: Length,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        height.requireNotLess(other = height.zero(), name = "height")
-        height.requireNotMore(other = MAX_HEIGHT, name = "height")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            height.requireNotLess(other = height.zero(), name = "height")
+            height.requireNotMore(other = MAX_HEIGHT, name = "height")
+        }
     }
 
     /*

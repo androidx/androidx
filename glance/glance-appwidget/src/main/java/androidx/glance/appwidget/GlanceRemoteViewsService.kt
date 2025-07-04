@@ -26,14 +26,13 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.runBlocking
 
 /**
  * [RemoteViewsService] to be connected to for a remote adapter that returns RemoteViews for lazy
  * lists / grids.
  */
-open class GlanceRemoteViewsService : RemoteViewsService() {
+public open class GlanceRemoteViewsService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent?): RemoteViewsFactory {
         requireNotNull(intent) { "Intent is null" }
         val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
@@ -62,7 +61,7 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
             appWidgetId: Int,
             viewId: Int,
             sizeInfo: String,
-            remoteCollectionItems: RemoteCollectionItems
+            remoteCollectionItems: RemoteCollectionItems,
         ) {
             synchronized(InMemoryStore) {
                 InMemoryStore.save(appWidgetId, viewId, sizeInfo, remoteCollectionItems)
@@ -73,7 +72,7 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
         private fun getItems(
             appWidgetId: Int,
             viewId: Int,
-            sizeInfo: String
+            sizeInfo: String,
         ): RemoteCollectionItems {
             return synchronized(InMemoryStore) {
                 InMemoryStore.getItems(appWidgetId, viewId, sizeInfo)
@@ -96,7 +95,7 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
         private val context: Context,
         private val appWidgetId: Int,
         private val viewId: Int,
-        private val size: String
+        private val size: String,
     ) : RemoteViewsFactory {
         override fun onCreate() {
             // OnDataSetChanged is always called even onCreate, so we don't need to load data here.
@@ -109,16 +108,7 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
                 val glanceId = AppWidgetId(appWidgetId)
                 try {
                     startSessionIfNeededAndWaitUntilReady(glanceId)
-                } catch (e: ClosedSendChannelException) {
-                    // This catch should no longer be necessary.
-                    // Because we use SessionManager.runWithLock, we are guaranteed that the session
-                    // we create won't be closed by concurrent calls to SessionManager. Currently,
-                    // the only way a session would be closed is if there is an error in the
-                    // composition that happens between the call to `startSession` and
-                    // `waitForReady()` In that case, the composition error will be logged by
-                    // GlanceAppWidget.onCompositionError, but could still cause
-                    // ClosedSendChannelException. This is pretty unlikely, however keeping this
-                    // here to avoid crashes in that scenario.
+                } catch (e: Throwable) {
                     Log.e(TAG, "Error when trying to start session for list items", e)
                 }
             }
@@ -129,7 +119,7 @@ open class GlanceRemoteViewsService : RemoteViewsService() {
                 getGlanceAppWidget()?.getOrCreateAppWidgetSession(
                     context = context,
                     glanceId = glanceId,
-                    options = null
+                    options = null,
                 ) { session, wasRunning ->
                     // If session is already running, data must have already been loaded
                     // into
@@ -195,7 +185,7 @@ private class RemoteCollectionItemsInMemoryStore {
         appWidgetId: Int,
         viewId: Int,
         sizeInfo: String,
-        remoteCollectionItems: RemoteCollectionItems
+        remoteCollectionItems: RemoteCollectionItems,
     ) {
         items[key(appWidgetId, viewId, sizeInfo)] = remoteCollectionItems
     }
@@ -228,7 +218,7 @@ internal fun RemoteViews.setRemoteAdapter(
     translationContext: TranslationContext,
     viewId: Int,
     sizeInfo: String,
-    items: RemoteCollectionItems
+    items: RemoteCollectionItems,
 ) {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.S) {
         CollectionItemsApi31Impl.setRemoteAdapter(this, viewId, items)

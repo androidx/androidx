@@ -47,7 +47,7 @@ class NightModeRtlTestUtilsRegressionTestCase {
         NightModeActivityTestRule(
             NightModeCustomAttachBaseContextActivity::class.java,
             initialTouchMode = false,
-            launchActivity = false
+            launchActivity = false,
         )
 
     @Suppress("DEPRECATION")

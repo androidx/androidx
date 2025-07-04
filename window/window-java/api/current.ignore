@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedFromJava: androidx.window.java.layout.WindowInfoTrackerCallbackAdapter#windowLayoutInfo(android.app.Activity):
+    Source breaking change: method androidx.window.java.layout.WindowInfoTrackerCallbackAdapter.windowLayoutInfo(android.app.Activity) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.window.java.layout.WindowInfoTrackerCallbackAdapter#windowLayoutInfo(android.app.Activity):
+    Source breaking change: method androidx.window.java.layout.WindowInfoTrackerCallbackAdapter.windowLayoutInfo(android.app.Activity) can no longer be resolved from Kotlin source

@@ -40,9 +40,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -249,6 +251,54 @@ public final class CameraSelector {
      */
     public @Nullable String getPhysicalCameraId() {
         return mPhysicalCameraId;
+    }
+
+    /**
+     * Creates a {@link CameraSelector} that specifically targets the camera(s)
+     * represented by the given {@link CameraIdentifier}s.
+     *
+     * <p>When multiple identifiers are provided, they are treated as a prioritized list.
+     * CameraX will attempt to select and bind the camera for the first identifier. If that
+     * camera is not available, it will attempt to use the second, and so on.
+     *
+     * @param cameraIdentifiers A varargs array of one or more non-null {@link CameraIdentifier}s.
+     * @return A non-null {@link CameraSelector} configured to select one of the specific cameras.
+     * @throws IllegalArgumentException if no identifiers are provided.
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraSelector of(@NonNull CameraIdentifier... cameraIdentifiers) {
+        if (cameraIdentifiers == null || cameraIdentifiers.length == 0) {
+            throw new IllegalArgumentException("At least one CameraIdentifier must be provided.");
+        }
+
+        // The core of the implementation is to add a custom CameraFilter.
+        Builder builder = new Builder();
+
+        // This filter is responsible for matching and prioritizing the given identifiers.
+        builder.addCameraFilter(availableCameras -> {
+            List<CameraInfo> result = new ArrayList<>();
+            Set<CameraIdentifier> seenIdentifiers = new HashSet<>();
+
+            // 1. Iterate through the user-provided identifiers IN ORDER to respect priority.
+            for (CameraIdentifier priorityId : cameraIdentifiers) {
+                // 2. Iterate through all available cameras to find a match.
+                for (CameraInfo cameraInfo : availableCameras) {
+                    // 3. If a match is found...
+                    if (Objects.equals(cameraInfo.getCameraIdentifier(), priorityId)) {
+                        if (!seenIdentifiers.contains(priorityId)) {
+                            result.add(cameraInfo);
+                            seenIdentifiers.add(priorityId);
+                            break;
+                        }
+                    }
+                }
+            }
+            // The returned list is now filtered and sorted according to the input priority.
+            return result;
+        });
+
+        return builder.build();
     }
 
     /** Builder for a {@link CameraSelector}. */

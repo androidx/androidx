@@ -143,7 +143,7 @@ class MenuTest {
                     DropdownMenu(
                         expanded = true,
                         onDismissRequest = {},
-                        scrollState = scrollState
+                        scrollState = scrollState,
                     ) {
                         repeat(100) {
                             Box(Modifier.testTag("MenuContent ${it + 1}").size(70.toDp()))
@@ -178,7 +178,7 @@ class MenuTest {
                     IntRect(anchorPosition, anchorSize),
                     windowSize,
                     LayoutDirection.Ltr,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(ltrPosition.x).isEqualTo(anchorPosition.x + offsetX)
@@ -190,7 +190,7 @@ class MenuTest {
                     IntRect(anchorPosition, anchorSize),
                     windowSize,
                     LayoutDirection.Rtl,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(rtlPosition.x)
@@ -217,7 +217,7 @@ class MenuTest {
                     IntRect(anchorPosition, anchorSize),
                     windowSize,
                     LayoutDirection.Ltr,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(ltrPosition.x)
@@ -230,7 +230,7 @@ class MenuTest {
                     IntRect(anchorPositionRtl, anchorSize),
                     windowSize,
                     LayoutDirection.Rtl,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(rtlPosition.x).isEqualTo(anchorPositionRtl.x - offsetX)
@@ -257,7 +257,7 @@ class MenuTest {
                     IntRect(anchorPosition, anchorSize),
                     windowSize,
                     LayoutDirection.Ltr,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(position.y).isEqualTo(verticalMargin)
@@ -284,7 +284,7 @@ class MenuTest {
                     IntRect(anchorPosition, anchorSize),
                     windowSize,
                     LayoutDirection.Ltr,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(position.x).isEqualTo(0)
@@ -296,7 +296,7 @@ class MenuTest {
                     IntRect(anchorPositionRtl, anchorSize),
                     windowSize,
                     LayoutDirection.Rtl,
-                    popupSize
+                    popupSize,
                 )
 
         assertThat(rtlPosition.x).isEqualTo(screenWidth - popupSize.width)
@@ -327,7 +327,7 @@ class MenuTest {
                 IntRect(anchorPosition, anchorSize),
                 windowSize,
                 LayoutDirection.Ltr,
-                popupSize
+                popupSize,
             )
 
         assertThat(obtainedParentBounds).isEqualTo(IntRect(anchorPosition, anchorSize))
@@ -337,7 +337,7 @@ class MenuTest {
                     anchorPosition.x + offsetX,
                     anchorPosition.y + anchorSize.height + offsetY,
                     anchorPosition.x + offsetX + popupSize.width,
-                    anchorPosition.y + anchorSize.height + offsetY + popupSize.height
+                    anchorPosition.y + anchorSize.height + offsetY + popupSize.height,
                 )
             )
     }
@@ -380,7 +380,7 @@ class MenuTest {
         rule.setContent {
             DropdownMenuItem(
                 onClick,
-                modifier = Modifier.testTag("MenuItem").clickable(onClick = onClick)
+                modifier = Modifier.testTag("MenuItem").clickable(onClick = onClick),
             ) {
                 Box(Modifier.requiredSize(40.dp))
             }

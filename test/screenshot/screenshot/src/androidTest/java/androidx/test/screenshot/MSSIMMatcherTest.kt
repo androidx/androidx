@@ -39,7 +39,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isEqualTo(1)
@@ -56,7 +56,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isWithin(0.001).of(0.516)
@@ -73,7 +73,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isWithin(0.001).of(0.951)
@@ -90,7 +90,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isWithin(0.001).of(0.990)
@@ -107,7 +107,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isWithin(0.001).of(0.960)
@@ -124,7 +124,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isWithin(0.001).of(0.695)
@@ -141,7 +141,7 @@ class MSSIMMatcherTest {
                 first.toIntArray(),
                 second.toIntArray(),
                 first.width,
-                first.height
+                first.height,
             )
 
         assertThat(result).isWithin(0.001).of(0.921)

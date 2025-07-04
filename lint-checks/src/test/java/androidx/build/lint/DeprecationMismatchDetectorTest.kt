@@ -269,7 +269,7 @@ class DeprecationMismatchDetectorTest :
                     }
                 """
                         .trimIndent()
-                )
+                ),
             )
 
         check(*input).expectClean()
@@ -300,7 +300,7 @@ class DeprecationMismatchDetectorTest :
                 """
                         .trimIndent()
                 ),
-                Stubs.RestrictTo
+                Stubs.RestrictTo,
             )
         check(*input).expectClean()
     }
@@ -326,7 +326,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         void inheritedWithInheritDoc();
                     }
-                """,
+                """
                 ),
                 java(
                     """
@@ -348,7 +348,7 @@ class DeprecationMismatchDetectorTest :
                         public void inheritedWithInheritDoc() {}
                     }
                 """
-                )
+                ),
             )
         check(*input).expectClean()
     }

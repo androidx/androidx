@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"পিন, প্যাটার্ন অথবা পাসওয়ার্ড সেট করা নেই।"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"এই ডিভাইসে পিন, প্যাটার্ন বা পাসওয়ার্ড ব্যবহার করা যাবে না।"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ফিঙ্গারপ্রিন্ট আইকন"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"কন্টেন্ট ভিউতে আরও বিকল্প বোতামে ক্লিক করা হয়েছে।"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"আঙুলের ছাপ ব্যবহার করুন"</string>
     <string name="use_face_label" msgid="6533512708069459542">"মুখ ব্যবহার করুন"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"বায়োমেট্রিক্স ব্যবহার করুন"</string>

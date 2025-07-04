@@ -25,7 +25,7 @@ import androidx.compose.ui.text.TextStyle
 
 internal fun <T> provideScopeContent(
     contentColor: State<Color>,
-    content: (@Composable T.() -> Unit)
+    content: (@Composable T.() -> Unit),
 ): (@Composable T.() -> Unit) = {
     val color = contentColor.value
     CompositionLocalProvider(
@@ -39,7 +39,7 @@ internal fun <T> provideScopeContent(
 internal fun <T> provideScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
-    content: (@Composable T.() -> Unit)
+    content: (@Composable T.() -> Unit),
 ): (@Composable T.() -> Unit) = {
     val color = contentColor.value
     CompositionLocalProvider(
@@ -53,19 +53,19 @@ internal fun <T> provideScopeContent(
 
 internal fun provideContent(
     contentColor: State<Color>,
-    content: (@Composable () -> Unit)
+    content: (@Composable () -> Unit),
 ): (@Composable () -> Unit) = {
     val color = contentColor.value
     CompositionLocalProvider(
         LocalContentColor provides color,
         LocalContentAlpha provides color.alpha,
-        content = content
+        content = content,
     )
 }
 
 internal fun provideIcon(
     iconColor: State<Color>,
-    content: (@Composable BoxScope.() -> Unit)
+    content: (@Composable BoxScope.() -> Unit),
 ): (@Composable BoxScope.() -> Unit) = {
     val color = iconColor.value
     CompositionLocalProvider(
@@ -78,14 +78,14 @@ internal fun provideIcon(
 
 internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
-    content: (@Composable T.() -> Unit)?
+    content: (@Composable T.() -> Unit)?,
 ): (@Composable T.() -> Unit)? =
     content?.let {
         {
             val color = contentColor.value
             CompositionLocalProvider(
                 LocalContentColor provides color,
-                LocalContentAlpha provides color.alpha
+                LocalContentAlpha provides color.alpha,
             ) {
                 content()
             }
@@ -95,7 +95,7 @@ internal fun <T> provideNullableScopeContent(
 internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
-    content: (@Composable T.() -> Unit)?
+    content: (@Composable T.() -> Unit)?,
 ): (@Composable T.() -> Unit)? =
     content?.let {
         {
@@ -103,7 +103,7 @@ internal fun <T> provideNullableScopeContent(
             CompositionLocalProvider(
                 LocalContentColor provides color,
                 LocalContentAlpha provides color.alpha,
-                LocalTextStyle provides textStyle
+                LocalTextStyle provides textStyle,
             ) {
                 content()
             }

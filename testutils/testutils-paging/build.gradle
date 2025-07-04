@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -34,6 +34,9 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    js()
+    wasmJs()
+    mingwX64()
 
     sourceSets {
         commonMain {
@@ -43,9 +46,23 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
             }
         }
+
+        jsMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
     }
 }
 
 androidx {
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
 }

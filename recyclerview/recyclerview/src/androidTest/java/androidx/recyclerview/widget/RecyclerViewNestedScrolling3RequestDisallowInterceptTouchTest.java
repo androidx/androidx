@@ -32,7 +32,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
@@ -43,6 +42,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.SwipeInjector;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -184,7 +184,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
 
         @Override
         public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed, int type, @NonNull int[] consumed) {
+                int dxUnconsumed, int dyUnconsumed, int type, int @NonNull [] consumed) {
             if (consumeX != 0) {
                 consumed[0] += dxUnconsumed > 0
                         ? Math.min(consumeX, dxUnconsumed)
@@ -224,8 +224,8 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
         }
 
         @Override
-        public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
-                int type) {
+        public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+                int @NonNull [] consumed, int type) {
             if (consumePreX != 0) {
                 consumed[0] += dx > 0
                         ? Math.min(consumePreX, dx)
@@ -264,7 +264,7 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
 
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-                @NonNull int[] consumed) {
+                int @NonNull [] consumed) {
             ViewCompat.dispatchNestedPreScroll(this, dx, dy, consumed, null);
         }
 
@@ -295,16 +295,16 @@ public class RecyclerViewNestedScrolling3RequestDisallowInterceptTouchTest {
             mItemCount = itemCount;
         }
 
-        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public RecyclerView.@NonNull ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                int viewType) {
             View view = new View(parent.getContext());
             view.setLayoutParams(new ViewGroup.LayoutParams(MATCH_PARENT, mItemHeight));
             return new RecyclerView.ViewHolder(view) {};
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
         }
 
         @Override

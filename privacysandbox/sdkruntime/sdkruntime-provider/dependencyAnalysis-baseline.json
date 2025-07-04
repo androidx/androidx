@@ -1,0 +1,13 @@
+{
+  "projectPath": ":privacysandbox:sdkruntime:sdkruntime-provider",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.2"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

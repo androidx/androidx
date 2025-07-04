@@ -21,7 +21,7 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
 )
 @file:OptIn(ExperimentalContracts::class)
 
@@ -110,9 +110,7 @@ public fun mutableFloatSetOf(vararg elements: Float): MutableFloatSet =
  *
  * @param builderAction Lambda in which the [MutableFloatSet] can be populated.
  */
-public inline fun buildFloatSet(
-    builderAction: MutableFloatSet.() -> Unit,
-): FloatSet {
+public inline fun buildFloatSet(builderAction: MutableFloatSet.() -> Unit): FloatSet {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableFloatSet().apply(builderAction)
 }
@@ -355,7 +353,7 @@ public sealed class FloatSet {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Float) -> CharSequence
+        crossinline transform: (Float) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

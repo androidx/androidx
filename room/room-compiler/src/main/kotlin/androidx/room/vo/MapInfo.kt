@@ -17,7 +17,7 @@
 package androidx.room.vo
 
 /**
- * Represents the @MapInfo input of a @Query or @RawQuery method that has a return type of map or
+ * Represents the @MapInfo input of a @Query or @RawQuery function that has a return type of map or
  * multimap.
  */
 data class MapInfo(val keyColumnName: String, val valueColumnName: String)

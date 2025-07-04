@@ -25,5 +25,5 @@ enum class PowerCategory {
     MEMORY,
     MACHINE_LEARNING,
     NETWORK,
-    UNCATEGORIZED
+    UNCATEGORIZED,
 }

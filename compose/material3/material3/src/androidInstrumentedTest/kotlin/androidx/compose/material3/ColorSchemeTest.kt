@@ -94,21 +94,21 @@ class ColorSchemeTest {
             assertThat(
                     calculateContrastRatio(
                         colorScheme.onPrimaryContainer,
-                        colorScheme.primaryContainer
+                        colorScheme.primaryContainer,
                     )
                 )
                 .isAtLeast(expectedContrastValue)
             assertThat(
                     calculateContrastRatio(
                         colorScheme.onSecondaryContainer,
-                        colorScheme.secondaryContainer
+                        colorScheme.secondaryContainer,
                     )
                 )
                 .isAtLeast(expectedContrastValue)
             assertThat(
                     calculateContrastRatio(
                         colorScheme.onTertiaryContainer,
-                        colorScheme.tertiaryContainer
+                        colorScheme.tertiaryContainer,
                     )
                 )
                 .isAtLeast(expectedContrastValue)
@@ -129,7 +129,7 @@ class ColorSchemeTest {
             assertThat(
                     calculateContrastRatio(
                         colorScheme.onSurface,
-                        colorScheme.surfaceContainerHighest
+                        colorScheme.surfaceContainerHighest,
                     )
                 )
                 .isAtLeast(expectedContrastValue)
@@ -140,7 +140,7 @@ class ColorSchemeTest {
             assertThat(
                     calculateContrastRatio(
                         colorScheme.onSurface,
-                        colorScheme.surfaceContainerLowest
+                        colorScheme.surfaceContainerLowest,
                     )
                 )
                 .isAtLeast(expectedContrastValue)
@@ -150,6 +150,76 @@ class ColorSchemeTest {
                 .isAtLeast(expectedContrastValue)
             assertThat(
                     calculateContrastRatio(colorScheme.inverseOnSurface, colorScheme.inverseSurface)
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(calculateContrastRatio(colorScheme.onPrimaryFixed, colorScheme.primaryFixed))
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onPrimaryFixedVariant,
+                        colorScheme.primaryFixed,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(colorScheme.onPrimaryFixed, colorScheme.primaryFixedDim)
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onPrimaryFixedVariant,
+                        colorScheme.primaryFixedDim,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(colorScheme.onSecondaryFixed, colorScheme.secondaryFixed)
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onSecondaryFixedVariant,
+                        colorScheme.secondaryFixed,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onSecondaryFixed,
+                        colorScheme.secondaryFixedDim,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onSecondaryFixedVariant,
+                        colorScheme.secondaryFixedDim,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(colorScheme.onTertiaryFixed, colorScheme.tertiaryFixed)
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onTertiaryFixedVariant,
+                        colorScheme.tertiaryFixed,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onTertiaryFixed,
+                        colorScheme.tertiaryFixedDim,
+                    )
+                )
+                .isAtLeast(expectedContrastValue)
+            assertThat(
+                    calculateContrastRatio(
+                        colorScheme.onTertiaryFixedVariant,
+                        colorScheme.tertiaryFixedDim,
+                    )
                 )
                 .isAtLeast(expectedContrastValue)
         }
@@ -205,5 +275,17 @@ private fun ColorScheme.contentEquals(other: ColorScheme): Boolean {
     if (surfaceContainerLow != other.surfaceContainerLow) return false
     if (surfaceContainerLowest != other.surfaceContainerLowest) return false
     if (surfaceDim != other.surfaceDim) return false
+    if (primaryFixed != other.primaryFixed) return false
+    if (primaryFixedDim != other.primaryFixedDim) return false
+    if (onPrimaryFixed != other.onPrimaryFixed) return false
+    if (onPrimaryFixedVariant != other.onPrimaryFixedVariant) return false
+    if (secondaryFixed != other.secondaryFixed) return false
+    if (secondaryFixedDim != other.secondaryFixedDim) return false
+    if (onSecondaryFixed != other.onSecondaryFixed) return false
+    if (onSecondaryFixedVariant != other.onSecondaryFixedVariant) return false
+    if (tertiaryFixed != other.tertiaryFixed) return false
+    if (tertiaryFixedDim != other.tertiaryFixedDim) return false
+    if (onTertiaryFixed != other.onTertiaryFixed) return false
+    if (onTertiaryFixedVariant != other.onTertiaryFixedVariant) return false
     return true
 }

@@ -22,10 +22,14 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
+
+import java.util.Arrays;
 
 public class SearchSuggestionSpecCtsTest {
     @Test
@@ -165,5 +169,50 @@ public class SearchSuggestionSpecCtsTest {
         assertThat(rebuild.getFilterProperties())
                 .containsExactly("Email",  ImmutableList.of("Subject", "body"),
                         "Foo",  ImmutableList.of("Bar"));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+    public void testAddSearchStringParameters_default_isEmpty() {
+        SearchSuggestionSpec spec =
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .build();
+        assertThat(spec.getSearchStringParameters()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+    public void testAddSearchStringParameters_addValues_areCumulative() {
+        SearchSuggestionSpec.Builder specBuilder =
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .addSearchStringParameters("A", "b");
+        SearchSuggestionSpec spec = specBuilder.build();
+        assertThat(spec.getSearchStringParameters()).containsExactly("A", "b").inOrder();
+
+        specBuilder.addSearchStringParameters(Arrays.asList("C", "d"));
+        spec = specBuilder.build();
+        assertThat(spec.getSearchStringParameters()).containsExactly("A", "b", "C", "d").inOrder();
+
+        specBuilder.addSearchStringParameters("e");
+        spec = specBuilder.build();
+        assertThat(spec.getSearchStringParameters())
+                .containsExactly("A", "b", "C", "d", "e").inOrder();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+    public void testAddSearchStringParameters_rebuild_doesntAffectOriginal() {
+        SearchSuggestionSpec.Builder specBuilder =
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/123)
+                        .addSearchStringParameters("A", "b");
+
+        SearchSuggestionSpec original = specBuilder.build();
+        SearchSuggestionSpec rebuild =
+                specBuilder.addSearchStringParameters(Arrays.asList("C", "d")).build();
+
+        // Rebuild won't effect the original object
+        assertThat(original.getSearchStringParameters()).containsExactly("A", "b").inOrder();
+        assertThat(rebuild.getSearchStringParameters())
+                .containsExactly("A", "b", "C", "d").inOrder();
     }
 }

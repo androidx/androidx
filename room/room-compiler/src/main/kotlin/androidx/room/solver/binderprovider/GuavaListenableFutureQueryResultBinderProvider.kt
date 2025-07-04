@@ -35,7 +35,7 @@ fun GuavaListenableFutureQueryResultBinderProvider(context: Context): QueryResul
         .requireArtifact(
             context = context,
             requiredType = RoomGuavaTypeNames.GUAVA_ROOM_MARKER,
-            missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT
+            missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT,
         )
 
 class GuavaListenableFutureQueryResultBinderProviderImpl(val context: Context) :
@@ -49,7 +49,7 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(val context: Context) :
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         // Use the type T inside ListenableFuture<T> as the type to adapt and to pass into
         // the binder.
@@ -57,7 +57,7 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(val context: Context) :
             context.typeAdapterStore.findQueryResultAdapter(
                 declared.typeArguments.first(),
                 query,
-                extras
+                extras,
             )
         val typeArg = declared.typeArguments.first()
         if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {

@@ -41,7 +41,7 @@ class FontSynthesisTest {
                     font.toFontFamily(),
                     font.weight,
                     font.style,
-                    fontSynthesis = FontSynthesis.None
+                    fontSynthesis = FontSynthesis.None,
                 )
                 .value as Typeface
     }
@@ -69,7 +69,7 @@ class FontSynthesisTest {
                 typeface,
                 font,
                 FontWeight.Bold,
-                FontStyle.Italic
+                FontStyle.Italic,
             ) as Typeface
 
         // since 100 regular is not bold and not italic, passing FontWeight.bold and
@@ -87,7 +87,7 @@ class FontSynthesisTest {
                 typeface,
                 font,
                 FontWeight.Bold,
-                FontStyle.Italic
+                FontStyle.Italic,
             ) as Typeface
 
         // since 100 regular is not bold and not italic, passing FontWeight.bold and
@@ -105,7 +105,7 @@ class FontSynthesisTest {
                 typeface,
                 font,
                 FontWeight.W700,
-                FontStyle.Italic
+                FontStyle.Italic,
             ) as Typeface
 
         Truth.assertThat(synthesized.isBold).isFalse()

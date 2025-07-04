@@ -77,7 +77,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
                     .apply {
                         writeMethodCalls(
                             callsByEventType[Lifecycle.Event.ON_ANY] ?: emptyList(),
-                            receiverField
+                            receiverField,
                         )
                     }
                     .endControlFlow()
@@ -115,7 +115,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
                 "$N.$L($paramString)",
                 receiverParam,
                 it.name(),
-                *takeParams(count, OWNER_PARAM, EVENT_PARAM)
+                *takeParams(count, OWNER_PARAM, EVENT_PARAM),
             )
             method.build()
         }
@@ -148,7 +148,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
 
 private fun addGeneratedAnnotationIfAvailable(
     adapterTypeSpecBuilder: TypeSpec.Builder,
-    processingEnv: ProcessingEnvironment
+    processingEnv: ProcessingEnvironment,
 ) {
     val generatedAnnotationAvailable =
         processingEnv.elementUtils.getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
@@ -185,7 +185,7 @@ private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnviron
 
 private fun MethodSpec.Builder.writeMethodCalls(
     calls: List<EventMethodCall>,
-    receiverField: FieldSpec
+    receiverField: FieldSpec,
 ) {
     calls.forEach { (method, syntheticAccess) ->
         val count = method.method.parameters.size
@@ -195,7 +195,7 @@ private fun MethodSpec.Builder.writeMethodCalls(
                 "if (!$L || $N.approveCall($S, $callType))",
                 HAS_LOGGER_VAR,
                 METHODS_LOGGER,
-                methodName
+                methodName,
             )
             .apply {
                 if (syntheticAccess == null) {
@@ -204,7 +204,7 @@ private fun MethodSpec.Builder.writeMethodCalls(
                         "$N.$L($paramString)",
                         receiverField,
                         methodName,
-                        *takeParams(count, OWNER_PARAM, EVENT_PARAM)
+                        *takeParams(count, OWNER_PARAM, EVENT_PARAM),
                     )
                 } else {
                     val originalType = syntheticAccess
@@ -215,7 +215,7 @@ private fun MethodSpec.Builder.writeMethodCalls(
                         "$T.$L($paramString)",
                         className,
                         syntheticName(method.method),
-                        *takeParams(count + 1, receiverField, OWNER_PARAM, EVENT_PARAM)
+                        *takeParams(count + 1, receiverField, OWNER_PARAM, EVENT_PARAM),
                     )
                 }
             }

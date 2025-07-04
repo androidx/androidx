@@ -98,11 +98,11 @@ class DemoActivity : FragmentActivity() {
                 DecorFitsSystemWindowsEffect(
                     DecorFitsSystemWindowsSetting.asState().value,
                     hostView,
-                    window
+                    window,
                 )
 
                 CompositionLocalProvider(
-                    LocalLayoutDirection provides LayoutDirectionSetting.asState().value,
+                    LocalLayoutDirection provides LayoutDirectionSetting.asState().value
                 ) {
                     DemoTheme(DynamicThemeSetting.asState().value, this.hostView, window) {
                         val filteringMode =
@@ -128,7 +128,7 @@ class DemoActivity : FragmentActivity() {
                             onNavigateUp = { onBackPressed() },
                             launchSettings = {
                                 startActivity(Intent(this, DemoSettingsActivity::class.java))
-                            }
+                            },
                         )
                     }
                 }
@@ -145,7 +145,7 @@ private fun DemoTheme(
     isDynamicThemeOn: Boolean,
     view: View,
     window: Window,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val isDarkMode = isSystemInDarkTheme()
 
@@ -175,12 +175,12 @@ private constructor(
     private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
     private val rootDemo: Demo,
     initialDemo: Demo,
-    private val backStack: MutableList<Demo>
+    private val backStack: MutableList<Demo>,
 ) {
     constructor(
         rootDemo: Demo,
         backDispatcher: OnBackPressedDispatcher,
-        launchActivityDemo: (ActivityDemo<*>) -> Unit
+        launchActivityDemo: (ActivityDemo<*>) -> Unit,
     ) : this(backDispatcher, launchActivityDemo, rootDemo, rootDemo, mutableListOf<Demo>())
 
     private val onBackPressed =
@@ -232,7 +232,7 @@ private constructor(
         fun Saver(
             rootDemo: Demo,
             backDispatcher: OnBackPressedDispatcher,
-            launchActivityDemo: (ActivityDemo<*>) -> Unit
+            launchActivityDemo: (ActivityDemo<*>) -> Unit,
         ): Saver<Navigator, *> =
             listSaver<Navigator, String>(
                 save = { navigator ->
@@ -246,7 +246,7 @@ private constructor(
                         }
                     val initial = backStack.removeAt(backStack.lastIndex)
                     Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
-                }
+                },
             )
 
         fun findDemo(demo: Demo, title: String): Demo? {
@@ -323,7 +323,7 @@ private class FilterMode(backDispatcher: OnBackPressedDispatcher, initialValue: 
         fun Saver(backDispatcher: OnBackPressedDispatcher) =
             Saver<FilterMode, Boolean>(
                 save = { it.isFiltering },
-                restore = { FilterMode(backDispatcher, it) }
+                restore = { FilterMode(backDispatcher, it) },
             )
     }
 }

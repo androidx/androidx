@@ -70,14 +70,14 @@ fun TextStrokeDemo() {
             value = stroke.width,
             onValueChange = { stroke = stroke.copy(width = it) },
             valueRange = 0f..16f,
-            steps = 16
+            steps = 16,
         )
         Text("Miter")
         Slider(
             value = stroke.miter,
             onValueChange = { stroke = stroke.copy(miter = it) },
             valueRange = 0f..16f,
-            steps = 16
+            steps = 16,
         )
 
         Text("Dash on/off intervals")
@@ -85,29 +85,29 @@ fun TextStrokeDemo() {
             value = dashInterval,
             onValueChange = { dashInterval = it },
             valueRange = 0f..16f,
-            steps = 16
+            steps = 16,
         )
 
         Text("Cap")
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             RadioButton(
                 selected = stroke.cap == StrokeCap.Butt,
-                onClick = { stroke = stroke.copy(cap = StrokeCap.Butt) }
+                onClick = { stroke = stroke.copy(cap = StrokeCap.Butt) },
             )
             Text(text = "Butt", style = MaterialTheme.typography.body2)
 
             RadioButton(
                 selected = stroke.cap == StrokeCap.Round,
-                onClick = { stroke = stroke.copy(cap = StrokeCap.Round) }
+                onClick = { stroke = stroke.copy(cap = StrokeCap.Round) },
             )
             Text(text = "Round", style = MaterialTheme.typography.body2)
 
             RadioButton(
                 selected = stroke.cap == StrokeCap.Square,
-                onClick = { stroke = stroke.copy(cap = StrokeCap.Square) }
+                onClick = { stroke = stroke.copy(cap = StrokeCap.Square) },
             )
             Text(text = "Square", style = MaterialTheme.typography.body2)
         }
@@ -115,23 +115,23 @@ fun TextStrokeDemo() {
         Text("Join")
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             RadioButton(
                 selected = stroke.join == StrokeJoin.Round,
-                onClick = { stroke = stroke.copy(join = StrokeJoin.Round) }
+                onClick = { stroke = stroke.copy(join = StrokeJoin.Round) },
             )
             Text(text = "Round", style = MaterialTheme.typography.body2)
 
             RadioButton(
                 selected = stroke.join == StrokeJoin.Miter,
-                onClick = { stroke = stroke.copy(join = StrokeJoin.Miter) }
+                onClick = { stroke = stroke.copy(join = StrokeJoin.Miter) },
             )
             Text(text = "Miter", style = MaterialTheme.typography.body2)
 
             RadioButton(
                 selected = stroke.join == StrokeJoin.Bevel,
-                onClick = { stroke = stroke.copy(join = StrokeJoin.Bevel) }
+                onClick = { stroke = stroke.copy(join = StrokeJoin.Bevel) },
             )
             Text(text = "Bevel", style = MaterialTheme.typography.body2)
         }
@@ -144,9 +144,9 @@ fun TextStrokeDemo() {
                         fontSize = fontSize,
                         brush =
                             Brush.horizontalGradient(listOf(Color.Red, Color.Green, Color.Blue)),
-                        drawStyle = finalStroke
+                        drawStyle = finalStroke,
                     )
-                )
+                ),
         )
     }
 }
@@ -156,7 +156,7 @@ fun Stroke.copy(
     miter: Float = this.miter,
     cap: StrokeCap = this.cap,
     join: StrokeJoin = this.join,
-    pathEffect: PathEffect? = this.pathEffect
+    pathEffect: PathEffect? = this.pathEffect,
 ): Stroke {
     return Stroke(width, miter, cap, join, pathEffect)
 }

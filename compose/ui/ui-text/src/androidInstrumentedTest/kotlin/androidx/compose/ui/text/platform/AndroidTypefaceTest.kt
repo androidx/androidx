@@ -52,7 +52,7 @@ class AndroidTypefaceTest {
     @Suppress("DEPRECATION")
     private fun androidTypefaceFromFontFamily(
         context: Context,
-        fontFamily: FontFamily
+        fontFamily: FontFamily,
     ): AndroidTypeface {
         return Typeface(context, fontFamily) as AndroidTypeface
     }
@@ -141,7 +141,7 @@ class AndroidTypefaceTest {
                 FontWeight.W200,
                 FontWeight.W300,
                 FontWeight.W400,
-                FontWeight.W500
+                FontWeight.W500,
             )
 
         for (fontWeight in fontWeights) {
@@ -188,7 +188,7 @@ class AndroidTypefaceTest {
                 FontWeight.W200,
                 FontWeight.W300,
                 FontWeight.W400,
-                FontWeight.W500
+                FontWeight.W500,
             )
 
         for (fontWeight in fontWeights) {
@@ -297,7 +297,7 @@ class AndroidTypefaceTest {
                 FontTestData.FONT_800_REGULAR,
                 FontTestData.FONT_800_ITALIC,
                 FontTestData.FONT_900_REGULAR,
-                FontTestData.FONT_900_ITALIC
+                FontTestData.FONT_900_ITALIC,
             )
 
         for (fontWeight in FontWeight.values) {
@@ -325,7 +325,7 @@ class AndroidTypefaceTest {
             FontFamily(
                 FontTestData.FONT_200_ITALIC,
                 FontTestData.FONT_200_ITALIC_FALLBACK,
-                FontTestData.FONT_200_REGULAR
+                FontTestData.FONT_200_REGULAR,
             )
                 as FontListFontFamily
 
@@ -334,7 +334,7 @@ class AndroidTypefaceTest {
                     context = context,
                     fontFamily = fontFamily,
                     necessaryStyles = null,
-                    fontMatcher = FontMatcher()
+                    fontMatcher = FontMatcher(),
                 )
                 .getNativeTypeface(fontWeight, fontStyle, FontSynthesis.None)
 
@@ -376,7 +376,7 @@ class AndroidTypefaceTest {
             AndroidFontListTypeface(
                     context = context,
                     fontFamily = fontFamily,
-                    necessaryStyles = null
+                    necessaryStyles = null,
                 )
                 .getNativeTypeface(FontWeight.W800, FontStyle.Italic, FontSynthesis.None)
         assertThat(typeface).isTypefaceOf(FontWeight.W100, FontStyle.Normal)

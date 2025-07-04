@@ -39,6 +39,8 @@ public final class FontRequest {
     private final String mQuery;
     private final List<List<byte[]>> mCertificates;
     private final int mCertificatesArray;
+    private final @Nullable String mSystemFont;
+    private final @Nullable String mVariationSettings;
 
     // Used for key of the cache
     private final String mIdentifier;
@@ -56,12 +58,22 @@ public final class FontRequest {
      */
     public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
             @NonNull String query, @NonNull List<List<byte[]>> certificates) {
+        this(providerAuthority, providerPackage, query, certificates, null, null);
+    }
+
+    @RestrictTo(LIBRARY)
+    public FontRequest(@NonNull String providerAuthority, @NonNull String providerPackage,
+            @NonNull String query, @NonNull List<List<byte[]>> certificates,
+            @Nullable String systemFont, @Nullable String variationSettings) {
         mProviderAuthority = Preconditions.checkNotNull(providerAuthority);
         mProviderPackage = Preconditions.checkNotNull(providerPackage);
         mQuery = Preconditions.checkNotNull(query);
         mCertificates = Preconditions.checkNotNull(certificates);
         mCertificatesArray = 0;
-        mIdentifier = createIdentifier(providerAuthority, providerPackage, query);
+        mSystemFont = systemFont;
+        mVariationSettings = variationSettings;
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, systemFont,
+                mVariationSettings);
     }
 
     /**
@@ -83,15 +95,20 @@ public final class FontRequest {
         mCertificates = null;
         Preconditions.checkArgument(certificates != 0);
         mCertificatesArray = certificates;
-        mIdentifier = createIdentifier(providerAuthority, providerPackage, query);
+        mSystemFont = null;
+        mVariationSettings = null;
+        mIdentifier = createIdentifier(providerAuthority, providerPackage, query, null, null);
     }
 
     private String createIdentifier(
             @NonNull String providerAuthority,
             @NonNull String providerPackage,
-            @NonNull String query
+            @NonNull String query,
+            @Nullable String systemFont,
+            @Nullable String variationSettings
     ) {
-        return providerAuthority + "-" + providerPackage + "-" + query;
+        return providerAuthority + "-" + providerPackage + "-" + query + "-" + systemFont + "-"
+                + variationSettings;
     }
 
     /**
@@ -157,6 +174,16 @@ public final class FontRequest {
         return mIdentifier;
     }
 
+    @RestrictTo(LIBRARY)
+    public @Nullable String getSystemFont() {
+        return mSystemFont;
+    }
+
+    @RestrictTo(LIBRARY)
+    public @Nullable String getVariationSettings() {
+        return mVariationSettings;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -164,7 +191,10 @@ public final class FontRequest {
                 + "mProviderAuthority: " + mProviderAuthority
                 + ", mProviderPackage: " + mProviderPackage
                 + ", mQuery: " + mQuery
+                + ", mSystemFont: " + mSystemFont
+                + ", mVariationSettings: " + mVariationSettings
                 + ", mCertificates:");
+
         for (int i = 0; i < mCertificates.size(); i++) {
             builder.append(" [");
             List<byte[]> set = mCertificates.get(i);

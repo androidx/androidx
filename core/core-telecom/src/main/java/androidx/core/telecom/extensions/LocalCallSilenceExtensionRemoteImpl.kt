@@ -39,7 +39,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @OptIn(ExperimentalAppActions::class)
 internal class LocalCallSilenceExtensionRemoteImpl(
     private val callScope: CoroutineScope,
-    private val onLocalSilenceStateUpdated: suspend (Boolean) -> Unit
+    private val onLocalSilenceStateUpdated: suspend (Boolean) -> Unit,
 ) : LocalCallSilenceExtensionRemote {
 
     companion object {
@@ -73,7 +73,7 @@ internal class LocalCallSilenceExtensionRemoteImpl(
 
     internal suspend fun onExchangeComplete(
         negotiatedCapability: Capability?,
-        remote: CapabilityExchangeListenerRemote?
+        remote: CapabilityExchangeListenerRemote?,
     ) {
         if (negotiatedCapability == null || remote == null) {
             Log.i(TAG, "onNegotiated: remote is not capable")
@@ -96,7 +96,7 @@ internal class LocalCallSilenceExtensionRemoteImpl(
 
     private suspend fun connectToRemote(
         negotiatedCapability: Capability,
-        remote: CapabilityExchangeListenerRemote
+        remote: CapabilityExchangeListenerRemote,
     ): LocalCallSilenceActionsRemote? = suspendCancellableCoroutine { continuation ->
         val stateListener =
             LocalCallSilenceStateListener(
@@ -115,12 +115,12 @@ internal class LocalCallSilenceExtensionRemoteImpl(
                 },
                 finishSync = { remoteBinder ->
                     callScope.launch { continuation.resume(remoteBinder) }
-                }
+                },
             )
         remote.onCreateLocalCallSilenceExtension(
             negotiatedCapability.featureVersion,
             negotiatedCapability.supportedActions,
-            stateListener
+            stateListener,
         )
     }
 }

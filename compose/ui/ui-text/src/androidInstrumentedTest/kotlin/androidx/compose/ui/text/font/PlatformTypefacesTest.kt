@@ -79,7 +79,7 @@ class PlatformTypefacesTest {
 
     private fun PlatformTypefaces.assertCreateNamedIsNotDefault(
         fontFamily: GenericFontFamily,
-        forRange: IntRange
+        forRange: IntRange,
     ) {
         val boldTypeface =
             android.graphics.Typeface.create(fontFamily.name, android.graphics.Typeface.BOLD)
@@ -91,7 +91,7 @@ class PlatformTypefacesTest {
                 createNamed(
                     name = fontFamily,
                     fontWeight = FontWeight(weight),
-                    fontStyle = FontStyle.Normal
+                    fontStyle = FontStyle.Normal,
                 )
             assertThat(actualTypefaceUpright).isNotEqualTo(boldTypeface)
             assertThat(actualTypefaceUpright).isNotEqualTo(normalTypeface)
@@ -110,23 +110,23 @@ class PlatformTypefacesTest {
     @RequiresApi(28)
     private fun PlatformTypefaces.assertCreateNamedIsDefault(
         fontFamily: GenericFontFamily,
-        forRange: IntRange
+        forRange: IntRange,
     ) {
         for (weight in forRange) {
             val normalTypeface =
                 android.graphics.Typeface.create(
                     android.graphics.Typeface.create(
                         fontFamily.name,
-                        android.graphics.Typeface.NORMAL
+                        android.graphics.Typeface.NORMAL,
                     ),
                     weight,
-                    false
+                    false,
                 )
             val actualTypefaceUpright =
                 createNamed(
                     name = fontFamily,
                     fontWeight = FontWeight(weight),
-                    fontStyle = FontStyle.Normal
+                    fontStyle = FontStyle.Normal,
                 )
             assertThat(actualTypefaceUpright).isEqualTo(normalTypeface)
         }
@@ -144,7 +144,7 @@ class PlatformTypefacesTest {
                     FontWeight(weight),
                     FontStyle.Normal,
                     FontVariation.Settings(),
-                    context
+                    context,
                 )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
@@ -162,7 +162,7 @@ class PlatformTypefacesTest {
                     FontWeight(weight),
                     FontStyle.Normal,
                     FontVariation.Settings(),
-                    context
+                    context,
                 )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
@@ -180,7 +180,7 @@ class PlatformTypefacesTest {
                     FontWeight(weight),
                     FontStyle.Normal,
                     FontVariation.Settings(),
-                    context
+                    context,
                 )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }
@@ -198,7 +198,7 @@ class PlatformTypefacesTest {
                     FontWeight(weight),
                     FontStyle.Normal,
                     FontVariation.Settings(),
-                    context
+                    context,
                 )
             assertThat(genericFontFamilyTypeface).isEqualTo(optionalOnDeviceFontFamilyTypeface)
         }

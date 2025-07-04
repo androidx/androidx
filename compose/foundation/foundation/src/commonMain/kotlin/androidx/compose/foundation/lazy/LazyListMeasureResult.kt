@@ -88,7 +88,7 @@ internal class LazyListMeasureResult(
      */
     fun copyWithScrollDeltaWithoutRemeasure(
         delta: Int,
-        updateAnimations: Boolean
+        updateAnimations: Boolean,
     ): LazyListMeasureResult? {
         if (
             remeasureNeeded ||
@@ -142,7 +142,7 @@ internal class LazyListMeasureResult(
                 reverseLayout = reverseLayout,
                 orientation = orientation,
                 afterContentPadding = afterContentPadding,
-                mainAxisItemSpacing = mainAxisItemSpacing
+                mainAxisItemSpacing = mainAxisItemSpacing,
             )
         } else {
             null

@@ -61,7 +61,7 @@ class InitializerConstructorTest {
             class TestInitializer(val int: Int): Initializer<Unit> {
 
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")

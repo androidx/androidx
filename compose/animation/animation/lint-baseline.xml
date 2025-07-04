@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    val resolveMeasureConstraints: (animatedSize: IntSize, constraints: Constraints) -> Constraints,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimateBoundsModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    val finishedListener: ((initialValue: IntSize, targetValue: IntSize) -> Unit)?,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/AnimationModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    var isEnabled: () -> Boolean,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/EnterExitTransition.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    var renderInOverlay: () -> Boolean,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/RenderInTransitionOverlayNodeElement.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    val isEnabled: () -> Boolean = DefaultEnabled,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/SkipToLookaheadNode.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        val target = states.firstOrNull { it.target }"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/SharedElement.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    private var targetBoundsProviderUpdateRequestId by mutableStateOf(0)"
+        errorLine2="                                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/animation/SharedElement.kt"/>
+    </issue>
+
+</issues>

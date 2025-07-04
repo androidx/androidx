@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
+import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.OptIn;
@@ -111,27 +112,36 @@ class Camera2CaptureRequestBuilder {
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private static void applyAeFpsRange(@NonNull CaptureConfig captureConfig,
             CaptureRequest.@NonNull Builder builder) {
-        if (!captureConfig.getExpectedFrameRateRange().equals(
+        Range<Integer> expectedFrameRateRange = captureConfig.getExpectedFrameRateRange();
+        if (!expectedFrameRateRange.equals(
                 StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
-            builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                    captureConfig.getExpectedFrameRateRange());
+            builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, expectedFrameRateRange);
         }
-
+        Logger.d(TAG, "applyAeFpsRange: expectedFrameRateRange = " + expectedFrameRateRange);
     }
 
     @VisibleForTesting
     static void applyVideoStabilization(@NonNull CaptureConfig captureConfig,
             CaptureRequest.@NonNull Builder builder) {
+        Integer mode = getVideoStabilizationModeFromCaptureConfig(captureConfig);
+        if (mode != null) {
+            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, mode);
+        }
+        Logger.d(TAG, "applyVideoStabilization: mode = " + mode);
+    }
+
+    // null indicates the stabilization mode unspecified.
+    static Integer getVideoStabilizationModeFromCaptureConfig(
+            @NonNull CaptureConfig captureConfig) {
         if (captureConfig.getPreviewStabilizationMode() == StabilizationMode.OFF
                 || captureConfig.getVideoStabilizationMode() == StabilizationMode.OFF) {
-            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF);
+            return CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
         } else if (captureConfig.getPreviewStabilizationMode() == StabilizationMode.ON) {
-            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION);
+            return CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
         } else if (captureConfig.getVideoStabilizationMode() == StabilizationMode.ON) {
-            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+            return CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON;
+        } else {
+            return null;
         }
     }
 

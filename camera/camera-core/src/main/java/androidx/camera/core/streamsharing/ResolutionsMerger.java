@@ -81,7 +81,7 @@ public class ResolutionsMerger {
 
     ResolutionsMerger(@NonNull CameraInternal cameraInternal,
             @NonNull Set<UseCaseConfig<?>> childrenConfigs) {
-        this(rectToSize(cameraInternal.getCameraControlInternal().getSensorRect()),
+        this(rectToSize(cameraInternal.getCameraInfoInternal().getSensorRect()),
                 cameraInternal.getCameraInfoInternal(), childrenConfigs);
     }
 
@@ -130,10 +130,11 @@ public class ResolutionsMerger {
     }
 
     /**
-     * Returns a preferred pair composed of a crop rect before scaling and a size after scaling.
+     * Returns a {@link PreferredChildSize} object containing the preferred size information for a
+     * child.
      *
      * <p>The first size in the child's ordered size list that does not require the parent to
-     * upscale and does not cause double-cropping will be used to generate the pair, or {@code
+     * upscale and does not cause double-cropping will be used to generate the result, or {@code
      * parentCropRect} will be used if no matching is found.
      *
      * <p>The returned crop rect and size will have the same aspect-ratio. When {@code
@@ -143,8 +144,10 @@ public class ResolutionsMerger {
      * <p>Notes that the input {@code childConfig} is expected to be one of the values that use to
      * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
      */
-    @NonNull Pair<Rect, Size> getPreferredChildSizePair(@NonNull UseCaseConfig<?> childConfig,
-            @NonNull Rect parentCropRect, int sensorToBufferRotationDegrees,
+    @NonNull PreferredChildSize getPreferredChildSize(
+            @NonNull UseCaseConfig<?> childConfig,
+            @NonNull Rect parentCropRect,
+            int sensorToBufferRotationDegrees,
             boolean isViewportSet) {
         // For easier in following computations, width and height are reverted when the rotation
         // degrees of sensor-to-buffer is 90 or 270.
@@ -154,27 +157,27 @@ public class ResolutionsMerger {
             isWidthHeightRevertedForComputation = true;
         }
 
-        // Get preferred child size pair.
-        Pair<Rect, Size> pair = getPreferredChildSizePairInternal(parentCropRect, childConfig,
-                isViewportSet);
-        Rect cropRectBeforeScaling = pair.first;
-        Size childSizeToScale = pair.second;
+        // Get preferred child size.
+        PreferredChildSize preferredChildSize = getPreferredChildSizeInternal(
+                parentCropRect, childConfig, isViewportSet);
 
         // Restore the reversion of width and height
         if (isWidthHeightRevertedForComputation) {
-            childSizeToScale = reverseSize(childSizeToScale);
-            cropRectBeforeScaling = reverseRect(cropRectBeforeScaling);
+            preferredChildSize = new PreferredChildSize(
+                    reverseRect(preferredChildSize.getCropRectBeforeScaling()),
+                    reverseSize(preferredChildSize.getChildSizeToScale()),
+                    preferredChildSize.getOriginalSelectedChildSize());
         }
 
-        return new Pair<>(cropRectBeforeScaling, childSizeToScale);
-
+        return preferredChildSize;
     }
 
-    private @NonNull Pair<Rect, Size> getPreferredChildSizePairInternal(
+    private @NonNull PreferredChildSize getPreferredChildSizeInternal(
             @NonNull Rect parentCropRect, @NonNull UseCaseConfig<?> childConfig,
             boolean isViewportSet) {
         Rect cropRectBeforeScaling;
         Size childSizeToScale;
+        Size selectedChildSize;
 
         if (isViewportSet) {
             cropRectBeforeScaling = parentCropRect;
@@ -182,14 +185,16 @@ public class ResolutionsMerger {
             // When viewport is set, child size needs to be cropped to match viewport's
             // aspect-ratio.
             Size viewPortSize = rectToSize(parentCropRect);
-            childSizeToScale = getPreferredChildSizeForViewport(viewPortSize, childConfig);
+            Pair<Size, Size> pair = getPreferredChildSizeForViewport(viewPortSize, childConfig);
+            selectedChildSize = pair.first;
+            childSizeToScale = pair.second;
         } else {
             Size parentSize = rectToSize(parentCropRect);
-            childSizeToScale = getPreferredChildSize(parentSize, childConfig);
+            childSizeToScale = selectedChildSize = getPreferredChildSize(parentSize, childConfig);
             cropRectBeforeScaling = getCropRectOfReferenceAspectRatio(parentSize, childSizeToScale);
         }
 
-        return new Pair<>(cropRectBeforeScaling, childSizeToScale);
+        return new PreferredChildSize(cropRectBeforeScaling, childSizeToScale, selectedChildSize);
     }
 
     /**
@@ -242,7 +247,7 @@ public class ResolutionsMerger {
      * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
      */
     @VisibleForTesting
-    @NonNull Size getPreferredChildSizeForViewport(@NonNull Size parentSize,
+    @NonNull Pair<Size, Size> getPreferredChildSizeForViewport(@NonNull Size parentSize,
             @NonNull UseCaseConfig<?> childConfig) {
         List<Size> candidateChildSizes = getSortedChildSizes(childConfig);
 
@@ -251,11 +256,11 @@ public class ResolutionsMerger {
                     getCropRectOfReferenceAspectRatio(childSize, parentSize));
 
             if (!hasUpscaling(childSizeToCrop, parentSize)) {
-                return childSizeToCrop;
+                return Pair.create(childSize, childSizeToCrop);
             }
         }
 
-        return parentSize;
+        return Pair.create(parentSize, parentSize);
     }
 
     private @NonNull List<Size> getCameraSupportedResolutions() {

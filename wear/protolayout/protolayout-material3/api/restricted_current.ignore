@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion#getBottom():
+    Binary breaking change: Removed method androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion.getBottom()
+RemovedMethod: androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion#getTop():
+    Binary breaking change: Removed method androidx.wear.protolayout.material3.TitleContentPlacementInDataCard.Companion.getTop()

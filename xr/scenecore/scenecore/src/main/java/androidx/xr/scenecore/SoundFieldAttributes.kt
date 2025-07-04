@@ -18,29 +18,31 @@ package androidx.xr.scenecore
 
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.internal.SoundFieldAttributes as RtSoundFieldAttributes
+import androidx.xr.runtime.internal.SpatializerConstants as RtSpatializerConstants
 
 /** Configures ambisonics sound sources. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SoundFieldAttributes(@SpatializerConstants.AmbisonicsOrder public val order: Int) {
 
-    internal val rtSoundFieldAttributes: JxrPlatformAdapter.SoundFieldAttributes
+    internal val rtSoundFieldAttributes: RtSoundFieldAttributes
 
     init {
         val rtOrder =
             when (order) {
                 SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER ->
-                    JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
+                    RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
                 SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER ->
-                    JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
+                    RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
                 SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER ->
-                    JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
+                    RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
                 else -> {
                     Log.e(TAG, "Unknown ambisonics order.")
                     order
                 }
             }
 
-        rtSoundFieldAttributes = JxrPlatformAdapter.SoundFieldAttributes(rtOrder)
+        rtSoundFieldAttributes = RtSoundFieldAttributes(rtOrder)
     }
 
     private companion object {
@@ -48,7 +50,6 @@ public class SoundFieldAttributes(@SpatializerConstants.AmbisonicsOrder public v
     }
 }
 
-internal fun JxrPlatformAdapter.SoundFieldAttributes.toSoundFieldAttributes():
-    SoundFieldAttributes {
+internal fun RtSoundFieldAttributes.toSoundFieldAttributes(): SoundFieldAttributes {
     return SoundFieldAttributes(this.ambisonicsOrder.ambisonicsOrderToJxr())
 }

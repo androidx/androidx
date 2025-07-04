@@ -329,14 +329,14 @@ open class SplitAttributesToggleMainActivity :
                 ActivityFilter(
                     ComponentName(
                         this@SplitAttributesToggleMainActivity,
-                        SplitAttributesTogglePrimaryActivity::class.java
+                        SplitAttributesTogglePrimaryActivity::class.java,
                     ),
                     intentAction = null,
                 )
             val placeholderIntent =
                 Intent(
                     this@SplitAttributesToggleMainActivity,
-                    SplitAttributesTogglePlaceholderActivity::class.java
+                    SplitAttributesTogglePlaceholderActivity::class.java,
                 )
             val splitPlaceholderRule =
                 SplitPlaceholderRule.Builder(setOf(placeholderFilter), placeholderIntent)
@@ -365,11 +365,11 @@ open class SplitAttributesToggleMainActivity :
                 SplitPairFilter(
                     ComponentName(
                         this@SplitAttributesToggleMainActivity,
-                        SplitAttributesTogglePrimaryActivity::class.java
+                        SplitAttributesTogglePrimaryActivity::class.java,
                     ),
                     ComponentName(
                         this@SplitAttributesToggleMainActivity,
-                        SplitAttributesToggleSecondaryActivity::class.java
+                        SplitAttributesToggleSecondaryActivity::class.java,
                     ),
                     secondaryActivityIntentAction = null,
                 )
@@ -440,6 +440,15 @@ open class SplitAttributesToggleMainActivity :
             R.id.animation_background_dropdown ->
                 demoActivityEmbeddingController.animationBackground =
                     DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
+            R.id.open_animation_dropdown ->
+                demoActivityEmbeddingController.openAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.close_animation_dropdown ->
+                demoActivityEmbeddingController.closeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.change_animation_dropdown ->
+                demoActivityEmbeddingController.changeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
         }
         activityEmbeddingController.invalidateVisibleActivityStacks()
     }

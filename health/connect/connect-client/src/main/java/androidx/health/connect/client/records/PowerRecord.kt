@@ -36,7 +36,7 @@ public class PowerRecord(
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val samples: List<Sample>,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : SeriesRecord<PowerRecord.Sample> {
 
     init {
@@ -130,10 +130,7 @@ public class PowerRecord(
      * @param power Power generated, in [Power] unit. Valid range: 0-100000 Watts.
      * @see PowerRecord
      */
-    public class Sample(
-        val time: Instant,
-        val power: Power,
-    ) {
+    public class Sample(val time: Instant, val power: Power) {
 
         init {
             power.requireNotLess(other = power.zero(), name = "power")

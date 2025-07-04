@@ -16,29 +16,28 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common
 
-import android.graphics.Point
+import android.os.SystemClock
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.test.uiautomator.By
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.EdgeButton
-import androidx.wear.compose.material3.EdgeButtonSize
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.ScreenScaffoldDefaults
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.lazy.scrollTransform
+import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import kotlinx.coroutines.launch
 
 val TransformingLazyColumnBenchmark =
@@ -46,31 +45,26 @@ val TransformingLazyColumnBenchmark =
         override val content: @Composable (BoxScope.() -> Unit)
             get() = {
                 val state = rememberTransformingLazyColumnState()
+                val transformationSpec = rememberTransformationSpec()
                 val coroutineScope = rememberCoroutineScope()
                 AppScaffold {
                     ScreenScaffold(
                         state,
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 20.dp),
                         edgeButton = {
                             EdgeButton(
                                 onClick = { coroutineScope.launch { state.scrollToItem(1) } }
                             ) {
                                 Text("To top")
                             }
-                        }
-                    ) {
+                        },
+                    ) { contentPadding ->
                         TransformingLazyColumn(
                             state = state,
-                            contentPadding =
-                                ScreenScaffoldDefaults.contentPaddingWithEdgeButton(
-                                    EdgeButtonSize.Small,
-                                    start = 10.dp,
-                                    end = 10.dp,
-                                    top = 20.dp,
-                                    extraBottom = 20.dp
-                                ),
+                            contentPadding = contentPadding,
                             modifier =
                                 Modifier.background(MaterialTheme.colorScheme.background)
-                                    .semantics { contentDescription = CONTENT_DESCRIPTION }
+                                    .semantics { contentDescription = CONTENT_DESCRIPTION },
                         ) {
                             items(5000) {
                                 Text(
@@ -80,13 +74,12 @@ val TransformingLazyColumnBenchmark =
                                     modifier =
                                         Modifier.fillMaxWidth()
                                             // Apply Material 3 Motion transformations.
-                                            .scrollTransform(
-                                                this,
-                                                backgroundColor =
-                                                    MaterialTheme.colorScheme.surfaceContainer,
-                                                shape = MaterialTheme.shapes.small
-                                            )
-                                            .padding(10.dp)
+                                            .graphicsLayer {
+                                                with(transformationSpec) {
+                                                    applyContentTransformation(scrollProgress)
+                                                }
+                                            }
+                                            .padding(10.dp),
                                 )
                             }
                         }
@@ -96,12 +89,13 @@ val TransformingLazyColumnBenchmark =
 
         override val exercise: MacrobenchmarkScope.() -> Unit
             get() = {
-                val list = device.findObject(By.desc(CONTENT_DESCRIPTION))
-                // Setting a gesture margin is important otherwise gesture nav is triggered.
-                list.setGestureMargin(device.displayWidth / 5)
-                repeat(5) {
-                    list.drag(Point(list.visibleCenter.x, list.visibleCenter.y / 3))
+                val swipeStartY = device.displayHeight * 9 / 10 // scroll up
+                val swipeEndY = device.displayHeight / 2
+                val midX = device.displayWidth / 2
+                repeat(20) {
+                    device.swipe(midX, swipeStartY, midX, swipeEndY, 5)
                     device.waitForIdle()
+                    SystemClock.sleep(500)
                 }
             }
     }

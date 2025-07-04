@@ -28,7 +28,7 @@ internal val ValidatingEmptyOffsetMappingIdentity: OffsetMapping =
     ValidatingOffsetMapping(
         delegate = OffsetMapping.Identity,
         originalLength = 0,
-        transformedLength = 0
+        transformedLength = 0,
     )
 
 internal fun VisualTransformation.filterWithValidation(text: AnnotatedString): TransformedText {
@@ -44,8 +44,8 @@ internal fun VisualTransformation.filterWithValidation(text: AnnotatedString): T
         ValidatingOffsetMapping(
             delegate = delegate.offsetMapping,
             originalLength = text.length,
-            transformedLength = delegate.text.length
-        )
+            transformedLength = delegate.text.length,
+        ),
     )
 }
 
@@ -81,7 +81,7 @@ internal fun TransformedText.throwIfNotValidTransform(originalLength: Int, limit
 private class ValidatingOffsetMapping(
     private val delegate: OffsetMapping,
     private val originalLength: Int,
-    private val transformedLength: Int
+    private val transformedLength: Int,
 ) : OffsetMapping {
 
     /**
@@ -124,7 +124,7 @@ private fun validateTransformedToOriginal(originalOffset: Int, originalLength: I
 private fun validateOriginalToTransformed(
     transformedOffset: Int,
     transformedLength: Int,
-    offset: Int
+    offset: Int,
 ) {
     checkPrecondition(transformedOffset in 0..transformedLength) {
         "OffsetMapping.originalToTransformed returned invalid mapping: " +

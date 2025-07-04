@@ -6,6 +6,7 @@ package androidx.wear.tiles.proto;
 import "state.proto";
 import "timeline.proto";
 import "version.proto";
+import "resources.proto";
 
 option java_package = "androidx.wear.tiles.proto";
 option java_outer_classname = "TileProto";
@@ -48,4 +49,8 @@ message Tile {
   // fetch new state at some point in the future after this interval has lapsed.
   // A value of 0 here signifies that auto-refreshes should not be used.
   uint64 state_freshness_interval_millis = 6;
+
+  // The resources associated with this tile.
+  androidx.wear.protolayout.proto.Resources resources = 7;
 }
+

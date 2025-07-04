@@ -72,7 +72,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag"),
             )
 
         val assertionError = assertThrows(AssertionError::class.java) { assertion.assertExists() }
@@ -102,7 +102,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "non-existing-test-tag"),
             )
 
         assertion.assertDoesNotExist()
@@ -125,7 +125,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
             )
 
         val assertionError =
@@ -156,7 +156,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
             )
 
         assertion.assert(hasText(text = "another text"))
@@ -179,7 +179,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
             )
 
         assertion.assertExists().assert(hasText(text = "another text"))
@@ -202,7 +202,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
             )
 
         val assertionError =
@@ -235,7 +235,7 @@ class GlanceNodeAssertionTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag(testTag = "existing-test-tag")
+                onNodeMatcher = hasTestTag(testTag = "existing-test-tag"),
             )
 
         val assertionError =

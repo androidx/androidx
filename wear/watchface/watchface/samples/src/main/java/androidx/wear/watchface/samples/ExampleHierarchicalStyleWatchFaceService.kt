@@ -62,7 +62,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id("12_style"),
                 resources,
                 R.string.digital_clock_style_12,
-                R.string.digital_clock_style_12_screen_reader
+                R.string.digital_clock_style_12_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
             .build()
@@ -73,7 +73,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id("24_style"),
                 resources,
                 R.string.digital_clock_style_24,
-                R.string.digital_clock_style_24_screen_reader
+                R.string.digital_clock_style_24_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
             .build()
@@ -91,14 +91,14 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                                     COMPLICATION1_ID,
                                     enabled = true,
                                     complicationSlotBounds =
-                                        ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f))
+                                        ComplicationSlotBounds(RectF(0.1f, 0.4f, 0.3f, 0.6f)),
                                 ),
                                 ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                                ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                                ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false),
                             ),
                             resources,
                             R.string.digital_complication_on_screen_name,
-                            R.string.digital_complication_on_screen_name
+                            R.string.digital_complication_on_screen_name,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.on) }
                         .build(),
@@ -107,19 +107,19 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                             listOf(
                                 ComplicationSlotOverlay(COMPLICATION1_ID, enabled = false),
                                 ComplicationSlotOverlay(COMPLICATION2_ID, enabled = false),
-                                ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false)
+                                ComplicationSlotOverlay(COMPLICATION3_ID, enabled = false),
                             ),
                             resources,
                             R.string.digital_complication_off_screen_name,
-                            R.string.digital_complication_off_screen_name
+                            R.string.digital_complication_off_screen_name,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.off) }
-                        .build()
+                        .build(),
                 ),
                 listOf(WatchFaceLayer.COMPLICATIONS),
                 resources,
                 R.string.digital_complications_setting,
-                R.string.digital_complications_setting_description
+                R.string.digital_complications_setting_description,
             )
             .build()
     }
@@ -131,7 +131,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 resources,
                 R.string.digital_clock_style_name,
-                R.string.digital_clock_style_description
+                R.string.digital_clock_style_description,
             )
             .build()
     }
@@ -141,7 +141,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id(RED_STYLE),
                 resources,
                 R.string.colors_style_red,
-                R.string.colors_style_red_screen_reader
+                R.string.colors_style_red_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
             .build()
@@ -152,7 +152,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id(GREEN_STYLE),
                 resources,
                 R.string.colors_style_green,
-                R.string.colors_style_green_screen_reader
+                R.string.colors_style_green_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
             .build()
@@ -163,7 +163,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id(BLUE_STYLE),
                 resources,
                 R.string.colors_style_blue,
-                R.string.colors_style_blue_screen_reader
+                R.string.colors_style_blue_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
             .build()
@@ -176,11 +176,11 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 listOf(
                     WatchFaceLayer.BASE,
                     WatchFaceLayer.COMPLICATIONS,
-                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                    WatchFaceLayer.COMPLICATIONS_OVERLAY,
                 ),
                 resources,
                 R.string.colors_style_setting,
-                R.string.colors_style_setting_description
+                R.string.colors_style_setting_description,
             )
             .build()
     }
@@ -192,7 +192,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 defaultValue = true,
                 resources,
                 R.string.watchface_draw_hours_setting,
-                R.string.watchface_draw_hours_setting_description
+                R.string.watchface_draw_hours_setting_description,
             )
             .build()
     }
@@ -212,11 +212,11 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                                     .build(),
                                 ComplicationSlotOverlay.Builder(COMPLICATION3_ID)
                                     .setEnabled(false)
-                                    .build()
+                                    .build(),
                             ),
                             resources,
                             R.string.analog_complication_one_screen_name,
-                            R.string.analog_complication_one_screen_name
+                            R.string.analog_complication_one_screen_name,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.one) }
                         .build(),
@@ -235,7 +235,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                             ),
                             resources,
                             R.string.analog_complication_two_screen_name,
-                            R.string.analog_complication_two_screen_name
+                            R.string.analog_complication_two_screen_name,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.two) }
                         .build(),
@@ -250,19 +250,19 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                                     .build(),
                                 ComplicationSlotOverlay.Builder(COMPLICATION3_ID)
                                     .setEnabled(true)
-                                    .build()
+                                    .build(),
                             ),
                             resources,
                             R.string.analog_complication_three_screen_name,
-                            R.string.analog_complication_three_screen_name
+                            R.string.analog_complication_three_screen_name,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.three) }
-                        .build()
+                        .build(),
                 ),
                 listOf(WatchFaceLayer.COMPLICATIONS),
                 resources,
                 R.string.watchface_complications_setting,
-                R.string.watchface_complications_setting_description
+                R.string.watchface_complications_setting_description,
             )
             .build()
     }
@@ -272,7 +272,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id("digital"),
                 resources,
                 R.string.style_digital_watch,
-                R.string.style_digital_watch_screen_reader
+                R.string.style_digital_watch_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.d) }
             .setChildSettings(
@@ -286,7 +286,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 UserStyleSetting.Option.Id("analog"),
                 resources,
                 R.string.style_analog_watch,
-                R.string.style_analog_watch_screen_reader
+                R.string.style_analog_watch_screen_reader,
             )
             .setIcon { Icon.createWithResource(this, R.drawable.a) }
             .setChildSettings(
@@ -302,7 +302,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                 resources,
                 R.string.clock_type,
-                R.string.clock_type_description
+                R.string.clock_type_description,
             )
             .build()
     }
@@ -315,7 +315,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 colorStyleSetting,
                 drawHoursSetting,
                 digitalComplicationSettings,
-                analogComplicationSettings
+                analogComplicationSettings,
             )
         )
 
@@ -329,7 +329,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             CanvasComplicationDrawable(
                 watchFaceStyle.getDrawable(this@ExampleHierarchicalStyleWatchFaceService)!!,
                 watchState,
-                listener
+                listener,
             )
         }
 
@@ -343,13 +343,13 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         ComplicationType.WEIGHTED_ELEMENTS,
                         ComplicationType.SHORT_TEXT,
                         ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
+                        ComplicationType.SMALL_IMAGE,
                     ),
                     DefaultComplicationDataSourcePolicy(
                         SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
-                        ComplicationType.RANGED_VALUE
+                        ComplicationType.RANGED_VALUE,
                     ),
-                    ComplicationSlotBounds(RectF(0.6f, 0.1f, 0.8f, 0.3f))
+                    ComplicationSlotBounds(RectF(0.6f, 0.1f, 0.8f, 0.3f)),
                 )
                 .setNameResourceId(R.string.hierarchical_complication1_screen_name)
                 .setScreenReaderNameResourceId(
@@ -367,13 +367,13 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         ComplicationType.WEIGHTED_ELEMENTS,
                         ComplicationType.SHORT_TEXT,
                         ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
+                        ComplicationType.SMALL_IMAGE,
                     ),
                     DefaultComplicationDataSourcePolicy(
                         SystemDataSources.DATA_SOURCE_TIME_AND_DATE,
-                        ComplicationType.SHORT_TEXT
+                        ComplicationType.SHORT_TEXT,
                     ),
-                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
                 )
                 .setNameResourceId(R.string.hierarchical_complication2_screen_name)
                 .setScreenReaderNameResourceId(
@@ -391,13 +391,13 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         ComplicationType.WEIGHTED_ELEMENTS,
                         ComplicationType.SHORT_TEXT,
                         ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
+                        ComplicationType.SMALL_IMAGE,
                     ),
                     DefaultComplicationDataSourcePolicy(
                         SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-                        ComplicationType.SHORT_TEXT
+                        ComplicationType.SHORT_TEXT,
                     ),
-                    ComplicationSlotBounds(RectF(0.6f, 0.7f, 0.8f, 0.9f))
+                    ComplicationSlotBounds(RectF(0.6f, 0.7f, 0.8f, 0.9f)),
                 )
                 .setNameResourceId(R.string.hierarchical_complication3_screen_name)
                 .setScreenReaderNameResourceId(
@@ -407,7 +407,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
 
         return ComplicationSlotsManager(
             listOf(complicationOne, complicationTwo, complicationThree),
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
     }
 
@@ -415,7 +415,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
             WatchFaceType.ANALOG,
@@ -426,7 +426,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16L
+                    16L,
                 ) {
                 val renderer = ExampleHierarchicalStyleWatchFaceRenderer()
                 val context: Context = this@ExampleHierarchicalStyleWatchFaceService
@@ -476,7 +476,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                                             "Unrecognized colorStyleSetting " +
                                                 currentStyle[colorStyleSetting]
                                         )
-                                }
+                                },
                             )
                         analogWatchFaceType ->
                             renderer.renderAnalog(
@@ -506,19 +506,19 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
                 ) {
                     for ((_, complication) in complicationSlotsManager.complicationSlots) {
                         if (complication.enabled) {
                             complication.renderHighlightLayer(
                                 canvas,
                                 zonedDateTime,
-                                renderParameters
+                                renderParameters,
                             )
                         }
                     }
                 }
-            }
+            },
         )
 
     private class ExampleHierarchicalStyleWatchFaceRenderer {
@@ -572,7 +572,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             renderParameters: RenderParameters,
             watchState: WatchState,
             twentyFourHour: Boolean,
-            color: IntArray
+            color: IntArray,
         ) {
             val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
             val hour = zonedDateTime.hour % if (twentyFourHour) 24 else 12
@@ -602,7 +602,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 timeText.size,
                 bounds.centerX().toFloat(),
                 (bounds.centerY() - watchState.chinHeight - timeOffset).toFloat(),
-                paint
+                paint,
             )
 
             paint.textSize = SECONDS_TEXT_HEIGHT
@@ -615,7 +615,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                     secondsText.size,
                     bounds.centerX().toFloat(),
                     (bounds.centerY() - watchState.chinHeight - secondsActiveOffset).toFloat(),
-                    paint
+                    paint,
                 )
             }
         }
@@ -625,7 +625,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
             bounds: Rect,
             zonedDateTime: ZonedDateTime,
             renderParameters: RenderParameters,
-            drawHourPips: Boolean
+            drawHourPips: Boolean,
         ) {
             val isActive = renderParameters.drawMode !== DrawMode.AMBIENT
 
@@ -645,7 +645,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                         mark,
                         bounds.exactCenterX() + dx - textBounds.width() / 2.0f,
                         bounds.exactCenterY() + dy + textBounds.height() / 2.0f,
-                        paint
+                        paint,
                     )
                 }
             }
@@ -668,7 +668,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 bounds.exactCenterY(),
                 bounds.exactCenterX() + sin(hourRot) * hourXRadius,
                 bounds.exactCenterY() - cos(hourRot) * hourYRadius,
-                paint
+                paint,
             )
 
             val minuteXRadius = bounds.width() * 0.4f
@@ -680,7 +680,7 @@ open class ExampleHierarchicalStyleWatchFaceService : SampleWatchFaceService() {
                 bounds.exactCenterY(),
                 bounds.exactCenterX() + sin(minuteRot) * minuteXRadius,
                 bounds.exactCenterY() - cos(minuteRot) * minuteYRadius,
-                paint
+                paint,
             )
         }
     }

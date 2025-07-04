@@ -29,7 +29,7 @@ class FakeProvider(private val success: Boolean) : CredentialProvider {
         request: GetCredentialRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
         TODO("Not yet implemented")
     }
@@ -39,7 +39,7 @@ class FakeProvider(private val success: Boolean) : CredentialProvider {
         request: CreateCredentialRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
         TODO("Not yet implemented")
     }
@@ -52,7 +52,7 @@ class FakeProvider(private val success: Boolean) : CredentialProvider {
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Void?, ClearCredentialException>
+        callback: CredentialManagerCallback<Void?, ClearCredentialException>,
     ) {
         TODO("Not yet implemented")
     }

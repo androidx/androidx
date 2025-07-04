@@ -35,9 +35,9 @@ class MetricResultExtensionsTest {
                 listOf(
                     // note, bar sorted first
                     MetricResult("bar", listOf(1.0)),
-                    MetricResult("foo", listOf(0.0))
+                    MetricResult("foo", listOf(0.0)),
                 ),
-            actual = listOf(mapOf("foo" to 0.0, "bar" to 1.0)).mergeToSingleMetricResults()
+            actual = listOf(mapOf("foo" to 0.0, "bar" to 1.0)).mergeToSingleMetricResults(),
         )
     }
 
@@ -48,7 +48,7 @@ class MetricResultExtensionsTest {
                 listOf(
                     // note, bar sorted first
                     MetricResult("bar", listOf(101.0, 301.0, 201.0)),
-                    MetricResult("foo", listOf(100.0, 300.0, 200.0))
+                    MetricResult("foo", listOf(100.0, 300.0, 200.0)),
                 ),
             actual =
                 listOf(
@@ -56,7 +56,7 @@ class MetricResultExtensionsTest {
                         mapOf("foo" to 300.0, "bar" to 301.0),
                         mapOf("foo" to 200.0, "bar" to 201.0),
                     )
-                    .mergeToSingleMetricResults()
+                    .mergeToSingleMetricResults(),
         )
     }
 
@@ -66,7 +66,7 @@ class MetricResultExtensionsTest {
             expected =
                 listOf(
                     MetricResult("bar", listOf(101.0, 201.0)),
-                    MetricResult("foo", listOf(100.0, 200.0))
+                    MetricResult("foo", listOf(100.0, 200.0)),
                 ),
             actual =
                 listOf(
@@ -74,7 +74,7 @@ class MetricResultExtensionsTest {
                         mapOf("foo" to 300.0), // bar missing! Skip this iteration!
                         mapOf("foo" to 200.0, "bar" to 201.0),
                     )
-                    .mergeToSingleMetricResults()
+                    .mergeToSingleMetricResults(),
         )
     }
 
@@ -85,11 +85,11 @@ class MetricResultExtensionsTest {
                 listOf(
                     // note, bar sorted first
                     MetricResult("bar", listOf(1.0)),
-                    MetricResult("foo", listOf(0.0))
+                    MetricResult("foo", listOf(0.0)),
                 ),
             actual =
                 listOf(mapOf("foo" to listOf(0.0), "bar" to listOf(1.0)))
-                    .mergeToSampledMetricResults()
+                    .mergeToSampledMetricResults(),
         )
     }
 
@@ -100,7 +100,7 @@ class MetricResultExtensionsTest {
                 listOf(
                     // note, bar sorted first
                     MetricResult("bar", listOf(101.0, 301.0, 201.0)),
-                    MetricResult("foo", listOf(100.0, 300.0, 200.0))
+                    MetricResult("foo", listOf(100.0, 300.0, 200.0)),
                 ),
             actual =
                 listOf(
@@ -108,7 +108,7 @@ class MetricResultExtensionsTest {
                         mapOf("foo" to listOf(300.0), "bar" to listOf(301.0)),
                         mapOf("foo" to listOf(200.0), "bar" to listOf(201.0)),
                     )
-                    .mergeToSampledMetricResults()
+                    .mergeToSampledMetricResults(),
         )
     }
 
@@ -119,17 +119,17 @@ class MetricResultExtensionsTest {
                 listOf(
                     // note, bar sorted first
                     MetricResult("bar", List(6) { it.toDouble() }),
-                    MetricResult("foo", List(6) { it.toDouble() })
+                    MetricResult("foo", List(6) { it.toDouble() }),
                 ),
             actual =
                 listOf(
                         mapOf("foo" to listOf(0.0, 1.0, 2.0), "bar" to listOf(0.0)),
                         mapOf(
                             "foo" to listOf(3.0, 4.0, 5.0),
-                            "bar" to listOf(1.0, 2.0, 3.0, 4.0, 5.0)
+                            "bar" to listOf(1.0, 2.0, 3.0, 4.0, 5.0),
                         ),
                     )
-                    .mergeToSampledMetricResults()
+                    .mergeToSampledMetricResults(),
         )
     }
 

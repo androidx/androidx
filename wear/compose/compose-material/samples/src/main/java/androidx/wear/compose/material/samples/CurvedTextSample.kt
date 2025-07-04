@@ -50,13 +50,13 @@ fun CurvedTextDemo() {
                     "White On Green",
                     color = Color.White,
                     background = Color.Green,
-                    modifier = CurvedModifier.padding(angular = 5.dp)
+                    modifier = CurvedModifier.padding(angular = 5.dp),
                 )
                 curvedText("Big", fontSize = 24.sp)
                 curvedText(
                     "Extra Bold",
                     fontWeight = FontWeight.ExtraBold,
-                    modifier = CurvedModifier.padding(angular = 5.dp)
+                    modifier = CurvedModifier.padding(angular = 5.dp),
                 )
             }
             curvedRow {
@@ -64,7 +64,7 @@ fun CurvedTextDemo() {
                 curvedText(
                     "Italic",
                     fontStyle = FontStyle.Italic,
-                    modifier = CurvedModifier.padding(angular = 5.dp)
+                    modifier = CurvedModifier.padding(angular = 5.dp),
                 )
                 curvedText("Monospaced", fontFamily = FontFamily.Monospace)
             }
@@ -78,7 +78,7 @@ fun CurvedTextProviderDemo() {
     CompositionLocalProvider(
         LocalContentColor provides Color.Cyan,
         LocalContentAlpha provides 0.5f,
-        LocalTextStyle provides TextStyle(fontFamily = FontFamily.Serif)
+        LocalTextStyle provides TextStyle(fontFamily = FontFamily.Serif),
     ) {
         val greenStyle = LocalTextStyle.current.copy(color = Color.Green)
         CurvedLayout {

@@ -48,7 +48,7 @@ class LazyStateRestorationTest(
      * Views are not designed to restore state multiple times yet there is a common patter of doing
      * it that used to work so we add support for it.
      */
-    private val reuseRecyclerView: Boolean
+    private val reuseRecyclerView: Boolean,
 ) {
     private lateinit var recyclerView: RecyclerView
     private val items = (0..99).map { Item(it, "text $it") }
@@ -236,7 +236,7 @@ class LazyStateRestorationTest(
             listOf(
                     LinearLayoutManagerFactory(),
                     GridLayoutManagerFactory(),
-                    StaggeredGridLayoutManagerFactory()
+                    StaggeredGridLayoutManagerFactory(),
                 )
                 .flatMap { listOf(arrayOf(it, true), arrayOf(it, false)) }
     }
@@ -296,7 +296,7 @@ class LazyStateRestorationTest(
             itemView.layoutParams =
                 RecyclerView.LayoutParams(
                     RecyclerView.LayoutParams.MATCH_PARENT,
-                    25 + (item.mId % 10)
+                    25 + (item.mId % 10),
                 )
         }
     }

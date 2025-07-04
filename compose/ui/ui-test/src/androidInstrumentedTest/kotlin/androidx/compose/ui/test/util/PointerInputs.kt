@@ -47,7 +47,7 @@ data class DataPoint(
 ) {
     constructor(
         change: PointerInputChange,
-        event: PointerEvent
+        event: PointerEvent,
     ) : this(
         change.id,
         change.uptimeMillis,
@@ -125,7 +125,7 @@ class RecordingFilter(private val record: (PointerEvent) -> Unit) : PointerInput
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         if (pass == PointerEventPass.Initial) {
             record(pointerEvent)

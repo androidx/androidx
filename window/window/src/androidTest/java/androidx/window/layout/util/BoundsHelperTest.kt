@@ -18,10 +18,10 @@ package androidx.window.layout.util
 
 import android.os.Build
 import android.view.WindowManager
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.window.TestActivity
 import androidx.window.WindowTestUtils.Companion.assumePlatformROrAbove
 import org.junit.Assert.assertEquals
@@ -38,7 +38,7 @@ class BoundsHelperTest {
     var activityScenarioRule: ActivityScenarioRule<TestActivity> =
         ActivityScenarioRule(TestActivity::class.java)
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun testCurrentWindowBounds_postR() {
         assumePlatformROrAbove()
@@ -50,7 +50,7 @@ class BoundsHelperTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun testMaximumWindowBounds_postR() {
         assumePlatformROrAbove()

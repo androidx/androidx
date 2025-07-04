@@ -24,7 +24,11 @@ package androidx.compose.ui.autofill
  * Autofill services use the [AutofillType] to determine what value to use to autofill fields
  * associated with this type. If the [AutofillType] is not specified, the autofill services have to
  * use heuristics to determine the right value to use while auto-filling the corresponding field.
+ *
+ * This has been deprecated in favor of a new semantics based API. Use
+ * [ContentType][androidx.compose.ui.semantics.SemanticsProperties.ContentType] instead.
  */
+@Deprecated("Use the new semantics-based API and androidx.compose.ui.autofill.ContentType instead.")
 enum class AutofillType {
     /** Indicates that the associated component can be auto-filled with an email address. */
     EmailAddress,

@@ -16,7 +16,34 @@ platform versions.
 * [Existing open bugs](https://issuetracker.google.com/issues?q=componentid:460423%20status:open)
 * [File a new bug](https://issuetracker.google.com/issues/new?component=460423)
 
-## Building the library (for local development)
+## How to use this library in your app
+
+Add this to your `build.gradle` file:
+
+```
+dependencies {
+    implementation "androidx.webkit:webkit:1.13.0"
+}
+```
+
+**Important:** replace `1.13.0` with the latest version from
+https://developer.android.com/jetpack/androidx/releases/webkit.
+
+## Sample apps
+
+Please check out the WebView samples [on GitHub][GitHub demo app] for a showcase
+of a handful of androidx.webkit APIs.
+
+For more APIs, check out the sample app in the [AndroidX repo][AndroidX demo
+app].
+
+## Public bug tracker
+
+If you find bugs in the androidx.webkit library or want to request new features,
+please [file a
+ticket](https://issuetracker.google.com/issues/new?component=460423).
+
+## Building the library (contributing to the AndroidX library)
 
 If you're trying to modify the androidx.webkit library, or apply local changes
 to the library, you can do so like so:
@@ -41,15 +68,14 @@ For more a detailed developer guide, Googlers should read
 http://go/wvsl-contribute.
 
 ## Instrumentation tests
+
 The instrumentation tests for `androidx.webkit` are located in the
-`:webkit:integration-tests:instrumentation` project. The tests have been split out into a separate
-project to facilitate testing against different targetSdk versions.
+`:webkit:integration-tests:instrumentation` project. The tests have been split
+out into a separate project to facilitate testing against different targetSdk
+versions.
 
-Any new tests should be added to that project. To run the test, use the command above.
+Any new tests should be added to that project. To run the test, use the command
+above.
 
-## API demo code
-
-We also maintain a demo app ([demo
-code](/webkit/integration-tests/testapp/src/main/java/com/example/androidx/webkit),
-[developer guide](/webkit/integration-tests/testapp/README.md)) to demonstrate
-how to properly use the latest androidx.webkit APIs in your Android app.
+[GitHub demo app]: https://github.com/android/views-widgets-samples/tree/main/WebView
+[AndroidX demo app]: /androidx-main/webkit/integration-tests/testapp/README.md

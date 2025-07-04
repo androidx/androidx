@@ -46,7 +46,7 @@ class MlKitFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         // Set up UI.
         val view = inflater.inflate(R.layout.mlkit_view, container, false)
@@ -91,14 +91,14 @@ class MlKitFragment : Fragment() {
             MlKitAnalyzer(
                 listOf(scanner),
                 COORDINATE_SYSTEM_VIEW_REFERENCED,
-                mainThreadExecutor()
+                mainThreadExecutor(),
             ) { result ->
                 val barcodes = result.getValue(scanner)
                 if (barcodes != null && barcodes.size > 0) {
                     overlayView.setTileRect(RectF(barcodes[0].boundingBox))
                     overlayView.invalidate()
                 }
-            }
+            },
         )
     }
 }

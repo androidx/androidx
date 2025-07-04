@@ -39,7 +39,7 @@ class MyersDiffTests {
             Insert(3 at 2)
             """
                 .trimIndent(),
-            log.joinToString("\n")
+            log.joinToString("\n"),
         )
     }
 
@@ -58,7 +58,7 @@ class MyersDiffTests {
             Remove(4 at 3)
             """
                 .trimIndent(),
-            log.joinToString("\n")
+            log.joinToString("\n"),
         )
     }
 
@@ -82,7 +82,7 @@ class MyersDiffTests {
             Insert(9 at 8)
             """
                 .trimIndent(),
-            log.joinToString("\n")
+            log.joinToString("\n"),
         )
     }
 
@@ -107,7 +107,7 @@ class MyersDiffTests {
             Equals(x = 10, y = 9)
             """
                 .trimIndent(),
-            log.joinToString("\n")
+            log.joinToString("\n"),
         )
     }
 
@@ -132,7 +132,7 @@ class MyersDiffTests {
             Insert(b at 2)
             Insert(b at 3)
             """
-                .trimIndent()
+                .trimIndent(),
         )
 
         stringDiff("abcd", "bcda")
@@ -175,7 +175,7 @@ fun <T> executeListDiff(x: List<T>, y: List<T>): DiffResult<T> {
             override fun same(oldIndex: Int, newIndex: Int) {
                 log.add("Equals(x = $oldIndex, y = $newIndex)")
             }
-        }
+        },
     )
     return DiffResult(result, log)
 }

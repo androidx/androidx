@@ -67,7 +67,7 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
                     override fun onChanged(position: Int, count: Int, payload: Any?) {
                         onDataSetChanged(generation.value.id)
                     }
-                }
+                },
         )
 
     init {
@@ -78,21 +78,14 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
                 .filter { it is LoadState.NotLoading }
                 .collect {
                     val current = generation.value
-                    generation.value =
-                        current.copy(
-                            initialLoadCompleted = true,
-                        )
+                    generation.value = current.copy(initialLoadCompleted = true)
                 }
         }
     }
 
     private fun incrementGeneration() {
         val current = generation.value
-        generation.value =
-            current.copy(
-                initialLoadCompleted = false,
-                id = current.id + 1,
-            )
+        generation.value = current.copy(initialLoadCompleted = false, id = current.id + 1)
     }
 
     fun peekItems() = (0 until asyncDiffer.itemCount).map { asyncDiffer.peek(it) }
@@ -145,5 +138,5 @@ data class Generation(
     /** True when the data source completes its initial load */
     val initialLoadCompleted: Boolean = false,
     /** Incremented each time we receive some update events. */
-    val changeCount: Int = 0
+    val changeCount: Int = 0,
 )

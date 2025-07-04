@@ -20,34 +20,57 @@ import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Colle
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.app.UiAutomation;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.os.Build;
+import android.support.v4.BaseInstrumentationTestCase;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.core.view.ViewCompatActivity;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat;
-import androidx.test.InstrumentationRegistry;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
-public class AccessibilityNodeInfoCompatTest {
+public class AccessibilityNodeInfoCompatTest extends
+        BaseInstrumentationTestCase<ViewCompatActivity> {
+
+    private static UiAutomation sUiAutomation;
+
+    @Before
+    public void setUp() throws Throwable {
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        sUiAutomation = instrumentation.getUiAutomation();
+    }
+
+    public AccessibilityNodeInfoCompatTest() {
+        super(ViewCompatActivity.class);
+    }
+
     @Test
     public void testSetCollectionInfoIsNullable() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
@@ -292,6 +315,25 @@ public class AccessibilityNodeInfoCompatTest {
     }
 
     @Test
+    public void testGetSetFieldRequired() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setFieldRequired(true);
+        assertThat(nodeCompat.isFieldRequired()).isTrue();
+        nodeCompat.setFieldRequired(false);
+        assertThat(nodeCompat.isFieldRequired()).isFalse();
+    }
+
+    @Test
+    public void testGetSetExpandedState() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        assertThat(nodeCompat.getExpandedState())
+                .isEqualTo(AccessibilityNodeInfo.EXPANDED_STATE_UNDEFINED);
+        nodeCompat.setExpandedState(AccessibilityNodeInfo.EXPANDED_STATE_PARTIAL);
+        assertThat(nodeCompat.getExpandedState())
+                .isEqualTo(AccessibilityNodeInfo.EXPANDED_STATE_PARTIAL);
+    }
+
+    @Test
     public void testGetSetAccessibilityDataSensitive() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
 
@@ -364,7 +406,7 @@ public class AccessibilityNodeInfoCompatTest {
     public void testTouchDelegateInfo() {
         final Map<Region, View> targetMap = new HashMap<>(1);
         final Region region = new Region(1, 1, 10, 10);
-        targetMap.put(region, new View(InstrumentationRegistry.getContext()));
+        targetMap.put(region, new View(InstrumentationRegistry.getInstrumentation().getContext()));
         final TouchDelegateInfoCompat delegateInfo = new TouchDelegateInfoCompat(targetMap);
         final AccessibilityNodeInfoCompat accessibilityNodeInfoCompat =
                 obtainedWrappedNodeCompat();
@@ -460,6 +502,16 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SmallTest
     @Test
+    public void testGetSupplementalDescription() {
+        final CharSequence supplementalDescription = "supplemental description";
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setSupplementalDescription(supplementalDescription);
+        assertThat(TextUtils.equals(
+                supplementalDescription, nodeCompat.getSupplementalDescription())).isTrue();
+    }
+
+    @SmallTest
+    @Test
     public void testSetGetTextSelectable() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setTextSelectable(false);
@@ -477,5 +529,121 @@ public class AccessibilityNodeInfoCompatTest {
                 android.R.id.accessibilityActionScrollInDirection);
         assertThat(actionCompat.toString()).isEqualTo("AccessibilityActionCompat: "
                 + "ACTION_SCROLL_IN_DIRECTION");
+    }
+
+    @SmallTest
+    @Test
+    public void testGetSetChecked() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        assertThat(nodeCompat.getChecked()).isEqualTo(AccessibilityNodeInfo.CHECKED_STATE_FALSE);
+
+        nodeCompat.setChecked(AccessibilityNodeInfo.CHECKED_STATE_TRUE);
+        assertThat(nodeCompat.getChecked()).isEqualTo(AccessibilityNodeInfo.CHECKED_STATE_TRUE);
+
+        nodeCompat.setChecked(AccessibilityNodeInfo.CHECKED_STATE_PARTIAL);
+        assertThat(nodeCompat.getChecked()).isEqualTo(AccessibilityNodeInfo.CHECKED_STATE_PARTIAL);
+
+        nodeCompat.setChecked(AccessibilityNodeInfo.CHECKED_STATE_FALSE);
+        assertThat(nodeCompat.getChecked()).isEqualTo(AccessibilityNodeInfo.CHECKED_STATE_FALSE);
+    }
+
+    @SmallTest
+    @Test
+    public void testSetChecked_throwsWithInvalidArgument() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        assertThat(nodeCompat.getChecked()).isEqualTo(AccessibilityNodeInfo.CHECKED_STATE_FALSE);
+
+        assertThrows(IllegalArgumentException.class, () -> nodeCompat.setChecked(4));
+    }
+
+    @SdkSuppress(minSdkVersion = 36)
+    @SmallTest
+    @Test
+    public void testAddLabeledBy_getLabeledByList() {
+        final Activity activity = mActivityTestRule.getActivity();
+        final View root = activity.findViewById(androidx.core.test.R.id.view);
+        assertThat(root).isNotNull();
+
+        root.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public AccessibilityNodeProvider getAccessibilityNodeProvider(@NonNull View host) {
+                return new LabelNodeProviderTest(root);
+            }
+        });
+
+        final AccessibilityNodeInfo labeledNodeInfo = sUiAutomation.getRootInActiveWindow()
+                .findAccessibilityNodeInfosByText(LabelNodeProviderTest.LABELED).get(0);
+        assertThat(labeledNodeInfo).isNotNull();
+        final AccessibilityNodeInfoCompat labeledNodeInfoCompat = AccessibilityNodeInfoCompat.wrap(
+                labeledNodeInfo);
+        assertThat(TextUtils.equals(labeledNodeInfoCompat.getText(),
+                LabelNodeProviderTest.LABELED)).isTrue();
+        final List<AccessibilityNodeInfoCompat> labeledByList =
+                labeledNodeInfoCompat.getLabeledByList();
+        assertThat(labeledByList).hasSize(2);
+        assertThat(TextUtils.equals(labeledByList.get(0).getText(),
+                LabelNodeProviderTest.LABEL_ONE)).isTrue();
+        assertThat(TextUtils.equals(labeledByList.get(1).getText(),
+                LabelNodeProviderTest.LABEL_TWO)).isTrue();
+    }
+
+    private static class LabelNodeProviderTest extends AccessibilityNodeProvider {
+        static final int LABELED_ID = 1;
+        static final int LABEL_ONE_ID = 2;
+        static final int LABEL_TWO_ID = 3;
+        static final String LABELED = "labeled";
+        static final String LABEL_ONE = "labelOne";
+        static final String LABEL_TWO = "labelTwo";
+
+        private final View mRoot;
+
+        private AccessibilityNodeInfoCompat mLabeledNodeCompat;
+
+        LabelNodeProviderTest(View root) {
+            this.mRoot = root;
+            setupTestNodes();
+        }
+
+        private void setupTestNodes() {
+            // AccessibilityNodeInfo constructor used below is not available prior to Android R.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                return;
+            }
+
+            AccessibilityNodeInfo labeledNode = new AccessibilityNodeInfo(mRoot, LABELED_ID);
+            mLabeledNodeCompat = AccessibilityNodeInfoCompat.wrap(labeledNode);
+            mLabeledNodeCompat.setText(LABELED);
+            mLabeledNodeCompat.addLabeledBy(mRoot, LABEL_ONE_ID);
+            mLabeledNodeCompat.addLabeledBy(mRoot, LABEL_TWO_ID);
+        }
+
+        @Nullable
+        @Override
+        public AccessibilityNodeInfo createAccessibilityNodeInfo(int virtualViewId) {
+            final AccessibilityNodeInfo node;
+            // AccessibilityNodeInfo constructor used below is not available prior to Android R.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                node = new AccessibilityNodeInfo(mRoot, virtualViewId);
+            } else {
+                return null;
+            }
+            // This function is only used to get labels, so the below is sufficient.
+            if (virtualViewId == LABEL_ONE_ID) {
+                node.setText(LABEL_ONE);
+            } else if (virtualViewId == LABEL_TWO_ID) {
+                node.setText(LABEL_TWO);
+            }
+            return node;
+        }
+
+        public List<AccessibilityNodeInfo> findAccessibilityNodeInfosByText(String text,
+                int virtualViewId) {
+            List<AccessibilityNodeInfo> result = new ArrayList<>();
+
+            if (text.equals(LABELED) && mLabeledNodeCompat != null) {
+                result.add(mLabeledNodeCompat.unwrap());
+            }
+            return result;
+        }
     }
 }

@@ -250,7 +250,7 @@ public open class SwipeableState<T>(
                         anchors = anchors.keys,
                         thresholds = thresholds,
                         velocity = 0f,
-                        velocityThreshold = Float.POSITIVE_INFINITY
+                        velocityThreshold = Float.POSITIVE_INFINITY,
                     )
             return anchors[target] ?: currentValue
         }
@@ -368,7 +368,7 @@ public open class SwipeableState<T>(
                     anchors = anchors.keys,
                     thresholds = thresholds,
                     velocity = velocity,
-                    velocityThreshold = velocityThreshold
+                    velocityThreshold = velocityThreshold,
                 )
             val targetState = anchors[targetValue]
             if (targetState != null && confirmStateChange(targetState)) animateTo(targetState)
@@ -410,7 +410,7 @@ public open class SwipeableState<T>(
         ): Saver<SwipeableState<T>, T> =
             Saver<SwipeableState<T>, T>(
                 save = { it.currentValue },
-                restore = { SwipeableState(it, animationSpec, confirmStateChange) }
+                restore = { SwipeableState(it, animationSpec, confirmStateChange) },
             )
     }
 }
@@ -430,7 +430,7 @@ public open class SwipeableState<T>(
 public class SwipeProgress<T>(
     public val from: T,
     public val to: T,
-    @FloatRange(from = 0.0, to = 1.0) public val fraction: Float
+    @FloatRange(from = 0.0, to = 1.0) public val fraction: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -531,7 +531,7 @@ public fun <T> Modifier.swipeable(
     interactionSource: MutableInteractionSource? = null,
     thresholds: (from: T, to: T) -> ThresholdConfig = { _, _ -> FractionalThreshold(0.5f) },
     resistance: ResistanceConfig? = resistanceConfig(anchors.keys),
-    velocityThreshold: Dp = VelocityThreshold
+    velocityThreshold: Dp = VelocityThreshold,
 ): Modifier =
     composed(
         inspectorInfo =
@@ -603,7 +603,7 @@ public fun <T> Modifier.swipeable(
                                 }
                             },
                             maxValue = { 1f },
-                            reverseScrolling = reverseDirection
+                            reverseScrolling = reverseDirection,
                         )
                     when (orientation) {
                         Orientation.Horizontal -> horizontalScrollAxisRange = range
@@ -619,7 +619,7 @@ public fun <T> Modifier.swipeable(
                 interactionSource = interactionSource,
                 startDragImmediately = state.isAnimationRunning,
                 onDragStopped = { velocity -> launch { state.performFling(velocity) } },
-                state = state.draggableState
+                state = state.draggableState,
             )
     }
 
@@ -642,6 +642,7 @@ public interface ThresholdConfig {
  */
 @Immutable
 @ExperimentalWearMaterialApi
+@Suppress("DataClassDefinition")
 public data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
         return fromValue + offset.toPx() * sign(toValue - fromValue)
@@ -655,6 +656,7 @@ public data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
  */
 @Immutable
 @ExperimentalWearMaterialApi
+@Suppress("DataClassDefinition")
 public data class FractionalThreshold(
     @FloatRange(from = 0.0, to = 1.0) private val fraction: Float
 ) : ThresholdConfig {
@@ -690,7 +692,7 @@ public data class FractionalThreshold(
 public class ResistanceConfig(
     @FloatRange(from = 0.0, fromInclusive = false) public val basis: Float,
     @FloatRange(from = 0.0) public val factorAtMin: Float = StandardResistanceFactor,
-    @FloatRange(from = 0.0) public val factorAtMax: Float = StandardResistanceFactor
+    @FloatRange(from = 0.0) public val factorAtMax: Float = StandardResistanceFactor,
 ) {
     public fun computeResistance(overflow: Float): Float {
         val factor = if (overflow < 0) factorAtMin else factorAtMax
@@ -757,7 +759,7 @@ private fun computeTarget(
     anchors: Set<Float>,
     thresholds: (Float, Float) -> Float,
     velocity: Float,
-    velocityThreshold: Float
+    velocityThreshold: Float,
 ): Float {
     val bounds = findBounds(offset, anchors)
     return when (bounds.size) {
@@ -815,7 +817,7 @@ public object SwipeableDefaults {
     public fun resistanceConfig(
         anchors: Set<Float>,
         factorAtMin: Float = StandardResistanceFactor,
-        factorAtMax: Float = StandardResistanceFactor
+        factorAtMax: Float = StandardResistanceFactor,
     ): ResistanceConfig? {
         return if (anchors.size <= 1) {
             null

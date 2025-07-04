@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import javax.inject.Inject
 
 plugins {
@@ -68,7 +68,7 @@ abstract class BundleTestSdkDexTask extends DefaultTask {
 }
 
 def bundleTestSdkDexTaskProvider = tasks.register("bundleTestSdkDexTask", BundleTestSdkDexTask) {
-    description("Bundle DEX from the androidTestBundleDex configuration into assets folder")
+    description = "Bundle DEX from the androidTestBundleDex configuration into assets folder"
 
     def configuration = configurations.getByName("androidTestBundleDex")
     testSdkApkFolders.from(configuration.incoming.artifactView {}.files)
@@ -125,10 +125,8 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockitoInline)
 
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:current"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v4"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v5"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v6"))
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v7"))
+    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v8"))
 }
 
 android {
@@ -147,8 +145,7 @@ android {
 
 androidx {
     name = "SdkRuntime Client"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Provides components for SdkRuntime aware Applications"
-    legacyDisableKotlinStrictApiMode = true
 }

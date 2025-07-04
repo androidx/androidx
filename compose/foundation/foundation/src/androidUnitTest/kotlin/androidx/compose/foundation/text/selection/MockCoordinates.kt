@@ -29,7 +29,7 @@ class MockCoordinates(
     var windowOffset: Offset = Offset.Zero,
     var rootOffset: Offset = Offset.Zero,
     var childToLocalOffset: Offset = Offset.Zero,
-    override var isAttached: Boolean = true
+    override var isAttached: Boolean = true,
 ) : LayoutCoordinates {
     val globalToLocalParams = mutableListOf<Offset>()
     val windowToLocalParams = mutableListOf<Offset>()
@@ -65,7 +65,7 @@ class MockCoordinates(
 
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
-        relativeToSource: Offset
+        relativeToSource: Offset,
     ): Offset {
         localPositionOfParams += sourceCoordinates to relativeToSource
         return childToLocalOffset
@@ -73,7 +73,7 @@ class MockCoordinates(
 
     override fun localBoundingBoxOf(
         sourceCoordinates: LayoutCoordinates,
-        clipBounds: Boolean
+        clipBounds: Boolean,
     ): Rect = Rect.Zero
 
     override fun get(alignmentLine: AlignmentLine): Int = 0

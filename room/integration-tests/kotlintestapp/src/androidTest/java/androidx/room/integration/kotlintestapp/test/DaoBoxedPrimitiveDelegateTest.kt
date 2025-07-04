@@ -103,7 +103,7 @@ class DaoBoxedPrimitiveDelegateTest {
     @Database(
         version = 1,
         entities = [LongFoo::class, StringFoo::class, ByteArrayFoo::class],
-        exportSchema = false
+        exportSchema = false,
     )
     abstract class TestDatabase : RoomDatabase() {
         abstract fun longFooDao(): LongFooDao
@@ -118,7 +118,7 @@ class DaoBoxedPrimitiveDelegateTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                    TestDatabase::class.java
+                    TestDatabase::class.java,
                 )
                 .build()
 
@@ -135,7 +135,7 @@ class DaoBoxedPrimitiveDelegateTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                    TestDatabase::class.java
+                    TestDatabase::class.java,
                 )
                 .build()
 
@@ -152,7 +152,7 @@ class DaoBoxedPrimitiveDelegateTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     InstrumentationRegistry.getInstrumentation().getTargetContext(),
-                    TestDatabase::class.java
+                    TestDatabase::class.java,
                 )
                 .build()
         val foo = ByteArrayFoo(ByteArray(16), "Elif")

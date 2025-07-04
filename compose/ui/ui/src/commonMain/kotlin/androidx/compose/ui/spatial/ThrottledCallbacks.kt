@@ -20,13 +20,14 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.toOffset
 import kotlin.math.min
-import kotlinx.coroutines.DisposableHandle
 
 internal class ThrottledCallbacks {
 
@@ -41,7 +42,7 @@ internal class ThrottledCallbacks {
         val debounceMillis: Long,
         val node: DelegatableNode,
         val callback: (RelativeLayoutBounds) -> Unit,
-    ) : DisposableHandle {
+    ) : RegistrationHandle {
 
         var next: Entry? = null
 
@@ -50,7 +51,7 @@ internal class ThrottledCallbacks {
         var lastInvokeMillis: Long = -throttleMillis
         var lastUninvokedFireMillis: Long = -1
 
-        override fun dispose() {
+        override fun unregister() {
             val result = rectChangedMap.multiRemove(id, this)
             if (!result) removeFromGlobalEntries(this)
         }
@@ -69,6 +70,7 @@ internal class ThrottledCallbacks {
                     bottomRight = bottomRight,
                     windowOffset = windowOffset,
                     screenOffset = screenOffset,
+                    windowSize = windowSize,
                     viewToWindowMatrix = viewToWindowMatrix,
                 )
             if (rect == null) {
@@ -94,9 +96,16 @@ internal class ThrottledCallbacks {
     var minDebounceDeadline: Long = -1
     var windowOffset: IntOffset = IntOffset.Zero
     var screenOffset: IntOffset = IntOffset.Zero
+    var windowSize: Long = 0
     var viewToWindowMatrix: Matrix? = null
 
-    fun updateOffsets(screen: IntOffset, window: IntOffset, matrix: Matrix?): Boolean {
+    fun updateOffsets(
+        screen: IntOffset,
+        window: IntOffset,
+        matrix: Matrix?,
+        windowWidth: Int,
+        windowHeight: Int,
+    ): Boolean {
         var updated = false
         if (window != windowOffset) {
             windowOffset = window
@@ -108,6 +117,11 @@ internal class ThrottledCallbacks {
         }
         if (matrix != null) {
             viewToWindowMatrix = matrix
+            updated = true
+        }
+        val size = packXY(windowWidth, windowHeight)
+        if (size != windowSize) {
+            windowSize = size
             updated = true
         }
         return updated
@@ -123,7 +137,7 @@ internal class ThrottledCallbacks {
         debounceMillis: Long,
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit,
-    ): DisposableHandle {
+    ): RegistrationHandle {
         // If zero is set for debounce, we use throttle in its place. This guarantees that
         // consumers will get the value where the node "settled".
         val debounceToUse = if (debounceMillis == 0L) throttleMillis else debounceMillis
@@ -137,7 +151,7 @@ internal class ThrottledCallbacks {
                     debounceMillis = debounceToUse,
                     node = node,
                     callback = callback,
-                )
+                ),
         )
     }
 
@@ -147,7 +161,7 @@ internal class ThrottledCallbacks {
         debounceMillis: Long,
         node: DelegatableNode,
         callback: (RelativeLayoutBounds) -> Unit,
-    ): DisposableHandle {
+    ): RegistrationHandle {
         // If zero is set for debounce, we use throttle in its place. This guarantees that
         // consumers will get the value where the node "settled".
         val debounceToUse = if (debounceMillis == 0L) throttleMillis else debounceMillis
@@ -184,7 +198,7 @@ internal class ThrottledCallbacks {
                 windowOffset = windowOffset,
                 screenOffset = screenOffset,
                 viewToWindowMatrix = viewToWindowMatrix,
-                currentMillis = currentMillis
+                currentMillis = currentMillis,
             )
         }
     }
@@ -209,7 +223,7 @@ internal class ThrottledCallbacks {
                 windowOffset = windowOffset,
                 screenOffset = screenOffset,
                 viewToWindowMatrix = viewToWindowMatrix,
-                currentMillis = currentMillis
+                currentMillis = currentMillis,
             )
         }
     }
@@ -231,7 +245,7 @@ internal class ThrottledCallbacks {
                     screenOffset = screenOffset,
                     viewToWindowMatrix = viewToWindowMatrix,
                     currentMillis = currentMillis,
-                    minDeadline = minDeadline
+                    minDeadline = minDeadline,
                 )
         }
         globalChangeEntries?.linkedForEach { entry ->
@@ -242,7 +256,7 @@ internal class ThrottledCallbacks {
                     screenOffset = screenOffset,
                     viewToWindowMatrix = viewToWindowMatrix,
                     currentMillis = currentMillis,
-                    minDeadline = minDeadline
+                    minDeadline = minDeadline,
                 )
         }
         minDebounceDeadline = if (minDeadline == Long.MAX_VALUE) -1 else minDeadline
@@ -252,7 +266,7 @@ internal class ThrottledCallbacks {
         entry: Entry,
         topLeft: Long,
         bottomRight: Long,
-        currentMillis: Long
+        currentMillis: Long,
     ) {
         val lastInvokeMillis = entry.lastInvokeMillis
         val throttleMillis = entry.throttleMillis
@@ -311,7 +325,7 @@ internal class ThrottledCallbacks {
                 entry.bottomRight,
                 windowOffset,
                 screenOffset,
-                viewToWindowMatrix
+                viewToWindowMatrix,
             )
         }
         if (!debounceOkay) {
@@ -330,7 +344,7 @@ internal class ThrottledCallbacks {
         screenOffset: IntOffset,
         viewToWindowMatrix: Matrix?,
         currentMillis: Long,
-        minDeadline: Long
+        minDeadline: Long,
     ): Long {
         var newMinDeadline = minDeadline
         if (entry.debounceMillis > 0 && entry.lastUninvokedFireMillis > 0) {
@@ -454,6 +468,7 @@ internal fun rectInfoFor(
     bottomRight: Long,
     windowOffset: IntOffset,
     screenOffset: IntOffset,
+    windowSize: Long,
     viewToWindowMatrix: Matrix?,
 ): RelativeLayoutBounds? {
     val coordinator = node.requireCoordinator(Nodes.Layout)
@@ -466,12 +481,18 @@ internal fun rectInfoFor(
     // is accurate.
     val needsTransform = layoutNode.outerCoordinator !== coordinator
     return if (needsTransform) {
-        val transformed = layoutNode.outerCoordinator.coordinates.localBoundingBoxOf(coordinator)
+        val topLeftOffset = IntOffset(topLeft).toOffset()
+        val size = coordinator.coordinates.size
+        val transformedPos =
+            layoutNode.outerCoordinator.coordinates
+                .localPositionOf(coordinator, topLeftOffset)
+                .round()
         RelativeLayoutBounds(
-            transformed.topLeft.round().packedValue,
-            transformed.bottomRight.round().packedValue,
+            transformedPos.packedValue,
+            IntOffset(transformedPos.x + size.width, transformedPos.y + size.height).packedValue,
             windowOffset,
             screenOffset,
+            windowSize,
             viewToWindowMatrix,
             node,
         )
@@ -481,6 +502,7 @@ internal fun rectInfoFor(
             bottomRight,
             windowOffset,
             screenOffset,
+            windowSize,
             viewToWindowMatrix,
             node,
         )

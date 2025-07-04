@@ -21,7 +21,6 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TweenSpec
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
@@ -42,10 +42,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -61,7 +63,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
-import kotlin.math.min
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
 
@@ -110,7 +111,7 @@ public fun BasicSwipeToDismissBox(
     backgroundKey: Any = SwipeToDismissKeys.Background,
     contentKey: Any = SwipeToDismissKeys.Content,
     userSwipeEnabled: Boolean = true,
-    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit,
 ) {
     val density = LocalDensity.current
     val maxWidthPx = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
@@ -135,7 +136,7 @@ public fun BasicSwipeToDismissBox(
                 .swipeableV2(
                     state = state.swipeableState,
                     orientation = Orientation.Horizontal,
-                    enabled = userSwipeEnabled
+                    enabled = userSwipeEnabled,
                 )
     ) {
         val isRound = isRoundDevice()
@@ -170,9 +171,13 @@ public fun BasicSwipeToDismissBox(
 
             key(if (isBackground) backgroundKey else contentKey) {
                 if (!isBackground || (userSwipeEnabled && isSwiping)) {
-                    HierarchicalFocusCoordinator(requiresFocus = { !isBackground }) {
+                    val parentScreenActive = LocalScreenIsActive.current
+                    CompositionLocalProvider(
+                        LocalScreenIsActive provides (!isBackground && parentScreenActive)
+                    ) {
                         Box(
                             Modifier.fillMaxSize()
+                                .hierarchicalFocusGroup(!isBackground)
                                 .then(
                                     if (!isBackground) {
                                         Modifier.graphicsLayer {
@@ -191,18 +196,47 @@ public fun BasicSwipeToDismissBox(
                                                         lerp(
                                                             squeezeOffset,
                                                             maxWidthPx,
-                                                            max(0f, progress - 0.7f) / 0.3f
+                                                            max(0f, progress - 0.7f) / 0.3f,
                                                         )
                                                     }
 
                                                 this.translationX = translationX
                                                 scaleX = scale
                                                 scaleY = scale
-                                                clip = isRound && translationX > 0
-                                                shape = if (isRound) CircleShape else RectangleShape
                                             }
-                                            .background(backgroundScrimColor)
-                                    } else Modifier
+                                            .drawWithContent {
+                                                drawContent()
+                                                val color =
+                                                    contentScrimColor.copy(
+                                                        alpha =
+                                                            (progress / 2f).coerceAtMost(
+                                                                MAX_CONTENT_SCRIM_ALPHA
+                                                            )
+                                                    )
+                                                if (isRound) {
+                                                    drawCircle(color = color)
+                                                } else {
+                                                    drawRect(color = color)
+                                                }
+                                            }
+                                            .graphicsLayer {
+                                                if (isRound && isSwiping) {
+                                                    clip = true
+                                                    shape = CircleShape
+                                                }
+                                            }
+                                            .background(color = backgroundScrimColor)
+                                    } else {
+                                        Modifier.drawWithContent {
+                                            drawContent()
+                                            val color =
+                                                backgroundScrimColor.copy(
+                                                    alpha =
+                                                        MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress)
+                                                )
+                                            drawRect(color = color)
+                                        }
+                                    }
                                 )
                         ) {
                             // We use the repeat loop above and call content at this location
@@ -210,24 +244,6 @@ public fun BasicSwipeToDismissBox(
                             // within the content composable has the same call stack which is used
                             // as part of the hash identity for saveable state.
                             content(isBackground)
-
-                            Canvas(Modifier.fillMaxSize()) {
-                                val color =
-                                    if (isBackground) {
-                                        backgroundScrimColor.copy(
-                                            alpha =
-                                                (MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
-                                                    .coerceIn(0f, 1f)
-                                        )
-                                    } else {
-                                        contentScrimColor.copy(
-                                            alpha =
-                                                min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
-                                                    .coerceIn(0f, 1f)
-                                        )
-                                    }
-                                drawRect(color = color)
-                            }
                         }
                     }
                 }
@@ -283,7 +299,7 @@ public fun BasicSwipeToDismissBox(
     backgroundKey: Any = SwipeToDismissKeys.Background,
     contentKey: Any = SwipeToDismissKeys.Content,
     userSwipeEnabled: Boolean = true,
-    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit,
 ) {
     LaunchedEffect(state.currentValue) {
         if (state.currentValue == SwipeToDismissValue.Dismissed) {
@@ -297,7 +313,7 @@ public fun BasicSwipeToDismissBox(
         backgroundKey = backgroundKey,
         contentKey = contentKey,
         userSwipeEnabled = userSwipeEnabled,
-        content = content
+        content = content,
     )
 }
 
@@ -333,7 +349,9 @@ public class SwipeToDismissBoxState(
         get() = swipeableState.targetValue
 
     /**
-     * The current offset, or [Float.NaN] if it has not been initialized yet.
+     * The current offset, or [Float.NaN] if it has not been initialized yet. Consider using
+     * `requireOffset()` method instead - this field should only be used when the access to the
+     * uninitialised value is required.
      *
      * The offset shows how far the foreground content was swiped from its original position.
      */
@@ -343,6 +361,16 @@ public class SwipeToDismissBoxState(
     /** Whether the state is currently animating. */
     public val isAnimationRunning: Boolean
         get() = swipeableState.isAnimationRunning
+
+    /**
+     * Require the current offset. This method should always be used instead of using the `offset`
+     * field, unless the access to the uninitialised value is required.
+     *
+     * The offset shows how far the foreground content was swiped from its original position.
+     *
+     * @throws IllegalStateException If the offset has not been initialized yet
+     */
+    public fun requireOffset(): Float = swipeableState.requireOffset()
 
     internal fun edgeNestedScrollConnection(
         edgeSwipeState: State<EdgeSwipeState>
@@ -379,7 +407,7 @@ public class SwipeToDismissBoxState(
                 override fun onPostScroll(
                     consumed: Offset,
                     available: Offset,
-                    source: NestedScrollSource
+                    source: NestedScrollSource,
                 ): Offset = Offset.Zero
 
                 override suspend fun onPreFling(available: Velocity): Velocity {
@@ -396,7 +424,7 @@ public class SwipeToDismissBoxState(
 
                 override suspend fun onPostFling(
                     consumed: Velocity,
-                    available: Velocity
+                    available: Velocity,
                 ): Velocity {
                     settle(velocity = available.x)
                     return available
@@ -409,7 +437,7 @@ public class SwipeToDismissBoxState(
             initialValue = SwipeToDismissValue.Default,
             animationSpec = animationSpec,
             confirmValueChange = confirmStateChange,
-            positionalThreshold = fractionalPositionalThreshold(SWIPE_THRESHOLD)
+            positionalThreshold = fractionalPositionalThreshold(SWIPE_THRESHOLD),
         )
 }
 
@@ -457,7 +485,7 @@ public enum class SwipeToDismissKeys {
      * isBackground == false. Specifying a background key instead of using the default allows
      * remembered state to be correctly moved between background and foreground.
      */
-    Content
+    Content,
 }
 
 /** States used as targets for the anchor points for swipe-to-dismiss. */
@@ -466,21 +494,33 @@ public enum class SwipeToDismissValue {
     Default,
 
     /** The state of the SwipeToDismissBox after the swipe passes the swipe-to-dismiss threshold. */
-    Dismissed
+    Dismissed,
 }
 
 /**
- * Limits swipe to dismiss to be active from the edge of the viewport only. Used when the center of
- * the screen needs to be able to handle horizontal paging, such as 2-d scrolling a Map or swiping
- * horizontally between pages. Swipe to the right is intercepted on the left part of the viewport
- * with width specified by [edgeWidth], with other touch events ignored - vertical scroll, click,
- * long click, etc.
+ * Handles swipe to dismiss from the edge of the viewport.
+ *
+ * Used when the content of the [BasicSwipeToDismissBox] is handling all the gestures of the
+ * viewport, which prevents [BasicSwipeToDismissBox] from handling the swipe-to-dismiss gesture.
+ * Examples of this scenario are horizontal paging, such as 2-d scrolling a Map or swiping
+ * horizontally between pages.
+ *
+ * Use of [Modifier.edgeSwipeToDismiss] defines a zone on the left side of the viewport of width
+ * [edgeWidth] in which the swipe-right gesture is intercepted. Other touch events are ignored -
+ * vertical scroll, click, long click, etc.
  *
  * Currently Edge swipe, like swipe to dismiss, is only supported on the left part of the viewport
  * regardless of layout direction as content is swiped away from left to right.
  *
  * Requires that the element to which this modifier is applied exists within a
- * [BasicSwipeToDismissBox] which is using the same [SwipeToDismissBoxState] instance.
+ * [BasicSwipeToDismissBox] which is using the same [SwipeToDismissBoxState] instance. As such,
+ * [Modifier.edgeSwipeToDismiss] is also compatible with SwipeDismissableNavHost up to and including
+ * API 35. However, for API 36 onwards, SwipeDismissableNavHost uses platform predictive back events
+ * for navigation, and is not compatible with [Modifier.edgeSwipeToDismiss].
+ *
+ * Requires that the element to which this modifier is applied notifies the nested scroll system
+ * about the scrolling events that are happening on the element. For example, using a
+ * [NestedScrollDispatcher].
  *
  * Example of a modifier usage with SwipeToDismiss
  *
@@ -491,71 +531,67 @@ public enum class SwipeToDismissValue {
  */
 public fun Modifier.edgeSwipeToDismiss(
     swipeToDismissBoxState: SwipeToDismissBoxState,
-    edgeWidth: Dp = SwipeToDismissBoxDefaults.EdgeWidth
+    edgeWidth: Dp = SwipeToDismissBoxDefaults.EdgeWidth,
 ): Modifier =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        this // Edge swipe to dismiss doesn't work on API >= 35 for now
-    } else
-        composed(
-            inspectorInfo =
-                debugInspectorInfo {
-                    name = "edgeSwipeToDismiss"
-                    properties["swipeToDismissBoxState"] = swipeToDismissBoxState
-                    properties["edgeWidth"] = edgeWidth
-                }
-        ) {
-            // Tracks the current swipe status
-            val edgeSwipeState = remember { mutableStateOf(EdgeSwipeState.WaitingForTouch) }
-            val nestedScrollConnection =
-                remember(swipeToDismissBoxState) {
-                    swipeToDismissBoxState.edgeNestedScrollConnection(edgeSwipeState)
-                }
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "edgeSwipeToDismiss"
+                properties["swipeToDismissBoxState"] = swipeToDismissBoxState
+                properties["edgeWidth"] = edgeWidth
+            }
+    ) {
+        // Tracks the current swipe status
+        val edgeSwipeState = remember { mutableStateOf(EdgeSwipeState.WaitingForTouch) }
+        val nestedScrollConnection =
+            remember(swipeToDismissBoxState) {
+                swipeToDismissBoxState.edgeNestedScrollConnection(edgeSwipeState)
+            }
 
-            val nestedPointerInput: suspend PointerInputScope.() -> Unit = {
-                coroutineScope {
-                    awaitPointerEventScope {
-                        while (isActive) {
-                            awaitPointerEvent(PointerEventPass.Initial).changes.fastForEach { change
-                                ->
-                                // By default swipeState is WaitingForTouch.
-                                // If it is in this state and a first touch hit an edge area, we
-                                // set swipeState to EdgeClickedWaitingForDirection.
-                                // After that to track which direction the swipe will go, we check
-                                // the next touch. If it lands to the left of the first, we consider
-                                // it as a swipe left and set the state to SwipingToPage. Otherwise,
-                                // set the state to SwipingToDismiss
-                                when (edgeSwipeState.value) {
-                                    EdgeSwipeState.SwipeToDismissInProgress,
-                                    EdgeSwipeState.WaitingForTouch -> {
-                                        edgeSwipeState.value =
-                                            if (change.position.x < edgeWidth.toPx())
-                                                EdgeSwipeState.EdgeClickedWaitingForDirection
-                                            else EdgeSwipeState.SwipingToPage
-                                    }
-                                    EdgeSwipeState.EdgeClickedWaitingForDirection -> {
-                                        edgeSwipeState.value =
-                                            if (change.position.x < change.previousPosition.x)
-                                                EdgeSwipeState.SwipingToPage
-                                            else EdgeSwipeState.SwipingToDismiss
-                                    }
-                                    else -> {} // Do nothing
-                                }
-                                // When finger is up - reset swipeState to WaitingForTouch
-                                // or to SwipeToDismissInProgress if current
-                                // state is SwipingToDismiss
-                                if (change.changedToUp()) {
+        val nestedPointerInput: suspend PointerInputScope.() -> Unit = {
+            coroutineScope {
+                awaitPointerEventScope {
+                    while (isActive) {
+                        awaitPointerEvent(PointerEventPass.Initial).changes.fastForEach { change ->
+                            // By default swipeState is WaitingForTouch.
+                            // If it is in this state and a first touch hit an edge area, we
+                            // set swipeState to EdgeClickedWaitingForDirection.
+                            // After that to track which direction the swipe will go, we check
+                            // the next touch. If it lands to the left of the first, we consider
+                            // it as a swipe left and set the state to SwipingToPage. Otherwise,
+                            // set the state to SwipingToDismiss
+                            when (edgeSwipeState.value) {
+                                EdgeSwipeState.SwipeToDismissInProgress,
+                                EdgeSwipeState.WaitingForTouch -> {
                                     edgeSwipeState.value =
-                                        if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss)
-                                            EdgeSwipeState.SwipeToDismissInProgress
-                                        else EdgeSwipeState.WaitingForTouch
+                                        if (change.position.x < edgeWidth.toPx())
+                                            EdgeSwipeState.EdgeClickedWaitingForDirection
+                                        else EdgeSwipeState.SwipingToPage
                                 }
+                                EdgeSwipeState.EdgeClickedWaitingForDirection -> {
+                                    edgeSwipeState.value =
+                                        if (change.position.x < change.previousPosition.x)
+                                            EdgeSwipeState.SwipingToPage
+                                        else EdgeSwipeState.SwipingToDismiss
+                                }
+                                else -> {} // Do nothing
+                            }
+                            // When finger is up - reset swipeState to WaitingForTouch
+                            // or to SwipeToDismissInProgress if current
+                            // state is SwipingToDismiss
+                            if (change.changedToUp()) {
+                                edgeSwipeState.value =
+                                    if (edgeSwipeState.value == EdgeSwipeState.SwipingToDismiss)
+                                        EdgeSwipeState.SwipeToDismissInProgress
+                                    else EdgeSwipeState.WaitingForTouch
                             }
                         }
                     }
                 }
             }
-            pointerInput(edgeWidth, nestedPointerInput).nestedScroll(nestedScrollConnection)
         }
+        pointerInput(edgeWidth, nestedPointerInput).nestedScroll(nestedScrollConnection)
+    }
 
 /** An enum which represents a current state of swipe action. */
 internal enum class EdgeSwipeState {
@@ -573,7 +609,7 @@ internal enum class EdgeSwipeState {
     SwipingToPage,
 
     // Swipe was finished, used to handle fling.
-    SwipeToDismissInProgress
+    SwipeToDismissInProgress,
 }
 
 private const val SWIPE_THRESHOLD = 0.5f

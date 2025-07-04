@@ -15,7 +15,7 @@
  */
 
 @file:JvmName("StringUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 
 package androidx.room.util
 
@@ -26,7 +26,7 @@ import kotlin.jvm.JvmName
 @Suppress("unused")
 @JvmField
 @Deprecated("No longer used by generated code")
-val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
+public val EMPTY_STRING_ARRAY: Array<String?> = arrayOfNulls<String>(0)
 
 /**
  * Returns a new StringBuilder to be used while producing SQL queries.
@@ -34,7 +34,7 @@ val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
  * @return A new or recycled StringBuilder
  */
 @Deprecated("No longer used by generated code")
-fun newStringBuilder(): StringBuilder = StringBuilder()
+public fun newStringBuilder(): StringBuilder = StringBuilder()
 
 /**
  * Adds bind variable placeholders (?) to the given string. Each placeholder is separated by a
@@ -43,7 +43,7 @@ fun newStringBuilder(): StringBuilder = StringBuilder()
  * @param builder The StringBuilder for the query
  * @param count Number of placeholders
  */
-fun appendPlaceholders(builder: StringBuilder, count: Int) {
+public fun appendPlaceholders(builder: StringBuilder, count: Int) {
     for (i in 0 until count) {
         builder.append("?")
         if (i < count - 1) {
@@ -60,7 +60,7 @@ fun appendPlaceholders(builder: StringBuilder, count: Int) {
  * @param input Comma separated list of integers.
  * @return A List containing the integers or null if the input is null.
  */
-fun splitToIntList(input: String?): List<Int>? {
+public fun splitToIntList(input: String?): List<Int>? {
     return input?.split(',')?.mapNotNull { item ->
         try {
             item.toInt()
@@ -77,6 +77,6 @@ fun splitToIntList(input: String?): List<Int>? {
  * @return Comma separated string composed of integers in the list. If the list is null, return
  *   value is null.
  */
-fun joinIntoString(input: List<Int>?): String? {
+public fun joinIntoString(input: List<Int>?): String? {
     return input?.joinToString(",")
 }

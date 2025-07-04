@@ -219,7 +219,7 @@ class ProgressIndicatorTest {
                 LinearProgressIndicator(
                     modifier = Modifier.size(expectedWidth, expectedHeight),
                     progress = 1f,
-                    color = Color.Blue
+                    color = Color.Blue,
                 )
             }
         }
@@ -242,7 +242,7 @@ class ProgressIndicatorTest {
             Box(Modifier.testTag(tag)) {
                 LinearProgressIndicator(
                     modifier = Modifier.size(expectedWidth, expectedHeight),
-                    color = Color.Blue
+                    color = Color.Blue,
                 )
             }
         }
@@ -370,7 +370,7 @@ class ProgressIndicatorTest {
                 Box(Modifier.testTag(visualTag)) {
                     LinearProgressIndicator(
                         modifier = Modifier.testTag(withPaddingTag),
-                        progress = 1f
+                        progress = 1f,
                     )
                 }
                 repeat(20) { Text("Item $it") }

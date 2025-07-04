@@ -33,10 +33,8 @@ public class MyDatabase_Impl : MyDatabase() {
     MyDao_Impl(this)
   }
 
-
   protected override fun createOpenDelegate(): RoomOpenDelegate {
-    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1,
-        "89ba16fb8b062b50acf0eb06c853efcb", "8a71a68e07bdd62aa8c8324d870cf804") {
+    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1, "89ba16fb8b062b50acf0eb06c853efcb", "8a71a68e07bdd62aa8c8324d870cf804") {
       public override fun createAllTables(connection: SQLiteConnection) {
         connection.execSQL("CREATE TABLE IF NOT EXISTS `MyParentEntity` (`parentKey` INTEGER NOT NULL, PRIMARY KEY(`parentKey`))")
         connection.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, `indexedCol` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`indexedCol`) REFERENCES `MyParentEntity`(`parentKey`) ON UPDATE NO ACTION ON DELETE CASCADE )")
@@ -69,15 +67,12 @@ public class MyDatabase_Impl : MyDatabase() {
       public override fun onPostMigrate(connection: SQLiteConnection) {
       }
 
-      public override fun onValidateSchema(connection: SQLiteConnection):
-          RoomOpenDelegate.ValidationResult {
+      public override fun onValidateSchema(connection: SQLiteConnection): RoomOpenDelegate.ValidationResult {
         val _columnsMyParentEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
-        _columnsMyParentEntity.put("parentKey", TableInfo.Column("parentKey", "INTEGER", true, 1,
-            null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsMyParentEntity.put("parentKey", TableInfo.Column("parentKey", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY))
         val _foreignKeysMyParentEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
         val _indicesMyParentEntity: MutableSet<TableInfo.Index> = mutableSetOf()
-        val _infoMyParentEntity: TableInfo = TableInfo("MyParentEntity", _columnsMyParentEntity,
-            _foreignKeysMyParentEntity, _indicesMyParentEntity)
+        val _infoMyParentEntity: TableInfo = TableInfo("MyParentEntity", _columnsMyParentEntity, _foreignKeysMyParentEntity, _indicesMyParentEntity)
         val _existingMyParentEntity: TableInfo = tableInfoRead(connection, "MyParentEntity")
         if (!_infoMyParentEntity.equals(_existingMyParentEntity)) {
           return RoomOpenDelegate.ValidationResult(false, """
@@ -89,18 +84,13 @@ public class MyDatabase_Impl : MyDatabase() {
               |""".trimMargin() + _existingMyParentEntity)
         }
         val _columnsMyEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
-        _columnsMyEntity.put("pk", TableInfo.Column("pk", "INTEGER", true, 1, null,
-            TableInfo.CREATED_FROM_ENTITY))
-        _columnsMyEntity.put("indexedCol", TableInfo.Column("indexedCol", "TEXT", true, 0, null,
-            TableInfo.CREATED_FROM_ENTITY))
+        _columnsMyEntity.put("pk", TableInfo.Column("pk", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsMyEntity.put("indexedCol", TableInfo.Column("indexedCol", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         val _foreignKeysMyEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
-        _foreignKeysMyEntity.add(TableInfo.ForeignKey("MyParentEntity", "CASCADE", "NO ACTION",
-            listOf("indexedCol"), listOf("parentKey")))
+        _foreignKeysMyEntity.add(TableInfo.ForeignKey("MyParentEntity", "CASCADE", "NO ACTION", listOf("indexedCol"), listOf("parentKey")))
         val _indicesMyEntity: MutableSet<TableInfo.Index> = mutableSetOf()
-        _indicesMyEntity.add(TableInfo.Index("index_MyEntity_indexedCol", false,
-            listOf("indexedCol"), listOf("ASC")))
-        val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity,
-            _indicesMyEntity)
+        _indicesMyEntity.add(TableInfo.Index("index_MyEntity_indexedCol", false, listOf("indexedCol"), listOf("ASC")))
+        val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity, _indicesMyEntity)
         val _existingMyEntity: TableInfo = tableInfoRead(connection, "MyEntity")
         if (!_infoMyEntity.equals(_existingMyEntity)) {
           return RoomOpenDelegate.ValidationResult(false, """
@@ -113,8 +103,7 @@ public class MyDatabase_Impl : MyDatabase() {
         }
         val _columnsMyFtsEntity: MutableSet<String> = mutableSetOf()
         _columnsMyFtsEntity.add("text")
-        val _infoMyFtsEntity: FtsTableInfo = FtsTableInfo("MyFtsEntity", _columnsMyFtsEntity,
-            "CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
+        val _infoMyFtsEntity: FtsTableInfo = FtsTableInfo("MyFtsEntity", _columnsMyFtsEntity, "CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
         val _existingMyFtsEntity: FtsTableInfo = ftsTableInfoRead(connection, "MyFtsEntity")
         if (!_infoMyFtsEntity.equals(_existingMyFtsEntity)) {
           return RoomOpenDelegate.ValidationResult(false, """
@@ -125,8 +114,7 @@ public class MyDatabase_Impl : MyDatabase() {
               | Found:
               |""".trimMargin() + _existingMyFtsEntity)
         }
-        val _infoMyView: ViewInfo = ViewInfo("MyView",
-            "CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
+        val _infoMyView: ViewInfo = ViewInfo("MyView", "CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
         val _existingMyView: ViewInfo = viewInfoRead(connection, "MyView")
         if (!_infoMyView.equals(_existingMyView)) {
           return RoomOpenDelegate.ValidationResult(false, """
@@ -150,8 +138,7 @@ public class MyDatabase_Impl : MyDatabase() {
     val _tables: MutableSet<String> = mutableSetOf()
     _tables.add("MyFtsEntity")
     _viewTables.put("myview", _tables)
-    return InvalidationTracker(this, _shadowTablesMap, _viewTables, "MyParentEntity", "MyEntity",
-        "MyFtsEntity")
+    return InvalidationTracker(this, _shadowTablesMap, _viewTables, "MyParentEntity", "MyEntity", "MyFtsEntity")
   }
 
   public override fun clearAllTables() {
@@ -169,9 +156,7 @@ public class MyDatabase_Impl : MyDatabase() {
     return _autoMigrationSpecsSet
   }
 
-  public override
-      fun createAutoMigrations(autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>):
-      List<Migration> {
+  public override fun createAutoMigrations(autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>): List<Migration> {
     val _autoMigrations: MutableList<Migration> = mutableListOf()
     return _autoMigrations
   }

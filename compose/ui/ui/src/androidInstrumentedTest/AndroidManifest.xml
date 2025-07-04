@@ -21,6 +21,10 @@
             android:name="androidx.compose.ui.test.TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
         <activity
+            android:name="androidx.compose.ui.test.TestActivity2"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+        <activity
             android:name="androidx.compose.ui.window.ActivityWithInsets"
             android:windowSoftInputMode="adjustResize"
             android:theme="@android:style/Theme.Material.Light.NoActionBar" />
@@ -32,6 +36,7 @@
         <activity android:name="androidx.fragment.app.FragmentActivity"/>
         <activity android:name="androidx.compose.ui.window.ActivityWithFlagSecure"/>
         <activity android:name="androidx.compose.ui.RecyclerViewActivity" />
+        <activity android:name="androidx.compose.ui.ShowOnScreenRecyclerViewActivity" />
         <activity
             android:name="androidx.compose.ui.draw.NotHardwareAcceleratedActivity"
             android:hardwareAccelerated="false" />

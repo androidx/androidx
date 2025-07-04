@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.XNullability.UNKNOWN
 import androidx.room.compiler.processing.XProcessingEnv.Backend
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.isAssignableFromWithNullability
 import androidx.room.processor.Context
 import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.NoOpConverter
@@ -48,7 +49,7 @@ class NullAwareTypeConverterStore(
      */
     typeConverters: List<TypeConverter>,
     /** List of types that can be saved into db/read from without a converter. */
-    private val knownColumnTypes: List<XType>
+    private val knownColumnTypes: List<XType>,
 ) : TypeConverterStore {
     private val knownColumnTypeNames = knownColumnTypes.map { it.asTypeName() }
     override val typeConverters =
@@ -62,8 +63,8 @@ class NullAwareTypeConverterStore(
                     // that would already handle the same arguments.
                     val match =
                         processedConverters.any { other ->
-                            other.from.isAssignableFrom(candidate.from) &&
-                                candidate.to.isAssignableFrom(other.to)
+                            other.from.isAssignableFromWithNullability(candidate.from) &&
+                                candidate.to.isAssignableFromWithNullability(other.to)
                         }
                     if (!match) {
                         processedConverters.add(candidate)
@@ -103,7 +104,7 @@ class NullAwareTypeConverterStore(
      */
     private fun getColumnTypesInPreferenceBuckets(
         nullability: XNullability,
-        explicitColumnTypes: List<XType>?
+        explicitColumnTypes: List<XType>?,
     ): List<List<XType>> {
         return if (explicitColumnTypes == null) {
             when (nullability) {
@@ -126,7 +127,7 @@ class NullAwareTypeConverterStore(
                 else ->
                     listOf(
                         explicitColumnTypes.filter { it.nullability == nullability },
-                        explicitColumnTypes.filter { it.nullability != nullability }
+                        explicitColumnTypes.filter { it.nullability != nullability },
                     )
             }
         }
@@ -134,11 +135,11 @@ class NullAwareTypeConverterStore(
 
     override fun findConverterIntoStatement(
         input: XType,
-        columnTypes: List<XType>?
+        columnTypes: List<XType>?,
     ): TypeConverter? {
         getColumnTypesInPreferenceBuckets(
                 nullability = input.nullability,
-                explicitColumnTypes = columnTypes
+                explicitColumnTypes = columnTypes,
             )
             .forEach { types ->
                 findConverterIntoStatementInternal(input = input, columnTypes = types)
@@ -157,7 +158,7 @@ class NullAwareTypeConverterStore(
 
     private fun findConverterIntoStatementInternal(
         input: XType,
-        columnTypes: List<XType>
+        columnTypes: List<XType>,
     ): TypeConverterEntry? {
         if (columnTypes.isEmpty()) return null
         val queue =
@@ -165,7 +166,7 @@ class NullAwareTypeConverterStore(
                 sourceType = input,
                 // each converter is keyed on which type they will take us to
                 keyType = TypeConverter::to,
-                isKnownColumnType = this::isColumnType
+                isKnownColumnType = this::isColumnType,
             )
 
         while (true) {
@@ -177,16 +178,16 @@ class NullAwareTypeConverterStore(
             // check for assignable matches but only enqueue them as there might be another shorter
             // path
             columnTypes.forEach { columnType ->
-                if (columnType.isAssignableFrom(current.type)) {
+                if (columnType.isAssignableFromWithNullability(current.type)) {
                     queue.maybeEnqueue(
                         prevEntry = current,
                         converter =
                             current.appendConverter(
                                 UpCastTypeConverter(
                                     upCastFrom = current.type,
-                                    upCastTo = columnType
+                                    upCastTo = columnType,
                                 )
-                            )
+                            ),
                     )
                 }
             }
@@ -199,7 +200,7 @@ class NullAwareTypeConverterStore(
 
     override fun findConverterFromStatement(
         columnTypes: List<XType>?,
-        output: XType
+        output: XType,
     ): TypeConverter? {
         @Suppress("NAME_SHADOWING") // intentional
         val columnTypes = columnTypes ?: knownColumnTypes
@@ -215,7 +216,7 @@ class NullAwareTypeConverterStore(
         return if (output.nullability == NONNULL) {
             findConverterFromStatementInternal(
                     columnTypes = columnTypes,
-                    output = output.makeNullable()
+                    output = output.makeNullable(),
                 )
                 ?.appendConverter(RequireNotNullTypeConverter(from = output.makeNullable()))
         } else {
@@ -225,7 +226,7 @@ class NullAwareTypeConverterStore(
 
     private fun findConverterFromStatementInternal(
         columnTypes: List<XType>,
-        output: XType
+        output: XType,
     ): TypeConverterEntry? {
         if (columnTypes.isEmpty()) return null
         val queue =
@@ -234,7 +235,7 @@ class NullAwareTypeConverterStore(
                 // each converter is keyed on which type they receive as we are doing pathfinding
                 // reverse here
                 keyType = TypeConverter::from,
-                isKnownColumnType = this::isColumnType
+                isKnownColumnType = this::isColumnType,
             )
 
         while (true) {
@@ -246,16 +247,16 @@ class NullAwareTypeConverterStore(
             // check for assignable matches but only enqueue them as there might be another shorter
             // path
             columnTypes.forEach { columnType ->
-                if (current.type.isAssignableFrom(columnType)) {
+                if (current.type.isAssignableFromWithNullability(columnType)) {
                     queue.maybeEnqueue(
                         prevEntry = current,
                         converter =
                             current.prependConverter(
                                 UpCastTypeConverter(
                                     upCastFrom = columnType,
-                                    upCastTo = current.type
+                                    upCastTo = current.type,
                                 )
-                            )
+                            ),
                     )
                 }
             }
@@ -275,7 +276,7 @@ class NullAwareTypeConverterStore(
         return if (output.nullability == NONNULL) {
             findConverterIntoStatementInternal(
                     input = input,
-                    columnTypes = listOf(output.makeNullable())
+                    columnTypes = listOf(output.makeNullable()),
                 )
                 ?.let { converterEntry ->
                     return converterEntry.appendConverter(
@@ -289,17 +290,17 @@ class NullAwareTypeConverterStore(
 
     /** Returns all type converters that can receive input type and return into another type. */
     private fun getAllTypeConvertersFrom(input: XType): List<TypeConverter> {
-        // for input, check assignability because it defines whether we can use the method or not.
+        // for input, check assignability because it defines whether we can use the function or not.
         return typeConvertersByFromCache.getOrPut(input) {
             // this cache avoids us many assignability checks.
             typeConverters.mapNotNull { converter ->
                 when {
                     converter.from.isSameType(input) -> converter
-                    converter.from.isAssignableFrom(input) ->
+                    converter.from.isAssignableFromWithNullability(input) ->
                         CompositeTypeConverter(
                             conv1 =
                                 UpCastTypeConverter(upCastFrom = input, upCastTo = converter.from),
-                            conv2 = converter
+                            conv2 = converter,
                         )
                     else -> null
                 }
@@ -314,11 +315,11 @@ class NullAwareTypeConverterStore(
             typeConverters.mapNotNull { converter ->
                 when {
                     converter.to.isSameType(output) -> converter
-                    output.isAssignableFrom(converter.to) ->
+                    output.isAssignableFromWithNullability(converter.to) ->
                         CompositeTypeConverter(
                             conv1 = converter,
                             conv2 =
-                                UpCastTypeConverter(upCastFrom = converter.to, upCastTo = output)
+                                UpCastTypeConverter(upCastFrom = converter.to, upCastTo = output),
                         )
                     else -> null
                 }
@@ -330,7 +331,7 @@ class NullAwareTypeConverterStore(
     private class TypeConverterQueue(
         sourceType: XType,
         val isKnownColumnType: (XType) -> Boolean,
-        val keyType: TypeConverter.() -> XType
+        val keyType: TypeConverter.() -> XType,
     ) {
         // using insertion order as the tie breaker for reproducible builds.
         private var insertionOrder = 0
@@ -345,7 +346,7 @@ class NullAwareTypeConverterStore(
                     tieBreakerPriority = insertionOrder++,
                     type = sourceType,
                     converter = null,
-                    convertsBetweenDbAndNonDbType = false
+                    convertsBetweenDbAndNonDbType = false,
                 )
             cheapestEntry[sourceType] = typeConverterEntry
             queue.add(typeConverterEntry)
@@ -390,7 +391,7 @@ class NullAwareTypeConverterStore(
                         tieBreakerPriority = insertionOrder++,
                         type = keyType,
                         converter = converter,
-                        convertsBetweenDbAndNonDbType = convertsBetweenDbAndNonDbType
+                        convertsBetweenDbAndNonDbType = convertsBetweenDbAndNonDbType,
                     )
                 cheapestEntry[keyType] = entry
                 queue.add(entry)
@@ -413,7 +414,7 @@ class NullAwareTypeConverterStore(
          * convertible to `String` to be persisted, yet, this doesn't mean TypeA can be converted
          * into TypeB.
          */
-        val convertsBetweenDbAndNonDbType: Boolean
+        val convertsBetweenDbAndNonDbType: Boolean,
     ) : Comparable<TypeConverterEntry> {
         override fun compareTo(other: TypeConverterEntry): Int {
             if (converter == null) {

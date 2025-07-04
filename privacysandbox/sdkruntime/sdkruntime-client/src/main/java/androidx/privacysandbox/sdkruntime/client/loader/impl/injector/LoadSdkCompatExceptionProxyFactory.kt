@@ -44,7 +44,7 @@ private constructor(private val loadSdkCompatExceptionConstructor: Constructor<o
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val loadSdkCompatExceptionConstructor =
                 loadSdkCompatExceptionClass.getConstructor(

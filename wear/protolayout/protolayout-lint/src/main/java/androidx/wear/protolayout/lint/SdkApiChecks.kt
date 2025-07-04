@@ -28,7 +28,7 @@ import org.jetbrains.uast.UElement
 internal fun hasAtLeastTargetApiAnnotation(
     evaluator: JavaEvaluator,
     element: UElement?,
-    atLeast: ApiConstraint
+    atLeast: ApiConstraint,
 ): Boolean {
     var curr = element ?: return false
     while (true) {

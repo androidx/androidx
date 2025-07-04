@@ -71,7 +71,7 @@ class PerfettoConfigTest {
                     listOf(
                         TraceConfig.BufferConfig(
                             size_kb = 16384,
-                            fill_policy = TraceConfig.BufferConfig.FillPolicy.RING_BUFFER
+                            fill_policy = TraceConfig.BufferConfig.FillPolicy.RING_BUFFER,
                         )
                     ),
                 data_sources =
@@ -85,7 +85,7 @@ class PerfettoConfigTest {
                                         FtraceConfig(atrace_categories = listOf("bad_category")),
                                 )
                         )
-                    )
+                    ),
             )
         val exception = assertFailsWith<IllegalStateException> { invalidConfig.validateAndEncode() }
         assertTrue(exception.message!!.contains("bad_category"))
@@ -100,7 +100,7 @@ class PerfettoConfigTest {
                     listOf(
                         TraceConfig.BufferConfig(
                             size_kb = 16384,
-                            fill_policy = TraceConfig.BufferConfig.FillPolicy.RING_BUFFER
+                            fill_policy = TraceConfig.BufferConfig.FillPolicy.RING_BUFFER,
                         )
                     ),
                 data_sources =
@@ -113,16 +113,16 @@ class PerfettoConfigTest {
                                     ftrace_config =
                                         FtraceConfig(
                                             atrace_categories = listOf("view"),
-                                            atrace_apps = listOf("*")
+                                            atrace_apps = listOf("*"),
                                         ),
                                 )
                         )
-                    )
+                    ),
             )
         val exception = assertFailsWith<IllegalStateException> { invalidConfig.validateAndEncode() }
         assertEquals(
             expected = "Support for wildcard (*) app matching in atrace added in API 28",
-            actual = exception.message
+            actual = exception.message,
         )
     }
 
@@ -143,7 +143,7 @@ class PerfettoConfigTest {
                         "0123456789",
                         "0123456789",
                     ),
-                stackSamplingConfig = null
+                stackSamplingConfig = null,
             )
         val exception = assertFailsWith<IllegalStateException> { invalidConfig.validateAndEncode() }
         assertEquals(
@@ -151,7 +151,7 @@ class PerfettoConfigTest {
                 "Unable to trace package list (\"0123456789,0123456789,0123456789," +
                     "0123456789,0123456789,0123456789,0123456789,0123456789,0123456789\").length" +
                     " = 98 > 91 chars, which is the limit before API 24",
-            actual = exception.message
+            actual = exception.message,
         )
     }
 }

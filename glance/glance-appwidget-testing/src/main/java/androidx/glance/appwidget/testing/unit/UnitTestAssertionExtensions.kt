@@ -39,14 +39,14 @@ internal typealias UnitTestAssertion = GlanceNodeAssertion<MappedNode, GlanceMap
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertIsChecked(): UnitTestAssertion = assert(isChecked())
+public fun UnitTestAssertion.assertIsChecked(): UnitTestAssertion = assert(isChecked())
 
 /**
  * Asserts that a given node is checkable and is not checked.
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertIsNotChecked(): UnitTestAssertion = assert(isNotChecked())
+public fun UnitTestAssertion.assertIsNotChecked(): UnitTestAssertion = assert(isNotChecked())
 
 /**
  * Asserts that a given node has a clickable set with action that runs a callback.
@@ -60,7 +60,7 @@ fun UnitTestAssertion.assertIsNotChecked(): UnitTestAssertion = assert(isNotChec
 @PublishedApi // See b/316353540; a reified version of this is available in public api.
 internal fun UnitTestAssertion.assertHasRunCallbackClickAction(
     callbackClass: Class<out ActionCallback>,
-    parameters: ActionParameters = actionParametersOf()
+    parameters: ActionParameters = actionParametersOf(),
 ): UnitTestAssertion =
     assert(hasRunCallbackClickAction(callbackClass = callbackClass, parameters = parameters))
 
@@ -73,7 +73,7 @@ internal fun UnitTestAssertion.assertHasRunCallbackClickAction(
  *   in the `actionRunCallback` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-inline fun <reified T : ActionCallback> UnitTestAssertion.assertHasRunCallbackClickAction(
+public inline fun <reified T : ActionCallback> UnitTestAssertion.assertHasRunCallbackClickAction(
     parameters: ActionParameters = actionParametersOf()
 ): UnitTestAssertion = assert(hasRunCallbackClickAction<T>(parameters = parameters))
 
@@ -88,16 +88,16 @@ inline fun <reified T : ActionCallback> UnitTestAssertion.assertHasRunCallbackCl
  *   an activity start.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasStartActivityClickAction(
+public fun UnitTestAssertion.assertHasStartActivityClickAction(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf(),
-    activityOptions: Bundle? = null
+    activityOptions: Bundle? = null,
 ): UnitTestAssertion =
     assert(
         hasStartActivityClickAction(
             intent = intent,
             parameters = parameters,
-            activityOptions = activityOptions
+            activityOptions = activityOptions,
         )
     )
 
@@ -113,7 +113,7 @@ fun UnitTestAssertion.assertHasStartActivityClickAction(
 @PublishedApi // See b/316353540; a reified version of this is available in public api.
 internal fun UnitTestAssertion.assertHasStartServiceClickAction(
     serviceClass: Class<out Service>,
-    isForegroundService: Boolean = false
+    isForegroundService: Boolean = false,
 ): UnitTestAssertion = assert(hasStartServiceAction(serviceClass, isForegroundService))
 
 /**
@@ -125,7 +125,7 @@ internal fun UnitTestAssertion.assertHasStartServiceClickAction(
  *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-inline fun <reified T : Service> UnitTestAssertion.assertHasStartServiceClickAction(
+public inline fun <reified T : Service> UnitTestAssertion.assertHasStartServiceClickAction(
     isForegroundService: Boolean = false
 ): UnitTestAssertion = assert(hasStartServiceAction<T>(isForegroundService))
 
@@ -138,9 +138,9 @@ inline fun <reified T : Service> UnitTestAssertion.assertHasStartServiceClickAct
  *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasStartServiceClickAction(
+public fun UnitTestAssertion.assertHasStartServiceClickAction(
     componentName: ComponentName,
-    isForegroundService: Boolean = false
+    isForegroundService: Boolean = false,
 ): UnitTestAssertion = assert(hasStartServiceAction(componentName, isForegroundService))
 
 /**
@@ -152,9 +152,9 @@ fun UnitTestAssertion.assertHasStartServiceClickAction(
  *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasStartServiceClickAction(
+public fun UnitTestAssertion.assertHasStartServiceClickAction(
     intent: Intent,
-    isForegroundService: Boolean = false
+    isForegroundService: Boolean = false,
 ): UnitTestAssertion = assert(hasStartServiceAction(intent, isForegroundService))
 
 /**
@@ -176,8 +176,8 @@ internal fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  *   `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-inline fun <reified T : BroadcastReceiver> UnitTestAssertion.assertHasSendBroadcastClickAction():
-    UnitTestAssertion = assert(hasSendBroadcastAction<T>())
+public inline fun <reified T : BroadcastReceiver> UnitTestAssertion
+    .assertHasSendBroadcastClickAction(): UnitTestAssertion = assert(hasSendBroadcastAction<T>())
 
 /**
  * Asserts that a given node has a clickable set with action that sends a broadcast.
@@ -188,9 +188,9 @@ inline fun <reified T : BroadcastReceiver> UnitTestAssertion.assertHasSendBroadc
  *   to have been passed in the `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasSendBroadcastClickAction(
+public fun UnitTestAssertion.assertHasSendBroadcastClickAction(
     intentAction: String,
-    componentName: ComponentName? = null
+    componentName: ComponentName? = null,
 ): UnitTestAssertion = assert(hasSendBroadcastAction(intentAction, componentName))
 
 /**
@@ -200,7 +200,7 @@ fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  *   been passed in the `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasSendBroadcastClickAction(
+public fun UnitTestAssertion.assertHasSendBroadcastClickAction(
     componentName: ComponentName
 ): UnitTestAssertion = assert(hasSendBroadcastAction(componentName))
 
@@ -211,5 +211,5 @@ fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  *   `actionSendBroadcast` method call. Note: intent is only matched using filterEquals.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasSendBroadcastClickAction(intent: Intent): UnitTestAssertion =
+public fun UnitTestAssertion.assertHasSendBroadcastClickAction(intent: Intent): UnitTestAssertion =
     assert(hasSendBroadcastAction(intent))

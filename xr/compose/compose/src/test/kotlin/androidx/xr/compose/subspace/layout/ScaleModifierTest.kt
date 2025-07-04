@@ -21,12 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setSubspaceContent
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -41,7 +42,7 @@ class ScaleModifierTest {
 
     @Test
     fun scale_modifierAppliedToEntity() {
-        composeTestRule.setSubspaceContent { PanelContent("panel", 0.5f) }
+        composeTestRule.setContent { TestSetup { Subspace { PanelContent("panel", 0.5f) } } }
 
         val panelNode = assertSingleNode("panel")
         assertEquals(0.5f, panelNode.scale)
@@ -50,11 +51,11 @@ class ScaleModifierTest {
     @Test
     fun negativeScale_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            composeTestRule.setSubspaceContent { PanelContent("panel", -0.5f) }
+            composeTestRule.setContent { TestSetup { Subspace { PanelContent("panel", -0.5f) } } }
         }
     }
 
-    private fun assertSingleNode(testTag: String): SubspaceSemanticsNode {
+    private fun assertSingleNode(testTag: String): SubspaceSemanticsInfo {
         val subspaceNode = composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode()
         assertNotNull(subspaceNode)
         return subspaceNode

@@ -25,17 +25,22 @@ import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 
-import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.PixelDimensions;
+import androidx.xr.runtime.internal.Dimensions;
+import androidx.xr.runtime.internal.PixelDimensions;
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider;
 import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
 import androidx.xr.scenecore.impl.perception.Session;
-import androidx.xr.scenecore.testing.FakeImpressApi;
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService;
-import androidx.xr.scenecore.testing.FakeXrExtensions;
+
+import com.android.extensions.xr.ShadowXrExtensions;
+import com.android.extensions.xr.XrExtensions;
+import com.android.extensions.xr.node.NodeRepository;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
+import com.google.ar.imp.apibindings.FakeImpressApiImpl;
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,60 +51,81 @@ import org.robolectric.android.controller.ActivityController;
 
 @RunWith(RobolectricTestRunner.class)
 public class MainPanelEntityImplTest {
-    private final FakeXrExtensions fakeExtensions = new FakeXrExtensions();
-    private final FakeImpressApi fakeImpressApi = new FakeImpressApi();
-    private final ActivityController<Activity> activityController =
+    private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
+    private final FakeImpressApiImpl mFakeImpressApi = new FakeImpressApiImpl();
+    private final ActivityController<Activity> mActivityController =
             Robolectric.buildActivity(Activity.class);
-    private final Activity hostActivity = activityController.create().start().get();
-    private final FakeScheduledExecutorService fakeExecutor = new FakeScheduledExecutorService();
-    private final PerceptionLibrary perceptionLibrary = Mockito.mock(PerceptionLibrary.class);
-    SplitEngineSubspaceManager splitEngineSubspaceManager =
+    private final Activity mHostActivity = mActivityController.create().start().get();
+    private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
+    private final PerceptionLibrary mPerceptionLibrary = Mockito.mock(PerceptionLibrary.class);
+    SplitEngineSubspaceManager mSplitEngineSubspaceManager =
             Mockito.mock(SplitEngineSubspaceManager.class);
-    ImpSplitEngineRenderer splitEngineRenderer = Mockito.mock(ImpSplitEngineRenderer.class);
-    private JxrPlatformAdapterAxr testRuntime;
-    private MainPanelEntityImpl mainPanelEntity;
+    ImpSplitEngineRenderer mSplitEngineRenderer = Mockito.mock(ImpSplitEngineRenderer.class);
+    private JxrPlatformAdapterAxr mTestRuntime;
+    private MainPanelEntityImpl mMainPanelEntity;
 
     @Before
     public void setUp() {
-        when(perceptionLibrary.initSession(eq(hostActivity), anyInt(), eq(fakeExecutor)))
+        when(mPerceptionLibrary.initSession(eq(mHostActivity), anyInt(), eq(mFakeExecutor)))
                 .thenReturn(immediateFuture(Mockito.mock(Session.class)));
 
-        testRuntime =
+        mTestRuntime =
                 JxrPlatformAdapterAxr.create(
-                        hostActivity,
-                        fakeExecutor,
-                        fakeExtensions,
-                        fakeImpressApi,
+                        mHostActivity,
+                        mFakeExecutor,
+                        mXrExtensions,
+                        mFakeImpressApi,
                         new EntityManager(),
-                        perceptionLibrary,
-                        splitEngineSubspaceManager,
-                        splitEngineRenderer,
-                        /* useSplitEngine= */ false);
+                        mPerceptionLibrary,
+                        mSplitEngineSubspaceManager,
+                        mSplitEngineRenderer,
+                        /* useSplitEngine= */ false,
+                        /* unscaledGravityAlignedActivitySpace= */ false);
 
-        mainPanelEntity = (MainPanelEntityImpl) testRuntime.getMainPanelEntity();
+        mMainPanelEntity = (MainPanelEntityImpl) mTestRuntime.getMainPanelEntity();
+    }
+
+    @After
+    public void tearDown() {
+        // Dispose the runtime between test cases to clean up lingering references.
+        mTestRuntime.dispose();
     }
 
     @Test
     public void runtimeGetMainPanelEntity_returnsPanelEntityImpl() {
-        assertThat(mainPanelEntity).isNotNull();
+        assertThat(mMainPanelEntity).isNotNull();
     }
 
     @Test
-    public void mainPanelEntitySetPixelDimensions_callsExtensions() {
+    public void mainPanelEntitysetSizeInPixels_callsExtensions() {
         PixelDimensions kTestPixelDimensions = new PixelDimensions(14, 14);
-        mainPanelEntity.setPixelDimensions(kTestPixelDimensions);
-        assertThat(fakeExtensions.getMainWindowWidth()).isEqualTo(kTestPixelDimensions.width);
-        assertThat(fakeExtensions.getMainWindowHeight()).isEqualTo(kTestPixelDimensions.height);
+        mMainPanelEntity.setSizeInPixels(kTestPixelDimensions);
+
+        ShadowXrExtensions shadowXrExtensions = ShadowXrExtensions.extract(mXrExtensions);
+        assertThat(shadowXrExtensions.getMainWindowWidth(mHostActivity))
+                .isEqualTo(kTestPixelDimensions.width);
+        assertThat(shadowXrExtensions.getMainWindowHeight(mHostActivity))
+                .isEqualTo(kTestPixelDimensions.height);
     }
 
     @Test
     public void mainPanelEntitySetSize_callsExtensions() {
-        // TODO(b/352630025): remove this once setSize is removed.
-        // This should have the same effect as setPixelDimensions, except that it has to convert
-        // from Dimensions to PixelDimensions, so it casts float to int.
         Dimensions kTestDimensions = new Dimensions(123.0f, 123.0f, 123.0f);
-        mainPanelEntity.setSize(kTestDimensions);
-        assertThat(fakeExtensions.getMainWindowWidth()).isEqualTo((int) kTestDimensions.width);
-        assertThat(fakeExtensions.getMainWindowWidth()).isEqualTo((int) kTestDimensions.height);
+        mMainPanelEntity.setSize(kTestDimensions);
+
+        ShadowXrExtensions shadowXrExtensions = ShadowXrExtensions.extract(mXrExtensions);
+        assertThat(shadowXrExtensions.getMainWindowWidth(mHostActivity))
+                .isEqualTo((int) kTestDimensions.width);
+        assertThat(shadowXrExtensions.getMainWindowHeight(mHostActivity))
+                .isEqualTo((int) kTestDimensions.height);
+    }
+
+    @Test
+    public void createActivityPanelEntity_setsCornersTo32Dp() {
+        // The (FakeXrExtensions) test default pixel density is 1 pixel per meter. Validate that the
+        // corner radius is set to 32dp.
+        assertThat(mMainPanelEntity.getCornerRadius()).isEqualTo(32.0f);
+        assertThat(NodeRepository.getInstance().getCornerRadius(mMainPanelEntity.getNode()))
+                .isEqualTo(32.0f);
     }
 }

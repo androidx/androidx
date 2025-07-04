@@ -42,7 +42,7 @@ class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Doub
         expected: IntArray,
         given: IntArray,
         width: Int,
-        height: Int
+        height: Int,
     ): MatchResult {
         val SSIMTotal = calculateSSIM(expected, given, width, height)
 
@@ -68,7 +68,7 @@ class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Doub
         offset: Int,
         stride: Int,
         width: Int,
-        height: Int
+        height: Int,
     ): Double {
         var SSIMTotal = 0.0
         var windows = 0
@@ -99,7 +99,7 @@ class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Doub
                         start,
                         stride,
                         windowWidth,
-                        windowHeight
+                        windowHeight,
                     )
                 val varX = variances[0]
                 val varY = variances[1]
@@ -133,7 +133,7 @@ class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Doub
         start: Int,
         stride: Int,
         windowWidth: Int,
-        windowHeight: Int
+        windowHeight: Int,
     ): Boolean {
         for (y in 0 until windowHeight) {
             for (x in 0 until windowWidth) {
@@ -170,7 +170,7 @@ class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Doub
         start: Int,
         stride: Int,
         windowWidth: Int,
-        windowHeight: Int
+        windowHeight: Int,
     ): DoubleArray {
         var avg0 = 0.0
         var avg1 = 0.0
@@ -199,7 +199,7 @@ class MSSIMMatcher(@FloatRange(from = 0.0, to = 1.0) private val threshold: Doub
         start: Int,
         stride: Int,
         windowWidth: Int,
-        windowHeight: Int
+        windowHeight: Int,
     ): DoubleArray {
         if (windowHeight == 1 && windowWidth == 1) {
             // There is only one item. The variance of a single item would be 0.

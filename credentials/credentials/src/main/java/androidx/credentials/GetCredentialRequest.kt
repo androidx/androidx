@@ -174,7 +174,7 @@ constructor(
                 origin,
                 preferIdentityDocUi,
                 preferUiBrandingComponentName,
-                preferImmediatelyAvailableCredentials
+                preferImmediatelyAvailableCredentials,
             )
         }
     }
@@ -201,11 +201,11 @@ constructor(
             bundle.putBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI, request.preferIdentityDocUi)
             bundle.putBoolean(
                 BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-                request.preferImmediatelyAvailableCredentials
+                request.preferImmediatelyAvailableCredentials,
             )
             bundle.putParcelable(
                 BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME,
-                request.preferUiBrandingComponentName
+                request.preferUiBrandingComponentName,
             )
             return bundle
         }
@@ -225,7 +225,7 @@ constructor(
             return createFrom(
                 request.credentialOptions.map { CredentialOption.createFrom(it) },
                 request.origin,
-                request.data
+                request.data,
             )
         }
 
@@ -244,7 +244,7 @@ constructor(
         fun createFrom(
             credentialOptions: List<CredentialOption>,
             origin: String?,
-            metadata: Bundle
+            metadata: Bundle,
         ): GetCredentialRequest {
             try {
                 val preferIdentityDocUi = metadata.getBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI)

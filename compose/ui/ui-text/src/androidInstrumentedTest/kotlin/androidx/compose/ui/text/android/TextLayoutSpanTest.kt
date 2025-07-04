@@ -85,7 +85,7 @@ class TextLayoutSpanTest {
         TextLayout(
             text,
             100f, // nit for this test
-            paint
+            paint,
         )
     }
 
@@ -120,7 +120,7 @@ class TextLayoutSpanTest {
         TextLayout(
             text,
             100f, // nit for this test
-            paint
+            paint,
         )
     }
 
@@ -144,7 +144,7 @@ class TextLayoutSpanTest {
         TextLayout(
             text,
             100f, // nit for this test
-            simplePaint()
+            simplePaint(),
         )
     }
 
@@ -168,7 +168,7 @@ class TextLayoutSpanTest {
         TextLayout(
             text,
             100f, // nit for this test
-            simplePaint()
+            simplePaint(),
         )
     }
 
@@ -192,7 +192,7 @@ class TextLayoutSpanTest {
         TextLayout(
             text,
             100f, // nit for this test
-            simplePaint()
+            simplePaint(),
         )
     }
 
@@ -218,7 +218,7 @@ class TextLayoutSpanTest {
         TextLayout(
             text,
             100f, // nit for this test
-            simplePaint()
+            simplePaint(),
         )
     }
 
@@ -226,7 +226,7 @@ class TextLayoutSpanTest {
     private fun updatePaintAnswer(
         baselineShift: Int? = null,
         skewX: Float? = null,
-        scaleX: Float? = null
+        scaleX: Float? = null,
     ): Answer<Any> {
         return Answer { invoc ->
             val ret = invoc.callRealMethod()

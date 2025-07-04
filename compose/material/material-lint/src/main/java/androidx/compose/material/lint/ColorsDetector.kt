@@ -34,10 +34,10 @@ import com.android.tools.lint.detector.api.UastLintUtils
 import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiVariable
 import java.util.EnumSet
-import org.jetbrains.kotlin.asJava.elements.KtLightParameter
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.UParameter
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.util.isConstructorCall
@@ -123,7 +123,7 @@ class ColorsDetector : Detector(), SourceCodeScanner {
                                         ConflictingOnColor,
                                         argument,
                                         context.getNameLocation(argument),
-                                        "Conflicting 'on' color for a given background"
+                                        "Conflicting 'on' color for a given background",
                                     )
                                 }
                             }
@@ -150,8 +150,8 @@ class ColorsDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ColorsDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }
@@ -186,14 +186,9 @@ class ParameterWithArgument(val parameter: PsiParameter, val argument: UExpressi
             when {
                 // An argument was provided
                 argument != null -> argument
-                // A default value exists (so !! is safe), and we are browsing Kotlin source
-                // Note: this should be is KtLightParameter, but this was changed from an interface
-                // to a class, so we get an IncompatibleClassChangeError.
-                parameter is KtLightParameter -> {
-                    parameter.kotlinOrigin!!.defaultValue.toUElement()
-                }
-                // A default value exists, but it is in a class file so we can't access it anymore
-                else -> null
+                // Attempted to convert the parameter to UElement if the UAST converter is able to
+                // find the underlying source PSI. Otherwise, we can't access a default value.
+                else -> (parameter.toUElement() as? UParameter)?.uastInitializer
             }
 
         sourceExpression?.resolveToDeclarationText()
@@ -230,7 +225,7 @@ private val OnColorMap =
         "secondaryVariant" to "onSecondary",
         "background" to "onBackground",
         "surface" to "onSurface",
-        "error" to "onError"
+        "error" to "onError",
     )
 
 private val LightColors = Name(Material.PackageName, "lightColors")

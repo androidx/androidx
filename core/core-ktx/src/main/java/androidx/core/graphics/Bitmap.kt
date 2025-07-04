@@ -83,7 +83,7 @@ public inline fun Bitmap.scale(width: Int, height: Int, filter: Boolean = true):
 public inline fun createBitmap(
     width: Int,
     height: Int,
-    config: Bitmap.Config = Bitmap.Config.ARGB_8888
+    config: Bitmap.Config = Bitmap.Config.ARGB_8888,
 ): Bitmap {
     return Bitmap.createBitmap(width, height, config)
 }
@@ -106,7 +106,7 @@ public inline fun createBitmap(
     height: Int,
     config: Bitmap.Config = Bitmap.Config.ARGB_8888,
     hasAlpha: Boolean = true,
-    colorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+    colorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB),
 ): Bitmap {
     return Bitmap.createBitmap(width, height, config, hasAlpha, colorSpace)
 }

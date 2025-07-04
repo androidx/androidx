@@ -25,9 +25,9 @@ private typealias IndexOrder = androidx.room.Index.Order
 data class Index(
     val name: String,
     val unique: Boolean,
-    override val fields: Fields,
-    val orders: List<IndexOrder>
-) : HasSchemaIdentity, HasFields {
+    override val properties: Properties,
+    val orders: List<IndexOrder>,
+) : HasSchemaIdentity, HasProperties {
     companion object {
         // should match the value in TableInfo.Index.DEFAULT_PREFIX
         const val DEFAULT_PREFIX = "index_"
@@ -36,9 +36,9 @@ data class Index(
     constructor(
         name: String,
         unique: Boolean,
-        fields: List<Field>,
-        orders: List<IndexOrder>
-    ) : this(name, unique, Fields(fields), orders)
+        fields: List<Property>,
+        orders: List<IndexOrder>,
+    ) : this(name, unique, Properties(fields), orders)
 
     override fun getIdKey() = buildString {
         append("$unique-$name-${columnNames.joinToString(",")}")
@@ -78,6 +78,6 @@ data class Index(
             unique,
             columnNames,
             orders.map { it.name },
-            createQuery(TABLE_NAME_PLACEHOLDER)
+            createQuery(TABLE_NAME_PLACEHOLDER),
         )
 }

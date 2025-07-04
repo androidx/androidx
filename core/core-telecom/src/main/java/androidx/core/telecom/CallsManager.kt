@@ -18,9 +18,6 @@ package androidx.core.telecom
 
 import android.content.ComponentName
 import android.content.Context
-import android.media.AudioDeviceCallback
-import android.media.AudioDeviceInfo
-import android.media.AudioManager
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.os.OutcomeReceiver
@@ -44,16 +41,17 @@ import androidx.core.telecom.extensions.CallsManagerExtensions
 import androidx.core.telecom.extensions.ExtensionInitializationScope
 import androidx.core.telecom.extensions.ExtensionInitializationScopeImpl
 import androidx.core.telecom.internal.AddCallResult
+import androidx.core.telecom.internal.AudioDeviceListener
+import androidx.core.telecom.internal.BluetoothProfileListener
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.CallStateEvent
 import androidx.core.telecom.internal.JetpackConnectionService
-import androidx.core.telecom.internal.PreCallEndpoints
-import androidx.core.telecom.internal.utils.AudioManagerUtil.Companion.getAvailableAudioDevices
-import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getEndpointsFromAudioDeviceInfo
+import androidx.core.telecom.internal.PreCallEndpointsUpdater
 import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.internal.utils.Utils.Companion.hasBluetoothPermissions
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
 import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
@@ -101,7 +99,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             CAPABILITY_BASELINE,
             CAPABILITY_SUPPORTS_VIDEO_CALLING,
             CAPABILITY_SUPPORTS_CALL_STREAMING,
-            flag = true
+            flag = true,
         )
         @Retention(AnnotationRetention.SOURCE)
         public annotation class Capability
@@ -272,7 +270,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
-        block: CallControlScope.() -> Unit
+        block: CallControlScope.() -> Unit,
     ): Unit = coroutineScope {
         // Provide a default empty handler for onEvent
         addCall(
@@ -283,7 +281,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             onSetInactive,
             MutableSharedFlow(),
             onEvent = { _, _ -> },
-            block
+            block,
         )
     }
 
@@ -325,7 +323,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
-        init: suspend ExtensionInitializationScope.() -> Unit
+        init: suspend ExtensionInitializationScope.() -> Unit,
     ): Unit = coroutineScope {
         Log.v(TAG, "addCall: begin")
         val eventFlow = MutableSharedFlow<CallEvent>()
@@ -344,7 +342,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             onSetActive,
             onSetInactive,
             callStateFlow,
-            onEvent = { event, extras -> eventFlow.emit(CallEvent(event, extras)) }
+            onEvent = { event, extras -> eventFlow.emit(CallEvent(event, extras)) },
         ) {
             Log.d(TAG, "addCall: invoking delegates")
             scope.invokeDelegate(this)
@@ -356,56 +354,50 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
     }
 
     /**
-     * Continuously stream the available call audio endpoints that can be used for a new call
-     * session. The [callbackFlow] should be cleaned up client-side by calling cancel() from the
-     * same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting in.
+     * Continuously streams available call audio endpoints that can be used for a new call session.
+     * This API leverages [callbackFlow] to emit updates as the available audio endpoints change.
      *
-     * Note: The endpoints emitted will be sorted by the [CallEndpointCompat.type] . See
-     * [CallEndpointCompat.compareTo] for the ordering. The first element in the list will be the
-     * recommended call endpoint to default to for the user.
+     * **Bluetooth Permissions**:
+     * * For API level 31 and above: The [android.Manifest.permission.BLUETOOTH_CONNECT] runtime
+     *   permission is highly recommended.
+     * * For API levels 28-30: The following runtime permissions are highly recommended:
+     *     * [android.Manifest.permission.BLUETOOTH] - Allows apps to view Bluetooth information.
+     *     * [android.Manifest.permission.BLUETOOTH_ADMIN] - Allows apps to connect to paired
+     *       devices.
      *
-     * @return a flow of [CallEndpointCompat]s that can be used for a new call session
+     * For all API levels: Granting these permissions allows the API to display the names of
+     * multiple connected Bluetooth devices. Without these permissions, only the active Bluetooth
+     * device will be surfaced.
+     *
+     * **Coroutine Usage and Cleanup:** The returned [Flow] from this [callbackFlow] should be
+     * collected within a [kotlinx.coroutines.CoroutineScope]. To properly manage resources and
+     * prevent leaks, ensure that the [Flow] is cancelled when it's no longer needed. This can be
+     * achieved by calling `cancel()` on the [kotlinx.coroutines.Job] of the collecting
+     * [kotlinx.coroutines.CoroutineScope]. Ideally, this cleanup should occur within the same scope
+     * where the [Flow] is being collected.
+     *
+     * @return A [Flow] that continuously emits a list of available [CallEndpointCompat]s.
      */
     public fun getAvailableStartingCallEndpoints(): Flow<List<CallEndpointCompat>> = callbackFlow {
         val id: Int = CallEndpointUuidTracker.startSession()
-        val audioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        // [AudioDeviceInfo] <-- AudioManager / platform
-        val initialAudioDevices = getAvailableAudioDevices(audioManager)
-        // [CallEndpoints]   <-- [AudioDeviceInfo]
-        val initialEndpoints = getEndpointsFromAudioDeviceInfo(mContext, id, initialAudioDevices)
         // The emitted endpoints need to be tracked so that when the device list changes,
         // the added or removed endpoints can be re-emitted as a whole list.  Otherwise, only
         // the added or removed endpoints will be emitted.
-        val preCallEndpoints = PreCallEndpoints(initialEndpoints.toMutableList(), this.channel)
+        val callEndpointsUpdater = PreCallEndpointsUpdater(mSendChannel = this.channel)
         // register an audio callback that will listen for updates
-        val audioDeviceCallback =
-            object : AudioDeviceCallback() {
-                override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
-                    if (addedDevices != null) {
-                        preCallEndpoints.endpointsAddedUpdate(
-                            getEndpointsFromAudioDeviceInfo(mContext, id, addedDevices.toList())
-                        )
-                    }
-                }
-
-                override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
-                    if (removedDevices != null) {
-                        preCallEndpoints.endpointsRemovedUpdate(
-                            getEndpointsFromAudioDeviceInfo(mContext, id, removedDevices.toList())
-                        )
-                    }
-                }
+        val audioDeviceListener = AudioDeviceListener(mContext, callEndpointsUpdater, id)
+        // register a bluetooth listener to surface connected bluetooth devices instead of just
+        // the active bluetooth device
+        var bluetoothProfileListener =
+            if (hasBluetoothPermissions(mContext)) {
+                BluetoothProfileListener(mContext, callEndpointsUpdater, id)
+            } else {
+                null
             }
-        // The following callback is needed in the event the user connects or disconnects
-        // and audio device after this API is called.
-        audioManager.registerAudioDeviceCallback(audioDeviceCallback, null /*handler*/)
-        // Send the initial list of pre-call [CallEndpointCompat]s out to the client. They
-        // will be emitted and cached in the Flow & only consumed once the client has
-        // collected it.
-        trySend(initialEndpoints)
         awaitClose {
             Log.i(TAG, "getAvailableStartingCallEndpoints: awaitClose")
-            audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+            bluetoothProfileListener?.close()
+            audioDeviceListener.close()
             CallEndpointUuidTracker.endSession(id)
         }
     }
@@ -427,7 +419,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         onSetInactive: suspend () -> Unit,
         onCallStateEventChanged: MutableSharedFlow<CallStateEvent>,
         onEvent: suspend (event: String, extras: Bundle) -> Unit,
-        block: CallControlScope.() -> Unit
+        block: CallControlScope.() -> Unit,
     ) {
         // This API is not supported for device running anything below Android O (26)
         Utils.verifyBuildVersion()
@@ -441,6 +433,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
 
         val closableCallSession: AutoCloseable?
         // create a call session based off the build version
+        @Suppress("WRONG_ANNOTATION_TARGET") // b/407926117
         @RequiresApi(34)
         if (Utils.hasPlatformV2Apis()) {
             // CompletableDeferred pauses the execution of this method until the CallControl is
@@ -459,7 +452,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     callChannels,
                     onCallStateEventChanged,
                     onEvent,
-                    blockingSessionExecution
+                    blockingSessionExecution,
                 )
             closableCallSession = callSession
             /**
@@ -486,7 +479,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 mDirectExecutor,
                 callControlOutcomeReceiver,
                 callSession as CallControlCallback,
-                callSession as CallEventCallback
+                callSession as CallEventCallback,
             )
 
             pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution)
@@ -497,7 +490,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     callSession,
                     callChannels,
                     blockingSessionExecution,
-                    coroutineContext
+                    coroutineContext,
                 )
 
             callSession.sendEvent(EVENT_CALL_READY)
@@ -526,7 +519,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     onEvent,
                     onCallStateEventChanged,
                     callAttributes.preferredStartingCallEndpoint,
-                    blockingSessionExecution
+                    blockingSessionExecution,
                 )
 
             mConnectionService.createConnectionRequest(mTelecomManager, request)
@@ -535,7 +528,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 pauseExecutionUntilCallIsReadyOrTimeout(
                     openResult,
                     blockingSessionExecution,
-                    request
+                    request,
                 )
                     as AddCallResult.SuccessCallSessionLegacy
 
@@ -545,7 +538,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     result.callSessionLegacy,
                     callChannels,
                     blockingSessionExecution,
-                    coroutineContext
+                    coroutineContext,
                 )
 
             // Run the clients code with the session active and exposed via the
@@ -571,7 +564,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 Log.i(
                     TAG,
                     "addCall: pausing [$coroutineContext] execution" +
-                        " until the CallControl or Connection is ready"
+                        " until the CallControl or Connection is ready",
                 )
                 result = openResult.await()
                 // In the event the platform encountered an exception while adding the call request,
@@ -613,7 +606,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         return PhoneAccountHandle(
             ComponentName(mContext.packageName, className),
             PACKAGE_HANDLE_ID,
-            Process.myUserHandle()
+            Process.myUserHandle(),
         )
     }
 

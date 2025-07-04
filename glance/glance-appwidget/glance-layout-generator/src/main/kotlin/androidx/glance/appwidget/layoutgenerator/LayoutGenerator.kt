@@ -72,7 +72,7 @@ internal class LayoutGenerator {
     fun generateAllFiles(
         containerFiles: List<File>,
         childrenFiles: List<File>,
-        outputResourcesDir: File
+        outputResourcesDir: File,
     ): GeneratedFiles {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
         val outputLayoutDirS = outputResourcesDir.resolve("layout-v31")
@@ -140,24 +140,17 @@ internal class LayoutGenerator {
     private fun generateContainersChildrenBeforeS(outputLayoutDir: File) =
         generateContainersChildren(outputLayoutDir, StubSizes)
 
-    private fun generateContainersChildren(
-        outputLayoutDir: File,
-        containerSizes: List<ValidSize>,
-    ) =
+    private fun generateContainersChildren(outputLayoutDir: File, containerSizes: List<ValidSize>) =
         ContainerOrientation.values()
             .flatMap { orientation ->
-                generateContainersChildren(
-                    outputLayoutDir,
-                    containerSizes,
-                    orientation,
-                )
+                generateContainersChildren(outputLayoutDir, containerSizes, orientation)
             }
             .toSet()
 
     private fun generateContainersChildren(
         outputLayoutDir: File,
         sizes: List<ValidSize>,
-        containerOrientation: ContainerOrientation
+        containerOrientation: ContainerOrientation,
     ): Set<File> {
         val widths = sizes + containerOrientation.extraWidths
         val heights = sizes + containerOrientation.extraHeights
@@ -171,8 +164,8 @@ internal class LayoutGenerator {
                             pos,
                             containerOrientation,
                             horizontalAlignment,
-                            verticalAlignment
-                        )
+                            verticalAlignment,
+                        ),
                     ) {
                         val root = createElement("merge")
                         appendChild(root)
@@ -199,7 +192,7 @@ internal class LayoutGenerator {
         width: ValidSize,
         height: ValidSize,
         horizontalAlignment: HorizontalAlignment?,
-        verticalAlignment: VerticalAlignment?
+        verticalAlignment: VerticalAlignment?,
     ) =
         createElement("ViewStub").apply {
             attributes.apply {
@@ -213,7 +206,7 @@ internal class LayoutGenerator {
                     androidGravity(
                         listOfNotNull(
                                 horizontalAlignment?.resourceName,
-                                verticalAlignment?.resourceName
+                                verticalAlignment?.resourceName,
                             )
                             .joinToString(separator = "|")
                     )
@@ -358,10 +351,7 @@ internal class LayoutGenerator {
             }
         }
 
-    private fun generateContainers(
-        file: File,
-        outputLayoutDir: File,
-    ): List<ContainerProperties> {
+    private fun generateContainers(file: File, outputLayoutDir: File): List<ContainerProperties> {
         val document = parseLayoutTemplate(file)
         val orientation =
             when (document.documentElement.androidAttr("orientation")?.nodeValue) {
@@ -387,7 +377,7 @@ internal class LayoutGenerator {
                             file,
                             numChildren,
                             horizontalAlignment,
-                            verticalAlignment
+                            verticalAlignment,
                         )
                     )
                 writeGeneratedLayout(generated, output)
@@ -428,9 +418,9 @@ internal class LayoutGenerator {
                                         pos,
                                         containerOrientation,
                                         horizontalAlignment,
-                                        verticalAlignment
+                                        verticalAlignment,
                                     )
-                                }"
+                                }",
                                 )
                             )
                         }
@@ -463,10 +453,7 @@ internal class LayoutGenerator {
         file: File,
         outputLayoutDir: File,
     ): List<RowColumnChildProperties> =
-        listOf(
-                Pair(ValidSize.Expand, ValidSize.Wrap),
-                Pair(ValidSize.Wrap, ValidSize.Expand),
-            )
+        listOf(Pair(ValidSize.Expand, ValidSize.Wrap), Pair(ValidSize.Wrap, ValidSize.Expand))
             .map { (width, height) ->
                 val generated = generateSimpleLayout(parseLayoutTemplate(file), width, height)
                 val output =
@@ -549,7 +536,7 @@ internal class LayoutGenerator {
     private inline fun generateRes(
         outputDir: File,
         resName: String,
-        builder: Document.() -> Unit
+        builder: Document.() -> Unit,
     ): File {
         val document = documentBuilder.newDocument()
         val file = outputDir.resolveRes(resName)
@@ -583,7 +570,7 @@ internal data class GeneratedFiles(
     val generatedContainers: Map<File, List<ContainerProperties>>,
     val generatedBoxChildren: Map<File, List<BoxChildProperties>>,
     val generatedRowColumnChildren: Map<File, List<RowColumnChildProperties>>,
-    val extraFiles: Set<File>
+    val extraFiles: Set<File>,
 )
 
 internal data class ChildProperties(
@@ -622,11 +609,11 @@ internal enum class ValidSize(val androidValue: String, val resourceName: String
 internal enum class ContainerOrientation(
     val resourceName: String,
     val extraWidths: List<ValidSize>,
-    val extraHeights: List<ValidSize>
+    val extraHeights: List<ValidSize>,
 ) {
     None("box", emptyList(), emptyList()),
     Horizontal("row", listOf(ValidSize.Expand), emptyList()),
-    Vertical("column", emptyList(), listOf(ValidSize.Expand))
+    Vertical("column", emptyList(), listOf(ValidSize.Expand)),
 }
 
 internal val ContainerOrientation.alignments: List<Pair<HorizontalAlignment?, VerticalAlignment?>>
@@ -635,26 +622,20 @@ internal val ContainerOrientation.alignments: List<Pair<HorizontalAlignment?, Ve
             ContainerOrientation.None -> {
                 crossProduct(
                     HorizontalAlignment.values().toList(),
-                    VerticalAlignment.values().toList()
+                    VerticalAlignment.values().toList(),
                 )
             }
             ContainerOrientation.Horizontal -> VerticalAlignment.values().map { null to it }
             ContainerOrientation.Vertical -> HorizontalAlignment.values().map { it to null }
         }
 
-internal enum class HorizontalAlignment(
-    val resourceName: String,
-    val code: MemberName,
-) {
+internal enum class HorizontalAlignment(val resourceName: String, val code: MemberName) {
     Start("start", AlignmentStart),
     Center("center_horizontal", AlignmentCenterHorizontally),
     End("end", AlignmentEnd),
 }
 
-internal enum class VerticalAlignment(
-    val resourceName: String,
-    val code: MemberName,
-) {
+internal enum class VerticalAlignment(val resourceName: String, val code: MemberName) {
     Top("top", AlignmentTop),
     Center("center_vertical", AlignmentCenterVertically),
     Bottom("bottom", AlignmentBottom),

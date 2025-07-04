@@ -181,7 +181,7 @@ class MultiParagraphFillBoundingBoxesTest {
 
     private fun simpleMultiParagraph(
         text: AnnotatedString,
-        width: Float = Float.MAX_VALUE
+        width: Float = Float.MAX_VALUE,
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
@@ -189,7 +189,7 @@ class MultiParagraphFillBoundingBoxesTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = fontFamilyResolver,
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 }

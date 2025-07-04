@@ -40,6 +40,7 @@ import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -98,6 +99,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
     @Before
     fun setup() {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumePcsSupportedForImageCapture(context)
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -172,7 +174,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
 
     private fun takePictureWithExtensionMode(
         outputFormat: Int = ImageCapture.OUTPUT_FORMAT_JPEG,
-        videoCaptureEnabled: Boolean = false
+        videoCaptureEnabled: Boolean = false,
     ) {
         if (outputFormat == ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             assumeExtensionModeOutputFormatSupported(
@@ -180,7 +182,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
                 extensionsManager,
                 config.cameraId,
                 config.extensionMode,
-                ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR
+                ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR,
             )
         }
 
@@ -189,7 +191,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
                 config.cameraId,
                 config.extensionMode,
                 outputFormat = outputFormat,
-                videoCaptureEnabled = videoCaptureEnabled
+                videoCaptureEnabled = videoCaptureEnabled,
             )
 
         with(activityScenario) { use { takePictureAndWaitForImageSavedIdle() } }
@@ -242,7 +244,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
         val cameraSelector =
             extensionsManager.getExtensionEnabledCameraSelector(
                 baseCameraSelector,
-                config.extensionMode
+                config.extensionMode,
             )
 
         val fakeLifecycleOwner =
@@ -289,7 +291,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
                         progress100Latch.countDown()
                     }
                 }
-            }
+            },
         )
 
         assertThat(progress100Latch.await(10, TimeUnit.SECONDS)).isTrue()

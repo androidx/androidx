@@ -41,7 +41,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                     val info = ForegroundInfo(0, notification, 1)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -51,7 +51,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                 // Source files
                 NOTIFICATION,
                 FOREGROUND_INFO,
-                application
+                application,
             )
             .issues(SpecifyForegroundServiceTypeIssueDetector.ISSUE)
             .run()
@@ -103,7 +103,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                     val info = ForegroundInfo(0, notification, 9)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -115,7 +115,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                 // Sources
                 NOTIFICATION,
                 FOREGROUND_INFO,
-                application
+                application,
             )
             .issues(SpecifyForegroundServiceTypeIssueDetector.ISSUE)
             .run()
@@ -167,7 +167,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                     val info = ForegroundInfo(0, notification, 8)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -179,7 +179,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                 // Sources
                 NOTIFICATION,
                 FOREGROUND_INFO,
-                application
+                application,
             )
             .issues(SpecifyForegroundServiceTypeIssueDetector.ISSUE)
             .run()
@@ -223,7 +223,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                     val info = ForegroundInfo(0, notification, 9)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -235,7 +235,7 @@ class SpecifyForegroundServiceTypeIssueDetectorTest {
                 // Sources
                 NOTIFICATION,
                 FOREGROUND_INFO,
-                application
+                application,
             )
             .issues(SpecifyForegroundServiceTypeIssueDetector.ISSUE)
             .run()

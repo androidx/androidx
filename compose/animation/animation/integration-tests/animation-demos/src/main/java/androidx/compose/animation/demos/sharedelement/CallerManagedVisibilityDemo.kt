@@ -54,7 +54,7 @@ fun SharedElementWithCallerManagedVisibility() {
             Modifier.sharedElementWithCallerManagedVisibility(
                     rememberSharedContentState(key = key),
                     !selectFirst,
-                    boundsTransform = boundsTransform
+                    boundsTransform = boundsTransform,
                 )
                 .background(Color.Red)
                 .size(100.dp)
@@ -66,11 +66,9 @@ fun SharedElementWithCallerManagedVisibility() {
         Box(
             Modifier.offset(180.dp, 180.dp)
                 .sharedElementWithCallerManagedVisibility(
-                    rememberSharedContentState(
-                        key = key,
-                    ),
+                    rememberSharedContentState(key = key),
                     selectFirst,
-                    boundsTransform = boundsTransform
+                    boundsTransform = boundsTransform,
                 )
                 .alpha(0.5f)
                 .background(Color.Blue)

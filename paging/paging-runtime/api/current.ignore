@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,androidx.recyclerview.widget.ListUpdateCallback,kotlinx.coroutines.CoroutineDispatcher)
+RemovedDeprecatedMethod: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,androidx.recyclerview.widget.ListUpdateCallback,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher)
+RemovedDeprecatedMethod: androidx.paging.PagingDataAdapter#PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,kotlinx.coroutines.CoroutineDispatcher)
+RemovedDeprecatedMethod: androidx.paging.PagingDataAdapter#PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, kotlinx.coroutines.CoroutineDispatcher, kotlinx.coroutines.CoroutineDispatcher):
+    Binary breaking change: Removed deprecated constructor androidx.paging.PagingDataAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>,kotlinx.coroutines.CoroutineDispatcher,kotlinx.coroutines.CoroutineDispatcher)

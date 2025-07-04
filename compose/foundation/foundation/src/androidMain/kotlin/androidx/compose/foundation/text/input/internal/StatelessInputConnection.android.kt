@@ -89,7 +89,7 @@ private const val EXTRA_INPUT_CONTENT_INFO = "EXTRA_INPUT_CONTENT_INFO"
 @OptIn(ExperimentalFoundationApi::class)
 internal class StatelessInputConnection(
     private val session: TextInputSession,
-    editorInfo: EditorInfo
+    editorInfo: EditorInfo,
 ) : InputConnection {
     /**
      * The depth of the batch session. 0 means no session.
@@ -137,7 +137,7 @@ internal class StatelessInputConnection(
             override fun commitContent(
                 inputContentInfo: InputContentInfo,
                 flags: Int,
-                opts: Bundle?
+                opts: Bundle?,
             ): Boolean {
                 return false
             }
@@ -173,7 +173,7 @@ internal class StatelessInputConnection(
                 override fun onCommitContent(
                     inputContentInfo: InputContentInfoCompat,
                     flags: Int,
-                    opts: Bundle?
+                    opts: Bundle?,
                 ): Boolean {
                     // The below code is mostly copied from `InputConnectionCompat.java`
                     var extras: Bundle? = opts
@@ -202,7 +202,7 @@ internal class StatelessInputConnection(
                     }
                     return session.onCommitContent(inputContentInfo.toTransferableContent(extras))
                 }
-            }
+            },
         )
 
     // region Methods for batch editing and session control
@@ -249,7 +249,7 @@ internal class StatelessInputConnection(
         session.setComposingText(
             text = text.toString(),
             newCursorPosition = newCursorPosition,
-            annotations = (text as? Spanned)?.toAnnotationList()
+            annotations = (text as? Spanned)?.toAnnotationList(),
         )
         return true
     }
@@ -324,7 +324,7 @@ internal class StatelessInputConnection(
     override fun performHandwritingGesture(
         gesture: HandwritingGesture,
         executor: Executor?,
-        consumer: IntConsumer?
+        consumer: IntConsumer?,
     ) {
         logDebug("performHandwritingGesture($gesture, $executor, $consumer)")
         // This InputConnection#performHandwritingGesture is added on Api 34. No need to support
@@ -336,13 +336,13 @@ internal class StatelessInputConnection(
             session,
             gesture,
             executor,
-            consumer
+            consumer,
         )
     }
 
     override fun previewHandwritingGesture(
         gesture: PreviewableHandwritingGesture,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ): Boolean {
         logDebug("previewHandwritingGesture($gesture, $cancellationSignal)")
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) return false
@@ -350,7 +350,7 @@ internal class StatelessInputConnection(
         return Api34PerformHandwritingGestureImpl.previewHandwritingGesture(
             session,
             gesture,
-            cancellationSignal
+            cancellationSignal,
         )
     }
 
@@ -473,7 +473,7 @@ internal class StatelessInputConnection(
     override fun commitContent(
         inputContentInfo: InputContentInfo,
         flags: Int,
-        opts: Bundle?
+        opts: Bundle?,
     ): Boolean {
         logDebug("commitContent($inputContentInfo, $flags, $opts)")
         return if (Build.VERSION.SDK_INT >= 25) {
@@ -481,7 +481,7 @@ internal class StatelessInputConnection(
                 inputConnection = commitContentDelegateInputConnection,
                 inputContentInfo = inputContentInfo,
                 flags = flags,
-                opts = opts
+                opts = opts,
             )
         } else {
             // This should never happen. Platform does not know about `commitContent` below API 25
@@ -506,7 +506,7 @@ private object Api25CommitContentImpl {
         inputConnection: InputConnection,
         inputContentInfo: InputContentInfo,
         flags: Int,
-        opts: Bundle?
+        opts: Bundle?,
     ): Boolean {
         return inputConnection.commitContent(inputContentInfo, flags, opts)
     }
@@ -518,7 +518,7 @@ private object Api34PerformHandwritingGestureImpl {
         session: TextInputSession,
         gesture: HandwritingGesture,
         executor: Executor?,
-        intConsumer: IntConsumer?
+        intConsumer: IntConsumer?,
     ) {
         val result = session.performHandwritingGesture(gesture)
         if (intConsumer == null) return
@@ -533,7 +533,7 @@ private object Api34PerformHandwritingGestureImpl {
     fun previewHandwritingGesture(
         session: TextInputSession,
         gesture: PreviewableHandwritingGesture,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ): Boolean {
         return session.previewHandwritingGesture(gesture, cancellationSignal)
     }
@@ -559,7 +559,7 @@ internal fun InputContentInfoCompat.toTransferableContent(extras: Bundle?): Tran
         source = TransferableContent.Source.Keyboard,
         clipMetadata = description.toClipMetadata(),
         platformTransferableContent =
-            PlatformTransferableContent(linkUri = linkUri, extras = extras ?: Bundle.EMPTY)
+            PlatformTransferableContent(linkUri = linkUri, extras = extras ?: Bundle.EMPTY),
     )
 }
 
@@ -576,7 +576,7 @@ internal fun Spanned.toAnnotationList(): List<PlacedAnnotation>? {
                 AnnotatedString.Range(
                     item = annotation,
                     start = getSpanStart(span),
-                    end = getSpanEnd(span)
+                    end = getSpanEnd(span),
                 )
             )
         }

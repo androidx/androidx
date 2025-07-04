@@ -1675,6 +1675,7 @@ public class MotionController {
      * ...
      * length
      *
+     * @param type if type is -1, skip all keyframes with type != -1
      * @param info is a data structure array of int that holds info on each keyframe
      * @return Number of keyFrames found
      */

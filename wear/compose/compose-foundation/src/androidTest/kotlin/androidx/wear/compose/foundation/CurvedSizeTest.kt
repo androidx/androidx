@@ -43,7 +43,7 @@ class CurvedSizeTest {
         angle: Float,
         thickness: Dp,
         innerAngle: Float,
-        innerThickness: Dp
+        innerThickness: Dp,
     ) {
         val capturedInfo = CapturedInfo()
         val innerCapturedInfo = CapturedInfo()
@@ -73,10 +73,7 @@ class CurvedSizeTest {
         }
     }
 
-    private fun nested_angular_size_test(
-        angularSizeInDp: Dp,
-        innerAngularSizeInDp: Dp,
-    ) {
+    private fun nested_angular_size_test(angularSizeInDp: Dp, innerAngularSizeInDp: Dp) {
         val capturedInfo = CapturedInfo()
         val innerCapturedInfo = CapturedInfo()
         var angularSizeInPx = 0f

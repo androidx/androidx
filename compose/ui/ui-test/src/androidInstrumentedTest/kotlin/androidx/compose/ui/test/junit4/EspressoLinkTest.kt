@@ -25,6 +25,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 
@@ -51,7 +52,7 @@ class EspressoLinkTest {
      * Also see b/205550018 for context.
      */
     @Test
-    fun registerAndUnregister() {
+    fun registerAndUnregister() = runTest {
         // Check the public registry:
         assertThat(IdlingRegistry.getInstance().resources).hasSize(0)
         // Check the private registry:

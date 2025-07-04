@@ -144,6 +144,6 @@ operator fun Size.div(scaleFactor: ScaleFactor): Size =
 fun lerp(start: ScaleFactor, stop: ScaleFactor, fraction: Float): ScaleFactor {
     return ScaleFactor(
         androidx.compose.ui.util.lerp(start.scaleX, stop.scaleX, fraction),
-        androidx.compose.ui.util.lerp(start.scaleY, stop.scaleY, fraction)
+        androidx.compose.ui.util.lerp(start.scaleY, stop.scaleY, fraction),
     )
 }

@@ -38,7 +38,7 @@ private const val FAKE_OEM = "fake_oem"
 class FlashAvailabilityCheckerTest(
     private val manufacturer: String,
     private val model: String,
-    private val characteristicsProvider: CameraCharacteristicsProvider
+    private val characteristicsProvider: CameraCharacteristicsProvider,
 ) {
     companion object {
         @JvmStatic
@@ -70,7 +70,7 @@ class FlashAvailabilityCheckerTest(
         assertThrows(BufferUnderflowException::class.java) {
             FlashAvailabilityChecker.isFlashAvailable(
                 /*rethrowOnError=*/ true,
-                characteristicsProvider
+                characteristicsProvider,
             )
         }
     }

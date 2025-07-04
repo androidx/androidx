@@ -62,7 +62,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @MediumTest
 class MultiTypedPagingSourceTest(
-    private val pagingSourceFactory: (PagingEntityDao) -> PagingSource<Int, PagingEntity>,
+    private val pagingSourceFactory: (PagingEntityDao) -> PagingSource<Int, PagingEntity>
 ) {
     private lateinit var coroutineScope: CoroutineScope
     private lateinit var db: PagingDb
@@ -142,8 +142,8 @@ class MultiTypedPagingSourceTest(
                 .containsExactlyElementsIn(
                     items.createExpected(
                         // Paging 3 implementation loads starting from initial key
-                        fromIndex = 98,
-                        toIndex = 100
+                        fromIndex = 91,
+                        toIndex = 100,
                     )
                 )
             // now access more items that should trigger loading more
@@ -175,10 +175,7 @@ class MultiTypedPagingSourceTest(
             assertThat(initialLoad)
                 .containsExactlyElementsIn(
                     // should return last page when key is too large
-                    items.createExpected(
-                        fromIndex = 41,
-                        toIndex = 50,
-                    )
+                    items.createExpected(fromIndex = 41, toIndex = 50)
                 )
             // now trigger a prepend
             withContext(Dispatchers.Main) {
@@ -198,22 +195,14 @@ class MultiTypedPagingSourceTest(
                 pageSize = 3,
                 initialLoadSize = 9,
                 enablePlaceholders = true,
-                jumpThreshold = 80
+                jumpThreshold = 80,
             )
-        val pager =
-            Pager(
-                config = config,
-            ) {
-                db.getDao().loadItems()
-            }
+        val pager = Pager(config = config) { db.getDao().loadItems() }
         runTest(pager = pager) {
             val initialLoad = itemStore.awaitInitialLoad()
             assertThat(initialLoad)
                 .containsExactlyElementsIn(
-                    items.createExpected(
-                        fromIndex = 0,
-                        toIndex = config.initialLoadSize,
-                    )
+                    items.createExpected(fromIndex = 0, toIndex = config.initialLoadSize)
                 )
             // now trigger a jump, accessed index needs to be larger than jumpThreshold
             withContext(Dispatchers.Main) { itemStore.get(120) }
@@ -224,10 +213,7 @@ class MultiTypedPagingSourceTest(
             // and null placeholders before and after
             assertThat(itemStore.peekItems())
                 .containsExactlyElementsIn(
-                    items.createExpected(
-                        fromIndex = 116,
-                        toIndex = 116 + config.initialLoadSize,
-                    )
+                    items.createExpected(fromIndex = 116, toIndex = 116 + config.initialLoadSize)
                 )
         }
     }
@@ -242,7 +228,7 @@ class MultiTypedPagingSourceTest(
             Pager(
                 config = CONFIG,
                 initialKey = 20,
-                pagingSourceFactory = { db.getDao().loadItems().also { pagingSources.add(it) } }
+                pagingSourceFactory = { db.getDao().loadItems().also { pagingSources.add(it) } },
             )
 
         runTest(pager) {
@@ -319,7 +305,7 @@ class MultiTypedPagingSourceTest(
             Pager(
                 config = CONFIG,
                 initialKey = 20,
-                pagingSourceFactory = { db.getDao().loadItems().also { pagingSources.add(it) } }
+                pagingSourceFactory = { db.getDao().loadItems().also { pagingSources.add(it) } },
             )
 
         // to block the PagingSource's observer, this observer needs to be registered first
@@ -484,9 +470,9 @@ class MultiTypedPagingSourceTest(
                 config = CONFIG,
                 pagingSourceFactory = {
                     pagingSourceFactory(db.getDao()).also { pagingSources.add(it) }
-                }
+                },
             ),
-        block: suspend () -> Unit
+        block: suspend () -> Unit,
     ) {
         runTestWithPager(coroutineScope, itemStore, pager, block)
     }
@@ -500,7 +486,7 @@ class MultiTypedPagingSourceTest(
                 PagingEntityDao::loadItems,
                 PagingEntityDao::loadItemsListenableFuture,
                 PagingEntityDao::loadItemsRx2,
-                PagingEntityDao::loadItemsRx3
+                PagingEntityDao::loadItemsRx3,
             )
     }
 }
@@ -579,8 +565,8 @@ class MultiTypedPagingSourceTestWithRawQuery(
                 .containsExactlyElementsIn(
                     items.createExpected(
                         // Paging 3 implementation loads starting from initial key
-                        fromIndex = 98,
-                        toIndex = 100
+                        fromIndex = 91,
+                        toIndex = 100,
                     )
                 )
             // now access more items that should trigger loading more
@@ -680,9 +666,9 @@ class MultiTypedPagingSourceTestWithRawQuery(
         pager: Pager<Int, PagingEntity> =
             Pager(
                 config = CONFIG,
-                pagingSourceFactory = { pagingSourceFactoryRaw(db.getDao(), query) }
+                pagingSourceFactory = { pagingSourceFactoryRaw(db.getDao(), query) },
             ),
-        block: suspend () -> Unit
+        block: suspend () -> Unit,
     ) {
         runTestWithPager(coroutineScope, itemStore, pager, block)
     }
@@ -696,19 +682,19 @@ class MultiTypedPagingSourceTestWithRawQuery(
                 PagingEntityDao::loadItemsRaw,
                 PagingEntityDao::loadItemsRawListenableFuture,
                 PagingEntityDao::loadItemsRawRx2,
-                PagingEntityDao::loadItemsRawRx3
+                PagingEntityDao::loadItemsRawRx3,
             )
     }
 }
 
 private fun buildAndReturnDb(
     queryContext: FilteringCoroutineContext,
-    mainThreadQueries: MutableList<Pair<String, String>>
+    mainThreadQueries: MutableList<Pair<String, String>>,
 ): PagingDb {
     val mainThread: Thread = runBlocking(Dispatchers.Main) { Thread.currentThread() }
     return Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
-            PagingDb::class.java
+            PagingDb::class.java,
         )
         .setQueryCallback(
             object : RoomDatabase.QueryCallback {
@@ -730,7 +716,7 @@ private fun runTestWithPager(
     coroutineScope: CoroutineScope,
     itemStore: ItemStore,
     pager: Pager<Int, PagingEntity>,
-    block: suspend () -> Unit
+    block: suspend () -> Unit,
 ) {
     val collection =
         coroutineScope.launch(Dispatchers.Main) {
@@ -750,10 +736,7 @@ internal fun createItems(startId: Int, count: Int): List<PagingEntity> {
 }
 
 /** Created an expected elements list from the current list. */
-internal fun List<PagingEntity>.createExpected(
-    fromIndex: Int,
-    toIndex: Int,
-): List<PagingEntity?> {
+internal fun List<PagingEntity>.createExpected(fromIndex: Int, toIndex: Int): List<PagingEntity?> {
     val result = mutableListOf<PagingEntity?>()
     (0 until fromIndex).forEach { _ -> result.add(null) }
     result.addAll(this.subList(fromIndex, toIndex))
@@ -772,9 +755,4 @@ internal fun List<PagingEntity>.createBoundedExpected(
     return result
 }
 
-internal val CONFIG =
-    PagingConfig(
-        pageSize = 3,
-        initialLoadSize = 9,
-        enablePlaceholders = true,
-    )
+internal val CONFIG = PagingConfig(pageSize = 3, initialLoadSize = 9, enablePlaceholders = true)

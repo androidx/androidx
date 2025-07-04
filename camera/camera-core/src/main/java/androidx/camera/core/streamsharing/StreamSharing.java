@@ -25,6 +25,7 @@ import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MIRROR_MODE;
 import static androidx.camera.core.impl.SessionConfig.getHigherPriorityTemplateType;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_STREAM_USE_CASE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
@@ -43,7 +44,9 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CompositionSettings;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -57,6 +60,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.StreamUseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -128,6 +132,7 @@ public class StreamSharing extends UseCase {
         }
         mutableConfig.insertOption(StreamSharingConfig.OPTION_CAPTURE_TYPES, captureTypes);
         mutableConfig.insertOption(OPTION_MIRROR_MODE, MIRROR_MODE_ON_FRONT_ONLY);
+        mutableConfig.insertOption(OPTION_STREAM_USE_CASE, StreamUseCase.PREVIEW_VIDEO_STILL);
         return new StreamSharingConfig(OptionsBundle.from(mutableConfig));
     }
 
@@ -158,6 +163,21 @@ public class StreamSharing extends UseCase {
                                 "Failed to take picture: pipeline is not ready."));
                     }
                 });
+
+        updateFeatureGroup(children);
+    }
+
+    /**
+     * Updates the feature group of the StreamSharing based on its children.
+     *
+     * <p>The feature group is used to determine which features are available for this
+     * UseCase. By design, it should be consistent across all children already.
+     *
+     * @param children The set of child UseCases from which to derive the feature group.
+     */
+    public void updateFeatureGroup(@NonNull Set<UseCase> children) {
+        // All use cases should have same feature group, so using only the first child
+        setFeatureGroup(children.iterator().next().getFeatureGroup());
     }
 
     @Override
@@ -191,6 +211,8 @@ public class StreamSharing extends UseCase {
     protected @NonNull StreamSpec onSuggestedStreamSpecUpdated(
             @NonNull StreamSpec primaryStreamSpec,
             @Nullable StreamSpec secondaryStreamSpec) {
+        Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
+                + ", secondaryStreamSpec " + secondaryStreamSpec);
         updateSessionConfig(
                 createPipelineAndUpdateChildrenSpecs(getCameraId(),
                         getSecondaryCameraId(),
@@ -287,7 +309,10 @@ public class StreamSharing extends UseCase {
                 outputEdges.put(entry.getKey(), out.get(entry.getValue()));
             }
 
-            mVirtualCameraAdapter.setChildrenEdges(outputEdges);
+            Map<UseCase, Size> selectedChildSizeMap = mVirtualCameraAdapter.getSelectedChildSizes(
+                    mSharingInputEdge, isViewportSet);
+
+            mVirtualCameraAdapter.setChildrenEdges(outputEdges, selectedChildSizeMap);
 
             return List.of(mSessionConfigBuilder.build());
         } else {
@@ -323,7 +348,11 @@ public class StreamSharing extends UseCase {
             for (Map.Entry<UseCase, DualOutConfig> entry : outConfigMap.entrySet()) {
                 outputEdges.put(entry.getKey(), out.get(entry.getValue()));
             }
-            mVirtualCameraAdapter.setChildrenEdges(outputEdges);
+
+            Map<UseCase, Size> primarySelectedChildSizes =
+                    mVirtualCameraAdapter.getSelectedChildSizes(mSharingInputEdge, isViewportSet);
+
+            mVirtualCameraAdapter.setChildrenEdges(outputEdges, primarySelectedChildSizes);
 
             return List.of(mSessionConfigBuilder.build(),
                     mSecondarySessionConfigBuilder.build());
@@ -401,6 +430,7 @@ public class StreamSharing extends UseCase {
         if (streamSpec.getImplementationOptions() != null) {
             builder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
+        builder.setSessionType(streamSpec.getSessionType());
         // Applies the AE fps range to the session config builder according to the stream spec and
         // quirk values.
         applyExpectedFrameRateRange(builder, streamSpec);
@@ -680,5 +710,36 @@ public class StreamSharing extends UseCase {
     @VisibleForTesting
     public @Nullable SurfaceEdge getSharingInputEdge() {
         return mSharingInputEdge;
+    }
+
+    @Override
+    public @Nullable Set<@NonNull DynamicRange> getSupportedDynamicRanges(
+            @NonNull CameraInfoInternal cameraInfo) {
+        Set<UseCase> children = getChildren();
+
+        if (children.isEmpty()) {
+            return null;
+        }
+
+        Set<DynamicRange> intersectedRanges = null;
+
+        for (UseCase child : children) {
+            Set<DynamicRange> childSupportedRanges = child.getSupportedDynamicRanges(cameraInfo);
+
+            if (childSupportedRanges == null) {
+                continue;
+            }
+
+            if (intersectedRanges == null) {
+                // For the first child, initialize the set with the child supported ranges.
+                intersectedRanges = new HashSet<>(childSupportedRanges);
+            } else {
+                // For subsequent children, retain only the ranges also supported by this child.
+                intersectedRanges.retainAll(childSupportedRanges);
+            }
+        }
+
+        // If intersectedRanges is null here, it means all child also returned null.
+        return intersectedRanges;
     }
 }

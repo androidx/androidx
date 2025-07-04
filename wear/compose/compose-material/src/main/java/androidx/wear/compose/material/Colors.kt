@@ -38,7 +38,7 @@ public class Colors(
     public val onBackground: Color = Color.White,
     public val onSurface: Color = Color.White,
     public val onSurfaceVariant: Color = Color(0xFFDADCE0),
-    public val onError: Color = Color(0xFF000000)
+    public val onError: Color = Color(0xFF000000),
 ) {
 
     /** Returns a copy of this Colors, optionally overriding some of the values. */
@@ -55,7 +55,7 @@ public class Colors(
         onBackground: Color = this.onBackground,
         onSurface: Color = this.onSurface,
         onSurfaceVariant: Color = this.onSurfaceVariant,
-        onError: Color = this.onError
+        onError: Color = this.onError,
     ): Colors =
         Colors(
             primary = primary,
@@ -70,7 +70,7 @@ public class Colors(
             onBackground = onBackground,
             onSurface = onSurface,
             onSurfaceVariant = onSurfaceVariant,
-            onError = onError
+            onError = onError,
         )
 
     override fun toString(): String {

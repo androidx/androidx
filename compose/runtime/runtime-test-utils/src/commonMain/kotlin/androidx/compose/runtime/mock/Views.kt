@@ -36,7 +36,7 @@ fun <T : Any> Repeated(of: Iterable<T>, block: @Composable (value: T) -> Unit) {
 fun Linear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
-        update = {}
+        update = {},
     ) {
         content()
     }
@@ -46,7 +46,7 @@ fun Linear(content: @Composable () -> Unit) {
 inline fun InlineLinear(content: @Composable () -> Unit) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "linear" } },
-        update = {}
+        update = {},
     ) {
         content()
     }
@@ -58,7 +58,7 @@ fun Linear(
     onDeactivate: () -> Unit = {},
     onRelease: () -> Unit = {},
     onSet: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val currentOnReuse by rememberUpdatedState(onReuse)
     val currentOnDeactivate by rememberUpdatedState(onDeactivate)
@@ -101,7 +101,7 @@ fun NonReusableLinear(content: @Composable () -> Unit) {
 fun Text(value: String) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "text" } },
-        update = { set(value) { text = it } }
+        update = { set(value) { text = it } },
     )
 }
 
@@ -109,7 +109,7 @@ fun Text(value: String) {
 fun NonReusableText(value: String) {
     ComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "text" } },
-        update = { set(value) { text = it } }
+        update = { set(value) { text = it } },
     )
 }
 
@@ -117,7 +117,7 @@ fun NonReusableText(value: String) {
 fun Edit(value: String) {
     ReusableComposeNode<View, ViewApplier>(
         factory = { View().also { it.name = "edit" } },
-        update = { set(value) { this.value = it } }
+        update = { set(value) { this.value = it } },
     )
 }
 
@@ -127,7 +127,7 @@ fun SelectBox(selected: Boolean, content: @Composable () -> Unit) {
         ReusableComposeNode<View, ViewApplier>(
             factory = { View().also { it.name = "box" } },
             update = {},
-            content = { content() }
+            content = { content() },
         )
     } else {
         content()

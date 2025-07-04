@@ -414,11 +414,11 @@ package androidx.kruth {
     method public void isAnyOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isEqualTo(Object? expected);
     method public void isIn(Iterable<? extends java.lang.Object?>? iterable);
-    method public inline <reified V> void isInstanceOf();
+    method public final inline <reified V> void isInstanceOf();
     method public void isNoneOf(Object? first, Object? second, java.lang.Object?... rest);
     method public void isNotEqualTo(Object? unexpected);
     method public void isNotIn(Iterable<? extends java.lang.Object?>? iterable);
-    method public inline <reified V> void isNotInstanceOf();
+    method public final inline <reified V> void isNotInstanceOf();
     method public void isNotNull();
     method public void isNotSameInstanceAs(Object? unexpected);
     method public void isNull();

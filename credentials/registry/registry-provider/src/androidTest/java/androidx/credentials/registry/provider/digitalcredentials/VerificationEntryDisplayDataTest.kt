@@ -36,7 +36,7 @@ class VerificationEntryDisplayDataTest {
                 subtitle = "subtitle",
                 icon = icon,
                 explainer = "explainer",
-                warning = "warning"
+                warning = "warning",
             )
 
         assertThat(data.displayType).isEqualTo(DISPLAY_TYPE_VERIFICATION)

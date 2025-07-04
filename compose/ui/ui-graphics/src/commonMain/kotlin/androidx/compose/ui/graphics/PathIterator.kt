@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.PathIterator.ConicEvaluation
 expect fun PathIterator(
     path: Path,
     conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
-    tolerance: Float = 0.25f
+    tolerance: Float = 0.25f,
 ): PathIterator
 
 /**
@@ -61,7 +61,7 @@ interface PathIterator : Iterator<PathSegment> {
          * Conic segments are returned as quadratic approximations. The quality of the approximation
          * is defined by a tolerance value.
          */
-        AsQuadratics
+        AsQuadratics,
     }
 
     /** The [Path] this iterator iterates on. */

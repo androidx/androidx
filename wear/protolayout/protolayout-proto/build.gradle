@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -42,7 +42,7 @@ dependencies {
 
 androidx {
     name = "Wear ProtoLayout Proto"
-    type = LibraryType.PUBLISHED_PROTO_LIBRARY
+    type = SoftwareType.PUBLISHED_PROTO_LIBRARY
     inceptionYear = "2022"
     description = "Jarjar the generated proto and proto-lite dependency for use by wear-protolayout"
 }

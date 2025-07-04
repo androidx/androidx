@@ -19,6 +19,7 @@ plugins {
     id("AndroidXComposePlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -38,6 +39,8 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.androidx.activity.compose)
     implementation("androidx.appcompat:appcompat:1.4.1")
-
     implementation(project(":compose-hero-benchmarks:poxedex-compose:app"))
+    implementation(project(":compose-hero-benchmarks:pokedex-views:app"))
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    ksp("com.github.bumptech.glide:ksp:4.16.0")
 }

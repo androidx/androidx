@@ -33,20 +33,20 @@ import java.util.Enumeration
  */
 internal class JavaResourcesLoadingClassLoaderFactory(
     private val appClassloader: ClassLoader,
-    private val codeClassLoaderFactory: SdkLoader.ClassLoaderFactory
+    private val codeClassLoaderFactory: SdkLoader.ClassLoaderFactory,
 ) : SdkLoader.ClassLoaderFactory {
     override fun createClassLoaderFor(sdkConfig: LocalSdkConfig, parent: ClassLoader): ClassLoader {
         val javaResourcesLoadingClassLoader =
             createJavaResourcesLoadingClassLoader(sdkConfig, parent)
         return codeClassLoaderFactory.createClassLoaderFor(
             sdkConfig,
-            parent = javaResourcesLoadingClassLoader
+            parent = javaResourcesLoadingClassLoader,
         )
     }
 
     private fun createJavaResourcesLoadingClassLoader(
         sdkConfig: LocalSdkConfig,
-        parent: ClassLoader
+        parent: ClassLoader,
     ): ClassLoader {
         return if (sdkConfig.javaResourcesRoot == null) {
             parent
@@ -54,7 +54,7 @@ internal class JavaResourcesLoadingClassLoaderFactory(
             JavaResourcesLoadingClassLoader(
                 parent,
                 appClassloader,
-                File(ASSETS_DIR, sdkConfig.javaResourcesRoot)
+                File(ASSETS_DIR, sdkConfig.javaResourcesRoot),
             )
         }
     }
@@ -63,7 +63,7 @@ internal class JavaResourcesLoadingClassLoaderFactory(
     constructor(
         parent: ClassLoader,
         private val appClassloader: ClassLoader,
-        private val javaResourcePrefix: File
+        private val javaResourcePrefix: File,
     ) : ClassLoader(parent) {
         override fun findResource(name: String): URL? {
             return appClassloader.getResource(File(javaResourcePrefix, name).path)

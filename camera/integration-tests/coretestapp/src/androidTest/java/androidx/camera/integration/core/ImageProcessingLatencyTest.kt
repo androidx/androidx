@@ -120,7 +120,7 @@ class ImageProcessingLatencyTest(private val targetResolution: Size) {
         Logger.d(
             TAG,
             "Image processing performance profiling, resolution: $targetResolution, " +
-                "lensFacing: $lensFacing"
+                "lensFacing: $lensFacing",
         )
         // Profile the YubToRgbConverter performance with the first 200 frames.
         val countDownLatch = CountDownLatch(200)
@@ -140,7 +140,7 @@ class ImageProcessingLatencyTest(private val targetResolution: Size) {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-                imageAnalyzer
+                imageAnalyzer,
             )
         }
 

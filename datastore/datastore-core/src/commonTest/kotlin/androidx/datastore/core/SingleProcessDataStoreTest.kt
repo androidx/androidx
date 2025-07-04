@@ -76,7 +76,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             testIO.getStore(
                 serializerConfig,
                 dataStoreScope,
-                { createSingleProcessCoordinator(testFile.path()) }
+                { createSingleProcessCoordinator(testFile.path()) },
             ) {
                 testFile
             }
@@ -112,7 +112,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             testIO.getStore(
                 serializerConfig,
                 storeScope,
-                { createSingleProcessCoordinator(testFile.path()) }
+                { createSingleProcessCoordinator(testFile.path()) },
             ) {
                 testFile
             }
@@ -236,7 +236,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
                 serializerConfig,
                 dataStoreScope,
                 { createSingleProcessCoordinator(testFile.path()) },
-                fileProducer
+                fileProducer,
             )
 
         assertThrows<IOException> { newStore.data.first() }
@@ -666,7 +666,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
                 newDataStore(
                     corruptionHandler = testingHandler,
                     file = testFile,
-                    scope = backgroundScope
+                    scope = backgroundScope,
                 )
 
             assertThat(newStore.data.first()).isEqualTo(10)
@@ -678,7 +678,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val dataStore =
             newDataStore(
                 serializerConfig = TestingSerializerConfig(defaultValue = 99),
-                scope = dataStoreScope
+                scope = dataStoreScope,
             )
 
         assertThat(dataStore.data.first()).isEqualTo(99)
@@ -774,7 +774,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val original =
             newDataStore(
                     file = datastoreFile,
-                    scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+                    scope = CoroutineScope(Job() + UnconfinedTestDispatcher()),
                 )
                 .also { it.data.first() }
 
@@ -786,31 +786,31 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
 
         newDataStore(
                 file = datastoreFile,
-                scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+                scope = CoroutineScope(Job() + UnconfinedTestDispatcher()),
             )
             .also { it.assertFailsToOpen() }
 
         newDataStore(
                 file = datastoreFile.resolve("../${datastoreFile.name}"),
-                scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+                scope = CoroutineScope(Job() + UnconfinedTestDispatcher()),
             )
             .also { it.assertFailsToOpen() }
 
         newDataStore(
                 file = datastoreFile.resolve(".././${datastoreFile.name}"),
-                scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+                scope = CoroutineScope(Job() + UnconfinedTestDispatcher()),
             )
             .also { it.assertFailsToOpen() }
 
         newDataStore(
                 file = datastoreFile.resolve("../nonExisting/../${datastoreFile.name}"),
-                scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+                scope = CoroutineScope(Job() + UnconfinedTestDispatcher()),
             )
             .also { it.assertFailsToOpen() }
         // in different folder, hence can read
         newDataStore(
                 file = datastoreFile.resolve("../newFolder/${datastoreFile.name}"),
-                scope = CoroutineScope(Job() + UnconfinedTestDispatcher())
+                scope = CoroutineScope(Job() + UnconfinedTestDispatcher()),
             )
             .also { it.data.first() }
     }
@@ -921,7 +921,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
     fun observeFileOnlyWhenDatastoreIsObserved() = runTest {
         class InterProcessCoordinatorWithInfiniteUpdates(
             val delegate: InterProcessCoordinator,
-            val observerCount: MutableStateFlow<Int> = MutableStateFlow(0)
+            val observerCount: MutableStateFlow<Int> = MutableStateFlow(0),
         ) : InterProcessCoordinator by delegate {
             override val updateNotifications: Flow<Unit>
                 get() {
@@ -942,9 +942,9 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
                 {
                     InterProcessCoordinatorWithInfiniteUpdates(
                         delegate = createSingleProcessCoordinator(testFile.path()),
-                        observerCount = observerCount
+                        observerCount = observerCount,
                     )
-                }
+                },
             ) {
                 testFile
             }
@@ -996,7 +996,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             testIO.getStore(
                 serializerConfig,
                 dataStoreScope,
-                { createSingleProcessCoordinator(testFile2.path()) }
+                { createSingleProcessCoordinator(testFile2.path()) },
             ) {
                 testFile2
             }
@@ -1015,7 +1015,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             testIO.getStore(
                 serializerConfig,
                 dataStoreScope,
-                { createSingleProcessCoordinator(testFile2.path()) }
+                { createSingleProcessCoordinator(testFile2.path()) },
             ) {
                 testFile2
             }
@@ -1107,7 +1107,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         serializerConfig: TestingSerializerConfig = this.serializerConfig,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<InitTaskList> = listOf(),
-        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler()
+        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler(),
     ): DataStore<Byte> {
         return DataStoreImpl(
             testIO.getStorage(serializerConfig, { createSingleProcessCoordinator(file.path()) }) {
@@ -1115,7 +1115,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             },
             scope = scope,
             initTasksList = initTasksList,
-            corruptionHandler = corruptionHandler
+            corruptionHandler = corruptionHandler,
         )
     }
 }

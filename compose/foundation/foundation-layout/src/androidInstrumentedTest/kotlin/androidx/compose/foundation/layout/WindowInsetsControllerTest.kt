@@ -174,7 +174,7 @@ class WindowInsetsControllerTest {
                 connection.onPostScroll(
                     consumed = Offset.Zero,
                     available = Offset(3f, directionMultiplier),
-                    source = NestedScrollSource.UserInput
+                    source = NestedScrollSource.UserInput,
                 )
             assertThat(consumed).isEqualTo(Offset(0f, directionMultiplier))
         }
@@ -188,7 +188,7 @@ class WindowInsetsControllerTest {
                     connection.onPostScroll(
                         consumed = Offset.Zero,
                         available = Offset(3f, directionMultiplier * 5f),
-                        source = NestedScrollSource.UserInput
+                        source = NestedScrollSource.UserInput,
                     )
                     coordinates.size
                 }
@@ -226,7 +226,7 @@ class WindowInsetsControllerTest {
             val consumed =
                 connection.onPreScroll(
                     available = Offset(3f, -directionMultiplier),
-                    source = NestedScrollSource.UserInput
+                    source = NestedScrollSource.UserInput,
                 )
             assertThat(consumed).isEqualTo(Offset(0f, -directionMultiplier))
         }
@@ -239,7 +239,7 @@ class WindowInsetsControllerTest {
                 rule.runOnUiThread {
                     connection.onPreScroll(
                         available = Offset(3f, directionMultiplier * -5f),
-                        source = NestedScrollSource.UserInput
+                        source = NestedScrollSource.UserInput,
                     )
                     coordinates.size
                 }
@@ -276,7 +276,7 @@ class WindowInsetsControllerTest {
             val consumed =
                 connection.onPostFling(
                     consumed = Velocity.Zero,
-                    available = Velocity(3f, directionMultiplier * 5000f)
+                    available = Velocity(3f, directionMultiplier * 5000f),
                 )
             assertThat(consumed.x).isEqualTo(0f)
             assertThat(abs(consumed.y)).isLessThan(5000f)
@@ -343,7 +343,7 @@ class WindowInsetsControllerTest {
         runBlockingOnUiThread {
             connection.onPostFling(
                 consumed = Velocity.Zero,
-                available = Velocity(0f, directionMultiplier * FlingToSpring1Pixel)
+                available = Velocity(0f, directionMultiplier * FlingToSpring1Pixel),
             )
             assertThat(maxVisible).isGreaterThan(0)
         }
@@ -372,7 +372,7 @@ class WindowInsetsControllerTest {
         runBlockingOnUiThread {
             connection.onPostFling(
                 consumed = Velocity.Zero,
-                available = Velocity(0f, directionMultiplier * FlingToSpring1Pixel)
+                available = Velocity(0f, directionMultiplier * FlingToSpring1Pixel),
             )
             assertThat(minVisible).isLessThan(shownSize)
         }
@@ -407,7 +407,7 @@ class WindowInsetsControllerTest {
                 connection.onPostScroll(
                     consumed = Offset.Zero,
                     available = Offset(0f, directionMultiplier),
-                    source = NestedScrollSource.UserInput
+                    source = NestedScrollSource.UserInput,
                 )
             }
         } while (!isVisible)
@@ -418,7 +418,7 @@ class WindowInsetsControllerTest {
             connection.onPostScroll(
                 consumed = Offset.Zero,
                 available = Offset(0f, directionMultiplier * sizeDifference),
-                source = NestedScrollSource.UserInput
+                source = NestedScrollSource.UserInput,
             )
         }
 
@@ -427,7 +427,7 @@ class WindowInsetsControllerTest {
         runBlockingOnUiThread {
             connection.onPostFling(
                 consumed = Velocity.Zero,
-                available = Velocity(0f, directionMultiplier * FlingToSpring1Pixel)
+                available = Velocity(0f, directionMultiplier * FlingToSpring1Pixel),
             )
         }
 
@@ -462,7 +462,7 @@ class WindowInsetsControllerTest {
             rule.runOnIdle {
                 connection.onPreScroll(
                     available = Offset(0f, directionMultiplier * -1f),
-                    source = NestedScrollSource.UserInput
+                    source = NestedScrollSource.UserInput,
                 )
             }
         } while (insetsSize != shownSize)
@@ -472,7 +472,7 @@ class WindowInsetsControllerTest {
             val sizeDifference = shownSize / 2f + 1f - insetsSize
             connection.onPreScroll(
                 available = Offset(0f, directionMultiplier * sizeDifference),
-                source = NestedScrollSource.UserInput
+                source = NestedScrollSource.UserInput,
             )
         }
 
@@ -507,7 +507,7 @@ class WindowInsetsControllerTest {
                         .windowInsetsPadding(windowInsets)
                         .nestedScroll(connection)
                         .testTag(testTag)
-                        .onPlaced { coordinates = it }
+                        .onPlaced { coordinates = it },
             ) {
                 items(1000) { Box(Modifier.size(boxSize)) }
             }
@@ -558,7 +558,7 @@ class WindowInsetsControllerTest {
                         .windowInsetsPadding(windowInsets)
                         .nestedScroll(connection)
                         .testTag(testTag)
-                        .onPlaced { coordinates = it }
+                        .onPlaced { coordinates = it },
             ) {
                 items(1000) { Box(Modifier.size(boxSize)) }
             }
@@ -605,7 +605,7 @@ class WindowInsetsControllerTest {
                 BasicTextField(
                     "Hello World",
                     {},
-                    modifier = Modifier.focusRequester(focusRequester).testTag("textField")
+                    modifier = Modifier.focusRequester(focusRequester).testTag("textField"),
                 )
                 if (showDialog) {
                     Dialog(onDismissRequest = { showDialog = false }) {

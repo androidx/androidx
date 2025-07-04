@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.selection.gestures.util
 
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.ui.platform.TextToolbar
@@ -34,9 +35,18 @@ internal abstract class TextFieldSelectionAsserter<T>(
     textContent: String,
     private val rule: ComposeTestRule,
     textToolbar: TextToolbar,
+    spyTextActionModeCallback: SpyTextActionModeCallback?,
     hapticFeedback: FakeHapticFeedback,
     getActual: () -> T,
-) : SelectionAsserter<T>(textContent, rule, textToolbar, hapticFeedback, getActual) {
+) :
+    SelectionAsserter<T>(
+        textContent,
+        rule,
+        textToolbar,
+        spyTextActionModeCallback,
+        hapticFeedback,
+        getActual,
+    ) {
     var selection: TextRange = 0.collapsed
     var cursorHandleShown = false
 
@@ -111,6 +121,7 @@ internal class TextField1SelectionAsserter(
     textContent: String,
     rule: ComposeTestRule,
     textToolbar: TextToolbar,
+    spyTextActionModeCallback: SpyTextActionModeCallback?,
     hapticFeedback: FakeHapticFeedback,
     getActual: () -> TextFieldValue,
 ) :
@@ -118,8 +129,9 @@ internal class TextField1SelectionAsserter(
         textContent,
         rule,
         textToolbar,
+        spyTextActionModeCallback,
         hapticFeedback,
-        getActual
+        getActual,
     ) {
     override fun subAssert() {
         Truth.assertAbout(TextFieldValueSubject.withContent(textContent))
@@ -189,6 +201,7 @@ internal class TextField2SelectionAsserter(
     textContent: String,
     rule: ComposeTestRule,
     textToolbar: TextToolbar,
+    spyTextActionModeCallback: SpyTextActionModeCallback?,
     hapticFeedback: FakeHapticFeedback,
     getActual: () -> TextFieldState,
 ) :
@@ -196,8 +209,9 @@ internal class TextField2SelectionAsserter(
         textContent,
         rule,
         textToolbar,
+        spyTextActionModeCallback,
         hapticFeedback,
-        getActual
+        getActual,
     ) {
     override fun subAssert() {
         Truth.assertAbout(TextFieldStateSubject.withContent(textContent))

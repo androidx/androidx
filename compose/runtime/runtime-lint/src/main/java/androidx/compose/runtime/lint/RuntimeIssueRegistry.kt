@@ -25,7 +25,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 /** [IssueRegistry] containing runtime specific lint issues. */
 class RuntimeIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 14
+    override val api = 16
     override val minApi = CURRENT_API
     override val issues
         get() =
@@ -39,17 +39,19 @@ class RuntimeIssueRegistry : IssueRegistry() {
                 ComposableNamingDetector.ComposableNaming,
                 ComposableStateFlowValueDetector.StateFlowValueCalledInComposition,
                 CompositionLocalNamingDetector.CompositionLocalNaming,
+                FrequentlyChangingValueDetector.FrequentlyChangingValue,
                 MutableCollectionMutableStateDetector.MutableCollectionMutableState,
                 ProduceStateDetector.ProduceStateDoesNotAssignValue,
                 RememberDetector.RememberReturnType,
+                RememberInCompositionDetector.RememberInComposition,
                 OpaqueUnitKeyDetector.OpaqueUnitKey,
-                UnrememberedStateDetector.UnrememberedState
+                UnrememberedStateDetector.UnrememberedState,
             )
 
     override val vendor =
         Vendor(
             vendorName = "Jetpack Compose",
             identifier = "androidx.compose.runtime",
-            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128",
         )
 }

@@ -23,10 +23,12 @@ import android.widget.TextView
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
+import androidx.glance.appwidget.AppWidgetSession.RunLambda
 import androidx.glance.layout.EmittableBox
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceStateDefinition
@@ -91,7 +93,7 @@ class AppWidgetSessionTest {
         val root =
             runCompositionUntil(
                 { state, _ -> state == Recomposer.State.Idle },
-                session.provideGlance(context)
+                session.provideGlance(context),
             )
         assertThat(root.shouldIgnoreResult()).isTrue()
     }
@@ -163,14 +165,14 @@ class AppWidgetSessionTest {
                                 ActionModifier(LambdaAction("123") { didRunSecond = true })
                             )
                     }
-            }
+            },
         )
         session.processEvent(context, AppWidgetSession.RunLambda("123+0"))
         assertTrue(didRunFirst)
         assertFalse(didRunSecond)
 
         didRunFirst = false
-        session.processEvent(context, AppWidgetSession.RunLambda("123+1"))
+        session.processEvent(context, RunLambda("123+1"))
         assertTrue(didRunSecond)
         assertFalse(didRunFirst)
     }
@@ -201,7 +203,7 @@ class AppWidgetSessionTest {
                                 )
                             )
                     }
-            }
+            },
         )
 
         session.runLambda("123+0")
@@ -254,6 +256,30 @@ class AppWidgetSessionTest {
         session.close()
     }
 
+    @Test
+    fun recreateWithEvents() = runTest {
+        session.runLambda("1")
+        session.runLambda("2")
+        val options = bundleOf("key" to "value")
+        session.updateAppWidgetOptions(options)
+        session.updateGlance()
+        session.waitForReady()
+        session.close()
+
+        val pendingEvents = session.receiveAllPendingEvents()
+        assertThat(pendingEvents).hasSize(5)
+
+        val newSession = session.recreateWithEvents(pendingEvents)
+        assertThat(newSession).isNotSameInstanceAs(session)
+        assertThat(newSession.widget).isEqualTo(session.widget)
+        assertThat(newSession.id).isEqualTo(id)
+        assertThat(newSession.options).isEqualTo(options)
+
+        val newPendingEvents = newSession.receiveAllPendingEvents()
+        assertThat(newPendingEvents).hasSize(2)
+        assertThat(newPendingEvents).containsExactly(RunLambda("1"), RunLambda("2"))
+    }
+
     private class TestGlanceState : ConfigManager {
 
         val getValueCalls = mutableListOf<String>()
@@ -262,7 +288,7 @@ class AppWidgetSessionTest {
         override suspend fun <T> getValue(
             context: Context,
             definition: GlanceStateDefinition<T>,
-            fileKey: String
+            fileKey: String,
         ): T {
             assertIs<PreferencesGlanceStateDefinition>(definition)
             getValueCalls.add(fileKey)
@@ -277,7 +303,7 @@ class AppWidgetSessionTest {
             context: Context,
             definition: GlanceStateDefinition<T>,
             fileKey: String,
-            updateBlock: suspend (T) -> T
+            updateBlock: suspend (T) -> T,
         ): T {
             TODO("Not yet implemented")
         }
@@ -285,7 +311,7 @@ class AppWidgetSessionTest {
         override suspend fun deleteStore(
             context: Context,
             definition: GlanceStateDefinition<*>,
-            fileKey: String
+            fileKey: String,
         ) {
             TODO("Not yet implemented")
         }

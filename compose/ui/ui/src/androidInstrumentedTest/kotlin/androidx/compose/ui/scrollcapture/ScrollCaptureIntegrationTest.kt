@@ -137,7 +137,7 @@ class ScrollCaptureIntegrationTest {
                 with(LocalDensity.current) {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(1),
-                        modifier = Modifier.size(10.toDp())
+                        modifier = Modifier.size(10.toDp()),
                     ) {
                         item { Box(Modifier.size(100.toDp())) }
                     }
@@ -158,7 +158,7 @@ class ScrollCaptureIntegrationTest {
                 with(LocalDensity.current) {
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Fixed(1),
-                        modifier = Modifier.size(10.toDp())
+                        modifier = Modifier.size(10.toDp()),
                     ) {
                         item { Box(Modifier.size(100.toDp())) }
                     }
@@ -196,7 +196,7 @@ class ScrollCaptureIntegrationTest {
                     "lots\n\nof\n\nnewlines\n\nto\n\nmake\n\nvertically\n\nscrollable",
                     onValueChange = {},
                     singleLine = false,
-                    maxLines = 2
+                    maxLines = 2,
                 )
             }
 
@@ -231,7 +231,7 @@ class ScrollCaptureIntegrationTest {
             captureTester.setContent {
                 BasicTextField(
                     state,
-                    lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2)
+                    lineLimits = TextFieldLineLimits.MultiLine(maxHeightInLines = 2),
                 )
             }
 

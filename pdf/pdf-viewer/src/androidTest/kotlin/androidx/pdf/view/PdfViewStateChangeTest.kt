@@ -42,13 +42,15 @@ class PdfViewStateChangeTest {
 
     @Test
     fun restorePositionState() = runTest {
-        val pdfDocument = FakePdfDocument(List(10) { Point(100, 200) })
-        withContext(Dispatchers.Main) { setupPdfView(500, 1000, pdfDocument) }
+        val pdfDocument =
+            FakePdfDocument(List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) })
+        withContext(Dispatchers.Main) {
+            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, pdfDocument)
+        }
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             // Scroll to page 3, and make sure it's visible
-            pdfDocument.waitForLayout(untilPage = 4)
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(3)
+            scrollToPage(3, pdfDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
 
@@ -65,19 +67,21 @@ class PdfViewStateChangeTest {
 
     @Test
     fun restorePositionState_afterPdfDocument() = runTest {
-        val pdfDocument = FakePdfDocument(List(10) { Point(100, 200) })
+        val pdfDocument =
+            FakePdfDocument(List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) })
         // Don't supply PdfDocument to setupPdfView, as it will cause that document to be set each
         // time our Activity is created. In this case, we'd like to test recreating the Activity
         // without setting a PdfDocument.
-        withContext(Dispatchers.Main) { setupPdfView(500, 1000, fakePdfDocument = null) }
+        withContext(Dispatchers.Main) {
+            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, fakePdfDocument = null)
+        }
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             // Set PdfDocument, scroll to page 3, and make sure it's visible
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also { it.pdfDocument = pdfDocument }
             }
-            pdfDocument.waitForLayout(untilPage = 4)
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(3)
+            scrollToPage(3, pdfDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
 
@@ -101,21 +105,22 @@ class PdfViewStateChangeTest {
     fun dontRestorePositionState_withDifferentDocument() = runTest {
         val pdfDocument =
             FakePdfDocument(
-                pages = List(10) { Point(100, 200) },
-                uri = Uri.parse("content://my.app/my.pdf")
+                pages = List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
+                uri = Uri.parse("content://my.app/my.pdf"),
             )
         // Don't supply PdfDocument to setupPdfView, as it will cause that document to be set each
         // time our Activity is created. In this case, we'd like to test recreating the Activity
         // and setting a *different* PdfDocument
-        withContext(Dispatchers.Main) { setupPdfView(500, 1000, fakePdfDocument = null) }
+        withContext(Dispatchers.Main) {
+            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, fakePdfDocument = null)
+        }
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             // Set PdfDocument, scroll to page 3, and make sure it's visible
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also { it.pdfDocument = pdfDocument }
             }
-            pdfDocument.waitForLayout(untilPage = 4)
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(3)
+            scrollToPage(3, pdfDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
 
@@ -129,8 +134,8 @@ class PdfViewStateChangeTest {
             // previous document
             val differentDocument =
                 FakePdfDocument(
-                    pages = List(15) { Point(50, 150) },
-                    uri = Uri.parse("content://another.app/pdf.pdf")
+                    pages = List(15) { Point(VIEW_AND_PAGE_WIDTH, 150) },
+                    uri = Uri.parse("content://another.app/pdf.pdf"),
                 )
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also {
@@ -144,19 +149,21 @@ class PdfViewStateChangeTest {
 
     @Test
     fun recreate_withoutPdfDocument() = runTest {
-        withContext(Dispatchers.Main) { setupPdfView(500, 1000, fakePdfDocument = null) }
+        withContext(Dispatchers.Main) {
+            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, fakePdfDocument = null)
+        }
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             // Recreate without ever setting a document on PdfView initially
             recreate()
 
             // Set PdfDocument on the new PdfView instance, and make sure we can interact with it
-            val pdfDocument = FakePdfDocument(List(10) { Point(100, 200) })
+            val pdfDocument =
+                FakePdfDocument(List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) })
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also { it.pdfDocument = pdfDocument }
             }
 
-            pdfDocument.waitForLayout(untilPage = 4)
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(3)
+            scrollToPage(3, pdfDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
             close()
@@ -167,23 +174,24 @@ class PdfViewStateChangeTest {
     fun resetDocument() = runTest {
         val pdfDocument =
             FakePdfDocument(
-                pages = List(10) { Point(100, 200) },
-                uri = Uri.parse("content://my.app/my.pdf")
+                pages = List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
+                uri = Uri.parse("content://my.app/my.pdf"),
             )
-        withContext(Dispatchers.Main) { setupPdfView(500, 1000, pdfDocument) }
+        withContext(Dispatchers.Main) {
+            setupPdfView(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT, pdfDocument)
+        }
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             // Scroll to page 3, and make sure it's visible
-            pdfDocument.waitForLayout(untilPage = 4)
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(3)
+            scrollToPage(3, pdfDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
 
             // Set a different PdfDocument
             val differentDocument =
                 FakePdfDocument(
-                    List(10) { Point(100, 500) },
-                    uri = Uri.parse("content://browser/downloads/menu.pdf")
+                    List(10) { Point(VIEW_AND_PAGE_WIDTH, VIEW_AND_PAGE_HEIGHT) },
+                    uri = Uri.parse("content://browser/downloads/menu.pdf"),
                 )
             onActivity { activity ->
                 activity.findViewById<PdfView>(PDF_VIEW_ID)?.also {
@@ -194,14 +202,19 @@ class PdfViewStateChangeTest {
             Espresso.onView(withId(PDF_VIEW_ID)).checkPagesAreVisible(firstVisiblePage = 0)
             // Then, make sure we can interact with the new document: scroll to page 3, and make
             // sure it's visible
-            pdfDocument.waitForLayout(untilPage = 3)
-            Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(3)
+            scrollToPage(3, differentDocument)
             Espresso.onView(withId(PDF_VIEW_ID))
                 .checkPagesAreVisible(firstVisiblePage = 3, visiblePages = 1)
 
             close()
         }
     }
+}
+
+private suspend fun scrollToPage(pageNum: Int, pdfDocument: FakePdfDocument) {
+    Espresso.onView(withId(PDF_VIEW_ID)).scrollToPage(pageNum)
+    // scrollToPage will not actually scroll until that page is laid out, so wait for that to happen
+    pdfDocument.waitForLayout(untilPage = pageNum + 1)
 }
 
 /** Create, measure, and layout a [PdfView] at the specified [width] and [height] */
@@ -213,7 +226,7 @@ private fun setupPdfView(width: Int, height: Int, fakePdfDocument: FakePdfDocume
                 pdfDocument = fakePdfDocument
                 id = PDF_VIEW_ID
             },
-            ViewGroup.LayoutParams(width, height)
+            ViewGroup.LayoutParams(width, height),
         )
         activity.setContentView(container)
     }
@@ -221,3 +234,8 @@ private fun setupPdfView(width: Int, height: Int, fakePdfDocument: FakePdfDocume
 
 /** Arbitrary fixed ID for PdfView */
 private const val PDF_VIEW_ID = 123456789
+
+// We use pages that match the View size to make it simpler to reason about what ought to be visible
+// when we scrollToPage(N)
+private const val VIEW_AND_PAGE_WIDTH = 500
+private const val VIEW_AND_PAGE_HEIGHT = 1000

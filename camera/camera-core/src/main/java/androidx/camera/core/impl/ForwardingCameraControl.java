@@ -16,8 +16,7 @@
 
 package androidx.camera.core.impl;
 
-import android.graphics.Rect;
-
+import androidx.annotation.IntRange;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -52,6 +51,11 @@ public class ForwardingCameraControl implements CameraControlInternal {
     }
 
     @Override
+    public @NonNull ListenableFuture<Void> enableLowLightBoostAsync(boolean lowLightBoost) {
+        return mCameraControlInternal.enableLowLightBoostAsync(lowLightBoost);
+    }
+
+    @Override
     public @NonNull ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
         return mCameraControlInternal.startFocusAndMetering(action);
@@ -78,6 +82,12 @@ public class ForwardingCameraControl implements CameraControlInternal {
     }
 
     @Override
+    public @NonNull ListenableFuture<Void> setTorchStrengthLevel(
+            @IntRange(from = 1) int torchStrengthLevel) {
+        return mCameraControlInternal.setTorchStrengthLevel(torchStrengthLevel);
+    }
+
+    @Override
     @ImageCapture.FlashMode
     public int getFlashMode() {
         return mCameraControlInternal.getFlashMode();
@@ -96,6 +106,11 @@ public class ForwardingCameraControl implements CameraControlInternal {
     @Override
     public void addZslConfig(SessionConfig.@NonNull Builder sessionConfigBuilder) {
         mCameraControlInternal.addZslConfig(sessionConfigBuilder);
+    }
+
+    @Override
+    public void clearZslConfig() {
+        mCameraControlInternal.clearZslConfig();
     }
 
     @Override
@@ -128,11 +143,6 @@ public class ForwardingCameraControl implements CameraControlInternal {
     @Override
     public @NonNull SessionConfig getSessionConfig() {
         return mCameraControlInternal.getSessionConfig();
-    }
-
-    @Override
-    public @NonNull Rect getSensorRect() {
-        return mCameraControlInternal.getSensorRect();
     }
 
     @Override

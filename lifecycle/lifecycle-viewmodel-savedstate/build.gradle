@@ -22,31 +22,43 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.konan.target.Family
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.lifecycle.viewmodel.savedstate"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
     desktop()
-    ios()
-    linux()
     mac()
+    linux()
+    ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
                 api(project(":savedstate:savedstate"))
                 api(project(":lifecycle:lifecycle-viewmodel"))
+                implementation(project(":lifecycle:lifecycle-common"))
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinSerializationCore)
@@ -140,48 +152,83 @@ androidXMultiplatform {
             dependsOn(nativeTest)
         }
 
+        mingwMain {
+            dependsOn(nativeMain)
+        }
+
+        mingwTest {
+            dependsOn(nativeTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+                implementation(libs.kotlinTestForWasmTests)
+            }
+        }
+
+        jsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        jsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+                implementation(libs.kotlinTestJs)
+            }
+        }
+
         targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
-                        dependsOn(darwinMain)
-                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
+                } else if (target.konanTarget.family == Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
+                } else if (target.konanTarget.family == Family.MINGW) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(mingwMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(mingwTest)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
                 }
-                target.compilations["test"].defaultSourceSet {
-                    def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
-                        dependsOn(darwinTest)
-                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
-                        dependsOn(linuxTest)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
-                }
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
     }
 }
 
-
-android {
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
-    namespace = "androidx.lifecycle.viewmodel.savedstate"
-    experimentalProperties["android.lint.useK2Uast"] = false // TODO(b/345531033)
-}
-
 androidx {
     name = "Lifecycle ViewModel with SavedState"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
     samples(project(":lifecycle:lifecycle-viewmodel-savedstate-samples"))
-    metalavaK2UastEnabled = false // TODO(b/324624680)
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

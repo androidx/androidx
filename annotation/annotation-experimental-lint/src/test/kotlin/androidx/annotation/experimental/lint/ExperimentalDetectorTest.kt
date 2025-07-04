@@ -47,7 +47,7 @@ class ExperimentalDetectorTest {
                 javaSample("sample.experimental.ExperimentalDateTime"),
                 javaSample("sample.experimental.ExperimentalLocation"),
                 javaSample("sample.experimental.LocationProvider"),
-                javaSample("sample.experimental.UseJavaExperimentalFromJava")
+                javaSample("sample.experimental.UseJavaExperimentalFromJava"),
             )
 
         val expected =
@@ -142,7 +142,7 @@ Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@
     </issue>
 </lint>
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val input =
             arrayOf(
@@ -151,7 +151,7 @@ Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@
                 javaSample("sample.experimental.ExperimentalLocation"),
                 javaSample("sample.experimental.LocationProvider"),
                 javaSample("sample.experimental.UseJavaExperimentalFromJava"),
-                lintConfig
+                lintConfig,
             )
 
         val expected =
@@ -180,7 +180,7 @@ src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declara
                 javaSample("sample.experimental.ExperimentalDateTime"),
                 javaSample("sample.experimental.ExperimentalLocation"),
                 javaSample("sample.experimental.LocationProvider"),
-                ktSample("sample.experimental.UseJavaExperimentalFromKt")
+                ktSample("sample.experimental.UseJavaExperimentalFromKt"),
             )
 
         val expected =
@@ -273,7 +273,7 @@ Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 54: Add '@samp
                 ktSample("sample.experimental.ExperimentalLocationKt"),
                 ktSample("sample.experimental.LocationProviderKt"),
                 javaSample("sample.experimental.ExperimentalDateTime"),
-                javaSample("sample.experimental.UseKtExperimentalFromJava")
+                javaSample("sample.experimental.UseKtExperimentalFromJava"),
             )
 
         val expected =
@@ -407,7 +407,7 @@ Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sa
                 SAMPLE_FOO_PACKAGE_INFO,
                 javaSample("sample.experimental.foo.Bar"),
                 javaSample("sample.experimental.foo.ExperimentalPackage"),
-                javaSample("sample.experimental.UseJavaPackageFromJava")
+                javaSample("sample.experimental.UseJavaPackageFromJava"),
             )
 
         val expected =
@@ -438,7 +438,7 @@ src/sample/experimental/UseJavaPackageFromJava.java:52: Error: This declaration 
                 SAMPLE_FOO_PACKAGE_INFO,
                 javaSample("sample.experimental.foo.Bar"),
                 javaSample("sample.experimental.foo.ExperimentalPackage"),
-                ktSample("sample.experimental.UseJavaPackageFromKt")
+                ktSample("sample.experimental.UseJavaPackageFromKt"),
             )
 
         val expected =
@@ -643,7 +643,7 @@ src/sample/experimental/UseJavaPackageFromKt.kt:51: Error: This declaration is o
                     "4t/q8vmsy+7nZ4qofxJZJrLTUuGCc7fcL3u5hBsrrqvIfWAExcKVbVbHFwK9" +
                     "dRscC4xMIgyoKQGWRkDJCBWgJCp0rciRK4KizRZHkgKZwMWAOxEgwH7kJIFb" +
                     "E6q1T3AmEYQJ2BIJAogx4ksyCO+DTEEOVS0UU3zwmIKZhAK8WdlAutiAcBJQ" +
-                    "pys4OgCGehbu7QMAAA=="
+                    "pys4OgCGehbu7QMAAA==",
             )
     }
 }

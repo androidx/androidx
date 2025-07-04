@@ -85,7 +85,7 @@ class ServiceBackedExerciseClientTest {
             .setComponentNameAndServiceForBindServiceForIntent(
                 Intent().setPackage(packageName).setAction(action),
                 ComponentName(packageName, ServiceBackedExerciseClient.CLIENT),
-                fakeService
+                fakeService,
             )
     }
 
@@ -136,7 +136,7 @@ class ServiceBackedExerciseClientTest {
         assertThat(fakeService.setListenerPackageNames)
             .containsExactly(
                 "androidx.health.services.client.test",
-                "androidx.health.services.client.test"
+                "androidx.health.services.client.test",
             )
         assertThat(fakeService.clearListenerPackageNames)
             .containsExactly("androidx.health.services.client.test")
@@ -180,7 +180,7 @@ class ServiceBackedExerciseClientTest {
                 ExerciseType.WALKING,
                 setOf(HEART_RATE_BPM_STATS),
                 isAutoPauseAndResumeEnabled = false,
-                isGpsEnabled = false
+                isGpsEnabled = false,
             )
         val availabilityEvent =
             ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
@@ -206,7 +206,7 @@ class ServiceBackedExerciseClientTest {
                 ExerciseType.WALKING,
                 setOf(HEART_RATE_BPM, HEART_RATE_BPM_STATS),
                 isAutoPauseAndResumeEnabled = false,
-                isGpsEnabled = false
+                isGpsEnabled = false,
             )
         val availabilityEvent =
             ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
@@ -239,7 +239,7 @@ class ServiceBackedExerciseClientTest {
                     GolfExerciseTypeConfig(
                         GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
                             .GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
-                    )
+                    ),
             )
         val availabilityEvent =
             ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
@@ -292,11 +292,7 @@ class ServiceBackedExerciseClientTest {
 
     @Test
     fun dataTypeInAvailabilityCallbackShouldMatchRequested_justSampleType_prepare() {
-        val warmUpConfig =
-            WarmUpConfig(
-                ExerciseType.WALKING,
-                setOf(HEART_RATE_BPM),
-            )
+        val warmUpConfig = WarmUpConfig(ExerciseType.WALKING, setOf(HEART_RATE_BPM))
         val availabilityEvent =
             ExerciseUpdateListenerEvent.createAvailabilityUpdateEvent(
                 AvailabilityResponse(HEART_RATE_BPM, ACQUIRING)
@@ -339,7 +335,7 @@ class ServiceBackedExerciseClientTest {
             block = {
                 client.overrideBatchingModesForActiveExerciseAsync(batchingMode)
                 shadowOf(getMainLooper()).idle()
-            }
+            },
         )
     }
 
@@ -388,14 +384,14 @@ class ServiceBackedExerciseClientTest {
 
         override fun prepareExercise(
             prepareExerciseRequest: PrepareExerciseRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             statusCallbackAction.invoke(statusCallback)
         }
 
         override fun startExercise(
             startExerciseRequest: StartExerciseRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             exerciseConfig = startExerciseRequest?.exerciseConfig
             statusCallbackAction.invoke(statusCallback)
@@ -419,7 +415,7 @@ class ServiceBackedExerciseClientTest {
 
         override fun getCurrentExerciseInfo(
             packageName: String?,
-            exerciseInfoCallback: IExerciseInfoCallback?
+            exerciseInfoCallback: IExerciseInfoCallback?,
         ) {
             throw NotImplementedError()
         }
@@ -427,7 +423,7 @@ class ServiceBackedExerciseClientTest {
         override fun setUpdateListener(
             packageName: String,
             listener: IExerciseUpdateListener?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             this.listener = listener
             setListenerPackageNames += packageName
@@ -437,7 +433,7 @@ class ServiceBackedExerciseClientTest {
         override fun clearUpdateListener(
             packageName: String,
             listener: IExerciseUpdateListener?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             clearListenerPackageNames += packageName
             if (this.listener == listener) {
@@ -448,42 +444,42 @@ class ServiceBackedExerciseClientTest {
 
         override fun addGoalToActiveExercise(
             request: ExerciseGoalRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             throw NotImplementedError()
         }
 
         override fun removeGoalFromActiveExercise(
             request: ExerciseGoalRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             throw NotImplementedError()
         }
 
         override fun addDebouncedGoalToActiveExercise(
             request: DebouncedGoalRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             throw NotImplementedError()
         }
 
         override fun removeDebouncedGoalFromActiveExercise(
             request: DebouncedGoalRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             throw NotImplementedError()
         }
 
         override fun overrideAutoPauseAndResumeForActiveExercise(
             request: AutoPauseAndResumeConfigRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             throw NotImplementedError()
         }
 
         override fun overrideBatchingModesForActiveExercise(
             request: BatchingModeConfigRequest?,
-            statusCallback: IStatusCallback?
+            statusCallback: IStatusCallback?,
         ) {
             throw NotImplementedError()
         }
@@ -498,7 +494,7 @@ class ServiceBackedExerciseClientTest {
 
         override fun updateExerciseTypeConfigForActiveExercise(
             updateExerciseTypeConfigRequest: UpdateExerciseTypeConfigRequest,
-            statuscallback: IStatusCallback
+            statuscallback: IStatusCallback,
         ) {
             val newExerciseTypeConfig = updateExerciseTypeConfigRequest.exerciseTypeConfig
             val newExerciseConfig =

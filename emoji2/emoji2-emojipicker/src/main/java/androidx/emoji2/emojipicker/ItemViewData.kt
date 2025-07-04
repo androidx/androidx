@@ -38,7 +38,7 @@ internal data class EmojiViewData(
     var emoji: String,
     val updateToSticky: Boolean = true,
     // Needed to ensure uniqueness since we enabled stable Id.
-    val dataIndex: Int = 0
+    val dataIndex: Int = 0,
 ) : ItemViewData(ItemType.EMOJI)
 
 internal object Extensions {

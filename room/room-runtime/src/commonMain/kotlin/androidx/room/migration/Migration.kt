@@ -33,9 +33,9 @@ import androidx.sqlite.SQLiteConnection
  *
  * @constructor Creates a new migration between [startVersion] and [endVersion] inclusive.
  */
-expect abstract class Migration(startVersion: Int, endVersion: Int) {
-    val startVersion: Int
-    val endVersion: Int
+public expect abstract class Migration(startVersion: Int, endVersion: Int) {
+    public val startVersion: Int
+    public val endVersion: Int
 
     /**
      * Should run the necessary migrations.
@@ -46,5 +46,5 @@ expect abstract class Migration(startVersion: Int, endVersion: Int) {
      * @param connection The database connection
      */
     // TODO(b/316943027): Try and make abstract without breaking API
-    open fun migrate(connection: SQLiteConnection)
+    public open fun migrate(connection: SQLiteConnection)
 }

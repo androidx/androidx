@@ -90,7 +90,7 @@ class FeatureMappingTest {
             RoundedPolygon.star(
                     numVerticesPerRadius = 8,
                     innerRadius = .65f,
-                    rounding = CornerRounding(radius = .15f)
+                    rounding = CornerRounding(radius = .15f),
                 )
                 .normalized()
         verifyMapping(checkmark, verySunny) {
@@ -105,7 +105,7 @@ class FeatureMappingTest {
     private fun verifyMapping(
         p1: RoundedPolygon,
         p2: RoundedPolygon,
-        validator: (List<Float>) -> Unit
+        validator: (List<Float>) -> Unit,
     ) {
         val f1 = MeasuredPolygon.measurePolygon(LengthMeasurer(), p1).features
         val f2 = MeasuredPolygon.measurePolygon(LengthMeasurer(), p2).features

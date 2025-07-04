@@ -1,7 +1,7 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
-  public interface DefaultLifecycleObserver extends androidx.lifecycle.LifecycleObserver androidx.lifecycle.LifecycleObserver {
+  public interface DefaultLifecycleObserver extends androidx.lifecycle.LifecycleObserver {
     method public default void onCreate(androidx.lifecycle.LifecycleOwner);
     method public default void onDestroy(androidx.lifecycle.LifecycleOwner);
     method public default void onPause(androidx.lifecycle.LifecycleOwner);

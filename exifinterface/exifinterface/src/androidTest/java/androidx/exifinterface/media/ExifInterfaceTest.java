@@ -563,6 +563,64 @@ public class ExifInterfaceTest {
     }
 
     /**
+     * {@code webp_without_exif_trailing_data.webp} contains the same data as {@code
+     * webp_without_exif.webp} with {@code 0xDEADBEEFDEADBEEF} appended on the end (but excluded
+     * from the RIFF length).
+     *
+     * <p>This test ensures the resulting file is valid (i.e. the trailing data is still excluded
+     * from RIFF length).
+     */
+    // https://issuetracker.google.com/385766064
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifAndTrailingData() throws Throwable {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.webp_without_exif_trailing_data,
+                        "webp_without_exif_trailing_data.webp");
+        testWritingExif(imageFile, /* expectedAttributes= */ null);
+    }
+
+    /**
+     * {@code webp_without_exif_trailing_data.webp} contains the same data as {@code
+     * webp_without_exif.webp} with {@code 0xDEADBEEFDEADBEEF} appended on the end (but excluded
+     * from the RIFF length).
+     *
+     * <p>This test ensures the trailing data is preserved.
+     */
+    // https://issuetracker.google.com/385766064
+    @Test
+    @LargeTest
+    public void testWebpWithoutExifAndTrailingData_trailingDataPreserved() throws Throwable {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.webp_without_exif_trailing_data,
+                        "webp_without_exif_trailing_data.webp");
+
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        exifInterface.saveAttributes();
+
+        byte[] imageData = Files.toByteArray(imageFile);
+        byte[] expectedTrailingData =
+                new byte[] {
+                    (byte) 0xDE,
+                    (byte) 0xAD,
+                    (byte) 0xBE,
+                    (byte) 0xEF,
+                    (byte) 0xDE,
+                    (byte) 0xAD,
+                    (byte) 0xBE,
+                    (byte) 0xEF
+                };
+        byte[] actualTrailingData =
+                Arrays.copyOfRange(
+                        imageData,
+                        imageData.length - expectedTrailingData.length,
+                        imageData.length);
+        assertThat(actualTrailingData).isEqualTo(expectedTrailingData);
+    }
+
+    /**
      * Support for retrieving EXIF from HEIC was added in SDK 28.
      */
     @Test
@@ -2181,6 +2239,21 @@ public class ExifInterfaceTest {
                     expectedAttributes, exifInterface);
             expectThumbnailMatchesFileBytes(imageFile, exifInterface, expectedAttributes);
         }
+
+        // Clear the properties we overwrote to check passing null results in clearing.
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, null);
+        exifInterface.setAttribute(ExifInterface.TAG_XMP, null);
+
+        expectedAttributes = expectedAttributesBuilder.setMake(null).clearXmp().build();
+        // Check expected modifications are visible without saving to disk.
+        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+
+        // Check expected modifications are visible without re-parsing the file.
+        exifInterface.saveAttributes();
+        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        // Re-parse the file to confirm the changes are persisted to disk
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
     }
 
     private void readFromFilesWithExif(File imageFile, ExpectedAttributes expectedAttributes)

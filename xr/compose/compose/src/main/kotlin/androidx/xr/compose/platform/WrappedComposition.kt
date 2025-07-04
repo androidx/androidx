@@ -36,7 +36,7 @@ internal class WrappedComposition(
     compositionContext: CompositionContext,
 ) : Composition, LifecycleEventObserver, CompositionServices {
 
-    private val composition = Composition(SubspaceNodeApplier(owner.root), compositionContext)
+    private val composition = Composition(SubspaceNodeApplier(owner), compositionContext)
     private var lastContent: @Composable () -> Unit = {}
     private var addedToLifecycle: Lifecycle? = null
 

@@ -16,9 +16,11 @@
 
 package androidx.compose.ui.focus
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,12 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.Dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -49,12 +53,8 @@ import org.junit.runner.RunWith
 class FocusTargetModifierNodeTest {
     @get:Rule val rule = createComposeRule()
 
-    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
-    fun resetTouchMode() =
-        with(InstrumentationRegistry.getInstrumentation()) {
-            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-        }
+    fun resetTouchMode() = InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()
 
     @Test
     fun requestFocus() {
@@ -255,6 +255,69 @@ class FocusTargetModifierNodeTest {
     }
 
     @Test
+    fun onFocusChange_requestingChildFocusAfterParent() {
+        // Arrange
+        val previousParentFocusStates = mutableListOf<FocusState?>()
+        val currentParentFocusStates = mutableListOf<FocusState?>()
+        val parentFocusTargetModifierNode = FocusTargetModifierNode { previous, current ->
+            previousParentFocusStates += previous
+            currentParentFocusStates += current
+        }
+        val previousChildFocusStates = mutableListOf<FocusState?>()
+        val currentChildFocusStates = mutableListOf<FocusState?>()
+        val childFocusTargetModifierNode = FocusTargetModifierNode { previous, current ->
+            previousChildFocusStates += previous
+            currentChildFocusStates += current
+        }
+
+        val parentFocusRequester = FocusRequester()
+        val childFocusRequester = FocusRequester()
+        rule.setFocusableContent {
+            FocusTargetModifierNodeBox(
+                parentFocusTargetModifierNode,
+                Modifier.focusRequester(parentFocusRequester),
+            ) {
+                FocusTargetModifierNodeBox(
+                    childFocusTargetModifierNode,
+                    Modifier.focusRequester(childFocusRequester),
+                ) {}
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(parentFocusTargetModifierNode.focusState).isEqualTo(Inactive)
+            assertThat(previousParentFocusStates).isEmpty()
+            assertThat(currentParentFocusStates).isEmpty()
+            assertThat(childFocusTargetModifierNode.focusState).isEqualTo(Inactive)
+            assertThat(previousChildFocusStates).isEmpty()
+            assertThat(currentChildFocusStates).isEmpty()
+            parentFocusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(parentFocusTargetModifierNode.focusState).isEqualTo(Active)
+            assertThat(previousParentFocusStates).containsExactly(Inactive)
+            assertThat(currentParentFocusStates).containsExactly(Active)
+            assertThat(childFocusTargetModifierNode.focusState).isEqualTo(Inactive)
+            assertThat(previousChildFocusStates).isEmpty()
+            assertThat(currentChildFocusStates).isEmpty()
+        }
+
+        // Act
+        rule.runOnIdle { childFocusRequester.requestFocus() }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(parentFocusTargetModifierNode.focusState).isEqualTo(ActiveParent)
+            assertThat(previousParentFocusStates).containsExactly(Inactive, Active).inOrder()
+            assertThat(currentParentFocusStates).containsExactly(Active, ActiveParent).inOrder()
+            assertThat(childFocusTargetModifierNode.focusState).isEqualTo(Active)
+            assertThat(previousChildFocusStates).containsExactly(Inactive)
+            assertThat(currentChildFocusStates).containsExactly(Active)
+        }
+    }
+
+    @Test
     fun onFocusChange_updatingFocusabilityBeforeAttach() {
         val previousFocusStates = mutableListOf<FocusState?>()
         val currentFocusStates = mutableListOf<FocusState?>()
@@ -306,20 +369,83 @@ class FocusTargetModifierNodeTest {
             assertThat(focusTargetModifierNode.focusState).isEqualTo(Inactive)
         }
     }
-}
 
-@Composable
-private fun FocusTargetModifierNodeBox(
-    focusTargetModifierNode: FocusTargetModifierNode,
-    modifier: Modifier = Modifier,
-    content: @Composable BoxScope.() -> Unit = {}
-) {
-    val node = remember {
-        object : DelegatingNode() {
-            init {
-                delegate(focusTargetModifierNode)
+    @Test
+    fun calculateFocusArea_findsTheFocusedChildOrSelf() {
+        val nodes = (0 until 4).map { FocusTargetModifierNode() }
+        rule.setFocusableContent {
+            FocusTargetModifierNodeBox(nodes[0]) {
+                Row {
+                    FocusTargetModifierNodeBox(nodes[1], Modifier.size(10.toDp()))
+                    FocusTargetModifierNodeBox(nodes[2], Modifier.size(10.toDp()))
+                    FocusTargetModifierNodeBox(nodes[3], Modifier.size(10.toDp()))
+                }
             }
         }
+
+        rule.runOnIdle { nodes[2].requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(nodes[0].getFocusedRect()).isEqualTo(Rect(10f, 0f, 20f, 10f))
+            assertThat(nodes[1].getFocusedRect()).isNull()
+            assertThat(nodes[2].getFocusedRect()).isEqualTo(Rect(0f, 0f, 10f, 10f))
+            assertThat(nodes[3].getFocusedRect()).isNull()
+        }
     }
-    Box(modifier.elementFor(node), content = content)
+
+    @Test
+    fun calculateFocusArea_canFindSelf() {
+        val parentNode = FocusTargetModifierNode()
+        val childNode = FocusTargetModifierNode()
+        rule.setFocusableContent {
+            FocusTargetModifierNodeBox(parentNode, Modifier.size(30.toDp())) {
+                FocusTargetModifierNodeBox(childNode, Modifier.size(10.toDp()))
+            }
+        }
+
+        rule.runOnIdle { parentNode.requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(parentNode.getFocusedRect()).isEqualTo(Rect(0f, 0f, 30f, 30f))
+            assertThat(childNode.getFocusedRect()).isNull()
+        }
+    }
+
+    @Test
+    fun calculateFocusArea_isNotClipped() {
+        val parentNode = FocusTargetModifierNode()
+        val childNode = FocusTargetModifierNode()
+        rule.setFocusableContent {
+            FocusTargetModifierNodeBox(parentNode, modifier = Modifier.size(100.toDp())) {
+                FocusTargetModifierNodeBox(
+                    childNode,
+                    modifier = Modifier.size(50.toDp()).offset(200.toDp(), 200.toDp()),
+                )
+            }
+        }
+
+        rule.runOnIdle { childNode.requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(parentNode.getFocusedRect()).isEqualTo(Rect(200f, 200f, 250f, 250f))
+        }
+    }
+
+    private fun Int.toDp(): Dp = with(rule.density) { this@toDp.toDp() }
+
+    @Composable
+    private fun FocusTargetModifierNodeBox(
+        focusTargetModifierNode: FocusTargetModifierNode,
+        modifier: Modifier = Modifier,
+        content: @Composable BoxScope.() -> Unit = {},
+    ) {
+        val node = remember {
+            object : DelegatingNode() {
+                init {
+                    delegate(focusTargetModifierNode)
+                }
+            }
+        }
+        Box(modifier.elementFor(node), content = content)
+    }
 }

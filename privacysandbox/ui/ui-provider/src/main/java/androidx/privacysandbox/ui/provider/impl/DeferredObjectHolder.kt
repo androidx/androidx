@@ -41,7 +41,7 @@ internal class DeferredObjectHolder<BaseClass : Any, ImplementationClass : BaseC
     private val objectFactory: Supplier<ImplementationClass>,
     private val objectInit: Consumer<ImplementationClass>,
     private val errorHandler: Consumer<Throwable>,
-    private val errorObject: BaseClass
+    private val errorObject: BaseClass,
 ) : ObjectHolder<BaseClass> {
 
     private lateinit var impl: ImplementationClass

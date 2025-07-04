@@ -34,7 +34,7 @@ class TvStartupBenchmark {
             packageName = "androidx.tv.integration.macrobenchmark.target",
             metrics = listOf(StartupTimingMetric()),
             iterations = 1,
-            startupMode = StartupMode.COLD
+            startupMode = StartupMode.COLD,
         ) {
             pressHome()
             startActivityAndWait()

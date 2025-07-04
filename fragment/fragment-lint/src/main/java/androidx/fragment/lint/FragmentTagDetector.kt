@@ -50,7 +50,7 @@ class FragmentTagDetector : ResourceXmlDetector() {
                     severity = Severity.WARNING,
                     implementation =
                         Implementation(FragmentTagDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
-                    androidSpecific = true
+                    androidSpecific = true,
                 )
                 .addMoreInfo(
                     "https://developer.android.com" +
@@ -73,7 +73,7 @@ class FragmentTagDetector : ResourceXmlDetector() {
                 .replace()
                 .text(VIEW_FRAGMENT)
                 .with("androidx.fragment.app.FragmentContainerView")
-                .build()
+                .build(),
         )
     }
 }

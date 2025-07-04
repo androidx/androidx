@@ -74,7 +74,7 @@ class AlphaTest {
                 AtLeastSize(
                     size = 10,
                     modifier =
-                        Modifier.background(Color.White).alpha(1f).background(color).then(unlatch)
+                        Modifier.background(Color.White).alpha(1f).background(color).then(unlatch),
                 ) {}
             }
         }
@@ -91,7 +91,7 @@ class AlphaTest {
                 AtLeastSize(
                     size = 10,
                     modifier =
-                        Modifier.background(Color.White).alpha(0f).background(color).then(unlatch)
+                        Modifier.background(Color.White).alpha(0f).background(color).then(unlatch),
                 ) {}
             }
         }
@@ -112,11 +112,11 @@ class AlphaTest {
                             Modifier.background(Color.White)
                                 .alpha(0.5f)
                                 .background(color)
-                                .then(unlatch)
+                                .then(unlatch),
                     ) {}
                     AtLeastSize(
                         size = 10,
-                        modifier = Modifier.background(color.copy(alpha = 0.5f))
+                        modifier = Modifier.background(color.copy(alpha = 0.5f)),
                     ) {}
                 }
             }
@@ -139,7 +139,7 @@ class AlphaTest {
                         Modifier.background(Color.White)
                             .alpha(alpha.value)
                             .then(unlatch)
-                            .background(color)
+                            .background(color),
                 ) {}
             }
         }
@@ -165,7 +165,7 @@ class AlphaTest {
                             .alpha(1f)
                             .alpha(alpha)
                             .then(unlatch)
-                            .background(color)
+                            .background(color),
                 ) {}
             }
         }
@@ -188,7 +188,7 @@ class AlphaTest {
                     modifier =
                         Modifier.background(Color.White)
                             .run { if (model.value) alpha(0f).background(Color.Green) else this }
-                            .then(unlatch)
+                            .then(unlatch),
                 ) {}
             }
         }

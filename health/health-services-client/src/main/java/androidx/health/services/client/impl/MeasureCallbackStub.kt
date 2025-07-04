@@ -58,7 +58,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
             EventCase.AVAILABILITY_RESPONSE ->
                 callback.onAvailabilityChanged(
                     DataType.deltaFromProto(proto.availabilityResponse.dataType),
-                    Availability.fromProto(proto.availabilityResponse.availability)
+                    Availability.fromProto(proto.availabilityResponse.availability),
                 )
             null,
             EventCase.EVENT_NOT_SET -> Log.w(TAG, "Received unknown event ${proto.eventCase}")
@@ -77,7 +77,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         public fun getOrCreate(
             dataType: DataType<*, *>,
             executor: Executor,
-            measureCallback: MeasureCallback
+            measureCallback: MeasureCallback,
         ): MeasureCallbackStub {
             val callbackKey = MeasureCallbackKey(dataType, measureCallback)
 
@@ -99,7 +99,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         @Synchronized
         public fun remove(
             dataType: DataType<*, *>,
-            measureCallback: MeasureCallback
+            measureCallback: MeasureCallback,
         ): MeasureCallbackStub? {
             val callbackKey = MeasureCallbackKey(dataType, measureCallback)
             return listeners.remove(callbackKey)
@@ -112,7 +112,7 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
 
     private data class MeasureCallbackKey(
         private val dataType: DataType<*, *>,
-        private val measureCallback: MeasureCallback
+        private val measureCallback: MeasureCallback,
     )
 
     private companion object {

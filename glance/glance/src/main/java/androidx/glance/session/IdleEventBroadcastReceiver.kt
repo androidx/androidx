@@ -32,7 +32,7 @@ internal class IdleEventBroadcastReceiver(val onIdle: () -> Unit) : BroadcastRec
             listOf(
                 PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED,
                 PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED,
-                PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED
+                PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED,
             )
         val filter = IntentFilter().apply { events.forEach { addAction(it) } }
     }

@@ -46,10 +46,9 @@ open class BuildOnServerTask : DefaultTask() {
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     fun getRequiredFiles(): List<File> {
-        return mutableListOf(
-                "androidx_aggregate_build_info.txt",
-            )
-            .map { fileName -> File(distributionDirectory, fileName) }
+        return mutableListOf("androidx_aggregate_build_info.txt").map { fileName ->
+            File(distributionDirectory, fileName)
+        }
     }
 
     @TaskAction

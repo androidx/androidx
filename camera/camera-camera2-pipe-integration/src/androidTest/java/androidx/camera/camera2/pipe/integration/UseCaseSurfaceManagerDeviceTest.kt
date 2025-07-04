@@ -27,11 +27,12 @@ import android.os.HandlerThread
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloserImpl
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
-import androidx.camera.camera2.pipe.testing.TestUseCaseCamera
+import androidx.camera.camera2.pipe.integration.testing.TestUseCaseCamera
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.DeferrableSurfaces
 import androidx.camera.core.impl.ImmediateSurface
@@ -238,7 +239,8 @@ class UseCaseSurfaceManagerDeviceTest {
                         useCaseThreads,
                         cameraPipe,
                         InactiveSurfaceCloserImpl(),
-                    )
+                        SessionConfigAdapter(useCases = useCases),
+                    ),
             )
 
         // Act.
@@ -277,7 +279,7 @@ class UseCaseSurfaceManagerDeviceTest {
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2).apply {
                 setOnImageAvailableListener(
                     onImageAvailableListener,
-                    HandlerCompat.createAsync(handlerThread.looper)
+                    HandlerCompat.createAsync(handlerThread.looper),
                 )
             }
 
@@ -300,11 +302,11 @@ class UseCaseSurfaceManagerDeviceTest {
                     camera2ConfigBuilder
                         .setCaptureRequestOption<Int>(
                             CaptureRequest.CONTROL_AF_MODE,
-                            CaptureRequest.CONTROL_AF_MODE_AUTO
+                            CaptureRequest.CONTROL_AF_MODE_AUTO,
                         )
                         .setCaptureRequestOption<Int>(
                             CaptureRequest.CONTROL_AE_MODE,
-                            CaptureRequest.CONTROL_AE_MODE_ON
+                            CaptureRequest.CONTROL_AE_MODE_ON,
                         )
                     addImplementationOptions(camera2ConfigBuilder.build())
                 }

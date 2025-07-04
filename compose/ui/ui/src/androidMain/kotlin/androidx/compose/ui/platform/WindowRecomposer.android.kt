@@ -116,7 +116,7 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
                                 Settings.Global.getFloat(
                                     applicationContext.contentResolver,
                                     Settings.Global.ANIMATOR_DURATION_SCALE,
-                                    1f
+                                    1f,
                                 )
                             emit(newValue)
                         }
@@ -130,8 +130,8 @@ private fun getAnimationScaleFlowFor(applicationContext: Context): StateFlow<Flo
                     Settings.Global.getFloat(
                         applicationContext.contentResolver,
                         Settings.Global.ANIMATOR_DURATION_SCALE,
-                        1f
-                    )
+                        1f,
+                    ),
                 )
         }
     }
@@ -183,7 +183,7 @@ object WindowRecomposerPolicy {
     @PublishedApi
     internal fun compareAndSetFactory(
         expected: WindowRecomposerFactory,
-        factory: WindowRecomposerFactory
+        factory: WindowRecomposerFactory,
     ): Boolean = this.factory.compareAndSet(expected, factory)
 
     fun setFactory(factory: WindowRecomposerFactory) {
@@ -320,7 +320,7 @@ internal val View.windowRecomposer: Recomposer
  */
 fun View.createLifecycleAwareWindowRecomposer(
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
-    lifecycle: Lifecycle? = null
+    lifecycle: Lifecycle? = null,
 ): Recomposer {
     // Only access AndroidUiDispatcher.CurrentThread if we would use an element from it,
     // otherwise prevent lazy initialization.

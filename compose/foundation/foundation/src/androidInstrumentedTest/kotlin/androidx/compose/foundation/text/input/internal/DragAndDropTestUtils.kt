@@ -20,6 +20,7 @@ import android.content.ClipData
 import android.net.Uri
 import android.os.Build
 import android.os.Parcel
+import android.view.Display
 import android.view.DragEvent
 import androidx.compose.foundation.content.createClipData
 import androidx.compose.ui.geometry.Offset
@@ -27,7 +28,7 @@ import androidx.compose.ui.geometry.Offset
 /**
  * Helper utilities for creating drag events.
  *
- * This class is a copy-paste from DragAndDrop artifact with the addition of configurable offset.
+ * This class originated from the DragAndDrop artifact with the addition of configurable offset.
  * Also it does not mock but uses Parcel to create a DragEvent.
  */
 object DragAndDropTestUtils {
@@ -37,29 +38,44 @@ object DragAndDropTestUtils {
     /**
      * Makes a stub drag event containing fake text data.
      *
-     * @param action One of the [DragEvent] actions.
+     * @param action The action passed to [DragEvent], for example [DragEvent.ACTION_DRAG_ENDED]
+     * @param text The text of the event
+     * @param position The position of the drag event
+     * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
+     *   used on API 36+. This is only relevant for multi-display environments. For technical
+     *   correctness, you should obtain the correct display id, for example from the closest View's
+     *   display (see [android.view.View.getDisplay]).
      */
     fun makeTextDragEvent(
         action: Int,
         text: String = SAMPLE_TEXT,
-        offset: Offset = Offset.Zero,
+        position: Offset = Offset.Zero,
+        displayId: Int = Display.DEFAULT_DISPLAY,
     ): DragEvent {
         return makeDragEvent(
             action = action,
             clipData = createClipData { addText(text) },
-            offset = offset
+            position = position,
+            displayId = displayId,
         )
     }
 
     /**
      * Makes a stub drag event containing an image mimetype and fake uri.
      *
-     * @param action One of the [DragEvent] actions.
+     * @param action The action passed to [DragEvent], for example [DragEvent.ACTION_DRAG_ENDED]
+     * @param item The [Uri] of the item
+     * @param position The position of the drag event
+     * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
+     *   used on API 36+. This is only relevant for multi-display environments. For technical
+     *   correctness, you should obtain the correct display id, for example from the closest View's
+     *   display (see [android.view.View.getDisplay]).
      */
     fun makeImageDragEvent(
         action: Int,
         item: Uri = SAMPLE_URI,
-        offset: Offset = Offset.Zero,
+        position: Offset = Offset.Zero,
+        displayId: Int = Display.DEFAULT_DISPLAY,
     ): DragEvent {
         return makeDragEvent(
             action = action,
@@ -68,30 +84,64 @@ object DragAndDropTestUtils {
                     // We're not actually resolving Uris in these tests, so this can be anything:
                     addUri(item, mimeType = "image/png")
                 },
-            offset = offset
+            position = position,
+            displayId = displayId,
         )
     }
 
-    fun makeDragEvent(action: Int, clipData: ClipData, offset: Offset = Offset.Zero): DragEvent {
+    /**
+     * Create a platform [DragEvent] instance. [DragEvent]s are usually not constructed directly, so
+     * we create it from a parcel. This parcel needs to match the structure used in
+     * [DragEvent.CREATOR].
+     *
+     * @param action The action passed to [DragEvent], for example [DragEvent.ACTION_DRAG_ENDED]
+     * @param clipData The [ClipData] associated with the event
+     * @param position The position of the drag event
+     * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
+     *   used on API 36+. This is only relevant for multi-display environments. For technical
+     *   correctness, you should obtain the correct display id, for example from the closest View's
+     *   display (see [android.view.View.getDisplay]).
+     */
+    fun makeDragEvent(
+        action: Int,
+        clipData: ClipData,
+        position: Offset = Offset.Zero,
+        displayId: Int = Display.DEFAULT_DISPLAY,
+    ): DragEvent {
         val parcel = Parcel.obtain()
 
+        // mAction
         parcel.writeInt(action)
-        parcel.writeFloat(offset.x)
-        parcel.writeFloat(offset.y)
+        // mX
+        parcel.writeFloat(position.x)
+        // mY
+        parcel.writeFloat(position.y)
+        // mOffset
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // mOffset was made part of DragEvent in API 31.
             parcel.writeFloat(0f)
             parcel.writeFloat(0f)
         }
+        // mDisplayId
+        if (Build.VERSION.SDK_INT >= 36) {
+            parcel.writeInt(displayId)
+        }
+        // mFlags
         if (Build.VERSION.SDK_INT >= 35) {
-            // mFlags was added
             parcel.writeInt(0)
         }
-        parcel.writeInt(0) // Result
-        parcel.writeInt(1)
+        // mDragResult
+        parcel.writeInt(0)
+        // mClipData
+        parcel.writeInt(1) // 0 = no clip data, 1 = clip data present
         clipData.writeToParcel(parcel, 0)
-        parcel.writeInt(1)
+        // mClipDescription
+        parcel.writeInt(1) // 0 = no description, 1 = description present
         clipData.description.writeToParcel(parcel, 0)
+        // mDragSurface
+        parcel.writeInt(0) // 0 = no SurfaceControl, 1 = SurfaceControl present
+        // mDragAndDropPermissions
+        parcel.writeInt(0) // 0 = no permissions, 1 = permissions present
 
         parcel.setDataPosition(0)
         return DragEvent.CREATOR.createFromParcel(parcel)

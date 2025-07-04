@@ -45,6 +45,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -54,6 +59,9 @@ private enum class ScrollableType2 {
     ScrollableColumn,
     LazyColumn,
     EditTextsInScrollView,
+    EditTextsInScrollableColumn,
+    EditTextsInLazyColumn,
+    TextFieldsInScrollView,
 }
 
 @Preview(showBackground = true)
@@ -65,29 +73,53 @@ fun BasicTextFieldInScrollableDemo() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = scrollableType == ScrollableColumn,
-                onClick = { scrollableType = ScrollableColumn }
+                onClick = { scrollableType = ScrollableColumn },
             )
-            Text("Scrollable column")
+            Text("Scrollable column w/ TextField")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = scrollableType == ScrollableType2.EditTextsInScrollableColumn,
+                onClick = { scrollableType = ScrollableType2.EditTextsInScrollableColumn },
+            )
+            Text("Scrollable column w/ EditText")
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = scrollableType == LazyColumn,
-                onClick = { scrollableType = LazyColumn }
+                onClick = { scrollableType = LazyColumn },
             )
-            Text("LazyColumn")
+            Text("LazyColumn w/ TextField")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = scrollableType == ScrollableType2.EditTextsInLazyColumn,
+                onClick = { scrollableType = ScrollableType2.EditTextsInLazyColumn },
+            )
+            Text("LazyColumn w/ EditText")
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = scrollableType == EditTextsInScrollView,
-                onClick = { scrollableType = EditTextsInScrollView }
+                onClick = { scrollableType = EditTextsInScrollView },
             )
-            Text("ScrollView")
+            Text("ScrollView w/ EditText")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = scrollableType == ScrollableType2.TextFieldsInScrollView,
+                onClick = { scrollableType = ScrollableType2.TextFieldsInScrollView },
+            )
+            Text("ScrollView w/ TextField")
         }
 
         when (scrollableType) {
             ScrollableColumn -> TextFieldInScrollableColumn()
             LazyColumn -> TextFieldInLazyColumn()
             EditTextsInScrollView -> EditTextsInScrollView()
+            ScrollableType2.EditTextsInScrollableColumn -> EditTextsInScrollableColumn()
+            ScrollableType2.EditTextsInLazyColumn -> EditTextsInLazyColumn()
+            ScrollableType2.TextFieldsInScrollView -> TextFieldInScrollView()
         }
     }
 }
@@ -112,6 +144,45 @@ private fun EditTextsInScrollView() {
     AndroidView(::EditTextsInScrollableView, modifier = Modifier.fillMaxSize())
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun TextFieldInScrollView() {
+    AndroidView(::TextFieldInScrollableView, modifier = Modifier.fillMaxSize())
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditTextsInScrollableColumn() {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        repeat(50) { index -> AndroidView(::DemoEditText) }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EditTextsInLazyColumn() {
+    LazyColumn {
+        items(50) { index ->
+            val pinnableContainer = LocalPinnableContainer.current
+            AndroidView(
+                factory = {
+                    DemoEditText(it).apply {
+                        var pinnedHandle: PinnableContainer.PinnedHandle? = null
+                        onFocusChangeListener =
+                            android.view.View.OnFocusChangeListener { _, hasFocus ->
+                                if (hasFocus) {
+                                    pinnedHandle = pinnableContainer?.pin()
+                                } else {
+                                    pinnedHandle?.release()
+                                }
+                            }
+                    }
+                }
+            )
+        }
+    }
+}
+
 @Composable
 private fun DemoTextField(index: Int) {
     val state = rememberTextFieldState()
@@ -120,32 +191,70 @@ private fun DemoTextField(index: Int) {
         BasicTextField(
             state = state,
             textStyle = LocalTextStyle.current,
-            modifier = demoTextFieldModifiers
+            modifier = demoTextFieldModifiers,
         )
+    }
+}
+
+private class DemoEditText(context: Context) : EditText(context) {
+    init {
+        layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
     }
 }
 
 private class EditTextsInScrollableView(context: Context) : ScrollView(context) {
     init {
+        this.setBackgroundColor(Color.Red.copy(alpha = 0.2f).toArgb())
         val column = LinearLayout(context)
         column.orientation = LinearLayout.VERTICAL
         addView(
             column,
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
         )
 
         repeat(30) {
-            val text = EditText(context)
+            val text = EditText(context).apply { setText("${it + 1}") }
             column.addView(
                 text,
                 LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
                     )
-                    .also { it.setMargins(20) }
+                    .also { it.setMargins(20) },
+            )
+        }
+    }
+}
+
+private class TextFieldInScrollableView(context: Context) : ScrollView(context) {
+    init {
+        this.setBackgroundColor(Color.Red.copy(alpha = 0.2f).toArgb())
+        val column = LinearLayout(context)
+        column.orientation = LinearLayout.VERTICAL
+        addView(
+            column,
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
+        )
+
+        repeat(30) {
+            val textField = ComposeView(context).apply { setContent { DemoTextField(it) } }
+            column.addView(
+                textField,
+                LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                    )
+                    .also { it.setMargins(20) },
             )
         }
     }

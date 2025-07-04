@@ -59,7 +59,7 @@ import org.junit.rules.ExternalResource
  */
 open class ActivityScenarioResetRule<A : Activity>(
     private val scenario: ActivityScenario<A>,
-    private val predicate: (A) -> Unit
+    private val predicate: (A) -> Unit,
 ) : ExternalResource() {
     override fun before() {
         super.before()

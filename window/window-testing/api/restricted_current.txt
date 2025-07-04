@@ -59,7 +59,7 @@ package androidx.window.testing.layout {
   }
 
   public final class FoldingFeatureTestingConstants {
-    property public static final int FOLDING_FEATURE_CENTER_DEFAULT;
+    property public static int FOLDING_FEATURE_CENTER_DEFAULT;
     field public static final int FOLDING_FEATURE_CENTER_DEFAULT = -1; // 0xffffffff
     field public static final androidx.window.testing.layout.FoldingFeatureTestingConstants INSTANCE;
   }

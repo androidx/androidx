@@ -35,7 +35,7 @@ class XRawTypeTest {
             class JavaClass<T, R> {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val kotlinSrc =
             Source.kotlin(
@@ -44,7 +44,7 @@ class XRawTypeTest {
             package foo.bar
             class KotlinClass<T, R>
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             val intType = invocation.processingEnv.requireType("java.lang.Integer")
@@ -55,7 +55,7 @@ class XRawTypeTest {
                         ParameterizedTypeName.get(
                             ClassName.get("foo.bar", "JavaClass"),
                             TypeVariableName.get("T"),
-                            TypeVariableName.get("R")
+                            TypeVariableName.get("R"),
                         )
                     )
                 val rawType = javaElm.type.rawType
@@ -75,7 +75,7 @@ class XRawTypeTest {
                         ParameterizedTypeName.get(
                             ClassName.get("foo.bar", "KotlinClass"),
                             TypeVariableName.get("T"),
-                            TypeVariableName.get("R")
+                            TypeVariableName.get("R"),
                         )
                     )
                 val rawType = kotlinElm.type.rawType

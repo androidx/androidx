@@ -49,7 +49,7 @@ internal object PowerQuery {
             PowerCategory.MEMORY to listOf("Ddr", "MemoryInterface"),
             PowerCategory.MACHINE_LEARNING to listOf("Tpu"),
             PowerCategory.NETWORK to listOf("Aoc", "Radio", "VsysPwrMmwave", "Wifi", "Modem"),
-            PowerCategory.UNCATEGORIZED to emptyList()
+            PowerCategory.UNCATEGORIZED to emptyList(),
         )
 
     /**
@@ -59,11 +59,7 @@ internal object PowerQuery {
      * @param energyUws The energy used during the trace, measured in uWs.
      * @param powerUw The energy used divided by the elapsed time, measured in uW.
      */
-    data class ComponentMeasurement(
-        var name: String,
-        var energyUws: Double,
-        var powerUw: Double,
-    ) {
+    data class ComponentMeasurement(var name: String, var energyUws: Double, var powerUw: Double) {
         fun getValue(type: PowerMetric.Type): Double {
             return if (type is PowerMetric.Type.Power) powerUw else energyUws
         }
@@ -81,7 +77,7 @@ internal object PowerQuery {
     data class CategoryMeasurement(
         var energyUws: Double,
         var powerUw: Double,
-        var components: List<ComponentMeasurement>
+        var components: List<ComponentMeasurement>,
     ) {
         fun getValue(type: PowerMetric.Type): Double {
             return if (type is PowerMetric.Type.Power) powerUw else energyUws
@@ -90,7 +86,7 @@ internal object PowerQuery {
 
     fun getPowerMetrics(
         session: TraceProcessor.Session,
-        slice: Slice
+        slice: Slice,
     ): Map<PowerCategory, CategoryMeasurement> {
         // gather all recorded rails
         val railMetrics: List<ComponentMeasurement> = getRailMetrics(session, slice)
@@ -119,7 +115,7 @@ internal object PowerQuery {
                     CategoryMeasurement(
                         energyUws = total.energyUws + next.energyUws,
                         powerUw = total.powerUw + next.powerUw,
-                        components = total.components
+                        components = total.components,
                     )
                 }
             }
@@ -128,7 +124,7 @@ internal object PowerQuery {
 
     private fun getRailMetrics(
         session: TraceProcessor.Session,
-        slice: Slice
+        slice: Slice,
     ): List<ComponentMeasurement> {
         val query = getFullQuery(slice)
         return session

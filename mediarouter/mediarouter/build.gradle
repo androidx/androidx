@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,7 +47,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -55,7 +54,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(project(":media:version-compat-tests:lib"))
     androidTestImplementation(project(":mediarouter:mediarouter-testing"))
 }
 
@@ -68,10 +66,11 @@ android {
 
 androidx {
     name = "MediaRouter"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
     failOnDeprecationWarnings = false
     // TODO: b/326456246
     optOutJSpecify = true
+    enableRobolectric()
 }

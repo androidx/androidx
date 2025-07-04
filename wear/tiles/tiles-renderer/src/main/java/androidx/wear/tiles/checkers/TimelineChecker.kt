@@ -47,7 +47,7 @@ internal interface TimelineEntryChecker {
  * @param entryCheckers The list of checkers to use. Defaults to all built in checks.
  */
 internal class TimelineChecker(
-    private val entryCheckers: List<TimelineEntryChecker> = listOf(CheckAccessibilityAvailable()),
+    private val entryCheckers: List<TimelineEntryChecker> = listOf(CheckAccessibilityAvailable())
 ) {
     companion object {
         private const val TAG = "TileChecker"

@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class SdkRuntimeBenchmark(
-    @Suppress("unused") private val ciTestConfigType: String, // Added to test name by Parameterized
+    @Suppress("unused") private val ciTestConfigType: String // Added to test name by Parameterized
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -42,7 +42,7 @@ class SdkRuntimeBenchmark(
         benchmarkRule.measureStartup(
             compilationMode = CompilationMode.DEFAULT,
             startupMode = StartupMode.COLD,
-            packageName = "androidx.privacysandbox.sdkruntime.integration.testapp"
+            packageName = "androidx.privacysandbox.sdkruntime.integration.testapp",
         ) {
             action = "androidx.privacysandbox.sdkruntime.integration.testapp.BenchmarkActivity"
         }

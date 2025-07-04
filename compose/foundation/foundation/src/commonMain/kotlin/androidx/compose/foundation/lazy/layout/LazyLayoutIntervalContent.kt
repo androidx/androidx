@@ -45,7 +45,7 @@ abstract class LazyLayoutIntervalContent<Interval : LazyLayoutIntervalContent.In
      */
     inline fun <T> withInterval(
         globalIndex: Int,
-        block: (localIntervalIndex: Int, content: Interval) -> T
+        block: (localIntervalIndex: Int, content: Interval) -> T,
     ): T {
         val interval = intervals[globalIndex]
         val localIntervalIndex = globalIndex - interval.startIndex

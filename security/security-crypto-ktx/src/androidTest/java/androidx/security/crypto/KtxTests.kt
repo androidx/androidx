@@ -72,7 +72,7 @@ class KtxTests {
             MasterKey(
                 context = context,
                 authenticationRequired = false,
-                userAuthenticationValidityDurationSeconds = 123
+                userAuthenticationValidityDurationSeconds = 123,
             )
         val jMasterKey =
             MasterKey.Builder(context)
@@ -82,11 +82,11 @@ class KtxTests {
         Assert.assertEquals(ktxMasterKey.keyAlias, jMasterKey.keyAlias)
         Assert.assertEquals(
             ktxMasterKey.isUserAuthenticationRequired,
-            jMasterKey.isUserAuthenticationRequired
+            jMasterKey.isUserAuthenticationRequired,
         )
         Assert.assertEquals(
             ktxMasterKey.userAuthenticationValidityDurationSeconds,
-            jMasterKey.userAuthenticationValidityDurationSeconds
+            jMasterKey.userAuthenticationValidityDurationSeconds,
         )
     }
 
@@ -100,7 +100,7 @@ class KtxTests {
             EncryptedSharedPreferences(
                 context = context,
                 fileName = filename,
-                masterKey = masterKey
+                masterKey = masterKey,
             )
         ktxSharedPreferences.edit().putString("test_key", "KTX Write").commit()
 
@@ -110,7 +110,7 @@ class KtxTests {
                 filename,
                 masterKey,
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
             )
         val readValue = jSharedPreferences.getString("test_key", "error")
         Assert.assertEquals(readValue, "KTX Write")
@@ -137,7 +137,7 @@ class KtxTests {
                     context,
                     file,
                     masterKey,
-                    EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+                    EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB,
                 )
                 .build()
 

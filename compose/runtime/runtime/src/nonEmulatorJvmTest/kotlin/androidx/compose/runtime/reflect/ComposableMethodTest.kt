@@ -44,7 +44,7 @@ private fun composableFunctionWithDefaults(
     s2: String,
     s3: String = "a",
     s4: String = "a",
-    s5: String = "a"
+    s5: String = "a",
 ): String {
     return s1 + s2 + s3 + s4 + s5
 }
@@ -65,23 +65,7 @@ private fun overloadedComposable(
     v7: String,
     v8: String,
     v9: String,
-    v10: String
-) {}
-
-@Suppress("UNUSED_PARAMETER")
-@Composable
-private fun overloadedComposable(
-    v1: String,
-    v2: String,
-    v3: String,
-    v4: String,
-    v5: String,
-    v6: String,
-    v7: String,
-    v8: String,
-    v9: String,
     v10: String,
-    v11: String
 ) {}
 
 @Suppress("UNUSED_PARAMETER")
@@ -98,7 +82,23 @@ private fun overloadedComposable(
     v9: String,
     v10: String,
     v11: String,
-    v12: String
+) {}
+
+@Suppress("UNUSED_PARAMETER")
+@Composable
+private fun overloadedComposable(
+    v1: String,
+    v2: String,
+    v3: String,
+    v4: String,
+    v5: String,
+    v6: String,
+    v7: String,
+    v8: String,
+    v9: String,
+    v10: String,
+    v11: String,
+    v12: String,
 ) {}
 
 @Suppress("UNUSED_PARAMETER")
@@ -109,7 +109,7 @@ private fun differentParametersTypes(
     v3: Int,
     v4: Float,
     v5: Double,
-    v6: Long
+    v6: Long,
 ) {}
 
 private class ComposablesWrapper {
@@ -125,7 +125,7 @@ private class ComposablesWrapper {
         s2: String,
         s3: String = "a",
         s4: String = "a",
-        s5: String = "a"
+        s5: String = "a",
     ): String {
         return s1 + s2 + s3 + s4 + s5
     }
@@ -146,23 +146,7 @@ private class ComposablesWrapper {
         v7: String,
         v8: String,
         v9: String,
-        v10: String
-    ) {}
-
-    @Suppress("UNUSED_PARAMETER")
-    @Composable
-    fun overloadedComposableMethod(
-        v1: String,
-        v2: String,
-        v3: String,
-        v4: String,
-        v5: String,
-        v6: String,
-        v7: String,
-        v8: String,
-        v9: String,
         v10: String,
-        v11: String
     ) {}
 
     @Suppress("UNUSED_PARAMETER")
@@ -179,7 +163,23 @@ private class ComposablesWrapper {
         v9: String,
         v10: String,
         v11: String,
-        v12: String
+    ) {}
+
+    @Suppress("UNUSED_PARAMETER")
+    @Composable
+    fun overloadedComposableMethod(
+        v1: String,
+        v2: String,
+        v3: String,
+        v4: String,
+        v5: String,
+        v6: String,
+        v7: String,
+        v8: String,
+        v9: String,
+        v10: String,
+        v11: String,
+        v12: String,
     ) {}
 
     @Suppress("UNUSED_PARAMETER")
@@ -190,7 +190,7 @@ private class ComposablesWrapper {
         v3: Int,
         v4: Float,
         v5: Double,
-        v6: Long
+        v6: Long,
     ) {}
 }
 
@@ -227,17 +227,17 @@ class ComposableMethodTest {
         val method10 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val method11 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val method12 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         assertNotEquals(method0, method1)
@@ -259,22 +259,22 @@ class ComposableMethodTest {
         val method1 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                String::class.java
+                String::class.java,
             )
         val method10 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val method11 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val method12 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         assertNotEquals(method0, method1)
@@ -294,12 +294,12 @@ class ComposableMethodTest {
     fun test_getDeclaredComposableMethod_works_with_default_params() {
         clazz.getDeclaredComposableMethod(
             "composableFunctionWithDefaults",
-            *Array(5) { String::class.java }
+            *Array(5) { String::class.java },
         )
 
         wrapperClazz.getDeclaredComposableMethod(
             "composableMethodWithDefaults",
-            *Array(5) { String::class.java }
+            *Array(5) { String::class.java },
         )
     }
 
@@ -312,39 +312,39 @@ class ComposableMethodTest {
         val function10 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val function11 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val function12 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         val method0 = wrapperClazz.getDeclaredComposableMethod("overloadedComposableMethod")
         val method1 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                String::class.java
+                String::class.java,
             )
         val method10 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val method11 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val method12 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         assertEquals(0, function0.parameterCount)
@@ -372,39 +372,39 @@ class ComposableMethodTest {
         val function10 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val function11 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val function12 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         val method0 = wrapperClazz.getDeclaredComposableMethod("overloadedComposableMethod")
         val method1 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                String::class.java
+                String::class.java,
             )
         val method10 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val method11 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val method12 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         val diffParameters =
@@ -415,7 +415,7 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             )
 
         val diffParametersMethod =
@@ -426,7 +426,7 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             )
 
         assertEquals(0, function0.parameters.size)
@@ -452,9 +452,9 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             ),
-            diffParameters.parameters.map { it.type }
+            diffParameters.parameters.map { it.type },
         )
 
         assertEquals(6, diffParametersMethod.parameters.size)
@@ -465,9 +465,9 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             ),
-            diffParametersMethod.parameters.map { it.type }
+            diffParametersMethod.parameters.map { it.type },
         )
     }
 
@@ -480,39 +480,39 @@ class ComposableMethodTest {
         val function10 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val function11 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val function12 =
             clazz.getDeclaredComposableMethod(
                 "overloadedComposable",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         val method0 = wrapperClazz.getDeclaredComposableMethod("overloadedComposableMethod")
         val method1 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                String::class.java
+                String::class.java,
             )
         val method10 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(10) { String::class.java }
+                *Array(10) { String::class.java },
             )
         val method11 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(11) { String::class.java }
+                *Array(11) { String::class.java },
             )
         val method12 =
             wrapperClazz.getDeclaredComposableMethod(
                 "overloadedComposableMethod",
-                *Array(12) { String::class.java }
+                *Array(12) { String::class.java },
             )
 
         val diffParameters =
@@ -523,7 +523,7 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             )
 
         val diffParametersMethod =
@@ -534,7 +534,7 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             )
 
         assertEquals(0, function0.parameterTypes.size)
@@ -560,9 +560,9 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             ),
-            diffParameters.parameterTypes.toList()
+            diffParameters.parameterTypes.toList(),
         )
 
         assertEquals(6, diffParametersMethod.parameterTypes.size)
@@ -573,9 +573,9 @@ class ComposableMethodTest {
                 Int::class.java,
                 Float::class.java,
                 Double::class.java,
-                Long::class.java
+                Long::class.java,
             ),
-            diffParametersMethod.parameterTypes.toList()
+            diffParametersMethod.parameterTypes.toList(),
         )
     }
 

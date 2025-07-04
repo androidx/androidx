@@ -63,7 +63,7 @@ class ScrollIndicatorScreenshotTest {
             position = 0.1f,
             ltr = true,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -73,7 +73,7 @@ class ScrollIndicatorScreenshotTest {
             position = 1f,
             ltr = true,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -83,7 +83,7 @@ class ScrollIndicatorScreenshotTest {
             position = 0.1f,
             ltr = true,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -93,7 +93,7 @@ class ScrollIndicatorScreenshotTest {
             position = 0.5f,
             ltr = true,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -103,7 +103,7 @@ class ScrollIndicatorScreenshotTest {
             position = 0.5f,
             ltr = true,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -113,7 +113,7 @@ class ScrollIndicatorScreenshotTest {
             position = 0.1f,
             ltr = false,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -123,7 +123,7 @@ class ScrollIndicatorScreenshotTest {
             position = 1f,
             ltr = false,
             roundScreen = true,
-            goldenIdentifier = testName.methodName
+            goldenIdentifier = testName.methodName,
         )
 
     @Test
@@ -145,7 +145,7 @@ class ScrollIndicatorScreenshotTest {
                     state = state,
                     contentPadding = PaddingValues(100.dp),
                     autoCentering = null,
-                    modifier = Modifier.size(screenSizeDp.dp).background(Color.Black)
+                    modifier = Modifier.size(screenSizeDp.dp).background(Color.Black),
                 ) {
                     items(6) { Text("item $it", modifier = Modifier.height(70.dp)) }
                 }
@@ -167,7 +167,7 @@ class ScrollIndicatorScreenshotTest {
         goldenIdentifier: String,
         roundScreen: Boolean,
         screenSizeDp: Int = 250,
-        ltr: Boolean = true
+        ltr: Boolean = true,
     ) {
         rule.setContentWithTheme {
             val actualLayoutDirection = if (ltr) LayoutDirection.Ltr else LayoutDirection.Rtl
@@ -184,7 +184,7 @@ class ScrollIndicatorScreenshotTest {
                 }
             CompositionLocalProvider(
                 LocalLayoutDirection provides actualLayoutDirection,
-                LocalConfiguration provides updatedConfig
+                LocalConfiguration provides updatedConfig,
             ) {
                 IndicatorImpl(
                     state =
@@ -198,7 +198,7 @@ class ScrollIndicatorScreenshotTest {
                     indicatorHeight = 50.dp,
                     indicatorWidth = 4.dp,
                     paddingHorizontal = 2.dp,
-                    modifier = Modifier.testTag(TEST_TAG).background(Color.Black)
+                    modifier = Modifier.testTag(TEST_TAG).background(Color.Black),
                 )
             }
         }

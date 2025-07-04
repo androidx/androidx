@@ -34,7 +34,7 @@ class PreparedStatementWriter(val queryWriter: QueryWriter) {
                     XFunSpec.builder(
                             name = "createQuery",
                             visibility = VisibilityModifier.PUBLIC,
-                            isOverride = true
+                            isOverride = true,
                         )
                         .apply {
                             returns(CommonTypeNames.STRING)

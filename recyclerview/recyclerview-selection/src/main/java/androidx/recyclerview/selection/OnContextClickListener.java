@@ -18,7 +18,7 @@ package androidx.recyclerview.selection;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Override methods in this class to provide application specific behaviors

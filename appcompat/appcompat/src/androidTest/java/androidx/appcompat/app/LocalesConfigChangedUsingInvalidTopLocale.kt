@@ -45,7 +45,7 @@ class LocalesConfigChangedUsingInvalidTopLocale() {
             LocalesUpdateActivity::class.java,
             initialTouchMode = false,
             // Let the test method launch its own activity so that we can ensure it's RESUMED.
-            launchActivity = false
+            launchActivity = false,
         )
 
     @Test
@@ -57,7 +57,7 @@ class LocalesConfigChangedUsingInvalidTopLocale() {
 
         LocalesUtils.setLocalesAndWaitForRecreate(
             initialActivity,
-            CUSTOM_LOCALES_INVALID_LOCALES_AT_TOP
+            CUSTOM_LOCALES_INVALID_LOCALES_AT_TOP,
         )
         // Wait for locales to get applied.
         Thread.sleep(/* millis= */ 2000)
@@ -80,13 +80,13 @@ class LocalesConfigChangedUsingInvalidTopLocale() {
         var expectedConfigLocalesAfterRearrangement =
             LocalesUpdateActivity.overlayCustomAndSystemLocales(
                 CUSTOM_LOCALES_AFTER_REARRANGEMENT,
-                systemLocales
+                systemLocales,
             )
 
         // Assert that the current Activity has the new adjusted locales.
         assertConfigurationLocalesEquals(
             expectedConfigLocalesAfterRearrangement,
-            localesActivity3.resources.configuration
+            localesActivity3.resources.configuration,
         )
     }
 

@@ -40,7 +40,10 @@ internal val ComposeLintWarningIdsToTreatAsErrors =
         "OpaqueUnitKey",
         "UnnecessaryComposedModifier",
         "FrequentlyChangedStateReadInComposition",
+        "FrequentlyChangingValue",
         "ReturnFromAwaitPointerEventScope",
         "UseOfNonLambdaOffsetOverload",
         "MultipleAwaitPointerEventScopes",
+        "LocalContextResourcesRead",
+        "ConfigurationScreenWidthHeight",
     )

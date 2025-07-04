@@ -53,7 +53,7 @@ internal object LocalClientImportanceListenerRegistry {
     fun register(
         sdkPackageName: String,
         executor: Executor,
-        listener: SdkSandboxClientImportanceListenerCompat
+        listener: SdkSandboxClientImportanceListenerCompat,
     ) {
         initializeIfNeeded()
         listeners.add(ListenerInfo(sdkPackageName, executor, listener))
@@ -97,7 +97,7 @@ internal object LocalClientImportanceListenerRegistry {
     fun isRegistered(
         sdkPackageName: String,
         executor: Executor,
-        listener: SdkSandboxClientImportanceListenerCompat
+        listener: SdkSandboxClientImportanceListenerCompat,
     ): Boolean = listeners.contains(ListenerInfo(sdkPackageName, executor, listener))
 
     @TestOnly
@@ -124,14 +124,14 @@ internal object LocalClientImportanceListenerRegistry {
     private object Api24 {
         fun removeListener(
             from: CopyOnWriteArrayList<ListenerInfo>,
-            listener: SdkSandboxClientImportanceListenerCompat
+            listener: SdkSandboxClientImportanceListenerCompat,
         ) {
             from.removeIf { it.listener == listener }
         }
 
         fun removeAllListenersForSdk(
             from: CopyOnWriteArrayList<ListenerInfo>,
-            sdkPackageName: String
+            sdkPackageName: String,
         ) {
             from.removeIf { it.sdkPackageName == sdkPackageName }
         }
@@ -152,6 +152,6 @@ internal object LocalClientImportanceListenerRegistry {
     private data class ListenerInfo(
         val sdkPackageName: String,
         val executor: Executor,
-        val listener: SdkSandboxClientImportanceListenerCompat
+        val listener: SdkSandboxClientImportanceListenerCompat,
     )
 }

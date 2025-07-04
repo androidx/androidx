@@ -1,0 +1,77 @@
+{
+  "projectPath": ":appsearch:appsearch-debug-view",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.arch.core:core-common",
+        "resolvedVersion": "2.1.0"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.concurrent:concurrent-futures",
+        "resolvedVersion": "1.1.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.constraintlayout:constraintlayout",
+        "resolvedVersion": "2.2.0-beta01"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.legacy:legacy-support-v4",
+        "resolvedVersion": "1.0.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.3.1"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-livedata-core",
+        "resolvedVersion": "2.3.0"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-viewmodel",
+        "resolvedVersion": "2.3.0"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.recyclerview:recyclerview",
+        "resolvedVersion": "1.0.0"
+      },
+      "toConfiguration": "api"
+    }
+  ]
+}

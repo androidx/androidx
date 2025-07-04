@@ -20,8 +20,8 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;

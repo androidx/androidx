@@ -57,7 +57,7 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
@@ -74,23 +74,23 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
         return if (pagingSourceTypeName == PagingTypeNames.PAGING_SOURCE) {
             val convertRowsOverrideInfo =
                 ConvertRowsOverrideInfo(
-                    method = convertExecutableElement,
+                    function = convertExecutableElement,
                     continuationParamName = convertExecutableElement.parameters.last().name,
                     owner =
                         context.processingEnv.getDeclaredType(roomPagingSourceTypeElement, typeArg),
-                    returnTypeName = LIST.parametrizedBy(typeArg.asTypeName())
+                    returnTypeName = LIST.parametrizedBy(typeArg.asTypeName()),
                 )
             Paging3PagingSourceQueryResultBinder(
                 listAdapter = listAdapter,
                 tableNames = tableNames,
                 className = roomPagingClassName,
-                convertRowsOverrideInfo = convertRowsOverrideInfo
+                convertRowsOverrideInfo = convertRowsOverrideInfo,
             )
         } else {
             MultiTypedPagingSourceQueryResultBinder(
                 listAdapter = listAdapter,
                 tableNames = tableNames,
-                className = roomPagingClassName
+                className = roomPagingClassName,
             )
         }
     }
@@ -124,10 +124,12 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
     }
 }
 
-/** Data class used to store necessary info when generating the suspending `convertRows` method. */
+/**
+ * Data class used to store necessary info when generating the suspending `convertRows` function.
+ */
 class ConvertRowsOverrideInfo(
     val continuationParamName: String,
-    val method: XMethodElement,
+    val function: XMethodElement,
     val owner: XType,
-    val returnTypeName: XTypeName
+    val returnTypeName: XTypeName,
 )

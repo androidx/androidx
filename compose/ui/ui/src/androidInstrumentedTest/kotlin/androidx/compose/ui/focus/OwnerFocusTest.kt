@@ -22,6 +22,8 @@ import android.view.View.FOCUS_UP
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -248,8 +250,12 @@ class OwnerFocusTest {
 
         // Assert.
         rule.runOnIdle {
-            // b/369256395 we must return true when we advertise that we're focusable
-            assertThat(success).isTrue()
+            if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isViewFocusFixEnabled) {
+                // b/369256395 we must return true when we advertise that we're focusable
+                assertThat(success).isTrue()
+            } else {
+                assertThat(success).isFalse()
+            }
             assertThat(ownerView.isFocused).isFalse()
         }
     }

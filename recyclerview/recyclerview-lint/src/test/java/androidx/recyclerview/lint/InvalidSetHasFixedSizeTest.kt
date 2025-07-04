@@ -39,7 +39,7 @@ class InvalidSetHasFixedSizeTest {
                     const val my_recycler_view = 0
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -60,7 +60,7 @@ class InvalidSetHasFixedSizeTest {
                     recyclerView?.setHasFixedSize(true)
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -75,7 +75,7 @@ class InvalidSetHasFixedSizeTest {
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .indented()
                 .within("res")
@@ -100,7 +100,7 @@ class InvalidSetHasFixedSizeTest {
                     const val my_recycler_view = 0
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -123,7 +123,7 @@ class InvalidSetHasFixedSizeTest {
                     }
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -138,7 +138,7 @@ class InvalidSetHasFixedSizeTest {
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"/>
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .indented()
                 .within("res")
@@ -163,7 +163,7 @@ class InvalidSetHasFixedSizeTest {
                     const val my_recycler_view = 0
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -184,7 +184,7 @@ class InvalidSetHasFixedSizeTest {
                     recyclerView?.setHasFixedSize(true)
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -199,7 +199,7 @@ class InvalidSetHasFixedSizeTest {
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .indented()
                 .within("res")
@@ -232,7 +232,7 @@ class InvalidSetHasFixedSizeTest {
                     const val my_recycler_view = 0
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -253,7 +253,7 @@ class InvalidSetHasFixedSizeTest {
                     recyclerView?.setHasFixedSize(true)
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -269,7 +269,7 @@ class InvalidSetHasFixedSizeTest {
                     android:layout_height="match_parent"
                     android:orientation="horizontal" />
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .indented()
                 .within("res")
@@ -302,7 +302,7 @@ class InvalidSetHasFixedSizeTest {
                     const val my_recycler_view = 0
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -327,7 +327,7 @@ class InvalidSetHasFixedSizeTest {
                     recyclerView?.setHasFixedSize(true)
                 }
             }
-        """
+        """,
                 )
                 .indented()
                 .within("src")
@@ -342,7 +342,7 @@ class InvalidSetHasFixedSizeTest {
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"/>
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
                 .indented()
                 .within("res")

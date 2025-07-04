@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
 
 internal class PublishLayoutInfoTracker(
     private val core: WindowInfoTracker,
-    private val flow: Flow<WindowLayoutInfo>
+    private val flow: Flow<WindowLayoutInfo>,
 ) : WindowInfoTracker by core {
 
     override fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo> {

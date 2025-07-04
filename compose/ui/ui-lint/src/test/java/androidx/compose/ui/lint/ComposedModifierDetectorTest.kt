@@ -66,7 +66,7 @@ class ComposedModifierDetectorTest : LintDetectorTest() {
                 ),
                 UiStubs.composed,
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .skipTestModes(TestMode.WHITESPACE) // b/202187519, remove when upgrading to 7.1.0
             .run()
@@ -157,7 +157,7 @@ src/test/test.kt:22: Warning: Unnecessary use of Modifier.composed [UnnecessaryC
                 UiStubs.composed,
                 Stubs.Composable,
                 Stubs.Modifier,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .skipTestModes(TestMode.WHITESPACE) // b/202187519, remove when upgrading to 7.1.0
             .run()

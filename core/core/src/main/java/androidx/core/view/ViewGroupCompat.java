@@ -227,6 +227,7 @@ public final class ViewGroupCompat {
         sCompatInsetsDispatchInstalled = true;
     }
 
+    @NonNull
     static WindowInsets dispatchApplyWindowInsets(View view, WindowInsets windowInsets) {
         final Object wrappedUserListener = view.getTag(R.id.tag_on_apply_window_listener);
         final Object animCallback = view.getTag(R.id.tag_window_insets_animation_callback);
@@ -240,7 +241,7 @@ public final class ViewGroupCompat {
         // Don't call View#onApplyWindowInsets directly, but via View#dispatchApplyWindowInsets.
         // Otherwise, the view won't get PFLAG3_APPLYING_INSETS and it will dispatch insets on its
         // own.
-        final WindowInsets[] outInsets = new WindowInsets[1];
+        final WindowInsets[] outInsets = {CONSUMED};
         view.setOnApplyWindowInsetsListener((v, w) -> {
             outInsets[0] = listener != null
                     ? listener.onApplyWindowInsets(v, w)
@@ -249,6 +250,9 @@ public final class ViewGroupCompat {
             // Only apply window insets to this view.
             return CONSUMED;
         });
+        // If our OnApplyWindowInsetsListener doesn't get called, it means the view has its own
+        // dispatching logic, the outInsets will remain CONSUMED, and we don't have to dispatch
+        // insets to its child views.
         view.dispatchApplyWindowInsets(windowInsets);
 
         // Restore the listener.
@@ -265,7 +269,7 @@ public final class ViewGroupCompat {
                 dispatchApplyWindowInsets(parent.getChildAt(i), outInsets[0]);
             }
         }
-        return outInsets[0];
+        return outInsets[0] != null ? outInsets[0] : CONSUMED;
     }
 
     @RequiresApi(21)

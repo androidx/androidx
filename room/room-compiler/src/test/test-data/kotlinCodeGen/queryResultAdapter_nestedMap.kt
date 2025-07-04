@@ -25,8 +25,7 @@ public class MyDao_Impl(
   }
 
   public override fun singleNested(): Map<Artist, Map<Album, List<Song>>> {
-    val _sql: String =
-        "SELECT * FROM Artist JOIN (Album JOIN Song ON Album.albumName = Song.album) ON Artist.artistName = Album.albumArtist"
+    val _sql: String = "SELECT * FROM Artist JOIN (Album JOIN Song ON Album.albumName = Song.album) ON Artist.artistName = Album.albumArtist"
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
@@ -38,8 +37,7 @@ public class MyDao_Impl(
         val _columnIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
         val _columnIndexOfAlbum: Int = getColumnIndexOrThrow(_stmt, "album")
         val _columnIndexOfSongArtist: Int = getColumnIndexOrThrow(_stmt, "songArtist")
-        val _result: MutableMap<Artist, MutableMap<Album, MutableList<Song>>> =
-            LinkedHashMap<Artist, MutableMap<Album, MutableList<Song>>>()
+        val _result: MutableMap<Artist, MutableMap<Album, MutableList<Song>>> = LinkedHashMap<Artist, MutableMap<Album, MutableList<Song>>>()
         while (_stmt.step()) {
           val _key: Artist
           val _tmpArtistId: String
@@ -54,8 +52,7 @@ public class MyDao_Impl(
             _values = LinkedHashMap<Album, MutableList<Song>>()
             _result.put(_key, _values)
           }
-          if (_stmt.isNull(_columnIndexOfAlbumId) && _stmt.isNull(_columnIndexOfAlbumName) &&
-              _stmt.isNull(_columnIndexOfAlbumArtist)) {
+          if (_stmt.isNull(_columnIndexOfAlbumId) && _stmt.isNull(_columnIndexOfAlbumName) && _stmt.isNull(_columnIndexOfAlbumArtist)) {
             continue
           }
           val _key_1: Album
@@ -73,8 +70,7 @@ public class MyDao_Impl(
             _values_1 = mutableListOf()
             _values.put(_key_1, _values_1)
           }
-          if (_stmt.isNull(_columnIndexOfSongId) && _stmt.isNull(_columnIndexOfAlbum) &&
-              _stmt.isNull(_columnIndexOfSongArtist)) {
+          if (_stmt.isNull(_columnIndexOfSongId) && _stmt.isNull(_columnIndexOfAlbum) && _stmt.isNull(_columnIndexOfSongArtist)) {
             continue
           }
           val _value: Song
@@ -95,8 +91,7 @@ public class MyDao_Impl(
   }
 
   public override fun doubleNested(): Map<Playlist, Map<Artist, Map<Album, List<Song>>>> {
-    val _sql: String =
-        "SELECT * FROM Playlist JOIN (Artist JOIN (Album JOIN Song ON Album.albumName = Song.album) ON Artist.artistName = Album.albumArtist)ON Playlist.playlistArtist = Artist.artistName"
+    val _sql: String = "SELECT * FROM Playlist JOIN (Artist JOIN (Album JOIN Song ON Album.albumName = Song.album) ON Artist.artistName = Album.albumArtist)ON Playlist.playlistArtist = Artist.artistName"
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
@@ -110,8 +105,7 @@ public class MyDao_Impl(
         val _columnIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
         val _columnIndexOfAlbum: Int = getColumnIndexOrThrow(_stmt, "album")
         val _columnIndexOfSongArtist: Int = getColumnIndexOrThrow(_stmt, "songArtist")
-        val _result: MutableMap<Playlist, MutableMap<Artist, MutableMap<Album, MutableList<Song>>>>
-            = LinkedHashMap<Playlist, MutableMap<Artist, MutableMap<Album, MutableList<Song>>>>()
+        val _result: MutableMap<Playlist, MutableMap<Artist, MutableMap<Album, MutableList<Song>>>> = LinkedHashMap<Playlist, MutableMap<Artist, MutableMap<Album, MutableList<Song>>>>()
         while (_stmt.step()) {
           val _key: Playlist
           val _tmpPlaylistId: String
@@ -142,8 +136,7 @@ public class MyDao_Impl(
             _values_1 = LinkedHashMap<Album, MutableList<Song>>()
             _values.put(_key_1, _values_1)
           }
-          if (_stmt.isNull(_columnIndexOfAlbumId) && _stmt.isNull(_columnIndexOfAlbumName) &&
-              _stmt.isNull(_columnIndexOfAlbumArtist)) {
+          if (_stmt.isNull(_columnIndexOfAlbumId) && _stmt.isNull(_columnIndexOfAlbumName) && _stmt.isNull(_columnIndexOfAlbumArtist)) {
             continue
           }
           val _key_2: Album
@@ -161,8 +154,7 @@ public class MyDao_Impl(
             _values_2 = mutableListOf()
             _values_1.put(_key_2, _values_2)
           }
-          if (_stmt.isNull(_columnIndexOfSongId) && _stmt.isNull(_columnIndexOfAlbum) &&
-              _stmt.isNull(_columnIndexOfSongArtist)) {
+          if (_stmt.isNull(_columnIndexOfSongId) && _stmt.isNull(_columnIndexOfAlbum) && _stmt.isNull(_columnIndexOfSongArtist)) {
             continue
           }
           val _value: Song

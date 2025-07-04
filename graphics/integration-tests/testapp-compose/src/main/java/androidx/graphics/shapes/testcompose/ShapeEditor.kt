@@ -149,7 +149,7 @@ private fun PolygonEditor(activity: FragmentActivity) {
                                 )
                             )
                             changeSelected(shapeParams.lastIndex)
-                        }
+                        },
                     )
                 },
             ScreenTypes.EDIT to
@@ -160,13 +160,13 @@ private fun PolygonEditor(activity: FragmentActivity) {
                         onSave = { newParams: ShapeParameters ->
                             shapeParams[selectedShape].value = newParams
                             currentScreenType.value = ScreenTypes.HOME
-                        }
+                        },
                     )
                 },
             ScreenTypes.ABOUT to
                 {
                     AboutScreen(onBackClick = { currentScreenType.value = ScreenTypes.HOME })
-                }
+                },
         )
 
     screens[currentScreenType.value]?.let { it() }
@@ -176,7 +176,7 @@ private fun PolygonEditor(activity: FragmentActivity) {
 private fun EditScreen(
     parameters: ShapeParameters,
     onBackClick: () -> Unit,
-    onSave: (ShapeParameters) -> Unit
+    onSave: (ShapeParameters) -> Unit,
 ) {
     var showSaveMessage by remember { mutableStateOf(false) }
     val copyToEdit = remember { parameters.copy() }
@@ -188,7 +188,7 @@ private fun EditScreen(
                 showSaveMessage = false
                 onBackClick()
             },
-            onConfirmation = { onSave(copyToEdit) }
+            onConfirmation = { onSave(copyToEdit) },
         )
     }
 
@@ -199,10 +199,10 @@ private fun EditScreen(
                 onBackClick = {
                     if (!copyToEdit.equals(parameters)) showSaveMessage = true else onBackClick()
                 },
-                onModeSwitch = { index -> selectedViewModeIndex = index }
+                onModeSwitch = { index -> selectedViewModeIndex = index },
             )
         },
-        bottomBar = { EditScreenFooter(onCancel = onBackClick, onSave = { onSave(copyToEdit) }) }
+        bottomBar = { EditScreenFooter(onCancel = onBackClick, onSave = { onSave(copyToEdit) }) },
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding),
@@ -223,7 +223,7 @@ private fun EditScreen(
 private fun EditScreenHeader(
     selectedIndex: Int,
     onBackClick: () -> Unit,
-    onModeSwitch: (Int) -> Unit
+    onModeSwitch: (Int) -> Unit,
 ) {
     val options = listOf("Parametric", "Features")
 
@@ -237,7 +237,7 @@ private fun EditScreenHeader(
                             SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                         onClick = { onModeSwitch(index) },
                         selected = index == selectedIndex,
-                        icon = {}
+                        icon = {},
                     ) {
                         Text(label)
                     }
@@ -248,7 +248,7 @@ private fun EditScreenHeader(
             IconButton(onClick = onBackClick) {
                 Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Go back to Home")
             }
-        }
+        },
     )
 }
 
@@ -256,13 +256,13 @@ private fun EditScreenHeader(
 private fun EditScreenFooter(onCancel: () -> Unit, onSave: () -> Unit) {
     Row(
         Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) {
             Icon(
                 Icons.Default.Clear,
                 contentDescription = "Cancel",
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             Text("Cancel")
         }
@@ -271,7 +271,7 @@ private fun EditScreenFooter(onCancel: () -> Unit, onSave: () -> Unit) {
             Icon(
                 Icons.Default.Check,
                 contentDescription = "Save",
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             Text("Save")
         }
@@ -291,7 +291,7 @@ private fun HomeScreen(
     onAboutClick: () -> Unit,
     onExportClick: () -> Unit,
     onAddShapeClick: () -> Unit,
-    onImportShapeClick: (() -> List<Feature>) -> Unit
+    onImportShapeClick: (() -> List<Feature>) -> Unit,
 ) {
     val shapes =
         remember(shapeParams.size) { shapeParams.map { sp -> sp.value.genShape().normalized() } }
@@ -304,10 +304,10 @@ private fun HomeScreen(
                 selectedIndex,
                 shapes[selectedStartShape],
                 shapes[selectedEndShape],
-                onSelectedSwitch
+                onSelectedSwitch,
             )
         },
-        bottomBar = { HomeScreenFooter(onAboutClick, onExportClick) }
+        bottomBar = { HomeScreenFooter(onAboutClick, onExportClick) },
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding),
@@ -324,7 +324,7 @@ private fun HomeScreen(
                     {
                         onImportShapeClick(it)
                         showImportMessage = false
-                    }
+                    },
                 )
             }
 
@@ -333,7 +333,7 @@ private fun HomeScreen(
                 selectedShape,
                 if (selectedIndex == 0) selectedEndShape else selectedStartShape,
                 Modifier.fillMaxHeight(0.35f).verticalScroll(rememberScrollState()),
-                onShapeSwitch
+                onShapeSwitch,
             )
 
             EditButtonRow(onEditClick) { showImportMessage = true }
@@ -353,13 +353,9 @@ private fun HomeScreenHeader(
     selectedIndex: Int,
     selectedStartShape: RoundedPolygon,
     selectedEndShape: RoundedPolygon,
-    onSwitch: (Int) -> Unit
+    onSwitch: (Int) -> Unit,
 ) {
-    val options =
-        listOf(
-            "From",
-            "To",
-        )
+    val options = listOf("From", "To")
 
     TopAppBar(
         title = { Text("Shape Selection") },
@@ -379,11 +375,11 @@ private fun HomeScreenHeader(
                                 if (index == 0) PolygonView(selectedStartShape)
                                 else PolygonView(selectedEndShape)
                             }
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -391,13 +387,13 @@ private fun HomeScreenHeader(
 private fun HomeScreenFooter(onAboutClick: () -> Unit, onExportClick: () -> Unit) {
     Row(
         Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         OutlinedButton(onClick = onAboutClick, modifier = Modifier.weight(1f)) {
             Icon(
                 Icons.Default.Info,
                 contentDescription = "Help",
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             Text("Usage FAQ")
         }
@@ -406,7 +402,7 @@ private fun HomeScreenFooter(onAboutClick: () -> Unit, onExportClick: () -> Unit
             Icon(
                 Icons.Default.Share,
                 contentDescription = "Export",
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             Text("Export")
         }
@@ -425,12 +421,12 @@ fun AboutScreen(onBackClick: () -> Unit) {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = "Go back to Home"
+                            contentDescription = "Go back to Home",
                         )
                     }
-                }
+                },
             )
-        },
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(30.dp).verticalScroll(rememberScrollState()),
@@ -444,19 +440,19 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 AnnotatedString(
                     "Features create special target points on a shape that the morph algorithm uses to guide the shape's transformation. The algorithm will match Features of the same type (except 'None') between shapes. You can see and edit these points by going to Edit > Features. By understanding and manipulating Features, you can control how your shapes change during a morph."
                 ),
-                Modifier.padding(vertical = padding)
+                Modifier.padding(vertical = padding),
             )
 
             ExpandableQuestionCard(
                 "How can I make my Morph symmetrical?",
                 SYMMETRIC_SHAPE_ANSWER,
-                Modifier.padding(vertical = padding)
+                Modifier.padding(vertical = padding),
             )
 
             ExpandableQuestionCard(
                 "How can I add Shapes from Figma / Google Icons / other ?",
                 CUSTOM_SHAPE_ANSWER,
-                Modifier.padding(vertical = padding)
+                Modifier.padding(vertical = padding),
             )
 
             ExpandableQuestionCard(
@@ -464,7 +460,7 @@ fun AboutScreen(onBackClick: () -> Unit) {
                 AnnotatedString(
                     "To preserve your edited shape for future use, export it by clicking the 'Export' button on the Home Screen. This will generate a code snippet representing your shape. Copy this code and integrate it into your project's relevant file to load and use the shape within your project."
                 ),
-                Modifier.padding(vertical = padding)
+                Modifier.padding(vertical = padding),
             )
         }
     }
@@ -474,13 +470,13 @@ fun AboutScreen(onBackClick: () -> Unit) {
 private fun EditButtonRow(onEditClick: () -> Unit, onImportShapeClick: () -> Unit) {
     Row(
         Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         OutlinedButton(onClick = onEditClick, modifier = Modifier.weight(1f)) {
             Icon(
                 Icons.Default.Edit,
                 contentDescription = "Edit Shape",
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             Text("Edit Shape")
         }
@@ -489,7 +485,7 @@ private fun EditButtonRow(onEditClick: () -> Unit, onImportShapeClick: () -> Uni
             Icon(
                 Icons.Default.Add,
                 contentDescription = "New Shape",
-                modifier = Modifier.padding(horizontal = 6.dp)
+                modifier = Modifier.padding(horizontal = 6.dp),
             )
             Text("New Shape")
         }
@@ -500,7 +496,7 @@ private fun EditButtonRow(onEditClick: () -> Unit, onImportShapeClick: () -> Uni
 private fun NewShapeDialog(
     onDismissRequest: () -> Unit,
     onAddShape: () -> Unit,
-    onImportShape: (() -> List<Feature>) -> Unit
+    onImportShape: (() -> List<Feature>) -> Unit,
 ) {
     var wantsSvgImport by remember { mutableStateOf(true) }
     val text = remember { mutableStateOf(TextFieldValue("")) }
@@ -512,29 +508,18 @@ private fun NewShapeDialog(
         text = {
             Column(
                 modifier = Modifier.selectableGroup(),
-                verticalArrangement = Arrangement.SpaceEvenly
+                verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Text("How do create the new Shape?")
 
-                LabelledRadioButton(
-                    selectedButton == 0,
-                    "Parametric Shape",
-                ) {
-                    selectedButton = 0
-                }
+                LabelledRadioButton(selectedButton == 0, "Parametric Shape") { selectedButton = 0 }
 
-                LabelledRadioButton(
-                    selectedButton == 1,
-                    "SVG Path Import",
-                ) {
+                LabelledRadioButton(selectedButton == 1, "SVG Path Import") {
                     selectedButton = 1
                     wantsSvgImport = true
                 }
 
-                LabelledRadioButton(
-                    selectedButton == 2,
-                    "Serialized Shape Features",
-                ) {
+                LabelledRadioButton(selectedButton == 2, "Serialized Shape Features") {
                     selectedButton = 2
                     wantsSvgImport = false
                 }
@@ -553,33 +538,24 @@ private fun NewShapeDialog(
                         }
                         2 -> onImportShape { FeatureSerializer.parse(text.value.text) }
                     }
-                },
+                }
             ) {
                 Text("Confirm")
             }
         },
-        dismissButton = { TextButton(onClick = onDismissRequest) { Text("Cancel") } }
+        dismissButton = { TextButton(onClick = onDismissRequest) { Text("Cancel") } },
     )
 }
 
 @Composable
-private fun SaveConfirmationDialog(
-    onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
-) {
+private fun SaveConfirmationDialog(onDismissRequest: () -> Unit, onConfirmation: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text("Discard Changes?") },
         text = { Text("Any changes made to the shape will be lost.") },
         icon = { Icon(Icons.Default.Warning, "Discard Changes?") },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirmation,
-            ) {
-                Text("Save")
-            }
-        },
-        dismissButton = { TextButton(onClick = onDismissRequest) { Text("Discard") } }
+        confirmButton = { TextButton(onClick = onConfirmation) { Text("Save") } },
+        dismissButton = { TextButton(onClick = onDismissRequest) { Text("Discard") } },
     )
 }
 
@@ -597,7 +573,7 @@ private fun ExpandableQuestionCard(
         modifier =
             modifier.fillMaxWidth().animateContentSize(animationSpec = tween(durationMillis = 250)),
         shape = RoundedCornerShape(16.dp),
-        onClick = { isExpanded = !isExpanded }
+        onClick = { isExpanded = !isExpanded },
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -606,15 +582,15 @@ private fun ExpandableQuestionCard(
                     text = title,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     fontWeight = FontWeight.Bold,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
                 IconButton(
                     modifier = Modifier.weight(1f).rotate(rotation),
-                    onClick = { isExpanded = !isExpanded }
+                    onClick = { isExpanded = !isExpanded },
                 ) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowDown,
-                        contentDescription = "Expand Content"
+                        contentDescription = "Expand Content",
                     )
                 }
             }
@@ -623,7 +599,7 @@ private fun ExpandableQuestionCard(
                     text = content,
                     fontSize = MaterialTheme.typography.titleSmall.fontSize,
                     fontWeight = FontWeight.Normal,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -659,11 +635,7 @@ fun ImportTextField(text: MutableState<TextFieldValue>, importsSvgPath: Boolean,
 @Composable
 fun LabelledRadioButton(selected: Boolean, label: String, onClick: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick,
-            enabled = true,
-        )
+        RadioButton(selected = selected, onClick = onClick, enabled = true)
         Text(label)
     }
 }
@@ -697,18 +669,18 @@ private val CUSTOM_SHAPE_ANSWER = buildAnnotatedString {
     appendLine()
     addParagraph(
         "1. Export the Shape",
-        "Figma: Export the shape as an SVG file.\nGoogle Icons: Download the icon in SVG format.\nOther Sources: Export the shape in a vector format like SVG or PDF."
+        "Figma: Export the shape as an SVG file.\nGoogle Icons: Download the icon in SVG format.\nOther Sources: Export the shape in a vector format like SVG or PDF.",
     )
     addParagraph(
         "2. Obtain the Path Data",
-        "Open the SVG file in a text editor and locate the '<path>' element. Copy the value of the 'd' attribute. This attribute contains the path data, which is a sequence of commands that define the shape's geometry."
+        "Open the SVG file in a text editor and locate the '<path>' element. Copy the value of the 'd' attribute. This attribute contains the path data, which is a sequence of commands that define the shape's geometry.",
     )
     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Example (triangle)") }
     withStyle(ParagraphStyle()) { append(TRIANGE_SVG_PATH) }
 
     addParagraph(
         "3. Import the Path Data",
-        "In the app, click the 'Import' button. It will open an field that you can paste the path data into. Finally, your shape will be added to the gallery and is ready for editing."
+        "In the app, click the 'Import' button. It will open an field that you can paste the path data into. Finally, your shape will be added to the gallery and is ready for editing.",
     )
 }
 
@@ -719,15 +691,15 @@ private val SYMMETRIC_SHAPE_ANSWER = buildAnnotatedString {
     appendLine()
     addParagraph(
         "1. Identify Symmetrical Areas",
-        "Determine the parts of your shapes that you want to be symmetrical."
+        "Determine the parts of your shapes that you want to be symmetrical.",
     )
     addParagraph(
         "2. Match Feature Types",
-        "Ensure that the Features corresponding to these symmetrical areas have the same type (e.g., both inward or outward indentation)."
+        "Ensure that the Features corresponding to these symmetrical areas have the same type (e.g., both inward or outward indentation).",
     )
     addParagraph(
         "3. Align Feature Points",
-        "Check if the anchor points of these Features align. If not, you may need to split your shapes to create additional Features and fine-tune the alignment."
+        "Check if the anchor points of these Features align. If not, you may need to split your shapes to create additional Features and fine-tune the alignment.",
     )
     appendLine()
     append(

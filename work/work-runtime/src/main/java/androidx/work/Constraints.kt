@@ -35,9 +35,9 @@ import java.util.concurrent.TimeUnit
  * requirements, you can make sure that work only runs in certain situations - for example, when you
  * have an unmetered network and are charging.
  */
-class Constraints {
+public class Constraints {
     /** The type of network required for the work to run. */
-    @ColumnInfo(name = "required_network_type") val requiredNetworkType: NetworkType
+    @ColumnInfo(name = "required_network_type") public val requiredNetworkType: NetworkType
 
     /**
      * [NetworkRequest] required for work to run on. It is used only the API levels >= 28 (Android
@@ -48,7 +48,7 @@ class Constraints {
      * with `setIncludeOtherUidNetworks` set. passed.
      */
     @get:RequiresApi(21) // NetworkRequest class is available since 21
-    val requiredNetworkRequest: NetworkRequest?
+    public val requiredNetworkRequest: NetworkRequest?
         get() = requiredNetworkRequestCompat.networkRequest
 
     @ColumnInfo(name = "required_network_request", defaultValue = "x''")
@@ -71,7 +71,7 @@ class Constraints {
      */
     @get:RequiresApi(24)
     @ColumnInfo(name = "trigger_content_update_delay")
-    val contentTriggerUpdateDelayMillis: Long
+    public val contentTriggerUpdateDelayMillis: Long
 
     /**
      * The maximum delay in milliseconds that is allowed from the first time a `content:` [Uri]
@@ -81,7 +81,7 @@ class Constraints {
      */
     @get:RequiresApi(24)
     @ColumnInfo(name = "trigger_max_content_delay")
-    val contentTriggerMaxDelayMillis: Long
+    public val contentTriggerMaxDelayMillis: Long
 
     /**
      * Set of [ContentUriTrigger]. [WorkRequest] will run when a local `content:` [Uri] of one of
@@ -90,7 +90,7 @@ class Constraints {
      */
     @ColumnInfo(name = "content_uri_triggers")
     @get:RequiresApi(24)
-    val contentUriTriggers: Set<ContentUriTrigger>
+    public val contentUriTriggers: Set<ContentUriTrigger>
 
     /**
      * Constructs [Constraints].
@@ -106,7 +106,7 @@ class Constraints {
      */
     @Ignore
     @SuppressLint("NewApi")
-    constructor(
+    public constructor(
         requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
         requiresCharging: Boolean = false,
         requiresBatteryNotLow: Boolean = false,
@@ -116,7 +116,7 @@ class Constraints {
         requiresCharging = requiresCharging,
         requiresStorageNotLow = requiresStorageNotLow,
         requiresBatteryNotLow = requiresBatteryNotLow,
-        requiresDeviceIdle = false
+        requiresDeviceIdle = false,
     )
 
     /**
@@ -136,7 +136,7 @@ class Constraints {
     @Ignore
     @SuppressLint("NewApi")
     @RequiresApi(23) // requiresDeviceIdle is supported since API 23
-    constructor(
+    public constructor(
         requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
         requiresCharging: Boolean = false,
         requiresDeviceIdle: Boolean = false,
@@ -180,7 +180,7 @@ class Constraints {
      */
     @Ignore
     @RequiresApi(24)
-    constructor(
+    public constructor(
         requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
         requiresCharging: Boolean = false,
         requiresDeviceIdle: Boolean = false,
@@ -224,7 +224,7 @@ class Constraints {
     }
 
     @SuppressLint("NewApi") // just copy everything
-    constructor(other: Constraints) {
+    public constructor(other: Constraints) {
         requiresCharging = other.requiresCharging
         requiresDeviceIdle = other.requiresDeviceIdle
         requiredNetworkRequestCompat = other.requiredNetworkRequestCompat
@@ -237,29 +237,29 @@ class Constraints {
     }
 
     /** @return `true` if the work should only execute while the device is charging */
-    fun requiresCharging(): Boolean {
+    public fun requiresCharging(): Boolean {
         return requiresCharging
     }
 
     /** @return `true` if the work should only execute while the device is idle */
     @RequiresApi(23)
-    fun requiresDeviceIdle(): Boolean {
+    public fun requiresDeviceIdle(): Boolean {
         return requiresDeviceIdle
     }
 
     /** @return `true` if the work should only execute when the battery isn't low */
-    fun requiresBatteryNotLow(): Boolean {
+    public fun requiresBatteryNotLow(): Boolean {
         return requiresBatteryNotLow
     }
 
     /** @return `true` if the work should only execute when the storage isn't low */
-    fun requiresStorageNotLow(): Boolean {
+    public fun requiresStorageNotLow(): Boolean {
         return requiresStorageNotLow
     }
 
     /** @return `true` if [ContentUriTrigger] is not empty */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun hasContentUriTriggers(): Boolean {
+    public fun hasContentUriTriggers(): Boolean {
         return Build.VERSION.SDK_INT < 24 || contentUriTriggers.isNotEmpty()
     }
 
@@ -319,7 +319,7 @@ class Constraints {
     }
 
     /** A Builder for a [Constraints] object. */
-    class Builder {
+    public class Builder {
         private var requiresCharging = false
         private var requiresDeviceIdle = false
         private var requiredNetworkRequest: NetworkRequestCompat = NetworkRequestCompat()
@@ -332,13 +332,13 @@ class Constraints {
         private var triggerContentMaxDelay: Long = -1
         private var contentUriTriggers = mutableSetOf<ContentUriTrigger>()
 
-        constructor() {
+        public constructor() {
             // default public constructor
         }
 
         /**  */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        constructor(constraints: Constraints) {
+        public constructor(constraints: Constraints) {
             requiresCharging = constraints.requiresCharging()
             requiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && constraints.requiresDeviceIdle()
             requiredNetworkType = constraints.requiredNetworkType
@@ -358,7 +358,7 @@ class Constraints {
          * @param requiresCharging `true` if device must be charging for the work to run
          * @return The current [Builder]
          */
-        fun setRequiresCharging(requiresCharging: Boolean): Builder {
+        public fun setRequiresCharging(requiresCharging: Boolean): Builder {
             this.requiresCharging = requiresCharging
             return this
         }
@@ -371,7 +371,7 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(23)
-        fun setRequiresDeviceIdle(requiresDeviceIdle: Boolean): Builder {
+        public fun setRequiresDeviceIdle(requiresDeviceIdle: Boolean): Builder {
             this.requiresDeviceIdle = requiresDeviceIdle
             return this
         }
@@ -383,7 +383,7 @@ class Constraints {
          * @param networkType The type of network required for the work to run
          * @return The current [Builder]
          */
-        fun setRequiredNetworkType(networkType: NetworkType): Builder {
+        public fun setRequiredNetworkType(networkType: NetworkType): Builder {
             requiredNetworkType = networkType
             requiredNetworkRequest = NetworkRequestCompat()
             return this
@@ -403,9 +403,9 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(21)
-        fun setRequiredNetworkRequest(
+        public fun setRequiredNetworkRequest(
             networkRequest: NetworkRequest,
-            networkType: NetworkType
+            networkType: NetworkType,
         ): Builder {
             if (Build.VERSION.SDK_INT >= 28) {
                 if (
@@ -432,7 +432,7 @@ class Constraints {
          *   the work to run
          * @return The current [Builder]
          */
-        fun setRequiresBatteryNotLow(requiresBatteryNotLow: Boolean): Builder {
+        public fun setRequiresBatteryNotLow(requiresBatteryNotLow: Boolean): Builder {
             this.requiresBatteryNotLow = requiresBatteryNotLow
             return this
         }
@@ -445,7 +445,7 @@ class Constraints {
          *   critical threshold for the work to run
          * @return The current [Builder]
          */
-        fun setRequiresStorageNotLow(requiresStorageNotLow: Boolean): Builder {
+        public fun setRequiresStorageNotLow(requiresStorageNotLow: Boolean): Builder {
             this.requiresStorageNotLow = requiresStorageNotLow
             return this
         }
@@ -461,7 +461,7 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(24)
-        fun addContentUriTrigger(uri: Uri, triggerForDescendants: Boolean): Builder {
+        public fun addContentUriTrigger(uri: Uri, triggerForDescendants: Boolean): Builder {
             contentUriTriggers.add(ContentUriTrigger(uri, triggerForDescendants))
             return this
         }
@@ -478,7 +478,7 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(24)
-        fun setTriggerContentUpdateDelay(duration: Long, timeUnit: TimeUnit): Builder {
+        public fun setTriggerContentUpdateDelay(duration: Long, timeUnit: TimeUnit): Builder {
             triggerContentUpdateDelay = timeUnit.toMillis(duration)
             return this
         }
@@ -494,7 +494,7 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(26)
-        fun setTriggerContentUpdateDelay(duration: Duration): Builder {
+        public fun setTriggerContentUpdateDelay(duration: Duration): Builder {
             triggerContentUpdateDelay = duration.toMillisCompat()
             return this
         }
@@ -510,7 +510,7 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(24)
-        fun setTriggerContentMaxDelay(duration: Long, timeUnit: TimeUnit): Builder {
+        public fun setTriggerContentMaxDelay(duration: Long, timeUnit: TimeUnit): Builder {
             triggerContentMaxDelay = timeUnit.toMillis(duration)
             return this
         }
@@ -525,7 +525,7 @@ class Constraints {
          * @return The current [Builder]
          */
         @RequiresApi(26)
-        fun setTriggerContentMaxDelay(duration: Duration): Builder {
+        public fun setTriggerContentMaxDelay(duration: Duration): Builder {
             triggerContentMaxDelay = duration.toMillisCompat()
             return this
         }
@@ -535,7 +535,7 @@ class Constraints {
          *
          * @return The [Constraints] specified by this Builder
          */
-        fun build(): Constraints {
+        public fun build(): Constraints {
             val contentUriTriggers: Set<ContentUriTrigger>
             val triggerContentUpdateDelay: Long
             val triggerMaxContentDelay: Long
@@ -574,7 +574,10 @@ class Constraints {
      * @property isTriggeredForDescendants `true` if trigger also applies to descendants of the
      *   [Uri]
      */
-    class ContentUriTrigger(val uri: Uri, val isTriggeredForDescendants: Boolean) {
+    public class ContentUriTrigger(
+        public val uri: Uri,
+        public val isTriggeredForDescendants: Boolean,
+    ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -594,9 +597,9 @@ class Constraints {
         }
     }
 
-    companion object {
+    public companion object {
         /** Represents a Constraints object with no requirements. */
-        @JvmField val NONE = Constraints()
+        @JvmField public val NONE: Constraints = Constraints()
     }
 }
 

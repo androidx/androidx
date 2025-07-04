@@ -42,7 +42,7 @@ actual fun DropdownMenu(
     tonalElevation: Dp,
     shadowElevation: Dp,
     border: BorderStroke?,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 @Composable

@@ -32,7 +32,7 @@ import androidx.wear.compose.material3.ScreenScaffold
 fun ScalingLazyDemo(
     contentPadding: PaddingValues =
         PaddingValues(horizontal = LocalConfiguration.current.screenWidthDp.dp * 0.052f),
-    content: ScalingLazyListScope.() -> Unit
+    content: ScalingLazyListScope.() -> Unit,
 ) {
     val scrollState = rememberScalingLazyListState()
     ScreenScaffold(scrollState = scrollState) {
@@ -41,7 +41,7 @@ fun ScalingLazyDemo(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = contentPadding,
-            content = content
+            content = content,
         )
     }
 }

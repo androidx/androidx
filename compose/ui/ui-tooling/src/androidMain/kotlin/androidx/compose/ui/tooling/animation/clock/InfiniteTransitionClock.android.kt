@@ -34,7 +34,7 @@ import kotlin.math.max
  */
 internal class InfiniteTransitionClock(
     override val animation: InfiniteTransitionComposeAnimation,
-    private val maxDuration: () -> Long = { 0 }
+    private val maxDuration: () -> Long = { 0 },
 ) : ComposeAnimationClock<InfiniteTransitionComposeAnimation, TargetState<Any>> {
 
     /** [rememberInfiniteTransition] doesn't have a state. */

@@ -32,7 +32,7 @@ internal class DataMigrationInitializer<T>() {
 
         private suspend fun <T> runMigrations(
             migrations: List<DataMigration<T>>,
-            api: InitializerApi<T>
+            api: InitializerApi<T>,
         ) {
             val cleanUps = mutableListOf<suspend () -> Unit>()
 

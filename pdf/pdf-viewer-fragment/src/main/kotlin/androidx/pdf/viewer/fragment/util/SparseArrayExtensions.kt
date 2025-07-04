@@ -39,7 +39,7 @@ internal fun SparseArray<List<PageMatchBounds>>.countTotalElements(): Int =
  */
 internal fun SparseArray<List<PageMatchBounds>>.getFlattenedIndex(
     selectedResultPageNum: Int,
-    resultIndex: Int
+    resultIndex: Int,
 ): Int {
     // Count results up to selectedResultPageNum
     var currentSelection =

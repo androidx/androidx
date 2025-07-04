@@ -29,6 +29,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -60,27 +61,102 @@ class AnimatedTextScreenshotTest {
 
     @Test fun animatedText_1f() = verifyScreenshot { BaseAnimatedText(1f) }
 
+    @Test
+    fun animatedText_rtl_language_unspecified_text_direction_0f() = verifyScreenshot {
+        BaseAnimatedText(0f, "\u0641\u0627\u0631\u0633\u06cc")
+    }
+
+    @Test
+    fun animatedText_rtl_language_unspecified_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(0.5f, "\u0641\u0627\u0631\u0633\u06cc")
+    }
+
+    @Test
+    fun animatedText_rtl_language_unspecified_text_direction_1f() = verifyScreenshot {
+        BaseAnimatedText(1f, "\u0641\u0627\u0631\u0633\u06cc")
+    }
+
+    @Test
+    fun animatedText_rtl_language_rtl_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(0.5f, "\u0641\u0627\u0631\u0633\u06cc", textDirection = TextDirection.Rtl)
+    }
+
+    @Test
+    fun animatedText_rtl_language_ltr_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(0.5f, "\u0641\u0627\u0631\u0633\u06cc", textDirection = TextDirection.Ltr)
+    }
+
+    @Test
+    fun animatedText_rtl_language_content_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(
+            0.5f,
+            "\u0641\u0627\u0631\u0633\u06cc",
+            textDirection = TextDirection.Content,
+        )
+    }
+
+    @Test
+    fun animatedText_ltr_language_rtl_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(progressFraction = 0.5f, textDirection = TextDirection.Rtl)
+    }
+
+    @Test
+    fun animatedText_ltr_language_ltr_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(progressFraction = 0.5f, textDirection = TextDirection.Ltr)
+    }
+
+    @Test
+    fun animatedText_ltr_language_content_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(progressFraction = 0.5f, textDirection = TextDirection.Content)
+    }
+
+    @Test
+    fun animatedText_bidi_language_rtl_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(
+            progressFraction = 0.5f,
+            textDirection = TextDirection.Rtl,
+            text = "Text: \u0641\u0627\u0631\u0633\u06cc",
+        )
+    }
+
+    @Test
+    fun animatedText_bidi_language_ltr_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(
+            progressFraction = 0.5f,
+            textDirection = TextDirection.Ltr,
+            text = "Text: \u0641\u0627\u0631\u0633\u06cc",
+        )
+    }
+
+    @Test
+    fun animatedText_bidi_language_content_text_direction_0_5f() = verifyScreenshot {
+        BaseAnimatedText(
+            progressFraction = 0.5f,
+            textDirection = TextDirection.Content,
+            text = "Text: \u0641\u0627\u0631\u0633\u06cc",
+        )
+    }
+
     @Composable
-    private fun BaseAnimatedText(progressFraction: Float) {
+    private fun BaseAnimatedText(
+        progressFraction: Float,
+        text: String = "Hello!",
+        textDirection: TextDirection = TextDirection.Unspecified,
+    ) {
         val animatedTextFontRegistry =
             rememberAnimatedTextFontRegistry(
                 // Variation axes at the start of the animation, width 10, weight 200
                 startFontVariationSettings =
-                    FontVariation.Settings(
-                        FontVariation.width(10f),
-                        FontVariation.weight(200),
-                    ),
+                    FontVariation.Settings(FontVariation.width(10f), FontVariation.weight(200)),
                 // Variation axes at the end of the animation, width 100, weight 500
                 endFontVariationSettings =
-                    FontVariation.Settings(
-                        FontVariation.width(100f),
-                        FontVariation.weight(500),
-                    ),
+                    FontVariation.Settings(FontVariation.width(100f), FontVariation.weight(500)),
                 startFontSize = 10.sp,
                 endFontSize = 50.sp,
+                textStyle = LocalTextStyle.current.copy(textDirection = textDirection),
             )
         AnimatedText(
-            text = "Hello!",
+            text = text,
             fontRegistry = animatedTextFontRegistry,
             contentAlignment = Alignment.Center,
             progressFraction = { progressFraction },
@@ -91,7 +167,8 @@ class AnimatedTextScreenshotTest {
     private fun verifyScreenshot(content: @Composable () -> Unit) {
         rule.setContentWithTheme {
             Box(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center,
             ) {
                 content()
             }

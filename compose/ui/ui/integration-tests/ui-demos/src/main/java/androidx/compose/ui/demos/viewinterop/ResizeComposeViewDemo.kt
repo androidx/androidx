@@ -59,7 +59,7 @@ fun ResizeComposeViewDemo() {
                         setContent { Box(Modifier.fillMaxSize().background(Color.Blue)) }
                     }
                 },
-                modifier = Modifier.size(size.width.toDp(), size.height.toDp())
+                modifier = Modifier.size(size.width.toDp(), size.height.toDp()),
             )
             Text("Touch the screen to change the size of the child ComposeView")
         }

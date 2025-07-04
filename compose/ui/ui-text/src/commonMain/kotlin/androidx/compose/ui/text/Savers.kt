@@ -45,7 +45,7 @@ import androidx.compose.ui.util.fastMap
 internal fun <T : Saver<Original, Saveable>, Original, Saveable> save(
     value: Original?,
     saver: T,
-    scope: SaverScope
+    scope: SaverScope,
 ): Any {
     return value?.let { with(saver) { scope.save(value) } } ?: false
 }
@@ -56,7 +56,7 @@ internal fun <T : Saver<Original, Saveable>, Original, Saveable> save(
  */
 internal inline fun <T : Saver<Original, Saveable>, Original, Saveable, reified Result> restore(
     value: Saveable?,
-    saver: T
+    saver: T,
 ): Result? {
     // Most of the types we save are nullable. However, value classes are usually not but instead
     // have a special Unspecified value. In that case we delegate handling of the "false"
@@ -70,11 +70,11 @@ internal inline fun <T : Saver<Original, Saveable>, Original, Saveable, reified 
  * Use for non-null value classes where the Unspecified value needs to be separately handled, for
  * example as in the [OffsetSaver]
  */
-private interface NonNullValueClassSaver<Original, Saveable : Any> : Saver<Original, Saveable>
+internal interface NonNullValueClassSaver<Original, Saveable : Any> : Saver<Original, Saveable>
 
 private fun <Original, Saveable : Any> NonNullValueClassSaver(
     save: SaverScope.(value: Original) -> Saveable?,
-    restore: (value: Saveable) -> Original?
+    restore: (value: Saveable) -> Original?,
 ): NonNullValueClassSaver<Original, Saveable> {
     return object : NonNullValueClassSaver<Original, Saveable> {
         override fun SaverScope.save(value: Original) = save.invoke(this, value)
@@ -95,22 +95,14 @@ internal inline fun <reified Result> restore(value: Any?): Result? {
 
 internal val AnnotatedStringSaver =
     Saver<AnnotatedString, Any>(
-        save = {
-            arrayListOf(
-                save(it.text),
-                save(it.annotations, AnnotationRangeListSaver, this),
-            )
-        },
+        save = { arrayListOf(save(it.text), save(it.annotations, AnnotationRangeListSaver, this)) },
         restore = {
             val list = it as List<Any?>
             // lift these to make types work
             val annotationsOrNull: List<AnnotatedString.Range<out AnnotatedString.Annotation>>? =
                 restore(list[1], AnnotationRangeListSaver)
-            AnnotatedString(
-                text = restore(list[0])!!,
-                annotations = annotationsOrNull,
-            )
-        }
+            AnnotatedString(text = restore(list[0])!!, annotations = annotationsOrNull)
+        },
     )
 
 private val AnnotationRangeListSaver =
@@ -122,7 +114,7 @@ private val AnnotationRangeListSaver =
                 val range: AnnotatedString.Range<out Any> = restore(item, AnnotationRangeSaver)!!
                 range
             }
-        }
+        },
     )
 
 private enum class AnnotationType {
@@ -132,7 +124,7 @@ private enum class AnnotationType {
     Url, // UrlAnnotation
     Link, // LinkAnnotation.Url
     Clickable,
-    String
+    String,
 }
 
 @OptIn(ExperimentalTextApi::class)
@@ -205,17 +197,17 @@ private val AnnotationRangeSaver =
                         item = StringAnnotation(item),
                         start = start,
                         end = end,
-                        tag = tag
+                        tag = tag,
                     )
                 }
             }
-        }
+        },
     )
 
 private val VerbatimTtsAnnotationSaver =
     Saver<VerbatimTtsAnnotation, Any>(
         save = { save(it.verbatim) },
-        restore = { VerbatimTtsAnnotation(restore(it)!!) }
+        restore = { VerbatimTtsAnnotation(restore(it)!!) },
     )
 
 @OptIn(ExperimentalTextApi::class)
@@ -224,29 +216,19 @@ private val UrlAnnotationSaver =
 
 private val LinkSaver =
     Saver<LinkAnnotation.Url, Any>(
-        save = {
-            arrayListOf(
-                save(it.url),
-                save(it.styles, TextLinkStylesSaver, this),
-            )
-        },
+        save = { arrayListOf(save(it.url), save(it.styles, TextLinkStylesSaver, this)) },
         restore = {
             val list = it as List<Any?>
 
             val url: String = restore(list[0])!!
             val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
             LinkAnnotation.Url(url = url, styles = stylesOrNull)
-        }
+        },
     )
 
 private val ClickableSaver =
     Saver<LinkAnnotation.Clickable, Any>(
-        save = {
-            arrayListOf(
-                save(it.tag),
-                save(it.styles, TextLinkStylesSaver, this),
-            )
-        },
+        save = { arrayListOf(save(it.tag), save(it.styles, TextLinkStylesSaver, this)) },
         restore = {
             val list = it as List<Any?>
 
@@ -255,9 +237,9 @@ private val ClickableSaver =
             LinkAnnotation.Clickable(
                 tag = tag,
                 styles = stylesOrNull,
-                linkInteractionListener = null
+                linkInteractionListener = null,
             )
-        }
+        },
     )
 
 internal val ParagraphStyleSaver =
@@ -272,7 +254,7 @@ internal val ParagraphStyleSaver =
                 save(it.lineHeightStyle, LineHeightStyle.Saver, this),
                 save(it.lineBreak, LineBreak.Saver, this),
                 save(it.hyphens),
-                save(it.textMotion, TextMotion.Saver, this)
+                save(it.textMotion, TextMotion.Saver, this),
             )
         },
         restore = {
@@ -286,9 +268,9 @@ internal val ParagraphStyleSaver =
                 lineHeightStyle = restore(list[5], LineHeightStyle.Saver),
                 lineBreak = restore(list[6], LineBreak.Saver)!!,
                 hyphens = restore(list[7])!!,
-                textMotion = restore(list[8], TextMotion.Saver)
+                textMotion = restore(list[8], TextMotion.Saver),
             )
-        }
+        },
     )
 
 internal val SpanStyleSaver =
@@ -308,7 +290,7 @@ internal val SpanStyleSaver =
                 save(it.localeList, LocaleList.Saver, this),
                 save(it.background, Color.Saver, this),
                 save(it.textDecoration, TextDecoration.Saver, this),
-                save(it.shadow, Shadow.Saver, this)
+                save(it.shadow, Shadow.Saver, this),
             )
         },
         restore = {
@@ -327,9 +309,9 @@ internal val SpanStyleSaver =
                 localeList = restore(list[10], LocaleList.Saver),
                 background = restore(list[11], Color.Saver)!!,
                 textDecoration = restore(list[12], TextDecoration.Saver),
-                shadow = restore(list[13], Shadow.Saver)
+                shadow = restore(list[13], Shadow.Saver),
             )
-        }
+        },
     )
 
 internal val TextLinkStylesSaver =
@@ -349,7 +331,7 @@ internal val TextLinkStylesSaver =
             val hoveredStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
             val pressedStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
             TextLinkStyles(styleOrNull, focusedStyleOrNull, hoveredStyleOrNull, pressedStyleOrNull)
-        }
+        },
     )
 
 internal val TextDecoration.Companion.Saver: Saver<TextDecoration, Any>
@@ -367,7 +349,7 @@ private val TextGeometricTransformSaver =
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Float>
             TextGeometricTransform(scaleX = list[0], skewX = list[1])
-        }
+        },
     )
 
 internal val TextIndent.Companion.Saver: Saver<TextIndent, Any>
@@ -378,16 +360,16 @@ private val TextIndentSaver =
         save = {
             arrayListOf(
                 save(it.firstLine, TextUnit.Saver, this),
-                save(it.restLine, TextUnit.Saver, this)
+                save(it.restLine, TextUnit.Saver, this),
             )
         },
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             TextIndent(
                 firstLine = restore(list[0], TextUnit.Saver)!!,
-                restLine = restore(list[1], TextUnit.Saver)!!
+                restLine = restore(list[1], TextUnit.Saver)!!,
             )
-        }
+        },
     )
 
 internal val FontWeight.Companion.Saver: Saver<FontWeight, Any>
@@ -411,7 +393,7 @@ private val TextRangeSaver =
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             TextRange(restore(list[0])!!, restore(list[1])!!)
-        }
+        },
     )
 
 internal val Shadow.Companion.Saver: Saver<Shadow, Any>
@@ -423,7 +405,7 @@ private val ShadowSaver =
             arrayListOf(
                 save(it.color, Color.Saver, this),
                 save(it.offset, Offset.Saver, this),
-                save(it.blurRadius)
+                save(it.blurRadius),
             )
         },
         restore = {
@@ -431,9 +413,9 @@ private val ShadowSaver =
             Shadow(
                 color = restore(list[0], Color.Saver)!!,
                 offset = restore(list[1], Offset.Saver)!!,
-                blurRadius = restore(list[2])!!
+                blurRadius = restore(list[2])!!,
             )
-        }
+        },
     )
 
 internal val Color.Companion.Saver: Saver<Color, Any>
@@ -454,7 +436,7 @@ private val ColorSaver =
             } else {
                 Color(it as Int)
             }
-        }
+        },
     )
 
 internal val TextUnit.Companion.Saver: Saver<TextUnit, Any>
@@ -476,7 +458,7 @@ private val TextUnitSaver =
                 @Suppress("UNCHECKED_CAST") val list = it as List<Any>
                 TextUnit(restore(list[0])!!, restore(list[1])!!)
             }
-        }
+        },
     )
 
 internal val Offset.Companion.Saver: Saver<Offset, Any>
@@ -498,7 +480,7 @@ private val OffsetSaver =
                 val list = it as List<Any?>
                 Offset(restore(list[0])!!, restore(list[1])!!)
             }
-        }
+        },
     )
 
 internal val LocaleList.Companion.Saver: Saver<LocaleList, Any>
@@ -510,7 +492,7 @@ private val LocaleListSaver =
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             LocaleList(list.fastMap { item -> restore(item, Locale.Saver)!! })
-        }
+        },
     )
 
 internal val Locale.Companion.Saver: Saver<Locale, Any>
@@ -519,7 +501,7 @@ internal val Locale.Companion.Saver: Saver<Locale, Any>
 private val LocaleSaver =
     Saver<Locale, Any>(
         save = { it.toLanguageTag() },
-        restore = { Locale(languageTag = it as String) }
+        restore = { Locale(languageTag = it as String) },
     )
 
 internal val LineHeightStyle.Companion.Saver: Saver<LineHeightStyle, Any>
@@ -533,7 +515,7 @@ private val LineHeightStyleSaver =
             LineHeightStyle(
                 alignment = restore(list[0])!!,
                 trim = restore(list[1])!!,
-                mode = restore(list[2])!!
+                mode = restore(list[2])!!,
             )
         },
     )

@@ -73,7 +73,7 @@ class ChipScreenshotTest {
                 border = ChipDefaults.outlinedBorder,
                 colors = ChipDefaults.outlinedChipColors(),
                 enabled = true,
-                modifier = Modifier.testTag(TestTag)
+                modifier = Modifier.testTag(TestTag),
             ) {
                 Text("Action Chip")
             }
@@ -89,7 +89,7 @@ class ChipScreenshotTest {
                 border = ChipDefaults.outlinedBorder,
                 colors = ChipDefaults.outlinedChipColors(),
                 enabled = false,
-                modifier = Modifier.testTag(TestTag)
+                modifier = Modifier.testTag(TestTag),
             ) {
                 Text("Action Chip")
             }
@@ -108,9 +108,9 @@ class ChipScreenshotTest {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
-                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
                     )
-                }
+                },
             ) {
                 Text("Filter Chip")
             }
@@ -132,9 +132,9 @@ class ChipScreenshotTest {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
-                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
                     )
-                }
+                },
             ) {
                 Text("Filter Chip")
             }
@@ -165,9 +165,9 @@ class ChipScreenshotTest {
                         imageVector = Icons.Filled.Done,
                         tint = LocalContentColor.current,
                         contentDescription = "Localized Description",
-                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
                     )
-                }
+                },
             ) {
                 Text("Filter Chip")
             }
@@ -190,9 +190,9 @@ class ChipScreenshotTest {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
-                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                        modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
                     )
-                }
+                },
             ) {
                 Text("Filter Chip")
             }
@@ -207,7 +207,7 @@ class ChipScreenshotTest {
                 selected = false,
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.testTag(TestTag)
+                modifier = Modifier.testTag(TestTag),
             ) {
                 Text("filter Chip")
             }

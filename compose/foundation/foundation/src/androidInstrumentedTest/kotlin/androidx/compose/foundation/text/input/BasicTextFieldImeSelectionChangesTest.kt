@@ -125,7 +125,7 @@ internal class BasicTextFieldImeSelectionChangesTest {
                     /* action = */ ACTION_DOWN,
                     /* code = */ KeyEvent.KEYCODE_DPAD_LEFT,
                     /* repeat = */ 0,
-                    /* metaState = */ KeyEvent.META_CTRL_ON
+                    /* metaState = */ KeyEvent.META_CTRL_ON,
                 )
             )
             view.dispatchKeyEvent(
@@ -135,7 +135,7 @@ internal class BasicTextFieldImeSelectionChangesTest {
                     /* action = */ ACTION_UP,
                     /* code = */ KeyEvent.KEYCODE_DPAD_LEFT,
                     /* repeat = */ 0,
-                    /* metaState = */ KeyEvent.META_CTRL_ON
+                    /* metaState = */ KeyEvent.META_CTRL_ON,
                 )
             )
 
@@ -147,7 +147,7 @@ internal class BasicTextFieldImeSelectionChangesTest {
                     /* action = */ ACTION_DOWN,
                     /* code = */ KeyEvent.KEYCODE_DPAD_RIGHT,
                     /* repeat = */ 0,
-                    /* metaState = */ KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON
+                    /* metaState = */ KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON,
                 )
             )
             view.dispatchKeyEvent(
@@ -157,7 +157,7 @@ internal class BasicTextFieldImeSelectionChangesTest {
                     /* action = */ ACTION_UP,
                     /* code = */ KeyEvent.KEYCODE_DPAD_RIGHT,
                     /* repeat = */ 0,
-                    /* metaState = */ KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON
+                    /* metaState = */ KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON,
                 )
             )
         }

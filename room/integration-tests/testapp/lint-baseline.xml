@@ -1,5 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(ex.toString().contains(&quot;foreign key&quot;));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/EntityUpsertionAdapterTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(ex.toString().contains(&quot;2067&quot;));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/EntityUpsertionAdapterTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(e.getMessage().contains(&quot;column &apos;cat&apos; does not exist&quot;));"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultimapQueryTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(map.containsKey(mTheClash));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultimapQueryTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(map.containsKey(mTheClash));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultimapQueryTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(map.containsKey(mTheClash));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultimapQueryTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(map.containsKey(mHighwayToHell));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultimapQueryTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(map.containsKey(mAcDc));"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/MultimapQueryTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        maybe.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        single.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        mUserDao.rx3_observableUserById(3).subscribeWith(consumer);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/testapp/test/RxJava3Test.java"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -107,24 +215,6 @@
         errorLine2="                               ~~~~~">
         <location
             file="src/androidTest/java/androidx/room/integration/testapp/test/MultiInstanceInvalidationTest.java"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    public void abstractDao() {"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"/>
-    </issue>
-
-    <issue
-        id="MissingTestSizeAnnotation"
-        message="Missing test size annotation"
-        errorLine1="    public void interfaceDao() {"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"/>
     </issue>
 
     <issue

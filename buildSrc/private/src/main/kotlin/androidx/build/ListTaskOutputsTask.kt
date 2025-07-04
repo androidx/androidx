@@ -110,6 +110,7 @@ val taskNamesKnownToDuplicateOutputs =
 
         // b/308798582
         "transformNonJvmMainCInteropDependenciesMetadataForIde",
+        "transformAppleTestCInteropDependenciesMetadataForIde",
         "transformDarwinTestCInteropDependenciesMetadataForIde",
         "transformDarwinMainCInteropDependenciesMetadataForIde",
         "transformCommonMainCInteropDependenciesMetadataForIde",
@@ -118,7 +119,11 @@ val taskNamesKnownToDuplicateOutputs =
         "transformIosTestCInteropDependenciesMetadataForIde",
         "transformNativeTestCInteropDependenciesMetadataForIde",
         "transformNativeMainCInteropDependenciesMetadataForIde",
+        "transformUnixMainCInteropDependenciesMetadataForIde",
+        "transformUnixTestCInteropDependenciesMetadataForIde",
         "transformLinuxMainCInteropDependenciesMetadataForIde",
+        "transformLinuxTestCInteropDependenciesMetadataForIde",
+        "transformNonIosNativeTestCInteropDependenciesMetadataForIde",
         "transformNonJvmCommonMainCInteropDependenciesMetadataForIde",
 
         // The following tests intentionally have the same output of golden images
@@ -143,11 +148,6 @@ val taskNamesKnownToDuplicateOutputs =
         "wasmJsBrowserProductionWebpack",
         "wasmJsBrowserProductionRun",
         "jsTestTestDevelopmentExecutableCompileSync",
-
-        // Remove when https://youtrack.jetbrains.com/issue/KT-71688 is resolved and set
-        // destinationDirectory to the project's build directory
-        "wasmJsTestTestDevelopmentExecutableCompileSync",
-        "wasmJsTestTestProductionExecutableCompileSync",
 
         // TODO file a bug
         "kotlinNodeJsSetup",

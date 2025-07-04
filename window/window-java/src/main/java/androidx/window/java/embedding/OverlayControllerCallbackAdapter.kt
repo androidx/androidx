@@ -61,7 +61,7 @@ class OverlayControllerCallbackAdapter(private val controller: OverlayController
     fun addOverlayInfoListener(
         overlayTag: String,
         executor: Executor,
-        consumer: Consumer<OverlayInfo>
+        consumer: Consumer<OverlayInfo>,
     ) {
         callbackToFlowAdapter.connect(executor, consumer, controller.overlayInfo(overlayTag))
     }

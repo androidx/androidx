@@ -43,7 +43,7 @@ class OvulationTestRecordTest {
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
                         result = OvulationTestRecord.RESULT_INCONCLUSIVE,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )

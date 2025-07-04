@@ -33,6 +33,19 @@ class CaptureFocusTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
+    fun focusRequesterModifierNotUsed() {
+        // Arrange.
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent { Box {} }
+
+        // Act.
+        val result = rule.runOnIdle { focusRequester.captureFocus() }
+
+        // Assert.
+        assertThat(result).isFalse()
+    }
+
+    @Test
     fun active_captureFocus_changesStateToCaptured() {
         // Arrange.
         lateinit var focusState: FocusState

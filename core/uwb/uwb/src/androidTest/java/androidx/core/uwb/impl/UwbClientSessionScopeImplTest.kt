@@ -47,7 +47,7 @@ class UwbClientSessionScopeImplTest {
             LOCAL_ADDRESS,
             RANGING_CAPABILITIES,
             isAvailable = true,
-            isController = false
+            isController = false,
         )
     private val uwbClientSession =
         UwbClientSessionScopeImpl(
@@ -63,9 +63,9 @@ class UwbClientSessionScopeImplTest {
                 RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
                 RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
                 RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
-                RANGING_CAPABILITIES.hasBackgroundRangingSupport()
+                RANGING_CAPABILITIES.hasBackgroundRangingSupport(),
             ),
-            androidx.core.uwb.UwbAddress(LOCAL_ADDRESS.address)
+            androidx.core.uwb.UwbAddress(LOCAL_ADDRESS.address),
         )
 
     @Test
@@ -107,7 +107,7 @@ class UwbClientSessionScopeImplTest {
                 .shareIn(
                     CoroutineScope(Dispatchers.Main.immediate),
                     SharingStarted.WhileSubscribed(),
-                    replay = 1
+                    replay = 1,
                 )
         val job =
             CoroutineScope(Dispatchers.Main.immediate).launch {
@@ -198,7 +198,7 @@ class UwbClientSessionScopeImplTest {
                 .prepareSession(RANGING_PARAMETERS)
                 .shareIn(
                     CoroutineScope(Dispatchers.Main.immediate),
-                    SharingStarted.WhileSubscribed()
+                    SharingStarted.WhileSubscribed(),
                 )
 
         var peerDisconnected = false

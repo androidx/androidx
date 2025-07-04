@@ -53,13 +53,14 @@ class ArraySetBenchmarkTest(size: Int, sparse: Boolean) {
     }
 
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @Parameters(name = "size={0},sparse={1}")
         fun parameters() =
             buildParameters(
                 // Slow tests, so only run the suite up to 1000 elements.
                 listOf(10, 100, 1_000),
-                listOf(true, false)
+                listOf(true, false),
             )
     }
 }

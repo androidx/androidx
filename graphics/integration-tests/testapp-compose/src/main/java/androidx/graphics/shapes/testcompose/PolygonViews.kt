@@ -64,7 +64,7 @@ internal fun ShapesGallery(
     selectedMainShape: Int,
     selectedOtherShape: Int,
     modifier: Modifier = Modifier,
-    onNewClicked: (Int) -> Unit
+    onNewClicked: (Int) -> Unit,
 ) {
     FlowRow(modifier, maxItemsInEachRow = 7) {
         shapes.forEachIndexed { newShapeIndex, shape ->
@@ -80,7 +80,7 @@ internal fun ShapesGallery(
                     onNewClicked(newShapeIndex)
                 },
                 fillColor = MaterialTheme.colorScheme.primary.copy(alpha),
-                center = true
+                center = true,
             )
         }
     }
@@ -118,9 +118,9 @@ internal fun PolygonView(
                             size =
                                 Size(
                                     scale * (bounds[2] - bounds[0]),
-                                    scale * (bounds[3] - bounds[1])
+                                    scale * (bounds[3] - bounds[1]),
                                 ),
-                            style = Stroke(2f)
+                            style = Stroke(2f),
                         )
                         polygon.calculateBounds(bounds = bounds, false)
                         drawRect(
@@ -129,9 +129,9 @@ internal fun PolygonView(
                             size =
                                 Size(
                                     scale * (bounds[2] - bounds[0]),
-                                    scale * (bounds[3] - bounds[1])
+                                    scale * (bounds[3] - bounds[1]),
                                 ),
-                            style = Stroke(2f)
+                            style = Stroke(2f),
                         )
                         polygon.calculateMaxBounds(bounds = bounds)
                         drawRect(
@@ -140,9 +140,9 @@ internal fun PolygonView(
                             size =
                                 Size(
                                     scale * (bounds[2] - bounds[0]),
-                                    scale * (bounds[3] - bounds[1])
+                                    scale * (bounds[3] - bounds[1]),
                                 ),
-                            style = Stroke(2f)
+                            style = Stroke(2f),
                         )
 
                         // Center of shape
@@ -150,7 +150,7 @@ internal fun PolygonView(
                             fillColor,
                             radius = 2f,
                             center = Offset(polygon.centerX * scale, polygon.centerY * scale),
-                            style = Stroke(2f)
+                            style = Stroke(2f),
                         )
 
                         shape.forEach { cubic -> debugDrawCubic(cubic, scheme) }
@@ -162,7 +162,7 @@ internal fun PolygonView(
                         val style = if (stroked) Stroke(size.width / 10f) else Fill
                         drawPath(scaledPath, fillColor, style = style)
                     }
-                },
+                }
         )
     }
 }
@@ -172,7 +172,7 @@ internal fun PolygonFeatureView(
     polygon: RoundedPolygon,
     customFeaturesOverlayState: MutableState<List<FeatureType>>,
     featureColorScheme: FeatureColorScheme,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     @Suppress("PrimitiveInCollection") val scheme = MaterialTheme.colorScheme
     val model = remember { PanZoomRotateBoxState() }
@@ -188,7 +188,7 @@ internal fun PolygonFeatureView(
                 state = model,
                 allowRotation = false,
                 showInteraction = false,
-                modifier = Modifier.padding(15.dp)
+                modifier = Modifier.padding(15.dp),
             ) {
                 Box(
                     Modifier.fillMaxSize().drawWithContent {
@@ -202,7 +202,7 @@ internal fun PolygonFeatureView(
                             drawPath(
                                 path,
                                 featureToColor(polygon.features[index], featureColorScheme),
-                                style = style
+                                style = style,
                             )
                         }
 
@@ -211,7 +211,7 @@ internal fun PolygonFeatureView(
                             drawCircle(
                                 scheme.background,
                                 radius = 15f / scale,
-                                center = it.cubics.first().anchor0()
+                                center = it.cubics.first().anchor0(),
                             )
                         }
                     }
@@ -225,7 +225,7 @@ internal fun PolygonFeatureView(
                     feature,
                     featureColorScheme,
                     scheme.background,
-                    model
+                    model,
                 ) {
                     customFeaturesOverlayState.value =
                         customFeaturesOverlayState.value.mapIndexed { copyIndex, type ->
@@ -242,7 +242,7 @@ internal fun PolygonFeatureView(
                     onClick = {
                         model.offset.value = Offset.Zero
                         model.zoom.value = scale
-                    },
+                    }
                 ) {
                     Text("Reset View", textAlign = TextAlign.Center)
                 }
@@ -256,5 +256,5 @@ internal fun PolygonFeatureView(
 internal data class FeatureColorScheme(
     val edgeColor: Color,
     val convexColor: Color,
-    val concaveColor: Color
+    val concaveColor: Color,
 )

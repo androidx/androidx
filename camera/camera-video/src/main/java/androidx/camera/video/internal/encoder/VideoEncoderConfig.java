@@ -47,6 +47,9 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
                 .setDataSpace(VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED);
     }
 
+    /** Returns a build from the input config. */
+    public abstract @NonNull Builder toBuilder();
+
     @Override
     public abstract @NonNull String getMimeType();
 
@@ -65,8 +68,11 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
     /** Gets the color data space. */
     public abstract @NonNull VideoEncoderDataSpace getDataSpace();
 
-    /** Gets the frame rate. */
-    public abstract int getFrameRate();
+    /** Gets the capture frame rate. */
+    public abstract int getCaptureFrameRate();
+
+    /** Gets the encode frame rate. */
+    public abstract int getEncodeFrameRate();
 
     /** Gets the i-frame interval. */
     public abstract int getIFrameInterval();
@@ -82,7 +88,14 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
                 size.getHeight());
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, getColorFormat());
         format.setInteger(MediaFormat.KEY_BIT_RATE, getBitrate());
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, getFrameRate());
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, getEncodeFrameRate());
+        if (getEncodeFrameRate() != getCaptureFrameRate()) {
+            // MediaCodec will adjust the frame timestamp when KEY_CAPTURE_RATE is different from
+            // KEY_FRAME_RATE.
+            format.setInteger(MediaFormat.KEY_CAPTURE_RATE, getCaptureFrameRate());
+            format.setInteger(MediaFormat.KEY_OPERATING_RATE, getCaptureFrameRate());
+            format.setInteger(MediaFormat.KEY_PRIORITY, 0); // Smaller value, higher priority.
+        }
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, getIFrameInterval());
         if (getProfile() != EncoderConfig.CODEC_PROFILE_NONE) {
             format.setInteger(MediaFormat.KEY_PROFILE, getProfile());
@@ -125,8 +138,11 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         /** Sets the color data space. */
         public abstract @NonNull Builder setDataSpace(@NonNull VideoEncoderDataSpace dataSpace);
 
-        /** Sets the frame rate. */
-        public abstract @NonNull Builder setFrameRate(int frameRate);
+        /** Sets the capture frame rate. */
+        public abstract @NonNull Builder setCaptureFrameRate(int frameRate);
+
+        /** Sets the encode frame rate. */
+        public abstract @NonNull Builder setEncodeFrameRate(int frameRate);
 
         /** Sets the i-frame interval. */
         public abstract @NonNull Builder setIFrameInterval(int iFrameInterval);

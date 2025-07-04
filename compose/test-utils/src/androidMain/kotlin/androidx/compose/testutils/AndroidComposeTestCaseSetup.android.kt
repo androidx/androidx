@@ -21,7 +21,7 @@ import java.util.concurrent.CountDownLatch
 
 class AndroidComposeTestCaseSetup(
     private val testCase: ComposeTestCase,
-    private val activity: ComponentActivity
+    private val activity: ComponentActivity,
 ) : ComposeTestCaseSetup {
     override fun performTestWithEventsControl(block: ComposeExecutionControl.() -> Unit) {
         var error: Throwable? = null

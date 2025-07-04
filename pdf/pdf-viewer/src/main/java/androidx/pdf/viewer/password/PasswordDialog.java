@@ -55,8 +55,8 @@ import org.jspecify.annotations.Nullable;
  * <ul>
  * <li>Exit, exits the application,
  * <li>Open, tries to open the document with the given password. If this is not successful, the
- *     dialog stays up, and offers to try again (the controller should call {@link #retry}).
- *     If successful, the controller should call {@link #dismiss}.
+ *     dialog stays up, and offers to try again (the controller should call
+ *     {@link #showIncorrectMessage}).If successful, the controller should call {@link #dismiss}.
  * </ul>
  * <p>
  */
@@ -109,6 +109,9 @@ public abstract class PasswordDialog extends DialogFragment {
                 new OnShowListener() {
                     @Override
                     public void onShow(DialogInterface useless) {
+                        passwordField.requestFocus();
+                        showSoftKeyboard(passwordField);
+
                         // TODO: Track password prompt displayed.
                         final Button open = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                         final Button exit = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -158,9 +161,9 @@ public abstract class PasswordDialog extends DialogFragment {
 
     private void setupPasswordField(final EditText passwordField) {
         passwordField.setFocusable(true);
+        passwordField.setFocusableInTouchMode(true);
         passwordField.requestFocus();
-        // Do not expand the text field to full screen when in landscape.
-        passwordField.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        passwordField.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         // Set the open button text with title case.
         String openText = getResources().getString(R.string.button_open);
@@ -172,6 +175,10 @@ public abstract class PasswordDialog extends DialogFragment {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     sendPassword(passwordField);
+                    return true;
+                }
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    showErrorOnDialogCancel();
                     return true;
                 }
                 return false;
@@ -223,18 +230,20 @@ public abstract class PasswordDialog extends DialogFragment {
     public abstract void showErrorOnDialogCancel();
 
     /** The given password didn't work, perhaps try again? */
-    public void retry() {
-        // TODO: Track incorrect password input.
+    public void showIncorrectMessage() {
+
         mIncorrect = true;
-        EditText textField = (EditText) getDialog().findViewById(R.id.password);
+        Dialog passwordDialog = getDialog();
+        EditText textField = passwordDialog.findViewById(R.id.password);
         textField.selectAll();
 
-        Accessibility.get().announce(getActivity(), getDialog().getCurrentFocus(),
+        Accessibility.get().announce(getActivity(), textField,
                 R.string.desc_password_incorrect_message);
 
-        TextInputLayout passwordLayout = (TextInputLayout) getDialog().findViewById(
+        TextInputLayout passwordLayout = passwordDialog.findViewById(
                 R.id.pdf_password_layout);
         passwordLayout.setError(getString(R.string.label_password_incorrect));
+
     }
 
     private void clearIncorrect() {

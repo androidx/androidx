@@ -76,7 +76,7 @@ fun LookaheadInScrollingColumn() {
                         lookaheadScope = this@movableContentWithReceiverOf,
                         boundsTransform = { _, _ ->
                             spring(stiffness = 50f, visibilityThreshold = Rect.VisibilityThreshold)
-                        }
+                        },
                     )
                     .clickable { displayInScroller = !displayInScroller }
                     .background(color, RoundedCornerShape(10.dp))
@@ -89,7 +89,7 @@ fun LookaheadInScrollingColumn() {
             Column(
                 modifier =
                     Modifier.fillMaxSize().verticalScroll(rememberScrollState(0)).padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text("Click Yellow box to animate to/from scrolling list.")
                 repeat(6) {

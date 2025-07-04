@@ -37,7 +37,7 @@ private constructor(
     private class WrappedHandler(
         private val originalHandler: Any,
         private val handlerOnActivityCreatedMethod: Method,
-        private val activityHolderProxyFactory: ActivityHolderProxyFactory
+        private val activityHolderProxyFactory: ActivityHolderProxyFactory,
     ) : SdkSandboxActivityHandlerCompat {
 
         @SuppressLint("BanUncheckedReflection") // using reflection on library classes
@@ -53,25 +53,25 @@ private constructor(
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val activityHolderClass =
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val handlerOnActivityCreatedMethod =
                 sdkSandboxActivityHandlerCompatClass.getMethod(
                     "onActivityCreated",
-                    activityHolderClass
+                    activityHolderClass,
                 )
 
             val activityHolderProxyFactory = ActivityHolderProxyFactory.createFor(classLoader)
 
             return SdkActivityHandlerWrapper(
                 activityHolderProxyFactory = activityHolderProxyFactory,
-                handlerOnActivityCreatedMethod = handlerOnActivityCreatedMethod
+                handlerOnActivityCreatedMethod = handlerOnActivityCreatedMethod,
             )
         }
     }

@@ -41,7 +41,7 @@ public class TagBundle {
 
     private static final String USER_TAG_PREFIX = "android.hardware.camera2.CaptureRequest.setTag.";
 
-    private static final String CAMERAX_USER_TAG_PREFIX = USER_TAG_PREFIX + "CX";
+    public static final String CAMERAX_USER_TAG_PREFIX = USER_TAG_PREFIX + "CX";
     /**
      * Creates an empty TagBundle.
      *

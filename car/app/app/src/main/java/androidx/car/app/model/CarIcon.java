@@ -363,7 +363,7 @@ public final class CarIcon {
          * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
          * factors, the color may be ignored by the host or overridden by the vehicle system.
          *
-         * @throws NullPointerException if {@code tin} is {@code null}
+         * @throws NullPointerException if {@code tint} is {@code null}
          * @see CarColor
          * @see android.graphics.drawable.Drawable#setTintMode(Mode)
          */

@@ -87,7 +87,7 @@ class ModifierParameterDetector : Detector(), SourceCodeScanner {
                             .text(modifierParameter.name)
                             .with(ModifierParameterName)
                             .autoFix()
-                            .build()
+                            .build(),
                     )
                 }
 
@@ -104,7 +104,7 @@ class ModifierParameterDetector : Detector(), SourceCodeScanner {
                             .text(source.typeReference!!.text)
                             .with(modifierName)
                             .autoFix()
-                            .build()
+                            .build(),
                     )
                 }
 
@@ -127,7 +127,7 @@ class ModifierParameterDetector : Detector(), SourceCodeScanner {
                                 .text(defaultValue.text)
                                 .with(modifierName)
                                 .autoFix()
-                                .build()
+                                .build(),
                         )
                     }
                     val index = node.uastParameters.indexOf(modifierParameter)
@@ -166,8 +166,8 @@ class ModifierParameterDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ModifierParameterDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

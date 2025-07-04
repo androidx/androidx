@@ -42,5 +42,5 @@ interface PreviewParameterProvider<T> {
  */
 annotation class PreviewParameter(
     val provider: KClass<out PreviewParameterProvider<*>>,
-    val limit: Int = Int.MAX_VALUE
+    val limit: Int = Int.MAX_VALUE,
 )

@@ -28,10 +28,13 @@ import androidx.versionedparcelable.VersionedParcelize;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** Wire format for WatchFaceColorsWireFormat. */
+/** Wire format for WatchFaceColorsWireFormat.
+ * @deprecated use Watch Face Format instead
+ */
 // TODO(b/230364881): Mark as @RestrictTo when BoundingArc is no longer experimental.
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage")
+@Deprecated
 public final class WatchFaceColorsWireFormat implements VersionedParcelable, Parcelable {
 
     @ParcelField(1)

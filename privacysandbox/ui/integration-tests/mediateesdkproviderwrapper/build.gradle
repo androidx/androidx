@@ -23,7 +23,9 @@ plugins {
 
 android {
     namespace = "androidx.privacysandbox.ui.integration.mediateesdkproviderwrapper"
-    compileSdk = 35
+    compileSdk = 36
+    // Remove when b/411666019 is fixed
+    targetSdk = 35
     compileSdkExtension = 14
     minSdk = 21
     buildToolsVersion = AndroidXConfig.getDefaultAndroidConfig(project).buildToolsVersion

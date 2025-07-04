@@ -51,7 +51,7 @@ class ExpandableSqlParserTest {
     fun badDeleteQuery() {
         assertErrors(
             "delete from user where mAge >= :min && mAge <= :max",
-            "no viable alternative at input 'delete from user where mAge >= :min &&'"
+            "no viable alternative at input 'delete from user where mAge >= :min &&'",
         )
     }
 
@@ -88,7 +88,7 @@ class ExpandableSqlParserTest {
     fun explain() {
         assertErrors(
             "EXPLAIN QUERY PLAN SELECT * FROM users",
-            ParserErrors.invalidQueryType(QueryType.EXPLAIN)
+            ParserErrors.invalidQueryType(QueryType.EXPLAIN),
         )
     }
 
@@ -112,7 +112,7 @@ class ExpandableSqlParserTest {
                 "dsa$",
                 "\$fsa",
                 "-bar",
-                "şoöğüı"
+                "şoöğüı",
             )
             .forEach { assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true)) }
     }
@@ -165,7 +165,7 @@ class ExpandableSqlParserTest {
         assertThat(query.sections[0], `is`(instanceOf(ExpandableSection.Text::class.java)))
         assertThat(
             query.sections[1],
-            `is`(instanceOf(ExpandableSection.Projection.Table::class.java))
+            `is`(instanceOf(ExpandableSection.Projection.Table::class.java)),
         )
         assertThat(query.sections[2], `is`(instanceOf(ExpandableSection.Text::class.java)))
     }
@@ -191,7 +191,7 @@ class ExpandableSqlParserTest {
         assertThat(query.sections[1], `is`(instanceOf(ExpandableSection.BindVar::class.java)))
         assertThat(
             (query.sections[1] as ExpandableSection.BindVar).symbol,
-            `is`(equalTo(":suffix"))
+            `is`(equalTo(":suffix")),
         )
         assertThat(query.sections[2], `is`(instanceOf(ExpandableSection.Text::class.java)))
         assertThat(query.explicitColumns.size, `is`(1))
@@ -202,19 +202,19 @@ class ExpandableSqlParserTest {
     fun extractTableNames() {
         assertThat(
             ExpandableSqlParser.parse("select * from users").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
         assertThat(
             ExpandableSqlParser.parse("select * from users as ux").tables,
-            `is`(setOf(Table("users", "ux")))
+            `is`(setOf(Table("users", "ux"))),
         )
         assertThat(
             ExpandableSqlParser.parse("select * from (select * from books)").tables,
-            `is`(setOf(Table("books", "books")))
+            `is`(setOf(Table("books", "books"))),
         )
         assertThat(
             ExpandableSqlParser.parse("select x.id from (select * from books) as x").tables,
-            `is`(setOf(Table("books", "books")))
+            `is`(setOf(Table("books", "books"))),
         )
     }
 
@@ -222,15 +222,15 @@ class ExpandableSqlParserTest {
     fun unescapeTableNames() {
         assertThat(
             ExpandableSqlParser.parse("select * from `users`").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
         assertThat(
             ExpandableSqlParser.parse("select * from \"users\"").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
         assertThat(
             ExpandableSqlParser.parse("select * from 'users'").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
     }
 
@@ -294,11 +294,11 @@ class ExpandableSqlParserTest {
         assertErrors("select * from users where name like ?", ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors(
             "select * from users where name like ? or last_name like ?",
-            ParserErrors.ANONYMOUS_BIND_ARGUMENT
+            ParserErrors.ANONYMOUS_BIND_ARGUMENT,
         )
         assertErrors(
             "select * from users where name like ?1",
-            ParserErrors.cannotUseVariableIndices("?1", 36)
+            ParserErrors.cannotUseVariableIndices("?1", 36),
         )
     }
 
@@ -309,7 +309,7 @@ class ExpandableSqlParserTest {
             ExpandableSection.Text("select "),
             ExpandableSection.Projection.All,
             ExpandableSection.Text(" from users where name like "),
-            ExpandableSection.BindVar("?")
+            ExpandableSection.BindVar("?"),
         )
 
         assertSections(
@@ -319,7 +319,7 @@ class ExpandableSqlParserTest {
             ExpandableSection.Text(" from users where name like "),
             ExpandableSection.BindVar(":name"),
             ExpandableSection.Text(" AND last_name like "),
-            ExpandableSection.BindVar(":lastName")
+            ExpandableSection.BindVar(":lastName"),
         )
 
         assertSections(
@@ -331,7 +331,7 @@ class ExpandableSqlParserTest {
             ExpandableSection.Text("like "),
             ExpandableSection.BindVar(":name"),
             ExpandableSection.Text(" AND last_name like "),
-            ExpandableSection.BindVar(":lastName")
+            ExpandableSection.BindVar(":lastName"),
         )
 
         assertSections(
@@ -343,7 +343,7 @@ class ExpandableSqlParserTest {
             ExpandableSection.Text(" "),
             ExpandableSection.Newline,
             ExpandableSection.Text("AND last_name like "),
-            ExpandableSection.BindVar(":lastName")
+            ExpandableSection.BindVar(":lastName"),
         )
 
         assertSections(
@@ -356,14 +356,14 @@ class ExpandableSqlParserTest {
             ExpandableSection.Newline,
             ExpandableSection.Text("AND last_name like "),
             ExpandableSection.Newline,
-            ExpandableSection.BindVar(":lastName")
+            ExpandableSection.BindVar(":lastName"),
         )
     }
 
     fun assertVariables(query: String, vararg expected: String) {
         assertThat(
             (ExpandableSqlParser.parse(query)).inputs.map { it.section.text },
-            `is`(expected.toList())
+            `is`(expected.toList()),
         )
     }
 

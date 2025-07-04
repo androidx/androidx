@@ -60,7 +60,6 @@ internal class GraphProcessorTest {
     private val fakeThreads = FakeThreads.fromTestScope(testScope)
 
     private val globalListener = FakeRequestListener()
-    private val graphState3A = GraphState3A()
     private val graphListener3A = Listener3A()
     private val streamId = StreamId(0)
     private val surfaceMap = mapOf(streamId to Surface(SurfaceTexture(1)))
@@ -82,9 +81,8 @@ internal class GraphProcessorTest {
             fakeThreads,
             CameraGraphId.nextId(),
             FakeGraphConfigs.graphConfig,
-            graphState3A,
             graphListener3A,
-            arrayListOf(globalListener)
+            arrayListOf(globalListener),
         )
 
     @After
@@ -245,17 +243,19 @@ internal class GraphProcessorTest {
             graphProcessor.repeatingRequest = request2
             advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
+            assertThat(csp1.events.size).isEqualTo(3)
             assertThat(csp1.events[1].isRejected).isTrue()
             assertThat(csp1.events[1].requests).containsExactly(request2)
+            assertThat(csp1.events[2].isRejected).isTrue()
+            assertThat(csp1.events[2].requests).containsExactly(request1) // fallback attempt
 
             csp1.rejectSubmit = false
             graphProcessor.invalidate()
             advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[2].isRepeating).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request2)
+            assertThat(csp1.events.size).isEqualTo(4)
+            assertThat(csp1.events[3].isRepeating).isTrue()
+            assertThat(csp1.events[3].requests).containsExactly(request2)
         }
 
     @Test
@@ -329,12 +329,6 @@ internal class GraphProcessorTest {
 
             assertThat(abortEvent1.request).isSameInstanceAs(request2)
             assertThat(globalAbortEvent.request).isSameInstanceAs(request2)
-
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
         }
 
     @Test
@@ -360,7 +354,7 @@ internal class GraphProcessorTest {
         testScope.runTest {
             // Submit a repeating request first to make sure we have one in progress.
             graphProcessor.repeatingRequest = request1
-            graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
+            graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
             graphProcessor.onGraphStarted(grp1)
             advanceUntilIdle()
 
@@ -378,8 +372,8 @@ internal class GraphProcessorTest {
 
             // Submit a repeating request first to make sure we have one in progress.
             graphProcessor.repeatingRequest = request1
-            graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
-            graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
+            graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
+            graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
             advanceUntilIdle()
 
             graphProcessor.onGraphStarted(grp1)
@@ -399,13 +393,13 @@ internal class GraphProcessorTest {
         }
 
     @Test
-    fun trySubmitShouldReturnFalseWhenNoRepeatingRequestIsQueued() =
+    fun tryTriggerShouldReturnFalseWhenNoRepeatingRequestIsQueued() =
         testScope.runTest {
             graphProcessor.onGraphStarted(grp1)
             advanceUntilIdle()
 
             assertThrows<IllegalStateException> {
-                graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
+                graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
             }
         }
 

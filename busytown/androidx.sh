@@ -22,7 +22,6 @@ else
   if ! busytown/impl/build.sh buildOnServer createAllArchives checkExternalLicenses listTaskOutputs exportSboms \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
-      -Pandroidx.constraints=true \
       --no-daemon "$@"; then
     EXIT_VALUE=1
   else

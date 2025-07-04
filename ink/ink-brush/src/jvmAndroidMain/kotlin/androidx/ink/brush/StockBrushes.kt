@@ -17,6 +17,17 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
+import androidx.ink.brush.BrushBehavior.BinaryOp
+import androidx.ink.brush.BrushBehavior.BinaryOpNode
+import androidx.ink.brush.BrushBehavior.OutOfRange
+import androidx.ink.brush.BrushBehavior.ResponseNode
+import androidx.ink.brush.BrushBehavior.Source
+import androidx.ink.brush.BrushBehavior.SourceNode
+import androidx.ink.brush.BrushBehavior.Target
+import androidx.ink.brush.BrushBehavior.TargetNode
+import androidx.ink.brush.BrushPaint.TextureLayer
+import androidx.ink.brush.BrushPaint.TextureMapping
+import androidx.ink.brush.BrushPaint.TextureSizeUnit
 import androidx.ink.geometry.Angle
 import kotlin.jvm.JvmStatic
 
@@ -39,27 +50,22 @@ import kotlin.jvm.JvmStatic
 @OptIn(ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-
-    // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
-    // like it on the getter so suppress its complaint.
-    @ExperimentalInkCustomBrushApi
-    @get:ExperimentalInkCustomBrushApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @JvmStatic
     public val predictionFadeOutBehavior: BrushBehavior =
         BrushBehavior(
-            targetNodes =
+            terminalNodes =
                 listOf(
-                    BrushBehavior.TargetNode(
-                        target = BrushBehavior.Target.OPACITY_MULTIPLIER,
+                    TargetNode(
+                        target = Target.OPACITY_MULTIPLIER,
                         targetModifierRangeStart = 1F,
                         targetModifierRangeEnd = 0.3F,
-                        BrushBehavior.BinaryOpNode(
-                            operation = BrushBehavior.BinaryOp.PRODUCT,
+                        BinaryOpNode(
+                            operation = BinaryOp.PRODUCT,
                             firstInput =
-                                BrushBehavior.SourceNode(
-                                    source = BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_MILLIS,
+                                SourceNode(
+                                    source = Source.PREDICTED_TIME_ELAPSED_IN_MILLIS,
                                     sourceValueRangeStart = 0F,
                                     sourceValueRangeEnd = 24F,
                                 ),
@@ -67,12 +73,12 @@ public object StockBrushes {
                             // from starting
                             // until the predicted inputs have traveled at least 1.5x brush-size.
                             secondInput =
-                                BrushBehavior.ResponseNode(
+                                ResponseNode(
                                     responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
                                     input =
-                                        BrushBehavior.SourceNode(
+                                        SourceNode(
                                             source =
-                                                BrushBehavior.Source
+                                                Source
                                                     .PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
                                             sourceValueRangeStart = 1.5F,
                                             sourceValueRangeEnd = 2F,
@@ -92,7 +98,10 @@ public object StockBrushes {
      */
     @JvmStatic
     public val markerV1: BrushFamily =
-        BrushFamily(tip = BrushTip(behaviors = listOf(predictionFadeOutBehavior)))
+        BrushFamily(
+            tip = BrushTip(behaviors = listOf(predictionFadeOutBehavior)),
+            inputModel = BrushFamily.SPRING_MODEL,
+        )
 
     /**
      * The latest version of a simple, circular fixed-width brush.
@@ -119,43 +128,42 @@ public object StockBrushes {
                         listOf(
                             predictionFadeOutBehavior,
                             BrushBehavior(
-                                BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                Target.SIZE_MULTIPLIER,
                                 sourceValueRangeStart = 3f,
                                 sourceValueRangeEnd = 0f,
                                 targetModifierRangeStart = 1f,
                                 targetModifierRangeEnd = 0.75f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                             ),
                             BrushBehavior(
-                                BrushBehavior.Source.NORMALIZED_DIRECTION_Y,
-                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                Source.NORMALIZED_DIRECTION_Y,
+                                Target.SIZE_MULTIPLIER,
                                 sourceValueRangeStart = 0.45f,
                                 sourceValueRangeEnd = 0.65f,
                                 targetModifierRangeStart = 1.0f,
                                 targetModifierRangeEnd = 1.17f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 25L,
                             ),
                             BrushBehavior(
-                                BrushBehavior.Source
-                                    .INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED,
-                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                Source.INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED,
+                                Target.SIZE_MULTIPLIER,
                                 sourceValueRangeStart = -80f,
                                 sourceValueRangeEnd = -230f,
                                 targetModifierRangeStart = 1.0f,
                                 targetModifierRangeEnd = 1.25f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 25L,
                             ),
                             BrushBehavior(
-                                BrushBehavior.Source.NORMALIZED_PRESSURE,
-                                BrushBehavior.Target.SIZE_MULTIPLIER,
+                                Source.NORMALIZED_PRESSURE,
+                                Target.SIZE_MULTIPLIER,
                                 sourceValueRangeStart = 0.8f,
                                 sourceValueRangeEnd = 1f,
                                 targetModifierRangeStart = 1.0f,
                                 targetModifierRangeEnd = 1.5f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 30L,
                                 enabledToolTypes = setOf(InputToolType.STYLUS),
                             ),
@@ -194,43 +202,43 @@ public object StockBrushes {
                         listOf(
                             predictionFadeOutBehavior,
                             BrushBehavior(
-                                BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
+                                Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                Target.CORNER_ROUNDING_OFFSET,
                                 sourceValueRangeStart = 0f,
                                 sourceValueRangeEnd = 1f,
                                 targetModifierRangeStart = 0.3f,
                                 targetModifierRangeEnd = 1f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 15L,
                             ),
                             BrushBehavior(
-                                BrushBehavior.Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
+                                Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                Target.CORNER_ROUNDING_OFFSET,
                                 sourceValueRangeStart = 0f,
                                 sourceValueRangeEnd = 1f,
                                 targetModifierRangeStart = 0.3f,
                                 targetModifierRangeEnd = 1f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 15L,
                             ),
                             BrushBehavior(
-                                BrushBehavior.Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                BrushBehavior.Target.OPACITY_MULTIPLIER,
+                                Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                Target.OPACITY_MULTIPLIER,
                                 sourceValueRangeStart = 0f,
                                 sourceValueRangeEnd = 3f,
                                 targetModifierRangeStart = 1.1f,
                                 targetModifierRangeEnd = 1f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 15L,
                             ),
                             BrushBehavior(
-                                BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                BrushBehavior.Target.OPACITY_MULTIPLIER,
+                                Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                Target.OPACITY_MULTIPLIER,
                                 sourceValueRangeStart = 0f,
                                 sourceValueRangeEnd = 3f,
                                 targetModifierRangeStart = 1.1f,
                                 targetModifierRangeEnd = 1f,
-                                BrushBehavior.OutOfRange.CLAMP,
+                                OutOfRange.CLAMP,
                                 responseTimeMillis = 15L,
                             ),
                         ),
@@ -246,4 +254,92 @@ public object StockBrushes {
      * latest version of the pressure pen.
      */
     @JvmStatic public val highlighterLatest: BrushFamily = highlighterV1
+
+    /**
+     * Version 1 of a brush that appears as rounded rectangles with gaps in between them. This may
+     * be decorative, or can be used to signify a user interaction like free-form (lasso) selection.
+     *
+     * The behavior of this [BrushFamily] will not meaningfully change in future releases. More
+     * significant updates would be contained in a [BrushFamily] with a different name specifying a
+     * later version number.
+     */
+    @JvmStatic
+    public val dashedLineV1: BrushFamily =
+        BrushFamily(
+            tip =
+                BrushTip(
+                    scaleX = 2F,
+                    scaleY = 1F,
+                    cornerRounding = 0.45F,
+                    particleGapDistanceScale = 3F,
+                    behaviors =
+                        listOf(
+                            predictionFadeOutBehavior,
+                            BrushBehavior(
+                                listOf(
+                                    TargetNode(
+                                        Target.ROTATION_OFFSET_IN_RADIANS,
+                                        -Angle.HALF_TURN_RADIANS,
+                                        Angle.HALF_TURN_RADIANS,
+                                        SourceNode(
+                                            Source.DIRECTION_ABOUT_ZERO_IN_RADIANS,
+                                            -Angle.HALF_TURN_RADIANS,
+                                            Angle.HALF_TURN_RADIANS,
+                                            OutOfRange.CLAMP,
+                                        ),
+                                    )
+                                )
+                            ),
+                        ),
+                ),
+            inputModel = BrushFamily.SPRING_MODEL,
+        )
+
+    /**
+     * The latest version of a brush that appears as rounded rectangles with gaps in between them.
+     * This may be decorative, or can be used to signify a user interaction like free-form (lasso)
+     * selection.
+     *
+     * The behavior of this [BrushFamily] may change in future releases, as it always points to the
+     * latest version of the pressure pen.
+     */
+    @JvmStatic public val dashedLineLatest: BrushFamily = dashedLineV1
+
+    /** The client texture ID for the background of the version-1 pencil brush. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @JvmStatic
+    public val pencilUnstableBackgroundTextureId: String =
+        "androidx.ink.brush.StockBrushes.pencil_background_unstable"
+
+    /**
+     * A development version of a brush that looks like pencil marks on subtly textured paper.
+     *
+     * In order to use this brush, the [TextureBitmapStore] provided to your renderer must map the
+     * [pencilUnstableBackgroundTextureId] to a bitmap; otherwise, no texture will be visible.
+     * Android callers may want to use [StockTextureBitmapStore] to provide this mapping.
+     *
+     * The behavior of this [BrushFamily] may change significantly in future releases. Once it has
+     * stabilized, it will be renamed to `pencilV1`.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @JvmStatic
+    public val pencilUnstable: BrushFamily =
+        BrushFamily(
+            tip = BrushTip(behaviors = listOf(predictionFadeOutBehavior)),
+            paint =
+                BrushPaint(
+                    listOf(
+                        TextureLayer(
+                            clientTextureId = pencilUnstableBackgroundTextureId,
+                            sizeX = 512F,
+                            sizeY = 512F,
+                            sizeUnit = TextureSizeUnit.STROKE_COORDINATES,
+                            mapping = TextureMapping.TILING,
+                        )
+                    )
+                ),
+            inputModel = BrushFamily.SPRING_MODEL,
+        )
 }

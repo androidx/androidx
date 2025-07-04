@@ -32,7 +32,7 @@ private const val TAG = "FakeFocusMeteringControl"
 /** A fake implementations of {@link ScreenFlash} for testing purpose. */
 internal class FakeFocusMeteringControl(
     fakeCamera2CameraControlImpl: ScreenFlashTaskTest.FakeCamera2CameraControlImpl,
-    quirks: Quirks
+    quirks: Quirks,
 ) :
     FocusMeteringControl(
         fakeCamera2CameraControlImpl,

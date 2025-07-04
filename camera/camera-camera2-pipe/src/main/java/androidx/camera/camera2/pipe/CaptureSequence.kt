@@ -82,7 +82,7 @@ public object CaptureSequences {
      */
     public inline fun <T> CaptureSequence<T>.invokeOnRequest(
         request: RequestMetadata,
-        crossinline fn: (Request.Listener) -> Any
+        crossinline fn: (Request.Listener) -> Any,
     ) {
         Debug.traceStart { "InvokeInternalListeners" }
 

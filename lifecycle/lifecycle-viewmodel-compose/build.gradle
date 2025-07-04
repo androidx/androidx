@@ -22,19 +22,22 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    android()
-    desktop()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.lifecycle.viewmodel.compose"
+    }
+    jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -43,21 +46,26 @@ androidXMultiplatform {
             dependencies {
                 api(project(":lifecycle:lifecycle-common"))
                 api(project(":lifecycle:lifecycle-viewmodel"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("androidx.compose.runtime:runtime:1.6.0")
+                api("androidx.annotation:annotation:1.9.1")
+                api("androidx.compose.runtime:runtime:1.7.8")
+                api(libs.kotlinSerializationCore)
                 implementation(libs.kotlinStdlib)
             }
         }
 
         commonTest {
-            // TODO(b/330323282): Move common dependencies here.
+            dependencies {
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-testing"))
+                implementation(project(":lifecycle:lifecycle-runtime-testing"))
+            }
         }
 
         androidMain {
             dependsOn(commonMain)
             dependencies {
                 api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-                api("androidx.compose.ui:ui:1.6.0")
+                api("androidx.compose.ui:ui:1.7.8")
                 // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
                 // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
                 // `livedata` dependency directly works around the issue.
@@ -83,10 +91,20 @@ androidXMultiplatform {
                 // but it doesn't work in androidx.
                 // See aosp/1804059
                 implementation(project(":lifecycle:lifecycle-common-java8"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-                implementation(project(":activity:activity-compose"))
-                implementation(project(":lifecycle:lifecycle-runtime-testing"))
+                implementation("androidx.activity:activity-compose:1.10.1")
             }
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        jvmStubsMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(nonAndroidMain)
         }
     }
 }
@@ -97,15 +115,8 @@ dependencies {
 
 androidx {
     name = "Lifecycle ViewModel Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle ViewModel"
-    metalavaK2UastEnabled = false
     samples(project(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.lifecycle.viewmodel.compose"
 }

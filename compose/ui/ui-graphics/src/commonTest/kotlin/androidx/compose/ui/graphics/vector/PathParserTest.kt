@@ -137,7 +137,7 @@ class PathParserTest {
      * Path that implements the Path interface with stubs to allow for simple implementations to
      * override individual methods for testing
      */
-    @Suppress("OVERRIDE_DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION") // b/407491706
     open class TestPath : Path {
         override var fillType: PathFillType = PathFillType.EvenOdd
         override val isConvex: Boolean = false
@@ -186,7 +186,7 @@ class PathParserTest {
             dx2: Float,
             dy2: Float,
             dx3: Float,
-            dy3: Float
+            dy3: Float,
         ) {
             // NO-OP
         }
@@ -195,7 +195,7 @@ class PathParserTest {
             rect: Rect,
             startAngleDegrees: Float,
             sweepAngleDegrees: Float,
-            forceMoveTo: Boolean
+            forceMoveTo: Boolean,
         ) {
             // NO-OP
         }

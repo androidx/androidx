@@ -43,7 +43,7 @@ internal constructor(
     // can change to optional when MicrobenchmarkConfig is non-experimental
     internalConfig: MicrobenchmarkConfig? = null,
     // used to differentiate signature for internal constructor
-    @Suppress("UNUSED_PARAMETER") ignored: Int = 0
+    @Suppress("UNUSED_PARAMETER") ignored: Int = 0,
 ) : TestRule {
 
     constructor(config: MicrobenchmarkConfig) : this(internalConfig = config)
@@ -80,7 +80,7 @@ internal constructor(
      */
     fun <T : ComposeTestCase> runBenchmarkFor(
         givenTestCase: () -> T,
-        @WorkerThread block: ComposeBenchmarkScope<T>.() -> Unit
+        @WorkerThread block: ComposeBenchmarkScope<T>.() -> Unit,
     ) {
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Cannot invoke runBenchmarkFor from the main thread"

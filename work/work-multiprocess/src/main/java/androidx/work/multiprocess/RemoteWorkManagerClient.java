@@ -73,7 +73,7 @@ import java.util.concurrent.Executor;
 public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     /* The session timeout. */
-    private static final long SESSION_TIMEOUT_MILLIS = 6000 * 1000;
+    private static final long SESSION_TIMEOUT_MILLIS = 10 * 60 * 1000L;
 
     // Synthetic access
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");

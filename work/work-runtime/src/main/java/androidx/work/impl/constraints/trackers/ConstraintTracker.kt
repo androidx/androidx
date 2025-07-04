@@ -28,7 +28,7 @@ import java.util.LinkedHashSet
  * @param T the constraint data type observed by this tracker
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-abstract class ConstraintTracker<T>
+public abstract class ConstraintTracker<T>
 protected constructor(context: Context, private val taskExecutor: TaskExecutor) {
     protected val appContext: Context = context.applicationContext
     private val lock = Any()
@@ -42,7 +42,7 @@ protected constructor(context: Context, private val taskExecutor: TaskExecutor) 
      *
      * @param listener The target listener to start notifying
      */
-    fun addListener(listener: ConstraintListener<T>) {
+    public fun addListener(listener: ConstraintListener<T>) {
         synchronized(lock) {
             if (listeners.add(listener)) {
                 if (listeners.size == 1) {
@@ -61,7 +61,7 @@ protected constructor(context: Context, private val taskExecutor: TaskExecutor) 
      *
      * @param listener The listener to stop notifying.
      */
-    fun removeListener(listener: ConstraintListener<T>) {
+    public fun removeListener(listener: ConstraintListener<T>) {
         synchronized(lock) {
             if (listeners.remove(listener) && listeners.isEmpty()) {
                 stopTracking()
@@ -69,7 +69,7 @@ protected constructor(context: Context, private val taskExecutor: TaskExecutor) 
         }
     }
 
-    var state: T
+    public var state: T
         get() {
             return currentState ?: readSystemState()
         }
@@ -100,13 +100,13 @@ protected constructor(context: Context, private val taskExecutor: TaskExecutor) 
      * NetworkTracker). It is always accurate unlike `state` that can be stale after stopTracking
      * call.
      */
-    abstract fun readSystemState(): T
+    public abstract fun readSystemState(): T
 
     /** Start tracking for constraint state changes. */
-    abstract fun startTracking()
+    public abstract fun startTracking()
 
     /** Stop tracking for constraint state changes. */
-    abstract fun stopTracking()
+    public abstract fun stopTracking()
 }
 
 private val TAG = Logger.tagWithPrefix("ConstraintTracker")

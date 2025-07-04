@@ -40,7 +40,7 @@ class TraceSectionMetricTest {
     private val truncatedProcessName =
         createTempFileFromAsset(
                 prefix = "api29_cold_startup_processname_truncated",
-                suffix = ".perfetto-trace"
+                suffix = ".perfetto-trace",
             )
             .absolutePath
 
@@ -50,7 +50,7 @@ class TraceSectionMetricTest {
             tracePath = api24ColdStart,
             packageName = Packages.TARGET,
             sectionName = "ActivityThreadMain",
-            expectedFirstMs = 12.639
+            expectedFirstMs = 12.639,
         )
 
     @Test
@@ -59,7 +59,7 @@ class TraceSectionMetricTest {
             tracePath = api24ColdStart,
             packageName = Packages.TARGET,
             sectionName = "activityStart",
-            expectedFirstMs = 81.979
+            expectedFirstMs = 81.979,
         )
 
     @Test
@@ -78,7 +78,7 @@ class TraceSectionMetricTest {
             packageName = Packages.TARGET,
             sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
             expectedFirstMs = 269.947,
-            targetPackageOnly = false // slice from system_server
+            targetPackageOnly = false, // slice from system_server
         )
 
     @Test
@@ -87,7 +87,7 @@ class TraceSectionMetricTest {
             tracePath = commasInSliceNames,
             packageName = Packages.TARGET,
             sectionName = "section1,2",
-            expectedFirstMs = 0.006615
+            expectedFirstMs = 0.006615,
         )
 
     @Test
@@ -154,7 +154,7 @@ class TraceSectionMetricTest {
             mode: TraceSectionMetric.Mode,
             expectedMs: Double,
             expectedCount: Int,
-            targetPackageOnly: Boolean
+            targetPackageOnly: Boolean,
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
@@ -167,7 +167,7 @@ class TraceSectionMetricTest {
                     targetPackageName = packageName,
                     testPackageName = Packages.TEST,
                     startupMode = StartupMode.COLD,
-                    apiLevel = 24
+                    apiLevel = 24,
                 )
             metric.configure(captureInfo)
 

@@ -37,9 +37,9 @@ class InvalidCasesTest(val name: String, val errorMsg: String) {
                 arrayOf<Any>("foo.InvalidClassModifier", ErrorMessages.INVALID_CLASS_MODIFIER),
                 arrayOf<Any>(
                     "foo.InvalidInheritance1",
-                    ErrorMessages.INVALID_STATE_OVERRIDE_METHOD
+                    ErrorMessages.INVALID_STATE_OVERRIDE_METHOD,
                 ),
-                arrayOf<Any>("foo.InvalidInheritance2", ErrorMessages.INVALID_STATE_OVERRIDE_METHOD)
+                arrayOf<Any>("foo.InvalidInheritance2", ErrorMessages.INVALID_STATE_OVERRIDE_METHOD),
             )
     }
 

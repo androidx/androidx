@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.room.coroutines.ConnectionPool
+import androidx.room.coroutines.PassthroughConnectionPool
 import androidx.room.coroutines.newConnectionPool
 import androidx.room.coroutines.newSingleConnectionPool
 import androidx.sqlite.SQLiteDriver
@@ -29,7 +30,13 @@ internal actual class RoomConnectionManager(
 ) : BaseRoomConnectionManager() {
 
     private val connectionPool: ConnectionPool =
-        if (configuration.name == null) {
+        if (sqliteDriver.hasConnectionPool) {
+            // If the driver already has a connection pool then use a pass-through pool.
+            PassthroughConnectionPool(
+                driver = sqliteDriver,
+                fileName = configuration.name ?: ":memory:",
+            )
+        } else if (configuration.name == null) {
             // An in-memory database must use a single connection pool.
             newSingleConnectionPool(driver = DriverWrapper(sqliteDriver), fileName = ":memory:")
         } else {
@@ -37,7 +44,7 @@ internal actual class RoomConnectionManager(
                 driver = DriverWrapper(sqliteDriver),
                 fileName = configuration.name,
                 maxNumOfReaders = configuration.journalMode.getMaxNumberOfReaders(),
-                maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters()
+                maxNumOfWriters = configuration.journalMode.getMaxNumberOfWriters(),
             )
         }
 

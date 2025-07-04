@@ -28,7 +28,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -36,7 +36,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
@@ -49,7 +49,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -57,7 +57,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -70,7 +70,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -78,7 +78,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
@@ -91,7 +91,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -99,7 +99,7 @@ class IndexBundleTest {
                 isUnique = true,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -112,7 +112,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -120,7 +120,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col2", "col1"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -133,7 +133,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -141,7 +141,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql22"
+                createSql = "sql22",
             )
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
@@ -163,7 +163,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -171,7 +171,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = null,
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }
@@ -184,7 +184,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = listOf("ASC", "ASC"),
-                createSql = "sql"
+                createSql = "sql",
             )
         val other =
             IndexBundle(
@@ -192,7 +192,7 @@ class IndexBundleTest {
                 isUnique = false,
                 columnNames = listOf("col1", "col2"),
                 orders = emptyList(),
-                createSql = "sql"
+                createSql = "sql",
             )
         assertThat(bundle.isSchemaEqual(other)).isTrue()
     }

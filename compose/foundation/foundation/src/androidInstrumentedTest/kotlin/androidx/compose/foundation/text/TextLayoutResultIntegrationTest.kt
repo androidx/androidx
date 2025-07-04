@@ -57,7 +57,7 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     density = this,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
 
             val layoutResult = textDelegate.layout(Constraints(0, 200), layoutDirection)
@@ -77,7 +77,7 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         val layoutResult = textDelegate.layout(Constraints(maxWidth = width), layoutDirection)
@@ -97,7 +97,7 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     density = this,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
 
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
@@ -113,7 +113,7 @@ class TextLayoutResultIntegrationTest {
                 text = AnnotatedString(text = "Hello"),
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         val layoutResult = textDelegate.layout(Constraints(0, 20), layoutDirection)
@@ -132,7 +132,7 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
@@ -156,7 +156,7 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     density = this,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
             val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
 
@@ -179,7 +179,7 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
@@ -203,7 +203,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 maxLines = maxLines,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         textDelegate.layoutIntrinsics(layoutDirection)
@@ -227,7 +227,7 @@ class TextLayoutResultIntegrationTest {
                 style = TextStyle.Default,
                 maxLines = maxLines,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         textDelegate.layoutIntrinsics(layoutDirection)
@@ -249,7 +249,7 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         val maxIntrinsicsHeight =
@@ -273,7 +273,7 @@ class TextLayoutResultIntegrationTest {
                 text = annotatedString,
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         val maxIntrinsicsHeight =

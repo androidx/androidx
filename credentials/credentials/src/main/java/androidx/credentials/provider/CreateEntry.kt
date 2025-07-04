@@ -112,7 +112,7 @@ internal constructor(
         @Suppress("AutoBoxing") passwordCredentialCount: Int? = null,
         @Suppress("AutoBoxing") publicKeyCredentialCount: Int? = null,
         @Suppress("AutoBoxing") totalCredentialCount: Int? = null,
-        isAutoSelectAllowed: Boolean = false
+        isAutoSelectAllowed: Boolean = false,
     ) : this(
         accountName = accountName,
         pendingIntent = pendingIntent,
@@ -123,9 +123,9 @@ internal constructor(
             mutableMapOf(
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
-                TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+                TYPE_TOTAL_CREDENTIAL to totalCredentialCount,
             ),
-        isAutoSelectAllowed = isAutoSelectAllowed
+        isAutoSelectAllowed = isAutoSelectAllowed,
     )
 
     /**
@@ -180,7 +180,7 @@ internal constructor(
             mutableMapOf(
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
                 PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
-                TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+                TYPE_TOTAL_CREDENTIAL to totalCredentialCount,
             ),
         isAutoSelectAllowed = isAutoSelectAllowed,
         biometricPromptData = biometricPromptData,
@@ -343,7 +343,7 @@ internal constructor(
                 lastUsedTime = lastUsedTime,
                 credentialCountInformationMap = credentialCountInformationMap,
                 isAutoSelectAllowed = autoSelectAllowed,
-                biometricPromptData = biometricPromptData
+                biometricPromptData = biometricPromptData,
             )
         }
     }
@@ -366,20 +366,20 @@ internal constructor(
                 sliceBuilder.addInt(
                     biometricPromptData.allowedAuthenticators,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS),
                 )
                 biometricPromptData.cryptoObject?.let {
                     sliceBuilder.addLong(
                         getOperationHandle(biometricPromptData.cryptoObject),
                         /*subType=*/ null,
-                        listOf(SLICE_HINT_CRYPTO_OP_ID)
+                        listOf(SLICE_HINT_CRYPTO_OP_ID),
                     )
                 }
                 val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
                 sliceBuilder.addBundle(
                     biometricBundle,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA),
                 )
             }
         }
@@ -420,7 +420,7 @@ internal constructor(
                     biometricPromptData =
                         if (biometricPromptDataBundle != null)
                             BiometricPromptData.fromBundle(biometricPromptDataBundle!!)
-                        else null
+                        else null,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -458,7 +458,7 @@ internal constructor(
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(),
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS),
                 )
             }
             if (description != null) {
@@ -473,7 +473,7 @@ internal constructor(
                 sliceBuilder.addBundle(
                     convertCredentialCountInfoToBundle(credentialCountInformationMap),
                     null,
-                    listOf(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)
+                    listOf(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION),
                 )
             }
             sliceBuilder
@@ -482,12 +482,12 @@ internal constructor(
                     Slice.Builder(sliceBuilder)
                         .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                         .build(),
-                    /*subType=*/ null
+                    /*subType=*/ null,
                 )
                 .addText(
                     autoSelectAllowed,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
+                    listOf(SLICE_HINT_AUTO_SELECT_ALLOWED),
                 )
             return sliceBuilder
         }
@@ -681,7 +681,7 @@ internal constructor(
                 bundle.putCharSequence("$EXTRA_CREATE_ACCOUNT_NAME_PREFIX$index", entry.accountName)
                 bundle.putParcelable(
                     "$EXTRA_CREATE_ENTRY_PENDING_INTENT_PREFIX$index",
-                    entry.pendingIntent
+                    entry.pendingIntent,
                 )
                 entry.icon?.let { bundle.putParcelable("$EXTRA_CREATE_TYPE_ICON_PREFIX$index", it) }
                 entry.description?.let {
@@ -692,7 +692,7 @@ internal constructor(
                     entry.lastUsedTime?.let {
                         bundle.putSerializable(
                             "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index",
-                            it
+                            it,
                         )
                     }
                 }
@@ -703,7 +703,7 @@ internal constructor(
                 }
                 bundle.putBoolean(
                     "$EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
-                    entry.isAutoSelectAllowed
+                    entry.isAutoSelectAllowed,
                 )
             }
         }
@@ -731,7 +731,7 @@ internal constructor(
                     val isAutoSelectAllowed =
                         this.getBoolean(
                             "$EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
-                            false
+                            false,
                         )
                     // TODO: b/356939416 - provide backward compatible timestamp API.
                     if (Build.VERSION.SDK_INT >= 26) {

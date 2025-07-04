@@ -85,7 +85,7 @@ class RememberTextFieldStateTest {
             val state =
                 rememberTextFieldState(
                     initialText = "this should be ignored",
-                    initialSelection = TextRange.Zero
+                    initialSelection = TextRange.Zero,
                 )
             if (remember { rememberCount++ } == 0) {
                 originalState = state

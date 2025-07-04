@@ -76,7 +76,7 @@ fun ClickableText(
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    onClick: (Int) -> Unit
+    onClick: (Int) -> Unit,
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     val pressIndicator =
@@ -98,6 +98,6 @@ fun ClickableText(
         onTextLayout = {
             layoutResult.value = it
             onTextLayout(it)
-        }
+        },
     )
 }

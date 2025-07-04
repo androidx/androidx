@@ -80,7 +80,7 @@ class RememberDetector : Detector(), SourceCodeScanner {
                 RememberReturnType,
                 node,
                 context.getNameLocation(node),
-                "`remember` calls must not return `Unit`"
+                "`remember` calls must not return `Unit`",
             )
         }
     }
@@ -102,8 +102,8 @@ class RememberDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     RememberDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

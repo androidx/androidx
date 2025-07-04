@@ -46,7 +46,7 @@ class ClickableTextTest {
             ClickableText(
                 modifier = Modifier.testTag("clickableText"),
                 text = AnnotatedString("android"),
-                onClick = onClick
+                onClick = onClick,
             )
         }
 
@@ -64,7 +64,7 @@ class ClickableTextTest {
             ClickableText(
                 modifier = Modifier.testTag("clickableText"),
                 text = AnnotatedString("android"),
-                onClick = if (use2.value) onClick2 else onClick1
+                onClick = if (use2.value) onClick2 else onClick1,
             )
         }
         use2.value = true

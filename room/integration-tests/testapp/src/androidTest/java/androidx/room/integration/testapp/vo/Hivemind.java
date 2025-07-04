@@ -16,9 +16,10 @@
 
 package androidx.room.integration.testapp.vo;
 
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.UUID;
 
@@ -26,7 +27,10 @@ import java.util.UUID;
 public class Hivemind {
 
     @PrimaryKey
-    @NonNull
+    // This project is tested against a version of the room compiler that doesn't recognize JSpecify
+    // for primary keys
+    @SuppressWarnings("JSpecifyNullness")
+    @androidx.annotation.NonNull
     public final UUID mId;
 
     public Hivemind(@NonNull UUID id) {

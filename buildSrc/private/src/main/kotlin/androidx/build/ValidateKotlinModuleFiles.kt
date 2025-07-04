@@ -46,7 +46,7 @@ internal fun Project.validateKotlinModuleFiles(variantName: String, aar: Provide
     val validateKotlinModuleFiles =
         tasks.register(
             "validateKotlinModuleFilesFor".appendCapitalized(variantName),
-            ValidateModuleFilesTask::class.java
+            ValidateModuleFilesTask::class.java,
         ) {
             it.aar.set(aar)
             it.cacheEvenIfNoOutputs()

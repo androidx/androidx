@@ -57,7 +57,7 @@ internal class VideoUsageControl(@CameraExecutor private val executor: Executor)
             if (currentVal < 0) {
                 Logger.w(
                     LOG_TAG,
-                    "decrementUsage: mVideoUsage = $currentVal, which is less than 0!"
+                    "decrementUsage: mVideoUsage = $currentVal, which is less than 0!",
                 )
             } else {
                 Logger.d(LOG_TAG, "decrementUsage: mVideoUsage = $currentVal")

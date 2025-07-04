@@ -46,7 +46,7 @@ fun NavigationRailSample() {
                 icon = { Icon(icons[index], contentDescription = item) },
                 label = { Text(item) },
                 selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                onClick = { selectedItem = index },
             )
         }
     }
@@ -64,7 +64,7 @@ fun NavigationRailWithOnlySelectedLabelsSample() {
                 label = { Text(item) },
                 selected = selectedItem == index,
                 onClick = { selectedItem = index },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
             )
         }
     }
@@ -80,7 +80,7 @@ fun CompactNavigationRailSample() {
             NavigationRailItem(
                 icon = { Icon(icons[index], contentDescription = item) },
                 selected = selectedItem == index,
-                onClick = { selectedItem = index }
+                onClick = { selectedItem = index },
             )
         }
     }
@@ -101,7 +101,7 @@ fun NavigationRailBottomAlignSample() {
                 label = { Text(item) },
                 selected = selectedItem == index,
                 onClick = { selectedItem = index },
-                alwaysShowLabel = false
+                alwaysShowLabel = false,
             )
         }
     }

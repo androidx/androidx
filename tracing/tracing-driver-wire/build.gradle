@@ -1,0 +1,110 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.squareup.wire")
+}
+
+androidXMultiplatform {
+    jvm()
+    androidLibrary {
+        namespace = "androidx.tracing.driver.wire"
+    }
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":tracing:tracing-driver"))
+                implementation(libs.wireRuntime)
+                implementation(libs.okio)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesCore)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.truth)
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        androidMain {
+            dependsOn(commonMain)
+        }
+        androidInstrumentedTest {
+            // Declaring this source set even though we don't really have any instrumentation tests.
+            // This is because commonTest is implicitly treated as something that can be used for
+            // instrumentation tests. Therefore we need to include the test runner; otherwise the
+            // harness fails with an Exception. b/394958372.
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+            }
+        }
+    }
+}
+
+// Workarounds for Wire's plugin not setting code generation directory as task output correctly
+// See https://github.com/square/wire/issues/3199
+tasks.named("multiplatformSourceJar").configure {
+    dependsOn(tasks.named("generateCommonMainProtos"))
+}
+
+wire {
+    kotlin {
+        mutableTypes = true
+    }
+    sourcePath {
+        srcDir("src/commonMain/proto")
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        // Make sure to opt-in to expect-actual classes.
+        // https://youtrack.jetbrains.com/issue/KT-61573
+        freeCompilerArgs += [
+                "-Xexpect-actual-classes",
+        ]
+    }
+}
+
+androidx {
+    name = "Tracing Driver Wire"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2024"
+    description = "AndroidX Tracing Driver Wire"
+}

@@ -31,13 +31,14 @@ class PointerGesture {
     private final Deque<PointerAction> mActions = new ArrayDeque<>();
     private final long mDelay;
     private final int mDisplayId;
+    private final int mWindowId;
     private long mDuration;
 
     /**
      * Constructs a PointerGesture which touches down at the given start point on the given display.
      */
-    public PointerGesture(Point startPoint, int displayId) {
-        this(startPoint, 0, displayId);
+    PointerGesture(Point startPoint, int displayId, int windowId) {
+        this(startPoint, 0, displayId, windowId);
     }
 
     /**
@@ -45,17 +46,22 @@ class PointerGesture {
      * after a given delay.  Used in multi-point gestures when the pointers do not all touch down at
      * the same time.
      */
-    public PointerGesture(Point startPoint, long initialDelay, int displayId) {
+    PointerGesture(Point startPoint, long initialDelay, int displayId, int windowId) {
         if (initialDelay < 0) {
             throw new IllegalArgumentException("initialDelay cannot be negative");
         }
         mActions.addFirst(new PointerPauseAction(startPoint, 0));
         mDelay = initialDelay;
         mDisplayId = displayId;
+        mWindowId = windowId;
     }
 
     public int displayId() {
         return mDisplayId;
+    }
+
+    public int windowId() {
+        return mWindowId;
     }
 
     /** Adds an action which pauses for the specified amount of {@code time} in milliseconds. */

@@ -57,7 +57,7 @@ public fun ModalBottomSheetLayout(
     sheetBackgroundColor: Color = MaterialTheme.colors.surface,
     sheetContentColor: Color = contentColorFor(sheetBackgroundColor),
     scrimColor: Color = ModalBottomSheetDefaults.scrimColor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     ModalBottomSheetLayout(
         sheetState = bottomSheetNavigator.sheetState,
@@ -68,7 +68,7 @@ public fun ModalBottomSheetLayout(
         sheetBackgroundColor = sheetBackgroundColor,
         sheetContentColor = sheetContentColor,
         scrimColor = scrimColor,
-        content = content
+        content = content,
     )
 }
 
@@ -104,7 +104,7 @@ public fun ModalBottomSheetLayout(
     sheetBackgroundColor: Color = MaterialTheme.colors.surface,
     sheetContentColor: Color = contentColorFor(sheetBackgroundColor),
     scrimColor: Color = ModalBottomSheetDefaults.scrimColor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     ModalBottomSheetLayout(
         sheetState = bottomSheetNavigator.sheetState,
@@ -116,6 +116,6 @@ public fun ModalBottomSheetLayout(
         sheetBackgroundColor = sheetBackgroundColor,
         sheetContentColor = sheetContentColor,
         scrimColor = scrimColor,
-        content = content
+        content = content,
     )
 }

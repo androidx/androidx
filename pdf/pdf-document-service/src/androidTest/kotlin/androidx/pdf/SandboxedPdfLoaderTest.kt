@@ -18,7 +18,6 @@ package androidx.pdf
 
 import android.content.Context
 import android.os.Build
-import androidx.pdf.exceptions.PdfPasswordException
 import androidx.pdf.service.connect.FakePdfServiceConnection
 import androidx.pdf.utils.TestUtils
 import androidx.test.core.app.ApplicationProvider
@@ -39,11 +38,7 @@ class SandboxedPdfLoaderTest {
     fun openDocument_notConnected_connectsAndLoadsDocument() = runTest {
         var isServiceConnected = false
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val loader =
-            SandboxedPdfLoader(
-                context,
-                Dispatchers.Main,
-            )
+        val loader = SandboxedPdfLoader(context, Dispatchers.Main)
         loader.testingConnection =
             FakePdfServiceConnection(context, isConnected = false) { isServiceConnected = true }
         val uri = TestUtils.openFile(context, PDF_DOCUMENT)
@@ -61,11 +56,7 @@ class SandboxedPdfLoaderTest {
     @Test(expected = IllegalStateException::class)
     fun openDocument_connectedAndNullBinder_throwsIllegalStateException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val loader =
-            SandboxedPdfLoader(
-                context,
-                Dispatchers.Main,
-            )
+        val loader = SandboxedPdfLoader(context, Dispatchers.Main)
         loader.testingConnection = FakePdfServiceConnection(context, isConnected = true)
 
         val uri = TestUtils.openFile(context, PDF_DOCUMENT)
@@ -75,11 +66,7 @@ class SandboxedPdfLoaderTest {
     @Test(expected = PdfPasswordException::class)
     fun openDocument_passwordProtected_throwsPdfPasswordException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val loader =
-            SandboxedPdfLoader(
-                context,
-                Dispatchers.Main,
-            )
+        val loader = SandboxedPdfLoader(context, Dispatchers.Main)
 
         val uri = TestUtils.openFile(context, PASSWORD_PROTECTED_DOCUMENT)
 
@@ -89,11 +76,7 @@ class SandboxedPdfLoaderTest {
     @Test(expected = IllegalStateException::class)
     fun openDocument_corruptedDocument_throwsIllegalStateException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val loader =
-            SandboxedPdfLoader(
-                context,
-                Dispatchers.Main,
-            )
+        val loader = SandboxedPdfLoader(context, Dispatchers.Main)
 
         val uri = TestUtils.openFile(context, CORRUPTED_DOCUMENT)
 
@@ -109,11 +92,7 @@ class SandboxedPdfLoaderTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val uri1 = TestUtils.openFile(context, "sample.pdf")
         val uri2 = TestUtils.openFile(context, "alt_text.pdf")
-        val sharedLoader =
-            SandboxedPdfLoader(
-                context,
-                Dispatchers.Main,
-            )
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
 
         // Grab some data from document1
         val document1 = sharedLoader.openDocument(uri1)

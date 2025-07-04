@@ -26,14 +26,8 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property registrationResponseJson the public key credential registration response in JSON format
  */
 class CreatePublicKeyCredentialResponse
-private constructor(
-    val registrationResponseJson: String,
-    data: Bundle,
-) :
-    CreateCredentialResponse(
-        PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-        data,
-    ) {
+private constructor(val registrationResponseJson: String, data: Bundle) :
+    CreateCredentialResponse(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL, data) {
 
     /**
      * Constructs a [CreatePublicKeyCredentialResponse].

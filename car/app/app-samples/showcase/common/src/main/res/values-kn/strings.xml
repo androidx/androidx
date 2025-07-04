@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"ಸಂದೇಶದ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ಸಂದೇಶವನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಲಾಗುತ್ತದೆ.\nಹೆಚ್ಚಿನ ಪಠ್ಯವನ್ನು ಎರಡನೇ ಸಾಲಿನಲ್ಲಿ ಸೇರಿಸಬಹುದು."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ಕಿರು ಸಂದೇಶ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ಸೆಕ್ಷನ್ ಮಾಡಲಾದ ಐಟಂ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೊ"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ರೇಡಿಯೋ ಬಟನ್ ಸೆಕ್ಷನ್"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ಟಾಗಲ್ ಸೆಕ್ಷನ್"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ಬಹಳಷ್ಟು ಸಾಲುಗಳ ಸೆಕ್ಷನ್"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ಗ್ರಿಡ್ ಐಟಂ ವಿಭಾಗ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ಪೇನ್ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ಸ್ಥಳ ಪಟ್ಟಿಯ ಟೆಂಪ್ಲೇಟ್ ಡೆಮೋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"</string>

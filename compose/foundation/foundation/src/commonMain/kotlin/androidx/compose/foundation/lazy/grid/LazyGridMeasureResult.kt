@@ -66,7 +66,7 @@ internal class LazyGridMeasureResult(
     /** see [LazyGridLayoutInfo.afterContentPadding] */
     override val afterContentPadding: Int,
     /** see [LazyGridLayoutInfo.mainAxisItemSpacing] */
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
 ) : LazyGridLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -94,7 +94,7 @@ internal class LazyGridMeasureResult(
      */
     fun copyWithScrollDeltaWithoutRemeasure(
         delta: Int,
-        updateAnimations: Boolean
+        updateAnimations: Boolean,
     ): LazyGridMeasureResult? {
         if (
             remeasureNeeded ||
@@ -152,7 +152,7 @@ internal class LazyGridMeasureResult(
                 reverseLayout = reverseLayout,
                 orientation = orientation,
                 afterContentPadding = afterContentPadding,
-                mainAxisItemSpacing = mainAxisItemSpacing
+                mainAxisItemSpacing = mainAxisItemSpacing,
             )
         } else {
             null

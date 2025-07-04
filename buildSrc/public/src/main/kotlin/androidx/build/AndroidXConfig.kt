@@ -25,7 +25,7 @@ import org.gradle.api.file.FileCollection
 
 /** AndroidX configuration backed by Gradle properties. */
 abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
-    override val buildToolsVersion: String = "35.0.0"
+    override val buildToolsVersion: String = "36.0.0"
 
     override val compileSdk: Int by lazy {
         val sdkString = project.extraPropertyOrNull(COMPILE_SDK)?.toString()
@@ -54,12 +54,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
          * Implementation detail. This should only be used by AndroidXGradleProperties for property
          * validation.
          */
-        val GRADLE_PROPERTIES =
-            listOf(
-                COMPILE_SDK,
-                LATEST_STABLE_COMPILE_SDK,
-                TARGET_SDK_VERSION,
-            )
+        val GRADLE_PROPERTIES = listOf(COMPILE_SDK, LATEST_STABLE_COMPILE_SDK, TARGET_SDK_VERSION)
     }
 }
 
@@ -115,8 +110,8 @@ fun Project.getPrebuiltsRoot(): File {
 }
 
 /** @return the project's Android SDK stub JAR as a File. */
-fun Project.getAndroidJar(): FileCollection {
-    val compileSdk = "android-${project.defaultAndroidConfig.compileSdk}"
+fun Project.getAndroidJar(sdkNum: Int = project.defaultAndroidConfig.compileSdk): FileCollection {
+    val compileSdk = "android-${sdkNum}"
     return files(
         arrayOf(
             File(getSdkPath(), "platforms/$compileSdk/android.jar"),
@@ -125,7 +120,7 @@ fun Project.getAndroidJar(): FileCollection {
             // Allow using optional android.test APIs
             File(getSdkPath(), "platforms/$compileSdk/optional/android.test.base.jar"),
             File(getSdkPath(), "platforms/$compileSdk/optional/android.test.mock.jar"),
-            File(getSdkPath(), "platforms/$compileSdk/optional/android.test.runner.jar")
+            File(getSdkPath(), "platforms/$compileSdk/optional/android.test.runner.jar"),
         )
     )
 }

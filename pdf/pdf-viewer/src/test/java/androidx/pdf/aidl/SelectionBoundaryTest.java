@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Point;
 
 import androidx.pdf.models.SelectionBoundary;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +32,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class SelectionBoundaryTest {
 

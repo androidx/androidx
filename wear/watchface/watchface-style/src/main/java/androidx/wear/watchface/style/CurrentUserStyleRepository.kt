@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Icon
@@ -50,7 +51,13 @@ import org.xmlpull.v1.XmlPullParserException
  *
  * To modify the user style, you should call [toMutableUserStyle] and construct a new [UserStyle]
  * instance with [MutableUserStyle.toUserStyle].
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class UserStyle
 /**
  * @param selectedOptions The [UserStyleSetting.Option] selected for each [UserStyleSetting]
@@ -59,7 +66,7 @@ public class UserStyle
  */
 private constructor(
     selectedOptions: Map<UserStyleSetting, UserStyleSetting.Option>,
-    copySelectedOptions: Boolean
+    copySelectedOptions: Boolean,
 ) : Map<UserStyleSetting, UserStyleSetting.Option> {
     private val selectedOptions =
         if (copySelectedOptions) HashMap(selectedOptions) else selectedOptions
@@ -82,7 +89,7 @@ private constructor(
     /** Constructs this UserStyle from data serialized to a [ByteArray] by [toByteArray]. */
     internal constructor(
         byteArray: ByteArray,
-        styleSchema: UserStyleSchema
+        styleSchema: UserStyleSchema,
     ) : this(
         UserStyleData(
             HashMap<String, ByteArray>().apply {
@@ -100,7 +107,7 @@ private constructor(
                 bais.close()
             }
         ),
-        styleSchema
+        styleSchema,
     )
 
     /** The number of entries in the style. */
@@ -118,7 +125,7 @@ private constructor(
     @Suppress("Deprecation") // userStyleSettings
     public constructor(
         userStyle: UserStyleData,
-        styleSchema: UserStyleSchema
+        styleSchema: UserStyleSchema,
     ) : this(
         HashMap<UserStyleSetting, UserStyleSetting.Option>().apply {
             for (styleSetting in styleSchema.userStyleSettings) {
@@ -238,7 +245,15 @@ private constructor(
     override fun isEmpty(): Boolean = selectedOptions.isEmpty()
 }
 
-/** A mutable [UserStyle]. This must be converted back to a [UserStyle] by calling [toUserStyle]. */
+/**
+ * A mutable [UserStyle]. This must be converted back to a [UserStyle] by calling [toUserStyle].
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class MutableUserStyle internal constructor(userStyle: UserStyle) :
     Iterable<Map.Entry<UserStyleSetting, UserStyleSetting.Option>> {
     /** The map from the available settings and the selected option. */
@@ -352,7 +367,7 @@ public class MutableUserStyle internal constructor(userStyle: UserStyle) :
 
     private fun getOptionForId(
         setting: UserStyleSetting,
-        optionId: UserStyleSetting.Option.Id
+        optionId: UserStyleSetting.Option.Id,
     ): UserStyleSetting.Option? {
         for (option in setting.options) {
             if (option.id == optionId) {
@@ -371,7 +386,13 @@ public class MutableUserStyle internal constructor(userStyle: UserStyle) :
 /**
  * A form of [UserStyle] which is easy to serialize. This is intended for use by the watch face
  * clients and the editor where we can't practically use [UserStyle] due to its limitations.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class UserStyleData(public val userStyleMap: Map<String, ByteArray>) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(userStyle: UserStyleWireFormat) : this(userStyle.mUserStyle)
@@ -438,7 +459,12 @@ public class UserStyleData(public val userStyleMap: Map<String, ByteArray>) {
  *   [UserStyleSetting.ComplicationSlotsUserStyleSetting] is allowed, however from android T it's
  *   possible with hierarchical styles for there to be more than one, but at most one can be active
  *   at any given time.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSetting>) {
     public val userStyleSettings = userStyleSettings
         @Deprecated("use rootUserStyleSettings instead") get
@@ -449,11 +475,12 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
+        @SuppressLint("NewApi") // ColorUserStyleSetting
         fun inflate(
             resources: Resources,
             parser: XmlResourceParser,
             complicationScaleX: Float,
-            complicationScaleY: Float
+            complicationScaleY: Float,
         ): UserStyleSchema {
             require(parser.name == "UserStyleSchema") { "Expected a UserStyleSchema node" }
 
@@ -467,13 +494,21 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
                         userStyleSettings.add(
                             UserStyleSetting.BooleanUserStyleSetting.inflate(resources, parser)
                         )
+                    "ColorUserStyleSetting" ->
+                        userStyleSettings.add(
+                            UserStyleSetting.ColorUserStyleSetting.inflate(
+                                resources,
+                                parser,
+                                idToSetting,
+                            )
+                        )
                     "ComplicationSlotsUserStyleSetting" ->
                         userStyleSettings.add(
                             UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
                                 resources,
                                 parser,
                                 complicationScaleX,
-                                complicationScaleY
+                                complicationScaleY,
                             )
                         )
                     "DoubleRangeUserStyleSetting" ->
@@ -485,7 +520,7 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
                             UserStyleSetting.ListUserStyleSetting.inflate(
                                 resources,
                                 parser,
-                                idToSetting
+                                idToSetting,
                             )
                         )
                     "LongRangeUserStyleSetting" ->
@@ -579,7 +614,7 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
 
     private fun validateComplicationSettings(
         settings: Collection<UserStyleSetting>,
-        initialPrevSetting: UserStyleSetting.ComplicationSlotsUserStyleSetting?
+        initialPrevSetting: UserStyleSetting.ComplicationSlotsUserStyleSetting?,
     ) {
         var prevSetting = initialPrevSetting
         for (setting in settings) {
@@ -674,7 +709,7 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
 
     private fun findActiveComplicationSetting(
         settings: Collection<UserStyleSetting>,
-        userStyle: UserStyle
+        userStyle: UserStyle,
     ): UserStyleSetting.ComplicationSlotsUserStyleSetting? {
         for (setting in settings) {
             if (setting is UserStyleSetting.ComplicationSlotsUserStyleSetting) {
@@ -718,7 +753,12 @@ public class UserStyleSchema constructor(userStyleSettings: List<UserStyleSettin
  *
  * @param schema The [UserStyleSchema] for this CurrentUserStyleRepository which describes the
  *   available style categories.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class CurrentUserStyleRepository(public val schema: UserStyleSchema) {
     // Mutable backing field for [userStyle].
     private val mutableUserStyle = MutableStateFlow(schema.getDefaultUserStyle())

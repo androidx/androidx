@@ -55,7 +55,6 @@ import org.robolectric.android.util.concurrent.PausedExecutorService;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowBinder;
-import org.robolectric.shadows.ShadowPausedAsyncTask;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -121,11 +120,12 @@ public class KeyedAppStatesServiceTest {
         sAsyncTaskExecutor.shutdown();
     }
 
+    @SuppressWarnings("deprecation") // b/425368742
     @Before
     public void setUp() {
         shadowOf(mPackageManager).setNameForUid(DEFAULT_SENDING_UID, "test_package");
         ShadowBinder.setCallingUid(DEFAULT_SENDING_UID);
-        ShadowPausedAsyncTask.overrideExecutor(sAsyncTaskExecutor);
+        org.robolectric.shadows.ShadowPausedAsyncTask.overrideExecutor(sAsyncTaskExecutor);
     }
 
     @Test

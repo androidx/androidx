@@ -19,8 +19,8 @@ package androidx.room.writer
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.DatabaseProcessor
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.Database
 import org.hamcrest.CoreMatchers.`is`
@@ -66,7 +66,7 @@ class OpenDelegateWriterTest {
                     "CREATE TABLE IF NOT EXISTS" +
                         " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT, `age` INTEGER NOT NULL," +
                         " PRIMARY KEY(`uuid`))"
-                )
+                ),
             )
         }
     }
@@ -82,7 +82,7 @@ class OpenDelegateWriterTest {
                 int age;
             """
                 .trimIndent(),
-            attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}")
+            attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}"),
         ) { database, _ ->
             val query = OpenDelegateWriter(database).createTableQuery(database.entities.first())
             assertThat(
@@ -91,7 +91,7 @@ class OpenDelegateWriterTest {
                     "CREATE TABLE IF NOT EXISTS" +
                         " `MyEntity` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, " +
                         "`age` INTEGER NOT NULL, PRIMARY KEY(`uuid`, `name`))"
-                )
+                ),
             )
         }
     }
@@ -115,7 +115,7 @@ class OpenDelegateWriterTest {
                         "CREATE TABLE IF NOT EXISTS" +
                             " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT," +
                             " `name` TEXT, `age` INTEGER NOT NULL)"
-                    )
+                    ),
                 )
             }
         }
@@ -140,7 +140,7 @@ class OpenDelegateWriterTest {
                         "CREATE TABLE IF NOT EXISTS" +
                             " `MyEntity` (`uuid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                             " `name` TEXT, `age` INTEGER NOT NULL)"
-                    )
+                    ),
                 )
             }
         }
@@ -157,7 +157,7 @@ class OpenDelegateWriterTest {
     private fun singleEntity(
         input: String,
         attributes: Map<String, String> = mapOf(),
-        handler: (Database, XTestInvocation) -> Unit
+        handler: (Database, XTestInvocation) -> Unit,
     ) {
         val attributesReplacement =
             if (attributes.isEmpty()) {
@@ -168,7 +168,7 @@ class OpenDelegateWriterTest {
         val entity =
             Source.java(
                 "foo.bar.MyEntity",
-                ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX
+                ENTITY_PREFIX.format(attributesReplacement) + input + ENTITY_SUFFIX,
             )
         verify(listOf(entity), "", handler)
     }
@@ -186,7 +186,7 @@ class OpenDelegateWriterTest {
                     String name;
                     int age;
             """ +
-                    ENTITY_SUFFIX
+                    ENTITY_SUFFIX,
             )
         val view =
             Source.java(
@@ -198,7 +198,7 @@ class OpenDelegateWriterTest {
                         public String uuid;
                         public String name;
                     }
-            """
+            """,
             )
         return verify(listOf(entity, view), "views = {MyView.class},", handler)
     }
@@ -206,7 +206,7 @@ class OpenDelegateWriterTest {
     private fun verify(
         sources: List<Source> = emptyList(),
         databaseAttribute: String,
-        handler: (Database, XTestInvocation) -> Unit
+        handler: (Database, XTestInvocation) -> Unit,
     ) {
         val databaseCode =
             Source.java(
@@ -217,9 +217,9 @@ class OpenDelegateWriterTest {
             @Database(entities = {MyEntity.class}, $databaseAttribute version = 3)
             abstract public class MyDatabase extends RoomDatabase {
             }
-            """
+            """,
             )
-        runProcessorTestWithK1(sources = sources + databaseCode) { invocation ->
+        runProcessorTest(sources = sources + databaseCode) { invocation ->
             val db =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)

@@ -78,7 +78,7 @@ package androidx.navigation.fragment {
 
   public static final class FragmentNavigator.Extras implements androidx.navigation.Navigator.Extras {
     method public java.util.Map<android.view.View,java.lang.String> getSharedElements();
-    property public final java.util.Map<android.view.View,java.lang.String> sharedElements;
+    property public java.util.Map<android.view.View,java.lang.String> sharedElements;
   }
 
   public static final class FragmentNavigator.Extras.Builder {

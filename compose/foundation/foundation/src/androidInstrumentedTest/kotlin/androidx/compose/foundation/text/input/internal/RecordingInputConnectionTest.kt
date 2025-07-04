@@ -59,7 +59,7 @@ class RecordingInputConnectionTest {
             RecordingInputConnection(
                 initState = TextFieldValue("", TextRange.Zero),
                 eventCallback = mCallback,
-                autoCorrect = true
+                autoCorrect = true,
             )
     }
 
@@ -108,6 +108,15 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("")
     }
 
+    @Test // b/416075680
+    fun getTextBeforeAndAfterCursorTest_overflow() {
+        // Set "Hello, World", and place the cursor at the beginning of the text.
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+
+        assertThat(ic.getTextBeforeCursor(Int.MAX_VALUE, 0)).isEqualTo("")
+        assertThat(ic.getTextAfterCursor(Int.MAX_VALUE, 0)).isEqualTo("Hello, World")
+    }
+
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
@@ -140,13 +149,13 @@ class RecordingInputConnectionTest {
                 includeInsertionMarker = true,
                 includeCharacterBounds = true,
                 includeEditorBounds = false,
-                includeLineBounds = false
+                includeLineBounds = false,
             )
     }
 
     @SdkSuppress(
         minSdkVersion = Build.VERSION_CODES.TIRAMISU,
-        maxSdkVersion = Build.VERSION_CODES.TIRAMISU
+        maxSdkVersion = Build.VERSION_CODES.TIRAMISU,
     )
     @Test
     fun requestCursorUpdates_T_filterFlags() {
@@ -162,13 +171,13 @@ class RecordingInputConnectionTest {
                 includeInsertionMarker = false,
                 includeCharacterBounds = false,
                 includeEditorBounds = true,
-                includeLineBounds = false
+                includeLineBounds = false,
             )
     }
 
     @SdkSuppress(
         minSdkVersion = Build.VERSION_CODES.TIRAMISU,
-        maxSdkVersion = Build.VERSION_CODES.TIRAMISU
+        maxSdkVersion = Build.VERSION_CODES.TIRAMISU,
     )
     @Test
     fun requestCursorUpdates_T_noFilterFlags() {
@@ -181,7 +190,7 @@ class RecordingInputConnectionTest {
                 includeInsertionMarker = true,
                 includeCharacterBounds = true,
                 includeEditorBounds = true,
-                includeLineBounds = false
+                includeLineBounds = false,
             )
     }
 
@@ -201,7 +210,7 @@ class RecordingInputConnectionTest {
                 includeInsertionMarker = false,
                 includeCharacterBounds = true,
                 includeEditorBounds = false,
-                includeLineBounds = true
+                includeLineBounds = true,
             )
     }
 
@@ -217,7 +226,7 @@ class RecordingInputConnectionTest {
                 includeInsertionMarker = true,
                 includeCharacterBounds = true,
                 includeEditorBounds = true,
-                includeLineBounds = true
+                includeLineBounds = true,
             )
     }
 
@@ -579,7 +588,7 @@ class RecordingInputConnectionTest {
             RecordingInputConnection(
                 initState = TextFieldValue(),
                 eventCallback = mCallback,
-                autoCorrect = true
+                autoCorrect = true,
             )
         val anyCorrectionInfo = CorrectionInfo(0, "", "")
 
@@ -592,7 +601,7 @@ class RecordingInputConnectionTest {
             RecordingInputConnection(
                 initState = TextFieldValue(),
                 eventCallback = mCallback,
-                autoCorrect = false
+                autoCorrect = false,
             )
         val anyCorrectionInfo = CorrectionInfo(0, "", "")
 

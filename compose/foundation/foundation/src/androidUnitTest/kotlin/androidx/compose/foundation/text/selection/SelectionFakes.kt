@@ -103,7 +103,7 @@ internal fun getTextLayoutResultMock(
             density = Density(1f),
             layoutDirection = LayoutDirection.Ltr,
             fontFamilyResolver = mock(),
-            constraints = Constraints(0L)
+            constraints = Constraints(0L),
         )
 
     fun lineForOffset(offset: Int): Int {
@@ -307,14 +307,14 @@ internal class FakeSelectable : Selectable {
                 Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 0,
-                    selectableId = selectableKey
+                    selectableId = selectableKey,
                 ),
             end =
                 Selection.AnchorInfo(
                     direction = ResolvedTextDirection.Ltr,
                     offset = 10,
-                    selectableId = selectableKey
-                )
+                    selectableId = selectableKey,
+                ),
         )
 
     override fun appendSelectableInfoToBuilder(builder: SelectionLayoutBuilder) {

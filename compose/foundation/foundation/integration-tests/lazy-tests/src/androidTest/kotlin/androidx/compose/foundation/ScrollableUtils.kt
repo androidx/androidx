@@ -40,7 +40,7 @@ internal val VelocityTrackerCalculationThreshold = 1
 @OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEvents(
     tracker: VelocityTracker,
-    pointerInputScope: PointerInputScope
+    pointerInputScope: PointerInputScope,
 ) {
     if (VelocityTrackerAddPointsFix) {
         savePointerInputEventsWithFix(tracker, pointerInputScope)
@@ -51,7 +51,7 @@ internal suspend fun savePointerInputEvents(
 
 internal suspend fun savePointerInputEventsWithFix(
     tracker: VelocityTracker,
-    pointerInputScope: PointerInputScope
+    pointerInputScope: PointerInputScope,
 ) {
     with(pointerInputScope) {
         coroutineScope {
@@ -78,7 +78,7 @@ internal suspend fun savePointerInputEventsWithFix(
 
 internal suspend fun savePointerInputEventsLegacy(
     tracker: VelocityTracker,
-    pointerInputScope: PointerInputScope
+    pointerInputScope: PointerInputScope,
 ) {
     with(pointerInputScope) {
         coroutineScope {
@@ -125,7 +125,7 @@ internal fun composeViewSwipeRight() {
 
 private fun espressoSwipe(
     start: CoordinatesProvider,
-    end: CoordinatesProvider
+    end: CoordinatesProvider,
 ): GeneralSwipeAction {
     return GeneralSwipeAction(Swipe.FAST, start, end, Press.FINGER)
 }

@@ -65,7 +65,7 @@ class AndroidGraphicsConversionExtensionsEmulatorTest {
     fun populatePathFromOutlines_returnsCorrectPath() {
         val partitionedMesh = buildTestStrokeShape()
         val path = Path()
-        partitionedMesh.populatePathFromOutlines(0, path)
+        partitionedMesh.populateOutlines(0, path)
         assertThat(path.isEmpty).isFalse()
 
         val outlineVertexCount = partitionedMesh.getOutlineVertexCount(0, 0)

@@ -41,7 +41,7 @@ internal class InteractiveFrameClock(
     private val baselineHz: Int = 5,
     private val interactiveHz: Int = 20,
     private val interactiveTimeoutMs: Long = 5_000,
-    private val nanoTime: () -> Long = { System.nanoTime() }
+    private val nanoTime: () -> Long = { System.nanoTime() },
 ) : MonotonicFrameClock {
     companion object {
         private const val NANOSECONDS_PER_SECOND = 1_000_000_000L

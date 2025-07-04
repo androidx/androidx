@@ -27,11 +27,8 @@ import androidx.credentials.internal.RequestValidationHelper
  *   at https://wicg.github.io/digital-credentials/#the-digitalcredential-interface
  */
 @ExperimentalDigitalCredentialApi
-class DigitalCredential
-private constructor(
-    val credentialJson: String,
-    data: Bundle,
-) : Credential(TYPE_DIGITAL_CREDENTIAL, data) {
+class DigitalCredential private constructor(val credentialJson: String, data: Bundle) :
+    Credential(TYPE_DIGITAL_CREDENTIAL, data) {
 
     init {
         require(RequestValidationHelper.isValidJSON(credentialJson)) {
@@ -46,9 +43,7 @@ private constructor(
      *   at https://wicg.github.io/digital-credentials/#the-digitalcredential-interface
      * @throws IllegalArgumentException if the `credentialJson` is not a valid json
      */
-    constructor(
-        credentialJson: String,
-    ) : this(credentialJson, toBundle(credentialJson))
+    constructor(credentialJson: String) : this(credentialJson, toBundle(credentialJson))
 
     /** Companion constants / helpers for [DigitalCredential]. */
     companion object {

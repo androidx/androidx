@@ -29,7 +29,7 @@ import androidx.room.Index
                 childColumns = arrayOf("bookId"),
                 onUpdate = ForeignKey.CASCADE,
                 onDelete = ForeignKey.CASCADE,
-                deferred = true
+                deferred = true,
             ),
             ForeignKey(
                 entity = Author::class,
@@ -37,10 +37,10 @@ import androidx.room.Index
                 childColumns = arrayOf("authorId"),
                 onUpdate = ForeignKey.CASCADE,
                 onDelete = ForeignKey.CASCADE,
-                deferred = true
-            )
+                deferred = true,
+            ),
         ),
     primaryKeys = ["bookId", "authorId"],
-    indices = [Index("bookId"), Index("authorId")]
+    indices = [Index("bookId"), Index("authorId")],
 )
 data class BookAuthor(val bookId: String, val authorId: String)

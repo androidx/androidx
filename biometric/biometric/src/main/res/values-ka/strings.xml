@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN-კოდი, განმბლოკავი ნიმუში ან პაროლი დაყენებული არ არის."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ამ მოწყობილობას არ აქვს PIN-კოდის, ნიმუშის ან პაროლის მხარდაჭერა."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"თითის ანაბეჭდის ხატულა"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"კონტენტის ხედში მეტი ვარიანტის ღილაკზე დაწკაპუნებულია."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"გამოიყენეთ თითის ანაბეჭდი"</string>
     <string name="use_face_label" msgid="6533512708069459542">"გამოიყენეთ სახე"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"გამოიყენეთ ბიომეტრიული სისტემა"</string>

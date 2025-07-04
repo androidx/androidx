@@ -24,6 +24,7 @@ import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
+import androidx.wear.tiles.InteractionEventsCallback
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourcesCallback
 import androidx.wear.tiles.ResourcesData
@@ -89,7 +90,7 @@ public class DefaultTileClientTest {
                 appContext,
                 TILE_PROVIDER,
                 fakeCoroutineScope,
-                fakeCoroutineDispatcher
+                fakeCoroutineDispatcher,
             )
     }
 
@@ -340,7 +341,7 @@ public class DefaultTileClientTest {
         override fun onTileRequest(
             id: Int,
             requestData: TileRequestData?,
-            callback: TileCallback?
+            callback: TileCallback?,
         ) {
             if (shouldReturnTile) {
                 callback!!.updateTileData(TileData(returnTile, returnTileVersion))
@@ -350,7 +351,7 @@ public class DefaultTileClientTest {
         override fun onResourcesRequest(
             id: Int,
             requestData: ResourcesRequestData?,
-            callback: ResourcesCallback?
+            callback: ResourcesCallback?,
         ) {
             if (shouldReturnResources) {
                 callback!!.updateResources(ResourcesData(returnResources, returnResourcesVersion))
@@ -373,8 +374,11 @@ public class DefaultTileClientTest {
             onTileLeaveCalled = true
         }
 
-        override fun processRecentInteractionEvents(
-            events: MutableList<TileInteractionEventData>?
-        ) {}
+        override fun onRecentInteractionEvents(
+            events: List<TileInteractionEventData?>?,
+            callback: InteractionEventsCallback?,
+        ) {
+            callback!!.finish()
+        }
     }
 }

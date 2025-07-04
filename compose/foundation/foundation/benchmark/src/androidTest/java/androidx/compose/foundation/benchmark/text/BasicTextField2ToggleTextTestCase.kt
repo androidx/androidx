@@ -46,7 +46,7 @@ class BasicTextField2ToggleTextTestCase(
     private val textLength: Int,
     private val textNumber: Int,
     private val width: Dp,
-    private val fontSize: TextUnit
+    private val fontSize: TextUnit,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val states =
@@ -58,7 +58,7 @@ class BasicTextField2ToggleTextTestCase(
             BasicTextField(
                 state = state,
                 textStyle = TextStyle(color = Color.Black, fontSize = fontSize),
-                modifier = Modifier.background(color = Color.Cyan).requiredWidth(width)
+                modifier = Modifier.background(color = Color.Cyan).requiredWidth(width),
             )
         }
     }
@@ -68,7 +68,7 @@ class BasicTextField2ToggleTextTestCase(
         Column(modifier = Modifier.width(width).verticalScroll(rememberScrollState())) {
             InterceptPlatformTextInput(
                 interceptor = { _, _ -> awaitCancellation() },
-                content = content
+                content = content,
             )
         }
     }

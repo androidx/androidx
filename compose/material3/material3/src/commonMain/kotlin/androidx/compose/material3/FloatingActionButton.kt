@@ -93,8 +93,8 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
- * <a href="https://m3.material.io/components/floating-action-button/overview" class="external"
- * target="_blank">Material Design floating action button</a>.
+ * [Material Design floating action
+ * button](https://m3.material.io/components/floating-action-button/overview)
  *
  * The FAB represents the most important action on a screen. It puts key actions within reach.
  *
@@ -144,7 +144,7 @@ fun FloatingActionButton(
         contentColor,
         elevation,
         interactionSource,
-        content
+        content,
     )
 
 @Composable
@@ -171,15 +171,11 @@ private fun FloatingActionButton(
         contentColor = contentColor,
         tonalElevation = elevation.tonalElevation(),
         shadowElevation = elevation.shadowElevation(interactionSource = interactionSource).value,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         ProvideContentColorTextStyle(contentColor = contentColor, textStyle = textStyle) {
             Box(
-                modifier =
-                    Modifier.defaultMinSize(
-                        minWidth = minWidth,
-                        minHeight = minHeight,
-                    ),
+                modifier = Modifier.defaultMinSize(minWidth = minWidth, minHeight = minHeight),
                 contentAlignment = Alignment.Center,
             ) {
                 content()
@@ -189,8 +185,8 @@ private fun FloatingActionButton(
 }
 
 /**
- * <a href="https://m3.material.io/components/floating-action-button/overview" class="external"
- * target="_blank">Material Design small floating action button</a>.
+ * [Material Design small floating action
+ * button](https://m3.material.io/components/floating-action-button/overview)
  *
  * The FAB represents the most important action on a screen. It puts key actions within reach.
  *
@@ -248,8 +244,8 @@ fun SmallFloatingActionButton(
 }
 
 /**
- * <a href="https://m3.material.io/components/floating-action-button/overview" class="external"
- * target="_blank">Material Design medium floating action button</a>.
+ * [Material Design medium floating action
+ * button](https://m3.material.io/components/floating-action-button/overview)
  *
  * The FAB represents the most important action on a screen. It puts key actions within reach.
  *
@@ -305,8 +301,8 @@ fun MediumFloatingActionButton(
 }
 
 /**
- * <a href="https://m3.material.io/components/floating-action-button/overview" class="external"
- * target="_blank">Material Design large floating action button</a>.
+ * [Material Design large floating action
+ * button](https://m3.material.io/components/floating-action-button/overview)
  *
  * The FAB represents the most important action on a screen. It puts key actions within reach.
  *
@@ -365,8 +361,8 @@ fun LargeFloatingActionButton(
 
 // TODO link to image
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design small extended floating action button</a>.
+ * [Material Design small extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -420,7 +416,7 @@ fun SmallExtendedFloatingActionButton(
             modifier =
                 Modifier.padding(
                     start = SmallExtendedFabPaddingStart,
-                    end = SmallExtendedFabPaddingEnd
+                    end = SmallExtendedFabPaddingEnd,
                 ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -431,8 +427,8 @@ fun SmallExtendedFloatingActionButton(
 
 // TODO link to image
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design medium extended floating action button</a>.
+ * [Material Design medium extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -486,7 +482,7 @@ fun MediumExtendedFloatingActionButton(
             modifier =
                 Modifier.padding(
                     start = MediumExtendedFabPaddingStart,
-                    end = MediumExtendedFabPaddingEnd
+                    end = MediumExtendedFabPaddingEnd,
                 ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -497,8 +493,8 @@ fun MediumExtendedFloatingActionButton(
 
 // TODO link to image
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design large extended floating action button</a>.
+ * [Material Design large extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -552,7 +548,7 @@ fun LargeExtendedFloatingActionButton(
             modifier =
                 Modifier.padding(
                     start = LargeExtendedFabPaddingStart,
-                    end = LargeExtendedFabPaddingEnd
+                    end = LargeExtendedFabPaddingEnd,
                 ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -562,8 +558,8 @@ fun LargeExtendedFloatingActionButton(
 }
 
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design extended floating action button</a>.
+ * [Material Design extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -624,8 +620,8 @@ fun ExtendedFloatingActionButton(
 }
 
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design small extended floating action button</a>.
+ * [Material Design small extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -692,8 +688,8 @@ fun SmallExtendedFloatingActionButton(
     )
 
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design medium extended floating action button</a>.
+ * [Material Design medium extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -760,8 +756,8 @@ fun MediumExtendedFloatingActionButton(
     )
 
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design large extended floating action button</a>.
+ * [Material Design large extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -828,8 +824,8 @@ fun LargeExtendedFloatingActionButton(
     )
 
 /**
- * <a href="https://m3.material.io/components/extended-fab/overview" class="external"
- * target="_blank">Material Design extended floating action button</a>.
+ * [Material Design extended floating action
+ * button](https://m3.material.io/components/extended-fab/overview)
  *
  * Extended FABs help people take primary actions. They're wider than FABs to accommodate a text
  * label and larger target area.
@@ -902,7 +898,7 @@ fun ExtendedFloatingActionButton(
                     )
                     .padding(start = startPadding, end = endPadding),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = if (expanded) Arrangement.Start else Arrangement.Center
+            horizontalArrangement = if (expanded) Arrangement.Start else Arrangement.Center,
         ) {
             icon()
             AnimatedVisibility(
@@ -996,10 +992,7 @@ object FloatingActionButtonDefaults {
     internal val ShowHideTargetScale = 0.2f
 
     /** The recommended size of the icon inside a [MediumFloatingActionButton]. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
-    @ExperimentalMaterial3ExpressiveApi
-    val MediumIconSize = FabMediumTokens.IconSize
+    @ExperimentalMaterial3ExpressiveApi val MediumIconSize = FabMediumTokens.IconSize
 
     /** The recommended size of the icon inside a [LargeFloatingActionButton]. */
     val LargeIconSize = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
@@ -1013,8 +1006,6 @@ object FloatingActionButtonDefaults {
         @Composable get() = FabSmallTokens.ContainerShape.value
 
     /** Default shape for a medium floating action button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val mediumShape: Shape
         @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
@@ -1028,22 +1019,16 @@ object FloatingActionButtonDefaults {
         @Composable get() = ExtendedFabPrimaryTokens.ContainerShape.value
 
     /** Default shape for a small extended floating action button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val smallExtendedFabShape: Shape
         @Composable get() = ExtendedFabSmallTokens.ContainerShape.value
 
     /** Default shape for a medium extended floating action button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val mediumExtendedFabShape: Shape
         @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
 
     /** Default shape for a large extended floating action button. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val largeExtendedFabShape: Shape
         @Composable get() = ExtendedFabLargeTokens.ContainerShape.value
@@ -1115,13 +1100,13 @@ object FloatingActionButtonDefaults {
         defaultElevation: Dp = 0.dp,
         pressedElevation: Dp = 0.dp,
         focusedElevation: Dp = 0.dp,
-        hoveredElevation: Dp = 0.dp
+        hoveredElevation: Dp = 0.dp,
     ): FloatingActionButtonElevation =
         FloatingActionButtonElevation(
             defaultElevation,
             pressedElevation,
             focusedElevation,
-            hoveredElevation
+            hoveredElevation,
         )
 }
 
@@ -1145,7 +1130,7 @@ fun Modifier.animateFloatingActionButton(
     alignment: Alignment,
     targetScale: Float = FloatingActionButtonDefaults.ShowHideTargetScale,
     scaleAnimationSpec: AnimationSpec<Float>? = null,
-    alphaAnimationSpec: AnimationSpec<Float>? = null
+    alphaAnimationSpec: AnimationSpec<Float>? = null,
 ): Modifier {
     return this.then(
         FabVisibleModifier(
@@ -1153,7 +1138,7 @@ fun Modifier.animateFloatingActionButton(
             alignment = alignment,
             targetScale = targetScale,
             scaleAnimationSpec = scaleAnimationSpec,
-            alphaAnimationSpec = alphaAnimationSpec
+            alphaAnimationSpec = alphaAnimationSpec,
         )
     )
 }
@@ -1163,7 +1148,7 @@ internal data class FabVisibleModifier(
     private val alignment: Alignment,
     private val targetScale: Float,
     private val scaleAnimationSpec: AnimationSpec<Float>? = null,
-    private val alphaAnimationSpec: AnimationSpec<Float>? = null
+    private val alphaAnimationSpec: AnimationSpec<Float>? = null,
 ) : ModifierNodeElement<FabVisibleNode>() {
 
     override fun create(): FabVisibleNode =
@@ -1241,7 +1226,7 @@ internal class FabVisibleNode(
         alignment: Alignment,
         targetScale: Float,
         scaleAnimationSpec: AnimationSpec<Float>?,
-        alphaAnimationSpec: AnimationSpec<Float>?
+        alphaAnimationSpec: AnimationSpec<Float>?,
     ) {
         this.alignment = alignment
         this.targetScale = targetScale
@@ -1253,7 +1238,8 @@ internal class FabVisibleNode(
             scaleAnimatable.animateTo(
                 targetValue = if (visible) 1f else 0f,
                 animationSpec =
-                    scaleAnimationSpec ?: currentValueOf(LocalMotionScheme).fastSpatialSpec()
+                    scaleAnimationSpec
+                        ?: currentValueOf(MaterialTheme.LocalMotionScheme).fastSpatialSpec(),
             )
         }
 
@@ -1262,7 +1248,8 @@ internal class FabVisibleNode(
             alphaAnimatable.animateTo(
                 targetValue = if (visible) 1f else 0f,
                 animationSpec =
-                    alphaAnimationSpec ?: currentValueOf(LocalMotionScheme).fastEffectsSpec()
+                    alphaAnimationSpec
+                        ?: currentValueOf(MaterialTheme.LocalMotionScheme).fastEffectsSpec(),
             )
         }
     }
@@ -1299,7 +1286,7 @@ internal constructor(
                     defaultElevation = defaultElevation,
                     pressedElevation = pressedElevation,
                     hoveredElevation = hoveredElevation,
-                    focusedElevation = focusedElevation
+                    focusedElevation = focusedElevation,
                 )
             }
 
@@ -1308,7 +1295,7 @@ internal constructor(
                 defaultElevation = defaultElevation,
                 pressedElevation = pressedElevation,
                 hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
+                focusedElevation = focusedElevation,
             )
         }
 
@@ -1369,7 +1356,7 @@ private class FloatingActionButtonElevationAnimatable(
     private var defaultElevation: Dp,
     private var pressedElevation: Dp,
     private var hoveredElevation: Dp,
-    private var focusedElevation: Dp
+    private var focusedElevation: Dp,
 ) {
     private val animatable = Animatable(defaultElevation, Dp.VectorConverter)
 
@@ -1389,7 +1376,7 @@ private class FloatingActionButtonElevationAnimatable(
         defaultElevation: Dp,
         pressedElevation: Dp,
         hoveredElevation: Dp,
-        focusedElevation: Dp
+        focusedElevation: Dp,
     ) {
         this.defaultElevation = defaultElevation
         this.pressedElevation = pressedElevation
@@ -1472,7 +1459,7 @@ private fun extendedFabCollapseAnimation() =
 private fun extendedFabExpandAnimation() =
     fadeIn(
         // TODO Load the motionScheme tokens from the component tokens file
-        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
+        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
     ) +
         expandHorizontally(
             animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),

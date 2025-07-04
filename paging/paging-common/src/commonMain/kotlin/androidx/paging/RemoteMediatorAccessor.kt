@@ -20,7 +20,7 @@ import androidx.paging.AccessorState.BlockState.COMPLETED
 import androidx.paging.AccessorState.BlockState.REQUIRES_REFRESH
 import androidx.paging.AccessorState.BlockState.UNBLOCKED
 import androidx.paging.RemoteMediator.MediatorResult
-import androidx.paging.internal.ReentrantLock
+import androidx.paging.internal.SynchronizedLock
 import androidx.paging.internal.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,12 +51,12 @@ internal interface RemoteMediatorAccessor<Key : Any, Value : Any> :
 @OptIn(ExperimentalPagingApi::class)
 internal fun <Key : Any, Value : Any> RemoteMediatorAccessor(
     scope: CoroutineScope,
-    delegate: RemoteMediator<Key, Value>
+    delegate: RemoteMediator<Key, Value>,
 ): RemoteMediatorAccessor<Key, Value> = RemoteMediatorAccessImpl(scope, delegate)
 
 /** Simple wrapper around the local state of accessor to ensure we don't concurrently change it. */
 private class AccessorStateHolder<Key : Any, Value : Any> {
-    private val lock = ReentrantLock()
+    private val lock = SynchronizedLock()
 
     private val _loadStates = MutableStateFlow(LoadStates.IDLE)
     val loadStates
@@ -107,7 +107,7 @@ private class AccessorState<Key : Any, Value : Any> {
         return LoadStates(
             refresh = computeLoadTypeState(LoadType.REFRESH),
             append = computeLoadTypeState(LoadType.APPEND),
-            prepend = computeLoadTypeState(LoadType.PREPEND)
+            prepend = computeLoadTypeState(LoadType.PREPEND),
         )
     }
 
@@ -226,20 +226,20 @@ private class AccessorState<Key : Any, Value : Any> {
 
     class PendingRequest<Key : Any, Value : Any>(
         val loadType: LoadType,
-        var pagingState: PagingState<Key, Value>
+        var pagingState: PagingState<Key, Value>,
     )
 
     enum class BlockState {
         UNBLOCKED,
         COMPLETED,
-        REQUIRES_REFRESH
+        REQUIRES_REFRESH,
     }
 }
 
 @OptIn(ExperimentalPagingApi::class)
 private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
     private val scope: CoroutineScope,
-    private val remoteMediator: RemoteMediator<Key, Value>
+    private val remoteMediator: RemoteMediator<Key, Value>,
 ) : RemoteMediatorAccessor<Key, Value> {
     // all internal state is kept in accessorState to avoid concurrent access
     private val accessorState = AccessorStateHolder<Key, Value>()
@@ -338,7 +338,7 @@ private class RemoteMediatorAccessImpl<Key : Any, Value : Any>(
                                     it.clearPendingRequest(LoadType.REFRESH)
                                     it.setError(
                                         LoadType.REFRESH,
-                                        LoadState.Error(loadResult.throwable)
+                                        LoadState.Error(loadResult.throwable),
                                     )
 
                                     // If there is a pending boundary, trigger its launch, allowing

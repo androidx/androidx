@@ -43,7 +43,7 @@ class SigningInfoCompatApi21Test {
         val packageInfo =
             context.packageManager.getPackageInfo(
                 context.packageName,
-                PackageManager.GET_SIGNATURES
+                PackageManager.GET_SIGNATURES,
             )
         assertNotNull(packageInfo.signatures)
         signatures = packageInfo.signatures!!.filterNotNull()

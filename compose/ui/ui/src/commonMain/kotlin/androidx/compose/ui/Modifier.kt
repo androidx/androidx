@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.internal.PlatformOptimizedCancellationException
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DrawModifierNode
@@ -25,12 +26,12 @@ import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.NodeKind
 import androidx.compose.ui.node.ObserverNodeOwnerScope
 import androidx.compose.ui.node.requireOwner
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 
-internal expect class ModifierNodeDetachedCancellationException() : CancellationException
+internal class ModifierNodeDetachedCancellationException :
+    PlatformOptimizedCancellationException("The Modifier.Node was detached")
 
 /**
  * An ordered, immutable collection of [modifier elements][Modifier.Element] that decorate or add

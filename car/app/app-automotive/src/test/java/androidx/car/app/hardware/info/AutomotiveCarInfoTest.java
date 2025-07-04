@@ -469,7 +469,7 @@ public class AutomotiveCarInfoTest {
         mCountDownLatch.await();
 
         Mileage mileage = loadedResult.get();
-        assertThat(mileage.getOdometerMeters().getValue()).isEqualTo(1f);
+        assertThat(mileage.getOdometerInKilometers().getValue()).isEqualTo(1f);
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
     }
 
@@ -568,7 +568,7 @@ public class AutomotiveCarInfoTest {
         mCountDownLatch.await();
 
         Mileage mileage = loadedResult.get();
-        assertThat(mileage.getOdometerMeters().getValue()).isEqualTo(1f);
+        assertThat(mileage.getOdometerInKilometers().getValue()).isEqualTo(1f);
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
     }
 
@@ -632,12 +632,12 @@ public class AutomotiveCarInfoTest {
 
         firstCountDownLatch.await();
         Mileage firstMileage = loadedFirstResult.get();
-        assertThat(firstMileage.getOdometerMeters().getValue()).isEqualTo(1f);
+        assertThat(firstMileage.getOdometerInKilometers().getValue()).isEqualTo(1f);
         assertThat(firstMileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
 
         secondCountDownLatch.await();
         Mileage secondMileage = loadedSecondResult.get();
-        assertThat(secondMileage.getOdometerMeters().getValue()).isEqualTo(1f);
+        assertThat(secondMileage.getOdometerInKilometers().getValue()).isEqualTo(1f);
         assertThat(secondMileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
     }
 

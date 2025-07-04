@@ -451,7 +451,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")
@@ -469,7 +469,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")
@@ -487,7 +487,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")
@@ -505,7 +505,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")
@@ -523,7 +523,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")
@@ -542,7 +542,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")
@@ -573,7 +573,7 @@ class ToggleButtonScreenshotTest {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ToggleButtonDefaults.IconSize)
+                        modifier = Modifier.size(ToggleButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                     Text("Like")

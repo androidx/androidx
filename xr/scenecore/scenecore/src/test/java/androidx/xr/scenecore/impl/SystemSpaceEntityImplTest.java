@@ -23,16 +23,19 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.verify;
 
-import androidx.xr.extensions.node.Mat4f;
 import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.JxrPlatformAdapter.SystemSpaceEntity.OnSpaceUpdatedListener;
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService;
-import androidx.xr.scenecore.testing.FakeXrExtensions.FakeCloseable;
-import androidx.xr.scenecore.testing.FakeXrExtensions.FakeNode;
-import androidx.xr.scenecore.testing.FakeXrExtensions.FakeNodeTransform;
+
+import com.android.extensions.xr.node.FakeCloseable;
+import com.android.extensions.xr.node.Mat4f;
+import com.android.extensions.xr.node.Node;
+import com.android.extensions.xr.node.NodeRepository;
+import com.android.extensions.xr.node.NodeTransform;
+import com.android.extensions.xr.node.ShadowNode;
+import com.android.extensions.xr.node.ShadowNodeTransform;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -61,17 +64,17 @@ public abstract class SystemSpaceEntityImplTest {
     public void systemSpaceEntityImplConstructor_setsNodeTransformSubscription() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
         FakeScheduledExecutorService fakeExecutor = getDefaultFakeExecutor();
-        FakeNode node = (FakeNode) systemSpaceEntity.getNode();
+        ShadowNode node = ShadowNode.extract(systemSpaceEntity.getNode());
         assertThat(node.getTransformListener()).isNotNull();
         assertThat(node.getTransformExecutor()).isEqualTo(fakeExecutor);
-        assertThat(systemSpaceEntity.nodeTransformCloseable).isNotNull();
+        assertThat(systemSpaceEntity.mNodeTransformCloseable).isNotNull();
     }
 
     @Test
     public void dispose_closesNodeTransformSubscription() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
         FakeCloseable nodeTransformCloseable =
-                (FakeCloseable) systemSpaceEntity.nodeTransformCloseable;
+                (FakeCloseable) systemSpaceEntity.mNodeTransformCloseable;
         assertThat(nodeTransformCloseable.isClosed()).isFalse();
 
         systemSpaceEntity.dispose();
@@ -86,7 +89,7 @@ public abstract class SystemSpaceEntityImplTest {
     @Test
     public void setOnSpaceUpdatedListener_callListenersOnActivitySpaceUpdated() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        OnSpaceUpdatedListener listener1 = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener1 = Mockito.mock(Runnable.class);
         FakeScheduledExecutorService executor1 = new FakeScheduledExecutorService();
 
         systemSpaceEntity.setOnSpaceUpdatedListener(listener1, executor1);
@@ -94,15 +97,15 @@ public abstract class SystemSpaceEntityImplTest {
         assertThat(executor1.hasNext()).isTrue();
         executor1.runAll();
 
-        verify(listener1).onSpaceUpdated();
+        verify(listener1).run();
     }
 
     @Test
     public void
             setOnSpaceUpdatedListener_multipleListeners_callLastListenersOnActivitySpaceUpdated() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        OnSpaceUpdatedListener listener1 = Mockito.mock(OnSpaceUpdatedListener.class);
-        OnSpaceUpdatedListener listener2 = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener1 = Mockito.mock(Runnable.class);
+        Runnable listener2 = Mockito.mock(Runnable.class);
         FakeScheduledExecutorService executor1 = new FakeScheduledExecutorService();
         FakeScheduledExecutorService executor2 = new FakeScheduledExecutorService();
 
@@ -117,28 +120,28 @@ public abstract class SystemSpaceEntityImplTest {
         executor1.runAll();
         executor2.runAll();
 
-        verify(listener1, Mockito.never()).onSpaceUpdated();
-        verify(listener2).onSpaceUpdated();
+        verify(listener1, Mockito.never()).run();
+        verify(listener2).run();
     }
 
     @Test
     public void setOnSpaceUpdatedListener_withNullExecutor_usesInternalExecutor() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
         FakeScheduledExecutorService fakeExecutor = getDefaultFakeExecutor();
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
 
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, null);
         systemSpaceEntity.onSpaceUpdated();
 
         assertThat(fakeExecutor.hasNext()).isTrue();
         fakeExecutor.runAll();
-        verify(listener).onSpaceUpdated();
+        verify(listener).run();
     }
 
     @Test
     public void setOnSpaceUpdatedListener_withNullListener_noListenerCallOnActivitySpaceUpdated() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
         FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
         systemSpaceEntity.setOnSpaceUpdatedListener(null, executor);
@@ -146,13 +149,12 @@ public abstract class SystemSpaceEntityImplTest {
         systemSpaceEntity.onSpaceUpdated();
         executor.runAll();
 
-        verify(listener, Mockito.never()).onSpaceUpdated();
+        verify(listener, Mockito.never()).run();
     }
 
     @Test
     public void getPoseInOpenXrReferenceSpace_returnsPoseFromSubscribeToNodeTransform() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        FakeNode node = (FakeNode) systemSpaceEntity.getNode();
         Mat4f mat4f =
                 new Mat4f( // --                Column major, right handed 4x4 Transformation Matrix
                         // with
@@ -163,9 +165,9 @@ public abstract class SystemSpaceEntityImplTest {
                             0f, 0f, 1f, 0f, // --     0,        0,      1,  0
                             4f, 8f, 12f, 1f, // --    tx,       ty,     tz, 1
                         });
-        FakeNodeTransform nodeTransformEvent = new FakeNodeTransform(mat4f);
+        NodeTransform nodeTransformEvent = ShadowNodeTransform.create(mat4f);
 
-        node.sendTransformEvent(nodeTransformEvent);
+        sendTransformEvent(systemSpaceEntity.getNode(), nodeTransformEvent);
         getDefaultFakeExecutor().runAll();
 
         Pose expectedPose =
@@ -176,24 +178,30 @@ public abstract class SystemSpaceEntityImplTest {
         assertPose(systemSpaceEntity.getPoseInOpenXrReferenceSpace(), expectedPose);
     }
 
+    private void sendTransformEvent(Node node, NodeTransform nodeTransform) {
+        ShadowNode shadowNode = ShadowNode.extract(node);
+        shadowNode
+                .getTransformExecutor()
+                .execute(() -> shadowNode.getTransformListener().accept(nodeTransform));
+    }
+
     @Test
     public void setOnSpaceUpdatedListener_callsListenerOnNodeTransformEvent() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        FakeNode node = (FakeNode) systemSpaceEntity.getNode();
         Mat4f mat4f = new Mat4f(Matrix4.Identity.getData());
-        FakeNodeTransform nodeTransformEvent = new FakeNodeTransform(mat4f);
+        NodeTransform nodeTransformEvent = ShadowNodeTransform.create(mat4f);
 
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
         FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
 
-        node.sendTransformEvent(nodeTransformEvent);
+        sendTransformEvent(systemSpaceEntity.getNode(), nodeTransformEvent);
         getDefaultFakeExecutor().runAll();
 
         assertThat(executor.hasNext()).isTrue();
         executor.runAll();
 
-        verify(listener).onSpaceUpdated();
+        verify(listener).run();
     }
 
     @Test
@@ -201,57 +209,73 @@ public abstract class SystemSpaceEntityImplTest {
             setOnSpaceUpdatedListener_multipleListeners_callsLastListenerOnNodeTransformEvent() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
         FakeScheduledExecutorService fakeExecutor = getDefaultFakeExecutor();
-        FakeNode node = (FakeNode) systemSpaceEntity.getNode();
         Mat4f mat4f = new Mat4f(Matrix4.Identity.getData());
-        FakeNodeTransform nodeTransformEvent = new FakeNodeTransform(mat4f);
+        NodeTransform nodeTransformEvent = ShadowNodeTransform.create(mat4f);
 
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
-        OnSpaceUpdatedListener listener2 = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
+        Runnable listener2 = Mockito.mock(Runnable.class);
         FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
         systemSpaceEntity.setOnSpaceUpdatedListener(listener2, executor);
 
-        node.sendTransformEvent(nodeTransformEvent);
+        sendTransformEvent(systemSpaceEntity.getNode(), nodeTransformEvent);
         fakeExecutor.runAll();
         assertThat(executor.hasNext()).isTrue();
         executor.runAll();
 
-        verify(listener, Mockito.never()).onSpaceUpdated();
-        verify(listener2).onSpaceUpdated();
+        verify(listener, Mockito.never()).run();
+        verify(listener2).run();
     }
 
     @Test
     public void
             setOnSpaceUpdatedListener_withNullExecutor_callsListenerOnNodeTransformEventExecutor() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        FakeNode node = (FakeNode) systemSpaceEntity.getNode();
         Mat4f mat4f = new Mat4f(Matrix4.Identity.getData());
-        FakeNodeTransform nodeTransformEvent = new FakeNodeTransform(mat4f);
+        NodeTransform nodeTransformEvent = ShadowNodeTransform.create(mat4f);
 
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, null);
 
-        node.sendTransformEvent(nodeTransformEvent);
+        sendTransformEvent(systemSpaceEntity.getNode(), nodeTransformEvent);
         getDefaultFakeExecutor().runAll();
 
-        verify(listener).onSpaceUpdated();
+        verify(listener).run();
     }
 
     @Test
     public void setOnSpaceUpdatedListener_withNullListener_noListenerCalledOnNodeTransformEvent() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        FakeNode node = (FakeNode) systemSpaceEntity.getNode();
         Mat4f mat4f = new Mat4f(Matrix4.Identity.getData());
-        FakeNodeTransform nodeTransformEvent = new FakeNodeTransform(mat4f);
+        NodeTransform nodeTransformEvent = ShadowNodeTransform.create(mat4f);
 
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, null);
         systemSpaceEntity.setOnSpaceUpdatedListener(null, null);
 
-        node.sendTransformEvent(nodeTransformEvent);
+        sendTransformEvent(systemSpaceEntity.getNode(), nodeTransformEvent);
         getDefaultFakeExecutor().runAll();
 
-        verify(listener, Mockito.never()).onSpaceUpdated();
+        verify(listener, Mockito.never()).run();
+    }
+
+    @Test
+    public void zeroTransform_doesNotUpdatePoseOrScaleOrCallOnSpaceUpdated() {
+        SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
+        Runnable listener = Mockito.mock(Runnable.class);
+        FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
+        Pose expectedPose = new Pose(Vector3.One, Quaternion.Identity);
+        Vector3 expectedScale = new Vector3(4f, 5f, 6f);
+
+        systemSpaceEntity.mOpenXrReferenceSpacePose = expectedPose;
+        systemSpaceEntity.mWorldSpaceScale = expectedScale;
+        systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
+        systemSpaceEntity.setOpenXrReferenceSpacePose(Matrix4.Zero);
+        executor.runAll();
+
+        assertThat(systemSpaceEntity.mOpenXrReferenceSpacePose).isEqualTo(expectedPose);
+        assertThat(systemSpaceEntity.mWorldSpaceScale).isEqualTo(expectedScale);
+        verify(listener, Mockito.never()).run();
     }
 
     @Test
@@ -262,27 +286,27 @@ public abstract class SystemSpaceEntityImplTest {
         systemSpaceEntity.addChild(childEntity);
 
         // Verify the parent of the child node is the space node before disposing it.
-        FakeNode systemSpaceNode = (FakeNode) systemSpaceEntity.getNode();
-        FakeNode childNode = (FakeNode) childEntity.getNode();
-        assertThat(childNode.getParent()).isEqualTo(systemSpaceNode);
+        Node systemSpaceNode = systemSpaceEntity.getNode();
+        assertThat(NodeRepository.getInstance().getParent(childEntity.getNode()))
+                .isEqualTo(systemSpaceNode);
 
         // Dispose the space entity and verify that the children were disposed.
         systemSpaceEntity.dispose();
 
-        assertThat(childNode.getParent()).isNull();
+        assertThat(NodeRepository.getInstance().getParent(childEntity.getNode())).isNull();
     }
 
     @Test
     public void setPoseInOpenXrReferenceSpace_callsOnSpaceUpdated() {
         SystemSpaceEntityImpl systemSpaceEntity = getSystemSpaceEntityImpl();
-        OnSpaceUpdatedListener listener = Mockito.mock(OnSpaceUpdatedListener.class);
+        Runnable listener = Mockito.mock(Runnable.class);
         FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
 
         systemSpaceEntity.setOnSpaceUpdatedListener(listener, executor);
         systemSpaceEntity.setOpenXrReferenceSpacePose(Matrix4.Identity);
         executor.runAll();
 
-        verify(listener).onSpaceUpdated();
+        verify(listener).run();
     }
 
     @Test

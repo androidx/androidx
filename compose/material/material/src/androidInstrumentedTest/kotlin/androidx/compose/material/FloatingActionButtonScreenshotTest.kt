@@ -94,7 +94,7 @@ class FloatingActionButtonScreenshotTest {
             ExtendedFloatingActionButton(
                 text = { Text("EXTENDED") },
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -153,7 +153,7 @@ class FloatingActionButtonScreenshotTest {
             Box(Modifier.requiredSize(100.dp, 100.dp).wrapContentSize()) {
                 FloatingActionButton(
                     onClick = {},
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 ) {
                     Icon(Icons.Filled.Favorite, contentDescription = null)
                 }

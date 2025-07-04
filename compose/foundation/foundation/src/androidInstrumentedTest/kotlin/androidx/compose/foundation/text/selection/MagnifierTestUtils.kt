@@ -27,7 +27,7 @@ import kotlin.test.fail
 
 internal fun getMagnifierCenterOffset(
     rule: ComposeTestRule,
-    requireSpecified: Boolean = false
+    requireSpecified: Boolean = false,
 ): Offset {
     val positions = getMagnifierPositions(rule)
     return if (requireSpecified) {

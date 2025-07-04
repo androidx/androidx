@@ -28,5 +28,5 @@ class StepperBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = StepperBenchmark,
-        actionSuffix = "STEPPER_ACTIVITY"
+        actionSuffix = "STEPPER_ACTIVITY",
     )

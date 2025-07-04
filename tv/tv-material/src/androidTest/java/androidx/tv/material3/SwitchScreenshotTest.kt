@@ -92,7 +92,7 @@ class SwitchScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Switch(
                     checked = true,
                     onCheckedChange = {},
-                    colors = SwitchDefaults.colors(checkedThumbColor = Color.Green)
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.Green),
                 )
             }
         }
@@ -164,7 +164,7 @@ class SwitchScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Switch(
                     checked = true,
                     onCheckedChange = {},
-                    modifier = Modifier.testTag("switch").focusRequester(focusRequester)
+                    modifier = Modifier.testTag("switch").focusRequester(focusRequester),
                 )
             }
         }

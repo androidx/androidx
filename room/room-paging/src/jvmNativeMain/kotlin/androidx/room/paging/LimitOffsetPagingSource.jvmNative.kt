@@ -41,19 +41,20 @@ actual constructor(
     private val implementation = CommonLimitOffsetImpl(tables, this, ::convertRows)
 
     public actual val itemCount: Int
-        get() = implementation.itemCount.value
+        get() = implementation.itemCount.get()
 
     override val jumpingSupported: Boolean
         get() = true
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> =
+    actual override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> =
         implementation.load(params)
 
-    override fun getRefreshKey(state: PagingState<Int, Value>): Int? = state.getClippedRefreshKey()
+    actual override fun getRefreshKey(state: PagingState<Int, Value>): Int? =
+        state.getClippedRefreshKey()
 
     protected actual open suspend fun convertRows(
         limitOffsetQuery: RoomRawQuery,
-        itemCount: Int
+        itemCount: Int,
     ): List<Value> {
         throw NotImplementedError(
             "Unexpected call to a function with no implementation that Room is suppose to " +

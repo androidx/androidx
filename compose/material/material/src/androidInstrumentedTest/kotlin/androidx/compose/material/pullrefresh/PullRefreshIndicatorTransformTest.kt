@@ -69,7 +69,7 @@ class PullRefreshIndicatorTransformTest {
                     // Set a larger size so that when offset the indicator will still appear
                     .size(ContainingBoxSize)
                     .testTag(BoxTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Box(
                     Modifier.pullRefreshIndicatorTransform(state)
@@ -95,7 +95,7 @@ class PullRefreshIndicatorTransformTest {
                     // Set a larger size so that when offset the indicator will still appear
                     .size(ContainingBoxSize)
                     .testTag(BoxTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Box(
                     Modifier.pullRefreshIndicatorTransform(state)
@@ -147,7 +147,7 @@ class PullRefreshIndicatorTransformTest {
                 rememberPullRefreshState(
                     refreshing = true,
                     onRefresh = {},
-                    refreshingOffset = IndicatorSize
+                    refreshingOffset = IndicatorSize,
                 )
             Box(
                 Modifier.fillMaxSize()
@@ -156,7 +156,7 @@ class PullRefreshIndicatorTransformTest {
                     // Set a larger size so that when offset the indicator will still appear
                     .size(ContainingBoxSize)
                     .testTag(BoxTag),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Box(
                     Modifier.pullRefreshIndicatorTransform(state)

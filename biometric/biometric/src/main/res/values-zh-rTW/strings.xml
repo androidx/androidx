@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未設定 PIN 碼、解鎖圖案或密碼。"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"這部裝置不支援 PIN 碼、解鎖圖案或密碼。"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"指紋圖示"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"使用者點選了內容檢視畫面中的「更多選項」按鈕。"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"使用指紋解鎖功能"</string>
     <string name="use_face_label" msgid="6533512708069459542">"使用人臉解鎖功能"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"使用生物辨識功能"</string>

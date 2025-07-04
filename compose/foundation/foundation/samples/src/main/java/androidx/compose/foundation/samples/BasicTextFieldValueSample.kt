@@ -54,7 +54,7 @@ private fun StringTextField(
         TextFieldState(
             initialText = value,
             // Initialize the cursor to be at the end of the field.
-            initialSelection = TextRange(value.length)
+            initialSelection = TextRange(value.length),
         )
     }
 
@@ -79,7 +79,7 @@ private fun StringTextField(
                         }
                         valueWithSelection = it
                     },
-                    writeSelectionFromTextFieldValue = false
+                    writeSelectionFromTextFieldValue = false,
                 )
             ),
         // other arguments

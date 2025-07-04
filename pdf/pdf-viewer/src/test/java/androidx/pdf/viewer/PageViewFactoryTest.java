@@ -34,7 +34,6 @@ import androidx.pdf.util.ObservableValue;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.pdf.widget.ZoomView;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +42,6 @@ import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 
 @SuppressWarnings("unchecked")
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class PageViewFactoryTest {
     private final PdfLoader mMockPdfLoader = mock(PdfLoader.class);

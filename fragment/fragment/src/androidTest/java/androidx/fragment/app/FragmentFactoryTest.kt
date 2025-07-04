@@ -53,7 +53,7 @@ class FragmentFactoryTest {
         assertEquals(
             "FragmentFactory should be used for inflated Fragments",
             1,
-            fragmentFactory.instantiateCount
+            fragmentFactory.instantiateCount,
         )
     }
 
@@ -69,7 +69,7 @@ class FragmentFactoryTest {
         assertEquals(
             "FragmentFactory should be used for inflated Fragments",
             1,
-            fragmentFactory.instantiateCount
+            fragmentFactory.instantiateCount,
         )
     }
 
@@ -86,7 +86,7 @@ class FragmentFactoryTest {
         assertEquals(
             "FragmentFactory should be used for inflated child Fragments",
             1,
-            fragmentFactory.instantiateCount
+            fragmentFactory.instantiateCount,
         )
     }
 
@@ -106,7 +106,7 @@ class FragmentFactoryTest {
         assertEquals(
             "FragmentFactory should be used for inflated child Fragments",
             1,
-            fragmentFactory.instantiateCount
+            fragmentFactory.instantiateCount,
         )
     }
 
@@ -128,12 +128,12 @@ class FragmentFactoryTest {
             "FragmentFactory should not used for child Fragments when they " +
                 "have their own FragmentFactory",
             0,
-            fragmentFactory.instantiateCount
+            fragmentFactory.instantiateCount,
         )
         assertEquals(
             "Child FragmentFactory should be used for inflated child Fragments",
             1,
-            childFragmentFactory.instantiateCount
+            childFragmentFactory.instantiateCount,
         )
     }
 
@@ -151,19 +151,19 @@ class FragmentFactoryTest {
             .beginTransaction()
             .replace(
                 R.id.content,
-                ParentFragmentContainerView().apply { factory = childFragmentFactory }
+                ParentFragmentContainerView().apply { factory = childFragmentFactory },
             )
             .commitNow()
         assertEquals(
             "FragmentFactory should not used for child Fragments when they " +
                 "have their own FragmentFactory",
             0,
-            fragmentFactory.instantiateCount
+            fragmentFactory.instantiateCount,
         )
         assertEquals(
             "Child FragmentFactory should be used for inflated child Fragments",
             1,
-            childFragmentFactory.instantiateCount
+            childFragmentFactory.instantiateCount,
         )
     }
 }

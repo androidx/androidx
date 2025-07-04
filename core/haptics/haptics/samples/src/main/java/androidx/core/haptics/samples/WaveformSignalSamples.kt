@@ -26,11 +26,7 @@ import androidx.core.haptics.signal.WaveformSignal.Companion.waveformOf
 /** Sample showing how to create an on-off pattern. */
 @Sampled
 fun PatternWaveform() {
-    waveformOf(
-        on(durationMillis = 250),
-        off(durationMillis = 350),
-        on(durationMillis = 250),
-    )
+    waveformOf(on(durationMillis = 250), off(durationMillis = 350), on(durationMillis = 250))
 }
 
 /** Sample showing how to create an infinite haptic signal a repeating step waveform. */
@@ -61,10 +57,7 @@ fun AmplitudeWaveform() {
 /** Sample showing how to create an amplitude step waveform. */
 @Sampled
 fun RepeatingAmplitudeWaveform() {
-    repeatingWaveformOf(
-        on(durationMillis = 100),
-        off(durationMillis = 50),
-    )
+    repeatingWaveformOf(on(durationMillis = 100), off(durationMillis = 50))
 }
 
 /** Sample showing how to create an infinite haptic signal as repeating step waveform. */
@@ -82,11 +75,7 @@ fun PatternThenRepeatExistingWaveform(waveformSignal: WaveformSignal) {
 /** Sample showing how to create an infinite haptic signal as repeating step waveform. */
 @Sampled
 fun PatternThenRepeatAmplitudeWaveform() {
-    waveformOf(
-            on(durationMillis = 100),
-            off(durationMillis = 50),
-            on(durationMillis = 100),
-        )
+    waveformOf(on(durationMillis = 100), off(durationMillis = 50), on(durationMillis = 100))
         .thenRepeat(
             on(durationMillis = 500, amplitude = 0f),
             on(durationMillis = 100, amplitude = 0.2f),

@@ -18,6 +18,7 @@ package androidx.compose.ui.draw
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.DefaultCameraDistance
@@ -52,15 +53,12 @@ class GraphicsLayerModifierTest {
         assertThat(modifier.valueOverride).isNull()
         assertThat(modifier.inspectableElements.asIterable())
             .containsExactly(
-                ValueElement("renderEffect", null),
                 ValueElement("scaleX", 1.0f),
                 ValueElement("scaleY", 1.0f),
                 ValueElement("alpha", 1.0f),
                 ValueElement("translationX", 0.0f),
                 ValueElement("translationY", 0.0f),
                 ValueElement("shadowElevation", 0.0f),
-                ValueElement("ambientShadowColor", DefaultShadowColor),
-                ValueElement("spotShadowColor", DefaultShadowColor),
                 ValueElement("rotationX", 2.0f),
                 ValueElement("rotationY", 0.0f),
                 ValueElement("rotationZ", 0.0f),
@@ -68,7 +66,12 @@ class GraphicsLayerModifierTest {
                 ValueElement("transformOrigin", TransformOrigin.Center),
                 ValueElement("shape", RectangleShape),
                 ValueElement("clip", false),
-                ValueElement("compositingStrategy", CompositingStrategy.Auto)
+                ValueElement("renderEffect", null),
+                ValueElement("ambientShadowColor", DefaultShadowColor),
+                ValueElement("spotShadowColor", DefaultShadowColor),
+                ValueElement("compositingStrategy", CompositingStrategy.Auto),
+                ValueElement("blendMode", BlendMode.SrcOver),
+                ValueElement("colorFilter", null),
             )
     }
 
@@ -89,7 +92,7 @@ class GraphicsLayerModifierTest {
                     rotationZ = 8.0f,
                     transformOrigin = TransformOrigin.Center,
                     shape = RectangleShape,
-                    clip = true
+                    clip = true,
                 )
             )
             .isEqualTo(
@@ -107,7 +110,7 @@ class GraphicsLayerModifierTest {
                     rotationZ = 8.0f,
                     transformOrigin = TransformOrigin.Center,
                     shape = RectangleShape,
-                    clip = true
+                    clip = true,
                 )
             )
     }
@@ -132,7 +135,7 @@ class GraphicsLayerModifierTest {
                 rotationZ = floatValues[8],
                 transformOrigin = transformOrigin,
                 shape = shape,
-                clip = clip
+                clip = clip,
             )
 
         val regularValue = createGraphicsLayer()

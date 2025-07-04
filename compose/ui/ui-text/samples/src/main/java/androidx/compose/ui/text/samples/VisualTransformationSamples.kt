@@ -30,7 +30,7 @@ fun passwordFilter(text: AnnotatedString): TransformedText {
          * [OffsetMapping.Identity] is a predefined [OffsetMapping] that can be used for the
          * transformation that does not change the character count.
          */
-        OffsetMapping.Identity
+        OffsetMapping.Identity,
     )
 }
 

@@ -82,7 +82,7 @@ fun DemoApp(
     onNavigateToDemo: (Demo) -> Unit,
     canNavigateUp: Boolean,
     onNavigateUp: () -> Unit,
-    launchSettings: () -> Unit
+    launchSettings: () -> Unit,
 ) {
     val navigationIcon = (@Composable { AppBarIcons.Back(onNavigateUp) }).takeIf { canNavigateUp }
 
@@ -101,10 +101,10 @@ fun DemoApp(
                 filterText = filterText,
                 onFilter = { filterText = it },
                 onStartFiltering = onStartFiltering,
-                onEndFiltering = onEndFiltering
+                onEndFiltering = onEndFiltering,
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
     ) { innerPadding ->
         val modifier =
             Modifier
@@ -122,7 +122,7 @@ private fun DemoContent(
     isFiltering: Boolean,
     filterText: String,
     onNavigate: (Demo) -> Unit,
-    onNavigateUp: () -> Unit
+    onNavigateUp: () -> Unit,
 ) {
     Crossfade(isFiltering to currentDemo) { (filtering, demo) ->
         Surface(modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -130,7 +130,7 @@ private fun DemoContent(
                 DemoFilter(
                     launchableDemos = AllDemosCategory.allLaunchableDemos(),
                     filterText = filterText,
-                    onNavigate = onNavigate
+                    onNavigate = onNavigate,
                 )
             } else {
                 CompositionLocalProvider(
@@ -156,9 +156,9 @@ fun Material2LegacyTheme(content: @Composable () -> Unit) {
         content = {
             CompositionLocalProvider(
                 LocalContentColor provides androidx.compose.material.MaterialTheme.colors.onSurface,
-                content = content
+                content = content,
             )
-        }
+        },
     )
 }
 
@@ -180,7 +180,7 @@ private fun DisplayDemo(demo: Demo, onNavigate: (Demo) -> Unit, onNavigateUp: ()
                 factory = { context ->
                     view = FragmentContainerView(context).also { it.id = R.id.fragment_container }
                     view
-                }
+                },
             )
             DisposableEffect(demo) {
                 // TODO: This code could be cleaner using FragmentContainerView.getFragment().
@@ -207,7 +207,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
             ListItem(onClick = { onNavigate(demo) }) {
                 Text(
                     modifier = Modifier.height(56.dp).wrapContentSize(Alignment.Center),
-                    text = demo.title
+                    text = demo.title,
                 )
             }
         }
@@ -226,14 +226,14 @@ private fun DemoAppBar(
     onFilter: (String) -> Unit,
     onStartFiltering: () -> Unit,
     onEndFiltering: () -> Unit,
-    launchSettings: () -> Unit
+    launchSettings: () -> Unit,
 ) {
     if (isFiltering) {
         FilterAppBar(
             filterText = filterText,
             onFilter = onFilter,
             onClose = onEndFiltering,
-            scrollBehavior = scrollBehavior
+            scrollBehavior = scrollBehavior,
         )
     } else {
         TopAppBar(
@@ -244,7 +244,7 @@ private fun DemoAppBar(
                 AppBarIcons.AccessibilityNodeInspector()
                 AppBarIcons.Filter(onClick = onStartFiltering)
                 AppBarIcons.Settings(onClick = launchSettings)
-            }
+            },
         )
     }
 }
@@ -279,7 +279,7 @@ private object AppBarIcons {
 internal fun ListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable (() -> Unit)
+    content: @Composable (() -> Unit),
 ) {
     Box(
         modifier
@@ -288,7 +288,7 @@ internal fun ListItem(
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp)
             .wrapContentHeight(Alignment.CenterVertically),
-        contentAlignment = Alignment.CenterStart
+        contentAlignment = Alignment.CenterStart,
     ) {
         content()
     }

@@ -59,7 +59,7 @@ class GetDigitalCredentialOptionTest {
                 requestData,
                 candidateQueryData,
                 option.isSystemProviderRequired,
-                option.allowedProviders
+                option.allowedProviders,
             )
 
         assertThat(convertedOption).isInstanceOf(GetDigitalCredentialOption::class.java)

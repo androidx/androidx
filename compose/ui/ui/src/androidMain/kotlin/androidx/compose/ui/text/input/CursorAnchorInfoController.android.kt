@@ -29,7 +29,7 @@ import androidx.compose.ui.text.TextLayoutResult
 )
 internal class CursorAnchorInfoController(
     private val rootPositionCalculator: MatrixPositionCalculator,
-    @Suppress("DEPRECATION") private val inputMethodManager: InputMethodManager
+    @Suppress("DEPRECATION") private val inputMethodManager: InputMethodManager,
 ) {
     private val lock = Any()
 
@@ -75,7 +75,7 @@ internal class CursorAnchorInfoController(
         includeInsertionMarker: Boolean,
         includeCharacterBounds: Boolean,
         includeEditorBounds: Boolean,
-        includeLineBounds: Boolean
+        includeLineBounds: Boolean,
     ) =
         synchronized(lock) {
             this.includeInsertionMarker = includeInsertionMarker
@@ -111,7 +111,7 @@ internal class CursorAnchorInfoController(
         textLayoutResult: TextLayoutResult,
         textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
-        decorationBoxBounds: Rect
+        decorationBoxBounds: Rect,
     ) =
         synchronized(lock) {
             this.textFieldValue = textFieldValue
@@ -164,7 +164,7 @@ internal class CursorAnchorInfoController(
                 includeInsertionMarker,
                 includeCharacterBounds,
                 includeEditorBounds,
-                includeLineBounds
+                includeLineBounds,
             )
         )
 

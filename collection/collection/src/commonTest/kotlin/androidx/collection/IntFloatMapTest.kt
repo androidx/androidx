@@ -80,50 +80,22 @@ class IntFloatMapTest {
 
     @Test
     fun intFloatMapInitFunction() {
-        val map1 =
-            intFloatMapOf(
-                1,
-                1f,
-            )
+        val map1 = intFloatMapOf(1, 1f)
         assertEquals(1, map1.size)
         assertEquals(1f, map1[1])
 
-        val map2 =
-            intFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-            )
+        val map2 = intFloatMapOf(1, 1f, 2, 2f)
         assertEquals(2, map2.size)
         assertEquals(1f, map2[1])
         assertEquals(2f, map2[2])
 
-        val map3 =
-            intFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-                3,
-                3f,
-            )
+        val map3 = intFloatMapOf(1, 1f, 2, 2f, 3, 3f)
         assertEquals(3, map3.size)
         assertEquals(1f, map3[1])
         assertEquals(2f, map3[2])
         assertEquals(3f, map3[3])
 
-        val map4 =
-            intFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-                3,
-                3f,
-                4,
-                4f,
-            )
+        val map4 = intFloatMapOf(1, 1f, 2, 2f, 3, 3f, 4, 4f)
 
         assertEquals(4, map4.size)
         assertEquals(1f, map4[1])
@@ -131,19 +103,7 @@ class IntFloatMapTest {
         assertEquals(3f, map4[3])
         assertEquals(4f, map4[4])
 
-        val map5 =
-            intFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-                3,
-                3f,
-                4,
-                4f,
-                5,
-                5f,
-            )
+        val map5 = intFloatMapOf(1, 1f, 2, 2f, 3, 3f, 4, 4f, 5, 5f)
 
         assertEquals(5, map5.size)
         assertEquals(1f, map5[1])
@@ -155,50 +115,22 @@ class IntFloatMapTest {
 
     @Test
     fun mutableIntFloatMapInitFunction() {
-        val map1 =
-            mutableIntFloatMapOf(
-                1,
-                1f,
-            )
+        val map1 = mutableIntFloatMapOf(1, 1f)
         assertEquals(1, map1.size)
         assertEquals(1f, map1[1])
 
-        val map2 =
-            mutableIntFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-            )
+        val map2 = mutableIntFloatMapOf(1, 1f, 2, 2f)
         assertEquals(2, map2.size)
         assertEquals(1f, map2[1])
         assertEquals(2f, map2[2])
 
-        val map3 =
-            mutableIntFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-                3,
-                3f,
-            )
+        val map3 = mutableIntFloatMapOf(1, 1f, 2, 2f, 3, 3f)
         assertEquals(3, map3.size)
         assertEquals(1f, map3[1])
         assertEquals(2f, map3[2])
         assertEquals(3f, map3[3])
 
-        val map4 =
-            mutableIntFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-                3,
-                3f,
-                4,
-                4f,
-            )
+        val map4 = mutableIntFloatMapOf(1, 1f, 2, 2f, 3, 3f, 4, 4f)
 
         assertEquals(4, map4.size)
         assertEquals(1f, map4[1])
@@ -206,19 +138,7 @@ class IntFloatMapTest {
         assertEquals(3f, map4[3])
         assertEquals(4f, map4[4])
 
-        val map5 =
-            mutableIntFloatMapOf(
-                1,
-                1f,
-                2,
-                2f,
-                3,
-                3f,
-                4,
-                4f,
-                5,
-                5f,
-            )
+        val map5 = mutableIntFloatMapOf(1, 1f, 2, 2f, 3, 3f, 4, 4f, 5, 5f)
 
         assertEquals(5, map5.size)
         assertEquals(1f, map5[1])
@@ -628,24 +548,24 @@ class IntFloatMapTest {
                 "${order[1].toFloat()}, ${order[2].toInt()}=${order[2].toFloat()}," +
                 " ${order[3].toInt()}=${order[3].toFloat()}, ${order[4].toInt()}=" +
                 "${order[4].toFloat()}",
-            map.joinToString()
+            map.joinToString(),
         )
         assertEquals(
             "x${order[0].toInt()}=${order[0].toFloat()}, ${order[1].toInt()}=" +
                 "${order[1].toFloat()}, ${order[2].toInt()}=${order[2].toFloat()}...",
-            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+            map.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${order[0].toInt()}=${order[0].toFloat()}-${order[1].toInt()}=" +
                 "${order[1].toFloat()}-${order[2].toInt()}=${order[2].toFloat()}-" +
                 "${order[3].toInt()}=${order[3].toFloat()}-${order[4].toInt()}=" +
                 "${order[4].toFloat()}<",
-            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+            map.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         val names = arrayOf("one", "two", "three", "four", "five")
         assertEquals(
             "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
-            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] },
         )
     }
 

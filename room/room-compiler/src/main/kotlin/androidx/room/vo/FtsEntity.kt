@@ -27,33 +27,33 @@ class FtsEntity(
     element: XTypeElement,
     tableName: String,
     type: XType,
-    fields: List<Field>,
-    embeddedFields: List<EmbeddedField>,
+    properties: List<Property>,
+    embeddedProperties: List<EmbeddedProperty>,
     primaryKey: PrimaryKey,
     constructor: Constructor?,
     shadowTableName: String?,
     val ftsVersion: FtsVersion,
-    val ftsOptions: FtsOptions
+    val ftsOptions: FtsOptions,
 ) :
     Entity(
         element,
         tableName,
         type,
-        fields,
-        embeddedFields,
+        properties,
+        embeddedProperties,
         primaryKey,
         emptyList(),
         emptyList(),
         constructor,
-        shadowTableName
+        shadowTableName,
     ) {
 
     override val createTableQuery by lazy { createTableQuery(tableName) }
 
-    val nonHiddenFields by lazy {
-        fields.filterNot {
+    val nonHiddenProperties by lazy {
+        properties.filterNot {
             // 'rowid' primary key column and language id column are hidden columns
-            primaryKey.fields.isNotEmpty() && primaryKey.fields.first() == it ||
+            primaryKey.properties.isNotEmpty() && primaryKey.properties.first() == it ||
                 ftsOptions.languageIdColumnName == it.columnName
         }
     }
@@ -84,7 +84,7 @@ class FtsEntity(
     override fun getIdKey(): String {
         val identityKey = SchemaIdentityKey()
         identityKey.append(tableName)
-        identityKey.appendSorted(fields)
+        identityKey.appendSorted(this@FtsEntity.properties)
         identityKey.append(ftsVersion.name)
         identityKey.append(ftsOptions)
         return identityKey.hash()
@@ -94,14 +94,14 @@ class FtsEntity(
 
     private fun createTableQuery(tableName: String, includeTokenizer: Boolean = true): String {
         val definitions =
-            nonHiddenFields.map { it.databaseDefinition(false) } +
+            nonHiddenProperties.map { it.databaseDefinition(false) } +
                 ftsOptions.databaseDefinition(includeTokenizer)
         return "CREATE VIRTUAL TABLE IF NOT EXISTS `$tableName` " +
             "USING ${ftsVersion.name}(${definitions.joinToString(", ")})"
     }
 
     private fun createSyncTriggers(contentTable: String): List<String> {
-        val contentColumnNames = nonHiddenFields.map { it.columnName }
+        val contentColumnNames = nonHiddenProperties.map { it.columnName }
         return arrayOf("UPDATE", "DELETE").map { operation ->
             createBeforeTrigger(operation, tableName, contentTable)
         } +
@@ -113,7 +113,7 @@ class FtsEntity(
     private fun createBeforeTrigger(
         triggerOp: String,
         tableName: String,
-        contentTableName: String
+        contentTableName: String,
     ) =
         "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "BEFORE_$triggerOp")} " +
             "BEFORE $triggerOp ON `$contentTableName` BEGIN " +
@@ -124,7 +124,7 @@ class FtsEntity(
         triggerOp: String,
         tableName: String,
         contentTableName: String,
-        columnNames: List<String>
+        columnNames: List<String>,
     ) =
         "CREATE TRIGGER IF NOT EXISTS ${createTriggerName(tableName, "AFTER_$triggerOp")} " +
             "AFTER $triggerOp ON `$contentTableName` BEGIN " +
@@ -144,12 +144,12 @@ class FtsEntity(
         FtsEntityBundle(
             tableName,
             createTableQuery(TABLE_NAME_PLACEHOLDER),
-            nonHiddenFields.map { it.toBundle() },
+            nonHiddenProperties.map { it.toBundle() },
             primaryKey.toBundle(),
             emptyList(),
             emptyList(),
             ftsVersion.name,
             ftsOptions.toBundle(),
-            contentSyncTriggerCreateQueries
+            contentSyncTriggerCreateQueries,
         )
 }

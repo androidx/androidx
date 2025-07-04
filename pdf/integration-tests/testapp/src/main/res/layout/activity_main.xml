@@ -33,7 +33,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/launch_button"/>
+        app:layout_constraintBottom_toTopOf="@+id/custom_link_handling_switch" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/custom_link_handling_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Custom Link Handling"
+        app:layout_constraintTop_toBottomOf="@id/fragment_container_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/launch_button" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/launch_button"
@@ -42,8 +52,8 @@
         android:text="@string/launch_string"
         app:strokeWidth="1dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_container_view"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/custom_link_handling_switch"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/search_pdf_button"/>
@@ -55,8 +65,8 @@
         android:text="@string/search_string"
         app:strokeWidth="1dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_container_view"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/custom_link_handling_switch"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/launch_button"
         app:layout_constraintEnd_toEndOf="parent"/>

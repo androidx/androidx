@@ -31,7 +31,7 @@ internal class TextActionModeCallback(
     var onPasteRequested: (() -> Unit)? = null,
     var onCutRequested: (() -> Unit)? = null,
     var onSelectAllRequested: (() -> Unit)? = null,
-    var onAutofillRequested: (() -> Unit)? = null
+    var onAutofillRequested: (() -> Unit)? = null,
 ) {
     fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         requireNotNull(menu) { "onCreateActionMode requires a non-null menu" }

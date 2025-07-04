@@ -59,7 +59,7 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                         checkAndIncrementRunCount(1)
                         invocation.processingEnv.filer.write(generateCode(1))
                     },
-                    { checkAndIncrementRunCount(2) }
+                    { checkAndIncrementRunCount(2) },
                 )
         )
         checkAndIncrementRunCount(3)
@@ -76,11 +76,11 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                     { invocation ->
                         invocation.processingEnv.messager.printMessage(
                             Diagnostic.Kind.NOTE,
-                            "note from 1"
+                            "note from 1",
                         )
                         invocation.processingEnv.messager.printMessage(
                             Diagnostic.Kind.WARNING,
-                            "warning from 1"
+                            "warning from 1",
                         )
                         invocation.processingEnv.filer.write(generateCode(0))
                         invocation.assertCompilationResult {
@@ -99,15 +99,15 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                         }
                         invocation.processingEnv.messager.printMessage(
                             Diagnostic.Kind.NOTE,
-                            "note from 2"
+                            "note from 2",
                         )
                         invocation.processingEnv.messager.printMessage(
                             Diagnostic.Kind.WARNING,
-                            "warning from 2"
+                            "warning from 2",
                         )
                         invocation.processingEnv.messager.printMessage(
                             Diagnostic.Kind.ERROR,
-                            "error from 2"
+                            "error from 2",
                         )
                         invocation.assertCompilationResult {
                             hasWarning("warning from 1")
@@ -117,7 +117,7 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                             hasNote("note from 2")
                             didRunSecondRoundAssertions = true
                         }
-                    }
+                    },
                 )
         )
         // just to make sure test didn't pass by failing to run assertions.
@@ -134,7 +134,7 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                         {},
                         {
                             // this won't happen because no code is generated in the first run
-                        }
+                        },
                     )
             )
         }
@@ -155,7 +155,7 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                             invocation1.processingEnv.filer.write(generateCode(0))
                             previousInvocation = invocation1
                         },
-                        { previousInvocation.processingEnv.filer.write(generateCode(1)) }
+                        { previousInvocation.processingEnv.filer.write(generateCode(1)) },
                     )
             )
         }
@@ -178,7 +178,7 @@ class MultiRoundProcessingTest(private val testRunner: TestRunner) : MultiBacken
                         {
                             // this won't run
                             throw AssertionError("this shouldn't run as prev one failed")
-                        }
+                        },
                     )
             )
         }

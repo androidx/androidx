@@ -24,6 +24,6 @@ import androidx.annotation.RestrictTo
  * break compatibility between library versions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object ProtocolConstants {
-    const val SDK_ACTIVITY_LAUNCHER_BINDER_KEY = "sdkActivityLauncherBinderKey"
+public object ProtocolConstants {
+    public const val SDK_ACTIVITY_LAUNCHER_BINDER_KEY: String = "sdkActivityLauncherBinderKey"
 }

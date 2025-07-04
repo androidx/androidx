@@ -36,7 +36,7 @@ public object ContentAlpha {
         get() =
             contentAlpha(
                 highContrastAlpha = HighContrastContentAlpha.high,
-                lowContrastAlpha = LowContrastContentAlpha.high
+                lowContrastAlpha = LowContrastContentAlpha.high,
             )
 
     /**
@@ -48,7 +48,7 @@ public object ContentAlpha {
         get() =
             contentAlpha(
                 highContrastAlpha = HighContrastContentAlpha.medium,
-                lowContrastAlpha = LowContrastContentAlpha.medium
+                lowContrastAlpha = LowContrastContentAlpha.medium,
             )
 
     /**
@@ -60,7 +60,7 @@ public object ContentAlpha {
         get() =
             contentAlpha(
                 highContrastAlpha = HighContrastContentAlpha.disabled,
-                lowContrastAlpha = LowContrastContentAlpha.disabled
+                lowContrastAlpha = LowContrastContentAlpha.disabled,
             )
 
     /**
@@ -74,7 +74,7 @@ public object ContentAlpha {
     @Composable
     private fun contentAlpha(
         @FloatRange(from = 0.0, to = 1.0) highContrastAlpha: Float,
-        @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float
+        @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float,
     ): Float {
         val contentColor = LocalContentColor.current
         return if (contentColor.luminance() < 0.5) highContrastAlpha else lowContrastAlpha

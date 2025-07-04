@@ -25,17 +25,14 @@ import androidx.compose.runtime.ReadOnlyComposable
  *
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale].
  */
-@ExperimentalMaterial3Api expect class CalendarLocale
+expect class CalendarLocale
 
 /**
  * Returns the default [CalendarLocale].
  *
  * Note: For JVM based platforms, this would be equivalent to [java.util.Locale.getDefault].
  */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-@ReadOnlyComposable
-internal expect fun defaultLocale(): CalendarLocale
+@Composable @ReadOnlyComposable internal expect fun defaultLocale(): CalendarLocale
 
 /**
  * Returns a string representation of an integer for the current Locale.
@@ -53,5 +50,5 @@ internal expect fun defaultLocale(): CalendarLocale
 internal expect fun Int.toLocalString(
     minDigits: Int = 1,
     maxDigits: Int = 40,
-    isGroupingUsed: Boolean = false
+    isGroupingUsed: Boolean = false,
 ): String

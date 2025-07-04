@@ -34,8 +34,7 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun handleRequest(request: ParcelableRequest,
-      transactionCallback: IResponseTransactionCallback) {
+  public override fun handleRequest(request: ParcelableRequest, transactionCallback: IResponseTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.handleRequest(RequestConverter(context).fromParcelable(request))
@@ -49,8 +48,7 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun logRequest(request: ParcelableRequest,
-      transactionCallback: IUnitTransactionCallback) {
+  public override fun logRequest(request: ParcelableRequest, transactionCallback: IUnitTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         delegate.logRequest(RequestConverter(context).fromParcelable(request))
@@ -76,8 +74,7 @@ public class MySdkStubDelegate internal constructor(
     }
   }
 
-  public override fun getMyInterface(input: IMyInterface,
-      transactionCallback: IMyInterfaceTransactionCallback) {
+  public override fun getMyInterface(input: IMyInterface, transactionCallback: IMyInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.getMyInterface((input as MyInterfaceStubDelegate).delegate)
@@ -115,14 +112,11 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun handleNullableValues(maybeRequest: ParcelableRequest?,
-      transactionCallback: IResponseTransactionCallback) {
+  public override fun handleNullableValues(maybeRequest: ParcelableRequest?, transactionCallback: IResponseTransactionCallback) {
     val job = coroutineScope.launch {
       try {
-        val result = delegate.handleNullableValues(maybeRequest?.let { notNullValue ->
-            RequestConverter(context).fromParcelable(notNullValue) })
-        transactionCallback.onSuccess(result?.let { notNullValue ->
-            ResponseConverter(context).toParcelable(notNullValue) })
+        val result = delegate.handleNullableValues(maybeRequest?.let { notNullValue -> RequestConverter(context).fromParcelable(notNullValue) })
+        transactionCallback.onSuccess(result?.let { notNullValue -> ResponseConverter(context).toParcelable(notNullValue) })
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))
@@ -132,14 +126,11 @@ public class MySdkStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun handleNullableInterfaces(maybeCallback: IMyCallback?,
-      transactionCallback: IMyInterfaceTransactionCallback) {
+  public override fun handleNullableInterfaces(maybeCallback: IMyCallback?, transactionCallback: IMyInterfaceTransactionCallback) {
     val job = coroutineScope.launch {
       try {
-        val result = delegate.handleNullableInterfaces(maybeCallback?.let { notNullValue ->
-            MyCallbackClientProxy(notNullValue, context) })
-        transactionCallback.onSuccess(result?.let { notNullValue ->
-            MyInterfaceStubDelegate(notNullValue, context) })
+        val result = delegate.handleNullableInterfaces(maybeCallback?.let { notNullValue -> MyCallbackClientProxy(notNullValue, context) })
+        transactionCallback.onSuccess(result?.let { notNullValue -> MyInterfaceStubDelegate(notNullValue, context) })
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))
@@ -153,8 +144,21 @@ public class MySdkStubDelegate internal constructor(
     val job = coroutineScope.launch {
       try {
         val result = delegate.returnUiInterface()
-        transactionCallback.onSuccess(IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(result.toCoreLibInfo(context),
-            MyUiInterfaceStubDelegate(result, context)))
+        transactionCallback.onSuccess(IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(result.toCoreLibInfo(context), MyUiInterfaceStubDelegate(result, context)))
+      }
+      catch (t: Throwable) {
+        transactionCallback.onFailure(toThrowableParcel(t))
+      }
+    }
+    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
+    transactionCallback.onCancellable(cancellationSignal)
+  }
+
+  public override fun returnSharedUiInterface(transactionCallback: IMySharedUiInterfaceTransactionCallback) {
+    val job = coroutineScope.launch {
+      try {
+        val result = delegate.returnSharedUiInterface()
+        transactionCallback.onSuccess(IMySharedUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(result.toCoreLibInfo(), MySharedUiInterfaceStubDelegate(result, context)))
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))
@@ -170,14 +174,19 @@ public class MySdkStubDelegate internal constructor(
     }
   }
 
+  public override fun acceptSharedUiInterfaceParam(input: IMySharedUiInterfaceCoreLibInfoAndBinderWrapper) {
+    coroutineScope.launch {
+      delegate.acceptSharedUiInterfaceParam((input.binder as MySharedUiInterfaceStubDelegate).delegate)
+    }
+  }
+
   public override fun acceptSdkActivityLauncherParam(activityLauncher: Bundle) {
     coroutineScope.launch {
       delegate.acceptSdkActivityLauncherParam(SdkActivityLauncherAndBinderWrapper(activityLauncher))
     }
   }
 
-  public override
-      fun returnSdkActivityLauncher(transactionCallback: ISdkActivityLauncherTransactionCallback) {
+  public override fun returnSdkActivityLauncher(transactionCallback: ISdkActivityLauncherTransactionCallback) {
     val job = coroutineScope.launch {
       try {
         val result = delegate.returnSdkActivityLauncher()

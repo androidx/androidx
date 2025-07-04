@@ -31,6 +31,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.StreamSpecsCalculator.Companion.NO_OP_STREAM_SPECS_CALCULATOR
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -48,7 +49,7 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 @DoNotInstrument
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = ["androidx.camera.camera2.pipe.integration.adapter"]
+    instrumentedPackages = ["androidx.camera.camera2.pipe.integration.adapter"],
 )
 class CameraSelectionOptimizerTest {
     private lateinit var cameraFactory: CameraFactory
@@ -193,15 +194,20 @@ class CameraSelectionOptimizerTest {
                     ApplicationProvider.getApplicationContext(),
                     CameraThreadConfig.create(
                         CameraXExecutors.mainThreadExecutor(),
-                        Handler(Looper.getMainLooper())
+                        Handler(Looper.getMainLooper()),
                     ),
                     cameraSelector,
-                    -1L
+                    -1L,
+                    NO_OP_STREAM_SPECS_CALCULATOR,
                 )
 
         cameraFactory = Mockito.spy(actualCameraFactory)
 
-        return CameraSelectionOptimizer.getSelectedAvailableCameraIds(cameraFactory, cameraSelector)
+        return CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+            cameraFactory,
+            cameraSelector,
+            NO_OP_STREAM_SPECS_CALCULATOR,
+        )
     }
 
     private fun initCharacteristics(cameraId: String, lensFacing: Int, focalLength: Float) {
@@ -214,15 +220,15 @@ class CameraSelectionOptimizerTest {
             set(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS, floatArrayOf(focalLength))
             set(
                 CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
-                Rect(0, 0, sensorWidth, sensorHeight)
+                Rect(0, 0, sensorWidth, sensorHeight),
             )
             set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
             )
             set(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                StreamConfigurationMapBuilder.newBuilder().build()
+                StreamConfigurationMapBuilder.newBuilder().build(),
             )
         }
 

@@ -73,7 +73,7 @@ val TextToggleButtonScreen =
             get() = {
                 device.wait(
                     Until.findObject(By.desc(ToggleButtonDescription)),
-                    FIND_OBJECT_TIMEOUT_MS
+                    FIND_OBJECT_TIMEOUT_MS,
                 )
                 device.findObject(By.desc(ToggleButtonDescription)).click()
                 device.waitForIdle()

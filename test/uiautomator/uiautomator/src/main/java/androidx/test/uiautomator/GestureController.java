@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator;
 
+import android.app.Instrumentation;
+import android.content.Context;
 import android.graphics.Point;
 import android.os.SystemClock;
 import android.util.Log;
@@ -24,6 +26,9 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.MotionEvent.PointerProperties;
+
+import com.android.extensions.xr.XrExtensions;
+import com.android.extensions.xr.test.XrUiAutomation;
 
 import org.jspecify.annotations.NonNull;
 
@@ -51,6 +56,9 @@ class GestureController {
     // @TestApi method to set display id.
     private static Method sMotionEvent_setDisplayId;
 
+    // @TestApi class specific to XR for injecting motion events
+    private XrUiAutomation mXrUiAutomation;
+
     static {
         try {
             sMotionEvent_setDisplayId =
@@ -74,6 +82,20 @@ class GestureController {
     // Private constructor.
     private GestureController(UiDevice device) {
         mDevice = device;
+
+        Instrumentation instrumentation = device.getInstrumentation();
+        Context context = instrumentation.getContext();
+        if (context.getPackageManager().hasSystemFeature("android.software.xr.api.spatial")) {
+            // XrUiAutomation is from an optional dependency; check for presence at runtime.
+            try {
+                if (Class.forName("com.android.extensions.xr.XrExtensions") != null) {
+                    Log.i(TAG, "Located XrExtensions; using XrUiAutomation for input injection");
+                    mXrUiAutomation = new XrExtensions().getXrUiAutomation(instrumentation);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "XR system feature present but can't find XrExtensions class", e);
+            }
+        }
     }
 
     /** Returns the {@link GestureController} instance for the given {@link UiDevice}. */
@@ -168,7 +190,7 @@ class GestureController {
                 }
                 event = getMotionEvent(startTime, SystemClock.uptimeMillis(), action, properties,
                         coordinates, gesture.displayId());
-                getDevice().getUiAutomation().injectInputEvent(event, false);
+                injectMotionEvent(event, false, gesture.windowId());
 
                 properties.remove(index);
                 coordinates.remove(index);
@@ -178,13 +200,12 @@ class GestureController {
             for (PointerGesture gesture : active) {
                 Pointer pointer = pointers.get(gesture);
                 pointer.updatePosition(gesture.pointAt(elapsedTime - gesture.delay()));
-
             }
             if (!active.isEmpty()) {
                 event = getMotionEvent(startTime, SystemClock.uptimeMillis(),
                         MotionEvent.ACTION_MOVE, properties, coordinates,
                         active.peek().displayId());
-                getDevice().getUiAutomation().injectInputEvent(event, false);
+                injectMotionEvent(event, false, active.peek().windowId());
             }
 
             // Touchdown any new pointers
@@ -206,7 +227,7 @@ class GestureController {
                 }
                 event = getMotionEvent(startTime, SystemClock.uptimeMillis(), action, properties,
                         coordinates, gesture.displayId());
-                getDevice().getUiAutomation().injectInputEvent(event, false);
+                injectMotionEvent(event, false, gesture.windowId());
 
                 // Move the PointerGesture to the active list
                 active.add(gesture);
@@ -220,6 +241,15 @@ class GestureController {
             Log.w(TAG, String.format("Gestures took longer than expected (%dms >> %dms), device "
                     + "might be in a busy state.", upTime, elapsedTime));
         }
+    }
+
+    private boolean injectMotionEvent(MotionEvent event, boolean sync, int windowId) {
+        if (mXrUiAutomation != null) {
+            // If on XR and inject extension API available, use that.
+            return mXrUiAutomation.injectMotionEventToWindow(event, windowId, sync);
+        }
+        // Otherwise standard injection through UiAutomation#injectInputEvent
+        return getDevice().getUiAutomation().injectInputEvent(event, sync);
     }
 
     /** Helper function to obtain a MotionEvent. */

@@ -277,6 +277,20 @@ class DerivedSnapshotStateTests {
         assertEquals(2, runs)
     }
 
+    @Test // b/382564799
+    fun nestedDerivedStatesProduceAResult() {
+        val n = 3
+        val mutableState = mutableStateOf(1)
+        val derivedStates1 = List(n) { derivedStateOf { mutableState.value } }
+        val derivedStates2 = List(n) { derivedStateOf { derivedStates1.sumOf { it.value } } }
+        val derivedState3 = derivedStateOf { derivedStates2.sumOf { it.value } }
+
+        assertEquals(n * n, derivedState3.value)
+
+        mutableState.value = 2
+        assertEquals(n * n * 2, derivedState3.value)
+    }
+
     private var count = 0
 
     @BeforeTest

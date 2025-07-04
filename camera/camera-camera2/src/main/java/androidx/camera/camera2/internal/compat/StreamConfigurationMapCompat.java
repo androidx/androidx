@@ -123,6 +123,23 @@ public class StreamConfigurationMapCompat {
     }
 
     /**
+     * Get the minimum frame duration for the format/size combination (in nanoseconds).
+     *
+     * @return a minimum frame duration > 0 in nanoseconds, or 0 if the minimum frame duration is
+     * not available.
+     * @see StreamConfigurationMap#getOutputMinFrameDuration(int, Size)
+     */
+    public long getOutputMinFrameDuration(int format, @NonNull Size size) {
+        try {
+            return mImpl.getOutputMinFrameDuration(format, size);
+        } catch (RuntimeException e) {
+            Logger.w(TAG, "Failed to get min frame duration for format = " + format
+                    + " and size = " + size, e);
+        }
+        return 0;
+    }
+
+    /**
      * Get a list of sizes compatible with {@code klass} to use as an output.
      *
      * <p>Output sizes related quirks will be applied onto the returned sizes list.
@@ -224,6 +241,8 @@ public class StreamConfigurationMapCompat {
         Size @Nullable [] getOutputSizes(int format);
 
         <T> Size @Nullable [] getOutputSizes(@NonNull Class<T> klass);
+
+        long getOutputMinFrameDuration(int format, @NonNull Size size);
 
         Size @Nullable [] getHighResolutionOutputSizes(int format);
 

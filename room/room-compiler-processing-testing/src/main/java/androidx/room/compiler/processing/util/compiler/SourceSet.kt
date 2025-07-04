@@ -29,7 +29,7 @@ internal class SourceSet(
     /** The root source folder for the given sources */
     root: File,
     /** List of actual sources in the folder */
-    val sources: List<Source>
+    val sources: List<Source>,
 ) {
     // always use canonical files
     val root = root.canonicalFile
@@ -90,7 +90,7 @@ private fun File.collectSources(): Sequence<Source> {
                             .relativeTo(root)
                             .path
                             .replace(File.separatorChar, '.')
-                            .substringBeforeLast('.') // drop .java
+                            .substringBeforeLast('.'), // drop .java
                 )
             "kt" -> Source.loadKotlinSource(file = file, relativePath = file.relativeTo(root).path)
             else -> null

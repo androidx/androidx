@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // TODO(): Remove when migrating away from RequiresDevice
+
 package androidx.compose.foundation.text
 
 import android.app.Activity
@@ -71,12 +73,12 @@ class CoreTextFieldKeyboardScrollableInteractionTest(
 ) {
     enum class ScrollableType {
         ScrollableColumn,
-        LazyList
+        LazyList,
     }
 
     enum class SoftInputMode {
         AdjustResize,
-        AdjustPan
+        AdjustPan,
     }
 
     companion object {
@@ -162,7 +164,7 @@ class CoreTextFieldKeyboardScrollableInteractionTest(
                 } else {
                     inner()
                 }
-            }
+            },
         )
     }
 
@@ -177,6 +179,7 @@ class CoreTextFieldKeyboardScrollableInteractionTest(
         }
     }
 
+    @Suppress("NO_TAIL_CALLS_FOUND", "NON_TAIL_RECURSIVE_CALL")
     private tailrec fun Context.findActivityOrNull(): Activity? {
         return (this as? Activity) ?: (this as? ContextWrapper)?.baseContext?.findActivityOrNull()
     }

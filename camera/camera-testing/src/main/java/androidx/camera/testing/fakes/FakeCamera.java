@@ -101,6 +101,11 @@ public class FakeCamera implements CameraInternal {
         this(cameraId, /*cameraControl=*/null, new FakeCameraInfoInternal(cameraId));
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCamera(@NonNull CameraInfoInternal cameraInfo) {
+        this(cameraInfo.getCameraId(), /*cameraControl=*/null, cameraInfo);
+    }
+
     public FakeCamera(@Nullable CameraControlInternal cameraControl,
             @NonNull CameraInfoInternal cameraInfo) {
         this(DEFAULT_CAMERA_ID, cameraControl, cameraInfo);

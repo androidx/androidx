@@ -42,7 +42,7 @@ class FactTest {
         assertThat(
                 makeMessage(
                     emptyList(),
-                    listOf(fact("foo", "bar"), fact("longer name", "other value"))
+                    listOf(fact("foo", "bar"), fact("longer name", "other value")),
                 )
             )
             .isEqualTo("foo        : bar\nlonger name: other value")
@@ -70,7 +70,7 @@ class FactTest {
         assertThat(
                 makeMessage(
                     emptyList(),
-                    listOf(fact("hello", "there\neveryone"), simpleFact("xyz"))
+                    listOf(fact("hello", "there\neveryone"), simpleFact("xyz")),
                 )
             )
             .isEqualTo("hello:\n    there\n    everyone\nxyz")
@@ -107,10 +107,7 @@ class FactTest {
         val subject =
             object : Subject<Int>(actual = 0, metadata = FailureMetadata()) {
                 fun fail() {
-                    failWithActual(
-                        simpleFact("Expected something else"),
-                        fact("expected", "1"),
-                    )
+                    failWithActual(simpleFact("Expected something else"), fact("expected", "1"))
                 }
             }
 

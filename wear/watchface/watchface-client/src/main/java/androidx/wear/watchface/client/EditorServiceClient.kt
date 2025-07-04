@@ -26,7 +26,13 @@ import java.util.concurrent.Executor
  * Client for the watchface editor service, which observes
  * [androidx.wear.watchface.editor.EditorSession]. This client can be reused to observe multiple
  * editor sessions.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public interface EditorServiceClient {
     /**
      * Starts listening for [EditorState] which is sent when
@@ -42,7 +48,15 @@ public interface EditorServiceClient {
     @Throws(RemoteException::class) public fun closeEditor()
 }
 
-/** Observes state changes in [androidx.wear.watchface.editor.EditorSession]. */
+/**
+ * Observes state changes in [androidx.wear.watchface.editor.EditorSession].
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public interface EditorListener {
     /** Called in response to [androidx.wear.watchface.editor.EditorSession.close] . */
     public fun onEditorStateChanged(editorState: EditorState)

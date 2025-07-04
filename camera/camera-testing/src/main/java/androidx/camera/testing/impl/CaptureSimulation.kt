@@ -74,7 +74,7 @@ internal suspend fun DeferrableSurface.simulateCaptureFrame() {
                 deferred.completeExceptionally(t)
             }
         },
-        CameraXExecutors.directExecutor()
+        CameraXExecutors.directExecutor(),
     )
 
     deferred.await()

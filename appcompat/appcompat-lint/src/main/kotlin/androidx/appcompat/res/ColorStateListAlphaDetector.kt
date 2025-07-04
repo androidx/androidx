@@ -39,7 +39,7 @@ class ColorStateListAlphaDetector : Detector(), XmlScanner {
                 Category.CORRECTNESS,
                 1,
                 Severity.ERROR,
-                Implementation(ColorStateListAlphaDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+                Implementation(ColorStateListAlphaDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
             )
     }
 
@@ -65,9 +65,9 @@ class ColorStateListAlphaDetector : Detector(), XmlScanner {
                         .set(
                             SdkConstants.ANDROID_URI,
                             "alpha",
-                            item.getAttributeNS(SdkConstants.AUTO_URI, "alpha")
+                            item.getAttributeNS(SdkConstants.AUTO_URI, "alpha"),
                         )
-                        .build()
+                        .build(),
                 )
             }
         }

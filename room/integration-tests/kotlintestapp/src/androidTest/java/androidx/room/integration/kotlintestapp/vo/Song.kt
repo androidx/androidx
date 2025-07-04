@@ -25,5 +25,5 @@ data class Song(
     val mArtist: String?,
     val mAlbum: String?, // in seconds
     val mLength: Int,
-    val mReleasedYear: Int
+    val mReleasedYear: Int,
 )

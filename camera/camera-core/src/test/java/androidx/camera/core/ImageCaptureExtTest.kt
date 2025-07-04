@@ -66,7 +66,7 @@ class ImageCaptureExtTest {
                     cameraProvider = ProcessCameraProvider.getInstance(context).get()
                     latch.countDown()
                 },
-                CameraXExecutors.directExecutor()
+                CameraXExecutors.directExecutor(),
             )
 
         assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -76,7 +76,7 @@ class ImageCaptureExtTest {
         cameraProvider.bindToLifecycle(
             FakeLifecycleOwner().apply { startAndResume() },
             CameraSelector.DEFAULT_BACK_CAMERA,
-            imageCapture
+            imageCapture,
         )
     }
 
@@ -264,7 +264,7 @@ class ImageCaptureExtTest {
             MainScope().async {
                 imageCapture.takePicture(
                     outputFileOptions = fakeOutputFileOptions,
-                    onCaptureStarted = { callbackCalled = true }
+                    onCaptureStarted = { callbackCalled = true },
                 )
             }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -292,7 +292,7 @@ class ImageCaptureExtTest {
                     onCaptureProcessProgressed = {
                         resultProgress = it
                         callbackCalled = true
-                    }
+                    },
                 )
             }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -321,7 +321,7 @@ class ImageCaptureExtTest {
                     onPostviewBitmapAvailable = {
                         resultBitmap = it
                         callbackCalled = true
-                    }
+                    },
                 )
             }
         Shadows.shadowOf(Looper.getMainLooper()).idle()

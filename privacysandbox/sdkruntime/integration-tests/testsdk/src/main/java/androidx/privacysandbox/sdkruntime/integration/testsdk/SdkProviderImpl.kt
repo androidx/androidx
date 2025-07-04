@@ -16,18 +16,12 @@
 
 package androidx.privacysandbox.sdkruntime.integration.testsdk
 
-import android.content.Context
 import android.os.Bundle
-import android.view.View
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 
 class SdkProviderImpl() : SandboxedSdkProviderCompat() {
     override fun onLoadSdk(params: Bundle): SandboxedSdkCompat {
         return SandboxedSdkCompat(TestSdk())
-    }
-
-    override fun getView(windowContext: Context, params: Bundle, width: Int, height: Int): View {
-        throw UnsupportedOperationException("Not supported")
     }
 }

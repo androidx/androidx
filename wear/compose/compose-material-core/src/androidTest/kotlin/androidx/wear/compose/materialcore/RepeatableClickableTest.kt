@@ -46,7 +46,7 @@ public class RepeatableClickableTest {
             rule,
             holdDelay = INITIAL_DELAY / 2,
             onRepeatableClick = { repeatableClickCounter++ },
-            onClick = { clicked = true }
+            onClick = { clicked = true },
         )
         assertEquals(0, repeatableClickCounter)
         assertEquals(true, clicked)
@@ -61,7 +61,7 @@ public class RepeatableClickableTest {
             rule,
             holdDelay = INITIAL_DELAY,
             onRepeatableClick = { repeatableClickCounter++ },
-            onClick = { clicked = true }
+            onClick = { clicked = true },
         )
         assertEquals(1, repeatableClickCounter)
         assertEquals(false, clicked)
@@ -76,7 +76,7 @@ public class RepeatableClickableTest {
             rule,
             holdDelay = INITIAL_DELAY + INCREMENTAL_DELAY * 2,
             onRepeatableClick = { repeatableClickCounter++ },
-            onClick = { clicked = true }
+            onClick = { clicked = true },
         )
 
         assertEquals(3, repeatableClickCounter)
@@ -93,7 +93,7 @@ public class RepeatableClickableTest {
             holdDelay = INITIAL_DELAY,
             enabled = false,
             onRepeatableClick = { repeatableClickCounter++ },
-            onClick = { clicked = true }
+            onClick = { clicked = true },
         )
 
         assertEquals(0, repeatableClickCounter)
@@ -111,7 +111,7 @@ public class RepeatableClickableTest {
             enabled = true,
             releaseOutsideOfBox = true,
             onRepeatableClick = { repeatableClickCounter++ },
-            onClick = { clicked = true }
+            onClick = { clicked = true },
         )
 
         assertEquals(0, repeatableClickCounter)
@@ -126,7 +126,7 @@ public class RepeatableClickableTest {
         incrementalDelay: Long = INCREMENTAL_DELAY,
         releaseOutsideOfBox: Boolean = false,
         onClick: () -> Unit,
-        onRepeatableClick: () -> Unit
+        onRepeatableClick: () -> Unit,
     ) {
         rule.setContent {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -142,7 +142,7 @@ public class RepeatableClickableTest {
                                 indication = null,
                                 interactionSource = remember { MutableInteractionSource() },
                                 onClick = onClick,
-                                onRepeatableClick = onRepeatableClick
+                                onRepeatableClick = onRepeatableClick,
                             )
                 ) {}
             }

@@ -38,7 +38,7 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
     internal class TestParams(
         val message: String,
         val severity: CompilerMessageSeverity,
-        val expected: RawDiagnosticMessage
+        val expected: RawDiagnosticMessage,
     ) {
         override fun toString(): String {
             return message
@@ -58,8 +58,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "the real message",
-                            location = Location(path = "/foo/bar/Subject.kt", line = 3)
-                        )
+                            location = Location(path = "/foo/bar/Subject.kt", line = 3),
+                        ),
                 ),
                 // ksp java
                 TestParams(
@@ -69,8 +69,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "the real message",
-                            location = Location(path = "/foo/bar/Subject.java", line = 3)
-                        )
+                            location = Location(path = "/foo/bar/Subject.java", line = 3),
+                        ),
                 ),
                 // ksp not a kotlin file - bad extension
                 TestParams(
@@ -80,8 +80,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "/foo/bar/Subject.ktn:3: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // ksp not a kotlin file - no dot
                 TestParams(
@@ -91,8 +91,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "/foo/bar/Subjectkt:3: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // ksp not a java file - bad extension
                 TestParams(
@@ -102,8 +102,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "/foo/bar/Subject.javax:3: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // ksp not a java file - no dot
                 TestParams(
@@ -113,8 +113,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "/foo/bar/Subjectjava:3: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // kapt kotlin
                 TestParams(
@@ -124,8 +124,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.WARNING,
                             message = "the real message",
-                            location = Location(path = "/foo/bar/Subject.kt", line = 2)
-                        )
+                            location = Location(path = "/foo/bar/Subject.kt", line = 2),
+                        ),
                 ),
                 // kapt java
                 TestParams(
@@ -135,8 +135,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.WARNING,
                             message = "the real message",
-                            location = Location(path = "/foo/bar/Subject.java", line = 2)
-                        )
+                            location = Location(path = "/foo/bar/Subject.java", line = 2),
+                        ),
                 ),
                 // kapt not a kotlin file - bad extension
                 TestParams(
@@ -146,8 +146,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.WARNING,
                             message = "/foo/bar/Subject.ktn:2: warning: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // kapt not a kotlin file - no dot
                 TestParams(
@@ -157,8 +157,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.WARNING,
                             message = "/foo/bar/Subjectkt:2: warning: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // kapt not a java file - bad extension
                 TestParams(
@@ -168,8 +168,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.WARNING,
                             message = "/foo/bar/Subject.javan:2: warning: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // kapt not a java file - no dot
                 TestParams(
@@ -179,8 +179,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.WARNING,
                             message = "/foo/bar/Subjectjava:2: warning: the real message",
-                            location = null
-                        )
+                            location = null,
+                        ),
                 ),
                 // ksp kotlin on Windows
                 TestParams(
@@ -190,8 +190,8 @@ internal class DiagnosticMessageCollectorTest(private val params: TestParams) {
                         RawDiagnosticMessage(
                             kind = Diagnostic.Kind.ERROR,
                             message = "the real message",
-                            location = Location(path = "C:\\foo\\bar\\Subject.kt", line = 3)
-                        )
+                            location = Location(path = "C:\\foo\\bar\\Subject.kt", line = 3),
+                        ),
                 ),
             )
     }

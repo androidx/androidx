@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.InternalXAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XType
 import com.google.devtools.ksp.getConstructors
@@ -49,7 +48,19 @@ internal class KspAnnotation(val env: KspProcessingEnv, val ksAnnotated: KSAnnot
         wrap(ksAnnotated.defaultArguments)
     }
 
-    override val annotationValues: List<XAnnotationValue> by lazy { wrap(ksAnnotated.arguments) }
+    override val annotationValues: List<XAnnotationValue> by lazy {
+        val defaultValuesByName = defaultValues.associateBy { it.name }
+        wrap(ksAnnotated.arguments).mapNotNull {
+            if (it.value != null) {
+                return@mapNotNull it
+            }
+            val default = defaultValuesByName[it.name]
+            if (default?.value != null) {
+                return@mapNotNull default
+            }
+            null
+        }
+    }
 
     private fun wrap(source: List<KSValueArgument>): List<XAnnotationValue> {
         // KSAnnotated.arguments / KSAnnotated.defaultArguments isn't guaranteed to have the same
@@ -96,13 +107,5 @@ internal class KspAnnotation(val env: KspProcessingEnv, val ksAnnotated: KSAnnot
                     put(it.jvmName, it.returnType)
                 }
         }
-    }
-
-    override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {
-        return KspAnnotationBox(
-            env = env,
-            annotationClass = annotationClass,
-            annotation = ksAnnotated
-        )
     }
 }

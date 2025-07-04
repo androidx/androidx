@@ -95,7 +95,7 @@ internal class CursorAnchorInfoController(
             includeInsertionMarker = includeInsertionMarker,
             includeCharacterBounds = includeCharacterBounds,
             includeEditorBounds = includeEditorBounds,
-            includeLineBounds = includeLineBounds
+            includeLineBounds = includeLineBounds,
         )
     }
 
@@ -122,7 +122,7 @@ internal class CursorAnchorInfoController(
         includeInsertionMarker: Boolean,
         includeCharacterBounds: Boolean,
         includeEditorBounds: Boolean,
-        includeLineBounds: Boolean
+        includeLineBounds: Boolean,
     ) {
         this.includeInsertionMarker = includeInsertionMarker
         this.includeCharacterBounds = includeCharacterBounds
@@ -197,7 +197,7 @@ internal class CursorAnchorInfoController(
             includeInsertionMarker,
             includeCharacterBounds,
             includeEditorBounds,
-            includeLineBounds
+            includeLineBounds,
         )
     }
 }

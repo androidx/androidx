@@ -85,24 +85,20 @@ abstract class CombineObjectFilesTask : DefaultTask() {
 
     companion object {
         private val familyDirectoryPrefixes =
-            mapOf(
-                Family.LINUX to "linux",
-                Family.MINGW to "windows",
-                Family.OSX to "osx",
-            )
+            mapOf(Family.LINUX to "linux", Family.MINGW to "windows", Family.OSX to "osx")
 
         private val architectureSuffixes =
             mapOf(
                 Architecture.ARM32 to "arm32",
                 Architecture.ARM64 to "arm64",
                 Architecture.X64 to "x64",
-                Architecture.X86 to "x86"
+                Architecture.X86 to "x86",
             )
 
         private fun targetFileFor(
             outputDir: File,
             konanTarget: KonanTarget,
-            objectFile: ObjectFile
+            objectFile: ObjectFile,
         ) = outputDir.resolve(directoryName(konanTarget)).resolve(objectFile.file.get().asFile.name)
 
         private fun directoryName(konanTarget: KonanTarget): String {
@@ -114,7 +110,6 @@ abstract class CombineObjectFilesTask : DefaultTask() {
                     Architecture.X64 -> "x86_64"
                     Architecture.ARM32 -> "armeabi-v7a"
                     Architecture.ARM64 -> "arm64-v8a"
-                    else -> error("add this architecture for android ${konanTarget.architecture}")
                 }
             }
             val familyPrefix =
@@ -136,16 +131,16 @@ abstract class CombineObjectFilesTask : DefaultTask() {
  */
 fun TaskProvider<CombineObjectFilesTask>.configureFrom(
     multiTargetNativeCompilation: MultiTargetNativeCompilation,
-    filter: (KonanTarget) -> Boolean
+    filter: (KonanTarget) -> Boolean,
 ) {
     configure { task ->
         task.objectFiles.addAll(
             multiTargetNativeCompilation.targetsProvider(filter).map { nativeTargetCompilations ->
                 nativeTargetCompilations.map { nativeTargetCompilation ->
-                    nativeTargetCompilation.sharedLibTask.map { sharedLibraryTask ->
+                    nativeTargetCompilation.linkerTask.map { linkerTask ->
                         ObjectFile(
-                            konanTarget = sharedLibraryTask.clangParameters.konanTarget,
-                            file = sharedLibraryTask.clangParameters.outputFile
+                            konanTarget = linkerTask.clangParameters.konanTarget,
+                            file = linkerTask.clangParameters.outputFile,
                         )
                     }
                 }
@@ -157,5 +152,5 @@ fun TaskProvider<CombineObjectFilesTask>.configureFrom(
 /** Represents an object file (.o, .so) associated with its [konanTarget]. */
 class ObjectFile(
     @get:Input val konanTarget: Provider<SerializableKonanTarget>,
-    @get:InputFile @get:PathSensitive(PathSensitivity.NAME_ONLY) val file: RegularFileProperty
+    @get:InputFile @get:PathSensitive(PathSensitivity.NAME_ONLY) val file: RegularFileProperty,
 )

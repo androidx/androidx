@@ -67,7 +67,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateDpAsState(
                     targetValue = 10.dp,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -75,7 +75,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "DpAnimation",
             initialValue = 10.dp,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(1.dp, 2.dp) }
         checkUpdatedState(
@@ -83,7 +83,7 @@ class AnimateXAsStateClockTest {
             label = "DpAnimation",
             newInitialValue = 1.dp,
             newTargetValue = 2.dp,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(3f, 4.0) }
         checkUpdatedState(
@@ -91,7 +91,7 @@ class AnimateXAsStateClockTest {
             label = "DpAnimation",
             newInitialValue = 3.dp,
             newTargetValue = 4.dp,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(30f), listOf(40f)) }
         checkUpdatedState(
@@ -99,7 +99,7 @@ class AnimateXAsStateClockTest {
             label = "DpAnimation",
             newInitialValue = 30.dp,
             newTargetValue = 40.dp,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -115,7 +115,7 @@ class AnimateXAsStateClockTest {
             label = "DpAnimation",
             newInitialValue = 30.dp,
             newTargetValue = 40.dp,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -127,7 +127,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateFloatAsState(
                     targetValue = 10f,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -135,7 +135,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "FloatAnimation",
             initialValue = 10f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(1f, 2f) }
         checkUpdatedState(
@@ -143,7 +143,7 @@ class AnimateXAsStateClockTest {
             label = "FloatAnimation",
             newInitialValue = 1f,
             newTargetValue = 2f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f), listOf(4f)) }
         checkUpdatedState(
@@ -151,7 +151,7 @@ class AnimateXAsStateClockTest {
             label = "FloatAnimation",
             newInitialValue = 3f,
             newTargetValue = 4f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -167,7 +167,7 @@ class AnimateXAsStateClockTest {
             label = "FloatAnimation",
             newInitialValue = 3f,
             newTargetValue = 4f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -179,7 +179,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateIntSizeAsState(
                     targetValue = IntSize(10, 20),
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -187,7 +187,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "IntSizeAnimation",
             initialValue = IntSize(10, 20),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(IntSize(3, 4), IntSize(4, 5)) }
         checkUpdatedState(
@@ -195,7 +195,7 @@ class AnimateXAsStateClockTest {
             label = "IntSizeAnimation",
             newInitialValue = IntSize(3, 4),
             newTargetValue = IntSize(4, 5),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(5, 6), listOf(7, 8)) }
         checkUpdatedState(
@@ -203,7 +203,7 @@ class AnimateXAsStateClockTest {
             label = "IntSizeAnimation",
             newInitialValue = IntSize(5, 6),
             newTargetValue = IntSize(7, 8),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -220,7 +220,7 @@ class AnimateXAsStateClockTest {
             label = "IntSizeAnimation",
             newInitialValue = IntSize(5, 6),
             newTargetValue = IntSize(7, 8),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -237,7 +237,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "IntAnimation",
             initialValue = 10,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(1, 2) }
         checkUpdatedState(
@@ -245,7 +245,7 @@ class AnimateXAsStateClockTest {
             label = "IntAnimation",
             newInitialValue = 1,
             newTargetValue = 2,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3), listOf(4)) }
         checkUpdatedState(
@@ -253,7 +253,7 @@ class AnimateXAsStateClockTest {
             label = "IntAnimation",
             newInitialValue = 3,
             newTargetValue = 4,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -270,7 +270,7 @@ class AnimateXAsStateClockTest {
             label = "IntAnimation",
             newInitialValue = 3,
             newTargetValue = 4,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -282,7 +282,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateIntOffsetAsState(
                     targetValue = IntOffset(10, 20),
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -290,7 +290,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "IntOffsetAnimation",
             initialValue = IntOffset(10, 20),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(IntOffset(1, 2), IntOffset(3, 4)) }
         checkUpdatedState(
@@ -298,7 +298,7 @@ class AnimateXAsStateClockTest {
             label = "IntOffsetAnimation",
             newInitialValue = IntOffset(1, 2),
             newTargetValue = IntOffset(3, 4),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3, 4), listOf(4, 5)) }
         checkUpdatedState(
@@ -306,7 +306,7 @@ class AnimateXAsStateClockTest {
             label = "IntOffsetAnimation",
             newInitialValue = IntOffset(3, 4),
             newTargetValue = IntOffset(4, 5),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -323,7 +323,7 @@ class AnimateXAsStateClockTest {
             label = "IntOffsetAnimation",
             newInitialValue = IntOffset(3, 4),
             newTargetValue = IntOffset(4, 5),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -335,7 +335,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateOffsetAsState(
                     targetValue = Offset(10f, 20f),
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -343,7 +343,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "OffsetAnimation",
             initialValue = Offset(10f, 20f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(Offset(1f, 2f), Offset(3f, 4f)) }
         checkUpdatedState(
@@ -351,7 +351,7 @@ class AnimateXAsStateClockTest {
             label = "OffsetAnimation",
             newInitialValue = Offset(1f, 2f),
             newTargetValue = Offset(3f, 4f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f, 4f), listOf(4f, 5f)) }
         checkUpdatedState(
@@ -359,7 +359,7 @@ class AnimateXAsStateClockTest {
             label = "OffsetAnimation",
             newInitialValue = Offset(3f, 4f),
             newTargetValue = Offset(4f, 5f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -376,7 +376,7 @@ class AnimateXAsStateClockTest {
             label = "OffsetAnimation",
             newInitialValue = Offset(3f, 4f),
             newTargetValue = Offset(4f, 5f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -388,7 +388,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateSizeAsState(
                     targetValue = Size(10f, 20f),
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -396,7 +396,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "SizeAnimation",
             initialValue = Size(10f, 20f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(Size(1f, 2f), Size(3f, 4f)) }
         checkUpdatedState(
@@ -404,7 +404,7 @@ class AnimateXAsStateClockTest {
             label = "SizeAnimation",
             newInitialValue = Size(1f, 2f),
             newTargetValue = Size(3f, 4f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f, 4f), listOf(4f, 5f)) }
         checkUpdatedState(
@@ -412,7 +412,7 @@ class AnimateXAsStateClockTest {
             label = "SizeAnimation",
             newInitialValue = Size(3f, 4f),
             newTargetValue = Size(4f, 5f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -429,7 +429,7 @@ class AnimateXAsStateClockTest {
             label = "SizeAnimation",
             newInitialValue = Size(3f, 4f),
             newTargetValue = Size(4f, 5f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -441,7 +441,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateRectAsState(
                     targetValue = Rect(10f, 20f, 30f, 40f),
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -449,7 +449,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "RectAnimation",
             initialValue = Rect(10f, 20f, 30f, 40f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread {
             clock.setStateParameters(Rect(1f, 2f, 30f, 40f), Rect(3f, 4f, 30f, 40f))
@@ -459,7 +459,7 @@ class AnimateXAsStateClockTest {
             label = "RectAnimation",
             newInitialValue = Rect(1f, 2f, 30f, 40f),
             newTargetValue = Rect(3f, 4f, 30f, 40f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread {
             clock.setStateParameters(listOf(3f, 4f, 30f, 40f), listOf(4f, 5f, 30f, 40f))
@@ -469,7 +469,7 @@ class AnimateXAsStateClockTest {
             label = "RectAnimation",
             newInitialValue = Rect(3f, 4f, 30f, 40f),
             newTargetValue = Rect(4f, 5f, 30f, 40f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -486,7 +486,7 @@ class AnimateXAsStateClockTest {
             label = "RectAnimation",
             newInitialValue = Rect(3f, 4f, 30f, 40f),
             newTargetValue = Rect(4f, 5f, 30f, 40f),
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -498,7 +498,7 @@ class AnimateXAsStateClockTest {
             state =
                 animateColorAsState(
                     targetValue = Color.Black,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -506,7 +506,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ColorAnimation",
             initialValue = Color.Black,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(Color.Gray, Color.Red) }
         checkUpdatedState(
@@ -514,12 +514,12 @@ class AnimateXAsStateClockTest {
             label = "ColorAnimation",
             newInitialValue = Color.Gray,
             newTargetValue = Color.Red,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread {
             clock.setStateParameters(
                 listOf(Color.Blue.red, Color.Blue.green, Color.Blue.blue, Color.Blue.alpha),
-                listOf(Color.Yellow.red, Color.Yellow.green, Color.Yellow.blue, Color.Yellow.alpha)
+                listOf(Color.Yellow.red, Color.Yellow.green, Color.Yellow.blue, Color.Yellow.alpha),
             )
         }
         checkUpdatedState(
@@ -527,7 +527,7 @@ class AnimateXAsStateClockTest {
             label = "ColorAnimation",
             newInitialValue = Color.Blue,
             newTargetValue = Color.Yellow,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -546,7 +546,7 @@ class AnimateXAsStateClockTest {
             label = "ColorAnimation",
             newInitialValue = Color.Blue,
             newTargetValue = Color.Yellow,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -559,7 +559,7 @@ class AnimateXAsStateClockTest {
                 animateValueAsState(
                     targetValue = 10f,
                     Float.VectorConverter,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -567,7 +567,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ValueAnimation",
             initialValue = 10f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(1f, 2f) }
         checkUpdatedState(
@@ -575,7 +575,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = 1f,
             newTargetValue = 2f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f), listOf(4f)) }
         checkUpdatedState(
@@ -583,7 +583,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = 3f,
             newTargetValue = 4f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -600,7 +600,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = 3f,
             newTargetValue = 4f,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -613,7 +613,7 @@ class AnimateXAsStateClockTest {
                 animateValueAsState(
                     targetValue = 10f,
                     Utils.nullableFloatConverter,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -621,7 +621,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ValueAnimation",
             initialValue = 10f,
-            composeState = { state!!.value!! }
+            composeState = { state!!.value!! },
         )
         rule.runOnUiThread { clock.setStateParameters(1f, 2f) }
         checkUpdatedState(
@@ -629,7 +629,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = 1f,
             newTargetValue = 2f,
-            composeState = { state!!.value!! }
+            composeState = { state!!.value!! },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(3f), listOf(4f)) }
         checkUpdatedState(
@@ -637,7 +637,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = 3f,
             newTargetValue = 4f,
-            composeState = { state!!.value!! }
+            composeState = { state!!.value!! },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -654,7 +654,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = 3f,
             newTargetValue = 4f,
-            composeState = { state!!.value!! }
+            composeState = { state!!.value!! },
         )
     }
 
@@ -667,7 +667,7 @@ class AnimateXAsStateClockTest {
                 animateValueAsState(
                     targetValue = "10.0",
                     Utils.stringConverter,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -675,7 +675,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ValueAnimation",
             initialValue = "10.0",
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters("20.0", "30.0") }
         checkUpdatedState(
@@ -683,7 +683,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = "20.0",
             newTargetValue = "30.0",
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf("40.0"), listOf("50.0")) }
         checkUpdatedState(
@@ -691,7 +691,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = "40.0",
             newTargetValue = "50.0",
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -708,7 +708,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = "40.0",
             newTargetValue = "50.0",
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -721,7 +721,7 @@ class AnimateXAsStateClockTest {
                 animateValueAsState(
                     targetValue = Utils.EnumState.One,
                     Utils.enumConverter,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -729,7 +729,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ValueAnimation",
             initialValue = Utils.EnumState.One,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -742,7 +742,7 @@ class AnimateXAsStateClockTest {
                 animateValueAsState(
                     targetValue = false,
                     Utils.booleanConverter,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -750,7 +750,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ValueAnimation",
             initialValue = false,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(false, true) }
         checkUpdatedState(
@@ -758,7 +758,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = false,
             newTargetValue = true,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         rule.runOnUiThread { clock.setStateParameters(listOf(true), listOf(false)) }
         checkUpdatedState(
@@ -766,7 +766,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = true,
             newTargetValue = false,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
         // Invalid parameters are ignored.
         rule.runOnUiThread {
@@ -783,7 +783,7 @@ class AnimateXAsStateClockTest {
             label = "ValueAnimation",
             newInitialValue = true,
             newTargetValue = false,
-            composeState = { state!!.value }
+            composeState = { state!!.value },
         )
     }
 
@@ -796,7 +796,7 @@ class AnimateXAsStateClockTest {
                 animateValueAsState(
                     targetValue = Utils.EnumState.One,
                     Utils.nullableEnumConverter,
-                    animationSpec = TweenSpec(durationMillis = 100)
+                    animationSpec = TweenSpec(durationMillis = 100),
                 )
         }
         val clock = AnimateXAsStateClock(search.animations.first().parse()!!)
@@ -804,7 +804,7 @@ class AnimateXAsStateClockTest {
             clock,
             label = "ValueAnimation",
             initialValue = Utils.EnumState.One,
-            composeState = { state!!.value!! }
+            composeState = { state!!.value!! },
         )
     }
 
@@ -812,7 +812,7 @@ class AnimateXAsStateClockTest {
         clock: ComposeAnimationClock<T, TState>,
         label: String,
         initialValue: V,
-        composeState: () -> V
+        composeState: () -> V,
     ) {
         // Check default state.
         assertEquals(initialValue, composeState())
@@ -821,7 +821,7 @@ class AnimateXAsStateClockTest {
         assertEquals(100L, clock.getMaxDurationPerIteration())
         assertEquals(
             listOf(ComposeAnimatedProperty(label, initialValue)),
-            clock.getAnimatedProperties()
+            clock.getAnimatedProperties(),
         )
         val transitions = clock.getTransitions(100)
         assertEquals(1, transitions.size)
@@ -839,7 +839,7 @@ class AnimateXAsStateClockTest {
         label: String,
         newInitialValue: V,
         newTargetValue: V,
-        composeState: () -> V
+        composeState: () -> V,
     ) {
         rule.waitForIdle()
         // Check new state.
@@ -851,7 +851,7 @@ class AnimateXAsStateClockTest {
             assertEquals(100L, clock.getMaxDurationPerIteration())
             assertEquals(
                 listOf(ComposeAnimatedProperty(label, newInitialValue)),
-                clock.getAnimatedProperties()
+                clock.getAnimatedProperties(),
             )
             val newTransitions = clock.getTransitions(100)
             assertEquals(1, newTransitions.size)

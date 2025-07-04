@@ -59,7 +59,7 @@ class TextLayoutResultIntegrationTest {
                 MultiParagraphLayoutCache(
                         text = annotatedString,
                         style = TextStyle.Default,
-                        fontFamilyResolver = fontFamilyResolver
+                        fontFamilyResolver = fontFamilyResolver,
                     )
                     .also { it.density = this }
 
@@ -80,7 +80,7 @@ class TextLayoutResultIntegrationTest {
             MultiParagraphLayoutCache(
                     text = annotatedString,
                     style = TextStyle.Default,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
                 .also { it.density = density }
 
@@ -101,7 +101,7 @@ class TextLayoutResultIntegrationTest {
                 MultiParagraphLayoutCache(
                         text = annotatedString,
                         style = TextStyle.Default,
-                        fontFamilyResolver = fontFamilyResolver
+                        fontFamilyResolver = fontFamilyResolver,
                     )
                     .also { it.density = this }
 
@@ -118,7 +118,7 @@ class TextLayoutResultIntegrationTest {
             MultiParagraphLayoutCache(
                     text = AnnotatedString("hello"),
                     style = TextStyle.Default,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
                 .also { it.density = density }
 
@@ -142,7 +142,7 @@ class TextLayoutResultIntegrationTest {
             MultiParagraphLayoutCache(
                     text = annotatedString,
                     style = TextStyle.Default,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
                 .also { it.density = density }
         textDelegate.layoutWithConstraints(Constraints(), layoutDirection)
@@ -167,7 +167,7 @@ class TextLayoutResultIntegrationTest {
                 MultiParagraphLayoutCache(
                         text = annotatedString,
                         style = TextStyle.Default,
-                        fontFamilyResolver = fontFamilyResolver
+                        fontFamilyResolver = fontFamilyResolver,
                     )
                     .also { it.density = this }
             textDelegate.layoutWithConstraints(Constraints(), layoutDirection)
@@ -191,7 +191,7 @@ class TextLayoutResultIntegrationTest {
             MultiParagraphLayoutCache(
                     text = annotatedString,
                     style = TextStyle.Default,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
                 .also { it.density = density }
 
@@ -216,7 +216,7 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    maxLines = maxLines
+                    maxLines = maxLines,
                 )
                 .also { it.density = density }
 
@@ -241,7 +241,7 @@ class TextLayoutResultIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     fontFamilyResolver = fontFamilyResolver,
-                    maxLines = maxLines
+                    maxLines = maxLines,
                 )
                 .also { it.density = density }
 

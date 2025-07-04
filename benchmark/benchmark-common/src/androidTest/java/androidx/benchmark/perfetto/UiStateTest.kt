@@ -38,9 +38,9 @@ public class UiStateTest {
             UiState(
                 timeline_start_ts = 1,
                 timeline_end_ts = 100,
-                UiState.HighlightProcess(cmdline = "test.package")
+                UiState.HighlightProcess(cmdline = "test.package"),
             ),
-            UiState(timelineStart = 1, timelineEnd = 100, highlightPackage = "test.package")
+            UiState(timelineStart = 1, timelineEnd = 100, highlightPackage = "test.package"),
         )
     }
 
@@ -76,9 +76,9 @@ public class UiStateTest {
                                 UiState(
                                     timeline_start_ts = 0,
                                     timeline_end_ts = 1,
-                                    UiState.HighlightProcess(cmdline = "test.package")
+                                    UiState.HighlightProcess(cmdline = "test.package"),
                                 )
-                        )
+                        ),
                     )
             )
         assertEquals(expected, final)

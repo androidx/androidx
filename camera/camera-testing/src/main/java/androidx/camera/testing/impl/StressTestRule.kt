@@ -33,7 +33,7 @@ public class StressTestRule : TestRule {
                     (System.currentTimeMillis() - startTime).let { execTime ->
                         Log.i(
                             "StressTestRule",
-                            "StressTestExecutedTest:${description.displayName} ExecutedTime:$execTime"
+                            "StressTestExecutedTest:${description.displayName} ExecutedTime:$execTime",
                         )
                     }
                 }

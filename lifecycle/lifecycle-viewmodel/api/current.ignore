@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedFromJava: androidx.lifecycle.ViewModel#ViewModel(java.io.Closeable...):
+    Source breaking change: constructor androidx.lifecycle.ViewModel(java.io.Closeable...) can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.lifecycle.ViewModel#ViewModel(java.io.Closeable...):
+    Source breaking change: constructor androidx.lifecycle.ViewModel(java.io.Closeable...) can no longer be resolved from Kotlin source

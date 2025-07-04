@@ -27,15 +27,23 @@ import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastRoundToInt
+import kotlin.jvm.JvmInline
 import kotlin.math.max
 import kotlin.math.min
 
@@ -148,7 +156,7 @@ object PaneMotionDefaults {
         spring(
             dampingRatio = 0.8f,
             stiffness = 380f,
-            visibilityThreshold = IntRectVisibilityThreshold
+            visibilityThreshold = IntRectVisibilityThreshold,
         )
 
     /**
@@ -161,8 +169,12 @@ object PaneMotionDefaults {
             dampingRatio = 0.8f,
             stiffness = 380f,
             delayedRatio = 0.1f,
-            visibilityThreshold = IntRectVisibilityThreshold
+            visibilityThreshold = IntRectVisibilityThreshold,
         )
+
+    /** The default [FiniteAnimationSpec] used to animate panes' visibility. */
+    val VisibilityAnimationSpec: FiniteAnimationSpec<Float> =
+        spring(dampingRatio = 0.8f, stiffness = 380f)
 
     /**
      * The derived [FiniteAnimationSpec] that can be used to animate panes' positions when the
@@ -210,7 +222,7 @@ object PaneMotionDefaults {
  */
 @ExperimentalMaterial3AdaptiveApi
 class PaneMotionData internal constructor() {
-    var motion: PaneMotion = PaneMotion.NoMotion
+    var motion: PaneMotion by mutableStateOf(PaneMotion.NoMotion)
         internal set
 
     var originSize: IntSize = IntSize.Zero
@@ -225,18 +237,28 @@ class PaneMotionData internal constructor() {
     var targetPosition: IntOffset = IntOffset.Zero
         internal set
 
+    internal var zIndex: Float = 0f
+
     internal var isOriginSizeAndPositionSet = false
+
+    internal var isTargetSizeAndPositionSet = false
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@VisibleForTesting
 internal val PaneMotionData.targetLeft
     get() = targetPosition.x
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@VisibleForTesting
 internal val PaneMotionData.targetRight
     get() = targetPosition.x + targetSize.width
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val PaneMotionData.targetTop
+    get() = targetPosition.y
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal val PaneMotionData.targetBottom
+    get() = targetPosition.y + targetSize.height
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @VisibleForTesting
@@ -350,15 +372,107 @@ internal val PaneScaffoldMotionDataProvider<*>.slideOutToRightOffset: Int
         return 0
     }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@VisibleForTesting
+internal fun <Role> PaneScaffoldMotionDataProvider<Role>.getHiddenPaneCurrentLeft(role: Role): Int {
+    var currentLeft = 0
+    forEach { paneRole, data ->
+        // Find the right edge of the shown pane next to the left.
+        if (paneRole == role) {
+            return currentLeft
+        }
+        if (
+            data.motion.type == PaneMotion.Type.Shown || data.motion.type == PaneMotion.Type.Exiting
+        ) {
+            currentLeft = data.currentRight
+        }
+    }
+    return currentLeft
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@VisibleForTesting
+internal fun <Role> PaneScaffoldMotionDataProvider<Role>.getHidingPaneTargetLeft(role: Role): Int {
+    var targetLeft = 0
+    forEach { paneRole, data ->
+        // Find the right edge of the shown pane next to the left.
+        if (paneRole == role) {
+            return targetLeft
+        }
+        if (
+            data.motion.type == PaneMotion.Type.Shown ||
+                data.motion.type == PaneMotion.Type.Entering
+        ) {
+            targetLeft = data.targetRight
+        }
+    }
+    return targetLeft
+}
+
+/**
+ * Calculates the default [EnterTransition] of the pane associated to the given role when it's
+ * showing. The [PaneMotion] and pane measurement data provided by [PaneScaffoldMotionDataProvider]
+ * will be used to decide the transition type and relevant values like sliding offsets.
+ *
+ * @param role the role of the pane that is supposed to perform the [EnterTransition] when showing.
+ */
+@ExperimentalMaterial3AdaptiveApi
+fun <Role> PaneScaffoldMotionDataProvider<Role>.calculateDefaultEnterTransition(role: Role) =
+    when (this[role].motion) {
+        PaneMotion.EnterFromLeft ->
+            slideInHorizontally(PaneMotionDefaults.OffsetAnimationSpec) { slideInFromLeftOffset }
+        PaneMotion.EnterFromLeftDelayed ->
+            slideInHorizontally(PaneMotionDefaults.DelayedOffsetAnimationSpec) {
+                slideInFromLeftOffset
+            }
+        PaneMotion.EnterFromRight ->
+            slideInHorizontally(PaneMotionDefaults.OffsetAnimationSpec) { slideInFromRightOffset }
+        PaneMotion.EnterFromRightDelayed ->
+            slideInHorizontally(PaneMotionDefaults.DelayedOffsetAnimationSpec) {
+                slideInFromRightOffset
+            }
+        PaneMotion.EnterWithExpand -> {
+            expandHorizontally(PaneMotionDefaults.SizeAnimationSpec, Alignment.CenterHorizontally) +
+                slideInHorizontally(PaneMotionDefaults.OffsetAnimationSpec) {
+                    getHiddenPaneCurrentLeft(role) - this[role].targetLeft
+                }
+        }
+        PaneMotion.EnterAsModal -> {
+            fadeIn(animationSpec = PaneMotionDefaults.VisibilityAnimationSpec)
+        }
+        else -> EnterTransition.None
+    }
+
+/**
+ * Calculates the default [ExitTransition] of the pane associated to the given role when it's
+ * hiding. The [PaneMotion] and pane measurement data provided by [PaneScaffoldMotionDataProvider]
+ * will be used to decide the transition type and relevant values like sliding offsets.
+ *
+ * @param role the role of the pane that is supposed to perform the [ExitTransition] when hiding.
+ */
+@ExperimentalMaterial3AdaptiveApi
+fun <Role> PaneScaffoldMotionDataProvider<Role>.calculateDefaultExitTransition(role: Role) =
+    when (this[role].motion) {
+        PaneMotion.ExitToLeft ->
+            slideOutHorizontally(PaneMotionDefaults.OffsetAnimationSpec) { slideOutToLeftOffset }
+        PaneMotion.ExitToRight ->
+            slideOutHorizontally(PaneMotionDefaults.OffsetAnimationSpec) { slideOutToRightOffset }
+        PaneMotion.ExitWithShrink -> {
+            shrinkHorizontally(PaneMotionDefaults.SizeAnimationSpec, Alignment.CenterHorizontally) +
+                slideOutHorizontally(PaneMotionDefaults.OffsetAnimationSpec) {
+                    getHidingPaneTargetLeft(role) - this[role].currentLeft
+                }
+        }
+        PaneMotion.ExitAsModal -> {
+            fadeOut(animationSpec = PaneMotionDefaults.VisibilityAnimationSpec)
+        }
+        else -> ExitTransition.None
+    }
+
 /** Interface to specify a custom pane enter/exit motion when a pane's visibility changes. */
 @ExperimentalMaterial3AdaptiveApi
-interface PaneMotion {
-    /** The [EnterTransition] of a pane under the given [PaneScaffoldMotionDataProvider]. */
-    val PaneScaffoldMotionDataProvider<*>.enterTransition: EnterTransition
-
-    /** The [ExitTransition] of a pane under the given [PaneScaffoldMotionDataProvider]. */
-    val PaneScaffoldMotionDataProvider<*>.exitTransition: ExitTransition
-
+@Stable
+sealed interface PaneMotion {
     /** The type of the motion, like exiting, entering, etc. See [Type]. */
     val type: Type
 
@@ -376,6 +490,8 @@ interface PaneMotion {
                     Exiting -> "Exiting"
                     Entering -> "Entering"
                     Shown -> "Shown"
+                    ExitingModal -> "ExitingModal"
+                    EnteringModal -> "EnteringModal"
                     else -> "Unknown value=$value"
                 }
             }]"
@@ -394,149 +510,117 @@ interface PaneMotion {
             /** Indicates the pane is keeping being shown during the current motion. */
             val Shown = Type(3)
 
+            /**
+             * Indicates the pane is exiting or hiding as a modal, i.e., a levitated pane, during
+             * the current motion.
+             */
+            val ExitingModal = Type(5)
+
+            /**
+             * Indicates the pane is entering or showing as a modal, i.e., a levitated pane, during
+             * the current motion.
+             */
+            val EnteringModal = Type(6)
+
             internal fun calculate(
                 previousValue: PaneAdaptedValue,
-                currentValue: PaneAdaptedValue
+                currentValue: PaneAdaptedValue,
             ): Type {
-                val wasShown = if (previousValue == PaneAdaptedValue.Hidden) 0 else 1
-                val isShown = if (currentValue == PaneAdaptedValue.Hidden) 0 else 2
-                return Type(wasShown or isShown)
+                val wasShown = previousValue != PaneAdaptedValue.Hidden
+                val isShown = currentValue != PaneAdaptedValue.Hidden
+                val levitatedPane =
+                    previousValue is PaneAdaptedValue.Levitated ||
+                        currentValue is PaneAdaptedValue.Levitated
+                return when {
+                    wasShown && isShown -> Shown
+                    !wasShown && !isShown -> Hidden
+                    wasShown && !isShown -> if (levitatedPane) ExitingModal else Exiting
+                    !wasShown && isShown -> if (levitatedPane) EnteringModal else Entering
+                    else -> Hidden // Not possible
+                }
             }
         }
     }
 
-    private abstract class DefaultImpl(val name: String, override val type: Type) : PaneMotion {
-        override val PaneScaffoldMotionDataProvider<*>.enterTransition
-            get() = EnterTransition.None
-
-        override val PaneScaffoldMotionDataProvider<*>.exitTransition
-            get() = ExitTransition.None
-
+    @Immutable
+    private class DefaultImpl(val name: String, override val type: Type) : PaneMotion {
         override fun toString() = name
     }
 
     companion object {
         /** The default pane motion that no animation will be performed. */
-        val NoMotion: PaneMotion = object : DefaultImpl("NoMotion", Type.Hidden) {}
+        val NoMotion: PaneMotion = DefaultImpl("NoMotion", Type.Hidden)
 
         /**
          * The default pane motion that will animate panes bounds with the given animation specs
          * during motion. Note that this should only be used when the associated pane is keeping
          * showing during the motion.
          */
-        val AnimateBounds: PaneMotion = object : DefaultImpl("AnimateBounds", Type.Shown) {}
+        val AnimateBounds: PaneMotion = DefaultImpl("AnimateBounds", Type.Shown)
 
         /**
          * The default pane motion that will slide panes in from left. Note that this should only be
          * used when the associated pane is entering - i.e. becoming visible from a hidden state.
          */
-        val EnterFromLeft: PaneMotion =
-            object : DefaultImpl("EnterFromLeft", Type.Entering) {
-                override val PaneScaffoldMotionDataProvider<*>.enterTransition
-                    get() =
-                        slideInHorizontally(PaneMotionDefaults.OffsetAnimationSpec) {
-                            slideInFromLeftOffset
-                        }
-            }
+        val EnterFromLeft: PaneMotion = DefaultImpl("EnterFromLeft", Type.Entering)
 
         /**
          * The default pane motion that will slide panes in from right. Note that this should only
          * be used when the associated pane is entering - i.e. becoming visible from a hidden state.
          */
-        val EnterFromRight: PaneMotion =
-            object : DefaultImpl("EnterFromRight", Type.Entering) {
-                override val PaneScaffoldMotionDataProvider<*>.enterTransition
-                    get() =
-                        slideInHorizontally(PaneMotionDefaults.OffsetAnimationSpec) {
-                            slideInFromRightOffset
-                        }
-            }
+        val EnterFromRight: PaneMotion = DefaultImpl("EnterFromRight", Type.Entering)
 
         /**
          * The default pane motion that will slide panes in from left with a delay, usually to avoid
          * the interference of other exiting panes. Note that this should only be used when the
          * associated pane is entering - i.e. becoming visible from a hidden state.
          */
-        val EnterFromLeftDelayed: PaneMotion =
-            object : DefaultImpl("EnterFromLeftDelayed", Type.Entering) {
-                override val PaneScaffoldMotionDataProvider<*>.enterTransition
-                    get() =
-                        slideInHorizontally(PaneMotionDefaults.DelayedOffsetAnimationSpec) {
-                            slideInFromLeftOffset
-                        }
-            }
+        val EnterFromLeftDelayed: PaneMotion = DefaultImpl("EnterFromLeftDelayed", Type.Entering)
 
         /**
          * The default pane motion that will slide panes in from right with a delay, usually to
          * avoid the interference of other exiting panes. Note that this should only be used when
          * the associated pane is entering - i.e. becoming visible from a hidden state.
          */
-        val EnterFromRightDelayed: PaneMotion =
-            object : DefaultImpl("EnterFromRightDelayed", Type.Entering) {
-                override val PaneScaffoldMotionDataProvider<*>.enterTransition
-                    get() =
-                        slideInHorizontally(PaneMotionDefaults.DelayedOffsetAnimationSpec) {
-                            slideInFromRightOffset
-                        }
-            }
+        val EnterFromRightDelayed: PaneMotion = DefaultImpl("EnterFromRightDelayed", Type.Entering)
 
         /**
          * The default pane motion that will slide panes out to left. Note that this should only be
          * used when the associated pane is exiting - i.e. becoming hidden from a visible state.
          */
-        val ExitToLeft: PaneMotion =
-            object : DefaultImpl("ExitToLeft", Type.Exiting) {
-                override val PaneScaffoldMotionDataProvider<*>.exitTransition
-                    get() =
-                        slideOutHorizontally(PaneMotionDefaults.OffsetAnimationSpec) {
-                            slideOutToLeftOffset
-                        }
-            }
+        val ExitToLeft: PaneMotion = DefaultImpl("ExitToLeft", Type.Exiting)
 
         /**
          * The default pane motion that will slide panes out to right. Note that this should only be
          * used when the associated pane is exiting - i.e. becoming hidden from a visible state.
          */
-        val ExitToRight: PaneMotion =
-            object : DefaultImpl("ExitToRight", Type.Exiting) {
-                override val PaneScaffoldMotionDataProvider<*>.exitTransition
-                    get() =
-                        slideOutHorizontally(PaneMotionDefaults.OffsetAnimationSpec) {
-                            slideOutToRightOffset
-                        }
-            }
+        val ExitToRight: PaneMotion = DefaultImpl("ExitToRight", Type.Exiting)
 
         /**
          * The default pane motion that will expand panes from a zero size. Note that this should
          * only be used when the associated pane is entering - i.e. becoming visible from a hidden
          * state.
          */
-        val EnterWithExpand: PaneMotion =
-            object : DefaultImpl("EnterWithExpand", Type.Entering) {
-                // TODO(conradchen): Expand with position change
-                override val PaneScaffoldMotionDataProvider<*>.enterTransition
-                    get() =
-                        expandHorizontally(
-                            PaneMotionDefaults.SizeAnimationSpec,
-                            Alignment.CenterHorizontally
-                        )
-            }
+        val EnterWithExpand: PaneMotion = DefaultImpl("EnterWithExpand", Type.Entering)
 
         /**
          * The default pane motion that will shrink panes until it's gone. Note that this should
          * only be used when the associated pane is exiting - i.e. becoming hidden from a visible
          * state.
          */
-        val ExitWithShrink: PaneMotion =
-            object : DefaultImpl("ExitWithShrink", Type.Exiting) {
-                // TODO(conradchen): Shrink with position change
-                override val PaneScaffoldMotionDataProvider<*>.exitTransition
-                    get() =
-                        shrinkHorizontally(
-                            PaneMotionDefaults.SizeAnimationSpec,
-                            Alignment.CenterHorizontally
-                        )
-            }
+        val ExitWithShrink: PaneMotion = DefaultImpl("ExitWithShrink", Type.Exiting)
+
+        /**
+         * The default pane motion that will show the pane as a modal. Note that this should only be
+         * used when the associated pane is entering into a levitated state from a hidden state.
+         */
+        val EnterAsModal: PaneMotion = DefaultImpl("EnterAsModal", Type.EnteringModal)
+
+        /**
+         * The default pane motion that will hide the pane as a modal. Note that this should only be
+         * used when the associated pane is exiting from a leviated state to a hidden state.
+         */
+        val ExitAsModal: PaneMotion = DefaultImpl("ExitAsModal", Type.ExitingModal)
     }
 }
 
@@ -544,7 +628,7 @@ interface PaneMotion {
 internal fun <T> calculatePaneMotion(
     previousScaffoldValue: PaneScaffoldValue<T>,
     currentScaffoldValue: PaneScaffoldValue<T>,
-    paneOrder: PaneScaffoldHorizontalOrder<T>
+    paneOrder: PaneScaffoldHorizontalOrder<T>,
 ): List<PaneMotion> {
     val numOfPanes = paneOrder.size
     val paneMotionTypes = Array(numOfPanes) { PaneMotion.Type.Hidden }
@@ -646,6 +730,14 @@ internal fun <T> calculatePaneMotion(
                 }
         }
     }
+    // Fourth pass, to decide the motions of all levitated panes.
+    paneOrder.forEachIndexed { i, _ ->
+        if (paneMotionTypes[i] == PaneMotion.Type.EnteringModal) {
+            paneMotions[i] = PaneMotion.EnterAsModal
+        } else if (paneMotionTypes[i] == PaneMotion.Type.ExitingModal) {
+            paneMotions[i] = PaneMotion.ExitAsModal
+        }
+    }
     return paneMotions
 }
 
@@ -656,7 +748,7 @@ internal val IntRectToVector: TwoWayConverter<IntRect, AnimationVector4D> =
                 it.left.toFloat(),
                 it.top.toFloat(),
                 it.right.toFloat(),
-                it.bottom.toFloat()
+                it.bottom.toFloat(),
             )
         },
         convertFromVector = {
@@ -664,9 +756,9 @@ internal val IntRectToVector: TwoWayConverter<IntRect, AnimationVector4D> =
                 it.v1.fastRoundToInt(),
                 it.v2.fastRoundToInt(),
                 it.v3.fastRoundToInt(),
-                it.v4.fastRoundToInt()
+                it.v4.fastRoundToInt(),
             )
-        }
+        },
     )
 
 internal class DerivedSizeAnimationSpec(private val boundsSpec: FiniteAnimationSpec<IntRect>) :
@@ -723,7 +815,7 @@ internal class DelayedSpringSpec<T>(
     dampingRatio: Float = Spring.DampingRatioNoBouncy,
     stiffness: Float = Spring.StiffnessMedium,
     private val delayedRatio: Float,
-    visibilityThreshold: T? = null
+    visibilityThreshold: T? = null,
 ) : FiniteAnimationSpec<T> {
     private val originalSpringSpec = spring(dampingRatio, stiffness, visibilityThreshold)
 
@@ -747,7 +839,7 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ): V {
         updateDelayedTimeNanosIfNeeded(initialValue, targetValue, initialVelocity)
         return if (playTimeNanos <= delayedTimeNanos) {
@@ -757,7 +849,7 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
                 playTimeNanos - delayedTimeNanos,
                 initialValue,
                 targetValue,
-                initialVelocity
+                initialVelocity,
             )
         }
     }
@@ -766,7 +858,7 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ): V {
         updateDelayedTimeNanosIfNeeded(initialValue, targetValue, initialVelocity)
         return if (playTimeNanos <= delayedTimeNanos) {
@@ -776,7 +868,7 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
                 playTimeNanos - delayedTimeNanos,
                 initialValue,
                 targetValue,
-                initialVelocity
+                initialVelocity,
             )
         }
     }
@@ -789,7 +881,7 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
     private fun updateDelayedTimeNanosIfNeeded(
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ) {
         if (
             initialValue != cachedInitialValue ||
@@ -800,7 +892,7 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
                 originalVectorizedSpringSpec.getDurationNanos(
                     initialValue,
                     targetValue,
-                    initialVelocity
+                    initialVelocity,
                 )
             delayedTimeNanos = (cachedOriginalDurationNanos * delayedRatio).toLong()
         }

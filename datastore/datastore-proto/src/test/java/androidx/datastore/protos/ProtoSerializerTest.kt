@@ -45,7 +45,7 @@ class ProtoSerializerTest {
         val protoSerializer =
             ProtoSerializer<FooProto>(
                 FooProto.getDefaultInstance(),
-                ExtensionRegistryLite.getEmptyRegistry()
+                ExtensionRegistryLite.getEmptyRegistry(),
             )
 
         file.outputStream().use { protoSerializer.writeTo(fooProtoWithText, it) }
@@ -71,7 +71,7 @@ class ProtoSerializerTest {
                     ExtensionProto.extension,
                     ExtensionProto.newBuilder()
                         .setFoo(FooProto.newBuilder().setText("abc").build())
-                        .build()
+                        .build(),
                 )
                 .build()
 
@@ -89,7 +89,7 @@ class ProtoSerializerTest {
         val protoSerializer =
             ProtoSerializer<FooProto>(
                 FooProto.getDefaultInstance(),
-                ExtensionRegistryLite.getEmptyRegistry()
+                ExtensionRegistryLite.getEmptyRegistry(),
             )
 
         assertThrows<CorruptionException> {

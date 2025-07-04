@@ -37,6 +37,7 @@ import android.view.ViewConfiguration;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -374,6 +375,7 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427258999
     @LargeTest
     @Test
     public void mouseDragThenLongPress() throws Throwable {

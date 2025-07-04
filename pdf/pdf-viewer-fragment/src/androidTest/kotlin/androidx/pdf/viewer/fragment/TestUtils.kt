@@ -20,13 +20,20 @@ import android.content.Context
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 
 object TestUtils {
-    private val TEMP_FILE_NAME = "temp"
-    private val TEMP_FILE_TYPE = ".pdf"
+    private const val TEMP_FILE_NAME = "temp"
+    private const val TEMP_FILE_TYPE = ".pdf"
 
     fun openFileAsUri(context: Context, filename: String): Uri {
         val inputStream = context.assets.open(filename)
+        val tempFile = File.createTempFile(TEMP_FILE_NAME, TEMP_FILE_TYPE, context.cacheDir)
+        FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
+        return Uri.fromFile(tempFile)
+    }
+
+    fun saveStream(inputStream: InputStream, context: Context): Uri {
         val tempFile = File.createTempFile(TEMP_FILE_NAME, TEMP_FILE_TYPE, context.cacheDir)
         FileOutputStream(tempFile).use { outputStream -> inputStream.copyTo(outputStream) }
         return Uri.fromFile(tempFile)

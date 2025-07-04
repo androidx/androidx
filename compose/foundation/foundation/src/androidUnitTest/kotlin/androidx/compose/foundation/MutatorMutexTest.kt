@@ -38,7 +38,7 @@ class MutatorMutexTest {
     interface MutateCaller {
         suspend fun <R> mutate(
             priority: MutatePriority = MutatePriority.Default,
-            block: suspend () -> R
+            block: suspend () -> R,
         ): R
     }
 
@@ -128,7 +128,7 @@ class MutatorMutexTest {
             val tryMutateSuccessful = mutex.tryMutate {}
             Assert.assertFalse(
                 "tryMutate should not run if there is an ongoing mutation",
-                tryMutateSuccessful
+                tryMutateSuccessful,
             )
             mutateJob.cancelAndJoin()
         }
@@ -141,7 +141,7 @@ class MutatorMutexTest {
                 val tryMutateSuccessful = mutex.tryMutate {}
                 Assert.assertFalse(
                     "tryMutate should not run if there is an ongoing mutation",
-                    tryMutateSuccessful
+                    tryMutateSuccessful,
                 )
             }
         }
@@ -194,14 +194,14 @@ class MutatorMutexTest {
                     } catch (ce: CancellationException) {
                         assertTrue(
                             "attempted second mutation was cancelled with lower priority",
-                            secondPriority < firstPriority
+                            secondPriority < firstPriority,
                         )
                     }
                     assertEquals(
                         "first mutator of priority $firstPriority cancelled by second " +
                             "mutator of priority $secondPriority",
                         secondPriority >= firstPriority,
-                        firstMutatorJob.isCancelled
+                        firstMutatorJob.isCancelled,
                     )
 
                     // Cleanup regardless of results

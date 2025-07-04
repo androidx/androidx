@@ -139,9 +139,12 @@ public abstract class KeyCycleOscillator {
      * sets a oscillator wave point
      *
      * @param framePosition the position
+     * @param shape         the wave shape
+     * @param waveString    the wave string
      * @param variesBy      only varies by path supported for now
      * @param period        the period of the wave
      * @param offset        the offset value
+     * @param phase         the phase of the new wavepoint
      * @param value         the adder
      * @param custom        The ConstraintAttribute used to set the value
      */
@@ -167,9 +170,12 @@ public abstract class KeyCycleOscillator {
      * sets a oscillator wave point
      *
      * @param framePosition the position
+     * @param shape         the wave shape
+     * @param waveString    the wave string
      * @param variesBy      only varies by path supported for now
      * @param period        the period of the wave
      * @param offset        the offset value
+     * @param phase         the phase of the new wavepoint
      * @param value         the adder
      */
     public void setPoint(int framePosition,

@@ -122,7 +122,7 @@ class ButtonScreenshotTest {
                 OutlinedButton(
                     onClick = {},
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Text("Outlined Button")
                 }
@@ -142,7 +142,7 @@ class ButtonScreenshotTest {
                 OutlinedButton(
                     onClick = {},
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Text("Outlined Button")
                 }
@@ -161,12 +161,12 @@ class ButtonScreenshotTest {
             LightMaterialTheme {
                 Button(
                     onClick = { /* Do something! */ },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")
@@ -186,12 +186,12 @@ class ButtonScreenshotTest {
             DarkMaterialTheme {
                 Button(
                     onClick = { /* Do something! */ },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")
@@ -213,12 +213,12 @@ class ButtonScreenshotTest {
                     onClick = { /* Do something! */ },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")
@@ -240,12 +240,12 @@ class ButtonScreenshotTest {
                     onClick = { /* Do something! */ },
                     contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                     enabled = false,
-                    modifier = Modifier.testTag("button")
+                    modifier = Modifier.testTag("button"),
                 ) {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = "Localized description",
-                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Like")

@@ -16,11 +16,6 @@
 
 package androidx.room.concurrent
 
-import kotlinx.atomicfu.atomic
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.synchronized
-import kotlinx.atomicfu.loop
-
 /**
  * A barrier that can be used to perform a cleanup action once, waiting for registered parties
  * (blockers) to finish using the protected resource.
@@ -40,9 +35,10 @@ import kotlinx.atomicfu.loop
  *   blockers.
  */
 internal class CloseBarrier(private val closeAction: () -> Unit) : SynchronizedObject() {
-    private val blockers = atomic(0)
-    private val closeInitiated = atomic(false)
-    private val isClosed by closeInitiated
+    private val blockers = AtomicInt(0)
+    private val closeInitiated = AtomicBoolean(false)
+    private val isClosed: Boolean
+        get() = closeInitiated.get()
 
     /**
      * Blocks the [closeAction] from occurring.
@@ -72,7 +68,7 @@ internal class CloseBarrier(private val closeAction: () -> Unit) : SynchronizedO
     internal fun unblock(): Unit =
         synchronized(this) {
             blockers.decrementAndGet()
-            check(blockers.value >= 0) { "Unbalanced call to unblock() detected." }
+            check(blockers.get() >= 0) { "Unbalanced call to unblock() detected." }
         }
 
     /**

@@ -96,7 +96,7 @@ class SingleValueAnimationTest {
                 val animationValue by
                     animateFloatAsState(
                         if (enabled) 50f else 250f,
-                        tween(200, easing = FastOutLinearInEasing)
+                        tween(200, easing = FastOutLinearInEasing),
                     )
                 // TODO: Properly test this with a deterministic clock when the test framework is
                 // ready
@@ -142,14 +142,14 @@ class SingleValueAnimationTest {
                     animateSizeAsState(
                         if (enabled) Size.VectorConverter.convertFromVector(endVal)
                         else Size.VectorConverter.convertFromVector(startVal),
-                        tween()
+                        tween(),
                     )
 
                 val pxPositionValue by
                     animateOffsetAsState(
                         if (enabled) Offset.VectorConverter.convertFromVector(endVal)
                         else Offset.VectorConverter.convertFromVector(startVal),
-                        tween()
+                        tween(),
                     )
 
                 if (enabled) {
@@ -164,7 +164,7 @@ class SingleValueAnimationTest {
                                 expected =
                                     AnimationVector(
                                         lerp(startVal.v1, endVal.v1, playTime / 100f),
-                                        lerp(startVal.v2, endVal.v2, playTime / 100f)
+                                        lerp(startVal.v2, endVal.v2, playTime / 100f),
                                     )
                             }
                         } while (frameTime - startTime <= 100_000_000L)
@@ -198,7 +198,7 @@ class SingleValueAnimationTest {
                     animateRectAsState(
                         if (enabled) Rect.VectorConverter.convertFromVector(endVal)
                         else Rect.VectorConverter.convertFromVector(startVal),
-                        tween()
+                        tween(),
                     )
 
                 if (enabled) {
@@ -217,7 +217,7 @@ class SingleValueAnimationTest {
                                         lerp(startVal.v1, endVal.v1, fraction),
                                         lerp(startVal.v2, endVal.v2, fraction),
                                         lerp(startVal.v3, endVal.v3, fraction),
-                                        lerp(startVal.v4, endVal.v4, fraction)
+                                        lerp(startVal.v4, endVal.v4, fraction),
                                     )
                             }
                         } while (frameTime - startTime <= 100_000_000L)
@@ -244,7 +244,7 @@ class SingleValueAnimationTest {
                 val value by
                     animateColorAsState(
                         if (enabled) Color.Cyan else Color.Black,
-                        TweenSpec(durationMillis = 100, easing = FastOutLinearInEasing)
+                        TweenSpec(durationMillis = 100, easing = FastOutLinearInEasing),
                     )
                 if (enabled) {
                     LaunchedEffect(Unit) {
@@ -401,7 +401,7 @@ class SingleValueAnimationTest {
                                 val playTime =
                                     ((frameTime - startTime) / 1_000_000L).coerceIn(
                                         0,
-                                        duration.toLong()
+                                        duration.toLong(),
                                     )
                                 val fraction =
                                     FastOutSlowInEasing.transform(playTime / duration.toFloat())

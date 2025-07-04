@@ -52,8 +52,8 @@ class RxWorkerSetProgressDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         RxWorkerSetProgressDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 
@@ -74,7 +74,7 @@ class RxWorkerSetProgressDetector : Detector(), SourceCodeScanner {
                 issue = ISSUE,
                 location = context.getLocation(node),
                 message = DESCRIPTION,
-                quickfixData = lintFix
+                quickfixData = lintFix,
             )
         }
     }

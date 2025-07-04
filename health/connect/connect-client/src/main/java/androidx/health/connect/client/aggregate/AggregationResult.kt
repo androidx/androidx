@@ -39,7 +39,7 @@ constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val longValues: Map<String, Long>,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val doubleValues: Map<String, Double>,
     /** Set of [DataOrigin]s that contributed to the aggregation result. */
-    public val dataOrigins: Set<DataOrigin>
+    public val dataOrigins: Set<DataOrigin>,
 ) {
 
     /**
@@ -69,4 +69,36 @@ constructor(
             is Converter.FromLong -> longValues[metric.metricKey]?.let(metric.converter)
             is Converter.FromDouble -> doubleValues[metric.metricKey]?.let(metric.converter)
         }
+
+    internal operator fun plus(other: AggregationResult): AggregationResult {
+        return AggregationResult(
+            longValues + other.longValues,
+            doubleValues + other.doubleValues,
+            dataOrigins + other.dataOrigins,
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AggregationResult
+
+        if (longValues != other.longValues) return false
+        if (doubleValues != other.doubleValues) return false
+        if (dataOrigins != other.dataOrigins) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = longValues.hashCode()
+        result = 31 * result + doubleValues.hashCode()
+        result = 31 * result + dataOrigins.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "AggregationResult(longValues=$longValues, doubleValues=$doubleValues, dataOrigins=$dataOrigins)"
+    }
 }

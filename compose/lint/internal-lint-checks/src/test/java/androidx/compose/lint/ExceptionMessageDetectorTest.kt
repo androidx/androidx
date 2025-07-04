@@ -133,7 +133,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
                         check(true)
                     }
                     """
-                ),
+                )
             )
             .run()
             .expect(
@@ -160,7 +160,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
 
                     fun check(boolean: Boolean) {}
                     """
-                ),
+                )
             )
             .run()
             .expectClean()
@@ -268,7 +268,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
                         checkNotNull(null)
                     }
                     """
-                ),
+                )
             )
             .run()
             .expect(
@@ -295,7 +295,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
 
                     fun checkNotNull(value: Any?) {}
                     """
-                ),
+                )
             )
             .run()
             .expectClean()
@@ -403,7 +403,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
                         require(true)
                     }
                     """
-                ),
+                )
             )
             .run()
             .expect(
@@ -430,7 +430,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
 
                     fun require(boolean: Boolean) {}
                     """
-                ),
+                )
             )
             .run()
             .expectClean()
@@ -538,7 +538,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
                         requireNotNull(null)
                     }
                     """
-                ),
+                )
             )
             .run()
             .expect(
@@ -565,7 +565,7 @@ class ExceptionMessageDetectorTest : LintDetectorTest() {
 
                     fun requireNotNull(value: Any?) {}
                     """
-                ),
+                )
             )
             .run()
             .expectClean()

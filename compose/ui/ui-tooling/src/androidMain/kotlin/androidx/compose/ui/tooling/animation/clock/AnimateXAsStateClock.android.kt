@@ -82,7 +82,7 @@ internal class AnimateXAsStateClock<T, V : AnimationVector>(
             initialValue = state.initial,
             targetValue = state.target,
             typeConverter = animation.animationObject.typeConverter,
-            initialVelocity = animation.animationObject.velocity
+            initialVelocity = animation.animationObject.velocity,
         )
     }
 }

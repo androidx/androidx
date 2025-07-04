@@ -47,7 +47,7 @@ class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
                 category = Category.CORRECTNESS,
                 severity = Severity.FATAL,
                 implementation =
-                    Implementation(CursorKotlinUseIssueDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(CursorKotlinUseIssueDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 
@@ -71,7 +71,7 @@ class CursorKotlinUseIssueDetector : Detector(), SourceCodeScanner {
         }
         context.report(
             incident = Incident(ISSUE, DESCRIPTION, context.getLocation(node)),
-            constraint = minSdkLessThan(16)
+            constraint = minSdkLessThan(16),
         )
     }
 }

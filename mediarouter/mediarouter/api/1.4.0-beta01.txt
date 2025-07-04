@@ -156,8 +156,8 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaItemStatus.Builder {
-    ctor public MediaItemStatus.Builder(int);
     ctor public MediaItemStatus.Builder(androidx.mediarouter.media.MediaItemStatus);
+    ctor public MediaItemStatus.Builder(int);
     method public androidx.mediarouter.media.MediaItemStatus build();
     method public androidx.mediarouter.media.MediaItemStatus.Builder setContentDuration(long);
     method public androidx.mediarouter.media.MediaItemStatus.Builder setContentPosition(long);
@@ -192,8 +192,8 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaRouteDescriptor.Builder {
-    ctor public MediaRouteDescriptor.Builder(String, String);
     ctor public MediaRouteDescriptor.Builder(androidx.mediarouter.media.MediaRouteDescriptor);
+    ctor public MediaRouteDescriptor.Builder(String, String);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder addControlFilter(android.content.IntentFilter);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder addControlFilters(java.util.Collection<android.content.IntentFilter!>);
     method public androidx.mediarouter.media.MediaRouteDescriptor build();
@@ -251,8 +251,8 @@ package androidx.mediarouter.media {
     ctor public MediaRouteProvider.DynamicGroupRouteController();
     method public String? getGroupableSelectionTitle();
     method public String? getTransferableSectionTitle();
-    method @Deprecated public final void notifyDynamicRoutesChanged(java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>);
     method public final void notifyDynamicRoutesChanged(androidx.mediarouter.media.MediaRouteDescriptor, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>);
+    method @Deprecated public final void notifyDynamicRoutesChanged(java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor!>);
     method public abstract void onAddMemberRoute(String);
     method public abstract void onRemoveMemberRoute(String);
     method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String!>?);
@@ -488,8 +488,8 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaSessionStatus.Builder {
-    ctor public MediaSessionStatus.Builder(int);
     ctor public MediaSessionStatus.Builder(androidx.mediarouter.media.MediaSessionStatus);
+    ctor public MediaSessionStatus.Builder(int);
     method public androidx.mediarouter.media.MediaSessionStatus build();
     method public androidx.mediarouter.media.MediaSessionStatus.Builder setExtras(android.os.Bundle?);
     method public androidx.mediarouter.media.MediaSessionStatus.Builder setQueuePaused(boolean);

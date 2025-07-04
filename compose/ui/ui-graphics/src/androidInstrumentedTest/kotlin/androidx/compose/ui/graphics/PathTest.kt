@@ -43,7 +43,7 @@ class PathTest {
                 addArcRad(
                     Rect(Offset.Zero, Size(width.toFloat(), height.toFloat())),
                     0.0f,
-                    PI.toFloat() / 2
+                    PI.toFloat() / 2,
                 )
             }
 
@@ -57,7 +57,7 @@ class PathTest {
                     Rect(Offset(0.0f, 0.0f), Size(width.toFloat(), height.toFloat())),
                     PI.toFloat(),
                     PI.toFloat() / 2,
-                    false
+                    false,
                 )
                 close()
             }

@@ -16,70 +16,78 @@
 
 package androidx.biometric
 
+import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import androidx.annotation.RestrictTo
+import androidx.biometric.AuthenticationRequest.Biometric
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Lifecycle
+import androidx.biometric.BiometricPrompt.CryptoObject
+import androidx.biometric.BiometricPrompt.LifecycleContainer
+import androidx.biometric.BiometricPrompt.PromptInfo
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle.Event.*
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.ViewModelStoreOwner
+import java.util.concurrent.Executor
 
 /**
- * A registry that stores [auth result callbacks][AuthenticationResultCallback] for
+ * A registry that stores [auth result callbacks][AuthenticationCallback] for
  * [registered calls][registerForAuthenticationResult].
  */
-internal class AuthenticationResultRegistry(
-    private var activity: FragmentActivity? = null,
-    private var fragment: Fragment? = null
-) {
-
-    fun register(
-        onAuthFailedCallback: () -> Unit = {},
-        resultCallback: AuthenticationResultCallback
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class AuthenticationResultRegistry {
+    /**
+     * Register a new callback with this registry. This is normally called by a higher level
+     * convenience methods like [registerForAuthenticationResult].
+     *
+     * If [lifecycleContainer] is null,you must call [AuthenticationResultLauncher.unregister] on
+     * the returned [AuthenticationResultLauncher] when the launcher is no longer needed to release
+     * any values that might be captured in the registered callback.
+     */
+    public fun register(
+        viewModelStoreOwner: ViewModelStoreOwner,
+        fragmentManager: FragmentManager, // TODO(b/178855209): Remove fragmentManager
+        resultCallback: AuthenticationResultCallback,
+        lifecycleContainer: LifecycleContainer? = null,
+        callbackExecutor: Executor? = null,
     ): AuthenticationResultLauncher {
-        val callback =
-            object : AuthenticationCallback() {
-                override fun onAuthenticationFailed() {
-                    onAuthFailedCallback()
-                }
-
-                override fun onAuthenticationSucceeded(
-                    result: BiometricPrompt.AuthenticationResult
-                ) {
-                    resultCallback.onAuthResult(
-                        AuthenticationResult.Success(result.cryptoObject, result.authenticationType)
-                    )
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    resultCallback.onAuthResult(AuthenticationResult.Error(errorCode, errString))
-                }
-            }
-
+        val callback = createAuthenticationCallback(resultCallback)
         var biometricPrompt: BiometricPrompt? = null
 
-        val lifecycleContainer =
-            LifecycleContainer(if (activity != null) activity!!.lifecycle else fragment!!.lifecycle)
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                ON_START -> {
-                    biometricPrompt =
-                        if (activity != null) {
-                            activity!!.createBiometricPrompt({ it.run() }, callback)
-                        } else {
-                            fragment!!.createBiometricPrompt({ it.run() }, callback)
-                        }
-                }
-                ON_STOP -> {
-                    // TODO(b/349213716): remove callback from BiometricViewModel
-                }
-                ON_DESTROY -> {
-                    // TODO(b/349213716): remove callback from BiometricViewModel
-                    lifecycleContainer.clearObservers()
-                }
-                else -> {}
-            }
+        fun unregister() {
+            lifecycleContainer?.clearObservers()
+            biometricPrompt?.destroy()
+            biometricPrompt = null
         }
-        lifecycleContainer.addObserver(observer)
+
+        if (lifecycleContainer != null) {
+            val lifecycleObserver = LifecycleEventObserver { _, event ->
+                when (event) {
+                    ON_START -> {
+                        biometricPrompt =
+                            BiometricPrompt(
+                                viewModelStoreOwner,
+                                fragmentManager,
+                                callback,
+                                callbackExecutor,
+                            )
+                    }
+                    ON_STOP -> {}
+                    ON_DESTROY -> {
+                        // The authentication should not be canceled here using
+                        // cancelAuthentication().
+                        // Instead, rely on the app to manage cancellation through cancel() calls,
+                        // ensuring the authentication survives configuration changes.
+                        unregister()
+                    }
+                    else -> {}
+                }
+            }
+            lifecycleContainer.addObserver(lifecycleObserver)
+        } else {
+            biometricPrompt =
+                BiometricPrompt(viewModelStoreOwner, fragmentManager, callback, callbackExecutor)
+        }
 
         return object : AuthenticationResultLauncher {
             override fun launch(input: AuthenticationRequest) {
@@ -88,45 +96,132 @@ internal class AuthenticationResultRegistry(
 
             override fun cancel() {
                 biometricPrompt?.cancelAuthentication()
-                lifecycleContainer.clearObservers()
+                unregister()
+            }
+
+            override fun unregister() {
+                unregister()
             }
         }
     }
+}
 
-    fun onLaunch(input: AuthenticationRequest, biometricPrompt: BiometricPrompt) {
-        if (input is AuthenticationRequest.Biometric) {
+private fun onLaunch(input: AuthenticationRequest, biometricPrompt: BiometricPrompt) {
+    when (input) {
+        is AuthenticationRequest.Biometric ->
             biometricPrompt.authInternal(
                 title = input.title,
-                authFallback = input.authFallback,
-                minBiometricStrength = input.minStrength,
                 subtitle = input.subtitle,
                 content = input.content,
-                isConfirmationRequired = input.isConfirmationRequired,
                 logoBitmap = input.logoBitmap,
                 logoRes = input.logoRes,
-                logoDescription = input.logoDescription
+                logoDescription = input.logoDescription,
+                minBiometricStrength = input.minStrength,
+                isConfirmationRequired = input.isConfirmationRequired,
+                authFallback = input.authFallback,
             )
-        } else if (input is AuthenticationRequest.Credential) {
+        is AuthenticationRequest.Credential ->
             biometricPrompt.authInternal(
                 title = input.title,
                 subtitle = input.subtitle,
                 content = input.content,
                 cryptoObjectForCredentialOnly = input.cryptoObject,
             )
+    }
+}
+
+private fun createAuthenticationCallback(
+    resultCallback: AuthenticationResultCallback
+): AuthenticationCallback {
+    return object : AuthenticationCallback() {
+        override fun onAuthenticationFailed() {
+            resultCallback.onAuthFailure()
+        }
+
+        override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+            resultCallback.onAuthResult(
+                AuthenticationResult.Success(result.cryptoObject, result.authenticationType)
+            )
+        }
+
+        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+            resultCallback.onAuthResult(AuthenticationResult.Error(errorCode, errString))
         }
     }
+}
 
-    private class LifecycleContainer(val lifecycle: Lifecycle) {
-        private val observers = mutableListOf<LifecycleEventObserver>()
+/** Shows the authentication prompt to the user with biometric and/or device credential. */
+@SuppressLint("MissingPermission")
+private fun BiometricPrompt.authInternal(
+    title: String,
+    subtitle: String? = null,
+    content: AuthenticationRequest.BodyContent? = null,
+    logoBitmap: Bitmap? = null,
+    logoRes: Int = 0,
+    logoDescription: String? = null,
+    minBiometricStrength: Biometric.Strength? = null,
+    isConfirmationRequired: Boolean = true,
+    cryptoObjectForCredentialOnly: CryptoObject? = null,
+    authFallback: Biometric.Fallback? = null,
+) {
 
-        fun addObserver(observer: LifecycleEventObserver) {
-            lifecycle.addObserver(observer)
-            observers.add(observer)
+    PromptInfo.Builder().apply {
+        // Set authenticators and fallbacks
+        var authType =
+            minBiometricStrength?.toAuthenticationType()
+                ?: BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        when (authFallback) {
+            is Biometric.Fallback.DeviceCredential ->
+                authType = authType or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            is Biometric.Fallback.NegativeButton ->
+                setNegativeButtonText(authFallback.negativeButtonText)
+        }
+        setAllowedAuthenticators(authType)
+
+        // Set body content
+        when (content) {
+            is AuthenticationRequest.BodyContent.PlainText -> setDescription(content.description)
+            is AuthenticationRequest.BodyContent.VerticalList -> {
+                PromptVerticalListContentView.Builder().apply {
+                    content.items.forEach { addListItem(it) }
+                    content.description?.let { setDescription(content.description) }
+                    setContentView(build())
+                }
+            }
+            is AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton -> {
+                PromptContentViewWithMoreOptionsButton.Builder().apply {
+                    content.description?.let { setDescription(content.description) }
+                    setContentView(build())
+                }
+            }
         }
 
-        fun clearObservers() {
-            observers.forEach { observer -> lifecycle.removeObserver(observer) }
-            observers.clear()
+        // Set logo
+        if (logoRes != 0) {
+            setLogoRes(logoRes)
+        } else if (logoBitmap != null) {
+            setLogoBitmap(logoBitmap)
+        }
+        if (logoDescription != null) {
+            setLogoDescription(logoDescription)
+        }
+
+        // Set other configurations
+        setTitle(title)
+        setSubtitle(subtitle)
+        setConfirmationRequired(isConfirmationRequired)
+
+        val cryptoObject =
+            when (minBiometricStrength) {
+                is Biometric.Strength.Class3 -> minBiometricStrength.cryptoObject
+                null -> cryptoObjectForCredentialOnly
+                else -> null
+            }
+
+        if (cryptoObject == null) {
+            authenticate(build())
+        } else {
+            authenticate(build(), cryptoObject)
         }
     }
 }

@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
+import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -57,7 +58,7 @@ internal class StreamGraphImplTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val metadata =
         FakeCameraMetadata(
-            mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
+            mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
         )
     private val config = FakeGraphConfigs
     private val fakeGraphProcessor = FakeGraphProcessor()
@@ -69,18 +70,17 @@ internal class StreamGraphImplTest {
 
     private val graphId = CameraGraphId.nextId()
     private val graphConfig =
-        CameraGraph.Config(
-            camera = metadata.camera,
-            streams = listOf(stream1Config, stream2Config),
-        )
+        CameraGraph.Config(camera = metadata.camera, streams = listOf(stream1Config, stream2Config))
     private val threads = FakeThreads.fromTestScope(testScope)
+    private val cameraPipeLifetime = CameraPipeLifetime()
     private val backend = FakeCameraBackend(fakeCameras = mapOf(metadata.camera to metadata))
     private val backends =
         CameraBackendsImpl(
             defaultBackendId = backend.id,
             cameraBackends = mapOf(backend.id to CameraBackendFactory { backend }),
             context,
-            threads
+            threads,
+            cameraPipeLifetime,
         )
     private val cameraContext = CameraBackendsImpl.CameraBackendContext(context, threads, backends)
     private val cameraController =
@@ -141,11 +141,7 @@ internal class StreamGraphImplTest {
                     OutputStream.Config.create(Size(800, 600), StreamFormat.YUV_420_888),
                 )
             )
-        val graphConfig =
-            CameraGraph.Config(
-                camera = CameraId("0"),
-                streams = listOf(streamConfig),
-            )
+        val graphConfig = CameraGraph.Config(camera = CameraId("0"), streams = listOf(streamConfig))
         val streamGraph =
             StreamGraphImpl(config.fakeMetadata, graphConfig, cameraControllerProvider)
         cameraController.streamGraph = streamGraph
@@ -161,19 +157,19 @@ internal class StreamGraphImplTest {
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
-                streamUseCase = OutputStream.StreamUseCase.VIDEO_RECORD
+                streamUseCase = OutputStream.StreamUseCase.VIDEO_RECORD,
             )
         val streamConfigB =
             CameraStream.Config.create(
                 Size(1600, 1200),
                 StreamFormat.UNKNOWN,
-                streamUseCase = OutputStream.StreamUseCase.PREVIEW
+                streamUseCase = OutputStream.StreamUseCase.PREVIEW,
             )
         val streamConfigC =
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
-                streamUseCase = OutputStream.StreamUseCase.DEFAULT
+                streamUseCase = OutputStream.StreamUseCase.DEFAULT,
             )
         val graphConfig =
             CameraGraph.Config(
@@ -209,19 +205,19 @@ internal class StreamGraphImplTest {
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
-                outputType = OutputStream.OutputType.SURFACE
+                outputType = OutputStream.OutputType.SURFACE,
             )
         val streamConfigB =
             CameraStream.Config.create(
                 Size(1600, 1200),
                 StreamFormat.UNKNOWN,
-                outputType = OutputStream.OutputType.SURFACE_TEXTURE
+                outputType = OutputStream.OutputType.SURFACE_TEXTURE,
             )
         val streamConfigC =
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
-                outputType = OutputStream.OutputType.SURFACE_VIEW
+                outputType = OutputStream.OutputType.SURFACE_VIEW,
             )
         val graphConfig =
             CameraGraph.Config(
@@ -332,21 +328,21 @@ internal class StreamGraphImplTest {
                 Size(800, 600),
                 StreamFormat.RAW12,
                 streamUseCase = OutputStream.StreamUseCase.PREVIEW,
-                outputType = OutputStream.OutputType.SURFACE
+                outputType = OutputStream.OutputType.SURFACE,
             )
         val streamConfigB =
             CameraStream.Config.create(
                 Size(1600, 1200),
                 StreamFormat.UNKNOWN,
                 streamUseCase = OutputStream.StreamUseCase.PREVIEW,
-                outputType = OutputStream.OutputType.SURFACE_VIEW
+                outputType = OutputStream.OutputType.SURFACE_VIEW,
             )
         val streamConfigC =
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.PRIVATE,
                 streamUseCase = OutputStream.StreamUseCase.PREVIEW,
-                outputType = OutputStream.OutputType.SURFACE_TEXTURE
+                outputType = OutputStream.OutputType.SURFACE_TEXTURE,
             )
         val graphConfig =
             CameraGraph.Config(
@@ -382,21 +378,21 @@ internal class StreamGraphImplTest {
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
                 streamUseCase = OutputStream.StreamUseCase.DEFAULT,
-                outputType = OutputStream.OutputType.SURFACE_TEXTURE
+                outputType = OutputStream.OutputType.SURFACE_TEXTURE,
             )
         val streamConfigB =
             CameraStream.Config.create(
                 Size(1600, 1200),
                 StreamFormat.UNKNOWN,
                 streamUseCase = OutputStream.StreamUseCase.VIDEO_CALL,
-                outputType = OutputStream.OutputType.SURFACE_TEXTURE
+                outputType = OutputStream.OutputType.SURFACE_TEXTURE,
             )
         val streamConfigC =
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
                 streamUseCase = OutputStream.StreamUseCase.STILL_CAPTURE,
-                outputType = OutputStream.OutputType.SURFACE_TEXTURE
+                outputType = OutputStream.OutputType.SURFACE_TEXTURE,
             )
         val graphConfig =
             CameraGraph.Config(
@@ -432,19 +428,19 @@ internal class StreamGraphImplTest {
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
                 streamUseCase = OutputStream.StreamUseCase.DEFAULT,
-                streamUseHint = OutputStream.StreamUseHint.VIDEO_RECORD
+                streamUseHint = OutputStream.StreamUseHint.VIDEO_RECORD,
             )
         val streamConfigB =
             CameraStream.Config.create(
                 Size(1600, 1200),
                 StreamFormat.UNKNOWN,
-                streamUseCase = OutputStream.StreamUseCase.VIDEO_CALL
+                streamUseCase = OutputStream.StreamUseCase.VIDEO_CALL,
             )
         val streamConfigC =
             CameraStream.Config.create(
                 Size(800, 600),
                 StreamFormat.UNKNOWN,
-                streamUseCase = OutputStream.StreamUseCase.STILL_CAPTURE
+                streamUseCase = OutputStream.StreamUseCase.STILL_CAPTURE,
             )
         val graphConfig =
             CameraGraph.Config(
@@ -637,15 +633,14 @@ internal class StreamGraphImplTest {
         assertThat(streamGraph.getOutputLatency(stream1.id)).isNull()
         cameraController.simulateOutputLatency()
         assertThat(
-            streamGraph
-                .getOutputLatency(stream1.id)
-                ?.equals(cameraController.outputLatencySet?.estimatedLatencyNs)
-        )
+                streamGraph.getOutputLatency(stream1.id)?.equals(cameraController.outputLatencySet)
+            )
+            .isTrue()
     }
 
     private fun deferredStreamsAreSupported(
         cameraMetadata: CameraMetadata,
-        graphConfig: CameraGraph.Config
+        graphConfig: CameraGraph.Config,
     ): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             graphConfig.sessionMode == CameraGraph.OperatingMode.NORMAL &&

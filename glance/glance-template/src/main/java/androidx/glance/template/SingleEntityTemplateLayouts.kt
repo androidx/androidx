@@ -44,7 +44,7 @@ import androidx.glance.template.GlanceTemplateAppWidget.Companion.sizeS
  * @param data the data that defines the widget
  */
 @Composable
-fun SingleEntityTemplate(data: SingleEntityTemplateData) {
+public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
     when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)
@@ -128,7 +128,7 @@ private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
 private fun textList(
     title: TemplateText? = null,
     subtitle: TemplateText? = null,
-    body: TemplateText? = null
+    body: TemplateText? = null,
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
     title?.let { result.add(TemplateText(it.text, TextType.Title)) }
@@ -141,7 +141,7 @@ private fun textList(
 @Composable
 private fun createTopLevelModifier(
     data: SingleEntityTemplateData,
-    isImmersive: Boolean = false
+    isImmersive: Boolean = false,
 ): GlanceModifier {
     var modifier =
         GlanceModifier.fillMaxSize()

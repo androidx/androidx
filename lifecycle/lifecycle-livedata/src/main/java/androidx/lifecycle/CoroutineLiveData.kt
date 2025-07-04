@@ -77,7 +77,7 @@ public interface LiveDataScope<T> {
 
 internal class LiveDataScopeImpl<T>(
     internal var target: CoroutineLiveData<T>,
-    context: CoroutineContext
+    context: CoroutineContext,
 ) : LiveDataScope<T> {
 
     override val latestValue: T?
@@ -115,7 +115,7 @@ internal suspend fun <T> MediatorLiveData<T>.addDisposableSource(
  */
 internal class EmittedSource(
     private val source: LiveData<*>,
-    private val mediator: MediatorLiveData<*>
+    private val mediator: MediatorLiveData<*>,
 ) : DisposableHandle {
     // @MainThread
     private var disposed = false
@@ -147,7 +147,7 @@ internal class BlockRunner<T>(
     private val block: Block<T>,
     private val timeoutInMs: Long,
     private val scope: CoroutineScope,
-    private val onDone: () -> Unit
+    private val onDone: () -> Unit,
 ) {
     // currently running block job.
     private var runningJob: Job? = null
@@ -192,7 +192,7 @@ internal class BlockRunner<T>(
 internal class CoroutineLiveData<T>(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT,
-    block: Block<T>
+    block: Block<T>,
 ) : MediatorLiveData<T>() {
     private var blockRunner: BlockRunner<T>?
     private var emittedSource: EmittedSource? = null
@@ -346,7 +346,7 @@ internal class CoroutineLiveData<T>(
 public fun <T> liveData(
     context: CoroutineContext = EmptyCoroutineContext,
     timeoutInMs: Long = DEFAULT_TIMEOUT,
-    block: suspend LiveDataScope<T>.() -> Unit
+    block: suspend LiveDataScope<T>.() -> Unit,
 ): LiveData<T> = CoroutineLiveData(context, timeoutInMs, block)
 
 /**
@@ -458,7 +458,7 @@ public fun <T> liveData(
 public fun <T> liveData(
     timeout: Duration,
     context: CoroutineContext = EmptyCoroutineContext,
-    block: suspend LiveDataScope<T>.() -> Unit
+    block: suspend LiveDataScope<T>.() -> Unit,
 ): LiveData<T> = CoroutineLiveData(context, Api26Impl.toMillis(timeout), block)
 
 @RequiresApi(26)

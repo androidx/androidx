@@ -64,6 +64,6 @@ public interface UwbClientSessionScope {
     public suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     )
 }

@@ -1,0 +1,123 @@
+// Baseline format: 1.0
+AddedMethod: androidx.benchmark.traceprocessor.Row#containsKey(String):
+    Added method androidx.benchmark.traceprocessor.Row.containsKey(String)
+AddedMethod: androidx.benchmark.traceprocessor.Row#get(String):
+    Added method androidx.benchmark.traceprocessor.Row.get(String)
+AddedMethod: androidx.benchmark.traceprocessor.Row#getEntries():
+    Added method androidx.benchmark.traceprocessor.Row.getEntries()
+AddedMethod: androidx.benchmark.traceprocessor.Row#getKeys():
+    Added method androidx.benchmark.traceprocessor.Row.getKeys()
+AddedMethod: androidx.benchmark.traceprocessor.Row#getSize():
+    Added method androidx.benchmark.traceprocessor.Row.getSize()
+AddedMethod: androidx.benchmark.traceprocessor.Row#getValues():
+    Added method androidx.benchmark.traceprocessor.Row.getValues()
+
+
+ChangedType: androidx.benchmark.traceprocessor.Row#compute(String, java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.compute has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#computeIfAbsent(String, java.util.function.Function<? super java.lang.String,?>):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.computeIfAbsent has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#computeIfPresent(String, java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.computeIfPresent has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#entrySet():
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.entrySet has changed return type from java.util.Set<java.util.Map.Entry<K,V>> to java.util.Set<java.util.Map.Entry<java.lang.String,java.lang.Object>>
+ChangedType: androidx.benchmark.traceprocessor.Row#get(Object):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.get has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#keySet():
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.keySet has changed return type from java.util.Set<K> to java.util.Set<java.lang.String>
+ChangedType: androidx.benchmark.traceprocessor.Row#merge(String, Object, java.util.function.BiFunction<? super java.lang.Object,? super java.lang.Object,?>):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.merge has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#put(String, Object):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.put has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#putIfAbsent(String, Object):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.putIfAbsent has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#remove(Object):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.remove has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#replace(String, Object):
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.replace has changed return type from V (extends java.lang.Object) to java.lang.Object
+ChangedType: androidx.benchmark.traceprocessor.Row#values():
+    Binary breaking change: Method androidx.benchmark.traceprocessor.Row.values has changed return type from java.util.Collection<V> to java.util.Collection<java.lang.Object>
+
+
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#clear():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.clear() can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#compute(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.compute(String,java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#computeIfAbsent(K, java.util.function.Function<? super K,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.computeIfAbsent(String,java.util.function.Function<? super java.lang.String,?>) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#computeIfPresent(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.computeIfPresent(String,java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#containsKey(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.containsKey(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#containsValue(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.containsValue(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#entrySet():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.entrySet() can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#get(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.get(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#isEmpty():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.isEmpty() can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#keySet():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.keySet() can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#merge(K, V, java.util.function.BiFunction<? super V,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.merge(String,Object,java.util.function.BiFunction<? super java.lang.Object,? super java.lang.Object,?>) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#put(K, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.put(String,Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#putAll(java.util.Map<? extends K,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.putAll(java.util.Map<? extends java.lang.String,?>) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#putIfAbsent(K, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.putIfAbsent(String,Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#remove(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.remove(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#replace(K, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.replace(String,Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#replace(K, V, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.replace(String,Object,Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#replaceAll(java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.replaceAll(java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>) can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#size():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.size() can no longer be resolved from Java source
+RemovedFromJava: androidx.benchmark.traceprocessor.Row#values():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.values() can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#clear():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.clear() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#compute(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.compute(String,java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#computeIfAbsent(K, java.util.function.Function<? super K,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.computeIfAbsent(String,java.util.function.Function<? super java.lang.String,?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#computeIfPresent(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.computeIfPresent(String,java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#containsKey(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.containsKey(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#containsValue(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.containsValue(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#entrySet():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.entrySet() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#get(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.get(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#isEmpty():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.isEmpty() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#keySet():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.keySet() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#merge(K, V, java.util.function.BiFunction<? super V,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.merge(String,Object,java.util.function.BiFunction<? super java.lang.Object,? super java.lang.Object,?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#put(K, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.put(String,Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#putAll(java.util.Map<? extends K,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.putAll(java.util.Map<? extends java.lang.String,?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#putIfAbsent(K, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.putIfAbsent(String,Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#remove(Object):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.remove(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#replace(K, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.replace(String,Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#replace(K, V, V):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.replace(String,Object,Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#replaceAll(java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.replaceAll(java.util.function.BiFunction<? super java.lang.String,? super java.lang.Object,?>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#size():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.size() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.Row#values():
+    Source breaking change: method androidx.benchmark.traceprocessor.Row.values() can no longer be resolved from Kotlin source

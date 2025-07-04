@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.layout.samples
 
 import androidx.annotation.Sampled
@@ -56,7 +58,7 @@ fun SimpleFlowColumn() {
         modifier =
             Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         text = "FlowColumn with weights",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 
     FlowColumn(
@@ -95,7 +97,7 @@ fun SimpleFlowColumnMaxLinesWithSeeMore() {
         modifier =
             Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         text = "Flow Column with Max Lines and See More",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 
     FlowColumn(
@@ -107,7 +109,7 @@ fun SimpleFlowColumnMaxLinesWithSeeMore() {
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         maxLines = maxLines,
-        overflow = FlowColumnOverflow.expandIndicator { Ellipsis(text = "...") { maxLines += 2 } }
+        overflow = FlowColumnOverflow.expandIndicator { Ellipsis(text = "...") { maxLines += 2 } },
     ) {
         repeat(totalCount) {
             Box(
@@ -120,7 +122,7 @@ fun SimpleFlowColumnMaxLinesWithSeeMore() {
                 Text(
                     text = it.toString(),
                     fontSize = 18.sp,
-                    modifier = Modifier.padding(3.dp).align(Alignment.Center)
+                    modifier = Modifier.padding(3.dp).align(Alignment.Center),
                 )
             }
         }
@@ -137,7 +139,7 @@ fun SimpleFlowColumnWithMaxWidth() {
         modifier =
             Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         text = "FlowColumn with MaxWidth and See More or collapse",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
 
     FlowColumn(
@@ -153,8 +155,8 @@ fun SimpleFlowColumnWithMaxWidth() {
             FlowColumnOverflow.expandOrCollapseIndicator(
                 minWidthToShowCollapse = 200.dp,
                 expandIndicator = { Ellipsis(text = "...") { width += 200.dp } },
-                collapseIndicator = { Ellipsis(text = "<") { width = 100.dp } }
-            )
+                collapseIndicator = { Ellipsis(text = "<") { width = 100.dp } },
+            ),
     ) {
         repeat(40) {
             Box(
@@ -181,7 +183,7 @@ fun SimpleFlowColumnMaxLinesDynamicSeeMore() {
         modifier =
             Modifier.fillMaxWidth(1f).padding(20.dp).wrapContentHeight(align = Alignment.Top),
         text = "FlowColumn with MaxLines and +N button",
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
     val moreOrCollapseIndicator =
         @Composable { scope: FlowColumnOverflowScope ->
@@ -190,7 +192,7 @@ fun SimpleFlowColumnMaxLinesDynamicSeeMore() {
                 totalCount = totalCount,
                 { scope.shownItemCount },
                 onExpand = { maxLines += 2 },
-                onShrink = { maxLines = 2 }
+                onShrink = { maxLines = 2 },
             )
         }
     FlowColumn(
@@ -206,8 +208,8 @@ fun SimpleFlowColumnMaxLinesDynamicSeeMore() {
             FlowColumnOverflow.expandOrCollapseIndicator(
                 minColumnsToShowCollapse = 4,
                 expandIndicator = moreOrCollapseIndicator,
-                collapseIndicator = moreOrCollapseIndicator
-            )
+                collapseIndicator = moreOrCollapseIndicator,
+            ),
     ) {
         repeat(totalCount) {
             Box(
@@ -220,7 +222,7 @@ fun SimpleFlowColumnMaxLinesDynamicSeeMore() {
                 Text(
                     text = it.toString(),
                     fontSize = 18.sp,
-                    modifier = Modifier.padding(3.dp).align(Alignment.Center)
+                    modifier = Modifier.padding(3.dp).align(Alignment.Center),
                 )
             }
         }

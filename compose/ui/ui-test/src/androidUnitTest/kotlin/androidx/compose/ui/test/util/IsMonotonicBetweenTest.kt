@@ -32,7 +32,7 @@ class IsMonotonicBetweenTest(private val config: TestConfig) {
         val a: Float,
         val b: Float,
         val tolerance: Float,
-        val expectSuccess: Boolean
+        val expectSuccess: Boolean,
     ) {
         val expectError = !expectSuccess
     }
@@ -75,7 +75,7 @@ class IsMonotonicBetweenTest(private val config: TestConfig) {
                 // Is [3, 2, 1] between 3 and 1 with no tolerance? Yes
                 TestConfig(listOf(3f, 2f, 1f), 3f, 1f, 0f, true),
                 // Is [3, 3, 2, 1] between 3 and 1 with no tolerance? No
-                TestConfig(listOf(3f, 3f, 2f, 1f), 3f, 1f, 0f, true)
+                TestConfig(listOf(3f, 3f, 2f, 1f), 3f, 1f, 0f, true),
             )
         }
     }

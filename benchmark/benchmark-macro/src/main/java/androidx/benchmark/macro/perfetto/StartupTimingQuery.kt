@@ -72,18 +72,18 @@ internal object StartupTimingQuery {
         ReportFullyDrawn,
         FrameUiThread,
         FrameRenderThread,
-        ActivityResume
+        ActivityResume,
     }
 
     data class SubMetrics(
         val timeToInitialDisplayNs: Long,
         val timeToFullDisplayNs: Long?,
-        val timelineRangeNs: LongRange
+        val timelineRangeNs: LongRange,
     ) {
         constructor(
             startTs: Long,
             initialDisplayTs: Long,
-            fullDisplayTs: Long?
+            fullDisplayTs: Long?,
         ) : this(
             timeToInitialDisplayNs = initialDisplayTs - startTs,
             timeToFullDisplayNs = fullDisplayTs?.let { it - startTs },
@@ -95,7 +95,7 @@ internal object StartupTimingQuery {
         uiSlices: List<Slice>,
         rtSlices: List<Slice>,
         predicateErrorLabel: String,
-        predicate: (Slice) -> Boolean
+        predicate: (Slice) -> Boolean,
     ): Long {
         // find first UI slice that corresponds with the predicate
         val uiSlice = uiSlices.firstOrNull(predicate)
@@ -116,7 +116,7 @@ internal object StartupTimingQuery {
         session: TraceProcessor.Session,
         captureApiLevel: Int,
         targetPackageName: String,
-        startupMode: StartupMode
+        startupMode: StartupMode,
     ): SubMetrics? {
         val queryResultIterator =
             session.query(query = getFullQuery(targetPackageName = targetPackageName))
@@ -174,7 +174,7 @@ internal object StartupTimingQuery {
                                 Log.w(
                                     "Benchmark",
                                     "No launchObserverNotifyIntentStarted slice seen before launching: " +
-                                        "slice, not reporting startup."
+                                        "slice, not reporting startup.",
                                 )
                                 return null
                             }
@@ -191,7 +191,7 @@ internal object StartupTimingQuery {
                 findEndRenderTimeForUiFrame(
                     uiSlices = uiSlices,
                     rtSlices = rtSlices,
-                    predicateErrorLabel = "after launching slice"
+                    predicateErrorLabel = "after launching slice",
                 ) { uiSlice ->
                     uiSlice.ts > launchingSlice.ts
                 }
@@ -208,7 +208,7 @@ internal object StartupTimingQuery {
                 findEndRenderTimeForUiFrame(
                     uiSlices = uiSlices,
                     rtSlices = rtSlices,
-                    predicateErrorLabel = "after activityResume"
+                    predicateErrorLabel = "after activityResume",
                 ) { uiSlice ->
                     uiSlice.ts > startTs
                 }
@@ -223,7 +223,7 @@ internal object StartupTimingQuery {
                 findEndRenderTimeForUiFrame(
                     uiSlices = uiSlices,
                     rtSlices = rtSlices,
-                    predicateErrorLabel = "ends after reportFullyDrawn"
+                    predicateErrorLabel = "ends after reportFullyDrawn",
                 ) { uiSlice ->
                     uiSlice.endTs > reportFullyDrawnSlice.ts
                 }

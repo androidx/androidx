@@ -22,14 +22,13 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -58,7 +57,7 @@ dependencies {
     implementation(project(":window:window-core"))
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
-    def extensions_version = "androidx.window.extensions:extensions:1.4.0-beta01"
+    def extensions_version = "androidx.window.extensions:extensions:1.5.0-beta01"
     // A compile only dependency on extensions.core so that other libraries do not expose it
     // transitively.
     compileOnly(extensions_core_version)
@@ -76,7 +75,6 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
@@ -102,7 +100,7 @@ dependencies {
 
 androidx {
     name = "WindowManager"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
             "functionality on foldable devices."
@@ -110,6 +108,6 @@ androidx {
     // Sidecar interface.
     failOnDeprecationWarnings = false
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     samples(project(":window:window-samples"))
+    enableRobolectric()
 }

@@ -51,7 +51,7 @@ class TrackingTransition : Transition(), TargetTracking {
     override fun createAnimator(
         sceneRoot: ViewGroup,
         startValues: TransitionValues?,
-        endValues: TransitionValues?
+        endValues: TransitionValues?,
     ) =
         null.also {
             if (startValues != null) {

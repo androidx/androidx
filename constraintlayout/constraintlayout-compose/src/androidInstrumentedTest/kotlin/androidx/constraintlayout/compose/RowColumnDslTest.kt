@@ -254,7 +254,7 @@ class RowColumnDslTest {
                         boxesCount = count,
                         // Insufficient weights should throw
                         weights = FloatArray(count - 1) { it.toFloat() },
-                        skipIndices = emptyIntSet()
+                        skipIndices = emptyIntSet(),
                     )
                 }
             }
@@ -272,7 +272,7 @@ class RowColumnDslTest {
                         boxesCount = count,
                         // Excessive weights should throw
                         weights = FloatArray(count + 1) { it.toFloat() },
-                        skipIndices = emptyIntSet()
+                        skipIndices = emptyIntSet(),
                     )
                 }
             }
@@ -310,7 +310,7 @@ class RowColumnDslTest {
                     height = Dimension.matchParent
                 }
             },
-            modifier = modifier
+            modifier = modifier,
         ) {
             repeat(boxesCount) {
                 Box(Modifier.layoutTestId("box$it").background(Color.Red).size(10.dp))
@@ -342,17 +342,13 @@ class RowColumnDslTest {
                         }
                     }
 
-                val g1 =
-                    createRow(
-                        elements = ids,
-                        weights = weights,
-                    )
+                val g1 = createRow(elements = ids, weights = weights)
                 constrain(g1) {
                     width = Dimension.matchParent
                     height = Dimension.matchParent
                 }
             },
-            modifier = modifier
+            modifier = modifier,
         ) {
             repeat(boxesCount) {
                 Box(Modifier.layoutTestId("box$it").background(Color.Red).size(10.dp))

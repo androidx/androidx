@@ -31,6 +31,7 @@ internal class FakeCamera2DeviceCloser : Camera2DeviceCloser {
         shouldReopenCamera: Boolean,
         shouldCreateEmptyCaptureSession: Boolean,
     ) {
+        cameraDeviceWrapper?.onDeviceClosing()
         cameraDeviceWrapper?.onDeviceClosed()
     }
 }

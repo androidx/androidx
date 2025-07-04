@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input
 
+import android.R
 import android.os.Build
 import android.text.InputType
 import android.text.SpannableStringBuilder
@@ -25,7 +26,6 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.internal.readAnnotatedString
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.internal.toClipEntry
 import androidx.compose.foundation.layout.Box
@@ -39,9 +39,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.computeSizeForDefaultText
+import androidx.compose.foundation.text.contextmenu.test.FakeToolbarRequester
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
+import androidx.compose.foundation.text.input.internal.TextLayoutState
+import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboard
-import androidx.compose.foundation.text.input.internal.setComposingRegion
+import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.CompositionLocalProvider
@@ -63,8 +66,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
@@ -72,7 +73,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -120,13 +120,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
 @LargeTest
@@ -150,7 +155,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
-                onTextLayout = { textLayoutResult = it }
+                onTextLayout = { textLayoutResult = it },
             )
         }
 
@@ -195,10 +200,7 @@ internal class BasicTextFieldTest {
         var compositionCount = 0
         inputMethodInterceptor.setTextFieldTestContent {
             compositionCount++
-            BasicTextField(
-                state = state,
-                modifier = Modifier.fillMaxSize().testTag(Tag),
-            )
+            BasicTextField(state = state, modifier = Modifier.fillMaxSize().testTag(Tag))
         }
 
         rule.onNodeWithTag(Tag).performTextInput("hello")
@@ -219,7 +221,7 @@ internal class BasicTextFieldTest {
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
                 textStyle = style,
-                onTextLayout = { textLayoutResultState = it }
+                onTextLayout = { textLayoutResultState = it },
             )
 
             LaunchedEffect(Unit) {
@@ -250,7 +252,7 @@ internal class BasicTextFieldTest {
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
                 textStyle = style,
-                onTextLayout = { textLayoutResultState = it }
+                onTextLayout = { textLayoutResultState = it },
             )
 
             LaunchedEffect(Unit) {
@@ -280,7 +282,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                onTextLayout = { textLayoutResultState = it }
+                onTextLayout = { textLayoutResultState = it },
             )
 
             LaunchedEffect(Unit) {
@@ -319,7 +321,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 enabled = false,
-                modifier = Modifier.fillMaxSize().testTag(Tag)
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -336,7 +338,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 readOnly = true,
-                modifier = Modifier.fillMaxSize().testTag(Tag)
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -354,11 +356,10 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
-                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester)
+                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester),
             )
         }
-        rule.runOnUiThread { focusRequester.requestFocus() }
-        rule.waitForIdle()
+        rule.runOnIdle { focusRequester.requestFocus() }
         rule.onNodeWithTag(Tag).assertIsFocused()
 
         inputMethodInterceptor.assertNoSessionActive()
@@ -372,11 +373,10 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 keyboardOptions = KeyboardOptions(showKeyboardOnFocus = false),
-                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester)
+                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester),
             )
         }
-        rule.runOnUiThread { focusRequester.requestFocus() }
-        rule.waitForIdle()
+        rule.runOnIdle { focusRequester.requestFocus() }
         rule.onNodeWithTag(Tag).assertIsFocused()
         rule.onNodeWithTag(Tag).performClick()
 
@@ -433,7 +433,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 enabled = true,
-                modifier = Modifier.fillMaxSize().testTag(Tag)
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -452,7 +452,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 enabled = true,
-                modifier = Modifier.fillMaxSize().testTag(Tag)
+                modifier = Modifier.fillMaxSize().testTag(Tag),
             )
         }
 
@@ -481,8 +481,8 @@ internal class BasicTextFieldTest {
                     KeyboardOptions(
                         capitalization = KeyboardCapitalization.Characters,
                         keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Previous
-                    )
+                        imeAction = ImeAction.Previous,
+                    ),
             )
         }
         requestFocus(Tag)
@@ -501,7 +501,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
         requestFocus(Tag)
@@ -517,7 +517,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
         requestFocus(Tag)
@@ -534,7 +534,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -549,7 +549,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -564,7 +564,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = RejectAllTextFilter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -580,7 +580,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = filter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
         requestFocus(Tag)
@@ -607,7 +607,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = filter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -633,7 +633,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = filter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -659,7 +659,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 inputTransformation = filter,
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -934,7 +934,7 @@ internal class BasicTextFieldTest {
                 KeyboardOptionsFilter(
                     KeyboardOptions(
                         keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Previous
+                        imeAction = ImeAction.Previous,
                     )
                 )
             )
@@ -1060,7 +1060,7 @@ internal class BasicTextFieldTest {
                 BasicTextField(
                     state = state,
                     textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = fontSize),
-                    modifier = Modifier.testTag(Tag)
+                    modifier = Modifier.testTag(Tag),
                 )
             }
         }
@@ -1082,28 +1082,11 @@ internal class BasicTextFieldTest {
         val shortText = "Text".repeat(2)
 
         lateinit var tfs: TextFieldState
-        val clipboard =
-            object : Clipboard {
-                var contents: AnnotatedString? = null
-
-                override suspend fun getClipEntry(): ClipEntry? {
-                    return contents?.toClipEntry()
-                }
-
-                override suspend fun setClipEntry(clipEntry: ClipEntry?) {
-                    contents = clipEntry?.readAnnotatedString()
-                }
-
-                override val nativeClipboard: NativeClipboard
-                    get() = error("FakeClipboard doesn't have a backing NativeClipboard")
-            }
+        val clipboard = FakeClipboard()
         inputMethodInterceptor.setTextFieldTestContent {
             tfs = rememberTextFieldState(shortText)
             CompositionLocalProvider(LocalClipboard provides clipboard) {
-                BasicTextField(
-                    state = tfs,
-                    modifier = Modifier.testTag(Tag),
-                )
+                BasicTextField(state = tfs, modifier = Modifier.testTag(Tag))
             }
         }
         clipboard.setClipEntry(AnnotatedString(longText).toClipEntry())
@@ -1130,9 +1113,7 @@ internal class BasicTextFieldTest {
 
         requestFocus(Tag)
 
-        inputMethodInterceptor.withInputConnection {
-            performContextMenuAction(android.R.id.selectAll)
-        }
+        inputMethodInterceptor.withInputConnection { performContextMenuAction(R.id.selectAll) }
 
         rule.runOnIdle {
             assertThat(state.selection).isEqualTo(TextRange(0, 5))
@@ -1152,7 +1133,7 @@ internal class BasicTextFieldTest {
 
         requestFocus(Tag)
 
-        inputMethodInterceptor.withInputConnection { performContextMenuAction(android.R.id.cut) }
+        inputMethodInterceptor.withInputConnection { performContextMenuAction(R.id.cut) }
 
         rule.waitForIdle()
         assertThat(clipboard.getClipEntry()?.readText()).isEqualTo("He")
@@ -1171,7 +1152,7 @@ internal class BasicTextFieldTest {
 
         requestFocus(Tag)
 
-        inputMethodInterceptor.withInputConnection { performContextMenuAction(android.R.id.copy) }
+        inputMethodInterceptor.withInputConnection { performContextMenuAction(R.id.copy) }
 
         rule.waitForIdle()
         assertThat(clipboard.getClipEntry()?.readText()).isEqualTo("He")
@@ -1189,7 +1170,7 @@ internal class BasicTextFieldTest {
 
         requestFocus(Tag)
 
-        inputMethodInterceptor.withInputConnection { performContextMenuAction(android.R.id.paste) }
+        inputMethodInterceptor.withInputConnection { performContextMenuAction(R.id.paste) }
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Worldo")
@@ -1207,7 +1188,7 @@ internal class BasicTextFieldTest {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 fontFamily = TEST_FONT_FAMILY,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
             )
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides density) {
@@ -1215,7 +1196,7 @@ internal class BasicTextFieldTest {
                     modifier = Modifier.testTag(Tag),
                     state = rememberTextFieldState("A"),
                     textStyle = textStyle,
-                    lineLimits = TextFieldLineLimits.SingleLine
+                    lineLimits = TextFieldLineLimits.SingleLine,
                 )
             }
         }
@@ -1234,7 +1215,7 @@ internal class BasicTextFieldTest {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 fontFamily = TEST_FONT_FAMILY,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
             )
         rule.setContent {
             val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -1243,7 +1224,7 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                     .width
 
@@ -1252,7 +1233,7 @@ internal class BasicTextFieldTest {
                     modifier = Modifier.testTag(Tag).width(defaultWidth.dp / 2),
                     state = rememberTextFieldState("A"),
                     textStyle = textStyle,
-                    lineLimits = TextFieldLineLimits.SingleLine
+                    lineLimits = TextFieldLineLimits.SingleLine,
                 )
             }
         }
@@ -1271,7 +1252,7 @@ internal class BasicTextFieldTest {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 fontFamily = TEST_FONT_FAMILY,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
             )
         rule.setContent {
             val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -1280,7 +1261,7 @@ internal class BasicTextFieldTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                     .width
 
@@ -1289,13 +1270,45 @@ internal class BasicTextFieldTest {
                     modifier = Modifier.testTag(Tag).width(defaultWidth.dp * 2),
                     state = rememberTextFieldState("A"),
                     textStyle = textStyle,
-                    lineLimits = TextFieldLineLimits.SingleLine
+                    lineLimits = TextFieldLineLimits.SingleLine,
                 )
             }
         }
 
         rule.waitForIdle()
         rule.onNodeWithTag(Tag).captureToImage().assertHorizontallySymmetrical(fontSize)
+    }
+
+    @Test
+    fun textField_state_invokesAutofill() {
+        val mockLambda: () -> Unit = mock()
+        var density by mutableStateOf(Density(1f))
+
+        val manager =
+            TextFieldSelectionState(
+                    // other parameters not necessary to test autofill invocation
+                    textFieldState =
+                        TransformedTextFieldState(
+                            textFieldState = TextFieldState(),
+                            inputTransformation = null,
+                            codepointTransformation = null,
+                            outputTransformation = null,
+                        ),
+                    textLayoutState = TextLayoutState(),
+                    density = density,
+                    enabled = true,
+                    readOnly = false,
+                    isFocused = false,
+                    isPassword = false,
+                    toolbarRequester = FakeToolbarRequester(),
+                    coroutineScope = CoroutineScope(EmptyCoroutineContext),
+                    platformSelectionBehaviors = null,
+                    clipboard = FakeClipboard(),
+                )
+                .apply { requestAutofillAction = mockLambda }
+
+        manager.autofill()
+        verify(mockLambda, times(1)).invoke()
     }
 
     @Test
@@ -1306,7 +1319,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                inputTransformation = inputTransformation
+                inputTransformation = inputTransformation,
             )
         }
 
@@ -1328,7 +1341,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                inputTransformation = inputTransformation
+                inputTransformation = inputTransformation,
             )
         }
 
@@ -1351,7 +1364,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                onTextLayout = { textLayoutProvider = it }
+                onTextLayout = { textLayoutProvider = it },
             )
         }
 
@@ -1365,7 +1378,7 @@ internal class BasicTextFieldTest {
                 AnnotatedString.Range(
                     item = SpanStyle(textDecoration = TextDecoration.Underline),
                     start = 0,
-                    end = 5
+                    end = 5,
                 )
             assertThat(currentTextLayout!!.multiParagraph.intrinsics.annotatedString.spanStyles)
                 .contains(expectedSpan)
@@ -1382,7 +1395,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                onTextLayout = { textLayoutProvider = it }
+                onTextLayout = { textLayoutProvider = it },
             )
         }
 
@@ -1397,7 +1410,7 @@ internal class BasicTextFieldTest {
                 AnnotatedString.Range(
                     item = SpanStyle(textDecoration = TextDecoration.Underline),
                     start = 0,
-                    end = 5
+                    end = 5,
                 )
             assertThat(initialTextLayout!!.multiParagraph.intrinsics.annotatedString.spanStyles)
                 .contains(expectedSpan)
@@ -1415,7 +1428,7 @@ internal class BasicTextFieldTest {
                 AnnotatedString.Range(
                     item = SpanStyle(textDecoration = TextDecoration.Underline),
                     start = 7,
-                    end = 12
+                    end = 12,
                 )
             assertThat(currentTextLayout!!.multiParagraph.intrinsics.annotatedString.spanStyles)
                 .contains(expectedSpan)
@@ -1433,7 +1446,7 @@ internal class BasicTextFieldTest {
                 modifier = Modifier.fillMaxSize().testTag(Tag),
                 textStyle = TextStyle(localeList = LocaleList("ar")),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                onTextLayout = { textLayoutProvider = it }
+                onTextLayout = { textLayoutProvider = it },
             )
         }
 
@@ -1456,7 +1469,7 @@ internal class BasicTextFieldTest {
                 modifier = Modifier.fillMaxSize().testTag(Tag),
                 textStyle = TextStyle(localeList = LocaleList("ff-Adlm-BF")),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                onTextLayout = { textLayoutProvider = it }
+                onTextLayout = { textLayoutProvider = it },
             )
         }
 
@@ -1473,7 +1486,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
                 rememberTextFieldState("A".repeat(100_000)),
-                onTextLayout = { textLayoutProvider = it }
+                onTextLayout = { textLayoutProvider = it },
             )
         }
 
@@ -1502,7 +1515,7 @@ internal class BasicTextFieldTest {
         }
 
         // setTextFieldTestContent puts a focusable box before the content that's set here
-        focusManager.moveFocus(FocusDirection.Previous)
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Previous) }
 
         rule.runOnIdle {
             assertThat(state.text.toString()).isEqualTo("Hello")
@@ -1546,6 +1559,32 @@ internal class BasicTextFieldTest {
         }
     }
 
+    @Test
+    fun whenWindowFocusGained_unfocusedTextFieldStateIsNotRecomposed() {
+        val state = TextFieldState("Hello")
+        var isWindowFocused by mutableStateOf(false)
+        var windowInfo =
+            object : WindowInfo {
+                override val isWindowFocused: Boolean
+                    get() = isWindowFocused
+            }
+        var decoratorCallCount = 0
+        val decorator = TextFieldDecorator { innerTextField ->
+            decoratorCallCount++
+            innerTextField()
+        }
+        rule.setContent {
+            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+                BasicTextField(state = state, decorator = decorator)
+            }
+        }
+
+        val initialDecoratorCallCount = rule.runOnIdle { decoratorCallCount }
+        isWindowFocused = true
+
+        rule.runOnIdle { assertThat(decoratorCallCount).isEqualTo(initialDecoratorCallCount) }
+    }
+
     // regression test for b/355900176#comment2
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
@@ -1582,7 +1621,7 @@ internal class BasicTextFieldTest {
             BasicTextField(
                 textFieldState,
                 onTextLayout = { textLayoutProvider = it },
-                outputTransformation = { append(" world") }
+                outputTransformation = { append(" world") },
             )
         }
 

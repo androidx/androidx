@@ -16,11 +16,9 @@
 
 package androidx.compose.ui.autofill
 
-import android.os.Build
 import android.util.SparseArray
 import android.view.View
 import android.view.autofill.AutofillValue
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.LocalAutofillHighlightColor
@@ -41,6 +39,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
@@ -58,7 +57,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 26)
-@RequiresApi(Build.VERSION_CODES.O)
 class TextFieldsSemanticAutofillTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
@@ -100,7 +98,7 @@ class TextFieldsSemanticAutofillTest {
                     modifier =
                         Modifier.testTag(usernameTag).semantics {
                             contentType = ContentType.Username
-                        }
+                        },
                 )
                 BasicTextField(
                     value = passwordInput,
@@ -108,7 +106,7 @@ class TextFieldsSemanticAutofillTest {
                     modifier =
                         Modifier.testTag(passwordTag).semantics {
                             contentType = ContentType.Password
-                        }
+                        },
                 )
             }
         }
@@ -151,7 +149,7 @@ class TextFieldsSemanticAutofillTest {
                     modifier =
                         Modifier.testTag(usernameTag).semantics {
                             contentType = ContentType.Username
-                        }
+                        },
                 )
             }
         }
@@ -187,7 +185,7 @@ class TextFieldsSemanticAutofillTest {
                     modifier =
                         Modifier.testTag(usernameTag).semantics {
                             contentType = ContentType.Username
-                        }
+                        },
                 )
             }
         }
@@ -226,7 +224,7 @@ class TextFieldsSemanticAutofillTest {
                         modifier =
                             Modifier.testTag(usernameTag).semantics {
                                 contentType = ContentType.Username
-                            }
+                            },
                     )
                 }
             }

@@ -121,7 +121,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
 
     private fun injectCameraSessionMonitor(
         previewBuilder: Preview.Builder,
-        cameraMonitor: CameraSessionMonitor
+        cameraMonitor: CameraSessionMonitor,
     ) {
         Camera2Interop.Extender(previewBuilder)
             .setSessionStateCallback(
@@ -144,7 +144,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
 
                     override fun onSurfacePrepared(
                         session: CameraCaptureSession,
-                        surface: Surface
+                        surface: Surface,
                     ) {}
                 }
             )
@@ -191,7 +191,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
             bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
                 preview,
                 imageCapture,
-                imageAnalysis
+                imageAnalysis,
             )
         }
 
@@ -201,7 +201,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
      */
     private fun bindUseCase_unbindAll_toCheckCameraSession_repeatedly(
         vararg useCases: UseCase,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         for (i in 1..repeatCount) {
             // Arrange: resets the camera session monitor

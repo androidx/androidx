@@ -69,7 +69,7 @@ class AndroidPlatformTextInputSessionTest {
                     value: TextFieldValue,
                     imeOptions: ImeOptions,
                     onEditCommand: (List<EditCommand>) -> Unit,
-                    onImeActionPerformed: (ImeAction) -> Unit
+                    onImeActionPerformed: (ImeAction) -> Unit,
                 ) {
                     fail("Not supported")
                 }

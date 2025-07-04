@@ -20,14 +20,15 @@ import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
 import androidx.room.RoomDatabase
 import androidx.room.RoomRawQuery
 import androidx.room.Transactor.SQLiteTransactionType
+import androidx.room.concurrent.AtomicBoolean
+import androidx.room.concurrent.AtomicInt
 import androidx.room.paging.util.INITIAL_ITEM_COUNT
 import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
-import androidx.room.useReaderConnection
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -44,30 +45,34 @@ import kotlinx.coroutines.withContext
 public expect abstract class LimitOffsetPagingSource<Value : Any>(
     sourceQuery: RoomRawQuery,
     db: RoomDatabase,
-    vararg tables: String
+    vararg tables: String,
 ) : PagingSource<Int, Value> {
     public val sourceQuery: RoomRawQuery
     public val db: RoomDatabase
 
     public val itemCount: Int
 
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value>
+
+    override fun getRefreshKey(state: PagingState<Int, Value>): Int?
+
     protected open suspend fun convertRows(
         limitOffsetQuery: RoomRawQuery,
-        itemCount: Int
+        itemCount: Int,
     ): List<Value>
 }
 
 internal class CommonLimitOffsetImpl<Value : Any>(
     private val tables: Array<out String>,
     private val pagingSource: LimitOffsetPagingSource<Value>,
-    private val convertRows: suspend (RoomRawQuery, Int) -> List<Value>
+    private val convertRows: suspend (RoomRawQuery, Int) -> List<Value>,
 ) {
     private val db = pagingSource.db
     private val sourceQuery = pagingSource.sourceQuery
 
-    internal val itemCount = atomic(INITIAL_ITEM_COUNT)
+    internal val itemCount = AtomicInt(INITIAL_ITEM_COUNT)
 
-    private val invalidationFlowStarted = atomic(false)
+    private val invalidationFlowStarted = AtomicBoolean(false)
     private var invalidationFlowJob: Job? = null
 
     init {
@@ -75,7 +80,7 @@ internal class CommonLimitOffsetImpl<Value : Any>(
     }
 
     suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
-        if (invalidationFlowStarted.compareAndSet(expect = false, update = true)) {
+        if (invalidationFlowStarted.compareAndSet(false, true)) {
             invalidationFlowJob =
                 db.getCoroutineScope().launch {
                     db.invalidationTracker.createFlow(*tables, emitInitialState = false).collect {
@@ -87,7 +92,7 @@ internal class CommonLimitOffsetImpl<Value : Any>(
                 }
         }
 
-        val tempCount = itemCount.value
+        val tempCount = itemCount.get()
         // if itemCount is < 0, then it is initial load
         return try {
             if (tempCount == INITIAL_ITEM_COUNT) {
@@ -111,16 +116,20 @@ internal class CommonLimitOffsetImpl<Value : Any>(
      * load.
      */
     private suspend fun initialLoad(params: LoadParams<Int>): LoadResult<Int, Value> {
-        return db.useReaderConnection { connection ->
-            connection.withTransaction(SQLiteTransactionType.DEFERRED) {
-                val tempCount = queryItemCount(sourceQuery, db)
-                itemCount.value = tempCount
-                queryDatabase(
-                    params = params,
-                    sourceQuery = sourceQuery,
-                    itemCount = tempCount,
-                    convertRows = convertRows,
-                )
+        // Load in the database's coroutine context since useConnection is unconfined.
+        return withContext(db.getCoroutineScope().coroutineContext) {
+            db.useConnection(isReadOnly = true) { connection ->
+                // Using a transaction to ensure initial load's data integrity.
+                connection.withTransaction(SQLiteTransactionType.DEFERRED) {
+                    val tempCount = queryItemCount(sourceQuery, db)
+                    itemCount.set(tempCount)
+                    queryDatabase(
+                        params = params,
+                        sourceQuery = sourceQuery,
+                        itemCount = tempCount,
+                        convertRows = convertRows,
+                    )
+                }
             }
         }
     }
@@ -134,7 +143,7 @@ internal class CommonLimitOffsetImpl<Value : Any>(
                 params = params,
                 sourceQuery = sourceQuery,
                 itemCount = tempCount,
-                convertRows = convertRows
+                convertRows = convertRows,
             )
         // TODO(b/192269858): Create a better API to facilitate source invalidation.
         // Manually check if database has been updated. If so, invalidate the source and the result.

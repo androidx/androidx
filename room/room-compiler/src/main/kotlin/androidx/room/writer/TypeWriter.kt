@@ -52,7 +52,8 @@ abstract class TypeWriter(val context: WriterContext) {
      * @see set for more details.
      */
     operator fun <T> get(key: KClass<*>): T? {
-        @Suppress("UNCHECKED_CAST") return metadata[key] as? T
+        @Suppress("UNCHECKED_CAST")
+        return metadata[key] as? T
     }
 
     /**
@@ -77,7 +78,7 @@ abstract class TypeWriter(val context: WriterContext) {
             .writeTo(
                 language = context.codeLanguage,
                 packageName = packageName,
-                generator = processingEnv.filer
+                generator = processingEnv.filer,
             )
     }
 
@@ -91,7 +92,7 @@ abstract class TypeWriter(val context: WriterContext) {
                             "{\$S, \$S, \$S}",
                             "unchecked",
                             "deprecation",
-                            "removal"
+                            "removal",
                         )
                         .build()
                 )
@@ -104,7 +105,7 @@ abstract class TypeWriter(val context: WriterContext) {
                             "UNCHECKED_CAST",
                             "DEPRECATION",
                             "REDUNDANT_PROJECTION",
-                            "REMOVAL"
+                            "REMOVAL",
                         )
                         .build()
                 )
@@ -113,7 +114,7 @@ abstract class TypeWriter(val context: WriterContext) {
 
     private fun addGeneratedAnnotationIfAvailable(
         adapterTypeSpecBuilder: XTypeSpec.Builder,
-        processingEnv: XProcessingEnv
+        processingEnv: XProcessingEnv,
     ) {
         processingEnv.findGeneratedAnnotation()?.let {
             val annotationName = it.asClassName().canonicalName
@@ -178,7 +179,7 @@ abstract class TypeWriter(val context: WriterContext) {
                     name = name,
                     typeName = type,
                     visibility = VisibilityModifier.PRIVATE,
-                    isMutable = isMutable
+                    isMutable = isMutable,
                 )
             prepare(classWriter, builder)
             return builder.build()
@@ -189,7 +190,7 @@ abstract class TypeWriter(val context: WriterContext) {
 
         abstract fun getUniqueKey(): String
 
-        abstract fun prepare(methodName: String, writer: TypeWriter, builder: XFunSpec.Builder)
+        abstract fun prepare(functionName: String, writer: TypeWriter, builder: XFunSpec.Builder)
 
         fun build(writer: TypeWriter, name: String): XFunSpec {
             val builder = XFunSpec.builder(name, VisibilityModifier.PRIVATE)
@@ -201,14 +202,14 @@ abstract class TypeWriter(val context: WriterContext) {
     class WriterContext(
         val codeLanguage: CodeLanguage,
         val targetPlatforms: Set<XProcessingEnv.Platform>,
-        val javaLambdaSyntaxAvailable: Boolean
+        val javaLambdaSyntaxAvailable: Boolean,
     ) {
         companion object {
             fun fromProcessingContext(context: Context) =
                 WriterContext(
                     codeLanguage = context.codeLanguage,
                     targetPlatforms = context.processingEnv.targetPlatforms,
-                    javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable
+                    javaLambdaSyntaxAvailable = context.javaLambdaSyntaxAvailable,
                 )
         }
     }

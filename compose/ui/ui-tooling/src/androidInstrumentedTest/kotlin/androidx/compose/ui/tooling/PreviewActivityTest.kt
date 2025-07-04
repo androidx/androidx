@@ -46,7 +46,7 @@ class PreviewActivityTest {
     fun createActivityWithSimpleComposablePreview() {
         intent.putExtra(
             "composable",
-            "androidx.compose.ui.tooling.SimpleComposablePreviewKt.SimpleComposablePreview"
+            "androidx.compose.ui.tooling.SimpleComposablePreviewKt.SimpleComposablePreview",
         )
         activityTestRule.launchActivity(intent)
         val mainContent = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
@@ -57,7 +57,7 @@ class PreviewActivityTest {
     fun createActivityWithPrivateComposablePreview() {
         intent.putExtra(
             "composable",
-            "androidx.compose.ui.tooling.SimpleComposablePreviewKt.PrivateSimpleComposablePreview"
+            "androidx.compose.ui.tooling.SimpleComposablePreviewKt.PrivateSimpleComposablePreview",
         )
         activityTestRule.launchActivity(intent)
         val mainContent = activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)

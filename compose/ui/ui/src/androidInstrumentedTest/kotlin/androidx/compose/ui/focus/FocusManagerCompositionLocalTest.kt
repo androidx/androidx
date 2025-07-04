@@ -157,7 +157,7 @@ class FocusManagerCompositionLocalTest {
                             }
                         )
                     }
-                }
+                },
             )
         }
 
@@ -402,7 +402,7 @@ class FocusManagerCompositionLocalTest {
 
     private fun ComposeContentTestRule.setTestContent(
         extraItemForInitialFocus: Boolean = true,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         setFocusableContent(extraItemForInitialFocus) {
             focusManager = LocalFocusManager.current

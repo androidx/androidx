@@ -49,14 +49,16 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtMost
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Determinate Material Design linear progress indicator</a>.
+ * [Material Design determinate linear progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -85,7 +87,7 @@ import kotlin.math.min
             "LinearProgressIndicator(progress, modifier, color, trackColor, strokeCap, " +
                 "gapSize, drawStopIndicator)"
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,13 +104,13 @@ fun LinearProgressIndicator(
         color,
         trackColor,
         strokeCap,
-        gapSize = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize
+        gapSize = ProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
     )
 }
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Determinate Material Design linear progress indicator</a>.
+ * [Material Design determinate linear progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -144,16 +146,18 @@ fun LinearProgressIndicator(
             drawScope = this,
             stopSize = ProgressIndicatorDefaults.LinearTrackStopIndicatorSize,
             color = color,
-            strokeCap = strokeCap
+            strokeCap = strokeCap,
         )
     },
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     Canvas(
         modifier
             .then(IncreaseVerticalSemanticsBounds)
             .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                progressBarRangeInfo =
+                    ProgressBarRangeInfo(coercedProgress().takeUnless { it.isNaN() } ?: 0f, 0f..1f)
             }
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
@@ -181,8 +185,8 @@ fun LinearProgressIndicator(
 }
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Indeterminate Material Design linear progress indicator</a>.
+ * [Material Design indeterminate linear progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -202,7 +206,7 @@ fun LinearProgressIndicator(
             "LegacyIndeterminateLinearProgressIndicatorSample` on how to restore the previous behavior",
     replaceWith =
         ReplaceWith("LinearProgressIndicator(modifier, color, trackColor, strokeCap, gapSize)"),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,8 +226,8 @@ fun LinearProgressIndicator(
 }
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Indeterminate Material Design linear progress indicator</a>.
+ * [Material Design indeterminate linear progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -252,25 +256,25 @@ fun LinearProgressIndicator(
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = linearIndeterminateFirstLineHeadAnimationSpec
+            animationSpec = linearIndeterminateFirstLineHeadAnimationSpec,
         )
     val firstLineTail =
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = linearIndeterminateFirstLineTailAnimationSpec
+            animationSpec = linearIndeterminateFirstLineTailAnimationSpec,
         )
     val secondLineHead =
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = linearIndeterminateSecondLineHeadAnimationSpec
+            animationSpec = linearIndeterminateSecondLineHeadAnimationSpec,
         )
     val secondLineTail =
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = linearIndeterminateSecondLineTailAnimationSpec
+            animationSpec = linearIndeterminateSecondLineTailAnimationSpec,
         )
     Canvas(
         modifier
@@ -341,7 +345,7 @@ fun LinearProgressIndicator(
                 "trackColor = trackColor,\n" +
                 "strokeCap = strokeCap,\n" +
                 ")"
-        )
+        ),
 )
 @Composable
 fun LinearProgressIndicator(
@@ -413,9 +417,8 @@ private fun DrawScope.drawLinearIndicator(
     } else {
         // need to adjust barStart and barEnd for the stroke caps
         val strokeCapOffset = strokeWidth / 2
-        val coerceRange = strokeCapOffset..(width - strokeCapOffset)
-        val adjustedBarStart = barStart.coerceIn(coerceRange)
-        val adjustedBarEnd = barEnd.coerceIn(coerceRange)
+        val adjustedBarStart = barStart.fastCoerceIn(strokeCapOffset, width - strokeCapOffset)
+        val adjustedBarEnd = barEnd.fastCoerceIn(strokeCapOffset, width - strokeCapOffset)
 
         if (abs(endFraction - startFraction) > 0) {
             // Progress line
@@ -431,8 +434,8 @@ private fun DrawScope.drawLinearIndicator(
 }
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Determinate Material Design circular progress indicator</a>.
+ * [Material Design determinate circular progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -462,7 +465,7 @@ private fun DrawScope.drawLinearIndicator(
             "CircularProgressIndicator(progress, modifier, color, strokeWidth, trackColor, " +
                 "strokeCap, gapSize)"
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -481,13 +484,13 @@ fun CircularProgressIndicator(
         strokeWidth,
         trackColor,
         strokeCap,
-        gapSize = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize
+        gapSize = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
     )
 }
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Determinate Material Design circular progress indicator</a>.
+ * [Material Design determinate circular progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -520,12 +523,14 @@ fun CircularProgressIndicator(
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
     gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
+    val coercedProgress = { progress().fastCoerceIn(0f, 1f) }
     val stroke = with(LocalDensity.current) { Stroke(width = strokeWidth.toPx(), cap = strokeCap) }
     Canvas(
         modifier
             .semantics(mergeDescendants = true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
+                // Check for NaN, as the ProgressBarRangeInfo will throw an exception.
+                progressBarRangeInfo =
+                    ProgressBarRangeInfo(coercedProgress().takeUnless { it.isNaN() } ?: 0f, 0f..1f)
             }
             .size(CircularIndicatorDiameter)
     ) {
@@ -544,15 +549,15 @@ fun CircularProgressIndicator(
             startAngle + sweep + min(sweep, gapSizeSweep),
             360f - sweep - min(sweep, gapSizeSweep) * 2,
             trackColor,
-            stroke
+            stroke,
         )
         drawDeterminateCircularIndicator(startAngle, sweep, color, stroke)
     }
 }
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Indeterminate Material Design circular progress indicator</a>.
+ * [Material Design determinate circular progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -574,7 +579,7 @@ fun CircularProgressIndicator(
             "CircularProgressIndicator(modifier, color, strokeWidth, trackColor, strokeCap, " +
                 "gapSize)"
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -591,12 +596,12 @@ fun CircularProgressIndicator(
         strokeWidth = strokeWidth,
         trackColor = trackColor,
         strokeCap = strokeCap,
-        gapSize = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize
+        gapSize = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
     )
 
 /**
- * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"
- * target="_blank">Indeterminate Material Design circular progress indicator</a>.
+ * [Material Design determinate circular progress
+ * indicator](https://m3.material.io/components/progress-indicators/overview)
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
@@ -620,7 +625,7 @@ fun CircularProgressIndicator(
     strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
     trackColor: Color = ProgressIndicatorDefaults.circularIndeterminateTrackColor,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap,
-    gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize
+    gapSize: Dp = ProgressIndicatorDefaults.CircularIndicatorTrackGapSize,
 ) {
     val stroke = with(LocalDensity.current) { Stroke(width = strokeWidth.toPx(), cap = strokeCap) }
 
@@ -630,7 +635,7 @@ fun CircularProgressIndicator(
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = CircularGlobalRotationDegreesTarget,
-            animationSpec = circularIndeterminateGlobalRotationAnimationSpec
+            animationSpec = circularIndeterminateGlobalRotationAnimationSpec,
         )
 
     // An additional rotation that moves by 90 degrees in 500ms and then rest for 1 second.
@@ -638,7 +643,7 @@ fun CircularProgressIndicator(
         infiniteTransition.animateFloat(
             initialValue = 0f,
             targetValue = CircularAdditionalRotationDegreesTarget,
-            animationSpec = circularIndeterminateRotationAnimationSpec
+            animationSpec = circularIndeterminateRotationAnimationSpec,
         )
 
     // Indicator progress animation that will be changing the progress up and down as the indicator
@@ -647,7 +652,7 @@ fun CircularProgressIndicator(
         infiniteTransition.animateFloat(
             initialValue = CircularIndeterminateMinProgress,
             targetValue = CircularIndeterminateMaxProgress,
-            animationSpec = circularIndeterminateProgressAnimationSpec
+            animationSpec = circularIndeterminateProgressAnimationSpec,
         )
 
     Canvas(modifier.progressSemantics().size(CircularIndicatorDiameter)) {
@@ -665,7 +670,7 @@ fun CircularProgressIndicator(
                 sweep + min(sweep, gapSizeSweep),
                 360f - sweep - min(sweep, gapSizeSweep) * 2,
                 trackColor,
-                stroke
+                stroke,
             )
             drawDeterminateCircularIndicator(startAngle = 0f, sweep, color, stroke)
         }
@@ -685,7 +690,7 @@ fun CircularProgressIndicator(
                 "trackColor = trackColor,\n" +
                 "strokeCap = strokeCap,\n" +
                 ")"
-        )
+        ),
 )
 @Composable
 fun CircularProgressIndicator(
@@ -712,7 +717,7 @@ fun CircularProgressIndicator(
     progress: Float,
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.circularColor,
-    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
 ) =
     CircularProgressIndicator(
         progress,
@@ -729,7 +734,7 @@ fun CircularProgressIndicator(
 fun CircularProgressIndicator(
     modifier: Modifier = Modifier,
     color: Color = ProgressIndicatorDefaults.circularColor,
-    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth
+    strokeWidth: Dp = ProgressIndicatorDefaults.CircularStrokeWidth,
 ) =
     CircularProgressIndicator(
         modifier,
@@ -743,7 +748,7 @@ private fun DrawScope.drawCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
-    stroke: Stroke
+    stroke: Stroke,
 ) {
     // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
     // To do this we need to remove half the stroke width from the total diameter for both sides.
@@ -756,7 +761,7 @@ private fun DrawScope.drawCircularIndicator(
         useCenter = false,
         topLeft = Offset(diameterOffset, diameterOffset),
         size = Size(arcDimen, arcDimen),
-        style = stroke
+        style = stroke,
     )
 }
 
@@ -767,7 +772,7 @@ private fun DrawScope.drawDeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
-    stroke: Stroke
+    stroke: Stroke,
 ) = drawCircularIndicator(startAngle, sweep, color, stroke)
 
 private fun DrawScope.drawIndeterminateCircularIndicator(
@@ -775,7 +780,7 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
     strokeWidth: Dp,
     sweep: Float,
     color: Color,
-    stroke: Stroke
+    stroke: Stroke,
 ) {
     val strokeCapOffset =
         if (stroke.cap == StrokeCap.Butt) {
@@ -818,7 +823,7 @@ object ProgressIndicatorDefaults {
     @Deprecated(
         "Renamed to circularDeterminateTrackColor or circularIndeterminateTrackColor",
         ReplaceWith("ProgressIndicatorDefaults.circularIndeterminateTrackColor"),
-        DeprecationLevel.WARNING
+        DeprecationLevel.WARNING,
     )
     val circularTrackColor: Color
         @Composable get() = Color.Transparent
@@ -844,20 +849,14 @@ object ProgressIndicatorDefaults {
     val CircularIndeterminateStrokeCap: StrokeCap = StrokeCap.Round
 
     /** Default track stop indicator size for a linear progress indicator. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
     val LinearTrackStopIndicatorSize: Dp = LinearProgressIndicatorTokens.StopSize
 
     /** Default indicator track gap size for a linear progress indicator. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
     val LinearIndicatorTrackGapSize: Dp = LinearProgressIndicatorTokens.TrackActiveSpace
 
     /** Default indicator track gap size for a circular progress indicator. */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
     val CircularIndicatorTrackGapSize: Dp = CircularProgressIndicatorTokens.TrackActiveSpace
 
@@ -871,7 +870,7 @@ object ProgressIndicatorDefaults {
             stiffness = Spring.StiffnessVeryLow,
             // The default threshold is 0.01, or 1% of the overall progress range, which is quite
             // large and noticeable. We purposefully choose a smaller threshold.
-            visibilityThreshold = 1 / 1000f
+            visibilityThreshold = 1 / 1000f,
         )
 
     /**
@@ -882,16 +881,15 @@ object ProgressIndicatorDefaults {
      * @param color color of this stop indicator
      * @param strokeCap stroke cap to use for the ends of this stop indicator
      */
-    fun drawStopIndicator(
-        drawScope: DrawScope,
-        stopSize: Dp,
-        color: Color,
-        strokeCap: StrokeCap,
-    ) {
+    fun drawStopIndicator(drawScope: DrawScope, stopSize: Dp, color: Color, strokeCap: StrokeCap) {
         with(drawScope) {
             val adjustedStopSize =
                 min(stopSize.toPx(), size.height) // Stop can't be bigger than track
-            val stopOffset = (size.height - adjustedStopSize) / 2 // Offset from end
+            // The limit to prevent excessive padding when dealing with large progress height.
+            // TODO b/401511176 - Consider adding a new token.
+            val maxStopOffset = StopIndicatorTrailingSpace.toPx()
+            // Offset from end.
+            val stopOffset = ((size.height - adjustedStopSize) / 2).fastCoerceAtMost(maxStopOffset)
             if (strokeCap == StrokeCap.Round) {
                 drawCircle(
                     color = color,
@@ -899,8 +897,8 @@ object ProgressIndicatorDefaults {
                     center =
                         Offset(
                             x = size.width - (adjustedStopSize / 2f) - stopOffset,
-                            y = size.height / 2f
-                        )
+                            y = size.height / 2f,
+                        ),
                 )
             } else {
                 drawRect(
@@ -908,9 +906,9 @@ object ProgressIndicatorDefaults {
                     topLeft =
                         Offset(
                             x = size.width - adjustedStopSize - stopOffset,
-                            y = (size.height - adjustedStopSize) / 2f
+                            y = (size.height - adjustedStopSize) / 2f,
                         ),
-                    size = Size(width = adjustedStopSize, height = adjustedStopSize)
+                    size = Size(width = adjustedStopSize, height = adjustedStopSize),
                 )
             }
         }
@@ -1022,6 +1020,8 @@ internal val LinearIndicatorWidth = 240.dp
 
 /*@VisibleForTesting*/
 internal val LinearIndicatorHeight = LinearProgressIndicatorTokens.Height
+
+internal val StopIndicatorTrailingSpace = 6.dp
 
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle

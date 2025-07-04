@@ -147,7 +147,7 @@ class StretchOverscrollIntegrationTest {
             swipeWithVelocity(
                 start = center,
                 end = center - Offset(100f, 0f),
-                endVelocity = velocity
+                endVelocity = velocity,
             )
             state.overscroll.invalidationEnabled = false
         }
@@ -347,7 +347,7 @@ class StretchOverscrollIntegrationTest {
             swipeWithVelocity(
                 start = center,
                 end = center - Offset(0f, 100f),
-                endVelocity = velocity
+                endVelocity = velocity,
             )
             state.overscroll.invalidationEnabled = false
         }
@@ -541,7 +541,7 @@ class StretchOverscrollIntegrationTest {
             swipeWithVelocity(
                 start = center,
                 end = center + Offset(100f, 0f),
-                endVelocity = velocity
+                endVelocity = velocity,
             )
             state.overscroll.invalidationEnabled = false
         }
@@ -729,7 +729,7 @@ class StretchOverscrollIntegrationTest {
             swipeWithVelocity(
                 start = center,
                 end = center + Offset(0f, 100f),
-                endVelocity = velocity
+                endVelocity = velocity,
             )
             state.overscroll.invalidationEnabled = false
         }
@@ -1125,9 +1125,9 @@ class StretchOverscrollIntegrationTest {
                                 ScrollableDefaults.reverseDirection(
                                     layoutDirection = LocalLayoutDirection.current,
                                     orientation = orientation,
-                                    reverseScrolling = false
+                                    reverseScrolling = false,
                                 ),
-                            overscrollEffect = state.overscroll
+                            overscrollEffect = state.overscroll,
                         )
                         .overscroll(state.overscroll)
                 )
@@ -1205,7 +1205,7 @@ private class TestState : ScrollableState {
             override fun onPostScroll(
                 consumed: Offset,
                 available: Offset,
-                source: NestedScrollSource
+                source: NestedScrollSource,
             ): Offset {
                 onPostScrollAvailable += available
                 return Offset.Zero
@@ -1224,7 +1224,7 @@ private class TestState : ScrollableState {
 
     override suspend fun scroll(
         scrollPriority: MutatePriority,
-        block: suspend ScrollScope.() -> Unit
+        block: suspend ScrollScope.() -> Unit,
     ) = scrollableState.scroll(scrollPriority, block)
 
     override fun dispatchRawDelta(delta: Float) = scrollableState.dispatchRawDelta(delta)

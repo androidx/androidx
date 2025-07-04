@@ -57,7 +57,7 @@ internal class MultiInstanceInvalidationClient(
         MutableSharedFlow<Set<String>>(
             replay = 0,
             extraBufferCapacity = 0,
-            onBufferOverflow = BufferOverflow.SUSPEND
+            onBufferOverflow = BufferOverflow.SUSPEND,
         )
 
     /** All table observer to notify service of changes. */

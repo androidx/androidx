@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -55,6 +55,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(libs.espressoDevice)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.leakcanary)

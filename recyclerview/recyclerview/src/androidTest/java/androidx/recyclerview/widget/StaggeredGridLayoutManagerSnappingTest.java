@@ -23,9 +23,9 @@ import static org.junit.Assert.assertTrue;
 
 import android.view.View;
 
-import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -222,8 +222,7 @@ public class StaggeredGridLayoutManagerSnappingTest extends BaseStaggeredGridLay
         }
     }
 
-    @Nullable
-    private View findCenterView() {
+    private @Nullable View findCenterView() {
         return mLayoutManager.findFirstVisibleItemClosestToCenter();
     }
 

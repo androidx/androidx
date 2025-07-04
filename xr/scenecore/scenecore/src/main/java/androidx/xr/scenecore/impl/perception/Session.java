@@ -22,9 +22,10 @@ import android.app.Activity;
 import android.util.Log;
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,22 +40,22 @@ public class Session {
     public static final long XR_NULL_HANDLE = 0;
 
     private static final String TAG = "PerceptionSession";
-    Activity activity;
-    @PerceptionLibraryConstants.OpenXrSpaceType int openXrReferenceSpaceType;
-    Executor executor;
-    HashMap<Long, Plane> foundPlanes = new HashMap<>();
+    Activity mActivity;
+    @PerceptionLibraryConstants.OpenXrSpaceType int mOpenXrReferenceSpaceType;
+    Executor mExecutor;
+    HashMap<Long, Plane> mFoundPlanes = new HashMap<>();
 
     Session(
             Activity activity,
             @PerceptionLibraryConstants.OpenXrSpaceType int openXrReferenceSpaceType,
             Executor executor) {
-        this.activity = activity;
-        this.openXrReferenceSpaceType = openXrReferenceSpaceType;
-        this.executor = executor;
+        mActivity = activity;
+        mOpenXrReferenceSpaceType = openXrReferenceSpaceType;
+        mExecutor = executor;
     }
 
     boolean initSession() {
-        boolean xrLoaded = createOpenXrSession(activity, openXrReferenceSpaceType);
+        boolean xrLoaded = createOpenXrSession(mActivity, mOpenXrReferenceSpaceType);
         if (!xrLoaded) {
             Log.e(TAG, "Failed to load OpenXR session.");
             return false;
@@ -63,16 +64,15 @@ public class Session {
     }
 
     /** Creates an anchor for the specified plane type. */
-    @Nullable
-    public Anchor createAnchor(
-            float minWidth, float minHeight, @NonNull Plane.Type type, @NonNull Plane.Label label) {
+    public @Nullable Anchor createAnchor(
+            float minWidth, float minHeight, Plane.@NonNull Type type, Plane.@NonNull Label label) {
         Anchor.AnchorData anchorData =
                 getAnchor(minWidth, minHeight, type.intValue, label.intValue);
         if (anchorData == null) {
             Log.i(TAG, "Failed to create an anchor.");
             return null;
         }
-        Log.i(TAG, "Creating an anchor result:" + anchorData.anchorToken);
+        Log.i(TAG, "Creating an anchor result:" + anchorData.mAnchorToken);
         return new Anchor(anchorData);
     }
 
@@ -81,8 +81,7 @@ public class Session {
      *
      * @return the anchor if the operation succeeds.
      */
-    @Nullable
-    public Anchor createAnchorFromUuid(@Nullable UUID uuid) {
+    public @Nullable Anchor createAnchorFromUuid(@Nullable UUID uuid) {
         if (uuid == null) {
             Log.i(TAG, "UUID is null and cannot create a persisted anchor.");
             return null;
@@ -94,7 +93,7 @@ public class Session {
             Log.i(TAG, "Failed to create a persisted anchor.");
             return null;
         }
-        Log.i(TAG, "Creating a persisted anchor result:" + anchorData.anchorToken);
+        Log.i(TAG, "Creating a persisted anchor result:" + anchorData.mAnchorToken);
         return new Anchor(anchorData);
     }
 
@@ -102,20 +101,18 @@ public class Session {
      * Returns all planes that can be found in the scene. The order is not guaranteed to be
      * consistent. An anchor can be created from a plane object and it will be tied to that plane.
      */
-    @NonNull
-    public List<Plane> getAllPlanes() {
+    public @NonNull List<Plane> getAllPlanes() {
         return getPlanes().stream()
                 .map(
                         nativeId ->
-                                foundPlanes.computeIfAbsent(
+                                mFoundPlanes.computeIfAbsent(
                                         nativeId,
-                                        id -> new Plane(nativeId, openXrReferenceSpaceType)))
+                                        id -> new Plane(nativeId, mOpenXrReferenceSpaceType)))
                 .collect(toCollection(ArrayList::new));
     }
 
     /** Returns the current head pose using the current timestamp in OpenXR. */
-    @Nullable
-    public Pose getHeadPose() {
+    public @Nullable Pose getHeadPose() {
         Pose pose = getCurrentHeadPose();
         if (pose == null) {
             Log.w(TAG, "Failed to get the head pose.");
@@ -128,8 +125,7 @@ public class Session {
      * Returns the left and right views mapping to the left and right eyes using the current
      * timestamp from OpenXR.
      */
-    @Nullable
-    public ViewProjections getStereoViews() {
+    public @Nullable ViewProjections getStereoViews() {
         Pair<ViewProjection, ViewProjection> stereoViews = getCurrentStereoViews();
         if (stereoViews == null) {
             Log.w(TAG, "Failed to get stereo views.");

@@ -63,7 +63,7 @@ class ListDelegateImpl<T> : ListDelegate<T> {
             mStub.requestItemRange(
                 startIndex,
                 endIndex,
-                RemoteUtils.createOnDoneCallbackStub(callback)
+                RemoteUtils.createOnDoneCallbackStub(callback),
             )
         } catch (e: RemoteException) {
             throw RuntimeException(e)
@@ -74,6 +74,10 @@ class ListDelegateImpl<T> : ListDelegate<T> {
         other is ListDelegateImpl<*> && other.listHashCode == listHashCode
 
     override fun hashCode(): Int = listHashCode
+
+    override fun toString(): String {
+        return "ListDelegate { Size: $size, listHashCode: $listHashCode }"
+    }
 
     private class RemoteListStub<T>(private val mContent: List<T>) : IRemoteList.Stub() {
         @Throws(RemoteException::class)

@@ -16,16 +16,23 @@
 
 package androidx.compose.ui.layout
 
+import androidx.collection.mutableIntSetOf
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
@@ -35,8 +42,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.scale
@@ -53,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -248,6 +260,247 @@ class RectListIntegrationTest {
 
     @Test
     @SmallTest
+    fun removesLayoutNodeWithInputModifier_forEachGesturableIntersectionReflectsOnlyInputInUI() {
+        var toggle by mutableStateOf(true)
+
+        rule.setContent {
+            Box(Modifier.size(20.dp)) {
+                if (toggle) {
+                    Box(
+                        Modifier.testTag("inputTag").size(10.dp).pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    event.changes.forEach { it.consume() }
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        val node = rule.onNodeWithTag("inputTag")
+
+        node.assertRectDp(0.dp, 0.dp, 10.dp, 10.dp)
+
+        val semanticsNode = node.fetchSemanticsNode()
+        val owner = semanticsNode.layoutNode.owner as? AndroidComposeView
+        val rectList = owner?.rectManager?.rects ?: error("Could not find rect list")
+
+        val nodeId = semanticsNode.id
+
+        rule.runOnIdle {
+            assertTrue(nodeId in rectList)
+
+            var idFound = false
+            var count = 0
+            rectList.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == nodeId) {
+                    idFound = true
+                }
+            }
+            assertTrue(idFound)
+            assertThat(count).isEqualTo(1)
+
+            // Remove LayoutNode with a pointer input
+            toggle = false
+        }
+
+        rule.runOnIdle {
+            assertFalse(nodeId in rectList)
+            var idFound = false
+            var count = 0
+            rectList.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == nodeId) {
+                    idFound = true
+                }
+            }
+            assertFalse(idFound)
+            assertThat(count).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun addsLayoutNodeWithInputModifier_forEachGesturableIntersectionReflectsOnlyInputInUI() {
+        var toggle by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.testTag("parentTag").size(20.dp)) {
+                if (toggle) {
+                    Box(
+                        Modifier.testTag("inputTag").size(10.dp).pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    event.changes.forEach { it.consume() }
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        val parentNode = rule.onNodeWithTag("parentTag")
+
+        parentNode.assertRectDp(0.dp, 0.dp, 20.dp, 20.dp)
+
+        val semanticsParentNode = parentNode.fetchSemanticsNode()
+        val ownerParentNode = semanticsParentNode.layoutNode.owner as? AndroidComposeView
+        val rectListParentNode =
+            ownerParentNode?.rectManager?.rects ?: error("Could not find input node's rect list")
+
+        val parentNodeId = semanticsParentNode.id
+
+        rule.runOnIdle {
+            assertTrue(parentNodeId in rectListParentNode)
+
+            var idFound = false
+            var count = 0
+            rectListParentNode.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == parentNodeId) {
+                    idFound = true
+                }
+            }
+            assertFalse(idFound)
+            assertThat(count).isEqualTo(0)
+
+            // Add pointer input to existing LayoutNode
+            toggle = true
+        }
+
+        rule.waitForIdle()
+
+        val inputNode = rule.onNodeWithTag("inputTag")
+        inputNode.assertRectDp(0.dp, 0.dp, 10.dp, 10.dp)
+
+        val semanticsInputNode = inputNode.fetchSemanticsNode()
+        val ownerInputNode = semanticsInputNode.layoutNode.owner as? AndroidComposeView
+        val rectListInputNode =
+            ownerInputNode?.rectManager?.rects ?: error("Could not find input node's rect list")
+
+        val inputNodeId = semanticsInputNode.id
+
+        rule.runOnIdle {
+            assertTrue(parentNodeId in rectListParentNode)
+            assertTrue(inputNodeId in rectListInputNode)
+
+            var idFound = false
+            var count = 0
+            rectListInputNode.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == inputNodeId) {
+                    idFound = true
+                }
+            }
+            assertTrue(idFound)
+            assertThat(count).isEqualTo(1)
+
+            // Remove pointer input modifier from LayoutNode
+            toggle = false
+        }
+
+        rule.runOnIdle {
+            assertTrue(parentNodeId in rectListParentNode)
+            assertFalse(inputNodeId in rectListInputNode)
+
+            var idFound = false
+            var count = 0
+            rectListInputNode.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == inputNodeId) {
+                    idFound = true
+                }
+            }
+            assertFalse(idFound)
+            assertThat(count).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun removesAndAddsInputModifierNode_forEachGesturableIntersectionReflectsOnlyInputInUI() {
+        var activateDynamicPointerInput by mutableStateOf(true)
+
+        rule.setContent {
+            Box(
+                Modifier.testTag("inputTag")
+                    .size(10.dp)
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        key = "unique_key_123",
+                        onPress = {},
+                    )
+            )
+        }
+
+        val node = rule.onNodeWithTag("inputTag")
+
+        node.assertRectDp(0.dp, 0.dp, 10.dp, 10.dp)
+
+        val semanticsNode = node.fetchSemanticsNode()
+        val owner = semanticsNode.layoutNode.owner as? AndroidComposeView
+        val rectList = owner?.rectManager?.rects ?: error("Could not find rect list")
+
+        val nodeId = semanticsNode.id
+
+        rule.runOnIdle {
+            assertTrue(nodeId in rectList)
+
+            var idFound = false
+            var count = 0
+            rectList.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == nodeId) {
+                    idFound = true
+                }
+            }
+            assertTrue(idFound)
+            assertThat(count).isEqualTo(1)
+
+            // Remove pointer input Modifier.Node (NOT the LayoutNode)
+            activateDynamicPointerInput = false
+        }
+
+        rule.runOnIdle {
+            assertTrue(nodeId in rectList)
+            var idFound = false
+            var count = 0
+            rectList.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == nodeId) {
+                    idFound = true
+                }
+            }
+            assertFalse(idFound)
+            assertThat(count).isEqualTo(0)
+        }
+
+        rule.runOnIdle { activateDynamicPointerInput = true }
+
+        rule.runOnIdle {
+            assertTrue(nodeId in rectList)
+
+            var idFound = false
+            var count = 0
+            rectList.forEachGesturableIntersection(l = 0, r = 5, t = 0, b = 5) { id ->
+                count++
+                if (id == nodeId) {
+                    idFound = true
+                }
+            }
+            assertTrue(idFound)
+            assertThat(count).isEqualTo(1)
+        }
+    }
+
+    @Test
+    @SmallTest
     fun testScrolling() {
         rule.setContent {
             val scrollState = rememberScrollState()
@@ -419,44 +672,189 @@ class RectListIntegrationTest {
         rule.onNodeWithTag("foo20").assertRectTopWithinRange(-4.dp, 4.dp)
     }
 
-    internal fun SemanticsNodeInteraction.assertRectDp(
-        left: Dp,
-        top: Dp,
-        right: Dp,
-        bottom: Dp,
-    ) = withRect { l, t, r, b ->
-        if (
-            !approxEquals(left, l) ||
-                !approxEquals(top, t) ||
-                !approxEquals(right, r) ||
-                !approxEquals(bottom, b)
-        ) {
-            val actualL = convertToDp(l)
-            val actualT = convertToDp(t)
-            val actualR = convertToDp(r)
-            val actualB = convertToDp(b)
+    @Test
+    @SmallTest
+    fun testLazyColumn_isConsistentAfterScroll_0() {
+        val lazyListState = LazyListState()
 
-            val expectDpString = "[$left, $top, $right, $bottom]"
-            val actualDpString = "[$actualL, $actualT, $actualR, $actualB]"
+        val rootSizePx = 600f
+        val viewPortCount = 4
+        val pages = 3
 
-            throw ComparisonFailure(
-                "expected <$expectDpString> but was: <$actualDpString>",
-                expectDpString,
-                actualDpString
-            )
+        val listItemHeight = rootSizePx / viewPortCount
+
+        setLazyColumnExample(
+            lazyListState = lazyListState,
+            rootSizePx = rootSizePx,
+            viewPortCount = viewPortCount,
+            pages = pages,
+        )
+
+        with(rule.density) {
+            // These specific calls lead to a reproducible pattern, without a fix, **all**
+            // visible items would have missing Rects
+            var itemIndex = 2
+            repeat(3) {
+                rule.runOnIdle {
+                    lazyListState.requestScrollToItem(itemIndex)
+                    itemIndex += 2
+                }
+            }
+            rule.waitForIdle()
+
+            // Assert the visual state of the List, itemIndex should be 6 and at the top
+            rule
+                .onNodeWithTag("Item-6")
+                .assertRectDp(
+                    left = 0.dp,
+                    top = 0.dp,
+                    right = rootSizePx.toDp(),
+                    bottom = listItemHeight.toDp(),
+                )
+
+            rule.onNodeWithTag("Item-6").assertRectCount(5)
+            rule.onNodeWithTag("Item-7").assertRectCount(5)
+            rule.onNodeWithTag("Item-8").assertRectCount(5)
+            rule.onNodeWithTag("Item-9").assertRectCount(5)
         }
     }
 
-    internal fun SemanticsNodeInteraction.assertRectTopWithinRange(
-        min: Dp,
-        max: Dp,
-    ) = withRect { _, t, _, _ ->
-        val topDp = convertToDp(t)
+    @Test
+    @MediumTest
+    fun testLazyColumn_isConsistentAfterScroll_1() {
+        val lazyListState = LazyListState()
 
-        if (topDp < min || topDp > max) {
-            error("top was $topDp but was expected to be between [$min, $max]")
+        val rootSizePx = 600f
+        val viewPortCount = 4
+        val pages = 3
+
+        val listItemHeight = rootSizePx / viewPortCount
+
+        setLazyColumnExample(
+            lazyListState = lazyListState,
+            rootSizePx = rootSizePx,
+            viewPortCount = viewPortCount,
+            pages = pages,
+        )
+
+        with(rule.density) {
+            // These specific calls lead to a reproducible pattern, without a fix, some of the
+            // visible items will have missing Rects
+            var itemIndex = pages * viewPortCount - viewPortCount
+            rule.runOnIdle {
+                // Scroll to last visible set of items
+                lazyListState.requestScrollToItem(itemIndex)
+            }
+            repeat(2) {
+                // Scroll two items back
+                rule.runOnIdle { lazyListState.requestScrollToItem(--itemIndex) }
+            }
+
+            repeat(2) {
+                // Scroll two items forward
+                rule.runOnIdle { lazyListState.requestScrollToItem(++itemIndex) }
+            }
+            rule.waitForIdle()
+
+            // Assert the visual state of the List, first visible should be the
+            // lastIndex - viewportCount
+            rule
+                .onNodeWithTag("Item-8")
+                .assertRectDp(
+                    left = 0.dp,
+                    top = 0.dp,
+                    right = rootSizePx.toDp(),
+                    bottom = listItemHeight.toDp(),
+                )
+
+            rule.onNodeWithTag("Item-8").assertRectCount(5)
+            rule.onNodeWithTag("Item-9").assertRectCount(5)
+            // Originally observed issues on 10 (1 visible) and 11 (0 visible)
+            rule.onNodeWithTag("Item-10").assertRectCount(5)
+            rule.onNodeWithTag("Item-11").assertRectCount(5)
         }
     }
+
+    /**
+     * Lazy Column example that can be used to reproduce issues related to re-using LayoutNodes
+     * where each item has the same Layout.
+     */
+    private fun setLazyColumnExample(
+        lazyListState: LazyListState,
+        rootSizePx: Float,
+        viewPortCount: Int,
+        pages: Int,
+    ) {
+        val listItemHeight = rootSizePx / viewPortCount
+
+        with(rule.density) {
+            @Composable
+            fun LazyItemScope.MyItem(index: Int) {
+                Row(
+                    Modifier.testTag("Item-$index")
+                        .fillParentMaxWidth()
+                        .height(listItemHeight.toDp())
+                ) {
+                    Column(Modifier.fillMaxHeight().weight(0.7f, true)) {
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .height((listItemHeight / 2f).toDp())
+                                .drawBehind {
+                                    val alpha = (index + 1f) / (viewPortCount * pages)
+                                    drawRect(Color.Blue.copy(alpha = alpha))
+                                }
+                        )
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .height((listItemHeight / 2f).toDp())
+                                .background(Color.Cyan)
+                        )
+                    }
+                    Box(Modifier.fillMaxHeight().weight(0.3f, true).background(Color.LightGray))
+                }
+            }
+
+            rule.setContent {
+                LazyColumn(state = lazyListState, modifier = Modifier.size(rootSizePx.toDp())) {
+                    items(viewPortCount * pages) { MyItem(it) }
+                }
+            }
+            rule.waitForIdle()
+        }
+    }
+
+    internal fun SemanticsNodeInteraction.assertRectDp(left: Dp, top: Dp, right: Dp, bottom: Dp) =
+        withRect { l, t, r, b ->
+            if (
+                !approxEquals(left, l) ||
+                    !approxEquals(top, t) ||
+                    !approxEquals(right, r) ||
+                    !approxEquals(bottom, b)
+            ) {
+                val actualL = convertToDp(l)
+                val actualT = convertToDp(t)
+                val actualR = convertToDp(r)
+                val actualB = convertToDp(b)
+
+                val expectDpString = "[$left, $top, $right, $bottom]"
+                val actualDpString = "[$actualL, $actualT, $actualR, $actualB]"
+
+                throw ComparisonFailure(
+                    "expected <$expectDpString> but was: <$actualDpString>",
+                    expectDpString,
+                    actualDpString,
+                )
+            }
+        }
+
+    internal fun SemanticsNodeInteraction.assertRectTopWithinRange(min: Dp, max: Dp) =
+        withRect { _, t, _, _ ->
+            val topDp = convertToDp(t)
+
+            if (topDp < min || topDp > max) {
+                error("top was $topDp but was expected to be between [$min, $max]")
+            }
+        }
 
     inline internal fun SemanticsNodeInteraction.withRect(
         crossinline block: Density.(l: Int, t: Int, r: Int, b: Int) -> Unit
@@ -474,6 +872,30 @@ class RectListIntegrationTest {
         }
     }
 
+    /** Counts Rects from this node down the hierarchy in the RectList. */
+    private fun SemanticsNodeInteraction.assertRectCount(expectedCount: Int) {
+        val node = fetchSemanticsNode()
+        val owner = node.layoutNode.owner
+        val rectList = owner?.rectManager?.rects ?: error("Could not find rect list")
+        val layoutNodes = owner.layoutNodes
+        val nodeId = node.layoutNode.semanticsId
+
+        val ids = mutableIntSetOf()
+
+        rectList.forEachRect { id, _, _, _, _ ->
+            if (id == nodeId) {
+                ids.add(id)
+            } else {
+                layoutNodes[id]?.parent?.semanticsId?.let { parentId ->
+                    if (ids.contains(parentId)) {
+                        ids.add(id)
+                    }
+                }
+            }
+        }
+        assertEquals(expectedCount, ids.count())
+    }
+
     private fun Density.convertToDp(px: Int): Dp {
         return (px / density).roundToInt().dp
     }
@@ -483,5 +905,43 @@ class RectListIntegrationTest {
         val upper = ceil((dp.value + 1f) * density).toInt()
         return px in lower..upper
     }
+
     // TODO: assert on number of times insert/update/move called
+
+    // Helper functions for next several tests
+    private fun Modifier.dynamicPointerInputModifier(
+        enabled: Boolean,
+        key: Any? = Unit,
+        onEnter: () -> Unit = {},
+        onMove: () -> Unit = {},
+        onPress: () -> Unit = {},
+        onRelease: () -> Unit = {},
+        onExit: () -> Unit = {},
+    ) =
+        if (enabled) {
+            pointerInput(key) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        when (event.type) {
+                            PointerEventType.Enter -> {
+                                onEnter()
+                            }
+                            PointerEventType.Press -> {
+                                onPress()
+                            }
+                            PointerEventType.Move -> {
+                                onMove()
+                            }
+                            PointerEventType.Release -> {
+                                onRelease()
+                            }
+                            PointerEventType.Exit -> {
+                                onExit()
+                            }
+                        }
+                    }
+                }
+            }
+        } else this
 }

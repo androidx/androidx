@@ -81,7 +81,7 @@ fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Int, heightDp: Int): Wi
  */
 fun Set<WindowSizeClass>.computeWindowSizeClassPreferHeight(
     widthDp: Int,
-    heightDp: Int
+    heightDp: Int,
 ): WindowSizeClass {
     var maxHeight = 0
     forEach { bucket ->

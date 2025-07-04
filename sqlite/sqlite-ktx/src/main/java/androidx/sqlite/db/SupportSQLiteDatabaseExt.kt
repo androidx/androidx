@@ -25,7 +25,7 @@ package androidx.sqlite.db
  */
 public inline fun <T> SupportSQLiteDatabase.transaction(
     exclusive: Boolean = true,
-    body: SupportSQLiteDatabase.() -> T
+    body: SupportSQLiteDatabase.() -> T,
 ): T {
     if (exclusive) {
         beginTransaction()

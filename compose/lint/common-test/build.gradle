@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,15 +30,15 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    api(libs.androidLintPrevAnalysis)
-    api(libs.androidLintTestsPrevAnalysis)
+    api(libs.androidLintStableAnalysis)
+    api(libs.androidLintTests)
     api(libs.junit)
     api(libs.truth)
 }
 
 androidx {
     name = "Compose Lint Test Utils"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2021"
     description = "Lint Test utils used for writing tests for Compose related lint checks"
 }

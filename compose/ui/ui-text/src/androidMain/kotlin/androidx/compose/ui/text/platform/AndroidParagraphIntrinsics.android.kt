@@ -48,7 +48,7 @@ internal class AndroidParagraphIntrinsics(
     val annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
     val fontFamilyResolver: FontFamily.Resolver,
-    val density: Density
+    val density: Density,
 ) : ParagraphIntrinsics {
 
     internal val textPaint = AndroidTextPaint(Paint.ANTI_ALIAS_FLAG, density.density)
@@ -108,8 +108,7 @@ internal class AndroidParagraphIntrinsics(
                 style = style.toSpanStyle(),
                 resolveTypeface = resolveTypeface,
                 density = density,
-                requiresLetterSpacing =
-                    annotations.fastFirstOrNull { it.item is SpanStyle } != null,
+                requiresLetterSpacing = annotations.fastFirstOrNull { it.item is SpanStyle } != null,
             )
 
         val finalSpanStyles =
@@ -122,7 +121,7 @@ internal class AndroidParagraphIntrinsics(
                             AnnotatedString.Range(
                                 item = notAppliedStyle,
                                 start = 0,
-                                end = text.length
+                                end = text.length,
                             )
                         else -> annotations[position - 1]
                     }
@@ -139,7 +138,7 @@ internal class AndroidParagraphIntrinsics(
                 placeholders = placeholders,
                 density = density,
                 resolveTypeface = resolveTypeface,
-                useEmojiCompat = emojiCompatProcessed
+                useEmojiCompat = emojiCompatProcessed,
             )
 
         layoutIntrinsics = LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
@@ -152,7 +151,7 @@ internal class AndroidParagraphIntrinsics(
  */
 internal fun resolveTextDirectionHeuristics(
     textDirection: TextDirection,
-    localeList: LocaleList? = null
+    localeList: LocaleList? = null,
 ): Int {
     return when (textDirection) {
         TextDirection.ContentOrLtr -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
@@ -178,7 +177,7 @@ internal actual fun ActualParagraphIntrinsics(
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): ParagraphIntrinsics =
     AndroidParagraphIntrinsics(
         text = text,
@@ -186,12 +185,12 @@ internal actual fun ActualParagraphIntrinsics(
         placeholders = placeholders,
         fontFamilyResolver = fontFamilyResolver,
         annotations = annotations,
-        density = density
+        density = density,
     )
 
 private class TypefaceDirtyTrackerLinkedList(
     private val resolveResult: State<Any>,
-    private val next: TypefaceDirtyTrackerLinkedList? = null
+    private val next: TypefaceDirtyTrackerLinkedList? = null,
 ) {
     val initial = resolveResult.value
     val typeface: Typeface

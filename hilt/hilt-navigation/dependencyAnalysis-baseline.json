@@ -1,0 +1,45 @@
+{
+  "projectPath": ":hilt:hilt-navigation",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.activity:activity",
+        "resolvedVersion": "1.5.1"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-viewmodel",
+        "resolvedVersion": "2.5.1"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.navigation:navigation-common",
+        "resolvedVersion": "2.5.1"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.navigation:navigation-runtime",
+        "resolvedVersion": "2.5.1"
+      },
+      "fromConfiguration": "api"
+    }
+  ]
+}

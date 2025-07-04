@@ -86,7 +86,7 @@ class IconButtonTest {
             IconButton(
                 modifier =
                     Modifier.size(IconButtonDefaults.SmallButtonSize).testTag(FilledIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -109,7 +109,7 @@ class IconButtonTest {
             IconButton(
                 modifier =
                     Modifier.size(IconButtonDefaults.MediumButtonSize).testTag(FilledIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -132,7 +132,7 @@ class IconButtonTest {
             IconButton(
                 modifier =
                     Modifier.size(IconButtonDefaults.LargeButtonSize).testTag(FilledIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -175,7 +175,7 @@ class IconButtonTest {
         rule.setContent {
             IconButton(
                 modifier = Modifier.testTag(FilledIconButtonTag).size(width, height),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -221,7 +221,7 @@ class IconButtonTest {
                 IconButton(
                     modifier = Modifier.testTag(FilledIconButtonTag),
                     onClick = {},
-                    onLongClick = {}
+                    onLongClick = {},
                 ) {
                     Box(
                         modifier =
@@ -248,7 +248,7 @@ class IconButtonTest {
                 IconButton(
                     modifier = Modifier.testTag(FilledIconButtonTag),
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(
                         modifier =
@@ -299,7 +299,7 @@ class IconButtonTest {
                 IconButton(
                     modifier = Modifier.testTag(FilledIconButtonTag),
                     onClick = {},
-                    onLongClick = onLongClick
+                    onLongClick = onLongClick,
                 ) {
                     Box(
                         modifier =
@@ -325,7 +325,7 @@ class IconButtonTest {
                 IconButton(
                     modifier = Modifier.testTag(FilledIconButtonTag),
                     onClick = { enabled = false },
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Box(
                         modifier =
@@ -370,7 +370,7 @@ class IconButtonTest {
                 }
                 IconButton(
                     modifier = Modifier.testTag(phoneButtonTag),
-                    onClick = phoneButtonOnClick
+                    onClick = phoneButtonOnClick,
                 ) {
                     Box(
                         modifier =
@@ -407,7 +407,7 @@ class IconButtonTest {
             IconButton(
                 modifier =
                     Modifier.size(IconButtonDefaults.SmallButtonSize).testTag(FilledIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -423,22 +423,22 @@ class IconButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             6.dp,
-            "padding between the start of the button and the start of the icon."
+            "padding between the start of the button and the start of the icon.",
         )
 
         (iconBounds.top - buttonBounds.top).assertIsEqualTo(
             6.dp,
-            "padding between the top of the button and the top of the icon."
+            "padding between the top of the button and the top of the icon.",
         )
 
         (buttonBounds.right - iconBounds.right).assertIsEqualTo(
             6.dp,
-            "padding between the end of the icon and the end of the button."
+            "padding between the end of the icon and the end of the button.",
         )
 
         (buttonBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             6.dp,
-            "padding between the bottom of the button and the bottom of the icon."
+            "padding between the bottom of the button and the bottom of the icon.",
         )
     }
 
@@ -460,22 +460,22 @@ class IconButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             10.dp,
-            "padding between the start of the button and the start of the icon."
+            "padding between the start of the button and the start of the icon.",
         )
 
         (iconBounds.top - buttonBounds.top).assertIsEqualTo(
             10.dp,
-            "padding between the top of the button and the top of the icon."
+            "padding between the top of the button and the top of the icon.",
         )
 
         (buttonBounds.right - iconBounds.right).assertIsEqualTo(
             10.dp,
-            "padding between the end of the icon and the end of the button."
+            "padding between the end of the icon and the end of the button.",
         )
 
         (buttonBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             10.dp,
-            "padding between the bottom of the button and the bottom of the icon."
+            "padding between the bottom of the button and the bottom of the icon.",
         )
     }
 
@@ -485,7 +485,7 @@ class IconButtonTest {
             IconButton(
                 modifier =
                     Modifier.size(IconButtonDefaults.LargeButtonSize).testTag(FilledIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -501,22 +501,22 @@ class IconButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             14.dp,
-            "padding between the start of the button and the start of the icon."
+            "padding between the start of the button and the start of the icon.",
         )
 
         (iconBounds.top - buttonBounds.top).assertIsEqualTo(
             14.dp,
-            "padding between the top of the button and the top of the icon."
+            "padding between the top of the button and the top of the icon.",
         )
 
         (buttonBounds.right - iconBounds.right).assertIsEqualTo(
             14.dp,
-            "padding between the end of the icon and the end of the button."
+            "padding between the end of the icon and the end of the button.",
         )
 
         (buttonBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             14.dp,
-            "padding between the bottom of the button and the bottom of the icon."
+            "padding between the bottom of the button and the bottom of the icon.",
         )
     }
 
@@ -582,7 +582,7 @@ class IconButtonTest {
                 modifier =
                     Modifier.size(OutlinedIconButtonDefaults.SmallButtonSize)
                         .testTag(OutlinedIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -606,7 +606,7 @@ class IconButtonTest {
                 modifier =
                     Modifier.size(OutlinedIconButtonDefaults.MediumButtonSize)
                         .testTag(OutlinedIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -630,7 +630,7 @@ class IconButtonTest {
                 modifier =
                     Modifier.size(OutlinedIconButtonDefaults.LargeButtonSize)
                         .testTag(OutlinedIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -652,7 +652,7 @@ class IconButtonTest {
         rule.setContent {
             OutlinedIconButton(
                 modifier = Modifier.size(64.dp).testTag(OutlinedIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -676,7 +676,7 @@ class IconButtonTest {
         rule.setContent {
             OutlinedIconButton(
                 modifier = Modifier.testTag(OutlinedIconButtonTag).size(width, height),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -699,7 +699,7 @@ class IconButtonTest {
             Box {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(OutlinedIconButtonTag),
-                    onClick = {}
+                    onClick = {},
                 ) {
                     Box(
                         modifier =
@@ -725,7 +725,7 @@ class IconButtonTest {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(OutlinedIconButtonTag),
                     onClick = {},
-                    onLongClick = {}
+                    onLongClick = {},
                 ) {
                     Box(
                         modifier =
@@ -752,7 +752,7 @@ class IconButtonTest {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(OutlinedIconButtonTag),
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(
                         modifier =
@@ -779,7 +779,7 @@ class IconButtonTest {
             Box {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(OutlinedIconButtonTag),
-                    onClick = onClick
+                    onClick = onClick,
                 ) {
                     Box(
                         modifier =
@@ -806,7 +806,7 @@ class IconButtonTest {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(OutlinedIconButtonTag),
                     onClick = {},
-                    onLongClick = onLongClick
+                    onLongClick = onLongClick,
                 ) {
                     Box(
                         modifier =
@@ -832,7 +832,7 @@ class IconButtonTest {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(OutlinedIconButtonTag),
                     onClick = { enabled = false },
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Box(
                         modifier =
@@ -869,7 +869,7 @@ class IconButtonTest {
             Column {
                 OutlinedIconButton(
                     modifier = Modifier.testTag(addButtonTag),
-                    onClick = addButtonOnClick
+                    onClick = addButtonOnClick,
                 ) {
                     Box(
                         modifier =
@@ -880,7 +880,7 @@ class IconButtonTest {
                 }
                 OutlinedIconButton(
                     modifier = Modifier.testTag(phoneButtonTag),
-                    onClick = phoneButtonOnClick
+                    onClick = phoneButtonOnClick,
                 ) {
                     Box(
                         modifier =
@@ -918,7 +918,7 @@ class IconButtonTest {
                 modifier =
                     Modifier.size(OutlinedIconButtonDefaults.SmallButtonSize)
                         .testTag(OutlinedIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -934,22 +934,22 @@ class IconButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             6.dp,
-            "padding between the start of the button and the start of the icon."
+            "padding between the start of the button and the start of the icon.",
         )
 
         (iconBounds.top - buttonBounds.top).assertIsEqualTo(
             6.dp,
-            "padding between the top of the button and the top of the icon."
+            "padding between the top of the button and the top of the icon.",
         )
 
         (buttonBounds.right - iconBounds.right).assertIsEqualTo(
             6.dp,
-            "padding between the end of the icon and the end of the button."
+            "padding between the end of the icon and the end of the button.",
         )
 
         (buttonBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             6.dp,
-            "padding between the bottom of the button and the bottom of the icon."
+            "padding between the bottom of the button and the bottom of the icon.",
         )
     }
 
@@ -971,22 +971,22 @@ class IconButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             10.dp,
-            "padding between the start of the button and the start of the icon."
+            "padding between the start of the button and the start of the icon.",
         )
 
         (iconBounds.top - buttonBounds.top).assertIsEqualTo(
             10.dp,
-            "padding between the top of the button and the top of the icon."
+            "padding between the top of the button and the top of the icon.",
         )
 
         (buttonBounds.right - iconBounds.right).assertIsEqualTo(
             10.dp,
-            "padding between the end of the icon and the end of the button."
+            "padding between the end of the icon and the end of the button.",
         )
 
         (buttonBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             10.dp,
-            "padding between the bottom of the button and the bottom of the icon."
+            "padding between the bottom of the button and the bottom of the icon.",
         )
     }
 
@@ -997,7 +997,7 @@ class IconButtonTest {
                 modifier =
                     Modifier.size(OutlinedIconButtonDefaults.LargeButtonSize)
                         .testTag(OutlinedIconButtonTag),
-                onClick = {}
+                onClick = {},
             ) {
                 Box(
                     modifier =
@@ -1013,22 +1013,22 @@ class IconButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             14.dp,
-            "padding between the start of the button and the start of the icon."
+            "padding between the start of the button and the start of the icon.",
         )
 
         (iconBounds.top - buttonBounds.top).assertIsEqualTo(
             14.dp,
-            "padding between the top of the button and the top of the icon."
+            "padding between the top of the button and the top of the icon.",
         )
 
         (buttonBounds.right - iconBounds.right).assertIsEqualTo(
             14.dp,
-            "padding between the end of the icon and the end of the button."
+            "padding between the end of the icon and the end of the button.",
         )
 
         (buttonBounds.bottom - iconBounds.bottom).assertIsEqualTo(
             14.dp,
-            "padding between the bottom of the button and the bottom of the icon."
+            "padding between the bottom of the button and the bottom of the icon.",
         )
     }
 

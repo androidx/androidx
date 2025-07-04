@@ -44,7 +44,7 @@ internal class PagerMeasureResult(
     val remeasureNeeded: Boolean,
     val extraPagesBefore: List<MeasuredPage> = emptyList(),
     val extraPagesAfter: List<MeasuredPage> = emptyList(),
-    val coroutineScope: CoroutineScope
+    val coroutineScope: CoroutineScope,
 ) : PagerLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)

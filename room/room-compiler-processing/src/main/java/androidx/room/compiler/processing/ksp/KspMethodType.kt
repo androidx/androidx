@@ -25,7 +25,7 @@ import com.squareup.javapoet.TypeVariableName
 internal sealed class KspMethodType(
     env: KspProcessingEnv,
     override val origin: KspMethodElement,
-    containing: KspType?
+    containing: KspType?,
 ) : KspExecutableType(env, origin, containing), XMethodType {
 
     override val typeVariables: List<XTypeVariableType> by lazy {
@@ -37,8 +37,8 @@ internal sealed class KspMethodType(
         replaceWith =
             ReplaceWith(
                 "typeVariables.map { it.asTypeName().toJavaPoet() }",
-                "androidx.room.compiler.codegen.toJavaPoet"
-            )
+                "androidx.room.compiler.codegen.toJavaPoet",
+            ),
     )
     override val typeVariableNames: List<TypeVariableName> by lazy {
         typeVariables.map { it.asTypeName().java as TypeVariableName }
@@ -47,7 +47,7 @@ internal sealed class KspMethodType(
     private class KspNormalMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspType?
+        containing: KspType?,
     ) : KspMethodType(env, origin, containing) {
         override val returnType: XType by lazy {
             origin.declaration
@@ -55,7 +55,7 @@ internal sealed class KspMethodType(
                 .copyWithScope(
                     KSTypeVarianceResolverScope.MethodReturnType(
                         method = origin,
-                        asMemberOf = containing
+                        asMemberOf = containing,
                     )
                 )
         }
@@ -64,7 +64,7 @@ internal sealed class KspMethodType(
     private class KspSuspendMethodType(
         env: KspProcessingEnv,
         origin: KspMethodElement,
-        containing: KspType?
+        containing: KspType?,
     ) : KspMethodType(env, origin, containing), XSuspendMethodType {
         override val returnType: XType
             // suspend functions always return Any?, no need to call asMemberOf
@@ -74,7 +74,7 @@ internal sealed class KspMethodType(
             // suspend functions work w/ continuation so it is always boxed
             return env.wrap(
                 ksType = origin.declaration.returnTypeAsMemberOf(ksType = containing?.ksType),
-                allowPrimitives = false
+                allowPrimitives = false,
             )
         }
     }

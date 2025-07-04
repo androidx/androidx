@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2024-2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.geometry.internal.BoxNative
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.abs
 
 /**
@@ -56,7 +57,7 @@ public abstract class Box internal constructor() {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeCenter(): ImmutableVec {
-        return BoxNative.createCenter(xMin, yMin, xMax, yMax, ImmutableVec::class.java)
+        return BoxNative.createCenter(xMin, yMin, xMax, yMax)
     }
 
     /** Populates [outVec] with the center of the [Box], and returns [outVec]. */
@@ -122,6 +123,12 @@ public abstract class Box internal constructor() {
         )
 
     /**
+     * Returns an immutable copy of this object. This will return itself if called on an immutable
+     * instance.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun asImmutable(): ImmutableBox
+
+    /**
      * Compares this [Box] with [other], and returns true if the difference between [xMin] and
      * [other.xMin] is less than [tolerance], and likewise for [xMax], [yMin], and [yMax].
      */
@@ -131,11 +138,11 @@ public abstract class Box internal constructor() {
             (abs(xMax - other.xMax) < tolerance) &&
             (abs(yMax - other.yMax) < tolerance)
 
-    public companion object {
+    internal companion object {
         /**
          * Returns true if [first] and [second] have the same values for all properties of [Box].
          */
-        internal fun areEquivalent(first: Box, second: Box): Boolean =
+        fun areEquivalent(first: Box, second: Box): Boolean =
             first.xMin == second.xMin &&
                 first.yMin == second.yMin &&
                 first.xMax == second.xMax &&
@@ -143,7 +150,7 @@ public abstract class Box internal constructor() {
 
         /** Returns a hash code for [box] using its [Box] properties. */
         // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-        internal fun hash(box: Box): Int =
+        fun hash(box: Box): Int =
             box.run {
                 var result = xMin.hashCode()
                 result = 31 * result + yMin.hashCode()
@@ -153,7 +160,54 @@ public abstract class Box internal constructor() {
             }
 
         /** Returns a string representation for [box] using its [Box] properties. */
-        internal fun string(box: Box): String =
+        fun string(box: Box): String =
             box.run { "Box(xMin=$xMin, yMin=$yMin, xMax=$xMax, yMax=$yMax)" }
     }
+}
+
+@UsedByNative
+internal object BoxNative {
+
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative
+    external fun createCenter(
+        rectXMin: Float,
+        rectYMin: Float,
+        rectXMax: Float,
+        rectYMax: Float,
+    ): ImmutableVec
+
+    @UsedByNative
+    external fun populateCenter(
+        rectXMin: Float,
+        rectYMin: Float,
+        rectXMax: Float,
+        rectYMax: Float,
+        out: MutableVec,
+    )
+
+    @UsedByNative
+    external fun containsPoint(
+        rectXMin: Float,
+        rectYMin: Float,
+        rectXMax: Float,
+        rectYMax: Float,
+        pointX: Float,
+        pointY: Float,
+    ): Boolean
+
+    @UsedByNative
+    external fun containsBox(
+        rectXMin: Float,
+        rectYMin: Float,
+        rectXMax: Float,
+        rectYMax: Float,
+        otherXMin: Float,
+        otherYMin: Float,
+        otherXMax: Float,
+        otherYMax: Float,
+    ): Boolean
 }

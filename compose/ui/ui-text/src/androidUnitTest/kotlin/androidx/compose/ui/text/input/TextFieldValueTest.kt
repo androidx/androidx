@@ -128,7 +128,7 @@ class TextFieldValueTest {
             TextFieldValue(
                 text = "b",
                 selection = textFieldValue.selection,
-                composition = textFieldValue.composition
+                composition = textFieldValue.composition,
             )
 
         assertThat(textFieldValue.copy(text = "b")).isEqualTo(expected)
@@ -143,7 +143,7 @@ class TextFieldValueTest {
             TextFieldValue(
                 text = textFieldValue.text,
                 selection = TextRange.Zero,
-                composition = textFieldValue.composition
+                composition = textFieldValue.composition,
             )
 
         assertThat(textFieldValue.copy(selection = TextRange.Zero)).isEqualTo(expected)
@@ -187,7 +187,7 @@ class TextFieldValueTest {
                         LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
                     background = Color.Blue,
                     textDecoration = TextDecoration.LineThrough,
-                    shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
+                    shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f),
                 )
             ) {
                 append("7")
@@ -197,7 +197,7 @@ class TextFieldValueTest {
                     textAlign = TextAlign.Justify,
                     textDirection = TextDirection.Rtl,
                     lineHeight = 10.sp,
-                    textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp)
+                    textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp),
                 )
             ) {
                 append("8")
@@ -208,7 +208,7 @@ class TextFieldValueTest {
             TextFieldValue(
                 annotatedString = annotatedString,
                 selection = TextRange(1, 2),
-                composition = TextRange(3, 4)
+                composition = TextRange(3, 4),
             )
 
         val saved = with(TextFieldValue.Saver) { defaultSaverScope.save(original) }

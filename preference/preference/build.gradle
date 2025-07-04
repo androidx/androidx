@@ -14,12 +14,12 @@
  * limitations under the License
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -58,7 +58,7 @@ android {
 
 androidx {
     name = "Preference"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2015"
     description = "AndroidX Preference"
     legacyDisableKotlinStrictApiMode = true

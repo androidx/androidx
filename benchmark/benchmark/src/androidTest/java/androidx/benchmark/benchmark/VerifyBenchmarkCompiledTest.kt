@@ -46,11 +46,11 @@ class VerifyBenchmarkCompiledTest {
             )
         assertTrue(
             "expected exactly one instance of compilation status, output = $stdout",
-            stdout.indexOf("[status=") == stdout.lastIndexOf("[status=")
+            stdout.indexOf("[status=") == stdout.lastIndexOf("[status="),
         )
         assertTrue(
             "expected dexopt to show speed compilation, output = $stdout",
-            stdout.contains("[status=speed]")
+            stdout.contains("[status=speed]"),
         )
     }
 }

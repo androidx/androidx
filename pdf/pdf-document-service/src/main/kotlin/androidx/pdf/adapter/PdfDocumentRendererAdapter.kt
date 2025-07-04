@@ -66,11 +66,18 @@ internal class PdfDocumentRendererAdapter(pfd: ParcelFileDescriptor, password: S
             page?.close()
         } else {
             removedPage.close()
+            if (page != removedPage) {
+                page?.close()
+            }
         }
     }
 
     override fun close() {
         pageCache.clearAll()
         pdfRenderer.close()
+    }
+
+    override fun write(destination: ParcelFileDescriptor, removePasswordProtection: Boolean) {
+        pdfRenderer.write(destination, removePasswordProtection)
     }
 }

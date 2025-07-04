@@ -109,7 +109,7 @@ class EditTextFocusTest : BaseTest() {
 
     private fun setUpTest(
         @Suppress("SameParameterValue") pageCount: Int,
-        wrapEditTextInViewGroup: Boolean
+        wrapEditTextInViewGroup: Boolean,
     ): Context {
         return setUpTest(ORIENTATION_HORIZONTAL).apply {
             runOnUiThreadSync {
@@ -134,14 +134,14 @@ class EditTextFocusTest : BaseTest() {
      */
     private fun createEditTextAdapter(
         pageCount: Int,
-        wrapEditTextInViewGroup: Boolean
+        wrapEditTextInViewGroup: Boolean,
     ): RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             override fun getItemCount(): Int = pageCount
 
             override fun onCreateViewHolder(
                 parent: ViewGroup,
-                viewType: Int
+                viewType: Int,
             ): RecyclerView.ViewHolder {
                 val editText =
                     EditText(parent.context).apply {

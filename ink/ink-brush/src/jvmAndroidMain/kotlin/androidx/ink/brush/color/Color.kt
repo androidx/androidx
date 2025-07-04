@@ -223,7 +223,7 @@ public value class Color(public val value: ULong) {
         alpha: Float = this.alpha,
         red: Float = this.red,
         green: Float = this.green,
-        blue: Float = this.blue
+        blue: Float = this.blue,
     ): Color =
         Color(red = red, green = green, blue = blue, alpha = alpha, colorSpace = this.colorSpace)
 
@@ -299,7 +299,7 @@ public fun Color(
     green: Float,
     blue: Float,
     alpha: Float = 1f,
-    colorSpace: ColorSpace = ColorSpaces.Srgb
+    colorSpace: ColorSpace = ColorSpaces.Srgb,
 ): Color {
     if (colorSpace.isSrgb) {
         val argb =
@@ -345,7 +345,7 @@ internal fun UncheckedColor(
     green: Float,
     blue: Float,
     alpha: Float = 1f,
-    colorSpace: ColorSpace = ColorSpaces.Srgb
+    colorSpace: ColorSpace = ColorSpaces.Srgb,
 ): Color {
     if (colorSpace.isSrgb) {
         val argb =
@@ -401,7 +401,7 @@ public fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,
     @IntRange(from = 0, to = 0xFF) blue: Int,
-    @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF
+    @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF,
 ): Color {
     val color =
         ((alpha and 0xFF) shl 24) or

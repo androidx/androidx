@@ -78,7 +78,7 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                                 .text(name)
                                 .with(capitalizedName)
                                 .autoFix()
-                                .build()
+                                .build(),
                         )
                     }
                 } else {
@@ -97,7 +97,7 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                                 .text(name)
                                 .with(lowercaseName)
                                 .autoFix()
-                                .build()
+                                .build(),
                         )
                     }
                 }
@@ -118,8 +118,8 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ComposableNamingDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

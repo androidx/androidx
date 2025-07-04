@@ -15,7 +15,7 @@ appropriate for the project you are creating.
 ## Project types
 
 The script leverages
-`buildSrc/public/src/main/kotlin/androidx/build/LibraryType.kt` to create the
+`buildSrc/public/src/main/kotlin/androidx/build/SoftwareType.kt` to create the
 recommended defaults for your project. However, you can override the options to
 best fit your requirements.
 

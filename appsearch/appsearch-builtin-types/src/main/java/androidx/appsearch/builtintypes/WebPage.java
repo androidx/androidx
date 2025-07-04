@@ -16,6 +16,8 @@
 
 package androidx.appsearch.builtintypes;
 
+import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS;
+
 import androidx.annotation.OptIn;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
@@ -32,7 +34,7 @@ import java.util.List;
  * <p>See <a href="https://schema.org/WebPage">https://schema.org/WebPage</a> for more context.
  */
 @Document(name = WebPage.SCHEMA_NAME)
-public final class WebPage extends Thing {
+public class WebPage extends Thing {
 
     // DO NOT CHANGE since it will alter schema definition
     public static final String SCHEMA_NAME = "builtin:WebPage";
@@ -40,16 +42,22 @@ public final class WebPage extends Thing {
     @Document.DocumentProperty
     private final @Nullable ImageObject mFavicon;
 
+    @ExperimentalAppSearchApi
+    @Document.StringProperty(indexingType = INDEXING_TYPE_EXACT_TERMS)
+    private final @Nullable String mSource;
+
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    WebPage(@NonNull String namespace, @NonNull String id, int documentScore,
+    public WebPage(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             @Nullable List<String> alternateNames,
             @Nullable String description,
             @Nullable String image, @Nullable String url,
-            @Nullable List<PotentialAction> potentialActions, @Nullable ImageObject favicon) {
+            @Nullable List<PotentialAction> potentialActions, @Nullable ImageObject favicon,
+            @Nullable String source) {
         super(namespace, id, documentScore, creationTimestampMillis, documentTtlMillis, name,
                 alternateNames, description, image, url, potentialActions);
         mFavicon = favicon;
+        mSource = source;
     }
 
     /**
@@ -57,6 +65,14 @@ public final class WebPage extends Thing {
      */
     public @Nullable ImageObject getFavicon() {
         return mFavicon;
+    }
+
+    /**
+     * Returns the source of how the web page was accessed in CamelCase. (e.g. Tab, CustomTab)
+     */
+    @ExperimentalAppSearchApi
+    public @Nullable String getSource() {
+        return mSource;
     }
 
     /** Builder for {@link WebPage}. */
@@ -78,25 +94,39 @@ public final class WebPage extends Thing {
     static class BuilderImpl<Self extends BuilderImpl<Self>> extends Thing.BuilderImpl<Self> {
 
         private ImageObject mFavicon;
+        @ExperimentalAppSearchApi
+        private String mSource;
 
         BuilderImpl(@NonNull String namespace, @NonNull String id) {
             super(namespace, id);
         }
 
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         BuilderImpl(@NonNull WebPage webPage) {
             super(new Thing.Builder(Preconditions.checkNotNull(webPage)).build());
             mFavicon = webPage.getFavicon();
+            mSource = webPage.getSource();
         }
 
         /**
-         * Returns a favicon that represents the web page.
+         * Sets the favicon that represents the web page.
          */
         public @NonNull Self setFavicon(@Nullable ImageObject favicon) {
             mFavicon = favicon;
             return (Self) this;
         }
 
+        /**
+         * Sets the source of how the web page was accessed in CamelCase. (e.g. Tab, CustomTab)
+         */
+        @ExperimentalAppSearchApi
+        public @NonNull Self setSource(@Nullable String type) {
+            mSource = type;
+            return (Self) this;
+        }
+
         /** Builds the {@link WebPage}. */
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         @Override
         public @NonNull WebPage build() {
             return new WebPage(
@@ -111,7 +141,7 @@ public final class WebPage extends Thing {
                     mImage,
                     mUrl,
                     mPotentialActions,
-                    mFavicon);
+                    mFavicon, mSource);
         }
     }
 }

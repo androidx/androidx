@@ -45,7 +45,7 @@ import org.xmlpull.v1.XmlPullParserException
 internal fun loadAnimatorResource(
     theme: Resources.Theme? = null,
     res: Resources,
-    resId: Int
+    resId: Int,
 ): Animator {
     val parser = res.getXml(resId)
     val attrs = Xml.asAttributeSet(parser)
@@ -102,7 +102,7 @@ private val builtinInterpolators =
         android.R.interpolator.linear_out_slow_in to LinearOutSlowInEasing,
         AndroidVectorResources.FAST_OUT_LINEAR_IN to FastOutLinearInEasing,
         AndroidVectorResources.FAST_OUT_SLOW_IN to FastOutSlowInEasing,
-        AndroidVectorResources.LINEAR_OUT_SLOW_IN to LinearOutSlowInEasing
+        AndroidVectorResources.LINEAR_OUT_SLOW_IN to LinearOutSlowInEasing,
     )
 
 /** Synchronously loads an interpolator resource as an [Easing]. */
@@ -110,7 +110,7 @@ private val builtinInterpolators =
 internal fun loadInterpolatorResource(
     theme: Resources.Theme? = null,
     res: Resources,
-    resId: Int
+    resId: Int,
 ): Easing {
     return builtinInterpolators[resId]
         ?: res.getXml(resId).run {

@@ -47,7 +47,7 @@ internal fun MotionEvent(
     actionIndex: Int,
     pointerProperties: Array<MotionEvent.PointerProperties>,
     pointerCoords: Array<MotionEvent.PointerCoords>,
-    dispatchTarget: View
+    dispatchTarget: View,
 ): MotionEvent {
 
     val locationOnScreen = IntArray(2) { 0 }
@@ -73,7 +73,7 @@ internal fun MotionEvent(
                 0,
                 0,
                 0,
-                0
+                0,
             )
             .apply {
                 offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())

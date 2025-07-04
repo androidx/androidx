@@ -1,0 +1,6 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.lifecycle.viewmodel.compose/viewModel(kotlin.reflect/KClass<#A>, androidx.lifecycle/ViewModelStoreOwner, kotlin/String?, androidx.lifecycle/ViewModelProvider.Factory?, androidx.lifecycle.viewmodel/CreationExtras) from androidx.lifecycle:lifecycle-viewmodel-compose
+[linuxX64]: Removed declaration androidx.lifecycle.viewmodel.compose/viewModel(androidx.lifecycle/ViewModelStoreOwner, kotlin/String?, androidx.lifecycle/ViewModelProvider.Factory?, androidx.lifecycle.viewmodel/CreationExtras) from androidx.lifecycle:lifecycle-viewmodel-compose
+[linuxX64]: Removed declaration androidx.lifecycle.viewmodel.compose/viewModel(androidx.lifecycle/ViewModelStoreOwner, kotlin/String?, kotlin/Function1<androidx.lifecycle.viewmodel/CreationExtras, #A>) from androidx.lifecycle:lifecycle-viewmodel-compose
+[linuxX64]: Added valueParameter 0: androidx.compose.runtime/Composer? to androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.current.<get-current>
+[linuxX64]: Added valueParameter 1: kotlin/Int to androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.current.<get-current>

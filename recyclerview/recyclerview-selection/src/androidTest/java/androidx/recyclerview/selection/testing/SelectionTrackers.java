@@ -16,13 +16,14 @@
 
 package androidx.recyclerview.selection.testing;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.DefaultSelectionTracker;
 import androidx.recyclerview.selection.EventBridge;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
+
+import org.jspecify.annotations.NonNull;
 
 public final class SelectionTrackers {
 

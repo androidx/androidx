@@ -28,15 +28,13 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.core:core-ktx:1.13.0")
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation(project(":fragment:fragment-ktx"))
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
-    implementation(project(":transition:transition"))
+    implementation("androidx.transition:transition:1.5.1")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     debugImplementation(project(":fragment:fragment-testing-manifest"))
 
-    androidTestImplementation(project(":core:core-ktx"))
-    androidTestImplementation(project(":core:core"))
     androidTestImplementation(project(":fragment:fragment-testing"))
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.6.2")
     androidTestImplementation(project(":fragment:fragment-testing-manifest"))

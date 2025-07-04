@@ -61,10 +61,10 @@ class TextGeometricTransform(val scaleX: Float = 1.0f, val skewX: Float = 0f) {
 fun lerp(
     start: TextGeometricTransform,
     stop: TextGeometricTransform,
-    fraction: Float
+    fraction: Float,
 ): TextGeometricTransform {
     return TextGeometricTransform(
         lerp(start.scaleX, stop.scaleX, fraction),
-        lerp(start.skewX, stop.skewX, fraction)
+        lerp(start.skewX, stop.skewX, fraction),
     )
 }

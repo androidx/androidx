@@ -23,9 +23,9 @@ import static org.junit.Assert.assertTrue;
 
 import android.view.View;
 
-import androidx.annotation.Nullable;
 import androidx.test.filters.LargeTest;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,8 +66,8 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
 
     @Override
     void setupByConfig(Config config, boolean waitForFirstLayout,
-            @Nullable RecyclerView.LayoutParams childLayoutParams,
-            @Nullable RecyclerView.LayoutParams parentLayoutParams) throws Throwable {
+            RecyclerView.@Nullable LayoutParams childLayoutParams,
+            RecyclerView.@Nullable LayoutParams parentLayoutParams) throws Throwable {
         super.setupByConfig(config, false, childLayoutParams, parentLayoutParams);
         if (mApplyPadding) {
             mRecyclerView.setPadding(17, 23, 0, 0);
@@ -222,8 +222,7 @@ public class LinearLayoutManagerSnappingTest extends BaseLinearLayoutManagerTest
         mLayoutManager.waitForSnap(25);
     }
 
-    @Nullable
-    private View findCenterView(RecyclerView.LayoutManager layoutManager) {
+    private @Nullable View findCenterView(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager.canScrollHorizontally()) {
             return mRecyclerView.findChildViewUnder(getRvCenterX(), mRecyclerView.getPaddingTop());
         } else {

@@ -77,7 +77,7 @@ enum class IconButtonType {
     FilledIconButton,
     FilledTonalIconButton,
     OutlinedIconButton,
-    IconButton
+    IconButton,
 }
 
 @Composable
@@ -88,7 +88,7 @@ internal fun StandardIcon() {
                 defaultWidth = size.dp,
                 defaultHeight = size.dp,
                 viewportWidth = size,
-                viewportHeight = size
+                viewportHeight = size,
             )
             .build()
 

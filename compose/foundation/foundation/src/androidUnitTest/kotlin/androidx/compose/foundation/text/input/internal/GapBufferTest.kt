@@ -715,7 +715,7 @@ class GapBufferTest {
         end: Int,
         str: String,
         sb: StringBuffer,
-        gb: PartialGapBuffer
+        gb: PartialGapBuffer,
     ) {
         sb.replace(start, end, str)
         gb.replace(start, end, str)

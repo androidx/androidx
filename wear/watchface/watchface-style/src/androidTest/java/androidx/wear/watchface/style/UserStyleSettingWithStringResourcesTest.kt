@@ -56,21 +56,21 @@ public class UserStyleSettingWithStringResourcesTest {
                                 UserStyleSetting.Option.Id("red_style"),
                                 context.resources,
                                 R.string.red_style_name,
-                                R.string.red_style_name
+                                R.string.red_style_name,
                             )
                             .build(),
                         ListOption.Builder(
                                 UserStyleSetting.Option.Id("green_style"),
                                 context.resources,
                                 R.string.green_style_name,
-                                R.string.green_style_name
+                                R.string.green_style_name,
                             )
-                            .build()
+                            .build(),
                     ),
                 listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
                 context.resources,
                 R.string.colors_style_setting,
-                R.string.colors_style_setting_description
+                R.string.colors_style_setting_description,
             )
             .build()
 
@@ -100,7 +100,7 @@ public class UserStyleSettingWithStringResourcesTest {
     public fun stringResources_it() {
         context.resources.updateConfiguration(
             context.resources.configuration.apply { setLocale(Locale.ITALIAN) },
-            context.resources.displayMetrics
+            context.resources.displayMetrics,
         )
         assertThat(colorStyleSetting.displayName).isEqualTo("Colori")
         assertThat(colorStyleSetting.description).isEqualTo("Colorazione del quadrante")
@@ -137,21 +137,21 @@ public class UserStyleSettingWithStringResourcesTest {
                                 UserStyleSetting.Option.Id("two"),
                                 context.resources,
                                 R.string.ith_option,
-                                R.string.ith_option_screen_reader_name
+                                R.string.ith_option_screen_reader_name,
                             )
                             .build(),
                         ListOption.Builder(
                                 UserStyleSetting.Option.Id("three"),
                                 context.resources,
                                 R.string.ith_option,
-                                R.string.ith_option_screen_reader_name
+                                R.string.ith_option_screen_reader_name,
                             )
-                            .build()
+                            .build(),
                     ),
                     listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     context.resources,
                     R.string.colors_style_setting,
-                    R.string.colors_style_setting_description
+                    R.string.colors_style_setting_description,
                 )
                 .build()
 
@@ -179,7 +179,7 @@ public class UserStyleSettingWithStringResourcesTest {
                             UserStyleSetting.Option.Id("one"),
                             context.resources,
                             R.string.ith_option,
-                            icon = null
+                            icon = null,
                         )
                     ),
                     listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
@@ -209,7 +209,7 @@ public class UserStyleSettingWithStringResourcesTest {
                                 emptyList(),
                                 context.resources,
                                 R.string.ith_option,
-                                R.string.ith_option_screen_reader_name
+                                R.string.ith_option_screen_reader_name,
                             )
                             .build(),
                         ComplicationSlotsOption.Builder(
@@ -217,7 +217,7 @@ public class UserStyleSettingWithStringResourcesTest {
                                 emptyList(),
                                 context.resources,
                                 R.string.ith_option,
-                                R.string.ith_option_screen_reader_name
+                                R.string.ith_option_screen_reader_name,
                             )
                             .build(),
                         ComplicationSlotsOption.Builder(
@@ -227,11 +227,11 @@ public class UserStyleSettingWithStringResourcesTest {
                                 R.string.ith_option,
                                 R.string.ith_option_screen_reader_name,
                             )
-                            .build()
+                            .build(),
                     ),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
 
@@ -280,16 +280,16 @@ public class UserStyleSettingWithStringResourcesTest {
                                         emptyList(),
                                         context.resources,
                                         R.string.ith_option,
-                                        R.string.ith_option_screen_reader_name
+                                        R.string.ith_option_screen_reader_name,
                                     )
                                     .build()
                             ),
                             listOf(WatchFaceLayer.COMPLICATIONS),
                             context.resources,
                             R.string.ith_style,
-                            R.string.ith_style_screen_reader_name
+                            R.string.ith_style_screen_reader_name,
                         )
-                        .build()
+                        .build(),
                 )
             )
 
@@ -311,12 +311,12 @@ public class UserStyleSettingWithStringResourcesTest {
                             context.resources,
                             displayNameResourceId = R.string.ith_option,
                             icon = null,
-                            emptyList()
+                            emptyList(),
                         )
                     ),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
 
@@ -338,7 +338,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     defaultValue = true,
                     context.resources,
                     10,
-                    11
+                    11,
                 )
                 .setIcon { icon_10x10 }
                 .build()
@@ -357,7 +357,7 @@ public class UserStyleSettingWithStringResourcesTest {
                                 emptyList(),
                                 context.resources,
                                 R.string.ith_option,
-                                R.string.ith_option_screen_reader_name
+                                R.string.ith_option_screen_reader_name,
                             )
                             .setIcon { icon_10x10 }
                             .build()
@@ -365,7 +365,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     context.resources,
                     10,
-                    11
+                    11,
                 )
                 .setIcon { icon_10x10 }
                 .build()
@@ -381,7 +381,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     emptyList(),
                     context.resources,
                     R.string.ith_option,
-                    R.string.ith_option_screen_reader_name
+                    R.string.ith_option_screen_reader_name,
                 )
                 .setIcon { icon_10x10 }
                 .build()
@@ -400,7 +400,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     listOf(WatchFaceLayer.BASE),
                     context.resources,
                     10,
-                    11
+                    11,
                 )
                 .setIcon { icon_10x10 }
                 .build()
@@ -419,7 +419,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     listOf(WatchFaceLayer.BASE),
                     context.resources,
                     10,
-                    11
+                    11,
                 )
                 .setIcon { icon_10x10 }
                 .build()
@@ -437,7 +437,7 @@ public class UserStyleSettingWithStringResourcesTest {
                                 UserStyleSetting.Option.Id("red_style"),
                                 context.resources,
                                 R.string.red_style_name,
-                                R.string.red_style_name
+                                R.string.red_style_name,
                             )
                             .setIcon { icon_10x10 }
                             .build()
@@ -445,7 +445,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     context.resources,
                     10,
-                    11
+                    11,
                 )
                 .setIcon { icon_10x10 }
                 .build()
@@ -460,7 +460,7 @@ public class UserStyleSettingWithStringResourcesTest {
                     UserStyleSetting.Option.Id("red_style"),
                     context.resources,
                     R.string.red_style_name,
-                    R.string.red_style_name
+                    R.string.red_style_name,
                 )
                 .setIcon { icon_10x10 }
                 .build()

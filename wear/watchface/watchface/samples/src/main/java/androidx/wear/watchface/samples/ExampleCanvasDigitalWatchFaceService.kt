@@ -84,7 +84,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             Option.Id(RED_STYLE),
                             resources,
                             R.string.colors_style_red,
-                            R.string.colors_style_red_screen_reader
+                            R.string.colors_style_red_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
                         .build(),
@@ -92,7 +92,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             Option.Id(GREEN_STYLE),
                             resources,
                             R.string.colors_style_green,
-                            R.string.colors_style_green_screen_reader
+                            R.string.colors_style_green_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
                         .build(),
@@ -100,19 +100,19 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             Option.Id(BLUE_STYLE),
                             resources,
                             R.string.colors_style_blue,
-                            R.string.colors_style_blue_screen_reader
+                            R.string.colors_style_blue_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
-                        .build()
+                        .build(),
                 ),
                 listOf(
                     WatchFaceLayer.BASE,
                     WatchFaceLayer.COMPLICATIONS,
-                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                    WatchFaceLayer.COMPLICATIONS_OVERLAY,
                 ),
                 resources,
                 R.string.colors_style_setting,
-                R.string.colors_style_setting_description
+                R.string.colors_style_setting_description,
             )
             .build()
     }
@@ -121,7 +121,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         CanvasComplicationDrawable(
             watchFaceStyle.getDrawable(this@ExampleCanvasDigitalWatchFaceService)!!,
             watchState,
-            listener
+            listener,
         )
     }
 
@@ -136,20 +136,20 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     ComplicationType.WEIGHTED_ELEMENTS,
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
                 ),
                 DefaultComplicationDataSourcePolicy(
                     ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$Steps"),
                     ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
-                    ComplicationType.SHORT_TEXT
+                    ComplicationType.SHORT_TEXT,
                 ),
                 ComplicationSlotBounds(
                     createBoundsRect(
                         LEFT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                        CIRCLE_COMPLICATION_DIAMETER_FRACTION,
                     )
-                )
+                ),
             )
             .setNameResourceId(R.string.left_complication_screen_name)
             .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name)
@@ -166,20 +166,20 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     ComplicationType.WEIGHTED_ELEMENTS,
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
                 ),
                 DefaultComplicationDataSourcePolicy(
                     ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$HeartRate"),
                     ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_DATE,
-                    ComplicationType.SHORT_TEXT
+                    ComplicationType.SHORT_TEXT,
                 ),
                 ComplicationSlotBounds(
                     createBoundsRect(
                         RIGHT_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                        CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                        CIRCLE_COMPLICATION_DIAMETER_FRACTION,
                     )
-                )
+                ),
             )
             .setNameResourceId(R.string.right_complication_screen_name)
             .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name)
@@ -193,7 +193,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
             ComplicationType.WEIGHTED_ELEMENTS,
             ComplicationType.SHORT_TEXT,
             ComplicationType.MONOCHROMATIC_IMAGE,
-            ComplicationType.SMALL_IMAGE
+            ComplicationType.SMALL_IMAGE,
         )
 
     // The upper and lower complicationSlots change shape depending on the complication's type.
@@ -207,24 +207,24 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$Calories"),
                     ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_WORLD_CLOCK,
-                    ComplicationType.LONG_TEXT
+                    ComplicationType.LONG_TEXT,
                 ),
                 ComplicationSlotBounds(
                     ComplicationType.values().associateWith {
                         if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
                             createBoundsRect(
                                 UPPER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                                ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                                ROUND_RECT_COMPLICATION_SIZE_FRACTION,
                             )
                         } else {
                             createBoundsRect(
                                 UPPER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                                CIRCLE_COMPLICATION_DIAMETER_FRACTION,
                             )
                         }
                     },
-                    ComplicationType.values().associateWith { RectF() }
-                )
+                    ComplicationType.values().associateWith { RectF() },
+                ),
             )
             .setNameResourceId(R.string.upper_complication_screen_name)
             .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name)
@@ -240,24 +240,24 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$Distance"),
                     ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_NEXT_EVENT,
-                    ComplicationType.LONG_TEXT
+                    ComplicationType.LONG_TEXT,
                 ),
                 ComplicationSlotBounds(
                     ComplicationType.values().associateWith {
                         if (it == ComplicationType.LONG_TEXT || it == ComplicationType.NO_DATA) {
                             createBoundsRect(
                                 LOWER_ROUND_RECT_COMPLICATION_CENTER_FRACTION,
-                                ROUND_RECT_COMPLICATION_SIZE_FRACTION
+                                ROUND_RECT_COMPLICATION_SIZE_FRACTION,
                             )
                         } else {
                             createBoundsRect(
                                 LOWER_CIRCLE_COMPLICATION_CENTER_FRACTION,
-                                CIRCLE_COMPLICATION_DIAMETER_FRACTION
+                                CIRCLE_COMPLICATION_DIAMETER_FRACTION,
                             )
                         }
                     },
-                    ComplicationType.values().associateWith { RectF() }
-                )
+                    ComplicationType.values().associateWith { RectF() },
+                ),
             )
             .setNameResourceId(R.string.lower_complication_screen_name)
             .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name)
@@ -269,7 +269,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 ComplicationID.BACKGROUND.ordinal,
                 canvasComplicationFactory,
                 listOf(ComplicationType.PHOTO_IMAGE),
-                DefaultComplicationDataSourcePolicy()
+                DefaultComplicationDataSourcePolicy(),
             )
             .setNameResourceId(R.string.background_complication_screen_name)
             .setScreenReaderNameResourceId(R.string.background_complication_screen_reader_name)
@@ -287,9 +287,9 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 rightComplication,
                 upperComplication,
                 lowerComplication,
-                backgroundComplication
+                backgroundComplication,
             ),
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
 
     @OptIn(ComplicationExperimental::class)
@@ -297,7 +297,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
         val renderer =
             ExampleDigitalWatchCanvasRenderer(
@@ -307,7 +307,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 currentUserStyleRepository,
                 watchState,
                 colorStyleSetting,
-                complicationSlotsManager
+                complicationSlotsManager,
             )
 
         // createWatchFace is called on a worker thread but the observers should be called from the
@@ -346,7 +346,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         private val colorStyleSetting: UserStyleSetting.ListUserStyleSetting,
-        private val complicationSlotsManager: ComplicationSlotsManager
+        private val complicationSlotsManager: ComplicationSlotsManager,
     ) :
         Renderer.CanvasRenderer(
             surfaceHolder,
@@ -354,7 +354,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
             watchState,
             CanvasType.HARDWARE,
             INTERACTIVE_UPDATE_RATE_MS,
-            clearWithBackgroundTintBeforeRenderingHighlightLayer = true
+            clearWithBackgroundTintBeforeRenderingHighlightLayer = true,
         ) {
         internal var oldBounds = Rect(0, 0, 0, 0)
 
@@ -396,7 +396,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 val linearOutSlow =
                     AnimationUtils.loadInterpolator(
                         context,
-                        android.R.interpolator.linear_out_slow_in
+                        android.R.interpolator.linear_out_slow_in,
                     )
                 playTogether(
                     ObjectAnimator.ofFloat(drawProperties, DrawProperties.TIME_SCALE, 1.0f).apply {
@@ -409,7 +409,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             duration = AMBIENT_TRANSITION_MS
                             interpolator = linearOutSlow
                             setAutoCancel(true)
-                        }
+                        },
                 )
             }
 
@@ -419,7 +419,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 val fastOutLinearIn =
                     AnimationUtils.loadInterpolator(
                         context,
-                        android.R.interpolator.fast_out_linear_in
+                        android.R.interpolator.fast_out_linear_in,
                     )
                 playTogether(
                     ObjectAnimator.ofFloat(drawProperties, DrawProperties.TIME_SCALE, 1.0f).apply {
@@ -432,7 +432,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             duration = AMBIENT_TRANSITION_MS
                             interpolator = fastOutLinearIn
                             setAutoCancel(true)
-                        }
+                        },
                 )
             }
 
@@ -453,15 +453,16 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle[colorStyleSetting]!!.toString()
+                            userStyle[colorStyleSetting]!!.toString(),
                         )
 
-                    watchfaceColors =
+                    setWatchfaceColors(
                         WatchFaceColors(
                             Color.valueOf(watchFaceColorStyle.activeStyle.primaryColor),
                             Color.valueOf(watchFaceColorStyle.activeStyle.secondaryColor),
-                            Color.valueOf(Color.DKGRAY)
+                            Color.valueOf(Color.DKGRAY),
                         )
+                    )
 
                     // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
                     // of the styles are defined in XML so we need to replace the complication's
@@ -566,7 +567,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         // animate, which improves battery life.
                         max(
                             INTERACTIVE_UPDATE_RATE_MS,
-                            ((animationStartFraction - secondProgress) * 1000f).toLong()
+                            ((animationStartFraction - secondProgress) * 1000f).toLong(),
                         )
                     } else {
                         INTERACTIVE_UPDATE_RATE_MS
@@ -587,7 +588,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         POSITION_ANIMATION_START_TIME,
                         POSITION_ANIMATION_END_TIME,
                         secondProgress,
-                        CENTERING_ADJUSTMENT_INTERPOLATOR
+                        CENTERING_ADJUSTMENT_INTERPOLATOR,
                     ) * digitWidth)
 
                 // This total width assumes two hours digits.
@@ -601,7 +602,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         drawProperties.timeScale,
                         drawProperties.timeScale,
                         clockBounds.exactCenterX(),
-                        clockBounds.exactCenterY()
+                        clockBounds.exactCenterY(),
                     )
 
                     // Draw hours.
@@ -612,7 +613,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         currentDigitStrings,
                         nextDigitStrings,
                         DigitType.HOUR_TENS,
-                        secondProgress
+                        secondProgress,
                     )
                     drawDigit(
                         canvas,
@@ -621,7 +622,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         currentDigitStrings,
                         nextDigitStrings,
                         DigitType.HOUR_UNITS,
-                        secondProgress
+                        secondProgress,
                     )
 
                     // Draw minutes.
@@ -633,7 +634,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         currentDigitStrings,
                         nextDigitStrings,
                         DigitType.MINUTE_TENS,
-                        secondProgress
+                        secondProgress,
                     )
                     drawDigit(
                         canvas,
@@ -642,7 +643,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                         currentDigitStrings,
                         nextDigitStrings,
                         DigitType.MINUTE_UNITS,
-                        secondProgress
+                        secondProgress,
                     )
 
                     // Scale the seconds if they're not fully showing, in and out of ambient for
@@ -659,7 +660,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                                 drawProperties.secondsScale,
                                 drawProperties.secondsScale,
                                 minutesLeft + smallDigitWidth,
-                                top + digitHeight - smallDigitHeight / 2
+                                top + digitHeight - smallDigitHeight / 2,
                             )
                         }
 
@@ -672,7 +673,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             currentDigitStrings,
                             nextDigitStrings,
                             DigitType.SECOND_TENS,
-                            secondProgress
+                            secondProgress,
                         )
                         drawDigit(
                             canvas,
@@ -681,7 +682,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                             currentDigitStrings,
                             nextDigitStrings,
                             DigitType.SECOND_UNITS,
-                            secondProgress
+                            secondProgress,
                         )
 
                         canvas.restoreToCount(restoreCount)
@@ -695,7 +696,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         override fun renderHighlightLayer(
             canvas: Canvas,
             bounds: Rect,
-            zonedDateTime: ZonedDateTime
+            zonedDateTime: ZonedDateTime,
         ) {
             drawComplicationHighlights(canvas, zonedDateTime)
         }
@@ -739,7 +740,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 bounds.left + marginX,
                 bounds.top + marginY,
                 bounds.right - marginX,
-                bounds.bottom - marginY
+                bounds.bottom - marginY,
             )
 
             recalculateTextSize()
@@ -838,7 +839,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
             currentDigitStrings: DigitStrings,
             nextDigitStrings: DigitStrings,
             digitType: DigitType,
-            secondProgress: Float
+            secondProgress: Float,
         ) {
             val currentDigit = currentDigitStrings.get(digitType)
             val nextDigit = nextDigitStrings.get(digitType)
@@ -852,7 +853,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     secondProgress,
                     currentDigit,
                     digitType,
-                    DigitMode.OUTGOING
+                    DigitMode.OUTGOING,
                 )
                 drawDigitWithAnimation(
                     canvas,
@@ -861,14 +862,14 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     secondProgress,
                     nextDigit,
                     digitType,
-                    DigitMode.INCOMING
+                    DigitMode.INCOMING,
                 )
             } else {
                 canvas.drawBitmap(
                     getDigitBitmap(currentDigit, digitType),
                     left,
                     top,
-                    digitBitmapPaint
+                    digitBitmapPaint,
                 )
             }
         }
@@ -880,13 +881,13 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
             secondProgress: Float,
             digit: String,
             digitType: DigitType,
-            digitMode: DigitMode
+            digitMode: DigitMode,
         ) {
             getDigitDrawProperties(
                 secondProgress,
                 getTimeOffsetSeconds(digitType),
                 digitMode,
-                digitDrawProperties
+                digitDrawProperties,
             )
 
             if (!digitDrawProperties.shouldDraw) {
@@ -956,7 +957,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     digit,
                     (width - textWidth) / 2,
                     height.toFloat() - digitVerticalPadding,
-                    paint
+                    paint,
                 )
             }
             return bitmap
@@ -970,14 +971,14 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         RIGHT,
         LOWER,
         LEFT,
-        BACKGROUND
+        BACKGROUND,
     }
 
     // Changing digits are animated. This enum is used to label the start and end animation
     // parameters.
     private enum class DigitMode {
         OUTGOING,
-        INCOMING
+        INCOMING,
     }
 
     private enum class DigitType {
@@ -986,7 +987,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         MINUTE_TENS,
         MINUTE_UNITS,
         SECOND_TENS,
-        SECOND_UNITS
+        SECOND_UNITS,
     }
 
     /** A class to provide string representations of each of the digits of a given time. */
@@ -1073,13 +1074,13 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         var shouldDraw: Boolean = false,
         var scale: Float = 0f,
         var rotation: Float = 0f,
-        var opacity: Float = 0f
+        var opacity: Float = 0f,
     )
 
     private class DrawProperties(
         var backgroundAlpha: Float = 1f,
         var timeScale: Float = 1f,
-        var secondsScale: Float = 1f
+        var secondsScale: Float = 1f,
     ) {
         companion object {
             val TIME_SCALE =
@@ -1151,7 +1152,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 ComplicationID.UPPER.ordinal,
                 ComplicationID.RIGHT.ordinal,
                 ComplicationID.LOWER.ordinal,
-                ComplicationID.LEFT.ordinal
+                ComplicationID.LEFT.ordinal,
             )
 
         // The name of the font used for drawing the text in the digit watch face.
@@ -1221,17 +1222,17 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         private val DIGIT_SCALE_INTERPOLATOR =
             mapOf(
                 DigitMode.OUTGOING to PathInterpolator(0.4f, 0f, 0.67f, 1f),
-                DigitMode.INCOMING to PathInterpolator(0.33f, 0f, 0.2f, 1f)
+                DigitMode.INCOMING to PathInterpolator(0.33f, 0f, 0.2f, 1f),
             )
         private val DIGIT_ROTATION_INTERPOLATOR =
             mapOf(
                 DigitMode.OUTGOING to PathInterpolator(0.57f, 0f, 0.73f, 0.49f),
-                DigitMode.INCOMING to PathInterpolator(0.15f, 0.49f, 0.37f, 1f)
+                DigitMode.INCOMING to PathInterpolator(0.15f, 0.49f, 0.37f, 1f),
             )
         private val DIGIT_OPACITY_INTERPOLATOR =
             mapOf(
                 DigitMode.OUTGOING to PathInterpolator(0.4f, 0f, 1f, 1f),
-                DigitMode.INCOMING to PathInterpolator(0f, 0f, 0.2f, 1f)
+                DigitMode.INCOMING to PathInterpolator(0f, 0f, 0.2f, 1f),
             )
         private val CENTERING_ADJUSTMENT_INTERPOLATOR = PathInterpolator(0.4f, 0f, 0.2f, 1f)
 
@@ -1259,12 +1260,12 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
         private fun getRGBColor(
             @ColorInt color: Int,
             alphaFraction: Float,
-            @ColorInt backgroundColor: Int
+            @ColorInt backgroundColor: Int,
         ): Int {
             return colorRgb(
                 lerp(redFraction(backgroundColor), redFraction(color), alphaFraction),
                 lerp(greenFraction(backgroundColor), greenFraction(color), alphaFraction),
-                lerp(blueFraction(backgroundColor), blueFraction(color), alphaFraction)
+                lerp(blueFraction(backgroundColor), blueFraction(color), alphaFraction),
             )
         }
 
@@ -1285,7 +1286,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
             startTime: Float,
             endTime: Float,
             currentTime: Float,
-            interpolator: TimeInterpolator
+            interpolator: TimeInterpolator,
         ): Float {
             val progress =
                 when {
@@ -1310,7 +1311,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
             secondProgress: Float,
             offsetSeconds: Float,
             digitMode: DigitMode,
-            output: DigitDrawProperties
+            output: DigitDrawProperties,
         ) {
             val startTime = DIGIT_ANIMATION_START_TIME_FRACTION[digitMode]!! + offsetSeconds
             val endTime = DIGIT_ANIMATION_END_TIME[digitMode]!! + offsetSeconds
@@ -1327,7 +1328,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     startTime,
                     endTime,
                     secondProgress,
-                    DIGIT_SCALE_INTERPOLATOR[digitMode]!!
+                    DIGIT_SCALE_INTERPOLATOR[digitMode]!!,
                 )
             output.rotation =
                 getInterpolatedValue(
@@ -1336,7 +1337,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     startTime,
                     endTime,
                     secondProgress,
-                    DIGIT_ROTATION_INTERPOLATOR[digitMode]!!
+                    DIGIT_ROTATION_INTERPOLATOR[digitMode]!!,
                 )
             output.opacity =
                 getInterpolatedValue(
@@ -1345,7 +1346,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                     startTime,
                     endTime,
                     secondProgress,
-                    DIGIT_OPACITY_INTERPOLATOR[digitMode]!!
+                    DIGIT_OPACITY_INTERPOLATOR[digitMode]!!,
                 )
         }
 
@@ -1377,7 +1378,7 @@ class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
                 (centerFraction.x - halfWidth),
                 (centerFraction.y - halfHeight),
                 (centerFraction.x + halfWidth),
-                (centerFraction.y + halfHeight)
+                (centerFraction.y + halfHeight),
             )
         }
     }

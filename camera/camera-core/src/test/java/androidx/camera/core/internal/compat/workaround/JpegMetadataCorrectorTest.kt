@@ -82,7 +82,7 @@ class JpegMetadataCorrectorTest {
                 FakeImageInfo(),
                 brokenJpegByteArray,
                 WIDTH,
-                HEIGHT
+                HEIGHT,
             )
         val correctedJpegByteArray =
             JpegMetadataCorrector(DeviceQuirks.getAll()).jpegImageToJpegByteArray(fakeImageProxy)
@@ -90,7 +90,7 @@ class JpegMetadataCorrectorTest {
                 BitmapFactory.decodeByteArray(
                     correctedJpegByteArray,
                     0,
-                    correctedJpegByteArray.size
+                    correctedJpegByteArray.size,
                 )
             )
             .isNotNull()

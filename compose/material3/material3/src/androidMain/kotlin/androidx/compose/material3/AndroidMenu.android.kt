@@ -51,7 +51,7 @@ actual fun DropdownMenu(
     tonalElevation: Dp,
     shadowElevation: Dp,
     border: BorderStroke?,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val expandedState = remember { MutableTransitionState(false) }
     expandedState.targetState = expanded
@@ -69,7 +69,7 @@ actual fun DropdownMenu(
         Popup(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,
-            properties = properties
+            properties = properties,
         ) {
             DropdownMenuContent(
                 expandedState = expandedState,
@@ -105,11 +105,11 @@ actual fun DropdownMenu(
                     "    shadowElevation = MenuDefaults.ShadowElevation,\n" +
                     "    border = null,\n" +
                     "    content = content,\n" +
-                    ")",
+                    ")"
         ),
     message =
         "Maintained for binary compatibility. Use overload with parameters for shape, " +
-            "color, elevation, and border."
+            "color, elevation, and border.",
 )
 @Composable
 fun DropdownMenu(
@@ -119,7 +119,7 @@ fun DropdownMenu(
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     scrollState: ScrollState = rememberScrollState(),
     properties: PopupProperties = PopupProperties(focusable = true),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) =
     DropdownMenu(
         expanded = expanded,
@@ -143,9 +143,9 @@ fun DropdownMenu(
             expression =
                 "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
                     "rememberScrollState(), properties, content)",
-            "androidx.compose.foundation.rememberScrollState"
+            "androidx.compose.foundation.rememberScrollState",
         ),
-    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
+    message = "Replaced by a DropdownMenu function with a ScrollState parameter",
 )
 @Composable
 fun DropdownMenu(
@@ -154,7 +154,7 @@ fun DropdownMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     properties: PopupProperties = PopupProperties(focusable = true),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) =
     DropdownMenu(
         expanded = expanded,
@@ -163,7 +163,7 @@ fun DropdownMenu(
         offset = offset,
         scrollState = rememberScrollState(),
         properties = properties,
-        content = content
+        content = content,
     )
 
 @Composable

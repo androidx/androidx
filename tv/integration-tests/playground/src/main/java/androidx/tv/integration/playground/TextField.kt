@@ -85,7 +85,7 @@ fun SampleTextField(label: String, keyboardType: KeyboardType = KeyboardType.Tex
             KeyboardOptions(
                 keyboardType = keyboardType,
                 platformImeOptions = PlatformImeOptions(TvKeyboardAlignment.Left),
-                imeAction = ImeAction.Next
+                imeAction = ImeAction.Next,
             ),
         colors =
             OutlinedTextFieldDefaults.colors(
@@ -101,8 +101,8 @@ fun SampleTextField(label: String, keyboardType: KeyboardType = KeyboardType.Tex
                 unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 errorLabelColor = MaterialTheme.colorScheme.error,
-                errorBorderColor = MaterialTheme.colorScheme.error
-            )
+                errorBorderColor = MaterialTheme.colorScheme.error,
+            ),
     )
 }
 

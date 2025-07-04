@@ -31,6 +31,8 @@ interface XFunSpec {
 
     val name: XName
 
+    fun toBuilder(): Builder
+
     interface Builder {
 
         fun addAnnotation(annotation: XAnnotationSpec): Builder
@@ -93,7 +95,7 @@ interface XFunSpec {
             visibility: VisibilityModifier,
             isOpen: Boolean = false,
             isOverride: Boolean = false,
-            addJavaNullabilityAnnotation: Boolean = true
+            addJavaNullabilityAnnotation: Boolean = true,
         ) = builder(XName.of(name), visibility, isOpen, isOverride, addJavaNullabilityAnnotation)
 
         @JvmStatic
@@ -102,7 +104,7 @@ interface XFunSpec {
             visibility: VisibilityModifier,
             isOpen: Boolean = false,
             isOverride: Boolean = false,
-            addJavaNullabilityAnnotation: Boolean = true
+            addJavaNullabilityAnnotation: Boolean = true,
         ): Builder =
             XFunSpecImpl.Builder(
                 JavaFunSpec.Builder(
@@ -116,7 +118,7 @@ interface XFunSpec {
                         if (isOverride) {
                             addAnnotation(Override::class.java)
                         }
-                    }
+                    },
                 ),
                 KotlinFunSpec.Builder(
                     KFunSpec.builder(name.kotlin).apply {
@@ -128,20 +130,20 @@ interface XFunSpec {
                             addModifiers(KModifier.OVERRIDE)
                         }
                     }
-                )
+                ),
             )
 
         @JvmStatic
         fun constructorBuilder(
             visibility: VisibilityModifier,
-            addJavaNullabilityAnnotation: Boolean = true
+            addJavaNullabilityAnnotation: Boolean = true,
         ): Builder =
             XFunSpecImpl.Builder(
                 JavaFunSpec.Builder(
                     addJavaNullabilityAnnotation,
                     JFunSpec.constructorBuilder().apply {
                         addModifiers(visibility.toJavaVisibilityModifier())
-                    }
+                    },
                 ),
                 KotlinFunSpec.Builder(
                     KFunSpec.constructorBuilder().apply {
@@ -151,21 +153,21 @@ interface XFunSpec {
                             addModifiers(visibility.toKotlinVisibilityModifier())
                         }
                     }
-                )
+                ),
             )
 
         @JvmStatic
         fun overridingBuilder(
             element: XMethodElement,
             owner: XType,
-            addJavaNullabilityAnnotation: Boolean = true
+            addJavaNullabilityAnnotation: Boolean = true,
         ): Builder =
             XFunSpecImpl.Builder(
                 JavaFunSpec.Builder(
                     addJavaNullabilityAnnotation,
-                    MethodSpecHelper.overridingWithFinalParams(element, owner)
+                    MethodSpecHelper.overridingWithFinalParams(element, owner),
                 ),
-                KotlinFunSpec.Builder(FunSpecHelper.overriding(element, owner))
+                KotlinFunSpec.Builder(FunSpecHelper.overriding(element, owner)),
             )
     }
 }

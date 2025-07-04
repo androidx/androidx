@@ -15,8 +15,7 @@ public class InnerValueConverter(
     public fun toParcelable(annotatedValue: InnerValue): ParcelableInnerValue {
         val parcelable = ParcelableInnerValue()
         parcelable.numbers = annotatedValue.numbers.toIntArray()
-        parcelable.maybeNumber = if (annotatedValue.maybeNumber == null) intArrayOf() else
-                intArrayOf(annotatedValue.maybeNumber)
+        parcelable.maybeNumber = if (annotatedValue.maybeNumber == null) intArrayOf() else intArrayOf(annotatedValue.maybeNumber)
         return parcelable
     }
 }

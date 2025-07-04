@@ -70,7 +70,7 @@ class ExerciseRouteRequestAppContractTest {
             HealthDataServiceConstants.EXTRA_EXERCISE_ROUTE,
             androidx.health.platform.client.exerciseroute.ExerciseRoute(
                 DataProto.DataPoint.SubTypeDataList.newBuilder().build()
-            )
+            ),
         )
         val result = requestRouteContract.parseResult(0, intent)
         assertThat(result).isEqualTo(ExerciseRoute(listOf()))
@@ -89,11 +89,11 @@ class ExerciseRouteRequestAppContractTest {
                 .putValues("altitude", DataProto.Value.newBuilder().setDoubleVal(12.3).build())
                 .putValues(
                     "horizontal_accuracy",
-                    DataProto.Value.newBuilder().setDoubleVal(0.9).build()
+                    DataProto.Value.newBuilder().setDoubleVal(0.9).build(),
                 )
                 .putValues(
                     "vertical_accuracy",
-                    DataProto.Value.newBuilder().setDoubleVal(0.3).build()
+                    DataProto.Value.newBuilder().setDoubleVal(0.3).build(),
                 )
                 .build()
         val protoLocation2 =
@@ -109,7 +109,7 @@ class ExerciseRouteRequestAppContractTest {
                 DataProto.DataPoint.SubTypeDataList.newBuilder()
                     .addAllValues(listOf(protoLocation1, protoLocation2))
                     .build()
-            )
+            ),
         )
         val result = requestRouteContract.parseResult(0, intent)
         assertThat(result)
@@ -122,13 +122,13 @@ class ExerciseRouteRequestAppContractTest {
                             longitude = -23.4,
                             horizontalAccuracy = Length.meters(0.9),
                             verticalAccuracy = Length.meters(0.3),
-                            altitude = Length.meters(12.3)
+                            altitude = Length.meters(12.3),
                         ),
                         ExerciseRoute.Location(
                             time = Instant.ofEpochMilli(3456L),
                             latitude = 23.45,
                             longitude = -23.45,
-                        )
+                        ),
                     )
                 )
             )

@@ -35,14 +35,14 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
     ImageSources {
     override fun createImageSource(
         cameraStream: CameraStream,
-        imageSourceConfig: ImageSourceConfig
+        imageSourceConfig: ImageSourceConfig,
     ): ImageSource {
         return create(
             cameraStream,
             imageSourceConfig.capacity,
             imageSourceConfig.usageFlags,
             imageSourceConfig.defaultDataSpace,
-            imageSourceConfig.defaultHardwareBufferFormat
+            imageSourceConfig.defaultHardwareBufferFormat,
         )
     }
 
@@ -51,7 +51,7 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
         capacity: Int,
         usageFlags: Long?,
         defaultDataSpace: Int?,
-        defaultHardwareBufferFormat: Int?
+        defaultHardwareBufferFormat: Int?,
     ): ImageSource {
         require(cameraStream.outputs.isNotEmpty()) { "$cameraStream must have outputs." }
         require(capacity > 0) { "Capacity ($capacity) must be > 0" }
@@ -86,7 +86,7 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
                     defaultHardwareBufferFormat,
                     cameraStream.id,
                     output.id,
-                    handler
+                    handler,
                 )
             return ImageReaderImageSource.create(imageReader)
         }
@@ -198,7 +198,7 @@ public class ImageReaderImageSource(
             streamId,
             outputId,
             image.timestamp,
-            TrackedOutputImage(image, streamId, outputId)
+            TrackedOutputImage(image, streamId, outputId),
         )
     }
 
@@ -234,7 +234,7 @@ public class ImageReaderImageSource(
     private inner class TrackedOutputImage(
         private val image: ImageWrapper,
         override val streamId: StreamId,
-        override val outputId: OutputId
+        override val outputId: OutputId,
     ) : ImageWrapper by image, OutputImage {
         private val closed = atomic(false)
 
@@ -256,6 +256,6 @@ public class ImageReaderImageSource(
     private enum class State {
         ACTIVE,
         CLOSING,
-        CLOSED
+        CLOSED,
     }
 }

@@ -30,6 +30,7 @@ import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.StreamSpecsCalculatorImpl
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
@@ -139,7 +140,7 @@ class PreviewPixelHDRnetQuirkTest(
         cameraUseCaseAdapter =
             configureCameraUseCaseAdapter(
                 resolutionVGA,
-                configType = ImageCaptureConfig::class.java
+                configType = ImageCaptureConfig::class.java,
             )
 
         // Act. Update UseCase to create SessionConfig
@@ -179,19 +180,25 @@ class PreviewPixelHDRnetQuirkTest(
         fakeCameraId: String = "0",
         configType: Class<out UseCaseConfig<*>?>,
     ): CameraUseCaseAdapter {
-        return CameraUseCaseAdapter(
-            FakeCamera(fakeCameraId),
-            FakeCameraCoordinator(),
-            FakeCameraDeviceSurfaceManager().apply {
-                setSuggestedStreamSpec(
-                    fakeCameraId,
-                    configType,
-                    StreamSpec.builder(resolution).build()
-                )
-            },
+        val pipeCameraUseCaseAdapter =
             androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter(
                 ApplicationProvider.getApplicationContext()
             )
+
+        return CameraUseCaseAdapter(
+            FakeCamera(fakeCameraId),
+            FakeCameraCoordinator(),
+            StreamSpecsCalculatorImpl(
+                pipeCameraUseCaseAdapter,
+                FakeCameraDeviceSurfaceManager().apply {
+                    setSuggestedStreamSpec(
+                        fakeCameraId,
+                        configType,
+                        StreamSpec.builder(resolution).build(),
+                    )
+                },
+            ),
+            pipeCameraUseCaseAdapter,
         )
     }
 

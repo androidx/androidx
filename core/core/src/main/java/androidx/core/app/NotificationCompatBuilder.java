@@ -66,7 +66,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     // @RequiresApi(21) - uncomment when lint bug is fixed.
     private RemoteViews mHeadsUpContentView;
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "MissingPermission"})
     NotificationCompatBuilder(NotificationCompat.Builder b) {
         mBuilderCompat = b;
         mContext = b.mContext;
@@ -232,6 +232,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 Api24Impl.setCustomHeadsUpContentView(mBuilder, b.mHeadsUpContentView);
             }
         }
+
         if (Build.VERSION.SDK_INT >= 26) {
             Api26Impl.setBadgeIconType(mBuilder, b.mBadgeIcon);
             Api26Impl.setSettingsText(mBuilder, b.mSettingsText);
@@ -268,6 +269,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             if (b.mFgsDeferBehavior != NotificationCompat.FOREGROUND_SERVICE_DEFAULT) {
                 Api31Impl.setForegroundServiceBehavior(mBuilder, b.mFgsDeferBehavior);
             }
+        }
+
+        if (Build.VERSION.SDK_INT >= 36) {
+            Api36Impl.setShortCriticalText(mBuilder, b.mShortCriticalText);
         }
 
         if (b.mSilent) {
@@ -785,6 +790,22 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         static Notification.Builder setForegroundServiceBehavior(Notification.Builder builder,
                 int behavior) {
             return builder.setForegroundServiceBehavior(behavior);
+        }
+    }
+
+    /**
+     * A class for wrapping calls to {@link NotificationCompatBuilder} methods which
+     * were added in API 36; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(36)
+    static final class Api36Impl {
+        private Api36Impl() {
+        }
+
+        static Notification.Builder setShortCriticalText(
+                Notification.Builder builder, String shortCriticalText) {
+            return builder.setShortCriticalText(shortCriticalText);
         }
     }
 }

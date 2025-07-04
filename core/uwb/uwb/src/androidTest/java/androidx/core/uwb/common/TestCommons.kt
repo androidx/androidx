@@ -40,7 +40,7 @@ internal class TestCommons {
                 zzpt.zzn(1, 2, 3),
                 zzpt.zzl(2),
                 zzpt.zzl(1),
-                false
+                false,
             )
         val NEIGHBOR_1 = byteArrayOf(0xA1.toByte())
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())
@@ -59,7 +59,7 @@ internal class TestCommons {
                         0x03,
                         0x04,
                         0x05,
-                        0x06
+                        0x06,
                     ),
                 subSessionKeyInfo = null,
                 complexChannel = null,
@@ -67,7 +67,7 @@ internal class TestCommons {
                 RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
                 uwbRangeDataNtfConfig = null,
                 RangingParameters.RANGING_SLOT_DURATION_2_MILLIS,
-                isAoaDisabled = false
+                isAoaDisabled = false,
             )
     }
 }

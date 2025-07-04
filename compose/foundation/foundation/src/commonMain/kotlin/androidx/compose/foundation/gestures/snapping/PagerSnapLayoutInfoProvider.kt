@@ -32,7 +32,7 @@ import kotlin.math.sign
 internal fun SnapLayoutInfoProvider(
     pagerState: PagerState,
     pagerSnapDistance: PagerSnapDistance,
-    calculateFinalSnappingBound: (Float, Float, Float) -> Float
+    calculateFinalSnappingBound: (Float, Float, Float) -> Float,
 ): SnapLayoutInfoProvider {
     return object : SnapLayoutInfoProvider {
         val layoutInfo: PagerLayoutInfo
@@ -44,7 +44,8 @@ internal fun SnapLayoutInfoProvider(
 
         override fun calculateSnapOffset(velocity: Float): Float {
             val snapPosition = pagerState.layoutInfo.snapPosition
-            val (lowerBoundOffset, upperBoundOffset) = searchForSnappingBounds(snapPosition)
+            val (lowerBoundOffset, upperBoundOffset) =
+                searchForSnappingBounds(snapPosition, velocity)
 
             val finalDistance =
                 calculateFinalSnappingBound(velocity, lowerBoundOffset, upperBoundOffset)
@@ -108,7 +109,7 @@ internal fun SnapLayoutInfoProvider(
                         targetPage,
                         velocity,
                         pagerState.pageSize,
-                        pagerState.pageSpacing
+                        pagerState.pageSpacing,
                     )
                     .coerceIn(0, pagerState.pageCount)
 
@@ -134,7 +135,10 @@ internal fun SnapLayoutInfoProvider(
                 .also { debugLog { "Fling Approach Offset=$it" } }
         }
 
-        private fun searchForSnappingBounds(snapPosition: SnapPosition): Pair<Float, Float> {
+        private fun searchForSnappingBounds(
+            snapPosition: SnapPosition,
+            velocity: Float,
+        ): Pair<Float, Float> {
             debugLog { "Calculating Snapping Bounds" }
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
@@ -149,7 +153,7 @@ internal fun SnapLayoutInfoProvider(
                         itemOffset = page.offset,
                         itemIndex = page.index,
                         snapPosition = snapPosition,
-                        itemCount = pagerState.pageCount
+                        itemCount = pagerState.pageCount,
                     )
 
                 // Find page that is closest to the snap position, but before it
@@ -174,13 +178,11 @@ internal fun SnapLayoutInfoProvider(
 
             // Don't move if we are at the bounds
 
-            val isDragging = pagerState.dragGestureDelta() != 0f
-
             if (!pagerState.canScrollForward) {
                 upperBoundOffset = 0.0f
                 // If we can not scroll forward but are trying to move towards the bound, set both
                 // bounds to 0 as we don't want to move
-                if (isDragging && pagerState.isScrollingForward()) {
+                if (pagerState.isScrollingForward(velocity)) {
                     lowerBoundOffset = 0.0f
                 }
             }
@@ -189,7 +191,7 @@ internal fun SnapLayoutInfoProvider(
                 lowerBoundOffset = 0.0f
                 // If we can not scroll backward but are trying to move towards the bound, set both
                 // bounds to 0 as we don't want to move
-                if (isDragging && !pagerState.isScrollingForward()) {
+                if (!pagerState.isScrollingForward(velocity)) {
                     upperBoundOffset = 0.0f
                 }
             }
@@ -198,12 +200,15 @@ internal fun SnapLayoutInfoProvider(
     }
 }
 
-private fun PagerState.isLtrDragging() = dragGestureDelta() > 0
-
-private fun PagerState.isScrollingForward(): Boolean {
+private fun PagerState.isScrollingForward(velocity: Float): Boolean {
     val reverseScrollDirection = layoutInfo.reverseLayout
-    return (isLtrDragging() && reverseScrollDirection ||
-        !isLtrDragging() && !reverseScrollDirection)
+    val isForward =
+        if (isNotGestureAction()) {
+            -velocity
+        } else {
+            dragGestureDelta()
+        } > 0
+    return (isForward && reverseScrollDirection || !isForward && !reverseScrollDirection)
 }
 
 private fun PagerState.dragGestureDelta() =
@@ -229,21 +234,21 @@ internal fun calculateFinalSnappingBound(
     snapPositionalThreshold: Float,
     flingVelocity: Float,
     lowerBoundOffset: Float,
-    upperBoundOffset: Float
+    upperBoundOffset: Float,
 ): Float {
-
+    val isScrollingForward = pagerState.isScrollingForward(flingVelocity)
     val isForward =
         if (pagerState.layoutInfo.orientation == Orientation.Vertical) {
-            pagerState.isScrollingForward()
+            isScrollingForward
         } else {
             if (layoutDirection == LayoutDirection.Ltr) {
-                pagerState.isScrollingForward()
+                isScrollingForward
             } else {
-                !pagerState.isScrollingForward()
+                !isScrollingForward
             }
         }
     debugLog {
-        "isLtrDragging=${pagerState.isLtrDragging()} " +
+        "isScrollingForward=${isScrollingForward} " +
             "isForward=$isForward " +
             "layoutDirection=$layoutDirection"
     }

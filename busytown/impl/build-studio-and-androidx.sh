@@ -68,6 +68,24 @@ function zipStudio() {
   cd -
 }
 
+# An optional file in studio-main will overwrite the Gradle version used in Androidx for early test purposes.
+function maybeUpdateWrapper() {
+  local optional_androidx_wrapper="$TOOLS_DIR/gradle/wrapper/gradle-wrapper-androidx.properties"
+  local androidx_gradle_wrapper="$ANDROIDX_DIR/frameworks/support/gradle/wrapper/gradle-wrapper.properties"
+  if [ ! -f "$optional_androidx_wrapper" ]; then
+    return 0
+  else
+    if cp "$optional_androidx_wrapper" "$androidx_gradle_wrapper"; then
+      echo "Notice: gradle-wrapper.properties overwritten with test version from: $optional_androidx_wrapper "
+      return 0
+    else
+      echo "Error: Failed to copy content from '$optional_androidx_wrapper' to '$androidx_gradle_wrapper'."
+      return 1
+    fi
+  fi
+}
+
+maybeUpdateWrapper
 buildStudio
 zipStudio
 
@@ -100,4 +118,8 @@ if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
 fi
 
 $SCRIPTS_DIR/impl/build.sh $androidxArguments --dependency-verification=off -Pandroidx.validateNoUnrecognizedMessages=false
+
+# stop Gradle daemon to clean up after ourselves
+JAVA_HOME="$STUDIO_DIR/prebuilts/studio/jdk/jdk17/$STUDIO_JDK" $gw -p $TOOLS_DIR --stop
+
 echo "Completing $0 at $(date)"

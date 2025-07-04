@@ -69,7 +69,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -91,7 +91,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -114,7 +114,7 @@ class WideButtonTest {
                     enabled = false,
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -137,7 +137,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -160,7 +160,7 @@ class WideButtonTest {
                     modifier = Modifier.testTag(WideButtonTag),
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -183,7 +183,7 @@ class WideButtonTest {
                     enabled = enabled,
                     title = { Text(text = "Settings") },
                     icon = { Icon(imageVector = Icons.Default.Settings, contentDescription = "") },
-                    subtitle = { Text(text = "Update device preferences") }
+                    subtitle = { Text(text = "Update device preferences") },
                 )
             }
         }
@@ -259,7 +259,7 @@ class WideButtonTest {
                             modifier =
                                 Modifier.testTag(WideButtonTextTag).semantics(
                                     mergeDescendants = true
-                                ) {}
+                                ) {},
                         )
                     },
                     icon = {
@@ -269,9 +269,9 @@ class WideButtonTest {
                             modifier =
                                 Modifier.size(WideButtonIconSize)
                                     .testTag(WideButtonIconTag)
-                                    .semantics(mergeDescendants = true) {}
+                                    .semantics(mergeDescendants = true) {},
                         )
-                    }
+                    },
                 )
             }
         }
@@ -281,7 +281,7 @@ class WideButtonTest {
 
         (leadingIconBounds.left - buttonBounds.left).assertIsEqualTo(
             16.dp,
-            "padding between the start of the button and the start of the leading icon."
+            "padding between the start of the button and the start of the leading icon.",
         )
     }
 }

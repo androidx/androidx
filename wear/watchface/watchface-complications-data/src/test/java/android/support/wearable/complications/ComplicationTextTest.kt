@@ -250,7 +250,7 @@ public class ComplicationTextTest {
                 TimeUnit.SECONDS.toMillis(10)
         Assert.assertEquals(
             "just 1 day left",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
 
         // WHEN getText is called for a time after the ref period
@@ -259,7 +259,7 @@ public class ComplicationTextTest {
         testTime = refTime + TimeUnit.HOURS.toMillis(12) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals(
             "just 13 hours left",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
 
         // WHEN getText is called for another time after the ref period
@@ -268,7 +268,7 @@ public class ComplicationTextTest {
         testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.SECONDS.toMillis(59)
         Assert.assertEquals(
             "just 36 mins left",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
     }
 
@@ -287,7 +287,7 @@ public class ComplicationTextTest {
         // THEN placeholders other than ^1 and ^^ are ignored
         Assert.assertEquals(
             "Now ^ ^ ^1 ^2 ^3 ^4 ^5 ^6 ^7 ^8 ^9",
-            complicationText.getTextAt(mResources, refTime).toString()
+            complicationText.getTextAt(mResources, refTime).toString(),
         )
     }
 
@@ -313,7 +313,7 @@ public class ComplicationTextTest {
                 TimeUnit.MINUTES.toMillis(59)
         Assert.assertEquals(
             "just 8 days left",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
 
         // WHEN getText is called for a time after the ref period
@@ -322,7 +322,7 @@ public class ComplicationTextTest {
         testTime = refTime + TimeUnit.HOURS.toMillis(12) + TimeUnit.MINUTES.toMillis(35)
         Assert.assertEquals(
             "just 1 day left",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
 
         // WHEN getText is called for another time after the ref period
@@ -331,7 +331,7 @@ public class ComplicationTextTest {
         testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.SECONDS.toMillis(59)
         Assert.assertEquals(
             "just 1 day left",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
     }
 
@@ -430,7 +430,7 @@ public class ComplicationTextTest {
         val testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.HOURS.toMillis(2)
         Assert.assertEquals(
             "hello 3h time",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
     }
 
@@ -451,7 +451,7 @@ public class ComplicationTextTest {
         val testTime = refTime + TimeUnit.MINUTES.toMillis(35) + TimeUnit.HOURS.toMillis(2)
         Assert.assertEquals(
             "sometext2h 35msomemoretext",
-            complicationText.getTextAt(mResources, testTime).toString()
+            complicationText.getTextAt(mResources, testTime).toString(),
         )
     }
 

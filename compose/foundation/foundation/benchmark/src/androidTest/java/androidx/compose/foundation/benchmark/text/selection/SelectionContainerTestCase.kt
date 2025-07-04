@@ -32,7 +32,7 @@ class SelectionContainerTestCase(private val childrenCount: Int) : LayeredCompos
                 repeat(childrenCount) {
                     Text(
                         text = "Hello World Hello World Hello W",
-                        style = TextStyle(fontSize = 20.sp)
+                        style = TextStyle(fontSize = 20.sp),
                     )
                 }
             }

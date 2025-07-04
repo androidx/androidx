@@ -53,7 +53,7 @@ class PacketTest {
                 Rect(0, 0, 100, 200),
                 0,
                 Matrix(),
-                FakeCameraCaptureResult()
+                FakeCameraCaptureResult(),
             )
 
         // Assert.

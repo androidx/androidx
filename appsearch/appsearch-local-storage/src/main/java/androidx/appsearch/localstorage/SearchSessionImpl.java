@@ -364,19 +364,28 @@ class SearchSessionImpl implements AppSearchSession {
                     new AppSearchBatchResult.Builder<>();
 
             // Normal documents.
-            for (int i = 0; i < documents.size(); i++) {
-                GenericDocument document = documents.get(i);
-                putGenericDocument(document, resultBuilder);
-            }
+            mAppSearchImpl.batchPutDocuments(
+                    mPackageName,
+                    mDatabaseName,
+                    documents,
+                    resultBuilder,
+                    /*sendChangeNotifications=*/ true,
+                    mLogger,
+                    // PersistToDisk is not necessary to call here, since it will be called in
+                    // the next batch put request below.
+                    PersistType.Code.UNKNOWN);
 
             // TakenAction documents.
-            for (int i = 0; i < takenActions.size(); i++) {
-                GenericDocument takenActionGenericDocument = takenActions.get(i);
-                putGenericDocument(takenActionGenericDocument, resultBuilder);
-            }
+            mAppSearchImpl.batchPutDocuments(
+                    mPackageName,
+                    mDatabaseName,
+                    takenActions,
+                    resultBuilder,
+                    /*sendChangeNotifications=*/ true,
+                    mLogger,
+                    // Persist the newly written data.
+                    mAppSearchImpl.getConfig().getLightweightPersistType());
 
-            // Now that the batch has been written. Persist the newly written data.
-            mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
 
             // Schedule a task to dispatch change notifications. See requirements for where the
@@ -397,23 +406,9 @@ class SearchSessionImpl implements AppSearchSession {
             getByDocumentIdAsync(@NonNull GetByDocumentIdRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
-        return execute(() -> {
-            AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
-                    new AppSearchBatchResult.Builder<>();
-
-            Map<String, List<String>> typePropertyPaths = request.getProjections();
-            for (String id : request.getIds()) {
-                try {
-                    GenericDocument document =
-                            mAppSearchImpl.getDocument(mPackageName, mDatabaseName,
-                                    request.getNamespace(), id, typePropertyPaths);
-                    resultBuilder.setSuccess(id, document);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(id, throwableToFailedResult(t));
-                }
-            }
-            return resultBuilder.build();
-        });
+        return execute(() ->
+                mAppSearchImpl.batchGetDocuments(
+                        mPackageName, mDatabaseName, request, /*callerAccess=*/ null));
     }
 
     @Override
@@ -605,7 +600,7 @@ class SearchSessionImpl implements AppSearchSession {
                 }
             }
             // Now that the batch has been written. Persist the newly written data.
-            mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
+            mAppSearchImpl.persistToDisk(mAppSearchImpl.getConfig().getLightweightPersistType());
             mIsMutated = true;
             // Schedule a task to dispatch change notifications. See requirements for where the
             // method is called documented in the method description.
@@ -636,7 +631,7 @@ class SearchSessionImpl implements AppSearchSession {
             mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, queryExpression,
                     searchSpec, removeStatsBuilder);
             // Now that the batch has been written. Persist the newly written data.
-            mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
+            mAppSearchImpl.persistToDisk(mAppSearchImpl.getConfig().getLightweightPersistType());
             mIsMutated = true;
             // Schedule a task to dispatch change notifications. See requirements for where the
             // method is called documented in the method description.
@@ -730,28 +725,6 @@ class SearchSessionImpl implements AppSearchSession {
     @WorkerThread
     private void dispatchChangeNotifications() {
         mAppSearchImpl.dispatchAndClearChangeNotifications();
-    }
-
-    /**
-     * Calls {@link AppSearchImpl} to put a generic document and sets the result.
-     *
-     * @param document the {@link GenericDocument} to put.
-     * @param resultBuilder an {@link AppSearchBatchResult.Builder} object for collecting the
-     *                      result.
-     */
-    private void putGenericDocument(
-            GenericDocument document, AppSearchBatchResult.Builder<String, Void> resultBuilder) {
-        try {
-            mAppSearchImpl.putDocument(
-                    mPackageName,
-                    mDatabaseName,
-                    document,
-                    /*sendChangeNotifications=*/ true,
-                    mLogger);
-            resultBuilder.setSuccess(document.getId(), /*value=*/ null);
-        } catch (Throwable t) {
-            resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
-        }
     }
 
     private void checkForOptimize(int mutateBatchSize) {

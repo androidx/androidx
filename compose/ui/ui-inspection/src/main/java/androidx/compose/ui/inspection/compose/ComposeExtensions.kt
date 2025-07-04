@@ -35,7 +35,7 @@ fun InspectorNode.convertToParameterGroup(
     rootId: Long,
     maxRecursions: Int,
     maxInitialIterableSize: Int,
-    stringTable: StringTable
+    stringTable: StringTable,
 ): ParameterGroup =
     ParameterGroup.newBuilder()
         .apply {
@@ -46,7 +46,7 @@ fun InspectorNode.convertToParameterGroup(
                         Normal,
                         rootId,
                         maxRecursions,
-                        maxInitialIterableSize
+                        maxInitialIterableSize,
                     )
                     .convertAll(stringTable)
             )
@@ -57,7 +57,7 @@ fun InspectorNode.convertToParameterGroup(
                         MergedSemantics,
                         rootId,
                         maxRecursions,
-                        maxInitialIterableSize
+                        maxInitialIterableSize,
                     )
                     .convertAll(stringTable)
             )
@@ -68,7 +68,7 @@ fun InspectorNode.convertToParameterGroup(
                         UnmergedSemantics,
                         rootId,
                         maxRecursions,
-                        maxInitialIterableSize
+                        maxInitialIterableSize,
                     )
                     .convertAll(stringTable)
             )
@@ -86,7 +86,7 @@ fun InspectorNode.convertParameters(
     kind: ParameterKind,
     rootId: Long,
     maxRecursions: Int,
-    maxInitialIterableSize: Int
+    maxInitialIterableSize: Int,
 ): List<NodeParameter> {
     ThreadUtils.assertOffMainThread()
     return layoutInspectorTree.convertParameters(
@@ -94,7 +94,7 @@ fun InspectorNode.convertParameters(
         this,
         kind,
         maxRecursions,
-        maxInitialIterableSize
+        maxInitialIterableSize,
     )
 }
 

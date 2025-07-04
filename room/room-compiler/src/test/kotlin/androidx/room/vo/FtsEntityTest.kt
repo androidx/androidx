@@ -43,20 +43,20 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields =
+                properties =
                     listOf(
                         primaryKeyField,
                         bodyField,
                         languageIdField,
                         dontIndexMe1Field,
-                        dontIndexMe2Field
+                        dontIndexMe2Field,
                     ),
-                embeddedFields = emptyList(),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
-                        autoGenerateId = true
+                        properties = Properties(primaryKeyField),
+                        autoGenerateId = true,
                     ),
                 constructor = null,
                 shadowTableName = "Mail_context",
@@ -70,8 +70,8 @@ class FtsEntityTest {
                         matchInfo = androidx.room.FtsOptions.MatchInfo.FTS3,
                         notIndexedColumns = listOf("dontIndexMe1", "dontIndexMe2"),
                         prefixSizes = listOf(2, 4),
-                        preferredOrder = androidx.room.FtsOptions.Order.DESC
-                    )
+                        preferredOrder = androidx.room.FtsOptions.Order.DESC,
+                    ),
             )
 
         assertThat(
@@ -89,7 +89,7 @@ class FtsEntityTest {
                     "prefix=`2,4`, " +
                     "order=DESC" +
                     ")"
-            )
+            ),
         )
     }
 
@@ -102,13 +102,13 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
-                        autoGenerateId = true
+                        properties = Properties(primaryKeyField),
+                        autoGenerateId = true,
                     ),
                 constructor = null,
                 shadowTableName = "Mail_context",
@@ -122,8 +122,8 @@ class FtsEntityTest {
                         matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                         notIndexedColumns = emptyList(),
                         prefixSizes = emptyList(),
-                        preferredOrder = androidx.room.FtsOptions.Order.ASC
-                    )
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC,
+                    ),
             )
 
         assertThat(
@@ -133,7 +133,7 @@ class FtsEntityTest {
                     "`body` TEXT, " +
                     "tokenize=simple `tokenchars=.=` `separators=X`" +
                     ")"
-            )
+            ),
         )
     }
 
@@ -146,13 +146,13 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
-                        autoGenerateId = true
+                        properties = Properties(primaryKeyField),
+                        autoGenerateId = true,
                     ),
                 constructor = null,
                 shadowTableName = "Mail_context",
@@ -166,13 +166,13 @@ class FtsEntityTest {
                         matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                         notIndexedColumns = emptyList(),
                         prefixSizes = emptyList(),
-                        preferredOrder = androidx.room.FtsOptions.Order.ASC
-                    )
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC,
+                    ),
             )
 
         assertThat(
             entity.createTableQuery,
-            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" + "`body` TEXT" + ")")
+            `is`("CREATE VIRTUAL TABLE IF NOT EXISTS `Mail` USING FTS4(" + "`body` TEXT" + ")"),
         )
     }
 
@@ -185,13 +185,13 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
-                        autoGenerateId = true
+                        properties = Properties(primaryKeyField),
+                        autoGenerateId = true,
                     ),
                 constructor = null,
                 shadowTableName = "Mail_context",
@@ -205,8 +205,8 @@ class FtsEntityTest {
                         matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                         notIndexedColumns = emptyList(),
                         prefixSizes = emptyList(),
-                        preferredOrder = androidx.room.FtsOptions.Order.ASC
-                    )
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC,
+                    ),
             )
 
         assertThat(
@@ -216,7 +216,7 @@ class FtsEntityTest {
                     "`body` TEXT, " +
                     "tokenize=porter `tokenchars=.=` `separators=X`" +
                     ")"
-            )
+            ),
         )
     }
 
@@ -229,13 +229,13 @@ class FtsEntityTest {
                 element = mock(XTypeElement::class.java),
                 tableName = "Mail",
                 type = mock(XType::class.java),
-                fields = listOf(primaryKeyField, bodyField),
-                embeddedFields = emptyList(),
+                properties = listOf(primaryKeyField, bodyField),
+                embeddedProperties = emptyList(),
                 primaryKey =
                     PrimaryKey(
                         declaredIn = mock(XElement::class.java),
-                        fields = Fields(primaryKeyField),
-                        autoGenerateId = true
+                        properties = Properties(primaryKeyField),
+                        autoGenerateId = true,
                     ),
                 constructor = null,
                 shadowTableName = "Mail_context",
@@ -249,8 +249,8 @@ class FtsEntityTest {
                         matchInfo = androidx.room.FtsOptions.MatchInfo.FTS4,
                         notIndexedColumns = emptyList(),
                         prefixSizes = emptyList(),
-                        preferredOrder = androidx.room.FtsOptions.Order.ASC
-                    )
+                        preferredOrder = androidx.room.FtsOptions.Order.ASC,
+                    ),
             )
 
         assertThat(
@@ -260,19 +260,19 @@ class FtsEntityTest {
                     "`body` TEXT, " +
                     "tokenize=porter" +
                     ")"
-            )
+            ),
         )
     }
 
-    fun createField(name: String): Field {
+    fun createField(name: String): Property {
         val (element, type) = mockElementAndType()
-        return Field(
+        return Property(
             element = element,
             name = name,
             type = type,
             affinity = null,
             collate = null,
-            columnName = name
+            columnName = name,
         )
     }
 }

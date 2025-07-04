@@ -451,7 +451,7 @@ class AndroidTextPaintTest {
                 miter = 2f,
                 join = StrokeJoin.Bevel,
                 cap = StrokeCap.Square,
-                pathEffect = pathEffect
+                pathEffect = pathEffect,
             )
         )
         assertThat(textPaint.style).isEqualTo(Paint.Style.STROKE)

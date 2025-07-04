@@ -148,12 +148,12 @@ class ViewTreeViewModelStoreOwnerTest {
         assertEquals(
             "disjoint parent sees owner",
             rootFakeOwner,
-            parent.findViewTreeViewModelStoreOwner()
+            parent.findViewTreeViewModelStoreOwner(),
         )
         assertEquals(
             "disjoint child sees owner",
             rootFakeOwner,
-            child.findViewTreeViewModelStoreOwner()
+            child.findViewTreeViewModelStoreOwner(),
         )
     }
 

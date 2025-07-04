@@ -27,7 +27,7 @@ class RequestContext(
     val callingPackage: String,
     val sdkVersion: Int,
     val permissionToken: String?,
-    val isInForeground: Boolean
+    val isInForeground: Boolean,
 ) : ProtoParcelable<RequestProto.RequestContext>() {
 
     @Suppress("CheckResult")

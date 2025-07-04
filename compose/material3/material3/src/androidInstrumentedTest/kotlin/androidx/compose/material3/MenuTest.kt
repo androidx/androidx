@@ -63,7 +63,7 @@ class MenuTest {
                     DropdownMenuItem(
                         text = { Text("Option 1") },
                         modifier = Modifier.testTag("MenuContent"),
-                        onClick = {}
+                        onClick = {},
                     )
                 }
             }
@@ -139,7 +139,7 @@ class MenuTest {
                     DropdownMenu(
                         expanded = true,
                         onDismissRequest = {},
-                        scrollState = scrollState
+                        scrollState = scrollState,
                     ) {
                         repeat(100) {
                             Box(Modifier.testTag("MenuContent ${it + 1}").size(70.toDp()))

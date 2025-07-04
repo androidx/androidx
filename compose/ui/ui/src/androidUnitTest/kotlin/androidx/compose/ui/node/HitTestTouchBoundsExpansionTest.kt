@@ -49,13 +49,13 @@ class HitTestTouchBoundsExpansionTest {
             pointerInputModifier1,
             PointerType.Stylus,
             outerNode,
-            Rect(9f, 8f, 23f, 24f)
+            Rect(9f, 8f, 23f, 24f),
         )
         assertTouchBounds(
             pointerInputModifier1,
             PointerType.Eraser,
             outerNode,
-            Rect(9f, 8f, 23f, 24f)
+            Rect(9f, 8f, 23f, 24f),
         )
     }
 
@@ -74,19 +74,19 @@ class HitTestTouchBoundsExpansionTest {
             pointerInputModifier1,
             PointerType.Unknown,
             outerNode,
-            Rect(10f, 10f, 20f, 20f)
+            Rect(10f, 10f, 20f, 20f),
         )
         assertTouchBounds(
             pointerInputModifier1,
             PointerType.Mouse,
             outerNode,
-            Rect(10f, 10f, 20f, 20f)
+            Rect(10f, 10f, 20f, 20f),
         )
         assertTouchBounds(
             pointerInputModifier1,
             PointerType.Touch,
             outerNode,
-            Rect(10f, 10f, 20f, 20f)
+            Rect(10f, 10f, 20f, 20f),
         )
     }
 
@@ -104,7 +104,7 @@ class HitTestTouchBoundsExpansionTest {
                     20,
                     20,
                     pointerInputModifier1.toModifier(),
-                    layoutDirection = LayoutDirection.Rtl
+                    layoutDirection = LayoutDirection.Rtl,
                 )
             }
 
@@ -113,7 +113,7 @@ class HitTestTouchBoundsExpansionTest {
             pointerInputModifier1,
             PointerType.Stylus,
             outerNode,
-            Rect(7f, 8f, 21f, 24f)
+            Rect(7f, 8f, 21f, 24f),
         )
     }
 
@@ -133,7 +133,7 @@ class HitTestTouchBoundsExpansionTest {
                     20,
                     20,
                     pointerInputModifier1.toModifier(),
-                    layoutDirection = LayoutDirection.Rtl
+                    layoutDirection = LayoutDirection.Rtl,
                 )
             }
 
@@ -141,7 +141,7 @@ class HitTestTouchBoundsExpansionTest {
             pointerInputModifier1,
             PointerType.Stylus,
             outerNode,
-            Rect(9f, 8f, 23f, 24f)
+            Rect(9f, 8f, 23f, 24f),
         )
     }
 
@@ -160,7 +160,7 @@ class HitTestTouchBoundsExpansionTest {
             pointerInputModifier1,
             PointerType.Stylus,
             outerNode,
-            Rect(9f, 8f, 23f, 24f)
+            Rect(9f, 8f, 23f, 24f),
         )
     }
 
@@ -209,7 +209,7 @@ class HitTestTouchBoundsExpansionTest {
                     10,
                     30,
                     pointerInputModifier2.toModifier(),
-                    minimumTouchTargetSize = DpSize(30.dp, 30.dp)
+                    minimumTouchTargetSize = DpSize(30.dp, 30.dp),
                 )
             }
 
@@ -281,7 +281,7 @@ class HitTestTouchBoundsExpansionTest {
                     10,
                     20,
                     20,
-                    pointerInputModifier1.toModifier().then(pointerInputModifier2.toModifier())
+                    pointerInputModifier1.toModifier().then(pointerInputModifier2.toModifier()),
                 )
             }
 
@@ -290,7 +290,7 @@ class HitTestTouchBoundsExpansionTest {
             pointerInputModifier1,
             PointerType.Stylus,
             outerNode,
-            Rect(9f, 8f, 23f, 24f)
+            Rect(9f, 8f, 23f, 24f),
         )
         val hit = outerNode.hitTest(Offset(15f, 15f))
         // Hit inside the node, both modifiers are hit
@@ -301,7 +301,7 @@ class HitTestTouchBoundsExpansionTest {
         pointerInputModifierNode: PointerInputModifierNode,
         pointerType: PointerType = PointerType.Stylus,
         layoutNode: LayoutNode,
-        expectedBounds: Rect
+        expectedBounds: Rect,
     ) {
         assertThat(layoutNode.hitTest(expectedBounds.topLeft, pointerType))
             .isEqualTo(listOf(pointerInputModifierNode))
@@ -336,7 +336,7 @@ internal fun LayoutNode(
     bottom: Int,
     modifier: Modifier = Modifier,
     minimumTouchTargetSize: DpSize = DpSize.Zero,
-    block: LayoutNode.() -> Unit
+    block: LayoutNode.() -> Unit,
 ): LayoutNode {
     val root =
         LayoutNode(left, top, right, bottom, modifier, minimumTouchTargetSize).apply {
@@ -355,7 +355,7 @@ internal fun LayoutNode.childNode(
     modifier: Modifier = Modifier,
     minimumTouchTargetSize: DpSize = DpSize.Zero,
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    block: LayoutNode.() -> Unit = {}
+    block: LayoutNode.() -> Unit = {},
 ): LayoutNode {
     val layoutNode =
         LayoutNode(left, top, right, bottom, modifier, minimumTouchTargetSize, layoutDirection)
@@ -389,7 +389,7 @@ internal class FakePointerInputModifierNode(
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {}
 
     override fun onCancelPointerInput() {}
@@ -401,7 +401,7 @@ internal class FakePointerInputModifierNode(
 
 internal fun LayoutNode.hitTest(
     pointerPosition: Offset,
-    pointerType: PointerType = PointerType.Stylus
+    pointerType: PointerType = PointerType.Stylus,
 ): List<Modifier.Node> {
     val hitTestResult = HitTestResult()
     hitTest(pointerPosition, hitTestResult, pointerType)

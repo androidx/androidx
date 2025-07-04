@@ -24,6 +24,8 @@ import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.roundToIntRect
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Represents an axis-aligned bounding Rectangle for an element in a compose hierarchy, in the
@@ -37,6 +39,7 @@ internal constructor(
     private val bottomRight: Long,
     private val windowOffset: IntOffset,
     private val screenOffset: IntOffset,
+    private val windowSize: Long,
     private val viewToWindowMatrix: Matrix?,
     private val node: DelegatableNode,
 ) {
@@ -174,5 +177,129 @@ internal constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Used to determine the fraction of pixels that are inside the bounds of the [viewport].
+     *
+     * If the [viewport] is entirely contained inside of the bounds, this method will return 1f.
+     * Otherwise, this will return the fraction of pixels of this element that are contained inside
+     * the [viewport] bounds.
+     *
+     * @see fractionVisibleInWindow
+     * @see fractionVisibleInRect
+     * @see fractionVisibleInWindowWithInsets
+     */
+    fun fractionVisibleIn(viewport: RelativeLayoutBounds): Float {
+        val tl = viewport.topLeft
+        val br = viewport.bottomRight
+        return fractionVisibleInRect(
+            left = unpackX(tl),
+            top = unpackY(tl),
+            right = unpackX(br),
+            bottom = unpackY(br),
+        )
+    }
+
+    /**
+     * Used to determine the fraction of pixels that are inside the provided rectangle.
+     *
+     * If the rectangle is entirely contained inside of the bounds, this method will return 1f.
+     * Otherwise, this will return the fraction of pixels of this element that are contained inside
+     * the rectangle.
+     *
+     * @see fractionVisibleInWindow
+     * @see fractionVisibleIn
+     * @see fractionVisibleInWindowWithInsets
+     */
+    fun fractionVisibleInRect(left: Int, top: Int, right: Int, bottom: Int): Float {
+        val l = unpackX(topLeft)
+        val clippedLeft = min(max(l, left), right)
+
+        val t = unpackY(topLeft)
+        val clippedTop = min(max(t, top), bottom)
+
+        val r = unpackX(bottomRight)
+        val clippedRight = max(min(r, right), left)
+
+        val b = unpackY(bottomRight)
+        val clippedBottom = max(min(b, bottom), top)
+
+        val viewportArea = (right - left) * (bottom - top)
+        val rectArea = (r - l) * (b - t)
+        val clippedArea = max((clippedRight - clippedLeft) * (clippedBottom - clippedTop), 0)
+        val maxArea = min(viewportArea, rectArea)
+        return clippedArea.toFloat() / maxArea.toFloat()
+    }
+
+    /**
+     * Used to determine the fraction of pixels that are inside the bounds of the window.
+     *
+     * If the window is entirely contained inside of the bounds, this method will return 1f.
+     * Otherwise, this will return the fraction of pixels of this element that are contained inside
+     * the rectangle.
+     *
+     * @see fractionVisibleInWindow
+     * @see fractionVisibleIn
+     * @see fractionVisibleInWindowWithInsets
+     */
+    fun fractionVisibleInWindow(): Float {
+        val windowSize = windowSize
+        return fractionVisibleInRect(0, 0, unpackX(windowSize), unpackY(windowSize))
+    }
+
+    /**
+     * Used to determine the fraction of pixels that are inside the rectangle defined by the window
+     * with the provided insets subtracted.
+     *
+     * If the rectangle is entirely contained inside of the bounds, this method will return 1f.
+     * Otherwise, this will return the fraction of pixels of this element that are contained inside
+     * the rectangle.
+     *
+     * @see fractionVisibleInWindow
+     * @see fractionVisibleIn
+     * @see fractionVisibleInWindowWithInsets
+     */
+    fun fractionVisibleInWindowWithInsets(
+        topLeftInset: IntOffset,
+        bottomRightInset: IntOffset,
+    ): Float {
+        val windowSize = windowSize
+        val x = windowOffset.x
+        val y = windowOffset.y
+        return fractionVisibleInRect(
+            x + topLeftInset.x,
+            y + topLeftInset.y,
+            x + unpackX(windowSize) - bottomRightInset.x,
+            y + unpackY(windowSize) - bottomRightInset.y,
+        )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as RelativeLayoutBounds
+
+        if (topLeft != other.topLeft) return false
+        if (bottomRight != other.bottomRight) return false
+        if (windowSize != other.windowSize) return false
+        if (windowOffset != other.windowOffset) return false
+        if (screenOffset != other.screenOffset) return false
+        if (viewToWindowMatrix != other.viewToWindowMatrix) return false
+        if (node != other.node) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = topLeft.hashCode()
+        result = 31 * result + bottomRight.hashCode()
+        result = 31 * result + windowSize.hashCode()
+        result = 31 * result + windowOffset.hashCode()
+        result = 31 * result + screenOffset.hashCode()
+        result = 31 * result + (viewToWindowMatrix?.hashCode() ?: 0)
+        result = 31 * result + node.hashCode()
+        return result
     }
 }

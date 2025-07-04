@@ -22,7 +22,7 @@ import androidx.wear.remote.interactions.RemoteActivityHelper
 @Sampled
 suspend fun RemoteActivityAvailabilitySample(
     remoteActivityHelper: RemoteActivityHelper,
-    remoteIntent: Intent
+    remoteIntent: Intent,
 ) {
     remoteActivityHelper.availabilityStatus.collect { status ->
         when (status) {

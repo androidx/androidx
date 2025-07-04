@@ -35,7 +35,7 @@ import kotlinx.coroutines.async
  * be used by Java clients.
  */
 @OptIn(ExperimentalFeatures.Ext12OptIn::class)
-abstract class ProtectedSignalsManagerFutures internal constructor() {
+public abstract class ProtectedSignalsManagerFutures internal constructor() {
 
     /**
      * The updateSignals API will retrieve a JSON from the URI that describes which signals to add
@@ -100,7 +100,7 @@ abstract class ProtectedSignalsManagerFutures internal constructor() {
      * encountered.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_PROTECTED_SIGNALS)
-    abstract fun updateSignalsAsync(request: UpdateSignalsRequest): ListenableFuture<Unit>
+    public abstract fun updateSignalsAsync(request: UpdateSignalsRequest): ListenableFuture<Unit>
 
     private class JavaImpl(private val mProtectedSignalsManager: ProtectedSignalsManager?) :
         ProtectedSignalsManagerFutures() {
@@ -113,7 +113,7 @@ abstract class ProtectedSignalsManagerFutures internal constructor() {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates [ProtectedSignalsManagerFutures].
          *
@@ -121,7 +121,7 @@ abstract class ProtectedSignalsManagerFutures internal constructor() {
          *   build (adservices extension version < 12), the value returned is null.
          */
         @JvmStatic
-        fun from(context: Context): ProtectedSignalsManagerFutures? {
+        public fun from(context: Context): ProtectedSignalsManagerFutures? {
             return obtain(context)?.let { JavaImpl(it) }
         }
     }

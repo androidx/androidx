@@ -79,7 +79,7 @@ fun ArcOffsetDemo() {
                         color = Color(0xFFFFC107),
                         strokeWidth = 4f,
                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 2f)),
-                        cap = StrokeCap.Round
+                        cap = StrokeCap.Round,
                     )
                 }
             }
@@ -110,7 +110,7 @@ fun ArcOffsetDemo() {
 
                             current atFraction 0f using LinearEasing using ArcLinear
                             midOffset atFraction 0.5f using FastOutSlowInEasing using mode
-                        }
+                        },
                 ) {
                     points.add(value)
                 }

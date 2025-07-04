@@ -41,7 +41,7 @@ class AnimatedCornerShapeTest {
             roundedCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()
@@ -73,7 +73,7 @@ class AnimatedCornerShapeTest {
             cutCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()
@@ -105,7 +105,7 @@ class AnimatedCornerShapeTest {
             roundedCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()
@@ -137,7 +137,7 @@ class AnimatedCornerShapeTest {
             cutCornerShape.toRoundedPolygonOrNull(
                 size = Size(100f, 100f),
                 density = Density(density = 2f),
-                layoutDirection = LayoutDirection.Ltr
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         assertThat(roundedPolygon).isNotNull()

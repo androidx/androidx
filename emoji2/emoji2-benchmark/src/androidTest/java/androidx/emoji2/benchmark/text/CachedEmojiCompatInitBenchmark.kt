@@ -67,12 +67,12 @@ class CachedEmojiCompatInitBenchmark {
         val factory = TestEmojiCompatConfigFactory(config)
 
         benchmarkRule.measureRepeated {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 EmojiCompat.reset(null as EmojiCompat?)
                 EmojiCompat.skipDefaultConfigurationLookup(false)
             }
             val result = EmojiCompat.init(context, factory)
-            runWithTimingDisabled { assertNotNull(result) }
+            runWithMeasurementDisabled { assertNotNull(result) }
         }
     }
 

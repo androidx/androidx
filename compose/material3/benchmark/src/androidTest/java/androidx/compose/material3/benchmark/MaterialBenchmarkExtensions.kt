@@ -34,7 +34,7 @@ internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -43,7 +43,7 @@ internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
             var loopCount = 0
             while (hasPendingChanges()) {
                 loopCount++
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     recomposeUntilNoChangesPending(maxSteps)
                     requestLayout()
                     measure()
@@ -53,14 +53,14 @@ internal fun ComposeBenchmarkRule.benchmarkDrawUntilStable(
 
                 draw()
 
-                runWithTimingDisabled { drawFinish() }
+                runWithMeasurementDisabled { drawFinish() }
             }
 
             if (loopCount == 1) {
                 throw AssertionError("Use benchmarkFirstDraw instead")
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -74,7 +74,7 @@ internal fun ComposeBenchmarkRule.benchmarkMeasureUntilStable(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -83,14 +83,14 @@ internal fun ComposeBenchmarkRule.benchmarkMeasureUntilStable(
             var loopCount = 0
             while (hasPendingChanges()) {
                 loopCount++
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     recomposeUntilNoChangesPending(maxSteps)
                     requestLayout()
                 }
 
                 measure()
 
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     layout()
                     drawPrepare()
                     draw()
@@ -102,7 +102,7 @@ internal fun ComposeBenchmarkRule.benchmarkMeasureUntilStable(
                 throw AssertionError("Use benchmarkFirstMeasure instead")
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -116,7 +116,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -125,7 +125,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
             var loopCount = 0
             while (hasPendingChanges()) {
                 loopCount++
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     recomposeUntilNoChangesPending(maxSteps)
                     requestLayout()
                     measure()
@@ -133,7 +133,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
 
                 layout()
 
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     drawPrepare()
                     draw()
                     drawFinish()
@@ -144,7 +144,7 @@ internal fun ComposeBenchmarkRule.benchmarkLayoutUntilStable(
                 throw AssertionError("Use benchmarkFirstLayout instead")
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }
@@ -158,7 +158,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstRenderUntilStable(
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 doFramesUntilNoChangesPending(maxSteps)
                 // Add the content to benchmark
                 getTestCase().addMeasuredContent()
@@ -174,14 +174,14 @@ internal fun ComposeBenchmarkRule.benchmarkFirstRenderUntilStable(
                 drawPrepare()
                 draw()
 
-                runWithTimingDisabled { drawFinish() }
+                runWithMeasurementDisabled { drawFinish() }
             }
 
             if (loopCount == 1) {
                 throw AssertionError("Use benchmarkToFirstPixel instead")
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingChanges()
                 disposeContent()
             }

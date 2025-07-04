@@ -83,11 +83,7 @@ class TextStyleInvalidationTest(private val config: Config) {
         fun parameters() =
             arrayOf(
                 Config("nothing", { it }, recompose = false),
-                Config(
-                    "color",
-                    { it.copy(color = Color.Blue) },
-                    invalidatesDraw = true,
-                ),
+                Config("color", { it.copy(color = Color.Blue) }, invalidatesDraw = true),
                 Config(
                     "to brush",
                     {
@@ -116,7 +112,7 @@ class TextStyleInvalidationTest(private val config: Config) {
                     initializeStyle = {
                         it.copy(
                             alpha = 1f,
-                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
+                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta),
                         )
                     },
                     updateStyle = { it.copy(alpha = 0.5f, brush = it.brush) },
@@ -138,7 +134,7 @@ class TextStyleInvalidationTest(private val config: Config) {
                     "fontStyle",
                     { it.copy(fontStyle = FontStyle.Italic) },
                     invalidatesMeasure = true,
-                    invalidatesDraw = true
+                    invalidatesDraw = true,
                 ),
                 Config(
                     "fontSynthesis",
@@ -184,11 +180,7 @@ class TextStyleInvalidationTest(private val config: Config) {
                     invalidatesMeasure = true,
                     invalidatesDraw = true,
                 ),
-                Config(
-                    "background",
-                    { it.copy(background = Color.Blue) },
-                    invalidatesDraw = true,
-                ),
+                Config("background", { it.copy(background = Color.Blue) }, invalidatesDraw = true),
                 Config(
                     "textDecoration",
                     { it.copy(textDecoration = TextDecoration.LineThrough) },
@@ -256,7 +248,7 @@ class TextStyleInvalidationTest(private val config: Config) {
                             lineHeightStyle =
                                 LineHeightStyle(
                                     alignment = LineHeightStyle.Alignment.Center,
-                                    trim = LineHeightStyle.Trim.FirstLineTop
+                                    trim = LineHeightStyle.Trim.FirstLineTop,
                                 )
                         )
                     },
@@ -325,7 +317,7 @@ class TextStyleInvalidationTest(private val config: Config) {
                                 placeable.place(IntOffset.Zero)
                             }
                         }
-                        .drawBehind { draws++ }
+                        .drawBehind { draws++ },
             )
             compositions++
         }

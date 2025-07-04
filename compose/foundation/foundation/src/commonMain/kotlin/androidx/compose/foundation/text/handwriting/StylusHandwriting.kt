@@ -56,7 +56,7 @@ import androidx.compose.ui.util.fastFirstOrNull
 internal fun Modifier.stylusHandwriting(
     enabled: Boolean,
     showHoverIcon: Boolean,
-    onHandwritingSlopExceeded: () -> Unit
+    onHandwritingSlopExceeded: () -> Unit,
 ): Modifier =
     if (enabled && isStylusHandwritingSupported) {
         if (showHoverIcon) {
@@ -69,7 +69,7 @@ internal fun Modifier.stylusHandwriting(
         this
     }
 
-private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () -> Unit) :
+private class StylusHandwritingElement(val onHandwritingSlopExceeded: () -> Unit) :
     ModifierNodeElement<StylusHandwritingNode>() {
     override fun create(): StylusHandwritingNode {
         return StylusHandwritingNode(onHandwritingSlopExceeded)
@@ -82,6 +82,17 @@ private data class StylusHandwritingElement(val onHandwritingSlopExceeded: () ->
     override fun InspectorInfo.inspectableProperties() {
         name = "stylusHandwriting"
         properties["onHandwritingSlopExceeded"] = onHandwritingSlopExceeded
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is StylusHandwritingElement) return false
+
+        return onHandwritingSlopExceeded === other.onHandwritingSlopExceeded
+    }
+
+    override fun hashCode(): Int {
+        return onHandwritingSlopExceeded.hashCode()
     }
 }
 
@@ -182,7 +193,7 @@ internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> U
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         suspendingPointerInputModifierNode.onPointerEvent(pointerEvent, pass, bounds)
     }
@@ -210,5 +221,5 @@ internal val HandwritingBoundsExpansion =
         start = HandwritingBoundsHorizontalOffset,
         top = HandwritingBoundsVerticalOffset,
         end = HandwritingBoundsHorizontalOffset,
-        bottom = HandwritingBoundsVerticalOffset
+        bottom = HandwritingBoundsVerticalOffset,
     )

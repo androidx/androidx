@@ -40,6 +40,7 @@ class DeepRowColumnBenchmark(
 ) {
 
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @Parameterized.Parameters(name = "depth={0}_breadth={1}_weight={2}_align={3}")
         fun initParameters(): Array<Any> =

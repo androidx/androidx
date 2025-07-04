@@ -28,7 +28,7 @@ import androidx.work.impl.utils.ARGUMENT_SERVICE_PACKAGE_NAME
  * @return `true` if and only if the instance of [WorkerParameters] corresponds to a [WorkRequest]
  *   that runs in a remote process.
  */
-fun WorkerParameters.isRemoteWorkRequest(): Boolean {
+public fun WorkerParameters.isRemoteWorkRequest(): Boolean {
     return inputData.isRemoteWorkRequest()
 }
 
@@ -41,7 +41,7 @@ fun WorkerParameters.isRemoteWorkRequest(): Boolean {
  *   [WorkRequest].
  * @return A new instance of [WorkerParameters]
  */
-inline fun <reified T : ListenableWorker> WorkerParameters.usingRemoteService(
+public inline fun <reified T : ListenableWorker> WorkerParameters.usingRemoteService(
     componentName: ComponentName
 ): WorkerParameters {
     return usingRemoteService(T::class.java.name, componentName)
@@ -56,9 +56,9 @@ inline fun <reified T : ListenableWorker> WorkerParameters.usingRemoteService(
  *   [WorkRequest].
  * @return A new instance of [WorkerParameters]
  */
-fun WorkerParameters.usingRemoteService(
+public fun WorkerParameters.usingRemoteService(
     workerClassName: String,
-    componentName: ComponentName
+    componentName: ComponentName,
 ): WorkerParameters {
     return WorkerParameters(
         id,
@@ -72,15 +72,15 @@ fun WorkerParameters.usingRemoteService(
         taskExecutor,
         workerFactory,
         progressUpdater,
-        foregroundUpdater
+        foregroundUpdater,
     )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun buildDelegatedRemoteRequestData(
+public fun buildDelegatedRemoteRequestData(
     delegatedWorkerName: String,
     componentName: ComponentName,
-    inputData: Data
+    inputData: Data,
 ): Data {
     val builder = Data.Builder()
     builder
@@ -92,7 +92,7 @@ fun buildDelegatedRemoteRequestData(
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun Data.isRemoteWorkRequest(): Boolean {
+public fun Data.isRemoteWorkRequest(): Boolean {
     return hasKey<String>(ARGUMENT_SERVICE_PACKAGE_NAME) &&
         hasKey<String>(ARGUMENT_SERVICE_CLASS_NAME) &&
         hasKey<String>(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME)

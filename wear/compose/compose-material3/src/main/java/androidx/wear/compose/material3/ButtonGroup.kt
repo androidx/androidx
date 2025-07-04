@@ -16,67 +16,54 @@
 
 package androidx.wear.compose.material3
 
+import androidx.annotation.FloatRange
 import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.unit.takeOrElse
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapIndexed
 import androidx.wear.compose.materialcore.screenHeightDp
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
-/** Scope for the children of a [ButtonGroup] */
-public class ButtonGroupScope {
-    internal val items = mutableListOf<ButtonGroupItem>()
-
-    /**
-     * Adds an item to a [ButtonGroup]
-     *
-     * @param interactionSource the interactionSource used to detect press/release events. Should be
-     *   the same one used in the content in this slot, which is typically a [Button].
-     * @param minWidth the minimum width this item can be. This will only be used if distributing
-     *   the available space results on a item falling below it's minimum width.
-     * @param weight the main way of distributing available space. In most cases, items will have a
-     *   width assigned proportional to their width (and available space). The exception is if that
-     *   will make some item(s) width fall below it's minWidth.
-     * @param content the content to use for this item. Usually, this will be one of the [Button]
-     *   variants.
-     */
-    public fun buttonGroupItem(
-        interactionSource: InteractionSource,
-        minWidth: Dp = minimumInteractiveComponentSize,
-        weight: Float = 1f,
-        content: @Composable () -> Unit
-    ): Boolean = items.add(ButtonGroupItem(interactionSource, minWidth, weight, content))
-}
-
 /**
- * Layout component to implement an expressive group of buttons, that react to touch by growing the
- * touched button, (while the neighbor(s) shrink to accommodate and keep the group width constant).
+ * Layout component to implement an expressive group of buttons in a row, that react to touch by
+ * growing the touched button, (while the neighbor(s) shrink to accommodate and keep the group width
+ * constant).
  *
  * Example of a [ButtonGroup]:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonGroupSample
+ *
+ * Example of 3 buttons, the middle one bigger [ButtonGroup]:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
  * @param modifier Modifier to be applied to the button group
  * @param spacing the amount of spacing between buttons
  * @param expansionWidth how much buttons grow when pressed
@@ -84,7 +71,8 @@ public class ButtonGroupScope {
  *   content
  * @param verticalAlignment the vertical alignment of the button group's children.
  * @param content the content and properties of each button. The Ux guidance is to use no more than
- *   3 buttons within a ButtonGroup.
+ *   3 buttons within a ButtonGroup. Note that this content is on the [ButtonGroupScope], to provide
+ *   access to 3 new modifiers to configure the buttons.
  */
 @Composable
 public fun ButtonGroup(
@@ -93,98 +81,77 @@ public fun ButtonGroup(
     expansionWidth: Dp = ButtonGroupDefaults.ExpansionWidth,
     contentPadding: PaddingValues = ButtonGroupDefaults.fullWidthPaddings(),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    content: ButtonGroupScope.() -> Unit
+    content: @Composable ButtonGroupScope.() -> Unit,
 ) {
-    val actualContent = ButtonGroupScope().apply(block = content)
-
-    val pressedStates = remember { Array(actualContent.items.size) { mutableStateOf(false) } }
-
-    val animatedSizes = remember { Array(actualContent.items.size) { Animatable(0f) } }
-
     val expandAmountPx = with(LocalDensity.current) { expansionWidth.toPx() }
 
     val downAnimSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>().faster(100f)
     val upAnimSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
 
-    LaunchedEffect(actualContent.items) {
-        launch {
-            val pressInteractions =
-                Array(actualContent.items.size) { mutableListOf<PressInteraction.Press>() }
-
-            merge(
-                    flows =
-                        Array(actualContent.items.size) { index ->
-                            // Annotate each flow with the item index it is related to.
-                            actualContent.items[index].interactionSource.interactions.map {
-                                interaction ->
-                                index to interaction
-                            }
-                        }
-                )
-                .collect { (index, interaction) ->
-                    when (interaction) {
-                        is PressInteraction.Press -> pressInteractions[index].add(interaction)
-                        is PressInteraction.Release ->
-                            pressInteractions[index].remove(interaction.press)
-                        is PressInteraction.Cancel ->
-                            pressInteractions[index].remove(interaction.press)
-                    }
-                    pressedStates[index].value = pressInteractions[index].isNotEmpty()
+    val scope = remember {
+        object : ButtonGroupScope {
+            override fun Modifier.weight(weight: Float): Modifier {
+                require(weight >= 0.0) {
+                    "invalid weight $weight; must be greater or equal to zero"
                 }
-        }
-
-        actualContent.items.indices.forEach { index ->
-            launch {
-                snapshotFlow { pressedStates[index].value }
-                    .collectLatest { value ->
-                        if (value) {
-                            animatedSizes[index].animateTo(expandAmountPx, downAnimSpec)
-                        } else {
-                            animatedSizes[index].animateTo(0f, upAnimSpec)
-                        }
-                    }
+                return this.then(ButtonGroupElement(weight = weight))
             }
+
+            override fun Modifier.minWidth(minWidth: Dp): Modifier {
+                require(minWidth > 0.dp) { "invalid minWidth $minWidth; must be greater than zero" }
+                return this.then(ButtonGroupElement(minWidth = minWidth))
+            }
+
+            override fun Modifier.animateWidth(interactionSource: InteractionSource) =
+                this.then(
+                    EnlargeOnPressElement(
+                        interactionSource = interactionSource,
+                        downAnimSpec,
+                        upAnimSpec,
+                    )
+                )
         }
     }
 
-    Layout(
-        modifier = modifier.padding(contentPadding),
-        content = { actualContent.items.fastForEach { it.content() } }
-    ) { measurables, constraints ->
+    Layout(modifier = modifier.padding(contentPadding), content = { scope.content() }) {
+        measurables,
+        constraints ->
         require(constraints.hasBoundedWidth) { "ButtonGroup width cannot be unbounded." }
-        require(measurables.size == actualContent.items.size) {
-            "ButtonGroup's items have to produce exactly one composable each."
-        }
 
         val width = constraints.maxWidth
         val spacingPx = spacing.roundToPx()
 
+        val configs =
+            Array(measurables.size) {
+                measurables[it].parentData as? ButtonGroupParentData
+                    ?: ButtonGroupParentData.DEFAULT
+            }
+
+        val animatedSizes = Array(measurables.size) { configs[it].pressedState.value }
+
         // TODO: Cache this if it proves to be computationally intensive.
         val widths =
-            computeWidths(
-                actualContent.items.fastMap { it.minWidth.toPx() to it.weight },
-                spacingPx,
-                width
-            )
+            computeWidths(configs.map { it.minWidth.toPx() to it.weight }, spacingPx, width)
 
         // Add animated grow/shrink
-        if (actualContent.items.size > 1) {
-            animatedSizes.forEachIndexed { index, value ->
+        if (measurables.size > 1) {
+            for (index in measurables.indices) {
+                val value = animatedSizes[index] * expandAmountPx
                 // How much we need to grow the pressed item.
                 val growth: Int
-                if (index in 1 until animatedSizes.lastIndex) {
-                    // index is in the middle. Ensure we keep the size of the middle element with
+                if (index in 1 until measurables.lastIndex) {
+                    // index is in the middle. Ensure we keep the size of the middle item with
                     // the same parity, so its content remains in place.
-                    growth = (value.value / 2).roundToInt() * 2
+                    growth = (value / 2).roundToInt() * 2
                     widths[index - 1] -= growth / 2
                     widths[index + 1] -= growth / 2
                 } else {
-                    growth = value.value.roundToInt()
+                    growth = value.roundToInt()
                     if (index == 0) {
                         // index == 0, and we know there are at least 2 items.
                         widths[1] -= growth
                     } else {
-                        // index == animatedSizes.lastIndex, and we know there are at least 2 items.
+                        // index == measurables.lastIndex, and we know there are at least 2 items.
                         widths[index - 1] -= growth
                     }
                 }
@@ -203,19 +170,54 @@ public fun ButtonGroup(
         val height =
             (placeables.fastMap { it.height }.max()).coerceIn(
                 constraints.minHeight,
-                constraints.maxHeight
+                constraints.maxHeight,
             )
 
         layout(width, height) {
+            val actualWidth = widths.sum() + spacingPx * (measurables.size - 1)
             var x = 0
             placeables.fastForEachIndexed { index, placeable ->
-                placeable.place(x, verticalAlignment.align(placeable.height, height))
+                val actualX =
+                    if (layoutDirection == LayoutDirection.Ltr) x
+                    else actualWidth - x - widths[index]
+                placeable.place(actualX, verticalAlignment.align(placeable.height, height))
                 x += widths[index] + spacingPx
                 // TODO: rounding finalSizes & spacing means we may have a few extra pixels wasted
                 //  or take more room than available.
             }
         }
     }
+}
+
+public interface ButtonGroupScope {
+    /**
+     * [ButtonGroup] uses a ratio of all sibling item [weight]s to assign a width to each item. The
+     * horizontal space is distributed using [weight] first, and this will only be changed if any
+     * item would be smaller than its [minWidth]. See also [Modifier.minWidth].
+     *
+     * @param weight The main way of distributing available space. This is a relative measure, and
+     *   items with no weight specified will have a default of 1f.
+     */
+    public fun Modifier.weight(
+        @FloatRange(from = 0.0, fromInclusive = false) weight: Float
+    ): Modifier
+
+    /**
+     * Specifies the minimum width this item can be, in Dp. This will only be used if distributing
+     * the available space results in a item falling below its minimum width. Note that this is only
+     * used before animations, pressing a button may result on neighbor button(s) going below their
+     * minWidth. See also [Modifier.weight]
+     *
+     * @param minWidth the minimum width. If none is specified, minimumInteractiveComponentSize is
+     *   used.
+     */
+    public fun Modifier.minWidth(minWidth: Dp = ButtonGroupDefaults.MinWidth): Modifier
+
+    /**
+     * Specifies the interaction source to use with this item. This is used to listen to events and
+     * animate growing the pressed button and shrink the neighbor(s).
+     */
+    public fun Modifier.animateWidth(interactionSource: InteractionSource): Modifier
 }
 
 /** Contains the default values used by [ButtonGroup] */
@@ -229,7 +231,7 @@ public object ButtonGroupDefaults {
         val screenHeight = screenHeightDp().dp
         return PaddingValues(
             horizontal = screenHeight * FullWidthHorizontalPaddingPercentage / 100,
-            vertical = 0.dp
+            vertical = 0.dp,
         )
     }
 
@@ -239,6 +241,9 @@ public object ButtonGroupDefaults {
     /** Spacing between buttons. */
     public val Spacing: Dp = 4.dp
 
+    /** Default for the minimum width of buttons in a ButtonGroup */
+    public val MinWidth: Dp = minimumInteractiveComponentSize
+
     /** Padding at each side of the [ButtonGroup], as a percentage of the available space. */
     private const val FullWidthHorizontalPaddingPercentage: Float = 5.2f
 }
@@ -246,29 +251,167 @@ public object ButtonGroupDefaults {
 /**
  * Data class to configure one item in a [ButtonGroup]
  *
- * @param interactionSource the interactionSource used to detect press/release events. Should be the
- *   same one used in the content in this slot, which is typically a [Button].
- * @param minWidth the minimum width this item can be. This will only be used if distributing the
- *   available space results on a item falling below it's minimum width.
  * @param weight the main way of distributing available space. In most cases, items will have a
- *   width assigned proportional to their width (and available space). The exception is if that will
- *   make some item(s) width fall below it's minWidth.
- * @param content the content to use for this item. Usually, this will be one of the [Button]
- *   variants.
+ *   width assigned proportional to their weight (and available space). The exception is if that
+ *   will make some item(s) width fall below its minWidth.
+ * @param minWidth the minimum width this item can be. This will only be used if distributing the
+ *   available space results on a item falling below its minimum width.
+ * @param pressedState an animated float between 0f and 1f that captures an animated, continuous
+ *   version of the item's interaction source pressed state.
  */
-internal data class ButtonGroupItem(
+internal data class ButtonGroupParentData(
+    val weight: Float,
+    val minWidth: Dp,
+    val pressedState: Animatable<Float, AnimationVector1D>,
+) {
+    companion object {
+        val DEFAULT = ButtonGroupParentData(1f, minimumInteractiveComponentSize, Animatable(0f))
+    }
+}
+
+internal class ButtonGroupElement(
+    val weight: Float = Float.NaN,
+    val minWidth: Dp = Dp.Unspecified,
+) : ModifierNodeElement<ButtonGroupNode>() {
+
+    override fun create(): ButtonGroupNode {
+        return ButtonGroupNode(weight, minWidth)
+    }
+
+    override fun update(node: ButtonGroupNode) {
+        node.weight = weight
+        node.minWidth = minWidth
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "ButtonGroupElement"
+        properties["weight"] = weight
+        properties["minWidth"] = minWidth
+    }
+
+    override fun hashCode() = weight.hashCode() * 31 + minWidth.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? ButtonGroupNode ?: return false
+        return weight == otherModifier.weight && minWidth == otherModifier.minWidth
+    }
+}
+
+internal class ButtonGroupNode(var weight: Float, var minWidth: Dp) :
+    ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) =
+        (parentData as? ButtonGroupParentData ?: ButtonGroupParentData.DEFAULT).let { prev ->
+            ButtonGroupParentData(
+                if (weight.fastIsFinite()) weight else prev.weight,
+                minWidth.takeOrElse { prev.minWidth },
+                prev.pressedState,
+            )
+        }
+}
+
+internal class EnlargeOnPressElement(
     val interactionSource: InteractionSource,
-    val minWidth: Dp = minimumInteractiveComponentSize,
-    val weight: Float = 1f,
-    val content: @Composable () -> Unit
-)
+    val downAnimSpec: AnimationSpec<Float>,
+    val upAnimSpec: AnimationSpec<Float>,
+) : ModifierNodeElement<EnlargeOnPressNode>() {
+
+    override fun create(): EnlargeOnPressNode {
+        return EnlargeOnPressNode(interactionSource, downAnimSpec, upAnimSpec)
+    }
+
+    override fun update(node: EnlargeOnPressNode) {
+        if (node.interactionSource != interactionSource) {
+            node.interactionSource = interactionSource
+            node.launchCollectionJob()
+        }
+        node.downAnimSpec = downAnimSpec
+        node.upAnimSpec = upAnimSpec
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "EnlargeOnPressElement"
+        properties["interactionSource"] = interactionSource
+        properties["downAnimSpec"] = downAnimSpec
+        properties["upAnimSpec"] = upAnimSpec
+    }
+
+    override fun hashCode() =
+        (interactionSource.hashCode() * 31 + downAnimSpec.hashCode()) * 31 + upAnimSpec.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? EnlargeOnPressNode ?: return false
+        return interactionSource == otherModifier.interactionSource &&
+            downAnimSpec == otherModifier.downAnimSpec &&
+            upAnimSpec == otherModifier.upAnimSpec
+    }
+}
+
+internal class EnlargeOnPressNode(
+    var interactionSource: InteractionSource,
+    var downAnimSpec: AnimationSpec<Float>,
+    var upAnimSpec: AnimationSpec<Float>,
+) : ParentDataModifierNode, Modifier.Node() {
+    private val pressedAnimatable: Animatable<Float, AnimationVector1D> = Animatable(0f)
+
+    private var collectionJob: Job? = null
+
+    override fun onAttach() {
+        super.onAttach()
+
+        launchCollectionJob()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        collectionJob = null
+    }
+
+    internal fun launchCollectionJob() {
+        collectionJob?.cancel()
+        collectionJob =
+            coroutineScope.launch {
+                val pressInteractions = mutableListOf<PressInteraction.Press>()
+
+                launch {
+                    // Use collect here to ensure we don't lose any events.
+                    interactionSource.interactions
+                        .map { interaction ->
+                            when (interaction) {
+                                is PressInteraction.Press -> pressInteractions.add(interaction)
+                                is PressInteraction.Release ->
+                                    pressInteractions.remove(interaction.press)
+                                is PressInteraction.Cancel ->
+                                    pressInteractions.remove(interaction.press)
+                            }
+                            pressInteractions.isNotEmpty()
+                        }
+                        .distinctUntilChanged()
+                        .collectLatest { pressed ->
+                            if (pressed) {
+                                launch { pressedAnimatable.animateTo(1f, downAnimSpec) }
+                            } else {
+                                waitUntil { pressedAnimatable.value > 0.75f }
+                                pressedAnimatable.animateTo(0f, upAnimSpec)
+                            }
+                        }
+                }
+            }
+    }
+
+    override fun Density.modifyParentData(parentData: Any?) =
+        (parentData as? ButtonGroupParentData ?: ButtonGroupParentData.DEFAULT).let { prev ->
+            ButtonGroupParentData(prev.weight, prev.minWidth, pressedAnimatable)
+        }
+}
 
 // TODO: Does it make sense to unify these 2 classes?
 private data class ComputeHelper(
     var minWidth: Float,
     val weight: Float,
     val originalIndex: Int,
-    var width: Float
+    var width: Float,
 )
 
 /**
@@ -282,7 +425,7 @@ private data class ComputeHelper(
 internal fun computeWidths(
     items: List<Pair<Float, Float>>,
     spacingPx: Int,
-    availableWidth: Int
+    availableWidth: Int,
 ): IntArray {
     val helper =
         Array(items.size) { index ->
@@ -295,8 +438,8 @@ internal fun computeWidths(
     val totalWeight = helper.map { it.weight }.sum()
 
     val extraSpace = availableWidth - minSpaceNeeded
-    // TODO: should we really handle the totalWeight <= 0 case? If so, we need to leave items at
-    //  their minWidth and center the whole thing?
+    // TODO: should we really handle the totalWeight <= 0 case? If so, we need to leave items
+    // at their minWidth and center the whole thing?
     if (totalWeight > 0) {
         for (ix in helper.indices) {
             // Initial distribution ignores minWidth.
@@ -312,9 +455,11 @@ internal fun computeWidths(
     // Sort them. We will have:
     // * Items with weight == 0 and less width required (usually 0)
     // * Items with weight > 0 and less width required
-    // * Items with weight > 0, sorted for the order in which they may get below their minimum width
+    // * Items with weight > 0, sorted for the order in which they may get below their
+    // minimum width
     //   as we take away space.
-    // * Items with weight == 0 and enough width (This can only happen if totalWeight == 0)
+    // * Items with weight == 0 and enough width (This can only happen if totalWeight
+    // == 0)
     helper.sortBy {
         if (it.weight == 0f) {
             if (it.width < it.minWidth) Float.MIN_VALUE else Float.MAX_VALUE

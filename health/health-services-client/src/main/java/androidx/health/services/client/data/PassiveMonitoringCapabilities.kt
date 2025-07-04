@@ -48,7 +48,7 @@ public class PassiveMonitoringCapabilities(
         proto.supportedDataTypesPassiveMonitoringList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.supportedDataTypesPassiveGoalsList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.supportedHealthEventTypesList.mapNotNull { HealthEvent.Type.fromProto(it) }.toSet(),
-        proto.supportedUserActivityStatesList.mapNotNull { UserActivityState.fromProto(it) }.toSet()
+        proto.supportedUserActivityStatesList.mapNotNull { UserActivityState.fromProto(it) }.toSet(),
     )
 
     internal val proto: PassiveMonitoringCapabilitiesProto =

@@ -23,8 +23,7 @@ public class MyDao_Impl(
   init {
     this.__db = __db
     this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
-      protected override fun createQuery(): String =
-          "INSERT OR ABORT INTO `MyEntity` (`pk`,`primitive`,`string`,`nullableString`,`fieldString`,`nullableFieldString`,`variablePrimitive`,`variableString`,`variableNullableString`,`variableFieldString`,`variableNullableFieldString`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+      protected override fun createQuery(): String = "INSERT OR ABORT INTO `MyEntity` (`pk`,`primitive`,`string`,`nullableString`,`fieldString`,`nullableFieldString`,`variablePrimitive`,`variableString`,`variableNullableString`,`variableFieldString`,`variableNullableFieldString`) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
 
       protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
@@ -62,8 +61,7 @@ public class MyDao_Impl(
     }
   }
 
-  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
-      _connection ->
+  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) { _connection ->
     __insertAdapterOfMyEntity.insert(_connection, item)
   }
 
@@ -77,16 +75,12 @@ public class MyDao_Impl(
         val _columnIndexOfString: Int = getColumnIndexOrThrow(_stmt, "string")
         val _columnIndexOfNullableString: Int = getColumnIndexOrThrow(_stmt, "nullableString")
         val _columnIndexOfFieldString: Int = getColumnIndexOrThrow(_stmt, "fieldString")
-        val _columnIndexOfNullableFieldString: Int = getColumnIndexOrThrow(_stmt,
-            "nullableFieldString")
+        val _columnIndexOfNullableFieldString: Int = getColumnIndexOrThrow(_stmt, "nullableFieldString")
         val _columnIndexOfVariablePrimitive: Int = getColumnIndexOrThrow(_stmt, "variablePrimitive")
         val _columnIndexOfVariableString: Int = getColumnIndexOrThrow(_stmt, "variableString")
-        val _columnIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_stmt,
-            "variableNullableString")
-        val _columnIndexOfVariableFieldString: Int = getColumnIndexOrThrow(_stmt,
-            "variableFieldString")
-        val _columnIndexOfVariableNullableFieldString: Int = getColumnIndexOrThrow(_stmt,
-            "variableNullableFieldString")
+        val _columnIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_stmt, "variableNullableString")
+        val _columnIndexOfVariableFieldString: Int = getColumnIndexOrThrow(_stmt, "variableFieldString")
+        val _columnIndexOfVariableNullableFieldString: Int = getColumnIndexOrThrow(_stmt, "variableNullableFieldString")
         val _result: MyEntity
         if (_stmt.step()) {
           val _tmpPk: Int
@@ -109,8 +103,7 @@ public class MyDao_Impl(
           } else {
             _tmpNullableFieldString = _stmt.getText(_columnIndexOfNullableFieldString)
           }
-          _result =
-              MyEntity(_tmpPk,_tmpPrimitive,_tmpString,_tmpNullableString,_tmpFieldString,_tmpNullableFieldString)
+          _result = MyEntity(_tmpPk,_tmpPrimitive,_tmpString,_tmpNullableString,_tmpFieldString,_tmpNullableFieldString)
           _result.variablePrimitive = _stmt.getLong(_columnIndexOfVariablePrimitive)
           _result.variableString = _stmt.getText(_columnIndexOfVariableString)
           if (_stmt.isNull(_columnIndexOfVariableNullableString)) {
@@ -122,11 +115,10 @@ public class MyDao_Impl(
           if (_stmt.isNull(_columnIndexOfVariableNullableFieldString)) {
             _result.variableNullableFieldString = null
           } else {
-            _result.variableNullableFieldString =
-                _stmt.getText(_columnIndexOfVariableNullableFieldString)
+            _result.variableNullableFieldString = _stmt.getText(_columnIndexOfVariableNullableFieldString)
           }
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
         }
         _result
       } finally {

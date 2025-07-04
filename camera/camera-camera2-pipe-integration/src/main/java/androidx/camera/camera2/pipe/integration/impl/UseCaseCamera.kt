@@ -19,10 +19,8 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraDevice
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
-import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -30,7 +28,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
 import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.SessionProcessorSurface
 import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
@@ -38,7 +35,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 internal val useCaseCameraIds = atomic(0)
@@ -73,10 +69,9 @@ constructor(
     private val useCases: java.util.ArrayList<UseCase>,
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
     private val threads: UseCaseThreads,
-    private val sessionProcessorManager: SessionProcessorManager?,
     private val sessionConfigAdapter: SessionConfigAdapter,
     override val requestControl: UseCaseCameraRequestControl,
-    private val capturePipeline: CapturePipeline
+    private val capturePipeline: CapturePipeline,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
@@ -96,27 +91,6 @@ constructor(
                     if (closed.value && it is GraphStateStopped || it is GraphStateError) {
                         this@launch.coroutineContext[Job]?.cancel()
                     }
-
-                    // TODO: b/323614735: Technically our RequestProcessor implementation could be
-                    //   given to the SessionProcessor through onCaptureSessionStart after the
-                    //   new set of configurations (CameraGraph) is created. However, this seems to
-                    //   be causing occasional SIGBUS on the Android platform level. Delaying this
-                    //   seems to be mitigating the issue, but does result in overhead in startup
-                    //   latencies. Move this back to UseCaseManager once we understand more about
-                    //   the situation.
-                    if (sessionProcessorManager != null && it is GraphStateStarted) {
-                        val sessionProcessorSurfaces =
-                            sessionConfigAdapter.deferrableSurfaces.map {
-                                it as SessionProcessorSurface
-                            }
-                        val requestProcessorAdapter =
-                            RequestProcessorAdapter(
-                                useCaseGraphConfig,
-                                sessionProcessorSurfaces,
-                                threads.scope,
-                            )
-                        sessionProcessorManager.onCaptureSessionStart(requestProcessorAdapter)
-                    }
                 }
             }
         }
@@ -127,14 +101,7 @@ constructor(
             threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
                 requestControl.close()
-                sessionProcessorManager?.prepareClose()
                 useCaseGraphConfig.graph.close()
-                if (sessionProcessorManager != null) {
-                    useCaseGraphConfig.graph.graphState.first {
-                        it is GraphStateStopped || it is GraphStateError
-                    }
-                    sessionProcessorManager.close()
-                }
                 useCaseSurfaceManager.stopAsync().await()
             }
         } else {

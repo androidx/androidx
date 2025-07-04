@@ -33,7 +33,7 @@ class ConstraintLayoutComposeIssueRegistry : IssueRegistry() {
         listOf(
             ConstraintLayoutDslDetector.IncorrectReferencesDeclarationIssue,
             ConstraintLayoutDslDetector.IncorrectMatchParentUsageIssue,
-            ConstraintLayoutDslDetector.IncorrectChainMarginsUsageIssue
+            ConstraintLayoutDslDetector.IncorrectChainMarginsUsageIssue,
         )
 
     override val vendor =

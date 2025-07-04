@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -29,7 +29,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.appsearch.debugview"
 }
 
@@ -39,7 +39,7 @@ dependencies {
     implementation(project(":appsearch:appsearch-local-storage"))
     implementation(project(":appsearch:appsearch-platform-storage"))
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0-beta01")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.core:core:1.5.0")
     implementation("androidx.fragment:fragment:1.3.0")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
@@ -50,7 +50,7 @@ dependencies {
 
 androidx {
     name = "AppSearch Debug View"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "A support library for AndroidX AppSearch that contains activities and views " +
             "for debugging an application's integration with AppSearch."

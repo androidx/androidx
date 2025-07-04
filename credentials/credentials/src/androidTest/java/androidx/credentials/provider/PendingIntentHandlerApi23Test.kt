@@ -91,7 +91,7 @@ class PendingIntentHandlerApi23Test {
                 "password",
                 "origin",
                 /* preferImmediatelyAvailableCredentials= */ true,
-                /* isAutoSelectAllowed= */ true
+                /* isAutoSelectAllowed= */ true,
             )
         val expectedRequest =
             ProviderCreateCredentialRequest(
@@ -100,9 +100,9 @@ class PendingIntentHandlerApi23Test {
                     getFinalCreateCredentialData(callingRequest, mContext),
                     callingRequest.candidateQueryData,
                     callingRequest.isSystemProviderRequired,
-                    callingRequest.origin
+                    callingRequest.origin,
                 ),
-                getTestCallingAppInfo(callingRequest.origin)
+                getTestCallingAppInfo(callingRequest.origin),
             )
         val intent = Intent()
         setProviderCreateCredentialRequest(intent, expectedRequest)
@@ -149,19 +149,19 @@ class PendingIntentHandlerApi23Test {
                             mContext,
                             0,
                             Intent(),
-                            PendingIntent.FLAG_IMMUTABLE
+                            PendingIntent.FLAG_IMMUTABLE,
                         ),
                         BeginGetPublicKeyCredentialOption(
                             option.candidateQueryData,
                             "id",
                             option.requestJson,
-                            option.clientDataHash
+                            option.clientDataHash,
                         ),
                         "displayname",
                         null,
                         ICON,
                         true,
-                        true
+                        true,
                     )
                 )
                 .addAction(constructActionEntry("action-title-1", "subtitle"))
@@ -181,7 +181,7 @@ class PendingIntentHandlerApi23Test {
                     ICON,
                     false,
                     "entry-group-id",
-                    false
+                    false,
                 )
             )
         }
@@ -213,24 +213,24 @@ class PendingIntentHandlerApi23Test {
                     BeginGetPasswordOption(
                         pwdOption1.allowedUserIds,
                         pwdOption1.candidateQueryData,
-                        "id-1"
+                        "id-1",
                     ),
                     BeginGetPasswordOption(
                         pwdOption2.allowedUserIds,
                         pwdOption2.candidateQueryData,
-                        "id-2"
+                        "id-2",
                     ),
                     BeginGetPublicKeyCredentialOption(
                         passkeyOption.candidateQueryData,
                         "id-3",
                         passkeyOption.requestJson,
-                        passkeyOption.clientDataHash
+                        passkeyOption.clientDataHash,
                     ),
                     BeginGetCustomCredentialOption(
                         "id-4",
                         customOption.type,
-                        customOption.candidateQueryData
-                    )
+                        customOption.candidateQueryData,
+                    ),
                 )
             )
         setBeginGetCredentialRequest(intent, expectedRequest)
@@ -257,21 +257,21 @@ class PendingIntentHandlerApi23Test {
                     BeginGetPasswordOption(
                         pwdOption.allowedUserIds,
                         pwdOption.candidateQueryData,
-                        "id-1"
+                        "id-1",
                     ),
                     BeginGetPublicKeyCredentialOption(
                         passkeyOption.candidateQueryData,
                         "id-3",
                         passkeyOption.requestJson,
-                        passkeyOption.clientDataHash
+                        passkeyOption.clientDataHash,
                     ),
                     BeginGetCustomCredentialOption(
                         "id-4",
                         customOption.type,
-                        customOption.candidateQueryData
-                    )
+                        customOption.candidateQueryData,
+                    ),
                 ),
-                getTestCallingAppInfo(null)
+                getTestCallingAppInfo(null),
             )
         setBeginGetCredentialRequest(intent, expectedRequest)
 
@@ -350,7 +350,7 @@ class PendingIntentHandlerApi23Test {
         val expectedRequest =
             ProviderGetCredentialRequest(
                 listOf(pwdOption1, pwdOption2, passkeyOption, customOption),
-                getTestCallingAppInfo("origin")
+                getTestCallingAppInfo("origin"),
             )
         setProviderGetCredentialRequest(intent, expectedRequest)
 

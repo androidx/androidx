@@ -88,7 +88,7 @@ fun LazyGridDragAndDropDemo() {
                     Text(
                         "Item $item",
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp)
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp),
                     )
                 }
             }
@@ -99,7 +99,7 @@ fun LazyGridDragAndDropDemo() {
 @Composable
 fun rememberGridDragDropState(
     gridState: LazyGridState,
-    onMove: (Int, Int) -> Unit
+    onMove: (Int, Int) -> Unit,
 ): GridDragDropState {
     val scope = rememberCoroutineScope()
     val state =
@@ -117,7 +117,7 @@ class GridDragDropState
 internal constructor(
     private val state: LazyGridState,
     private val scope: CoroutineScope,
-    private val onMove: (Int, Int) -> Unit
+    private val onMove: (Int, Int) -> Unit,
 ) {
     var draggingItemIndex by mutableStateOf<Int?>(null)
         private set
@@ -163,8 +163,8 @@ internal constructor(
                     Offset.Zero,
                     spring(
                         stiffness = Spring.StiffnessMediumLow,
-                        visibilityThreshold = Offset.VisibilityThreshold
-                    )
+                        visibilityThreshold = Offset.VisibilityThreshold,
+                    ),
                 )
                 previousIndexOfDraggedItem = null
             }
@@ -195,7 +195,7 @@ internal constructor(
             ) {
                 state.requestScrollToItem(
                     state.firstVisibleItemIndex,
-                    state.firstVisibleItemScrollOffset
+                    state.firstVisibleItemScrollOffset,
                 )
             }
             onMove.invoke(draggingItem.index, targetItem.index)
@@ -236,7 +236,7 @@ fun Modifier.dragContainer(dragDropState: GridDragDropState): Modifier {
             },
             onDragStart = { offset -> dragDropState.onDragStart(offset) },
             onDragEnd = { dragDropState.onDragInterrupted() },
-            onDragCancel = { dragDropState.onDragInterrupted() }
+            onDragCancel = { dragDropState.onDragInterrupted() },
         )
     }
 }
@@ -246,7 +246,7 @@ fun LazyGridItemScope.DraggableItem(
     dragDropState: GridDragDropState,
     index: Int,
     modifier: Modifier = Modifier,
-    content: @Composable (isDragging: Boolean) -> Unit
+    content: @Composable (isDragging: Boolean) -> Unit,
 ) {
     val dragging = index == dragDropState.draggingItemIndex
     val draggingModifier =

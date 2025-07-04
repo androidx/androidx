@@ -77,7 +77,7 @@ public final class AudioEncoderConfigAudioProfileResolver implements
         int resolvedBitrate = AudioConfigUtil.scaleAndClampBitrate(
                 mAudioProfileProxy.getBitrate(),
                 mAudioSettings.getChannelCount(), mAudioProfileProxy.getChannels(),
-                mAudioSettings.getSampleRate(), mAudioProfileProxy.getSampleRate(),
+                mAudioSettings.getEncodeSampleRate(), mAudioProfileProxy.getSampleRate(),
                 audioSpecBitrateRange);
 
         return AudioEncoderConfig.builder()
@@ -85,7 +85,8 @@ public final class AudioEncoderConfigAudioProfileResolver implements
                 .setProfile(mAudioProfile)
                 .setInputTimebase(mInputTimebase)
                 .setChannelCount(mAudioSettings.getChannelCount())
-                .setSampleRate(mAudioSettings.getSampleRate())
+                .setCaptureSampleRate(mAudioSettings.getCaptureSampleRate())
+                .setEncodeSampleRate(mAudioSettings.getEncodeSampleRate())
                 .setBitrate(resolvedBitrate)
                 .build();
     }

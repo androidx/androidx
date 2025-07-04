@@ -36,7 +36,7 @@ class XMessagerTest {
                         """
                     class Foo {}
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) {
@@ -60,7 +60,7 @@ class XMessagerTest {
                         """
                     class Foo {}
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) {
@@ -83,7 +83,7 @@ class XMessagerTest {
                         """
                     class Foo {}
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) {
@@ -106,7 +106,7 @@ class XMessagerTest {
                         """
                     class Foo {}
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) {
@@ -114,7 +114,7 @@ class XMessagerTest {
             it.processingEnv.messager.printMessage(
                 Diagnostic.Kind.ERROR,
                 "intentional failure",
-                fooElement
+                fooElement,
             )
             it.assertCompilationResult {
                 compilationDidFail()
@@ -136,7 +136,7 @@ class XMessagerTest {
                     package test;
                     @interface FooAnnotation {}
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                     Source.java(
                         "test.Foo",
@@ -145,8 +145,8 @@ class XMessagerTest {
                     @FooAnnotation
                     class Foo {}
                     """
-                            .trimIndent()
-                    )
+                            .trimIndent(),
+                    ),
                 )
         ) {
             val fooElement = it.processingEnv.requireTypeElement("test.Foo")
@@ -158,7 +158,7 @@ class XMessagerTest {
                 Diagnostic.Kind.ERROR,
                 "intentional failure",
                 fooElement,
-                fooAnnotation
+                fooAnnotation,
             )
             it.assertCompilationResult {
                 compilationDidFail()
@@ -182,7 +182,7 @@ class XMessagerTest {
                       String value();
                     }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                     Source.java(
                         "test.Foo",
@@ -191,8 +191,8 @@ class XMessagerTest {
                     @FooAnnotation("fooValue")
                     class Foo {}
                     """
-                            .trimIndent()
-                    )
+                            .trimIndent(),
+                    ),
                 )
         ) {
             val fooElement = it.processingEnv.requireTypeElement("test.Foo")
@@ -207,7 +207,7 @@ class XMessagerTest {
                 "intentional failure",
                 fooElement,
                 fooAnnotation,
-                fooAnnotationValue
+                fooAnnotationValue,
             )
             it.assertCompilationResult {
                 compilationDidFail()

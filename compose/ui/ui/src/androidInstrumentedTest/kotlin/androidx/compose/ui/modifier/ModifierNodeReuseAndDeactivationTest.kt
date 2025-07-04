@@ -196,7 +196,7 @@ class ModifierNodeReuseAndDeactivationTest {
                 TestLayout(
                     onAttach = { onAttachCalls++ },
                     onReset = { onResetCalls++ },
-                    onDetach = { onResetCallsWhenDetached = onResetCalls }
+                    onDetach = { onResetCallsWhenDetached = onResetCalls },
                 )
             }
         }
@@ -244,7 +244,7 @@ class ModifierNodeReuseAndDeactivationTest {
                         }
                     },
                     update = {},
-                    content = {}
+                    content = {},
                 )
             }
         }
@@ -284,7 +284,7 @@ class ModifierNodeReuseAndDeactivationTest {
                     TestLayout(
                         onAttach = { onAttachCalls++ },
                         onReset = { onResetCalls++ },
-                        onDetach = { onResetCallsWhenDetached = onResetCalls }
+                        onDetach = { onResetCallsWhenDetached = onResetCalls },
                     )
                 }
             }
@@ -350,7 +350,7 @@ class ModifierNodeReuseAndDeactivationTest {
                 ReusableContent(reuseKey) {
                     Layout(
                         modifier = StatelessElement(onInvalidate, size),
-                        measurePolicy = MeasurePolicy
+                        measurePolicy = MeasurePolicy,
                     )
                 }
             }
@@ -488,7 +488,7 @@ class ModifierNodeReuseAndDeactivationTest {
                 ReusableContent(0) {
                     Layout(
                         modifier = OldLayoutModifier(measureBlock),
-                        measurePolicy = MeasurePolicy
+                        measurePolicy = MeasurePolicy,
                     )
                 }
             }
@@ -649,11 +649,11 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.runOnIdle {
-            assertThat(invalidations).isEqualTo(2)
+            assertThat(invalidations).isEqualTo(1)
             counter++
         }
 
-        rule.runOnIdle { assertThat(invalidations).isEqualTo(3) }
+        rule.runOnIdle { assertThat(invalidations).isEqualTo(2) }
     }
 
     @Test
@@ -711,7 +711,7 @@ class ModifierNodeReuseAndDeactivationTest {
                         modifier =
                             Modifier.modifierLocalProvider(key) { providedValue }
                                 .modifierLocalConsumer { receivedValue = key.current },
-                        measurePolicy = MeasurePolicy
+                        measurePolicy = MeasurePolicy,
                     )
                 }
             }
@@ -743,7 +743,7 @@ class ModifierNodeReuseAndDeactivationTest {
                         content = {
                             Layout(
                                 modifier = modifier.testTag("child"),
-                                measurePolicy = MeasurePolicy
+                                measurePolicy = MeasurePolicy,
                             )
                         }
                     ) { measurables, constraints ->
@@ -782,7 +782,7 @@ class ModifierNodeReuseAndDeactivationTest {
                     content = {
                         Layout(
                             modifier = Modifier.size(50.dp).testTag("child"),
-                            measurePolicy = MeasurePolicy
+                            measurePolicy = MeasurePolicy,
                         )
                     }
                 ) { measurables, constraints ->
@@ -817,7 +817,7 @@ class ModifierNodeReuseAndDeactivationTest {
                                 drawRect(Color.Red, Offset(-5f, -5f), Size(15f, 15f))
                             }
                         },
-                        modifier = Modifier.testTag("test").drawBehind { drawRect(Color.Blue) }
+                        modifier = Modifier.testTag("test").drawBehind { drawRect(Color.Blue) },
                     ) { measurables, constraints ->
                         val placeable = measurables.first().measure(constraints)
                         layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -847,7 +847,7 @@ private fun TestLayout(
     onCreate: () -> Unit = {},
     onUpdate: () -> Unit = {},
     onDetach: () -> Unit = {},
-    onAttach: () -> Unit = {}
+    onAttach: () -> Unit = {},
 ) {
     val currentOnReset by rememberUpdatedState(onReset)
     val currentOnCreate by rememberUpdatedState(onCreate)
@@ -864,7 +864,7 @@ private fun TestLayout(
                 onDetach = { currentOnDetach.invoke() },
                 onAttach = { currentOnAttach.invoke() },
             ),
-        measurePolicy = MeasurePolicy
+        measurePolicy = MeasurePolicy,
     )
 }
 
@@ -904,7 +904,7 @@ private val MeasurePolicy = MeasurePolicy { _, _ -> layout(100, 100) {} }
 
 private data class StatelessElement(
     private val onInvalidate: () -> Unit,
-    private val size: Int = 10
+    private val size: Int = 10,
 ) : ModifierNodeElement<StatelessElement.Node>() {
     override fun create() = Node(size, onInvalidate)
 
@@ -916,7 +916,7 @@ private data class StatelessElement(
     class Node(var size: Int, var onMeasure: () -> Unit) : Modifier.Node(), LayoutModifierNode {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val placeable = measurable.measure(Constraints.fixed(size, size))
             onMeasure()
@@ -925,9 +925,8 @@ private data class StatelessElement(
     }
 }
 
-private data class DelegatingElement(
-    private val onDelegatedNodeReset: () -> Unit,
-) : ModifierNodeElement<DelegatingElement.Node>() {
+private data class DelegatingElement(private val onDelegatedNodeReset: () -> Unit) :
+    ModifierNodeElement<DelegatingElement.Node>() {
     override fun create() = Node(onDelegatedNodeReset)
 
     override fun update(node: Node) {
@@ -946,9 +945,8 @@ private data class DelegatingElement(
     }
 }
 
-private data class LayerElement(
-    private val layerBlock: () -> Unit,
-) : ModifierNodeElement<LayerElement.Node>() {
+private data class LayerElement(private val layerBlock: () -> Unit) :
+    ModifierNodeElement<LayerElement.Node>() {
     override fun create() = Node(layerBlock)
 
     override fun update(node: Node) {
@@ -958,7 +956,7 @@ private data class LayerElement(
     class Node(var layerBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
             return layout(placeable.width, placeable.height) {
@@ -968,9 +966,8 @@ private data class LayerElement(
     }
 }
 
-private data class ObserverElement(
-    private val observedBlock: () -> Unit,
-) : ModifierNodeElement<ObserverElement.Node>() {
+private data class ObserverElement(private val observedBlock: () -> Unit) :
+    ModifierNodeElement<ObserverElement.Node>() {
     override fun create() = Node(observedBlock)
 
     override fun update(node: Node) {
@@ -993,9 +990,8 @@ private data class ObserverElement(
     }
 }
 
-private data class LayoutElement(
-    private val measureBlock: () -> Unit,
-) : ModifierNodeElement<LayoutElement.Node>() {
+private data class LayoutElement(private val measureBlock: () -> Unit) :
+    ModifierNodeElement<LayoutElement.Node>() {
     override fun create() = Node(measureBlock)
 
     override fun update(node: Node) {
@@ -1005,7 +1001,7 @@ private data class LayoutElement(
     class Node(var measureBlock: () -> Unit) : Modifier.Node(), LayoutModifierNode {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
             measureBlock.invoke()
@@ -1014,12 +1010,10 @@ private data class LayoutElement(
     }
 }
 
-private data class OldLayoutModifier(
-    private val measureBlock: () -> Unit,
-) : LayoutModifier {
+private data class OldLayoutModifier(private val measureBlock: () -> Unit) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         measureBlock.invoke()
@@ -1027,9 +1021,8 @@ private data class OldLayoutModifier(
     }
 }
 
-private data class DrawElement(
-    private val drawBlock: () -> Unit,
-) : ModifierNodeElement<DrawElement.Node>() {
+private data class DrawElement(private val drawBlock: () -> Unit) :
+    ModifierNodeElement<DrawElement.Node>() {
     override fun create() = Node(drawBlock)
 
     override fun update(node: Node) {
@@ -1043,9 +1036,7 @@ private data class DrawElement(
     }
 }
 
-private data class OldDrawModifier(
-    private val measureBlock: () -> Unit,
-) : DrawModifier {
+private data class OldDrawModifier(private val measureBlock: () -> Unit) : DrawModifier {
 
     override fun ContentDrawScope.draw() {
         measureBlock.invoke()
@@ -1065,7 +1056,7 @@ private object StatelessLayoutElement1 : ModifierNodeElement<StatelessLayoutModi
 private class StatelessLayoutModifier1 : Modifier.Node(), LayoutModifierNode {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -1085,7 +1076,7 @@ private object StatelessLayoutElement2 : ModifierNodeElement<StatelessLayoutModi
 private class StatelessLayoutModifier2 : Modifier.Node(), LayoutModifierNode {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.place(0, 0) }

@@ -29,8 +29,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -59,7 +59,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.collapse
@@ -80,8 +79,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * <a href="https://m3.material.io/components/bottom-sheets/overview" class="external"
- * target="_blank">Material Design modal bottom sheet</a>.
+ * [Material Design modal bottom sheet](https://m3.material.io/components/bottom-sheets/overview)
  *
  * Modal bottom sheets are used as an alternative to inline menus or simple dialogs on mobile,
  * especially when offering a long list of action items, or when items require longer descriptions
@@ -112,8 +110,10 @@ import kotlinx.coroutines.launch
  *   darker color in light theme and lighter color in dark theme. See also: [Surface].
  * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
  * @param dragHandle Optional visual marker to swipe the bottom sheet.
- * @param contentWindowInsets window insets to be passed to the bottom sheet content via
- *   [PaddingValues] params.
+ * @param contentWindowInsets callback which provides window insets to be passed to the bottom sheet
+ *   content via [Modifier.windowInsetsPadding]. [ModalBottomSheet] will pre-emptively consume top
+ *   insets based on it's current offset. This keeps content outside of the expected window insets
+ *   at any position.
  * @param properties [ModalBottomSheetProperties] for further customization of this modal bottom
  *   sheet's window behavior.
  * @param content The content to be displayed inside the bottom sheet.
@@ -133,11 +133,7 @@ fun ModalBottomSheet(
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
-    properties: ModalBottomSheetProperties =
-        ModalBottomSheetProperties(
-            isAppearanceLightStatusBars = contentColor.isDark(),
-            isAppearanceLightNavigationBars = contentColor.isDark()
-        ),
+    properties: ModalBottomSheetProperties = ModalBottomSheetProperties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     // TODO Load the motionScheme tokens from the component tokens file
@@ -173,6 +169,7 @@ fun ModalBottomSheet(
 
     ModalBottomSheetDialog(
         properties = properties,
+        contentColor = contentColor,
         onDismissRequest = {
             if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
                 // Smoothly animate away predictive back transformations since we are not fully
@@ -207,7 +204,7 @@ fun ModalBottomSheet(
                 tonalElevation,
                 dragHandle,
                 contentWindowInsets,
-                content
+                content,
             )
         }
     }
@@ -218,7 +215,7 @@ fun ModalBottomSheet(
 
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
-    message = "Maintained for Binary compatibility. Use overload with sheetGesturesEnabled param."
+    message = "Maintained for Binary compatibility. Use overload with sheetGesturesEnabled param.",
 )
 @Composable
 @ExperimentalMaterial3Api
@@ -271,7 +268,7 @@ internal fun BoxScope.ModalBottomSheetContent(
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
 
@@ -288,7 +285,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                     sheetState = sheetState,
                                     orientation = Orientation.Vertical,
-                                    onFling = settleToDismiss
+                                    onFling = settleToDismiss,
                                 )
                             }
                         )
@@ -331,12 +328,13 @@ internal fun BoxScope.ModalBottomSheetContent(
                     orientation = Orientation.Vertical,
                     enabled = sheetGesturesEnabled && sheetState.isVisible,
                     startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
-                    onDragStopped = { settleToDismiss(it) }
+                    onDragStopped = { settleToDismiss(it) },
                 )
                 .semantics {
                     paneTitle = bottomSheetPaneTitle
                     traversalIndex = 0f
                 }
+                .consumeWindowInsets(WindowInsets(top = sheetState.offset.toInt().coerceAtLeast(0)))
                 .graphicsLayer {
                     val sheetOffset = sheetState.anchoredDraggableState.offset
                     val sheetHeight = size.height
@@ -425,7 +423,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                                         }
                                     }
                                 }
-                            },
+                            }
                 ) {
                     dragHandle()
                 }
@@ -458,23 +456,11 @@ private fun GraphicsLayerScope.calculatePredictiveBackScaleY(progress: Float): F
  *
  * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing the
  *   back button. If true, pressing the back button will call onDismissRequest.
- * @param isAppearanceLightStatusBars If true, changes the foreground color of the status bars to
- *   light so that the items on the bar can be read clearly. If false, reverts to the default
- *   appearance.
- * @param isAppearanceLightNavigationBars If true, changes the foreground color of the navigation
- *   bars to light so that the items on the bar can be read clearly. If false, reverts to the
- *   default appearance.
  */
 @Immutable
 @ExperimentalMaterial3Api
-expect class ModalBottomSheetProperties(
-    shouldDismissOnBackPress: Boolean = true,
-    isAppearanceLightStatusBars: Boolean = true,
-    isAppearanceLightNavigationBars: Boolean = true,
-) {
+expect class ModalBottomSheetProperties(shouldDismissOnBackPress: Boolean = true) {
     val shouldDismissOnBackPress: Boolean
-    val isAppearanceLightStatusBars: Boolean
-    val isAppearanceLightNavigationBars: Boolean
 }
 
 /** Default values for [ModalBottomSheet] */
@@ -513,7 +499,7 @@ private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) 
         val alpha by
             animateFloatAsState(
                 targetValue = if (visible) 1f else 0f,
-                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
             )
         val closeSheet = getString(Strings.CloseSheet)
         val dismissSheet =
@@ -540,15 +526,11 @@ private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) 
 @Composable
 internal expect fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
+    contentColor: Color,
     properties: ModalBottomSheetProperties,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 )
-
-/** Determines if a color should be considered light or dark. */
-internal fun Color.isDark(): Boolean {
-    return this != Color.Transparent && luminance() <= 0.5
-}
 
 private val PredictiveBackMaxScaleXDistance = 48.dp
 private val PredictiveBackMaxScaleYDistance = 24.dp

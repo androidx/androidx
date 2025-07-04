@@ -204,6 +204,7 @@ class ComponentActivityMenuTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = 34) // b/427245008
     @Test
     fun onPanelClosed() {
         withUse(ActivityScenario.launch(ContextMenuComponentActivity::class.java)) {
@@ -278,7 +279,7 @@ class ContextMenuComponentActivity : ComponentActivity() {
     override fun onCreateContextMenu(
         menu: ContextMenu,
         v: View,
-        menuInfo: ContextMenu.ContextMenuInfo?
+        menuInfo: ContextMenu.ContextMenuInfo?,
     ) {
         super.onCreateContextMenu(menu, v, menuInfo)
         val inflater: MenuInflater = menuInflater

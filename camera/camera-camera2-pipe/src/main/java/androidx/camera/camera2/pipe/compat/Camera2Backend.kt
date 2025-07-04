@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
@@ -28,23 +29,34 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.config.Camera2ControllerComponent
 import androidx.camera.camera2.pipe.config.Camera2ControllerConfig
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import javax.inject.Inject
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 
 /** This is the default [CameraBackend] implementation for CameraPipe based on Camera2. */
 internal class Camera2Backend
 @Inject
 constructor(
+    private val threads: Threads,
     private val camera2DeviceCache: Camera2DeviceCache,
     private val camera2MetadataCache: Camera2MetadataCache,
     private val camera2DeviceManager: Camera2DeviceManager,
     private val camera2CameraControllerComponent: Camera2ControllerComponent.Builder,
-) : CameraBackend {
+) : CameraBackend, Camera2CameraController.ShutdownListener {
+    private val lock = Any()
+
+    @GuardedBy("lock") private val activeCameraControllers = mutableSetOf<CameraController>()
+
     override val id: CameraBackendId
         get() = CameraBackendId("CXCP-Camera2")
+
+    override val cameraIds: Flow<List<CameraId>>
+        get() = camera2DeviceCache.cameraIds
 
     override suspend fun getCameraIds(): List<CameraId> = camera2DeviceCache.getCameraIds()
 
@@ -64,28 +76,32 @@ constructor(
     }
 
     override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
-        TODO(
-            "b/324142928 - Add support in Camera2DeviceManager for closing a camera " +
-                "with a deferred result."
-        )
+        return camera2DeviceManager.close(cameraId)
     }
 
     override fun disconnectAll() {
-        return camera2DeviceManager.closeAll()
+        camera2DeviceManager.closeAll()
     }
 
     override fun disconnectAllAsync(): Deferred<Unit> {
-        TODO(
-            "b/324142928 - Add support in Camera2DeviceManager for closing a camera " +
-                "with a deferred result."
-        )
+        return camera2DeviceManager.closeAll()
     }
 
     override fun shutdownAsync(): Deferred<Unit> {
-        // TODO: Camera2DeviceManager needs to be extended to support a suspendable future that can
-        //   be used to wait until close has been called on all camera devices.
-        camera2DeviceManager.closeAll()
-        return CompletableDeferred(Unit)
+        Log.debug { "Camera2Backend#shutdownAsync" }
+        camera2DeviceCache.shutdown()
+        return threads.cameraPipeScope.async {
+            val controllers = synchronized(lock) { activeCameraControllers }
+            for (controller in controllers) {
+                Log.debug { "Camera2Backend#shutdownAsync: Awaiting closure from $controller" }
+                if (!controller.awaitClosed()) {
+                    Log.warn { "Failed to await closure from $controller!" }
+                }
+            }
+
+            Log.debug { "Camera2Backend#shutdownAsync: Closing all cameras (if any)" }
+            camera2DeviceManager.closeAll().await()
+        }
     }
 
     override fun createCameraController(
@@ -107,15 +123,23 @@ constructor(
                         graphListener,
                         streamGraph as StreamGraphImpl,
                         surfaceTracker,
+                        this,
                     )
                 )
                 .build()
 
         // Create and return a Camera2 CameraController object.
-        return cameraControllerComponent.cameraController()
+        val cameraController = cameraControllerComponent.cameraController()
+        synchronized(lock) { activeCameraControllers.add(cameraController) }
+        return cameraController
     }
 
     override fun prewarm(cameraId: CameraId) {
         camera2DeviceManager.prewarm(cameraId)
+    }
+
+    override fun onControllerClosed(cameraController: CameraController) {
+        Log.debug { "$cameraController finalized" }
+        synchronized(lock) { activeCameraControllers.remove(cameraController) }
     }
 }

@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demo ng Template ng Mensahe"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Dito lalabas ang mensahe.\nHigit pang text sa ikalawang linya."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo ng Template ng Maikling Mensahe"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo ng Template ng Nakaseksyong Item"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Seksyon ng Radio Button"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"I-toggle ang Seksyon"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Seksyon ng Maraming Row"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Seksyon ng Grid Item"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo ng Template ng Pane"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo ng Template ng Listahan ng Lugar"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Mag-browse ng Mga Lugar"</string>

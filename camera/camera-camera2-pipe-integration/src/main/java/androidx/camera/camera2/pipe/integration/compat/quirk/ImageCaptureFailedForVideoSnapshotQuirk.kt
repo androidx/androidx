@@ -61,7 +61,7 @@ public class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
                 "sm-a032f",
                 "sm-a035m",
                 "sm-f946u1",
-                "tecno mobile bf6"
+                "tecno mobile bf6",
             )
 
         private fun isUniSocChipsetDevice(): Boolean {

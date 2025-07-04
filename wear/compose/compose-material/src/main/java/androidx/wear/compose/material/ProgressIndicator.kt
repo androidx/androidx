@@ -156,9 +156,9 @@ public fun CircularProgressIndicator(
                 animation =
                     tween(
                         durationMillis = RotationDuration * RotationsPerCycle,
-                        easing = LinearEasing
+                        easing = LinearEasing,
                     )
-            )
+            ),
         )
     // How far forward (degrees) the base point should be from the start point
     val baseRotation by
@@ -167,7 +167,7 @@ public fun CircularProgressIndicator(
             BaseRotationAngle,
             infiniteRepeatable(
                 animation = tween(durationMillis = RotationDuration, easing = LinearEasing)
-            )
+            ),
         )
     // How far forward (degrees) both the head and tail should be from the base point
     val endAngle by
@@ -181,7 +181,7 @@ public fun CircularProgressIndicator(
                         0f at 0 using CircularEasing
                         JumpRotationAngle at HeadAndTailAnimationDuration
                     }
-            )
+            ),
         )
 
     val startProgressAngle by
@@ -195,7 +195,7 @@ public fun CircularProgressIndicator(
                         0f at HeadAndTailDelayDuration using CircularEasing
                         JumpRotationAngle at durationMillis
                     }
-            )
+            ),
         )
 
     // Canvas internally uses Spacer.drawBehind.
@@ -221,7 +221,7 @@ public fun CircularProgressIndicator(
                         startProgressAngle + offset,
                         sweep,
                         indicatorColor,
-                        stroke
+                        stroke,
                     )
                 }
             }
@@ -261,7 +261,7 @@ public object ProgressIndicatorDefaults {
             stiffness = Spring.StiffnessVeryLow,
             // The default threshold is 0.01, or 1% of the overall progress range, which is quite
             // large and noticeable.
-            visibilityThreshold = 1 / 1000f
+            visibilityThreshold = 1 / 1000f,
         )
 
     // CircularProgressIndicator Material specs
@@ -303,7 +303,7 @@ private fun DrawScope.drawCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
-    stroke: Stroke
+    stroke: Stroke,
 ) {
     // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
     // To do this we need to remove half the stroke width from the total diameter for both sides.
@@ -318,10 +318,10 @@ private fun DrawScope.drawCircularIndicator(
         topLeft =
             Offset(
                 diameterOffset + (size.width - diameter) / 2,
-                diameterOffset + (size.height - diameter) / 2
+                diameterOffset + (size.height - diameter) / 2,
             ),
         size = Size(arcDimen, arcDimen),
-        style = stroke
+        style = stroke,
     )
 }
 
@@ -329,7 +329,7 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
     startAngle: Float,
     sweep: Float,
     color: Color,
-    stroke: Stroke
+    stroke: Stroke,
 ) {
     // When the start and end angles are in the same place, we still want to draw a small sweep, so
     // the stroke caps get added on both ends and we draw the correct minimum length arc

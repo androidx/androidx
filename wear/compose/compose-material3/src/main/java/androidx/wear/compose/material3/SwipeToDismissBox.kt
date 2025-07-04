@@ -72,11 +72,11 @@ public fun SwipeToDismissBox(
     backgroundKey: Any = SwipeToDismissKeys.Background,
     contentKey: Any = SwipeToDismissKeys.Content,
     userSwipeEnabled: Boolean = true,
-    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit,
 ) {
     CompositionLocalProvider(
         LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
-        LocalSwipeToDismissContentScrimColor provides contentScrimColor
+        LocalSwipeToDismissContentScrimColor provides contentScrimColor,
     ) {
         androidx.wear.compose.foundation.BasicSwipeToDismissBox(
             state = state,
@@ -84,7 +84,7 @@ public fun SwipeToDismissBox(
             backgroundKey = backgroundKey,
             contentKey = contentKey,
             userSwipeEnabled = userSwipeEnabled,
-            content = content
+            content = content,
         )
     }
 }
@@ -136,11 +136,11 @@ public fun SwipeToDismissBox(
     backgroundKey: Any = SwipeToDismissKeys.Background,
     contentKey: Any = SwipeToDismissKeys.Content,
     userSwipeEnabled: Boolean = true,
-    content: @Composable BoxScope.(isBackground: Boolean) -> Unit
+    content: @Composable BoxScope.(isBackground: Boolean) -> Unit,
 ) {
     CompositionLocalProvider(
         LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
-        LocalSwipeToDismissContentScrimColor provides contentScrimColor
+        LocalSwipeToDismissContentScrimColor provides contentScrimColor,
     ) {
         androidx.wear.compose.foundation.BasicSwipeToDismissBox(
             state = state,
@@ -149,7 +149,7 @@ public fun SwipeToDismissBox(
             backgroundKey = backgroundKey,
             contentKey = contentKey,
             userSwipeEnabled = userSwipeEnabled,
-            content = content
+            content = content,
         )
     }
 }

@@ -39,14 +39,14 @@ internal class FileClassLoaderFactory(
 
     private fun tryCreateBaseDexClassLoaderFor(
         sdkConfig: LocalSdkConfig,
-        parent: ClassLoader
+        parent: ClassLoader,
     ): ClassLoader? {
         try {
             val dexFiles = localSdkStorage.dexFilesFor(sdkConfig)
             if (dexFiles == null) {
                 Log.w(
                     LOG_TAG,
-                    "Can't use BaseDexClassLoader for ${sdkConfig.packageName} - no dexFiles"
+                    "Can't use BaseDexClassLoader for ${sdkConfig.packageName} - no dexFiles",
                 )
                 return null
             }
@@ -60,13 +60,13 @@ internal class FileClassLoaderFactory(
                 dexFiles.toClassPathString(),
                 optimizedDirectory,
                 /* librarySearchPath = */ null,
-                parent
+                parent,
             )
         } catch (ex: Exception) {
             Log.e(
                 LOG_TAG,
                 "Failed to use BaseDexClassLoader for ${sdkConfig.packageName} - exception",
-                ex
+                ex,
             )
             return null
         }

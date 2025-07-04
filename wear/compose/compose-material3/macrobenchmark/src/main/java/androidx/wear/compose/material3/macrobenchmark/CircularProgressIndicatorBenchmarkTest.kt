@@ -28,5 +28,5 @@ class CircularProgressIndicatorBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = CircularProgressIndicatorBenchmark,
-        actionSuffix = "CIRCULAR_PROGRESS_INDICATOR_ACTIVITY"
+        actionSuffix = "CIRCULAR_PROGRESS_INDICATOR_ACTIVITY",
     )

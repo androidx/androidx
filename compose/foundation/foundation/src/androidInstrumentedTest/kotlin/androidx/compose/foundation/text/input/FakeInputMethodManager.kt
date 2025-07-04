@@ -58,7 +58,7 @@ internal open class FakeInputMethodManager : ComposeInputMethodManager {
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
-        compositionEnd: Int
+        compositionEnd: Int,
     ) {
         calls +=
             "updateSelection($selectionStart, $selectionEnd, " +

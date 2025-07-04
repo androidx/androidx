@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.SCENE_UNDERSTANDING_COARSE" />
+    <uses-permission android:name="android.permission.HAND_TRACKING" />
+    <uses-permission android:name="android.permission.HEAD_TRACKING" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.IntegrationTestsApp">
+
+        <activity
+            android:name=".common.AnotherActivity"
+            android:exported="false"
+            android:label="@string/title_activity_rotation"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".rotation.Rotation"
+            android:exported="true"
+            android:label="@string/title_activity_rotation"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".mediaplayer.MediaPlayerActivity"
+            android:exported="true"
+            android:label="@string/title_activity_media_player"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".modechange.ModeChange"
+            android:exported="true"
+            android:label="@string/title_activity_mode_change"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+       <activity
+           android:name=".movable.MovableActivity"
+           android:exported="true"
+           android:label="Movable"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+       <activity
+           android:name=".permissionsdialog.PermissionsDialog"
+           android:exported="true"
+           android:label="PermissionsDialog"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+       <activity
+           android:name=".animation.Animation"
+           android:exported="true"
+           android:label="ValueBasedAnimations"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+       <activity
+           android:name=".curvedlayout.CurvedLayout"
+           android:exported="true"
+           android:label="CurvedLayout"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".movablescalable.MovableScalable"
+            android:exported="true"
+            android:label="MovableScalable"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+       <activity
+           android:name=".spatialelevation.SpatialElevation"
+           android:exported="true"
+           android:label="SpatialElevationTest"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialcompose.SpatialCompose"
+            android:exported="true"
+            android:label="SpatialCompose"
+            android:enableOnBackInvokedCallback="true"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialcompose.SpatialComposeVideoPlayer"
+            android:exported="true"
+            android:label="SpatialCompose"
+            android:enableOnBackInvokedCallback="true"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialcompose.SpatialComposeWindowManager"
+            android:exported="true"
+            android:label="SpatialCompose"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".spatialcompose.SpatialComposeStateTest"
+            android:exported="true"
+            android:label="SpatialCompose"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:theme="@style/Theme.IntegrationTestsApp">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+       <activity
+           android:name=".videoplayer.VideoPlayerActivity"
+           android:exported="true"
+           android:label="VideoPlayerTest"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+       <activity
+           android:name=".splitengine.SplitEngine"
+           android:exported="true"
+           android:label="SplitEngineTest"
+           android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".depthstacking.DepthStacking"
+            android:exported="true"
+            android:label="DepthStacking"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".nestedsubspace.NestedSubspace"
+            android:exported="true"
+            android:label="NestedSubspace"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".panelvolume.PanelVolume"
+            android:exported="true"
+            android:label="PanelVolume"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+        <activity
+            android:name=".resizablepanel.ResizablePanel"
+            android:exported="true"
+            android:label="ResizablePanel"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+
+
+        <property
+            android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"
+            android:value="XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.IntegrationTestsApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

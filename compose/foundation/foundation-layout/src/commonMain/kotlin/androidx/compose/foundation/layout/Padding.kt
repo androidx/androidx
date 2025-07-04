@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.offset
 
 /**
@@ -63,7 +64,7 @@ fun Modifier.padding(start: Dp = 0.dp, top: Dp = 0.dp, end: Dp = 0.dp, bottom: D
                 properties["top"] = top
                 properties["end"] = end
                 properties["bottom"] = bottom
-            }
+            },
         )
 
 /**
@@ -91,7 +92,7 @@ fun Modifier.padding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp) =
                 name = "padding"
                 properties["horizontal"] = horizontal
                 properties["vertical"] = vertical
-            }
+            },
         )
 
 /**
@@ -118,7 +119,7 @@ fun Modifier.padding(all: Dp) =
             inspectorInfo = {
                 name = "padding"
                 value = all
-            }
+            },
         )
 
 /**
@@ -141,7 +142,7 @@ fun Modifier.padding(paddingValues: PaddingValues) =
             inspectorInfo = {
                 name = "padding"
                 properties["paddingValues"] = paddingValues
-            }
+            },
         )
 
 /**
@@ -172,7 +173,7 @@ fun Modifier.absolutePadding(left: Dp = 0.dp, top: Dp = 0.dp, right: Dp = 0.dp, 
                 properties["top"] = top
                 properties["right"] = right
                 properties["bottom"] = bottom
-            }
+            },
         ))
 
 /**
@@ -199,14 +200,18 @@ interface PaddingValues {
         @Stable private val left: Dp = 0.dp,
         @Stable private val top: Dp = 0.dp,
         @Stable private val right: Dp = 0.dp,
-        @Stable private val bottom: Dp = 0.dp
+        @Stable private val bottom: Dp = 0.dp,
     ) : PaddingValues {
 
         init {
-            requirePrecondition(left.value >= 0) { "Left padding must be non-negative" }
-            requirePrecondition(top.value >= 0) { "Top padding must be non-negative" }
-            requirePrecondition(right.value >= 0) { "Right padding must be non-negative" }
-            requirePrecondition(bottom.value >= 0) { "Bottom padding must be non-negative" }
+            requirePrecondition(
+                (left.value >= 0f) and
+                    (top.value >= 0f) and
+                    (right.value >= 0f) and
+                    (bottom.value >= 0f)
+            ) {
+                "Padding must be non-negative"
+            }
         }
 
         override fun calculateLeftPadding(layoutDirection: LayoutDirection) = left
@@ -231,6 +236,11 @@ interface PaddingValues {
 
         override fun toString() =
             "PaddingValues.Absolute(left=$left, top=$top, right=$right, bottom=$bottom)"
+    }
+
+    companion object {
+        /** PaddingValues with all values `0.dp`. */
+        @Stable @get:Stable val Zero: PaddingValues = Absolute()
     }
 }
 
@@ -279,7 +289,7 @@ fun PaddingValues(
     start: Dp = 0.dp,
     top: Dp = 0.dp,
     end: Dp = 0.dp,
-    bottom: Dp = 0.dp
+    bottom: Dp = 0.dp,
 ): PaddingValues = PaddingValuesImpl(start, top, end, bottom)
 
 @Immutable
@@ -287,14 +297,15 @@ internal class PaddingValuesImpl(
     @Stable val start: Dp = 0.dp,
     @Stable val top: Dp = 0.dp,
     @Stable val end: Dp = 0.dp,
-    @Stable val bottom: Dp = 0.dp
+    @Stable val bottom: Dp = 0.dp,
 ) : PaddingValues {
 
     init {
-        requirePrecondition(start.value >= 0) { "Start padding must be non-negative" }
-        requirePrecondition(top.value >= 0) { "Top padding must be non-negative" }
-        requirePrecondition(end.value >= 0) { "End padding must be non-negative" }
-        requirePrecondition(bottom.value >= 0) { "Bottom padding must be non-negative" }
+        requirePrecondition(
+            (start.value >= 0f) and (top.value >= 0f) and (end.value >= 0f) and (bottom.value >= 0f)
+        ) {
+            "Padding must be non-negative"
+        }
     }
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection) =
@@ -327,15 +338,15 @@ private class PaddingElement(
     var end: Dp = 0.dp,
     var bottom: Dp = 0.dp,
     var rtlAware: Boolean,
-    val inspectorInfo: InspectorInfo.() -> Unit
+    val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<PaddingNode>() {
 
     init {
         requirePrecondition(
-            (start.value >= 0f || start == Dp.Unspecified) &&
-                (top.value >= 0f || top == Dp.Unspecified) &&
-                (end.value >= 0f || end == Dp.Unspecified) &&
-                (bottom.value >= 0f || bottom == Dp.Unspecified)
+            (start.value >= 0f || start.isUnspecified) and
+                (top.value >= 0f || top.isUnspecified) and
+                (end.value >= 0f || end.isUnspecified) and
+                (bottom.value >= 0f || bottom.isUnspecified)
         ) {
             "Padding must be non-negative"
         }
@@ -381,12 +392,12 @@ private class PaddingNode(
     var top: Dp = 0.dp,
     var end: Dp = 0.dp,
     var bottom: Dp = 0.dp,
-    var rtlAware: Boolean
+    var rtlAware: Boolean,
 ) : LayoutModifierNode, Modifier.Node() {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
 
         val horizontal = start.roundToPx() + end.roundToPx()
@@ -408,7 +419,7 @@ private class PaddingNode(
 
 private class PaddingValuesElement(
     val paddingValues: PaddingValues,
-    val inspectorInfo: InspectorInfo.() -> Unit
+    val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<PaddingValuesModifier>() {
     override fun create(): PaddingValuesModifier {
         return PaddingValuesModifier(paddingValues)
@@ -434,32 +445,32 @@ private class PaddingValuesModifier(var paddingValues: PaddingValues) :
     LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
+        val leftPadding = paddingValues.calculateLeftPadding(layoutDirection)
+        val topPadding = paddingValues.calculateTopPadding()
+        val rightPadding = paddingValues.calculateRightPadding(layoutDirection)
+        val bottomPadding = paddingValues.calculateBottomPadding()
+
         requirePrecondition(
-            paddingValues.calculateLeftPadding(layoutDirection) >= 0.dp &&
-                paddingValues.calculateTopPadding() >= 0.dp &&
-                paddingValues.calculateRightPadding(layoutDirection) >= 0.dp &&
-                paddingValues.calculateBottomPadding() >= 0.dp
+            (leftPadding >= 0.dp) and
+                (topPadding >= 0.dp) and
+                (rightPadding >= 0.dp) and
+                (bottomPadding >= 0.dp)
         ) {
             "Padding must be non-negative"
         }
-        val horizontal =
-            paddingValues.calculateLeftPadding(layoutDirection).roundToPx() +
-                paddingValues.calculateRightPadding(layoutDirection).roundToPx()
-        val vertical =
-            paddingValues.calculateTopPadding().roundToPx() +
-                paddingValues.calculateBottomPadding().roundToPx()
+
+        val roundedLeftPadding = leftPadding.roundToPx()
+        val horizontal = roundedLeftPadding + rightPadding.roundToPx()
+
+        val roundedTopPadding = topPadding.roundToPx()
+        val vertical = roundedTopPadding + bottomPadding.roundToPx()
 
         val placeable = measurable.measure(constraints.offset(-horizontal, -vertical))
 
         val width = constraints.constrainWidth(placeable.width + horizontal)
         val height = constraints.constrainHeight(placeable.height + vertical)
-        return layout(width, height) {
-            placeable.place(
-                paddingValues.calculateLeftPadding(layoutDirection).roundToPx(),
-                paddingValues.calculateTopPadding().roundToPx()
-            )
-        }
+        return layout(width, height) { placeable.place(roundedLeftPadding, roundedTopPadding) }
     }
 }

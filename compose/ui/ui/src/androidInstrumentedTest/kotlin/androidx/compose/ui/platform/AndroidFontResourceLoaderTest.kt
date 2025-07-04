@@ -41,7 +41,7 @@ class AndroidFontResourceLoaderTest {
                 Font(
                     resId = R.font.sample_font,
                     weight = FontWeight.Normal,
-                    style = FontStyle.Normal
+                    style = FontStyle.Normal,
                 )
             )
         assertThat(typeface).isNotNull()

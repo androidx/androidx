@@ -49,7 +49,6 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @get:Rule val rule = createComposeRule()
@@ -69,7 +68,7 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         rememberDateRangePickerState(
                             initialDisplayedMonthMillis = monthInUtcMillis
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -90,9 +89,9 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         rememberDateRangePickerState(
                             initialDisplayedMonthMillis = monthInUtcMillis,
                             initialSelectedStartDateMillis = startSelectionMillis,
-                            initialSelectedEndDateMillis = endSelectionMillis
+                            initialSelectedEndDateMillis = endSelectionMillis,
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -113,9 +112,9 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         rememberDateRangePickerState(
                             initialDisplayedMonthMillis = monthInUtcMillis,
                             initialSelectedStartDateMillis = startSelectionMillis,
-                            initialSelectedEndDateMillis = endSelectionMillis
+                            initialSelectedEndDateMillis = endSelectionMillis,
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -138,9 +137,9 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                             rememberDateRangePickerState(
                                 initialDisplayedMonthMillis = monthInUtcMillis,
                                 initialSelectedStartDateMillis = startSelectionMillis,
-                                initialSelectedEndDateMillis = endSelectionMillis
+                                initialSelectedEndDateMillis = endSelectionMillis,
                             ),
-                        showModeToggle = false
+                        showModeToggle = false,
                     )
                 }
             }
@@ -167,9 +166,9 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                                         val dayOfWeek = localDate.dayOfWeek
                                         return dayOfWeek != DayOfWeek.SUNDAY
                                     }
-                                }
+                                },
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -200,7 +199,7 @@ class DateRangePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             CompositionLocalProvider(
                 LocalContext provides newContext,
                 LocalConfiguration provides config,
-                LocalLayoutDirection provides LayoutDirection.Rtl
+                LocalLayoutDirection provides LayoutDirection.Rtl,
             ) {
                 Box(wrap.testTag(wrapperTestTag)) {
                     val monthInUtcMillis =

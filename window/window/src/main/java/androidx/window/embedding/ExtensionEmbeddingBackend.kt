@@ -48,7 +48,7 @@ constructor(
     private val applicationContext: Context,
     @field:VisibleForTesting
     @field:GuardedBy("globalLock")
-    var embeddingExtension: EmbeddingInterfaceCompat?
+    var embeddingExtension: EmbeddingInterfaceCompat?,
 ) : EmbeddingBackend {
 
     @VisibleForTesting val splitChangeCallbacks: CopyOnWriteArrayList<SplitListenerWrapper>
@@ -259,7 +259,7 @@ constructor(
     internal class SplitListenerWrapper(
         private val activity: Activity,
         private val executor: Executor,
-        val callback: Consumer<List<SplitInfo>>
+        val callback: Consumer<List<SplitInfo>>,
     ) {
         private var lastValue: List<SplitInfo>? = null
 
@@ -277,7 +277,7 @@ constructor(
     override fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
-        callback: Consumer<List<SplitInfo>>
+        callback: Consumer<List<SplitInfo>>,
     ) {
         globalLock.withLock {
             if (embeddingExtension == null) {
@@ -450,11 +450,7 @@ constructor(
         embeddingExtension?.addOverlayInfoCallback(overlayTag, executor, overlayInfoCallback)
             // Send an empty OverlayInfo if the extension does not exist.
             ?: overlayInfoCallback.accept(
-                OverlayInfo(
-                    overlayTag,
-                    currentOverlayAttributes = null,
-                    activityStack = null,
-                )
+                OverlayInfo(overlayTag, currentOverlayAttributes = null, activityStack = null)
             )
     }
 
@@ -466,7 +462,7 @@ constructor(
     @RequiresWindowSdkExtension(6)
     override fun addEmbeddedActivityWindowInfoCallbackForActivity(
         activity: Activity,
-        callback: Consumer<EmbeddedActivityWindowInfo>
+        callback: Consumer<EmbeddedActivityWindowInfo>,
     ) {
         embeddingExtension?.addEmbeddedActivityWindowInfoCallbackForActivity(activity, callback)
     }
@@ -485,14 +481,14 @@ constructor(
                 try {
                     context.packageManager.getProperty(
                         WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED,
-                        context.packageName
+                        context.packageName,
                     )
                 } catch (e: PackageManager.NameNotFoundException) {
                     if (BuildConfig.verificationMode == VerificationMode.LOG) {
                         Log.w(
                             TAG,
                             WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
-                                " must be set and enabled in AndroidManifest.xml to use splits APIs."
+                                " must be set and enabled in AndroidManifest.xml to use splits APIs.",
                         )
                     }
                     return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED
@@ -509,7 +505,7 @@ constructor(
                     Log.w(
                         TAG,
                         WindowProperties.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED +
-                            " must have a boolean value"
+                            " must have a boolean value",
                     )
                 }
                 return SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED

@@ -39,6 +39,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.isSpecified
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceAtMost
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
@@ -64,7 +68,7 @@ fun Modifier.width(width: Dp) =
                 debugInspectorInfo {
                     name = "width"
                     value = width
-                }
+                },
         )
     )
 
@@ -91,7 +95,7 @@ fun Modifier.height(height: Dp) =
                 debugInspectorInfo {
                     name = "height"
                     value = height
-                }
+                },
         )
     )
 
@@ -120,7 +124,7 @@ fun Modifier.size(size: Dp) =
                 debugInspectorInfo {
                     name = "size"
                     value = size
-                }
+                },
         )
     )
 
@@ -151,7 +155,7 @@ fun Modifier.size(width: Dp, height: Dp) =
                     name = "size"
                     properties["width"] = width
                     properties["height"] = height
-                }
+                },
         )
     )
 
@@ -186,7 +190,7 @@ fun Modifier.widthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
                     name = "widthIn"
                     properties["min"] = min
                     properties["max"] = max
-                }
+                },
         )
     )
 
@@ -208,7 +212,7 @@ fun Modifier.heightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified) =
                     name = "heightIn"
                     properties["min"] = min
                     properties["max"] = max
-                }
+                },
         )
     )
 
@@ -223,7 +227,7 @@ fun Modifier.sizeIn(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
-    maxHeight: Dp = Dp.Unspecified
+    maxHeight: Dp = Dp.Unspecified,
 ) =
     this.then(
         SizeElement(
@@ -239,7 +243,7 @@ fun Modifier.sizeIn(
                     properties["minHeight"] = minHeight
                     properties["maxWidth"] = maxWidth
                     properties["maxHeight"] = maxHeight
-                }
+                },
         )
     )
 
@@ -268,7 +272,7 @@ fun Modifier.requiredWidth(width: Dp) =
                 debugInspectorInfo {
                     name = "requiredWidth"
                     value = width
-                }
+                },
         )
     )
 
@@ -298,7 +302,7 @@ fun Modifier.requiredHeight(height: Dp) =
                 debugInspectorInfo {
                     name = "requiredHeight"
                     value = height
-                }
+                },
         )
     )
 
@@ -330,7 +334,7 @@ fun Modifier.requiredSize(size: Dp) =
                 debugInspectorInfo {
                     name = "requiredSize"
                     value = size
-                }
+                },
         )
     )
 
@@ -359,7 +363,7 @@ fun Modifier.requiredSize(width: Dp, height: Dp) =
                     name = "requiredSize"
                     properties["width"] = width
                     properties["height"] = height
-                }
+                },
         )
     )
 
@@ -394,7 +398,7 @@ fun Modifier.requiredWidthIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified)
                     name = "requiredWidthIn"
                     properties["min"] = min
                     properties["max"] = max
-                }
+                },
         )
     )
 
@@ -417,7 +421,7 @@ fun Modifier.requiredHeightIn(min: Dp = Dp.Unspecified, max: Dp = Dp.Unspecified
                     name = "requiredHeightIn"
                     properties["min"] = min
                     properties["max"] = max
-                }
+                },
         )
     )
 
@@ -434,7 +438,7 @@ fun Modifier.requiredSizeIn(
     minWidth: Dp = Dp.Unspecified,
     minHeight: Dp = Dp.Unspecified,
     maxWidth: Dp = Dp.Unspecified,
-    maxHeight: Dp = Dp.Unspecified
+    maxHeight: Dp = Dp.Unspecified,
 ) =
     this.then(
         SizeElement(
@@ -450,7 +454,7 @@ fun Modifier.requiredSizeIn(
                     properties["minHeight"] = minHeight
                     properties["maxWidth"] = maxWidth
                     properties["maxHeight"] = maxHeight
-                }
+                },
         )
     )
 
@@ -535,7 +539,7 @@ private val FillWholeMaxSize = FillElement.size(1f)
 @Stable
 fun Modifier.wrapContentWidth(
     align: Alignment.Horizontal = Alignment.CenterHorizontally,
-    unbounded: Boolean = false
+    unbounded: Boolean = false,
 ) =
     this.then(
         if (align == Alignment.CenterHorizontally && !unbounded) {
@@ -565,7 +569,7 @@ private val WrapContentWidthStart = WrapContentElement.width(Alignment.Start, fa
 @Stable
 fun Modifier.wrapContentHeight(
     align: Alignment.Vertical = Alignment.CenterVertically,
-    unbounded: Boolean = false
+    unbounded: Boolean = false,
 ) =
     this.then(
         if (align == Alignment.CenterVertically && !unbounded) {
@@ -624,7 +628,7 @@ fun Modifier.defaultMinSize(minWidth: Dp = Dp.Unspecified, minHeight: Dp = Dp.Un
 private class FillElement(
     private val direction: Direction,
     private val fraction: Float,
-    private val inspectorName: String
+    private val inspectorName: String,
 ) : ModifierNodeElement<FillNode>() {
     override fun create(): FillNode = FillNode(direction = direction, fraction = fraction)
 
@@ -661,7 +665,7 @@ private class FillElement(
             FillElement(
                 direction = Direction.Horizontal,
                 fraction = fraction,
-                inspectorName = "fillMaxWidth"
+                inspectorName = "fillMaxWidth",
             )
 
         @Stable
@@ -669,7 +673,7 @@ private class FillElement(
             FillElement(
                 direction = Direction.Vertical,
                 fraction = fraction,
-                inspectorName = "fillMaxHeight"
+                inspectorName = "fillMaxHeight",
             )
 
         @Stable
@@ -677,7 +681,7 @@ private class FillElement(
             FillElement(
                 direction = Direction.Both,
                 fraction = fraction,
-                inspectorName = "fillMaxSize"
+                inspectorName = "fillMaxSize",
             )
     }
 }
@@ -686,7 +690,7 @@ private class FillNode(var direction: Direction, var fraction: Float) :
     LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val minWidth: Int
         val maxWidth: Int
@@ -694,7 +698,7 @@ private class FillNode(var direction: Direction, var fraction: Float) :
             val width =
                 (constraints.maxWidth * fraction)
                     .fastRoundToInt()
-                    .coerceIn(constraints.minWidth, constraints.maxWidth)
+                    .fastCoerceIn(constraints.minWidth, constraints.maxWidth)
             minWidth = width
             maxWidth = width
         } else {
@@ -707,7 +711,7 @@ private class FillNode(var direction: Direction, var fraction: Float) :
             val height =
                 (constraints.maxHeight * fraction)
                     .fastRoundToInt()
-                    .coerceIn(constraints.minHeight, constraints.maxHeight)
+                    .fastCoerceIn(constraints.minHeight, constraints.maxHeight)
             minHeight = height
             maxHeight = height
         } else {
@@ -726,7 +730,7 @@ private class SizeElement(
     private val maxWidth: Dp = Dp.Unspecified,
     private val maxHeight: Dp = Dp.Unspecified,
     private val enforceIncoming: Boolean,
-    private val inspectorInfo: InspectorInfo.() -> Unit
+    private val inspectorInfo: InspectorInfo.() -> Unit,
 ) : ModifierNodeElement<SizeNode>() {
     override fun create(): SizeNode =
         SizeNode(
@@ -734,7 +738,7 @@ private class SizeElement(
             minHeight = minHeight,
             maxWidth = maxWidth,
             maxHeight = maxHeight,
-            enforceIncoming = enforceIncoming
+            enforceIncoming = enforceIncoming,
         )
 
     override fun update(node: SizeNode) {
@@ -777,33 +781,33 @@ private class SizeNode(
     var minHeight: Dp = Dp.Unspecified,
     var maxWidth: Dp = Dp.Unspecified,
     var maxHeight: Dp = Dp.Unspecified,
-    var enforceIncoming: Boolean
+    var enforceIncoming: Boolean,
 ) : LayoutModifierNode, Modifier.Node() {
     private val Density.targetConstraints: Constraints
         get() {
             val maxWidth =
-                if (maxWidth != Dp.Unspecified) {
-                    maxWidth.roundToPx().coerceAtLeast(0)
+                if (maxWidth.isSpecified) {
+                    maxWidth.roundToPx().fastCoerceAtLeast(0)
                 } else {
                     Constraints.Infinity
                 }
             val maxHeight =
-                if (maxHeight != Dp.Unspecified) {
-                    maxHeight.roundToPx().coerceAtLeast(0)
+                if (maxHeight.isSpecified) {
+                    maxHeight.roundToPx().fastCoerceAtLeast(0)
                 } else {
                     Constraints.Infinity
                 }
             val minWidth =
-                if (minWidth != Dp.Unspecified) {
-                    minWidth.roundToPx().coerceAtMost(maxWidth).coerceAtLeast(0).let {
+                if (minWidth.isSpecified) {
+                    minWidth.roundToPx().fastCoerceIn(0, maxWidth).let {
                         if (it != Constraints.Infinity) it else 0
                     }
                 } else {
                     0
                 }
             val minHeight =
-                if (minHeight != Dp.Unspecified) {
-                    minHeight.roundToPx().coerceAtMost(maxHeight).coerceAtLeast(0).let {
+                if (minHeight.isSpecified) {
+                    minHeight.roundToPx().fastCoerceIn(0, maxHeight).let {
                         if (it != Constraints.Infinity) it else 0
                     }
                 } else {
@@ -813,13 +817,13 @@ private class SizeNode(
                 minWidth = minWidth,
                 minHeight = minHeight,
                 maxWidth = maxWidth,
-                maxHeight = maxHeight
+                maxHeight = maxHeight,
             )
         }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val wrappedConstraints =
             targetConstraints.let { targetConstraints ->
@@ -827,34 +831,34 @@ private class SizeNode(
                     constraints.constrain(targetConstraints)
                 } else {
                     val resolvedMinWidth =
-                        if (minWidth != Dp.Unspecified) {
+                        if (minWidth.isSpecified) {
                             targetConstraints.minWidth
                         } else {
-                            constraints.minWidth.coerceAtMost(targetConstraints.maxWidth)
+                            constraints.minWidth.fastCoerceAtMost(targetConstraints.maxWidth)
                         }
                     val resolvedMaxWidth =
-                        if (maxWidth != Dp.Unspecified) {
+                        if (maxWidth.isSpecified) {
                             targetConstraints.maxWidth
                         } else {
-                            constraints.maxWidth.coerceAtLeast(targetConstraints.minWidth)
+                            constraints.maxWidth.fastCoerceAtLeast(targetConstraints.minWidth)
                         }
                     val resolvedMinHeight =
-                        if (minHeight != Dp.Unspecified) {
+                        if (minHeight.isSpecified) {
                             targetConstraints.minHeight
                         } else {
-                            constraints.minHeight.coerceAtMost(targetConstraints.maxHeight)
+                            constraints.minHeight.fastCoerceAtMost(targetConstraints.maxHeight)
                         }
                     val resolvedMaxHeight =
-                        if (maxHeight != Dp.Unspecified) {
+                        if (maxHeight.isSpecified) {
                             targetConstraints.maxHeight
                         } else {
-                            constraints.maxHeight.coerceAtLeast(targetConstraints.minHeight)
+                            constraints.maxHeight.fastCoerceAtLeast(targetConstraints.minHeight)
                         }
                     Constraints(
                         resolvedMinWidth,
                         resolvedMaxWidth,
                         resolvedMinHeight,
-                        resolvedMaxHeight
+                        resolvedMaxHeight,
                     )
                 }
             }
@@ -864,7 +868,7 @@ private class SizeNode(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int {
         val constraints = targetConstraints
         return if (constraints.hasFixedWidth) {
@@ -877,7 +881,7 @@ private class SizeNode(
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int {
         val constraints = targetConstraints
         return if (constraints.hasFixedHeight) {
@@ -890,7 +894,7 @@ private class SizeNode(
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int {
         val constraints = targetConstraints
         return if (constraints.hasFixedWidth) {
@@ -903,7 +907,7 @@ private class SizeNode(
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int {
         val constraints = targetConstraints
         return if (constraints.hasFixedHeight) {
@@ -920,7 +924,7 @@ private class WrapContentElement(
     private val unbounded: Boolean,
     private val alignmentCallback: (IntSize, LayoutDirection) -> IntOffset,
     private val align: Any, // only used for equals and hashcode
-    private val inspectorName: String
+    private val inspectorName: String,
 ) : ModifierNodeElement<WrapContentNode>() {
     override fun create(): WrapContentNode =
         WrapContentNode(direction, unbounded, alignmentCallback)
@@ -969,7 +973,7 @@ private class WrapContentElement(
                     IntOffset(align.align(0, size.width, layoutDirection), 0)
                 },
                 align,
-                inspectorName = "wrapContentWidth"
+                inspectorName = "wrapContentWidth",
             )
 
         @Stable
@@ -979,7 +983,7 @@ private class WrapContentElement(
                 unbounded = unbounded,
                 alignmentCallback = { size, _ -> IntOffset(0, align.align(0, size.height)) },
                 align,
-                inspectorName = "wrapContentHeight"
+                inspectorName = "wrapContentHeight",
             )
 
         @Stable
@@ -991,7 +995,7 @@ private class WrapContentElement(
                     align.align(IntSize.Zero, size, layoutDirection)
                 },
                 align,
-                inspectorName = "wrapContentSize"
+                inspectorName = "wrapContentSize",
             )
     }
 }
@@ -1003,7 +1007,7 @@ private class WrapContentNode(
 ) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val wrappedConstraints =
             Constraints(
@@ -1020,7 +1024,7 @@ private class WrapContentNode(
                         Constraints.Infinity
                     } else {
                         constraints.maxHeight
-                    }
+                    },
             )
         val placeable = measurable.measure(wrappedConstraints)
         val wrapperWidth = placeable.width.coerceIn(constraints.minWidth, constraints.maxWidth)
@@ -1029,7 +1033,7 @@ private class WrapContentNode(
             val position =
                 alignmentCallback(
                     IntSize(wrapperWidth - placeable.width, wrapperHeight - placeable.height),
-                    layoutDirection
+                    layoutDirection,
                 )
             placeable.place(position)
         }
@@ -1064,26 +1068,26 @@ private class UnspecifiedConstraintsElement(
 
 private class UnspecifiedConstraintsNode(
     var minWidth: Dp = Dp.Unspecified,
-    var minHeight: Dp = Dp.Unspecified
+    var minHeight: Dp = Dp.Unspecified,
 ) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val wrappedConstraints =
             Constraints(
-                if (minWidth != Dp.Unspecified && constraints.minWidth == 0) {
-                    minWidth.roundToPx().coerceAtMost(constraints.maxWidth).coerceAtLeast(0)
+                if (minWidth.isSpecified && constraints.minWidth == 0) {
+                    minWidth.roundToPx().fastCoerceIn(0, constraints.maxWidth)
                 } else {
                     constraints.minWidth
                 },
                 constraints.maxWidth,
-                if (minHeight != Dp.Unspecified && constraints.minHeight == 0) {
-                    minHeight.roundToPx().coerceAtMost(constraints.maxHeight).coerceAtLeast(0)
+                if (minHeight.isSpecified && constraints.minHeight == 0) {
+                    minHeight.roundToPx().fastCoerceIn(0, constraints.maxHeight)
                 } else {
                     constraints.minHeight
                 },
-                constraints.maxHeight
+                constraints.maxHeight,
             )
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
@@ -1091,39 +1095,39 @@ private class UnspecifiedConstraintsNode(
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ) =
         measurable
             .minIntrinsicWidth(height)
-            .coerceAtLeast(if (minWidth != Dp.Unspecified) minWidth.roundToPx() else 0)
+            .fastCoerceAtLeast(if (minWidth.isSpecified) minWidth.roundToPx() else 0)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ) =
         measurable
             .maxIntrinsicWidth(height)
-            .coerceAtLeast(if (minWidth != Dp.Unspecified) minWidth.roundToPx() else 0)
+            .fastCoerceAtLeast(if (minWidth.isSpecified) minWidth.roundToPx() else 0)
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ) =
         measurable
             .minIntrinsicHeight(width)
-            .coerceAtLeast(if (minHeight != Dp.Unspecified) minHeight.roundToPx() else 0)
+            .fastCoerceAtLeast(if (minHeight.isSpecified) minHeight.roundToPx() else 0)
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ) =
         measurable
             .maxIntrinsicHeight(width)
-            .coerceAtLeast(if (minHeight != Dp.Unspecified) minHeight.roundToPx() else 0)
+            .fastCoerceAtLeast(if (minHeight.isSpecified) minHeight.roundToPx() else 0)
 }
 
 internal enum class Direction {
     Vertical,
     Horizontal,
-    Both
+    Both,
 }

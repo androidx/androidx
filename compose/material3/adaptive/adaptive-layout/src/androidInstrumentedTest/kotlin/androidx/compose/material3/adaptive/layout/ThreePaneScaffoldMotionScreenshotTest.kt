@@ -386,9 +386,7 @@ class ThreePaneScaffoldMotionScreenshotTest {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun SampleThreePaneScaffold(
-    scaffoldState: ThreePaneScaffoldState,
-) {
+internal fun SampleThreePaneScaffold(scaffoldState: ThreePaneScaffoldState) {
     ThreePaneScaffold(
         modifier = Modifier.fillMaxSize().testTag(ThreePaneScaffoldTestTag),
         scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
@@ -398,7 +396,7 @@ internal fun SampleThreePaneScaffold(
             AnimatedPane(modifier = Modifier.testTag(tag = "SecondaryPane")) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.secondary,
                 ) {}
             }
         },
@@ -406,10 +404,10 @@ internal fun SampleThreePaneScaffold(
             AnimatedPane(modifier = Modifier.testTag(tag = "TertiaryPane")) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.tertiary,
                 ) {}
             }
-        }
+        },
     ) {
         AnimatedPane(modifier = Modifier.testTag(tag = "PrimaryPane")) {
             Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {}

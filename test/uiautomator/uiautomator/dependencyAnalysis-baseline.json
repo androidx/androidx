@@ -1,0 +1,13 @@
+{
+  "projectPath": ":test:uiautomator:uiautomator",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

@@ -138,7 +138,7 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
             beforeContent = mainAxis,
             afterContent = mainAxis,
             beforeContentCrossAxis = crossAxis,
-            afterContentCrossAxis = crossAxis
+            afterContentCrossAxis = crossAxis,
         )
 
     fun PaddingValues(
@@ -152,14 +152,14 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
                 start = beforeContentCrossAxis,
                 top = beforeContent,
                 end = afterContentCrossAxis,
-                bottom = afterContent
+                bottom = afterContent,
             )
         } else {
             androidx.compose.foundation.layout.PaddingValues(
                 start = beforeContent,
                 top = beforeContentCrossAxis,
                 end = afterContent,
-                bottom = afterContentCrossAxis
+                bottom = afterContentCrossAxis,
             )
         }
 
@@ -183,7 +183,7 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
         override fun applyToScroll(
             delta: Offset,
             source: NestedScrollSource,
-            performScroll: (Offset) -> Offset
+            performScroll: (Offset) -> Offset,
         ): Offset {
             applyToScrollCalledCount++
             val consumed = performScroll(delta)
@@ -193,7 +193,7 @@ open class BaseLazyLayoutTestWithOrientation(private val orientation: Orientatio
 
         override suspend fun applyToFling(
             velocity: Velocity,
-            performFling: suspend (Velocity) -> Velocity
+            performFling: suspend (Velocity) -> Velocity,
         ) {
             applyToFlingCalledCount++
             val consumed = performFling(velocity)

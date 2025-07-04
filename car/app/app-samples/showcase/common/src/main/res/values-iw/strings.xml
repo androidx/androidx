@@ -51,9 +51,9 @@
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"הגדלת התצוגה"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"הקטנת התצוגה"</string>
     <string name="triggered_toast_msg" msgid="3396166539208366382">"הופעל"</string>
-    <string name="primary_toast_msg" msgid="7153771322662005447">"לחצת על הלחצן הראשי"</string>
-    <string name="search_toast_msg" msgid="7826530065407699347">"לחצת על לחצן החיפוש"</string>
-    <string name="options_toast_msg" msgid="2146223786877557730">"לחצת על לחצן האפשרויות"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"לחצת על הכפתור הראשי"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"לחצת על כפתור החיפוש"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"לחצת על כפתור האפשרויות"</string>
     <string name="favorite_toast_msg" msgid="522064494016370117">"הוספת למועדפים!"</string>
     <string name="not_favorite_toast_msg" msgid="6831181108681007428">"לא הוספת למועדפים!"</string>
     <string name="nav_requested_toast_msg" msgid="6696525973145493908">"ביקשת ניווט"</string>
@@ -66,12 +66,12 @@
     <string name="settings_toast_msg" msgid="7697794473002342727">"לחצת על הגדרות"</string>
     <string name="parked_toast_msg" msgid="2532422265890824446">"פעולת חניה"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"לחצת על \'עוד\'"</string>
-    <string name="commute_toast_msg" msgid="4112684360647638688">"לחצת על לחצן הנסיעות היומיות"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"לחצת על כפתור הנסיעות היומיות"</string>
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"יש לתת הרשאת מיקום כדי לראות את המיקום הנוכחי"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"‏הכניסה באמצעות Google מתחילה כאן"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"שינית את הבחירה לאינדקס"</string>
-    <string name="yes_action_toast_msg" msgid="6216215197177241247">"הלחצן \'כן\' נלחץ!"</string>
-    <string name="no_action_toast_msg" msgid="6165492423831023809">"הלחצן \'לא\' נלחץ!"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"הכפתור \'כן\' נלחץ!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"הכפתור \'לא\' נלחץ!"</string>
     <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"פג הזמן של ההתראה!"</string>
     <string name="first_row_title" msgid="219428344573165351">"שורה עם תמונה גדולה וטקסט ארוך טקסט ארוך טקסט ארוך טקסט ארוך טקסט ארוך"</string>
     <string name="first_row_text" msgid="3887390298628338716">"טקסט טקסט טקסט"</string>
@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"הדגמה של תבנית הודעה"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ההודעה תופיע כאן.\nטקסט נוסף מופיע בשורה השנייה."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"הדגמה של תבנית של הודעה קצרה"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"הדגמה של תבנית פריטים שמחולקת לקטעים"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"קטע של כפתורי בחירה"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"קטע של מתגים"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"קטע של הרבה שורות"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"קטע של פריט ברשת"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"הדגמה של תבנית החלונית"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"הדגמת התבנית של רשימת המקומות"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"עיון במקומות"</string>
@@ -253,7 +258,7 @@
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"עליך להזין את קוד האימות בטלפון"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"‏יש לסרוק את קוד ה-QR כדי להיכנס"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"‏כניסה באמצעות חשבון Google"</string>
-    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏אפשר להשתמש בלחצן הזה כדי להשלים את הכניסה לחשבון Google שלך"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏אפשר להשתמש בכפתור הזה כדי להשלים את הכניסה לחשבון Google שלך"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"נכנסת לחשבון!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"הכניסה הושלמה"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"הדגמה של תבנית הכניסה לחשבון"</string>
@@ -288,14 +293,14 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"הדגמת שורות"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"הדגמות של טקסטים וסמלים"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"הדגמה של שורות עם טקסטים וסמלים"</string>
-    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"הדגמה של רשימות של לחצני בחירה"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"הדגמה של רשימות של כפתורי בחירה"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"הדגמה של הרשימות שאפשר לבחור"</string>
     <string name="option_1_title" msgid="7221252541651471199">"אפשרות 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"אפשרות 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"אפשרות 3"</string>
-    <string name="option_row_radio_title" msgid="5978617101267398181">"שורה עם לחצן בחירה"</string>
-    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"שורה עם לחצן בחירה וסמל"</string>
-    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"שורה עם לחצן בחירה, סמל, וטקסט צבוע"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"שורה עם כפתור בחירה"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"שורה עם כפתור בחירה וסמל"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"שורה עם כפתור בחירה, סמל, וטקסט צבוע"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"עוד טקסט"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"דוגמה של רשימה שאפשר לבחור"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"הדגמה של הגבלת המשימות"</string>

@@ -50,8 +50,8 @@ class AnimatedStateTest {
                     { progress.value },
                     tween(
                         1024, // Use a multiple of 16 as animations snap to 16ms
-                        easing = LinearEasing
-                    )
+                        easing = LinearEasing,
+                    ),
                 )
         }
         progress.value = 1f
@@ -86,8 +86,8 @@ class AnimatedStateTest {
                     { progress.value },
                     tween(
                         1024, // Use a multiple of 16 as animations snap to 16ms
-                        easing = LinearEasing
-                    )
+                        easing = LinearEasing,
+                    ),
                 )
         }
         progress.value = 1f

@@ -93,11 +93,11 @@ class ComposeViewOverlayTest {
                     LinearLayout(activity).apply {
                         addView(
                             contentAView,
-                            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
                         )
                         addView(
                             contentBView,
-                            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f)
+                            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
                         )
                     }
                 activity.setContentView(views)
@@ -126,7 +126,7 @@ class ComposeViewOverlayTest {
             assertEquals("unexpected recomposition overlay result", publishedStage, consumedStage)
             assertTrue(
                 "recomposed at least once since idle",
-                compositionCount > compositionCountAtFirstIdle
+                compositionCount > compositionCountAtFirstIdle,
             )
         }
         assertEquals("Created recomposer count", 1, factoryCallCount)

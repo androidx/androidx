@@ -124,13 +124,13 @@ fun ToolBarDslDemo() {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.verticalScroll(scroll)
+        modifier = Modifier.verticalScroll(scroll),
     ) {
         Spacer(Modifier.height(big))
         repeat(5) {
             Text(
                 text = LoremIpsum(222).values.first(),
-                modifier = Modifier.background(Color.White).padding(16.dp)
+                modifier = Modifier.background(Color.White).padding(16.dp),
             )
         }
     }
@@ -143,19 +143,19 @@ fun ToolBarDslDemo() {
             imageVector = Icons.Default.Face,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            colorFilter = ColorFilter.tint(Color(0x51FFFFFF))
+            colorFilter = ColorFilter.tint(Color(0x51FFFFFF)),
         )
         Image(
             modifier = Modifier.layoutId("icon"),
             imageVector = Icons.Default.Menu,
             contentDescription = null,
-            colorFilter = ColorFilter.tint(Color.White)
+            colorFilter = ColorFilter.tint(Color.White),
         )
         Text(
             modifier = Modifier.layoutId("title"),
             text = "San Francisco",
             fontSize = 30.sp,
-            color = Color.White
+            color = Color.White,
         )
     }
 }
@@ -266,19 +266,19 @@ fun ToolBarLazyDslDemo() {
                 imageVector = Icons.Default.Face,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                colorFilter = ColorFilter.tint(Color(0x51FFFFFF))
+                colorFilter = ColorFilter.tint(Color(0x51FFFFFF)),
             )
             Image(
                 modifier = Modifier.layoutId("icon"),
                 imageVector = Icons.Default.Menu,
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(Color.White)
+                colorFilter = ColorFilter.tint(Color.White),
             )
             Text(
                 modifier = Modifier.layoutId("title"),
                 text = "San Francisco",
                 fontSize = 30.sp,
-                color = Color.White
+                color = Color.White,
             )
         }
         LazyColumn(Modifier.fillMaxWidth().nestedScroll(nestedScrollConnection)) {

@@ -138,7 +138,7 @@ No warnings.
         """
                         .trimIndent()
                 ),
-                Stubs.DeprecatedSinceApi
+                Stubs.DeprecatedSinceApi,
             )
 
         check(*input).expectClean()
@@ -175,7 +175,7 @@ No warnings.
         """
                         .trimIndent()
                 ),
-                Stubs.DeprecatedSinceApi
+                Stubs.DeprecatedSinceApi,
             )
 
         check(*input).expectClean()

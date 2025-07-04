@@ -52,6 +52,6 @@ internal class KspPrimitiveType(
         ksType: KSType,
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
-        typeAlias: KSType?
+        typeAlias: KSType?,
     ) = KspPrimitiveType(env, ksType, originalKSAnnotations, typeAlias)
 }

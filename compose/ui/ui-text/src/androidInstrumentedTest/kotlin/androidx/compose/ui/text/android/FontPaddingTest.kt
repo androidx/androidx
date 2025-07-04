@@ -149,7 +149,7 @@ class FontPaddingTest {
     private fun TextLayout(
         text: CharSequence,
         includePadding: Boolean = false,
-        typeface: Typeface = latinTypeface
+        typeface: Typeface = latinTypeface,
     ): TextLayout {
         val textPaint =
             TextPaint().apply {
@@ -167,7 +167,7 @@ class FontPaddingTest {
             textPaint = textPaint,
             includePadding = includePadding,
             fallbackLineSpacing = false,
-            width = fontSize * 1.5f
+            width = fontSize * 1.5f,
         )
     }
 }

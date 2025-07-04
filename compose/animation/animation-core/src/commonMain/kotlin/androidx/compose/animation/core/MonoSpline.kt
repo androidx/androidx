@@ -264,7 +264,7 @@ internal fun hermiteInterpolate(
     y1: Float,
     y2: Float,
     t1: Float,
-    t2: Float
+    t2: Float,
 ): Float {
     val x2 = x * x
     val x3 = x2 * x
@@ -287,7 +287,7 @@ internal fun hermiteDifferential(
     y1: Float,
     y2: Float,
     t1: Float,
-    t2: Float
+    t2: Float,
 ): Float {
     // The exact formula is as follows:
     //

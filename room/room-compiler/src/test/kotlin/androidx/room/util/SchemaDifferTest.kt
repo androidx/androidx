@@ -42,7 +42,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
 
@@ -59,7 +59,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
 
@@ -76,7 +76,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
 
@@ -93,7 +93,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
         assertThat(schemaDiffResult.addedColumns.single().fieldBundle.columnName)
@@ -110,7 +110,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
         assertThat(schemaDiffResult.addedColumns).hasSize(2)
@@ -129,7 +129,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
             fail("DiffException should have been thrown.")
@@ -149,7 +149,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
         assertThat(schemaDiffResult.addedTables.toList()[0].entityBundle.tableName)
@@ -166,7 +166,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
         assertThat(schemaDiffResult.addedColumns).hasSize(2)
@@ -194,7 +194,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
             fail("DiffException should have been thrown.")
@@ -216,7 +216,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
             fail("DiffException should have been thrown.")
@@ -238,7 +238,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
             fail("DiffException should have been thrown.")
@@ -258,7 +258,7 @@ class SchemaDifferTest {
                     renameColumnEntries = listOf(),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
             fail("DiffException should have been thrown.")
@@ -285,16 +285,16 @@ class SchemaDifferTest {
                             listOf(
                                 FieldBundle("id", "id", "INTEGER", true, "1"),
                                 FieldBundle("title", "title", "TEXT", true, ""),
-                                FieldBundle("length", "length", "INTEGER", true, "1")
+                                FieldBundle("length", "length", "INTEGER", true, "1"),
                             ),
                             PrimaryKeyBundle(false, mutableListOf("id")),
                             mutableListOf(),
-                            mutableListOf()
+                            mutableListOf(),
                         )
                     ),
                     mutableListOf(),
-                    mutableListOf()
-                )
+                    mutableListOf(),
+                ),
             )
         val toSchemaBundle =
             SchemaBundle(
@@ -312,16 +312,16 @@ class SchemaDifferTest {
                             listOf(
                                 FieldBundle("id", "id", "INTEGER", true, "1"),
                                 FieldBundle("songTitle", "songTitle", "TEXT", true, ""),
-                                FieldBundle("songLength", "songLength", "INTEGER", true, "1")
+                                FieldBundle("songLength", "songLength", "INTEGER", true, "1"),
                             ),
                             PrimaryKeyBundle(false, mutableListOf("id")),
                             mutableListOf(),
-                            mutableListOf()
+                            mutableListOf(),
                         )
                     ),
                     mutableListOf(),
-                    mutableListOf()
-                )
+                    mutableListOf(),
+                ),
             )
         val schemaDiffResult =
             SchemaDiffer(
@@ -331,11 +331,11 @@ class SchemaDifferTest {
                     renameColumnEntries =
                         listOf(
                             AutoMigration.RenamedColumn("Song", "title", "songTitle"),
-                            AutoMigration.RenamedColumn("Song", "length", "songLength")
+                            AutoMigration.RenamedColumn("Song", "length", "songLength"),
                         ),
                     deleteColumnEntries = listOf(),
                     renameTableEntries = listOf(AutoMigration.RenamedTable("Song", "SongTable")),
-                    deleteTableEntries = listOf()
+                    deleteTableEntries = listOf(),
                 )
                 .diffSchemas()
         assertThat(schemaDiffResult.complexChangedTables.size).isEqualTo(1)
@@ -361,11 +361,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -374,16 +374,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     // region Valid "to" Schemas
@@ -402,11 +402,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Album",
@@ -415,16 +415,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     private val toTableDeleted =
@@ -441,16 +441,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     )
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     private val toColumnAddedWithColumnInfoDefaultValue =
@@ -469,11 +469,11 @@ class SchemaDifferTest {
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
                             FieldBundle("length", "length", "INTEGER", true, "1"),
-                            FieldBundle("artistId", "artistId", "INTEGER", true, "0")
+                            FieldBundle("artistId", "artistId", "INTEGER", true, "0"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         emptyList(),
-                        emptyList()
+                        emptyList(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -482,16 +482,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     /** Adding multiple columns, preserving the order in which they have been added. */
@@ -512,11 +512,11 @@ class SchemaDifferTest {
                             FieldBundle("title", "title", "TEXT", true, ""),
                             FieldBundle("length", "length", "INTEGER", true, "1"),
                             FieldBundle("recordLabelId", "recordLabelId", "INTEGER", true, "0"),
-                            FieldBundle("artistId", "artistId", "INTEGER", true, "0")
+                            FieldBundle("artistId", "artistId", "INTEGER", true, "0"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         emptyList(),
-                        emptyList()
+                        emptyList(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -529,12 +529,12 @@ class SchemaDifferTest {
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     /** Adding multiple columns, preserving the order in which they have been added. */
@@ -558,7 +558,7 @@ class SchemaDifferTest {
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         emptyList(),
-                        emptyList()
+                        emptyList(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -572,12 +572,12 @@ class SchemaDifferTest {
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     /** Renaming the length column to duration. */
@@ -596,11 +596,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("duration", "duration", "INTEGER", true, "0")
+                            FieldBundle("duration", "duration", "INTEGER", true, "0"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -609,16 +609,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     /**
@@ -640,11 +640,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "TEXT", true, "length")
+                            FieldBundle("length", "length", "TEXT", true, "length"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -653,16 +653,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     private val toTableAddedWithColumnInfoDefaultValue =
@@ -679,11 +679,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -692,11 +692,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Album",
@@ -705,12 +705,12 @@ class SchemaDifferTest {
                         listOf(FieldBundle("albumId", "albumId", "INTEGER", true, "1")),
                         PrimaryKeyBundle(true, listOf("albumId")),
                         listOf(),
-                        listOf()
-                    )
+                        listOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     private val toForeignKeyAdded =
@@ -731,7 +731,7 @@ class SchemaDifferTest {
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
                             FieldBundle("length", "length", "INTEGER", true, "1"),
-                            FieldBundle("artistId", "artistId", "INTEGER", true, "0")
+                            FieldBundle("artistId", "artistId", "INTEGER", true, "0"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         emptyList(),
@@ -741,9 +741,9 @@ class SchemaDifferTest {
                                 "onDelete",
                                 "onUpdate",
                                 listOf("title"),
-                                listOf("artistId")
+                                listOf("artistId"),
                             )
-                        )
+                        ),
                     ),
                     EntityBundle(
                         "Artist",
@@ -752,16 +752,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     val toIndexAdded =
@@ -778,7 +778,7 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         listOf(
@@ -787,10 +787,10 @@ class SchemaDifferTest {
                                 true,
                                 emptyList<String>(),
                                 emptyList<String>(),
-                                "CREATE UNIQUE INDEX IF NOT EXISTS `index1` ON `Song`" + "(`title`)"
+                                "CREATE UNIQUE INDEX IF NOT EXISTS `index1` ON `Song`" + "(`title`)",
                             )
                         ),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -799,16 +799,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     val toChangeInPrimaryKey =
@@ -825,11 +825,11 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("title")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -838,16 +838,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     // endregion
@@ -872,7 +872,7 @@ class SchemaDifferTest {
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         emptyList(),
-                        emptyList()
+                        emptyList(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -881,16 +881,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     /**
@@ -913,11 +913,11 @@ class SchemaDifferTest {
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
                             FieldBundle("length", "length", "INTEGER", true, "1"),
-                            FieldBundle("artistId", "artistId", "INTEGER", true, null)
+                            FieldBundle("artistId", "artistId", "INTEGER", true, null),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         emptyList(),
-                        emptyList()
+                        emptyList(),
                     ),
                     EntityBundle(
                         "Artist",
@@ -926,16 +926,16 @@ class SchemaDifferTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
-                    )
+                        mutableListOf(),
+                    ),
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     // endregion

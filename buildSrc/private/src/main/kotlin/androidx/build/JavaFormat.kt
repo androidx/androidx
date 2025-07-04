@@ -104,11 +104,7 @@ abstract class JavaFormatTask : DefaultTask() {
     }
 
     companion object {
-        private val excludedDirectories =
-            listOf(
-                "test-data",
-                "external",
-            )
+        private val excludedDirectories = listOf("test-data", "external")
 
         private val excludedDirectoryGlobs = excludedDirectories.map { "**/$it/**/*.java" }
         private const val MAIN_CLASS = "com.google.googlejavaformat.java.Main"

@@ -47,7 +47,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 @JvmOverloads // Generate methods for default params for java users.
 public fun SharedPreferencesMigration(
     produceSharedPreferences: () -> SharedPreferences,
-    keysToMigrate: Set<String> = MIGRATE_ALL_KEYS
+    keysToMigrate: Set<String> = MIGRATE_ALL_KEYS,
 ): SharedPreferencesMigration<Preferences> =
     if (keysToMigrate === MIGRATE_ALL_KEYS) {
         SharedPreferencesMigration(
@@ -89,7 +89,7 @@ public fun SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPreferencesName,
             shouldRunMigration = getShouldRunMigration(keysToMigrate),
-            migrate = getMigrationFunction()
+            migrate = getMigrationFunction(),
         )
     } else {
         SharedPreferencesMigration(
@@ -97,7 +97,7 @@ public fun SharedPreferencesMigration(
             sharedPreferencesName = sharedPreferencesName,
             keysToMigrate = keysToMigrate,
             shouldRunMigration = getShouldRunMigration(keysToMigrate),
-            migrate = getMigrationFunction()
+            migrate = getMigrationFunction(),
         )
     }
 

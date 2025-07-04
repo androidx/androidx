@@ -74,6 +74,7 @@ class CameraDeviceWrapperTest {
     @Test
     fun testCaptureSessionGetsFinalizedWhenDeviceClosed() =
         testScope.runTest {
+            androidCameraDevice.onDeviceClosing()
             androidCameraDevice.onDeviceClosed()
             advanceUntilIdle()
 

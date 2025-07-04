@@ -57,7 +57,7 @@ internal class ConsumerAdapter(private val loader: ClassLoader) {
         obj: Any,
         clazz: KClass<T>,
         methodName: String,
-        consumer: (T) -> Unit
+        consumer: (T) -> Unit,
     ) {
         obj.javaClass
             .getMethod(methodName, unsafeConsumerClass())
@@ -71,7 +71,7 @@ internal class ConsumerAdapter(private val loader: ClassLoader) {
         addMethodName: String,
         removeMethodName: String,
         activity: Activity,
-        consumer: (T) -> Unit
+        consumer: (T) -> Unit,
     ): Subscription {
         val javaConsumer = buildConsumer(clazz, consumer)
         obj.javaClass
@@ -91,7 +91,7 @@ internal class ConsumerAdapter(private val loader: ClassLoader) {
         clazz: KClass<T>,
         addMethodName: String,
         removeMethodName: String,
-        consumer: (T) -> Unit
+        consumer: (T) -> Unit,
     ): Subscription {
         val javaConsumer = buildConsumer(clazz, consumer)
         obj.javaClass.getMethod(addMethodName, unsafeConsumerClass()).invoke(obj, javaConsumer)
@@ -110,7 +110,7 @@ internal class ConsumerAdapter(private val loader: ClassLoader) {
         addMethodName: String,
         removeMethodName: String,
         context: Context,
-        consumer: (T) -> Unit
+        consumer: (T) -> Unit,
     ): Subscription {
         val javaConsumer = buildConsumer(clazz, consumer)
         obj.javaClass
@@ -133,7 +133,7 @@ internal class ConsumerAdapter(private val loader: ClassLoader) {
         clazz: KClass<T>,
         addMethodName: String,
         activity: Activity,
-        consumer: (T) -> Unit
+        consumer: (T) -> Unit,
     ) {
         val javaConsumer = buildConsumer(clazz, consumer)
         obj.javaClass
@@ -143,7 +143,7 @@ internal class ConsumerAdapter(private val loader: ClassLoader) {
 
     private class ConsumerHandler<T : Any>(
         private val clazz: KClass<T>,
-        private val consumer: (T) -> Unit
+        private val consumer: (T) -> Unit,
     ) : InvocationHandler {
         override fun invoke(obj: Any, method: Method, parameters: Array<out Any>?): Any {
             return when {

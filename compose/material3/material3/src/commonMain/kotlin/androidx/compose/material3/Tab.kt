@@ -53,8 +53,7 @@ import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
 
 /**
- * <a href="https://m3.material.io/components/tabs/overview" class="external"
- * target="_blank">Material Design tab.</a>
+ * [Material Design tab](https://m3.material.io/components/tabs/overview)
  *
  * A default Tab, also known as a Primary Navigation Tab. Tabs organize content across different
  * screens, data sets, and other interactions.
@@ -98,7 +97,7 @@ fun Tab(
     icon: @Composable (() -> Unit)? = null,
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     val styledText: @Composable (() -> Unit)? =
         text?.let {
@@ -117,15 +116,14 @@ fun Tab(
         enabled = enabled,
         selectedContentColor = selectedContentColor,
         unselectedContentColor = unselectedContentColor,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         TabBaselineLayout(icon = icon, text = styledText)
     }
 }
 
 /**
- * <a href="https://m3.material.io/components/tabs/overview" class="external"
- * target="_blank">Material Design tab.</a>
+ * [Material Design tab](https://m3.material.io/components/tabs/overview)
  *
  * Tabs organize content across different screens, data sets, and other interactions.
  *
@@ -163,7 +161,7 @@ fun LeadingIconTab(
     enabled: Boolean = true,
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     // The color of the Ripple should always the be selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
@@ -181,12 +179,12 @@ fun LeadingIconTab(
                         enabled = enabled,
                         role = Role.Tab,
                         interactionSource = interactionSource,
-                        indication = ripple
+                        indication = ripple,
                     )
                     .padding(horizontal = HorizontalTextPadding)
                     .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             icon()
             Spacer(Modifier.requiredWidth(TextDistanceFromLeadingIcon))
@@ -198,8 +196,7 @@ fun LeadingIconTab(
 }
 
 /**
- * <a href="https://m3.material.io/components/tabs/overview" class="external"
- * target="_blank">Material Design tab.</a>
+ * [Material Design tab](https://m3.material.io/components/tabs/overview)
  *
  * Tabs organize content across different screens, data sets, and other interactions.
  *
@@ -237,7 +234,7 @@ fun Tab(
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
@@ -254,12 +251,12 @@ fun Tab(
                         enabled = enabled,
                         role = Role.Tab,
                         interactionSource = interactionSource,
-                        indication = ripple
+                        indication = ripple,
                     )
                     .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            content = content
+            content = content,
         )
     }
 }
@@ -274,7 +271,7 @@ private fun TabTransition(
     activeColor: Color,
     inactiveColor: Color,
     selected: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val transition = updateTransition(selected)
     // TODO Load the motionScheme tokens from the component tokens file
@@ -340,7 +337,7 @@ private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable
                 specHeight,
                 (iconPlaceable?.height ?: 0) +
                     (textPlaceable?.height ?: 0) +
-                    IconDistanceFromBaseline.roundToPx()
+                    IconDistanceFromBaseline.roundToPx(),
             )
 
         val firstBaseline = textPlaceable?.get(FirstBaseline)
@@ -356,7 +353,7 @@ private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable
                         tabWidth = tabWidth,
                         tabHeight = tabHeight,
                         firstBaseline = firstBaseline!!,
-                        lastBaseline = lastBaseline!!
+                        lastBaseline = lastBaseline!!,
                     )
                 textPlaceable != null -> placeTextOrIcon(textPlaceable, tabHeight)
                 iconPlaceable != null -> placeTextOrIcon(iconPlaceable, tabHeight)
@@ -369,7 +366,7 @@ private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable
 /** Places the provided [textOrIconPlaceable] in the vertical center of the provided [tabHeight]. */
 private fun Placeable.PlacementScope.placeTextOrIcon(
     textOrIconPlaceable: Placeable,
-    tabHeight: Int
+    tabHeight: Int,
 ) {
     val contentY = (tabHeight - textOrIconPlaceable.height) / 2
     textOrIconPlaceable.placeRelative(0, contentY)
@@ -387,7 +384,7 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
     tabWidth: Int,
     tabHeight: Int,
     firstBaseline: Int,
-    lastBaseline: Int
+    lastBaseline: Int,
 ) {
     val baselineOffset =
         if (firstBaseline == lastBaseline) {

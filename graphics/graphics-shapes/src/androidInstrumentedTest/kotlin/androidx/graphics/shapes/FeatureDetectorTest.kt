@@ -37,17 +37,7 @@ class FeatureDetectorTest {
 
     @Test
     fun recognizesCurvature() {
-        val roundCubic =
-            Cubic(
-                0f,
-                0f,
-                0.5f,
-                0.5f,
-                0.5f,
-                0.5f,
-                1f,
-                0f,
-            )
+        val roundCubic = Cubic(0f, 0f, 0.5f, 0.5f, 0.5f, 0.5f, 1f, 0f)
         assertFalse(roundCubic.straightIsh())
     }
 
@@ -128,28 +118,8 @@ class FeatureDetectorTest {
 
     @Test
     fun convertsCurvedCubicToCorner() {
-        val cubic =
-            Cubic(
-                0f,
-                0f,
-                0.5f,
-                0.5f,
-                0.5f,
-                0.5f,
-                1f,
-                0f,
-            )
-        val followingCubic =
-            Cubic(
-                1f,
-                0f,
-                1.5f,
-                1.5f,
-                1.5f,
-                1.5f,
-                2f,
-                0f,
-            )
+        val cubic = Cubic(0f, 0f, 0.5f, 0.5f, 0.5f, 0.5f, 1f, 0f)
+        val followingCubic = Cubic(1f, 0f, 1.5f, 1.5f, 1.5f, 1.5f, 2f, 0f)
 
         val converted = cubic.asFeature(followingCubic)
         val expected = Feature.Corner(listOf(cubic), false)
@@ -161,17 +131,7 @@ class FeatureDetectorTest {
     @Test
     fun convertsEmptyCubicToCorner() {
         val cubic = Cubic.empty(1f, 0f)
-        val followingCubic =
-            Cubic(
-                1f,
-                0f,
-                1.5f,
-                1.5f,
-                1.5f,
-                1.5f,
-                2f,
-                0f,
-            )
+        val followingCubic = Cubic(1f, 0f, 1.5f, 1.5f, 1.5f, 1.5f, 2f, 0f)
 
         val converted = cubic.asFeature(followingCubic)
         val expected = Feature.Corner(listOf(cubic), false)
@@ -189,7 +149,7 @@ class FeatureDetectorTest {
             RoundedPolygon(
                 detectFeatures(splitCubics),
                 originalPolygon.centerX,
-                originalPolygon.centerY
+                originalPolygon.centerY,
             )
 
         // It's okay if the cubics' control points aren't the same, as long as the shape is the same
@@ -203,11 +163,11 @@ class FeatureDetectorTest {
 
             assertPointsEqualish(
                 Point(new.anchor0X, new.anchor0Y),
-                Point(original.anchor0X, original.anchor0Y)
+                Point(original.anchor0X, original.anchor0Y),
             )
             assertPointsEqualish(
                 Point(new.anchor1X, new.anchor1Y),
-                Point(original.anchor1X, original.anchor1Y)
+                Point(original.anchor1X, original.anchor1Y),
             )
         }
 
@@ -215,11 +175,11 @@ class FeatureDetectorTest {
         assertEquals(originalPolygon.features.size, createdPolygon.features.size)
         assertEquals(
             originalPolygon.features.filterIsInstance<Feature.Corner>().size,
-            createdPolygon.features.filterIsInstance<Feature.Corner>().size
+            createdPolygon.features.filterIsInstance<Feature.Corner>().size,
         )
         assertEquals(
             originalPolygon.features.filterIsInstance<Feature.Edge>().size,
-            createdPolygon.features.filterIsInstance<Feature.Edge>().size
+            createdPolygon.features.filterIsInstance<Feature.Edge>().size,
         )
         assertTrue(
             createdPolygon.features.zipWithNext().all {
@@ -243,7 +203,7 @@ class FeatureDetectorTest {
             RoundedPolygon(
                 detectFeatures(originalPolygon.cubics),
                 originalPolygon.centerX,
-                originalPolygon.centerY
+                originalPolygon.centerY,
             )
 
         assertEquals(originalPolygon.cubics.size, createdPolygon.cubics.size)

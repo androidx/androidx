@@ -29,14 +29,11 @@ import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.attributes.BuildTypeAttr
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.dsl.TestExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApkOutputProviders
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasDeviceTests
-import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.TestAndroidComponentsExtension
 import com.android.build.api.variant.Variant
@@ -119,7 +116,7 @@ private fun Project.createTestConfigurationGenerationTask(
 private fun Project.registerCopyTestApksTask(
     variantName: String,
     artifacts: Artifacts,
-    variant: Variant?
+    variant: Variant?,
 ): TaskProvider<CopyTestApksTask> {
     return tasks.register("${COPY_TEST_APKS_TASK}$variantName", CopyTestApksTask::class.java) { task
         ->
@@ -196,7 +193,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
     fun outputAppApkFile(
         variant: Variant,
         appProjectPath: String,
-        instrumentationProjectPath: String?
+        instrumentationProjectPath: String?,
     ): Provider<RegularFile> {
         var filename = appProjectPath.asFilenamePrefix()
         if (instrumentationProjectPath != null) {
@@ -210,11 +207,10 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
     extensions.findByType(ApplicationAndroidComponentsExtension::class.java)?.apply {
         onVariants(selector().withBuildType("debug")) { variant ->
             if (isPrivacySandboxEnabled()) {
-                @Suppress("UnstableApiUsage") // variant.outputProviders
                 addAppApksToPrivacySandboxTestConfigsGeneration(
                     testVariantName = "${variant.name}AndroidTest",
                     variant,
-                    variant.outputProviders
+                    variant.outputProviders,
                 )
             } else {
                 // TODO(b/347956800): Migrate to ApkOutputProviders after testing on PrivacySandbox
@@ -226,7 +222,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
 
                         // The target project is the same being evaluated
                         task.outputAppApk.set(outputAppApkFile(variant, path, null))
-                    }
+                    },
                 )
             }
         }
@@ -239,11 +235,10 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
     extensions.findByType(TestAndroidComponentsExtension::class.java)?.apply {
         onVariants(selector().all()) { variant ->
             if (isPrivacySandboxEnabled()) {
-                @Suppress("UnstableApiUsage") // variant.outputProviders
                 addAppApksToPrivacySandboxTestConfigsGeneration(
                     testVariantName = variant.name,
                     variant,
-                    variant.outputProviders
+                    variant.outputProviders,
                 )
             } else {
                 // TODO(b/347956800): Migrate to ApkOutputProviders after b/378675038
@@ -277,7 +272,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                                 }
                                 .files
                         )
-                    }
+                    },
                 )
             }
         }
@@ -294,7 +289,9 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
 
             // Recreate the same configuration existing for test modules to pull the artifact
             // from the application module specified in the deviceTests extension.
-            @Suppress("UnstableApiUsage") // Incubating dependencyFactory APIs
+            @Suppress(
+                "UnstableApiUsage"
+            ) // Incubating dependencyFactory APIs https://github.com/gradle/gradle/issues/33923
             val configuration =
                 configurations.create("${variant.name}TestedApks") { config ->
                     config.isCanBeResolved = true
@@ -302,7 +299,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                     config.attributes {
                         it.attribute(
                             BuildTypeAttr.ATTRIBUTE,
-                            objects.named(targetAppProjectVariant)
+                            objects.named(targetAppProjectVariant),
                         )
                         it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                     }
@@ -323,7 +320,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                             }
                             .files
                     )
-                }
+                },
             )
         }
     }
@@ -332,12 +329,12 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
 private fun Project.addAppApkFromArtifactsToTestConfigGeneration(
     testVariantName: String,
     variant: Variant,
-    configureAction: Consumer<CopyApkFromArtifactsTask>
+    configureAction: Consumer<CopyApkFromArtifactsTask>,
 ) {
     val copyApkTask = registerCopyAppApkFromArtifactsTask(variant, configureAction)
     tasks.named(
         "${GENERATE_TEST_CONFIGURATION_TASK}$testVariantName",
-        GenerateTestConfigurationTask::class.java
+        GenerateTestConfigurationTask::class.java,
     ) { t ->
         t.appApksModel.set(copyApkTask.flatMap(CopyApkFromArtifactsTask::outputAppApksModel))
     }
@@ -345,7 +342,7 @@ private fun Project.addAppApkFromArtifactsToTestConfigGeneration(
 
 // TODO(b/347956800): Call from createTestConfigurationGenerationTask() after b/378674313
 // TODO(b/347956800): Use tasks providers directly instead of tasks.named after b/378674313
-@Suppress("UnstableApiUsage") // ApkOutputProviders
+@Suppress("UnstableApiUsage") // ApkOutputProviders b/397701480
 private fun Project.addAppApksToPrivacySandboxTestConfigsGeneration(
     testVariantName: String,
     variant: Variant,
@@ -359,7 +356,7 @@ private fun Project.addAppApksToPrivacySandboxTestConfigsGeneration(
         registerCopyPrivacySandboxMainAppApksTask(variant, outputProviders, excludeTestApk)
     tasks.named(
         "${GENERATE_PRIVACY_SANDBOX_MAIN_TEST_CONFIGURATION_TASK}${testVariantName}",
-        GenerateTestConfigurationTask::class.java
+        GenerateTestConfigurationTask::class.java,
     ) { t ->
         t.appApksModel.set(
             copyMainApksTask.flatMap(CopyApksFromOutputProviderTask::outputAppApksModel)
@@ -370,7 +367,7 @@ private fun Project.addAppApksToPrivacySandboxTestConfigsGeneration(
         registerCopyPrivacySandboxCompatAppApksTask(variant, outputProviders, excludeTestApk)
     tasks.named(
         "${GENERATE_PRIVACY_SANDBOX_COMPAT_TEST_CONFIGURATION_TASK}${testVariantName}",
-        GenerateTestConfigurationTask::class.java
+        GenerateTestConfigurationTask::class.java,
     ) { t ->
         t.appApksModel.set(
             copyCompatApksTask.flatMap(CopyApksFromOutputProviderTask::outputAppApksModel)
@@ -378,216 +375,37 @@ private fun Project.addAppApksToPrivacySandboxTestConfigsGeneration(
     }
 }
 
-private fun getOrCreateMediaTestConfigTask(
-    project: Project
-): TaskProvider<GenerateMediaTestConfigurationTask> {
-    val parentProject = project.parent!!
-    if (
-        !parentProject.tasks
-            .withType(GenerateMediaTestConfigurationTask::class.java)
-            .names
-            .contains("support-media-test${GENERATE_TEST_CONFIGURATION_TASK}")
-    ) {
-        val task =
-            parentProject.tasks.register(
-                "support-media-test${GENERATE_TEST_CONFIGURATION_TASK}",
-                GenerateMediaTestConfigurationTask::class.java
-            ) { task ->
-                AffectedModuleDetector.configureTaskGuard(task)
-            }
-        project.rootProject.tasks.findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)
-        return task
-    } else {
-        return parentProject.tasks
-            .withType(GenerateMediaTestConfigurationTask::class.java)
-            .named("support-media-test${GENERATE_TEST_CONFIGURATION_TASK}")
-    }
-}
-
-private fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
-    variantName: String,
-    artifacts: Artifacts,
-    minSdk: Int,
-    testRunner: Provider<String>,
-    projectIsolationEnabled: Boolean,
-) {
-    val mediaTask = getOrCreateMediaTestConfigTask(this)
-
-    fun getJsonName(clientToT: Boolean, serviceToT: Boolean, clientTests: Boolean): String {
-        return "_mediaClient${
-            if (clientToT) "ToT" else "Previous"
-        }Service${
-            if (serviceToT) "ToT" else "Previous"
-        }${
-            if (clientTests) "Client" else "Service"
-        }Tests$variantName.json"
-    }
-
-    fun Project.addTestModule(
-        clientToT: Boolean,
-        serviceToT: Boolean,
-        projectIsolationEnabled: Boolean
-    ) {
-        // We don't test the combination of previous versions of service and client as that is not
-        // useful data. We always want at least one tip of tree project.
-        if (!clientToT && !serviceToT) return
-
-        var testName =
-            getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = true)
-        addToModuleInfo(testName, projectIsolationEnabled)
-        extensions.getByType<AndroidXExtension>().testModuleNames.add(testName)
-
-        testName = getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = false)
-        addToModuleInfo(testName, projectIsolationEnabled)
-        extensions.getByType<AndroidXExtension>().testModuleNames.add(testName)
-    }
-    val isClient = this.name.contains("client")
-    val isPrevious = this.name.contains("previous")
-
-    if (isClient) {
-        addTestModule(clientToT = !isPrevious, serviceToT = false, projectIsolationEnabled)
-        addTestModule(clientToT = !isPrevious, serviceToT = true, projectIsolationEnabled)
-    } else {
-        addTestModule(clientToT = true, serviceToT = !isPrevious, projectIsolationEnabled)
-        addTestModule(clientToT = false, serviceToT = !isPrevious, projectIsolationEnabled)
-    }
-
-    mediaTask.configure {
-        if (isClient) {
-            if (isPrevious) {
-                it.clientPreviousFolder.set(artifacts.get(SingleArtifact.APK))
-                it.clientPreviousLoader.set(artifacts.getBuiltArtifactsLoader())
-            } else {
-                it.clientToTFolder.set(artifacts.get(SingleArtifact.APK))
-                it.clientToTLoader.set(artifacts.getBuiltArtifactsLoader())
-            }
-        } else {
-            if (isPrevious) {
-                it.servicePreviousFolder.set(artifacts.get(SingleArtifact.APK))
-                it.servicePreviousLoader.set(artifacts.getBuiltArtifactsLoader())
-            } else {
-                it.serviceToTFolder.set(artifacts.get(SingleArtifact.APK))
-                it.serviceToTLoader.set(artifacts.getBuiltArtifactsLoader())
-            }
-        }
-        it.jsonClientPreviousServiceToTClientTests.set(
-            getFileInTestConfigDirectory(
-                getJsonName(clientToT = false, serviceToT = true, clientTests = true)
-            )
-        )
-        it.jsonClientPreviousServiceToTServiceTests.set(
-            getFileInTestConfigDirectory(
-                getJsonName(clientToT = false, serviceToT = true, clientTests = false)
-            )
-        )
-        it.jsonClientToTServicePreviousClientTests.set(
-            getFileInTestConfigDirectory(
-                getJsonName(clientToT = true, serviceToT = false, clientTests = true)
-            )
-        )
-        it.jsonClientToTServicePreviousServiceTests.set(
-            getFileInTestConfigDirectory(
-                getJsonName(clientToT = true, serviceToT = false, clientTests = false)
-            )
-        )
-        it.jsonClientToTServiceToTClientTests.set(
-            getFileInTestConfigDirectory(
-                getJsonName(clientToT = true, serviceToT = true, clientTests = true)
-            )
-        )
-        it.jsonClientToTServiceToTServiceTests.set(
-            getFileInTestConfigDirectory(
-                getJsonName(clientToT = true, serviceToT = true, clientTests = false)
-            )
-        )
-        it.totClientApk.set(getFileInTestConfigDirectory("mediaClientToT$variantName.apk"))
-        it.previousClientApk.set(
-            getFileInTestConfigDirectory("mediaClientPrevious$variantName.apk")
-        )
-        it.totServiceApk.set(getFileInTestConfigDirectory("mediaServiceToT$variantName.apk"))
-        it.previousServiceApk.set(
-            getFileInTestConfigDirectory("mediaServicePrevious$variantName.apk")
-        )
-        it.minSdk.set(minSdk)
-        it.testRunner.set(testRunner)
-        it.presubmit.set(isPresubmitBuild())
-        AffectedModuleDetector.configureTaskGuard(it)
-    }
-}
-
-@Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
-fun Project.configureTestConfigGeneration(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
-    projectIsolationEnabled: Boolean,
-) {
+fun Project.configureTestConfigGeneration(projectIsolationEnabled: Boolean) {
     extensions.getByType(AndroidComponentsExtension::class.java).apply {
         onVariants { variant ->
             when {
                 variant is HasDeviceTests -> {
                     variant.deviceTests.forEach { (_, deviceTest) ->
-                        when {
-                            path.contains("media:version-compat-tests:") -> {
-                                createOrUpdateMediaTestConfigurationGenerationTask(
-                                    deviceTest.name,
-                                    deviceTest.artifacts,
-                                    // replace minSdk after b/328495232 is fixed
-                                    commonExtension.defaultConfig.minSdk!!,
-                                    deviceTest.instrumentationRunner,
-                                    projectIsolationEnabled,
-                                )
-                            }
-                            else -> {
-                                createTestConfigurationGenerationTask(
-                                    deviceTest.name,
-                                    deviceTest.artifacts,
-                                    // replace minSdk after b/328495232 is fixed
-                                    commonExtension.defaultConfig.minSdk!!,
-                                    deviceTest.instrumentationRunner,
-                                    deviceTest.instrumentationRunnerArguments,
-                                    variant,
-                                    projectIsolationEnabled,
-                                )
-                            }
-                        }
+                        createTestConfigurationGenerationTask(
+                            deviceTest.name,
+                            deviceTest.artifacts,
+                            @Suppress("UnstableApiUsage") // b/409617582
+                            deviceTest.minSdk.apiLevel,
+                            deviceTest.instrumentationRunner,
+                            deviceTest.instrumentationRunnerArguments,
+                            variant,
+                            projectIsolationEnabled,
+                        )
                     }
                 }
                 project.plugins.hasPlugin("com.android.test") -> {
+                    val testExtension = project.extensions.getByType<TestExtension>()
                     createTestConfigurationGenerationTask(
                         variant.name,
                         variant.artifacts,
-                        // replace minSdk after b/328495232 is fixed
-                        commonExtension.defaultConfig.minSdk!!,
-                        provider { commonExtension.defaultConfig.testInstrumentationRunner!! },
-                        provider {
-                            commonExtension.defaultConfig.testInstrumentationRunnerArguments
-                        },
+                        variant.minSdk.apiLevel,
+                        provider { testExtension.defaultConfig.testInstrumentationRunner!! },
+                        provider { testExtension.defaultConfig.testInstrumentationRunnerArguments },
                         variant,
                         projectIsolationEnabled,
                     )
                 }
             }
-        }
-    }
-}
-
-@Suppress("UnstableApiUsage") // HasDeviceTests is @Incubating b/372495504
-fun Project.configureTestConfigGeneration(
-    kotlinMultiplatformAndroidTarget: KotlinMultiplatformAndroidLibraryTarget,
-    componentsExtension: KotlinMultiplatformAndroidComponentsExtension,
-    projectIsolationEnabled: Boolean,
-) {
-    componentsExtension.onVariant { variant ->
-        variant.deviceTests.forEach { (_, deviceTest) ->
-            createTestConfigurationGenerationTask(
-                deviceTest.name,
-                deviceTest.artifacts,
-                // replace minSdk after b/328495232 is fixed
-                kotlinMultiplatformAndroidTarget.minSdk!!,
-                deviceTest.instrumentationRunner,
-                deviceTest.instrumentationRunnerArguments,
-                null,
-                projectIsolationEnabled,
-            )
         }
     }
 }

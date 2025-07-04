@@ -26,7 +26,7 @@ class BuilderTest : BaseBuilderTest() {
         val tempFile = createTempFile("test.db").also { it.toFile().deleteOnExit() }
         return Room.databaseBuilder<SampleDatabase>(
                 name = tempFile.toString(),
-                factory = SampleDatabaseConstructor::initialize
+                factory = SampleDatabaseConstructor::initialize,
             )
             .setDriver(BundledSQLiteDriver())
     }

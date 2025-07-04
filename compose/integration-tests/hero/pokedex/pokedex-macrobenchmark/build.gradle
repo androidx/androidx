@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -38,7 +38,7 @@ dependencies {
     implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":compose:integration-tests:hero:hero-common:hero-common-macrobenchmark"))
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)

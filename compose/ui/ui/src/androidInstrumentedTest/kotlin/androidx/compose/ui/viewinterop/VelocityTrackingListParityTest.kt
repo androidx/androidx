@@ -446,7 +446,7 @@ class VelocityTrackingListParityTest {
                     object : OnScrollListener() {
                         override fun onScrollStateChanged(
                             recyclerView: RecyclerView,
-                            newState: Int
+                            newState: Int,
                         ) {
                             latestRVState = newState
                         }

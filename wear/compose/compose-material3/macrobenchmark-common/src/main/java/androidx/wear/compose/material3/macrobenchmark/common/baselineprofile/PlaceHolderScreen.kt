@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.samples.ButtonWithIconAndLabelAndPlaceholders
-import androidx.wear.compose.material3.samples.ButtonWithIconAndLabelsAndOverlaidPlaceholder
+import androidx.wear.compose.material3.samples.ButtonWithIconAndLabelCachedData
 import androidx.wear.compose.material3.samples.TextPlaceholder
 
 val PlaceHolderScreen =
@@ -33,7 +33,7 @@ val PlaceHolderScreen =
             get() = {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     ButtonWithIconAndLabelAndPlaceholders()
-                    ButtonWithIconAndLabelsAndOverlaidPlaceholder()
+                    ButtonWithIconAndLabelCachedData()
                     TextPlaceholder()
                 }
             }

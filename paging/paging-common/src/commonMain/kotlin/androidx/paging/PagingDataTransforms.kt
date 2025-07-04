@@ -98,7 +98,7 @@ public fun <T : R, R : Any> PagingData<T>.insertSeparators(
     return PagingData(
         flow = flow.insertEventSeparators(terminalSeparatorType, generator),
         uiReceiver = uiReceiver,
-        hintReceiver = hintReceiver
+        hintReceiver = hintReceiver,
     )
 }
 

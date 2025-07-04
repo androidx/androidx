@@ -74,7 +74,7 @@ class StillCaptureFlowTest(
                         "SM-A716B",
                         CONTROL_AE_MODE_ON,
                         TEMPLATE_STILL_CAPTURE,
-                        false
+                        false,
                     )
                 )
                 add(
@@ -83,7 +83,7 @@ class StillCaptureFlowTest(
                         "SM-A716B",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -92,7 +92,7 @@ class StillCaptureFlowTest(
                         "SM-A716B",
                         CONTROL_AE_MODE_ON_ALWAYS_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -101,7 +101,7 @@ class StillCaptureFlowTest(
                         "SM-A716B",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_PREVIEW,
-                        false
+                        false,
                     )
                 )
 
@@ -111,7 +111,7 @@ class StillCaptureFlowTest(
                         "SM-A716U",
                         CONTROL_AE_MODE_ON,
                         TEMPLATE_STILL_CAPTURE,
-                        false
+                        false,
                     )
                 )
                 add(
@@ -120,7 +120,7 @@ class StillCaptureFlowTest(
                         "SM-A716U",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -129,7 +129,7 @@ class StillCaptureFlowTest(
                         "SM-A716U",
                         CONTROL_AE_MODE_ON_ALWAYS_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -138,7 +138,7 @@ class StillCaptureFlowTest(
                         "SM-A716U",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_PREVIEW,
-                        false
+                        false,
                     )
                 )
 
@@ -148,7 +148,7 @@ class StillCaptureFlowTest(
                         "Pixel 2",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        false
+                        false,
                     )
                 )
                 add(
@@ -157,7 +157,7 @@ class StillCaptureFlowTest(
                         "G3",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        false
+                        false,
                     )
                 )
                 add(
@@ -166,7 +166,7 @@ class StillCaptureFlowTest(
                         "SM-A722",
                         CONTROL_AE_MODE_ON_AUTO_FLASH,
                         TEMPLATE_STILL_CAPTURE,
-                        false
+                        false,
                     )
                 )
             }

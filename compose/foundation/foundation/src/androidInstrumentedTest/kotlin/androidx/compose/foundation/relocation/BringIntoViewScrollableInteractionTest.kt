@@ -16,6 +16,11 @@
 
 package androidx.compose.foundation.relocation
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorizedAnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollingLayoutElement
 import androidx.compose.foundation.background
@@ -506,7 +511,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
             .onNodeWithTag(childBox)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = if (orientation == Horizontal) 50.toDp() else 0.toDp(),
-                expectedTop = if (orientation == Horizontal) 0.toDp() else 50.toDp()
+                expectedTop = if (orientation == Horizontal) 0.toDp() else 50.toDp(),
             )
         assertChildMaxInView()
     }
@@ -606,7 +611,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
             .onNodeWithTag(childBox)
             .assertPositionInRootIsEqualTo(
                 expectedLeft = if (orientation == Horizontal) 50.toDp() else 0.toDp(),
-                expectedTop = if (orientation == Horizontal) 0.toDp() else 50.toDp()
+                expectedTop = if (orientation == Horizontal) 0.toDp() else 50.toDp(),
             )
         assertChildMaxInView()
     }
@@ -984,7 +989,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
-            expectedChildSize = 10.dp // child is visible
+            expectedChildSize = 10.dp, // child is visible
         ) {
             Box(
                 modifier =
@@ -1004,7 +1009,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
-            expectedChildSize = 10.dp // child is visible
+            expectedChildSize = 10.dp, // child is visible
         ) {
             Box(modifier = Modifier.size(100.dp))
             Box(
@@ -1025,7 +1030,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
-            expectedChildSize = 10.dp // child is part visible
+            expectedChildSize = 10.dp, // child is part visible
         ) {
             Box(modifier = Modifier.size(195.dp))
             Box(
@@ -1045,7 +1050,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         bringIntoViewScrollerTest_wrapper(
             requester = bringIntoViewRequester,
             childCoordinates = bringIntoViewItemCoordinates,
-            expectedChildSize = 10.dp // child is not visible
+            expectedChildSize = 10.dp, // child is not visible
         ) {
             Box(modifier = Modifier.size(205.dp))
             Box(
@@ -1061,7 +1066,8 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         requester: BringIntoViewRequester,
         expectedChildSize: Dp,
         childCoordinates: State<LayoutCoordinates?>,
-        content: @Composable () -> Unit
+        animationSpec: InspectSpringAnimationSpec = InspectSpringAnimationSpec(spring()),
+        content: @Composable () -> Unit,
     ) {
 
         val containerSize = 200.dp
@@ -1078,10 +1084,13 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         val expectedContainerSize = with(rule.density) { containerSize.roundToPx() }
         val customBringIntoViewSpec =
             object : BringIntoViewSpec {
+                override val scrollAnimationSpec: AnimationSpec<Float>
+                    get() = animationSpec
+
                 override fun calculateScrollDistance(
                     offset: Float,
                     size: Float,
-                    containerSize: Float
+                    containerSize: Float,
                 ): Float {
                     assertThat(containerSize).isEqualTo(expectedContainerSize)
                     assertThat(size).isEqualTo(with(rule.density) { expectedChildSize.roundToPx() })
@@ -1100,7 +1109,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                             state = state,
                             overscrollEffect = null,
                             orientation = orientation,
-                            bringIntoViewSpec = customBringIntoViewSpec
+                            bringIntoViewSpec = customBringIntoViewSpec,
                         )
                         .then(ScrollingLayoutElement(state, false, orientation == Vertical))
             ) {
@@ -1125,7 +1134,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                 override fun calculateScrollDistance(
                     offset: Float,
                     size: Float,
-                    containerSize: Float
+                    containerSize: Float,
                 ): Float {
                     return bringIntoViewRequests[index].also {
                         index = (index + 1)
@@ -1148,7 +1157,7 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                             state = scrollState,
                             overscrollEffect = null,
                             orientation = orientation,
-                            bringIntoViewSpec = customBringIntoViewSpec
+                            bringIntoViewSpec = customBringIntoViewSpec,
                         )
             ) {
                 Box(modifier = Modifier.size(10.dp).bringIntoViewRequester(requester))
@@ -1160,6 +1169,57 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         rule.waitForIdle()
 
         assertThat(scrollState.value).isEqualTo(requestsFulfilledScroll)
+    }
+
+    @Test
+    fun bringIntoViewScroller_shouldUseCustomSpec() {
+        val scrollState = ScrollState(0)
+        val bringIntoViewRequests = listOf(300f, 150f, 0f)
+        val inspectSpringAnimationSpec = InspectSpringAnimationSpec(spring())
+        val customBringIntoViewSpec =
+            object : BringIntoViewSpec {
+                var index = 0
+
+                override val scrollAnimationSpec: AnimationSpec<Float>
+                    get() = inspectSpringAnimationSpec
+
+                override fun calculateScrollDistance(
+                    offset: Float,
+                    size: Float,
+                    containerSize: Float,
+                ): Float {
+                    return bringIntoViewRequests[index].also {
+                        index = (index + 1)
+                        if (index > 2) {
+                            index = 2
+                        }
+                    }
+                }
+            }
+
+        val requester = BringIntoViewRequester()
+
+        rule.setContent {
+            testScope = rememberCoroutineScope()
+            Box(
+                modifier =
+                    Modifier.size(200.dp)
+                        .scrollable(
+                            state = scrollState,
+                            overscrollEffect = null,
+                            orientation = orientation,
+                            bringIntoViewSpec = customBringIntoViewSpec,
+                        )
+            ) {
+                Box(modifier = Modifier.size(10.dp).bringIntoViewRequester(requester))
+            }
+        }
+
+        testScope.launch { requester.bringIntoView() }
+
+        rule.waitForIdle()
+
+        assertThat(inspectSpringAnimationSpec.invokeCount).isEqualTo(1)
     }
 
     // TODO(b/222093277) Once the test runtime supports layout calls between frames, write more
@@ -1218,9 +1278,23 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         val expectedVisibleBounds =
             IntSize(
                 width = minOf(parentNode.size.width, childNode.size.width),
-                height = minOf(parentNode.size.height, childNode.size.height)
+                height = minOf(parentNode.size.height, childNode.size.height),
             )
 
         assertThat(visibleBounds).isEqualTo(expectedVisibleBounds)
+    }
+}
+
+private class InspectSpringAnimationSpec(private val animation: AnimationSpec<Float>) :
+    AnimationSpec<Float> {
+
+    var invokeCount = 0
+        private set
+
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<Float, V>
+    ): VectorizedAnimationSpec<V> {
+        invokeCount++
+        return animation.vectorize(converter)
     }
 }

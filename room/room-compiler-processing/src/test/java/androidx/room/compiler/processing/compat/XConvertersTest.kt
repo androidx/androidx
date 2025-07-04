@@ -58,7 +58,7 @@ class XConvertersTest {
           }
         }
         """
-                .trimIndent()
+                .trimIndent(),
         )
     val javaSrc =
         Source.java(
@@ -71,7 +71,7 @@ class XConvertersTest {
           }
         }
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     @Test
@@ -89,7 +89,7 @@ class XConvertersTest {
               }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val javaSrc =
             Source.java(
@@ -104,7 +104,7 @@ class XConvertersTest {
               }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             // Test toXProcessing returns an equivalent XType
@@ -154,11 +154,11 @@ class XConvertersTest {
 
                 assertEqualTypes(
                     xKotlinClass.type,
-                    kotlinClass.asType(emptyList()).toXProcessing(invocation.processingEnv)
+                    kotlinClass.asType(emptyList()).toXProcessing(invocation.processingEnv),
                 )
                 assertEqualTypes(
                     xJavaClass.type,
-                    javaClass.asType(emptyList()).toXProcessing(invocation.processingEnv)
+                    javaClass.asType(emptyList()).toXProcessing(invocation.processingEnv),
                 )
             } else {
                 val kotlinClass = invocation.getJavacTypeElement("KotlinClass.FooImpl")
@@ -172,11 +172,11 @@ class XConvertersTest {
 
                 assertEqualTypes(
                     xKotlinClass.type,
-                    kotlinClass.asType().toXProcessing(invocation.processingEnv)
+                    kotlinClass.asType().toXProcessing(invocation.processingEnv),
                 )
                 assertEqualTypes(
                     xJavaClass.type,
-                    javaClass.asType().toXProcessing(invocation.processingEnv)
+                    javaClass.asType().toXProcessing(invocation.processingEnv),
                 )
             }
         }
@@ -510,7 +510,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("KotlinClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                     )
@@ -522,7 +522,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("JavaClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                     )
@@ -535,7 +535,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("KotlinClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                             .toXProcessing(invocation.processingEnv)
@@ -549,7 +549,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("JavaClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                             .toXProcessing(invocation.processingEnv)
@@ -642,7 +642,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("KotlinClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                             .elementValues
@@ -660,7 +660,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("JavaClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                             .elementValues
@@ -679,7 +679,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("KotlinClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                             .elementValues
@@ -699,7 +699,7 @@ class XConvertersTest {
                     .isEqualTo(
                         MoreElements.getAnnotationMirror(
                                 invocation.getJavacTypeElement("JavaClass"),
-                                TestSuppressWarnings::class.java
+                                TestSuppressWarnings::class.java,
                             )
                             .get()
                             .elementValues
@@ -786,7 +786,7 @@ class XConvertersTest {
                         fun method()
                     }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) { invocation ->

@@ -22,7 +22,6 @@ import android.media.CamcorderProfile.QUALITY_HIGH
 import android.media.CamcorderProfile.QUALITY_LOW
 import android.media.CamcorderProfile.QUALITY_QCIF
 import android.os.Build
-import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -64,24 +63,14 @@ class ExtraSupportedQualityQuirkTest {
                 DEFAULT_DURATION,
                 DEFAULT_OUTPUT_FORMAT,
                 listOf(createFakeAudioProfileProxy()),
-                listOf(
-                    createFakeVideoProfileProxy(
-                        RESOLUTION_CIF.width,
-                        RESOLUTION_CIF.height,
-                    )
-                )
+                listOf(createFakeVideoProfileProxy(RESOLUTION_CIF)),
             )
         val profilesQcif =
             EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
                 DEFAULT_DURATION,
                 DEFAULT_OUTPUT_FORMAT,
                 listOf(createFakeAudioProfileProxy()),
-                listOf(
-                    createFakeVideoProfileProxy(
-                        RESOLUTION_QCIF.width,
-                        RESOLUTION_QCIF.height,
-                    )
-                )
+                listOf(createFakeVideoProfileProxy(RESOLUTION_QCIF)),
             )
         val encoderProfileProvider =
             FakeEncoderProfilesProvider.Builder()
@@ -95,7 +84,7 @@ class ExtraSupportedQualityQuirkTest {
         val qualityEncoderProfilesMap =
             ExtraSupportedQualityQuirk().getExtraEncoderProfiles(
                 cameraInfo,
-                encoderProfileProvider
+                encoderProfileProvider,
             ) {
                 FakeVideoEncoderInfo()
             }
@@ -105,11 +94,9 @@ class ExtraSupportedQualityQuirkTest {
         assertThat(qualityEncoderProfilesMap).containsKey(QUALITY_480P)
         val profiles480p = qualityEncoderProfilesMap!![QUALITY_480P]
         val videoProfile480p = getFirstVideoProfile(profiles480p)!!
-        assertThat(videoProfile480p.getResolution()).isEqualTo(RESOLUTION_480P)
+        assertThat(videoProfile480p.resolution).isEqualTo(RESOLUTION_480P)
         // Assert: QUALITY_HIGH is the same as QUALITY_480P
         assertThat(qualityEncoderProfilesMap).containsKey(QUALITY_HIGH)
         assertThat(qualityEncoderProfilesMap[QUALITY_HIGH]).isEqualTo(profiles480p)
     }
-
-    private fun EncoderProfilesProxy.VideoProfileProxy.getResolution() = Size(width, height)
 }

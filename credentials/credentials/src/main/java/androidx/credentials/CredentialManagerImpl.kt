@@ -27,8 +27,11 @@ import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
+import androidx.credentials.exceptions.publickeycredential.SignalCredentialStateException
+import androidx.credentials.internal.FormFactorHelper
 import java.util.concurrent.Executor
 
 /**
@@ -173,7 +176,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             pendingGetCredentialHandle,
             cancellationSignal,
             executor,
-            callback
+            callback,
         )
     }
 
@@ -246,6 +249,17 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             )
             return
         }
+
+        // Check if this is a Wearable device, creation is not supported.
+        if (FormFactorHelper.isWear(context)) {
+            callback.onError(
+                CreateCredentialUnsupportedException(
+                    "createCredential is not supported on this device"
+                )
+            )
+            return
+        }
+
         provider.onCreateCredential(context, request, cancellationSignal, executor, callback)
     }
 
@@ -289,6 +303,39 @@ internal class CredentialManagerImpl internal constructor(private val context: C
             return
         }
         provider.onClearCredential(request, cancellationSignal, executor, callback)
+    }
+
+    /**
+     * Signals a user's credential/credentials state to all credential providers.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
+     *
+     * The execution does not invoke any UI but simply informs credential providers about the state
+     * of a user's credential. Supported signal types are [SignalAllAcceptedCredentialIdsRequest],
+     * [SignalCurrentUserDetailsRequest], [SignalUnknownCredentialRequest].
+     *
+     * @param request the request for signaling the credential state
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    override fun signalCredentialStateAsync(
+        request: SignalCredentialStateRequest,
+        executor: Executor,
+        callback:
+            CredentialManagerCallback<SignalCredentialStateResponse, SignalCredentialStateException>,
+    ) {
+        val provider: CredentialProvider? =
+            CredentialProviderFactory(context).getBestAvailableProvider(request)
+        if (provider == null) {
+            callback.onError(
+                SignalCredentialStateException(
+                    SignalCredentialStateException.ERROR_TYPE_UNKNOWN,
+                    "No Credential Manager provider found",
+                )
+            )
+            return
+        }
+        provider.onSignalCredentialState(request, executor, callback)
     }
 
     /**

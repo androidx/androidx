@@ -44,7 +44,7 @@ internal class JavacRoundEnv(private val env: JavacProcessingEnv, val delegate: 
 
     private fun wrapAnnotatedElements(
         elements: Set<Element>,
-        annotationName: String
+        annotationName: String,
     ): Set<XElement> {
         return elements.map { env.wrapAnnotatedElement(it, annotationName) }.toSet()
     }

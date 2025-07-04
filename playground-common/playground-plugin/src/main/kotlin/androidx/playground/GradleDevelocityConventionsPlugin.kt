@@ -45,13 +45,6 @@ class GradleDevelocityConventionsPlugin : Plugin<Settings> {
             }
         }
 
-        settings.buildCache.local { local ->
-            // Aggressively clean up stale build cache entries on CI
-            if (isCI) {
-                local.removeUnusedEntriesAfterDays = 1
-            }
-        }
-
         settings.buildCache.remote(HttpBuildCache::class.java) { remote ->
             remote.url = URI("https://ge.androidx.dev/cache/")
             val buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")

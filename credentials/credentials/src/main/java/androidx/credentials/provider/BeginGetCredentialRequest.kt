@@ -19,6 +19,7 @@ package androidx.credentials.provider
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
 import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
@@ -53,7 +54,7 @@ constructor(
         fun asBundle(bundle: Bundle, request: BeginGetCredentialRequest) {
             bundle.putParcelable(
                 REQUEST_KEY,
-                BeginGetCredentialUtil.convertToFrameworkRequest(request)
+                BeginGetCredentialUtil.convertToFrameworkRequest(request),
             )
         }
 
@@ -62,7 +63,7 @@ constructor(
             val frameworkRequest =
                 bundle.getParcelable(
                     REQUEST_KEY,
-                    android.service.credentials.BeginGetCredentialRequest::class.java
+                    android.service.credentials.BeginGetCredentialRequest::class.java,
                 )
             if (frameworkRequest != null) {
                 return BeginGetCredentialUtil.convertToJetpackRequest(frameworkRequest)
@@ -88,15 +89,15 @@ constructor(
             for (i in 0 until optionSize) {
                 bundle.putString(
                     "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_ID_PREFIX$i",
-                    request.beginGetCredentialOptions[i].id
+                    request.beginGetCredentialOptions[i].id,
                 )
                 bundle.putString(
                     "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_TYPE_PREFIX$i",
-                    request.beginGetCredentialOptions[i].type
+                    request.beginGetCredentialOptions[i].type,
                 )
                 bundle.putBundle(
                     "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i",
-                    request.beginGetCredentialOptions[i].candidateQueryData
+                    request.beginGetCredentialOptions[i].candidateQueryData,
                 )
                 request.callingAppInfo?.let { bundle.setCallingAppInfo(it) }
             }
@@ -130,6 +131,15 @@ constructor(
     }
 
     companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun createFrom(
+            id: String,
+            type: String,
+            candidateQueryData: Bundle,
+        ): BeginGetCredentialOption =
+            BeginGetCredentialOption.createFrom(id, type, candidateQueryData)
+
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class instance
          * needs to be sent across a process. Consumers of this method should use [fromBundle] to

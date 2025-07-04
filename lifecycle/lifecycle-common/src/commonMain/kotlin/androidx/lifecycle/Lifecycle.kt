@@ -279,11 +279,17 @@ public abstract class Lifecycle {
     }
 }
 
+/** An object reference that may be updated atomically. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public expect class AtomicReference<V>(value: V) {
+public expect class AtomicReference<V>
+/** Creates a new [AtomicReference] with the given [initialValue]. */
+public constructor(initialValue: V) {
+
+    /** Returns the current value. */
     public fun get(): V
 
-    public fun compareAndSet(expect: V, newValue: V): Boolean
+    /** Atomically sets the value to [newValue] if the current value is equal to [expectedValue]. */
+    public fun compareAndSet(expectedValue: V, newValue: V): Boolean
 }
 
 /**
@@ -322,7 +328,7 @@ public expect abstract class LifecycleCoroutineScope internal constructor() : Co
 
 internal class LifecycleCoroutineScopeImpl(
     override val lifecycle: Lifecycle,
-    override val coroutineContext: CoroutineContext
+    override val coroutineContext: CoroutineContext,
 ) : LifecycleCoroutineScope(), LifecycleEventObserver {
     init {
         // in case we are initialized on a non-main thread, make a best effort check before

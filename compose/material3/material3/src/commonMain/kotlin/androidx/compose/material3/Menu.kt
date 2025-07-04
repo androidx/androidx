@@ -65,8 +65,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * <a href="https://m3.material.io/components/menus/overview" class="external"
- * target="_blank">Material Design dropdown menu</a>.
+ * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
  *
  * Menus display a list of choices on a temporary surface. They appear when users interact with a
  * button, action, or other control.
@@ -133,12 +132,11 @@ expect fun DropdownMenu(
     tonalElevation: Dp = MenuDefaults.TonalElevation,
     shadowElevation: Dp = MenuDefaults.ShadowElevation,
     border: BorderStroke? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 )
 
 /**
- * <a href="https://m3.material.io/components/menus/overview" class="external"
- * target="_blank">Material Design dropdown menu</a> item.
+ * [Material Design dropdown menu](https://m3.material.io/components/menus/overview)
  *
  * Menus display a list of choices on a temporary surface. They appear when users interact with a
  * button, action, or other control.
@@ -368,7 +366,7 @@ internal fun DropdownMenuContent(
     tonalElevation: Dp,
     shadowElevation: Dp,
     border: BorderStroke?,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     // Menu open/close animation.
     @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
@@ -412,7 +410,7 @@ internal fun DropdownMenuContent(
                     .padding(vertical = DropdownMenuVerticalPadding)
                     .width(IntrinsicSize.Max)
                     .verticalScroll(scrollState),
-            content = content
+            content = content,
         )
     }
 }
@@ -427,7 +425,7 @@ internal fun DropdownMenuItemContent(
     enabled: Boolean,
     colors: MenuItemColors,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource?,
 ) {
     Row(
         modifier =
@@ -436,23 +434,23 @@ internal fun DropdownMenuItemContent(
                     enabled = enabled,
                     onClick = onClick,
                     interactionSource = interactionSource,
-                    indication = ripple(true)
+                    indication = ripple(true),
                 )
                 .fillMaxWidth()
                 // Preferred min and max width used during the intrinsic measurement.
                 .sizeIn(
                     minWidth = DropdownMenuItemDefaultMinWidth,
                     maxWidth = DropdownMenuItemDefaultMaxWidth,
-                    minHeight = MenuListItemContainerHeight
+                    minHeight = MenuListItemContainerHeight,
                 )
                 .padding(contentPadding),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // TODO(b/271818892): Align menu list item style with general list item style.
         ProvideTextStyle(MaterialTheme.typography.labelLarge) {
             if (leadingIcon != null) {
                 CompositionLocalProvider(
-                    LocalContentColor provides colors.leadingIconColor(enabled),
+                    LocalContentColor provides colors.leadingIconColor(enabled)
                 ) {
                     Box(Modifier.defaultMinSize(minWidth = ListTokens.ListItemLeadingIconSize)) {
                         leadingIcon()
@@ -474,7 +472,7 @@ internal fun DropdownMenuItemContent(
                                     DropdownMenuItemHorizontalPadding
                                 } else {
                                     0.dp
-                                }
+                                },
                         )
                 ) {
                     text()

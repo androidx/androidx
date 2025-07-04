@@ -41,7 +41,7 @@ internal constructor(internal val curvedLayoutDirection: CurvedLayoutDirection) 
 internal abstract class ContainerChild(
     curvedLayoutDirection: CurvedLayoutDirection,
     internal val reverseLayout: Boolean,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ) : CurvedChild() {
     private val curvedContainerScope = CurvedScope(curvedLayoutDirection).apply(contentBuilder)
     internal val children
@@ -54,22 +54,26 @@ internal abstract class ContainerChild(
             }
 
     @Composable
-    override fun SubComposition() {
-        children.fastForEach { it.SubComposition() }
+    override fun SubComposition(semanticProperties: CurvedSemanticProperties) {
+        require(!semanticProperties.hasInfo()) {
+            "Cannot add semantic properties to a curved container"
+        }
+        children.fastForEach { it.SubComposition(CurvedSemanticProperties()) }
     }
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) =
+    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
         children.fastForEach { node ->
             with(
                 CurvedMeasureScope(
                     subDensity = this,
                     curvedContainerScope.curvedLayoutDirection,
-                    radius
+                    radius,
                 )
             ) {
                 with(node) { initializeMeasure(measurables) }
             }
         }
+    }
 
     override fun DrawScope.draw() = children.fastForEach { with(it) { draw() } }
 

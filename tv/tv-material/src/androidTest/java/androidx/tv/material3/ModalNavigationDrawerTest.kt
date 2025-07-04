@@ -84,7 +84,7 @@ class ModalNavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Closed) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }
+                },
             ) {
                 Box(Modifier.size(200.dp))
             }
@@ -100,7 +100,7 @@ class ModalNavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Open) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }
+                },
             ) {
                 BasicText("other content")
             }
@@ -121,9 +121,9 @@ class ModalNavigationDrawerTest {
                 drawerContent = {
                     BasicText(
                         modifier = Modifier.focusable(),
-                        text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                        text = if (it == DrawerValue.Open) "Opened" else "Closed",
                     )
-                }
+                },
             ) {
                 BasicText("other content")
             }
@@ -150,9 +150,9 @@ class ModalNavigationDrawerTest {
                     drawerContent = {
                         BasicText(
                             modifier = Modifier.focusable(),
-                            text = if (it == DrawerValue.Open) "Opened" else "Closed"
+                            text = if (it == DrawerValue.Open) "Opened" else "Closed",
                         )
-                    }
+                    },
                 ) {
                     Box(modifier = Modifier.padding(start = 100.dp).focusable()) {
                         BasicText("Button")
@@ -187,9 +187,9 @@ class ModalNavigationDrawerTest {
                                     }
                                     .background(if (isFocused) Color.Green else Color.Yellow)
                                     .focusable()
-                                    .testTag("drawerItem")
+                                    .testTag("drawerItem"),
                         )
-                    }
+                    },
                 ) {
                     Box(
                         modifier =
@@ -225,7 +225,7 @@ class ModalNavigationDrawerTest {
                             // extra long content wrapped in a drawer-width restricting box
                             Box(Modifier.width(closedDrawerContentWidth * 10))
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -249,7 +249,7 @@ class ModalNavigationDrawerTest {
                         Box(Modifier.width(openDrawerContentWidth)) {
                             Box(Modifier.width(openDrawerContentWidth * 10))
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -271,7 +271,7 @@ class ModalNavigationDrawerTest {
                         Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -296,7 +296,7 @@ class ModalNavigationDrawerTest {
                         Box(Modifier.testTag(drawerContentBoxTag).border(2.dp, Color.Red)) {
                             BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                         }
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().testTag(contentWidthBoxTag))
                 }
@@ -325,9 +325,9 @@ class ModalNavigationDrawerTest {
                     drawerContent = {
                         BasicText(
                             text = if (it == DrawerValue.Open) "Opened" else "Closed",
-                            modifier = Modifier.focusable()
+                            modifier = Modifier.focusable(),
                         )
-                    }
+                    },
                 ) {
                     BasicText("other content")
                 }
@@ -360,7 +360,7 @@ class ModalNavigationDrawerTest {
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
                 },
-                scrimBrush = SolidColor(scrimColor)
+                scrimBrush = SolidColor(scrimColor),
             ) {
                 Box(Modifier.fillMaxSize().background(backgroundContentColor))
             }
@@ -379,7 +379,7 @@ class ModalNavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Open) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }
+                },
             ) {
                 Box(
                     modifier =
@@ -405,7 +405,7 @@ class ModalNavigationDrawerTest {
                 drawerState = remember { DrawerState(DrawerValue.Closed) },
                 drawerContent = {
                     BasicText(text = if (it == DrawerValue.Open) "Opened" else "Closed")
-                }
+                },
             ) {
                 Box(
                     modifier =

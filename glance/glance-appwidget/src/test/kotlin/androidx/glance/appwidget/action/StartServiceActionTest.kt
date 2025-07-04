@@ -75,7 +75,7 @@ class StartServiceActionTest {
         val componentName =
             ComponentName(
                 "androidx.glance.appwidget.action",
-                "androidx.glance.appwidget.action.TestService"
+                "androidx.glance.appwidget.action.TestService",
             )
         val modifiers = GlanceModifier.clickable(actionStartService(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())

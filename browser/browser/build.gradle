@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -22,8 +22,11 @@ android {
             version = 1
         }
     }
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.browser"
+}
+
+android {
+    compileSdk = 36
 }
 
 dependencies {
@@ -42,16 +45,17 @@ dependencies {
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
-    testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
+    testImplementation(libs.guavaAndroid)
+    testImplementation(libs.junit)
 
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"))
@@ -59,7 +63,8 @@ dependencies {
 
 androidx {
     name = "Browser"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2015"
     description = "Provides support for embedding Custom Tabs in an app."
+    enableRobolectric()
 }

@@ -44,7 +44,7 @@ internal class NetworkCustomerPagingSource : PagingSource<Int, Customer>() {
         return LoadResult.Page(
             data = data,
             prevKey = if (key > 0) key else null,
-            nextKey = key + data.size
+            nextKey = key + data.size,
         )
     }
 

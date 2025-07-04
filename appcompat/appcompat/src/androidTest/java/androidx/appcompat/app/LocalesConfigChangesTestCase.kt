@@ -54,7 +54,7 @@ class LocalesConfigChangesTestCase() {
             expectedLocales =
                 LocalesUpdateActivity.overlayCustomAndSystemLocales(
                     CUSTOM_LOCALE_LIST,
-                    systemLocales
+                    systemLocales,
                 )
         }
     }

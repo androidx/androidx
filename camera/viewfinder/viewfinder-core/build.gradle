@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -31,18 +31,20 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.annotation:annotation-experimental:1.4.1")
-    implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
-    implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.atomicFu)
+    implementation("androidx.tracing:tracing-ktx:1.2.0")
 
-    annotationProcessor(libs.autoValue)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testCore)
+    testImplementation("org.robolectric:shadowapi:4.14")
+    testImplementation(libs.junit)
 }
 
 android {
@@ -51,10 +53,10 @@ android {
 
 androidx {
     name = "Camera Viewfinder Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     samples(project(":camera:viewfinder:viewfinder-core:viewfinder-core-samples"))
     inceptionYear = "2023"
     description = "Core dependencies for Viewfinder"
     legacyDisableKotlinStrictApiMode = true
-    samples(project(":camera:viewfinder:viewfinder-core:viewfinder-core-samples"))
+    enableRobolectric()
 }

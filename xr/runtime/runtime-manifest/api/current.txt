@@ -1,0 +1,63 @@
+// Signature format: 4.0
+package androidx.xr.runtime.manifest {
+
+  public final class ManifestFeature {
+    property public static String FEATURE_XR_API_OPENXR;
+    property public static String FEATURE_XR_API_SPATIAL;
+    property public static String FEATURE_XR_INPUT_CONTROLLER;
+    property public static String FEATURE_XR_INPUT_EYE_TRACKING;
+    property public static String FEATURE_XR_INPUT_HAND_TRACKING;
+    field public static final String FEATURE_XR_API_OPENXR;
+    field public static final String FEATURE_XR_API_SPATIAL;
+    field public static final String FEATURE_XR_INPUT_CONTROLLER;
+    field public static final String FEATURE_XR_INPUT_EYE_TRACKING;
+    field public static final String FEATURE_XR_INPUT_HAND_TRACKING;
+  }
+
+  public final class ManifestPermission {
+    property public static String EYE_TRACKING_COARSE;
+    property public static String EYE_TRACKING_FINE;
+    property public static String FACE_TRACKING;
+    property public static String HAND_TRACKING;
+    property public static String HEAD_TRACKING;
+    property public static String SCENE_UNDERSTANDING_COARSE;
+    property public static String SCENE_UNDERSTANDING_FINE;
+    field public static final String EYE_TRACKING_COARSE;
+    field public static final String EYE_TRACKING_FINE;
+    field public static final String FACE_TRACKING;
+    field public static final String HAND_TRACKING;
+    field public static final String HEAD_TRACKING;
+    field public static final String SCENE_UNDERSTANDING_COARSE;
+    field public static final String SCENE_UNDERSTANDING_FINE;
+  }
+
+  public final class ManifestPermissionGroup {
+    property public static String XR_TRACKING;
+    property public static String XR_TRACKING_SENSITIVE;
+    field public static final String XR_TRACKING;
+    field public static final String XR_TRACKING_SENSITIVE;
+  }
+
+  public final class ManifestProperty {
+    property public static String PROPERTY_XR_ACTIVITY_START_MODE;
+    property public static String PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED;
+    property public static String PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION;
+    property public static String XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED;
+    property public static String XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED;
+    property public static String XR_ACTIVITY_START_MODE_HOME_SPACE;
+    property public static String XR_ACTIVITY_START_MODE_UNDEFINED;
+    property public static String XR_BOUNDARY_TYPE_LARGE;
+    property public static String XR_BOUNDARY_TYPE_NO_RECOMMENDATION;
+    field public static final String PROPERTY_XR_ACTIVITY_START_MODE;
+    field public static final String PROPERTY_XR_BOUNDARY_TYPE_RECOMMENDED;
+    field public static final String PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION;
+    field public static final String XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED;
+    field public static final String XR_ACTIVITY_START_MODE_FULL_SPACE_UNMANAGED;
+    field public static final String XR_ACTIVITY_START_MODE_HOME_SPACE;
+    field public static final String XR_ACTIVITY_START_MODE_UNDEFINED;
+    field public static final String XR_BOUNDARY_TYPE_LARGE;
+    field public static final String XR_BOUNDARY_TYPE_NO_RECOMMENDATION;
+  }
+
+}
+

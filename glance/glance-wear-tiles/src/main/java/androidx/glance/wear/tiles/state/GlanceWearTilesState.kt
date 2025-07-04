@@ -36,7 +36,7 @@ public suspend fun <T> updateWearTileState(
     context: Context,
     definition: GlanceStateDefinition<T>,
     glanceId: GlanceId,
-    updateState: suspend (T) -> T
+    updateState: suspend (T) -> T,
 ): T {
     require(glanceId is WearTileId) { "The glance ID is not the one of a Wear Tile" }
     return GlanceState.updateValue(context, definition, glanceId.tileServiceClass.name, updateState)

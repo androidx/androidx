@@ -24,6 +24,7 @@ import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.CompilationInputs
 import androidx.build.checkapi.MultiplatformCompilationInputs
+import androidx.build.checkapi.SourceSetInputs
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
@@ -44,7 +45,7 @@ internal object MetalavaTasks {
         androidManifest: Provider<RegularFile>?,
         baselinesApiLocation: ApiBaselinesLocation,
         builtApiLocation: ApiLocation,
-        outputApiLocations: List<ApiLocation>
+        outputApiLocations: List<ApiLocation>,
     ) {
         val metalavaClasspath = project.getMetalavaClasspath()
         val version = project.version()
@@ -96,6 +97,7 @@ internal object MetalavaTasks {
                     task.bootClasspath = compilationInputs.bootClasspath
                     task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                     task.kotlinSourceLevel.set(kotlinSourceLevel)
+                    task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.cacheEvenIfNoOutputs()
                     task.dependsOn(generateApi)
                 }
@@ -112,6 +114,7 @@ internal object MetalavaTasks {
                     task.bootClasspath = compilationInputs.bootClasspath
                     task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                     task.kotlinSourceLevel.set(kotlinSourceLevel)
+                    task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.dependsOn(generateApi)
                 }
         }
@@ -119,7 +122,7 @@ internal object MetalavaTasks {
         val updateApiLintBaseline =
             project.tasks.register(
                 "updateApiLintBaseline",
-                UpdateApiLintBaselineTask::class.java
+                UpdateApiLintBaselineTask::class.java,
             ) { task ->
                 task.metalavaClasspath.from(metalavaClasspath)
                 task.baselines.set(baselinesApiLocation)
@@ -202,7 +205,7 @@ internal object MetalavaTasks {
             regenerateOldApis,
             updateApi,
             regenerateApis,
-            generateApi
+            generateApi,
         )
     }
 
@@ -213,13 +216,24 @@ internal object MetalavaTasks {
         androidManifest: Provider<RegularFile>?,
     ) {
         task.sourcePaths = inputs.sourcePaths
-        task.commonModuleSourcePaths = inputs.commonModuleSourcePaths
         task.compiledSources = generateApiDependencies
         task.dependencyClasspath = inputs.dependencyClasspath
         task.bootClasspath = inputs.bootClasspath
         androidManifest?.let { task.manifestPath.set(it) }
         if (inputs is MultiplatformCompilationInputs) {
-            task.optionalSourceSets.set(inputs.sourceSets)
+            task.sourceSets.set(inputs.sourceSets)
+        } else {
+            // Represent a non-multiplatform project as one source set.
+            task.sourceSets.set(
+                listOf(
+                    SourceSetInputs(
+                        sourceSetName = "main",
+                        dependsOnSourceSets = emptyList(),
+                        sourcePaths = inputs.sourcePaths,
+                        dependencyClasspath = inputs.dependencyClasspath,
+                    )
+                )
+            )
         }
     }
 }

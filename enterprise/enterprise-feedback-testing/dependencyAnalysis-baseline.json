@@ -1,0 +1,13 @@
+{
+  "projectPath": ":enterprise:enterprise-feedback-testing",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.12"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

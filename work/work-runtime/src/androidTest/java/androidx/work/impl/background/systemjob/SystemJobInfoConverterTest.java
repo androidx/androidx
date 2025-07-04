@@ -230,8 +230,10 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 29)
+    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 34)
     public void testConvert_setImportantWhileForeground() {
+        // Switch maxSdkVersion to 35 after B gets an official SDK version.
+        // setImportantWhileInForeground() turns into a no-op starting API 36.
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder().build());
         workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);

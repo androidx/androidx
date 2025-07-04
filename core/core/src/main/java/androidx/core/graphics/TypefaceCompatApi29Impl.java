@@ -16,6 +16,7 @@
 
 package androidx.core.graphics;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.ContentResolver;
@@ -27,6 +28,7 @@ import android.graphics.fonts.FontFamily;
 import android.graphics.fonts.FontStyle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -101,37 +103,63 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
         }
     }
 
-    private static @Nullable FontFamily getFontFamily(
+    @RestrictTo(LIBRARY)
+    protected @Nullable Font getFontFromSystemFont(FontsContractCompat.@NonNull FontInfo font) {
+        throw new UnsupportedOperationException(
+                "Getting font from Typeface is not supported before API31");
+    }
+
+    private @Nullable Font getFontFromProvider(@Nullable CancellationSignal cancellationSignal,
+            FontsContractCompat.FontInfo font, ContentResolver resolver) {
+        try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(font.getUri(), "r",
+                cancellationSignal)) {
+            if (pfd == null) {
+                return null;
+            }
+            Font.Builder builder = new Font.Builder(pfd)
+                    .setWeight(font.getWeight())
+                    .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
+                            : FontStyle.FONT_SLANT_UPRIGHT)
+                    .setTtcIndex(font.getTtcIndex());
+            if (!TextUtils.isEmpty(font.getVariationSettings())) {
+                builder.setFontVariationSettings(font.getVariationSettings());
+            }
+            return builder.build();
+        } catch (IOException e) {
+            Log.w(TAG, "Font load failed", e);
+            return null;
+        }
+    }
+
+    private @Nullable Font getFont(@Nullable CancellationSignal cancellationSignal,
+            FontsContractCompat.FontInfo font, ContentResolver resolver) {
+        if (font.isSystemFont()) {
+            return getFontFromSystemFont(font);
+        } else {
+            return getFontFromProvider(cancellationSignal, font, resolver);
+        }
+    }
+
+    @RestrictTo(LIBRARY)
+    protected @Nullable FontFamily getFontFamily(
             @Nullable CancellationSignal cancellationSignal,
-            FontsContractCompat.FontInfo @NonNull [] fonts, ContentResolver resolver) {
+            FontsContractCompat.FontInfo @NonNull [] fonts, @NonNull ContentResolver resolver) {
         FontFamily.Builder familyBuilder = null;
         for (FontsContractCompat.FontInfo font : fonts) {
-            try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(font.getUri(), "r",
-                    cancellationSignal)) {
-                if (pfd == null) {
-                    continue;  // keep adding succeeded fonts.
-                }
-                final Font platformFont = new Font.Builder(pfd)
-                        .setWeight(font.getWeight())
-                        .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
-                                : FontStyle.FONT_SLANT_UPRIGHT)
-                        .setTtcIndex(font.getTtcIndex())
-                        .build();  // TODO: font variation settings?
-                if (familyBuilder == null) {
-                    familyBuilder = new FontFamily.Builder(platformFont);
-                } else {
-                    familyBuilder.addFont(platformFont);
-                }
-            } catch (IOException e) {
-                Log.w(TAG, "Font load failed", e);
-                // keep adding succeeded fonts.
+            Font platformFont = getFont(cancellationSignal, font, resolver);
+            if (platformFont == null) {
+                continue;
+            }
+            if (familyBuilder == null) {
+                familyBuilder = new FontFamily.Builder(platformFont);
+            } else {
+                familyBuilder.addFont(platformFont);
             }
         }
         if (familyBuilder == null) {
             return null;
         }
-        final FontFamily family = familyBuilder.build();
-        return family;
+        return familyBuilder.build();
     }
 
     @Override

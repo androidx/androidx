@@ -41,12 +41,12 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  *   used during the ad selection.
  */
 @ExperimentalFeatures.Ext10OptIn
-class AdSelectionFromOutcomesConfig
+public class AdSelectionFromOutcomesConfig
 public constructor(
-    val seller: AdTechIdentifier,
-    val adSelectionIds: List<Long>,
-    val adSelectionSignals: AdSelectionSignals,
-    var selectionLogicUri: Uri,
+    public val seller: AdTechIdentifier,
+    public val adSelectionIds: List<Long>,
+    public val adSelectionSignals: AdSelectionSignals,
+    public var selectionLogicUri: Uri,
 ) {
 
     /** Checks whether two [AdSelectionFromOutcomesConfig] objects contain the same information. */

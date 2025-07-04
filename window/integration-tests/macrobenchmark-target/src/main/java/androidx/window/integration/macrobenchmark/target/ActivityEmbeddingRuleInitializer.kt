@@ -39,7 +39,7 @@ class ActivityEmbeddingRuleInitializer : Initializer<Unit> {
                     SplitPairFilter(
                         ComponentName(context, Activity1::class.java.name),
                         ComponentName("package $index", "cls $index"),
-                        null
+                        null,
                     )
                 )
                 val rule =

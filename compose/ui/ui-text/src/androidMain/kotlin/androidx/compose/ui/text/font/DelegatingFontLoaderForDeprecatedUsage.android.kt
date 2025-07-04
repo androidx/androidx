@@ -43,7 +43,7 @@ import android.content.Context
 )
 fun createFontFamilyResolver(
     fontResourceLoader: Font.ResourceLoader,
-    context: Context
+    context: Context,
 ): FontFamily.Resolver {
     return FontFamilyResolverImpl(
         DelegatingFontLoaderForBridgeUsage(fontResourceLoader, context.applicationContext)
@@ -90,7 +90,7 @@ internal class DelegatingFontLoaderForDeprecatedUsage(internal val loader: Font.
 @Suppress("DEPRECATION")
 internal class DelegatingFontLoaderForBridgeUsage(
     internal val loader: Font.ResourceLoader,
-    private val context: Context
+    private val context: Context,
 ) : PlatformFontLoader {
     // never consider these reusable for caching
     override val cacheKey: Any = Any()

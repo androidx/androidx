@@ -21,7 +21,7 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
 )
 @file:OptIn(ExperimentalContracts::class)
 
@@ -108,9 +108,7 @@ public fun mutableIntSetOf(vararg elements: Int): MutableIntSet =
  *
  * @param builderAction Lambda in which the [MutableIntSet] can be populated.
  */
-public inline fun buildIntSet(
-    builderAction: MutableIntSet.() -> Unit,
-): IntSet {
+public inline fun buildIntSet(builderAction: MutableIntSet.() -> Unit): IntSet {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableIntSet().apply(builderAction)
 }
@@ -353,7 +351,7 @@ public sealed class IntSet {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Int) -> CharSequence
+        crossinline transform: (Int) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

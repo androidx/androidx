@@ -48,12 +48,12 @@ import org.junit.runners.Parameterized.Parameters
 
 @MediumTest
 @RunWith(Parameterized::class)
-class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLite) {
+class BooksDaoTest(useDriver: UseDriver) : TestDatabaseTest(useDriver) {
 
     private companion object {
         @JvmStatic
-        @Parameters(name = "useBundledSQLite={0}")
-        fun parameters() = arrayOf(false, true)
+        @Parameters(name = "useDriver={0}")
+        fun parameters() = UseDriver.entries.toTypedArray()
     }
 
     @Test
@@ -87,7 +87,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             booksDao.getBookJavaOptional(TestUtil.BOOK_1.bookId),
-            `is`<java.util.Optional<Book>>(java.util.Optional.of(TestUtil.BOOK_1))
+            `is`<java.util.Optional<Book>>(java.util.Optional.of(TestUtil.BOOK_1)),
         )
     }
 
@@ -96,7 +96,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
     fun bookByIdJavaOptionalEmpty() {
         assertThat(
             booksDao.getBookJavaOptional(TestUtil.BOOK_1.bookId),
-            `is`<java.util.Optional<Book>>(java.util.Optional.empty())
+            `is`<java.util.Optional<Book>>(java.util.Optional.empty()),
         )
     }
 
@@ -108,7 +108,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             booksDao.getBookListenableFuture(TestUtil.BOOK_1.bookId).get(),
-            `is`<Book>(TestUtil.BOOK_1)
+            `is`<Book>(TestUtil.BOOK_1),
         )
     }
 
@@ -120,7 +120,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             booksDao.getBookOptional(TestUtil.BOOK_1.bookId),
-            `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1))
+            `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1)),
         )
     }
 
@@ -132,7 +132,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             booksDao.getBookOptionalListenableFuture(TestUtil.BOOK_1.bookId).get(),
-            `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1))
+            `is`<Optional<Book>>(Optional.of(TestUtil.BOOK_1)),
         )
     }
 
@@ -140,7 +140,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
     fun bookByIdOptionalListenableFutureAbsent() {
         assertThat(
             booksDao.getBookOptionalListenableFuture(TestUtil.BOOK_1.bookId).get(),
-            `is`<Optional<Book>>(Optional.absent())
+            `is`<Optional<Book>>(Optional.absent()),
         )
     }
 
@@ -148,7 +148,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
     fun bookByIdOptionalAbsent() {
         assertThat(
             booksDao.getBookOptional(TestUtil.BOOK_1.bookId),
-            `is`<Optional<Book>>(Optional.absent())
+            `is`<Optional<Book>>(Optional.absent()),
         )
     }
 
@@ -195,7 +195,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             database.booksDao().getBooksWithPublisher(),
-            `is`<List<BookWithPublisher>>(expectedList)
+            `is`<List<BookWithPublisher>>(expectedList),
         )
     }
 
@@ -212,7 +212,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             database.booksDao().getBooksWithPublisherListenableFuture().get(),
-            `is`<List<BookWithPublisher>>(expectedList)
+            `is`<List<BookWithPublisher>>(expectedList),
         )
     }
 
@@ -257,7 +257,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
         assertThat(actualPublisherWithBooks.publisher, `is`<Publisher>(TestUtil.PUBLISHER))
         assertThat(
             actualPublisherWithBooks.sales,
-            `is`(listOf(TestUtil.BOOK_1.salesCnt, TestUtil.BOOK_2.salesCnt))
+            `is`(listOf(TestUtil.BOOK_1.salesCnt, TestUtil.BOOK_2.salesCnt)),
         )
     }
 
@@ -294,6 +294,21 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
     }
 
     @Test
+    fun findBooksInMultiLineQueryWithComment() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+        booksDao.addBooks(TestUtil.BOOK_2)
+
+        val books =
+            database
+                .booksDao()
+                .getBooksMultiLineQueryWithComment(
+                    arrayListOf(TestUtil.BOOK_1.bookId, TestUtil.BOOK_2.bookId)
+                )
+        assertThat(books, `is`(listOf(TestUtil.BOOK_2, TestUtil.BOOK_1)))
+    }
+
+    @Test
     fun findBooksByLanguage() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         val book1 = TestUtil.BOOK_1.copy(languages = setOf(Lang.TR))
@@ -303,7 +318,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
 
         assertThat(
             booksDao.findByLanguages(setOf(Lang.EN, Lang.TR)),
-            `is`(listOf(book1, book2, book3))
+            `is`(listOf(book1, book2, book3)),
         )
 
         assertThat(booksDao.findByLanguages(setOf(Lang.TR)), `is`(listOf(book1, book2)))
@@ -398,7 +413,7 @@ class BooksDaoTest(useBundledSQLite: Boolean) : TestDatabaseTest(useBundledSQLit
                 booksDao.addAuthorPublisherBooks(
                     author = TestUtil.AUTHOR_1,
                     publisher = TestUtil.PUBLISHER,
-                    books = arrayOf(TestUtil.BOOK_1, TestUtil.BOOK_1)
+                    books = arrayOf(TestUtil.BOOK_1, TestUtil.BOOK_1),
                 )
                 fail("addAuthorPublisherBooks should have failed")
             } catch (ex: SQLiteConstraintException) {

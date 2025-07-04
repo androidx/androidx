@@ -23,7 +23,8 @@ class TypeAdapterExtras {
     private val data = mutableMapOf<KClass<*>, Any>()
 
     fun <T : Any> getData(key: KClass<T>): T? {
-        @Suppress("UNCHECKED_CAST") return data[key] as T?
+        @Suppress("UNCHECKED_CAST")
+        return data[key] as T?
     }
 
     fun <T : Any> putData(key: KClass<T>, value: T) {

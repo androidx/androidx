@@ -81,7 +81,7 @@ class DrawReorderingTest {
                         FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
                         )
                     }
                 ) { measurables, _ ->
@@ -97,7 +97,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -111,7 +111,7 @@ class DrawReorderingTest {
                         FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
                         )
                     }
                 ) { measurables, _ ->
@@ -127,7 +127,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -144,7 +144,7 @@ class DrawReorderingTest {
                             Modifier.graphicsLayer()
                                 .background(Color.Red)
                                 .zIndex(1f)
-                                .drawLatchModifier()
+                                .drawLatchModifier(),
                         )
                     }
                 ) { measurables, _ ->
@@ -160,7 +160,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -177,7 +177,7 @@ class DrawReorderingTest {
                             Modifier.graphicsLayer()
                                 .background(Color.Red)
                                 .zIndex(1f)
-                                .drawLatchModifier()
+                                .drawLatchModifier(),
                         )
                     }
                 ) { measurables, _ ->
@@ -195,7 +195,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -208,12 +208,12 @@ class DrawReorderingTest {
                     content = {
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
                         )
                         FixedSize(10, Modifier.padding(10).background(Color.White))
                         FixedSize(
                             30,
-                            Modifier.graphicsLayer().background(Color.Blue).drawLatchModifier()
+                            Modifier.graphicsLayer().background(Color.Blue).drawLatchModifier(),
                         )
                     }
                 ) { measurables, _ ->
@@ -231,7 +231,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -269,7 +269,7 @@ class DrawReorderingTest {
                     FixedSize(10, Modifier.padding(10).zIndex(1f).background(Color.White))
                     FixedSize(
                         30,
-                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
+                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
                     )
                 }
             }
@@ -278,7 +278,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -297,7 +297,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -321,7 +321,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -342,7 +342,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -365,7 +365,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
 
         val onDrawListener =
@@ -385,7 +385,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Black,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread {
@@ -396,7 +396,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -427,7 +427,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
 
         val onDrawListener =
@@ -447,7 +447,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
 
         drawLatch = CountDownLatch(1)
@@ -459,7 +459,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -485,7 +485,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         val onDrawListener =
             object : ViewTreeObserver.OnDrawListener {
@@ -503,7 +503,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -525,7 +525,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         val onDrawListener =
             object : ViewTreeObserver.OnDrawListener {
@@ -544,7 +544,7 @@ class DrawReorderingTest {
             innerColor = Color.White,
             size = 20,
             totalSize = 40,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -564,7 +564,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread { color.value = Color.Blue }
@@ -572,7 +572,7 @@ class DrawReorderingTest {
             outerColor = Color.Blue,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -584,11 +584,11 @@ class DrawReorderingTest {
                 FixedSize(size = 30) {
                     FixedSize(
                         10,
-                        Modifier.padding(10).zIndex(2f).zIndex(2f).background(Color.White)
+                        Modifier.padding(10).zIndex(2f).zIndex(2f).background(Color.White),
                     )
                     FixedSize(
                         30,
-                        Modifier.zIndex(4f).zIndex(-1f).background(Color.Red).drawLatchModifier()
+                        Modifier.zIndex(4f).zIndex(-1f).background(Color.Red).drawLatchModifier(),
                     )
                 }
             }
@@ -597,7 +597,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -617,7 +617,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         drawLatch = CountDownLatch(1)
         rule.runOnUiThread { color.value = Color.Blue }
@@ -625,7 +625,7 @@ class DrawReorderingTest {
             outerColor = Color.Blue,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -639,11 +639,11 @@ class DrawReorderingTest {
                         10,
                         Modifier.padding(10)
                             .graphicsLayer(shadowElevation = 1f)
-                            .background(Color.White)
+                            .background(Color.White),
                     )
                     FixedSize(
                         30,
-                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier()
+                        Modifier.graphicsLayer().background(Color.Red).drawLatchModifier(),
                     )
                 }
             }
@@ -652,7 +652,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -684,7 +684,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.Red,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -716,7 +716,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -748,7 +748,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -780,7 +780,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -795,7 +795,7 @@ class DrawReorderingTest {
                         FixedSize(30) {
                             FixedSize(
                                 10,
-                                Modifier.padding(10).background(Color.White).drawLatchModifier()
+                                Modifier.padding(10).background(Color.White).drawLatchModifier(),
                             )
                         }
                         if (needSecondChild) {
@@ -822,7 +822,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
     }
 
@@ -850,7 +850,7 @@ class DrawReorderingTest {
                             FixedSize(30, Modifier.background(Color.Red))
                         }
                     },
-                    modifier = Modifier.drawLatchModifier()
+                    modifier = Modifier.drawLatchModifier(),
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
                     val placeables = measurables.map { m -> m.measure(newConstraints) }
@@ -879,7 +879,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         rule.runOnUiThread {
             // changing drawing order doesn't require child's layer block rerun
@@ -911,7 +911,7 @@ class DrawReorderingTest {
                             FixedSize(30, Modifier.background(Color.Red))
                         }
                     },
-                    modifier = Modifier.drawLatchModifier()
+                    modifier = Modifier.drawLatchModifier(),
                 ) { measurables, _ ->
                     val newConstraints = Constraints.fixed(30, 30)
                     val placeables = measurables.map { m -> m.measure(newConstraints) }
@@ -935,7 +935,7 @@ class DrawReorderingTest {
             outerColor = Color.Red,
             innerColor = Color.White,
             size = 10,
-            drawLatch = drawLatch
+            drawLatch = drawLatch,
         )
         rule.runOnUiThread {
             // changing zIndex doesn't require child's layer block rerun
@@ -950,7 +950,7 @@ class DrawReorderingTest {
 private fun FixedSize(
     size: State<Int>,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
     Layout(content = content, modifier = modifier) { measurables, _ ->
         val newConstraints = Constraints.fixed(size.value, size.value)

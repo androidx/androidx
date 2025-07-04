@@ -24,7 +24,7 @@ import androidx.core.view.updatePadding
 import androidx.privacysandbox.activity.provider.SdkActivityLauncherFactory
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.BackNavigation
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.ScreenOrientation
 
@@ -35,7 +35,7 @@ class FullscreenAd(private val sdkContext: Context) {
     suspend fun show(
         launcherInfo: Bundle,
         @ScreenOrientation screenOrientation: Int,
-        @BackNavigation backNavigation: Int
+        @BackNavigation backNavigation: Int,
     ) {
         val sdkActivityLauncher = SdkActivityLauncherFactory.fromLauncherInfo(launcherInfo)
         val handler =

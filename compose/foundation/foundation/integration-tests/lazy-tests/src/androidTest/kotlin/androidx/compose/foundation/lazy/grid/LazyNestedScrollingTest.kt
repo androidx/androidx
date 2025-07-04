@@ -63,7 +63,7 @@ class LazyNestedScrollingTest {
             Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
-                    Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    Modifier.requiredSize(100.dp).testTag(LazyTag),
                 ) {
                     items(items) { Spacer(Modifier.requiredSize(50.dp).testTag("$it")) }
                 }
@@ -91,7 +91,7 @@ class LazyNestedScrollingTest {
             Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
-                    Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    Modifier.requiredSize(100.dp).testTag(LazyTag),
                 ) {
                     items(items) { Box(Modifier.requiredHeight(50.dp).testTag("$it")) }
                 }
@@ -127,7 +127,7 @@ class LazyNestedScrollingTest {
             Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
-                    Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    Modifier.requiredSize(100.dp).testTag(LazyTag),
                 ) {
                     items(items) { Spacer(Modifier.requiredSize(40.dp).testTag("$it")) }
                 }
@@ -155,7 +155,7 @@ class LazyNestedScrollingTest {
             Box(Modifier.scrollable(orientation = Orientation.Vertical, state = scrollable)) {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
-                    Modifier.requiredSize(100.dp).testTag(LazyTag)
+                    Modifier.requiredSize(100.dp).testTag(LazyTag),
                 ) {
                     items(items) { Spacer(Modifier.requiredSize(50.dp).testTag("$it")) }
                 }

@@ -59,7 +59,7 @@ class EmojiSpanDrawBenchmark {
                     /* top */ 0,
                     /* y */ 0,
                     /* bottom */ 0,
-                    paint
+                    paint,
                 )
             }
         } finally {

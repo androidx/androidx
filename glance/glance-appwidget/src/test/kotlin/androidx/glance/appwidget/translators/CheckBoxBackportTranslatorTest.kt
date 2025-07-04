@@ -74,8 +74,8 @@ class CheckBoxBackportTranslatorTest {
                         colors =
                             CheckboxDefaults.colors(
                                 checkedColor = Color.Red,
-                                uncheckedColor = Color.Blue
-                            )
+                                uncheckedColor = Color.Blue,
+                            ),
                     )
                 }
 
@@ -96,8 +96,8 @@ class CheckBoxBackportTranslatorTest {
                         colors =
                             CheckboxDefaults.colors(
                                 checkedColor = Color.Red,
-                                uncheckedColor = Color.Blue
-                            )
+                                uncheckedColor = Color.Blue,
+                            ),
                     )
                 }
 
@@ -119,8 +119,8 @@ class CheckBoxBackportTranslatorTest {
                             CheckboxDefaults.colors(
                                 checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                                 uncheckedColor =
-                                    ColorProvider(day = Color.Yellow, night = Color.Green)
-                            )
+                                    ColorProvider(day = Color.Yellow, night = Color.Green),
+                            ),
                     )
                 }
 
@@ -142,8 +142,8 @@ class CheckBoxBackportTranslatorTest {
                             CheckboxDefaults.colors(
                                 checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                                 uncheckedColor =
-                                    ColorProvider(day = Color.Yellow, night = Color.Green)
-                            )
+                                    ColorProvider(day = Color.Yellow, night = Color.Green),
+                            ),
                     )
                 }
 
@@ -165,8 +165,8 @@ class CheckBoxBackportTranslatorTest {
                             CheckboxDefaults.colors(
                                 checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                                 uncheckedColor =
-                                    ColorProvider(day = Color.Yellow, night = Color.Green)
-                            )
+                                    ColorProvider(day = Color.Yellow, night = Color.Green),
+                            ),
                     )
                 }
 
@@ -188,8 +188,8 @@ class CheckBoxBackportTranslatorTest {
                             CheckboxDefaults.colors(
                                 checkedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                                 uncheckedColor =
-                                    ColorProvider(day = Color.Yellow, night = Color.Green)
-                            )
+                                    ColorProvider(day = Color.Yellow, night = Color.Green),
+                            ),
                     )
                 }
 
@@ -210,8 +210,8 @@ class CheckBoxBackportTranslatorTest {
                         colors =
                             CheckboxDefaults.colors(
                                 checkedColor = FixedColorProvider(Color.Red),
-                                uncheckedColor = FixedColorProvider(Color.Blue)
-                            )
+                                uncheckedColor = FixedColorProvider(Color.Blue),
+                            ),
                     )
                 }
 
@@ -225,11 +225,7 @@ class CheckBoxBackportTranslatorTest {
         fakeCoroutineScope.runTest {
             val rv =
                 context.runAndTranslate {
-                    CheckBox(
-                        checked = true,
-                        onCheckedChange = null,
-                        text = "CheckBox",
-                    )
+                    CheckBox(checked = true, onCheckedChange = null, text = "CheckBox")
                 }
 
             val checkboxRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))

@@ -79,12 +79,12 @@ class PressDownTest {
     }
 
     private fun layoutWithGestureDetector(
-        gestureDetector: suspend PointerInputScope.() -> Unit,
+        gestureDetector: suspend PointerInputScope.() -> Unit
     ): @Composable () -> Unit = {
         CompositionLocalProvider(
             LocalDensity provides Density(1f),
             LocalViewConfiguration provides
-                TestViewConfiguration(minimumTouchTargetSize = DpSize.Zero)
+                TestViewConfiguration(minimumTouchTargetSize = DpSize.Zero),
         ) {
             with(LocalDensity.current) {
                 Box(
@@ -116,7 +116,7 @@ class PressDownTest {
     private fun performTouch(
         initialPass: PointerInputChange.() -> Unit = nothingHandler,
         finalPass: PointerInputChange.() -> Unit = nothingHandler,
-        block: TouchInjectionScope.() -> Unit
+        block: TouchInjectionScope.() -> Unit,
     ) {
         this.initialPass = initialPass
         this.finalPass = finalPass

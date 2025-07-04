@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -35,6 +36,7 @@ class DistanceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                     distance = 10.meters,
                 )
             )
@@ -44,6 +46,7 @@ class DistanceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                     distance = 10.meters,
                 )
             )
@@ -57,6 +60,7 @@ class DistanceRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
                 distance = 10.meters,
             )
         }
@@ -70,7 +74,8 @@ class DistanceRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
-                        distance = 10.meters
+                        metadata = Metadata.unknownRecordingMethod(),
+                        distance = 10.meters,
                     )
                     .toString()
             )

@@ -34,7 +34,7 @@ fun SliderSample() {
         onValueChange = { value = it },
         valueRange = 3f..6f,
         steps = 5,
-        segmented = false
+        segmented = false,
     )
 }
 
@@ -54,7 +54,7 @@ fun ChangedSliderSample() {
                 SliderDefaults.sliderColors()
             } else {
                 SliderDefaults.variantSliderColors()
-            }
+            },
     )
 }
 
@@ -67,7 +67,7 @@ fun SliderSegmentedSample() {
         onValueChange = { value = it },
         valueRange = 1f..4f,
         steps = 7,
-        segmented = true
+        segmented = true,
     )
 }
 
@@ -79,6 +79,6 @@ fun SliderWithIntegerSample() {
         value = value,
         onValueChange = { value = it },
         valueProgression = 0..10,
-        segmented = false
+        segmented = false,
     )
 }

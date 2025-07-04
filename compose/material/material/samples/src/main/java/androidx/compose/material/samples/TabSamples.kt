@@ -71,7 +71,7 @@ fun TextTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Text tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -86,14 +86,14 @@ fun IconTabs() {
                 Tab(
                     icon = { Icon(icon, contentDescription = "Favorite") },
                     selected = state == index,
-                    onClick = { state = index }
+                    onClick = { state = index },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Icon tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -105,7 +105,7 @@ fun TextAndIconTabs() {
         listOf(
             "TAB 1" to Icons.Filled.Favorite,
             "TAB 2" to Icons.Filled.Favorite,
-            "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite
+            "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite,
         )
     Column {
         TabRow(selectedTabIndex = state) {
@@ -114,14 +114,14 @@ fun TextAndIconTabs() {
                     text = { Text(title) },
                     icon = { Icon(icon, contentDescription = null) },
                     selected = state == index,
-                    onClick = { state = index }
+                    onClick = { state = index },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Text and icon tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -133,7 +133,7 @@ fun LeadingIconTabs() {
         listOf(
             "TAB" to Icons.Filled.Favorite,
             "TAB & ICON" to Icons.Filled.Favorite,
-            "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite
+            "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite,
         )
     Column {
         TabRow(selectedTabIndex = state) {
@@ -142,14 +142,14 @@ fun LeadingIconTabs() {
                     text = { Text(title) },
                     icon = { Icon(icon, contentDescription = null) },
                     selected = state == index,
-                    onClick = { state = index }
+                    onClick = { state = index },
                 )
             }
         }
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Leading icon tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -168,7 +168,7 @@ fun ScrollingTextTabs() {
             "TAB 7",
             "TAB 8",
             "TAB 9 WITH LOTS OF TEXT",
-            "TAB 10"
+            "TAB 10",
         )
     Column {
         ScrollableTabRow(selectedTabIndex = state) {
@@ -179,7 +179,7 @@ fun ScrollingTextTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling text tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -198,7 +198,7 @@ fun FancyTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -224,7 +224,7 @@ fun FancyIndicatorTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy indicator tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -249,7 +249,7 @@ fun FancyIndicatorContainerTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -268,7 +268,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
             "TAB 7",
             "TAB 8",
             "TAB 9 WITH LOTS OF TEXT",
-            "TAB 10"
+            "TAB 10",
         )
     val indicator =
         @Composable { tabPositions: List<TabPosition> ->
@@ -284,7 +284,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             text = "Scrolling fancy transition tab ${state + 1} selected",
-            style = MaterialTheme.typography.body1
+            style = MaterialTheme.typography.body1,
         )
     }
 }
@@ -295,7 +295,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
     Tab(selected, onClick) {
         Column(
             Modifier.padding(10.dp).height(50.dp).fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Box(
                 Modifier.size(10.dp)
@@ -305,7 +305,7 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.body1,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
         }
     }
@@ -374,6 +374,6 @@ fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: In
                 // Apply an offset from the start to correctly position the indicator around the tab
                 .offset(x = indicatorStart)
                 // Make the width of the indicator follow the animated width as we move between tabs
-                .width(indicatorEnd - indicatorStart)
+                .width(indicatorEnd - indicatorStart),
     )
 }

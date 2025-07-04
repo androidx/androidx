@@ -23,11 +23,19 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.ImageShader
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.test.assertNotEquals
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +58,7 @@ class BrushPainterTest {
                     0.0f to Color.Red,
                     0.5f to Color.Red,
                     0.5f to Color.Blue,
-                    1.0f to Color.Blue
+                    1.0f to Color.Blue,
                 )
             )
         val image = createImageBitmap()
@@ -68,6 +76,42 @@ class BrushPainterTest {
     }
 
     @Test
+    fun testCompositeBrush() {
+        val bitmap = ImageBitmap(100, 100)
+        val size = Size(bitmap.width.toFloat(), bitmap.height.toFloat())
+        CanvasDrawScope().draw(Density(1f, 1f), LayoutDirection.Ltr, Canvas(bitmap), size) {
+            drawRect(Color.Black, style = Stroke(20.dp.toPx()))
+        }
+        val bitmapBrush = ShaderBrush(ImageShader(bitmap))
+        val gradientBrush =
+            Brush.verticalGradient(
+                0.0f to Color.Red,
+                0.5f to Color.Red,
+                0.5f to Color.Blue,
+                1.0f to Color.Blue,
+            )
+        val dstImage = createImageBitmap()
+        val brushPainter =
+            BrushPainter(Brush.composite(bitmapBrush, gradientBrush, BlendMode.SrcIn))
+        drawPainter(brushPainter, Canvas(dstImage), size)
+        val pixelMap = dstImage.toPixelMap()
+        assertEquals(Color.Red, pixelMap[0, 0])
+        assertEquals(Color.Red, pixelMap[99, 0])
+        assertEquals(Color.Red, pixelMap[0, 49])
+        assertEquals(Color.Red, pixelMap[99, 49])
+
+        assertEquals(Color.Blue, pixelMap[0, 50])
+        assertEquals(Color.Blue, pixelMap[99, 50])
+        assertEquals(Color.Blue, pixelMap[0, 99])
+        assertEquals(Color.Blue, pixelMap[99, 99])
+
+        assertNotEquals(Color.Red, pixelMap[50, 49])
+        assertNotEquals(Color.Blue, pixelMap[59, 49])
+        assertNotEquals(Color.Red, pixelMap[50, 51])
+        assertNotEquals(Color.Blue, pixelMap[50, 51])
+    }
+
+    @Test
     fun testBrushPainterAlphaApplied() {
         val brushPainter =
             BrushPainter(
@@ -75,7 +119,7 @@ class BrushPainterTest {
                     0.0f to Color.Red,
                     0.5f to Color.Red,
                     0.5f to Color.Blue,
-                    1.0f to Color.Blue
+                    1.0f to Color.Blue,
                 )
             )
         val image = createImageBitmap()
@@ -109,7 +153,7 @@ class BrushPainterTest {
                     0.0f to Color.Red,
                     0.5f to Color.Red,
                     0.5f to Color.Blue,
-                    1.0f to Color.Blue
+                    1.0f to Color.Blue,
                 )
             )
         val image = createImageBitmap()
@@ -117,7 +161,7 @@ class BrushPainterTest {
             brushPainter,
             Canvas(image),
             Size(100f, 100f),
-            colorFilter = ColorFilter.tint(Color.Cyan, BlendMode.SrcIn)
+            colorFilter = ColorFilter.tint(Color.Cyan, BlendMode.SrcIn),
         )
         val pixelMap = image.toPixelMap()
         assertEquals(Color.Cyan, pixelMap[0, 0])

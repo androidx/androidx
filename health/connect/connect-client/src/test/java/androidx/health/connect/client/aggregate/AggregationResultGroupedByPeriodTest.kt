@@ -48,4 +48,56 @@ class AggregationResultGroupedByPeriodTest {
             endTime = LocalDateTime.parse("2022-02-22T20:22:02"),
         )
     }
+
+    @Test
+    fun constructor_endTimeNotAfterStartTimeWithValidationEnabled_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            AggregationResultGroupedByPeriod(
+                result = AggregationResult(mapOf(), mapOf(), setOf()),
+                startTime = LocalDateTime.parse("2022-02-22T20:22:02"),
+                endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+                shouldSkipValidation = false,
+            )
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            AggregationResultGroupedByPeriod(
+                result = AggregationResult(mapOf(), mapOf(), setOf()),
+                startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+                endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+                shouldSkipValidation = false,
+            )
+        }
+
+        AggregationResultGroupedByPeriod(
+            result = AggregationResult(mapOf(), mapOf(), setOf()),
+            startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+            endTime = LocalDateTime.parse("2022-02-22T20:22:02"),
+            shouldSkipValidation = false,
+        )
+    }
+
+    @Test
+    fun constructor_endTimeNotAfterStartTimeWithSkipValidation_doesNotThrow() {
+        AggregationResultGroupedByPeriod(
+            result = AggregationResult(mapOf(), mapOf(), setOf()),
+            startTime = LocalDateTime.parse("2022-02-22T20:22:02"),
+            endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+            shouldSkipValidation = true,
+        )
+
+        AggregationResultGroupedByPeriod(
+            result = AggregationResult(mapOf(), mapOf(), setOf()),
+            startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+            endTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+            shouldSkipValidation = true,
+        )
+
+        AggregationResultGroupedByPeriod(
+            result = AggregationResult(mapOf(), mapOf(), setOf()),
+            startTime = LocalDateTime.parse("2022-02-11T20:22:02"),
+            endTime = LocalDateTime.parse("2022-02-22T20:22:02"),
+            shouldSkipValidation = true,
+        )
+    }
 }

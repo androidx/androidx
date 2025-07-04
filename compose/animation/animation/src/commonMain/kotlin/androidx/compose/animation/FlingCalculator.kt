@@ -79,7 +79,7 @@ internal class FlingCalculator(private val friction: Float, val density: Density
             distance =
                 (friction * magicPhysicalCoefficient * exp(DecelerationRate / decelMinusOne * l))
                     .toFloat(),
-            duration = (1000.0 * exp(l / decelMinusOne)).toLong()
+            duration = (1000.0 * exp(l / decelMinusOne)).toLong(),
         )
     }
 

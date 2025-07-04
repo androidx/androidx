@@ -90,7 +90,7 @@ class OutlinedTextFieldScreenshotTest {
             OutlinedTextField(
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 label = { Text("Label") },
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -103,7 +103,7 @@ class OutlinedTextFieldScreenshotTest {
             OutlinedTextField(
                 state = rememberTextFieldState(),
                 label = { Text("Label") },
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -116,7 +116,7 @@ class OutlinedTextFieldScreenshotTest {
             OutlinedTextField(
                 state = rememberTextFieldState(),
                 label = { Text("Label") },
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -132,7 +132,7 @@ class OutlinedTextFieldScreenshotTest {
                 OutlinedTextField(
                     state = rememberTextFieldState(),
                     label = { Text("Label") },
-                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
                 )
             }
         }
@@ -157,7 +157,7 @@ class OutlinedTextFieldScreenshotTest {
                     state = rememberTextFieldState(text, TextRange(text.length)),
                     label = { Text("Label") },
                     isError = true,
-                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
                 )
             }
         }
@@ -175,7 +175,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 label = { Text("Label") },
                 isError = true,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -189,7 +189,7 @@ class OutlinedTextFieldScreenshotTest {
                 val text = "Hello, world!"
                 OutlinedTextField(
                     state = rememberTextFieldState(text, TextRange(text.length)),
-                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
                 )
             }
         }
@@ -205,7 +205,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 label = { Text("Label") },
                 modifier =
-                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag),
             )
         }
 
@@ -219,7 +219,7 @@ class OutlinedTextFieldScreenshotTest {
             OutlinedTextField(
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 modifier =
-                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag),
             )
         }
 
@@ -234,7 +234,7 @@ class OutlinedTextFieldScreenshotTest {
                 label = { Text("Label") },
                 placeholder = { Text("placeholder") },
                 modifier =
-                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag),
             )
         }
 
@@ -250,7 +250,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 placeholder = { Text("placeholder") },
                 modifier =
-                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag),
             )
         }
 
@@ -266,7 +266,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 label = { Text("Label") },
                 modifier =
-                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag)
+                    Modifier.requiredHeight(300.dp).requiredWidth(280.dp).testTag(TextFieldTag),
             )
         }
 
@@ -281,7 +281,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 label = { Text("Label") },
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -295,7 +295,7 @@ class OutlinedTextFieldScreenshotTest {
             OutlinedTextField(
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -310,7 +310,7 @@ class OutlinedTextFieldScreenshotTest {
                 placeholder = { Text("placeholder") },
                 label = { Text("Label") },
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -326,7 +326,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 placeholder = { Text("placeholder") },
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -344,7 +344,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 label = { Text("Label") },
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -358,7 +358,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState("Text"),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 enabled = false,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -372,7 +372,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState("Text"),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 enabled = false,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
             )
         }
 
@@ -388,7 +388,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(longText),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(300.dp),
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -410,7 +410,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState("Text"),
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
                 enabled = true,
-                readOnly = true
+                readOnly = true,
             )
         }
 
@@ -424,7 +424,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState("Text"),
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp),
                 enabled = true,
-                readOnly = true
+                readOnly = true,
             )
         }
 
@@ -441,7 +441,7 @@ class OutlinedTextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag).requiredWidth(300.dp),
                 lineLimits = TextFieldLineLimits.SingleLine,
                 enabled = true,
-                readOnly = true
+                readOnly = true,
             )
         }
 
@@ -464,7 +464,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                lineLimits = TextFieldLineLimits.SingleLine
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
         }
 
@@ -479,7 +479,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(text, TextRange(text.length)),
                 modifier = Modifier.fillMaxWidth().testTag(TextFieldTag),
                 textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
-                lineLimits = TextFieldLineLimits.SingleLine
+                lineLimits = TextFieldLineLimits.SingleLine,
             )
         }
 
@@ -503,7 +503,7 @@ class OutlinedTextFieldScreenshotTest {
                 label = { Text("Label") },
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
                 lineLimits = TextFieldLineLimits.SingleLine,
-                shape = CutCornerShape(10.dp)
+                shape = CutCornerShape(10.dp),
             )
         }
 
@@ -541,7 +541,7 @@ class OutlinedTextFieldScreenshotTest {
                 label = { Text("Label") },
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
                 leadingIcon = { Icon(Icons.Default.Call, null) },
-                trailingIcon = { Icon(Icons.Default.Clear, null) }
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
             )
         }
 
@@ -557,7 +557,7 @@ class OutlinedTextFieldScreenshotTest {
                 modifier = Modifier.width(300.dp).testTag(TextFieldTag),
                 leadingIcon = { Icon(Icons.Default.Call, null) },
                 trailingIcon = { Icon(Icons.Default.Clear, null) },
-                isError = true
+                isError = true,
             )
         }
 

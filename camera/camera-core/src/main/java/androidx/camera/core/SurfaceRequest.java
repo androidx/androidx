@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.impl.SessionConfig.DEFAULT_SESSION_TYPE;
+
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -105,6 +107,7 @@ public final class SurfaceRequest {
     private final Range<Integer> mExpectedFrameRate;
     private final CameraInternal mCamera;
     private final boolean mIsPrimary;
+    private final int mSessionType;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -154,7 +157,7 @@ public final class SurfaceRequest {
             @NonNull DynamicRange dynamicRange,
             @NonNull Range<Integer> expectedFrameRate,
             @NonNull Runnable onInvalidated) {
-        this(resolution, camera, true, dynamicRange,
+        this(resolution, camera, true, dynamicRange, DEFAULT_SESSION_TYPE,
                 expectedFrameRate, onInvalidated);
     }
 
@@ -168,6 +171,7 @@ public final class SurfaceRequest {
             @NonNull CameraInternal camera,
             boolean isPrimary,
             @NonNull DynamicRange dynamicRange,
+            int sessionType,
             @NonNull Range<Integer> expectedFrameRate,
             @NonNull Runnable onInvalidated) {
         super();
@@ -177,6 +181,7 @@ public final class SurfaceRequest {
         Preconditions.checkArgument(dynamicRange.isFullySpecified(),
                 "SurfaceRequest's DynamicRange must always be fully specified.");
         mDynamicRange = dynamicRange;
+        mSessionType = sessionType;
         mExpectedFrameRate = expectedFrameRate;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
@@ -353,6 +358,12 @@ public final class SurfaceRequest {
      */
     public @NonNull DynamicRange getDynamicRange() {
         return mDynamicRange;
+    }
+
+    /** Returns the session type associated with the surface request. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public int getSessionType() {
+        return mSessionType;
     }
 
     /**

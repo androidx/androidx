@@ -51,7 +51,7 @@ data class ApiLocation(
     // Directory where the library's stable AIDL surface is recorded
     val aidlApiDirectory: File,
     // File where the API version history is recorded, for use in docs
-    val apiLevelsFile: File
+    val apiLevelsFile: File,
 ) : Serializable {
 
     /**
@@ -90,7 +90,7 @@ data class ApiLocation(
                 restrictedApiFile = File(apiFileDir, "$PREFIX_RESTRICTED$baseName$EXTENSION"),
                 resourceFile = File(apiFileDir, "$PREFIX_RESOURCE$baseName$EXTENSION"),
                 aidlApiDirectory = File(apiFileDir, AIDL_API_DIRECTORY_NAME).resolve(baseName),
-                apiLevelsFile = File(apiFileDir, API_LEVELS)
+                apiLevelsFile = File(apiFileDir, API_LEVELS),
             )
         }
 
@@ -127,14 +127,10 @@ fun Project.getApiFileDirectory(): File {
     return File(project.projectDir, "api")
 }
 
-/** Returns whether the project's API file directory exists. */
-fun Project.hasApiFileDirectory(): Boolean {
-    return project.getApiFileDirectory().exists()
-}
-
 /** Returns the directory containing the project's built current API file. */
 private fun Project.getBuiltApiFileDirectory(): File {
-    @Suppress("DEPRECATION") return File(project.buildDir, "api")
+    @Suppress("DEPRECATION")
+    return File(project.buildDir, "api")
 }
 
 /** Returns the directory containing the project's built current ABI file. */
@@ -186,7 +182,7 @@ data class ApiBaselinesLocation(
     val ignoreFileDirectory: File,
     val publicApiFile: File,
     val restrictedApiFile: File,
-    val apiLintFile: File
+    val apiLintFile: File,
 ) : Serializable {
 
     companion object {
@@ -197,14 +193,14 @@ data class ApiBaselinesLocation(
                 publicApiFile =
                     File(
                         ignoreFileDirectory,
-                        apiLocation.publicApiFile.nameWithoutExtension + EXTENSION
+                        apiLocation.publicApiFile.nameWithoutExtension + EXTENSION,
                     ),
                 restrictedApiFile =
                     File(
                         ignoreFileDirectory,
-                        apiLocation.restrictedApiFile.nameWithoutExtension + EXTENSION
+                        apiLocation.restrictedApiFile.nameWithoutExtension + EXTENSION,
                     ),
-                apiLintFile = File(ignoreFileDirectory, "api_lint$EXTENSION")
+                apiLintFile = File(ignoreFileDirectory, "api_lint$EXTENSION"),
             )
         }
 

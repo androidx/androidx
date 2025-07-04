@@ -21,11 +21,11 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
@@ -39,12 +39,11 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-proto"))
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))
-    lintPublish(project(":wear:protolayout:protolayout-lint"))
 
+    testImplementation(libs.kotlinTest)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
 }
 
 android {
@@ -60,8 +59,9 @@ android {
 
 androidx {
     name = "ProtoLayout"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Create layouts that can be rendered by a remote host."
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

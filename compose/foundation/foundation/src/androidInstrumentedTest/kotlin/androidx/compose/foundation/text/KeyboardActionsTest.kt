@@ -64,7 +64,7 @@ class KeyboardActionsTest(param: Param) {
                 Param(Send),
                 Param(Previous),
                 Param(Next),
-                Param(Done)
+                Param(Done),
             )
     }
 
@@ -89,8 +89,8 @@ class KeyboardActionsTest(param: Param) {
                         onNext = { actionTriggerLog[Next] = true },
                         onPrevious = { actionTriggerLog[Previous] = true },
                         onSearch = { actionTriggerLog[Search] = true },
-                        onSend = { actionTriggerLog[Send] = true }
-                    )
+                        onSend = { actionTriggerLog[Send] = true },
+                    ),
             )
         }
 
@@ -124,10 +124,7 @@ class KeyboardActionsTest(param: Param) {
                 onValueChange = {},
                 modifier = Modifier.testTag(initialTextField),
                 imeOptions = ImeOptions(imeAction = Done),
-                keyboardActions =
-                    KeyboardActions(
-                        onDone = { wasCallbackTriggered = true },
-                    )
+                keyboardActions = KeyboardActions(onDone = { wasCallbackTriggered = true }),
             )
         }
 

@@ -60,7 +60,7 @@ import java.util.concurrent.Executor
 fun AmbientLifecycleObserver(
     activity: Activity,
     callbackExecutor: Executor,
-    callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback
+    callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback,
 ): AmbientLifecycleObserver = AmbientLifecycleObserverImpl(activity, callbackExecutor, callbacks)
 
 /**
@@ -96,7 +96,7 @@ fun AmbientLifecycleObserver(
  */
 fun AmbientLifecycleObserver(
     activity: Activity,
-    callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback
+    callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback,
 ): AmbientLifecycleObserver = AmbientLifecycleObserverImpl(activity, callbacks)
 
 /**
@@ -124,7 +124,7 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
      */
     class AmbientDetails(
         val burnInProtectionRequired: Boolean,
-        val deviceHasLowBitAmbient: Boolean
+        val deviceHasLowBitAmbient: Boolean,
     ) {
         override fun toString(): String =
             "AmbientDetails - burnInProtectionRequired: $burnInProtectionRequired, " +

@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
  */
 class KeyboardHelper(
     private val composeRule: ComposeContentTestRule,
-    private val timeout: Long = 20_000L
+    private val timeout: Long = 20_000L,
 ) {
     /**
      * The [View] hosting the compose rule's content. Must be set before calling any methods on this
@@ -54,6 +54,7 @@ class KeyboardHelper(
     }
 
     /** Call this at the top of your test composition before using the helper. */
+    @Suppress("ComposableNaming")
     @Composable
     fun initialize() {
         view = LocalView.current
@@ -171,7 +172,7 @@ private class InsetAnimationCallback(val block: () -> Unit) :
 
     override fun onProgress(
         insets: WindowInsets,
-        runningAnimations: MutableList<WindowInsetsAnimation>
+        runningAnimations: MutableList<WindowInsetsAnimation>,
     ) = insets
 
     override fun onEnd(animation: WindowInsetsAnimation) {

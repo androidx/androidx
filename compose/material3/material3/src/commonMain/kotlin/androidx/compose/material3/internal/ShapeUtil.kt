@@ -63,7 +63,7 @@ internal fun RoundedPolygon.toPath(
         closePath = closePath,
         cubics = cubics,
         rotationPivotX = centerX,
-        rotationPivotY = centerY
+        rotationPivotY = centerY,
     )
     return path
 }
@@ -97,7 +97,7 @@ internal fun Morph.toPath(
     repeatPath: Boolean = false,
     closePath: Boolean = true,
     rotationPivotX: Float = 0f,
-    rotationPivotY: Float = 0f
+    rotationPivotY: Float = 0f,
 ): Path {
     pathFromCubics(
         path = path,
@@ -106,7 +106,7 @@ internal fun Morph.toPath(
         closePath = closePath,
         cubics = asCubics(progress),
         rotationPivotX = rotationPivotX,
-        rotationPivotY = rotationPivotY
+        rotationPivotY = rotationPivotY,
     )
     return path
 }
@@ -118,7 +118,7 @@ private fun pathFromCubics(
     closePath: Boolean,
     cubics: List<Cubic>,
     rotationPivotX: Float,
-    rotationPivotY: Float
+    rotationPivotY: Float,
 ) {
     var first = true
     var firstCubic: Cubic? = null
@@ -137,7 +137,7 @@ private fun pathFromCubics(
             it.control1X,
             it.control1Y,
             it.anchor1X,
-            it.anchor1Y
+            it.anchor1Y,
         )
     }
     if (repeatPath) {
@@ -153,7 +153,7 @@ private fun pathFromCubics(
                 it.control1X,
                 it.control1Y,
                 it.anchor1X,
-                it.anchor1Y
+                it.anchor1Y,
             )
         }
     }
@@ -165,7 +165,7 @@ private fun pathFromCubics(
             radiansToDegrees(
                 atan2(
                     y = cubics[0].anchor0Y - rotationPivotY,
-                    x = cubics[0].anchor0X - rotationPivotX
+                    x = cubics[0].anchor0X - rotationPivotX,
                 )
             )
         // Rotate the Path to to start from the given angle.

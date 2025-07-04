@@ -21,11 +21,11 @@
     <string name="error_action_update_host" msgid="4802951804749609593">"अपडेट तपासा"</string>
     <string name="error_action_retry" msgid="985347670495166517">"पुन्हा प्रयत्न करा"</string>
     <string name="error_message_client_side_error" msgid="3323186720368387787">"ॲप्लिकेशन एरर. कृपया ॲप डेव्हलपरकडे या एररची तक्रार नोंदवा"</string>
-    <string name="error_message_host_error" msgid="5484419926049675696">"सिस्टम एरर"</string>
-    <string name="error_message_host_connection_lost" msgid="5723205987837759151">"सिस्टम तात्पुरती उपलब्ध नाही"</string>
-    <string name="error_message_host_not_found" msgid="3241065067065670113">"सिस्टम अपडेट करणे आवश्यक आहे"</string>
-    <string name="error_message_host_incompatible" msgid="160406216155183851">"सिस्टम अपडेट करणे आवश्यक आहे"</string>
-    <string name="error_message_multiple_hosts" msgid="2591031904206928207">"सिस्टम कंपॅटिबल नाही"</string>
+    <string name="error_message_host_error" msgid="5484419926049675696">"सिस्टीम एरर"</string>
+    <string name="error_message_host_connection_lost" msgid="5723205987837759151">"सिस्टीम तात्पुरती उपलब्ध नाही"</string>
+    <string name="error_message_host_not_found" msgid="3241065067065670113">"सिस्टीम अपडेट करणे आवश्यक आहे"</string>
+    <string name="error_message_host_incompatible" msgid="160406216155183851">"सिस्टीम अपडेट करणे आवश्यक आहे"</string>
+    <string name="error_message_multiple_hosts" msgid="2591031904206928207">"सिस्टीम कंपॅटिबल नाही"</string>
     <string name="error_message_unknown_error" msgid="1918523834689044166">"अज्ञात एरर"</string>
     <string name="error_message_no_vending" msgid="5866202078252905802">"कृपया कार सेवांशी संपर्क साधा"</string>
 </resources>

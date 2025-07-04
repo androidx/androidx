@@ -79,7 +79,7 @@ class EmojiSpanDrawLayoutBenchmark(private val size: Int) {
                 Bitmap.createBitmap(
                     layout.getLineWidth(1).toInt() + 100,
                     100,
-                    Bitmap.Config.ARGB_8888
+                    Bitmap.Config.ARGB_8888,
                 )
             val canvas = Canvas(bitmap)
             benchmarkRule.measureRepeated { layout.draw(canvas) }

@@ -44,10 +44,10 @@ import kotlin.math.min
  *   its bottom follows the hinge position. Refer to [BOUNDS_HINGE_LEFT], [BOUNDS_HINGE_BOTTOM] and
  *   [BOUNDS_HINGE_RIGHT] for other bounds that follows the hinge position.
  *
- * @constructor creates an embedding bounds.
  * @property alignment The alignment of the bounds relative to parent window container.
  * @property width The width of the bounds.
  * @property height The height of the bounds.
+ * @constructor creates an embedding bounds.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height: Dimension) {
@@ -107,7 +107,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
     @Px
     internal fun getWidthInPixel(
         parentContainerBounds: Bounds,
-        windowLayoutInfo: WindowLayoutInfo
+        windowLayoutInfo: WindowLayoutInfo,
     ): Int {
         val taskWidth = parentContainerBounds.width
         val widthDimension =
@@ -146,7 +146,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
     @Px
     internal fun getHeightInPixel(
         parentContainerBounds: Bounds,
-        windowLayoutInfo: WindowLayoutInfo
+        windowLayoutInfo: WindowLayoutInfo,
     ): Int {
         val taskHeight = parentContainerBounds.height
         val heightDimension =
@@ -435,7 +435,7 @@ class EmbeddingBounds(val alignment: Alignment, val width: Dimension, val height
             translateEmbeddingBounds(
                 embeddingBounds,
                 parentContainerInfo.windowBounds,
-                parentContainerInfo.windowLayoutInfo
+                parentContainerInfo.windowLayoutInfo,
             )
     }
 }

@@ -16,20 +16,13 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
-import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
-
 import android.view.Surface;
 
-import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
-import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.Encoder;
 import androidx.camera.video.internal.encoder.Encoder.SurfaceInput.OnSurfaceUpdateListener;
 import androidx.camera.video.internal.encoder.EncoderFactory;
@@ -105,8 +98,7 @@ final class VideoEncoderSession {
 
     @ExecutedBy("mSequentialExecutor")
     @NonNull ListenableFuture<Encoder> configure(@NonNull SurfaceRequest surfaceRequest,
-            @NonNull Timebase timebase, @NonNull MediaSpec mediaSpec,
-            @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles) {
+            @NonNull VideoEncoderConfig videoEncoderConfig) {
         switch (mVideoEncoderState) {
             case NOT_INITIALIZED:
                 mVideoEncoderState = VideoEncoderState.INITIALIZING;
@@ -124,9 +116,8 @@ final class VideoEncoderSession {
                         });
                 ListenableFuture<Encoder> configureFuture = CallbackToFutureAdapter.getFuture(
                         completer -> {
-                            configureVideoEncoderInternal(surfaceRequest, timebase,
-                                    resolvedEncoderProfiles,
-                                    mediaSpec, completer);
+                            configureVideoEncoderInternal(surfaceRequest, videoEncoderConfig,
+                                    completer);
                             return "ConfigureVideoEncoderFuture " + VideoEncoderSession.this;
                         });
                 Futures.addCallback(configureFuture, new FutureCallback<Encoder>() {
@@ -279,27 +270,11 @@ final class VideoEncoderSession {
 
     @ExecutedBy("mSequentialExecutor")
     private void configureVideoEncoderInternal(@NonNull SurfaceRequest surfaceRequest,
-            @NonNull Timebase timebase,
-            @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles,
-            @NonNull MediaSpec mediaSpec,
+            @NonNull VideoEncoderConfig config,
             CallbackToFutureAdapter.@NonNull Completer<Encoder> configureCompleter) {
-        DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
-        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
-                resolvedEncoderProfiles);
-
-        // The VideoSpec from mediaSpec only contains settings requested by the recorder, but
-        // the actual settings may need to differ depending on the FPS chosen by the camera.
-        // The expected frame rate from the camera is passed on here from the SurfaceRequest.
-        VideoEncoderConfig config = resolveVideoEncoderConfig(
-                videoMimeInfo,
-                timebase,
-                mediaSpec.getVideoSpec(),
-                surfaceRequest.getResolution(),
-                dynamicRange,
-                surfaceRequest.getExpectedFrameRate());
-
         try {
-            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
+            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config,
+                    surfaceRequest.getSessionType());
         } catch (InvalidConfigException e) {
             Logger.e(TAG, "Unable to initialize video encoder.", e);
             configureCompleter.setException(e);

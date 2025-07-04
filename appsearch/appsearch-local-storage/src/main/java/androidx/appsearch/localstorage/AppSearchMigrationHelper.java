@@ -171,6 +171,7 @@ class AppSearchMigrationHelper implements Closeable {
      * @throws AppSearchException on AppSearch problem
      */
     @WorkerThread
+    @SuppressWarnings("deprecation")
     public @NonNull SetSchemaResponse readAndPutDocuments(
             SetSchemaResponse.@NonNull Builder responseBuilder,
             SchemaMigrationStats.Builder schemaMigrationStatsBuilder)
@@ -179,6 +180,7 @@ class AppSearchMigrationHelper implements Closeable {
         if (mTotalNeedMigratedDocumentCount == 0) {
             return responseBuilder.build();
         }
+
         try (InputStream inputStream = new FileInputStream(mFile)) {
             CodedInputStream codedInputStream = CodedInputStream.newInstance(inputStream);
             int savedDocsCount = 0;
@@ -187,6 +189,7 @@ class AppSearchMigrationHelper implements Closeable {
                 GenericDocument document = readDocumentFromInputStream(codedInputStream);
                 try {
                     // During schema migrations, only schema change notifications are dispatched.
+                    // TODO(b/394875109) switch to use batchPut
                     mAppSearchImpl.putDocument(
                             mPackageName,
                             mDatabaseName,

@@ -59,7 +59,7 @@ class OutputDistributorTest {
                     override fun finalize(value: FakeOutput?) {
                         value?.finalize()
                     }
-                }
+                },
         )
 
     @Test
@@ -95,7 +95,7 @@ class OutputDistributorTest {
         outputDistributor.onOutputResult(fakeOutput4.outputNumber, OutputResult.from(fakeOutput4))
         outputDistributor.onOutputResult(
             fakeOutput1.outputNumber,
-            OutputResult.from(fakeOutput1)
+            OutputResult.from(fakeOutput1),
         ) // Out of order
 
         // FIFO Order for outputs, regardless of the output number.
@@ -114,15 +114,15 @@ class OutputDistributorTest {
 
         outputDistributor.onOutputResult(
             fakeOutput4.outputNumber,
-            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
         )
         outputDistributor.onOutputResult(
             fakeOutput5.outputNumber,
-            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
         )
         outputDistributor.onOutputResult(
             fakeOutput6.outputNumber,
-            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
         )
 
         // Dropped outputs (null) still evict old outputs.
@@ -182,7 +182,7 @@ class OutputDistributorTest {
         outputDistributor.startWith(pendingOutput1)
         outputDistributor.onOutputResult(
             fakeOutput1.outputNumber,
-            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
         )
 
         assertThat(pendingOutput1.isComplete).isTrue()
@@ -199,7 +199,7 @@ class OutputDistributorTest {
 
         outputDistributor.onOutputResult(
             fakeOutput3.outputNumber,
-            OutputResult.from(fakeOutput3)
+            OutputResult.from(fakeOutput3),
         ) // Match 3
 
         assertThat(pendingOutput1.isComplete).isTrue() // #1 is Canceled
@@ -565,7 +565,7 @@ class OutputDistributorTest {
     private class PendingOutput(
         val cameraFrameNumber: FrameNumber,
         val cameraTimestamp: CameraTimestamp,
-        val outputNumber: Long
+        val outputNumber: Long,
     ) : OutputListener<FakeOutput> {
         private val _complete = atomic(false)
         val isComplete: Boolean
@@ -580,7 +580,7 @@ class OutputDistributorTest {
             cameraTimestamp: CameraTimestamp,
             outputSequence: Long,
             outputNumber: Long,
-            outputResult: OutputResult<FakeOutput>
+            outputResult: OutputResult<FakeOutput>,
         ) {
             // Assert that this callback has only been invoked once.
             assertThat(_complete.compareAndSet(expect = false, update = true)).isTrue()
@@ -603,14 +603,12 @@ class OutputDistributorTest {
             pendingOutput.cameraFrameNumber,
             pendingOutput.cameraTimestamp,
             pendingOutput.outputNumber,
-            pendingOutput
+            pendingOutput,
         )
     }
 
     /** Utility class for testing if an output was finalized (closed) or not */
-    private class FakeOutput(
-        val outputNumber: Long,
-    ) {
+    private class FakeOutput(val outputNumber: Long) {
         private val _finalized = atomic(false)
         val finalized: Boolean
             get() = _finalized.value

@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation.fragment {
 
   @androidx.navigation.Navigator.Name("dialog") public final class DialogFragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {
@@ -9,8 +9,8 @@ package androidx.navigation.fragment {
   }
 
   @androidx.navigation.NavDestination.ClassType(DialogFragment.class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
-    ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
     ctor public DialogFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.DialogFragmentNavigator.Destination>);
+    ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
     method public final String getClassName();
     method public final androidx.navigation.fragment.DialogFragmentNavigator.Destination setClassName(String);
   }
@@ -24,8 +24,8 @@ package androidx.navigation.fragment {
   }
 
   @androidx.navigation.NavDestination.ClassType(Fragment.class) public static class FragmentNavigator.Destination extends androidx.navigation.NavDestination {
-    ctor public FragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
     ctor public FragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination>);
+    ctor public FragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
     method public final String getClassName();
     method public final androidx.navigation.fragment.FragmentNavigator.Destination setClassName(String);
   }

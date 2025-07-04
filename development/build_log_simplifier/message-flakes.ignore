@@ -142,7 +142,7 @@ Could not read index from network cache: null
 Using custom version .* of AGP due to GRADLE_PLUGIN_VERSION being set\.
 Using custom version .* of Lint due to LINT_VERSION being set\.
 Using custom version .* of metalava due to METALAVA_VERSION being set\.
-Publishing build scan\.\.\.
+Publishing Build Scan\.\.\.
 https://ge\.androidx\.dev/s/.*
 # androidx-demos:compileReleaseJavaWithJavac
 Note: \$SUPPORT/samples/AndroidXDemos/src/main/java/com/example/androidx/util/DiffUtilActivity\.java uses unchecked or unsafe operations\.
@@ -165,3 +165,9 @@ Unable to release compile session, maybe daemon is already down.*
 java\.net\.ConnectException: Connection refused
 java\.net\.SocketException: Connection reset
 java\.io\.EOFException
+# b/425976715
+Warning: Unable to lock settings file \$GRADLE_USER_HOME/\.android/analytics\.settings.*
+# Develocity flake, reported via slack
+\[Resource\-Usage\] Problem extracting process name:.*
+# b/427504385
+ChromeHeadless has not captured in [0-9]+ ms, killing\.

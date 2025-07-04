@@ -44,7 +44,7 @@ internal data class PrivilegedApp(val packageName: String, val fingerprints: Set
                 apps.add(
                     createFromJSONObject(
                         appJsonObject.getJSONObject(APP_INFO_KEY),
-                        filterUserDebug = true
+                        filterUserDebug = true,
                     )
                 )
             }
@@ -54,7 +54,7 @@ internal data class PrivilegedApp(val packageName: String, val fingerprints: Set
         @JvmStatic
         fun createFromJSONObject(
             appInfoJsonObject: JSONObject,
-            filterUserDebug: Boolean
+            filterUserDebug: Boolean,
         ): PrivilegedApp {
             val signaturesJson = appInfoJsonObject.getJSONArray(SIGNATURES_KEY)
             val fingerprints = mutableSetOf<String>()
@@ -71,7 +71,7 @@ internal data class PrivilegedApp(val packageName: String, val fingerprints: Set
             }
             return PrivilegedApp(
                 packageName = appInfoJsonObject.getString(PACKAGE_NAME_KEY),
-                fingerprints = fingerprints
+                fingerprints = fingerprints,
             )
         }
     }

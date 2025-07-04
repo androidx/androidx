@@ -31,9 +31,8 @@ internal fun Modifier.childSemantics(properties: SemanticsPropertyReceiver.() ->
 internal fun Modifier.parentSemantics(properties: SemanticsPropertyReceiver.() -> Unit) =
     this then ParentSemanticsNodeElement(properties)
 
-internal data class ChildSemanticsNodeElement(
-    val properties: SemanticsPropertyReceiver.() -> Unit
-) : ModifierNodeElement<ChildSemanticsNode>() {
+internal class ChildSemanticsNodeElement(val properties: SemanticsPropertyReceiver.() -> Unit) :
+    ModifierNodeElement<ChildSemanticsNode>() {
     override fun create(): ChildSemanticsNode = ChildSemanticsNode(properties)
 
     override fun update(node: ChildSemanticsNode) {
@@ -46,11 +45,21 @@ internal data class ChildSemanticsNodeElement(
         this@inspectableProperties.properties["properties"] =
             this@ChildSemanticsNodeElement.properties
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ChildSemanticsNodeElement) return false
+
+        return properties === other.properties
+    }
+
+    override fun hashCode(): Int {
+        return properties.hashCode()
+    }
 }
 
-internal data class ParentSemanticsNodeElement(
-    val properties: SemanticsPropertyReceiver.() -> Unit
-) : ModifierNodeElement<ParentSemanticsNode>() {
+internal class ParentSemanticsNodeElement(val properties: SemanticsPropertyReceiver.() -> Unit) :
+    ModifierNodeElement<ParentSemanticsNode>() {
     override fun create(): ParentSemanticsNode = ParentSemanticsNode(properties)
 
     override fun update(node: ParentSemanticsNode) {
@@ -62,6 +71,17 @@ internal data class ParentSemanticsNodeElement(
         name = "parentSemantics"
         this@inspectableProperties.properties["properties"] =
             this@ParentSemanticsNodeElement.properties
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ParentSemanticsNodeElement) return false
+
+        return properties === other.properties
+    }
+
+    override fun hashCode(): Int {
+        return properties.hashCode()
     }
 }
 

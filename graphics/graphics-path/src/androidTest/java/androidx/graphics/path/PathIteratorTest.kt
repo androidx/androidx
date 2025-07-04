@@ -123,7 +123,7 @@ class PathIteratorTest {
                 PathSegment.Type.Move,
                 PathSegment.Type.Line,
                 PathSegment.Type.Close,
-                PathSegment.Type.Done
+                PathSegment.Type.Done,
             )
         val points = arrayOf(PointF(1.0f, 1.0f), PointF(2.0f, 2.0f))
 
@@ -423,7 +423,7 @@ class PathIteratorTest {
                         segment.points[1].x,
                         segment.points[1].y,
                         segment.points[2].x,
-                        segment.points[2].y
+                        segment.points[2].y,
                     )
                 PathSegment.Type.Conic -> fail("Unexpected conic! $segment")
                 PathSegment.Type.Cubic ->
@@ -433,7 +433,7 @@ class PathIteratorTest {
                         segment.points[2].x,
                         segment.points[2].y,
                         segment.points[3].x,
-                        segment.points[3].y
+                        segment.points[3].y,
                     )
                 PathSegment.Type.Close -> path2.close()
                 PathSegment.Type.Done -> {}
@@ -452,7 +452,7 @@ class PathIteratorTest {
                         segment.points[1].x,
                         segment.points[1].y,
                         segment.points[2].x,
-                        segment.points[2].y
+                        segment.points[2].y,
                     )
                 PathSegment.Type.Conic -> fail("Unexpected conic! $segment")
                 PathSegment.Type.Cubic ->
@@ -462,7 +462,7 @@ class PathIteratorTest {
                         segment.points[2].x,
                         segment.points[2].y,
                         segment.points[3].x,
-                        segment.points[3].y
+                        segment.points[3].y,
                     )
                 PathSegment.Type.Close -> path3.close()
                 PathSegment.Type.Done -> {}
@@ -479,7 +479,7 @@ class PathIteratorTest {
                         strokeWidth = 2.0f
                         isAntiAlias = true
                         style = Paint.Style.STROKE
-                    }
+                    },
                 )
             }
 
@@ -493,7 +493,7 @@ class PathIteratorTest {
                         strokeWidth = 2.0f
                         isAntiAlias = true
                         style = Paint.Style.STROKE
-                    }
+                    },
                 )
             }
 

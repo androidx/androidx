@@ -14,6 +14,7 @@ final class androidx.sqlite.driver/NativeSQLiteConnection : androidx.sqlite/SQLi
     constructor <init>(kotlinx.cinterop/CPointer<cnames.structs/sqlite3>) // androidx.sqlite.driver/NativeSQLiteConnection.<init>|<init>(kotlinx.cinterop.CPointer<cnames.structs.sqlite3>){}[0]
 
     final fun close() // androidx.sqlite.driver/NativeSQLiteConnection.close|close(){}[0]
+    final fun inTransaction(): kotlin/Boolean // androidx.sqlite.driver/NativeSQLiteConnection.inTransaction|inTransaction(){}[0]
     final fun prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite.driver/NativeSQLiteConnection.prepare|prepare(kotlin.String){}[0]
 }
 

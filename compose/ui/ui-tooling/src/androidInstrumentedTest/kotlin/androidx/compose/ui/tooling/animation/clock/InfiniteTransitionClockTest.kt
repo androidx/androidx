@@ -53,7 +53,7 @@ class InfiniteTransitionClockTest {
                 0.2f,
                 2.1f,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
-                label = "Test label"
+                label = "Test label",
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)
@@ -77,7 +77,7 @@ class InfiniteTransitionClockTest {
                 40,
                 Int.VectorConverter,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
-                label = "Test label"
+                label = "Test label",
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)
@@ -100,7 +100,7 @@ class InfiniteTransitionClockTest {
                 Color.Red,
                 Color.Green,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
-                label = "Test label"
+                label = "Test label",
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)
@@ -124,7 +124,7 @@ class InfiniteTransitionClockTest {
                 null,
                 nullableFloatConverter,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
-                label = "Test label"
+                label = "Test label",
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)
@@ -147,20 +147,20 @@ class InfiniteTransitionClockTest {
                 0.2f,
                 2.1f,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
-                label = "Float label"
+                label = "Float label",
             )
             infiniteTransition.animateValue(
                 20,
                 30,
                 Int.VectorConverter,
                 infiniteRepeatable(tween(500), RepeatMode.Restart),
-                label = "Int label"
+                label = "Int label",
             )
             infiniteTransition.animateColor(
                 Color.Red,
                 Color.White,
                 infiniteRepeatable(tween(400), RepeatMode.Reverse),
-                label = "Color label"
+                label = "Color label",
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)
@@ -207,7 +207,7 @@ class InfiniteTransitionClockTest {
                 null,
                 nullableFloatConverter,
                 infiniteRepeatable(tween(300), RepeatMode.Reverse),
-                label = "Test label"
+                label = "Test label",
             )
         }
         val clock = InfiniteTransitionClock(search.animations.first().parse()!!)

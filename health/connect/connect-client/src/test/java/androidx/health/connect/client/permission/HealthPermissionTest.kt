@@ -94,4 +94,16 @@ class HealthPermissionTest {
             HealthPermission.getWritePermission<Record>()
         }
     }
+
+    @Test
+    fun readExerciseRoutes_validPermissionStringContainedInAllPermissions() {
+        assertThat(HealthPermission.ALL_PERMISSIONS)
+            .contains("android.permission.health.READ_EXERCISE_ROUTES")
+    }
+
+    @Test
+    fun writeExerciseRoute_validPermissionStringContainedInAllPermissions() {
+        assertThat(HealthPermission.ALL_PERMISSIONS)
+            .contains("android.permission.health.WRITE_EXERCISE_ROUTE")
+    }
 }

@@ -54,7 +54,7 @@ class TestCallback : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {
         // Nothing
     }

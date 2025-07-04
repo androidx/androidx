@@ -108,6 +108,21 @@ public class Shapes(
             "large=$large, " +
             "extraLarge=$extraLarge)"
     }
+
+    /** Cached shapes used in components */
+    internal var defaultIconButtonShapesCached: IconButtonShapes? = null
+    internal var defaultIconButtonAnimatedShapesCached: IconButtonShapes? = null
+
+    internal var defaultTextButtonShapesCached: TextButtonShapes? = null
+    internal var defaultTextButtonAnimatedShapesCached: TextButtonShapes? = null
+
+    internal var defaultTextToggleButtonShapesCached: TextToggleButtonShapes? = null
+    internal var defaultTextToggleButtonAnimatedShapesCached: TextToggleButtonShapes? = null
+    internal var defaultTextToggleButtonVariantAnimatedShapesCached: TextToggleButtonShapes? = null
+
+    internal var defaultIconToggleButtonShapesCached: IconToggleButtonShapes? = null
+    internal var defaultIconToggleButtonAnimatedShapesCached: IconToggleButtonShapes? = null
+    internal var defaultIconToggleButtonVariantShapesCached: IconToggleButtonShapes? = null
 }
 
 /** Contains the default values used by [Shapes] */

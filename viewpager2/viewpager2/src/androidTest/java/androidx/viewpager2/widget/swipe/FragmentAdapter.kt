@@ -36,7 +36,7 @@ private const val ARG_KEY = "key"
 class FragmentAdapter(
     fragmentManager: FragmentManager,
     lifecycle: Lifecycle,
-    private val items: List<String>
+    private val items: List<String>,
 ) : FragmentStateAdapter(fragmentManager, lifecycle), SelfChecking {
     private val attachCount = AtomicInteger(0)
     private val destroyCount = AtomicInteger(0)
@@ -66,7 +66,7 @@ class FragmentAdapter(
         assertThat(
             "Number of alive fragments must be between 0 and 4",
             attachCount.get() - destroyCount.get(),
-            allOf(greaterThanOrEqualTo(0), lessThanOrEqualTo(4))
+            allOf(greaterThanOrEqualTo(0), lessThanOrEqualTo(4)),
         )
 }
 
@@ -77,7 +77,7 @@ class PageFragment : Fragment() {
     override fun onCreateView(
         layoutInflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View = PageView.inflatePage(layoutInflater, container)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

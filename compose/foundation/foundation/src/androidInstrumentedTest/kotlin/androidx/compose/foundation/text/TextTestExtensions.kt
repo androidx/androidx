@@ -62,6 +62,6 @@ private fun boundingBoxOf(vararg rects: Rect): Rect {
         left = rects.minOf { it.left },
         top = rects.minOf { it.top },
         right = rects.maxOf { it.right },
-        bottom = rects.maxOf { it.bottom }
+        bottom = rects.maxOf { it.bottom },
     )
 }

@@ -154,7 +154,7 @@ class TextFieldStateTest {
                     invalidationCount++
                     observeState()
                 },
-                block = observeState
+                block = observeState,
             )
             assertThat(invalidationCount).isEqualTo(0)
 
@@ -185,7 +185,7 @@ class TextFieldStateTest {
                     invalidationCount++
                     observeState()
                 },
-                block = observeState
+                block = observeState,
             )
             assertThat(invalidationCount).isEqualTo(0)
 
@@ -216,7 +216,7 @@ class TextFieldStateTest {
                     invalidationCount++
                     observeState()
                 },
-                block = observeState
+                block = observeState,
             )
             assertThat(invalidationCount).isEqualTo(0)
 

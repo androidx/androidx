@@ -35,7 +35,6 @@ import org.robolectric.annotation.Config
 class CaptureLimiterTest {
     private val testScope = TestScope()
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
-    private val graphState3A = GraphState3A()
 
     private val fakeRequestMetadata = FakeRequestMetadata()
     private val fakeFrameInfo = FakeFrameInfo()
@@ -49,7 +48,6 @@ class CaptureLimiterTest {
             defaultParameters = emptyMap<Any, Any?>(),
             requiredParameters = emptyMap<Any, Any?>(),
             graphListeners = listOf(),
-            graphState3A = graphState3A,
             listeners = listOf(captureLimiter),
             shutdownScope = testScope,
             dispatcher = testDispatcher,

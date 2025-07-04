@@ -104,6 +104,7 @@ class BackHandlerTest {
     @Test
     fun testBackHandlerLifecycle() {
         var interceptedBack = false
+        // The initial state is Started by default.
         val lifecycleOwner = TestLifecycleOwner()
 
         composeTestRule.setContent {
@@ -115,7 +116,7 @@ class BackHandlerTest {
             dispatcher.addCallback(lifecycleOwner) {}
             CompositionLocalProvider(
                 LocalOnBackPressedDispatcherOwner provides dispatcherOwner,
-                LocalLifecycleOwner provides lifecycleOwner
+                LocalLifecycleOwner provides lifecycleOwner,
             ) {
                 BackHandler { interceptedBack = true }
             }

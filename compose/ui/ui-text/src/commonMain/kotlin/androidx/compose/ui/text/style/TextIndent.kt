@@ -71,6 +71,6 @@ class TextIndent(val firstLine: TextUnit = 0.sp, val restLine: TextUnit = 0.sp) 
 fun lerp(start: TextIndent, stop: TextIndent, fraction: Float): TextIndent {
     return TextIndent(
         lerpTextUnitInheritable(start.firstLine, stop.firstLine, fraction),
-        lerpTextUnitInheritable(start.restLine, stop.restLine, fraction)
+        lerpTextUnitInheritable(start.restLine, stop.restLine, fraction),
     )
 }

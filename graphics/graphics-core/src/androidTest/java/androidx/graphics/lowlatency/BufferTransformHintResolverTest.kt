@@ -49,7 +49,7 @@ internal class BufferTransformHintResolverTest() {
         val transform = BufferTransformHintResolver()
         assertEquals(
             UNKNOWN_TRANSFORM,
-            transform.getBufferTransformHintFromInstallOrientation("ORIENTATION_45", ROTATION_0)
+            transform.getBufferTransformHintFromInstallOrientation("ORIENTATION_45", ROTATION_0),
         )
     }
 
@@ -58,23 +58,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_0)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_90)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_180)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_270)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, -123)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_90, -123),
             )
         }
     }
@@ -84,23 +84,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_0)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_90)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_180)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_270)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, -123)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_180, -123),
             )
         }
     }
@@ -110,23 +110,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_0)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_90)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_180)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_270)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, -123)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_270, -123),
             )
         }
     }
@@ -136,23 +136,23 @@ internal class BufferTransformHintResolverTest() {
         with(BufferTransformHintResolver()) {
             assertEquals(
                 BUFFER_TRANSFORM_IDENTITY,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_0)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_0),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_90,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_90)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_90),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_180,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_180)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_180),
             )
             assertEquals(
                 BUFFER_TRANSFORM_ROTATE_270,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_270)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, ROTATION_270),
             )
             assertEquals(
                 UNKNOWN_TRANSFORM,
-                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, -123)
+                getBufferTransformHintFromInstallOrientation(ORIENTATION_0, -123),
             )
         }
     }

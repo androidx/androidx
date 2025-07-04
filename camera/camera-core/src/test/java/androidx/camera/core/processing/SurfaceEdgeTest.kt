@@ -87,7 +87,7 @@ class SurfaceEdgeTest {
                 Rect(),
                 0,
                 ROTATION_NOT_SPECIFIED,
-                false
+                false,
             )
         fakeSurfaceTexture = SurfaceTexture(0)
         fakeSurface = Surface(fakeSurfaceTexture)
@@ -172,7 +172,7 @@ class SurfaceEdgeTest {
                 Rect(),
                 0,
                 ROTATION_NOT_SPECIFIED,
-                false
+                false,
             )
         assertThat(edge.streamSpec).isEqualTo(FRAME_SPEC)
     }
@@ -273,7 +273,7 @@ class SurfaceEdgeTest {
                     failed = true
                 }
             },
-            mainThreadExecutor()
+            mainThreadExecutor(),
         )
         surfaceEdge.setProvider(provider)
 
@@ -328,7 +328,7 @@ class SurfaceEdgeTest {
                 Rect(),
                 0,
                 ROTATION_NOT_SPECIFIED,
-                false
+                false,
             )
         val childDeferrableSurface = surfaceEdge.deferrableSurface
         parentEdge.setProvider(childDeferrableSurface)
@@ -363,7 +363,7 @@ class SurfaceEdgeTest {
                     throw IllegalStateException("Should not succeed.")
                 }
             },
-            mainThreadExecutor()
+            mainThreadExecutor(),
         )
 
         // Act: set it as "will not provide".
@@ -461,7 +461,7 @@ class SurfaceEdgeTest {
                 Rect(),
                 0,
                 ROTATION_NOT_SPECIFIED,
-                false
+                false,
             )
         var transformationInfo: TransformationInfo? = null
 
@@ -655,7 +655,7 @@ class SurfaceEdgeTest {
 
                 override fun onFailure(t: Throwable) {}
             },
-            mainThreadExecutor()
+            mainThreadExecutor(),
         )
         shadowOf(getMainLooper()).idle()
         return surfaceOutput
@@ -669,8 +669,8 @@ class SurfaceEdgeTest {
                 sizeToRect(INPUT_SIZE),
                 FakeCamera(),
                 /*rotationDegrees=*/ 0,
-                /*mirroring=*/ false
+                /*mirroring=*/ false,
             ),
-            null
+            null,
         )
 }

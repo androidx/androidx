@@ -18,6 +18,7 @@ package androidx.compose.material.ripple
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -50,6 +51,15 @@ internal class RippleHostView(context: Context) : View(context) {
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         // noop
+    }
+
+    override fun draw(canvas: Canvas) {
+        if (!isAttachedToWindow) {
+            // Cleanup any existing ripples if we added a ripple after being detached b/377222399
+            disposeRipple()
+            return
+        }
+        super.draw(canvas)
     }
 
     override fun refreshDrawableState() {
@@ -120,7 +130,7 @@ internal class RippleHostView(context: Context) : View(context) {
         radius: Int,
         color: Color,
         alpha: Float,
-        onInvalidateRipple: () -> Unit
+        onInvalidateRipple: () -> Unit,
     ) {
         // Create a new ripple if there is no existing ripple, or bounded has changed.
         // (Since this.bounded is initialized to `null`, technically the first check isn't
@@ -266,7 +276,7 @@ private class UnprojectedRipple(private val bounded: Boolean) :
         // The color of the mask here doesn't matter - we just need a mask to draw the bounded
         // ripple
         // against
-        /* mask */ if (bounded) ColorDrawable(android.graphics.Color.WHITE) else null
+        /* mask */ if (bounded) ColorDrawable(android.graphics.Color.WHITE) else null,
     ) {
     /**
      * Store the ripple color so we can compare it later, as there is no way to get the currently

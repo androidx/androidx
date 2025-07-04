@@ -79,7 +79,7 @@ class RoundedPolygonTest {
                 p2.x + offset.x,
                 p2.y + offset.y,
                 p3.x + offset.x,
-                p3.y + offset.y
+                p3.y + offset.y,
             )
         val manualSquareOffset = RoundedPolygon(offsetVerts, centerX = offset.x, centerY = offset.y)
         min = Point(0f, 1f)
@@ -192,15 +192,11 @@ class RoundedPolygonTest {
         val p1 = Point(1f, 0f)
         val p2 = Point(0.5f, 1f)
         val pvRounding =
-            listOf(
-                CornerRounding(1f, 0f),
-                CornerRounding(1f, 1f),
-                CornerRounding.Unrounded,
-            )
+            listOf(CornerRounding(1f, 0f), CornerRounding(1f, 1f), CornerRounding.Unrounded)
         val polygon =
             RoundedPolygon(
                 vertices = pointsToFloats(listOf(p0, p1, p2)),
-                perVertexRounding = pvRounding
+                perVertexRounding = pvRounding,
             )
 
         // Since there is not enough room in the p0 -> p1 side even for the roundings, we shouldn't
@@ -261,7 +257,7 @@ class RoundedPolygonTest {
                 expectedV0SX = 0.4f * (1 + smooth),
                 expectedV0SY = 0.4f + factor * smoothWantedV0,
                 expectedV3SY = 0.2f + factor * smoothWantedV3,
-                rounding3 = CornerRounding(0.2f, 1f)
+                rounding3 = CornerRounding(0.2f, 1f),
             )
         }
     }
@@ -280,7 +276,7 @@ class RoundedPolygonTest {
                 expectedV0SX = 0.4f * (1 + smooth),
                 expectedV0SY = 0.4f,
                 expectedV3SY = 0.6f,
-                rounding3 = CornerRounding(0.6f)
+                rounding3 = CornerRounding(0.6f),
             )
         }
     }
@@ -300,7 +296,7 @@ class RoundedPolygonTest {
                     rounding = CornerRounding(radius * roundingFactor),
                     innerRounding = CornerRounding(radius * roundingFactor),
                     centerX = radius,
-                    centerY = radius
+                    centerY = radius,
                 )
                 .transformed { x, y ->
                     TransformResult((x - radius) / radius, (y - radius) / radius)
@@ -312,7 +308,7 @@ class RoundedPolygonTest {
                 1f,
                 innerRadiusFactor,
                 rounding = CornerRounding(roundingFactor),
-                innerRounding = CornerRounding(roundingFactor)
+                innerRounding = CornerRounding(roundingFactor),
             )
 
         val cubics = canonicalShape.cubics
@@ -337,7 +333,7 @@ class RoundedPolygonTest {
         expectedV0SY: Float, // Expected total cut from vertex 0 towards vertex 3
         expectedV3SY: Float, // Expected total cut from vertex 3 towards vertex 0
         // Corner rounding parameter for vertex 3 (bottom left)
-        rounding3: CornerRounding = CornerRounding(0.5f)
+        rounding3: CornerRounding = CornerRounding(0.5f),
     ) {
         val p0 = Point(0f, 0f)
         val p1 = Point(5f, 0f)
@@ -345,16 +341,11 @@ class RoundedPolygonTest {
         val p3 = Point(0f, 1f)
 
         val pvRounding =
-            listOf(
-                rounding0,
-                CornerRounding.Unrounded,
-                CornerRounding.Unrounded,
-                rounding3,
-            )
+            listOf(rounding0, CornerRounding.Unrounded, CornerRounding.Unrounded, rounding3)
         val polygon =
             RoundedPolygon(
                 vertices = pointsToFloats(listOf(p0, p1, p2, p3)),
-                perVertexRounding = pvRounding
+                perVertexRounding = pvRounding,
             )
         val (e01, _, _, e30) = polygon.features.filterIsInstance<Feature.Edge>()
         val msg = "r0 = ${show(rounding0)}, r3 = ${show(rounding3)}"

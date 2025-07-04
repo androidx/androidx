@@ -38,14 +38,14 @@ internal enum class PdfViewSwipe : Swiper {
             uiController: UiController,
             startCoordinates: FloatArray,
             endCoordinates: FloatArray,
-            precision: FloatArray
+            precision: FloatArray,
         ): Swiper.Status {
             return sendLinearSwipe(
                 uiController,
                 startCoordinates,
                 endCoordinates,
                 precision,
-                SCROLL_DURATION_MS
+                SCROLL_DURATION_MS,
             )
         }
     },
@@ -54,14 +54,14 @@ internal enum class PdfViewSwipe : Swiper {
             uiController: UiController,
             startCoordinates: FloatArray,
             endCoordinates: FloatArray,
-            precision: FloatArray
+            precision: FloatArray,
         ): Swiper.Status {
             return sendLinearSwipe(
                 uiController,
                 startCoordinates,
                 endCoordinates,
                 precision,
-                FLING_DURATION_MS
+                FLING_DURATION_MS,
             )
         }
     };
@@ -100,7 +100,7 @@ internal enum class PdfViewSwipe : Swiper {
             startCoordinates: FloatArray,
             endCoordinates: FloatArray,
             precision: FloatArray,
-            duration: Int
+            duration: Int,
         ): Swiper.Status {
             val steps: Array<FloatArray> = interpolate(startCoordinates, endCoordinates)
 

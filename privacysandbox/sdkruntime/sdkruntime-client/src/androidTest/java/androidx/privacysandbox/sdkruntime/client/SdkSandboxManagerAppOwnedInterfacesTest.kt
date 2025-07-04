@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.sdkruntime.client
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
 import android.os.Binder
@@ -24,11 +23,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.ext.SdkExtensions
 import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.core.content.getSystemService
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
-import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -59,7 +58,6 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         sandboxManagerCompat = SdkSandboxManagerCompat.from(context)
     }
 
-    @SuppressLint("NewApi") // For supporting DP Builds
     @After
     fun tearDown() {
         SdkSandboxManagerCompat.reset()
@@ -88,11 +86,11 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     @Test
     // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun registerAppOwnedSdkSandboxInterface_whenApiAvailable_registerInPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
-            isAppOwnedInterfacesApiAvailable()
+            isAppOwnedInterfacesApiAvailable(),
         )
 
         val appOwnedInterface =
@@ -119,11 +117,11 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     @Test
     // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun unregisterAppOwnedSdkSandboxInterface_whenApiAvailable_unregisterFromPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
-            isAppOwnedInterfacesApiAvailable()
+            isAppOwnedInterfacesApiAvailable(),
         )
 
         val appOwnedInterface =
@@ -139,7 +137,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     @Test
     fun sdkController_getAppOwnedSdkSandboxInterfaces_returnsRegisteredAppOwnedInterfaces() {
         val localSdk = runBlocking {
-            sandboxManagerCompat.loadSdk(TestSdkConfigs.forSdkName("v4").packageName, Bundle())
+            sandboxManagerCompat.loadSdk(TestSdkConfigs.CURRENT.packageName, Bundle())
         }
 
         val registeredAppOwnedSdk =
@@ -157,6 +155,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         assertThat(appOwnedSdkResult.getInterface()).isEqualTo(registeredAppOwnedSdk.getInterface())
     }
 
+    @RequiresApi(34)
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
     companion object AppOwnedInterfacesApi { // to avoid class verification fails
         @DoNotInline
@@ -169,7 +168,7 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
         @DoNotInline
         fun unregisterInterfaces(
             context: Context,
-            appOwnedInterfaces: List<AppOwnedSdkSandboxInterfaceCompat>
+            appOwnedInterfaces: List<AppOwnedSdkSandboxInterfaceCompat>,
         ) {
             val sandboxManager = context.getSystemService<SdkSandboxManager>()!!
             appOwnedInterfaces.forEach {
@@ -179,5 +178,5 @@ class SdkSandboxManagerAppOwnedInterfacesTest {
     }
 
     private fun isAppOwnedInterfacesApiAvailable() =
-        BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 || AdServicesInfo.isDeveloperPreview()
+        Build.VERSION.SDK_INT >= 34 && BuildCompat.AD_SERVICES_EXTENSION_INT >= 8
 }

@@ -82,7 +82,7 @@ class AndroidTapIntegrationBenchmark {
         val activity = activityTestRule.activity
         Assert.assertTrue(
             "timed out waiting for activity focus",
-            activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
+            activity.hasFocusLatch.await(5, TimeUnit.SECONDS),
         )
 
         rootView = activity.findViewById<ViewGroup>(android.R.id.content)
@@ -148,7 +148,7 @@ class AndroidTapIntegrationBenchmark {
                 0,
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(0f, y)),
-                rootView
+                rootView,
             )
 
         val up =
@@ -159,7 +159,7 @@ class AndroidTapIntegrationBenchmark {
                 0,
                 arrayOf(PointerProperties(0)),
                 arrayOf(PointerCoords(0f, y)),
-                rootView
+                rootView,
             )
 
         benchmarkRule.measureRepeated {

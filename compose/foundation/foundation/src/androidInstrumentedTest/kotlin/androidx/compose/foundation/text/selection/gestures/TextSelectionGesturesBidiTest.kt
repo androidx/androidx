@@ -51,7 +51,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag)
+            modifier = Modifier.testTag(pointerAreaTag),
         ) {
             TextContent()
         }

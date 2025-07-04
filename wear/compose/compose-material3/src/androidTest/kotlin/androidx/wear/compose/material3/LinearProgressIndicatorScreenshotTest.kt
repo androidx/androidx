@@ -108,8 +108,8 @@ class LinearProgressIndicatorScreenshotTest {
             colors =
                 ProgressIndicatorDefaults.colors(
                     indicatorColor = Color.Green,
-                    trackColor = Color.Red.copy(alpha = 0.5f)
-                )
+                    trackColor = Color.Red.copy(alpha = 0.5f),
+                ),
         )
     }
 
@@ -147,14 +147,14 @@ class LinearProgressIndicatorScreenshotTest {
 
     private fun linear_progress_indicator_test(
         isLtr: Boolean = true,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme(modifier = Modifier.background(Color.Black)) {
             ScreenConfiguration(ScreenSize.LARGE.size) {
                 val layoutDirection = if (isLtr) LayoutDirection.Ltr else LayoutDirection.Rtl
                 CompositionLocalProvider(
                     LocalLayoutDirection provides layoutDirection,
-                    content = content
+                    content = content,
                 )
             }
         }

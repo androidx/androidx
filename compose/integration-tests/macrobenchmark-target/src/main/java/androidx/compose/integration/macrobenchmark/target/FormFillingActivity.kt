@@ -116,27 +116,27 @@ class FormFillingActivity : ComponentActivity() {
                     BasicTextField(
                         value = person.title,
                         onValueChange = { person.title = it },
-                        textStyle = textStyle
+                        textStyle = textStyle,
                     )
                     BasicTextField(
                         value = person.firstName,
                         onValueChange = { person.firstName = it },
-                        textStyle = textStyle
+                        textStyle = textStyle,
                     )
                     BasicTextField(
                         value = person.middleName,
                         onValueChange = { person.middleName = it },
-                        textStyle = textStyle
+                        textStyle = textStyle,
                     )
                     BasicTextField(
                         value = person.lastName,
                         onValueChange = { person.lastName = it },
-                        textStyle = textStyle
+                        textStyle = textStyle,
                     )
                     BasicTextField(
                         value = person.age.toString(),
                         onValueChange = { person.age = it.toInt() },
-                        textStyle = textStyle
+                        textStyle = textStyle,
                     )
                 }
             }
@@ -204,7 +204,7 @@ class FormFillingActivity : ComponentActivity() {
     private class DemoAdapter(
         val data: List<FormData>,
         val rowHeightPx: Float,
-        textSize: TextUnit
+        textSize: TextUnit,
     ) : Adapter<DemoAdapter.DemoViewHolder>() {
 
         private class DemoViewHolder(
@@ -213,7 +213,7 @@ class FormFillingActivity : ComponentActivity() {
             val middleName: EditTextView,
             val lastName: EditTextView,
             val age: EditTextView,
-            itemRoot: View
+            itemRoot: View,
         ) : ViewHolder(itemRoot)
 
         val textSize = textSize.value
@@ -238,7 +238,7 @@ class FormFillingActivity : ComponentActivity() {
                     it.addView(middleName)
                     it.addView(lastName)
                     it.addView(age)
-                }
+                },
             )
         }
 
@@ -278,7 +278,7 @@ class FormFillingActivity : ComponentActivity() {
                     firstName = "John $it",
                     middleName = "Ace $it",
                     lastName = "Doe $it",
-                    age = it
+                    age = it,
                 )
             }
         }

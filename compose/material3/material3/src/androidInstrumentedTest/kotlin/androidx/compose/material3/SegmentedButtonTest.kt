@@ -114,8 +114,10 @@ class SegmentedButtonTest {
                         disabledActiveBorderColor =
                             OutlineColor.value.copy(alpha = DisabledOutlineOpacity),
                         disabledInactiveContainerColor = Color.Transparent,
-                        disabledInactiveContentColor = DisabledLabelTextColor.value,
-                        disabledInactiveBorderColor = OutlineColor.value,
+                        disabledInactiveContentColor =
+                            DisabledLabelTextColor.value.copy(alpha = DisabledLabelTextOpacity),
+                        disabledInactiveBorderColor =
+                            OutlineColor.value.copy(alpha = DisabledOutlineOpacity),
                     )
                 )
         }
@@ -156,18 +158,10 @@ class SegmentedButtonTest {
     fun selectableSegmentedButton_semantics() {
         rule.setMaterialContent(lightColorScheme()) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.testTag("row")) {
-                SegmentedButton(
-                    selected = false,
-                    onClick = {},
-                    shape = RectangleShape,
-                ) {
+                SegmentedButton(selected = false, onClick = {}, shape = RectangleShape) {
                     Text("Day")
                 }
-                SegmentedButton(
-                    selected = false,
-                    onClick = {},
-                    shape = RectangleShape,
-                ) {
+                SegmentedButton(selected = false, onClick = {}, shape = RectangleShape) {
                     Text("Month")
                 }
             }
@@ -210,7 +204,7 @@ class SegmentedButtonTest {
         rule
             .setMaterialContentForSizeAssertions(
                 parentMaxWidth = 300.dp,
-                parentMaxHeight = 100.dp
+                parentMaxHeight = 100.dp,
             ) {
                 MultiChoiceSegmentedButtonRow {
                     SegmentedButton(checked = false, onCheckedChange = {}, shape = RectangleShape) {
@@ -232,14 +226,14 @@ class SegmentedButtonTest {
         rule
             .setMaterialContentForSizeAssertions(
                 parentMaxWidth = 300.dp,
-                parentMaxHeight = 100.dp
+                parentMaxHeight = 100.dp,
             ) {
                 MultiChoiceSegmentedButtonRow {
                     SegmentedButton(
                         contentPadding = PaddingValues(24.dp),
                         checked = false,
                         onCheckedChange = {},
-                        shape = RectangleShape
+                        shape = RectangleShape,
                     ) {
                         Text(modifier = Modifier.width(60.dp), text = "Day")
                     }
@@ -247,7 +241,7 @@ class SegmentedButtonTest {
                         contentPadding = PaddingValues(20.dp),
                         checked = false,
                         onCheckedChange = {},
-                        shape = RectangleShape
+                        shape = RectangleShape,
                     ) {
                         Text(modifier = Modifier.width(30.dp), text = "Month")
                     }
@@ -264,7 +258,7 @@ class SegmentedButtonTest {
         rule
             .setMaterialContentForSizeAssertions(
                 parentMaxWidth = 300.dp,
-                parentMaxHeight = 100.dp
+                parentMaxHeight = 100.dp,
             ) {
                 CompositionLocalProvider(
                     LocalDensity provides
@@ -274,14 +268,14 @@ class SegmentedButtonTest {
                         SegmentedButton(
                             checked = false,
                             onCheckedChange = {},
-                            shape = RectangleShape
+                            shape = RectangleShape,
                         ) {
                             Text(modifier = Modifier.width(60.dp), text = "Day")
                         }
                         SegmentedButton(
                             checked = false,
                             onCheckedChange = {},
-                            shape = RectangleShape
+                            shape = RectangleShape,
                         ) {
                             Text(modifier = Modifier.width(30.dp), text = "Month")
                         }

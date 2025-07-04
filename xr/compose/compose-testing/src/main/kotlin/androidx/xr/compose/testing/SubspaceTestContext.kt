@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.util.fastForEach
 import androidx.xr.compose.platform.SceneManager
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*, *>) {
@@ -32,7 +32,7 @@ public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*,
      */
     internal fun getAllSemanticsNodes(
         atLeastOneRootRequired: Boolean
-    ): Iterable<SubspaceSemanticsNode> {
+    ): Iterable<SubspaceSemanticsInfo> {
         // Block and wait for compose state to settle before looking for root nodes.
         testRule.waitForIdle()
         val roots = SceneManager.getAllRootSubspaceSemanticsNodes()
@@ -50,12 +50,12 @@ public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*,
     }
 }
 
-private fun SubspaceSemanticsNode.getAllSemanticsNodes(): Iterable<SubspaceSemanticsNode> {
-    val nodes = mutableListOf<SubspaceSemanticsNode>()
+private fun SubspaceSemanticsInfo.getAllSemanticsNodes(): Iterable<SubspaceSemanticsInfo> {
+    val nodes = mutableListOf<SubspaceSemanticsInfo>()
 
-    fun findAllSemanticNodesRecursive(currentNode: SubspaceSemanticsNode) {
+    fun findAllSemanticNodesRecursive(currentNode: SubspaceSemanticsInfo) {
         nodes.add(currentNode)
-        currentNode.children.fastForEach { child -> findAllSemanticNodesRecursive(child) }
+        currentNode.semanticsChildren.fastForEach { child -> findAllSemanticNodesRecursive(child) }
     }
 
     findAllSemanticNodesRecursive(this)

@@ -22,7 +22,7 @@ import androidx.compose.ui.semantics.CollectionInfo
 
 internal fun LazyLayoutSemanticState(
     state: PagerState,
-    isVertical: Boolean
+    isVertical: Boolean,
 ): LazyLayoutSemanticState =
     object : LazyLayoutSemanticState {
         override val scrollOffset: Float

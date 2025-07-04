@@ -66,7 +66,7 @@ internal object DataPoints {
     @JvmStatic
     public fun stepsPerMinute(
         @IntRange(from = 0, to = 1000000) stepsPerMinute: Long,
-        timeDurationFromBoot: Duration
+        timeDurationFromBoot: Duration,
     ): SampleDataPoint<Long> {
         if (stepsPerMinute !in 0..1000000) {
             Log.w(TAG, "stepsPerMinute value $stepsPerMinute is out of range")
@@ -74,7 +74,7 @@ internal object DataPoints {
         return SampleDataPoint(
             dataType = DataType.STEPS_PER_MINUTE,
             value = stepsPerMinute,
-            timeDurationFromBoot = timeDurationFromBoot
+            timeDurationFromBoot = timeDurationFromBoot,
         )
     }
 
@@ -115,7 +115,7 @@ internal object DataPoints {
     public fun distanceTotal(
         @FloatRange(from = 0.0, to = 1000000.0) meters: Double,
         startTime: Instant,
-        endTime: Instant
+        endTime: Instant,
     ): CumulativeDataPoint<Double> {
         if (meters !in 0.0..1000000.0) {
             Log.w(TAG, "distanceTotal value $meters is out of range")
@@ -124,7 +124,7 @@ internal object DataPoints {
             dataType = DataType.DISTANCE_TOTAL,
             total = meters,
             start = startTime,
-            end = endTime
+            end = endTime,
         )
     }
 
@@ -220,28 +220,28 @@ internal object DataPoints {
         @FloatRange(from = -1000000.0, to = 1000000.0) maxAbsoluteElevationMeters: Double,
         @FloatRange(from = -1000000.0, to = 1000000.0) averageAbsoluteElevationMeters: Double,
         startTime: Instant,
-        endTime: Instant
+        endTime: Instant,
     ): StatisticalDataPoint<Double> {
 
         if (minAbsoluteElevationMeters !in -1000000.0..1000000.0) {
             Log.w(
                 TAG,
                 "absoluteElevationStats: minAbsoluteElevationMeters value " +
-                    "$minAbsoluteElevationMeters is out of range"
+                    "$minAbsoluteElevationMeters is out of range",
             )
         }
         if (maxAbsoluteElevationMeters !in -1000000.0..1000000.0) {
             Log.w(
                 TAG,
                 "absoluteElevationStats: maxAbsoluteElevationMeters value " +
-                    "$maxAbsoluteElevationMeters is out of range"
+                    "$maxAbsoluteElevationMeters is out of range",
             )
         }
         if (averageAbsoluteElevationMeters !in -1000000.0..1000000.0) {
             Log.w(
                 TAG,
                 "absoluteElevationStats: averageAbsoluteElevationMeters value " +
-                    "$averageAbsoluteElevationMeters is out of range"
+                    "$averageAbsoluteElevationMeters is out of range",
             )
         }
         return StatisticalDataPoint(
@@ -317,7 +317,7 @@ internal object DataPoints {
     public fun caloriesTotal(
         @FloatRange(from = 0.0, to = 1000000.0) kilocalories: Double,
         startTime: Instant,
-        endTime: Instant
+        endTime: Instant,
     ): CumulativeDataPoint<Double> {
         if (kilocalories !in 0.0..1000000.0) {
             Log.w(TAG, "caloriesTotal value $kilocalories is out of range")
@@ -326,7 +326,7 @@ internal object DataPoints {
             dataType = DataType.CALORIES_TOTAL,
             total = kilocalories,
             start = startTime,
-            end = endTime
+            end = endTime,
         )
     }
 
@@ -343,7 +343,7 @@ internal object DataPoints {
     public fun swimmingStrokes(
         @IntRange(from = 0, to = 1000000) strokes: Long,
         startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
+        endDurationFromBoot: Duration,
     ): IntervalDataPoint<Long> {
         if (strokes !in 0..1000000) {
             Log.w(TAG, "swimmingStrokes value $strokes is out of range")
@@ -352,7 +352,7 @@ internal object DataPoints {
             dataType = DataType.SWIMMING_STROKES,
             value = strokes,
             startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
+            endDurationFromBoot = endDurationFromBoot,
         )
     }
 
@@ -403,7 +403,7 @@ internal object DataPoints {
         timeDurationFromBoot: Duration,
         altitude: Double = LocationData.ALTITUDE_UNAVAILABLE,
         bearing: Double = LocationData.BEARING_UNAVAILABLE,
-        accuracy: LocationAccuracy? = null
+        accuracy: LocationAccuracy? = null,
     ): SampleDataPoint<LocationData> {
         if (latitude !in -90.0..90.0) {
             Log.w(TAG, "location: latitude value $latitude is out of range")
@@ -418,7 +418,7 @@ internal object DataPoints {
             dataType = DataType.LOCATION,
             value = LocationData(latitude, longitude, altitude, bearing),
             timeDurationFromBoot = timeDurationFromBoot,
-            accuracy = accuracy
+            accuracy = accuracy,
         )
     }
 
@@ -454,12 +454,12 @@ internal object DataPoints {
     @JvmStatic
     public fun pace(
         durationPerKilometer: Duration,
-        timeDurationFromBoot: Duration
+        timeDurationFromBoot: Duration,
     ): SampleDataPoint<Double> =
         SampleDataPoint(
             dataType = DataType.PACE,
             value = (durationPerKilometer.toMillis()).toDouble(),
-            timeDurationFromBoot = timeDurationFromBoot
+            timeDurationFromBoot = timeDurationFromBoot,
         )
 
     /**
@@ -475,7 +475,7 @@ internal object DataPoints {
     public fun heartRate(
         @FloatRange(from = 0.0, to = 300.0) bpm: Double,
         timeDurationFromBoot: Duration,
-        accuracy: HeartRateAccuracy? = null
+        accuracy: HeartRateAccuracy? = null,
     ): SampleDataPoint<Double> {
         if (bpm !in 0.0..300.0) {
             Log.w(TAG, "heartRate value $bpm is out of range")
@@ -484,7 +484,7 @@ internal object DataPoints {
             dataType = DataType.HEART_RATE_BPM,
             value = bpm,
             timeDurationFromBoot = timeDurationFromBoot,
-            accuracy = accuracy
+            accuracy = accuracy,
         )
     }
 
@@ -524,7 +524,7 @@ internal object DataPoints {
             max = maxBpm,
             average = averageBpm,
             start = startTime,
-            end = endTime
+            end = endTime,
         )
     }
 
@@ -540,7 +540,7 @@ internal object DataPoints {
     public fun dailySteps(
         @IntRange(from = 0, to = 1000000) dailySteps: Long,
         startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
+        endDurationFromBoot: Duration,
     ): IntervalDataPoint<Long> {
         if (dailySteps !in 0..1000000) {
             Log.w(TAG, "dailySteps value $dailySteps is out of range")
@@ -549,7 +549,7 @@ internal object DataPoints {
             dataType = DataType.STEPS_DAILY,
             value = dailySteps,
             startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
+            endDurationFromBoot = endDurationFromBoot,
         )
     }
 
@@ -565,7 +565,7 @@ internal object DataPoints {
     public fun dailyFloors(
         @FloatRange(from = 0.0, to = 1000000.0) floors: Double,
         startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
+        endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
         if (floors !in 0.0..1000000.0) {
             Log.w(TAG, "dailyFloors value $floors is out of range")
@@ -574,7 +574,7 @@ internal object DataPoints {
             dataType = DataType.FLOORS_DAILY,
             value = floors,
             startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
+            endDurationFromBoot = endDurationFromBoot,
         )
     }
 
@@ -591,7 +591,7 @@ internal object DataPoints {
     public fun dailyCalories(
         @FloatRange(from = 0.0, to = 1000000.0) calories: Double,
         startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
+        endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
         if (calories in 0.0..1000000.0) {
             Log.w(TAG, "dailyCalories value $calories is out of range")
@@ -600,7 +600,7 @@ internal object DataPoints {
             dataType = DataType.CALORIES_DAILY,
             value = calories,
             startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
+            endDurationFromBoot = endDurationFromBoot,
         )
     }
 
@@ -625,7 +625,7 @@ internal object DataPoints {
             dataType = DataType.DISTANCE_DAILY,
             value = meters,
             startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
+            endDurationFromBoot = endDurationFromBoot,
         )
     }
 
@@ -642,7 +642,7 @@ internal object DataPoints {
     public fun dailyElevationGain(
         @FloatRange(from = 0.0, to = 1000000.0) meters: Double,
         startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
+        endDurationFromBoot: Duration,
     ): IntervalDataPoint<Double> {
         if (meters !in 0.0..1000000.0) {
             Log.w(TAG, "meters value $meters is out of range")
@@ -651,7 +651,7 @@ internal object DataPoints {
             dataType = DataType.ELEVATION_GAIN_DAILY,
             value = meters,
             startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
+            endDurationFromBoot = endDurationFromBoot,
         )
     }
 }

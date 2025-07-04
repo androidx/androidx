@@ -90,7 +90,7 @@ fun PullToRefreshSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -134,7 +134,7 @@ fun PullToRefreshWithLoadingIndicatorSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -149,7 +149,7 @@ fun PullToRefreshWithLoadingIndicatorSample() {
                     isRefreshing = isRefreshing,
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
-            }
+            },
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
@@ -200,18 +200,18 @@ fun PullToRefreshViewModelSample() {
                 actions = {
                     IconButton(
                         enabled = !viewModel.isRefreshing,
-                        onClick = { viewModel.refresh() }
+                        onClick = { viewModel.refresh() },
                     ) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
         PullToRefreshBox(
             modifier = Modifier.padding(it),
             isRefreshing = viewModel.isRefreshing,
-            onRefresh = { viewModel.refresh() }
+            onRefresh = { viewModel.refresh() },
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!viewModel.isRefreshing) {
@@ -253,7 +253,7 @@ fun PullToRefreshScalingSample() {
             Modifier.pullToRefresh(
                 state = state,
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
             ),
         topBar = {
             TopAppBar(
@@ -263,9 +263,9 @@ fun PullToRefreshScalingSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
@@ -309,7 +309,7 @@ fun PullToRefreshLinearProgressIndicatorSample() {
             Modifier.pullToRefresh(
                 state = state,
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
             ),
         topBar = {
             TopAppBar(
@@ -319,9 +319,9 @@ fun PullToRefreshLinearProgressIndicatorSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {
@@ -334,7 +334,7 @@ fun PullToRefreshLinearProgressIndicatorSample() {
             } else {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
-                    progress = { state.distanceFraction }
+                    progress = { state.distanceFraction },
                 )
             }
         }
@@ -392,7 +392,7 @@ fun PullToRefreshSampleCustomState() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -400,7 +400,7 @@ fun PullToRefreshSampleCustomState() {
             modifier = Modifier.padding(it),
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
-            state = state
+            state = state,
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 if (!isRefreshing) {
@@ -438,7 +438,7 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {
@@ -452,7 +452,7 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
                     state = state,
                     isRefreshing = isRefreshing,
                     modifier = Modifier.align(Alignment.TopCenter),
-                    elevation = 0.dp
+                    elevation = 0.dp,
                 ) {
                     if (isRefreshing) {
                         CircularProgressIndicator()
@@ -463,7 +463,7 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
                         )
                     }
                 }
-            }
+            },
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }

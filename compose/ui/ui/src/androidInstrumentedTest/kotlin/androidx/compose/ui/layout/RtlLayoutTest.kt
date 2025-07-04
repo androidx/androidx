@@ -199,22 +199,22 @@ class RtlLayoutTest {
                         object : MeasurePolicy {
                             override fun MeasureScope.measure(
                                 measurables: List<Measurable>,
-                                constraints: Constraints
+                                constraints: Constraints,
                             ) = layout(0, 0) {}
 
                             override fun IntrinsicMeasureScope.minIntrinsicWidth(
                                 measurables: List<IntrinsicMeasurable>,
-                                height: Int
+                                height: Int,
                             ) = 0
 
                             override fun IntrinsicMeasureScope.minIntrinsicHeight(
                                 measurables: List<IntrinsicMeasurable>,
-                                width: Int
+                                width: Int,
                             ) = 0
 
                             override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                                 measurables: List<IntrinsicMeasurable>,
-                                height: Int
+                                height: Int,
                             ): Int {
                                 resultLayoutDirection = this.layoutDirection
                                 latch.countDown()
@@ -223,13 +223,13 @@ class RtlLayoutTest {
 
                             override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                                 measurables: List<IntrinsicMeasurable>,
-                                width: Int
+                                width: Int,
                             ) = 0
                         }
                     Layout(
                         content = {},
                         modifier = Modifier.width(IntrinsicSize.Max),
-                        measurePolicy = measurePolicy
+                        measurePolicy = measurePolicy,
                     )
                 }
             }
@@ -274,7 +274,7 @@ class RtlLayoutTest {
         class MinimumTouchTargetModifier(val size: DpSize = DpSize(48.dp, 48.dp)) : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 val placeable = measurable.measure(constraints)
                 val width = maxOf(placeable.width, size.width.roundToPx())
@@ -384,7 +384,7 @@ class RtlLayoutTest {
 
     private fun Modifier.saveLayoutInfo(
         position: Ref<Offset>,
-        countDownLatch: CountDownLatch
+        countDownLatch: CountDownLatch,
     ): Modifier = onGloballyPositioned {
         position.value = it.localToRoot(Offset(0f, 0f))
         countDownLatch.countDown()

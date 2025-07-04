@@ -207,7 +207,7 @@ class RxRoomTest {
                 mDatabase,
                 false,
                 arrayOf("a"),
-                Callable { throw Exception("i want exception") }
+                Callable { throw Exception("i want exception") },
             )
         val subscriber = TestSubscriber<String>()
         flowable.subscribe(subscriber)
@@ -223,7 +223,7 @@ class RxRoomTest {
                 mDatabase,
                 false,
                 arrayOf("a"),
-                Callable { throw Exception("i want exception") }
+                Callable { throw Exception("i want exception") },
             )
         val observer = TestObserver<String>()
         flowable.subscribe(observer)

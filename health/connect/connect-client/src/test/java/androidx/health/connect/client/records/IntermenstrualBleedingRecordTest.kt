@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -31,12 +32,14 @@ class IntermenstrualBleedingRecordTest {
                 IntermenstrualBleedingRecord(
                     time = Instant.ofEpochMilli(1234L),
                     zoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                 )
             )
             .isEqualTo(
                 IntermenstrualBleedingRecord(
                     time = Instant.ofEpochMilli(1234L),
                     zoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                 )
             )
     }
@@ -47,6 +50,7 @@ class IntermenstrualBleedingRecordTest {
                 IntermenstrualBleedingRecord(
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )

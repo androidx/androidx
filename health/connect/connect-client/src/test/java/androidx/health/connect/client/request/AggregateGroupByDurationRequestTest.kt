@@ -43,33 +43,33 @@ class AggregateGroupByDurationRequestTest {
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.before(ONE_HOUR_AGO),
-            timeRangeSlicer = MINUTE_BASED_DURATION
+            timeRangeSlicer = MINUTE_BASED_DURATION,
         )
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.between(ONE_HOUR_AGO, NOW),
-            timeRangeSlicer = MINUTE_BASED_DURATION
+            timeRangeSlicer = MINUTE_BASED_DURATION,
         )
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.after(NOW),
-            timeRangeSlicer = MINUTE_BASED_DURATION
+            timeRangeSlicer = MINUTE_BASED_DURATION,
         )
 
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.before(ONE_HOUR_AGO),
-            timeRangeSlicer = SECOND_BASED_DURATION
+            timeRangeSlicer = SECOND_BASED_DURATION,
         )
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.between(ONE_HOUR_AGO, NOW),
-            timeRangeSlicer = SECOND_BASED_DURATION
+            timeRangeSlicer = SECOND_BASED_DURATION,
         )
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.after(NOW),
-            timeRangeSlicer = SECOND_BASED_DURATION
+            timeRangeSlicer = SECOND_BASED_DURATION,
         )
     }
 
@@ -81,17 +81,17 @@ class AggregateGroupByDurationRequestTest {
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.before(oneHourAgo),
-            timeRangeSlicer = MINUTE_BASED_DURATION
+            timeRangeSlicer = MINUTE_BASED_DURATION,
         )
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.between(oneHourAgo, now),
-            timeRangeSlicer = MINUTE_BASED_DURATION
+            timeRangeSlicer = MINUTE_BASED_DURATION,
         )
         AggregateGroupByDurationRequest(
             metrics = METRICS,
             timeRangeFilter = TimeRangeFilter.after(now),
-            timeRangeSlicer = MINUTE_BASED_DURATION
+            timeRangeSlicer = MINUTE_BASED_DURATION,
         )
     }
 
@@ -104,21 +104,21 @@ class AggregateGroupByDurationRequestTest {
             AggregateGroupByDurationRequest(
                 metrics = METRICS,
                 timeRangeFilter = TimeRangeFilter.before(oneHourAgo),
-                timeRangeSlicer = SECOND_BASED_DURATION
+                timeRangeSlicer = SECOND_BASED_DURATION,
             )
         }
         assertFailsWith<IllegalArgumentException> {
             AggregateGroupByDurationRequest(
                 metrics = METRICS,
                 timeRangeFilter = TimeRangeFilter.between(oneHourAgo, now),
-                timeRangeSlicer = SECOND_BASED_DURATION
+                timeRangeSlicer = SECOND_BASED_DURATION,
             )
         }
         assertFailsWith<IllegalArgumentException> {
             AggregateGroupByDurationRequest(
                 metrics = METRICS,
                 timeRangeFilter = TimeRangeFilter.after(now),
-                timeRangeSlicer = SECOND_BASED_DURATION
+                timeRangeSlicer = SECOND_BASED_DURATION,
             )
         }
     }

@@ -82,14 +82,14 @@ class BoxTest : LayoutTest() {
                                 .saveLayoutInfo(
                                     alignedChildSize,
                                     alignedChildPosition,
-                                    positionedLatch
+                                    positionedLatch,
                                 )
                                 .onGloballyPositioned { coordinates: LayoutCoordinates ->
                                     stackSize.value = coordinates.size
                                     positionedLatch.countDown()
                                 },
                             width = sizeDp,
-                            height = sizeDp
+                            height = sizeDp,
                         ) {}
 
                         Container(
@@ -98,7 +98,7 @@ class BoxTest : LayoutTest() {
                                 .saveLayoutInfo(
                                     positionedChildSize,
                                     positionedChildPosition,
-                                    positionedLatch
+                                    positionedLatch,
                                 )
                         ) {}
                     }
@@ -139,10 +139,10 @@ class BoxTest : LayoutTest() {
                                     .saveLayoutInfo(
                                         childSize[0],
                                         childPosition[0],
-                                        positionedLatch
+                                        positionedLatch,
                                     ),
                             width = sizeDp,
-                            height = sizeDp
+                            height = sizeDp,
                         ) {}
                         Container(
                             modifier =
@@ -150,10 +150,10 @@ class BoxTest : LayoutTest() {
                                     .saveLayoutInfo(
                                         size = childSize[1],
                                         position = childPosition[1],
-                                        positionedLatch = positionedLatch
+                                        positionedLatch = positionedLatch,
                                     ),
                             width = doubleSizeDp,
-                            height = doubleSizeDp
+                            height = doubleSizeDp,
                         ) {}
                     }
                 }
@@ -192,35 +192,35 @@ class BoxTest : LayoutTest() {
                             Modifier.align(Alignment.Center)
                                 .saveLayoutInfo(childSize[0], childPosition[0], positionedLatch),
                             width = sizeDp,
-                            height = sizeDp
+                            height = sizeDp,
                         ) {}
                         Container(
                             Modifier.matchParentSize()
                                 .padding(start = insetDp, top = insetDp)
                                 .saveLayoutInfo(childSize[1], childPosition[1], positionedLatch),
                             width = halfSizeDp,
-                            height = halfSizeDp
+                            height = halfSizeDp,
                         ) {}
                         Container(
                             Modifier.matchParentSize()
                                 .padding(end = insetDp, bottom = insetDp)
                                 .saveLayoutInfo(childSize[2], childPosition[2], positionedLatch),
                             width = halfSizeDp,
-                            height = halfSizeDp
+                            height = halfSizeDp,
                         ) {}
                         Container(
                             Modifier.matchParentSize()
                                 .padding(start = insetDp, end = insetDp)
                                 .saveLayoutInfo(childSize[3], childPosition[3], positionedLatch),
                             width = halfSizeDp,
-                            height = halfSizeDp
+                            height = halfSizeDp,
                         ) {}
                         Container(
                             Modifier.matchParentSize()
                                 .padding(top = insetDp, bottom = insetDp)
                                 .saveLayoutInfo(childSize[4], childPosition[4], positionedLatch),
                             width = halfSizeDp,
-                            height = halfSizeDp
+                            height = halfSizeDp,
                         ) {}
                     }
                 }
@@ -360,10 +360,10 @@ class BoxTest : LayoutTest() {
                                     .saveLayoutInfo(
                                         childSize[1],
                                         childPosition[1],
-                                        positionedLatch
+                                        positionedLatch,
                                     ),
                                 width = halfSizeDp,
-                                height = halfSizeDp
+                                height = halfSizeDp,
                             ) {}
                         }
                     }
@@ -377,7 +377,7 @@ class BoxTest : LayoutTest() {
             assertEquals(IntSize(halfSize, halfSize), childSize[1].value)
             assertEquals(
                 Offset((size - halfSize).toFloat(), (size - halfSize).toFloat()),
-                childPosition[1].value
+                childPosition[1].value,
             )
         }
 
@@ -393,7 +393,7 @@ class BoxTest : LayoutTest() {
             show {
                 Box(
                     contentAlignment = Alignment.BottomEnd,
-                    modifier = Modifier.requiredSize(outerSize)
+                    modifier = Modifier.requiredSize(outerSize),
                 ) {
                     Box(
                         Modifier.requiredSize(innerSize).onGloballyPositioned {
@@ -458,7 +458,7 @@ class BoxTest : LayoutTest() {
                                     layoutLatch.countDown()
                                 }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -503,7 +503,7 @@ class BoxTest : LayoutTest() {
                 Box(
                     Modifier.requiredWidthIn(20.dp, 40.dp),
                     propagateMinConstraints = pmc.value,
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Box(
                         Modifier.width(10.dp).onSizeChanged {
@@ -539,11 +539,11 @@ class BoxTest : LayoutTest() {
                         Container(Modifier.align(Alignment.TopStart).aspectRatio(2f)) {}
                         ConstrainedBox(
                             DpConstraints.fixed(testWidth, testHeight),
-                            Modifier.align(Alignment.BottomCenter)
+                            Modifier.align(Alignment.BottomCenter),
                         ) {}
                         ConstrainedBox(
                             DpConstraints.fixed(200.dp, 200.dp),
-                            Modifier.matchParentSize().padding(10.dp)
+                            Modifier.matchParentSize().padding(10.dp),
                         ) {}
                     }
                 }
@@ -575,7 +575,7 @@ class BoxTest : LayoutTest() {
                     Box {
                         ConstrainedBox(
                             modifier = Modifier.matchParentSize().padding(10.dp),
-                            constraints = DpConstraints.fixed(200.dp, 200.dp)
+                            constraints = DpConstraints.fixed(200.dp, 200.dp),
                         ) {}
                     }
                 }

@@ -26,13 +26,13 @@ import org.jetbrains.kotlin.config.LanguageVersion
 /** Runs KSP to run the Symbol Processors */
 internal class KspCompilationStep(
     private val symbolProcessorProviders: List<SymbolProcessorProvider>,
-    private val processorOptions: Map<String, String>
+    private val processorOptions: Map<String, String>,
 ) : KotlinCompilationStep {
     override val name: String = "ksp"
 
     override fun execute(
         workingDir: File,
-        arguments: CompilationStepArguments
+        arguments: CompilationStepArguments,
     ): CompilationStepResult {
         val languageVersion = KotlinCliRunner.getLanguageVersion(arguments.kotlincArguments)
         return if (languageVersion < LanguageVersion.KOTLIN_2_0) {

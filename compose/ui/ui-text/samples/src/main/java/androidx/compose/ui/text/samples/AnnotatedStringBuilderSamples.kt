@@ -20,9 +20,13 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.AnnotatedString.Range
+import androidx.compose.ui.text.Bullet
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -46,8 +50,8 @@ fun AnnotatedStringConstructorSample() {
         paragraphStyles =
             listOf(
                 AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 6),
-                AnnotatedString.Range(ParagraphStyle(textIndent = TextIndent(5.sp)), 6, 11)
-            )
+                AnnotatedString.Range(ParagraphStyle(textIndent = TextIndent(5.sp)), 6, 11),
+            ),
     )
 }
 
@@ -61,11 +65,11 @@ fun AnnotatedStringMainConstructorSample() {
                 AnnotatedString.Range(
                     LinkAnnotation.Url("https://developer.android.com/jetpack/compose"),
                     0,
-                    15
+                    15,
                 ),
                 AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 8),
-                AnnotatedString.Range(SpanStyle(fontStyle = FontStyle.Italic), 8, 15)
-            )
+                AnnotatedString.Range(SpanStyle(fontStyle = FontStyle.Italic), 8, 15),
+            ),
     )
 }
 
@@ -179,7 +183,7 @@ fun AnnotatedStringAddStringAnnotationSample() {
             tag = "URL",
             annotation = "https://developer.android.com/jetpack/compose",
             start = 6,
-            end = 21
+            end = 21,
         )
     }
 }
@@ -194,7 +198,7 @@ fun AnnotatedStringWithLinkSample() {
             withLink(
                 LinkAnnotation.Url(
                     "https://developer.android.com/jetpack/compose",
-                    TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                    TextLinkStyles(style = SpanStyle(color = Color.Blue)),
                 )
             ) {
                 append("Jetpack Compose")
@@ -215,8 +219,8 @@ fun AnnotatedStringWithHoveredLinkStylingSample() {
                     "https://developer.android.com/jetpack/compose",
                     TextLinkStyles(
                         style = SpanStyle(color = Color.Blue),
-                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
-                    )
+                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline),
+                    ),
                 )
             withLink(link) { append("Jetpack Compose") }
         }
@@ -235,7 +239,7 @@ fun AnnotatedStringWithListenerSample() {
             val link =
                 LinkAnnotation.Url(
                     "https://developer.android.com/jetpack/compose",
-                    TextLinkStyles(SpanStyle(color = Color.Blue))
+                    TextLinkStyles(SpanStyle(color = Color.Blue)),
                 ) {
                     val url = (it as LinkAnnotation.Url).url
                     // log some metrics
@@ -261,6 +265,42 @@ fun AnnotatedStringMapAnnotationsSamples(text: AnnotatedString, linkColor: Color
                 is LinkAnnotation.Clickable ->
                     (it as Range<LinkAnnotation.Clickable>).copy(it.item.copy(styles = linkStyles))
                 else -> it
+            }
+        }
+    )
+}
+
+@Composable
+@Sampled
+fun AnnotatedStringWithBulletListSample() {
+    BasicText(
+        buildAnnotatedString {
+            append("Not a bullet item")
+            withBulletList {
+                withBulletListItem { append("Item 1") }
+                withBulletList { withBulletListItem { append("Nested item 2") } }
+                withBulletListItem { append("Item 3") }
+            }
+        }
+    )
+}
+
+@Composable
+@Sampled
+fun AnnotatedStringWithBulletListCustomBulletSample() {
+    val bullet1 = Bullet.Default.copy(shape = RectangleShape)
+    val bullet2 = bullet1.copy(drawStyle = Stroke(2f))
+    val bullet3 = bullet1.copy(brush = SolidColor(Color.LightGray))
+    BasicText(
+        buildAnnotatedString {
+            withBulletList(bullet = bullet1) {
+                withBulletListItem { append("Item 1") }
+                withBulletList(bullet = bullet2) {
+                    withBulletListItem { append("Item 2") }
+                    withBulletListItem { append("Item 3") }
+                    withBulletList(bullet = bullet3) { withBulletListItem { append("Item 4") } }
+                }
+                withBulletListItem { append("Item 5") }
             }
         }
     )

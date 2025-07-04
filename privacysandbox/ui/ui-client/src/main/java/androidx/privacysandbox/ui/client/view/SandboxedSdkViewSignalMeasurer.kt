@@ -16,100 +16,91 @@
 
 package androidx.privacysandbox.ui.client.view
 
-import android.graphics.Rect
-import android.os.SystemClock
-import android.view.View
+import androidx.privacysandbox.ui.client.GeometryMeasurer
 import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SandboxedUiAdapterSignalOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
-/**
- * Class for calculating signals related to the presentation of a [SandboxedSdkView].
- *
- * This class also schedules the collection of signals to ensure that signals are not sent too
- * frequently.
- */
+/** Class for calculating signals related to the presentation of a [SandboxedSdkView]. */
 internal class SandboxedSdkViewSignalMeasurer(
     val view: SandboxedSdkView,
     private val session: SandboxedUiAdapter.Session,
-    private val clock: Clock = Clock { SystemClock.uptimeMillis() }
 ) {
-    private companion object {
-        private const val MIN_SIGNAL_LATENCY_MS = 200
-    }
+    private var geometryMeasurer = GeometryMeasurer.getInstance()
 
-    internal fun interface Clock {
-        fun uptimeMillis(): Long
-    }
+    // TODO(b/340466873): Delegate obstruction measurement to SandboxedSdkUi when SandboxedSdkView
+    // is part of SSU
+    private var isMeasuringObstructions =
+        session.signalOptions.contains(SandboxedUiAdapterSignalOptions.OBSTRUCTIONS)
+    private var scope = CoroutineScope(Dispatchers.Default)
+    private var childView = view.getChildAt(0)
+    private var isMeasuring = true
 
-    private val windowLocation = IntArray(2)
-    private var onScreenGeometry = Rect()
-    private var containerWidthPx = 0
-    private var containerHeightPx = 0
-    private var opacityHint = 1.0f
-    private var lastTimeSentSignals: Long = clock.uptimeMillis()
-    private var scheduledTask: Runnable? = null
+    init {
+        scope.launch {
+            var geometryFlow = geometryMeasurer.registerView(childView, isMeasuringObstructions)
+            geometryFlow.collect { geometryData ->
+                val sandboxedSdkViewUiInfo =
+                    SandboxedSdkViewUiInfo(
+                        geometryData.widthPx,
+                        geometryData.heightPx,
+                        geometryData.onScreenGeometry,
+                        view.alpha,
+                        geometryData.obstructions,
+                    )
+                session.notifyUiChanged(SandboxedSdkViewUiInfo.toBundle(sandboxedSdkViewUiInfo))
+            }
+        }
+    }
 
     /**
-     * Updates the [SandboxedSdkViewUiInfo] that represents the view if there is no task already
-     * scheduled and the time since the last time signals were sent is at least the minimum
-     * acceptable latency.
+     * Requests for the associated [GeometryMeasurer] to emit a new set of geometry signals. The
+     * [GeometryMeasurer] is responsible for throttling these requests so that data is not emitted
+     * too frequently.
      *
-     * TODO(b/333853853): Use concurrency constructs instead.
+     * When [onLayoutEventOccurred] is true, this indicates that onLayout has been called on [view].
+     * This is used as a signal to recompute the view's parents when performing the obstructions
+     * calculation, if required.
      */
-    fun maybeSendSignals() {
-        if (scheduledTask != null) {
+    fun requestUpdatedSignals(onLayoutEventOccurred: Boolean = false) {
+        geometryMeasurer.requestUpdatedSignals(onLayoutEventOccurred)
+    }
+
+    /**
+     * Called when [view] is attached to the window again. This may happen when using pooling
+     * containers, where the UI session is retained but geometry measurement stops when the view
+     * gets temporarily detached from the window.
+     */
+    fun resumeMeasuringIfNecessary() {
+        if (isMeasuring) {
             return
         }
-
-        if ((clock.uptimeMillis() - lastTimeSentSignals) < MIN_SIGNAL_LATENCY_MS) {
-            val delayToNextSend =
-                MIN_SIGNAL_LATENCY_MS - (clock.uptimeMillis() - lastTimeSentSignals)
-            scheduledTask = Runnable {
-                scheduledTask = null
-                maybeSendSignals()
-            }
-            view.postDelayed(scheduledTask, delayToNextSend)
-        } else {
-            updateUiContainerInfo()
-            session.notifyUiChanged(
-                SandboxedSdkViewUiInfo.toBundle(
-                    SandboxedSdkViewUiInfo(
-                        containerWidthPx,
-                        containerHeightPx,
-                        onScreenGeometry,
-                        opacityHint
-                    )
-                )
-            )
-            lastTimeSentSignals = clock.uptimeMillis()
+        scope.launch {
+            geometryMeasurer.registerView(childView, isMeasuringObstructions)
+            isMeasuring = true
         }
     }
 
-    /** Removes the pending UI update [Runnable] from the message queue, if one exists. */
-    fun dropPendingUpdates() {
-        scheduledTask?.let { view.removeCallbacks(it) }
-        scheduledTask = null
-    }
-
-    /** Updates the [SandboxedSdkViewUiInfo] that represents the state of the view. */
-    private fun updateUiContainerInfo() {
-        val childView = view.getChildAt(0)
-        if (childView == null) {
+    /**
+     * Stops consuming emitted geometry data for the associated view, and tells the
+     * [GeometryMeasurer] to stop measuring geometry data for this view.
+     *
+     * This may happen when the UI session hosting the [view] stops, or when the [view] is detached
+     * from the window but the UI session remains active. The latter case may happen when using
+     * pooling containers.
+     */
+    fun stopMeasuring() {
+        if (!isMeasuring) {
             return
-        } else if (childView.windowVisibility == View.VISIBLE) {
-            val isVisible = childView.getGlobalVisibleRect(onScreenGeometry)
-            if (!isVisible) {
-                onScreenGeometry.set(-1, -1, -1, -1)
-            } else {
-                childView.getLocationOnScreen(windowLocation)
-                onScreenGeometry.offset(-windowLocation[0], -windowLocation[1])
-                onScreenGeometry.intersect(0, 0, childView.width, childView.height)
-            }
-        } else {
-            onScreenGeometry.set(-1, -1, -1, -1)
         }
-        containerHeightPx = childView.height
-        containerWidthPx = childView.width
-        opacityHint = view.alpha
+        scope.launch {
+            geometryMeasurer.unregisterView(childView)
+            scope.cancel()
+            isMeasuring = false
+        }
     }
 }

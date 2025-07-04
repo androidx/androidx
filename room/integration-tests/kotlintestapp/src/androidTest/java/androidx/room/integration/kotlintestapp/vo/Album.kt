@@ -24,5 +24,5 @@ data class Album(
     val mAlbumName: String?,
     val mAlbumArtist: String?,
     val mAlbumReleaseYear: Int,
-    val mFeaturedArtist: String?
+    val mFeaturedArtist: String?,
 )

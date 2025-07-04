@@ -25,7 +25,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /** Tracks whether or not the device's battery level is low. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BatteryNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
+public class BatteryNotLowTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
     /**
      * Based on BatteryService#shouldSendBatteryLowLocked(), but this ignores the previous plugged

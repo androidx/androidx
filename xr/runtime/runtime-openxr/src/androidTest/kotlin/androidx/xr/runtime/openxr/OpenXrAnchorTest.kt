@@ -16,13 +16,13 @@
 
 package androidx.xr.runtime.openxr
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.Anchor
-import androidx.xr.runtime.internal.TrackingState
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -47,11 +47,11 @@ class OpenXrAnchorTest {
         }
     }
 
-    @get:Rule val activityRule = ActivityScenarioRule(Activity::class.java)
+    @get:Rule val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
-    lateinit private var openXrManager: OpenXrManager
-    lateinit private var xrResources: XrResources
-    lateinit private var underTest: OpenXrAnchor
+    private lateinit var openXrManager: OpenXrManager
+    private lateinit var xrResources: XrResources
+    private lateinit var underTest: OpenXrAnchor
 
     @Before
     fun setUp() {
@@ -77,7 +77,7 @@ class OpenXrAnchorTest {
     @Test
     fun update_updatesTrackingState() = initOpenXrManagerAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
-        check(underTest.trackingState == TrackingState.Paused)
+        check(underTest.trackingState == TrackingState.PAUSED)
 
         underTest.update(xrTime)
 
@@ -85,17 +85,17 @@ class OpenXrAnchorTest {
         // they
         // come from the tracking state corresponding to `kLocationFlags` defined in
         // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
-        assertThat(underTest.trackingState).isEqualTo(TrackingState.Tracking)
+        assertThat(underTest.trackingState).isEqualTo(TrackingState.TRACKING)
     }
 
     @Test
     fun persist_updatesUuidAndPersistenceState() = initOpenXrManagerAndRunTest {
-        check(underTest.persistenceState == Anchor.PersistenceState.NotPersisted)
+        check(underTest.persistenceState == Anchor.PersistenceState.NOT_PERSISTED)
         check(underTest.uuid == null)
 
         underTest.persist()
 
-        assertThat(underTest.persistenceState).isEqualTo(Anchor.PersistenceState.Pending)
+        assertThat(underTest.persistenceState).isEqualTo(Anchor.PersistenceState.PENDING)
         // TODO - b/346615429: Define values here using the stub's Kotlin API. For the time being
         // they
         // come from `kUuid` defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc
@@ -109,22 +109,22 @@ class OpenXrAnchorTest {
         underTest.persist()
         underTest.update(xrTime)
         check(underTest.uuid != null)
-        check(underTest.persistenceState == Anchor.PersistenceState.Persisted)
+        check(underTest.persistenceState == Anchor.PersistenceState.PERSISTED)
 
         underTest.persist()
 
-        assertThat(underTest.persistenceState).isEqualTo(Anchor.PersistenceState.Persisted)
+        assertThat(underTest.persistenceState).isEqualTo(Anchor.PersistenceState.PERSISTED)
     }
 
     @Test
     fun update_updatesPersistenceState() = initOpenXrManagerAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
         underTest.persist()
-        check(underTest.persistenceState == Anchor.PersistenceState.Pending)
+        check(underTest.persistenceState == Anchor.PersistenceState.PENDING)
 
         underTest.update(xrTime)
 
-        assertThat(underTest.persistenceState).isEqualTo(Anchor.PersistenceState.Persisted)
+        assertThat(underTest.persistenceState).isEqualTo(Anchor.PersistenceState.PERSISTED)
     }
 
     @Test
@@ -140,13 +140,13 @@ class OpenXrAnchorTest {
     fun fromOpenXrPersistenceState_returnsCorrectPersistenceStateValues() {
         // XR_ANCHOR_PERSIST_STATE_PERSIST_NOT_REQUESTED_ANDROID
         assertThat(Anchor.PersistenceState.fromOpenXrPersistenceState(0))
-            .isEqualTo(Anchor.PersistenceState.NotPersisted)
+            .isEqualTo(Anchor.PersistenceState.NOT_PERSISTED)
         // XR_ANCHOR_PERSIST_STATE_PERSIST_PENDING_ANDROID
         assertThat(Anchor.PersistenceState.fromOpenXrPersistenceState(1))
-            .isEqualTo(Anchor.PersistenceState.Pending)
+            .isEqualTo(Anchor.PersistenceState.PENDING)
         // XR_ANCHOR_PERSIST_STATE_PERSISTED_ANDROID
         assertThat(Anchor.PersistenceState.fromOpenXrPersistenceState(2))
-            .isEqualTo(Anchor.PersistenceState.Persisted)
+            .isEqualTo(Anchor.PersistenceState.PERSISTED)
     }
 
     private fun initOpenXrManagerAndRunTest(testBody: () -> Unit) {

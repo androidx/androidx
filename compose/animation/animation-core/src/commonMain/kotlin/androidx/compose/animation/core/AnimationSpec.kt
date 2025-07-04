@@ -97,7 +97,7 @@ public interface FiniteAnimationSpec<T> : AnimationSpec<T> {
 public class TweenSpec<T>(
     public val durationMillis: Int = DefaultDurationMillis,
     public val delay: Int = 0,
-    public val easing: Easing = FastOutSlowInEasing
+    public val easing: Easing = FastOutSlowInEasing,
 ) : DurationBasedAnimationSpec<T> {
 
     override fun <V : AnimationVector> vectorize(
@@ -143,7 +143,7 @@ public interface DurationBasedAnimationSpec<T> : FiniteAnimationSpec<T> {
 public class SpringSpec<T>(
     public val dampingRatio: Float = Spring.DampingRatioNoBouncy,
     public val stiffness: Float = Spring.StiffnessMedium,
-    public val visibilityThreshold: T? = null
+    public val visibilityThreshold: T? = null,
 ) : FiniteAnimationSpec<T> {
 
     override fun <V : AnimationVector> vectorize(
@@ -206,7 +206,7 @@ public class ArcAnimationSpec<T>(
     public val mode: ArcMode = ArcBelow,
     public val durationMillis: Int = DefaultDurationMillis,
     public val delayMillis: Int = 0,
-    public val easing: Easing = FastOutSlowInEasing // Same default as tween()
+    public val easing: Easing = FastOutSlowInEasing, // Same default as tween()
 ) : DurationBasedAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
@@ -217,7 +217,7 @@ public class ArcAnimationSpec<T>(
             durationMillis = durationMillis,
             delayMillis = delayMillis,
             defaultEasing = easing,
-            initialArcMode = mode
+            initialArcMode = mode,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -283,7 +283,7 @@ public value class StartOffset private constructor(internal val value: Long) {
      */
     public constructor(
         offsetMillis: Int,
-        offsetType: StartOffsetType = StartOffsetType.Delay
+        offsetType: StartOffsetType = StartOffsetType.Delay,
     ) : this((offsetMillis * offsetType.value).toLong())
 
     /** Returns the number of milliseconds to offset the start of the animation. */
@@ -325,14 +325,14 @@ public class RepeatableSpec<T>(
     public val iterations: Int,
     public val animation: DurationBasedAnimationSpec<T>,
     public val repeatMode: RepeatMode = RepeatMode.Restart,
-    public val initialStartOffset: StartOffset = StartOffset(0)
+    public val initialStartOffset: StartOffset = StartOffset(0),
 ) : FiniteAnimationSpec<T> {
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "This constructor has been deprecated")
     public constructor(
         iterations: Int,
         animation: DurationBasedAnimationSpec<T>,
-        repeatMode: RepeatMode = RepeatMode.Restart
+        repeatMode: RepeatMode = RepeatMode.Restart,
     ) : this(iterations, animation, repeatMode, StartOffset(0))
 
     override fun <V : AnimationVector> vectorize(
@@ -342,7 +342,7 @@ public class RepeatableSpec<T>(
             iterations,
             animation.vectorize(converter),
             repeatMode,
-            initialStartOffset
+            initialStartOffset,
         )
     }
 
@@ -385,13 +385,13 @@ public class RepeatableSpec<T>(
 public class InfiniteRepeatableSpec<T>(
     public val animation: DurationBasedAnimationSpec<T>,
     public val repeatMode: RepeatMode = RepeatMode.Restart,
-    public val initialStartOffset: StartOffset = StartOffset(0)
+    public val initialStartOffset: StartOffset = StartOffset(0),
 ) : AnimationSpec<T> {
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "This constructor has been deprecated")
     public constructor(
         animation: DurationBasedAnimationSpec<T>,
-        repeatMode: RepeatMode = RepeatMode.Restart
+        repeatMode: RepeatMode = RepeatMode.Restart,
     ) : this(animation, repeatMode, StartOffset(0))
 
     override fun <V : AnimationVector> vectorize(
@@ -400,7 +400,7 @@ public class InfiniteRepeatableSpec<T>(
         return VectorizedInfiniteRepeatableSpec(
             animation.vectorize(converter),
             repeatMode,
-            initialStartOffset
+            initialStartOffset,
         )
     }
 
@@ -425,7 +425,7 @@ public enum class RepeatMode {
     Restart,
 
     /** [Reverse] will reverse the last iteration as the animation repeats. */
-    Reverse
+    Reverse,
 }
 
 /**
@@ -607,7 +607,7 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
             message =
                 "Use version that returns an instance of the entity so it can be re-used" +
                     " in other keyframe builders.",
-            replaceWith = ReplaceWith("this using easing") // Expected usage pattern
+            replaceWith = ReplaceWith("this using easing"), // Expected usage pattern
         )
         public infix fun KeyframeEntity<T>.with(easing: Easing) {
             this.easing = easing
@@ -647,7 +647,7 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
                 VectorizedKeyframeSpecElementInfo(
                     vectorValue = converter.convertToVector(value.value),
                     easing = value.easing,
-                    arcMode = value.arcMode
+                    arcMode = value.arcMode,
                 )
         }
 
@@ -665,7 +665,7 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
             durationMillis = config.durationMillis,
             delayMillis = config.delayMillis,
             defaultEasing = LinearEasing,
-            initialArcMode = ArcLinear
+            initialArcMode = ArcLinear,
         )
     }
 
@@ -674,7 +674,7 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
     internal constructor(
         value: T,
         easing: Easing = LinearEasing,
-        internal var arcMode: ArcMode = ArcMode.ArcLinear
+        internal var arcMode: ArcMode = ArcMode.ArcLinear,
     ) : KeyframeBaseEntity<T>(value = value, easing = easing) {
 
         override fun equals(other: Any?): Boolean {
@@ -719,9 +719,8 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
  * @see keyframesWithSpline
  */
 @Immutable
-public class KeyframesWithSplineSpec<T>(
-    public val config: KeyframesWithSplineSpecConfig<T>,
-) : DurationBasedAnimationSpec<T> {
+public class KeyframesWithSplineSpec<T>(public val config: KeyframesWithSplineSpecConfig<T>) :
+    DurationBasedAnimationSpec<T> {
     // Periodic bias property, NaN by default. Only meant to be set by secondary constructor
     private var periodicBias: Float = Float.NaN
 
@@ -735,7 +734,7 @@ public class KeyframesWithSplineSpec<T>(
      */
     public constructor(
         config: KeyframesWithSplineSpecConfig<T>,
-        @FloatRange(0.0, 1.0) periodicBias: Float
+        @FloatRange(0.0, 1.0) periodicBias: Float,
     ) : this(config) {
         this.periodicBias = periodicBias
     }
@@ -777,7 +776,7 @@ public class KeyframesWithSplineSpec<T>(
             keyframes = timeToVectorMap,
             durationMillis = config.durationMillis,
             delayMillis = config.delayMillis,
-            periodicBias = periodicBias
+            periodicBias = periodicBias,
         )
     }
 }
@@ -793,7 +792,7 @@ public class KeyframesWithSplineSpec<T>(
 public fun <T> tween(
     durationMillis: Int = DefaultDurationMillis,
     delayMillis: Int = 0,
-    easing: Easing = FastOutSlowInEasing
+    easing: Easing = FastOutSlowInEasing,
 ): TweenSpec<T> = TweenSpec(durationMillis, delayMillis, easing)
 
 /**
@@ -809,7 +808,7 @@ public fun <T> tween(
 public fun <T> spring(
     dampingRatio: Float = Spring.DampingRatioNoBouncy,
     stiffness: Float = Spring.StiffnessMedium,
-    visibilityThreshold: T? = null
+    visibilityThreshold: T? = null,
 ): SpringSpec<T> = SpringSpec(dampingRatio, stiffness, visibilityThreshold)
 
 /**
@@ -882,7 +881,7 @@ public fun <T> keyframesWithSpline(
  */
 public fun <T> keyframesWithSpline(
     @FloatRange(0.0, 1.0) periodicBias: Float,
-    init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
+    init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit,
 ): KeyframesWithSplineSpec<T> =
     KeyframesWithSplineSpec(
         config = KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>().apply(init),
@@ -915,7 +914,7 @@ public fun <T> repeatable(
     iterations: Int,
     animation: DurationBasedAnimationSpec<T>,
     repeatMode: RepeatMode = RepeatMode.Restart,
-    initialStartOffset: StartOffset = StartOffset(0)
+    initialStartOffset: StartOffset = StartOffset(0),
 ): RepeatableSpec<T> = RepeatableSpec(iterations, animation, repeatMode, initialStartOffset)
 
 @Stable
@@ -923,12 +922,12 @@ public fun <T> repeatable(
     level = DeprecationLevel.HIDDEN,
     message =
         "This method has been deprecated in favor of the repeatable function that accepts" +
-            " start offset."
+            " start offset.",
 )
 public fun <T> repeatable(
     iterations: Int,
     animation: DurationBasedAnimationSpec<T>,
-    repeatMode: RepeatMode = RepeatMode.Restart
+    repeatMode: RepeatMode = RepeatMode.Restart,
 ): RepeatableSpec<T> = RepeatableSpec(iterations, animation, repeatMode, StartOffset(0))
 
 /**
@@ -951,7 +950,7 @@ public fun <T> repeatable(
 public fun <T> infiniteRepeatable(
     animation: DurationBasedAnimationSpec<T>,
     repeatMode: RepeatMode = RepeatMode.Restart,
-    initialStartOffset: StartOffset = StartOffset(0)
+    initialStartOffset: StartOffset = StartOffset(0),
 ): InfiniteRepeatableSpec<T> = InfiniteRepeatableSpec(animation, repeatMode, initialStartOffset)
 
 @Stable
@@ -959,11 +958,11 @@ public fun <T> infiniteRepeatable(
     level = DeprecationLevel.HIDDEN,
     message =
         "This method has been deprecated in favor of the infinite repeatable function that" +
-            " accepts start offset."
+            " accepts start offset.",
 )
 public fun <T> infiniteRepeatable(
     animation: DurationBasedAnimationSpec<T>,
-    repeatMode: RepeatMode = RepeatMode.Restart
+    repeatMode: RepeatMode = RepeatMode.Restart,
 ): InfiniteRepeatableSpec<T> = InfiniteRepeatableSpec(animation, repeatMode, StartOffset(0))
 
 /**
@@ -987,7 +986,7 @@ internal fun <T> delayed(animationSpec: AnimationSpec<T>, startDelayNanos: Long)
 @Immutable
 private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
     val vectorizedAnimationSpec: VectorizedAnimationSpec<V>,
-    val startDelayNanos: Long
+    val startDelayNanos: Long,
 ) : VectorizedAnimationSpec<V> {
     override val isInfinite: Boolean
         get() = vectorizedAnimationSpec.isInfinite
@@ -996,14 +995,14 @@ private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
         vectorizedAnimationSpec.getDurationNanos(
             initialValue = initialValue,
             targetValue = targetValue,
-            initialVelocity = initialVelocity
+            initialVelocity = initialVelocity,
         ) + startDelayNanos
 
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ): V =
         if (playTimeNanos < startDelayNanos) {
             initialVelocity
@@ -1012,7 +1011,7 @@ private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
                 playTimeNanos = playTimeNanos - startDelayNanos,
                 initialValue = initialValue,
                 targetValue = targetValue,
-                initialVelocity = initialVelocity
+                initialVelocity = initialVelocity,
             )
         }
 
@@ -1020,7 +1019,7 @@ private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
         playTimeNanos: Long,
         initialValue: V,
         targetValue: V,
-        initialVelocity: V
+        initialVelocity: V,
     ): V =
         if (playTimeNanos < startDelayNanos) {
             initialValue
@@ -1029,7 +1028,7 @@ private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
                 playTimeNanos = playTimeNanos - startDelayNanos,
                 initialValue = initialValue,
                 targetValue = targetValue,
-                initialVelocity = initialVelocity
+                initialVelocity = initialVelocity,
             )
         }
 
@@ -1050,7 +1049,7 @@ private class StartDelayVectorizedAnimationSpec<V : AnimationVector>(
 @Immutable
 private class StartDelayAnimationSpec<T>(
     val animationSpec: AnimationSpec<T>,
-    val startDelayNanos: Long
+    val startDelayNanos: Long,
 ) : AnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>

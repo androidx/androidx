@@ -32,7 +32,7 @@ import javax.lang.model.element.Modifier
 /** Generates an inspection companion from a view using JavaPoet. */
 internal fun generateInspectionCompanion(
     view: View,
-    generatedAnnotation: AnnotationSpec?
+    generatedAnnotation: AnnotationSpec?,
 ): JavaFile {
     val typeSpec =
         TypeSpec.classBuilder(
@@ -84,7 +84,7 @@ internal fun generateInspectionCompanion(
                                             attributeIdNames[attribute],
                                             attribute.name,
                                             attribute.attrReference,
-                                            intEnumLambda(attribute)
+                                            intEnumLambda(attribute),
                                         )
                                     AttributeType.INT_FLAG ->
                                         addStatement(
@@ -92,7 +92,7 @@ internal fun generateInspectionCompanion(
                                             attributeIdNames[attribute],
                                             attribute.name,
                                             attribute.attrReference,
-                                            intFlagLambda(attribute)
+                                            intFlagLambda(attribute),
                                         )
                                     else ->
                                         addStatement(
@@ -100,7 +100,7 @@ internal fun generateInspectionCompanion(
                                             attributeIdNames[attribute],
                                             attribute.type.apiSuffix,
                                             attribute.name,
-                                            attribute.attrReference
+                                            attribute.attrReference,
                                         )
                                 }
                             }
@@ -139,7 +139,7 @@ internal fun generateInspectionCompanion(
                                     attribute.type.apiSuffix,
                                     attributeIdNames[attribute],
                                     viewParameter,
-                                    attribute.invocation
+                                    attribute.invocation,
                                 )
                             }
                         }
@@ -261,6 +261,6 @@ private val RESTRICT_TO: AnnotationSpec =
         .addMember(
             "value",
             "\$T.LIBRARY",
-            ClassName.get("androidx.annotation", "RestrictTo", "Scope")
+            ClassName.get("androidx.annotation", "RestrictTo", "Scope"),
         )
         .build()

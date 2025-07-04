@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.room {
 
   public class DatabaseConfiguration {
@@ -54,8 +54,8 @@ package androidx.room {
     method @CallSuper public void init(androidx.room.DatabaseConfiguration);
     method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase);
     method public boolean isOpen();
-    method public android.database.Cursor! query(String!, Object![]?);
     method public android.database.Cursor! query(androidx.sqlite.db.SupportSQLiteQuery!);
+    method public android.database.Cursor! query(String!, Object![]?);
     method public void runInTransaction(Runnable);
     method public <V> V! runInTransaction(java.util.concurrent.Callable<V!>);
     method @Deprecated public void setTransactionSuccessful();

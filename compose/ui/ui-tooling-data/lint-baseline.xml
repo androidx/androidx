@@ -1,11 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.12.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha04)" variant="all" version="8.12.0-alpha04">
 
     <issue
-        id="PrimitiveInCollection"
-        message="variable expectedSortedIndex with type List&lt;Integer>: replace with IntList"
-        errorLine1="    val expectedSortedIndex = mutableListOf(0, 1, 2, 3)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ComposeToolingApi::class, UiToolingDataApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ComposeToolingApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ComposeToolingApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(UiToolingDataApi::class, ComposeToolingApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(UiToolingDataApi::class, ComposeToolingApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ComposeToolingApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/jvmMain/kotlin/androidx/compose/ui/tooling/data/SlotTree.jvm.kt"/>
     </issue>

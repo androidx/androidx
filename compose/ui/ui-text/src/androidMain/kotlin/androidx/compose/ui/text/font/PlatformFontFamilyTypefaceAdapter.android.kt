@@ -27,7 +27,7 @@ internal actual class PlatformFontFamilyTypefaceAdapter : FontFamilyTypefaceAdap
         typefaceRequest: TypefaceRequest,
         platformFontLoader: PlatformFontLoader,
         onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,
-        createDefaultTypeface: (TypefaceRequest) -> Any
+        createDefaultTypeface: (TypefaceRequest) -> Any,
     ): TypefaceResult? {
         val result: Typeface =
             when (typefaceRequest.fontFamily) {
@@ -35,19 +35,19 @@ internal actual class PlatformFontFamilyTypefaceAdapter : FontFamilyTypefaceAdap
                 is DefaultFontFamily ->
                     platformTypefaceResolver.createDefault(
                         typefaceRequest.fontWeight,
-                        typefaceRequest.fontStyle
+                        typefaceRequest.fontStyle,
                     )
                 is GenericFontFamily ->
                     platformTypefaceResolver.createNamed(
                         typefaceRequest.fontFamily,
                         typefaceRequest.fontWeight,
-                        typefaceRequest.fontStyle
+                        typefaceRequest.fontStyle,
                     )
                 is LoadedFontFamily -> {
                     (typefaceRequest.fontFamily.typeface as AndroidTypeface).getNativeTypeface(
                         typefaceRequest.fontWeight,
                         typefaceRequest.fontStyle,
-                        typefaceRequest.fontSynthesis
+                        typefaceRequest.fontSynthesis,
                     )
                 }
                 else -> return null // exit to make result non-null

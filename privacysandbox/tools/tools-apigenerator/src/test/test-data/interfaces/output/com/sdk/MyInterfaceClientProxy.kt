@@ -31,17 +31,16 @@ public class MyInterfaceClientProxy(
         }
     }
 
-    public override fun doSomething(firstInterface: MyInterface,
-            secondInterface: MySecondInterface) {
-        remote.doSomething((firstInterface as MyInterfaceClientProxy).remote,
-                IMySecondInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((secondInterface
-                as MySecondInterfaceClientProxy).coreLibInfo, secondInterface.remote))
+    public override fun doSomething(
+        firstInterface: MyInterface,
+        secondInterface: MySecondInterface,
+        sharedUiInterface: MySharedUiInterface,
+    ) {
+        remote.doSomething((firstInterface as MyInterfaceClientProxy).remote, IMySecondInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((secondInterface as MySecondInterfaceClientProxy).coreLibInfo, secondInterface.remote), IMySharedUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((sharedUiInterface as MySharedUiInterfaceClientProxy).coreLibInfo, sharedUiInterface.remote))
     }
 
-    public override fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?) {
-        remote.doSomethingWithNullableInterface(maybeInterface?.let { notNullValue ->
-                IMySecondInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((notNullValue as
-                MySecondInterfaceClientProxy).coreLibInfo, notNullValue.remote) })
+    public override fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?, maybeSharedUiInterface: MySharedUiInterface?) {
+        remote.doSomethingWithNullableInterface(maybeInterface?.let { notNullValue -> IMySecondInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((notNullValue as MySecondInterfaceClientProxy).coreLibInfo, notNullValue.remote) }, maybeSharedUiInterface?.let { notNullValue -> IMySharedUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((notNullValue as MySharedUiInterfaceClientProxy).coreLibInfo, notNullValue.remote) })
     }
 
     public override fun doSomethingWithSdkActivityLauncher(launcher: SdkActivityLauncher) {

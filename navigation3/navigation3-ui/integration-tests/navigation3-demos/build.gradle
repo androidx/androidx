@@ -1,0 +1,54 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlinSerialization)
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+
+    implementation(project(":compose:integration-tests:demos:common"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":navigation3:navigation3-runtime"))
+    implementation(project(":navigation3:navigation3-ui"))
+    implementation(project(":navigation3:navigation3-ui:navigation3-ui-samples"))
+}
+
+androidx {
+    name = "Navigation3 Demos"
+    type = SoftwareType.TEST_APPLICATION
+    inceptionYear = "2025"
+    description = "This is a project for Navigation3 demos."
+}
+
+android {
+    compileSdk = 36
+    namespace = "androidx.navigation3.demos"
+}

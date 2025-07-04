@@ -41,11 +41,18 @@ class MinLinesMemoryLeakTest(private val numLines: Int) {
         // issues for other tests that use leak canary
         private lateinit var savedLeakCanaryConfig: LeakCanary.Config
 
-        private val IgnoreFrameTrackerLeak =
-            AndroidReferenceMatchers.instanceFieldLeak(
-                className = "com.android.internal.jank.FrameTracker",
-                fieldName = "mConfig",
-                "Ignoring a leak due to misconfigured framework jank tracking b/349355283"
+        private val IgnoreFrameTrackerLeaks =
+            listOf(
+                AndroidReferenceMatchers.instanceFieldLeak(
+                    className = "com.android.internal.jank.FrameTracker",
+                    fieldName = "mConfig",
+                    "Ignoring a leak due to misconfigured framework jank tracking b/349355283",
+                ),
+                AndroidReferenceMatchers.instanceFieldLeak(
+                    className = "com.android.internal.jank.FrameTracker",
+                    fieldName = "mListener",
+                    "Ignoring a leak due to misconfigured framework jank tracking b/349355283",
+                ),
             )
 
         @JvmStatic
@@ -54,7 +61,9 @@ class MinLinesMemoryLeakTest(private val numLines: Int) {
             val current = LeakCanary.config
             savedLeakCanaryConfig = current
             LeakCanary.config =
-                current.copy(referenceMatchers = current.referenceMatchers + IgnoreFrameTrackerLeak)
+                current.copy(
+                    referenceMatchers = current.referenceMatchers + IgnoreFrameTrackerLeaks
+                )
         }
 
         @JvmStatic

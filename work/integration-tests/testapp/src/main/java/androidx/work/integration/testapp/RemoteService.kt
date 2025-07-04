@@ -124,7 +124,7 @@ class RemoteService : LifecycleService() {
             .enqueueUniquePeriodicWork(
                 "unique-periodic",
                 ExistingPeriodicWorkPolicy.UPDATE,
-                request
+                request,
             )
             .await()
     }

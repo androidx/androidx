@@ -110,7 +110,7 @@ class ErrorMessagesTest {
         expectErrorMessageStartsWith(
             """
                 Failed to inject touch input.
-                Reason: Expected exactly '1' node but found '2' nodes that satisfy: (Text + EditableText contains 'Toggle' (ignoreCase: false))
+                Reason: Expected exactly '1' node but found '2' nodes that satisfy: (Text + InputText + EditableText contains 'Toggle' (ignoreCase: false))
                 Nodes found:
                 1) Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'MyButton'
             """
@@ -159,7 +159,7 @@ class ErrorMessagesTest {
         expectErrorMessageStartsWith(
             """
                 Failed to assert count of nodes.
-                Reason: Expected '3' nodes but found '2' nodes that satisfy: (Text + EditableText contains 'Toggle' (ignoreCase: false))
+                Reason: Expected '3' nodes but found '2' nodes that satisfy: (Text + InputText + EditableText contains 'Toggle' (ignoreCase: false))
                 Nodes found:
                 1) Node #X at (l=X, t=X, r=X, b=X)px
             """
@@ -176,7 +176,7 @@ class ErrorMessagesTest {
         expectErrorMessage(
             """
                 Failed to assert count of nodes.
-                Reason: Expected '3' nodes but could not find any node that satisfies: (Text + EditableText contains 'Toggle2' (ignoreCase: false))
+                Reason: Expected '3' nodes but could not find any node that satisfies: (Text + InputText + EditableText contains 'Toggle2' (ignoreCase: false))
             """
                 .trimIndent()
         ) {
@@ -200,7 +200,7 @@ class ErrorMessagesTest {
                 Text = '[Hello]'
                 Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
-                Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
+                Original selector: Text + InputText + EditableText contains 'Hello' (ignoreCase: false)
             """
                 .trimIndent()
         ) {
@@ -225,7 +225,7 @@ class ErrorMessagesTest {
                 Text = '[Hello]'
                 Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
-                Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
+                Original selector: Text + InputText + EditableText contains 'Hello' (ignoreCase: false)
             """
                 .trimIndent()
         ) {
@@ -250,7 +250,7 @@ class ErrorMessagesTest {
                 Text = '[Hello]'
                 Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
-                Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
+                Original selector: Text + InputText + EditableText contains 'Hello' (ignoreCase: false)
             """
                 .trimIndent()
         ) {
@@ -265,7 +265,7 @@ class ErrorMessagesTest {
         expectErrorMessage(
             """
                 Failed: assertExists.
-                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Banana' (ignoreCase: false))
                 However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
             """
                 .trimIndent()
@@ -281,7 +281,7 @@ class ErrorMessagesTest {
         expectErrorMessage(
             """
                 Failed: assertExists.
-                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Banana' (ignoreCase: false))
                 However, the unmerged tree contains '5' nodes that match. Are you missing `useUnmergedNode = true` in your finder?
             """
                 .trimIndent()
@@ -297,7 +297,7 @@ class ErrorMessagesTest {
         expectErrorMessage(
             """
                 Failed to inject touch input.
-                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + EditableText contains 'Banana' (ignoreCase: false))
+                Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains 'Banana' (ignoreCase: false))
                 However, the unmerged tree contains '1' node that matches. Are you missing `useUnmergedNode = true` in your finder?
             """
                 .trimIndent()
@@ -323,7 +323,7 @@ class ErrorMessagesTest {
             Column {
                 TestButton(
                     modifier = Modifier.testTag("MyButton"),
-                    onClick = { toggle(!showText) }
+                    onClick = { toggle(!showText) },
                 ) {
                     Text("Toggle")
                 }
@@ -352,7 +352,7 @@ class ErrorMessagesTest {
     fun TestButton(
         modifier: Modifier = Modifier,
         onClick: (() -> Unit)? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         Surface {
             Box(modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
@@ -371,11 +371,11 @@ fun ComposeContentTestRule.setContentWithoutMinimumTouchTarget(composable: @Comp
                 doubleTapTimeoutMillis = oldViewConfiguration.doubleTapTimeoutMillis,
                 doubleTapMinTimeMillis = oldViewConfiguration.doubleTapMinTimeMillis,
                 touchSlop = oldViewConfiguration.touchSlop,
-                minimumTouchTargetSize = DpSize.Zero
+                minimumTouchTargetSize = DpSize.Zero,
             )
         CompositionLocalProvider(
             LocalViewConfiguration provides viewConfiguration,
-            content = composable
+            content = composable,
         )
     }
 }

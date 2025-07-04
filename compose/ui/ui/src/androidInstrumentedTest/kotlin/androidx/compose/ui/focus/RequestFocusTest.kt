@@ -16,18 +16,32 @@
 
 package androidx.compose.ui.focus
 
+import android.view.View
+import android.widget.LinearLayout
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -738,6 +752,113 @@ class RequestFocusTest {
             assertThat(eventSequence)
                 .containsExactly("3 Inactive", "2 Inactive", "4 ActiveParent", "5 Active")
                 .inOrder()
+        }
+    }
+
+    @Test
+    fun requestFocusOnParentAndThenChild_eventSequence() {
+        // Arrange.
+        val parentFocusRequester = FocusRequester()
+        val childFocusRequester = FocusRequester()
+        val eventSequence = mutableListOf<String>()
+        rule.setFocusableContent {
+            Box(
+                Modifier.focusRequester(parentFocusRequester)
+                    .onFocusChanged { eventSequence.add("Parent $it") }
+                    .focusTarget()
+            ) {
+                Box(
+                    Modifier.focusRequester(childFocusRequester)
+                        .onFocusChanged { eventSequence.add("Child $it") }
+                        .focusTarget()
+                )
+            }
+        }
+        rule.runOnIdle { eventSequence.clear() }
+
+        // Act.
+        rule.runOnIdle { parentFocusRequester.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle { assertThat(eventSequence).containsExactly("Parent Active").inOrder() }
+
+        // Act.
+        rule.runOnIdle {
+            eventSequence.clear()
+            childFocusRequester.requestFocus()
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(eventSequence)
+                .containsExactly("Parent ActiveParent", "Child Active")
+                .inOrder()
+        }
+    }
+
+    @Test
+    fun requestFocus_wrongDirection() {
+        val tag1 = "tag 1"
+        val tag2 = "tag 2"
+        val tag3 = "tag 3"
+        lateinit var button2: View
+        lateinit var button3: View
+        lateinit var inputModeManager: InputModeManager
+
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = {
+                    LinearLayout(it).apply {
+                        orientation = LinearLayout.VERTICAL
+                        addView(
+                            ComposeView(it).apply {
+                                setContent {
+                                    Button(onClick = {}, Modifier.testTag(tag1)) {
+                                        Text("Button 1")
+                                    }
+                                }
+                            }
+                        )
+                        addView(
+                            ComposeView(it).apply {
+                                button2 = this
+                                setContent {
+                                    Button(onClick = {}, Modifier.testTag(tag2)) {
+                                        Text("Button 2")
+                                    }
+                                }
+                            }
+                        )
+                        addView(
+                            ComposeView(it).apply {
+                                button3 = this
+                                setContent {
+                                    Button(onClick = {}, Modifier.testTag(tag3)) {
+                                        Text("Button 3")
+                                    }
+                                }
+                            }
+                        )
+                    }
+                },
+            )
+        }
+        rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
+        rule.runOnIdle { button3.requestFocus() }
+        rule.onNodeWithTag(tag3).assertIsFocused()
+
+        val success =
+            rule.runOnIdle { button2.requestFocus(View.FOCUS_UP, android.graphics.Rect()) }
+
+        // TODO(b/406327273): Support this use case without isViewFocusFixEnabled. This was
+        //  added in aosp/3447394 but depends on aosp/3417182 which is behind a flag.
+        if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isViewFocusFixEnabled) {
+            assertThat(success).isTrue()
+            rule.onNodeWithTag(tag1).assertIsFocused()
+        } else {
+            assertThat(success).isFalse()
         }
     }
 }

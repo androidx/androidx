@@ -36,7 +36,7 @@ internal class AndroidAccessibilityManager(context: Context) : AccessibilityMana
         originalTimeoutMillis: Long,
         containsIcons: Boolean,
         containsText: Boolean,
-        containsControls: Boolean
+        containsControls: Boolean,
     ): Long {
         if (originalTimeoutMillis >= Int.MAX_VALUE) {
             return originalTimeoutMillis
@@ -56,7 +56,7 @@ internal class AndroidAccessibilityManager(context: Context) : AccessibilityMana
                 Api29Impl.getRecommendedTimeoutMillis(
                     accessibilityManager,
                     originalTimeoutMillis.toInt(),
-                    uiContentFlags
+                    uiContentFlags,
                 )
             if (recommended == Int.MAX_VALUE) {
                 Long.MAX_VALUE
@@ -81,7 +81,7 @@ internal object Api29Impl {
     fun getRecommendedTimeoutMillis(
         accessibilityManager: android.view.accessibility.AccessibilityManager,
         originalTimeout: Int,
-        uiContentFlags: Int
+        uiContentFlags: Int,
     ): Int {
         return accessibilityManager.getRecommendedTimeoutMillis(originalTimeout, uiContentFlags)
     }

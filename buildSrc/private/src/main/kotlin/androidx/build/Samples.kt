@@ -48,15 +48,15 @@ internal fun Project.configureSamplesProject() {
             it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named<Usage>(Usage.JAVA_RUNTIME))
             it.attribute(
                 Category.CATEGORY_ATTRIBUTE,
-                project.objects.named<Category>(Category.DOCUMENTATION)
+                project.objects.named<Category>(Category.DOCUMENTATION),
             )
             it.attribute(
                 DocsType.DOCS_TYPE_ATTRIBUTE,
-                project.objects.named<DocsType>(DocsType.SOURCES)
+                project.objects.named<DocsType>(DocsType.SOURCES),
             )
             it.attribute(
                 LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                project.objects.named<LibraryElements>(LibraryElements.JAR)
+                project.objects.named<LibraryElements>(LibraryElements.JAR),
             )
         }
     }

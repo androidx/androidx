@@ -60,7 +60,7 @@ fun OutlinedChipWithIconSample() {
         onClick = { /* Do something! */ },
         border = ChipDefaults.outlinedBorder,
         colors = ChipDefaults.outlinedChipColors(),
-        leadingIcon = { Icon(Icons.Filled.Settings, contentDescription = "Localized description") }
+        leadingIcon = { Icon(Icons.Filled.Settings, contentDescription = "Localized description") },
     ) {
         Text("Change settings")
     }
@@ -78,9 +78,9 @@ fun FilterChipSample() {
             Icon(
                 imageVector = Icons.Filled.Done,
                 contentDescription = "Localized Description",
-                modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
             )
-        }
+        },
     ) {
         Text("Filter chip")
     }
@@ -100,9 +100,9 @@ fun OutlinedFilterChipSample() {
             Icon(
                 imageVector = Icons.Filled.Done,
                 contentDescription = "Localized Description",
-                modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
             )
-        }
+        },
     ) {
         Text("Filter chip")
     }
@@ -120,16 +120,16 @@ fun FilterChipWithLeadingIconSample() {
             Icon(
                 imageVector = Icons.Filled.Home,
                 contentDescription = "Localized description",
-                modifier = Modifier.requiredSize(ChipDefaults.LeadingIconSize)
+                modifier = Modifier.requiredSize(ChipDefaults.LeadingIconSize),
             )
         },
         selectedIcon = {
             Icon(
                 imageVector = Icons.Filled.Done,
                 contentDescription = "Localized Description",
-                modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize)
+                modifier = Modifier.requiredSize(ChipDefaults.SelectedIconSize),
             )
-        }
+        },
     ) {
         Text("Filter chip")
     }
@@ -144,7 +144,7 @@ fun ChipGroupSingleLineSample() {
             repeat(9) { index ->
                 Chip(
                     modifier = Modifier.padding(horizontal = 4.dp),
-                    onClick = { /* do something*/ }
+                    onClick = { /* do something*/ },
                 ) {
                     Text("Chip $index")
                 }
@@ -167,7 +167,7 @@ fun ChipGroupReflowSample() {
                     modifier =
                         Modifier.padding(horizontal = 4.dp)
                             .align(alignment = Alignment.CenterVertically),
-                    onClick = { /* do something*/ }
+                    onClick = { /* do something*/ },
                 ) {
                     Text("Chip $index")
                 }

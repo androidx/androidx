@@ -58,7 +58,7 @@ fun RowConfigurationDemo() {
                     Dp.VectorConverter,
                     250.dp,
                     520.dp,
-                    animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)
+                    animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
                 ) { value, _ ->
                     this.value = value
                 }
@@ -78,7 +78,7 @@ fun ResizableLayout(width: Dp) {
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         Column(
             horizontalAlignment = Alignment.End,
-            modifier = Modifier.background(Color.White, RoundedCornerShape(5.dp))
+            modifier = Modifier.background(Color.White, RoundedCornerShape(5.dp)),
         ) {
             Text(text = "Equal Weight", modifier = Modifier.padding(12.dp))
             Text(text = "Space Between", modifier = Modifier.padding(12.dp))

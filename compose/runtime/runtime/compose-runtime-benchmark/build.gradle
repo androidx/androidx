@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -51,9 +51,8 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-    androidTestImplementation("androidx.activity:activity:1.2.0")
-    androidTestImplementation(project(":activity:activity-compose"))
+    androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation("androidx.activity:activity-compose:1.10.1")
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
@@ -63,5 +62,5 @@ dependencies {
 }
 
 androidx {
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
 }

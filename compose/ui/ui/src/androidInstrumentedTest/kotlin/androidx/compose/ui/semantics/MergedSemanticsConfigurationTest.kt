@@ -300,7 +300,7 @@ class MergedSemanticsConfigurationTest {
                     AnnotatedString("2.2"),
                     AnnotatedString("3.2"),
                     AnnotatedString("3.1"),
-                    AnnotatedString("2.1")
+                    AnnotatedString("2.1"),
                 )
             )
     }
@@ -375,7 +375,7 @@ class MergedSemanticsConfigurationTest {
                     AnnotatedString("1"),
                     AnnotatedString("2.3"),
                     AnnotatedString("2.2"),
-                    AnnotatedString("2.1")
+                    AnnotatedString("2.1"),
                 )
             )
     }

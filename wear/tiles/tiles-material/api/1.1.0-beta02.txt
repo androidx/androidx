@@ -19,8 +19,8 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.material.Button.Builder setButtonColors(androidx.wear.tiles.material.ButtonColors);
     method public androidx.wear.tiles.material.Button.Builder setContentDescription(CharSequence);
     method public androidx.wear.tiles.material.Button.Builder setCustomContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.material.Button.Builder setIconContent(String);
+    method public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.material.Button.Builder setImageContent(String);
     method public androidx.wear.tiles.material.Button.Builder setSize(androidx.wear.tiles.DimensionBuilders.DpProp);
     method public androidx.wear.tiles.material.Button.Builder setSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
@@ -29,8 +29,8 @@ package androidx.wear.tiles.material {
   }
 
   public class ButtonColors {
-    ctor public ButtonColors(@ColorInt int, @ColorInt int);
     ctor public ButtonColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor public ButtonColors(@ColorInt int, @ColorInt int);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
     method public static androidx.wear.tiles.material.ButtonColors primaryButtonColors(androidx.wear.tiles.material.Colors);
@@ -76,10 +76,10 @@ package androidx.wear.tiles.material {
   }
 
   public class ChipColors {
-    ctor public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
-    ctor public ChipColors(@ColorInt int, @ColorInt int);
-    ctor public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
     ctor public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor public ChipColors(@ColorInt int, @ColorInt int);
+    ctor public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
     method public androidx.wear.tiles.ColorBuilders.ColorProp getIconColor();

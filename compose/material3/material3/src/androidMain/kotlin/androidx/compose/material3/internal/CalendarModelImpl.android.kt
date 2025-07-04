@@ -56,7 +56,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
                         .atTime(LocalTime.MIDNIGHT)
                         .atZone(utcTimeZoneId)
                         .toInstant()
-                        .toEpochMilli()
+                        .toEpochMilli(),
             )
         }
 
@@ -77,7 +77,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
                 /* dateStyle = */ FormatStyle.SHORT,
                 /* timeStyle = */ null,
                 /* chrono = */ Chronology.ofLocale(locale),
-                /* locale = */ locale
+                /* locale = */ locale,
             )
         )
     }
@@ -88,7 +88,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
             year = localDate.year,
             month = localDate.monthValue,
             dayOfMonth = localDate.dayOfMonth,
-            utcTimeMillis = localDate.atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000
+            utcTimeMillis = localDate.atStartOfDay().toEpochSecond(ZoneOffset.UTC) * 1000,
         )
     }
 
@@ -129,7 +129,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
     override fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
-        locale: CalendarLocale
+        locale: CalendarLocale,
     ): String = formatWithPattern(utcTimeMillis, pattern, locale, formatterCache)
 
     override fun parse(date: String, pattern: String, locale: CalendarLocale): CalendarDate? {
@@ -145,7 +145,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
                         .atTime(LocalTime.MIDNIGHT)
                         .atZone(utcTimeZoneId)
                         .toInstant()
-                        .toEpochMilli()
+                        .toEpochMilli(),
             )
         } catch (pe: DateTimeParseException) {
             null
@@ -170,7 +170,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
             utcTimeMillis: Long,
             pattern: String,
             locale: CalendarLocale,
-            cache: MutableMap<String, Any>
+            cache: MutableMap<String, Any>,
         ): String {
             val formatter = getCachedDateTimeFormatter(pattern, locale, cache)
             return Instant.ofEpochMilli(utcTimeMillis)
@@ -185,7 +185,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
         private fun getCachedDateTimeFormatter(
             pattern: String,
             locale: CalendarLocale,
-            cache: MutableMap<String, Any>
+            cache: MutableMap<String, Any>,
         ): DateTimeFormatter {
             // Prepend the pattern and language tag with a "P" to avoid cache collisions when the
             // called already cached a string as value when the pattern equals to the skeleton it
@@ -216,7 +216,7 @@ internal class CalendarModelImpl(locale: CalendarLocale) : CalendarModel(locale 
             month = firstDayLocalDate.monthValue,
             numberOfDays = firstDayLocalDate.lengthOfMonth(),
             daysFromStartOfWeekToFirstOfMonth = daysFromStartOfWeekToFirstOfMonth,
-            startUtcTimeMillis = firstDayEpochMillis
+            startUtcTimeMillis = firstDayEpochMillis,
         )
     }
 

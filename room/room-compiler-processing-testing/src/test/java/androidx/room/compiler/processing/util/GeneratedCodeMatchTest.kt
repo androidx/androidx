@@ -108,13 +108,13 @@ class GeneratedCodeMatchTest internal constructor(private val runTest: TestRunne
         val generated =
             JavaFile.builder(
                     "foo.bar",
-                    TypeSpec.classBuilder("Baz").addField(TypeName.BOOLEAN, "bar").build()
+                    TypeSpec.classBuilder("Baz").addField(TypeName.BOOLEAN, "bar").build(),
                 )
                 .build()
         val expected =
             JavaFile.builder(
                     "foo.bar",
-                    TypeSpec.classBuilder("Baz").addField(TypeName.BOOLEAN, "foo").build()
+                    TypeSpec.classBuilder("Baz").addField(TypeName.BOOLEAN, "foo").build(),
                 )
                 .build()
         val result = runCatching {
@@ -131,7 +131,7 @@ class GeneratedCodeMatchTest internal constructor(private val runTest: TestRunne
         val mismatch =
             SourceFileMismatch(
                 expected = Line(pos = 4, content = "boolean foo;"),
-                actual = Line(pos = 4, content = "boolean bar;")
+                actual = Line(pos = 4, content = "boolean bar;"),
             )
         assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())
     }
@@ -229,7 +229,7 @@ class GeneratedCodeMatchTest internal constructor(private val runTest: TestRunne
         val mismatch =
             SourceFileMismatch(
                 expected = Line(pos = 6, content = "public val foo: Boolean"),
-                actual = Line(pos = 6, content = "public val bar: Boolean")
+                actual = Line(pos = 6, content = "public val bar: Boolean"),
             )
         assertThat(result.exceptionOrNull()).hasMessageThat().contains(mismatch.toString())
     }

@@ -26,9 +26,8 @@ import androidx.annotation.IntRange
  *
  * See also [Prepared Statement](https://www.sqlite.org/c3ref/stmt.html)
  */
-// TODO(b/315461431): No common Closeable interface in KMP
-@Suppress("NotCloseable", "AcronymName") // SQL is a known term and should remain capitalized
-public interface SQLiteStatement {
+@Suppress("NotCloseable")
+public interface SQLiteStatement : AutoCloseable {
     /**
      * Binds a ByteArray value to this statement at an index.
      *
@@ -229,5 +228,5 @@ public interface SQLiteStatement {
      * Once a statement is closed it should no longer be used. Calling this function on an already
      * closed statement is a no-op.
      */
-    public fun close()
+    public override fun close()
 }

@@ -54,7 +54,7 @@ internal object DynamicRangeConversions {
                 DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM,
                 DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO,
                 DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO
+                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO,
             )
         for (profile in dolbyVision10BitProfilesOrdered) {
             PROFILE_TO_DR_MAP[profile] = DynamicRange.DOLBY_VISION_10_BIT
@@ -67,7 +67,7 @@ internal object DynamicRangeConversions {
                 DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM,
                 DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO,
                 DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO
+                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO,
             )
         for (profile in dolbyVision8BitProfilesOrdered) {
             PROFILE_TO_DR_MAP[profile] = DynamicRange.DOLBY_VISION_8_BIT
@@ -93,7 +93,7 @@ internal object DynamicRangeConversions {
      */
     fun dynamicRangeToFirstSupportedProfile(
         dynamicRange: DynamicRange,
-        dynamicRangeProfiles: DynamicRangeProfiles
+        dynamicRangeProfiles: DynamicRangeProfiles,
     ): Long? {
         val orderedProfiles = DR_TO_PROFILE_MAP[dynamicRange]
         if (orderedProfiles != null) {

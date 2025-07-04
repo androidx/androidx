@@ -18,8 +18,6 @@ package androidx.pdf.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.test.filters.SmallTest;
-
 import com.google.common.collect.Lists;
 
 import org.junit.Test;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Unit tests for {@link EnumKeyGenerator}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class EnumKeyGeneratorTest {
 

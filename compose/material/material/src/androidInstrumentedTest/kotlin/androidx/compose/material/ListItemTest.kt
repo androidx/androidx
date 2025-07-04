@@ -91,7 +91,7 @@ class ListItemTest {
             .setMaterialContentForSizeAssertions {
                 ListItem(
                     text = { Text("Primary text") },
-                    secondaryText = { Text("Secondary text") }
+                    secondaryText = { Text("Secondary text") },
                 )
             }
             .assertHeightIsEqualTo(expectedHeightNoIcon)
@@ -107,7 +107,7 @@ class ListItemTest {
                 ListItem(
                     text = { Text("Primary text") },
                     secondaryText = { Text("Secondary text") },
-                    icon = { Icon(icon24x24, null) }
+                    icon = { Icon(icon24x24, null) },
                 )
             }
             .assertHeightIsEqualTo(expectedHeightWithIcon)
@@ -122,7 +122,7 @@ class ListItemTest {
                 ListItem(
                     overlineText = { Text("OVERLINE") },
                     text = { Text("Primary text") },
-                    secondaryText = { Text("Secondary text") }
+                    secondaryText = { Text("Secondary text") },
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -137,7 +137,7 @@ class ListItemTest {
                 ListItem(
                     text = { Text("Primary text") },
                     secondaryText = { Text("Secondary text with long text") },
-                    singleLineSecondaryText = false
+                    singleLineSecondaryText = false,
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -153,7 +153,7 @@ class ListItemTest {
                     overlineText = { Text("OVERLINE") },
                     text = { Text("Primary text") },
                     secondaryText = { Text("Secondary text") },
-                    trailing = { Text("meta") }
+                    trailing = { Text("meta") },
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -169,7 +169,7 @@ class ListItemTest {
                     text = { Text("Primary text") },
                     secondaryText = { Text("Secondary text with long text") },
                     singleLineSecondaryText = false,
-                    trailing = { Text("meta") }
+                    trailing = { Text("meta") },
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -192,7 +192,7 @@ class ListItemTest {
                     text = { Text("Primary text", Modifier.saveLayout(textPosition, textSize)) },
                     trailing = {
                         Image(icon24x24, null, Modifier.saveLayout(trailingPosition, trailingSize))
-                    }
+                    },
                 )
             }
         }
@@ -234,7 +234,7 @@ class ListItemTest {
             Box {
                 ListItem(
                     text = { Text("Primary text", Modifier.saveLayout(textPosition, textSize)) },
-                    icon = { Image(icon24x24, null, Modifier.saveLayout(iconPosition, iconSize)) }
+                    icon = { Image(icon24x24, null, Modifier.saveLayout(iconPosition, iconSize)) },
                 )
             }
         }
@@ -283,7 +283,7 @@ class ListItemTest {
                     text = {
                         Text(
                             "Primary text",
-                            Modifier.saveLayout(textPosition, textSize, textBaseline)
+                            Modifier.saveLayout(textPosition, textSize, textBaseline),
                         )
                     },
                     secondaryText = {
@@ -292,16 +292,16 @@ class ListItemTest {
                             Modifier.saveLayout(
                                 secondaryTextPosition,
                                 secondaryTextSize,
-                                secondaryTextBaseline
-                            )
+                                secondaryTextBaseline,
+                            ),
                         )
                     },
                     trailing = {
                         Text(
                             "meta",
-                            Modifier.saveLayout(trailingPosition, trailingSize, trailingBaseline)
+                            Modifier.saveLayout(trailingPosition, trailingSize, trailingBaseline),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -349,7 +349,7 @@ class ListItemTest {
                     text = {
                         Text(
                             "Primary text",
-                            Modifier.saveLayout(textPosition, textSize, textBaseline)
+                            Modifier.saveLayout(textPosition, textSize, textBaseline),
                         )
                     },
                     secondaryText = {
@@ -358,11 +358,11 @@ class ListItemTest {
                             Modifier.saveLayout(
                                 secondaryTextPosition,
                                 secondaryTextSize,
-                                secondaryTextBaseline
-                            )
+                                secondaryTextBaseline,
+                            ),
                         )
                     },
-                    icon = { Image(icon24x24, null, Modifier.saveLayout(iconPosition, iconSize)) }
+                    icon = { Image(icon24x24, null, Modifier.saveLayout(iconPosition, iconSize)) },
                 )
             }
         }
@@ -417,7 +417,7 @@ class ListItemTest {
                     text = {
                         Text(
                             "Primary text",
-                            Modifier.saveLayout(textPosition, textSize, textBaseline)
+                            Modifier.saveLayout(textPosition, textSize, textBaseline),
                         )
                     },
                     secondaryText = {
@@ -426,14 +426,14 @@ class ListItemTest {
                             Modifier.saveLayout(
                                 secondaryTextPosition,
                                 secondaryTextSize,
-                                secondaryTextBaseline
-                            )
+                                secondaryTextBaseline,
+                            ),
                         )
                     },
                     icon = { Image(icon40x40, null, Modifier.saveLayout(iconPosition, iconSize)) },
                     trailing = {
                         Image(icon24x24, null, Modifier.saveLayout(trailingPosition, trailingSize))
-                    }
+                    },
                 )
             }
         }
@@ -498,7 +498,7 @@ class ListItemTest {
                     text = {
                         Text(
                             "Primary text",
-                            Modifier.saveLayout(textPosition, textSize, textBaseline)
+                            Modifier.saveLayout(textPosition, textSize, textBaseline),
                         )
                     },
                     secondaryText = {
@@ -507,15 +507,15 @@ class ListItemTest {
                             Modifier.saveLayout(
                                 secondaryTextPosition,
                                 secondaryTextSize,
-                                secondaryTextBaseline
-                            )
+                                secondaryTextBaseline,
+                            ),
                         )
                     },
                     singleLineSecondaryText = false,
                     icon = { Image(icon24x24, null, Modifier.saveLayout(iconPosition, iconSize)) },
                     trailing = {
                         Image(icon24x24, null, Modifier.saveLayout(trailingPosition, trailingSize))
-                    }
+                    },
                 )
             }
         }
@@ -586,14 +586,14 @@ class ListItemTest {
                             Modifier.saveLayout(
                                 overlineTextPosition,
                                 overlineTextSize,
-                                overlineTextBaseline
-                            )
+                                overlineTextBaseline,
+                            ),
                         )
                     },
                     text = {
                         Text(
                             "Primary text",
-                            Modifier.saveLayout(textPosition, textSize, textBaseline)
+                            Modifier.saveLayout(textPosition, textSize, textBaseline),
                         )
                     },
                     secondaryText = {
@@ -602,17 +602,17 @@ class ListItemTest {
                             Modifier.saveLayout(
                                 secondaryTextPosition,
                                 secondaryTextSize,
-                                secondaryTextBaseline
-                            )
+                                secondaryTextBaseline,
+                            ),
                         )
                     },
                     icon = { Image(icon40x40, null, Modifier.saveLayout(iconPosition, iconSize)) },
                     trailing = {
                         Text(
                             "meta",
-                            Modifier.saveLayout(trailingPosition, trailingSize, trailingBaseline)
+                            Modifier.saveLayout(trailingPosition, trailingSize, trailingBaseline),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -669,7 +669,7 @@ class ListItemTest {
     private fun Modifier.saveLayout(
         coords: Ref<Offset>,
         size: Ref<IntSize>,
-        baseline: Ref<Float> = Ref()
+        baseline: Ref<Float> = Ref(),
     ): Modifier = onGloballyPositioned { coordinates: LayoutCoordinates ->
         coords.value = coordinates.localToRoot(Offset.Zero)
         baseline.value = coordinates[FirstBaseline].toFloat() + coords.value!!.y

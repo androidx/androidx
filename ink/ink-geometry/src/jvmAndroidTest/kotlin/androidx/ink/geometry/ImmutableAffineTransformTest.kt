@@ -428,7 +428,7 @@ class ImmutableAffineTransformTest {
                 MutableTriangle(
                     MutableVec(2.5F, 5F),
                     MutableVec(15F, -7.5F),
-                    MutableVec(-10F, -15F)
+                    MutableVec(-10F, -15F),
                 )
             )
 
@@ -484,7 +484,7 @@ class ImmutableAffineTransformTest {
                 MutableTriangle(
                     MutableVec(2.5F, 5F),
                     MutableVec(15F, -7.5F),
-                    MutableVec(-10F, -15F)
+                    MutableVec(-10F, -15F),
                 )
             )
 
@@ -1074,7 +1074,7 @@ class ImmutableAffineTransformTest {
                 ImmutableAffineTransform.rotate(Angle.QUARTER_TURN_RADIANS)
                     .isAlmostEqual(
                         ImmutableAffineTransform(0F, -1F, 0.0F, 1F, 0F, 0.0F),
-                        tolerance = 0.0001f
+                        tolerance = 0.0001f,
                     )
             )
             .isTrue()

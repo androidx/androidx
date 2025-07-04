@@ -29,7 +29,7 @@ import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 class ExtensionValidationResultAdapter(
     private val testType: String,
     private val layoutInflater: LayoutInflater,
-    private val extensionResultMap: LinkedHashMap<Int, Pair<Int, String>>
+    private val extensionResultMap: LinkedHashMap<Int, Pair<Int, String>>,
 ) : BaseAdapter() {
 
     override fun getCount(): Int {

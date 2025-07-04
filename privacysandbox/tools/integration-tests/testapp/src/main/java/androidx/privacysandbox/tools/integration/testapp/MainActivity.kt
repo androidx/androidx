@@ -16,19 +16,27 @@
 
 package androidx.privacysandbox.tools.integration.testapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.tools.integration.testsdk.MySdk
 import androidx.privacysandbox.tools.integration.testsdk.MySdkFactory.wrapToMySdk
+import androidx.privacysandbox.tools.integration.testsdk.NativeAdData
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.client.view.SandboxedSdkViewEventListener
+import androidx.privacysandbox.ui.client.view.SharedUiAsset
+import androidx.privacysandbox.ui.client.view.SharedUiContainer
+import androidx.privacysandbox.ui.core.ExperimentalFeatures
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.idling.CountingIdlingResource
 import kotlinx.coroutines.launch
 
+@SuppressLint("NullAnnotationGroup")
+@OptIn(ExperimentalFeatures.SharedUiPresentationApi::class)
 class MainActivity : AppCompatActivity() {
     internal var sdk: MySdk? = null
     private val idlingResource = CountingIdlingResource("MainActivity idlingResource")
@@ -54,7 +62,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 sandboxManagerCompat.loadSdk(
                     "androidx.privacysandbox.tools.integration.sdk",
-                    Bundle.EMPTY
+                    Bundle.EMPTY,
                 )
             } catch (e: LoadSdkCompatException) {
                 sandboxManagerCompat.getSandboxedSdks().first()
@@ -62,14 +70,13 @@ class MainActivity : AppCompatActivity() {
         sdk = sandboxedSdk.getInterface()?.let { wrapToMySdk(it) }
     }
 
-    internal suspend fun renderAd() {
+    internal suspend fun getUiAdapterAndRenderAd() {
         idlingResource.increment()
 
-        val textViewAd = sdk!!.getTextViewAd()
+        val textViewAdAdapter = sdk!!.getAdapterForTextViewAd()
         val sandboxedSdkView = findViewById<SandboxedSdkView>(R.id.sandboxedSdkView)
 
         runOnUiThread {
-            sandboxedSdkView.setAdapter(textViewAd)
             class TestEventListener : SandboxedSdkViewEventListener {
                 override fun onUiDisplayed() {
                     idlingResource.decrement()
@@ -80,6 +87,58 @@ class MainActivity : AppCompatActivity() {
                 override fun onUiClosed() {}
             }
             sandboxedSdkView.setEventListener(TestEventListener())
+            sandboxedSdkView.setAdapter(textViewAdAdapter)
+        }
+    }
+
+    internal suspend fun renderAd() {
+        idlingResource.increment()
+
+        val textViewAd = sdk!!.getTextViewAd()
+        val sandboxedSdkView = findViewById<SandboxedSdkView>(R.id.sandboxedSdkView)
+
+        runOnUiThread {
+            class TestEventListener : SandboxedSdkViewEventListener {
+                override fun onUiDisplayed() {
+                    idlingResource.decrement()
+                }
+
+                override fun onUiError(error: Throwable) {}
+
+                override fun onUiClosed() {}
+            }
+            sandboxedSdkView.setEventListener(TestEventListener())
+            sandboxedSdkView.setAdapter(textViewAd)
+        }
+    }
+
+    internal suspend fun renderNativeAd() {
+        idlingResource.increment()
+        val (nativeAd, headerText, remoteUiAdapter) = sdk!!.getNativeAdData()
+        val sharedUiContainer = findViewById<SharedUiContainer>(R.id.sharedUiContainer)
+        val appOwnedTextView = findViewById<TextView>(R.id.appOwnedTextView)
+        val remoteUiView = findViewById<SandboxedSdkView>(R.id.remoteUiView)
+
+        runOnUiThread {
+            class TestEventListener : SandboxedSdkViewEventListener {
+                override fun onUiDisplayed() {
+                    idlingResource.decrement()
+                }
+
+                override fun onUiError(error: Throwable) {}
+
+                override fun onUiClosed() {}
+            }
+            remoteUiView.setEventListener(TestEventListener())
+
+            sharedUiContainer.setAdapter(nativeAd)
+            appOwnedTextView.text = headerText
+            sharedUiContainer.registerSharedUiAsset(
+                SharedUiAsset(appOwnedTextView, NativeAdData.TEXT_VIEW_ASSET_ID)
+            )
+            sharedUiContainer.registerSharedUiAsset(
+                SharedUiAsset(remoteUiView, NativeAdData.REMOTE_UI_ASSET_ID, remoteUiAdapter)
+            )
         }
     }
 }

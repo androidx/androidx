@@ -112,7 +112,7 @@ internal class VirtualCameraStateTest {
                         testCamera.cameraDevice,
                         testCamera.cameraId,
                         cameraErrorListener,
-                        threads = FakeThreads.fromTestScope(this)
+                        threads = FakeThreads.fromTestScope(this),
                     )
                 )
             )
@@ -125,7 +125,7 @@ internal class VirtualCameraStateTest {
                 override fun release(): Boolean {
                     return true
                 }
-            }
+            },
         )
 
         virtualCamera.state.first { it !is CameraStateUnopened }
@@ -150,14 +150,14 @@ internal class VirtualCameraStateTest {
                 testCamera.cameraDevice,
                 testCamera.cameraId,
                 cameraErrorListener,
-                threads = FakeThreads.fromTestScope(this)
+                threads = FakeThreads.fromTestScope(this),
             )
         val cameraStateClosing = CameraStateClosing()
         val cameraStateClosed =
             CameraStateClosed(
                 cameraId,
                 ClosedReason.CAMERA2_ERROR,
-                cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
+                cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE,
             )
         val states =
             listOf(CameraStateOpen(androidCameraDevice), cameraStateClosing, cameraStateClosed)
@@ -174,7 +174,7 @@ internal class VirtualCameraStateTest {
                 override fun release(): Boolean {
                     return true
                 }
-            }
+            },
         )
 
         advanceUntilIdle()
@@ -204,7 +204,7 @@ internal class VirtualCameraStateTest {
                         testCamera.cameraDevice,
                         testCamera.cameraId,
                         cameraErrorListener,
-                        threads = FakeThreads.fromTestScope(this)
+                        threads = FakeThreads.fromTestScope(this),
                     )
                 )
             )
@@ -217,7 +217,7 @@ internal class VirtualCameraStateTest {
                 override fun release(): Boolean {
                     return true
                 }
-            }
+            },
         )
 
         virtualCamera.state.first { it !is CameraStateUnopened }
@@ -246,7 +246,7 @@ internal class VirtualCameraStateTest {
                         testCamera.cameraDevice,
                         testCamera.cameraId,
                         cameraErrorListener,
-                        threads = FakeThreads.fromTestScope(this)
+                        threads = FakeThreads.fromTestScope(this),
                     )
                 )
             )
@@ -259,7 +259,7 @@ internal class VirtualCameraStateTest {
                 override fun release(): Boolean {
                     return true
                 }
-            }
+            },
         )
 
         virtualCamera.state.first { it !is CameraStateUnopened }
@@ -304,7 +304,7 @@ internal class AndroidCameraDeviceTest {
             override fun onCameraError(
                 cameraId: CameraId,
                 cameraError: CameraError,
-                willAttemptRetry: Boolean
+                willAttemptRetry: Boolean,
             ) {
                 lastCameraId = cameraId
                 lastCameraError = cameraError
@@ -379,7 +379,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         listener.onDisconnected(testCamera.cameraDevice)
@@ -405,7 +405,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         listener.close()
@@ -428,7 +428,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         listener.closeWith(IllegalArgumentException("Test Exception"))
@@ -451,7 +451,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
@@ -476,7 +476,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         listener.onOpened(testCamera.cameraDevice)
@@ -502,7 +502,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
@@ -524,7 +524,7 @@ internal class AndroidCameraDeviceTest {
                 cameraDeviceCloser,
                 fakeCamera2Quirks,
                 FakeThreads.fromTestScope(TestScope()),
-                audioRestrictionController
+                audioRestrictionController,
             )
         val fakeCameraDevice: CameraDevice = mock()
         whenever(fakeCameraDevice.id).thenReturn(testCamera.cameraId.value)

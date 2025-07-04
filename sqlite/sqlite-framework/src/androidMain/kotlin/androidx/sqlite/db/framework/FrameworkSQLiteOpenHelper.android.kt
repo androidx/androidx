@@ -36,7 +36,7 @@ constructor(
     private val name: String?,
     private val callback: SupportSQLiteOpenHelper.Callback,
     private val useNoBackupDirectory: Boolean = false,
-    private val allowDataLossOnRecovery: Boolean = false
+    private val allowDataLossOnRecovery: Boolean = false,
 ) : SupportSQLiteOpenHelper {
 
     // Delegate is created lazily
@@ -54,7 +54,7 @@ constructor(
                     name = file.absolutePath,
                     dbRef = DBRefHolder(null),
                     callback = callback,
-                    allowDataLossOnRecovery = allowDataLossOnRecovery
+                    allowDataLossOnRecovery = allowDataLossOnRecovery,
                 )
         } else {
             openHelper =
@@ -63,7 +63,7 @@ constructor(
                     name = name,
                     dbRef = DBRefHolder(null),
                     callback = callback,
-                    allowDataLossOnRecovery = allowDataLossOnRecovery
+                    allowDataLossOnRecovery = allowDataLossOnRecovery,
                 )
         }
         openHelper.setWriteAheadLoggingEnabled(writeAheadLoggingEnabled)
@@ -113,14 +113,14 @@ constructor(
          */
         val dbRef: DBRefHolder,
         val callback: SupportSQLiteOpenHelper.Callback,
-        val allowDataLossOnRecovery: Boolean
+        val allowDataLossOnRecovery: Boolean,
     ) :
         SQLiteOpenHelper(
             context,
             name,
             null,
             callback.version,
-            DatabaseErrorHandler { dbObj -> callback.onCorruption(getWrappedDb(dbRef, dbObj)) }
+            DatabaseErrorHandler { dbObj -> callback.onCorruption(getWrappedDb(dbRef, dbObj)) },
         ) {
         // see b/78359448
         private var migrated = false
@@ -130,7 +130,7 @@ constructor(
             ProcessLock(
                 name = name ?: UUID.randomUUID().toString(),
                 lockDir = context.cacheDir,
-                processLock = false
+                processLock = false,
             )
         private var opened = false
 
@@ -298,7 +298,7 @@ constructor(
 
         private class CallbackException(
             val callbackName: CallbackName,
-            override val cause: Throwable
+            override val cause: Throwable,
         ) : RuntimeException(cause)
 
         internal enum class CallbackName {
@@ -306,13 +306,13 @@ constructor(
             ON_CREATE,
             ON_UPGRADE,
             ON_DOWNGRADE,
-            ON_OPEN
+            ON_OPEN,
         }
 
         companion object {
             fun getWrappedDb(
                 refHolder: DBRefHolder,
-                sqLiteDatabase: SQLiteDatabase
+                sqLiteDatabase: SQLiteDatabase,
             ): FrameworkSQLiteDatabase {
                 val dbRef = refHolder.db
                 return if (dbRef == null || !dbRef.isDelegate(sqLiteDatabase)) {

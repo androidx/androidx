@@ -46,7 +46,7 @@ class CurvedLayoutTest {
         anchorType: AnchorType,
         angularDirection: CurvedDirection.Angular,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        initialAnchorType: AnchorType = anchorType
+        initialAnchorType: AnchorType = anchorType,
     ) {
         var rowCoords: LayoutCoordinates? = null
         var coords: LayoutCoordinates? = null
@@ -60,7 +60,7 @@ class CurvedLayoutTest {
                     modifier = Modifier.size(200.dp).onGloballyPositioned { rowCoords = it },
                     anchor = anchor,
                     anchorType = anchorTypeState,
-                    angularDirection = angularDirection
+                    angularDirection = angularDirection,
                 ) {
                     curvedComposable(modifier = CurvedModifier.spy(capturedInfo)) {
                         Box(modifier = Modifier.size(40.dp).onGloballyPositioned { coords = it })
@@ -93,7 +93,7 @@ class CurvedLayoutTest {
                         angularDirection == CurvedDirection.Angular.Normal ||
                             angularDirection == CurvedDirection.Angular.Clockwise,
                     rowCoords!!,
-                    coords!!
+                    coords!!,
                 )
             checkSpy(dims, capturedInfo)
 
@@ -144,7 +144,7 @@ class CurvedLayoutTest {
             0f,
             AnchorType.End,
             CurvedDirection.Angular.Reversed,
-            initialAnchorType = AnchorType.Center
+            initialAnchorType = AnchorType.Center,
         )
 
     @Test
@@ -153,7 +153,7 @@ class CurvedLayoutTest {
             60f,
             AnchorType.Start,
             CurvedDirection.Angular.Reversed,
-            initialAnchorType = AnchorType.Center
+            initialAnchorType = AnchorType.Center,
         )
 
     @Test
@@ -162,7 +162,7 @@ class CurvedLayoutTest {
             120f,
             AnchorType.Center,
             CurvedDirection.Angular.Reversed,
-            initialAnchorType = AnchorType.End
+            initialAnchorType = AnchorType.End,
         )
 
     @Test
@@ -171,7 +171,7 @@ class CurvedLayoutTest {
             180f,
             AnchorType.Start,
             CurvedDirection.Angular.Normal,
-            initialAnchorType = AnchorType.End
+            initialAnchorType = AnchorType.End,
         )
 
     @Test
@@ -181,7 +181,7 @@ class CurvedLayoutTest {
             AnchorType.Center,
             CurvedDirection.Angular.Reversed,
             initialAnchorType = AnchorType.End,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
 
     @Test
@@ -191,7 +191,7 @@ class CurvedLayoutTest {
             AnchorType.Start,
             CurvedDirection.Angular.Normal,
             initialAnchorType = AnchorType.End,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
 
     @Test
@@ -201,7 +201,7 @@ class CurvedLayoutTest {
             AnchorType.Center,
             CurvedDirection.Angular.CounterClockwise,
             initialAnchorType = AnchorType.End,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
 
     @Test
@@ -211,7 +211,7 @@ class CurvedLayoutTest {
             AnchorType.Start,
             CurvedDirection.Angular.Clockwise,
             initialAnchorType = AnchorType.End,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
 
     @Test
@@ -249,7 +249,7 @@ class CurvedLayoutTest {
 
     private fun radial_alignment_test(
         radialAlignment: CurvedAlignment.Radial,
-        checker: (bigBoxDimensions: RadialDimensions, smallBoxDimensions: RadialDimensions) -> Unit
+        checker: (bigBoxDimensions: RadialDimensions, smallBoxDimensions: RadialDimensions) -> Unit,
     ) {
         var rowCoords: LayoutCoordinates? = null
         var smallBoxCoords: LayoutCoordinates? = null
@@ -261,15 +261,13 @@ class CurvedLayoutTest {
             CurvedLayout(modifier = Modifier.onGloballyPositioned { rowCoords = it }) {
                 curvedComposable(
                     modifier = CurvedModifier.spy(smallSpy),
-                    radialAlignment = radialAlignment
+                    radialAlignment = radialAlignment,
                 ) {
                     Box(
                         modifier = Modifier.size(30.dp).onGloballyPositioned { smallBoxCoords = it }
                     )
                 }
-                curvedComposable(
-                    modifier = CurvedModifier.spy(bigSpy),
-                ) {
+                curvedComposable(modifier = CurvedModifier.spy(bigSpy)) {
                     Box(modifier = Modifier.size(45.dp).onGloballyPositioned { bigBoxCoords = it })
                 }
             }
@@ -297,7 +295,7 @@ class CurvedLayoutTest {
             assertEquals(
                 bigBoxDimension.outerRadius,
                 smallBoxDimension.outerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
 
@@ -307,7 +305,7 @@ class CurvedLayoutTest {
             assertEquals(
                 bigBoxDimension.centerRadius,
                 smallBoxDimension.centerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
 
@@ -317,7 +315,7 @@ class CurvedLayoutTest {
             assertEquals(
                 bigBoxDimension.innerRadius,
                 smallBoxDimension.innerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
 

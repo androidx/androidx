@@ -22,9 +22,9 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-
-    implementation(project(":appcompat:appcompat"))
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation(project(":core:haptics:haptics"))
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.9.0")
 }
 
 android {

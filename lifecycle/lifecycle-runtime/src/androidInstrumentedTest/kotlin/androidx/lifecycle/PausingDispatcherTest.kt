@@ -136,15 +136,16 @@ class PausingDispatcherTest {
             do {
                 val children = testJob.children.toList()
                 assertThat(
-                    children.all {
-                        withTimeoutOrNull(10_000) {
-                            it.join()
-                            true
-                        } ?: false
-                    }
-                )
+                        children.all {
+                            withTimeoutOrNull(10_000) {
+                                it.join()
+                                true
+                            } ?: false
+                        }
+                    )
+                    .isTrue()
             } while (children.isNotEmpty())
-            assertThat(testJob.isActive)
+            assertThat(testJob.isActive).isTrue()
             assertThat(testError).isNull()
         }
     }

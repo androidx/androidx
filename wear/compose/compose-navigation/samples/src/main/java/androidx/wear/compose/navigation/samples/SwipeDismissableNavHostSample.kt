@@ -48,7 +48,7 @@ fun SimpleNavHost() {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(onClick = { navController.navigate("on") }) { Text("On") }
             }
@@ -57,7 +57,7 @@ fun SimpleNavHost() {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(onClick = { navController.navigate("off") }) { Text("Off") }
             }
@@ -86,22 +86,22 @@ fun NavHostWithNamedArgument() {
                             Text(
                                 text = "Item $index",
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
                             )
-                        }
+                        },
                     )
                 }
             }
         }
         composable(
             route = "detail/{Id}",
-            arguments = listOf(navArgument("Id") { type = NavType.IntType })
+            arguments = listOf(navArgument("Id") { type = NavType.IntType }),
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getInt("Id") ?: 0
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 ListHeader { Text("Details Screen") }
                 Text("Item $itemId")

@@ -20,12 +20,12 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.credentials.CredentialManagerCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ public class RegistryManagerJavaTest {
 
         mRegistryManager.registerCredentialsAsync(
                 new RegisterCredentialsRequest("type", "id", "cred".getBytes(),
-                        "matcher".getBytes()) {
+                        "matcher".getBytes(), "intentAction") {
                 },
                 null,
                 Runnable::run,
@@ -71,6 +71,31 @@ public class RegistryManagerJavaTest {
         latch.await(100L, TimeUnit.MILLISECONDS);
         assertThat(resultCaptor.get()).isInstanceOf(
                 RegisterCredentialsConfigurationException.class);
+    }
+
+    @Test
+    public void clearCredentialRegistryAsync_noOptionalModule_throws() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Exception> resultCaptor = new AtomicReference<>();
+
+        mRegistryManager.clearCredentialRegistryAsync(
+                new ClearCredentialRegistryRequest(true),
+                Runnable::run,
+                new CredentialManagerCallback<ClearCredentialRegistryResponse,
+                        ClearCredentialRegistryException>() {
+                    @Override
+                    public void onResult(ClearCredentialRegistryResponse result) {}
+
+                    @Override
+                    public void onError(@NonNull ClearCredentialRegistryException e) {
+                        resultCaptor.set(e);
+                        latch.countDown();
+                    }
+                }
+        );
+        latch.await(100L, TimeUnit.MILLISECONDS);
+        assertThat(resultCaptor.get()).isInstanceOf(
+                ClearCredentialRegistryConfigurationException.class);
     }
 
     @Test

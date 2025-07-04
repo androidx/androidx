@@ -18,6 +18,8 @@ package androidx.pdf
 
 import android.content.pm.ActivityInfo
 import android.os.Build
+import android.view.InputDevice
+import android.view.MotionEvent
 import androidx.annotation.RequiresExtension
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -27,8 +29,11 @@ import androidx.pdf.matchers.SearchViewAssertions
 import androidx.pdf.util.Preconditions
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.GeneralClickAction
+import androidx.test.espresso.action.GeneralLocation
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.action.ViewActions.typeText
@@ -56,15 +61,15 @@ import org.junit.runner.RunWith
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class PdfViewerFragmentTestSuite {
 
-    private lateinit var scenario: FragmentScenario<TestPdfViewerFragment>
+    private lateinit var scenario: FragmentScenario<TestPdfViewerFragmentV1>
 
     @Before
     fun setup() {
         scenario =
-            launchFragmentInContainer<TestPdfViewerFragment>(
+            launchFragmentInContainer<TestPdfViewerFragmentV1>(
                 themeResId =
                     com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
-                initialState = Lifecycle.State.INITIALIZED
+                initialState = Lifecycle.State.INITIALIZED,
             )
         scenario.onFragment { fragment ->
             // Register idling resource
@@ -86,8 +91,8 @@ class PdfViewerFragmentTestSuite {
     private fun scenarioLoadDocument(
         filename: String,
         nextState: Lifecycle.State,
-        orientation: Int
-    ): FragmentScenario<TestPdfViewerFragment> {
+        orientation: Int,
+    ): FragmentScenario<TestPdfViewerFragmentV1> {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inputStream = context.assets.open(filename)
 
@@ -112,7 +117,7 @@ class PdfViewerFragmentTestSuite {
             scenarioLoadDocument(
                 TEST_DOCUMENT_FILE,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
 
         // Delay required for the PDF to load
@@ -121,7 +126,7 @@ class PdfViewerFragmentTestSuite {
         scenario.onFragment {
             Preconditions.checkArgument(
                 it.documentLoaded,
-                "Unable to load document due to ${it.documentError?.message}"
+                "Unable to load document due to ${it.documentError?.message}",
             )
         }
 
@@ -131,7 +136,20 @@ class PdfViewerFragmentTestSuite {
 
         // Selection
         val selectionViewActions = SelectionViewActions()
-        onView(isRoot()).perform(longClick())
+        onView(isRoot())
+            .perform(
+                GeneralClickAction(
+                    Tap.LONG,
+                    { view ->
+                        GeneralLocation.CENTER.calculateCoordinates(view)
+                            .map { it + 20f }
+                            .toFloatArray()
+                    },
+                    Press.THUMB,
+                    InputDevice.SOURCE_UNKNOWN,
+                    MotionEvent.BUTTON_PRIMARY,
+                )
+            )
         onView(withId(R.id.start_drag_handle)).check(matches(isDisplayed()))
         onView(withId(R.id.stop_drag_handle)).check(matches(isDisplayed()))
 
@@ -147,7 +165,7 @@ class PdfViewerFragmentTestSuite {
             scenarioLoadDocument(
                 TEST_DOCUMENT_FILE,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
 
         onView(withId(R.id.loadingView))
@@ -155,7 +173,7 @@ class PdfViewerFragmentTestSuite {
         scenario.onFragment {
             Preconditions.checkArgument(
                 it.documentLoaded,
-                "Unable to load document due to ${it.documentError?.message}"
+                "Unable to load document due to ${it.documentError?.message}",
             )
         }
 
@@ -197,7 +215,7 @@ class PdfViewerFragmentTestSuite {
             scenarioLoadDocument(
                 TEST_DOCUMENT_FILE,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
 
         // Check that the document is loaded successfully
@@ -206,7 +224,7 @@ class PdfViewerFragmentTestSuite {
         scenario.onFragment {
             Preconditions.checkArgument(
                 it.documentLoaded,
-                "Unable to load document due to ${it.documentError?.message}"
+                "Unable to load document due to ${it.documentError?.message}",
             )
         }
 
@@ -248,20 +266,20 @@ class PdfViewerFragmentTestSuite {
             scenarioLoadDocument(
                 TEST_CORRUPTED_DOCUMENT_FILE,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
 
         onView(withId(R.id.errorTextView)).check(matches(isDisplayed()))
         scenario.onFragment { fragment ->
             Preconditions.checkArgument(
                 fragment.documentError is RuntimeException,
-                "Exception is of incorrect type"
+                "Exception is of incorrect type",
             )
             Preconditions.checkArgument(
                 fragment.documentError
                     ?.message
                     .equals(fragment.resources.getString(R.string.pdf_error)),
-                "Incorrect exception returned ${fragment.documentError?.message}"
+                "Incorrect exception returned ${fragment.documentError?.message}",
             )
         }
     }
@@ -271,7 +289,6 @@ class PdfViewerFragmentTestSuite {
         private const val TEST_PROTECTED_DOCUMENT_FILE = "sample-protected.pdf"
         private const val TEST_CORRUPTED_DOCUMENT_FILE = "corrupted.pdf"
         private const val PROTECTED_DOCUMENT_PASSWORD = "abcd1234"
-        private const val DELAY_TIME_MS = 500L
         private const val SEARCH_QUERY = "ipsum"
         private const val KEYBOARD_CONTENT_DESC = "keyboard"
     }

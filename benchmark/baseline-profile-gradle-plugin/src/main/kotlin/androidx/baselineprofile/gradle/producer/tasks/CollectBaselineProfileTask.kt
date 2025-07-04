@@ -76,7 +76,7 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
 
             return project.tasks.register(
                 camelCase(COLLECT_TASK_NAME, variant.name, TASK_NAME_SUFFIX),
-                CollectBaselineProfileTask::class.java
+                CollectBaselineProfileTask::class.java,
             ) {
                 var outputDir = project.layout.buildDirectory.dir("$INTERMEDIATES_BASE_FOLDER/")
                 if (!flavorName.isNullOrBlank()) {

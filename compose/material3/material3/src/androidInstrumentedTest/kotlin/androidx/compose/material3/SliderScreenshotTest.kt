@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -88,6 +89,34 @@ class SliderScreenshotTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    fun sliderTest_withSteps_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    Slider(remember { SliderState(value = 0.2f, steps = 4) })
+                }
+            }
+        }
+        assertSliderAgainstGolden("slider_withSteps_rtl")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_withSteps_rtl_lookaheadScope() {
+        rule.setMaterialContent(lightColorScheme()) {
+            LookaheadScope {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Box(wrap.testTag(wrapperTestTag)) {
+                        Slider(remember { SliderState(value = 0.2f, steps = 4) })
+                    }
+                }
+            }
+        }
+        assertSliderAgainstGolden("sliderTest_withSteps_rtl_lookaheadScope")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
     fun sliderTest_origin_disabled() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
@@ -113,7 +142,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
-                    track = { SliderDefaults.Track(sliderState = it, thumbTrackGapSize = 0.dp) }
+                    track = { SliderDefaults.Track(sliderState = it, thumbTrackGapSize = 0.dp) },
                 )
             }
         }
@@ -127,7 +156,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
-                    track = { SliderDefaults.Track(sliderState = it, trackInsideCornerSize = 0.dp) }
+                    track = { SliderDefaults.Track(sliderState = it, trackInsideCornerSize = 0.dp) },
                 )
             }
         }
@@ -141,7 +170,7 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
-                    track = { SliderDefaults.Track(sliderState = it, drawStopIndicator = null) }
+                    track = { SliderDefaults.Track(sliderState = it, drawStopIndicator = null) },
                 )
             }
         }
@@ -199,6 +228,24 @@ class SliderScreenshotTest {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
+    fun sliderTest_first_steps() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.1f, steps = 9) }) }
+        }
+        assertSliderAgainstGolden("sliderTest_first_steps")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun sliderTest_last_steps() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.9f, steps = 9) }) }
+        }
+        assertSliderAgainstGolden("sliderTest_last_steps")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
     fun sliderTest_middle_steps_dark() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { Slider(remember { SliderState(0.5f, steps = 5) }) }
@@ -231,11 +278,11 @@ class SliderScreenshotTest {
                                 drawCircle(
                                     color = Color.Red,
                                     center = offset,
-                                    radius = SliderDefaults.TickSize.toPx() / 4
+                                    radius = SliderDefaults.TickSize.toPx() / 4,
                                 )
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         }
@@ -254,8 +301,8 @@ class SliderScreenshotTest {
                             thumbColor = Color.Red,
                             activeTrackColor = Color.Blue,
                             activeTickColor = Color.Yellow,
-                            inactiveTickColor = Color.Magenta
-                        )
+                            inactiveTickColor = Color.Magenta,
+                        ),
                 )
             }
         }
@@ -278,8 +325,8 @@ class SliderScreenshotTest {
                             disabledActiveTrackColor = Color.Red,
                             disabledInactiveTrackColor = Color.Yellow,
                             disabledActiveTickColor = Color.Magenta,
-                            disabledInactiveTickColor = Color.Cyan
-                        )
+                            disabledInactiveTickColor = Color.Cyan,
+                        ),
                 )
             }
         }
@@ -348,30 +395,30 @@ class SliderScreenshotTest {
                                         if (iconSize.width < activeTrackWidth - iconPadding * 2) {
                                             trackIconStart(
                                                 Offset(activeTrackStart, yOffset),
-                                                activeIconColor
+                                                activeIconColor,
                                             )
                                             trackIconEnd(
                                                 Offset(activeTrackEnd, yOffset),
-                                                activeIconColor
+                                                activeIconColor,
                                             )
                                         }
                                         if (iconSize.width < inactiveTrackWidth - iconPadding * 2) {
                                             trackIconStart(
                                                 Offset(inactiveTrackStart, yOffset),
-                                                inactiveIconColor
+                                                inactiveIconColor,
                                             )
                                             trackIconEnd(
                                                 Offset(inactiveTrackEnd, yOffset),
-                                                inactiveIconColor
+                                                inactiveIconColor,
                                             )
                                         }
                                     },
                                 trackCornerSize = 12.dp,
                                 drawStopIndicator = null,
-                                thumbTrackGapSize = thumbTrackGapSize.toDp()
+                                thumbTrackGapSize = thumbTrackGapSize.toDp(),
                             )
                         }
-                    }
+                    },
                 )
             }
         }
@@ -391,13 +438,37 @@ class SliderScreenshotTest {
                         SliderDefaults.Track(
                             sliderState = sliderState,
                             modifier = Modifier.width(36.dp),
-                            trackCornerSize = 12.dp
+                            trackCornerSize = 12.dp,
                         )
-                    }
+                    },
                 )
             }
         }
         assertSliderAgainstGolden("verticalSliderTest")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun verticalSliderTest_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val sliderState = remember { SliderState(0.3f) }
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    VerticalSlider(
+                        state = sliderState,
+                        modifier = Modifier.height(300.dp),
+                        track = {
+                            SliderDefaults.Track(
+                                sliderState = sliderState,
+                                modifier = Modifier.width(36.dp),
+                                trackCornerSize = 12.dp,
+                            )
+                        },
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("verticalSliderTest_rtl")
     }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -413,14 +484,109 @@ class SliderScreenshotTest {
                         SliderDefaults.Track(
                             sliderState = sliderState,
                             modifier = Modifier.width(36.dp),
-                            trackCornerSize = 12.dp
+                            trackCornerSize = 12.dp,
                         )
                     },
-                    reverseDirection = true
+                    reverseDirection = true,
                 )
             }
         }
         assertSliderAgainstGolden("verticalSliderTest_reversed")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun centeredSliderTest() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+                Slider(
+                    sliderState,
+                    track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
+                )
+            }
+        }
+        assertSliderAgainstGolden("centeredSliderTest")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun centeredSliderTest_dark() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+                Slider(
+                    sliderState,
+                    track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
+                )
+            }
+        }
+        assertSliderAgainstGolden("centeredSliderTest_dark")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun centeredSliderTest_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+                    Slider(
+                        sliderState,
+                        track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("centeredSliderTest_rtl")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun centeredSliderTest_middle() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                val sliderState = remember { SliderState(value = 0f, valueRange = -50f..50f) }
+                Slider(
+                    sliderState,
+                    track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
+                )
+            }
+        }
+        assertSliderAgainstGolden("centeredSliderTest_middle")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun centeredSliderTest_steps() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                val sliderState = remember {
+                    SliderState(value = 30f, valueRange = -50f..50f, steps = 9)
+                }
+                Slider(
+                    sliderState,
+                    track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
+                )
+            }
+        }
+        assertSliderAgainstGolden("centeredSliderTest_steps")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun verticalCenteredSliderTest() {
+        rule.setMaterialContent(lightColorScheme()) {
+            val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+            Box(wrap.testTag(wrapperTestTag)) {
+                VerticalSlider(
+                    state = sliderState,
+                    modifier = Modifier.height(300.dp),
+                    track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
+                )
+            }
+        }
+        assertSliderAgainstGolden("verticalCenteredSliderTest")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -432,11 +598,25 @@ class SliderScreenshotTest {
                     state = remember { RangeSliderState(0.5f, 1f) },
                     track = {
                         SliderDefaults.Track(rangeSliderState = it, thumbTrackGapSize = 0.dp)
-                    }
+                    },
                 )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_no_gap")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun rangeSliderTest_middle_no_external_corner() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                RangeSlider(
+                    state = remember { RangeSliderState(0.5f, 1f) },
+                    track = { SliderDefaults.Track(rangeSliderState = it, trackCornerSize = 0.dp) },
+                )
+            }
+        }
+        assertSliderAgainstGolden("rangeSlider_middle_no_external_corner")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -448,11 +628,55 @@ class SliderScreenshotTest {
                     state = remember { RangeSliderState(0.5f, 1f) },
                     track = {
                         SliderDefaults.Track(rangeSliderState = it, trackInsideCornerSize = 0.dp)
-                    }
+                    },
                 )
             }
         }
         assertSliderAgainstGolden("rangeSlider_middle_no_inside_corner")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_middle_no_inside_corner_rtl() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(wrap.testTag(wrapperTestTag)) {
+                    RangeSlider(
+                        state = remember { RangeSliderState(0.5f, 1f) },
+                        track = {
+                            SliderDefaults.Track(
+                                rangeSliderState = it,
+                                trackInsideCornerSize = 0.dp,
+                            )
+                        },
+                    )
+                }
+            }
+        }
+        assertSliderAgainstGolden("rangeSliderTest_middle_no_inside_corner_rtl")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSliderTest_middle_no_inside_corner_rtl_lookaheadScope() {
+        rule.setMaterialContent(lightColorScheme()) {
+            LookaheadScope {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Box(wrap.testTag(wrapperTestTag)) {
+                        RangeSlider(
+                            state = remember { RangeSliderState(0.5f, 1f) },
+                            track = {
+                                SliderDefaults.Track(
+                                    rangeSliderState = it,
+                                    trackInsideCornerSize = 0.dp,
+                                )
+                            },
+                        )
+                    }
+                }
+            }
+        }
+        assertSliderAgainstGolden("rangeSliderTest_middle_no_inside_corner_rtl_lookaheadScope")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -464,7 +688,7 @@ class SliderScreenshotTest {
                     state = remember { RangeSliderState(0.5f, 1f) },
                     track = {
                         SliderDefaults.Track(rangeSliderState = it, drawStopIndicator = null)
-                    }
+                    },
                 )
             }
         }
@@ -481,7 +705,7 @@ class SliderScreenshotTest {
                         state = remember { RangeSliderState(0.5f, 1f) },
                         track = {
                             SliderDefaults.Track(rangeSliderState = it, drawStopIndicator = null)
-                        }
+                        },
                     )
                 }
             }
@@ -547,11 +771,11 @@ class SliderScreenshotTest {
                                 drawCircle(
                                     color = Color.Red,
                                     center = offset,
-                                    radius = SliderDefaults.TickSize.toPx() / 4
+                                    radius = SliderDefaults.TickSize.toPx() / 4,
                                 )
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         }
@@ -618,8 +842,8 @@ class SliderScreenshotTest {
                             activeTrackColor = Color.Red,
                             inactiveTrackColor = Color.Yellow,
                             activeTickColor = Color.Magenta,
-                            inactiveTickColor = Color.Cyan
-                        )
+                            inactiveTickColor = Color.Cyan,
+                        ),
                 )
             }
         }

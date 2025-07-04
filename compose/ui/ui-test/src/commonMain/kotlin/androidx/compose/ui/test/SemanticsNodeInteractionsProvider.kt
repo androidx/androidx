@@ -42,7 +42,7 @@ interface SemanticsNodeInteractionsProvider {
      */
     fun onNode(
         matcher: SemanticsMatcher,
-        useUnmergedTree: Boolean = false
+        useUnmergedTree: Boolean = false,
     ): SemanticsNodeInteraction
 
     /**
@@ -61,6 +61,6 @@ interface SemanticsNodeInteractionsProvider {
      */
     fun onAllNodes(
         matcher: SemanticsMatcher,
-        useUnmergedTree: Boolean = false
+        useUnmergedTree: Boolean = false,
     ): SemanticsNodeInteractionCollection
 }

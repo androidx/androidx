@@ -26,7 +26,7 @@ class TypeMirrorToStringTest :
     AbstractLintDetectorTest(
         useDetector = TypeMirrorToString(),
         useIssues = listOf(TypeMirrorToString.ISSUE),
-        stubs = arrayOf(typeMirrorStub)
+        stubs = arrayOf(typeMirrorStub),
     ) {
     @Test
     fun `Test usage TypeMirror#toString on simple receiver`() {

@@ -120,7 +120,7 @@ class SemanticsInfoTest {
             .comparingElementsUsing(SemanticsConfigurationComparator)
             .containsExactly(
                 SemanticsConfiguration().apply { testTag = "item1" },
-                SemanticsConfiguration().apply { testTag = "item2" }
+                SemanticsConfiguration().apply { testTag = "item2" },
             )
             .inOrder()
 
@@ -128,7 +128,7 @@ class SemanticsInfoTest {
             .comparingElementsUsing(SemanticsConfigurationComparator)
             .containsExactly(
                 SemanticsConfiguration().apply { testTag = "item1" },
-                SemanticsConfiguration().apply { testTag = "item2" }
+                SemanticsConfiguration().apply { testTag = "item2" },
             )
             .inOrder()
 
@@ -147,7 +147,7 @@ class SemanticsInfoTest {
             .comparingElementsUsing(SemanticsConfigurationComparator)
             .containsExactly(
                 SemanticsConfiguration().apply { testTag = "item1" },
-                SemanticsConfiguration().apply { testTag = "item2" }
+                SemanticsConfiguration().apply { testTag = "item2" },
             )
             .inOrder()
 
@@ -212,7 +212,7 @@ class SemanticsInfoTest {
                 SemanticsConfiguration().apply { testTag = "child2" },
                 null,
                 null,
-                null
+                null,
             )
             .inOrder()
         assertThat(testTarget.semanticsConfiguration?.getOrNull(TestTag)).isEqualTo("testTarget")
@@ -313,7 +313,7 @@ class SemanticsInfoTest {
 
     private fun ComposeContentTestRule.getSemanticsInfoForTag(
         tag: String,
-        useUnmergedTree: Boolean = true
+        useUnmergedTree: Boolean = true,
     ): SemanticsInfo? {
         return semanticsOwner[onNodeWithTag(tag, useUnmergedTree).semanticsId()]
     }
@@ -327,7 +327,7 @@ class SemanticsInfoTest {
                             expected != null &&
                             actual.getOrNull(TestTag) == expected.getOrNull(TestTag))
                 },
-                "has same test tag as "
+                "has same test tag as ",
             )
     }
 }

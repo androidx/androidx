@@ -44,7 +44,7 @@ internal expect fun createPlatformTestContext(): PlatformTestContext
 /**
  * An extension to [TestContext] that allows us to add platform specific context to [TestContext].
  *
- * For example, on Android it contains an AccessibilityValidator that is used by Android's
+ * For example, on Android it contains a ComposeAccessibilityValidator that is used by Android's
  * implementation of [tryPerformAccessibilityChecks].
  */
 internal expect class PlatformTestContext

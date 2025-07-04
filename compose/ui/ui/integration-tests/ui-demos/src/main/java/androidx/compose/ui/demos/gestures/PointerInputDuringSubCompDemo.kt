@@ -73,7 +73,7 @@ fun PointerInputDuringSubComp() {
                     Modifier.fillParentMaxSize()
                         .border(width = 1.dp, color = Color.Black)
                         .pointerCounterGestureFilter { newCount -> pointerCount = newCount },
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text("$pointerCount", fontSize = 16.em, color = Color.Black)
                 }
@@ -99,7 +99,7 @@ internal class PointerCounterGestureFilter : PointerInputFilter() {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         val changes = pointerEvent.changes
 

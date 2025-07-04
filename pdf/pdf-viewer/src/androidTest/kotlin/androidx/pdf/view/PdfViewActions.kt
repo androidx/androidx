@@ -20,6 +20,7 @@ import android.graphics.PointF
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
+import androidx.pdf.PdfPoint
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.ViewInteraction
@@ -36,12 +37,20 @@ internal fun ViewInteraction.scrollByY(dy: Int) = this.perform(ScrollPdfViewByPi
 /** Performs a [ViewAction] that sets [PdfView.zoom] to [newZoom] */
 internal fun ViewInteraction.zoomTo(newZoom: Float) = this.perform(ZoomPdfView(newZoom))
 
+/** Performs a [ViewAction] that sets [PdfView.zoom] to [newZoom] */
+internal fun ViewInteraction.smoothZoomTo(newZoom: Float, numSteps: Int) =
+    this.perform(ZoomPdfView(newZoom, numSteps))
+
 /** Performs a [ViewAction] that calls [PdfView.scrollToPage] with the provided [pageNum] */
 internal fun ViewInteraction.scrollToPage(pageNum: Int) = this.perform(ScrollPdfViewToPage(pageNum))
 
 /** Performs a [ViewAction] that calls [PdfView.scrollToPosition] with the provided [pdfPoint] */
 internal fun ViewInteraction.scrollToPosition(pdfPoint: PdfPoint) =
     this.perform(ScrollPdfViewToPage(pdfPoint))
+
+/** Performs a [ViewAction] that scrolls any View by [totalPixels] in [numSteps] */
+internal fun ViewInteraction.smoothScrollBy(totalPixels: Int, numSteps: Int) =
+    this.perform(SmoothScrollY(totalPixels, numSteps))
 
 /** [ViewAction] which scrolls a [PdfView] by ([dx], [dy]) */
 private class ScrollPdfViewByPixels(val dx: Int = 0, val dy: Int = 0) : ViewAction {
@@ -52,7 +61,7 @@ private class ScrollPdfViewByPixels(val dx: Int = 0, val dy: Int = 0) : ViewActi
     override fun getConstraints(): Matcher<View> =
         Matchers.allOf(
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE),
-            ViewMatchers.isAssignableFrom(PdfView::class.java)
+            ViewMatchers.isAssignableFrom(PdfView::class.java),
         )
 
     override fun getDescription() = "Scroll PdfView by $dx, $dy"
@@ -63,12 +72,32 @@ private class ScrollPdfViewByPixels(val dx: Int = 0, val dy: Int = 0) : ViewActi
     }
 }
 
+/** [ViewAction] to scroll any View by [totalPixels] in [numSteps] smooth steps */
+private class SmoothScrollY(private val totalPixels: Int, private val numSteps: Int) : ViewAction {
+    private val stepSize = totalPixels / numSteps
+
+    override fun getConstraints(): Matcher<View> =
+        Matchers.allOf(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))
+
+    override fun getDescription() = "Scroll View by $totalPixels in $numSteps"
+
+    override fun perform(uiController: UiController, view: View) {
+        for (i in 0 until numSteps - 1) {
+            view.scrollBy(/* x= */ 0, /* y= */ stepSize)
+            uiController.loopMainThreadUntilIdle()
+        }
+        // Account for the remainder in the final step
+        view.scrollBy(/* x= */ 0, /* y= */ stepSize + totalPixels % numSteps)
+        uiController.loopMainThreadUntilIdle()
+    }
+}
+
 /** [ViewAction] which sets [PdfView.zoom] */
-private class ZoomPdfView(val newZoom: Float) : ViewAction {
+private class ZoomPdfView(val newZoom: Float, val numSteps: Int = 1) : ViewAction {
     override fun getConstraints(): Matcher<View> =
         Matchers.allOf(
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE),
-            ViewMatchers.isAssignableFrom(PdfView::class.java)
+            ViewMatchers.isAssignableFrom(PdfView::class.java),
         )
 
     override fun getDescription() = "Zoom PdfView to $newZoom"
@@ -76,8 +105,11 @@ private class ZoomPdfView(val newZoom: Float) : ViewAction {
     override fun perform(uiController: UiController, view: View) {
         // This should be guaranteed by our constraints, but this makes smartcasts work nicely
         check(view is PdfView)
-        view.zoom = newZoom
-        uiController.loopMainThreadUntilIdle()
+        val stepSize = (newZoom - view.zoom) / numSteps
+        for (i in 0 until numSteps) {
+            view.zoom = view.zoom + stepSize
+            uiController.loopMainThreadUntilIdle()
+        }
     }
 }
 
@@ -96,13 +128,13 @@ private class ScrollPdfViewToPage : ViewAction {
 
     constructor(point: PdfPoint) {
         pageNum = point.pageNum
-        pointOnPage = point.pagePoint
+        pointOnPage = PointF(point.x, point.y)
     }
 
     override fun getConstraints(): Matcher<View> =
         Matchers.allOf(
             ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE),
-            ViewMatchers.isAssignableFrom(PdfView::class.java)
+            ViewMatchers.isAssignableFrom(PdfView::class.java),
         )
 
     override fun getDescription(): String {
@@ -141,13 +173,13 @@ internal fun performSingleTapOnCoords(x: Float, y: Float): ViewAction {
             val screenPos = IntArray(2)
             view.getLocationOnScreen(screenPos)
 
-            val screenX = (screenPos[0] + x).toFloat()
-            val screenY = (screenPos[1] + y).toFloat()
+            val screenX = (screenPos[0] + x)
+            val screenY = (screenPos[1] + y)
 
             floatArrayOf(screenX, screenY)
         },
         Press.FINGER,
         InputDevice.SOURCE_TOUCHSCREEN,
-        MotionEvent.BUTTON_PRIMARY
+        MotionEvent.BUTTON_PRIMARY,
     )
 }

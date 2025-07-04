@@ -37,7 +37,7 @@ internal open class RemoteInteractionsManagerCompat(context: Context) : IRemoteI
 
     override fun registerRemoteAuthClientStatusListener(
         executor: Executor,
-        listener: Consumer<Int>
+        listener: Consumer<Int>,
     ) {
         if (isAvailabilityStatusApiSupported) {
             remoteInteractionsManager!!.registerRemoteAuthClientStatusListener(executor, listener)

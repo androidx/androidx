@@ -78,7 +78,7 @@ internal abstract class KspType(
                             ksType = ksType.replace(it.arguments),
                             originalKSAnnotations = originalKSAnnotations,
                             scope = scope,
-                            typeAlias = typeAlias
+                            typeAlias = typeAlias,
                         )
                     } else {
                         this
@@ -110,13 +110,29 @@ internal abstract class KspType(
         }
         val resolvedTypeArguments: Map<String, KSTypeArgument> =
             ksType.declaration.typeParameters
-                .mapIndexed { i, parameter -> parameter.name.asString() to ksType.arguments[i] }
+                .mapIndexed { i, parameter ->
+                    val argument: KSTypeArgument =
+                        if (ksType.arguments.isNotEmpty()) {
+                            ksType.arguments[i]
+                        } else {
+                            // In KSP2, a raw java KSType doesn't have any arguments, but we need
+                            // them to replace type parameters in super types (we are forced to
+                            // create super types from the declaration because KSType itself doesn't
+                            // have super types). Here, we mimic KSP1 behavior by taking the first
+                            // bound type as the type argument (e.g. 'Bar' in 'T extends Bar & Baz')
+                            env.resolver.getTypeArgument(
+                                parameter.bounds.first(),
+                                Variance.INVARIANT,
+                            )
+                        }
+                    parameter.name.asString() to argument
+                }
                 .toMap()
         val superTypes =
             (ksType.declaration as? KSClassDeclaration)?.superTypes?.toList()?.map {
                 env.wrap(
                         ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
-                        allowPrimitives = false
+                        allowPrimitives = false,
                     )
                     .makeNonNullable()
             } ?: emptyList()
@@ -140,7 +156,7 @@ internal abstract class KspType(
     private fun resolveTypeArguments(
         type: KSType,
         resolvedTypeArguments: Map<String, KSTypeArgument>,
-        stack: List<KSType> = emptyList()
+        stack: List<KSType> = emptyList(),
     ): KSType {
         return type.replace(
             type.arguments
@@ -160,10 +176,10 @@ internal abstract class KspType(
                                 resolveTypeArguments(
                                         type = argType,
                                         resolvedTypeArguments = resolvedTypeArguments,
-                                        stack = stack + argType
+                                        stack = stack + argType,
                                     )
                                     .createTypeReference(),
-                            variance = Variance.INVARIANT
+                            variance = Variance.INVARIANT,
                         )
                     } else {
                         argument

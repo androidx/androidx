@@ -47,7 +47,6 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,7 +60,7 @@ class PreviewTest(
     private val cameraXConfig: CameraXConfig,
     private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
-    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
+    @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
     @get:Rule
     val cameraPipeConfigTestRule =
@@ -167,7 +166,6 @@ class PreviewTest(
 
     @UiThreadTest
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndDisplayPreview(): Unit = runBlocking {
         withContext(Dispatchers.Main) {
             val preview = Preview.Builder().build()
@@ -187,7 +185,6 @@ class PreviewTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
         val preview = Preview.Builder().build()
 

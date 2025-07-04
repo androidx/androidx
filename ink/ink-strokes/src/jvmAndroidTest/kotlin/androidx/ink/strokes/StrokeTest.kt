@@ -60,7 +60,7 @@ class StrokeTest {
         assertThat(newStroke.shape).isSameInstanceAs(originalStroke.shape)
 
         // C++ Stroke is different
-        assertThat(newStroke.nativeAddress).isNotEqualTo(originalStroke.nativeAddress)
+        assertThat(newStroke.nativePointer).isNotEqualTo(originalStroke.nativePointer)
     }
 
     @Test
@@ -112,7 +112,7 @@ class StrokeTest {
         assertThat(actual.shape).isSameInstanceAs(originalStroke.shape)
 
         // The new C++ Stroke is different from the original stroke.
-        assertThat(actual.nativeAddress).isNotEqualTo(originalStroke.nativeAddress)
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
     }
 
     @Test
@@ -130,20 +130,12 @@ class StrokeTest {
                             ImmutableList.copyOf(
                                 originalBrush.family.coats.map { coat ->
                                     BrushCoat(
-                                        tips =
-                                            // The preferred Kotlin API method, [toImmutableList],
-                                            // is only available in
-                                            // google3, but this class and method are targeted for
-                                            // Jetpack.
-                                            @Suppress("PreferKotlinApi")
-                                            ImmutableList.copyOf(
-                                                coat.tips.map { tip -> tip.copy(scaleX = 0.12345f) }
-                                            ),
+                                        tip = coat.tip.copy(scaleX = 0.12345f),
                                         paint = coat.paint,
                                     )
                                 }
                             ),
-                        uri = originalBrush.family.uri,
+                        clientBrushFamilyId = originalBrush.family.clientBrushFamilyId,
                     ),
                 colorLong = originalBrush.colorLong,
                 size = originalBrush.size,
@@ -162,7 +154,7 @@ class StrokeTest {
         assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
 
         // The new C++ Stroke is different from the original stroke.
-        assertThat(actual.nativeAddress).isNotEqualTo(originalStroke.nativeAddress)
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
     }
 
     @Test
@@ -184,8 +176,7 @@ class StrokeTest {
                                             BrushPaint(
                                                 ImmutableList.of(
                                                     BrushPaint.TextureLayer(
-                                                        colorTextureUri =
-                                                            "ink://ink/texture:test-one",
+                                                        clientTextureId = "test-one",
                                                         sizeX = 123.45F,
                                                         sizeY = 678.90F,
                                                         offsetX = 0.1F,
@@ -196,8 +187,7 @@ class StrokeTest {
                                                         mapping = BrushPaint.TextureMapping.TILING,
                                                     ),
                                                     BrushPaint.TextureLayer(
-                                                        colorTextureUri =
-                                                            "ink://ink/texture:test-two",
+                                                        clientTextureId = "test-two",
                                                         sizeX = 256F,
                                                         sizeY = 256F,
                                                         offsetX = 0.1F,
@@ -226,7 +216,7 @@ class StrokeTest {
         assertThat(actual.shape).isSameInstanceAs(originalStroke.shape)
 
         // The new C++ Stroke is different from the original stroke.
-        assertThat(actual.nativeAddress).isNotEqualTo(originalStroke.nativeAddress)
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
     }
 
     @Test
@@ -246,7 +236,7 @@ class StrokeTest {
         assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
 
         // The new C++ Stroke is different from the original stroke.
-        assertThat(actual.nativeAddress).isNotEqualTo(originalStroke.nativeAddress)
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
     }
 
     @Test
@@ -266,7 +256,7 @@ class StrokeTest {
         assertThat(actual.shape).isNotSameInstanceAs(originalStroke.shape)
 
         // The new C++ Stroke is different from the original stroke.
-        assertThat(actual.nativeAddress).isNotEqualTo(originalStroke.nativeAddress)
+        assertThat(actual.nativePointer).isNotEqualTo(originalStroke.nativePointer)
     }
 
     @Test
@@ -283,8 +273,7 @@ class StrokeTest {
     /**
      * Creates a brush for testing with:
      *
-     * Family Uri ="//ink/brush-family:pencil", distinctly different from the default native brush
-     * family.
+     * Family ID ="pencil", distinctly different from the default native brush family.
      *
      * Color has nontrivial values for all channels and the color space.
      *
@@ -294,7 +283,7 @@ class StrokeTest {
      */
     private fun buildTestBrush() =
         Brush.createWithColorLong(
-            BrushFamily(uri = "//ink/brush-family:pencil"),
+            BrushFamily(clientBrushFamilyId = "pencil"),
             Color(0.6f, 0.7f, 0.8f, 0.9f, ColorSpaces.DisplayP3).value.toLong(),
             7f,
             0.0012345f,
@@ -326,7 +315,7 @@ class StrokeTest {
                     factor * 2f,
                     factor * 3f,
                     factor * 5f,
-                    factor * 2f
+                    factor * 2f,
                 )
             )
             .asImmutable()

@@ -944,7 +944,7 @@ public class IconCompat extends CustomVersionedParcelable {
      * Creates an IconCompat from an Icon.
      */
     @RequiresApi(23)
-    public static @Nullable IconCompat createFromIcon(@NonNull Context context,
+    public static @NonNull IconCompat createFromIcon(@NonNull Context context,
             @NonNull Icon icon) {
         Preconditions.checkNotNull(icon);
         return Api23Impl.createFromIcon(context, icon);
@@ -955,7 +955,7 @@ public class IconCompat extends CustomVersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(23)
-    public static @Nullable IconCompat createFromIcon(@NonNull Icon icon) {
+    public static @NonNull IconCompat createFromIcon(@NonNull Icon icon) {
         return Api23Impl.createFromIconInner(icon);
     }
 
@@ -1076,7 +1076,7 @@ public class IconCompat extends CustomVersionedParcelable {
             // This class is not instantiable.
         }
 
-        static @Nullable IconCompat createFromIcon(@NonNull Context context, @NonNull Icon icon) {
+        static @NonNull IconCompat createFromIcon(@NonNull Context context, @NonNull Icon icon) {
             switch (getType(icon)) {
                 case TYPE_RESOURCE:
                     String resPackage = getResPackage(icon);

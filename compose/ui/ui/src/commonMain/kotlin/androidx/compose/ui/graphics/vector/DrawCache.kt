@@ -58,7 +58,7 @@ internal class DrawCache {
         size: IntSize,
         density: Density,
         layoutDirection: LayoutDirection,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) {
         this.scopeDensity = density
         this.layoutDirection = layoutDirection

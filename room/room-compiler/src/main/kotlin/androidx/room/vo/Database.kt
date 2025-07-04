@@ -35,12 +35,12 @@ data class Database(
     val type: XType,
     val entities: List<Entity>,
     val views: List<DatabaseView>,
-    val daoMethods: List<DaoMethod>,
+    val daoFunctions: List<DaoFunction>,
     val version: Int,
     val exportSchema: Boolean,
     val enableForeignKeys: Boolean,
     val overrideClearAllTables: Boolean,
-    val constructorObject: DatabaseConstructor?
+    val constructorObject: DatabaseConstructor?,
 ) {
     // This variable will be set once auto-migrations are processed given the DatabaseBundle from
     // this object. This is necessary for tracking the versions involved in the auto-migration.
@@ -57,7 +57,7 @@ data class Database(
             identityHash,
             entities.map(Entity::toBundle),
             views.map(DatabaseView::toBundle),
-            listOf(RoomMasterTable.CREATE_QUERY, RoomMasterTable.createInsertQuery(identityHash))
+            listOf(RoomMasterTable.CREATE_QUERY, RoomMasterTable.createInsertQuery(identityHash)),
         )
     }
 

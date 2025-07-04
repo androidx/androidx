@@ -40,7 +40,7 @@ class BeginGetPasswordOptionTest {
         val bundle = Bundle()
         bundle.putStringArrayList(
             GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
-            ArrayList(expectedAllowedUserIds)
+            ArrayList(expectedAllowedUserIds),
         )
 
         val option = BeginGetPasswordOption(expectedAllowedUserIds, bundle, BUNDLE_ID)
@@ -57,7 +57,7 @@ class BeginGetPasswordOptionTest {
         val bundle = Bundle()
         bundle.putStringArrayList(
             GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS,
-            ArrayList(expectedAllowedUserIds)
+            ArrayList(expectedAllowedUserIds),
         )
 
         var option = BeginGetPasswordOption.createForTest(bundle, "id")

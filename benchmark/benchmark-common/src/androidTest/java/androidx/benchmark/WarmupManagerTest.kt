@@ -42,13 +42,13 @@ public class WarmupManagerTest {
         val warmup = WarmupManager()
         warmup.warmupOnFakeData(
             warmupNeededNs = TimeUnit.SECONDS.toNanos(20),
-            idealDurationNs = TimeUnit.MILLISECONDS.toNanos(5)
+            idealDurationNs = TimeUnit.MILLISECONDS.toNanos(5),
         )
 
         assertApproxEquals(
             WarmupManager.MAX_DURATION_NS,
             warmup.totalDurationNs,
-            TimeUnit.MILLISECONDS.toNanos(100)
+            TimeUnit.MILLISECONDS.toNanos(100),
         )
     }
 
@@ -78,7 +78,7 @@ public class WarmupManagerTest {
 private fun assertApproxEquals(expected: Long, observed: Long, threshold: Long) {
     assertTrue(
         "Expected: $expected, Observed: $observed, Thresh: $threshold",
-        Math.abs(expected - observed) < threshold
+        Math.abs(expected - observed) < threshold,
     )
 }
 

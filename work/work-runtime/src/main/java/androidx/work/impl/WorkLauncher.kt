@@ -24,9 +24,9 @@ import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.StopWorkRunnable
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
-interface WorkLauncher {
+public interface WorkLauncher {
 
-    fun startWork(workSpecId: StartStopToken) {
+    public fun startWork(workSpecId: StartStopToken) {
         startWork(workSpecId, null)
     }
 
@@ -34,22 +34,22 @@ interface WorkLauncher {
      * @param workSpecId The [WorkSpec] id to start
      * @param runtimeExtras The [WorkerParameters.RuntimeExtras] associated with this work
      */
-    fun startWork(workSpecId: StartStopToken, runtimeExtras: RuntimeExtras?)
+    public fun startWork(workSpecId: StartStopToken, runtimeExtras: RuntimeExtras?)
 
     /** @param workSpecId The [WorkSpec] id to stop */
-    fun stopWork(workSpecId: StartStopToken) {
+    public fun stopWork(workSpecId: StartStopToken) {
         stopWork(workSpecId, WorkInfo.STOP_REASON_UNKNOWN)
     }
 
-    fun stopWork(workSpecId: StartStopToken, @StopReason reason: Int)
+    public fun stopWork(workSpecId: StartStopToken, @StopReason reason: Int)
 
-    fun stopWorkWithReason(workSpecId: StartStopToken, @StopReason reason: Int) =
+    public fun stopWorkWithReason(workSpecId: StartStopToken, @StopReason reason: Int): Unit =
         stopWork(workSpecId, reason)
 }
 
-class WorkLauncherImpl(
-    val processor: Processor,
-    val workTaskExecutor: TaskExecutor,
+public class WorkLauncherImpl(
+    public val processor: Processor,
+    public val workTaskExecutor: TaskExecutor,
 ) : WorkLauncher {
     override fun startWork(workSpecId: StartStopToken, runtimeExtras: RuntimeExtras?) {
         workTaskExecutor.executeOnTaskThread { processor.startWork(workSpecId, runtimeExtras) }

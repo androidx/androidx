@@ -88,8 +88,8 @@ class WindowInsetsSizeTest {
                         composeView,
                         ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        ),
                     )
                     composeView.setContent {
                         DeviceConfigurationOverride(
@@ -109,7 +109,7 @@ class WindowInsetsSizeTest {
                     }
                     view
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
@@ -118,7 +118,7 @@ class WindowInsetsSizeTest {
 
         sendInsets(
             WindowInsetsCompat.Type.navigationBars(),
-            androidx.core.graphics.Insets.of(25, 0, 0, 0)
+            androidx.core.graphics.Insets.of(25, 0, 0, 0),
         )
 
         rule.waitUntil {
@@ -144,8 +144,8 @@ class WindowInsetsSizeTest {
                         composeView,
                         ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        ),
                     )
                     composeView.setContent {
                         Box(
@@ -161,7 +161,7 @@ class WindowInsetsSizeTest {
                     }
                     view
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
@@ -170,7 +170,7 @@ class WindowInsetsSizeTest {
 
         sendInsets(
             WindowInsetsCompat.Type.navigationBars(),
-            androidx.core.graphics.Insets.of(0, 0, 0, 25)
+            androidx.core.graphics.Insets.of(0, 0, 0, 25),
         )
 
         rule.waitUntil {
@@ -188,7 +188,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.ime(),
             { Modifier.windowInsetsStartWidth(WindowInsets.ime).fillMaxHeight() },
             AndroidXInsets.of(10, 0, 0, 0),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(10, size.height)
         }
@@ -201,7 +201,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.ime(),
             { Modifier.windowInsetsStartWidth(WindowInsets.ime).fillMaxHeight() },
             AndroidXInsets.of(0, 0, 10, 0),
-            LayoutDirection.Rtl
+            LayoutDirection.Rtl,
         ) { size ->
             IntSize(10, size.height)
         }
@@ -214,7 +214,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.ime(),
             { Modifier.windowInsetsEndWidth(WindowInsets.ime).fillMaxHeight() },
             AndroidXInsets.of(0, 0, 10, 0),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(10, size.height)
         }
@@ -227,7 +227,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.ime(),
             { Modifier.windowInsetsTopHeight(WindowInsets.ime).fillMaxWidth() },
             AndroidXInsets.of(0, 10, 0, 0),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(size.width, 10)
         }
@@ -240,7 +240,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.ime(),
             { Modifier.windowInsetsBottomHeight(WindowInsets.ime).fillMaxWidth() },
             AndroidXInsets.of(0, 0, 0, 10),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(size.width, 10)
         }
@@ -252,7 +252,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.navigationBars(),
             { Modifier.windowInsetsStartWidth(WindowInsets.navigationBars).fillMaxHeight() },
             AndroidXInsets.of(10, 0, 0, 0),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(10, size.height)
         }
@@ -264,7 +264,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.navigationBars(),
             { Modifier.windowInsetsStartWidth(WindowInsets.navigationBars).fillMaxHeight() },
             AndroidXInsets.of(0, 0, 10, 0),
-            LayoutDirection.Rtl
+            LayoutDirection.Rtl,
         ) { size ->
             IntSize(10, size.height)
         }
@@ -276,7 +276,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.navigationBars(),
             { Modifier.windowInsetsEndWidth(WindowInsets.navigationBars).fillMaxHeight() },
             AndroidXInsets.of(0, 0, 10, 0),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(10, size.height)
         }
@@ -288,7 +288,7 @@ class WindowInsetsSizeTest {
             WindowInsetsCompat.Type.statusBars(),
             { Modifier.windowInsetsTopHeight(WindowInsets.statusBars).fillMaxWidth() },
             AndroidXInsets.of(0, 10, 0, 0),
-            LayoutDirection.Ltr
+            LayoutDirection.Ltr,
         ) { size ->
             IntSize(size.width, 10)
         }
@@ -303,7 +303,7 @@ class WindowInsetsSizeTest {
                     Modifier.windowInsetsTopHeight(insets.navigationBars.union(insets.systemBars))
                         .fillMaxWidth()
                 },
-                LayoutDirection.Ltr
+                LayoutDirection.Ltr,
             )
         val insets =
             WindowInsetsCompat.Builder()
@@ -361,7 +361,7 @@ class WindowInsetsSizeTest {
         modifier: @Composable () -> Modifier,
         sentInsets: AndroidXInsets,
         layoutDirection: LayoutDirection,
-        expected: (IntSize) -> IntSize
+        expected: (IntSize) -> IntSize,
     ) {
         val coordinates = setInsetContent(modifier, layoutDirection)
 
@@ -379,7 +379,7 @@ class WindowInsetsSizeTest {
 
     private fun sendInsets(
         type: Int,
-        sentInsets: AndroidXInsets = AndroidXInsets.of(10, 11, 12, 13)
+        sentInsets: AndroidXInsets = AndroidXInsets.of(10, 11, 12, 13),
     ): AndroidWindowInsets {
         val builder = WindowInsetsCompat.Builder().setInsets(type, sentInsets)
         if (type == WindowInsetsCompat.Type.displayCutout()) {
@@ -424,7 +424,7 @@ class WindowInsetsSizeTest {
 
     private fun setInsetContent(
         sizeModifier: @Composable () -> Modifier,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ): LayoutCoordinates {
         lateinit var coordinates: LayoutCoordinates
 
@@ -438,8 +438,8 @@ class WindowInsetsSizeTest {
                         composeView,
                         ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        ),
                     )
                     composeView.setContent {
                         DeviceConfigurationOverride(
@@ -454,7 +454,7 @@ class WindowInsetsSizeTest {
                     }
                     view
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 

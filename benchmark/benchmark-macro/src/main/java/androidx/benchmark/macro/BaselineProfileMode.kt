@@ -39,5 +39,5 @@ enum class BaselineProfileMode {
     UseIfAvailable,
 
     /** Do not include the Baseline Profile, if present, in the compilation of the target app. */
-    Disable
+    Disable,
 }

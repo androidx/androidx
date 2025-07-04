@@ -76,7 +76,7 @@ fun ListToDetailsDemo() {
                     slideInHorizontally { it } + fadeIn() togetherWith
                         slideOutHorizontally { -it } + fadeOut()
                 }
-            }
+            },
         ) {
             when (it) {
                 Screen.List -> {
@@ -87,7 +87,7 @@ fun ListToDetailsDemo() {
                                     Modifier.clickable(
                                             interactionSource =
                                                 remember { MutableInteractionSource() },
-                                            indication = null
+                                            indication = null,
                                         ) {
                                             state = Screen.Details(item)
                                         }
@@ -108,7 +108,7 @@ fun ListToDetailsDemo() {
                                                 } else Modifier
                                             ),
                                     contentScale = ContentScale.Crop,
-                                    contentDescription = null
+                                    contentDescription = null,
                                 )
                                 Spacer(Modifier.size(15.dp))
                                 Text("Item $item")
@@ -122,7 +122,7 @@ fun ListToDetailsDemo() {
                         modifier =
                             Modifier.fillMaxSize().clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
                             ) {
                                 state = Screen.List
                             }
@@ -140,7 +140,7 @@ fun ListToDetailsDemo() {
                                     )
                                     .fillMaxWidth(),
                             contentScale = ContentScale.Crop,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                         Text("Item $item", fontSize = 23.sp)
                     }

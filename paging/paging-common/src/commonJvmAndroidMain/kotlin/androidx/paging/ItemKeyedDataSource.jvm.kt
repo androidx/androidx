@@ -42,7 +42,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @Deprecated(
     message = "ItemKeyedDataSource is deprecated and has been replaced by PagingSource",
-    replaceWith = ReplaceWith("PagingSource<Key, Value>", "androidx.paging.PagingSource")
+    replaceWith = ReplaceWith("PagingSource<Key, Value>", "androidx.paging.PagingSource"),
 )
 public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
     DataSource<Key, Value>(ITEM_KEYED) {
@@ -67,7 +67,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
     public open class LoadInitialParams<Key : Any>(
         @JvmField public val requestedInitialKey: Key?,
         @JvmField public val requestedLoadSize: Int,
-        @JvmField public val placeholdersEnabled: Boolean
+        @JvmField public val placeholdersEnabled: Boolean,
     )
 
     /**
@@ -85,7 +85,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
      */
     public open class LoadParams<Key : Any>(
         @JvmField public val key: Key,
-        @JvmField public val requestedLoadSize: Int
+        @JvmField public val requestedLoadSize: Int,
     )
 
     /**
@@ -165,7 +165,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
                     LoadInitialParams(
                         params.key,
                         params.initialLoadSize,
-                        params.placeholdersEnabled
+                        params.placeholdersEnabled,
                     )
                 )
             LoadType.PREPEND -> loadBefore(LoadParams(params.key!!, params.pageSize))
@@ -190,7 +190,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
                                 prevKey = data.getPrevKey(),
                                 nextKey = data.getNextKey(),
                                 itemsBefore = position,
-                                itemsAfter = totalCount - data.size - position
+                                itemsAfter = totalCount - data.size - position,
                             )
                         )
                     }
@@ -200,11 +200,11 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
                             BaseResult(
                                 data = data,
                                 prevKey = data.getPrevKey(),
-                                nextKey = data.getNextKey()
+                                nextKey = data.getNextKey(),
                             )
                         )
                     }
-                }
+                },
             )
         }
 
@@ -247,7 +247,7 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
      */
     public abstract fun loadInitial(
         params: LoadInitialParams<Key>,
-        callback: LoadInitialCallback<Value>
+        callback: LoadInitialCallback<Value>,
     )
 
     /**

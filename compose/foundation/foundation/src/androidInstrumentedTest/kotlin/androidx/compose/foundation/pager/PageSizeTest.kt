@@ -54,7 +54,7 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
             object : PageSize {
                 override fun Density.calculateMainAxisPageSize(
                     availableSpace: Int,
-                    pageSpacing: Int
+                    pageSpacing: Int,
                 ): Int {
                     return 100.dp.roundToPx() + pageSpacing
                 }
@@ -65,7 +65,7 @@ class PageSizeTest(val config: ParamConfig) : BasePagerTest(config) {
             initialPage = 5,
             modifier = Modifier.crossAxisSize(200.dp),
             beyondViewportPageCount = 0,
-            pageSize = { pagerMode }
+            pageSize = { pagerMode },
         )
 
         // Assert

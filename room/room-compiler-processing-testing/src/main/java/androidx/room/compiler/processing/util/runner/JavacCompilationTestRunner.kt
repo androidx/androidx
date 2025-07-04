@@ -38,10 +38,6 @@ internal class JavacCompilationTestRunner(
 
     override val name: String = "javac"
 
-    override fun canRun(params: TestCompilationParameters): Boolean {
-        return params.sources.all { it is Source.JavaSource }
-    }
-
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
         val syntheticJavacProcessor = SyntheticJavacProcessor(params.config, params.handlers)
         val processors = testProcessors + syntheticJavacProcessor
@@ -56,7 +52,7 @@ internal class JavacCompilationTestRunner(
                             package xprocessing.generated;
                             public class SyntheticSource {}
                             """
-                                .trimIndent()
+                                .trimIndent(),
                     )
                 )
             }
@@ -105,7 +101,7 @@ internal class JavacCompilationTestRunner(
             processor = syntheticJavacProcessor,
             diagnostics = diagnostics.groupBy { it.kind },
             generatedSources = generatedSources.values.toList(),
-            generatedResources = generatedResources
+            generatedResources = generatedResources,
         )
     }
 }

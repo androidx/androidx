@@ -18,6 +18,7 @@ package androidx.room.coroutines
 
 import androidx.kruth.assertThat
 import androidx.room.Transactor
+import androidx.room.concurrent.AtomicInt
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.filters.LargeTest
@@ -27,7 +28,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -70,7 +70,7 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
                 driver = driver,
                 fileName = fileName,
                 maxNumOfReaders = 1,
-                maxNumOfWriters = 1
+                maxNumOfWriters = 1,
             )
         var count = 0
         withContext(NewThreadDispatcher()) {
@@ -97,7 +97,7 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
                 driver = driver,
                 fileName = fileName,
                 maxNumOfReaders = 1,
-                maxNumOfWriters = 1
+                maxNumOfWriters = 1,
             )
         val job = launch(Dispatchers.IO) { pool.useReaderConnection { delay(500) } }
         withContext(NewThreadDispatcher()) {
@@ -130,7 +130,7 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
 
     /** A CoroutineDispatcher that dispatches every block into a new thread */
     private class NewThreadDispatcher : CoroutineDispatcher() {
-        private val idCounter = atomic(0)
+        private val idCounter = AtomicInt(0)
 
         @OptIn(InternalCoroutinesApi::class)
         override fun dispatchYield(context: CoroutineContext, block: Runnable) {
@@ -150,7 +150,7 @@ class BundledSQLiteConnectionPoolTest : BaseConnectionPoolTest() {
 
     private fun <R> ConnectionPool.useConnectionBlocking(
         isReadOnly: Boolean,
-        block: suspend (Transactor) -> R
+        block: suspend (Transactor) -> R,
     ): R {
         return runBlocking(Dispatchers.Unconfined) { useConnection(isReadOnly, block) }
     }

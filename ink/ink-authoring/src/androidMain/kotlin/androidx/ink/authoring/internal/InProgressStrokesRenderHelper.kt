@@ -77,7 +77,7 @@ internal interface InProgressStrokesRenderHelper {
 
     /**
      * Called by [InProgressStrokesManager] when new content must be drawn. Will lead to
-     * [InProgressStrokesRenderHelper.onDraw].
+     * [InProgressStrokesRenderHelper.Callback.onDraw].
      */
     @UiThread fun requestDraw()
 
@@ -159,7 +159,11 @@ internal interface InProgressStrokesRenderHelper {
      * [prepareToDrawInModifiedRegion]. This may be called multiple times per modified region with
      * different [InProgressStroke] objects. Called on the render thread.
      */
-    fun drawInModifiedRegion(inProgressStroke: InProgressStroke, strokeToMainViewTransform: Matrix)
+    fun drawInModifiedRegion(
+        inProgressStroke: InProgressStroke,
+        strokeToMainViewTransform: Matrix,
+        textureAnimationProgress: Float,
+    )
 
     /**
      * Cleans up what was initialized in [prepareToDrawInModifiedRegion]. Called on the render

@@ -29,7 +29,7 @@ package androidx.annotation
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.CONSTRUCTOR
+    AnnotationTarget.CONSTRUCTOR,
 )
 public annotation class RequiresFeature(
     /** The name of the feature that is required. */
@@ -40,5 +40,5 @@ public annotation class RequiresFeature(
      * multiple parameters, but the feature name parameter must be of type String and must also be
      * the first String-type parameter.
      */
-    val enforcement: String
+    val enforcement: String,
 )

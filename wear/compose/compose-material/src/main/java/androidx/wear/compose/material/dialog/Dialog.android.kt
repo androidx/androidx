@@ -87,7 +87,7 @@ public fun Dialog(
         modifier = modifier,
         properties = properties,
         positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
-        content = content
+        content = content,
     )
 }
 
@@ -120,7 +120,7 @@ public fun Dialog(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingLazyListState from " +
         "wear.compose.foundation.lazy package",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Dialog(
@@ -138,7 +138,7 @@ public fun Dialog(
         modifier = modifier,
         properties = properties,
         positionIndicator = { if (scrollState != null) PositionIndicator(scrollState) },
-        content = content
+        content = content,
     )
 }
 
@@ -164,10 +164,7 @@ private fun Dialog(
     var pendingOnDismissCall by remember { mutableStateOf(false) }
 
     if (showDialog || transition.currentState == DialogVisibility.Display) {
-        Dialog(
-            onDismissRequest = onDismissRequest,
-            properties = properties,
-        ) {
+        Dialog(onDismissRequest = onDismissRequest, properties = properties) {
             val backgroundScrimAlpha by animateBackgroundScrimAlpha(transition)
             val contentAlpha by animateContentAlpha(transition)
             val scale by animateDialogScale(transition)
@@ -184,7 +181,7 @@ private fun Dialog(
                         onDismissRequest()
                         // Reset state for the next time this dialog is shown.
                         transitionState = MutableTransitionState(DialogVisibility.Hide)
-                    }
+                    },
                 ) { isBackground ->
                     if (!isBackground) {
                         Box(
@@ -243,7 +240,7 @@ private fun animateBackgroundScrimAlpha(transition: Transition<DialogVisibility>
                     }
             }
         },
-        label = "background-scrim-alpha"
+        label = "background-scrim-alpha",
     ) { stage ->
         when (stage) {
             DialogVisibility.Hide -> 0f
@@ -268,7 +265,7 @@ private fun animateContentAlpha(transition: Transition<DialogVisibility>) =
                     tween(durationMillis = (RAPID / 0.9f).toInt(), easing = STANDARD_OUT)
             }
         },
-        label = "content-alpha"
+        label = "content-alpha",
     ) { stage ->
         when (stage) {
             DialogVisibility.Hide -> 0f
@@ -285,7 +282,7 @@ private fun animateDialogScale(transition: Transition<DialogVisibility>) =
                 DialogVisibility.Hide -> tween(durationMillis = CASUAL, easing = STANDARD_OUT)
             }
         },
-        label = "scale"
+        label = "scale",
     ) { stage ->
         when (stage) {
             DialogVisibility.Hide -> 1.25f
@@ -295,5 +292,5 @@ private fun animateDialogScale(transition: Transition<DialogVisibility>) =
 
 private enum class DialogVisibility {
     Hide,
-    Display
+    Display,
 }

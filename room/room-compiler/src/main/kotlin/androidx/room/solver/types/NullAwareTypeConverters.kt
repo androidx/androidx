@@ -32,7 +32,7 @@ class NullSafeTypeConverter(val delegate: TypeConverter) :
     TypeConverter(
         from = delegate.from.makeNullable(),
         to = delegate.to.makeNullable(),
-        cost = delegate.cost + Cost.NULL_SAFE
+        cost = delegate.cost + Cost.NULL_SAFE,
     ) {
     init {
         check(delegate.from.nullability == XNullability.NONNULL) {
@@ -52,9 +52,8 @@ class NullSafeTypeConverter(val delegate: TypeConverter) :
 }
 
 /** A [TypeConverter] that checks the value is `non-null` and throws if it is null. */
-class RequireNotNullTypeConverter(
-    from: XType,
-) : TypeConverter(from = from, to = from.makeNonNullable(), cost = Cost.REQUIRE_NOT_NULL) {
+class RequireNotNullTypeConverter(from: XType) :
+    TypeConverter(from = from, to = from.makeNonNullable(), cost = Cost.REQUIRE_NOT_NULL) {
     init {
         check(from.nullability != XNullability.NONNULL) {
             "No reason to null check a non-null input"
@@ -87,8 +86,8 @@ class RequireNotNullTypeConverter(
                     XCodeBlock.ofNewInstance(
                         ExceptionTypeNames.JAVA_ILLEGAL_STATE_EXCEPTION,
                         "%S",
-                        message
-                    )
+                        message,
+                    ),
                 )
             }
             CodeLanguage.KOTLIN -> {

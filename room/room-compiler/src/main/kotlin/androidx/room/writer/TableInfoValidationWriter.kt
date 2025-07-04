@@ -44,7 +44,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             val columnListType =
                 CommonTypeNames.MUTABLE_MAP.parametrizedBy(
                     CommonTypeNames.STRING,
-                    RoomTypeNames.TABLE_INFO_COLUMN
+                    RoomTypeNames.TABLE_INFO_COLUMN,
                 )
             addLocalVariable(
                 name = columnListVar,
@@ -57,16 +57,16 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                                     "new %T(%L)",
                                     CommonTypeNames.HASH_MAP.parametrizedBy(
                                         CommonTypeNames.STRING,
-                                        RoomTypeNames.TABLE_INFO_COLUMN
+                                        RoomTypeNames.TABLE_INFO_COLUMN,
                                     ),
-                                    entity.fields.size
+                                    entity.properties.size,
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_MAP_OF)
                         }
-                    }
+                    },
             )
-            entity.fields.forEach { field ->
+            entity.properties.forEach { field ->
                 addStatement(
                     "%L.put(%S, %L)",
                     columnListVar,
@@ -77,11 +77,11 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         field.columnName, // name
                         field.affinity?.name ?: SQLTypeAffinity.TEXT.name, // type
                         field.nonNull, // nonNull
-                        entity.primaryKey.fields.indexOf(field) + 1, // pkeyPos
+                        entity.primaryKey.properties.indexOf(field) + 1, // pkeyPos
                         field.defaultValue, // defaultValue
                         RoomTypeNames.TABLE_INFO,
-                        CREATED_FROM_ENTITY // createdFrom
-                    )
+                        CREATED_FROM_ENTITY, // createdFrom
+                    ),
                 )
             }
 
@@ -100,12 +100,12 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                                     CommonTypeNames.HASH_SET.parametrizedBy(
                                         RoomTypeNames.TABLE_INFO_FOREIGN_KEY
                                     ),
-                                    entity.foreignKeys.size
+                                    entity.foreignKeys.size,
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_SET_OF)
                         }
-                    }
+                    },
             )
             entity.foreignKeys.forEach {
                 addStatement(
@@ -117,9 +117,9 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         it.parentTable, // parent table
                         it.onDelete.sqlName, // on delete
                         it.onUpdate.sqlName, // on update
-                        listOfStrings(it.childFields.map { it.columnName }), // parent names
-                        listOfStrings(it.parentColumns) // parent column names
-                    )
+                        listOfStrings(it.childProperties.map { it.columnName }), // parent names
+                        listOfStrings(it.parentColumns), // parent column names
+                    ),
                 )
             }
 
@@ -138,12 +138,12 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                                     CommonTypeNames.HASH_SET.parametrizedBy(
                                         RoomTypeNames.TABLE_INFO_INDEX
                                     ),
-                                    entity.indices.size
+                                    entity.indices.size,
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_SET_OF)
                         }
-                    }
+                    },
             )
             entity.indices.forEach { index ->
                 val orders =
@@ -161,8 +161,8 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         index.name, // name
                         index.unique, // unique
                         listOfStrings(index.columnNames), // columns
-                        listOfStrings(orders) // orders
-                    )
+                        listOfStrings(orders), // orders
+                    ),
                 )
             }
 
@@ -176,8 +176,8 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         entity.tableName,
                         columnListVar,
                         foreignKeySetVar,
-                        indicesSetVar
-                    )
+                        indicesSetVar,
+                    ),
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
@@ -187,7 +187,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                 "%M(%L, %S)",
                 RoomMemberNames.TABLE_INFO_READ,
                 connectionParamName,
-                entity.tableName
+                entity.tableName,
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -199,8 +199,8 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,
                         "\n Found:\n",
-                        existingVar
-                    )
+                        existingVar,
+                    ),
                 )
             }
             endControlFlow()

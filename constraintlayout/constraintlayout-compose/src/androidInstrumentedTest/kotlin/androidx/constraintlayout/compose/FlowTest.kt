@@ -67,7 +67,7 @@ class FlowTest {
                 width = "'parent'",
                 height = "'parent'",
                 boxesCount = boxesCount,
-                isHorizontal = true
+                isHorizontal = true,
             )
         }
         var expectedX = 0.dp
@@ -94,7 +94,7 @@ class FlowTest {
                 width = "'parent'",
                 height = "'parent'",
                 boxesCount = boxesCount,
-                isHorizontal = false
+                isHorizontal = false,
             )
         }
         var expectedY = 0.dp
@@ -121,7 +121,7 @@ class FlowTest {
                 width = size.value.toInt().toString(),
                 height = size.value.toInt().toString(),
                 boxesCount = boxesCount,
-                isHorizontal = true
+                isHorizontal = true,
             )
         }
         var expectedX = 0.dp
@@ -148,7 +148,7 @@ class FlowTest {
                 width = size.value.toInt().toString(),
                 height = size.value.toInt().toString(),
                 boxesCount = boxesCount,
-                isHorizontal = false
+                isHorizontal = false,
             )
         }
         var expectedY = 0.dp
@@ -178,7 +178,7 @@ class FlowTest {
                 width = size.value.toInt().toString(),
                 height = size.value.toInt().toString(),
                 boxesCount = boxesCount,
-                isHorizontal = true
+                isHorizontal = true,
             )
         }
         var expectedX = 0.dp
@@ -208,7 +208,7 @@ class FlowTest {
                 width = size.value.toInt().toString(),
                 height = size.value.toInt().toString(),
                 boxesCount = boxesCount,
-                isHorizontal = true
+                isHorizontal = true,
             )
         }
         var expectedX = 0.dp
@@ -250,7 +250,7 @@ class FlowTest {
                         flowVertically = false,
                         maxElement = maxColumns,
                         wrapMode = Wrap.Chain,
-                        horizontalStyle = FlowStyle.SpreadInside
+                        horizontalStyle = FlowStyle.SpreadInside,
                     )
 
                 constrain(flow) {
@@ -335,7 +335,7 @@ class FlowTest {
                         flowVertically = true,
                         maxElement = maxRows,
                         wrapMode = Wrap.Chain,
-                        verticalStyle = FlowStyle.SpreadInside
+                        verticalStyle = FlowStyle.SpreadInside,
                     )
 
                 constrain(flow) {
@@ -402,7 +402,7 @@ private fun FlowComposableTest(
     width: String,
     height: String,
     boxesCount: Int,
-    isHorizontal: Boolean
+    isHorizontal: Boolean,
 ) {
     val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
     val type = if (isHorizontal) "hFlow" else "vFlow"
@@ -425,7 +425,7 @@ private fun FlowComposableTest(
         }
         """
                     .trimIndent()
-            )
+            ),
     ) {
         ids.forEach { id ->
             Box(Modifier.layoutId(id).size(10.dp).background(Color.Red).testTag(id))

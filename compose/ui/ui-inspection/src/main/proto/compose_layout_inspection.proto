@@ -92,6 +92,10 @@ message ComposableNode {
       // If a node has the NESTED_SINGLE_CHILDREN flag, it means the children should be
       // interpreted as a subtree of single nodes.
       NESTED_SINGLE_CHILDREN = 0x10;
+      // This node (or a child that was filtered out) has a DrawModifierNode
+      HAS_DRAW_MODIFIER = 0x20;
+      // This node has a system child with a DrawModifierNode
+      HAS_CHILD_DRAW_MODIFIER = 0x40;
     }
     int32 flags = 9;
 

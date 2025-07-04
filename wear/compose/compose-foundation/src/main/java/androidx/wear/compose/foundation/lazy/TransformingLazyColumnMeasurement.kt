@@ -16,9 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
@@ -27,6 +25,8 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.util.trace
+import androidx.wear.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import kotlinx.coroutines.CoroutineScope
 
 internal fun interface MeasuredItemProvider {
@@ -37,12 +37,12 @@ internal fun interface MeasuredItemProvider {
     fun measuredItem(
         index: Int,
         offset: Int,
-        progressProvider: (Int) -> TransformingLazyColumnItemScrollProgress
+        measurementDirection: MeasurementDirection,
+        progressProvider: (Int) -> TransformingLazyColumnItemScrollProgress,
     ): TransformingLazyColumnMeasuredItem
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 internal fun rememberTransformingLazyColumnMeasurePolicy(
     itemProviderLambda: () -> TransformingLazyColumnItemProvider,
     state: TransformingLazyColumnState,
@@ -54,9 +54,10 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
     remember(
         itemProviderLambda,
         state,
+        coroutineScope,
         horizontalAlignment,
         verticalArrangement,
-        measurementStrategy
+        measurementStrategy,
     ) {
         { containerConstraints ->
             val childConstraints =
@@ -65,38 +66,43 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
                     maxWidth =
                         containerConstraints.maxWidth -
                             measurementStrategy.leftContentPadding -
-                            measurementStrategy.rightContentPadding
+                            measurementStrategy.rightContentPadding,
                 )
             val itemProvider = itemProviderLambda()
 
-            val measuredItemProvider = MeasuredItemProvider { index, offset, progressProvider ->
-                val placeables = measure(index, childConstraints)
-                // TODO(artemiy): Add support for multiple items.
-                val placeable = placeables.lastOrNull()
-                val key = itemProvider.getKey(index)
-                TransformingLazyColumnMeasuredItem(
-                    index = index,
-                    placeable = placeable,
-                    offset = offset,
-                    containerConstraints = containerConstraints,
-                    measureScrollProgress = progressProvider(placeable?.height ?: 0),
-                    horizontalAlignment = horizontalAlignment,
-                    layoutDirection = layoutDirection,
-                    key = key,
-                    leftPadding = measurementStrategy.leftContentPadding,
-                    rightPadding = measurementStrategy.rightContentPadding,
-                    animation = state.animator.getAnimation(key, 0),
-                    contentType = itemProvider.getContentType(index),
-                )
-            }
+            val measuredItemProvider =
+                MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
+                    val placeables = measure(index, childConstraints)
+                    // TODO(artemiy): Add support for multiple items.
+                    val placeable = placeables.lastOrNull()
+                    val key = itemProvider.getKey(index)
+                    TransformingLazyColumnMeasuredItem(
+                        index = index,
+                        placeable = placeable,
+                        offset = offset,
+                        containerConstraints = containerConstraints,
+                        measureScrollProgress = progressProvider(placeable?.height ?: 0),
+                        measurementDirection = measurementDirection,
+                        horizontalAlignment = horizontalAlignment,
+                        layoutDirection = layoutDirection,
+                        key = key,
+                        spacing = verticalArrangement.spacing.roundToPx(),
+                        leftPadding = measurementStrategy.leftContentPadding,
+                        rightPadding = measurementStrategy.rightContentPadding,
+                        animationProvider = { state.animator.getAnimation(key) },
+                        contentType = itemProvider.getContentType(index),
+                    )
+                }
 
             val itemsCount = itemProviderLambda().itemCount
 
+            val anchorItemKey: Any
             val anchorItemIndex: Int
             val anchorItemScrollOffset: Int
             val lastMeasuredAnchorItemHeight: Int
             val scrollToBeConsumed: Float
             Snapshot.withoutReadObservation {
+                anchorItemKey = state.anchorItemKey
                 anchorItemIndex =
                     if (itemsCount == 0) 0 else state.anchorItemIndex.coerceIn(0 until itemsCount)
                 anchorItemScrollOffset = state.anchorItemScrollOffset
@@ -105,28 +111,45 @@ internal fun rememberTransformingLazyColumnMeasurePolicy(
             }
 
             Snapshot.withMutableSnapshot {
-                    measurementStrategy.measure(
-                        itemsCount = itemsCount,
-                        keyIndexMap = itemProvider.keyIndexMap,
-                        measuredItemProvider = measuredItemProvider,
-                        itemSpacing = verticalArrangement.spacing.roundToPx(),
-                        containerConstraints = containerConstraints,
-                        scrollToBeConsumed = scrollToBeConsumed,
-                        anchorItemIndex = anchorItemIndex,
-                        anchorItemScrollOffset = anchorItemScrollOffset,
-                        lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
-                        coroutineScope = coroutineScope,
-                        density = this,
-                        layout = { width, height, placement ->
-                            layout(
-                                containerConstraints.constrainWidth(width),
-                                containerConstraints.constrainHeight(height),
-                                emptyMap(),
-                                placement
-                            )
-                        }
-                    )
+                    trace("wear-compose:tlc:measure") {
+                        measurementStrategy.measure(
+                            itemsCount = itemsCount,
+                            keyIndexMap = itemProvider.keyIndexMap,
+                            measuredItemProvider = measuredItemProvider,
+                            itemSpacing = verticalArrangement.spacing.roundToPx(),
+                            containerConstraints = containerConstraints,
+                            scrollToBeConsumed = scrollToBeConsumed,
+                            anchorItemKey = anchorItemKey,
+                            anchorItemIndex = anchorItemIndex,
+                            anchorItemScrollOffset = anchorItemScrollOffset,
+                            lastMeasuredAnchorItemHeight = lastMeasuredAnchorItemHeight,
+                            coroutineScope = coroutineScope,
+                            density = this,
+                            layout = { width, height, placement ->
+                                layout(
+                                    containerConstraints.constrainWidth(width),
+                                    containerConstraints.constrainHeight(height),
+                                    emptyMap(),
+                                    placement,
+                                )
+                            },
+                        )
+                    }
                 }
                 .also { state.applyMeasureResult(it) }
         }
     }
+
+internal enum class MeasurementDirection {
+    /**
+     * Indicates that the item is being measured downward. This corresponds to using
+     * [TransformingLazyColumnItemScrollProgress.downwardMeasuredItemScrollProgress].
+     */
+    DOWNWARD,
+
+    /**
+     * Indicates that the item is being measured upward This corresponds to using
+     * [TransformingLazyColumnItemScrollProgress.upwardMeasuredItemScrollProgress].
+     */
+    UPWARD,
+}

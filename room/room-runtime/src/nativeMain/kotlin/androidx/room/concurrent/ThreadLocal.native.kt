@@ -16,6 +16,7 @@
 
 package androidx.room.concurrent
 
+import androidx.annotation.RestrictTo
 import kotlin.coroutines.CoroutineContext
 import kotlinx.atomicfu.atomic
 
@@ -29,14 +30,16 @@ private object ThreadLocalData {
 }
 
 /** Container of thread-local data. */
-actual class ThreadLocal<T> {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public actual class ThreadLocal<T> {
     private val threadId = currentThreadId()
 
-    actual fun get(): T? {
-        @Suppress("UNCHECKED_CAST") return ThreadLocalData.threadLocalMap[threadId] as? T
+    public actual fun get(): T? {
+        @Suppress("UNCHECKED_CAST")
+        return ThreadLocalData.threadLocalMap[threadId] as? T
     }
 
-    actual fun set(value: T?) {
+    public actual fun set(value: T?) {
         if (value == null) {
             ThreadLocalData.threadLocalMap.remove(threadId)
         } else {

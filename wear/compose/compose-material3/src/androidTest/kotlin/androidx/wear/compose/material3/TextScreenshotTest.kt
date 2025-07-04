@@ -95,13 +95,13 @@ class TextScreenshotTest {
         Text(
             text = "abcdefg",
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG)
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
         )
     }
 
     private fun verifyScreenshot(
         methodName: String = testName.methodName,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             Box(

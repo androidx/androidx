@@ -72,7 +72,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
         context: JavaContext,
         element: UElement,
         annotationInfo: AnnotationInfo,
-        usageInfo: AnnotationUsageInfo
+        usageInfo: AnnotationUsageInfo,
     ) {
         val type = usageInfo.type
         if (type == AnnotationUsageType.EXTENDS && element is UTypeReferenceExpression) {
@@ -136,7 +136,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
         node: UElement,
         method: PsiMember?,
         annotation: UAnnotation,
-        usageInfo: AnnotationUsageInfo
+        usageInfo: AnnotationUsageInfo,
     ) {
         val scope = getRestrictionScope(annotation)
         if (scope != 0) {
@@ -149,7 +149,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
         node: UElement,
         member: PsiMember?,
         usageInfo: AnnotationUsageInfo,
-        scope: Int
+        scope: Int,
     ) {
 
         val containingClass =
@@ -288,7 +288,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                         member,
                         context,
                         node,
-                        usageInfo
+                        usageInfo,
                     )
                 }
             }
@@ -301,7 +301,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
         member: PsiMember?,
         context: JavaContext,
         node: UElement,
-        usageInfo: AnnotationUsageInfo
+        usageInfo: AnnotationUsageInfo,
     ) {
         var api: String
         api =
@@ -367,7 +367,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                 context.getCallLocation(
                     locationNode,
                     includeReceiver = false,
-                    includeArguments = false
+                    includeArguments = false,
                 )
             } else {
                 context.getLocation(locationNode)
@@ -496,7 +496,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                 category = Category.CORRECTNESS,
                 priority = 4,
                 severity = Severity.ERROR,
-                implementation = IMPLEMENTATION
+                implementation = IMPLEMENTATION,
             )
     }
 }

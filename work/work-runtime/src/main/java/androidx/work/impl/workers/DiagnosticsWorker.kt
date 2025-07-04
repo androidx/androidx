@@ -67,7 +67,7 @@ private fun workSpecRows(
     workNameDao: WorkNameDao,
     workTagDao: WorkTagDao,
     systemIdInfoDao: SystemIdInfoDao,
-    workSpecs: List<WorkSpec>
+    workSpecs: List<WorkSpec>,
 ) = buildString {
     val systemIdHeader = if (Build.VERSION.SDK_INT >= 23) "Job Id" else "Alarm Id"
     val header = "\n Id \t Class Name\t ${systemIdHeader}\t State\t Unique Name\t Tags\t"

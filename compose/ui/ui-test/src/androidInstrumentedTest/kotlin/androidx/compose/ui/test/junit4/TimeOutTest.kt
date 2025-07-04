@@ -66,11 +66,11 @@ class TimeOutTest {
         IdlingRegistry.getInstance().unregister(InfiniteResource)
         IdlingPolicies.setIdlingResourceTimeout(
             idlingResourcePolicy!!.idleTimeout,
-            idlingResourcePolicy!!.idleTimeoutUnit
+            idlingResourcePolicy!!.idleTimeoutUnit,
         )
         IdlingPolicies.setMasterPolicyTimeout(
             masterPolicy!!.idleTimeout,
-            masterPolicy!!.idleTimeoutUnit
+            masterPolicy!!.idleTimeoutUnit,
         )
     }
 

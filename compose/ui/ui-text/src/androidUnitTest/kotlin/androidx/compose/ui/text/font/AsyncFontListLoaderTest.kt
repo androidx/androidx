@@ -108,7 +108,7 @@ class AsyncFontListLoaderTest {
             mock(TypefaceRequest::class.java),
             AsyncTypefaceCache(),
             onCompletion = {},
-            platformFontLoader
+            platformFontLoader,
         )
     }
 

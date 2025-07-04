@@ -44,7 +44,7 @@ fun StepperSample() {
         valueRange = 1f..4f,
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-        steps = 7
+        steps = 7,
     ) {
         Text("Value: $value")
     }
@@ -59,7 +59,7 @@ fun StepperWithIntegerSample() {
         onValueChange = { value = it },
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-        valueProgression = 1..10
+        valueProgression = 1..10,
     ) {
         Text("Value: $value")
     }
@@ -76,7 +76,7 @@ fun StepperWithoutRangeSemanticsSample() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = 7,
-        enableRangeSemantics = false
+        enableRangeSemantics = false,
     ) {
         Text("Value: $value")
     }
@@ -98,7 +98,7 @@ fun StepperWithCustomSemanticsSample() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         steps = steps,
-        enableRangeSemantics = false
+        enableRangeSemantics = false,
     ) {
         Text("Value: $value")
     }
@@ -110,7 +110,7 @@ private fun Modifier.customSemantics(
     enabled: Boolean,
     onValueChange: (Float) -> Unit,
     valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
+    steps: Int,
 ): Modifier =
     semantics(mergeDescendants = true) {
             if (!enabled) disabled()
@@ -135,5 +135,5 @@ private fun Modifier.customSemantics(
             lerp(valueRange.start, valueRange.endInclusive, value / (steps + 1).toFloat())
                 .coerceIn(valueRange),
             valueRange,
-            steps
+            steps,
         )

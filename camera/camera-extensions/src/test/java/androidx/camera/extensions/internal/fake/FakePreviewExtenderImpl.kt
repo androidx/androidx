@@ -29,12 +29,12 @@ import androidx.camera.extensions.impl.ProcessorImpl
 
 class FakePreviewExtenderImpl(
     val supportedSizes: List<Pair<Int, Array<Size>>>? = null,
-    private val processorType: ProcessorType = ProcessorType.PROCESSOR_TYPE_NONE
+    private val processorType: ProcessorType = ProcessorType.PROCESSOR_TYPE_NONE,
 ) : PreviewExtenderImpl {
     override fun onInit(
         cameraId: String,
         cameraCharacteristics: CameraCharacteristics,
-        context: Context
+        context: Context,
     ) {}
 
     override fun onDeInit() {}
@@ -49,7 +49,7 @@ class FakePreviewExtenderImpl(
 
     override fun isExtensionAvailable(
         cameraId: String,
-        cameraCharacteristics: CameraCharacteristics
+        cameraCharacteristics: CameraCharacteristics,
     ): Boolean = true
 
     override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {}

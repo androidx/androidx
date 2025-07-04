@@ -21,28 +21,28 @@ import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
 
 /** Configuration class for a [RoomDatabase]. */
-actual class DatabaseConfiguration(
+public actual class DatabaseConfiguration(
     /* The name of the database file or null if it is an in-memory database. */
-    actual val name: String?,
+    public actual val name: String?,
     /* Collection of available migrations. */
-    actual val migrationContainer: RoomDatabase.MigrationContainer,
+    public actual val migrationContainer: RoomDatabase.MigrationContainer,
     /* Database callbacks. */
-    actual val callbacks: List<RoomDatabase.Callback>?,
+    public actual val callbacks: List<RoomDatabase.Callback>?,
     /* The journal mode for this database. */
-    actual val journalMode: RoomDatabase.JournalMode,
+    public actual val journalMode: RoomDatabase.JournalMode,
     /* Whether Room should throw an exception for missing migrations. */
-    actual val requireMigration: Boolean,
+    public actual val requireMigration: Boolean,
     /* Whether Room will fallback to destructive migrations on downgrades only .*/
-    actual val allowDestructiveMigrationOnDowngrade: Boolean,
+    public actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,
     /* List of provided type converters. */
-    actual val typeConverters: List<Any>,
+    public actual val typeConverters: List<Any>,
     /* List of provided auto migration specs. */
-    actual val autoMigrationSpecs: List<AutoMigrationSpec>,
+    public actual val autoMigrationSpecs: List<AutoMigrationSpec>,
     /* Whether Room will delete all tables or only known tables during destructive migrations. */
-    actual val allowDestructiveMigrationForAllTables: Boolean,
+    public actual val allowDestructiveMigrationForAllTables: Boolean,
     /* The SQLite Driver for the database. */
-    actual val sqliteDriver: SQLiteDriver?,
+    public actual val sqliteDriver: SQLiteDriver?,
     /* The Coroutine context for the database. */
-    actual val queryCoroutineContext: CoroutineContext?,
+    public actual val queryCoroutineContext: CoroutineContext?,
 )

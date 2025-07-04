@@ -60,7 +60,7 @@ class FontPaddingWithCustomFallbackTest {
             createTextLayout(
                 mixedTextMultiLine,
                 width = fontSize * 2,
-                typeface = latinFirstFallback
+                typeface = latinFirstFallback,
             )
 
         // tall font is 1500/500
@@ -98,7 +98,7 @@ class FontPaddingWithCustomFallbackTest {
                 text = mixedTextMultiLine,
                 width = layoutWidth,
                 includePadding = false,
-                typeface = latinFirstFallback
+                typeface = latinFirstFallback,
             )
 
         val layoutPaddingTrue =
@@ -106,7 +106,7 @@ class FontPaddingWithCustomFallbackTest {
                 text = mixedTextMultiLine,
                 width = layoutWidth,
                 includePadding = true,
-                typeface = latinFirstFallback
+                typeface = latinFirstFallback,
             )
 
         assertThat(layoutPaddingFalse.bottomPadding).isGreaterThan(0)
@@ -135,7 +135,7 @@ class FontPaddingWithCustomFallbackTest {
                 text = mixedTextMultiLine,
                 width = layoutWidth,
                 includePadding = false,
-                typeface = latinFirstFallback
+                typeface = latinFirstFallback,
             )
 
         val path = spy(Path())
@@ -156,7 +156,7 @@ class FontPaddingWithCustomFallbackTest {
                 text = mixedTextMultiLine,
                 width = layoutWidth,
                 includePadding = false,
-                typeface = latinFirstFallback
+                typeface = latinFirstFallback,
             )
 
         val layoutPaddingTrue =
@@ -164,7 +164,7 @@ class FontPaddingWithCustomFallbackTest {
                 text = mixedTextMultiLine,
                 width = layoutWidth,
                 includePadding = true,
-                typeface = latinFirstFallback
+                typeface = latinFirstFallback,
             )
 
         assertThat(layoutPaddingFalse.bottomPadding).isGreaterThan(0)
@@ -195,7 +195,7 @@ class FontPaddingWithCustomFallbackTest {
         fallbackLineSpacing: Boolean = false,
         lineSpacingMultiplier: Float = LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER,
         alignment: Int = LayoutCompat.DEFAULT_ALIGNMENT,
-        typeface: Typeface = latinTypeface
+        typeface: Typeface = latinTypeface,
     ): TextLayout {
         val textPaint =
             TextPaint().apply {
@@ -210,7 +210,7 @@ class FontPaddingWithCustomFallbackTest {
             includePadding = includePadding,
             fallbackLineSpacing = fallbackLineSpacing,
             lineSpacingMultiplier = lineSpacingMultiplier,
-            alignment = alignment
+            alignment = alignment,
         )
     }
 }

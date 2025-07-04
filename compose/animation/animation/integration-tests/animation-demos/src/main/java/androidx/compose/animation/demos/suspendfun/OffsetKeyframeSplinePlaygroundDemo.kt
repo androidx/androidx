@@ -109,12 +109,12 @@ fun OffsetKeyframeSplinePlaygroundDemo() {
         Column(Modifier.padding(start = 12.dp, end = 12.dp)) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Button(onClick = playgroundModel::onRun) { Text(text = "Run") }
                 Button(
                     onClick = { dslText.value = playgroundModel.getDslText() },
-                    enabled = dslText.value == null
+                    enabled = dslText.value == null,
                 ) {
                     Text(text = "DSL")
                 }
@@ -127,7 +127,7 @@ fun OffsetKeyframeSplinePlaygroundDemo() {
             Slider(
                 value = playgroundModel.totalDuration,
                 onValueChange = playgroundModel::onNewDuration,
-                valueRange = playgroundModel.range
+                valueRange = playgroundModel.range,
             )
         }
     }
@@ -214,7 +214,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
                             color = pathColor,
                             cap = StrokeCap.Round,
                             strokeWidth = pathWidthPx,
-                            pathEffect = pathEffect
+                            pathEffect = pathEffect,
                         )
                     }
                 }
@@ -233,7 +233,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
                                 drawText(
                                     textLayoutResult = textMeasurer.measure(text),
                                     topLeft = textOffsetPx,
-                                    color = textColor
+                                    color = textColor,
                                 )
                             }
                         }
@@ -244,7 +244,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
                         onDragStart = { onDragStart(it, size) },
                         onDragEnd = this@SplineKeyframesPlaygroundModel::onDragEnd,
                         onDragCancel = this@SplineKeyframesPlaygroundModel::onDragEnd,
-                        onDrag = this@SplineKeyframesPlaygroundModel::onDrag
+                        onDrag = this@SplineKeyframesPlaygroundModel::onDrag,
                     )
                 }
         ) {
@@ -258,7 +258,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
                             translationY = 5f
                         }
                         .offset { animatedOffset.value.round() }
-                        .graphicsLayer { rotationZ = angle.floatValue - 90f }
+                        .graphicsLayer { rotationZ = angle.floatValue - 90f },
             )
         }
 
@@ -285,7 +285,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
                         playTimeNanos = timeMillis.roundToLong() * 1_000_000,
                         initialValue = zero2DVector,
                         targetValue = zero2DVector,
-                        initialVelocity = zero2DVector
+                        initialVelocity = zero2DVector,
                     )
                 samplePoints.add(Offset(vectorValue.v1, vectorValue.v2))
                 timeMillis += step
@@ -348,8 +348,8 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
                                 offset atFraction fraction
                             }
                         },
-                        RepeatMode.Restart
-                    )
+                        RepeatMode.Restart,
+                    ),
             ) {
                 angle.floatValue =
                     Math.toDegrees(atan2(y = velocity.y, x = velocity.x).toDouble()).toFloat() + 90f

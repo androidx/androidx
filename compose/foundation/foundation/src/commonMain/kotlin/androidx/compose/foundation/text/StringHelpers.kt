@@ -30,6 +30,13 @@ internal expect fun String.findPrecedingBreak(index: Int): Int
  */
 internal expect fun String.findFollowingBreak(index: Int): Int
 
+/**
+ * @return If the index is within an emoji, returns the index of the start of the emoji. If the
+ *   index is not an emoji, returns the code point before the given [index], or [ifNotFound] if
+ *   there is no code point before [index].
+ */
+internal expect fun String.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int
+
 internal fun CharSequence.findParagraphStart(startIndex: Int): Int {
     for (index in startIndex downTo 1) {
         if (this[index - 1] == '\n') {

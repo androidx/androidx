@@ -30,6 +30,7 @@ import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
+import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -108,7 +109,6 @@ public final class SetSchemaRequest {
             ENTERPRISE_ACCESS,
             MANAGED_PROFILE_CONTACTS_ACCESS,
             EXECUTE_APP_FUNCTIONS,
-            EXECUTE_APP_FUNCTIONS_TRUSTED,
             PACKAGE_USAGE_STATS,
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -211,15 +211,8 @@ public final class SetSchemaRequest {
     public static final int EXECUTE_APP_FUNCTIONS = 9;
 
     /**
-     * The AppSearch enumeration corresponding to {@link
-     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS_TRUSTED} Android permission that can be
-     * used to guard AppSearch schema type visibility in {@link
-     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}.
-     *
-     * <p>This is internally used by AppFunctions API to store app functions runtime metadata so it
-     * is visible to packages holding {@link
-     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS_TRUSTED} permission (currently associated
-     * with system packages in the {@link android.app.role.SYSTEM_UI_INTELLIGENCE} role).
+     * @deprecated The corresponding permission is deprecated. Some documents are already persisted
+     *     with this constant, therefore keeping the constant here for compatibility reasons.
      *
      * @exportToFramework:hide
      */
@@ -386,6 +379,33 @@ public final class SetSchemaRequest {
     @IntRange(from = 1)
     public int getVersion() {
         return mVersion;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof SetSchemaRequest)) {
+            return false;
+        }
+        SetSchemaRequest otherRequest = (SetSchemaRequest) other;
+        return mSchemas.equals(otherRequest.mSchemas)
+                && mSchemasNotDisplayedBySystem.equals(otherRequest.mSchemasNotDisplayedBySystem)
+                && mSchemasVisibleToPackages.equals(otherRequest.mSchemasVisibleToPackages)
+                && mSchemasVisibleToPermissions.equals(otherRequest.mSchemasVisibleToPermissions)
+                && mPubliclyVisibleSchemas.equals(otherRequest.mPubliclyVisibleSchemas)
+                && mSchemasVisibleToConfigs.equals(otherRequest.mSchemasVisibleToConfigs)
+                && mMigrators.equals(otherRequest.mMigrators)
+                && mForceOverride == otherRequest.mForceOverride
+                && mVersion == otherRequest.mVersion;
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectsCompat.hash(mSchemas, mSchemasNotDisplayedBySystem, mSchemasVisibleToPackages,
+        mSchemasVisibleToPermissions, mPubliclyVisibleSchemas, mSchemasVisibleToConfigs, mMigrators,
+                mForceOverride, mVersion);
     }
 
     /** Builder for {@link SetSchemaRequest} objects. */

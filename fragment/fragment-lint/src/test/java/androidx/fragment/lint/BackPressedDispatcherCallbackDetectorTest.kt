@@ -92,7 +92,7 @@ class Foo {
     fun callback(fragment: Fragment) {}
 }
             """
-                )
+                ),
             )
             .expectClean()
     }
@@ -144,7 +144,7 @@ class TestFragment : Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -203,7 +203,7 @@ class TestFragment : Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -245,7 +245,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """
@@ -302,7 +302,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """

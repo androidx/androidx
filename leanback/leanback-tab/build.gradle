@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -44,7 +44,7 @@ android {
 
 androidx {
     name = "Leanback Tab"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.LEANBACK_TAB
     inceptionYear = "2020"
     description = "This library adds top tab navigation component to be used in TV"

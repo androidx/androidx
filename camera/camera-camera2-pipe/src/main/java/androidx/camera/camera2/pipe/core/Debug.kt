@@ -102,7 +102,26 @@ public object Debug {
         return parametersToSortedStringPairs(parameters).joinToString(
             prefix = "{",
             postfix = "}",
-            limit = limit
+            limit = limit,
+        ) {
+            "${it.first}=${it.second}"
+        }
+    }
+
+    /**
+     * Format a map of parameters as a line separated list.
+     *
+     * Example: `[<\n>abc.xyz=1,<\n>abc.zyx=something<\n>]`
+     */
+    public fun formatParameterMapToLineSeparatedList(
+        parameters: Map<*, Any?>,
+        limit: Int = -1,
+    ): String {
+        return parametersToSortedStringPairs(parameters).joinToString(
+            separator = ",\n",
+            prefix = "{\n",
+            postfix = "\n}",
+            limit = limit,
         ) {
             "${it.first}=${it.second}"
         }
@@ -133,7 +152,7 @@ public object Debug {
     public fun formatCameraGraphProperties(
         metadata: CameraMetadata,
         graphConfig: CameraGraph.Config,
-        cameraGraph: CameraGraph
+        cameraGraph: CameraGraph,
     ): String {
         val sharedCameraIds = graphConfig.sharedCameraIds.joinToString()
 

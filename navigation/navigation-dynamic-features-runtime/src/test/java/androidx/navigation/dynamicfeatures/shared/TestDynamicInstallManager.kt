@@ -25,5 +25,5 @@ import org.mockito.Mockito
 public class TestDynamicInstallManager :
     DynamicInstallManager(
         Mockito.spy(Context::class.java),
-        Mockito.mock(SplitInstallManager::class.java)
+        Mockito.mock(SplitInstallManager::class.java),
     )

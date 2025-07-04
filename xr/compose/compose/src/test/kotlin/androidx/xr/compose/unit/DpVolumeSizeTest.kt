@@ -18,14 +18,23 @@ package androidx.xr.compose.unit
 
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.scenecore.Dimensions
+import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
+import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DpVolumeSizeTest {
+    @Before
+    fun setUp() {
+        ShadowConfig.extract(XrExtensionsProvider.getXrExtensions()!!.config!!)
+            .setDefaultDpPerMeter(1f)
+    }
+
     @Test
     fun dpVolumeSize_isCreated() {
         val dpVolumeSize = DpVolumeSize(0.dp, 0.dp, 0.dp)
@@ -44,18 +53,18 @@ class DpVolumeSizeTest {
 
     @Test
     fun toDimensionsInMeter_returnsCorrectDimensions() {
-        val dpVolumeSize = DpVolumeSize(1151.856f.dp, 1151.856f.dp, 1151.856f.dp)
+        val dpVolumeSize = DpVolumeSize(1.dp, 1.dp, 1.dp)
 
         val dimensions = dpVolumeSize.toDimensionsInMeters()
 
-        assertThat(dimensions).isEqualTo(Dimensions(1f, 1f, 1f))
+        assertThat(dimensions).isEqualTo(FloatSize3d(1f, 1f, 1f))
     }
 
     @Test
     fun dpVolumeSize_fromMeters_returnsCorrectDpVolumeSize() {
-        val dpVolumeSize = Dimensions(1f, 1f, 1f).toDpVolumeSize()
+        val dpVolumeSize = FloatSize3d(1f, 1f, 1f).toDpVolumeSize()
 
-        assertThat(dpVolumeSize).isEqualTo(DpVolumeSize(1151.856f.dp, 1151.856f.dp, 1151.856f.dp))
+        assertThat(dpVolumeSize).isEqualTo(DpVolumeSize(1.dp, 1.dp, 1.dp))
     }
 
     @Test
@@ -76,20 +85,3 @@ class DpVolumeSizeTest {
             .isEqualTo(DpVolumeSize(1111.11f.dp, 1111.11f.dp, 1111.11f.dp))
     }
 }
-
-/**
- * Converts this [DpVolumeSize] to a [Dimensions] object in meters.
- *
- * @return a [Dimensions] object representing the volume size in meters
- */
-internal fun DpVolumeSize.toDimensionsInMeters(): Dimensions =
-    Dimensions(width.toMeter().value, height.toMeter().value, depth.toMeter().value)
-
-/**
- * Creates a [DpVolumeSize] from a [Dimensions] object in meters.
- *
- * @param dimensions the [Dimensions] object in meters.
- * @return a [DpVolumeSize] object representing the same volume size in Dp.
- */
-internal fun Dimensions.toDpVolumeSize(): DpVolumeSize =
-    DpVolumeSize(Meter(width).toDp(), Meter(height).toDp(), Meter(depth).toDp())

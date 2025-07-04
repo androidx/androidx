@@ -25,10 +25,9 @@ import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.HealthConnectFeatures.Companion.Feature
 import androidx.health.connect.client.HealthConnectFeatures.Companion.FeatureStatus
 
-@ExperimentalFeatureAvailabilityApi
 internal class HealthConnectFeaturesApkImpl(
     private val context: Context,
-    private val providerPackageName: String
+    private val providerPackageName: String,
 ) : HealthConnectFeatures {
 
     @FeatureStatus
@@ -36,7 +35,7 @@ internal class HealthConnectFeaturesApkImpl(
         return HealthConnectFeatures.FEATURE_TO_VERSION_INFO_MAP.getFeatureStatus(
             context,
             providerPackageName,
-            feature
+            feature,
         )
     }
 
@@ -48,7 +47,7 @@ internal class HealthConnectFeaturesApkImpl(
         internal fun Map<Int, HealthConnectVersionInfo>.getFeatureStatus(
             context: Context,
             providerPackageName: String,
-            @Feature feature: Int
+            @Feature feature: Int,
         ): Int {
             val packageInfo: PackageInfo =
                 try {

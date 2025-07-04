@@ -80,7 +80,7 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
                         backPressed++
                     }
                     false
-                }
+                },
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -121,7 +121,7 @@ class TextFieldSelectionOnBackTest : FocusedWindowTest {
                         backPressed++
                     }
                     false
-                }
+                },
             )
         }
 

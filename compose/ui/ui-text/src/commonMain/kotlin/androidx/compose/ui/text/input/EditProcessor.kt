@@ -50,10 +50,7 @@ class EditProcessor {
      * tell the IME about the selection offset changes or extracted text changes.
      */
     @Suppress("ReferencesDeprecated")
-    fun reset(
-        value: TextFieldValue,
-        textInputSession: TextInputSession?,
-    ) {
+    fun reset(value: TextFieldValue, textInputSession: TextInputSession?) {
         var textChanged = false
         var selectionChanged = false
         val compositionChanged = value.composition != mBuffer.composition
@@ -119,7 +116,7 @@ class EditProcessor {
                     mBuffer.selection.run {
                         takeUnless { mBufferState.selection.reversed } ?: TextRange(max, min)
                     },
-                composition = mBuffer.composition
+                composition = mBuffer.composition,
             )
 
         mBufferState = newState

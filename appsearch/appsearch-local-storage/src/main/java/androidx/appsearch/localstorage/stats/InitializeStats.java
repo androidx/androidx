@@ -20,7 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.stats.BaseStats;
 
 import org.jspecify.annotations.NonNull;
 
@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class InitializeStats {
+public final class InitializeStats extends BaseStats {
     /**
      * The cause of IcingSearchEngine recovering from a previous bad state during initialization.
      */
@@ -43,8 +43,14 @@ public final class InitializeStats {
             RECOVERY_CAUSE_NONE,
             RECOVERY_CAUSE_DATA_LOSS,
             RECOVERY_CAUSE_INCONSISTENT_WITH_GROUND_TRUTH,
-            RECOVERY_CAUSE_TOTAL_CHECKSUM_MISMATCH,
+            RECOVERY_CAUSE_SCHEMA_CHANGES_OUT_OF_SYNC,
             RECOVERY_CAUSE_IO_ERROR,
+            RECOVERY_CAUSE_LEGACY_DOCUMENT_LOG_FORMAT,
+            RECOVERY_CAUSE_VERSION_CHANGED,
+            RECOVERY_CAUSE_DEPENDENCIES_CHANGED,
+            RECOVERY_CAUSE_FEATURE_FLAG_CHANGED,
+            RECOVERY_CAUSE_UNKNOWN_OUT_OF_SYNC,
+            RECOVERY_CAUSE_OPTIMIZE_OUT_OF_SYNC
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface RecoveryCause {
@@ -56,10 +62,31 @@ public final class InitializeStats {
     public static final int RECOVERY_CAUSE_DATA_LOSS = 1;
     // Data in index is inconsistent with ground truth.
     public static final int RECOVERY_CAUSE_INCONSISTENT_WITH_GROUND_TRUTH = 2;
-    // Total checksum of all the components does not match.
-    public static final int RECOVERY_CAUSE_TOTAL_CHECKSUM_MISMATCH = 3;
+    // Changes were made to the schema, but the marker file remains in the
+    // filesystem indicating that changes possibly were not fully applied to the
+    // document store and the index - requiring a recovery.
+    public static final int RECOVERY_CAUSE_SCHEMA_CHANGES_OUT_OF_SYNC = 3;
     // Random I/O errors.
     public static final int RECOVERY_CAUSE_IO_ERROR = 4;
+    // The document log is using legacy format.
+    public static final int RECOVERY_CAUSE_LEGACY_DOCUMENT_LOG_FORMAT = 5;
+    // The current code version is different from existing data version.
+    public static final int RECOVERY_CAUSE_VERSION_CHANGED = 6;
+    // Any dependencies have changed.
+    public static final int RECOVERY_CAUSE_DEPENDENCIES_CHANGED = 7;
+    // Change detected in Icing's feature flags since last initialization that
+    // requires recovery.
+    public static final int RECOVERY_CAUSE_FEATURE_FLAG_CHANGED = 8;
+    // Changes were made by an incomplete complex operation, which caused marker
+    // file to remain in the filesystem - requiring a recovery.
+    //
+    // Note: Icing is unable to interpret the information from the marker file
+    // due to some reasons, so the OUT_OF_SYNC reason is UNKNOWN.
+    public static final int RECOVERY_CAUSE_UNKNOWN_OUT_OF_SYNC = 9;
+    // Changes were made by optimize, but the marker file remains in the
+    // filesystem indicating that optimize possibly was not fully applied to the
+    // document store and the index - requiring a recovery.
+    public static final int RECOVERY_CAUSE_OPTIMIZE_OUT_OF_SYNC = 10;
 
     /**
      * Status regarding how much data is lost during the initialization.
@@ -115,7 +142,25 @@ public final class InitializeStats {
     private final int mNativeNumDocuments;
     /** Returns number of schema types currently in the schema store. */
     private final int mNativeNumSchemaTypes;
-    /** Whether we had to reset the index, losing all data, during initialization. */
+    /**
+     * Number of consecutive initialization failures that immediately preceded this
+     * initialization.
+     */
+    int mNativeNumPreviousInitFailures;
+    /** Restoration cause of integer index.*/
+    @RecoveryCause
+    int mNativeIntegerIndexRestorationCause;
+    /** Restoration cause of qualified id join index.*/
+    @RecoveryCause
+    int mNativeQualifiedIdJoinIndexRestorationCause;
+    /** Restoration cause of embedding index.*/
+    @RecoveryCause
+    int mNativeEmbeddingIndexRestorationCause;
+    /** ICU data initialization status code*/
+    @AppSearchResult.ResultCode
+    int mNativeInitializeIcuDataStatusCode;
+    /** Number of documents that failed to be reindexed during index restoration.*/
+    int mNativeNumFailedReindexedDocuments;
     private final boolean mHasReset;
     /** If we had to reset, contains the status code of the reset operation. */
     @AppSearchResult.ResultCode
@@ -157,58 +202,42 @@ public final class InitializeStats {
         return mNativeLatencyMillis;
     }
 
-    /** Returns recovery cause for document store.
-     *
-     *  <p> Possible recovery causes for document store:
-     *      <li> {@link InitializeStats#RECOVERY_CAUSE_DATA_LOSS}
-     *      <li> {@link InitializeStats#RECOVERY_CAUSE_TOTAL_CHECKSUM_MISMATCH}
-     *      <li> {@link InitializeStats#RECOVERY_CAUSE_IO_ERROR}
-     */
+    /** Returns recovery cause for document store. */
     @RecoveryCause
-    public int getDocumentStoreRecoveryCause() {
+    public int getNativeDocumentStoreRecoveryCause() {
         return mNativeDocumentStoreRecoveryCause;
     }
 
-    /** Returns restoration cause for index store.
-     *
-     *  <p> Possible causes:
-     *      <li> {@link InitializeStats#RECOVERY_CAUSE_INCONSISTENT_WITH_GROUND_TRUTH}
-     *      <li> {@link InitializeStats#RECOVERY_CAUSE_TOTAL_CHECKSUM_MISMATCH}
-     *      <li> {@link InitializeStats#RECOVERY_CAUSE_IO_ERROR}
-     */
+    /** Returns restoration cause for index store. */
     @RecoveryCause
-    public int getIndexRestorationCause() {
+    public int getNativeIndexRestorationCause() {
         return mNativeIndexRestorationCause;
     }
 
-    /** Returns recovery cause for schema store.
-     *
-     *  <p> Possible causes:
-     *      <li> IO_ERROR
-     */
+    /** Returns recovery cause for schema store.  */
     @RecoveryCause
-    public int getSchemaStoreRecoveryCause() {
+    public int getNativeSchemaStoreRecoveryCause() {
         return mNativeSchemaStoreRecoveryCause;
     }
 
     /** Returns time used to recover the document store. */
-    public int getDocumentStoreRecoveryLatencyMillis() {
+    public int getNativeDocumentStoreRecoveryLatencyMillis() {
         return mNativeDocumentStoreRecoveryLatencyMillis;
     }
 
     /** Returns time used to restore the index. */
-    public int getIndexRestorationLatencyMillis() {
+    public int getNativeIndexRestorationLatencyMillis() {
         return mNativeIndexRestorationLatencyMillis;
     }
 
     /** Returns time used to recover the schema store. */
-    public int getSchemaStoreRecoveryLatencyMillis() {
+    public int getNativeSchemaStoreRecoveryLatencyMillis() {
         return mNativeSchemaStoreRecoveryLatencyMillis;
     }
 
     /** Returns status about how much data is lost during the initialization. */
     @DocumentStoreDataStatus
-    public int getDocumentStoreDataStatus() {
+    public int getNativeDocumentStoreDataStatus() {
         return mNativeDocumentStoreDataStatus;
     }
 
@@ -216,13 +245,54 @@ public final class InitializeStats {
      * Returns number of documents currently in document store. Those may include alive, deleted,
      * and expired documents.
      */
-    public int getDocumentCount() {
+    public int getNativeDocumentCount() {
         return mNativeNumDocuments;
     }
 
     /** Returns number of schema types currently in the schema store. */
-    public int getSchemaTypeCount() {
+    public int getNativeSchemaTypeCount() {
         return mNativeNumSchemaTypes;
+    }
+
+    /**
+     * Returns number of consecutive initialization failures that immediately preceded this
+     * initialization.
+     */
+    public int getNativeNumPreviousInitFailures() {
+        return mNativeNumPreviousInitFailures;
+    }
+
+    /** Returns restoration cause for Integer index.    */
+    @RecoveryCause
+    public int getNativeIntegerIndexRestorationCause() {
+        return mNativeIntegerIndexRestorationCause;
+    }
+
+    /**  Returns restoration cause for qualified id join index.  */
+    @RecoveryCause
+    public int getNativeQualifiedIdJoinIndexRestorationCause() {
+        return mNativeQualifiedIdJoinIndexRestorationCause;
+    }
+
+    /**  Returns restoration cause for embedding index.  */
+    @RecoveryCause
+    public int getNativeEmbeddingIndexRestorationCause() {
+        return mNativeEmbeddingIndexRestorationCause;
+    }
+
+    /**
+     * Returns the status of ICU data initialization.
+     *
+     * <p>If no value has been set, the default value is {@link AppSearchResult#RESULT_OK}.
+     */
+    @AppSearchResult.ResultCode
+    public int getNativeInitializeIcuDataStatusCode() {
+        return mNativeInitializeIcuDataStatusCode;
+    }
+
+    /** Returns number of documents that failed to be reindexed during index restoration. */
+    public int getNativeNumFailedReindexedDocuments() {
+        return mNativeNumFailedReindexedDocuments;
     }
 
     /** Returns whether we had to reset the index, losing all data, as part of initialization. */
@@ -241,7 +311,7 @@ public final class InitializeStats {
     }
 
     InitializeStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mStatusCode = builder.mStatusCode;
         mTotalLatencyMillis = builder.mTotalLatencyMillis;
         mHasDeSync = builder.mHasDeSync;
@@ -258,12 +328,19 @@ public final class InitializeStats {
         mNativeDocumentStoreDataStatus = builder.mNativeDocumentStoreDataStatus;
         mNativeNumDocuments = builder.mNativeNumDocuments;
         mNativeNumSchemaTypes = builder.mNativeNumSchemaTypes;
+        mNativeNumPreviousInitFailures = builder.mNativeNumPreviousInitFailures;
+        mNativeIntegerIndexRestorationCause = builder.mNativeIntegerIndexRestorationCause;
+        mNativeQualifiedIdJoinIndexRestorationCause =
+                builder.mNativeQualifiedIdJoinIndexRestorationCause;
+        mNativeEmbeddingIndexRestorationCause = builder.mNativeEmbeddingIndexRestorationCause;
+        mNativeInitializeIcuDataStatusCode = builder.mNativeInitializeIcuDataStatusCode;
+        mNativeNumFailedReindexedDocuments = builder.mNativeNumFailedReindexedDocuments;
         mHasReset = builder.mHasReset;
         mResetStatusCode = builder.mResetStatusCode;
     }
 
     /** Builder for {@link InitializeStats}. */
-    public static class Builder {
+    public static class Builder extends BaseStats.Builder<InitializeStats.Builder> {
         @AppSearchResult.ResultCode
         int mStatusCode;
 
@@ -285,6 +362,15 @@ public final class InitializeStats {
         int mNativeDocumentStoreDataStatus;
         int mNativeNumDocuments;
         int mNativeNumSchemaTypes;
+        int mNativeNumPreviousInitFailures;
+        @RecoveryCause
+        int mNativeIntegerIndexRestorationCause;
+        @RecoveryCause
+        int mNativeQualifiedIdJoinIndexRestorationCause;
+        @RecoveryCause
+        int mNativeEmbeddingIndexRestorationCause;
+        int mNativeInitializeIcuDataStatusCode;
+        int mNativeNumFailedReindexedDocuments;
         boolean mHasReset;
         @AppSearchResult.ResultCode
         int mResetStatusCode;
@@ -338,68 +424,51 @@ public final class InitializeStats {
             return this;
         }
 
-        /**
-         * Sets recovery cause for document store.
-         *
-         * <p> Possible recovery causes for document store:
-         * <li> {@link InitializeStats#RECOVERY_CAUSE_DATA_LOSS}
-         * <li> {@link InitializeStats#RECOVERY_CAUSE_TOTAL_CHECKSUM_MISMATCH}
-         * <li> {@link InitializeStats#RECOVERY_CAUSE_IO_ERROR}
-         */
+        /** Sets recovery cause for document store.  */
         @CanIgnoreReturnValue
-        public @NonNull Builder setDocumentStoreRecoveryCause(
-                @RecoveryCause int documentStoreRecoveryCause) {
-            mNativeDocumentStoreRecoveryCause = documentStoreRecoveryCause;
+        public @NonNull Builder setNativeDocumentStoreRecoveryCause(
+                @RecoveryCause int nativeDocumentStoreRecoveryCause) {
+            mNativeDocumentStoreRecoveryCause = nativeDocumentStoreRecoveryCause;
             return this;
         }
 
-        /** Sets restoration cause for index store.
-         *
-         *  <p> Possible causes:
-         *      <li> {@link InitializeStats#DOCUMENT_STORE_DATA_STATUS_COMPLETE_LOSS}
-         *      <li> {@link InitializeStats#RECOVERY_CAUSE_TOTAL_CHECKSUM_MISMATCH}
-         *      <li> {@link InitializeStats#RECOVERY_CAUSE_IO_ERROR}
-         */
+        /**  Sets restoration cause for index store.  */
         @CanIgnoreReturnValue
-        public @NonNull Builder setIndexRestorationCause(
-                @RecoveryCause int indexRestorationCause) {
-            mNativeIndexRestorationCause = indexRestorationCause;
+        public @NonNull Builder setNativeIndexRestorationCause(
+                @RecoveryCause int nativeIndexRestorationCause) {
+            mNativeIndexRestorationCause = nativeIndexRestorationCause;
             return this;
         }
 
-        /** Returns recovery cause for schema store.
-         *
-         *  <p> Possible causes:
-         *      <li> {@link InitializeStats#RECOVERY_CAUSE_IO_ERROR}
-         */
+        /**  Sets recovery cause for schema store. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setSchemaStoreRecoveryCause(
-                @RecoveryCause int schemaStoreRecoveryCause) {
-            mNativeSchemaStoreRecoveryCause = schemaStoreRecoveryCause;
+        public @NonNull Builder setNativeSchemaStoreRecoveryCause(
+                @RecoveryCause int nativeSchemaStoreRecoveryCause) {
+            mNativeSchemaStoreRecoveryCause = nativeSchemaStoreRecoveryCause;
             return this;
         }
 
         /** Sets time used to recover the document store. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setDocumentStoreRecoveryLatencyMillis(
-                int documentStoreRecoveryLatencyMillis) {
-            mNativeDocumentStoreRecoveryLatencyMillis = documentStoreRecoveryLatencyMillis;
+        public @NonNull Builder setNativeDocumentStoreRecoveryLatencyMillis(
+                int nativeDocumentStoreRecoveryLatencyMillis) {
+            mNativeDocumentStoreRecoveryLatencyMillis = nativeDocumentStoreRecoveryLatencyMillis;
             return this;
         }
 
         /** Sets time used to restore the index. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setIndexRestorationLatencyMillis(
-                int indexRestorationLatencyMillis) {
-            mNativeIndexRestorationLatencyMillis = indexRestorationLatencyMillis;
+        public @NonNull Builder setNativeIndexRestorationLatencyMillis(
+                int nativeIndexRestorationLatencyMillis) {
+            mNativeIndexRestorationLatencyMillis = nativeIndexRestorationLatencyMillis;
             return this;
         }
 
         /** Sets time used to recover the schema store. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setSchemaStoreRecoveryLatencyMillis(
-                int schemaStoreRecoveryLatencyMillis) {
-            mNativeSchemaStoreRecoveryLatencyMillis = schemaStoreRecoveryLatencyMillis;
+        public @NonNull Builder setNativeSchemaStoreRecoveryLatencyMillis(
+                int nativeSchemaStoreRecoveryLatencyMillis) {
+            mNativeSchemaStoreRecoveryLatencyMillis = nativeSchemaStoreRecoveryLatencyMillis;
             return this;
         }
 
@@ -408,9 +477,9 @@ public final class InitializeStats {
          * status is defined in external/icing/proto/icing/proto/logging.proto
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setDocumentStoreDataStatus(
-                @DocumentStoreDataStatus int documentStoreDataStatus) {
-            mNativeDocumentStoreDataStatus = documentStoreDataStatus;
+        public @NonNull Builder setNativeDocumentStoreDataStatus(
+                @DocumentStoreDataStatus int nativeDocumentStoreDataStatus) {
+            mNativeDocumentStoreDataStatus = nativeDocumentStoreDataStatus;
             return this;
         }
 
@@ -419,15 +488,67 @@ public final class InitializeStats {
          * and expired documents.
          */
         @CanIgnoreReturnValue
-        public @NonNull Builder setDocumentCount(int numDocuments) {
-            mNativeNumDocuments = numDocuments;
+        public @NonNull Builder setNativeDocumentCount(int nativeNumDocuments) {
+            mNativeNumDocuments = nativeNumDocuments;
             return this;
         }
 
         /** Sets number of schema types currently in the schema store. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setSchemaTypeCount(int numSchemaTypes) {
-            mNativeNumSchemaTypes = numSchemaTypes;
+        public @NonNull Builder setNativeSchemaTypeCount(int nativeNumSchemaTypes) {
+            mNativeNumSchemaTypes = nativeNumSchemaTypes;
+            return this;
+        }
+
+        /**
+         * Sets number of consecutive initialization failures that immediately preceded this
+         * initialization.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeNumPreviousInitFailures(
+                int nativeNumPreviousInitFailures) {
+            mNativeNumPreviousInitFailures = nativeNumPreviousInitFailures;
+            return this;
+        }
+
+        /** Sets restoration cause for integer store.  */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeIntegerIndexRestorationCause(
+                @RecoveryCause int nativeIntegerIndexRestorationCause) {
+            mNativeIntegerIndexRestorationCause = nativeIntegerIndexRestorationCause;
+            return this;
+        }
+
+        /** Sets restoration cause for qualified id join index. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeQualifiedIdJoinIndexRestorationCause(
+                @RecoveryCause int nativeQualifiedIdJoinIndexRestorationCause) {
+            mNativeQualifiedIdJoinIndexRestorationCause =
+                    nativeQualifiedIdJoinIndexRestorationCause;
+            return this;
+        }
+
+        /** Sets restoration cause for embedding index. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeEmbeddingIndexRestorationCause(
+                @RecoveryCause int nativeEmbeddingIndexRestorationCause) {
+            mNativeEmbeddingIndexRestorationCause = nativeEmbeddingIndexRestorationCause;
+            return this;
+        }
+
+        /** Sets the status of the initialize Icu data. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeInitializeIcuDataStatusCode(
+                @AppSearchResult.ResultCode int nativeInitializeIcuDataStatusCode) {
+            mNativeInitializeIcuDataStatusCode = nativeInitializeIcuDataStatusCode;
+            return this;
+        }
+
+        /**  Sets number of documents that failed to be reindexed during index restoration.   */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNativeNumFailedReindexedDocuments(
+                int nativeNumFailedReindexedDocuments) {
+            mNativeNumFailedReindexedDocuments = nativeNumFailedReindexedDocuments;
             return this;
         }
 
@@ -450,6 +571,7 @@ public final class InitializeStats {
          * Constructs a new {@link InitializeStats} from the contents of this
          * {@link InitializeStats.Builder}
          */
+        @Override
         public @NonNull InitializeStats build() {
             return new InitializeStats(/* builder= */ this);
         }

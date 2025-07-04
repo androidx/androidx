@@ -1,0 +1,29 @@
+{
+  "projectPath": ":core:core-viewtree",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    }
+  ]
+}

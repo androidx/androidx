@@ -46,9 +46,8 @@ fun repeatModifier(count: Int, mod: () -> Modifier): Modifier {
  *   shouldn't use this directly as it is a bit confusing, and instead use [measureModifier] which
  *   will construct this lambda accordingly.
  */
-class ModifierTestCase(
-    val modifierFn: (Boolean) -> Modifier,
-) : LayeredComposeTestCase(), ToggleableTestCase {
+class ModifierTestCase(val modifierFn: (Boolean) -> Modifier) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private var state by mutableStateOf(true)
 
     override fun toggleState() {
@@ -114,7 +113,7 @@ fun ComposeBenchmarkRule.measureModifier(
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled { getTestCase().toggleState() }
+            runWithMeasurementDisabled { getTestCase().toggleState() }
             timingIf(includeComposition) { recomposeAssertHadChanges() }
             assertNoPendingChanges()
             timingIf(includeLayout) {
@@ -135,6 +134,6 @@ inline fun BenchmarkRule.Scope.timingIf(condition: Boolean, block: () -> Unit) {
     if (condition) {
         block()
     } else {
-        runWithTimingDisabled { block() }
+        runWithMeasurementDisabled { block() }
     }
 }

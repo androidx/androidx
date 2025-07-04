@@ -36,19 +36,15 @@ object SettingsParser {
     private val includeProjectPattern =
         Regex(
                 """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",
-                setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
+                setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE),
             )
             .toPattern()
 
-    fun findProjects(
-        settingsFile: File,
-    ): List<IncludedProject> {
+    fun findProjects(settingsFile: File): List<IncludedProject> {
         return findProjects(fileContents = settingsFile.readText(Charsets.UTF_8))
     }
 
-    fun findProjects(
-        fileContents: String,
-    ): List<IncludedProject> {
+    fun findProjects(fileContents: String): List<IncludedProject> {
         val matcher = includeProjectPattern.matcher(fileContents)
         val includedProjects = mutableListOf<IncludedProject>()
         while (matcher.find()) {

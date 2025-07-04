@@ -35,7 +35,7 @@ import org.junit.runners.JUnit4
 
 enum class ArgumentSource {
     BUNDLE,
-    SAVED_STATE_HANDLE
+    SAVED_STATE_HANDLE,
 }
 
 @RunWith(JUnit4::class)
@@ -81,7 +81,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClass>(
                 values,
-                listOf(navArgument("arg") { type = InternalNavType.DoubleType })
+                listOf(navArgument("arg") { type = InternalNavType.DoubleType }),
             )
         assertThat(result.arg).isEqualTo(11E123)
     }
@@ -94,7 +94,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClass>(
                 values,
-                listOf(navArgument("arg") { type = InternalNavType.DoubleNullableType })
+                listOf(navArgument("arg") { type = InternalNavType.DoubleNullableType }),
             )
         assertThat(result.arg).isEqualTo(11E123)
 
@@ -102,7 +102,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result2 =
             decode<TestClass>(
                 values2,
-                listOf(navArgument("arg") { type = InternalNavType.DoubleNullableType })
+                listOf(navArgument("arg") { type = InternalNavType.DoubleNullableType }),
             )
         assertThat(result2.arg).isNull()
     }
@@ -173,7 +173,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClass>(
                 map,
-                listOf(navArgument("arg") { type = InternalNavType.DoubleArrayType })
+                listOf(navArgument("arg") { type = InternalNavType.DoubleArrayType }),
             )
         assertThat(result.arg).isEqualTo(doubleArrayOf(11E123, 11.11))
     }
@@ -206,7 +206,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClass>(
                 map,
-                listOf(navArgument("arg") { type = InternalNavType.DoubleListType })
+                listOf(navArgument("arg") { type = InternalNavType.DoubleListType }),
             )
         assertThat(result.arg).isEqualTo(listOf(11E123, 11.11))
     }
@@ -220,8 +220,10 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
             decode<TestClass>(
                 map,
                 listOf(
-                    navArgument("arg") { type = InternalNavType.EnumListType(TestEnum::class.java) }
-                )
+                    navArgument("arg") {
+                        type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
+                    }
+                ),
             )
         assertThat(result.arg).isEqualTo(listOf(TestEnum.TWO, TestEnum.TWO))
     }
@@ -235,8 +237,10 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
             decode<TestClass>(
                 values,
                 listOf(
-                    navArgument("arg") { type = InternalNavType.EnumListType(TestEnum::class.java) }
-                )
+                    navArgument("arg") {
+                        type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
+                    }
+                ),
             )
         assertThat(result.arg).isEqualTo(listOf(TestEnum.TWO, TestEnum.TWO))
 
@@ -245,8 +249,10 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
             decode<TestClass>(
                 values2,
                 listOf(
-                    navArgument("arg") { type = InternalNavType.EnumListType(TestEnum::class.java) }
-                )
+                    navArgument("arg") {
+                        type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
+                    }
+                ),
             )
         assertThat(result2.arg).isNull()
     }
@@ -358,7 +364,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClass>(
                 map,
-                listOf(stringArgument("arg", true), intArgument("arg2", hasDefaultValue = true))
+                listOf(stringArgument("arg", true), intArgument("arg2", hasDefaultValue = true)),
             )
         assertThat(result.arg).isEqualTo("newValue")
         assertThat(result.arg2).isEqualTo(1)
@@ -437,7 +443,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         val result =
             decode<TestClassCollectionArg>(
                 map,
-                listOf(navArgument("list") { type = collectionNavType })
+                listOf(navArgument("list") { type = collectionNavType }),
             )
         assertThat(result.list).containsExactlyElementsIn(arg).inOrder()
     }
@@ -447,7 +453,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     @Serializable
     private enum class TestEnum {
         ONE,
-        TWO
+        TWO,
     }
 
     private val customNavType =
@@ -483,7 +489,7 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     @Suppress("DEPRECATION")
     private inline fun <reified T : Any> decode(
         argValues: Map<String, Any?>,
-        navArgs: List<NamedNavArgument> = emptyList()
+        navArgs: List<NamedNavArgument> = emptyList(),
     ): T {
         val typeMap = mutableMapOf<String, NavType<Any?>>()
         val finalBundle = bundleOf()

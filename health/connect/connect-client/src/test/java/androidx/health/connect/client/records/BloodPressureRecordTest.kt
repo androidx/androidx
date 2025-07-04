@@ -18,14 +18,104 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Pressure
+import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 class BloodPressureRecordTest {
+
+    @Config(minSdk = 34)
+    @Test
+    fun constructor_paramsValidatedUsingPlatformValidation_createsBloodPressureRecord() {
+        assertThat(
+                BloodPressureRecord(
+                    time = Instant.ofEpochMilli(1234L),
+                    zoneOffset = null,
+                    systolic = 120.millimetersOfMercury,
+                    diastolic = 112.millimetersOfMercury,
+                    bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                    measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                    metadata = Metadata.manualEntry(),
+                )
+            )
+            .isEqualTo(
+                BloodPressureRecord(
+                    time = Instant.ofEpochMilli(1234L),
+                    zoneOffset = null,
+                    systolic = 120.millimetersOfMercury,
+                    diastolic = 112.millimetersOfMercury,
+                    bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                    measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                    metadata = Metadata.manualEntry(),
+                )
+            )
+    }
+
+    @Config(minSdk = 34)
+    @Test
+    fun constructor_paramsInvalidSystolicAndDiastolicValues_platformValidationFailsWithAnException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            BloodPressureRecord(
+                time = Instant.ofEpochMilli(1234L),
+                zoneOffset = null,
+                systolic = 10.millimetersOfMercury,
+                diastolic = 500.millimetersOfMercury,
+                bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                metadata = Metadata.manualEntry(),
+            )
+        }
+    }
+
+    @Config(maxSdk = 33)
+    @Test
+    fun constructor_paramsValidatedUsingAPKValidation_createsBloodPressureRecord() {
+        assertThat(
+                BloodPressureRecord(
+                    time = Instant.ofEpochMilli(1234L),
+                    zoneOffset = null,
+                    systolic = 120.millimetersOfMercury,
+                    diastolic = 112.millimetersOfMercury,
+                    bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                    measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                    metadata = Metadata.manualEntry(),
+                )
+            )
+            .isEqualTo(
+                BloodPressureRecord(
+                    time = Instant.ofEpochMilli(1234L),
+                    zoneOffset = null,
+                    systolic = 120.millimetersOfMercury,
+                    diastolic = 112.millimetersOfMercury,
+                    bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                    measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                    metadata = Metadata.manualEntry(),
+                )
+            )
+    }
+
+    @Config(maxSdk = 33)
+    @Test
+    fun constructor_paramsInvalidSystolicAndDiastolicValues_apkValidationFailsWithAnException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            BloodPressureRecord(
+                time = Instant.ofEpochMilli(1234L),
+                zoneOffset = null,
+                systolic = 10.millimetersOfMercury,
+                diastolic = 200.millimetersOfMercury,
+                bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                metadata = Metadata.manualEntry(),
+            )
+        }
+    }
+
     @Test
     fun bodyPositionEnums_existInMapping() {
         val allEnums = getAllIntDefEnums<BloodPressureRecord>("""BODY_POSITION.*(?<!UNKNOWN)$""")
@@ -57,7 +147,7 @@ class BloodPressureRecordTest {
                         diastolic = Pressure.millimetersOfMercury(112.0),
                         bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
                         measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )

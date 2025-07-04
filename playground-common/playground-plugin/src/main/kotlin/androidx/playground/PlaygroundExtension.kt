@@ -251,6 +251,7 @@ open class PlaygroundExtension @Inject constructor(
         private val REQUIRED_PROJECTS = listOf(":lint-checks")
         private val UNSUPPORTED_PROJECTS = listOf(
             ":benchmark:benchmark-common", // requires prebuilts
+            ":benchmark:benchmark-traceprocessor", // requires prebuilts
             ":inspection:inspection", // native compilation
         )
     }

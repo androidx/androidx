@@ -40,7 +40,7 @@ private val DEFAULT_VIDEO_PROFILE by lazy {
         EncoderProfilesUtil.DEFAULT_VIDEO_PROFILE,
         EncoderProfilesUtil.DEFAULT_VIDEO_BIT_DEPTH,
         EncoderProfilesUtil.DEFAULT_VIDEO_CHROMA_SUBSAMPLING,
-        EncoderProfilesUtil.DEFAULT_VIDEO_HDR_FORMAT
+        EncoderProfilesUtil.DEFAULT_VIDEO_HDR_FORMAT,
     )
 }
 
@@ -102,7 +102,7 @@ class VideoValidatedEncoderProfilesProxyTest {
             EncoderProfilesUtil.DEFAULT_DURATION,
             EncoderProfilesUtil.DEFAULT_OUTPUT_FORMAT,
             emptyList(),
-            emptyList()
+            emptyList(),
         )
     }
 
@@ -113,7 +113,7 @@ class VideoValidatedEncoderProfilesProxyTest {
                 EncoderProfilesUtil.DEFAULT_DURATION,
                 EncoderProfilesUtil.DEFAULT_OUTPUT_FORMAT,
                 emptyList(),
-                listOf(DEFAULT_VIDEO_PROFILE)
+                listOf(DEFAULT_VIDEO_PROFILE),
             )
         assertThat(validatedProfiles.defaultAudioProfile).isNull()
     }

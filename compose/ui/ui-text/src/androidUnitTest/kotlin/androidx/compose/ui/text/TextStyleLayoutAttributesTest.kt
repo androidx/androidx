@@ -341,7 +341,7 @@ class TextStyleLayoutAttributesTest {
                 getProperty("deprecated_boxing_textAlign"),
                 getProperty("deprecated_boxing_textDirection"),
                 getProperty("deprecated_boxing_hyphens"),
-                getProperty("deprecated_boxing_lineBreak")
+                getProperty("deprecated_boxing_lineBreak"),
             )
 
         val textStyleProperties = TextStyle::class.memberProperties.map { Property(it) }

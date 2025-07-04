@@ -43,7 +43,7 @@ public object InternalTestConvenience {
      * @return the result of [block] function invoked on this resource.
      */
     public inline fun <A : Activity, R> ActivityScenario<A>.useInCameraTest(
-        block: (ActivityScenario<A>) -> R,
+        block: (ActivityScenario<A>) -> R
     ): R {
         try {
             return block(this)

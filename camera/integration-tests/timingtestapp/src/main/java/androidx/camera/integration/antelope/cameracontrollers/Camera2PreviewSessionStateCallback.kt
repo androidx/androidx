@@ -35,7 +35,7 @@ import java.util.Arrays
 class Camera2PreviewSessionStateCallback(
     internal val activity: MainActivity,
     internal val params: CameraParams,
-    internal val testConfig: TestConfig
+    internal val testConfig: TestConfig,
 ) : CameraCaptureSession.StateCallback() {
 
     /**
@@ -98,19 +98,19 @@ class Camera2PreviewSessionStateCallback(
                 FocusMode.AUTO -> {
                     params.captureRequestBuilder?.set(
                         CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_AUTO
+                        CaptureRequest.CONTROL_AF_MODE_AUTO,
                     )
                 }
                 FocusMode.CONTINUOUS -> {
                     params.captureRequestBuilder?.set(
                         CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
                     )
                 }
                 FocusMode.FIXED -> {
                     params.captureRequestBuilder?.set(
                         CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_AUTO
+                        CaptureRequest.CONTROL_AF_MODE_AUTO,
                     )
                 }
             }
@@ -125,7 +125,7 @@ class Camera2PreviewSessionStateCallback(
             cameraCaptureSession.setRepeatingRequest(
                 params.captureRequestBuilder?.build()!!,
                 params.camera2CaptureSessionCallback,
-                params.backgroundHandler
+                params.backgroundHandler,
             )
         } catch (e: CameraAccessException) {
             MainActivity.logd("Create Capture Session error: " + params.id)
@@ -194,7 +194,7 @@ class Camera2PreviewSessionStateCallback(
                         params.device?.close()
                     }
                 },
-                null
+                null,
             )
         } catch (e: CameraAccessException) {
             MainActivity.logd("createCameraPreviewSession CameraAccessException: " + e.message)

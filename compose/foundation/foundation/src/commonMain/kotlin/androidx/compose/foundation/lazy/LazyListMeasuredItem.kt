@@ -58,7 +58,7 @@ constructor(
     override val key: Any,
     override val contentType: Any?,
     private val animator: LazyLayoutItemAnimator<LazyListMeasuredItem>,
-    override val constraints: Constraints
+    override val constraints: Constraints,
 ) : LazyListItemInfo, LazyLayoutMeasuredItem {
     override var offset: Int = 0
         private set
@@ -113,7 +113,7 @@ constructor(
         mainAxisOffset: Int,
         crossAxisOffset: Int,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         position(mainAxisOffset, layoutWidth, layoutHeight)
     }

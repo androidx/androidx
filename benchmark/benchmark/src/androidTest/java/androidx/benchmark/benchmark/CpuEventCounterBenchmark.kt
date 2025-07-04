@@ -49,7 +49,7 @@ class CpuEventCounterBenchmark {
 
         assumeFalse(
             "cpu events enabled for all benchmarks, disabling this test",
-            Arguments.cpuEventCounterEnable
+            Arguments.cpuEventCounterEnable,
         )
     }
 
@@ -74,7 +74,7 @@ class CpuEventCounterBenchmark {
                 )
             )
             benchmarkRule.measureRepeated {
-                runWithTimingDisabled { counter.reset() }
+                runWithMeasurementDisabled { counter.reset() }
                 counter.start()
                 counter.stop()
             }

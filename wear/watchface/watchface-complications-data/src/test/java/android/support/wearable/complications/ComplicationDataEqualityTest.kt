@@ -86,38 +86,20 @@ class ComplicationDataEqualityTest {
             { setEndDateTimeMillis(1).build() },
             { setEndDateTimeMillis(2).build() },
         ),
-        RANGED_VALUE(
-            { setRangedValue(1f).build() },
-            { setRangedValue(2f).build() },
-        ),
+        RANGED_VALUE({ setRangedValue(1f).build() }, { setRangedValue(2f).build() }),
         RANGED_VALUE_EXPRESSION(
             { setRangedDynamicValue(DynamicFloat.constant(1.2f)).build() },
             { setRangedDynamicValue(DynamicFloat.constant(3.4f)).build() },
         ),
-        RANGED_VALUE_TYPE(
-            { setRangedValueType(1).build() },
-            { setRangedValueType(2).build() },
-        ),
-        RANGED_MIN_VALUE(
-            { setRangedMinValue(1f).build() },
-            { setRangedMinValue(2f).build() },
-        ),
-        RANGED_MAX_VALUE(
-            { setRangedMaxValue(1f).build() },
-            { setRangedMaxValue(2f).build() },
-        ),
-        TARGET_VALUE(
-            { setTargetValue(1f).build() },
-            { setTargetValue(2f).build() },
-        ),
+        RANGED_VALUE_TYPE({ setRangedValueType(1).build() }, { setRangedValueType(2).build() }),
+        RANGED_MIN_VALUE({ setRangedMinValue(1f).build() }, { setRangedMinValue(2f).build() }),
+        RANGED_MAX_VALUE({ setRangedMaxValue(1f).build() }, { setRangedMaxValue(2f).build() }),
+        TARGET_VALUE({ setTargetValue(1f).build() }, { setTargetValue(2f).build() }),
         LONG_TITLE(
             { setLongTitle(plainText("1")).build() },
             { setLongTitle(plainText("2")).build() },
         ),
-        LONG_TEXT(
-            { setLongText(plainText("1")).build() },
-            { setLongText(plainText("2")).build() },
-        ),
+        LONG_TEXT({ setLongText(plainText("1")).build() }, { setLongText(plainText("2")).build() }),
         SHORT_TITLE(
             { setShortTitle(plainText("1")).build() },
             { setShortTitle(plainText("2")).build() },
@@ -150,10 +132,7 @@ class ComplicationDataEqualityTest {
             { setLargeImage(Icon.createWithContentUri("1")).build() },
             { setLargeImage(Icon.createWithContentUri("2")).build() },
         ),
-        LIST_STYLE_HINT(
-            { setListStyleHint(1).build() },
-            { setListStyleHint(2).build() },
-        ),
+        LIST_STYLE_HINT({ setListStyleHint(1).build() }, { setListStyleHint(2).build() }),
         TAP_ACTION(
             {
                 setTapAction(
@@ -161,7 +140,7 @@ class ComplicationDataEqualityTest {
                             ApplicationProvider.getApplicationContext(),
                             0,
                             Intent("1"),
-                            0
+                            0,
                         )
                     )
                     .build()
@@ -172,7 +151,7 @@ class ComplicationDataEqualityTest {
                             ApplicationProvider.getApplicationContext(),
                             0,
                             Intent("2"),
-                            0
+                            0,
                         )
                     )
                     .build()
@@ -211,8 +190,8 @@ class ComplicationDataEqualityTest {
             { setColorRamp(intArrayOf(3, 4)).build() },
         ),
         COLOR_RAMP_IS_SMOOTH_SHADED(
-            { setColorRampIsSmoothShaded(true).build() },
-            { setColorRampIsSmoothShaded(false).build() },
+            { setColorRampInterpolated(true).build() },
+            { setColorRampInterpolated(false).build() },
         ),
         LIST_ENTRY_COLLECTION(
             { setListEntryCollection(listOf(staticData("1"))).build() },
@@ -241,8 +220,7 @@ class ComplicationDataEqualityTest {
         TIMELINE_ENTRIES(
             { build().apply { setTimelineEntryCollection(listOf(staticData("1"))) } },
             { build().apply { setTimelineEntryCollection(listOf(staticData("2"))) } },
-        ),
-        ;
+        );
 
         val base = ComplicationData.Builder(TYPE_NO_DATA).build()
 
@@ -320,10 +298,7 @@ class ComplicationDataEqualityTest {
                     .setRangedDynamicValue(DynamicFloat.constant(3.4f))
             },
         ),
-        RANGED_VALUE_NO_EXPRESSION(
-            { setRangedValue(1f) },
-            { setRangedValue(2f) },
-        ),
+        RANGED_VALUE_NO_EXPRESSION({ setRangedValue(1f) }, { setRangedValue(2f) }),
         SHORT_TITLE_EXPRESSION(
             { setShortTitle(expressionText("1")) },
             { setShortTitle(expressionText("2")) },
@@ -352,10 +327,7 @@ class ComplicationDataEqualityTest {
             { setLongText(expressionText("1")) },
             { setLongText(expressionText("2")) },
         ),
-        LONG_TEXT_NO_EXPRESSION(
-            { setLongText(plainText("1")) },
-            { setLongText(plainText("2")) },
-        ),
+        LONG_TEXT_NO_EXPRESSION({ setLongText(plainText("1")) }, { setLongText(plainText("2")) }),
         CONTENT_DESCRIPTION_EXPRESSION(
             { setContentDescription(expressionText("1")) },
             { setContentDescription(expressionText("2")) },
@@ -387,8 +359,7 @@ class ComplicationDataEqualityTest {
         LIST_ENTRY_COLLECTION_NO_EXPRESSION_DIFFERENT_SIZE(
             { setListEntryCollection(listOf(staticData("1"), staticData("1"))) },
             { setListEntryCollection(listOf(staticData("1"))) },
-        ),
-        ;
+        );
 
         val base = ComplicationData.Builder(TYPE_NO_DATA).build()
 
@@ -427,7 +398,7 @@ class ComplicationDataEqualityTest {
         fun expressionText(value: String) =
             ComplicationText(
                 Random.nextInt().toString(), // Ignored when there's an expression.
-                DynamicString.constant(value)
+                DynamicString.constant(value),
             )
     }
 }

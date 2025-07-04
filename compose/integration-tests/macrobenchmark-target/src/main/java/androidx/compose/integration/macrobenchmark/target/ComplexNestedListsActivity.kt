@@ -58,7 +58,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 
 class ComplexNestedListsActivity : ComponentActivity() {
 
@@ -70,7 +70,7 @@ class ComplexNestedListsActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                    color = MaterialTheme.colors.background,
                 ) {
                     Greeting()
                 }
@@ -115,30 +115,26 @@ private fun Video(
     imageRes: Int = R.drawable.simple_image,
     duration: String = "100",
     onVideoClick: () -> Unit = {},
-    shimmerModifier: Modifier = Modifier
+    shimmerModifier: Modifier = Modifier,
 ) {
     Column(
         modifier =
             modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
-                onClick = onVideoClick
+                onClick = onVideoClick,
             )
     ) {
         VideoImageBox(
             modifier = Modifier.then(shimmerModifier),
             imageRes = imageRes,
-            duration = duration
+            duration = duration,
         )
     }
 }
 
 @Composable
-private fun VideoImageBox(
-    modifier: Modifier,
-    imageRes: Int,
-    duration: String,
-) {
+private fun VideoImageBox(modifier: Modifier, imageRes: Int, duration: String) {
     Card(
         modifier =
             modifier
@@ -146,7 +142,7 @@ private fun VideoImageBox(
                 .shadow(
                     elevation = 12.dp,
                     spotColor = Color.Gray,
-                    shape = RoundedCornerShape(size = 12.dp)
+                    shape = RoundedCornerShape(size = 12.dp),
                 )
     ) {
         ConstraintLayout(Modifier.fillMaxSize()) {
@@ -164,7 +160,7 @@ private fun VideoImageBox(
                     },
                 model = imageRes,
                 contentDescription = null,
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
             )
 
             Row(
@@ -175,18 +171,15 @@ private fun VideoImageBox(
                         width = Dimension.wrapContent
                         height = Dimension.wrapContent
                     },
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = duration,
-                    color = Color.White,
-                )
+                Text(text = duration, color = Color.White)
                 Spacer(modifier = Modifier.width(2.dp))
                 Icon(
                     modifier = Modifier.size(12.dp).padding(2.dp),
                     imageVector = Icons.Default.AccountBox,
                     contentDescription = null,
-                    tint = Color.White
+                    tint = Color.White,
                 )
             }
         }

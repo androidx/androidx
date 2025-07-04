@@ -154,7 +154,7 @@ class RemeasureWithIntrinsicsTest {
         rule.setContent {
             LayoutUsingIntrinsics(
                 onMeasure = { ++measures },
-                modifier = Modifier.testTag("parent")
+                modifier = Modifier.testTag("parent"),
             ) {
                 LayoutWithIntrinsics(20.dp, 20.dp) {
                     LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight)
@@ -180,12 +180,12 @@ class RemeasureWithIntrinsicsTest {
         rule.setContent {
             LayoutUsingIntrinsics(
                 modifier = Modifier.testTag("parent1"),
-                onMeasure = { ++measures1 }
+                onMeasure = { ++measures1 },
             ) {
                 Box {
                     LayoutUsingIntrinsics(
                         modifier = Modifier.testTag("parent2"),
-                        onMeasure = { ++measures2 }
+                        onMeasure = { ++measures2 },
                     ) {
                         Box { LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight) }
                     }
@@ -229,7 +229,7 @@ class RemeasureWithIntrinsicsTest {
                         LayoutWithIntrinsics(intrinsicWidth, intrinsicHeight)
                     }
                 },
-                measurePolicy = parentLayoutPolicy
+                measurePolicy = parentLayoutPolicy,
             )
         }
 
@@ -320,7 +320,7 @@ class RemeasureWithIntrinsicsTest {
                                         offsetPx,
                                         offsetPx,
                                         placeable.width - offsetPx,
-                                        placeable.height - offsetPx
+                                        placeable.height - offsetPx,
                                     )
                                 layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                             }
@@ -349,7 +349,7 @@ class RemeasureWithIntrinsicsTest {
                 horizontalPadding = offsetDp,
                 verticalPadding = offsetDp,
                 backgroundColor = Color.Black,
-                shapeColor = Color.Red
+                shapeColor = Color.Red,
             )
     }
 
@@ -374,7 +374,7 @@ class RemeasureWithIntrinsicsTest {
         height: Dp,
         modifier: Modifier = Modifier,
         onMeasure: () -> Unit = {},
-        content: @Composable () -> Unit = {}
+        content: @Composable () -> Unit = {},
     ) {
         Layout(
             content = content,
@@ -383,7 +383,7 @@ class RemeasureWithIntrinsicsTest {
                 object : MeasurePolicy {
                     override fun MeasureScope.measure(
                         measurables: List<Measurable>,
-                        constraints: Constraints
+                        constraints: Constraints,
                     ): MeasureResult {
                         onMeasure()
                         return layout(constraints.minWidth, constraints.minHeight) {}
@@ -391,14 +391,14 @@ class RemeasureWithIntrinsicsTest {
 
                     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                         measurables: List<IntrinsicMeasurable>,
-                        height: Int
+                        height: Int,
                     ): Int = width.roundToPx()
 
                     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                         measurables: List<IntrinsicMeasurable>,
-                        width: Int
+                        width: Int,
                     ): Int = height.roundToPx()
-                }
+                },
         )
     }
 
@@ -407,13 +407,13 @@ class RemeasureWithIntrinsicsTest {
         useIntrinsics: () -> Boolean,
         modifier: Modifier = Modifier,
         onMeasure: () -> Unit = {},
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val measurePolicy = remember {
             object : MeasurePolicy {
                 override fun MeasureScope.measure(
                     measurables: List<Measurable>,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     require(measurables.size == 1)
                     onMeasure()
@@ -432,22 +432,22 @@ class RemeasureWithIntrinsicsTest {
 
                 override fun IntrinsicMeasureScope.minIntrinsicWidth(
                     measurables: List<IntrinsicMeasurable>,
-                    height: Int
+                    height: Int,
                 ) = measurables.first().minIntrinsicWidth(height)
 
                 override fun IntrinsicMeasureScope.minIntrinsicHeight(
                     measurables: List<IntrinsicMeasurable>,
-                    width: Int
+                    width: Int,
                 ) = measurables.first().minIntrinsicHeight(width)
 
                 override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                     measurables: List<IntrinsicMeasurable>,
-                    height: Int
+                    height: Int,
                 ) = measurables.first().maxIntrinsicWidth(height)
 
                 override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                     measurables: List<IntrinsicMeasurable>,
-                    width: Int
+                    width: Int,
                 ) = measurables.first().maxIntrinsicHeight(width)
             }
         }
@@ -458,14 +458,14 @@ class RemeasureWithIntrinsicsTest {
     private fun LayoutUsingIntrinsics(
         modifier: Modifier = Modifier,
         onMeasure: () -> Unit = {},
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) = LayoutMaybeUsingIntrinsics({ true }, modifier, onMeasure, content)
 
     private val ModifierUsingIntrinsics =
         object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 val width = measurable.maxIntrinsicWidth(constraints.maxHeight)
                 val height = measurable.maxIntrinsicHeight(constraints.maxWidth)
@@ -475,22 +475,22 @@ class RemeasureWithIntrinsicsTest {
 
             override fun IntrinsicMeasureScope.minIntrinsicWidth(
                 measurable: IntrinsicMeasurable,
-                height: Int
+                height: Int,
             ) = measurable.minIntrinsicWidth(height)
 
             override fun IntrinsicMeasureScope.minIntrinsicHeight(
                 measurable: IntrinsicMeasurable,
-                width: Int
+                width: Int,
             ) = measurable.minIntrinsicHeight(width)
 
             override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                 measurable: IntrinsicMeasurable,
-                height: Int
+                height: Int,
             ) = measurable.maxIntrinsicWidth(height)
 
             override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                 measurable: IntrinsicMeasurable,
-                width: Int
+                width: Int,
             ) = measurable.maxIntrinsicHeight(width)
         }
 
@@ -499,7 +499,7 @@ class RemeasureWithIntrinsicsTest {
             object : LayoutModifier {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     val placeable = measurable.measure(constraints)
                     return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -507,12 +507,12 @@ class RemeasureWithIntrinsicsTest {
 
                 override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                     measurable: IntrinsicMeasurable,
-                    height: Int
+                    height: Int,
                 ): Int = width.roundToPx()
 
                 override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                     measurable: IntrinsicMeasurable,
-                    width: Int
+                    width: Int,
                 ): Int = height.roundToPx()
             }
         )

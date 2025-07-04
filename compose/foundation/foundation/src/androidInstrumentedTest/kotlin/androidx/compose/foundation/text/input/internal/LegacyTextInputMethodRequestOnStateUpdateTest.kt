@@ -56,14 +56,14 @@ class LegacyTextInputMethodRequestOnStateUpdateTest {
             LegacyTextInputMethodRequest(
                 view = View(getInstrumentation().targetContext),
                 localToScreen = {},
-                inputMethodManager = inputMethodManager
+                inputMethodManager = inputMethodManager,
             )
         textInputService.startInput(
             value = TextFieldValue(""),
             textInputNode = null,
             imeOptions = ImeOptions.Default,
             onEditCommand = {},
-            onImeActionPerformed = {}
+            onImeActionPerformed = {},
         )
         inputConnection = textInputService.createInputConnection(EditorInfo())
     }
@@ -90,7 +90,7 @@ class LegacyTextInputMethodRequestOnStateUpdateTest {
         val newValue = TextFieldValue("a", TextRange.Zero, null)
         textInputService.updateState(
             oldValue = TextFieldValue("a", TextRange.Zero, TextRange.Zero),
-            newValue = newValue
+            newValue = newValue,
         )
 
         verify(inputMethodManager, times(1)).restartInput()
@@ -105,7 +105,7 @@ class LegacyTextInputMethodRequestOnStateUpdateTest {
         val newValue = TextFieldValue("a", TextRange(1), null)
         textInputService.updateState(
             oldValue = TextFieldValue("a", TextRange.Zero, null),
-            newValue = newValue
+            newValue = newValue,
         )
 
         verify(inputMethodManager, never()).restartInput()
@@ -157,7 +157,7 @@ class LegacyTextInputMethodRequestOnStateUpdateTest {
         val newValue = TextFieldValue("a", TextRange(1), null)
         textInputService.updateState(
             oldValue = TextFieldValue("a", TextRange.Zero, TextRange.Zero),
-            newValue = newValue
+            newValue = newValue,
         )
 
         verify(inputMethodManager, never()).restartInput()

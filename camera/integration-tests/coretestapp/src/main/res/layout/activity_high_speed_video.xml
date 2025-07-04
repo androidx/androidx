@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <ImageButton
+        android:id="@+id/switch_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_camera_switch"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.camera.integration.core.button.VideoQualityButton
+        android:id="@+id/quality_button"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/round_button"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.95"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2" />
+
+    <androidx.camera.integration.core.button.FrameRateButton
+        android:id="@+id/frame_rate_button"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/round_button"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/quality_button"
+        app:layout_constraintRight_toRightOf="@+id/quality_button"
+        />
+
+    <ToggleButton
+        android:id="@+id/audio_enable"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/mic_button_selector"
+        android:checked="true"
+        android:scaleType="fitXY"
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintRight_toRightOf="@id/frame_rate_button"
+        app:layout_constraintTop_toBottomOf="@id/frame_rate_button" />
+
+    <TextView
+        android:id="@+id/record_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:background="#66888888"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:padding="8dp"
+        android:text="Recording Status"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/record"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="Record"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
+
+    <Button
+        android:id="@+id/pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="Pause"
+        android:visibility="gone"
+        app:layout_constraintLeft_toRightOf="@+id/record"
+        app:layout_constraintTop_toTopOf="@+id/record" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -103,5 +103,5 @@ public annotation class Update(
      *
      * @return How to handle conflicts. Defaults to [OnConflictStrategy.ABORT].
      */
-    @get:OnConflictStrategy val onConflict: Int = OnConflictStrategy.ABORT
+    @get:OnConflictStrategy val onConflict: Int = OnConflictStrategy.ABORT,
 )

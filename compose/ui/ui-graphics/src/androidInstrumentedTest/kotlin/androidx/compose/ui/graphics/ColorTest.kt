@@ -16,11 +16,16 @@
 
 package androidx.compose.ui.graphics
 
+import android.graphics.Color as AndroidColor
+import android.graphics.ColorSpace as AndroidColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.util.lerp
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,6 +33,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
+@MediumTest
 class ColorTest {
     private val adobeColorSpace = ColorSpaces.AdobeRgb
     private val srgbColor = Color(0xFFFF8000)
@@ -116,7 +122,7 @@ class ColorTest {
                     red = lerp(redOklab.red, greenOklab.red, t),
                     green = lerp(redOklab.green, greenOklab.green, t),
                     blue = lerp(redOklab.blue, greenOklab.blue, t),
-                    colorSpace = ColorSpaces.Oklab
+                    colorSpace = ColorSpaces.Oklab,
                 )
             val expected = expectedOklab.convert(ColorSpaces.Srgb)
             val colorARGB = Color(color.toArgb())
@@ -125,7 +131,7 @@ class ColorTest {
                 expectedARGB,
                 colorARGB,
                 "at t = $t[$i] was ${colorARGB.toArgb().toHexString()}, " +
-                    "expecting ${expectedARGB.toArgb().toHexString()}"
+                    "expecting ${expectedARGB.toArgb().toHexString()}",
             )
         }
 
@@ -1389,17 +1395,17 @@ class ColorTest {
             assertTrue(
                 abs(expected[it].toInt().red - color.toArgb().red) < 2,
                 "Expected fraction $it/1000 to have color " +
-                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}"
+                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}",
             )
             assertTrue(
                 abs(expected[it].toInt().green - color.toArgb().green) < 2,
                 "Expected fraction $it/1000 to have color " +
-                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}"
+                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}",
             )
             assertTrue(
                 abs(expected[it].toInt().blue - color.toArgb().blue) < 2,
                 "Expected fraction $it/1000 to have color " +
-                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}"
+                    "0x${expected[it].toString(16)}, but was 0x${colorLong.toString(16)}",
             )
         }
     }
@@ -1418,6 +1424,152 @@ class ColorTest {
     fun unspecifiedConstantValue() {
         // See comments in Color.kt, we want to make sure Color.Unspecified doesn't change encoding
         assertEquals(0x10UL, Color.Unspecified.value)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun toColorLong() {
+        val argb = 0x1F2B3D4E
+        val color = Color(argb)
+        val colorSpaceNames =
+            arrayOf(
+                AndroidColorSpace.Named.SRGB,
+                AndroidColorSpace.Named.LINEAR_SRGB,
+                AndroidColorSpace.Named.EXTENDED_SRGB,
+                AndroidColorSpace.Named.LINEAR_EXTENDED_SRGB,
+                AndroidColorSpace.Named.BT2020,
+                AndroidColorSpace.Named.DCI_P3,
+                AndroidColorSpace.Named.DISPLAY_P3,
+                AndroidColorSpace.Named.NTSC_1953,
+                AndroidColorSpace.Named.SMPTE_C,
+                AndroidColorSpace.Named.ADOBE_RGB,
+                AndroidColorSpace.Named.PRO_PHOTO_RGB,
+                AndroidColorSpace.Named.ACES,
+                AndroidColorSpace.Named.ACESCG,
+                AndroidColorSpace.Named.CIE_XYZ,
+                AndroidColorSpace.Named.CIE_LAB,
+            )
+        val androidColorSpaces = colorSpaceNames.map { AndroidColorSpace.get(it) }
+
+        val colorSpaces =
+            arrayOf(
+                ColorSpaces.Srgb,
+                ColorSpaces.LinearSrgb,
+                ColorSpaces.ExtendedSrgb,
+                ColorSpaces.LinearExtendedSrgb,
+                ColorSpaces.Bt2020,
+                ColorSpaces.DciP3,
+                ColorSpaces.DisplayP3,
+                ColorSpaces.Ntsc1953,
+                ColorSpaces.SmpteC,
+                ColorSpaces.AdobeRgb,
+                ColorSpaces.ProPhotoRgb,
+                ColorSpaces.Aces,
+                ColorSpaces.Acescg,
+                ColorSpaces.CieXyz,
+                ColorSpaces.CieLab,
+            )
+        for (i in colorSpaces.indices) {
+            val androidColorSpace = androidColorSpaces[i]
+            val composeColorSpace = colorSpaces[i]
+            assertThat(color.convert(composeColorSpace).toColorLong())
+                .isEqualTo(AndroidColor.convert(argb, androidColorSpace))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun fromColorLong() {
+        val argb = 0x1F2B3D4E
+        val color = Color(argb)
+        val colorSpaceNames =
+            arrayOf(
+                AndroidColorSpace.Named.SRGB,
+                AndroidColorSpace.Named.LINEAR_SRGB,
+                AndroidColorSpace.Named.EXTENDED_SRGB,
+                AndroidColorSpace.Named.LINEAR_EXTENDED_SRGB,
+                AndroidColorSpace.Named.BT2020,
+                AndroidColorSpace.Named.DCI_P3,
+                AndroidColorSpace.Named.DISPLAY_P3,
+                AndroidColorSpace.Named.NTSC_1953,
+                AndroidColorSpace.Named.SMPTE_C,
+                AndroidColorSpace.Named.ADOBE_RGB,
+                AndroidColorSpace.Named.PRO_PHOTO_RGB,
+                AndroidColorSpace.Named.ACES,
+                AndroidColorSpace.Named.ACESCG,
+                AndroidColorSpace.Named.CIE_XYZ,
+                AndroidColorSpace.Named.CIE_LAB,
+            )
+        val androidColorSpaces = colorSpaceNames.map { AndroidColorSpace.get(it) }
+
+        val colorSpaces =
+            arrayOf(
+                ColorSpaces.Srgb,
+                ColorSpaces.LinearSrgb,
+                ColorSpaces.ExtendedSrgb,
+                ColorSpaces.LinearExtendedSrgb,
+                ColorSpaces.Bt2020,
+                ColorSpaces.DciP3,
+                ColorSpaces.DisplayP3,
+                ColorSpaces.Ntsc1953,
+                ColorSpaces.SmpteC,
+                ColorSpaces.AdobeRgb,
+                ColorSpaces.ProPhotoRgb,
+                ColorSpaces.Aces,
+                ColorSpaces.Acescg,
+                ColorSpaces.CieXyz,
+                ColorSpaces.CieLab,
+            )
+        for (i in colorSpaces.indices) {
+            val androidColorSpace = androidColorSpaces[i]
+            val composeColorSpace = colorSpaces[i]
+            assertThat(Color.fromColorLong(AndroidColor.convert(argb, androidColorSpace)))
+                .isEqualTo(color.convert(composeColorSpace))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun toColorLong34() {
+        val argb = 0x1F2B3D4E
+        val color = Color(argb)
+        val colorSpaceNames =
+            arrayOf(
+                AndroidColorSpace.Named.BT709,
+                AndroidColorSpace.Named.BT2020_HLG,
+                AndroidColorSpace.Named.BT2020_PQ,
+            )
+        val androidColorSpaces = colorSpaceNames.map { AndroidColorSpace.get(it) }
+
+        val colorSpaces = arrayOf(ColorSpaces.Bt709, ColorSpaces.Bt2020Hlg, ColorSpaces.Bt2020Pq)
+        for (i in colorSpaces.indices) {
+            val androidColorSpace = androidColorSpaces[i]
+            val composeColorSpace = colorSpaces[i]
+            assertThat(color.convert(composeColorSpace).toColorLong())
+                .isEqualTo(AndroidColor.convert(argb, androidColorSpace))
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun fromColorLong34() {
+        val argb = 0x1F2B3D4E
+        val color = Color(argb)
+        val colorSpaceNames =
+            arrayOf(
+                AndroidColorSpace.Named.BT709,
+                AndroidColorSpace.Named.BT2020_HLG,
+                AndroidColorSpace.Named.BT2020_PQ,
+            )
+        val androidColorSpaces = colorSpaceNames.map { AndroidColorSpace.get(it) }
+
+        val colorSpaces = arrayOf(ColorSpaces.Bt709, ColorSpaces.Bt2020Hlg, ColorSpaces.Bt2020Pq)
+        for (i in colorSpaces.indices) {
+            val androidColorSpace = androidColorSpaces[i]
+            val composeColorSpace = colorSpaces[i]
+            assertThat(Color.fromColorLong(AndroidColor.convert(argb, androidColorSpace)))
+                .isEqualTo(color.convert(composeColorSpace))
+        }
     }
 
     companion object {

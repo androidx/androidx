@@ -18,8 +18,6 @@ package androidx.wear.protolayout.materialcore.fontscaling
 
 import androidx.core.util.forEach
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.ceil
@@ -41,7 +39,6 @@ class FontScaleConverterFactoryTest {
         assertThat(table.convertSpToDp(0F)).isWithin(CONVERSION_TOLERANCE).of(0f)
     }
 
-    @LargeTest
     @Test
     fun missingLookupTablePastEnd_returnsLinear() {
         val table = FontScaleConverterFactory.forScale(3F)!!
@@ -57,7 +54,6 @@ class FontScaleConverterFactoryTest {
         assertThat(table.convertSpToDp(100F)).isWithin(CONVERSION_TOLERANCE).of(300f)
     }
 
-    @SmallTest
     fun missingLookupTable110_returnsInterpolated() {
         val table = FontScaleConverterFactory.forScale(1.1F)!!
 
@@ -92,19 +88,19 @@ class FontScaleConverterFactoryTest {
         assertThat(table.convertSpToDp(0F)).isWithin(CONVERSION_TOLERANCE).of(0f)
     }
 
-    @SmallTest
+    @Test
     fun missingLookupTableNegativeReturnsNull() {
         assertThat(FontScaleConverterFactory.forScale(-1F)).isNull()
     }
 
-    @SmallTest
+    @Test
     fun unnecessaryFontScalesReturnsNull() {
         assertThat(FontScaleConverterFactory.forScale(0F)).isNull()
         assertThat(FontScaleConverterFactory.forScale(1F)).isNull()
         assertThat(FontScaleConverterFactory.forScale(0.85F)).isNull()
     }
 
-    @SmallTest
+    @Test
     fun tablesMatchAndAreMonotonicallyIncreasing() {
         FontScaleConverterFactory.LOOKUP_TABLES.forEach { _, lookupTable ->
             assertThat(lookupTable.mToDpValues).hasLength(lookupTable.mFromSpValues.size)
@@ -118,7 +114,7 @@ class FontScaleConverterFactoryTest {
         }
     }
 
-    @SmallTest
+    @Test
     fun testIsNonLinearFontScalingActive() {
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(1f)).isFalse()
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(0f)).isFalse()
@@ -133,7 +129,6 @@ class FontScaleConverterFactoryTest {
         assertThat(FontScaleConverterFactory.isNonLinearFontScalingActive(3f)).isTrue()
     }
 
-    @LargeTest
     @Test
     fun allFeasibleScalesAndConversionsDoNotCrash() {
         generateSequenceOfFractions(-10f..10f, step = 0.1f)
@@ -215,7 +210,7 @@ class FontScaleConverterFactoryTest {
 
 fun generateSequenceOfFractions(
     range: ClosedFloatingPointRange<Float>,
-    step: Float
+    step: Float,
 ): Sequence<Float> {
     val multiplier = 1f / step
     val start = floor(range.start * multiplier).toInt()

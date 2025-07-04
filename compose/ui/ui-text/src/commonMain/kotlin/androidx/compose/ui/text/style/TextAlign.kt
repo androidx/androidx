@@ -20,7 +20,7 @@ package androidx.compose.ui.text.style
  * appears.
  */
 @kotlin.jvm.JvmInline
-value class TextAlign internal constructor(internal val value: Int) {
+value class TextAlign internal constructor(val value: Int) {
 
     override fun toString(): String {
         return when (this) {
@@ -34,6 +34,14 @@ value class TextAlign internal constructor(internal val value: Int) {
             else -> "Invalid"
         }
     }
+
+    /**
+     * Returns `true` if this baseline shift is not [TextAlign.Unspecified].
+     *
+     * @see TextAlign.Unspecified
+     */
+    val isSpecified: Boolean
+        get() = value != 0
 
     companion object {
         /** Align the text on the left edge of the container. */
@@ -71,13 +79,24 @@ value class TextAlign internal constructor(internal val value: Int) {
          */
         val End = TextAlign(6)
 
-        /** Return a list containing all possible values of TextAlign. */
-        fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
-
         /**
          * This represents an unset value, a usual replacement for "null" when a primitive value is
          * desired.
          */
-        val Unspecified = TextAlign(Int.MIN_VALUE)
+        val Unspecified = TextAlign(0)
+
+        /** Return a list containing all possible values of TextAlign. */
+        fun values(): List<TextAlign> = listOf(Left, Right, Center, Justify, Start, End)
+
+        /**
+         * Creates a TextAlign from the given integer value. This can be useful if you need to
+         * serialize/deserialize TextAlign values.
+         *
+         * @param value The integer representation of the TextAlign.
+         * @see [TextAlign.value]
+         */
+        fun valueOf(value: Int): TextAlign {
+            return TextAlign(value)
+        }
     }
 }

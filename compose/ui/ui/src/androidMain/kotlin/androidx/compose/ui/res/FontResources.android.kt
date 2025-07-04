@@ -47,7 +47,7 @@ private val cacheLock = Object()
     "Prefer to preload fonts using FontFamily.Resolver.",
     replaceWith =
         ReplaceWith("FontFamily.Resolver.preload(fontFamily, Font.AndroidResourceLoader(context))"),
-    level = DeprecationLevel.WARNING
+    level = DeprecationLevel.WARNING,
 )
 fun fontResource(fontFamily: FontFamily): Typeface {
     return fontResourceFromContext(LocalContext.current, fontFamily)
@@ -58,7 +58,7 @@ fun fontResource(fontFamily: FontFamily): Typeface {
     "Prefer to preload fonts using FontFamily.Resolver.",
     replaceWith =
         ReplaceWith("FontFamily.Resolver.preload(fontFamily, Font.AndroidResourceLoader(context))"),
-    level = DeprecationLevel.WARNING
+    level = DeprecationLevel.WARNING,
 )
 private fun fontResourceFromContext(context: Context, a: FontFamily): Typeface {
     if (a is SystemFontFamily || a is LoadedFontFamily) {

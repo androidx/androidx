@@ -39,7 +39,7 @@ internal constructor(
      *
      * For example, the data may be real loaded data that has been cached via [cachedIn].
      */
-    private val cachedPageEvent: () -> PageEvent.Insert<T>? = { null }
+    private val cachedPageEvent: () -> PageEvent.Insert<T>? = { null },
 ) {
     public companion object {
         internal val NOOP_UI_RECEIVER =
@@ -75,19 +75,13 @@ internal constructor(
                 hintReceiver = NOOP_HINT_RECEIVER,
                 cachedPageEvent = {
                     PageEvent.Insert.Refresh(
-                        pages =
-                            listOf(
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf(),
-                                )
-                            ),
+                        pages = listOf(TransformablePage(originalPageOffset = 0, data = listOf())),
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = LoadStates.IDLE,
-                        mediatorLoadStates = null
+                        mediatorLoadStates = null,
                     )
-                }
+                },
             )
 
         /**
@@ -119,19 +113,13 @@ internal constructor(
                 hintReceiver = NOOP_HINT_RECEIVER,
                 cachedPageEvent = {
                     PageEvent.Insert.Refresh(
-                        pages =
-                            listOf(
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = listOf(),
-                                )
-                            ),
+                        pages = listOf(TransformablePage(originalPageOffset = 0, data = listOf())),
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = sourceLoadStates,
-                        mediatorLoadStates = mediatorLoadStates
+                        mediatorLoadStates = mediatorLoadStates,
                     )
-                }
+                },
             )
 
         /**
@@ -142,9 +130,7 @@ internal constructor(
          * @param data Static list of [T] to display.
          */
         @JvmStatic // Convenience for Java developers.
-        public fun <T : Any> from(
-            data: List<T>,
-        ): PagingData<T> =
+        public fun <T : Any> from(data: List<T>): PagingData<T> =
             PagingData(
                 flow =
                     flowOf(
@@ -162,9 +148,9 @@ internal constructor(
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = LoadStates.IDLE,
-                        mediatorLoadStates = null
+                        mediatorLoadStates = null,
                     )
-                }
+                },
             )
 
         /**
@@ -201,9 +187,9 @@ internal constructor(
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = sourceLoadStates,
-                        mediatorLoadStates = mediatorLoadStates
+                        mediatorLoadStates = mediatorLoadStates,
                     )
-                }
+                },
             )
     }
 

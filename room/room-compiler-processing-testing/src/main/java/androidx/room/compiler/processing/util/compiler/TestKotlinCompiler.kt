@@ -55,7 +55,7 @@ data class TestCompilationArguments(
     /** List of symbol processor providers to be run by KSP. */
     val symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     /** Map of annotation/symbol processor options. Used for both KAPT and KSP. */
-    val processorOptions: Map<String, String> = emptyMap()
+    val processorOptions: Map<String, String> = emptyMap(),
 )
 
 /** Result of a test compilation. */
@@ -76,7 +76,7 @@ data class TestCompilationResult(
 internal class PluginRegistrarArguments(
     @Suppress("DEPRECATION")
     val k1Registrars: List<org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar>,
-    val k2Registrars: List<CompilerPluginRegistrar>
+    val k2Registrars: List<CompilerPluginRegistrar>,
 )
 
 /** Ensures the list of sources has at least 1 kotlin file, if not, adds one. */
@@ -93,7 +93,7 @@ internal fun TestCompilationArguments.withAtLeastOneKotlinSource(): TestCompilat
                 package xprocessing.generated
                 class SyntheticKotlinSource
             """
-                            .trimIndent()
+                            .trimIndent(),
                 )
     )
 }
@@ -127,7 +127,7 @@ private fun TestCompilationArguments.toInternal(workingDir: File): CompilationSt
         additionalClasspaths = classpath,
         inheritClasspaths = inheritClasspath,
         javacArguments = javacArguments,
-        kotlincArguments = kotlincArguments
+        kotlincArguments = kotlincArguments,
     )
 }
 
@@ -143,7 +143,7 @@ fun compile(
             KaptCompilationStep(arguments.kaptProcessors, arguments.processorOptions),
             KspCompilationStep(arguments.symbolProcessorProviders, arguments.processorOptions),
             KotlinSourceCompilationStep,
-            JavaSourceCompilationStep
+            JavaSourceCompilationStep,
         )
     workingDir.ensureEmptyDirectory()
 
@@ -156,7 +156,7 @@ fun compile(
                 diagnostics = emptyList(),
                 nextCompilerArguments = initialArgs,
                 outputClasspath = emptyList(),
-                generatedResources = emptyList()
+                generatedResources = emptyList(),
             )
         )
     val resultFromEachStep =
@@ -166,7 +166,7 @@ fun compile(
                 prevResults +
                     step.execute(
                         workingDir = workingDir.resolve(step.name),
-                        arguments = prev.nextCompilerArguments
+                        arguments = prev.nextCompilerArguments,
                     )
             } else {
                 prevResults
@@ -183,7 +183,7 @@ fun compile(
         generatedSources = resultFromEachStep.flatMap { it.generatedSources },
         diagnostics = combinedDiagnostics,
         outputClasspath = resultFromEachStep.flatMap { it.outputClasspath },
-        generatedResources = resultFromEachStep.flatMap { it.generatedResources }
+        generatedResources = resultFromEachStep.flatMap { it.generatedResources },
     )
 }
 

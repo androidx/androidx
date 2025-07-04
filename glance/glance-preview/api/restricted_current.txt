@@ -5,6 +5,7 @@ package androidx.glance.preview {
   }
 
   @SuppressCompatibility @androidx.glance.preview.ExperimentalGlancePreviewApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface Preview {
+    ctor @KotlinOnly public Preview(optional int widthDp, optional int heightDp);
     method public abstract int heightDp() default -1;
     method public abstract int widthDp() default -1;
     property public abstract int heightDp;
@@ -13,8 +14,6 @@ package androidx.glance.preview {
 
   @SuppressCompatibility @androidx.glance.preview.ExperimentalGlancePreviewApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface Preview.Container {
     method public abstract androidx.glance.preview.Preview[] value();
-    property public abstract int heightDp;
-    property public abstract int widthDp;
   }
 
 }

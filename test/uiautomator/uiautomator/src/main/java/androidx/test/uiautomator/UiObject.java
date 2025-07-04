@@ -511,6 +511,7 @@ public class UiObject {
      * @return text value of the current node represented by this UiObject
      * @throws UiObjectNotFoundException if no match could be found
      */
+    @SuppressWarnings("GetterSetterNullability")
     public @NonNull String getText() throws UiObjectNotFoundException {
         AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
         if(node == null) {

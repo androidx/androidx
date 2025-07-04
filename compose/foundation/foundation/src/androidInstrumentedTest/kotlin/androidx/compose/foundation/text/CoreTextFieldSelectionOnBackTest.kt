@@ -67,7 +67,7 @@ class CoreTextFieldSelectionOnBackTest : FocusedWindowTest {
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { textFieldValue = it },
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -101,7 +101,7 @@ class CoreTextFieldSelectionOnBackTest : FocusedWindowTest {
                         backPressCount++
                     }
                     false
-                }
+                },
             )
         }
 

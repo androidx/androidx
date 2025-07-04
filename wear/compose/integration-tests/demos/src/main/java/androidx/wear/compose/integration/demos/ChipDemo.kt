@@ -78,7 +78,7 @@ fun StandardChips() {
                 text = "Chip with Label",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.caption1,
-                color = Color.White
+                color = Color.White,
             )
         }
         item {
@@ -103,7 +103,7 @@ fun StandardChips() {
             Text(
                 "Chip with icon",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.caption1
+                style = MaterialTheme.typography.caption1,
             )
         }
         item {
@@ -130,7 +130,7 @@ fun StandardChips() {
             Text(
                 "Main + Secondary label",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.caption1
+                style = MaterialTheme.typography.caption1,
             )
         }
         item {
@@ -180,7 +180,7 @@ fun StandardChips() {
                 label = "Chip with custom shape",
                 colors = chipColors(chipStyle),
                 enabled = enabled,
-                shape = CutCornerShape(4.dp)
+                shape = CutCornerShape(4.dp),
             )
         }
         item {
@@ -202,14 +202,14 @@ fun SmallChips() {
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp)
+        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp),
     ) {
         item {
             Text(
                 text = "Compact Chip",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.body2,
-                color = Color.White
+                color = Color.White,
             )
         }
         item {
@@ -218,7 +218,7 @@ fun SmallChips() {
                 colors = chipColors(chipStyle),
                 label = "Label",
                 enabled = enabled,
-                style = chipStyle
+                style = chipStyle,
             )
         }
         item {
@@ -227,7 +227,7 @@ fun SmallChips() {
                 colors = chipColors(chipStyle),
                 label = "Long label to show truncation which does not fit into 1 line",
                 enabled = enabled,
-                style = chipStyle
+                style = chipStyle,
             )
         }
         item {
@@ -236,13 +236,13 @@ fun SmallChips() {
                 colors = chipColors(chipStyle),
                 label = "Label with icon",
                 enabled = enabled,
-                style = chipStyle
+                style = chipStyle,
             ) {
                 DemoIcon(
                     resourceId = R.drawable.ic_accessibility_24px,
                     modifier =
                         Modifier.size(ChipDefaults.SmallIconSize)
-                            .wrapContentSize(align = Alignment.Center)
+                            .wrapContentSize(align = Alignment.Center),
                 )
             }
         }
@@ -252,13 +252,13 @@ fun SmallChips() {
                 colors = chipColors(chipStyle),
                 label = "Label with icon to show truncation which does not fit into 1 line",
                 enabled = enabled,
-                style = chipStyle
+                style = chipStyle,
             ) {
                 DemoIcon(
                     resourceId = R.drawable.ic_accessibility_24px,
                     modifier =
                         Modifier.size(ChipDefaults.SmallIconSize)
-                            .wrapContentSize(align = Alignment.Center)
+                            .wrapContentSize(align = Alignment.Center),
                 )
             }
         }
@@ -269,7 +269,7 @@ fun SmallChips() {
                 label = "Compact Chip with custom shape",
                 enabled = enabled,
                 style = chipStyle,
-                shape = CutCornerShape(4.dp)
+                shape = CutCornerShape(4.dp),
             )
         }
         item {
@@ -302,7 +302,7 @@ fun AvatarChips() {
                 TextIcon(
                     text = "M",
                     size = ChipDefaults.LargeIconSize,
-                    style = MaterialTheme.typography.title3
+                    style = MaterialTheme.typography.title3,
                 )
             }
         }
@@ -317,7 +317,7 @@ fun AvatarChips() {
                 TextIcon(
                     text = "M",
                     size = ChipDefaults.LargeIconSize,
-                    style = MaterialTheme.typography.title3
+                    style = MaterialTheme.typography.title3,
                 )
             }
         }
@@ -354,7 +354,7 @@ fun AvatarChips() {
                     ChipDefaults.gradientBackgroundChipColors(
                         startBackgroundColor =
                             AlternatePrimaryColor3.copy(alpha = 0.325f)
-                                .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
+                                .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f))
                     ),
                 enabled = enabled,
             ) {
@@ -376,9 +376,9 @@ fun AvatarChips() {
                 toggleControl = {
                     Icon(
                         imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
-                        contentDescription = if (enabled) "On" else "Off"
+                        contentDescription = if (enabled) "On" else "Off",
                     )
-                }
+                },
             )
         }
     }
@@ -390,14 +390,14 @@ fun RtlChips() {
         ScalingLazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp)
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp),
         ) {
             item {
                 Text(
                     text = "Right to left chips",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.caption1,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
             item {
@@ -434,13 +434,13 @@ fun RtlChips() {
                         Text(
                             "Compact chip with label & icon",
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
                         )
                     },
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                            modifier = Modifier.size(ChipDefaults.SmallIconSize),
                         )
                     },
                 )
@@ -454,7 +454,7 @@ fun RtlChips() {
                     TextIcon(
                         text = "M",
                         size = ChipDefaults.LargeIconSize,
-                        style = MaterialTheme.typography.title3
+                        style = MaterialTheme.typography.title3,
                     )
                 }
             }
@@ -480,7 +480,7 @@ fun CustomChips() {
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp)
+        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp),
     ) {
         item {
             MaterialTheme(colors = MaterialTheme.colors.copy(primary = AlternatePrimaryColor1)) {
@@ -501,7 +501,7 @@ fun CustomChips() {
                         Toast.makeText(
                                 applicationContext,
                                 "Compact chip with custom color",
-                                Toast.LENGTH_LONG
+                                Toast.LENGTH_LONG,
                             )
                             .show()
                     },
@@ -510,7 +510,7 @@ fun CustomChips() {
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.size(ChipDefaults.IconSize)
+                            modifier = Modifier.size(ChipDefaults.IconSize),
                         )
                     },
                     enabled = enabled,
@@ -524,7 +524,7 @@ fun CustomChips() {
                         Toast.makeText(
                                 applicationContext,
                                 "Fixed width chip with custom icon color",
-                                Toast.LENGTH_LONG
+                                Toast.LENGTH_LONG,
                             )
                             .show()
                     },
@@ -534,7 +534,7 @@ fun CustomChips() {
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.size(ChipDefaults.IconSize)
+                            modifier = Modifier.size(ChipDefaults.IconSize),
                         )
                     },
                     enabled = enabled,
@@ -556,9 +556,9 @@ fun CustomChips() {
                 toggleControl = {
                     Icon(
                         imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
-                        contentDescription = if (enabled) "On" else "Off"
+                        contentDescription = if (enabled) "On" else "Off",
                     )
-                }
+                },
             )
         }
     }
@@ -571,7 +571,7 @@ fun ImageBackgroundChips() {
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp)
+        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 15.dp, bottom = 50.dp),
     ) {
         item {
             DemoLabelChip(
@@ -579,7 +579,7 @@ fun ImageBackgroundChips() {
                 label = "Custom background image",
                 colors =
                     ChipDefaults.imageBackgroundChipColors(
-                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1),
+                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
                     ),
                 enabled = enabled,
             )
@@ -591,7 +591,7 @@ fun ImageBackgroundChips() {
                 secondaryLabel = "with secondary label",
                 colors =
                     ChipDefaults.imageBackgroundChipColors(
-                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1),
+                        backgroundImagePainter = painterResource(id = R.drawable.backgroundimage1)
                     ),
                 enabled = enabled,
             )
@@ -611,9 +611,9 @@ fun ImageBackgroundChips() {
                 toggleControl = {
                     Icon(
                         imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
-                        contentDescription = if (enabled) "On" else "Off"
+                        contentDescription = if (enabled) "On" else "Off",
                     )
-                }
+                },
             )
         }
     }
@@ -631,7 +631,7 @@ private fun ChipCustomizer(
             text = "Chip color",
             style = MaterialTheme.typography.body2,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            color = Color.White
+            color = Color.White,
         )
         var i = 0
         while (i < ChipStyle.values().size) {
@@ -642,13 +642,13 @@ private fun ChipCustomizer(
                 ChipStyleChip(
                     chipStyle = ChipStyle.values()[i],
                     selectedChipStyle = chipStyle,
-                    onChipStyleChanged = onChipStyleChanged
+                    onChipStyleChanged = onChipStyleChanged,
                 )
                 if (++i < ChipStyle.values().size) {
                     ChipStyleChip(
                         chipStyle = ChipStyle.values()[i],
                         selectedChipStyle = chipStyle,
-                        onChipStyleChanged = onChipStyleChanged
+                        onChipStyleChanged = onChipStyleChanged,
                     )
                     i++
                 }
@@ -668,9 +668,9 @@ private fun ChipCustomizer(
             toggleControl = {
                 Icon(
                     imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
-                    contentDescription = if (enabled) "On" else "Off"
+                    contentDescription = if (enabled) "On" else "Off",
                 )
-            }
+            },
         )
     }
 }
@@ -706,7 +706,7 @@ enum class ChipStyle {
     Primary,
     Secondary,
     Child,
-    Outlined
+    Outlined,
 }
 
 @Composable
@@ -718,7 +718,7 @@ internal fun DemoIconCompactChip(
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
     shape: Shape = MaterialTheme.shapes.small,
-    content: @Composable (BoxScope.() -> Unit)? = null
+    content: @Composable (BoxScope.() -> Unit)? = null,
 ) {
     val maxLabelLines = 1
     if (style != ChipStyle.Outlined) {
@@ -759,7 +759,7 @@ internal fun DemoIconChip(
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
     shape: Shape = MaterialTheme.shapes.large,
-    content: @Composable (BoxScope.() -> Unit)? = null
+    content: @Composable (BoxScope.() -> Unit)? = null,
 ) {
     if (style != ChipStyle.Outlined) {
         Chip(
@@ -778,7 +778,7 @@ internal fun DemoIconChip(
                             Text(
                                 text = secondaryLabel,
                                 maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -804,7 +804,7 @@ internal fun DemoIconChip(
                             Text(
                                 text = secondaryLabel,
                                 maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -825,7 +825,7 @@ private fun DemoLabelChip(
     onClick: (() -> Unit) = {},
     enabled: Boolean = true,
     shape: Shape = MaterialTheme.shapes.large,
-    style: ChipStyle
+    style: ChipStyle,
 ) {
     DemoIconChip(
         colors = colors,
@@ -836,6 +836,6 @@ private fun DemoLabelChip(
         onClick = onClick,
         style = style,
         shape = shape,
-        content = null
+        content = null,
     )
 }

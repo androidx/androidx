@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.AlertDialog
 import androidx.wear.compose.material3.AlertDialogDefaults
@@ -39,6 +40,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 
+@Preview
 @Sampled
 @Composable
 fun AlertDialogWithConfirmAndDismissSample() {
@@ -48,7 +50,7 @@ fun AlertDialogWithConfirmAndDismissSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showDialog = true },
-            label = { Text("Show Dialog") }
+            label = { Text("Show Dialog") },
         )
     }
     AlertDialog(
@@ -59,7 +61,7 @@ fun AlertDialogWithConfirmAndDismissSample() {
                 Icons.Rounded.AccountCircle,
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = { Text("Enable Battery Saver Mode?") },
@@ -79,10 +81,11 @@ fun AlertDialogWithConfirmAndDismissSample() {
                     showDialog = false
                 }
             )
-        }
+        },
     )
 }
 
+@Preview
 @Sampled
 @Composable
 fun AlertDialogWithEdgeButtonSample() {
@@ -92,7 +95,7 @@ fun AlertDialogWithEdgeButtonSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showDialog = true },
-            label = { Text("Show Dialog") }
+            label = { Text("Show Dialog") },
         )
     }
 
@@ -104,7 +107,7 @@ fun AlertDialogWithEdgeButtonSample() {
                 Icons.Rounded.AccountCircle,
                 modifier = Modifier.size(32.dp),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = { Text("Mobile network is not currently available") },
@@ -115,10 +118,11 @@ fun AlertDialogWithEdgeButtonSample() {
                     showDialog = false
                 }
             )
-        }
+        },
     )
 }
 
+@Preview
 @Sampled
 @Composable
 fun AlertDialogWithContentGroupsSample() {
@@ -130,7 +134,7 @@ fun AlertDialogWithContentGroupsSample() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showDialog = true },
-            label = { Text("Show Dialog") }
+            label = { Text("Show Dialog") },
         )
     }
     AlertDialog(
@@ -147,14 +151,14 @@ fun AlertDialogWithContentGroupsSample() {
             ) {
                 Text("Share once")
             }
-        }
+        },
     ) {
         item {
             SwitchButton(
                 modifier = Modifier.fillMaxWidth(),
                 checked = weatherEnabled,
                 onCheckedChange = { weatherEnabled = it },
-                label = { Text("Weather") }
+                label = { Text("Weather") },
             )
         }
         item {
@@ -162,7 +166,7 @@ fun AlertDialogWithContentGroupsSample() {
                 modifier = Modifier.fillMaxWidth(),
                 checked = calendarEnabled,
                 onCheckedChange = { calendarEnabled = it },
-                label = { Text("Calendar") }
+                label = { Text("Calendar") },
             )
         }
         item { AlertDialogDefaults.GroupSeparator() }
@@ -170,14 +174,14 @@ fun AlertDialogWithContentGroupsSample() {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Never share") }
+                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Never share") },
             )
         }
         item {
             FilledTonalButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {},
-                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Share always") }
+                label = { Text(modifier = Modifier.fillMaxWidth(), text = "Share always") },
             )
         }
     }

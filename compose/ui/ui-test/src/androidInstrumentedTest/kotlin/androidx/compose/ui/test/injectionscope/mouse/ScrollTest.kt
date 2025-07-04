@@ -80,7 +80,7 @@ class ScrollTest {
                 arrayOf(
                     { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
                     { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(0f, 10f)) },
-                )
+                ),
         )
 
     @Test
@@ -94,7 +94,7 @@ class ScrollTest {
                 arrayOf(
                     { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
                     { this.verifyMouseEvent(0, Scroll, false, Offset.Zero, Offset(10f, 0f)) },
-                )
+                ),
         )
 
     @Test
@@ -117,10 +117,10 @@ class ScrollTest {
                             true,
                             Offset.Zero,
                             Offset(0f, 10f),
-                            PrimaryButton
+                            PrimaryButton,
                         )
                     },
-                )
+                ),
         )
 
     @Test
@@ -134,7 +134,7 @@ class ScrollTest {
                     { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
                     { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
                     { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(0f, delta)) },
-                )
+                ),
         )
 
     @Test
@@ -148,7 +148,7 @@ class ScrollTest {
                     { this.verifyMouseEvent(2 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
                     { this.verifyMouseEvent(3 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
                     { this.verifyMouseEvent(4 * T, Scroll, false, Offset.Zero, Offset(delta, 0f)) },
-                )
+                ),
         )
 
     /**

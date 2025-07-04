@@ -35,14 +35,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class AppOwnedSdkSandboxInterfaceCompatTest {
 
     @Before
     fun setUp() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
-            BuildCompat.AD_SERVICES_EXTENSION_INT >= 8
+            BuildCompat.AD_SERVICES_EXTENSION_INT >= 8,
         )
     }
 

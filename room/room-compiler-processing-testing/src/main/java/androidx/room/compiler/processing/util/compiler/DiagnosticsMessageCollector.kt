@@ -51,7 +51,7 @@ internal class DiagnosticsMessageCollector(private val stepName: String) : Messa
     override fun report(
         severity: CompilerMessageSeverity,
         message: String,
-        location: CompilerMessageSourceLocation?
+        location: CompilerMessageSourceLocation?,
     ) {
         val diagnosticKind =
             if (stepName == "kapt" && getJavaVersion() >= 17) {
@@ -66,7 +66,7 @@ internal class DiagnosticsMessageCollector(private val stepName: String) : Messa
     private fun doReport(
         diagnosticKind: Diagnostic.Kind,
         message: String,
-        location: CompilerMessageSourceLocation?
+        location: CompilerMessageSourceLocation?,
     ) {
         if (message == KSP_ADDITIONAL_ERROR_MESSAGE) {
             // ignore this as it will impact error counts.
@@ -84,7 +84,7 @@ internal class DiagnosticsMessageCollector(private val stepName: String) : Messa
             RawDiagnosticMessage(
                 kind = diagnosticKind,
                 message = strippedMessage,
-                location = rawLocation
+                location = rawLocation,
             )
         )
     }

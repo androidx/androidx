@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pdf_page_num"
     android:layout_width="wrap_content"
-    android:layout_height="32dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="right"
     android:layout_marginRight="40dp"
     android:background="@drawable/page_indicator_background"
@@ -31,6 +31,5 @@
     android:paddingRight="12dp"
     android:textAppearance="?attr/textAppearanceLabelMedium"
     android:textColor="?attr/colorOnSurface"
-    android:textSize="12sp"
     tools:ignore="RtlHardcoded"
     tools:text="3 of 20" />

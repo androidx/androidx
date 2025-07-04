@@ -85,7 +85,7 @@ class EpicenterTest : BaseTest() {
                 FrameLayout.LayoutParams(100, 100).apply {
                     leftMargin = 50
                     topMargin = 50
-                }
+                },
             )
             view.left = 50
             view.top = 50

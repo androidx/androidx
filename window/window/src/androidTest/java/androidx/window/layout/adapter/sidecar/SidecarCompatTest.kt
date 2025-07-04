@@ -89,13 +89,13 @@ class SidecarCompatTest : WindowTestBase() {
         val defaultDeviceState = SidecarDeviceState()
         SidecarAdapter.setSidecarDevicePosture(
             defaultDeviceState,
-            SidecarDeviceState.POSTURE_HALF_OPENED
+            SidecarDeviceState.POSTURE_HALF_OPENED,
         )
         whenever(sidecarCompat.sidecar!!.deviceState).thenReturn(defaultDeviceState)
         val sidecarDisplayFeature =
             newDisplayFeature(
                 Rect(0, 1, WINDOW_BOUNDS.width(), 1),
-                SidecarDisplayFeature.TYPE_HINGE
+                SidecarDisplayFeature.TYPE_HINGE,
             )
         val sidecarWindowLayoutInfo = SidecarWindowLayoutInfo()
         val displayFeatures = listOf(sidecarDisplayFeature)
@@ -109,7 +109,7 @@ class SidecarCompatTest : WindowTestBase() {
         val fakeSidecarImp =
             FakeExtensionImp(
                 newDeviceState(SidecarDeviceState.POSTURE_OPENED),
-                newWindowLayoutInfo(emptyList())
+                newWindowLayoutInfo(emptyList()),
             )
         val compat = SidecarCompat(fakeSidecarImp, SidecarAdapter())
         val mockCallback = mock<ExtensionCallbackInterface>()
@@ -130,14 +130,14 @@ class SidecarCompatTest : WindowTestBase() {
         newFeature.rect = Rect()
         SidecarAdapter.setSidecarDisplayFeatures(
             originalWindowLayoutInfo,
-            sidecarDisplayFeatures + newFeature
+            sidecarDisplayFeatures + newFeature,
         )
 
         // Verify that this feature is skipped.
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -151,13 +151,13 @@ class SidecarCompatTest : WindowTestBase() {
                 // Horizontal fold.
                 newDisplayFeature(
                     Rect(0, 1, WINDOW_BOUNDS.width(), 2),
-                    SidecarDisplayFeature.TYPE_FOLD
+                    SidecarDisplayFeature.TYPE_FOLD,
                 ),
                 // Vertical fold.
                 newDisplayFeature(
                     Rect(1, 0, 2, WINDOW_BOUNDS.height()),
-                    SidecarDisplayFeature.TYPE_FOLD
-                )
+                    SidecarDisplayFeature.TYPE_FOLD,
+                ),
             )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
@@ -166,7 +166,7 @@ class SidecarCompatTest : WindowTestBase() {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -180,13 +180,13 @@ class SidecarCompatTest : WindowTestBase() {
                 // Horizontal hinge.
                 newDisplayFeature(
                     Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                    SidecarDisplayFeature.TYPE_FOLD
+                    SidecarDisplayFeature.TYPE_FOLD,
                 ),
                 // Vertical hinge.
                 newDisplayFeature(
                     Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                    SidecarDisplayFeature.TYPE_FOLD
-                )
+                    SidecarDisplayFeature.TYPE_FOLD,
+                ),
             )
 
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
@@ -196,7 +196,7 @@ class SidecarCompatTest : WindowTestBase() {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -211,13 +211,13 @@ class SidecarCompatTest : WindowTestBase() {
                 // Horizontal fold.
                 newDisplayFeature(
                     Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
-                    SidecarDisplayFeature.TYPE_FOLD
+                    SidecarDisplayFeature.TYPE_FOLD,
                 ),
                 // Vertical fold.
                 newDisplayFeature(
                     Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
-                    SidecarDisplayFeature.TYPE_FOLD
-                )
+                    SidecarDisplayFeature.TYPE_FOLD,
+                ),
             )
         val replacementFeatures = sidecarDisplayFeatures + additionalFeatures
         SidecarAdapter.setSidecarDisplayFeatures(originalWindowLayoutInfo, replacementFeatures)
@@ -226,7 +226,7 @@ class SidecarCompatTest : WindowTestBase() {
         val windowLayoutInfo = sidecarCompat.getWindowLayoutInfo(activity)
         assertEquals(
             (sidecarDisplayFeatures.size).toLong(),
-            windowLayoutInfo.displayFeatures.size.toLong()
+            windowLayoutInfo.displayFeatures.size.toLong(),
         )
     }
 
@@ -235,7 +235,7 @@ class SidecarCompatTest : WindowTestBase() {
         val fakeSidecarImp =
             FakeExtensionImp(
                 newDeviceState(SidecarDeviceState.POSTURE_OPENED),
-                newWindowLayoutInfo(emptyList())
+                newWindowLayoutInfo(emptyList()),
             )
         val compat = SidecarCompat(fakeSidecarImp, SidecarAdapter())
         val mockCallback = mock<ExtensionCallbackInterface>()
@@ -245,7 +245,7 @@ class SidecarCompatTest : WindowTestBase() {
         verify(mockCallback)
             .onWindowLayoutChanged(
                 any(),
-                argThat { windowLayoutInfo -> windowLayoutInfo.displayFeatures.isEmpty() }
+                argThat { windowLayoutInfo -> windowLayoutInfo.displayFeatures.isEmpty() },
             )
     }
 
@@ -262,7 +262,7 @@ class SidecarCompatTest : WindowTestBase() {
         val sidecarDeviceState = SidecarDeviceState()
         SidecarAdapter.setSidecarDevicePosture(
             sidecarDeviceState,
-            SidecarDeviceState.POSTURE_HALF_OPENED
+            SidecarDeviceState.POSTURE_HALF_OPENED,
         )
         sidecarCallbackCaptor.firstValue.onDeviceStateChanged(sidecarDeviceState)
 
@@ -276,7 +276,7 @@ class SidecarCompatTest : WindowTestBase() {
         SidecarAdapter.setSidecarDisplayFeatures(sidecarWindowLayoutInfo, displayFeatures)
         sidecarCallbackCaptor.firstValue.onWindowLayoutChanged(
             getActivityWindowToken(activity),
-            sidecarWindowLayoutInfo
+            sidecarWindowLayoutInfo,
         )
         val windowLayoutInfoCaptor = argumentCaptor<WindowLayoutInfo>()
         verify(callback).onWindowLayoutChanged(eq(activity), windowLayoutInfoCaptor.capture())
@@ -389,7 +389,7 @@ class SidecarCompatTest : WindowTestBase() {
                     listOf(
                         newDisplayFeature(
                             validFoldBound(WINDOW_BOUNDS),
-                            SidecarDisplayFeature.TYPE_FOLD
+                            SidecarDisplayFeature.TYPE_FOLD,
                         )
                     )
                 )
@@ -418,7 +418,7 @@ class SidecarCompatTest : WindowTestBase() {
         val fakeSidecarImp =
             FakeExtensionImp(
                 newDeviceState(SidecarDeviceState.POSTURE_CLOSED),
-                validWindowLayoutInfo()
+                validWindowLayoutInfo(),
             )
         val compat = SidecarCompat(fakeSidecarImp, SidecarAdapter())
         val mockCallback = mock<ExtensionCallbackInterface>()
@@ -447,7 +447,7 @@ class SidecarCompatTest : WindowTestBase() {
 
     private class FakeExtensionImp(
         private var deviceState: SidecarDeviceState,
-        private var info: SidecarWindowLayoutInfo
+        private var info: SidecarWindowLayoutInfo,
     ) : SidecarInterface {
         private var callback: SidecarCallback
         private val tokens = mutableListOf<IBinder>()
@@ -516,7 +516,7 @@ class SidecarCompatTest : WindowTestBase() {
 
                     override fun onWindowLayoutChanged(
                         windowToken: IBinder,
-                        newLayout: SidecarWindowLayoutInfo
+                        newLayout: SidecarWindowLayoutInfo,
                     ) {}
                 }
         }
@@ -545,7 +545,7 @@ class SidecarCompatTest : WindowTestBase() {
                 listOf(
                     newDisplayFeature(
                         validFoldBound(WINDOW_BOUNDS),
-                        SidecarDisplayFeature.TYPE_FOLD
+                        SidecarDisplayFeature.TYPE_FOLD,
                     )
                 )
             return newWindowLayoutInfo(goodFeatures)

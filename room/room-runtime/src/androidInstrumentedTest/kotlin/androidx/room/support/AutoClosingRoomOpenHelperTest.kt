@@ -61,6 +61,9 @@ class AutoClosingRoomOpenHelperTest {
         override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {}
     }
 
+    val delegateDb: SupportSQLiteDatabase?
+        get() = autoClosingRoomOpenHelper.autoCloser.delegateDatabase
+
     @Before
     fun setUp() {
         ApplicationProvider.getApplicationContext<Context>().deleteDatabase(DB_NAME)
@@ -150,7 +153,10 @@ class AutoClosingRoomOpenHelperTest {
 
         testWatch.step()
 
-        assertThat(db.isOpen).isFalse() // db should close
+        // db has not bee explicitly closed
+        assertThat(db.isOpen)
+        // wrapped db should be closed
+        assertThat(autoClosingRoomOpenHelper.autoCloser.delegateDatabase?.isOpen ?: false).isFalse()
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
@@ -229,10 +235,29 @@ class AutoClosingRoomOpenHelperTest {
                 AutoCloser(0, TimeUnit.MILLISECONDS).apply {
                     initCoroutineScope(testCoroutineScope)
                     setAutoCloseCallback {}
-                }
+                },
             )
 
         assertThat(autoClosing.delegate).isSameInstanceAs(delegateOpenHelper)
+    }
+
+    @Test
+    fun testManualClose() = runTest {
+        val db = autoClosingRoomOpenHelper.writableDatabase
+        db.execSQL("create table user (idk int)")
+
+        assertThat(db.isOpen).isTrue()
+        assertThat(delegateDb?.isOpen ?: false).isTrue()
+
+        testWatch.step()
+
+        assertThat(db.isOpen).isTrue() // wrapped db reports open unless manually closed
+        assertThat(delegateDb?.isOpen ?: false).isFalse() // actual db should close
+
+        db.close()
+
+        assertThat(db.isOpen).isFalse() // wrapped db is closed
+        assertThat(delegateDb?.isOpen ?: false).isFalse() // actual db is closed
     }
 
     private fun runTest(testBody: suspend TestScope.() -> Unit) =

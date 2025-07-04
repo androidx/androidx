@@ -42,6 +42,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -54,9 +55,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class ImageCaptureTest(
-    @CameraSelector.LensFacing private val lensFacing: Int,
-) {
+class ImageCaptureTest(@CameraSelector.LensFacing private val lensFacing: Int) {
     @get:Rule val fakeCameraRule = FakeCameraTestRule(ApplicationProvider.getApplicationContext())
 
     @get:Rule
@@ -147,7 +146,7 @@ class ImageCaptureTest(
         callback.awaitCapturesAndAssert(
             timeout = 1.seconds,
             errorsCount = 1,
-            capturedImagesCount = 0
+            capturedImagesCount = 0,
         )
     }
 
@@ -164,7 +163,7 @@ class ImageCaptureTest(
         callback.awaitCapturesAndAssert(
             timeout = 1.seconds,
             errorsCount = 1,
-            capturedImagesCount = 0
+            capturedImagesCount = 0,
         )
     }
 
@@ -195,7 +194,7 @@ class ImageCaptureTest(
         imageCapture.takePicture(
             ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
             CameraXExecutors.directExecutor(),
-            callback
+            callback,
         )
         cameraControl.submitCaptureResult(successfulResult())
 
@@ -208,6 +207,7 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
+    @Ignore // b/425423599
     @Test
     fun canFindFakeImageUri_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val callback = FakeOnImageSavedCallback()
@@ -215,7 +215,7 @@ class ImageCaptureTest(
         imageCapture.takePicture(
             createMediaStoreOutputOptions(),
             CameraXExecutors.directExecutor(),
-            callback
+            callback,
         )
         cameraControl.submitCaptureResult(successfulResult())
 
@@ -252,7 +252,7 @@ class ImageCaptureTest(
         return ImageCapture.OutputFileOptions.Builder(
                 context.contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
             .build()
     }

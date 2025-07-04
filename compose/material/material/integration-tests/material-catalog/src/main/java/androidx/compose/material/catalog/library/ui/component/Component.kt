@@ -49,7 +49,7 @@ fun Component(
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
     onExampleClick: (example: Example) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     CatalogScaffold(
         topBarTitle = component.name,
@@ -59,11 +59,11 @@ fun Component(
         docsUrl = component.docsUrl,
         sourceUrl = component.sourceUrl,
         onThemeChange = onThemeChange,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.padding(horizontal = ComponentPadding),
-            contentPadding = paddingValues
+            contentPadding = paddingValues,
         ) {
             item {
                 Box(
@@ -81,14 +81,14 @@ fun Component(
                                 )
                             } else {
                                 null
-                            }
+                            },
                     )
                 }
             }
             item {
                 Text(
                     text = stringResource(id = R.string.description),
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.body1,
                 )
                 Spacer(modifier = Modifier.height(ComponentPadding))
                 Text(text = component.description, style = MaterialTheme.typography.body2)
@@ -97,7 +97,7 @@ fun Component(
             item {
                 Text(
                     text = stringResource(id = R.string.examples),
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.body1,
                 )
                 Spacer(modifier = Modifier.height(ComponentPadding))
             }
@@ -110,7 +110,7 @@ fun Component(
                 item {
                     Text(
                         text = stringResource(id = R.string.no_examples),
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.body2,
                     )
                     Spacer(modifier = Modifier.height(ComponentPadding))
                 }

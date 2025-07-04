@@ -37,7 +37,7 @@ import androidx.work.multiprocess.RemoteWorkerService
  * Note that the worker must still run in the same process as the receiver.
  */
 public abstract class MultiProcessGlanceAppWidget(
-    @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
+    @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout
 ) : GlanceAppWidget(errorUiLayout) {
     /**
      * Override [getMultiProcessConfig] to provide a
@@ -66,10 +66,10 @@ public abstract class MultiProcessGlanceAppWidget(
         }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final override fun createAppWidgetSession(
+    final override fun createAppWidgetSession(
         context: Context,
         id: AppWidgetId,
-        options: Bundle?
+        options: Bundle?,
     ): AppWidgetSession {
         return getMultiProcessConfig(context)?.let { config ->
             RemoteAppWidgetSession(this, config.remoteWorkerService, id, options)
@@ -128,6 +128,6 @@ public class MultiProcessConfig(
             actionTrampolineActivity = actionTrampolineActivity,
             invisibleActionTrampolineActivity = invisibleActionTrampolineActivity,
             actionCallbackBroadcastReceiver = actionCallbackBroadcastReceiver,
-            remoteViewsService = remoteViewsService
+            remoteViewsService = remoteViewsService,
         )
 }

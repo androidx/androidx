@@ -5,12 +5,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
 }
 
@@ -27,7 +28,7 @@ dependencies {
     implementation("androidx.emoji2:emoji2-views-helper:1.2.0")
     implementation("androidx.collection:collection:1.4.2")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
-    api("androidx.activity:activity:1.7.0")
+    api("androidx.activity:activity:1.8.0")
     api("androidx.fragment:fragment:1.5.4")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
@@ -69,7 +70,6 @@ dependencies {
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
 
     lintPublish(project(":appcompat:appcompat-lint"))
 }
@@ -86,10 +86,6 @@ android {
 
     testOptions {
         animationsDisabled = true
-
-        unitTests {
-            includeAndroidResources = true
-        }
     }
 
     buildTypes.configureEach {
@@ -105,9 +101,10 @@ android {
 
 androidx {
     name = "AppCompat"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2011"
     description = "Provides backwards-compatible implementations of UI-related Android SDK " +
             "functionality, including dark mode and Material theming."
     failOnDeprecationWarnings = false
+    enableRobolectric()
 }

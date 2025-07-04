@@ -80,7 +80,7 @@ data class ExpandableParsedQuery(
     val explicitColumns: List<String>,
     val tables: Set<Table>,
     val syntaxErrors: List<String>,
-    val runtimeQueryPlaceholder: Boolean
+    val runtimeQueryPlaceholder: Boolean,
 ) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
@@ -93,7 +93,7 @@ data class ExpandableParsedQuery(
                 inputs = emptyList(),
                 tables = emptySet(),
                 syntaxErrors = emptyList(),
-                runtimeQueryPlaceholder = false
+                runtimeQueryPlaceholder = false,
             )
     }
 

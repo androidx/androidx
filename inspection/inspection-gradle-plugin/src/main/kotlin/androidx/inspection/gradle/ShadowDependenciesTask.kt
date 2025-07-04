@@ -35,7 +35,7 @@ import org.gradle.api.tasks.TaskProvider
 fun Project.registerShadowDependenciesTask(
     variant: Variant,
     jarName: String?,
-    zipTask: TaskProvider<Copy>
+    zipTask: TaskProvider<Copy>,
 ): TaskProvider<ShadowJar> {
     val versionTask = project.registerGenerateInspectionPlatformVersionTask(variant)
     return tasks.register(variant.taskName("inspectionShadowDependencies"), ShadowJar::class.java) {
@@ -62,7 +62,7 @@ fun Project.registerShadowDependenciesTask(
                 .artifactView {
                     it.attributes.attribute(
                         Attribute.of("artifactType", String::class.java),
-                        ArtifactTypeDefinition.JAR_TYPE
+                        ArtifactTypeDefinition.JAR_TYPE,
                     )
                 }
                 .files

@@ -42,11 +42,9 @@ internal actual class CacheDrawScopeDragShadowCallback {
             when (val layer = graphicsLayer) {
                 null ->
                     throw IllegalArgumentException(
-                        "No cached drag shadow. Check if Modifier.cacheDragShadow(painter) was called."
+                        "No cached drag shadow. Check if the drag source node was rendered first"
                     )
-                else -> {
-                    if (!layer.isReleased) drawLayer(layer)
-                }
+                else -> drawLayer(layer)
             }
         }
 

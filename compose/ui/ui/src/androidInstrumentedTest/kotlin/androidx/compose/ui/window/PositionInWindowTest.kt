@@ -140,7 +140,7 @@ class PositionInWindowTest {
 
         assertTrue(
             "OnPositioned is not called when the decorView scroll changed",
-            latch.await(1, TimeUnit.SECONDS)
+            latch.await(1, TimeUnit.SECONDS),
         )
 
         rule.runOnIdle {

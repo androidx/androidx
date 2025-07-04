@@ -214,7 +214,7 @@ class LazyListBeyondBoundsTest {
                         it.layoutParams =
                             FrameLayout.LayoutParams(
                                 LayoutParams.MATCH_PARENT,
-                                LayoutParams.MATCH_PARENT
+                                LayoutParams.MATCH_PARENT,
                             )
                         it.isFocusableInTouchMode = true
                         exception = kotlin.runCatching { it.focusSearch(FOCUS_DOWN) }
@@ -500,7 +500,7 @@ class LazyListBeyondBoundsTest {
     private fun ParameterizedComposeTestRule<Param>.setLazyContent(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         setContent {
             key(it) {
@@ -516,7 +516,7 @@ class LazyListBeyondBoundsTest {
                                 modifier = Modifier.size(size).testTag("list"),
                                 state = lazyListState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         Above,
                         Below ->
@@ -524,7 +524,7 @@ class LazyListBeyondBoundsTest {
                                 modifier = Modifier.size(size).testTag("list"),
                                 state = lazyListState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         else -> unsupportedDirection()
                     }
@@ -536,7 +536,7 @@ class LazyListBeyondBoundsTest {
     private fun ParameterizedComposeTestRule<Param>.setLazyContentInPerpendicularDirection(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         setContent {
             CompositionLocalProvider(LocalLayoutDirection provides it.layoutDirection) {
@@ -550,7 +550,7 @@ class LazyListBeyondBoundsTest {
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = it.reverseLayout,
-                            content = content
+                            content = content,
                         )
                     Above,
                     Below ->
@@ -558,7 +558,7 @@ class LazyListBeyondBoundsTest {
                             modifier = Modifier.size(size),
                             state = lazyListState,
                             reverseLayout = it.reverseLayout,
-                            content = content
+                            content = content,
                         )
                     else -> unsupportedDirection()
                 }
@@ -620,7 +620,7 @@ internal class TrackPlacedNode(var index: Int, var placedItems: MutableMap<Int, 
 internal class PlacementComparator(
     val beyondBoundsLayoutDirection: BeyondBoundsLayout.LayoutDirection,
     val layoutDirection: LayoutDirection,
-    val reverseLayout: Boolean
+    val reverseLayout: Boolean,
 ) : Comparator<Rect> {
     private fun itemsInReverseOrder() =
         when (beyondBoundsLayoutDirection) {

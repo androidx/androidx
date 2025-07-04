@@ -100,7 +100,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -109,7 +109,7 @@ class SuspendingPointerInputFilterTest {
             suspendingPointerInputModifierNode.onPointerEvent(
                 expectedChange.toPointerEvent(),
                 PointerEventPass.Main,
-                IntSize(10, 10)
+                IntSize(10, 10),
             )
         }
 
@@ -141,7 +141,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -151,7 +151,7 @@ class SuspendingPointerInputFilterTest {
             listOf(
                 emitter.nextChange(Offset(5f, 5f)),
                 emitter.nextChange(Offset(10f, 5f)),
-                emitter.nextChange(Offset(10f, 10f))
+                emitter.nextChange(Offset(10f, 10f)),
             )
 
         val bounds = IntSize(20, 20)
@@ -161,7 +161,7 @@ class SuspendingPointerInputFilterTest {
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerInputChange.toPointerEvent(),
                     PointerEventPass.Main,
-                    bounds
+                    bounds,
                 )
             }
         }
@@ -204,7 +204,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -217,13 +217,13 @@ class SuspendingPointerInputFilterTest {
                 PointerEvent(
                     listOf(
                         emitter1.nextChange(Offset(5f, 5f)),
-                        emitter2.nextChange(Offset(10f, 10f))
+                        emitter2.nextChange(Offset(10f, 10f)),
                     )
                 ),
                 PointerEvent(
                     listOf(
                         emitter1.nextChange(Offset(6f, 6f)),
-                        emitter2.nextChange(Offset(10f, 10f), down = false)
+                        emitter2.nextChange(Offset(10f, 10f), down = false),
                     )
                 ),
                 // Synthetic cancel should look like this (Note: this specific event isn't ever
@@ -243,7 +243,7 @@ class SuspendingPointerInputFilterTest {
                             0,
                             Offset(6f, 6f),
                             true,
-                            isInitiallyConsumed = true
+                            isInitiallyConsumed = true,
                         ),
                         PointerInputChange(
                             PointerId(1),
@@ -253,10 +253,10 @@ class SuspendingPointerInputFilterTest {
                             0,
                             Offset(10f, 10f),
                             false,
-                            isInitiallyConsumed = false
-                        )
+                            isInitiallyConsumed = false,
+                        ),
                     )
-                )
+                ),
             )
 
         rule.runOnIdle {
@@ -265,21 +265,21 @@ class SuspendingPointerInputFilterTest {
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Initial,
-                    bounds
+                    bounds,
                 )
 
                 // Main
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Main,
-                    bounds
+                    bounds,
                 )
 
                 // Final
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Final,
-                    bounds
+                    bounds,
                 )
             }
 
@@ -334,7 +334,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -347,7 +347,7 @@ class SuspendingPointerInputFilterTest {
                 PointerEvent(
                     listOf(
                         emitter1.nextChange(Offset(5f, 5f), pointerType = PointerType.Mouse),
-                        emitter2.nextChange(Offset(10f, 10f), pointerType = PointerType.Mouse)
+                        emitter2.nextChange(Offset(10f, 10f), pointerType = PointerType.Mouse),
                     )
                 ),
                 PointerEvent(
@@ -356,8 +356,8 @@ class SuspendingPointerInputFilterTest {
                         emitter2.nextChange(
                             Offset(10f, 10f),
                             down = false,
-                            pointerType = PointerType.Mouse
-                        )
+                            pointerType = PointerType.Mouse,
+                        ),
                     )
                 ),
                 // Synthetic cancel should look like this (Note: this specific event isn't ever
@@ -378,7 +378,7 @@ class SuspendingPointerInputFilterTest {
                             Offset(6f, 6f),
                             true,
                             isInitiallyConsumed = true,
-                            PointerType.Mouse
+                            PointerType.Mouse,
                         ),
                         PointerInputChange(
                             PointerId(1),
@@ -389,10 +389,10 @@ class SuspendingPointerInputFilterTest {
                             Offset(10f, 10f),
                             false,
                             isInitiallyConsumed = false,
-                            PointerType.Mouse
-                        )
+                            PointerType.Mouse,
+                        ),
                     )
-                )
+                ),
             )
 
         rule.runOnIdle {
@@ -401,21 +401,21 @@ class SuspendingPointerInputFilterTest {
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Initial,
-                    bounds
+                    bounds,
                 )
 
                 // Main
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Main,
-                    bounds
+                    bounds,
                 )
 
                 // Final
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Final,
-                    bounds
+                    bounds,
                 )
             }
 
@@ -472,7 +472,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -484,16 +484,16 @@ class SuspendingPointerInputFilterTest {
                 PointerEvent(
                     listOf(
                         emitter1.nextChange(Offset(5f, 5f)),
-                        emitter2.nextChange(Offset(10f, 10f))
+                        emitter2.nextChange(Offset(10f, 10f)),
                     )
                 ),
                 // Pointer event changes don't have any pressed pointers!
                 PointerEvent(
                     listOf(
                         emitter1.nextChange(Offset(6f, 6f), down = false),
-                        emitter2.nextChange(Offset(10f, 10f), down = false)
+                        emitter2.nextChange(Offset(10f, 10f), down = false),
                     )
-                )
+                ),
             )
 
         rule.runOnIdle {
@@ -502,21 +502,21 @@ class SuspendingPointerInputFilterTest {
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Initial,
-                    bounds
+                    bounds,
                 )
 
                 // Main
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Main,
-                    bounds
+                    bounds,
                 )
 
                 // Final
                 suspendingPointerInputModifierNode.onPointerEvent(
                     pointerEvent,
                     PointerEventPass.Final,
-                    bounds
+                    bounds,
                 )
             }
 
@@ -592,7 +592,7 @@ class SuspendingPointerInputFilterTest {
             } finally {
                 counter.expect(
                     8,
-                    "Outer finally block runs; inner finally " + "block should have already run."
+                    "Outer finally block runs; inner finally " + "block should have already run.",
                 )
             }
         }
@@ -602,7 +602,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -618,18 +618,18 @@ class SuspendingPointerInputFilterTest {
             counter.expect(
                 1,
                 "Trigger pointer input handler through first pointer input event " +
-                    "(handler triggered lazily)."
+                    "(handler triggered lazily).",
             )
 
             suspendingPointerInputModifierNode.onPointerEvent(
                 singleEvent.toPointerEvent(),
                 PointerEventPass.Main,
-                singleEventBounds
+                singleEventBounds,
             )
 
             counter.expect(
                 4,
-                "Before onCancelPointerInput() handler; awaitPointerEvent " + "should be suspended"
+                "Before onCancelPointerInput() handler; awaitPointerEvent " + "should be suspended",
             )
 
             // Manually cancels the current pointer input event.
@@ -687,7 +687,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -703,19 +703,19 @@ class SuspendingPointerInputFilterTest {
             counter.expect(
                 1,
                 "Trigger pointer input handler through first pointer input event " +
-                    "(handler triggered lazily)."
+                    "(handler triggered lazily).",
             )
 
             suspendingPointerInputModifierNode.onPointerEvent(
                 singleEvent.toPointerEvent(),
                 PointerEventPass.Main,
-                singleEventBounds
+                singleEventBounds,
             )
 
             counter.expect(
                 4,
                 "before resetPointerInputHandler(), handler should" +
-                    "be suspended waiting for a second event (that never comes)."
+                    "be suspended waiting for a second event (that never comes).",
             )
 
             // Cancels the pointer input handler in SuspendPointerInputModifierNode (and thus the
@@ -742,7 +742,7 @@ class SuspendingPointerInputFilterTest {
                     ValueElement("key1", Unit),
                     ValueElement("key2", null),
                     ValueElement("keys", null),
-                    ValueElement("pointerInputEventHandler", pointerInputEventHandler)
+                    ValueElement("pointerInputEventHandler", pointerInputEventHandler),
                 )
         }
     }
@@ -793,7 +793,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = toCapture,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -807,7 +807,7 @@ class SuspendingPointerInputFilterTest {
             suspendingPointerInputModifierNode.onPointerEvent(
                 expectedChange.toPointerEvent(),
                 PointerEventPass.Main,
-                IntSize(5, 5)
+                IntSize(5, 5),
             )
         }
 
@@ -879,7 +879,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -891,7 +891,7 @@ class SuspendingPointerInputFilterTest {
             suspendingPointerInputModifierNode.onPointerEvent(
                 expectedChange.toPointerEvent(),
                 PointerEventPass.Main,
-                IntSize(5, 5)
+                IntSize(5, 5),
             )
         }
 
@@ -934,7 +934,7 @@ class SuspendingPointerInputFilterTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -946,7 +946,7 @@ class SuspendingPointerInputFilterTest {
             suspendingPointerInputModifierNode.onPointerEvent(
                 expectedChange.toPointerEvent(),
                 PointerEventPass.Main,
-                IntSize(5, 5)
+                IntSize(5, 5),
             )
         }
 
@@ -982,7 +982,7 @@ class SuspendingPointerInputFilterTest {
             suspendingPointerInputModifierNode.onPointerEvent(
                 expectedChange.toPointerEvent(),
                 PointerEventPass.Main,
-                IntSize(10, 10)
+                IntSize(10, 10),
             )
         }
 
@@ -1477,7 +1477,7 @@ class SuspendingPointerInputFilterTest {
             .containsExactly(
                 PointerEventType.Press,
                 PointerEventType.Move,
-                PointerEventType.Release
+                PointerEventType.Release,
             )
     }
 
@@ -1527,7 +1527,7 @@ class SuspendingPointerInputFilterTest {
                 PointerEventType.Move,
                 PointerEventType.Move,
                 PointerEventType.Release,
-                PointerEventType.Release
+                PointerEventType.Release,
             )
     }
 }
@@ -1576,7 +1576,7 @@ private fun createPointerInputHandlersThatCapture(
 @Composable
 private fun createPointerInputHandlersThatCaptureWithCompose(
     key: MutableState<String>,
-    lambda1CancellationLambda: () -> Unit
+    lambda1CancellationLambda: () -> Unit,
 ): Pair<PointerInputEventHandler, PointerInputEventHandler> {
 
     var capturedKey by remember { key }

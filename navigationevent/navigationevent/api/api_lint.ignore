@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.navigationevent.NavigationEventDispatcher#addCallback(androidx.navigationevent.NavigationEventCallback, int):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`

@@ -480,7 +480,17 @@ public class EncoderBase implements AutoCloseable,
                 return;
             }
 
-            mEncoderEglSurface.makeCurrent();
+            try {
+                mEncoderEglSurface.makeCurrent();
+            } catch (RuntimeException e) {
+                // EGL make current could throw if the encoder input surface is no longer valid
+                // after encoder is released. This is not an error because we're already
+                // stopping (either after EOS is received or requested by client).
+                if (mStopping.get()) {
+                    return;
+                }
+                throw e;
+            }
 
             surfaceTexture.updateTexImage();
             surfaceTexture.getTransformMatrix(mTmpMatrix);

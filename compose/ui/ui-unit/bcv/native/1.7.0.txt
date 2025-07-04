@@ -231,7 +231,6 @@ final value class androidx.compose.ui.unit/Constraints { // androidx.compose.ui.
         final fun fixed(kotlin/Int, kotlin/Int): androidx.compose.ui.unit/Constraints // androidx.compose.ui.unit/Constraints.Companion.fixed|fixed(kotlin.Int;kotlin.Int){}[0]
         final fun fixedHeight(kotlin/Int): androidx.compose.ui.unit/Constraints // androidx.compose.ui.unit/Constraints.Companion.fixedHeight|fixedHeight(kotlin.Int){}[0]
         final fun fixedWidth(kotlin/Int): androidx.compose.ui.unit/Constraints // androidx.compose.ui.unit/Constraints.Companion.fixedWidth|fixedWidth(kotlin.Int){}[0]
-        final fun restrictConstraints(kotlin/Int, kotlin/Int, kotlin/Int, kotlin/Int, kotlin/Boolean =...): androidx.compose.ui.unit/Constraints // androidx.compose.ui.unit/Constraints.Companion.restrictConstraints|restrictConstraints(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Boolean){}[0]
     }
     final val hasBoundedHeight // androidx.compose.ui.unit/Constraints.hasBoundedHeight|{}hasBoundedHeight[0]
         final fun <get-hasBoundedHeight>(): kotlin/Boolean // androidx.compose.ui.unit/Constraints.hasBoundedHeight.<get-hasBoundedHeight>|<get-hasBoundedHeight>(){}[0]

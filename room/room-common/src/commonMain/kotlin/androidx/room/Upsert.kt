@@ -99,5 +99,5 @@ public annotation class Upsert(
      * @return the target entity of the upsert method or none if the method should use the parameter
      *   type entities.
      */
-    val entity: KClass<*> = Any::class,
+    val entity: KClass<*> = Any::class
 )

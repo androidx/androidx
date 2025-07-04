@@ -134,7 +134,7 @@ public class BridgingManagerTest {
                 BridgingConfig(
                     PACKAGE_NAME,
                     false,
-                    HashSet(Arrays.asList("foo", "bar", "123", "aaa", "abc"))
+                    HashSet(Arrays.asList("foo", "bar", "123", "aaa", "abc")),
                 )
             )
 

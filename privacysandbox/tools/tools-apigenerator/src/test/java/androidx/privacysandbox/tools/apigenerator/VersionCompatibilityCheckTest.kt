@@ -40,7 +40,7 @@ class VersionCompatibilityCheckTest {
                     interface MySdk {
                       fun doSomething(number: Int)
                     }
-                """
+                """,
             )
         )
 

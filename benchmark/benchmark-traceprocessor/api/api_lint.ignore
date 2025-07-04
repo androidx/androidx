@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+MissingJvmstatic: androidx.benchmark.traceprocessor.TraceProcessor#DEFAULT_TIMEOUT:
+    Companion object constants like DEFAULT_TIMEOUT should be using @JvmField, not @JvmStatic; see https://developer.android.com/kotlin/interop#companion_constants

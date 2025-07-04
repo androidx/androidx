@@ -37,7 +37,7 @@ import java.util.concurrent.Executor
 class SplitControllerCallbackAdapter
 private constructor(
     private val controller: SplitController,
-    private val callbackToFlowAdapter: CallbackToFlowAdapter
+    private val callbackToFlowAdapter: CallbackToFlowAdapter,
 ) {
 
     constructor(controller: SplitController) : this(controller, CallbackToFlowAdapter())
@@ -61,7 +61,7 @@ private constructor(
     fun addSplitListener(
         activity: Activity,
         executor: Executor,
-        consumer: Consumer<List<SplitInfo>>
+        consumer: Consumer<List<SplitInfo>>,
     ) {
         callbackToFlowAdapter.connect(executor, consumer, controller.splitInfoList(activity))
     }

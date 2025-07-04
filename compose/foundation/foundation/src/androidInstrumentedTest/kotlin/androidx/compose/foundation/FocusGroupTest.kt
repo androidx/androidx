@@ -419,7 +419,7 @@ class FocusGroupTest {
     @Composable
     private inline fun BoxWithFocusGroup(
         modifier: Modifier = Modifier,
-        noinline content: @Composable BoxScope.() -> Unit = {}
+        noinline content: @Composable BoxScope.() -> Unit = {},
     ) {
         Box(modifier.focusGroup(), content)
     }

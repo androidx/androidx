@@ -1,47 +1,113 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.compose.ui.unit.Constraints#getHasBoundedHeight():
-    Removed method androidx.compose.ui.unit.Constraints.getHasBoundedHeight()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getHasBoundedWidth():
-    Removed method androidx.compose.ui.unit.Constraints.getHasBoundedWidth()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getHasFixedHeight():
-    Removed method androidx.compose.ui.unit.Constraints.getHasFixedHeight()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getHasFixedWidth():
-    Removed method androidx.compose.ui.unit.Constraints.getHasFixedWidth()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getMaxHeight():
-    Removed method androidx.compose.ui.unit.Constraints.getMaxHeight()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getMaxWidth():
-    Removed method androidx.compose.ui.unit.Constraints.getMaxWidth()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getMinHeight():
-    Removed method androidx.compose.ui.unit.Constraints.getMinHeight()
-RemovedMethod: androidx.compose.ui.unit.Constraints#getMinWidth():
-    Removed method androidx.compose.ui.unit.Constraints.getMinWidth()
-RemovedMethod: androidx.compose.ui.unit.Constraints#isZero():
-    Removed method androidx.compose.ui.unit.Constraints.isZero()
-RemovedMethod: androidx.compose.ui.unit.DpOffset#getX():
-    Removed method androidx.compose.ui.unit.DpOffset.getX()
-RemovedMethod: androidx.compose.ui.unit.DpOffset#getY():
-    Removed method androidx.compose.ui.unit.DpOffset.getY()
-RemovedMethod: androidx.compose.ui.unit.DpSize#getHeight():
-    Removed method androidx.compose.ui.unit.DpSize.getHeight()
-RemovedMethod: androidx.compose.ui.unit.DpSize#getWidth():
-    Removed method androidx.compose.ui.unit.DpSize.getWidth()
-RemovedMethod: androidx.compose.ui.unit.IntOffset#getX():
-    Removed method androidx.compose.ui.unit.IntOffset.getX()
-RemovedMethod: androidx.compose.ui.unit.IntOffset#getY():
-    Removed method androidx.compose.ui.unit.IntOffset.getY()
-RemovedMethod: androidx.compose.ui.unit.IntSize#getHeight():
-    Removed method androidx.compose.ui.unit.IntSize.getHeight()
-RemovedMethod: androidx.compose.ui.unit.IntSize#getWidth():
-    Removed method androidx.compose.ui.unit.IntSize.getWidth()
-RemovedMethod: androidx.compose.ui.unit.TextUnit#getType():
-    Removed method androidx.compose.ui.unit.TextUnit.getType()
-RemovedMethod: androidx.compose.ui.unit.TextUnit#getValue():
-    Removed method androidx.compose.ui.unit.TextUnit.getValue()
-RemovedMethod: androidx.compose.ui.unit.TextUnit#isEm():
-    Removed method androidx.compose.ui.unit.TextUnit.isEm()
-RemovedMethod: androidx.compose.ui.unit.TextUnit#isSp():
-    Removed method androidx.compose.ui.unit.TextUnit.isSp()
-RemovedMethod: androidx.compose.ui.unit.Velocity#getX():
-    Removed method androidx.compose.ui.unit.Velocity.getX()
-RemovedMethod: androidx.compose.ui.unit.Velocity#getY():
-    Removed method androidx.compose.ui.unit.Velocity.getY()
+RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(double):
+    Source breaking change: method androidx.compose.ui.unit.DpKt.getDp(double) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(float):
+    Source breaking change: method androidx.compose.ui.unit.DpKt.getDp(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getDp(int):
+    Source breaking change: method androidx.compose.ui.unit.DpKt.getDp(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getHeight(androidx.compose.ui.unit.DpRect):
+    Source breaking change: method androidx.compose.ui.unit.DpKt.getHeight(androidx.compose.ui.unit.DpRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getSize(androidx.compose.ui.unit.DpRect):
+    Source breaking change: method androidx.compose.ui.unit.DpKt.getSize(androidx.compose.ui.unit.DpRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpKt#getWidth(androidx.compose.ui.unit.DpRect):
+    Source breaking change: method androidx.compose.ui.unit.DpKt.getWidth(androidx.compose.ui.unit.DpRect) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component1-D9Ej5fM():
+    Source breaking change: method androidx.compose.ui.unit.DpRect.component1-D9Ej5fM() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component2-D9Ej5fM():
+    Source breaking change: method androidx.compose.ui.unit.DpRect.component2-D9Ej5fM() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component3-D9Ej5fM():
+    Source breaking change: method androidx.compose.ui.unit.DpRect.component3-D9Ej5fM() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpRect#component4-D9Ej5fM():
+    Source breaking change: method androidx.compose.ui.unit.DpRect.component4-D9Ej5fM() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.DpRect#copy-a9UjIt4(float, float, float, float):
+    Source breaking change: method androidx.compose.ui.unit.DpRect.copy-a9UjIt4(float,float,float,float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getEm(double):
+    Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getEm(double) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getEm(float):
+    Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getEm(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getEm(int):
+    Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getEm(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getSp(double):
+    Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getSp(double) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getSp(float):
+    Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getSp(float) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.ui.unit.TextUnitKt#getSp(int):
+    Source breaking change: method androidx.compose.ui.unit.TextUnitKt.getSp(int) can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.ui.unit.Dp.Companion#getHairline():
+    Binary breaking change: Removed method androidx.compose.ui.unit.Dp.Companion.getHairline()
+RemovedMethod: androidx.compose.ui.unit.Dp.Companion#getInfinity():
+    Binary breaking change: Removed method androidx.compose.ui.unit.Dp.Companion.getInfinity()
+RemovedMethod: androidx.compose.ui.unit.Dp.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.unit.Dp.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.DpKt#getCenter(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.getCenter(long)
+RemovedMethod: androidx.compose.ui.unit.DpKt#isFinite(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isFinite(float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#isSpecified(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isSpecified(float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#isSpecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isSpecified(long)
+RemovedMethod: androidx.compose.ui.unit.DpKt#isUnspecified(float):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isUnspecified(float)
+RemovedMethod: androidx.compose.ui.unit.DpKt#isUnspecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.unit.DpOffset.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpOffset.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.DpOffset.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpOffset.Companion.getZero()
+RemovedMethod: androidx.compose.ui.unit.DpRect#getBottom():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpRect.getBottom()
+RemovedMethod: androidx.compose.ui.unit.DpRect#getLeft():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpRect.getLeft()
+RemovedMethod: androidx.compose.ui.unit.DpRect#getRight():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpRect.getRight()
+RemovedMethod: androidx.compose.ui.unit.DpRect#getTop():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpRect.getTop()
+RemovedMethod: androidx.compose.ui.unit.DpSize.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.DpSize.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.unit.DpSize.Companion.getZero()
+RemovedMethod: androidx.compose.ui.unit.IntOffset.Companion#getMax():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffset.Companion.getMax()
+RemovedMethod: androidx.compose.ui.unit.IntOffset.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntOffset.Companion.getZero()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getBottomCenter():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getBottomCenter()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getBottomLeft():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getBottomLeft()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getBottomRight():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getBottomRight()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getCenter():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getCenter()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getCenterLeft():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getCenterLeft()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getCenterRight():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getCenterRight()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getSize():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getSize()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getTopCenter():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getTopCenter()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getTopLeft():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getTopLeft()
+RemovedMethod: androidx.compose.ui.unit.IntRect#getTopRight():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntRect.getTopRight()
+RemovedMethod: androidx.compose.ui.unit.IntSize.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSize.Companion.getZero()
+RemovedMethod: androidx.compose.ui.unit.IntSizeKt#getCenter(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.IntSizeKt.getCenter(long)
+RemovedMethod: androidx.compose.ui.unit.TextUnit.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnit.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#isSpecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.isSpecified(long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitKt#isUnspecified(long):
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitKt.isUnspecified(long)
+RemovedMethod: androidx.compose.ui.unit.TextUnitType.Companion#getEm():
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitType.Companion.getEm()
+RemovedMethod: androidx.compose.ui.unit.TextUnitType.Companion#getSp():
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitType.Companion.getSp()
+RemovedMethod: androidx.compose.ui.unit.TextUnitType.Companion#getUnspecified():
+    Binary breaking change: Removed method androidx.compose.ui.unit.TextUnitType.Companion.getUnspecified()
+RemovedMethod: androidx.compose.ui.unit.Velocity.Companion#getZero():
+    Binary breaking change: Removed method androidx.compose.ui.unit.Velocity.Companion.getZero()

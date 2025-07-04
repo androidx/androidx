@@ -24,16 +24,20 @@ SCRIPT_NAME = 'generate_compose_packages.py'
 # File containing an ordered list of packages that contain at least one Composable.
 # The file is formatted as one package per line.
 COMPOSE_PACKAGES_LIST_FILE = 'compose_packages_list.txt'
+# frameworks/support directory relative to the directory of this script
+ROOT_DIR = '../../../..'
 
-# `frameworks/support/compose/`, `frameworks/support/navigation/navigation-compose`, and
-# `frameworks/support/wear/compose`, relative to this script directory, should be the root
-# directories where we search for composables.
-TARGET_DIRECTORIES = [
-    '../../..',
-    '../../../../navigation/navigation-compose',
-    '../../../../wear/compose',
-    '../../../../lifecycle/lifecycle-runtime-compose',
-]
+# Specify the root directories where we search for composables, relative to frameworks/support
+TARGET_DIRECTORIES = map(
+    lambda d: "{0}/{1}".format(ROOT_DIR, d),
+    [
+        'compose',
+        'navigation/navigation-compose',
+        'wear/compose',
+        'lifecycle/lifecycle-runtime-compose',
+        'xr/compose',
+    ]
+)
 
 # Reads a source file with the given file_path and adds its package to the current set of packages
 # if the file contains at least one Composable.

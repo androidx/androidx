@@ -1,7 +1,263 @@
 // Baseline format: 1.0
-AddedMethod: androidx.tv.material3.DrawerState#DrawerState():
-    Added constructor androidx.tv.material3.DrawerState()
-AddedMethod: androidx.tv.material3.Shapes#Shapes():
-    Added constructor androidx.tv.material3.Shapes()
-AddedMethod: androidx.tv.material3.Typography#Typography():
-    Added constructor androidx.tv.material3.Typography()
+RemovedMethod: androidx.tv.material3.Border#Border(androidx.compose.foundation.BorderStroke, float, androidx.compose.ui.graphics.Shape):
+    Binary breaking change: Removed constructor androidx.tv.material3.Border(androidx.compose.foundation.BorderStroke,float,androidx.compose.ui.graphics.Shape)
+RemovedMethod: androidx.tv.material3.Border#getInset():
+    Binary breaking change: Removed method androidx.tv.material3.Border.getInset()
+RemovedMethod: androidx.tv.material3.ButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.ButtonDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.ButtonDefaults#getIconSpacing():
+    Binary breaking change: Removed method androidx.tv.material3.ButtonDefaults.getIconSpacing()
+RemovedMethod: androidx.tv.material3.CheckboxColors#CheckboxColors(long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.CheckboxColors(long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.CheckboxColors#getCheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getCheckedBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getCheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getCheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getCheckedCheckmarkColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledCheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledCheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledIndeterminateBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledIndeterminateBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledIndeterminateBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledIndeterminateBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getDisabledUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getDisabledUncheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getUncheckedBoxColor()
+RemovedMethod: androidx.tv.material3.CheckboxColors#getUncheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.tv.material3.CheckboxColors.getUncheckedCheckmarkColor()
+RemovedMethod: androidx.tv.material3.ColorScheme#ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.ColorScheme(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ColorScheme#getBackground():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getBackground()
+RemovedMethod: androidx.tv.material3.ColorScheme#getBorder():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getBorder()
+RemovedMethod: androidx.tv.material3.ColorScheme#getBorderVariant():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getBorderVariant()
+RemovedMethod: androidx.tv.material3.ColorScheme#getError():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getError()
+RemovedMethod: androidx.tv.material3.ColorScheme#getErrorContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getErrorContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getInverseOnSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getInverseOnSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getInversePrimary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getInversePrimary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getInverseSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getInverseSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnBackground():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnBackground()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnError():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnError()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnErrorContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnErrorContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnPrimary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnPrimary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnPrimaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnPrimaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSecondary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSecondary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSecondaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSecondaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnSurfaceVariant():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnSurfaceVariant()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnTertiary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnTertiary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getOnTertiaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getOnTertiaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getPrimary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getPrimary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getPrimaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getPrimaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getScrim():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getScrim()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSecondary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSecondary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSecondaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSecondaryContainer()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSurface():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSurface()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSurfaceTint():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSurfaceTint()
+RemovedMethod: androidx.tv.material3.ColorScheme#getSurfaceVariant():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getSurfaceVariant()
+RemovedMethod: androidx.tv.material3.ColorScheme#getTertiary():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getTertiary()
+RemovedMethod: androidx.tv.material3.ColorScheme#getTertiaryContainer():
+    Binary breaking change: Removed method androidx.tv.material3.ColorScheme.getTertiaryContainer()
+RemovedMethod: androidx.tv.material3.Glow#Glow(long, float):
+    Binary breaking change: Removed constructor androidx.tv.material3.Glow(long,float)
+RemovedMethod: androidx.tv.material3.Glow#getElevation():
+    Binary breaking change: Removed method androidx.tv.material3.Glow.getElevation()
+RemovedMethod: androidx.tv.material3.Glow#getElevationColor():
+    Binary breaking change: Removed method androidx.tv.material3.Glow.getElevationColor()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getLargeButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getLargeButtonSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getMediumButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getMediumButtonSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getMediumIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getMediumIconSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getSmallButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getSmallButtonSize()
+RemovedMethod: androidx.tv.material3.IconButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.IconButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.tv.material3.ListItemColors#ListItemColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.ListItemColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.ListItemColors#getContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getDisabledContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getDisabledContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getFocusedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getFocusedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getPressedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getPressedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.ListItemColors#getSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemColors.getSelectedContentColor()
+RemovedMethod: androidx.tv.material3.ListItemDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.ListItemDefaults#getIconSizeDense():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.getIconSizeDense()
+RemovedMethod: androidx.tv.material3.ListItemDefaults#getTonalElevation():
+    Binary breaking change: Removed method androidx.tv.material3.ListItemDefaults.getTonalElevation()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#NavigationDrawerItemColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.NavigationDrawerItemColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getDisabledContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getDisabledContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getDisabledInactiveContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getDisabledInactiveContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getFocusedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getFocusedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getInactiveContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getInactiveContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getPressedSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getPressedSelectedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getSelectedContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getSelectedContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemColors#getSelectedContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemColors.getSelectedContentColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getCollapsedDrawerItemWidth():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getCollapsedDrawerItemWidth()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getContainerHeightOneLine():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getContainerHeightOneLine()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getContainerHeightTwoLine():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getContainerHeightTwoLine()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getExpandedDrawerItemWidth():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getExpandedDrawerItemWidth()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getNavigationDrawerItemElevation():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getNavigationDrawerItemElevation()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getTrailingBadgeContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getTrailingBadgeContainerColor()
+RemovedMethod: androidx.tv.material3.NavigationDrawerItemDefaults#getTrailingBadgeContentColor():
+    Binary breaking change: Removed method androidx.tv.material3.NavigationDrawerItemDefaults.getTrailingBadgeContentColor()
+RemovedMethod: androidx.tv.material3.OutlinedButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedButtonDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.OutlinedButtonDefaults#getIconSpacing():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedButtonDefaults.getIconSpacing()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getLargeButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getLargeButtonSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getMediumButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getMediumButtonSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getMediumIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getMediumIconSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getSmallButtonSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getSmallButtonSize()
+RemovedMethod: androidx.tv.material3.OutlinedIconButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.OutlinedIconButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#RadioButtonColors(long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.RadioButtonColors(long,long,long,long)
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getDisabledSelectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getDisabledSelectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getDisabledUnselectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getDisabledUnselectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getSelectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getSelectedColor()
+RemovedMethod: androidx.tv.material3.RadioButtonColors#getUnselectedColor():
+    Binary breaking change: Removed method androidx.tv.material3.RadioButtonColors.getUnselectedColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#SwitchColors(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
+    Binary breaking change: Removed constructor androidx.tv.material3.SwitchColors(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getCheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getCheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledCheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledCheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getDisabledUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getDisabledUncheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedBorderColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedBorderColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedIconColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedIconColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedThumbColor()
+RemovedMethod: androidx.tv.material3.SwitchColors#getUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchColors.getUncheckedTrackColor()
+RemovedMethod: androidx.tv.material3.SwitchDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.tv.material3.SwitchDefaults.getIconSize()
+RemovedMethod: androidx.tv.material3.TabRowDefaults#getContainerColor():
+    Binary breaking change: Removed method androidx.tv.material3.TabRowDefaults.getContainerColor()

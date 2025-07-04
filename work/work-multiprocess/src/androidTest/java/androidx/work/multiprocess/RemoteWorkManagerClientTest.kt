@@ -24,12 +24,14 @@ import android.os.IBinder
 import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SmallTest
 import androidx.work.Configuration
 import androidx.work.RunnableScheduler
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -87,7 +89,7 @@ public class RemoteWorkManagerClientTest {
                 mContext.bindService(
                     any(Intent::class.java),
                     any(ServiceConnection::class.java),
-                    anyInt()
+                    anyInt(),
                 )
             )
             .thenReturn(false)
@@ -184,5 +186,16 @@ public class RemoteWorkManagerClientTest {
         verify(mClient, never()).cleanUp()
         verify(mRunnableScheduler, atLeastOnce())
             .scheduleWithDelay(anyLong(), any(Runnable::class.java))
+    }
+
+    @Test
+    @SmallTest
+    public fun sessionTimeoutIsTenMinutes() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+        val tenMinutes = 10 * 60 * 1000L
+        assertEquals(tenMinutes, mClient.sessionTimeout)
     }
 }

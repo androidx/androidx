@@ -56,12 +56,7 @@ public fun longIntMapOf(key1: Long, value1: Int): LongIntMap =
  * Returns a new [LongIntMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun longIntMapOf(
-    key1: Long,
-    value1: Int,
-    key2: Long,
-    value2: Int,
-): LongIntMap =
+public fun longIntMapOf(key1: Long, value1: Int, key2: Long, value2: Int): LongIntMap =
     MutableLongIntMap().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -223,9 +218,7 @@ public fun mutableLongIntMapOf(
  *
  * @param builderAction Lambda in which the [MutableLongIntMap] can be populated.
  */
-public inline fun buildLongIntMap(
-    builderAction: MutableLongIntMap.() -> Unit,
-): LongIntMap {
+public inline fun buildLongIntMap(builderAction: MutableLongIntMap.() -> Unit): LongIntMap {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableLongIntMap().apply(builderAction)
 }
@@ -487,7 +480,7 @@ public sealed class LongIntMap {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: Long, value: Int) -> CharSequence
+        crossinline transform: (key: Long, value: Int) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

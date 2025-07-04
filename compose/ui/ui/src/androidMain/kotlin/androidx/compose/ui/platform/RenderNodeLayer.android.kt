@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.IntSize
 internal class RenderNodeLayer(
     val ownerView: AndroidComposeView,
     drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
-    invalidateParentLayer: () -> Unit
+    invalidateParentLayer: () -> Unit,
 ) : OwnedLayer, GraphicLayerInfo {
     private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
@@ -161,6 +161,12 @@ internal class RenderNodeLayer(
         if (maybeChangedFields and Fields.RenderEffect != 0) {
             renderNode.renderEffect = scope.renderEffect
         }
+        if (maybeChangedFields and Fields.ColorFilter != 0) {
+            renderNode.colorFilter = scope.colorFilter
+        }
+        if (maybeChangedFields and Fields.BlendMode != 0) {
+            renderNode.blendMode = scope.blendMode
+        }
         if (maybeChangedFields and Fields.CompositingStrategy != 0) {
             renderNode.compositingStrategy = scope.compositingStrategy
         }
@@ -216,7 +222,7 @@ internal class RenderNodeLayer(
                 renderNode.left,
                 renderNode.top,
                 renderNode.left + width,
-                renderNode.top + height
+                renderNode.top + height,
             )
         ) {
             renderNode.setOutline(outlineResolver.androidOutline)
@@ -341,6 +347,10 @@ internal class RenderNodeLayer(
     override val underlyingMatrix: Matrix
         get() = matrixCache.calculateMatrix(renderNode)
 
+    override var frameRate: Float = 0f
+
+    override var isFrameRateFromParent = false
+
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
         return if (inverse) {
             matrixCache.mapInverse(renderNode, point)
@@ -359,7 +369,7 @@ internal class RenderNodeLayer(
 
     override fun reuseLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
-        invalidateParentLayer: () -> Unit
+        invalidateParentLayer: () -> Unit,
     ) {
         matrixCache.reset()
         isDirty = false

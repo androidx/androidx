@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +35,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-runtime"))
-    api("androidx.annotation:annotation:1.8.1")
+    api("androidx.annotation:annotation:1.9.1")
     api(libs.reactiveStreams)
 
     annotationProcessor(libs.nullaway)
@@ -50,7 +50,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle Reactivestreams"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle Reactivestreams"
 }

@@ -293,7 +293,7 @@ class RemoteViewsTranslatorKtTest {
                 context.runAndTranslate {
                     Row(
                         horizontalAlignment = Alignment.End,
-                        verticalAlignment = Alignment.Bottom
+                        verticalAlignment = Alignment.Bottom,
                     ) {}
                 }
             val view = context.applyRemoteViews(rv)
@@ -310,7 +310,7 @@ class RemoteViewsTranslatorKtTest {
                 context.runAndTranslate {
                     Column(
                         horizontalAlignment = Alignment.Start,
-                        verticalAlignment = Alignment.Bottom
+                        verticalAlignment = Alignment.Bottom,
                     ) {}
                 }
             val view = context.applyRemoteViews(rv)
@@ -328,15 +328,15 @@ class RemoteViewsTranslatorKtTest {
                     Row {
                         Row(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {}
                         Row(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalAlignment = Alignment.Top
+                            verticalAlignment = Alignment.Top,
                         ) {}
                         Row(
                             horizontalAlignment = Alignment.End,
-                            verticalAlignment = Alignment.Bottom
+                            verticalAlignment = Alignment.Bottom,
                         ) {}
                     }
                 }
@@ -361,19 +361,19 @@ class RemoteViewsTranslatorKtTest {
                     Column {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text("text")
                         }
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalAlignment = Alignment.Top
+                            verticalAlignment = Alignment.Top,
                         ) {
                             Text("text")
                         }
                         Column(
                             horizontalAlignment = Alignment.End,
-                            verticalAlignment = Alignment.Bottom
+                            verticalAlignment = Alignment.Bottom,
                         ) {
                             Text("text")
                         }
@@ -750,7 +750,7 @@ class RemoteViewsTranslatorKtTest {
                         style =
                             TextStyle(
                                 color = ColorProvider(Color.Red),
-                                textDecoration = TextDecoration.Underline
+                                textDecoration = TextDecoration.Underline,
                             ),
                     )
                 }
@@ -873,12 +873,7 @@ class RemoteViewsTranslatorKtTest {
     @Test
     fun canTranslateLinearProgressIndicator_determinate() =
         fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    LinearProgressIndicator(
-                        progress = 0.5f,
-                    )
-                }
+            val rv = context.runAndTranslate { LinearProgressIndicator(progress = 0.5f) }
 
             val progressIndicator =
                 assertIs<android.widget.ProgressBar>(context.applyRemoteViews(rv))
@@ -1045,14 +1040,14 @@ class RemoteViewsTranslatorKtTest {
                         GlanceModifier.clickable(
                                 actionStartActivity(ComponentName("package", "class"))
                             )
-                            .clickable(actionStartActivity(ComponentName("package", "class2")))
+                            .clickable(actionStartActivity(ComponentName("package", "class2"))),
                 )
             }
 
             expectGlanceLog(
                 Log.WARN,
                 "More than one clickable defined on the same GlanceModifier, " +
-                    "only the last one will be used."
+                    "only the last one will be used.",
             )
         }
 

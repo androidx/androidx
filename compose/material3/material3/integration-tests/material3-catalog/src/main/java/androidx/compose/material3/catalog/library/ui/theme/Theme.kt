@@ -73,7 +73,7 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
         colorSchemeFromThemeMode(
             themeColorMode = theme.themeColorMode,
             lightColorScheme = lightColorScheme,
-            darkColorScheme = darkColorScheme
+            darkColorScheme = darkColorScheme,
         )
 
     val layoutDirection =
@@ -100,19 +100,13 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
                         LocalDensity.current.fontScale
                     } else {
                         theme.fontScale
-                    }
-            )
+                    },
+            ),
     ) {
         if (theme.expressiveThemeMode == ExpressiveThemeMode.Expressive) {
-            MaterialExpressiveTheme(
-                colorScheme = colorScheme,
-                content = content,
-            )
+            MaterialExpressiveTheme(colorScheme = colorScheme, content = content)
         } else {
-            MaterialTheme(
-                colorScheme = colorScheme,
-                content = content,
-            )
+            MaterialTheme(colorScheme = colorScheme, content = content)
         }
     }
 }
@@ -121,7 +115,7 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
 fun colorSchemeFromThemeMode(
     themeColorMode: ThemeColorMode,
     lightColorScheme: ColorScheme,
-    darkColorScheme: ColorScheme
+    darkColorScheme: ColorScheme,
 ): ColorScheme {
     return when (themeColorMode) {
         ThemeColorMode.Light -> lightColorScheme
@@ -172,7 +166,7 @@ private val LightCustomColorScheme =
         surfaceContainerLow = Color(0xFFEFF6EB),
         surfaceContainerLowest = Color(0xFFFFFFFF),
         surfaceBright = Color(0xFFF5FBF0),
-        surfaceDim = Color(0xFFD5DCD1)
+        surfaceDim = Color(0xFFD5DCD1),
     )
 
 private val DarkCustomColorScheme =
@@ -212,7 +206,7 @@ private val DarkCustomColorScheme =
         surfaceContainerLow = Color(0xFF171D17),
         surfaceContainerLowest = Color(0xFF0A100A),
         surfaceBright = Color(0xFF343B34),
-        surfaceDim = Color(0xFF0F150F)
+        surfaceDim = Color(0xFF0F150F),
     )
 
 private tailrec fun Context.findActivity(): Activity =

@@ -81,7 +81,7 @@ class GlanceTileServiceTest {
             TestTileClient(
                 tileService,
                 fakeCoroutineScope,
-                fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
+                fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!,
             )
 
         tileServiceWithTimeline = TestGlanceTileServiceWithTimeline()
@@ -89,7 +89,7 @@ class GlanceTileServiceTest {
             TestTileClient(
                 tileServiceWithTimeline,
                 fakeCoroutineScope,
-                fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
+                fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!,
             )
 
         executor = InlineExecutorService()
@@ -98,7 +98,7 @@ class GlanceTileServiceTest {
             TestTileClient(
                 tileServiceWithState,
                 fakeCoroutineScope,
-                fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
+                fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!,
             )
 
         ovalBitmap = getApplicationContext<Context>().getDrawable(R.drawable.oval)!!.toBitmap()
@@ -160,7 +160,7 @@ class GlanceTileServiceTest {
             val resourcesIds =
                 arrayOf(
                     "android_" + R.drawable.ic_launcher_background,
-                    "android_" + ovalBitmapHashCode
+                    "android_" + ovalBitmapHashCode,
                 )
 
             val resourcesVersion = Arrays.hashCode(resourcesIds).toString()
@@ -179,21 +179,21 @@ class GlanceTileServiceTest {
                 tile.timeline!!.timelineEntries[1],
                 time1.toEpochMilli(),
                 time2.toEpochMilli(),
-                "Coffee"
+                "Coffee",
             )
 
             checkTimelineEntry(
                 tile.timeline!!.timelineEntries[2],
                 time2.toEpochMilli(),
                 time3.toEpochMilli(),
-                "Work"
+                "Work",
             )
 
             checkTimelineEntry(
                 tile.timeline!!.timelineEntries[3],
                 time4.toEpochMilli(),
                 Long.MAX_VALUE,
-                "Dinner"
+                "Dinner",
             )
         }
 
@@ -305,7 +305,7 @@ class GlanceTileServiceTest {
         entry: androidx.wear.tiles.TimelineBuilders.TimelineEntry,
         startMillis: Long,
         endMillis: Long,
-        textValue: String
+        textValue: String,
     ) {
         assertThat(entry.validity!!.startMillis).isEqualTo(startMillis)
         assertThat(entry.validity!!.endMillis).isEqualTo(endMillis)
@@ -322,7 +322,7 @@ class GlanceTileServiceTest {
                 provider = ImageProvider(R.drawable.oval),
                 contentDescription = "Oval",
                 modifier = GlanceModifier.size(40.dp),
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.FillBounds,
             )
         }
     }
@@ -342,7 +342,7 @@ class GlanceTileServiceTest {
                         provider = ImageProvider(ovalBitmap),
                         contentDescription = "Oval",
                         modifier = GlanceModifier.size(40.dp),
-                        contentScale = ContentScale.FillBounds
+                        contentScale = ContentScale.FillBounds,
                     )
                 }
                 testTimelineMode.timeIntervals.elementAt(2) -> {
@@ -389,7 +389,7 @@ class GlanceTileServiceTest {
                     TimeInterval(),
                     TimeInterval(time1, time2),
                     TimeInterval(time2, time3),
-                    TimeInterval(time4)
+                    TimeInterval(time4),
                 )
             )
     }

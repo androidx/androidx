@@ -153,7 +153,7 @@ class InputTransformationTest {
         val options1 =
             KeyboardOptions(
                 keyboardType = KeyboardType.Password,
-                capitalization = KeyboardCapitalization.Sentences
+                capitalization = KeyboardCapitalization.Sentences,
             )
         val options2 =
             KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Search)
@@ -177,7 +177,7 @@ class InputTransformationTest {
                 KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Search
+                    imeAction = ImeAction.Search,
                 )
             )
     }

@@ -47,7 +47,8 @@ class ExtensionsUtilsTest {
         registerCameraCharacteristics("2", ACTIVE_ARRAY_2)
         registerCameraCharacteristics("3", ACTIVE_ARRAY_3)
 
-        val cameraInfo = FakeCameraInfoInternal("0", ApplicationProvider.getApplicationContext())
+        val cameraInfo =
+            FakeCameraInfoInternal("0", ApplicationProvider.getApplicationContext<Context>())
 
         val characteristicsMap = ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo)
         assertThat(characteristicsMap.size).isEqualTo(3)
@@ -74,7 +75,7 @@ class ExtensionsUtilsTest {
     private fun registerCameraCharacteristics(
         cameraId: String,
         activeArray: Rect,
-        physicalCameraId: Set<String>? = null
+        physicalCameraId: Set<String>? = null,
     ) {
         val characteristics0 = Mockito.mock(CameraCharacteristics::class.java)
         physicalCameraId?.let {

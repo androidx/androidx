@@ -36,7 +36,7 @@ import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 class LambdaPreparedQueryResultBinder(
     private val returnType: XType,
     private val functionName: XMemberName,
-    adapter: PreparedQueryResultAdapter?
+    adapter: PreparedQueryResultAdapter?,
 ) : PreparedQueryResultBinder(adapter) {
 
     override fun executeAndReturn(
@@ -44,7 +44,7 @@ class LambdaPreparedQueryResultBinder(
         dbProperty: XPropertySpec,
         bindStatement: CodeGenScope.(String) -> Unit,
         returnTypeName: XTypeName,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -59,7 +59,7 @@ class LambdaPreparedQueryResultBinder(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = returnType.asTypeName(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -68,7 +68,7 @@ class LambdaPreparedQueryResultBinder(
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement(scope, statementVar)
@@ -77,7 +77,7 @@ class LambdaPreparedQueryResultBinder(
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", performBlock)
     }

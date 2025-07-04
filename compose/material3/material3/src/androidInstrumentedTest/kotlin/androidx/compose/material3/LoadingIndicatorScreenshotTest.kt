@@ -78,7 +78,6 @@ class LoadingIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @Test
     fun loadingIndicator_determinate() {
-        rule.mainClock.autoAdvance = false
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) { LoadingIndicator() }
         }
@@ -87,7 +86,6 @@ class LoadingIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @Test
     fun loadingIndicator_indeterminate() {
-        rule.mainClock.autoAdvance = false
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) { LoadingIndicator() }
         }
@@ -96,7 +94,6 @@ class LoadingIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @Test
     fun containedLoadingIndicator_indeterminate() {
-        rule.mainClock.autoAdvance = false
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) { ContainedLoadingIndicator() }
         }
@@ -111,8 +108,6 @@ class LoadingIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     companion object {
-        private const val TestTag = "testTag"
-
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
         fun parameters() =

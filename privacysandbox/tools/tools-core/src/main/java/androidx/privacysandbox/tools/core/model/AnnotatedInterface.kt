@@ -29,4 +29,5 @@ data class AnnotatedInterface(
     val constants: List<Constant> = emptyList(),
 ) {
     val inheritsSandboxedUiAdapter = superTypes.contains(Types.sandboxedUiAdapter)
+    val inheritsUiAdapter = superTypes.intersect(Types.uiAdapters).isNotEmpty()
 }

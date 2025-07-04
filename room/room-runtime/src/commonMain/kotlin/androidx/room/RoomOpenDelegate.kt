@@ -27,31 +27,34 @@ import kotlin.jvm.JvmField
  * implementation of a RoomDatabase with runtime.
  *
  * @see [RoomDatabase.createOpenDelegate]
- * @see [RoomConnectionManager.openDelegate]
+ * @see [BaseRoomConnectionManager.openDelegate]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-abstract class RoomOpenDelegate(
-    val version: Int,
-    val identityHash: String,
-    val legacyIdentityHash: String
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public abstract class RoomOpenDelegate(
+    public val version: Int,
+    public val identityHash: String,
+    public val legacyIdentityHash: String,
 ) : RoomOpenDelegateMarker {
-    abstract fun onCreate(connection: SQLiteConnection)
+    public abstract fun onCreate(connection: SQLiteConnection)
 
-    abstract fun onPreMigrate(connection: SQLiteConnection)
+    public abstract fun onPreMigrate(connection: SQLiteConnection)
 
-    abstract fun onValidateSchema(connection: SQLiteConnection): ValidationResult
+    public abstract fun onValidateSchema(connection: SQLiteConnection): ValidationResult
 
-    abstract fun onPostMigrate(connection: SQLiteConnection)
+    public abstract fun onPostMigrate(connection: SQLiteConnection)
 
-    abstract fun onOpen(connection: SQLiteConnection)
+    public abstract fun onOpen(connection: SQLiteConnection)
 
-    abstract fun createAllTables(connection: SQLiteConnection)
+    public abstract fun createAllTables(connection: SQLiteConnection)
 
-    abstract fun dropAllTables(connection: SQLiteConnection)
+    public abstract fun dropAllTables(connection: SQLiteConnection)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    class ValidationResult(@JvmField val isValid: Boolean, @JvmField val expectedFoundMsg: String?)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    public class ValidationResult(
+        @JvmField public val isValid: Boolean,
+        @JvmField public val expectedFoundMsg: String?,
+    )
 }
 
 /** Marker interface for Room's code generated delegate. */
-interface RoomOpenDelegateMarker
+public interface RoomOpenDelegateMarker

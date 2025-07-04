@@ -56,9 +56,9 @@ class TimePickerScreenshotTest {
                     onTimePicked = {},
                     modifier = Modifier.testTag(TEST_TAG),
                     timePickerType = TimePickerType.HoursMinutes24H,
-                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23)
+                    initialTime = LocalTime.of(/* hour= */ 0, /* minute= */ 23),
                 )
-            }
+            },
         )
 
     @Test
@@ -71,9 +71,9 @@ class TimePickerScreenshotTest {
                     onTimePicked = {},
                     modifier = Modifier.testTag(TEST_TAG),
                     timePickerType = TimePickerType.HoursMinutesSeconds24H,
-                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 37)
+                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 37),
                 )
-            }
+            },
         )
 
     @Test
@@ -86,9 +86,9 @@ class TimePickerScreenshotTest {
                     onTimePicked = {},
                     modifier = Modifier.testTag(TEST_TAG),
                     timePickerType = TimePickerType.HoursMinutesAmPm12H,
-                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23)
+                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23),
                 )
-            }
+            },
         )
 
     @Test
@@ -102,9 +102,9 @@ class TimePickerScreenshotTest {
                     onTimePicked = {},
                     modifier = Modifier.testTag(TEST_TAG),
                     timePickerType = TimePickerType.HoursMinutes24H,
-                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23)
+                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23),
                 )
-            }
+            },
         )
 
     @Test
@@ -118,9 +118,9 @@ class TimePickerScreenshotTest {
                     onTimePicked = {},
                     modifier = Modifier.testTag(TEST_TAG),
                     timePickerType = TimePickerType.HoursMinutesSeconds24H,
-                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 37)
+                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 37),
                 )
-            }
+            },
         )
 
     @Test
@@ -134,9 +134,9 @@ class TimePickerScreenshotTest {
                     onTimePicked = {},
                     modifier = Modifier.testTag(TEST_TAG),
                     timePickerType = TimePickerType.HoursMinutesAmPm12H,
-                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23)
+                    initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23),
                 )
-            }
+            },
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -145,7 +145,7 @@ class TimePickerScreenshotTest {
         screenshotRule: AndroidXScreenshotTestRule,
         testTag: String = TEST_TAG,
         isLargeScreen: Boolean = false,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val screenSizeDp = if (isLargeScreen) SCREEN_SIZE_LARGE else SCREEN_SIZE_SMALL
         setContentWithTheme { ScreenConfiguration(screenSizeDp) { content() } }

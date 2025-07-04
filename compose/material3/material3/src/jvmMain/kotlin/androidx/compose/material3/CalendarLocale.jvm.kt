@@ -30,12 +30,12 @@ actual typealias CalendarLocale = Locale
 internal actual fun Int.toLocalString(
     minDigits: Int,
     maxDigits: Int,
-    isGroupingUsed: Boolean
+    isGroupingUsed: Boolean,
 ): String {
     return getCachedDateTimeFormatter(
             minDigits = minDigits,
             maxDigits = maxDigits,
-            isGroupingUsed = isGroupingUsed
+            isGroupingUsed = isGroupingUsed,
         )
         .format(this)
 }
@@ -45,7 +45,7 @@ private val cachedFormatters = WeakHashMap<String, NumberFormat>()
 private fun getCachedDateTimeFormatter(
     minDigits: Int,
     maxDigits: Int,
-    isGroupingUsed: Boolean
+    isGroupingUsed: Boolean,
 ): NumberFormat {
     // Note: Using Locale.getDefault() as a best effort to obtain a unique key and keeping this
     // function non-composable.

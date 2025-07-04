@@ -104,7 +104,7 @@ class ExerciseCapabilitiesTest {
                     ExerciseType.WALKING,
                     supportsAutoPauseAndResume,
                     ExerciseType.RUNNING,
-                    doesNotSupportAutoPauseAndResume
+                    doesNotSupportAutoPauseAndResume,
                 )
             )
 
@@ -147,12 +147,12 @@ class ExerciseCapabilitiesTest {
                 supportedGoals =
                     ImmutableMap.of(
                         DataType.STEPS_TOTAL,
-                        ImmutableSet.of(ComparisonType.GREATER_THAN)
+                        ImmutableSet.of(ComparisonType.GREATER_THAN),
                     ),
                 supportedMilestones =
                     ImmutableMap.of(
                         DataType.STEPS_TOTAL,
-                        ImmutableSet.of(ComparisonType.LESS_THAN, ComparisonType.GREATER_THAN)
+                        ImmutableSet.of(ComparisonType.LESS_THAN, ComparisonType.GREATER_THAN),
                     ),
                 supportsAutoPauseAndResume = false,
             )
@@ -164,14 +164,14 @@ class ExerciseCapabilitiesTest {
                         DataType.HEART_RATE_BPM_STATS,
                         ImmutableSet.of(ComparisonType.GREATER_THAN, ComparisonType.LESS_THAN),
                         DataType.SPEED_STATS,
-                        ImmutableSet.of(ComparisonType.LESS_THAN)
+                        ImmutableSet.of(ComparisonType.LESS_THAN),
                     ),
                 supportedMilestones =
                     ImmutableMap.of(
                         DataType.HEART_RATE_BPM_STATS,
                         ImmutableSet.of(ComparisonType.GREATER_THAN_OR_EQUAL),
                         DataType.SPEED_STATS,
-                        ImmutableSet.of(ComparisonType.LESS_THAN, ComparisonType.GREATER_THAN)
+                        ImmutableSet.of(ComparisonType.LESS_THAN, ComparisonType.GREATER_THAN),
                     ),
                 supportsAutoPauseAndResume = true,
             )
@@ -194,10 +194,7 @@ class ExerciseCapabilitiesTest {
                 supportedMilestones = emptyMap(),
                 supportsAutoPauseAndResume = true,
                 exerciseEventCapabilities =
-                    ImmutableMap.of(
-                        ExerciseEventType.GOLF_SHOT_EVENT,
-                        GOLF_SHOT_EVENT_CAPABILITIES
-                    ),
+                    ImmutableMap.of(ExerciseEventType.GOLF_SHOT_EVENT, GOLF_SHOT_EVENT_CAPABILITIES),
             )
 
         private val EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING =
@@ -215,7 +212,7 @@ class ExerciseCapabilitiesTest {
         private val EXERCISE_CAPABILITIES: ExerciseCapabilities =
             ExerciseCapabilities(
                 EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING,
-                ImmutableSet.of(BatchingMode.HEART_RATE_5_SECONDS)
+                ImmutableSet.of(BatchingMode.HEART_RATE_5_SECONDS),
             )
     }
 }

@@ -105,7 +105,7 @@ public fun Text(
     maxLines: Int = LocalTextConfiguration.current.maxLines,
     minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     Text(
         AnnotatedString(text),
@@ -125,7 +125,7 @@ public fun Text(
         minLines,
         emptyMap(),
         onTextLayout,
-        style
+        style,
     )
 }
 
@@ -200,7 +200,7 @@ public fun Text(
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     val textColor = color.takeOrElse { style.color.takeOrElse { LocalContentColor.current } }
 
@@ -222,7 +222,7 @@ public fun Text(
         minLines = minLines,
         inlineContent = inlineContent,
         onTextLayout = onTextLayout,
-        style = style
+        style = style,
     )
 }
 
@@ -261,7 +261,7 @@ public val LocalTextConfiguration: ProvidableCompositionLocal<TextConfiguration>
         TextConfiguration(
             TextConfigurationDefaults.TextAlign,
             TextConfigurationDefaults.Overflow,
-            TextConfigurationDefaults.MaxLines
+            TextConfigurationDefaults.MaxLines,
         )
     }
 
@@ -305,5 +305,5 @@ public object TextConfigurationDefaults {
     public val Overflow: TextOverflow = TextOverflow.Clip
 
     /** Default max lines for [Text] */
-    public const val MaxLines: Int = Int.MAX_VALUE
+    public val MaxLines: Int = Int.MAX_VALUE
 }

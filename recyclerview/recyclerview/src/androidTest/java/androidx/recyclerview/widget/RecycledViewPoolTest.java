@@ -27,11 +27,11 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -146,15 +146,15 @@ public class RecycledViewPoolTest {
 
     private class TestAdapter extends RecyclerView.Adapter {
 
-        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public RecyclerView.@NonNull ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                int viewType) {
             //noinspection ConstantConditions
             return null;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
 
         }
 

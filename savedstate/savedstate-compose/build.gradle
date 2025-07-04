@@ -6,20 +6,32 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    android()
-    jvmStubs()
-    linuxX64Stubs()
+    androidLibrary {
+        namespace = "androidx.savedstate.compose"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -27,7 +39,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":savedstate:savedstate"))
-                api("androidx.compose.runtime:runtime:1.7.5")
+                api(project(":compose:runtime:runtime"))
             }
         }
 
@@ -44,7 +56,7 @@ androidXMultiplatform {
          androidMain {
             dependsOn(commonMain)
             dependencies {
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
                 implementation("androidx.core:core-ktx:1.13.1")
             }
         }
@@ -52,7 +64,6 @@ androidXMultiplatform {
         androidUnitTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.robolectric)
             }
         }
 
@@ -70,30 +81,81 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
             dependsOn(nonAndroidMain)
         }
 
-        linuxx64StubsMain {
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
             dependsOn(nonAndroidMain)
         }
-    }
-}
 
-android {
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        jsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        jsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+                implementation(libs.kotlinTestJs)
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+                implementation(libs.kotlinTestWasm)
+            }
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
+        }
     }
-    namespace = "androidx.savedstate.compose"
-    experimentalProperties["android.lint.useK2Uast"] = false // TODO(b/345531033)
 }
 
 androidx {
     name = "Saved State Compose"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     samples(project(":savedstate:savedstate-compose"))
-    inceptionYear = "2018"
+    inceptionYear = "2024"
     description = "Compose integration with Saved State"
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    enableRobolectric()
 }

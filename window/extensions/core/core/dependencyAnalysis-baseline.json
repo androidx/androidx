@@ -1,0 +1,45 @@
+{
+  "projectPath": ":window:extensions:core:core",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test-annotations-common",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.8.22"
+      },
+      "fromConfiguration": "testImplementation"
+    }
+  ]
+}

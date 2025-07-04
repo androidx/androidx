@@ -32,7 +32,7 @@ data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = 
             other,
             compareBy(SimpleJavaVersion::major)
                 .thenBy(SimpleJavaVersion::minor)
-                .thenBy(nullsFirst(), SimpleJavaVersion::update)
+                .thenBy(nullsFirst(), SimpleJavaVersion::update),
         ) {
             it
         }
@@ -87,7 +87,7 @@ data class SimpleJavaVersion(val major: Int, val minor: Int, val update: Int? = 
                     SimpleJavaVersion(
                         major.toInt(),
                         minorAndUpdate[0].toInt(),
-                        minorAndUpdate[1].toInt()
+                        minorAndUpdate[1].toInt(),
                     )
                 } catch (e: NumberFormatException) {
                     null

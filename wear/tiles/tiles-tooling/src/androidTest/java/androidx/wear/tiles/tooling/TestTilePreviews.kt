@@ -64,10 +64,7 @@ private fun tile() =
 
 @Preview
 fun tilePreview() =
-    TilePreviewData(
-        onTileResourceRequest = { resources },
-        onTileRequest = { tile() },
-    )
+    TilePreviewData(onTileResourceRequest = { resources }, onTileRequest = { tile() })
 
 @Preview
 fun tileLayoutPreview() = TilePreviewData { singleTimelineEntryTileBuilder(layout()).build() }
@@ -141,7 +138,7 @@ fun tilePreviewWithOverriddenPlatformData() =
         platformDataValues =
             PlatformDataValues.of(
                 PlatformHealthSources.Keys.HEART_RATE_BPM,
-                DynamicDataValue.fromFloat(180f)
+                DynamicDataValue.fromFloat(180f),
             )
     ) {
         tileWithPlatformData()
@@ -173,7 +170,7 @@ private fun tileWithAnimations(): Tile {
             .setCircularProgressIndicatorColors(
                 ProgressIndicatorColors(
                     ColorProp.Builder(-0x1).setDynamicValue(colorAnimation).build(),
-                    ColorProp.Builder(-0x1).build()
+                    ColorProp.Builder(-0x1).build(),
                 )
             )
             .build()

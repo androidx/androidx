@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
@@ -81,3 +82,10 @@ sealed interface LazyGridItemInfo {
         const val UnknownColumn = -1
     }
 }
+
+internal fun LazyGridItemInfo.lineIndex(orientation: Orientation): Int =
+    if (orientation == Orientation.Vertical) {
+        row
+    } else {
+        column
+    }

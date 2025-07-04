@@ -56,7 +56,7 @@ internal class CaptureLimiter(private val requestsUntilActive: Long) :
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        result: FrameInfo
+        result: FrameInfo,
     ) {
         val count = frameCount.updateAndGet { if (it == -1L) -1 else it + 1 }
         if (count == requestsUntilActive) {

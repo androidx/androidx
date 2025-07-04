@@ -44,11 +44,11 @@ package androidx.room
  * @param T The [Database] and [ConstructedBy] annotated class linked to this constructor.
  * @see ConstructedBy
  */
-interface RoomDatabaseConstructor<T : RoomDatabase> {
+public interface RoomDatabaseConstructor<T : RoomDatabase> {
     /**
      * Instantiates an implementation of [T].
      *
      * @return T - A new instance of [T].
      */
-    fun initialize(): T
+    public fun initialize(): T
 }

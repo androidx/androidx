@@ -69,6 +69,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -79,11 +80,7 @@ class ToggleButtonTest {
     /* Round Toggle buttons */
     @Test
     fun round_toggle_button_supports_testTag() {
-        rule.setContent {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            )
-        }
+        rule.setContent { RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -139,7 +136,7 @@ class ToggleButtonTest {
             RoundToggleButtonWithDefaults(
                 enabled = true,
                 checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -152,7 +149,7 @@ class ToggleButtonTest {
             RoundToggleButtonWithDefaults(
                 enabled = true,
                 checked = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -167,7 +164,7 @@ class ToggleButtonTest {
             RoundToggleButtonWithDefaults(
                 enabled = true,
                 onCheckedChange = { clicked = true },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -185,7 +182,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -201,7 +198,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -216,7 +213,7 @@ class ToggleButtonTest {
             RoundToggleButtonWithDefaults(
                 onCheckedChange = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -237,17 +234,13 @@ class ToggleButtonTest {
     @Test
     fun round_toggle_button_supports_circle_shape_under_ltr() =
         rule.isShape(CircleShape, LayoutDirection.Ltr) {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {}
+            RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
     @Test
     fun round_toggle_button_supports_circle_shape_under_rtl() =
         rule.isShape(CircleShape, LayoutDirection.Rtl) {
-            RoundToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {}
+            RoundToggleButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
     @Test
@@ -289,7 +282,7 @@ class ToggleButtonTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun round_toggle_button_gives_correct_colors_when_enabled() =
         verifyToggleButtonColors(
@@ -300,10 +293,10 @@ class ToggleButtonTest {
                 remember { mutableStateOf(if (enabled) Color.Blue else Color.Yellow) }
             },
             Color.Green,
-            Color.Blue
+            Color.Blue,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun round_toggle_button_gives_correct_colors_when_disabled() =
         verifyToggleButtonColors(
@@ -317,7 +310,7 @@ class ToggleButtonTest {
             Color.Yellow,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun round_toggle_button_gives_correct_colors_when_checked() =
         verifyToggleButtonColors(
@@ -331,7 +324,7 @@ class ToggleButtonTest {
             Color.Blue,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun round_toggle_button_gives_correct_colors_when_unchecked() =
         verifyToggleButtonColors(
@@ -405,7 +398,7 @@ class ToggleButtonTest {
             ToggleButtonWithDefaults(
                 toggleControl = null,
                 selectionControl = { TestImage() },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -455,7 +448,7 @@ class ToggleButtonTest {
                 checked = true,
                 toggleControl = null,
                 selectionControl = { TestImage() },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -470,7 +463,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -485,7 +478,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -502,7 +495,7 @@ class ToggleButtonTest {
                 toggleControl = null,
                 selectionControl = { TestImage() },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -517,7 +510,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -532,47 +525,47 @@ class ToggleButtonTest {
             ToggleButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { TestText(text = textContent) }
+                label = { TestText(text = textContent) },
             )
         }
 
         rule.onNodeWithText(textContent).assertExists()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun toggle_button_allows_checked_background_color_override() =
         verifyToggleButtonBackgroundColor(
             checked = true,
             enabled = true,
-            expectedColor = CHECKED_COLOR
+            expectedColor = CHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun toggle_button_allows_unchecked_background_color_override() =
         verifyToggleButtonBackgroundColor(
             checked = false,
             enabled = true,
-            expectedColor = UNCHECKED_COLOR
+            expectedColor = UNCHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun toggle_button_allows_disabled_checked_background_color_override() =
         verifyToggleButtonBackgroundColor(
             checked = true,
             enabled = false,
-            expectedColor = DISABLED_CHECKED_COLOR
+            expectedColor = DISABLED_CHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun toggle_button_allows_disabled_unchecked_background_color_override() =
         verifyToggleButtonBackgroundColor(
             checked = false,
             enabled = false,
-            expectedColor = DISABLED_UNCHECKED_COLOR
+            expectedColor = DISABLED_UNCHECKED_COLOR,
         )
 
     /* Split toggle buttons */
@@ -659,7 +652,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -674,7 +667,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -689,7 +682,7 @@ class ToggleButtonTest {
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -714,54 +707,54 @@ class ToggleButtonTest {
             SplitToggleButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { TestText(text = textContent) }
+                label = { TestText(text = textContent) },
             )
         }
 
         rule.onNodeWithText(textContent).assertExists()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_toggle_button_allows_checked_background_color_override() =
         verifySplitToggleButtonBackgroundColor(
             checked = true,
             enabled = true,
-            expectedColor = CHECKED_COLOR
+            expectedColor = CHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_toggle_button_allows_unchecked_background_color_override() =
         verifySplitToggleButtonBackgroundColor(
             checked = false,
             enabled = true,
-            expectedColor = UNCHECKED_COLOR
+            expectedColor = UNCHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_toggle_button_allows_disabled_checked_background_color_override() =
         verifySplitToggleButtonBackgroundColor(
             checked = true,
             enabled = false,
-            expectedColor = DISABLED_CHECKED_COLOR
+            expectedColor = DISABLED_CHECKED_COLOR,
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun split_toggle_button_allows_disabled_unchecked_background_color_override() =
         verifySplitToggleButtonBackgroundColor(
             checked = false,
             enabled = false,
-            expectedColor = DISABLED_UNCHECKED_COLOR
+            expectedColor = DISABLED_UNCHECKED_COLOR,
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun verifyToggleButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
-        expectedColor: Color
+        expectedColor: Color,
     ) {
         rule.setContent {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -791,7 +784,7 @@ class ToggleButtonTest {
     private fun verifySplitToggleButtonBackgroundColor(
         checked: Boolean,
         enabled: Boolean,
-        expectedColor: Color
+        expectedColor: Color,
     ) {
         rule.setContent {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -841,7 +834,7 @@ class ToggleButtonTest {
                     border = { _, _ -> border },
                     enabled = enabled,
                     checked = checked,
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -885,7 +878,7 @@ private fun RoundToggleButtonWithDefaults(
     toggleButtonSize: Dp = 52.dp,
     interactionSource: MutableInteractionSource? = null,
     shape: Shape = CircleShape,
-    content: @Composable BoxScope.() -> Unit = { TestText(text = "Label") }
+    content: @Composable BoxScope.() -> Unit = { TestText(text = "Label") },
 ) {
     ToggleButton(
         checked = checked,
@@ -898,7 +891,7 @@ private fun RoundToggleButtonWithDefaults(
         interactionSource = interactionSource,
         shape = shape,
         ripple = EmptyIndication,
-        content = content
+        content = content,
     )
 }
 
@@ -922,11 +915,11 @@ private fun ToggleButtonWithDefaults(
             start = CHIP_HORIZONTAL_PADDING,
             top = CHIP_VERTICAL_PADDING,
             end = CHIP_HORIZONTAL_PADDING,
-            bottom = CHIP_VERTICAL_PADDING
+            bottom = CHIP_VERTICAL_PADDING,
         ),
     shape: Shape = CHIP_SHAPE,
     selectionControlWidth: Dp = 24.dp,
-    selectionControlHeight: Dp = 24.dp
+    selectionControlHeight: Dp = 24.dp,
 ) =
     ToggleButton(
         checked = checked,
@@ -976,9 +969,9 @@ private fun SplitToggleButtonWithDefaults(
             start = CHIP_HORIZONTAL_PADDING,
             top = CHIP_VERTICAL_PADDING,
             end = CHIP_HORIZONTAL_PADDING,
-            bottom = CHIP_VERTICAL_PADDING
+            bottom = CHIP_VERTICAL_PADDING,
         ),
-    shape: Shape = CHIP_SHAPE
+    shape: Shape = CHIP_SHAPE,
 ) =
     SplitToggleButton(
         checked = checked,

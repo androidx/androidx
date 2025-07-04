@@ -44,10 +44,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.filters.Suppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -102,7 +102,7 @@ class MultiParagraphIntegrationTest {
                         text = text,
                         fontSize = fontSize,
                         maxLines = i,
-                        width = width
+                        width = width,
                     )
                 assertWithMessage("text has 3 lines, maxLines = $i")
                     .that(paragraph.didExceedMaxLines)
@@ -255,7 +255,7 @@ class MultiParagraphIntegrationTest {
             val position =
                 Offset(
                     x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
-                    y = fontSizeInPx * 1.5f // center of second line vertically
+                    y = fontSizeInPx * 1.5f, // center of second line vertically
                 )
 
             assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
@@ -282,7 +282,7 @@ class MultiParagraphIntegrationTest {
             val position =
                 Offset(
                     x = (lineLength * fontSizeInPx) / 2f, // center of lines horizontally
-                    y = fontSizeInPx * 1.5f // center of second line vertically
+                    y = fontSizeInPx * 1.5f, // center of second line vertically
                 )
 
             assertThat(paragraph.getOffsetForPosition(position)).isEqualTo(2)
@@ -376,7 +376,7 @@ class MultiParagraphIntegrationTest {
                 simpleMultiParagraph(
                     text = text,
                     fontSize = fontSize,
-                    width = text.length * fontSizeInPx
+                    width = text.length * fontSizeInPx,
                 )
             // The text should be rendered as:
             //     aa
@@ -391,7 +391,7 @@ class MultiParagraphIntegrationTest {
                         left = col * fontSizeInPx,
                         right = (col + 1) * fontSizeInPx,
                         top = row * fontSizeInPx,
-                        bottom = (row + 1) * fontSizeInPx
+                        bottom = (row + 1) * fontSizeInPx,
                     )
                 val actualBox = paragraph.getBoundingBox(i)
 
@@ -409,7 +409,7 @@ class MultiParagraphIntegrationTest {
         paragraph.getBoundingBox(-1)
     }
 
-    @Suppress
+    @Ignore
     @Test(expected = java.lang.IllegalArgumentException::class)
     fun getBoundingBox_offset_larger_than_length_throw_exception() {
         val text = "abc"
@@ -478,7 +478,7 @@ class MultiParagraphIntegrationTest {
         val paragraph =
             simpleMultiParagraph(
                 text = text,
-                style = TextStyle(textDirection = TextDirection.Content, localeList = ltrLocaleList)
+                style = TextStyle(textDirection = TextDirection.Content, localeList = ltrLocaleList),
             )
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
@@ -492,7 +492,7 @@ class MultiParagraphIntegrationTest {
         val paragraph =
             simpleMultiParagraph(
                 text = text,
-                style = TextStyle(textDirection = TextDirection.Content, localeList = rtlLocaleList)
+                style = TextStyle(textDirection = TextDirection.Content, localeList = rtlLocaleList),
             )
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
@@ -629,7 +629,7 @@ class MultiParagraphIntegrationTest {
                         left = cursorXOffset,
                         top = top,
                         right = cursorXOffset,
-                        bottom = top + fontSizeInPx
+                        bottom = top + fontSizeInPx,
                     )
                 val actualRect = paragraph.getCursorRect(i)
 
@@ -647,7 +647,7 @@ class MultiParagraphIntegrationTest {
                     left = cursorXOffset,
                     top = top,
                     right = cursorXOffset,
-                    bottom = top + fontSizeInPx
+                    bottom = top + fontSizeInPx,
                 )
             val actualRect = paragraph.getCursorRect(text.length)
             assertWithMessage("getCursorRect(${text.length}) failed")
@@ -965,7 +965,7 @@ class MultiParagraphIntegrationTest {
             simpleMultiParagraph(
                 text = text,
                 width = width,
-                style = TextStyle(textAlign = TextAlign.Left)
+                style = TextStyle(textAlign = TextAlign.Left),
             )
 
         // When text align to left, line left should be 0 for both Ltr and Rtl text.
@@ -986,7 +986,7 @@ class MultiParagraphIntegrationTest {
             simpleMultiParagraph(
                 text = text,
                 width = width,
-                style = TextStyle(textAlign = TextAlign.Right)
+                style = TextStyle(textAlign = TextAlign.Right),
             )
 
         // When text align to right, line right should be width for both Ltr and Rtl text.
@@ -1012,7 +1012,7 @@ class MultiParagraphIntegrationTest {
                     text = text,
                     fontSize = fontSize,
                     width = width,
-                    style = TextStyle(textAlign = TextAlign.Center)
+                    style = TextStyle(textAlign = TextAlign.Center),
                 )
 
             val expectedLineLeft = width / 2 - (fontSizeInPx * textLtr.length) / 2
@@ -1041,7 +1041,7 @@ class MultiParagraphIntegrationTest {
             simpleMultiParagraph(
                 text = text,
                 style = TextStyle(textAlign = TextAlign.Justify),
-                width = width
+                width = width,
             )
 
         // When text is justified, line left is 0 while line right is width
@@ -1070,7 +1070,7 @@ class MultiParagraphIntegrationTest {
                     text = text,
                     fontSize = fontSize,
                     style = TextStyle(textAlign = TextAlign.Justify),
-                    width = width
+                    width = width,
                 )
 
             // When Ltr text is justified, line left is 0.
@@ -1101,7 +1101,7 @@ class MultiParagraphIntegrationTest {
             simpleMultiParagraph(
                 text = text,
                 style = TextStyle(textAlign = TextAlign.Start),
-                width = width
+                width = width,
             )
         // When text align to start, Ltr text aligns to left, line left should be 0.
         assertThat(paragraph.getLineLeft(0)).isZero()
@@ -1122,7 +1122,7 @@ class MultiParagraphIntegrationTest {
             simpleMultiParagraph(
                 text = text,
                 style = TextStyle(textAlign = TextAlign.End),
-                width = width
+                width = width,
             )
         // When text align to start, Ltr text aligns to right, line right should be width.
         assertThat(paragraph.getLineRight(0)).isEqualTo(width)
@@ -1150,9 +1150,9 @@ class MultiParagraphIntegrationTest {
                     style =
                         TextStyle(
                             textDirection = TextDirection.Content,
-                            localeList = ltrLocaleList
+                            localeList = ltrLocaleList,
                         ),
-                    width = width
+                    width = width,
                 )
 
             // First paragraph should be rendered as: "a .", dot is visually after "a ".
@@ -1187,9 +1187,9 @@ class MultiParagraphIntegrationTest {
                     style =
                         TextStyle(
                             textDirection = TextDirection.Content,
-                            localeList = rtlLocaleList
+                            localeList = rtlLocaleList,
                         ),
-                    width = width
+                    width = width,
                 )
 
             // First paragraph should be rendered as: "a .", dot is visually after "a ".
@@ -1222,7 +1222,7 @@ class MultiParagraphIntegrationTest {
                     text = text,
                     fontSize = fontSize,
                     style = TextStyle(textDirection = TextDirection.Ltr),
-                    width = width
+                    width = width,
                 )
 
             // First paragraph should be rendered as: "a .", dot is visually after "a ".
@@ -1255,7 +1255,7 @@ class MultiParagraphIntegrationTest {
                     text = text,
                     fontSize = fontSize,
                     style = TextStyle(textDirection = TextDirection.Rtl),
-                    width = width
+                    width = width,
                 )
 
             // First paragraph should be rendered as: ". a", dot is visually before " a".
@@ -1285,7 +1285,7 @@ class MultiParagraphIntegrationTest {
                 simpleMultiParagraph(
                     text = text,
                     fontSize = fontSize,
-                    style = TextStyle(lineHeight = lineHeight)
+                    style = TextStyle(lineHeight = lineHeight),
                 )
 
             // Height of first and last line in each paragraph is influenced by includePadding.
@@ -1309,7 +1309,7 @@ class MultiParagraphIntegrationTest {
                             }
                         },
                     style = TextStyle(fontSize = fontSize),
-                    width = fontSizeInPx * 20
+                    width = fontSizeInPx * 20,
                 )
 
             val multiParagraph2 =
@@ -1317,7 +1317,7 @@ class MultiParagraphIntegrationTest {
                     text = AnnotatedString("レンズ(単焦点)"),
                     style =
                         TextStyle(fontSize = fontSize, textDecoration = TextDecoration.Underline),
-                    width = fontSizeInPx * 20
+                    width = fontSizeInPx * 20,
                 )
 
             val bitmapWithSpan = multiParagraph.bitmap()
@@ -1349,7 +1349,7 @@ class MultiParagraphIntegrationTest {
                     text = text,
                     style = TextStyle(textIndent = TextIndent(firstLine = indent)),
                     fontSize = fontSize,
-                    width = width
+                    width = width,
                 )
             // The paragraph should be rendered as:
             //   a
@@ -1381,7 +1381,7 @@ class MultiParagraphIntegrationTest {
                     text = text,
                     fontSize = fontSize,
                     style = TextStyle(textIndent = TextIndent(restLine = indent)),
-                    width = width
+                    width = width,
                 )
             // The paragraph should be rendered as:
             //  aa
@@ -1406,16 +1406,16 @@ class MultiParagraphIntegrationTest {
                         Range(
                             item = ParagraphStyle(textDirection = TextDirection.Content),
                             start = 0,
-                            end = "a".length
+                            end = "a".length,
                         ),
                         Range(
                             // skip setting [TextDirection] on purpose, should inherit from the
                             // main [ParagraphStyle]
                             item = ParagraphStyle(),
                             start = "a".length,
-                            end = "ab".length
-                        )
-                    )
+                            end = "ab".length,
+                        ),
+                    ),
             )
 
         val paragraph =
@@ -1425,7 +1425,7 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         // the first character uses TextDirection.Content, text is Ltr
@@ -1451,7 +1451,7 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         // Rendered as below:
@@ -1476,7 +1476,7 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         // Rendered as below:
@@ -1502,7 +1502,7 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         assertThat(paragraph.placeholderRects).hasSize(1)
@@ -1512,7 +1512,7 @@ class MultiParagraphIntegrationTest {
                     left = 0f,
                     top = paragraph.firstBaseline - height.value * fontSize,
                     right = width.value * fontSize,
-                    bottom = paragraph.firstBaseline
+                    bottom = paragraph.firstBaseline,
                 )
             )
     }
@@ -1526,7 +1526,7 @@ class MultiParagraphIntegrationTest {
         val placeholders =
             listOf(
                 Range(Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline), 0, 1),
-                Range(Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline), 2, 3)
+                Range(Placeholder(width, height, PlaceholderVerticalAlign.AboveBaseline), 2, 3),
             )
 
         val paragraph =
@@ -1537,7 +1537,7 @@ class MultiParagraphIntegrationTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         assertThat(paragraph.placeholderRects).hasSize(2)
@@ -1547,7 +1547,7 @@ class MultiParagraphIntegrationTest {
                     left = 0f,
                     top = paragraph.firstBaseline - height.value * fontSize,
                     right = width.value * fontSize,
-                    bottom = paragraph.firstBaseline
+                    bottom = paragraph.firstBaseline,
                 )
             )
         assertThat(paragraph.placeholderRects[1])
@@ -1556,7 +1556,7 @@ class MultiParagraphIntegrationTest {
                     left = 0f,
                     top = paragraph.lastBaseline - height.value * fontSize,
                     right = width.value * fontSize,
-                    bottom = paragraph.lastBaseline
+                    bottom = paragraph.lastBaseline,
                 )
             )
     }
@@ -1577,7 +1577,7 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -1590,7 +1590,7 @@ class MultiParagraphIntegrationTest {
             constraints = minWidthConstraints,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -1603,7 +1603,7 @@ class MultiParagraphIntegrationTest {
             constraints = minHeightConstraints,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -1614,7 +1614,7 @@ class MultiParagraphIntegrationTest {
             val constraints =
                 Constraints(
                     maxWidth = 10 * fontSize.roundToPx(),
-                    maxHeight = fontSize.roundToPx() / 2
+                    maxHeight = fontSize.roundToPx() / 2,
                 )
             val text = buildAnnotatedString {
                 withStyle(ParagraphStyle(textAlign = TextAlign.Center)) { append("Lorem") }
@@ -1627,7 +1627,7 @@ class MultiParagraphIntegrationTest {
                 constraints = constraints,
                 density = this,
                 fontFamilyResolver = UncachedFontFamilyResolver(context),
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
         }
     }
@@ -1648,7 +1648,7 @@ class MultiParagraphIntegrationTest {
                                 withStyle(ParagraphStyle()) { append("Ipsum") }
                             },
                         style = TextStyle(brush = brush, fontSize = fontSize),
-                        width = fontSizeInPx * 5
+                        width = fontSizeInPx * 5,
                     )
                     .apply { disableAntialias() }
 
@@ -1660,7 +1660,7 @@ class MultiParagraphIntegrationTest {
                                 append("Ipsum")
                             },
                         style = TextStyle(brush = brush, fontSize = fontSize),
-                        width = fontSizeInPx * 5
+                        width = fontSizeInPx * 5,
                     )
                     .apply { disableAntialias() }
 
@@ -1683,7 +1683,7 @@ class MultiParagraphIntegrationTest {
                                 withStyle(ParagraphStyle()) { append("Ipsum") }
                             },
                         style = TextStyle(brush = brush, alpha = 0.5f, fontSize = fontSize),
-                        width = fontSizeInPx * 5
+                        width = fontSizeInPx * 5,
                     )
                     .apply { disableAntialias() }
 
@@ -1695,7 +1695,7 @@ class MultiParagraphIntegrationTest {
                                 append("Ipsum")
                             },
                         style = TextStyle(brush = brush, fontSize = fontSize),
-                        width = fontSizeInPx * 5
+                        width = fontSizeInPx * 5,
                     )
                     .apply { disableAntialias() }
 
@@ -1718,7 +1718,7 @@ class MultiParagraphIntegrationTest {
                             withStyle(ParagraphStyle()) { append("Ipsum") }
                         },
                     style = TextStyle(fontSize = fontSize),
-                    width = fontSizeInPx * 5
+                    width = fontSizeInPx * 5,
                 )
 
             multiParagraph.bitmap(drawStyle = Stroke())
@@ -1775,7 +1775,7 @@ class MultiParagraphIntegrationTest {
                             addStyle(
                                 SpanStyle(fontSize = styledFontSize),
                                 "a".length,
-                                "a bb ".length
+                                "a bb ".length,
                             )
                         },
                     style = TextStyle(fontSize = fontSize),
@@ -1839,14 +1839,14 @@ class MultiParagraphIntegrationTest {
     private fun simpleMultiParagraphIntrinsics(
         text: AnnotatedString,
         fontSize: TextUnit = TextUnit.Unspecified,
-        placeholders: List<Range<Placeholder>> = listOf()
+        placeholders: List<Range<Placeholder>> = listOf(),
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             text,
             style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize),
             placeholders = placeholders,
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
         )
     }
 
@@ -1855,7 +1855,7 @@ class MultiParagraphIntegrationTest {
         style: TextStyle? = null,
         fontSize: TextUnit = TextUnit.Unspecified,
         maxLines: Int = Int.MAX_VALUE,
-        width: Float = Float.MAX_VALUE
+        width: Float = Float.MAX_VALUE,
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = createAnnotatedString(text),
@@ -1864,7 +1864,7 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -1873,7 +1873,7 @@ class MultiParagraphIntegrationTest {
         style: TextStyle? = null,
         fontSize: TextUnit = TextUnit.Unspecified,
         maxLines: Int = Int.MAX_VALUE,
-        width: Float = Float.MAX_VALUE
+        width: Float = Float.MAX_VALUE,
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = createAnnotatedString(text.toList()),
@@ -1882,7 +1882,7 @@ class MultiParagraphIntegrationTest {
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 
@@ -1892,7 +1892,7 @@ class MultiParagraphIntegrationTest {
         fontSize: TextUnit = TextUnit.Unspecified,
         maxLines: Int = Int.MAX_VALUE,
         width: Float = Float.MAX_VALUE,
-        localeList: LocaleList? = null
+        localeList: LocaleList? = null,
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
@@ -1900,14 +1900,14 @@ class MultiParagraphIntegrationTest {
                 TextStyle(
                         fontFamily = fontFamilyMeasureFont,
                         fontSize = fontSize,
-                        localeList = localeList
+                        localeList = localeList,
                     )
                     .merge(style),
             maxLines = maxLines,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 }

@@ -32,7 +32,7 @@ import androidx.room.solver.RxType
 internal class RxLambdaQueryResultBinder(
     private val rxType: RxType,
     val typeArg: XType,
-    adapter: QueryResultAdapter?
+    adapter: QueryResultAdapter?,
 ) : QueryResultBinder(adapter) {
 
     override fun convertAndReturn(
@@ -41,7 +41,7 @@ internal class RxLambdaQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -56,7 +56,7 @@ internal class RxLambdaQueryResultBinder(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = typeArg.asTypeName(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -65,7 +65,7 @@ internal class RxLambdaQueryResultBinder(
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement?.invoke(scope, statementVar)
@@ -81,7 +81,7 @@ internal class RxLambdaQueryResultBinder(
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", performBlock)
     }

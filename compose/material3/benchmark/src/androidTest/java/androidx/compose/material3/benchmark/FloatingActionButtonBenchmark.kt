@@ -156,19 +156,19 @@ internal class ExtendedFloatingActionButtonTestCase(private val size: FabSize) :
                 SmallExtendedFloatingActionButton(
                     text = { Text(text = "Extended FAB") },
                     icon = { Box(modifier = Modifier.size(24.dp)) },
-                    onClick = { /*TODO*/ }
+                    onClick = { /*TODO*/ },
                 )
             FabSize.Medium ->
                 MediumExtendedFloatingActionButton(
                     text = { Text(text = "Extended FAB") },
                     icon = { Box(modifier = Modifier.size(24.dp)) },
-                    onClick = { /*TODO*/ }
+                    onClick = { /*TODO*/ },
                 )
             FabSize.Large ->
                 LargeExtendedFloatingActionButton(
                     text = { Text(text = "Extended FAB") },
                     icon = { Box(modifier = Modifier.size(24.dp)) },
-                    onClick = { /*TODO*/ }
+                    onClick = { /*TODO*/ },
                 )
         }
     }

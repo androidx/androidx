@@ -46,15 +46,15 @@ public actual val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner
         val methodName = "getLocalLifecycleOwner"
 
         val methodRef = classLoader.loadClass(className).getMethod(methodName)
-        if (methodRef.annotations.none { it is Deprecated }) {
+        if (methodRef.annotations.any { it is Deprecated }) {
+            // If the method IS deprecated, we are running with Compose 1.7.*.
+            // The new `LocalLifecycleOwner` is available, no reflection needed.
+            null
+        } else {
             // If the method IS NOT deprecated, we are running with Compose 1.6.*.
             // We use reflection to access the older `LocalLifecycleOwner` from `compose-ui`.
             @Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
             methodRef.invoke(null) as? ProvidableCompositionLocal<LifecycleOwner>
-        } else {
-            // If the method IS deprecated, we are running with Compose 1.7.*.
-            // The new `LocalLifecycleOwner` is available, no reflection needed.
-            null
         }
     }
 

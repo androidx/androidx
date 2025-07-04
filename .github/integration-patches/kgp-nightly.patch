@@ -1,0 +1,622 @@
+diff --git a/benchmark/benchmark-darwin-core/build.gradle b/benchmark/benchmark-darwin-core/build.gradle
+index 557a7d86351..5e32bdedc5f 100644
+--- a/benchmark/benchmark-darwin-core/build.gradle
++++ b/benchmark/benchmark-darwin-core/build.gradle
+@@ -5,6 +5,7 @@
+  * Please use that script when creating a new project, rather than copying an existing project and
+  * modifying its settings.
+  */
++import androidx.build.KotlinTarget
+ import androidx.build.PlatformIdentifier
+ import androidx.build.SoftwareType
+ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+@@ -57,4 +58,5 @@ androidx {
+     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
+     inceptionYear = "2022"
+     description = "AndroidX Benchmarks - Darwin Core"
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/benchmark/benchmark-darwin/build.gradle b/benchmark/benchmark-darwin/build.gradle
+index df41397197c..b3e51525fbf 100644
+--- a/benchmark/benchmark-darwin/build.gradle
++++ b/benchmark/benchmark-darwin/build.gradle
+@@ -5,6 +5,7 @@
+  * Please use that script when creating a new project, rather than copying an existing project and
+  * modifying its settings.
+  */
++import androidx.build.KotlinTarget
+ import androidx.build.PlatformIdentifier
+ import androidx.build.SoftwareType
+ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+@@ -88,4 +89,5 @@ androidx {
+     inceptionYear = "2022"
+     description = "AndroidX Benchmarks - Darwin"
+     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/BinaryCompatibilityChecker.kt b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/BinaryCompatibilityChecker.kt
+index 64ca70606b5..c948188bbf1 100644
+--- a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/BinaryCompatibilityChecker.kt
++++ b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/BinaryCompatibilityChecker.kt
+@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.library.abi.AbiTypeNullability
+ import org.jetbrains.kotlin.library.abi.AbiTypeParameter
+ import org.jetbrains.kotlin.library.abi.AbiValueParameter
+ import org.jetbrains.kotlin.library.abi.AbiVariance
++import org.jetbrains.kotlin.library.abi.AbiValueParameterKind
+ import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
+ import org.jetbrains.kotlin.library.abi.LibraryAbi
+ 
+@@ -759,6 +760,8 @@ private fun File.asBaselineErrors(): Set<String> =
+ private class DecoratedAbiValueParameter(val index: Int, param: AbiValueParameter) :
+     AbiValueParameter by param
+ 
+-private fun AbiFunction.contextReceiverParametersCount() = contextReceiverParametersCount
++private fun AbiFunction.hasExtensionReceiverParameter(): Boolean =
++    valueParameters.any { it.kind == AbiValueParameterKind.EXTENSION_RECEIVER }
+ 
+-private fun AbiFunction.hasExtensionReceiverParameter() = hasExtensionReceiverParameter
++private fun AbiFunction.contextReceiverParametersCount(): Int =
++    valueParameters.count { it.kind == AbiValueParameterKind.CONTEXT }
+diff --git a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KLibDumpParser.kt b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KLibDumpParser.kt
+index 55bb041da54..483285ec065 100644
+--- a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KLibDumpParser.kt
++++ b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KLibDumpParser.kt
+@@ -31,9 +31,11 @@ import org.jetbrains.kotlin.library.abi.AbiProperty
+ import org.jetbrains.kotlin.library.abi.AbiQualifiedName
+ import org.jetbrains.kotlin.library.abi.AbiSignatureVersion
+ import org.jetbrains.kotlin.library.abi.AbiSignatures
++import org.jetbrains.kotlin.library.abi.AbiValueParameterKind
+ import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
+ import org.jetbrains.kotlin.library.abi.LibraryAbi
+ import org.jetbrains.kotlin.library.abi.LibraryManifest
++import org.jetbrains.kotlin.library.abi.impl.AbiAnnotationListImpl
+ import org.jetbrains.kotlin.library.abi.impl.AbiClassImpl
+ import org.jetbrains.kotlin.library.abi.impl.AbiConstructorImpl
+ import org.jetbrains.kotlin.library.abi.impl.AbiEnumEntryImpl
+@@ -173,7 +175,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+         return AbiClassImpl(
+             qualifiedName = abiQualifiedName,
+             signatures = signaturesStub,
+-            annotations = emptySet(), // annotations aren't part of klib dumps
++            annotations = AbiAnnotationListImpl.EMPTY, // annotations aren't part of klib dumps
+             modality = modality,
+             kind = kind,
+             isInner = isInner,
+@@ -226,7 +228,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+         return AbiPropertyImpl(
+             qualifiedName = qualifiedName,
+             signatures = signaturesStub,
+-            annotations = emptySet(), // annotations aren't part of klib dumps
++            annotations = AbiAnnotationListImpl.EMPTY, // annotations aren't part of klib dumps
+             modality = modality,
+             kind = kind,
+             getter = getter,
+@@ -247,7 +249,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+         return AbiEnumEntryImpl(
+             qualifiedName = qualifiedName,
+             signatures = signaturesStub,
+-            annotations = emptySet(),
++            annotations = AbiAnnotationListImpl.EMPTY,
+         )
+     }
+ 
+@@ -290,6 +292,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+                 if (null != functionReceiver) {
+                     val functionReceiverAsValueParam =
+                         AbiValueParameterImpl(
++                            kind = AbiValueParameterKind.REGULAR,
+                             type = functionReceiver,
+                             isVararg = false,
+                             hasDefaultArg = false,
+@@ -305,13 +308,13 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+         return AbiFunctionImpl(
+             qualifiedName = abiQualifiedName,
+             signatures = signaturesStub,
+-            annotations = emptySet(), // annotations aren't part of klib dumps
++            annotations = AbiAnnotationListImpl.EMPTY, // annotations aren't part of klib dumps
+             modality = modality,
+             isInline = isInline,
+             isSuspend = isSuspend,
+             typeParameters = typeParams,
+-            hasExtensionReceiverParameter = null != functionReceiver,
+-            contextReceiverParametersCount = contextParams.size,
++            // hasExtensionReceiverParameter = null != functionReceiver,
++            // contextReceiverParametersCount = 0, // TODO
+             valueParameters = allValueParameters,
+             returnType = returnType,
+         )
+@@ -333,9 +336,9 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
+         return AbiConstructorImpl(
+             qualifiedName = abiQualifiedName,
+             signatures = signaturesStub,
+-            annotations = emptySet(), // annotations aren't part of klib dumps
++            annotations = AbiAnnotationListImpl.EMPTY, // annotations aren't part of klib dumps
+             isInline = false, // inline constructors are not legal
+-            contextReceiverParametersCount = 0, // not allowed on constructors
++            // contextReceiverParametersCount = 0,  // not allowed on constructors
+             valueParameters = valueParameters,
+         )
+     }
+diff --git a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KlibParsingCursorExtensions.kt b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KlibParsingCursorExtensions.kt
+index 6ae71e2bc7e..90c120097a9 100644
+--- a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KlibParsingCursorExtensions.kt
++++ b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/main/java/androidx/binarycompatibilityvalidator/KlibParsingCursorExtensions.kt
+@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.library.abi.AbiTypeArgument
+ import org.jetbrains.kotlin.library.abi.AbiTypeNullability
+ import org.jetbrains.kotlin.library.abi.AbiTypeParameter
+ import org.jetbrains.kotlin.library.abi.AbiValueParameter
++import org.jetbrains.kotlin.library.abi.AbiValueParameterKind
+ import org.jetbrains.kotlin.library.abi.AbiVariance
+ import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
+ import org.jetbrains.kotlin.library.abi.impl.AbiTypeParameterImpl
+@@ -315,6 +316,7 @@ internal fun Cursor.parseValueParameter(peek: Boolean = false): AbiValueParamete
+     val isVararg = cursor.parseVarargSymbol() != null
+     val hasDefaultArg = cursor.parseDefaultArg() != null
+     return AbiValueParameterImpl(
++        kind = AbiValueParameterKind.REGULAR,
+         type = type,
+         isVararg = isVararg,
+         hasDefaultArg = hasDefaultArg,
+diff --git a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/test/java/androidx/binarycompatibilityvalidator/KLibDumpParserTest.kt b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/test/java/androidx/binarycompatibilityvalidator/KLibDumpParserTest.kt
+index 5e3d9d1ffef..d4f4b1850fb 100644
+--- a/binarycompatibilityvalidator/binarycompatibilityvalidator/src/test/java/androidx/binarycompatibilityvalidator/KLibDumpParserTest.kt
++++ b/binarycompatibilityvalidator/binarycompatibilityvalidator/src/test/java/androidx/binarycompatibilityvalidator/KLibDumpParserTest.kt
+@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.library.abi.AbiModality
+ import org.jetbrains.kotlin.library.abi.AbiProperty
+ import org.jetbrains.kotlin.library.abi.AbiQualifiedName
+ import org.jetbrains.kotlin.library.abi.AbiSignatureVersion
++import org.jetbrains.kotlin.library.abi.AbiValueParameterKind
+ import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
+ import org.jetbrains.kotlin.library.abi.LibraryAbi
+ import org.junit.Test
+@@ -229,7 +230,10 @@ class KlibDumpParserTest {
+         val parentQName =
+             AbiQualifiedName(AbiCompoundName("androidx.collection"), AbiCompoundName("ObjectList"))
+         val parsed = KlibDumpParser(input).parseFunction(parentQName, isGetterOrSetter = true)
+-        assertThat(parsed.hasExtensionReceiverParameter).isTrue()
++        assertThat(
++                parsed.valueParameters.any { it.kind == AbiValueParameterKind.EXTENSION_RECEIVER }
++            )
++            .isTrue()
+     }
+ 
+     @Test
+@@ -238,7 +242,10 @@ class KlibDumpParserTest {
+             "final inline fun <#A: androidx.datastore.core/Closeable, #B: kotlin/Any?> " +
+                 "(#A).androidx.datastore.core/use(kotlin/Function1<#A, #B>): #B"
+         val parsed = KlibDumpParser(input).parseFunction()
+-        assertThat(parsed.hasExtensionReceiverParameter).isTrue()
++        assertThat(
++                parsed.valueParameters.any { it.kind == AbiValueParameterKind.EXTENSION_RECEIVER }
++            )
++            .isTrue()
+         assertThat(parsed.typeParameters).hasSize(2)
+     }
+ 
+@@ -330,7 +337,12 @@ class KlibDumpParserTest {
+                 .trimIndent()
+         val parsed = KlibDumpParser(input).parseProperty()
+         assertThat(parsed.getter).isNotNull()
+-        assertThat(parsed.getter?.hasExtensionReceiverParameter).isTrue()
++        assertThat(
++                parsed.getter?.valueParameters?.any {
++                    it.kind == AbiValueParameterKind.EXTENSION_RECEIVER
++                }
++            )
++            .isTrue()
+     }
+ 
+     @Test
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
+index 6557853d536..8042bacdf98 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
+@@ -46,7 +46,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
+ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
+-import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootExtension
++import org.jetbrains.kotlin.gradle.targets.js.binaryen.BinaryenRootEnvSpec
+ import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
+ import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
+ import org.jetbrains.kotlin.gradle.targets.js.ir.DefaultIncrementalSyncTask
+@@ -801,15 +801,17 @@ private fun Project.configureNode() {
+     }
+ }
+ 
++@OptIn(ExperimentalWasmDsl::class)
+ private fun Project.configureBinaryen() {
+     // https://youtrack.jetbrains.com/issue/KT-74840
+-    rootProject.extensions.findByType<BinaryenRootExtension>()?.let { binaryen ->
+-        @Suppress("DEPRECATION")
+-        binaryen.downloadBaseUrl =
++    rootProject.extensions
++        .findByType(BinaryenRootEnvSpec::class.java)
++        ?.downloadBaseUrl
++        ?.set(
+             File(project.getPrebuiltsRoot(), "androidx/javascript-for-kotlin/binaryen")
+                 .toURI()
+                 .toString()
+-    }
++        )
+ }
+ 
+ private fun Project.configureKotlinJsTests() {
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/ListTaskOutputsTask.kt b/buildSrc/private/src/main/kotlin/androidx/build/ListTaskOutputsTask.kt
+index 625b034dc52..a60edaad68f 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/ListTaskOutputsTask.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/ListTaskOutputsTask.kt
+@@ -139,6 +139,15 @@ val taskNamesKnownToDuplicateOutputs =
+         "kotlinStorePackageLock",
+         "kotlinStoreYarnLock",
+ 
++        // The following tasks have the same output file:
++        // $OUT_DIR/androidx/build/wasm/yarn.lock
++        "wasmKotlinRestoreYarnLock",
++        "wasmKotlinNpmInstall",
++        "wasmKotlinUpgradePackageLock",
++        "wasmKotlinStorePackageLock",
++        "wasmKotlinUpgradeYarnLock",
++        "wasmKotlinStoreYarnLock",
++
+         // The following tasks have the same output configFile file:
+         // projectBuildDir/js/packages/projectName-wasm-js/webpack.config.js
+         // Remove when https://youtrack.jetbrains.com/issue/KT-70029 / b/361319689 is resolved
+@@ -150,7 +159,15 @@ val taskNamesKnownToDuplicateOutputs =
+         "jsTestTestDevelopmentExecutableCompileSync",
+ 
+         // TODO file a bug
++        // $OUT_DIR/.gradle/nodejs/node-v22.13.0-darwin-arm64.hash
+         "kotlinNodeJsSetup",
++        "wasmKotlinNodeJsSetup",
++        // $OUT_DIR/.gradle/yarn/yarn-v1.22.17.hash
++        "wasmKotlinYarnSetup",
++        "kotlinYarnSetup",
++
++        // $OUT_DIR/.gradle/binaryen/binaryen-version_122.hash
++        "kotlinBinaryenSetup",
+     )
+ 
+ fun shouldValidateTaskOutput(task: Task): Boolean {
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt b/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
+index 2fee9360105..3b062eef551 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
+@@ -152,7 +152,7 @@ abstract class KonanBuildService @Inject constructor(private val execOperations:
+                         debug = false,
+                         kind = parameters.linkerOutputKind.get(),
+                         outputDsymBundle = "unused",
+-                        mimallocEnabled = false,
++                        // mimallocEnabled = false,
+                         sanitizer = null,
+                     )
+                     .finalLinkCommands()
+diff --git a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
+index 4469549334d..8e78cc82547 100644
+--- a/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
++++ b/buildSrc/public/src/main/kotlin/androidx/build/AndroidXConfiguration.kt
+@@ -37,9 +37,11 @@ interface AndroidXConfiguration {
+     val kotlinBomVersion: Provider<String>
+ }
+ 
++@Suppress("DEPRECATION")
+ enum class KotlinTarget(val apiVersion: KotlinVersion, val catalogVersion: String) {
+     KOTLIN_2_0(KotlinVersion.KOTLIN_2_0, "kotlin20"),
+     KOTLIN_2_1(KotlinVersion.KOTLIN_2_1, "kotlin21"),
++    KOTLIN_2_2(KotlinVersion.KOTLIN_2_2, "kotlin22"),
+     DEFAULT(KOTLIN_2_0),
+     LATEST(KOTLIN_2_1);
+ 
+diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
+index e4fc41c8f5f..7f47c625aa9 100644
+--- a/buildSrc/shared.gradle
++++ b/buildSrc/shared.gradle
+@@ -37,7 +37,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
+     task.compilerOptions {
+         jvmTarget.set(JvmTarget.JVM_17)
+         freeCompilerArgs.addAll(
+-                "-Werror",
++//                "-Werror",
+                 "-Xskip-metadata-version-check",
+                 "-Xjdk-release=17",
+         )
+diff --git a/collection/collection-ktx/build.gradle b/collection/collection-ktx/build.gradle
+index 784c4a88435..9add531894c 100644
+--- a/collection/collection-ktx/build.gradle
++++ b/collection/collection-ktx/build.gradle
+@@ -21,6 +21,7 @@
+  * Please use that script when creating a new project, rather than copying an existing project and
+  * modifying its settings.
+  */
++import androidx.build.KotlinTarget
+ import androidx.build.SoftwareType
+ 
+ plugins {
+@@ -37,4 +38,5 @@ androidx {
+     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+     inceptionYear = "2018"
+     description = "Kotlin extensions for 'collection' artifact"
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/collection/collection/build.gradle b/collection/collection/build.gradle
+index 2ab99afd991..9efa72619e4 100644
+--- a/collection/collection/build.gradle
++++ b/collection/collection/build.gradle
+@@ -22,6 +22,7 @@
+  * modifying its settings.
+  */
+ 
++import androidx.build.KotlinTarget
+ import androidx.build.SoftwareType
+ import androidx.build.PlatformIdentifier
+ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+@@ -178,4 +179,5 @@ androidx {
+     description = "Standalone efficient collections."
+     // TODO: b/326456246
+     optOutJSpecify = true
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/internal/ComposableLambda.kt b/compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/internal/ComposableLambda.kt
+index 614f4b4706c..7fede95df9d 100644
+--- a/compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/internal/ComposableLambda.kt
++++ b/compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/internal/ComposableLambda.kt
+@@ -15,6 +15,7 @@
+  */
+ 
+ @file:OptIn(InternalComposeApi::class)
++@file:Suppress("EXPECT_ACTUAL_INCOMPATIBILITY")
+ 
+ package androidx.compose.runtime.internal
+ 
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+index 3ab8f8652d2..f70c428eea1 100644
+--- a/gradle/libs.versions.toml
++++ b/gradle/libs.versions.toml
+@@ -52,7 +52,8 @@ kotlin19 = "1.9.24"
+ # Use the most up-to-date patch
+ kotlin20 = "2.0.21"
+ kotlin21 = "2.1.20"
+-kotlin = "2.1.21"
++kotlin22 = "2.2.0-RC2"
++kotlin = "2.2.0-RC2"
+ kotlinBenchmark = "0.4.11"
+ kotlinGradlePluginAnnotations = "1.9.24"
+ kotlinGradlePluginApi = "1.9.24"
+diff --git a/gradle/verification-keyring.keys b/gradle/verification-keyring.keys
+index de864f10426..24841d9c58b 100644
+--- a/gradle/verification-keyring.keys
++++ b/gradle/verification-keyring.keys
+@@ -6233,6 +6233,31 @@ FJXLEW77wWHN+QpRD6BShYZDvUA2mtO0zlB8reU+VCxgnFfm66DkUg==
+ =jYDe
+ -----END PGP PUBLIC KEY BLOCK-----
+ 
++pub    17A27CE7A60FF5F0
++sub    E86F52398AF20855
++-----BEGIN PGP PUBLIC KEY BLOCK-----
++
++mQENBF/AfL8BCADpdkr7+1epRZLZJ6/si+Aj6fmELbzWHZmSSUYmRszcCgPq78xy
++bsW/d0grOOEEn9I/5N22gOoEumcFAsN6hn1thjsZyXLmaBfRj+8vri/zigAqrE7W
++zk7mKKK3IUuEi1rDqoEwGQbzHFP9UxiIouiWbYGhbkER0E8zDwmPlWZDXoQEzqWT
++KcgxAXldiZ6l0FACtxgU3n9oOq0hNQBqfpn22BM2FPjZDrM4rEfbeSt8ztORIviw
++7G9oUtYsbTbDvvADCL0wW05GcNz6BvcmDm79d+fk+5gb+GIaHurWuyTtmw5HCeXW
++QcKN1S96Wfm5Dz6UMOMeXujlvK1rxmsIIl3BABEBAAG5AQ0EX8B8vwEIAOkm8U7a
++QLAJ0FtUuY6ru+JQM3yHhIBA7dADpoyq+f/WN86Es9vw7gavO6tnJPnYh1IozEmQ
++4/OaXfKir2G8geLR6hvCsclgXT+RUS9Z60XBFWWhYwX8OrkdfHNnZPeSM8pwiQbh
++L8QGfF5AiJzG34ecIPekBWL0l0nYtVblAHQ5oKCv0h2e/cPylyBgJUGCtF0pLKuY
++l/jeH44UPz6ZUfTL662zbz7AGn8yX62h5PXyH2ZVuuwA2+vuAZCeTP+cQ7OGlIj/
++EDmggsSrcjVa/G/v+O9lPw9SGnnjoEzX+Ng+tEJNUEx22gvAISajFfM+XWVxVEqs
++z0B4U6PLa2feuVsAEQEAAYkBNgQYAQgAIBYhBD8F3anzFzAeknE21BeifOemD/Xw
++BQJfwHy/AhsMAAoJEBeifOemD/XwJ3cH/27Z8H7Bx53msUwaNO0RbWJNz65xrecM
++w5dvRVjjERYm+5UA5oQdySozlgrpWCAx8q13OMVpGRhodebFEqDZDHsjvJgm10Q7
++Q9fHkP56lCgxt68WPwmof8bkTYC8l9PmPfqdJgQlyX0zqOzxjETCfe+f1gc/m1lx
++tgnUeD3/ktyTkYu1hTt8rWM1ceCnZ08bIcjwjFZJDHZl+BmQ52zxUHJ5JAExZNn3
++vWkvn9JHGWPh6M7evaCcNAdv20A9AB45/aZlYRUN8hCI6xpHiMt4/tDbiImzko74
++zzMvjuz0NEEhREM8f0ld3G/7Meh/OudSEgtQAmwJ0UMZWJWaZ0FhnLI=
++=5I6i
++-----END PGP PUBLIC KEY BLOCK-----
++
+ pub    1861C322C56014B2
+ sub    9A347756830C4541
+ -----BEGIN PGP PUBLIC KEY BLOCK-----
+diff --git a/gradle/verification-metadata.xml b/gradle/verification-metadata.xml
+index b2da13c4478..74fc731c175 100644
+--- a/gradle/verification-metadata.xml
++++ b/gradle/verification-metadata.xml
+@@ -201,6 +201,7 @@
+          <trusted-key id="3D11126EA77E4E07FBABB38614A84C976D265B25" group="com.google.protobuf"/>
+          <trusted-key id="3DBC5D7DC2FB8DD68AA429BD353A436E043E3145" group="com.google.code.findbugs"/>
+          <trusted-key id="3EB3846B3DC004C13883753CEEF9ECC7D5D90518" group="com.google.dagger"/>
++         <trusted-key id="3F05DDA9F317301E927136D417A27CE7A60FF5F0" group="io.opentelemetry"/>
+          <trusted-key id="4021EEEAFF5DE8404DCD0A270AA3E5C3D232E79B" group="jakarta.inject" name="jakarta.inject-api"/>
+          <trusted-key id="41A1A08C62FCA78B79D3081164A16FAAEC16A4BE" group="org.apache.commons" name="commons-math3"/>
+          <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4">
+@@ -725,6 +726,17 @@
+             <sha256 value="74bb0f3a80307c529421c3ed84517b8f543867709f41e53cd73df99e6442af4d" origin="Generated by Node" reason="Artifact is not signed. Remove when https://github.com/nodejs/node/issues/53917 is resolved"/>
+          </artifact>
+       </component>
++      <component group="org.nodejs" name="node" version="22.13.0">
++         <artifact name="node-22.13.0-darwin-arm64.tar.gz">
++            <sha256 value="bc1e374e7393e2f4b20e5bbc157d02e9b1fb2c634b2f992136b38fb8ca2023b7" origin="Generated by Node" reason="Artifact is not signed. Remove when https://github.com/nodejs/node/issues/53917 is resolved"/>
++         </artifact>
++         <artifact name="node-22.13.0-darwin-x64.tar.gz">
++            <sha256 value="cfaaf5edde585a15547f858f5b3b62a292cf5929a23707b6f1e36c29a32487be" origin="Generated by Node" reason="Artifact is not signed. Remove when https://github.com/nodejs/node/issues/53917 is resolved"/>
++         </artifact>
++         <artifact name="node-22.13.0-linux-x64.tar.gz">
++            <sha256 value="9a33e89093a0d946c54781dcb3ccab4ccf7538a7135286528ca41ca055e9b38f" origin="Generated by Node" reason="Artifact is not signed. Remove when https://github.com/nodejs/node/issues/53917 is resolved"/>
++         </artifact>
++      </component>
+       <component group="org.ow2" name="ow2" version="1.5">
+          <artifact name="ow2-1.5.pom">
+             <sha256 value="0f8a1b116e760b8fe6389c51b84e4b07a70fc11082d4f936e453b583dd50b43b" origin="Generated by Gradle" reason="Artifact is not signed"/>
+@@ -759,5 +771,20 @@
+             <sha256 value="4e54622f5dc0f8b6c51e28650268f001e3b55d076c8e3a9d9731c050820c0a3d" origin="Generated by Gradle" reason="Artifact is not signed"/>
+          </artifact>
+       </component>
++      <component group="com.google.devtools.ksp" name="symbol-processing-api" version="2.0.255-SNAPSHOT">
++         <artifact name="symbol-processing-api-2.0.255-SNAPSHOT.module">
++            <sha256 value="f95df293038761944fac59c2f97e64cbd37ea104b9671d86d0dbad2df881e2a8" origin="Built locally" reason="Artifact is not signed"/>
++         </artifact>
++      </component>
++      <component group="com.google.devtools.ksp" name="symbol-processing-common-deps" version="2.0.255-SNAPSHOT">
++         <artifact name="symbol-processing-common-deps-2.0.255-SNAPSHOT.module">
++            <sha256 value="1c8afd999ab12d4884d1de2a2faed43c747d81d9b116e619b134f6f13d77db45" origin="Built locally" reason="Artifact is not signed"/>
++         </artifact>
++      </component>
++      <component group="com.google.devtools.ksp" name="symbol-processing-gradle-plugin" version="2.0.255-SNAPSHOT">
++         <artifact name="symbol-processing-gradle-plugin-2.0.255-SNAPSHOT.module">
++            <sha256 value="2b1c777550b2b5334921f7cf1079a8c74e6642999dcc9fd6a21d9e11c1452a95" origin="Built locally" reason="Artifact is not signed"/>
++         </artifact>
++      </component>
+    </components>
+ </verification-metadata>
+diff --git a/navigation/navigation-compose/samples/build.gradle b/navigation/navigation-compose/samples/build.gradle
+index 60b7c22d955..580f15ee249 100644
+--- a/navigation/navigation-compose/samples/build.gradle
++++ b/navigation/navigation-compose/samples/build.gradle
+@@ -65,7 +65,7 @@ androidx {
+     type = SoftwareType.SAMPLES
+     inceptionYear = "2020"
+     description = "Samples for Compose integration with Navigation"
+-    kotlinTarget = KotlinTarget.KOTLIN_2_1
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+ 
+ android {
+diff --git a/privacysandbox/ui/ui-client-compose/build.gradle b/privacysandbox/ui/ui-client-compose/build.gradle
+index 9904e3f1337..d8b7f1a14b4 100644
+--- a/privacysandbox/ui/ui-client-compose/build.gradle
++++ b/privacysandbox/ui/ui-client-compose/build.gradle
+@@ -22,6 +22,8 @@
+  * modifying its settings.
+  */
+ 
++
++import androidx.build.KotlinTarget
+ import androidx.build.SoftwareType
+ 
+ plugins {
+@@ -68,4 +70,5 @@ androidx {
+     type = SoftwareType.PUBLISHED_LIBRARY
+     inceptionYear = "2025"
+     description = "Show Compose UI from a Runtime-aware SDK"
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/privacysandbox/ui/ui-client/build.gradle b/privacysandbox/ui/ui-client/build.gradle
+index ca03bb13633..8fa90fb3df1 100644
+--- a/privacysandbox/ui/ui-client/build.gradle
++++ b/privacysandbox/ui/ui-client/build.gradle
+@@ -21,6 +21,8 @@
+  * Please use that script when creating a new project, rather than copying an existing project and
+  * modifying its settings.
+  */
++
++import androidx.build.KotlinTarget
+ import androidx.build.SoftwareType
+ 
+ plugins {
+@@ -65,4 +67,5 @@ androidx {
+     type = SoftwareType.PUBLISHED_LIBRARY
+     inceptionYear = "2022"
+     description = "show UI from a Runtime-aware SDK"
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/room/room-compiler-processing-testing/build.gradle b/room/room-compiler-processing-testing/build.gradle
+index 20b0811c1ef..34eee6cda34 100644
+--- a/room/room-compiler-processing-testing/build.gradle
++++ b/room/room-compiler-processing-testing/build.gradle
+@@ -96,5 +96,5 @@ androidx {
+     type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
+     inceptionYear = "2020"
+     description = "Testing helpers for Room XProcessing APIs"
+-    kotlinTarget = KotlinTarget.KOTLIN_2_1
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/TestDefaultOptions.kt b/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/TestDefaultOptions.kt
+index 919bd8ace17..f28cea3ad44 100644
+--- a/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/TestDefaultOptions.kt
++++ b/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/TestDefaultOptions.kt
+@@ -26,6 +26,6 @@ internal object TestDefaultOptions {
+     internal val kotlinLanguageVersion = LanguageVersion.KOTLIN_2_0
+     internal val kotlinApiVersion = ApiVersion.createByLanguageVersion(kotlinLanguageVersion)
+     internal val jvmTarget = JvmTarget.JVM_1_8
+-    internal val jvmDefaultMode = JvmDefaultMode.ALL_COMPATIBILITY
++    internal val jvmDefaultMode = JvmDefaultMode.ENABLE
+     internal val jvmModuleName = "main"
+ }
+diff --git a/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/steps/KaptCompilationStep.kt b/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/steps/KaptCompilationStep.kt
+index 4dfd3279019..d3a3e783d1b 100644
+--- a/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/steps/KaptCompilationStep.kt
++++ b/room/room-compiler-processing-testing/src/main/java/androidx/room/compiler/processing/util/compiler/steps/KaptCompilationStep.kt
+@@ -26,9 +26,9 @@ import java.util.Base64
+ import javax.annotation.processing.Processor
+ import org.jetbrains.kotlin.cli.common.ExitCode
+ import org.jetbrains.kotlin.com.intellij.util.PathUtil
++import org.jetbrains.kotlin.kapt.base.AptMode
+ import org.jetbrains.kotlin.kapt.cli.CliToolOption
+ import org.jetbrains.kotlin.kapt.cli.KaptCliOption
+-import org.jetbrains.kotlin.kapt3.base.AptMode
+ 
+ /** Runs KAPT to run Java annotation processors. */
+ internal class KaptCompilationStep(
+diff --git a/room/room-compiler-processing/build.gradle b/room/room-compiler-processing/build.gradle
+index d2f4d60ce1e..5facb6e7279 100644
+--- a/room/room-compiler-processing/build.gradle
++++ b/room/room-compiler-processing/build.gradle
+@@ -78,5 +78,5 @@ androidx {
+     type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
+     inceptionYear = "2020"
+     description = "Processing Environment Abstraction for AndroidX Room"
+-    kotlinTarget = KotlinTarget.KOTLIN_2_1
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/room/room-compiler/build.gradle b/room/room-compiler/build.gradle
+index d92247fc0e7..35eab41004d 100644
+--- a/room/room-compiler/build.gradle
++++ b/room/room-compiler/build.gradle
+@@ -241,5 +241,5 @@ androidx {
+     type = SoftwareType.ANNOTATION_PROCESSOR
+     inceptionYear = "2017"
+     description = "Android Room annotation processor"
+-    kotlinTarget = KotlinTarget.KOTLIN_2_1
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+diff --git a/tracing/tracing-ktx/build.gradle b/tracing/tracing-ktx/build.gradle
+index 0ec9c675271..731e6a7a72d 100644
+--- a/tracing/tracing-ktx/build.gradle
++++ b/tracing/tracing-ktx/build.gradle
+@@ -21,6 +21,8 @@
+  * Please use that script when creating a new project, rather than copying an existing project and
+  * modifying its settings.
+  */
++
++import androidx.build.KotlinTarget
+ import androidx.build.SoftwareType
+ 
+ plugins {
+@@ -38,6 +40,7 @@ androidx {
+     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+     inceptionYear = "2020"
+     description = "Android Tracing"
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }
+ 
+ android {
+diff --git a/tracing/tracing/build.gradle b/tracing/tracing/build.gradle
+index afe4e2318e0..1d80f3b4e80 100644
+--- a/tracing/tracing/build.gradle
++++ b/tracing/tracing/build.gradle
+@@ -21,6 +21,8 @@
+  * Please use that script when creating a new project, rather than copying an existing project and
+  * modifying its settings.
+  */
++
++import androidx.build.KotlinTarget
+ import androidx.build.SoftwareType
+ import androidx.build.PlatformIdentifier
+ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+@@ -104,4 +106,5 @@ androidx {
+     deviceTests {
+         enableAlsoRunningOnPhysicalDevices = true
+     }
++    kotlinTarget = KotlinTarget.KOTLIN_2_2
+ }

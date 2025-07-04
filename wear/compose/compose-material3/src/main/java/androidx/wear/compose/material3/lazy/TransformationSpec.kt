@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,102 +16,100 @@
 
 package androidx.wear.compose.material3.lazy
 
-import androidx.compose.animation.core.Easing
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.annotation.FloatRange
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.GraphicsLayerScope
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
-import androidx.wear.compose.foundation.lazy.inverseLerp
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
 
 /**
- * This class contains all parameters needed to configure the transformations for a single item.
- * This is used with [Modifier#scrollTransform] inside items of a [TransformingLazyColumn]
+ * Defines visual transformations on the items of a [TransformingLazyColumn].
+ *
+ * When using this API, users need to make similar changes between all of the functions. For
+ * example, if [getTransformedHeight] returns half of the size of the item, then transformation
+ * functions should do the same, scaling or cropping the item.
+ *
+ * [getTransformedHeight] is called first, then the painter would be created and then container and
+ * content transformations are applied.
+ *
+ * This shows how to create a custom transformation spec for the [TransformingLazyColumn].
+ *
+ * @sample androidx.wear.compose.material3.samples.CustomTransformationSpecSample
+ *
+ * This shows how to apply the [TransformationSpec] to custom component inside
+ * [TransformingLazyColumn].
+ *
+ * @sample androidx.wear.compose.material3.samples.TransformationSpecButtonRowSample
  */
-internal data class TransformationSpec(
+public interface TransformationSpec {
     /**
-     * The minimum element height, as a ratio of the viewport height, to use for determining the
-     * transition area height within the range [minTransitionArea]..[maxTransitionArea]. Given a
-     * content item, this defines the start and end points for transitioning the item. Item heights
-     * lower than [minElementHeight] will be treated as if [minElementHeight]. Must be smaller than
-     * or equal to [maxElementHeight].
-     */
-    val minElementHeight: Float,
-
-    /**
-     * The maximum element height, as a ratio of the viewport height, to use for determining the
-     * transition area height within the range [minTransitionArea]..[maxTransitionArea]. Given a
-     * content item, this defines the start and end points for transitioning the item. Item heights
-     * higher than [maxElementHeight] will be treated as if [maxElementHeight]. Must be greater than
-     * or equal to [minElementHeight].
-     */
-    val maxElementHeight: Float,
-
-    /**
-     * The lower bound of the range of heights for the transition area, i.e. how tall the transition
-     * area is for items of height [minElementHeight] or shorter. Taller items will have taller
-     * transition areas, up to [maxTransitionArea]. This is defined as a fraction (value between
-     * 0f..1f) of the viewport height. Must be less than or equal to [maxTransitionArea].
+     * Calculates the transformed height to be passed into
+     * [TransformingLazyColumnItemScope.transformedHeight] based on the parameters for the spec.
      *
-     * Note that the transition area is the same for all variables, but each variable can define a
-     * transformation zone inside it in which the transformations will actually occur. See
-     * [TransformVariableSpec].
+     * @param measuredHeight The height in pixels of the item returned during measurement.
+     * @param scrollProgress The scroll progress of the item.
      */
-    val minTransitionArea: Float,
+    public fun getTransformedHeight(
+        measuredHeight: Int,
+        scrollProgress: TransformingLazyColumnItemScrollProgress,
+    ): Int
 
     /**
-     * The upper bound of the range of heights for the transition area, i.e. how tall the transition
-     * area is for items of height [maxElementHeight] or taller. Shorter items will have shorter
-     * transition areas, down to [minTransitionArea]. This is defined as a fraction (value between
-     * 0f..1f) of the viewport height. Must be greater than or equal to [minTransitionArea].
+     * Visual transformations to be applied to the content of the item as it scrolls.
      *
-     * Note that the transition area is the same for all variables, but each variable can define a
-     * transformation zone inside it in which the transformations will actually occur. See
-     * [TransformVariableSpec].
+     * @param scrollProgress The scroll progress of the item.
      */
-    val maxTransitionArea: Float,
+    public fun GraphicsLayerScope.applyContentTransformation(
+        scrollProgress: TransformingLazyColumnItemScrollProgress
+    )
 
     /**
-     * An interpolator to use to determine how to apply transformations as the item transitions
-     * across the transformation zones.
+     * Visual transformations to be applied to the container of the item as it scrolls.
+     *
+     * @param scrollProgress The scroll progress of the item.
      */
-    val easing: Easing,
-
-    /** Configuration for how the container (background) of the item will fade in/out. */
-    val containerAlpha: TransformVariableSpec,
-
-    /** Configuration for how the content of the item will fade in/out. */
-    val contentAlpha: TransformVariableSpec,
-
-    /** Configuration for scaling the whole item (container and content). */
-    val scale: TransformVariableSpec,
-
-    /** Configuration for the width of the container. */
-    val containerWidth: TransformVariableSpec,
+    public fun GraphicsLayerScope.applyContainerTransformation(
+        scrollProgress: TransformingLazyColumnItemScrollProgress
+    )
 
     /**
-     * Configuration for the screen point where the height morphing starts (item is touching this
-     * screen point with its bottom edge).
+     * Returns a new painter to be used instead of [painter] which should react on a transformation.
+     *
+     * @param painter The painter to be transformed. This is the original [Painter] the component
+     *   was trying to use.
+     * @param shape The shape of the item's container.
+     * @param border The border of the item's container.
      */
-    val growthStartScreenFraction: Float,
+    public fun TransformedContainerPainterScope.createTransformedContainerPainter(
+        painter: Painter,
+        shape: Shape,
+        border: BorderStroke?,
+    ): Painter
+}
+
+/** Convenience modifier to calculate transformed height using [TransformationSpec]. */
+public fun Modifier.transformedHeight(
+    scope: TransformingLazyColumnItemScope,
+    transformationSpec: TransformationSpec,
+): Modifier = with(scope) { transformedHeight(transformationSpec::getTransformedHeight) }
+
+/** Provides additional information to the painter inside [TransformationSpec]. */
+public interface TransformedContainerPainterScope {
+    /** The progress of the scroll. */
+    public val DrawScope.scrollProgress: TransformingLazyColumnItemScrollProgress
 
     /**
-     * Configuration for the screen point where the height morphing ends and item is fully expanded
-     * (item is touching this screen point with its bottom edge).
+     * The height of the item in pixels. This might be different from
+     * [TransformationSpec.getTransformedHeight] in cases graphical effects like clipping are
+     * applied before scale.
      */
-    val growthEndScreenFraction: Float,
-) {
-    init {
-        // The element height range must be non-empty.
-        require(minElementHeight < maxElementHeight) {
-            "minElementHeight must be smaller than maxElementHeight"
-        }
-
-        // Morphing start point should be below the growth end.
-        require(growthEndScreenFraction < growthStartScreenFraction) {
-            "growthEndScreenFraction must be smaller than growthStartScreenFraction"
-        }
-    }
+    public val DrawScope.itemHeight: Float
 }
 
 /**
@@ -126,27 +124,27 @@ internal data class TransformationSpec(
  * until it leaves the screen. The same process happens in reverse, entering from the bottom of the
  * screen and leaving at the top.
  */
-internal data class TransformVariableSpec(
+public class TransformationVariableSpec(
     /**
      * The value this variable will have when the item's bottom edge is above the top transformation
      * zone, usually this happens when it is (or is about to be) partially outside of the screen on
      * the top side.
      */
-    val topValue: Float,
+    @FloatRange(from = 0.0, to = 1.0) public val topValue: Float,
 
     /**
      * The value this variable will have when the item is not in either transformation zone, and is
      * in the "center" of the screen, i.e. the top edge is above the bottom transformation zone, and
      * the bottom edge is below the top transformation zone.
      */
-    val targetValue: Float = 1f,
+    @FloatRange(from = 0.0, to = 1.0) public val targetValue: Float = 1f,
 
     /**
      * The value this variable will have when the item's top edge is below the bottom transformation
      * zone, usually this happens when it is (or is about to be) partially outside of the screen on
      * the bottom side.
      */
-    val bottomValue: Float = topValue,
+    @FloatRange(from = 0.0, to = 1.0) public val bottomValue: Float = topValue,
 
     /**
      * Defines how far into the transition area the transformation zone starts. For example, a value
@@ -169,7 +167,7 @@ internal data class TransformVariableSpec(
      * is also worth noting that in the bottom, it is the top of the item that triggers starting and
      * ending transformations.
      */
-    val transformationZoneEnterFraction: Float = 0f,
+    @FloatRange(from = 0.0, to = 1.0) public val transformationZoneEnterFraction: Float = 0f,
 
     /**
      * Defines how far into the transition area the transformation zone ends. For example, a value
@@ -179,29 +177,73 @@ internal data class TransformVariableSpec(
      *
      * See also [transformationZoneEnterFraction]
      */
-    val transformationZoneExitFraction: Float = 1f,
+    @FloatRange(from = 0.0, to = 1.0) public val transformationZoneExitFraction: Float = 1f,
 ) {
     init {
-        require(transformationZoneExitFraction > transformationZoneEnterFraction) {
-            "transformationZoneExitFraction must be greater than transformationZoneEnterFraction"
+        require(transformationZoneEnterFraction in 0f..1f) {
+            "transformationZoneEnterFraction must be between 0 and 1, inclusive"
         }
+        require(transformationZoneExitFraction in 0f..1f) {
+            "transformationZoneExitFraction must be between 0 and 1, inclusive"
+        }
+        require(transformationZoneEnterFraction < transformationZoneExitFraction) {
+            "transformationZoneEnterFraction must be less than transformationZoneExitFraction"
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TransformationVariableSpec
+
+        if (topValue != other.topValue) return false
+        if (targetValue != other.targetValue) return false
+        if (bottomValue != other.bottomValue) return false
+        if (transformationZoneEnterFraction != other.transformationZoneEnterFraction) return false
+        if (transformationZoneExitFraction != other.transformationZoneExitFraction) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = topValue.hashCode()
+        result = 31 * result + targetValue.hashCode()
+        result = 31 * result + bottomValue.hashCode()
+        result = 31 * result + transformationZoneEnterFraction.hashCode()
+        result = 31 * result + transformationZoneExitFraction.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "TransformationVariableSpec(topValue=$topValue, targetValue=$targetValue, bottomValue=$bottomValue, transformationZoneEnterFraction=$transformationZoneEnterFraction, transformationZoneExitFraction=$transformationZoneExitFraction)"
+    }
+
+    /** Returns a copy of the TransformationVariableSpec. */
+    public fun copy(
+        topValue: Float = this.topValue,
+        targetValue: Float = this.targetValue,
+        bottomValue: Float = this.bottomValue,
+        transformationZoneEnterFraction: Float = this.transformationZoneEnterFraction,
+        transformationZoneExitFraction: Float = this.transformationZoneExitFraction,
+    ): TransformationVariableSpec {
+        return TransformationVariableSpec(
+            topValue,
+            targetValue,
+            bottomValue,
+            transformationZoneEnterFraction,
+            transformationZoneExitFraction,
+        )
     }
 }
 
-/**
- * Computes and remembers the appropriate [TransformationSpec] for the current screen size, given
- * one or more [TransformationSpec]s for different screen sizes.
- */
-@Composable
-internal fun rememberResponsiveTransformationSpec(
-    specs: List<Pair<Int, TransformationSpec>>
-): TransformationSpec {
-    val screenSizeDp = LocalConfiguration.current.screenHeightDp
-    return remember(screenSizeDp) { responsiveTransformationSpec(screenSizeDp, specs) }
-}
-
-private fun lerp(start: TransformVariableSpec, stop: TransformVariableSpec, progress: Float) =
-    TransformVariableSpec(
+/** Helper function to lerp between the variables for different screen sizes. */
+public fun lerp(
+    start: TransformationVariableSpec,
+    stop: TransformationVariableSpec,
+    progress: Float,
+): TransformationVariableSpec =
+    TransformationVariableSpec(
         topValue = lerp(start.topValue, stop.topValue, progress),
         targetValue = lerp(start.targetValue, stop.targetValue, progress),
         bottomValue = lerp(start.bottomValue, stop.bottomValue, progress),
@@ -209,58 +251,12 @@ private fun lerp(start: TransformVariableSpec, stop: TransformVariableSpec, prog
             lerp(
                 start.transformationZoneEnterFraction,
                 stop.transformationZoneEnterFraction,
-                progress
+                progress,
             ),
         transformationZoneExitFraction =
             lerp(
                 start.transformationZoneExitFraction,
                 stop.transformationZoneExitFraction,
-                progress
+                progress,
             ),
     )
-
-private fun lerp(start: TransformationSpec, stop: TransformationSpec, progress: Float) =
-    TransformationSpec(
-        lerp(start.minElementHeight, stop.minElementHeight, progress),
-        lerp(start.maxElementHeight, stop.maxElementHeight, progress),
-        lerp(start.minTransitionArea, stop.minTransitionArea, progress),
-        lerp(start.maxTransitionArea, stop.maxTransitionArea, progress),
-        { fraction ->
-            lerp(start.easing.transform(fraction), stop.easing.transform(fraction), progress)
-        },
-        lerp(start.containerAlpha, stop.containerAlpha, progress),
-        lerp(start.contentAlpha, stop.contentAlpha, progress),
-        lerp(start.scale, stop.scale, progress),
-        lerp(start.containerWidth, stop.containerWidth, progress),
-        lerp(start.growthStartScreenFraction, stop.growthStartScreenFraction, progress),
-        lerp(start.growthEndScreenFraction, stop.growthEndScreenFraction, progress),
-    )
-
-/**
- * Computes the appropriate [TransformationSpec] for a given screen size, given one or more
- * [TransformationSpec]s for different screen sizes.
- */
-internal fun responsiveTransformationSpec(
-    screenSizeDp: Int,
-    specs: List<Pair<Int, TransformationSpec>>
-): TransformationSpec {
-    require(specs.isNotEmpty()) { "Must provide at least one TransformationSpec" }
-
-    val sortedSpecs = specs.sortedBy { it.first }
-
-    if (screenSizeDp <= sortedSpecs.first().first) return sortedSpecs.first().second
-    if (screenSizeDp >= sortedSpecs.last().first) return sortedSpecs.last().second
-
-    var ix = 1 // We checked and it's greater than the first element's screen size.
-    while (ix < sortedSpecs.size && screenSizeDp > sortedSpecs[ix].first) ix++
-
-    return lerp(
-        sortedSpecs[ix - 1].second,
-        sortedSpecs[ix].second,
-        inverseLerp(
-            sortedSpecs[ix - 1].first.toFloat(),
-            sortedSpecs[ix].first.toFloat(),
-            screenSizeDp.toFloat()
-        )
-    )
-}

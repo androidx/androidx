@@ -47,8 +47,8 @@ package androidx.navigation {
   public static final class ActivityNavigator.Extras implements androidx.navigation.Navigator.Extras {
     method public androidx.core.app.ActivityOptionsCompat? getActivityOptions();
     method public int getFlags();
-    property public final androidx.core.app.ActivityOptionsCompat? activityOptions;
-    property public final int flags;
+    property public androidx.core.app.ActivityOptionsCompat? activityOptions;
+    property public int flags;
   }
 
   public static final class ActivityNavigator.Extras.Builder {
@@ -73,11 +73,11 @@ package androidx.navigation {
     method public void setData(android.net.Uri?);
     method public void setDataPattern(String?);
     method public void setTargetPackage(String?);
-    property public final String? action;
-    property public final kotlin.reflect.KClass<? extends android.app.Activity>? activityClass;
-    property public final android.net.Uri? data;
-    property public final String? dataPattern;
-    property public final String? targetPackage;
+    property public String? action;
+    property public kotlin.reflect.KClass<? extends android.app.Activity>? activityClass;
+    property public android.net.Uri? data;
+    property public String? dataPattern;
+    property public String? targetPackage;
   }
 
   public final class ActivityNavigatorDestinationBuilderKt {
@@ -93,14 +93,14 @@ package androidx.navigation {
   public class NavController {
     ctor public NavController(android.content.Context context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener listener);
-    method @MainThread public inline <reified T> boolean clearBackStack();
+    method @MainThread public final inline <reified T> boolean clearBackStack();
     method @MainThread public final boolean clearBackStack(@IdRes int destinationId);
     method @MainThread public final boolean clearBackStack(String route);
     method @MainThread public final <T> boolean clearBackStack(kotlin.reflect.KClass<T> route);
     method @MainThread public final <T> boolean clearBackStack(T route);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method @SuppressCompatibility @androidx.navigation.NavDeepLinkSaveStateControl public static final void enableDeepLinkSaveState(boolean saveState);
-    method public inline <reified T> androidx.navigation.NavBackStackEntry getBackStackEntry();
+    method public final inline <reified T> androidx.navigation.NavBackStackEntry getBackStackEntry();
     method public androidx.navigation.NavBackStackEntry getBackStackEntry(@IdRes int destinationId);
     method public final androidx.navigation.NavBackStackEntry getBackStackEntry(String route);
     method public final <T> androidx.navigation.NavBackStackEntry getBackStackEntry(kotlin.reflect.KClass<T> route);
@@ -139,7 +139,8 @@ package androidx.navigation {
     method @MainThread public final <T> void navigate(T route, kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> builder);
     method @MainThread public boolean navigateUp();
     method @MainThread public boolean popBackStack();
-    method @MainThread public inline <reified T> boolean popBackStack(boolean inclusive, optional boolean saveState);
+    method @MainThread public final inline <reified T> boolean popBackStack(boolean inclusive);
+    method @MainThread public final inline <reified T> boolean popBackStack(boolean inclusive, optional boolean saveState);
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive);
     method @MainThread public boolean popBackStack(@IdRes int destinationId, boolean inclusive, boolean saveState);
     method @MainThread public final boolean popBackStack(String route, boolean inclusive);
@@ -169,11 +170,11 @@ package androidx.navigation {
 
   public static final class NavController.Companion {
     method @SuppressCompatibility @androidx.navigation.NavDeepLinkSaveStateControl public void enableDeepLinkSaveState(boolean saveState);
-    property public static final String KEY_DEEP_LINK_ARGS;
-    property public static final String KEY_DEEP_LINK_EXTRAS;
-    property public static final String KEY_DEEP_LINK_HANDLED;
-    property public static final String KEY_DEEP_LINK_IDS;
-    property public static final String KEY_DEEP_LINK_INTENT;
+    property public static String KEY_DEEP_LINK_ARGS;
+    property public static String KEY_DEEP_LINK_EXTRAS;
+    property public static String KEY_DEEP_LINK_HANDLED;
+    property public static String KEY_DEEP_LINK_IDS;
+    property public static String KEY_DEEP_LINK_INTENT;
   }
 
   public static fun interface NavController.OnDestinationChangedListener {

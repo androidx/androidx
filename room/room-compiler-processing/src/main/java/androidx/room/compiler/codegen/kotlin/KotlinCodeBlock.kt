@@ -23,6 +23,7 @@ import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XMemberName
 import androidx.room.compiler.codegen.XName
+import androidx.room.compiler.codegen.XParameterSpec
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XSpec
 import androidx.room.compiler.codegen.XTypeName
@@ -30,10 +31,14 @@ import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.impl.XAnnotationSpecImpl
 import androidx.room.compiler.codegen.impl.XCodeBlockImpl
 import androidx.room.compiler.codegen.impl.XFunSpecImpl
+import androidx.room.compiler.codegen.impl.XParameterSpecImpl
 import androidx.room.compiler.codegen.impl.XPropertySpecImpl
 import androidx.room.compiler.codegen.impl.XTypeSpecImpl
 
-internal class KotlinCodeBlock(internal val actual: KCodeBlock) : XSpec(), XCodeBlock {
+internal class KotlinCodeBlock(override val actual: KCodeBlock) :
+    KotlinSpec<KCodeBlock>(), XCodeBlock {
+
+    override fun toBuilder() = Builder(actual.toBuilder())
 
     internal class Builder(internal val actual: KCodeBlockBuilder) :
         XSpec.Builder(), XCodeBlock.Builder {
@@ -55,7 +60,7 @@ internal class KotlinCodeBlock(internal val actual: KCodeBlock) : XSpec(), XCode
             name: String,
             typeName: XTypeName,
             isMutable: Boolean,
-            assignExpr: XCodeBlock?
+            assignExpr: XCodeBlock?,
         ) = apply {
             val varOrVal = if (isMutable) "var" else "val"
             if (assignExpr != null) {
@@ -100,6 +105,7 @@ internal class KotlinCodeBlock(internal val actual: KCodeBlock) : XSpec(), XCode
                     is XMemberName -> arg.kotlin
                     is XName -> arg.kotlin
                     is XTypeSpec -> (arg as XTypeSpecImpl).kotlin.actual
+                    is XParameterSpec -> (arg as XParameterSpecImpl).kotlin.actual
                     is XPropertySpec -> (arg as XPropertySpecImpl).kotlin.actual
                     is XFunSpec -> (arg as XFunSpecImpl).kotlin.actual
                     is XCodeBlock -> (arg as XCodeBlockImpl).kotlin.actual

@@ -26,8 +26,8 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 
 /**
- * <a href="https://material.io/design/typography/the-type-system.html#type-scale" class="external"
- * target="_blank">Material Design type scale</a>.
+ * [Material Design type
+ * scale](https://material.io/design/typography/the-type-system.html#type-scale)
  *
  * The Material Design type scale includes a range of contrasting styles that support the needs of
  * your product and its content.
@@ -91,7 +91,7 @@ internal constructor(
     val body2: TextStyle,
     val button: TextStyle,
     val caption: TextStyle,
-    val overline: TextStyle
+    val overline: TextStyle,
 ) {
     /**
      * Constructor to create a [Typography]. For information on the types of style defined in this
@@ -128,92 +128,92 @@ internal constructor(
                 fontWeight = FontWeight.Light,
                 fontSize = 96.sp,
                 lineHeight = 112.sp,
-                letterSpacing = (-1.5).sp
+                letterSpacing = (-1.5).sp,
             ),
         h2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Light,
                 fontSize = 60.sp,
                 lineHeight = 72.sp,
-                letterSpacing = (-0.5).sp
+                letterSpacing = (-0.5).sp,
             ),
         h3: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 48.sp,
                 lineHeight = 56.sp,
-                letterSpacing = 0.sp
+                letterSpacing = 0.sp,
             ),
         h4: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 34.sp,
                 lineHeight = 36.sp,
-                letterSpacing = 0.25.sp
+                letterSpacing = 0.25.sp,
             ),
         h5: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 24.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.sp
+                letterSpacing = 0.sp,
             ),
         h6: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 20.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.15.sp
+                letterSpacing = 0.15.sp,
             ),
         subtitle1: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.15.sp
+                letterSpacing = 0.15.sp,
             ),
         subtitle2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.1.sp
+                letterSpacing = 0.1.sp,
             ),
         body1: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.5.sp,
             ),
         body2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
-                letterSpacing = 0.25.sp
+                letterSpacing = 0.25.sp,
             ),
         button: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 lineHeight = 16.sp,
-                letterSpacing = 1.25.sp
+                letterSpacing = 1.25.sp,
             ),
         caption: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
-                letterSpacing = 0.4.sp
+                letterSpacing = 0.4.sp,
             ),
         overline: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 10.sp,
                 lineHeight = 16.sp,
-                letterSpacing = 1.5.sp
-            )
+                letterSpacing = 1.5.sp,
+            ),
     ) : this(
         h1 = h1.withDefaultFontFamily(defaultFontFamily),
         h2 = h2.withDefaultFontFamily(defaultFontFamily),
@@ -227,7 +227,7 @@ internal constructor(
         body2 = body2.withDefaultFontFamily(defaultFontFamily),
         button = button.withDefaultFontFamily(defaultFontFamily),
         caption = caption.withDefaultFontFamily(defaultFontFamily),
-        overline = overline.withDefaultFontFamily(defaultFontFamily)
+        overline = overline.withDefaultFontFamily(defaultFontFamily),
     )
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
@@ -244,7 +244,7 @@ internal constructor(
         body2: TextStyle = this.body2,
         button: TextStyle = this.button,
         caption: TextStyle = this.caption,
-        overline: TextStyle = this.overline
+        overline: TextStyle = this.overline,
     ): Typography =
         Typography(
             h1 = h1,
@@ -259,7 +259,7 @@ internal constructor(
             body2 = body2,
             button = button,
             caption = caption,
-            overline = overline
+            overline = overline,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -316,10 +316,7 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
 }
 
 internal val DefaultLineHeightStyle =
-    LineHeightStyle(
-        alignment = LineHeightStyle.Alignment.Center,
-        trim = LineHeightStyle.Trim.None,
-    )
+    LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 
 internal val DefaultTextStyle =
     TextStyle.Default.copy(

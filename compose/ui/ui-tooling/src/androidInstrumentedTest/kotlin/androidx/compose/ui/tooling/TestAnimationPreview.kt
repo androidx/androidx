@@ -79,7 +79,7 @@ import androidx.compose.ui.unit.dp
 
 enum class CheckBoxState {
     Unselected,
-    Selected
+    Selected,
 }
 
 @Preview(name = "CheckBox + Scaffold")
@@ -107,15 +107,15 @@ fun AnimationOrder() {
     val selected by remember { mutableStateOf(false) }
     updateTransition(
         if (selected) CheckBoxState.Selected else CheckBoxState.Unselected,
-        label = "transitionOne"
+        label = "transitionOne",
     )
     updateTransition(
         if (selected) CheckBoxState.Selected else CheckBoxState.Unselected,
-        label = "transitionTwo"
+        label = "transitionTwo",
     )
     updateTransition(
         if (selected) CheckBoxState.Selected else CheckBoxState.Unselected,
-        label = "transitionThree"
+        label = "transitionThree",
     )
 }
 
@@ -185,13 +185,13 @@ fun TransitionPreview() {
     val transition =
         updateTransition(
             if (selected) CheckBoxState.Selected else CheckBoxState.Unselected,
-            label = "checkBoxAnim"
+            label = "checkBoxAnim",
         )
 
     val checkBoxCorner by
         transition.animateDp(
             transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
-            label = "CheckBox Corner"
+            label = "CheckBox Corner",
         ) {
             when (it) {
                 CheckBoxState.Selected -> 28.dp
@@ -201,7 +201,7 @@ fun TransitionPreview() {
 
     Surface(
         shape = MaterialTheme.shapes.large.copy(topStart = CornerSize(checkBoxCorner)),
-        modifier = Modifier.toggleable(value = selected, onValueChange = onSelected)
+        modifier = Modifier.toggleable(value = selected, onValueChange = onSelected),
     ) {
         Icon(imageVector = Icons.Filled.Done, contentDescription = null)
     }
@@ -214,7 +214,7 @@ fun NullTransitionPreview() {
 
     transition.animateDp(
         transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
-        label = "CheckBox Corner"
+        label = "CheckBox Corner",
     ) {
         when (it) {
             null -> 28.dp
@@ -258,7 +258,7 @@ fun AnimateAsStateWithLabelsPreview() {
         animateDpAsState(
             targetValue = if (showMenu) 0.dp else 10.dp,
             animationSpec = spring(Spring.DampingRatioHighBouncy, Spring.StiffnessHigh),
-            label = "CustomDpLabel"
+            label = "CustomDpLabel",
         )
     val offset by animateIntAsState(targetValue = if (showMenu) 2 else 1, label = "CustomIntLabel")
 
@@ -368,7 +368,7 @@ fun TargetBasedAnimationPreview() {
             animationSpec = tween(200),
             typeConverter = Float.VectorConverter,
             initialValue = 200f,
-            targetValue = 1000f
+            targetValue = 1000f,
         )
     }
     var playTime by remember { mutableStateOf(0L) }
@@ -394,10 +394,7 @@ fun TargetBasedAndTransitionPreview() {
 @Composable
 fun DecayAnimationPreview() {
     val anim = remember {
-        DecayAnimation(
-            animationSpec = FloatExponentialDecaySpec(),
-            initialValue = 200f,
-        )
+        DecayAnimation(animationSpec = FloatExponentialDecaySpec(), initialValue = 200f)
     }
     var playTime by remember { mutableStateOf(0L) }
 
@@ -442,7 +439,7 @@ fun InfiniteTransition.PulsingDot(startOffset: StartOffset) {
         animateFloat(
             0.2f,
             1f,
-            infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset)
+            infiniteRepeatable(tween(600), RepeatMode.Reverse, initialStartOffset = startOffset),
         )
     Box(
         Modifier.padding(5.dp)

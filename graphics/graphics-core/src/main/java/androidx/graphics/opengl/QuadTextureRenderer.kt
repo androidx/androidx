@@ -158,12 +158,12 @@ internal class QuadTextureRenderer {
         GLES20.glTexParameteri(
             GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             GLES20.GL_TEXTURE_MIN_FILTER,
-            GLES20.GL_LINEAR
+            GLES20.GL_LINEAR,
         )
         GLES20.glTexParameteri(
             GLES11Ext.GL_TEXTURE_EXTERNAL_OES,
             GLES20.GL_TEXTURE_MAG_FILTER,
-            GLES20.GL_LINEAR
+            GLES20.GL_LINEAR,
         )
 
         GLES20.glUniform1i(mTextureUniformHandle, 0)
@@ -175,7 +175,7 @@ internal class QuadTextureRenderer {
             1,
             false,
             mTextureTransform.apply { textureSource.getTransformMatrix(this) },
-            0
+            0,
         )
 
         GLES20.glVertexAttribPointer(
@@ -184,7 +184,7 @@ internal class QuadTextureRenderer {
             GLES20.GL_FLOAT,
             false,
             VertexStride,
-            configureQuad(width, height)
+            configureQuad(width, height),
         )
 
         GLES20.glVertexAttribPointer(
@@ -193,7 +193,7 @@ internal class QuadTextureRenderer {
             GLES20.GL_FLOAT,
             false,
             VertexStride,
-            TextureCoordinatesBuffer
+            TextureCoordinatesBuffer,
         )
 
         GLES20.glEnableVertexAttribArray(mQuadPositionHandle)
@@ -203,7 +203,7 @@ internal class QuadTextureRenderer {
             GLES20.GL_TRIANGLES,
             DrawOrder.size,
             GLES20.GL_UNSIGNED_SHORT,
-            DrawOrderBuffer
+            DrawOrderBuffer,
         )
 
         GLES20.glDisableVertexAttribArray(mQuadPositionHandle)

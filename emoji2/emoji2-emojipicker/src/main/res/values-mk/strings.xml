@@ -39,4 +39,5 @@
     <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"среден тон на кожата"</string>
     <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"средно темен тон на кожата"</string>
     <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"темен тон на кожата"</string>
+    <string name="emoji_content_desc" msgid="655318124835479020">"Емоџи: <xliff:g id="EMOJI">%1$s</xliff:g>"</string>
 </resources>

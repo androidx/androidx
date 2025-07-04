@@ -78,7 +78,7 @@ class ArcLayoutTest(private val testHeight: Int) {
         key: String,
         views: List<View>,
         backgroundColor: Int = Color.GRAY,
-        interactiveFunction: (FrameLayout.() -> Unit)? = null
+        interactiveFunction: (FrameLayout.() -> Unit)? = null,
     ) {
         val bitmap = Bitmap.createBitmap(testWidth, testHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
@@ -123,7 +123,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     layoutParams =
                         ArcLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
                         )
                 }
             )
@@ -161,7 +161,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     layoutParams =
                         ArcLayout.LayoutParams(
                                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
                             )
                             .apply { isRotated = false }
                 }
@@ -202,8 +202,8 @@ class ArcLayoutTest(private val testHeight: Int) {
                 createArc("SWEEP", "Center").apply {
                     anchorAngleDegrees = 315f
                     anchorType = ArcLayout.ANCHOR_CENTER
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -225,9 +225,9 @@ class ArcLayoutTest(private val testHeight: Int) {
                     createArc("SWEEP", "Center").apply {
                         anchorAngleDegrees = 45f
                         anchorType = ArcLayout.ANCHOR_CENTER
-                    }
+                    },
                 )
-                .apply { forEach { it.isClockwise = false } }
+                .apply { forEach { it.isClockwise = false } },
         )
     }
 
@@ -236,7 +236,7 @@ class ArcLayoutTest(private val testHeight: Int) {
     fun testArcsMixed() {
         doOneTest(
             "basic_arcs_mix_screenshot",
-            listOf(createMixedArc(), createMixedArc().apply { isClockwise = false })
+            listOf(createMixedArc(), createMixedArc().apply { isClockwise = false }),
         )
     }
 
@@ -287,7 +287,7 @@ class ArcLayoutTest(private val testHeight: Int) {
         textSize: Float = 14f,
         textAlignment: Int = View.TEXT_ALIGNMENT_TEXT_START,
         minSweep: Float = 0f,
-        weight: Float = 0f
+        weight: Float = 0f,
     ): CurvedTextView {
         val curvedTextView =
             CurvedTextView(ApplicationProvider.getApplicationContext()).also {
@@ -301,19 +301,19 @@ class ArcLayoutTest(private val testHeight: Int) {
                     paddingLeft ?: padding ?: 0,
                     paddingTop ?: padding ?: 0,
                     paddingRight ?: padding ?: 0,
-                    paddingBottom ?: padding ?: 0
+                    paddingBottom ?: padding ?: 0,
                 )
                 it.layoutParams =
                     ArcLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
+                            ViewGroup.LayoutParams.MATCH_PARENT,
                         )
                         .apply {
                             setMargins(
                                 marginLeft ?: margin ?: 0,
                                 marginTop ?: margin ?: 0,
                                 marginRight ?: margin ?: 0,
-                                marginBottom ?: margin ?: 0
+                                marginBottom ?: margin ?: 0,
                             )
                             verticalAlignment = vAlign
                             this.weight = weight
@@ -365,7 +365,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                 Color.GREEN,
                 marginTop = 8,
                 marginBottom = 8,
-                vAlign = VERTICAL_ALIGN_INNER
+                vAlign = VERTICAL_ALIGN_INNER,
             )
             addCurvedText("BI", Color.BLUE, marginBottom = 16, vAlign = VERTICAL_ALIGN_INNER)
             addSeparator()
@@ -379,7 +379,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                 Color.GREEN,
                 marginTop = 8,
                 marginBottom = 8,
-                vAlign = VERTICAL_ALIGN_OUTER
+                vAlign = VERTICAL_ALIGN_OUTER,
             )
             addCurvedText("BO", Color.BLUE, marginBottom = 16, vAlign = VERTICAL_ALIGN_OUTER)
             addSeparator()
@@ -400,7 +400,7 @@ class ArcLayoutTest(private val testHeight: Int) {
             createArcWithMargin().apply {
                 anchorAngleDegrees = 180f
                 children.forEach { (it as? CurvedTextView)?.isClockwise = false }
-            }
+            },
         )
 
     @Test
@@ -412,7 +412,7 @@ class ArcLayoutTest(private val testHeight: Int) {
     fun testMarginsCcw() {
         doOneTest(
             "margin_ccw_test",
-            createTwoArcsWithMargin().map { it.apply { isClockwise = false } }
+            createTwoArcsWithMargin().map { it.apply { isClockwise = false } },
         )
     }
 
@@ -429,7 +429,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     child1 = addCurvedText("1/4", Color.RED, textSize = 30f, weight = 1f)
                     child2 = addCurvedText("3/4", Color.GREEN, textSize = 30f, weight = 3f)
                 }
-            )
+            ),
         )
 
         assertThat(child1.sweepAngleDegrees).isEqualTo(45f)
@@ -447,7 +447,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     addCurvedText("1/4", Color.RED, textSize = 30f, weight = 1f, padding = 20)
                     addCurvedText("3/4", Color.GREEN, textSize = 30f, weight = 3f, padding = 20)
                 }
-            )
+            ),
         )
     }
 
@@ -463,7 +463,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     addCurvedText("1/4", Color.RED, textSize = 30f, weight = 1f)
                     addCurvedText("3/4", Color.GREEN, textSize = 30f, weight = 3f)
                 }
-            )
+            ),
         )
     }
 
@@ -479,7 +479,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     addCurvedText("1/4", Color.RED, textSize = 30f, weight = 1f)
                     addCurvedText("3/4", Color.GREEN, textSize = 30f, weight = 3f)
                 }
-            )
+            ),
         )
     }
 
@@ -495,7 +495,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     addCurvedText("1/4", Color.RED, textSize = 30f, weight = 1f)
                     addCurvedText("3/4", Color.GREEN, textSize = 30f, weight = 3f)
                 }
-            )
+            ),
         )
     }
 
@@ -518,7 +518,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     addGoneTextView()
                     addCurvedText("Third", Color.BLUE, textSize = 30f, clockwise = false)
                 }
-            )
+            ),
         )
     }
 
@@ -540,7 +540,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                         0xFF8000FF.toInt(),
                         padding = 8,
                         margin = 8,
-                        vAlign = align
+                        vAlign = align,
                     )
                 }
                 addSeparator()
@@ -557,7 +557,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                 addSeparator()
                 addCurvedText("Right", 0xFF8000FF.toInt(), paddingRight = 16)
                 addSeparator()
-            }
+            },
         )
 
     @Test
@@ -576,7 +576,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                         (child as? CurvedTextView)?.let { cv -> cv.isClockwise = false }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -605,7 +605,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                         addCurvedText(text, 0xFFFF0000.toInt())
                     }
                 },
-            )
+            ),
         )
     }
 
@@ -621,7 +621,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                 },
                 Press.PINPOINT,
                 InputDevice.SOURCE_UNKNOWN,
-                MotionEvent.BUTTON_PRIMARY
+                MotionEvent.BUTTON_PRIMARY,
             )
         )
 
@@ -663,7 +663,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                     R.id.curved_text3,
                     R.id.curved_text4,
                     R.id.text5,
-                    R.id.curved_text6
+                    R.id.curved_text6,
                 )
                 .mapIndexed { ix, viewId ->
                     it.findViewById<View>(viewId)?.setOnClickListener { clicked = ix }
@@ -691,9 +691,9 @@ class ArcLayoutTest(private val testHeight: Int) {
                                 Color.BLUE,
                                 Color.YELLOW,
                                 Color.MAGENTA,
-                                Color.CYAN
+                                Color.CYAN,
                             )
-                            .elementAtOrNull(clicked + 1) ?: Color.WHITE
+                            .elementAtOrNull(clicked + 1) ?: Color.WHITE,
                     )
                 )
             }
@@ -774,7 +774,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                             MotionEvent.ACTION_DOWN,
                             x.toFloat(),
                             y.toFloat(),
-                            0
+                            0,
                         )
                     dispatchTouchEvent(down_event)
 
@@ -785,7 +785,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                             MotionEvent.ACTION_UP,
                             x.toFloat(),
                             y.toFloat(),
-                            0
+                            0,
                         )
                     dispatchTouchEvent(up_event)
 
@@ -798,7 +798,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                                 y.toFloat(),
                                 // Color the circle.
                                 // We use Transparent for not touched and white for out of index
-                                testColors.elementAtOrNull(clicked + 1) ?: Color.WHITE
+                                testColors.elementAtOrNull(clicked + 1) ?: Color.WHITE,
                             )
                         )
                     )
@@ -823,7 +823,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                         color = 0x66FF0000,
                         textSize = 48f,
                         minSweep = 60f,
-                        textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+                        textAlignment = View.TEXT_ALIGNMENT_TEXT_START,
                     )
                     addGoneTextView()
                     addCurvedText(
@@ -831,14 +831,14 @@ class ArcLayoutTest(private val testHeight: Int) {
                         color = 0x6600FF00,
                         textSize = 48f,
                         minSweep = 60f,
-                        textAlignment = View.TEXT_ALIGNMENT_CENTER
+                        textAlignment = View.TEXT_ALIGNMENT_CENTER,
                     )
                     addCurvedText(
                         "Right",
                         color = 0x660000FF,
                         textSize = 48f,
                         minSweep = 60f,
-                        textAlignment = View.TEXT_ALIGNMENT_TEXT_END
+                        textAlignment = View.TEXT_ALIGNMENT_TEXT_END,
                     )
                     addGoneTextView()
                 },
@@ -852,7 +852,7 @@ class ArcLayoutTest(private val testHeight: Int) {
                         color = 0x66FFFF00,
                         textSize = 48f,
                         minSweep = 40f,
-                        textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+                        textAlignment = View.TEXT_ALIGNMENT_TEXT_START,
                     )
                     addTextView(text = "N-TXT", color = 0x66FF00FF, textSize = 20f)
                     addCurvedText(
@@ -861,9 +861,9 @@ class ArcLayoutTest(private val testHeight: Int) {
                         textSize = 60f,
                         minSweep = 50f,
                         textAlignment = View.TEXT_ALIGNMENT_TEXT_END,
-                        clockwise = false
+                        clockwise = false,
                     )
-                }
+                },
             )
         testEventsFast("touch_fast_screenshot", views)
     }
@@ -886,7 +886,7 @@ class ArcLayoutTest(private val testHeight: Int) {
             listOf(
                 SCREEN_SIZE_DEFAULT,
                 SCREEN_SIZE_DEFAULT + SCREEN_SIZE_DIFF,
-                SCREEN_SIZE_DEFAULT - SCREEN_SIZE_DIFF
+                SCREEN_SIZE_DEFAULT - SCREEN_SIZE_DIFF,
             )
     }
 }

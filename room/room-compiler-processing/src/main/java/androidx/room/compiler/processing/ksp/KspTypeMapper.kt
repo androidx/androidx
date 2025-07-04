@@ -44,7 +44,7 @@ object KspTypeMapper {
             "kotlin.Char" to TypeName.CHAR,
             "kotlin.Float" to TypeName.FLOAT,
             "kotlin.Double" to TypeName.DOUBLE,
-            "kotlin.Boolean" to TypeName.BOOLEAN
+            "kotlin.Boolean" to TypeName.BOOLEAN,
         )
     private val javaPrimitiveQNames =
         kotlinTypeToJavaPrimitiveMapping.values.mapTo(mutableSetOf()) { it.toString() }

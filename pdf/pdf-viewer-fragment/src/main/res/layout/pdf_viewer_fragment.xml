@@ -22,11 +22,17 @@
     <androidx.pdf.view.PdfView
         android:id="@+id/pdfView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/pdfSearchView"
+        android:layout_height="0dp"
+        android:paddingStart="@dimen/pdf_horizontal_padding"
+        android:paddingEnd="@dimen/pdf_horizontal_padding"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:fastScrollVerticalThumbDrawable="@drawable/fast_scroll_thumb_drawable"
+        app:fastScrollPageIndicatorBackgroundDrawable="@drawable/page_indicator_background" />
 
     <!-- ProgressBar for loading -->
     <ProgressBar
@@ -51,8 +57,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.pdf.view.ToolBoxView
+        android:id="@+id/toolBoxView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.pdf.view.search.PdfSearchView
         android:id="@+id/pdfSearchView"

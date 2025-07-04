@@ -1,0 +1,276 @@
+// Signature format: 4.0
+package androidx.xr.glimmer {
+
+  public final class ButtonDefaults {
+    method public androidx.compose.foundation.layout.PaddingValues contentPadding(int buttonSize);
+    method @BytecodeOnly public androidx.compose.foundation.layout.PaddingValues contentPadding-rRfe1bU(int);
+    field public static final androidx.xr.glimmer.ButtonDefaults INSTANCE;
+  }
+
+  public final class ButtonKt {
+    method @androidx.compose.runtime.Composable public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional int buttonSize, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void Button-K40vk3M(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, boolean, int, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.ui.graphics.Shape?, long, long, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.layout.PaddingValues?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ButtonSize {
+    method @BytecodeOnly public static androidx.xr.glimmer.ButtonSize! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.xr.glimmer.ButtonSize.Companion Companion;
+  }
+
+  public static final class ButtonSize.Companion {
+    method @BytecodeOnly public int getLarge-pDRnaFY();
+    method @BytecodeOnly public int getMedium-pDRnaFY();
+    property public androidx.xr.glimmer.ButtonSize Large;
+    property public androidx.xr.glimmer.ButtonSize Medium;
+  }
+
+  @androidx.compose.runtime.Immutable public final class Colors {
+    ctor public Colors();
+    ctor @KotlinOnly public Colors(optional androidx.compose.ui.graphics.Color primary, optional androidx.compose.ui.graphics.Color secondary, optional androidx.compose.ui.graphics.Color positive, optional androidx.compose.ui.graphics.Color negative, optional androidx.compose.ui.graphics.Color surface, optional androidx.compose.ui.graphics.Color outline, optional androidx.compose.ui.graphics.Color outlineVariant);
+    ctor @BytecodeOnly public Colors(long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.glimmer.Colors copy(optional long primary, optional long secondary, optional long positive, optional long negative, optional long surface, optional long outline, optional long outlineVariant);
+    method @BytecodeOnly public androidx.xr.glimmer.Colors copy-4JmcsL4(long, long, long, long, long, long, long);
+    method @BytecodeOnly public long getNegative-0d7_KjU();
+    method @BytecodeOnly public long getOutline-0d7_KjU();
+    method @BytecodeOnly public long getOutlineVariant-0d7_KjU();
+    method @BytecodeOnly public long getPositive-0d7_KjU();
+    method @BytecodeOnly public long getPrimary-0d7_KjU();
+    method @BytecodeOnly public long getSecondary-0d7_KjU();
+    method @BytecodeOnly public long getSurface-0d7_KjU();
+    property public androidx.compose.ui.graphics.Color negative;
+    property public androidx.compose.ui.graphics.Color outline;
+    property public androidx.compose.ui.graphics.Color outlineVariant;
+    property public androidx.compose.ui.graphics.Color positive;
+    property public androidx.compose.ui.graphics.Color primary;
+    property public androidx.compose.ui.graphics.Color secondary;
+    property public androidx.compose.ui.graphics.Color surface;
+  }
+
+  public final class ContentColorKt {
+    method public static long calculateContentColor(long backgroundColor);
+    method @BytecodeOnly public static long calculateContentColor-8_81llA(long);
+    method public static androidx.compose.ui.Modifier contentColorProvider(androidx.compose.ui.Modifier, long contentColor);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier contentColorProvider-4WTKRHQ(androidx.compose.ui.Modifier, long);
+  }
+
+  @androidx.compose.runtime.Immutable public final class GlimmerTheme {
+    ctor public GlimmerTheme();
+    ctor public GlimmerTheme(optional androidx.xr.glimmer.Colors colors, optional androidx.xr.glimmer.Typography typography);
+    method public androidx.xr.glimmer.Colors getColors();
+    method public androidx.xr.glimmer.IconSizes getIconSizes();
+    method public androidx.xr.glimmer.Shapes getShapes();
+    method public androidx.xr.glimmer.Typography getTypography();
+    property public androidx.xr.glimmer.Colors colors;
+    property public androidx.xr.glimmer.IconSizes iconSizes;
+    property public androidx.xr.glimmer.Shapes shapes;
+    property public androidx.xr.glimmer.Typography typography;
+    field public static final androidx.xr.glimmer.GlimmerTheme.Companion Companion;
+  }
+
+  public static final class GlimmerTheme.Companion {
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Colors getColors();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Colors getColors(androidx.compose.runtime.Composer?, int);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.IconSizes getIconSizes();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.IconSizes getIconSizes(androidx.compose.runtime.Composer?, int);
+    method public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.GlimmerTheme> getLocalGlimmerTheme();
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Shapes getShapes();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Shapes getShapes(androidx.compose.runtime.Composer?, int);
+    method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Typography getTypography();
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Typography getTypography(androidx.compose.runtime.Composer?, int);
+    property public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.GlimmerTheme> LocalGlimmerTheme;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Colors colors;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.IconSizes iconSizes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Shapes shapes;
+    property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Typography typography;
+  }
+
+  public final class GlimmerThemeKt {
+    method @androidx.compose.runtime.Composable public static void GlimmerTheme(optional androidx.xr.glimmer.Colors colors, optional androidx.xr.glimmer.Typography typography, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void GlimmerTheme(androidx.xr.glimmer.Colors?, androidx.xr.glimmer.Typography?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class IconKt {
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon(androidx.compose.ui.graphics.ImageBitmap, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.ImageBitmap bitmap, long tint, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, androidx.compose.ui.graphics.ColorProducer? tint, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon(androidx.compose.ui.graphics.painter.Painter, androidx.compose.ui.graphics.ColorProducer?, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.painter.Painter painter, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon(androidx.compose.ui.graphics.painter.Painter, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon(androidx.compose.ui.graphics.vector.ImageVector, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @androidx.compose.runtime.Composable public static void Icon(androidx.compose.ui.graphics.vector.ImageVector imageVector, long tint, String? contentDescription, optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon-sW7UJKQ(androidx.compose.ui.graphics.ImageBitmap, long, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Icon-sW7UJKQ(androidx.compose.ui.graphics.vector.ImageVector, long, String?, androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> getLocalIconSize();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalIconSize;
+  }
+
+  @androidx.compose.runtime.Immutable public final class IconSizes {
+    ctor public IconSizes();
+    ctor @KotlinOnly public IconSizes(optional androidx.compose.ui.unit.Dp small, optional androidx.compose.ui.unit.Dp medium, optional androidx.compose.ui.unit.Dp large);
+    ctor @BytecodeOnly public IconSizes(float, float, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.xr.glimmer.IconSizes copy(optional float small, optional float medium, optional float large);
+    method @BytecodeOnly public androidx.xr.glimmer.IconSizes copy-2z7ARbQ(float, float, float);
+    method @BytecodeOnly public float getLarge-D9Ej5fM();
+    method @BytecodeOnly public float getMedium-D9Ej5fM();
+    method @BytecodeOnly public float getSmall-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp large;
+    property public androidx.compose.ui.unit.Dp medium;
+    property public androidx.compose.ui.unit.Dp small;
+  }
+
+  public final class ListItemDefaults {
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    field public static final androidx.xr.glimmer.ListItemDefaults INSTANCE;
+  }
+
+  public final class ListItemKt {
+    method @androidx.compose.runtime.Composable public static void ListItem(optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ListItem(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? supportingLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void ListItem--qGb434(androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.ui.graphics.Shape?, long, long, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.layout.PaddingValues?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void ListItem-KkMT8bM(kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.ui.graphics.Shape?, long, long, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.layout.PaddingValues?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
+  @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor public Shapes();
+    ctor public Shapes(optional androidx.compose.ui.graphics.Shape small, optional androidx.compose.ui.graphics.Shape medium, optional androidx.compose.ui.graphics.Shape large);
+    method public androidx.xr.glimmer.Shapes copy(optional androidx.compose.ui.graphics.Shape small, optional androidx.compose.ui.graphics.Shape medium, optional androidx.compose.ui.graphics.Shape large);
+    method public androidx.compose.ui.graphics.Shape getLarge();
+    method public androidx.compose.ui.graphics.Shape getMedium();
+    method public androidx.compose.ui.graphics.Shape getSmall();
+    property public androidx.compose.ui.graphics.Shape large;
+    property public androidx.compose.ui.graphics.Shape medium;
+    property public androidx.compose.ui.graphics.Shape small;
+  }
+
+  public final class SurfaceDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke border();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke border(androidx.compose.runtime.Composer?, int);
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke border(optional float width, optional long color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke border-kbKKJSQ(float, long, androidx.compose.runtime.Composer?, int, int);
+    field public static final androidx.xr.glimmer.SurfaceDefaults INSTANCE;
+  }
+
+  public final class SurfaceKt {
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface(androidx.compose.ui.Modifier, optional boolean focusable, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface(androidx.compose.ui.Modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional long color, optional long contentColor, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface-X-z6DiA(androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape?, long, long, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface-vRFhKjU(androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape?, long, long, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class TextKt {
+    method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional int textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional @IntRange(from=1L) int maxLines, optional @IntRange(from=1L) int minLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.text.TextAutoSize? autoSize, optional androidx.compose.ui.text.TextStyle style);
+    method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional int textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional @IntRange(from=1L) int maxLines, optional @IntRange(from=1L) int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.text.TextAutoSize? autoSize, optional androidx.compose.ui.text.TextStyle style);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Text-IFx5cF0(String, androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontFamily?, long, androidx.compose.ui.text.style.TextDecoration?, int, long, int, boolean, @IntRange(from=1L) int, @IntRange(from=1L) int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult!,kotlin.Unit!>?, androidx.compose.foundation.text.TextAutoSize?, androidx.compose.ui.text.TextStyle?, androidx.compose.runtime.Composer?, int, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Text-a0LXGaU(androidx.compose.ui.text.AnnotatedString, androidx.compose.ui.Modifier?, long, long, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontFamily?, long, androidx.compose.ui.text.style.TextDecoration?, int, long, int, boolean, @IntRange(from=1L) int, @IntRange(from=1L) int, java.util.Map<java.lang.String!,androidx.compose.foundation.text.InlineTextContent!>?, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult!,kotlin.Unit!>?, androidx.compose.foundation.text.TextAutoSize?, androidx.compose.ui.text.TextStyle?, androidx.compose.runtime.Composer?, int, int, int);
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
+  }
+
+  @androidx.compose.runtime.Immutable public final class Typography {
+    ctor public Typography(optional androidx.compose.ui.text.font.FontFamily? defaultFontFamily, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall);
+    method public androidx.xr.glimmer.Typography copy(optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall);
+    method public androidx.compose.ui.text.TextStyle getBodyLarge();
+    method public androidx.compose.ui.text.TextStyle getBodyMedium();
+    method public androidx.compose.ui.text.TextStyle getBodySmall();
+    method public androidx.compose.ui.text.TextStyle getTitleLarge();
+    method public androidx.compose.ui.text.TextStyle getTitleMedium();
+    method public androidx.compose.ui.text.TextStyle getTitleSmall();
+    property public androidx.compose.ui.text.TextStyle bodyLarge;
+    property public androidx.compose.ui.text.TextStyle bodyMedium;
+    property public androidx.compose.ui.text.TextStyle bodySmall;
+    property public androidx.compose.ui.text.TextStyle titleLarge;
+    property public androidx.compose.ui.text.TextStyle titleMedium;
+    property public androidx.compose.ui.text.TextStyle titleSmall;
+  }
+
+}
+
+package androidx.xr.glimmer.list {
+
+  public interface LazyListItemInfo {
+    method public Object? getContentType();
+    method public int getIndex();
+    method public Object getKey();
+    method public int getOffset();
+    method public int getSize();
+    property public abstract Object? contentType;
+    property public abstract int index;
+    property public abstract Object key;
+    property public abstract int offset;
+    property public abstract int size;
+  }
+
+  @androidx.compose.runtime.Stable public sealed interface ListItemScope {
+  }
+
+  public final class ListKt {
+    method @androidx.compose.runtime.Composable public static void VerticalList(optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.list.ListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean userScrollEnabled, optional boolean reverseLayout, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListScope,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void VerticalList(androidx.compose.ui.Modifier?, androidx.xr.glimmer.list.ListState?, androidx.compose.foundation.layout.PaddingValues?, boolean, boolean, androidx.compose.ui.Alignment.Horizontal?, androidx.compose.foundation.layout.Arrangement.Vertical?, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public interface ListLayoutInfo {
+    method public int getAfterContentPadding();
+    method public int getBeforeContentPadding();
+    method public int getMainAxisItemSpacing();
+    method public androidx.compose.foundation.gestures.Orientation getOrientation();
+    method public boolean getReverseLayout();
+    method public int getTotalItemsCount();
+    method public int getViewportEndOffset();
+    method @BytecodeOnly public long getViewportSize-YbymL2g();
+    method public int getViewportStartOffset();
+    method public java.util.List<androidx.xr.glimmer.list.LazyListItemInfo> getVisibleItemsInfo();
+    property public abstract int afterContentPadding;
+    property public abstract int beforeContentPadding;
+    property public abstract int mainAxisItemSpacing;
+    property public abstract androidx.compose.foundation.gestures.Orientation orientation;
+    property public abstract boolean reverseLayout;
+    property public abstract int totalItemsCount;
+    property public abstract int viewportEndOffset;
+    property public abstract androidx.compose.ui.unit.IntSize viewportSize;
+    property public abstract int viewportStartOffset;
+    property public abstract java.util.List<androidx.xr.glimmer.list.LazyListItemInfo> visibleItemsInfo;
+  }
+
+  public sealed interface ListScope {
+    method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.xr.glimmer.list.ListItemScope,kotlin.Unit> content);
+    method @BytecodeOnly public void item(Object?, Object?, kotlin.jvm.functions.Function3<? super androidx.xr.glimmer.list.ListItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.xr.glimmer.list.ListItemScope,? super java.lang.Integer,kotlin.Unit> itemContent);
+    method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>, kotlin.jvm.functions.Function4<? super androidx.xr.glimmer.list.ListItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+  }
+
+  public final class ListState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor public ListState();
+    ctor public ListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
+    method public suspend Object? animateScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public float dispatchRawDelta(float delta);
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getFirstVisibleItemIndex();
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getFirstVisibleItemScrollOffset();
+    method public androidx.compose.foundation.interaction.InteractionSource getInteractionSource();
+    method @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.xr.glimmer.list.ListLayoutInfo getLayoutInfo();
+    method public boolean isScrollInProgress();
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int firstVisibleItemIndex;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public int firstVisibleItemScrollOffset;
+    property public androidx.compose.foundation.interaction.InteractionSource interactionSource;
+    property public boolean isScrollInProgress;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public androidx.xr.glimmer.list.ListLayoutInfo layoutInfo;
+    field public static final androidx.xr.glimmer.list.ListState.Companion Companion;
+  }
+
+  public static final class ListState.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.list.ListState,java.lang.Object> getSaver();
+    property public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.list.ListState,java.lang.Object> Saver;
+  }
+
+  public final class ListStateKt {
+    method @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.ListState rememberListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.ListState rememberListState(int, int, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+

@@ -22,5 +22,5 @@ import androidx.room.PrimaryKey
 data class Artist(
     @field:PrimaryKey val mArtistId: Int,
     val mArtistName: String?,
-    val mIsActive: Boolean
+    val mIsActive: Boolean,
 )

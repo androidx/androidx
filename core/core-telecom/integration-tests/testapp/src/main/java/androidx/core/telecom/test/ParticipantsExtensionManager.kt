@@ -36,7 +36,7 @@ class ParticipantsExtensionManager {
                 "Participant 0",
                 isHandRaised = false,
                 isActive = false,
-                isSelf = true
+                isSelf = true,
             )
     }
 
@@ -57,7 +57,7 @@ class ParticipantsExtensionManager {
                         name = "Participant $id",
                         isHandRaised = false,
                         isActive = false,
-                        isSelf = false
+                        isSelf = false,
                     )
                 )
             }
@@ -99,7 +99,7 @@ class ParticipantsExtensionManager {
                         } else {
                             p.isHandRaised
                         },
-                    isSelf = p.isSelf
+                    isSelf = p.isSelf,
                 )
             }
         }
@@ -117,7 +117,7 @@ class ParticipantsExtensionManager {
                             name = p.name,
                             isActive = p.isActive,
                             isHandRaised = isHandRaised,
-                            isSelf = p.isSelf
+                            isSelf = p.isSelf,
                         )
                     )
                 } else {

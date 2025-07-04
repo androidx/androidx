@@ -44,7 +44,7 @@ class UpsertExerciseRouteRequest(val sessionUid: String, val route: DataProto.Da
             }
 
         internal fun fromProto(
-            proto: RequestProto.UpsertExerciseRouteRequest,
+            proto: RequestProto.UpsertExerciseRouteRequest
         ): UpsertExerciseRouteRequest {
             return UpsertExerciseRouteRequest(proto.sessionUid, proto.exerciseRoute)
         }

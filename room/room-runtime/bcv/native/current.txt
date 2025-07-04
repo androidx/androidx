@@ -34,6 +34,9 @@ abstract interface androidx.room/Transactor : androidx.room/PooledConnection { /
         enum entry EXCLUSIVE // androidx.room/Transactor.SQLiteTransactionType.EXCLUSIVE|null[0]
         enum entry IMMEDIATE // androidx.room/Transactor.SQLiteTransactionType.IMMEDIATE|null[0]
 
+        final val entries // androidx.room/Transactor.SQLiteTransactionType.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.room/Transactor.SQLiteTransactionType> // androidx.room/Transactor.SQLiteTransactionType.entries.<get-entries>|<get-entries>#static(){}[0]
+
         final fun valueOf(kotlin/String): androidx.room/Transactor.SQLiteTransactionType // androidx.room/Transactor.SQLiteTransactionType.valueOf|valueOf#static(kotlin.String){}[0]
         final fun values(): kotlin/Array<androidx.room/Transactor.SQLiteTransactionType> // androidx.room/Transactor.SQLiteTransactionType.values|values#static(){}[0]
     }
@@ -97,6 +100,9 @@ abstract class androidx.room/BaseRoomConnectionManager { // androidx.room/BaseRo
     final inner class DriverWrapper : androidx.sqlite/SQLiteDriver { // androidx.room/BaseRoomConnectionManager.DriverWrapper|null[0]
         constructor <init>(androidx.sqlite/SQLiteDriver) // androidx.room/BaseRoomConnectionManager.DriverWrapper.<init>|<init>(androidx.sqlite.SQLiteDriver){}[0]
 
+        final val hasConnectionPool // androidx.room/BaseRoomConnectionManager.DriverWrapper.hasConnectionPool|{}hasConnectionPool[0]
+            final fun <get-hasConnectionPool>(): kotlin/Boolean // androidx.room/BaseRoomConnectionManager.DriverWrapper.hasConnectionPool.<get-hasConnectionPool>|<get-hasConnectionPool>(){}[0]
+
         final fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.room/BaseRoomConnectionManager.DriverWrapper.open|open(kotlin.String){}[0]
     }
 
@@ -117,6 +123,7 @@ abstract class androidx.room/RoomDatabase { // androidx.room/RoomDatabase|null[0
     final fun close() // androidx.room/RoomDatabase.close|close(){}[0]
     final fun getCoroutineScope(): kotlinx.coroutines/CoroutineScope // androidx.room/RoomDatabase.getCoroutineScope|getCoroutineScope(){}[0]
     final fun internalInitInvalidationTracker(androidx.sqlite/SQLiteConnection) // androidx.room/RoomDatabase.internalInitInvalidationTracker|internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection){}[0]
+    final suspend fun <#A1: kotlin/Any?> useConnection(kotlin/Boolean, kotlin.coroutines/SuspendFunction1<androidx.room/Transactor, #A1>): #A1 // androidx.room/RoomDatabase.useConnection|useConnection(kotlin.Boolean;kotlin.coroutines.SuspendFunction1<androidx.room.Transactor,0:0>){0§<kotlin.Any?>}[0]
     open fun createAutoMigrations(kotlin.collections/Map<kotlin.reflect/KClass<out androidx.room.migration/AutoMigrationSpec>, androidx.room.migration/AutoMigrationSpec>): kotlin.collections/List<androidx.room.migration/Migration> // androidx.room/RoomDatabase.createAutoMigrations|createAutoMigrations(kotlin.collections.Map<kotlin.reflect.KClass<out|androidx.room.migration.AutoMigrationSpec>,androidx.room.migration.AutoMigrationSpec>){}[0]
     open fun createOpenDelegate(): androidx.room/RoomOpenDelegateMarker // androidx.room/RoomDatabase.createOpenDelegate|createOpenDelegate(){}[0]
     open fun getRequiredAutoMigrationSpecClasses(): kotlin.collections/Set<kotlin.reflect/KClass<out androidx.room.migration/AutoMigrationSpec>> // androidx.room/RoomDatabase.getRequiredAutoMigrationSpecClasses|getRequiredAutoMigrationSpecClasses(){}[0]
@@ -125,6 +132,9 @@ abstract class androidx.room/RoomDatabase { // androidx.room/RoomDatabase|null[0
     final enum class JournalMode : kotlin/Enum<androidx.room/RoomDatabase.JournalMode> { // androidx.room/RoomDatabase.JournalMode|null[0]
         enum entry TRUNCATE // androidx.room/RoomDatabase.JournalMode.TRUNCATE|null[0]
         enum entry WRITE_AHEAD_LOGGING // androidx.room/RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING|null[0]
+
+        final val entries // androidx.room/RoomDatabase.JournalMode.entries|#static{}entries[0]
+            final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.room/RoomDatabase.JournalMode> // androidx.room/RoomDatabase.JournalMode.entries.<get-entries>|<get-entries>#static(){}[0]
 
         final fun valueOf(kotlin/String): androidx.room/RoomDatabase.JournalMode // androidx.room/RoomDatabase.JournalMode.valueOf|valueOf#static(kotlin.String){}[0]
         final fun values(): kotlin/Array<androidx.room/RoomDatabase.JournalMode> // androidx.room/RoomDatabase.JournalMode.values|values#static(){}[0]
@@ -214,6 +224,24 @@ final class <#A: kotlin/Any?> androidx.room/EntityUpsertAdapter { // androidx.ro
     final fun upsertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin.collections/List<kotlin/Long> // androidx.room/EntityUpsertAdapter.upsertAndReturnIdsList|upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
 
     final object Companion // androidx.room/EntityUpsertAdapter.Companion|null[0]
+}
+
+final class androidx.room.concurrent/AtomicBoolean { // androidx.room.concurrent/AtomicBoolean|null[0]
+    constructor <init>(kotlin/Boolean) // androidx.room.concurrent/AtomicBoolean.<init>|<init>(kotlin.Boolean){}[0]
+
+    final fun compareAndSet(kotlin/Boolean, kotlin/Boolean): kotlin/Boolean // androidx.room.concurrent/AtomicBoolean.compareAndSet|compareAndSet(kotlin.Boolean;kotlin.Boolean){}[0]
+    final fun get(): kotlin/Boolean // androidx.room.concurrent/AtomicBoolean.get|get(){}[0]
+}
+
+final class androidx.room.concurrent/AtomicInt { // androidx.room.concurrent/AtomicInt|null[0]
+    constructor <init>(kotlin/Int) // androidx.room.concurrent/AtomicInt.<init>|<init>(kotlin.Int){}[0]
+
+    final fun compareAndSet(kotlin/Int, kotlin/Int): kotlin/Boolean // androidx.room.concurrent/AtomicInt.compareAndSet|compareAndSet(kotlin.Int;kotlin.Int){}[0]
+    final fun decrementAndGet(): kotlin/Int // androidx.room.concurrent/AtomicInt.decrementAndGet|decrementAndGet(){}[0]
+    final fun get(): kotlin/Int // androidx.room.concurrent/AtomicInt.get|get(){}[0]
+    final fun getAndIncrement(): kotlin/Int // androidx.room.concurrent/AtomicInt.getAndIncrement|getAndIncrement(){}[0]
+    final fun incrementAndGet(): kotlin/Int // androidx.room.concurrent/AtomicInt.incrementAndGet|incrementAndGet(){}[0]
+    final fun set(kotlin/Int) // androidx.room.concurrent/AtomicInt.set|set(kotlin.Int){}[0]
 }
 
 final class androidx.room.util/ByteArrayWrapper { // androidx.room.util/ByteArrayWrapper|null[0]

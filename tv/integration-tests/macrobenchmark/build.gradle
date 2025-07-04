@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -40,7 +40,7 @@ android {
 dependencies {
     implementation("androidx.benchmark:benchmark-junit4:1.2.4")
     implementation("androidx.benchmark:benchmark-macro-junit4:1.2.4")
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)

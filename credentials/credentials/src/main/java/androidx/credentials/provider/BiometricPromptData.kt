@@ -104,7 +104,7 @@ internal constructor(
     @JvmOverloads
     constructor(
         cryptoObject: BiometricPrompt.CryptoObject? = null,
-        allowedAuthenticators: @AuthenticatorTypes Int = BIOMETRIC_WEAK
+        allowedAuthenticators: @AuthenticatorTypes Int = BIOMETRIC_WEAK,
     ) : this(cryptoObject, allowedAuthenticators, isCreatedFromBundle = false)
 
     init {
@@ -184,7 +184,7 @@ internal constructor(
                 BIOMETRIC_WEAK,
                 DEVICE_CREDENTIAL,
                 BIOMETRIC_STRONG or DEVICE_CREDENTIAL,
-                BIOMETRIC_WEAK or DEVICE_CREDENTIAL
+                BIOMETRIC_WEAK or DEVICE_CREDENTIAL,
             )
     }
 
@@ -257,7 +257,7 @@ internal constructor(
             val bundle = Bundle()
             bundle.putInt(
                 BUNDLE_HINT_ALLOWED_AUTHENTICATORS,
-                biometricPromptData.allowedAuthenticators
+                biometricPromptData.allowedAuthenticators,
             )
             return bundle
         }
@@ -296,14 +296,14 @@ internal constructor(
             val bundle = Bundle()
             bundle.putInt(
                 BUNDLE_HINT_ALLOWED_AUTHENTICATORS,
-                biometricPromptData.allowedAuthenticators
+                biometricPromptData.allowedAuthenticators,
             )
             biometricPromptData.cryptoObject?.let {
                 bundle.putLong(
                     BUNDLE_HINT_CRYPTO_OP_ID,
                     CryptoObjectUtils.getOperationHandle(
                         cryptoObject = biometricPromptData.cryptoObject
-                    )
+                    ),
                 )
             }
 

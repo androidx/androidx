@@ -29,5 +29,8 @@ internal fun String?.sanitizeAsJavaParameterName(argIndex: Int): String =
         "p$argIndex"
     }
 
+internal fun String.sanitizeAsJavaMethodName(): String =
+    this.substringBefore('-').substringBefore('$')
+
 /** Returns true if the given name can be used in generated java sources. */
 internal fun String.isValidJavaSourceName() = SourceVersion.isName(this)

@@ -16,6 +16,7 @@
 
 package androidx.credentials.registry.provider
 
+import androidx.credentials.PasswordCredential
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -43,7 +44,31 @@ class RegistryManagerTest {
         runBlocking<Unit> {
             assertThrows<RegisterCredentialsConfigurationException> {
                 registryManager.registerCredentials(
-                    object : RegisterCredentialsRequest("type", "id", ByteArray(4), ByteArray(8)) {}
+                    object :
+                        RegisterCredentialsRequest(
+                            "type",
+                            "id",
+                            ByteArray(4),
+                            ByteArray(8),
+                            "intentAction",
+                        ) {}
+                )
+            }
+        }
+
+    @Test
+    fun clearCredentialRegistry_noOptionalModule_throws() =
+        runBlocking<Unit> {
+            assertThrows<ClearCredentialRegistryConfigurationException> {
+                registryManager.clearCredentialRegistry(
+                    ClearCredentialRegistryRequest(
+                        deletePerTypeConfig =
+                            ClearCredentialRegistryRequest.PerTypeConfig(
+                                isDeleteAll = false,
+                                type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
+                                registryIds = listOf("registry-id1", "registry-id2"),
+                            )
+                    )
                 )
             }
         }

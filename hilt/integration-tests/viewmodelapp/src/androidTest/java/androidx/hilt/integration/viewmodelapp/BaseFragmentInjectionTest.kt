@@ -48,7 +48,7 @@ class BaseFragmentInjectionTest {
                 val fragment =
                     activity.supportFragmentManager.fragmentFactory.instantiate(
                         TestFragment::class.java.classLoader!!,
-                        TestFragment::class.java.name
+                        TestFragment::class.java.name,
                     ) as TestFragment
                 activity.supportFragmentManager
                     .beginTransaction()

@@ -53,7 +53,7 @@ class AndroidWindowSizeClassTest {
                 with(rule.density) {
                     WindowWidthSizeClass.fromWidth(
                         width.toDp(),
-                        WindowWidthSizeClass.DefaultSizeClasses
+                        WindowWidthSizeClass.DefaultSizeClasses,
                     )
                 }
             assertThat(expectedWindowWidthSizeClass).isEqualTo(actualWindowWidthSizeClass)
@@ -75,7 +75,7 @@ class AndroidWindowSizeClassTest {
                 with(rule.density) {
                     WindowHeightSizeClass.fromHeight(
                         height.toDp(),
-                        WindowHeightSizeClass.DefaultSizeClasses
+                        WindowHeightSizeClass.DefaultSizeClasses,
                     )
                 }
             assertThat(expectedWindowHeightSizeClass).isEqualTo(actualWindowHeightSizeClass)

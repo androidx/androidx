@@ -53,4 +53,10 @@ public interface EventCallback {
 
     /** To be called when the pdf-viewer is reset. */
     public fun onViewerReset() {}
+
+    /**
+     * To be called when a password dialog is loaded in view. This event can be fired multiple times
+     * even if it is the same dialog instance being shown.
+     */
+    public fun onPasswordRequested() {}
 }

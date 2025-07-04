@@ -291,7 +291,7 @@ internal class DeleteSurroundingTextCommandTest : ImeEditCommandTest() {
 
         imeScope.deleteSurroundingText(
             lengthBeforeCursor = 0,
-            lengthAfterCursor = Int.MAX_VALUE - 1
+            lengthAfterCursor = Int.MAX_VALUE - 1,
         )
 
         assertThat(state.text.toString()).isEqualTo(textAfterDelete)
@@ -307,7 +307,7 @@ internal class DeleteSurroundingTextCommandTest : ImeEditCommandTest() {
 
         imeScope.deleteSurroundingText(
             lengthBeforeCursor = Int.MAX_VALUE - 1,
-            lengthAfterCursor = 0
+            lengthAfterCursor = 0,
         )
 
         assertThat(state.text.toString()).isEqualTo("bcde")

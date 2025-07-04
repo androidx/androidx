@@ -128,7 +128,7 @@ class ComposePreciseFingerTapIntegrationBenchmark {
                     6,
                     0x0, // Edge Flags value of 0.
                     0x1002, // Source of the event value of 4098
-                    0x2 // Motion Event Flags value of 2
+                    0x2, // Motion Event Flags value of 2
                 )
 
             val fingerMoveMotionEvent =
@@ -155,7 +155,7 @@ class ComposePreciseFingerTapIntegrationBenchmark {
                     6,
                     0x0, // Edge Flags value of 0.
                     0x1002, // Source of the event value of 4098
-                    0x2 // Motion Event Flags value of 2
+                    0x2, // Motion Event Flags value of 2
                 )
 
             val fingerUpMotionEvent =
@@ -182,7 +182,7 @@ class ComposePreciseFingerTapIntegrationBenchmark {
                     6,
                     0x0, // Edge Flags value of 0.
                     0x1002, // Source of the event value of 4098
-                    0x2 // Motion Event Flags value of 2
+                    0x2, // Motion Event Flags value of 2
                 )
 
             benchmarkRule.measureRepeatedOnUiThread {
@@ -226,7 +226,7 @@ class ComposePreciseFingerTapIntegrationBenchmark {
                             }
                         }
                         .fillMaxWidth()
-                        .requiredHeight(itemHeightDp)
+                        .requiredHeight(itemHeightDp),
             )
         }
     }

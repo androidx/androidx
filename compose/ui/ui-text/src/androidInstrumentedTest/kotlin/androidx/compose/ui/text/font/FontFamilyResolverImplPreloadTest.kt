@@ -67,7 +67,7 @@ class FontFamilyResolverImplPreloadTest {
                 fontLoader,
                 typefaceRequestCache = typefaceCache,
                 fontListFontFamilyTypefaceAdapter =
-                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext)
+                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext),
             )
         typefaceLoader = AsyncTestTypefaceLoader()
     }
@@ -81,7 +81,7 @@ class FontFamilyResolverImplPreloadTest {
             typefaceCache.getImmutableResultFor(
                 fontFamily,
                 FontWeight.W100,
-                fontLoader = fontLoader
+                fontLoader = fontLoader,
             )
         assertThat(cacheResult).isNotNull()
     }
@@ -95,7 +95,7 @@ class FontFamilyResolverImplPreloadTest {
             typefaceCache.getImmutableResultFor(
                 fontFamily,
                 FontWeight.W200,
-                fontLoader = fontLoader
+                fontLoader = fontLoader,
             )
         assertThat(cacheResult).isNull()
     }
@@ -108,7 +108,7 @@ class FontFamilyResolverImplPreloadTest {
                 FontTestData.FONT_200_REGULAR,
                 FontTestData.FONT_300_REGULAR,
                 FontTestData.FONT_400_REGULAR,
-                FontTestData.FONT_500_REGULAR
+                FontTestData.FONT_500_REGULAR,
             )
         scope.runBlockingTest { subject.preload(fontFamily) }
         assertThat(typefaceCache.size).isEqualTo(5)
@@ -117,7 +117,7 @@ class FontFamilyResolverImplPreloadTest {
                 typefaceCache.getImmutableResultFor(
                     fontFamily,
                     FontWeight(weight),
-                    fontLoader = fontLoader
+                    fontLoader = fontLoader,
                 )
             assertThat(cacheResult).isNotNull()
         }
@@ -235,7 +235,7 @@ class FontFamilyResolverImplPreloadTest {
                 typefaceLoader,
                 Typeface.DEFAULT_BOLD,
                 FontWeight.Bold,
-                FontStyle.Normal
+                FontStyle.Normal,
             )
         val fallbackFont = AsyncFauxFont(typefaceLoader, FontWeight.Bold, FontStyle.Normal)
         val dispatcher = TestCoroutineDispatcher()
@@ -251,7 +251,7 @@ class FontFamilyResolverImplPreloadTest {
             typefaceCache.getImmutableResultFor(
                 fontFamily,
                 fontWeight = FontWeight.Bold,
-                fontLoader = fontLoader
+                fontLoader = fontLoader,
             )
         assertThat(typefaceResult).isSameInstanceAs(Typeface.DEFAULT_BOLD)
     }

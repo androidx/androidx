@@ -102,7 +102,7 @@ class CardScreenshotTest {
                 Card(
                     onClick = {},
                     Modifier.size(width = 180.dp, height = 100.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Filled Card", Modifier.align(Alignment.Center))
@@ -120,7 +120,7 @@ class CardScreenshotTest {
                 Card(
                     onClick = {},
                     Modifier.size(width = 180.dp, height = 100.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Filled Card", Modifier.align(Alignment.Center))
@@ -166,7 +166,7 @@ class CardScreenshotTest {
                 ElevatedCard(
                     onClick = {},
                     Modifier.size(width = 180.dp, height = 100.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Elevated Card", Modifier.align(Alignment.Center))
@@ -184,7 +184,7 @@ class CardScreenshotTest {
                 ElevatedCard(
                     onClick = {},
                     Modifier.size(width = 180.dp, height = 100.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Elevated Card", Modifier.align(Alignment.Center))
@@ -230,7 +230,7 @@ class CardScreenshotTest {
                 OutlinedCard(
                     onClick = {},
                     Modifier.size(width = 180.dp, height = 100.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Outlined Card", Modifier.align(Alignment.Center))
@@ -248,7 +248,7 @@ class CardScreenshotTest {
                 OutlinedCard(
                     onClick = {},
                     Modifier.size(width = 180.dp, height = 100.dp),
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Outlined Card", Modifier.align(Alignment.Center))
@@ -370,7 +370,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 Card(
                     onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester)
+                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester),
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Filled Card", Modifier.align(Alignment.Center))
@@ -397,7 +397,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 ElevatedCard(
                     onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester)
+                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester),
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Elevated Card", Modifier.align(Alignment.Center))
@@ -424,7 +424,7 @@ class CardScreenshotTest {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
                 OutlinedCard(
                     onClick = {},
-                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester)
+                    Modifier.size(width = 180.dp, height = 100.dp).focusRequester(focusRequester),
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text("Outlined Card", Modifier.align(Alignment.Center))

@@ -16,6 +16,7 @@
 
 package foo.flavor;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.navigation.ActionOnlyNavDirections;
 import androidx.navigation.NavDirections;
@@ -25,6 +26,7 @@ public class MainFragmentDirections {
     private MainFragmentDirections() {
     }
 
+    @CheckResult
     @NonNull
     public static NavDirections startLogin() {
         return new ActionOnlyNavDirections(R.id.start_login);

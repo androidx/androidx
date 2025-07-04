@@ -58,7 +58,7 @@ class PrivateConstructorForUtilityClassDetectorTest :
                     }
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val expected =

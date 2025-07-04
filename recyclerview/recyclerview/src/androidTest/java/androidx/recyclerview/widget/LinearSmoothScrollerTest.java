@@ -31,7 +31,6 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class LinearSmoothScrollerTest {

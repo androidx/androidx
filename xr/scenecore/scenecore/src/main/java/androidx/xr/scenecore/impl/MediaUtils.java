@@ -17,36 +17,37 @@
 package androidx.xr.scenecore.impl;
 
 import androidx.annotation.RestrictTo;
-import androidx.xr.extensions.media.PointSourceAttributes;
-import androidx.xr.extensions.media.SoundFieldAttributes;
-import androidx.xr.extensions.media.SpatializerExtensions;
-import androidx.xr.extensions.node.Node;
-import androidx.xr.scenecore.JxrPlatformAdapter;
-import androidx.xr.scenecore.JxrPlatformAdapter.SpatializerConstants;
+import androidx.xr.runtime.internal.PointSourceParams;
+import androidx.xr.runtime.internal.SoundFieldAttributes;
+import androidx.xr.runtime.internal.SpatializerConstants;
+
+import com.android.extensions.xr.media.SpatializerExtensions;
+import com.android.extensions.xr.node.Node;
 
 /** Utils for the runtime media class conversions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class MediaUtils {
     private MediaUtils() {}
 
-    static PointSourceAttributes convertPointSourceAttributesToExtensions(
-            JxrPlatformAdapter.PointSourceAttributes attributes) {
+    static com.android.extensions.xr.media.PointSourceParams convertPointSourceParamsToExtensions(
+            PointSourceParams params) {
 
-        Node node = ((AndroidXrEntity) attributes.getEntity()).getNode();
+        Node node = ((AndroidXrEntity) params.getEntity()).getNode();
 
-        return new PointSourceAttributes.Builder().setNode(node).build();
+        return new com.android.extensions.xr.media.PointSourceParams.Builder()
+                .setNode(node)
+                .build();
     }
 
-    static SoundFieldAttributes convertSoundFieldAttributesToExtensions(
-            JxrPlatformAdapter.SoundFieldAttributes attributes) {
+    static com.android.extensions.xr.media.SoundFieldAttributes
+            convertSoundFieldAttributesToExtensions(SoundFieldAttributes attributes) {
 
-        return new SoundFieldAttributes.Builder()
+        return new com.android.extensions.xr.media.SoundFieldAttributes.Builder()
                 .setAmbisonicsOrder(
                         convertAmbisonicsOrderToExtensions(attributes.getAmbisonicsOrder()))
                 .build();
     }
 
-    @SpatializerExtensions.AmbisonicsOrder
     static int convertAmbisonicsOrderToExtensions(
             @SpatializerConstants.AmbisonicsOrder int ambisonicsOrder) {
         switch (ambisonicsOrder) {
@@ -63,10 +64,9 @@ public class MediaUtils {
     }
 
     @SpatializerConstants.SourceType
-    static int convertExtensionsToSourceType(
-            @SpatializerExtensions.SourceType int extensionsSourceType) {
+    static int convertExtensionsToSourceType(int extensionsSourceType) {
         switch (extensionsSourceType) {
-            case SpatializerExtensions.SOURCE_TYPE_BYPASS:
+            case SpatializerExtensions.SOURCE_TYPE_DEFAULT:
                 return SpatializerConstants.SOURCE_TYPE_BYPASS;
             case SpatializerExtensions.SOURCE_TYPE_POINT_SOURCE:
                 return SpatializerConstants.SOURCE_TYPE_POINT_SOURCE;

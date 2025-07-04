@@ -28,7 +28,7 @@ internal class JavacMethodParameter(
     override val enclosingElement: JavacExecutableElement,
     element: VariableElement,
     kotlinMetadataFactory: () -> KmValueParameterContainer?,
-    val argIndex: Int
+    val argIndex: Int,
 ) : JavacVariableElement(env, element), XExecutableParameterElement {
     override fun isContinuationParam() =
         enclosingElement is JavacMethodElement &&

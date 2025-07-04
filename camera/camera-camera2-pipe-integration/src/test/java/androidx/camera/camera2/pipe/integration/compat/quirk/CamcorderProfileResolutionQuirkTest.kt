@@ -62,7 +62,7 @@ class CamcorderProfileResolutionQuirkTest {
                 supportedSizes =
                     arrayOf(
                         EncoderProfilesUtil.RESOLUTION_2160P,
-                        EncoderProfilesUtil.RESOLUTION_1080P
+                        EncoderProfilesUtil.RESOLUTION_1080P,
                     )
             )
         val quirk =
@@ -71,8 +71,8 @@ class CamcorderProfileResolutionQuirkTest {
                     cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!,
                     OutputSizesCorrector(
                         cameraMetadata,
-                        cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-                    )
+                        cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!,
+                    ),
                 )
             )
 
@@ -84,7 +84,7 @@ class CamcorderProfileResolutionQuirkTest {
 
     private fun createCameraMetaData(
         hardwareLevel: Int = CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-        supportedSizes: Array<Size> = emptyArray()
+        supportedSizes: Array<Size> = emptyArray(),
     ): androidx.camera.camera2.pipe.CameraMetadata {
         val mockMap = Mockito.mock(StreamConfigurationMap::class.java)
         // Before Android 23, use {@link SurfaceTexture} will finally mapped to 0x22 in
@@ -98,7 +98,7 @@ class CamcorderProfileResolutionQuirkTest {
                 mapOf(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
                     CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap,
                 )
         )
     }

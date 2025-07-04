@@ -24,6 +24,9 @@ import androidx.room.PrimaryKey;
 public class ObjectPKeyEntity {
     @PrimaryKey
     @NonNull
+    // This project is tested against a version of the room compiler that doesn't recognize JSpecify
+    // for primary keys
+    @SuppressWarnings("JSpecifyNullness")
     public String pKey;
     public String data;
 

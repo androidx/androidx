@@ -23,8 +23,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://material.io/design/shape/about-shape.html" class="external"
- * target="_blank">Material Design shape</a>.
+ * [Material Design shape](https://material.io/design/shape/about-shape.html)
  *
  * Material surfaces can be displayed in different shapes. Shapes direct attention, identify
  * components, communicate state, and express brand.
@@ -53,14 +52,14 @@ class Shapes(
     /** Shape used by medium components like [Card] or [AlertDialog]. */
     val medium: CornerBasedShape = RoundedCornerShape(4.dp),
     /** Shape used by large components like [ModalDrawer] or [ModalBottomSheetLayout]. */
-    val large: CornerBasedShape = RoundedCornerShape(0.dp)
+    val large: CornerBasedShape = RoundedCornerShape(0.dp),
 ) {
 
     /** Returns a copy of this Shapes, optionally overriding some of the values. */
     fun copy(
         small: CornerBasedShape = this.small,
         medium: CornerBasedShape = this.medium,
-        large: CornerBasedShape = this.large
+        large: CornerBasedShape = this.large,
     ): Shapes = Shapes(small = small, medium = medium, large = large)
 
     override fun equals(other: Any?): Boolean {

@@ -53,7 +53,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 maxLines = 2,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val selection = TextRange(0, 1)
         val selectionColor = Color.Blue
@@ -76,7 +76,7 @@ class TextFieldDelegateIntegrationTest {
             offsetMapping = OffsetMapping.Identity,
             textLayoutResult = layoutResult,
             highlightPaint = Paint(),
-            selectionBackgroundColor = selectionColor
+            selectionBackgroundColor = selectionColor,
         )
 
         assertThat(actualBitmap.sameAs(expectedBitmap)).isTrue()
@@ -90,7 +90,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 maxLines = 2,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val deletionPreviewHighlightRange = TextRange(3, 5)
@@ -105,7 +105,7 @@ class TextFieldDelegateIntegrationTest {
             offsetMapping = OffsetMapping.Identity,
             textLayoutResult = layoutResult,
             highlightPaint = Paint(),
-            selectionBackgroundColor = Color.Blue
+            selectionBackgroundColor = Color.Blue,
         )
 
         val expectedBitmap = layoutResult.toBitmap()
@@ -125,7 +125,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 maxLines = 2,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height / 2
@@ -134,7 +134,7 @@ class TextFieldDelegateIntegrationTest {
             TextFieldDelegate.layout(
                 textDelegate,
                 Constraints.fixedHeight(requestHeight),
-                layoutDirection
+                layoutDirection,
             )
 
         assertThat(height).isEqualTo(requestHeight)
@@ -148,7 +148,7 @@ class TextFieldDelegateIntegrationTest {
                 style = TextStyle.Default,
                 maxLines = 2,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height * 2
@@ -157,7 +157,7 @@ class TextFieldDelegateIntegrationTest {
             TextFieldDelegate.layout(
                 textDelegate,
                 Constraints.fixedHeight(requestHeight),
-                layoutDirection
+                layoutDirection,
             )
 
         assertThat(height).isEqualTo(requestHeight)
@@ -170,7 +170,7 @@ class TextFieldDelegateIntegrationTest {
                 text = AnnotatedString(""),
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height * 2
@@ -179,7 +179,7 @@ class TextFieldDelegateIntegrationTest {
             TextFieldDelegate.layout(
                 textDelegate,
                 Constraints.fixedHeight(requestHeight),
-                layoutDirection
+                layoutDirection,
             )
 
         assertThat(height).isEqualTo(requestHeight)
@@ -192,7 +192,7 @@ class TextFieldDelegateIntegrationTest {
                 text = AnnotatedString(""),
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints.fixedWidth(1024), layoutDirection)
         val requestHeight = layoutResult.size.height / 2
@@ -201,7 +201,7 @@ class TextFieldDelegateIntegrationTest {
             TextFieldDelegate.layout(
                 textDelegate,
                 Constraints.fixedHeight(requestHeight),
-                layoutDirection
+                layoutDirection,
             )
 
         assertThat(height).isEqualTo(requestHeight)
@@ -217,7 +217,7 @@ class TextFieldDelegateIntegrationTest {
                 text = text,
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         val layoutResult = textDelegate.layout(Constraints(), layoutDirection)
@@ -228,7 +228,7 @@ class TextFieldDelegateIntegrationTest {
                 minWidth = 0,
                 maxWidth = layoutResult.size.width * 2,
                 minHeight = 0,
-                maxHeight = layoutResult.size.height * 2
+                maxHeight = layoutResult.size.height * 2,
             )
 
         val (width, height) = TextFieldDelegate.layout(textDelegate, constraints, layoutDirection)

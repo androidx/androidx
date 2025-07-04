@@ -88,12 +88,12 @@ class RippleAppWidget : GlanceAppWidget() {
                                 columnBgColorsA[0] -> columnBgColorsB
                                 else -> columnBgColorsA
                             }
-                    }
+                    },
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Content Scale: ${type.asString()}, Image / Box click count: $count",
-                    modifier = GlanceModifier.padding(5.dp).defaultWeight()
+                    modifier = GlanceModifier.padding(5.dp).defaultWeight(),
                 )
                 // Demonstrates an icon button with circular ripple.
                 Image(
@@ -105,7 +105,7 @@ class RippleAppWidget : GlanceAppWidget() {
                             .cornerRadius(24.dp) // To get a rounded ripple
                             .clickable {
                                 columnBgColors = listOf(Color.Transparent, Color.Transparent)
-                            }
+                            },
                 )
             }
             // A drawable image with rounded corners and a click modifier.
@@ -118,18 +118,18 @@ class RippleAppWidget : GlanceAppWidget() {
                             ContentScale.FillBounds -> ContentScale.Fit
                             else -> ContentScale.Crop
                         }
-                }
+                },
             )
             Spacer(GlanceModifier.size(5.dp))
             Text(
                 text = "Image in a clickable box with rounded corners",
-                modifier = GlanceModifier.padding(5.dp)
+                modifier = GlanceModifier.padding(5.dp),
             )
             ImageInClickableBoxWithRoundedCorners(contentScale = type, onClick = { count++ })
             Spacer(GlanceModifier.size(5.dp))
             Text(
                 text = "Rounded corner image in a clickable box",
-                modifier = GlanceModifier.padding(5.dp)
+                modifier = GlanceModifier.padding(5.dp),
             )
             RoundedImageInClickableBox(contentScale = type, onClick = { count++ })
         }
@@ -138,7 +138,7 @@ class RippleAppWidget : GlanceAppWidget() {
     @Composable
     private fun ImageInClickableBoxWithRoundedCorners(
         contentScale: ContentScale,
-        onClick: () -> Unit
+        onClick: () -> Unit,
     ) {
         Box(
             modifier =
@@ -151,7 +151,7 @@ class RippleAppWidget : GlanceAppWidget() {
                 provider = ImageProvider(R.drawable.compose),
                 contentDescription = "Image sample in a box with rounded corners",
                 contentScale = contentScale,
-                modifier = GlanceModifier.fillMaxSize()
+                modifier = GlanceModifier.fillMaxSize(),
             )
         }
     }
@@ -168,19 +168,16 @@ class RippleAppWidget : GlanceAppWidget() {
                 provider = ImageProvider(R.drawable.compose),
                 contentDescription = "Image sample with rounded corners",
                 contentScale = contentScale,
-                modifier = GlanceModifier.fillMaxSize().cornerRadius(25.dp)
+                modifier = GlanceModifier.fillMaxSize().cornerRadius(25.dp),
             )
         }
     }
 
     @Composable
-    fun OutlinedButtonUsingImage(
-        text: String,
-        onClick: () -> Unit,
-    ) {
+    fun OutlinedButtonUsingImage(text: String, onClick: () -> Unit) {
         Box(
             modifier = GlanceModifier.height(40.dp).fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             // Demonstrates a button with rounded outline using a clickable image. Alternatively,
             // such button can also be created using Box + Text by adding background image, corner
@@ -190,12 +187,12 @@ class RippleAppWidget : GlanceAppWidget() {
                 contentDescription = "Outlined button sample",
                 // Radius value matched with the border in the outline image so that the ripple
                 // matches it (in versions that support cornerRadius modifier).
-                modifier = GlanceModifier.fillMaxSize().cornerRadius(20.dp).clickable(onClick)
+                modifier = GlanceModifier.fillMaxSize().cornerRadius(20.dp).clickable(onClick),
             )
             Text(
                 text = text,
                 style = TextStyle(fontWeight = FontWeight.Medium, textAlign = TextAlign.Center),
-                modifier = GlanceModifier.background(Color.Transparent)
+                modifier = GlanceModifier.background(Color.Transparent),
             )
         }
     }

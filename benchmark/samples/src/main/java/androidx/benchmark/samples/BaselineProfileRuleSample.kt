@@ -60,7 +60,7 @@ fun baselineProfileRuleLibrarySample() {
                     // signifies the start of the package/class, and '/' is divider instead of '.'
                     val libPackagePrefix = "com.mylibrary"
                     it.contains("^.*L${libPackagePrefix.replace(".", "/")}".toRegex())
-                }
+                },
             ) {
                 startActivityAndWait()
             }

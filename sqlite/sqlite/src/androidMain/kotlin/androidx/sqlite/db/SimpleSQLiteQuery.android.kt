@@ -23,11 +23,10 @@ package androidx.sqlite.db
  * @param bindArgs The bind argument value that will replace the placeholders in the query.
  * @constructor Creates an SQL query with the sql string and the bind arguments.
  */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public class SimpleSQLiteQuery(
     private val query: String,
     @Suppress("ArrayReturn") // Due to legacy API
-    private val bindArgs: Array<out Any?>?
+    private val bindArgs: Array<out Any?>?,
 ) : SupportSQLiteQuery {
 
     /**
@@ -45,7 +44,6 @@ public class SimpleSQLiteQuery(
      *
      * @param [statement] The SQL query to execute. Cannot include bind parameters.
      */
-    @Suppress("AcronymName") // SQL is a known term and should remain capitalized
     override fun bindTo(statement: SupportSQLiteProgram) {
         bind(statement, bindArgs)
     }
@@ -62,10 +60,9 @@ public class SimpleSQLiteQuery(
          */
         @JvmStatic
         public fun bind(
-            @Suppress("AcronymName") // SQL is a known term and should remain capitalized
             statement: SupportSQLiteProgram,
             @Suppress("ArrayReturn") // Due to legacy API
-            bindArgs: Array<out Any?>?
+            bindArgs: Array<out Any?>?,
         ) {
             if (bindArgs == null) {
                 return
@@ -78,12 +75,7 @@ public class SimpleSQLiteQuery(
             }
         }
 
-        private fun bind(
-            @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-            statement: SupportSQLiteProgram,
-            index: Int,
-            arg: Any?
-        ) {
+        private fun bind(statement: SupportSQLiteProgram, index: Int, arg: Any?) {
             // extracted from android.database.sqlite.SQLiteConnection
             if (arg == null) {
                 statement.bindNull(index)

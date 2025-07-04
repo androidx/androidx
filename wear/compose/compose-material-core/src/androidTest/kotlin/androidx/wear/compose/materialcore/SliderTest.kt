@@ -100,7 +100,7 @@ public class SliderTest {
             SliderButtonWithDefaults(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -116,7 +116,7 @@ public class SliderTest {
             SliderButtonWithDefaults(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -132,7 +132,7 @@ public class SliderTest {
         rule.setContent {
             SliderButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
-                content = { TestImage(iconLabel = testContentDescription) }
+                content = { TestImage(iconLabel = testContentDescription) },
             )
         }
 
@@ -156,7 +156,7 @@ public class SliderTest {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 barSeparatorColor = mutableStateOf(BarSeparatorColor),
-                visibleSegments = 5
+                visibleSegments = 5,
             )
         }
 
@@ -173,7 +173,7 @@ public class SliderTest {
             ProgressBarWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 barSeparatorColor = mutableStateOf(BarSeparatorColor),
-                visibleSegments = 1
+                visibleSegments = 1,
             )
         }
 
@@ -191,7 +191,7 @@ public class SliderTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 selectedBarColor = mutableStateOf(SelectedBarColor),
                 unselectedBarColor = mutableStateOf(UnselectedBarColor),
-                valueRatio = 0.4f
+                valueRatio = 0.4f,
             )
         }
 
@@ -208,7 +208,7 @@ public class SliderTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 selectedBarColor = mutableStateOf(SelectedBarColor),
                 unselectedBarColor = mutableStateOf(UnselectedBarColor),
-                valueRatio = 1f
+                valueRatio = 1f,
             )
         }
 
@@ -225,7 +225,7 @@ public class SliderTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 selectedBarColor = mutableStateOf(SelectedBarColor),
                 unselectedBarColor = mutableStateOf(UnselectedBarColor),
-                valueRatio = 0f
+                valueRatio = 0f,
             )
         }
 
@@ -259,7 +259,7 @@ public class SliderTest {
         onClick: () -> Unit = {},
         contentAlignment: Alignment = Alignment.Center,
         buttonControlSize: Dp = ButtonControlSize,
-        content: @Composable () -> Unit = { TestImage() }
+        content: @Composable () -> Unit = { TestImage() },
     ) {
         InlineSliderButton(
             enabled = enabled,
@@ -267,7 +267,7 @@ public class SliderTest {
             contentAlignment = contentAlignment,
             buttonControlSize = buttonControlSize,
             modifier = modifier,
-            content = content
+            content = content,
         )
     }
 
@@ -278,7 +278,7 @@ public class SliderTest {
         unselectedBarColor: State<Color> = mutableStateOf(UnselectedBarColor),
         barSeparatorColor: State<Color> = mutableStateOf(BarSeparatorColor),
         visibleSegments: Int = 1,
-        valueRatio: Float = 0.4f
+        valueRatio: Float = 0.4f,
     ) {
         val layoutDirection = LayoutDirection.Ltr
         val drawSelectedProgressBar =
@@ -307,7 +307,7 @@ public class SliderTest {
                         direction = layoutDirection,
                         drawSelectedProgressBar = drawSelectedProgressBar,
                         drawUnselectedProgressBar = drawUnselectedProgressBar,
-                        drawProgressBarSeparator = drawProgressBarSeparator
+                        drawProgressBarSeparator = drawProgressBarSeparator,
                     )
         )
     }
@@ -315,29 +315,29 @@ public class SliderTest {
     private fun DrawScope.drawTestSelectedProgressBar(
         color: Color,
         valueRatio: Float,
-        direction: LayoutDirection
+        direction: LayoutDirection,
     ) {
         drawLine(
             color,
             Offset(directedValue(direction, 0f, size.width * (1 - valueRatio)), size.height / 2),
             Offset(directedValue(direction, size.width * valueRatio, size.width), size.height / 2),
-            strokeWidth = size.height
+            strokeWidth = size.height,
         )
     }
 
     private fun DrawScope.drawTestUnselectedProgressBar(
         color: Color,
         valueRatio: Float,
-        direction: LayoutDirection
+        direction: LayoutDirection,
     ) {
         drawLine(
             color,
             Offset(directedValue(direction, size.width * valueRatio, 0f), size.height / 2),
             Offset(
                 directedValue(direction, size.width, size.width * (1 - valueRatio)),
-                size.height / 2
+                size.height / 2,
             ),
-            strokeWidth = size.height
+            strokeWidth = size.height,
         )
     }
 
@@ -346,7 +346,7 @@ public class SliderTest {
             color,
             Offset(position, 0f),
             Offset(position, size.height),
-            strokeWidth = 1.dp.toPx()
+            strokeWidth = 1.dp.toPx(),
         )
     }
 

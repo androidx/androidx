@@ -43,7 +43,7 @@ fun InteropTextFieldDemo() {
             value = firstTextField,
             onValueChange = { firstTextField = it },
             Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
 
         Text("First EditText")
@@ -54,7 +54,7 @@ fun InteropTextFieldDemo() {
             value = secondTextField,
             onValueChange = { secondTextField = it },
             Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
 
         Text("Second EditText")

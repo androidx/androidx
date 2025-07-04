@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.ink.authoring.compose {
+
+  public final class InProgressStrokesKt {
+    method @androidx.compose.runtime.Composable public static void InProgressStrokes(androidx.ink.brush.Brush? defaultBrush, optional kotlin.jvm.functions.Function0<androidx.ink.brush.Brush?> nextBrush, optional float[] pointerEventToWorldTransform, optional float[] strokeToWorldTransform, optional androidx.compose.ui.graphics.Path? maskPath, optional androidx.ink.brush.TextureBitmapStore textureBitmapStore, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ink.strokes.Stroke>,kotlin.Unit> onStrokesFinished);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void InProgressStrokes-QXfIMSY(androidx.ink.brush.Brush?, kotlin.jvm.functions.Function0<androidx.ink.brush.Brush!>?, float[]?, float[]?, androidx.compose.ui.graphics.Path?, androidx.ink.brush.TextureBitmapStore?, kotlin.jvm.functions.Function1<? super java.util.List<androidx.ink.strokes.Stroke!>!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void InProgressStrokes-ilzX8lI(androidx.ink.brush.Brush!, kotlin.jvm.functions.Function0!, float[]!, float[]!, androidx.compose.ui.graphics.Path!, androidx.ink.brush.TextureBitmapStore!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int);
+  }
+
+}
+

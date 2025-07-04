@@ -40,11 +40,8 @@ import kotlinx.coroutines.Job
 public const val DEFAULT_ZOOM_RATIO: Float = 1.0f
 
 @CameraScope
-public class ZoomControl
-@Inject
-constructor(
-    private val zoomCompat: ZoomCompat,
-) : UseCaseCameraControl {
+public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat) :
+    UseCaseCameraControl {
     // NOTE: minZoom may be lower than 1.0
     // NOTE: Default zoom ratio is 1.0 (DEFAULT_ZOOM_RATIO)
     public val minZoomRatio: Float = zoomCompat.minZoomRatio
@@ -64,7 +61,7 @@ constructor(
         getLinearZoomFromZoomRatio(
             zoomRatio = zoomRatio,
             minZoomRatio = minZoomRatio,
-            maxZoomRatio = maxZoomRatio
+            maxZoomRatio = maxZoomRatio,
         )
 
     /** Zoom ratio is commonly used as the "1x, 2x, 5x" zoom ratio. Zoom ratio may be less than 1 */
@@ -72,7 +69,7 @@ constructor(
         getZoomRatioFromLinearZoom(
             linearZoom = linearZoom,
             minZoomRatio = minZoomRatio,
-            maxZoomRatio = maxZoomRatio
+            maxZoomRatio = maxZoomRatio,
         )
 
     private var _requestControl: UseCaseCameraRequestControl? = null
@@ -104,12 +101,7 @@ constructor(
             return Futures.immediateFailedFuture(IllegalArgumentException(outOfRangeDesc))
         }
 
-        val zoomValue =
-            ZoomValue(
-                ZoomValue.LinearZoom(linearZoom),
-                minZoomRatio,
-                maxZoomRatio,
-            )
+        val zoomValue = ZoomValue(ZoomValue.LinearZoom(linearZoom), minZoomRatio, maxZoomRatio)
         return applyZoomState(zoomValue)
     }
 
@@ -121,12 +113,7 @@ constructor(
             return Futures.immediateFailedFuture(IllegalArgumentException(outOfRangeDesc))
         }
 
-        val zoomValue =
-            ZoomValue(
-                zoomRatio,
-                minZoomRatio,
-                maxZoomRatio,
-            )
+        val zoomValue = ZoomValue(zoomRatio, minZoomRatio, maxZoomRatio)
         return applyZoomState(zoomValue)
     }
 

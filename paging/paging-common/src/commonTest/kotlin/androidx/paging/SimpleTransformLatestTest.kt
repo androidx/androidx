@@ -78,7 +78,7 @@ class SimpleTransformLatestTest {
                     "2 - 2",
                     "3 - 0",
                     "3 - 1",
-                    "3 - 2"
+                    "3 - 2",
                 )
                 .inOrder()
         }
@@ -111,7 +111,7 @@ class SimpleTransformLatestTest {
 
     private fun <T, R> Flow<T>.testTransformLatest(
         impl: Impl,
-        transform: suspend FlowCollector<R>.(value: T) -> Unit
+        transform: suspend FlowCollector<R>.(value: T) -> Unit,
     ): Flow<R> {
         return when (impl) {
             Impl.TransformLatest -> this@testTransformLatest.transformLatest(transform)

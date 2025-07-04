@@ -16,6 +16,7 @@
 
 package androidx.pdf.adapter
 
+import android.os.ParcelFileDescriptor
 import androidx.annotation.RestrictTo
 
 /**
@@ -65,4 +66,13 @@ public interface PdfDocumentRenderer : AutoCloseable {
      * @param pageNum The zero-based page number of the page to close.
      */
     public fun releasePage(page: PdfPage?, pageNum: Int)
+
+    /**
+     * Writes the contents of the [androidx.pdf.PdfDocument] to the destination and closes the
+     * [ParcelFileDescriptor]
+     *
+     * @param destination The [ParcelFileDescriptor] to write to.
+     * @param removePasswordProtection Whether to remove password protection from the document.
+     */
+    public fun write(destination: ParcelFileDescriptor, removePasswordProtection: Boolean)
 }

@@ -227,7 +227,7 @@ class ModifierLocalProviderConsumerOrderTest {
 @Composable
 fun ConsumeLocal(
     modifierLocal: ProvidableModifierLocal<String>,
-    consumerValue: MutableState<String>
+    consumerValue: MutableState<String>,
 ) {
     Box(
         ProviderConsumerModifier(modifierLocal, { "" }) {
@@ -239,7 +239,7 @@ fun ConsumeLocal(
 class ProviderConsumerModifier<T>(
     override val key: ProvidableModifierLocal<T>,
     value: () -> T,
-    private val consumer: ModifierLocalReadScope.() -> Unit
+    private val consumer: ModifierLocalReadScope.() -> Unit,
 ) : ModifierLocalConsumer, ModifierLocalProvider<T> {
     override val value by derivedStateOf(value)
 
@@ -248,9 +248,7 @@ class ProviderConsumerModifier<T>(
     }
 }
 
-class ProviderModifier<T>(
-    override val key: ProvidableModifierLocal<T>,
-    value: () -> T,
-) : ModifierLocalProvider<T> {
+class ProviderModifier<T>(override val key: ProvidableModifierLocal<T>, value: () -> T) :
+    ModifierLocalProvider<T> {
     override val value by derivedStateOf(value)
 }

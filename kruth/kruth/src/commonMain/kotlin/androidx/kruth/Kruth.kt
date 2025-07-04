@@ -81,9 +81,7 @@ fun <K, V> assertThat(actual: Map<K, V>?): MapSubject<K, V> = assert_().that(act
 
 /** Begins an assertion that, if it fails, will prepend the given message to the failure message. */
 fun assertWithMessage(messageToPrepend: String): StandardSubjectBuilder =
-    StandardSubjectBuilder(
-        metadata = FailureMetadata(messagesToPrepend = listOf(messageToPrepend)),
-    )
+    StandardSubjectBuilder(metadata = FailureMetadata(messagesToPrepend = listOf(messageToPrepend)))
 
 /**
  * Given a factory for some [Subject] class, returns [SimpleSubjectBuilder] whose

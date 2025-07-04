@@ -33,7 +33,7 @@ fun drawPainter(
     size: Size,
     alpha: Float = 1.0f,
     colorFilter: ColorFilter? = null,
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    layoutDirection: LayoutDirection = LayoutDirection.Ltr,
 ) {
     CanvasDrawScope().draw(Density(1.0f, 1.0f), layoutDirection, canvas, size) {
         with(painter) { draw(size, alpha = alpha, colorFilter = colorFilter) }

@@ -77,10 +77,10 @@ class PolygonTest {
                         p2Offset.x,
                         p2Offset.y,
                         p3Offset.x,
-                        p3Offset.y
+                        p3Offset.y,
                     ),
                 centerX = offset.x,
-                centerY = offset.y
+                centerY = offset.y,
             )
         min = Point(0f, 1f)
         max = Point(2f, 3f)
@@ -108,7 +108,7 @@ class PolygonTest {
             "bounds ${bounds[0]}, ${bounds[1]}, ${bounds[2]}, ${bounds[3]}, " +
                 "betterBounds = ${betterBounds[0]}, ${betterBounds[1]}, ${betterBounds[2]}, " +
                 "${betterBounds[3]}",
-            betterBounds[2] - betterBounds[0] < bounds[2] - bounds[0]
+            betterBounds[2] - betterBounds[0] < bounds[2] - bounds[0],
         )
 
         bounds = pentagon.calculateBounds()
@@ -142,19 +142,19 @@ class PolygonTest {
         for (i in squareCubics.indices) {
             assertPointsEqualish(
                 Point(squareCubics[i].anchor0X, squareCubics[i].anchor0Y) + offset,
-                Point(translatedSquareCubics[i].anchor0X, translatedSquareCubics[i].anchor0Y)
+                Point(translatedSquareCubics[i].anchor0X, translatedSquareCubics[i].anchor0Y),
             )
             assertPointsEqualish(
                 Point(squareCubics[i].control0X, squareCubics[i].control0Y) + offset,
-                Point(translatedSquareCubics[i].control0X, translatedSquareCubics[i].control0Y)
+                Point(translatedSquareCubics[i].control0X, translatedSquareCubics[i].control0Y),
             )
             assertPointsEqualish(
                 Point(squareCubics[i].control1X, squareCubics[i].control1Y) + offset,
-                Point(translatedSquareCubics[i].control1X, translatedSquareCubics[i].control1Y)
+                Point(translatedSquareCubics[i].control1X, translatedSquareCubics[i].control1Y),
             )
             assertPointsEqualish(
                 Point(squareCubics[i].anchor1X, squareCubics[i].anchor1Y) + offset,
-                Point(translatedSquareCubics[i].anchor1X, translatedSquareCubics[i].anchor1Y)
+                Point(translatedSquareCubics[i].anchor1X, translatedSquareCubics[i].anchor1Y),
             )
         }
     }
@@ -193,13 +193,13 @@ class PolygonTest {
                 "Failed at X, index $i",
                 poly.cubics[i].anchor1X,
                 poly.cubics[(i + 1) % poly.cubics.size].anchor0X,
-                0f
+                0f,
             )
             assertEquals(
                 "Failed at Y, index $i",
                 poly.cubics[i].anchor1Y,
                 poly.cubics[(i + 1) % poly.cubics.size].anchor0Y,
-                0f
+                0f,
             )
         }
     }
@@ -218,11 +218,11 @@ class PolygonTest {
     fun emptySideTest() {
         val poly1 =
             RoundedPolygon(
-                floatArrayOf(0f, 0f, 1f, 0f, 1f, 0f, 0f, 1f), // Triangle with one point repeated
+                floatArrayOf(0f, 0f, 1f, 0f, 1f, 0f, 0f, 1f) // Triangle with one point repeated
             )
         val poly2 =
             RoundedPolygon(
-                floatArrayOf(0f, 0f, 1f, 0f, 0f, 1f), // Triangle
+                floatArrayOf(0f, 0f, 1f, 0f, 0f, 1f) // Triangle
             )
         assertCubicListsEqualish(poly1.cubics, poly2.cubics)
     }

@@ -29,7 +29,7 @@ public class FrameworkSQLiteOpenHelperFactory : SupportSQLiteOpenHelper.Factory 
             configuration.name,
             configuration.callback,
             configuration.useNoBackupDirectory,
-            configuration.allowDataLossOnRecovery
+            configuration.allowDataLossOnRecovery,
         )
     }
 }

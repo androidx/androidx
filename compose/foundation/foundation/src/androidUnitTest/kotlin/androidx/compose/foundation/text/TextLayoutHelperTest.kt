@@ -74,7 +74,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isTrue()
@@ -94,7 +94,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -114,7 +114,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -134,7 +134,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -154,7 +154,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -174,7 +174,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -194,7 +194,7 @@ class TextLayoutHelperTest {
                     density = Density(2.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -214,7 +214,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Rtl,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -234,7 +234,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = mock(),
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -253,7 +253,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = Constraints.fixedWidth(200)
+                    constraints = Constraints.fixedWidth(200),
                 )
             )
             .isFalse()
@@ -272,7 +272,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = Constraints.fixedHeight(200)
+                    constraints = Constraints.fixedHeight(200),
                 )
             )
             .isFalse()
@@ -291,10 +291,10 @@ class TextLayoutHelperTest {
                                     Placeholder(
                                         10.sp,
                                         20.sp,
-                                        PlaceholderVerticalAlign.AboveBaseline
+                                        PlaceholderVerticalAlign.AboveBaseline,
                                     ),
                                 start = 0,
-                                end = 5
+                                end = 5,
                             )
                         ),
                     maxLines = 1,
@@ -303,7 +303,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = Constraints.fixedWidth(200)
+                    constraints = Constraints.fixedWidth(200),
                 )
             )
             .isFalse()
@@ -324,7 +324,7 @@ class TextLayoutHelperTest {
                     density = Density(1.0f),
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = fontFamilyResolver,
-                    constraints = constraints
+                    constraints = constraints,
                 )
             )
             .isFalse()
@@ -375,7 +375,7 @@ class TextLayoutHelperTest {
         text: AnnotatedString,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
         multiParagraph: MultiParagraph = this.multiParagraph,
-        constraints: Constraints = Constraints()
+        constraints: Constraints = Constraints(),
     ): TextLayoutResult {
         return TextLayoutResult(
             TextLayoutInput(
@@ -388,10 +388,10 @@ class TextLayoutHelperTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                constraints = constraints,
             ),
             multiParagraph = multiParagraph,
-            size = IntSize(1000, 1000)
+            size = IntSize(1000, 1000),
         )
     }
 }

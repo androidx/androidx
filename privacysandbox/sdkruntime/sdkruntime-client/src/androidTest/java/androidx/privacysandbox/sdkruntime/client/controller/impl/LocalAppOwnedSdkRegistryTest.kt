@@ -65,7 +65,7 @@ class LocalAppOwnedSdkRegistryTest {
             AppOwnedSdkSandboxInterfaceCompat(
                 name = appOwnedInterface.getName(),
                 version = 1,
-                binder = Binder()
+                binder = Binder(),
             )
         assertThrows<IllegalStateException> {
             sdkRegistry.registerAppOwnedSdkSandboxInterface(interfaceWithSameName)

@@ -20,58 +20,51 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import androidx.window.core.layout.WindowSizeClass
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
-import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.flow.map
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Moved to common source set, maintained for binary compatibility.",
+)
 @Composable
-@Suppress("DEPRECATION") // WindowSizeClass#compute is deprecated
-actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
-    val windowSize = currentWindowDpSize()
-    return WindowAdaptiveInfo(
-        WindowSizeClass.compute(windowSize.width.value, windowSize.height.value),
-        calculatePosture(collectFoldingFeaturesAsState().value)
-    )
-}
+fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo = currentWindowAdaptiveInfo(false)
 
 /**
  * Returns and automatically update the current window size in [DpSize].
  *
  * @return an [DpSize] that represents the current window size.
  */
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Moved to common source set, maintained for binary compatibility.",
+)
+@JvmName("currentWindowDpSize")
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun currentWindowDpSize(): DpSize =
+fun currentWindowDpSizeDeprecated(): DpSize =
     with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() }
 
 /**
- * Returns and automatically update the current window size from [WindowMetricsCalculator].
+ * Returns and automatically update the current window size. It's a convenient function of getting
+ * [androidx.compose.ui.platform.WindowInfo.containerSize] from [LocalWindowInfo].
  *
  * @return an [IntSize] that represents the current window size.
  */
-// TODO(b/359577262): Move to use LocalWindowInfo.current.containerSize and deprecate the method.
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Moved to common source set, maintained for binary compatibility.",
+)
+@JvmName("currentWindowSize")
 @Composable
-fun currentWindowSize(): IntSize {
-    // Observe view configuration changes and recalculate the size class on each change. We can't
-    // use Activity#onConfigurationChanged as this will sometimes fail to be called on different
-    // API levels, hence why this function needs to be @Composable so we can observe the
-    // ComposeView's configuration changes.
-    LocalConfiguration.current
-    val windowBounds =
-        WindowMetricsCalculator.getOrCreate()
-            .computeCurrentWindowMetrics(LocalContext.current)
-            .bounds
-    return IntSize(windowBounds.width(), windowBounds.height())
-}
+fun currentWindowSizeDeprecated(): IntSize = LocalWindowInfo.current.containerSize
 
 /**
  * Collects the current window folding features from [WindowInfoTracker] in to a [State].

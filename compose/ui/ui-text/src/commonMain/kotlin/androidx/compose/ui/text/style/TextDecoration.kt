@@ -51,6 +51,20 @@ class TextDecoration internal constructor(val mask: Int) {
             val mask = decorations.fastFold(0) { acc, decoration -> acc or decoration.mask }
             return TextDecoration(mask)
         }
+
+        /**
+         * Construct a TextDecoration instance from the underlying [TextDecoration.mask]. This
+         * method will attempt to avoid allocations in cases of well known decorations, but is not
+         * guaranteed to not allocate.
+         */
+        fun valueOf(mask: Int): TextDecoration {
+            return when (mask) {
+                0 -> None
+                1 -> Underline
+                2 -> LineThrough
+                else -> TextDecoration(mask)
+            }
+        }
     }
 
     /**

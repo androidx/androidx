@@ -17,13 +17,16 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.appcompat.widget.AppCompatTextHelper.FontVariationSettingsManager;
 import static androidx.appcompat.widget.ViewUtils.SDK_LEVEL_SUPPORTS_AUTOSIZE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -33,7 +36,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
@@ -67,6 +72,17 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
     private @NonNull AppCompatEmojiTextHelper mAppCompatEmojiTextHelper;
+
+    private FontVariationSettingsManager mFontVariationSettingsManager;
+    @RequiresApi(26)
+    @VisibleForTesting
+    @NonNull FontVariationSettingsManager getFontVariationSettingsManager() {
+        if (mFontVariationSettingsManager == null) {
+            mFontVariationSettingsManager = new FontVariationSettingsManager(this,
+                    AppCompatButton.super::setTypeface);
+        }
+        return mFontVariationSettingsManager;
+    }
 
     public AppCompatButton(@NonNull Context context) {
         this(context, null);
@@ -452,5 +468,37 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     @Override
     public boolean isEmojiCompatEnabled() {
         return getEmojiTextViewHelper().isEnabled();
+    }
+
+    @RequiresApi(26)
+    @Override
+    public boolean setFontVariationSettings(@Nullable String fontVariationSettings) {
+        return getFontVariationSettingsManager().setFontVariationSettings(fontVariationSettings);
+    }
+
+    @RequiresApi(26)
+    @Override
+    public @Nullable String getFontVariationSettings() {
+        return getFontVariationSettingsManager().getFontVariationSettings();
+    }
+
+    @Override
+    public void setTypeface(@Nullable Typeface tf) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            getFontVariationSettingsManager().setTypeface(tf);
+        } else {
+            super.setTypeface(tf);
+        }
+    }
+
+    @Override
+    // Code inspection reveals that the superclass method can return null.
+    @SuppressWarnings("InvalidNullabilityOverride")
+    public @Nullable Typeface getTypeface() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return getFontVariationSettingsManager().getTypeface();
+        } else {
+            return super.getTypeface();
+        }
     }
 }

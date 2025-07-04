@@ -188,8 +188,8 @@ public class ScalingLazyColumnTest {
                         ScalingLazyColumnDefaults.scalingParams(
                             edgeScale = 0f,
                             minTransitionArea = 0.5f,
-                            maxTransitionArea = 0.5f
-                        )
+                            maxTransitionArea = 0.5f,
+                        ),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -236,8 +236,8 @@ public class ScalingLazyColumnTest {
                         ScalingLazyColumnDefaults.scalingParams(
                             edgeScale = 0f,
                             minTransitionArea = 0.5f,
-                            maxTransitionArea = 0.5f
-                        )
+                            maxTransitionArea = 0.5f,
+                        ),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -278,7 +278,7 @@ public class ScalingLazyColumnTest {
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                    autoCentering = null
+                    autoCentering = null,
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -309,7 +309,7 @@ public class ScalingLazyColumnTest {
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = null,
-                    userScrollEnabled = false
+                    userScrollEnabled = false,
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -343,7 +343,7 @@ public class ScalingLazyColumnTest {
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                    autoCentering = AutoCenteringParams(itemIndex = 0)
+                    autoCentering = AutoCenteringParams(itemIndex = 0),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -377,7 +377,7 @@ public class ScalingLazyColumnTest {
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     autoCentering = AutoCenteringParams(itemIndex = 0),
-                    flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state)
+                    flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -426,8 +426,8 @@ public class ScalingLazyColumnTest {
                     flingBehavior =
                         ScalingLazyColumnDefaults.snapFlingBehavior(
                             state = state,
-                            snapOffset = snapOffset
-                        )
+                            snapOffset = snapOffset,
+                        ),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -465,7 +465,7 @@ public class ScalingLazyColumnTest {
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     reverseLayout = true,
-                    autoCentering = null
+                    autoCentering = null,
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -477,7 +477,7 @@ public class ScalingLazyColumnTest {
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeDown(
                 startY = top,
-                endY = top + (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                endY = top + (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()),
             )
         }
         rule.waitForIdle()
@@ -498,7 +498,7 @@ public class ScalingLazyColumnTest {
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                    autoCentering = AutoCenteringParams(itemIndex = 0)
+                    autoCentering = AutoCenteringParams(itemIndex = 0),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it)) }
                 }
@@ -531,7 +531,7 @@ public class ScalingLazyColumnTest {
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 4f + defaultItemSpacingDp * 3f),
                     scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
-                    reverseLayout = true
+                    reverseLayout = true,
                 ) {
                     items(15) { Box(Modifier.requiredSize(itemSizeDp).testTag("Item:" + it)) }
                 }
@@ -545,7 +545,7 @@ public class ScalingLazyColumnTest {
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
             swipeDown(
                 startY = top,
-                endY = top + (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat())
+                endY = top + (itemSizePx.toFloat() + defaultItemSpacingPx.toFloat()),
             )
         }
         rule.waitForIdle()
@@ -557,7 +557,7 @@ public class ScalingLazyColumnTest {
     @Composable
     fun ObservingFun(
         state: ScalingLazyListState,
-        currentInfo: StableRef<ScalingLazyListLayoutInfo?>
+        currentInfo: StableRef<ScalingLazyListLayoutInfo?>,
     ) {
         currentInfo.value = state.layoutInfo
     }
@@ -573,7 +573,7 @@ public class ScalingLazyColumnTest {
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                    autoCentering = null
+                    autoCentering = null,
                 ) {
                     items(6) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -602,7 +602,7 @@ public class ScalingLazyColumnTest {
         startIndex: Int = 0,
         unscaledSize: Int = itemSizePx,
         spacing: Int = defaultItemSpacingPx,
-        anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter
+        anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     ) {
         assertThat(visibleItemsInfo.size).isEqualTo(count)
         var currentIndex = startIndex
@@ -627,7 +627,7 @@ public class ScalingLazyColumnTest {
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
             ) {
                 items(listOf(0)) {
                     Spacer(
@@ -649,7 +649,7 @@ public class ScalingLazyColumnTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
             ) {
                 items(listOf(0)) {
                     Spacer(
@@ -672,7 +672,7 @@ public class ScalingLazyColumnTest {
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
             ) {
                 items(listOf(0)) { Spacer(Modifier.fillParentMaxSize().testTag(firstItemTag)) }
             }
@@ -691,7 +691,7 @@ public class ScalingLazyColumnTest {
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
                 contentPadding = PaddingValues(horizontal = 0.dp),
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(1.0f, 1.0f),
             ) {
                 items(listOf(0)) {
                     Spacer(
@@ -714,7 +714,7 @@ public class ScalingLazyColumnTest {
         rule.setContentWithTestViewConfiguration {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(8).also { state = it },
-                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp)
+                modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
             ) {
                 items(listOf(0)) {
                     Spacer(
@@ -738,7 +738,7 @@ public class ScalingLazyColumnTest {
             ScalingLazyColumn(
                 state = rememberScalingLazyListState(8).also { state = it },
                 modifier = Modifier.requiredSize(width = 100.dp, height = 150.dp),
-                contentPadding = PaddingValues(horizontal = 0.dp)
+                contentPadding = PaddingValues(horizontal = 0.dp),
             ) {
                 items(listOf(0)) { Spacer(Modifier.fillParentMaxSize(0.5f).testTag(firstItemTag)) }
             }
@@ -835,7 +835,7 @@ public class ScalingLazyColumnTest {
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                    autoCentering = AutoCenteringParams()
+                    autoCentering = AutoCenteringParams(),
                 ) {
                     items(25) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }
@@ -880,7 +880,7 @@ public class ScalingLazyColumnTest {
                 modifier =
                     Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                autoCentering = AutoCenteringParams()
+                autoCentering = AutoCenteringParams(),
             ) {
                 items(25) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -912,7 +912,7 @@ public class ScalingLazyColumnTest {
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f),
-                    autoCentering = AutoCenteringParams(itemIndex = 0)
+                    autoCentering = AutoCenteringParams(itemIndex = 0),
                 ) {
                     items(5) { Box(Modifier.requiredSize(itemSizeDp)) }
                 }

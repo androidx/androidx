@@ -45,8 +45,8 @@ val MaterialDemos =
                 "AlertDialog",
                 listOf(
                     ComposableDemo("Default dialog") { AlertDialogSample() },
-                    ComposableDemo("Custom buttons") { CustomAlertDialogSample() }
-                )
+                    ComposableDemo("Custom buttons") { CustomAlertDialogSample() },
+                ),
             ),
             ComposableDemo("App Bars") { AppBarDemo() },
             ComposableDemo("Backdrop") { BackdropScaffoldSample() },
@@ -61,7 +61,7 @@ val MaterialDemos =
                     },
                     ComposableDemo("Modal Bottom Sheet") { ModalBottomSheetSample() },
                     ComposableDemo("Modal Bottom Sheet In Navigation") { BottomSheetNavDemo() },
-                )
+                ),
             ),
             ComposableDemo("Buttons & FABs") { ButtonDemo() },
             ComposableDemo("Chips") { ChipDemo() },
@@ -69,8 +69,8 @@ val MaterialDemos =
                 "Navigation drawer",
                 listOf(
                     ComposableDemo("Modal drawer") { ModalDrawerSample() },
-                    ComposableDemo("Bottom drawer") { BottomDrawerSample() }
-                )
+                    ComposableDemo("Bottom drawer") { BottomDrawerSample() },
+                ),
             ),
             ComposableDemo("Elevation") { ElevationDemo() },
             ComposableDemo("Content alpha") { ContentAlphaSample() },
@@ -78,24 +78,24 @@ val MaterialDemos =
                 "ListItems",
                 listOf(
                     ComposableDemo("ListItems") { ListItemDemo() },
-                    ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() }
-                )
+                    ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() },
+                ),
             ),
             ComposableDemo("Material Theme") { MaterialThemeDemo() },
             DemoCategory(
                 "Menus",
                 listOf(
                     ComposableDemo("Dropdown Menu positioning") { MenuDemo() },
-                    ComposableDemo("ExposedDropdownMenu") { ExposedDropdownMenuDemo() }
-                )
+                    ComposableDemo("ExposedDropdownMenu") { ExposedDropdownMenuDemo() },
+                ),
             ),
             ComposableDemo("Navigation Rail") { NavigationRailDemo() },
             DemoCategory(
                 "Playground",
                 listOf(
                     ComposableDemo("Color Picker") { ColorPickerDemo() },
-                    ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
-                )
+                    ActivityDemo("Dynamic Theme", DynamicThemeActivity::class),
+                ),
             ),
             ComposableDemo("Progress Indicators") { ProgressIndicatorDemo() },
             DemoCategory(
@@ -103,8 +103,8 @@ val MaterialDemos =
                 listOf(
                     ComposableDemo("Scaffold with top bar") { SimpleScaffoldWithTopBar() },
                     ComposableDemo("Scaffold with docked FAB") { ScaffoldWithBottomBarAndCutout() },
-                    ComposableDemo("Scaffold with snackbar") { ScaffoldWithSimpleSnackbar() }
-                )
+                    ComposableDemo("Scaffold with snackbar") { ScaffoldWithSimpleSnackbar() },
+                ),
             ),
             ComposableDemo("Selection Controls") { SelectionControlsDemo() },
             ComposableDemo("Slider") { SliderDemo() },
@@ -119,16 +119,16 @@ val MaterialDemos =
                     ComposableDemo("Textfield decoration box") { DecorationBoxDemos() },
                     ComposableDemo("Alignment inside text fields") {
                         VerticalAlignmentsInTextField()
-                    }
-                )
+                    },
+                ),
             ),
             DemoCategory(
                 "PullRefresh",
                 listOf(
                     ComposableDemo("PullRefresh") { PullRefreshSample() },
                     ComposableDemo("Custom PullRefresh") { CustomPullRefreshSample() },
-                    ComposableDemo("Custom Indicator") { PullRefreshIndicatorTransformSample() }
-                )
-            )
-        )
+                    ComposableDemo("Custom Indicator") { PullRefreshIndicatorTransformSample() },
+                ),
+            ),
+        ),
     )

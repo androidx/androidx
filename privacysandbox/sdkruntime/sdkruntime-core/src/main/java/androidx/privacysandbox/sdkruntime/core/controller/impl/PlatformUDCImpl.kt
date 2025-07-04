@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
@@ -33,13 +34,15 @@ import androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListene
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerBackend
 import java.util.concurrent.Executor
 
 /** Implementation that delegates to platform [SdkSandboxController] for Android U. */
 @RequiresApi(34)
-internal class PlatformUDCImpl(private val controller: SdkSandboxController, sdkContext: Context) :
-    SdkSandboxControllerCompat.SandboxControllerImpl {
+// TODO(b/426122358) Make it internal after finishing migration
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PlatformUDCImpl(private val controller: SdkSandboxController, sdkContext: Context) :
+    SdkSandboxControllerBackend {
 
     private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
     private val sdkLoader = PlatformSdkLoader.create(controller)
@@ -54,7 +57,7 @@ internal class PlatformUDCImpl(private val controller: SdkSandboxController, sdk
         sdkName: String,
         params: Bundle,
         executor: Executor,
-        callback: LoadSdkCallback
+        callback: LoadSdkCallback,
     ) {
         sdkLoader.loadSdk(sdkName, params, executor, callback)
     }
@@ -96,16 +99,16 @@ internal class PlatformUDCImpl(private val controller: SdkSandboxController, sdk
 
     override fun registerSdkSandboxClientImportanceListener(
         executor: Executor,
-        listenerCompat: SdkSandboxClientImportanceListenerCompat
-    ) =
+        listenerCompat: SdkSandboxClientImportanceListenerCompat,
+    ): Unit =
         clientImportanceListenerRegistry.registerSdkSandboxClientImportanceListener(
             executor,
-            listenerCompat
+            listenerCompat,
         )
 
     override fun unregisterSdkSandboxClientImportanceListener(
         listenerCompat: SdkSandboxClientImportanceListenerCompat
-    ) =
+    ): Unit =
         clientImportanceListenerRegistry.unregisterSdkSandboxClientImportanceListener(
             listenerCompat
         )
@@ -139,7 +142,7 @@ internal class PlatformUDCImpl(private val controller: SdkSandboxController, sdk
 
                     override fun onActivityPostCreated(
                         activity: Activity,
-                        savedInstanceState: Bundle?
+                        savedInstanceState: Bundle?,
                     ) {
                         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
                     }
@@ -180,8 +183,8 @@ internal class PlatformUDCImpl(private val controller: SdkSandboxController, sdk
         }
     }
 
-    companion object {
-        fun from(context: Context): PlatformUDCImpl {
+    public companion object {
+        public fun from(context: Context): PlatformUDCImpl {
             val sdkSandboxController = context.getSystemService(SdkSandboxController::class.java)
             return PlatformUDCImpl(sdkSandboxController, context)
         }

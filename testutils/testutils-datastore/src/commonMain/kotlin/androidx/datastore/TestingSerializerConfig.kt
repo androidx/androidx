@@ -16,7 +16,7 @@
 
 package androidx.datastore
 
-import kotlin.jvm.Volatile
+import kotlin.concurrent.Volatile
 
 data class TestingSerializerConfig(
     @Volatile var failReadWithCorruptionException: Boolean = false,

@@ -43,7 +43,7 @@ class MigrationKotlinTest {
     var helper: MigrationTestHelper =
         MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            MigrationDbKotlin::class.java
+            MigrationDbKotlin::class.java,
         )
 
     companion object {
@@ -56,7 +56,7 @@ class MigrationKotlinTest {
         val helper =
             MigrationTestHelper(
                 InstrumentationRegistry.getInstrumentation(),
-                TestDatabase::class.java
+                TestDatabase::class.java,
             )
         try {
             helper.createDatabase(TEST_DB, 1)
@@ -107,7 +107,7 @@ class MigrationKotlinTest {
             Room.databaseBuilder(
                     InstrumentationRegistry.getInstrumentation().targetContext,
                     MigrationDbKotlin::class.java,
-                    TEST_DB
+                    TEST_DB,
                 )
                 .addMigrations(*ALL_MIGRATIONS)
                 .build()
@@ -138,7 +138,7 @@ class MigrationKotlinTest {
 
         assertThat<IllegalStateException>(
             caught,
-            instanceOf<IllegalStateException>(IllegalStateException::class.java)
+            instanceOf<IllegalStateException>(IllegalStateException::class.java),
         )
     }
 
@@ -223,7 +223,7 @@ class MigrationKotlinTest {
                                 " PRIMARY KEY(`id`))"
                         )
                     }
-                }
+                },
             )
         } catch (t: Throwable) {
             throwable = t
@@ -254,7 +254,7 @@ class MigrationKotlinTest {
                 TEST_DB,
                 endVersion,
                 true,
-                EmptyMigration(startVersion, endVersion)
+                EmptyMigration(startVersion, endVersion),
             )
         } catch (t: Throwable) {
             throwable = t
@@ -309,7 +309,7 @@ class MigrationKotlinTest {
                 instrumentation = instrumentation,
                 file = dbFile,
                 driver = AndroidSQLiteDriver(),
-                databaseClass = MigrationDbKotlin::class
+                databaseClass = MigrationDbKotlin::class,
             )
         assertThrows<IllegalStateException> {
                 driverHelper.createDatabase(name = "test.db", version = 1)
@@ -324,7 +324,7 @@ class MigrationKotlinTest {
                 driverHelper.runMigrationsAndValidate(
                     name = "test.db",
                     version = 1,
-                    validateDroppedTables = false
+                    validateDroppedTables = false,
                 )
             }
             .hasMessageThat()
@@ -412,7 +412,7 @@ class MigrationKotlinTest {
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
-            MIGRATION_6_7
+            MIGRATION_6_7,
         )
 
     internal class EmptyMigration(startVersion: Int, endVersion: Int) :

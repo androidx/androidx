@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.testing
 
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
  * Projects the given set of nodes to a new set of nodes.
@@ -30,7 +30,7 @@ internal class SubspaceSemanticsSelector(
     internal val description: String,
     private val requiresExactlyOneNode: Boolean,
     private val chainedInputSelector: SubspaceSemanticsSelector? = null,
-    private val selector: (Iterable<SubspaceSemanticsNode>) -> SubspaceSelectionResult,
+    private val selector: (Iterable<SubspaceSemanticsInfo>) -> SubspaceSelectionResult,
 ) {
 
     /**
@@ -39,7 +39,7 @@ internal class SubspaceSemanticsSelector(
      * @throws AssertionError if required prerequisites to perform the selection were not satisfied.
      */
     internal fun map(
-        nodes: Iterable<SubspaceSemanticsNode>,
+        nodes: Iterable<SubspaceSemanticsInfo>,
         errorOnFail: String,
     ): SubspaceSelectionResult {
         val chainedResult = chainedInputSelector?.map(nodes, errorOnFail)
@@ -76,7 +76,7 @@ internal fun SubspaceSemanticsSelector(
  *   explaining what selection was performed and what nodes it received.
  */
 internal class SubspaceSelectionResult(
-    internal val selectedNodes: List<SubspaceSemanticsNode>,
+    internal val selectedNodes: List<SubspaceSemanticsInfo>,
     internal val customErrorOnNoMatch: String? = null,
 )
 
@@ -87,7 +87,7 @@ internal class SubspaceSelectionResult(
  */
 internal fun SubspaceSemanticsSelector.addSelectionFromSingleNode(
     description: String,
-    selector: (SubspaceSemanticsNode) -> List<SubspaceSemanticsNode>,
+    selector: (SubspaceSemanticsInfo) -> List<SubspaceSemanticsInfo>,
 ): SubspaceSemanticsSelector {
     return SubspaceSemanticsSelector(
         "(${this.description}).$description",

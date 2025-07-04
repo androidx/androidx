@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.TriggerProto;
 
@@ -46,6 +47,162 @@ public final class TriggerBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public static @NonNull Trigger createOnConditionMetTrigger(@NonNull DynamicBool dynamicBool) {
         return new OnConditionMetTrigger.Builder().setCondition(dynamicBool).build();
+    }
+
+    /**
+     * Creates a {@link Trigger} that fires *every time* the layout becomes visible.
+     *
+     * <p>As opposed to {@link #createOnLoadTrigger()}, this will wait until layout is fully visible
+     * before firing a trigger.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 200)
+    public static @NonNull Trigger createOnVisibleTrigger() {
+        return new OnVisibleTrigger.Builder().build();
+    }
+
+    /**
+     * Creates a {@link Trigger} that fires the first time that layout becomes visible.
+     *
+     * <p>As opposed to {@link #createOnVisibleTrigger()}, this will only be fired the first time
+     * that the layout becomes visible.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 200)
+    @ProtoLayoutExperimental
+    public static @NonNull Trigger createOnVisibleOnceTrigger() {
+        return new OnVisibleOnceTrigger.Builder().build();
+    }
+
+    /** Triggers when the layout visibility state turns from invisible to fully visible. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
+    public static final class OnVisibleTrigger implements Trigger {
+        private final TriggerProto.OnVisibleTrigger mImpl;
+        private final @Nullable Fingerprint mFingerprint;
+
+        OnVisibleTrigger(TriggerProto.OnVisibleTrigger impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @Nullable Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public static @NonNull OnVisibleTrigger fromProto(
+                TriggerProto.@NonNull OnVisibleTrigger proto, @Nullable Fingerprint fingerprint) {
+            return new OnVisibleTrigger(proto, fingerprint);
+        }
+
+        static @NonNull OnVisibleTrigger fromProto(TriggerProto.@NonNull OnVisibleTrigger proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        TriggerProto.@NonNull OnVisibleTrigger toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public TriggerProto.@NonNull Trigger toTriggerProto() {
+            return TriggerProto.Trigger.newBuilder().setOnVisibleTrigger(mImpl).build();
+        }
+
+        @Override
+        public @NonNull String toString() {
+            return "OnVisibleTrigger";
+        }
+
+        /** Builder for {@link OnVisibleTrigger}. */
+        @SuppressWarnings("HiddenSuperclass")
+        public static final class Builder implements Trigger.Builder {
+            private final TriggerProto.OnVisibleTrigger.Builder mImpl =
+                    TriggerProto.OnVisibleTrigger.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1416366796);
+
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            public Builder() {}
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            public @NonNull OnVisibleTrigger build() {
+                return new OnVisibleTrigger(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * Triggers only once when the layout visibility state turns from invisible to fully visible for
+     * the first time.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 200)
+    @ProtoLayoutExperimental
+    public static final class OnVisibleOnceTrigger implements Trigger {
+        private final TriggerProto.OnVisibleOnceTrigger mImpl;
+        private final @Nullable Fingerprint mFingerprint;
+
+        OnVisibleOnceTrigger(
+                TriggerProto.OnVisibleOnceTrigger impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @Nullable Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public static @NonNull OnVisibleOnceTrigger fromProto(
+                TriggerProto.@NonNull OnVisibleOnceTrigger proto,
+                @Nullable Fingerprint fingerprint) {
+            return new OnVisibleOnceTrigger(proto, fingerprint);
+        }
+
+        static @NonNull OnVisibleOnceTrigger fromProto(
+                TriggerProto.@NonNull OnVisibleOnceTrigger proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        TriggerProto.@NonNull OnVisibleOnceTrigger toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public TriggerProto.@NonNull Trigger toTriggerProto() {
+            return TriggerProto.Trigger.newBuilder().setOnVisibleOnceTrigger(mImpl).build();
+        }
+
+        @Override
+        public @NonNull String toString() {
+            return "OnVisibleOnceTrigger";
+        }
+
+        /** Builder for {@link OnVisibleOnceTrigger}. */
+        @SuppressWarnings("HiddenSuperclass")
+        public static final class Builder implements Trigger.Builder {
+            private final TriggerProto.OnVisibleOnceTrigger.Builder mImpl =
+                    TriggerProto.OnVisibleOnceTrigger.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-1661457257);
+
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            public Builder() {}
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            public @NonNull OnVisibleOnceTrigger build() {
+                return new OnVisibleOnceTrigger(mImpl.build(), mFingerprint);
+            }
+        }
     }
 
     /** Triggers immediately when the layout is loaded / reloaded. */
@@ -223,8 +380,15 @@ public final class TriggerBuilders {
 
     /** Creates a new wrapper instance from the proto. */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @ProtoLayoutExperimental
     public static @NonNull Trigger triggerFromProto(
             TriggerProto.@NonNull Trigger proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasOnVisibleTrigger()) {
+            return OnVisibleTrigger.fromProto(proto.getOnVisibleTrigger(), fingerprint);
+        }
+        if (proto.hasOnVisibleOnceTrigger()) {
+            return OnVisibleOnceTrigger.fromProto(proto.getOnVisibleOnceTrigger(), fingerprint);
+        }
         if (proto.hasOnLoadTrigger()) {
             return OnLoadTrigger.fromProto(proto.getOnLoadTrigger(), fingerprint);
         }
@@ -234,6 +398,7 @@ public final class TriggerBuilders {
         throw new IllegalStateException("Proto was not a recognised instance of Trigger");
     }
 
+    @ProtoLayoutExperimental
     static @NonNull Trigger triggerFromProto(TriggerProto.@NonNull Trigger proto) {
         return triggerFromProto(proto, null);
     }

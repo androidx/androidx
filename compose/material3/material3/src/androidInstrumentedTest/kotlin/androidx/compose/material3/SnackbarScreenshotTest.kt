@@ -86,7 +86,7 @@ class SnackbarScreenshotTest {
     @Composable
     private fun TestSnackbar(
         showAction: Boolean = false,
-        duration: SnackbarDuration = SnackbarDuration.Long
+        duration: SnackbarDuration = SnackbarDuration.Long,
     ) {
         Snackbar(
             snackbarData =

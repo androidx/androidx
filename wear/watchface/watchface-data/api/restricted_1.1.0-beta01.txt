@@ -107,8 +107,8 @@ package androidx.wear.watchface.control.data {
 package androidx.wear.watchface.data {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationSlotMetadataWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], int, int[], java.util.List<android.content.ComponentName!>?, int, int, int, int, boolean, boolean, android.os.Bundle);
     ctor @Deprecated public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], int, int[], java.util.List<android.content.ComponentName!>?, int, int, boolean, boolean, android.os.Bundle);
+    ctor public ComplicationSlotMetadataWireFormat(int, int[], android.graphics.RectF![], int, int[], java.util.List<android.content.ComponentName!>?, int, int, int, int, boolean, boolean, android.os.Bundle);
     method public int describeContents();
     method public int getBoundsType();
     method public android.graphics.RectF![] getComplicationBounds();
@@ -128,8 +128,8 @@ package androidx.wear.watchface.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public final class ComplicationStateWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationStateWireFormat(android.graphics.Rect, int, int[], java.util.List<android.content.ComponentName!>?, int, int, int, int, boolean, boolean, int, boolean, android.os.Bundle, Integer?, Integer?);
     ctor @Deprecated public ComplicationStateWireFormat(android.graphics.Rect, int, int[], java.util.List<android.content.ComponentName!>?, int, int, boolean, boolean, int, boolean, android.os.Bundle);
+    ctor public ComplicationStateWireFormat(android.graphics.Rect, int, int[], java.util.List<android.content.ComponentName!>?, int, int, int, int, boolean, boolean, int, boolean, android.os.Bundle, Integer?, Integer?);
     method public int describeContents();
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();

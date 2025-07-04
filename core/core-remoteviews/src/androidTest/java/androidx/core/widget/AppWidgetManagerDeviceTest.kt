@@ -109,7 +109,7 @@ class AppWidgetManagerDeviceTest {
         val (width, height) = getSingleWidgetSize()
         mAppWidgetManager.updateAppWidget(
             mAppWidgetId,
-            listOf(width - 2 x height - 2, width + 2 x height + 2)
+            listOf(width - 2 x height - 2, width + 2 x height + 2),
         ) { (widthDp, heightDp) ->
             RemoteViews(mPackageName, R.layout.remote_views_text).apply {
                 setTextViewText(R.id.text, "$widthDp x $heightDp")

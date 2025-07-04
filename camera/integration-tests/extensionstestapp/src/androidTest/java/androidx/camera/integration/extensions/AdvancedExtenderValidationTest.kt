@@ -125,4 +125,9 @@ class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
     @Test
     fun validateProcessProgressSupport_sinceVersion_1_4() =
         validation.validateProcessProgressSupport_sinceVersion_1_4()
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    fun validateAvailableCharacteristicsKeyValuesSupport_sinceVersion_1_5() =
+        validation.validateAvailableCharacteristicsKeyValuesSupport_sinceVersion_1_5()
 }

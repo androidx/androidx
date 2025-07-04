@@ -50,7 +50,7 @@ internal class DynamicRangeProfilesCompatApi33Impl(
     private fun dynamicRangeToFirstSupportedProfile(dynamicRange: DynamicRange) =
         DynamicRangeConversions.dynamicRangeToFirstSupportedProfile(
             dynamicRange,
-            dynamicRangeProfiles
+            dynamicRangeProfiles,
         )
 
     private fun profileToDynamicRange(profile: Long): DynamicRange {

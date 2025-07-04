@@ -458,6 +458,32 @@ class BackStackRecordTest {
 
     @Test
     @UiThreadTest
+    fun setMaxLifecycleInitializedAfterConfigChange() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment, "1")
+            .setReorderingAllowed(true)
+            .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
+            .commitNow()
+
+        val recreatedFc = fc.restart(activityRule, viewModelStore)
+
+        val recreatedFragment =
+            recreatedFc.supportFragmentManager.findFragmentByTag("1") as StrictViewFragment
+
+        assertThat(recreatedFragment.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        assertThat(recreatedFragment.calledOnResume).isFalse()
+    }
+
+    @Test
+    @UiThreadTest
     fun setMaxLifecycleInitializedAfterCreated() {
         val viewModelStore = ViewModelStore()
         val fc = activityRule.startupFragmentController(viewModelStore)
@@ -519,7 +545,7 @@ internal class BackStackRecordVerify(private val backStackRecord: BackStackRecor
     fun verify(
         command: Int,
         fragment: Fragment? = null,
-        block: BackStackRecordOpInfo.() -> Unit = {}
+        block: BackStackRecordOpInfo.() -> Unit = {},
     ) {
         assertWithMessage(
                 "Cannot verify op $currentOp as there is only ${backStackRecord.mOps.size} operations"
@@ -544,7 +570,7 @@ private fun FragmentTransaction.Op.verify(
     opIndex: Int,
     command: Int,
     fragment: Fragment? = null,
-    block: BackStackRecordOpInfo.() -> Unit = {}
+    block: BackStackRecordOpInfo.() -> Unit = {},
 ) {
     val (fromExpandedOp) = BackStackRecordOpInfo().apply { block() }
 

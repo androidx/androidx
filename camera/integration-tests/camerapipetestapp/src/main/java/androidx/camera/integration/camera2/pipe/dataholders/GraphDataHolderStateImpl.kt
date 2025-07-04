@@ -20,7 +20,7 @@ package androidx.camera.integration.camera2.pipe.dataholders
 data class GraphDataHolderStateImpl(
     /** Maps integer representing state to its string description */
     private val stateMap: Map<Int, String>,
-    override var graphData: GraphDataSortedRingBuffer
+    override var graphData: GraphDataSortedRingBuffer,
 ) : GraphDataHolder {
 
     init {

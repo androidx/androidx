@@ -90,5 +90,5 @@ internal class TextFieldTestCase(private val type: TextFieldType) :
 
 enum class TextFieldType {
     Filled,
-    Outlined
+    Outlined,
 }

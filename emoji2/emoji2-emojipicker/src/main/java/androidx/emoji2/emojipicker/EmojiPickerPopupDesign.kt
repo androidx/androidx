@@ -44,7 +44,7 @@ internal abstract class EmojiPickerPopupDesign {
                     layoutParams =
                         LinearLayout.LayoutParams(
                             FrameLayout.LayoutParams.WRAP_CONTENT,
-                            FrameLayout.LayoutParams.WRAP_CONTENT
+                            FrameLayout.LayoutParams.WRAP_CONTENT,
                         )
                 }
             for (item in row) {
@@ -70,7 +70,7 @@ internal abstract class EmojiPickerPopupDesign {
                             layoutParams =
                                 ViewGroup.LayoutParams(
                                     targetEmojiView.width,
-                                    targetEmojiView.height
+                                    targetEmojiView.height,
                                 )
                         }
                 rowLayout.addView(cell)

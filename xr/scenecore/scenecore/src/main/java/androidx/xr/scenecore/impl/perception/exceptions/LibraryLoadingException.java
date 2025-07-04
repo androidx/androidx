@@ -16,8 +16,9 @@
 
 package androidx.xr.scenecore.impl.perception.exceptions;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /** Thrown if there is a failure in loading a native library. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

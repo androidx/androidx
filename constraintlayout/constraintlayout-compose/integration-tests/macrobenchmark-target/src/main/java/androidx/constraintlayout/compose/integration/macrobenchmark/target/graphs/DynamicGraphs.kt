@@ -76,7 +76,7 @@ fun DynamicGraphsPreview(modifier: Modifier = Modifier) {
 @Composable
 private fun DynamicGraph(
     values: List<Float> = listOf<Float>(12f, 32f, 21f, 32f, 2f),
-    max: Int = 100
+    max: Int = 100,
 ) {
     val scene = remember {
         val scale = values.map { (it * 0.8f) / max }
@@ -124,7 +124,7 @@ private fun DynamicGraph(
                 .clickable { animateToEnd = !animateToEnd }
                 .padding(1.dp),
         motionScene = scene,
-        progress = progress.value
+        progress = progress.value,
     ) {
         for (i in 0..values.size) {
             Box(

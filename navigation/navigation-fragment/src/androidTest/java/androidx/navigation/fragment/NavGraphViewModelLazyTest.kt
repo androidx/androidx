@@ -71,7 +71,7 @@ class NavGraphViewModelLazyTest {
         val navGraph =
             navController.navigatorProvider.navigation(
                 id = R.id.vm_graph,
-                startDestination = R.id.start_destination
+                startDestination = R.id.start_destination,
             ) {
                 test(R.id.start_destination)
             }
@@ -93,7 +93,7 @@ class NavGraphViewModelLazyTest {
         val navGraph =
             navController.navigatorProvider.navigation(
                 route = "vm_graph",
-                startDestination = "start_destination"
+                startDestination = "start_destination",
             ) {
                 test("start_destination")
             }
@@ -239,7 +239,7 @@ class TestVMFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return View(activity)
     }
@@ -254,7 +254,7 @@ class TestRouteVMFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return View(activity)
     }

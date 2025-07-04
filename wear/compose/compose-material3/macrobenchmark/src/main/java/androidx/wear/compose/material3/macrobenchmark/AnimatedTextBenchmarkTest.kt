@@ -31,5 +31,5 @@ class AnimatedTextBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = AnimatedTextBenchmark,
-        actionSuffix = "ANIMATED_TEXT_ACTIVITY"
+        actionSuffix = "ANIMATED_TEXT_ACTIVITY",
     )

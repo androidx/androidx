@@ -8,13 +8,13 @@ package androidx.wear.watchface {
     method @Deprecated @UiThread public com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> initFuture();
   }
 
-  public abstract class ListenableCanvasRenderer2<SharedAssetsT extends androidx.wear.watchface.Renderer.SharedAssets> extends androidx.wear.watchface.Renderer.CanvasRenderer2<SharedAssetsT> {
-    ctor public ListenableCanvasRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis);
-    ctor public ListenableCanvasRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional boolean clearWithBackgroundTintBeforeRenderingHighlightLayer);
-    method protected final suspend Object? createSharedAssets(kotlin.coroutines.Continuation<? super SharedAssetsT>);
-    method @WorkerThread public abstract com.google.common.util.concurrent.ListenableFuture<SharedAssetsT> createSharedAssetsFuture();
-    method public final suspend Object? init(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @UiThread public com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> initFuture();
+  @Deprecated public abstract class ListenableCanvasRenderer2<SharedAssetsT extends androidx.wear.watchface.Renderer.SharedAssets> extends androidx.wear.watchface.Renderer.CanvasRenderer2<SharedAssetsT> {
+    ctor @Deprecated public ListenableCanvasRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis);
+    ctor @Deprecated public ListenableCanvasRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, int canvasType, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional boolean clearWithBackgroundTintBeforeRenderingHighlightLayer);
+    method @Deprecated protected final suspend Object? createSharedAssets(kotlin.coroutines.Continuation<? super SharedAssetsT>);
+    method @Deprecated @WorkerThread public abstract com.google.common.util.concurrent.ListenableFuture<SharedAssetsT> createSharedAssetsFuture();
+    method @Deprecated public final suspend Object? init(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated @UiThread public com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> initFuture();
   }
 
   @Deprecated public abstract class ListenableGlesRenderer extends androidx.wear.watchface.Renderer.GlesRenderer {
@@ -29,42 +29,42 @@ package androidx.wear.watchface {
     method @Deprecated @UiThread public final void runUiThreadGlCommands(Runnable runnable);
   }
 
-  public abstract class ListenableGlesRenderer2<SharedAssetsT extends androidx.wear.watchface.Renderer.SharedAssets> extends androidx.wear.watchface.Renderer.GlesRenderer2<SharedAssetsT> {
-    ctor @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public ListenableGlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
-    ctor @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public ListenableGlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
-    ctor @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public ListenableGlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
-    method protected final suspend Object? createSharedAssets(kotlin.coroutines.Continuation<? super SharedAssetsT>);
-    method @WorkerThread public abstract com.google.common.util.concurrent.ListenableFuture<SharedAssetsT> createSharedAssetsFuture();
-    method public final suspend Object? onBackgroundThreadGlContextCreated(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method protected com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> onBackgroundThreadGlContextCreatedFuture();
-    method public final suspend Object? onUiThreadGlSurfaceCreated(@Px int width, @Px int height, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @UiThread protected com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> onUiThreadGlSurfaceCreatedFuture(@Px int width, @Px int height);
-    method @WorkerThread public final void runBackgroundThreadGlCommands(Runnable runnable);
-    method @UiThread public final void runUiThreadGlCommands(Runnable runnable);
+  @Deprecated public abstract class ListenableGlesRenderer2<SharedAssetsT extends androidx.wear.watchface.Renderer.SharedAssets> extends androidx.wear.watchface.Renderer.GlesRenderer2<SharedAssetsT> {
+    ctor @Deprecated @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public ListenableGlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    ctor @Deprecated @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public ListenableGlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    ctor @Deprecated @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public ListenableGlesRenderer2(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0L, to=60000L) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    method @Deprecated protected final suspend Object? createSharedAssets(kotlin.coroutines.Continuation<? super SharedAssetsT>);
+    method @Deprecated @WorkerThread public abstract com.google.common.util.concurrent.ListenableFuture<SharedAssetsT> createSharedAssetsFuture();
+    method @Deprecated public final suspend Object? onBackgroundThreadGlContextCreated(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated protected com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> onBackgroundThreadGlContextCreatedFuture();
+    method @Deprecated public final suspend Object? onUiThreadGlSurfaceCreated(@Px int width, @Px int height, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated @UiThread protected com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> onUiThreadGlSurfaceCreatedFuture(@Px int width, @Px int height);
+    method @Deprecated @WorkerThread public final void runBackgroundThreadGlCommands(Runnable runnable);
+    method @Deprecated @UiThread public final void runUiThreadGlCommands(Runnable runnable);
   }
 
-  public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> extends androidx.wear.watchface.StatefulWatchFaceRuntimeService<Extra> {
-    ctor public ListenableStatefulWatchFaceRuntimeService();
-    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
-    method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFutureAsync(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra);
+  @Deprecated public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> extends androidx.wear.watchface.StatefulWatchFaceRuntimeService<Extra> {
+    ctor @Deprecated public ListenableStatefulWatchFaceRuntimeService();
+    method @Deprecated protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method @Deprecated protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFutureAsync(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, Extra extra);
   }
 
-  public abstract class ListenableStatefulWatchFaceService<Extra> extends androidx.wear.watchface.StatefulWatchFaceService<Extra> {
-    ctor public ListenableStatefulWatchFaceService();
-    method protected suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
-    method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFuture(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra);
+  @Deprecated public abstract class ListenableStatefulWatchFaceService<Extra> extends androidx.wear.watchface.StatefulWatchFaceService<Extra> {
+    ctor @Deprecated public ListenableStatefulWatchFaceService();
+    method @Deprecated protected suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method @Deprecated protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFuture(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, Extra extra);
   }
 
-  public abstract class ListenableWatchFaceRuntimeService extends androidx.wear.watchface.WatchFaceRuntimeService {
-    ctor public ListenableWatchFaceRuntimeService();
-    method protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
-    method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFutureAsync(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName);
+  @Deprecated public abstract class ListenableWatchFaceRuntimeService extends androidx.wear.watchface.WatchFaceRuntimeService {
+    ctor @Deprecated public ListenableWatchFaceRuntimeService();
+    method @Deprecated protected final suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method @Deprecated protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFutureAsync(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, String resourceOnlyWatchFacePackageName);
   }
 
-  public abstract class ListenableWatchFaceService extends androidx.wear.watchface.WatchFaceService {
-    ctor public ListenableWatchFaceService();
-    method protected suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
-    method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFuture(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+  @Deprecated public abstract class ListenableWatchFaceService extends androidx.wear.watchface.WatchFaceService {
+    ctor @Deprecated public ListenableWatchFaceService();
+    method @Deprecated protected suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
+    method @Deprecated protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFuture(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
   }
 
 }

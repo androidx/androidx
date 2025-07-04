@@ -49,7 +49,7 @@ internal class CustomBulletSpan(
     private val alpha: Float,
     private val drawStyle: DrawStyle,
     private val density: Density,
-    textIndentPx: Float
+    textIndentPx: Float,
 ) : LeadingMarginSpan {
 
     private val minimumRequiredIndent = (bulletWidthPx + gapWidthPx).roundToInt()
@@ -73,7 +73,7 @@ internal class CustomBulletSpan(
         start: Int,
         end: Int,
         first: Boolean,
-        layout: Layout?
+        layout: Layout?,
     ) {
         if (c == null) return
         val yCenter = (top + bottom) / 2f
@@ -94,7 +94,7 @@ internal class CustomBulletSpan(
                         shape.createOutline(
                             bulletSize,
                             if (dir > 0) LayoutDirection.Ltr else LayoutDirection.Rtl,
-                            density
+                            density,
                         )
                     outline.draw(c, paint, xStart.toFloat(), yCenter, dir)
                 }
@@ -153,7 +153,7 @@ private fun Outline.draw(canvas: Canvas, paint: Paint, xStart: Float, yCenter: F
                     yCenter + (roundRect.height / 2f),
                     xRadius,
                     xRadius,
-                    paint
+                    paint,
                 )
             }
         }
@@ -163,7 +163,7 @@ private fun Outline.draw(canvas: Canvas, paint: Paint, xStart: Float, yCenter: F
                 yCenter - rect.height / 2f,
                 xStart + dir * rect.width,
                 yCenter + rect.height / 2f,
-                paint
+                paint,
             )
         }
     }

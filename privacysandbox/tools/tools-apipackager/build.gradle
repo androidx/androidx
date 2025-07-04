@@ -21,8 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,16 +29,14 @@ plugins {
 }
 
 dependencies {
+    api(project(":privacysandbox:tools:tools"))
+    api(project(":privacysandbox:tools:tools-core"))
     api(libs.kotlinStdlib)
-    implementation(libs.kotlinStdlibJdk8)
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.kotlinMetadataJvm) {
         exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
-
-    implementation(project(":privacysandbox:tools:tools"))
-    implementation(project(":privacysandbox:tools:tools-core"))
 
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-testing"))
@@ -50,8 +47,7 @@ dependencies {
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-apipackager"
-    type = LibraryType.OTHER_CODE_PROCESSOR
+    type = SoftwareType.OTHER_CODE_PROCESSOR
     inceptionYear = "2022"
     description = "Packages API descriptions from SDKs compiled with Privacy Sandbox annotations."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

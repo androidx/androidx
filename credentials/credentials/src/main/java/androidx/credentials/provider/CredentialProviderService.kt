@@ -115,15 +115,15 @@ abstract class CredentialProviderService : CredentialProviderService() {
         callback:
             OutcomeReceiver<
                 android.service.credentials.BeginGetCredentialResponse,
-                GetCredentialException
-            >
+                GetCredentialException,
+            >,
     ) {
         val structuredRequest = BeginGetCredentialUtil.convertToJetpackRequest(request)
         val outcome =
             object :
                 OutcomeReceiver<
                     BeginGetCredentialResponse,
-                    androidx.credentials.exceptions.GetCredentialException
+                    androidx.credentials.exceptions.GetCredentialException,
                 > {
                 override fun onResult(response: BeginGetCredentialResponse) {
                     callback.onResult(BeginGetCredentialUtil.convertToFrameworkResponse(response))
@@ -147,8 +147,8 @@ abstract class CredentialProviderService : CredentialProviderService() {
         callback:
             OutcomeReceiver<
                 android.service.credentials.BeginCreateCredentialResponse,
-                android.credentials.CreateCredentialException
-            >
+                android.credentials.CreateCredentialException,
+            >,
     ) {
         val outcome =
             object : OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException> {
@@ -174,7 +174,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
     final override fun onClearCredentialState(
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<Void, ClearCredentialStateException>
+        callback: OutcomeReceiver<Void, ClearCredentialStateException>,
     ) {
         val outcome =
             object : OutcomeReceiver<Void?, ClearCredentialException> {
@@ -217,7 +217,7 @@ abstract class CredentialProviderService : CredentialProviderService() {
     abstract fun onClearCredentialStateRequest(
         request: ProviderClearCredentialStateRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<Void?, ClearCredentialException>
+        callback: OutcomeReceiver<Void?, ClearCredentialException>,
     )
 
     /**
@@ -271,8 +271,8 @@ abstract class CredentialProviderService : CredentialProviderService() {
         callback:
             OutcomeReceiver<
                 BeginGetCredentialResponse,
-                androidx.credentials.exceptions.GetCredentialException
-            >
+                androidx.credentials.exceptions.GetCredentialException,
+            >,
     )
 
     /**
@@ -308,6 +308,6 @@ abstract class CredentialProviderService : CredentialProviderService() {
     abstract fun onBeginCreateCredentialRequest(
         request: BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException>
+        callback: OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException>,
     )
 }

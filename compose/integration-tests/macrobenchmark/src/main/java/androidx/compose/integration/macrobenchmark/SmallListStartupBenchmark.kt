@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class SmallListStartupBenchmark(
     private val startupMode: StartupMode,
-    private val compilationMode: CompilationMode
+    private val compilationMode: CompilationMode,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -42,7 +42,7 @@ class SmallListStartupBenchmark(
             compilationMode = compilationMode,
             startupMode = startupMode,
             metrics = getStartupMetrics(),
-            packageName = "androidx.compose.integration.macrobenchmark.target"
+            packageName = "androidx.compose.integration.macrobenchmark.target",
         ) {
             action = "androidx.compose.integration.macrobenchmark.target.LAZY_COLUMN_ACTIVITY"
             putExtra("ITEM_COUNT", 5)

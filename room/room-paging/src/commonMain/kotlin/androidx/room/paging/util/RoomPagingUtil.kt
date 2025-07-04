@@ -28,9 +28,9 @@ import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingState
 import androidx.room.RoomDatabase
 import androidx.room.RoomRawQuery
-import androidx.room.useReaderConnection
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
+import kotlinx.coroutines.withContext
 
 /** The default itemCount value */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val INITIAL_ITEM_COUNT: Int = -1
@@ -83,7 +83,7 @@ public fun getOffset(params: LoadParams<Int>, key: Int, itemCount: Int): Int {
             }
         is Append -> key
         is Refresh ->
-            if (key >= itemCount) {
+            if (key >= itemCount - params.loadSize) {
                 maxOf(0, itemCount - params.loadSize)
             } else {
                 key
@@ -110,7 +110,7 @@ public suspend fun <Value : Any> queryDatabase(
     params: LoadParams<Int>,
     sourceQuery: RoomRawQuery,
     itemCount: Int,
-    convertRows: suspend (RoomRawQuery, Int) -> List<Value>
+    convertRows: suspend (RoomRawQuery, Int) -> List<Value>,
 ): LoadResult<Int, Value> {
     val key = params.key ?: 0
     val limit = getLimit(params, key)
@@ -124,7 +124,7 @@ public suspend fun <Value : Any> queryDatabase(
     val limitOffsetQuery =
         RoomRawQuery(
             sql = "SELECT * FROM ( ${sourceQuery.sql} ) LIMIT $limit OFFSET $offset",
-            onBindStatement = sourceQuery.getBindingFunction()
+            onBindStatement = sourceQuery.getBindingFunction(),
         )
 
     val data: List<Value> = convertRows(limitOffsetQuery, rowsCount)
@@ -141,7 +141,7 @@ public suspend fun <Value : Any> queryDatabase(
         prevKey = prevKey,
         nextKey = nextKey,
         itemsBefore = offset,
-        itemsAfter = maxOf(0, itemCount - nextPosToLoad)
+        itemsAfter = maxOf(0, itemCount - nextPosToLoad),
     )
 }
 
@@ -155,13 +155,16 @@ public suspend fun <Value : Any> queryDatabase(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun queryItemCount(sourceQuery: RoomRawQuery, db: RoomDatabase): Int {
     val countQuery = "SELECT COUNT(*) FROM ( ${sourceQuery.sql} )"
-    return db.useReaderConnection { connection ->
-        connection.usePrepared(countQuery) { stmt ->
-            sourceQuery.getBindingFunction().invoke(stmt)
-            if (stmt.step()) {
-                stmt.getInt(0)
-            } else {
-                0
+    // Query in the database's coroutine context since useConnection is unconfined.
+    return withContext(db.getCoroutineScope().coroutineContext) {
+        db.useConnection(isReadOnly = true) { connection ->
+            connection.usePrepared(countQuery) { stmt ->
+                sourceQuery.getBindingFunction().invoke(stmt)
+                if (stmt.step()) {
+                    stmt.getInt(0)
+                } else {
+                    0
+                }
             }
         }
     }

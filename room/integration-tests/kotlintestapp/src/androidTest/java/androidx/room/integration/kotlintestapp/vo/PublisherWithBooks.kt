@@ -24,7 +24,7 @@ class PublisherWithBooks {
     @Relation(
         parentColumn = "publisherId", // publisher.publisherId
         entityColumn = "bookPublisherId", // book.bookPublisherId
-        entity = Book::class
+        entity = Book::class,
     )
     var books: List<Book>? = null
 }

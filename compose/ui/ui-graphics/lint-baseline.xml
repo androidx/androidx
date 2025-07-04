@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="NewApi"
-        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
-        errorLine1="                val node = s.removeLastKt()"
-        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        message="Call requires API level 23 (current min is 21): `android.view.View#setForeground`"
+        errorLine1="                                foreground = GraphicsContextHostDrawable(graphicsContext, block)"
+        errorLine2="                                           ~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/ui/graphics/IntervalTree.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/graphics/layer/AndroidGraphicsLayerTest.kt"/>
     </issue>
 
     <issue
@@ -85,7 +85,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method ActualSweepGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    colorStops: List&lt;Float>?"
+        errorLine1="    colorStops: List&lt;Float>?,"
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/graphics/AndroidShader.android.kt"/>
@@ -283,7 +283,7 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor SweepGradient has parameter stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
@@ -292,7 +292,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field stops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    private val stops: List&lt;Float>? = null"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
         errorLine2="                       ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Brush.kt"/>
@@ -436,7 +436,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method SweepGradientShader has parameter colorStops with type List&lt;Float>: replace with FloatList"
-        errorLine1="    colorStops: List&lt;Float>? = null"
+        errorLine1="    colorStops: List&lt;Float>? = null,"
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Shader.kt"/>
@@ -490,7 +490,7 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor Vertices has parameter indices with type List&lt;Integer>: replace with IntList"
-        errorLine1="    indices: List&lt;Int>"
+        errorLine1="    indices: List&lt;Int>,"
         errorLine2="             ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/graphics/Vertices.kt"/>

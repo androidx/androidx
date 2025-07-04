@@ -20,10 +20,9 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import androidx.annotation.Px
 import androidx.annotation.RestrictTo
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.nativeloader.NativeLoader
-import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.rendering.android.canvas.internal.CanvasPathRenderer
 import androidx.ink.rendering.android.canvas.internal.CanvasStrokeUnifiedRenderer
 import androidx.ink.strokes.InProgressStroke
@@ -101,13 +100,14 @@ public interface CanvasStrokeRenderer {
     public fun draw(
         canvas: Canvas,
         stroke: Stroke,
-        strokeToScreenTransform: AffineTransform
+        strokeToScreenTransform: AffineTransform,
     ): Unit = draw(canvas, stroke, strokeToScreenTransform, 0f)
 
     /**
-     * Render a single [stroke] on the provided [canvas], using the specified [animationProgress]
-     * value (typically 0 to 1) for the stroke's animated textures, if any. Renderer implementations
-     * that don't support animated textures may ignore the [animationProgress] argument.
+     * Render a single [stroke] on the provided [canvas], using the specified
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -123,7 +123,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -144,9 +144,10 @@ public interface CanvasStrokeRenderer {
         draw(canvas, stroke, strokeToScreenTransform, 0f)
 
     /**
-     * Render a single [stroke] on the provided [canvas], using the specified [animationProgress]
-     * value (typically 0 to 1) for the stroke's animated textures, if any. Renderer implementations
-     * that don't support animated textures may ignore the [animationProgress] argument.
+     * Render a single [stroke] on the provided [canvas], using the specified
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * To avoid needing to calculate and maintain [strokeToScreenTransform], consider using
      * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
@@ -162,7 +163,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -183,9 +184,9 @@ public interface CanvasStrokeRenderer {
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
-     * [animationProgress] value (typically 0 to 1) for the stroke's animated textures, if any.
-     * Renderer implementations that don't support animated textures may ignore the
-     * [animationProgress] argument.
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * The [strokeToScreenTransform] should represent the complete transformation from stroke
      * coordinates to the canvas, modulo translation. This transform will not be applied to the
@@ -198,7 +199,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -219,9 +220,9 @@ public interface CanvasStrokeRenderer {
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
-     * [animationProgress] value (typically 0 to 1) for the stroke's animated textures, if any.
-     * Renderer implementations that don't support animated textures may ignore the
-     * [animationProgress] argument.
+     * [textureAnimationProgress] value (typically 0 to 1) for the stroke's animated textures, if
+     * any. Renderer implementations that don't support animated textures may ignore the
+     * [textureAnimationProgress] argument.
      *
      * The [strokeToScreenTransform] must be affine. It should represent the complete transformation
      * from stroke coordinates to the canvas, modulo translation. This transform will not be applied
@@ -234,7 +235,7 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     )
 
     /**
@@ -255,54 +256,32 @@ public interface CanvasStrokeRenderer {
             NativeLoader.load()
         }
 
-        /** Create a [CanvasStrokeRenderer] that is appropriate to the device's API version. */
-        @JvmStatic
-        public fun create(): CanvasStrokeRenderer {
-            @OptIn(ExperimentalInkCustomBrushApi::class)
-            return create(TextureBitmapStore { null }, forcePathRendering = false)
-        }
-
         /**
          * Create a [CanvasStrokeRenderer] that is appropriate to the device's API version.
          *
          * @param textureStore The [TextureBitmapStore] that will be called to retrieve image data
          *   for drawing textured strokes.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-        @ExperimentalInkCustomBrushApi
-        @JvmStatic
-        public fun create(textureStore: TextureBitmapStore): CanvasStrokeRenderer {
-            @OptIn(ExperimentalInkCustomBrushApi::class)
-            return create(textureStore, forcePathRendering = false)
-        }
-
-        /**
-         * Create a [CanvasStrokeRenderer] that is appropriate to the device's API version.
-         *
-         * @param forcePathRendering Overrides the drawing strategy selected based on API version to
-         *   always draw strokes using [Canvas.drawPath] instead of [Canvas.drawMesh].
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-        @JvmStatic
-        public fun create(forcePathRendering: Boolean): CanvasStrokeRenderer {
-            @OptIn(ExperimentalInkCustomBrushApi::class)
-            return create(TextureBitmapStore { null }, forcePathRendering)
-        }
-
-        /**
-         * Create a [CanvasStrokeRenderer] that is appropriate to the device's API version.
-         *
-         * @param textureStore The [TextureBitmapStore] that will be called to retrieve image data
-         *   for drawing textured strokes.
-         * @param forcePathRendering Overrides the drawing strategy selected based on API version to
-         *   always draw strokes using [Canvas.drawPath] instead of [Canvas.drawMesh].
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-        @ExperimentalInkCustomBrushApi
         @JvmStatic
         public fun create(
-            textureStore: TextureBitmapStore,
+            textureStore: TextureBitmapStore = TextureBitmapStore { null }
+        ): CanvasStrokeRenderer {
+            return create(forcePathRendering = false, textureStore = textureStore)
+        }
+
+        /**
+         * Create a [CanvasStrokeRenderer] that is appropriate to the device's API version.
+         *
+         * @param textureStore The [TextureBitmapStore] that will be called to retrieve image data
+         *   for drawing textured strokes.
+         * @param forcePathRendering Overrides the drawing strategy selected based on API version to
+         *   always draw strokes using [Canvas.drawPath] instead of [Canvas.drawMesh].
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @JvmStatic
+        public fun create(
             forcePathRendering: Boolean,
+            textureStore: TextureBitmapStore = TextureBitmapStore { null },
         ): CanvasStrokeRenderer {
             if (!forcePathRendering) return CanvasStrokeUnifiedRenderer(textureStore)
             return CanvasPathRenderer(textureStore)

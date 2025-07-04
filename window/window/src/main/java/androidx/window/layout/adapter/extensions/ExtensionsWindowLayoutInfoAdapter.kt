@@ -81,7 +81,7 @@ internal object ExtensionsWindowLayoutInfoAdapter {
 
     internal fun translate(
         windowMetrics: WindowMetrics,
-        info: OEMWindowLayoutInfo
+        info: OEMWindowLayoutInfo,
     ): WindowLayoutInfo {
         val features =
             info.displayFeatures.mapNotNull { feature ->

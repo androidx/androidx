@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 internal class Ksp1Compilation(
     private val name: String,
     private val symbolProcessorProviders: List<SymbolProcessorProvider>,
-    private val processorOptions: Map<String, String>
+    private val processorOptions: Map<String, String>,
 ) {
     private fun createKspOptions(workingDir: File): KspOptions.Builder {
         return KspOptions.Builder().apply {
@@ -56,10 +56,10 @@ internal class Ksp1Compilation(
                                 kspWorkingDir = workingDir.resolve("ksp-compiler"),
                                 baseOptions = createKspOptions(workingDir),
                                 processorProviders = symbolProcessorProviders,
-                                messageCollector = kspMessages
+                                messageCollector = kspMessages,
                             )
                         ),
-                        emptyList()
+                        emptyList(),
                     ),
             )
         // workaround for https://github.com/google/ksp/issues/623
@@ -74,7 +74,7 @@ internal class Ksp1Compilation(
         val diagnostics =
             resolveDiagnostics(
                 diagnostics = result.diagnostics + kspMessages.getDiagnostics(),
-                sourceSets = arguments.sourceSets + generatedSources
+                sourceSets = arguments.sourceSets + generatedSources,
             )
         val outputResources = workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
         val outputClasspath = listOf(result.compiledClasspath) + outputResources
@@ -91,7 +91,7 @@ internal class Ksp1Compilation(
             nextCompilerArguments =
                 arguments.copy(sourceSets = arguments.sourceSets + generatedSources),
             outputClasspath = outputClasspath,
-            generatedResources = generatedResources
+            generatedResources = generatedResources,
         )
     }
 

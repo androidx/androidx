@@ -36,7 +36,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -47,6 +46,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -478,9 +478,8 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         };
         recyclerView.setAccessibilityDelegateCompat(
                     new RecyclerViewAccessibilityDelegate(recyclerView) {
-                @NonNull
                 @Override
-                public AccessibilityDelegateCompat getItemDelegate() {
+                public @NonNull AccessibilityDelegateCompat getItemDelegate() {
                     return new RecyclerViewAccessibilityDelegate.ItemDelegate(this) {
                         @Override
                         public void onInitializeAccessibilityNodeInfo(@NonNull View host,

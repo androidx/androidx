@@ -63,7 +63,7 @@ class ServiceBackedHealthDataClientTest {
             ServiceBackedHealthDataClient(
                 ApplicationProvider.getApplicationContext(),
                 clientConfig,
-                connectionManager
+                connectionManager,
             )
         fakeAhpServiceStub = FakeHealthDataService()
         val bindIntent =
@@ -72,7 +72,7 @@ class ServiceBackedHealthDataClientTest {
             .setComponentNameAndServiceForBindServiceForIntent(
                 bindIntent,
                 ComponentName(clientConfig.servicePackageName, clientConfig.bindAction),
-                fakeAhpServiceStub
+                fakeAhpServiceStub,
             )
         installPackage(ApplicationProvider.getApplicationContext(), PROVIDER_PACKAGE_NAME, true)
         Intents.init()

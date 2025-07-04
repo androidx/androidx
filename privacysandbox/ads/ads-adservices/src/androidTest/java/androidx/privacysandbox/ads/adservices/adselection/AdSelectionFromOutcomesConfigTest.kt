@@ -46,7 +46,7 @@ class AdSelectionFromOutcomesConfigTest {
                 seller,
                 adSelectionIds,
                 adSelectionSignals,
-                selectionLogicUri
+                selectionLogicUri,
             )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
@@ -58,14 +58,14 @@ class AdSelectionFromOutcomesConfigTest {
                 seller,
                 adSelectionIds,
                 adSelectionSignals,
-                selectionLogicUri
+                selectionLogicUri,
             )
         var adSelectionFromOutcomesConfig2 =
             AdSelectionFromOutcomesConfig(
                 AdTechIdentifier("1234"),
                 adSelectionIds,
                 adSelectionSignals,
-                Uri.parse("www.abc.com")
+                Uri.parse("www.abc.com"),
             )
         Truth.assertThat(adSelectionFromOutcomesConfig == adSelectionFromOutcomesConfig2).isTrue()
     }

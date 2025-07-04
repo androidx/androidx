@@ -57,7 +57,7 @@ class ValueParserTest {
                         val magicPayload: MagicPayload, val isTrulyMagic: Boolean)
                     @PrivacySandboxValue
                     data class MagicPayload(val magicList: List<Long>)
-                """
+                """,
             )
         assertThat(parseSources(source))
             .isEqualTo(
@@ -74,13 +74,13 @@ class ValueParserTest {
                                                 listOf(
                                                     Parameter(
                                                         "request",
-                                                        Type("com.mysdk", "MySdkRequest")
+                                                        Type("com.mysdk", "MySdkRequest"),
                                                     )
                                                 ),
                                             returnType = Type("com.mysdk", "MySdkResponse"),
-                                            isSuspend = true
+                                            isSuspend = true,
                                         )
-                                    )
+                                    ),
                             )
                         ),
                     values =
@@ -91,7 +91,7 @@ class ValueParserTest {
                                     listOf(
                                         ValueProperty("id", Types.int),
                                         ValueProperty("message", Types.string.asNullable()),
-                                    )
+                                    ),
                             ),
                             AnnotatedDataClass(
                                 type =
@@ -102,18 +102,18 @@ class ValueParserTest {
                                             "magicPayload",
                                             Type(
                                                 packageName = "com.mysdk",
-                                                simpleName = "MagicPayload"
-                                            )
+                                                simpleName = "MagicPayload",
+                                            ),
                                         ),
                                         ValueProperty("isTrulyMagic", Types.boolean),
-                                    )
+                                    ),
                             ),
                             AnnotatedDataClass(
                                 type = Type(packageName = "com.mysdk", simpleName = "MagicPayload"),
                                 properties =
-                                    listOf(ValueProperty("magicList", Types.list(Types.long)))
+                                    listOf(ValueProperty("magicList", Types.list(Types.long))),
                             ),
-                        )
+                        ),
                 )
             )
     }
@@ -132,14 +132,14 @@ class ValueParserTest {
                     }
                     @PrivacySandboxValue
                     enum class MyEnum { FOO, BAR }
-                """
+                """,
             )
         assertThat(parseSources(source).values)
             .isEqualTo(
                 setOf(
                     AnnotatedEnumClass(
                         type = Type(packageName = "com.mysdk", simpleName = "MyEnum"),
-                        variants = listOf("FOO", "BAR")
+                        variants = listOf("FOO", "BAR"),
                     )
                 )
             )
@@ -162,7 +162,7 @@ class ValueParserTest {
                     enum class MoveState : Transmogrifable {
                         STOP, GO;
                     }
-                """
+                """,
             )
         checkSourceFails(source)
             .containsExactlyErrors(
@@ -305,7 +305,7 @@ class ValueParserTest {
             .containsExactlyErrors(
                 "Error in com.mysdk.MySdkRequest.foo: only primitives, lists, data/enum classes " +
                     "annotated with @PrivacySandboxValue, interfaces annotated with " +
-                    "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
+                    "@PrivacySandboxInterface, SandboxedUiAdapters and SdkActivityLaunchers are supported as " +
                     "properties."
             )
     }
@@ -321,6 +321,6 @@ class ValueParserTest {
             interface MySdk
             @PrivacySandboxValue
             $declaration
-        """
+        """,
         )
 }

@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
@@ -57,17 +58,17 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         // You can override the xcodeGenDownloadUri by specifying something like:
         // androidx.benchmark.darwin.xcodeGenDownloadUri=https://github.com/yonaskolb/XcodeGen/releases/download/2.32.0/xcodegen.zip
         val xcodeGenUri =
-            when (val uri = project.findProperty(XCODEGEN_DOWNLOAD_URI)) {
-                null ->
+            project.providers
+                .gradleProperty(XCODEGEN_DOWNLOAD_URI)
+                .orElse(
                     File(
                             project.rootProject.projectDir, // frameworks/support
-                            "../../prebuilts/androidx/external/xcodegen"
+                            "../../prebuilts/androidx/external/xcodegen",
                         )
                         .absoluteFile
                         .toURI()
                         .toString()
-                else -> uri.toString()
-            }
+                )
 
         val xcodeProjectPath =
             extension.xcodeProjectName.flatMap { name ->
@@ -91,7 +92,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         val generateXCodeProjectTask =
             project.tasks.register(
                 GENERATE_XCODE_PROJECT_TASK,
-                GenerateXCodeProjectTask::class.java
+                GenerateXCodeProjectTask::class.java,
             ) {
                 it.xcodeGenPath.set(fetchXCodeGenTask.map { task -> task.xcodeGenBinary() })
                 it.yamlFile.set(extension.xcodeGenConfigFile)
@@ -102,7 +103,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         val runDarwinBenchmarks =
             project.tasks.register(
                 RUN_DARWIN_BENCHMARKS_TASK,
-                RunDarwinBenchmarksTask::class.java
+                RunDarwinBenchmarksTask::class.java,
             ) {
                 val sharedService =
                     project.gradle.sharedServices.registrations
@@ -120,7 +121,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
 
         project.tasks.register(
             DARWIN_BENCHMARK_RESULTS_TASK,
-            DarwinBenchmarkResultsTask::class.java
+            DarwinBenchmarkResultsTask::class.java,
         ) {
             it.group = "Verification"
             it.description = "Run Kotlin Multiplatform Benchmarks for Darwin"
@@ -138,27 +139,27 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         extension: DarwinBenchmarkPluginExtension
     ): Provider<Directory> {
         val distProvider = project.distributionDirectory()
-        val benchmarksDirProvider =
-            distProvider.flatMap { distDir ->
-                extension.xcodeProjectName.map { projectName ->
-                    val projectPath = project.path.replace(":", "/")
-                    val benchmarksDirectory = File(distDir, DARWIN_BENCHMARKS_DIR)
-                    File(benchmarksDirectory, "$projectPath/$projectName")
-                }
+        return distProvider.flatMap { distDir ->
+            extension.xcodeProjectName.map { projectName ->
+                distDir
+                    .dir(DARWIN_BENCHMARKS_DIR)
+                    .dir(project.path.replace(":", "/"))
+                    .dir(projectName)
             }
-        return project.layout.dir(benchmarksDirProvider)
+        }
     }
 
-    private fun Project.distributionDirectory(): Provider<File> {
+    private fun Project.distributionDirectory(): Provider<Directory> {
         // We want to write metrics to library metrics specific location
         // Context: b/257326666
-        return providers.environmentVariable(DIST_DIR).map { value ->
-            val parent =
-                value.ifBlank {
-                    @Suppress("DEPRECATION") // b/290811136
-                    project.buildDir.absolutePath
+        return providers.environmentVariable(DIST_DIR).flatMap { value ->
+            val parent: DirectoryProperty =
+                if (value.isBlank()) {
+                    project.layout.buildDirectory
+                } else {
+                    project.objects.directoryProperty().also { it.set(File(value)) }
                 }
-            File(parent, LIBRARY_METRICS)
+            parent.dir(LIBRARY_METRICS)
         }
     }
 

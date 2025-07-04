@@ -42,7 +42,7 @@ class DocumentsContractCompatTest {
     fun testVirtualDocConstantCheck() {
         assertEquals(
             DocumentsContractCompat.DocumentCompat.FLAG_VIRTUAL_DOCUMENT,
-            DocumentsContract.Document.FLAG_VIRTUAL_DOCUMENT
+            DocumentsContract.Document.FLAG_VIRTUAL_DOCUMENT,
         )
     }
 
@@ -51,12 +51,12 @@ class DocumentsContractCompatTest {
         assertEquals(
             DocumentsContractCompat.buildChildDocumentsUri(
                 EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                DOWNLOAD_DOCID
+                DOWNLOAD_DOCID,
             ),
             DocumentsContract.buildChildDocumentsUri(
                 EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                DOWNLOAD_DOCID
-            )
+                DOWNLOAD_DOCID,
+            ),
         )
     }
 
@@ -66,11 +66,11 @@ class DocumentsContractCompatTest {
             val treeUri =
                 DocumentsContract.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             assertEquals(
                 DocumentsContractCompat.buildChildDocumentsUriUsingTree(treeUri, DOWNLOAD_DOCID),
-                DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, DOWNLOAD_DOCID)
+                DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, DOWNLOAD_DOCID),
             )
         } else {
             val treeUri = buildTreeDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
@@ -78,8 +78,8 @@ class DocumentsContractCompatTest {
             assertNull(
                 DocumentsContractCompat.buildChildDocumentsUriUsingTree(
                     treeUriWithDocId,
-                    DOWNLOAD_DOCID
-                ),
+                    DOWNLOAD_DOCID,
+                )
             )
         }
     }
@@ -89,9 +89,9 @@ class DocumentsContractCompatTest {
         assertEquals(
             DocumentsContractCompat.buildDocumentUri(
                 EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                DOWNLOAD_DOCID
+                DOWNLOAD_DOCID,
             ),
-            DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
+            DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID),
         )
     }
 
@@ -101,11 +101,11 @@ class DocumentsContractCompatTest {
             val treeUri =
                 DocumentsContract.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             assertEquals(
                 DocumentsContractCompat.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID),
-                DocumentsContract.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID)
+                DocumentsContract.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID),
             )
         } else {
             val treeUri = buildTreeDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
@@ -119,18 +119,18 @@ class DocumentsContractCompatTest {
             assertEquals(
                 DocumentsContractCompat.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 ),
                 DocumentsContract.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
+                    DOWNLOAD_DOCID,
+                ),
             )
         } else {
             assertNull(
                 DocumentsContractCompat.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             )
         }
@@ -142,7 +142,7 @@ class DocumentsContractCompatTest {
             DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
         assertEquals(
             DocumentsContractCompat.getDocumentId(documentUri),
-            DocumentsContract.getDocumentId(documentUri)
+            DocumentsContract.getDocumentId(documentUri),
         )
     }
 
@@ -152,17 +152,17 @@ class DocumentsContractCompatTest {
             val treeUri =
                 DocumentsContract.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             val treeUriWithDocId =
                 DocumentsContract.buildDocumentUriUsingTree(treeUri, DOWNLOAD_DOCID)
             assertEquals(
                 DocumentsContractCompat.getTreeDocumentId(treeUri),
-                DocumentsContract.getTreeDocumentId(treeUri)
+                DocumentsContract.getTreeDocumentId(treeUri),
             )
             assertEquals(
                 DocumentsContractCompat.getTreeDocumentId(treeUriWithDocId),
-                DocumentsContract.getTreeDocumentId(treeUriWithDocId)
+                DocumentsContract.getTreeDocumentId(treeUriWithDocId),
             )
         } else {
             val treeUri = buildTreeDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
@@ -179,13 +179,13 @@ class DocumentsContractCompatTest {
             val documentUri =
                 DocumentsContract.buildDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             assertFalse(DocumentsContractCompat.isTreeUri(documentUri))
             val downloadTree =
                 DocumentsContract.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             val downloadTreeDocUri =
                 DocumentsContract.buildDocumentUriUsingTree(downloadTree, DOWNLOAD_DOCID)
@@ -226,7 +226,7 @@ class DocumentsContractCompatTest {
             val downloadTree =
                 DocumentsContract.buildTreeDocumentUri(
                     EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
+                    DOWNLOAD_DOCID,
                 )
             val downloadTreeDocUri =
                 DocumentsContract.buildDocumentUriUsingTree(downloadTree, DOWNLOAD_DOCID)

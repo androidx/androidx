@@ -18,7 +18,6 @@ package androidx.core.telecom.test
 
 import android.net.Uri
 import android.os.Build.VERSION_CODES
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallAttributesCompat.Companion.SUPPORTS_SET_INACTIVE
 import androidx.core.telecom.CallAttributesCompat.Companion.SUPPORTS_STREAM
@@ -29,12 +28,13 @@ import androidx.core.telecom.test.utils.TestUtils.CUSTOM_TEST_APP_SCHEME
 import androidx.core.telecom.test.utils.TestUtils.OUTGOING_NAME
 import androidx.core.telecom.test.utils.TestUtils.TEST_ADDRESS
 import androidx.core.telecom.test.utils.TestUtils.TEST_CALL_ATTRIB_NAME
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@RequiresApi(VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = VERSION_CODES.O)
 class CallAttributesCompatTest {
 
     @Test
@@ -43,7 +43,7 @@ class CallAttributesCompatTest {
             CallAttributesCompat(
                 OUTGOING_NAME,
                 TEST_ADDRESS,
-                CallAttributesCompat.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING,
             )
         assertEquals(OUTGOING_NAME, callAttributesCompat.displayName)
         assertEquals(TEST_ADDRESS, callAttributesCompat.address)
@@ -64,7 +64,7 @@ class CallAttributesCompatTest {
                 TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_INCOMING,
                 CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
-                ALL_CALL_CAPABILITIES
+                ALL_CALL_CAPABILITIES,
             )
         assertEquals(TEST_CALL_ATTRIB_NAME, callAttributesCompat.displayName)
         assertEquals(TEST_ADDRESS, callAttributesCompat.address)
@@ -83,14 +83,14 @@ class CallAttributesCompatTest {
             CallAttributesCompat(
                 OUTGOING_NAME,
                 TEST_ADDRESS,
-                CallAttributesCompat.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING,
             )
 
         val incoming =
             CallAttributesCompat(
                 TEST_CALL_ATTRIB_NAME,
                 Uri.parse(CUSTOM_TEST_APP_SCHEME + "123"),
-                CallAttributesCompat.DIRECTION_INCOMING
+                CallAttributesCompat.DIRECTION_INCOMING,
             )
 
         assertFalse(outgoing.toString() == incoming.toString())
@@ -104,14 +104,14 @@ class CallAttributesCompatTest {
             CallAttributesCompat(
                 OUTGOING_NAME,
                 TEST_ADDRESS,
-                CallAttributesCompat.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING,
             )
 
         val outgoing2 =
             CallAttributesCompat(
                 OUTGOING_NAME,
                 TEST_ADDRESS,
-                CallAttributesCompat.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING,
             )
 
         assertEquals(outgoing1, outgoing2)

@@ -86,7 +86,7 @@ class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_D
                 "com.google.android.tts",
                 "com.google.android.videos",
                 "com.google.android.volta",
-                "com.google.android.youtube"
+                "com.google.android.youtube",
             )
     }
 }

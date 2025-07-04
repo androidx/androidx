@@ -47,7 +47,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
                 year = systemCalendar[Calendar.YEAR],
                 month = systemCalendar[Calendar.MONTH] + 1,
                 dayOfMonth = systemCalendar[Calendar.DAY_OF_MONTH],
-                utcTimeMillis = systemCalendar.timeInMillis + utcOffset
+                utcTimeMillis = systemCalendar.timeInMillis + utcOffset,
             )
         }
 
@@ -82,7 +82,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
             year = calendar[Calendar.YEAR],
             month = calendar[Calendar.MONTH] + 1,
             dayOfMonth = calendar[Calendar.DAY_OF_MONTH],
-            utcTimeMillis = calendar.timeInMillis
+            utcTimeMillis = calendar.timeInMillis,
         )
     }
 
@@ -133,7 +133,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
     override fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
-        locale: CalendarLocale
+        locale: CalendarLocale,
     ): String = formatWithPattern(utcTimeMillis, pattern, locale, formatterCache)
 
     override fun parse(date: String, pattern: String, locale: CalendarLocale): CalendarDate? {
@@ -148,7 +148,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
                 year = calendar[Calendar.YEAR],
                 month = calendar[Calendar.MONTH] + 1,
                 dayOfMonth = calendar[Calendar.DAY_OF_MONTH],
-                utcTimeMillis = calendar.timeInMillis
+                utcTimeMillis = calendar.timeInMillis,
             )
         } catch (pe: ParseException) {
             null
@@ -173,7 +173,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
             utcTimeMillis: Long,
             pattern: String,
             locale: CalendarLocale,
-            cache: MutableMap<String, Any>
+            cache: MutableMap<String, Any>,
         ): String {
             val dateFormat = getCachedSimpleDateFormat(pattern, locale, cache)
             val calendar = Calendar.getInstance(utcTimeZone)
@@ -187,7 +187,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
         private fun getCachedSimpleDateFormat(
             pattern: String,
             locale: CalendarLocale,
-            cache: MutableMap<String, Any>
+            cache: MutableMap<String, Any>,
         ): SimpleDateFormat {
             return cache.getOrPut(pattern + locale.toLanguageTag()) {
                 val dateFormat = SimpleDateFormat(pattern, locale)
@@ -219,7 +219,7 @@ internal class LegacyCalendarModelImpl(locale: CalendarLocale) : CalendarModel(l
             month = firstDayCalendar[Calendar.MONTH] + 1,
             numberOfDays = firstDayCalendar.getActualMaximum(Calendar.DAY_OF_MONTH),
             daysFromStartOfWeekToFirstOfMonth = daysFromStartOfWeekToFirstOfMonth,
-            startUtcTimeMillis = firstDayCalendar.timeInMillis
+            startUtcTimeMillis = firstDayCalendar.timeInMillis,
         )
     }
 

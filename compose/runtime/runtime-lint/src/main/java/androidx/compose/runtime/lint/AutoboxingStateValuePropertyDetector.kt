@@ -57,7 +57,7 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
         context: JavaContext,
         element: UElement,
         annotationInfo: AnnotationInfo,
-        usageInfo: AnnotationUsageInfo
+        usageInfo: AnnotationUsageInfo,
     ) {
         val resolvedPropertyName = element.identifier ?: "<unknown identifier>"
         val preferredPropertyName =
@@ -78,14 +78,14 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
                 "Use `$preferredPropertyName` to avoid unnecessary allocations.",
             createPropertyReplacementQuickFix(
                 resolvedPropertyName = resolvedPropertyName,
-                preferredPropertyName = preferredPropertyName
-            )
+                preferredPropertyName = preferredPropertyName,
+            ),
         )
     }
 
     private fun createPropertyReplacementQuickFix(
         resolvedPropertyName: String,
-        preferredPropertyName: String
+        preferredPropertyName: String,
     ): LintFix {
         return fix()
             .name("Replace with `$preferredPropertyName`")
@@ -111,8 +111,8 @@ class AutoboxingStateValuePropertyDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     AutoboxingStateValuePropertyDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

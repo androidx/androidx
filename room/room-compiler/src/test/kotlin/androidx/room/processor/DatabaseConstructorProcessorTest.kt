@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.runKspTestWithK1
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.testing.context
 import org.junit.Test
 
@@ -40,7 +40,7 @@ class DatabaseConstructorProcessorTest {
         @Entity
         data class TestEntity(@PrimaryKey val id: Long)
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     @Test
@@ -55,7 +55,7 @@ class DatabaseConstructorProcessorTest {
 
                 expect class TestDatabaseCtor : RoomDatabaseConstructor<TestDatabase>
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         ) {
             it.assertCompilationResult {
@@ -76,7 +76,7 @@ class DatabaseConstructorProcessorTest {
 
                 object TestDatabaseCtor : RoomDatabaseConstructor<TestDatabase>
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         ) {
             it.assertCompilationResult {
@@ -97,7 +97,7 @@ class DatabaseConstructorProcessorTest {
 
                 expect object TestDatabaseCtor
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         ) {
             it.assertCompilationResult {
@@ -122,7 +122,7 @@ class DatabaseConstructorProcessorTest {
 
                 expect object TestDatabaseCtor : RoomDatabaseConstructor<RoomDatabase>
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         ) {
             it.assertCompilationResult {
@@ -136,7 +136,7 @@ class DatabaseConstructorProcessorTest {
     }
 
     private fun runTest(constructorSource: Source, handler: (XTestInvocation) -> Unit = { _ -> }) {
-        runKspTestWithK1(sources = listOf(databaseSource, constructorSource)) { invocation ->
+        runKspTest(sources = listOf(databaseSource, constructorSource)) { invocation ->
             val entity =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)

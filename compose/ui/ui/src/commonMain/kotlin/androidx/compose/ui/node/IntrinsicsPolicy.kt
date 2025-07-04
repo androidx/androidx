@@ -57,7 +57,7 @@ internal class IntrinsicsPolicy(val layoutNode: LayoutNode, policy: MeasurePolic
         with(measurePolicyState) {
             layoutNode.outerCoordinator.minIntrinsicWidth(
                 layoutNode.childLookaheadMeasurables,
-                height
+                height,
             )
         }
 
@@ -65,7 +65,7 @@ internal class IntrinsicsPolicy(val layoutNode: LayoutNode, policy: MeasurePolic
         with(measurePolicyState) {
             layoutNode.outerCoordinator.minIntrinsicHeight(
                 layoutNode.childLookaheadMeasurables,
-                width
+                width,
             )
         }
 
@@ -73,7 +73,7 @@ internal class IntrinsicsPolicy(val layoutNode: LayoutNode, policy: MeasurePolic
         with(measurePolicyState) {
             layoutNode.outerCoordinator.maxIntrinsicWidth(
                 layoutNode.childLookaheadMeasurables,
-                height
+                height,
             )
         }
 
@@ -81,7 +81,7 @@ internal class IntrinsicsPolicy(val layoutNode: LayoutNode, policy: MeasurePolic
         with(measurePolicyState) {
             layoutNode.outerCoordinator.maxIntrinsicHeight(
                 layoutNode.childLookaheadMeasurables,
-                width
+                width,
             )
         }
 }

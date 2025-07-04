@@ -41,7 +41,7 @@ public final class CarAppPermission {
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @StringDef(value = {ACCESS_SURFACE, NAVIGATION_TEMPLATES})
+    @StringDef(value = {ACCESS_SURFACE, NAVIGATION_TEMPLATES, MEDIA_TEMPLATES})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LibraryPermission {
     }
@@ -62,7 +62,7 @@ public final class CarAppPermission {
      * allow using the navigation templates. See
      * <a href="https://developer.android.com/training/cars/apps/navigation#access-navigation-templates">the
      * documentation</a> for the list of such categories. An app not in one of those categories
-     * requesting this permission may be rejected upon submission to the Play Store. See
+     * requesting this permission may be rejected upon submission. See
      * {@link CarAppService} for how to declare your app's category.
      */
     public static final String NAVIGATION_TEMPLATES = "androidx.car.app.NAVIGATION_TEMPLATES";
@@ -78,10 +78,21 @@ public final class CarAppPermission {
      * allow using the map templates. See
      * <a href="https://developer.android.com/training/cars/apps/poi#access-map-template">the
      * documentation</a> for the list of such categories. An app not in one of those categories
-     * requesting this permission may be rejected upon submission to the Play Store. See
+     * requesting this permission may be rejected upon submission. See
      * {@link CarAppService} for how to declare your app's category.
      */
     public static final String MAP_TEMPLATES = "androidx.car.app.MAP_TEMPLATES";
+
+    /**
+     * Permission that apps can use to get access to the media templates of the car app
+     * library.
+     *
+     * <p>This permission should only be declared by apps that belong to one of the categories that
+     * allow using the media templates (e.g. MEDIA category). An app not in one of those categories
+     * requesting this permission may be rejected upon submission. See
+     * {@link CarAppService} for how to declare your app's category.
+     */
+    public static final String MEDIA_TEMPLATES = "androidx.car.app.MEDIA_TEMPLATES";
 
     /**
      * Checks that the car app has the given {@code permission} granted.

@@ -96,7 +96,7 @@ class MultimapQueryTest {
             "Pink Floyd",
             "dark_side_of_the_moon_image".toByteArray(),
             Date(101779200000L),
-            ImageFormat.JPG
+            ImageFormat.JPG,
         )
     private val mRhcpAlbumCover: Image =
         Image(
@@ -105,7 +105,7 @@ class MultimapQueryTest {
             "Red Hot Chili Peppers",
             "stadium_arcadium_image".toByteArray(),
             Date(1146787200000L),
-            ImageFormat.MPEG
+            ImageFormat.MPEG,
         )
 
     private val mTheClashAlbumCover: Image =
@@ -115,7 +115,7 @@ class MultimapQueryTest {
             "The Clash",
             "london_calling_image".toByteArray(),
             Date(11873445200000L),
-            ImageFormat.MPEG
+            ImageFormat.MPEG,
         )
 
     @JvmField @Rule var mExecutorRule = CountingTaskExecutorRule()
@@ -311,7 +311,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val artistToAlbumsWithSongsMap: Map<Artist, AlbumWithSongs> =
             mMusicDao.getAllArtistAndTheirAlbumsWithSongs()
@@ -346,7 +346,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val artistToAlbumsWithSongsMap: Map<Artist, List<AlbumWithSongs>> =
             mMusicDao.getAllArtistAndTheirAlbumsWithSongsList()
@@ -387,7 +387,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val map: Map<ReleasedAlbum, List<AlbumNameAndBandName>> =
             mMusicDao.getReleaseYearToAlbumsAndBandsList()
@@ -513,7 +513,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val artistToAlbumsWithSongsMap: ImmutableListMultimap<Artist, AlbumWithSongs> =
             mMusicDao.allArtistAndTheirAlbumsWithSongsGuavaImmutableListMultimap()
@@ -548,7 +548,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val artistToAlbumsWithSongsMap: ImmutableSetMultimap<Artist, AlbumWithSongs> =
             mMusicDao.allArtistAndTheirAlbumsWithSongsGuavaImmutableSetMultimap()
@@ -632,7 +632,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val releaseYearToAlbumsMap: Map<Int, List<Song>> = mMusicDao.releaseYearToAlbums()
         assertThat(releaseYearToAlbumsMap.containsKey(2006)).isTrue()
@@ -648,7 +648,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val releaseYearToAlbumNameMap: Map<Int, List<String>> = mMusicDao.releaseYearToSongNames()
         assertThat(releaseYearToAlbumNameMap.containsKey(2006)).isTrue()
@@ -678,7 +678,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val releaseYearToAlbumsMap: Map<Int, List<Song>> =
             mMusicDao.getReleaseYearToAlbumsRawQuery(
@@ -700,7 +700,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val releaseYearToAlbumNameMap: Map<Int, List<String>> =
             mMusicDao.getReleaseYearToSongNamesRawQuery(
@@ -890,7 +890,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val map: Map<Artist, List<Album>> = mMusicDao.artistAndAlbumsLeftJoin()
         assertThat(map.containsKey(mTheClash))
@@ -904,7 +904,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val map: ImmutableListMultimap<Artist, Album> = mMusicDao.artistAndAlbumsLeftJoinGuava()
         assertThat(map.containsKey(mTheClash))
@@ -918,7 +918,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val map: Map<Artist, List<String>> = mMusicDao.artistAndAlbumNamesLeftJoin()
         assertThat(map.containsKey(mTheClash))
@@ -932,7 +932,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val map: Map<Album, Artist> = mMusicDao.albumToArtistLeftJoin()
         assertThat(map.containsKey(mHighwayToHell))
@@ -946,7 +946,7 @@ class MultimapQueryTest {
             mStadiumArcadium,
             mCalifornication,
             mTheDarkSideOfTheMoon,
-            mHighwayToHell
+            mHighwayToHell,
         )
         val map: Map<Artist, Album> = mMusicDao.artistToAlbumLeftJoin()
         assertThat(map.containsKey(mAcDc))
@@ -961,7 +961,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         val map: Map<Artist, Album> = mMusicDao.artistToAlbumLeftJoin()
         assertThat(map.containsKey(mGlassAnimals)).isFalse()
@@ -1020,7 +1020,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1, mRhcpSong3)
 
@@ -1046,7 +1046,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mPinkFloydSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover)
@@ -1077,7 +1077,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mAcdcSong1, mPinkFloydSong1, mRhcpSong3)
 
@@ -1101,7 +1101,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
@@ -1120,7 +1120,7 @@ class MultimapQueryTest {
                 listOf(
                     mPinkFloydAlbumCover.mImageYear,
                     mRhcpAlbumCover.mImageYear,
-                    mTheClashAlbumCover.mImageYear
+                    mTheClashAlbumCover.mImageYear,
                 )
             )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
@@ -1151,7 +1151,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
@@ -1170,7 +1170,7 @@ class MultimapQueryTest {
                 listOf(
                     mPinkFloydAlbumCover.mImageYear,
                     mRhcpAlbumCover.mImageYear,
-                    mTheClashAlbumCover.mImageYear
+                    mTheClashAlbumCover.mImageYear,
                 )
             )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)
@@ -1201,7 +1201,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
@@ -1249,7 +1249,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
@@ -1317,7 +1317,7 @@ class MultimapQueryTest {
             mCalifornication,
             mTheDarkSideOfTheMoon,
             mHighwayToHell,
-            mDreamland
+            mDreamland,
         )
         mMusicDao.addSongs(mRhcpSong1, mRhcpSong2, mAcdcSong1, mRhcpSong3)
         mMusicDao.addImages(mPinkFloydAlbumCover, mRhcpAlbumCover, mTheClashAlbumCover)
@@ -1336,7 +1336,7 @@ class MultimapQueryTest {
                 listOf(
                     mPinkFloydAlbumCover.mImageYear,
                     mRhcpAlbumCover.mImageYear,
-                    mTheClashAlbumCover.mImageYear
+                    mTheClashAlbumCover.mImageYear,
                 )
             )
         assertThat(rhcpImageMap.keys).containsExactly(mRhcp)

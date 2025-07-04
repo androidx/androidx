@@ -315,7 +315,7 @@ internal constructor(
     private fun calculateLeastSquaresVelocity(
         dataPoints: FloatArray,
         time: FloatArray,
-        sampleCount: Int
+        sampleCount: Int,
     ): Float {
         // The 2nd coefficient is the derivative of the quadratic polynomial at
         // x = 0, and that happens to be the last timestamp that we end up
@@ -359,16 +359,36 @@ private fun Array<DataPointAtTime?>.set(index: Int, time: Long, dataPoint: Float
  * @param event Pointer change to track.
  */
 @OptIn(ExperimentalComposeUiApi::class)
-fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
+fun VelocityTracker.addPointerInputChange(event: PointerInputChange) =
+    addPointerInputChange(event, Offset.Zero)
+
+/**
+ * Track the positions and timestamps inside this event change.
+ *
+ * For optimal tracking, this should be called for the DOWN event and all MOVE events, including any
+ * touch-slop-captured MOVE event.
+ *
+ * Since Compose uses relative positions inside PointerInputChange, this should be taken into
+ * consideration when using this method. Right now, we use the first down to initialize an
+ * accumulator and use subsequent deltas to simulate an actual movement from relative positions in
+ * PointerInputChange. This is required because VelocityTracker requires data that can be fit into a
+ * curve, which might not happen with relative positions inside a moving target for instance.
+ *
+ * @param event Pointer change to track.
+ * @param offset An optional offset that should be applied to the position of the [event] before
+ *   adding it to the tracker.
+ */
+@OptIn(ExperimentalComposeUiApi::class)
+fun VelocityTracker.addPointerInputChange(event: PointerInputChange, offset: Offset) {
     if (VelocityTrackerAddPointsFix) {
-        addPointerInputChangeWithFix(event)
+        addPointerInputChangeWithFix(event, offset)
     } else {
-        addPointerInputChangeLegacy(event)
+        addPointerInputChangeLegacy(event, offset)
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange) {
+private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange, offset: Offset) {
 
     // Register down event as the starting point for the accumulator
     if (event.changedToDownIgnoreConsumed()) {
@@ -392,7 +412,7 @@ private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChang
 
         // Update the current position with the historical delta and add it to the tracker
         currentPointerPositionAccumulator += historicalDelta
-        addPosition(it.uptimeMillis, currentPointerPositionAccumulator)
+        addPosition(it.uptimeMillis, currentPointerPositionAccumulator + offset)
     }
 
     // For the last position in the event
@@ -400,10 +420,13 @@ private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChang
     // If there's no historical data, the delta is event.position - event.previousPosition
     val delta = event.position - previousPointerPosition
     currentPointerPositionAccumulator += delta
-    addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
+    addPosition(event.uptimeMillis, currentPointerPositionAccumulator + offset)
 }
 
-private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChange) {
+private fun VelocityTracker.addPointerInputChangeWithFix(
+    event: PointerInputChange,
+    offset: Offset,
+) {
     // If this is ACTION_DOWN: Reset the tracking.
     if (event.changedToDownIgnoreConsumed()) {
         resetTracking()
@@ -415,8 +438,10 @@ private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChan
     // to the final position, but we can get that information from the original event data X and Y
     // coordinates.
     if (!event.changedToUpIgnoreConsumed()) {
-        event.historical.fastForEach { addPosition(it.uptimeMillis, it.originalEventPosition) }
-        addPosition(event.uptimeMillis, event.originalEventPosition)
+        event.historical.fastForEach {
+            addPosition(it.uptimeMillis, it.originalEventPosition + offset)
+        }
+        addPosition(event.uptimeMillis, event.originalEventPosition + offset)
     }
 
     // If this is ACTION_UP. Fix for b/238654963. If there's been enough time after the last MOVE
@@ -457,7 +482,7 @@ internal fun polyFitLeastSquares(
     /** number of items in each array */
     sampleCount: Int,
     degree: Int,
-    coefficients: FloatArray = FloatArray((degree + 1).coerceAtLeast(0))
+    coefficients: FloatArray = FloatArray((degree + 1).coerceAtLeast(0)),
 ): FloatArray {
     if (degree < 1) {
         throwIllegalArgumentException("The degree must be at positive integer")
@@ -612,7 +637,7 @@ private fun calculateImpulseVelocity(
     dataPoints: FloatArray,
     time: FloatArray,
     sampleCount: Int,
-    isDataDifferential: Boolean
+    isDataDifferential: Boolean,
 ): Float {
     var work = 0f
     val start = sampleCount - 1
@@ -677,10 +702,7 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
  * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
  * Tracking bug: (b/318621681)
  */
-@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:Suppress("GetterSetterNames")
-@get:ExperimentalComposeUiApi
-@set:ExperimentalComposeUiApi
+@Suppress("GetterSetterNames", "NullAnnotationGroup")
 @ExperimentalComposeUiApi
 var VelocityTrackerAddPointsFix: Boolean = true
 
@@ -690,10 +712,7 @@ var VelocityTrackerAddPointsFix: Boolean = true
  * use the true path once the flag is removed. If you find any issues with the new fix, flip this
  * flag to false to confirm they are newly introduced then file a bug. Tracking bug: (b/318621681)
  */
-@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:Suppress("GetterSetterNames")
-@get:ExperimentalVelocityTrackerApi
-@set:ExperimentalVelocityTrackerApi
+@Suppress("GetterSetterNames")
 @ExperimentalVelocityTrackerApi
 var VelocityTrackerStrategyUseImpulse = false
 

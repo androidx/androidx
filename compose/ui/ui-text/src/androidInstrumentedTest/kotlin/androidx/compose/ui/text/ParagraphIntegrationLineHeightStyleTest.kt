@@ -70,7 +70,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Center
+                lineHeightAlignment = Alignment.Center,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -90,7 +90,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Center
+                lineHeightAlignment = Alignment.Center,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -145,7 +145,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Top
+                lineHeightAlignment = Alignment.Top,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -163,7 +163,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Top
+                lineHeightAlignment = Alignment.Top,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -218,7 +218,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Bottom
+                lineHeightAlignment = Alignment.Bottom,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -236,7 +236,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Bottom
+                lineHeightAlignment = Alignment.Bottom,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -274,7 +274,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.None,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -295,7 +295,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -316,7 +316,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -337,7 +337,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             singleLineParagraph(
                 lineHeightTrim = Trim.Both,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -380,7 +380,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Center
+                lineHeightAlignment = Alignment.Center,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -411,7 +411,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Center
+                lineHeightAlignment = Alignment.Center,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -500,7 +500,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Top
+                lineHeightAlignment = Alignment.Top,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -531,7 +531,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Top
+                lineHeightAlignment = Alignment.Top,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -620,7 +620,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Bottom
+                lineHeightAlignment = Alignment.Bottom,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -651,7 +651,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Bottom
+                lineHeightAlignment = Alignment.Bottom,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -712,7 +712,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.None,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -744,7 +744,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.LastLineBottom,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -776,7 +776,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.FirstLineTop,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -808,7 +808,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         val paragraph =
             multiLineParagraph(
                 lineHeightTrim = Trim.Both,
-                lineHeightAlignment = Alignment.Proportional
+                lineHeightAlignment = Alignment.Proportional,
             )
 
         val defaultFontMetrics = defaultFontMetrics()
@@ -851,7 +851,7 @@ class ParagraphIntegrationLineHeightStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(trim = Trim.None, alignment = Alignment.Proportional),
                 platformStyle =
-                    @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false)
+                    @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false),
             )
 
         val paragraphWithEmptyLastLine =
@@ -876,7 +876,7 @@ class ParagraphIntegrationLineHeightStyleTest {
     private fun singleLineParagraph(
         lineHeightTrim: Trim,
         lineHeightAlignment: Alignment,
-        text: String = "AAA"
+        text: String = "AAA",
     ): AndroidParagraph {
         val textStyle =
             TextStyle(
@@ -907,7 +907,7 @@ class ParagraphIntegrationLineHeightStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(trim = lineHeightTrim, alignment = lineHeightAlignment),
                 platformStyle =
-                    @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false)
+                    @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false),
             )
 
         val paragraph =
@@ -924,7 +924,7 @@ class ParagraphIntegrationLineHeightStyleTest {
         style: TextStyle? = null,
         maxLines: Int = Int.MAX_VALUE,
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
-        width: Float = Float.MAX_VALUE
+        width: Float = Float.MAX_VALUE,
     ): Paragraph {
         return Paragraph(
             text = text,
@@ -935,14 +935,14 @@ class ParagraphIntegrationLineHeightStyleTest {
                         fontSize = fontSize,
                         lineHeight = lineHeight,
                         platformStyle =
-                            @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false)
+                            @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false),
                     )
                     .merge(style),
             maxLines = maxLines,
             overflow = TextOverflow.Clip,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
         )
     }
 

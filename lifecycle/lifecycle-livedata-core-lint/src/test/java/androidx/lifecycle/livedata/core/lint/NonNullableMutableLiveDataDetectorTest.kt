@@ -27,6 +27,8 @@ import com.android.tools.lint.checks.infrastructure.TestLintTask.OptionSetter
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.useFirUast
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -38,10 +40,7 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(NonNullableMutableLiveDataDetector.ISSUE)
 
-    private fun check(
-        vararg files: TestFile,
-        optionSetter: OptionSetter? = null,
-    ): TestLintResult {
+    private fun check(vararg files: TestFile, optionSetter: OptionSetter? = null): TestLintResult {
         return lint()
             .apply {
                 if (optionSetter != null) {
@@ -88,7 +87,7 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
                 open class GenericLiveData<T> : MutableLiveData<T>()
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .expectClean()
     }
@@ -471,7 +470,7 @@ Fix for src/com/example/test.kt line 7: Change `LiveData` type to nullable:
                 open class GenericLiveData<T> : MutableLiveData<T>()
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .expect(
                 """
@@ -525,7 +524,7 @@ Fix for src/com/example/test.kt line 6: Add non-null asserted (!!) call:
                 }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .expect(
                 """
@@ -579,7 +578,7 @@ Fix for src/com/example/MyClass1.kt line 9: Change `LiveData` type to nullable:
                 }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .expect(
                 """
@@ -966,13 +965,14 @@ src/com/example/Foo.kt:10: Error: Expected non-nullable value [NullSafeMutableLi
             }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .expectClean()
     }
 
     @Test
     fun smartcastToNonNull() {
+        assumeTrue("Test fails under K1: b/353980920", useFirUast())
         check(
                 kotlin(
                         """
@@ -1171,7 +1171,7 @@ Fix for src/com/example/test.kt line 9: Add non-null asserted (!!) call:
                     }
                 """
                     )
-                    .indented()
+                    .indented(),
             )
             .expectClean()
     }
@@ -1234,7 +1234,7 @@ Fix for src/com/example/test.kt line 9: Add non-null asserted (!!) call:
                 Ue+UeHBKKoj2JMmciXhGhKI78f3cx2tyL3vo33mjhac0z9NukWDmZhDKQ8/j
                 cZ72FkiEkccilmYgHJRQnkGLg24HdLcp3ki/dm+MOuhzkHFw0sExB1kH/Q5O
                 Objr4KGDgoMhUvsPdw4FK1ANAAA=
-                """
+                """,
             )
     }
 }

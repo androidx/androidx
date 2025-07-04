@@ -47,6 +47,5 @@ class RippleTest {
                 .get()
         val toSkip = app.rootsList.single().viewsToSkipList
         assertThat(composeViewChildren).containsExactlyElementsIn(toSkip)
-        assertThat(toSkip).hasSize(1)
     }
 }

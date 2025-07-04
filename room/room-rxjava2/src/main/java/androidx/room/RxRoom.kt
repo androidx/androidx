@@ -17,7 +17,7 @@ package androidx.room
 
 import androidx.annotation.RestrictTo
 import androidx.room.coroutines.createFlow
-import androidx.room.util.performBlocking
+import androidx.room.util.performSuspending
 import androidx.sqlite.SQLiteConnection
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
@@ -29,26 +29,30 @@ import io.reactivex.disposables.Disposables
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.rx2.asObservable
+import kotlinx.coroutines.rx2.rxCompletable
+import kotlinx.coroutines.rx2.rxMaybe
+import kotlinx.coroutines.rx2.rxSingle
 
-open class RxRoom
+public open class RxRoom
 @Deprecated("This type should not be instantiated as it contains only utility functions.")
 constructor() {
 
-    companion object {
+    public companion object {
 
         /** Data dispatched by the publisher created by [createFlowable]. */
-        @JvmField val NOTHING: Any = Any()
+        @JvmField public val NOTHING: Any = Any()
 
         /** Helper function used by generated code to create a [Flowable] */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        fun <T : Any> createFlowable(
+        public fun <T : Any> createFlowable(
             db: RoomDatabase,
             inTransaction: Boolean,
             tableNames: Array<String>,
-            block: (SQLiteConnection) -> T?
+            block: (SQLiteConnection) -> T?,
         ): Flowable<T> =
             createObservable(db, inTransaction, tableNames, block)
                 .toFlowable(BackpressureStrategy.LATEST)
@@ -56,11 +60,11 @@ constructor() {
         /** Helper function used by generated code to create a [Observable] */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        fun <T : Any> createObservable(
+        public fun <T : Any> createObservable(
             db: RoomDatabase,
             inTransaction: Boolean,
             tableNames: Array<String>,
-            block: (SQLiteConnection) -> T?
+            block: (SQLiteConnection) -> T?,
         ): Observable<T> =
             createFlow(db, inTransaction, tableNames, block)
                 .filterNotNull()
@@ -69,45 +73,41 @@ constructor() {
         /** Helper function used by generated code to create a [Maybe] */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        fun <T : Any> createMaybe(
+        public fun <T : Any> createMaybe(
             db: RoomDatabase,
             isReadOnly: Boolean,
             inTransaction: Boolean,
-            block: (SQLiteConnection) -> T?
-        ): Maybe<T> = Maybe.fromCallable { performBlocking(db, isReadOnly, inTransaction, block) }
+            block: (SQLiteConnection) -> T?,
+        ): Maybe<T> =
+            rxMaybe(db.getQueryContext().minusKey(Job)) {
+                performSuspending(db, isReadOnly, inTransaction, block)
+            }
 
         /** Helper function used by generated code to create a [Completable] */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        fun createCompletable(
+        public fun createCompletable(
             db: RoomDatabase,
             isReadOnly: Boolean,
             inTransaction: Boolean,
-            block: (SQLiteConnection) -> Unit
+            block: (SQLiteConnection) -> Unit,
         ): Completable =
-            Completable.fromAction { performBlocking(db, isReadOnly, inTransaction, block) }
+            rxCompletable(db.getQueryContext().minusKey(Job)) {
+                performSuspending(db, isReadOnly, inTransaction, block)
+            }
 
         /** Helper function used by generated code to create a [Single] */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        fun <T : Any> createSingle(
+        public fun <T : Any> createSingle(
             db: RoomDatabase,
             isReadOnly: Boolean,
             inTransaction: Boolean,
-            block: (SQLiteConnection) -> T?
+            block: (SQLiteConnection) -> T?,
         ): Single<T> =
-            Single.create { emitter ->
-                if (emitter.isDisposed) return@create
-                try {
-                    val result = performBlocking(db, isReadOnly, inTransaction, block)
-                    if (result != null) {
-                        emitter.onSuccess(result)
-                    } else {
-                        throw EmptyResultSetException("Query returned empty result set.")
-                    }
-                } catch (e: EmptyResultSetException) {
-                    emitter.tryOnError(e)
-                }
+            rxSingle(db.getQueryContext().minusKey(Job)) {
+                performSuspending(db, isReadOnly, inTransaction, block)
+                    ?: throw EmptyResultSetException("Query returned empty result set.")
             }
 
         /**
@@ -126,7 +126,10 @@ constructor() {
          *   (also once when the invalidation tracker connection is established).
          */
         @JvmStatic
-        fun createFlowable(database: RoomDatabase, vararg tableNames: String): Flowable<Any> {
+        public fun createFlowable(
+            database: RoomDatabase,
+            vararg tableNames: String,
+        ): Flowable<Any> {
             return Flowable.create(
                 { emitter ->
                     val observer =
@@ -151,7 +154,7 @@ constructor() {
                         emitter.onNext(NOTHING)
                     }
                 },
-                BackpressureStrategy.LATEST
+                BackpressureStrategy.LATEST,
             )
         }
 
@@ -162,12 +165,13 @@ constructor() {
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @Deprecated("No longer used by generated code.")
-        fun <T : Any> createFlowable(
+        public fun <T : Any> createFlowable(
             database: RoomDatabase,
             tableNames: Array<String>,
-            callable: Callable<out T>
+            callable: Callable<out T>,
         ): Flowable<T> {
-            @Suppress("DEPRECATION") return createFlowable(database, false, tableNames, callable)
+            @Suppress("DEPRECATION")
+            return createFlowable(database, false, tableNames, callable)
         }
 
         /**
@@ -177,11 +181,11 @@ constructor() {
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @Deprecated("No longer used by generated code.")
-        fun <T : Any> createFlowable(
+        public fun <T : Any> createFlowable(
             database: RoomDatabase,
             inTransaction: Boolean,
             tableNames: Array<String>,
-            callable: Callable<out T>
+            callable: Callable<out T>,
         ): Flowable<T> {
             val scheduler = Schedulers.from(getExecutor(database, inTransaction))
             val maybe = Maybe.fromCallable(callable)
@@ -208,7 +212,10 @@ constructor() {
          *   (also once when the invalidation tracker connection is established).
          */
         @JvmStatic
-        fun createObservable(database: RoomDatabase, vararg tableNames: String): Observable<Any> {
+        public fun createObservable(
+            database: RoomDatabase,
+            vararg tableNames: String,
+        ): Observable<Any> {
             return Observable.create { emitter ->
                 val observer =
                     object : InvalidationTracker.Observer(tableNames) {
@@ -233,12 +240,13 @@ constructor() {
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @Deprecated("No longer used by generated code.")
-        fun <T : Any> createObservable(
+        public fun <T : Any> createObservable(
             database: RoomDatabase,
             tableNames: Array<String>,
-            callable: Callable<out T>
+            callable: Callable<out T>,
         ): Observable<T> {
-            @Suppress("DEPRECATION") return createObservable(database, false, tableNames, callable)
+            @Suppress("DEPRECATION")
+            return createObservable(database, false, tableNames, callable)
         }
 
         /**
@@ -248,11 +256,11 @@ constructor() {
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @Deprecated("No longer used by generated code.")
-        fun <T : Any> createObservable(
+        public fun <T : Any> createObservable(
             database: RoomDatabase,
             inTransaction: Boolean,
             tableNames: Array<String>,
-            callable: Callable<out T>
+            callable: Callable<out T>,
         ): Observable<T> {
             val scheduler = Schedulers.from(getExecutor(database, inTransaction))
             val maybe = Maybe.fromCallable(callable)
@@ -269,7 +277,7 @@ constructor() {
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        fun <T : Any> createSingle(callable: Callable<out T>): Single<T> {
+        public fun <T : Any> createSingle(callable: Callable<out T>): Single<T> {
             return Single.create { emitter ->
                 try {
                     val result = callable.call()

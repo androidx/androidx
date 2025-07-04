@@ -20,7 +20,7 @@ import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 
 class SQLTypeAffinityTest {
@@ -33,7 +33,7 @@ class SQLTypeAffinityTest {
      */
     @Test
     fun affinityTypes() {
-        runProcessorTestWithK1(sources = emptyList()) { invocation ->
+        runProcessorTest(sources = emptyList()) { invocation ->
             fun XNullability.toSignature() =
                 if (invocation.isKsp) {
                     when (this) {
@@ -76,15 +76,10 @@ class SQLTypeAffinityTest {
                         "long!!",
                         "java.lang.Long?",
                         "short!!",
-                        "java.lang.Short?"
+                        "java.lang.Short?",
                     ),
                 SQLTypeAffinity.REAL to
-                    listOf(
-                        "double!!",
-                        "java.lang.Double?",
-                        "float!!",
-                        "java.lang.Float?",
-                    )
+                    listOf("double!!", "java.lang.Double?", "float!!", "java.lang.Float?"),
             )
         private val JAVAC_MAPPING =
             mapOf(
@@ -102,15 +97,10 @@ class SQLTypeAffinityTest {
                         "long",
                         "java.lang.Long",
                         "short",
-                        "java.lang.Short"
+                        "java.lang.Short",
                     ),
                 SQLTypeAffinity.REAL to
-                    listOf(
-                        "double",
-                        "java.lang.Double",
-                        "float",
-                        "java.lang.Float",
-                    )
+                    listOf("double", "java.lang.Double", "float", "java.lang.Float"),
             )
     }
 }

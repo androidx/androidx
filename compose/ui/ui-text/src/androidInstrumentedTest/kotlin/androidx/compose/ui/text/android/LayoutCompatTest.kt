@@ -56,7 +56,7 @@ class LayoutCompatTest {
                     Layout.Alignment.ALIGN_NORMAL,
                     1f,
                     0f,
-                    false
+                    false,
                 )
             } else {
                 StaticLayout.Builder.obtain(
@@ -64,7 +64,7 @@ class LayoutCompatTest {
                         0,
                         LOREM_IPSUM.length,
                         TEXT_PAINT,
-                        MAX_INTRINSIC_WIDTH / 10
+                        MAX_INTRINSIC_WIDTH / 10,
                     )
                     .build()
             }

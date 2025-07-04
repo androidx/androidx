@@ -76,7 +76,7 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
                         node,
                         target,
                         "return type ${node.returnType?.presentableText} of ${node.name}:" +
-                            " replace with $primitiveCollection"
+                            " replace with $primitiveCollection",
                     )
                 }
             }
@@ -120,7 +120,7 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
                         // easy to do and still catch all uses.
                         if (
                             context.evaluator.isOverride(parent) ||
-                                (context.evaluator.isData(parent) && parent.name.startsWith("copy"))
+                                parent.isDataClassGeneratedMethod(context)
                         ) {
                             return
                         }
@@ -173,8 +173,8 @@ class PrimitiveInCollectionDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         PrimitiveInCollectionDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 }

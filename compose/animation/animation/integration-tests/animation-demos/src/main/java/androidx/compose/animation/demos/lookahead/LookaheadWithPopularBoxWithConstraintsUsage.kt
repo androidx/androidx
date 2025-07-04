@@ -84,9 +84,7 @@ fun DetailsContent() {
     Column(modifier = Modifier.fillMaxSize()) {
         BoxWithConstraints {
             Surface {
-                Column(
-                    modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
-                ) {
+                Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
                     Header(this@BoxWithConstraints.maxHeight)
                     Content(this@BoxWithConstraints.maxHeight)
                 }
@@ -103,7 +101,7 @@ fun Content(containerHeight: Dp) {
             Text(
                 text = "John Doe",
                 modifier = Modifier.paddingFromBaseline(20.dp),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
         Property("last name", "Doe")
@@ -119,12 +117,9 @@ fun Property(label: String, value: String) {
         Text(
             text = label,
             modifier = Modifier.paddingFromBaseline(24.dp),
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
         )
-        Text(
-            text = value,
-            modifier = Modifier.paddingFromBaseline(24.dp),
-        )
+        Text(text = value, modifier = Modifier.paddingFromBaseline(24.dp))
     }
 }
 
@@ -135,6 +130,6 @@ fun Header(containerHeight: Dp) {
         modifier = Modifier.heightIn(max = height / 2).fillMaxWidth(),
         painter = painterResource(id = R.drawable.android),
         contentScale = ContentScale.Crop,
-        contentDescription = null
+        contentDescription = null,
     )
 }

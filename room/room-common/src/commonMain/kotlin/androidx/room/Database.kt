@@ -73,7 +73,7 @@ public annotation class Database(
      *
      * @return The list of entities in the database.
      */
-    val entities: Array<KClass<*>> = [],
+    @Suppress("KotlinDefaultParameterOrder") val entities: Array<KClass<*>> = [],
 
     /**
      * The list of database views included in the database. Each class turns into a view in the
@@ -81,7 +81,7 @@ public annotation class Database(
      *
      * @return The list of database views.
      */
-    val views: Array<KClass<*>> = [],
+    @Suppress("KotlinDefaultParameterOrder") val views: Array<KClass<*>> = [],
 
     /**
      * The database version.
@@ -118,5 +118,5 @@ public annotation class Database(
      *
      * @return List of [AutoMigration] annotations.
      */
-    val autoMigrations: Array<AutoMigration> = []
+    val autoMigrations: Array<AutoMigration> = [],
 )

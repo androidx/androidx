@@ -16,5 +16,5 @@
 
 package androidx.compose.ui.node
 
-internal actual class TreeSet<E> actual constructor(comparator: Comparator<in E>) :
+internal actual class SortedSet<E> actual constructor(comparator: Comparator<in E>) :
     java.util.TreeSet<E>(comparator)

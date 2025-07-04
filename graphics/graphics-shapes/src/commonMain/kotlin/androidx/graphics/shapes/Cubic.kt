@@ -70,7 +70,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
         anchor0: Point,
         control0: Point,
         control1: Point,
-        anchor1: Point
+        anchor1: Point,
     ) : this(
         floatArrayOf(
             anchor0.x,
@@ -80,7 +80,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
             control1.x,
             control1.y,
             anchor1.x,
-            anchor1.y
+            anchor1.y,
         )
     )
 
@@ -101,7 +101,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
             anchor0Y * (u * u * u) +
                 control0Y * (3 * t * u * u) +
                 control1Y * (3 * t * t * u) +
-                anchor1Y * (t * t * t)
+                anchor1Y * (t * t * t),
         )
     }
 
@@ -242,7 +242,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
             anchor0X * (u * u) + control0X * (2 * u * t) + control1X * (t * t),
             anchor0Y * (u * u) + control0Y * (2 * u * t) + control1Y * (t * t),
             pointOnCurve.x,
-            pointOnCurve.y
+            pointOnCurve.y,
         ) to
             Cubic(
                 // TODO: should calculate once and share the result
@@ -253,7 +253,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
                 control1X * u + anchor1X * t,
                 control1Y * u + anchor1Y * t,
                 anchor1X,
-                anchor1Y
+                anchor1Y,
             )
     }
 
@@ -321,7 +321,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
                 interpolate(x0, x1, 2f / 3f),
                 interpolate(y0, y1, 2f / 3f),
                 x1,
-                y1
+                y1,
             )
         }
 
@@ -340,7 +340,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
             x0: Float,
             y0: Float,
             x1: Float,
-            y1: Float
+            y1: Float,
         ): Cubic {
             val p0d = directionVector(x0 - centerX, y0 - centerY)
             val p1d = directionVector(x1 - centerX, y1 - centerY)
@@ -361,7 +361,7 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
                 x1 - rotatedP1.x * k,
                 y1 - rotatedP1.y * k,
                 x1,
-                y1
+                y1,
             )
         }
 
@@ -396,7 +396,7 @@ fun Cubic(
     control1X: Float,
     control1Y: Float,
     anchor1X: Float,
-    anchor1Y: Float
+    anchor1Y: Float,
 ) =
     Cubic(
         floatArrayOf(
@@ -407,7 +407,7 @@ fun Cubic(
             control1X,
             control1Y,
             anchor1X,
-            anchor1Y
+            anchor1Y,
         )
     )
 

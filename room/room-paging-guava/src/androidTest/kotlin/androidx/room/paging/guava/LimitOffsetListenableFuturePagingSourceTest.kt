@@ -716,7 +716,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
                 LimitOffsetListenableFuturePagingSource<TestItem>(
                     db = db,
                     supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
                 ) {
                 override fun convertRows(cursor: Cursor): List<TestItem> {
                     return convertRowsHelper(cursor)
@@ -738,7 +738,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
                 LimitOffsetListenableFuturePagingSource<TestItem>(
                     db = db,
                     supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
                 ) {
                 override fun convertRows(cursor: Cursor): List<TestItem> {
                     return convertRowsHelper(cursor)
@@ -761,7 +761,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
                 LimitOffsetListenableFuturePagingSource<TestItem>(
                     db = db,
                     supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
                 ) {
                 override fun convertRows(cursor: Cursor): List<TestItem> {
                     return convertRowsHelper(cursor)
@@ -781,7 +781,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java
+                    LimitOffsetTestDb::class.java,
                 )
                 .build()
 
@@ -797,7 +797,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java
+                    LimitOffsetTestDb::class.java,
                 )
                 .setTransactionExecutor(transactionExecutor)
                 .setQueryExecutor(queryExecutor)
@@ -826,7 +826,7 @@ private class LimitOffsetListenableFuturePagingSourceImpl(
     LimitOffsetListenableFuturePagingSource<TestItem>(
         sourceQuery = RoomSQLiteQuery.acquire(queryString, 0),
         db = db,
-        tables = arrayOf(tableName)
+        tables = arrayOf(tableName),
     ) {
 
     init {
@@ -894,36 +894,21 @@ private fun LimitOffsetListenableFuturePagingSource<TestItem>.privateObserver():
 }
 
 private fun LimitOffsetListenableFuturePagingSource<TestItem>.refresh(
-    key: Int? = null,
+    key: Int? = null
 ): ListenableFuture<LoadResult<Int, TestItem>> {
-    return loadFuture(
-        createLoadParam(
-            loadType = LoadType.REFRESH,
-            key = key,
-        )
-    )
+    return loadFuture(createLoadParam(loadType = LoadType.REFRESH, key = key))
 }
 
 private fun LimitOffsetListenableFuturePagingSource<TestItem>.append(
-    key: Int? = -1,
+    key: Int? = -1
 ): ListenableFuture<LoadResult<Int, TestItem>> {
-    return loadFuture(
-        createLoadParam(
-            loadType = LoadType.APPEND,
-            key = key,
-        )
-    )
+    return loadFuture(createLoadParam(loadType = LoadType.APPEND, key = key))
 }
 
 private fun LimitOffsetListenableFuturePagingSource<TestItem>.prepend(
-    key: Int? = -1,
+    key: Int? = -1
 ): ListenableFuture<LoadResult<Int, TestItem>> {
-    return loadFuture(
-        createLoadParam(
-            loadType = LoadType.PREPEND,
-            key = key,
-        )
-    )
+    return loadFuture(createLoadParam(loadType = LoadType.PREPEND, key = key))
 }
 
 private val CONFIG = PagingConfig(pageSize = 5, enablePlaceholders = true, initialLoadSize = 15)
@@ -931,11 +916,7 @@ private val CONFIG = PagingConfig(pageSize = 5, enablePlaceholders = true, initi
 private val ITEMS_LIST = createItemsForDb(0, 100)
 
 private fun createItemsForDb(startId: Int, count: Int): List<TestItem> {
-    return List(count) {
-        TestItem(
-            id = it + startId,
-        )
-    }
+    return List(count) { TestItem(id = it + startId) }
 }
 
 private fun createLoadParam(
@@ -943,28 +924,28 @@ private fun createLoadParam(
     key: Int? = null,
     initialLoadSize: Int = CONFIG.initialLoadSize,
     pageSize: Int = CONFIG.pageSize,
-    placeholdersEnabled: Boolean = CONFIG.enablePlaceholders
+    placeholdersEnabled: Boolean = CONFIG.enablePlaceholders,
 ): PagingSource.LoadParams<Int> {
     return when (loadType) {
         LoadType.REFRESH -> {
             PagingSource.LoadParams.Refresh(
                 key = key,
                 loadSize = initialLoadSize,
-                placeholdersEnabled = placeholdersEnabled
+                placeholdersEnabled = placeholdersEnabled,
             )
         }
         LoadType.APPEND -> {
             PagingSource.LoadParams.Append(
                 key = key ?: -1,
                 loadSize = pageSize,
-                placeholdersEnabled = placeholdersEnabled
+                placeholdersEnabled = placeholdersEnabled,
             )
         }
         LoadType.PREPEND -> {
             PagingSource.LoadParams.Prepend(
                 key = key ?: -1,
                 loadSize = pageSize,
-                placeholdersEnabled = placeholdersEnabled
+                placeholdersEnabled = placeholdersEnabled,
             )
         }
     }
@@ -989,7 +970,7 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onSuccess(
                     .fail()
             }
         },
-        executor
+        executor,
     )
 }
 
@@ -1012,7 +993,7 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onFailure(
                 onFailureCallback(t)
             }
         },
-        executor
+        executor,
     )
 }
 

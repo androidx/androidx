@@ -34,7 +34,7 @@ internal fun createTestWorkManagerImpl(
     context: Context,
     configuration: Configuration,
     serialExecutor: SerialExecutor,
-    executorsMode: ExecutorsMode
+    executorsMode: ExecutorsMode,
 ): WorkManagerImpl {
     val taskExecutor =
         object : TaskExecutor {
@@ -53,16 +53,16 @@ internal fun createTestWorkManagerImpl(
                 context,
                 taskExecutor.serialTaskExecutor,
                 configuration.clock,
-                true
+                true,
             ),
-        schedulersCreator = createTestSchedulersOuter(executorsMode)
+        schedulersCreator = createTestSchedulersOuter(executorsMode),
     )
 }
 
 internal fun createTestWorkManagerImpl(
     context: Context,
     configuration: Configuration,
-    executorsMode: ExecutorsMode
+    executorsMode: ExecutorsMode,
 ): WorkManagerImpl {
     val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
     return WorkManagerImpl(
@@ -74,9 +74,9 @@ internal fun createTestWorkManagerImpl(
                 context,
                 taskExecutor.serialTaskExecutor,
                 configuration.clock,
-                true
+                true,
             ),
-        schedulersCreator = createTestSchedulersOuter(executorsMode)
+        schedulersCreator = createTestSchedulersOuter(executorsMode),
     )
 }
 
@@ -98,7 +98,7 @@ private fun createTestSchedulersOuter(executorsMode: ExecutorsMode): SchedulersC
             workDatabase,
             trackers,
             processor,
-            executorsMode
+            executorsMode,
         )
     }
 
@@ -110,7 +110,7 @@ private fun createTestSchedulers(
     workDatabase: WorkDatabase,
     trackers: Trackers,
     processor: Processor,
-    executorsMode: ExecutorsMode
+    executorsMode: ExecutorsMode,
 ): List<Scheduler> {
     val launcher = WorkLauncherImpl(processor, workTaskExecutor)
     return listOf<Scheduler>(
@@ -119,7 +119,7 @@ private fun createTestSchedulers(
             launcher,
             configuration.clock,
             configuration.runnableScheduler,
-            executorsMode
+            executorsMode,
         )
     )
 }

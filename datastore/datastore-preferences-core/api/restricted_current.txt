@@ -18,9 +18,15 @@ package androidx.datastore.preferences.core {
     method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(androidx.datastore.core.Storage<androidx.datastore.preferences.core.Preferences> storage);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(androidx.datastore.core.Storage<androidx.datastore.preferences.core.Preferences> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(androidx.datastore.core.Storage<androidx.datastore.preferences.core.Preferences> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations);
     method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(androidx.datastore.core.Storage<androidx.datastore.preferences.core.Preferences> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
     method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> createWithPath(optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations, kotlin.jvm.functions.Function0<okio.Path> produceFile);
     method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> createWithPath(optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function0<okio.Path> produceFile);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> createWithPath(optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, kotlin.jvm.functions.Function0<okio.Path> produceFile);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> createWithPath(kotlin.jvm.functions.Function0<okio.Path> produceFile);
     field public static final androidx.datastore.preferences.core.PreferenceDataStoreFactory INSTANCE;
   }
 
@@ -35,7 +41,7 @@ package androidx.datastore.preferences.core {
   public static final class Preferences.Key<T> {
     method public String getName();
     method public infix androidx.datastore.preferences.core.Preferences.Pair<T> to(T value);
-    property public final String name;
+    property public String name;
   }
 
   public static final class Preferences.Pair<T> {

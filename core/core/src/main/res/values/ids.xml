@@ -35,6 +35,7 @@
     <item name="tag_window_insets_animation_callback" type="id"/>
     <item name="tag_on_apply_window_listener" type="id"/>
     <item name="tag_compat_insets_dispatch" type="id"/>
+    <item name="tag_system_bar_state_monitor" type="id"/>
     <item name="accessibility_custom_action_0" type="id"/>
     <item name="accessibility_custom_action_1" type="id"/>
     <item name="accessibility_custom_action_2" type="id"/>

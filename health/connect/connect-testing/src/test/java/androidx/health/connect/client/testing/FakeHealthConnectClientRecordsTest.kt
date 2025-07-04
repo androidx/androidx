@@ -16,12 +16,14 @@
 
 package androidx.health.connect.client.testing
 
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.testing.testdata.generateRunningRecords
 import androidx.health.connect.client.testing.testdata.runRecord1
 import androidx.health.connect.client.testing.testdata.runRecord1Updated
 import androidx.health.connect.client.time.TimeRangeFilter
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant.EPOCH
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
@@ -41,9 +43,9 @@ class FakeHealthConnectClientRecordsTest {
                         timeRangeFilter =
                             TimeRangeFilter(
                                 startTime = runRecord1.startTime.minusSeconds(1),
-                                endTime = runRecord1.endTime.plusSeconds(1)
+                                endTime = runRecord1.endTime.plusSeconds(1),
                             ),
-                        recordType = runRecord1::class
+                        recordType = runRecord1::class,
                     )
                 )
             assertThat(response.records).hasSize(1)
@@ -56,10 +58,30 @@ class FakeHealthConnectClientRecordsTest {
     fun updateRecordAndRead_responseHasUpdated() {
         // Given
         val fakeRecord = runRecord1
-        val updatedRecord = runRecord1Updated
         runTest {
             val fake = FakeHealthConnectClient()
             fake.insertRecords(listOf(fakeRecord))
+            val record =
+                fake
+                    .readRecords(
+                        ReadRecordsRequest(
+                            ExerciseSessionRecord::class,
+                            TimeRangeFilter.after(EPOCH),
+                        )
+                    )
+                    .records[0]
+            val updatedRecord =
+                ExerciseSessionRecord(
+                    startTime = runRecord1Updated.startTime,
+                    startZoneOffset = runRecord1Updated.startZoneOffset,
+                    endTime = runRecord1Updated.endTime,
+                    endZoneOffset = runRecord1Updated.endZoneOffset,
+                    exerciseType = runRecord1Updated.exerciseType,
+                    title = "My Run #1 - Updated",
+                    exerciseRoute = null,
+                    metadata = record.metadata,
+                )
+
             fake.updateRecords(listOf(updatedRecord))
             val responseOldRange =
                 fake.readRecords(
@@ -67,9 +89,9 @@ class FakeHealthConnectClientRecordsTest {
                         timeRangeFilter =
                             TimeRangeFilter(
                                 startTime = fakeRecord.startTime.minusSeconds(1),
-                                endTime = fakeRecord.endTime.plusSeconds(1)
+                                endTime = fakeRecord.endTime.plusSeconds(1),
                             ),
-                        recordType = fakeRecord::class
+                        recordType = fakeRecord::class,
                     )
                 )
 
@@ -79,9 +101,9 @@ class FakeHealthConnectClientRecordsTest {
                         timeRangeFilter =
                             TimeRangeFilter(
                                 startTime = updatedRecord.startTime.minusSeconds(1),
-                                endTime = updatedRecord.endTime.plusSeconds(1)
+                                endTime = updatedRecord.endTime.plusSeconds(1),
                             ),
-                        recordType = fakeRecord::class
+                        recordType = fakeRecord::class,
                     )
                 )
 
@@ -105,9 +127,9 @@ class FakeHealthConnectClientRecordsTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = records.first().startTime.minusSeconds(1),
-                            endTime = records.last().endTime.plusSeconds(1)
+                            endTime = records.last().endTime.plusSeconds(1),
                         ),
-                    recordType = records.first()::class
+                    recordType = records.first()::class,
                 )
             )
         assertThat(response.records).isEmpty()
@@ -125,9 +147,9 @@ class FakeHealthConnectClientRecordsTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = records.first().startTime.minusSeconds(1),
-                            endTime = records.last().endTime.plusSeconds(1)
+                            endTime = records.last().endTime.plusSeconds(1),
                         ),
-                    recordType = records.first()::class
+                    recordType = records.first()::class,
                 )
             )
 
@@ -140,9 +162,9 @@ class FakeHealthConnectClientRecordsTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = records.first().startTime.minusSeconds(1),
-                            endTime = records.last().endTime.plusSeconds(1)
+                            endTime = records.last().endTime.plusSeconds(1),
                         ),
-                    recordType = records.first()::class
+                    recordType = records.first()::class,
                 )
             )
         assertThat(response.records).isEmpty()
@@ -157,7 +179,7 @@ class FakeHealthConnectClientRecordsTest {
         fake.deleteRecords(
             recordType = records.first()::class,
             timeRangeFilter =
-                TimeRangeFilter(records.first().startTime.minusMillis(1), records.first().endTime)
+                TimeRangeFilter(records.first().startTime.minusMillis(1), records.first().endTime),
         )
 
         val response =
@@ -166,9 +188,9 @@ class FakeHealthConnectClientRecordsTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = records.first().startTime.minusSeconds(1),
-                            endTime = records.last().endTime.plusSeconds(1)
+                            endTime = records.last().endTime.plusSeconds(1),
                         ),
-                    recordType = records.first()::class
+                    recordType = records.first()::class,
                 )
             )
         // Only one record should be presend
@@ -203,17 +225,17 @@ class FakeHealthConnectClientRecordsTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = records.first().startTime.minusSeconds(1),
-                            endTime = records.last().endTime.plusSeconds(1)
+                            endTime = records.last().endTime.plusSeconds(1),
                         ),
-                    recordType = records.first()::class
+                    recordType = records.first()::class,
                 )
             )
         assertThat(response.records).hasSize(1)
     }
 
     @Test
-    fun insertMultipleRecords_DeleteDifferentPackageRecordIds_throws() = runTest {
-        val fake = FakeHealthConnectClient(packageName = "com.other.package")
+    fun insertMultipleRecords_DeleteDifferentPackageRecordIds_noop() = runTest {
+        val fake = FakeHealthConnectClient()
         val records = generateRunningRecords(5) // Uses default package name
         fake.insertRecords(records)
 
@@ -224,44 +246,57 @@ class FakeHealthConnectClientRecordsTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = records.first().startTime.minusSeconds(1),
-                            endTime = records.last().endTime.plusSeconds(1)
+                            endTime = records.last().endTime.plusSeconds(1),
                         ),
-                    recordType = records.first()::class
+                    recordType = records.first()::class,
                 )
             )
 
         val recordIds = recordsResponse.records.map { it.metadata.id }
+        fake.setPackageName("com.other.package")
+        fake.deleteRecords(
+            recordType = records.first()::class,
+            recordIdsList = recordIds,
+            clientRecordIdsList = emptyList(),
+        )
 
-        assertThrows(SecurityException::class.java) {
-            runBlocking {
-                fake.deleteRecords(
-                    recordType = records.first()::class,
-                    recordIdsList = recordIds,
-                    clientRecordIdsList = emptyList()
-                )
-            }
-        }
+        val response =
+            fake.readRecords(
+                ReadRecordsRequest(records.first()::class, TimeRangeFilter.after(EPOCH))
+            )
+        assertThat(response.records).hasSize(5)
     }
 
     @Test
-    fun insertMultipleRecords_DeleteDifferentPackageClientRecords_throws() = runTest {
-        val fake = FakeHealthConnectClient(packageName = "com.other.package")
+    fun insertMultipleRecords_DeleteDifferentPackageClientRecords_noop() = runTest {
+        val fake = FakeHealthConnectClient()
         val records = generateRunningRecords(5)
         fake.insertRecords(records)
 
         val clientRecordIds = records.map { it.metadata.clientRecordId!! }
 
-        assertThrows(SecurityException::class.java) {
-            runBlocking { fake.deleteRecords(records.first()::class, emptyList(), clientRecordIds) }
-        }
+        fake.setPackageName("com.other.package")
+        fake.deleteRecords(records.first()::class, emptyList(), clientRecordIds)
+
+        val response =
+            fake.readRecords(
+                ReadRecordsRequest(ExerciseSessionRecord::class, TimeRangeFilter.after(EPOCH))
+            )
+        assertThat(response.records).hasSize(5)
     }
 
     @Test
     fun insertMultipleRecords_UpdateDifferentPackageClientRecords_throws() = runTest {
-        val fake = FakeHealthConnectClient(packageName = "com.other.package")
-        val records = generateRunningRecords(5)
-        fake.insertRecords(records)
+        val fake = FakeHealthConnectClient()
+        fake.insertRecords(generateRunningRecords(5))
+        val records =
+            fake
+                .readRecords(
+                    ReadRecordsRequest(ExerciseSessionRecord::class, TimeRangeFilter.after(EPOCH))
+                )
+                .records
 
+        fake.setPackageName("com.other.package")
         assertThrows(SecurityException::class.java) {
             runBlocking { fake.updateRecords(listOf(records.first())) }
         }
@@ -277,7 +312,7 @@ class FakeHealthConnectClientRecordsTest {
         fake.deleteRecords(
             records.first()::class,
             recordIdsList = listOf(runRecord1.metadata.clientRecordId!!),
-            emptyList()
+            emptyList(),
         )
         // Does not throw
     }
@@ -295,7 +330,7 @@ class FakeHealthConnectClientRecordsTest {
                 timeRangeFilter =
                     TimeRangeFilter(
                         startTime = records.first().startTime.minusSeconds(1),
-                        endTime = records.last().endTime.plusSeconds(1)
+                        endTime = records.last().endTime.plusSeconds(1),
                     ),
                 recordType = records.first()::class,
                 pageSize = 5,
@@ -318,7 +353,7 @@ class FakeHealthConnectClientRecordsTest {
                 timeRangeFilter =
                     TimeRangeFilter(
                         startTime = records.first().startTime.minusSeconds(1),
-                        endTime = records.last().endTime.plusSeconds(1)
+                        endTime = records.last().endTime.plusSeconds(1),
                     ),
                 recordType = records.first()::class,
                 pageSize = 2,
@@ -330,7 +365,7 @@ class FakeHealthConnectClientRecordsTest {
                 timeRangeFilter =
                     TimeRangeFilter(
                         startTime = records.first().startTime.minusSeconds(1),
-                        endTime = records.last().endTime.plusSeconds(1)
+                        endTime = records.last().endTime.plusSeconds(1),
                     ),
                 recordType = records.first()::class,
                 pageToken = page1.pageToken,
@@ -342,7 +377,7 @@ class FakeHealthConnectClientRecordsTest {
                 timeRangeFilter =
                     TimeRangeFilter(
                         startTime = records.first().startTime.minusSeconds(1),
-                        endTime = records.last().endTime.plusSeconds(1)
+                        endTime = records.last().endTime.plusSeconds(1),
                     ),
                 recordType = records.first()::class,
                 pageToken = page2.pageToken,

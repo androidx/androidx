@@ -36,7 +36,7 @@ class ComposableLambdaParameterDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(
             ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,
-            ComposableLambdaParameterDetector.ComposableLambdaParameterPosition
+            ComposableLambdaParameterDetector.ComposableLambdaParameterPosition,
         )
 
     @Test
@@ -55,7 +55,7 @@ class ComposableLambdaParameterDetectorTest : LintDetectorTest() {
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -93,7 +93,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 7: Rename text to content:
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -123,7 +123,7 @@ src/androidx/compose/ui/foo/test.kt:7: Warning: Composable lambda parameter shou
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -166,7 +166,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 7: Rename text to content:
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -203,7 +203,7 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -232,7 +232,7 @@ Fix for src/androidx/compose/ui/foo/Foo.kt line 9: Rename text to content:
                 ) {}
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -283,7 +283,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 14: Rename text to content:
                 fun FooScope.Button(foo: Int) {}
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -305,7 +305,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 14: Rename text to content:
                 fun Button(foo: @Composable (Int, Boolean) -> Unit) {}
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -327,7 +327,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 14: Rename text to content:
                 }
             """
                 ),
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()

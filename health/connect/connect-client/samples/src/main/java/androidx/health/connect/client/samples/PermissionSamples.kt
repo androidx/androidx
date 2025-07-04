@@ -22,10 +22,12 @@ import androidx.activity.result.ActivityResultCaller
 import androidx.annotation.Sampled
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+import androidx.health.connect.client.feature.ExperimentalPersonalHealthRecordApi
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_HISTORY
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_READ_MEDICAL_DATA_VACCINES
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_WRITE_MEDICAL_DATA
 import androidx.health.connect.client.records.StepsRecord
 
 @Sampled
@@ -45,11 +47,10 @@ fun RequestPermission(activity: ActivityResultCaller) {
     requestPermission.launch(setOf(HealthPermission.getReadPermission(StepsRecord::class)))
 }
 
-@OptIn(ExperimentalFeatureAvailabilityApi::class)
 @Sampled
 fun RequestBackgroundReadPermission(
     features: HealthConnectFeatures,
-    activity: ActivityResultCaller
+    activity: ActivityResultCaller,
 ) {
     val requestPermission =
         activity.registerForActivityResult(
@@ -71,7 +72,6 @@ fun RequestBackgroundReadPermission(
     }
 }
 
-@OptIn(ExperimentalFeatureAvailabilityApi::class)
 @Sampled
 fun RequestHistoryReadPermission(features: HealthConnectFeatures, activity: ActivityResultCaller) {
     val requestPermission =
@@ -102,5 +102,31 @@ suspend fun GetPermissions(permissionController: PermissionController) {
         // Read or process steps related health records.
     } else {
         // user denied permission
+    }
+}
+
+@OptIn(ExperimentalPersonalHealthRecordApi::class)
+@Sampled
+fun RequestMedicalPermissions(features: HealthConnectFeatures, activity: ActivityResultCaller) {
+    // The set of medical permissions to be requested (add additional read permissions as required)
+    val medicalPermissions =
+        setOf(PERMISSION_WRITE_MEDICAL_DATA, PERMISSION_READ_MEDICAL_DATA_VACCINES)
+    val requestPermission =
+        activity.registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract()
+        ) { grantedPermissions: Set<String> ->
+            if (grantedPermissions.containsAll(medicalPermissions)) {
+                // Permissions granted to write health data and read immunizations
+            } else {
+                // User denied permission to write health data and/or read immunizations
+            }
+        }
+
+    if (
+        features.getFeatureStatus(HealthConnectFeatures.FEATURE_PERSONAL_HEALTH_RECORD) ==
+            HealthConnectFeatures.FEATURE_STATUS_AVAILABLE
+    ) {
+        // The feature is available, request medical permissions
+        requestPermission.launch(medicalPermissions)
     }
 }

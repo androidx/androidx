@@ -16,7 +16,7 @@
 package androidx.health.connect.client.changes
 
 /**
- * Abstraction to represent a change to Android Health Platform.
+ * Abstraction to represent a change in Health Connect.
  *
  * @see androidx.health.data.client.response.ChangesResponse
  * @see UpsertionChange

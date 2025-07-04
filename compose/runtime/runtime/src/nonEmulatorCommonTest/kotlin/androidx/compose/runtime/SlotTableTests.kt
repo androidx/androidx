@@ -1642,7 +1642,7 @@ class SlotTableTests {
                 if (reader.isNode(index)) {
                     assertEquals(
                         expected = "node for key ${reader.groupObjectKey(index)}",
-                        actual = reader.node(index)
+                        actual = reader.node(index),
                     )
                 }
                 val size = reader.groupSize(index)
@@ -1666,7 +1666,7 @@ class SlotTableTests {
                 if (node != null) {
                     assertEquals(
                         expected = "node for key ${writer.groupObjectKey(index)}",
-                        actual = node
+                        actual = node,
                     )
                 }
                 val size = writer.groupSize(index)
@@ -5215,6 +5215,128 @@ class SlotTableTests {
             }
         }
     }
+
+    @Test
+    fun canTraverseChildren() {
+        val slots = SlotTable()
+        slots.write { writer ->
+            with(writer) {
+                insert {
+                    group(0) {
+                        group(100) {
+                            group(10) {
+                                group(20) {
+                                    group(30) {}
+                                    group(40) {}
+                                }
+                                group(50) {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+        val operations = mutableListOf<String>()
+        slots.write { writer ->
+            writer.group {
+                writer.traverseGroupAndChildren(
+                    group = writer.currentGroup,
+                    enter = { operations.add("Enter ${writer.groupKey(it)}") },
+                    exit = { operations.add("Exit ${writer.groupKey(it)}") },
+                )
+                writer.skipToGroupEnd()
+            }
+        }
+
+        assertEquals(
+            listOf(
+                "Enter 100",
+                "Enter 10",
+                "Enter 20",
+                "Enter 30",
+                "Exit 30",
+                "Enter 40",
+                "Exit 40",
+                "Exit 20",
+                "Enter 50",
+                "Exit 50",
+                "Exit 10",
+                "Exit 100",
+            ),
+            operations,
+        )
+    }
+
+    @Test
+    fun canEnumerateSlotsInRememberOrder() {
+        val slots = SlotTable()
+        class RememberObject(val name: String) : RememberObserver {
+            override fun onAbandoned() {}
+
+            override fun onForgotten() {}
+
+            override fun onRemembered() {}
+
+            override fun toString() = "RO($name)"
+        }
+
+        slots.write { writer ->
+            with(writer) {
+                fun store(name: String) {
+                    rememberValue(RememberObject(name))
+                }
+                insert {
+                    group(0) {
+                        group(100) {
+                            store("1")
+                            store("2")
+                            group(10) {
+                                store("3")
+                                store("4")
+                                group(20) {
+                                    store("5")
+                                    store("6")
+                                    group(30) {}
+                                    store("7")
+                                    store("8")
+                                    group(40) {}
+                                    store("9")
+                                    store("10")
+                                }
+                                store("11")
+                                store("12")
+                                group(50) {}
+                                store("13")
+                                store("14")
+                            }
+                            store("15")
+                            store("16")
+                        }
+                    }
+                }
+            }
+        }
+        slots.verifyWellFormed()
+        val list = mutableListOf<String>()
+        slots.write { writer ->
+            with(writer) {
+                group {
+                    writer.forAllDataInRememberOrder(currentGroup) { _, value ->
+                        if (value is RememberObserverHolder) {
+                            val wrapped = value.wrapped
+                            if (wrapped is RememberObject) {
+                                list.add(wrapped.name)
+                            }
+                        }
+                    }
+                    skipToGroupEnd()
+                }
+            }
+        }
+        val expected = arrayOfNulls<String?>(16).mapIndexed { index, _ -> "${index + 1}" }
+        assertEquals(expected, list)
+    }
 }
 
 private const val NodeKey = 125
@@ -5245,7 +5367,7 @@ internal inline fun SlotWriter.group(key: Int, sourceInformation: String, block:
 internal inline fun SlotWriter.grouplessCall(
     key: Int,
     sourceInformation: String,
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     recordGrouplessCallSourceInformationStart(key, sourceInformation)
     block()
@@ -5283,6 +5405,25 @@ private inline fun SlotReader.expectNode(key: Int, node: Any, block: () -> Unit 
     startNode()
     block()
     endGroup()
+}
+
+private fun SlotWriter.rememberValue(value: Any) {
+    val valueToSave =
+        if (value is RememberObserver) {
+            val anchor =
+                if (isAfterFirstChild) {
+                    var group = currentGroup - 1
+                    var groupParent = parent(group)
+                    while (groupParent != parent && groupParent >= 0) {
+                        group = groupParent
+                        groupParent = parent(group)
+                    }
+                    anchor(group)
+                } else null
+
+            RememberObserverHolder(value, anchor)
+        } else value
+    update(valueToSave)
 }
 
 private const val treeRoot = -1
@@ -5465,7 +5606,7 @@ private fun SlotReader.expectAux(value: Any) {
 private fun SlotReader.expectGroup(
     key: Int,
     objectKey: Any?,
-    block: () -> Unit = { skipToGroupEnd() }
+    block: () -> Unit = { skipToGroupEnd() },
 ) {
     assertEquals(key, groupKey)
     assertEquals(objectKey, groupObjectKey)
@@ -5490,7 +5631,7 @@ internal fun expectError(message: String, block: () -> Unit) {
         exceptionThrown = true
         assertTrue(
             e.message?.contains(message) == true,
-            "Expected \"${e.message}\" to contain \"$message\""
+            "Expected \"${e.message}\" to contain \"$message\"",
         )
     }
     assertTrue(exceptionThrown, "Expected test to throw an exception containing \"$message\"")
@@ -5500,7 +5641,7 @@ data class SourceGroup(
     val key: Any,
     val source: String?,
     val children: List<SourceGroup>,
-    val data: List<Any?>
+    val data: List<Any?>,
 ) {
     override fun toString(): String = buildString { toStringBuilder(this, 0) }
 
@@ -5529,7 +5670,7 @@ data class SourceGroup(
 
     data class BuilderScope(
         private val children: ArrayList<SourceGroup> = ArrayList(),
-        private val data: ArrayList<Any?> = ArrayList()
+        private val data: ArrayList<Any?> = ArrayList(),
     ) {
         fun group(key: Int, source: String? = null, block: BuilderScope.() -> Unit) {
             val scope = BuilderScope()
@@ -5559,7 +5700,7 @@ data class SourceGroup(
                 group.key,
                 group.sourceInfo,
                 group.compositionGroups.map { groupOf(it, includeData) },
-                if (includeData) group.data.toList() else emptyList()
+                if (includeData) group.data.toList() else emptyList(),
             )
     }
 }

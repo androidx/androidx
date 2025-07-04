@@ -147,7 +147,7 @@ internal class Listener3ATest {
             FakeFrameMetadata(
                 mapOf(
                     CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO,
-                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF
+                    CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
                 )
             )
         listener3A.onPartialCaptureResult(requestMetadata, frameNumber, captureResult1)

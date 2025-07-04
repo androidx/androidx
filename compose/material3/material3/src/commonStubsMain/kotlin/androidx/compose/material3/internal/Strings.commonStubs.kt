@@ -75,6 +75,8 @@ internal actual value class Strings constructor(val value: Int) {
         actual val DateRangePickerDayInRange: Strings = implementedInJetBrainsFork()
         actual val DateRangeInputTitle: Strings = implementedInJetBrainsFork()
         actual val DateRangeInputInvalidRangeInput: Strings = implementedInJetBrainsFork()
+        actual val FloatingToolbarCollapse: Strings = implementedInJetBrainsFork()
+        actual val FloatingToolbarExpand: Strings = implementedInJetBrainsFork()
         actual val BottomSheetPaneTitle: Strings = implementedInJetBrainsFork()
         actual val BottomSheetDragHandleDescription: Strings = implementedInJetBrainsFork()
         actual val BottomSheetPartialExpandDescription: Strings = implementedInJetBrainsFork()
@@ -95,6 +97,10 @@ internal actual value class Strings constructor(val value: Int) {
         actual val TimePickerMinuteTextField: Strings = implementedInJetBrainsFork()
         actual val TooltipPaneDescription: Strings = implementedInJetBrainsFork()
         actual val ExposedDropdownMenu: Strings = implementedInJetBrainsFork()
+        actual val TimePickerDialogTitle: Strings = implementedInJetBrainsFork()
+        actual val TimeInputDialogTitle: Strings = implementedInJetBrainsFork()
+        actual val TimePickerToggleKeyboard: Strings = implementedInJetBrainsFork()
+        actual val TimePickerToggleTouch: Strings = implementedInJetBrainsFork()
         actual val ToggleDropdownMenu: Strings = implementedInJetBrainsFork()
         actual val WideNavigationRailPaneTitle: Strings = implementedInJetBrainsFork()
     }
@@ -103,4 +109,7 @@ internal actual value class Strings constructor(val value: Int) {
 @Composable
 @ReadOnlyComposable
 internal actual fun getString(string: Strings, vararg formatArgs: Any): String =
+    implementedInJetBrainsFork()
+
+internal actual fun formatString(string: String, vararg formatArgs: Any?): String =
     implementedInJetBrainsFork()

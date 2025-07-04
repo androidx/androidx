@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,13 +32,13 @@ dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
 
+    testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
 }
 
 androidx {
     name = "Arch-Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Arch-Common"
 }

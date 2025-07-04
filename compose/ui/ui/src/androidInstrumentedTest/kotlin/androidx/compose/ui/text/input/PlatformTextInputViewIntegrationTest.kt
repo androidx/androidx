@@ -167,7 +167,7 @@ class PlatformTextInputViewIntegrationTest {
                     object : TestInputMethodRequest(view) {
                         override fun commitText(
                             text: CharSequence?,
-                            newCursorPosition: Int
+                            newCursorPosition: Int,
                         ): Boolean {
                             request1Texts += text.toString()
                             return true
@@ -192,7 +192,7 @@ class PlatformTextInputViewIntegrationTest {
                         object : TestInputMethodRequest(view) {
                             override fun commitText(
                                 text: CharSequence?,
-                                newCursorPosition: Int
+                                newCursorPosition: Int,
                             ): Boolean {
                                 request2Texts += text.toString()
                                 return true
@@ -647,7 +647,7 @@ class PlatformTextInputViewIntegrationTest {
             TextInputServiceAndroid(
                 view = (original as TextInputServiceAndroid).view,
                 rootPositionCalculator = FakeMatrixPositionCalculator,
-                inputMethodManager = inputMethodManager
+                inputMethodManager = inputMethodManager,
             )
         }
         rule.setContent {
@@ -687,7 +687,7 @@ class PlatformTextInputViewIntegrationTest {
             TextInputServiceAndroid(
                 view = (original as TextInputServiceAndroid).view,
                 rootPositionCalculator = FakeMatrixPositionCalculator,
-                inputMethodManager = inputMethodManager
+                inputMethodManager = inputMethodManager,
             )
         }
         rule.setContent {
@@ -812,7 +812,7 @@ private class TestInputMethodManager : InputMethodManager {
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
-        compositionEnd: Int
+        compositionEnd: Int,
     ) {}
 
     override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}

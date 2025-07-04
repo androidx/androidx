@@ -17,162 +17,141 @@
 
 package androidx.biometric
 
-import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import androidx.biometric.AuthenticationRequest.Biometric
-import androidx.biometric.BiometricPrompt.AuthenticationCallback
-import androidx.biometric.BiometricPrompt.CryptoObject
-import androidx.biometric.BiometricPrompt.PromptInfo
+import androidx.biometric.BiometricPrompt.LifecycleContainer
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.Executor
 
 /**
- * Register a request to start an authentication for result.
+ * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
+ *
+ * A success or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
+ * is set by [resultCallback]. The callback will be executed on the thread provided by the
+ * [callbackExecutor].
  *
  * This *must* be called unconditionally, as part of initialization path, typically as a field
  * initializer of an Activity.
  *
- * @param onAuthFailedCallback the optional callback to be called on the main thread when
- *   authentication fails intermediately. This is not a terminal auth result, so it could happen
- *   multiple times.
- * @param resultCallback the callback to be called on the main thread when authentication result is
- *   available
- * @return the launcher that can be used to start the authentication.
+ * Note that if multiple calls to this method are made within a single Fragment or Activity, only
+ * the callback registered by the last invocation will be saved and receive authentication results.
+ * This can result in unexpected behavior if you intend to manage multiple independent
+ * authentication flows. It is strongly recommended to avoid multiple calls to this method in such
+ * scenarios.
+ *
  * @sample androidx.biometric.samples.activitySample
  */
-@SuppressWarnings("ExecutorRegistration")
-@JvmOverloads
+@Suppress("ExecutorRegistration")
 public fun FragmentActivity.registerForAuthenticationResult(
-    onAuthFailedCallback: () -> Unit = {},
-    resultCallback: AuthenticationResultCallback
+    callbackExecutor: Executor,
+    resultCallback: AuthenticationResultCallback,
 ): AuthenticationResultLauncher {
-    return AuthenticationResultRegistry(activity = this)
-        .register(onAuthFailedCallback, resultCallback)
+    return AuthenticationResultRegistry()
+        .register(
+            viewModelStoreOwner = this,
+            fragmentManager = this.supportFragmentManager,
+            lifecycleContainer = LifecycleContainer(this.lifecycle),
+            resultCallback = resultCallback,
+            callbackExecutor = callbackExecutor,
+        )
 }
 
 /**
- * Register a request to start an authentication for result.
+ * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
+ *
+ * A success or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
+ * is set by [resultCallback]. The callback will be executed on the main thread.
+ *
+ * This *must* be called unconditionally, as part of initialization path, typically as a field
+ * initializer of an Activity.
+ *
+ * Note that if multiple calls to this method are made within a single Fragment or Activity, only
+ * the callback registered by the last invocation will be saved and receive authentication results.
+ * This can result in unexpected behavior if you intend to manage multiple independent
+ * authentication flows. It is strongly recommended to avoid multiple calls to this method in such
+ * scenarios.
+ *
+ * @sample androidx.biometric.samples.activitySample
+ * @see FragmentActivity.registerForAuthenticationResult(Executor, AuthenticationResultCallback)
+ */
+@Suppress("ExecutorRegistration")
+public fun FragmentActivity.registerForAuthenticationResult(
+    resultCallback: AuthenticationResultCallback
+): AuthenticationResultLauncher {
+    return AuthenticationResultRegistry()
+        .register(
+            viewModelStoreOwner = this,
+            fragmentManager = this.supportFragmentManager,
+            lifecycleContainer = LifecycleContainer(this.lifecycle),
+            resultCallback = resultCallback,
+            callbackExecutor = null,
+        )
+}
+
+/**
+ * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
+ *
+ * A success or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
+ * is set by [resultCallback]. The callback will be executed on the thread provided by the
+ * [callbackExecutor].
  *
  * This *must* be called unconditionally, as part of initialization path, typically as a field
  * initializer of an Fragment.
  *
- * @param onAuthFailedCallback the optional callback to be called on the main thread when
- *   authentication fails intermediately. This is not a terminal auth result, and could happen
- *   multiple times.
- * @param resultCallback the callback to be called on the main thread when authentication result is
- *   available
- * @return the launcher that can be used to start the authentication.
+ * Note that if multiple calls to this method are made within a single Fragment or Activity, only
+ * the callback registered by the last invocation will be saved and receive authentication results.
+ * This can result in unexpected behavior if you intend to manage multiple independent
+ * authentication flows. It is strongly recommended to avoid multiple calls to this method in such
+ * scenarios.
+ *
  * @sample androidx.biometric.samples.fragmentSample
  */
-@SuppressWarnings("ExecutorRegistration")
-@JvmOverloads
+@Suppress("ExecutorRegistration")
 public fun Fragment.registerForAuthenticationResult(
-    onAuthFailedCallback: () -> Unit = {},
+    callbackExecutor: Executor,
+    resultCallback: AuthenticationResultCallback,
+): AuthenticationResultLauncher {
+    return AuthenticationResultRegistry()
+        .register(
+            viewModelStoreOwner = this,
+            fragmentManager = this.childFragmentManager,
+            lifecycleContainer = LifecycleContainer(this.lifecycle),
+            resultCallback = resultCallback,
+            callbackExecutor = callbackExecutor,
+        )
+}
+
+/**
+ * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
+ *
+ * A success or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
+ * is set by [resultCallback]. The callback will be executed on the main thread.
+ *
+ * This *must* be called unconditionally, as part of initialization path, typically as a field
+ * initializer of an Fragment.
+ *
+ * Note that if multiple calls to this method are made within a single Fragment or Activity, only
+ * the callback registered by the last invocation will be saved and receive authentication results.
+ * This can result in unexpected behavior if you intend to manage multiple independent
+ * authentication flows. It is strongly recommended to avoid multiple calls to this method in such
+ * scenarios.
+ *
+ * @sample androidx.biometric.samples.fragmentSample
+ * @see Fragment.registerForAuthenticationResult(Executor, AuthenticationResultCallback)
+ */
+@Suppress("ExecutorRegistration")
+public fun Fragment.registerForAuthenticationResult(
     resultCallback: AuthenticationResultCallback
 ): AuthenticationResultLauncher {
-    return AuthenticationResultRegistry(fragment = this)
-        .register(onAuthFailedCallback, resultCallback)
-}
-
-/** Creates a [BiometricPrompt] with given [AuthenticationCallback] */
-internal fun FragmentActivity.createBiometricPrompt(
-    executor: Executor?,
-    callback: AuthenticationCallback,
-): BiometricPrompt {
-    return if (executor == null) {
-        BiometricPrompt(this, callback)
-    } else {
-        BiometricPrompt(this, executor, callback)
-    }
-}
-
-/** Creates a [BiometricPrompt] with given [AuthenticationCallback] */
-internal fun Fragment.createBiometricPrompt(
-    executor: Executor?,
-    callback: AuthenticationCallback,
-): BiometricPrompt {
-    return if (executor == null) {
-        BiometricPrompt(this, callback)
-    } else {
-        BiometricPrompt(this, executor, callback)
-    }
-}
-
-/** Shows the authentication prompt to the user with biometric and/or device credential. */
-@SuppressLint("MissingPermission")
-internal fun BiometricPrompt.authInternal(
-    title: String,
-    authFallback: Biometric.Fallback? = null,
-    minBiometricStrength: Biometric.Strength? = null,
-    subtitle: String? = null,
-    content: AuthenticationRequest.BodyContent? = null,
-    isConfirmationRequired: Boolean = true,
-    cryptoObjectForCredentialOnly: CryptoObject? = null,
-    logoBitmap: Bitmap? = null,
-    logoRes: Int = 0,
-    logoDescription: String? = null,
-) {
-    val builder = PromptInfo.Builder()
-    // Set authenticators and fallbacks
-    var authType =
-        minBiometricStrength?.toAuthenticationType()
-            ?: BiometricManager.Authenticators.DEVICE_CREDENTIAL
-    when (authFallback) {
-        is Biometric.Fallback.DeviceCredential ->
-            authType = authType or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-        is Biometric.Fallback.NegativeButton ->
-            builder.setNegativeButtonText(authFallback.negativeButtonText)
-        else -> {}
-    }
-
-    // Set body content
-    when (content) {
-        is AuthenticationRequest.BodyContent.PlainText ->
-            builder.setDescription(content.description)
-        is AuthenticationRequest.BodyContent.VerticalList -> {
-            val contentViewBuilder = PromptVerticalListContentView.Builder()
-            content.items.forEach { contentViewBuilder.addListItem(it) }
-            content.description?.let { contentViewBuilder.setDescription(content.description) }
-            builder.setContentView(contentViewBuilder.build())
-        }
-        is AuthenticationRequest.BodyContent.ContentViewWithMoreOptionsButton -> {
-            val contentViewBuilder = PromptContentViewWithMoreOptionsButton.Builder()
-            content.description?.let { contentViewBuilder.setDescription(content.description) }
-            builder.setContentView(contentViewBuilder.build())
-        }
-        else -> {}
-    }
-
-    // Set logo
-    if (logoRes != 0) {
-        builder.setLogoRes(logoRes)
-    } else if (logoBitmap != null) {
-        builder.setLogoBitmap(logoBitmap)
-    }
-    if (logoDescription != null) {
-        builder.setLogoDescription(logoDescription)
-    }
-
-    // Set other configurations
-    builder
-        .setAllowedAuthenticators(authType)
-        .setTitle(title)
-        .setSubtitle(subtitle)
-        .setConfirmationRequired(isConfirmationRequired)
-
-    val promptInfo = builder.build()
-
-    val cryptoObject =
-        when (minBiometricStrength) {
-            is Biometric.Strength.Class3 -> minBiometricStrength.cryptoObject
-            null -> cryptoObjectForCredentialOnly
-            else -> null
-        }
-
-    if (cryptoObject == null) {
-        authenticate(promptInfo)
-    } else {
-        authenticate(promptInfo, cryptoObject)
-    }
+    return AuthenticationResultRegistry()
+        .register(
+            viewModelStoreOwner = this,
+            fragmentManager = this.childFragmentManager,
+            lifecycleContainer = LifecycleContainer(this.lifecycle),
+            resultCallback = resultCallback,
+            callbackExecutor = null,
+        )
 }

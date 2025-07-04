@@ -40,7 +40,7 @@ fun glFrameBufferSample(context: Context) {
                         width: Int,
                         height: Int,
                         bufferInfo: BufferInfo,
-                        transform: FloatArray
+                        transform: FloatArray,
                     ) {
                         Matrix.orthoM(
                             myMatrix, // matrix
@@ -50,14 +50,14 @@ fun glFrameBufferSample(context: Context) {
                             0f, // bottom
                             bufferInfo.width.toFloat(), // top
                             -1f, // near
-                            1f // far
+                            1f, // far
                         )
 
                         Matrix.multiplyMM(result, 0, myMatrix, 0, transform, 0)
 
                         // pass result matrix as uniform to shader logic
                     }
-                }
+                },
             )
             .build()
     renderer.render()

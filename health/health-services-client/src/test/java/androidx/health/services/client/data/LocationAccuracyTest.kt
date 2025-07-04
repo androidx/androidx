@@ -27,16 +27,8 @@ class LocationAccuracyTest {
 
     @Test
     fun rangeValidationForInvalidLocationAccuracy_throwsNoException() {
-        val invalidHorizontalPositionErrorMeters =
-            LocationAccuracy(
-                -1.0,
-                1.0,
-            )
-        val invalidVerticalPositionErrorMeters =
-            LocationAccuracy(
-                1.0,
-                -1.0,
-            )
+        val invalidHorizontalPositionErrorMeters = LocationAccuracy(-1.0, 1.0)
+        val invalidVerticalPositionErrorMeters = LocationAccuracy(1.0, -1.0)
 
         Truth.assertThat(invalidHorizontalPositionErrorMeters).isNotNull()
         Truth.assertThat(invalidVerticalPositionErrorMeters).isNotNull()

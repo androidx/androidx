@@ -58,7 +58,7 @@ class AsyncPagedListDifferTest {
                 listUpdateCallback,
                 AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
                     .setBackgroundThreadExecutor(diffThread)
-                    .build()
+                    .build(),
             )
         // by default, use ArchExecutor
         assertEquals(differ.mainThreadExecutor, ArchTaskExecutor.getMainThreadExecutor())
@@ -69,7 +69,7 @@ class AsyncPagedListDifferTest {
     private fun <V : Any> createPagedListFromListAndPos(
         config: PagedList.Config,
         data: List<V>,
-        initialKey: Int
+        initialKey: Int,
     ): PagedList<V> {
         // unblock page loading thread to allow build to succeed
         pageLoadingThread.autoRun = true
@@ -170,28 +170,28 @@ class AsyncPagedListDifferTest {
         // prepend nulls
         submitAndAssert(
             StringPagedList(leadingNulls = 4, trailingNulls = 0, items = arrayOf("a", "b")),
-            OnInsertedEvent(0, 4)
+            OnInsertedEvent(0, 4),
         )
         // remove leading nulls
         submitAndAssert(
             StringPagedList(leadingNulls = 0, trailingNulls = 0, items = arrayOf("a", "b")),
-            OnRemovedEvent(0, 4)
+            OnRemovedEvent(0, 4),
         )
         // append nulls
         submitAndAssert(
             StringPagedList(leadingNulls = 0, trailingNulls = 3, items = arrayOf("a", "b")),
-            OnInsertedEvent(2, 3)
+            OnInsertedEvent(2, 3),
         )
         // remove trailing nulls
         submitAndAssert(
             StringPagedList(leadingNulls = 0, trailingNulls = 0, items = arrayOf("a", "b")),
-            OnRemovedEvent(2, 3)
+            OnRemovedEvent(2, 3),
         )
         // add nulls on both ends
         submitAndAssert(
             StringPagedList(leadingNulls = 3, trailingNulls = 2, items = arrayOf("a", "b")),
             OnInsertedEvent(0, 3),
-            OnInsertedEvent(5, 2)
+            OnInsertedEvent(5, 2),
         )
         // remove some nulls from both ends
         submitAndAssert(
@@ -206,14 +206,14 @@ class AsyncPagedListDifferTest {
             StringPagedList(leadingNulls = 5, trailingNulls = 0, items = arrayOf("a", "b")),
             OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
             OnInsertedEvent(0, 4),
-            OnRemovedEvent(7, 1)
+            OnRemovedEvent(7, 1),
         )
         // add trailing, remove from leading
         submitAndAssert(
             StringPagedList(leadingNulls = 1, trailingNulls = 3, items = arrayOf("a", "b")),
             OnRemovedEvent(0, 4),
             OnChangedEvent(0, 1, PLACEHOLDER_POSITION_CHANGE),
-            OnInsertedEvent(3, 3)
+            OnInsertedEvent(3, 3),
         )
         assertThat(differ.itemCount).isEqualTo(callback.itemCountFromEvents())
     }
@@ -562,7 +562,7 @@ class AsyncPagedListDifferTest {
         drain()
         assertEquals(
             OnCurrentListChangedEvent(first, second),
-            listener.onCurrentListChangedEvents[1]
+            listener.onCurrentListChangedEvents[1],
         )
         assertEquals(2, listener.onCurrentListChangedEvents.size)
         assertEquals(2, callback.runEvents.size)
@@ -579,7 +579,7 @@ class AsyncPagedListDifferTest {
         differ.submitList(null, callback)
         assertEquals(
             OnCurrentListChangedEvent(second, null),
-            listener.onCurrentListChangedEvents[2]
+            listener.onCurrentListChangedEvents[2],
         )
         assertEquals(3, listener.onCurrentListChangedEvents.size)
         assertEquals(4, callback.runEvents.size)
@@ -620,15 +620,15 @@ class AsyncPagedListDifferTest {
             .containsExactly(
                 LoadStateEvent(
                     loadType = LoadType.REFRESH,
-                    loadState = LoadState.NotLoading(endOfPaginationReached = false)
+                    loadState = LoadState.NotLoading(endOfPaginationReached = false),
                 ),
                 LoadStateEvent(
                     loadType = LoadType.PREPEND,
-                    loadState = LoadState.NotLoading(endOfPaginationReached = false)
+                    loadState = LoadState.NotLoading(endOfPaginationReached = false),
                 ),
                 LoadStateEvent(
                     loadType = LoadType.APPEND,
-                    loadState = LoadState.NotLoading(endOfPaginationReached = false)
+                    loadState = LoadState.NotLoading(endOfPaginationReached = false),
                 ),
             )
 
@@ -639,14 +639,12 @@ class AsyncPagedListDifferTest {
                 notifyDispatcher = mainThread.asCoroutineDispatcher(),
                 backgroundDispatcher = diffThread.asCoroutineDispatcher(),
                 config = config,
-                initialLastKey = null
+                initialLastKey = null,
             )
         )
         drain()
         assertThat(listUpdateCallback.newEvents())
-            .containsExactly(
-                ListUpdateEvent.Inserted(position = 0, count = 0),
-            )
+            .containsExactly(ListUpdateEvent.Inserted(position = 0, count = 0))
         assertThat(loadStateListener.newEvents()).isEmpty()
 
         // Real PagedList with non-empty data.
@@ -658,8 +656,8 @@ class AsyncPagedListDifferTest {
             .containsExactly(
                 LoadStateEvent(
                     loadType = LoadType.PREPEND,
-                    loadState = LoadState.NotLoading(endOfPaginationReached = true)
-                ),
+                    loadState = LoadState.NotLoading(endOfPaginationReached = true),
+                )
             )
 
         // Second InitialPagedList.
@@ -669,7 +667,7 @@ class AsyncPagedListDifferTest {
                 notifyDispatcher = mainThread.asCoroutineDispatcher(),
                 backgroundDispatcher = diffThread.asCoroutineDispatcher(),
                 config = config,
-                initialLastKey = null
+                initialLastKey = null,
             )
         )
         drain()
@@ -679,7 +677,7 @@ class AsyncPagedListDifferTest {
                 LoadStateEvent(loadType = LoadType.REFRESH, loadState = LoadState.Loading),
                 LoadStateEvent(
                     loadType = LoadType.PREPEND,
-                    loadState = LoadState.NotLoading(endOfPaginationReached = false)
+                    loadState = LoadState.NotLoading(endOfPaginationReached = false),
                 ),
             )
     }

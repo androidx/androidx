@@ -21,6 +21,8 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
 import android.os.Build
 import android.util.Range
 import android.util.Size
@@ -29,6 +31,8 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter.Companion.unwrapAs
+import androidx.camera.camera2.pipe.integration.config.CameraConfig
+import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.internal.DOLBY_VISION_10B_UNCONSTRAINED
 import androidx.camera.camera2.pipe.integration.internal.HLG10_UNCONSTRAINED
@@ -202,7 +206,7 @@ class CameraInfoAdapterTest {
                             characteristics =
                                 mapOf(
                                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
                                 )
                         )
                     )
@@ -221,7 +225,7 @@ class CameraInfoAdapterTest {
                             characteristics =
                                 mapOf(
                                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
-                                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
                                 )
                         )
                     )
@@ -243,14 +247,20 @@ class CameraInfoAdapterTest {
                                         intArrayOf(
                                             CONTROL_VIDEO_STABILIZATION_MODE_OFF,
                                             CONTROL_VIDEO_STABILIZATION_MODE_ON,
-                                            CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+                                            CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION,
                                         )
                                 )
                         )
                     )
             )
 
-        assertThat(cameraInfo.isPreviewStabilizationSupported).isTrue()
+        assertThat(cameraInfo.isPreviewStabilizationSupported).apply {
+            if (Build.VERSION.SDK_INT >= 33) {
+                isTrue()
+            } else {
+                isFalse()
+            }
+        }
     }
 
     @Test
@@ -266,7 +276,7 @@ class CameraInfoAdapterTest {
                                         .CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
                                         intArrayOf(
                                             CONTROL_VIDEO_STABILIZATION_MODE_OFF,
-                                            CONTROL_VIDEO_STABILIZATION_MODE_ON
+                                            CONTROL_VIDEO_STABILIZATION_MODE_ON,
                                         )
                                 )
                         )
@@ -289,7 +299,7 @@ class CameraInfoAdapterTest {
                                         .CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
                                         intArrayOf(
                                             CONTROL_VIDEO_STABILIZATION_MODE_OFF,
-                                            CONTROL_VIDEO_STABILIZATION_MODE_ON
+                                            CONTROL_VIDEO_STABILIZATION_MODE_ON,
                                         )
                                 )
                         )
@@ -345,7 +355,7 @@ class CameraInfoAdapterTest {
                         HDR10_10_BIT,
                         HDR10_PLUS_10_BIT,
                         DOLBY_VISION_10_BIT,
-                        DOLBY_VISION_8_BIT
+                        DOLBY_VISION_8_BIT,
                     )
                 )
             )
@@ -506,8 +516,8 @@ class CameraInfoAdapterTest {
                                     listOf(defaultCameraProperties.metadata),
                                 CameraBackendId(ultraWideCameraId) to
                                     listOf(ultraWideCameraProperties.metadata),
-                            )
-                    )
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isLessThan(1)
@@ -529,8 +539,8 @@ class CameraInfoAdapterTest {
                                     listOf(defaultCameraProperties.metadata),
                                 CameraBackendId(telephotoCameraId) to
                                     listOf(telephotoCameraProperties.metadata),
-                            )
-                    )
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isGreaterThan(1)
@@ -558,9 +568,9 @@ class CameraInfoAdapterTest {
                         cameraMetadataMap =
                             mapOf(
                                 CameraBackendId(defaultCameraId) to
-                                    listOf(cameraProperties.metadata),
-                            )
-                    )
+                                    listOf(cameraProperties.metadata)
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
@@ -588,9 +598,9 @@ class CameraInfoAdapterTest {
                         cameraMetadataMap =
                             mapOf(
                                 CameraBackendId(defaultCameraId) to
-                                    listOf(cameraProperties.metadata),
-                            )
-                    )
+                                    listOf(cameraProperties.metadata)
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
@@ -618,9 +628,9 @@ class CameraInfoAdapterTest {
                         cameraMetadataMap =
                             mapOf(
                                 CameraBackendId(defaultCameraId) to
-                                    listOf(cameraProperties.metadata),
-                            )
-                    )
+                                    listOf(cameraProperties.metadata)
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
@@ -648,9 +658,9 @@ class CameraInfoAdapterTest {
                         cameraMetadataMap =
                             mapOf(
                                 CameraBackendId(defaultCameraId) to
-                                    listOf(cameraProperties.metadata),
-                            )
-                    )
+                                    listOf(cameraProperties.metadata)
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
@@ -678,9 +688,9 @@ class CameraInfoAdapterTest {
                         cameraMetadataMap =
                             mapOf(
                                 CameraBackendId(defaultCameraId) to
-                                    listOf(cameraProperties.metadata),
-                            )
-                    )
+                                    listOf(cameraProperties.metadata)
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
@@ -708,9 +718,9 @@ class CameraInfoAdapterTest {
                         cameraMetadataMap =
                             mapOf(
                                 CameraBackendId(defaultCameraId) to
-                                    listOf(cameraProperties.metadata),
-                            )
-                    )
+                                    listOf(cameraProperties.metadata)
+                            ),
+                    ),
             )
 
         assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
@@ -723,5 +733,49 @@ class CameraInfoAdapterTest {
 
         val cameraMetadata = adapterCameraInfo.unwrapAs(CameraMetadata::class)
         assertThat(cameraMetadata).isNotNull()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun returnLowLightBoostSupported_whenAeModeOnLowLightBoostBrightnessPriorityAvailable() {
+        val cameraInfo: CameraInfo =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    CameraPipeCameraProperties(
+                        CameraConfig(CameraId(defaultCameraId)),
+                        FakeCameraMetadata(
+                            characteristics =
+                                mapOf(
+                                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+                                        intArrayOf(
+                                            CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                                        )
+                                )
+                        ),
+                    )
+            )
+
+        assertThat(cameraInfo.isLowLightBoostSupported).isTrue()
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun returnLowLightBoostSupported_whenAeModeOnLowLightBoostBrightnessPriorityUnavailable() {
+        val cameraInfo: CameraInfo =
+            createCameraInfoAdapter(
+                cameraProperties =
+                    CameraPipeCameraProperties(
+                        CameraConfig(CameraId(defaultCameraId)),
+                        FakeCameraMetadata(
+                            characteristics =
+                                mapOf(
+                                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to
+                                        intArrayOf(CONTROL_AE_MODE_OFF)
+                                )
+                        ),
+                    )
+            )
+
+        assertThat(cameraInfo.isLowLightBoostSupported).isFalse()
     }
 }

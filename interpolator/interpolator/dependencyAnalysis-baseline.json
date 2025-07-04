@@ -1,0 +1,13 @@
+{
+  "projectPath": ":interpolator:interpolator",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "api"
+    }
+  ]
+}

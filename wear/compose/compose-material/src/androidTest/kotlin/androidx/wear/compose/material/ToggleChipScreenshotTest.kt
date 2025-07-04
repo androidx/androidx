@@ -63,7 +63,7 @@ class ToggleChipScreenshotTest {
             toggleControl = {
                 Icon(imageVector = ToggleChipDefaults.radioIcon(checked), contentDescription = "")
             },
-            checked = checked
+            checked = checked,
         )
     }
 
@@ -107,12 +107,7 @@ class ToggleChipScreenshotTest {
         )
     }
 
-    @Test
-    fun toggle_chip_disabled() = verifyScreenshot {
-        sampleToggleChip(
-            enabled = false,
-        )
-    }
+    @Test fun toggle_chip_disabled() = verifyScreenshot { sampleToggleChip(enabled = false) }
 
     @Test fun split_toggle_chip() = verifyScreenshot { sampleSplitToggleChip() }
 
@@ -131,7 +126,7 @@ class ToggleChipScreenshotTest {
         toggleControl: @Composable () -> Unit = {
             Icon(
                 imageVector = ToggleChipDefaults.checkboxIcon(checked = checked),
-                contentDescription = ""
+                contentDescription = "",
             )
         },
     ) {
@@ -153,9 +148,7 @@ class ToggleChipScreenshotTest {
     }
 
     @Composable
-    private fun sampleSplitToggleChip(
-        enabled: Boolean = true,
-    ) {
+    private fun sampleSplitToggleChip(enabled: Boolean = true) {
         SplitToggleChip(
             label = { Text("Split chip", maxLines = 1, overflow = TextOverflow.Ellipsis) },
             secondaryLabel = { Text("Secondary", maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -164,7 +157,7 @@ class ToggleChipScreenshotTest {
             toggleControl = {
                 Icon(
                     imageVector = ToggleChipDefaults.checkboxIcon(checked = true),
-                    contentDescription = ""
+                    contentDescription = "",
                 )
             },
             onCheckedChange = {},
@@ -175,7 +168,7 @@ class ToggleChipScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

@@ -20,7 +20,6 @@ import android.os.Build.VERSION_CODES
 import android.telecom.Call
 import android.telecom.CallAttributes
 import android.telecom.DisconnectCause
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -47,7 +46,6 @@ import org.junit.runner.RunWith
  * create a [CallControlCallback] request before changing the call state.
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class BasicCallControlCallbacksTest : BaseTelecomTest() {
 
@@ -325,7 +323,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
                     TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
+                    TestUtils.mOnSetInActiveLambda,
                 ) {
                     launch {
                         val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
@@ -336,7 +334,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         // the test.
                         Assert.assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -356,7 +354,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
                     TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
+                    TestUtils.mOnSetInActiveLambda,
                 ) {
                     launch {
                         val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
@@ -382,7 +380,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
                     TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
+                    TestUtils.mOnSetInActiveLambda,
                 ) {
                     launch {
                         val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
@@ -397,7 +395,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         // the test.
                         Assert.assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -417,7 +415,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
                     TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
+                    TestUtils.mOnSetInActiveLambda,
                 ) {
                     launch {
                         val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
@@ -437,7 +435,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         // the test.
                         Assert.assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -460,7 +458,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         TestUtils.mOnAnswerLambda,
                         TestUtils.mOnDisconnectLambda,
                         TestUtils.mOnSetActiveLambda,
-                        TestUtils.mOnSetInActiveLambda
+                        TestUtils.mOnSetInActiveLambda,
                     ) {
                         // Note that this is reset in BaseTelecomTest in setUp/destroy
                         TestUtils.mCompleteOnAnswer = false
@@ -492,7 +490,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         TestUtils.mOnAnswerLambda,
                         TestUtils.mOnDisconnectLambda,
                         TestUtils.mOnSetActiveLambda,
-                        TestUtils.mOnSetInActiveLambda
+                        TestUtils.mOnSetInActiveLambda,
                     ) {
                         TestUtils.mCompleteOnSetInactive = false
                         launch {
@@ -525,7 +523,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         TestUtils.mOnAnswerLambda,
                         TestUtils.mOnDisconnectLambda,
                         TestUtils.mOnSetActiveLambda,
-                        TestUtils.mOnSetInActiveLambda
+                        TestUtils.mOnSetInActiveLambda,
                     ) {
                         launch {
                             val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
@@ -544,7 +542,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                             // always send the disconnect signal if possible
                             Assert.assertEquals(
                                 CallControlResult.Success(),
-                                disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                                disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                             )
                         }
                     }
@@ -570,7 +568,7 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
                         TestUtils.mOnAnswerLambda,
                         TestUtils.mOnDisconnectLambda,
                         TestUtils.mOnSetActiveLambda,
-                        TestUtils.mOnSetInActiveLambda
+                        TestUtils.mOnSetInActiveLambda,
                     ) {
                         TestUtils.mCompleteOnDisconnect = false
                         launch {

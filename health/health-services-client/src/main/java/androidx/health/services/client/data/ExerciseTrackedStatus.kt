@@ -26,7 +26,7 @@ import androidx.health.services.client.proto.DataProto.ExerciseTrackedStatus.EXE
 @IntDef(
     ExerciseTrackedStatus.OTHER_APP_IN_PROGRESS,
     ExerciseTrackedStatus.OWNED_EXERCISE_IN_PROGRESS,
-    ExerciseTrackedStatus.NO_EXERCISE_IN_PROGRESS
+    ExerciseTrackedStatus.NO_EXERCISE_IN_PROGRESS,
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class ExerciseTrackedStatus {

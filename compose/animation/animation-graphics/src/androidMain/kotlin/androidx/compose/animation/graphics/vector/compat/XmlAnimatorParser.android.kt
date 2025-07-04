@@ -70,7 +70,7 @@ private enum class ValueType {
     Float,
     Int,
     Color,
-    Path
+    Path,
 }
 
 private val FallbackValueType = ValueType.Float
@@ -79,7 +79,7 @@ private fun TypedArray.getInterpolator(
     res: Resources,
     theme: Resources.Theme?,
     index: Int,
-    defaultValue: Easing
+    defaultValue: Easing,
 ): Easing {
     val id = getResourceId(index, 0)
     return if (id == 0) {
@@ -94,7 +94,7 @@ private fun parseKeyframe(
     theme: Resources.Theme?,
     attrs: AttributeSet,
     holderValueType: ValueType?,
-    defaultInterpolator: Easing
+    defaultInterpolator: Easing,
 ): Pair<Keyframe<Any>, ValueType> {
     return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_KEYFRAME) { a ->
         val inferredValueType =
@@ -103,9 +103,9 @@ private fun parseKeyframe(
                 ?: inferValueType( // Identify the type from our attribute values.
                     a.getInt(
                         AndroidVectorResources.STYLEABLE_KEYFRAME_VALUE_TYPE,
-                        ValueTypeUndefined
+                        ValueTypeUndefined,
                     ),
-                    a.peekValue(AndroidVectorResources.STYLEABLE_KEYFRAME_VALUE).type
+                    a.peekValue(AndroidVectorResources.STYLEABLE_KEYFRAME_VALUE).type,
                 )
                 // We didn't have any clue until the end.
                 ?: FallbackValueType
@@ -115,10 +115,10 @@ private fun parseKeyframe(
                 res,
                 theme,
                 AndroidVectorResources.STYLEABLE_KEYFRAME_INTERPOLATOR,
-                defaultInterpolator
+                defaultInterpolator,
             ),
             inferredValueType,
-            AndroidVectorResources.STYLEABLE_KEYFRAME_VALUE
+            AndroidVectorResources.STYLEABLE_KEYFRAME_VALUE,
         ) to inferredValueType // Report back the type to <propertyValuesHolder>.
     }
 }
@@ -131,7 +131,7 @@ private fun TypedArray.getKeyframe(
     fraction: Float,
     interpolator: Easing,
     valueType: ValueType,
-    valueIndex: Int
+    valueIndex: Int,
 ): Keyframe<Any> {
     return when (valueType) {
         ValueType.Float -> Keyframe(fraction, getFloat(valueIndex, 0f), interpolator)
@@ -145,7 +145,7 @@ private fun XmlPullParser.parsePropertyValuesHolder(
     res: Resources,
     theme: Resources.Theme?,
     attrs: AttributeSet,
-    interpolator: Easing
+    interpolator: Easing,
 ): PropertyValuesHolder<*> {
     return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER) { a ->
         a.getPropertyValuesHolder1D(
@@ -153,7 +153,7 @@ private fun XmlPullParser.parsePropertyValuesHolder(
             AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_VALUE_TYPE,
             AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_VALUE_FROM,
             AndroidVectorResources.STYLEABLE_PROPERTY_VALUES_HOLDER_VALUE_TO,
-            interpolator
+            interpolator,
         ) { valueType, keyframes ->
             var vt: ValueType? = null
             forEachChildOf(TagPropertyValuesHolder) {
@@ -214,7 +214,7 @@ private fun TypedArray.getPropertyValuesHolder1D(
     parseKeyframes: (valueType: ValueType?, keyframes: MutableList<Keyframe<Any>>) -> ValueType =
         { vt, _ ->
             vt ?: FallbackValueType
-        }
+        },
 ): PropertyValuesHolder1D<*> {
     val valueType = getInt(valueTypeIndex, ValueTypeUndefined)
 
@@ -260,7 +260,7 @@ private fun convertRepeatMode(repeatMode: Int) =
 internal fun XmlPullParser.parseObjectAnimator(
     res: Resources,
     theme: Resources.Theme?,
-    attrs: AttributeSet
+    attrs: AttributeSet,
 ): ObjectAnimator {
     return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_ANIMATOR) { a ->
         attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR) { oa ->
@@ -269,7 +269,7 @@ internal fun XmlPullParser.parseObjectAnimator(
                     res,
                     theme,
                     AndroidVectorResources.STYLEABLE_ANIMATOR_INTERPOLATOR,
-                    AccelerateDecelerateEasing
+                    AccelerateDecelerateEasing,
                 )
             val holders = mutableListOf<PropertyValuesHolder<*>>()
             val pathData =
@@ -286,7 +286,7 @@ internal fun XmlPullParser.parseObjectAnimator(
                             AndroidVectorResources.STYLEABLE_PROPERTY_ANIMATOR_PROPERTY_Y_NAME
                         )!!,
                         addPathNodes(pathData),
-                        interpolator
+                        interpolator,
                     )
                 )
             } else {
@@ -299,7 +299,7 @@ internal fun XmlPullParser.parseObjectAnimator(
                                 AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_TYPE,
                                 AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_FROM,
                                 AndroidVectorResources.STYLEABLE_ANIMATOR_VALUE_TO,
-                                interpolator
+                                interpolator,
                             )
                         )
                     }
@@ -319,7 +319,7 @@ internal fun XmlPullParser.parseObjectAnimator(
                     convertRepeatMode(
                         a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_REPEAT_MODE, 0)
                     ),
-                holders = holders
+                holders = holders,
             )
         }
     }
@@ -328,7 +328,7 @@ internal fun XmlPullParser.parseObjectAnimator(
 internal fun XmlPullParser.parseAnimatorSet(
     res: Resources,
     theme: Resources.Theme?,
-    attrs: AttributeSet
+    attrs: AttributeSet,
 ): AnimatorSet {
     return attrs.attrs(res, theme, AndroidVectorResources.STYLEABLE_ANIMATOR_SET) { a ->
         val ordering = a.getInt(AndroidVectorResources.STYLEABLE_ANIMATOR_SET_ORDERING, 0)
@@ -348,7 +348,7 @@ internal fun XmlPullParser.parseAnimatorSet(
 internal fun XmlPullParser.parseInterpolator(
     res: Resources,
     theme: Resources.Theme?,
-    attrs: AttributeSet
+    attrs: AttributeSet,
 ): Easing {
     return when (name) {
         "linearInterpolator" -> LinearEasing
@@ -357,7 +357,7 @@ internal fun XmlPullParser.parseInterpolator(
                 val factor =
                     a.getFloat(
                         AndroidVectorResources.STYLEABLE_ACCELERATE_INTERPOLATOR_FACTOR,
-                        1.0f
+                        1.0f,
                     )
                 if (factor == 1.0f) AccelerateEasing else AccelerateEasing(factor)
             }
@@ -366,7 +366,7 @@ internal fun XmlPullParser.parseInterpolator(
                 val factor =
                     a.getFloat(
                         AndroidVectorResources.STYLEABLE_DECELERATE_INTERPOLATOR_FACTOR,
-                        1.0f
+                        1.0f,
                     )
                 if (factor == 1.0f) DecelerateEasing else DecelerateEasing(factor)
             }
@@ -381,12 +381,12 @@ internal fun XmlPullParser.parseInterpolator(
             attrs.attrs(
                 res,
                 theme,
-                AndroidVectorResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR
+                AndroidVectorResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR,
             ) { a ->
                 AnticipateEasing(
                     a.getFloat(
                         AndroidVectorResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_TENSION,
-                        2.0f
+                        2.0f,
                     )
                 )
             }
@@ -395,7 +395,7 @@ internal fun XmlPullParser.parseInterpolator(
                 OvershootEasing(
                     a.getFloat(
                         AndroidVectorResources.STYLEABLE_OVERSHOOT_INTERPOLATOR_TENSION,
-                        2.0f
+                        2.0f,
                     )
                 )
             }
@@ -403,18 +403,18 @@ internal fun XmlPullParser.parseInterpolator(
             attrs.attrs(
                 res,
                 theme,
-                AndroidVectorResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR
+                AndroidVectorResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR,
             ) { a ->
                 AnticipateOvershootEasing(
                     a.getFloat(
                         AndroidVectorResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_TENSION,
-                        2.0f
+                        2.0f,
                     ),
                     a.getFloat(
                         AndroidVectorResources
                             .STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_EXTRA_TENSION,
-                        1.5f
-                    )
+                        1.5f,
+                    ),
                 )
             }
         "bounceInterpolator" -> BounceEasing
@@ -431,32 +431,32 @@ internal fun XmlPullParser.parseInterpolator(
                     PathInterpolator(
                             a.getFloat(
                                 AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1,
-                                0f
+                                0f,
                             ),
                             a.getFloat(
                                 AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1,
-                                0f
-                            )
+                                0f,
+                            ),
                         )
                         .toEasing()
                 } else {
                     CubicBezierEasing(
                         a.getFloat(
                             AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_1,
-                            0f
+                            0f,
                         ),
                         a.getFloat(
                             AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_1,
-                            0f
+                            0f,
                         ),
                         a.getFloat(
                             AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_X_2,
-                            1f
+                            1f,
                         ),
                         a.getFloat(
                             AndroidVectorResources.STYLEABLE_PATH_INTERPOLATOR_CONTROL_Y_2,
-                            1f
-                        )
+                            1f,
+                        ),
                     )
                 }
             }

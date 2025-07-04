@@ -114,7 +114,7 @@ class LayoutNodeMappingTest {
                     if (showAll) {
                         LazyColumn(
                             state = lazyListState,
-                            modifier = Modifier.size(rootSizePx.toDp())
+                            modifier = Modifier.size(rootSizePx.toDp()),
                         ) {
                             items(viewPortCount * pages) { MyItem() }
                         }
@@ -160,7 +160,7 @@ class LayoutNodeMappingTest {
         assertEquals(
             expected = expectedSize,
             actual = owner.layoutNodes.size,
-            message = "Unexpected Map size"
+            message = "Unexpected Map size",
         )
         owner.layoutNodes.forEach { key, value ->
             assertEquals(key, value.semanticsId, "Non-matching keys")

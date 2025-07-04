@@ -62,7 +62,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
         val rtl: Boolean,
-        val enableUserInput: Boolean
+        val enableUserInput: Boolean,
     )
 
     companion object {
@@ -146,7 +146,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                     it.lineTo(1f, 1f)
                 }
             ),
-            true
+            true,
         )
     }
 
@@ -170,7 +170,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                     it.cubicTo(.4f, 1.7f, .7f, 1.7f, 1f, 1f)
                 }
             ),
-            false
+            false,
         )
     }
 
@@ -214,7 +214,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 targetPage,
                 { (targetPage - tracker.lastPosition).toFloat() },
                 targetPage,
-                true
+                true,
             )
             test.viewPager.unregisterOnPageChangeCallback(tracker)
         }
@@ -240,7 +240,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 targetPage,
                 { (nextPage - tracker.lastPosition).toFloat() },
                 nextPage,
-                true
+                true,
             )
             test.viewPager.unregisterOnPageChangeCallback(tracker)
         }
@@ -375,7 +375,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         duration: Long,
         expectedFinalPage: Int,
         interpolator: Interpolator = LinearInterpolator(),
-        suppressFling: Boolean = false
+        suppressFling: Boolean = false,
     ) {
         val startPage = test.viewPager.currentItem
         // Run the test two times to verify that state doesn't linger
@@ -396,7 +396,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 scrollEvents.assertValueCorrectness(
                     initialPage,
                     min(pageCount - 1, expectedFinalPageWithOffset + 1 /* for peeking */),
-                    test.viewPager.pageSize
+                    test.viewPager.pageSize,
                 )
                 assertFirstEvents(DRAGGING)
                 assertLastEvents(expectedFinalPageWithOffset)
@@ -411,7 +411,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     private fun startFakeDragWhileSettling(
         settleTarget: Int,
         dragDistance: Float,
-        expectedFinalPage: Int
+        expectedFinalPage: Int,
     ) {
         startFakeDragWhileSettling(settleTarget, { dragDistance }, expectedFinalPage, false)
     }
@@ -420,7 +420,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         settleTarget: Int,
         dragDistanceCallback: () -> Float,
         expectedFinalPage: Int,
-        fakeDragMustEndSnapped: Boolean
+        fakeDragMustEndSnapped: Boolean,
     ) {
         val initialPage = test.viewPager.currentItem
 
@@ -469,7 +469,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 scrollEvents.assertValueCorrectness(
                     initialPage,
                     expectedFinalPage,
-                    test.viewPager.pageSize
+                    test.viewPager.pageSize,
                 )
                 assertFirstEvents(SETTLING)
                 assertLastEvents(expectedFinalPage)
@@ -480,12 +480,12 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                             "scroll event after the FAKE_DRAG event to be snapped. " +
                             dumpEvents(),
                         expectSettlingAfterState(DRAGGING),
-                        equalTo(false)
+                        equalTo(false),
                     )
                 }
                 assertStateChanges(
                     listOf(SETTLING, DRAGGING, SETTLING, IDLE),
-                    listOf(SETTLING, DRAGGING, IDLE)
+                    listOf(SETTLING, DRAGGING, IDLE),
                 )
             }
 
@@ -525,7 +525,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         fakeDragDuration: Long,
         referencePageOffset: Int = 0,
         interpolator: Interpolator = LinearInterpolator(),
-        manualDragCallback: () -> Unit
+        manualDragCallback: () -> Unit,
     ) {
         // Skip tests where manual dragging is disabled
         assumeThat(config.enableUserInput, equalTo(true))
@@ -542,7 +542,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 val fakeDragLatch =
                     test.viewPager.addWaitForDistanceToTarget(
                         expectedFinalPage + referencePageOffset,
-                        .9f
+                        .9f,
                     )
                 val idleLatch = test.viewPager.addWaitForIdleLatch()
                 fakeDragger.postFakeDrag(fakeDragDistance, fakeDragDuration, interpolator)
@@ -564,7 +564,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                     scrollEvents.assertValueCorrectness(
                         initialPage,
                         expectedFinalPage + referencePageOffset,
-                        test.viewPager.pageSize
+                        test.viewPager.pageSize,
                     )
                     assertFirstEvents(DRAGGING)
                     assertLastEvents(expectedFinalPage)
@@ -591,7 +591,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -633,7 +633,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             addEvent(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
@@ -668,7 +668,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             "First event should be state change to " +
                 "${scrollStateToString(expectedFirstState)}: ${dumpEvents()}",
             firstEvent,
-            equalTo(OnPageScrollStateChangedEvent(expectedFirstState) as Event)
+            equalTo(OnPageScrollStateChangedEvent(expectedFirstState) as Event),
         )
     }
 
@@ -676,17 +676,17 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         assertThat(
             "Last event should be state change to IDLE: ${dumpEvents()}",
             lastEvent,
-            equalTo(OnPageScrollStateChangedEvent(IDLE) as Event)
+            equalTo(OnPageScrollStateChangedEvent(IDLE) as Event),
         )
         assertThat(
             "Scroll events don't end in snapped position: ${dumpEvents()}",
             scrollEvents.last().positionOffsetPixels,
-            equalTo(0)
+            equalTo(0),
         )
         assertThat(
             "Scroll events don't end at page $expectedFinalPage: ${dumpEvents()}",
             scrollEvents.last().position,
-            equalTo(expectedFinalPage)
+            equalTo(expectedFinalPage),
         )
     }
 
@@ -699,7 +699,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         assertThat(
             "Sequence of selected pages should be $expectedPageSelects: ${dumpEvents()}",
             selectEvents.map { it.position },
-            equalTo(expectedPageSelects)
+            equalTo(expectedPageSelects),
         )
 
         val settleEvent = OnPageScrollStateChangedEvent(SETTLING)
@@ -710,7 +710,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 assertThat(
                     "OnPageSelectedEvents cannot be the first or last event: " + dumpEvents(),
                     i,
-                    isBetweenInEx(1, eventCount - 1)
+                    isBetweenInEx(1, eventCount - 1),
                 )
                 val isAfterSettleEvent = events[i - 1] == settleEvent
                 val isBeforeIdleEvent = events[i + 1] == idleEvent
@@ -718,7 +718,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                     "OnPageSelectedEvent at index $i must follow a SETTLE event or precede" +
                         " an IDLE event, but not both: ${dumpEvents()}",
                     isAfterSettleEvent.xor(isBeforeIdleEvent),
-                    equalTo(true)
+                    equalTo(true),
                 )
             }
         }
@@ -726,7 +726,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
     private fun RecordingCallback.assertStateChanges(
         statesWithSettling: List<Int>,
-        statesWithoutSettling: List<Int>
+        statesWithoutSettling: List<Int>,
     ) {
         assertThat(
             "Unexpected sequence of state changes:" + dumpEvents(),
@@ -737,18 +737,18 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 } else {
                     statesWithoutSettling
                 }
-            )
+            ),
         )
     }
 
     private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
-        pageSize: Int
+        pageSize: Int,
     ) = forEach {
         assertThat(
             it.position + it.positionOffset.toDouble(),
-            isBetweenInInMinMax(initialPage.toDouble(), otherPage.toDouble())
+            isBetweenInInMinMax(initialPage.toDouble(), otherPage.toDouble()),
         )
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
         assertThat((it.positionOffset * pageSize).roundToInt(), equalTo(it.positionOffsetPixels))

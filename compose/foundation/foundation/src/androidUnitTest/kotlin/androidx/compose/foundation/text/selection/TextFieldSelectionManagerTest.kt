@@ -17,13 +17,14 @@
 package androidx.compose.foundation.text.selection
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.internal.ClipboardUtils
 import androidx.compose.foundation.text.HandleState
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.TextLayoutResultProxy
-import androidx.compose.ui.autofill.AutofillManager
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
+import androidx.compose.foundation.text.contextmenu.test.FakeToolbarRequester
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -51,13 +52,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.packInts
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
@@ -65,13 +66,12 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.spy
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.mockito.stubbing.Answer
 
-@RunWith(JUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 class TextFieldSelectionManagerTest {
     private val text = "Hello World"
     private val textAnnotatedString = AnnotatedString(text)
@@ -79,8 +79,13 @@ class TextFieldSelectionManagerTest {
     private val offsetMapping = OffsetMapping.Identity
     private val maxLines = 2
     private var value = TextFieldValue(text)
-    private val lambda: (TextFieldValue) -> Unit = { value = it }
-    private val spyLambda = spy(lambda)
+
+    private var onValueChangeInvocationCount = 0
+    private val onValueChangeLambda: (TextFieldValue) -> Unit = { newValue ->
+        onValueChangeInvocationCount++
+        value = newValue
+    }
+
     private lateinit var state: LegacyTextFieldState
 
     private val dragBeginPosition = Offset.Zero
@@ -98,20 +103,22 @@ class TextFieldSelectionManagerTest {
     private val hapticFeedback = mock<HapticFeedback>()
     private val focusRequester = mock<FocusRequester>()
     private val multiParagraph = mock<MultiParagraph>()
-    private val autofillManager = mock<AutofillManager>()
+
+    private val fakeToolbarRequester = FakeToolbarRequester()
 
     @Before
     fun setup() {
         manager = TextFieldSelectionManager()
         manager.offsetMapping = offsetMapping
-        manager.onValueChange = lambda
+        manager.onValueChange = onValueChangeLambda
         manager.value = value
         manager.clipboard = clipboard
         manager.textToolbar = textToolbar
         manager.hapticFeedBack = hapticFeedback
         manager.focusRequester = focusRequester
-        manager.autofillManager = autofillManager
         manager.coroutineScope = null
+        manager.toolbarRequester = fakeToolbarRequester
+        onValueChangeInvocationCount = 0
 
         whenever(layoutResult.layoutInput)
             .thenReturn(
@@ -125,7 +132,7 @@ class TextFieldSelectionManagerTest {
                     density = density,
                     layoutDirection = LayoutDirection.Ltr,
                     fontFamilyResolver = mock(),
-                    constraints = Constraints()
+                    constraints = Constraints(),
                 )
             )
 
@@ -164,7 +171,7 @@ class TextFieldSelectionManagerTest {
             LegacyTextFieldState(
                 textDelegate = textDelegate,
                 recomposeScope = mock(),
-                keyboardController = null
+                keyboardController = null,
             )
         state.layoutResult = layoutResultProxy
         manager.state = state
@@ -174,7 +181,10 @@ class TextFieldSelectionManagerTest {
     @Test
     fun TextFieldSelectionManager_init() {
         assertThat(manager.offsetMapping).isEqualTo(offsetMapping)
-        assertThat(manager.onValueChange).isEqualTo(lambda)
+        val textFieldValue = TextFieldValue(text = text)
+        manager.onValueChange.invoke(textFieldValue)
+        assertThat(onValueChangeInvocationCount).isEqualTo(1)
+        assertThat(value).isEqualTo(textFieldValue)
         assertThat(manager.state).isEqualTo(state)
         assertThat(manager.value).isEqualTo(value)
     }
@@ -246,7 +256,7 @@ class TextFieldSelectionManagerTest {
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
-        verify(spyLambda, times(0)).invoke(any())
+        assertThat(onValueChangeInvocationCount).isEqualTo(0)
         verify(hapticFeedback, times(0)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
@@ -256,7 +266,7 @@ class TextFieldSelectionManagerTest {
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
-        verify(spyLambda, times(0)).invoke(any())
+        assertThat(onValueChangeInvocationCount).isEqualTo(0)
         verify(hapticFeedback, times(0)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
@@ -302,7 +312,7 @@ class TextFieldSelectionManagerTest {
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
-        verify(spyLambda, times(0)).invoke(any())
+        assertThat(onValueChangeInvocationCount).isEqualTo(0)
         verify(hapticFeedback, times(0)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
@@ -331,7 +341,7 @@ class TextFieldSelectionManagerTest {
         manager.visualTransformation = VisualTransformation { original ->
             TransformedText(
                 AnnotatedString(original.indices.map { original[it] }.joinToString("*")),
-                offsetMapping
+                offsetMapping,
             )
         }
 
@@ -354,6 +364,7 @@ class TextFieldSelectionManagerTest {
         verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun TextFieldSelectionManager_deselect() {
         whenever(textToolbar.status).thenReturn(TextToolbarStatus.Shown)
@@ -366,14 +377,29 @@ class TextFieldSelectionManagerTest {
         assertThat(state.handleState).isEqualTo(HandleState.None)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun TextFieldSelectionManager_deselect_newContextMenu() {
+        manager.value = TextFieldValue(text = text, selection = TextRange(0, "Hello".length))
+
+        manager.deselect()
+
+        assertThat(fakeToolbarRequester.shown).isFalse()
+        assertThat(fakeToolbarRequester.hideCount).isEqualTo(1)
+        assertThat(value.selection).isEqualTo(TextRange("Hello".length))
+        assertThat(state.handleState).isEqualTo(HandleState.None)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun autofill_selection_collapse() {
         manager.value = TextFieldValue(text = text, selection = TextRange(4, 4))
+        val mockLambda: () -> Unit = mock()
+        val manager = TextFieldSelectionManager().apply { requestAutofillAction = mockLambda }
 
         manager.autofill()
 
-        verify(autofillManager, times(1)).requestAutofillForActiveElement()
+        verify(mockLambda, times(1)).invoke()
         assertThat(state.handleState).isEqualTo(HandleState.None)
     }
 
@@ -431,7 +457,7 @@ class TextFieldSelectionManagerTest {
 
         manager.paste()
 
-        verify(spyLambda, times(0)).invoke(any())
+        assertThat(onValueChangeInvocationCount).isEqualTo(0)
     }
 
     @Test
@@ -440,7 +466,7 @@ class TextFieldSelectionManagerTest {
 
         manager.paste()
 
-        verify(spyLambda, times(0)).invoke(any())
+        assertThat(onValueChangeInvocationCount).isEqualTo(0)
     }
 
     @Test
@@ -503,7 +529,7 @@ class TextFieldSelectionManagerTest {
             manager.value =
                 TextFieldValue(
                     text = text + text,
-                    selection = TextRange("Hello".length, text.length)
+                    selection = TextRange("Hello".length, text.length),
                 )
 
             manager.cut()
@@ -567,13 +593,14 @@ class TextFieldSelectionManagerTest {
         assertThat(state.showFloatingToolbar).isEqualTo(true)
     }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_trigger_textToolbar_showMenu_noText_inClipboard_not_show_paste() =
         runTestWithCoroutineScope {
             manager.value =
                 TextFieldValue(
                     text = text + text,
-                    selection = TextRange("Hello".length, text.length)
+                    selection = TextRange("Hello".length, text.length),
                 )
 
             manager.showSelectionToolbar()
@@ -582,6 +609,7 @@ class TextFieldSelectionManagerTest {
                 .showMenu(any(), any(), isNull(), any(), anyOrNull(), isNull())
         }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_trigger_textToolbar_showMenu_hasText_inClipboard_show_paste() =
         runTestWithCoroutineScope {
@@ -596,7 +624,7 @@ class TextFieldSelectionManagerTest {
                 manager.value =
                     TextFieldValue(
                         text = text + text,
-                        selection = TextRange("Hello".length, text.length)
+                        selection = TextRange("Hello".length, text.length),
                     )
 
                 manager.showSelectionToolbar()
@@ -606,6 +634,7 @@ class TextFieldSelectionManagerTest {
             }
         }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_trigger_textToolbar_showMenu_selection_collapse_not_show_copy_cut() =
         runTestWithCoroutineScope {
@@ -628,6 +657,7 @@ class TextFieldSelectionManagerTest {
             }
         }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_trigger_textToolbar_showMenu_no_text_show_paste_only() =
         runTestWithCoroutineScope {
@@ -647,6 +677,7 @@ class TextFieldSelectionManagerTest {
             }
         }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_trigger_textToolbar_no_menu() = runTestWithCoroutineScope {
         whenever(clipboard.getClipEntry()).thenReturn(null)
@@ -657,6 +688,7 @@ class TextFieldSelectionManagerTest {
         verify(textToolbar, times(1)).showMenu(any(), isNull(), isNull(), isNull(), isNull(), any())
     }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun showSelectionToolbar_passwordTextField_not_show_copy_cut() = runTestWithCoroutineScope {
         Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
@@ -678,6 +710,127 @@ class TextFieldSelectionManagerTest {
                 .showMenu(any(), isNull(), any(), isNull(), anyOrNull(), isNull())
         }
     }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showMenu_noText_inClipboard_not_show_paste_newContextMenu() =
+        runTestWithCoroutineScope {
+            manager.value =
+                TextFieldValue(
+                    text = text + text,
+                    selection = TextRange("Hello".length, text.length),
+                )
+
+            manager.showSelectionToolbar()
+
+            assertThat(fakeToolbarRequester.shown).isTrue()
+            assertThat(fakeToolbarRequester.showCount).isEqualTo(1)
+        }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showMenu_hasText_inClipboard_show_paste_newContextMenu() =
+        runTestWithCoroutineScope {
+            Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
+                val clipEntry = mock<ClipEntry>()
+                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
+
+                mockedClipboardUtils
+                    .`when`<Boolean> { ClipboardUtils.hasText(any()) }
+                    .thenReturn(true)
+
+                manager.value =
+                    TextFieldValue(
+                        text = text + text,
+                        selection = TextRange("Hello".length, text.length),
+                    )
+
+                manager.showSelectionToolbar()
+
+                assertThat(fakeToolbarRequester.shown).isTrue()
+                assertThat(fakeToolbarRequester.showCount).isEqualTo(1)
+            }
+        }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showMenu_selection_collapse_not_show_copy_cut_newContextMenu() =
+        runTestWithCoroutineScope {
+            Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
+                val clipEntry = mock<ClipEntry>()
+                mockedClipboardUtils
+                    .`when`<AnnotatedString?> { ClipboardUtils.readAnnotatedString(clipEntry) }
+                    .thenReturn(AnnotatedString(text))
+                mockedClipboardUtils
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipEntry) }
+                    .thenReturn(true)
+
+                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
+                manager.value = TextFieldValue(text = text + text, selection = TextRange(0, 0))
+
+                manager.showSelectionToolbar()
+
+                assertThat(fakeToolbarRequester.shown).isTrue()
+                assertThat(fakeToolbarRequester.showCount).isEqualTo(1)
+            }
+        }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_showMenu_no_text_show_paste_only_newContextMenu() =
+        runTestWithCoroutineScope {
+            Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
+                val clipEntry = mock<ClipEntry>()
+                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
+
+                mockedClipboardUtils
+                    .`when`<Boolean> { ClipboardUtils.hasText(any()) }
+                    .thenReturn(true)
+                manager.value = TextFieldValue()
+
+                manager.showSelectionToolbar()
+
+                assertThat(fakeToolbarRequester.shown).isTrue()
+                assertThat(fakeToolbarRequester.showCount).isEqualTo(1)
+            }
+        }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_trigger_textToolbar_no_menu_newContextMenu() =
+        runTestWithCoroutineScope {
+            whenever(clipboard.getClipEntry()).thenReturn(null)
+            manager.value = TextFieldValue()
+
+            manager.showSelectionToolbar()
+
+            assertThat(fakeToolbarRequester.shown).isTrue()
+            assertThat(fakeToolbarRequester.showCount).isEqualTo(1)
+        }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun showSelectionToolbar_passwordTextField_not_show_copy_cut_newContextMenu() =
+        runTestWithCoroutineScope {
+            Mockito.mockStatic(ClipboardUtils::class.java).use { mockedClipboardUtils ->
+                val clipEntry = mock<ClipEntry>()
+                mockedClipboardUtils
+                    .`when`<AnnotatedString?> { ClipboardUtils.readAnnotatedString(clipEntry) }
+                    .thenReturn(AnnotatedString(text))
+                mockedClipboardUtils
+                    .`when`<Boolean> { ClipboardUtils.hasText(clipEntry) }
+                    .thenReturn(true)
+
+                manager.visualTransformation = PasswordVisualTransformation()
+                whenever(clipboard.getClipEntry()).thenReturn(clipEntry)
+                manager.value = TextFieldValue(text, TextRange(0, 5))
+
+                manager.showSelectionToolbar()
+
+                assertThat(fakeToolbarRequester.shown).isTrue()
+                assertThat(fakeToolbarRequester.showCount).isEqualTo(1)
+            }
+        }
 
     @Test
     fun isTextChanged_text_changed_return_true() {

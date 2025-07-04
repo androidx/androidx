@@ -10,8 +10,8 @@ package androidx.compose.runtime.saveable {
   }
 
   public final class RememberSaveableKt {
-    method @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object![]? inputs, optional androidx.compose.runtime.saveable.Saver<T,?> saver, optional String? key, kotlin.jvm.functions.Function0<? extends T> init);
     method @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.MutableState<T> rememberSaveable(Object![]? inputs, androidx.compose.runtime.saveable.Saver<T,?> stateSaver, optional String? key, kotlin.jvm.functions.Function0<? extends androidx.compose.runtime.MutableState<T>> init);
+    method @androidx.compose.runtime.Composable public static <T> T rememberSaveable(Object![]? inputs, optional androidx.compose.runtime.saveable.Saver<T,?> saver, optional String? key, kotlin.jvm.functions.Function0<? extends T> init);
   }
 
   public interface SaveableStateHolder {

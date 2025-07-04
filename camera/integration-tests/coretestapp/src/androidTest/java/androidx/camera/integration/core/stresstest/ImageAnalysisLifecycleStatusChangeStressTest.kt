@@ -48,7 +48,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         pauseResumeActivity_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_IMAGE_ANALYSIS
+            VERIFICATION_TARGET_IMAGE_ANALYSIS,
         )
     }
 
@@ -61,7 +61,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         pauseResumeActivity_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_IMAGE_ANALYSIS
+            VERIFICATION_TARGET_IMAGE_ANALYSIS,
         )
     }
 
@@ -74,7 +74,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         pauseResumeActivityRepeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_IMAGE_ANALYSIS
+            VERIFICATION_TARGET_IMAGE_ANALYSIS,
         )
     }
 
@@ -87,7 +87,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         pauseResumeActivityRepeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_IMAGE_ANALYSIS
+            VERIFICATION_TARGET_IMAGE_ANALYSIS,
         )
     }
 }

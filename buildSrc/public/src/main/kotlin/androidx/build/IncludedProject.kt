@@ -24,5 +24,5 @@ data class IncludedProject(
     /** Gradle path of the project (using : as separator) */
     val gradlePath: String,
     /** File path for the project, relative to support root folder. */
-    val filePath: String
+    val filePath: String,
 )

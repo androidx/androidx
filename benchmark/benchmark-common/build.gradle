@@ -22,15 +22,14 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.squareup.wire")
     id("com.google.devtools.ksp")
 }
@@ -85,6 +84,7 @@ dependencies {
     implementation("androidx.test:monitor:1.6.1")
     implementation(libs.wireRuntime)
     implementation(libs.moshi)
+    implementation(libs.kotlinCoroutinesAndroid)
     ksp(libs.moshiCodeGen)
 
     androidTestImplementation(libs.testRules)
@@ -95,11 +95,10 @@ dependencies {
 
 androidx {
     name = "Benchmark - Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
     legacyDisableKotlinStrictApiMode = true
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
     }
@@ -112,6 +111,8 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += [
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
         ]
     }
 }
+

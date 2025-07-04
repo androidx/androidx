@@ -32,7 +32,7 @@ import org.gradle.api.Project
  * `freeRelease`, `free`, `release` and `main` (global ones).
  */
 internal class PerVariantConsumerExtensionManager(
-    private val extension: BaselineProfileConsumerExtension,
+    private val extension: BaselineProfileConsumerExtension
 ) {
 
     fun variant(variant: Variant) = VariantConfigurationProxy(variant = variant, ext = extension)
@@ -69,14 +69,14 @@ internal class PerVariantConsumerExtensionManager(
 
         private fun <T> getMergedListForVariant(
             variant: Variant,
-            getter: BaselineProfileVariantConfigurationImpl.() -> List<T>
+            getter: BaselineProfileVariantConfigurationImpl.() -> List<T>,
         ): List<T> {
             return listOfNotNull(
                     "main",
                     variant.flavorName,
                     *variant.productFlavors.map { it.second }.toTypedArray(),
                     variant.buildType,
-                    variant.name
+                    variant.name,
                 )
                 .mapNotNull { ext.variants.findByName(it) }
                 .map { getter.invoke(it) }
@@ -85,7 +85,7 @@ internal class PerVariantConsumerExtensionManager(
 
         private fun <T> getOverriddenValueForVariantAllowNull(
             variant: Variant,
-            getter: BaselineProfileVariantConfigurationImpl.() -> T
+            getter: BaselineProfileVariantConfigurationImpl.() -> T,
         ): T? {
             // Here we select a setting for the given variant. [BaselineProfileVariantConfiguration]
             // are evaluated in the following order: variant, flavor, build type, `main`.
@@ -98,7 +98,7 @@ internal class PerVariantConsumerExtensionManager(
                         *variant.productFlavors.map { it.second }.toTypedArray(),
                         variant.flavorName,
                         variant.buildType,
-                        "main"
+                        "main",
                     )
                     .mapNotNull {
                         val variantConfig = ext.variants.findByName(it) ?: return@mapNotNull null
@@ -145,7 +145,7 @@ internal class PerVariantConsumerExtensionManager(
         private fun <T> getOverriddenValueForVariant(
             variant: Variant,
             default: T? = null,
-            getter: BaselineProfileVariantConfigurationImpl.() -> T?
+            getter: BaselineProfileVariantConfigurationImpl.() -> T?,
         ): T {
             val value = getOverriddenValueForVariantAllowNull(variant, getter)
             if (value != null) return value

@@ -42,12 +42,14 @@ import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -109,7 +111,7 @@ class PreviewTest {
     private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
         androidx.camera.core.impl.Config.Option.create(
             "test.testOption",
-            Int::class.javaPrimitiveType!!
+            Int::class.javaPrimitiveType!!,
         )
     private val testImplementationOptionValue = 5
 
@@ -126,7 +128,8 @@ class PreviewTest {
                 _: Context?,
                 _: CameraThreadConfig?,
                 _: CameraSelector?,
-                _: Long? ->
+                _: Long?,
+                _: StreamSpecsCalculator ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(backCamera.cameraInfoInternal.cameraId) {
                     backCamera
@@ -183,12 +186,21 @@ class PreviewTest {
     @Test
     fun createPreview_sessionConfigMatchesStreamSpec() {
         // Act: Create a preview use case.
-        val preview = createPreview()
+        val preview = createPreview(sessionType = SESSION_TYPE_HIGH_SPEED)
         // Assert: The session config matches the stream spec.
         val sessionConfig = preview.sessionConfig
+        assertThat(sessionConfig.sessionType).isEqualTo(SESSION_TYPE_HIGH_SPEED)
         assertThat(sessionConfig.expectedFrameRateRange).isEqualTo(FRAME_RATE_RANGE)
         assertThat(sessionConfig.implementationOptions.retrieveOption(testImplementationOption))
             .isEqualTo(testImplementationOptionValue)
+    }
+
+    @Test
+    fun createPreview_sessionTypeIsPropagatedToSurfaceRequest() {
+        // Act: Create a preview use case.
+        val preview = createPreview(sessionType = SESSION_TYPE_HIGH_SPEED)
+        // Assert: The session type is propagated to the surface request.
+        assertThat(preview.mCurrentSurfaceRequest!!.sessionType).isEqualTo(SESSION_TYPE_HIGH_SPEED)
     }
 
     @Test
@@ -229,7 +241,7 @@ class PreviewTest {
                     expectedPadding,
                     0,
                     FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width - expectedPadding,
-                    FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
+                    FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height,
                 )
             )
     }
@@ -244,7 +256,7 @@ class PreviewTest {
                     0,
                     0,
                     FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width,
-                    FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
+                    FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height,
                 )
             )
     }
@@ -255,7 +267,7 @@ class PreviewTest {
             .isEqualTo(
                 Size(
                     FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width,
-                    FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
+                    FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height,
                 )
             )
     }
@@ -347,7 +359,7 @@ class PreviewTest {
         cameraUseCaseAdapter =
             CameraUtil.createCameraUseCaseAdapter(
                 ApplicationProvider.getApplicationContext(),
-                TEST_CAMERA_SELECTOR
+                TEST_CAMERA_SELECTOR,
             )
         val rational1 = Rational(1, 1)
         cameraUseCaseAdapter!!.setViewPort(ViewPort.Builder(rational1, Surface.ROTATION_0).build())
@@ -358,7 +370,7 @@ class PreviewTest {
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
-                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it }
+                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it },
             )
         }
         shadowOf(getMainLooper()).idle()
@@ -586,7 +598,7 @@ class PreviewTest {
         // Act: invoke the error listener.
         preview.sessionConfig.errorListener!!.onError(
             preview.sessionConfig,
-            SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+            SessionConfig.SessionError.SESSION_ERROR_UNKNOWN,
         )
         shadowOf(getMainLooper()).idle()
 
@@ -606,14 +618,14 @@ class PreviewTest {
         cameraUseCaseAdapter =
             CameraUtil.createCameraUseCaseAdapter(
                 ApplicationProvider.getApplicationContext(),
-                TEST_CAMERA_SELECTOR
+                TEST_CAMERA_SELECTOR,
             )
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
         var receivedTransformationInfo: TransformationInfo? = null
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
-                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it }
+                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it },
             )
         }
         shadowOf(getMainLooper()).idle()
@@ -639,7 +651,7 @@ class PreviewTest {
         val cameraUseCaseAdapter =
             CameraUtil.createCameraUseCaseAdapter(
                 ApplicationProvider.getApplicationContext(),
-                TEST_CAMERA_SELECTOR
+                TEST_CAMERA_SELECTOR,
             )
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
 
@@ -652,7 +664,7 @@ class PreviewTest {
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
-                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it }
+                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it },
             )
             receivedSurfaceRequest = request
         }
@@ -666,7 +678,7 @@ class PreviewTest {
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
-                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it }
+                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it },
             )
             receivedSurfaceRequest = request
         }
@@ -688,7 +700,7 @@ class PreviewTest {
         cameraUseCaseAdapter =
             CameraUtil.createCameraUseCaseAdapter(
                 ApplicationProvider.getApplicationContext(),
-                TEST_CAMERA_SELECTOR
+                TEST_CAMERA_SELECTOR,
             )
         // Attach
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
@@ -818,7 +830,7 @@ class PreviewTest {
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
-                SurfaceRequest.TransformationInfoListener { transformationInfo = it }
+                SurfaceRequest.TransformationInfoListener { transformationInfo = it },
             )
             surfaceRequest = request
         }
@@ -827,7 +839,7 @@ class PreviewTest {
         cameraUseCaseAdapter =
             CameraUtil.createCameraUseCaseAdapter(
                 ApplicationProvider.getApplicationContext(),
-                TEST_CAMERA_SELECTOR
+                TEST_CAMERA_SELECTOR,
             )
         cameraUseCaseAdapter!!.setViewPort(viewPort)
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
@@ -840,7 +852,8 @@ class PreviewTest {
         camera: FakeCamera = backCamera,
         targetRotation: Int = ROTATION_90,
         surfaceProvider: SurfaceProvider = SurfaceProvider {},
-        mirrorMode: Int = MirrorMode.MIRROR_MODE_UNSPECIFIED
+        mirrorMode: Int = MirrorMode.MIRROR_MODE_UNSPECIFIED,
+        sessionType: Int = SessionConfig.DEFAULT_SESSION_TYPE,
     ): Preview {
         previewToDetach =
             Preview.Builder().setMirrorMode(mirrorMode).setTargetRotation(targetRotation).build()
@@ -852,14 +865,15 @@ class PreviewTest {
             null,
             previewToDetach.getDefaultConfig(
                 true,
-                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context)
-            )
+                cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context),
+            ),
         )
 
         val streamSpecOptions = MutableOptionsBundle.create()
         streamSpecOptions.insertOption(testImplementationOption, testImplementationOptionValue)
         val streamSpec =
             StreamSpec.builder(Size(640, 480))
+                .setSessionType(sessionType)
                 .setExpectedFrameRateRange(FRAME_RATE_RANGE)
                 .setImplementationOptions(streamSpecOptions)
                 .build()

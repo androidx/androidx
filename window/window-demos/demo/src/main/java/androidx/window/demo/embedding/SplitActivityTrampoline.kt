@@ -33,7 +33,7 @@ class SplitActivityTrampoline : SplitActivityBase() {
             setOf(
                 ActivityFilter(
                     componentName("androidx.window.demo.embedding.SplitActivityTrampolineTarget"),
-                    null
+                    null,
                 )
             )
         val placeholderIntent = Intent()

@@ -1,0 +1,27 @@
+{
+  "projectPath": ":core:core-location-altitude",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-stdlib",
+        "resolvedVersion": "2.1.10"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":room:room-common"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":sqlite:sqlite"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

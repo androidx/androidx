@@ -21,23 +21,28 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
     api(project(":camera:camera-core"))
     api("androidx.annotation:annotation:1.8.1")
+    api("androidx.lifecycle:lifecycle-livedata-core:2.3.1")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.tracing:tracing:1.2.0")
     implementation(libs.guavaListenableFuture)
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
+    implementation("androidx.arch.core:core-common:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-common:2.3.1")
+    implementation(project(":camera:featurecombinationquery:featurecombinationquery"))
 
     annotationProcessor(libs.autoValue)
 
@@ -45,10 +50,8 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation("androidx.annotation:annotation-experimental:1.4.1")
     testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation(project(":camera:camera-video"))
@@ -57,40 +60,44 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation(libs.junit) // Needed for Assert.assertThrows
     testImplementation("org.codehaus.plexus:plexus-utils:3.4.1")
+    testImplementation(libs.guavaAndroid)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
-    androidTestImplementation("androidx.appcompat:appcompat:1.1.0")
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
         exclude(group:"androidx.test")
     }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation libs.guavaAndroid
+    androidTestImplementation libs.hamcrestCore
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.kotlinCoroutinesCore
+    androidTestImplementation libs.testMonitor
+    androidTestImplementation project(':camera:camera-video')
 }
 android {
+    compileSdk = 35
+
     buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
 
-    lintOptions {
-        enable("CameraXQuirksClassDetector")
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
 
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.camera2"
 }
 
@@ -100,9 +107,10 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "Camera2"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Camera2 implementation and extensions for the Jetpack Camera Library, a " +
             "library providing a consistent and reliable camera foundation that enables great " +
             "camera driven experiences across all of Android."
+    enableRobolectric()
 }

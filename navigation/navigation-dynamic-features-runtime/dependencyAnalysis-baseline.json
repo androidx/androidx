@@ -1,0 +1,29 @@
+{
+  "projectPath": ":navigation:navigation-dynamic-features-runtime",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.android.gms:play-services-tasks",
+        "resolvedVersion": "18.0.2"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.android.gms:play-services-tasks",
+        "resolvedVersion": "18.0.2"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.linkedin.dexmaker:dexmaker-mockito",
+        "resolvedVersion": "2.28.4"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    }
+  ]
+}

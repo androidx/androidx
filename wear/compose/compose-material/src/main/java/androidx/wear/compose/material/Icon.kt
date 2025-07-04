@@ -44,13 +44,13 @@ public fun Icon(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
 ) {
     Icon(
         painter = rememberVectorPainter(imageVector),
         contentDescription = contentDescription,
         modifier = modifier,
-        tint = tint
+        tint = tint,
     )
 }
 
@@ -72,14 +72,14 @@ public fun Icon(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
 ) {
     val painter = remember(bitmap) { BitmapPainter(bitmap) }
     Icon(
         painter = painter,
         contentDescription = contentDescription,
         modifier = modifier,
-        tint = tint
+        tint = tint,
     )
 }
 
@@ -101,13 +101,13 @@ public fun Icon(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
 ) {
     // TODO: b/149735981 semantics for content description
     androidx.wear.compose.materialcore.Icon(
         painter = painter,
         contentDescription = contentDescription,
         modifier = modifier,
-        tint = tint
+        tint = tint,
     )
 }

@@ -77,8 +77,8 @@ class SwitchBackportTranslatorTest {
                                 checkedThumbColor = ColorProvider(Color.Blue),
                                 uncheckedThumbColor = ColorProvider(Color.Red),
                                 checkedTrackColor = ColorProvider(Color.Green),
-                                uncheckedTrackColor = ColorProvider(Color.Yellow)
-                            )
+                                uncheckedTrackColor = ColorProvider(Color.Yellow),
+                            ),
                     )
                 }
 
@@ -101,8 +101,8 @@ class SwitchBackportTranslatorTest {
                                 checkedThumbColor = ColorProvider(Color.Blue),
                                 uncheckedThumbColor = ColorProvider(Color.Red),
                                 checkedTrackColor = ColorProvider(Color.Green),
-                                uncheckedTrackColor = ColorProvider(Color.Yellow)
-                            )
+                                uncheckedTrackColor = ColorProvider(Color.Yellow),
+                            ),
                     )
                 }
 
@@ -131,8 +131,8 @@ class SwitchBackportTranslatorTest {
                                     ColorProvider(day = thumbColor, night = otherColor),
                                 checkedTrackColor = ColorProvider(otherColor),
                                 uncheckedTrackColor =
-                                    ColorProvider(day = trackColor, night = otherColor)
-                            )
+                                    ColorProvider(day = trackColor, night = otherColor),
+                            ),
                     )
                 }
 
@@ -161,8 +161,8 @@ class SwitchBackportTranslatorTest {
                                     ColorProvider(day = otherColor, night = thumbColor),
                                 checkedTrackColor = ColorProvider(otherColor),
                                 uncheckedTrackColor =
-                                    ColorProvider(day = otherColor, night = trackColor)
-                            )
+                                    ColorProvider(day = otherColor, night = trackColor),
+                            ),
                     )
                 }
 
@@ -193,8 +193,8 @@ class SwitchBackportTranslatorTest {
                                 checkedTrackColor =
                                     ColorProvider(day = trackColor, night = otherColor),
                                 uncheckedTrackColor =
-                                    ColorProvider(day = otherColor, night = otherColor)
-                            )
+                                    ColorProvider(day = otherColor, night = otherColor),
+                            ),
                     )
                 }
 
@@ -223,8 +223,8 @@ class SwitchBackportTranslatorTest {
                                 uncheckedThumbColor = ColorProvider(otherColor),
                                 checkedTrackColor =
                                     ColorProvider(day = otherColor, night = trackColor),
-                                uncheckedTrackColor = ColorProvider(otherColor)
-                            )
+                                uncheckedTrackColor = ColorProvider(otherColor),
+                            ),
                     )
                 }
 
@@ -247,8 +247,8 @@ class SwitchBackportTranslatorTest {
                                 checkedThumbColor = ColorProvider(Color.Magenta),
                                 uncheckedThumbColor = ColorProvider(Color.Red),
                                 checkedTrackColor = ColorProvider(Color.Magenta),
-                                uncheckedTrackColor = ColorProvider(Color.Blue)
-                            )
+                                uncheckedTrackColor = ColorProvider(Color.Blue),
+                            ),
                     )
                 }
 
@@ -272,7 +272,7 @@ class SwitchBackportTranslatorTest {
                                 uncheckedThumbColor = ColorProvider(Color.Magenta),
                                 checkedTrackColor = ColorProvider(Color.Blue),
                                 uncheckedTrackColor = ColorProvider(Color.Magenta),
-                            )
+                            ),
                     )
                 }
 
@@ -286,11 +286,7 @@ class SwitchBackportTranslatorTest {
         fakeCoroutineScope.runTest {
             val rv =
                 context.runAndTranslate {
-                    Switch(
-                        checked = true,
-                        onCheckedChange = null,
-                        text = "Switch",
-                    )
+                    Switch(checked = true, onCheckedChange = null, text = "Switch")
                 }
 
             val switchRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))

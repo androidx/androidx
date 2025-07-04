@@ -18,8 +18,6 @@ package androidx.camera.core.impl;
 
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 
-import android.graphics.Rect;
-
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
@@ -79,6 +77,11 @@ public interface CameraControlInternal extends CameraControl {
     void addZslConfig(SessionConfig.@NonNull Builder sessionConfigBuilder);
 
     /**
+     * Clear the resource for ZSL capture.
+     */
+    void clearZslConfig();
+
+    /**
      * Sets the flag if zero-shutter lag needs to be disabled by user case config.
      *
      * <p> Zero-shutter lag will be disabled when any of the following conditions:
@@ -99,6 +102,19 @@ public interface CameraControlInternal extends CameraControl {
      * @return True if zero-shutter lag should be disabled. Otherwise returns false.
      */
     boolean isZslDisabledByByUserCaseConfig();
+
+    /**
+     * Sets the flag if low-light boost needs to be disabled by use case session config.
+     *
+     * <p> Low-light boost will be disabled when any of the following conditions:
+     * <ul>
+     *     <li> Expected frame rate range exceeds 30
+     *     <li> HDR 10-bit is ON
+     * </ul>
+     *
+     * @param disabled True if low-light boost should be disabled. Otherwise returns false.
+     */
+    default void setLowLightBoostDisabledByUseCaseSessionConfig(boolean disabled) {}
 
     /**
      * Performs still capture requests with the desired capture mode.
@@ -147,11 +163,6 @@ public interface CameraControlInternal extends CameraControl {
      * notify the change.
      */
     @NonNull SessionConfig getSessionConfig();
-
-    /**
-     * Gets the full sensor rect.
-     */
-    @NonNull Rect getSensorRect();
 
     /**
      * Adds the Interop configuration.
@@ -214,6 +225,11 @@ public interface CameraControlInternal extends CameraControl {
         }
 
         @Override
+        public void clearZslConfig() {
+
+        }
+
+        @Override
         public @NonNull ListenableFuture<Void> enableTorch(boolean torch) {
             return Futures.immediateFuture(null);
         }
@@ -234,11 +250,6 @@ public interface CameraControlInternal extends CameraControl {
         @Override
         public @NonNull SessionConfig getSessionConfig() {
             return SessionConfig.defaultEmptySessionConfig();
-        }
-
-        @Override
-        public @NonNull Rect getSensorRect() {
-            return new Rect();
         }
 
         @Override

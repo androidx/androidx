@@ -72,7 +72,7 @@ class MaterialShapesScreenshotTest {
                 Button(
                     onClick = {},
                     modifier = Modifier.requiredSize(56.dp),
-                    shape = morphShape(progress = 0f)
+                    shape = morphShape(progress = 0f),
                 ) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                 }
@@ -88,7 +88,7 @@ class MaterialShapesScreenshotTest {
                 Button(
                     onClick = {},
                     modifier = Modifier.requiredSize(56.dp),
-                    shape = morphShape(progress = 0.5f)
+                    shape = morphShape(progress = 0.5f),
                 ) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                 }
@@ -104,7 +104,7 @@ class MaterialShapesScreenshotTest {
                 Button(
                     onClick = {},
                     modifier = Modifier.requiredSize(56.dp),
-                    shape = morphShape(progress = 1f)
+                    shape = morphShape(progress = 1f),
                 ) {
                     Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                 }
@@ -120,7 +120,7 @@ class MaterialShapesScreenshotTest {
                 LazyVerticalGrid(
                     columns = GridCells.FixedSize(64.dp),
                     contentPadding = PaddingValues(2.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     allShapes().forEach { polygon ->
                         item {
@@ -174,7 +174,7 @@ class MaterialShapesScreenshotTest {
             MaterialShapes.PixelCircle,
             MaterialShapes.PixelTriangle,
             MaterialShapes.Bun,
-            MaterialShapes.Heart
+            MaterialShapes.Heart,
         )
     }
 
@@ -184,7 +184,7 @@ class MaterialShapesScreenshotTest {
             override fun createOutline(
                 size: Size,
                 layoutDirection: LayoutDirection,
-                density: Density
+                density: Density,
             ): Outline {
                 val matrix = Matrix()
                 matrix.scale(size.width, size.height)

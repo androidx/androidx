@@ -31,7 +31,7 @@ internal class WebAuthnUtils {
         fun b64Encode(data: ByteArray): String {
             return Base64.encodeToString(
                 data,
-                Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE
+                Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE,
             )
         }
 

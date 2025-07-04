@@ -16,8 +16,8 @@
 
 package androidx.xr.runtime.openxr
 
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.Plane
-import androidx.xr.runtime.internal.TrackingState
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 
@@ -34,8 +34,8 @@ import androidx.xr.runtime.math.Vector2
  * @property subsumedByPlaneId the OpenXR handle of the plane that subsumed this plane.
  */
 internal data class PlaneState(
-    val trackingState: TrackingState = TrackingState.Paused,
-    val label: Plane.Label = Plane.Label.Unknown,
+    val trackingState: TrackingState = TrackingState.PAUSED,
+    val label: Plane.Label = Plane.Label.UNKNOWN,
     val centerPose: Pose = Pose(),
     val extents: Vector2 = Vector2.Zero,
     val vertices: Array<Vector2> = emptyArray(),
@@ -44,9 +44,9 @@ internal data class PlaneState(
 
 internal fun TrackingState.Companion.fromOpenXrTrackingState(trackingState: Int): TrackingState =
     when (trackingState) {
-        0 -> TrackingState.Paused // XR_TRACKING_STATE_PAUSED_ANDROID
-        1 -> TrackingState.Stopped // XR_TRACKING_STATE_STOPPED_ANDROID
-        2 -> TrackingState.Tracking // XR_TRACKING_STATE_TRACKING_ANDROID
+        0 -> TrackingState.PAUSED // XR_TRACKING_STATE_PAUSED_ANDROID
+        1 -> TrackingState.STOPPED // XR_TRACKING_STATE_STOPPED_ANDROID
+        2 -> TrackingState.TRACKING // XR_TRACKING_STATE_TRACKING_ANDROID
         else -> {
             throw IllegalArgumentException("Invalid tracking state.")
         }

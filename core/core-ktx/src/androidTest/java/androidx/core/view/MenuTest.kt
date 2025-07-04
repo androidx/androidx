@@ -160,7 +160,7 @@ class MenuTest {
             listOf(
                 menu.add(NONE, 1, NONE, ""),
                 menu.add(NONE, 2, NONE, ""),
-                menu.add(NONE, 3, NONE, "")
+                menu.add(NONE, 3, NONE, ""),
             )
 
         menu.children.forEachIndexed { index, child -> assertSame(items[index], child) }

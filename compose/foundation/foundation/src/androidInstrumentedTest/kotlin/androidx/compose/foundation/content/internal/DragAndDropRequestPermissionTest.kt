@@ -32,31 +32,40 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 
 @SmallTest
 class DragAndDropRequestPermissionTest {
 
-    @Suppress("DEPRECATION") @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
-    private lateinit var testNode: TestNode
+    private var testNode: TestNode? = null
+
+    private fun requireTestNode() = requireNotNull(testNode) { "testNode was not initialized" }
+
+    @After
+    fun reset() {
+        testNode = null
+    }
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
     fun asksPermission_ifAllRequirementsAreMet() {
         // setup
         rule.setContent { Box(Modifier.then(TestElement { testNode = it })) }
+
         val event =
             DragAndDropEvent(
                 DragAndDropTestUtils.makeImageDragEvent(
                     DragEvent.ACTION_DROP,
-                    Uri.parse("content://com.example/content.png")
+                    Uri.parse("content://com.example/content.png"),
                 )
             )
 
         // act
-        testNode.dragAndDropRequestPermission(event)
+        requireTestNode().dragAndDropRequestPermission(event)
 
         // assert
         Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isNotEmpty()
@@ -71,12 +80,12 @@ class DragAndDropRequestPermissionTest {
             DragAndDropEvent(
                 DragAndDropTestUtils.makeImageDragEvent(
                     DragEvent.ACTION_DROP,
-                    Uri.parse("file://com.example/content.png")
+                    Uri.parse("file://com.example/content.png"),
                 )
             )
 
         // act
-        testNode.dragAndDropRequestPermission(event)
+        requireTestNode().dragAndDropRequestPermission(event)
 
         // assert
         Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()
@@ -96,14 +105,14 @@ class DragAndDropRequestPermissionTest {
             DragAndDropEvent(
                 DragAndDropTestUtils.makeImageDragEvent(
                     DragEvent.ACTION_DROP,
-                    Uri.parse("file://com.example/content.png")
+                    Uri.parse("file://com.example/content.png"),
                 )
             )
 
         toggle = false
 
         // act
-        testNode.dragAndDropRequestPermission(event)
+        requireTestNode().dragAndDropRequestPermission(event)
 
         // assert
         Truth.assertThat(rule.activity.requestedDragAndDropPermissions).isEmpty()

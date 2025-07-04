@@ -114,7 +114,7 @@ class RemoteViewsTest {
             value = { findViewById<TextView>(R.id.text).hint.toString() },
             configuration = { setLocale(Locale("es")) },
             before = "Hello world",
-            after = "Hola mundo"
+            after = "Hola mundo",
         )
     }
 
@@ -152,7 +152,7 @@ class RemoteViewsTest {
         value: View.() -> T,
         configuration: Configuration.() -> Unit,
         before: T,
-        after: T
+        after: T,
     ) {
         reapplyRemoteViews()
         assertThat(value(mView)).isEqualTo(before)

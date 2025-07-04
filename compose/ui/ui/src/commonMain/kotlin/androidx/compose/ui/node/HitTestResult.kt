@@ -96,7 +96,7 @@ internal class HitTestResult : List<Modifier.Node> {
         node: Modifier.Node,
         distanceFromEdge: Float,
         isInLayer: Boolean,
-        childHitTest: () -> Unit
+        childHitTest: () -> Unit,
     ) = hitInMinimumTouchTarget(node, distanceFromEdge, isInLayer, false, childHitTest)
 
     /**
@@ -108,7 +108,7 @@ internal class HitTestResult : List<Modifier.Node> {
         distanceFromEdge: Float,
         isInLayer: Boolean,
         isInExpandedBounds: Boolean,
-        childHitTest: () -> Unit
+        childHitTest: () -> Unit,
     ) {
         val startDepth = hitDepth
         removeNodesInRange(hitDepth + 1, size)
@@ -169,7 +169,7 @@ internal class HitTestResult : List<Modifier.Node> {
         node: Modifier.Node,
         distanceFromEdge: Float,
         isInLayer: Boolean,
-        childHitTest: () -> Unit
+        childHitTest: () -> Unit,
     ) {
         if (hitDepth == lastIndex) {
             // Speculation is easy. We don't have to do any array shuffling.
@@ -227,10 +227,7 @@ internal class HitTestResult : List<Modifier.Node> {
             return
         }
         values.removeRange(start = startDepth, end = endDepth)
-        distanceFromEdgeAndFlags.removeRange(
-            start = startDepth,
-            end = endDepth,
-        )
+        distanceFromEdgeAndFlags.removeRange(start = startDepth, end = endDepth)
     }
 
     /**
@@ -296,7 +293,7 @@ internal class HitTestResult : List<Modifier.Node> {
     private inner class HitTestResultIterator(
         var index: Int = 0,
         val minIndex: Int = 0,
-        val maxIndex: Int = size
+        val maxIndex: Int = size,
     ) : ListIterator<Modifier.Node> {
         override fun hasNext(): Boolean = index < maxIndex
 
@@ -400,7 +397,7 @@ internal value class DistanceAndFlags(val packedValue: Long) {
 private fun DistanceAndFlags(
     distance: Float,
     isInLayer: Boolean,
-    isInExpandedBounds: Boolean = false
+    isInExpandedBounds: Boolean = false,
 ): DistanceAndFlags {
     val v1 = distance.toRawBits().toLong()
     var v2 = if (isInLayer) IS_IN_LAYER else 0L

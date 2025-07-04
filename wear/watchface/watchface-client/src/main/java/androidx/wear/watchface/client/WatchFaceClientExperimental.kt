@@ -16,6 +16,10 @@
 
 package androidx.wear.watchface.client
 
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 @RequiresOptIn("This is an experimental API that may change or be removed without warning.")
 @Retention(AnnotationRetention.BINARY)
 annotation class WatchFaceClientExperimental

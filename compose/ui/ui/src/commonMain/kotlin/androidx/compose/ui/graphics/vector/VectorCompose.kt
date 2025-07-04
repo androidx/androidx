@@ -54,7 +54,7 @@ fun Group(
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
     clipPathData: List<PathNode> = EmptyPath,
-    content: @Composable @VectorComposable () -> Unit
+    content: @Composable @VectorComposable () -> Unit,
 ) {
     ComposeNode<GroupComponent, VectorApplier>(
         factory = { GroupComponent() },
@@ -68,7 +68,7 @@ fun Group(
             set(translationX) { this.translationX = it }
             set(translationY) { this.translationY = it }
             set(clipPathData) { this.clipPathData = it }
-        }
+        },
     ) {
         content()
     }
@@ -111,7 +111,7 @@ fun Path(
     strokeLineMiter: Float = DefaultStrokeLineMiter,
     trimPathStart: Float = DefaultTrimPathStart,
     trimPathEnd: Float = DefaultTrimPathEnd,
-    trimPathOffset: Float = DefaultTrimPathOffset
+    trimPathOffset: Float = DefaultTrimPathOffset,
 ) {
     ComposeNode<PathComponent, VectorApplier>(
         factory = { PathComponent() },
@@ -130,7 +130,7 @@ fun Path(
             set(trimPathStart) { this.trimPathStart = it }
             set(trimPathEnd) { this.trimPathEnd = it }
             set(trimPathOffset) { this.trimPathOffset = it }
-        }
+        },
     )
 }
 

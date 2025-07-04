@@ -57,7 +57,7 @@ class TextAutoSizeBenchmark(private val textLength: Int, private val autoSize: T
                 // Text Length
                 arrayOf(32, 512),
                 // AutoSize
-                arrayOf(TextAutoSize.StepBased())
+                arrayOf(TextAutoSize.StepBased()),
             )
     }
 
@@ -124,13 +124,13 @@ class TextAutoSizeBenchmark(private val textLength: Int, private val autoSize: T
 private class AutoSizeTextInColumnTestCase(
     private val texts: List<AnnotatedString>,
     private val width: Dp,
-    private val autoSize: TextAutoSize
+    private val autoSize: TextAutoSize,
 ) : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
         for (text in texts) {
-            BasicText(text = text, textAutoSize = autoSize, modifier = Modifier.height(30.dp))
+            BasicText(text = text, autoSize = autoSize, modifier = Modifier.height(30.dp))
         }
     }
 

@@ -32,6 +32,7 @@ import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
@@ -95,6 +96,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
     @Before
     fun setUp(): Unit =
         runBlocking(Dispatchers.Main) {
+            assumePcsSupportedForImageCapture(context)
             ProcessCameraProvider.configureInstance(config.cameraXConfig)
             cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             lifecycleOwner = FakeLifecycleOwner()
@@ -128,7 +130,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
 
     private suspend fun assertPreviewAndImageCaptureWorking(
         clientVersion: String,
-        verifyPostview: Boolean = false
+        verifyPostview: Boolean = false,
     ) {
         extensionsManager =
             ExtensionsManager.getInstanceAsync(context, cameraProvider, clientVersion)[
@@ -137,7 +139,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
         extensionCameraSelector =
             extensionsManager.getExtensionEnabledCameraSelector(
                 baseCameraSelector,
-                config.extensionMode
+                config.extensionMode,
             )
 
         val expectCaptureProcessProgress =
@@ -168,7 +170,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
                 lifecycleOwner,
                 extensionCameraSelector,
                 preview,
-                imageCapture
+                imageCapture,
             )
         }
 
@@ -187,7 +189,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
                 override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
                     postviewLatch.countDown()
                 }
-            }
+            },
         )
         if (expectPostview) {
             assertThat(postviewLatch.await(10, TimeUnit.SECONDS)).isTrue()

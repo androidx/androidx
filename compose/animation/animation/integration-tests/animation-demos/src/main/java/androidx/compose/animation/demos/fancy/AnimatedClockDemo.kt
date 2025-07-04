@@ -89,7 +89,7 @@ fun AnimatedClockDemo() {
 private fun FancyClock(time: Time) {
     Row(
         modifier = Modifier.fillMaxHeight().fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         NumberColumn(2, time.hours / 10)
         NumberColumn(9, time.hours % 10)
@@ -124,7 +124,7 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
         animate(
             initialValue = -1f,
             targetValue = 0f,
-            animationSpec = spring(dampingRatio = 0.6f)
+            animationSpec = spring(dampingRatio = 0.6f),
         ) { animationValue, _ ->
             circleOffset = animationValue
         }
@@ -150,7 +150,7 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
             modifier =
                 Modifier.offset(y = offsetY)
                     .size(digitHeight.dp, ((maxDigit + 1) * digitHeight).dp),
-            elevation = 12.dp
+            elevation = 12.dp,
         ) {}
         // Draw circle that follows focused digit
         Canvas(modifier = Modifier.size(digitHeight.dp, (10 * digitHeight).dp)) {
@@ -159,7 +159,7 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
                 size = Size(24.dp.toPx(), (digitHeight * circleStretch).dp.toPx()),
                 topLeft = Offset(0f, ((9f + circleOffset) * digitHeight).dp.toPx()),
                 cornerRadius =
-                    CornerRadius((digitHeight / 2).dp.toPx(), (digitHeight / 2).dp.toPx())
+                    CornerRadius((digitHeight / 2).dp.toPx(), (digitHeight / 2).dp.toPx()),
             )
         }
         // Draw all the digits up to count
@@ -169,7 +169,7 @@ private fun NumberColumn(maxDigit: Int, digit: Int) {
                     color = Color.DarkGray,
                     modifier = Modifier.size(digitHeight.dp),
                     text = "$i",
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }

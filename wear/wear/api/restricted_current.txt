@@ -26,8 +26,8 @@ package androidx.wear.ambient {
     ctor public AmbientLifecycleObserver.AmbientDetails(boolean burnInProtectionRequired, boolean deviceHasLowBitAmbient);
     method public boolean getBurnInProtectionRequired();
     method public boolean getDeviceHasLowBitAmbient();
-    property public final boolean burnInProtectionRequired;
-    property public final boolean deviceHasLowBitAmbient;
+    property public boolean burnInProtectionRequired;
+    property public boolean deviceHasLowBitAmbient;
   }
 
   public static interface AmbientLifecycleObserver.AmbientLifecycleCallback {

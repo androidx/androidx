@@ -85,7 +85,7 @@ private class DragAndDropScopeImpl(val view: View, density: Density) :
             makeDragEvent(
                 DragEvent.ACTION_DROP,
                 item = lastDraggingItem,
-                offset = lastDraggingOffset
+                offset = lastDraggingOffset,
             )
         )
     }

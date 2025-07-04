@@ -28,7 +28,9 @@ import androidx.glance.GlanceNode
  */
 @Composable
 @Suppress("deprecation") // For backwards compatibility.
-fun AndroidLayoutElement(layoutElement: androidx.wear.tiles.LayoutElementBuilders.LayoutElement) {
+public fun AndroidLayoutElement(
+    layoutElement: androidx.wear.tiles.LayoutElementBuilders.LayoutElement
+) {
     GlanceNode(
         factory = ::EmittableAndroidLayoutElement,
         update = { this.set(layoutElement) { this.layoutElement = it } },

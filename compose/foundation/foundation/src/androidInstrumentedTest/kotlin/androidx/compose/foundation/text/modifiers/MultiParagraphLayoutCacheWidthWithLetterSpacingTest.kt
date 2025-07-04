@@ -74,7 +74,7 @@ class MultiParagraphLayoutCacheWidthWithLetterSpacingTest {
                     style = style.copy(fontFamily = fontFamily, fontSize = fontSize),
                     fontFamilyResolver = fontFamilyResolver,
                     softWrap = true,
-                    overflow = TextOverflow.Clip
+                    overflow = TextOverflow.Clip,
                 )
                 .also { it.density = density }
         textDelegate.layoutWithConstraints(Constraints(), LayoutDirection.Ltr)

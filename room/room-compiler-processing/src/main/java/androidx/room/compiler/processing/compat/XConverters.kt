@@ -158,12 +158,12 @@ object XConverters {
     @JvmStatic
     fun AnnotationValue.toXProcessing(
         method: ExecutableElement,
-        env: XProcessingEnv
+        env: XProcessingEnv,
     ): XAnnotationValue =
         JavacAnnotationValue(
             env as JavacProcessingEnv,
             method.toXProcessing(env) as JavacMethodElement,
-            this
+            this,
         )
 
     @JvmStatic

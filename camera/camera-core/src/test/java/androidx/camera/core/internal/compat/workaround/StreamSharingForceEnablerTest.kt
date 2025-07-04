@@ -44,7 +44,7 @@ class StreamSharingForceEnablerTest(
     private val model: String,
     private val cameraId: String,
     private val useCaseCombination: Int,
-    private val shouldEnableStreamSharing: Boolean
+    private val shouldEnableStreamSharing: Boolean,
 ) {
     companion object {
         @JvmStatic
@@ -59,7 +59,7 @@ class StreamSharingForceEnablerTest(
                         "cph2583",
                         "0",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
-                        false
+                        false,
                     )
                 )
                 add(
@@ -68,7 +68,7 @@ class StreamSharingForceEnablerTest(
                         "cph2583",
                         "1",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -77,7 +77,7 @@ class StreamSharingForceEnablerTest(
                         "cph2583",
                         "1",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE or IMAGE_ANALYSIS,
-                        false
+                        false,
                     )
                 )
                 add(arrayOf("", "", "1", PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE, false))
@@ -89,7 +89,7 @@ class StreamSharingForceEnablerTest(
                         "Moto E20",
                         "0",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
-                        false
+                        false,
                     )
                 )
                 add(
@@ -98,7 +98,7 @@ class StreamSharingForceEnablerTest(
                         "Pixel 4a",
                         "1",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -107,7 +107,7 @@ class StreamSharingForceEnablerTest(
                         "Pixel 5",
                         "1",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(
@@ -116,7 +116,7 @@ class StreamSharingForceEnablerTest(
                         "Pixel 4a",
                         "1",
                         PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
-                        true
+                        true,
                     )
                 )
                 add(arrayOf("Google", "Pixel 5a", "1", PREVIEW or IMAGE_CAPTURE, false))

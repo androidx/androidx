@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.Constraints
 fun HeaderFooterLayout(
     header: @Composable () -> Unit,
     footer: @Composable () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Layout({
         Box(Modifier.layoutId("header")) { header() }
@@ -62,7 +62,7 @@ fun HeaderFooterLayout(
             headerPlaceable.placeRelative(0, 0)
             footerPlaceable.placeRelative(
                 footerPadding,
-                constraints.maxHeight - footerPlaceable.height
+                constraints.maxHeight - footerPlaceable.height,
             )
             var top = headerPlaceable.height
             contentPlaceables.forEach { placeable ->

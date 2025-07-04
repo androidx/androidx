@@ -1,0 +1,41 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/asPaddingValues() from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Box(androidx.compose.ui/Modifier) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/BoxWithConstraints(androidx.compose.ui/Modifier, androidx.compose.ui/Alignment, kotlin/Boolean, kotlin/Function1<androidx.compose.foundation.layout/BoxWithConstraintsScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlowColumn(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Horizontal, kotlin/Int, kotlin/Int, kotlin/Function1<androidx.compose.foundation.layout/FlowColumnScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/FlowRow(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Vertical, kotlin/Int, kotlin/Int, kotlin/Function1<androidx.compose.foundation.layout/FlowRowScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Spacer(androidx.compose.ui/Modifier) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/columnMeasurePolicy(androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Horizontal) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/columnMeasurementHelper(androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.foundation.layout/Arrangement.Horizontal, kotlin/Int) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/rememberBoxMeasurePolicy(androidx.compose.ui/Alignment, kotlin/Boolean) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/rowMeasurePolicy(androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Vertical) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/rowMeasurementHelper(androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.foundation.layout/Arrangement.Vertical, kotlin/Int) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Box(androidx.compose.ui/Modifier, androidx.compose.ui/Alignment, kotlin/Boolean, kotlin/Function1<androidx.compose.foundation.layout/BoxScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Column(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Horizontal, kotlin/Function1<androidx.compose.foundation.layout/ColumnScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/Row(androidx.compose.ui/Modifier, androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Vertical, kotlin/Function1<androidx.compose.foundation.layout/RowScope, kotlin/Unit>) from androidx.compose.foundation:foundation-layout
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/captionBar.<get-captionBar>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/captionBar.<get-captionBar>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/displayCutout.<get-displayCutout>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/displayCutout.<get-displayCutout>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/ime.<get-ime>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/ime.<get-ime>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/mandatorySystemGestures.<get-mandatorySystemGestures>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/mandatorySystemGestures.<get-mandatorySystemGestures>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/navigationBars.<get-navigationBars>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/navigationBars.<get-navigationBars>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/safeContent.<get-safeContent>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/safeContent.<get-safeContent>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/safeDrawing.<get-safeDrawing>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/safeDrawing.<get-safeDrawing>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/safeGestures.<get-safeGestures>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/safeGestures.<get-safeGestures>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/statusBars.<get-statusBars>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/statusBars.<get-statusBars>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/systemBars.<get-systemBars>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/systemBars.<get-systemBars>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/systemGestures.<get-systemGestures>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/systemGestures.<get-systemGestures>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/tappableElement.<get-tappableElement>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/tappableElement.<get-tappableElement>
+[linuxX64]: Added valueParameter 1: androidx.compose.runtime/Composer? to androidx.compose.foundation.layout/waterfall.<get-waterfall>
+[linuxX64]: Added valueParameter 2: kotlin/Int to androidx.compose.foundation.layout/waterfall.<get-waterfall>

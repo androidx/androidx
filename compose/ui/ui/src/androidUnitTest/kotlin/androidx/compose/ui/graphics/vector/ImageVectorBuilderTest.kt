@@ -36,7 +36,7 @@ class ImageVectorBuilderTest {
                         listOf(
                             PathNode.HorizontalTo(20f),
                             PathNode.RelativeReflectiveCurveTo(40f, 40f, 10f, 10f),
-                            PathNode.Close
+                            PathNode.Close,
                         )
                     )
                     clearGroup()
@@ -126,5 +126,5 @@ private fun builder() =
         defaultWidth = 10.dp,
         defaultHeight = 10.dp,
         viewportWidth = 10f,
-        viewportHeight = 10f
+        viewportHeight = 10f,
     )

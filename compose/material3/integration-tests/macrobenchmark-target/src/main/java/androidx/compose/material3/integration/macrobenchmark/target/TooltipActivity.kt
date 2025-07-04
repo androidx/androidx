@@ -43,7 +43,7 @@ class TooltipActivity : ComponentActivity() {
                         Text("Tooltip Description")
                     }
                 },
-                state = rememberTooltipState()
+                state = rememberTooltipState(),
             ) {
                 IconButton(onClick = { /* Icon button's click event */ }) {
                     Icon(imageVector = Icons.Filled.Favorite, contentDescription = "tooltipAnchor")

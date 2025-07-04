@@ -63,7 +63,7 @@ class ObservableServiceA : ObservableService(latch) {
                 context,
                 101,
                 Intent(context, ObservableServiceA::class.java),
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE,
             )
     }
 }
@@ -89,7 +89,7 @@ class ObservableServiceB : ObservableService(latch) {
                 context,
                 101,
                 Intent(context, ObservableServiceB::class.java),
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE,
             )
     }
 }
@@ -115,7 +115,7 @@ class ObservableServiceC : ObservableService(latch) {
                 context,
                 101,
                 Intent(context, ObservableServiceC::class.java),
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE,
             )
     }
 }

@@ -123,7 +123,7 @@ class TextLayoutCacheTest {
         val secondInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(brush = Brush.linearGradient(listOf(Color.Blue, Color.Red)))
+                style = TextStyle(brush = Brush.linearGradient(listOf(Color.Blue, Color.Red))),
             )
 
         val textLayoutResult = layoutText(firstInput)
@@ -138,13 +138,13 @@ class TextLayoutCacheTest {
         val firstInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(shadow = Shadow(color = Color.Red))
+                style = TextStyle(shadow = Shadow(color = Color.Red)),
             )
 
         val secondInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(shadow = Shadow(color = Color.Blue))
+                style = TextStyle(shadow = Shadow(color = Color.Blue)),
             )
 
         val textLayoutResult = layoutText(firstInput)
@@ -159,13 +159,13 @@ class TextLayoutCacheTest {
         val firstInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(textDecoration = TextDecoration.LineThrough)
+                style = TextStyle(textDecoration = TextDecoration.LineThrough),
             )
 
         val secondInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(textDecoration = TextDecoration.Underline)
+                style = TextStyle(textDecoration = TextDecoration.Underline),
             )
 
         val textLayoutResult = layoutText(firstInput)
@@ -181,14 +181,14 @@ class TextLayoutCacheTest {
             textLayoutInput(
                 text = AnnotatedString("Hello"),
                 style = TextStyle(color = Color.Red),
-                constraints = Constraints(minWidth = 20, maxWidth = 200)
+                constraints = Constraints(minWidth = 20, maxWidth = 200),
             )
 
         val secondInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
                 style = TextStyle(color = Color.Red),
-                constraints = Constraints(minWidth = 60, maxWidth = 200)
+                constraints = Constraints(minWidth = 60, maxWidth = 200),
             )
 
         val textLayoutResult = layoutText(firstInput)
@@ -216,13 +216,13 @@ class TextLayoutCacheTest {
         val firstInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(color = Color.Red, fontSize = 14.sp)
+                style = TextStyle(color = Color.Red, fontSize = 14.sp),
             )
 
         val secondInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
-                style = TextStyle(color = Color.Red, fontSize = 18.sp)
+                style = TextStyle(color = Color.Red, fontSize = 18.sp),
             )
 
         val textLayoutResult = layoutText(firstInput)
@@ -266,14 +266,14 @@ class TextLayoutCacheTest {
             textLayoutInput(
                 text = AnnotatedString("Hello"),
                 style = TextStyle(color = Color.Red),
-                constraints = Constraints(minWidth = 20, maxWidth = 200)
+                constraints = Constraints(minWidth = 20, maxWidth = 200),
             )
 
         val secondInput =
             textLayoutInput(
                 text = AnnotatedString("Hello"),
                 style = TextStyle(color = Color.Red),
-                constraints = Constraints(minWidth = 20, maxWidth = 250)
+                constraints = Constraints(minWidth = 20, maxWidth = 250),
             )
 
         val textLayoutResult = layoutText(firstInput)
@@ -313,7 +313,7 @@ class TextLayoutCacheTest {
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        constraints: Constraints = Constraints()
+        constraints: Constraints = Constraints(),
     ): TextLayoutInput {
         return TextLayoutInput(
             text = text,
@@ -325,7 +325,7 @@ class TextLayoutCacheTest {
             density = density,
             layoutDirection = layoutDirection,
             fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints
+            constraints = constraints,
         )
     }
 
@@ -339,7 +339,7 @@ class TextLayoutCacheTest {
                 softWrap = softWrap,
                 maxLines = maxLines,
                 placeholders = placeholders,
-                constraints = constraints
+                constraints = constraints,
             )
         }
 }

@@ -28,7 +28,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         val other =
             ForeignKeyBundle(
@@ -36,7 +36,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
@@ -50,7 +50,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         val other =
             ForeignKeyBundle(
@@ -58,7 +58,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -71,7 +71,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete2",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         val other =
             ForeignKeyBundle(
@@ -79,7 +79,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -92,7 +92,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         val other =
             ForeignKeyBundle(
@@ -100,7 +100,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate2",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -113,7 +113,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col2", "col1"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         val other =
             ForeignKeyBundle(
@@ -121,7 +121,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }
@@ -134,7 +134,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target1", "target2")
+                referencedColumns = listOf("target1", "target2"),
             )
         val other =
             ForeignKeyBundle(
@@ -142,7 +142,7 @@ class ForeignKeyBundleTest {
                 onDelete = "onDelete",
                 onUpdate = "onUpdate",
                 columns = listOf("col1", "col2"),
-                referencedColumns = listOf("target2", "target1")
+                referencedColumns = listOf("target2", "target1"),
             )
         assertThat(bundle.isSchemaEqual(other)).isFalse()
     }

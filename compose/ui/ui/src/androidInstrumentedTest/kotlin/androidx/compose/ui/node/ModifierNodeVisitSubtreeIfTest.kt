@@ -171,7 +171,7 @@ class ModifierNodeVisitSubtreeIfTest {
                 Modifier.elementOf(node),
                 { Box(Modifier.elementOf(child1)) },
                 { Box(Modifier.elementOf(child2)) },
-                { Box(Modifier.elementOf(child3)) }
+                { Box(Modifier.elementOf(child3)) },
             )
         }
 

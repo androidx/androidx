@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -30,12 +30,15 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm {
-        withJava()
-    }
+    jvm()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -44,7 +47,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.8.1")
+                api("androidx.annotation:annotation:1.9.1")
             }
         }
 
@@ -63,18 +66,30 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmCommonMain {
+        nonJvmMain {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.atomicFu)
             }
         }
 
+        wasmJsMain {
+            dependsOn(nonJvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
+
+        jsMain {
+            dependsOn(nonJvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
         targets.configureEach { target ->
             if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nonJvmCommonMain)
-                }
+                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
             }
         }
     }
@@ -82,8 +97,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Lifecycle-Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
-    metalavaK2UastEnabled = false
 }

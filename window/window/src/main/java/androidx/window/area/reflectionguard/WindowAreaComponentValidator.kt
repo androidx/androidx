@@ -30,7 +30,7 @@ internal object WindowAreaComponentValidator {
                 else ->
                     validateImplementation(
                         windowAreaComponent,
-                        WindowAreaComponentApi3Requirements::class.java
+                        WindowAreaComponentApi3Requirements::class.java,
                     )
             }
         return isWindowAreaComponentValid
@@ -38,7 +38,7 @@ internal object WindowAreaComponentValidator {
 
     internal fun isExtensionWindowAreaStatusValid(
         extensionWindowAreaStatus: Class<*>,
-        apiLevel: Int
+        apiLevel: Int,
     ): Boolean {
         val isExtensionWindowAreaStatusValid: Boolean =
             when {
@@ -46,7 +46,7 @@ internal object WindowAreaComponentValidator {
                 else ->
                     validateImplementation(
                         extensionWindowAreaStatus,
-                        ExtensionWindowAreaStatusRequirements::class.java
+                        ExtensionWindowAreaStatusRequirements::class.java,
                     )
             }
         return isExtensionWindowAreaStatusValid
@@ -54,7 +54,7 @@ internal object WindowAreaComponentValidator {
 
     internal fun isExtensionWindowAreaPresentationValid(
         extensionWindowAreaPresentation: Class<*>,
-        apiLevel: Int
+        apiLevel: Int,
     ): Boolean {
         val isExtensionWindowAreaPresentationValid: Boolean =
             when {
@@ -62,7 +62,7 @@ internal object WindowAreaComponentValidator {
                 else ->
                     validateImplementation(
                         extensionWindowAreaPresentation,
-                        ExtensionWindowAreaPresentation::class.java
+                        ExtensionWindowAreaPresentation::class.java,
                     )
             }
         return isExtensionWindowAreaPresentationValid

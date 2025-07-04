@@ -13,10 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalContracts::class)
 
 package androidx.compose.runtime.mock
 
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+/**
+ * A [SynchronizedObject] provides a mechanism for thread coordination. Instances of this class are
+ * used within [synchronized] functions to establish mutual exclusion, guaranteeing that only one
+ * thread accesses a protected resource or code block at a time.
+ */
 internal expect class SynchronizedObject()
 
-@PublishedApi
-internal expect inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R
+/**
+ * Executes the given function [action] while holding the monitor of the given object [lock].
+ *
+ * The implementation is platform specific:
+ * - JVM: implemented via `synchronized`, `ReentrantLock` is avoided for performance reasons.
+ * - Native: implemented via POSIX mutex with `PTHREAD_MUTEX_RECURSIVE` flag.
+ */
+@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND") // KT-29963
+internal inline fun <T> synchronized(lock: SynchronizedObject, crossinline action: () -> T): T {
+    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    return synchronizedImpl(lock, action)
+}
+
+/**
+ * Executes the given function [action] while holding the monitor of the given object [lock].
+ *
+ * The implementation is platform specific:
+ * - JVM: implemented via `synchronized`, `ReentrantLock` is avoided for performance reasons.
+ * - Native: implemented via POSIX mutex with `PTHREAD_MUTEX_RECURSIVE` flag.
+ *
+ * **This is a private API and should not be used from general code.** This function exists
+ * primarily as a workaround for a Kotlin issue
+ * ([KT-29963](https://youtrack.jetbrains.com/issue/KT-29963)).
+ *
+ * You **MUST** use [synchronized] instead.
+ */
+internal expect inline fun <T> synchronizedImpl(
+    lock: SynchronizedObject,
+    crossinline action: () -> T,
+): T

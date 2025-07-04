@@ -1,0 +1,6 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.material.ripple/rememberRipple(kotlin/Boolean, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/Color) from androidx.compose.material:material-ripple
+[linuxX64]: Removed declaration defaultColor() from androidx.compose.material.ripple/RippleTheme
+[linuxX64]: Removed declaration rippleAlpha() from androidx.compose.material.ripple/RippleTheme
+[linuxX64]: Added declaration defaultColor(androidx.compose.runtime/Composer?, kotlin/Int) to androidx.compose.material.ripple/RippleTheme
+[linuxX64]: Added declaration rippleAlpha(androidx.compose.runtime/Composer?, kotlin/Int) to androidx.compose.material.ripple/RippleTheme

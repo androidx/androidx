@@ -31,13 +31,13 @@ abstract class ObservableQueryResultBinderProvider(val context: Context) :
     protected abstract fun create(
         typeArg: XType,
         resultAdapter: QueryResultAdapter?,
-        tableNames: Set<String>
+        tableNames: Set<String>,
     ): QueryResultBinder
 
     final override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         extras.putData(OriginalTypeArg::class, OriginalTypeArg(declared))
         val typeArg = extractTypeArg(declared)

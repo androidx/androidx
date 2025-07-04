@@ -48,18 +48,14 @@ class DurationScaleTransitionTest {
             setContent {
                 val transition = rememberTransition(transitionState = state)
                 val animatedValue1 by
-                    transition.animateFloat(
-                        { tween(160, easing = LinearEasing) },
-                    ) {
+                    transition.animateFloat({ tween(160, easing = LinearEasing) }) {
                         if (it == 0) 0f else 1000f
                     }
                 value1 = animatedValue1
                 if (withChild) {
                     val child = transition.createChildTransition { it }
                     val animatedValue2 by
-                        child.animateFloat(
-                            { tween(160, easing = LinearEasing) },
-                        ) {
+                        child.animateFloat({ tween(160, easing = LinearEasing) }) {
                             if (it == 0) 0f else 1000f
                         }
                     value2 = animatedValue2
@@ -108,18 +104,14 @@ class DurationScaleTransitionTest {
                 coroutineScope = rememberCoroutineScope()
                 val transition = rememberTransition(transitionState = state)
                 val animatedValue1 by
-                    transition.animateFloat(
-                        { tween(160, easing = LinearEasing) },
-                    ) {
+                    transition.animateFloat({ tween(160, easing = LinearEasing) }) {
                         if (it == 0) 0f else 1000f
                     }
                 value1 = animatedValue1
                 if (withChild) {
                     val child = transition.createChildTransition { it }
                     val animatedValue2 by
-                        child.animateFloat(
-                            { tween(160, easing = LinearEasing) },
-                        ) {
+                        child.animateFloat({ tween(160, easing = LinearEasing) }) {
                             if (it == 0) 0f else 1000f
                         }
                     value2 = animatedValue2
@@ -173,18 +165,14 @@ class DurationScaleTransitionTest {
                 coroutineScope = rememberCoroutineScope()
                 val transition = rememberTransition(transitionState = state)
                 val animatedValue1 by
-                    transition.animateFloat(
-                        { tween(160, easing = LinearEasing) },
-                    ) {
+                    transition.animateFloat({ tween(160, easing = LinearEasing) }) {
                         if (it == 0) 0f else 1000f
                     }
                 value1 = animatedValue1
                 if (withChild) {
                     val child = transition.createChildTransition { it }
                     val animatedValue2 by
-                        child.animateFloat(
-                            { tween(160, easing = LinearEasing) },
-                        ) {
+                        child.animateFloat({ tween(160, easing = LinearEasing) }) {
                             if (it == 0) 0f else 1000f
                         }
                     value2 = animatedValue2

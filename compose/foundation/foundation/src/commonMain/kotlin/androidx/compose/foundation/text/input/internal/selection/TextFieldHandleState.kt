@@ -25,7 +25,7 @@ internal data class TextFieldHandleState(
     val position: Offset,
     val lineHeight: Float,
     val direction: ResolvedTextDirection,
-    val handlesCrossed: Boolean
+    val handlesCrossed: Boolean,
 ) {
     companion object {
         val Hidden =
@@ -34,7 +34,7 @@ internal data class TextFieldHandleState(
                 position = Offset.Unspecified,
                 lineHeight = 0f,
                 direction = ResolvedTextDirection.Ltr,
-                handlesCrossed = false
+                handlesCrossed = false,
             )
     }
 }

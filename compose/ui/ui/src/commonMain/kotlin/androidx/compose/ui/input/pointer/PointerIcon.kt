@@ -94,7 +94,7 @@ fun Modifier.pointerHoverIcon(icon: PointerIcon, overrideDescendants: Boolean = 
 
 internal data class PointerHoverIconModifierElement(
     val icon: PointerIcon,
-    val overrideDescendants: Boolean = false
+    val overrideDescendants: Boolean = false,
 ) : ModifierNodeElement<PointerHoverIconModifierNode>() {
     override fun create() = PointerHoverIconModifierNode(icon, overrideDescendants)
 
@@ -121,7 +121,7 @@ internal data class PointerHoverIconModifierElement(
  */
 internal class PointerHoverIconModifierNode(
     icon: PointerIcon,
-    overrideDescendants: Boolean = false
+    overrideDescendants: Boolean = false,
 ) : HoverIconModifierNode(icon, overrideDescendants) {
     /* Traversal key used with the [TraversableNode] interface to enable all the traversing
      * functions (ancestor, child, subtree, and subtreeIf).
@@ -151,19 +151,19 @@ internal class PointerHoverIconModifierNode(
 fun Modifier.stylusHoverIcon(
     icon: PointerIcon,
     overrideDescendants: Boolean = false,
-    touchBoundsExpansion: DpTouchBoundsExpansion? = null
+    touchBoundsExpansion: DpTouchBoundsExpansion? = null,
 ) =
     this then
         StylusHoverIconModifierElement(
             icon = icon,
             overrideDescendants = overrideDescendants,
-            touchBoundsExpansion = touchBoundsExpansion
+            touchBoundsExpansion = touchBoundsExpansion,
         )
 
 internal data class StylusHoverIconModifierElement(
     val icon: PointerIcon,
     val overrideDescendants: Boolean = false,
-    val touchBoundsExpansion: DpTouchBoundsExpansion? = null
+    val touchBoundsExpansion: DpTouchBoundsExpansion? = null,
 ) : ModifierNodeElement<StylusHoverIconModifierNode>() {
     override fun create() =
         StylusHoverIconModifierNode(icon, overrideDescendants, touchBoundsExpansion)
@@ -185,7 +185,7 @@ internal data class StylusHoverIconModifierElement(
 internal class StylusHoverIconModifierNode(
     icon: PointerIcon,
     overrideDescendants: Boolean = false,
-    touchBoundsExpansion: DpTouchBoundsExpansion? = null
+    touchBoundsExpansion: DpTouchBoundsExpansion? = null,
 ) : HoverIconModifierNode(icon, overrideDescendants, touchBoundsExpansion) {
     /* Traversal key used with the [TraversableNode] interface to enable all the traversing
      * functions (ancestor, child, subtree, and subtreeIf).
@@ -203,7 +203,7 @@ internal class StylusHoverIconModifierNode(
 internal abstract class HoverIconModifierNode(
     icon: PointerIcon,
     overrideDescendants: Boolean = false,
-    var dpTouchBoundsExpansion: DpTouchBoundsExpansion? = null
+    var dpTouchBoundsExpansion: DpTouchBoundsExpansion? = null,
 ) :
     Modifier.Node(),
     TraversableNode,
@@ -248,7 +248,7 @@ internal abstract class HoverIconModifierNode(
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         if (pass == Main && pointerEvent.changes.fastAny { isRelevantPointerType(it.type) }) {
             // Cursor within the surface area of this node's bounds

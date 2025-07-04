@@ -37,7 +37,7 @@ class FileLogger(val file: File) : Serializable {
                             it.level = LogLevel.DEBUG
                             it.setOutputEventListener { file.appendText(it.toString() + "\n") }
                         },
-                    Clock { System.currentTimeMillis() }
+                    Clock { System.currentTimeMillis() },
                 )
         }
         return impl!!

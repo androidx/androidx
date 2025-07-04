@@ -73,7 +73,7 @@ class Shapes(
     val small: CornerBasedShape = ShapeDefaults.Small,
     val medium: CornerBasedShape = ShapeDefaults.Medium,
     val large: CornerBasedShape = ShapeDefaults.Large,
-    val extraLarge: CornerBasedShape = ShapeDefaults.ExtraLarge
+    val extraLarge: CornerBasedShape = ShapeDefaults.ExtraLarge,
 ) {
     /** Returns a copy of this Shapes, optionally overriding some of the values. */
     fun copy(
@@ -81,14 +81,14 @@ class Shapes(
         small: CornerBasedShape = this.small,
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
-        extraLarge: CornerBasedShape = this.extraLarge
+        extraLarge: CornerBasedShape = this.extraLarge,
     ): Shapes =
         Shapes(
             extraSmall = extraSmall,
             small = small,
             medium = medium,
             large = large,
-            extraLarge = extraLarge
+            extraLarge = extraLarge,
         )
 
     override fun equals(other: Any?): Boolean {

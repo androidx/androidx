@@ -65,11 +65,7 @@ class RoundButtonTest {
 
     @Test
     fun supports_testtag_on_button() {
-        rule.setContent {
-            RoundButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {}
-        }
+        rule.setContent { RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {} }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
     }
@@ -118,7 +114,7 @@ class RoundButtonTest {
             RoundButtonWithDefaults(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
 
@@ -135,7 +131,7 @@ class RoundButtonTest {
             RoundButtonWithDefaults(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
 
@@ -156,17 +152,13 @@ class RoundButtonTest {
     @Test
     fun supports_circleshape_under_ltr_for_button() =
         rule.isShape(CircleShape, LayoutDirection.Ltr) {
-            RoundButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {}
+            RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
     @Test
     fun supports_circleshape_under_rtl_for_button() =
         rule.isShape(CircleShape, LayoutDirection.Rtl) {
-            RoundButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {}
+            RoundButtonWithDefaults(modifier = Modifier.testTag(TEST_TAG)) {}
         }
 
     @Test
@@ -216,7 +208,7 @@ class RoundButtonTest {
             enabledBorderColor = Color.Blue,
             disabledBorderColor = Color.Yellow,
             expectedBackgroundColor = Color.Green,
-            expectedBorderColor = Color.Blue
+            expectedBorderColor = Color.Blue,
         )
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -280,7 +272,7 @@ class RoundButtonTest {
                         BorderStroke(2.dp, if (enabled) enabledBorderColor else disabledBorderColor)
                     },
                     enabled = status.enabled(),
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {}
             }
         }
@@ -319,7 +311,7 @@ class RoundButtonTest {
         interactionSource: MutableInteractionSource? = null,
         shape: Shape = CircleShape,
         border: @Composable (enabled: Boolean) -> BorderStroke? = { null },
-        content: @Composable BoxScope.() -> Unit
+        content: @Composable BoxScope.() -> Unit,
     ) =
         RoundButton(
             onClick = onClick,
@@ -331,7 +323,7 @@ class RoundButtonTest {
             border = border,
             buttonSize = 52.dp,
             ripple = EmptyIndication,
-            content = content
+            content = content,
         )
 }
 

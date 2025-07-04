@@ -58,7 +58,7 @@ value class InputMode internal constructor(@Suppress("unused") private val value
 
 internal class InputModeManagerImpl(
     initialInputMode: InputMode,
-    private val onRequestInputModeChange: (InputMode) -> Boolean
+    private val onRequestInputModeChange: (InputMode) -> Boolean,
 ) : InputModeManager {
     override var inputMode: InputMode by mutableStateOf(initialInputMode)
 

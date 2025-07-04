@@ -96,7 +96,7 @@ class ProtoLayoutMinSchemaDetectorTest : LintDetectorTest() {
             }
         """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()
@@ -153,7 +153,7 @@ class ProtoLayoutMinSchemaDetectorTest : LintDetectorTest() {
             }
         """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()
@@ -216,7 +216,7 @@ src/foo/Bar.kt:14: Error: This API is not guaranteed to be available on the devi
             }
         """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()
@@ -248,7 +248,7 @@ src/foo/Bar.kt:14: Error: This API is not guaranteed to be available on the devi
             }
         """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()
@@ -283,7 +283,7 @@ src/foo/Bar.java:12: Error: This API is not guaranteed to be available on the de
             }
         """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()
@@ -359,7 +359,7 @@ src/foo/Bar.java:12: Error: This API is not guaranteed to be available on the de
             }
             """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()
@@ -409,7 +409,7 @@ src/foo/Bar.java:12: Error: This API is not guaranteed to be available on the de
             }
         """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ProtoLayoutMinSchemaDetector.ISSUE)
             .run()

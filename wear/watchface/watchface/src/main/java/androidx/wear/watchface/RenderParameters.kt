@@ -26,7 +26,13 @@ import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.WatchFaceLayer
 import java.time.Instant
 
-/* Used to parameterize watch face drawing based on the current system state. */
+/* Used to parameterize watch face drawing based on the current system state.
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public enum class DrawMode {
     /**
      * This mode is used when the user is interacting with the watch face.
@@ -52,7 +58,7 @@ public enum class DrawMode {
      *
      * Note: In ambient mode the watch face will be rendered once per minute.
      */
-    AMBIENT
+    AMBIENT,
 }
 
 /**
@@ -88,14 +94,19 @@ public enum class DrawMode {
  *   will be `null`.
  * @param lastComplicationTapDownEvents Map of [ComplicationSlot] id to the latest [TapType.DOWN]
  *   [TapEvent] that ComplicationSlot received, if any.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class RenderParameters
 @JvmOverloads
 constructor(
     public val drawMode: DrawMode,
     public val watchFaceLayers: Set<WatchFaceLayer>,
     public val highlightLayer: HighlightLayer? = null,
-    public val lastComplicationTapDownEvents: Map<Int, TapEvent> = emptyMap()
+    public val lastComplicationTapDownEvents: Map<Int, TapEvent> = emptyMap(),
 ) {
     /**
      * Whether or not we're rendering for a screenshot. Some watch faces with animations may need to
@@ -183,7 +194,7 @@ constructor(
     public class HighlightLayer(
         public val highlightedElement: HighlightedElement,
         @ColorInt @get:ColorInt public val highlightTint: Int,
-        @ColorInt @get:ColorInt public val backgroundTint: Int
+        @ColorInt @get:ColorInt public val backgroundTint: Int,
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -231,14 +242,14 @@ constructor(
                 HighlightLayer(
                     HighlightedElement.AllComplicationSlots,
                     wireFormat.highlightTint,
-                    wireFormat.backgroundTint
+                    wireFormat.backgroundTint,
                 )
             }
             RenderParametersWireFormat.ELEMENT_TYPE_COMPLICATION -> {
                 HighlightLayer(
                     HighlightedElement.ComplicationSlot(wireFormat.elementComplicationSlotId),
                     wireFormat.highlightTint,
-                    wireFormat.backgroundTint
+                    wireFormat.backgroundTint,
                 )
             }
             RenderParametersWireFormat.ELEMENT_TYPE_USER_STYLE -> {
@@ -247,14 +258,14 @@ constructor(
                         UserStyleSetting.Id(wireFormat.elementUserStyleSettingId!!)
                     ),
                     wireFormat.highlightTint,
-                    wireFormat.backgroundTint
+                    wireFormat.backgroundTint,
                 )
             }
             else -> null
         },
         wireFormat.idAndTapEventWireFormat?.associate {
             Pair(it.id, TapEvent(it.x, it.y, Instant.ofEpochMilli(it.calendarTapTimeMillis)))
-        } ?: emptyMap()
+        } ?: emptyMap(),
     )
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -265,7 +276,7 @@ constructor(
                     it.key,
                     it.value.xPos,
                     it.value.yPos,
-                    it.value.tapTime.toEpochMilli()
+                    it.value.tapTime.toEpochMilli(),
                 )
             }
         return when (val thingHighlighted = highlightLayer?.highlightedElement) {
@@ -278,7 +289,7 @@ constructor(
                     null,
                     highlightLayer!!.highlightTint,
                     highlightLayer.backgroundTint,
-                    idAndTapEventWireFormats
+                    idAndTapEventWireFormats,
                 )
             is HighlightedElement.ComplicationSlot ->
                 RenderParametersWireFormat(
@@ -289,7 +300,7 @@ constructor(
                     null,
                     highlightLayer!!.highlightTint,
                     highlightLayer.backgroundTint,
-                    idAndTapEventWireFormats
+                    idAndTapEventWireFormats,
                 )
             is HighlightedElement.UserStyle ->
                 RenderParametersWireFormat(
@@ -300,7 +311,7 @@ constructor(
                     thingHighlighted.id.value,
                     highlightLayer!!.highlightTint,
                     highlightLayer.backgroundTint,
-                    idAndTapEventWireFormats
+                    idAndTapEventWireFormats,
                 )
             else ->
                 RenderParametersWireFormat(
@@ -311,7 +322,7 @@ constructor(
                     null,
                     Color.BLACK,
                     Color.BLACK,
-                    idAndTapEventWireFormats
+                    idAndTapEventWireFormats,
                 )
         }
     }

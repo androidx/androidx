@@ -18,6 +18,7 @@ package androidx.build.metalava
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
+import androidx.build.registerAsComponentForKmpPublishing
 import androidx.build.registerAsComponentForPublishing
 import java.io.File
 import org.gradle.api.Project
@@ -52,14 +53,6 @@ fun getFilesForApiLevels(apiFiles: Collection<File>, currentVersion: Version): L
 }
 
 /**
- * Returns the version names to use for the past API files when generating API version metadata.
- * This assumes that all [apiFiles] have names that can be parsed as versions.
- */
-fun getVersionsForApiLevels(apiFiles: List<File>): List<Version> {
-    return apiFiles.map { Version.parseFilenameOrNull(it.name)!!.roundUp() }
-}
-
-/**
  * From the full set of versions, generates a sorted list of the versions to use when generating the
  * API levels metadata. For previous major-minor version cycles, this only includes the latest
  * signature file, because we only want one file per stable release. Does not include any files for
@@ -67,7 +60,7 @@ fun getVersionsForApiLevels(apiFiles: List<File>): List<Version> {
  */
 private fun filterVersions(
     versionToFileMap: Map<Version, File>,
-    currentVersion: Version
+    currentVersion: Version,
 ): List<Version> {
     val filteredVersions = mutableListOf<Version>()
     var prev: Version? = null
@@ -89,8 +82,6 @@ private fun filterVersions(
 
 private fun sameMajorMinor(v1: Version, v2: Version) = v1.major == v2.major && v1.minor == v2.minor
 
-private fun Version.roundUp() = Version(this.major, this.minor, this.patch)
-
 /** Usage attribute to specify the version metadata component. */
 internal val Project.versionMetadataUsage: Usage
     get() = objects.named("library-version-metadata")
@@ -99,18 +90,18 @@ internal val Project.versionMetadataUsage: Usage
 internal fun Project.registerVersionMetadataComponent(
     generateApiTask: TaskProvider<GenerateApiTask>
 ) {
-    configurations.create("libraryVersionMetadata") { configuration ->
+    configurations.register("libraryVersionMetadata") { configuration ->
         configuration.isVisible = false
         configuration.isCanBeResolved = false
 
         configuration.attributes.attribute(Usage.USAGE_ATTRIBUTE, project.versionMetadataUsage)
         configuration.attributes.attribute(
             Category.CATEGORY_ATTRIBUTE,
-            objects.named<Category>(Category.DOCUMENTATION)
+            objects.named<Category>(Category.DOCUMENTATION),
         )
         configuration.attributes.attribute(
             Bundling.BUNDLING_ATTRIBUTE,
-            objects.named<Bundling>(Bundling.EXTERNAL)
+            objects.named<Bundling>(Bundling.EXTERNAL),
         )
 
         // The generate API task has many output files, only add the version metadata as an artifact
@@ -121,5 +112,6 @@ internal fun Project.registerVersionMetadataComponent(
         configuration.outgoing.artifact(levelsFile) { it.classifier = "versionMetadata" }
 
         registerAsComponentForPublishing(configuration)
+        registerAsComponentForKmpPublishing(configuration)
     }
 }

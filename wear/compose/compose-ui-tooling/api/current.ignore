@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedMethod: androidx.wear.compose.ui.tooling.preview.WearPreviewLargeRound#WearPreviewLargeRound():
+    Added constructor androidx.wear.compose.ui.tooling.preview.WearPreviewLargeRound()
+AddedMethod: androidx.wear.compose.ui.tooling.preview.WearPreviewSquare#WearPreviewSquare():
+    Added constructor androidx.wear.compose.ui.tooling.preview.WearPreviewSquare()

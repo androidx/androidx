@@ -6,13 +6,6 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.animation:animation-graphics>
-final class androidx.compose.animation.graphics.vector/AnimatedImageVector { // androidx.compose.animation.graphics.vector/AnimatedImageVector|null[0]
-    final object Companion // androidx.compose.animation.graphics.vector/AnimatedImageVector.Companion|null[0]
-    final val imageVector // androidx.compose.animation.graphics.vector/AnimatedImageVector.imageVector|{}imageVector[0]
-        final fun <get-imageVector>(): androidx.compose.ui.graphics.vector/ImageVector // androidx.compose.animation.graphics.vector/AnimatedImageVector.imageVector.<get-imageVector>|<get-imageVector>(){}[0]
-    final val totalDuration // androidx.compose.animation.graphics.vector/AnimatedImageVector.totalDuration|{}totalDuration[0]
-        final fun <get-totalDuration>(): kotlin/Int // androidx.compose.animation.graphics.vector/AnimatedImageVector.totalDuration.<get-totalDuration>|<get-totalDuration>(){}[0]
-}
 open annotation class androidx.compose.animation.graphics/ExperimentalAnimationGraphicsApi : kotlin/Annotation { // androidx.compose.animation.graphics/ExperimentalAnimationGraphicsApi|null[0]
     constructor <init>() // androidx.compose.animation.graphics/ExperimentalAnimationGraphicsApi.<init>|<init>(){}[0]
 }

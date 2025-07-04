@@ -37,7 +37,7 @@ internal fun EntityBundle.toTableInfo(): TableInfo {
         name = this.tableName,
         columns = this.toColumnMap(),
         foreignKeys = this.foreignKeys.toForeignKeys(),
-        indices = this.indices.toIndices()
+        indices = this.indices.toIndices(),
     )
 }
 
@@ -45,7 +45,7 @@ internal fun FtsEntityBundle.toFtsTableInfo(): FtsTableInfo {
     return FtsTableInfo(
         name = this.tableName,
         columns = this.toColumnNamesSet(),
-        createSql = this.createSql
+        createSql = this.createSql,
     )
 }
 
@@ -63,7 +63,7 @@ private fun List<IndexBundle>?.toIndices(): Set<TableInfo.Index> {
                     name = bundle.name,
                     unique = bundle.isUnique,
                     columns = bundle.columnNames ?: emptyList(),
-                    orders = bundle.orders ?: emptyList()
+                    orders = bundle.orders ?: emptyList(),
                 )
             }
             .toSet()
@@ -81,7 +81,7 @@ private fun List<ForeignKeyBundle>?.toForeignKeys(): Set<TableInfo.ForeignKey> {
                     onDelete = bundle.onDelete,
                     onUpdate = bundle.onUpdate,
                     columnNames = bundle.columns,
-                    referenceColumnNames = bundle.referencedColumns
+                    referenceColumnNames = bundle.referencedColumns,
                 )
             }
             .toSet()
@@ -108,7 +108,7 @@ private fun FieldBundle.toColumn(ownerEntity: EntityBundle): TableInfo.Column {
         notNull = this.isNonNull,
         primaryKeyPosition = findPrimaryKeyPosition(ownerEntity, this),
         defaultValue = this.defaultValue,
-        createdFrom = TableInfo.CREATED_FROM_ENTITY
+        createdFrom = TableInfo.CREATED_FROM_ENTITY,
     )
 }
 

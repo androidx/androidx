@@ -29,13 +29,13 @@ class DebugFlagsTest {
         assertEquals(DebugFlags.None, DebugFlags())
         assertEquals(
             DebugFlags.None,
-            DebugFlags(showBounds = false, showPaths = false, showKeyPositions = false)
+            DebugFlags(showBounds = false, showPaths = false, showKeyPositions = false),
         )
 
         // Not equals because All includes potential future flags
         assertNotEquals(
             DebugFlags.All,
-            DebugFlags(showBounds = true, showPaths = true, showKeyPositions = true)
+            DebugFlags(showBounds = true, showPaths = true, showKeyPositions = true),
         )
 
         var flags = DebugFlags.All
@@ -78,32 +78,32 @@ class DebugFlagsTest {
     fun testToString() {
         assertEquals(
             "DebugFlags(showBounds = true, showPaths = true, showKeyPositions = true)",
-            DebugFlags.All.toString()
+            DebugFlags.All.toString(),
         )
         assertEquals(
             "DebugFlags(showBounds = false, showPaths = false, showKeyPositions = false)",
-            DebugFlags.None.toString()
+            DebugFlags.None.toString(),
         )
 
         assertEquals(
             "DebugFlags(showBounds = false, showPaths = false, showKeyPositions = false)",
-            DebugFlags().toString()
+            DebugFlags().toString(),
         )
         assertEquals(
             "DebugFlags(showBounds = true, showPaths = true, showKeyPositions = true)",
-            DebugFlags(showBounds = true, showPaths = true, showKeyPositions = true).toString()
+            DebugFlags(showBounds = true, showPaths = true, showKeyPositions = true).toString(),
         )
         assertEquals(
             "DebugFlags(showBounds = true, showPaths = false, showKeyPositions = false)",
-            DebugFlags(showBounds = true, showPaths = false, showKeyPositions = false).toString()
+            DebugFlags(showBounds = true, showPaths = false, showKeyPositions = false).toString(),
         )
         assertEquals(
             "DebugFlags(showBounds = false, showPaths = true, showKeyPositions = false)",
-            DebugFlags(showBounds = false, showPaths = true, showKeyPositions = false).toString()
+            DebugFlags(showBounds = false, showPaths = true, showKeyPositions = false).toString(),
         )
         assertEquals(
             "DebugFlags(showBounds = false, showPaths = false, showKeyPositions = true)",
-            DebugFlags(showBounds = false, showPaths = false, showKeyPositions = true).toString()
+            DebugFlags(showBounds = false, showPaths = false, showKeyPositions = true).toString(),
         )
     }
 }

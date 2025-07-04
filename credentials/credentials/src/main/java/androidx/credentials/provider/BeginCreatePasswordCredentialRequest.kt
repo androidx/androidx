@@ -60,7 +60,7 @@ constructor(callingAppInfo: CallingAppInfo?, candidateQueryData: Bundle) :
         @JvmStatic
         internal fun createFrom(
             data: Bundle,
-            callingAppInfo: CallingAppInfo?
+            callingAppInfo: CallingAppInfo?,
         ): BeginCreatePasswordCredentialRequest {
             try {
                 return BeginCreatePasswordCredentialRequest(callingAppInfo, data)

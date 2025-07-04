@@ -35,7 +35,7 @@ internal interface Camera2CaptureCallback {
     fun onCaptureStarted(
         captureRequest: CaptureRequest,
         captureFrameNumber: Long,
-        captureTimestamp: Long
+        captureTimestamp: Long,
     )
 
     fun onCaptureProgressed(captureRequest: CaptureRequest, partialCaptureResult: CaptureResult)
@@ -43,7 +43,7 @@ internal interface Camera2CaptureCallback {
     fun onCaptureCompleted(
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult,
-        frameNumber: FrameNumber
+        frameNumber: FrameNumber,
     )
 
     fun onCaptureProcessProgressed(captureRequest: CaptureRequest, progress: Int)

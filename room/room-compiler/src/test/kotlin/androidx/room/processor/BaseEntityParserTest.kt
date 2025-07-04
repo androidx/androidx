@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.testing.context
 import androidx.room.vo.Entity
 import java.io.File
@@ -44,7 +44,7 @@ abstract class BaseEntityParserTest {
         baseClass: String = "",
         sources: List<Source> = emptyList(),
         classpathFiles: List<File> = emptyList(),
-        handler: (Entity, XTestInvocation) -> Unit
+        handler: (Entity, XTestInvocation) -> Unit,
     ) {
         val attributesReplacement: String
         if (attributes.isEmpty()) {
@@ -61,7 +61,7 @@ abstract class BaseEntityParserTest {
         } else {
             baseClassReplacement = " extends $baseClass"
         }
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources =
                 sources +
                     Source.java(
@@ -69,10 +69,11 @@ abstract class BaseEntityParserTest {
                         code =
                             ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement) +
                                 input +
-                                ENTITY_SUFFIX
+                                ENTITY_SUFFIX,
                     ),
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
-            classpath = classpathFiles
+            kotlincArguments = listOf("-jvm-target=11"),
+            classpath = classpathFiles,
         ) { invocation ->
             val entity =
                 invocation.roundEnv

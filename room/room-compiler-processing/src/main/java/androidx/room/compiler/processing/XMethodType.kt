@@ -36,8 +36,8 @@ interface XMethodType : XExecutableType {
         replaceWith =
             ReplaceWith(
                 expression = "typeVariables.map { it.asTypeName().toJavaPoet() }",
-                imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-            )
+                imports = ["androidx.room.compiler.codegen.toJavaPoet"],
+            ),
     )
     val typeVariableNames: List<TypeVariableName>
 }

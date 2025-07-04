@@ -33,7 +33,7 @@ import androidx.room.solver.CodeGenScope
 class CoroutineResultBinder(
     val typeArg: XType,
     private val continuationParamName: String,
-    adapter: QueryResultAdapter?
+    adapter: QueryResultAdapter?,
 ) : QueryResultBinder(adapter) {
 
     override fun convertAndReturn(
@@ -42,7 +42,7 @@ class CoroutineResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -58,7 +58,7 @@ class CoroutineResultBinder(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = returnTypeName.box(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -67,7 +67,7 @@ class CoroutineResultBinder(
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement?.invoke(scope, statementVar)
@@ -83,7 +83,7 @@ class CoroutineResultBinder(
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", performBlock)
     }

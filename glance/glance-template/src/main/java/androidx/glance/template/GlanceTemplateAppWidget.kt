@@ -32,9 +32,9 @@ import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 
 /** A [GlanceAppWidget] that provides template local values. */
-abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
+public abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
-    companion object {
+    public companion object {
         internal val sizeMin = 30.dp
         internal val sizeS = 200.dp
         internal val sizeM = 241.dp
@@ -61,22 +61,19 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
                 HORIZONTAL_S,
                 HORIZONTAL_M,
                 HORIZONTAL_L,
-                HORIZONTAL_XL
+                HORIZONTAL_XL,
             )
         )
 
     /** Default widget state definition is [PreferencesGlanceStateDefinition] */
     override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
 
-    final override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
-        CompositionLocalProvider(
-            LocalTemplateMode provides mode(),
-        ) {
-            TemplateContent()
+    final override suspend fun provideGlance(context: Context, id: GlanceId): Nothing =
+        provideContent {
+            CompositionLocalProvider(LocalTemplateMode provides mode()) { TemplateContent() }
         }
-    }
 
-    @Composable @GlanceComposable abstract fun TemplateContent()
+    @Composable @GlanceComposable public abstract fun TemplateContent()
 
     /** Resolves the current display mode */
     @Composable

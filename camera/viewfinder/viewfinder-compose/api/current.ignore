@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.camera.viewfinder.compose.CoordinateTransformer#getTransformMatrix():
+    Binary breaking change: Removed method androidx.camera.viewfinder.compose.CoordinateTransformer.getTransformMatrix()
+RemovedMethod: androidx.camera.viewfinder.compose.IdentityCoordinateTransformer#getTransformMatrix():
+    Binary breaking change: Removed method androidx.camera.viewfinder.compose.IdentityCoordinateTransformer.getTransformMatrix()
+RemovedMethod: androidx.camera.viewfinder.compose.MutableCoordinateTransformer#setTransformMatrix(float[]):
+    Binary breaking change: Removed method androidx.camera.viewfinder.compose.MutableCoordinateTransformer.setTransformMatrix(float[])

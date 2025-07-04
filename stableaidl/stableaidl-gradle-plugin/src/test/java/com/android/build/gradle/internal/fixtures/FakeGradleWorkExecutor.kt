@@ -45,7 +45,7 @@ open class FakeGradleWorkExecutor(
     objectFactory: ObjectFactory,
     tmpDir: File,
     injectableService: List<FakeInjectableService> = emptyList(),
-    private val executionMode: ExecutionMode = ExecutionMode.RUNNING
+    private val executionMode: ExecutionMode = ExecutionMode.RUNNING,
 ) : WorkerExecutor {
 
     private val workQueue =
@@ -53,7 +53,7 @@ open class FakeGradleWorkExecutor(
             executionMode,
             objectFactory,
             tmpDir.resolve("generatedClasses"),
-            injectableService
+            injectableService,
         )
 
     val capturedParameters: List<WorkParameters>
@@ -112,14 +112,14 @@ private class FakeGradleWorkQueue(
     private val executionMode: ExecutionMode,
     private val objectFactory: ObjectFactory,
     private val generatedClassesOutput: File,
-    private val injectableService: List<FakeInjectableService>
+    private val injectableService: List<FakeInjectableService>,
 ) : WorkQueue {
 
     val capturedParameters = mutableListOf<WorkParameters>()
 
     override fun <T : WorkParameters> submit(
         aClass: Class<out WorkAction<T>>,
-        action: Action<in T>
+        action: Action<in T>,
     ) {
         val parameterTypeName =
             (aClass.genericSuperclass as? ParameterizedType
@@ -156,7 +156,7 @@ private class FakeGradleWorkQueue(
     private fun <T : WorkParameters> runWorkAction(
         parameterTypeName: String?,
         action: Action<in T>,
-        actualClass: Class<out Any>
+        actualClass: Class<out Any>,
     ) {
         // initialize and configure parameters
         val parametersInstance =
@@ -191,7 +191,7 @@ private class FakeGradleWorkQueue(
 class WorkerActionDecorator(
     classWriter: ClassWriter,
     paramsType: String,
-    private val injectableService: List<FakeInjectableService>
+    private val injectableService: List<FakeInjectableService>,
 ) : ClassVisitor(Opcodes.ASM7, classWriter) {
 
     private val parameterDescriptor = binaryToDescriptor(paramsType)
@@ -204,7 +204,7 @@ class WorkerActionDecorator(
         name: String?,
         signature: String?,
         superName: String?,
-        interfaces: Array<out String>?
+        interfaces: Array<out String>?,
     ) {
         generatedClassName = name + CLASS_SUFFIX
 
@@ -216,7 +216,7 @@ class WorkerActionDecorator(
             fieldAndDescriptors.add(
                 synthesizeFieldAndMethod(
                     it.methodReference.name,
-                    it.methodReference.returnType.name
+                    it.methodReference.returnType.name,
                 )
             )
         }
@@ -237,7 +237,7 @@ class WorkerActionDecorator(
                     Opcodes.PUTFIELD,
                     generatedClassName,
                     fieldAndDescriptor.first,
-                    fieldAndDescriptor.second
+                    fieldAndDescriptor.second,
                 )
             }
             visitInsn(Opcodes.RETURN)
@@ -250,7 +250,7 @@ class WorkerActionDecorator(
 
     private fun synthesizeFieldAndMethod(
         methodName: String,
-        returnValueType: String
+        returnValueType: String,
     ): Pair<String, String> {
         val descriptor = binaryToDescriptor(returnValueType)
         val fieldName = methodName + "_field"
@@ -274,7 +274,7 @@ class WorkerActionDecorator(
         name: String?,
         descriptor: String?,
         signature: String?,
-        value: Any?
+        value: Any?,
     ): FieldVisitor? {
         // do not add any other fields
         return null
@@ -285,7 +285,7 @@ class WorkerActionDecorator(
         name: String?,
         descriptor: String?,
         signature: String?,
-        exceptions: Array<out String>?
+        exceptions: Array<out String>?,
     ): MethodVisitor? {
         // do not add any other methods to the generated class
         return null

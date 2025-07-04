@@ -165,7 +165,7 @@ internal class VectorComponent(val root: GroupComponent) : VNode() {
                 IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
                 this@draw,
                 layoutDirection,
-                drawVectorBlock
+                drawVectorBlock,
             )
             isDirty = false
             previousDrawSize = size

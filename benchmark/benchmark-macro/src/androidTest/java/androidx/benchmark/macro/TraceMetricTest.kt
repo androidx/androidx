@@ -35,7 +35,7 @@ class TraceMetricTest {
     class ActivityResumeMetric : TraceMetric() {
         override fun getMeasurements(
             captureInfo: CaptureInfo,
-            traceSession: TraceProcessor.Session
+            traceSession: TraceProcessor.Session,
         ): List<Measurement> {
             val rowSequence =
                 traceSession.query(
@@ -71,12 +71,12 @@ class TraceMetricTest {
                 targetPackageName = Packages.TARGET,
                 testPackageName = Packages.TEST,
                 startupMode = StartupMode.HOT,
-                apiLevel = 31
+                apiLevel = 31,
             )
 
         private fun verifyActivityResume(
             tracePath: String,
-            @Suppress("SameParameterValue") expectedMs: Double
+            @Suppress("SameParameterValue") expectedMs: Double,
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
             val metric = ActivityResumeMetric()
@@ -90,7 +90,7 @@ class TraceMetricTest {
             assertEqualMeasurements(
                 expected = listOf(Metric.Measurement("activityResumeMs", expectedMs)),
                 observed = result,
-                threshold = 0.001
+                threshold = 0.001,
             )
         }
     }

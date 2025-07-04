@@ -35,9 +35,9 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-import androidx.annotation.NonNull;
 import androidx.test.filters.MediumTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -343,8 +343,8 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         }
 
         @Override
-        protected void calculateExtraLayoutSpace(@NonNull RecyclerView.State state,
-                @NonNull int[] extraLayoutSpace) {
+        protected void calculateExtraLayoutSpace(RecyclerView.@NonNull State state,
+                int @NonNull [] extraLayoutSpace) {
             if (mExtraLayoutSpace == null) {
                 super.calculateExtraLayoutSpace(state, extraLayoutSpace);
             } else {

@@ -112,7 +112,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
             }
         val openHelper = FrameworkSQLiteOpenHelper(context, dbName, badCallback, false, true)
@@ -141,7 +141,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {
                     db.execSQL("SELECT * FROM bad_table")
                 }
@@ -166,7 +166,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
 
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -200,7 +200,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
 
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -234,7 +234,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
 
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -264,7 +264,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
 
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -295,7 +295,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
 
                 override fun onOpen(db: SupportSQLiteDatabase) {
@@ -327,7 +327,7 @@ class OpenHelperRecoveryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
 
                 override fun onOpen(db: SupportSQLiteDatabase) {

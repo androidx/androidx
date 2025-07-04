@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation {
 
   public final class ActivityKt {
@@ -35,17 +35,17 @@ package androidx.navigation {
 
   public final class ActivityNavigatorExtrasKt {
     ctor public ActivityNavigatorExtrasKt();
-    method public static androidx.navigation.ActivityNavigator.Extras ActivityNavigatorExtras(android.support.v4.app.ActivityOptionsCompat? activityOptions = null, int flags = 0);
+    method public static androidx.navigation.ActivityNavigator.Extras ActivityNavigatorExtras(optional android.support.v4.app.ActivityOptionsCompat? activityOptions, optional int flags);
   }
 
   public final class NavControllerKt {
     ctor public NavControllerKt();
-    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavHostKt {
     ctor public NavHostKt();
-    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static inline androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, optional @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class ViewKt {

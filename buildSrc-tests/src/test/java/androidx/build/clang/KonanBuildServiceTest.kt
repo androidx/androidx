@@ -25,6 +25,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.jetbrains.kotlin.konan.file.use
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import org.jetbrains.kotlin.konan.target.LinkerOutputKind
 import org.junit.Before
 import org.junit.Test
 
@@ -101,16 +102,16 @@ class KonanBuildServiceTest : BaseClangTest() {
     }
 
     @Test
-    fun createSharedLibrary() {
+    fun runLinker() {
         val compileParameters = createCompileParameters("code.c", C_HELLO_WORLD)
         buildService.compile(compileParameters)
-        val sharedLibraryParameters =
-            project.objects.newInstance(ClangSharedLibraryParameters::class.java)
+        val sharedLibraryParameters = project.objects.newInstance(ClangLinkerParameters::class.java)
         sharedLibraryParameters.konanTarget.set(compileParameters.konanTarget)
         sharedLibraryParameters.objectFiles.from(compileParameters.output)
+        sharedLibraryParameters.linkerOutputKind.set(LinkerOutputKind.DYNAMIC_LIBRARY)
         val outputFile = tmpFolder.newFile("code.so")
         sharedLibraryParameters.outputFile.set(outputFile)
-        buildService.createSharedLibrary(sharedLibraryParameters)
+        buildService.runLinker(sharedLibraryParameters)
 
         val strings = extractStrings(outputFile)
         assertThat(strings).contains("Hello, World!!")

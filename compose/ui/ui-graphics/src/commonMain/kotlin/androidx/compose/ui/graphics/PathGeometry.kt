@@ -58,7 +58,7 @@ fun Path.computeDirection(): Path.Direction {
     // segments.
     var type = iterator.next(points)
     while (type != PathSegment.Type.Done) {
-        @Suppress("KotlinConstantConditions")
+        @Suppress("KotlinConstantConditions", "RedundantSuppression")
         when (type) {
             PathSegment.Type.Move -> {
                 if (!first) {
@@ -117,7 +117,7 @@ fun Path.computeDirection(): Path.Direction {
                         points[4],
                         points[5],
                         points[6],
-                        points[7]
+                        points[7],
                     )
 
                 endX = points[6]
@@ -175,7 +175,7 @@ fun Path.divide(contours: MutableList<Path> = mutableListOf()): MutableList<Path
 
     var type = iterator.next(points)
     while (type != PathSegment.Type.Done) {
-        @Suppress("KotlinConstantConditions")
+        @Suppress("KotlinConstantConditions", "RedundantSuppression")
         when (type) {
             PathSegment.Type.Move -> {
                 if (!first && !isEmpty) {
@@ -287,7 +287,7 @@ fun Path.reverse(destination: Path = Path()): Path {
                     points[2],
                     points[3],
                     points[0],
-                    points[1]
+                    points[1],
                 )
                 dataIndex--
             }

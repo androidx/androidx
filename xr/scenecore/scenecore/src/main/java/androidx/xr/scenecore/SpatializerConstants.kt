@@ -18,6 +18,7 @@ package androidx.xr.scenecore
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.internal.SpatializerConstants as RtSpatializerConstants
 
 /** Constants for spatialized audio. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -47,7 +48,7 @@ public interface SpatializerConstants {
             [
                 AMBISONICS_ORDER_FIRST_ORDER,
                 AMBISONICS_ORDER_SECOND_ORDER,
-                AMBISONICS_ORDER_THIRD_ORDER
+                AMBISONICS_ORDER_THIRD_ORDER,
             ]
     )
     public annotation class AmbisonicsOrder
@@ -61,14 +62,12 @@ public interface SpatializerConstants {
 
 /** Converts the [JxrPlatformAdapter] SourceType IntDef to the SceneCore API. */
 @SpatializerConstants.SourceType
-internal fun @receiver:JxrPlatformAdapter.SpatializerConstants.SourceType Int.sourceTypeToJxr():
-    Int {
+internal fun @receiver:RtSpatializerConstants.SourceType Int.sourceTypeToJxr(): Int {
     return when (this) {
-        JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_BYPASS ->
-            SpatializerConstants.SOURCE_TYPE_BYPASS
-        JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_POINT_SOURCE ->
+        RtSpatializerConstants.SOURCE_TYPE_BYPASS -> SpatializerConstants.SOURCE_TYPE_BYPASS
+        RtSpatializerConstants.SOURCE_TYPE_POINT_SOURCE ->
             SpatializerConstants.SOURCE_TYPE_POINT_SOURCE
-        JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_SOUND_FIELD ->
+        RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD ->
             SpatializerConstants.SOURCE_TYPE_SOUND_FIELD
         else -> {
             // Unknown source type, returning bypass.
@@ -79,14 +78,13 @@ internal fun @receiver:JxrPlatformAdapter.SpatializerConstants.SourceType Int.so
 
 /** Converts the [JxrPlatformAdapter] SourceType IntDef to the SceneCore API. */
 @SpatializerConstants.AmbisonicsOrder
-internal fun @receiver:JxrPlatformAdapter.SpatializerConstants.AmbisonicsOrder
-Int.ambisonicsOrderToJxr(): Int {
+internal fun @receiver:RtSpatializerConstants.AmbisonicsOrder Int.ambisonicsOrderToJxr(): Int {
     return when (this) {
-        JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER ->
+        RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER ->
             SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
-        JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER ->
+        RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER ->
             SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
-        JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER ->
+        RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER ->
             SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
         else -> {
             // Unknown order, returning first order

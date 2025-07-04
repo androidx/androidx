@@ -87,13 +87,13 @@ import org.junit.runner.Description
  * @param autoMigrationSpecs The list of [androidx.room.ProvidedAutoMigrationSpec] instances for
  *   [androidx.room.AutoMigration]s that require them.
  */
-actual class MigrationTestHelper(
+public actual class MigrationTestHelper(
     private val schemaDirectoryPath: Path,
     private val databasePath: Path,
     private val driver: SQLiteDriver,
     private val databaseClass: KClass<out RoomDatabase>,
     databaseFactory: () -> RoomDatabase = { findAndInstantiateDatabaseImpl(databaseClass.java) },
-    private val autoMigrationSpecs: List<AutoMigrationSpec> = emptyList()
+    private val autoMigrationSpecs: List<AutoMigrationSpec> = emptyList(),
 ) : TestWatcher() {
 
     private val databaseInstance = databaseClass.cast(databaseFactory.invoke())
@@ -108,12 +108,12 @@ actual class MigrationTestHelper(
      * @return A database connection of the newly created database.
      * @throws IllegalStateException If a new database was not created.
      */
-    actual fun createDatabase(version: Int): SQLiteConnection {
+    public actual fun createDatabase(version: Int): SQLiteConnection {
         val schemaBundle = loadSchema(version)
         val connection =
             createDatabaseCommon(
                 schema = schemaBundle.database,
-                configurationFactory = ::createDatabaseConfiguration
+                configurationFactory = ::createDatabaseConfiguration,
             )
         managedConnections.add(connection)
         return connection
@@ -135,7 +135,7 @@ actual class MigrationTestHelper(
      * @param migrations The list of migrations used to attempt the database migration.
      * @throws IllegalStateException If the schema validation fails.
      */
-    actual fun runMigrationsAndValidate(
+    public actual fun runMigrationsAndValidate(
         version: Int,
         migrations: List<Migration>,
     ): SQLiteConnection {
@@ -147,7 +147,7 @@ actual class MigrationTestHelper(
                 migrations = migrations,
                 autoMigrationSpecs = autoMigrationSpecs,
                 validateUnknownTables = false,
-                configurationFactory = ::createDatabaseConfiguration
+                configurationFactory = ::createDatabaseConfiguration,
             )
         managedConnections.add(connection)
         return connection
@@ -164,9 +164,7 @@ actual class MigrationTestHelper(
         return schemaPath.inputStream().use { SchemaBundle.deserialize(it) }
     }
 
-    private fun createDatabaseConfiguration(
-        container: RoomDatabase.MigrationContainer,
-    ) =
+    private fun createDatabaseConfiguration(container: RoomDatabase.MigrationContainer) =
         DatabaseConfiguration(
             name = databasePath.toString(),
             migrationContainer = container,
@@ -179,6 +177,6 @@ actual class MigrationTestHelper(
             autoMigrationSpecs = emptyList(),
             allowDestructiveMigrationForAllTables = false,
             sqliteDriver = driver,
-            queryCoroutineContext = null
+            queryCoroutineContext = null,
         )
 }

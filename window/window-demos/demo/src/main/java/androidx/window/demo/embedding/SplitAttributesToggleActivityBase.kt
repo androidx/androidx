@@ -96,12 +96,7 @@ open class SplitAttributesToggleActivityBase : EdgeToEdgeActivity() {
         internal val EXPAND_ATTRS =
             SplitAttributes.Builder().setSplitType(SPLIT_TYPE_EXPAND).build()
         internal val CUSTOMIZED_SPLIT_TYPES_TEXT =
-            arrayOf(
-                "ratio(0.3)",
-                "ratio(0.5)",
-                "ratio(0.7)",
-                "expand",
-            )
+            arrayOf("ratio(0.3)", "ratio(0.5)", "ratio(0.7)", "expand")
         internal val CUSTOMIZED_SPLIT_TYPES_VALUE =
             arrayOf(
                 SplitAttributes.SplitType.ratio(0.3f),

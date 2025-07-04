@@ -31,3 +31,4 @@
     static void compose*RuntimeError(...);
     static java.lang.Void compose*RuntimeError(...);
 }
+

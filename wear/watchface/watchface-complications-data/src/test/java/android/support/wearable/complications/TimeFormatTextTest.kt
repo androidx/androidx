@@ -75,7 +75,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "HH:mm",
                 ComplicationText.FORMAT_STYLE_DEFAULT,
-                TimeZone.getTimeZone("America/Los_Angeles")
+                TimeZone.getTimeZone("America/Los_Angeles"),
             )
         val calendar = GregorianCalendar(TimeZone.getTimeZone("GMT+0"))
         calendar[2016, 2, 4, 15, 12] = 58
@@ -125,7 +125,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "HH:mm",
                 ComplicationText.FORMAT_STYLE_DEFAULT,
-                TimeZone.getTimeZone("Asia/Seoul")
+                TimeZone.getTimeZone("Asia/Seoul"),
             )
         val calendar = GregorianCalendar(TimeZone.getTimeZone("GMT+0"))
         calendar[2016, 2, 4, 18, 52] = 58
@@ -154,7 +154,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "EEE 'the' d LLL HH:mm",
                 ComplicationText.FORMAT_STYLE_LOWER_CASE,
-                TimeZone.getTimeZone("GMT+5")
+                TimeZone.getTimeZone("GMT+5"),
             )
 
         // WHEN the object is parcelled and unparcelled
@@ -185,7 +185,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "HH:mm",
                 ComplicationText.FORMAT_STYLE_DEFAULT,
-                TimeZone.getTimeZone("Asia/Seoul")
+                TimeZone.getTimeZone("Asia/Seoul"),
             )
 
         // Next change is at the next minute boundary.
@@ -213,7 +213,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "d LLL",
                 ComplicationText.FORMAT_STYLE_DEFAULT,
-                TimeZone.getTimeZone("UTC")
+                TimeZone.getTimeZone("UTC"),
             )
 
         // Next change is at the next day boundary.
@@ -228,7 +228,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "d LLL",
                 ComplicationText.FORMAT_STYLE_DEFAULT,
-                TimeZone.getTimeZone("GMT-5")
+                TimeZone.getTimeZone("GMT-5"),
             )
         val calendar: Calendar = GregorianCalendar(TimeZone.getTimeZone("UTC"))
         calendar[2018, Calendar.APRIL, 17, 8, 0] = 0
@@ -247,7 +247,7 @@ public class TimeFormatTextTest {
             TimeFormatText(
                 "d LLL",
                 ComplicationText.FORMAT_STYLE_DEFAULT,
-                TimeZone.getTimeZone("GMT+5")
+                TimeZone.getTimeZone("GMT+5"),
             )
         val calendar: Calendar = GregorianCalendar(TimeZone.getTimeZone("UTC"))
         calendar[2018, Calendar.APRIL, 17, 23, 0] = 0
@@ -286,7 +286,7 @@ public class TimeFormatTextTest {
                 "yyyy ''' hello'",
                 "yyyy ''''' hello' s",
                 "LLL",
-                "LLL a"
+                "LLL a",
             )
         val dateFormatPrecision =
             longArrayOf(
@@ -310,7 +310,7 @@ public class TimeFormatTextTest {
                 TimeUnit.DAYS.toMillis(1),
                 TimeUnit.SECONDS.toMillis(1),
                 TimeUnit.DAYS.toMillis(1),
-                TimeUnit.HOURS.toMillis(12)
+                TimeUnit.HOURS.toMillis(12),
             )
         for (i in dateFormats.indices) {
             val text = TimeFormatText(dateFormats[i], ComplicationText.FORMAT_STYLE_DEFAULT, null)

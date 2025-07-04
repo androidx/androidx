@@ -44,7 +44,7 @@ class RoomProcessor :
     override fun getSupportedOptions(): MutableSet<String> {
         val supportedOptions = Context.ARG_OPTIONS.toMutableSet()
         if (Context.BooleanProcessorOptions.INCREMENTAL.getValue(xProcessingEnv)) {
-            if (methodParametersVisibleInClassFiles()) {
+            if (functionParametersVisibleInClassFiles()) {
                 // Room can be incremental
                 supportedOptions.add(ISOLATING_ANNOTATION_PROCESSORS_INDICATOR)
             } else {
@@ -61,15 +61,15 @@ class RoomProcessor :
     }
 
     /**
-     * Returns `true` if the method parameters in class files can be accessed by Room.
+     * Returns `true` if the function parameters in class files can be accessed by Room.
      *
      * Context: Room requires access to the real parameter names of constructors (see
-     * PojoProcessor.getParamNames). Room uses the ExecutableElement.getParemters() API on the
+     * DataClassProcessor.getParamNames). Room uses the ExecutableElement.getParameters() API on the
      * constructor element to do this.
      *
      * When Room is not yet incremental, the above API is working as expected. However, if we make
      * Room incremental, during an incremental compile Gradle may want to pass class files instead
-     * source files to annotation processors (to avoid recompiling the source files that haven't
+     * source files to annotation processors (to avoid recompiling the source filews that haven't
      * changed). Due to JDK bug https://bugs.openjdk.java.net/browse/JDK-8007720, the class files
      * may lose the real parameter names of constructors, which would break Room.
      *
@@ -80,7 +80,7 @@ class RoomProcessor :
      * fix: Either it is JDK 11+ or it is an embedded JDK that has the cherry-picked fix (version
      * 1.8.0_202-release-1483-b39-5509098 or higher).
      */
-    private fun methodParametersVisibleInClassFiles(): Boolean {
+    private fun functionParametersVisibleInClassFiles(): Boolean {
         val currentJavaVersion = SimpleJavaVersion.getCurrentVersion() ?: return false
 
         if (currentJavaVersion >= SimpleJavaVersion.VERSION_11_0_0) {

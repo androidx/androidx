@@ -25,6 +25,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
+@IgnoreWebTarget
 class WithLifecycleStateTest {
     @Test
     fun testInitialResumed() = runLifecycleTest {

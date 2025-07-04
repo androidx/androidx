@@ -86,7 +86,7 @@ internal class MotionRenderDebug(textSize: Float) {
         duration: Int,
         debugPath: Int,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         if (frameArrayList == null || frameArrayList.size == 0) {
             return
@@ -104,7 +104,7 @@ internal class MotionRenderDebug(textSize: Float) {
         duration: Int,
         debugPath: Int,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         var mode = motionController.drawPath
         if (debugPath > 0 && mode == Motion.DRAW_PATH_NONE) {
@@ -145,7 +145,7 @@ internal class MotionRenderDebug(textSize: Float) {
         keyFrames: Int,
         motionController: Motion,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         if (mode == Motion.DRAW_PATH_AS_CONFIGURED) {
             drawPathAsConfigured(canvas)
@@ -180,7 +180,7 @@ internal class MotionRenderDebug(textSize: Float) {
         layoutWidth: Int,
         layoutHeight: Int,
         drawPath: Boolean,
-        drawTicks: Boolean
+        drawTicks: Boolean,
     ) {
         val mode = Motion.DRAW_PATH_BASIC
         mKeyFrameCount = motionController.buildKeyFrames(mKeyFramePoints, mPathMode, null)
@@ -224,7 +224,7 @@ internal class MotionRenderDebug(textSize: Float) {
         keyFrames: Int,
         motionController: Motion,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         var viewWidth = 0
         var viewHeight = 0
@@ -261,7 +261,7 @@ internal class MotionRenderDebug(textSize: Float) {
                         viewWidth,
                         viewHeight,
                         layoutWidth,
-                        layoutHeight
+                        layoutHeight,
                     )
                 }
                 canvas.drawPath(mPath!!, mFillPaint)
@@ -280,7 +280,7 @@ internal class MotionRenderDebug(textSize: Float) {
                     viewWidth,
                     viewHeight,
                     layoutWidth,
-                    layoutHeight
+                    layoutHeight,
                 )
             }
             if (dx != 0f || dy != 0f) {
@@ -296,7 +296,7 @@ internal class MotionRenderDebug(textSize: Float) {
                 mPoints!![mPoints!!.size - 2],
                 mPoints!![mPoints!!.size - 1],
                 8f,
-                mPaintKeyframes
+                mPaintKeyframes,
             )
         }
     }
@@ -312,7 +312,7 @@ internal class MotionRenderDebug(textSize: Float) {
             mPoints!![1],
             mPoints!![mPoints!!.size - 2],
             mPoints!![mPoints!!.size - 1],
-            mPaintGraph
+            mPaintGraph,
         )
     }
 
@@ -369,14 +369,14 @@ internal class MotionRenderDebug(textSize: Float) {
             Math.max(y1, y2),
             Math.max(x1, x2),
             Math.max(y1, y2),
-            mPaintGraph
+            mPaintGraph,
         )
         canvas.drawLine(
             Math.min(x1, x2),
             Math.min(y1, y2),
             Math.min(x1, x2),
             Math.max(y1, y2),
-            mPaintGraph
+            mPaintGraph,
         )
     }
 
@@ -411,7 +411,7 @@ internal class MotionRenderDebug(textSize: Float) {
         viewWidth: Int,
         viewHeight: Int,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         val x1 = 0f
         val y1 = 0f

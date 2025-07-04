@@ -33,10 +33,10 @@ import java.io.Serializable
         [
             EmbeddedAutoMigrationDb.Entity1::class,
             EmbeddedAutoMigrationDb.EmbeddedEntity1::class,
-            EmbeddedAutoMigrationDb.EmbeddedEntity2::class
+            EmbeddedAutoMigrationDb.EmbeddedEntity2::class,
         ],
     autoMigrations = [AutoMigration(from = 1, to = 2)],
-    exportSchema = true
+    exportSchema = true,
 )
 abstract class EmbeddedAutoMigrationDb : RoomDatabase() {
     @Dao
@@ -53,7 +53,7 @@ abstract class EmbeddedAutoMigrationDb : RoomDatabase() {
         @PrimaryKey val id: Int,
         var name: String,
         @ColumnInfo(defaultValue = "1") var addedInV1: Int,
-        @Embedded var embeddedEntity1: EmbeddedEntity1?
+        @Embedded var embeddedEntity1: EmbeddedEntity1?,
     ) : Serializable {
         companion object {
             const val TABLE_NAME = "Entity1"
@@ -65,7 +65,7 @@ abstract class EmbeddedAutoMigrationDb : RoomDatabase() {
     data class EmbeddedEntity1(
         @PrimaryKey val embeddedId1: Int,
         @ColumnInfo(defaultValue = "1") var addedInV2: Int,
-        @Embedded var embeddedEntity2: EmbeddedEntity2?
+        @Embedded var embeddedEntity2: EmbeddedEntity2?,
     ) : Serializable {
         companion object {
             const val TABLE_NAME = "EmbeddedEntity1"

@@ -20,6 +20,7 @@ import static androidx.biometric.BiometricManager.Authenticators;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.biometric.internal.BiometricViewModel;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.ViewModelProvider;

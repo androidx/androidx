@@ -31,6 +31,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@IgnoreWebTarget
 class LifecycleRegistryTest {
 
     private val dispatcher = UnconfinedTestDispatcher()

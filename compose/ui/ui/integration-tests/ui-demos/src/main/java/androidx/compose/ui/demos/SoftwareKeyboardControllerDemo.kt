@@ -53,7 +53,7 @@ fun SoftwareKeyboardControllerDemo() {
             value = text,
             onValueChange = {},
             textStyle = TextStyle.Default.copy(fontSize = 18.sp),
-            modifier = Modifier.focusRequester(focusRequester).height(200.dp)
+            modifier = Modifier.focusRequester(focusRequester).height(200.dp),
         )
 
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -63,7 +63,7 @@ fun SoftwareKeyboardControllerDemo() {
                 keyboardController?.hide()
             },
             enabled = !isHidden,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 8.dp),
         ) {
             Text("hideSoftwareKeyboard()")
         }
@@ -73,7 +73,7 @@ fun SoftwareKeyboardControllerDemo() {
                 focusRequester.requestFocus()
                 keyboardController?.show()
             },
-            enabled = isHidden
+            enabled = isHidden,
         ) {
             Text("showSoftwareKeyboard()")
         }

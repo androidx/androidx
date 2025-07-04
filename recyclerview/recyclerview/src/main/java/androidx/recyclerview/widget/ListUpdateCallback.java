@@ -15,7 +15,7 @@
  */
 package androidx.recyclerview.widget;
 
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An interface that can receive Update operations that are applied to a list.

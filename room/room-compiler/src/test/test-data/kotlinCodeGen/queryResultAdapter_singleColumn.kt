@@ -47,7 +47,7 @@ public class MyDao_Impl(
           _tmp = _stmt.getText(0)
           _result = _tmp
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <kotlin.String>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'kotlin.String'.")
         }
         _result
       } finally {

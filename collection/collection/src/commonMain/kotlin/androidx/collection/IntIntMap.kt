@@ -56,12 +56,7 @@ public fun intIntMapOf(key1: Int, value1: Int): IntIntMap =
  * Returns a new [IntIntMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun intIntMapOf(
-    key1: Int,
-    value1: Int,
-    key2: Int,
-    value2: Int,
-): IntIntMap =
+public fun intIntMapOf(key1: Int, value1: Int, key2: Int, value2: Int): IntIntMap =
     MutableIntIntMap().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -141,12 +136,7 @@ public fun mutableIntIntMapOf(key1: Int, value1: Int): MutableIntIntMap =
  * Returns a new [MutableIntIntMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun mutableIntIntMapOf(
-    key1: Int,
-    value1: Int,
-    key2: Int,
-    value2: Int,
-): MutableIntIntMap =
+public fun mutableIntIntMapOf(key1: Int, value1: Int, key2: Int, value2: Int): MutableIntIntMap =
     MutableIntIntMap().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -223,9 +213,7 @@ public fun mutableIntIntMapOf(
  *
  * @param builderAction Lambda in which the [MutableIntIntMap] can be populated.
  */
-public inline fun buildIntIntMap(
-    builderAction: MutableIntIntMap.() -> Unit,
-): IntIntMap {
+public inline fun buildIntIntMap(builderAction: MutableIntIntMap.() -> Unit): IntIntMap {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableIntIntMap().apply(builderAction)
 }
@@ -487,7 +475,7 @@ public sealed class IntIntMap {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: Int, value: Int) -> CharSequence
+        crossinline transform: (key: Int, value: Int) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

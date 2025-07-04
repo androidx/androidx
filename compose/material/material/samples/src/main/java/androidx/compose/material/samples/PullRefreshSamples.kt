@@ -196,7 +196,7 @@ fun PullRefreshIndicatorTransformSample() {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center).size(25.dp),
                         color = Color.White,
-                        strokeWidth = 3.dp
+                        strokeWidth = 3.dp,
                     )
                 }
             }

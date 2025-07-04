@@ -42,7 +42,6 @@ import androidx.pdf.util.TileBoard;
 import androidx.pdf.util.TileBoard.TileInfo;
 import androidx.pdf.widget.MosaicView.BitmapSource;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -65,7 +64,6 @@ import java.util.List;
 import java.util.Set;
 
 /** Unit tests for {@link MosaicView}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @SuppressWarnings("deprecation")
 public class MosaicViewTest {

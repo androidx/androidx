@@ -104,8 +104,8 @@ package androidx.compose.ui.geometry {
     method public boolean isFinite();
     method public boolean isInfinite();
     method public boolean overlaps(androidx.compose.ui.geometry.Rect other);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect translate(long offset);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect translate(float translateX, float translateY);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.geometry.Rect translate(long offset);
     property public final float bottom;
     property public final long bottomCenter;
     property public final long bottomLeft;
@@ -136,9 +136,9 @@ package androidx.compose.ui.geometry {
   }
 
   public final class RectKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(long center, float radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(long offset, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(long topLeft, long bottomRight);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(long center, float radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect lerp(androidx.compose.ui.geometry.Rect start, androidx.compose.ui.geometry.Rect stop, float fraction);
   }
 
@@ -184,11 +184,11 @@ package androidx.compose.ui.geometry {
   }
 
   public final class RoundRectKt {
-    method public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
-    method public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, long cornerRadius);
     method public static androidx.compose.ui.geometry.RoundRect RoundRect(androidx.compose.ui.geometry.Rect rect, float radiusX, float radiusY);
     method public static androidx.compose.ui.geometry.RoundRect RoundRect(androidx.compose.ui.geometry.Rect rect, long cornerRadius);
     method public static androidx.compose.ui.geometry.RoundRect RoundRect(androidx.compose.ui.geometry.Rect rect, optional long topLeft, optional long topRight, optional long bottomRight, optional long bottomLeft);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, long cornerRadius);
     method public static androidx.compose.ui.geometry.Rect getBoundingRect(androidx.compose.ui.geometry.RoundRect);
     method public static long getCenter(androidx.compose.ui.geometry.RoundRect);
     method public static float getMaxDimension(androidx.compose.ui.geometry.RoundRect);
@@ -222,9 +222,9 @@ package androidx.compose.ui.geometry {
     method public static inline boolean isUnspecified(long);
     method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
     method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.geometry.Size> block);
-    method @androidx.compose.runtime.Stable public static inline operator long times(int, long size);
     method @androidx.compose.runtime.Stable public static inline operator long times(double, long size);
     method @androidx.compose.runtime.Stable public static inline operator long times(float, long size);
+    method @androidx.compose.runtime.Stable public static inline operator long times(int, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect toRect(long);
   }
 

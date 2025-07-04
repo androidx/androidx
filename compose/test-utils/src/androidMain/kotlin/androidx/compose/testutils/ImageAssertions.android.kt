@@ -53,7 +53,7 @@ import kotlin.math.roundToInt
  */
 fun ImageBitmap.assertPixels(
     expectedSize: IntSize? = null,
-    expectedColorProvider: (pos: IntOffset) -> Color?
+    expectedColorProvider: (pos: IntOffset) -> Color?,
 ) {
     if (expectedSize != null) {
         if (width != expectedSize.width || height != expectedSize.height) {
@@ -80,7 +80,7 @@ fun PixelMap.assertPixelColor(
     expected: Color,
     x: Int,
     y: Int,
-    error: (Color) -> String = { color -> "Pixel($x, $y) expected to be $expected, but was $color" }
+    error: (Color) -> String = { color -> "Pixel($x, $y) expected to be $expected, but was $color" },
 ) {
     val actual = this[x, y]
     assert(abs(expected.red - actual.red) < 0.02f) { error(actual) }
@@ -148,7 +148,7 @@ fun ImageBitmap.assertShape(
     backgroundColor: Color,
     shapeColor: Color,
     shape: Shape = RectangleShape,
-    antiAliasingGap: Float = with(density) { 1.dp.toPx() }
+    antiAliasingGap: Float = with(density) { 1.dp.toPx() },
 ) =
     assertShape(
         density = density,
@@ -159,9 +159,9 @@ fun ImageBitmap.assertShape(
         shapeSize =
             Size(
                 width - with(density) { horizontalPadding.toPx() * 2 },
-                height - with(density) { verticalPadding.toPx() * 2 }
+                height - with(density) { verticalPadding.toPx() * 2 },
             ),
-        antiAliasingGap = antiAliasingGap
+        antiAliasingGap = antiAliasingGap,
     )
 
 /**
@@ -194,7 +194,7 @@ fun ImageBitmap.assertShape(
     backgroundColor: Color?,
     backgroundSize: Size = Size(width.toFloat(), height.toFloat()),
     backgroundCenter: Offset = Offset(width / 2f, height / 2f),
-    antiAliasingGap: Float = with(density) { 1.dp.toPx() }
+    antiAliasingGap: Float = with(density) { 1.dp.toPx() },
 ) {
     val pixels = toPixelMap()
 
@@ -252,7 +252,7 @@ private fun ImageBitmap.forEachPixelIn(
     shapeBounds: Rect,
     backgroundBounds: Rect,
     margin: Float,
-    block: (x: Int, y: Int, inShapeBounds: Boolean, inBackgroundBounds: Boolean) -> Unit
+    block: (x: Int, y: Int, inShapeBounds: Boolean, inBackgroundBounds: Boolean) -> Unit,
 ) {
     // Iterate over all pixels in the background. Usually that's all we have to do.
     for (y in rowIndices(backgroundBounds)) {
@@ -316,7 +316,7 @@ internal fun Path.contains(offset: Offset): Boolean {
         /* top = */ offset.y - 0.01f,
         /* right = */ offset.x + 0.01f,
         /* bottom = */ offset.y + 0.01f,
-        /* dir = */ android.graphics.Path.Direction.CW
+        /* dir = */ android.graphics.Path.Direction.CW,
     )
     if (path.op(asAndroidPath(), android.graphics.Path.Op.INTERSECT)) {
         return !path.isEmpty

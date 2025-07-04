@@ -55,7 +55,8 @@ internal sealed class OriginatingElementWrapper(val elementSimpleName: String) :
     }
 
     override fun <A : Annotation?> getAnnotationsByType(annotationType: Class<A>): Array<A> {
-        @Suppress("UNCHECKED_CAST") return arrayOfNulls<Any?>(size = 0) as Array<A>
+        @Suppress("UNCHECKED_CAST")
+        return arrayOfNulls<Any?>(size = 0) as Array<A>
     }
 
     override fun asType(): TypeMirror {

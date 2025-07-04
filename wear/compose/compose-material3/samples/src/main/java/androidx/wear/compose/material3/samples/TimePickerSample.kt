@@ -52,13 +52,10 @@ fun TimePickerSample() {
                 timePickerTime = it
                 showTimePicker = false
             },
-            initialTime = timePickerTime // Initialize with last picked time on reopen
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },
@@ -82,13 +79,10 @@ fun TimePickerWithSecondsSample() {
                 showTimePicker = false
             },
             timePickerType = TimePickerType.HoursMinutesSeconds24H,
-            initialTime = timePickerTime // Initialize with last picked time on reopen
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },
@@ -112,13 +106,10 @@ fun TimePickerWith12HourClockSample() {
                 showTimePicker = false
             },
             timePickerType = TimePickerType.HoursMinutesAmPm12H,
-            initialTime = timePickerTime // Initialize with last picked time on reopen
+            initialTime = timePickerTime, // Initialize with last picked time on reopen
         )
     } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Button(
                 onClick = { showTimePicker = true },
                 label = { Text("Selected Time") },

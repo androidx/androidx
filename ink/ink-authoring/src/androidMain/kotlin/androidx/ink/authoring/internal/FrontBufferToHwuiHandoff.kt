@@ -62,7 +62,7 @@ internal interface FrontBufferToHwuiHandoff {
                 mainView,
                 surfaceView,
                 onCohortHandoff,
-                onCohortHandoffComplete
+                onCohortHandoffComplete,
             )
     }
 }

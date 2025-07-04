@@ -19,7 +19,6 @@ package androidx.privacysandbox.ui.core
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.os.IBinder
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import kotlinx.coroutines.coroutineScope
@@ -38,12 +37,12 @@ import kotlinx.coroutines.sync.withLock
  * without the client's involvement.
  */
 @ExperimentalFeatures.DelegatingAdapterApi
-class DelegatingSandboxedUiAdapter(private var delegate: Bundle) : SandboxedUiAdapter {
+public class DelegatingSandboxedUiAdapter(private var delegate: Bundle) : SandboxedUiAdapter {
 
     /** Listener that consumes events to process the delegate change for a client */
-    interface DelegateChangeListener {
+    public interface DelegateChangeListener {
         /** When invoked triggers processing of the delegate change for a client */
-        suspend fun onDelegateChanged(delegate: Bundle) {}
+        public suspend fun onDelegateChanged(delegate: Bundle) {}
     }
 
     /**
@@ -59,7 +58,7 @@ class DelegatingSandboxedUiAdapter(private var delegate: Bundle) : SandboxedUiAd
      * process refresh we throw [IllegalStateException]. Cancellation of this API does not propagate
      * to the client side.
      */
-    suspend fun updateDelegate(delegate: Bundle) {
+    public suspend fun updateDelegate(delegate: Bundle) {
         // TODO(b/374955412): Support cancellation across process
         mutex.withLock {
             this.delegate = delegate
@@ -71,7 +70,7 @@ class DelegatingSandboxedUiAdapter(private var delegate: Bundle) : SandboxedUiAd
 
     override fun openSession(
         context: Context,
-        windowInputToken: IBinder,
+        sessionData: SessionData,
         initialWidth: Int,
         initialHeight: Int,
         isZOrderOnTop: Boolean,
@@ -81,20 +80,20 @@ class DelegatingSandboxedUiAdapter(private var delegate: Bundle) : SandboxedUiAd
 
     @SuppressLint("ExecutorRegistration")
     // Used by [updateDelegate] and therefore runs on updateDelegate's calling context
-    fun addDelegateChangeListener(listener: DelegateChangeListener) {
+    public fun addDelegateChangeListener(listener: DelegateChangeListener) {
         delegateChangeListeners.add(listener)
     }
 
     // TODO(b/350656753): Add tests to check functionality of DelegatingAdapters
     @SuppressLint("ExecutorRegistration")
     // Used by [updateDelegate] and therefore runs on updateDelegate's calling context
-    fun removeDelegateChangeListener(listener: DelegateChangeListener) {
+    public fun removeDelegateChangeListener(listener: DelegateChangeListener) {
         delegateChangeListeners.remove(listener)
     }
 
     /** Fetches the current delegate which is a [SandboxedUiAdapter] Bundle. */
     // TODO(b/375388971): Check coreLibInfo is present
-    fun getDelegate(): Bundle {
+    public fun getDelegate(): Bundle {
         return delegate
     }
 }

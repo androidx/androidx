@@ -181,7 +181,7 @@ private fun isAssignableWithoutVariance(from: XType, to: XType): Boolean {
     return (fromTypeArgs.indices).all { index ->
         isAssignableWithoutVariance(
             from = fromExtendsBounds[index] ?: fromTypeArgs[index],
-            to = toTypeArgs[index]
+            to = toTypeArgs[index],
         )
     }
 }

@@ -19,8 +19,8 @@ package androidx.room.writer
 import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
-import androidx.room.runKspTestWithK1
 import loadTestSource
 import org.junit.Rule
 import org.junit.Test
@@ -54,7 +54,7 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
                 var pk: Int
             )
             """
-                .trimIndent()
+                .trimIndent(),
         )
 
     @Test
@@ -67,11 +67,11 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
 
             expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(
             sources = listOf(databaseSrc, ctorSrc),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
@@ -85,11 +85,11 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
 
             internal expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(
             sources = listOf(databaseSrc, ctorSrc),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
@@ -105,11 +105,11 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
                 override fun initialize(): MyDatabase
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(
             sources = listOf(databaseSrc, ctorSrc),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
@@ -120,9 +120,9 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
     private fun runTest(
         sources: List<Source>,
         expectedFilePath: String,
-        handler: (XTestInvocation) -> Unit = {}
+        handler: (XTestInvocation) -> Unit = {},
     ) {
-        runKspTestWithK1(
+        runKspTest(
             sources = sources,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
         ) {
@@ -131,7 +131,7 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
                 .process(
                     it.processingEnv,
                     mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
-                    it.roundEnv.isProcessingOver
+                    it.roundEnv.isProcessingOver,
                 )
             it.assertCompilationResult {
                 this.generatedSource(loadTestSource(expectedFilePath, "MyDatabaseCtor"))

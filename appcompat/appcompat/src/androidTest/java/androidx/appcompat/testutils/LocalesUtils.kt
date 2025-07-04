@@ -63,14 +63,14 @@ object LocalesUtils {
     fun assertConfigurationLocalesEquals(
         message: String?,
         expectedLocales: LocaleListCompat,
-        context: Context
+        context: Context,
     ) {
         assertConfigurationLocalesEquals(message, expectedLocales, context.resources.configuration)
     }
 
     fun assertConfigurationLocalesEquals(
         expectedLocales: LocaleListCompat,
-        configuration: Configuration
+        configuration: Configuration,
     ) {
         assertConfigurationLocalesEquals(null, expectedLocales, configuration)
     }
@@ -78,26 +78,26 @@ object LocalesUtils {
     fun assertConfigurationLocalesEquals(
         message: String?,
         expectedLocales: LocaleListCompat,
-        configuration: Configuration
+        configuration: Configuration,
     ) {
         if (Build.VERSION.SDK_INT >= 24) {
             assertEquals(
                 message,
                 expectedLocales.toLanguageTags(),
-                configuration.locales.toLanguageTags()
+                configuration.locales.toLanguageTags(),
             )
         } else {
             assertEquals(
                 message,
                 expectedLocales.get(0),
-                @Suppress("DEPRECATION") configuration.locale
+                @Suppress("DEPRECATION") configuration.locale,
             )
         }
     }
 
     fun <T : AppCompatActivity> setLocalesAndWait(
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
-        locales: LocaleListCompat
+        locales: LocaleListCompat,
     ) {
         setLocalesAndWait(activityRule.activity, activityRule, locales)
     }
@@ -105,7 +105,7 @@ object LocalesUtils {
     fun <T : AppCompatActivity> setLocalesAndWait(
         activity: AppCompatActivity?,
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
-        locales: LocaleListCompat
+        locales: LocaleListCompat,
     ) {
         Log.d(LOG_TAG, "setLocalesAndWait on Activity: " + activity + " to locales: " + locales)
 
@@ -116,16 +116,16 @@ object LocalesUtils {
 
     fun <T : AppCompatActivity> setLocalesAndWaitForRecreate(
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
-        locales: LocaleListCompat
+        locales: LocaleListCompat,
     ): T = setLocalesAndWaitForRecreate(activityRule.activity, locales)
 
     fun <T : AppCompatActivity> setLocalesAndWaitForRecreate(
         activity: T,
-        locales: LocaleListCompat
+        locales: LocaleListCompat,
     ): T {
         Log.d(
             LOG_TAG,
-            "setLocalesAndWaitForRecreate on Activity: " + activity + " to mode: " + locales
+            "setLocalesAndWaitForRecreate on Activity: " + activity + " to mode: " + locales,
         )
 
         LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)

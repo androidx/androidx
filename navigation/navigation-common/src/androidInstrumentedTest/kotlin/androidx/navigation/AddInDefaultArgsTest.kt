@@ -45,7 +45,7 @@ private val intArgumentWithUnknownDefault = "intUnknownArg" to intArgumentUnknow
 @RunWith(Parameterized::class)
 class AddInDefaultArgsTest(
     private val arguments: Map<String, NavArgument>,
-    private val args: Bundle
+    private val args: Bundle,
 ) {
     companion object {
         @JvmStatic
@@ -72,7 +72,7 @@ class AddInDefaultArgsTest(
                         // Test with argument that only have unknown default value
                         mapOf(intArgumentWithUnknownDefault),
                         // Test with arguments where only some have unknown default values
-                        mapOf(intArgumentWithUnknownDefault, stringArgumentWithDefault)
+                        mapOf(intArgumentWithUnknownDefault, stringArgumentWithDefault),
                     )
                     .forEach { arguments: Map<String, NavArgument> ->
                         // Run with a null Bundle

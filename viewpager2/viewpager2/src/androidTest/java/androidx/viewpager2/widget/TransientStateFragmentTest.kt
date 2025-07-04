@@ -69,7 +69,7 @@ class TransientStateFragmentTest : BaseTest() {
                 fm: FragmentManager,
                 f: Fragment,
                 v: View,
-                savedInstanceState: Bundle?
+                savedInstanceState: Bundle?,
             ) {
                 v.setHasTransientState(true)
             }

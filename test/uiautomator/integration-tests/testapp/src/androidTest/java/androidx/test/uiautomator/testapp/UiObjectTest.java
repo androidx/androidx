@@ -137,6 +137,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedDragDest.waitForExists(TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testSwipeUp() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -158,6 +159,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testSwipeDown() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -177,6 +179,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testSwipeLeft() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -196,6 +199,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedSwipeRegion.waitForExists(TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testSwipeRight() throws Exception {
         launchTestActivity(SwipeTestActivity.class);
@@ -429,6 +433,7 @@ public class UiObjectTest extends BaseTest {
         assertFalse(button1.isCheckable());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testIsEnabled() throws Exception {
         launchTestActivity(IsEnabledTestActivity.class);
@@ -479,6 +484,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(focusableTextView.isFocusable());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testIsScrollable() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -564,6 +570,7 @@ public class UiObjectTest extends BaseTest {
                 partlyInvisibleRegion.getBounds().toString());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testWaitForExists() throws Exception {
         launchTestActivity(WaitTestActivity.class);
@@ -578,6 +585,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedText1.waitForExists(TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testWaitForExist_timeout() throws Exception {
         launchTestActivity(WaitTestActivity.class);
@@ -591,6 +599,7 @@ public class UiObjectTest extends BaseTest {
         assertFalse(expectedText1.waitForExists(1_000));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testWaitUntilGone() throws Exception {
         launchTestActivity(WaitTestActivity.class);
@@ -602,6 +611,7 @@ public class UiObjectTest extends BaseTest {
         assertTrue(expectedText1.waitUntilGone(TIMEOUT_MS));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testWaitUntilGone_timeout() {
         launchTestActivity(WaitTestActivity.class);
@@ -612,6 +622,7 @@ public class UiObjectTest extends BaseTest {
         assertFalse(expectedText1.waitUntilGone(1_000));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testExists() {
         launchTestActivity(WaitTestActivity.class);
@@ -684,6 +695,7 @@ public class UiObjectTest extends BaseTest {
         assertThrows(IllegalArgumentException.class, () -> smallArea.pinchIn(101, 10));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testPerformTwoPointerGesture_withZeroSteps() throws Exception {
         // Note that most part of `performTwoPointerGesture` (and `performMultiPointerGesture`)

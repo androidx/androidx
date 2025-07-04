@@ -1509,6 +1509,8 @@ public class LinearSystem {
      * Add the equations constraining a widget center to another widget center, positioned
      * on a circle, following an angle and radius
      *
+     * @param widget the constrained widget
+     * @param target the constrained-to widget
      * @param angle  from 0 to 360
      * @param radius the distance between the two centers
      */

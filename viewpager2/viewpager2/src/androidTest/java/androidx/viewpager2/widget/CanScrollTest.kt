@@ -171,7 +171,7 @@ class CanScrollTest : BaseTest() {
         expectScrollRight: Boolean,
         expectScrollLeft: Boolean,
         expectScrollDown: Boolean,
-        expectScrollUp: Boolean
+        expectScrollUp: Boolean,
     ) {
         assertThat(viewPager.canScrollHorizontally(1), equalTo(expectScrollRight))
         assertThat(viewPager.canScrollHorizontally(-1), equalTo(expectScrollLeft))

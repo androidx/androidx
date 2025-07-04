@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("NavOptionsBuilderKt")
-@file:JvmMultifileClass
-
 package androidx.navigation
 
 import androidx.annotation.AnimRes
@@ -24,34 +21,15 @@ import androidx.annotation.AnimatorRes
 import androidx.annotation.IdRes
 import kotlin.reflect.KClass
 
-@DslMarker public annotation class NavOptionsDsl
-
-/** Construct a new [NavOptions] */
-public fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit): NavOptions =
-    NavOptionsBuilder().apply(optionsBuilder).build()
-
-/** DSL for constructing a new [NavOptions] */
 @NavOptionsDsl
-public class NavOptionsBuilder {
+public actual class NavOptionsBuilder actual constructor() {
     private val builder = NavOptions.Builder()
 
-    /**
-     * Whether this navigation action should launch as single-top (i.e., there will be at most one
-     * copy of a given destination on the top of the back stack).
-     *
-     * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP] works with
-     * activities.
-     */
-    public var launchSingleTop: Boolean = false
+    public actual var launchSingleTop: Boolean = false
 
-    /**
-     * Whether this navigation action should restore any state previously saved by
-     * [PopUpToBuilder.saveState] or the `popUpToSaveState` attribute. If no state was previously
-     * saved with the destination ID being navigated to, this has no effect.
-     */
     @get:Suppress("GetterOnBuilder", "GetterSetterNames")
     @set:Suppress("SetterReturnsThis", "GetterSetterNames")
-    public var restoreState: Boolean = false
+    public actual var restoreState: Boolean = false
 
     /** Returns the current destination that the builder will pop up to. */
     @IdRes
@@ -73,11 +51,7 @@ public class NavOptionsBuilder {
             popUpTo(value)
         }
 
-    /**
-     * The destination to pop up to before navigating. All non-matching destinations from the back
-     * stack up until this destination will also be popped.
-     */
-    public var popUpToRoute: String? = null
+    public actual var popUpToRoute: String? = null
         private set(value) {
             if (value != null) {
                 require(value.isNotBlank()) { "Cannot pop up to an empty route" }
@@ -89,12 +63,8 @@ public class NavOptionsBuilder {
     private var inclusive = false
     private var saveState = false
 
-    /**
-     * The destination to pop up to before navigating. All non-matching destinations from the back
-     * stack up until this destination will also be popped.
-     */
     @get:Suppress("GetterOnBuilder")
-    public var popUpToRouteClass: KClass<*>? = null
+    public actual var popUpToRouteClass: KClass<*>? = null
         private set(value) {
             if (value != null) {
                 field = value
@@ -102,12 +72,8 @@ public class NavOptionsBuilder {
             }
         }
 
-    /**
-     * The destination to pop up to before navigating. All non-matching destinations from the back
-     * stack up until this destination will also be popped.
-     */
     @get:Suppress("GetterOnBuilder")
-    public var popUpToRouteObject: Any? = null
+    public actual var popUpToRouteObject: Any? = null
         private set(value) {
             if (value != null) {
                 field = value
@@ -127,14 +93,7 @@ public class NavOptionsBuilder {
         saveState = builder.saveState
     }
 
-    /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination
-     * routes from the back stack until the destination with a matching route is found.
-     *
-     * @param route route for the destination
-     * @param popUpToBuilder builder used to construct a popUpTo operation
-     */
-    public fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+    public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRoute = route
         popUpToId = -1
         val builder = PopUpToBuilder().apply(popUpToBuilder)
@@ -142,30 +101,19 @@ public class NavOptionsBuilder {
         saveState = builder.saveState
     }
 
-    /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination
-     * routes from the back stack until the destination with a matching route is found.
-     *
-     * @param T route from a [KClass] for the destination
-     * @param popUpToBuilder builder used to construct a popUpTo operation
-     */
     // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle")
-    public inline fun <reified T : Any> popUpTo(
-        noinline popUpToBuilder: PopUpToBuilder.() -> Unit = {}
+    public actual inline fun <reified T : Any> popUpTo(
+        noinline popUpToBuilder: PopUpToBuilder.() -> Unit
     ) {
         popUpTo(T::class, popUpToBuilder)
     }
 
-    /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination
-     * routes from the back stack until the destination with a matching route is found.
-     *
-     * @param route the [KClass] of the destination [T]
-     * @param popUpToBuilder builder used to construct a popUpTo operation
-     */
     @Suppress("BuilderSetStyle")
-    public fun <T : Any> popUpTo(route: KClass<T>, popUpToBuilder: PopUpToBuilder.() -> Unit) {
+    public actual fun <T : Any> popUpTo(
+        route: KClass<T>,
+        popUpToBuilder: PopUpToBuilder.() -> Unit,
+    ) {
         popUpToRouteClass = route
         popUpToId = -1
         popUpToRoute = null
@@ -174,16 +122,9 @@ public class NavOptionsBuilder {
         saveState = builder.saveState
     }
 
-    /**
-     * Pop up to a given destination before navigating. This pops all non-matching destination
-     * routes from the back stack until the destination with a matching route is found.
-     *
-     * @param route route from a Object for the destination
-     * @param popUpToBuilder builder used to construct a popUpTo operation
-     */
     // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle", "MissingJvmstatic")
-    public fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+    public actual fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRouteObject = route
         popUpToId = -1
         popUpToRoute = null
@@ -207,7 +148,7 @@ public class NavOptionsBuilder {
         }
     }
 
-    internal fun build() =
+    internal actual fun build() =
         builder
             .apply {
                 setLaunchSingleTop(launchSingleTop)
@@ -223,24 +164,6 @@ public class NavOptionsBuilder {
                 }
             }
             .build()
-}
-
-/** DSL for customizing [NavOptionsBuilder.popUpTo] operations. */
-@NavOptionsDsl
-public class PopUpToBuilder {
-    /** Whether the `popUpTo` destination should be popped from the back stack. */
-    public var inclusive: Boolean = false
-
-    /**
-     * Whether the back stack and the state of all destinations between the current destination and
-     * the [NavOptionsBuilder.popUpTo] ID should be saved for later restoration via
-     * [NavOptionsBuilder.restoreState] or the `restoreState` attribute using the same
-     * [NavOptionsBuilder.popUpTo] ID (note: this matching ID is true whether [inclusive] is true or
-     * false).
-     */
-    @get:Suppress("GetterOnBuilder", "GetterSetterNames")
-    @set:Suppress("SetterReturnsThis", "GetterSetterNames")
-    public var saveState: Boolean = false
 }
 
 /** DSL for setting custom Animation or Animator resources on a [NavOptionsBuilder] */

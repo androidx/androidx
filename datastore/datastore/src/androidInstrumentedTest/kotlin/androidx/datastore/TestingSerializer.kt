@@ -25,7 +25,7 @@ import java.io.OutputStream
 internal class TestingSerializer(
     @Volatile var failReadWithCorruptionException: Boolean = false,
     @Volatile var failingRead: Boolean = false,
-    @Volatile var failingWrite: Boolean = false
+    @Volatile var failingWrite: Boolean = false,
 ) : Serializer<Byte> {
     override val defaultValue: Byte = 0
 

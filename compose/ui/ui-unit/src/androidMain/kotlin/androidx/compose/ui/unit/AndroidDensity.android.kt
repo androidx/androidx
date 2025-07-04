@@ -30,14 +30,14 @@ fun Density(context: Context): Density {
     return DensityWithConverter(
         context.resources.displayMetrics.density,
         fontScale,
-        FontScaleConverterFactory.forScale(fontScale) ?: LinearFontScaleConverter(fontScale)
+        FontScaleConverterFactory.forScale(fontScale) ?: LinearFontScaleConverter(fontScale),
     )
 }
 
 private data class DensityWithConverter(
     override val density: Float,
     override val fontScale: Float,
-    private val converter: FontScaleConverter
+    private val converter: FontScaleConverter,
 ) : Density {
 
     override fun Dp.toSp(): TextUnit {

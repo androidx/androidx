@@ -39,9 +39,10 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 class FlashTooSlowQuirkTest(
     private val model: String,
     private val lensFacing: Int,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) {
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Model: {0}")
         fun data() =
@@ -81,9 +82,9 @@ class FlashTooSlowQuirkTest(
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
                         cameraMetadata,
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
+                        StreamConfigurationMapBuilder.newBuilder().build(),
+                    ),
+                ),
             )
             .quirks
     }

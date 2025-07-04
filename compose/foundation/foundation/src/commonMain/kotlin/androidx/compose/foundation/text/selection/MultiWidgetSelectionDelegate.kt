@@ -31,7 +31,7 @@ import kotlin.math.max
 internal class MultiWidgetSelectionDelegate(
     override val selectableId: Long,
     private val coordinatesCallback: () -> LayoutCoordinates?,
-    private val layoutResultCallback: () -> TextLayoutResult?
+    private val layoutResultCallback: () -> TextLayoutResult?,
 ) : Selectable {
     private val lock = makeSynchronizedObject(this)
 
@@ -108,15 +108,15 @@ internal class MultiWidgetSelectionDelegate(
                 Selection.AnchorInfo(
                     direction = textLayoutResult.getBidiRunDirection(start),
                     offset = start,
-                    selectableId = selectableId
+                    selectableId = selectableId,
                 ),
             end =
                 Selection.AnchorInfo(
                     direction = textLayoutResult.getBidiRunDirection(max(end - 1, 0)),
                     offset = end,
-                    selectableId = selectableId
+                    selectableId = selectableId,
                 ),
-            handlesCrossed = false
+            handlesCrossed = false,
         )
     }
 
@@ -138,7 +138,7 @@ internal class MultiWidgetSelectionDelegate(
             textLayoutResult = textLayoutResult,
             offset = coercedOffset,
             isStart = isStartHandle,
-            areHandlesCrossed = selection.handlesCrossed
+            areHandlesCrossed = selection.handlesCrossed,
         )
     }
 
@@ -194,7 +194,7 @@ internal class MultiWidgetSelectionDelegate(
         val line = textLayoutResult.getLineForOffset(offset.coerceIn(0, visibleTextLength - 1))
         return TextRange(
             start = textLayoutResult.getLineStart(line),
-            end = textLayoutResult.getLineEnd(line, visibleEnd = true)
+            end = textLayoutResult.getLineEnd(line, visibleEnd = true),
         )
     }
 
@@ -228,7 +228,7 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
             0.0f,
             0.0f,
             textLayoutResult.size.width.toFloat(),
-            textLayoutResult.size.height.toFloat()
+            textLayoutResult.size.height.toFloat(),
         )
 
     val currentXDirection = getXDirection(localPosition, bounds)
@@ -272,7 +272,7 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
                 ?.getPreviousAdjustedOffset(
                     selectableIdOrderingComparator,
                     selectableId,
-                    textLength
+                    textLength,
                 ) ?: rawStartHandleOffset
     } else {
         rawEndHandleOffset = getOffsetForPosition(localPosition, textLayoutResult)
@@ -282,7 +282,7 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
                 ?.getPreviousAdjustedOffset(
                     selectableIdOrderingComparator,
                     selectableId,
-                    textLength
+                    textLength,
                 ) ?: rawEndHandleOffset
     }
 
@@ -308,7 +308,7 @@ internal fun SelectionLayoutBuilder.appendSelectableInfo(
 private fun Selection.AnchorInfo.getPreviousAdjustedOffset(
     selectableIdOrderingComparator: Comparator<Long>,
     currentSelectableId: Long,
-    currentTextLength: Int
+    currentTextLength: Int,
 ): Int {
     val compareResult =
         selectableIdOrderingComparator.compare(this.selectableId, currentSelectableId)

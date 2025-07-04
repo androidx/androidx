@@ -54,7 +54,7 @@ class DrawerScreenshotTest {
                 BottomDrawer(
                     drawerState = rememberBottomDrawerState(drawerValue),
                     drawerContent = { Box(Modifier.fillMaxSize().background(Color.Red)) },
-                    content = { Box(Modifier.fillMaxSize().background(Color.Yellow)) }
+                    content = { Box(Modifier.fillMaxSize().background(Color.Yellow)) },
                 )
             }
         }
@@ -66,7 +66,7 @@ class DrawerScreenshotTest {
                 ModalDrawer(
                     drawerState = rememberDrawerState(drawerValue),
                     drawerContent = { Box(Modifier.fillMaxSize().background(Color.Red)) },
-                    content = { Box(Modifier.fillMaxSize().background(Color.Yellow)) }
+                    content = { Box(Modifier.fillMaxSize().background(Color.Yellow)) },
                 )
             }
         }

@@ -100,7 +100,7 @@ private class SurfaceTextureOutput : RenderOutput<Unit>() {
                 it.updateTexImage()
                 trySend(Unit)
             },
-            handler
+            handler,
         )
         awaitClose { outputSurfaceTexture.setOnFrameAvailableListener(null) }
     }

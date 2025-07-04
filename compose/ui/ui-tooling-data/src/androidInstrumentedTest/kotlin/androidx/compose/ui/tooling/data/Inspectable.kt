@@ -51,7 +51,7 @@ private class CompositionDataRecordImpl : CompositionDataRecord {
 @OptIn(InternalComposeApi::class)
 internal fun Inspectable(
     compositionDataRecord: CompositionDataRecord,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     currentComposer.collectParameterInformation()
     val store = (compositionDataRecord as CompositionDataRecordImpl).store
@@ -59,7 +59,7 @@ internal fun Inspectable(
     CompositionLocalProvider(
         LocalInspectionMode provides true,
         LocalInspectionTables provides store,
-        content = content
+        content = content,
     )
 }
 

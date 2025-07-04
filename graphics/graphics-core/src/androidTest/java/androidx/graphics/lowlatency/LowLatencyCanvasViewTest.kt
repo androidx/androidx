@@ -63,7 +63,7 @@ class LowLatencyCanvasViewTest {
 
                     override fun onFrontBufferedLayerRenderComplete(
                         frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                        transaction: SurfaceControlCompat.Transaction
+                        transaction: SurfaceControlCompat.Transaction,
                     ) {
                         frontBufferRenderLatch.countDown()
                     }
@@ -74,7 +74,7 @@ class LowLatencyCanvasViewTest {
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.BLUE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -100,7 +100,7 @@ class LowLatencyCanvasViewTest {
             usePixelCopy = true,
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.RED == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -143,7 +143,7 @@ class LowLatencyCanvasViewTest {
             usePixelCopy = true,
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.WHITE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -187,7 +187,7 @@ class LowLatencyCanvasViewTest {
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.RED == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -208,7 +208,7 @@ class LowLatencyCanvasViewTest {
 
                     override fun onFrontBufferedLayerRenderComplete(
                         frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                        transaction: SurfaceControlCompat.Transaction
+                        transaction: SurfaceControlCompat.Transaction,
                     ) {
                         transaction.setAlpha(frontBufferedLayerSurfaceControl, 0f)
                         renderFrontBufferLatch.countDown()
@@ -220,7 +220,7 @@ class LowLatencyCanvasViewTest {
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.WHITE == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
-            }
+            },
         )
     }
 
@@ -229,7 +229,7 @@ class LowLatencyCanvasViewTest {
         renderCallbacks: LowLatencyCanvasView.Callback,
         scenarioCallback: (ActivityScenario<LowLatencyActivity>) -> Unit,
         usePixelCopy: Boolean = false,
-        validateBitmap: (Bitmap, Int, Int, Int, Int) -> Boolean
+        validateBitmap: (Bitmap, Int, Int, Int, Int) -> Boolean,
     ) {
         val renderLatch = CountDownLatch(1)
         val executor = Executors.newSingleThreadExecutor()
@@ -245,11 +245,11 @@ class LowLatencyCanvasViewTest {
 
                 override fun onFrontBufferedLayerRenderComplete(
                     frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                    transaction: SurfaceControlCompat.Transaction
+                    transaction: SurfaceControlCompat.Transaction,
                 ) {
                     renderCallbacks.onFrontBufferedLayerRenderComplete(
                         frontBufferedLayerSurfaceControl,
-                        transaction
+                        transaction,
                     )
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         transaction.addTransactionCommittedListener(
@@ -258,7 +258,7 @@ class LowLatencyCanvasViewTest {
                                 override fun onTransactionCommitted() {
                                     renderLatch.countDown()
                                 }
-                            }
+                            },
                         )
                     } else {
                         renderLatch.countDown()
@@ -312,7 +312,7 @@ class LowLatencyCanvasViewTest {
                             copyLatch.countDown()
                         }
                     },
-                    copyHandler
+                    copyHandler,
                 )
                 assertTrue(copyLatch.await(3000, TimeUnit.MILLISECONDS))
             } else {

@@ -43,7 +43,7 @@ internal interface TelecomManagerAdapter {
         executor: Executor,
         pendingControl: OutcomeReceiver<CallControl, CallException>,
         handshakes: CallControlCallback,
-        events: CallEventCallback
+        events: CallEventCallback,
     )
 
     fun registerPhoneAccount(phoneAccount: PhoneAccount?)

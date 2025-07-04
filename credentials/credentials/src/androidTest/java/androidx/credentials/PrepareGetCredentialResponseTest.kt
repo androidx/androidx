@@ -33,7 +33,7 @@ class PrepareGetCredentialResponseTest {
     fun constructor_throwsNPEWhenMissingInput() {
         Assert.assertThrows(
             "Expected null pointer when missing input",
-            NullPointerException::class.java
+            NullPointerException::class.java,
         ) {
             PrepareGetCredentialResponse.Builder().setFrameworkResponse(null).build()
         }

@@ -116,7 +116,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator =
                 rememberListDetailPaneScaffoldNavigator<Int>(
                     scaffoldDirective = MockDualPaneScaffoldDirective,
-                    isDestinationHistoryAware = false
+                    isDestinationHistoryAware = false,
                 )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
@@ -148,7 +148,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator =
                 rememberListDetailPaneScaffoldNavigator<Int>(
                     scaffoldDirective = MockDualPaneScaffoldDirective,
-                    isDestinationHistoryAware = true
+                    isDestinationHistoryAware = true,
                 )
             canNavigateBack = scaffoldNavigator.canNavigateBack()
         }
@@ -220,7 +220,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                         listOf(
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
-                        )
+                        ),
                 )
         }
 
@@ -246,7 +246,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                         listOf(
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
-                        )
+                        ),
                 )
         }
 
@@ -284,7 +284,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, null),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
-                        )
+                        ),
                 )
         }
 
@@ -320,7 +320,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                         listOf(
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
-                        )
+                        ),
                 )
         }
 
@@ -352,7 +352,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, null),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
-                        )
+                        ),
                 )
         }
 
@@ -389,7 +389,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, 0),
-                        )
+                        ),
                 )
         }
 
@@ -423,7 +423,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                         listOf(
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
-                        )
+                        ),
                 )
         }
 
@@ -453,7 +453,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                         ),
-                    isDestinationHistoryAware = true
+                    isDestinationHistoryAware = true,
                 )
         }
 
@@ -461,7 +461,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
+                PaneAdaptedValue.Expanded,
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
@@ -473,7 +473,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
+                PaneAdaptedValue.Hidden,
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
@@ -485,7 +485,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Hidden,
                 PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
+                PaneAdaptedValue.Expanded,
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
@@ -508,7 +508,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Extra, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                         ),
-                    isDestinationHistoryAware = false
+                    isDestinationHistoryAware = false,
                 )
         }
 
@@ -516,7 +516,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
+                PaneAdaptedValue.Hidden,
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
@@ -528,7 +528,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
+                PaneAdaptedValue.Hidden,
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
@@ -540,7 +540,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             scaffoldNavigator.scaffoldValue.assert(
                 PaneAdaptedValue.Expanded,
                 PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
+                PaneAdaptedValue.Expanded,
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Extra)
@@ -562,7 +562,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                         listOf(
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
-                        )
+                        ),
                 )
         }
 
@@ -624,7 +624,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
-                        )
+                        ),
                 )
         }
 
@@ -688,7 +688,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                         listOf(
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
                             ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
-                        )
+                        ),
                 )
         }
         composeRule.runOnIdle {
@@ -727,7 +727,7 @@ private val MockDualPaneScaffoldDirective =
 private fun ThreePaneScaffoldValue.assert(
     expectedDetailPaneAdaptedValue: PaneAdaptedValue,
     expectedListPaneAdaptedValue: PaneAdaptedValue,
-    expectedExtraPaneAdaptedValue: PaneAdaptedValue
+    expectedExtraPaneAdaptedValue: PaneAdaptedValue,
 ) {
     assertThat(this[ListDetailPaneScaffoldRole.Detail]).isEqualTo(expectedDetailPaneAdaptedValue)
     assertThat(this[ListDetailPaneScaffoldRole.List]).isEqualTo(expectedListPaneAdaptedValue)

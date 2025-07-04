@@ -58,7 +58,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
                 onValueChange = {
                     state.value = it
                     onValueChange(it)
-                }
+                },
             )
         }
 

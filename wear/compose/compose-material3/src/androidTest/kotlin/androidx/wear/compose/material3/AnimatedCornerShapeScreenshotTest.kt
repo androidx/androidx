@@ -64,9 +64,9 @@ class AnimatedCornerShapeScreenshotTest {
                         topStart = 2.dp,
                         topEnd = 4.dp,
                         bottomEnd = 6.dp,
-                        bottomStart = 8.dp
+                        bottomStart = 8.dp,
                     )
-                )
+                ),
         ) {}
     }
 
@@ -81,9 +81,9 @@ class AnimatedCornerShapeScreenshotTest {
                             topStart = 2.dp,
                             topEnd = 4.dp,
                             bottomEnd = 6.dp,
-                            bottomStart = 8.dp
+                            bottomStart = 8.dp,
                         )
-                    )
+                    ),
             ) {}
         }
 
@@ -97,9 +97,9 @@ class AnimatedCornerShapeScreenshotTest {
                         topLeft = 2.dp,
                         topRight = 4.dp,
                         bottomRight = 6.dp,
-                        bottomLeft = 8.dp
+                        bottomLeft = 8.dp,
                     )
-                )
+                ),
         ) {}
     }
 
@@ -114,9 +114,9 @@ class AnimatedCornerShapeScreenshotTest {
                             topLeft = 2.dp,
                             topRight = 4.dp,
                             bottomRight = 6.dp,
-                            bottomLeft = 8.dp
+                            bottomLeft = 8.dp,
                         )
-                    )
+                    ),
             ) {}
         }
 
@@ -130,9 +130,9 @@ class AnimatedCornerShapeScreenshotTest {
                         topLeft = 2.dp,
                         topRight = 4.dp,
                         bottomRight = 6.dp,
-                        bottomLeft = 8.dp
+                        bottomLeft = 8.dp,
                     )
-                )
+                ),
         ) {}
     }
 
@@ -147,15 +147,15 @@ class AnimatedCornerShapeScreenshotTest {
                             topLeft = 2.dp,
                             topRight = 4.dp,
                             bottomRight = 6.dp,
-                            bottomLeft = 8.dp
+                            bottomLeft = 8.dp,
                         )
-                    )
+                    ),
             ) {}
         }
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {

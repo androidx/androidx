@@ -23,8 +23,7 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 /**
  * The camera flash state values represent the state of the physical flash unit of a camera.
  *
- * The possible values are [FLASH_STATE_UNKNOWN], [FLASH_STATE_FIRED], [FLASH_STATE_UNAVAILABLE],
- * and [FLASH_STATE_READY].
+ * The possible values are [UNKNOWN], [FIRED], [UNAVAILABLE], and [NOT_FIRED].
  *
  * In case of any error, how it is notified depends on the API that is used for obtaining the
  * [FlashState]. For example, if the flash state is obtained by invoking
@@ -34,7 +33,7 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback
  */
 public object FlashState {
     /** The camera flash state. */
-    @IntDef(FLASH_STATE_UNKNOWN, FLASH_STATE_FIRED, FLASH_STATE_UNAVAILABLE, FLASH_STATE_READY)
+    @IntDef(UNKNOWN, FIRED, UNAVAILABLE, NOT_FIRED)
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class FlashState
@@ -47,7 +46,7 @@ public object FlashState {
      *
      * @see FlashState
      */
-    public const val FLASH_STATE_UNKNOWN: Int = 0
+    public const val UNKNOWN: Int = 0
 
     /**
      * State indicating the flash was fired.
@@ -59,7 +58,7 @@ public object FlashState {
      *
      * @see FlashState
      */
-    public const val FLASH_STATE_FIRED: Int = 1
+    public const val FIRED: Int = 1
 
     /**
      * State indicating that flash is unavailable.
@@ -69,14 +68,14 @@ public object FlashState {
      *
      * @see FlashState
      */
-    public const val FLASH_STATE_UNAVAILABLE: Int = 2
+    public const val UNAVAILABLE: Int = 2
 
     /**
-     * State indicating that flash is ready and can be fired if required.
+     * State indicating that flash has not been fired.
      *
-     * This is used when the flash is available to be fired but not fired yet.
+     * This is used when the flash is available but has not been fired.
      *
      * @see FlashState
      */
-    public const val FLASH_STATE_READY: Int = 3
+    public const val NOT_FIRED: Int = 3
 }

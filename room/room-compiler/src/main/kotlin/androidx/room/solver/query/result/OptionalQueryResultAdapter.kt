@@ -29,7 +29,7 @@ import androidx.room.solver.CodeGenScope
  */
 class OptionalQueryResultAdapter(
     private val typeArg: XType,
-    private val resultAdapter: SingleItemQueryResultAdapter
+    private val resultAdapter: SingleItemQueryResultAdapter,
 ) : QueryResultAdapter(resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
@@ -42,8 +42,8 @@ class OptionalQueryResultAdapter(
                     XCodeBlock.of(
                         format = "%T.ofNullable(%L)",
                         CommonTypeNames.OPTIONAL,
-                        valueVarName
-                    )
+                        valueVarName,
+                    ),
             )
         }
     }

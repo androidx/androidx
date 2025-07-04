@@ -16,11 +16,10 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
-import androidx.xr.compose.subspace.node.SubspaceModifierElement
+import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.constrainDepth
 import androidx.xr.compose.unit.constrainHeight
@@ -36,7 +35,6 @@ import androidx.xr.runtime.math.Vector3
  *
  * Negative padding is not permitted — it will cause [IllegalArgumentException].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.padding(
     left: Dp = 0.dp,
     top: Dp = 0.dp,
@@ -63,7 +61,6 @@ public fun SubspaceModifier.padding(
  *
  * Negative padding is not permitted — it will cause [IllegalArgumentException]. See [padding]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp,
@@ -86,7 +83,6 @@ public fun SubspaceModifier.padding(
  *
  * Negative padding is not permitted — it will cause [IllegalArgumentException]. See [padding]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.padding(all: Dp): SubspaceModifier =
     this then
         SubspacePaddingElement(
@@ -105,7 +101,7 @@ private class SubspacePaddingElement(
     public val bottom: Dp,
     public val front: Dp,
     public val back: Dp,
-) : SubspaceModifierElement<PaddingNode>() {
+) : SubspaceModifierNodeElement<PaddingNode>() {
 
     init {
         require(
@@ -164,10 +160,10 @@ private class PaddingNode(
     public var front: Dp,
     public var back: Dp,
 ) : SubspaceLayoutModifierNode, SubspaceModifier.Node() {
-    override fun MeasureScope.measure(
-        measurable: Measurable,
+    override fun SubspaceMeasureScope.measure(
+        measurable: SubspaceMeasurable,
         constraints: VolumeConstraints,
-    ): MeasureResult {
+    ): SubspaceMeasureResult {
         val horizontal = left.roundToPx() + right.roundToPx()
         val vertical = top.roundToPx() + bottom.roundToPx()
         val frontAndBack = front.roundToPx() + back.roundToPx()

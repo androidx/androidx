@@ -26,10 +26,8 @@ import androidx.kruth.Fact.Companion.simpleFact
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
 class FloatSubject
-internal constructor(
-    actual: Float?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : ComparableSubject<Float>(metadata, actual) {
+internal constructor(actual: Float?, metadata: FailureMetadata = FailureMetadata()) :
+    ComparableSubject<Float>(metadata, actual) {
 
     private val asDouble = DoubleSubject(actual = actual?.toDouble(), metadata = metadata)
 
@@ -249,7 +247,7 @@ internal constructor(
         /** @throws UnsupportedOperationException always */
         @Deprecated(
             "Not supported on TolerantDoubleComparison. " +
-                "If you meant to compare doubles, use of(Double) instead.",
+                "If you meant to compare doubles, use of(Double) instead."
         )
         @Suppress("POTENTIALLY_NON_REPORTED_ANNOTATION")
         override fun equals(other: Any?): Boolean {

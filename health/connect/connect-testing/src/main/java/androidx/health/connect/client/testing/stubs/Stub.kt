@@ -77,7 +77,7 @@ public fun <R : Any> stub(default: R?): Stub<Any?, R> =
 @JvmOverloads
 public inline fun <R : Any> stub(
     queue: Iterable<R> = emptyList(),
-    crossinline defaultHandler: () -> R? = { null }
+    crossinline defaultHandler: () -> R? = { null },
 ): Stub<Any?, R> {
     val internalQueue = queue.toCollection(ArrayDeque())
 

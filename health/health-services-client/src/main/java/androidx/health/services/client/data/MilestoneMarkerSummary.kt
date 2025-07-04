@@ -59,7 +59,7 @@ public class MilestoneMarkerSummary(
         ExerciseGoal.fromProto(proto.achievedGoal.exerciseGoal),
         DataPointContainer(
             proto.summaryMetricsList.map { DataPoint.fromProto(it.aggregateDataPoint) }
-        )
+        ),
     )
 
     internal val proto: DataProto.MilestoneMarkerSummary =

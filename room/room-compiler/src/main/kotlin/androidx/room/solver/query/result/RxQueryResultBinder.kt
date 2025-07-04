@@ -35,7 +35,7 @@ internal class RxQueryResultBinder(
     private val rxType: RxType,
     val typeArg: XType,
     val queryTableNames: Set<String>,
-    adapter: QueryResultAdapter?
+    adapter: QueryResultAdapter?,
 ) : BaseObservableQueryResultBinder(adapter) {
 
     override fun convertAndReturn(
@@ -44,7 +44,7 @@ internal class RxQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -56,7 +56,7 @@ internal class RxQueryResultBinder(
                     listOf(
                         dbProperty,
                         inTransaction,
-                        ArrayLiteral(CommonTypeNames.STRING, *queryTableNames.toTypedArray())
+                        ArrayLiteral(CommonTypeNames.STRING, *queryTableNames.toTypedArray()),
                     ),
                 lambdaSpec =
                     object :
@@ -64,7 +64,7 @@ internal class RxQueryResultBinder(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = typeArg.asTypeName(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -73,7 +73,7 @@ internal class RxQueryResultBinder(
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement?.invoke(scope, statementVar)
@@ -89,7 +89,7 @@ internal class RxQueryResultBinder(
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", performBlock)
     }

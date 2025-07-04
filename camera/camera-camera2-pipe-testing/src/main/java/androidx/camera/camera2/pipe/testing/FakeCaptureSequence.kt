@@ -76,7 +76,7 @@ public data class FakeCaptureSequence(
             requiredParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
             graphParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
             listeners: List<Request.Listener> = emptyList(),
-            sequenceListener: CaptureSequence.CaptureSequenceListener = fakeCaptureSequenceListener
+            sequenceListener: CaptureSequence.CaptureSequenceListener = fakeCaptureSequenceListener,
         ): FakeCaptureSequence? {
             if (surfaceMap.isEmpty()) {
                 println(
@@ -148,7 +148,7 @@ public data class FakeCaptureSequence(
                         template = request.template ?: defaultTemplate,
                         streams = streamMap,
                         repeating = repeating,
-                        requestNumber = requestNumber
+                        requestNumber = requestNumber,
                     )
                 requestInfoList.add(requestMetadata)
                 requestInfoMap[request] = requestMetadata
@@ -166,7 +166,7 @@ public data class FakeCaptureSequence(
                 graphParameters = graphParameters.toMap(),
                 listeners = listeners.toList(),
                 sequenceListener = sequenceListener,
-                sequenceNumber = -1 // Sequence number is not set until it has been submitted.
+                sequenceNumber = -1, // Sequence number is not set until it has been submitted.
             )
         }
     }

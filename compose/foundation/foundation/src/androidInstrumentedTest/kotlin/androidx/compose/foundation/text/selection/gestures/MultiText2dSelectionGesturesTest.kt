@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -39,7 +40,9 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(ContextMenuFlagFlipperRunner::class)
 internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest() {
 
     // 3 x 3 grid of texts
@@ -56,7 +59,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag)
+            modifier = Modifier.testTag(pointerAreaTag),
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -71,11 +74,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
                         repeat(sideLength) { j ->
                             BasicText(
                                 text = text,
-                                style =
-                                    TextStyle(
-                                        fontFamily = fontFamily,
-                                        fontSize = fontSize,
-                                    ),
+                                style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                                 modifier =
                                     Modifier.padding(24.dp).testTag("${i * sideLength + j + 1}"),
                             )
@@ -92,7 +91,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(1, 6),
             selectableId = 1,
             offset = 5,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -102,7 +101,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(2, 6),
             selectableId = 2,
             offset = 5,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -112,7 +111,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(3, 6),
             selectableId = 3,
             offset = 5,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -122,7 +121,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(4, 6),
             selectableId = 4,
             offset = 5,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -132,7 +131,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(5, 10),
             selectableId = 5,
             offset = 14,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -142,7 +141,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(6, 5),
             selectableId = 6,
             offset = 9,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -152,7 +151,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(7, 5),
             selectableId = 7,
             offset = 9,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -162,7 +161,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(8, 5),
             selectableId = 8,
             offset = 9,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -172,7 +171,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = characterPosition(9, 5),
             selectableId = 9,
             offset = 9,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -187,7 +186,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = betweenSelectables(2, 5),
             selectableId = 4,
             offset = 0,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -197,7 +196,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = betweenSelectables(5, 8),
             selectableId = 6,
             offset = 19,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -214,7 +213,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = centerStart.nudge(yDirection = VerticalDirection.UP),
             selectableId = 4,
             offset = 0,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -224,7 +223,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = betweenSelectables(4, 5).nudge(yDirection = VerticalDirection.UP),
             selectableId = 5,
             offset = 0,
-            crossed = true
+            crossed = true,
         )
     }
 
@@ -234,7 +233,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = betweenSelectables(5, 6).nudge(yDirection = VerticalDirection.UP),
             selectableId = 5,
             offset = 9,
-            crossed = false
+            crossed = false,
         )
     }
 
@@ -244,16 +243,11 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             dragPosition = centerEnd.nudge(yDirection = VerticalDirection.UP),
             selectableId = 6,
             offset = 9,
-            crossed = false
+            crossed = false,
         )
     }
 
-    private fun dragTest(
-        dragPosition: Offset,
-        selectableId: Int,
-        offset: Int,
-        crossed: Boolean,
-    ) {
+    private fun dragTest(dragPosition: Offset, selectableId: Int, offset: Int, crossed: Boolean) {
         performTouchGesture { longPress(characterPosition(5, 6)) }
 
         assertSelection(startOffset = 5, endSelectableId = 5, endOffset = 9, handlesCrossed = false)
@@ -264,7 +258,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             startOffset = if (crossed) 9 else 5,
             endSelectableId = selectableId,
             endOffset = offset,
-            handlesCrossed = crossed
+            handlesCrossed = crossed,
         )
 
         performTouchGesture { up() }
@@ -273,7 +267,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
             startOffset = if (crossed) 9 else 5,
             endSelectableId = selectableId,
             endOffset = offset,
-            handlesCrossed = crossed
+            handlesCrossed = crossed,
         )
     }
 
@@ -320,13 +314,13 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
                         Selection.AnchorInfo(
                             direction = ResolvedTextDirection.Ltr,
                             offset = startOffset,
-                            selectableId = 5L
+                            selectableId = 5L,
                         ),
                     end =
                         Selection.AnchorInfo(
                             direction = ResolvedTextDirection.Ltr,
                             offset = endOffset,
-                            selectableId = endSelectableId.toLong()
+                            selectableId = endSelectableId.toLong(),
                         ),
                     handlesCrossed = handlesCrossed,
                 )

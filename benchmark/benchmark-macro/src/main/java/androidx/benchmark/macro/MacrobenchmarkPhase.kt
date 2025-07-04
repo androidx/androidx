@@ -21,17 +21,17 @@ import android.util.Log
 import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.ExperimentalConfig
-import androidx.benchmark.Insight
 import androidx.benchmark.Outputs
 import androidx.benchmark.Profiler
 import androidx.benchmark.inMemoryTrace
-import androidx.benchmark.macro.perfetto.queryStartupInsights
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.UiState
 import androidx.benchmark.perfetto.appendUiState
+import androidx.benchmark.traceprocessor.Insight
 import androidx.benchmark.traceprocessor.PerfettoTrace
+import androidx.benchmark.traceprocessor.StartupInsights
 import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.tracing.trace
 import java.io.File
@@ -60,7 +60,7 @@ internal data class IterationResult(
     val tracePath: String,
     val profilerResultFiles: List<Profiler.ResultFile>,
     val measurements: List<Metric.Measurement>,
-    val insights: List<Insight>
+    val insights: List<Insight>,
 )
 
 /** Run a Macrobenchmark Phase and collect a list of [IterationResult]. */
@@ -77,7 +77,7 @@ internal fun TraceProcessor.runPhase(
     experimentalConfig: ExperimentalConfig?,
     perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
-    measureBlock: MacrobenchmarkScope.() -> Unit
+    measureBlock: MacrobenchmarkScope.() -> Unit,
 ): List<IterationResult> {
     // Perfetto collector is separate from metrics, so we can control file
     // output, and give it different (test-wide) lifecycle
@@ -85,7 +85,7 @@ internal fun TraceProcessor.runPhase(
     val captureInfo =
         Metric.CaptureInfo.forLocalCapture(
             targetPackageName = packageName,
-            startupMode = startupMode
+            startupMode = startupMode,
         )
     try {
         // Configure metrics in the Phase.
@@ -126,7 +126,7 @@ internal fun TraceProcessor.runPhase(
                                     } else {
                                         listOf(packageName)
                                     },
-                                useStackSamplingConfig = true
+                                useStackSamplingConfig = true,
                             ),
                     perfettoSdkConfig = perfettoSdkConfig,
                     // Macrobench avoids in-memory tracing, as it doesn't want to either the parsing
@@ -134,7 +134,7 @@ internal fun TraceProcessor.runPhase(
                     // during
                     // trace analysis. If in-memory tracing would be useful, this full ordering cost
                     // should be evaluated.
-                    inMemoryTracingLabel = null
+                    inMemoryTracingLabel = null,
                 ) {
                     try {
                         trace("start metrics") { metrics.forEach { it.start() } }
@@ -173,15 +173,16 @@ internal fun TraceProcessor.runPhase(
                         },
                     insights =
                         if (experimentalConfig?.startupInsightsConfig?.isEnabled == true) {
-                            queryStartupInsights(
-                                helpUrlBase = Arguments.startupInsightsHelpUrlBase,
-                                traceOutputRelativePath = Outputs.relativePathFor(tracePath),
-                                iteration = iteration,
-                                packageName = packageName
-                            )
+                            StartupInsights(helpUrlBase = Arguments.startupInsightsHelpUrlBase)
+                                .queryInsights(
+                                    session = this,
+                                    packageName = packageName,
+                                    traceLinkTitle = "$iteration",
+                                    traceLinkPath = Outputs.relativePathFor(tracePath),
+                                )
                         } else {
                             emptyList()
-                        }
+                        },
                 )
             }
         }

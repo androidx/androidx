@@ -158,6 +158,6 @@ class OnPagesUpdatedTest {
     private enum class RefreshState {
         INITIAL,
         LOADING,
-        DONE
+        DONE,
     }
 }

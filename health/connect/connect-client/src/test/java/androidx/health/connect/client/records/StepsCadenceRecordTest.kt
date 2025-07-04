@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -34,7 +35,8 @@ class StepsCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
             .isEqualTo(
@@ -43,7 +45,8 @@ class StepsCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
     }
@@ -56,7 +59,8 @@ class StepsCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1234L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
             .isEqualTo(
@@ -65,7 +69,8 @@ class StepsCadenceRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1234L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
     }
@@ -78,7 +83,8 @@ class StepsCadenceRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                samples = listOf()
+                metadata = Metadata.manualEntry(),
+                samples = listOf(),
             )
         }
     }
@@ -91,8 +97,9 @@ class StepsCadenceRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata.unknownRecordingMethod(),
                         samples =
-                            listOf(StepsCadenceRecord.Sample(Instant.ofEpochMilli(1234L), 85.0))
+                            listOf(StepsCadenceRecord.Sample(Instant.ofEpochMilli(1234L), 85.0)),
                     )
                     .toString()
             )

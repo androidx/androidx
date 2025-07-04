@@ -83,7 +83,7 @@ private fun LabelsConfig(enabled: Boolean, alwaysShowLabelsState: MutableState<B
             .border(
                 width = 1.dp,
                 color = LocalContentColor.current.copy(alpha = ContentAlpha.medium),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
             )
             .padding(start = 16.dp)
     ) {
@@ -94,9 +94,9 @@ private fun LabelsConfig(enabled: Boolean, alwaysShowLabelsState: MutableState<B
                     .selectable(
                         enabled = enabled,
                         selected = !alwaysShowLabelsState.value,
-                        onClick = { alwaysShowLabelsState.value = false }
+                        onClick = { alwaysShowLabelsState.value = false },
                     ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             RadioButton(enabled = enabled, selected = !alwaysShowLabelsState.value, onClick = null)
             Spacer(Modifier.requiredWidth(16.dp))
@@ -109,9 +109,9 @@ private fun LabelsConfig(enabled: Boolean, alwaysShowLabelsState: MutableState<B
                     .selectable(
                         enabled = enabled,
                         selected = alwaysShowLabelsState.value,
-                        onClick = { alwaysShowLabelsState.value = true }
+                        onClick = { alwaysShowLabelsState.value = true },
                     ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             RadioButton(enabled = enabled, selected = alwaysShowLabelsState.value, onClick = null)
             Spacer(Modifier.requiredWidth(16.dp))
@@ -129,9 +129,9 @@ private fun CompactNavRailConfig(compactNavRailState: MutableState<Boolean>) {
                 .height(56.dp)
                 .toggleable(
                     value = compactNavRailState.value,
-                    onValueChange = { compactNavRailState.value = !compactNavRailState.value }
+                    onValueChange = { compactNavRailState.value = !compactNavRailState.value },
                 ),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(checked = compactNavRailState.value, onCheckedChange = null)
         Spacer(Modifier.requiredWidth(16.dp))

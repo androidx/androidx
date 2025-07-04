@@ -69,7 +69,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_lightTheme_primary"
+            goldenIdentifier = "tabs_lightTheme_primary",
         )
     }
 
@@ -88,7 +88,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_lightTheme_secondary"
+            goldenIdentifier = "tabs_lightTheme_secondary",
         )
     }
 
@@ -108,7 +108,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "tabs_lightTheme_primary_pressed"
+            goldenIdentifier = "tabs_lightTheme_primary_pressed",
         )
     }
 
@@ -128,7 +128,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "tabs_lightTheme_secondary_pressed"
+            goldenIdentifier = "tabs_lightTheme_secondary_pressed",
         )
     }
 
@@ -147,7 +147,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_darkTheme_primary"
+            goldenIdentifier = "tabs_darkTheme_primary",
         )
     }
 
@@ -166,7 +166,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_darkTheme_secondary"
+            goldenIdentifier = "tabs_darkTheme_secondary",
         )
     }
 
@@ -186,7 +186,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "tabs_darkTheme_primary_pressed"
+            goldenIdentifier = "tabs_darkTheme_primary_pressed",
         )
     }
 
@@ -206,7 +206,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "tabs_darkTheme_secondary_pressed"
+            goldenIdentifier = "tabs_darkTheme_secondary_pressed",
         )
     }
 
@@ -223,7 +223,7 @@ class TabScreenshotTest {
                     interactionSource,
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     selectedContentColor = MaterialTheme.colorScheme.onTertiary,
-                    unselectedContentColor = Color.Black
+                    unselectedContentColor = Color.Black,
                 )
             }
         }
@@ -232,7 +232,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "customTabs_lightTheme_primary"
+            goldenIdentifier = "customTabs_lightTheme_primary",
         )
     }
 
@@ -249,7 +249,7 @@ class TabScreenshotTest {
                     interactionSource,
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     selectedContentColor = MaterialTheme.colorScheme.onTertiary,
-                    unselectedContentColor = Color.Black
+                    unselectedContentColor = Color.Black,
                 )
             }
         }
@@ -258,7 +258,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "customTabs_lightTheme_secondary"
+            goldenIdentifier = "customTabs_lightTheme_secondary",
         )
     }
 
@@ -275,7 +275,7 @@ class TabScreenshotTest {
                     interactionSource,
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     selectedContentColor = MaterialTheme.colorScheme.onTertiary,
-                    unselectedContentColor = Color.Black
+                    unselectedContentColor = Color.Black,
                 )
             }
         }
@@ -284,7 +284,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "customTabs_darkTheme_primary"
+            goldenIdentifier = "customTabs_darkTheme_primary",
         )
     }
 
@@ -301,7 +301,7 @@ class TabScreenshotTest {
                     interactionSource,
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     selectedContentColor = MaterialTheme.colorScheme.onTertiary,
-                    unselectedContentColor = Color.Black
+                    unselectedContentColor = Color.Black,
                 )
             }
         }
@@ -310,7 +310,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "customTabs_darkTheme_secondary"
+            goldenIdentifier = "customTabs_darkTheme_secondary",
         )
     }
 
@@ -329,7 +329,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "leadingIconTabs_lightTheme_primary"
+            goldenIdentifier = "leadingIconTabs_lightTheme_primary",
         )
     }
 
@@ -348,7 +348,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "leadingIconTabs_lightTheme_secondary"
+            goldenIdentifier = "leadingIconTabs_lightTheme_secondary",
         )
     }
 
@@ -367,7 +367,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "leadingIconTabs_darkTheme_primary"
+            goldenIdentifier = "leadingIconTabs_darkTheme_primary",
         )
     }
 
@@ -386,7 +386,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "leadingIconTabs_darkTheme_secondary"
+            goldenIdentifier = "leadingIconTabs_darkTheme_secondary",
         )
     }
 
@@ -405,7 +405,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_lightTheme_primary_scrollable"
+            goldenIdentifier = "tabs_lightTheme_primary_scrollable",
         )
     }
 
@@ -424,7 +424,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_lightTheme_secondary_scrollable"
+            goldenIdentifier = "tabs_lightTheme_secondary_scrollable",
         )
     }
 
@@ -443,7 +443,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_darkTheme_primary_scrollable"
+            goldenIdentifier = "tabs_darkTheme_primary_scrollable",
         )
     }
 
@@ -462,7 +462,7 @@ class TabScreenshotTest {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "tabs_darkTheme_secondary_scrollable"
+            goldenIdentifier = "tabs_darkTheme_secondary_scrollable",
         )
     }
 
@@ -477,7 +477,7 @@ class TabScreenshotTest {
         scope: CoroutineScope,
         interactionSource: MutableInteractionSource,
         interaction: Interaction? = null,
-        goldenIdentifier: String
+        goldenIdentifier: String,
     ) {
         if (interaction != null) {
             composeTestRule.runOnIdle {
@@ -516,7 +516,7 @@ private fun DefaultPrimaryTabs(interactionSource: MutableInteractionSource) {
                 selected = true,
                 onClick = {},
                 text = { Text("TAB") },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
@@ -540,7 +540,7 @@ private fun DefaultSecondaryTabs(interactionSource: MutableInteractionSource) {
                 selected = true,
                 onClick = {},
                 text = { Text("TAB") },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
@@ -564,7 +564,7 @@ private fun CustomPrimaryTabs(
     interactionSource: MutableInteractionSource,
     containerColor: Color,
     selectedContentColor: Color,
-    unselectedContentColor: Color
+    unselectedContentColor: Color,
 ) {
     Box(Modifier.semantics(mergeDescendants = true) {}.testTag(TAG)) {
         PrimaryTabRow(selectedTabIndex = 0, containerColor = containerColor) {
@@ -574,21 +574,21 @@ private fun CustomPrimaryTabs(
                 text = { Text("TAB") },
                 selectedContentColor = selectedContentColor,
                 unselectedContentColor = unselectedContentColor,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Tab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
                 selectedContentColor = selectedContentColor,
-                unselectedContentColor = unselectedContentColor
+                unselectedContentColor = unselectedContentColor,
             )
             Tab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
                 selectedContentColor = selectedContentColor,
-                unselectedContentColor = unselectedContentColor
+                unselectedContentColor = unselectedContentColor,
             )
         }
     }
@@ -610,7 +610,7 @@ private fun CustomSecondaryTabs(
     interactionSource: MutableInteractionSource,
     containerColor: Color,
     selectedContentColor: Color,
-    unselectedContentColor: Color
+    unselectedContentColor: Color,
 ) {
     Box(Modifier.semantics(mergeDescendants = true) {}.testTag(TAG)) {
         SecondaryTabRow(
@@ -619,9 +619,9 @@ private fun CustomSecondaryTabs(
             indicator = {
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(0),
-                    color = selectedContentColor
+                    color = selectedContentColor,
                 )
-            }
+            },
         ) {
             Tab(
                 selected = true,
@@ -629,21 +629,21 @@ private fun CustomSecondaryTabs(
                 text = { Text("TAB") },
                 selectedContentColor = selectedContentColor,
                 unselectedContentColor = unselectedContentColor,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Tab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
                 selectedContentColor = selectedContentColor,
-                unselectedContentColor = unselectedContentColor
+                unselectedContentColor = unselectedContentColor,
             )
             Tab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
                 selectedContentColor = selectedContentColor,
-                unselectedContentColor = unselectedContentColor
+                unselectedContentColor = unselectedContentColor,
             )
         }
     }
@@ -666,19 +666,19 @@ private fun DefaultPrimaryLeadingIconTabs(interactionSource: MutableInteractionS
                 onClick = {},
                 text = { Text("TAB") },
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             LeadingIconTab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
-                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") }
+                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
             )
             LeadingIconTab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
-                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") }
+                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
             )
         }
     }
@@ -701,19 +701,19 @@ private fun DefaultSecondaryLeadingIconTabs(interactionSource: MutableInteractio
                 onClick = {},
                 text = { Text("TAB") },
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             LeadingIconTab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
-                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") }
+                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
             )
             LeadingIconTab(
                 selected = false,
                 onClick = {},
                 text = { Text("TAB") },
-                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") }
+                icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
             )
         }
     }
@@ -734,15 +734,15 @@ private fun DefaultPrimaryScrollableTabs(interactionSource: MutableInteractionSo
             selectedTabIndex = 0,
             indicator = {
                 TabRowDefaults.PrimaryIndicator(
-                    modifier = Modifier.tabIndicatorOffset(0, matchContentSize = true),
+                    modifier = Modifier.tabIndicatorOffset(0, matchContentSize = true)
                 )
-            }
+            },
         ) {
             Tab(
                 selected = true,
                 onClick = {},
                 text = { Text("TAB") },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
@@ -766,7 +766,7 @@ private fun DefaultSecondaryScrollableTabs(interactionSource: MutableInteraction
                 selected = true,
                 onClick = {},
                 text = { Text("TAB") },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Tab(selected = false, onClick = {}, text = { Text("TAB") })
             Tab(selected = false, onClick = {}, text = { Text("TAB") })

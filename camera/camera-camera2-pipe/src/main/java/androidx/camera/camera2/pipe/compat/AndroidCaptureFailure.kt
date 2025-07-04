@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  */
 public class AndroidCaptureFailure(
     override val requestMetadata: RequestMetadata,
-    private val captureFailure: CaptureFailure
+    private val captureFailure: CaptureFailure,
 ) : RequestFailure {
     override val frameNumber: FrameNumber = FrameNumber(captureFailure.frameNumber)
     override val reason: Int = captureFailure.reason

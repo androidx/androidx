@@ -20,8 +20,8 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.bottomItemScrollProgress
-import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.topItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.downwardMeasuredItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.upwardMeasuredItemScrollProgress
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineScope
@@ -50,27 +50,44 @@ internal interface TransformingLazyColumnMeasurementStrategy {
         keyIndexMap: LazyLayoutKeyIndexMap,
         itemSpacing: Int,
         containerConstraints: Constraints,
+        anchorItemKey: Any,
         anchorItemIndex: Int,
         anchorItemScrollOffset: Int,
         lastMeasuredAnchorItemHeight: Int,
         coroutineScope: CoroutineScope,
         density: Density,
         scrollToBeConsumed: Float,
-        layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
+        layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
     ): TransformingLazyColumnMeasureResult
 
     val leftContentPadding: Int
     val rightContentPadding: Int
 }
 
-internal fun MeasuredItemProvider.downwardMeasuredItem(index: Int, offset: Int, maxHeight: Int) =
-    measuredItem(index, offset) { height ->
-        bottomItemScrollProgress(offset = offset, height = height, containerHeight = maxHeight)
+internal fun MeasuredItemProvider.downwardMeasuredItem(
+    index: Int,
+    offset: Int,
+    maxHeight: Int,
+): TransformingLazyColumnMeasuredItem =
+    measuredItem(index, offset, MeasurementDirection.DOWNWARD) { height ->
+        downwardMeasuredItemScrollProgress(
+            offset = offset,
+            height = height,
+            containerHeight = maxHeight,
+        )
     }
 
-internal fun MeasuredItemProvider.upwardMeasuredItem(index: Int, offset: Int, maxHeight: Int) =
-    measuredItem(index, offset) { height ->
-            topItemScrollProgress(offset = offset, height = height, containerHeight = maxHeight)
+internal fun MeasuredItemProvider.upwardMeasuredItem(
+    index: Int,
+    offset: Int,
+    maxHeight: Int,
+): TransformingLazyColumnMeasuredItem =
+    measuredItem(index, offset, MeasurementDirection.UPWARD) { height ->
+            upwardMeasuredItemScrollProgress(
+                offset = offset,
+                height = height,
+                containerHeight = maxHeight,
+            )
         }
         .also { it.offset -= it.transformedHeight }
 
@@ -78,9 +95,10 @@ internal fun emptyMeasureResult(
     containerConstraints: Constraints,
     beforeContentPadding: Int,
     afterContentPadding: Int,
-    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
+    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): TransformingLazyColumnMeasureResult =
     TransformingLazyColumnMeasureResult(
+        anchorItemKey = EmptyAnchorKey,
         anchorItemIndex = 0,
         anchorItemScrollOffset = 0,
         visibleItems = emptyList(),
@@ -93,5 +111,9 @@ internal fun emptyMeasureResult(
         beforeContentPadding = beforeContentPadding,
         afterContentPadding = afterContentPadding,
         itemSpacing = 0,
-        measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
+        childConstraints = Constraints(),
+        measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {},
     )
+
+/** A default value used to indicate that the anchor item is not specified. */
+internal object EmptyAnchorKey

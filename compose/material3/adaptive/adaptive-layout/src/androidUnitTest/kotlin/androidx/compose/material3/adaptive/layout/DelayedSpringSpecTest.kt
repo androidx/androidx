@@ -50,7 +50,7 @@ class DelayedSpringSpecTest {
         fun assertValuesAt(playTimeNanos: Long) {
             assertValuesAreEqual(
                 originalSpec.getValueFromNanos(playTimeNanos),
-                delayedSpec.getValueFromNanos(playTimeNanos + delayedNanos)
+                delayedSpec.getValueFromNanos(playTimeNanos + delayedNanos),
             )
         }
 

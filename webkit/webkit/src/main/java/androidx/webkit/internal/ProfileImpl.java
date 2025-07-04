@@ -16,20 +16,26 @@
 
 package androidx.webkit.internal;
 
+import android.os.CancellationSignal;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
-import androidx.core.os.CancellationSignal;
 import androidx.webkit.OutcomeReceiverCompat;
 import androidx.webkit.PrefetchException;
 import androidx.webkit.Profile;
+import androidx.webkit.SpeculativeLoadingConfig;
 import androidx.webkit.SpeculativeLoadingParameters;
 
 import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.lang.reflect.InvocationHandler;
+import java.util.Set;
+import java.util.concurrent.Executor;
 
 
 /**
@@ -37,15 +43,10 @@ import org.jspecify.annotations.Nullable;
  */
 public class ProfileImpl implements Profile {
 
-    private final ProfileBoundaryInterface mProfileImpl;
+    private final @NonNull ProfileBoundaryInterface mProfileImpl;
 
     ProfileImpl(@NonNull ProfileBoundaryInterface profileImpl) {
         mProfileImpl = profileImpl;
-    }
-
-    // Use ProfileStore to create a Profile instance.
-    private ProfileImpl() {
-        mProfileImpl = null;
     }
 
     @Override
@@ -100,22 +101,116 @@ public class ProfileImpl implements Profile {
         }
     }
 
+    @Profile.ExperimentalUrlPrefetch
     @Override
     public void prefetchUrlAsync(@NonNull String url,
             @Nullable CancellationSignal cancellationSignal,
+            @NonNull Executor callbackExecutor,
             @NonNull SpeculativeLoadingParameters params,
             @NonNull OutcomeReceiverCompat<Void, PrefetchException> callback) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_URL_PREFETCH;
+        if (feature.isSupportedByWebView()) {
+            InvocationHandler paramsBoundaryInterface =
+                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                            new SpeculativeLoadingParametersAdapter(params));
+
+            mProfileImpl.prefetchUrl(url, cancellationSignal, callbackExecutor,
+                    paramsBoundaryInterface,
+                    PrefetchOperationCallbackAdapter.buildInvocationHandler(callback));
+
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
     }
 
+    @Profile.ExperimentalUrlPrefetch
     @Override
     public void prefetchUrlAsync(@NonNull String url,
             @Nullable CancellationSignal cancellationSignal,
+            @NonNull Executor callbackExecutor,
             @NonNull OutcomeReceiverCompat<Void, PrefetchException> callback) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_URL_PREFETCH;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.prefetchUrl(url, cancellationSignal, callbackExecutor,
+                    PrefetchOperationCallbackAdapter.buildInvocationHandler(callback));
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Profile.ExperimentalUrlPrefetch
+    @Override
+    public void clearPrefetchAsync(@NonNull String url,
+            @NonNull Executor callbackExecutor,
+            @NonNull OutcomeReceiverCompat<Void, PrefetchException> callback) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PROFILE_URL_PREFETCH;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.clearPrefetch(url, callbackExecutor,
+                    PrefetchOperationCallbackAdapter.buildInvocationHandler(callback));
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Profile.ExperimentalUrlPrefetch
+    @Override
+    public void setSpeculativeLoadingConfig(
+            @NonNull SpeculativeLoadingConfig speculativeLoadingConfig) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SPECULATIVE_LOADING_CONFIG;
+        if (feature.isSupportedByWebView()) {
+            InvocationHandler configInvocation =
+                    BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                            new SpeculativeLoadingConfigAdapter(speculativeLoadingConfig));
+            mProfileImpl.setSpeculativeLoadingConfig(configInvocation);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
     }
 
     @Override
-    public void clearPrefetchAsync(@NonNull String url,
-            @NonNull OutcomeReceiverCompat<Void, PrefetchException> callback) {
+    @ExperimentalWarmUpRendererProcess
+    public void warmUpRendererProcess() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.WARM_UP_RENDERER_PROCESS;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.warmUpRendererProcess();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
     }
 
+    @Override
+    public void setOriginMatchedHeader(@NonNull String headerName,
+            @NonNull String headerValue, @NonNull Set<String> originRules) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
+        if (feature.isSupportedByWebView()) {
+            if (mProfileImpl.hasOriginMatchedHeader(headerName)) {
+                throw new IllegalStateException(
+                        "Profile " + mProfileImpl.getName() + " already has origin-matched header: "
+                                + headerName);
+            }
+            mProfileImpl.setOriginMatchedHeader(headerName, headerValue, originRules);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void clearOriginMatchedHeader(@NonNull String headerName) {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.clearOriginMatchedHeader(headerName);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void clearAllOriginMatchedHeaders() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ORIGIN_MATCHED_HEADERS;
+        if (feature.isSupportedByWebView()) {
+            mProfileImpl.clearAllOriginMatchedHeaders();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
 }

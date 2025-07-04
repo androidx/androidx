@@ -68,7 +68,7 @@ import androidx.compose.ui.unit.Dp
 public fun ripple(
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
-    color: Color = Color.Unspecified
+    color: Color = Color.Unspecified,
 ): IndicationNodeFactory {
     return if (radius == Dp.Unspecified && color == Color.Unspecified) {
         if (bounded) return DefaultBoundedRipple else DefaultUnboundedRipple
@@ -114,7 +114,7 @@ public fun ripple(
 public fun ripple(
     color: ColorProducer,
     bounded: Boolean = true,
-    radius: Dp = Dp.Unspecified
+    radius: Dp = Dp.Unspecified,
 ): IndicationNodeFactory {
     return RippleNodeFactory(bounded, radius, color)
 }
@@ -125,12 +125,12 @@ private constructor(
     private val bounded: Boolean,
     private val radius: Dp,
     private val colorProducer: ColorProducer?,
-    private val color: Color
+    private val color: Color,
 ) : IndicationNodeFactory {
     constructor(
         bounded: Boolean,
         radius: Dp,
-        colorProducer: ColorProducer
+        colorProducer: ColorProducer,
     ) : this(bounded, radius, colorProducer, Color.Unspecified)
 
     constructor(bounded: Boolean, radius: Dp, color: Color) : this(bounded, radius, null, color)
@@ -180,7 +180,7 @@ private class DelegatingThemeAwareRippleNode(
                         currentValueOf(LocalContentColor)
                     }
                 },
-                CalculateRippleAlpha
+                CalculateRippleAlpha,
             )
         )
     }
@@ -191,7 +191,7 @@ private val RippleAlpha: RippleAlpha =
         pressedAlpha = 0.10f,
         focusedAlpha = 0.10f,
         draggedAlpha = 0.16f,
-        hoveredAlpha = 0.08f
+        hoveredAlpha = 0.08f,
     )
 
 private val CalculateRippleAlpha = { RippleAlpha }

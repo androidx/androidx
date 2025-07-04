@@ -99,7 +99,7 @@ abstract class BasePluginTest {
                     implementation "$NAVIGATION_RUNTIME"
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
     }
 
@@ -162,7 +162,7 @@ abstract class BasePluginTest {
                     }
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
     }
 }

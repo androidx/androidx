@@ -66,7 +66,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         supportedAgpPlugins =
             setOf(AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN, AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN),
         minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
-        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE,
     ) {
 
     // List of the non debuggable build types
@@ -93,7 +93,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             canBeConsumed = false,
             canBeResolved = true,
             buildType = null,
-            productFlavors = null
+            productFlavors = null,
         )
 
     private val Variant.benchmarkVariantName: String
@@ -185,7 +185,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                             "is not intentional, please check your gradle configuration " +
                             "for beforeVariants blocks. For more information on variant " +
                             "filters checkout the docs at https://developer.android.com/" +
-                            "build/build-variants#filter-variants."
+                            "build/build-variants#filter-variants.",
                 )
             }
         }
@@ -219,7 +219,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         PrintConfigurationForVariantTask.registerForVariant(
             project = project,
             variant = variant,
-            variantConfig = variantConfiguration
+            variantConfig = variantConfiguration,
         )
 
         // Sets the r8 rewrite baseline profile for the non debuggable variant.
@@ -239,7 +239,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         val baselineProfileConfiguration =
             createConfigurationForVariant(
                 variant = variant,
-                mainConfiguration = mainBaselineProfileConfiguration
+                mainConfiguration = mainBaselineProfileConfiguration,
             )
 
         // Adds the custom dependencies for baseline profiles. Note that dependencies
@@ -298,7 +298,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                 if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
                     TaskAndFolderName(
                         taskVariantName = "",
-                        folderVariantName = camelCase(androidTargetName, "main")
+                        folderVariantName = camelCase(androidTargetName, "main"),
                     )
                 } else {
                     // Note that the exception here cannot happen because all the variants have a
@@ -308,13 +308,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                         taskVariantName =
                             variant.buildType
                                 ?: throw IllegalStateException("Found variant without build type."),
-                        folderVariantName = camelCase(androidTargetName, "main")
+                        folderVariantName = camelCase(androidTargetName, "main"),
                     )
                 }
             } else {
                 TaskAndFolderName(
                     taskVariantName = variant.name,
-                    folderVariantName = camelCase(androidTargetName, variant.name)
+                    folderVariantName = camelCase(androidTargetName, variant.name),
                 )
             }
 
@@ -341,7 +341,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                 // saveInSrc is enabled an additional task is created to copy the profile in the
                 // sources
                 // folder.
-                isLastTask = !variantConfiguration.saveInSrc
+                isLastTask = !variantConfiguration.saveInSrc,
             )
 
         // If `saveInSrc` is true, we create an additional task to copy the output
@@ -380,7 +380,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                         outputDir = project.provider { srcOutputDir },
                         hasDependencies = baselineProfileConfiguration.allDependencies.isNotEmpty(),
                         isLastTask = true,
-                        warnings = baselineProfileExtension.warnings
+                        warnings = baselineProfileExtension.warnings,
                     )
 
                 // Applies the source path for this variant. Note that this doesn't apply when the
@@ -443,7 +443,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                         // Note that on old versions of AGP these tasks may not exist.
                         listOfNotNull(
                                 project.tasks.taskMergeArtProfile(variantName),
-                                project.tasks.taskMergeStartupProfile(variantName)
+                                project.tasks.taskMergeStartupProfile(variantName),
                             )
                             .forEach {
                                 it.configure { t ->
@@ -483,7 +483,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                     fun applySourceSets(v: Variant) {
                         v.sources.baselineProfiles?.addGeneratedSourceDirectory(
                             taskProvider = mergeTaskProvider,
-                            wiredWith = MergeBaselineProfileTask::baselineProfileDir
+                            wiredWith = MergeBaselineProfileTask::baselineProfileDir,
                         )
                     }
 
@@ -533,7 +533,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         GenerateBaselineProfileTask.maybeCreate(
             project = project,
             variantName = mergeAwareTaskName,
-            lastTaskProvider = lastTaskProvider
+            lastTaskProvider = lastTaskProvider,
         )
 
         // Create the build type task. For example `generateReleaseBaselineProfile`
@@ -547,7 +547,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             GenerateBaselineProfileTask.maybeCreate(
                 project = project,
                 variantName = variant.buildType!!,
-                lastTaskProvider = lastTaskProvider
+                lastTaskProvider = lastTaskProvider,
             )
         }
 
@@ -562,7 +562,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             if (!mergeIntoMain) {
                 listOfNotNull(
                         variant.flavorName,
-                        *variant.productFlavors.map { it.second }.toTypedArray()
+                        *variant.productFlavors.map { it.second }.toTypedArray(),
                     )
                     .filter { it != variant.name && it.isNotBlank() }
                     .toSet()
@@ -570,7 +570,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                         GenerateBaselineProfileTask.maybeCreate(
                             project = project,
                             variantName = it,
-                            lastTaskProvider = lastTaskProvider
+                            lastTaskProvider = lastTaskProvider,
                         )
                     }
             }
@@ -579,7 +579,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             GenerateBaselineProfileTask.maybeCreate(
                 project = project,
                 variantName = "",
-                lastTaskProvider = lastTaskProvider
+                lastTaskProvider = lastTaskProvider,
             )
         } else {
             // Due to b/265438201 we cannot have a global task `generateBaselineProfile` that
@@ -594,7 +594,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                     project = project,
                     variantName = "",
                     lastTaskProvider = lastTaskProvider,
-                    warnings = baselineProfileExtension.warnings
+                    warnings = baselineProfileExtension.warnings,
                 )
             }
         }
@@ -613,7 +613,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             canBeConsumed = false,
             extendFromConfigurations = listOf(mainConfiguration),
             buildType = variant.buildType ?: "",
-            productFlavors = variant.productFlavors
+            productFlavors = variant.productFlavors,
         )
 
     private fun isBaselineProfilePluginCreatedBuildType(buildType: String?) =

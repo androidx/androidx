@@ -31,34 +31,34 @@ internal interface MeasureBlocks {
     fun measure(
         measureScope: MeasureScope,
         measurables: List<Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult
 
     /** The function used to calculate [IntrinsicMeasurable.minIntrinsicWidth]. */
     fun minIntrinsicWidth(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
-        h: Int
+        h: Int,
     ): Int
 
     /** The lambda used to calculate [IntrinsicMeasurable.minIntrinsicHeight]. */
     fun minIntrinsicHeight(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
-        w: Int
+        w: Int,
     ): Int
 
     /** The function used to calculate [IntrinsicMeasurable.maxIntrinsicWidth]. */
     fun maxIntrinsicWidth(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
-        h: Int
+        h: Int,
     ): Int
 
     /** The lambda used to calculate [IntrinsicMeasurable.maxIntrinsicHeight]. */
     fun maxIntrinsicHeight(
         intrinsicMeasureScope: IntrinsicMeasureScope,
         measurables: List<IntrinsicMeasurable>,
-        w: Int
+        w: Int,
     ): Int
 }

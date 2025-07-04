@@ -42,7 +42,7 @@ class GuavaListenableFutureQueryResultBinder(val typeArg: XType, adapter: QueryR
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -57,7 +57,7 @@ class GuavaListenableFutureQueryResultBinder(val typeArg: XType, adapter: QueryR
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = typeArg.asTypeName(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -66,7 +66,7 @@ class GuavaListenableFutureQueryResultBinder(val typeArg: XType, adapter: QueryR
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement?.invoke(scope, statementVar)
@@ -82,7 +82,7 @@ class GuavaListenableFutureQueryResultBinder(val typeArg: XType, adapter: QueryR
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", performBlock)
     }

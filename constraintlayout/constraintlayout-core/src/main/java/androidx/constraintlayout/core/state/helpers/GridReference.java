@@ -16,12 +16,13 @@
 
 package androidx.constraintlayout.core.state.helpers;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.core.state.HelperReference;
 import androidx.constraintlayout.core.state.State;
 import androidx.constraintlayout.core.utils.GridCore;
 import androidx.constraintlayout.core.widgets.HelperWidget;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A HelperReference of a Grid Helper that helps enable Grid in Compose
@@ -31,7 +32,7 @@ public class GridReference extends HelperReference {
     private static final String SPANS_RESPECT_WIDGET_ORDER_STRING = "spansrespectwidgetorder";
     private static final String SUB_GRID_BY_COL_ROW_STRING = "subgridbycolrow";
 
-    public GridReference(@NonNull State state, @NonNull State.Helper type) {
+    public GridReference(@NonNull State state, State.@NonNull Helper type) {
         super(state, type);
         if (type == State.Helper.ROW) {
             this.mRowsSet = 1;
@@ -292,8 +293,7 @@ public class GridReference extends HelperReference {
      * Get the row weights
      * @return the row weights
      */
-    @Nullable
-    public String getRowWeights() {
+    public @Nullable String getRowWeights() {
         return mRowWeights;
     }
 
@@ -309,8 +309,7 @@ public class GridReference extends HelperReference {
      * Get the column weights
      * @return the column weights
      */
-    @Nullable
-    public String getColumnWeights() {
+    public @Nullable String getColumnWeights() {
         return mColumnWeights;
     }
 
@@ -326,8 +325,7 @@ public class GridReference extends HelperReference {
      * Get the spans
      * @return the spans
      */
-    @Nullable
-    public String getSpans() {
+    public @Nullable String getSpans() {
         return mSpans;
     }
 
@@ -343,8 +341,7 @@ public class GridReference extends HelperReference {
      * Get the skips
      * @return the skips
      */
-    @Nullable
-    public String getSkips() {
+    public @Nullable String getSkips() {
         return mSkips;
     }
 
@@ -361,8 +358,7 @@ public class GridReference extends HelperReference {
      * @return the helper widget (Grid)
      */
     @Override
-    @NonNull
-    public HelperWidget getHelperWidget() {
+    public @NonNull HelperWidget getHelperWidget() {
         if (mGrid == null) {
             mGrid = new GridCore();
         }

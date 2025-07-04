@@ -78,7 +78,7 @@ class ProgrammaticVectorTestCase : ImageVectorTestCase() {
                     defaultWidth = 24.dp,
                     defaultHeight = 24.dp,
                     viewportWidth = 24f,
-                    viewportHeight = 24f
+                    viewportHeight = 24f,
                 )
                 .apply {
                     addPath(
@@ -109,7 +109,7 @@ class ProgrammaticVectorTestCase : ImageVectorTestCase() {
                         strokeLineWidth = 1f,
                         strokeLineCap = StrokeCap.Butt,
                         strokeLineJoin = StrokeJoin.Bevel,
-                        strokeLineMiter = 1f
+                        strokeLineMiter = 1f,
                     )
                 }
                 .build()

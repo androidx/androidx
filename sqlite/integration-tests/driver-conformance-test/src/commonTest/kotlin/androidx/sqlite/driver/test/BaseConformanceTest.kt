@@ -26,7 +26,6 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.execSQL
-import androidx.sqlite.use
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
@@ -47,12 +46,12 @@ abstract class BaseConformanceTest {
         val driver = getDriver()
         val connection = driver.open(":memory:")
         try {
-            val version =
-                connection.prepare("PRAGMA user_version").use { statement ->
+            val encoding =
+                connection.prepare("PRAGMA encoding").use { statement ->
                     statement.step()
-                    statement.getLong(0)
+                    statement.getText(0)
                 }
-            assertThat(version).isEqualTo(0)
+            assertThat(encoding).isEqualTo("UTF-8")
         } finally {
             connection.close()
         }
@@ -117,7 +116,7 @@ abstract class BaseConformanceTest {
                     "realCol_double",
                     "realCol_float",
                     "textCol",
-                    "blobCol"
+                    "blobCol",
                 )
                 .inOrder()
             assertThat(it.getColumnType(0)).isEqualTo(SQLITE_DATA_INTEGER)
@@ -410,6 +409,72 @@ abstract class BaseConformanceTest {
                 }
             }
         assertThat(seriesSum).isEqualTo(55)
+    }
+
+    @Test
+    fun inTransaction() = testWithConnection { connection ->
+        assertThat(connection.inTransaction()).isFalse()
+        connection.execSQL("BEGIN TRANSACTION")
+        assertThat(connection.inTransaction()).isTrue()
+        connection.execSQL("END TRANSACTION")
+        assertThat(connection.inTransaction()).isFalse()
+        connection.execSQL("BEGIN DEFERRED TRANSACTION")
+        assertThat(connection.inTransaction()).isTrue()
+        connection.execSQL("END TRANSACTION")
+        assertThat(connection.inTransaction()).isFalse()
+        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
+        assertThat(connection.inTransaction()).isTrue()
+        connection.execSQL("END TRANSACTION")
+        assertThat(connection.inTransaction()).isFalse()
+        connection.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+        assertThat(connection.inTransaction()).isTrue()
+        connection.execSQL("END TRANSACTION")
+        assertThat(connection.inTransaction()).isFalse()
+    }
+
+    @Test
+    fun commitImmediateTransaction() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (col)")
+        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.execSQL("INSERT INTO Test (col) VALUES (1)")
+        connection.execSQL("END TRANSACTION")
+
+        val count =
+            connection.prepare("SELECT COUNT(*) FROM Test").use {
+                it.step()
+                it.getInt(0)
+            }
+        assertThat(count).isEqualTo(1)
+    }
+
+    @Test
+    fun commitExclusiveTransaction() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (col)")
+        connection.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+        connection.execSQL("INSERT INTO Test (col) VALUES (1)")
+        connection.execSQL("END TRANSACTION")
+
+        val count =
+            connection.prepare("SELECT COUNT(*) FROM Test").use {
+                it.step()
+                it.getInt(0)
+            }
+        assertThat(count).isEqualTo(1)
+    }
+
+    @Test
+    fun rollbackTransaction() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (col)")
+        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.execSQL("INSERT INTO Test (col) VALUES (1)")
+        connection.execSQL("ROLLBACK TRANSACTION")
+
+        val count =
+            connection.prepare("SELECT COUNT(*) FROM Test").use {
+                it.step()
+                it.getInt(0)
+            }
+        assertThat(count).isEqualTo(0)
     }
 
     private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {

@@ -61,8 +61,8 @@ package androidx.camera.view {
   }
 
   @RequiresApi(21) public static final class CameraController.OutputSize {
-    ctor public CameraController.OutputSize(int);
     ctor public CameraController.OutputSize(android.util.Size);
+    ctor public CameraController.OutputSize(int);
     method public int getAspectRatio();
     method public android.util.Size? getResolution();
     field public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
@@ -185,9 +185,9 @@ package androidx.camera.view.video {
   }
 
   @RequiresApi(21) @androidx.camera.view.video.ExperimentalVideo @com.google.auto.value.AutoValue public abstract class OutputFileOptions {
-    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(java.io.File);
-    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.os.ParcelFileDescriptor);
     method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.content.ContentResolver, android.net.Uri, android.content.ContentValues);
+    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(android.os.ParcelFileDescriptor);
+    method public static androidx.camera.view.video.OutputFileOptions.Builder builder(java.io.File);
     method public abstract androidx.camera.view.video.Metadata getMetadata();
   }
 

@@ -29,9 +29,7 @@ import kotlin.math.max
 @Singleton
 internal class Camera2Quirks
 @Inject
-constructor(
-    private val metadataProvider: Camera2MetadataProvider,
-) {
+constructor(private val metadataProvider: Camera2MetadataProvider) {
     /**
      * A quirk that waits for the last repeating capture request to start before stopping the
      * current capture session. This is an issue in the Android camera framework where recreating a
@@ -83,7 +81,7 @@ constructor(
 
     /**
      * A quirk that closes the camera devices before creating a new capture session. This is needed
-     * on legacy devices where creating a capture session directly may lead to deadlocks, NPEs or
+     * on certain devices where creating a capture session directly may lead to deadlocks, NPEs or
      * other undesirable behaviors. When [shouldCreateEmptyCaptureSessionBeforeClosing] is also
      * required, a regular camera device closure would then be expanded to:
      * 1. Close the camera device.
@@ -91,19 +89,24 @@ constructor(
      * 3. Create an empty capture session.
      * 4. Close the capture session.
      * 5. Close the camera device.
-     * - Bug(s): b/237341513, b/359062845, b/342263275, b/379347826
+     * - Bug(s): b/237341513, b/359062845, b/342263275, b/379347826, b/359062845
      * - Device(s): Camera devices on hardware level LEGACY
      * - API levels: 23 (M) – 31 (S_V2)
      */
-    internal fun shouldCloseCameraBeforeCreatingCaptureSession(cameraId: CameraId): Boolean =
-        Build.VERSION.SDK_INT in (Build.VERSION_CODES.M..Build.VERSION_CODES.S_V2) &&
-            metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
+    internal fun shouldCloseCameraBeforeCreatingCaptureSession(cameraId: CameraId): Boolean {
+        val isLegacyDevice =
+            Build.VERSION.SDK_INT in (Build.VERSION_CODES.M..Build.VERSION_CODES.S_V2) &&
+                metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
+        val isQuirkyDevice =
+            "motorola".equals(Build.BRAND, ignoreCase = true) &&
+                "moto e20".equals(Build.MODEL, ignoreCase = true) &&
+                cameraId.value == "1"
+        return isLegacyDevice || isQuirkyDevice
+    }
 
     companion object {
         private val SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP =
-            mapOf(
-                "Google" to setOf("oriole", "raven", "bluejay", "panther", "cheetah", "lynx"),
-            )
+            mapOf("Google" to setOf("oriole", "raven", "bluejay", "panther", "cheetah", "lynx"))
 
         /**
          * Returns the number of repeating requests frames before capture for quirks.

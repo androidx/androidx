@@ -43,7 +43,7 @@ fun StepperDemo() {
         valueRange = 1f..4f,
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-        steps = 2
+        steps = 2,
     ) {
         Text("Value: $value")
     }
@@ -57,7 +57,7 @@ fun StepperWithIntegerDemo() {
         onValueChange = { value = it },
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-        valueProgression = 1..10
+        valueProgression = 1..10,
     ) {
         Text("Value: $value")
     }
@@ -74,7 +74,7 @@ fun StepperWithScrollBarDemo() {
         increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
         valueRange = range,
-        steps = 9
+        steps = 9,
     ) {
         Chip(
             onClick = { valueState = if (valueState == 0f) 4f else 0f },
@@ -91,7 +91,7 @@ fun StepperWithScrollBarDemo() {
                         ),
                     contentDescription = null,
                 )
-            }
+            },
         )
     }
 

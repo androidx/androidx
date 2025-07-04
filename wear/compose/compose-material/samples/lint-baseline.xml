@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var progress by remember { mutableStateOf(0.1f) }"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/CircularProgressIndicatorSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var selectedPage by remember { mutableStateOf(0) }"
+        errorLine2="                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/HorizontalPageIndicatorSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var finalValue by remember { mutableStateOf(0) }"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/HorizontalPageIndicatorSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var selectedColumn by remember { mutableStateOf(0) }"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/PickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var selectedRadioIndex by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/SelectableChipSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var selectedRadioIndex by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/SelectableChipSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(4.5f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(2f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(4) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(2f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/StepperSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(2) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/StepperSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(2f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/StepperSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(2f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/samples/StepperSample.kt"/>
+    </issue>
+
+</issues>

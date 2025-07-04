@@ -139,7 +139,7 @@ private fun Magnifier(visible: Boolean, position: Offset, color: Color) {
             Modifier.offset(
                 position.x.toDp() - MagnifierWidth / 2,
                 // Align with the center of the selection circle
-                position.y.toDp() - (MagnifierHeight - (SelectionCircleDiameter / 2))
+                position.y.toDp() - (MagnifierHeight - (SelectionCircleDiameter / 2)),
             )
         }
     MagnifierTransition(visible, MagnifierWidth, SelectionCircleDiameter) {
@@ -153,7 +153,7 @@ private fun Magnifier(visible: Boolean, position: Offset, color: Color) {
             Spacer(Modifier.weight(1f))
             Box(
                 Modifier.fillMaxWidth().height(SelectionCircleDiameter),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 MagnifierSelectionCircle(Modifier.size(selectionDiameter), color)
             }
@@ -175,7 +175,7 @@ private fun MagnifierTransition(
     visible: Boolean,
     maxWidth: Dp,
     maxDiameter: Dp,
-    content: @Composable (labelWidth: Dp, selectionDiameter: Dp, alpha: Float) -> Unit
+    content: @Composable (labelWidth: Dp, selectionDiameter: Dp, alpha: Float) -> Unit,
 ) {
     val transition = updateTransition(visible)
     val labelWidth by
@@ -213,7 +213,7 @@ private fun MagnifierLabel(modifier: Modifier, color: Color) {
                 text = text,
                 modifier = Modifier.weight(0.75f).padding(top = 10.dp, bottom = 20.dp),
                 style = textStyle,
-                maxLines = 1
+                maxLines = 1,
             )
         }
     }
@@ -228,7 +228,7 @@ private fun MagnifierSelectionCircle(modifier: Modifier, color: Color) {
         elevation = 4.dp,
         color = color,
         border = BorderStroke(2.dp, SolidColor(Color.Black.copy(alpha = 0.75f))),
-        content = {}
+        content = {},
     )
 }
 
@@ -264,10 +264,10 @@ private class ColorWheel(diameter: Int) {
                     Color.Cyan,
                     Color.Green,
                     Color.Yellow,
-                    Color.Red
+                    Color.Red,
                 ),
             colorStops = null,
-            center = Offset(radius, radius)
+            center = Offset(radius, radius),
         )
 
     val image =

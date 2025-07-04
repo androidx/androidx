@@ -57,7 +57,7 @@ private object JobScheduler21 {
 }
 
 @get:RequiresApi(21)
-val JobScheduler.safePendingJobs: List<JobInfo>?
+public val JobScheduler.safePendingJobs: List<JobInfo>?
     get() {
         return try {
             // Note: despite what the word "pending" and the associated Javadoc might imply, this is
@@ -108,7 +108,7 @@ internal fun createErrorMessage(
                 listOfNotNull(
                         "${allJobsInNamespace.size} jobs in \"$WORKMANAGER_NAMESPACE\" namespace",
                         nonWmJobsMessage,
-                        defaultNamespaceMessage
+                        defaultNamespaceMessage,
                     )
                     .joinToString(",\n")
             } else "<faulty JobScheduler failed to getPendingJobs>"

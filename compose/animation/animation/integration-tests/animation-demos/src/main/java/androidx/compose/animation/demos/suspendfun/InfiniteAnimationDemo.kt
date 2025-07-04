@@ -46,7 +46,7 @@ fun InfiniteAnimationDemo() {
             initialValue = 1f,
             targetValue = 0f,
             animationSpec =
-                infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse)
+                infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse),
         ) { value, _ ->
             alpha = value
         }
@@ -58,7 +58,7 @@ fun InfiniteAnimationDemo() {
             modifier =
                 Modifier.align(Alignment.Center)
                     .graphicsLayer(scaleX = 3.0f, scaleY = 3.0f, alpha = alpha),
-            tint = Color.Red
+            tint = Color.Red,
         )
     }
 }

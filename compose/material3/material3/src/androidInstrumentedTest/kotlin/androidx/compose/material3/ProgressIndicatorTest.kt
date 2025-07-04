@@ -56,10 +56,7 @@ class ProgressIndicatorTest {
         val progress = mutableStateOf(0f)
 
         rule.setContent {
-            LinearProgressIndicator(
-                modifier = Modifier.testTag(tag),
-                progress = { progress.value },
-            )
+            LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = { progress.value })
         }
 
         rule.onNodeWithTag(tag).assertIsDisplayed()
@@ -107,6 +104,20 @@ class ProgressIndicatorTest {
             .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
+    }
+
+    @Test
+    fun determinateLinearProgressIndicator_NaNProgress() {
+        val tag = "linear"
+        rule.setMaterialContent(lightColorScheme()) {
+            LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = { Float.NaN })
+        }
+
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
     }
 
     @Test
@@ -194,6 +205,19 @@ class ProgressIndicatorTest {
     }
 
     @Test
+    fun determinateCircularProgressIndicator_NaNProgress() {
+        val tag = "circular"
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularProgressIndicator(modifier = Modifier.testTag(tag), progress = { Float.NaN })
+        }
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+    }
+
+    @Test
     fun determinateCircularProgressIndicator_Size() {
         rule
             .setMaterialContentForSizeAssertions { CircularProgressIndicator(progress = { 0f }) }
@@ -258,9 +282,7 @@ class ProgressIndicatorTest {
         val tag = "progress_indicator"
         rule.setContent {
             Box(Modifier.testTag(tag)) {
-                LinearProgressIndicator(
-                    modifier = Modifier.size(expectedWidth, expectedHeight),
-                )
+                LinearProgressIndicator(modifier = Modifier.size(expectedWidth, expectedHeight))
             }
         }
 

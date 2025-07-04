@@ -101,7 +101,7 @@ class CollectAsStateWithLifecycleTests {
                 flow
                     .collectAsStateWithLifecycle(
                         initialValue = "0",
-                        lifecycle = lifecycleOwner.lifecycle
+                        lifecycle = lifecycleOwner.lifecycle,
                     )
                     .value
         }
@@ -140,7 +140,7 @@ class CollectAsStateWithLifecycleTests {
                 flow
                     .collectAsStateWithLifecycle(
                         initialValue = "0",
-                        lifecycle = lifecycleOwner.lifecycle
+                        lifecycle = lifecycleOwner.lifecycle,
                     )
                     .value
         }
@@ -195,7 +195,7 @@ class CollectAsStateWithLifecycleTests {
     @Composable
     private fun withLifecycleOwner(
         state: Lifecycle.State = Lifecycle.State.CREATED,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val lifecycleOwner = TestLifecycleOwner(state)
         CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner, content = content)

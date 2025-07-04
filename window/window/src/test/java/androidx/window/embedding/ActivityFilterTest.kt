@@ -142,7 +142,7 @@ class ActivityFilterTest {
             filter.matchesIntent(
                 createTestIntent(
                     componentName = ComponentName("another.packager", "another.class"),
-                    action = FAKE_ACTION
+                    action = FAKE_ACTION,
                 )
             )
         )
@@ -164,7 +164,7 @@ class ActivityFilterTest {
 
     private fun createTestIntent(
         componentName: ComponentName = ComponentName(FAKE_PACKAGE, FAKE_CLASS),
-        action: String? = null
+        action: String? = null,
     ): Intent {
         val intent = mock<Intent>()
         doReturn(componentName).whenever(intent).component

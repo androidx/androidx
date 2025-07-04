@@ -16,27 +16,26 @@
 
 package androidx.xr.runtime.testing
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.runtime.internal.RuntimeFactory
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import com.google.common.truth.Truth.assertThat
-import java.util.ServiceLoader
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class FakeRuntimeFactoryTest {
 
-    @Test
-    fun class_isDiscoverableViaServiceLoader() {
-        assertThat(ServiceLoader.load(RuntimeFactory::class.java).iterator().next())
-            .isInstanceOf(FakeRuntimeFactory::class.java)
-    }
+    @get:Rule val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
     @Test
     fun createRuntime_createsFakeRuntime() {
-        val underTest = FakeRuntimeFactory()
-
-        assertThat(underTest.createRuntime(Activity())).isInstanceOf(FakeRuntime::class.java)
+        activityRule.scenario.onActivity {
+            assertThat((Session.create(it) as SessionCreateSuccess).session.runtime)
+                .isInstanceOf(FakeRuntime::class.java)
+        }
     }
 }

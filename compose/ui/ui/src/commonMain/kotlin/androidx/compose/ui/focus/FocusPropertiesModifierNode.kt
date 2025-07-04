@@ -17,7 +17,8 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.ui.node.DelegatableNode
-import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.visitChildren
 
 /**
  * Implement this interface create a modifier node that can be used to modify the focus properties
@@ -34,5 +35,9 @@ interface FocusPropertiesModifierNode : DelegatableNode {
 }
 
 fun FocusPropertiesModifierNode.invalidateFocusProperties() {
-    requireOwner().focusOwner.scheduleInvalidation(this)
+    visitChildren(Nodes.FocusTarget) {
+        // Schedule invalidation for the focus target,
+        // which will cause it to recalculate focus properties.
+        it.invalidateFocusTarget()
+    }
 }

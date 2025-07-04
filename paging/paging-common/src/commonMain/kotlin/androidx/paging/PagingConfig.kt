@@ -126,7 +126,7 @@ public constructor(
      * @see PagingSource.getRefreshKey
      * @see PagingSource.jumpingSupported
      */
-    @JvmField public val jumpThreshold: Int = COUNT_UNDEFINED
+    @JvmField public val jumpThreshold: Int = COUNT_UNDEFINED,
 ) {
     init {
         if (!enablePlaceholders && prefetchDistance == 0) {

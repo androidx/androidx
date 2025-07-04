@@ -94,7 +94,7 @@ internal class LocalSdkConfigParser private constructor(private val xmlParser: X
             dexPaths,
             entryPoint,
             javaResourcesRoot,
-            resourceRemapping
+            resourceRemapping,
         )
     }
 
@@ -152,7 +152,7 @@ internal class LocalSdkConfigParser private constructor(private val xmlParser: X
         fun parse(
             inputStream: InputStream,
             packageName: String,
-            versionMajor: Int?
+            versionMajor: Int?,
         ): LocalSdkConfig {
             val parser = Xml.newPullParser()
             try {

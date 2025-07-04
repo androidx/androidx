@@ -17,14 +17,19 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.defaultTorchStrengthLevel
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.maxTorchStrengthLevel
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsTorchStrength
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
+import androidx.camera.camera2.pipe.integration.compat.Api35Compat
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
-import androidx.camera.core.TorchState
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.Threads
 import androidx.lifecycle.LiveData
@@ -54,7 +59,7 @@ constructor(
             setTorchAsync(
                 torch =
                     when (torchStateLiveData.value) {
-                        TorchState.ON -> true
+                        androidx.camera.core.TorchState.ON -> true
                         else -> false
                     },
                 cancelPreviousTask = false,
@@ -62,18 +67,32 @@ constructor(
         }
 
     override fun reset() {
-        _torchState.setLiveDataValue(false)
+        updateTorchState(TorchMode.OFF)
         stopRunningTaskInternal()
         setTorchAsync(false)
     }
 
     private val hasFlashUnit: Boolean = cameraProperties.isFlashAvailable()
 
-    private val _torchState = MutableLiveData(TorchState.OFF)
+    @VisibleForTesting internal var torchMode = TorchMode.OFF
+    private val _torchState = MutableLiveData(androidx.camera.core.TorchState.OFF)
     public val torchStateLiveData: LiveData<Int>
         get() = _torchState
 
-    private var _updateSignal: CompletableDeferred<Unit>? = null
+    private val isTorchStrengthSupported: Boolean = cameraProperties.metadata.supportsTorchStrength
+
+    private val defaultTorchStrength: Int = cameraProperties.metadata.defaultTorchStrengthLevel
+
+    private val maxTorchStrength: Int = cameraProperties.metadata.maxTorchStrengthLevel
+
+    private val _torchStrength = MutableLiveData(defaultTorchStrength)
+
+    public val torchStrengthLiveData: LiveData<Int>
+        get() = _torchStrength
+
+    private var _updateTorchStateSignal: CompletableDeferred<Unit>? = null
+
+    private var _updateTorchStrengthSignal: CompletableDeferred<Unit>? = null
 
     /**
      * Turn the torch on or off.
@@ -86,9 +105,18 @@ constructor(
     public fun setTorchAsync(
         torch: Boolean,
         cancelPreviousTask: Boolean = true,
-        ignoreFlashUnitAvailability: Boolean = false
+        ignoreFlashUnitAvailability: Boolean = false,
     ): Deferred<Unit> {
-        debug { "TorchControl#setTorchAsync: torch = $torch" }
+        val torchMode = if (torch) TorchMode.ON else TorchMode.OFF
+        return setTorchAsync(torchMode, cancelPreviousTask, ignoreFlashUnitAvailability)
+    }
+
+    internal fun setTorchAsync(
+        mode: TorchMode,
+        cancelPreviousTask: Boolean = true,
+        ignoreFlashUnitAvailability: Boolean = false,
+    ): Deferred<Unit> {
+        debug { "TorchControl#setTorchAsync: torch mode = $mode" }
 
         val signal = CompletableDeferred<Unit>()
 
@@ -97,23 +125,24 @@ constructor(
         }
 
         requestControl?.let { requestControl ->
-            _torchState.setLiveDataValue(torch)
+            updateTorchState(mode)
 
             if (cancelPreviousTask) {
-                stopRunningTaskInternal()
+                stopTorchStateTask()
             } else {
                 // Propagate the result to the previous updateSignal
-                _updateSignal?.let { previousUpdateSignal ->
+                _updateTorchStateSignal?.let { previousUpdateSignal ->
                     signal.propagateTo(previousUpdateSignal)
                 }
             }
 
-            _updateSignal = signal
+            _updateTorchStateSignal = signal
 
             // Hold the internal AE mode to ON while the torch is turned ON. If torch is OFF, a
             // value of null will make the state3AControl calculate the correct AE mode based on
             // other settings.
-            state3AControl.preferredAeMode = if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
+            state3AControl.preferredAeMode =
+                if (isFlashUnitOn(mode)) CaptureRequest.CONTROL_AE_MODE_ON else null
             val aeMode: AeMode =
                 AeMode.fromIntOrNull(state3AControl.getFinalSupportedAeMode())
                     ?: run {
@@ -126,8 +155,18 @@ constructor(
                     }
 
             val deferred =
-                if (torch) requestControl.setTorchOnAsync()
-                else requestControl.setTorchOffAsync(aeMode)
+                if (isFlashUnitOn(mode)) {
+                    if (mode == TorchMode.ON) {
+                        // Only set the torch strength if torch is explicitly turned on as torch
+                        // purpose.
+                        torchStrengthLiveData.value?.let { updateTorchStrengthLevelAsync(it) }
+                    } else {
+                        // Use the default torch strength if torch is turned on as flash purpose.
+                        updateTorchStrengthLevelAsync(defaultTorchStrength)
+                    }
+
+                    requestControl.setTorchOnAsync()
+                } else requestControl.setTorchOffAsync(aeMode)
             deferred.propagateTo(signal) {
                 // TODO: b/209757083 - handle the failed result of the setTorchAsync().
                 //   Since we are not handling the result here, signal is completed with Unit
@@ -144,33 +183,128 @@ constructor(
         return signal
     }
 
+    public fun setTorchStrengthLevelAsync(level: Int): Deferred<Unit> {
+        if (!isTorchStrengthSupported) {
+            return CompletableDeferred<Unit>().apply {
+                createFailureResult(
+                    UnsupportedOperationException(
+                        "Configuring torch strength is not supported on the device."
+                    )
+                )
+            }
+        }
+
+        if (level < 1 || level > maxTorchStrength) {
+            return CompletableDeferred<Unit>().apply {
+                createFailureResult(
+                    IllegalArgumentException("The given torch strength level is invalid.")
+                )
+            }
+        }
+
+        _torchStrength.setLiveDataValue(level)
+
+        return if (torchStateLiveData.value == androidx.camera.core.TorchState.ON) {
+            updateTorchStrengthLevelAsync(level)
+        } else CompletableDeferred(Unit)
+    }
+
+    private fun updateTorchStrengthLevelAsync(level: Int): Deferred<Unit> {
+        var signal = CompletableDeferred<Unit>()
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                isTorchStrengthSupported
+        ) {
+            if (_updateTorchStrengthSignal != null) {
+                stopTorchStrengthTask()
+            }
+
+            _updateTorchStrengthSignal = signal
+            signal.invokeOnCompletion { _updateTorchStrengthSignal = null }
+
+            val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf()
+            Api35Compat.setFlashStrengthLevel(parameters, level)
+            requestControl?.setParametersAsync(values = parameters)?.propagateTo(signal)
+                ?: run {
+                    signal.createFailureResult(
+                        CameraControl.OperationCanceledException("Camera is not active.")
+                    )
+                }
+        } else {
+            signal.createFailureResult(
+                UnsupportedOperationException(
+                    "Configuring torch strength is not supported on the device."
+                )
+            )
+        }
+
+        return signal
+    }
+
     private fun stopRunningTaskInternal() {
-        _updateSignal?.createFailureResult(
+        stopTorchStateTask()
+        stopTorchStrengthTask()
+    }
+
+    private fun stopTorchStateTask() {
+        _updateTorchStateSignal?.createFailureResult(
             CameraControl.OperationCanceledException("There is a new enableTorch being set")
         )
-        _updateSignal = null
+        _updateTorchStateSignal = null
+    }
+
+    private fun stopTorchStrengthTask() {
+        _updateTorchStrengthSignal?.createFailureResult(
+            CameraControl.OperationCanceledException("There is a new torch strength being set")
+        )
+        _updateTorchStrengthSignal = null
     }
 
     private fun CompletableDeferred<Unit>.createFailureResult(exception: Exception) = apply {
         completeExceptionally(exception)
     }
 
-    private fun MutableLiveData<Int>.setLiveDataValue(enableTorch: Boolean) =
-        when (enableTorch) {
-            true -> TorchState.ON
-            false -> TorchState.OFF
-        }.let { torchState ->
-            if (Threads.isMainThread()) {
-                this.value = torchState
-            } else {
-                this.postValue(torchState)
-            }
+    private fun updateTorchState(mode: TorchMode) {
+        torchMode = mode
+        when (mode) {
+            TorchMode.ON -> androidx.camera.core.TorchState.ON
+            else -> androidx.camera.core.TorchState.OFF
+        }.let { torchState -> _torchState.setLiveDataValue(torchState) }
+    }
+
+    private fun MutableLiveData<Int>.setLiveDataValue(value: Int) {
+        if (Threads.isMainThread()) {
+            this.value = value
+        } else {
+            this.postValue(value)
         }
+    }
+
+    private fun isFlashUnitOn(torchState: TorchMode): Boolean {
+        return torchState != TorchMode.OFF
+    }
 
     @Module
     public abstract class Bindings {
         @Binds
         @IntoSet
         public abstract fun provideControls(torchControl: TorchControl): UseCaseCameraControl
+    }
+
+    @JvmInline
+    internal value class TorchMode private constructor(val value: Int) {
+        companion object {
+            /** The torch is off. */
+            val OFF: TorchMode = TorchMode(0)
+            /** The torch is turned on explicitly. */
+            val ON: TorchMode = TorchMode(1)
+            /**
+             * The torch is used as flash.
+             *
+             * The flash unit is turned on by the capture pipeline for flash purpose, while in this
+             * case the torch feature should usually be considered off.
+             */
+            val USED_AS_FLASH: TorchMode = TorchMode(2)
+        }
     }
 }

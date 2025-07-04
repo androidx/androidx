@@ -49,18 +49,18 @@ public fun CurvedScope.curvedBox(
     modifier: CurvedModifier = CurvedModifier,
     radialAlignment: CurvedAlignment.Radial? = null,
     angularAlignment: CurvedAlignment.Angular? = null,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ): Unit =
     add(
         CurvedBoxChild(curvedLayoutDirection, radialAlignment, angularAlignment, contentBuilder),
-        modifier
+        modifier,
     )
 
 internal class CurvedBoxChild(
     curvedLayoutDirection: CurvedLayoutDirection,
     private val radialAlignment: CurvedAlignment.Radial? = null,
     private val angularAlignment: CurvedAlignment.Angular? = null,
-    contentBuilder: CurvedScope.() -> Unit
+    contentBuilder: CurvedScope.() -> Unit,
 ) : ContainerChild(curvedLayoutDirection, reverseLayout = false, contentBuilder) {
 
     override fun doEstimateThickness(maxRadius: Float) =
@@ -89,14 +89,14 @@ internal class CurvedBoxChild(
             maxSweep,
             parentOuterRadius,
             parentThickness,
-            parentOuterRadius - parentThickness / 2
+            parentOuterRadius - parentThickness / 2,
         )
     }
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float {
         children.fastForEach { child ->
             var childAngularPosition = parentStartAngleRadians

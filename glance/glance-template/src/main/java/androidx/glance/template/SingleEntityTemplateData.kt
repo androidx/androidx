@@ -25,11 +25,11 @@ package androidx.glance.template
  * @param imageBlock The image block for the entity main image by [ImageBlock].
  * @param actionBlock The entity single action button by [ActionBlock].
  */
-class SingleEntityTemplateData(
-    val headerBlock: HeaderBlock? = null,
-    val textBlock: TextBlock? = null,
-    val imageBlock: ImageBlock? = null,
-    val actionBlock: ActionBlock? = null,
+public class SingleEntityTemplateData(
+    public val headerBlock: HeaderBlock? = null,
+    public val textBlock: TextBlock? = null,
+    public val imageBlock: ImageBlock? = null,
+    public val actionBlock: ActionBlock? = null,
 ) {
     override fun hashCode(): Int {
         var result = headerBlock?.hashCode() ?: 0

@@ -205,6 +205,18 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
         }
     }
 
+    /**
+     * Modifies or replaces the OnItemClickListener used for each item.
+     *
+     * <p>The default implementation simply returns the listener.
+     */
+    @NonNull
+    @SuppressWarnings("ExecutorRegistration")
+    protected OnItemClickListener decorateOnItemClickListener(
+            @NonNull OnItemClickListener onItemClickListener) {
+        return onItemClickListener;
+    }
+
     final class AdapterSingle extends RecyclerView.Adapter<ViewHolder>
             implements OnItemClickListener {
 
@@ -224,7 +236,7 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
             final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             final View view = inflater.inflate(R.layout.leanback_list_preference_item_single,
                     parent, false);
-            return new ViewHolder(view, this);
+            return new ViewHolder(view, decorateOnItemClickListener(this));
         }
 
         @Override
@@ -279,7 +291,7 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
             final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             final View view = inflater.inflate(R.layout.leanback_list_preference_item_multi, parent,
                     false);
-            return new ViewHolder(view, this);
+            return new ViewHolder(view, decorateOnItemClickListener(this));
         }
 
         @Override
@@ -325,8 +337,11 @@ public class LeanbackListPreferenceDialogFragmentCompat extends
         }
     }
 
-    private interface OnItemClickListener {
-        void onItemClick(ViewHolder viewHolder);
+    /**
+     * Click listener for items in the list.
+     */
+    protected interface OnItemClickListener {
+        void onItemClick(@NonNull ViewHolder viewHolder);
     }
 
     /**

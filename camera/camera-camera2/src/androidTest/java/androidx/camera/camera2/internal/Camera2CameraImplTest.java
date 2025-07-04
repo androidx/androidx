@@ -59,6 +59,7 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -70,8 +71,13 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CompositionSettings;
+import androidx.camera.core.DynamicRange;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -576,6 +582,57 @@ public final class Camera2CameraImplTest {
     }
 
     @Test
+    public void attachImageCapture_meteringRepeatingIsAttachedIfDisabled() {
+        UseCase imageCapture = new ImageCapture.Builder().setMeteringRepeatingEnabled(
+                false).build();
+
+        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
+
+        assertThat(mCamera2CameraImpl.isMeteringRepeatingAttached()).isFalse();
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
+    }
+
+    @Test
+    public void startFocusMetering_throwExceptionIfFocusMeteringDisabled()
+            throws InterruptedException {
+        UseCase imageCapture = createImageCapture(false);
+
+        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
+
+        try {
+            SurfaceOrientedMeteringPointFactory meteringPointFactory =
+                    new SurfaceOrientedMeteringPointFactory(1f, 1f);
+            MeteringPoint validMeteringPoint = meteringPointFactory.createPoint(0f, 0f);
+            mCamera2CameraImpl.getCameraControl().startFocusAndMetering(
+                    new FocusMeteringAction.Builder(validMeteringPoint).build()).get();
+        } catch (ExecutionException e) {
+            assertThat(e).isInstanceOf(CameraControl.OperationCanceledException.class);
+        }
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
+    }
+
+    @Test
+    public void cancelFocusMetering_throwExceptionIfFocusMeteringDisabled()
+            throws InterruptedException {
+        UseCase imageCapture = createImageCapture(false);
+
+        mCamera2CameraImpl.attachUseCases(singletonList(imageCapture));
+
+        try {
+            mCamera2CameraImpl.getCameraControl().cancelFocusAndMetering().get();
+        } catch (ExecutionException e) {
+            assertThat(e).isInstanceOf(CameraControl.OperationCanceledException.class);
+        }
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> mCamera2CameraImpl.detachUseCases(singletonList(imageCapture)));
+    }
+
+    @Test
     public void attachStreamSharingWithNonRepeatingChildren_meteringRepeatingIsNotAttached() {
         // StreamSharing use case adds a repeating surface by default, no need for MeteringRepeating
         Set<UseCase> useCases = new HashSet<>();
@@ -916,11 +973,23 @@ public final class Camera2CameraImplTest {
 
     private @NonNull TestUseCase createUseCase(int template, @NonNull SurfaceOption surfaceOption,
             int imageFormat) {
+        return createUseCase(template, surfaceOption, imageFormat, null, null);
+    }
+
+    private @NonNull TestUseCase createUseCase(int template, @NonNull SurfaceOption surfaceOption,
+            int imageFormat, @Nullable Range<Integer> targetFpsRange,
+            @Nullable DynamicRange dynamicRange) {
         boolean isZslDisabled = getDefaultZslDisabled(template);
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
                                 new Camera2SessionOptionUnpacker()).setTargetName("UseCase")
                         .setZslDisabled(isZslDisabled);
+        if (targetFpsRange != null) {
+            configBuilder.setTargetFrameRate(targetFpsRange);
+        }
+        if (dynamicRange != null) {
+            configBuilder.setDynamicRange(dynamicRange);
+        }
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         return createUseCase(configBuilder.getUseCaseConfig(), template, surfaceOption,
                 imageFormat);
@@ -936,20 +1005,31 @@ public final class Camera2CameraImplTest {
                 surfaceOption,
                 imageFormat
         );
-
-        testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(
+        StreamSpec.Builder builder = StreamSpec.builder(
                 new Size(640, 480)).setImplementationOptions(
-                StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build(),
+                StreamUseCaseUtil.getStreamSpecImplementationOptions(config));
+        if (config.getTargetFrameRate(null) != null) {
+            builder.setExpectedFrameRateRange(config.getTargetFrameRate());
+        }
+        if (config.hasDynamicRange()) {
+            builder.setDynamicRange(config.getDynamicRange());
+        }
+        testUseCase.updateSuggestedStreamSpec(builder.build(),
                 null);
         mFakeUseCases.add(testUseCase);
         return testUseCase;
     }
 
     private @NonNull ImageCapture createImageCapture() {
+        return createImageCapture(true);
+    }
+
+    private @NonNull ImageCapture createImageCapture(boolean meteringRepeatingEnabled) {
         UseCaseConfigFactory useCaseConfigFactory =
                 new Camera2UseCaseConfigFactory(ApplicationProvider.getApplicationContext());
 
-        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        ImageCapture imageCapture = new ImageCapture.Builder().setMeteringRepeatingEnabled(
+                meteringRepeatingEnabled).build();
 
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
@@ -1366,6 +1446,67 @@ public final class Camera2CameraImplTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = 35)
+    @Test
+    public void lowLightBoostDisabled_whenFrameRateRangeExceed30() throws InterruptedException {
+        assumeTrue(mCamera2CameraImpl.getCameraInfo().isLowLightBoostSupported());
+        Set<Range<Integer>> supportedFrameRateRanges =
+                mCamera2CameraImpl.mCameraInfoInternal.getSupportedFrameRateRanges();
+        Range<Integer> fpsRangeExceed30 = null;
+        for (Range<Integer> fpsRange: supportedFrameRateRanges) {
+            if (fpsRange.getUpper() > 30) {
+                fpsRangeExceed30 = fpsRange;
+                break;
+            }
+        }
+        assumeTrue("The test only runs on devices that support frame rate range exceeding 30.",
+                fpsRangeExceed30 != null);
+
+        UseCase useCase = createUseCase(CameraDevice.TEMPLATE_PREVIEW, DEFAULT_SURFACE_OPTION,
+                DEFAULT_IMAGE_FORMAT, fpsRangeExceed30, null);
+
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera2CameraImpl.getCameraControlInternal();
+        LowLightBoostControl lowLightBoostControl =
+                camera2CameraControlImpl.getLowLightBoostControl();
+
+        mCamera2CameraImpl.onUseCaseActive(useCase);
+        mCamera2CameraImpl.attachUseCases(singletonList(useCase));
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
+        assertThat(lowLightBoostControl.isLowLightBoostDisabledByUseCaseSessionConfig()).isTrue();
+    }
+
+    @SdkSuppress(minSdkVersion = 35)
+    @Test
+    public void lowLightBoostDisabled_whenHdr10BitEnabled() throws InterruptedException {
+        assumeTrue(mCamera2CameraImpl.getCameraInfo().isLowLightBoostSupported());
+
+        Set<DynamicRange> supportedDynamicRanges =
+                mCamera2CameraImpl.mCameraInfoInternal.getSupportedDynamicRanges();
+        DynamicRange hdr10BitDynamicRange = null;
+        for (DynamicRange dynamicRange: supportedDynamicRanges) {
+            if (dynamicRange != DynamicRange.SDR) {
+                hdr10BitDynamicRange = dynamicRange;
+                break;
+            }
+        }
+        assumeTrue("The test only runs on devices that support HDR 10-bit dynamic range.",
+                hdr10BitDynamicRange != null);
+
+        UseCase useCase = createUseCase(CameraDevice.TEMPLATE_PREVIEW, DEFAULT_SURFACE_OPTION,
+                DEFAULT_IMAGE_FORMAT, null, hdr10BitDynamicRange);
+
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera2CameraImpl.getCameraControlInternal();
+        LowLightBoostControl lowLightBoostControl =
+                camera2CameraControlImpl.getLowLightBoostControl();
+
+        mCamera2CameraImpl.onUseCaseActive(useCase);
+        mCamera2CameraImpl.attachUseCases(singletonList(useCase));
+        HandlerUtil.waitForLooperToIdle(sCameraHandler);
+        assertThat(lowLightBoostControl.isLowLightBoostDisabledByUseCaseSessionConfig()).isTrue();
+    }
+
     private void changeUseCaseSurface(UseCase useCase) {
         useCase.updateSuggestedStreamSpec(StreamSpec.builder(
                 new Size(640, 480)).setImplementationOptions(
@@ -1451,6 +1592,8 @@ public final class Camera2CameraImplTest {
                     primaryStreamSpec.getResolution());
             mSessionConfigBuilder.setTemplateType(mTemplate);
             mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mRepeatingCaptureCallback);
+            mSessionConfigBuilder.setExpectedFrameRateRange(
+                    primaryStreamSpec.getExpectedFrameRateRange());
             updateSessionBuilderBySurfaceOption();
             updateSessionConfig(List.of(mSessionConfigBuilder.build()));
             return primaryStreamSpec;
@@ -1471,10 +1614,14 @@ public final class Camera2CameraImplTest {
                 case NO_SURFACE:
                     break;
                 case REPEATING:
-                    mSessionConfigBuilder.addSurface(mDeferrableSurface);
+                    mSessionConfigBuilder.addSurface(mDeferrableSurface,
+                            mConfig.hasDynamicRange() ? mConfig.getDynamicRange()
+                                    : DynamicRange.SDR, null, MirrorMode.MIRROR_MODE_UNSPECIFIED);
                     break;
                 case NON_REPEATING:
-                    mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
+                    mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface,
+                            mConfig.hasDynamicRange() ? mConfig.getDynamicRange()
+                                    : DynamicRange.SDR);
                     break;
             }
         }

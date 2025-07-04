@@ -130,7 +130,7 @@ class ChipTest {
                     selected = true,
                     modifier = Modifier.testTag(TestChipTag),
                     onClick = {},
-                    enabled = false
+                    enabled = false,
                 ) {
                     Text(TestChipTag)
                 }
@@ -168,7 +168,7 @@ class ChipTest {
                 Chip(
                     modifier = Modifier.testTag(TestChipTag),
                     onClick = onClick,
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Text("Hello")
                 }
@@ -195,7 +195,7 @@ class ChipTest {
                     selected = true,
                     modifier = Modifier.testTag(TestChipTag),
                     onClick = onClick,
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Text("Hello")
                 }
@@ -265,14 +265,14 @@ class ChipTest {
                     Icon(
                         Icons.Filled.Settings,
                         contentDescription = "Localized description",
-                        modifier = Modifier.testTag("Leading").size(ChipDefaults.LeadingIconSize)
+                        modifier = Modifier.testTag("Leading").size(ChipDefaults.LeadingIconSize),
                     )
                 },
                 trailingIcon = {
                     Icon(
                         Icons.Filled.Settings,
                         contentDescription = "Localized description",
-                        modifier = Modifier.testTag("Trailing").size(ChipDefaults.LeadingIconSize)
+                        modifier = Modifier.testTag("Trailing").size(ChipDefaults.LeadingIconSize),
                     )
                 },
             )
@@ -314,7 +314,7 @@ class ChipTest {
                 modifier = Modifier.testTag(TestChipTag),
                 onClick = {},
                 enabled = false,
-                shape = RectangleShape
+                shape = RectangleShape,
             ) {}
         }
 
@@ -326,7 +326,7 @@ class ChipTest {
                 horizontalPadding = 0.dp,
                 verticalPadding = 0.dp,
                 backgroundColor = surface,
-                shapeColor = onSurface.copy(0.38f * 0.12f * 0.87f).compositeOver(surface)
+                shapeColor = onSurface.copy(0.38f * 0.12f * 0.87f).compositeOver(surface),
             )
     }
 
@@ -338,7 +338,7 @@ class ChipTest {
         rule.setMaterialContent {
             Chip(
                 onClick = {},
-                modifier = Modifier.onGloballyPositioned { chipBounds = it.boundsInRoot() }
+                modifier = Modifier.onGloballyPositioned { chipBounds = it.boundsInRoot() },
             ) {
                 Spacer(
                     Modifier.requiredSize(10.dp).onGloballyPositioned {
@@ -389,16 +389,16 @@ class ChipTest {
                     Icon(
                         imageVector = Icons.Filled.Settings,
                         contentDescription = "Localized Description",
-                        modifier = Modifier.size(ChipDefaults.LeadingIconSize)
+                        modifier = Modifier.size(ChipDefaults.LeadingIconSize),
                     )
                 },
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Settings,
                         contentDescription = "Localized Description",
-                        modifier = Modifier.testTag("Trailing").size(ChipDefaults.LeadingIconSize)
+                        modifier = Modifier.testTag("Trailing").size(ChipDefaults.LeadingIconSize),
                     )
-                }
+                },
             ) {
                 Text(
                     "Long long long long long long long long long long long long long long" +
@@ -418,7 +418,7 @@ class ChipTest {
                 Chip(
                     modifier =
                         Modifier.align(Alignment.Center).testTag(TestChipTag).requiredSize(10.dp),
-                    onClick = { clicked = !clicked }
+                    onClick = { clicked = !clicked },
                 ) {
                     Box(Modifier.size(10.dp))
                 }
@@ -438,7 +438,7 @@ class ChipTest {
 
     private fun assertHorizontalPaddingIs(
         padding: Dp,
-        chip: @Composable (Modifier, @Composable RowScope.() -> Unit) -> Unit
+        chip: @Composable (Modifier, @Composable RowScope.() -> Unit) -> Unit,
     ) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null

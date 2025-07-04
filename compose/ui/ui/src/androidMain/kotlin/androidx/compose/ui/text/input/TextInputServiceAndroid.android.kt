@@ -70,7 +70,7 @@ internal class TextInputServiceAndroid(
         StartInput,
         StopInput,
         ShowKeyboard,
-        HideKeyboard
+        HideKeyboard,
     }
 
     /**
@@ -118,12 +118,8 @@ internal class TextInputServiceAndroid(
 
     constructor(
         view: View,
-        positionCalculator: MatrixPositionCalculator
-    ) : this(
-        view,
-        positionCalculator,
-        InputMethodManagerImpl(view),
-    )
+        positionCalculator: MatrixPositionCalculator,
+    ) : this(view, positionCalculator, InputMethodManagerImpl(view))
 
     init {
         if (DEBUG) {
@@ -163,7 +159,7 @@ internal class TextInputServiceAndroid(
                             includeInsertionMarker: Boolean,
                             includeCharacterBounds: Boolean,
                             includeEditorBounds: Boolean,
-                            includeLineBounds: Boolean
+                            includeLineBounds: Boolean,
                         ) {
                             cursorAnchorInfoController.requestUpdate(
                                 immediate,
@@ -171,7 +167,7 @@ internal class TextInputServiceAndroid(
                                 includeInsertionMarker,
                                 includeCharacterBounds,
                                 includeEditorBounds,
-                                includeLineBounds
+                                includeLineBounds,
                             )
                         }
 
@@ -183,7 +179,7 @@ internal class TextInputServiceAndroid(
                                 }
                             }
                         }
-                    }
+                    },
             )
             .also {
                 ics.add(WeakReference(it))
@@ -200,7 +196,7 @@ internal class TextInputServiceAndroid(
         value: TextFieldValue,
         imeOptions: ImeOptions,
         onEditCommand: (List<EditCommand>) -> Unit,
-        onImeActionPerformed: (ImeAction) -> Unit
+        onImeActionPerformed: (ImeAction) -> Unit,
     ) {
         if (DEBUG) {
             Log.d(TAG, "$DEBUG_CLASS.startInput")
@@ -341,7 +337,7 @@ internal class TextInputServiceAndroid(
                 Log.d(
                     TAG,
                     "$DEBUG_CLASS.textInputCommandEventLoop.$command " +
-                        "(startInput=$startInput, showKeyboard=$showKeyboard)"
+                        "(startInput=$startInput, showKeyboard=$showKeyboard)",
                 )
             }
         }
@@ -392,7 +388,7 @@ internal class TextInputServiceAndroid(
                     selectionStart = newValue.selection.min,
                     selectionEnd = newValue.selection.max,
                     compositionStart = state.composition?.min ?: -1,
-                    compositionEnd = state.composition?.max ?: -1
+                    compositionEnd = state.composition?.max ?: -1,
                 )
             }
             return
@@ -426,7 +422,7 @@ internal class TextInputServiceAndroid(
                 rect.left.roundToInt(),
                 rect.top.roundToInt(),
                 rect.right.roundToInt(),
-                rect.bottom.roundToInt()
+                rect.bottom.roundToInt(),
             )
 
         // Requesting rectangle too early after obtaining focus may bring view into wrong place
@@ -450,7 +446,7 @@ internal class TextInputServiceAndroid(
         textLayoutResult: TextLayoutResult,
         textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
-        decorationBoxBounds: Rect
+        decorationBoxBounds: Rect,
     ) {
         cursorAnchorInfoController.updateTextLayoutResult(
             textFieldValue,
@@ -458,7 +454,7 @@ internal class TextInputServiceAndroid(
             textLayoutResult,
             textFieldToRootTransform,
             innerTextFieldBounds,
-            decorationBoxBounds
+            decorationBoxBounds,
         )
     }
 

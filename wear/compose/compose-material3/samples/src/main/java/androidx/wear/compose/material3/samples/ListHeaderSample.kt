@@ -17,16 +17,16 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.Button
@@ -38,17 +38,18 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 
 @Sampled
+@Preview
 @Composable
 fun ListHeaderSample() {
     val scrollState = rememberScalingLazyListState()
-    val horizontalPadding = LocalConfiguration.current.screenWidthDp.dp * 0.052f
 
-    ScreenScaffold(scrollState = scrollState) {
+    ScreenScaffold(scrollState = scrollState, modifier = Modifier.background(Color.Black)) {
+        contentPadding ->
         ScalingLazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(horizontal = horizontalPadding)
+            contentPadding = contentPadding,
         ) {
             item { ListHeader { Text("Settings") } }
             item {
@@ -59,7 +60,7 @@ fun ListHeaderSample() {
                             contentDescription = "Connectivity",
                         )
                     },
-                    label = { Text("Connectivity") }
+                    label = { Text("Connectivity") },
                 )
             }
             item {
@@ -70,7 +71,7 @@ fun ListHeaderSample() {
                         Icon(
                             painter = painterResource(R.drawable.ic_bluetooth),
                             contentDescription = "Bluetooth",
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
                         )
                     },
                 ) {
@@ -85,7 +86,7 @@ fun ListHeaderSample() {
                         Icon(
                             painter = painterResource(R.drawable.ic_wifi),
                             contentDescription = "Wifi",
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
                         )
                     },
                 ) {

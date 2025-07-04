@@ -39,7 +39,7 @@ class RoomArgumentProvider(
     @get:PathSensitive(PathSensitivity.RELATIVE)
     val schemaInputDir: Provider<Directory>,
     @get:OutputDirectory val schemaOutputDir: Provider<Directory>,
-    @get:Nested val options: RoomOptions
+    @get:Nested val options: RoomOptions,
 ) : CommandLineArgumentProvider {
     override fun asArguments() = buildList {
         val prefix = if (forKsp) "" else "-A"

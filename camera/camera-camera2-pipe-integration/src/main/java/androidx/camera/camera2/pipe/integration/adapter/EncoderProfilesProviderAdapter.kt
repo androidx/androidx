@@ -21,7 +21,6 @@ import android.media.CamcorderProfile.QUALITY_HIGH
 import android.media.CamcorderProfile.QUALITY_LOW
 import android.media.EncoderProfiles
 import android.os.Build
-import android.util.Size
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
@@ -54,7 +53,7 @@ public class EncoderProfilesProviderAdapter(
             Logger.w(
                 TAG,
                 "Camera id is not an integer:  $cameraIdString, unable to create" +
-                    " EncoderProfilesProviderAdapter."
+                    " EncoderProfilesProviderAdapter.",
             )
         }
         this.hasValidCameraId = hasValidCameraId
@@ -125,7 +124,7 @@ public class EncoderProfilesProviderAdapter(
                 Logger.d(
                     TAG,
                     "EncoderProfiles contains invalid video profiles, use " +
-                        "CamcorderProfile to create EncoderProfilesProxy."
+                        "CamcorderProfile to create EncoderProfilesProxy.",
                 )
             } else {
                 try {
@@ -135,7 +134,7 @@ public class EncoderProfilesProviderAdapter(
                         TAG,
                         "Failed to create EncoderProfilesProxy, EncoderProfiles might " +
                             "contain invalid video profiles. Use CamcorderProfile instead.",
-                        e
+                        e,
                     )
                 }
             }
@@ -172,7 +171,7 @@ public class EncoderProfilesProviderAdapter(
         val videoProfile = videoProfiles[0]
         return camcorderProfileResolutionQuirk
             .getSupportedResolutions()
-            .contains(Size(videoProfile.width, videoProfile.height))
+            .contains(videoProfile.resolution)
     }
 
     @RequiresApi(31)

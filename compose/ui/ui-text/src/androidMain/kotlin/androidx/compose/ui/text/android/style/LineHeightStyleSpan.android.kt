@@ -76,7 +76,7 @@ internal class LineHeightStyleSpan(
         end: Int,
         spanStartVertical: Int,
         lineHeight: Int,
-        fontMetricsInt: FontMetricsInt
+        fontMetricsInt: FontMetricsInt,
     ) {
         val currentHeight = fontMetricsInt.lineHeight()
         // If current height is not positive, do nothing.
@@ -140,7 +140,7 @@ internal class LineHeightStyleSpan(
     internal fun copy(
         startIndex: Int,
         endIndex: Int,
-        trimFirstLineTop: Boolean = this.trimFirstLineTop
+        trimFirstLineTop: Boolean = this.trimFirstLineTop,
     ) =
         LineHeightStyleSpan(
             lineHeight = lineHeight,

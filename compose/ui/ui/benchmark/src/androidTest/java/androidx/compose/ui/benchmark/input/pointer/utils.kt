@@ -41,7 +41,7 @@ internal fun MotionEvent(
     actionIndex: Int,
     pointerProperties: Array<MotionEvent.PointerProperties>,
     pointerCoords: Array<MotionEvent.PointerCoords>,
-    dispatchTarget: View
+    dispatchTarget: View,
 ): MotionEvent {
 
     // It's important we get the absolute coordinates first for the construction of the MotionEvent,
@@ -70,7 +70,7 @@ internal fun MotionEvent(
                 0,
                 0,
                 SOURCE_TOUCHSCREEN, // Required for offsetLocation() to work correctly
-                0
+                0,
             )
             .apply {
                 offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())
@@ -114,7 +114,7 @@ internal fun createDowns(
     rootView: View,
     numberOfEvents: Int = 1,
     timeDelta: Int = DefaultPointerInputTimeDelta,
-    moveDelta: Float = DefaultPointerInputMoveAmountPx
+    moveDelta: Float = DefaultPointerInputMoveAmountPx,
 ): Array<MotionEvent> {
     if (numberOfEvents < 1) {
         return emptyArray()
@@ -144,7 +144,7 @@ internal fun createDowns(
                     index, // Used in conjunction with ACTION_POINTER_DOWN/UP
                     pointerProperties.toTypedArray(),
                     pointerCoords.toTypedArray(),
-                    rootView
+                    rootView,
                 )
 
             time += timeDelta
@@ -169,7 +169,7 @@ internal fun createUps(
     initialTime: Int,
     initialPointers: Array<BenchmarkSimplifiedPointerInputPointer>,
     rootView: View,
-    timeDelta: Int = DefaultPointerInputTimeDelta
+    timeDelta: Int = DefaultPointerInputTimeDelta,
 ): Array<MotionEvent> {
     if (initialPointers.isEmpty()) {
         return emptyArray()
@@ -206,7 +206,7 @@ internal fun createUps(
                     numberOfPointers - 1, // Used with ACTION_POINTER_DOWN/UP
                     pointerProperties.toTypedArray(),
                     pointerCoords.toTypedArray(),
-                    rootView
+                    rootView,
                 )
 
             // Update time for next ACTION_UP/ACTION_POINTER_UP
@@ -248,7 +248,7 @@ internal fun createMoveMotionEvents(
     numberOfMoveEvents: Int,
     enableFlingStyleHistory: Boolean = false,
     timeDelta: Int = DefaultPointerInputTimeDelta,
-    moveDelta: Float = DefaultPointerInputMoveAmountPx
+    moveDelta: Float = DefaultPointerInputMoveAmountPx,
 ): Array<MotionEvent> {
 
     var time = initialTime
@@ -286,8 +286,8 @@ internal fun createMoveMotionEvents(
                                 historicalIndex,
                                 PointerCoords(
                                     historicalPointer.x - moveDelta + 1,
-                                    historicalPointer.y
-                                )
+                                    historicalPointer.y,
+                                ),
                             )
                         } else {
                             // accountForMoveOffset changes to 1 (to account for -1 offset [below])
@@ -296,8 +296,8 @@ internal fun createMoveMotionEvents(
                                 historicalIndex,
                                 PointerCoords(
                                     historicalPointer.x - moveDelta - 1,
-                                    historicalPointer.y
-                                )
+                                    historicalPointer.y,
+                                ),
                             )
                         }
                     }
@@ -320,7 +320,7 @@ internal fun createMoveMotionEvents(
                             0,
                             pointerProperties.toTypedArray(), // ids always the same
                             historicalPointerCoords.toTypedArray(),
-                            rootView
+                            rootView,
                         )
 
                     // Executes step 2 -> Adds each subsequent historical event one at a time via
@@ -340,7 +340,7 @@ internal fun createMoveMotionEvents(
                         moveWithHistory.addBatch(
                             historicalTime.toLong(),
                             historicalPointerCoords.toTypedArray(),
-                            0
+                            0,
                         )
                     }
 
@@ -357,7 +357,7 @@ internal fun createMoveMotionEvents(
                         0,
                         pointerProperties.toTypedArray(),
                         pointerCoords.toTypedArray(),
-                        rootView
+                        rootView,
                     )
                 }
 

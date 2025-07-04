@@ -27,7 +27,7 @@ public constructor(
     public val id: Int,
 
     /** Returns a human readable name to represent this [ExerciseType]. */
-    public val name: String
+    public val name: String,
 ) {
 
     override fun toString(): String {

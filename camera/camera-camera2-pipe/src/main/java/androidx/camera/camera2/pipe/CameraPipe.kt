@@ -17,10 +17,10 @@
 package androidx.camera.camera2.pipe
 
 import android.content.Context
-import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.Handler
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraPipe.Config
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
@@ -28,16 +28,15 @@ import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.CameraPipeComponent
 import androidx.camera.camera2.pipe.config.CameraPipeConfigModule
 import androidx.camera.camera2.pipe.config.DaggerCameraPipeComponent
-import androidx.camera.camera2.pipe.config.DaggerExternalCameraPipeComponent
-import androidx.camera.camera2.pipe.config.ExternalCameraGraphComponent
-import androidx.camera.camera2.pipe.config.ExternalCameraGraphConfigModule
-import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
+import androidx.camera.camera2.pipe.config.FrameGraphConfigModule
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageSources
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 
@@ -55,11 +54,17 @@ internal val cameraPipeIds = atomic(0)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraPipe {
 
+    @Deprecated(
+        "Use createCameraGraph instead.",
+        replaceWith = ReplaceWith("createCameraGraph(config)"),
+    )
+    public fun create(config: CameraGraph.Config): CameraGraph
+
     /**
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
-    public fun create(config: CameraGraph.Config): CameraGraph
+    public fun createCameraGraph(config: CameraGraph.Config): CameraGraph
 
     /**
      * This creates a list of [CameraGraph]s that can be used to interact with multiple cameras on
@@ -68,6 +73,22 @@ public interface CameraPipe {
      */
     public fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph>
 
+    /**
+     * [FrameGraph] extends [CameraGraph] and provides tools to more easily interact with [Frame]'s,
+     * images, and metadata from the camera, while maintaining the capabilities of [CameraGraph].
+     *
+     * This creates a new [FrameGraph] that can be used to interact with a single Camera on the
+     * device. Multiple [FrameGraph]s can be created, but only one should be active at a time.
+     */
+    public fun createFrameGraph(frameGraphConfig: FrameGraph.Config): FrameGraph
+
+    /**
+     * This creates a list of [FrameGraph]s that can be used to interact with multiple cameras on
+     * the device concurrently. Device-specific constraints may apply, such as the set of cameras
+     * that can be operated concurrently, or the combination of sizes we're allowed to configure.
+     */
+    public fun createFrameGraphs(frameGraphConfigs: FrameGraph.ConcurrentConfig): List<FrameGraph>
+
     /** This provides access to information about the available cameras on the device. */
     public fun cameras(): CameraDevices
 
@@ -75,9 +96,30 @@ public interface CameraPipe {
     public fun cameraSurfaceManager(): CameraSurfaceManager
 
     /**
+     * Checks if a [CameraGraph.Config] is supported by the device before opening it.
+     *
+     * This returns a [ConfigQueryResult] based on the underlying
+     * [CameraDeviceSetupCompat#isSessionConfigurationSupported](https://developer.android.com/reference/androidx/camera/featurecombinationquery/CameraDeviceSetupCompat#isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration)
+     * method. Only configurations which can be queried through this API should be passed, otherwise
+     * might lead to unexpected result (i.e. [ConfigQueryResult.UNKNOWN]). Check the
+     * [CameraCharacteristics.INFO_SESSION_CONFIGURATION_QUERY_VERSION] API documentation to verify
+     * which configurations are queryable.
+     *
+     * @param graphConfig The configuration to check for support.
+     */
+    public fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult
+
+    /**
      * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
      */
     public var globalAudioRestrictionMode: AudioRestrictionMode
+
+    /**
+     * This shuts down the CameraPipe instance completely, releasing all its resources, notably the
+     * threads it created. After shutdown, a new CameraPipe instance should be recreated for any
+     * additional capture sessions the users would like to create.
+     */
+    public fun shutdown()
 
     /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable
@@ -99,8 +141,8 @@ public interface CameraPipe {
      */
     public data class CameraInteropConfig(
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
-        val cameraSessionStateCallback: CameraCaptureSession.StateCallback? = null,
-        val cameraOpenRetryMaxTimeoutNs: DurationNs? = null
+        val cameraCaptureSessionListener: CameraInterop.CaptureSessionListener? = null,
+        val cameraOpenRetryMaxTimeoutNs: DurationNs? = null,
     )
 
     /**
@@ -124,7 +166,7 @@ public interface CameraPipe {
         val defaultCameraExecutor: Executor? = null,
         val defaultCameraHandler: Handler? = null,
         val testOnlyDispatcher: CoroutineDispatcher? = null,
-        val testOnlyScope: CoroutineScope? = null
+        val testOnlyScope: CoroutineScope? = null,
     )
 
     /**
@@ -138,7 +180,7 @@ public interface CameraPipe {
     public class CameraMetadataConfig(
         public val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
         public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
-            emptyMap()
+            emptyMap(),
     )
 
     /**
@@ -156,55 +198,13 @@ public interface CameraPipe {
     public class CameraBackendConfig(
         public val internalBackend: CameraBackend? = null,
         public val defaultBackend: CameraBackendId? = null,
-        public val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
+        public val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap(),
     ) {
         init {
             check(defaultBackend == null || cameraBackends.containsKey(defaultBackend)) {
                 "$defaultBackend does not exist in cameraBackends! Available backends are:" +
                     " ${cameraBackends.keys}"
             }
-        }
-    }
-
-    /**
-     * External may be used if the underlying implementation needs to delegate to another library or
-     * system.
-     */
-    @Deprecated(
-        "CameraPipe.External is deprecated, use customCameraBackend on " + "GraphConfig instead."
-    )
-    public class External(threadConfig: ThreadConfig = ThreadConfig()) {
-        private val component: ExternalCameraPipeComponent =
-            DaggerExternalCameraPipeComponent.builder()
-                .threadConfigModule(ThreadConfigModule(threadConfig))
-                .build()
-
-        /**
-         * This creates a new [CameraGraph] instance that is configured to use an externally defined
-         * [RequestProcessor].
-         */
-        @Suppress("DEPRECATION")
-        @Deprecated(
-            "CameraPipe.External is deprecated, use customCameraBackend on " +
-                "GraphConfig instead."
-        )
-        public fun create(
-            config: CameraGraph.Config,
-            cameraMetadata: CameraMetadata,
-            requestProcessor: RequestProcessor
-        ): CameraGraph {
-            check(config.camera == cameraMetadata.camera) {
-                "Invalid camera config: ${config.camera} does not match ${cameraMetadata.camera}"
-            }
-            val componentBuilder = component.cameraGraphBuilder()
-            val component: ExternalCameraGraphComponent =
-                componentBuilder
-                    .externalCameraGraphConfigModule(
-                        ExternalCameraGraphConfigModule(config, cameraMetadata, requestProcessor)
-                    )
-                    .build()
-
-            return component.cameraGraph()
         }
     }
 
@@ -229,8 +229,30 @@ public fun CameraPipe(config: Config): CameraPipe = CameraPipe.create(config)
 
 internal class CameraPipeImpl(private val component: CameraPipeComponent) : CameraPipe {
     private val debugId = cameraPipeIds.incrementAndGet()
+    private val lock = Any()
 
-    override fun create(config: CameraGraph.Config): CameraGraph =
+    @GuardedBy("lock") private var shutdown = false
+
+    @Deprecated(
+        "Use createCameraGraph instead.",
+        replaceWith = ReplaceWith("createCameraGraph(config)"),
+    )
+    override fun create(config: CameraGraph.Config): CameraGraph = createCameraGraph(config)
+
+    override fun createCameraGraph(config: CameraGraph.Config): CameraGraph =
+        synchronized(lock) {
+            check(!shutdown)
+            createCameraGraphLocked(config)
+        }
+
+    override fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph> =
+        synchronized(lock) {
+            check(!shutdown)
+            config.graphConfigs.map { createCameraGraphLocked(it) }
+        }
+
+    @GuardedBy("lock")
+    private fun createCameraGraphLocked(config: CameraGraph.Config) =
         Debug.trace("CXCP#CameraGraph-${config.camera}") {
             component
                 .cameraGraphComponentBuilder()
@@ -239,28 +261,88 @@ internal class CameraPipeImpl(private val component: CameraPipeComponent) : Came
                 .cameraGraph()
         }
 
-    override fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph> {
-        return config.graphConfigs.map { create(it) }
-    }
+    override fun createFrameGraph(frameGraphConfig: FrameGraph.Config): FrameGraph =
+        synchronized(lock) {
+            check(!shutdown)
+            createFrameGraphLocked(frameGraphConfig)
+        }
+
+    override fun createFrameGraphs(
+        frameGraphConfigs: FrameGraph.ConcurrentConfig
+    ): List<FrameGraph> =
+        synchronized(lock) {
+            check(!shutdown)
+            frameGraphConfigs.frameGraphConfigs.map { createFrameGraphLocked(it) }
+        }
+
+    @GuardedBy("lock")
+    private fun createFrameGraphLocked(frameGraphConfig: FrameGraph.Config) =
+        Debug.trace("CXCP#CreateFrameGraph-${frameGraphConfig.cameraGraphConfig.camera}") {
+            val cameraGraphComponent =
+                component
+                    .cameraGraphComponentBuilder()
+                    .cameraGraphConfigModule(
+                        CameraGraphConfigModule(frameGraphConfig.cameraGraphConfig)
+                    )
+                    .build()
+            component
+                .frameGraphComponentBuilder()
+                .frameGraphConfigModule(
+                    FrameGraphConfigModule(cameraGraphComponent, frameGraphConfig)
+                )
+                .build()
+                .frameGraph()
+        }
 
     /** This provides access to information about the available cameras on the device. */
-    override fun cameras(): CameraDevices {
-        return component.cameras()
-    }
+    override fun cameras(): CameraDevices =
+        synchronized(lock) {
+            check(!shutdown)
+            component.cameras()
+        }
 
     /** This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe. */
-    override fun cameraSurfaceManager(): CameraSurfaceManager {
-        return component.cameraSurfaceManager()
-    }
+    override fun cameraSurfaceManager(): CameraSurfaceManager =
+        synchronized(lock) {
+            check(!shutdown)
+            component.cameraSurfaceManager()
+        }
+
+    /**
+     * This checks if the given [CameraGraph.Config] is supported by the device.
+     *
+     * @param graphConfig The configuration to check for support.
+     */
+    // TODO: b/425425744 - Return default unknown until complete implementation
+    override fun isConfigSupported(graphConfig: CameraGraph.Config): ConfigQueryResult =
+        ConfigQueryResult.UNKNOWN
 
     /**
      * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
      */
     override var globalAudioRestrictionMode: AudioRestrictionMode
         get(): AudioRestrictionMode =
-            component.cameraAudioRestrictionController().globalAudioRestrictionMode
-        set(value) {
-            component.cameraAudioRestrictionController().globalAudioRestrictionMode = value
+            synchronized(lock) {
+                if (shutdown) {
+                    Log.warn { "Trying to get audio restriction after shutdown! Returning NONE" }
+                    return AudioRestrictionMode.AUDIO_RESTRICTION_NONE
+                }
+                component.cameraAudioRestrictionController().globalAudioRestrictionMode
+            }
+        set(value) =
+            synchronized(lock) {
+                if (shutdown) {
+                    Log.warn { "Trying to set audio restriction after shutdown!" }
+                    return
+                }
+                component.cameraAudioRestrictionController().globalAudioRestrictionMode = value
+            }
+
+    override fun shutdown() =
+        synchronized(lock) {
+            check(!shutdown)
+            component.cameraPipeLifetime().shutdown()
+            shutdown = true
         }
 
     override fun toString(): String = "CameraPipe-$debugId"

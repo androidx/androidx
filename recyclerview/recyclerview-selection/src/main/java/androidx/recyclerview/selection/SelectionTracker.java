@@ -30,12 +30,13 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
 
@@ -675,7 +676,7 @@ public abstract class SelectionTracker<K> {
          * and only that tool type. This method will be removed in a future release.
          */
         @Deprecated
-        public @NonNull Builder<K> withGestureTooltypes(@NonNull int... toolTypes) {
+        public @NonNull Builder<K> withGestureTooltypes(int @NonNull ... toolTypes) {
             Log.w(TAG, "Setting gestureTooltypes is likely to result in unexpected behavior.");
             mGestureToolTypes = toolTypes;
             return this;
@@ -713,7 +714,7 @@ public abstract class SelectionTracker<K> {
          * and only that tool type. This method will be removed in a future release.
          */
         @Deprecated
-        public @NonNull Builder<K> withPointerTooltypes(@NonNull int... toolTypes) {
+        public @NonNull Builder<K> withPointerTooltypes(int @NonNull ... toolTypes) {
             Log.w(TAG, "Setting pointerTooltypes is likely to result in unexpected behavior.");
             mPointerToolTypes = toolTypes;
             return this;
@@ -829,7 +830,7 @@ public abstract class SelectionTracker<K> {
                     : new OnItemActivatedListener<K>() {
                         @Override
                         public boolean onItemActivated(
-                                @NonNull ItemDetailsLookup.ItemDetails<K> item,
+                                ItemDetailsLookup.@NonNull ItemDetails<K> item,
                                 @NonNull MotionEvent e) {
                             return false;
                         }
@@ -888,7 +889,7 @@ public abstract class SelectionTracker<K> {
                     InputDevice.SOURCE_MOUSE);
             gestureRouter.register(touchpadKey, mouseHandler);
 
-            @Nullable BandSelectionHelper<K> bandHelper = null;
+            BandSelectionHelper<K> bandHelper = null;
 
             // Band selection not supported in single select mode, or when key access
             // is limited to anything less than the entire corpus.

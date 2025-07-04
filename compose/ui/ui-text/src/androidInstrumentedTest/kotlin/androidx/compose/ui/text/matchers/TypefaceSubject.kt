@@ -79,7 +79,7 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Type
                 CharacterInfo('o', FontWeight.W800, FontStyle.Italic),
                 CharacterInfo('p', FontWeight.W800, FontStyle.Normal),
                 CharacterInfo('q', FontWeight.W900, FontStyle.Italic),
-                CharacterInfo('r', FontWeight.W900, FontStyle.Normal)
+                CharacterInfo('r', FontWeight.W900, FontStyle.Normal),
             )
     }
 
@@ -174,7 +174,7 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Type
 internal class CharacterInfo(
     val character: Char,
     val fontWeight: FontWeight,
-    val fontStyle: FontStyle
+    val fontStyle: FontStyle,
 ) {
     override fun toString(): String {
         return toString(fontWeight, fontStyle)

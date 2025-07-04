@@ -58,6 +58,6 @@ object ExtensionModeUtil {
             ExtensionMode.HDR,
             ExtensionMode.NIGHT,
             ExtensionMode.FACE_RETOUCH,
-            ExtensionMode.AUTO
+            ExtensionMode.AUTO,
         )
 }

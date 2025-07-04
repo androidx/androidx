@@ -39,7 +39,7 @@ interface EmbeddingBackend {
     fun addSplitListenerForActivity(
         activity: Activity,
         executor: Executor,
-        callback: Consumer<List<SplitInfo>>
+        callback: Consumer<List<SplitInfo>>,
     )
 
     fun removeSplitListenerForActivity(consumer: Consumer<List<SplitInfo>>)
@@ -101,7 +101,7 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(6)
     fun addEmbeddedActivityWindowInfoCallbackForActivity(
         activity: Activity,
-        callback: Consumer<EmbeddedActivityWindowInfo>
+        callback: Consumer<EmbeddedActivityWindowInfo>,
     )
 
     @RequiresWindowSdkExtension(6)

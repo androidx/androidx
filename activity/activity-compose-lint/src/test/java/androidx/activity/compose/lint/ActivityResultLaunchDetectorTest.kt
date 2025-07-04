@@ -69,7 +69,7 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
     DSjmtr+h+DXdfkDopWIWDwmXLw0oYYlihfIVcrniF6mfhrtamEsLq5ebi0LH
     yvAJH6XuG8gsWAaP03gPTygekKNCJ6x2kQmxFuJmiHVUieJWiBo2umAGm7jd
     RcFgyeCOwV2DvMFySsoGK38AjaXx2SsDAAA=
-    """
+    """,
         )
 
     @Test
@@ -128,7 +128,7 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                MANAGED_ACTIVITY_RESULT_LAUNCHER
+                MANAGED_ACTIVITY_RESULT_LAUNCHER,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -213,7 +213,7 @@ src/com/example/test.kt:46: Error: Calls to launch should happen inside of a Sid
             """
                 ),
                 Stubs.Composable,
-                MANAGED_ACTIVITY_RESULT_LAUNCHER
+                MANAGED_ACTIVITY_RESULT_LAUNCHER,
             )
             .run()
             .expectClean()

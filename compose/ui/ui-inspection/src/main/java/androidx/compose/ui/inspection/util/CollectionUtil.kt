@@ -28,7 +28,7 @@ fun MutableIntList.removeLast() {
 
 fun <T, M : MutableLongObjectMap<MutableList<T>>> Iterable<T>.groupByToLongObjectMap(
     destination: M,
-    keySelector: (T) -> Long
+    keySelector: (T) -> Long,
 ): M {
     for (element in this) {
         val key = keySelector(element)

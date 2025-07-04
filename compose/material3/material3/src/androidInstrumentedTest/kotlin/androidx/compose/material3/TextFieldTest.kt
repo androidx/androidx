@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -105,6 +106,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -145,7 +147,7 @@ class TextFieldTest {
             .setMaterialContentForSizeAssertions {
                 TextField(
                     state = rememberTextFieldState("input"),
-                    modifier = Modifier.height(20.dp)
+                    modifier = Modifier.height(20.dp),
                 )
             }
             .assertHeightIsEqualTo(20.dp)
@@ -157,7 +159,7 @@ class TextFieldTest {
             .setMaterialContentForSizeAssertions {
                 TextField(
                     state = rememberTextFieldState("input"),
-                    modifier = Modifier.requiredWidth(40.dp)
+                    modifier = Modifier.requiredWidth(40.dp),
                 )
             }
             .assertWidthIsEqualTo(40.dp)
@@ -263,7 +265,7 @@ class TextFieldTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 state = rememberTextFieldState(),
                 label = { Text("Label") },
-                supportingText = { Text("Supporting") }
+                supportingText = { Text("Supporting") },
             )
         }
 
@@ -305,7 +307,7 @@ class TextFieldTest {
                 TextField(
                     modifier = Modifier.testTag(textField2Tag),
                     state = rememberTextFieldState("input2"),
-                    interactionSource = interactionSource2
+                    interactionSource = interactionSource2,
                 )
             }
         }
@@ -350,7 +352,7 @@ class TextFieldTest {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
                 state = rememberTextFieldState("input"),
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
 
@@ -442,7 +444,7 @@ class TextFieldTest {
                             labelPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -468,7 +470,7 @@ class TextFieldTest {
                             labelPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -494,7 +496,7 @@ class TextFieldTest {
                             labelPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -519,7 +521,7 @@ class TextFieldTest {
                             labelPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -548,7 +550,7 @@ class TextFieldTest {
                             labelPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -609,7 +611,7 @@ class TextFieldTest {
                 labelPosition =
                     TextFieldLabelPosition.Attached(
                         minimizedAlignment = Alignment.End,
-                        expandedAlignment = Alignment.CenterHorizontally
+                        expandedAlignment = Alignment.CenterHorizontally,
                     ),
             )
         }
@@ -644,7 +646,7 @@ class TextFieldTest {
 
                     // lambda reads `progress` in the draw phase
                     Box(Modifier.graphicsLayer { progressValue.value = labelMinimizedProgress })
-                }
+                },
             )
         }
 
@@ -673,7 +675,7 @@ class TextFieldTest {
                             placeholderPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -703,7 +705,7 @@ class TextFieldTest {
                             placeholderPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -733,9 +735,9 @@ class TextFieldTest {
                             Modifier.onGloballyPositioned {
                                 placeholderPosition.value = it.positionInRoot()
                                 placeholderSize.value = it.size
-                            }
+                            },
                     )
-                }
+                },
             )
         }
 
@@ -757,7 +759,7 @@ class TextFieldTest {
                 placeholder = {
                     Text("placeholder")
                     assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodyLarge)
-                }
+                },
             )
         }
 
@@ -821,7 +823,7 @@ class TextFieldTest {
                             placeholderPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -880,7 +882,7 @@ class TextFieldTest {
                             Modifier.onGloballyPositioned {
                                 leadingPosition.value = it.positionInRoot()
                                 leadingSize.value = it.size
-                            }
+                            },
                         )
                     },
                     trailingIcon = {
@@ -890,9 +892,9 @@ class TextFieldTest {
                             Modifier.onGloballyPositioned {
                                 trailingPosition.value = it.positionInRoot()
                                 trailingSize.value = it.size
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         }
@@ -951,7 +953,7 @@ class TextFieldTest {
                                 Modifier.onGloballyPositioned {
                                     leadingPosition = it.positionInRoot()
                                     leadingSize = it.size
-                                }
+                                },
                         ) {
                             Icon(Icons.Default.Favorite, null)
                         }
@@ -963,11 +965,11 @@ class TextFieldTest {
                                 Modifier.onGloballyPositioned {
                                     trailingPosition = it.positionInRoot()
                                     trailingSize = it.size
-                                }
+                                },
                         ) {
                             Icon(Icons.Default.Favorite, null)
                         }
-                    }
+                    },
                 )
             }
         }
@@ -1030,7 +1032,7 @@ class TextFieldTest {
                                 trailingSize = it.size
                             }
                         )
-                    }
+                    },
                 )
             }
         }
@@ -1157,7 +1159,7 @@ class TextFieldTest {
                                 suffixPosition.value = it.positionInRoot()
                             }
                         )
-                    }
+                    },
                 )
             }
         }
@@ -1207,7 +1209,7 @@ class TextFieldTest {
                                 suffixPosition.value = it.positionInRoot()
                             }
                         )
-                    }
+                    },
                 )
             }
         }
@@ -1294,11 +1296,11 @@ class TextFieldTest {
                         modifier =
                             Modifier.onGloballyPositioned {
                                 labelPosition.value = it.positionInRoot()
-                            }
+                            },
                     )
                 },
                 trailingIcon = { Icon(Icons.Default.Favorite, null) },
-                leadingIcon = { Icon(Icons.Default.Favorite, null) }
+                leadingIcon = { Icon(Icons.Default.Favorite, null) },
             )
         }
 
@@ -1322,11 +1324,11 @@ class TextFieldTest {
                         modifier =
                             Modifier.onGloballyPositioned {
                                 labelPosition.value = it.positionInRoot()
-                            }
+                            },
                     )
                 },
                 trailingIcon = null,
-                leadingIcon = null
+                leadingIcon = null,
             )
         }
 
@@ -1348,7 +1350,7 @@ class TextFieldTest {
                 trailingIcon = {
                     assertThat(LocalContentColor.current)
                         .isEqualTo(MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                },
             )
         }
     }
@@ -1365,7 +1367,7 @@ class TextFieldTest {
                 },
                 trailingIcon = {
                     assertThat(LocalContentColor.current).isEqualTo(MaterialTheme.colorScheme.error)
-                }
+                },
             )
         }
     }
@@ -1383,7 +1385,7 @@ class TextFieldTest {
                             supportingPosition.value = it.positionInRoot()
                         }
                     )
-                }
+                },
             )
         }
 
@@ -1408,9 +1410,9 @@ class TextFieldTest {
                         text =
                             "Long long long long long long long long long long long long " +
                                 "long long long long long long long long long long long long",
-                        modifier = Modifier.onGloballyPositioned { supportingSize.value = it.size }
+                        modifier = Modifier.onGloballyPositioned { supportingSize.value = it.size },
                     )
-                }
+                },
             )
         }
 
@@ -1426,7 +1428,7 @@ class TextFieldTest {
             TextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.onGloballyPositioned { tfSize.value = it.size },
-                supportingText = { Text("Supporting") }
+                supportingText = { Text("Supporting") },
             )
         }
 
@@ -1443,7 +1445,7 @@ class TextFieldTest {
                 state =
                     rememberTextFieldState(buildString { repeat(200) { append("line $it\n") } }),
                 modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
-                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
+                supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) },
             )
         }
 
@@ -1457,7 +1459,7 @@ class TextFieldTest {
             TextField(
                 modifier = Modifier.onFocusChanged { focused = it.isFocused },
                 state = rememberTextFieldState("input"),
-                supportingText = { Text("Supporting") }
+                supportingText = { Text("Supporting") },
             )
         }
 
@@ -1474,7 +1476,7 @@ class TextFieldTest {
                     assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodySmall)
                     assertThat(LocalContentColor.current)
                         .isEqualTo(MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+                },
             )
         }
     }
@@ -1488,7 +1490,7 @@ class TextFieldTest {
                 supportingText = {
                     assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodySmall)
                     assertThat(LocalContentColor.current).isEqualTo(MaterialTheme.colorScheme.error)
-                }
+                },
             )
         }
     }
@@ -1511,7 +1513,7 @@ class TextFieldTest {
                     modifier = Modifier.testTag(TextFieldTag),
                     state = rememberTextFieldState(),
                     keyboardOptions =
-                        KeyboardOptions(imeAction = ImeAction.Go, keyboardType = KeyboardType.Email)
+                        KeyboardOptions(imeAction = ImeAction.Go, keyboardType = KeyboardType.Email),
                 )
             }
         }
@@ -1545,7 +1547,7 @@ class TextFieldTest {
                     placeCursorAtEnd()
                 },
                 shape = RectangleShape,
-                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White),
             )
         }
 
@@ -1558,7 +1560,7 @@ class TextFieldTest {
                 shapeColor = Color.White,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                antiAliasingGap = with(rule.density) { 3.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 3.dp.toPx() },
             )
     }
 
@@ -1586,8 +1588,8 @@ class TextFieldTest {
                             unfocusedTextColor = Color.Transparent,
                             cursorColor = Color.Transparent,
                             focusedLabelColor = Color.Transparent,
-                            unfocusedLabelColor = Color.Transparent
-                        )
+                            unfocusedLabelColor = Color.Transparent,
+                        ),
                 )
             }
         }
@@ -1601,7 +1603,7 @@ class TextFieldTest {
                 shapeColor = Color.Blue,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
 
         rule.onNodeWithTag(TextFieldTag).performClick()
@@ -1615,7 +1617,7 @@ class TextFieldTest {
                 shapeColor = Color.Blue,
                 shape = RectangleShape,
                 // avoid elevation artifacts
-                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
     }
 
@@ -1633,7 +1635,7 @@ class TextFieldTest {
                     Text("label", color = Color.Red, modifier = Modifier.background(Color.Red))
                 },
                 textStyle = TextStyle(color = Color.Blue),
-                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
+                colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White),
             )
         }
         rule
@@ -1659,15 +1661,15 @@ class TextFieldTest {
                     Text(
                         text = "placeholder",
                         color = Color.Red,
-                        modifier = Modifier.background(Color.Red)
+                        modifier = Modifier.background(Color.Red),
                     )
                 },
                 textStyle = TextStyle(color = Color.White),
                 colors =
                     TextFieldDefaults.colors(
                         unfocusedContainerColor = Color.White,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
             )
         }
         rule.onNodeWithTag(TextFieldTag).captureToImage().assertPixels { Color.White }
@@ -1699,7 +1701,7 @@ class TextFieldTest {
                     Modifier.testTag(TextFieldTag).semantics {
                         if (isError.value) error(errorMessage)
                     },
-                isError = isError.value
+                isError = isError.value,
             )
             defaultErrorMessage = getString(DefaultErrorMessage)
         }
@@ -1729,12 +1731,9 @@ class TextFieldTest {
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     VerticalDivider(
                         thickness = 10.dp,
-                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
+                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size },
                     )
-                    TextField(
-                        state = rememberTextFieldState(),
-                        label = { Text(text = "Label") },
-                    )
+                    TextField(state = rememberTextFieldState(), label = { Text(text = "Label") })
                 }
             }
         }
@@ -1755,12 +1754,12 @@ class TextFieldTest {
                 Column(Modifier.width(IntrinsicSize.Min)) {
                     HorizontalDivider(
                         thickness = 10.dp,
-                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
+                        modifier = Modifier.onGloballyPositioned { dividerSize = it.size },
                     )
                     TextField(
                         state = rememberTextFieldState(),
                         label = { Text(text = "Label") },
-                        modifier = Modifier.onGloballyPositioned { textFieldSize = it.size }
+                        modifier = Modifier.onGloballyPositioned { textFieldSize = it.size },
                     )
                 }
             }
@@ -1793,8 +1792,8 @@ class TextFieldTest {
                 colors =
                     TextFieldDefaults.colors(
                         unfocusedLabelColor = unfocusedLabelColor,
-                        focusedLabelColor = focusedLabelColor
-                    )
+                        focusedLabelColor = focusedLabelColor,
+                    ),
             )
         }
 
@@ -1834,8 +1833,8 @@ class TextFieldTest {
                     colors =
                         TextFieldDefaults.colors(
                             unfocusedLabelColor = unfocusedLabelColor,
-                            focusedLabelColor = focusedLabelColor
-                        )
+                            focusedLabelColor = focusedLabelColor,
+                        ),
                 )
             }
         }
@@ -1875,8 +1874,8 @@ class TextFieldTest {
                     colors =
                         TextFieldDefaults.colors(
                             unfocusedLabelColor = expectedLabelColor,
-                            focusedLabelColor = focusedLabelColor
-                        )
+                            focusedLabelColor = focusedLabelColor,
+                        ),
                 )
             }
         }
@@ -1919,8 +1918,8 @@ class TextFieldTest {
                     colors =
                         TextFieldDefaults.colors(
                             unfocusedLabelColor = unfocusedLabelColor,
-                            focusedLabelColor = focusedLabelColor
-                        )
+                            focusedLabelColor = focusedLabelColor,
+                        ),
                 )
             }
         }
@@ -1955,7 +1954,7 @@ class TextFieldTest {
                                     alpha = TextSelectionBackgroundOpacity
                                 )
                             )
-                    }
+                    },
                 )
 
                 // set via `colors()`
@@ -1966,14 +1965,14 @@ class TextFieldTest {
                             selectionColors =
                                 TextSelectionColors(
                                     handleColor = Color.Red,
-                                    backgroundColor = Color.Green
+                                    backgroundColor = Color.Green,
                                 )
                         ),
                     label = {
                         val textSelectionColors = LocalTextSelectionColors.current
                         assertThat(textSelectionColors.handleColor).isEqualTo(Color.Red)
                         assertThat(textSelectionColors.backgroundColor).isEqualTo(Color.Green)
-                    }
+                    },
                 )
 
                 // set via `LocalTextSelectionColors`
@@ -1981,7 +1980,7 @@ class TextFieldTest {
                     LocalTextSelectionColors provides
                         TextSelectionColors(
                             handleColor = Color.Magenta,
-                            backgroundColor = Color.Yellow
+                            backgroundColor = Color.Yellow,
                         )
                 ) {
                     TextField(
@@ -1990,7 +1989,7 @@ class TextFieldTest {
                             val textSelectionColors = LocalTextSelectionColors.current
                             assertThat(textSelectionColors.handleColor).isEqualTo(Color.Magenta)
                             assertThat(textSelectionColors.backgroundColor).isEqualTo(Color.Yellow)
-                        }
+                        },
                     )
                 }
             }
@@ -2077,6 +2076,23 @@ class TextFieldTest {
     }
 
     @Test
+    fun textField_withTrailingIcon_inIntrinsicHeight_andTooShortWidth_doesNotCrash() {
+        // Regression test for b/328954156
+        rule.setContent {
+            Box(Modifier.width(200.dp)) {
+                Box(Modifier.height(IntrinsicSize.Min)) {
+                    TextField(
+                        state = rememberTextFieldState(),
+                        modifier = Modifier.padding(100.dp),
+                        trailingIcon = { Box(Modifier.size(20.dp)) },
+                    )
+                }
+            }
+        }
+        // Nothing to assert; just make sure it doesn't crash
+    }
+
+    @Test
     fun textField_stringOverload_doesNotCallOnValueChange_whenCompositionUpdatesOnly() {
         var callbackCounter = 0
 
@@ -2093,7 +2109,7 @@ class TextFieldTest {
                     // causes TextFieldValue's composition clearing
                     focusManager.clearFocus(true)
                 },
-                modifier = Modifier.testTag(TextFieldTag)
+                modifier = Modifier.testTag(TextFieldTag),
             )
         }
 
@@ -2114,6 +2130,17 @@ class TextFieldTest {
             ) {
                 TextField(state = rememberTextFieldState(), leadingIcon = { Text("Icon") })
             }
+        }
+    }
+
+    @Test // b/424167352
+    fun testTextField_noCrash_whenOutputTransformationCallsAddStyle() {
+        // this test completing without crash is enough, no need for additional assertions
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Hello, World"),
+                outputTransformation = { addStyle(SpanStyle(), 0, length) },
+            )
         }
     }
 }

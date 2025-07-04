@@ -76,7 +76,7 @@ fun ScreenCoordinatesDemo(navigateBack: () -> Unit) {
             "This screen is covered by a transparent window (red border). Drag around to have " +
                 "that window record pointer events in screen coordinates, which will then be " +
                 "converted back to coordinates in this window and drawn here.",
-            Modifier.padding(16.dp)
+            Modifier.padding(16.dp),
         )
 
         var coords: LayoutCoordinates? by remember { mutableStateOf(null, neverEqualPolicy()) }
@@ -89,12 +89,12 @@ fun ScreenCoordinatesDemo(navigateBack: () -> Unit) {
                 drawLine(
                     Color.Black,
                     start = lastPointerPositionInLocal.copy(x = 0f),
-                    end = lastPointerPositionInLocal.copy(x = size.width)
+                    end = lastPointerPositionInLocal.copy(x = size.width),
                 )
                 drawLine(
                     Color.Black,
                     start = lastPointerPositionInLocal.copy(y = 0f),
-                    end = lastPointerPositionInLocal.copy(y = size.height)
+                    end = lastPointerPositionInLocal.copy(y = size.height),
                 )
             }
         }
@@ -111,7 +111,7 @@ fun ScreenCoordinatesDemo(navigateBack: () -> Unit) {
                     anchorBounds: IntRect,
                     windowSize: IntSize,
                     layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
+                    popupContentSize: IntSize,
                 ): IntOffset = popupOffset
             },
         properties =
@@ -120,7 +120,7 @@ fun ScreenCoordinatesDemo(navigateBack: () -> Unit) {
                 clippingEnabled = false,
                 dismissOnClickOutside = false,
             ),
-        onDismissRequest = navigateBack
+        onDismissRequest = navigateBack,
     ) {
         var windowCoords: LayoutCoordinates? by remember {
             mutableStateOf(null, neverEqualPolicy())
@@ -160,31 +160,31 @@ fun ScreenCoordinatesDemo(navigateBack: () -> Unit) {
                                 popupOffset += delta.round()
                             },
                             onDragEnd = { pointerDown = false },
-                            onDragCancel = { pointerDown = false }
+                            onDragCancel = { pointerDown = false },
                         )
-                    }
+                    },
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier.padding(8.dp),
                 ) {
                     Text("Use matrix to convert to screen:")
                     Spacer(Modifier.weight(1f, fill = true))
                     Switch(
                         checked = useMatrixToConvertToScreenCoordinates,
-                        onCheckedChange = { useMatrixToConvertToScreenCoordinates = it }
+                        onCheckedChange = { useMatrixToConvertToScreenCoordinates = it },
                     )
                 }
                 Spacer(Modifier.weight(1f, fill = true))
                 Text(
                     "Red border positionOnScreen: ${windowCoords?.positionOnScreen()}",
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.body2,
                 )
                 Text(
                     "Gesture area (red bg) positionOnScreen: " +
                         "${gestureAreaCoords?.positionOnScreen()}",
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.body2,
                 )
                 TextField(value = "Tap to show keyboard", onValueChange = {})
                 Button(onClick = navigateBack) { Text("Close") }

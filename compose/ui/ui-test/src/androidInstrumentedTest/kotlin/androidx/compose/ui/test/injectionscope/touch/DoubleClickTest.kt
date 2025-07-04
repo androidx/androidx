@@ -56,7 +56,7 @@ class DoubleClickTest(private val config: TestConfig) {
         private val testViewConfiguration =
             TestViewConfiguration(
                 doubleTapMinTimeMillis = DoubleTapMin,
-                doubleTapTimeoutMillis = DoubleTapMax
+                doubleTapTimeoutMillis = DoubleTapMax,
             )
 
         @JvmStatic

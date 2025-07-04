@@ -350,7 +350,7 @@ class LazyCustomKeysTest {
                     key = {
                         keyCalls++
                         0
-                    }
+                    },
                 ) {
                     Item("item")
                 }

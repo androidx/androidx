@@ -32,7 +32,7 @@ internal class QueryInterceptorOpenHelperFactory(
         return QueryInterceptorOpenHelper(
             delegate.create(configuration),
             queryCallbackScope,
-            queryCallback
+            queryCallback,
         )
     }
 }

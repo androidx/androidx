@@ -91,7 +91,7 @@ class LifecycleWhenChecksTest {
     fun error(
         lineNumber: Int,
         customExpression: String = "view.foo()",
-        additionalMessage: String = ""
+        additionalMessage: String = "",
     ): String {
         val l = TEMPLATE_SIZE_BEFOFE_BODY - 1 + lineNumber
 

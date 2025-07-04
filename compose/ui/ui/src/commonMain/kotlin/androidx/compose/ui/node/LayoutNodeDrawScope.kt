@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
 
 /**
@@ -43,7 +45,16 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
 
     override fun drawContent() {
         drawIntoCanvas { canvas ->
-            val drawNode = drawNode!!
+            val drawNode =
+                checkPreconditionNotNull(drawNode) {
+                    "Attempting to drawContent for a `null` node. This usually means that a call" +
+                        " to ContentDrawScope#drawContent() has been captured inside a lambda," +
+                        " and is being invoked outside of the draw pass. Capturing the scope" +
+                        " this way is unsupported - if you are trying to record drawContent" +
+                        " with graphicsLayer.record(), make sure you are using the" +
+                        " GraphicsLayer#record function within DrawScope, instead of the" +
+                        " member function on GraphicsLayer."
+                }
             val nextDrawNode = drawNode.nextDrawNode()
             // NOTE(lmr): we only run performDraw directly on the node if the node's coordinator
             // is our own. This seems to work, but we should think about a cleaner way to dispatch
@@ -65,6 +76,31 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
         }
     }
 
+    override fun GraphicsLayer.record(size: IntSize, block: DrawScope.() -> Unit) {
+        // When we record drawContent, we need to make sure to restore the drawModifierNode that is
+        // being drawn when we draw the recorded layer later, since the block passed to record
+        // sometimes needs to be invoked outside of this current draw pass
+        val currentDrawNode = drawNode
+        record(this@LayoutNodeDrawScope, this@LayoutNodeDrawScope.layoutDirection, size) {
+            val previousDrawNode = this@LayoutNodeDrawScope.drawNode
+            this@LayoutNodeDrawScope.drawNode = currentDrawNode
+            try {
+                this@LayoutNodeDrawScope.draw(
+                    // we can use this@record.drawContext directly as the values in this@DrawScope
+                    // and this@record are the same
+                    drawContext.density,
+                    drawContext.layoutDirection,
+                    drawContext.canvas,
+                    drawContext.size,
+                    drawContext.graphicsLayer,
+                    block,
+                )
+            } finally {
+                this@LayoutNodeDrawScope.drawNode = previousDrawNode
+            }
+        }
+    }
+
     // This is not thread safe
     fun DrawModifierNode.performDraw(canvas: Canvas, layer: GraphicsLayer?) {
         val coordinator = requireCoordinator(Nodes.Draw)
@@ -78,7 +114,7 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
         size: Size,
         coordinator: NodeCoordinator,
         drawNode: Modifier.Node,
-        layer: GraphicsLayer?
+        layer: GraphicsLayer?,
     ) {
         drawNode.dispatchForKind(Nodes.Draw) { drawDirect(canvas, size, coordinator, it, layer) }
     }
@@ -88,7 +124,7 @@ internal class LayoutNodeDrawScope(val canvasDrawScope: CanvasDrawScope = Canvas
         size: Size,
         coordinator: NodeCoordinator,
         drawNode: DrawModifierNode,
-        layer: GraphicsLayer?
+        layer: GraphicsLayer?,
     ) {
         val previousDrawNode = this.drawNode
         this.drawNode = drawNode

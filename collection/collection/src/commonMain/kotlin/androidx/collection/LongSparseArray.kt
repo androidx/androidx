@@ -215,12 +215,14 @@ public expect open class LongSparseArray<E> public constructor(initialCapacity: 
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGet(key: Long): E? {
-    @Suppress("UNCHECKED_CAST") return commonGetInternal(key, null) as E?
+    @Suppress("UNCHECKED_CAST")
+    return commonGetInternal(key, null) as E?
 }
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonGet(key: Long, defaultValue: E): E {
-    @Suppress("UNCHECKED_CAST") return commonGetInternal(key, defaultValue) as E
+    @Suppress("UNCHECKED_CAST")
+    return commonGetInternal(key, defaultValue) as E
 }
 
 // TODO(b/375562182) revert the type change done in aosp/375562182 after collection targets K2
@@ -281,7 +283,7 @@ internal inline fun <E> LongSparseArray<E>.commonReplace(key: Long, value: E): E
 internal inline fun <E> LongSparseArray<E>.commonReplace(
     key: Long,
     oldValue: E,
-    newValue: E
+    newValue: E,
 ): Boolean {
     val index = indexOfKey(key)
     if (index >= 0) {
@@ -344,7 +346,7 @@ internal inline fun <E> LongSparseArray<E>.commonPut(key: Long, value: E) {
                 values,
                 destinationOffset = index + 1,
                 startIndex = index,
-                endIndex = size
+                endIndex = size,
             )
         }
         keys[index] = key
@@ -401,7 +403,8 @@ internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
         commonGc()
     }
 
-    @Suppress("UNCHECKED_CAST") return values[index] as E
+    @Suppress("UNCHECKED_CAST")
+    return values[index] as E
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -504,7 +507,7 @@ internal inline fun <E> LongSparseArray<E>.commonToString(): String {
 }
 
 /** Returns the number of key/value pairs in the collection. */
-@Suppress("NOTHING_TO_INLINE")
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 public inline val <T> LongSparseArray<T>.size: Int
     get() = size()
 

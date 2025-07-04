@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -311,7 +312,7 @@ class TransformingLazyColumnTest {
                     .testTag(lazyListTag)
                     .graphicsLayer()
                     .background(Color.Blue),
-                state = state
+                state = state,
             ) {
                 items(2) {
                     val size = if (it == 0) 5.dp else 100.dp
@@ -406,11 +407,145 @@ class TransformingLazyColumnTest {
         rule.onNodeWithTag(lazyListTag).assertIsDisplayed()
     }
 
+    @Test
+    fun supportsInitialScrollPosition() {
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState(initialAnchorItemIndex = 8)
+            TransformingLazyColumn(
+                state = state,
+                contentPadding = PaddingValues(0.dp),
+                modifier = Modifier.testTag(lazyListTag).size(90.dp),
+            ) {
+                items(10) { Spacer(Modifier.size(30.dp).testTag("item $it")) }
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag("item 8").assertIsDisplayed()
+    }
+
+    @Test
+    fun nextItemSnapsToListTop_whenAnchoredItemIsRemoved() {
+        val items =
+            mutableStateListOf("item 0", "item 1", "item 2", "Anchor", "item 4", "item 5", "item 6")
+        val itemSize = 48.dp
+        val anchorSize = itemSize * 3 // Bigger than the TLC height
+        lateinit var state: TransformingLazyColumnState
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                modifier = Modifier.testTag(lazyListTag).height(itemSize * 2),
+                state = state,
+            ) {
+                items(items.size, key = { items[it] }) {
+                    Spacer(
+                        Modifier.height(if (items[it] == "Anchor") anchorSize else itemSize)
+                            .testTag(items[it])
+                    )
+                }
+            }
+        }
+
+        // Scroll to "Anchor item".
+        rule.runOnIdle { runBlocking { state.scrollToItem(3) } }
+        rule.waitForIdle()
+        // Remove the anchor
+        rule.runOnIdle { items.removeAt(3) }
+        rule.waitForIdle()
+
+        // Assert that "item 4" now is aligned to the top of the screen.
+        val finalOffset =
+            state.layoutInfo.visibleItems.first { it.key == "item 4" }.offset.toFloat()
+        assertThat(finalOffset).isEqualTo(0)
+
+        // Assert that the anchor index has been correctly updated.
+        assertThat(state.anchorItemIndex).isEqualTo(3) // The index of "item 4" is now 3.
+    }
+
+    @Test
+    fun scrollPositionMaintained_whenItemBeforeAnchorIsRemoved() {
+        val items = mutableStateListOf("item 0", "item 1", "item 2", "item 3", "item 4")
+        val itemSize = 48.dp
+        val state = setupTlcWithMutableList(items, itemSize)
+
+        // Scroll to "item 3".
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(3) // Index of "item 3"
+            }
+        }
+        rule.waitForIdle()
+
+        // Record the current scroll offset of "item 3".
+        val initialOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+
+        // Remove "item 2", which is before the current anchor.
+        rule.runOnIdle { items.removeAt(2) }
+        rule.waitForIdle()
+
+        // Assert that "item 3" is still visible and at the same offset.
+        val finalOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+        assertThat(finalOffset).isEqualTo(initialOffset)
+
+        // Assert that the anchor index has been correctly updated to "item 3"'s new position.
+        assertThat(state.anchorItemIndex).isEqualTo(2) // The index of "item 3" is now 2.
+    }
+
+    @Test
+    fun listSnapsToNextItem_whenAnchoredItemIsRemoved() {
+        val items = mutableStateListOf("item 0", "item 1", "item 2", "item 3", "item 4")
+        val itemSize = 48.dp
+        val state = setupTlcWithMutableList(items, itemSize)
+
+        // Scroll to "item 2"
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(2) // Index of "item 2"
+            }
+        }
+        rule.waitForIdle()
+
+        // Record the current scroll offset of "item 2".
+        val initialOffset = state.layoutInfo.visibleItems.first { it.key == "item 2" }.offset
+
+        // Remove the anchored item, "item 2"
+        rule.runOnIdle { items.removeAt(2) }
+        rule.waitForIdle()
+
+        // Assert that "item 3" has the same offset as deleted item.
+        val finalOffset = state.layoutInfo.visibleItems.first { it.key == "item 3" }.offset
+        assertThat(finalOffset).isEqualTo(initialOffset)
+
+        // Assert that the new anchor is the next item, "item 3", at its new index.
+        assertThat(state.anchorItemIndex).isEqualTo(2) // The index of "item 3" is now 2.
+    }
+
+    private fun setupTlcWithMutableList(
+        items: MutableList<String>,
+        itemSize: Dp,
+    ): TransformingLazyColumnState {
+        lateinit var state: TransformingLazyColumnState
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            TransformingLazyColumn(
+                modifier = Modifier.testTag(lazyListTag).height(itemSize * 2),
+                state = state,
+            ) {
+                items(items, key = { it }) { item ->
+                    Spacer(Modifier.height(itemSize).testTag(item))
+                }
+            }
+        }
+        return state
+    }
+
     @OptIn(ExperimentalTestApi::class)
     private fun testTransformingLazyColumnRotary(
         userScrollEnabled: Boolean,
         scrollTarget: Int,
-        itemsToScroll: Int = 2
+        itemsToScroll: Int = 2,
     ) {
         lateinit var state: TransformingLazyColumnState
         val itemSizePx = 50
@@ -420,8 +555,8 @@ class TransformingLazyColumnTest {
             state = rememberTransformingLazyColumnState()
             TransformingLazyColumn(
                 state = state,
-                modifier = Modifier.testTag(lazyListTag),
-                userScrollEnabled = userScrollEnabled
+                modifier = Modifier.testTag(lazyListTag).size(itemSizeDp * 2),
+                userScrollEnabled = userScrollEnabled,
             ) {
                 items(100) {
                     BasicText(text = "item $it", modifier = Modifier.requiredSize(itemSizeDp))

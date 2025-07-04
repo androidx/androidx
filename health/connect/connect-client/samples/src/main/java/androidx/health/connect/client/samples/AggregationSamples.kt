@@ -35,13 +35,13 @@ import java.time.Period
 suspend fun AggregateDistance(
     healthConnectClient: HealthConnectClient,
     startTime: Instant,
-    endTime: Instant
+    endTime: Instant,
 ) {
     val response =
         healthConnectClient.aggregate(
             AggregateRequest(
                 metrics = setOf(DistanceRecord.DISTANCE_TOTAL),
-                timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
+                timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
             )
         )
     // The result may be null if no data is available in the time range.
@@ -52,13 +52,13 @@ suspend fun AggregateDistance(
 suspend fun AggregateHeartRate(
     healthConnectClient: HealthConnectClient,
     startTime: Instant,
-    endTime: Instant
+    endTime: Instant,
 ) {
     val response =
         healthConnectClient.aggregate(
             AggregateRequest(
                 setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN),
-                timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
+                timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
             )
         )
     // The result may be null if no data is available in the time range.
@@ -70,14 +70,14 @@ suspend fun AggregateHeartRate(
 suspend fun AggregateIntoMinutes(
     healthConnectClient: HealthConnectClient,
     startTime: Instant,
-    endTime: Instant
+    endTime: Instant,
 ) {
     val response =
         healthConnectClient.aggregateGroupByDuration(
             AggregateGroupByDurationRequest(
                 metrics = setOf(StepsRecord.COUNT_TOTAL),
                 timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
-                timeRangeSlicer = Duration.ofMinutes(1)
+                timeRangeSlicer = Duration.ofMinutes(1),
             )
         )
     for (monthlyResult in response) {
@@ -90,14 +90,14 @@ suspend fun AggregateIntoMinutes(
 suspend fun AggregateIntoMonths(
     healthConnectClient: HealthConnectClient,
     startTime: Instant,
-    endTime: Instant
+    endTime: Instant,
 ) {
     val response =
         healthConnectClient.aggregateGroupByPeriod(
             AggregateGroupByPeriodRequest(
                 metrics = setOf(StepsRecord.COUNT_TOTAL),
                 timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
-                timeRangeSlicer = Period.ofMonths(1)
+                timeRangeSlicer = Period.ofMonths(1),
             )
         )
     for (monthlyResult in response) {

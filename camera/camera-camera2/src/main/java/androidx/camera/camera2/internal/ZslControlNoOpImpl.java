@@ -31,6 +31,10 @@ public class ZslControlNoOpImpl implements ZslControl {
     }
 
     @Override
+    public void clearZslConfig() {
+    }
+
+    @Override
     public void setZslDisabledByUserCaseConfig(boolean disabled) {
     }
 

@@ -45,7 +45,7 @@ private val TIME_RANGE_FILTER =
 private val LOCAL_TIME_RANGE_FILTER =
     TimeRangeFilter.between(
         LocalDateTime.ofInstant(TIME_RANGE_FILTER.startTime!!, ZoneOffset.UTC),
-        LocalDateTime.ofInstant(TIME_RANGE_FILTER.endTime!!, ZoneOffset.UTC)
+        LocalDateTime.ofInstant(TIME_RANGE_FILTER.endTime!!, ZoneOffset.UTC),
     )
 private val DATA_ORIGIN_FILTER = setOf(DataOrigin("testAppName"))
 
@@ -57,7 +57,7 @@ class AggregateRequestConverterTest {
             AggregateRequest(
                 metrics = setOf(METRIC),
                 timeRangeFilter = TIME_RANGE_FILTER,
-                dataOriginFilter = DATA_ORIGIN_FILTER
+                dataOriginFilter = DATA_ORIGIN_FILTER,
             )
 
         assertThat(request.toProto())
@@ -77,7 +77,7 @@ class AggregateRequestConverterTest {
                 metrics = setOf(METRIC),
                 timeRangeFilter = TIME_RANGE_FILTER,
                 timeRangeSlicer = Duration.ofMillis(98765),
-                dataOriginFilter = DATA_ORIGIN_FILTER
+                dataOriginFilter = DATA_ORIGIN_FILTER,
             )
 
         assertThat(request.toProto())
@@ -98,7 +98,7 @@ class AggregateRequestConverterTest {
                 metrics = setOf(METRIC),
                 timeRangeFilter = LOCAL_TIME_RANGE_FILTER,
                 timeRangeSlicer = Period.ofDays(1),
-                dataOriginFilter = DATA_ORIGIN_FILTER
+                dataOriginFilter = DATA_ORIGIN_FILTER,
             )
 
         assertThat(request.toProto())

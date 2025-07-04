@@ -46,7 +46,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         switchCamera_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_VIDEO_CAPTURE
+            VERIFICATION_TARGET_VIDEO_CAPTURE,
         )
     }
 
@@ -59,7 +59,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         switchCamera_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_VIDEO_CAPTURE
+            VERIFICATION_TARGET_VIDEO_CAPTURE,
         )
     }
 
@@ -72,7 +72,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         switchCamera_checkOutput_repeatedly(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_VIDEO_CAPTURE
+            VERIFICATION_TARGET_VIDEO_CAPTURE,
         )
     }
 
@@ -84,7 +84,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         switchCamera_repeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_VIDEO_CAPTURE
+            VERIFICATION_TARGET_VIDEO_CAPTURE,
         )
     }
 
@@ -97,7 +97,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         switchCamera_repeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_VIDEO_CAPTURE
+            VERIFICATION_TARGET_VIDEO_CAPTURE,
         )
     }
 
@@ -110,7 +110,7 @@ constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
         switchCamera_repeatedly_thenCheckOutput(
             cameraId,
             useCaseCombination,
-            VERIFICATION_TARGET_VIDEO_CAPTURE
+            VERIFICATION_TARGET_VIDEO_CAPTURE,
         )
     }
 }

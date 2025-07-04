@@ -20,10 +20,12 @@ import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.samples.ScrollIndicatorWithColumnSample
 import androidx.wear.compose.material3.samples.ScrollIndicatorWithLCSample
 import androidx.wear.compose.material3.samples.ScrollIndicatorWithSLCSample
+import androidx.wear.compose.material3.samples.ScrollIndicatorWithTLCSample
 
 val ScrollIndicatorDemos =
     listOf(
+        ComposableDemo("With TransformingLazyColumn") { ScrollIndicatorWithTLCSample() },
         ComposableDemo("With ScalingLazyColumn") { ScrollIndicatorWithSLCSample() },
         ComposableDemo("With LazyColumn") { ScrollIndicatorWithLCSample() },
-        ComposableDemo("With Column") { ScrollIndicatorWithColumnSample() }
+        ComposableDemo("With Column") { ScrollIndicatorWithColumnSample() },
     )

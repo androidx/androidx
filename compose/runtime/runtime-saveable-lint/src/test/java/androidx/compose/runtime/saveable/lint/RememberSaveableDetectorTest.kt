@@ -127,7 +127,7 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
         hLM5neDmVFY4afRFLOKhSDfs2cwwVCM5UdwsUhK5UbJIR+JeFhOt/nrDk9SS
         xHdKJYYbmShdJlfYwvrZOKJsUT3+qodoUr2kfWXSVAawQzghqiFcbBNELcQO
         dgdgGnvwBihp1DX2NRoaB5+QkX6G8gEAAA==
-        """
+        """,
         )
 
     @Test
@@ -163,7 +163,7 @@ class RememberSaveableDetectorTest : LintDetectorTest() {
                 rememberSaveableStub,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .run()
             .expect(
@@ -279,7 +279,7 @@ Fix for src/test/Foo.kt line 22: Change to `stateSaver = fooSaver4`:
                 rememberSaveableStub,
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .run()
             .expectClean()

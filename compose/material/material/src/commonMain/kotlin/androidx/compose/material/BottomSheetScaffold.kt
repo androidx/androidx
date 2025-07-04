@@ -67,7 +67,7 @@ enum class BottomSheetValue {
     Collapsed,
 
     /** The bottom sheet is visible at its maximum height. */
-    Expanded
+    Expanded,
 }
 
 /**
@@ -84,7 +84,7 @@ class BottomSheetState(
     initialValue: BottomSheetValue,
     density: Density,
     animationSpec: AnimationSpec<Float> = BottomSheetScaffoldDefaults.AnimationSpec,
-    confirmValueChange: (BottomSheetValue) -> Boolean = { true }
+    confirmValueChange: (BottomSheetValue) -> Boolean = { true },
 ) {
 
     internal val anchoredDraggableState =
@@ -95,7 +95,7 @@ class BottomSheetState(
             positionalThreshold = {
                 with(density) { BottomSheetScaffoldPositionalThreshold.toPx() }
             },
-            velocityThreshold = { with(density) { BottomSheetScaffoldVelocityThreshold.toPx() } }
+            velocityThreshold = { with(density) { BottomSheetScaffoldVelocityThreshold.toPx() } },
         )
 
     /** The current value of the [BottomSheetState]. */
@@ -123,7 +123,7 @@ class BottomSheetState(
      */
     @Deprecated(
         message = "Please use the progress function to query progress explicitly between targets.",
-        replaceWith = ReplaceWith("progress(from = , to = )")
+        replaceWith = ReplaceWith("progress(from = , to = )"),
     )
     @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
@@ -144,7 +144,7 @@ class BottomSheetState(
         val currentOffset =
             anchoredDraggableState.offset.coerceIn(
                 min(fromOffset, toOffset), // fromOffset might be > toOffset
-                max(fromOffset, toOffset)
+                max(fromOffset, toOffset),
             )
         val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
         return if (fraction.isNaN()) 1f else abs(fraction)
@@ -183,7 +183,7 @@ class BottomSheetState(
 
     internal suspend fun animateTo(
         target: BottomSheetValue,
-        velocity: Float = anchoredDraggableState.lastVelocity
+        velocity: Float = anchoredDraggableState.lastVelocity,
     ) = anchoredDraggableState.animateTo(target, velocity)
 
     internal suspend fun snapTo(target: BottomSheetValue) = anchoredDraggableState.snapTo(target)
@@ -194,7 +194,7 @@ class BottomSheetState(
         fun Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (BottomSheetValue) -> Boolean,
-            density: Density
+            density: Density,
         ): Saver<BottomSheetState, *> =
             Saver(
                 save = { it.anchoredDraggableState.currentValue },
@@ -203,9 +203,9 @@ class BottomSheetState(
                         initialValue = it,
                         density = density,
                         animationSpec = animationSpec,
-                        confirmValueChange = confirmStateChange
+                        confirmValueChange = confirmStateChange,
                     )
-                }
+                },
             )
     }
 }
@@ -221,7 +221,7 @@ class BottomSheetState(
 fun rememberBottomSheetState(
     initialValue: BottomSheetValue,
     animationSpec: AnimationSpec<Float> = BottomSheetScaffoldDefaults.AnimationSpec,
-    confirmStateChange: (BottomSheetValue) -> Boolean = { true }
+    confirmStateChange: (BottomSheetValue) -> Boolean = { true },
 ): BottomSheetState {
     val density = LocalDensity.current
     return rememberSaveable(
@@ -230,14 +230,14 @@ fun rememberBottomSheetState(
             BottomSheetState.Saver(
                 animationSpec = animationSpec,
                 confirmStateChange = confirmStateChange,
-                density = density
-            )
+                density = density,
+            ),
     ) {
         BottomSheetState(
             initialValue = initialValue,
             animationSpec = animationSpec,
             confirmValueChange = confirmStateChange,
-            density = density
+            density = density,
         )
     }
 }
@@ -251,7 +251,7 @@ fun rememberBottomSheetState(
 @Stable
 class BottomSheetScaffoldState(
     val bottomSheetState: BottomSheetState,
-    val snackbarHostState: SnackbarHostState
+    val snackbarHostState: SnackbarHostState,
 )
 
 /**
@@ -263,19 +263,19 @@ class BottomSheetScaffoldState(
 @Composable
 fun rememberBottomSheetScaffoldState(
     bottomSheetState: BottomSheetState = rememberBottomSheetState(Collapsed),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): BottomSheetScaffoldState {
     return remember(bottomSheetState, snackbarHostState) {
         BottomSheetScaffoldState(
             bottomSheetState = bottomSheetState,
-            snackbarHostState = snackbarHostState
+            snackbarHostState = snackbarHostState,
         )
     }
 }
 
 /**
- * <a href="https://material.io/components/sheets-bottom#standard-bottom-sheet" class="external"
- * target="_blank">Material Design standard bottom sheet</a>.
+ * [Material Design standard bottom
+ * sheet](https://material.io/components/sheets-bottom#standard-bottom-sheet)
  *
  * Standard bottom sheets co-exist with the screen’s main UI region and allow for simultaneously
  * viewing and interacting with both regions. They are commonly used to keep a feature or secondary
@@ -333,7 +333,7 @@ fun BottomSheetScaffold(
     sheetPeekHeight: Dp = BottomSheetScaffoldDefaults.SheetPeekHeight,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Surface(modifier.fillMaxSize(), color = backgroundColor, contentColor = contentColor) {
         BottomSheetScaffoldLayout(
@@ -346,7 +346,7 @@ fun BottomSheetScaffold(
                             remember(scaffoldState.bottomSheetState.anchoredDraggableState) {
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                     state = scaffoldState.bottomSheetState.anchoredDraggableState,
-                                    orientation = Orientation.Vertical
+                                    orientation = Orientation.Vertical,
                                 )
                             }
                         )
@@ -360,7 +360,7 @@ fun BottomSheetScaffold(
                     sheetGesturesEnabled = sheetGesturesEnabled,
                     sheetShape = sheetShape,
                     sheetPeekHeight = sheetPeekHeight,
-                    content = sheetContent
+                    content = sheetContent,
                 )
             },
             floatingActionButton = floatingActionButton,
@@ -368,7 +368,7 @@ fun BottomSheetScaffold(
             sheetPeekHeight = sheetPeekHeight,
             sheetState = scaffoldState.bottomSheetState,
             sheetOffset = { scaffoldState.bottomSheetState.requireOffset() },
-            floatingActionButtonPosition = floatingActionButtonPosition
+            floatingActionButtonPosition = floatingActionButtonPosition,
         )
     }
 }
@@ -384,7 +384,7 @@ private fun BottomSheet(
     sheetContentColor: Color,
     sheetPeekHeight: Dp,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val peekHeightPx = with(LocalDensity.current) { sheetPeekHeight.toPx() }
@@ -438,7 +438,7 @@ private fun BottomSheet(
         elevation = sheetElevation,
         color = sheetBackgroundColor,
         contentColor = sheetContentColor,
-        content = { Column(content = content) }
+        content = { Column(content = content) },
     )
 }
 
@@ -475,7 +475,7 @@ private fun BottomSheetScaffoldLayout(
                 body,
                 bottomSheet,
                 floatingActionButton ?: {},
-                snackbarHost
+                snackbarHost,
             )
     ) {
         (
@@ -541,7 +541,7 @@ private fun BottomSheetScaffoldLayout(
 @OptIn(ExperimentalMaterialApi::class)
 private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     state: AnchoredDraggableState<*>,
-    orientation: Orientation
+    orientation: Orientation,
 ): NestedScrollConnection =
     object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -556,7 +556,7 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         override fun onPostScroll(
             consumed: Offset,
             available: Offset,
-            source: NestedScrollSource
+            source: NestedScrollSource,
         ): Offset {
             return if (source == NestedScrollSource.UserInput) {
                 state.dispatchRawDelta(available.toFloat()).toOffset()
@@ -585,7 +585,7 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Float.toOffset(): Offset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) this else 0f,
-                y = if (orientation == Orientation.Vertical) this else 0f
+                y = if (orientation == Orientation.Vertical) this else 0f,
             )
 
         @JvmName("velocityToFloat")

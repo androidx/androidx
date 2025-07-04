@@ -46,6 +46,5 @@ interface ICustomTabsService {
     boolean receiveFile(in ICustomTabsCallback callback, in Uri uri, int purpose, in Bundle extras) = 11;
     boolean isEngagementSignalsApiAvailable(in ICustomTabsCallback customTabsCallback, in Bundle extras) = 12;
     boolean setEngagementSignalsCallback(in ICustomTabsCallback customTabsCallback, in IBinder callback, in Bundle extras) = 13;
-    boolean isEphemeralBrowsingSupported(in Bundle extras) = 16;
     boolean newAuthTabSession(in IAuthTabCallback callback, in Bundle extras) = 17;
 }

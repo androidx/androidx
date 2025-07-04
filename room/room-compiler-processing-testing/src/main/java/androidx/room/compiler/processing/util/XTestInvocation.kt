@@ -70,7 +70,8 @@ class XTestInvocation(processingEnv: XProcessingEnv, roundEnv: XRoundEnv) {
 
     fun <T : Any> getUserData(key: KClass<T>): T? {
         assertNotDisposed()
-        @Suppress("UNCHECKED_CAST") return userData[key] as T?
+        @Suppress("UNCHECKED_CAST")
+        return userData[key] as T?
     }
 
     fun <T : Any> putUserData(key: KClass<T>, value: T) {

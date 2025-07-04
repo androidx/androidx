@@ -19,9 +19,15 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEvent
+import kotlinx.coroutines.CoroutineScope
 
 internal actual val PointerEvent.isShiftPressed: Boolean
     get() = implementedInJetBrainsFork()
 
 internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier =
     implementedInJetBrainsFork()
+
+internal actual fun Modifier.addBasicTextFieldTextContextMenuComponents(
+    manager: TextFieldSelectionManager,
+    coroutineScope: CoroutineScope,
+): Modifier = implementedInJetBrainsFork()

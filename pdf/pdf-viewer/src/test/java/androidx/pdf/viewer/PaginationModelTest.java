@@ -25,7 +25,6 @@ import android.graphics.Rect;
 import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,7 +32,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class PaginationModelTest {
 
@@ -46,7 +44,6 @@ public class PaginationModelTest {
     @Before
     public void init() {
         mContext = ApplicationProvider.getApplicationContext();
-        PdfViewer.setScreenForTest(mContext);
         mPaginationModel = new PaginationModel(mContext);
     }
 

@@ -17,75 +17,9 @@ compare the device's `Build.VERSION.SDK_INT` field to a known-good SDK version;
 for example, the SDK in which a method first appeared or in which a critical bug
 was first fixed.
 
-When developing against pre-release SDKs where the `SDK_INT` has not been
-finalized, SDK checks **must** use `BuildCompat.isAtLeastX()` methods and
-**must** use a tip-of-tree `project` dependency to ensure that the
-implementation of `BuildCompat` stays up-to-date when the SDK is finalized.
-
-**Do not** assume that the next SDK release's `SDK_INT` will be N+1. The value
+**Do not** assume that the `SDK_INT` for the next release will be N+1. The value
 is not finalized until SDK finalization happens, at which point the `isAtLeast`
 check will be updated. **Never** write your own check for a pre-release SDK.
-
-```java {.good}
-@NonNull
-public static List<Window> getAllWindows() {
-  if (BuildCompat.isAtLeastR()) {
-    return ApiRImpl.getAllWindows();
-  }
-  return Collections.emptyList();
-}
-```
-
-```kotlin {.good}
-dependencies {
-  api(project(":core:core"))
-}
-```
-
-#### Validating class verification
-
-To verify that your library does not raise class verification failures, look for
-`dex2oat` output during install time.
-
-You can generate class verification logs from test APKs. Simply call the
-class/method that should generate a class verification failure in a test.
-
-The test APK will generate class verification logs on install.
-
-```bash
-# Enable ART logging (requires root). Note the 2 pairs of quotes!
-adb root
-adb shell setprop dalvik.vm.dex2oat-flags '"--runtime-arg -verbose:verifier"'
-
-# Restart Android services to pick up the settings
-adb shell stop && adb shell start
-
-# Optional: clear logs which aren't relevant
-adb logcat -c
-
-# Install the app and check for ART logs
-# This line is what triggers log lines, and can be repeated
-adb install -d -r someApk.apk
-
-# it's useful to run this _during_ install in another shell
-adb logcat | grep 'dex2oat'
-...
-... I dex2oat : Soft verification failures in
-```
-
-#### View constructors {#compat-view-constructors}
-
-The four-arg View constructor -- `View(Context, AttributeSet, int, int)` -- was
-added in SDK 21 and allows a developer to pass in an explicit default style
-resource rather than relying on a theme attribute to resolve the default style
-resource. Because this API was added in SDK 21, care must be taken to ensure
-that it is not called through any < SDK 21 code path.
-
-Views *may* implement a four-arg constructor in one of the following ways:
-
-1.  Do not implement.
-1.  Implement and annotate with `@RequiresApi(21)`. This means the three-arg
-    constructor **must not** call into the four-arg constructor.
 
 #### Device-specific issues {#compat-oem}
 
@@ -408,12 +342,6 @@ buffers in your library.
 WARNING While Protobuf is capable of maintaining inter-process compatibility,
 AndroidX does not currently provide compatibility tracking or enforcement.
 Library owners must perform their own validation.
-
-NOTE We are currently investigating the suitability of Square's
-[`wire` library](https://github.com/square/wire) for handling protocol buffers
-in Android libraries. If adopted, it will replace `proto` library dependencies.
-Libraries that expose their serialization mechanism in their API surface *will
-not be able to migrate*.
 
 #### Bundle <a name="ipc-bundle"></a>
 

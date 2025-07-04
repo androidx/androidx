@@ -70,5 +70,5 @@ fun TestSplitAttributesCalculatorParams(
         parentWindowLayoutInfo,
         defaultSplitAttributes,
         areDefaultConstraintsSatisfied,
-        splitRuleTag
+        splitRuleTag,
     )

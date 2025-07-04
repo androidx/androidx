@@ -19,17 +19,22 @@ package androidx.wear.protolayout.material3
 import android.content.Context
 import android.provider.Settings
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.protolayout.ActionBuilders.LaunchAction
-import androidx.wear.protolayout.ModifiersBuilders.Clickable
+import androidx.wear.protolayout.DeviceParametersBuilders
+import androidx.wear.protolayout.modifiers.clickable
 
 // TODO: b/373336064 - Move this to protolayout-material3-testing
 internal fun enableDynamicTheme() {
     Settings.Global.putInt(
         ApplicationProvider.getApplicationContext<Context>().contentResolver,
         DYNAMIC_THEMING_SETTING_NAME,
-        /* dynamic theming is enabled */ 1
+        /* dynamic theming is enabled */ 1,
     )
 }
 
-internal fun clickable(id: String) =
-    Clickable.Builder().setOnClick(LaunchAction.Builder().build()).setId(id).build()
+internal val DEVICE_PARAMETERS =
+    DeviceParametersBuilders.DeviceParameters.Builder()
+        .setScreenWidthDp(192)
+        .setScreenHeightDp(192)
+        .build()
+
+internal val CLICKABLE = clickable(id = "id")

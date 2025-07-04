@@ -80,7 +80,7 @@ class SuspendingPointerInputFilterCoroutineJobTest {
                 modifier =
                     elementFor(
                         key1 = Unit,
-                        instance = suspendingPointerInputModifierNode as Modifier.Node
+                        instance = suspendingPointerInputModifierNode as Modifier.Node,
                     )
             )
         }
@@ -90,7 +90,7 @@ class SuspendingPointerInputFilterCoroutineJobTest {
             suspendingPointerInputModifierNode.onPointerEvent(
                 change.toPointerEvent(),
                 PointerEventPass.Main,
-                IntSize(10, 10)
+                IntSize(10, 10),
             )
         }
 

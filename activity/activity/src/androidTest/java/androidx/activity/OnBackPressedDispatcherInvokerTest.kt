@@ -20,7 +20,6 @@ import android.os.Build
 import android.window.BackEvent.EDGE_LEFT
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -34,8 +33,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S_V2)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class OnBackPressedDispatcherInvokerTest {
 
     @get:Rule val rule = DetectLeaksAfterTestSuccess()
@@ -490,7 +488,6 @@ class OnBackPressedDispatcherInvokerTest {
         assertThat(unregisterCount).isEqualTo(1)
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testDoubleStartCallbackCausesCancel() {

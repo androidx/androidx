@@ -50,7 +50,7 @@ class AnimatedTextTest {
                         startFontSize = 10.sp,
                         endFontSize = 10.sp,
                     ),
-                progressFraction = { 0f }
+                progressFraction = { 0f },
             )
         }
 
@@ -70,7 +70,7 @@ class AnimatedTextTest {
                         endFontSize = 10.sp,
                     ),
                 progressFraction = { 0f },
-                modifier = Modifier.semantics { contentDescription = "test" }
+                modifier = Modifier.semantics { contentDescription = "test" },
             )
         }
 

@@ -66,11 +66,7 @@ class BasicTextLinkInteropTest {
             view.setContent {
                 val annotatedString = buildAnnotatedString {
                     append("Android")
-                    withLink(
-                        LinkAnnotation.Url("url"),
-                    ) {
-                        append(" www.google.com")
-                    }
+                    withLink(LinkAnnotation.Url("url")) { append(" www.google.com") }
                 }
                 BasicText(
                     modifier = Modifier.padding(24.dp).testTag("text"),

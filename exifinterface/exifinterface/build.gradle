@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -16,8 +16,10 @@ dependencies {
     api(libs.jspecify)
     implementation("androidx.annotation:annotation:1.8.1")
 
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation libs.junit
+    androidTestImplementation libs.testExtJunit
+    androidTestImplementation libs.truth
+    androidTestImplementation libs.guavaAndroid
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
@@ -25,7 +27,7 @@ dependencies {
 
 androidx {
     name = "ExifInterface"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2016"
     description = "Android Support ExifInterface"
 }

@@ -377,8 +377,8 @@ public final class ResourceBuilders {
 
             /** Adds an entry into a map of resource_ids to images, which can be used by layouts. */
             @SuppressLint("MissingGetterMatchingBuilder")
-            public @NonNull Builder addIdToImageMapping(@NonNull String id,
-                    @NonNull ImageResource image) {
+            public @NonNull Builder addIdToImageMapping(
+                    @NonNull String id, @NonNull ImageResource image) {
                 mImpl.putIdToImage(id, image.toProto());
                 return this;
             }

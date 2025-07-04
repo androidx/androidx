@@ -25,8 +25,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import androidx.annotation.Nullable;
-
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,9 +133,8 @@ public class SortedListTest {
                 return item1.id == item2.id;
             }
 
-            @Nullable
             @Override
-            public Object getChangePayload(Item item1, Item item2) {
+            public @Nullable Object getChangePayload(Item item1, Item item2) {
                 if (mPayloadChanges) {
                     return item2.data;
                 }

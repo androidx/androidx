@@ -16,17 +16,19 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.RectF
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.complications.moveToStart
+import androidx.wear.watchface.style.UserStyleSetting.ColorUserStyleSetting.ColorOption
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.test.R
@@ -34,7 +36,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RequiresApi(Build.VERSION_CODES.P)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class UserStyleSchemaInflateTest {
@@ -60,7 +62,7 @@ class UserStyleSchemaInflateTest {
             .containsExactly(
                 WatchFaceLayer.BASE,
                 WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                WatchFaceLayer.COMPLICATIONS_OVERLAY,
             )
         assertThat(setting0.icon!!.resId).isEqualTo(R.drawable.color_style_icon)
         assertThat(setting0.watchFaceEditorData!!.icon!!.resId)
@@ -115,7 +117,7 @@ class UserStyleSchemaInflateTest {
             .containsExactly(
                 WatchFaceLayer.BASE,
                 WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                WatchFaceLayer.COMPLICATIONS_OVERLAY,
             )
         assertThat(setting1.icon).isNull()
         assertThat(setting1.options.size).isEqualTo(2)
@@ -363,5 +365,48 @@ class UserStyleSchemaInflateTest {
         assertThat(flavors!!.flavors.size).isEqualTo(2)
         assertThat(flavors!!.flavors[0].style.userStyleMap.keys)
             .containsExactly(context.getString(R.string.list_setting_common_id))
+    }
+
+    @Test
+    @Suppress("Deprecation") // userStyleSettings
+    @SuppressLint("NewApi") // ColorUserStyleSetting
+    public fun test_inflate_color_list_schema() {
+        val parser = context.resources.getXml(R.xml.color_schema)
+
+        // Parse next until start tag is found
+        parser.moveToStart("UserStyleSchema")
+
+        val schema = UserStyleSchema.inflate(context.resources, parser, 1.0f, 1.0f)
+
+        assertThat(schema.userStyleSettings.size).isEqualTo(1)
+        val setting0 = schema.userStyleSettings[0] as UserStyleSetting.ColorUserStyleSetting
+        assertThat(setting0.id.value).isEqualTo("ColorStyle")
+        assertThat(setting0.displayName).isEqualTo("Colors")
+        assertThat(setting0.description).isEqualTo("Watchface colorization")
+        assertThat(setting0.defaultOptionIndex).isEqualTo(1)
+        assertThat(setting0.affectedWatchFaceLayers)
+            .containsExactly(
+                WatchFaceLayer.BASE,
+                WatchFaceLayer.COMPLICATIONS,
+                WatchFaceLayer.COMPLICATIONS_OVERLAY,
+            )
+        assertThat(setting0.icon!!.resId).isEqualTo(R.drawable.color_style_icon)
+        assertThat(setting0.watchFaceEditorData!!.icon!!.resId)
+            .isEqualTo(R.drawable.color_style_icon_wf)
+        assertThat(setting0.options.size).isEqualTo(2)
+        val option00 = (setting0.options[0] as ColorOption)
+        assertThat(option00.id).isEqualTo(UserStyleSetting.Option.Id("reds"))
+        assertThat(option00.displayName).isEqualTo("Red Style")
+        assertThat(option00.screenReaderName).isEqualTo("Red watch face style")
+        assertThat(option00.colors).containsExactly(0xffff0000.toInt(), 0xffee3300.toInt())
+        assertThat(option00.childSettings).isEmpty()
+        val option01 = (setting0.options[1] as ColorOption)
+        assertThat(option01.id).isEqualTo(UserStyleSetting.Option.Id("greens"))
+        assertThat(option01.displayName).isEqualTo("Green Style")
+        assertThat(option01.screenReaderName).isEqualTo("Green Style")
+        assertThat(option01.colors).containsExactly(0xff00ff00.toInt(), 0xff00ee22.toInt())
+        assertThat(option01.childSettings).isEmpty()
+
+        parser.close()
     }
 }

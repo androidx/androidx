@@ -67,7 +67,7 @@ class NavigationDrawerItemTest {
                     label = {},
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.testTag(DrawerItemTag)
+                    modifier = Modifier.testTag(DrawerItemTag),
                 )
             }
         }
@@ -87,7 +87,7 @@ class NavigationDrawerItemTest {
                     label = { Text("Multi \nline \nlabel \nis \ntall") },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.testTag(DrawerItemTag)
+                    modifier = Modifier.testTag(DrawerItemTag),
                 )
             }
         }
@@ -107,14 +107,14 @@ class NavigationDrawerItemTest {
                         Icon(
                             Icons.Default.Face,
                             contentDescription = null,
-                            modifier = Modifier.testTag("icon")
+                            modifier = Modifier.testTag("icon"),
                         )
                     },
                     label = { Text("Label") },
                     badge = { Text("Badge") },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.testTag(DrawerItemTag)
+                    modifier = Modifier.testTag(DrawerItemTag),
                 )
             }
         }
@@ -145,7 +145,7 @@ class NavigationDrawerItemTest {
                     label = { Text("Label") },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.testTag(DrawerItemTag)
+                    modifier = Modifier.testTag(DrawerItemTag),
                 )
             }
         }
@@ -166,14 +166,14 @@ class NavigationDrawerItemTest {
                         icon = { Icon(Icons.Filled.Favorite, null) },
                         label = { Text("ItemText") },
                         selected = true,
-                        onClick = {}
+                        onClick = {},
                     )
                     NavigationDrawerItem(
                         modifier = Modifier.testTag("unselected_item"),
                         icon = { Icon(Icons.Filled.Favorite, null) },
                         label = { Text("ItemText") },
                         selected = false,
-                        onClick = {}
+                        onClick = {},
                     )
                 }
             ) {}

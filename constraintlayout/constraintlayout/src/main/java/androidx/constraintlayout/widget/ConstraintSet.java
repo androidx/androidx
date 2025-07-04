@@ -842,7 +842,7 @@ public class ConstraintSet {
     }
 
     /**
-     * Get the delta form the ConstraintSet and aplly to this
+     * Get the delta from the ConstraintSet and apply to this
      * @param cs
      */
     public void applyDeltaFrom(ConstraintSet cs) {
@@ -3659,7 +3659,8 @@ public class ConstraintSet {
      * Elevation logic is based on style and animation. By default it is not used because it would
      * lead to unexpected results.
      *
-     * @param apply true if this constraint set applies elevation to this view
+     * @param viewId ID of view to adjust the elevation
+     * @param apply  true if this constraint set applies elevation to this view
      */
     public void setApplyElevation(int viewId, boolean apply) {
         if (Build.VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
@@ -4200,9 +4201,10 @@ public class ConstraintSet {
     /**
      * Creates a ConstraintLayout Barrier object.
      *
-     * @param id
+     * @param id         the id of the constraint to create or partially overwrite.
      * @param direction  Barrier.{LEFT,RIGHT,TOP,BOTTOM,START,END}
-     * @param referenced
+     * @param margin     the barrierMargin of the Barrier object
+     * @param referenced the referenceIds of the Barrier object
      */
     public void createBarrier(int id, int direction, int margin, int... referenced) {
         Constraint constraint = get(id);
@@ -4214,7 +4216,7 @@ public class ConstraintSet {
     }
 
     /**
-     * Set the guideline's distance form the top or left edge.
+     * Set the guideline's distance from the top or left edge.
      *
      * @param guidelineID ID of the guideline
      * @param margin      the distance to the top or left edge

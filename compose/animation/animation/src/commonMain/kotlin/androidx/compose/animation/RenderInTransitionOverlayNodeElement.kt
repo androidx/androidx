@@ -44,14 +44,14 @@ internal data class RenderInTransitionOverlayNodeElement(
     var sharedTransitionScope: SharedTransitionScopeImpl,
     var renderInOverlay: () -> Boolean,
     val zIndexInOverlay: Float,
-    val clipInOverlay: (LayoutDirection, Density) -> Path?
+    val clipInOverlay: (LayoutDirection, Density) -> Path?,
 ) : ModifierNodeElement<RenderInTransitionOverlayNode>() {
     override fun create(): RenderInTransitionOverlayNode {
         return RenderInTransitionOverlayNode(
             sharedTransitionScope,
             renderInOverlay,
             zIndexInOverlay,
-            clipInOverlay
+            clipInOverlay,
         )
     }
 
@@ -109,7 +109,7 @@ internal class RenderInTransitionOverlayNode(
                     val (x, y) =
                         sharedScope.root.localPositionOf(
                             this@RenderInTransitionOverlayNode.requireLayoutCoordinates(),
-                            Offset.Zero
+                            Offset.Zero,
                         )
                     val clipPath = clipInOverlay(layoutDirection, requireDensity())
                     if (clipPath != null) {

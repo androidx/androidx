@@ -5,9 +5,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -42,10 +41,16 @@ androidXMultiplatform {
 
         wasmJsMain {
             dependsOn(nonJvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
         }
 
         jsMain {
             dependsOn(nonJvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
         }
 
         targets.configureEach { target ->
@@ -88,9 +93,8 @@ artifacts {
 
 androidx {
     name = "Annotation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2013"
     description = "Provides source annotations for tooling and readability."
 }

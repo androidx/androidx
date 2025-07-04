@@ -53,6 +53,22 @@ public final class PlatformDataValues {
             return this;
         }
 
+        /**
+         * Puts all platform data values from a {@link DynamicDataMap}.
+         *
+         * <p>Values with keys that are not of the type {@link PlatformDataKey} will be ignored.
+         */
+        @SuppressWarnings("BuilderSetStyle") // Map-style builder, getter is generic get().
+        public @NonNull Builder putAll(@NonNull DynamicDataMap dynamicDataMap) {
+            dynamicDataMap.getEntries().stream()
+                    .filter(entry -> entry.getKey() instanceof PlatformDataKey)
+                    .forEach(entry -> {
+                        data.put((PlatformDataKey<?>) entry.getKey(), entry.getValue());
+                    });
+
+            return this;
+        }
+
         /** Builds the {@link PlatformDataValues}. */
         public @NonNull PlatformDataValues build() {
             return new PlatformDataValues(unmodifiableMap(data));

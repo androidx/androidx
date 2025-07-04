@@ -52,7 +52,7 @@ internal class AndroidFontListTypeface(
     fontFamily: FontListFontFamily,
     context: Context,
     necessaryStyles: List<Pair<FontWeight, FontStyle>>? = null,
-    val fontMatcher: FontMatcher = AndroidFontListTypeface.fontMatcher
+    val fontMatcher: FontMatcher = AndroidFontListTypeface.fontMatcher,
 ) : AndroidTypeface {
 
     private companion object {
@@ -91,7 +91,7 @@ internal class AndroidFontListTypeface(
     override fun getNativeTypeface(
         fontWeight: FontWeight,
         fontStyle: FontStyle,
-        synthesis: FontSynthesis
+        synthesis: FontSynthesis,
     ): Typeface {
         val font =
             fontMatcher

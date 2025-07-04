@@ -31,7 +31,7 @@ public class BroadcastsObserver(
     private val watchState: WatchState,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val deferredWatchFaceImpl: Deferred<WatchFaceImpl>,
-    private val uiThreadCoroutineScope: CoroutineScope
+    private val uiThreadCoroutineScope: CoroutineScope,
 ) : BroadcastsReceiver.BroadcastEventObserver {
     private var batteryLow: Boolean? = null
     private var charging: Boolean? = null

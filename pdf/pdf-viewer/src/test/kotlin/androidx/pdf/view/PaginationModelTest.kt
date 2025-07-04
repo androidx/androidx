@@ -17,8 +17,9 @@ package androidx.pdf.view
 
 import android.graphics.Point
 import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Parcel
-import androidx.test.filters.SmallTest
+import androidx.core.graphics.toRectF
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.max
 import kotlin.random.Random
@@ -28,11 +29,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@SmallTest
 @RunWith(RobolectricTestRunner::class)
 class PaginationModelTest {
     private val NUM_PAGES = 250
-    private val PAGE_SPACING_PX = 5
+    private val PAGE_SPACING_PX = 5f
     private lateinit var paginationModel: PaginationModel
 
     @Before
@@ -43,10 +43,10 @@ class PaginationModelTest {
     @Test
     fun invalidConstructorArguments() {
         assertThrows(IllegalArgumentException::class.java) {
-            PaginationModel(pageSpacingPx = -1, numPages = 10)
+            PaginationModel(pageSpacingPx = -1f, numPages = 10)
         }
         assertThrows(IllegalArgumentException::class.java) {
-            PaginationModel(pageSpacingPx = 10, numPages = -1)
+            PaginationModel(pageSpacingPx = 10f, numPages = -1)
         }
     }
 
@@ -145,12 +145,12 @@ class PaginationModelTest {
         paginationModel.addPage(2, pageSize)
 
         val visiblePages =
-            paginationModel.getPagesInViewport(viewportTop = -100, viewportBottom = 0)
+            paginationModel.getPagesInViewport(viewportTop = -100f, viewportBottom = 0f)
 
         // When the viewport is above the top of this model, we expect an empty range at the
         // beginning of this model
-        assertThat(visiblePages.upper).isEqualTo(0)
-        assertThat(visiblePages.lower).isEqualTo(0)
+        assertThat(visiblePages.pages.upper).isEqualTo(0)
+        assertThat(visiblePages.pages.lower).isEqualTo(0)
     }
 
     @Test
@@ -163,14 +163,14 @@ class PaginationModelTest {
 
         val visiblePages =
             paginationModel.getPagesInViewport(
-                viewportTop = contentBottom + 10,
-                viewportBottom = contentBottom + 100
+                viewportTop = contentBottom + 10f,
+                viewportBottom = contentBottom + 100f,
             )
 
         // When the viewport is below the end of this model, we expect an empty range at the last
         // known page
-        assertThat(visiblePages.upper).isEqualTo(2)
-        assertThat(visiblePages.lower).isEqualTo(2)
+        assertThat(visiblePages.pages.upper).isEqualTo(2)
+        assertThat(visiblePages.pages.lower).isEqualTo(2)
     }
 
     @Test
@@ -182,10 +182,13 @@ class PaginationModelTest {
         val contentBottom = pageSize.y * 3 + PAGE_SPACING_PX * 5
 
         val visiblePages =
-            paginationModel.getPagesInViewport(viewportTop = 0, viewportBottom = contentBottom + 10)
+            paginationModel.getPagesInViewport(
+                viewportTop = 0f,
+                viewportBottom = contentBottom + 10f,
+            )
 
-        assertThat(visiblePages.upper).isEqualTo(2)
-        assertThat(visiblePages.lower).isEqualTo(0)
+        assertThat(visiblePages.pages.upper).isEqualTo(2)
+        assertThat(visiblePages.pages.lower).isEqualTo(0)
     }
 
     @Test
@@ -196,10 +199,10 @@ class PaginationModelTest {
         paginationModel.addPage(2, pageSize)
 
         val visiblePages =
-            paginationModel.getPagesInViewport(viewportTop = 235, viewportBottom = 335)
+            paginationModel.getPagesInViewport(viewportTop = 235f, viewportBottom = 335f)
 
-        assertThat(visiblePages.upper).isEqualTo(1)
-        assertThat(visiblePages.lower).isEqualTo(1)
+        assertThat(visiblePages.pages.upper).isEqualTo(1)
+        assertThat(visiblePages.pages.lower).isEqualTo(1)
     }
 
     @Test
@@ -210,10 +213,10 @@ class PaginationModelTest {
         paginationModel.addPage(2, pageSize)
 
         val visiblePages =
-            paginationModel.getPagesInViewport(viewportTop = 235, viewportBottom = 455)
+            paginationModel.getPagesInViewport(viewportTop = 235f, viewportBottom = 455f)
 
-        assertThat(visiblePages.upper).isEqualTo(2)
-        assertThat(visiblePages.lower).isEqualTo(1)
+        assertThat(visiblePages.pages.upper).isEqualTo(2)
+        assertThat(visiblePages.pages.lower).isEqualTo(1)
     }
 
     @Test
@@ -225,10 +228,10 @@ class PaginationModelTest {
         paginationModel.addPage(3, pageSize)
 
         val visiblePages =
-            paginationModel.getPagesInViewport(viewportTop = 210, viewportBottom = 840)
+            paginationModel.getPagesInViewport(viewportTop = 210f, viewportBottom = 840f)
 
-        assertThat(visiblePages.upper).isEqualTo(3)
-        assertThat(visiblePages.lower).isEqualTo(1)
+        assertThat(visiblePages.pages.upper).isEqualTo(3)
+        assertThat(visiblePages.pages.lower).isEqualTo(1)
     }
 
     /**
@@ -244,16 +247,16 @@ class PaginationModelTest {
         paginationModel.addPage(0, smallSize)
         paginationModel.addPage(1, mediumSize)
         paginationModel.addPage(2, largeSize)
-        val viewport = Rect(0, 0, 800, 800)
+        val viewport = Rect(0, 0, 800, 800).toRectF()
 
-        val expectedSmLocation = Rect(300, 0, 500, 100)
+        val expectedSmLocation = Rect(300, 0, 500, 100).toRectF()
         assertThat(paginationModel.getPageLocation(0, viewport)).isEqualTo(expectedSmLocation)
 
-        val expectedMdLocation = Rect(200, 100 + PAGE_SPACING_PX, 600, 300 + PAGE_SPACING_PX)
+        val expectedMdLocation = RectF(200f, 100 + PAGE_SPACING_PX, 600f, 300 + PAGE_SPACING_PX)
         assertThat(paginationModel.getPageLocation(1, viewport)).isEqualTo(expectedMdLocation)
 
         val expectedLgLocation =
-            Rect(0, 300 + (PAGE_SPACING_PX * 2), 800, 700 + (PAGE_SPACING_PX * 2))
+            RectF(0f, 300 + (PAGE_SPACING_PX * 2), 800f, 700 + (PAGE_SPACING_PX * 2))
         assertThat(paginationModel.getPageLocation(2, viewport)).isEqualTo(expectedLgLocation)
     }
 
@@ -271,13 +274,13 @@ class PaginationModelTest {
         paginationModel.addPage(1, mediumSize)
         paginationModel.addPage(2, largeSize)
         // A 300x200 section in the bottom-left corner of this model
-        val viewport = Rect(0, 250, 200, 800)
+        val viewport = Rect(0, 250, 200, 800).toRectF()
 
-        val expectedMdLocation = Rect(0, 100 + PAGE_SPACING_PX, 400, 300 + PAGE_SPACING_PX)
+        val expectedMdLocation = RectF(0f, 100 + PAGE_SPACING_PX, 400f, 300 + PAGE_SPACING_PX)
         assertThat(paginationModel.getPageLocation(1, viewport)).isEqualTo(expectedMdLocation)
 
         val expectedLgLocation =
-            Rect(0, 300 + (PAGE_SPACING_PX * 2), 800, 700 + (PAGE_SPACING_PX * 2))
+            RectF(0f, 300 + (PAGE_SPACING_PX * 2), 800f, 700 + (PAGE_SPACING_PX * 2))
         assertThat(paginationModel.getPageLocation(2, viewport)).isEqualTo(expectedLgLocation)
     }
 
@@ -295,13 +298,13 @@ class PaginationModelTest {
         paginationModel.addPage(1, mediumSize)
         paginationModel.addPage(2, largeSize)
         // A 300x200 section in the bottom-right corner of this model
-        val viewport = Rect(600, 250, 800, 800)
+        val viewport = Rect(600, 250, 800, 800).toRectF()
 
-        val expectedMdLocation = Rect(400, 100 + PAGE_SPACING_PX, 800, 300 + PAGE_SPACING_PX)
+        val expectedMdLocation = RectF(400f, 100 + PAGE_SPACING_PX, 800f, 300 + PAGE_SPACING_PX)
         assertThat(paginationModel.getPageLocation(1, viewport)).isEqualTo(expectedMdLocation)
 
         val expectedLgLocation =
-            Rect(0, 300 + (PAGE_SPACING_PX * 2), 800, 700 + (PAGE_SPACING_PX * 2))
+            RectF(0f, 300 + (PAGE_SPACING_PX * 2), 800f, 700 + (PAGE_SPACING_PX * 2))
         assertThat(paginationModel.getPageLocation(2, viewport)).isEqualTo(expectedLgLocation)
     }
 

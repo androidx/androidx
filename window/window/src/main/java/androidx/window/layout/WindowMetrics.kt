@@ -36,7 +36,7 @@ internal constructor(
      *
      * @see [DisplayMetrics.density]
      */
-    val density: Float
+    val density: Float,
 ) {
 
     /** An internal constructor for [WindowMetrics] */

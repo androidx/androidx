@@ -106,7 +106,7 @@ public object RobolectricCameras {
                 characteristics,
                 FakeCamera2MetadataProvider(),
                 emptyMap(),
-                emptySet()
+                emptySet(),
             )
 
         val callback = CameraStateCallback(cameraId)
@@ -137,7 +137,7 @@ public object RobolectricCameras {
         val cameraId: CameraId,
         val characteristics: CameraCharacteristics,
         val metadata: CameraMetadata,
-        val cameraDevice: CameraDevice
+        val cameraDevice: CameraDevice,
     )
 
     private class CameraStateCallback(private val cameraId: CameraId) :

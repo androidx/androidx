@@ -26,7 +26,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelin
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
-import androidx.camera.camera2.pipe.integration.impl.SessionProcessorManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraImpl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControlImpl
@@ -43,11 +42,7 @@ import javax.inject.Scope
 
 /** Dependency bindings for building a [UseCaseCamera] */
 @Module(
-    includes =
-        [
-            UseCaseCameraImpl.Bindings::class,
-            UseCaseCameraRequestControlImpl.Bindings::class,
-        ]
+    includes = [UseCaseCameraImpl.Bindings::class, UseCaseCameraRequestControlImpl.Bindings::class]
 )
 public abstract class UseCaseCameraModule {
     // Used for dagger provider methods that are static.
@@ -57,7 +52,7 @@ public abstract class UseCaseCameraModule {
         @Provides
         public fun provideCapturePipeline(
             capturePipelineImpl: CapturePipelineImpl,
-            capturePipelineTorchCorrection: CapturePipelineTorchCorrection
+            capturePipelineTorchCorrection: CapturePipelineTorchCorrection,
         ): CapturePipeline {
             if (CapturePipelineTorchCorrection.isEnabled) {
                 return capturePipelineTorchCorrection
@@ -76,7 +71,6 @@ public class UseCaseCameraConfig(
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraGraph: CameraGraph,
     private val streamConfigMap: Map<CameraStream.Config, DeferrableSurface>,
-    private val sessionProcessorManager: SessionProcessorManager?,
 ) {
     @UseCaseCameraScope
     @Provides
@@ -90,12 +84,6 @@ public class UseCaseCameraConfig(
         return sessionConfigAdapter
     }
 
-    @UseCaseCameraScope
-    @Provides
-    public fun provideSessionProcessorManager(): SessionProcessorManager? {
-        return sessionProcessorManager
-    }
-
     /**
      * [UseCaseGraphConfig] would store the CameraGraph and related surface map that would be used
      * for [UseCaseCamera].
@@ -104,7 +92,7 @@ public class UseCaseCameraConfig(
     @Provides
     public fun provideUseCaseGraphConfig(
         useCaseSurfaceManager: UseCaseSurfaceManager,
-        cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
+        cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository,
     ): UseCaseGraphConfig {
         sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
             cameraInteropStateCallbackRepository.updateCallbacks(sessionConfig)
@@ -121,25 +109,19 @@ public class UseCaseCameraConfig(
         // will close the CameraGraph when that happens, and we cannot start a closed CameraGraph.
         cameraGraph.start()
 
-        if (!sessionConfigAdapter.isSessionProcessorEnabled) {
-            Log.debug { "Setting up Surfaces with UseCaseSurfaceManager" }
-            if (sessionConfigAdapter.isSessionConfigValid()) {
-                useCaseSurfaceManager
-                    .setupAsync(
-                        cameraGraph,
-                        sessionConfigAdapter,
-                        surfaceToStreamMap,
-                    )
-                    .invokeOnCompletion { throwable ->
-                        // Only show logs for error cases, ignore CancellationException since the
-                        // task could be cancelled by UseCaseSurfaceManager#stopAsync().
-                        if (throwable != null && throwable !is CancellationException) {
-                            Log.error(throwable) { "Surface setup error!" }
-                        }
+        Log.debug { "Setting up Surfaces with UseCaseSurfaceManager" }
+        if (sessionConfigAdapter.isSessionConfigValid()) {
+            useCaseSurfaceManager
+                .setupAsync(cameraGraph, sessionConfigAdapter, surfaceToStreamMap)
+                .invokeOnCompletion { throwable ->
+                    // Only show logs for error cases, ignore CancellationException since the
+                    // task could be cancelled by UseCaseSurfaceManager#stopAsync().
+                    if (throwable != null && throwable !is CancellationException) {
+                        Log.error(throwable) { "Surface setup error!" }
                     }
-            } else {
-                Log.error { "Unable to create capture session due to conflicting configurations" }
-            }
+                }
+        } else {
+            Log.error { "Unable to create capture session due to conflicting configurations" }
         }
 
         return UseCaseGraphConfig(

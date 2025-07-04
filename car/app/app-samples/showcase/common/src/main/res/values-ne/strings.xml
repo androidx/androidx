@@ -140,7 +140,7 @@
     <string name="send_notification_title" msgid="4731688444696028193">"सूचना पठाउनुहोस्"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"सूचनाहरू प्राप्त गर्ने सुविधा अन गर्नुहोस्"</string>
     <string name="stop_notifications_title" msgid="3703892710275206239">"सूचनाहरू प्राप्त गर्ने सुविधा अफ गर्नुहोस्"</string>
-    <string name="notification_title" msgid="5507590705935298176">"सूचना"</string>
+    <string name="notification_title" msgid="5507590705935298176">"नोटिफिकेसन"</string>
     <string name="importance_title" msgid="9034862997821839831">"महत्त्व"</string>
     <string name="category_title" msgid="4783851267093259949">"कोटी"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"चलिरहेको छ"</string>
@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"म्यासेजको टेम्प्लेटको डेमो"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"म्यासेज यहाँ लेखिने छ।\nथप टेक्स्ट लेख्न दोस्रो हरफमा जानुहोस्।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"सर्ट म्यासेज टेम्प्लेटको डेमो"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"खण्डमा छुट्याइएको सामग्रीको टेम्प्लेटको डेमो"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"रेडियो बटन भएको खण्ड"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"टगल भएको खण्ड"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"थुप्रै रो भएको खण्ड"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ग्रिड आइटम भएको खण्ड"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनको टम्प्लेटको डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठाउँको सूचीको टेम्प्लेटको डेमो"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ठाउँहरू ब्राउज गर्नुहोस्"</string>

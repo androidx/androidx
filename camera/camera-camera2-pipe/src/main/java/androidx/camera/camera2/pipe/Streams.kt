@@ -74,7 +74,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
     public class Config
     internal constructor(
         public val outputs: List<OutputStream.Config>,
-        public val imageSourceConfig: ImageSourceConfig? = null
+        public val imageSourceConfig: ImageSourceConfig? = null,
     ) {
         init {
             val firstOutput = outputs.first()
@@ -111,7 +111,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
                         streamUseHint,
                         sensorPixelModes,
                     ),
-                    imageSourceConfig
+                    imageSourceConfig,
                 )
 
             /**
@@ -120,7 +120,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
              */
             public fun create(
                 output: OutputStream.Config,
-                imageSourceConfig: ImageSourceConfig? = null
+                imageSourceConfig: ImageSourceConfig? = null,
             ): Config = Config(listOf(output), imageSourceConfig)
 
             /**
@@ -130,7 +130,7 @@ internal constructor(public val id: StreamId, public val outputs: List<OutputStr
              */
             public fun create(
                 outputs: List<OutputStream.Config>,
-                imageSourceConfig: ImageSourceConfig? = null
+                imageSourceConfig: ImageSourceConfig? = null,
             ): Config = Config(outputs, imageSourceConfig)
         }
     }
@@ -439,6 +439,7 @@ public interface OutputStream {
             public val VIDEO_RECORD: StreamUseCase = StreamUseCase(3)
             public val PREVIEW_VIDEO_STILL: StreamUseCase = StreamUseCase(4)
             public val VIDEO_CALL: StreamUseCase = StreamUseCase(5)
+            public val CROPPED_RAW: StreamUseCase = StreamUseCase(6)
         }
     }
 
@@ -466,12 +467,12 @@ public interface OutputStream {
      */
     public fun isValidForHighSpeedOperatingMode(): Boolean {
         return this.streamUseCase == null ||
-            this.streamUseCase == OutputStream.StreamUseCase.DEFAULT ||
-            this.streamUseCase == OutputStream.StreamUseCase.PREVIEW ||
-            this.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD ||
+            this.streamUseCase == DEFAULT ||
+            this.streamUseCase == StreamUseCase.PREVIEW ||
+            this.streamUseCase == StreamUseCase.VIDEO_RECORD ||
             this.streamUseHint == null ||
-            this.streamUseHint == OutputStream.StreamUseHint.DEFAULT ||
-            this.streamUseHint == OutputStream.StreamUseHint.VIDEO_RECORD
+            this.streamUseHint == StreamUseHint.DEFAULT ||
+            this.streamUseHint == StreamUseHint.VIDEO_RECORD
     }
 }
 
@@ -481,7 +482,7 @@ public class ImageSourceConfig(
     public val capacity: Int,
     public val usageFlags: Long? = null,
     public val defaultDataSpace: Int? = null,
-    public val defaultHardwareBufferFormat: Int? = null
+    public val defaultHardwareBufferFormat: Int? = null,
 )
 
 /** This identifies a single output. */
@@ -501,7 +502,7 @@ public interface InputStream {
     public class Config(
         public val stream: CameraStream.Config,
         public val maxImages: Int,
-        public var streamFormat: StreamFormat
+        public var streamFormat: StreamFormat,
     )
 }
 

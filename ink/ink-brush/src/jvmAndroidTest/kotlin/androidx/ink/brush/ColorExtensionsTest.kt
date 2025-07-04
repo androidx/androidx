@@ -80,4 +80,15 @@ class ColorExtensionsTest {
             ComposeColorSpaces.AdobeRgb.toInkColorSpaceId()
         }
     }
+
+    @Test
+    fun composeColorSpaceFromInkColorSpaceId_converts() {
+        assertThat(composeColorSpaceFromInkColorSpaceId(0)).isEqualTo(ComposeColorSpaces.Srgb)
+        assertThat(composeColorSpaceFromInkColorSpaceId(1)).isEqualTo(ComposeColorSpaces.DisplayP3)
+    }
+
+    @Test
+    fun composeColorSpaceFromInkColorSpaceId_withUnsupportedColorSpace_throws() {
+        assertFailsWith<IllegalArgumentException> { composeColorSpaceFromInkColorSpaceId(-1) }
+    }
 }

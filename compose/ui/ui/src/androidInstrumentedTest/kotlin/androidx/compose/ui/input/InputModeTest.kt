@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.input
 
-import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.focus.resetInTouchModeCompat
 import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
@@ -49,12 +49,8 @@ class InputModeTest(private val param: Param) {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(param.inputMode == Touch)
     }
 
-    // TODO(b/267253920): Add a compose test API to set/reset InputMode.
     @After
-    fun resetTouchMode() =
-        with(InstrumentationRegistry.getInstrumentation()) {
-            if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
-        }
+    fun resetTouchMode() = InstrumentationRegistry.getInstrumentation().resetInTouchModeCompat()
 
     @Test
     fun switchToTouchModeProgrammatically() {

@@ -158,8 +158,8 @@ public final class PositionIdTree<T extends TreeNode> {
      * Returns all of the nodes in a subtree under the node with {@code posId} matching the {@code
      * predicate}.
      */
-    @NonNull List<T> findChildrenFor(@NonNull String posId,
-            @NonNull Predicate<? super T> predicate) {
+    @NonNull List<T> findChildrenFor(
+            @NonNull String posId, @NonNull Predicate<? super T> predicate) {
         List<T> result = new ArrayList<>();
         addChildrenFor(posId, predicate, result);
         return result;

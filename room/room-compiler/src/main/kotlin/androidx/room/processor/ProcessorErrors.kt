@@ -29,63 +29,66 @@ import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
-import androidx.room.vo.Field
+import androidx.room.vo.Property
 
 object ProcessorErrors {
     private fun String.trim(): String {
         return this.trimIndent().replace("\n", " ")
     }
 
-    val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
+    const val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
 
-    val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
-    val MISSING_INSERT_ANNOTATION = "Insert methods must be annotated with ${Insert::class.java}"
-    val MISSING_DELETE_ANNOTATION = "Delete methods must be annotated with ${Delete::class.java}"
-    val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
-    val MISSING_UPSERT_ANNOTATION = "Upsert methods must be annotated with ${Upsert::class.java}"
+    val MISSING_QUERY_ANNOTATION = "Query functions must be annotated with ${Query::class.java}"
+    val MISSING_INSERT_ANNOTATION = "Insert functions must be annotated with ${Insert::class.java}"
+    val MISSING_DELETE_ANNOTATION = "Delete functions must be annotated with ${Delete::class.java}"
+    val MISSING_UPDATE_ANNOTATION = "Update functions must be annotated with ${Update::class.java}"
+    val MISSING_UPSERT_ANNOTATION = "Upsert functions must be annotated with ${Upsert::class.java}"
     val MISSING_RAWQUERY_ANNOTATION =
-        "RawQuery methods must be annotated with" + " ${RawQuery::class.java}"
-    val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
-    val TRANSACTION_REFERENCE_DOCS =
+        "RawQuery functions must be annotated with" + " ${RawQuery::class.java}"
+    const val INVALID_ON_CONFLICT_VALUE =
+        "On conflict value must be one of @OnConflictStrategy values."
+    const val TRANSACTION_REFERENCE_DOCS =
         "https://developer.android.com/reference/androidx/" + "room/Transaction.html"
-    val INVALID_ANNOTATION_COUNT_IN_DAO_METHOD =
-        "An abstract DAO method must be" +
+    val INVALID_ANNOTATION_COUNT_IN_DAO_FUNCTION =
+        "An abstract DAO function must be" +
             " annotated with one and only one of the following annotations: " +
             DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(", ") { "@" + it.java.simpleName }
     val INVALID_ANNOTATION_IN_DAO_PROPERTY =
         "An abstract DAO property must be" + " annotated with @get:${Query::class.java}."
-    val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
-    val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS =
+    const val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
+    const val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_FUNCTIONS =
         "Cannot use unbound generics in query" +
-            " methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_INSERT_METHODS =
+            " functions. It must be bound to a type through base Dao class."
+    const val CANNOT_USE_UNBOUND_GENERICS_IN_INSERT_FUNCTIONS =
         "Cannot use unbound generics in" +
-            " insert methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_METHODS =
+            " insert functions. It must be bound to a type through base Dao class."
+    const val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_FUNCTIONS =
         "Cannot use unbound generics in" +
-            " upsert methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES =
+            " upsert functions. It must be bound to a type through base Dao class."
+    const val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_PROPERTIES =
+        "Cannot use unbound properties in entities."
+    const val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES =
         "Cannot use unbound generics in Dao classes." +
             " If you are trying to create a base DAO, create a normal class, extend it with type" +
             " params then mark the subclass with @Dao."
-    val CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY =
+    const val CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY =
         "Cannot use @MapColumn and " +
             " @MapInfo annotation in the same function. Please prefer using @MapColumn only."
-    val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
-    val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
-    val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
-    val AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT =
+    const val CANNOT_FIND_GETTER_FOR_PROPERTY = "Cannot find getter for property."
+    const val CANNOT_FIND_SETTER_FOR_PROPERTY = "Cannot find setter for property."
+    const val MISSING_PRIMARY_KEY =
+        "An entity must have at least 1 property annotated with @PrimaryKey"
+    const val AUTO_INCREMENTED_PRIMARY_KEY_IS_NOT_INT =
         "If a primary key is annotated with" +
             " autoGenerate, its type must be int, Integer, long or Long."
-    val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS =
+    const val AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_PROPERTIES =
         "When @PrimaryKey annotation is used on a" +
-            " field annotated with @Embedded, the embedded class should have only 1 field."
-    val INVALID_INDEX_ORDERS_SIZE =
+            " property annotated with @Embedded, the embedded class should have only 1 property."
+    const val INVALID_INDEX_ORDERS_SIZE =
         "The number of entries in @Index#orders() should be " +
             "equal to the amount of columns defined in the @Index value."
 
-    val DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP =
+    const val DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP =
         "Do not use ImmutableMultimap as a type (as with" +
             " Multimap itself). Instead use the subtypes such as ImmutableSetMultimap or " +
             "ImmutableListMultimap."
@@ -104,9 +107,9 @@ object ProcessorErrors {
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
-    val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE =
+    const val DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE =
         "Dao class must be an abstract class or" + " an interface"
-    val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annotated with @Dao"
+    const val DAO_MUST_BE_ANNOTATED_WITH_DAO = "Dao class must be annotated with @Dao"
 
     fun daoMustHaveMatchingConstructor(daoName: String, dbName: String): String {
         return """
@@ -116,81 +119,82 @@ object ProcessorErrors {
             .trim()
     }
 
-    val ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY = "Entity class must be annotated with @Entity"
-    val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES =
+    const val ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY = "Entity class must be annotated with @Entity"
+    const val DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES =
         "@Database annotation must specify list" + " of entities"
-    val COLUMN_NAME_CANNOT_BE_EMPTY =
+    const val COLUMN_NAME_CANNOT_BE_EMPTY =
         "Column name cannot be blank. If you don't want to set it" +
-            ", just remove the @ColumnInfo annotation or use @ColumnInfo.INHERIT_FIELD_NAME."
+            ", just remove the @ColumnInfo annotation or use @ColumnInfo.INHERIT_PROPERTY_NAME."
 
-    val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY =
+    const val ENTITY_TABLE_NAME_CANNOT_BE_EMPTY =
         "Entity table name cannot be blank. If you don't want" +
             " to set it, just remove the tableName property."
 
-    val ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE =
+    const val ENTITY_TABLE_NAME_CANNOT_START_WITH_SQLITE =
         "Entity table name cannot start with \"sqlite_\"."
 
-    val VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW =
+    const val VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW =
         "View class must be annotated with " + "@DatabaseView"
-    val VIEW_NAME_CANNOT_BE_EMPTY =
+    const val VIEW_NAME_CANNOT_BE_EMPTY =
         "View name cannot be blank. If you don't want" +
             " to set it, just remove the viewName property."
-    val VIEW_NAME_CANNOT_START_WITH_SQLITE = "View name cannot start with \"sqlite_\"."
-    val VIEW_QUERY_MUST_BE_SELECT = "Query for @DatabaseView must be a SELECT."
-    val VIEW_QUERY_CANNOT_TAKE_ARGUMENTS = "Query for @DatabaseView cannot take any arguments."
+    const val VIEW_NAME_CANNOT_START_WITH_SQLITE = "View name cannot start with \"sqlite_\"."
+    const val VIEW_QUERY_MUST_BE_SELECT = "Query for @DatabaseView must be a SELECT."
+    const val VIEW_QUERY_CANNOT_TAKE_ARGUMENTS =
+        "Query for @DatabaseView cannot take any arguments."
 
     fun viewCircularReferenceDetected(views: List<String>): String {
         return "Circular reference detected among views: ${views.joinToString(", ")}"
     }
 
-    val CANNOT_BIND_QUERY_PARAMETER_INTO_STMT =
-        "Query method parameters should either be a" +
+    const val CANNOT_BIND_QUERY_PARAMETER_INTO_STMT =
+        "Query function parameters should either be a" +
             " type that can be converted into a database column or a List / Array that contains" +
             " such type. You can consider adding a Type Adapter for this."
 
-    val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE =
-        "Query/Insert method parameters cannot " + "start with underscore (_)."
+    const val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE =
+        "Query/Insert function parameters cannot " + "start with underscore (_)."
 
     fun cannotFindQueryResultAdapter(returnTypeName: String) =
-        "Not sure how to convert the query result to this method's return type ($returnTypeName)."
+        "Not sure how to convert the query result to this function's return type ($returnTypeName)."
 
     fun classMustImplementEqualsAndHashCode(keyType: String) =
         "The key" +
-            " of the provided method's multimap return type must implement equals() and " +
+            " of the provided function's multimap return type must implement equals() and " +
             "hashCode(). Key type is: $keyType."
 
-    val INSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT =
-        "Method annotated with" + " @Insert but does not have any parameters to insert."
+    const val INSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT =
+        "Function annotated with" + " @Insert but does not have any parameters to insert."
 
-    val UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT =
-        "Method annotated with" + " @Upsert but does not have any parameters to insert or update."
+    const val UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT =
+        "Function annotated with" + " @Upsert but does not have any parameters to insert or update."
 
-    val DELETE_MISSING_PARAMS =
-        "Method annotated with" + " @Delete but does not have any parameters to delete."
+    const val DELETE_MISSING_PARAMS =
+        "Function annotated with" + " @Delete but does not have any parameters to delete."
 
     fun cannotMapSpecifiedColumn(column: String, columnsInQuery: List<String>, annotation: String) =
         "Column specified in the provided @$annotation annotation must be present in the query. " +
             "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
-    val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED =
+    const val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED =
         "To use the @MapInfo annotation, you " +
             "must provide either the key column name, value column name, or both."
 
     fun mayNeedMapColumn(columnArg: String): String {
         return """
             Looks like you may need to use @MapColumn to clarify the 'columnName' needed for
-            type argument(s) in the return type of a method. Type argument that needs
+            type argument(s) in the return type of a function. Type argument that needs
             @MapColumn: $columnArg
             """
             .trim()
     }
 
-    val CANNOT_FIND_DELETE_RESULT_ADAPTER =
-        "Not sure how to handle delete method's " +
+    const val CANNOT_FIND_DELETE_RESULT_ADAPTER =
+        "Not sure how to handle delete function's " +
             "return type. Currently the supported return types are void, int or Int."
 
-    val CANNOT_FIND_UPDATE_RESULT_ADAPTER =
-        "Not sure how to handle update method's " +
+    const val CANNOT_FIND_UPDATE_RESULT_ADAPTER =
+        "Not sure how to handle update function's " +
             "return type. Currently the supported return types are void, int or Int."
 
     fun suspendReturnsDeferredType(returnTypeName: String) =
@@ -198,105 +202,109 @@ object ProcessorErrors {
             "modifier must not return a deferred/async type ($returnTypeName). Most probably this " +
             "is an error. Consider changing the return type or removing the suspend modifier."
 
-    val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's return type."
+    const val CANNOT_FIND_INSERT_RESULT_ADAPTER =
+        "Not sure how to handle insert function's return type."
 
-    val CANNOT_FIND_UPSERT_RESULT_ADAPTER = "Not sure how to handle upsert method's return type."
+    const val CANNOT_FIND_UPSERT_RESULT_ADAPTER =
+        "Not sure how to handle upsert function's return type."
 
-    val INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH =
-        "Insert method accepts multiple parameters " +
+    const val INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH =
+        "Insert function accepts multiple parameters " +
             "but the return type is a single element. Try using a multiple element return type."
 
-    val UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH =
-        "Upsert method accepts multiple parameters " +
+    const val UPSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH =
+        "Upsert function accepts multiple parameters " +
             "but the return type is a single element. Try using a multiple element return type."
 
-    val INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH =
-        "Insert method accepts a single parameter " +
+    const val INSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH =
+        "Insert function accepts a single parameter " +
             "but the return type is a collection of elements. Try using a single element return type."
 
-    val UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH =
-        "Upsert method accepts a single parameter " +
+    const val UPSERT_SINGLE_PARAM_MULTI_RETURN_MISMATCH =
+        "Upsert function accepts a single parameter " +
             "but the return type is a collection of elements. Try using a single element return type."
 
-    val UPDATE_MISSING_PARAMS =
-        "Method annotated with" + " @Update but does not have any parameters to update."
+    const val UPDATE_MISSING_PARAMS =
+        "Function annotated with" + " @Update but does not have any parameters to update."
 
-    val TRANSACTION_METHOD_MODIFIERS =
-        "Method annotated with @Transaction must not be " +
-            "private, final, or abstract. It can be abstract only if the method is also" +
+    const val TRANSACTION_FUNCTION_MODIFIERS =
+        "Function annotated with @Transaction must not be " +
+            "private, final, or abstract. It can be abstract only if the function is also" +
             " annotated with @Query."
 
-    fun nullableParamInShortcutMethod(param: String) =
-        "Methods annotated with [@Insert, " +
+    fun nullableParamInShortcutFunction(param: String) =
+        "Functions annotated with [@Insert, " +
             "@Upsert, @Update, @Delete] shouldn't declare nullable parameters ($param)."
 
-    fun transactionMethodAsync(returnTypeName: String) =
-        "Method annotated with @Transaction must" +
+    fun transactionFunctionAsync(returnTypeName: String) =
+        "Function annotated with @Transaction must" +
             " not return deferred/async return type $returnTypeName. Since transactions are" +
-            " thread confined and Room cannot guarantee that all queries in the method" +
+            " thread confined and Room cannot guarantee that all queries in the function" +
             " implementation are performed on the same thread, only synchronous @Transaction" +
-            " implemented methods are allowed. If a transaction is started and a change of thread" +
+            " implemented functions are allowed. If a transaction is started and a change of thread" +
             " is done and waited upon then a database deadlock can occur if the additional thread" +
             " attempts to perform a query. This restrictions prevents such situation from" +
             " occurring."
 
-    val TRANSACTION_MISSING_ON_RELATION =
+    const val TRANSACTION_MISSING_ON_RELATION =
         "The return value includes a data class with a @Relation." +
-            " It is usually desired to annotate this method with @Transaction to avoid" +
+            " It is usually desired to annotate this function with @Transaction to avoid" +
             " possibility of inconsistent results between the data class and its relations. See " +
             TRANSACTION_REFERENCE_DOCS +
             " for details."
 
-    val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER =
+    const val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER =
         "Type of the parameter must be a class " +
             "annotated with @Entity or a collection/array of it."
 
     val DB_MUST_EXTEND_ROOM_DB =
         "Classes annotated with @Database should extend " + ROOM_DB.canonicalName
 
-    val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE =
+    const val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE =
         "Observable query return type (LiveData, Flowable" +
             ", DataSource, DataSourceFactory etc) can only be used with SELECT queries that" +
             " directly or indirectly (via @Relation, for example) access at least one table. For" +
             " @RawQuery, you should specify the list of tables to be observed via the" +
-            " observedEntities field."
+            " observedEntities property."
 
-    val RECURSIVE_REFERENCE_DETECTED =
+    const val RECURSIVE_REFERENCE_DETECTED =
         "Recursive referencing through @Embedded and/or @Relation " + "detected: %s"
 
-    private val TOO_MANY_MATCHING_GETTERS =
+    private const val TOO_MANY_MATCHING_GETTERS =
         "Ambiguous getter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
 
-    fun tooManyMatchingGetters(field: Field, methodNames: List<String>): String {
-        return TOO_MANY_MATCHING_GETTERS.format(field, methodNames.joinToString(", "))
+    fun tooManyMatchingGetters(property: Property, functionNames: List<String>): String {
+        return TOO_MANY_MATCHING_GETTERS.format(property, functionNames.joinToString(", "))
     }
 
-    private val TOO_MANY_MATCHING_SETTERS =
+    private const val TOO_MANY_MATCHING_SETTERS =
         "Ambiguous setter for %s. All of the following " +
             "match: %s. You can @Ignore the ones that you don't want to match."
 
-    fun tooManyMatchingSetter(field: Field, methodNames: List<String>): String {
-        return TOO_MANY_MATCHING_SETTERS.format(field, methodNames.joinToString(", "))
+    fun tooManyMatchingSetter(property: Property, functionNames: List<String>): String {
+        return TOO_MANY_MATCHING_SETTERS.format(property, functionNames.joinToString(", "))
     }
 
-    val CANNOT_FIND_COLUMN_TYPE_ADAPTER =
-        "Cannot figure out how to save this field into" +
+    const val CANNOT_FIND_COLUMN_TYPE_ADAPTER =
+        "Cannot figure out how to save this property into" +
             " database. You can consider adding a type converter for it."
 
-    val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP =
+    const val VALUE_CLASS_ONLY_SUPPORTED_IN_KSP =
         "Kotlin value classes are only supported " +
             "in Room using KSP and generating Kotlin (room.generateKotlin=true)."
 
-    val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
+    const val CANNOT_FIND_STMT_BINDER =
+        "Cannot figure out how to bind this property into a statement."
 
-    val CANNOT_FIND_STMT_READER = "Cannot figure out how to read this field from a statement."
+    const val CANNOT_FIND_STMT_READER =
+        "Cannot figure out how to read this property from a statement."
 
-    const val DEFAULT_VALUE_NULLABILITY = "Use of NULL as the default value of a non-null field"
+    const val DEFAULT_VALUE_NULLABILITY = "Use of NULL as the default value of a non-null property"
 
-    private val MISSING_PARAMETER_FOR_BIND =
+    private const val MISSING_PARAMETER_FOR_BIND =
         "Each bind variable in the query must have a" +
-            " matching method parameter. Cannot find method parameters for %s."
+            " matching function parameter. Cannot find function parameters for %s."
 
     fun missingParameterForBindVariable(bindVarName: List<String>): String {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
@@ -307,30 +315,30 @@ object ProcessorErrors {
             "Found $mapValueTypeName."
     }
 
-    private val UNUSED_QUERY_METHOD_PARAMETER = "Unused parameter%s: %s"
+    private const val UNUSED_QUERY_FUNCTION_PARAMETER = "Unused parameter%s: %s"
 
-    fun unusedQueryMethodParameter(unusedParams: List<String>): String {
-        return UNUSED_QUERY_METHOD_PARAMETER.format(
+    fun unusedQueryFunctionParameter(unusedParams: List<String>): String {
+        return UNUSED_QUERY_FUNCTION_PARAMETER.format(
             if (unusedParams.size > 1) "s" else "",
-            unusedParams.joinToString(",")
+            unusedParams.joinToString(","),
         )
     }
 
-    private val DUPLICATE_TABLES_OR_VIEWS =
+    private const val DUPLICATE_TABLES_OR_VIEWS =
         "The name \"%s\" is used by multiple entities or views: %s"
 
     fun duplicateTableNames(tableName: String, entityNames: List<String>): String {
         return DUPLICATE_TABLES_OR_VIEWS.format(tableName, entityNames.joinToString(", "))
     }
 
-    val DAO_METHOD_CONFLICTS_WITH_OTHERS = "Dao method has conflicts."
+    const val DAO_FUNCTION_CONFLICTS_WITH_OTHERS = "Dao function has conflicts."
 
-    fun duplicateDao(dao: String, methodNames: List<String>): String {
+    fun duplicateDao(dao: String, functionNames: List<String>): String {
         return """
-                All of these functions [${methodNames.joinToString(", ")}] return the same DAO
+                All of these functions [${functionNames.joinToString(", ")}] return the same DAO
                 class [$dao].
-                A database can use a DAO only once so you should remove ${methodNames.size - 1} of
-                these conflicting DAO methods. If you are implementing any of these to fulfill an
+                A database can use a DAO only once so you should remove ${functionNames.size - 1} of
+                these conflicting DAO functions. If you are implementing any of these to fulfill an
                 interface, don't make it abstract, instead, implement the code that calls the
                 other one.
                 """
@@ -339,23 +347,23 @@ object ProcessorErrors {
 
     fun dataClassMissingNonNull(
         dataClassTypeName: String,
-        missingDataClassFields: List<String>,
-        allQueryColumns: List<String>
+        missingDataClassProperties: List<String>,
+        allQueryColumns: List<String>,
     ): String {
         return """
-        The columns returned by the query does not have the fields
-        [${missingDataClassFields.joinToString(",")}] in $dataClassTypeName even though they are
+        The columns returned by the query does not have the properties
+        [${missingDataClassProperties.joinToString(",")}] in $dataClassTypeName even though they are
         annotated as non-null or primitive.
         Columns returned by the query: [${allQueryColumns.joinToString(",")}]
         """
             .trim()
     }
 
-    fun queryFieldDataClassMismatch(
+    fun queryPropertyDataClassMismatch(
         dataClassTypeNames: List<String>,
         unusedColumns: List<String>,
         allColumns: List<String>,
-        dataClassUnusedFields: Map<String, List<Field>>,
+        dataClassUnusedProperties: Map<String, List<Property>>,
     ): String {
         val unusedColumnsWarning =
             if (unusedColumns.isNotEmpty()) {
@@ -367,20 +375,20 @@ object ProcessorErrors {
                     }
                 """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
-                used by $dataClassNames. You can use @ColumnInfo annotation on the fields to specify
+                used by $dataClassNames. You can use @ColumnInfo annotation on the properties to specify
                 the mapping.
-                You can annotate the method with @RewriteQueriesToDropUnusedColumns to direct Room
+                You can annotate the function with @RewriteQueriesToDropUnusedColumns to direct Room
                 to rewrite your query to avoid fetching unused columns.
             """
                     .trim()
             } else {
                 ""
             }
-        val unusedFieldsWarning =
-            dataClassUnusedFields.map { (dataClassName, unusedFields) ->
+        val unusedPropertiesWarning =
+            dataClassUnusedProperties.map { (dataClassName, unusedProperties) ->
                 """
-                $dataClassName has some fields
-                [${unusedFields.joinToString(", ") { it.columnName }}] which are not returned by
+                $dataClassName has some properties
+                [${unusedProperties.joinToString(", ") { it.columnName }}] which are not returned by
                 the query. If they are not supposed to be read from the result, you can mark them
                 with @Ignore annotation.
             """
@@ -388,29 +396,29 @@ object ProcessorErrors {
             }
         return """
             $unusedColumnsWarning
-            ${unusedFieldsWarning.joinToString(separator = " ")}
-            You can suppress this warning by annotating the method with
+            ${unusedPropertiesWarning.joinToString(separator = " ")}
+            You can suppress this warning by annotating the function with
             @SuppressWarnings(RoomWarnings.QUERY_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString(", ")}.
             """
             .trim()
     }
 
-    val TYPE_CONVERTER_UNBOUND_GENERIC = "Cannot use unbound generics in Type Converters."
-    val TYPE_CONVERTER_BAD_RETURN_TYPE = "Invalid return type for a type converter."
-    val TYPE_CONVERTER_MUST_RECEIVE_1_PARAM = "Type converters must receive 1 parameter."
-    val TYPE_CONVERTER_EMPTY_CLASS =
-        "Class is referenced as a converter but it does not have any" + " converter methods."
-    val TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR =
+    const val TYPE_CONVERTER_UNBOUND_GENERIC = "Cannot use unbound generics in Type Converters."
+    const val TYPE_CONVERTER_BAD_RETURN_TYPE = "Invalid return type for a type converter."
+    const val TYPE_CONVERTER_MUST_RECEIVE_1_PARAM = "Type converters must receive 1 parameter."
+    const val TYPE_CONVERTER_EMPTY_CLASS =
+        "Class is referenced as a converter but it does not have any" + " converter functions."
+    const val TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR =
         "Classes that are used as TypeConverters must" +
             " have no-argument public constructors. Use a ProvidedTypeConverter annotation if you" +
             " need to take control over creating an instance of a TypeConverter."
-    val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
-    val INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC =
+    const val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
+    const val INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC =
         "An inner class TypeConverter must be " + "static."
 
     fun duplicateTypeConverters(converters: List<CustomTypeConverter>): String {
-        return "Multiple methods define the same conversion. Conflicts with these:" +
+        return "Multiple functions define the same conversion. Conflicts with these:" +
             " ${converters.joinToString(", ") { it.toString() }}"
     }
 
@@ -418,20 +426,20 @@ object ProcessorErrors {
         return "Invalid type converter type: $typeName. Type converters must be a class."
     }
 
-    // TODO must print field paths.
-    val DATA_CLASS_FIELD_HAS_DUPLICATE_COLUMN_NAME = "Field has non-unique column name."
+    // TODO must print property paths.
+    const val DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME = "Property has non-unique column name."
 
-    fun dataClassDuplicateFieldNames(columnName: String, fieldPaths: List<String>): String {
-        return "Multiple fields have the same columnName: $columnName." +
-            " Field names: ${fieldPaths.joinToString(", ")}."
+    fun dataClassDuplicatePropertyNames(columnName: String, propertyPaths: List<String>): String {
+        return "Multiple properties have the same columnName: $columnName." +
+            " Property names: ${propertyPaths.joinToString(", ")}."
     }
 
-    fun embeddedPrimaryKeyIsDropped(entityQName: String, fieldName: String): String {
-        return "Primary key constraint on $fieldName is ignored when being merged into " +
+    fun embeddedPrimaryKeyIsDropped(entityQName: String, propertyName: String): String {
+        return "Primary key constraint on $propertyName is ignored when being merged into " +
             entityQName
     }
 
-    val INDEX_COLUMNS_CANNOT_BE_EMPTY = "List of columns in an index cannot be empty"
+    const val INDEX_COLUMNS_CANNOT_BE_EMPTY = "List of columns in an index cannot be empty"
 
     fun indexColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
         return "$columnName referenced in the index does not exist in the Entity." +
@@ -450,15 +458,19 @@ object ProcessorErrors {
             "${indexPaths.joinToString(", ")}."
     }
 
-    fun droppedEmbeddedFieldIndex(fieldPath: String, grandParent: String): String {
+    fun droppedEmbeddedPropertyIndex(propertyPath: String, grandParent: String): String {
         return "The index will be dropped when being merged into $grandParent" +
-            "($fieldPath). You must re-declare it in $grandParent if you want to index this" +
-            " field in $grandParent."
+            "($propertyPath). You must re-declare it in $grandParent if you want to index this" +
+            " property in $grandParent."
     }
 
-    fun droppedEmbeddedIndex(entityName: String, fieldPath: String, grandParent: String): String {
+    fun droppedEmbeddedIndex(
+        entityName: String,
+        propertyPath: String,
+        grandParent: String,
+    ): String {
         return "Indices defined in $entityName will be dropped when it is merged into" +
-            " $grandParent ($fieldPath). You can re-declare them in $grandParent."
+            " $grandParent ($propertyPath). You can re-declare them in $grandParent."
     }
 
     fun droppedSuperClassIndex(childEntity: String, superEntity: String): String {
@@ -467,50 +479,50 @@ object ProcessorErrors {
             " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
     }
 
-    fun droppedSuperClassFieldIndex(
-        fieldName: String,
+    fun droppedSuperClassPropertyIndex(
+        propertyName: String,
         childEntity: String,
-        superEntity: String
+        superEntity: String,
     ): String {
-        return "Index defined on field `$fieldName` in $superEntity will NOT be re-used in" +
+        return "Index defined on property `$propertyName` in $superEntity will NOT be re-used in" +
             " $childEntity. " +
             "If you want to inherit it, you must re-declare it in $childEntity." +
             " Alternatively, you can set inheritSuperIndices to true in the @Entity annotation."
     }
 
-    val NOT_ENTITY_OR_VIEW = "The class must be either @Entity or @DatabaseView."
+    const val NOT_ENTITY_OR_VIEW = "The class must be either @Entity or @DatabaseView."
 
-    fun relationCannotFindEntityField(
+    fun relationCannotFindEntityProperty(
         entityName: String,
         columnName: String,
-        availableColumns: List<String>
+        availableColumns: List<String>,
     ): String {
         return "Cannot find the child entity column `$columnName` in $entityName." +
             " Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindParentEntityField(
+    fun relationCannotFindParentEntityProperty(
         entityName: String,
         columnName: String,
-        availableColumns: List<String>
+        availableColumns: List<String>,
     ): String {
         return "Cannot find the parent entity column `$columnName` in $entityName." +
             " Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindJunctionEntityField(
+    fun relationCannotFindJunctionEntityProperty(
         entityName: String,
         columnName: String,
-        availableColumns: List<String>
+        availableColumns: List<String>,
     ): String {
         return "Cannot find the child entity referencing column `$columnName` in the junction " +
             "$entityName. Options: ${availableColumns.joinToString(", ")}"
     }
 
-    fun relationCannotFindJunctionParentField(
+    fun relationCannotFindJunctionParentProperty(
         entityName: String,
         columnName: String,
-        availableColumns: List<String>
+        availableColumns: List<String>,
     ): String {
         return "Cannot find the parent entity referencing column `$columnName` in the junction " +
             "$entityName. Options: ${availableColumns.joinToString(", ")}"
@@ -522,13 +534,13 @@ object ProcessorErrors {
             "full table scan when resolving the relationship, it is highly advised to " +
             "create an index that covers this column."
 
-    val RELATION_IN_ENTITY = "Entities cannot have relations."
+    const val RELATION_IN_ENTITY = "Entities cannot have relations."
 
     fun relationAffinityMismatch(
         parentColumn: String,
         childColumn: String,
         parentAffinity: SQLTypeAffinity?,
-        childAffinity: SQLTypeAffinity?
+        childAffinity: SQLTypeAffinity?,
     ): String {
         return """
         The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
@@ -541,7 +553,7 @@ object ProcessorErrors {
         parentColumn: String,
         junctionParentColumn: String,
         parentAffinity: SQLTypeAffinity?,
-        junctionParentAffinity: SQLTypeAffinity?
+        junctionParentAffinity: SQLTypeAffinity?,
     ): String {
         return """
         The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
@@ -554,7 +566,7 @@ object ProcessorErrors {
         childColumn: String,
         junctionChildColumn: String,
         childAffinity: SQLTypeAffinity?,
-        junctionChildAffinity: SQLTypeAffinity?
+        junctionChildAffinity: SQLTypeAffinity?,
     ): String {
         return """
         The affinity of child column ($childColumn : $childAffinity) does not match the type
@@ -563,8 +575,8 @@ object ProcessorErrors {
             .trim()
     }
 
-    val CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_FIELD_ANNOTATION =
-        "A field can be annotated with only" +
+    val CANNOT_USE_MORE_THAN_ONE_DATA_CLASS_PROPERTY_ANNOTATION =
+        "A property can be annotated with only" +
             " one of the following:" +
             DataClassProcessor.PROCESSED_ANNOTATIONS.joinToString(",") { it.java.simpleName }
 
@@ -576,7 +588,7 @@ object ProcessorErrors {
     fun relationBadProject(
         entityQName: String,
         missingColumnNames: List<String>,
-        availableColumnNames: List<String>
+        availableColumnNames: List<String>,
     ): String {
         return """
         $entityQName does not have the following columns: ${missingColumnNames.joinToString(",")}.
@@ -585,13 +597,13 @@ object ProcessorErrors {
             .trim()
     }
 
-    val MISSING_SCHEMA_EXPORT_DIRECTORY =
+    const val MISSING_SCHEMA_EXPORT_DIRECTORY =
         "Schema export directory was not provided to the" +
             " annotation processor so Room cannot export the schema. You can either provide" +
             " `room.schemaLocation` annotation processor argument by applying the Room Gradle plugin" +
             " (id 'androidx.room') OR set exportSchema to false."
 
-    val INVALID_FOREIGN_KEY_ACTION =
+    const val INVALID_FOREIGN_KEY_ACTION =
         "Invalid foreign key action. It must be one of the constants" +
             " defined in ForeignKey.Action"
 
@@ -603,7 +615,7 @@ object ProcessorErrors {
             .trim()
     }
 
-    val FOREIGN_KEY_CANNOT_FIND_PARENT = "Cannot find parent entity class."
+    const val FOREIGN_KEY_CANNOT_FIND_PARENT = "Cannot find parent entity class."
 
     fun foreignKeyChildColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
         return "($columnName) referenced in the foreign key does not exist in the Entity." +
@@ -613,19 +625,21 @@ object ProcessorErrors {
     fun foreignKeyParentColumnDoesNotExist(
         parentEntity: String,
         missingColumn: String,
-        allColumns: List<String>
+        allColumns: List<String>,
     ): String {
         return "($missingColumn) does not exist in $parentEntity. Available columns are" +
             " ${allColumns.joinToString(",")}"
     }
 
-    val FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST = "Must specify at least 1 column name for the child"
+    const val FOREIGN_KEY_EMPTY_CHILD_COLUMN_LIST =
+        "Must specify at least 1 column name for the child"
 
-    val FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST = "Must specify at least 1 column name for the parent"
+    const val FOREIGN_KEY_EMPTY_PARENT_COLUMN_LIST =
+        "Must specify at least 1 column name for the parent"
 
     fun foreignKeyColumnNumberMismatch(
         childColumns: List<String>,
-        parentColumns: List<String>
+        parentColumns: List<String>,
     ): String {
         return """
                 Number of child columns in foreign key must match number of parent columns.
@@ -647,7 +661,7 @@ object ProcessorErrors {
         parentEntity: String,
         parentColumns: List<String>,
         childEntity: String,
-        childColumns: List<String>
+        childColumns: List<String>,
     ): String {
         return """
                 $childEntity has a foreign key (${childColumns.joinToString(",")}) that references
@@ -687,33 +701,33 @@ object ProcessorErrors {
             .trim()
     }
 
-    val MISSING_ROOM_GUAVA_ARTIFACT =
+    const val MISSING_ROOM_GUAVA_ARTIFACT =
         "To use Guava features, you must add `guava`" +
             " artifact from Room as a dependency. androidx.room:room-guava:<version>"
 
-    val MISSING_ROOM_RXJAVA2_ARTIFACT =
+    const val MISSING_ROOM_RXJAVA2_ARTIFACT =
         "To use RxJava2 features, you must add `rxjava2`" +
             " artifact from Room as a dependency. androidx.room:room-rxjava2:<version>"
 
-    val MISSING_ROOM_RXJAVA3_ARTIFACT =
+    const val MISSING_ROOM_RXJAVA3_ARTIFACT =
         "To use RxJava3 features, you must add `rxjava3`" +
             " artifact from Room as a dependency. androidx.room:room-rxjava3:<version>"
 
-    val MISSING_ROOM_PAGING_ARTIFACT =
+    const val MISSING_ROOM_PAGING_ARTIFACT =
         "To use PagingSource, you must add `room-paging`" +
             " artifact from Room as a dependency. androidx.room:room-paging:<version>"
 
-    val MISSING_ROOM_PAGING_GUAVA_ARTIFACT =
+    const val MISSING_ROOM_PAGING_GUAVA_ARTIFACT =
         "To use ListenableFuturePagingSource, you must " +
             "add `room-paging-guava` artifact from Room as a dependency. " +
             "androidx.room:room-paging-guava:<version>"
 
-    val MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT =
+    const val MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT =
         "To use RxPagingSource, you must " +
             "add `room-paging-rxjava2` artifact from Room as a dependency. " +
             "androidx.room:room-paging-rxjava2:<version>"
 
-    val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT =
+    const val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT =
         "To use RxPagingSource, you must " +
             "add `room-paging-rxjava3` artifact from Room as a dependency. " +
             "androidx.room:room-paging-rxjava3:<version>"
@@ -721,13 +735,13 @@ object ProcessorErrors {
     fun ambiguousConstructor(
         dataClass: String,
         paramName: String,
-        matchingFields: List<String>
+        matchingProperties: List<String>,
     ): String {
         return """
-            Ambiguous constructor. The parameter ($paramName) in $dataClass matches multiple fields:
-            [${matchingFields.joinToString(",")}]. If you don't want to use this constructor,
+            Ambiguous constructor. The parameter ($paramName) in $dataClass matches multiple properties:
+            [${matchingProperties.joinToString(",")}]. If you don't want to use this constructor,
             you can annotate it with @Ignore. If you want Room to use this constructor, you can
-            rename the parameters to exactly match the field name to fix the ambiguity.
+            rename the parameters to exactly match the property name to fix the ambiguity.
             """
             .trim()
     }
@@ -735,7 +749,7 @@ object ProcessorErrors {
     val MISSING_DATA_CLASS_CONSTRUCTOR =
         """
             Entities and data classes must have a usable public constructor. You can have an empty
-            constructor or a constructor whose parameters match the fields (by name and type).
+            constructor or a constructor whose parameters match the properties (by name and type).
             """
             .trim()
 
@@ -753,28 +767,30 @@ object ProcessorErrors {
             """
             .trim()
 
-    val PAGING_SPECIFY_DATA_SOURCE_TYPE = "For now, Room only supports PositionalDataSource class."
+    const val PAGING_SPECIFY_DATA_SOURCE_TYPE =
+        "For now, Room only supports PositionalDataSource class."
 
-    val PAGING_SPECIFY_PAGING_SOURCE_TYPE =
+    const val PAGING_SPECIFY_PAGING_SOURCE_TYPE =
         "For now, Room only supports PagingSource with Key of" + " type Int."
 
-    val PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE =
+    const val PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE =
         "For now, Room only supports PagingSource with" + " Value that is not of Collection type."
 
-    fun primaryKeyNull(field: String): String {
-        return "You must annotate primary keys with @NonNull. \"$field\" is nullable. SQLite " +
+    fun primaryKeyNull(property: String): String {
+        return "You must annotate primary keys with @NonNull. \"$property\" is nullable. SQLite " +
             "considers this a " +
             "bug and Room does not allow it. See SQLite docs for details: " +
             "https://www.sqlite.org/lang_createtable.html"
     }
 
-    val INVALID_COLUMN_NAME =
+    const val INVALID_COLUMN_NAME =
         "Invalid column name. Room does not allow using ` or \" in column" + " names"
 
-    val INVALID_TABLE_NAME = "Invalid table name. Room does not allow using ` or \" in table names"
+    const val INVALID_TABLE_NAME =
+        "Invalid table name. Room does not allow using ` or \" in table names"
 
-    val RAW_QUERY_BAD_PARAMS =
-        "RawQuery methods should have 1 and only 1 parameter with type" + " SupportSQLiteQuery"
+    const val RAW_QUERY_BAD_PARAMS =
+        "RawQuery functions should have 1 and only 1 parameter with type" + " SupportSQLiteQuery"
 
     fun parameterCannotBeNullable(parameterName: String) =
         """
@@ -782,13 +798,13 @@ object ProcessorErrors {
     """
             .trimIndent()
 
-    val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery methods must return a non-void type."
+    const val RAW_QUERY_BAD_RETURN_TYPE = "RawQuery functions must return a non-void type."
 
     fun rawQueryBadEntity(typeName: String): String {
         return """
-            observedEntities field in RawQuery must either reference a class that is annotated
-            with @Entity or it should reference a data class that either contains @Embedded fields 
-            that are annotated with @Entity or @Relation fields.
+            observedEntities property in RawQuery must either reference a class that is annotated
+            with @Entity or it should reference a data class that either contains
+            @Embedded properties that are annotated with @Entity or @Relation properties.
             $typeName does not have these properties, did you mean another class?
             """
             .trim()
@@ -798,50 +814,57 @@ object ProcessorErrors {
         "@RawQuery does not allow passing a string anymore." +
             " Please use ${RoomTypeNames.RAW_QUERY.canonicalName}."
 
-    val MISSING_COPY_ANNOTATIONS =
+    const val MISSING_COPY_ANNOTATIONS =
         "Annotated property getter is missing " + "@AutoValue.CopyAnnotations."
 
     fun invalidAnnotationTarget(annotationName: String, elementKindName: String): String {
         return "@$annotationName is not allowed in this $elementKindName."
     }
 
-    val INDICES_IN_FTS_ENTITY = "Indices not allowed in FTS Entity."
+    const val INDICES_IN_FTS_ENTITY = "Indices not allowed in FTS Entity."
 
-    val FOREIGN_KEYS_IN_FTS_ENTITY = "Foreign Keys not allowed in FTS Entity."
+    const val FOREIGN_KEYS_IN_FTS_ENTITY = "Foreign Keys not allowed in FTS Entity."
 
-    val MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID =
-        "The field with column name 'rowid' in " +
+    const val MISSING_PRIMARY_KEYS_ANNOTATION_IN_ROW_ID =
+        "The property with column name 'rowid' in " +
             "an FTS entity must be annotated with @PrimaryKey."
 
-    val TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY = "An FTS entity can only have a single primary key."
+    const val TOO_MANY_PRIMARY_KEYS_IN_FTS_ENTITY =
+        "An FTS entity can only have a single primary key."
 
-    val INVALID_FTS_ENTITY_PRIMARY_KEY_NAME =
-        "The single primary key field in an FTS entity " +
+    const val INVALID_FTS_ENTITY_PRIMARY_KEY_NAME =
+        "The single primary key property in an FTS entity " +
             "must either be named 'rowid' or must be annotated with @ColumnInfo(name = \"rowid\")"
 
-    val INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY =
-        "The single @PrimaryKey annotated field in an " + "FTS entity must be of INTEGER affinity."
+    const val INVALID_FTS_ENTITY_PRIMARY_KEY_AFFINITY =
+        "The single @PrimaryKey annotated property in an " +
+            "FTS entity must be of INTEGER affinity."
 
-    fun missingLanguageIdField(columnName: String) =
-        "The specified 'languageid' column: " + "\"$columnName\", was not found."
+    fun missingLanguageIdProperty(columnName: String) =
+        "The specified 'languageid' column: \"$columnName\", was not found."
 
-    val INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY =
-        "The 'languageid' field must be of INTEGER " + "affinity."
+    const val INVALID_FTS_ENTITY_LANGUAGE_ID_AFFINITY =
+        "The 'languageid' property must be of INTEGER " + "affinity."
 
-    fun missingNotIndexedField(missingNotIndexedColumns: List<String>) =
+    fun missingNotIndexedProperty(missingNotIndexedColumns: List<String>) =
         "Non-existent columns are specified to be not indexed in notIndexed: " +
             missingNotIndexedColumns.joinToString(",")
 
-    val INVALID_FTS_ENTITY_PREFIX_SIZES = "Prefix sizes to index must non-zero positive values."
+    const val INVALID_FTS_ENTITY_PREFIX_SIZES =
+        "Prefix sizes to index must non-zero positive values."
 
-    val FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY = "Cannot find external content entity class."
+    const val FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY = "Cannot find external content entity class."
 
     fun externalContentNotAnEntity(className: String) =
         "External content entity referenced in " +
             "a Fts4 annotation must be a @Entity class. $className is not an entity"
 
-    fun missingFtsContentField(ftsClassName: String, columnName: String, contentClassName: String) =
-        "External Content FTS Entity '$ftsClassName' has declared field with column name " +
+    fun missingFtsContentProperty(
+        ftsClassName: String,
+        columnName: String,
+        contentClassName: String,
+    ) =
+        "External Content FTS Entity '$ftsClassName' has declared property with column name " +
             "'$columnName' that was not found in the external content entity " +
             "'$contentClassName'."
 
@@ -850,15 +873,15 @@ object ProcessorErrors {
             "'$contentClassName' that is not present in the same @Database. Maybe you " +
             "forgot to add it to the entities section of the @Database?"
 
-    fun cannotFindAsEntityField(entityName: String) =
+    fun cannotFindAsEntityProperty(entityName: String) =
         "Cannot find a column in the entity " +
-            "$entityName that matches with this partial entity field. If you don't wish to use " +
-            "the field then you can annotate it with @Ignore."
+            "$entityName that matches with this partial entity property. If you don't wish to use " +
+            "the property then you can annotate it with @Ignore."
 
-    val INVALID_TARGET_ENTITY_IN_SHORTCUT_METHOD =
+    const val INVALID_TARGET_ENTITY_IN_SHORTCUT_FUNCTION =
         "Target entity declared in @Insert, @Update " + "or @Delete must be annotated with @Entity."
 
-    val INVALID_RELATION_IN_PARTIAL_ENTITY = "Partial entities cannot have relations."
+    const val INVALID_RELATION_IN_PARTIAL_ENTITY = "Partial entities cannot have relations."
 
     fun invalidQueryForSingleColumnArray(returnType: String) =
         "If a DAO function has a " +
@@ -875,23 +898,23 @@ object ProcessorErrors {
 
     fun missingPrimaryKeysInPartialEntityForInsert(
         partialEntityName: String,
-        primaryKeyNames: List<String>
+        primaryKeyNames: List<String>,
     ) =
-        "The partial entity $partialEntityName is missing the primary key fields " +
+        "The partial entity $partialEntityName is missing the primary key properties " +
             "(${primaryKeyNames.joinToString()}) needed to perform an INSERT. If your single " +
-            "primary key is auto generated then the fields are optional."
+            "primary key is auto generated then the properties are optional."
 
     fun missingPrimaryKeysInPartialEntityForUpsert(
         partialEntityName: String,
-        primaryKeyNames: List<String>
+        primaryKeyNames: List<String>,
     ) =
-        "The partial entity $partialEntityName is missing the primary key fields " +
+        "The partial entity $partialEntityName is missing the primary key properties " +
             "(${primaryKeyNames.joinToString()}) needed to perform an UPSERT. If your single " +
-            "primary key is auto generated then the fields are optional."
+            "primary key is auto generated then the properties are optional."
 
     fun missingRequiredColumnsInPartialEntity(
         partialEntityName: String,
-        missingColumnNames: List<String>
+        missingColumnNames: List<String>,
     ) =
         "The partial entity $partialEntityName is missing required columns " +
             "(${missingColumnNames.joinToString()}) needed to perform an INSERT. These are " +
@@ -899,9 +922,9 @@ object ProcessorErrors {
 
     fun missingPrimaryKeysInPartialEntityForUpdate(
         partialEntityName: String,
-        primaryKeyNames: List<String>
+        primaryKeyNames: List<String>,
     ) =
-        "The partial entity $partialEntityName is missing the primary key fields " +
+        "The partial entity $partialEntityName is missing the primary key properties " +
             "(${primaryKeyNames.joinToString()}) needed to perform an UPDATE."
 
     fun noColumnsInPartialEntity(partialEntityName: String) =
@@ -911,20 +934,20 @@ object ProcessorErrors {
     fun cannotFindPreparedQueryResultAdapter(returnType: String, type: QueryType) =
         StringBuilder()
             .apply {
-                append("Not sure how to handle query method's return type ($returnType). ")
+                append("Not sure how to handle query function's return type ($returnType). ")
                 if (type == QueryType.INSERT) {
                     append(
-                        "INSERT query methods must either return void " +
+                        "INSERT query functions must either return void " +
                             "or long (the rowid of the inserted row)."
                     )
                 } else if (type == QueryType.UPDATE) {
                     append(
-                        "UPDATE query methods must either return void " +
+                        "UPDATE query functions must either return void " +
                             "or int (the number of updated rows)."
                     )
                 } else if (type == QueryType.DELETE) {
                     append(
-                        "DELETE query methods must either return void " +
+                        "DELETE query functions must either return void " +
                             "or int (the number of deleted rows)."
                     )
                 }
@@ -943,33 +966,33 @@ object ProcessorErrors {
             "functions that converts the Flow into a Channel."
 
     fun mismatchedGetter(
-        fieldName: String,
+        propertyName: String,
         ownerType: String,
         getterType: String,
-        fieldType: String
+        propertyType: String,
     ) =
         """
-            $ownerType's $fieldName field has type $fieldType but its getter returns $getterType.
-            This mismatch might cause unexpected $fieldName values in the database when $ownerType
+            $ownerType's $propertyName property has type $propertyType but its getter returns $getterType.
+            This mismatch might cause unexpected $propertyName values in the database when $ownerType
             is inserted into database.
         """
             .trim()
 
     fun mismatchedSetter(
-        fieldName: String,
+        propertyName: String,
         ownerType: String,
         setterType: String,
-        fieldType: String
+        propertyType: String,
     ) =
         """
-            $ownerType's $fieldName field has type $fieldType but its setter accepts $setterType.
-            This mismatch might cause unexpected $fieldName values when $ownerType is read from the
+            $ownerType's $propertyName property has type $propertyType but its setter accepts $setterType.
+            This mismatch might cause unexpected $propertyName values when $ownerType is read from the
             database.
         """
             .trim()
 
-    val DATABASE_INVALID_DAO_METHOD_RETURN_TYPE =
-        "Abstract database methods must return a @Dao " + "annotated class or interface."
+    const val DATABASE_INVALID_DAO_FUNCTION_RETURN_TYPE =
+        "Abstract database functions must return a @Dao " + "annotated class or interface."
 
     fun invalidEntityTypeInDatabaseAnnotation(typeName: String): String {
         return "Invalid Entity type: $typeName. An entity in the database must be a class."
@@ -985,22 +1008,22 @@ object ProcessorErrors {
             "an @AutoMigration annotation."
     }
 
-    val EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE =
-        "The type of an Embedded field must be a " + "class or an interface."
-    val RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE =
+    const val EMBEDDED_TYPES_MUST_BE_A_CLASS_OR_INTERFACE =
+        "The type of an Embedded property must be a " + "class or an interface."
+    const val RELATION_TYPE_MUST_BE_A_CLASS_OR_INTERFACE =
         "Entity type in a Relation must be a class " + "or an interface."
 
-    fun shortcutMethodArgumentMustBeAClass(typeName: String): String {
+    fun shortcutFunctionArgumentMustBeAClass(typeName: String): String {
         return "Invalid query argument: $typeName. It must be a class or an interface."
     }
 
-    val AUTOMIGRATION_SPEC_MUST_BE_CLASS = "The AutoMigration spec " + "type must be a class."
+    const val AUTOMIGRATION_SPEC_MUST_BE_CLASS = "The AutoMigration spec " + "type must be a class."
 
     fun autoMigrationElementMustImplementSpec(spec: String): String {
-        return "The AutoMigration spec " + "$spec must implement the AutoMigrationSpec interface."
+        return "The AutoMigration spec $spec must implement the AutoMigrationSpec interface."
     }
 
-    // TODO: (b/180389433) If the files don't exist the getSchemaFile() method should return
+    // TODO: (b/180389433) If the files don't exist the getSchemaFile() function should return
     //  null and before calling process
     fun autoMigrationToVersionMustBeGreaterThanFrom(to: Int, from: Int) =
         if (from > to) {
@@ -1040,7 +1063,7 @@ object ProcessorErrors {
     fun deletedOrRenamedColumnFound(
         className: String?,
         columnName: String,
-        tableName: String
+        tableName: String,
     ): String {
         return if (className != null) {
             """
@@ -1132,7 +1155,7 @@ object ProcessorErrors {
     fun tableRenameError(
         className: String,
         originalTableName: String,
-        newTableName: String
+        newTableName: String,
     ): String {
         return "AutoMigration Failure in '$className': The table renamed from " +
             "'$originalTableName' to '$newTableName' is " +
@@ -1147,10 +1170,10 @@ object ProcessorErrors {
         return "Conflicting @RenameColumn annotations found: [$annotations]"
     }
 
-    val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF =
+    const val AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF =
         "Cannot create auto migrations when " + "exportSchema is false."
 
-    val AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL =
+    const val AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL =
         "Schema import directory was not provided to the" +
             " annotation processor so Room cannot read older schemas. To generate auto migrations," +
             " you must provide `room.schemaLocation` annotation processor arguments by applying the" +
@@ -1162,15 +1185,15 @@ object ProcessorErrors {
             " a different name."
     }
 
-    val INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC =
+    const val INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC =
         "An inner class AutoMigrationSpec must be" + " static."
 
-    val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR =
+    const val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR =
         "Classes that are used as " +
             "AutoMigrationSpec " +
             "implementations must have no-argument public constructors."
 
-    val JVM_NAME_ON_OVERRIDDEN_METHOD =
+    const val JVM_NAME_ON_OVERRIDDEN_FUNCTION =
         "Using @JvmName annotation on a function or accessor " +
             "that will be overridden by Room is not supported. If this is important for your use " +
             "case, please file a bug at $ISSUE_TRACKER_LINK with details."
@@ -1178,7 +1201,7 @@ object ProcessorErrors {
     fun ambiguousColumn(
         columnName: String,
         location: AmbiguousColumnLocation,
-        typeName: String?
+        typeName: String?,
     ): String {
         val (locationDesc, recommendation) =
             when (location) {
@@ -1198,7 +1221,7 @@ object ProcessorErrors {
         return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
             "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
             "the query returning invalid values. You can suppress this warning by annotating " +
-            "the method with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+            "the function with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
     }
 
     enum class AmbiguousColumnLocation {
@@ -1207,25 +1230,25 @@ object ProcessorErrors {
         ENTITY,
     }
 
-    val NONNULL_VOID =
+    const val NONNULL_VOID =
         "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
             "class represents a placeholder type that is uninstantiable and 'null' is always returned."
 
-    fun nullableCollectionOrArrayReturnTypeInDaoMethod(
+    fun nullableCollectionOrArrayReturnTypeInDaoFunction(
         typeName: String,
-        returnType: String
+        returnType: String,
     ): String {
-        return "The nullable `$returnType` ($typeName) return type in a DAO method is " +
+        return "The nullable `$returnType` ($typeName) return type in a DAO function is " +
             "meaningless because Room will instead return an empty `$returnType` if no rows are " +
             "returned from the query."
     }
 
-    fun nullableComponentInDaoMethodReturnType(typeName: String): String {
-        return "The DAO method return type ($typeName) with the nullable type argument " +
+    fun nullableComponentInDaoFunctionReturnType(typeName: String): String {
+        return "The DAO function return type ($typeName) with the nullable type argument " +
             "is meaningless because for now Room will never put a null value in a result."
     }
 
-    val EXPORTING_SCHEMA_TO_RESOURCES =
+    const val EXPORTING_SCHEMA_TO_RESOURCES =
         "Schema export is set to be outputted as a resource" +
             " (i.e. room.exportSchemaResource is set to true), this means Room will write the current" +
             " schema version file into the produced JAR. Such flag must only be used for generating" +
@@ -1233,42 +1256,42 @@ object ProcessorErrors {
             " the schema file will end up in the final artifact which is typically not desired. This" +
             " warning serves as a reminder to use room.exportSchemaResource cautiously."
 
-    val INVALID_GRADLE_PLUGIN_AND_SCHEMA_LOCATION_OPTION =
+    const val INVALID_GRADLE_PLUGIN_AND_SCHEMA_LOCATION_OPTION =
         "The Room Gradle plugin " +
             "(id 'androidx.room') cannot be used with an explicit use of the annotation processor" +
             "option `room.schemaLocation`, please remove the configuration of the option and " +
             "configure the schema location via the plugin project extension: " +
             "`room { schemaDirectory(...) }`."
 
-    val INVALID_DATABASE_VERSION = "Database version must be greater than 0"
+    const val INVALID_DATABASE_VERSION = "Database version must be greater than 0"
 
-    val JAVA_CODEGEN_ON_NON_ANDROID_TARGET =
+    const val JAVA_CODEGEN_ON_NON_ANDROID_TARGET =
         "Cannot generate Java targeting a non-Android " +
             "platform. To generate Java, you must only have Android as a target platform. " +
             "To process a non-Android target platform, you must enable Kotlin code " +
             "generation in KSP."
 
-    val INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID =
+    const val INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID =
         "Only suspend functions are allowed in DAOs" +
             " declared in source sets targeting non-Android platforms."
 
     val INVALID_KOTLIN_CODE_GEN_IN_JAVAC =
         "${Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName} can only be enabled in KSP."
 
-    val RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID =
+    const val RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID =
         "@RawQuery annotated DAO functions are currently not supported in source sets targeting " +
             "non-Android platforms."
 
-    val MISSING_CONSTRUCTED_BY_ANNOTATION =
+    const val MISSING_CONSTRUCTED_BY_ANNOTATION =
         "The @Database class must be annotated with @ConstructedBy since the source is targeting " +
             "non-Android platforms."
 
-    val INVALID_CONSTRUCTED_BY_CLASS = "The @ConstructedBy 'value' must be a valid class."
+    const val INVALID_CONSTRUCTED_BY_CLASS = "The @ConstructedBy 'value' must be a valid class."
 
-    val INVALID_CONSTRUCTED_BY_NOT_OBJECT =
+    const val INVALID_CONSTRUCTED_BY_NOT_OBJECT =
         "The @ConstructedBy definition must be an 'object' declaration."
 
-    val INVALID_CONSTRUCTED_BY_NOT_EXPECT =
+    const val INVALID_CONSTRUCTED_BY_NOT_EXPECT =
         "The @ConstructedBy definition must be an 'expect' declaration."
 
     fun invalidConstructedBySuperInterface(expected: String) =

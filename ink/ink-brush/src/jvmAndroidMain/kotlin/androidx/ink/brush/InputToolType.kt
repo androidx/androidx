@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2024-2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.UsedByNative
-import kotlin.jvm.JvmName
 import kotlin.jvm.JvmStatic
 
 /**
@@ -55,11 +54,9 @@ private constructor(
     public companion object {
         /**
          * Get InputToolType by Int. Accessible internally for conversion to and from C++
-         * representations of ToolType in JNI code and in internal Kotlin code. The `internal`
-         * keyword obfuscates the function signature, hence the need for JvmName annotation.
+         * representations of ToolType in JNI code and in internal Kotlin code.
          */
         @JvmStatic
-        @JvmName("from")
         @UsedByNative
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun from(value: Int): InputToolType {

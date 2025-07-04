@@ -20,8 +20,4 @@ interface ExampleBackendService {
     suspend fun searchUsers(query: String, after: String?): SearchUserResponse
 }
 
-class SearchUserResponse(
-    val users: List<User>,
-    val nextKey: String?,
-    val nextPageNumber: Int?,
-)
+class SearchUserResponse(val users: List<User>, val nextKey: String?, val nextPageNumber: Int?)

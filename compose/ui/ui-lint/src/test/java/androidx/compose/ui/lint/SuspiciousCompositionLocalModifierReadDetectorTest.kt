@@ -96,7 +96,7 @@ class SuspiciousCompositionLocalModifierReadDetectorTest : LintDetectorTest() {
                 ),
                 Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
-                ModifierNodeStub
+                ModifierNodeStub,
             )
             .run()
             .expect(
@@ -147,7 +147,7 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
                 ),
                 Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
-                ModifierNodeStub
+                ModifierNodeStub,
             )
             .run()
             .expectClean()
@@ -181,7 +181,7 @@ src/test/NodeUnderTest.kt:20: Error: Reading staticLocalInt in onDetach will onl
                 ),
                 Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
-                ModifierNodeStub
+                ModifierNodeStub,
             )
             .run()
             .expect(
@@ -223,7 +223,7 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
                 ),
                 Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
-                ModifierNodeStub
+                ModifierNodeStub,
             )
             .run()
             .expectClean()
@@ -255,7 +255,7 @@ src/test/NodeUnderTest.kt:17: Error: CompositionLocals cannot be read in modifie
                 ),
                 Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
-                ModifierNodeStub
+                ModifierNodeStub,
             )
             .run()
             .expect(
@@ -299,7 +299,7 @@ src/test/NodeUnderTest.kt:16: Error: Reading staticLocalInt lazily will only acc
                 ),
                 Stubs.CompositionLocal,
                 CompositionLocalConsumerModifierStub,
-                ModifierNodeStub
+                ModifierNodeStub,
             )
             .run()
             .expectClean()

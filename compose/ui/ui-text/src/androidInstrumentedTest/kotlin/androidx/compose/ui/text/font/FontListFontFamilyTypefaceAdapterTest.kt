@@ -91,7 +91,7 @@ class FontListFontFamilyTypefaceAdapterTest {
     private fun FontFamily.toTypefaceRequest(
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal,
-        fontSynthesis: FontSynthesis = FontSynthesis.All
+        fontSynthesis: FontSynthesis = FontSynthesis.All,
     ) = TypefaceRequest(this, fontWeight, fontStyle, fontSynthesis, fontLoader.cacheKey)
 
     @Test
@@ -104,7 +104,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { error("Should not call") },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         assertThat(result).isImmutableTypefaceOf(expected)
     }
@@ -120,7 +120,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { error("Should not call") },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         assertThat(result).isImmutableTypefaceOf(expected)
     }
@@ -129,7 +129,7 @@ class FontListFontFamilyTypefaceAdapterTest {
     private fun doOneAsyncRequest(
         request: TypefaceRequest,
         beforeAsyncLoad: (TypefaceResult) -> Unit,
-        doCompleteAsync: (TypefaceResult) -> Unit
+        doCompleteAsync: (TypefaceResult) -> Unit,
     ): Pair<TypefaceResult, Deferred<TypefaceResult>> {
         val result = CompletableDeferred<TypefaceResult>()
         val reply =
@@ -137,7 +137,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 request,
                 fontLoader,
                 onAsyncCompletion = { result.complete(it) },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )!!
         beforeAsyncLoad(reply)
         scope.runCurrent()
@@ -157,7 +157,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             doOneAsyncRequest(
                 fontFamily.toTypefaceRequest(),
                 beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.MONOSPACE) },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, Typeface.SERIF) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, Typeface.SERIF) },
             )
         assertThat(reply).currentAsyncTypefaceValue(Typeface.SERIF)
         scope.runBlockingTest {
@@ -179,7 +179,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             doOneAsyncRequest(
                 fontFamily.toTypefaceRequest(),
                 beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(expectedInitial) },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) },
             )
         assertThat(reply).currentAsyncTypefaceValue(expected)
         scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
@@ -201,7 +201,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                     // this hits platform default
                     assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
                 },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) },
             )
         assertThat(reply).currentAsyncTypefaceValue(expected)
         scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
@@ -222,7 +222,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                     // this hits platform default
                     assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT)
                 },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont400, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont400, expected) },
             )
         assertThat(reply).currentAsyncTypefaceValue(expected)
         scope.runBlockingTest { assertThat(finalResult.await()).isImmutableTypefaceOf(expected) }
@@ -241,7 +241,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             doOneAsyncRequest(
                 fontFamily.toTypefaceRequest(),
                 beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT) },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) },
             )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
@@ -268,7 +268,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                     }
                     scope.runCurrent()
                     typefaceLoader.completeOne(asyncFontFallback, expected)
-                }
+                },
             )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
@@ -292,7 +292,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                     typefaceLoader.errorOne(asyncFont, RuntimeException("FooBared"))
                     scope.runCurrent()
                     typefaceLoader.completeOne(asyncFontFallback, expected)
-                }
+                },
             )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
@@ -314,7 +314,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 onAsyncCompletion = {
                     // don't care in this test
                 },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         // start first load
         typefaceLoader.errorOne(asyncFont, RuntimeException("Failed to load"))
@@ -339,7 +339,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { error("Should not call") },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         assertThat(result).isImmutableTypefaceOf(expected)
     }
@@ -355,7 +355,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             doOneAsyncRequest(
                 fontFamily.toTypefaceRequest(),
                 beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.DEFAULT) },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) },
             )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
@@ -376,7 +376,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             doOneAsyncRequest(
                 fontFamily.toTypefaceRequest(),
                 beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.SERIF) },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) },
             )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
@@ -399,7 +399,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             doOneAsyncRequest(
                 fontFamily.toTypefaceRequest(),
                 beforeAsyncLoad = { assertThat(it).currentAsyncTypefaceValue(Typeface.SANS_SERIF) },
-                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) }
+                doCompleteAsync = { typefaceLoader.completeOne(asyncFont, expected) },
             )
 
         assertThat(reply).currentAsyncTypefaceValue(expected)
@@ -421,7 +421,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { error("Should not call") },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
 
         assertThat(typefaceLoader.pendingRequests()).isEmpty()
@@ -448,7 +448,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { finalResult.complete(it) },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
 
         scope.runCurrent()
@@ -481,7 +481,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { finalResult.complete(it) },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         scope.runCurrent()
         typefaceLoader.errorOne(asyncFont, CancellationException())
@@ -517,7 +517,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             fontFamily.toTypefaceRequest(),
             fontLoader,
             onAsyncCompletion = { finalResult.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
+            createDefaultTypeface = { Typeface.DEFAULT },
         )
         scope.runCurrent()
         typefaceLoader.completeOne(asyncFontFallback, Typeface.SERIF)
@@ -539,7 +539,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             fontFamily.toTypefaceRequest(),
             fontLoader,
             onAsyncCompletion = { finalResult.complete(it) },
-            createDefaultTypeface = { Typeface.DEFAULT }
+            createDefaultTypeface = { Typeface.DEFAULT },
         )
         scope.runCurrent()
         typefaceLoader.errorOne(asyncFont, CancellationException())
@@ -591,7 +591,7 @@ class FontListFontFamilyTypefaceAdapterTest {
             fontFamily.toTypefaceRequest(),
             fontLoader,
             onAsyncCompletion = { /* none */ },
-            createDefaultTypeface = { Typeface.DEFAULT }
+            createDefaultTypeface = { Typeface.DEFAULT },
         )
         latch.await(1, TimeUnit.SECONDS)
         synchronized(lock) {
@@ -636,7 +636,7 @@ class FontListFontFamilyTypefaceAdapterTest {
         subject =
             FontListFontFamilyTypefaceAdapter(
                 cache,
-                CoroutineExceptionHandler { _, throwable -> exception.complete(throwable) }
+                CoroutineExceptionHandler { _, throwable -> exception.complete(throwable) },
             )
         val cause = RuntimeException("fail the request")
         requestAndThrowOnRealDispatcher(cause)
@@ -668,7 +668,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { result.complete(it) },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         assertThat(asyncRequest!!.cacheable).isFalse()
         assertThat(asyncRequest).currentAsyncTypefaceValue(Typeface.DEFAULT)
@@ -700,7 +700,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { result.complete(it) },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         // we're running on a real dispatcher, sync manually
         requestLatch.await()
@@ -721,7 +721,7 @@ class FontListFontFamilyTypefaceAdapterTest {
                 fontFamily.toTypefaceRequest(),
                 fontLoader,
                 onAsyncCompletion = { result.complete(it) },
-                createDefaultTypeface = { Typeface.DEFAULT }
+                createDefaultTypeface = { Typeface.DEFAULT },
             )
         // we're running on a real dispatcher, sync manually
         requestLatch.await()

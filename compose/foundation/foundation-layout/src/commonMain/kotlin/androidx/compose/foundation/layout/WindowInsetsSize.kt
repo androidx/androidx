@@ -52,15 +52,19 @@ fun Modifier.windowInsetsStartWidth(insets: WindowInsets) =
             debugInspectorInfo {
                 name = "insetsStartWidth"
                 properties["insets"] = insets
-            }
-        ) { layoutDirection, density ->
-            if (layoutDirection == LayoutDirection.Ltr) {
-                getLeft(density, layoutDirection)
-            } else {
-                getRight(density, layoutDirection)
-            }
-        }
+            },
+            startCalc,
+        )
     )
+
+private val startCalc: WindowInsets.(LayoutDirection, Density) -> Int =
+    { layoutDirection: LayoutDirection, density: Density ->
+        if (layoutDirection == LayoutDirection.Ltr) {
+            getLeft(density, layoutDirection)
+        } else {
+            getRight(density, layoutDirection)
+        }
+    }
 
 /**
  * Sets the width to that of [insets] at the [end][androidx.compose.ui.Alignment.End] of the screen,
@@ -80,15 +84,18 @@ fun Modifier.windowInsetsEndWidth(insets: WindowInsets) =
             debugInspectorInfo {
                 name = "insetsEndWidth"
                 properties["insets"] = insets
-            }
-        ) { layoutDirection, density ->
-            if (layoutDirection == LayoutDirection.Rtl) {
-                getLeft(density, layoutDirection)
-            } else {
-                getRight(density, layoutDirection)
-            }
-        }
+            },
+            endCalc,
+        )
     )
+
+private val endCalc: WindowInsets.(LayoutDirection, Density) -> Int = { layoutDirection, density ->
+    if (layoutDirection == LayoutDirection.Rtl) {
+        getLeft(density, layoutDirection)
+    } else {
+        getRight(density, layoutDirection)
+    }
+}
 
 /**
  * Sets the height to that of [insets] at the [top][WindowInsets.getTop] of the screen.
@@ -106,11 +113,12 @@ fun Modifier.windowInsetsTopHeight(insets: WindowInsets) =
             debugInspectorInfo {
                 name = "insetsTopHeight"
                 properties["insets"] = insets
-            }
-        ) {
-            getTop(it)
-        }
+            },
+            topCalc,
+        )
     )
+
+private val topCalc: WindowInsets.(Density) -> Int = { getTop(it) }
 
 /**
  * Sets the height to that of [insets] at the [bottom][WindowInsets.getBottom] of the screen.
@@ -128,11 +136,12 @@ fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) =
             debugInspectorInfo {
                 name = "insetsBottomHeight"
                 properties["insets"] = insets
-            }
-        ) {
-            getBottom(it)
-        }
+            },
+            bottomCalc,
+        )
     )
+
+private val bottomCalc: WindowInsets.(Density) -> Int = { getBottom(it) }
 
 /**
  * Sets the width based on [widthCalc]. If the width is 0, the height will also always be 0 and the
@@ -142,13 +151,13 @@ fun Modifier.windowInsetsBottomHeight(insets: WindowInsets) =
 private class DerivedWidthModifier(
     private val insets: WindowInsets,
     inspectorInfo: InspectorInfo.() -> Unit,
-    private val widthCalc: WindowInsets.(LayoutDirection, Density) -> Int
+    private val widthCalc: WindowInsets.(LayoutDirection, Density) -> Int,
 ) : LayoutModifier, ModifierLocalConsumer, InspectorValueInfo(inspectorInfo) {
     private var unconsumedInsets: WindowInsets by mutableStateOf(insets)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val width = unconsumedInsets.widthCalc(layoutDirection, this)
         if (width == 0) {
@@ -184,13 +193,13 @@ private class DerivedWidthModifier(
 private class DerivedHeightModifier(
     private val insets: WindowInsets,
     inspectorInfo: InspectorInfo.() -> Unit,
-    private val heightCalc: WindowInsets.(Density) -> Int
+    private val heightCalc: WindowInsets.(Density) -> Int,
 ) : LayoutModifier, ModifierLocalConsumer, InspectorValueInfo(inspectorInfo) {
     private var unconsumedInsets: WindowInsets by mutableStateOf(insets)
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val height = unconsumedInsets.heightCalc(this)
         if (height == 0) {

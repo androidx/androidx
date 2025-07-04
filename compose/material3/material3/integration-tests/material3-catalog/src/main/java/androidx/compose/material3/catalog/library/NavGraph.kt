@@ -60,12 +60,12 @@ fun NavGraph(initialFavoriteRoute: String?, theme: Theme, onThemeChange: (theme:
                     coroutineScope.launch {
                         userPreferencesRepository.saveFavoriteRoute(favoriteRoute)
                     }
-                }
+                },
             )
         }
         composable(
             route = "$ComponentRoute/" + "{$ComponentIdArgName}",
-            arguments = listOf(navArgument(ComponentIdArgName) { type = NavType.IntType })
+            arguments = listOf(navArgument(ComponentIdArgName) { type = NavType.IntType }),
         ) { navBackStackEntry ->
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
@@ -83,7 +83,7 @@ fun NavGraph(initialFavoriteRoute: String?, theme: Theme, onThemeChange: (theme:
                     coroutineScope.launch {
                         userPreferencesRepository.saveFavoriteRoute(favoriteRoute)
                     }
-                }
+                },
             )
         }
         composable(
@@ -91,8 +91,8 @@ fun NavGraph(initialFavoriteRoute: String?, theme: Theme, onThemeChange: (theme:
             arguments =
                 listOf(
                     navArgument(ComponentIdArgName) { type = NavType.IntType },
-                    navArgument(ExampleIndexArgName) { type = NavType.IntType }
-                )
+                    navArgument(ExampleIndexArgName) { type = NavType.IntType },
+                ),
         ) { navBackStackEntry ->
             val arguments = requireNotNull(navBackStackEntry.arguments) { "No arguments" }
             val componentId = arguments.getInt(ComponentIdArgName)
@@ -112,7 +112,7 @@ fun NavGraph(initialFavoriteRoute: String?, theme: Theme, onThemeChange: (theme:
                     coroutineScope.launch {
                         userPreferencesRepository.saveFavoriteRoute(favoriteRoute)
                     }
-                }
+                },
             )
         }
     }

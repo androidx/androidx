@@ -164,7 +164,7 @@ private class ImmutableThemeTestCase : ThemeTestCase() {
 private fun App(
     theme: TestTheme,
     primaryTracker: CompositionTracker,
-    secondaryTracker: CompositionTracker
+    secondaryTracker: CompositionTracker,
 ) {
     CompositionLocalProvider(LocalTestTheme provides theme) {
         CheapPrimaryColorConsumer(primaryTracker)

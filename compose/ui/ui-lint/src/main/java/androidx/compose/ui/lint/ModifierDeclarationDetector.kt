@@ -35,19 +35,21 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiType
 import java.util.EnumSet
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.calls.KtCall
-import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
-import org.jetbrains.kotlin.analysis.api.calls.KtImplicitReceiverValue
-import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
-import org.jetbrains.kotlin.analysis.api.symbols.KtCallableSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtFunctionSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KtReceiverParameterSymbol
+import org.jetbrains.kotlin.analysis.api.resolution.KaCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaCallableMemberCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaImplicitReceiverValue
+import org.jetbrains.kotlin.analysis.api.resolution.singleCallOrNull
+import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaNamedFunctionSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaReceiverParameterSymbol
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtConstructor
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
@@ -89,6 +91,10 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
 
                 val source = node.sourcePsi
 
+                // If this node is constructor or synthetic member whose source PSI is constructor,
+                // e.g., data class copy (https://youtrack.jetbrains.com/issue/KT-72722), ignore it.
+                if (source is KtConstructor<*>) return
+
                 // If this node is a property that is a constructor parameter, ignore it.
                 if (source is KtParameter) return
 
@@ -125,8 +131,8 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ModifierDeclarationDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
 
         val ModifierFactoryExtensionFunction =
@@ -140,8 +146,8 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ModifierDeclarationDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
 
         val ModifierFactoryUnreferencedReceiver =
@@ -162,8 +168,8 @@ class ModifierDeclarationDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ModifierDeclarationDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }
@@ -176,7 +182,7 @@ private fun UMethod.checkReceiver(context: JavaContext) {
             this,
             context.getNameLocation(this),
             "Modifier factory functions should be extensions on Modifier",
-            lintFix
+            lintFix,
         )
     }
 
@@ -203,7 +209,14 @@ private fun UMethod.checkReceiver(context: JavaContext) {
                 .build()
         )
     } else {
-        val receiverType = (receiverTypeReference.typeElement as KtUserType)
+        val receiverType =
+            when (val receiverType = receiverTypeReference.typeElement) {
+                is KtUserType -> receiverType
+                // We could have a nullable receiver - try to unwrap it.
+                is KtNullableType -> receiverType.innerType as? KtUserType ?: return
+                // Safe return - shouldn't happen
+                else -> return
+            }
         val receiverShortName = receiverType.referencedName
         // Try to resolve the class definition of the receiver
         val receiverFqn =
@@ -251,8 +264,8 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
                 val ktCallExpression =
                     node.sourcePsi as? KtCallExpression ?: return isReceiverReferenced
                 analyze(ktCallExpression) {
-                    val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
-                    val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
+                    val kaCall = ktCallExpression.resolveToCall()?.singleCallOrNull<KaCall>()
+                    val callee = (kaCall as? KaCallableMemberCall<*, *>)?.partiallyAppliedSymbol
                     val receiver =
                         (callee?.extensionReceiver ?: callee?.dispatchReceiver)
                         // Explicit receivers of `this` are handled separately in
@@ -260,12 +273,12 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
                         // that lets us be more defensive and avoid warning for cases like passing
                         // `this` as a parameter to a function / class where we may run into false
                         // positives if we only account for explicit receivers in a call expression.
-                        as? KtImplicitReceiverValue ?: return isReceiverReferenced
-                    val symbol = receiver.symbol as? KtReceiverParameterSymbol
+                        as? KaImplicitReceiverValue ?: return isReceiverReferenced
+                    val symbol = receiver.symbol as? KaReceiverParameterSymbol
                     // The symbol of the enclosing factory method
                     val enclosingMethodSymbol =
-                        (factoryMethod.sourcePsi as? KtDeclaration)?.getSymbol()
-                            as? KtFunctionSymbol
+                        (factoryMethod.sourcePsi as? KtDeclaration)?.symbol
+                            as? KaNamedFunctionSymbol
                     // If the receiver parameter symbol matches the outer modifier factory's
                     // symbol, then that means that the receiver for this call is the
                     // factory method, and not some other declaration that provides a modifier
@@ -290,14 +303,14 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
                     val symbol = ktThisExpression.instanceReference.mainReference.resolveToSymbol()
                     val referredMethodSymbol =
                         when (symbol) {
-                            is KtReceiverParameterSymbol -> symbol.owningCallableSymbol
-                            is KtCallableSymbol -> symbol
+                            is KaReceiverParameterSymbol -> symbol.owningCallableSymbol
+                            is KaCallableSymbol -> symbol
                             else -> null
                         }
                     // The symbol of the enclosing factory method
                     val enclosingMethodSymbol =
-                        (factoryMethod.sourcePsi as? KtDeclaration)?.getSymbol()
-                            as? KtFunctionSymbol
+                        (factoryMethod.sourcePsi as? KtDeclaration)?.symbol
+                            as? KaNamedFunctionSymbol
                     // If the symbol `this` points to matches the enclosing factory method, then we
                     // consider the modifier receiver referenced. If the symbols do not match,
                     // `this` might point to an inner scope
@@ -316,7 +329,7 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
             ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
             this,
             context.getNameLocation(this),
-            "Modifier factory functions must use the receiver Modifier instance"
+            "Modifier factory functions must use the receiver Modifier instance",
         )
     }
 }
@@ -329,7 +342,7 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
             this,
             context.getNameLocation(this),
             "Modifier factory functions should have a return type of Modifier",
-            lintFix
+            lintFix,
         )
     }
 
@@ -391,13 +404,14 @@ private fun UMethod.checkReturnType(context: JavaContext, returnType: PsiType) {
         // Declaration without an explicit return type, such as `fun foo() = Bar`
         // or val foo get() = Bar
         // Replace the `=` with `: Modifier =`
+        val equalsToken = source.equalsToken ?: return
         report(
             LintFix.create()
                 .replace()
                 .name("Add explicit Modifier return type")
-                .range(context.getLocation(this))
-                .pattern("[ \\t\\n]+=")
-                .with(": ${Names.Ui.Modifier.shortName} =")
+                .range(context.getLocation(equalsToken))
+                .beginning()
+                .with(": ${Names.Ui.Modifier.shortName} ")
                 .autoFix()
                 .build()
         )

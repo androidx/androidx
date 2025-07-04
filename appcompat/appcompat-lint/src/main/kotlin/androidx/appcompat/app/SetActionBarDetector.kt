@@ -33,8 +33,8 @@ class SetActionBarDetector :
         DeprecationCondition(
             MethodLocation("android.app.Activity", "setActionBar", "android.widget.Toolbar"),
             "Use `AppCompatActivity.setSupportActionBar`",
-            SubClassOf("androidx.appcompat.app.AppCompatActivity")
-        )
+            SubClassOf("androidx.appcompat.app.AppCompatActivity"),
+        ),
     ) {
     companion object {
         internal val USING_CORE_ACTION_BAR: Issue =
@@ -45,7 +45,7 @@ class SetActionBarDetector :
                 Category.CORRECTNESS,
                 1,
                 Severity.WARNING,
-                Implementation(SetActionBarDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(SetActionBarDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

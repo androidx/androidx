@@ -139,7 +139,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         configuration.workerFactory.createWorkerWithDefaultFallback(
             context,
             work.workSpec.workerClassName,
-            newWorkerParams(work)
+            newWorkerParams(work),
         ) as Worker
 
     private suspend fun workForeground(work: OneTimeWorkRequest, worker: Worker) =
@@ -158,7 +158,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
             taskExecutor,
             configuration.workerFactory,
             progressUpdater,
-            foregroundUpdater
+            foregroundUpdater,
         )
 }
 
@@ -168,7 +168,7 @@ private class CapturingForegroundUpdater : ForegroundUpdater {
     override fun setForegroundAsync(
         context: Context,
         id: UUID,
-        foregroundInfo: ForegroundInfo
+        foregroundInfo: ForegroundInfo,
     ): ListenableFuture<Void?> {
         calledParams = id to foregroundInfo
         return launchFuture { null }

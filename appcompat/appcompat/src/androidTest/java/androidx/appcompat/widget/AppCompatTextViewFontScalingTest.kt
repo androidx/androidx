@@ -175,7 +175,7 @@ class AppCompatTextViewFontScalingTest {
             lineHeightSp: Float,
             textSizeSp: Float,
             activity: Activity,
-            textView: TextView
+            textView: TextView,
         ) {
             val lineHeightMultiplier = lineHeightSp / textSizeSp
             // Calculate what line height would be without non-linear font scaling compressing it.
@@ -186,7 +186,7 @@ class AppCompatTextViewFontScalingTest {
                     TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_SP,
                         textSizeSp,
-                        activity.resources.displayMetrics
+                        activity.resources.displayMetrics,
                     )
             assertThat(textView.lineHeight.toFloat()).isWithin(TOLERANCE).of(expectedLineHeightPx)
         }

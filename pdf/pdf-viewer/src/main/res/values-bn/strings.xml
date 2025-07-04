@@ -29,7 +29,7 @@
     <string name="desc_page_single" msgid="8459583146661044094">"<xliff:g id="TOTAL">%2$d</xliff:g>টির মধ্যে <xliff:g id="PAGE">%1$d</xliff:g> নম্বর পৃষ্ঠা"</string>
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> শতাংশ জুম করুন"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> নম্বর পৃষ্ঠায় যান"</string>
-    <string name="desc_page" msgid="5684226167093594168">"পৃষ্ঠা <xliff:g id="PAGE">%1$d</xliff:g>"</string>
+    <string name="desc_page" msgid="6702471448987833953">"পৃষ্ঠা নম্বর <xliff:g id="PAGE">%1$d</xliff:g>"</string>
     <string name="desc_empty_page" msgid="5041794048330057239">"খালি পৃষ্ঠা"</string>
     <string name="desc_page_with_text" msgid="2564017005407577604">"পৃষ্ঠা <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>: <xliff:g id="PAGE_TEXT">%2$s</xliff:g>"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"পিডিএফ দেখানো যাবে না (<xliff:g id="TITLE">%1$s</xliff:g> ভুল ফর্ম্যাটে আছে)"</string>
@@ -60,4 +60,26 @@
     <string name="page_broken" msgid="2968770793669433462">"পিডিএফ ডকুমেন্টের ক্ষেত্রে পৃষ্ঠা ভেঙে গেছে"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"পিডিএফ ডকুমেন্ট প্রসেস করার জন্য যথেষ্ট ডেটা নেই"</string>
     <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF ফাইল খোলা যাচ্ছে না"</string>
+    <string name="cannot_edit_pdf" msgid="7677598370087228978">"এই PDF ফাইলটি এডিট করা যাবে না"</string>
+    <string name="clipboard_label" msgid="8943155331324944981">"পিডিএফ থেকে কন্টেন্ট কপি করা হয়েছে"</string>
+    <string name="fast_scroller_thumb" msgid="6712048991132846541">"স্ক্রল বার"</string>
+    <string name="confirm_selection" msgid="7020926320719465164">"কনফার্ম করুন"</string>
+    <string name="form_widget" msgid="5841730047544552656">"ফর্ম উইজেট"</string>
+    <string name="form_type" msgid="1302137779809645840">"ধরন: <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>."</string>
+    <string name="form_title" msgid="2718582322716402117">"শিরোনাম: <xliff:g id="WIDGET_ACCESSIBILITY_TITLE">%1$s</xliff:g>."</string>
+    <string name="form_value" msgid="960532222685914495">"মান: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>."</string>
+    <string name="form_current_value" msgid="3883820498421821863">"বর্তমান মান: <xliff:g id="WIDGET_VALUE">%1$s</xliff:g>।"</string>
+    <string name="form_read_only" msgid="4928929192592391646">"উইজেটটি \'শুধুমাত্র পড়তে পারবেন\' হিসেবে সেট করা আছে এবং এটি পরিবর্তন করা যাবে না।"</string>
+    <string name="form_multiselect_type" msgid="8834016845619058170">"ধরন: মাল্টি সিলেক্ট <xliff:g id="WIDGET_TYPE_NAME">%1$s</xliff:g>।"</string>
+    <string name="form_click_toggle_instruction" msgid="7171111300244445911">"ক্লিক করলেই মানের পরিবর্তন হবে।"</string>
+    <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"ক্লিক করলেই বেছে নেওয়ার মেনু খুলবে।"</string>
+    <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"ক্লিক করলেই টেক্সট এডিট মোড চালু হবে।"</string>
+    <string name="form_unknown" msgid="6371515914365431330">"অজানা"</string>
+    <string name="form_widget_type_push_button" msgid="3595388398616291441">"পুশ বোতাম"</string>
+    <string name="form_widget_type_checkbox" msgid="5165655383070460151">"চেকবক্স"</string>
+    <string name="form_widget_type_radio_button" msgid="879588277617060839">"রেডিও বাটন"</string>
+    <string name="form_widget_type_combo_box" msgid="1821324387398868582">"কম্বো বক্স"</string>
+    <string name="form_widget_type_list_box" msgid="8052623180309553495">"তালিকা বক্স"</string>
+    <string name="form_widget_type_text_field" msgid="581285155951215607">"টেক্সট ফিল্ড"</string>
+    <string name="form_widget_type_signature" msgid="3811511096215331673">"স্বাক্ষর"</string>
 </resources>

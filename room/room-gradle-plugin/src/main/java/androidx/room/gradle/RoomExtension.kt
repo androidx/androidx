@@ -279,10 +279,10 @@ open class RoomExtension @Inject constructor(private val project: Project) {
                 copyTask =
                     project.tasks.register(
                         "copyRoomSchemas${matchName.actual.capitalize()}",
-                        RoomSchemaCopyTask::class.java
+                        RoomSchemaCopyTask::class.java,
                     ) { task ->
                         task.schemaDirectory.set(directory)
-                    }
+                    },
             )
         schemaConfigurations.add(config)
     }
@@ -299,7 +299,7 @@ open class RoomExtension @Inject constructor(private val project: Project) {
      */
     internal class SchemaConfiguration(
         val name: MatchName,
-        val copyTask: TaskProvider<RoomSchemaCopyTask>
+        val copyTask: TaskProvider<RoomSchemaCopyTask>,
     ) {
         fun matches(other: String?): Boolean {
             if (other == null) return false

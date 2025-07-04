@@ -37,7 +37,7 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
@@ -51,10 +51,7 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         val tableNames =
             ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()
         val countedBinder =
-            PositionalDataSourceQueryResultBinder(
-                listAdapter = adapter,
-                tableNames = tableNames,
-            )
+            PositionalDataSourceQueryResultBinder(listAdapter = adapter, tableNames = tableNames)
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 

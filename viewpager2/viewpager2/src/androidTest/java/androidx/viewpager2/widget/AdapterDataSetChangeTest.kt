@@ -43,7 +43,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
         val startAt: Int = 0,
         val actions: List<Action>,
         val expectedFinalCurrentItem: Int,
-        val expectedFinalPageText: String?
+        val expectedFinalPageText: String?,
     )
 
     companion object {
@@ -102,7 +102,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
         assertThat(
             "Not displaying index ${config.expectedFinalCurrentItem}",
             test.viewPager.currentCompletelyVisibleItem,
-            equalTo(if (adapter.itemCount == 0) -1 else config.expectedFinalCurrentItem)
+            equalTo(if (adapter.itemCount == 0) -1 else config.expectedFinalCurrentItem),
         )
         test.assertBasicState(config.expectedFinalCurrentItem, config.expectedFinalPageText)
     }
@@ -191,27 +191,27 @@ private fun createTestSet(): List<TestConfig> {
         TestConfig(
             actions = listOf(Insert(0, "-1")),
             expectedFinalCurrentItem = 1,
-            expectedFinalPageText = "0"
+            expectedFinalPageText = "0",
         ),
         TestConfig(
             actions = listOf(Remove(0)),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "1"
+            expectedFinalPageText = "1",
         ),
         TestConfig(
             actions = listOf(Remove(0, useDataSetChanged = true)),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "1"
+            expectedFinalPageText = "1",
         ),
         TestConfig(
             actions = listOf(Move(0, 1)),
             expectedFinalCurrentItem = 1,
-            expectedFinalPageText = "0"
+            expectedFinalPageText = "0",
         ),
         TestConfig(
             actions = listOf(Move(lastPage, 0)),
             expectedFinalCurrentItem = 1,
-            expectedFinalPageText = "0"
+            expectedFinalPageText = "0",
         ),
 
         // Single action, looking at last page
@@ -219,55 +219,55 @@ private fun createTestSet(): List<TestConfig> {
             startAt = lastPage,
             actions = listOf(Insert(0, "-1")),
             expectedFinalCurrentItem = lastPage + 1,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(Insert(lastPage, "-1")),
             expectedFinalCurrentItem = lastPage + 1,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(Remove(0)),
             expectedFinalCurrentItem = lastPage - 1,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(Remove(lastPage)),
             expectedFinalCurrentItem = lastPage - 1,
-            expectedFinalPageText = "${lastPage - 1}"
+            expectedFinalPageText = "${lastPage - 1}",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(Remove(lastPage, useDataSetChanged = true)),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "0"
+            expectedFinalPageText = "0",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(Remove(lastPage - 1, useDataSetChanged = true)),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "0"
+            expectedFinalPageText = "0",
         ),
         TestConfig(
             startAt = 5,
             actions = listOf(RemoveMultiple(indices = listOf(1, 8))),
             expectedFinalCurrentItem = 5,
-            expectedFinalPageText = "6"
+            expectedFinalPageText = "6",
         ),
 
         // Single range action, looking at first page
         TestConfig(
             actions = listOf(InsertRange(0, listOf("-1", "-2"))),
             expectedFinalCurrentItem = 2,
-            expectedFinalPageText = "0"
+            expectedFinalPageText = "0",
         ),
         TestConfig(
             actions = listOf(RemoveRange(0, 2)),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "2"
+            expectedFinalPageText = "2",
         ),
 
         // Single range action, looking at last page
@@ -275,37 +275,37 @@ private fun createTestSet(): List<TestConfig> {
             startAt = lastPage,
             actions = listOf(InsertRange(0, listOf("-1", "-2"))),
             expectedFinalCurrentItem = lastPage + 2,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(InsertRange(lastPage - 1, listOf("-1", "-2"))),
             expectedFinalCurrentItem = lastPage + 2,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(InsertRange(lastPage, listOf("-1", "-2"))),
             expectedFinalCurrentItem = lastPage + 2,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(RemoveRange(0, 2)),
             expectedFinalCurrentItem = lastPage - 2,
-            expectedFinalPageText = "$lastPage"
+            expectedFinalPageText = "$lastPage",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(RemoveRange(lastPage - 1, 2)),
             expectedFinalCurrentItem = lastPage - 2,
-            expectedFinalPageText = "${lastPage - 2}"
+            expectedFinalPageText = "${lastPage - 2}",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(RemoveRange(0, pageCount)),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = null
+            expectedFinalPageText = null,
         ),
 
         // Replace all contents at once
@@ -313,19 +313,19 @@ private fun createTestSet(): List<TestConfig> {
             startAt = 2,
             actions = listOf(ReplaceWith(listOf("10", "11", "12", "13"))),
             expectedFinalCurrentItem = 2,
-            expectedFinalPageText = "12"
+            expectedFinalPageText = "12",
         ),
         TestConfig(
             startAt = 7,
             actions = listOf(ReplaceWith(listOf("10", "11", "12", "13"))),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "10"
+            expectedFinalPageText = "10",
         ),
         TestConfig(
             startAt = lastPage,
             actions = listOf(ReplaceWith(listOf())),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = null
+            expectedFinalPageText = null,
         ),
 
         // "Trivial" cases from random tests
@@ -342,10 +342,10 @@ private fun createTestSet(): List<TestConfig> {
                     Move(from = 5, to = 2),
                     Insert(at = 9, item = "-4"),
                     Insert(at = 1, item = "-5"),
-                    Move(from = 4, to = 9)
+                    Move(from = 4, to = 9),
                 ),
             expectedFinalCurrentItem = 0,
-            expectedFinalPageText = "1"
+            expectedFinalPageText = "1",
         ),
         TestConfig(
             startAt = 6,
@@ -360,10 +360,10 @@ private fun createTestSet(): List<TestConfig> {
                     Move(from = 1, to = 0),
                     Insert(at = 3, item = "-2"),
                     Move(from = 3, to = 3),
-                    Remove(at = 3)
+                    Remove(at = 3),
                 ),
             expectedFinalCurrentItem = 3,
-            expectedFinalPageText = "6"
+            expectedFinalPageText = "6",
         ),
 
         // "Non-trivial" cases from random tests
@@ -380,10 +380,10 @@ private fun createTestSet(): List<TestConfig> {
                     Remove(at = 8),
                     Insert(at = 0, item = "-3"),
                     Move(from = 3, to = 8),
-                    Remove(at = 2)
+                    Remove(at = 2),
                 ),
             expectedFinalCurrentItem = 2,
-            expectedFinalPageText = "4"
-        )
+            expectedFinalPageText = "4",
+        ),
     )
 }

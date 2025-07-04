@@ -54,7 +54,7 @@ class TypeAliasTest {
                 suspend fun suspendFun() : MyLong = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val lib = compileFiles(listOf(produceSource("lib")))
         runProcessorTest(sources = listOf(produceSource("app")), classpath = lib) { invocation ->
@@ -75,7 +75,7 @@ class TypeAliasTest {
                         .isEqualTo(
                             JParameterizedTypeName.get(
                                 List::class.asJClassName(),
-                                JTypeName.LONG.box()
+                                JTypeName.LONG.box(),
                             )
                         )
                     if (invocation.isKsp) {
@@ -88,7 +88,7 @@ class TypeAliasTest {
                         .isEqualTo(
                             JParameterizedTypeName.get(
                                 CONTINUATION_JCLASS_NAME,
-                                JWildcardTypeName.supertypeOf(JTypeName.LONG.box())
+                                JWildcardTypeName.supertypeOf(JTypeName.LONG.box()),
                             )
                         )
                     if (invocation.isKsp) {

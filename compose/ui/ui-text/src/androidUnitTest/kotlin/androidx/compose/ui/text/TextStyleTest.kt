@@ -890,13 +890,13 @@ class TextStyleTest {
                 color = Color.Red,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                textDirection = TextDirection.Rtl
+                textDirection = TextDirection.Rtl,
             ) +
                 TextStyle(
                     color = Color.Green,
                     fontFamily = FontFamily.Cursive,
                     textAlign = TextAlign.Justify,
-                    lineHeight = 12.sp
+                    lineHeight = 12.sp,
                 )
 
         assertThat(style)
@@ -907,7 +907,7 @@ class TextStyleTest {
                     fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
                     textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
                     textDirection = TextDirection.Rtl, // from LHS,
-                    lineHeight = 12.sp // ParagraphStyle attribute from RHS
+                    lineHeight = 12.sp, // ParagraphStyle attribute from RHS
                 )
             )
     }
@@ -918,7 +918,7 @@ class TextStyleTest {
             TextStyle(
                 color = Color.Red,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             ) + SpanStyle(color = Color.Green, fontFamily = FontFamily.Cursive)
 
         assertThat(style)
@@ -927,7 +927,7 @@ class TextStyleTest {
                     color = Color.Green, // SpanStyle attribute overridden by RHS
                     fontWeight = FontWeight.Bold, // SpanStyle attribute from LHS,
                     fontFamily = FontFamily.Cursive, // SpanStyle attribute from RHS
-                    textAlign = TextAlign.Center // ParagraphStyle attribute from LHS
+                    textAlign = TextAlign.Center, // ParagraphStyle attribute from LHS
                 )
             )
     }
@@ -938,7 +938,7 @@ class TextStyleTest {
             TextStyle(
                 color = Color.Red,
                 textAlign = TextAlign.Center,
-                textDirection = TextDirection.Rtl
+                textDirection = TextDirection.Rtl,
             ) + ParagraphStyle(textAlign = TextAlign.Justify, lineHeight = 12.sp)
 
         assertThat(style)
@@ -947,7 +947,7 @@ class TextStyleTest {
                     color = Color.Red, // SpanStyle from LHS
                     textAlign = TextAlign.Justify, // ParagraphStyle attribute overridden by RHS
                     textDirection = TextDirection.Rtl, // from LHS,
-                    lineHeight = 12.sp // ParagraphStyle attribute from RHS
+                    lineHeight = 12.sp, // ParagraphStyle attribute from RHS
                 )
             )
     }
@@ -1575,7 +1575,7 @@ class TextStyleTest {
                 localeList = localeList,
                 background = background,
                 textDecoration = decoration,
-                shadow = shadow
+                shadow = shadow,
             )
 
         assertThat(style.toSpanStyle())
@@ -1594,7 +1594,7 @@ class TextStyleTest {
                     localeList = localeList,
                     background = background,
                     textDecoration = decoration,
-                    shadow = shadow
+                    shadow = shadow,
                 )
             )
     }
@@ -1633,7 +1633,7 @@ class TextStyleTest {
                 background = background,
                 textDecoration = decoration,
                 shadow = shadow,
-                drawStyle = drawStyle
+                drawStyle = drawStyle,
             )
 
         assertThat(style.toSpanStyle())
@@ -1653,7 +1653,7 @@ class TextStyleTest {
                     background = background,
                     textDecoration = decoration,
                     shadow = shadow,
-                    drawStyle = drawStyle
+                    drawStyle = drawStyle,
                 )
             )
     }
@@ -1667,14 +1667,14 @@ class TextStyleTest {
         val lineHeightStyle =
             LineHeightStyle(
                 alignment = LineHeightStyle.Alignment.Center,
-                trim = LineHeightStyle.Trim.None
+                trim = LineHeightStyle.Trim.None,
             )
         val hyphens = Hyphens.Auto
         val lineBreak =
             LineBreak(
                 strategy = LineBreak.Strategy.Balanced,
                 strictness = LineBreak.Strictness.Strict,
-                wordBreak = LineBreak.WordBreak.Phrase
+                wordBreak = LineBreak.WordBreak.Phrase,
             )
         val textMotion = TextMotion.Animated
 
@@ -1687,7 +1687,7 @@ class TextStyleTest {
                 lineHeightStyle = lineHeightStyle,
                 lineBreak = lineBreak,
                 hyphens = hyphens,
-                textMotion = textMotion
+                textMotion = textMotion,
             )
 
         assertThat(style.toParagraphStyle())
@@ -1700,7 +1700,7 @@ class TextStyleTest {
                     lineHeightStyle = lineHeightStyle,
                     hyphens = hyphens,
                     lineBreak = lineBreak,
-                    textMotion = textMotion
+                    textMotion = textMotion,
                 )
             )
     }
@@ -1791,7 +1791,7 @@ class TextStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Bottom,
-                        trim = LineHeightStyle.Trim.None
+                        trim = LineHeightStyle.Trim.None,
                     )
             )
         val otherStyle =
@@ -1799,7 +1799,7 @@ class TextStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Center,
-                        trim = LineHeightStyle.Trim.Both
+                        trim = LineHeightStyle.Trim.Both,
                     )
             )
 
@@ -1813,13 +1813,13 @@ class TextStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Bottom,
-                        trim = LineHeightStyle.Trim.None
+                        trim = LineHeightStyle.Trim.None,
                     )
             )
         val newLineHeightStyle =
             LineHeightStyle(
                 alignment = LineHeightStyle.Alignment.Center,
-                trim = LineHeightStyle.Trim.Both
+                trim = LineHeightStyle.Trim.Both,
             )
         val newStyle = style.copy(lineHeightStyle = newLineHeightStyle)
 
@@ -1833,7 +1833,7 @@ class TextStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Bottom,
-                        trim = LineHeightStyle.Trim.None
+                        trim = LineHeightStyle.Trim.None,
                     )
             )
         val newStyle = style.copy()
@@ -1878,7 +1878,7 @@ class TextStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Center,
-                        trim = LineHeightStyle.Trim.None
+                        trim = LineHeightStyle.Trim.None,
                     )
             )
         val otherStyle =
@@ -1886,7 +1886,7 @@ class TextStyleTest {
                 lineHeightStyle =
                     LineHeightStyle(
                         alignment = LineHeightStyle.Alignment.Bottom,
-                        trim = LineHeightStyle.Trim.Both
+                        trim = LineHeightStyle.Trim.Both,
                     )
             )
 
@@ -1978,7 +1978,7 @@ class TextStyleTest {
                 "subject.merge(other) on param=`${param.name}` failed" +
                     "\n\tmerged  = $merged" +
                     "\n\tother   = $other" +
-                    "\n\tsubject = $subject"
+                    "\n\tsubject = $subject",
             )
             assertNotEquals(
                 subject,
@@ -1986,7 +1986,7 @@ class TextStyleTest {
                 "other.merge(subject) on param=`${param.name}` failed" +
                     "\n\tmerged  = $merged" +
                     "\n\tother   = $other" +
-                    "\n\tsubject = $subject"
+                    "\n\tsubject = $subject",
             )
         }
     }

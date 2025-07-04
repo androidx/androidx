@@ -22,5 +22,5 @@ import javax.lang.model.type.ExecutableType
 internal class JavacConstructorType(
     env: JavacProcessingEnv,
     override val element: JavacConstructorElement,
-    executableType: ExecutableType
+    executableType: ExecutableType,
 ) : JavacExecutableType(env, element, executableType), XConstructorType

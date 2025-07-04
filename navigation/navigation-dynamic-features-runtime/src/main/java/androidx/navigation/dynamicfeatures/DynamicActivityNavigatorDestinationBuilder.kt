@@ -37,11 +37,11 @@ import kotlin.reflect.KType
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to build your DynamicActivityDestination instead",
-    ReplaceWith("activity(route = id.toString()) { builder.invoke() }")
+    ReplaceWith("activity(route = id.toString()) { builder.invoke() }"),
 )
 public inline fun DynamicNavGraphBuilder.activity(
     @IdRes id: Int,
-    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicActivityNavigatorDestinationBuilder(provider[DynamicActivityNavigator::class], id)
@@ -56,7 +56,7 @@ public inline fun DynamicNavGraphBuilder.activity(
  */
 public inline fun DynamicNavGraphBuilder.activity(
     route: String,
-    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicActivityNavigatorDestinationBuilder(provider[DynamicActivityNavigator::class], route)
@@ -73,13 +73,13 @@ public inline fun DynamicNavGraphBuilder.activity(
  */
 public inline fun <reified T : Any> DynamicNavGraphBuilder.activity(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicActivityNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicActivityNavigatorDestinationBuilder(
                 provider[DynamicActivityNavigator::class],
                 T::class,
-                typeMap
+                typeMap,
             )
             .apply(builder)
     )
@@ -95,18 +95,18 @@ public class DynamicActivityNavigatorDestinationBuilder :
         "Use routes to build your DynamicActivityDestination instead",
         ReplaceWith(
             "DynamicActivityNavigatorDestinationBuilder(activityNavigator, route = id.toString())"
-        )
+        ),
     )
     public constructor(
         activityNavigator: DynamicActivityNavigator,
-        @IdRes id: Int
+        @IdRes id: Int,
     ) : super(activityNavigator, id) {
         this.activityNavigator = activityNavigator
     }
 
     public constructor(
         activityNavigator: DynamicActivityNavigator,
-        route: String
+        route: String,
     ) : super(activityNavigator, route) {
         this.activityNavigator = activityNavigator
     }
@@ -122,7 +122,7 @@ public class DynamicActivityNavigatorDestinationBuilder :
     public constructor(
         activityNavigator: DynamicActivityNavigator,
         route: KClass<*>,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : super(activityNavigator, route, typeMap) {
         this.activityNavigator = activityNavigator
     }
@@ -149,7 +149,7 @@ public class DynamicActivityNavigatorDestinationBuilder :
                         } else {
                             activityNavigator.packageName
                         },
-                        it
+                        it,
                     )
                 )
             }

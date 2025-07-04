@@ -124,7 +124,7 @@ internal class PageStore<T : Any>(
             presentedItemsBefore = presentedItems / 2,
             presentedItemsAfter = presentedItems / 2,
             originalPageOffsetFirst = originalPageOffsetFirst,
-            originalPageOffsetLast = originalPageOffsetLast
+            originalPageOffsetLast = originalPageOffsetLast,
         )
     }
 
@@ -142,7 +142,7 @@ internal class PageStore<T : Any>(
             presentedItemsBefore = index - placeholdersBefore,
             presentedItemsAfter = size - index - placeholdersAfter - 1,
             originalPageOffsetFirst = originalPageOffsetFirst,
-            originalPageOffsetLast = originalPageOffsetLast
+            originalPageOffsetLast = originalPageOffsetLast,
         )
     }
 
@@ -171,7 +171,7 @@ internal class PageStore<T : Any>(
                 PagingDataEvent.Prepend(
                     inserted = insert.pages.flatMap { it.data },
                     newPlaceholdersBefore = placeholdersBefore,
-                    oldPlaceholdersBefore = oldPlaceholdersBefore
+                    oldPlaceholdersBefore = oldPlaceholdersBefore,
                 )
             }
             APPEND -> {
@@ -186,7 +186,7 @@ internal class PageStore<T : Any>(
                     startIndex = placeholdersBefore + oldDataCount,
                     inserted = insert.pages.flatMap { it.data },
                     newPlaceholdersAfter = placeholdersAfter,
-                    oldPlaceholdersAfter = oldPlaceholdersAfter
+                    oldPlaceholdersAfter = oldPlaceholdersAfter,
                 )
             }
         }

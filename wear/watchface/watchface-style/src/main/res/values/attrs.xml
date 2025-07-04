@@ -59,6 +59,27 @@
         <attr name="parent"/>
     </declare-styleable>
 
+    <!-- A ColorUserStyleSetting node should contain 1 or more child ColorOption nodes.
+    It may also contain an OnWatchEditorData node. -->
+    <declare-styleable name="ColorUserStyleSetting">
+        <!-- An id is required, this must be unique within the schema's settings. -->
+        <attr name="id" />
+        <!-- A list displayName is required. Consider referencing a string resource for
+        localization. -->
+        <attr name="displayName" />
+        <!-- A description is required. Consider referencing a string resource for localization. -->
+        <attr name="description" />
+        <!-- A link to a companion editor icon is optional but encouraged. -->
+        <attr name="android:icon" />
+        <!-- A combination of one or more layers. If not specified then defaults to all layers. -->
+        <attr name="affectedWatchFaceLayers" />
+        <!-- The index of the default child ColorOption. If not specified, then 0 will be used. -->
+        <attr name="defaultOptionIndex" />
+        <!-- Reference (XML) to a setting to base this setting on.
+         All attributes will be inherited from the parent unless specified. -->
+        <attr name="parent"/>
+    </declare-styleable>
+
     <!-- A ListUserStyleSetting node should contain 1 or more child ComplicationSlotsOption nodes.
     It may also contain an OnWatchEditorData node.-->
     <declare-styleable name="ComplicationSlotsUserStyleSetting">
@@ -106,8 +127,8 @@
         <attr name="parent"/>
     </declare-styleable>
 
-    <!-- A ListUserStyleSetting node should contain 1 or more child ComplicationSlotsOption nodes
-    and optionally a single OnWatchEditorData node. -->
+    <!-- A ListUserStyleSetting node should contain 1 or more child ListOption nodes and optionally
+     a single OnWatchEditorData node. -->
     <declare-styleable name="ListUserStyleSetting">
         <!-- An id is required, this must be unique within the schema's settings. -->
         <attr name="id" />
@@ -186,8 +207,22 @@
         <attr name="android:icon" />
     </declare-styleable>
 
-    <!-- A LongRangeUserStyleSetting node may only contain an optional OnWatchEditorData child
-    node. -->
+    <!-- A ColorOption node may not contain any child nodes. -->
+    <declare-styleable name="ColorOption">
+        <!-- An id is required, this must be unique within the ColorUserStyleSetting's options. -->
+        <attr name="id" />
+        <!-- A displayName is required. Consider referencing a string resource for localization. -->
+        <attr name="displayName" />
+        <!-- A nameForScreenReaders is optional. Consider referencing a string resource for
+        localization. -->
+        <attr name="nameForScreenReaders" />
+        <!-- A comma separated list of colors parsable by [android.graphics.Color.parseColor]. All
+        ColorOptions must contain the same number of colors.
+        E.g. colors="#ff00ff00,#ffffffff,green" -->
+        <attr name="colors" format="string" />
+    </declare-styleable>
+
+    <!-- A ListOption node may only contain an optional OnWatchEditorData child node. -->
     <declare-styleable name="ListOption">
         <!-- An id is required, this must be unique within the ListUserStyleSetting's options. -->
         <attr name="id" />

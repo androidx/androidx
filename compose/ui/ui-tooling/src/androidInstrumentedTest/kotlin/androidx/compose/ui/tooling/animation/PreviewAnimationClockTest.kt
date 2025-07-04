@@ -149,7 +149,7 @@ class PreviewAnimationClockTest {
             mapOf(
                 rotationAnimation!! to 500,
                 offsetAnimation!! to 200,
-                animatedVisibilityComposeAnimation to 800
+                animatedVisibilityComposeAnimation to 800,
             )
         )
         composeRule.waitForIdle()
@@ -261,7 +261,7 @@ class PreviewAnimationClockTest {
         assertEquals("androidx.compose.animation.core.TweenSpec", rotation.specType)
         assertArrayEquals(
             arrayOf(0L, 100L, 200L, 300L, 400L, 500L, 600L, 700L, 800L, 900L, 1000L),
-            rotation.values.keys.sorted().toTypedArray()
+            rotation.values.keys.sorted().toTypedArray(),
         )
 
         val color = transitions.single { it.label == "borderColor" }
@@ -272,7 +272,7 @@ class PreviewAnimationClockTest {
         assertEquals("androidx.compose.animation.core.TweenSpec", color.specType)
         assertArrayEquals(
             arrayOf(0L, 100L, 200L, 300L, 400L, 500L, 600L, 700L, 800L, 900L, 1000L),
-            color.values.keys.sorted().toTypedArray()
+            color.values.keys.sorted().toTypedArray(),
         )
 
         transitions = testClock.getTransitions(offsetAnimation!!, 200)
@@ -284,7 +284,7 @@ class PreviewAnimationClockTest {
         assertEquals("androidx.compose.animation.core.TweenSpec", offset.specType)
         assertArrayEquals(
             arrayOf(0L, 200L, 400L, 600L, 800L),
-            offset.values.keys.sorted().toTypedArray()
+            offset.values.keys.sorted().toTypedArray(),
         )
 
         val grandChild = transitions.single { it.label == "grandchild" }
@@ -295,7 +295,7 @@ class PreviewAnimationClockTest {
         assertEquals("androidx.compose.animation.core.TweenSpec", grandChild.specType)
         assertArrayEquals(
             arrayOf(0L, 200L, 400L, 600L, 800L, 900L),
-            grandChild.values.keys.sorted().toTypedArray()
+            grandChild.values.keys.sorted().toTypedArray(),
         )
 
         val animatedVisibilityComposeAnimation = testClock.animatedVisibilityClocks.keys.single()
@@ -494,7 +494,7 @@ class PreviewAnimationClockTest {
             val transition = updateTransition(targetState = 10, label = "updateTransition")
             transition.animateDp(
                 transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
-                label = "AnimatedDp"
+                label = "AnimatedDp",
             ) {
                 if (it == 0) 0.dp else 1.dp
             }
@@ -503,7 +503,7 @@ class PreviewAnimationClockTest {
             infiniteTransition.animateFloat(
                 initialValue = 0f,
                 targetValue = 1f,
-                animationSpec = infiniteRepeatable(tween(300), RepeatMode.Restart)
+                animationSpec = infiniteRepeatable(tween(300), RepeatMode.Restart),
             )
         }
         // Default states.
@@ -534,7 +534,7 @@ class PreviewAnimationClockTest {
         val transition = updateTransition(RotationColor.RC1)
         transition.animateFloat(
             label = "myRotation",
-            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
+            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
         ) {
             when (it) {
                 RotationColor.RC1 -> 0f
@@ -544,7 +544,7 @@ class PreviewAnimationClockTest {
         }
         transition.animateColor(
             label = "borderColor",
-            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
+            transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
         ) {
             when (it) {
                 RotationColor.RC1 -> Color.Red
@@ -570,7 +570,7 @@ class PreviewAnimationClockTest {
         val transition = updateTransition(Offset.O1)
         transition.animateFloat(
             label = "myOffset",
-            transitionSpec = { tween(durationMillis = 800, easing = LinearEasing) }
+            transitionSpec = { tween(durationMillis = 800, easing = LinearEasing) },
         ) {
             when (it) {
                 Offset.O1 -> 0f
@@ -585,7 +585,7 @@ class PreviewAnimationClockTest {
             .createChildTransition { it }
             .animateDp(
                 label = "grandchild",
-                transitionSpec = { tween(durationMillis = 900, easing = LinearEasing) }
+                transitionSpec = { tween(durationMillis = 900, easing = LinearEasing) },
             ) { parentState ->
                 if (parentState) 1.dp else 9.dp
             }
@@ -612,7 +612,7 @@ class PreviewAnimationClockTest {
     private fun createAnimationVisibility(
         duration: Int = 500,
         isEnter: Boolean = true,
-        label: String? = null
+        label: String? = null,
     ): Transition<Any> {
         fun <T> linearTween() = tween<T>(duration, easing = LinearEasing)
         val parentAnimatedVisibility = updateTransition(!isEnter, label)
@@ -654,13 +654,13 @@ class PreviewAnimationClockTest {
 
 private enum class Offset {
     O1,
-    O2
+    O2,
 }
 
 private enum class RotationColor {
     RC1,
     RC2,
-    RC3
+    RC3,
 }
 
 private const val eps = 0.00001f

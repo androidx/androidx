@@ -79,8 +79,8 @@ class ExceptionMessageDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         ExceptionMessageDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE),
+                    ),
             )
     }
 }

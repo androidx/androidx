@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.test.VoipAppWithExtensions
 
+import android.net.Uri
 import android.os.Build
 import android.telecom.DisconnectCause
 import android.util.Log
@@ -23,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.CallIconExtension
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ExtensionInitializationScope
 import androidx.core.telecom.extensions.Extensions
@@ -32,16 +34,21 @@ import androidx.core.telecom.extensions.ParticipantExtensionImpl
 import androidx.core.telecom.extensions.RaiseHandState
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
+import java.io.File
 
 @ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
 class VoipCall(
     private val callsManager: CallsManager,
     private val callback: ITestAppControlCallback?,
-    private val capabilities: List<Capability>
+    private val capabilities: List<Capability>,
 ) {
     companion object {
         private const val TAG = "VoipCall"
+        /** This is fake file name to test the call icon extension */
+        private const val INITIAL_CALL_ICON_FILE_NAME = "InitialUri"
+        /** This is the first URI that end to end test checks for */
+        val INITIAL_CALL_ICON_URI: Uri = Uri.fromFile(File(INITIAL_CALL_ICON_FILE_NAME))
     }
 
     private lateinit var callId: String
@@ -50,6 +57,8 @@ class VoipCall(
     internal var raiseHandStateUpdater: RaiseHandState? = null
     // Local Call Silence
     internal var localCallSilenceUpdater: LocalCallSilenceExtension? = null
+    // Call Icon extension
+    internal var callIconUpdater: CallIconExtension? = null
 
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
@@ -57,7 +66,7 @@ class VoipCall(
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
-        init: CallControlScope.() -> Unit
+        init: CallControlScope.() -> Unit,
     ) {
         Log.i(TAG, "addCall: capabilities=$capabilities")
         callsManager.addCallWithExtensions(
@@ -65,7 +74,7 @@ class VoipCall(
             onAnswer,
             onDisconnect,
             onSetActive,
-            onSetInactive
+            onSetInactive,
         ) {
             createExtensions()
             onCall {
@@ -88,6 +97,9 @@ class VoipCall(
                             Log.i(TAG, "addLocalSilenceExtension: callId=[$callId], it=[$it]")
                             callback?.setLocalCallSilenceState(callId, it)
                         }
+                }
+                Extensions.CALL_ICON -> {
+                    callIconUpdater = addCallIconExtension(INITIAL_CALL_ICON_URI)
                 }
             }
         }

@@ -73,7 +73,7 @@ interface PopupPositionProvider {
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        popupContentSize: IntSize,
     ): IntOffset
 }
 
@@ -83,7 +83,7 @@ internal class AlignmentOffsetPositionProvider(val alignment: Alignment, val off
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        popupContentSize: IntSize,
     ): IntOffset {
         // TODO: Decide which is the best way to round to result without reimplementing
         // Alignment.align
@@ -126,7 +126,7 @@ expect fun Popup(
     offset: IntOffset = IntOffset(0, 0),
     onDismissRequest: (() -> Unit)? = null,
     properties: PopupProperties = PopupProperties(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 )
 
 /**
@@ -145,5 +145,5 @@ expect fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)? = null,
     properties: PopupProperties = PopupProperties(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 )

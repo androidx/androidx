@@ -50,7 +50,7 @@ import androidx.annotation.RestrictTo.Scope
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.FIELD,
-    AnnotationTarget.FILE
+    AnnotationTarget.FILE,
 )
 public expect annotation class RestrictTo(
     /** The scope(s) to which usage should be restricted. */
@@ -93,8 +93,8 @@ public expect annotation class RestrictTo(
             replaceWith =
                 kotlin.ReplaceWith(
                     "LIBRARY_GROUP_PREFIX",
-                    "androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX"
-                )
+                    "androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX",
+                ),
         )
         GROUP_ID,
 

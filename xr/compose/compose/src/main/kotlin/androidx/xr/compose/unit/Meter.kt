@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isFinite
 import androidx.compose.ui.unit.isSpecified
-import androidx.xr.extensions.XrExtensions
-import androidx.xr.extensions.XrExtensionsProvider
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
+import com.android.extensions.xr.XrExtensions
 import kotlin.math.roundToInt
 
 /**
@@ -190,11 +190,12 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
 
         /**
          * DPs per meter. The system's API is in pixels, but we can get the value we want be
-         * specifying 1 dp == 1 pixel.
+         * specifying 1 dp == 1 pixel. This is a property with a getter, so it is re-evaluated on
+         * each call, allowing unit test environments to override the value.
          */
         @PublishedApi
-        internal val DP_PER_METER: Float =
-            tryGetXrExtensions()?.config?.defaultPixelsPerMeter(1.0f) ?: DP_PER_METER_FALLBACK
+        internal val DP_PER_METER: Float
+            get() = getXrExtensions()?.config?.defaultPixelsPerMeter(1.0f) ?: DP_PER_METER_FALLBACK
 
         /** Represents an infinite distance in meters. */
         public val Infinity: Meter = Meter(Float.POSITIVE_INFINITY)
@@ -207,14 +208,7 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
          *
          * @return an instance of [XrExtensions] if available, or [null] otherwise.
          */
-        private fun tryGetXrExtensions(): XrExtensions? =
-            try {
-                XrExtensionsProvider.getXrExtensions()
-            } catch (e: Exception) {
-                null
-            } catch (e: Error) {
-                null
-            }
+        private fun getXrExtensions(): XrExtensions? = XrExtensionsProvider.getXrExtensions()
 
         /**
          * Creates a [Meter] value from a given number of pixels.

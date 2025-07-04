@@ -18,6 +18,10 @@
     <!-- Default style for NestedScrollView. Should be set in your theme. -->
     <attr name="nestedScrollViewStyle" format="reference" />
 
+    <!-- Common name attributes. See comments of each attribute declaration in declare-styleable -->
+    <attr name="fontVariationSettings" format="string" />
+    <attr name="fontProviderSystemFontFamily" format="string" />
+
     <!-- Attributes that are read when parsing a <fontfamily> tag. -->
     <declare-styleable name="FontFamily">
         <!-- The authority of the Font Provider to be used for the request. -->
@@ -69,7 +73,36 @@
         example if the fontProviderQuery asked for "Sans Serif", it is possible to define
         fontProviderSystemFontFamily as "sans-serif" to tell the system to use "sans-serif" font
         family if it exists on the system. -->
-        <attr name="fontProviderSystemFontFamily" format="string" />
+        <attr name="fontProviderSystemFontFamily"/>
+    </declare-styleable>
+
+    <!-- Attributes that are read when parging <fallback> tag, which is a child of <font-family>.
+         This represents a single entry of the fallback chain. -->
+    <declare-styleable name="FontFamilyProviderFallback">
+        <!-- A query to be sent over to the provider. -->
+        <attr name="fontProviderQuery" />
+        <!--
+        Provides the system font family name to check before downloading the font.
+
+        Example: If fontProviderQuery is "Sans Serif", setting this to "sans-serif" allows the
+        system to use its "sans-serif" font family if available, avoiding a download.
+
+        Behavior in a <font-family> fallback chain: If this is the last fallback, this name is
+        passed to Typeface.CustomFallbackBuilder.setSystemFallback(). Note: If fontVariationSettings
+        is specified, setSystemFallback() might not be used; the library may attempt to determine
+        the primary system font and apply variations.
+        If this is an middle position of the fallback, the library attempts to determine the primary
+        font from the system-provided Typeface.
+        -->
+        <attr name="fontProviderSystemFontFamily"/>
+        <!--
+        A font variation settings to be applied to the font file provided by system or provider.
+
+        A font variation settings string to be applied to the font file.
+        Format example: "'wght' 700, 'wdth' 75".
+        See Android documentation for android.graphics.fonts.FontVariationAxis for details.
+        -->
+        <attr name="fontVariationSettings" />
     </declare-styleable>
 
     <!-- Attributes that are read when parsing a <font> tag, which is a child of
@@ -95,7 +128,7 @@
          format: "'tag1' value1, 'tag2' value2, ...". If the default variation settings should be
          used, or the font used does not support variation settings, this attribute needs not be
          specified. -->
-        <attr name="fontVariationSettings" format="string" />
+        <attr name="fontVariationSettings" />
         <!-- The index of the font in the tcc font file. If the font file referenced is not in the
         tcc format, this attribute needs not be specified. -->
         <attr name="ttcIndex" format="integer" />

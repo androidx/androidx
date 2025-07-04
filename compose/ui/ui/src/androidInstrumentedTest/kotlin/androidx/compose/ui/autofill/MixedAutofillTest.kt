@@ -17,13 +17,11 @@
 package androidx.compose.ui.autofill
 
 import android.graphics.Rect as AndroidRect
-import android.os.Build
 import android.util.SparseArray
 import android.view.View
 import android.view.View.AUTOFILL_TYPE_TEXT
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
-import androidx.annotation.RequiresApi
 import androidx.autofill.HintConstants
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -60,14 +59,12 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 26)
-@RequiresApi(Build.VERSION_CODES.O)
 class MixedAutofillTest {
     @get:Rule val rule = createComposeRule()
     private val height = 200.dp
     private val width = 200.dp
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    private val previousFlagValue = ComposeUiFlags.isSemanticAutofillEnabled
+    private val previousFlagValue =
+        @OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isSemanticAutofillEnabled
 
     @Before
     fun enableAutofill() {
@@ -124,17 +121,15 @@ class MixedAutofillTest {
     fun populateViewStructure_new_old_sameLayoutNode() {
         // Arrange.
         lateinit var view: View
-        lateinit var autofillTree: AutofillTree
+        lateinit var autofillTree: @Suppress("DEPRECATION") AutofillTree
         val viewStructure: ViewStructure = FakeViewStructure()
-        lateinit var autofillNode: AutofillNode
+        lateinit var autofillNode: @Suppress("DEPRECATION") AutofillNode
         rule.setContent {
             view = LocalView.current
-            autofillTree = LocalAutofillTree.current
+            autofillTree = @Suppress("DEPRECATION") LocalAutofillTree.current
             autofillNode = remember {
-                AutofillNode(
-                    onFill = {},
-                    autofillTypes = listOf(AutofillType.Password),
-                )
+                @Suppress("DEPRECATION")
+                AutofillNode(onFill = {}, autofillTypes = listOf(AutofillType.Password))
             }
             Box(
                 Modifier.semantics {
@@ -203,17 +198,15 @@ class MixedAutofillTest {
     fun populateViewStructure_new_old_differentLayoutNodes() {
         // Arrange.
         lateinit var view: View
-        lateinit var autofillTree: AutofillTree
+        lateinit var autofillTree: @Suppress("DEPRECATION") AutofillTree
         val viewStructure: ViewStructure = FakeViewStructure()
-        lateinit var autofillNode: AutofillNode
+        lateinit var autofillNode: @Suppress("DEPRECATION") AutofillNode
         rule.setContent {
             view = LocalView.current
-            autofillTree = LocalAutofillTree.current
+            autofillTree = @Suppress("DEPRECATION") LocalAutofillTree.current
             autofillNode = remember {
-                AutofillNode(
-                    onFill = {},
-                    autofillTypes = listOf(AutofillType.Password),
-                )
+                @Suppress("DEPRECATION")
+                AutofillNode(onFill = {}, autofillTypes = listOf(AutofillType.Password))
             }
             Column {
                 Box(
@@ -288,14 +281,15 @@ class MixedAutofillTest {
     fun autofill_new_old_sameLayoutNode() {
         // Arrange.
         lateinit var view: View
-        lateinit var autofillTree: AutofillTree
-        lateinit var autofillNode: AutofillNode
+        lateinit var autofillTree: @Suppress("DEPRECATION") AutofillTree
+        lateinit var autofillNode: @Suppress("DEPRECATION") AutofillNode
         lateinit var autoFilledValueNewApi: String
         lateinit var autoFilledValueOldApi: String
         rule.setContent {
             view = LocalView.current
-            autofillTree = LocalAutofillTree.current
+            autofillTree = @Suppress("DEPRECATION") LocalAutofillTree.current
             autofillNode = remember {
+                @Suppress("DEPRECATION")
                 AutofillNode(
                     onFill = { autoFilledValueOldApi = it },
                     autofillTypes = listOf(AutofillType.Password),
@@ -343,14 +337,15 @@ class MixedAutofillTest {
     fun autofill_new_old_differentLayoutNodes() {
         // Arrange.
         lateinit var view: View
-        lateinit var autofillTree: AutofillTree
-        lateinit var autofillNode: AutofillNode
+        lateinit var autofillTree: @Suppress("DEPRECATION") AutofillTree
+        lateinit var autofillNode: @Suppress("DEPRECATION") AutofillNode
         lateinit var autoFilledValueNewApi: String
         lateinit var autoFilledValueOldApi: String
         rule.setContent {
             view = LocalView.current
-            autofillTree = LocalAutofillTree.current
+            autofillTree = @Suppress("DEPRECATION") LocalAutofillTree.current
             autofillNode = remember {
+                @Suppress("DEPRECATION")
                 AutofillNode(
                     onFill = { autoFilledValueOldApi = it },
                     autofillTypes = listOf(AutofillType.Password),

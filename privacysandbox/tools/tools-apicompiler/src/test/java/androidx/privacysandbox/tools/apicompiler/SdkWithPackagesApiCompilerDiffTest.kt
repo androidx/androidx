@@ -39,6 +39,6 @@ class SdkWithPackagesApiCompilerDiffTest : AbstractApiCompilerDiffTest() {
             "com/mysdk/IStringTransactionCallback.java",
             "com/mysdk/IMyMainPackageInterfaceTransactionCallback.java",
             "com/mysdk/IMyMainPackageInterface.java",
-            "com/mysdk/PrivacySandboxThrowableParcel.java"
+            "com/mysdk/PrivacySandboxThrowableParcel.java",
         )
 }

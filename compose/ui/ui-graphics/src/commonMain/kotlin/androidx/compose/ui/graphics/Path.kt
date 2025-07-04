@@ -36,7 +36,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
         /** The shape is wound in counter-clockwise order. */
         CounterClockwise,
         /** The shape is wound in clockwise order. */
-        Clockwise
+        Clockwise,
     }
 
     /**
@@ -85,7 +85,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
     @Deprecated(
         "Use quadraticTo() for consistency with cubicTo()",
         replaceWith = ReplaceWith("quadraticTo(x1, y1, x2, y2)"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float)
 
@@ -105,7 +105,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
     @Deprecated(
         "Use relativeQuadraticTo() for consistency with relativeCubicTo()",
         replaceWith = ReplaceWith("relativeQuadraticTo(dx1, dy1, dx2, dy2)"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float)
 
@@ -149,7 +149,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
         rect: Rect,
         startAngleRadians: Float,
         sweepAngleRadians: Float,
-        forceMoveTo: Boolean
+        forceMoveTo: Boolean,
     ) {
         arcTo(rect, degrees(startAngleRadians), degrees(sweepAngleRadians), forceMoveTo)
     }
@@ -177,7 +177,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
     @Deprecated(
         "Prefer usage of addRect() with a winding direction",
         replaceWith = ReplaceWith("addRect(rect)"),
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun addRect(rect: Rect)
 
@@ -199,7 +199,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
     @Deprecated(
         "Prefer usage of addOval() with a winding direction",
         replaceWith = ReplaceWith("addOval(oval)"),
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun addOval(oval: Rect)
 
@@ -221,7 +221,7 @@ fun Path.copy(): Path = Path().apply { addPath(this@copy) }
     @Deprecated(
         "Prefer usage of addRoundRect() with a winding direction",
         replaceWith = ReplaceWith("addRoundRect(roundRect)"),
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun addRoundRect(roundRect: RoundRect)
 

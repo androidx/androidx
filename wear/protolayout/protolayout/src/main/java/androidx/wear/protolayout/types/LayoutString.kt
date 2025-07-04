@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("LayoutStringUtil")
 
 package androidx.wear.protolayout.types
 
@@ -34,11 +35,11 @@ class LayoutString
 private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val prop: StringProp,
     /**
-     * When [dynamicValue] is used, this allows correctly measuring layout Text element size and
-     * aligning text to ensure that the layout is of a known size during the layout pass regardless
-     * of the [dynamicValue] String.
+     * When [dynamicValue] is used, [layoutConstraint] ensures that the text element has a known
+     * fixed size during the layout pass, independently of the actual [dynamicValue] String. If not
+     * set, the text element will size itself to the content of the [dynamicValue].
      */
-    val layoutConstraint: StringLayoutConstraint? = null
+    val layoutConstraint: StringLayoutConstraint? = null,
 ) {
     /**
      * The static value. If [dynamicValue] is not null this will be used as the default value for
@@ -67,11 +68,27 @@ private constructor(
     constructor(
         staticValue: String,
         dynamicValue: DynamicString,
-        layoutConstraint: StringLayoutConstraint
+        layoutConstraint: StringLayoutConstraint,
     ) : this(
         StringProp.Builder(staticValue).setDynamicValue(dynamicValue).build(),
-        layoutConstraint
+        layoutConstraint,
     )
+
+    /**
+     * Creates an instance for a [DynamicString] value with a static value fallback. The text
+     * element will size itself to the content of the [dynamicValue], as no [layoutConstraint] is
+     * specified.
+     *
+     * @param staticValue the static value that can be used when the `dynamicValue` can't be
+     *   resolved.
+     * @param dynamicValue the dynamic value. If this value can be resolved, the `staticValue` won't
+     *   be used.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 600)
+    constructor(
+        staticValue: String,
+        dynamicValue: DynamicString,
+    ) : this(StringProp.Builder(staticValue).setDynamicValue(dynamicValue).build())
 
     override fun equals(other: Any?) =
         this === other ||
@@ -86,7 +103,7 @@ private constructor(
 
 /** Extension for creating a [LayoutString] from a String. */
 val String.layoutString: LayoutString
-    get() = LayoutString(this)
+    @JvmName("createLayoutString") get() = LayoutString(this)
 
 /**
  * Extension for creating a [LayoutString] from a [DynamicString]
@@ -96,9 +113,19 @@ val String.layoutString: LayoutString
  *   ensure that the layout is of a known size during the layout pass regardless of the
  *   `dynamicValue` String.
  */
+@JvmName("createLayoutString")
 @RequiresSchemaVersion(major = 1, minor = 200)
 fun DynamicString.asLayoutString(staticValue: String, layoutConstraint: StringLayoutConstraint) =
     LayoutString(staticValue, this, layoutConstraint)
+
+/**
+ * Extension for creating a [LayoutString] from a [DynamicString]
+ *
+ * @param staticValue the static value that can be used when the `dynamicValue` can't be resolved.
+ */
+@JvmName("createLayoutString")
+@RequiresSchemaVersion(major = 1, minor = 600)
+fun DynamicString.asLayoutString(staticValue: String) = LayoutString(staticValue, this)
 
 /**
  * Specifies layout constraints for to use for layout measurement in presence of dynamic values.
@@ -111,7 +138,7 @@ fun DynamicString.asLayoutString(staticValue: String, layoutConstraint: StringLa
 @RequiresSchemaVersion(major = 1, minor = 200)
 fun stringLayoutConstraint(
     longestPattern: String,
-    @TextAlignment alignment: Int = TEXT_ALIGN_CENTER
+    @TextAlignment alignment: Int = TEXT_ALIGN_CENTER,
 ) = StringLayoutConstraint.Builder(longestPattern).setAlignment(alignment).build()
 
 /**

@@ -84,7 +84,8 @@ class ListDelegateTest {
 
         verify(onDoneCallback, atLeastOnce()).onSuccess(resultCaptor.capture())
 
-        @Suppress("UNCHECKED_CAST") return resultCaptor.lastValue.get() as List<Int>
+        @Suppress("UNCHECKED_CAST")
+        return resultCaptor.lastValue.get() as List<Int>
     }
 
     private fun <T : Any> assertEqual(a: T, b: T) {

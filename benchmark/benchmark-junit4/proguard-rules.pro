@@ -14,7 +14,10 @@
 -keepclasseswithmembers @org.junit.runner.RunWith class * { *; }
 
 ## needed for org.junit.Test annotation to be discoverable by reflection
--keepattributes *Annotation*
+-keepattributes AnnotationDefault,
+                RuntimeVisibleAnnotations,
+                RuntimeVisibleParameterAnnotations,
+                RuntimeVisibleTypeAnnotations
 
 ## needed for listeners instantiated by reflection (e.g. InstrumentationResultsRunListener)
 -keepclasseswithmembers class * extends androidx.test.internal.runner.listener.InstrumentationRunListener { *; }

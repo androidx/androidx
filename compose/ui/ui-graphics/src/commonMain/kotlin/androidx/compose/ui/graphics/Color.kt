@@ -235,7 +235,7 @@ value class Color(val value: ULong) {
         alpha: Float = this.alpha,
         red: Float = this.red,
         green: Float = this.green,
-        blue: Float = this.blue
+        blue: Float = this.blue,
     ): Color =
         Color(red = red, green = green, blue = blue, alpha = alpha, colorSpace = this.colorSpace)
 
@@ -305,7 +305,7 @@ value class Color(val value: ULong) {
             saturation: Float,
             value: Float,
             alpha: Float = 1f,
-            colorSpace: Rgb = ColorSpaces.Srgb
+            colorSpace: Rgb = ColorSpaces.Srgb,
         ): Color {
             requirePrecondition(hue in 0f..360f && saturation in 0f..1f && value in 0f..1f) {
                 "HSV ($hue, $saturation, $value) must be in range (0..360, 0..1, 0..1)"
@@ -338,7 +338,7 @@ value class Color(val value: ULong) {
             saturation: Float,
             lightness: Float,
             alpha: Float = 1f,
-            colorSpace: Rgb = ColorSpaces.Srgb
+            colorSpace: Rgb = ColorSpaces.Srgb,
         ): Color {
             requirePrecondition(hue in 0f..360f && saturation in 0f..1f && lightness in 0f..1f) {
                 "HSL ($hue, $saturation, $lightness) must be in range (0..360, 0..1, 0..1)"
@@ -380,7 +380,7 @@ fun Color(
     green: Float,
     blue: Float,
     alpha: Float = 1f,
-    colorSpace: ColorSpace = ColorSpaces.Srgb
+    colorSpace: ColorSpace = ColorSpaces.Srgb,
 ): Color {
     if (colorSpace.isSrgb) {
         val argb =
@@ -427,7 +427,7 @@ internal fun UncheckedColor(
     green: Float,
     blue: Float,
     alpha: Float = 1f,
-    colorSpace: ColorSpace = ColorSpaces.Srgb
+    colorSpace: ColorSpace = ColorSpaces.Srgb,
 ): Color {
     if (colorSpace.isSrgb) {
         val argb =
@@ -498,7 +498,7 @@ fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,
     @IntRange(from = 0, to = 0xFF) blue: Int,
-    @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF
+    @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF,
 ): Color {
     val color =
         ((alpha and 0xFF) shl 24) or
@@ -541,7 +541,7 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
             lerp(startA, endA, t),
             lerp(startB, endB, t),
             lerp(startAlpha, endAlpha, t),
-            colorSpace
+            colorSpace,
         )
     return interpolated.convert(stop.colorSpace)
 }

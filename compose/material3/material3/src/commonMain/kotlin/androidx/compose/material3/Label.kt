@@ -66,7 +66,7 @@ fun Label(
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource? = null,
     isPersistent: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -90,12 +90,12 @@ fun Label(
         modifier = modifier,
         focusable = false,
         enableUserInput = false,
-        content = wrappedContent
+        content = wrappedContent,
     )
     HandleInteractions(
         enabled = !isPersistent,
         state = state,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     )
 }
 
@@ -104,7 +104,7 @@ fun Label(
 private fun HandleInteractions(
     enabled: Boolean,
     state: TooltipState,
-    interactionSource: MutableInteractionSource
+    interactionSource: MutableInteractionSource,
 ) {
     if (enabled) {
         LaunchedEffect(interactionSource) {

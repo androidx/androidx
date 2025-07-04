@@ -30,7 +30,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * ListenableWatchFaceServices are required to be stateless as multiple can be created in parallel.
  * If per instance state is required please use [ListenableStatefulWatchFaceService].
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public abstract class ListenableWatchFaceService : WatchFaceService() {
     /**
      * Override this factory method to create your WatchFaceImpl. This method will be called by the
@@ -57,21 +63,21 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): ListenableFuture<WatchFace>
 
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace = suspendCancellableCoroutine {
         val future =
             createWatchFaceFuture(
                 surfaceHolder,
                 watchState,
                 complicationSlotsManager,
-                currentUserStyleRepository
+                currentUserStyleRepository,
             )
         future.addListener({ it.resume(future.get()) }, { runnable -> runnable.run() })
     }
@@ -84,7 +90,13 @@ public abstract class ListenableWatchFaceService : WatchFaceService() {
  * [ListenableWatchFaceService] is required to be stateless as multiple can be created in parallel.
  * ListenableStatefulWatchFaceService allows for metadata to be associated with watch faces on a per
  * instance basis. This state is created by [createExtra] and is passed into other methods.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public abstract class ListenableStatefulWatchFaceService<Extra> :
     StatefulWatchFaceService<Extra>() {
     /**
@@ -115,7 +127,7 @@ public abstract class ListenableStatefulWatchFaceService<Extra> :
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        extra: Extra
+        extra: Extra,
     ): ListenableFuture<WatchFace>
 
     override suspend fun createWatchFace(
@@ -123,7 +135,7 @@ public abstract class ListenableStatefulWatchFaceService<Extra> :
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        extra: Extra
+        extra: Extra,
     ): WatchFace = suspendCancellableCoroutine {
         val future =
             createWatchFaceFuture(
@@ -131,7 +143,7 @@ public abstract class ListenableStatefulWatchFaceService<Extra> :
                 watchState,
                 complicationSlotsManager,
                 currentUserStyleRepository,
-                extra
+                extra,
             )
         future.addListener({ it.resume(future.get()) }, { runnable -> runnable.run() })
     }
@@ -144,7 +156,13 @@ public abstract class ListenableStatefulWatchFaceService<Extra> :
  * ListenableWatchFaceRuntimeService are required to be stateless as multiple can be created in
  * parallel. If per instance state is required please use
  * [ListenableStatefulWatchFaceRuntimeService].
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public abstract class ListenableWatchFaceRuntimeService : WatchFaceRuntimeService() {
     /**
      * Override this factory method to create your WatchFaceImpl. This method will be called by the
@@ -175,7 +193,7 @@ public abstract class ListenableWatchFaceRuntimeService : WatchFaceRuntimeServic
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        resourceOnlyWatchFacePackageName: String
+        resourceOnlyWatchFacePackageName: String,
     ): ListenableFuture<WatchFace>
 
     final override suspend fun createWatchFace(
@@ -183,7 +201,7 @@ public abstract class ListenableWatchFaceRuntimeService : WatchFaceRuntimeServic
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        resourceOnlyWatchFacePackageName: String
+        resourceOnlyWatchFacePackageName: String,
     ): WatchFace = suspendCancellableCoroutine {
         val future =
             createWatchFaceFutureAsync(
@@ -191,7 +209,7 @@ public abstract class ListenableWatchFaceRuntimeService : WatchFaceRuntimeServic
                 watchState,
                 complicationSlotsManager,
                 currentUserStyleRepository,
-                resourceOnlyWatchFacePackageName
+                resourceOnlyWatchFacePackageName,
             )
         future.addListener({ it.resume(future.get()) }, { runnable -> runnable.run() })
     }
@@ -205,7 +223,13 @@ public abstract class ListenableWatchFaceRuntimeService : WatchFaceRuntimeServic
  * parallel. ListenableStatefulWatchFaceRuntimeService allows for metadata to be associated with
  * watch faces on a per instance basis. This state is created by [createExtra] and is passed into
  * other methods.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> :
     StatefulWatchFaceRuntimeService<Extra>() {
     /**
@@ -238,7 +262,7 @@ public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> :
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
         resourceOnlyWatchFacePackageName: String,
-        extra: Extra
+        extra: Extra,
     ): ListenableFuture<WatchFace>
 
     final override suspend fun createWatchFace(
@@ -247,7 +271,7 @@ public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> :
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
         resourceOnlyWatchFacePackageName: String,
-        extra: Extra
+        extra: Extra,
     ): WatchFace = suspendCancellableCoroutine {
         val future =
             createWatchFaceFutureAsync(
@@ -256,7 +280,7 @@ public abstract class ListenableStatefulWatchFaceRuntimeService<Extra> :
                 complicationSlotsManager,
                 currentUserStyleRepository,
                 resourceOnlyWatchFacePackageName,
-                extra
+                extra,
             )
         future.addListener({ it.resume(future.get()) }, { runnable -> runnable.run() })
     }

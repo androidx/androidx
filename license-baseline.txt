@@ -34,6 +34,7 @@ com/sun/xml/bind/jaxb-bom-ext/2.3.2/jaxb-bom-ext-2.3.2.pom
 com/sun/xml/bind/mvn/jaxb-runtime-parent/2.3.2/jaxb-runtime-parent-2.3.2.pom
 com/sun/xml/bind/mvn/jaxb-txw-parent/2.3.2/jaxb-txw-parent-2.3.2.pom
 commons-io/commons-io/2.13.0/commons-io-2.13.0.pom
+commons-io/commons-io/2.16.1/commons-io-2.16.1.pom
 commons-io/commons-io/2.6/commons-io-2.6.pom
 gradle/plugin/org/jetbrains/intellij/plugins/gradle-intellij-plugin/0.4.8/gradle-intellij-plugin-0.4.8.pom
 io/netty/netty-buffer/4.1.52.Final/netty-buffer-4.1.52.Final.pom
@@ -93,6 +94,7 @@ org/apache/commons/commons-parent/42/commons-parent-42.pom
 org/apache/commons/commons-parent/48/commons-parent-48.pom
 org/apache/commons/commons-parent/52/commons-parent-52.pom
 org/apache/commons/commons-parent/58/commons-parent-58.pom
+org/apache/commons/commons-parent/69/commons-parent-69.pom
 org/apache/commons/commons-parent/74/commons-parent-74.pom
 org/apache/geronimo/genesis/genesis-default-flava/2.0/genesis-default-flava-2.0.pom
 org/apache/geronimo/genesis/genesis-java5-flava/2.0/genesis-java5-flava-2.0.pom
@@ -112,3 +114,4 @@ org/apache/xbean/xbean-reflect/3.7/xbean-reflect-3.7.pom
 org/apache/xbean/xbean/3.7/xbean-3.7.pom
 org/jetbrains/kotlinx/benchmark/org.jetbrains.kotlinx.benchmark.gradle.plugin/0.4.11/org.jetbrains.kotlinx.benchmark.gradle.plugin-0.4.11.pom
 org/tensorflow/tensorflow-lite-metadata/0.1.0-rc2/tensorflow-lite-metadata-0.1.0-rc2.pom
+org/jetbrains/kotlin/kotlin-compose-compiler-plugin-embeddable/2.1.20-custom-branch-14/kotlin-compose-compiler-plugin-embeddable-2.1.20-custom-branch-14.pom

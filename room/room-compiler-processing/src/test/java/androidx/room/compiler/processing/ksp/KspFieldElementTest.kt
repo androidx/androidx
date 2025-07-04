@@ -73,7 +73,7 @@ class KspFieldElementTest {
                         // private val privateJvmField: Int = 0
                     }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                 expected =
                     mapOf(
@@ -91,8 +91,8 @@ class KspFieldElementTest {
                         "protectedLateinitFieldWithPrivateSetter" to listOf(PRIVATE),
                         "jvmField" to listOf(PUBLIC, FINAL),
                         "protectedField" to listOf(PRIVATE, FINAL),
-                        "protectedJvmField" to listOf(PROTECTED, FINAL)
-                    )
+                        "protectedJvmField" to listOf(PROTECTED, FINAL),
+                    ),
             )
         )
     }
@@ -115,7 +115,7 @@ class KspFieldElementTest {
                         public static final long javaStaticFinalPublic = 0;
                     }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                 expected =
                     mapOf(
@@ -124,8 +124,8 @@ class KspFieldElementTest {
                         "javaPackage" to emptyList(),
                         "javaPrivate" to listOf(PRIVATE),
                         "javaFinalPublic" to listOf(PUBLIC, FINAL),
-                        "javaStaticFinalPublic" to listOf(PUBLIC, FINAL)
-                    )
+                        "javaStaticFinalPublic" to listOf(PUBLIC, FINAL),
+                    ),
             )
         )
     }
@@ -167,15 +167,15 @@ class KspFieldElementTest {
                         }
                     }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                 expected =
                     mapOf(
                         "javaPublic" to listOf(PUBLIC),
                         "javaProtected" to listOf(PROTECTED),
                         "javaPackage" to emptyList(),
-                        "javaPrivate" to listOf(PRIVATE)
-                    )
+                        "javaPrivate" to listOf(PRIVATE),
+                    ),
             )
         )
     }
@@ -192,7 +192,7 @@ class KspFieldElementTest {
             }
             class Sub1 : Base<Int, String>()
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val sub = invocation.processingEnv.requireTypeElement("Sub1")
@@ -246,7 +246,7 @@ class KspFieldElementTest {
         PUBLIC,
         PRIVATE,
         PROTECTED,
-        FINAL
+        FINAL,
     }
 
     private val XFieldElement.modifiers
@@ -262,6 +262,6 @@ class KspFieldElementTest {
     private data class ModifierTestInput(
         val qName: String,
         val source: Source,
-        val expected: Map<String, List<TestModifier>>
+        val expected: Map<String, List<TestModifier>>,
     )
 }

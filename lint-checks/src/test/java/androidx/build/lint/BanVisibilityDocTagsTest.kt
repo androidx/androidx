@@ -147,7 +147,7 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                     }
                 """
                         .trimIndent()
-                )
+                ),
             )
 
         val expected =

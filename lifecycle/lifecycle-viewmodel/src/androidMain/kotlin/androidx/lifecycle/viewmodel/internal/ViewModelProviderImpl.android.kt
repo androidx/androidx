@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 internal actual fun <VM : ViewModel> createViewModel(
     factory: ViewModelProvider.Factory,
     modelClass: KClass<VM>,
-    extras: CreationExtras
+    extras: CreationExtras,
 ): VM {
     // Android targets using `compileOnly` dependencies may encounter AGP desugaring
     // issues where `Factory.create` throws an `AbstractMethodError`. This is resolved by an

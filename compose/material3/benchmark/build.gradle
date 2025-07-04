@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,6 +32,10 @@ dependencies {
     androidTestImplementation(project(":compose:material3:material3-window-size-class"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:animation:animation"))
+    androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinStdlib)
@@ -45,5 +49,5 @@ android {
 }
 
 androidx {
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
 }

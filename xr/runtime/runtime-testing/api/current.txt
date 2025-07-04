@@ -1,4 +1,170 @@
 // Signature format: 4.0
+package androidx.xr.runtime.testing {
+
+  public final class FakeLifecycleManager {
+    ctor public FakeLifecycleManager();
+    ctor public FakeLifecycleManager(optional boolean hasCreatePermission);
+    method public void allowOneMoreCallToUpdate();
+    method public void configure(androidx.xr.runtime.Config config);
+    method public void create();
+    method public androidx.xr.runtime.Config getConfig();
+    method public androidx.xr.runtime.testing.FakeLifecycleManager.State getState();
+    method public kotlin.time.TestTimeSource getTimeSource();
+    method public boolean hasCreatePermission();
+    method public boolean hasMissingPermission();
+    method public void pause();
+    method public void resume();
+    method public void setConfig(androidx.xr.runtime.Config);
+    method public void setHasCreatePermission(boolean);
+    method public void setHasMissingPermission(boolean);
+    method public void setShouldSupportFaceTracking(boolean);
+    method public void setShouldSupportPlaneTracking(boolean);
+    method public boolean shouldSupportFaceTracking();
+    method public boolean shouldSupportPlaneTracking();
+    method public void stop();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
+    property public androidx.xr.runtime.Config config;
+    property public boolean hasCreatePermission;
+    property public boolean hasMissingPermission;
+    property public boolean shouldSupportPlaneTracking;
+    property public androidx.xr.runtime.testing.FakeLifecycleManager.State state;
+    property public kotlin.time.TestTimeSource timeSource;
+    field public static final androidx.xr.runtime.testing.FakeLifecycleManager.Companion Companion;
+    field public static final java.util.List<java.lang.String> TestPermissions;
+  }
+
+  public static final class FakeLifecycleManager.Companion {
+    property public java.util.List<java.lang.String> TestPermissions;
+  }
+
+  public enum FakeLifecycleManager.State {
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State DESTROYED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State INITIALIZED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State NOT_INITIALIZED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State PAUSED;
+    enum_constant public static final androidx.xr.runtime.testing.FakeLifecycleManager.State RESUMED;
+  }
+
+  public final class FakePerceptionManager {
+    ctor public FakePerceptionManager();
+    method public void addHitResult(androidx.xr.runtime.internal.HitResult hitResult);
+    method public void addTrackable(androidx.xr.runtime.internal.Trackable trackable);
+    method public void clearHitResults();
+    method public void clearTrackables();
+    method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public java.util.List<androidx.xr.runtime.internal.Anchor> getAnchors();
+    method public androidx.xr.runtime.internal.Earth getEarth();
+    method public androidx.xr.runtime.internal.Hand? getLeftHand();
+    method public java.util.List<java.util.UUID> getPersistedAnchorUuids();
+    method public androidx.xr.runtime.internal.Hand? getRightHand();
+    method public java.util.List<androidx.xr.runtime.internal.Trackable> getTrackables();
+    method public java.util.List<androidx.xr.runtime.internal.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
+    method public boolean isTrackingAvailable();
+    method public androidx.xr.runtime.internal.Anchor loadAnchor(java.util.UUID uuid);
+    method public androidx.xr.runtime.internal.Anchor loadAnchorFromNativePointer(long nativePointer);
+    method public void setTrackingAvailable(boolean);
+    method public void unpersistAnchor(java.util.UUID uuid);
+    property public java.util.List<androidx.xr.runtime.internal.Anchor> anchors;
+    property public androidx.xr.runtime.internal.Earth earth;
+    property public boolean isTrackingAvailable;
+    property public androidx.xr.runtime.internal.Hand? leftHand;
+    property public androidx.xr.runtime.internal.Hand? rightHand;
+    property public java.util.List<androidx.xr.runtime.internal.Trackable> trackables;
+  }
+
+  public final class FakeRuntimeAnchor {
+    method public void detach();
+    method public static int getAnchorsCreatedCount();
+    method public androidx.xr.runtime.internal.Anchor.PersistenceState getPersistenceState();
+    method public androidx.xr.runtime.math.Pose getPose();
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    method public java.util.UUID? getUuid();
+    method public boolean isAttached();
+    method public boolean isTrackingAvailable();
+    method public void persist();
+    method public static void setAnchorsCreatedCount(int);
+    method public void setPersistenceState(androidx.xr.runtime.internal.Anchor.PersistenceState);
+    method public void setPose(androidx.xr.runtime.math.Pose);
+    method public void setTrackingState(androidx.xr.runtime.TrackingState);
+    method public void setUuid(java.util.UUID?);
+    property public boolean isAttached;
+    property public boolean isTrackingAvailable;
+    property public androidx.xr.runtime.internal.Anchor.PersistenceState persistenceState;
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    property public java.util.UUID? uuid;
+    field public static final int ANCHOR_RESOURCE_LIMIT = 5; // 0x5
+    field public static final androidx.xr.runtime.testing.FakeRuntimeAnchor.Companion Companion;
+  }
+
+  public static final class FakeRuntimeAnchor.Companion {
+    method public int getAnchorsCreatedCount();
+    method public void setAnchorsCreatedCount(int);
+    property public static int ANCHOR_RESOURCE_LIMIT;
+    property public static int anchorsCreatedCount;
+  }
+
+  public final class FakeRuntimeHand {
+    ctor public FakeRuntimeHand();
+    ctor public FakeRuntimeHand(optional androidx.xr.runtime.TrackingState trackingState, optional java.nio.FloatBuffer handJointsBuffer);
+    method public java.nio.FloatBuffer getHandJointsBuffer();
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    method public void setHandJointsBuffer(java.nio.FloatBuffer);
+    method public void setTrackingState(androidx.xr.runtime.TrackingState);
+    property public java.nio.FloatBuffer handJointsBuffer;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    field public static final androidx.xr.runtime.testing.FakeRuntimeHand.Companion Companion;
+  }
+
+  public static final class FakeRuntimeHand.Companion {
+  }
+
+  public final class FakeRuntimePlane {
+    ctor public FakeRuntimePlane();
+    ctor public FakeRuntimePlane(optional androidx.xr.runtime.internal.Plane.Type type, optional androidx.xr.runtime.internal.Plane.Label label, optional androidx.xr.runtime.TrackingState trackingState, optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.Vector2 extents, optional java.util.List<androidx.xr.runtime.math.Vector2> vertices, optional androidx.xr.runtime.internal.Plane? subsumedBy, optional java.util.Collection<androidx.xr.runtime.internal.Anchor> anchors);
+    method public androidx.xr.runtime.internal.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public void detachAnchor(androidx.xr.runtime.internal.Anchor anchor);
+    method public java.util.Collection<androidx.xr.runtime.internal.Anchor> getAnchors();
+    method public androidx.xr.runtime.math.Pose getCenterPose();
+    method public androidx.xr.runtime.math.Vector2 getExtents();
+    method public androidx.xr.runtime.internal.Plane.Label getLabel();
+    method public androidx.xr.runtime.internal.Plane? getSubsumedBy();
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    method public androidx.xr.runtime.internal.Plane.Type getType();
+    method public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
+    method public void setCenterPose(androidx.xr.runtime.math.Pose);
+    method public void setExtents(androidx.xr.runtime.math.Vector2);
+    method public void setSubsumedBy(androidx.xr.runtime.internal.Plane?);
+    method public void setTrackingState(androidx.xr.runtime.TrackingState);
+    method public void setVertices(java.util.List<androidx.xr.runtime.math.Vector2>);
+    property public java.util.Collection<androidx.xr.runtime.internal.Anchor> anchors;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.Vector2 extents;
+    property public androidx.xr.runtime.internal.Plane.Label label;
+    property public androidx.xr.runtime.internal.Plane? subsumedBy;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    property public androidx.xr.runtime.internal.Plane.Type type;
+    property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
+  }
+
+  public final class FakeSpatialModeChangeListener {
+    ctor public FakeSpatialModeChangeListener();
+    method public androidx.xr.runtime.math.Pose? getLastRecommendedPose();
+    method public androidx.xr.runtime.math.Vector3? getLastRecommendedScale();
+    method public int getUpdateCount();
+    method public void onSpatialModeChanged(androidx.xr.runtime.math.Pose recommendedPose, androidx.xr.runtime.math.Vector3 recommendedScale);
+    method public void reset();
+    method public void setLastRecommendedPose(androidx.xr.runtime.math.Pose?);
+    method public void setLastRecommendedScale(androidx.xr.runtime.math.Vector3?);
+    method public void setUpdateCount(int);
+    property public androidx.xr.runtime.math.Pose? lastRecommendedPose;
+    property public androidx.xr.runtime.math.Vector3? lastRecommendedScale;
+    property public int updateCount;
+  }
+
+}
+
 package androidx.xr.runtime.testing.math {
 
   public final class MathAssertions {

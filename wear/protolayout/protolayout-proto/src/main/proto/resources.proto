@@ -155,6 +155,9 @@ message AndroidLottieResourceByResId {
   //
   // If not set, the animation will play on load.</setter>
   androidx.wear.protolayout.expression.proto.DynamicFloat progress = 2;
+
+  // The trigger to start the animation.
+  Trigger start_trigger = 3;
 }
 
 // An image resource, which can be used by layouts. This holds multiple

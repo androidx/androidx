@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -33,24 +33,27 @@ dependencies {
     api(libs.jspecify)
     api("androidx.core:core:1.7.0")
 
-    implementation "com.google.android.gms:play-services-appindex:16.1.0"
+    implementation("com.google.android.gms:play-services-appindex:16.1.0")
     implementation("com.google.crypto.tink:tink-android:1.5.0")
+    implementation(libs.androidx.annotation)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIntents)
     androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.hamcrestCore)
+
+    // DO NOT REMOVE: This is needed to mock private and final classes.
+    androidTestImplementation(libs.dexmakerMockito)
 }
 
 androidx {
     name = "Google Shortcuts Integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_GOOGLE_SHORTCUTS
     inceptionYear = "2021"
     description = "Library for powering Google features with Android app shortcuts"

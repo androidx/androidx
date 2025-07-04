@@ -60,7 +60,7 @@ internal fun EditorStateWireFormat.asApiEditorState(): EditorState {
         UserStyleData(userStyle.mUserStyle),
         previewComplicationData.associateBy(
             { it.id },
-            { it.complicationData.toApiComplicationData() }
+            { it.complicationData.toApiComplicationData() },
         ),
         commitChanges,
         previewImageBundle?.let {
@@ -69,7 +69,7 @@ internal fun EditorStateWireFormat.asApiEditorState(): EditorState {
             } else {
                 null
             }
-        }
+        },
     )
 }
 
@@ -95,7 +95,7 @@ public class SerializationTest {
         // TODO(b/214019246): Generate new goldens for T and above.
         Assume.assumeTrue(
             "Requires S or a lower API version",
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.S,
         )
     }
 
@@ -109,11 +109,7 @@ public class SerializationTest {
         assertThat(deserialized.complicationSlotId).isEqualTo(123)
         assertThat(RenderParameters(deserialized.renderParametersWireFormat))
             .isEqualTo(
-                RenderParameters(
-                    DrawMode.AMBIENT,
-                    WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                    null,
-                )
+                RenderParameters(DrawMode.AMBIENT, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null)
             )
         assertThat(deserialized.calendarTimeMillis).isEqualTo(123456789)
         assertThat(UserStyleData(deserialized.userStyle!!))
@@ -176,7 +172,7 @@ public class SerializationTest {
                 UserStyleData(
                     mapOf(
                         "COLOR_STYLE_SETTING" to "GREEN_STYLE".encodeToByteArray(),
-                        "WATCH_HAND_STYLE" to "GOTHIC".encodeToByteArray()
+                        "WATCH_HAND_STYLE" to "GOTHIC".encodeToByteArray(),
                     )
                 )
             )
@@ -197,8 +193,8 @@ public class SerializationTest {
                     RenderParameters.HighlightLayer(
                         RenderParameters.HighlightedElement.AllComplicationSlots,
                         Color.RED,
-                        Color.argb(128, 0, 0, 0)
-                    )
+                        Color.argb(128, 0, 0, 0),
+                    ),
                 )
             )
         assertThat(deserialized.calendarTimeMillis).isEqualTo(123456789)

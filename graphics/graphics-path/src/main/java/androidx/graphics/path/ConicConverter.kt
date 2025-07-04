@@ -86,6 +86,6 @@ internal class ConicConverter {
         offset: Int,
         quadraticPoints: FloatArray,
         weight: Float,
-        tolerance: Float
+        tolerance: Float,
     ): Int
 }

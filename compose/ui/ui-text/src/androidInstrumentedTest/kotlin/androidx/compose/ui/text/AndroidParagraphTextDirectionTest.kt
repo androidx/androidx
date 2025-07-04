@@ -58,7 +58,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Unspecified,
-                    localeList = null
+                    localeList = null,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR)
@@ -71,7 +71,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Unspecified,
-                    localeList = null
+                    localeList = null,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL)
@@ -82,7 +82,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Unspecified,
-                    localeList = ltrLocaleList
+                    localeList = ltrLocaleList,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR)
@@ -93,7 +93,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Unspecified,
-                    localeList = rtlLocaleList
+                    localeList = rtlLocaleList,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL)
@@ -106,7 +106,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Content,
-                    localeList = null
+                    localeList = null,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR)
@@ -119,7 +119,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Content,
-                    localeList = null
+                    localeList = null,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL)
@@ -130,7 +130,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Content,
-                    localeList = ltrLocaleList
+                    localeList = ltrLocaleList,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR)
@@ -141,7 +141,7 @@ class AndroidParagraphTextDirectionTest {
         assertThat(
                 resolveTextDirectionHeuristics(
                     textDirection = TextDirection.Content,
-                    localeList = rtlLocaleList
+                    localeList = rtlLocaleList,
                 )
             )
             .isEqualTo(LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL)

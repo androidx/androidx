@@ -84,7 +84,7 @@ class CoreTextFieldHandwritingBoundsTest {
                 selectionStart: Int,
                 selectionEnd: Int,
                 compositionStart: Int,
-                compositionEnd: Int
+                compositionEnd: Int,
             ) {}
 
             override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
@@ -175,13 +175,13 @@ class CoreTextFieldHandwritingBoundsTest {
                     .fillMaxWidth()
                     // make the size of TextFields equal to padding, so that touch bounds of editors
                     // in the same column/row are overlapping.
-                    .height(HandwritingBoundsVerticalOffset)
+                    .height(HandwritingBoundsVerticalOffset),
         )
     }
 
     private fun setContent(
         extraItemForInitialFocus: Boolean = true,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setFocusableContent(extraItemForInitialFocus) {
             inputMethodInterceptor.Content { content() }

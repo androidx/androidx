@@ -159,7 +159,7 @@ class SaversTest {
                 lineHeightStyle = LineHeightStyle.Default,
                 lineBreak = LineBreak.Paragraph,
                 hyphens = Hyphens.Auto,
-                textMotion = TextMotion.Animated
+                textMotion = TextMotion.Animated,
             )
         val saved = save(original, ParagraphStyleSaver, defaultSaverScope)
         val restored: ParagraphStyle? = restore(saved, ParagraphStyleSaver)
@@ -202,7 +202,7 @@ class SaversTest {
                 localeList = LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
                 background = Color.Blue,
                 textDecoration = TextDecoration.LineThrough,
-                shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
+                shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f),
             )
         val saved = save(original, SpanStyleSaver, defaultSaverScope)
         val restored: SpanStyle? = restore(saved, SpanStyleSaver)
@@ -226,7 +226,7 @@ class SaversTest {
                 SpanStyle(color = Color.Red),
                 SpanStyle(color = Color.Green),
                 SpanStyle(color = Color.Blue),
-                SpanStyle(color = Color.Gray)
+                SpanStyle(color = Color.Gray),
             )
         val saved = save(original, TextLinkStylesSaver, defaultSaverScope)
         val restored: TextLinkStyles? = restore(saved, TextLinkStylesSaver)
@@ -394,8 +394,8 @@ class SaversTest {
                         SpanStyle(color = Color.Red),
                         SpanStyle(color = Color.Green),
                         SpanStyle(color = Color.Blue),
-                        SpanStyle(color = Color.White)
-                    )
+                        SpanStyle(color = Color.White),
+                    ),
                 )
             ) {
                 append("7")
@@ -407,9 +407,9 @@ class SaversTest {
                         SpanStyle(color = Color.Red),
                         SpanStyle(color = Color.Green),
                         SpanStyle(color = Color.Blue),
-                        SpanStyle(background = Color.Gray)
+                        SpanStyle(background = Color.Gray),
                     ),
-                    null
+                    null,
                 )
             ) {
                 append("8")
@@ -444,8 +444,8 @@ class SaversTest {
                         SpanStyle(color = Color.Red),
                         SpanStyle(color = Color.Green),
                         SpanStyle(color = Color.Blue),
-                        SpanStyle(color = Color.Yellow)
-                    )
+                        SpanStyle(color = Color.Yellow),
+                    ),
                 )
             ) {
                 append("11")
@@ -457,9 +457,9 @@ class SaversTest {
                         SpanStyle(color = Color.Red),
                         SpanStyle(color = Color.Green),
                         SpanStyle(color = Color.Blue),
-                        SpanStyle(color = Color.Gray)
+                        SpanStyle(color = Color.Gray),
                     ),
-                    null
+                    null,
                 )
             ) {
                 append("12")
@@ -512,7 +512,7 @@ class SaversTest {
             LineHeightStyle(
                 LineHeightStyle.Alignment.Proportional,
                 LineHeightStyle.Trim.Both,
-                LineHeightStyle.Mode.Minimum
+                LineHeightStyle.Mode.Minimum,
             )
         val saved = save(original, LineHeightStyle.Saver, defaultSaverScope)
         val restored: LineHeightStyle? = restore(saved, LineHeightStyle.Saver)

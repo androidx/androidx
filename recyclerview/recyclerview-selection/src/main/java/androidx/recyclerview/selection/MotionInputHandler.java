@@ -22,10 +22,11 @@ import static androidx.core.util.Preconditions.checkState;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for handlers that can be registered w/ {@link GestureRouter}.
@@ -94,12 +95,6 @@ abstract class MotionInputHandler<K> extends SimpleOnGestureListener {
                 // Without full corpus access we can't reliably implement range
                 // as a user can scroll *anywhere* then SHIFT+click.
                 && mKeyProvider.hasAccess(ItemKeyProvider.SCOPE_MAPPED);
-    }
-
-    boolean shouldClearSelection(@NonNull MotionEvent e, @NonNull ItemDetails<K> item) {
-        return !MotionEvents.isCtrlKeyPressed(e)
-                && !item.inSelectionHotspot(e)
-                && !mSelectionTracker.isSelected(item.getSelectionKey());
     }
 
     static boolean hasSelectionKey(@Nullable ItemDetails<?> item) {

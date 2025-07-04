@@ -42,7 +42,7 @@ private val stripNonMetricAffectingCharSpans: Boolean = true
 internal class LayoutIntrinsics(
     private val charSequence: CharSequence,
     private val textPaint: TextPaint,
-    @LayoutCompat.TextDirection private val textDirectionHeuristic: Int
+    @LayoutCompat.TextDirection private val textDirectionHeuristic: Int,
 ) {
 
     private var _maxIntrinsicWidth: Float = Float.NaN
@@ -112,7 +112,7 @@ internal class LayoutIntrinsics(
                 heapSize,
                 Comparator<Pair<Int, Int>> { left, right ->
                     (left.second - left.first) - (right.second - right.first)
-                }
+                },
             )
 
         var start = 0
@@ -171,7 +171,7 @@ internal class LayoutIntrinsics(
 
     private fun getDesiredWidth(
         start: Int = 0,
-        end: Int = charSequenceForIntrinsicWidth.length
+        end: Int = charSequenceForIntrinsicWidth.length,
     ): Float = Layout.getDesiredWidth(charSequenceForIntrinsicWidth, start, end, textPaint)
 }
 
@@ -216,7 +216,7 @@ private fun stripNonMetricAffectingCharacterStyleSpans(charSequence: CharSequenc
 private fun shouldIncreaseMaxIntrinsic(
     desiredWidth: Float,
     charSequence: CharSequence,
-    textPaint: TextPaint
+    textPaint: TextPaint,
 ): Boolean {
     return desiredWidth != 0f &&
         (charSequence is Spanned &&

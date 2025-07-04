@@ -1,27 +1,27 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.viewpager.widget {
 
   public abstract class PagerAdapter {
     ctor public PagerAdapter();
-    method public void destroyItem(android.view.ViewGroup, int, Object);
     method @Deprecated public void destroyItem(android.view.View, int, Object);
-    method public void finishUpdate(android.view.ViewGroup);
+    method public void destroyItem(android.view.ViewGroup, int, Object);
     method @Deprecated public void finishUpdate(android.view.View);
+    method public void finishUpdate(android.view.ViewGroup);
     method public abstract int getCount();
     method public int getItemPosition(Object);
     method public CharSequence? getPageTitle(int);
     method public float getPageWidth(int);
-    method public Object instantiateItem(android.view.ViewGroup, int);
     method @Deprecated public Object instantiateItem(android.view.View, int);
+    method public Object instantiateItem(android.view.ViewGroup, int);
     method public abstract boolean isViewFromObject(android.view.View, Object);
     method public void notifyDataSetChanged();
     method public void registerDataSetObserver(android.database.DataSetObserver);
     method public void restoreState(android.os.Parcelable?, ClassLoader?);
     method public android.os.Parcelable? saveState();
-    method public void setPrimaryItem(android.view.ViewGroup, int, Object);
     method @Deprecated public void setPrimaryItem(android.view.View, int, Object);
-    method public void startUpdate(android.view.ViewGroup);
+    method public void setPrimaryItem(android.view.ViewGroup, int, Object);
     method @Deprecated public void startUpdate(android.view.View);
+    method public void startUpdate(android.view.ViewGroup);
     method public void unregisterDataSetObserver(android.database.DataSetObserver);
     field public static final int POSITION_NONE = -2; // 0xfffffffe
     field public static final int POSITION_UNCHANGED = -1; // 0xffffffff

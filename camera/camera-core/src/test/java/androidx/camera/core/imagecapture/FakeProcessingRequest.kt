@@ -35,7 +35,7 @@ internal class FakeProcessingRequest(
     jpegQuality: Int,
     sensorToBufferTransform: Matrix,
     callback: TakePictureCallback,
-    captureFuture: ListenableFuture<Void>
+    captureFuture: ListenableFuture<Void>,
 ) :
     ProcessingRequest(
         captureBundle,
@@ -45,14 +45,14 @@ internal class FakeProcessingRequest(
             cropRect,
             sensorToBufferTransform,
             rotationDegrees,
-            jpegQuality
+            jpegQuality,
         ),
         callback,
-        captureFuture
+        captureFuture,
     ) {
     constructor(
         captureBundle: CaptureBundle,
         callback: TakePictureCallback,
-        captureFuture: ListenableFuture<Void> = CallbackToFutureAdapter.getFuture { "test" }
+        captureFuture: ListenableFuture<Void> = CallbackToFutureAdapter.getFuture { "test" },
     ) : this(null, null, captureBundle, CROP_RECT, 0, 100, Matrix(), callback, captureFuture)
 }

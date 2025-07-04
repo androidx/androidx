@@ -44,7 +44,7 @@ internal fun PointerEvent.toCancelMotionEventScope(offset: Offset, block: (Motio
 
 internal fun emptyCancelMotionEventScope(
     nowMillis: Long = SystemClock.uptimeMillis(),
-    block: (MotionEvent) -> Unit
+    block: (MotionEvent) -> Unit,
 ) {
     // Does what ViewGroup does when it needs to send a minimal ACTION_CANCEL event.
     val motionEvent = MotionEvent.obtain(nowMillis, nowMillis, ACTION_CANCEL, 0.0f, 0.0f, 0)
@@ -56,7 +56,7 @@ internal fun emptyCancelMotionEventScope(
 private fun PointerEvent.toMotionEventScope(
     offset: Offset,
     block: (MotionEvent) -> Unit,
-    cancel: Boolean
+    cancel: Boolean,
 ) {
     val motionEvent = motionEvent
     requireNotNull(motionEvent) { "The PointerEvent receiver cannot have a null MotionEvent." }

@@ -153,7 +153,7 @@ class LazyListItemDisappearanceAnimationTest {
             LazyList(
                 containerSize = itemSizeDp * 3,
                 reverseLayout = true,
-                contentPadding = PaddingValues(bottom = itemSizeDp)
+                contentPadding = PaddingValues(bottom = itemSizeDp),
             ) {
                 items(list, key = { it.toArgb() }) { Item(it) }
             }
@@ -372,7 +372,7 @@ class LazyListItemDisappearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
-        expectedColorProvider: (offset: Int) -> Color?
+        expectedColorProvider: (offset: Int) -> Color?,
     ) {
         rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
             IntSize(crossAxisSize, mainAxisSize)
@@ -404,7 +404,7 @@ class LazyListItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         state = rememberLazyListState(startIndex)
 
@@ -429,7 +429,7 @@ class LazyListItemDisappearanceAnimationTest {
                     .testTag(ContainerTag),
             contentPadding = contentPadding,
             reverseLayout = reverseLayout,
-            content = content
+            content = content,
         )
     }
 
@@ -439,13 +439,13 @@ class LazyListItemDisappearanceAnimationTest {
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = crossAxisSizeDp,
         disappearanceSpec: FiniteAnimationSpec<Float>? = AnimSpec,
-        appearanceSpec: FiniteAnimationSpec<Float>? = null
+        appearanceSpec: FiniteAnimationSpec<Float>? = null,
     ) {
         Box(
             Modifier.animateItem(
                     fadeInSpec = appearanceSpec,
                     placementSpec = null,
-                    fadeOutSpec = disappearanceSpec
+                    fadeOutSpec = disappearanceSpec,
                 )
                 .background(color)
                 .requiredHeight(size)

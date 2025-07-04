@@ -48,7 +48,7 @@ public enum class ComposeAnimationType {
      * Detected animation without a support - only [ComposeAnimation.label] and
      * [ComposeAnimation.type] are provided.
      */
-    UNSUPPORTED
+    UNSUPPORTED,
 }
 
 /**

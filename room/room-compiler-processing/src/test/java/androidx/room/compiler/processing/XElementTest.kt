@@ -60,7 +60,7 @@ class XElementTest {
                 @JvmStatic val staticProp:Int = 0
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("Subject").let {
@@ -95,7 +95,7 @@ class XElementTest {
                     static void staticMethod() {}
                 }
                     """
-                        .trimIndent()
+                        .trimIndent(),
                 )
             )
         ) {
@@ -182,7 +182,7 @@ class XElementTest {
                     }
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val boundedChild =
             Source.java(
@@ -192,13 +192,13 @@ class XElementTest {
                 public class Child extends Base<String> {
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(genericBase, boundedChild)) {
             fun validateMethodElement(
                 element: XTypeElement,
                 tTypeName: XTypeName,
-                rTypeName: XTypeName
+                rTypeName: XTypeName,
             ) {
                 element.getMethodByJvmName("returnT").let { method ->
                     assertThat(method.parameters).isEmpty()
@@ -220,7 +220,7 @@ class XElementTest {
             fun validateMethodTypeAsMemberOf(
                 element: XTypeElement,
                 tTypeName: XTypeName,
-                rTypeName: XTypeName
+                rTypeName: XTypeName,
             ) {
                 element.getMethodByJvmName("returnT").asMemberOf(element.type).let { method ->
                     assertThat(method.parameterTypes).isEmpty()
@@ -247,26 +247,26 @@ class XElementTest {
                 tTypeName =
                     XTypeName.getTypeVariableName(
                         "T",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
                     ),
                 rTypeName =
                     XTypeName.getTypeVariableName(
                         "R",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
-                    )
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
+                    ),
             )
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
                 tTypeName =
                     XTypeName.getTypeVariableName(
                         "T",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
                     ),
                 rTypeName =
                     XTypeName.getTypeVariableName(
                         "R",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
-                    )
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
+                    ),
             )
 
             validateMethodTypeAsMemberOf(
@@ -274,13 +274,13 @@ class XElementTest {
                 tTypeName =
                     XTypeName.getTypeVariableName(
                         "T",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
                     ),
                 rTypeName =
                     XTypeName.getTypeVariableName(
                         "R",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
-                    )
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
+                    ),
             )
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
@@ -288,8 +288,8 @@ class XElementTest {
                 rTypeName =
                     XTypeName.getTypeVariableName(
                         "R",
-                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true))
-                    )
+                        listOf(XTypeName.ANY_OBJECT.copy(nullable = true)),
+                    ),
             )
         }
     }
@@ -315,7 +315,7 @@ class XElementTest {
                 void testMethod() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -358,7 +358,7 @@ class XElementTest {
                 void testMethod() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -371,7 +371,7 @@ class XElementTest {
             assertThat(
                     element.hasAllAnnotations(
                         RunWith::class.asJClassName(),
-                        Test::class.asJClassName()
+                        Test::class.asJClassName(),
                     )
                 )
                 .isFalse()
@@ -393,7 +393,7 @@ class XElementTest {
                         method.hasAllAnnotations(
                             Test::class,
                             OtherAnnotation::class,
-                            RunWith::class
+                            RunWith::class,
                         )
                     )
                     .isFalse()
@@ -403,7 +403,7 @@ class XElementTest {
                 assertThat(
                         method.hasAllAnnotations(
                             Test::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName()
+                            OtherAnnotation::class.asJClassName(),
                         )
                     )
                     .isTrue()
@@ -411,7 +411,7 @@ class XElementTest {
                         method.hasAllAnnotations(
                             Test::class.asJClassName(),
                             OtherAnnotation::class.asJClassName(),
-                            RunWith::class.asJClassName()
+                            RunWith::class.asJClassName(),
                         )
                     )
                     .isFalse()
@@ -422,7 +422,7 @@ class XElementTest {
                         method.hasAllAnnotations(
                             listOf(
                                 Test::class.asJClassName(),
-                                OtherAnnotation::class.asJClassName()
+                                OtherAnnotation::class.asJClassName(),
                             )
                         )
                     )
@@ -432,7 +432,7 @@ class XElementTest {
                             listOf(
                                 Test::class.asJClassName(),
                                 OtherAnnotation::class.asJClassName(),
-                                RunWith::class.asJClassName()
+                                RunWith::class.asJClassName(),
                             )
                         )
                     )
@@ -450,14 +450,14 @@ class XElementTest {
                 assertThat(
                         field.hasAllAnnotations(
                             OtherAnnotation::class.asJClassName(),
-                            Test::class.asJClassName()
+                            Test::class.asJClassName(),
                         )
                     )
                     .isFalse()
                 assertThat(
                         field.hasAllAnnotations(
                             OtherAnnotation::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName()
+                            OtherAnnotation::class.asJClassName(),
                         )
                     )
                     .isTrue()
@@ -469,7 +469,7 @@ class XElementTest {
                         field.hasAllAnnotations(
                             listOf(
                                 OtherAnnotation::class.asJClassName(),
-                                Test::class.asJClassName()
+                                Test::class.asJClassName(),
                             )
                         )
                     )
@@ -478,7 +478,7 @@ class XElementTest {
                         field.hasAllAnnotations(
                             listOf(
                                 OtherAnnotation::class.asJClassName(),
-                                OtherAnnotation::class.asJClassName()
+                                OtherAnnotation::class.asJClassName(),
                             )
                         )
                     )
@@ -509,7 +509,7 @@ class XElementTest {
                 void testMethod() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(source)) { it ->
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -522,7 +522,7 @@ class XElementTest {
             assertThat(
                     element.hasAnyAnnotation(
                         RunWith::class.asJClassName(),
-                        Test::class.asJClassName()
+                        Test::class.asJClassName(),
                     )
                 )
                 .isTrue()
@@ -550,7 +550,7 @@ class XElementTest {
                 assertThat(
                         method.hasAnyAnnotation(
                             Test::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName()
+                            OtherAnnotation::class.asJClassName(),
                         )
                     )
                     .isTrue()
@@ -558,7 +558,7 @@ class XElementTest {
                         method.hasAnyAnnotation(
                             Test::class.asJClassName(),
                             OtherAnnotation::class.asJClassName(),
-                            RunWith::class.asJClassName()
+                            RunWith::class.asJClassName(),
                         )
                     )
                     .isTrue()
@@ -569,7 +569,7 @@ class XElementTest {
                         method.hasAnyAnnotation(
                             listOf(
                                 Test::class.asJClassName(),
-                                OtherAnnotation::class.asJClassName()
+                                OtherAnnotation::class.asJClassName(),
                             )
                         )
                     )
@@ -579,7 +579,7 @@ class XElementTest {
                             listOf(
                                 Test::class.asJClassName(),
                                 OtherAnnotation::class.asJClassName(),
-                                RunWith::class.asJClassName()
+                                RunWith::class.asJClassName(),
                             )
                         )
                     )
@@ -597,14 +597,14 @@ class XElementTest {
                 assertThat(
                         field.hasAnyAnnotation(
                             OtherAnnotation::class.asJClassName(),
-                            Test::class.asJClassName()
+                            Test::class.asJClassName(),
                         )
                     )
                     .isTrue()
                 assertThat(
                         field.hasAnyAnnotation(
                             OtherAnnotation::class.asJClassName(),
-                            OtherAnnotation::class.asJClassName()
+                            OtherAnnotation::class.asJClassName(),
                         )
                     )
                     .isTrue()
@@ -616,7 +616,7 @@ class XElementTest {
                         field.hasAnyAnnotation(
                             listOf(
                                 OtherAnnotation::class.asJClassName(),
-                                Test::class.asJClassName()
+                                Test::class.asJClassName(),
                             )
                         )
                     )
@@ -625,7 +625,7 @@ class XElementTest {
                         field.hasAnyAnnotation(
                             listOf(
                                 OtherAnnotation::class.asJClassName(),
-                                OtherAnnotation::class.asJClassName()
+                                OtherAnnotation::class.asJClassName(),
                             )
                         )
                     )
@@ -644,7 +644,7 @@ class XElementTest {
             class Baz {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("java.lang.Object")
@@ -667,7 +667,7 @@ class XElementTest {
                 static interface Inner {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(subject)) {
             val inner = JClassName.get("foo.bar", "Baz.Inner")
@@ -702,7 +702,7 @@ class XElementTest {
                 public static int x;
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -732,7 +732,7 @@ class XElementTest {
                 public static List<String> nullableAnnotated;
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         // enable once https://github.com/google/ksp/issues/167 is fixed
         runProcessorTestWithoutKsp(sources = listOf(source)) {
@@ -778,7 +778,7 @@ class XElementTest {
              */
             public class JavaSubject {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val kotlinSrc =
             Source.kotlin(
@@ -789,7 +789,7 @@ class XElementTest {
              */
             class KotlinSubject
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             assertThat(
@@ -864,9 +864,9 @@ class XElementTest {
                 }
             }
             """
-                        .trimIndent()
+                        .trimIndent(),
                 )
-            ),
+            )
         ) { invocation, precompiled ->
             val enclosingElement =
                 invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass")
@@ -882,7 +882,7 @@ class XElementTest {
                             "companionObjectPropertyJvmStatic",
                             "companionObjectPropertyJvmField",
                             "companionObjectPropertyLateinit",
-                            "companionObjectPropertyConst"
+                            "companionObjectPropertyConst",
                         )
                     fields.forEach {
                         if (it.name.startsWith("companion")) {
@@ -900,7 +900,7 @@ class XElementTest {
                             "companionObjectPropertyJvmStatic",
                             "companionObjectPropertyJvmField",
                             "companionObjectPropertyLateinit",
-                            "companionObjectPropertyConst"
+                            "companionObjectPropertyConst",
                         )
                     fields.forEach { assertThat(it.enclosingElement).isEqualTo(enclosingElement) }
                 }
@@ -911,7 +911,7 @@ class XElementTest {
                     .containsExactly(
                         "getProperty",
                         "getCompanionObjectPropertyJvmStatic",
-                        "companionObjectFunctionJvmStatic"
+                        "companionObjectFunctionJvmStatic",
                     )
                 methods.forEach { assertThat(it.enclosingElement).isEqualTo(enclosingElement) }
             }
@@ -924,7 +924,7 @@ class XElementTest {
                             "companionObjectPropertyJvmStatic",
                             "companionObjectPropertyJvmField",
                             "companionObjectPropertyLateinit",
-                            "companionObjectPropertyConst"
+                            "companionObjectPropertyConst",
                         )
                     fields.forEach { assertThat(it.enclosingElement).isEqualTo(companionObj) }
                 } else {
@@ -943,7 +943,7 @@ class XElementTest {
                                 "getCompanionObjectPropertyLateinit",
                                 "setCompanionObjectPropertyLateinit",
                                 "companionObjectFunction",
-                                "companionObjectFunctionJvmStatic"
+                                "companionObjectFunctionJvmStatic",
                             )
                     // No ordering check for precompiled because the members in companion objects
                     // can either be in the enclosing class or in the companion so there's no way
@@ -962,7 +962,7 @@ class XElementTest {
                             "getCompanionObjectPropertyLateinit",
                             "setCompanionObjectPropertyLateinit",
                             "companionObjectFunction",
-                            "companionObjectFunctionJvmStatic"
+                            "companionObjectFunctionJvmStatic",
                         )
                         .inOrder()
                 }
@@ -1087,7 +1087,7 @@ class XElementTest {
                 static class Nested {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
@@ -1103,7 +1103,7 @@ class XElementTest {
             }
             fun Bar.ef(a: String) {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTestHelper(listOf(javaSource, kotlinSource)) { invocation, _ ->
             // Java
@@ -1219,7 +1219,7 @@ class XElementTest {
                 DoNotExist ep;
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
@@ -1230,7 +1230,7 @@ class XElementTest {
                 val ep: DoNotExist = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         // Can't use runProcessorTestHelper() as we can't compile the files referencing an
         // error type
@@ -1298,7 +1298,7 @@ class XElementTest {
             public void baseMethod(String t) {}
         }
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     private val enclosingElementKotlinSource =
@@ -1331,7 +1331,7 @@ class XElementTest {
             fun objectFunction(objectFunctionParam: String) {}
         }
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     private val enclosingElementKotlinSourceTopLevel =
@@ -1342,13 +1342,13 @@ class XElementTest {
         val topLevelProperty: String = "hello"
         fun topLevelFunction(p: String) {}
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     @OptIn(KspExperimental::class)
     private fun getTopLevelFunctionOrPropertyElements(
         inv: XTestInvocation,
-        pkg: String
+        pkg: String,
     ): Sequence<XElement> =
         inv.kspResolver
             .getDeclarationsFromPackage(pkg)
@@ -1374,7 +1374,7 @@ class XElementTest {
     private fun runProcessorTestHelper(
         sources: List<Source>,
         kotlincArgs: List<String> = emptyList(),
-        handler: (XTestInvocation, Boolean) -> Unit
+        handler: (XTestInvocation, Boolean) -> Unit,
     ) {
         runProcessorTest(sources = sources, kotlincArguments = kotlincArgs) { handler(it, false) }
         runProcessorTest(classpath = compileFiles(sources), kotlincArguments = kotlincArgs) {

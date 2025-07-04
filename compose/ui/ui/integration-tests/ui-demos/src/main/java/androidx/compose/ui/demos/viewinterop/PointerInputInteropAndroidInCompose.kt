@@ -85,7 +85,7 @@ val AndroidInComposeDemos =
             ComposableDemo("Sharing event with sibling of parent Demo") {
                 SharingEventWithSiblingOfParent()
             },
-        )
+        ),
     )
 
 @Composable
@@ -166,7 +166,7 @@ private fun randomComposeColor(): ComposeColor {
     return ComposeColor(
         red = Random.nextInt(256),
         green = Random.nextInt(256),
-        blue = Random.nextInt(256)
+        blue = Random.nextInt(256),
     )
 }
 
@@ -215,7 +215,7 @@ private fun AndroidTapInComposeWithComposeSibling() {
                             override fun onPointerEvent(
                                 pointerEvent: PointerEvent,
                                 pass: PointerEventPass,
-                                bounds: IntSize
+                                bounds: IntSize,
                             ) {}
 
                             override fun onCancel() {}
@@ -306,7 +306,7 @@ private fun AndroidScrollInComposeScrollDifferentOrientation() {
                     LayoutInflater.from(context)
                         .inflate(
                             R.layout.android_scroll_in_compose_scroll_different_orientation,
-                            null
+                            null,
                         )
                 })
             }
@@ -361,13 +361,13 @@ private fun TwoAndroidScrollViewsInCompose() {
                 { context ->
                     LayoutInflater.from(context).inflate(R.layout.android_scrollview, null)
                 },
-                Modifier.weight(2f)
+                Modifier.weight(2f),
             )
             AndroidView(
                 { context ->
                     LayoutInflater.from(context).inflate(R.layout.android_scrollview, null)
                 },
-                Modifier.weight(1f)
+                Modifier.weight(1f),
             )
         }
     }
@@ -410,7 +410,7 @@ fun SharingEventWithSiblingOfParent() {
 
             MyView(
                 0xFFFF0000.toInt(), // Manually created hex for Color.Red,
-                Modifier.align(Alignment.TopStart)
+                Modifier.align(Alignment.TopStart),
             )
 
             // Parent
@@ -425,7 +425,7 @@ fun SharingEventWithSiblingOfParent() {
                                         override fun onPointerEvent(
                                             pointerEvent: PointerEvent,
                                             pass: PointerEventPass,
-                                            bounds: IntSize
+                                            bounds: IntSize,
                                         ) {}
 
                                         override fun onCancel() {}
@@ -438,7 +438,7 @@ fun SharingEventWithSiblingOfParent() {
                 // Tapping here with code above will allow ClickableSurface (sibling of a parent)
                 // to get the event.
                 MyView(
-                    0xFF00FFFF.toInt(), // Manually created hex for Color.Cyan,
+                    0xFF00FFFF.toInt() // Manually created hex for Color.Cyan,
                 )
             }
         }

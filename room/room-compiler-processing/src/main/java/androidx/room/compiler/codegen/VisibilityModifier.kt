@@ -20,5 +20,5 @@ enum class VisibilityModifier {
     PUBLIC,
     PROTECTED,
     INTERNAL,
-    PRIVATE
+    PRIVATE,
 }

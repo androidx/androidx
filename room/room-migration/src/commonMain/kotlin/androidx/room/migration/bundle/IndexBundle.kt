@@ -24,24 +24,24 @@ import kotlinx.serialization.Serializable
 /** Data class that holds the schema information about a table [androidx.room.Index] */
 @Serializable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class IndexBundle(
-    @SerialName("name") val name: String,
-    @SerialName("unique") val isUnique: Boolean,
-    @SerialName("columnNames") val columnNames: List<String>? = null,
-    @SerialName("orders") val orders: List<String>? = null,
-    @SerialName("createSql") val createSql: String
+public class IndexBundle(
+    @SerialName("name") public val name: String,
+    @SerialName("unique") public val isUnique: Boolean,
+    @SerialName("columnNames") public val columnNames: List<String>? = null,
+    @SerialName("orders") public val orders: List<String>? = null,
+    @SerialName("createSql") public val createSql: String,
 ) : SchemaEquality<IndexBundle> {
-    companion object {
+    public companion object {
         // should match Index.kt
-        const val DEFAULT_PREFIX: String = "index_"
+        public const val DEFAULT_PREFIX: String = "index_"
     }
 
-    fun create(tableName: String): String {
+    public fun create(tableName: String): String {
         return replaceTableName(createSql, tableName)
     }
 
     /** Gets the CREATE INDEX SQL query that uses the given table name. */
-    fun getCreateSql(tableName: String): String {
+    public fun getCreateSql(tableName: String): String {
         return replaceTableName(createSql, tableName)
     }
 

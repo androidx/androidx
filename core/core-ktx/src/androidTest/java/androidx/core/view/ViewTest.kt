@@ -178,7 +178,7 @@ class ViewTest {
 
         scrollView.measure(
             View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY)
+            View.MeasureSpec.makeMeasureSpec(size, View.MeasureSpec.EXACTLY),
         )
         scrollView.layout(0, 0, size, size)
 

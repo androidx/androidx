@@ -250,7 +250,6 @@ public class CustomTabsCallback {
      *
      * @param extras Reserved for future use.
      */
-    @ExperimentalMinimizationCallback
     public void onMinimized(@NonNull Bundle extras) {}
 
     /**
@@ -259,7 +258,6 @@ public class CustomTabsCallback {
      *
      * @param extras Reserved for future use.
      */
-    @ExperimentalMinimizationCallback
     public void onUnminimized(@NonNull Bundle extras) {}
 
 

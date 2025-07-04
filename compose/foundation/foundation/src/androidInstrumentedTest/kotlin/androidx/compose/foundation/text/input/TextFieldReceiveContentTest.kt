@@ -100,7 +100,7 @@ class TextFieldReceiveContentTest {
                     editorInfo,
                     InputContentInfoCompat(DEFAULT_CONTENT_URI, DEFAULT_CLIP_DESCRIPTION, null),
                     0,
-                    null
+                    null,
                 )
             )
         }
@@ -111,7 +111,7 @@ class TextFieldReceiveContentTest {
         inputMethodInterceptor.setContent {
             BasicTextField(
                 state = rememberTextFieldState(),
-                modifier = Modifier.testTag(tag).contentReceiver { null }
+                modifier = Modifier.testTag(tag).contentReceiver { null },
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -131,7 +131,7 @@ class TextFieldReceiveContentTest {
                     Modifier.testTag(tag).contentReceiver {
                         transferableContent = it
                         null
-                    }
+                    },
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -144,7 +144,7 @@ class TextFieldReceiveContentTest {
                 editorInfo,
                 createInputContentInfo(linkUri = linkUri),
                 0,
-                bundle
+                bundle,
             )
         }
 
@@ -174,7 +174,7 @@ class TextFieldReceiveContentTest {
                     Modifier.testTag(tag).contentReceiver {
                         transferableContent = it
                         null
-                    }
+                    },
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -187,7 +187,7 @@ class TextFieldReceiveContentTest {
                 editorInfo,
                 inputContentInfo,
                 InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION,
-                null
+                null,
             )
         }
 
@@ -218,7 +218,7 @@ class TextFieldReceiveContentTest {
                         .contentReceiver {
                             childTransferableContent = it
                             it
-                        }
+                        },
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -228,7 +228,7 @@ class TextFieldReceiveContentTest {
                 editorInfo,
                 createInputContentInfo(),
                 0,
-                null
+                null,
             )
         }
 
@@ -263,7 +263,7 @@ class TextFieldReceiveContentTest {
                         .contentReceiver {
                             childTransferableContent = it
                             null
-                        }
+                        },
             )
         }
         rule.onNodeWithTag(tag).requestFocus()
@@ -273,7 +273,7 @@ class TextFieldReceiveContentTest {
                 editorInfo,
                 createInputContentInfo(),
                 0,
-                null
+                null,
             )
         }
 
@@ -285,7 +285,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun semanticsPasteContent_delegatesToReceiveContent() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry = createClipData().toClipEntry()
         clipboard.setClipEntry(clipEntry)
         lateinit var transferableContent: TransferableContent
@@ -297,7 +297,7 @@ class TextFieldReceiveContentTest {
                         Modifier.testTag(tag).contentReceiver {
                             transferableContent = it
                             null
-                        }
+                        },
                 )
             }
         }
@@ -312,7 +312,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun semanticsPasteContent_pastesLeftOverText() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry =
             createClipData {
                     addText("some text")
@@ -333,7 +333,7 @@ class TextFieldReceiveContentTest {
                                 // only consume if there's no text
                                 item.text == null
                             }
-                        }
+                        },
                 )
             }
         }
@@ -345,7 +345,7 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun semanticsPasteContent_goesFromChildToParent() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry =
             createClipData {
                     addText("a")
@@ -378,7 +378,7 @@ class TextFieldReceiveContentTest {
                             .contentReceiver { content ->
                                 transferableContent3 = content
                                 content.consume { it.text.contains("c") }
-                            }
+                            },
                 )
             }
         }
@@ -395,20 +395,20 @@ class TextFieldReceiveContentTest {
 
     @Test
     fun toolbarPasteContent_delegatesToReceiveContent() = runTest {
-        val clipboard = FakeClipboard(supportsClipEntry = true)
+        val clipboard = FakeClipboard()
         val clipEntry = createClipData().toClipEntry()
         clipboard.setClipEntry(clipEntry)
         var pasteOption: (() -> Unit)? = null
         val textToolbar =
             FakeTextToolbar(
                 onShowMenu = { _, _, onPasteRequested, _, _, _ -> pasteOption = onPasteRequested },
-                onHideMenu = {}
+                onHideMenu = {},
             )
         lateinit var transferableContent: TransferableContent
         rule.setContent {
             CompositionLocalProvider(
                 LocalClipboard provides clipboard,
-                LocalTextToolbar provides textToolbar
+                LocalTextToolbar provides textToolbar,
             ) {
                 BasicTextField(
                     state = rememberTextFieldState(),
@@ -416,7 +416,7 @@ class TextFieldReceiveContentTest {
                         Modifier.testTag(tag).contentReceiver {
                             transferableContent = it
                             null
-                        }
+                        },
                 )
             }
         }
@@ -438,7 +438,7 @@ class TextFieldReceiveContentTest {
         private fun createInputContentInfo(
             contentUri: Uri = DEFAULT_CONTENT_URI,
             clipDescription: ClipDescription = DEFAULT_CLIP_DESCRIPTION,
-            linkUri: Uri? = null
+            linkUri: Uri? = null,
         ) = InputContentInfoCompat(contentUri, clipDescription, linkUri)
 
         private fun InputMethodInterceptor.onIdle(block: (EditorInfo, InputConnection) -> Unit) {

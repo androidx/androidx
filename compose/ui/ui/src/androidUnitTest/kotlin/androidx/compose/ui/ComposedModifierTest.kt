@@ -74,32 +74,32 @@ class ComposedModifierTest {
                 assertEquals(
                     "first static value equal to source",
                     sourceMod.getTestTag("static", Int.MIN_VALUE),
-                    firstMaterialized.getTestTag("static", Int.MAX_VALUE)
+                    firstMaterialized.getTestTag("static", Int.MAX_VALUE),
                 )
                 assertEquals(
                     "second static value equal to source",
                     sourceMod.getTestTag("static", Int.MIN_VALUE),
-                    secondMaterialized.getTestTag("static", Int.MAX_VALUE)
+                    secondMaterialized.getTestTag("static", Int.MAX_VALUE),
                 )
                 assertEquals(
                     "dynamic value not present in source",
                     Int.MIN_VALUE,
-                    sourceMod.getTestTag("dynamic", Int.MIN_VALUE)
+                    sourceMod.getTestTag("dynamic", Int.MIN_VALUE),
                 )
                 assertNotEquals(
                     "dynamic value present in first materialized",
                     Int.MIN_VALUE,
-                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
+                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE),
                 )
                 assertNotEquals(
                     "dynamic value present in second materialized",
                     Int.MIN_VALUE,
-                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
+                    firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE),
                 )
                 assertNotEquals(
                     "first and second dynamic values must be unequal",
                     firstMaterialized.getTestTag("dynamic", Int.MIN_VALUE),
-                    secondMaterialized.getTestTag("dynamic", Int.MIN_VALUE)
+                    secondMaterialized.getTestTag("dynamic", Int.MIN_VALUE),
                 )
             }
         }
@@ -127,7 +127,7 @@ class ComposedModifierTest {
                 assertEquals(
                     "initial composition value",
                     0,
-                    materialized.getTestTag("changing", Int.MIN_VALUE)
+                    materialized.getTestTag("changing", Int.MIN_VALUE),
                 )
 
                 value = 5
@@ -137,7 +137,7 @@ class ComposedModifierTest {
                 assertEquals(
                     "recomposed composition value",
                     5,
-                    materialized.getTestTag("changing", Int.MIN_VALUE)
+                    materialized.getTestTag("changing", Int.MIN_VALUE),
                 )
             }
         }
@@ -192,7 +192,7 @@ class ComposedModifierTest {
                 assertEquals(
                     "fully unwrapped composed modifier value",
                     10,
-                    materialized.getTestTag("nested", 0)
+                    materialized.getTestTag("nested", 0),
                 )
             }
         }
@@ -206,19 +206,19 @@ class ComposedModifierTest {
         val keyN = Array<Any?>(10) { Any() }
         assertEquals(
             Modifier.composed("name", key1) { Modifier },
-            Modifier.composed("name", key1) { Modifier }
+            Modifier.composed("name", key1) { Modifier },
         )
         assertEquals(
             Modifier.composed("name", key1, key2) { Modifier },
-            Modifier.composed("name", key1, key2) { Modifier }
+            Modifier.composed("name", key1, key2) { Modifier },
         )
         assertEquals(
             Modifier.composed("name", key1, key2, key3) { Modifier },
-            Modifier.composed("name", key1, key2, key3) { Modifier }
+            Modifier.composed("name", key1, key2, key3) { Modifier },
         )
         assertEquals(
             Modifier.composed("name", *keyN) { Modifier },
-            Modifier.composed("name", *keyN) { Modifier }
+            Modifier.composed("name", *keyN) { Modifier },
         )
     }
 
@@ -230,39 +230,39 @@ class ComposedModifierTest {
         val keyN = Array<Any?>(10) { Any() }
         assertNotEquals(
             Modifier.composed("name", key1) { Modifier },
-            Modifier.composed("namey mcnameface", key1) { Modifier }
+            Modifier.composed("namey mcnameface", key1) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1) { Modifier },
-            Modifier.composed("name", key2) { Modifier }
+            Modifier.composed("name", key2) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2) { Modifier },
-            Modifier.composed("namey mcnameface", key1, key2) { Modifier }
+            Modifier.composed("namey mcnameface", key1, key2) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2) { Modifier },
-            Modifier.composed("name", Any(), key2) { Modifier }
+            Modifier.composed("name", Any(), key2) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2) { Modifier },
-            Modifier.composed("name", key1, Any()) { Modifier }
+            Modifier.composed("name", key1, Any()) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2, key3) { Modifier },
-            Modifier.composed("namey mcnameface", key1, key2, key3) { Modifier }
+            Modifier.composed("namey mcnameface", key1, key2, key3) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2, key3) { Modifier },
-            Modifier.composed("name", Any(), key2, key3) { Modifier }
+            Modifier.composed("name", Any(), key2, key3) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2, key3) { Modifier },
-            Modifier.composed("name", key1, Any(), key3) { Modifier }
+            Modifier.composed("name", key1, Any(), key3) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", key1, key2, key3) { Modifier },
-            Modifier.composed("name", key1, key2, Any()) { Modifier }
+            Modifier.composed("name", key1, key2, Any()) { Modifier },
         )
         assertNotEquals(
             Modifier.composed("name", *keyN) { Modifier },
@@ -271,7 +271,7 @@ class ComposedModifierTest {
         repeat(keyN.size) { i ->
             assertNotEquals(
                 Modifier.composed("name", *keyN) { Modifier },
-                Modifier.composed("name", *(keyN.copyOf().also { it[i] = Any() })) { Modifier }
+                Modifier.composed("name", *(keyN.copyOf().also { it[i] = Any() })) { Modifier },
             )
         }
     }

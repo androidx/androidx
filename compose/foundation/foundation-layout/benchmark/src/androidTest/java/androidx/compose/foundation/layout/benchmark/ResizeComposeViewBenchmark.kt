@@ -126,12 +126,12 @@ class ComposeViewTestCase : LayeredComposeTestCase(), ToggleableTestCase {
                                 LinearLayout.LayoutParams(
                                     LinearLayout.LayoutParams.MATCH_PARENT,
                                     0,
-                                    1f
+                                    1f,
                                 )
                             column.addView(row, layoutParams)
                         }
                         column
-                    }
+                    },
                 )
             }
         }

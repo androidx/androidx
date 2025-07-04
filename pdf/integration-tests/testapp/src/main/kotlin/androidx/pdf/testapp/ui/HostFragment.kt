@@ -16,6 +16,7 @@
 
 package androidx.pdf.testapp.ui
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,7 +26,7 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresExtension
 import androidx.core.os.OperationCanceledException
 import androidx.pdf.testapp.R
-import androidx.pdf.viewer.fragment.PdfViewerFragment
+import androidx.pdf.viewer.fragment.PdfViewerFragmentV1
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
@@ -33,15 +34,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
  * adds a FloatingActionButton for search functionality and manages its visibility based on the
  * immersive mode state.
  */
+@SuppressLint("RestrictedApiAndroidX")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
-class HostFragment : PdfViewerFragment() {
+class HostFragment : PdfViewerFragmentV1() {
     private var hostView: FrameLayout? = null
     private var search: FloatingActionButton? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = super.onCreateView(inflater, container, savedInstanceState) as FrameLayout
 

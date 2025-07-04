@@ -1,11 +1,11 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   @Deprecated public class ViewModelProviders {
     ctor @Deprecated public ViewModelProviders();
     method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment);
-    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity);
     method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory?);
+    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity);
     method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity, androidx.lifecycle.ViewModelProvider.Factory?);
   }
 
@@ -14,8 +14,8 @@ package androidx.lifecycle {
   }
 
   @Deprecated public class ViewModelStores {
-    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelStore of(androidx.fragment.app.FragmentActivity);
     method @Deprecated @MainThread public static androidx.lifecycle.ViewModelStore of(androidx.fragment.app.Fragment);
+    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelStore of(androidx.fragment.app.FragmentActivity);
   }
 
 }

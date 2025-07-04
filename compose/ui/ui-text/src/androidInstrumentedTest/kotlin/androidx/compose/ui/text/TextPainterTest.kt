@@ -68,7 +68,7 @@ class TextPainterTest {
             measurer.measure(
                 text = longText,
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
-                constraints = Constraints(maxWidth = 400, maxHeight = 400)
+                constraints = Constraints(maxWidth = 400, maxHeight = 400),
             )
 
         val bitmap = draw { drawText(textLayoutResult) }
@@ -77,7 +77,7 @@ class TextPainterTest {
                 measurer,
                 text = longText,
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
-                size = Size(400f, 400f)
+                size = Size(400f, 400f),
             )
         }
 
@@ -97,7 +97,7 @@ class TextPainterTest {
                     measurer,
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                    topLeft = Offset(100f, 100f)
+                    topLeft = Offset(100f, 100f),
                 )
             }
 
@@ -109,7 +109,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(200f, 200f)
+                    size = Size(200f, 200f),
                 )
             }
 
@@ -121,7 +121,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(100f, 100f)
+                    size = Size(100f, 100f),
                 )
             }
 
@@ -143,7 +143,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(Float.NaN, 200f)
+                    size = Size(Float.NaN, 200f),
                 )
             }
 
@@ -155,7 +155,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(200f, 200f)
+                    size = Size(200f, 200f),
                 )
             }
 
@@ -167,7 +167,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(100f, 200f)
+                    size = Size(100f, 200f),
                 )
             }
 
@@ -189,7 +189,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(200f, Float.NaN)
+                    size = Size(200f, Float.NaN),
                 )
             }
 
@@ -201,7 +201,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(200f, 200f)
+                    size = Size(200f, 200f),
                 )
             }
 
@@ -213,7 +213,7 @@ class TextPainterTest {
                     text = longString,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(200f, 100f)
+                    size = Size(200f, 100f),
                 )
             }
 
@@ -235,7 +235,7 @@ class TextPainterTest {
                     measurer,
                     text = longText,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
-                    topLeft = Offset(100f, 100f)
+                    topLeft = Offset(100f, 100f),
                 )
             }
 
@@ -246,7 +246,7 @@ class TextPainterTest {
                     text = longText,
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 12.sp),
                     topLeft = Offset(100f, 100f),
-                    size = Size(200f, 200f)
+                    size = Size(200f, 200f),
                 )
             }
 
@@ -265,9 +265,9 @@ class TextPainterTest {
                     TextStyle(
                         color = Color.Red,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                size = Size(400f, 400f)
+                size = Size(400f, 400f),
             )
         }
         val bitmap2 = draw {
@@ -278,9 +278,9 @@ class TextPainterTest {
                     TextStyle(
                         color = Color.Blue,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                size = Size(400f, 400f)
+                size = Size(400f, 400f),
             )
         }
 
@@ -296,7 +296,7 @@ class TextPainterTest {
                 textMeasurer = measurer,
                 text = longText,
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
-                size = Size(400f, 400f)
+                size = Size(400f, 400f),
             )
         }
         val bitmap2 = draw {
@@ -304,7 +304,7 @@ class TextPainterTest {
                 textMeasurer = measurer,
                 text = longText,
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 24.sp),
-                size = Size(400f, 400f)
+                size = Size(400f, 400f),
             )
         }
 
@@ -321,9 +321,9 @@ class TextPainterTest {
                     TextStyle(
                         color = Color.Red,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val textLayoutResultBlue =
@@ -333,9 +333,9 @@ class TextPainterTest {
                     TextStyle(
                         color = Color.Blue,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val bitmap = draw { drawText(textLayoutResultRed, color = Color.Blue) }
@@ -354,9 +354,9 @@ class TextPainterTest {
                     TextStyle(
                         color = Color.Red,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val textLayoutResultHalfOpaque =
@@ -366,9 +366,9 @@ class TextPainterTest {
                     TextStyle(
                         color = Color.Red.copy(alpha = 0.5f),
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val bitmap = draw { drawText(textLayoutResultOpaque, alpha = 0.5f) }
@@ -389,9 +389,9 @@ class TextPainterTest {
                     TextStyle(
                         brush = rbBrush,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val textLayoutResultGY =
@@ -401,9 +401,9 @@ class TextPainterTest {
                     TextStyle(
                         brush = gyBrush,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val bitmap = draw { drawText(textLayoutResultRB, brush = gyBrush) }
@@ -424,9 +424,9 @@ class TextPainterTest {
                         brush = rbBrush,
                         alpha = 1f,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val textLayoutResultHalfOpaque =
@@ -437,9 +437,9 @@ class TextPainterTest {
                         brush = rbBrush,
                         alpha = 0.5f,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints.fixed(400, 400)
+                constraints = Constraints.fixed(400, 400),
             )
 
         val bitmap = draw { drawText(textLayoutResultOpaque, alpha = 0.5f) }
@@ -460,9 +460,9 @@ class TextPainterTest {
                     TextStyle(
                         drawStyle = fillDrawStyle,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints(maxWidth = 400, maxHeight = 400)
+                constraints = Constraints(maxWidth = 400, maxHeight = 400),
             )
 
         val textLayoutResultStroke =
@@ -472,9 +472,9 @@ class TextPainterTest {
                     TextStyle(
                         drawStyle = strokeDrawStyle,
                         fontFamily = fontFamilyMeasureFont,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     ),
-                constraints = Constraints(maxWidth = 400, maxHeight = 400)
+                constraints = Constraints(maxWidth = 400, maxHeight = 400),
             )
 
         val bitmap = draw { drawText(textLayoutResultFill, drawStyle = strokeDrawStyle) }
@@ -491,7 +491,7 @@ class TextPainterTest {
             measurer.measure(
                 text = longText,
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
-                constraints = Constraints.fixed(200, 4000)
+                constraints = Constraints.fixed(200, 4000),
             )
 
         val bitmap = draw(200f, 4000f) { drawText(textLayoutResult) }
@@ -500,7 +500,7 @@ class TextPainterTest {
                 drawText(
                     measurer,
                     longText,
-                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp)
+                    style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
                 )
             }
 
@@ -516,7 +516,7 @@ class TextPainterTest {
                 text = longText,
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
                 density = Density(4f),
-                constraints = Constraints.fixed(1000, 1000)
+                constraints = Constraints.fixed(1000, 1000),
             )
 
         val bitmap = draw { drawText(textLayoutResult) }
@@ -526,7 +526,7 @@ class TextPainterTest {
             drawText(
                 measurer,
                 longText,
-                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp)
+                style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 20.sp),
             )
         }
 
@@ -543,7 +543,7 @@ class TextPainterTest {
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 14.sp),
                 softWrap = false,
                 overflow = TextOverflow.Clip,
-                constraints = Constraints.fixed(200, 200)
+                constraints = Constraints.fixed(200, 200),
             )
 
         val bitmap = draw(400f, 200f) { drawText(textLayoutResult) }
@@ -566,7 +566,7 @@ class TextPainterTest {
                     style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize),
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
-                    constraints = Constraints.fixed(200, height)
+                    constraints = Constraints.fixed(200, height),
                 )
 
             val bitmap = draw(200f, 200f) { drawText(textLayoutResult) }
@@ -588,7 +588,7 @@ class TextPainterTest {
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 14.sp),
                 softWrap = false,
                 overflow = TextOverflow.Clip,
-                constraints = Constraints.fixed(400, 200)
+                constraints = Constraints.fixed(400, 200),
             )
 
         val textLayoutResultNoClip =
@@ -597,7 +597,7 @@ class TextPainterTest {
                 style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = 14.sp),
                 softWrap = false,
                 overflow = TextOverflow.Visible,
-                constraints = Constraints.fixed(200, 200)
+                constraints = Constraints.fixed(200, 200),
             )
 
         val bitmap = draw(400f, 200f) { drawText(textLayoutResult) }
@@ -612,7 +612,7 @@ class TextPainterTest {
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
-        cacheSize: Int = 0
+        cacheSize: Int = 0,
     ): TextMeasurer = TextMeasurer(fontFamilyResolver, density, layoutDirection, cacheSize)
 
     fun draw(
@@ -620,14 +620,14 @@ class TextPainterTest {
         bitmapHeight: Float = 1000f,
         canvasWidth: Float = bitmapWidth,
         canvasHeight: Float = bitmapHeight,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ): Bitmap {
         val size = Size(bitmapWidth, bitmapHeight)
         val bitmap =
             Bitmap.createBitmap(
                 size.width.toIntPx(),
                 size.height.toIntPx(),
-                Bitmap.Config.ARGB_8888
+                Bitmap.Config.ARGB_8888,
             )
         val canvas = Canvas(bitmap.asImageBitmap())
         val drawScope = CanvasDrawScope()
@@ -636,7 +636,7 @@ class TextPainterTest {
             layoutDirection,
             canvas,
             Size(canvasWidth, canvasHeight),
-            block
+            block,
         )
         return bitmap
     }

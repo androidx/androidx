@@ -22,8 +22,7 @@ public class MyDao_Impl(
   init {
     this.__db = __db
     this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
-      protected override fun createQuery(): String =
-          "INSERT OR ABORT INTO `MyEntity` (`pk`,`variablePrimitive`,`variableString`,`variableNullableString`) VALUES (?,?,?,?)"
+      protected override fun createQuery(): String = "INSERT OR ABORT INTO `MyEntity` (`pk`,`variablePrimitive`,`variableString`,`variableNullableString`) VALUES (?,?,?,?)"
 
       protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
@@ -39,8 +38,7 @@ public class MyDao_Impl(
     }
   }
 
-  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) {
-      _connection ->
+  public override fun addEntity(item: MyEntity): Unit = performBlocking(__db, false, true) { _connection ->
     __insertAdapterOfMyEntity.insert(_connection, item)
   }
 
@@ -52,8 +50,7 @@ public class MyDao_Impl(
         val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
         val _columnIndexOfVariablePrimitive: Int = getColumnIndexOrThrow(_stmt, "variablePrimitive")
         val _columnIndexOfVariableString: Int = getColumnIndexOrThrow(_stmt, "variableString")
-        val _columnIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_stmt,
-            "variableNullableString")
+        val _columnIndexOfVariableNullableString: Int = getColumnIndexOrThrow(_stmt, "variableNullableString")
         val _result: MyEntity
         if (_stmt.step()) {
           val _tmpPk: Int
@@ -67,7 +64,7 @@ public class MyDao_Impl(
             _result.variableNullableString = _stmt.getText(_columnIndexOfVariableNullableString)
           }
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
         }
         _result
       } finally {

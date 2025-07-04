@@ -36,7 +36,6 @@ import android.graphics.Rect;
 import android.location.Location;
 import android.os.RemoteException;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.model.Alert;
 import androidx.car.app.model.CarText;
@@ -78,8 +77,6 @@ public final class AppManagerTest {
     private IAppHost.Stub mMockAppHost;
     @Mock
     private IOnDoneCallback mMockOnDoneCallback;
-    @Mock
-    private OnBackPressedCallback mMockOnBackPressedCallback;
     @Mock
     private SurfaceCallback mSurfaceCallback;
 
@@ -207,24 +204,24 @@ public final class AppManagerTest {
     @Test
     public void onBackPressed_lifecycleCreated_sendsToApp() throws RemoteException {
         mTestCarContext.getLifecycleOwner().mRegistry.setCurrentState(Lifecycle.State.CREATED);
-        when(mMockOnBackPressedCallback.isEnabled()).thenReturn(true);
-        mTestCarContext.getOnBackPressedDispatcher().addCallback(mMockOnBackPressedCallback);
+        TestOnBackPressedCallback onBackPressedCallback = new TestOnBackPressedCallback();
+        mTestCarContext.getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 
         mAppManager.getIInterface().onBackPressed(mMockOnDoneCallback);
 
         verify(mMockOnDoneCallback).onSuccess(any());
-        verify(mMockOnBackPressedCallback).handleOnBackPressed();
+        assertThat(onBackPressedCallback.getPressedCount()).isEqualTo(1);
     }
 
     @Test
     public void onBackPressed_lifecycleNotCreated_doesNotSendToApp() throws RemoteException {
-        when(mMockOnBackPressedCallback.isEnabled()).thenReturn(true);
-        mTestCarContext.getOnBackPressedDispatcher().addCallback(mMockOnBackPressedCallback);
+        TestOnBackPressedCallback onBackPressedCallback = new TestOnBackPressedCallback();
+        mTestCarContext.getOnBackPressedDispatcher().addCallback(onBackPressedCallback);
 
         mAppManager.getIInterface().onBackPressed(mMockOnDoneCallback);
 
         verify(mMockOnDoneCallback).onFailure(any());
-        verify(mMockOnBackPressedCallback, never()).handleOnBackPressed();
+        assertThat(onBackPressedCallback.getPressedCount()).isEqualTo(0);
     }
 
     @Test

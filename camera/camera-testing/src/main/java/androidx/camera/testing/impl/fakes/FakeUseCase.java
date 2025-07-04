@@ -51,6 +51,7 @@ public class FakeUseCase extends UseCase {
     private int mPipelineCreationCount = 0;
     private Supplier<SessionConfig> mSessionConfigSupplier;
     private Set<Integer> mEffectTargets = Collections.emptySet();
+    private RuntimeException mMergedConfigException = null;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration and capture type.
@@ -108,6 +109,9 @@ public class FakeUseCase extends UseCase {
     protected @NonNull UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
         mMergedConfigRetrieved = true;
+        if (mMergedConfigException != null) {
+            throw mMergedConfigException;
+        }
         return builder.getUseCaseConfig();
     }
 
@@ -233,5 +237,9 @@ public class FakeUseCase extends UseCase {
      */
     public void notifyResetForTesting() {
         notifyReset();
+    }
+
+    public void setMergedConfigException(@Nullable RuntimeException exception) {
+        mMergedConfigException = exception;
     }
 }

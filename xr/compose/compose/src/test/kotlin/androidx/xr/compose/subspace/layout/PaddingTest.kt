@@ -20,14 +20,15 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.assertDepthIsEqualTo
 import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setSubspaceContent
 import kotlin.test.assertFailsWith
 import org.junit.Rule
 import org.junit.Test
@@ -40,20 +41,24 @@ class PaddingTest {
 
     @Test
     fun padding_settingValuesIndependentlySizesCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .size(100.dp)
-                    .padding(
-                        left = 20.dp,
-                        top = 10.dp,
-                        right = 10.dp,
-                        bottom = 20.dp,
-                        front = 10.dp,
-                        back = 20.dp,
-                    )
-            ) {
-                Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .size(100.dp)
+                            .padding(
+                                left = 20.dp,
+                                top = 10.dp,
+                                right = 10.dp,
+                                bottom = 20.dp,
+                                front = 10.dp,
+                                back = 20.dp,
+                            )
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
             }
         }
 
@@ -67,13 +72,17 @@ class PaddingTest {
 
     @Test
     fun padding_settingDirectionalValuesSizesCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .size(100.dp)
-                    .padding(horizontal = 20.dp, vertical = 20.dp, depth = 20.dp)
-            ) {
-                Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .size(100.dp)
+                            .padding(horizontal = 20.dp, vertical = 20.dp, depth = 20.dp)
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
             }
         }
 
@@ -87,9 +96,15 @@ class PaddingTest {
 
     @Test
     fun padding_settingAllValuesSizesCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(SubspaceModifier.testTag("panel").size(100.dp).padding(all = 20.dp)) {
-                Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel").size(100.dp).padding(all = 20.dp)
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
             }
         }
 
@@ -104,9 +119,15 @@ class PaddingTest {
     @Test
     fun padding_negativePaddingThrowsException() {
         assertFailsWith<IllegalArgumentException> {
-            composeTestRule.setSubspaceContent {
-                SpatialPanel(SubspaceModifier.testTag("panel").size(100.dp).padding(top = -20.dp)) {
-                    Text(text = "Panel")
+            composeTestRule.setContent {
+                TestSetup {
+                    Subspace {
+                        SpatialPanel(
+                            SubspaceModifier.testTag("panel").size(100.dp).padding(top = -20.dp)
+                        ) {
+                            Text(text = "Panel")
+                        }
+                    }
                 }
             }
         }

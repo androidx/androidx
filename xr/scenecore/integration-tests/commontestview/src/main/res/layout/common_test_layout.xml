@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="10dp">
+  <Button
+      android:id="@+id/buttonRecreateActivity"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/recreate_activity" />
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:orientation="horizontal">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/applicationLabel"
+        android:layout_width="150sp"
+        android:layout_height="match_parent"
+        android:maxLines="1"
+        android:text="@string/application_name_label"
+        app:autoSizeTextType="uniform" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/textApplicationName"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:autoSizeTextType="uniform"
+        tools:text="SampleAppName" />
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:orientation="horizontal">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/buildFingerprintLabel"
+        android:layout_width="150sp"
+        android:layout_height="match_parent"
+        android:maxLines="1"
+        android:text="@string/build_fingerprint_label"
+        app:autoSizeTextType="uniform" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/textBuildFingerprint"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:autoSizeTextType="uniform" />
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:orientation="horizontal">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/buildDateLabel"
+        android:layout_width="150sp"
+        android:layout_height="match_parent"
+        android:maxLines="1"
+        android:text="@string/build_date_label"
+        app:autoSizeTextType="uniform" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/textBuildDate"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:autoSizeTextType="uniform"
+        tools:text="01 May 2024, 01:02:03" />
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="0dp"
+      android:layout_weight="1"
+      android:orientation="horizontal">
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/clNumberLabel"
+        android:layout_width="150sp"
+        android:layout_height="match_parent"
+        android:maxLines="1"
+        android:text="@string/cl_number_label"
+        app:autoSizeTextType="uniform" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/textClNumber"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:autoSizeTextType="uniform"
+        tools:text="123456789" />
+  </LinearLayout>
+</LinearLayout>

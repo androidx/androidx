@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.work {
 
   @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public enum DirectExecutor {

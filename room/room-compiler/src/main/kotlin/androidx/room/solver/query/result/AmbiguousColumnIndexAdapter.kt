@@ -32,7 +32,7 @@ import androidx.room.vo.ColumnIndexVar
  */
 class AmbiguousColumnIndexAdapter(
     private val mappings: List<QueryMappedRowAdapter.Mapping>,
-    private val query: ParsedQuery
+    private val query: ParsedQuery,
 ) : IndexAdapter {
 
     lateinit var mappingToIndexVars: Map<QueryMappedRowAdapter.Mapping, List<ColumnIndexVar>>
@@ -52,20 +52,20 @@ class AmbiguousColumnIndexAdapter(
                 val stmtIndices =
                     AmbiguousColumnResolver.resolve(
                         resultColumns = resultInfo.columns.map { it.name }.toTypedArray(),
-                        mappings = mappings.map { it.usedColumns.toTypedArray() }.toTypedArray()
+                        mappings = mappings.map { it.usedColumns.toTypedArray() }.toTypedArray(),
                     )
                 val rowMappings =
                     DoubleArrayLiteral(
                         type = XTypeName.PRIMITIVE_INT,
                         rowSize = stmtIndices.size,
                         columnSizeProducer = { i -> stmtIndices[i].size },
-                        valueProducer = { i, j -> stmtIndices[i][j] }
+                        valueProducer = { i, j -> stmtIndices[i][j] },
                     )
                 addLocalVariable(
                     name = stmtIndexMappingVarName,
                     typeName =
                         XTypeName.getArrayName(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT)),
-                    assignExpr = rowMappings
+                    assignExpr = rowMappings,
                 )
             } else {
                 // Generate code that uses ambiguous column resolver at runtime, providing the
@@ -76,7 +76,7 @@ class AmbiguousColumnIndexAdapter(
                         type = CommonTypeNames.STRING,
                         rowSize = mappings.size,
                         columnSizeProducer = { i -> mappings[i].usedColumns.size },
-                        valueProducer = { i, j -> mappings[i].usedColumns[j] }
+                        valueProducer = { i, j -> mappings[i].usedColumns[j] },
                     )
                 addLocalVariable(
                     name = stmtIndexMappingVarName,
@@ -87,8 +87,8 @@ class AmbiguousColumnIndexAdapter(
                             "%T.resolve(%L.getColumnNames(), %L)",
                             RoomTypeNames.AMBIGUOUS_COLUMN_RESOLVER,
                             stmtVarName,
-                            rowMappings
-                        )
+                            rowMappings,
+                        ),
                 )
             }
         }
@@ -98,7 +98,7 @@ class AmbiguousColumnIndexAdapter(
                     mapping.usedColumns.mapIndexed { j, columnName ->
                         ColumnIndexVar(
                             column = columnName,
-                            indexVar = "$stmtIndexMappingVarName[$i][$j]"
+                            indexVar = "$stmtIndexMappingVarName[$i][$j]",
                         )
                     }
                 put(mapping, indexVars)

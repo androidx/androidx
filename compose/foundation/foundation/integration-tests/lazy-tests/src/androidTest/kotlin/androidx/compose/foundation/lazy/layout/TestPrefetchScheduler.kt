@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/420551535
+
 package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,6 +31,12 @@ internal class TestPrefetchScheduler : PrefetchScheduler {
 
     fun executeActiveRequests() {
         while (activeRequests.isNotEmpty()) {
+            executeOneRequest()
+        }
+    }
+
+    fun executeOneRequest() {
+        if (activeRequests.isNotEmpty()) {
             val request = activeRequests[0]
             val hasMoreWorkToDo = with(request) { scope.execute() }
             if (!hasMoreWorkToDo) activeRequests.removeAt(0)

@@ -99,7 +99,7 @@ class AlertDialogTest {
                 tonalElevation = 0.dp,
                 iconContentColor = Color.Green,
                 titleContentColor = Color.Magenta,
-                textContentColor = Color.DarkGray
+                textContentColor = Color.DarkGray,
             )
         }
         rule.waitForIdle()
@@ -187,7 +187,7 @@ class AlertDialogTest {
                     Text(
                         text =
                             "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose.",
+                                "which presents the details regarding the Dialog's purpose."
                     )
                 }
             }
@@ -213,7 +213,7 @@ class AlertDialogTest {
                 text = { Text("Short") },
                 confirmButton = {
                     TextButton(onClick = { /* doSomething() */ }) { Text("Confirm") }
-                }
+                },
             )
         }
 
@@ -274,7 +274,7 @@ class AlertDialogTest {
                     Icon(
                         Icons.Filled.Favorite,
                         contentDescription = null,
-                        modifier = Modifier.testTag(IconTestTag)
+                        modifier = Modifier.testTag(IconTestTag),
                     )
                 },
                 title = { Text(text = "Title", modifier = Modifier.testTag(TitleTestTag)) },
@@ -282,7 +282,7 @@ class AlertDialogTest {
                 confirmButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {}
+                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {},
                     ) {
                         Text("Confirm")
                     }
@@ -290,11 +290,11 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {},
                     ) {
                         Text("Dismiss")
                     }
-                }
+                },
             )
         }
 
@@ -336,16 +336,16 @@ class AlertDialogTest {
         // Check the measurements between the components.
         (confirmBtBounds.top - textBounds.bottom).assertIsEqualTo(
             24.dp,
-            "padding between the text and the button"
+            "padding between the text and the button",
         )
         (confirmBtBounds.top).assertIsEqualTo(dismissBtBounds.top, "dialog buttons top alignment")
         (confirmBtBounds.bottom).assertIsEqualTo(
             dismissBtBounds.bottom,
-            "dialog buttons bottom alignment"
+            "dialog buttons bottom alignment",
         )
         (confirmBtBounds.left - 8.dp).assertIsEqualTo(
             dismissBtBounds.right,
-            "horizontal padding between the dialog buttons"
+            "horizontal padding between the dialog buttons",
         )
     }
 
@@ -360,11 +360,11 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {},
                     ) {
                         Text("Dismiss")
                     }
-                }
+                },
             )
         }
 
@@ -396,7 +396,7 @@ class AlertDialogTest {
 
         (dismissBtBounds.top - textBounds.bottom).assertIsEqualTo(
             24.dp,
-            "padding between the text and the button"
+            "padding between the text and the button",
         )
     }
 
@@ -410,7 +410,7 @@ class AlertDialogTest {
                 confirmButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {}
+                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {},
                     ) {
                         Text("Confirm with a long text")
                     }
@@ -418,11 +418,11 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {},
                     ) {
                         Text("Dismiss with a long text")
                     }
-                }
+                },
             )
         }
 
@@ -449,11 +449,11 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {}
+                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {},
                     ) {
                         Text("Dismiss")
                     }
-                }
+                },
             )
         }
 
@@ -485,7 +485,7 @@ class AlertDialogTest {
 
         (dismissBtBounds.top - textBounds.bottom).assertIsEqualTo(
             24.dp,
-            "padding between the text and the button"
+            "padding between the text and the button",
         )
     }
 }

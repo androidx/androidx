@@ -62,7 +62,7 @@ class MaterialImportDetector : Detector(), SourceCodeScanner {
                         UsingMaterialAndMaterial3Libraries,
                         reference,
                         context.getLocation(reference),
-                        "Using a material import while also using the material3 library"
+                        "Using a material import while also using the material3 library",
                     )
                 }
             }
@@ -83,8 +83,8 @@ class MaterialImportDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     MaterialImportDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }
@@ -101,7 +101,7 @@ private val AllowlistedSubpackages =
         // pullrefresh currently only exists in m2, so there is no alternative for m3, so
         // temporarily
         // ignore
-        "$MaterialPackage.pullrefresh"
+        "$MaterialPackage.pullrefresh",
     )
 
 // TODO: b/261760718 - remove this when pullrefresh is added to m3

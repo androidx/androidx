@@ -34,7 +34,7 @@ class ModifierNodeElementTest {
             val string: String,
             val int: Int,
             val map: Map<String, Any>,
-            inputParameter: Boolean
+            inputParameter: Boolean,
         ) : ModifierNodeElement<Modifier.Node>() {
             var classProperty = 0
 
@@ -53,7 +53,7 @@ class ModifierNodeElementTest {
                     string = "parameter 1",
                     int = 12345,
                     map = mapOf("key" to "value"),
-                    inputParameter = true
+                    inputParameter = true,
                 )
                 .apply { classProperty = 42 }
 
@@ -68,7 +68,7 @@ class ModifierNodeElementTest {
                     ValueElement("map", mapOf("key" to "value")),
                     ValueElement("string", "parameter 1"),
                 ),
-            actual = modifier
+            actual = modifier,
         )
     }
 
@@ -78,7 +78,7 @@ class ModifierNodeElementTest {
         expectedName: String? = null,
         expectedValue: Any? = null,
         expectedProperties: List<ValueElement> = emptyList(),
-        actual: InspectableValue
+        actual: InspectableValue,
     ) {
         assertEquals("$message (unexpected name)", expectedName, actual.nameFallback)
 
@@ -87,7 +87,7 @@ class ModifierNodeElementTest {
         assertEquals(
             "$message (unexpected properties)",
             expectedProperties,
-            actual.inspectableElements.toList()
+            actual.inspectableElements.toList(),
         )
     }
 }

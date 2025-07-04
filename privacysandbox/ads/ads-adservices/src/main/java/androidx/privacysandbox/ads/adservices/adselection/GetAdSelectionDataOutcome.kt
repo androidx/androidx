@@ -32,9 +32,9 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  * @param adSelectionData The adSelectionData that is collected from device.
  */
 @ExperimentalFeatures.Ext10OptIn
-class GetAdSelectionDataOutcome
+public class GetAdSelectionDataOutcome
 @JvmOverloads
-public constructor(val adSelectionId: Long, val adSelectionData: ByteArray? = null) {
+public constructor(public val adSelectionId: Long, public val adSelectionData: ByteArray? = null) {
 
     /** Checks whether two [GetAdSelectionDataOutcome] objects contain the same information. */
     override fun equals(other: Any?): Boolean {

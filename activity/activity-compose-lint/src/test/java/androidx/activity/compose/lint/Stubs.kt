@@ -57,7 +57,7 @@ val BACK_HANDLER =
     PQjymIxKpGDjDsWfROgU1vv4NMmn9M8YOA0P5DKYonQW9druc8jOxb99RyJe
     KqxfYLrX8hm9MbB01DuLWNQlSRXTJC1sRKDHcEi+onJmhMIxYmXMljFHL+6X
     MY8HZSzg4TFYiEdYPEYyRCLEUoh89Nohlv8C003RZnYEAAA=
-    """
+    """,
     )
 
 val COMPONENT_ACTIVITY =
@@ -90,7 +90,7 @@ val COMPONENT_ACTIVITY =
     +GjuF2OTWc6RwsN2v2Lpy7y8xZjMxRq2GVd+L8AtpBwbWP5j3gttCfNfY/yX
     kRZGgftzvIcHHJ+zHv5ttYeojdttrDEiC9BoYx0bPZDDJu70EDukDncdEodl
     Tn4B9lImlUcCAAA=
-    """
+    """,
     )
 
 val ON_BACK_PRESSED_DISPATCHER =
@@ -123,7 +123,7 @@ val ON_BACK_PRESSED_DISPATCHER =
     BD+AZ8dYZ5ZyJN/em1+Y+zkrrzFGM7GCBuPCzQE8Qcyxhvk786Yfjt8PjeE9
     I90aBdZnuIqXHPdY9/9wsYughactLDEi8VBrYRkrXZDFMzzvIrSILV5YRBbz
     nPwDYUKQQFkCAAA=
-    """
+    """,
     )
 
 val PREDICTIVE_BACK_HANDLER =
@@ -167,5 +167,5 @@ val PREDICTIVE_BACK_HANDLER =
     gVPzQD6LMbrO4lprPQ7DU8kvX5FKlguLxxjvliyRTIDZce1hJOKMacptk7SI
     vgEtYJV0hdKZFgq7SFQwWcEUSUxXMINbFdzG7C5YhDuY20UuQirCfAQnluTe
     jY17Ee5HKP4FMROs2egEAAA=
-    """
+    """,
     )

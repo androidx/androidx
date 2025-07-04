@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"వేలిముద్ర సెన్సార్‌ను తాకండి"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"వేలిముద్ర సెన్సర్‌ను తాకండి"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"గుర్తించబడలేదు"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"వేలిముద్ర హార్డ్‌వేర్ అందుబాటులో లేదు."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"వేలిముద్రలు నమోదు చేయబడలేదు."</string>
@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"పిన్‌ను గానీ, ఆకృతిని గానీ, పాస్‌వర్డ్‌ను గానీ‌ సెట్ చేయలేదు."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ఈ పరికరం పిన్, ఆకృతి లేదా పాస్‌వర్డ్‌‌ను సపోర్ట్ చేయదు."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"వేలిముద్ర చిహ్నం"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"కంటెంట్ వీక్షణలో ఉన్న మరిన్ని ఆప్షన్‌ల బటన్‌ను క్లిక్ చేశారు."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"వేలిముద్రను ఉపయోగించండి"</string>
     <string name="use_face_label" msgid="6533512708069459542">"ముఖాన్ని ఉపయోగించండి"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"బయోమెట్రిక్స్‌ను ఉపయోగించండి"</string>

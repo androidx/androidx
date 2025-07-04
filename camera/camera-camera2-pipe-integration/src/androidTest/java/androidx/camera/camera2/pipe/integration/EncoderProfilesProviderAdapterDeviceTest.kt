@@ -48,9 +48,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 21)
-class EncoderProfilesProviderAdapterDeviceTest(
-    private val quality: Int,
-) {
+class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
 
     companion object {
         @JvmStatic
@@ -69,7 +67,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
                 arrayOf(CamcorderProfile.QUALITY_VGA),
                 arrayOf(CamcorderProfile.QUALITY_4KDCI),
                 arrayOf(CamcorderProfile.QUALITY_QHD),
-                arrayOf(CamcorderProfile.QUALITY_2K)
+                arrayOf(CamcorderProfile.QUALITY_2K),
             )
     }
 
@@ -101,8 +99,8 @@ class EncoderProfilesProviderAdapterDeviceTest(
                     cameraMetadata,
                     StreamConfigurationMapCompat(
                         streamConfigurationMap,
-                        OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
-                    )
+                        OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
+                    ),
                 )
                 .quirks
         encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId, cameraQuirks)
@@ -235,7 +233,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
         assumeTrue(
             "The profile size $profileSize is not in camera supported " +
                 "resolutions $cameraResolutions, which is an invalid profile.",
-            cameraResolutions.contains(profileSize)
+            cameraResolutions.contains(profileSize),
         )
     }
 }

@@ -83,8 +83,8 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                         AnnotatedString.Range(
                             (it.item as LinkAnnotation).styles?.style ?: SpanStyle(),
                             it.start,
-                            it.end
-                        )
+                            it.end,
+                        ),
                     )
                 } else {
                     arrayListOf(it)
@@ -142,7 +142,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                 override fun createOutline(
                     size: Size,
                     layoutDirection: LayoutDirection,
-                    density: Density
+                    density: Density,
                 ): Outline {
                     return Outline.Generic(it)
                 }
@@ -193,7 +193,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      */
     private fun calculateVisibleLinkRange(
         link: LinkRange,
-        textLayoutResult: TextLayoutResult
+        textLayoutResult: TextLayoutResult,
     ): LinkRange? {
         // The paragraph with a link might not be added to the paragraphs list if it exceeds
         // the maxline. The Box will be measured (0, 0) in that case and some other modifier like
@@ -232,7 +232,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                         .combinedClickable(
                             indication = null,
                             interactionSource = interactionSource,
-                            onClick = { handleLink(range.item, uriHandler) }
+                            onClick = { handleLink(range.item, uriHandler) },
                         )
                 )
 

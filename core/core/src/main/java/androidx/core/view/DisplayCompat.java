@@ -29,6 +29,7 @@ import android.view.Display;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
+import androidx.core.view.RoundedCornerCompat.Position;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -219,6 +220,23 @@ public final class DisplayCompat {
             // Prior to modes, the current mode is always the largest display mode.
             return true;
         }
+    }
+
+    /**
+     * Returns the {@link RoundedCornerCompat} of the given position if there is one.
+     *
+     * @param display the given display.
+     * @param position the position of the rounded corner on the display.
+     *
+     * @return the rounded corner of the given position. Returns {@code null} if there is none.
+     */
+    public static @Nullable RoundedCornerCompat getRoundedCorner(
+            @NonNull Display display, @Position int position) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return RoundedCornerCompat.toRoundedCornerCompat(display.getRoundedCorner(position));
+        }
+        // No platform has rounded corners before API 31 (S).
+        return null;
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

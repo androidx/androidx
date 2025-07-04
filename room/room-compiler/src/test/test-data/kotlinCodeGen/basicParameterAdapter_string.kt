@@ -33,7 +33,7 @@ public class MyDao_Impl(
           _tmpString = _stmt.getText(_columnIndexOfString)
           _result = MyEntity(_tmpString)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
         }
         _result
       } finally {
@@ -60,7 +60,7 @@ public class MyDao_Impl(
           _tmpString = _stmt.getText(_columnIndexOfString)
           _result = MyEntity(_tmpString)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
         }
         _result
       } finally {

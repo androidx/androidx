@@ -49,7 +49,7 @@ public class ActionsResultCallback : IActionsResultCallback.Stub() {
                 if (
                     waitForActionResultLatch.await(
                         ACTION_RESULT_RESPONSE_TIMEOUT,
-                        TimeUnit.MILLISECONDS
+                        TimeUnit.MILLISECONDS,
                     )
                 ) {
                     Log.i(TAG, "waitForResponse: VoIP app returned a result")

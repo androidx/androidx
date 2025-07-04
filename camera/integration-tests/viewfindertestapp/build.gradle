@@ -18,10 +18,11 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
+    compileSdk = 35
     defaultConfig {
         applicationId = "androidx.camera.integration.viewfinder"
     }
@@ -43,4 +44,14 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.activity:activity:1.9.1")
     implementation("androidx.window:window:1.3.0")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+
+    // Transitive dependencies
+    implementation 'androidx.fragment:fragment:1.5.4'
+    implementation 'androidx.lifecycle:lifecycle-common:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
+    implementation libs.androidx.core
+    implementation libs.kotlinCoroutinesCore
+    implementation project(':camera:viewfinder:viewfinder-core')
 }

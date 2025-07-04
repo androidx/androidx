@@ -64,7 +64,7 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
                 onPrimary = onPrimaryColor.value,
                 secondary = secondaryColor.value,
                 secondaryVariant = secondaryVariantColor.value,
-                onSecondary = onSecondaryColor.value
+                onSecondary = onSecondaryColor.value,
             )
         } else {
             darkColors(
@@ -72,7 +72,7 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
                 primaryVariant = primaryVariantColor.value,
                 onPrimary = onPrimaryColor.value,
                 secondary = secondaryColor.value,
-                onSecondary = onSecondaryColor.value
+                onSecondary = onSecondaryColor.value,
             )
         }
     val view = LocalView.current
@@ -90,7 +90,7 @@ fun CatalogTheme(theme: Theme, content: @Composable () -> Unit) {
                 medium = theme.shapeCornerFamily.getShape(size = mediumShapeSize.value),
                 large = theme.shapeCornerFamily.getShape(size = largeShapeSize.value),
             ),
-        content = content
+        content = content,
     )
 }
 

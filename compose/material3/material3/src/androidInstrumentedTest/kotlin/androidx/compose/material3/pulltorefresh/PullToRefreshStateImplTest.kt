@@ -64,7 +64,7 @@ class PullToRefreshStateImplTest {
                     isRefreshing = true
                     refreshCount++
                     isRefreshing = false
-                }
+                },
             ) {
                 LazyColumn { items(100) { Text("item $it") } }
             }
@@ -124,7 +124,7 @@ class PullToRefreshStateImplTest {
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = false,
                 onRefresh = { refreshCount++ },
-                state = state
+                state = state,
             ) {
                 LazyColumn { items(100) { Text("item $it") } }
             }
@@ -171,7 +171,7 @@ class PullToRefreshStateImplTest {
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = false,
                 onRefresh = { refreshCount++ },
-                state = state
+                state = state,
             ) {
                 LazyColumn { items(100) { Text("item $it") } }
             }
@@ -225,7 +225,7 @@ class PullToRefreshStateImplTest {
                 modifier = Modifier.testTag(PullRefreshTag),
                 isRefreshing = false,
                 onRefresh = { refreshCount++ },
-                state = state
+                state = state,
             ) {
                 LazyColumn { items(100) { Text("item $it") } }
             }

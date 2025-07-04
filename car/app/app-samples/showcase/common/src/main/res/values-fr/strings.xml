@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Démo du modèle de message"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Emplacement du message.\nPlus de texte sur la 2e ligne."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Démo du modèle de message court"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Démo du modèle d\'éléments à sections"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Section \"Case d\'option\""</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Changer de section"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Section \"Nombreuses lignes\""</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Section d\'élément de grille"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Démo du modèle de volet"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Démo du modèle de la liste des lieux"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Parcourir les lieux"</string>
@@ -239,7 +244,7 @@
     <string name="additional_text" msgid="5755100726890686184">"Veuillez consulter nos "<annotation link="terms_of_service">"conditions d\'utilisation"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google Sign-In"</string>
     <string name="use_pin" msgid="7850893299484337431">"Utiliser le code"</string>
-    <string name="qr_code" msgid="5487041647280777397">"Code QR"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR code"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Votre hôte n\'accepte pas le modèle de connexion"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Hôte incompatible"</string>
     <string name="email_hint" msgid="7205549445477319606">"E-mail"</string>
@@ -251,7 +256,7 @@
     <string name="password_hint" msgid="2869107073860012864">"mot de passe"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nom d\'utilisateur"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Saisissez ce code sur votre téléphone"</string>
-    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Scanner le code QR pour se connecter"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Scanner le QR code pour se connecter"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Se connecter avec Google"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Utilisez ce bouton pour vous connecter à Google"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Vous êtes connecté !"</string>

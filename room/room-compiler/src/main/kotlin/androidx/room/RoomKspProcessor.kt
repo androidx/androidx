@@ -31,7 +31,7 @@ import javax.tools.Diagnostic
 class RoomKspProcessor(environment: SymbolProcessorEnvironment) :
     KspBasicAnnotationProcessor(
         symbolProcessorEnvironment = environment,
-        config = DatabaseProcessingStep.getEnvConfig(environment.options)
+        config = DatabaseProcessingStep.getEnvConfig(environment.options),
     ) {
     init {
         // print a warning if null aware converter is disabled because we'll remove that ability
@@ -47,7 +47,7 @@ class RoomKspProcessor(environment: SymbolProcessorEnvironment) :
                     please file a bug at ${ProcessorErrors.ISSUE_TRACKER_LINK} with
                     a sample app that reproduces your problem.
                 """
-                        .trimIndent()
+                        .trimIndent(),
             )
         }
     }

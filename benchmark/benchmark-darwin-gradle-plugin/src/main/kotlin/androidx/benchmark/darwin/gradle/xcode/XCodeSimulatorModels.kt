@@ -43,7 +43,7 @@ data class SimulatorRuntime(
     val identifier: String,
     val version: String,
     val isAvailable: Boolean,
-    val supportedDeviceTypes: List<SupportedDeviceType>
+    val supportedDeviceTypes: List<SupportedDeviceType>,
 )
 
 /**
@@ -61,5 +61,5 @@ data class SupportedDeviceType(
     val bundlePath: String,
     val name: String,
     val identifier: String,
-    val productFamily: String
+    val productFamily: String,
 )

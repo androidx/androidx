@@ -16,7 +16,7 @@
 package androidx.work
 
 /** An enumeration of policies that help determine out of quota behavior for expedited jobs. */
-enum class OutOfQuotaPolicy {
+public enum class OutOfQuotaPolicy {
     /**
      * When the app does not have any expedited job quota, the expedited work request will fallback
      * to a regular work request.
@@ -27,5 +27,5 @@ enum class OutOfQuotaPolicy {
      * When the app does not have any expedited job quota, the expedited work request will be
      * dropped and no work requests are enqueued.
      */
-    DROP_WORK_REQUEST
+    DROP_WORK_REQUEST,
 }

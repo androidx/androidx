@@ -237,4 +237,12 @@ class ImmutableBoxTest {
         assertThat(outerRect.contains(innerRect)).isTrue()
         assertThat(innerRect.contains(outerRect)).isFalse()
     }
+
+    @Test
+    fun asImmutable_returnsSelf() {
+        val box = ImmutableBox.fromTwoPoints(ImmutableVec(10F, 20F), ImmutableVec(30F, 40F))
+        val output = box.asImmutable()
+
+        assertThat(output).isSameInstanceAs(box)
+    }
 }

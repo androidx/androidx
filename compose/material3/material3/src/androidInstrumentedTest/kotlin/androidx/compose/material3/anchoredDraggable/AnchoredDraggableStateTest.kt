@@ -108,7 +108,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -145,7 +145,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -211,7 +211,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 animationSpec = { tween(animationDuration, easing = LinearEasing) },
                 positionalThreshold = { distance -> distance * 0.5f },
-                velocityThreshold = defaultVelocityThreshold
+                velocityThreshold = defaultVelocityThreshold,
             )
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -256,7 +256,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         rule.setContent {
             WithTouchSlop(touchSlop = 0f) {
@@ -311,7 +311,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -349,7 +349,7 @@ class AnchoredDraggableStateTest {
                 initialValue = initialState,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = animationSpec
+                animationSpec = animationSpec,
             )
         lateinit var scope: CoroutineScope
 
@@ -388,7 +388,7 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    animationSpec = defaultAnimationSpec,
                 )
             }
             LaunchedEffect(state.targetValue) { targetState = state.targetValue }
@@ -424,7 +424,7 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    animationSpec = defaultAnimationSpec,
                 )
             }
             LaunchedEffect(state.progress) { progress = state.progress }
@@ -460,7 +460,7 @@ class AnchoredDraggableStateTest {
                 initialValue = B,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         var offset: Float? = null
         rule.setContent {
@@ -502,7 +502,7 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    animationSpec = defaultAnimationSpec,
                 )
             }
             LaunchedEffect(Unit) {
@@ -529,7 +529,7 @@ class AnchoredDraggableStateTest {
                 .getDurationNanos(
                     initialValue = minBound,
                     targetValue = maxBound,
-                    initialVelocity = 0f
+                    initialVelocity = 0f,
                 )
                 .let { TimeUnit.NANOSECONDS.toMillis(it) }
 
@@ -538,7 +538,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = { animationSpec }
+                animationSpec = { animationSpec },
             )
         lateinit var scope: CoroutineScope
 
@@ -572,7 +572,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
@@ -587,7 +587,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
@@ -602,7 +602,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
 
         assertThat(anchoredDraggableState.currentValue).isEqualTo(A)
@@ -616,7 +616,7 @@ class AnchoredDraggableStateTest {
                     A at 0f
                     B at offsetAtB
                 },
-            newTarget = B
+            newTarget = B,
         )
         assertThat(anchoredDraggableState.currentValue).isEqualTo(B)
         assertThat(anchoredDraggableState.targetValue).isEqualTo(B)
@@ -632,7 +632,7 @@ class AnchoredDraggableStateTest {
                 initialValue = 1,
                 defaultPositionalThreshold,
                 defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
 
         val anchorUpdates = Channel<DraggableAnchors<Int>>()
@@ -669,7 +669,7 @@ class AnchoredDraggableStateTest {
                 initialValue = 1,
                 defaultPositionalThreshold,
                 defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
 
         val anchorUpdates = Channel<DraggableAnchors<Int>>()
@@ -705,7 +705,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 defaultPositionalThreshold,
                 defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         anchoredDraggableState.updateAnchors(
             DraggableAnchors {
@@ -754,7 +754,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 defaultPositionalThreshold,
                 defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         val cancellationSignal = CompletableDeferred(false)
         val anchoredDragUpdates = Channel<Unit>()
@@ -780,7 +780,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -804,7 +804,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -827,7 +827,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -861,7 +861,7 @@ class AnchoredDraggableStateTest {
                 anchors = anchors,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         assertThat(state.anchors).isEqualTo(anchors)
         assertThat(state.offset).isEqualTo(initialValueOffset)
@@ -876,7 +876,7 @@ class AnchoredDraggableStateTest {
                 anchors = anchors,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         assertThat(state.anchors).isEqualTo(anchors)
         assertThat(state.offset).isNaN()
@@ -895,7 +895,7 @@ class AnchoredDraggableStateTest {
                     confirmValueChange = {
                         if (shouldBlockValueC) it != C // block state value C
                         else true
-                    }
+                    },
                 )
             val anchors = DraggableAnchors {
                 A at 0f
@@ -925,7 +925,7 @@ class AnchoredDraggableStateTest {
     fun draggableAnchors_measuredInPlacementInLookahead_initializesOffset() {
         data class LayoutExecutionInfo(
             val phase: Int, // 0 = measure; 1 = place
-            val isLookingAhead: Boolean
+            val isLookingAhead: Boolean,
         )
 
         val innerLayoutExecutionOrder = mutableListOf<LayoutExecutionInfo>()
@@ -934,7 +934,7 @@ class AnchoredDraggableStateTest {
                 initialValue = B,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec
+                animationSpec = defaultAnimationSpec,
             )
         rule.setContent {
             LookaheadScope {
@@ -952,7 +952,7 @@ class AnchoredDraggableStateTest {
                                                     )
                                                     layout(
                                                         innerConstraints.maxWidth,
-                                                        innerConstraints.maxHeight
+                                                        innerConstraints.maxHeight,
                                                     ) {
                                                         val placeable =
                                                             measurable.measure(innerConstraints)
@@ -1000,12 +1000,7 @@ class AnchoredDraggableStateTest {
     fun draggableAnchors_draggableOffsetTaggedAsMotionFrameOfReference() {
         var offset by mutableStateOf(IntOffset(0, 0))
         val offsets =
-            listOf(
-                IntOffset(0, 0),
-                IntOffset(5, 20),
-                IntOffset(25, 0),
-                IntOffset(100, 10),
-            )
+            listOf(IntOffset(0, 0), IntOffset(5, 20), IntOffset(25, 0), IntOffset(100, 10))
         var coords: LayoutCoordinates? = null
         var rootCoords: LayoutCoordinates? = null
         val state =
@@ -1013,7 +1008,7 @@ class AnchoredDraggableStateTest {
                 initialValue = 0,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = { spring() }
+                animationSpec = { spring() },
             )
         var value by mutableIntStateOf(0)
         rule.setContent {
@@ -1047,7 +1042,7 @@ class AnchoredDraggableStateTest {
                             .round()
                     assertEquals(
                         includeOffset - IntOffset(0, state.requireOffset().roundToInt()),
-                        excludeOffset
+                        excludeOffset,
                     )
                 }
             }

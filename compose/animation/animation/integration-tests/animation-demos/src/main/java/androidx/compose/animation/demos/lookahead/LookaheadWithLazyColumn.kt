@@ -69,12 +69,12 @@ fun LookaheadWithLazyColumn() {
                 var expanded by rememberSaveable { mutableStateOf(false) }
                 AnimatedVisibility(
                     remember { MutableTransitionState(false) }.apply { targetState = true },
-                    enter = slideInHorizontally { 20 } + fadeIn()
+                    enter = slideInHorizontally { 20 } + fadeIn(),
                 ) {
                     Surface(
                         shape = RoundedCornerShape(10.dp),
                         color = pastelColors[index],
-                        modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded }
+                        modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
                     ) {
                         LookaheadScope {
                             val title = remember {
@@ -98,9 +98,9 @@ fun LookaheadWithLazyColumn() {
                                                             spring(
                                                                 Spring.DampingRatioNoBouncy,
                                                                 Spring.StiffnessLow,
-                                                                Rect.VisibilityThreshold
+                                                                Rect.VisibilityThreshold,
                                                             )
-                                                        }
+                                                        },
                                                     )
                                                     .clip(RoundedCornerShape(5.dp)),
                                             contentScale =
@@ -108,7 +108,7 @@ fun LookaheadWithLazyColumn() {
                                                     ContentScale.FillWidth
                                                 } else {
                                                     ContentScale.Crop
-                                                }
+                                                },
                                         )
                                     }
                                 } else {
@@ -125,14 +125,14 @@ fun LookaheadWithLazyColumn() {
                                                             spring(
                                                                 Spring.DampingRatioNoBouncy,
                                                                 Spring.StiffnessLow,
-                                                                Rect.VisibilityThreshold
+                                                                Rect.VisibilityThreshold,
                                                             )
-                                                        }
+                                                        },
                                                     )
                                                     .background(
                                                         Color.LightGray,
-                                                        RoundedCornerShape(5.dp)
-                                                    ),
+                                                        RoundedCornerShape(5.dp),
+                                                    )
                                         )
                                     }
                                 }
@@ -157,9 +157,4 @@ fun LookaheadWithLazyColumn() {
 }
 
 val names = listOf("YT", "Pepper", "Waffle", "Who?")
-val res =
-    listOf(
-        R.drawable.yt_profile,
-        R.drawable.pepper,
-        R.drawable.waffle,
-    )
+val res = listOf(R.drawable.yt_profile, R.drawable.pepper, R.drawable.waffle)

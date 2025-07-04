@@ -52,7 +52,7 @@ fun TestWindowMetrics(
     top: Int,
     right: Int,
     bottom: Int,
-    density: Float = 1f
+    density: Float = 1f,
 ): WindowMetrics {
     return WindowMetrics(Rect(left, top, right, bottom), density = density)
 }

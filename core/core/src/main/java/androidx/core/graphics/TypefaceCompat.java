@@ -21,10 +21,17 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.fonts.Font;
+import android.graphics.fonts.FontFamily;
+import android.graphics.text.PositionedGlyphs;
+import android.graphics.text.TextRunShaper;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
@@ -45,6 +52,7 @@ import androidx.tracing.Trace;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -57,12 +65,16 @@ public class TypefaceCompat {
     @RestrictTo(LIBRARY)
     public static final boolean DOWNLOADABLE_FONT_TRACING = true;
 
+    private static final String TAG = "TypefaceCompat";
+
     static {
         Trace.beginSection("TypefaceCompat static init");
     }
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= 31) {
+            sTypefaceCompatImpl = new TypefaceCompatApi31Impl();
+        } else if (Build.VERSION.SDK_INT >= 29) {
             sTypefaceCompatImpl = new TypefaceCompatApi29Impl();
         } else if (Build.VERSION.SDK_INT >= 28) {
             sTypefaceCompatImpl = new TypefaceCompatApi28Impl();
@@ -131,6 +143,42 @@ public class TypefaceCompat {
                 + style;
     }
 
+    private static Paint sCachedPaint = null;
+    /**
+     * Heuristics used for guessing the primary font in the typeface.
+     * There is no API to obtain underlying font families and fonts from the typeface instance.
+     * To get the primary font, query the whitespace letter (U+0020) to the text shaper based on the
+     * fact that most of the font supports whitespace.
+     */
+    private static final String REFERENCE_CHAR_FOR_PRIMARY_FONT = " ";
+
+    /**
+     * This function guesses the primary font for the given typeface.
+     *
+     * Returns null if font cannot be retrieved.
+     */
+    @RestrictTo(LIBRARY)
+    @Nullable
+    @RequiresApi(31)
+    public static Font guessPrimaryFont(@Nullable Typeface typeface) {
+        if (sCachedPaint == null) {
+            sCachedPaint = new Paint();
+        }
+        sCachedPaint.setTextSize(10f);
+        sCachedPaint.setTypeface(typeface);
+        PositionedGlyphs glyphs = TextRunShaper.shapeTextRun(
+                REFERENCE_CHAR_FOR_PRIMARY_FONT,  // text
+                0, REFERENCE_CHAR_FOR_PRIMARY_FONT.length(),  // range
+                0, REFERENCE_CHAR_FOR_PRIMARY_FONT.length(),  // context range
+                0f, 0f,  // position. (we don't care in this context)
+                false,  // LTR. (we don't care in this context)
+                sCachedPaint);
+        if (glyphs.glyphCount() == 0) {
+            return null;
+        }
+        return glyphs.getFont(0);
+    }
+
     /**
      * Returns Typeface if the system has the font family with the name [familyName]. For example
      * querying with "sans-serif" would check if the "sans-serif" family is defined in the system
@@ -138,11 +186,111 @@ public class TypefaceCompat {
      *
      * @param familyName The name of the font family.
      */
-    private static Typeface getSystemFontFamily(@Nullable String familyName) {
+    @RestrictTo(LIBRARY)
+    @Nullable
+    public static Typeface getSystemFontFamily(@Nullable String familyName) {
         if (familyName == null || familyName.isEmpty()) return null;
         Typeface typeface = Typeface.create(familyName, Typeface.NORMAL);
         Typeface defaultTypeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL);
         return typeface != null && !typeface.equals(defaultTypeface) ? typeface : null;
+    }
+
+    /**
+     * Gets or constructs a Typeface from the system installed font families.
+     *
+     * This function first tries to find the fully fallback compatible system font family which is
+     * specified with the [fontProviderSystemFontFamily] attribute in the [font-family] element
+     * in XML.
+     * If not found, this function tries to construct the fallback Typeface instance from the
+     * specified [fallback] elements in XML.
+     * If each [fallback] element can be constructed from the system font, this function will
+     * return the newly built Typeface which has fallback as specified in the XML.
+     * If even one fallback cannot be constructed from the system font, this function will
+     * return null, indicating that an asynchronous font fetch is required.
+     *
+     * @param entry The font provider entry.
+     * @return The Typeface if it can be constructed from system fonts, otherwise null.
+     */
+    @Nullable
+    private static Typeface getSystemFontFamilyWithFallback(@NonNull ProviderResourceEntry entry) {
+        final String familyName = entry.getSystemFontFamilyName();
+
+        // If fully compatible system font family is installed, just use it.
+        if (!TextUtils.isEmpty(familyName)) {
+            Typeface typeface = getSystemFontFamily(familyName);
+            if (typeface != null) {
+                return typeface;
+            }
+        }
+
+        // No fully compatible system font found, try to construct the fallbacks.
+        final List<FontRequest> requests = entry.getRequests();
+
+        // Trivial Case: Single fallback.
+        if (requests.size() == 1) {
+            // getSystemFontFamily returns null for null input.
+            return getSystemFontFamily(requests.get(0).getSystemFont());
+        }
+
+        // To identify main font, need TextRunShaper API which is available from API 31
+        if (Build.VERSION.SDK_INT < 31) {
+            return null;
+        }
+
+        // We can create Typeface synchronously only when the all system fonts are available.
+        for (int i = 0; i < requests.size(); ++i) {
+            if (getSystemFontFamily(requests.get(i).getSystemFont()) == null) {
+                // If the system font is not available, need to query to font provider. Therefore
+                // don't instantiate synchronously.
+                return null;
+            }
+        }
+
+        // Main loop of making fallback Typeface from system font.
+        Typeface.CustomFallbackBuilder builder = null;
+        for (int i = 0; i < requests.size(); ++i) {
+            FontRequest fr = requests.get(i);
+
+            // Keeping family name instead of getting font file because the last fallback font
+            // family can be specified as the system font fallback with the [setSystemFallback] API.
+            // This API can be used only when the font variation settings is not specified
+            if (i == requests.size() - 1 && TextUtils.isEmpty(fr.getVariationSettings())) {
+                builder.setSystemFallback(fr.getSystemFont());
+                break;
+            }
+
+            // We already checked system has the specified font, so getSystemFontFamily won't
+            // return null here.
+            final Font font = guessPrimaryFont(getSystemFontFamily(fr.getSystemFont()));
+
+            if (font == null) {
+                Log.w(TAG, "Unable identify the primary font for " + fr.getSystemFont() + "."
+                        + " Falling back to provider font.");
+                return null;
+            }
+
+            FontFamily family;
+            if (TextUtils.isEmpty(fr.getVariationSettings())) {
+                try {
+                    family = new FontFamily.Builder(
+                            new Font.Builder(font).setFontVariationSettings(
+                                    fr.getVariationSettings()).build()).build();
+                } catch (IOException e) {
+                    // This unlikely happen since the font is already opened and mmaped.
+                    Log.e(TAG, "Failed to clone Font instance. Fall back to provider font.");
+                    return null;
+                }
+            } else {
+                family = new FontFamily.Builder(font).build();
+            }
+
+            if (builder == null) {
+                builder = new Typeface.CustomFallbackBuilder(family);
+            } else {
+                builder.addCustomFallback(family);
+            }
+        }
+        return builder.build();
     }
 
     /**
@@ -161,12 +309,13 @@ public class TypefaceCompat {
         if (entry instanceof ProviderResourceEntry) {
             ProviderResourceEntry providerEntry = (ProviderResourceEntry) entry;
 
-            Typeface fontFamilyTypeface = getSystemFontFamily(
-                    providerEntry.getSystemFontFamilyName());
+            Typeface fontFamilyTypeface = getSystemFontFamilyWithFallback(providerEntry);
             if (fontFamilyTypeface != null) {
                 if (fontCallback != null) {
                     fontCallback.callbackSuccessAsync(fontFamilyTypeface, handler);
                 }
+                sTypefaceCache.put(createResourceUid(resources, id, path, cookie, style),
+                        fontFamilyTypeface);
                 return fontFamilyTypeface;
             }
 
@@ -179,13 +328,7 @@ public class TypefaceCompat {
 
             Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
             ResourcesCallbackAdapter newCallback = new ResourcesCallbackAdapter(fontCallback);
-            List<FontRequest> requests;
-            if (providerEntry.getFallbackRequest() != null) {
-                requests = List.of(providerEntry.getRequest(),
-                        providerEntry.getFallbackRequest());
-            } else {
-                requests = List.of(providerEntry.getRequest());
-            }
+            List<FontRequest> requests = providerEntry.getRequests();
             typeface = FontsContractCompat.requestFont(context, requests,
                     style, isBlocking, timeout, newHandler, newCallback);
         } else {

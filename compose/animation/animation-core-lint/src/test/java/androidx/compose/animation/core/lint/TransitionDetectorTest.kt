@@ -146,7 +146,7 @@ class TransitionDetectorTest : LintDetectorTest() {
         rTJD2CRNpbUVrOIz8p4KfCZRDg5gDc+I75D3HOHP7yCk44EOTUcWCzpyWNQp
         8oe0wSXMj3aQdOlR4GMXn7i44UJ18dBFIVhRXBRdjAbyuItHLpZdfPoPx8wC
         mQAKAAA=
-        """
+        """,
         )
 
     @Test
@@ -176,7 +176,7 @@ class TransitionDetectorTest : LintDetectorTest() {
             """
                 ),
                 TransitionStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -241,7 +241,7 @@ src/test/foo/test.kt:18: Error: Target state parameter _ is not used [UnusedTran
             """
                 ),
                 TransitionStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -315,7 +315,7 @@ src/test/foo/test.kt:22: Error: Target state parameter param is not used [Unused
         """
                 ),
                 TransitionStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()

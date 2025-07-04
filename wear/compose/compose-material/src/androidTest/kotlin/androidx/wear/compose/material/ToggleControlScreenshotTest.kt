@@ -141,7 +141,7 @@ class ToggleControlScreenshotTest {
 
     private fun verifyScreenshot(
         threshold: Double = 0.98,
-        content: @Composable BoxScope.() -> Unit
+        content: @Composable BoxScope.() -> Unit,
     ) {
         rule.setContentWithTheme(composable = content)
         rule

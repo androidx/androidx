@@ -31,7 +31,7 @@ internal class InteractiveInstanceManager {
 
     private class RefCountedInteractiveWatchFaceInstance(
         val impl: InteractiveWatchFaceImpl,
-        var refcount: Int
+        var refcount: Int,
     ) {
         @UiThread
         fun dump(writer: IndentingPrintWriter) {
@@ -46,7 +46,7 @@ internal class InteractiveInstanceManager {
 
     class PendingWallpaperInteractiveWatchFaceInstance(
         val params: WallpaperInteractiveWatchFaceInstanceParams,
-        val callback: IPendingInteractiveWatchFace
+        val callback: IPendingInteractiveWatchFace,
     )
 
     companion object {

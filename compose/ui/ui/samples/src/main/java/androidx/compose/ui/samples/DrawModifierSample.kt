@@ -58,7 +58,7 @@ fun DrawWithCacheModifierSample() {
                 Brush.linearGradient(
                     colors = listOf(Color.Red, Color.Blue),
                     start = Offset.Zero,
-                    end = Offset(size.width, size.height)
+                    end = Offset(size.width, size.height),
                 )
             onDrawBehind { drawRect(gradient) }
         }
@@ -84,7 +84,7 @@ fun DrawWithCacheModifierStateParameterSample() {
                     Brush.linearGradient(
                         colors = if (toggle) colors1 else colors2,
                         start = Offset.Zero,
-                        end = Offset(size.width, size.height)
+                        end = Offset(size.width, size.height),
                     )
                 onDrawBehind { drawRect(gradient) }
             }
@@ -109,7 +109,7 @@ fun DrawWithCacheContentSample() {
                         lineTo(0f, viewportHeight)
                         close()
                     },
-                fill = SolidColor(Color.Black)
+                fill = SolidColor(Color.Black),
             )
         }
     Image(
@@ -121,13 +121,13 @@ fun DrawWithCacheContentSample() {
                     Brush.linearGradient(
                         colors = listOf(Color.Red, Color.Blue),
                         start = Offset.Zero,
-                        end = Offset(0f, size.height)
+                        end = Offset(0f, size.height),
                     )
                 onDrawWithContent {
                     drawContent()
                     drawRect(gradient, blendMode = BlendMode.Plus)
                 }
-            }
+            },
     )
 }
 

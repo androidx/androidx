@@ -23,8 +23,8 @@ import android.webkit.WebView;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.webkit.test.common.WebkitUtils;
 import androidx.webkit.test.common.WebViewOnUiThread;
+import androidx.webkit.test.common.WebkitUtils;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -60,8 +60,9 @@ public class WebViewRenderProcessClientTest {
         // A CountDownLatch is used here, instead of a Future, because that makes it
         // easier to support requiring variable numbers of releaseBlock() calls
         // to unblock.
-        private CountDownLatch mLatch;
-        private ResolvableFuture<Void> mBecameBlocked;
+        private final CountDownLatch mLatch;
+        private final ResolvableFuture<Void> mBecameBlocked;
+
         JSBlocker(int requiredReleaseCount) {
             mLatch = new CountDownLatch(requiredReleaseCount);
             mBecameBlocked = ResolvableFuture.create();
@@ -188,7 +189,7 @@ public class WebViewRenderProcessClientTest {
         WebViewRenderProcessClient client = makeWebViewRenderProcessClient(
                 () -> clientCalled.set(true),
                 () -> clientCalled.set(true)
-            );
+        );
         mWebViewOnUiThread.setWebViewRenderProcessClient(client);
 
         mWebViewOnUiThread.setWebViewRenderProcessClient(null);

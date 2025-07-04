@@ -33,7 +33,8 @@ internal constructor(private val packedValue: Long) {
      * of the height of the list container. Is within (0, 1) when item is inside the screen and
      * could be negative if the top of the item is off the screen. Value is calculated from the top
      * of the container. This value is calculated before any height modifications are applied (using
-     * [TransformingLazyColumnItemScope.transformedHeight] modifier).
+     * [TransformingLazyColumnItemScope.transformedHeight] modifier). This returns [Float.NaN] if
+     * the progress was [Unspecified].
      */
     public val topOffsetFraction: Float
         get() = unpackFloat1(packedValue)
@@ -43,10 +44,19 @@ internal constructor(private val packedValue: Long) {
      * fraction of the height of the list container. Is within (0, 1) when item is inside the screen
      * and could exceed 1 when the bottom of item is off the screen. Value is calculated from the
      * top of the container. This value is calculated before any height modifications are applied
-     * (using [TransformingLazyColumnItemScope.transformedHeight] modifier).
+     * (using [TransformingLazyColumnItemScope.transformedHeight] modifier). This returns
+     * [Float.NaN] if the progress was [Unspecified].
      */
     public val bottomOffsetFraction: Float
         get() = unpackFloat2(packedValue)
+
+    /** `true` when this is [TransformingLazyColumnItemScrollProgress.Unspecified]. */
+    public val isUnspecified: Boolean
+        get() = packedValue == UnspecifiedPackedFloats
+
+    /** `false` when this is [TransformingLazyColumnItemScrollProgress.Unspecified]. */
+    public val isSpecified: Boolean
+        get() = packedValue != UnspecifiedPackedFloats
 
     /**
      * Constructs a [TransformingLazyColumnItemScrollProgress] with two offset fraction [Float]
@@ -59,30 +69,31 @@ internal constructor(private val packedValue: Long) {
      */
     public constructor(
         topOffsetFraction: Float,
-        bottomOffsetFraction: Float
+        bottomOffsetFraction: Float,
     ) : this(packFloats(topOffsetFraction, bottomOffsetFraction))
 
-    internal companion object {
+    public companion object {
         /**
          * Represents an unspecified [TransformingLazyColumnItemScrollProgress] value, usually a
          * replacement for `null` when a primitive value is desired.
          */
-        val Unspecified = TransformingLazyColumnItemScrollProgress(UnspecifiedPackedFloats)
+        public val Unspecified: TransformingLazyColumnItemScrollProgress =
+            TransformingLazyColumnItemScrollProgress(UnspecifiedPackedFloats)
 
-        internal fun bottomItemScrollProgress(
+        internal fun downwardMeasuredItemScrollProgress(
             offset: Int,
             height: Int,
-            containerHeight: Int
+            containerHeight: Int,
         ): TransformingLazyColumnItemScrollProgress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = offset.toFloat() / containerHeight.toFloat(),
                 bottomOffsetFraction = (offset + height).toFloat() / containerHeight.toFloat(),
             )
 
-        internal fun topItemScrollProgress(
+        internal fun upwardMeasuredItemScrollProgress(
             offset: Int,
             height: Int,
-            containerHeight: Int
+            containerHeight: Int,
         ): TransformingLazyColumnItemScrollProgress =
             TransformingLazyColumnItemScrollProgress(
                 topOffsetFraction = (offset - height).toFloat() / containerHeight.toFloat(),

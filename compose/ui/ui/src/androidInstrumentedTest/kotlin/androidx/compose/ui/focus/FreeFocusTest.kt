@@ -32,6 +32,19 @@ class FreeFocusTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
+    fun focusRequesterModifierNotUsed() {
+        // Arrange.
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent { Box {} }
+
+        // Act.
+        val result = rule.runOnIdle { focusRequester.freeFocus() }
+
+        // Assert.
+        assertThat(result).isFalse()
+    }
+
+    @Test
     fun active_freeFocus_retainFocusAsActive() {
         // Arrange.
         lateinit var focusState: FocusState

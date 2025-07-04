@@ -33,7 +33,7 @@ import androidx.room.Room.LOG_TAG
  * in the manifest by default so there should be no need to override it in a normal situation.
  */
 @ExperimentalRoomApi
-class MultiInstanceInvalidationService : Service() {
+public class MultiInstanceInvalidationService : Service() {
     internal var maxClientId = 0
     internal val clientNames = mutableMapOf<Int, String>()
 
@@ -49,7 +49,7 @@ class MultiInstanceInvalidationService : Service() {
             // Assigns a client ID to the client.
             override fun registerCallback(
                 callback: IMultiInstanceInvalidationCallback,
-                name: String?
+                name: String?,
             ): Int {
                 if (name == null) {
                     return 0
@@ -72,7 +72,7 @@ class MultiInstanceInvalidationService : Service() {
             // .onCallbackDied() can take care of removal.
             override fun unregisterCallback(
                 callback: IMultiInstanceInvalidationCallback,
-                clientId: Int
+                clientId: Int,
             ) {
                 synchronized(callbackList) {
                     callbackList.unregister(callback)

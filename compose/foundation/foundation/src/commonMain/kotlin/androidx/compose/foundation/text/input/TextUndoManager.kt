@@ -39,7 +39,7 @@ import androidx.compose.ui.text.substring
 internal class TextUndoManager(
     initialStagingUndo: TextUndoOperation? = null,
     private val undoManager: UndoManager<TextUndoOperation> =
-        UndoManager(capacity = TEXT_UNDO_CAPACITY)
+        UndoManager(capacity = TEXT_UNDO_CAPACITY),
 ) {
     private var stagingUndo by mutableStateOf<TextUndoOperation?>(initialStagingUndo)
 
@@ -104,7 +104,7 @@ internal class TextUndoManager(
             override fun SaverScope.save(value: TextUndoManager): Any {
                 return listOf(
                     value.stagingUndo?.let { with(TextUndoOperation.Saver) { save(it) } },
-                    with(undoManagerSaver) { save(value.undoManager) }
+                    with(undoManagerSaver) { save(value.undoManager) },
                 )
             }
 
@@ -112,7 +112,7 @@ internal class TextUndoManager(
                 val (savedStagingUndo, savedUndoManager) = value as List<*>
                 return TextUndoManager(
                     savedStagingUndo?.let { with(TextUndoOperation.Saver) { restore(it) } },
-                    with(undoManagerSaver) { restore(savedUndoManager!!) }!!
+                    with(undoManagerSaver) { restore(savedUndoManager!!) }!!,
                 )
             }
         }
@@ -160,7 +160,7 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
             postText = postText + next.postText,
             preSelection = this.preSelection,
             postSelection = next.postSelection,
-            timeInMillis = timeInMillis
+            timeInMillis = timeInMillis,
         )
     } else if (textEditType == TextEditType.Delete) {
         // only merge consecutive deletions if both have the same directionality
@@ -176,7 +176,7 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
                     postText = "",
                     preSelection = preSelection,
                     postSelection = next.postSelection,
-                    timeInMillis = timeInMillis
+                    timeInMillis = timeInMillis,
                 )
             } else if (index == next.index) {
                 return TextUndoOperation(
@@ -185,7 +185,7 @@ internal fun TextUndoOperation.merge(next: TextUndoOperation): TextUndoOperation
                     postText = "",
                     preSelection = preSelection,
                     postSelection = next.postSelection,
-                    timeInMillis = timeInMillis
+                    timeInMillis = timeInMillis,
                 )
             }
         }
@@ -207,7 +207,7 @@ internal fun TextUndoManager.recordChanges(
     pre: TextFieldCharSequence,
     post: TextFieldCharSequence,
     changes: TextFieldBuffer.ChangeList,
-    allowMerge: Boolean = true
+    allowMerge: Boolean = true,
 ) {
     // if there are unmerged changes coming from a single edit, force merge all of them to
     // create a single replace undo operation
@@ -219,7 +219,7 @@ internal fun TextUndoManager.recordChanges(
                 postText = post.toString(),
                 preSelection = pre.selection,
                 postSelection = post.selection,
-                canMerge = false
+                canMerge = false,
             )
         )
     } else if (changes.changeCount == 1) {
@@ -233,7 +233,7 @@ internal fun TextUndoManager.recordChanges(
                     postText = post.substring(postRange),
                     preSelection = pre.selection,
                     postSelection = post.selection,
-                    canMerge = allowMerge
+                    canMerge = allowMerge,
                 )
             )
         }

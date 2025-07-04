@@ -42,7 +42,7 @@ fun LinearProgressIndicatorSample() {
     val animatedProgress by
         animateFloatAsState(
             targetValue = progress,
-            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
         )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -59,7 +59,7 @@ fun CircularProgressIndicatorSample() {
     val animatedProgress by
         animateFloatAsState(
             targetValue = progress,
-            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+            animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
         )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

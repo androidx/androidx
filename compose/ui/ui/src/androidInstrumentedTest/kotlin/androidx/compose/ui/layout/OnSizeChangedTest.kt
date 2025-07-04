@@ -536,7 +536,7 @@ class OnSizeChangedTest {
 
         class Node1(
             var onRemeasuredLambda: (IntSize) -> Unit,
-            var onPlacedLambda: (LayoutCoordinates) -> Unit
+            var onPlacedLambda: (LayoutCoordinates) -> Unit,
         ) : LayoutAwareModifierNode, Modifier.Node() {
             // We are testing auto invalidation behavior here
             override val shouldAutoInvalidate = true
@@ -552,7 +552,7 @@ class OnSizeChangedTest {
 
         class Node1Element(
             private var onRemeasured: (IntSize) -> Unit,
-            private var onPlaced: (LayoutCoordinates) -> Unit
+            private var onPlaced: (LayoutCoordinates) -> Unit,
         ) : ModifierNodeElement<Node1>() {
             override fun create(): Node1 {
                 return Node1(onRemeasured, onPlaced)

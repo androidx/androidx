@@ -97,7 +97,7 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
             issue = ISSUE,
             scope = node,
             location = context.getLocation(target),
-            message = "stepping the integer range by $messageContext."
+            message = "stepping the integer range by $messageContext.",
         )
     }
 
@@ -113,7 +113,7 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
                 Category.PERFORMANCE,
                 5,
                 Severity.ERROR,
-                Implementation(SteppedForLoopDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(SteppedForLoopDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
         val IntegerProgressionTypes =
             listOf(
@@ -121,7 +121,7 @@ class SteppedForLoopDetector : Detector(), SourceCodeScanner {
                 "kotlin.ranges.LongProgression",
                 "kotlin.ranges.CharProgression",
                 "kotlin.ranges.UIntProgression",
-                "kotlin.ranges.ULongProgression"
+                "kotlin.ranges.ULongProgression",
             )
     }
 }

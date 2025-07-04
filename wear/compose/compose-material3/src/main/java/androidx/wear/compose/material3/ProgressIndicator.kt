@@ -100,7 +100,7 @@ public object ProgressIndicatorDefaults {
             overflowTrackBrush = overflowTrackBrush,
             disabledIndicatorBrush = disabledIndicatorBrush,
             disabledTrackBrush = disabledTrackBrush,
-            disabledOverflowTrackBrush = disabledOverflowTrackBrush
+            disabledOverflowTrackBrush = disabledOverflowTrackBrush,
         )
 
     // TODO(b/364538891): add color and alpha tokens for ProgressIndicator
@@ -132,7 +132,7 @@ public object ProgressIndicatorDefaults {
                                 fromToken(ColorSchemeKeyTokens.Primary)
                                     .copy(alpha = OverflowTrackColorAlpha)
                                     .toDisabledColor(disabledAlpha = DisabledContainerAlpha)
-                            )
+                            ),
                     )
                     .also { defaultProgressIndicatorColorsCached = it }
         }
@@ -318,8 +318,8 @@ internal fun DrawScope.drawIndicatorSegment(
             center =
                 Offset(
                     radius * cos(angle) + size.minDimension / 2,
-                    radius * sin(angle) + size.minDimension / 2
-                )
+                    radius * sin(angle) + size.minDimension / 2,
+                ),
         )
     } else {
         // To draw this circle we need a rect with edges that line up with the midpoint of the
@@ -339,10 +339,10 @@ internal fun DrawScope.drawIndicatorSegment(
             topLeft =
                 Offset(
                     diameterOffset + (size.width - diameter) / 2,
-                    diameterOffset + (size.height - diameter) / 2
+                    diameterOffset + (size.height - diameter) / 2,
                 ),
             size = Size(arcDimen, arcDimen),
-            style = stroke
+            style = stroke,
         )
     }
 }
@@ -373,20 +373,25 @@ internal fun DrawScope.drawCircularIndicator(
     startAngle: Float,
     sweep: Float,
     brush: Brush,
-    stroke: Stroke
+    stroke: Stroke,
 ) {
     // To draw this circle we need a rect with edges that line up with the midpoint of the stroke.
     // To do this we need to remove half the stroke width from the total diameter for both sides.
+    val diameter = min(size.width, size.height)
     val diameterOffset = stroke.width / 2
-    val arcDimen = size.width - 2 * diameterOffset
+    val arcDimen = diameter - 2 * diameterOffset
     drawArc(
         brush = brush,
         startAngle = startAngle,
         sweepAngle = sweep,
         useCenter = false,
-        topLeft = Offset(diameterOffset, diameterOffset),
+        topLeft =
+            Offset(
+                diameterOffset + (size.width - diameter) / 2,
+                diameterOffset + (size.height - diameter) / 2,
+            ),
         size = Size(arcDimen, arcDimen),
-        style = stroke
+        style = stroke,
     )
 }
 
@@ -395,7 +400,7 @@ internal fun DrawScope.drawIndicatorArc(
     sweep: Float,
     brush: Brush,
     stroke: Stroke,
-    gapSweep: Float
+    gapSweep: Float,
 ) {
     if (sweep.absoluteValue < gapSweep) {
         // Draw a small circle indicator.
@@ -407,14 +412,14 @@ internal fun DrawScope.drawIndicatorArc(
             brush = brushWithAlpha(brush, alpha),
             radius = circleRadius,
             center =
-                Offset(radius * cos(angle) + size.width / 2, radius * sin(angle) + size.width / 2)
+                Offset(radius * cos(angle) + size.width / 2, radius * sin(angle) + size.width / 2),
         )
     } else {
         drawCircularIndicator(
             startAngle = if (sweep > 0) startAngle + gapSweep / 2 else startAngle - gapSweep / 2,
             sweep = if (sweep > 0) sweep - gapSweep else sweep + gapSweep,
             brush = brush,
-            stroke = stroke
+            stroke = stroke,
         )
     }
 }
@@ -437,7 +442,7 @@ internal fun Float.equalsWithTolerance(number: Float, tolerance: Float = 0.1f) =
  */
 internal fun createOverflowProgressAnimationSpec(
     newProgress: Float,
-    oldProgress: Float
+    oldProgress: Float,
 ): AnimationSpec<Float> {
     val progressDiff = newProgress - oldProgress
     val peakSpeed = OverflowProgressMiddlePhaseSpeed

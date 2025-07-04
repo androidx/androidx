@@ -98,7 +98,7 @@ fun TransferableContent.consume(predicate: (ClipData.Item) -> Boolean): Transfer
             newClipData.toClipEntry(),
             newClipDescription.toClipMetadata(),
             source,
-            platformTransferableContent
+            platformTransferableContent,
         )
     }
 }

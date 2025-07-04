@@ -16,15 +16,50 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
-
-/** Interface for classes involved in setting layout params. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/**
+ * Interface for modifiers that can adjust the layout parameters of a composable that implements
+ * [ParentLayoutParamsAdjustable].
+ *
+ * This interface allows a parent composable to influence the layout of its children in a structured
+ * way. Implementations of this interface are responsible for determining if they can and should
+ * adjust the provided layout parameters.
+ *
+ * When the layout system processes modifiers, if a modifier implements ParentLayoutParamsModifier`,
+ * its `adjustParams` method will be called with an object that implements
+ * [ParentLayoutParamsAdjustable]. This object typically represents the layout parameters of the
+ * child composable being laid out.
+ *
+ * ```
+ * An example modifier node that sets a specific property on TargetLayoutParams.
+ *
+ * private class ExamplePropertySetterNode(
+ *     private val newValue: Any? // The value to set, similar to 'alignment'
+ * ) : SomeModifierNode(), ParentLayoutParamsModifier { // Extends a base node and implements the interface
+ *
+ *     override fun adjustParams(params: ParentLayoutParamsAdjustable) {
+ *         // Check if 'params' is the specific type this modifier can handle.
+ *         if (params is TargetLayoutParams) {
+ *             // Smart cast: 'params' is now known to be TargetLayoutParams.
+ *             // Safely access and modify its 'someProperty'.
+ *             params.someProperty = newValue
+ *         }
+ *     }
+ * }
+ * ```
+ */
 public interface ParentLayoutParamsModifier {
 
-    /** Adjusts layout with new [ParentLayoutParamsAdjustable]. */
+    /**
+     * Adjusts the given [ParentLayoutParamsAdjustable] object.
+     *
+     * Implementations **must first verify** that `params` is of an expected type before casting and
+     * modifying. This prevents runtime errors and ensures the modifier only alters parameters it
+     * understands.
+     *
+     * @param params The layout parameters to potentially adjust.
+     */
     public fun adjustParams(params: ParentLayoutParamsAdjustable)
 }
 
 /** Marker interface for types allowed to be adjusted by a [ParentLayoutParamsModifier]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface ParentLayoutParamsAdjustable
+public interface ParentLayoutParamsAdjustable

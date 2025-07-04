@@ -260,7 +260,7 @@ class ParagraphStyleTest {
                 ParagraphStyle(
                     textAlign = TextAlign.Justify, // overridden by RHS
                     textDirection = TextDirection.Rtl, // from LHS,
-                    lineHeight = 12.sp // from RHS
+                    lineHeight = 12.sp, // from RHS
                 )
             )
     }

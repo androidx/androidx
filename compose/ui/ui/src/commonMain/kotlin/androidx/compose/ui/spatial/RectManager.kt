@@ -27,8 +27,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.NodeCoordinator
+import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.postDelayed
 import androidx.compose.ui.removePost
 import androidx.compose.ui.unit.IntOffset
@@ -38,11 +40,10 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.trace
 import kotlin.math.max
-import kotlinx.coroutines.DisposableHandle
 
 internal class RectManager(
     /** [LayoutNode.semanticsId] to [LayoutNode] mapping, maintained by Owner. */
-    private val layoutNodes: IntObjectMap<LayoutNode> = intObjectMapOf(),
+    private val layoutNodes: IntObjectMap<LayoutNode> = intObjectMapOf()
 ) {
     val rects: RectList = RectList()
 
@@ -65,7 +66,9 @@ internal class RectManager(
     fun updateOffsets(
         screenOffset: IntOffset,
         windowOffset: IntOffset,
-        viewToWindowMatrix: Matrix
+        viewToWindowMatrix: Matrix,
+        windowWidth: Int,
+        windowHeight: Int,
     ) {
         val analysis = viewToWindowMatrix.analyzeComponents()
         isScreenOrWindowDirty =
@@ -73,6 +76,8 @@ internal class RectManager(
                 screenOffset,
                 windowOffset,
                 if (analysis.hasNonTranslationComponents) viewToWindowMatrix else null,
+                windowWidth,
+                windowHeight,
             ) || isScreenOrWindowDirty
     }
 
@@ -138,22 +143,6 @@ internal class RectManager(
         dispatchToken = postDelayed(delay, dispatchLambda)
     }
 
-    fun currentRectInfo(id: Int, node: DelegatableNode): RelativeLayoutBounds? {
-        var result: RelativeLayoutBounds? = null
-        rects.withRect(id) { l, t, r, b ->
-            result =
-                rectInfoFor(
-                    node = node,
-                    topLeft = packXY(l, t),
-                    bottomRight = packXY(r, b),
-                    windowOffset = throttledCallbacks.windowOffset,
-                    screenOffset = throttledCallbacks.screenOffset,
-                    viewToWindowMatrix = throttledCallbacks.viewToWindowMatrix,
-                )
-        }
-        return result
-    }
-
     fun registerOnChangedCallback(callback: () -> Unit): Any? {
         callbacks.add(callback)
         return callback
@@ -164,8 +153,8 @@ internal class RectManager(
         throttleMillis: Long,
         debounceMillis: Long,
         node: DelegatableNode,
-        callback: (RelativeLayoutBounds) -> Unit
-    ): DisposableHandle {
+        callback: (RelativeLayoutBounds) -> Unit,
+    ): RegistrationHandle {
         return throttledCallbacks.registerOnRectChanged(
             id,
             throttleMillis,
@@ -180,8 +169,8 @@ internal class RectManager(
         throttleMillis: Long,
         debounceMillis: Long,
         node: DelegatableNode,
-        callback: (RelativeLayoutBounds) -> Unit
-    ): DisposableHandle {
+        callback: (RelativeLayoutBounds) -> Unit,
+    ): RegistrationHandle {
         return throttledCallbacks.registerOnGlobalChange(
             id = id,
             throttleMillis = throttleMillis,
@@ -201,6 +190,16 @@ internal class RectManager(
         isDirty = true
         rects.markUpdated(layoutNode.semanticsId)
         scheduleDebounceCallback(ensureSomethingScheduled = true)
+    }
+
+    fun updateFlagsFor(layoutNode: LayoutNode, focusable: Boolean, gesturable: Boolean) {
+        if (layoutNode.isAttached) {
+            rects.updateFlagsFor(
+                value = layoutNode.semanticsId,
+                focusable = focusable,
+                gesturable = gesturable,
+            )
+        }
     }
 
     fun onLayoutLayerPositionalPropertiesChanged(layoutNode: LayoutNode) {
@@ -225,7 +224,7 @@ internal class RectManager(
     fun onLayoutPositionChanged(
         layoutNode: LayoutNode,
         position: IntOffset,
-        firstPlacement: Boolean
+        firstPlacement: Boolean,
     ) {
         @OptIn(ExperimentalComposeUiApi::class) if (!ComposeUiFlags.isRectTrackingEnabled) return
         // Our goal here is to get the right "root" coordinates for every layout. We can use
@@ -344,6 +343,8 @@ internal class RectManager(
                 r,
                 b,
                 parentId = parentId,
+                focusable = layoutNode.nodes.has(Nodes.FocusTarget),
+                gesturable = layoutNode.nodes.has(Nodes.PointerInput),
             )
         }
         invalidate()
@@ -367,6 +368,8 @@ internal class RectManager(
                 r,
                 b,
                 parentId = parentId,
+                focusable = layoutNode.nodes.has(Nodes.FocusTarget),
+                gesturable = layoutNode.nodes.has(Nodes.PointerInput),
             )
         }
         invalidate()
@@ -543,4 +546,4 @@ private inline val Int.isIdentity: Boolean
 private inline val Int.hasNonTranslationComponents: Boolean
     get() = this and 0b10 == 0
 
-@Suppress("NOTHING_TO_INLINE") private inline fun Boolean.toInt(): Int = if (this) 1 else 0
+@Suppress("NOTHING_TO_INLINE") internal inline fun Boolean.toInt(): Int = if (this) 1 else 0

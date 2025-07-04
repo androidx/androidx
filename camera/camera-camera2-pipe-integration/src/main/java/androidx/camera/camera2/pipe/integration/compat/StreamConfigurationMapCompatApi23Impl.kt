@@ -30,4 +30,8 @@ internal class StreamConfigurationMapCompatApi23Impl(map: StreamConfigurationMap
     override fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
         return streamConfigurationMap?.getHighResolutionOutputSizes(format)
     }
+
+    override fun getOutputMinFrameDuration(format: Int, size: Size): Long {
+        return streamConfigurationMap?.getOutputMinFrameDuration(format, size) ?: 0
+    }
 }

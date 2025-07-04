@@ -20,7 +20,6 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
 
-import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -29,7 +28,6 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoOutput;
-import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -52,9 +50,10 @@ public final class VideoCaptureConfig<T extends VideoOutput>
     public static final Option<VideoOutput> OPTION_VIDEO_OUTPUT =
             Option.create("camerax.video.VideoCapture.videoOutput", VideoOutput.class);
 
-    public static final Option<Function<VideoEncoderConfig, VideoEncoderInfo>>
+    public static final Option<VideoEncoderInfo.Finder>
             OPTION_VIDEO_ENCODER_INFO_FINDER =
-            Option.create("camerax.video.VideoCapture.videoEncoderInfoFinder", Function.class);
+            Option.create("camerax.video.VideoCapture.videoEncoderInfoFinder",
+                    VideoEncoderInfo.Finder.class);
 
     public static final Option<Boolean> OPTION_FORCE_ENABLE_SURFACE_PROCESSING = Option.create(
             "camerax.video.VideoCapture.forceEnableSurfaceProcessing", Boolean.class);
@@ -73,7 +72,7 @@ public final class VideoCaptureConfig<T extends VideoOutput>
         return (T) requireNonNull(retrieveOption(OPTION_VIDEO_OUTPUT));
     }
 
-    public @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> getVideoEncoderInfoFinder() {
+    public VideoEncoderInfo.@NonNull Finder getVideoEncoderInfoFinder() {
         return requireNonNull(retrieveOption(OPTION_VIDEO_ENCODER_INFO_FINDER));
     }
 

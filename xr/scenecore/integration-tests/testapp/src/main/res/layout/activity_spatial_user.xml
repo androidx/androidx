@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2025 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTint="@color/purple_gray_80"
+    android:background="@color/white"
+    tools:context=".spatialuser.SpatialUserActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/spatial_user_panel_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/google_blue"
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleCentered="true"
+        app:titleTextColor="@color/white">
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <Button
+        android:id="@+id/spatial_user_panel_recenter_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recenter Panel"
+        app:layout_constraintTop_toBottomOf="@+id/spatial_user_panel_toolbar"
+        app:layout_constraintBottom_toTopOf="@+id/spatial_user_panel_q_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+    </Button>
+
+    <TextView
+        android:id="@+id/spatial_user_panel_q_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Is Main Panel in View?"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@+id/spatial_user_panel_recenter_button"
+        app:layout_constraintBottom_toTopOf="@+id/card3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+    </TextView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp"
+        app:cardUseCompatPadding="true"
+        app:cardBackgroundColor="@color/purple_gray_80"
+        app:layout_constraintTop_toBottomOf="@+id/spatial_user_panel_recenter_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Left"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:textColor="@color/black"
+                android:gravity="center"
+                app:layout_constraintEnd_toStartOf="@+id/left_eye_textView"
+                app:layout_constraintHorizontal_weight="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/left_eye_textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Text 2"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:textColor="@color/black"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="0.5"
+                app:layout_constraintStart_toEndOf="@+id/textView1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Right"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:textColor="@color/black"
+                android:gravity="center"
+                app:layout_constraintEnd_toStartOf="@+id/right_eye_textview"
+                app:layout_constraintHorizontal_weight="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textView1" />
+
+            <TextView
+                android:id="@+id/right_eye_textview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Text 4"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:textColor="@color/black"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="0.5"
+                app:layout_constraintStart_toEndOf="@+id/textView3"
+                app:layout_constraintTop_toBottomOf="@id/left_eye_textView" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

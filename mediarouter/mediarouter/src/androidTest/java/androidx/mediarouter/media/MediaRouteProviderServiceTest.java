@@ -20,6 +20,7 @@ import static androidx.mediarouter.media.MediaRouterActiveScanThrottlingHelper.M
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -68,6 +69,8 @@ public class MediaRouteProviderServiceTest {
     private static final String FAKE_MEDIA_ROUTE_NAME_2 = "fakeMediaRouteName2";
     private static final String FAKE_MEDIA_ROUTE_NAME_3 = "fakeMediaRouteName3";
     private static final String FAKE_MEDIA_ROUTE_NAME_4 = "fakeMediaRouteName4";
+    private static final String REAL_CLIENT_PACKAGE_NAME = "androidx.mediarouter.test";
+    private static final String FAKE_CLIENT_PACKAGE_NAME = "fake_client_package_name";
     private static final long TIME_OUT_MS = 3000;
 
     @Rule public final ServiceTestRule mServiceRule = new ServiceTestRule();
@@ -219,7 +222,7 @@ public class MediaRouteProviderServiceTest {
         resetActiveAndPassiveScanCountDownLatches();
         sendDiscoveryRequest(
                 mReceiveMessenger1,
-                new MediaRouteDiscoveryRequest(mSelector, /* activeScane= */ true));
+                new MediaRouteDiscoveryRequest(mSelector, /* activeScan= */ true));
 
         // Active scan should be true.
         assertTrue(sActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
@@ -304,6 +307,44 @@ public class MediaRouteProviderServiceTest {
 
     @LargeTest
     @Test
+    public void onCreateRouteController_shouldProvideRouteControllerOptions() throws Exception {
+        sRouteCreationCountDownLatch = new CountDownLatch(1);
+        // Request active discovery.
+        resetActiveAndPassiveScanCountDownLatches();
+        sendDiscoveryRequest(
+                mReceiveMessenger1,
+                new MediaRouteDiscoveryRequest(mSelector, /* activeScan= */ true));
+
+        // Active scan should be true.
+        assertTrue(sActiveScanCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        final String key = "key";
+        final String value = "value";
+        Bundle controlHints = new Bundle();
+        controlHints.putString(key, value);
+        MediaRouteProvider.RouteControllerOptions routeControllerOptions =
+                new MediaRouteProvider.RouteControllerOptions.Builder()
+                        .setControlHints(controlHints)
+                        .setClientPackageName(FAKE_CLIENT_PACKAGE_NAME)
+                        .build();
+
+        sendCreateRouteController(
+                mReceiveMessenger1,
+                FAKE_MEDIA_ROUTE_ID_1,
+                /* groupRouteId= */ null,
+                routeControllerOptions);
+
+        // A route controller is created.
+        assertTrue(sRouteCreationCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        assertEquals(value, sRouteControllerOptions.getControlHints().getString(key));
+        // Verify that the client package name is reconstructed by the real package name.
+        assertNotEquals(FAKE_CLIENT_PACKAGE_NAME, sRouteControllerOptions.getClientPackageName());
+        assertEquals(REAL_CLIENT_PACKAGE_NAME, sRouteControllerOptions.getClientPackageName());
+    }
+
+    @LargeTest
+    @Test
     public void onCreateDynamicGroupRouteController_shouldProvideRouteControllerOptions()
             throws Exception {
         sRouteCreationCountDownLatch = new CountDownLatch(1);
@@ -323,6 +364,7 @@ public class MediaRouteProviderServiceTest {
         MediaRouteProvider.RouteControllerOptions routeControllerOptions =
                 new MediaRouteProvider.RouteControllerOptions.Builder()
                         .setControlHints(controlHints)
+                        .setClientPackageName(FAKE_CLIENT_PACKAGE_NAME)
                         .build();
 
         sendCreateDynamicGroupRouteController(
@@ -332,6 +374,9 @@ public class MediaRouteProviderServiceTest {
         assertTrue(sRouteCreationCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
 
         assertEquals(value, sRouteControllerOptions.getControlHints().getString(key));
+        // Verify that the client package name is reconstructed by the real package name.
+        assertNotEquals(FAKE_CLIENT_PACKAGE_NAME, sRouteControllerOptions.getClientPackageName());
+        assertEquals(REAL_CLIENT_PACKAGE_NAME, sRouteControllerOptions.getClientPackageName());
     }
 
     private void registerClient(Messenger receiveMessenger) throws Exception {
@@ -358,6 +403,28 @@ public class MediaRouteProviderServiceTest {
         msg.what = MediaRouteProviderProtocol.CLIENT_MSG_SET_DISCOVERY_REQUEST;
         msg.arg1 = mRequestId++;
         msg.obj = (request != null) ? request.asBundle() : null;
+        msg.replyTo = receiveMessenger;
+
+        mServiceMessenger.send(msg);
+    }
+
+    private void sendCreateRouteController(
+            Messenger receiveMessenger,
+            String routeId,
+            @Nullable String groupRouteId,
+            MediaRouteProvider.RouteControllerOptions routeControllerOptions)
+            throws Exception {
+        Bundle data = new Bundle();
+        data.putString(MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID, routeId);
+        data.putString(MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_LIBRARY_GROUP, groupRouteId);
+        data.putParcelable(
+                MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_CONTROLLER_OPTIONS,
+                routeControllerOptions.asBundle());
+
+        Message msg = Message.obtain();
+        msg.what = MediaRouteProviderProtocol.CLIENT_MSG_CREATE_ROUTE_CONTROLLER;
+        msg.arg1 = mRequestId++;
+        msg.setData(data);
         msg.replyTo = receiveMessenger;
 
         mServiceMessenger.send(msg);
@@ -444,6 +511,15 @@ public class MediaRouteProviderServiceTest {
                 }
             }
             sLastDiscoveryRequest = discoveryRequest;
+        }
+
+        @Override
+        @Nullable
+        public RouteController onCreateRouteController(
+                @NonNull String routeId, @NonNull RouteControllerOptions routeControllerOptions) {
+            sRouteControllerOptions = routeControllerOptions;
+            sRouteCreationCountDownLatch.countDown();
+            return null;
         }
 
         @Override

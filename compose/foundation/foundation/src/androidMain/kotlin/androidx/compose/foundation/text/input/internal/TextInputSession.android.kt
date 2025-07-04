@@ -59,6 +59,6 @@ internal interface TextInputSession : ImeEditCommandScope {
     /** Called from [InputConnection.previewHandwritingGesture]. */
     fun previewHandwritingGesture(
         gesture: PreviewableHandwritingGesture,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ): Boolean
 }

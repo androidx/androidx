@@ -55,7 +55,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 internal class AndroidPlatformTextInputSession(
     override val view: View,
     private val textInputService: TextInputService,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) : PlatformTextInputSessionScope, CoroutineScope by coroutineScope {
     /** Coordinates between calls to [startInputMethod]. */
     private val methodSessionMutex = SessionMutex<InputMethodSession>()
@@ -72,7 +72,7 @@ internal class AndroidPlatformTextInputSession(
             sessionInitializer = {
                 InputMethodSession(
                     request = request,
-                    onAllConnectionsClosed = { coroutineScope.cancel() }
+                    onAllConnectionsClosed = { coroutineScope.cancel() },
                 )
             }
         ) { methodSession ->
@@ -116,7 +116,7 @@ internal class AndroidPlatformTextInputSession(
  */
 private class InputMethodSession(
     private val request: PlatformTextInputMethodRequest,
-    private val onAllConnectionsClosed: () -> Unit
+    private val onAllConnectionsClosed: () -> Unit,
 ) {
     private val lock = Any()
     private var connections = mutableVectorOf<WeakReference<NullableInputConnectionWrapper>>()
@@ -158,7 +158,7 @@ private class InputMethodSession(
                         if (connections.isEmpty()) {
                             onAllConnectionsClosed()
                         }
-                    }
+                    },
                 )
                 .also { connections.add(WeakReference(it)) }
         }

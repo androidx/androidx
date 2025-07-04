@@ -32,20 +32,20 @@ class ImmediateDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         listener.onComplicationData(
             when (request.complicationType) {
                 ComplicationType.SHORT_TEXT ->
                     ShortTextComplicationData.Builder(
                             plainText("# ${request.complicationInstanceId}"),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .build()
                 ComplicationType.LONG_TEXT ->
                     LongTextComplicationData.Builder(
                             plainText("hello ${request.complicationInstanceId}"),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .build()
                 ComplicationType.MONOCHROMATIC_IMAGE ->
@@ -54,7 +54,7 @@ class ImmediateDataSourceService : ComplicationDataSourceService() {
                                     Icon.createWithResource(this, R.drawable.heart)
                                 )
                                 .build(),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .build()
                 else -> null
@@ -74,7 +74,7 @@ class ImmediateDataSourceService : ComplicationDataSourceService() {
                 MonochromaticImageComplicationData.Builder(
                         MonochromaticImage.Builder(Icon.createWithResource(this, R.drawable.heart))
                             .build(),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .build()
             else -> null

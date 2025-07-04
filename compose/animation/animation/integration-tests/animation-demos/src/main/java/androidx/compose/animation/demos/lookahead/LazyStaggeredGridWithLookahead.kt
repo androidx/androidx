@@ -96,7 +96,7 @@ fun Content(lookaheadEnabled: Boolean, onLookaheadToggled: () -> Unit) {
                         if (it % 10 == 0) StaggeredGridItemSpan.FullLine
                         else StaggeredGridItemSpan.SingleLane
                     },
-                    key = { it }
+                    key = { it },
                 ) {
                     var expanded by remember { mutableStateOf(false) }
                     val index = indices.value[it % indices.value.size]
@@ -111,7 +111,7 @@ fun Content(lookaheadEnabled: Boolean, onLookaheadToggled: () -> Unit) {
                         Text("$it", modifier = Modifier.align(Alignment.Center), fontSize = 36.sp)
                     }
                 }
-            }
+            },
         )
     }
 }

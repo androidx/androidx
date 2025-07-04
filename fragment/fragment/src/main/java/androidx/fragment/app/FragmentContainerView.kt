@@ -100,7 +100,7 @@ public class FragmentContainerView : FrameLayout {
     public constructor(
         context: Context,
         attrs: AttributeSet?,
-        defStyleAttr: Int = 0
+        defStyleAttr: Int = 0,
     ) : super(context, attrs, defStyleAttr) {
         if (attrs != null) {
             var name = attrs.classAttribute
@@ -123,7 +123,7 @@ public class FragmentContainerView : FrameLayout {
     internal constructor(
         context: Context,
         attrs: AttributeSet,
-        fm: FragmentManager
+        fm: FragmentManager,
     ) : super(context, attrs) {
         var name = attrs.classAttribute
         var tag: String? = null
@@ -179,7 +179,7 @@ public class FragmentContainerView : FrameLayout {
         )
     }
 
-    public override fun setOnApplyWindowInsetsListener(listener: OnApplyWindowInsetsListener) {
+    public override fun setOnApplyWindowInsetsListener(listener: OnApplyWindowInsetsListener?) {
         applyWindowInsetsListener = listener
     }
 
@@ -333,7 +333,7 @@ public class FragmentContainerView : FrameLayout {
         fun onApplyWindowInsets(
             onApplyWindowInsetsListener: OnApplyWindowInsetsListener,
             v: View,
-            insets: WindowInsets
+            insets: WindowInsets,
         ): WindowInsets = onApplyWindowInsetsListener.onApplyWindowInsets(v, insets)
     }
 }

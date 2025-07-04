@@ -35,13 +35,13 @@ import androidx.camera.integration.antelope.TestConfig
 class Camera2CaptureSessionCallback(
     internal val activity: MainActivity,
     internal var params: CameraParams,
-    internal var testConfig: TestConfig
+    internal var testConfig: TestConfig,
 ) : CameraCaptureSession.CaptureCallback() {
 
     override fun onCaptureSequenceCompleted(
         session: CameraCaptureSession,
         sequenceId: Int,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         MainActivity.logd("Camera2CaptureSessionCallback : Capture sequence COMPLETED")
         super.onCaptureSequenceCompleted(session, sequenceId, frameNumber)
@@ -55,7 +55,7 @@ class Camera2CaptureSessionCallback(
     override fun onCaptureFailed(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        failure: CaptureFailure
+        failure: CaptureFailure,
     ) {
         MainActivity.logd(
             "Camera2CaptureSessionCallback : Capture sequence FAILED - " + failure.reason
@@ -194,7 +194,7 @@ class Camera2CaptureSessionCallback(
         session: CameraCaptureSession,
         request: CaptureRequest,
         timestamp: Long,
-        frameNumber: Long
+        frameNumber: Long,
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: Capture Started.")
         super.onCaptureStarted(session, request, timestamp, frameNumber)
@@ -204,7 +204,7 @@ class Camera2CaptureSessionCallback(
     override fun onCaptureProgressed(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        partialResult: CaptureResult
+        partialResult: CaptureResult,
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureProgressed, "
         // +
@@ -216,7 +216,7 @@ class Camera2CaptureSessionCallback(
     override fun onCaptureCompleted(
         session: CameraCaptureSession,
         request: CaptureRequest,
-        result: TotalCaptureResult
+        result: TotalCaptureResult,
     ) {
         // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureCompleted." +
         // " Total result frame number: " + result.frameNumber)

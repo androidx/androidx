@@ -33,38 +33,64 @@ public object LiveDataUtil {
      */
     @MainThread
     @JvmStatic
-    public fun <X> map(source: LiveData<X>, mapFunction: Function<X, X>): LiveData<X> {
-        val result = RedirectableLiveData<X>(mapFunction.apply(source.value!!))
-        result.redirectToWithMapping(source, mapFunction)
+    public fun <I, O> map(source: LiveData<I>, mapFunction: Function<I, O>): LiveData<O> {
+        val result = MappingRedirectableLiveData<I, O>(mapFunction.apply(source.value), mapFunction)
+        result.redirectTo(source)
         return result
     }
 }
 
 /**
- * A [LiveData] which can be redirected to another [LiveData]. If no redirection is set, initial
- * value will be used. Optionally, a map function can be supplied to transform every value delivered
- * in observers or via [getValue].
+ * A [LiveData] which can be redirected to a source [LiveData] in order to use the source data as
+ * its own.
+ *
+ * This `LiveData` is considered as the destination `LiveData` while the source `LiveData` is the
+ * one this redirects to. Whenever source `LiveData` gets updated with a value, this `LiveData` is
+ * also updated with that value.
+ *
+ * @param T The type of both the source `LiveData` and this `LiveData`.
+ * @property initialValue The initial value that is returned if no redirection is set yet.
+ * @see MappingRedirectableLiveData
  */
-public class RedirectableLiveData<T> internal constructor(private val mInitialValue: T) :
-    MediatorLiveData<T>() {
-    private var mLiveDataSource: LiveData<T>? = null
-    private var mapFunction: Function<T, T>? = null
+public class RedirectableLiveData<T>(private val initialValue: T) :
+    MappingRedirectableLiveData<T, T>(initialValue, { it })
 
-    public fun redirectTo(liveDataSource: LiveData<T>) {
-        redirectToWithMapping(liveDataSource, mapFunction = null)
-    }
+/**
+ * A [LiveData] which can be redirected to a source [LiveData] in order to map the source data as
+ * its own data.
+ *
+ * This `LiveData` is considered as the destination `LiveData` while the source `LiveData` is the
+ * one this redirects to. Whenever source `LiveData` gets updated with a value, this `LiveData` is
+ * also updated with a mapped equivalent of that value.
+ *
+ * @param I The type of the source `LiveData`.
+ * @param O The type of the destination `LiveData`.
+ * @property initialValue The initial value that is returned if no redirection is set yet.
+ * @property mapFunction The function that maps source data.
+ * @see redirectTo
+ */
+public open class MappingRedirectableLiveData<I, O>(
+    private val initialValue: O,
+    private val mapFunction: Function<I, O>,
+) : MediatorLiveData<O>() {
+    private var liveDataSource: LiveData<I>? = null
 
-    public fun redirectToWithMapping(liveDataSource: LiveData<T>, mapFunction: Function<T, T>?) {
-        if (mLiveDataSource != null) {
-            super.removeSource(mLiveDataSource!!)
+    /**
+     * Redirects to a source [LiveData] whose value is mapped to this `LiveData`.
+     *
+     * After this function is invoked, the data of this `LiveData` will depend on the source live
+     * data with [mapFunction] invoked.
+     *
+     * @param liveDataSource The source `LiveData`.
+     */
+    public fun redirectTo(liveDataSource: LiveData<I>) {
+        if (this.liveDataSource != null) {
+            super.removeSource(this.liveDataSource!!)
         }
-        mLiveDataSource = liveDataSource
-        this.mapFunction = mapFunction
+        this.liveDataSource = liveDataSource
         runOnMain {
             // addSource should be invoked in main thread.
-            super.addSource(liveDataSource) { value: T ->
-                this.setValue(mapFunction?.apply(value) ?: value)
-            }
+            super.addSource(liveDataSource) { value: I -> this.value = mapFunction.apply(value) }
         }
     }
 
@@ -74,9 +100,20 @@ public class RedirectableLiveData<T> internal constructor(private val mInitialVa
 
     // Overrides getValue() to reflect the correct value from source. This is required to ensure
     // getValue() is correct when observe() or observeForever() is not called.
-    override fun getValue(): T? {
+    /**
+     * Gets the value of this [LiveData] based on the provided redirection and mapping.
+     *
+     * If no redirection has been set yet, the [initialValue] property is returned.
+     *
+     * @see redirectTo
+     * @see MediatorLiveData.getValue
+     */
+    override fun getValue(): O? {
         // Returns initial value if source is not set.
-        val livedataValue = mLiveDataSource?.value ?: mInitialValue
-        return mapFunction?.apply(livedataValue) ?: livedataValue
+        val liveDataSource = this.liveDataSource // snapshot for non-null smart casting
+        if (liveDataSource == null) {
+            return initialValue
+        }
+        return mapFunction.apply(liveDataSource.value)
     }
 }

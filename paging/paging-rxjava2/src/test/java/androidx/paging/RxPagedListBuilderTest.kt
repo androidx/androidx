@@ -110,7 +110,7 @@ class RxPagedListBuilderTest {
                     prevKey = null,
                     nextKey = data.size,
                     itemsBefore = 0,
-                    itemsAfter = 4 - data.size
+                    itemsAfter = 4 - data.size,
                 )
             }
 
@@ -226,7 +226,7 @@ class RxPagedListBuilderTest {
 
         assertEquals(
             listOf(LoadStateEvent(REFRESH, Loading), LoadStateEvent(REFRESH, Error(EXCEPTION))),
-            loadStates
+            loadStates,
         )
 
         initPagedList.retry()
@@ -237,9 +237,9 @@ class RxPagedListBuilderTest {
             listOf(
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
-                LoadStateEvent(REFRESH, Loading)
+                LoadStateEvent(REFRESH, Loading),
             ),
-            loadStates
+            loadStates,
         )
         // flush loadInitial, should succeed now
         fetchScheduler.triggerActions()
@@ -257,9 +257,9 @@ class RxPagedListBuilderTest {
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading),
-                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false))
+                LoadStateEvent(REFRESH, NotLoading(endOfPaginationReached = false)),
             ),
-            loadStates
+            loadStates,
         )
     }
 
@@ -354,12 +354,12 @@ class RxPagedListBuilderTest {
                 LoadStateEvent(REFRESH, Loading), // first load
                 LoadStateEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false)
+                    NotLoading(endOfPaginationReached = false),
                 ), // first load reset
                 LoadStateEvent(REFRESH, Loading), // second load
                 LoadStateEvent(
                     REFRESH,
-                    NotLoading(endOfPaginationReached = false)
+                    NotLoading(endOfPaginationReached = false),
                 ), // second load succeeds
             )
     }
@@ -374,10 +374,7 @@ class RxPagedListBuilderTest {
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
         val rxPagedList =
-            RxPagedListBuilder(
-                    pagingSourceFactory = pagingSourceFactory,
-                    pageSize = 10,
-                )
+            RxPagedListBuilder(pagingSourceFactory = pagingSourceFactory, pageSize = 10)
                 .apply {
                     setNotifyScheduler(notifyScheduler)
                     setFetchScheduler(fetchScheduler)
@@ -425,10 +422,7 @@ class RxPagedListBuilderTest {
 
         val testScheduler = TestScheduler()
         val rxPagedList =
-            RxPagedListBuilder(
-                    pageSize = 10,
-                    pagingSourceFactory = pagingSourceFactory,
-                )
+            RxPagedListBuilder(pageSize = 10, pagingSourceFactory = pagingSourceFactory)
                 .apply {
                     setNotifyScheduler(testScheduler)
                     setFetchScheduler(testScheduler)

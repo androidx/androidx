@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -35,7 +36,8 @@ class PowerRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
             .isEqualTo(
@@ -44,7 +46,8 @@ class PowerRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
     }
@@ -57,7 +60,8 @@ class PowerRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1234L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
             .isEqualTo(
@@ -66,7 +70,8 @@ class PowerRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1234L),
                     endZoneOffset = null,
-                    samples = listOf()
+                    metadata = Metadata.manualEntry(),
+                    samples = listOf(),
                 )
             )
     }
@@ -79,7 +84,8 @@ class PowerRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                samples = listOf()
+                metadata = Metadata.manualEntry(),
+                samples = listOf(),
             )
         }
     }
@@ -92,13 +98,14 @@ class PowerRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata.manualEntry(),
                         samples =
-                            listOf(PowerRecord.Sample(Instant.ofEpochMilli(1234L), 240.0.watts))
+                            listOf(PowerRecord.Sample(Instant.ofEpochMilli(1234L), 240.0.watts)),
                     )
                     .toString()
             )
             .isEqualTo(
-                "PowerRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, samples=[Sample(time=1970-01-01T00:00:01.234Z, power=240.0 Watts)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+                "PowerRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, samples=[Sample(time=1970-01-01T00:00:01.234Z, power=240.0 Watts)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=3))"
             )
     }
 }

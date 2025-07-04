@@ -33,7 +33,7 @@ import java.lang.ref.WeakReference
 internal class CollapsingToolbarOnDestinationChangedListener(
     collapsingToolbarLayout: CollapsingToolbarLayout,
     toolbar: Toolbar,
-    configuration: AppBarConfiguration
+    configuration: AppBarConfiguration,
 ) : AbstractAppBarOnDestinationChangedListener(collapsingToolbarLayout.context, configuration) {
 
     private val mCollapsingToolbarLayoutWeakReference: WeakReference<CollapsingToolbarLayout> =
@@ -43,7 +43,7 @@ internal class CollapsingToolbarOnDestinationChangedListener(
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
-        arguments: Bundle?
+        arguments: Bundle?,
     ) {
         val collapsingToolbarLayout = mCollapsingToolbarLayoutWeakReference.get()
         val toolbar = mToolbarWeakReference.get()

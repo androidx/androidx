@@ -43,13 +43,19 @@ constructor(@CameraPipeContext private val cameraPipeContext: Context) {
                 checkCameraPermission()
             } else {
                 // On older versions of Android, permissions are required in order to install a
-                // package
-                // and so the permission check is redundant.
+                // package and so the permission check is redundant.
                 true
             }
 
     @RequiresApi(23)
     private fun checkCameraPermission(): Boolean {
+        if (Build.FINGERPRINT == "robolectric") {
+            // If we're running under Robolectric, assume we have camera permission since
+            // Robolectric doesn't seem to stub out the self permission calls properly.
+            // See b/422237649 for details.
+            return true
+        }
+
         // Granted camera permission is cached here to reduce the number of binder transactions
         // executed.  This is considered okay because when a user revokes a permission at runtime,
         // Android's PermissionManagerService kills the app via the onPermissionRevoked callback,

@@ -75,7 +75,7 @@ internal fun <R> TestOwner.getAllSemanticsNodes(
     atLeastOneRootRequired: Boolean,
     useUnmergedTree: Boolean,
     skipDeactivatedNodes: Boolean = true,
-    transform: (Iterable<SemanticsNode>) -> R
+    transform: (Iterable<SemanticsNode>) -> R,
 ): R {
     val roots =
         getRoots(atLeastOneRootRequired).also {
@@ -94,7 +94,7 @@ internal fun <R> TestOwner.getAllSemanticsNodes(
             roots.flatMap {
                 it.semanticsOwner.getAllSemanticsNodes(
                     mergingEnabled = !useUnmergedTree,
-                    skipDeactivatedNodes = skipDeactivatedNodes
+                    skipDeactivatedNodes = skipDeactivatedNodes,
                 )
             }
         )

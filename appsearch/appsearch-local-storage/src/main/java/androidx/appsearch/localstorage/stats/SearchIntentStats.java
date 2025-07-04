@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -44,7 +45,7 @@ import java.util.List;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SearchIntentStats {
+public final class SearchIntentStats extends BaseStats {
     /** AppSearch query correction type compared with the previous query. */
     @IntDef(value = {
             QUERY_CORRECTION_TYPE_UNKNOWN,
@@ -85,7 +86,7 @@ public final class SearchIntentStats {
     private final @NonNull List<ClickStats> mClicksStats;
 
     SearchIntentStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mPackageName = builder.mPackageName;
         mDatabase = builder.mDatabase;
         mPrevQuery = builder.mPrevQuery;
@@ -147,7 +148,7 @@ public final class SearchIntentStats {
     }
 
     /** Builder for {@link SearchIntentStats} */
-    public static final class Builder {
+    public static final class Builder extends BaseStats.Builder<SearchIntentStats.Builder> {
         private final @NonNull String mPackageName;
 
         private @Nullable String mDatabase;
@@ -273,6 +274,7 @@ public final class SearchIntentStats {
         }
 
         /** Builds a new {@link SearchIntentStats} from the {@link Builder}. */
+        @Override
         public @NonNull SearchIntentStats build() {
             mBuilt = true;
             return new SearchIntentStats(/* builder= */ this);

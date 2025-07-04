@@ -135,104 +135,103 @@ class AndroidGraphicsConversionExtensionsTest {
 
     @Test
     fun toPointF_resultingPointIsEquivalent() {
-        val point = ImmutableVec(1f, 2f)
-        val pointF = point.toPointF()
-        assertThat(pointF.x).isEqualTo(point.x)
-        assertThat(pointF.y).isEqualTo(point.y)
+        val vec = ImmutableVec(1f, 2f)
+        val point = vec.toPointF()
+        assertThat(point.x).isEqualTo(vec.x)
+        assertThat(point.y).isEqualTo(vec.y)
     }
 
     @Test
     fun populatePointF_resultingPointIsEquivalent() {
-        val point = ImmutableVec(1f, 2f)
-        val pointF = PointF()
-        point.populatePointF(pointF)
-
-        assertThat(pointF.x).isEqualTo(point.x)
-        assertThat(pointF.y).isEqualTo(point.y)
+        val vec = ImmutableVec(1f, 2f)
+        val point = PointF()
+        assertThat(vec.populatePointF(point)).isSameInstanceAs(point)
+        assertThat(point.x).isEqualTo(vec.x)
+        assertThat(point.y).isEqualTo(vec.y)
     }
 
     @Test
     fun from_resultingVecIsEquivalentToPointF() {
-        val pointF = PointF(1f, 2f)
-        val point = ImmutableVec.from(pointF)
+        val point = PointF(1f, 2f)
+        val vec = ImmutableVec.from(point)
 
-        assertThat(point.x).isEqualTo(pointF.x)
-        assertThat(point.y).isEqualTo(pointF.y)
+        assertThat(vec.x).isEqualTo(point.x)
+        assertThat(vec.y).isEqualTo(point.y)
     }
 
     @Test
     fun populateFrom_resultingVecIsEquivalentToPointF() {
-        val pointF = PointF(1f, 2f)
-        val point = MutableVec()
-        point.populateFrom(pointF)
+        val point = PointF(1f, 2f)
+        val vec = MutableVec()
+        assertThat(vec.populateFrom(point)).isSameInstanceAs(vec)
 
-        assertThat(point.x).isEqualTo(pointF.x)
-        assertThat(point.y).isEqualTo(pointF.y)
+        assertThat(vec.x).isEqualTo(point.x)
+        assertThat(vec.y).isEqualTo(point.y)
     }
 
     @Test
     fun toRectF_resultingRectIsEquivalent() {
         val box = ImmutableBox.fromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
-        val rectF = box.toRectF()
+        val rect = box.toRectF()
 
-        assertThat(rectF.left).isEqualTo(box.xMin)
-        assertThat(rectF.top).isEqualTo(box.yMin)
-        assertThat(rectF.right).isEqualTo(box.xMax)
-        assertThat(rectF.bottom).isEqualTo(box.yMax)
+        assertThat(rect.left).isEqualTo(box.xMin)
+        assertThat(rect.top).isEqualTo(box.yMin)
+        assertThat(rect.right).isEqualTo(box.xMax)
+        assertThat(rect.bottom).isEqualTo(box.yMax)
     }
 
     @Test
     fun populateRectF_resultingRectIsEquivalent() {
         val box = ImmutableBox.fromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
-        val rectF = RectF()
-        box.populateRectF(rectF)
+        val rect = RectF()
+        assertThat(box.populateRectF(rect)).isSameInstanceAs(rect)
 
-        assertThat(rectF.left).isEqualTo(box.xMin)
-        assertThat(rectF.top).isEqualTo(box.yMin)
-        assertThat(rectF.right).isEqualTo(box.xMax)
-        assertThat(rectF.bottom).isEqualTo(box.yMax)
+        assertThat(rect.left).isEqualTo(box.xMin)
+        assertThat(rect.top).isEqualTo(box.yMin)
+        assertThat(rect.right).isEqualTo(box.xMax)
+        assertThat(rect.bottom).isEqualTo(box.yMax)
     }
 
     @Test
     fun from_resultingBoxIsEquivalentToRectF() {
-        val rectF = RectF(1f, 2f, 3f, 4f)
-        val box = ImmutableBox.from(rectF)
+        val rect = RectF(1f, 2f, 3f, 4f)
+        val box = ImmutableBox.from(rect)
 
-        assertThat(box?.xMin).isEqualTo(rectF.left)
-        assertThat(box?.yMin).isEqualTo(rectF.top)
-        assertThat(box?.xMax).isEqualTo(rectF.right)
-        assertThat(box?.yMax).isEqualTo(rectF.bottom)
+        assertThat(box?.xMin).isEqualTo(rect.left)
+        assertThat(box?.yMin).isEqualTo(rect.top)
+        assertThat(box?.xMax).isEqualTo(rect.right)
+        assertThat(box?.yMax).isEqualTo(rect.bottom)
     }
 
     @Test
     fun from_resultIsNullForEmptyRectF() {
-        val rectF = RectF()
-        val box = ImmutableBox.from(rectF)
+        val rect = RectF()
+        val box = ImmutableBox.from(rect)
 
         assertThat(box).isNull()
     }
 
     @Test
     fun boxAccumulatorAdd_resultingBoxIsEquivalentToRectF() {
-        val rectF = RectF(1f, 2f, 3f, 4f)
+        val rect = RectF(1f, 2f, 3f, 4f)
         val boxAccumulator = BoxAccumulator()
-        boxAccumulator.add(rectF)
+        boxAccumulator.add(rect)
         val box = boxAccumulator.box
         assertThat(box).isNotNull()
 
-        assertThat(box?.xMin).isEqualTo(rectF.left)
-        assertThat(box?.yMin).isEqualTo(rectF.top)
-        assertThat(box?.xMax).isEqualTo(rectF.right)
-        assertThat(box?.yMax).isEqualTo(rectF.bottom)
+        assertThat(box?.xMin).isEqualTo(rect.left)
+        assertThat(box?.yMin).isEqualTo(rect.top)
+        assertThat(box?.xMax).isEqualTo(rect.right)
+        assertThat(box?.yMax).isEqualTo(rect.bottom)
     }
 
     @Test
     fun boxAccumulatorAdd_resultingBoxIsUnchangedForEmptyRectF() {
         // Malformed rectF
-        val rectF = RectF(5f, 8f, 2f, 1f)
+        val rect = RectF(5f, 8f, 2f, 1f)
         val startingBox = MutableBox().setXBounds(1F, 2F).setYBounds(3F, 4F)
         val boxAccumulator = BoxAccumulator(startingBox)
-        boxAccumulator.add(rectF)
+        boxAccumulator.add(rect)
         val box = boxAccumulator.box
         assertThat(box).isEqualTo(startingBox)
     }
@@ -254,10 +253,10 @@ class AndroidGraphicsConversionExtensionsTest {
     }
 
     @Test
-    fun populatePathFromOutlines_returnsCorrectpath() {
+    fun populatePathFromOutlines_returnsCorrectPath() {
         val partitionedMesh = buildTestStrokeShape()
         val path = Path()
-        partitionedMesh.populatePathFromOutlines(0, path)
+        assertThat(partitionedMesh.populateOutlines(0, path)).isSameInstanceAs(path)
         assertThat(path.isEmpty).isFalse()
         // For point-by-point test, see the AndroidGraphicsConversionExtensionsEmulatorTest.
     }
@@ -267,7 +266,7 @@ class AndroidGraphicsConversionExtensionsTest {
         val partitionedMesh = buildEmptyTestStrokeShape()
 
         val path = Path()
-        partitionedMesh.populatePathFromOutlines(0, path)
+        partitionedMesh.populateOutlines(0, path)
         assertThat(path.isEmpty).isTrue()
     }
 

@@ -35,7 +35,6 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
-import kotlin.time.Duration.Companion.milliseconds
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -91,7 +90,7 @@ class TraceProcessorTest {
     enum class QuerySlicesMode(val target: String?) {
         ValidPackage("androidx.benchmark.integration.macrobenchmark.target"),
         Unspecified(null),
-        InvalidPackage("not.a.real.package")
+        InvalidPackage("not.a.real.package"),
     }
 
     @Test fun querySlices_validPackage() = validateQuerySlices(QuerySlicesMode.ValidPackage)
@@ -114,7 +113,7 @@ class TraceProcessorTest {
                                 Slice(name = "activityStart", ts = 186975009436431, dur = 29580628)
                             )
                     },
-                actual = querySlices("activityStart", packageName = mode.target)
+                actual = querySlices("activityStart", packageName = mode.target),
             )
             assertEquals(
                 expected =
@@ -123,12 +122,12 @@ class TraceProcessorTest {
                         else ->
                             listOf(
                                 Slice(name = "activityStart", ts = 186975009436431, dur = 29580628),
-                                Slice(name = "activityResume", ts = 186975039764298, dur = 6570418)
+                                Slice(name = "activityResume", ts = 186975039764298, dur = 6570418),
                             )
                     },
                 actual =
                     querySlices("activityStart", "activityResume", packageName = mode.target)
-                        .sortedBy { it.ts }
+                        .sortedBy { it.ts },
             )
             assertEquals(
                 expected =
@@ -137,7 +136,7 @@ class TraceProcessorTest {
                         QuerySlicesMode.Unspecified -> 127
                         QuerySlicesMode.InvalidPackage -> 0
                     },
-                actual = querySlices("Lock contention %", packageName = mode.target).size
+                actual = querySlices("Lock contention %", packageName = mode.target).size,
             )
         }
     }
@@ -151,7 +150,7 @@ class TraceProcessorTest {
             assertContains(
                 charSequence = error.message!!,
                 other = "syntax error",
-                message = "expected 'syntax error', saw message : '''${error.message}'''"
+                message = "expected 'syntax error', saw message : '''${error.message}'''",
             )
         }
     }
@@ -168,7 +167,7 @@ class TraceProcessorTest {
                         rowOf(
                             "name" to "activityStart",
                             "ts" to 186975009436431L,
-                            "dur" to 29580628L
+                            "dur" to 29580628L,
                         )
                     ),
                 actual =
@@ -190,7 +189,7 @@ class TraceProcessorTest {
                 expected =
                     listOf(
                         listOf("activityStart", 186975009436431L, 29580628L),
-                        listOf("activityResume", 186975039764298L, 6570418L)
+                        listOf("activityResume", 186975039764298L, 6570418L),
                     ),
                 actual =
                     query(
@@ -220,7 +219,7 @@ class TraceProcessorTest {
                         rowOf(
                             "name" to "activityStart",
                             "ts" to 186975009436431L,
-                            "dur" to 29580628L
+                            "dur" to 29580628L,
                         )
                     ),
                 actual = QueryResultIterator(queryResult).asSequence().toList(),
@@ -250,7 +249,7 @@ class TraceProcessorTest {
         assertEquals(1, startups.size)
         assertEquals(
             "androidx.benchmark.integration.macrobenchmark.target",
-            startups.single().string("package")
+            startups.single().string("package"),
         )
     }
 
@@ -314,31 +313,23 @@ class TraceProcessorTest {
     }
 
     @Test
-    fun runServerWithNegativeTimeoutShouldStartAndStopServer() {
+    fun startSessionNotReentrant() {
         assumeTrue(isAbiSupported())
 
-        // Check server is not running
-        assertTrue(!isRunning())
-
-        TraceProcessor.runServer((-1).milliseconds) {
-            // Check server is running
-            assertTrue(isRunning())
-        }
-
-        // Check server is not running
-        assertTrue(!isRunning())
-    }
-
-    @Test
-    fun runServerWithZeroTimeoutShouldStartAndStopServer() {
-        assumeTrue(isAbiSupported())
+        val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
+        val trace = PerfettoTrace(traceFile.absolutePath)
 
         // Check server is not running
         assertTrue(!isRunning())
 
-        TraceProcessor.runServer((0).milliseconds) {
-            // Check server is running
-            assertTrue(isRunning())
+        TraceProcessor.runServer {
+            val traceProcessor = this
+            startSession(trace).use {
+                assertFailsWith<java.lang.IllegalStateException> {
+                    // fails to load since session already started
+                    traceProcessor.loadTrace(trace) {}
+                }
+            }
         }
 
         // Check server is not running
@@ -358,10 +349,10 @@ class TraceProcessorTest {
                             name =
                                 "launching: androidx.benchmark.integration.macrobenchmark.target",
                             ts = 186974946587883,
-                            dur = 137401159
+                            dur = 137401159,
                         )
                     ),
-                slices
+                slices,
             )
         }
     }

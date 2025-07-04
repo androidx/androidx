@@ -17,6 +17,7 @@
 package a.b;
 
 import android.os.Bundle;
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import java.lang.IllegalArgumentException;
@@ -30,11 +31,13 @@ public class SanitizedMainFragmentDirections {
     private SanitizedMainFragmentDirections() {
     }
 
+    @CheckResult
     @NonNull
     public static PreviousAction previousAction(@NonNull String arg1, @NonNull String arg2) {
         return new PreviousAction(arg1, arg2);
     }
 
+    @CheckResult
     @NonNull
     public static NextAction nextAction(@NonNull String mainArg) {
         return new NextAction(mainArg);

@@ -106,7 +106,7 @@ JqkbvRjFFdKn6EYvLORxAvp9chihE0RaFgWK1NoYTtLdqxFCCtdiDIv267T6
 zdj4JbuBTDdO4TTpmthLupagvTCaePUWCba4L0ETNyLJrIhpNqonT9lGIo65
 HaxzO1gXMB6zLmyzLsSsDdyMeJdRof0WnRWJzJlVmA7OOjjnYAKTDkGed3AB
 F1fBQkzDXkUqRCJEKcRoiCx1PcRYiJM/APHZhEWMBgAA
-"""
+""",
     )
 
 val NAV_DESTINATION =
@@ -136,7 +136,7 @@ hve88l2PkK0r7TVGg5Y3fJStPjuFut+W/aYcqlDPTfvBHw3b3o0KRfl+pI0a
 eE0VKE4vtPZN1DjADgSfYb5zeBXGEisn0kDi8A2pVyYCZUYrMuNYZ8z8FiAN
 O8o3IlzDZvRhhAXOMk+I1bBYw1INWeSYIl9DActPoAArWOU8gB2gGMD6AQ9d
 W4PtAQAA
-"""
+""",
     )
 
 val NAV_GRAPH =
@@ -173,7 +173,7 @@ MHMx2f2OpjfwPGj6DOmSkH6536v7YZXXu765fdDg3RoPhdlPwFRFtKhfP6R4
 Kdlt2nlGNvnE7mc4n6J0jqwdgXHskJ0dFyAFl/w8ZgiJReQCVVvkk3sLmS9Y
 /ptuE8XQl8clE7qJ0rhB+d2o+hr2DGZEzEXAg8jex0Pyx4SuUJvVU8SKyBZx
 s4g1rFOIW0Xcxp1TMHO1jVOkFFyFTQVbYUZhS+FeZNMKs78AJaVXJ/gDAAA=
-"""
+""",
     )
 
 val NAV_DESTINATION_BUILDER =
@@ -219,7 +219,7 @@ public open class NavDestinationBuilder<out D : NavDestination> {
                 DaP+e2dO9GedOfnXMBPzGWOOUeer5I8sA8uxvoP7pFtUm6cpZndhNFFoYq6J
                 Iq6TiRtNzOPmLliIW1jYxWSov8UQSyFuh0iFsENkQ2RC5OJI6Se1hWe7hgQA
                 AA==
-                """
+                """,
     )
 
 val NAV_PROVIDER =
@@ -249,7 +249,7 @@ public open class NavigatorProvider
                 VvWDlooUp6daG5vsF2EDgs8wGTi+CmOFlZdoILP7htwrE4Eqo5OYaSwzFn4L
                 kIeb5CsJLmE1+TPCFGeFe6TqmK5jpo5ZFJliro4S5u9BERawyHkEN0I5gvMD
                 Nm+eafABAAA=
-                """
+                """,
     )
 
 val NAV_GRAPH_BUILDER =
@@ -299,7 +299,7 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
                 dMkER8xdSLg/kjtFurDojnzDzSX3Fsl/4wwQr4mz0AWfxilgGFNxHgVM4nac
                 RSGObSex3Tj2kE2goTh2V5o8TiA2fcWNfognpKvkvUMF3N2GXcG9CqYrmMEs
                 LXG/gjkUt8EU5rGwjX6F6wqLCksKg4rmB1mFYYUphUmFBwqFP5W1RowmBgAA
-                """
+                """,
     )
 
 private val NAV_GRAPH_BUILDER_EXTENSIONS =
@@ -352,7 +352,7 @@ public inline fun NavigatorProvider.navigation(
                 /YGCo7TmkuHIN68QYau9iIfw2Jcs7leQ8LnGqQ19JOP0pJ1Wk+mqJofJoJrc
                 STW5k2pyQTUKnvj1zOMprS/Ia4ryPNhGqIh3i5gu4iGMIvKYKaKA97bBXEJ6
                 fxsDLiIuHrn4wJdJl/648aGLcRdZ/yTt4iMXc/8C0wTCji4JAAA=
-                """
+                """,
     )
 
 val NAV_HOST =
@@ -407,7 +407,7 @@ BnCJ9GnKGISDcRyGeZkCJlCMsQvIo0SRRjuCo5R7OUbI4EqC4dB+ldawnRi/
 ZT+Q68cxHCfdEHtFaSnaS8XU63dIsfkdCdq4FkvmxEzzcT8OVcuSdIjJJuvC
 H6xLOJGwLm2wLiWsLVyPeVdRo/0GnZWJzMll2B5OeTjtYRJTHkGe8XAW55bB
 FM7DXUZGIaVQUSgq5OnWFY4oHP0JmQ7w4mgGAAA=
-"""
+""",
     )
 
 val NAV_DEEP_LINK =
@@ -473,7 +473,7 @@ inline fun <reified T : Any> navDeepLink(): NavDeepLink = NavDeepLink()
                 Wb+dfxjBDQGu0/qMytuPuPTBbgSbLIvsEbzsLcbVHJexhGXWtnNOiU8jRxvY
                 4fsRczzOvdKFE2A1wOUAV7AW4CquBaih3gVlWMf1LgoZFjLcyHAzw60fGWE6
                 NbwCAAA=
-                """
+                """,
     )
 
 val TEST_NAV_HOST =
@@ -503,7 +503,7 @@ M/zMn/8VZ69rOPtZ4PmEhZpUfn3Yb/uDhmj32MnVgo7oNcVAhvrLdG6C4aDj
 n8tQFK6Hysi+35RacvVEqcBE8zT2YfFqeGXTx4S7Ylxj5UYaiO8+w3liYqHI
 mIjMGNYZ09MGzDIL6xsRFrAZfTJhjmvzLdhVLFSRqSKLHFMsVrGE5RZIYwWr
 XNdIa+Q1kp+Mv2/DIQIAAA==
-"""
+""",
     )
 
 val SERIALIZABLE_ANNOTATION =
@@ -542,7 +542,7 @@ public annotation class Serializable
                 MIAlukN1WGQs/3Et4AXdXwj+gO6HlPiohpDAIIZ8EfdFAkmKDVMsJfAYIxj1
                 1RoMgTEkfDGONCKYoMw8nuQxmcdTTJGK6TxmMFsDU5jDfA1RhWcKGYWYwnMF
                 S8H8Da/SzgtFBAAA
-                """
+                """,
     )
 
 val KEEP_ANNOTATION =
@@ -587,7 +587,7 @@ public annotation class Keep
                 unL+nUFJBcaS8kxQUYo//43P8EKdXxCH2mukJNLIYFnRG22kJW5ihSBLkJux
                 PMEtgtsEdwhWcXca4B5yKBBtIy5RxBrBKsE6QZ7gPjZUxgdtxAxsGtgy8BDb
                 iuKRgR08boMFKGG3DS3AkwBPfwGJU24VmQMAAA==
-                """
+                """,
     )
 
 val K_SERIALIZER =
@@ -615,7 +615,7 @@ public interface KSerializer<T>
                 p8VKlvrUFA2Rx5qE49a/T+FO6lBes/HDPRs7QrWth0a6aaIIXjueJn11pyMW
                 B09T4/REPWure5G6NSZ2i4NtiYuxguUqYJdRMO8teAf7iy8mlDhT7qIQohKi
                 GsLDKo9YC7GOjS7IYhM+71vULLYstr8A6rZa9Z8BAAA=
-                """
+                """,
     )
 
 val NAVIGATION_STUBS =
@@ -628,7 +628,7 @@ val NAVIGATION_STUBS =
         NAV_GRAPH_BUILDER,
         NAV_DESTINATION_BUILDER,
         NAV_GRAPH_BUILDER_EXTENSIONS,
-        NAV_PROVIDER
+        NAV_PROVIDER,
     )
 
 val SERIALIZABLE_TEST_CLASS =
@@ -664,7 +664,7 @@ interface TestInterface
     @Serializable class SealedSubClass : SealedClass()
 }
         """
-            .trimIndent()
+            .trimIndent(),
     )
 
 val TEST_CLASS =
@@ -1203,5 +1203,5 @@ GsJKmA1k0pO5tnwheqfZJB+oN9qSzsK4948t9nkp1XKSjt0Rx8fMHI4tjoJP
 rWRPmPl2Xo61Z9dwr8rrp4tioImNEssCNNgKcLH0p3mVq+239BXi7BrNz1i+
 KgWBzRIfYav8cXj3bLByjkqAuwHuBbiPB5xiNUAbnXNQgTWs830Br8DDAs5v
 jU1b0HUCAAA=
-"""
+""",
     )

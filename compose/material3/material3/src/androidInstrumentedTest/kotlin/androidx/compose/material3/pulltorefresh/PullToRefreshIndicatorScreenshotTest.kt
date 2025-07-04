@@ -78,7 +78,7 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
                 PullToRefreshDefaults.Indicator(
                     state = mockState,
                     threshold = CircularIndicatorDiameter,
-                    isRefreshing = false
+                    isRefreshing = false,
                 )
             }
         }

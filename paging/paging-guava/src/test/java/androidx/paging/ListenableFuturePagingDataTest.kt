@@ -43,7 +43,7 @@ class ListenableFuturePagingDataTest {
             val transformed =
                 original.mapAsync(
                     AsyncFunction<String, String> { Futures.immediateFuture(it + it) },
-                    testDispatcher.asExecutor()
+                    testDispatcher.asExecutor(),
                 )
             presenter.collectFrom(transformed)
             assertEquals(listOf("aa", "bb", "cc"), presenter.currentList)
@@ -57,7 +57,7 @@ class ListenableFuturePagingDataTest {
                     AsyncFunction<String, Iterable<String>> {
                         Futures.immediateFuture(listOf(it!!, it))
                     },
-                    testDispatcher.asExecutor()
+                    testDispatcher.asExecutor(),
                 )
             presenter.collectFrom(transformed)
             assertEquals(listOf("a", "a", "b", "b", "c", "c"), presenter.currentList)
@@ -69,7 +69,7 @@ class ListenableFuturePagingDataTest {
             val filtered =
                 original.filterAsync(
                     AsyncFunction { Futures.immediateFuture(it != "b") },
-                    testDispatcher.asExecutor()
+                    testDispatcher.asExecutor(),
                 )
             presenter.collectFrom(filtered)
             assertEquals(listOf("a", "c"), presenter.currentList)
@@ -84,7 +84,7 @@ class ListenableFuturePagingDataTest {
                         val (before, after) = it!!
                         Futures.immediateFuture(if (before == null || after == null) null else "|")
                     },
-                    testDispatcher.asExecutor()
+                    testDispatcher.asExecutor(),
                 )
             presenter.collectFrom(separated)
             assertEquals(listOf("a", "|", "b", "|", "c"), presenter.currentList)

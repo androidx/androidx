@@ -38,6 +38,7 @@ import android.widget.FrameLayout;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +63,7 @@ public class GhostViewTest extends BaseTest {
         rule.getActivity().getRoot().setBackground(new ColorDrawable(Color.WHITE));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427564106
     @Test
     public void testAddingViewAsGhost() throws Throwable {
         final FrameLayout parent1 = new FrameLayout(mContext);
@@ -97,6 +99,7 @@ public class GhostViewTest extends BaseTest {
         return layout;
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427564106
     @Test
     public void testMaintainingOriginalViewOrder() throws Throwable {
         final FrameLayout parent1 = new FrameLayout(mContext);
@@ -126,6 +129,7 @@ public class GhostViewTest extends BaseTest {
         assertColor(Color.GREEN, drawBitmap(parent2));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427564106
     @Test
     public void testMaintainingOriginalViewOrderWithCustomOrdering() throws Throwable {
         final FrameLayout parent1 = new ReverseOrderFrameLayout(mContext);
@@ -155,6 +159,7 @@ public class GhostViewTest extends BaseTest {
         assertColor(Color.RED, drawBitmap(parent2));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427564106
     @Test
     public void testMaintainingOriginalViewOrderWithCustomOrderingAndZ() throws Throwable {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -188,6 +193,7 @@ public class GhostViewTest extends BaseTest {
         assertColor(Color.GREEN, drawBitmap(parent2));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427564106
     @Test
     public void testPoppingGhostViewsOnTopOfOtherOverlayViews() throws Throwable {
         final FrameLayout parent1 = new FrameLayout(mContext);
@@ -259,6 +265,7 @@ public class GhostViewTest extends BaseTest {
         assertNotEquals(Color.WHITE, color); // we have a shadow if the pixel is not white
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427564106
     @Test
     public void testGhostViewIsNotClippingChildren() throws Throwable {
         // Sometimes we apply an animation matrix for a view added into GhostView.

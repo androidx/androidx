@@ -91,8 +91,11 @@ abstract class PointerInputFilter {
      * then get a chance to respond as well. This trigger acts at the Layout level, so if any
      * [PointerInputFilter]s on a Layout has [shareWithSiblings] set to `true` then the Layout will
      * share with siblings.
+     *
+     * Setting this true everywhere or high in the UI tree can negatively impact performance.
+     * Therefore, use it sparingly and only at the nearest shared parent of the two target UI
+     * elements.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     open val shareWithSiblings: Boolean
         get() = false
 }
@@ -101,7 +104,7 @@ abstract class PointerInputFilter {
 expect class PointerEvent
 internal constructor(
     changes: List<PointerInputChange>,
-    internalPointerEvent: InternalPointerEvent?
+    internalPointerEvent: InternalPointerEvent?,
 ) {
     /** @param changes The changes. */
     constructor(changes: List<PointerInputChange>)
@@ -376,7 +379,7 @@ class PointerInputChange(
     val previousPressed: Boolean,
     isInitiallyConsumed: Boolean,
     val type: PointerType = PointerType.Touch,
-    val scrollDelta: Offset = Offset.Zero
+    val scrollDelta: Offset = Offset.Zero,
 ) {
     constructor(
         id: PointerId,
@@ -388,7 +391,7 @@ class PointerInputChange(
         previousPressed: Boolean,
         isInitiallyConsumed: Boolean,
         type: PointerType = PointerType.Touch,
-        scrollDelta: Offset = Offset.Zero
+        scrollDelta: Offset = Offset.Zero,
     ) : this(
         id,
         uptimeMillis,
@@ -400,7 +403,7 @@ class PointerInputChange(
         previousPressed,
         isInitiallyConsumed,
         type,
-        scrollDelta
+        scrollDelta,
     )
 
     @Deprecated(
@@ -411,7 +414,7 @@ class PointerInputChange(
                     " previousPosition, previousPressed," +
                     " consumed.downChange || consumed.positionChange, type, Offset.Zero)"
             ),
-        message = "Use another constructor with `scrollDelta` and without `ConsumedData` instead"
+        message = "Use another constructor with `scrollDelta` and without `ConsumedData` instead",
     )
     @Suppress("DEPRECATION")
     constructor(
@@ -423,7 +426,7 @@ class PointerInputChange(
         previousPosition: Offset,
         previousPressed: Boolean,
         consumed: ConsumedData,
-        type: PointerType = PointerType.Touch
+        type: PointerType = PointerType.Touch,
     ) : this(
         id,
         uptimeMillis,
@@ -435,7 +438,7 @@ class PointerInputChange(
         previousPressed,
         consumed.downChange || consumed.positionChange,
         type,
-        Offset.Zero
+        Offset.Zero,
     )
 
     internal constructor(
@@ -463,7 +466,7 @@ class PointerInputChange(
         previousPressed,
         isInitiallyConsumed,
         type,
-        scrollDelta
+        scrollDelta,
     ) {
         _historical = historical
         this.originalEventPosition = originalEventPosition
@@ -476,7 +479,6 @@ class PointerInputChange(
     // With these experimental annotations, the API can be either cleanly removed or
     // stabilized. It doesn't appear in current.txt; and in experimental_current.txt,
     // it has the same effect as a primary constructor val.
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     val historical: List<HistoricalChange>
         get() = _historical ?: listOf()
 
@@ -532,7 +534,7 @@ class PointerInputChange(
                 "copy(id,currentTime, currentPosition, currentPressed, previousTime," +
                     "previousPosition, previousPressed, consumed, type, this.scrollDelta)"
             ),
-        message = "Use another copy() method with scrollDelta parameter instead"
+        message = "Use another copy() method with scrollDelta parameter instead",
     )
     @Suppress("DEPRECATION")
     fun copy(
@@ -585,7 +587,7 @@ class PointerInputChange(
         previousPosition: Offset = this.previousPosition,
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
-        scrollDelta: Offset = this.scrollDelta
+        scrollDelta: Offset = this.scrollDelta,
     ): PointerInputChange =
         copy(
                 id = id,
@@ -598,7 +600,7 @@ class PointerInputChange(
                 previousPressed = previousPressed,
                 type = type,
                 historical = this.historical,
-                scrollDelta = scrollDelta
+                scrollDelta = scrollDelta,
             )
             .also {
                 // This method makes a shallow copy, copy the delegate to share the consumed state
@@ -616,7 +618,7 @@ class PointerInputChange(
             ReplaceWith(
                 "copy(id, currentTime, currentPosition, currentPressed, previousTime, " +
                     "previousPosition, previousPressed, type, scrollDelta)"
-            )
+            ),
     )
     fun copy(
         id: PointerId = this.id,
@@ -628,7 +630,7 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         consumed: ConsumedData,
         type: PointerType = this.type,
-        scrollDelta: Offset = this.scrollDelta
+        scrollDelta: Offset = this.scrollDelta,
     ): PointerInputChange =
         PointerInputChange(
                 id,
@@ -670,7 +672,7 @@ class PointerInputChange(
         previousPosition: Offset = this.previousPosition,
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
-        scrollDelta: Offset = this.scrollDelta
+        scrollDelta: Offset = this.scrollDelta,
     ): PointerInputChange =
         PointerInputChange(
                 id,
@@ -713,7 +715,7 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
         historical: List<HistoricalChange>,
-        scrollDelta: Offset = this.scrollDelta
+        scrollDelta: Offset = this.scrollDelta,
     ): PointerInputChange =
         copy(
                 id = id,
@@ -726,7 +728,7 @@ class PointerInputChange(
                 previousPressed = previousPressed,
                 type = type,
                 historical = historical,
-                scrollDelta = scrollDelta
+                scrollDelta = scrollDelta,
             )
             .also {
                 // This method makes a shallow copy, copy the delegate to share the consumed state
@@ -754,7 +756,7 @@ class PointerInputChange(
         previousPressed: Boolean = this.previousPressed,
         type: PointerType = this.type,
         historical: List<HistoricalChange> = this.historical,
-        scrollDelta: Offset = this.scrollDelta
+        scrollDelta: Offset = this.scrollDelta,
     ): PointerInputChange =
         PointerInputChange(
                 id,
@@ -812,7 +814,7 @@ class HistoricalChange(val uptimeMillis: Long, val position: Offset) {
     internal constructor(
         uptimeMillis: Long,
         position: Offset,
-        originalEventPosition: Offset
+        originalEventPosition: Offset,
     ) : this(uptimeMillis, position) {
         this.originalEventPosition = originalEventPosition
     }
@@ -898,7 +900,7 @@ class ConsumedData(positionChange: Boolean = false, downChange: Boolean = false)
 enum class PointerEventPass {
     Initial,
     Main,
-    Final
+    Final,
 }
 
 /**
@@ -962,14 +964,14 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
 /** True if this [PointerInputChange]'s movement has been consumed. */
 @Deprecated(
     "Partial consumption has been deprecated. Use isConsumed instead",
-    replaceWith = ReplaceWith("isConsumed")
+    replaceWith = ReplaceWith("isConsumed"),
 )
 fun PointerInputChange.positionChangeConsumed() = isConsumed
 
 /** True if any aspect of this [PointerInputChange] has been consumed. */
 @Deprecated(
     "Partial consumption has been deprecated. Use isConsumed instead",
-    replaceWith = ReplaceWith("isConsumed")
+    replaceWith = ReplaceWith("isConsumed"),
 )
 fun PointerInputChange.anyChangeConsumed() = isConsumed
 
@@ -979,7 +981,7 @@ fun PointerInputChange.anyChangeConsumed() = isConsumed
  */
 @Deprecated(
     "Partial consumption has been deprecated. Use consume() instead.",
-    replaceWith = ReplaceWith("if (pressed != previousPressed) consume()")
+    replaceWith = ReplaceWith("if (pressed != previousPressed) consume()"),
 )
 fun PointerInputChange.consumeDownChange() {
     if (pressed != previousPressed) {
@@ -990,7 +992,7 @@ fun PointerInputChange.consumeDownChange() {
 /** Consume position change if there is any */
 @Deprecated(
     "Partial consumption has been deprecated. Use consume() instead.",
-    replaceWith = ReplaceWith("if (positionChange() != Offset.Zero) consume()")
+    replaceWith = ReplaceWith("if (positionChange() != Offset.Zero) consume()"),
 )
 fun PointerInputChange.consumePositionChange() {
     if (positionChange() != Offset.Zero) {
@@ -1010,7 +1012,7 @@ fun PointerInputChange.consumeAllChanges() {
  */
 @Deprecated(
     message = "Use isOutOfBounds() that supports minimum touch target",
-    replaceWith = ReplaceWith("this.isOutOfBounds(size, extendedTouchPadding)")
+    replaceWith = ReplaceWith("this.isOutOfBounds(size, extendedTouchPadding)"),
 )
 fun PointerInputChange.isOutOfBounds(size: IntSize): Boolean {
     val position = position

@@ -112,7 +112,7 @@ class ComplicationDataEvaluatorTest {
                         .setPlaceholder(evaluatedData("Placeholder"))
                         .setListEntryCollection(listOf(evaluatedData("List")))
                         .build()
-                        .also { it.setTimelineEntryCollection(listOf(evaluatedData("Timeline"))) },
+                        .also { it.setTimelineEntryCollection(listOf(evaluatedData("Timeline"))) }
                 ),
         ),
         SET_ONLY_AFTER_ALL_FIELDS_EVALUATED(
@@ -206,7 +206,7 @@ class ComplicationDataEvaluatorTest {
                 listOf(
                     mapOf(
                         AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid")
-                    ),
+                    )
                 ),
             evaluated =
                 listOf(
@@ -232,7 +232,7 @@ class ComplicationDataEvaluatorTest {
                 ),
             evaluated =
                 listOf(
-                    INVALID_DATA, // States invalid after one field changed to valid.
+                    INVALID_DATA // States invalid after one field changed to valid.
                 ),
         ),
         SET_TO_NO_DATA_IF_LAST_STATE_IS_INVALID(
@@ -245,8 +245,7 @@ class ComplicationDataEvaluatorTest {
                 listOf(
                     mapOf(
                         AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid"),
-                        AppDataKey<DynamicString>("invalid") to
-                            DynamicDataValue.fromString("Valid"),
+                        AppDataKey<DynamicString>("invalid") to DynamicDataValue.fromString("Valid"),
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid")
@@ -274,8 +273,8 @@ class ComplicationDataEvaluatorTest {
                     // No placeholder.
                     WireComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(WireComplicationText("Text"))
-                        .build(),
-                )
+                        .build()
+                ),
         ),
         SET_TO_EVALUATED_WITHOUT_PLACEHOLDER_EVEN_IF_PLACEHOLDER_INVALID_IF_NOT_NO_DATA(
             expressed =
@@ -289,8 +288,8 @@ class ComplicationDataEvaluatorTest {
                     // No placeholder.
                     WireComplicationData.Builder(TYPE_SHORT_TEXT)
                         .setShortText(WireComplicationText("Text"))
-                        .build(),
-                )
+                        .build()
+                ),
         ),
     }
 
@@ -299,16 +298,13 @@ class ComplicationDataEvaluatorTest {
         for (scenario in DataWithExpressionScenario.values()) {
             // Defensive copy due to in-place evaluation.
             val expressed = WireComplicationData.Builder(scenario.expressed).build()
+            @Suppress("MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE")
             val stateStore = StateStore(mapOf())
             val evaluator = ComplicationDataEvaluator(stateStore)
             val allEvaluations =
                 evaluator
                     .evaluate(expressed)
-                    .shareIn(
-                        CoroutineScope(dispatcher),
-                        SharingStarted.Eagerly,
-                        replay = 10,
-                    )
+                    .shareIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, replay = 10)
 
             advanceUntilIdle()
             for (state in scenario.states) {
@@ -400,7 +396,7 @@ class ComplicationDataEvaluatorTest {
                     .build()
                     .also {
                         it.setTimelineEntryCollection(listOf(evaluatedWithConstantData("Timeline")))
-                    },
+                    }
             )
     }
 

@@ -68,7 +68,7 @@ class PipActivity : ComponentActivity() {
         moveButton.layoutParams =
             RelativeLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
                 .apply { randomPosition().forEach { rule -> addRule(rule) } }
     }

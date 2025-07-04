@@ -19,19 +19,19 @@ package androidx.xr.compose.subspace.node
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SubspaceComposable
-import androidx.xr.compose.subspace.layout.CoreContentlessEntity
+import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.createFakeSession
+import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setSubspaceContent
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.Session
+import androidx.xr.scenecore.GroupEntity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,22 +41,22 @@ import org.junit.runner.RunWith
 class SubspaceLayoutNodeTest {
     @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
-    private lateinit var testSession: Session
-
-    @Before
-    fun setUp() {
-        testSession = createFakeSession(composeTestRule.activity)
-    }
-
     @Test
     fun subspaceLayoutNode_shouldParentNodesProperly() {
-        val parentEntity = testSession.createEntity("ParentEntity")
-        composeTestRule.setSubspaceContent {
-            EntityLayout(entity = parentEntity) {
-                EntityLayout(
-                    entity = testSession.createEntity("ChildEntity"),
-                    modifier = SubspaceModifier.testTag("Child"),
-                )
+        var parentEntity: Entity? = null
+
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    val session = checkNotNull(LocalSession.current)
+                    parentEntity = GroupEntity.create(session, "ParentEntity")
+                    EntityLayout(entity = parentEntity!!) {
+                        EntityLayout(
+                            entity = GroupEntity.create(session, "ChildEntity"),
+                            modifier = SubspaceModifier.testTag("Child"),
+                        )
+                    }
+                }
             }
         }
 
@@ -64,36 +64,8 @@ class SubspaceLayoutNodeTest {
                 composeTestRule
                     .onSubspaceNodeWithTag("Child")
                     .fetchSemanticsNode()
-                    .coreEntity
-                    ?.entity
-                    ?.getParent()
-            )
-            .isEqualTo(parentEntity)
-    }
-
-    @Test
-    fun subspaceLayoutNode_shouldParentNodesWhenThereIsAGapBetween() {
-        val parentEntity = testSession.createEntity("ParentEntity")
-        composeTestRule.setSubspaceContent {
-            EntityLayout(entity = parentEntity) {
-                EntityLayout(modifier = SubspaceModifier.testTag("Child")) {
-                    EntityLayout(
-                        entity = testSession.createEntity("GrandChildEntity"),
-                        modifier = SubspaceModifier.testTag("GrandChild"),
-                    )
-                }
-            }
-        }
-
-        assertThat(composeTestRule.onSubspaceNodeWithTag("Child").fetchSemanticsNode().coreEntity)
-            .isNull()
-        assertThat(
-                composeTestRule
-                    .onSubspaceNodeWithTag("GrandChild")
-                    .fetchSemanticsNode()
-                    .coreEntity
-                    ?.entity
-                    ?.getParent()
+                    .semanticsEntity
+                    ?.parent
             )
             .isEqualTo(parentEntity)
     }
@@ -102,13 +74,13 @@ class SubspaceLayoutNodeTest {
     @SubspaceComposable
     private fun EntityLayout(
         modifier: SubspaceModifier = SubspaceModifier,
-        entity: Entity? = null,
+        entity: Entity,
         content: @Composable @SubspaceComposable () -> Unit = {},
     ) {
         SubspaceLayout(
             content = content,
             modifier = modifier,
-            coreEntity = entity?.let { CoreContentlessEntity(it) },
+            coreEntity = CoreGroupEntity(entity),
         ) { _, _ ->
             layout(0, 0, 0) {}
         }

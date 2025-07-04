@@ -31,7 +31,7 @@ import com.squareup.javapoet.TypeVariableName
 internal sealed class KspSyntheticPropertyMethodType(
     val env: KspProcessingEnv,
     val origin: KspSyntheticPropertyMethodElement,
-    val containing: XType?
+    val containing: XType?,
 ) : XMethodType {
 
     override val parameterTypes: List<XType> by lazy {
@@ -50,8 +50,8 @@ internal sealed class KspSyntheticPropertyMethodType(
         replaceWith =
             ReplaceWith(
                 "typeVariables.map { it.asTypeName().toJavaPoet() }",
-                "androidx.room.compiler.codegen.toJavaPoet"
-            )
+                "androidx.room.compiler.codegen.toJavaPoet",
+            ),
     )
     override val typeVariableNames: List<TypeVariableName>
         get() = emptyList()
@@ -68,7 +68,7 @@ internal sealed class KspSyntheticPropertyMethodType(
         fun create(
             env: KspProcessingEnv,
             element: KspSyntheticPropertyMethodElement,
-            container: KspType?
+            container: KspType?,
         ): XMethodType {
             return when (element.accessor) {
                 is KSPropertyGetter ->
@@ -83,7 +83,7 @@ internal sealed class KspSyntheticPropertyMethodType(
     private class Getter(
         env: KspProcessingEnv,
         origin: KspSyntheticPropertyMethodElement,
-        containingType: KspType?
+        containingType: KspType?,
     ) : KspSyntheticPropertyMethodType(env = env, origin = origin, containing = containingType) {
         override val returnType: XType by lazy {
             if (containingType == null) {
@@ -94,7 +94,7 @@ internal sealed class KspSyntheticPropertyMethodType(
                 .copyWithScope(
                     KSTypeVarianceResolverScope.PropertyGetterMethodReturnType(
                         getterMethod = origin as KspSyntheticPropertyMethodElement.Getter,
-                        asMemberOf = containingType
+                        asMemberOf = containingType,
                     )
                 )
         }
@@ -103,7 +103,7 @@ internal sealed class KspSyntheticPropertyMethodType(
     private class Setter(
         env: KspProcessingEnv,
         origin: KspSyntheticPropertyMethodElement,
-        containingType: XType?
+        containingType: XType?,
     ) : KspSyntheticPropertyMethodType(env = env, origin = origin, containing = containingType) {
         override val returnType: XType
             // setters always return Unit, no need to get it as type of

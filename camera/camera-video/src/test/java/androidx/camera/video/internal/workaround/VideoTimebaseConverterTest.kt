@@ -72,7 +72,7 @@ class VideoTimebaseConverterTest {
             VideoTimebaseConverter(
                 systemTimeProvider,
                 Timebase.REALTIME,
-                CameraUseInconsistentTimebaseQuirk()
+                CameraUseInconsistentTimebaseQuirk(),
             )
 
         // Act.
@@ -91,7 +91,7 @@ class VideoTimebaseConverterTest {
             VideoTimebaseConverter(
                 systemTimeProvider,
                 Timebase.UPTIME,
-                CameraUseInconsistentTimebaseQuirk()
+                CameraUseInconsistentTimebaseQuirk(),
             )
 
         // Act.

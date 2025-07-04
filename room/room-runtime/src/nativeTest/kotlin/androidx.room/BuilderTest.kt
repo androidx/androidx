@@ -27,7 +27,7 @@ class BuilderTest {
         val db =
             databaseBuilder(
                     name = "TestDatabase",
-                    factory = { TestDatabase::class.instantiateImpl() }
+                    factory = { TestDatabase::class.instantiateImpl() },
                 )
                 .setDriver(NativeSQLiteDriver())
                 .build()
@@ -42,7 +42,7 @@ class BuilderTest {
                 assertFailsWith<IllegalArgumentException> {
                         databaseBuilder(
                                 name = "TestDatabase",
-                                factory = { TestDatabase::class.instantiateImpl() }
+                                factory = { TestDatabase::class.instantiateImpl() },
                             )
                             .build()
                     }

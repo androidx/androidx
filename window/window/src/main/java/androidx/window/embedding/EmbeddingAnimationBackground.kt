@@ -59,6 +59,9 @@ abstract class EmbeddingAnimationBackground private constructor() {
     private class DefaultBackground : EmbeddingAnimationBackground() {
 
         override fun toString() = "DefaultBackground"
+
+        // Override #hashCode to return consistent value every time.
+        @Suppress("EqualsAndHashCode") override fun hashCode() = toString().hashCode()
     }
 
     /** Methods that create various [EmbeddingAnimationBackground]. */

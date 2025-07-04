@@ -127,7 +127,7 @@ class TooltipScreenshotTest {
                 }
             },
             modifier = Modifier.testTag(AnchorTestTag),
-            state = tooltipState
+            state = tooltipState,
         ) {
             Icon(Icons.Filled.Favorite, contentDescription = null)
         }
@@ -142,7 +142,7 @@ class TooltipScreenshotTest {
                 RichTooltip(
                     title = { Text("Title") },
                     action = { TextButton(onClick = {}) { Text("Action Text") } },
-                    modifier = Modifier.testTag(TooltipTestTag)
+                    modifier = Modifier.testTag(TooltipTestTag),
                 ) {
                     Text(
                         "Area for supportive text, providing a descriptive " +
@@ -151,7 +151,7 @@ class TooltipScreenshotTest {
                 }
             },
             state = tooltipState,
-            modifier = Modifier.testTag(AnchorTestTag)
+            modifier = Modifier.testTag(AnchorTestTag),
         ) {
             Icon(Icons.Filled.Favorite, contentDescription = null)
         }

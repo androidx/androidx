@@ -84,7 +84,7 @@ class AnnotatedStringTest {
                     Range(par1, 1, 2),
                     Range(par1.merge(par2), 2, 3),
                     Range(par1, 3, 4),
-                    Range(par3, 4, 5)
+                    Range(par3, 4, 5),
                 )
             )
     }
@@ -111,12 +111,7 @@ class AnnotatedStringTest {
         }
 
         val paragraphs = testString.normalizedParagraphStyles(ParagraphStyle())
-        assertThat(paragraphs)
-            .isEqualTo(
-                listOf(
-                    Range(par1.merge(par2), 0, 1),
-                )
-            )
+        assertThat(paragraphs).isEqualTo(listOf(Range(par1.merge(par2), 0, 1)))
     }
 
     @Test
@@ -158,7 +153,7 @@ class AnnotatedStringTest {
                     Range(par1.merge(par2), 10, 15),
                     Range(default, 15, 20),
                     Range(par3, 20, 25),
-                    Range(default, 25, 30)
+                    Range(default, 25, 30),
                 )
             )
     }
@@ -323,7 +318,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 listOf(
                     Range(defaultParagraphStyle.merge(paragraphStyle), 0, 5),
-                    Range(defaultParagraphStyle, 5, text.length)
+                    Range(defaultParagraphStyle, 5, text.length),
                 )
             )
     }
@@ -364,7 +359,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 listOf(
                     Range(defaultParagraphStyle.merge(par), 0, 0),
-                    Range(defaultParagraphStyle, 0, 1)
+                    Range(defaultParagraphStyle, 0, 1),
                 )
             )
     }
@@ -408,7 +403,7 @@ class AnnotatedStringTest {
                 Range(ParagraphStyle(lineHeight = 20.sp), 0, 1),
                 Range(ParagraphStyle(lineHeight = 30.sp), 1, 5),
                 Range(StringAnnotation("annotation1"), 0, 2, "scope1"),
-                Range(StringAnnotation("annotation1"), 3, 5, "scope1")
+                Range(StringAnnotation("annotation1"), 3, 5, "scope1"),
             )
         val annotatedString1 = AnnotatedString(text = text1, annotations = annotations1)
 
@@ -422,7 +417,7 @@ class AnnotatedStringTest {
                     listOf(
                         Range(spanStyle, 0, text2.length),
                         Range(paragraphStyle, 0, text2.length),
-                        Range(StringAnnotation("annotation2"), 0, text2.length, "scope2")
+                        Range(StringAnnotation("annotation2"), 0, text2.length, "scope2"),
                     ),
             )
 
@@ -438,9 +433,9 @@ class AnnotatedStringTest {
                                 StringAnnotation("annotation2"),
                                 text1.length,
                                 text1.length + text2.length,
-                                "scope2"
-                            )
-                        )
+                                "scope2",
+                            ),
+                        ),
                 )
             )
 
@@ -638,7 +633,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 AnnotatedString(
                     "",
-                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 0, "scope1"))
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 0, "scope1")),
                 )
             )
 
@@ -647,7 +642,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 AnnotatedString(
                     "",
-                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 0, "scope1"))
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 0, "scope1")),
                 )
             )
     }
@@ -666,7 +661,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 AnnotatedString(
                     "abc",
-                    annotations = listOf(Range(StringAnnotation("annotation1"), 2, 3, "scope1"))
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 2, 3, "scope1")),
                 )
             )
 
@@ -675,7 +670,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 AnnotatedString(
                     "de",
-                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 1, "scope1"))
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 1, "scope1")),
                 )
             )
     }
@@ -695,7 +690,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 AnnotatedString(
                     "abcde",
-                    annotations = listOf(Range(StringAnnotation("annotation1"), 2, 4, "scope1"))
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 2, 4, "scope1")),
                 )
             )
 
@@ -704,7 +699,7 @@ class AnnotatedStringTest {
             .isEqualTo(
                 AnnotatedString(
                     "cd",
-                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 2, "scope1"))
+                    annotations = listOf(Range(StringAnnotation("annotation1"), 0, 2, "scope1")),
                 )
             )
     }
@@ -763,7 +758,7 @@ class AnnotatedStringTest {
                 AnnotatedString(
                     text,
                     listOf(Range(spanStyle, 0, text.length)),
-                    listOf(Range(paragraphStyle, 0, text.length))
+                    listOf(Range(paragraphStyle, 0, text.length)),
                 )
             )
     }

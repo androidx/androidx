@@ -79,7 +79,7 @@ fun SwitchBetweenCollapsedAndExpanded() {
         Modifier.clickable(
             onClick = { showExpandedCard = !showExpandedCard },
             indication = null,
-            interactionSource = remember { MutableInteractionSource() }
+            interactionSource = remember { MutableInteractionSource() },
         )
     ) {
         SharedTransitionLayout {
@@ -103,10 +103,10 @@ fun HomePage(sharedTransitionScope: SharedTransitionScope, showCard: Boolean) {
                                     rememberSharedContentState(key = "container"),
                                     this@AnimatedVisibility,
                                     clipInOverlayDuringTransition =
-                                        OverlayClip(RoundedCornerShape(20.dp))
+                                        OverlayClip(RoundedCornerShape(20.dp)),
                                 )
                                 .clip(shape = RoundedCornerShape(20.dp))
-                                .background(color = cardBackgroundColor),
+                                .background(color = cardBackgroundColor)
                         ) {
                             Box {
                                 Column {
@@ -120,7 +120,7 @@ fun HomePage(sharedTransitionScope: SharedTransitionScope, showCard: Boolean) {
                                                     this@AnimatedVisibility,
                                                     zIndexInOverlay = 0.5f,
                                                 ),
-                                        contentScale = ContentScale.FillWidth
+                                        contentScale = ContentScale.FillWidth,
                                     )
                                     Text(
                                         text = longText,
@@ -137,7 +137,7 @@ fun HomePage(sharedTransitionScope: SharedTransitionScope, showCard: Boolean) {
                                                 .clipToBounds()
                                                 .wrapContentHeight(
                                                     align = Alignment.Top,
-                                                    unbounded = true
+                                                    unbounded = true,
                                                 )
                                                 .skipToLookaheadSize(),
                                     )
@@ -156,7 +156,7 @@ fun HomePage(sharedTransitionScope: SharedTransitionScope, showCard: Boolean) {
                                             )
                                             .animateEnterExit(
                                                 fadeIn(tween(1000)) + slideInVertically { -it / 3 },
-                                                fadeOut(tween(50)) + slideOutVertically { -it / 3 }
+                                                fadeOut(tween(50)) + slideOutVertically { -it / 3 },
                                             )
                                             .skipToLookaheadSize()
                                             .background(
@@ -164,7 +164,7 @@ fun HomePage(sharedTransitionScope: SharedTransitionScope, showCard: Boolean) {
                                                     listOf(
                                                         Color.Transparent,
                                                         Color.Black,
-                                                        Color.Transparent
+                                                        Color.Transparent,
                                                     )
                                                 )
                                             )
@@ -188,7 +188,7 @@ fun HomePage(sharedTransitionScope: SharedTransitionScope, showCard: Boolean) {
                 painterResource(R.drawable.navigation_bar),
                 contentDescription = null,
                 Modifier.fillMaxWidth().align(Alignment.BottomCenter),
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillWidth,
             )
         }
     }
@@ -202,7 +202,7 @@ fun Cluster() {
         color = Color.Black,
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.W500,
-        fontSize = 25.sp
+        fontSize = 25.sp,
     )
     Row(Modifier.wrapContentWidth(align = Alignment.Start, unbounded = true)) {
         Image(
@@ -212,14 +212,14 @@ fun Cluster() {
                 Modifier.requiredHeight(200.dp)
                     .padding(start = 10.dp, top = 10.dp, bottom = 10.dp)
                     .clip(RoundedCornerShape(10.dp)),
-            contentScale = ContentScale.FillHeight
+            contentScale = ContentScale.FillHeight,
         )
         Image(
             painterResource(R.drawable.item1),
             contentDescription = null,
             modifier =
                 Modifier.requiredHeight(200.dp).padding(10.dp).clip(RoundedCornerShape(10.dp)),
-            contentScale = ContentScale.FillHeight
+            contentScale = ContentScale.FillHeight,
         )
     }
 }
@@ -231,7 +231,7 @@ fun ExpandedCard(sharedTransitionScope: SharedTransitionScope, visible: Boolean)
             visible = visible,
             Modifier.fillMaxSize(),
             enter = fadeIn(),
-            exit = fadeOut()
+            exit = fadeOut(),
         ) {
             Box(Modifier.fillMaxSize().background(Color(0x55000000))) {
                 Column(
@@ -242,7 +242,7 @@ fun ExpandedCard(sharedTransitionScope: SharedTransitionScope, visible: Boolean)
                             this@AnimatedVisibility,
                             enter = EnterTransition.None,
                             exit = ExitTransition.None,
-                            clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp))
+                            clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp)),
                         )
                         .clip(shape = RoundedCornerShape(20.dp))
                         .background(cardBackgroundColor)
@@ -251,7 +251,7 @@ fun ExpandedCard(sharedTransitionScope: SharedTransitionScope, visible: Boolean)
                         Modifier.renderInSharedTransitionScopeOverlay(zIndexInOverlay = 1f)
                             .animateEnterExit(
                                 fadeIn() + slideInVertically { it / 3 },
-                                fadeOut() + slideOutVertically { it / 3 }
+                                fadeOut() + slideOutVertically { it / 3 },
                             )
                             .skipToLookaheadSize()
                             .background(
@@ -259,7 +259,7 @@ fun ExpandedCard(sharedTransitionScope: SharedTransitionScope, visible: Boolean)
                                     listOf(Color.Transparent, Color.Black, Color.Transparent)
                                 )
                             )
-                            .padding(start = 20.dp, end = 20.dp),
+                            .padding(start = 20.dp, end = 20.dp)
                     ) {
                         Text(
                             text = "Lorem ipsum",
@@ -269,13 +269,13 @@ fun ExpandedCard(sharedTransitionScope: SharedTransitionScope, visible: Boolean)
                             color = Color.Black,
                             fontFamily = FontFamily.Default,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
+                            fontSize = 15.sp,
                         )
                         Text(
                             text = title,
                             color = Color.White,
                             fontSize = 30.sp,
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp)
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
                         )
                     }
                     Image(
@@ -287,7 +287,7 @@ fun ExpandedCard(sharedTransitionScope: SharedTransitionScope, visible: Boolean)
                                     rememberSharedContentState("quiet_night"),
                                     this@AnimatedVisibility,
                                 ),
-                        contentScale = ContentScale.FillWidth
+                        contentScale = ContentScale.FillWidth,
                     )
 
                     Text(
@@ -327,13 +327,13 @@ private fun SearchBarAndTabs() {
         painterResource(R.drawable.search_bar),
         contentDescription = null,
         modifier = Modifier.fillMaxWidth(),
-        contentScale = ContentScale.FillWidth
+        contentScale = ContentScale.FillWidth,
     )
     Image(
         painterResource(R.drawable.tabs),
         contentDescription = null,
         modifier = Modifier.fillMaxWidth(),
-        contentScale = ContentScale.FillWidth
+        contentScale = ContentScale.FillWidth,
     )
 }
 
@@ -350,12 +350,12 @@ private fun InstallBar(modifier: Modifier) {
             painterResource(R.drawable.quiet_night_thumb),
             contentDescription = null,
             Modifier.padding(10.dp).requiredSize(40.dp).clip(RoundedCornerShape(10.dp)),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
         Column(
             Modifier.fillMaxHeight().padding(top = 10.dp, bottom = 10.dp),
-            verticalArrangement = Arrangement.SpaceAround
+            verticalArrangement = Arrangement.SpaceAround,
         ) {
             Text("Lorem ipsum dolor", color = Color.LightGray, fontSize = 15.sp)
             Text("Lorem", color = Color.Gray, fontSize = 12.sp)
@@ -369,7 +369,7 @@ private fun InstallBar(modifier: Modifier) {
             color = Color.White,
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Bold,
-            fontSize = 15.sp
+            fontSize = 15.sp,
         )
     }
 }

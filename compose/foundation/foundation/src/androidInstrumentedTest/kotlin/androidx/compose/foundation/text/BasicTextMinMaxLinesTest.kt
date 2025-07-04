@@ -50,14 +50,14 @@ class BasicTextMinMaxLinesTest {
                 shortText,
                 minLines = minLines1,
                 maxLines = maxLines1,
-                onTextLayout = { size1 = it.size.height }
+                onTextLayout = { size1 = it.size.height },
             )
 
             BasicText(
                 shortText,
                 minLines = minLines2,
                 maxLines = maxLines2,
-                onTextLayout = { size2 = it.size.height }
+                onTextLayout = { size2 = it.size.height },
             )
         }
 
@@ -78,14 +78,14 @@ class BasicTextMinMaxLinesTest {
                 longText,
                 minLines = minLines1,
                 maxLines = maxLines1,
-                onTextLayout = { size1 = it.size.height }
+                onTextLayout = { size1 = it.size.height },
             )
 
             BasicText(
                 longText,
                 minLines = minLines2,
                 maxLines = maxLines2,
-                onTextLayout = { size2 = it.size.height }
+                onTextLayout = { size2 = it.size.height },
             )
         }
 

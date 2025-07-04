@@ -18,14 +18,17 @@ package androidx.browser.customtabs;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.content.ComponentName;
 import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,6 +51,16 @@ public class CustomTabsClientTest {
     public final EnableComponentsTestRule mEnableComponents = new EnableComponentsTestRule(
             TestCustomTabsServiceSetNetwork.class
     );
+
+    private final CustomTabsServiceConnection mCustomTabsServiceConnection =
+        new CustomTabsServiceConnection() {
+            @Override
+            public void onCustomTabsServiceConnected(
+                @NonNull ComponentName name, @NonNull CustomTabsClient client) {}
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {}
+        };
 
     private Context mContext;
 
@@ -89,5 +102,22 @@ public class CustomTabsClientTest {
     public void testCustomTabsServiceCategorySetNetwork_packageNameDoesNotMatch() {
         assertFalse(CustomTabsClient.isSetNetworkSupported(mContext,
                 TEST_NONEXISTENT_CUSTOM_TABS_PROVIDER));
+    }
+
+    @Test
+    public void testBindCustomTabsService_packageNameEmpty() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> CustomTabsClient.bindCustomTabsService(
+                mContext, "", mCustomTabsServiceConnection));
+    }
+
+    @Test
+    public void testBindCustomTabsServicePreservePriority_packageNameEmpty() {
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                CustomTabsClient.bindCustomTabsServicePreservePriority(
+                    mContext, "", mCustomTabsServiceConnection));
     }
 }

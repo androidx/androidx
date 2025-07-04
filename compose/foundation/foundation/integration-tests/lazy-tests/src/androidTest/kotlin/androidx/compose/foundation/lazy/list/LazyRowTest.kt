@@ -60,7 +60,7 @@ class LazyRowTest {
         rule.setContentWithTestViewConfiguration {
             LazyRow(
                 Modifier.testTag(LazyListTag).requiredHeight(100.dp),
-                verticalAlignment = verticalGravity
+                verticalAlignment = verticalGravity,
             ) {
                 items(listOf(1, 2)) {
                     if (it == 1) {

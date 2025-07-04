@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.graph
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.Request
-import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.ProcessingQueue
 import androidx.camera.camera2.pipe.core.ProcessingQueue.Companion.processIn
@@ -29,6 +28,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -43,12 +43,12 @@ internal class GraphLoop(
     private val defaultParameters: Map<*, Any?>,
     private val requiredParameters: Map<*, Any?>,
     private val graphListeners: List<Request.Listener>,
-    private val graphState3A: GraphState3A?,
-    private val listeners: List<GraphLoop.Listener>,
+    private val listeners: List<Listener>,
     private val shutdownScope: CoroutineScope,
-    dispatcher: CoroutineDispatcher
+    dispatcher: CoroutineDispatcher,
 ) : Closeable {
     internal interface Listener {
+
         fun onStopRepeating()
 
         fun onGraphStopped()
@@ -56,20 +56,18 @@ internal class GraphLoop(
         fun onGraphShutdown()
     }
 
-    private val lock = Any()
-    private val graphProcessorScope =
-        CoroutineScope(dispatcher.plus(CoroutineName("CXCP-GraphLoop")))
+    private val graphLoopScope = CoroutineScope(dispatcher.plus(CoroutineName("CXCP-GraphLoop")))
     private val processingQueue =
-        ProcessingQueue(onUnprocessedElements = ::onShutdown, process = ::commandLoop)
-            .processIn(graphProcessorScope)
+        ProcessingQueue(onUnprocessedElements = ::finalizeUnprocessedCommands, process = ::process)
+            .processIn(graphLoopScope)
+
+    private val lock = Any()
 
     @Volatile private var closed = false
-
     @GuardedBy("lock") private var _requestProcessor: GraphRequestProcessor? = null
-
     @GuardedBy("lock") private var _repeatingRequest: Request? = null
-
     @GuardedBy("lock") private var _graphParameters: Map<*, Any?> = emptyMap<Any, Any?>()
+    @GuardedBy("lock") private var _graph3AParameters: Map<*, Any?> = emptyMap<Any, Any?>()
 
     var requestProcessor: GraphRequestProcessor?
         get() = synchronized(lock) { _requestProcessor }
@@ -90,28 +88,7 @@ internal class GraphLoop(
                 if (previous === value) {
                     return@synchronized
                 }
-
-                if (previous != null) {
-                    // Closing the request processor can (sometimes) block the calling thread.
-                    // Make sure this is invoked in the background.
-                    processingQueue.tryEmit(CloseRequestProcessor(previous))
-                }
-
-                if (value != null) {
-                    val repeatingRequest = _repeatingRequest
-                    if (repeatingRequest == null) {
-                        // This handles the case where a single request has been issued before
-                        // the GraphRequestProcessor was configured when there is not repeating
-                        // request. Invalidate will cause the commandLoop to re-evaluate, which
-                        // may succeed now that a valid request processor has been configured.
-                        processingQueue.tryEmit(Invalidate)
-                    } else {
-                        // If there is an active repeating request, make sure the request is
-                        // issued to the new request processor. This serves the same purpose as
-                        // Invalidate which re-triggers the commandLoop.
-                        processingQueue.tryEmit(StartRepeating(repeatingRequest))
-                    }
-                }
+                processingQueue.tryEmit(GraphCommand.RequestProcessor(previous, value))
             }
 
             if (value == null) {
@@ -135,13 +112,10 @@ internal class GraphLoop(
                 }
 
                 if (value != null) {
-                    processingQueue.tryEmit(StartRepeating(value))
+                    processingQueue.tryEmit(GraphCommand.Repeat(value))
                 } else {
-                    // If the repeating request is set to null, stop repeating (using the current
-                    // request processor instance). This is allowed because stop and abort can be
-                    // called on a requestProcessor that has, or is in the process, of being
-                    // released.
-                    processingQueue.tryEmit(StopRepeating(_requestProcessor))
+                    // If the repeating request is set to null, stop repeating.
+                    processingQueue.tryEmit(GraphCommand.Stop)
                 }
             }
             if (value == null) {
@@ -156,7 +130,15 @@ internal class GraphLoop(
         set(value) =
             synchronized(lock) {
                 _graphParameters = value
-                updateParameters(value)
+                processingQueue.tryEmit(GraphCommand.Parameters(value, _graph3AParameters))
+            }
+
+    var graph3AParameters: Map<*, Any?>
+        get() = synchronized(lock) { _graph3AParameters }
+        set(value) =
+            synchronized(lock) {
+                _graph3AParameters = value
+                processingQueue.tryEmit(GraphCommand.Parameters(_graphParameters, value))
             }
 
     private val _captureProcessingEnabled = atomic(true)
@@ -172,49 +154,26 @@ internal class GraphLoop(
     fun submit(request: Request): Boolean = submit(listOf(request))
 
     fun submit(requests: List<Request>): Boolean {
-        if (!processingQueue.tryEmit(SubmitCapture(requests))) {
+        if (!processingQueue.tryEmit(GraphCommand.Capture(requests))) {
             abortRequests(requests)
             return false
         }
         return true
     }
 
-    fun submit(parameters: Map<*, Any?>): Boolean {
-        synchronized(lock) {
-            val currentRepeatingRequest = _repeatingRequest
-            check(currentRepeatingRequest != null) {
-                "Cannot submit parameters without an active repeating request!"
-            }
-            return processingQueue.tryEmit(SubmitParameters(currentRepeatingRequest, parameters))
+    fun trigger(parameters: Map<*, Any?>): Boolean {
+        check(repeatingRequest != null) {
+            "Cannot submit parameters without an active repeating request!"
         }
-    }
-
-    private fun updateParameters(parameters: Map<*, Any?>): Boolean {
-        synchronized(lock) {
-            val currentRepeatingRequest = _repeatingRequest
-            if (currentRepeatingRequest != null) {
-                return processingQueue.tryEmit(
-                    UpdateParameters(currentRepeatingRequest, parameters)
-                )
-            } else {
-                return false
-            }
-        }
+        return processingQueue.tryEmit(GraphCommand.Trigger(parameters))
     }
 
     fun abort() {
-        processingQueue.tryEmit(AbortCaptures(requestProcessor))
+        processingQueue.tryEmit(GraphCommand.Abort)
     }
 
     fun invalidate() {
-        synchronized(lock) {
-            val currentRepeatingRequest = _repeatingRequest
-            if (currentRepeatingRequest != null) {
-                processingQueue.tryEmit(StartRepeating(currentRepeatingRequest))
-            } else {
-                processingQueue.tryEmit(Invalidate)
-            }
-        }
+        processingQueue.tryEmit(GraphCommand.Invalidate)
     }
 
     override fun close() {
@@ -222,7 +181,7 @@ internal class GraphLoop(
             if (closed) return
             closed = true
 
-            val previousRequestProcessor = _requestProcessor
+            _requestProcessor?.let { processor -> shutdownScope.launch { processor.shutdown() } }
             _requestProcessor = null
 
             // Shutdown Process - This will occur when the CameraGraph is closed:
@@ -230,13 +189,383 @@ internal class GraphLoop(
             //    processed, since they use the current requestProcessor instance.
             // 2. Emit a Shutdown call. This will clear or abort any previous requests and will
             //    close the request processor before cancelling the scope.
-            processingQueue.tryEmit(Shutdown(previousRequestProcessor))
+            processingQueue.tryEmit(GraphCommand.Shutdown)
         }
 
+        // Invoke shutdown listeners. There is a small chance that additional elements will be
+        // canceled or released after this point due to unprocessed elements in the queue.
         for (i in listeners.indices) {
             listeners[i].onGraphShutdown()
         }
     }
+
+    private var currentRepeatingRequest: Request? = null
+    private var currentGraphParameters: Map<*, Any?> = emptyMap<Any, Any?>()
+    private var currentGraph3AParameters: Map<*, Any?> = emptyMap<Any, Any?>()
+    private var currentRequiredParameters: Map<*, Any?> = requiredParameters
+    private var currentRequestProcessor: GraphRequestProcessor? = null
+
+    private suspend fun process(commands: MutableList<GraphCommand>) {
+        // The GraphLoop is responsible for bridging the core interactions with a camera so that
+        // ordering (and thus deterministic execution) is preserved, while also optimizing away
+        // unnecessary operations in real time.
+        //
+        // Unlike the consumer of a Flow, these optimizations require access to the full state of
+        // the command queue in order to evaluate what operations are redundant and may be safely
+        // skipped without altering the guarantees provided by the API surface.
+        //
+        // In general, this function must execute as fast as possible (But is allowed to suspend).
+        // after returning, the function may be re-invoked if:
+        //
+        // 1. The number of items `commands` is different, and non-zero
+        // 2. New items were added to the queue while process was executing.
+        //
+        // To keep things organized, commands are split into individual functions.
+
+        val idx = selectGraphCommand(commands)
+
+        // Process the selected command
+        when (val command = commands[idx]) {
+            GraphCommand.Invalidate -> commands.removeAt(idx)
+            GraphCommand.Shutdown -> processShutdown(commands)
+            GraphCommand.Abort -> processAbort(commands, idx)
+            GraphCommand.Stop -> processStop(commands, idx)
+            is GraphCommand.RequestProcessor -> processRequestProcessor(commands, idx, command)
+            is GraphCommand.Capture -> processCapture(commands, idx, command)
+            is GraphCommand.Trigger -> processTrigger(commands, idx, command)
+            is GraphCommand.Parameters -> processParameters(commands, idx, command)
+            is GraphCommand.Repeat -> processRepeat(commands, idx)
+        }
+    }
+
+    private fun selectGraphCommand(commands: MutableList<GraphCommand>): Int {
+        // This function will never be invoked with an empty command list.
+        if (commands.size == 1) return 0
+
+        // First, pick "interrupt commands". These are prioritized because they tend to remove other
+        // commands, or are guaranteed to be a NoOp (Invalidate). Because of this, pick the most
+        // recent interrupt command in the command list.
+        //
+        // RequestProcessor commands are special - The most recent one should always be selected,
+        // but it should be lower priority than Abort / Stop / Shutdown (and Invalidate). To avoid
+        // looping over it twice, track the first instance that is encountered, and return it if one
+        // is found and no other interrupt commands have been found.
+        var latestRequestProcessorCommand = -1
+        for (i in commands.indices.reversed()) {
+            when (commands[i]) {
+                GraphCommand.Abort,
+                GraphCommand.Invalidate,
+                GraphCommand.Stop,
+                GraphCommand.Shutdown -> {
+                    return i
+                }
+                is GraphCommand.RequestProcessor -> {
+                    if (latestRequestProcessorCommand < 0) {
+                        latestRequestProcessorCommand = i
+                    }
+                }
+                else -> continue
+            }
+        }
+
+        if (latestRequestProcessorCommand >= 0) {
+            return latestRequestProcessorCommand
+        }
+
+        // If there are no interrupt commands, prioritize commands that update parameters.
+        //
+        // However - we must maintain ordering to avoid skipping over trigger and capture commands.
+        // We can skip over StartRepeating calls, but not SubmitCapture or SubmitParameter calls.
+        // To do this, we iterate through the commands in order until we hit a non-Parameter or a
+        // non-Repeat command. We then return the most-recent parameter command to execute.
+        var latestParameterCommand = -1
+        for (i in commands.indices) {
+            when (commands[i]) {
+                is GraphCommand.Parameters -> latestParameterCommand = i
+                is GraphCommand.Repeat -> continue
+                else -> break
+            }
+        }
+        if (latestParameterCommand >= 0) {
+            return latestParameterCommand
+        }
+
+        // If the current repeating request is valid, and captureProcessing is enabled, prioritize
+        // capture and trigger commands.
+        if (currentRepeatingRequest != null && captureProcessingEnabled) {
+            // Pick the first Capture or Trigger command
+            for (i in commands.indices) {
+                when (commands[i]) {
+                    is GraphCommand.Capture,
+                    is GraphCommand.Trigger -> return i
+                    else -> continue
+                }
+            }
+        }
+
+        // Pick the most recent Repeat command without skipping over Capture/Triggers
+        var latestRepeatingCommand = -1
+        for (i in commands.indices) {
+            when (commands[i]) {
+                is GraphCommand.Repeat -> latestRepeatingCommand = i
+                else -> break
+            }
+        }
+        if (latestRepeatingCommand >= 0) {
+            return latestRepeatingCommand
+        }
+
+        // Pick the next command in order.
+        return 0
+    }
+
+    private fun processCapture(
+        commands: MutableList<GraphCommand>,
+        idx: Int,
+        command: GraphCommand.Capture,
+        repeatAllowed: Boolean = true,
+    ) {
+        if (captureProcessingEnabled) {
+            if (buildAndSubmit(isRepeating = false, requests = command.requests)) {
+                commands.removeAt(idx)
+                return
+            }
+        }
+
+        // If captureProcessing failed, or if we cannot currently issue captures, check to see if
+        // there are prior repeating requests that we should attempt.
+        if (repeatAllowed && idx > 0) {
+            val previousCommand = commands[idx - 1]
+            // The previous command, if it exists (idx > 0), must always be a Repeat command as
+            // other commands must always be prioritized.
+            check(previousCommand is GraphCommand.Repeat)
+            processRepeat(commands, idx - 1, captureAllowed = false)
+        }
+    }
+
+    private fun processTrigger(
+        commands: MutableList<GraphCommand>,
+        idx: Int,
+        command: GraphCommand.Trigger,
+    ) {
+        // Trigger commands take an existing repeating request, add some one-time parameters to it,
+        // and the submit it exactly once.
+        val repeatingRequest = currentRepeatingRequest
+        if (repeatingRequest == null && idx == 0) {
+            commands.removeAt(idx)
+            return
+        }
+
+        // If capture processing is enabled, and there is a non-null repeating request, attempt to
+        // submit the trigger.
+        if (captureProcessingEnabled && repeatingRequest != null) {
+            if (
+                buildAndSubmit(
+                    isRepeating = false,
+                    requests = listOf(repeatingRequest),
+                    oneTimeRequiredParameters = command.triggerParameters,
+                )
+            ) {
+                commands.removeAt(idx)
+                return
+            }
+        }
+
+        // If processTrigger failed, or if we cannot currently issue captures, check to see if
+        // there are prior repeating requests that we should attempt.
+        if (idx > 0) {
+            val previousCommand = commands[idx - 1]
+            check(previousCommand is GraphCommand.Repeat)
+            processRepeat(commands, idx - 1, captureAllowed = false)
+        }
+    }
+
+    private fun processRepeat(
+        commands: MutableList<GraphCommand>,
+        idx: Int,
+        captureAllowed: Boolean = true,
+    ) {
+        // Attempt to issue the repeating request at idx.
+        // 1. If that fails - move backwards through the list, attempting each repeating command in
+        //    order.
+        // 2. If submitting a repeating request from the command queue fails, attempt to submit the
+        //    next command, if it is a trigger or a capture.
+        for (i in idx downTo 0) {
+            val command = commands[i]
+            if (
+                command is GraphCommand.Repeat &&
+                    buildAndSubmit(isRepeating = true, requests = listOf(command.request))
+            ) {
+                currentRepeatingRequest = command.request
+                commands.removeAt(i)
+                commands.removeUpTo(i) { it is GraphCommand.Repeat }
+                return
+            }
+        }
+
+        // Repeating request failed, and there is a command in the queue after idx, and we are
+        // allowed to attempt capture (Capture can invoke processRepeat, and this avoids loops)
+        if (captureAllowed && idx + 1 < commands.size) {
+            val nextCommand = commands[idx + 1]
+            when (nextCommand) {
+                is GraphCommand.Capture ->
+                    processCapture(commands, idx + 1, nextCommand, repeatAllowed = false)
+                is GraphCommand.Trigger -> processTrigger(commands, idx + 1, nextCommand)
+                else -> return
+            }
+        }
+    }
+
+    private fun processParameters(
+        commands: MutableList<GraphCommand>,
+        idx: Int,
+        command: GraphCommand.Parameters,
+    ) {
+        currentGraphParameters = command.graphParameters
+        currentGraph3AParameters = command.graph3AParameters
+        currentRequiredParameters =
+            if (command.graph3AParameters.isEmpty()) {
+                requiredParameters
+            } else {
+                buildMap {
+                    putAllMetadata(command.graph3AParameters)
+                    putAllMetadata(requiredParameters)
+                }
+            }
+
+        commands.removeAt(idx)
+        commands.removeUpTo(idx) { it is GraphCommand.Parameters }
+        reissueRepeatingRequest()
+    }
+
+    private suspend fun processRequestProcessor(
+        commands: MutableList<GraphCommand>,
+        idx: Int,
+        command: GraphCommand.RequestProcessor,
+    ) {
+        var commandsRemoved = 1
+        commands.removeAt(idx)
+        commands.removeUpTo(idx) {
+            when (it) {
+                is GraphCommand.RequestProcessor -> {
+                    it.old?.shutdown()
+                    it.new?.shutdown()
+                    commandsRemoved++
+                    true
+                }
+                else -> false
+            }
+        }
+
+        command.old?.shutdown()
+        currentRequestProcessor = command.new
+
+        // If we have a previously submitted repeating request, attempt to resubmit it. If that
+        // fails, add it to the beginning of the queue.
+        if (!reissueRepeatingRequest()) {
+            currentRepeatingRequest?.let {
+                commands.add(0, GraphCommand.Repeat(it))
+
+                // Edge case: The graphProcessor may not re-attempt unless the number of items in
+                // `commands` has changed.
+                if (commandsRemoved == 1) {
+                    commands.add(GraphCommand.Invalidate)
+                }
+            }
+            currentRepeatingRequest = null
+        }
+    }
+
+    private fun processStop(commands: MutableList<GraphCommand>, idx: Int) {
+        // stopRepeating causes the current repeating request to stop, but does not affect capture
+        // commands. Invoke stopRepeating on the current RequestProcessor and clear the current
+        // repeating request.
+        currentRequestProcessor?.stopRepeating()
+        currentRepeatingRequest = null
+
+        // Remove all `Stop` and `Repeat` commands prior to the current stop command, since they
+        // are no longer relevant.
+        commands.removeAt(idx)
+        commands.removeUpTo(idx) {
+            when (it) {
+                GraphCommand.Stop,
+                is GraphCommand.Repeat -> true
+                else -> false
+            }
+        }
+    }
+
+    private fun processAbort(commands: MutableList<GraphCommand>, idx: Int) {
+        // abortCaptures affects both in-flight captures and the current repeating request.
+        // Invoke abortCaptures on the current RequestProcessor, and then clear the current
+        // repeating
+        // request, any pending Stop/Abort commands, and any pending Capture or Trigger commands.
+        currentRequestProcessor?.abortCaptures()
+        currentRepeatingRequest = null
+
+        commands.removeAt(idx)
+        commands.removeUpTo(idx) {
+            when (it) {
+                GraphCommand.Stop,
+                GraphCommand.Abort,
+                is GraphCommand.Repeat,
+                is GraphCommand.Trigger -> true
+                is GraphCommand.Capture -> {
+                    // Make sure listeners for capture events are always triggered.
+                    abortRequests(it.requests)
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private suspend fun processShutdown(commands: MutableList<GraphCommand>) {
+        currentRepeatingRequest = null
+        currentGraphParameters = emptyMap<Any, Any>()
+        currentGraph3AParameters = emptyMap<Any, Any>()
+
+        // Abort and remove all commands during shutdown.
+        for (idx in commands.indices) {
+            val command = commands[idx]
+            if (command is GraphCommand.Capture) {
+                // Make sure listeners for capture events are always triggered.
+                abortRequests(command.requests)
+            }
+        }
+
+        // Shutdown request processors (Current and pending)
+        currentRequestProcessor?.shutdown()
+        currentRequestProcessor = null
+
+        for (idx in commands.indices) {
+            val command = commands[idx]
+            if (command is GraphCommand.RequestProcessor) {
+                command.old?.shutdown()
+                command.new?.shutdown()
+            }
+        }
+        commands.clear()
+
+        // Cancel the scope. This will trigger the onUnprocessedItems callback after this returns
+        // and hits the next suspension point.
+        graphLoopScope.cancel()
+    }
+
+    /** Attempt to re-issue a previously submitted repeating request, likely with new parameters */
+    private fun reissueRepeatingRequest(): Boolean =
+        currentRequestProcessor?.let { processor ->
+            currentRepeatingRequest?.let { request ->
+                processor.submit(
+                    isRepeating = true,
+                    requests = listOf(request),
+                    defaultParameters = defaultParameters,
+                    graphParameters = currentGraphParameters,
+                    requiredParameters = currentRequiredParameters,
+                    listeners = graphListeners,
+                )
+            }
+        } == true
 
     /**
      * Invoke the onAborted listener for each request, prioritizing internal listeners over the
@@ -260,283 +589,112 @@ internal class GraphLoop(
         }
     }
 
-    private fun onShutdown(unprocessedCommands: List<GraphCommand>) {
-        // Cleanup unprocessed state and commands.
+    private fun finalizeUnprocessedCommands(unprocessedCommands: List<GraphCommand>) {
+        // When the graph loop is shutdown it is possible that additional elements may have been
+        // added to the queue. To avoid leaking resources, ensure that capture commands are aborted
+        // and that requestProcessor commands shutdown the associated request processor(s).
         for (command in unprocessedCommands) {
             when (command) {
-                is SubmitCapture -> abortRequests(command.requests)
+                // Make sure listeners for capture events are always triggered.
+                is GraphCommand.Capture -> abortRequests(command.requests)
+                is GraphCommand.RequestProcessor -> {
+                    shutdownScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                        command.old?.shutdown()
+                        command.new?.shutdown()
+                    }
+                }
                 else -> continue
             }
         }
     }
 
-    private var lastRepeatingRequest: Request? = null
-
-    private suspend fun commandLoop(commands: MutableList<GraphCommand>) {
-        // Command Loop Design:
-        //
-        // 1. Iterate through commands, newest first.
-        // 2. If any of the commands match in this first phase, execute the command, remove it (as
-        //    well as any other commands that are no longer valid), and then return. This will cause
-        //    processCommands to be check for new commands and re-invoke.
-        // 3. If none of the phase 1 commands match, process the remaining commands in the order
-        //    they were submitted, returning after each submission.
-
-        // ### Phase 1: LIFO High Priority Command Selection ###
-
-        var idx = -1
-        if (commands.size > 1) {
-            for (i in commands.indices.reversed()) {
-                when (commands[i]) {
-                    is Invalidate,
-                    is Shutdown,
-                    is AbortCaptures,
-                    is CloseRequestProcessor,
-                    is StopRepeating -> {
-                        idx = i
-                        break
-                    }
-                    is StartRepeating,
-                    is SubmitCapture,
-                    is SubmitParameters,
-                    is UpdateParameters -> continue
-                }
-            }
-
-            if (idx < 0) {
-                // ### Phase 2: LIFO Secondary Command Selection ###
-                //
-                // This primarily exists so that [StartRepeating, StopRepeating, StartRepeating]
-                // will execute the StopRepeating before the StartRepeating command. SubmitCapture
-                // and SubmitParameters are not affected because they are not skip-able.
-                for (i in commands.indices.reversed()) {
-                    if (commands[i] is StartRepeating) {
-                        idx = i
-                        break
-                    }
-                }
-            }
-        }
-
-        if (idx < 0) {
-            // Default: Pick the first command in the queue.
-            idx = 0
-        }
-
-        // Process and optionally remove the selected command.
-        when (val command = commands[idx]) {
-            is Invalidate -> commands.removeAt(idx)
-            is Shutdown -> {
-                commands.removeAt(idx)
-
-                // Remove all commands leading up to Shutdown and abort requests.
-                commands.removeUpTo(idx) {
-                    if (it is SubmitCapture) {
-                        abortRequests(it.requests)
-                    }
-                    true
-                }
-
-                // If the request processor is not null, shut it down. Consider making this a
-                // suspending call instead of just blocking to allow suspend-with-timeout.
-                command.requestProcessor?.shutdown()
-
-                // Cancel the scope. This will trigger the onUnprocessedItems callback after after
-                // this hits the next suspension point.
-                graphProcessorScope.cancel()
-            }
-            is CloseRequestProcessor -> {
-                commands.removeAt(idx)
-                command.requestProcessor.shutdown()
-            }
-            is AbortCaptures -> {
-                commands.removeAt(idx)
-
-                // Attempt to abort captures in the approximate order they were submitted:
-                // 1. Abort captures submitted to the camera
-                // 2. Invoke abort on captures that have not yet been submitted to the camera.
-                if (command.requestProcessor != null) {
-                    command.requestProcessor.abortCaptures()
-                }
-                commands.removeUpTo(idx) {
-                    when (it) {
-                        is AbortCaptures -> it.requestProcessor === command.requestProcessor
-                        is SubmitCapture -> {
-                            abortRequests(it.requests)
-                            true
-                        }
-                        is SubmitParameters -> {
-                            // Silently remove parameter requests. These are normally associated
-                            // with a repeating request, which will not expect abort commands to
-                            // fire.
-                            true
-                        }
-                        is UpdateParameters -> {
-                            // Same as above
-                            true
-                        }
-                        else -> false
-                    }
-                }
-            }
-            is StopRepeating -> {
-                commands.removeAt(idx)
-                if (command.requestProcessor != null) {
-                    command.requestProcessor.stopRepeating()
-                }
-                // Always remove prior SubmitRepeating and StopRepeating commands, but only if the
-                // StopRepeating commands are associated with the same requestProcessor instance.
-                commands.removeUpTo(idx) {
-                    it is StartRepeating ||
-                        (it is StopRepeating && it.requestProcessor === command.requestProcessor)
-                }
-            }
-            is StartRepeating -> {
-                val success =
-                    requestProcessor?.buildAndSubmit(
-                        isRepeating = true,
-                        requests = listOf(command.request),
-                        graphParameters = graphParameters
-                    ) == true
-                if (success) {
-                    lastRepeatingRequest = command.request
-                    commands.removeAt(idx)
-                    commands.removeUpTo(idx) { it is StartRepeating }
-                }
-            }
-            is SubmitCapture -> {
-                if (!_captureProcessingEnabled.value) {
-                    Log.warn {
-                        "Skipping SubmitCapture because capture processing is paused: " +
-                            "${command.requests}"
-                    }
-                    return
-                }
-                val success =
-                    requestProcessor?.buildAndSubmit(
-                        isRepeating = false,
-                        requests = command.requests,
-                        graphParameters = graphParameters
-                    ) == true
-                if (success) {
-                    commands.removeAt(idx)
-                } else {
-                    Log.warn {
-                        "SubmitCapture failed to submit requests to $requestProcessor: " +
-                            "${command.requests}, may be retried."
-                    }
-                }
-            }
-            is SubmitParameters -> {
-                if (!_captureProcessingEnabled.value) {
-                    Log.warn {
-                        "Skipping SubmitParameters because capture processing is paused: " +
-                            "${command.parameters}"
-                    }
-                    return
-                }
-
-                val success =
-                    requestProcessor?.buildAndSubmit(
-                        isRepeating = false,
-                        requests = listOf(command.request),
-                        parameters = command.parameters,
-                        graphParameters = graphParameters
-                    ) == true
-                if (success) {
-                    commands.removeAt(idx)
-                } else {
-                    Log.warn {
-                        "SubmitParameters failed to submit to $requestProcessor: " +
-                            Debug.formatParameterMap(command.parameters)
-                    }
-                }
-            }
-            is UpdateParameters -> {
-                val success =
-                    requestProcessor?.buildAndSubmit(
-                        isRepeating = true,
-                        requests = listOf(command.request),
-                        graphParameters = graphParameters
-                    ) == true
-                if (success) {
-                    commands.removeAt(idx)
-                } else {
-                    Log.warn {
-                        "UpdateParameters failed to submit to $requestProcessor: " +
-                            Debug.formatParameterMap(command.graphParameters)
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Utility function to remove items by index from a mutable list up-to a given index that match
-     * the provided function.
-     */
-    private inline fun <T> MutableList<T>.removeUpTo(idx: Int, predicate: (T) -> Boolean) {
-        var a = 0
-        var b = idx
-        while (a < b) {
-            if (predicate(this[a])) {
-                this.removeAt(a)
-                b-- // Reduce upper bound
-            } else {
-                a++ // Advance lower bound
-            }
-        }
-    }
-
-    private fun GraphRequestProcessor.buildAndSubmit(
+    private fun buildAndSubmit(
         isRepeating: Boolean,
         requests: List<Request>,
-        parameters: Map<*, Any?> = emptyMap<Any, Any?>(),
-        graphParameters: Map<*, Any?> = emptyMap<Any, Any?>()
+        oneTimeRequiredParameters: Map<*, Any?> = emptyMap<Any, Any>(),
     ): Boolean {
-        val graphRequiredParameters = buildMap {
-            // Build the required parameter map:
-            // 1. graphState3A parameters override provided parameters.
-            // 2. requiredParameters override graphState and parameters.
-            this.putAllMetadata(parameters)
-            graphState3A?.writeTo(this)
-            this.putAllMetadata(requiredParameters)
-        }
+        val processor = currentRequestProcessor
+        if (processor == null) return false
 
-        val result =
-            this.submit(
+        val success =
+            processor.submit(
                 isRepeating = isRepeating,
                 requests = requests,
                 defaultParameters = defaultParameters,
-                graphParameters = graphParameters,
-                requiredParameters = graphRequiredParameters,
-                listeners = graphListeners
+                graphParameters = currentGraphParameters,
+                requiredParameters =
+                    if (oneTimeRequiredParameters.isEmpty()) {
+                        currentRequiredParameters
+                    } else {
+                        buildMap<Any, Any?> {
+                            this.putAllMetadata(currentGraph3AParameters)
+                            this.putAllMetadata(oneTimeRequiredParameters)
+                            this.putAllMetadata(requiredParameters)
+                        }
+                    },
+                listeners = graphListeners,
             )
-        return result
+
+        if (!success) {
+            if (isRepeating) {
+                Log.warn { "Failed to repeat with ${requests.single()}" }
+            } else {
+                if (oneTimeRequiredParameters.isEmpty()) {
+                    Log.warn { "Failed to submit capture with $requests" }
+                } else {
+                    Log.warn {
+                        "Failed to trigger with ${requests.single()} and $oneTimeRequiredParameters"
+                    }
+                }
+            }
+        }
+
+        return success
     }
 
     override fun toString(): String = "GraphLoop($cameraGraphId)"
 
-    private sealed class GraphCommand
+    companion object {
+        /**
+         * Utility function to remove items by index from a `MutableList` up-to (but not including)
+         * the provided index without creating an iterator.
+         *
+         * For example, in a list of [1, 2, 3, 4, 5], calling removeUpTo(3) { it % 2 = 1 } will test
+         * [1, 2, 3], and remove "1" and "3", modifying the list to have [2, 4, 5]
+         */
+        private inline fun <T> MutableList<T>.removeUpTo(idx: Int, predicate: (T) -> Boolean) {
+            var a = 0
+            var b = idx
+            while (a < b) {
+                if (predicate(this[a])) {
+                    this.removeAt(a)
+                    b-- // Reduce upper bound
+                } else {
+                    a++ // Advance lower bound
+                }
+            }
+        }
+    }
+}
 
-    private object Invalidate : GraphCommand()
+internal sealed interface GraphCommand {
+    object Invalidate : GraphCommand
 
-    private class Shutdown(val requestProcessor: GraphRequestProcessor?) : GraphCommand()
+    object Shutdown : GraphCommand
 
-    private class CloseRequestProcessor(val requestProcessor: GraphRequestProcessor) :
-        GraphCommand()
+    object Stop : GraphCommand
 
-    private class StopRepeating(val requestProcessor: GraphRequestProcessor?) : GraphCommand()
+    object Abort : GraphCommand
 
-    private class AbortCaptures(val requestProcessor: GraphRequestProcessor?) : GraphCommand()
+    class RequestProcessor(val old: GraphRequestProcessor?, val new: GraphRequestProcessor?) :
+        GraphCommand
 
-    private class StartRepeating(val request: Request) : GraphCommand()
+    class Parameters(val graphParameters: Map<*, Any?>, val graph3AParameters: Map<*, Any?>) :
+        GraphCommand
 
-    private class SubmitCapture(val requests: List<Request>) : GraphCommand()
+    class Repeat(val request: Request) : GraphCommand
 
-    private class SubmitParameters(val request: Request, val parameters: Map<*, Any?>) :
-        GraphCommand()
+    class Capture(val requests: List<Request>) : GraphCommand
 
-    private class UpdateParameters(val request: Request, val graphParameters: Map<*, Any?>) :
-        GraphCommand()
+    class Trigger(val triggerParameters: Map<*, Any?>) : GraphCommand
 }

@@ -49,13 +49,13 @@ abstract class SafeArgsPlugin protected constructor(private val providerFactory:
         listOf(
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.android",
-            "org.jetbrains.kotlin.multiplatform"
+            "org.jetbrains.kotlin.multiplatform",
         )
 
     @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
     private fun forEachVariant(
         extension: BaseExtension,
-        action: (com.android.build.gradle.api.BaseVariant) -> Unit
+        action: (com.android.build.gradle.api.BaseVariant) -> Unit,
     ) {
         when {
             extension is AppExtension -> extension.applicationVariants.configureEach(action)
@@ -134,7 +134,7 @@ abstract class SafeArgsPlugin protected constructor(private val providerFactory:
                     "generateSafeArgs${variant.name.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
                 }}",
-                    ArgumentsGenerationTask::class.java
+                    ArgumentsGenerationTask::class.java,
                 ) { task ->
                     task.applicationId.set(
                         applicationIds.getOrPut(variant.name) {
@@ -173,7 +173,7 @@ abstract class SafeArgsPlugin protected constructor(private val providerFactory:
     @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
     private fun navigationFiles(
         variant: com.android.build.gradle.api.BaseVariant,
-        project: Project
+        project: Project,
     ): ConfigurableFileCollection {
         val fileProvider =
             providerFactory.provider {

@@ -62,7 +62,7 @@ class NodeChainOwnerTests {
                 // test this, with no graphicsLayers added externally
                 Layout(
                     modifier = Modifier.graphicsLayer().semantics {}.testTag("tag"),
-                    EmptyMeasurePolicy()
+                    EmptyMeasurePolicy(),
                 )
             }
         }
@@ -80,7 +80,7 @@ class NodeChainOwnerTests {
                 // test this, with no graphicsLayers added externally
                 Layout(
                     modifier = Modifier.graphicsLayer().size(30.dp).testTag("tag"),
-                    EmptyMeasurePolicy()
+                    EmptyMeasurePolicy(),
                 )
             }
         }
@@ -94,7 +94,7 @@ class NodeChainOwnerTests {
 class EmptyMeasurePolicy : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         return layout(constraints.maxWidth, constraints.maxHeight, placementBlock = {})
     }

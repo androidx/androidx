@@ -24,14 +24,13 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
 
-class UuidColumnTypeAdapter(
-    out: XType,
-) : ColumnTypeAdapter(out = out, typeAffinity = SQLTypeAffinity.BLOB) {
+class UuidColumnTypeAdapter(out: XType) :
+    ColumnTypeAdapter(out = out, typeAffinity = SQLTypeAffinity.BLOB) {
     override fun bindToStmt(
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addBindBlobStatement() {
@@ -59,7 +58,7 @@ class UuidColumnTypeAdapter(
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addGetBlobStatement() {
@@ -68,7 +67,7 @@ class UuidColumnTypeAdapter(
                     outVarName,
                     RoomTypeNames.UUID_UTIL.packageMember("convertByteToUUID"),
                     stmtVarName,
-                    indexVarName
+                    indexVarName,
                 )
             }
             if (out.nullability == XNullability.NONNULL) {

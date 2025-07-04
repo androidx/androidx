@@ -53,7 +53,7 @@ import androidx.compose.ui.util.fastFirst
  * A common use case is to display a badge with navigation bar items. For more information, see
  * [Navigation Bar](https://m3.material.io/components/navigation-bar/overview)
  *
- * A simple icon with badge example looks like:
+ * Simple icons with badge examples look like:
  *
  * @sample androidx.compose.material3.samples.NavigationBarItemWithBadge
  * @param badge the badge to be displayed - typically a [Badge]
@@ -72,7 +72,7 @@ fun BadgedBox(
             Box(
                 modifier = Modifier.layoutId("anchor"),
                 contentAlignment = Alignment.Center,
-                content = content
+                content = content,
             )
             Box(modifier = Modifier.layoutId("badge"), content = badge)
         },
@@ -115,13 +115,13 @@ fun BadgedBox(
             val badgeX =
                 minOf(
                     anchorPlaceable.width - badgeHorizontalOffset.roundToPx(),
-                    BadgeEndRuler.current(Float.POSITIVE_INFINITY).toInt() - badgePlaceable.width
+                    BadgeEndRuler.current(Float.POSITIVE_INFINITY).toInt() - badgePlaceable.width,
                 )
 
             val badgeY =
                 maxOf(
                     -badgePlaceable.height + badgeVerticalOffset.roundToPx(),
-                    BadgeTopRuler.current(Float.NEGATIVE_INFINITY).toInt()
+                    BadgeTopRuler.current(Float.NEGATIVE_INFINITY).toInt(),
                 )
 
             badgePlaceable.placeRelative(badgeX, badgeY)
@@ -174,7 +174,7 @@ fun Badge(
                     else Modifier
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         if (content != null) {
             // Not using Surface composable because it blocks touch propagation behind it.
@@ -182,7 +182,7 @@ fun Badge(
             ProvideContentColorTextStyle(
                 contentColor = contentColor,
                 textStyle = style,
-                content = { content() }
+                content = { content() },
             )
         }
     }
@@ -227,7 +227,7 @@ internal fun Modifier.badgeBounds() =
                 // in the badge code
                 BadgeEndRuler provides coordinates.size.width.toFloat()
                 BadgeTopRuler provides 0f
-            }
+            },
         ) {
             placeable.place(0, 0)
         }

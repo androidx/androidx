@@ -87,7 +87,7 @@ value class Velocity internal constructor(private val packedValue: Long) {
         Velocity(
             packFloats(
                 unpackFloat1(packedValue) - unpackFloat1(other.packedValue),
-                unpackFloat2(packedValue) - unpackFloat2(other.packedValue)
+                unpackFloat2(packedValue) - unpackFloat2(other.packedValue),
             )
         )
 
@@ -102,7 +102,7 @@ value class Velocity internal constructor(private val packedValue: Long) {
         Velocity(
             packFloats(
                 unpackFloat1(packedValue) + unpackFloat1(other.packedValue),
-                unpackFloat2(packedValue) + unpackFloat2(other.packedValue)
+                unpackFloat2(packedValue) + unpackFloat2(other.packedValue),
             )
         )
 

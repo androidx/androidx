@@ -28,7 +28,7 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 import java.lang.reflect.UndeclaredThrowableException
@@ -60,7 +60,10 @@ internal inline fun <reified T> LocalSdkProvider.extractSdkProviderFieldValue(
 internal fun LocalSdkProvider.extractSdkProviderClassloader(): ClassLoader =
     sdkProvider.javaClass.classLoader!!
 
-/** Reflection wrapper for [SdkSandboxControllerCompat] */
+/**
+ * Reflection wrapper for
+ * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat]
+ */
 internal class SdkControllerWrapper(private val controller: Any) {
     fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkWrapper {
         try {
@@ -97,7 +100,7 @@ internal class SdkControllerWrapper(private val controller: Any) {
         val proxy =
             classLoader.createProxyFor(
                 SdkSandboxActivityHandlerCompat::class.java.name,
-                "onActivityCreated"
+                "onActivityCreated",
             ) {
                 handler.setResult(it!![0]!!)
             }
@@ -121,7 +124,7 @@ internal class SdkControllerWrapper(private val controller: Any) {
         val proxy =
             classLoader.createProxyFor(
                 SdkSandboxClientImportanceListenerCompat::class.java.name,
-                "onForegroundImportanceChanged"
+                "onForegroundImportanceChanged",
             ) {
                 listener.addStateChangeEvent(it!![0]!! as Boolean)
             }
@@ -129,7 +132,7 @@ internal class SdkControllerWrapper(private val controller: Any) {
         controller.callMethod(
             "registerSdkSandboxClientImportanceListener",
             Executor { p -> p.run() },
-            proxy
+            proxy,
         )
 
         listener.proxy = proxy
@@ -256,17 +259,21 @@ internal fun SandboxedSdkCompat.asTestSdk(): SdkControllerWrapper {
 }
 
 /**
- * Creates [SdkControllerWrapper] for instance of [SdkSandboxControllerCompat] class loaded by SDK
- * classloader.
+ * Creates [SdkControllerWrapper] for instance of
+ * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat] class loaded
+ * by SDK classloader.
  */
 private fun createSdkControllerWrapperFor(
     classLoader: ClassLoader,
-    sdkContext: Any
+    sdkContext: Any,
 ): SdkControllerWrapper {
-    val sdkController =
-        classLoader
-            .getClass(SdkSandboxControllerCompat::class.java.name)
-            .callStaticMethod("from", sdkContext)!!
+    val sdkVersion =
+        classLoader.getClass(Versions::class.java.name).getStaticField("API_VERSION") as Int
+    val className =
+        if (ClientFeature.SDK_SANDBOX_CONTROLLER_BACKEND_HOLDER.isAvailable(sdkVersion))
+            "androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat"
+        else "androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat"
+    val sdkController = classLoader.getClass(className).callStaticMethod("from", sdkContext)!!
     return SdkControllerWrapper(sdkController)
 }
 
@@ -351,7 +358,7 @@ private fun Any.callSuspendMethod(methodName: String, vararg args: Any?): Any? {
 private fun ClassLoader.createProxyFor(
     className: String,
     methodName: String,
-    handler: (args: Array<Any?>?) -> Any?
+    handler: (args: Array<Any?>?) -> Any?,
 ): Any {
     return createProxyFor(className) { calledMethodName, args ->
         if (calledMethodName == methodName) {
@@ -367,7 +374,7 @@ private fun ClassLoader.createProxyFor(
 /** Create Dynamic Proxy that handles all methods of [className]. */
 private fun ClassLoader.createProxyFor(
     className: String,
-    handler: (methodName: String, args: Array<Any?>?) -> Any?
+    handler: (methodName: String, args: Array<Any?>?) -> Any?,
 ): Any {
     return Proxy.newProxyInstance(this, arrayOf(getClass(className))) { proxy, method, args ->
         when (method.name) {

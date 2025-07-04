@@ -62,7 +62,7 @@ private const val ROTATE_TIMEOUT_MS = 2000L
 @LargeTest
 class ExistingActivityLifecycleTest(
     private val implName: String,
-    private val cameraConfig: String
+    private val cameraConfig: String,
 ) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
@@ -76,16 +76,14 @@ class ExistingActivityLifecycleTest(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule val repeatRule = RepeatRule()
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private val launchIntent =
         Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
@@ -351,7 +349,7 @@ class ExistingActivityLifecycleTest(
                     InstrumentationRegistry.getInstrumentation(),
                     CameraXActivity::class.java,
                     Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
-                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) },
                 )!!
 
             // Assert. Verify the preview of the New activity start successfully.
@@ -381,12 +379,12 @@ class ExistingActivityLifecycleTest(
             listOf(
                 arrayOf(
                     Camera2Config::class.simpleName,
-                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION,
                 ),
                 arrayOf(
                     CameraPipeConfig::class.simpleName,
-                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
-                )
+                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+                ),
             )
     }
 }

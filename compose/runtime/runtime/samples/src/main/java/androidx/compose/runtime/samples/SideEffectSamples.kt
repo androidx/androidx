@@ -71,7 +71,7 @@ fun disposableEffectSample() {
                     onSuccess = { response -> userDataState = UserDataState.UserData(response) },
                     onError = { throwable ->
                         userDataState = UserDataState.Error(throwable.message)
-                    }
+                    },
                 )
 
             onDispose { requestDisposable.dispose() }

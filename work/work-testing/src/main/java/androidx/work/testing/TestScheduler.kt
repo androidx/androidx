@@ -41,19 +41,19 @@ import java.util.UUID
  * killed.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TestScheduler(
+public class TestScheduler(
     private val workDatabase: WorkDatabase,
     private val launcher: WorkLauncher,
     private val clock: Clock,
     runnableScheduler: RunnableScheduler,
-    private val executorsMode: ExecutorsMode
+    private val executorsMode: ExecutorsMode,
 ) : Scheduler, TestDriver {
     @GuardedBy("lock") private val pendingWorkStates = mutableMapOf<String, InternalWorkState>()
     private val lock = Any()
     private val startStopTokens = StartStopTokens.create()
     private val delayedWorkTracker = DelayedWorkTracker(this, runnableScheduler, clock)
 
-    override fun hasLimitedSchedulingSlots() = true
+    override fun hasLimitedSchedulingSlots(): Boolean = true
 
     override fun schedule(vararg workSpecs: WorkSpec) {
         if (workSpecs.isEmpty()) {
@@ -177,7 +177,7 @@ class TestScheduler(
 
     private fun generateStartStopToken(
         spec: WorkSpec,
-        generationalId: WorkGenerationalId
+        generationalId: WorkGenerationalId,
     ): StartStopToken {
         val token =
             synchronized(lock) {

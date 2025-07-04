@@ -37,7 +37,7 @@ import java.lang.annotation.ElementType.PARAMETER
     AnnotationTarget.FIELD,
     AnnotationTarget.LOCAL_VARIABLE,
     AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.FILE
+    AnnotationTarget.FILE,
 )
 // Needed due to Kotlin's lack of PACKAGE annotation target
 // https://youtrack.jetbrains.com/issue/KT-45921

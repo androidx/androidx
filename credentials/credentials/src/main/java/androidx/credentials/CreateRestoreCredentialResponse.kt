@@ -27,11 +27,8 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property responseJson the public key credential registration response in
  *   [JSON format](https://w3c.github.io/webauthn/#authenticatorattestationresponse).
  */
-class CreateRestoreCredentialResponse
-private constructor(
-    val responseJson: String,
-    data: Bundle,
-) : CreateCredentialResponse(RestoreCredential.TYPE_RESTORE_CREDENTIAL, data) {
+class CreateRestoreCredentialResponse private constructor(val responseJson: String, data: Bundle) :
+    CreateCredentialResponse(RestoreCredential.TYPE_RESTORE_CREDENTIAL, data) {
 
     /**
      * Constructs a [CreateRestoreCredentialResponse].

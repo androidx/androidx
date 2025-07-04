@@ -35,8 +35,8 @@ class SectionedItemTemplateTest {
             GridSection.Builder()
                 .addItem(GridItem.Builder().setImage(CarIcon.COMPOSE_MESSAGE).build())
                 .setTitle(CarText.Builder("Section 2").build())
-                .setItemSize(GridSection.ITEM_SIZE_LARGE)
-                .build()
+                .setItemSize(GridSection.ITEM_SIZE_EXTRA_LARGE)
+                .build(),
         )
     private val testActions =
         listOf(
@@ -47,7 +47,7 @@ class SectionedItemTemplateTest {
             Action.Builder()
                 .setIcon(CarIcon.COMPOSE_MESSAGE)
                 .setBackgroundColor(CarColor.BLUE)
-                .build()
+                .build(),
         )
     private val testHeader = Header.Builder().setTitle("My title").build()
 
@@ -87,6 +87,27 @@ class SectionedItemTemplateTest {
     }
 
     @Test
+    fun getScrollStatePersistenceStrategy() {
+        val template =
+            SectionedItemTemplate.Builder()
+                .setScrollStatePersistenceStrategy(
+                    SectionedItemTemplate.SCROLL_STATE_PRESERVE_INDEX
+                )
+                .build()
+
+        assertThat(template.scrollStatePersistenceStrategy)
+            .isEqualTo(SectionedItemTemplate.SCROLL_STATE_PRESERVE_INDEX)
+    }
+
+    @Test
+    fun getScrollStatePersistenceStrategy_defaultValue_returnsResetToTop() {
+        val template = SectionedItemTemplate.Builder().build()
+
+        assertThat(template.scrollStatePersistenceStrategy)
+            .isEqualTo(SectionedItemTemplate.SCROLL_STATE_RESET_TO_TOP)
+    }
+
+    @Test
     fun build_throwsException_whenLoadingAndContainsSections() {
         try {
             SectionedItemTemplate.Builder()
@@ -118,6 +139,14 @@ class SectionedItemTemplateTest {
         } catch (e: IllegalArgumentException) {
             assertThat(e.message).contains("is not allowed")
         }
+    }
+
+    @Test
+    fun createInstance_addMediaPlaybackActionAsRowSecondaryAction() {
+        val sections = listOf(RowSection.Builder().addItem(createRowWithMediaAction()).build())
+        val template = SectionedItemTemplate.Builder().setSections(sections).build()
+
+        assertThat(template.sections).containsExactlyElementsIn(sections)
     }
 
     @Test
@@ -191,8 +220,12 @@ class SectionedItemTemplateTest {
             .setHeader(testHeader)
             .setActions(testActions)
             .setAlphabeticalIndexingAllowed(true)
+            .setScrollStatePersistenceStrategy(SectionedItemTemplate.SCROLL_STATE_PRESERVE_INDEX)
             .build()
 
     private fun buildTemplate(block: SectionedItemTemplate.Builder.() -> Unit = {}) =
         SectionedItemTemplate.Builder().apply { block() }.build()
+
+    private fun createRowWithMediaAction(): Row =
+        Row.Builder().setTitle("Bananas").addAction(Action.MEDIA_PLAYBACK).build()
 }

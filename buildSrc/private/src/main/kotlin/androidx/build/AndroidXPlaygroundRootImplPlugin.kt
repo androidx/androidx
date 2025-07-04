@@ -62,7 +62,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         GradleTransformWorkaround.maybeApply(rootProject)
         PlaygroundCIHostTestsTask.register(rootProject)
         primaryProjectPaths =
-            target.extensions.extraProperties.get("primaryProjects").toString().split(",").toSet()
+            target.extensions.extraProperties.get("primaryProjects")!!.toString().split(",").toSet()
         rootProject.subprojects { configureSubProject(it) }
     }
 
@@ -133,13 +133,19 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     if (playgroundRepository.includeModuleRegex != null) {
                         it.includeModuleByRegex(
                             playgroundRepository.includeGroupRegex,
-                            playgroundRepository.includeModuleRegex
+                            playgroundRepository.includeModuleRegex,
                         )
                     }
                 }
             }
         }
-        google()
+        google { repository ->
+            repository.content {
+                it.includeGroupByRegex("androidx.*")
+                it.includeGroupByRegex("com\\.android.*")
+                it.includeGroupByRegex("com\\.google.*")
+            }
+        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -149,31 +155,36 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             PlaygroundRepository(
                 "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts" +
                     "/repository",
-                includeGroupRegex = """androidx\..*"""
+                includeGroupRegex = """androidx\..*""",
             )
         val metalava =
             PlaygroundRepository(
                 "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +
                     "/repo/m2repository",
-                includeGroupRegex = """com\.android\.tools\.metalava"""
+                includeGroupRegex = """com\.android\.tools\.metalava""",
             )
         val prebuilts =
             PlaygroundRepository(
                 INTERNAL_PREBUILTS_REPO_URL,
-                includeGroupRegex = """androidx\..*"""
+                includeGroupRegex = """androidx\..*""",
             )
         val dokka =
             PlaygroundRepository(
                 "https://maven.pkg.jetbrains.space/kotlin/p/dokka/dev",
-                includeGroupRegex = """org\.jetbrains\.dokka"""
+                includeGroupRegex = """org\.jetbrains\.dokka""",
             )
-        val all = listOf(snapshots, metalava, dokka, prebuilts)
+        val kotlinDev =
+            PlaygroundRepository(
+                "https://packages.jetbrains.team/maven/p/kt/dev/",
+                includeGroupRegex = """org\.jetbrains\.kotlin.*""",
+            )
+        val all = listOf(snapshots, metalava, dokka, prebuilts, kotlinDev)
     }
 
     private data class PlaygroundRepository(
         val url: String,
         val includeGroupRegex: String,
-        val includeModuleRegex: String? = null
+        val includeModuleRegex: String? = null,
     )
 
     private data class PlaygroundProperties(
@@ -198,45 +209,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     }
 
     companion object {
-        /**
-         * Returns a `project` if exists or the latest artifact coordinates if it doesn't.
-         *
-         * This can be used for optional dependencies in the playground settings.gradle files.
-         *
-         * @param path The project path
-         * @return A Project instance if it exists or coordinates of the artifact if the project is
-         *   not included in this build.
-         */
-        fun projectOrArtifact(rootProject: Project, path: String): Any {
-            val requested = rootProject.findProject(path)
-            if (requested != null) {
-                return requested
-            } else {
-                val sections = path.split(":")
-
-                if (sections[0].isNotEmpty()) {
-                    throw GradleException(
-                        "Expected projectOrArtifact path to start with empty section but got $path"
-                    )
-                }
-
-                // Typically androidx projects have 3 sections, compose has 4.
-                if (sections.size >= 3) {
-                    val group =
-                        sections
-                            // Filter empty sections as many declarations start with ':'
-                            .filter { it.isNotBlank() }
-                            // Last element is the artifact.
-                            .dropLast(1)
-                            .joinToString(".")
-                    return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
-                }
-
-                throw GradleException("projectOrArtifact cannot find/replace project $path")
-            }
-        }
-
-        const val SNAPSHOT_MARKER = "REPLACE_WITH_SNAPSHOT"
         const val INTERNAL_PREBUILTS_REPO_URL =
             "https://androidx.dev/storage/prebuilts/androidx/internal/repository"
     }
@@ -251,7 +223,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         }
 
         companion object {
-            private val NAME = "playgroundCIHostTests"
+            private const val NAME = "playgroundCIHostTests"
 
             fun addTask(project: Project, task: AbstractTestTask) {
                 project.rootProject.tasks.named(NAME).configure { it.dependsOn(task) }

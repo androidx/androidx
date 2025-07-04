@@ -16,14 +16,12 @@
 
 package androidx.xr.compose.subspace.node
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 
 /**
  * A [SubspaceModifier.Node] that adds semantics key/values for use in testing, accessibility, and
  * similar use cases.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SubspaceSemanticsModifierNode {
     /**
      * Adds semantics key/value pairs to the layout node, for use in testing, accessibility, etc.

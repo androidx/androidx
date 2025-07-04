@@ -105,6 +105,7 @@ class SplitActivityRecyclerViewAdapter(private val items: List<Item>) :
 
         fun bind(item: Item) {
             binding.itemCheckbox.visibility = if (item.isVisible) View.VISIBLE else View.GONE
+            binding.itemCheckbox.setOnCheckedChangeListener(null)
             binding.itemCheckbox.isChecked = item.isChecked
             binding.itemCheckbox.setOnCheckedChangeListener { _, isChecked ->
                 item.isChecked = isChecked

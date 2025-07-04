@@ -18,7 +18,11 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.os.Build;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
@@ -38,6 +42,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Executor;
 
 /**
@@ -52,18 +58,36 @@ final class TorchControl {
     private static final String TAG = "TorchControl";
     static final int DEFAULT_TORCH_STATE = TorchState.OFF;
 
+    /** Torch is off. */
+    static final int OFF = 0;
+    /** Torch is turned on explicitly by {@link #enableTorch(boolean)}. */
+    static final int ON = 1;
+    /** Torch is turned on as flash by the capture pipeline. */
+    static final int USED_AS_FLASH = 2;
+
+    /** The internal torch state. */
+    @IntDef({OFF, ON, USED_AS_FLASH})
+    @Retention(RetentionPolicy.SOURCE)
+    @interface TorchStateInternal {
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     private final Camera2CameraControlImpl mCamera2CameraControlImpl;
     private final MutableLiveData<Integer> mTorchState;
+    private final MutableLiveData<Integer> mTorchStrength;
     private final boolean mHasFlashUnit;
     @CameraExecutor
     private final Executor mExecutor;
 
     private boolean mIsActive;
+    private boolean mIsTorchStrengthSupported;
+    private int mDefaultTorchStrength;
+    private int mTargetTorchStrength;
+    private CallbackToFutureAdapter.Completer<Void> mTorchStrengthCompleter;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    CallbackToFutureAdapter.Completer<Void> mEnableTorchCompleter;
+            CallbackToFutureAdapter.Completer<Void> mEnableTorchCompleter;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    boolean mTargetTorchEnabled;
+            boolean mTargetTorchEnabled;
 
     /**
      * Constructs a TorchControl.
@@ -79,7 +103,13 @@ final class TorchControl {
         mExecutor = executor;
 
         mHasFlashUnit = FlashAvailabilityChecker.isFlashAvailable(cameraCharacteristics::get);
+        mIsTorchStrengthSupported = cameraCharacteristics.isTorchStrengthLevelSupported();
+        mDefaultTorchStrength = mHasFlashUnit && mIsTorchStrengthSupported
+                ? cameraCharacteristics.getDefaultTorchStrengthLevel()
+                : Camera2CameraInfoImpl.TORCH_STRENGTH_LEVEL_UNSUPPORTED;
+        mTargetTorchStrength = mDefaultTorchStrength;
         mTorchState = new MutableLiveData<>(DEFAULT_TORCH_STATE);
+        mTorchStrength = new MutableLiveData<>(mDefaultTorchStrength);
         Camera2CameraControlImpl.CaptureResultListener captureResultListener = captureResult -> {
             if (mEnableTorchCompleter != null) {
                 CaptureRequest captureRequest = captureResult.getRequest();
@@ -90,6 +120,16 @@ final class TorchControl {
                 if (torchEnabled == mTargetTorchEnabled) {
                     mEnableTorchCompleter.set(null);
                     mEnableTorchCompleter = null;
+                }
+            }
+            if (mIsTorchStrengthSupported
+                    && Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+                    && mTorchStrengthCompleter != null) {
+                Integer torchStrength = captureResult.get(CaptureResult.FLASH_STRENGTH_LEVEL);
+
+                if (torchStrength != null && torchStrength == mTargetTorchStrength) {
+                    mTorchStrengthCompleter.set(null);
+                    mTorchStrengthCompleter = null;
                 }
             }
             // Return false to keep getting captureResult.
@@ -114,14 +154,22 @@ final class TorchControl {
         if (!isActive) {
             if (mTargetTorchEnabled) {
                 mTargetTorchEnabled = false;
-                mCamera2CameraControlImpl.enableTorchInternal(false);
-                setLiveDataValue(mTorchState, TorchState.OFF);
+                mTargetTorchStrength = mDefaultTorchStrength;
+                mCamera2CameraControlImpl.enableTorchInternal(OFF);
+                setTorchState(OFF);
+                setLiveDataValue(mTorchStrength, mDefaultTorchStrength);
             }
 
             if (mEnableTorchCompleter != null) {
                 mEnableTorchCompleter.setException(
                         new OperationCanceledException("Camera is not active."));
                 mEnableTorchCompleter = null;
+            }
+
+            if (mTorchStrengthCompleter != null) {
+                mTorchStrengthCompleter.setException(
+                        new OperationCanceledException("Camera is not active."));
+                mTorchStrengthCompleter = null;
             }
         }
     }
@@ -154,11 +202,11 @@ final class TorchControl {
             return Futures.immediateFailedFuture(new IllegalStateException("No flash unit"));
         }
 
-        setLiveDataValue(mTorchState, enabled ? TorchState.ON : TorchState.OFF);
+        @TorchStateInternal int torchState = enabled ? ON : OFF;
+        setTorchState(torchState);
 
         return CallbackToFutureAdapter.getFuture(completer -> {
-            mExecutor.execute(
-                    () -> enableTorchInternal(completer, enabled));
+            mExecutor.execute(() -> enableTorchInternal(completer, torchState));
             return "enableTorch: " + enabled;
         });
     }
@@ -175,9 +223,14 @@ final class TorchControl {
         return mTorchState;
     }
 
+    @NonNull LiveData<Integer> getTorchStrengthLevel() {
+        return mTorchStrength;
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
-    void enableTorchInternal(@Nullable Completer<Void> completer, boolean enabled) {
+    void enableTorchInternal(@Nullable Completer<Void> completer,
+            @TorchStateInternal int torchState) {
         if (!mHasFlashUnit) {
             if (completer != null) {
                 completer.setException(new IllegalStateException("No flash unit"));
@@ -186,21 +239,112 @@ final class TorchControl {
         }
 
         if (!mIsActive) {
-            setLiveDataValue(mTorchState, TorchState.OFF);
+            setTorchState(OFF);
             if (completer != null) {
                 completer.setException(new OperationCanceledException("Camera is not active."));
             }
             return;
         }
 
-        mTargetTorchEnabled = enabled;
-        mCamera2CameraControlImpl.enableTorchInternal(enabled);
-        setLiveDataValue(mTorchState, enabled ? TorchState.ON : TorchState.OFF);
+        if (mCamera2CameraControlImpl.isLowLightBoostOn()) {
+            if (completer != null) {
+                completer.setException(new IllegalStateException(
+                        "Torch can not be enabled when low-light boost is on!"));
+            }
+            return;
+        }
+
+        mTargetTorchEnabled = torchState != OFF;
+        mCamera2CameraControlImpl.enableTorchInternal(torchState);
+        setTorchState(torchState);
         if (mEnableTorchCompleter != null) {
             mEnableTorchCompleter.setException(new OperationCanceledException(
                     "There is a new enableTorch being set"));
         }
         mEnableTorchCompleter = completer;
+    }
+
+    ListenableFuture<Void> setTorchStrengthLevel(@IntRange(from = 1) int torchStrengthLevel) {
+        if (!mIsTorchStrengthSupported) {
+            return Futures.immediateFailedFuture(new UnsupportedOperationException(
+                    "Setting torch strength is not supported on the device."));
+        }
+
+        setLiveDataValue(mTorchStrength, torchStrengthLevel);
+
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(
+                    () -> setTorchStrengthLevelInternal(completer, torchStrengthLevel));
+            return "setTorchStrength: " + torchStrengthLevel;
+        });
+    }
+
+    @ExecutedBy("mExecutor")
+    void setTorchStrengthLevelInternal(@Nullable Completer<Void> completer,
+            @IntRange(from = 1) int torchStrengthLevel) {
+        if (!mIsTorchStrengthSupported) {
+            if (completer != null) {
+                completer.setException(new UnsupportedOperationException(
+                        "Setting torch strength is not supported on the device."));
+            }
+            return;
+        }
+
+        if (!mIsActive) {
+            if (completer != null) {
+                completer.setException(new OperationCanceledException("Camera is not active."));
+            }
+            return;
+        }
+
+        mTargetTorchStrength = torchStrengthLevel;
+        mCamera2CameraControlImpl.setTorchStrengthLevelInternal(torchStrengthLevel);
+        if (!mCamera2CameraControlImpl.isTorchOn() && completer != null) {
+            // Complete the future if the torch is not on. The new strength will be applied next
+            // time it's turned on.
+            completer.set(null);
+        } else {
+            if (mTorchStrengthCompleter != null) {
+                mTorchStrengthCompleter.setException(new OperationCanceledException(
+                        "There is a new torch strength being set."));
+            }
+            mTorchStrengthCompleter = completer;
+        }
+    }
+
+    /**
+     * Force update the torch state to OFF.
+     *
+     * <p>This can be invoked when low-light boost is turned on. The torch state will also be
+     * updated as {@link TorchState#OFF}.
+     */
+    @ExecutedBy("mExecutor")
+    void forceUpdateTorchStateToOff() {
+        // Directly return if torch is originally off
+        if (!mTargetTorchEnabled) {
+            return;
+        }
+
+        mTargetTorchEnabled = false;
+        setTorchState(OFF);
+    }
+
+    private void setTorchState(@TorchStateInternal int internalState) {
+        @TorchState.State int state;
+        switch (internalState) {
+            case ON:
+                state = TorchState.ON;
+                break;
+            case USED_AS_FLASH:
+                // If torch is turned on as flash, it's considered off because it's not used for
+                // torch purpose.
+                // Fall-through
+            case OFF:
+                // Fall-through
+            default:
+                state = TorchState.OFF;
+        }
+        setLiveDataValue(mTorchState, state);
     }
 
     private <T> void setLiveDataValue(@NonNull MutableLiveData<T> liveData, T value) {

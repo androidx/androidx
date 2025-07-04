@@ -20,8 +20,8 @@ package androidx.wear.watchface.client {
   }
 
   public final class ComplicationSlotState {
-    ctor public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId);
     ctor @Deprecated public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
+    ctor public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId);
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
     method public android.os.Bundle getComplicationConfigExtras();
@@ -52,8 +52,8 @@ package androidx.wear.watchface.client {
     ctor @Deprecated public DefaultComplicationDataSourcePolicyAndType(androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy, androidx.wear.watchface.complications.data.ComplicationType type);
     method @Deprecated public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy getPolicy();
     method @Deprecated public androidx.wear.watchface.complications.data.ComplicationType getType();
-    property public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy;
-    property public final androidx.wear.watchface.complications.data.ComplicationType type;
+    property @Deprecated public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy policy;
+    property @Deprecated public final androidx.wear.watchface.complications.data.ComplicationType type;
   }
 
   public final class DeviceConfig {
@@ -171,8 +171,8 @@ package androidx.wear.watchface.client {
   }
 
   public final class OverlayStyle {
-    ctor public OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
     ctor public OverlayStyle();
+    ctor public OverlayStyle(android.graphics.Color? backgroundColor, android.graphics.Color? foregroundColor);
     method public android.graphics.Color? getBackgroundColor();
     method public android.graphics.Color? getForegroundColor();
     property public final android.graphics.Color? backgroundColor;

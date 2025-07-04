@@ -230,8 +230,10 @@ public class ArrayLinkedVariables implements ArrayRow.ArrayRowVariables {
      * The code is broadly identical to the put() method, only differing
      * in in-line deletion, and of course doing an add rather than a put
      *
-     * @param variable the variable we want to add
-     * @param value    its value
+     * @param variable             the variable we want to add
+     * @param value                its value
+     * @param removeFromDefinition if a variable's value becomes zero, it is removed. This parameter
+     *                             is whether the removal is deep now or left shallow until cleanup
      */
     @Override
     public void add(SolverVariable variable, float value, boolean removeFromDefinition) {
@@ -355,7 +357,9 @@ public class ArrayLinkedVariables implements ArrayRow.ArrayRowVariables {
     /**
      * Update the current list with a new definition
      *
-     * @param definition the row containing the definition
+     * @param definition           the row containing the definition
+     * @param removeFromDefinition if a variable's value becomes zero, it is removed. This parameter
+     *                             is whether the removal is deep now or left shallow until cleanup
      */
     @Override
     public float use(ArrayRow definition, boolean removeFromDefinition) {
@@ -374,7 +378,9 @@ public class ArrayLinkedVariables implements ArrayRow.ArrayRowVariables {
     /**
      * Remove a variable from the list
      *
-     * @param variable the variable we want to remove
+     * @param variable             the variable we want to remove
+     * @param removeFromDefinition if a variable's value becomes zero, it is removed. This parameter
+     *                             is whether the removal is deep now or left shallow until cleanup
      * @return the value of the removed variable
      */
     @Override

@@ -29,7 +29,7 @@ class PlaceholderTest {
         Placeholder(
             width = TextUnit.Unspecified,
             height = 1.em,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline,
         )
     }
 
@@ -38,7 +38,7 @@ class PlaceholderTest {
         Placeholder(
             width = 1.em,
             height = TextUnit.Unspecified,
-            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+            placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline,
         )
     }
 }

@@ -90,7 +90,7 @@ class PointerInputDensityTest {
         val motionEventsToTrigger =
             generateMultipleMotionEvents(
                 lastPointerX = Float.POSITIVE_INFINITY,
-                lastPointerY = Float.POSITIVE_INFINITY
+                lastPointerY = Float.POSITIVE_INFINITY,
             )
         val recordedEvents = mutableListOf<PointerEventType>()
 
@@ -126,7 +126,7 @@ class PointerInputDensityTest {
         val motionEventsToTrigger =
             generateMultipleMotionEvents(
                 lastPointerX = Float.NEGATIVE_INFINITY,
-                lastPointerY = Float.NEGATIVE_INFINITY
+                lastPointerY = Float.NEGATIVE_INFINITY,
             )
         val recordedEvents = mutableListOf<PointerEventType>()
 
@@ -229,7 +229,7 @@ class PointerInputDensityTest {
 
     private fun generateMultipleMotionEvents(
         lastPointerX: Float,
-        lastPointerY: Float
+        lastPointerY: Float,
     ): List<MotionEvent> {
         val firstPointerOffset = Offset(0f, 0f)
         val secondPointerOffset = Offset(10f, 0f)
@@ -270,7 +270,7 @@ class PointerInputDensityTest {
                 0,
                 0,
                 0,
-                0
+                0,
             )
 
         eventStartTime += 500
@@ -284,7 +284,7 @@ class PointerInputDensityTest {
                 arrayOf(firstPointerProperties, secondPointerProperties),
                 arrayOf(
                     PointerCoords(firstPointerOffset.x, firstPointerOffset.y),
-                    PointerCoords(secondPointerOffset.x, secondPointerOffset.y)
+                    PointerCoords(secondPointerOffset.x, secondPointerOffset.y),
                 ),
                 0,
                 0,
@@ -293,7 +293,7 @@ class PointerInputDensityTest {
                 0,
                 0,
                 0,
-                0
+                0,
             )
 
         eventStartTime += 500
@@ -308,7 +308,7 @@ class PointerInputDensityTest {
                 arrayOf(
                     PointerCoords(firstPointerOffset.x, firstPointerOffset.y),
                     PointerCoords(secondPointerOffset.x, secondPointerOffset.y),
-                    PointerCoords(lastPointerX, lastPointerY)
+                    PointerCoords(lastPointerX, lastPointerY),
                 ),
                 0,
                 0,
@@ -317,7 +317,7 @@ class PointerInputDensityTest {
                 0,
                 0,
                 0,
-                0
+                0,
             )
 
         return listOf(firstPointerEvent, secondPointerEvent, thirdPointerEvent)

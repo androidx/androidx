@@ -49,12 +49,12 @@ class LifecycleAwareWindowRecomposerBenchmark {
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
         rule.benchmarkRule.measureRepeatedOnMainThread {
             var view: View? = null
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 view = View(rule.activityTestRule.activity)
                 (rootView as ViewGroup).addView(view)
             }
             view!!.createLifecycleAwareWindowRecomposer(lifecycle = lifecycleOwner.lifecycle)
-            runWithTimingDisabled { (rootView as ViewGroup).removeAllViews() }
+            runWithMeasurementDisabled { (rootView as ViewGroup).removeAllViews() }
         }
     }
 

@@ -17,7 +17,6 @@
 package androidx.pdf.content
 
 import android.graphics.RectF
-import androidx.annotation.RestrictTo
 
 /**
  * Represents a continuous stream of text in a page of a PDF document in the order of viewing.
@@ -25,5 +24,4 @@ import androidx.annotation.RestrictTo
  * @param bounds: Bounds for the text content
  * @param text: Text content within the bounds.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PdfPageTextContent(public val bounds: List<RectF>, public val text: String)

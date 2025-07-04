@@ -63,7 +63,7 @@ fun HandwritingDetectorSample() {
     Column(
         Modifier.imePadding().requiredWidth(300.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             "This is not an actual text field, but it is a handwriting detector so you can use " +
@@ -78,10 +78,10 @@ fun HandwritingDetectorSample() {
                 .border(
                     1.dp,
                     MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
-                    RoundedCornerShape(4.dp)
+                    RoundedCornerShape(4.dp),
                 )
                 .padding(16.dp),
-            color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
+            color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
         )
     }
 
@@ -91,7 +91,7 @@ fun HandwritingDetectorSample() {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("This text field is a handwriting handler.")
                     Spacer(Modifier.size(16.dp))
@@ -108,13 +108,13 @@ fun HandwritingDetectorSample() {
                                     .border(
                                         1.dp,
                                         MaterialTheme.colors.onSurface,
-                                        RoundedCornerShape(4.dp)
+                                        RoundedCornerShape(4.dp),
                                     )
                                     .padding(16.dp)
                             ) {
                                 innerTextField()
                             }
-                        }
+                        },
                     )
                 }
             }

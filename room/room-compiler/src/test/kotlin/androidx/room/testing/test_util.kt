@@ -90,13 +90,13 @@ object COMMON {
     val COMPUTABLE_LIVE_DATA by lazy {
         loadJavaCode(
             "common/input/ComputableLiveData.java",
-            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName
+            LifecyclesTypeNames.COMPUTABLE_LIVE_DATA.canonicalName,
         )
     }
     val PUBLISHER by lazy {
         loadJavaCode(
             "common/input/reactivestreams/Publisher.java",
-            ReactiveStreamsTypeNames.PUBLISHER.canonicalName
+            ReactiveStreamsTypeNames.PUBLISHER.canonicalName,
         )
     }
     val RX2_FLOWABLE by lazy {
@@ -105,7 +105,7 @@ object COMMON {
     val RX2_OBSERVABLE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Observable.java",
-            RxJava2TypeNames.OBSERVABLE.canonicalName
+            RxJava2TypeNames.OBSERVABLE.canonicalName,
         )
     }
     val RX2_SINGLE by lazy {
@@ -117,7 +117,7 @@ object COMMON {
     val RX2_COMPLETABLE by lazy {
         loadJavaCode(
             "common/input/rxjava2/Completable.java",
-            RxJava2TypeNames.COMPLETABLE.canonicalName
+            RxJava2TypeNames.COMPLETABLE.canonicalName,
         )
     }
 
@@ -130,7 +130,7 @@ object COMMON {
     val RX3_OBSERVABLE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Observable.java",
-            RxJava3TypeNames.OBSERVABLE.canonicalName
+            RxJava3TypeNames.OBSERVABLE.canonicalName,
         )
     }
     val RX3_SINGLE by lazy {
@@ -142,7 +142,7 @@ object COMMON {
     val RX3_COMPLETABLE by lazy {
         loadJavaCode(
             "common/input/rxjava3/Completable.java",
-            RxJava3TypeNames.COMPLETABLE.canonicalName
+            RxJava3TypeNames.COMPLETABLE.canonicalName,
         )
     }
 
@@ -161,7 +161,7 @@ object COMMON {
     val LISTENABLE_FUTURE by lazy {
         loadJavaCode(
             "common/input/guava/ListenableFuture.java",
-            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.canonicalName,
         )
     }
 
@@ -180,14 +180,14 @@ object COMMON {
     val RX2_EMPTY_RESULT_SET_EXCEPTION by lazy {
         loadJavaCode(
             "common/input/rxjava2/EmptyResultSetException.java",
-            "androidx.room.EmptyResultSetException"
+            "androidx.room.EmptyResultSetException",
         )
     }
 
     val RX3_EMPTY_RESULT_SET_EXCEPTION by lazy {
         loadJavaCode(
             "common/input/rxjava3/EmptyResultSetException.java",
-            "androidx.room.rxjava3.EmptyResultSetException"
+            "androidx.room.rxjava3.EmptyResultSetException",
         )
     }
 
@@ -208,7 +208,7 @@ object COMMON {
     val SEND_CHANNEL by lazy {
         loadJavaCode(
             "common/input/coroutines/SendChannel.java",
-            KotlinTypeNames.SEND_CHANNEL.canonicalName
+            KotlinTypeNames.SEND_CHANNEL.canonicalName,
         )
     }
 
@@ -219,14 +219,14 @@ object COMMON {
     val LONG_SPARSE_ARRAY by lazy {
         loadJavaCode(
             "common/input/collection/LongSparseArray.java",
-            CollectionTypeNames.LONG_SPARSE_ARRAY.canonicalName
+            CollectionTypeNames.LONG_SPARSE_ARRAY.canonicalName,
         )
     }
 
     val ARRAY_MAP by lazy {
         loadJavaCode(
             "common/input/collection/ArrayMap.java",
-            CollectionTypeNames.ARRAY_MAP.canonicalName
+            CollectionTypeNames.ARRAY_MAP.canonicalName,
         )
     }
 }
@@ -269,7 +269,7 @@ fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVer
         invocation.context,
         mock(XElement::class.java),
         invocation.getEntities(),
-        invocation.getViews()
+        invocation.getViews(),
     )!!
 }
 
@@ -291,7 +291,7 @@ fun XTestInvocation.getEntities(): List<androidx.room.vo.Entity> {
 
 /**
  * Create mocks of [XElement] and [XType] so that they can be used for instantiating a fake
- * [androidx.room.vo.Field].
+ * [androidx.room.vo.Property].
  */
 fun mockElementAndType(): Pair<XFieldElement, XType> {
     val element = mock(XFieldElement::class.java)

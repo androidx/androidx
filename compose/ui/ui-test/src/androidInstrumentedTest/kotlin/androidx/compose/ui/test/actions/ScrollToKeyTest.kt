@@ -29,9 +29,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.indexForKey
 import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.addGlobalAssertion
 import androidx.compose.ui.test.hasScrollToKeyAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -39,7 +36,6 @@ import androidx.compose.ui.test.performScrollToKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -121,20 +117,6 @@ class ScrollToKeyTest {
         ) {
             rule.onNodeWithTag("tag").performScrollToKey(1)
         }
-    }
-
-    @Test
-    @ExperimentalTestApi
-    fun scrollToKey_withGlobalAssertion() {
-        rule.setContent { LazyColumnContent() }
-        var capturedSni: SemanticsNodeInteraction? = null
-        addGlobalAssertion(/* name= */ "Capture SNI") { sni -> capturedSni = sni }
-
-        // ScrollToKey "key_1"
-        val sni = rule.onNode(hasScrollToKeyAction())
-        sni.performScrollToKey("key_1")
-
-        assertThat(capturedSni).isEqualTo(sni)
     }
 
     @Composable

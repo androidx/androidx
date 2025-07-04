@@ -90,7 +90,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -109,7 +109,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -134,7 +134,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -161,7 +161,7 @@ class LazyListsReverseLayoutTest {
             LazyColumn(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -218,7 +218,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -237,7 +237,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -262,7 +262,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -289,7 +289,7 @@ class LazyListsReverseLayoutTest {
             LazyRow(
                 reverseLayout = true,
                 state = rememberLazyListState().also { state = it },
-                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
             ) {
                 items((0..3).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
             }
@@ -351,7 +351,7 @@ class LazyListsReverseLayoutTest {
                 LazyRow(
                     reverseLayout = true,
                     state = rememberLazyListState().also { state = it },
-                    modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag)
+                    modifier = Modifier.requiredSize(itemSize * 2).testTag(ContainerTag),
                 ) {
                     items((0..2).toList()) { Box(Modifier.requiredSize(itemSize).testTag("$it")) }
                 }

@@ -12,7 +12,7 @@ package androidx.navigation.testing {
     method public void setCurrentDestination(@IdRes int destId, optional android.os.Bundle args);
     method public void setCurrentDestination(String destRoute);
     method public void setCurrentDestination(String destRoute, optional android.os.Bundle args);
-    property public final java.util.List<androidx.navigation.NavBackStackEntry> backStack;
+    property public java.util.List<androidx.navigation.NavBackStackEntry> backStack;
   }
 
   public final class TestNavigatorState extends androidx.navigation.NavigatorState {

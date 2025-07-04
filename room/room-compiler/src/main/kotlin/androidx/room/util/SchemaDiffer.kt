@@ -49,7 +49,7 @@ data class SchemaDiffResult(
     val complexChangedTables: Map<String, AutoMigration.ComplexChangedTable>,
     val deletedTables: List<String>,
     val fromViews: List<DatabaseViewBundle>,
-    val toViews: List<DatabaseViewBundle>
+    val toViews: List<DatabaseViewBundle>,
 )
 
 /**
@@ -73,7 +73,7 @@ class SchemaDiffer(
     private val renameColumnEntries: List<AutoMigration.RenamedColumn>,
     private val deleteColumnEntries: List<AutoMigration.DeletedColumn>,
     private val renameTableEntries: List<AutoMigration.RenamedTable>,
-    private val deleteTableEntries: List<AutoMigration.DeletedTable>
+    private val deleteTableEntries: List<AutoMigration.DeletedTable>,
 ) {
     private val potentiallyDeletedTables = mutableSetOf<String>()
     // Maps FTS tables in the to version to the name of their content tables in the from version
@@ -150,7 +150,7 @@ class SchemaDiffer(
             complexChangedTables = complexChangedTables,
             deletedTables = deletedTables.toList(),
             fromViews = fromSchemaBundle.views,
-            toViews = toSchemaBundle.views
+            toViews = toSchemaBundle.views,
         )
     }
 
@@ -169,7 +169,7 @@ class SchemaDiffer(
                             tableNameWithNewPrefix = ftsTable.newTableName,
                             oldVersionEntityBundle = ftsTable,
                             newVersionEntityBundle = ftsTable,
-                            renamedColumnsMap = mutableMapOf()
+                            renamedColumnsMap = mutableMapOf(),
                         )
                 }
         }
@@ -205,7 +205,7 @@ class SchemaDiffer(
                             tableNameWithNewPrefix = toTable.newTableName,
                             oldVersionEntityBundle = fromTable,
                             newVersionEntityBundle = toTable,
-                            renamedColumnsMap = mutableMapOf()
+                            renamedColumnsMap = mutableMapOf(),
                         )
                 } else {
                     renamedTables[fromTable.tableName] = toTable.tableName
@@ -216,7 +216,7 @@ class SchemaDiffer(
                     tableRenameError(
                         className!!,
                         renamedTable.originalTableName,
-                        renamedTable.newTableName
+                        renamedTable.newTableName,
                     )
                 )
             }
@@ -240,7 +240,7 @@ class SchemaDiffer(
                         tableNameWithNewPrefix = toTable.newTableName,
                         oldVersionEntityBundle = fromTable,
                         newVersionEntityBundle = toTable,
-                        renamedColumnsMap = mutableMapOf()
+                        renamedColumnsMap = mutableMapOf(),
                     )
             }
             return toTable
@@ -291,7 +291,7 @@ class SchemaDiffer(
                     tableNameWithNewPrefix = toTable.newTableName,
                     oldVersionEntityBundle = fromTable,
                     newVersionEntityBundle = toTable,
-                    renamedColumnsMap = renamedColumnsMap
+                    renamedColumnsMap = renamedColumnsMap,
                 )
             return renamedToColumn.newColumnName
         }
@@ -313,7 +313,7 @@ class SchemaDiffer(
                         tableNameWithNewPrefix = toTable.newTableName,
                         oldVersionEntityBundle = fromTable,
                         newVersionEntityBundle = toTable,
-                        renamedColumnsMap = mutableMapOf()
+                        renamedColumnsMap = mutableMapOf(),
                     )
             }
             return match.columnName
@@ -330,7 +330,7 @@ class SchemaDiffer(
                 deletedOrRenamedColumnFound(
                     className = className,
                     tableName = fromTable.tableName,
-                    columnName = fromColumn.columnName
+                    columnName = fromColumn.columnName,
                 )
             )
         }
@@ -350,15 +350,15 @@ class SchemaDiffer(
      */
     private fun tableContainsComplexChanges(
         fromTable: BaseEntityBundle,
-        toTable: BaseEntityBundle
+        toTable: BaseEntityBundle,
     ): Boolean {
         if (!fromTable.primaryKey.isSchemaEqual(toTable.primaryKey)) {
             return true
         }
 
-        // If both are FTS tables, only check if options have changed
+        // If both are FTS tables, check for any changes.
         if (fromTable is FtsEntityBundle && toTable is FtsEntityBundle) {
-            return !fromTable.ftsOptions.isSchemaEqual(toTable.ftsOptions)
+            return !fromTable.isSchemaEqual(toTable)
         }
 
         // If both are normal tables, check foreign keys and indices
@@ -399,7 +399,7 @@ class SchemaDiffer(
      */
     private fun isForeignKeyBundlesListEqual(
         fromBundle: List<ForeignKeyBundle>,
-        toBundle: List<ForeignKeyBundle>
+        toBundle: List<ForeignKeyBundle>,
     ): Boolean {
         val set = fromBundle + toBundle
         val matches = set.groupBy { it.columns }.entries
@@ -429,7 +429,7 @@ class SchemaDiffer(
      */
     private fun isIndexBundlesListEqual(
         fromBundle: List<IndexBundle>,
-        toBundle: List<IndexBundle>
+        toBundle: List<IndexBundle>,
     ): Boolean {
         val set = fromBundle + toBundle
         val matches = set.groupBy { it.name }.entries
@@ -474,7 +474,7 @@ class SchemaDiffer(
      */
     private fun isColumnRenamed(
         columnName: String,
-        tableName: String
+        tableName: String,
     ): AutoMigration.RenamedColumn? {
         val annotations = renameColumnEntries
         val renamedColumnAnnotations =
@@ -498,7 +498,7 @@ class SchemaDiffer(
      */
     private fun processAddedTableAndColumns(
         toTable: BaseEntityBundle,
-        processedTablesAndColumnsInNewVersion: MutableMap<String, List<String>>
+        processedTablesAndColumnsInNewVersion: MutableMap<String, List<String>>,
     ) {
         // Old table bundle will be found even if table is renamed.
         val isRenamed = renameTableEntries.firstOrNull { it.newTableName == toTable.tableName }
@@ -554,7 +554,7 @@ class SchemaDiffer(
                         tableNameWithNewPrefix = fromTableBundle.newTableName,
                         oldVersionEntityBundle = fromTableBundle,
                         newVersionEntityBundle = toTableBundle,
-                        renamedColumnsMap = mutableMapOf()
+                        renamedColumnsMap = mutableMapOf(),
                     )
             }
     }

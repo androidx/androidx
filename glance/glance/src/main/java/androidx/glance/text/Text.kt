@@ -36,7 +36,7 @@ import androidx.glance.unit.ColorProvider
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-fun Text(
+public fun Text(
     text: String,
     modifier: GlanceModifier = GlanceModifier,
     style: TextStyle = defaultTextStyle,
@@ -49,17 +49,17 @@ fun Text(
             this.set(modifier) { this.modifier = it }
             this.set(style) { this.style = it }
             this.set(maxLines) { this.maxLines = it }
-        }
+        },
     )
 }
 
-object TextDefaults {
-    val defaultTextColor = ColorProvider(Color.Black)
-    val defaultTextStyle: TextStyle = TextStyle(color = defaultTextColor)
+public object TextDefaults {
+    public val defaultTextColor: ColorProvider = ColorProvider(Color.Black)
+    public val defaultTextStyle: TextStyle = TextStyle(color = defaultTextColor)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmittableText : EmittableWithText() {
+public class EmittableText : EmittableWithText() {
     override var modifier: GlanceModifier = GlanceModifier
 
     override fun copy(): Emittable =

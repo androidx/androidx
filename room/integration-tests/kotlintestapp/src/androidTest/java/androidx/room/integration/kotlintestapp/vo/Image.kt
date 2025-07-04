@@ -26,7 +26,7 @@ class Image(
     val mArtistInImage: String,
     val mAlbumCover: ByteArray,
     val mDateReleased: Date,
-    format: ImageFormat
+    format: ImageFormat,
 ) {
     val mFormat: ImageFormat
 

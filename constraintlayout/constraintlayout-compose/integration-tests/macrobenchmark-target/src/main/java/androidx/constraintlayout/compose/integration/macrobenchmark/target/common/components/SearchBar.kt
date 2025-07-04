@@ -55,7 +55,7 @@ fun SearchBar(modifier: Modifier = Modifier, backgroundColor: Color = Color.Ligh
     CommonSearchBar(
         modifier = modifier,
         outlined = false,
-        borderOrBackgroundColor = backgroundColor
+        borderOrBackgroundColor = backgroundColor,
     )
 }
 
@@ -93,6 +93,6 @@ private fun CommonSearchBar(modifier: Modifier, outlined: Boolean, borderOrBackg
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 backgroundColor = Color.Transparent,
-            )
+            ),
     )
 }

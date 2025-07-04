@@ -21,6 +21,7 @@ import android.app.Activity
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Binder
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -77,7 +78,7 @@ constructor(
     complicationInstanceId: Int,
     complicationType: ComplicationType,
     immediateResponseRequired: Boolean,
-    @IsForSafeWatchFace isForSafeWatchFace: Int
+    @IsForSafeWatchFace isForSafeWatchFace: Int,
 ) {
     /** Constructs a [ComplicationRequest] without setting [isForSafeWatchFace]. */
     @Suppress("NewApi")
@@ -89,7 +90,7 @@ constructor(
         complicationInstanceId,
         complicationType,
         immediateResponseRequired,
-        isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN
+        isForSafeWatchFace = TargetWatchFaceSafety.UNKNOWN,
     )
 
     /**
@@ -133,7 +134,7 @@ constructor(
     @Deprecated("Use a constructor that specifies responseNeededSoon.")
     constructor(
         complicationInstanceId: Int,
-        complicationType: ComplicationType
+        complicationType: ComplicationType,
     ) : this(complicationInstanceId, complicationType, false)
 }
 
@@ -170,7 +171,7 @@ public object TargetWatchFaceSafety {
 @IntDef(
     flag = true, // This is a flag to allow for future expansion.
     value =
-        [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE]
+        [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE],
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class IsForSafeWatchFace
@@ -309,21 +310,26 @@ public annotation class IsForSafeWatchFace
  * system will append this value on your behalf.
  */
 public abstract class ComplicationDataSourceService : Service() {
-    private var wrapper: IComplicationProviderWrapper? = null
+    private val wrapper: IComplicationProviderWrapper by lazy { IComplicationProviderWrapper() }
+    private val complicationUpdateInterface: ComplicationDataRequester by lazy {
+        object : ComplicationDataRequester() {
+            override fun onComplicationRequest(
+                request: ComplicationRequest,
+                listener: ComplicationRequestListener,
+            ) = this@ComplicationDataSourceService.onComplicationRequest(request, listener)
+        }
+    }
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
 
-    final override fun onBind(intent: Intent): IBinder? {
-        if (ACTION_COMPLICATION_UPDATE_REQUEST == intent.action) {
-            if (wrapper == null) {
-                wrapper = IComplicationProviderWrapper()
-            }
-            return wrapper
+    final override fun onBind(intent: Intent): IBinder? =
+        when (intent.action) {
+            ACTION_COMPLICATION_UPDATE_REQUEST -> wrapper
+            ACTION_WEAR_SDK_COMPLICATION_UPDATE_REQUEST -> complicationUpdateInterface
+            else -> null
         }
-        return null
-    }
 
     /**
      * Called when a complication is activated.
@@ -366,7 +372,7 @@ public abstract class ComplicationDataSourceService : Service() {
     @MainThread
     public abstract fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     )
 
     /**
@@ -453,6 +459,14 @@ public abstract class ComplicationDataSourceService : Service() {
      */
     @MainThread public open fun onComplicationDeactivated(complicationInstanceId: Int) {}
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract class ComplicationDataRequester : Binder() {
+        abstract fun onComplicationRequest(
+            request: ComplicationRequest,
+            listener: ComplicationRequestListener,
+        )
+    }
+
     private inner class IComplicationProviderWrapper : IComplicationProvider.Stub() {
         override fun onUpdate(complicationInstanceId: Int, type: Int, manager: IBinder): Unit =
             aidlMethod(TAG, "onUpdate") {
@@ -463,13 +477,13 @@ public abstract class ComplicationDataSourceService : Service() {
             complicationInstanceId: Int,
             type: Int,
             manager: IBinder,
-            bundle: Bundle?
+            bundle: Bundle?,
         ): Unit =
             aidlMethod(TAG, "onUpdate2") {
                 val isForSafeWatchFace =
                     bundle?.getInt(
                         IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                        TargetWatchFaceSafety.UNKNOWN
+                        TargetWatchFaceSafety.UNKNOWN,
                     ) ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
@@ -480,7 +494,7 @@ public abstract class ComplicationDataSourceService : Service() {
                             complicationInstanceId,
                             expectedDataType,
                             immediateResponseRequired = false,
-                            isForSafeWatchFace = isForSafeWatchFace
+                            isForSafeWatchFace = isForSafeWatchFace,
                         ),
                         object : ComplicationRequestListener {
                             override fun onComplicationData(complicationData: ComplicationData?) {
@@ -513,7 +527,7 @@ public abstract class ComplicationDataSourceService : Service() {
                                 // null.
                                 iComplicationManager.updateComplicationData(
                                     complicationInstanceId,
-                                    complicationData?.asWireComplicationData()
+                                    complicationData?.asWireComplicationData(),
                                 )
                             }
 
@@ -579,10 +593,10 @@ public abstract class ComplicationDataSourceService : Service() {
                                 // null.
                                 iComplicationManager.updateComplicationData(
                                     complicationInstanceId,
-                                    complicationDataTimeline?.asWireComplicationData()
+                                    complicationDataTimeline?.asWireComplicationData(),
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -599,13 +613,13 @@ public abstract class ComplicationDataSourceService : Service() {
         override fun onComplicationActivated(
             complicationInstanceId: Int,
             type: Int,
-            manager: IBinder
+            manager: IBinder,
         ): Unit =
             aidlMethod(TAG, "onComplicationActivated") {
                 mainThreadHandler.post {
                     this@ComplicationDataSourceService.onComplicationActivated(
                         complicationInstanceId,
-                        fromWireType(type)
+                        fromWireType(type),
                     )
                 }
             }
@@ -661,13 +675,13 @@ public abstract class ComplicationDataSourceService : Service() {
         override fun onSynchronousComplicationRequest2(
             complicationInstanceId: Int,
             type: Int,
-            bundle: Bundle?
+            bundle: Bundle?,
         ): WireComplicationData? =
             aidlMethod(TAG, "onSynchronousComplicationRequest2") {
                 val isForSafeWatchFace =
                     bundle?.getInt(
                         IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                        TargetWatchFaceSafety.UNKNOWN
+                        TargetWatchFaceSafety.UNKNOWN,
                     ) ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val complicationType = fromWireType(type)
@@ -680,7 +694,7 @@ public abstract class ComplicationDataSourceService : Service() {
                             complicationInstanceId,
                             complicationType,
                             immediateResponseRequired = true,
-                            isForSafeWatchFace = isForSafeWatchFace
+                            isForSafeWatchFace = isForSafeWatchFace,
                         ),
                         object : ComplicationRequestListener {
                             override fun onComplicationData(complicationData: ComplicationData?) {
@@ -737,7 +751,7 @@ public abstract class ComplicationDataSourceService : Service() {
                                     complicationDataTimeline?.asWireComplicationData()
                                 latch.countDown()
                             }
-                        }
+                        },
                     )
                 }
                 latch.await()
@@ -757,6 +771,10 @@ public abstract class ComplicationDataSourceService : Service() {
         @SuppressWarnings("ActionValue")
         public const val ACTION_COMPLICATION_UPDATE_REQUEST: String =
             "android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST"
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public const val ACTION_WEAR_SDK_COMPLICATION_UPDATE_REQUEST: String =
+            "android.support.wearable.complications.ACTION_WEAR_SDK_COMPLICATION_UPDATE_REQUEST"
 
         /**
          * Metadata key used to declare supported complication types.

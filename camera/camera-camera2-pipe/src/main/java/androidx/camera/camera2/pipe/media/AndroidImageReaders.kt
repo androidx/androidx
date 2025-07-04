@@ -41,7 +41,7 @@ private constructor(
     private val imageReader: ImageReader,
     override val capacity: Int,
     private val streamId: StreamId,
-    private val outputId: OutputId
+    private val outputId: OutputId,
 ) : ImageReaderWrapper, ImageReader.OnImageAvailableListener {
     private val onImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
 
@@ -120,7 +120,7 @@ private constructor(
             defaultHardwareBufferFormat: Int?,
             streamId: StreamId,
             outputId: OutputId,
-            handler: Handler
+            handler: Handler,
         ): ImageReaderWrapper {
             require(width > 0) { "Width ($width) must be > 0" }
             require(height > 0) { "Height ($height) must be > 0" }
@@ -170,7 +170,7 @@ private constructor(
                         maxImages = capacity,
                         usage = usageFlags,
                         defaultDataSpace = defaultDataSpace,
-                        defaultHardwareBufferFormat = defaultHardwareBufferFormat
+                        defaultHardwareBufferFormat = defaultHardwareBufferFormat,
                     )
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     if (usageFlags != null) {
@@ -179,7 +179,7 @@ private constructor(
                             height,
                             format,
                             capacity,
-                            usageFlags
+                            usageFlags,
                         )
                     } else {
                         ImageReader.newInstance(width, height, format, capacity)
@@ -203,7 +203,7 @@ public class AndroidMultiResolutionImageReader(
     private val streamFormat: StreamFormat,
     override val capacity: Int,
     private val streamId: StreamId,
-    private val outputIdMap: Map<MultiResolutionStreamInfo, OutputId>
+    private val outputIdMap: Map<MultiResolutionStreamInfo, OutputId>,
 ) : ImageReaderWrapper, ImageReader.OnImageAvailableListener {
     private val onImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
 
@@ -274,7 +274,7 @@ public class AndroidMultiResolutionImageReader(
             streamId: StreamId,
             outputIdMap: Map<MultiResolutionStreamInfo, OutputId>,
             capacity: Int,
-            executor: Executor
+            executor: Executor,
         ): ImageReaderWrapper {
             require(capacity > 0) { "Capacity ($capacity) must be > 0" }
             require(capacity <= AndroidImageReader.IMAGEREADER_MAX_CAPACITY) {
@@ -299,7 +299,7 @@ public class AndroidMultiResolutionImageReader(
 
             multiResolutionImageReader.setOnImageAvailableListener(
                 androidMultiResolutionImageReader,
-                executor
+                executor,
             )
 
             return androidMultiResolutionImageReader
@@ -309,7 +309,7 @@ public class AndroidMultiResolutionImageReader(
         public fun create(
             cameraStream: CameraStream,
             capacity: Int,
-            executor: Executor
+            executor: Executor,
         ): ImageReaderWrapper {
             require(cameraStream.outputs.isNotEmpty()) { "$cameraStream outputs cannot be empty!" }
             val format = cameraStream.outputs.first().format

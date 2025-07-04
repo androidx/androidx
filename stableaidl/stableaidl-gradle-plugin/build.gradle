@@ -21,8 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+import androidx.build.SoftwareType
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -41,17 +41,20 @@ configurations {
 }
 
 dependencies {
-    runtimeOnly(findGradleKotlinDsl())
+    // Pinned AGP and lint versions that use an older version of Kotlin (pre-2.1) to avoid bumping
+    // the Kotlin target of this project to 2.1. We may get a different version on the runtime
+    // classpath.
+    compileOnly("com.android.tools.build:gradle-api:8.8.0-alpha06")
+    compileOnly("com.android.tools:common:31.8.0-alpha06")
+    compileOnly("com.android.tools:sdk-common:31.8.0-alpha06")
+    compileOnly("com.android.tools:repository:31.8.0-alpha06")
+    compileOnly(libs.kotlinGradlePlugin)
 
-    // Pinned AGP and lint versions that use an older version of Kotlin (pre 2.1) to avoid bumping
-    // the Kotlin target of this project to 2.1.
-    api("com.android.tools.build:gradle-api:8.8.0-alpha06")
-    api("com.android.tools:common:31.8.0-alpha06")
-    api("com.android.tools:sdk-common:31.8.0-alpha06")
+    api(libs.androidGradlePluginApi)
+    api(libs.androidToolsCommon)
+    api(libs.androidToolsSdkCommon)
     api(libs.guava)
 
-    implementation(gradleApi())
-    implementation("com.android.tools:repository:31.8.0-alpha06")
     implementation(libs.apacheCommonIo)
     implementation(libs.apacheAnt)
     implementation(libs.kotlinStdlib)
@@ -85,8 +88,8 @@ gradlePlugin {
 
 androidx {
     name = "Stable AIDL Gradle Plugin"
-    type = LibraryType.GRADLE_PLUGIN
+    type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

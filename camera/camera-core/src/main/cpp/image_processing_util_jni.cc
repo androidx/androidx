@@ -193,24 +193,50 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeShiftPixel(
                 src_y_ptr[src_stride_y - start_offset_y + i * src_stride_y];
     }
 
-    // U
-    for (int i = 0; i < height / 2; i++) {
-        memmove(&src_u_ptr[0 + i * src_stride_u],
-                &src_u_ptr[start_offset_u + i * src_stride_u],
-                width / 2 - 1);
+    const ptrdiff_t vu_off = src_v_ptr - src_u_ptr;
 
-        src_u_ptr[width / 2 - start_offset_u + i * src_stride_u] =
-                src_u_ptr[src_stride_u - start_offset_u + i * src_stride_u];
-    }
+    // Note that if the data format is not I420, NV12 or NV21 cases, the data copy result might be
+    // incorrect. That should be a very special format. If the data-shift issue also on that
+    // device, the correct copy logic needs to be added here.
+    if (src_pixel_stride_uv == 2 && (vu_off == 1 || vu_off == -1)) {
+        // NV12 or NV21 cases
+        // The U and V data are interleaved in a continuous array. Determines the start pointer by
+        // the vu_off value.
+        uint8_t *src_uv_ptr = vu_off == 1 ? src_u_ptr : src_v_ptr;
 
-    // V
-    for (int i = 0; i < height / 2; i++) {
-        memmove(&src_v_ptr[0 + i * src_stride_v],
-                &src_v_ptr[start_offset_v + i * src_stride_v],
-                width / 2 - 1);
+        // Because U/V data are interleaved and continuous, the data-copy process only need to be
+        // done once. Both U/V data will be shifted together.
+        for (int i = 0; i < height / 2; i++) {
+            memmove(&src_uv_ptr[0 + i * src_stride_u],
+                    &src_uv_ptr[src_pixel_stride_uv + i * src_stride_u],
+                    width / 2 - src_pixel_stride_uv);
 
-        src_v_ptr[width / 2 - start_offset_v + i * src_stride_v] =
-                src_v_ptr[src_stride_v - start_offset_v + i * src_stride_v];
+            src_uv_ptr[width / 2 - src_pixel_stride_uv + i * src_stride_u] =
+                    src_uv_ptr[src_stride_u - src_pixel_stride_uv + i * src_stride_u];
+            src_uv_ptr[width / 2 - src_pixel_stride_uv + i * src_stride_u + 1] =
+                    src_uv_ptr[src_stride_u - src_pixel_stride_uv + i * src_stride_u + 1];
+        }
+    } else {
+        // I420
+        // U
+        for (int i = 0; i < height / 2; i++) {
+            memmove(&src_u_ptr[0 + i * src_stride_u],
+                    &src_u_ptr[start_offset_u + i * src_stride_u],
+                    width / 2 - 1);
+
+            src_u_ptr[width / 2 - start_offset_u + i * src_stride_u] =
+                    src_u_ptr[src_stride_u - start_offset_u + i * src_stride_u];
+        }
+
+        // V
+        for (int i = 0; i < height / 2; i++) {
+            memmove(&src_v_ptr[0 + i * src_stride_v],
+                    &src_v_ptr[start_offset_v + i * src_stride_v],
+                    width / 2 - 1);
+
+            src_v_ptr[width / 2 - start_offset_v + i * src_stride_v] =
+                    src_v_ptr[src_stride_v - start_offset_v + i * src_stride_v];
+        }
     }
 
     return 0;
@@ -670,24 +696,22 @@ JNIEXPORT jint Java_androidx_camera_core_ImageProcessingUtil_nativeGetYUVImageVU
     return byte_buffer_v_ptr - byte_buffer_u_ptr;
 }
 
-JNIEXPORT jobject Java_androidx_camera_core_ImageProcessingUtil_nativeCreateNV21ByteBuffers(
+/**
+ * Creates ByteBuffer from the offset of the input byte buffer.
+ */
+JNIEXPORT jobject
+Java_androidx_camera_core_ImageProcessingUtil_nativeNewDirectByteBuffer(
         JNIEnv *env,
         jclass,
         jobject byte_buffer,
-        jint vu_data_length) {
+        jint offset,
+        jint capacity) {
 
     uint8_t *byte_buffer_ptr =
             static_cast<uint8_t *>(env->GetDirectBufferAddress(byte_buffer));
 
     // Create the ByteBuffers
-    jobject vByteBuffer = env->NewDirectByteBuffer(byte_buffer_ptr, vu_data_length);
-    jobject uByteBuffer = env->NewDirectByteBuffer(byte_buffer_ptr + 1, vu_data_length);
-
-    jclass pairClass = env->FindClass("android/util/Pair");
-    jmethodID pairConstructor = env->GetMethodID(pairClass, "<init>",
-                                                 "(Ljava/lang/Object;Ljava/lang/Object;)V");
-
-    return env->NewObject(pairClass, pairConstructor, uByteBuffer, vByteBuffer);
+    return env->NewDirectByteBuffer(byte_buffer_ptr + offset, capacity);
 }
 
 }  // extern "C"

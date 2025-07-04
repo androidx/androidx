@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Допрете го сенз. за отпечатоци"</string>
-    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Непознат"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Не е препознаен"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Нема достапен хардвер за отпечатоци."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Нема запишани отпечатоци."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"Уредов нема сензор за отпечатоци"</string>
@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Не е поставен PIN, шема или лозинка."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Уредов не поддржува PIN, шема или лозинка."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Икона за отпечаток"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Копчето „Повеќе опции“ во прегледот на содржините е кликнато."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Користи отпечаток"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Користи лик"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Користи биометрика"</string>

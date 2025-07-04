@@ -23,16 +23,19 @@ plugins {
 android {
     namespace = "androidx.privacysandbox.ui.integration.sdkproviderutils"
     compileSdk = 35
+
+    buildFeatures {
+        aidl = true
+    }
 }
 
 dependencies {
     implementation "androidx.activity:activity-ktx:1.7.2"
     implementation project(":privacysandbox:ui:ui-client")
     implementation project(":privacysandbox:ui:ui-provider")
-    implementation project(":privacysandbox:sdkruntime:sdkruntime-core")
+    implementation project(":privacysandbox:sdkruntime:sdkruntime-provider")
     implementation project(":privacysandbox:activity:activity-core")
     implementation project(":privacysandbox:activity:activity-provider")
-    implementation project(":privacysandbox:ui:integration-tests:testaidl")
     implementation project(":webkit:webkit")
     implementation(libs.media3Ui)
     implementation(libs.media3Common)

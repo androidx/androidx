@@ -72,7 +72,7 @@ public object LifecycleOwnerUtils {
             "Expected state $state never happened to $owner. " +
                 "Current state: ${owner.lifecycle.currentState}",
             isCountZero,
-            CoreMatchers.`is`(true)
+            CoreMatchers.`is`(true),
         )
 
         // wait for another loop to ensure all observers are called

@@ -157,6 +157,12 @@ public abstract class CarAppService extends Service {
     @ExperimentalCarApi
     public static final String CATEGORY_WEATHER_APP = "androidx.car.app.category.WEATHER";
 
+    /**
+     * Used to declare that this app is a media app in the manifest.
+     */
+    @ExperimentalCarApi
+    public static final String CATEGORY_MEDIA_APP = "androidx.car.app.category.MEDIA";
+
     private static final String AUTO_DRIVE = "AUTO_DRIVE";
 
     private final @NonNull Map<SessionInfo, CarAppBinder> mBinders = new HashMap<>();

@@ -45,7 +45,7 @@ class DeviceInfoTest {
         assertFalse(
             DeviceInfo.misconfiguredForTracing,
             "${DeviceInfo.typeLabel} is incorrectly configured for tracing," +
-                " and is not CTS compatible. All Perfetto/Atrace capture will fail."
+                " and is not CTS compatible. All Perfetto/Atrace capture will fail.",
         )
     }
 
@@ -59,6 +59,26 @@ class DeviceInfoTest {
         // Wembley available versions don't hit any of the method tracing issues, no art mainline
         assertFalse(DeviceInfo.methodTracingAffectsMeasurements)
         assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, DeviceInfo.artMainlineVersion)
+    }
+
+    @Test
+    fun willMethodTracingAffectMeasurements() {
+        // first clause - 26 through 30 (inclusive) affected
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(25, -1))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(26, -1L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(30, -1L))
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(31, 310000000L))
+
+        // second clause - art API 34 regression
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(33, 330000000L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(33, 340000000L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(33, 341513000L - 1))
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(33, 341513000L))
+
+        // third clause - art API 34 regression and internal build ID
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(33, 990090000L))
+        assertTrue(DeviceInfo.willMethodTracingAffectMeasurements(34, 990090000L))
+        assertFalse(DeviceInfo.willMethodTracingAffectMeasurements(35, 990090000L))
     }
 
     @Test
@@ -83,7 +103,7 @@ fun validateArtMainlineVersion(artMainlineVersion: Long?) {
         if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(
                 artMainlineVersion!! > 300000000,
-                "observed $artMainlineVersion, expected over 300000000"
+                "observed $artMainlineVersion, expected over 300000000",
             )
         } else {
             assertEquals(1, artMainlineVersion)
@@ -101,7 +121,7 @@ fun validateArtMainlineVersion(artMainlineVersion: Long?) {
             "package:com(\\.google)?\\.android(\\.go)?\\.art" + " versionCode:$artMainlineVersion"
         assertTrue(
             expectedRegExStr.toRegex().matches(shellVersion),
-            "Expected shell version ($shellVersion) to match $expectedRegExStr"
+            "Expected shell version ($shellVersion) to match $expectedRegExStr",
         )
     } else {
         assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, artMainlineVersion)

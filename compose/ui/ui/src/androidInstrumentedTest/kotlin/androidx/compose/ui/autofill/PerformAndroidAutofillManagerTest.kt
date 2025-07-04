@@ -17,7 +17,6 @@
 package androidx.compose.ui.autofill
 
 import android.graphics.Rect
-import android.os.Build
 import android.text.InputType
 import android.util.SparseArray
 import android.view.View
@@ -25,7 +24,6 @@ import android.view.View.AUTOFILL_TYPE_TEXT
 import android.view.ViewStructure
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
-import androidx.annotation.RequiresApi
 import androidx.autofill.HintConstants
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -36,6 +34,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material.Text
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -44,6 +43,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
@@ -54,12 +54,14 @@ import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.requestFocus
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.toggleableState
 import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
@@ -80,7 +82,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 26)
-@RequiresApi(Build.VERSION_CODES.O)
 // TODO(MNUZEN): split into filling / saving etc. when more of Autofill goes live and more
 // data types are supported.
 class PerformAndroidAutofillManagerTest {
@@ -112,6 +113,22 @@ class PerformAndroidAutofillManagerTest {
         }
         @OptIn(ExperimentalComposeUiApi::class)
         ComposeUiFlags.isSemanticAutofillEnabled = previousFlagValue
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillModifier_contentType() {
+        rule.setContent { Box(Modifier.testTag("TestTag").contentType(ContentType.NewUsername)) {} }
+
+        rule
+            .onNodeWithTag("TestTag")
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ContentType,
+                    ContentType.NewUsername,
+                )
+            )
     }
 
     // The "filling" user journey consists of populating a viewStructure for the Autofill framework
@@ -368,7 +385,7 @@ class PerformAndroidAutofillManagerTest {
                         enabled = true,
                         role = Role.Tab,
                         interactionSource = null,
-                        indication = null
+                        indication = null,
                     )
                     .testTag(contentTag)
             )
@@ -416,7 +433,7 @@ class PerformAndroidAutofillManagerTest {
                         enabled = true,
                         role = Role.RadioButton,
                         interactionSource = null,
-                        indication = null
+                        indication = null,
                     )
                     .testTag(contentTag)
             )
@@ -467,7 +484,7 @@ class PerformAndroidAutofillManagerTest {
                         enabled = true,
                         role = Role.DropdownList,
                         interactionSource = null,
-                        indication = null
+                        indication = null,
                     )
                     .testTag(contentTag)
             )
@@ -518,7 +535,7 @@ class PerformAndroidAutofillManagerTest {
                         enabled = true,
                         role = Role.ValuePicker,
                         interactionSource = null,
-                        indication = null
+                        indication = null,
                     )
                     .testTag(contentTag)
             )
@@ -1142,7 +1159,7 @@ class PerformAndroidAutofillManagerTest {
                     modifier =
                         Modifier.semantics { contentType = ContentType.Username }
                             .size(height, width)
-                            .testTag(contentTag)
+                            .testTag(contentTag),
                 )
             }
         }
@@ -1191,7 +1208,7 @@ class PerformAndroidAutofillManagerTest {
                     modifier =
                         Modifier.semantics { contentType = ContentType.Username }
                             .size(height, width)
-                            .testTag(contentTag)
+                            .testTag(contentTag),
                 )
             }
         }
@@ -1242,7 +1259,7 @@ class PerformAndroidAutofillManagerTest {
                     modifier =
                         Modifier.semantics { contentType = ContentType.Password }
                             .size(height, width)
-                            .testTag(contentTag)
+                            .testTag(contentTag),
                 )
             }
         }
@@ -1294,7 +1311,7 @@ class PerformAndroidAutofillManagerTest {
                     modifier =
                         Modifier.semantics { contentType = ContentType.Password }
                             .size(height, width)
-                            .testTag(contentTag)
+                            .testTag(contentTag),
                 )
             }
         }
@@ -1393,13 +1410,13 @@ class PerformAndroidAutofillManagerTest {
                     state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.Username }
-                            .testTag(usernameTag)
+                            .testTag(usernameTag),
                 )
                 BasicTextField(
                     state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.Password }
-                            .testTag(passwordTag)
+                            .testTag(passwordTag),
                 )
             }
         }
@@ -1437,13 +1454,13 @@ class PerformAndroidAutofillManagerTest {
                     state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.CreditCardNumber }
-                            .testTag(creditCardTag)
+                            .testTag(creditCardTag),
                 )
                 BasicTextField(
                     state = remember { TextFieldState() },
                     modifier =
                         Modifier.semantics { contentType = ContentType.CreditCardSecurityCode }
-                            .testTag(securityCodeTag)
+                            .testTag(securityCodeTag),
                 )
             }
         }
@@ -1472,7 +1489,7 @@ class PerformAndroidAutofillManagerTest {
 
     private inline fun ViewStructure(
         view: View,
-        block: FakeViewStructure.() -> Unit
+        block: FakeViewStructure.() -> Unit,
     ): FakeViewStructure {
         return FakeViewStructure().apply {
             autofillId = view.autofillId

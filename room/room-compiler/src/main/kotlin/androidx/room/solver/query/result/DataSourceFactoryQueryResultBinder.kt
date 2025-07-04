@@ -38,7 +38,7 @@ class DataSourceFactoryQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             val pagedListProvider =
@@ -47,7 +47,7 @@ class DataSourceFactoryQueryResultBinder(
                         superclass(
                             PagingTypeNames.DATA_SOURCE_FACTORY.parametrizedBy(
                                 XTypeName.BOXED_INT,
-                                typeName
+                                typeName,
                             )
                         )
                         addCreateMethod(
@@ -56,7 +56,7 @@ class DataSourceFactoryQueryResultBinder(
                             bindStatement = bindStatement,
                             returnTypeName = returnTypeName,
                             inTransaction = inTransaction,
-                            scope = scope
+                            scope = scope,
                         )
                     }
                     .build()
@@ -70,13 +70,13 @@ class DataSourceFactoryQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope,
         bindStatement: (CodeGenScope.(String) -> Unit)?,
-        returnTypeName: XTypeName
+        returnTypeName: XTypeName,
     ) {
         addFunction(
             XFunSpec.builder(
                     name = "create",
                     visibility = VisibilityModifier.PUBLIC,
-                    isOverride = true
+                    isOverride = true,
                 )
                 .apply {
                     returns(positionalDataSourceQueryResultBinder.typeName)
@@ -87,7 +87,7 @@ class DataSourceFactoryQueryResultBinder(
                         bindStatement = bindStatement,
                         returnTypeName = returnTypeName,
                         inTransaction = inTransaction,
-                        scope = countedBinderScope
+                        scope = countedBinderScope,
                     )
                     addCode(countedBinderScope.generate())
                 }

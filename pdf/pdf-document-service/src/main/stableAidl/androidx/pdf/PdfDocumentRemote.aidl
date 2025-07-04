@@ -23,10 +23,14 @@ import android.graphics.pdf.content.PdfPageImageContent;
 import android.graphics.pdf.content.PdfPageLinkContent;
 import android.graphics.pdf.content.PdfPageTextContent;
 import android.graphics.pdf.models.PageMatchBounds;
+import android.graphics.pdf.models.FormEditRecord;
+import android.graphics.pdf.models.FormWidgetInfo;
 import android.graphics.pdf.models.selection.PageSelection;
 import android.graphics.pdf.models.selection.SelectionBoundary;
 import android.os.ParcelFileDescriptor;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.annotation.models.PdfAnnotation;
+import androidx.pdf.annotation.models.AnnotationResult;
 
 /** Remote interface for interacting with a PDF document */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
@@ -162,4 +166,59 @@ interface PdfDocumentRemote {
      * PDF document to ensure proper cleanup.</p>
      */
     void closePdfDocument();
+
+    /**
+     * Gets the form widgets data of the specified page.
+     *
+     * @param pageNum The page number (0-based).
+     * @return A list of {@link FormWidgetInfo} on the page.
+     */
+    List<FormWidgetInfo> getFormWidgetInfos(int pageNum);
+
+    /**
+     * Gets the form widgets data of the specified page and widget types.
+     *
+     * @param pageNum The page number (0-based).
+     * @param types The widget types to retrieve.
+     * @return A list of {@link FormWidgetInfo} on the page.
+     */
+    List<FormWidgetInfo> getFormWidgetInfosOfType(int pageNum, in int[] types);
+
+    /**
+    * Applies a form widget edit to the PDF on the given page.
+    *
+    * @param pageNum The page number (0-based).
+    * @param editRecord The edit to apply.
+    * @return Rectangular areas of the page bitmap that have been invalidated by this action.
+    */
+    List<Rect> applyEdit(int pageNum, in FormEditRecord editRecord);
+
+    /**
+    * Writes the contents of the PdfDocument to the destination and closes the ParcelFileDescriptor.
+    *
+    * @param destination The ParcelFileDescriptor to write to.
+    * @param removePasswordProtection Whether to remove password protection from the document.
+    */
+    void write(in ParcelFileDescriptor destination, boolean removePasswordProtection);
+
+
+    /**
+    * Adds the annotations present in the given file to the document.
+    *
+    * @param pfd The file descriptor for the file from which annotations will be added.
+    *            The file should contain annotations intended for the currently opened PDF.
+    * @return A {@link AnnotationResult} object indicating the success or failure of the operation.
+    */
+    AnnotationResult addAnnotations(in ParcelFileDescriptor pfd);
+
+    /**
+    * Retrieves all annotations present on the specified page.
+    *
+    * @param pageNum The 0-based index of the page from which to retrieve annotations.
+    * @return A list of {@link PdfAnnotation} objects representing all annotations on the page.
+    *         Returns an empty list if there are no annotations or if the page number is invalid.
+    */
+    List<PdfAnnotation> getPageAnnotations(int pageNum);
+
+
 }

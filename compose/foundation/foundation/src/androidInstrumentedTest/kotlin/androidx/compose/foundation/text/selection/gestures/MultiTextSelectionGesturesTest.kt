@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.selection.gestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.MultiSelectionSubject
 import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
@@ -38,7 +39,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.util.fastForEach
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import org.junit.Before
@@ -46,7 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
 
     override val pointerAreaTag = "selectionContainer"
@@ -66,8 +66,9 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
                     textContent = textContent.value,
                     rule = rule,
                     textToolbar = textToolbar,
+                    spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
-                    getActual = { selection.value }
+                    getActual = { selection.value },
                 ) {
                 override fun subAssert() {
                     Truth.assertAbout(MultiSelectionSubject.withContent(texts.value))
@@ -93,11 +94,7 @@ internal class MultiTextSelectionGesturesTest : TextSelectionGesturesTest() {
             texts.value.fastForEach { (str, tag) ->
                 BasicText(
                     text = str,
-                    style =
-                        TextStyle(
-                            fontFamily = fontFamily,
-                            fontSize = fontSize,
-                        ),
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                     modifier = Modifier.fillMaxWidth().testTag(tag),
                 )
             }

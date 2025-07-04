@@ -39,7 +39,7 @@ internal fun launchOperation(
     tracer: Tracer,
     label: String,
     executor: Executor,
-    block: () -> Unit
+    block: () -> Unit,
 ): Operation {
     val liveData = MutableLiveData<Operation.State>(Operation.IN_PROGRESS)
     val future =

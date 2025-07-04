@@ -297,6 +297,22 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
      */
     @SuppressWarnings("unchecked")
     public @NonNull W build() {
+        return build(mWorkerClass);
+    }
+
+    /**
+     * Builds the {@link ListenableWorker} by passing in the enqueued {@link ListenableWorker}
+     * class to the {@link WorkerFactory}.
+     *
+     * This can be useful to test custom {@link WorkerFactory#createWorker} implementations as
+     * the enqueued {@link ListenableWorker} class may not be the same as the one that is built.
+     *
+     * @param enqueuedClass the {@link ListenableWorker} class enqueued to the
+     *                      {@link WorkerFactory}.
+     * @return the instance of a {@link ListenableWorker}.
+     */
+    @SuppressWarnings("unchecked")
+    public @NonNull W build(@NonNull Class<? extends ListenableWorker> enqueuedClass) {
         WorkerParameters parameters =
                 new WorkerParameters(
                         mId,
@@ -318,7 +334,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         ListenableWorker worker =
                 workerFactory.createWorkerWithDefaultFallback(
                         getApplicationContext(),
-                        getWorkerName(),
+                        enqueuedClass.getName(),
                         parameters);
 
         // This won't do much for the case of the from(Context, WorkRequest) as we lose the

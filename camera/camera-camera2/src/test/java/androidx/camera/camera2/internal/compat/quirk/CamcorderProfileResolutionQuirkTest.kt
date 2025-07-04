@@ -77,14 +77,14 @@ class CamcorderProfileResolutionQuirkTest {
 
     private fun createCameraCharacteristicsCompat(
         hardwareLevel: Int = CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-        supportedSizes: Array<Size> = emptyArray()
+        supportedSizes: Array<Size> = emptyArray(),
     ): CameraCharacteristicsCompat {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
 
         shadowCharacteristics.set(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-            hardwareLevel
+            hardwareLevel,
         )
 
         val mockMap = mock(StreamConfigurationMap::class.java)
@@ -98,7 +98,7 @@ class CamcorderProfileResolutionQuirkTest {
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
             characteristics,
-            CAMERA_ID_0
+            CAMERA_ID_0,
         )
     }
 }

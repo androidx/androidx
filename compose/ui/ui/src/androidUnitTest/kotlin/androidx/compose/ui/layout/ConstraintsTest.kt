@@ -234,7 +234,7 @@ class ConstraintsTest {
                 30_000,
                 Constraints.Infinity,
                 60_000,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(30_000, constraints6.minWidth)
         assertEquals(Constraints.Infinity, constraints6.maxWidth)
@@ -246,7 +246,7 @@ class ConstraintsTest {
                 60_000,
                 Constraints.Infinity,
                 30_000,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(60_000, constraints7.minWidth)
         assertEquals(Constraints.Infinity, constraints7.maxWidth)
@@ -272,7 +272,7 @@ class ConstraintsTest {
                 maxFocus,
                 Constraints.Infinity,
                 maxNonFocus,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(maxFocus, constraints2.minWidth)
         assertEquals(Constraints.Infinity, constraints2.maxWidth)
@@ -291,7 +291,7 @@ class ConstraintsTest {
                 maxNonFocus,
                 Constraints.Infinity,
                 maxFocus,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(maxNonFocus, constraints4.minWidth)
         assertEquals(Constraints.Infinity, constraints4.maxWidth)
@@ -310,7 +310,7 @@ class ConstraintsTest {
                 minFocus,
                 Constraints.Infinity,
                 minNonFocus,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(minFocus, constraints6.minWidth)
         assertEquals(Constraints.Infinity, constraints6.maxWidth)
@@ -329,7 +329,7 @@ class ConstraintsTest {
                 minNonFocus,
                 Constraints.Infinity,
                 minFocus,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(minNonFocus, constraints8.minWidth)
         assertEquals(Constraints.Infinity, constraints8.maxWidth)
@@ -355,7 +355,7 @@ class ConstraintsTest {
                 1_000_000,
                 Constraints.Infinity,
                 1_000_000,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(maxFocus, constraints2.minWidth)
         assertEquals(Constraints.Infinity, constraints2.maxWidth)
@@ -374,7 +374,7 @@ class ConstraintsTest {
                 minNonFocus,
                 Constraints.Infinity,
                 1_000_000,
-                Constraints.Infinity
+                Constraints.Infinity,
             )
         assertEquals(minNonFocus, constraints4.minWidth)
         assertEquals(Constraints.Infinity, constraints4.maxWidth)
@@ -389,12 +389,7 @@ class ConstraintsTest {
         val minFocus = (1 shl 16) - 2
         val minNonFocus = (1 shl 15) - 2
         val constraints1 =
-            Constraints.fitPrioritizingHeight(
-                1_000_000,
-                1_000_000,
-                1_000_000,
-                1_000_000,
-            )
+            Constraints.fitPrioritizingHeight(1_000_000, 1_000_000, 1_000_000, 1_000_000)
         assertEquals(maxNonFocus, constraints1.minWidth)
         assertEquals(maxNonFocus, constraints1.maxWidth)
         assertEquals(maxFocus, constraints1.minHeight)
@@ -413,12 +408,7 @@ class ConstraintsTest {
         assertEquals(Constraints.Infinity, constraints2.maxHeight)
 
         val constraints3 =
-            Constraints.fitPrioritizingHeight(
-                1_000_000,
-                1_000_000,
-                0,
-                Constraints.Infinity,
-            )
+            Constraints.fitPrioritizingHeight(1_000_000, 1_000_000, 0, Constraints.Infinity)
         assertEquals(maxFocus, constraints3.minWidth)
         assertEquals(maxFocus, constraints3.maxWidth)
         assertEquals(0, constraints3.minHeight)
@@ -447,14 +437,14 @@ class ConstraintsTest {
         minWidth: Int = 0,
         maxWidth: Int = Constraints.Infinity,
         minHeight: Int = 0,
-        maxHeight: Int = Constraints.Infinity
+        maxHeight: Int = Constraints.Infinity,
     ) {
         val constraints =
             Constraints(
                 minWidth = minWidth,
                 minHeight = minHeight,
                 maxWidth = maxWidth,
-                maxHeight = maxHeight
+                maxHeight = maxHeight,
             )
         assertEquals(minWidth, constraints.minWidth)
         assertEquals(minHeight, constraints.minHeight)
@@ -466,7 +456,7 @@ class ConstraintsTest {
         minWidth: Int,
         maxWidth: Int,
         minHeight: Int,
-        maxHeight: Int
+        maxHeight: Int,
     ) {
         assertTrue(
             this.minWidth == minWidth &&
@@ -480,7 +470,7 @@ class ConstraintsTest {
         minWidth: Int = 0,
         maxWidth: Int = Constraints.Infinity,
         minHeight: Int = 0,
-        maxHeight: Int = Constraints.Infinity
+        maxHeight: Int = Constraints.Infinity,
     ) {
         val constraints: Constraints
         try {

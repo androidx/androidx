@@ -142,7 +142,7 @@ class LocalesStackedHandlingTestCase {
                 assertConfigurationLocalesEquals(
                     "Activity ${activity.title}'s effective configuration has locales set",
                     expectedLocales,
-                    activityC.effectiveConfiguration!!
+                    activityC.effectiveConfiguration!!,
                 )
             }
         }
@@ -251,7 +251,7 @@ class LocalesStackedHandlingTestCase {
                 assertConfigurationLocalesEquals(
                     "Activity ${activity.title}'s effective configuration has locales set",
                     expectedLocales,
-                    activity.effectiveConfiguration!!
+                    activity.effectiveConfiguration!!,
                 )
             }
         }
@@ -317,7 +317,7 @@ class LocalesStackedHandlingTestCase {
                 assertConfigurationLocalesEquals(
                     "Activity ${activity.title}'s effective configuration has locales set",
                     systemLocales,
-                    activity.effectiveConfiguration!!
+                    activity.effectiveConfiguration!!,
                 )
             }
         }

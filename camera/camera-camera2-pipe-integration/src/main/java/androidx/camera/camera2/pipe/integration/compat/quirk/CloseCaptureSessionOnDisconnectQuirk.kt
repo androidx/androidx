@@ -40,10 +40,7 @@ public class CloseCaptureSessionOnDisconnectQuirk : Quirk {
 
     public companion object {
         private val androidTOrNewerSm8150Devices =
-            mapOf(
-                "google" to setOf("pixel 4", "pixel 4 xl"),
-                "samsung" to setOf("sm-g770f"),
-            )
+            mapOf("google" to setOf("pixel 4", "pixel 4 xl"), "samsung" to setOf("sm-g770f"))
 
         @JvmStatic
         public fun isEnabled(): Boolean {

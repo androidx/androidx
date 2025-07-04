@@ -55,45 +55,11 @@ public fun Brush.copyWithAndroidColor(
 /**
  * Set the color on a [Brush.Builder] as an [android.graphics.Color] instance. sRGB and Display P3
  * are supported; a color in any other color space will be converted to Display P3.
- *
- * Java callers should prefer [toBuilderWithAndroidColor] or [createBrushBuilderWithAndroidColor] as
- * a more fluent API.
  */
 @CheckResult
 @RequiresApi(Build.VERSION_CODES.O)
 public fun Brush.Builder.setAndroidColor(color: AndroidColor): Brush.Builder =
     setColorLong(color.pack())
-
-/**
- * Returns a [Brush.Builder] with values set equivalent to the [Brush] and the color specified by an
- * [android.graphics.Color] instance, which can encode several different color spaces. sRGB and
- * Display P3 are supported; a color in any other color space will be converted to Display P3. Java
- * developers, use the returned builder to build a copy of a Brush. Kotlin developers, see
- * [copyWithAndroidColor] method.
- *
- * In Kotlin, calling this is equivalent to calling [Brush.toBuilder] followed by
- * [Brush.Builder.setAndroidColor]. For Java callers, this function allows more fluent call
- * chaining.
- */
-@CheckResult
-@RequiresApi(Build.VERSION_CODES.O)
-public fun Brush.toBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
-    toBuilder().setAndroidColor(color)
-
-/**
- * Returns a new, blank [Brush.Builder] with the color specified by an [android.graphics.Color]
- * instance, which can encode several different color spaces. sRGB and Display P3 are supported; a
- * color in any other color space will be converted to Display P3.
- *
- * In Kotlin, calling this is equivalent to calling [Brush.builder] followed by
- * [Brush.Builder.setAndroidColor]. For Java callers, this function allows more fluent call
- * chaining.
- */
-@JvmName("createBuilderWithAndroidColor")
-@CheckResult
-@RequiresApi(Build.VERSION_CODES.O)
-public fun createBrushBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
-    Brush.Builder().setAndroidColor(color)
 
 /**
  * Returns a new [Brush] with the color specified by an [android.graphics.Color] instance, which can

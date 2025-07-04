@@ -185,13 +185,11 @@ class CoroutineDispatcherWorker(appContext: Context, params: WorkerParameters) :
     }
 }
 
-class CoroutineContextOverridingWorker(
-    appContext: Context,
-    params: WorkerParameters,
-) : CoroutineWorker(appContext, params) {
+class CoroutineContextOverridingWorker(appContext: Context, params: WorkerParameters) :
+    CoroutineWorker(appContext, params) {
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
-    @Suppress("OVERRIDE_DEPRECATION")
+    @Deprecated(message = "use withContext(...) inside doWork() instead.")
     override val coroutineContext: CoroutineDispatcher
         get() = dispatcher
 

@@ -147,7 +147,7 @@ class Action(
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/ null
+                /*subType=*/ null,
             )
             return sliceBuilder.build()
         }

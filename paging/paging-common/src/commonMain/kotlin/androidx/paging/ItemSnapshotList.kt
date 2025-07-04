@@ -35,7 +35,7 @@ public class ItemSnapshotList<T>(
      */
     @IntRange(from = 0) public val placeholdersAfter: Int,
     /** The presented data, excluding placeholders. */
-    public val items: List<T>
+    public val items: List<T>,
 ) : AbstractList<T?>() {
 
     /**

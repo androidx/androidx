@@ -56,7 +56,7 @@ class CallAudioRouteResolver(
     private val onChangeAudioRoute: (Int) -> Unit,
     private val onRequestBluetoothAudio: (BluetoothDevice) -> Unit,
     private val onRequestEndpointChange:
-        (CallEndpoint, Executor, OutcomeReceiver<Void, CallEndpointException>) -> Unit
+        (CallEndpoint, Executor, OutcomeReceiver<Void, CallEndpointException>) -> Unit,
 ) {
     private val mIsCallAudioStateDeprecated =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
@@ -177,7 +177,7 @@ class CallAudioRouteResolver(
                     override fun onError(error: CallEndpointException) {
                         continuation.resume(false)
                     }
-                }
+                },
             )
         }
 
@@ -186,7 +186,7 @@ class CallAudioRouteResolver(
         if (CallAudioState.ROUTE_BLUETOOTH != callAudioState.route) {
             return CallAudioEndpoint(
                 id = getAudioEndpointId(callAudioState.route),
-                audioRoute = getAudioEndpointRoute(callAudioState.route)
+                audioRoute = getAudioEndpointRoute(callAudioState.route),
             )
         }
         val device: BluetoothDevice? = callAudioState.activeBluetoothDevice
@@ -194,7 +194,7 @@ class CallAudioRouteResolver(
             return CallAudioEndpoint(
                 id = device.address,
                 audioRoute = AudioRoute.BLUETOOTH,
-                frameworkName = getName(device)
+                frameworkName = getName(device),
             )
         }
         val exactMatch = mEndpoints.value.firstOrNull { it.device == device }
@@ -202,7 +202,7 @@ class CallAudioRouteResolver(
         return CallAudioEndpoint(
             id = "",
             audioRoute = AudioRoute.BLUETOOTH,
-            frameworkName = device?.let { getName(it) }
+            frameworkName = device?.let { getName(it) },
         )
     }
 
@@ -222,7 +222,7 @@ class CallAudioRouteResolver(
                     EndpointEntry(
                         CallAudioEndpoint(
                             id = getAudioEndpointId(CallAudioState.ROUTE_EARPIECE),
-                            audioRoute = AudioRoute.EARPIECE
+                            audioRoute = AudioRoute.EARPIECE,
                         )
                     )
                 )
@@ -232,7 +232,7 @@ class CallAudioRouteResolver(
                     EndpointEntry(
                         CallAudioEndpoint(
                             id = getAudioEndpointId(CallAudioState.ROUTE_SPEAKER),
-                            audioRoute = AudioRoute.SPEAKER
+                            audioRoute = AudioRoute.SPEAKER,
                         )
                     )
                 )
@@ -242,7 +242,7 @@ class CallAudioRouteResolver(
                     EndpointEntry(
                         CallAudioEndpoint(
                             id = getAudioEndpointId(CallAudioState.ROUTE_WIRED_HEADSET),
-                            audioRoute = AudioRoute.HEADSET
+                            audioRoute = AudioRoute.HEADSET,
                         )
                     )
                 )
@@ -252,7 +252,7 @@ class CallAudioRouteResolver(
                     EndpointEntry(
                         CallAudioEndpoint(
                             id = getAudioEndpointId(CallAudioState.ROUTE_STREAMING),
-                            audioRoute = AudioRoute.STREAMING
+                            audioRoute = AudioRoute.STREAMING,
                         )
                     )
                 )
@@ -266,9 +266,9 @@ class CallAudioRouteResolver(
                             CallAudioEndpoint(
                                 id = device.address?.toString() ?: UUID.randomUUID().toString(),
                                 audioRoute = AudioRoute.BLUETOOTH,
-                                frameworkName = getName(device)
+                                frameworkName = getName(device),
                             ),
-                            device
+                            device,
                         )
                     }
                 )

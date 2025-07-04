@@ -45,7 +45,7 @@ import java.util.function.IntConsumer
  */
 internal fun NullableInputConnectionWrapper(
     delegate: InputConnection,
-    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit,
 ): NullableInputConnectionWrapper =
     when {
         Build.VERSION.SDK_INT >= 34 ->
@@ -83,7 +83,7 @@ internal sealed interface NullableInputConnectionWrapper : InputConnection {
 
 private open class NullableInputConnectionWrapperApi21(
     delegate: InputConnection,
-    private val onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
+    private val onConnectionClosed: (NullableInputConnectionWrapper) -> Unit,
 ) : NullableInputConnectionWrapper {
 
     protected var delegate: InputConnection? = delegate
@@ -175,7 +175,7 @@ private open class NullableInputConnectionWrapperApi21(
 @RequiresApi(24)
 private open class NullableInputConnectionWrapperApi24(
     delegate: InputConnection,
-    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit,
 ) : NullableInputConnectionWrapperApi21(delegate, onConnectionClosed) {
 
     final override fun deleteSurroundingTextInCodePoints(p0: Int, p1: Int): Boolean =
@@ -191,7 +191,7 @@ private open class NullableInputConnectionWrapperApi24(
 @RequiresApi(25)
 private open class NullableInputConnectionWrapperApi25(
     delegate: InputConnection,
-    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit,
 ) : NullableInputConnectionWrapperApi24(delegate, onConnectionClosed) {
 
     final override fun commitContent(p0: InputContentInfo, p1: Int, p2: Bundle?): Boolean =
@@ -201,18 +201,18 @@ private open class NullableInputConnectionWrapperApi25(
 @RequiresApi(34)
 private open class NullableInputConnectionWrapperApi34(
     delegate: InputConnection,
-    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit,
 ) : NullableInputConnectionWrapperApi25(delegate, onConnectionClosed) {
     final override fun performHandwritingGesture(
         gesture: HandwritingGesture,
         executor: Executor?,
-        consumer: IntConsumer?
+        consumer: IntConsumer?,
     ) {
         delegate?.performHandwritingGesture(gesture, executor, consumer)
     }
 
     final override fun previewHandwritingGesture(
         gesture: PreviewableHandwritingGesture,
-        cancellationSignal: CancellationSignal?
+        cancellationSignal: CancellationSignal?,
     ): Boolean = delegate?.previewHandwritingGesture(gesture, cancellationSignal) ?: false
 }

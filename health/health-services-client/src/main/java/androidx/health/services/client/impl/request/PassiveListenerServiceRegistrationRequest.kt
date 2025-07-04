@@ -45,7 +45,7 @@ internal class PassiveListenerServiceRegistrationRequest(
                 PassiveListenerServiceRegistrationRequest(
                     proto.packageName,
                     proto.listenerServiceClass,
-                    PassiveListenerConfig(proto.config)
+                    PassiveListenerConfig(proto.config),
                 )
             }
     }

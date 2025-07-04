@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,20 +57,18 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
         return false;
     }
 
-    @NonNull
     @Override
-    public ItemHolderInfo recordPreLayoutInformation(@NonNull RecyclerView.State state,
-            @NonNull RecyclerView.ViewHolder viewHolder,
+    public @NonNull ItemHolderInfo recordPreLayoutInformation(RecyclerView.@NonNull State state,
+            RecyclerView.@NonNull ViewHolder viewHolder,
             @AdapterChanges int changeFlags, @NonNull List<Object> payloads) {
         BaseRecyclerViewAnimationsTest.LoggingInfo
                 loggingInfo = new BaseRecyclerViewAnimationsTest.LoggingInfo(viewHolder, changeFlags, payloads);
         return loggingInfo;
     }
 
-    @NonNull
     @Override
-    public ItemHolderInfo recordPostLayoutInformation(@NonNull RecyclerView.State state,
-            @NonNull RecyclerView.ViewHolder viewHolder) {
+    public @NonNull ItemHolderInfo recordPostLayoutInformation(RecyclerView.@NonNull State state,
+            RecyclerView.@NonNull ViewHolder viewHolder) {
         BaseRecyclerViewAnimationsTest.LoggingInfo
                 loggingInfo = new BaseRecyclerViewAnimationsTest.LoggingInfo(viewHolder, 0, null);
         return loggingInfo;
@@ -78,7 +76,7 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
 
 
     @Override
-    public boolean animateDisappearance(@NonNull RecyclerView.ViewHolder viewHolder,
+    public boolean animateDisappearance(RecyclerView.@NonNull ViewHolder viewHolder,
             @NonNull ItemHolderInfo preLayoutInfo, ItemHolderInfo postLayoutInfo) {
         mAnimateDisappearanceList
                 .add(new BaseRecyclerViewAnimationsTest.AnimateDisappearance(viewHolder,
@@ -88,7 +86,7 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public boolean animateAppearance(@NonNull RecyclerView.ViewHolder viewHolder,
+    public boolean animateAppearance(RecyclerView.@NonNull ViewHolder viewHolder,
             ItemHolderInfo preLayoutInfo,
             @NonNull ItemHolderInfo postLayoutInfo) {
         mAnimateAppearanceList
@@ -99,7 +97,7 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public boolean animatePersistence(@NonNull RecyclerView.ViewHolder viewHolder,
+    public boolean animatePersistence(RecyclerView.@NonNull ViewHolder viewHolder,
             @NonNull ItemHolderInfo preLayoutInfo,
             @NonNull ItemHolderInfo postLayoutInfo) {
         mAnimatePersistenceList
@@ -110,8 +108,8 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
-            @NonNull RecyclerView.ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo,
+    public boolean animateChange(RecyclerView.@NonNull ViewHolder oldHolder,
+            RecyclerView.@NonNull ViewHolder newHolder, @NonNull ItemHolderInfo preLayoutInfo,
             @NonNull ItemHolderInfo postLayoutInfo) {
         mAnimateChangeList
                 .add(new BaseRecyclerViewAnimationsTest.AnimateChange(oldHolder, newHolder,
@@ -137,26 +135,26 @@ public class LoggingItemAnimator extends DefaultItemAnimator {
     }
 
     @Override
-    public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
+    public boolean animateAdd(RecyclerView.@NonNull ViewHolder holder) {
         mAddVHs.add(holder);
         return super.animateAdd(holder);
     }
 
     @Override
-    public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
+    public boolean animateRemove(RecyclerView.@NonNull ViewHolder holder) {
         mRemoveVHs.add(holder);
         return super.animateRemove(holder);
     }
 
     @Override
-    public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX, int fromY,
+    public boolean animateMove(RecyclerView.@NonNull ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         mMoveVHs.add(holder);
         return super.animateMove(holder, fromX, fromY, toX, toY);
     }
 
     @Override
-    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+    public boolean animateChange(RecyclerView.@NonNull ViewHolder oldHolder,
             RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         if (oldHolder != null) {
             mChangeOldVHs.add(oldHolder);

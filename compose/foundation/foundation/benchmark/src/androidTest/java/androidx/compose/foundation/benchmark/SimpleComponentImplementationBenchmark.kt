@@ -137,7 +137,7 @@ class SimpleComponentImplementationBenchmark {
     fun component_redrawOnly_update_measure() {
         benchmarkRule.toggleStateBenchmarkMeasure(
             redrawOnlyCasefactory,
-            toggleCausesRecompose = false
+            toggleCausesRecompose = false,
         )
     }
 
@@ -145,7 +145,7 @@ class SimpleComponentImplementationBenchmark {
     fun component_redrawOnly_update_layout() {
         benchmarkRule.toggleStateBenchmarkLayout(
             redrawOnlyCasefactory,
-            toggleCausesRecompose = false
+            toggleCausesRecompose = false,
         )
     }
 
@@ -193,7 +193,7 @@ class SimpleComponentImplementationBenchmark {
     fun component_modifiersOnly_update_measure() {
         benchmarkRule.toggleStateBenchmarkMeasure(
             modifiersOnlyCaseFactory,
-            toggleCausesRecompose = true
+            toggleCausesRecompose = true,
         )
     }
 
@@ -201,7 +201,7 @@ class SimpleComponentImplementationBenchmark {
     fun component_modifiersOnly_update_layout() {
         benchmarkRule.toggleStateBenchmarkLayout(
             modifiersOnlyCaseFactory,
-            toggleCausesRecompose = true
+            toggleCausesRecompose = true,
         )
     }
 
@@ -209,7 +209,7 @@ class SimpleComponentImplementationBenchmark {
     fun component_modifiersOnly_update_draw() {
         benchmarkRule.toggleStateBenchmarkDraw(
             modifiersOnlyCaseFactory,
-            toggleCausesRecompose = true
+            toggleCausesRecompose = true,
         )
     }
 
@@ -259,7 +259,7 @@ class ComponentWithTwoLayoutNodesTestCase : SimpleComponentImplementationTestCas
                 Modifier.size(48.dp)
                     .border(BorderStroke(1.dp, Color.Cyan), CircleShape)
                     .padding(1.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             val innerSize = getInnerSize().value
             Canvas(Modifier.size(innerSize)) {

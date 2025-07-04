@@ -57,13 +57,13 @@ class FrameCaptureTests {
         CameraStream.Config.create(
             Size(640, 480),
             StreamFormat.YUV_420_888,
-            imageSourceConfig = ImageSourceConfig(capacity = 10)
+            imageSourceConfig = ImageSourceConfig(capacity = 10),
         )
 
     private val graphConfig =
         CameraGraph.Config(
             camera = cameraMetadata.camera,
-            streams = listOf(viewfinderStreamConfig, jpegStreamConfig)
+            streams = listOf(viewfinderStreamConfig, jpegStreamConfig),
         )
 
     private val cameraGraphSimulator = cameraPipeSimulator.createCameraGraphSimulator(graphConfig)
@@ -144,7 +144,7 @@ class FrameCaptureTests {
             // cameraGraph?
 
             advanceUntilIdle()
-            assertThat(frameCaptureJob.isCompleted) // Ensure verification is complete
+            assertThat(frameCaptureJob.isCompleted).isTrue() // Ensure verification is complete
             cameraGraphSimulator.close()
         }
 }

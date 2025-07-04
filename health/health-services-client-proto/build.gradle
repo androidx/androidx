@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,7 +50,7 @@ dependencies {
 
 androidx {
     name = "Health Services Client Proto"
-    type = LibraryType.PUBLISHED_PROTO_LIBRARY
+    type = SoftwareType.PUBLISHED_PROTO_LIBRARY
     mavenVersion = LibraryVersions.HEALTH_SERVICES_CLIENT
     inceptionYear = "2022"
     description = "Proto files for health-services-client"

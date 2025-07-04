@@ -22,6 +22,7 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -33,6 +34,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +58,7 @@ import androidx.camera.view.CameraController;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.camera.view.RotationProvider;
+import androidx.camera.view.TapToFocusInfo;
 import androidx.camera.view.video.AudioConfig;
 import androidx.core.util.Consumer;
 import androidx.fragment.app.Fragment;
@@ -70,7 +73,6 @@ import org.jspecify.annotations.Nullable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -101,6 +103,7 @@ public class CameraControllerFragment extends Fragment {
     private TextView mTorchStateText;
     private TextView mLuminance;
     private CheckBox mOnDisk;
+    private ImageView mFocusOnTapCircle;
     private boolean mIsAnalyzerSet = true;
     // Listen to accelerometer rotation change and pass it to tests.
     private RotationProvider mRotationProvider;
@@ -327,12 +330,10 @@ public class CameraControllerFragment extends Fragment {
         mCameraController.getZoomState().observe(getViewLifecycleOwner(),
                 this::updateZoomStateText);
 
+        mFocusOnTapCircle = view.findViewById(R.id.focus_on_tap_circle);
         mFocusResultText = view.findViewById(R.id.focus_result_text);
-        LiveData<Integer> focusMeteringResult =
-                mCameraController.getTapToFocusState();
-        updateFocusStateText(Objects.requireNonNull(focusMeteringResult.getValue()));
-        focusMeteringResult.observe(getViewLifecycleOwner(),
-                this::updateFocusStateText);
+        LiveData<TapToFocusInfo> focusOnTapState = mCameraController.getTapToFocusInfoState();
+        focusOnTapState.observe(getViewLifecycleOwner(), this::applyFocusOnTap);
 
         mTorchStateText = view.findViewById(R.id.torch_state_text);
         updateTorchStateText(mCameraController.getTorchState().getValue());
@@ -386,6 +387,41 @@ public class CameraControllerFragment extends Fragment {
             mZoomStateText.setText("Null");
         } else {
             mZoomStateText.setText(zoomState.toString());
+        }
+    }
+
+    private void applyFocusOnTap(@NonNull TapToFocusInfo tapToFocusInfo) {
+        if (mFocusOnTapCircle == null) {
+            return;
+        }
+
+        switch (tapToFocusInfo.getFocusState()) {
+            case CameraController.TAP_TO_FOCUS_NOT_STARTED:
+            case CameraController.TAP_TO_FOCUS_NOT_FOCUSED:
+            case CameraController.TAP_TO_FOCUS_FAILED:
+                mFocusOnTapCircle.setVisibility(View.INVISIBLE);
+                break;
+            case CameraController.TAP_TO_FOCUS_STARTED:
+                mFocusOnTapCircle.setVisibility(View.VISIBLE);
+                mFocusOnTapCircle.setColorFilter(Color.GRAY);
+                updateFocusOnTapCirclePosition(tapToFocusInfo);
+                break;
+            case CameraController.TAP_TO_FOCUS_FOCUSED:
+                mFocusOnTapCircle.setVisibility(View.VISIBLE);
+                mFocusOnTapCircle.setColorFilter(Color.WHITE);
+                updateFocusOnTapCirclePosition(tapToFocusInfo);
+                break;
+        }
+
+        updateFocusStateText(tapToFocusInfo.getFocusState());
+    }
+
+    private void updateFocusOnTapCirclePosition(@NonNull TapToFocusInfo tapToFocusInfo) {
+        if (tapToFocusInfo.getTapPoint() != null) {
+            mFocusOnTapCircle.setX(
+                    tapToFocusInfo.getTapPoint().x - (float) mFocusOnTapCircle.getWidth() / 2);
+            mFocusOnTapCircle.setY(
+                    tapToFocusInfo.getTapPoint().y - (float) mFocusOnTapCircle.getHeight() / 2);
         }
     }
 

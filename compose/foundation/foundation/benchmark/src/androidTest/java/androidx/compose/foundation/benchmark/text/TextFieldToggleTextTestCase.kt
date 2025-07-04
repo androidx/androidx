@@ -49,7 +49,7 @@ class TextFieldToggleTextTestCase(
     private val textLength: Int,
     private val textNumber: Int,
     private val width: Dp,
-    private val fontSize: TextUnit
+    private val fontSize: TextUnit,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val textInputService = TextInputService(TestPlatformTextInputService())
@@ -64,7 +64,7 @@ class TextFieldToggleTextTestCase(
                 value = text.value,
                 onValueChange = {},
                 textStyle = TextStyle(color = Color.Black, fontSize = fontSize),
-                modifier = Modifier.background(color = Color.Cyan).requiredWidth(width)
+                modifier = Modifier.background(color = Color.Cyan).requiredWidth(width),
             )
         }
     }
@@ -85,7 +85,7 @@ class TextFieldToggleTextTestCase(
             value: TextFieldValue,
             imeOptions: ImeOptions,
             onEditCommand: (List<EditCommand>) -> Unit,
-            onImeActionPerformed: (ImeAction) -> Unit
+            onImeActionPerformed: (ImeAction) -> Unit,
         ) {
             /*do nothing*/
         }

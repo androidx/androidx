@@ -50,7 +50,7 @@ class AssertExistsTest {
                     Column {
                         Button(
                             modifier = Modifier.testTag("MyButton"),
-                            onClick = { toggle(!showText) }
+                            onClick = { toggle(!showText) },
                         ) {
                             Text("Toggle")
                         }

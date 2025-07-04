@@ -30,19 +30,19 @@ import kotlin.reflect.KType
     ReplaceWith(
         "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun NavController.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
 
 /** Construct a new [androidx.navigation.NavGraph] that supports dynamic navigation destinations */
 public inline fun NavController.createGraph(
     startDestination: String,
     route: String? = null,
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): NavGraph = navigatorProvider.navigation(startDestination, route, builder)
 
 /**

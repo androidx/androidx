@@ -111,7 +111,7 @@ fun ModalNavigationDrawerSample() {
                                 scope.launch { drawerState.close() }
                                 selectedItem.value = item
                             },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                         )
                     }
                 }
@@ -120,13 +120,13 @@ fun ModalNavigationDrawerSample() {
         content = {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
                 Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
             }
-        }
+        },
     )
 }
 
@@ -168,7 +168,7 @@ fun PermanentNavigationDrawerSample() {
                             label = { Text(item.name.substringAfterLast(".")) },
                             selected = item == selectedItem.value,
                             onClick = { selectedItem.value = item },
-                            modifier = Modifier.padding(horizontal = 12.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp),
                         )
                     }
                 }
@@ -177,11 +177,11 @@ fun PermanentNavigationDrawerSample() {
         content = {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(text = "Application content")
             }
-        }
+        },
     )
 }
 
@@ -230,7 +230,7 @@ fun DismissibleNavigationDrawerSample() {
                                 scope.launch { drawerState.close() }
                                 selectedItem.value = item
                             },
-                            modifier = Modifier.padding(horizontal = 12.dp)
+                            modifier = Modifier.padding(horizontal = 12.dp),
                         )
                     }
                 }
@@ -239,12 +239,12 @@ fun DismissibleNavigationDrawerSample() {
         content = {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(text = if (drawerState.isClosed) ">>> Swipe >>>" else "<<< Swipe <<<")
                 Spacer(Modifier.height(20.dp))
                 Button(onClick = { scope.launch { drawerState.open() } }) { Text("Click to open") }
             }
-        }
+        },
     )
 }

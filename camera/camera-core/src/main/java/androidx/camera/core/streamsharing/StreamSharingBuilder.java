@@ -17,6 +17,7 @@
 package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_STREAM_USE_CASE;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamUseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
@@ -145,6 +147,12 @@ class StreamSharingBuilder implements
     public @NonNull StreamSharingBuilder setCaptureType(
             UseCaseConfigFactory.@NonNull CaptureType captureType) {
         getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+        return this;
+    }
+
+    @Override
+    public @NonNull StreamSharingBuilder setStreamUseCase(@NonNull StreamUseCase streamUseCase) {
+        getMutableConfig().insertOption(OPTION_STREAM_USE_CASE, streamUseCase);
         return this;
     }
 }

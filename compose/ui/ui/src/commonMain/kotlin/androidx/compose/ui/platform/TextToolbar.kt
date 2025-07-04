@@ -45,14 +45,14 @@ interface TextToolbar {
         onPasteRequested: (() -> Unit)? = null,
         onCutRequested: (() -> Unit)? = null,
         onSelectAllRequested: (() -> Unit)? = null,
-        onAutofillRequested: (() -> Unit)? = null
+        onAutofillRequested: (() -> Unit)? = null,
     ) {
         showMenu(
             rect = rect,
             onCopyRequested = onCopyRequested,
             onPasteRequested = onPasteRequested,
             onCutRequested = onCutRequested,
-            onSelectAllRequested = onSelectAllRequested
+            onSelectAllRequested = onSelectAllRequested,
         )
     }
 
@@ -76,7 +76,7 @@ interface TextToolbar {
         onCopyRequested: (() -> Unit)? = null,
         onPasteRequested: (() -> Unit)? = null,
         onCutRequested: (() -> Unit)? = null,
-        onSelectAllRequested: (() -> Unit)? = null
+        onSelectAllRequested: (() -> Unit)? = null,
     )
 
     /** Hide the floating toolbar(post-M) or primary toolbar(pre-M). */

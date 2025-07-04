@@ -62,7 +62,7 @@ internal data class PointerInputEventData(
 @OptIn(InternalCoreApi::class)
 internal expect class InternalPointerEvent(
     changes: LongSparseArray<PointerInputChange>,
-    pointerInputEvent: PointerInputEvent
+    pointerInputEvent: PointerInputEvent,
 ) {
     val changes: LongSparseArray<PointerInputChange>
 

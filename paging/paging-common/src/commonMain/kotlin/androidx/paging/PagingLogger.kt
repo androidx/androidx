@@ -33,7 +33,7 @@ public expect object PagingLogger {
 public inline fun log(
     @IntRange(from = VERBOSE.toLong(), to = DEBUG.toLong()) level: Int,
     tr: Throwable? = null,
-    block: () -> String
+    block: () -> String,
 ) {
     val logger = PagingLogger
     if (logger.isLoggable(level)) {

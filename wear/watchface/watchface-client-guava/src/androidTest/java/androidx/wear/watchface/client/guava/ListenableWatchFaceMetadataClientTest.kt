@@ -21,10 +21,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.XmlResourceParser
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.client.ListenableWatchFaceMetadataClient
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
@@ -37,12 +37,12 @@ private const val TIMEOUT_MS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 public class ListenableWatchFaceMetadataClientTest {
     private val exampleWatchFaceComponentName =
         ComponentName(
             "androidx.wear.watchface.samples.test",
-            "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
+            "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService",
         )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -60,9 +60,9 @@ public class ListenableWatchFaceMetadataClientTest {
                 object : WatchFaceMetadataClient.Companion.ParserProvider() {
                     override fun getParser(
                         context: Context,
-                        watchFaceName: ComponentName
+                        watchFaceName: ComponentName,
                     ): XmlResourceParser? = null
-                }
+                },
             )
 
         val watchFaceMetadataClient = listenableFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)

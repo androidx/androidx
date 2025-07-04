@@ -40,7 +40,7 @@ public inline fun <reified W : ListenableWorker> TestListenableWorkerBuilder(
     tags: List<String> = emptyList(),
     runAttemptCount: Int = 1,
     triggeredContentUris: List<Uri> = emptyList(),
-    triggeredContentAuthorities: List<String> = emptyList()
+    triggeredContentAuthorities: List<String> = emptyList(),
 ): TestListenableWorkerBuilder<W> {
     val builder = TestListenableWorkerBuilder.from(context, W::class.java)
     builder.apply {

@@ -33,8 +33,9 @@
         <androidx.pdf.widget.SearchEditText
             android:id="@+id/searchQueryBox"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:textDirection="locale"
             android:layout_weight="1"
             android:background="@null"
             android:clickable="true"
@@ -45,13 +46,13 @@
             android:paddingStart="14dp"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurface"
-            android:textColorHint="?attr/colorOnSurfaceVariant" />
+            android:textColorHint="?attr/colorOnSurfaceVariant"
+            android:minHeight="48dp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/matchStatusTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/query_box"
             android:layout_gravity="center_vertical"
             android:paddingEnd="10dp"
             android:paddingStart="8dp"
@@ -88,7 +89,6 @@
         android:id="@+id/closeButton"
         android:layout_width="@dimen/find_in_file_button_size"
         android:layout_height="@dimen/find_in_file_button_size"
-        android:layout_marginEnd="10dp"
         android:background="@drawable/shape_oval"
         android:contentDescription="@string/close_button_description"
         android:cropToPadding="true"

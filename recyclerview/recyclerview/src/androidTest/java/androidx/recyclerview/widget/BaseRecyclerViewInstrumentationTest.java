@@ -40,8 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.test.R;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.ActivityScenarioResetRule;
@@ -50,6 +48,8 @@ import androidx.testutils.ResettableActivityScenarioRule;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -417,7 +417,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                 @Override
                 public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                        @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                        @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                     RecyclerView.ViewHolder vh = parent.getChildViewHolder(view);
                     if (!vh.isRemoved()) {
                         assertNotSame("If getItemOffsets is called, child should have a valid"
@@ -886,20 +886,20 @@ abstract public class BaseRecyclerViewInstrumentationTest {
 
         ViewAttachDetachCounter mAttachmentCounter = new ViewAttachDetachCounter();
         List<Item> mItems;
-        @Nullable RecyclerView.LayoutParams mLayoutParams;
+        RecyclerView.@Nullable LayoutParams mLayoutParams;
         boolean mCancelViewPropertyAnimatorsInOnDetach;
 
         public TestAdapter(int count) {
             this(count, null);
         }
 
-        public TestAdapter(int count, @Nullable RecyclerView.LayoutParams layoutParams) {
+        public TestAdapter(int count, RecyclerView.@Nullable LayoutParams layoutParams) {
             mItems = new ArrayList<Item>(count);
             addItems(0, count, DEFAULT_ITEM_PREFIX);
             mLayoutParams = layoutParams;
         }
 
-        public void setItemLayoutParams(@Nullable RecyclerView.LayoutParams params) {
+        public void setItemLayoutParams(RecyclerView.@Nullable LayoutParams params) {
             mLayoutParams = params;
         }
 

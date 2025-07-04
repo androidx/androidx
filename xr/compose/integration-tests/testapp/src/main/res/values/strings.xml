@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">JXR Compose Tests</string>
+    <string name="title_activity_mode_change">Compose Mode Change test case</string>
+    <string name="title_activity_media_player">Video in Spatial Panel test case</string>
+    <string name="title_activity_rotation">Panel/Layout rotation test case</string>
+
+    <string name="mode_change_test">Compose Mode Change test case</string>
+    <string name="panel_rotation_test">Panel/Layout rotation test case</string>
+    <string name="media_player_panel_test">CUJ: Media Player Panel Test</string>
+    <string name="enable_permission_dialog_test">Dialog Permissions test case</string>
+    <string name="value_based_animation_test">Animation Exploration test case</string>
+    <string name="curve_panel_row_test">Curved Row test case</string>
+    <string name="movable_panels_test">Movable Modifier test case</string>
+    <string name="movable_scalable_panel_test">Movable Scaling With Depth test case</string>
+    <string name="spatial_elevation_test">Orbiter/Elevation test case</string>
+    <string name="title_activity_another">AnotherActivity</string>
+    <string name="spatial_layout_test">Spatial layout test case</string>
+    <string name="video_in_panel_test">Video in Spatial Panel test case</string>
+    <string name="backhandling_panel_test">Backhandling Spatial Panels test case</string>
+    <string name="video_player_test">StereoVideo test case</string>
+    <string name="cuj_gltf_entity_input_test_case">GLTF entity input test case</string>
+    <string name="cuj_gltf_animation_test_case">GLTF Animation test case</string>
+    <string name="depthstacking_modifier_order_test_case">DepthStacking and ModifierOrder Layout test case</string>
+    <string name="nested_subspace_test_case">Nested Subspace Layout test case</string>
+    <string name="panel_volume_test_case">Panel Volume Layout test case</string>
+    <string name="resizable_panel_test_case">Resizable Panel test case</string>
+
+    <string name="hello_android_xr">Hello Android XR.</string>
+    <string name="switch_to_home_space_mode">Switch to Home Space Mode</string>
+    <string name="switch_to_full_space_mode">Switch to Full Space Mode</string>
+</resources>

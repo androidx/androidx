@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -33,7 +32,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    android()
+    androidTarget()
     jvmStubs()
     linuxX64Stubs()
 
@@ -69,7 +68,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api(project(":compose:ui:ui-graphics"))
-                api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
                 implementation("androidx.activity:activity-compose:1.3.0")
                 implementation("androidx.annotation:annotation:1.8.1")
                 implementation("androidx.core:core-ktx:1.12.0")
@@ -85,6 +83,7 @@ androidXMultiplatform {
 
         jvmStubsMain {
             dependsOn(commonStubsMain)
+            dependsOn(jvmMain)
         }
 
         linuxx64StubsMain {
@@ -116,6 +115,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
+                implementation(libs.espressoCore)
                 implementation(libs.truth)
 
             }
@@ -126,7 +126,6 @@ androidXMultiplatform {
             dependsOn(androidCommonTest)
             dependencies {
                 implementation(libs.truth)
-                implementation(libs.robolectric)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin4)
                 implementation(libs.byteBuddy)
@@ -142,26 +141,15 @@ androidXMultiplatform {
 
 android {
     compileSdk = 35
-    sourceSets {
-        test.java.srcDirs += "src/androidCommonTest/kotlin"
-        androidTest.java.srcDirs += "src/androidCommonTest/kotlin"
-    }
-
-    lintOptions {
-        disable("InvalidPackage")
-    }
     namespace = "androidx.compose.ui.test"
-    // TODO(b/345531033)
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
     name = "Compose Testing"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2019"
     description = "Compose testing library"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-test:ui-test-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    enableRobolectric()
 }

@@ -94,7 +94,7 @@ class AspectRatioUtilTest {
                 AspectRatioUtil.hasMatchingAspectRatio(
                     Size(640, 358),
                     Rational(16, 9),
-                    Size(320, 240)
+                    Size(320, 240),
                 )
             )
             .isTrue()
@@ -119,8 +119,8 @@ class AspectRatioUtilTest {
             aspectRatios,
             CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
                 targetAspectRatio,
-                fullFovAspectRatio
-            )
+                fullFovAspectRatio,
+            ),
         )
 
         val expectedResult =

@@ -238,7 +238,7 @@ class PreferenceFragmentCompatInterfaceTest {
      */
     private fun verifyCallsWithContextAndActivity(
         contextHandlesCall: Boolean,
-        testPreferenceFactory: PreferenceFragmentCompat.() -> Preference
+        testPreferenceFactory: PreferenceFragmentCompat.() -> Preference,
     ) {
         var contextCount = 0
         val incrementContextCount: () -> Boolean = {
@@ -412,7 +412,7 @@ private class TestContext(baseContext: Context, private val testCallback: () -> 
  */
 class TestFragment(
     private val testPreferenceFactory: PreferenceFragmentCompat.() -> Preference,
-    private val contextCallback: (() -> Boolean)? = null
+    private val contextCallback: (() -> Boolean)? = null,
 ) : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceScreen = preferenceManager.createPreferenceScreen(requireContext())
@@ -456,7 +456,7 @@ class TestFragment(
  */
 class WithInterfaceParentFragment(
     private val parentTestCallback: () -> Boolean,
-    private val childTestCallback: () -> Boolean
+    private val childTestCallback: () -> Boolean,
 ) :
     Fragment(),
     PreferenceFragmentCompat.OnPreferenceStartFragmentCallback,
@@ -472,12 +472,12 @@ class WithInterfaceParentFragment(
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             val contentView = FrameLayout(inflater.context)
             contentView.addView(
                 FragmentContainerView(inflater.context).apply { id = R.id.child_fragment },
-                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT),
             )
 
             if (childFragmentManager.findFragmentById(R.id.child_fragment) == null) {
@@ -491,8 +491,8 @@ class WithInterfaceParentFragment(
                                     fragment = "preference.fragment"
                                 }
                             },
-                            { false }
-                        )
+                            { false },
+                        ),
                     )
                 }
             }
@@ -504,7 +504,7 @@ class WithInterfaceParentFragment(
 
         override fun onPreferenceStartScreen(
             caller: PreferenceFragmentCompat,
-            pref: PreferenceScreen
+            pref: PreferenceScreen,
         ) = callback()
 
         override fun onPreferenceDisplayDialog(caller: PreferenceFragmentCompat, pref: Preference) =
@@ -514,12 +514,12 @@ class WithInterfaceParentFragment(
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val contentView = FrameLayout(inflater.context)
         contentView.addView(
             FragmentContainerView(inflater.context).apply { id = R.id.fragment_container_view },
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT),
         )
 
         if (childFragmentManager.findFragmentById(R.id.fragment_container_view) == null) {

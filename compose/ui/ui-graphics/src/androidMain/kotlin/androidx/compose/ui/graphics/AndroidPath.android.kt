@@ -39,7 +39,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         throw UnsupportedOperationException("Unable to obtain android.graphics.Path")
     }
 
-@Suppress("OVERRIDE_DEPRECATION")
+@Suppress("OVERRIDE_DEPRECATION") // b/407491706
 /* actual */ class AndroidPath(val internalPath: PlatformPath = PlatformPath()) : Path {
 
     // Temporary value holders to reuse an object (not part of a state):
@@ -106,7 +106,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         dx2: Float,
         dy2: Float,
         dx3: Float,
-        dy3: Float
+        dy3: Float,
     ) {
         internalPath.rCubicTo(dx1, dy1, dx2, dy2, dx3, dy3)
     }
@@ -115,7 +115,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
         rect: Rect,
         startAngleDegrees: Float,
         sweepAngleDegrees: Float,
-        forceMoveTo: Boolean
+        forceMoveTo: Boolean,
     ) {
         val left = rect.left
         val top = rect.top

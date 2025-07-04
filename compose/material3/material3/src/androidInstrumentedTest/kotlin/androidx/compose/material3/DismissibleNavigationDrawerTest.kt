@@ -81,7 +81,7 @@ class DismissibleNavigationDrawerTest {
                 drawerContent = {
                     DismissibleDrawerSheet { Box(Modifier.fillMaxSize().testTag("content")) }
                 },
-                content = {}
+                content = {},
             )
         }
 
@@ -99,7 +99,7 @@ class DismissibleNavigationDrawerTest {
                         Box(Modifier.fillMaxSize().testTag("content"))
                     }
                 },
-                content = {}
+                content = {},
             )
         }
 
@@ -118,7 +118,7 @@ class DismissibleNavigationDrawerTest {
                 drawerContent = {
                     DismissibleDrawerSheet { Box(Modifier.fillMaxSize().testTag("content")) }
                 },
-                content = {}
+                content = {},
             )
         }
 
@@ -137,7 +137,7 @@ class DismissibleNavigationDrawerTest {
                         Box(Modifier.fillMaxSize().testTag("content"))
                     }
                 },
-                content = {}
+                content = {},
             )
         }
 
@@ -156,7 +156,7 @@ class DismissibleNavigationDrawerTest {
                         Box(Modifier.fillMaxSize().testTag("content"))
                     }
                 },
-                content = {}
+                content = {},
             )
         }
 
@@ -179,7 +179,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().onGloballyPositioned { coords = it })
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
         }
@@ -203,7 +203,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().onGloballyPositioned { coords = it })
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
         }
@@ -224,7 +224,7 @@ class DismissibleNavigationDrawerTest {
                 drawerContent = {
                     DismissibleDrawerSheet { Box(Modifier.fillMaxSize().testTag("content")) }
                 },
-                content = {}
+                content = {},
             )
         }
 
@@ -243,7 +243,7 @@ class DismissibleNavigationDrawerTest {
                         Box(Modifier.fillMaxSize())
                     }
                 },
-                content = {}
+                content = {},
             )
             navigationMenu = getString(Strings.NavigationMenu)
         }
@@ -268,7 +268,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().testTag(DrawerTestTag))
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
 
@@ -304,7 +304,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().testTag(DrawerTestTag))
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
 
@@ -342,7 +342,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().testTag(DrawerTestTag))
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
 
@@ -378,7 +378,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().testTag(DrawerTestTag))
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
 
@@ -411,7 +411,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().testTag(DrawerTestTag))
                         }
                     },
-                    content = { Box(Modifier.fillMaxSize().clickable { bodyClicks += 1 }) }
+                    content = { Box(Modifier.fillMaxSize().clickable { bodyClicks += 1 }) },
                 )
             }
 
@@ -441,7 +441,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                         }
                     },
-                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) }
+                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) },
                 )
             }
         }
@@ -463,7 +463,7 @@ class DismissibleNavigationDrawerTest {
             drawerState =
                 rememberDrawerState(
                     DrawerValue.Open,
-                    confirmStateChange = { it != DrawerValue.Closed }
+                    confirmStateChange = { it != DrawerValue.Closed },
                 )
             Box(Modifier.testTag(DrawerTestTag)) {
                 DismissibleNavigationDrawer(
@@ -473,7 +473,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                         }
                     },
-                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) }
+                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) },
                 )
             }
         }
@@ -507,7 +507,7 @@ class DismissibleNavigationDrawerTest {
                                 Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                             }
                         },
-                        content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) }
+                        content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) },
                     )
                 }
             }
@@ -536,7 +536,7 @@ class DismissibleNavigationDrawerTest {
                             Box(Modifier.fillMaxSize())
                         }
                     },
-                    content = {}
+                    content = {},
                 )
             }
 

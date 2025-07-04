@@ -48,20 +48,20 @@ class EnumColumnTypeAdapterTest {
 
     enum class Color {
         RED,
-        GREEN
+        GREEN,
     }
 
     enum class Fruit {
         BANANA,
         STRAWBERRY,
-        WILDBERRY
+        WILDBERRY,
     }
 
     enum class Season(private val text: String) {
         SUMMER("Sunny"),
         SPRING("Warm"),
         WINTER("Cold"),
-        AUTUMN("Rainy")
+        AUTUMN("Rainy"),
     }
 
     @Dao
@@ -106,7 +106,7 @@ class EnumColumnTypeAdapterTest {
         entities =
             [EntityWithEnum::class, ComplexEntityWithEnum::class, EntityWithOneWayEnum::class],
         version = 1,
-        exportSchema = false
+        exportSchema = false,
     )
     @TypeConverters(ColorTypeConverter::class)
     abstract class EnumColumnTypeAdapterDatabase : RoomDatabase() {

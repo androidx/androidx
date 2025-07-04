@@ -17,7 +17,7 @@
 package androidx.xr.runtime.openxr
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.internal.TrackingState
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
 /**
@@ -25,15 +25,16 @@ import androidx.xr.runtime.math.Pose
  *
  * @property trackingState the [TrackingState] value describing if the anchor is being updated.
  * @property pose the pose of the center of the detected anchor. Can be null iff the tracking state
- *   is [TrackingState.Stopped].
+ *   is [TrackingState.STOPPED].
  */
+@Suppress("DataClassDefinition")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public data class AnchorState(
-    val trackingState: TrackingState = TrackingState.Paused,
+    val trackingState: TrackingState = TrackingState.PAUSED,
     val pose: Pose? = Pose(),
 ) {
     init {
-        require(pose != null || trackingState == TrackingState.Stopped) {
+        require(pose != null || trackingState == TrackingState.STOPPED) {
             "Pose cannot be null if tracking state is not STOPPED."
         }
     }
@@ -42,10 +43,10 @@ public data class AnchorState(
 /**
  * Create a [TrackingState] inferred from the [XrSpaceLocationFlags] returned with the anchor
  * location data. The following rules are used to determine the [TrackingState]:
- * * If both valid and tracking bits are flipped, return [TrackingState.Tracking]
- * * If both valid bits are flipped, but not both tracking bits, return [TrackingState.Paused]
+ * * If both valid and tracking bits are flipped, return [TrackingState.TRACKING]
+ * * If both valid bits are flipped, but not both tracking bits, return [TrackingState.PAUSED]
  * * Any other combination of flipped bits (i.e. both valid bits are not flipped), return
- *   [TrackingState.Stopped]
+ *   [TrackingState.STOPPED]
  */
 internal fun TrackingState.Companion.fromOpenXrLocationFlags(flags: Int): TrackingState {
     val VALID_MASK = 0x00000001 or 0x00000002
@@ -54,8 +55,8 @@ internal fun TrackingState.Companion.fromOpenXrLocationFlags(flags: Int): Tracki
     require(flags or TRACKING_MASK == TRACKING_MASK) { "Invalid location flag bits." }
 
     return when {
-        (flags and TRACKING_MASK) == TRACKING_MASK -> TrackingState.Tracking
-        (flags and VALID_MASK) == VALID_MASK -> TrackingState.Paused
-        else -> TrackingState.Stopped
+        (flags and TRACKING_MASK) == TRACKING_MASK -> TrackingState.TRACKING
+        (flags and VALID_MASK) == VALID_MASK -> TrackingState.PAUSED
+        else -> TrackingState.STOPPED
     }
 }

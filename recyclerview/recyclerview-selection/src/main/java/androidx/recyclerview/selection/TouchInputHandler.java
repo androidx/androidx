@@ -22,11 +22,11 @@ import static androidx.recyclerview.selection.Shared.DEBUG;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A MotionInputHandler that provides the high-level glue for touch driven selection. This class
@@ -84,12 +84,14 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
             checkArgument(MotionEvents.isActionUp(e));
         }
 
-        @Nullable ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
+        ItemDetails<K> item = mDetailsLookup.getItemDetails(e);
         if (item == null || !item.hasSelectionKey()) {
             if (DEBUG) Log.d(TAG, "Tap not associated w/ model item. Clearing selection.");
             return mSelectionTracker.clearSelection();
         }
 
+        // If something is already selected then we're in "selection mode": taps extend or toggle
+        // the selection.
         if (mSelectionTracker.hasSelection()) {
             if (shouldExtendRange(e)) {
                 extendSelectionRange(item);
@@ -102,9 +104,9 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
             return true;
         }
 
-        // Touch events select if they occur in the selection hotspot,
-        // otherwise they activate.
-        return item.inSelectionHotspot(e)
+        // Otherwise, touch events select or activate depending on being inside or outside the
+        // selection hotspot.
+        return (item.classifySelectionHotspot(e) != ItemDetails.SELECTION_HOTSPOT_OUTSIDE)
                 ? selectItem(item)
                 : mOnItemActivatedListener.onItemActivated(item, e);
     }
@@ -135,7 +137,7 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
             checkArgument(MotionEvents.isActionDown(e));
         }
 
-        if (!mDetailsLookup.overItemWithSelectionKey(e)) {
+        if (mDetailsLookup.overItemWithSelectionKeyAsItem(e) == null) {
             if (DEBUG) Log.d(TAG, "Ignoring LongPress on non-model-backed item.");
             return;
         }

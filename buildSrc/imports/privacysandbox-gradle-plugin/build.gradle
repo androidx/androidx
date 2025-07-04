@@ -17,6 +17,11 @@
 apply from: "../../shared.gradle"
 apply plugin: "java-gradle-plugin"
 
+dependencies {
+    // Remove once b/407095885 is fixed
+    implementation(libs.androidGradlePlugin)
+}
+
 sourceSets {
     main.java.srcDirs += "${supportRootFolder}/privacysandbox/plugins/plugins-privacysandbox-library/src/main/java"
 }

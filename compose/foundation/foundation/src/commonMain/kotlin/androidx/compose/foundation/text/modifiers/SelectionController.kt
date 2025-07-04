@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.foundation.text.selection.selectionGestureInput
-import androidx.compose.foundation.text.textPointerIcon
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -32,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextLayoutResult
@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 
 internal open class StaticTextSelectionParams(
     val layoutCoordinates: LayoutCoordinates?,
-    val textLayoutResult: TextLayoutResult?
+    val textLayoutResult: TextLayoutResult?,
 ) {
     companion object {
         val Empty = StaticTextSelectionParams(null, null)
@@ -58,7 +58,7 @@ internal open class StaticTextSelectionParams(
     // if this copy shows up in traces, this class may become mutable
     fun copy(
         layoutCoordinates: LayoutCoordinates? = this.layoutCoordinates,
-        textLayoutResult: TextLayoutResult? = this.textLayoutResult
+        textLayoutResult: TextLayoutResult? = this.textLayoutResult,
     ): StaticTextSelectionParams {
         return StaticTextSelectionParams(layoutCoordinates, textLayoutResult)
     }
@@ -71,7 +71,7 @@ internal class SelectionController(
     private val selectionRegistrar: SelectionRegistrar,
     private val backgroundSelectionColor: Color,
     // TODO: Move these into Modifier.element eventually
-    private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty
+    private var params: StaticTextSelectionParams = StaticTextSelectionParams.Empty,
 ) : RememberObserver {
     private var selectable: Selectable? = null
 
@@ -81,7 +81,7 @@ internal class SelectionController(
                 selectableId = selectableId,
                 layoutCoordinates = { params.layoutCoordinates },
             )
-            .pointerHoverIcon(textPointerIcon)
+            .pointerHoverIcon(PointerIcon.Text)
 
     override fun onRemembered() {
         selectable =
@@ -89,7 +89,7 @@ internal class SelectionController(
                 MultiWidgetSelectionDelegate(
                     selectableId = selectableId,
                     coordinatesCallback = { params.layoutCoordinates },
-                    layoutResultCallback = { params.textLayoutResult }
+                    layoutResultCallback = { params.textLayoutResult },
                 )
             )
     }
@@ -200,7 +200,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                         layoutCoordinates = it,
                         startPosition = startPoint,
                         adjustment = SelectionAdjustment.Word,
-                        isInTouchMode = true
+                        isInTouchMode = true,
                     )
 
                     lastPosition = startPoint
@@ -232,7 +232,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                             newPosition = newPosition,
                             isStartHandle = false,
                             adjustment = SelectionAdjustment.Word,
-                            isInTouchMode = true
+                            isInTouchMode = true,
                         )
                     if (consumed) {
                         lastPosition = newPosition
@@ -268,7 +268,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                             previousPosition = lastPosition,
                             isStartHandle = false,
                             adjustment = SelectionAdjustment.None,
-                            isInTouchMode = false
+                            isInTouchMode = false,
                         )
                     if (consumed) {
                         lastPosition = downPosition
@@ -290,7 +290,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                             previousPosition = lastPosition,
                             isStartHandle = false,
                             adjustment = SelectionAdjustment.None,
-                            isInTouchMode = false
+                            isInTouchMode = false,
                         )
 
                     if (consumed) {
@@ -300,7 +300,11 @@ private fun SelectionRegistrar.makeSelectionModifier(
                 return true
             }
 
-            override fun onStart(downPosition: Offset, adjustment: SelectionAdjustment): Boolean {
+            override fun onStart(
+                downPosition: Offset,
+                adjustment: SelectionAdjustment,
+                clickCount: Int,
+            ): Boolean {
                 layoutCoordinates()?.let {
                     if (!it.isAttached) return false
 
@@ -308,7 +312,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                         layoutCoordinates = it,
                         startPosition = downPosition,
                         adjustment = adjustment,
-                        isInTouchMode = false
+                        isInTouchMode = false,
                     )
 
                     lastPosition = downPosition
@@ -330,7 +334,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                             newPosition = dragPosition,
                             isStartHandle = false,
                             adjustment = adjustment,
-                            isInTouchMode = false
+                            isInTouchMode = false,
                         )
                     if (consumed) {
                         lastPosition = dragPosition

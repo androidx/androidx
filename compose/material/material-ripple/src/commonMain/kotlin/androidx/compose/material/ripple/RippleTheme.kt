@@ -69,7 +69,7 @@ public interface RippleTheme {
                 "been moved to the material and material3 libraries. For material, use " +
                 "RippleDefaults#rippleColor. For material3, use content color " +
                 "directly.",
-            level = DeprecationLevel.WARNING
+            level = DeprecationLevel.WARNING,
         )
         public fun defaultRippleColor(contentColor: Color, lightTheme: Boolean): Color {
             val contentLuminance = contentColor.luminance()
@@ -99,7 +99,7 @@ public interface RippleTheme {
                 "been moved to the material and material3 libraries. For material, use " +
                 "RippleDefaults#rippleAlpha. For material3, use " +
                 "RippleDefaults#RippleAlpha.",
-            level = DeprecationLevel.WARNING
+            level = DeprecationLevel.WARNING,
         )
         public fun defaultRippleAlpha(contentColor: Color, lightTheme: Boolean): RippleAlpha {
             return when {
@@ -142,7 +142,7 @@ public class RippleAlpha(
     public val draggedAlpha: Float,
     public val focusedAlpha: Float,
     public val hoveredAlpha: Float,
-    public val pressedAlpha: Float
+    public val pressedAlpha: Float,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -196,7 +196,7 @@ private val LightThemeHighContrastRippleAlpha =
         pressedAlpha = 0.24f,
         focusedAlpha = 0.24f,
         draggedAlpha = 0.16f,
-        hoveredAlpha = 0.08f
+        hoveredAlpha = 0.08f,
     )
 
 /**
@@ -213,7 +213,7 @@ private val LightThemeLowContrastRippleAlpha =
         pressedAlpha = 0.12f,
         focusedAlpha = 0.12f,
         draggedAlpha = 0.08f,
-        hoveredAlpha = 0.04f
+        hoveredAlpha = 0.04f,
     )
 
 /** Alpha levels for all content in a dark theme. */
@@ -222,7 +222,7 @@ private val DarkThemeRippleAlpha =
         pressedAlpha = 0.10f,
         focusedAlpha = 0.12f,
         draggedAlpha = 0.08f,
-        hoveredAlpha = 0.04f
+        hoveredAlpha = 0.04f,
     )
 
 /**

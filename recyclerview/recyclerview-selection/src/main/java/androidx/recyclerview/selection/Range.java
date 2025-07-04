@@ -23,7 +23,8 @@ import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

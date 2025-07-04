@@ -16,7 +16,6 @@
 
 package androidx.webkit.internal;
 
-import androidx.annotation.NonNull;
 import androidx.webkit.BlockingStartUpLocation;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewStartUpResult;
@@ -24,6 +23,7 @@ import androidx.webkit.WebViewStartUpResult;
 import org.chromium.support_lib_boundary.WebViewStartUpCallbackBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewStartUpResultBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
+import org.jspecify.annotations.NonNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -36,11 +36,12 @@ import java.util.Objects;
  * Adapter between WebViewCompat.WebViewStartUpCallback and WebViewStartUpCallbackBoundaryInterface
  * (the corresponding interface shared with the support library glue in the WebView APK).
  */
+@WebViewCompat.ExperimentalAsyncStartUp
 public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoundaryInterface {
     private final WebViewCompat.WebViewStartUpCallback mWebViewStartUpCallback;
 
     public WebViewStartUpCallbackAdapter(
-            @NonNull WebViewCompat.WebViewStartUpCallback webViewStartUpCallback) {
+            WebViewCompat.@NonNull WebViewStartUpCallback webViewStartUpCallback) {
         mWebViewStartUpCallback = webViewStartUpCallback;
     }
 
@@ -67,6 +68,7 @@ public class WebViewStartUpCallbackAdapter implements WebViewStartUpCallbackBoun
          * Gets the stack information depicting the code location.
          */
         @Override
+        @NonNull
         public String getStackInformation() {
             StringWriter sw = new StringWriter();
             mThrowable.printStackTrace(new PrintWriter(sw));

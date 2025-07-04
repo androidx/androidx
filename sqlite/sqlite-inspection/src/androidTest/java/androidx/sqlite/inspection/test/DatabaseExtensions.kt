@@ -43,7 +43,7 @@ fun SQLiteDatabase.insertValues(table: Table, vararg values: String) {
 
 fun Database.createInstance(
     temporaryFolder: TemporaryFolder,
-    writeAheadLoggingEnabled: Boolean? = null
+    writeAheadLoggingEnabled: Boolean? = null,
 ): SQLiteDatabase {
     val path =
         if (name == null) null
@@ -77,7 +77,7 @@ fun Table.toCreateString(): String {
 
     return columns.joinToString(
         prefix = "CREATE ${if (isView) "VIEW" else "TABLE"} $name (",
-        postfix = "$primaryKeyPart )${if (isView) " AS $viewQuery" else ""};"
+        postfix = "$primaryKeyPart )${if (isView) " AS $viewQuery" else ""};",
     ) {
         it.name +
             "${if (isView) "" else " ${it.type}"} " +

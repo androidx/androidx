@@ -18,6 +18,7 @@ package androidx.browser.customtabs;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -66,8 +67,9 @@ public class TestUtil {
     /** Create s a mock {@link AuthTabSession} for testing. */
     @NonNull
     public static AuthTabSession makeMockAuthTabSession() {
-        return new AuthTabSession(mock(IAuthTabCallback.class),
-                new ComponentName("", ""), makeMockPendingIntent());
+        IAuthTabCallback callback = mock(IAuthTabCallback.class);
+        when(callback.asBinder()).thenReturn(mock(IAuthTabCallback.Stub.class));
+        return new AuthTabSession(callback, new ComponentName("", ""), makeMockPendingIntent());
     }
 
     /** Creates a mock {@link AuthTabSession.PendingSession} for testing. */

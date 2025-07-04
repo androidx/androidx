@@ -95,7 +95,7 @@ class GlanceAppWidgetUnitTestEnvironmentTest {
             Image(
                 provider = ImageProvider(R.drawable.glance_test_android),
                 contentDescription = "test-image",
-                modifier = GlanceModifier.semantics { testTag = "img" }
+                modifier = GlanceModifier.semantics { testTag = "img" },
             )
         }
     }
@@ -232,7 +232,7 @@ class GlanceAppWidgetUnitTestEnvironmentTest {
         provideComposable {
             LazyVerticalGrid(
                 modifier = GlanceModifier.semantics { testTag = "test-list" },
-                gridCells = GridCells.Fixed(2)
+                gridCells = GridCells.Fixed(2),
             ) {
                 item { Text("text-1") }
                 item { Text("text-2") }

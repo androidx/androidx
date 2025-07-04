@@ -19,8 +19,8 @@ package androidx.credentials.registry.provider
 /**
  * A request to register credentials with Credential Manager.
  *
- * @constructor
- * @property type the type of the credentials being registered
+ * @property type the type of the credentials being registered; this matches the
+ *   [androidx.credentials.Credential.type] that these registered credentials will be returned as
  * @property id the unique id that identifies this registry, such that it won't be overwritten by
  *   other different registries of the same `type`
  * @property credentials the credentials to register
@@ -29,10 +29,20 @@ package androidx.credentials.registry.provider
  *   credentials given the [credentials] and the request; an invalid matcher (e.g. one that fails
  *   wasm interpretation or causes exceptions) will mean that your credentials will never be
  *   surfaced to the user
+ * @property intentAction the intent action that will be used to launch your fulfillment activity
+ *   when one of your credentials was chosen by the user, default to
+ *   [RegistryManager.ACTION_GET_CREDENTIAL] when unspecified; when Credential Manager launches your
+ *   fulfillment activity, it will build an intent with the given `intentAction` targeting your
+ *   package, so this is useful when you need to define different fulfillment activities for
+ *   different registries
+ * @constructor
  */
-public abstract class RegisterCredentialsRequest(
+public abstract class RegisterCredentialsRequest
+@JvmOverloads
+constructor(
     public val type: String,
     public val id: String,
     public val credentials: ByteArray,
     public val matcher: ByteArray,
+    public val intentAction: String = RegistryManager.ACTION_GET_CREDENTIAL,
 )

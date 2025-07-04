@@ -17,7 +17,10 @@
 package androidx.compose.ui.semantics
 
 import androidx.collection.MutableScatterMap
+import androidx.collection.MutableScatterSet
+import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterMapOf
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.platform.simpleIdentityToString
 
 /**
@@ -30,6 +33,10 @@ class SemanticsConfiguration :
 
     internal val props: MutableScatterMap<SemanticsPropertyKey<*>, Any?> = mutableScatterMapOf()
     private var mapWrapper: Map<SemanticsPropertyKey<*>, Any?>? = null
+
+    private var _accessibilityExtraKeys: MutableScatterSet<SemanticsPropertyKey<*>>? = null
+    internal val accessibilityExtraKeys: ScatterSet<SemanticsPropertyKey<*>>?
+        get() = _accessibilityExtraKeys
 
     /**
      * Retrieves the value for the given property, if one has been set. If a value has not been set,
@@ -67,6 +74,11 @@ class SemanticsConfiguration :
             props[key] = AccessibilityAction(value.label ?: prev.label, value.action ?: prev.action)
         } else {
             props[key] = value
+        }
+
+        if (key.accessibilityExtraKey != null) {
+            if (_accessibilityExtraKeys == null) _accessibilityExtraKeys = mutableScatterSetOf()
+            _accessibilityExtraKeys?.add(key)
         }
     }
 
@@ -132,7 +144,7 @@ class SemanticsConfiguration :
                 props[key] =
                     AccessibilityAction(
                         value.label ?: nextValue.label,
-                        value.action ?: nextValue.action
+                        value.action ?: nextValue.action,
                     )
             }
         }

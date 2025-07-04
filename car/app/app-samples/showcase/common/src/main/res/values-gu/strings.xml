@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"મેસેજના નમૂનાનો ડેમો"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"મેસેજ અહીં જાય છે.\nબીજી લાઇન પર વધુ ટેક્સ્ટ."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ટૂંકા મેસેજના નમૂનાનો ડેમો"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"વિભાગમાં ઉપલબ્ધ આઇટમના નમૂનાનો ડેમો"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"રેડિયો બટનનો વિભાગ"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"વિભાગ ટૉગલ કરો"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ઘણી બધી પંક્તિઓનો વિભાગ"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ગ્રિડ આઇટમનો વિભાગ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"વિભાગના નમૂનાનો ડેમો"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"જગ્યાની સૂચિના નમૂનાનો ડેમો"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"સ્થાનો બ્રાઉઝ કરો"</string>

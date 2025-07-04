@@ -89,7 +89,7 @@ public annotation class Index(
      *
      * @return True if index is unique. False by default.
      */
-    val unique: Boolean = false
+    val unique: Boolean = false,
 ) {
     public enum class Order {
         /**
@@ -104,6 +104,6 @@ public annotation class Index(
          *
          * @see Index.orders
          */
-        DESC
+        DESC,
     }
 }

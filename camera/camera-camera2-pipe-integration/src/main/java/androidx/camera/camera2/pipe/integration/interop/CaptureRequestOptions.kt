@@ -29,9 +29,9 @@ import androidx.camera.core.impl.ReadableConfig
 /**
  * A bundle of Camera2 capture request options.
  *
+ * @property config The config that potentially contains Camera2 capture request options.
  * @constructor Creates a CaptureRequestOptions for reading Camera2 capture request options from the
  *   given config.
- * @property config The config that potentially contains Camera2 capture request options.
  */
 @ExperimentalCamera2Interop
 public open class CaptureRequestOptions
@@ -65,7 +65,7 @@ private constructor(private val config: Config, @Suppress("UNUSED_PARAMETER") un
      */
     internal fun <ValueT> getCaptureRequestOption(
         key: CaptureRequest.Key<ValueT>,
-        valueIfMissing: ValueT?
+        valueIfMissing: ValueT?,
     ): ValueT? {
         // Type should have been only set via Builder#setCaptureRequestOption()
         @Suppress("UNCHECKED_CAST")
@@ -102,7 +102,7 @@ private constructor(private val config: Config, @Suppress("UNUSED_PARAMETER") un
                     bundleBuilder.mutableConfig.insertOption(
                         objectOpt,
                         config.getOptionPriority(objectOpt),
-                        config.retrieveOption(objectOpt)
+                        config.retrieveOption(objectOpt),
                     )
                     true
                 }
@@ -119,7 +119,7 @@ private constructor(private val config: Config, @Suppress("UNUSED_PARAMETER") un
         /** Inserts new capture request option with specific [CaptureRequest.Key] setting. */
         public fun <ValueT> setCaptureRequestOption(
             key: CaptureRequest.Key<ValueT>,
-            value: ValueT
+            value: ValueT,
         ): Builder {
             val opt = key.createCaptureRequestOption()
             mutableOptionsBundle.insertOption(opt, value)

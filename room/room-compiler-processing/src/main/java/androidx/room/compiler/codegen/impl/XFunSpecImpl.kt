@@ -26,16 +26,15 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.java.JavaFunSpec
 import androidx.room.compiler.codegen.kotlin.KotlinFunSpec
 
-internal class XFunSpecImpl(
-    val java: JavaFunSpec,
-    val kotlin: KotlinFunSpec,
-) : XSpec(), XFunSpec {
+internal class XFunSpecImpl(override val java: JavaFunSpec, override val kotlin: KotlinFunSpec) :
+    ImplSpec<JavaFunSpec, KotlinFunSpec>(), XFunSpec {
+
     override val name = XName(java.name.java, kotlin.name.kotlin)
 
-    internal class Builder(
-        val java: JavaFunSpec.Builder,
-        val kotlin: KotlinFunSpec.Builder,
-    ) : XSpec.Builder(), XFunSpec.Builder {
+    override fun toBuilder() = Builder(java.toBuilder(), kotlin.toBuilder())
+
+    internal class Builder(val java: JavaFunSpec.Builder, val kotlin: KotlinFunSpec.Builder) :
+        XSpec.Builder(), XFunSpec.Builder {
         private val delegates: List<XFunSpec.Builder> = listOf(java, kotlin)
 
         override fun addAnnotation(annotation: XAnnotationSpec) = apply {

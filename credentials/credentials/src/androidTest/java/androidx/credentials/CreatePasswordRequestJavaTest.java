@@ -188,7 +188,7 @@ public class CreatePasswordRequestJavaTest {
                 CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_USER_ID)).isEqualTo(idExpected);
         assertThat(((Icon) (displayInfoBundle.getParcelable(
                 CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON))).getResId()
-        ).isEqualTo(R.drawable.ic_password);
+        ).isEqualTo(R.drawable.adx_ic_password);
     }
 
     @SdkSuppress(minSdkVersion = 34)
@@ -234,7 +234,7 @@ public class CreatePasswordRequestJavaTest {
         assertThat(displayInfo.getUserDisplayName()).isNull();
         assertThat(displayInfo.getUserId()).isEqualTo(idExpected);
         assertThat(displayInfo.getCredentialTypeIcon().getResId())
-                .isEqualTo(R.drawable.ic_password);
+                .isEqualTo(R.drawable.adx_ic_password);
         assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(defaultProviderExpected);
         assertThat(convertedRequest.getCredentialData().getString(customRequestDataKey))
                 .isEqualTo(customRequestDataValue);

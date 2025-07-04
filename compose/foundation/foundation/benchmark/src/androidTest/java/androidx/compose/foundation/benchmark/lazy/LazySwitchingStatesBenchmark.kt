@@ -67,16 +67,14 @@ class LazySwitchingStatesBenchmark {
     }
 
     private fun ComposeBenchmarkRule.runBenchmark(composition: Boolean, switchingStateCount: Int) {
-        runBenchmarkFor(
-            { LazyColumnSwitchingItemsCase(readInComposition = composition) },
-        ) {
+        runBenchmarkFor({ LazyColumnSwitchingItemsCase(readInComposition = composition) }) {
             runOnUiThread {
                 setupContent()
                 doFramesUntilIdle()
             }
 
             measureRepeatedOnUiThread {
-                runWithTimingDisabled {
+                runWithMeasurementDisabled {
                     assertNoPendingChanges()
                     repeat(switchingStateCount) { getTestCase().toggle(it) }
                     doFramesUntilIdle()
@@ -101,7 +99,7 @@ class LazyColumnSwitchingItemsCase(private val readInComposition: Boolean = fals
     override fun Content() {
         LazyColumn(
             Modifier.requiredHeight(400.dp).fillMaxWidth(),
-            flingBehavior = NoFlingBehavior
+            flingBehavior = NoFlingBehavior,
         ) {
             items(items) { state ->
                 val color =

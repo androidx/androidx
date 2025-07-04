@@ -78,7 +78,7 @@ class ParentDataModifierTest {
 
                         val placeable = measurables[0].measure(constraints)
                         layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                    }
+                    },
                 )
             }
         }
@@ -102,7 +102,7 @@ class ParentDataModifierTest {
 
                         val placeable = measurables[0].measure(constraints)
                         layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                    }
+                    },
                 )
             }
         }
@@ -215,7 +215,7 @@ fun SimpleDrawChild(drawLatch: CountDownLatch) {
             Modifier.drawBehind {
                 drawRect(Color(0xFF008000))
                 drawLatch.countDown()
-            }
+            },
     ) {}
 }
 
@@ -232,7 +232,7 @@ class ParentDataAndLayoutNode(var data: String) :
     Modifier.Node(), LayoutModifierNode, ParentDataModifierNode {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.place(0, 0) }

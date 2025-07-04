@@ -22,7 +22,7 @@ package androidx.annotation
 @Target(
     AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
+    AnnotationTarget.PROPERTY_SETTER,
 )
 @Retention(AnnotationRetention.SOURCE)
 @Deprecated("Replaced by the androidx.resourceinpsection package.")
@@ -75,7 +75,7 @@ public annotation class InspectableProperty(
      *
      * @return An array of [FlagEntry], empty if not applicable
      */
-    val flagMapping: Array<FlagEntry> = []
+    val flagMapping: Array<FlagEntry> = [],
 ) {
     /** One entry in an enumeration packed into a primitive {int}. */
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
@@ -92,7 +92,7 @@ public annotation class InspectableProperty(
          *
          * @return An integer value
          */
-        val value: Int
+        val value: Int,
     )
 
     /** One flag value of many that may be packed into a primitive {int}. */
@@ -122,7 +122,7 @@ public annotation class InspectableProperty(
          *
          * @return A mask, or 0 to use the target as a mask
          */
-        val mask: Int = 0
+        val mask: Int = 0,
     )
 
     /** The type of value packed into a primitive {int}. */
@@ -170,6 +170,6 @@ public annotation class InspectableProperty(
          *
          * This type is inferred from the presence of a resource ID annotation such as [AnyRes].
          */
-        RESOURCE_ID
+        RESOURCE_ID,
     }
 }

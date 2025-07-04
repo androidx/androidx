@@ -54,17 +54,15 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *   the primary and secondary containers.
  * @property layoutDirection The layout direction of the parent window split. The default is based
  *   on locale value.
- * @property animationParams The animation params to specify the animation background of the split
+ * @property animationParams The animation params to specify the animation transitions of the split
  *   involving this `SplitAttributes` object. The default is to use the current theme window
- *   background color.
+ *   background color and system transitions.
  * @property dividerAttributes The [DividerAttributes] for this split. Defaults to
  *   [DividerAttributes.NO_DIVIDER], which means no divider is requested.
  * @see Builder
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * @see EmbeddingAnimationBackground
- * @see EmbeddingAnimationBackground.createColorBackground
- * @see EmbeddingAnimationBackground.DEFAULT
+ * @see EmbeddingAnimationParams
  */
 class SplitAttributes
 private constructor(
@@ -241,6 +239,17 @@ private constructor(
          */
         override fun toString(): String = description
 
+        override fun equals(other: Any?): Boolean {
+            if (other === this) return true
+            if (other !is LayoutDirection) return false
+            return description == other.description && value == other.value
+        }
+
+        override fun hashCode(): Int {
+            var result = description.hashCode()
+            return 31 * result + value
+        }
+
         /** Non-public properties and methods. */
         companion object {
             /**
@@ -375,7 +384,8 @@ private constructor(
      * Builder for creating an instance of [SplitAttributes].
      * - The default split type is an equal split between primary and secondary containers.
      * - The default layout direction is based on locale.
-     * - The default animation background color is to use the current theme window background color.
+     * - The default animation params is to use the current theme window background color and system
+     *   transitions.
      * - The default divider attributes is not to use divider.
      */
     class Builder() {
@@ -388,7 +398,7 @@ private constructor(
         internal constructor(original: SplitAttributes) : this() {
             this.setSplitType(original.splitType)
                 .setLayoutDirection(original.layoutDirection)
-                .setAnimationParams(animationParams)
+                .setAnimationParams(original.animationParams)
                 .setDividerAttributes(original.dividerAttributes)
         }
 
@@ -418,20 +428,19 @@ private constructor(
 
         /**
          * Sets the animation params to use during animation of the split involving this
-         * `SplitAttributes` object if the animation requires a background.
-         *
-         * The default is to use the current theme window background color.
+         * `SplitAttributes` object if the animation requires a background color or non-default
+         * transitions.
          *
          * [EmbeddingAnimationParams] can be supported only if the Window Extensions version of the
          * target device is equals or higher than required API level. Otherwise, it would be no-op
          * when setting the [EmbeddingAnimationParams] on a target device that has lower API level.
          *
-         * @param params The animation params.
-         * @return This `Builder`.
+         * @param params the animation params.
+         * @return this `Builder`.
          */
         @RequiresWindowSdkExtension(5)
         fun setAnimationParams(params: EmbeddingAnimationParams): Builder = apply {
-            animationParams = params
+            this.animationParams = params
         }
 
         /**

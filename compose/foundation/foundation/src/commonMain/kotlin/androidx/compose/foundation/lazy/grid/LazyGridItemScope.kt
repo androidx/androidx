@@ -49,7 +49,7 @@ sealed interface LazyGridItemScope {
         placementSpec: FiniteAnimationSpec<IntOffset>? =
             spring(
                 stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntOffset.VisibilityThreshold
+                visibilityThreshold = IntOffset.VisibilityThreshold,
             ),
         fadeOutSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
     ): Modifier

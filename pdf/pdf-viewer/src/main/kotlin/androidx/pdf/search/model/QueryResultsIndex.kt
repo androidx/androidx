@@ -26,5 +26,5 @@ public class QueryResultsIndex(
     public val pageNum: Int,
 
     /** The index of the search result on the page specified by [pageNum]. */
-    public val resultBoundsIndex: Int
+    public val resultBoundsIndex: Int,
 )

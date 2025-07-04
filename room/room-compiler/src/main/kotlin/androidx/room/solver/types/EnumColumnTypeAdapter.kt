@@ -37,7 +37,7 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val stringToEnumMethod = stringToEnumMethod(scope)
         scope.builder.apply {
@@ -47,7 +47,7 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                     outVarName,
                     stringToEnumMethod,
                     stmtVarName,
-                    indexVarName
+                    indexVarName,
                 )
             }
             if (out.nullability == XNullability.NONNULL) {
@@ -65,7 +65,7 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val enumToStringMethod = enumToStringMethod(scope)
         scope.builder.apply {
@@ -100,9 +100,9 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                 }
 
                 override fun prepare(
-                    methodName: String,
+                    functionName: String,
                     writer: TypeWriter,
-                    builder: XFunSpec.Builder
+                    builder: XFunSpec.Builder,
                 ) {
                     val body = buildCodeBlock { language ->
                         when (language) {
@@ -115,14 +115,14 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                                         addStatement(
                                             "case %L: return %S",
                                             enumConstantName,
-                                            enumConstantName
+                                            enumConstantName,
                                         )
                                     }
                                 addStatement(
                                     "default: throw new %T(%S + %L)",
                                     ExceptionTypeNames.JAVA_ILLEGAL_ARG_EXCEPTION,
                                     ENUM_TO_STRING_ERROR_MSG,
-                                    paramName
+                                    paramName,
                                 )
                                 endControlFlow()
                             }
@@ -138,7 +138,7 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                                             "%T.%L -> %S",
                                             enumTypeElement.asClassName(),
                                             enumConstantName,
-                                            enumConstantName
+                                            enumConstantName,
                                         )
                                     }
                                 endControlFlow()
@@ -165,9 +165,9 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                 }
 
                 override fun prepare(
-                    methodName: String,
+                    functionName: String,
                     writer: TypeWriter,
-                    builder: XFunSpec.Builder
+                    builder: XFunSpec.Builder,
                 ) {
                     val body = buildCodeBlock { language ->
                         when (language) {
@@ -181,14 +181,14 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                                             "case %S: return %T.%L",
                                             enumConstantName,
                                             enumTypeElement.asClassName(),
-                                            enumConstantName
+                                            enumConstantName,
                                         )
                                     }
                                 addStatement(
                                     "default: throw new %T(%S + %L)",
                                     ExceptionTypeNames.JAVA_ILLEGAL_ARG_EXCEPTION,
                                     STRING_TO_ENUM_ERROR_MSG,
-                                    paramName
+                                    paramName,
                                 )
                                 endControlFlow()
                             }
@@ -202,14 +202,14 @@ class EnumColumnTypeAdapter(private val enumTypeElement: XEnumTypeElement, out: 
                                             "%S -> %T.%L",
                                             enumConstantName,
                                             enumTypeElement.asClassName(),
-                                            enumConstantName
+                                            enumConstantName,
                                         )
                                     }
                                 addStatement(
                                     "else -> throw %T(%S + %L)",
                                     ExceptionTypeNames.KOTLIN_ILLEGAL_ARG_EXCEPTION,
                                     STRING_TO_ENUM_ERROR_MSG,
-                                    paramName
+                                    paramName,
                                 )
                                 endControlFlow()
                             }

@@ -39,7 +39,7 @@ class AutofillNodeTest {
     private lateinit var androidAutofill: AndroidAutofill
     private lateinit var autofillManager: ShadowAutofillManager
     private lateinit var view: View
-    private val autofillTree = AutofillTree()
+    private val autofillTree = @Suppress("Deprecation") AutofillTree()
 
     @Before
     fun setup() {
@@ -57,6 +57,7 @@ class AutofillNodeTest {
 
     @Test
     fun eachInstanceHasUniqueId() {
+        @Suppress("Deprecation")
         assertThat(listOf(AutofillNode {}.id, AutofillNode {}.id, AutofillNode {}.id))
             .containsNoDuplicates()
     }
@@ -70,7 +71,7 @@ class AutofillNodeTest {
     fun requestAutofillForNode_calls_notifyViewEntered() {
         // Arrange.
         val bounds = Rect(0f, 0f, 0f, 0f)
-        val autofillNode = AutofillNode(onFill = {}, boundingBox = bounds)
+        val autofillNode = @Suppress("Deprecation") AutofillNode(onFill = {}, boundingBox = bounds)
 
         // Act.
         androidAutofill.requestAutofillForNode(autofillNode)
@@ -83,7 +84,7 @@ class AutofillNodeTest {
     @Test
     fun requestAutofillForNode_beforeComposableIsPositioned_throwsError() {
         // Arrange - Before the composable is positioned, the boundingBox is null.
-        val autofillNode = AutofillNode(onFill = {})
+        val autofillNode = @Suppress("Deprecation") AutofillNode(onFill = {})
 
         // Act and assert.
         val exception =
@@ -100,7 +101,7 @@ class AutofillNodeTest {
     @Test
     fun cancelAutofillForNode_calls_notifyViewExited() {
         // Arrange.
-        val autofillNode = AutofillNode(onFill = {})
+        val autofillNode = @Suppress("Deprecation") AutofillNode(onFill = {})
 
         // Act.
         androidAutofill.cancelAutofillForNode(autofillNode)

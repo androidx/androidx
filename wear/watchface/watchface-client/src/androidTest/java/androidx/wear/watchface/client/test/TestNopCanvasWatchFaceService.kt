@@ -36,7 +36,7 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
             WatchFaceType.DIGITAL,
@@ -47,7 +47,7 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16
+                    16,
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
                     // Intentionally empty.
@@ -56,11 +56,11 @@ class TestNopCanvasWatchFaceService : WatchFaceService() {
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
                 ) {
                     // Intentionally empty.
                 }
-            }
+            },
         )
 
     override fun getSystemTimeProvider() =

@@ -231,7 +231,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
             assertFailsWith<IllegalArgumentException> {
                 DeleteSurroundingTextInCodePointsCommand(
                     lengthBeforeCursor = -42,
-                    lengthAfterCursor = 0
+                    lengthAfterCursor = 0,
                 )
             }
         assertThat(error).hasMessageThat().contains("-42")
@@ -243,7 +243,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
             assertFailsWith<IllegalArgumentException> {
                 DeleteSurroundingTextInCodePointsCommand(
                     lengthBeforeCursor = 0,
-                    lengthAfterCursor = -42
+                    lengthAfterCursor = -42,
                 )
             }
         assertThat(error).hasMessageThat().contains("-42")
@@ -258,7 +258,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
         DeleteSurroundingTextInCodePointsCommand(
                 lengthBeforeCursor = 0,
-                lengthAfterCursor = Int.MAX_VALUE
+                lengthAfterCursor = Int.MAX_VALUE,
             )
             .applyTo(eb)
 
@@ -274,7 +274,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
         DeleteSurroundingTextInCodePointsCommand(
                 lengthBeforeCursor = Int.MAX_VALUE,
-                lengthAfterCursor = 0
+                lengthAfterCursor = 0,
             )
             .applyTo(eb)
 
@@ -290,7 +290,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
         DeleteSurroundingTextInCodePointsCommand(
                 lengthBeforeCursor = Int.MAX_VALUE,
-                lengthAfterCursor = Int.MAX_VALUE
+                lengthAfterCursor = Int.MAX_VALUE,
             )
             .applyTo(eb)
 
@@ -306,7 +306,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
         DeleteSurroundingTextInCodePointsCommand(
                 lengthBeforeCursor = Int.MAX_VALUE,
-                lengthAfterCursor = Int.MAX_VALUE
+                lengthAfterCursor = Int.MAX_VALUE,
             )
             .applyTo(eb)
 
@@ -323,7 +323,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
         DeleteSurroundingTextInCodePointsCommand(
                 lengthBeforeCursor = 0,
-                lengthAfterCursor = Int.MAX_VALUE - 1
+                lengthAfterCursor = Int.MAX_VALUE - 1,
             )
             .applyTo(eb)
 
@@ -339,7 +339,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
         DeleteSurroundingTextInCodePointsCommand(
                 lengthBeforeCursor = Int.MAX_VALUE - 1,
-                lengthAfterCursor = 0
+                lengthAfterCursor = 0,
             )
             .applyTo(eb)
 

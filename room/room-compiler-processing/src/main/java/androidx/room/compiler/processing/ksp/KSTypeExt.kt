@@ -89,19 +89,19 @@ private fun KSTypeArgument.replaceTypeAliases(resolver: Resolver): KSTypeArgumen
     val type = type?.resolve() ?: return this
     return resolver.getTypeArgument(
         type.replaceTypeAliases(resolver).createTypeReference(),
-        variance
+        variance,
     )
 }
 
 private fun KSType.replaceTypeArgs(
     resolver: Resolver,
-    typeArgsMap: Map<String, KSTypeArgument>
+    typeArgsMap: Map<String, KSTypeArgument>,
 ): KSType = replace(arguments.map { it.replaceTypeArgs(this, resolver, typeArgsMap) })
 
 private fun KSTypeArgument.replaceTypeArgs(
     enclosingType: KSType,
     resolver: Resolver,
-    typeArgsMap: Map<String, KSTypeArgument>
+    typeArgsMap: Map<String, KSTypeArgument>,
 ): KSTypeArgument {
     val type = type?.resolve() ?: return this
     if (type == enclosingType) return this
@@ -113,7 +113,7 @@ private fun KSTypeArgument.replaceTypeArgs(
     }
     return resolver.getTypeArgument(
         type.replaceTypeArgs(resolver, typeArgsMap).createTypeReference(),
-        variance
+        variance,
     )
 }
 
@@ -154,7 +154,7 @@ internal fun KSType.withNullability(nullability: XNullability) =
 private fun KSAnnotated.hasAnnotation(qName: String) =
     annotations.any { it.hasQualifiedNameOrAlias(qName) }
 
-private fun KSAnnotation.hasQualifiedNameOrAlias(qName: String): Boolean {
+internal fun KSAnnotation.hasQualifiedNameOrAlias(qName: String): Boolean {
     return annotationType.resolve().hasQualifiedNameOrAlias(qName)
 }
 
@@ -167,38 +167,6 @@ internal fun KSAnnotated.hasJvmWildcardAnnotation() =
     hasAnnotation(JvmWildcard::class.java.canonicalName!!)
 
 internal fun KSAnnotated.hasSuppressJvmWildcardAnnotation() =
-    hasAnnotation(JvmSuppressWildcards::class.java.canonicalName!!)
-
-// TODO(bcorso): There's a bug in KSP where, after using KSType#asMemberOf() or KSType#replace(),
-//  the annotations are removed from the resulting type. However, it turns out that the annotation
-//  information is still available in the underlying KotlinType, so we use reflection to get them.
-//  See https://github.com/google/ksp/issues/1376.
-private fun KSType.hasAnnotation(qName: String): Boolean {
-    fun String.toFqName(): Any {
-        return Class.forName("org.jetbrains.kotlin.name.FqName")
-            .getConstructor(String::class.java)
-            .newInstance(this)
-    }
-    fun hasAnnotationViaReflection(qName: String): Boolean {
-        val kotlinType = javaClass.methods.find { it.name == "getKotlinType" }?.invoke(this)
-        val kotlinAnnotations =
-            kotlinType?.javaClass?.methods?.find { it.name == "getAnnotations" }?.invoke(kotlinType)
-        return kotlinAnnotations
-            ?.javaClass
-            ?.methods
-            ?.find { it.name == "hasAnnotation" }
-            ?.invoke(kotlinAnnotations, qName.toFqName()) == true
-    }
-    return if (annotations.toList().isEmpty()) {
-        // If there are no annotations but KSType#toString() shows annotations, check the underlying
-        // KotlinType for annotations using reflection.
-        toString().startsWith("[") && hasAnnotationViaReflection(qName)
-    } else {
-        annotations.any { it.annotationType.resolve().hasQualifiedNameOrAlias(qName) }
-    }
-}
-
-internal fun KSType.hasSuppressJvmWildcardAnnotation() =
     hasAnnotation(JvmSuppressWildcards::class.java.canonicalName!!)
 
 internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {

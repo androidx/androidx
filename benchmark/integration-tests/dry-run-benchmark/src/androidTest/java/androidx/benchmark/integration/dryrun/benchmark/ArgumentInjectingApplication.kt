@@ -45,7 +45,7 @@ class ArgumentInjectingApplication : Application() {
                 putString("androidx.benchmark.dryRunMode.enable", "true")
                 putString(
                     "androidx.benchmark.profiling.mode",
-                    "none"
+                    "none",
                 ) // noop, tests "none" arg parsing
             }
     }

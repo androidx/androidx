@@ -30,7 +30,7 @@ import androidx.compose.runtime.setValue
 fun PermissionsUI(
     permissions: Array<String>,
     checkAllPermissionGranted: (Array<String>) -> Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var allPermissionsGranted by remember { mutableStateOf(checkAllPermissionGranted(permissions)) }
 

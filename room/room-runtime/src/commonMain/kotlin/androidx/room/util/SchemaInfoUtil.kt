@@ -19,7 +19,6 @@ package androidx.room.util
 import androidx.room.ColumnInfo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.use
 import kotlin.collections.removeLast as removeLastKt
 
 /**
@@ -68,7 +67,7 @@ internal fun readTableInfo(connection: SQLiteConnection, tableName: String): Tab
 
 private fun readForeignKeys(
     connection: SQLiteConnection,
-    tableName: String
+    tableName: String,
 ): Set<TableInfo.ForeignKey> {
     // this seems to return everything in order but it is not documented so better be safe
     connection.prepare("PRAGMA foreign_key_list(`$tableName`)").use { stmt ->
@@ -104,7 +103,7 @@ private fun readForeignKeys(
                         onDelete = stmt.getText(onDeleteColumnIndex),
                         onUpdate = stmt.getText(onUpdateColumnIndex),
                         columnNames = myColumns,
-                        referenceColumnNames = refColumns
+                        referenceColumnNames = refColumns,
                     )
                 )
             }
@@ -120,7 +119,7 @@ private class ForeignKeyWithSequence(
     val id: Int,
     val sequence: Int,
     val from: String,
-    val to: String
+    val to: String,
 ) : Comparable<ForeignKeyWithSequence> {
     override fun compareTo(other: ForeignKeyWithSequence): Int {
         val idCmp = id - other.id
@@ -145,7 +144,7 @@ private fun readForeignKeyFieldMappings(stmt: SQLiteStatement): List<ForeignKeyW
                         id = stmt.getLong(idColumnIndex).toInt(),
                         sequence = stmt.getLong(seqColumnIndex).toInt(),
                         from = stmt.getText(fromColumnIndex),
-                        to = stmt.getText(toColumnIndex)
+                        to = stmt.getText(toColumnIndex),
                     )
                 )
             }
@@ -155,7 +154,7 @@ private fun readForeignKeyFieldMappings(stmt: SQLiteStatement): List<ForeignKeyW
 
 private fun readColumns(
     connection: SQLiteConnection,
-    tableName: String
+    tableName: String,
 ): Map<String, TableInfo.Column> {
     connection.prepare("PRAGMA table_info(`$tableName`)").use { stmt ->
         if (!stmt.step()) {
@@ -185,8 +184,8 @@ private fun readColumns(
                             notNull = notNull,
                             primaryKeyPosition = primaryKeyPosition,
                             defaultValue = defaultValue,
-                            createdFrom = TableInfo.CREATED_FROM_DATABASE
-                        )
+                            createdFrom = TableInfo.CREATED_FROM_DATABASE,
+                        ),
                 )
             } while (stmt.step())
         }
@@ -224,7 +223,7 @@ private fun readIndices(connection: SQLiteConnection, tableName: String): Set<Ta
 private fun readIndex(
     connection: SQLiteConnection,
     name: String,
-    unique: Boolean
+    unique: Boolean,
 ): TableInfo.Index? {
     return connection.prepare("PRAGMA index_xinfo(`$name`)").use { stmt ->
         val seqnoColumnIndex = stmt.columnIndexOf("seqno")
@@ -295,7 +294,7 @@ private val FTS_OPTIONS =
         "notindexed=",
         "order=",
         "prefix=",
-        "uncompress="
+        "uncompress=",
     )
 
 /**
@@ -316,7 +315,7 @@ internal fun parseFtsOptions(createStatement: String): Set<String> {
     val argsString =
         createStatement.substring(
             createStatement.indexOf('(') + 1,
-            createStatement.lastIndexOf(')')
+            createStatement.lastIndexOf(')'),
         )
 
     // Split the module argument string by the comma delimiter, keeping track of quotation

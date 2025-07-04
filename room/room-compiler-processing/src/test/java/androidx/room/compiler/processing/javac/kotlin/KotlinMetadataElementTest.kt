@@ -51,7 +51,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     vararg nonNullVarArgs: Int ): this()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(env, "Subject")
@@ -69,7 +69,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                         "nullableString" to true,
                         "nonNullBoolean" to false,
                         "nonNullInt" to false,
-                        "nonNullVarArgs" to false
+                        "nonNullVarArgs" to false,
                     )
             }
             assertThat(constructors.size).isEqualTo(2)
@@ -97,7 +97,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(env, "Subject")
@@ -110,7 +110,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                             "nullableString" to true,
                             "nonNullBoolean" to false,
                             "nonNullInt" to false,
-                            "nonNullVarArgs" to false
+                            "nonNullVarArgs" to false,
                         )
                     assertThat(functionMetadata?.returnType?.isNullable()).isFalse()
                 }
@@ -123,7 +123,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                             "nullableString" to true,
                             "nullableBoolean" to true,
                             "nonNullInt" to false,
-                            "nullableVarargs" to false // varargs itself is still not nullable
+                            "nullableVarargs" to false, // varargs itself is still not nullable
                         )
                     assertThat(functionMetadata?.returnType?.isNullable()).isFalse()
                 }
@@ -140,7 +140,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 constructor() : this("anything")
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(env, "Subject")
@@ -171,7 +171,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (testClassElement, metadataElement) = getMetadataElement(env, "Subject")
@@ -186,7 +186,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     "suspendFunction" to true,
                     "functionWithParams" to false,
                     "suspendFunctionWithParams" to false,
-                    "getConstructorParam" to false // synthetic getter for constructor property
+                    "getConstructorParam" to false, // synthetic getter for constructor property
                 )
         }
     }
@@ -201,7 +201,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             interface KotlinInterface
             object AnObject
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (_, objectTypeMetadata) = getMetadataElement(env, "AnObject")
@@ -224,7 +224,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 fun nullableList() : List<Any?>
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (testDaoElement, testDaoMetadata) = getMetadataElement(env, "Subject")
@@ -251,7 +251,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 val multipleTypeArguments:Map<String, Any?> = emptyMap()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (typeElement, testMetadata) = getMetadataElement(env, "Properties")
@@ -326,7 +326,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 internal var internalValueProp: ValueClass = ValueClass("?")
             }
         """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (element, metadata) = getMetadataElement(env, "Subject")
@@ -335,7 +335,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 kmFunction: KmFunctionContainer?,
                 name: String,
                 jvmName: String,
-                paramNullable: Boolean
+                paramNullable: Boolean,
             ) {
                 checkNotNull(kmFunction)
                 assertWithMessage(kmFunction.toString()).apply {
@@ -353,14 +353,14 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 method: ExecutableElement,
                 name: String,
                 jvmName: String,
-                paramNullable: Boolean
+                paramNullable: Boolean,
             ) {
                 val kmFunction = metadata.getFunctionMetadata(method)
                 assertSetter(
                     kmFunction = kmFunction,
                     name = name,
                     jvmName = jvmName,
-                    paramNullable = paramNullable
+                    paramNullable = paramNullable,
                 )
                 val paramName = kmFunction!!.parameters.single().name
                 val javacElementName = method.parameters.single().simpleName.toString()
@@ -373,7 +373,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 kmFunction: KmFunctionContainer?,
                 name: String,
                 jvmName: String,
-                returnsNullable: Boolean
+                returnsNullable: Boolean,
             ) {
                 checkNotNull(kmFunction)
                 assertWithMessage(kmFunction.toString()).apply {
@@ -388,34 +388,34 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     metadata.getFunctionMetadata(element.getDeclaredMethod("getImmutableProperty")),
                 name = "getImmutableProperty",
                 jvmName = "getImmutableProperty",
-                returnsNullable = false
+                returnsNullable = false,
             )
             assertGetter(
                 kmFunction =
                     metadata.getFunctionMetadata(element.getDeclaredMethod("getMutableProperty")),
                 name = "getMutableProperty",
                 jvmName = "getMutableProperty",
-                returnsNullable = false
+                returnsNullable = false,
             )
             assertSetter(
                 metadata = metadata,
                 method = element.getDeclaredMethod("setMutableProperty"),
                 name = "setMutableProperty",
                 jvmName = "setMutableProperty",
-                paramNullable = false
+                paramNullable = false,
             )
             assertSetter(
                 metadata = metadata,
                 method = element.getDeclaredMethod("setProperty"),
                 name = "setProperty",
                 jvmName = "setProperty",
-                paramNullable = true
+                paramNullable = true,
             )
             assertGetter(
                 kmFunction = metadata.getFunctionMetadata(element.getDeclaredMethod("isProperty")),
                 name = "isProperty",
                 jvmName = "isProperty",
-                returnsNullable = true
+                returnsNullable = true,
             )
             assertGetter(
                 kmFunction =
@@ -424,14 +424,14 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     ),
                 name = "getInternalProp",
                 jvmName = "getInternalProp\$main",
-                returnsNullable = true
+                returnsNullable = true,
             )
             assertSetter(
                 metadata = metadata,
                 method = element.getDeclaredMethod("setInternalProp\$main"),
                 name = "setInternalProp",
                 jvmName = "setInternalProp\$main",
-                paramNullable = true
+                paramNullable = true,
             )
             assertGetter(
                 kmFunction =
@@ -440,14 +440,14 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     ),
                 name = "isInternalProp2",
                 jvmName = "isInternalProp2\$main",
-                returnsNullable = false
+                returnsNullable = false,
             )
             assertSetter(
                 metadata = metadata,
                 method = element.getDeclaredMethod("setInternalProp2\$main"),
                 name = "setInternalProp2",
                 jvmName = "setInternalProp2\$main",
-                paramNullable = false
+                paramNullable = false,
             )
             // read custom setter name properly
             metadata.getFunctionMetadata(element.getDeclaredMethod("setCustomSetter")).let {
@@ -463,13 +463,13 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     kmFunction = valueProp?.getter,
                     name = "getValueProp",
                     jvmName = "getValueProp-4LjoGxk",
-                    returnsNullable = true
+                    returnsNullable = true,
                 )
                 assertSetter(
                     kmFunction = valueProp?.setter,
                     name = "setValueProp",
                     jvmName = "setValueProp-d8IPsTA",
-                    paramNullable = true
+                    paramNullable = true,
                 )
             }
             metadata.getPropertyMetadata(element.getDeclaredField("internalValueProp")).let {
@@ -478,13 +478,13 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     kmFunction = valueProp?.getter,
                     name = "getInternalValueProp",
                     jvmName = "getInternalValueProp-NMFyIOA\$main",
-                    returnsNullable = false
+                    returnsNullable = false,
                 )
                 assertSetter(
                     kmFunction = valueProp?.setter,
                     name = "setInternalValueProp",
                     jvmName = "setInternalValueProp-FVOWAsA\$main",
-                    paramNullable = false
+                    paramNullable = false,
                 )
             }
         }
@@ -503,7 +503,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 // they are not visible through KAPT
             }
         """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (element, metadata) = getMetadataElement(env, "Subject")
@@ -541,7 +541,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 ) {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (testDaoElement, testDaoMetadata) = getMetadataElement(env, "Subject")
@@ -551,7 +551,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                             Triple(
                                 it.name,
                                 it.isNullable(),
-                                it.type.typeArguments.first().isNullable()
+                                it.type.typeArguments.first().isNullable(),
                             )
                         }
                     )
@@ -559,7 +559,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                         Triple("nonNullGenericWithNonNullParam", false, false),
                         Triple("nonNullGenericWithNullableParam", false, true),
                         Triple("nullableGenericWithNullableParam", true, true),
-                        Triple("nullableGenericWithNonNullParam", true, false)
+                        Triple("nullableGenericWithNonNullParam", true, false),
                     )
             }
             assertParams(
@@ -588,7 +588,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 val nonNullArrayWithNullableComponent : Array<Int?> = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (typeElement, metadata) = getMetadataElement(env, "Subject")
@@ -597,7 +597,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     "nullableArrayWithNonNullComponent",
                     "nullableArrayWithNullableComponent",
                     "nonNullArrayWithNonNullComponent",
-                    "nonNullArrayWithNullableComponent"
+                    "nonNullArrayWithNullableComponent",
                 )
             assertThat(
                     propertyNames
@@ -608,7 +608,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                             Triple(
                                 it.name,
                                 it.isNullable(),
-                                it.typeParameters.single().isNullable()
+                                it.typeParameters.single().isNullable(),
                             )
                         }
                 )
@@ -616,7 +616,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                     Triple("nullableArrayWithNonNullComponent", true, false),
                     Triple("nullableArrayWithNullableComponent", true, true),
                     Triple("nonNullArrayWithNonNullComponent", false, false),
-                    Triple("nonNullArrayWithNullableComponent", false, true)
+                    Triple("nonNullArrayWithNullableComponent", false, true),
                 )
         }
     }
@@ -639,7 +639,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
 
             abstract class WithSuperType : Map<String, Int?> {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (_, simple) = getMetadataElement(env, "Simple")
@@ -677,7 +677,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 val nonNullGeneric: List<Int> = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (typeElement, subject) = getMetadataElement(env, "Subject")
@@ -726,7 +726,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
                 val isC:String = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val classpath = compileFiles(listOf(libSource))
         runJavaProcessorTest(sources = emptyList(), classpath = classpath) { invocation ->
@@ -759,7 +759,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             interface B
             abstract class C
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
             val (subjectElement, subjectMetadata) = getMetadataElement(env, "Subject")
@@ -816,7 +816,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             interface B
             abstract class C
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(sources = listOf(src)) { env ->
             val subject = env.requireTypeElement("Subject")
@@ -841,7 +841,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
               fun instance(): String = "Hello"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         simpleRun(sources = listOf(src), kotlincArgs = listOf("-Xjvm-default=disable")) { env ->
             val subjectElement = env.requireTypeElement("Subject.DefaultImpls")
@@ -873,11 +873,9 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
               }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
-        simpleRun(
-            sources = listOf(src),
-        ) { env ->
+        simpleRun(sources = listOf(src)) { env ->
             assertThat(env.findTypeElement("Subject.Fruit")).isNotNull()
             val subjectElement =
                 env.findTypeElement("Subject.WhenMappings")
@@ -902,7 +900,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
 
             fun a() { }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val bSrc =
             Source.kotlin(
@@ -913,11 +911,9 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
 
             fun b() { }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
-        simpleRun(
-            sources = listOf(aSrc, bSrc),
-        ) { env ->
+        simpleRun(sources = listOf(aSrc, bSrc)) { env ->
             // Find the multi file class facade element
             val facadeElement = env.requireTypeElement("Subject")
             // Call metadata derived API causing it to be read
@@ -956,7 +952,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
     private fun simpleRun(
         sources: List<Source> = emptyList(),
         kotlincArgs: List<String> = emptyList(),
-        handler: XTestInvocation.(JavacProcessingEnv) -> Unit
+        handler: XTestInvocation.(JavacProcessingEnv) -> Unit,
     ) {
         val (sources, classpath) =
             if (preCompiled) {

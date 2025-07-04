@@ -56,7 +56,7 @@ class RemoteViewsWidget : GlanceAppWidget() {
     private fun Content() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.White),
-            horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+            horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
         ) {
             // Demonstrates a single item remote view layout
             val remoteViews =
@@ -67,7 +67,7 @@ class RemoteViewsWidget : GlanceAppWidget() {
                     GlanceModifier.fillMaxWidth()
                         .wrapContentHeight()
                         .cornerRadius(16.dp)
-                        .background(Color.Red)
+                        .background(Color.Red),
             )
 
             // Demonstrates a remote view layout being used as a container for regular glance
@@ -77,12 +77,12 @@ class RemoteViewsWidget : GlanceAppWidget() {
             Text(text = "Container RemoteViews")
             Box(
                 modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 AndroidRemoteViews(
                     remoteViews = flipper,
                     containerViewId = R.id.test_flipper_root,
-                    modifier = GlanceModifier.wrapContentSize()
+                    modifier = GlanceModifier.wrapContentSize(),
                 ) {
                     Text(text = "First")
                     Text(text = "Second")

@@ -18,7 +18,6 @@ package androidx.core.telecom.test
 
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,7 +31,6 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class CallEndpointUuidTrackerTest {
     /** Verify that the non bluetooth [CallEndpointCompat] types all return the expected UUID */
@@ -42,19 +40,19 @@ class CallEndpointUuidTrackerTest {
         val mockFlowSession = 1
         assertEquals(
             CallEndpointUuidTracker.EARPIECE_UUID,
-            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_EARPIECE)
+            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_EARPIECE),
         )
         assertEquals(
             CallEndpointUuidTracker.SPEAKER_UUID,
-            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_SPEAKER)
+            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_SPEAKER),
         )
         assertEquals(
             CallEndpointUuidTracker.WIRED_HEADSET_UUID,
-            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_WIRED_HEADSET)
+            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_WIRED_HEADSET),
         )
         assertEquals(
             CallEndpointUuidTracker.UNKNOWN_ENDPOINT_UUID,
-            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_UNKNOWN)
+            CallEndpointUuidTracker.getUuid(mockFlowSession, CallEndpointCompat.TYPE_UNKNOWN),
         )
     }
 
@@ -71,7 +69,7 @@ class CallEndpointUuidTrackerTest {
             CallEndpointUuidTracker.getUuid(
                 mockFlowSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                btDeviceName
+                btDeviceName,
             )
         assertBluetoothNameMappingEntry(btDeviceName, btEndpointUuid, mockFlowSession)
         assertSessionMapping(mockFlowSession, mutableSetOf(btDeviceName))
@@ -94,14 +92,14 @@ class CallEndpointUuidTrackerTest {
             CallEndpointUuidTracker.getUuid(
                 mockFlowSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                btDeviceName
+                btDeviceName,
             )
 
         val callSessionBtUuid: ParcelUuid =
             CallEndpointUuidTracker.getUuid(
                 callSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                btDeviceName
+                btDeviceName,
             )
 
         // All sessions should reference the same UUID. This ensures that the same device is
@@ -135,14 +133,14 @@ class CallEndpointUuidTrackerTest {
             CallEndpointUuidTracker.getUuid(
                 mockFlowSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                initialBtDevice
+                initialBtDevice,
             )
 
         val callSessionBtUuid: ParcelUuid =
             CallEndpointUuidTracker.getUuid(
                 callSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                initialBtDevice
+                initialBtDevice,
             )
 
         assertEquals(flowBtUuid, callSessionBtUuid)
@@ -156,14 +154,14 @@ class CallEndpointUuidTrackerTest {
             CallEndpointUuidTracker.getUuid(
                 mockFlowSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                secondaryBtDevice
+                secondaryBtDevice,
             )
 
         val callSessionBtUuid2: ParcelUuid =
             CallEndpointUuidTracker.getUuid(
                 callSession,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                secondaryBtDevice
+                secondaryBtDevice,
             )
 
         assertEquals(flowBtUuid2, callSessionBtUuid2)
@@ -190,7 +188,7 @@ class CallEndpointUuidTrackerTest {
     private fun assertBluetoothNameMappingEntry(
         btDeviceName: String,
         btEndpointUuid: ParcelUuid,
-        sessionId: Int
+        sessionId: Int,
     ) {
         assertTrue(CallEndpointUuidTracker.getBluetoothMapping().containsKey(btDeviceName))
         val ids = CallEndpointUuidTracker.getBluetoothMapping()[btDeviceName]!!

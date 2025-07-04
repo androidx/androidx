@@ -27,6 +27,6 @@ internal fun TypeMirror.extendsBound(): TypeMirror? {
                 return type.extendsBound ?: type.superBound
             }
         },
-        null
+        null,
     )
 }

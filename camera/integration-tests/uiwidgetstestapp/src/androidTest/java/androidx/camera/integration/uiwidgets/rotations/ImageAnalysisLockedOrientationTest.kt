@@ -30,7 +30,7 @@ import org.junit.runners.Parameterized
 class ImageAnalysisLockedOrientationTest(
     private val lensFacing: Int,
     private val rotationDegrees: Int,
-    private val cameraXConfig: String
+    private val cameraXConfig: String,
 ) : ImageAnalysisBaseTest<LockedOrientationActivity>(cameraXConfig) {
 
     companion object {

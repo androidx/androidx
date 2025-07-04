@@ -107,7 +107,7 @@ class TextLayoutTest {
                 lineSpacingExtra = lineSpacingExtra,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         for (i in 0 until layout.lineCount - 1) {
@@ -135,7 +135,7 @@ class TextLayoutTest {
                 lineSpacingExtra = lineSpacingExtra,
                 // IncludePadding is false so that we can expected the last line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         val lastLine = layout.lineCount - 1
@@ -165,7 +165,7 @@ class TextLayoutTest {
                 lineSpacingExtra = lineSpacingExtra,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         assertThat(layout.lineCount).isEqualTo(1)
@@ -192,7 +192,7 @@ class TextLayoutTest {
                 lineSpacingExtra = lineSpacingExtra,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         assertThat(layout.lineCount).isEqualTo(1)
@@ -219,7 +219,7 @@ class TextLayoutTest {
                 lineSpacingMultiplier = lineSpacingMultiplier,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         for (i in 0 until layout.lineCount - 1) {
@@ -247,7 +247,7 @@ class TextLayoutTest {
                 lineSpacingMultiplier = lineSpacingMultiplier,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         val lastLine = layout.lineCount - 1
@@ -274,7 +274,7 @@ class TextLayoutTest {
                 lineSpacingMultiplier = lineSpacingMultiplier,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         assertThat(layout.lineCount).isEqualTo(1)
@@ -301,7 +301,7 @@ class TextLayoutTest {
                 lineSpacingMultiplier = lineSpacingMultiplier,
                 // IncludePadding is false so that we can expected the 1st line's height to be
                 // descend - ascend
-                includePadding = false
+                includePadding = false,
             )
 
         assertThat(layout.lineCount).isEqualTo(1)
@@ -324,7 +324,7 @@ class TextLayoutTest {
                 TextLayout(
                         charSequence = "\u05D0",
                         width = Float.MAX_VALUE,
-                        textPaint = TextPaint()
+                        textPaint = TextPaint(),
                     )
                     .layout
             )
@@ -373,7 +373,7 @@ class TextLayoutTest {
                 text = "aA",
                 fontSize = fontSize,
                 lineHeight = lineHeight,
-                preserveMinimumHeight = false
+                preserveMinimumHeight = false,
             )
 
         val defaultFontMetrics = createTextPaint(fontSize).fontMetricsInt
@@ -398,7 +398,7 @@ class TextLayoutTest {
                 text = "aA\naA\naA",
                 fontSize = fontSize,
                 lineHeight = lineHeight,
-                preserveMinimumHeight = false
+                preserveMinimumHeight = false,
             )
 
         val defaultFontMetrics = createTextPaint(fontSize).fontMetricsInt
@@ -424,7 +424,7 @@ class TextLayoutTest {
                 text = "aA\naA\naA",
                 fontSize = fontSize,
                 lineHeight = specifyLineHeight,
-                preserveMinimumHeight = true
+                preserveMinimumHeight = true,
             )
         val defaultFontMetrics = createTextPaint(fontSize).fontMetricsInt
         val expectedPadding = ((fontSize - systemPreferredLineHeight) / 2).toInt()
@@ -444,7 +444,7 @@ class TextLayoutTest {
         text: CharSequence,
         fontSize: Float,
         lineHeight: Float,
-        preserveMinimumHeight: Boolean
+        preserveMinimumHeight: Boolean,
     ): TextLayout {
         val textPaint = createTextPaint(fontSize)
         val spannable = SpannableString(text)
@@ -460,14 +460,14 @@ class TextLayoutTest {
             ),
             0,
             text.length,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
         )
 
         return TextLayout(
             charSequence = spannable,
             textPaint = textPaint,
             includePadding = false,
-            width = Float.MAX_VALUE
+            width = Float.MAX_VALUE,
         )
     }
 

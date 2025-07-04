@@ -29,13 +29,13 @@ import androidx.compose.ui.geometry.Rect
  * Note that the hinge bounds will be represent as [Rect] with window coordinates, instead of layout
  * coordinate.
  *
- * @constructor create an instance of [Posture]
  * @property isTabletop `true` if the current window is considered as in the table top mode, i.e.
  *   there is one half-opened horizontal hinge in the middle of the current window. When this is
  *   `true` it usually means it's hard for users to interact with the window area around the hinge
  *   and developers may consider separating the layout along the hinge and show software keyboard or
  *   other controls in the bottom half of the window.
  * @property hingeList a list of all hinges that are relevant to the posture.
+ * @constructor create an instance of [Posture]
  */
 @Immutable
 class Posture(val isTabletop: Boolean = false, val hingeList: List<HingeInfo> = emptyList()) {
@@ -101,7 +101,7 @@ class HingeInfo(
     val isFlat: Boolean,
     val isVertical: Boolean,
     val isSeparating: Boolean,
-    val isOccluding: Boolean
+    val isOccluding: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -81,50 +81,22 @@ class ObjectIntTest {
 
     @Test
     fun objectIntMapInitFunction() {
-        val map1 =
-            objectIntMapOf(
-                "Hello",
-                1,
-            )
+        val map1 = objectIntMapOf("Hello", 1)
         assertEquals(1, map1.size)
         assertEquals(1, map1["Hello"])
 
-        val map2 =
-            objectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-            )
+        val map2 = objectIntMapOf("Hello", 1, "Bonjour", 2)
         assertEquals(2, map2.size)
         assertEquals(1, map2["Hello"])
         assertEquals(2, map2["Bonjour"])
 
-        val map3 =
-            objectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-                "Hallo",
-                3,
-            )
+        val map3 = objectIntMapOf("Hello", 1, "Bonjour", 2, "Hallo", 3)
         assertEquals(3, map3.size)
         assertEquals(1, map3["Hello"])
         assertEquals(2, map3["Bonjour"])
         assertEquals(3, map3["Hallo"])
 
-        val map4 =
-            objectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-                "Hallo",
-                3,
-                "Konnichiwa",
-                4,
-            )
+        val map4 = objectIntMapOf("Hello", 1, "Bonjour", 2, "Hallo", 3, "Konnichiwa", 4)
 
         assertEquals(4, map4.size)
         assertEquals(1, map4["Hello"])
@@ -132,19 +104,7 @@ class ObjectIntTest {
         assertEquals(3, map4["Hallo"])
         assertEquals(4, map4["Konnichiwa"])
 
-        val map5 =
-            objectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-                "Hallo",
-                3,
-                "Konnichiwa",
-                4,
-                "Ciao",
-                5,
-            )
+        val map5 = objectIntMapOf("Hello", 1, "Bonjour", 2, "Hallo", 3, "Konnichiwa", 4, "Ciao", 5)
 
         assertEquals(5, map5.size)
         assertEquals(1, map5["Hello"])
@@ -156,50 +116,22 @@ class ObjectIntTest {
 
     @Test
     fun mutableObjectIntMapInitFunction() {
-        val map1 =
-            mutableObjectIntMapOf(
-                "Hello",
-                1,
-            )
+        val map1 = mutableObjectIntMapOf("Hello", 1)
         assertEquals(1, map1.size)
         assertEquals(1, map1["Hello"])
 
-        val map2 =
-            mutableObjectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-            )
+        val map2 = mutableObjectIntMapOf("Hello", 1, "Bonjour", 2)
         assertEquals(2, map2.size)
         assertEquals(1, map2["Hello"])
         assertEquals(2, map2["Bonjour"])
 
-        val map3 =
-            mutableObjectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-                "Hallo",
-                3,
-            )
+        val map3 = mutableObjectIntMapOf("Hello", 1, "Bonjour", 2, "Hallo", 3)
         assertEquals(3, map3.size)
         assertEquals(1, map3["Hello"])
         assertEquals(2, map3["Bonjour"])
         assertEquals(3, map3["Hallo"])
 
-        val map4 =
-            mutableObjectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-                "Hallo",
-                3,
-                "Konnichiwa",
-                4,
-            )
+        val map4 = mutableObjectIntMapOf("Hello", 1, "Bonjour", 2, "Hallo", 3, "Konnichiwa", 4)
 
         assertEquals(4, map4.size)
         assertEquals(1, map4["Hello"])
@@ -208,18 +140,7 @@ class ObjectIntTest {
         assertEquals(4, map4["Konnichiwa"])
 
         val map5 =
-            mutableObjectIntMapOf(
-                "Hello",
-                1,
-                "Bonjour",
-                2,
-                "Hallo",
-                3,
-                "Konnichiwa",
-                4,
-                "Ciao",
-                5,
-            )
+            mutableObjectIntMapOf("Hello", 1, "Bonjour", 2, "Hallo", 3, "Konnichiwa", 4, "Ciao", 5)
 
         assertEquals(5, map5.size)
         assertEquals(1, map5["Hello"])
@@ -645,23 +566,23 @@ class ObjectIntTest {
             "${order[0]}=${order[0].toInt()}, ${order[1]}=${order[1].toInt()}, " +
                 "${order[2]}=${order[2].toInt()}, ${order[3]}=${order[3].toInt()}, " +
                 "${order[4]}=${order[4].toInt()}",
-            map.joinToString()
+            map.joinToString(),
         )
         assertEquals(
             "x${order[0]}=${order[0].toInt()}, ${order[1]}=${order[1].toInt()}, " +
                 "${order[2]}=${order[2].toInt()}...",
-            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+            map.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${order[0]}=${order[0].toInt()}-${order[1]}=${order[1].toInt()}-" +
                 "${order[2]}=${order[2].toInt()}-${order[3]}=${order[3].toInt()}-" +
                 "${order[4]}=${order[4].toInt()}<",
-            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+            map.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         val names = arrayOf("one", "two", "three", "four", "five")
         assertEquals(
             "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
-            map.joinToString(limit = 3) { _, value -> names[value.toInt()] }
+            map.joinToString(limit = 3) { _, value -> names[value.toInt()] },
         )
     }
 
@@ -687,7 +608,7 @@ class ObjectIntTest {
         // a non-existing entry doesn't throw during equals()
         assertNotEquals(
             mutableObjectIntMapOf("Hello", 1, "World", 2),
-            mutableObjectIntMapOf("Hello", 1, "Foo", 2)
+            mutableObjectIntMapOf("Hello", 1, "Foo", 2),
         )
     }
 

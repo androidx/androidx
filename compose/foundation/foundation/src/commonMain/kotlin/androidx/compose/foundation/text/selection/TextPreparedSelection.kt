@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.TextLayoutResultProxy
+import androidx.compose.foundation.text.findCodePointOrEmojiStartBefore
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
 import androidx.compose.foundation.text.findParagraphStart
@@ -61,7 +62,7 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
     val originalSelection: TextRange,
     val layoutResult: TextLayoutResult?,
     val offsetMapping: OffsetMapping,
-    val state: TextPreparedSelectionState
+    val state: TextPreparedSelectionState,
 ) {
     var selection = originalSelection
 
@@ -133,6 +134,17 @@ internal abstract class BaseTextPreparedSelection<T : BaseTextPreparedSelection<
             }
         }
     }
+
+    /**
+     * Returns the index of the code point preceding the end of [selection], or [NoCharacterFound]
+     * if there is no preceding code point. If the character is within an emoji, it returns the
+     * start of the emoji instead.
+     */
+    fun getPrecedingCodePointOrEmojiStartIndex() =
+        annotatedString.text.findCodePointOrEmojiStartBefore(
+            index = selection.end,
+            ifNotFound = NoCharacterFound,
+        )
 
     /** Returns the index of the character break preceding the end of [selection]. */
     fun getPrecedingCharacterIndex() = annotatedString.text.findPrecedingBreak(selection.end)
@@ -342,28 +354,28 @@ internal class TextPreparedSelection(
     originalSelection: TextRange,
     layoutResult: TextLayoutResult? = null,
     offsetMapping: OffsetMapping = OffsetMapping.Identity,
-    state: TextPreparedSelectionState = TextPreparedSelectionState()
+    state: TextPreparedSelectionState = TextPreparedSelectionState(),
 ) :
     BaseTextPreparedSelection<TextPreparedSelection>(
         originalText = originalText,
         originalSelection = originalSelection,
         layoutResult = layoutResult,
         offsetMapping = offsetMapping,
-        state = state
+        state = state,
     )
 
 internal class TextFieldPreparedSelection(
     val currentValue: TextFieldValue,
     offsetMapping: OffsetMapping = OffsetMapping.Identity,
     val layoutResultProxy: TextLayoutResultProxy?,
-    state: TextPreparedSelectionState = TextPreparedSelectionState()
+    state: TextPreparedSelectionState = TextPreparedSelectionState(),
 ) :
     BaseTextPreparedSelection<TextFieldPreparedSelection>(
         originalText = currentValue.annotatedString,
         originalSelection = currentValue.selection,
         offsetMapping = offsetMapping,
         layoutResult = layoutResultProxy?.value,
-        state = state
+        state = state,
     ) {
     val value
         get() = currentValue.copy(annotatedString = annotatedString, selection = selection)

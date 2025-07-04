@@ -85,7 +85,7 @@ class LazyScrollTest(private val orientation: Orientation) {
         containerSizePx: Int = itemSizePx * 3,
         beforeContentPaddingPx: Int = 0,
         afterContentPaddingPx: Int = 0,
-        assertBlock: suspend () -> Unit
+        assertBlock: suspend () -> Unit,
     ) {
         rule.setContent {
             state = rememberLazyListState()
@@ -95,7 +95,7 @@ class LazyScrollTest(private val orientation: Orientation) {
                     spacingPx.toDp(),
                     containerSizePx.toDp(),
                     beforeContentPaddingPx.toDp(),
-                    afterContentPaddingPx.toDp()
+                    afterContentPaddingPx.toDp(),
                 )
             }
         }
@@ -390,10 +390,7 @@ class LazyScrollTest(private val orientation: Orientation) {
 
     @Test
     fun canScrollForwardAndBackward_afterSmallScrollFromEnd_withContentPadding() =
-        testScroll(
-            containerSizePx = (itemSizePx * 1.5f).roundToInt(),
-            afterContentPaddingPx = 2,
-        ) {
+        testScroll(containerSizePx = (itemSizePx * 1.5f).roundToInt(), afterContentPaddingPx = 2) {
             val delta = -(itemSizePx / 3f).roundToInt()
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 // scroll to the end of the list.
@@ -459,7 +456,7 @@ class LazyScrollTest(private val orientation: Orientation) {
         toOffset: Int = 0,
         fromIndex: Int = 0,
         fromOffset: Int = 0,
-        spacingPx: Int = 0
+        spacingPx: Int = 0,
     ) {
         if (fromIndex != 0 || fromOffset != 0) {
             rule.runOnIdle { runBlocking { state.scrollToItem(fromIndex, fromOffset) } }
@@ -513,7 +510,7 @@ class LazyScrollTest(private val orientation: Orientation) {
         spacingDp: Dp,
         containerSizeDp: Dp,
         beforeContentPaddingDp: Dp,
-        afterContentPaddingDp: Dp
+        afterContentPaddingDp: Dp,
     ) {
         if (vertical) {
             LazyColumn(
@@ -521,7 +518,7 @@ class LazyScrollTest(private val orientation: Orientation) {
                 state,
                 contentPadding =
                     PaddingValues(top = beforeContentPaddingDp, bottom = afterContentPaddingDp),
-                verticalArrangement = Arrangement.spacedBy(spacingDp)
+                verticalArrangement = Arrangement.spacedBy(spacingDp),
             ) {
                 items(itemsCount) { ItemContent() }
             }
@@ -531,7 +528,7 @@ class LazyScrollTest(private val orientation: Orientation) {
                 state,
                 contentPadding =
                     PaddingValues(start = beforeContentPaddingDp, end = afterContentPaddingDp),
-                horizontalArrangement = Arrangement.spacedBy(spacingDp)
+                horizontalArrangement = Arrangement.spacedBy(spacingDp),
             ) {
                 items(itemsCount) { ItemContent() }
             }

@@ -22,9 +22,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
+import androidx.wear.compose.material3.AnimatedPage
 import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.HorizontalPagerScaffold
+import androidx.wear.compose.material3.PagerScaffoldDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.VerticalPageIndicator
 import androidx.wear.compose.material3.VerticalPagerScaffold
@@ -38,10 +42,18 @@ fun HorizontalPageIndicatorWithPagerSample() {
     Box {
         HorizontalPagerScaffold(
             pagerState = pagerState,
-            pageIndicator = { HorizontalPageIndicator(pagerState = pagerState) }
-        ) { page ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
+            pageIndicator = { HorizontalPageIndicator(pagerState = pagerState) },
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                flingBehavior =
+                    PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
+            ) { page ->
+                AnimatedPage(pageIndex = page, pagerState = pagerState) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
+                    }
+                }
             }
         }
     }
@@ -56,10 +68,18 @@ fun VerticalPageIndicatorWithPagerSample() {
     Box {
         VerticalPagerScaffold(
             pagerState = pagerState,
-            pageIndicator = { VerticalPageIndicator(pagerState = pagerState) }
-        ) { page ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
+            pageIndicator = { VerticalPageIndicator(pagerState = pagerState) },
+        ) {
+            VerticalPager(
+                state = pagerState,
+                flingBehavior =
+                    PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
+            ) { page ->
+                AnimatedPage(pageIndex = page, pagerState = pagerState) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(modifier = Modifier.align(Alignment.Center), text = "Page #$page")
+                    }
+                }
             }
         }
     }

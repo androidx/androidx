@@ -19,6 +19,10 @@ package androidx.wear.compose.material3.macrobenchmark.target
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.wear.compose.material3.macrobenchmark.common.TimePickerBenchmark
+import androidx.wear.compose.material3.macrobenchmark.common.TimePickerScrollMinutesBenchmark
 
 @RequiresApi(Build.VERSION_CODES.O)
 class TimePickerActivity : BenchmarkBaseActivity(TimePickerBenchmark)
+
+@RequiresApi(Build.VERSION_CODES.O)
+class TimePickerScrollMinutesActivity : BenchmarkBaseActivity(TimePickerScrollMinutesBenchmark)

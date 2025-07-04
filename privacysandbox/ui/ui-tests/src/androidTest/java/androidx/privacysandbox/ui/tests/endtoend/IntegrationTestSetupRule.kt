@@ -65,7 +65,7 @@ class IntegrationTestSetupRule(val invokeBackwardsCompatFlow: Boolean) : TestRul
                     linearLayout.layoutParams =
                         LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
+                            ViewGroup.LayoutParams.MATCH_PARENT,
                         )
                     linearLayout.setBackgroundColor(Color.RED)
 

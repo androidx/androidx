@@ -57,7 +57,7 @@ fun SplitRadioButtonDemo() {
                 selected = selectedMultiLineRadioIndex == 0,
                 onSelected = { selectedMultiLineRadioIndex = 0 },
                 primary = "8:15AM",
-                secondary = "Monday"
+                secondary = "Monday",
             )
         }
         item {
@@ -65,7 +65,7 @@ fun SplitRadioButtonDemo() {
                 enabled = true,
                 selected = selectedMultiLineRadioIndex == 1,
                 onSelected = { selectedMultiLineRadioIndex = 1 },
-                primary = "Primary label with at most three lines of content"
+                primary = "Primary label with at most three lines of content",
             )
         }
         item {
@@ -74,7 +74,7 @@ fun SplitRadioButtonDemo() {
                 selected = selectedMultiLineRadioIndex == 2,
                 onSelected = { selectedMultiLineRadioIndex = 2 },
                 primary = "Primary label with at most three lines of content",
-                secondary = "Secondary label with at most two lines of text"
+                secondary = "Secondary label with at most two lines of text",
             )
         }
         item {
@@ -93,7 +93,7 @@ fun SplitRadioButtonDemo() {
                     enabled = false,
                     selected = selected,
                     primary = "Primary label",
-                    secondary = "Secondary label"
+                    secondary = "Secondary label",
                 )
             }
         }
@@ -116,18 +116,10 @@ private fun DemoSplitRadioButton(
             Text(
                 primary,
                 Modifier.fillMaxWidth(),
-                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines
+                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines,
             )
         },
-        secondaryLabel =
-            secondary?.let {
-                {
-                    Text(
-                        secondary,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            },
+        secondaryLabel = secondary?.let { { Text(secondary, modifier = Modifier.fillMaxWidth()) } },
         selected = selected,
         onSelectionClick = onSelected,
         selectionContentDescription = primary,

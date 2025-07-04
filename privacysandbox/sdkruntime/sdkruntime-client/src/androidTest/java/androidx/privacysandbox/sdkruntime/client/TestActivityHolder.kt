@@ -22,9 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 
-internal class TestActivityHolder(
-    private val activity: Activity,
-) : ActivityHolder {
+internal class TestActivityHolder(private val activity: Activity) : ActivityHolder {
     val lifecycleRegistry: LifecycleRegistry = LifecycleRegistry(this)
     val backPresseddispatcher: OnBackPressedDispatcher = OnBackPressedDispatcher()
 

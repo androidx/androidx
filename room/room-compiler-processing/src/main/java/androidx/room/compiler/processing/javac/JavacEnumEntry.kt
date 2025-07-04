@@ -23,7 +23,7 @@ import javax.lang.model.element.Element
 internal class JavacEnumEntry(
     env: JavacProcessingEnv,
     entryElement: Element,
-    override val enclosingElement: XEnumTypeElement
+    override val enclosingElement: XEnumTypeElement,
 ) : JavacElement(env, entryElement), XEnumEntry {
     override val kotlinMetadata = null
 

@@ -20,7 +20,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
@@ -165,34 +164,35 @@ class ViewModelsWithStateTest(private val mode: Mode) {
                 activity
             }
 
-        val savedStateOwner = owner as SavedStateRegistryOwner
+        require(owner is SavedStateRegistryOwner)
 
+        @Suppress("DEPRECATION")
         val factory: Factory =
             when (mode.factoryMode) {
                 LEGACY_SAVEDSTATE_FACTORY_MODE -> {
                     // otherwise common type of factory is package private KeyedFactory
-                    SavedStateViewModelFactory(activity.application, savedStateOwner)
+                    SavedStateViewModelFactory(activity.application, owner)
                 }
                 SAVEDSTATE_FACTORY_MODE -> {
                     SavedStateViewModelFactory()
                 }
                 LEGACY_ABSTRACT_FACTORY_MODE -> {
-                    object : AbstractSavedStateViewModelFactory(savedStateOwner, null) {
+                    object : androidx.lifecycle.AbstractSavedStateViewModelFactory(owner, null) {
                         override fun <T : ViewModel> create(
                             key: String,
                             modelClass: Class<T>,
-                            handle: SavedStateHandle
+                            handle: SavedStateHandle,
                         ): T {
                             return modelClass.cast(VM(handle))!!
                         }
                     }
                 }
                 else -> {
-                    object : AbstractSavedStateViewModelFactory() {
+                    object : androidx.lifecycle.AbstractSavedStateViewModelFactory() {
                         override fun <T : ViewModel> create(
                             key: String,
                             modelClass: Class<T>,
-                            handle: SavedStateHandle
+                            handle: SavedStateHandle,
                         ): T {
                             return modelClass.cast(VM(handle))!!
                         }
@@ -200,7 +200,7 @@ class ViewModelsWithStateTest(private val mode: Mode) {
                 }
             }
         return if (mode.factoryMode in setOf(ABSTRACT_FACTORY_MODE, SAVEDSTATE_FACTORY_MODE))
-            ViewModelProvider(DecorateWithCreationExtras(savedStateOwner, owner), factory)
+            ViewModelProvider(DecorateWithCreationExtras(owner, owner), factory)
         else ViewModelProvider(owner, factory)
     }
 
@@ -215,7 +215,7 @@ internal fun createIntent(savedState: Bundle): Intent {
     val intent = Intent()
     intent.setClassName(
         "androidx.lifecycle.viewmodel.savedstate.test",
-        FakingSavedStateActivity::class.java.canonicalName!!
+        FakingSavedStateActivity::class.java.canonicalName!!,
     )
     return intent.putExtra(FAKE_SAVED_STATE, savedState)
 }
@@ -257,7 +257,7 @@ class FragmentWithSavedStateHandleSupport : Fragment() {
 
 class DecorateWithCreationExtras(
     val ssrOwner: SavedStateRegistryOwner,
-    val vmOwner: ViewModelStoreOwner
+    val vmOwner: ViewModelStoreOwner,
 ) :
     ViewModelStoreOwner by vmOwner,
     SavedStateRegistryOwner by ssrOwner,

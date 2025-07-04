@@ -1,0 +1,13 @@
+{
+  "projectPath": ":wear:wear-core",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "testImplementation"
+    }
+  ]
+}

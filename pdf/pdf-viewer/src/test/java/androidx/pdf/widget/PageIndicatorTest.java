@@ -29,7 +29,6 @@ import android.widget.TextView;
 import androidx.pdf.data.Range;
 import androidx.pdf.util.Accessibility;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -41,7 +40,6 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link PageIndicator}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class PageIndicatorTest {
     @Mock

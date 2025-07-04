@@ -29,11 +29,11 @@ import java.util.UUID
  *
  * See [android.os.Bundle.setOverlayCreateParams] for how to create an overlay [ActivityStack].
  *
- * @constructor creates a parameter container to launch an overlay [ActivityStack].
  * @property tag The unique identifier of the overlay [ActivityStack], which will be generated
  *   automatically if not specified.
  * @property overlayAttributes The attributes of the overlay [ActivityStack], which defaults to the
  *   default value of [OverlayAttributes].
+ * @constructor creates a parameter container to launch an overlay [ActivityStack].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayCreateParams
@@ -75,7 +75,7 @@ constructor(
         fun build(): OverlayCreateParams =
             OverlayCreateParams(
                 tag ?: generateOverlayTag(),
-                launchAttrs ?: OverlayAttributes.Builder().build()
+                launchAttrs ?: OverlayAttributes.Builder().build(),
             )
     }
 

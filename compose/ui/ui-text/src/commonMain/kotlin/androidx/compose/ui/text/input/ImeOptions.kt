@@ -53,7 +53,7 @@ class ImeOptions(
     val keyboardType: KeyboardType = KeyboardType.Text,
     val imeAction: ImeAction = ImeAction.Default,
     val platformImeOptions: PlatformImeOptions? = null,
-    val hintLocales: LocaleList = LocaleList.Empty
+    val hintLocales: LocaleList = LocaleList.Empty,
 ) {
     companion object {
         /** Default [ImeOptions]. Please see parameter descriptions for default values. */
@@ -62,7 +62,7 @@ class ImeOptions(
 
     @Deprecated(
         "Please use the new constructor that takes optional hintLocales parameter.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         singleLine: Boolean = false,
@@ -70,7 +70,7 @@ class ImeOptions(
         autoCorrect: Boolean = true,
         keyboardType: KeyboardType = KeyboardType.Text,
         imeAction: ImeAction = ImeAction.Default,
-        platformImeOptions: PlatformImeOptions? = null
+        platformImeOptions: PlatformImeOptions? = null,
     ) : this(
         singleLine = singleLine,
         capitalization = capitalization,
@@ -78,12 +78,12 @@ class ImeOptions(
         keyboardType = keyboardType,
         imeAction = imeAction,
         platformImeOptions = platformImeOptions,
-        hintLocales = LocaleList.Empty
+        hintLocales = LocaleList.Empty,
     )
 
     @Deprecated(
         "Please use the new constructor that takes optional platformImeOptions parameter.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         singleLine: Boolean = false,
@@ -97,7 +97,7 @@ class ImeOptions(
         autoCorrect = autoCorrect,
         keyboardType = keyboardType,
         imeAction = imeAction,
-        platformImeOptions = null
+        platformImeOptions = null,
     )
 
     fun copy(
@@ -107,7 +107,7 @@ class ImeOptions(
         keyboardType: KeyboardType = this.keyboardType,
         imeAction: ImeAction = this.imeAction,
         platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
-        hintLocales: LocaleList = this.hintLocales
+        hintLocales: LocaleList = this.hintLocales,
     ): ImeOptions {
         return ImeOptions(
             singleLine = singleLine,
@@ -116,13 +116,13 @@ class ImeOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
-            hintLocales = hintLocales
+            hintLocales = hintLocales,
         )
     }
 
     @Deprecated(
         "Please use the new copy function that takes optional hintLocales parameter.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         singleLine: Boolean = this.singleLine,
@@ -130,7 +130,7 @@ class ImeOptions(
         autoCorrect: Boolean = this.autoCorrect,
         keyboardType: KeyboardType = this.keyboardType,
         imeAction: ImeAction = this.imeAction,
-        platformImeOptions: PlatformImeOptions? = this.platformImeOptions
+        platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
     ): ImeOptions {
         return ImeOptions(
             singleLine = singleLine,
@@ -139,20 +139,20 @@ class ImeOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = platformImeOptions,
-            hintLocales = this.hintLocales
+            hintLocales = this.hintLocales,
         )
     }
 
     @Deprecated(
         "Please use the new copy function that takes optional platformImeOptions parameter.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         singleLine: Boolean = this.singleLine,
         capitalization: KeyboardCapitalization = this.capitalization,
         autoCorrect: Boolean = this.autoCorrect,
         keyboardType: KeyboardType = this.keyboardType,
-        imeAction: ImeAction = this.imeAction
+        imeAction: ImeAction = this.imeAction,
     ): ImeOptions {
         return ImeOptions(
             singleLine = singleLine,
@@ -161,7 +161,7 @@ class ImeOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
             platformImeOptions = this.platformImeOptions,
-            hintLocales = this.hintLocales
+            hintLocales = this.hintLocales,
         )
     }
 

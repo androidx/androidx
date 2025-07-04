@@ -21,7 +21,6 @@ import static androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCode
 import android.media.MediaCodecInfo;
 import android.util.Range;
 
-import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper;
 
@@ -44,10 +43,12 @@ public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncode
      *
      * <p>The function will return {@code null} if it can't find a VideoEncoderInfoImpl.
      */
-    public static final @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> FINDER =
-            videoEncoderConfig -> {
+    public static final VideoEncoderInfo.@NonNull Finder FINDER =
+            mimeType -> {
                 try {
-                    return VideoEncoderInfoWrapper.from(from(videoEncoderConfig), null);
+                    VideoEncoderInfoImpl videoEncoderInfo = new VideoEncoderInfoImpl(
+                            findCodecAndGetCodecInfo(mimeType), mimeType);
+                    return VideoEncoderInfoWrapper.from(videoEncoderInfo, null);
                 } catch (InvalidConfigException e) {
                     Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e);
                     return null;
@@ -55,18 +56,6 @@ public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncode
             };
 
     private final MediaCodecInfo.VideoCapabilities mVideoCapabilities;
-    /**
-     * Returns a VideoEncoderInfoImpl from a VideoEncoderConfig.
-     *
-     * <p>The input VideoEncoderConfig is used to find the corresponding encoder.
-     *
-     * @throws InvalidConfigException if the encoder is not found.
-     */
-    public static @NonNull VideoEncoderInfoImpl from(@NonNull VideoEncoderConfig encoderConfig)
-            throws InvalidConfigException {
-        return new VideoEncoderInfoImpl(findCodecAndGetCodecInfo(encoderConfig),
-                encoderConfig.getMimeType());
-    }
 
     VideoEncoderInfoImpl(@NonNull MediaCodecInfo codecInfo, @NonNull String mime)
             throws InvalidConfigException {

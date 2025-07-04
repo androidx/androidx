@@ -23,9 +23,11 @@ import androidx.room.compiler.codegen.java.JavaAnnotationSpec
 import androidx.room.compiler.codegen.kotlin.KotlinAnnotationSpec
 
 internal class XAnnotationSpecImpl(
-    val java: JavaAnnotationSpec,
-    val kotlin: KotlinAnnotationSpec,
-) : XSpec(), XAnnotationSpec {
+    override val java: JavaAnnotationSpec,
+    override val kotlin: KotlinAnnotationSpec,
+) : ImplSpec<JavaAnnotationSpec, KotlinAnnotationSpec>(), XAnnotationSpec {
+
+    override fun toBuilder() = Builder(java.toBuilder(), kotlin.toBuilder())
 
     internal class Builder(
         val java: JavaAnnotationSpec.Builder,

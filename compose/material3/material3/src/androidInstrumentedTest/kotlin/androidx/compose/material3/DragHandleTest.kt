@@ -86,7 +86,7 @@ class DragHandleTest {
             { pressedVisualShape },
             { pressedVisualSize },
             { pressedColor },
-            { press() }
+            { press() },
         ) {
             VerticalDragHandle()
         }
@@ -109,7 +109,7 @@ class DragHandleTest {
             { pressedVisualShape },
             { customPressedSize },
             { pressedColor },
-            { press() }
+            { press() },
         ) {
             VerticalDragHandle(
                 sizes = VerticalDragHandleDefaults.sizes(pressedSize = customPressedSize)
@@ -147,7 +147,7 @@ class DragHandleTest {
             { customPressedShape },
             { pressedVisualSize },
             { pressedColor },
-            { press() }
+            { press() },
         ) {
             VerticalDragHandle(
                 shapes = VerticalDragHandleDefaults.shapes(pressedShape = customPressedShape)
@@ -172,7 +172,7 @@ class DragHandleTest {
             { pressedVisualShape },
             { pressedVisualSize },
             { customColor },
-            { press() }
+            { press() },
         ) {
             VerticalDragHandle(
                 colors = VerticalDragHandleDefaults.colors(pressedColor = customColor)

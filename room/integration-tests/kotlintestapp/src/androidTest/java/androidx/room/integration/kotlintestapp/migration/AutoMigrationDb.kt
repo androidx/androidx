@@ -65,17 +65,17 @@ import androidx.sqlite.db.SupportSQLiteDatabase
             AutoMigrationDb.Entity24::class,
             AutoMigrationDb.Entity25::class,
             AutoMigrationDb.Entity26::class,
-            AutoMigrationDb.Entity27::class
+            AutoMigrationDb.Entity27::class,
         ],
     autoMigrations =
         [
             AutoMigration(from = 1, to = 2, spec = AutoMigrationDb.SimpleAutoMigration1::class),
             AutoMigration(from = 2, to = 3),
             AutoMigration(from = 3, to = 4, spec = AutoMigrationDb.SimpleAutoMigration2::class),
-            AutoMigration(from = 4, to = 5)
+            AutoMigration(from = 4, to = 5),
         ],
     views = [AutoMigrationDb.Entity25Detail::class],
-    exportSchema = true
+    exportSchema = true,
 )
 abstract class AutoMigrationDb : RoomDatabase() {
     internal abstract fun dao(): AutoMigrationDao
@@ -99,7 +99,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
         @PrimaryKey var id: Int,
         var name: String,
         @ColumnInfo(defaultValue = "1") var addedInV1: Int,
-        @ColumnInfo(defaultValue = "2") var addedInV2: Int
+        @ColumnInfo(defaultValue = "2") var addedInV2: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity2"
@@ -119,7 +119,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity4(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "2") var addedInV1: Int
+        @ColumnInfo(defaultValue = "2") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity4"
@@ -131,7 +131,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     internal class Entity5(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: String
+        @ColumnInfo(defaultValue = "1") var addedInV1: String,
     ) {
         companion object {
             const val TABLE_NAME = "Entity5"
@@ -145,7 +145,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
         var name: String,
 
         // @ColumnInfo(defaultValue = "1") - now nullable
-        var addedInV1: Int
+        var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity6"
@@ -157,7 +157,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity7(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity7"
@@ -169,7 +169,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity8(
         var id: Int,
         @PrimaryKey var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity8"
@@ -184,7 +184,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity9(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity9"
@@ -203,15 +203,15 @@ abstract class AutoMigrationDb : RoomDatabase() {
                     entity = Entity13_V2::class,
                     parentColumns = ["renamedInV4"],
                     childColumns = ["addedInV1"],
-                    deferred = true
+                    deferred = true,
                 )
             ],
-        indices = [Index(value = ["addedInV1"], unique = true)]
+        indices = [Index(value = ["addedInV1"], unique = true)],
     )
     data class Entity10(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity10"
@@ -223,7 +223,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity11(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity11"
@@ -235,7 +235,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity12(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity12"
@@ -250,7 +250,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity13_V2(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var renamedInV4: Int
+        @ColumnInfo(defaultValue = "1") var renamedInV4: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity13"
@@ -278,7 +278,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity16(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var renamedInV2: Int
+        @ColumnInfo(defaultValue = "1") var renamedInV2: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity16"
@@ -293,7 +293,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity17(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var renamedInV2: String
+        @ColumnInfo(defaultValue = "1") var renamedInV2: String,
     ) {
         companion object {
             const val TABLE_NAME = "Entity17"
@@ -309,7 +309,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity19_V2(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity19_V2"
@@ -326,7 +326,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
         var id: Int,
         @PrimaryKey var name: String,
         @ColumnInfo(defaultValue = "1") var renamedInV2: String,
-        @ColumnInfo(defaultValue = "2") var addedInV2: Int
+        @ColumnInfo(defaultValue = "2") var addedInV2: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity20_V2"
@@ -342,7 +342,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity21(
         @PrimaryKey var rowid: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var renamedInV4: Int
+        @ColumnInfo(defaultValue = "1") var renamedInV4: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity21"
@@ -355,7 +355,8 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity22(
         @PrimaryKey var rowid: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
+        @ColumnInfo(defaultValue = "2") var addedInV4: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity22"
@@ -368,7 +369,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
         @PrimaryKey var rowid: Int,
         var name: String,
         @ColumnInfo(defaultValue = "1") var addedInV1: Int,
-        @ColumnInfo(defaultValue = "2") var addedInV2: Int
+        @ColumnInfo(defaultValue = "2") var addedInV2: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity23"
@@ -380,7 +381,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     internal class Entity24(
         @PrimaryKey var rowid: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity24"
@@ -402,7 +403,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity25(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var entity1Id: Int
+        @ColumnInfo(defaultValue = "1") var entity1Id: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity25"
@@ -414,7 +415,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     data class Entity26(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV2: Int
+        @ColumnInfo(defaultValue = "1") var addedInV2: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity26"
@@ -425,7 +426,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
     @Entity
     data class Entity27(
         @PrimaryKey var id27: Int,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var addedInV1: Int,
     ) {
         companion object {
             const val TABLE_NAME = "Entity27"
@@ -445,12 +446,12 @@ abstract class AutoMigrationDb : RoomDatabase() {
     @RenameColumn(
         tableName = "Entity17",
         fromColumnName = "addedInV1",
-        toColumnName = "renamedInV2"
+        toColumnName = "renamedInV2",
     )
     @RenameColumn(
         tableName = "Entity20",
         fromColumnName = "addedInV1",
-        toColumnName = "renamedInV2"
+        toColumnName = "renamedInV2",
     )
     @DeleteColumn(tableName = "Entity15", columnName = "addedInV1")
     @RenameColumn(tableName = "Entity25", fromColumnName = "entity7Id", toColumnName = "entity1Id")
@@ -463,12 +464,12 @@ abstract class AutoMigrationDb : RoomDatabase() {
     @RenameColumn(
         tableName = "Entity21",
         fromColumnName = "addedInV1",
-        toColumnName = "renamedInV4"
+        toColumnName = "renamedInV4",
     )
     @RenameColumn(
         tableName = "Entity13_V2",
         fromColumnName = "addedInV1",
-        toColumnName = "renamedInV4"
+        toColumnName = "renamedInV4",
     )
     internal class SimpleAutoMigration2 : AutoMigrationSpec {
         override fun onPostMigrate(db: SupportSQLiteDatabase) {

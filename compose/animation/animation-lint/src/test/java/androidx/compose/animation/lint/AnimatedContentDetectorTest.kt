@@ -36,7 +36,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(
             AnimatedContentDetector.UnusedContentLambdaTargetStateParameter,
-            AnimatedContentDetector.UnusedTargetStateInContentKeyLambda
+            AnimatedContentDetector.UnusedTargetStateInContentKeyLambda,
         )
 
     // Simplified AnimatedContent.kt stubs
@@ -250,7 +250,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
         P11pVzoTZHZnJlOEp88bW88ac//ZlHvelEvMxabsDNmopXkRy5R3SDFDb8/u
         wa5jro6bdczjFkHcruMO7u6BKdzDwh79dZhQuK/wQKGkkFeoKEwqTCuM/QaR
         /XoCyAMAAA==
-        """
+        """,
         )
 
     @Test
@@ -320,7 +320,7 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
             """
                 ),
                 AnimatedContentStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -484,7 +484,7 @@ src/test/foo/test.kt:56: Error: Target state parameter _ is not used [UnusedTarg
             """
                 ),
                 AnimatedContentStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -618,7 +618,7 @@ src/test/foo/test.kt:66: Error: Target state parameter param is not used [Unused
         """
                 ),
                 AnimatedContentStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()

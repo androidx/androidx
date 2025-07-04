@@ -39,7 +39,7 @@ import org.junit.runners.Parameterized
 internal class SandboxedSdkContextCompatTest(
     private val contextType: String,
     private val sdkContextCompat: SandboxedSdkContextCompat,
-    private val appStorageContext: Context
+    private val appStorageContext: Context,
 ) {
 
     @Test
@@ -243,7 +243,7 @@ internal class SandboxedSdkContextCompatTest(
             sdkContextCompat.openOrCreateDatabase(
                 name = databaseName,
                 mode = Context.MODE_PRIVATE,
-                factory = null
+                factory = null,
             )
 
         database.execSQL("CREATE TABLE test (data int)")
@@ -254,7 +254,7 @@ internal class SandboxedSdkContextCompatTest(
                 name = databaseName,
                 mode = Context.MODE_PRIVATE,
                 factory = null,
-                errorHandler = null
+                errorHandler = null,
             )
 
         val result = databaseFrom4ParamMethod.rawQuery("SELECT * FROM test", null)
@@ -271,7 +271,7 @@ internal class SandboxedSdkContextCompatTest(
         sdkContextCompat.openOrCreateDatabase(
             name = databaseName,
             mode = Context.MODE_PRIVATE,
-            factory = null
+            factory = null,
         )
         assertThat(sdkContextCompat.getDatabasePath(databaseName).exists()).isTrue()
 
@@ -286,7 +286,7 @@ internal class SandboxedSdkContextCompatTest(
         sdkContextCompat.openOrCreateDatabase(
             name = databaseName,
             mode = Context.MODE_PRIVATE,
-            factory = null
+            factory = null,
         )
 
         val result = sdkContextCompat.databaseList().asList()
@@ -307,7 +307,7 @@ internal class SandboxedSdkContextCompatTest(
             SandboxedSdkContextCompat(
                 sourceAppStorageContext,
                 sdkPackageName = SDK_PACKAGE_NAME,
-                classLoader = javaClass.classLoader!!.parent!!
+                classLoader = javaClass.classLoader!!.parent!!,
             )
 
         val databaseName = "testMoveTo$contextType.db"
@@ -317,7 +317,7 @@ internal class SandboxedSdkContextCompatTest(
             sourceContext.openOrCreateDatabase(
                 name = databaseName,
                 mode = Context.MODE_PRIVATE,
-                factory = null
+                factory = null,
             )
 
         database.execSQL("CREATE TABLE test (data int)")
@@ -330,7 +330,7 @@ internal class SandboxedSdkContextCompatTest(
             sdkContextCompat.openOrCreateDatabase(
                 name = databaseName,
                 mode = Context.MODE_PRIVATE,
-                factory = null
+                factory = null,
             )
 
         val result = migratedDatabase.rawQuery("SELECT * FROM test", null)
@@ -352,7 +352,7 @@ internal class SandboxedSdkContextCompatTest(
         val appSharedPreferences =
             appStorageContext.getSharedPreferences(
                 "${SDK_SHARED_PREFERENCES_PREFIX}_${SDK_PACKAGE_NAME}_$sdkSharedPreferencesName",
-                Context.MODE_PRIVATE
+                Context.MODE_PRIVATE,
             )
         val result = appSharedPreferences.getInt("test", 0)
         assertThat(result).isEqualTo(42)
@@ -386,7 +386,7 @@ internal class SandboxedSdkContextCompatTest(
             SandboxedSdkContextCompat(
                 sourceAppStorageContext,
                 sdkPackageName = SDK_PACKAGE_NAME,
-                classLoader = javaClass.classLoader!!.parent!!
+                classLoader = javaClass.classLoader!!.parent!!,
             )
 
         val sdkSharedPreferencesName = "testMoveTo$contextType"
@@ -425,7 +425,7 @@ internal class SandboxedSdkContextCompatTest(
                 SandboxedSdkContextCompat(
                     appContext,
                     sdkPackageName = SDK_PACKAGE_NAME,
-                    classLoader = javaClass.classLoader!!.parent!!
+                    classLoader = javaClass.classLoader!!.parent!!,
                 )
             add(arrayOf("SimpleContext", sdkContext, appContext))
 
@@ -435,7 +435,7 @@ internal class SandboxedSdkContextCompatTest(
                     arrayOf(
                         "DeviceProtectedStorageContext",
                         deviceProtectedSdkContext,
-                        appContext.createDeviceProtectedStorageContext()
+                        appContext.createDeviceProtectedStorageContext(),
                     )
                 )
             }
@@ -452,9 +452,9 @@ internal class SandboxedSdkContextCompatTest(
                         "WindowContext",
                         displayContext.createWindowContext(
                             LayoutParams.TYPE_APPLICATION_SUB_PANEL,
-                            /* options = */ null
+                            /* options = */ null,
                         ),
-                        appContext
+                        appContext,
                     )
                 )
             }
@@ -466,9 +466,9 @@ internal class SandboxedSdkContextCompatTest(
                         displayContext.createWindowContext(
                             display,
                             LayoutParams.TYPE_APPLICATION_SUB_PANEL,
-                            /* options = */ null
+                            /* options = */ null,
                         ),
-                        appContext
+                        appContext,
                     )
                 )
             }

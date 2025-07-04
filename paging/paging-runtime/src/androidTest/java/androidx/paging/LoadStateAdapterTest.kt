@@ -41,7 +41,7 @@ class LoadStateAdapterTest {
         enum class Event {
             CHANGE,
             INSERT,
-            REMOVED
+            REMOVED,
         }
 
         private val observedEvents = mutableListOf<Event>()
@@ -90,7 +90,7 @@ class LoadStateAdapterTest {
     class SimpleLoadStateAdapter : LoadStateAdapter<RecyclerView.ViewHolder>() {
         override fun onCreateViewHolder(
             parent: ViewGroup,
-            loadState: LoadState
+            loadState: LoadState,
         ): RecyclerView.ViewHolder {
             return object : RecyclerView.ViewHolder(View(parent.context)) {}
         }

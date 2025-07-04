@@ -89,7 +89,7 @@ private fun DrawerLayout(drawerWidth: Dp, content: @Composable ColumnScope.() ->
                     val originalOffset = currentOffset
                     currentOffset = (currentOffset + scrollDistance).coerceIn(minOffset, maxOffset)
                     currentOffset - originalOffset
-                }
+                },
         )
     ) {
         Column(content = content)
@@ -101,7 +101,7 @@ private fun DrawerLayout(drawerWidth: Dp, content: @Composable ColumnScope.() ->
         ) {
             Text(
                 "This is empty drawer content",
-                Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
+                Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
             )
         }
     }
@@ -136,7 +136,7 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
                                 }
                             offset += toConsume
                             toConsume
-                        }
+                        },
                 )
                 .then(ClipModifier),
         measurePolicy = { measurables, constraints ->
@@ -180,7 +180,7 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
                     Orientation.Vertical -> placeable.placeRelative(0, offset.roundToInt())
                 }
             }
-        }
+        },
     )
 }
 
@@ -228,7 +228,7 @@ private fun Pressable(height: Dp) {
                 detectTapGestures(
                     onTap = onTap,
                     onDoubleTap = onDoubleTap,
-                    onLongPress = onLongPress
+                    onLongPress = onLongPress,
                 )
             }
 

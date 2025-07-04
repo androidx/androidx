@@ -81,13 +81,13 @@ class CpuEventCounterTest {
                 assertTrue(
                     values.numberOfCounters >= 1,
                     "expect at least one counter enabled on emulator," +
-                        " saw ${values.numberOfCounters}"
+                        " saw ${values.numberOfCounters}",
                 )
             } else {
                 assertTrue(
                     values.numberOfCounters >= 3,
                     "expect at least three counters on physical device," +
-                        " saw ${values.numberOfCounters}"
+                        " saw ${values.numberOfCounters}",
                 )
             }
             assertNotEquals(0, values.timeEnabled)
@@ -115,7 +115,7 @@ class CpuEventCounterTest {
                 listOf(
                     CpuEventCounter.Event.Instructions,
                     CpuEventCounter.Event.CpuCycles,
-                    CpuEventCounter.Event.L1IReferences
+                    CpuEventCounter.Event.L1IReferences,
                 )
             )
 
@@ -140,7 +140,7 @@ class CpuEventCounterTest {
             // note, we don't validate 1st, in case there's some amount of warmup happening
             assertTrue(
                 instructions[3] > instructions[2] && instructions[2] > instructions[1],
-                "expected increasing instruction counts (ignoring 1st): ${instructions.joinToString()}"
+                "expected increasing instruction counts (ignoring 1st): ${instructions.joinToString()}",
             )
         }
 

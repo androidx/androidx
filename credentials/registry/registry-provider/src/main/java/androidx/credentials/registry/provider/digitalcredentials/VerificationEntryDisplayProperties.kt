@@ -30,13 +30,13 @@ import androidx.credentials.registry.provider.digitalcredentials.DigitalCredenti
  * highlighted as a warning (e.g. bolded, in a red background). For example, you can use it to
  * display a warning if the calling app is requesting very sensitive information.
  *
- * @constructor
  * @property title the title to display for this entry in the Credential Manager selector UI
  * @property subtitle the subtitle to display for this entry
  * @property icon the icon to display for this entry; this icon should be 32x32 and if not will be
  *   rescaled into a 32x32 pixel PGN for display
  * @property explainer the additional note or explainer to display for this entry, if applicable
  * @property warning the warning to display for this entry, if applicable
+ * @constructor
  */
 public class VerificationEntryDisplayProperties(
     public val title: CharSequence,

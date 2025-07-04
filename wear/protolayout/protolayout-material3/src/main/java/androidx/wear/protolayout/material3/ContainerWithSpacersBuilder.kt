@@ -36,12 +36,12 @@ internal constructor(private val add: Consumer<T>, firstElement: T?) {
      * Adds the given element to the parent defined in constructor and adds the Spacer above it if
      * there was previous content in the parent.
      */
-    fun addElement(element: T?, space: T): ContainerWithSpacersBuilder<T> {
+    fun addElement(element: T?, space: T? = null): ContainerWithSpacersBuilder<T> {
         if (element == null) {
             return this
         }
 
-        if (!isEmpty) {
+        if (!isEmpty && space != null) {
             add.accept(space)
         }
 

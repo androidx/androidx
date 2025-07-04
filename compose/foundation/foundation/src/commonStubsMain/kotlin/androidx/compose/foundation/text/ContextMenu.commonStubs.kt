@@ -25,7 +25,7 @@ import androidx.compose.runtime.Composable
 @Composable
 internal actual fun ContextMenuArea(
     manager: TextFieldSelectionManager,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 // todo implement
@@ -33,11 +33,11 @@ internal actual fun ContextMenuArea(
 internal actual inline fun ContextMenuArea(
     selectionState: TextFieldSelectionState,
     enabled: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
 internal actual fun ContextMenuArea(
     manager: SelectionManager,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()

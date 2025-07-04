@@ -21,9 +21,9 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -46,7 +46,7 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder,
     private var initFuture: ListenableFuture<Unit>,
-    private var sharedAssetsFuture: ListenableFuture<TestSharedAssets>
+    private var sharedAssetsFuture: ListenableFuture<TestSharedAssets>,
 ) : WatchFaceService() {
 
     val lock = Any()
@@ -67,7 +67,7 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
             WatchFaceType.DIGITAL,
@@ -77,7 +77,7 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16
+                    16,
                 ) {
                 override fun initFuture(): ListenableFuture<Unit> {
                     initFutureLatch.countDown()
@@ -93,7 +93,7 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
                     canvas: Canvas,
                     bounds: Rect,
                     zonedDateTime: ZonedDateTime,
-                    sharedAssets: TestSharedAssets
+                    sharedAssets: TestSharedAssets,
                 ) {
                     // Actually rendering something isn't required.
                     synchronized(lock) {
@@ -106,11 +106,11 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
                     canvas: Canvas,
                     bounds: Rect,
                     zonedDateTime: ZonedDateTime,
-                    sharedAssets: TestSharedAssets
+                    sharedAssets: TestSharedAssets,
                 ) {
                     // NOP
                 }
-            }
+            },
         )
 
     override fun getSystemTimeProvider() =
@@ -122,7 +122,7 @@ internal class TestAsyncCanvasRenderWithSharedAssetsTestWatchFaceService(
 }
 
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 @RunWith(AndroidJUnit4::class)
 public class AsyncListenableCanvasRenderer2Test : WatchFaceControlClientServiceTest() {
     @Test
@@ -135,7 +135,7 @@ public class AsyncListenableCanvasRenderer2Test : WatchFaceControlClientServiceT
                 context,
                 surfaceHolder,
                 initFuture,
-                sharedAssetsFuture
+                sharedAssetsFuture,
             )
         val controlClient = createWatchFaceControlClientService()
 
@@ -147,7 +147,7 @@ public class AsyncListenableCanvasRenderer2Test : WatchFaceControlClientServiceT
                     DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
                     null,
-                    emptyMap()
+                    emptyMap(),
                 )
             }
 
@@ -159,7 +159,7 @@ public class AsyncListenableCanvasRenderer2Test : WatchFaceControlClientServiceT
             assertThat(
                     watchFaceService.sharedAssetsFutureLatch.await(
                         TIMEOUT_MILLIS,
-                        TimeUnit.MILLISECONDS
+                        TimeUnit.MILLISECONDS,
                     )
                 )
                 .isTrue()

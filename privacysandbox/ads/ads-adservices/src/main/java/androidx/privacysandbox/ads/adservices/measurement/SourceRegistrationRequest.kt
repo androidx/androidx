@@ -28,8 +28,8 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  *   distinguish clicks from views.
  */
 @ExperimentalFeatures.RegisterSourceOptIn
-class SourceRegistrationRequest
-constructor(val registrationUris: List<Uri>, val inputEvent: InputEvent? = null) {
+public class SourceRegistrationRequest
+constructor(public val registrationUris: List<Uri>, public val inputEvent: InputEvent? = null) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -56,7 +56,7 @@ constructor(val registrationUris: List<Uri>, val inputEvent: InputEvent? = null)
      *
      * @param registrationUris source registration request [Uri]
      */
-    class Builder(private val registrationUris: List<Uri>) {
+    public class Builder(private val registrationUris: List<Uri>) {
         private var inputEvent: InputEvent? = null
 
         /**
@@ -66,10 +66,12 @@ constructor(val registrationUris: List<Uri>, val inputEvent: InputEvent? = null)
          *   distinguish clicks from views.
          * @return builder
          */
-        fun setInputEvent(inputEvent: InputEvent): Builder = apply { this.inputEvent = inputEvent }
+        public fun setInputEvent(inputEvent: InputEvent): Builder = apply {
+            this.inputEvent = inputEvent
+        }
 
         /** Pre-validates parameters and builds [SourceRegistrationRequest]. */
-        fun build(): SourceRegistrationRequest {
+        public fun build(): SourceRegistrationRequest {
             return SourceRegistrationRequest(registrationUris, inputEvent)
         }
     }

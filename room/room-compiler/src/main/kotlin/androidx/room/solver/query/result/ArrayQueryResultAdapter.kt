@@ -26,7 +26,7 @@ import androidx.room.solver.CodeGenScope
 
 class ArrayQueryResultAdapter(
     private val arrayType: XArrayType,
-    private val listResultAdapter: ListQueryResultAdapter
+    private val listResultAdapter: ListQueryResultAdapter,
 ) : QueryResultAdapter(listResultAdapter.rowAdapters) {
     private val componentTypeName: XTypeName = arrayType.componentType.asTypeName()
     private val arrayTypeName = XTypeName.getArrayName(componentTypeName)
@@ -64,8 +64,8 @@ class ArrayQueryResultAdapter(
                                         XCodeBlock.of(
                                             "new %T[%L.size()]",
                                             componentTypeName,
-                                            listVarName
-                                        )
+                                            listVarName,
+                                        ),
                                 )
                                 // If the array is primitive, we have to loop over the list to copy
                                 // contents, as we cannot use toArray() on primitive array types.
@@ -74,20 +74,20 @@ class ArrayQueryResultAdapter(
                                     name = indexVarName,
                                     typeName = componentTypeName,
                                     isMutable = true,
-                                    assignExpr = XCodeBlock.of("0")
+                                    assignExpr = XCodeBlock.of("0"),
                                 )
                                 val itrVar = scope.getTmpVar("_listItem")
                                 beginForEachControlFlow(
                                         iteratorVarName = listVarName,
                                         typeName = componentTypeName,
-                                        itemVarName = itrVar
+                                        itemVarName = itrVar,
                                     )
                                     .apply {
                                         addStatement(
                                             "%L[%L] = %L",
                                             tmpArrayResult,
                                             indexVarName,
-                                            itrVar
+                                            itrVar,
                                         )
                                         addStatement("%L++", indexVarName)
                                     }
@@ -98,7 +98,7 @@ class ArrayQueryResultAdapter(
                                 XCodeBlock.of(
                                     "%L.toArray(new %T[0])",
                                     listVarName,
-                                    componentTypeName
+                                    componentTypeName,
                                 )
                             }
                         }

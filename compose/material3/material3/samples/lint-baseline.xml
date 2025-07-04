@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="ConfigurationScreenWidthHeight"
+        message="Using Configuration.screenHeightDp instead of LocalWindowInfo.current.containerSize"
+        errorLine1="                if (configuration.screenHeightDp > 400) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TimePickerSamples.kt"/>
+    </issue>
+
+    <issue
+        id="ConfigurationScreenWidthHeight"
+        message="Using Configuration.screenHeightDp instead of LocalWindowInfo.current.containerSize"
+        errorLine1="                    configuration.screenHeightDp.dp > MinHeightForTimePicker"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TimePickerSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedMaterial3ScaffoldPaddingParameter"
+        message="Content padding parameter it is not used"
+        errorLine1="    ) {"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/FloatingActionButtonSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedMaterial3ScaffoldPaddingParameter"
+        message="Content padding parameter it is not used"
+        errorLine1="    ) {"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/FloatingActionButtonSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedMaterial3ScaffoldPaddingParameter"
+        message="Content padding parameter it is not used"
+        errorLine1="    ) {"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/FloatingActionButtonSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedMaterial3ScaffoldPaddingParameter"
+        message="Content padding parameter it is not used"
+        errorLine1="    ) {"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/FloatingActionButtonSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedMaterial3ScaffoldPaddingParameter"
+        message="Content padding parameter it is not used"
+        errorLine1="    ) {"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/FloatingActionButtonSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="                onValueChange = { onStateChange(!checkedState) },"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/CheckboxSamples.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="            content()"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/ColorSchemeSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var offsetX by remember { mutableStateOf(0f) }"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/DragHandleSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var itemCount by remember { mutableStateOf(15) }"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/LoadingIndicatorSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="            var itemCount by mutableStateOf(15)"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/PullToRefreshSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var itemCount by remember { mutableStateOf(15) }"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/PullToRefreshSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="            var clickCount by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/ScaffoldSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="            var clickCount by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/ScaffoldSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="            var clickCount by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/ScaffoldSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="            var clickCount by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/ScaffoldSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var selectedIndex by remember { mutableStateOf(0) }"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/SegmentedButtonSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var sliderPosition by rememberSaveable { mutableStateOf(0f) }"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/SliderSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var sliderPosition by rememberSaveable { mutableStateOf(0f) }"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/SliderSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var sliderPosition by rememberSaveable { mutableStateOf(0f) }"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/SliderSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var count by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/SurfaceSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var state by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/material3/samples/TabSamples.kt"/>
+    </issue>
+
+</issues>

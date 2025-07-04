@@ -17,7 +17,6 @@
 package androidx.compose.ui.inspection.proto
 
 import android.view.inspector.WindowInspector
-import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.inspection.ComposeLayoutInspector.CacheTree
 import androidx.compose.ui.inspection.LambdaLocation
 import androidx.compose.ui.inspection.inspector.InspectorNode
@@ -38,8 +37,6 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Rect
 internal fun InspectorNode.toComposableNode(context: ConversionContext): ComposableNode {
     return toNodeBuilder(context).build()
 }
-
-private val SELECTOR_EXPR = Regex("(\\\$(lambda-)?[0-9]+)+$")
 
 /**
  * Convert an [InspectorNode] to protobuf [ComposableNode]. If the reduceChildNesting option is set:
@@ -131,11 +128,13 @@ private fun InspectorNode.flags(): Int {
     if (inlined) {
         flags = flags or ComposableNode.Flags.INLINED_VALUE
     }
+    if (hasDrawModifier) {
+        flags = flags or ComposableNode.Flags.HAS_DRAW_MODIFIER_VALUE
+    }
+    if (hasChildDrawModifier) {
+        flags = flags or ComposableNode.Flags.HAS_CHILD_DRAW_MODIFIER_VALUE
+    }
     return flags
-}
-
-private fun ComposableNode.Builder.resetSystemFlag(): ComposableNode.Builder = apply {
-    flags = flags and ComposableNode.Flags.SYSTEM_CREATED_VALUE.inv()
 }
 
 fun ParameterType.convert(): Parameter.Type {
@@ -221,34 +220,19 @@ private fun Parameter.Builder.setFunctionType(value: Any?, stringTable: StringTa
     }
     val lambdaInstance = value[0] ?: return
     val location = LambdaLocation.resolve(lambdaInstance) ?: return
-    val lambdaClass = lambdaInstance::class.java
-    val lambdaClassName = lambdaClass.name
+    val function = value.getOrNull(1) as? String
     lambdaValue =
         LambdaValue.newBuilder()
             .apply {
-                packageName = stringTable.put(lambdaClassName.substringBeforeLast("."))
-                functionName =
-                    if (value.size == 2 && value[1] != null && value[1] is String)
-                        stringTable.put(value[1] as String)
-                    else 0
-                lambdaName = stringTable.put(findLambdaSelector(lambdaClassName))
+                packageName = stringTable.put(location.packageName)
+                functionName = function?.let { stringTable.put(it) } ?: 0
+                lambdaName = stringTable.put(location.lambdaName)
                 fileName = stringTable.put(location.fileName)
                 startLineNumber = location.startLine
                 endLineNumber = location.endLine
             }
             .build()
 }
-
-/**
- * Return the lambda selector from the [lambdaClassName].
- *
- * Example:
- * - className: com.example.composealertdialog.ComposableSingletons$MainActivityKt$lambda-10$1$2$2$1
- * - selector: lambda-10$1$2$2$1
- */
-@VisibleForTesting
-fun findLambdaSelector(lambdaClassName: String): String =
-    SELECTOR_EXPR.find(lambdaClassName)?.value?.substring(1) ?: ""
 
 fun NodeParameter.convert(stringTable: StringTable): Parameter {
     val nodeParam = this

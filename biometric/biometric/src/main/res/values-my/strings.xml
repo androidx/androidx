@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ပင်နံပါတ်၊ လော့ခ်ပုံစံ သို့မဟုတ် စကားဝှက် သတ်မှတ်မထားပါ။"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ဤစက်သည် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်ကို မပံ့ပိုးပါ။"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"လက်ဗွေ သင်္ကေတ"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"အကြောင်းအရာမြင်ကွင်းရှိ နောက်ထပ်ရွေးစရာများ ခလုတ်ကို နှိပ်လိုက်သည်။"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"လက်ဗွေ သုံးရန်"</string>
     <string name="use_face_label" msgid="6533512708069459542">"မျက်နှာမှတ်သော့ဖွင့်ခြင်းကို သုံးရန်"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"ဇီဝမက်ထရစ် အချက်အလက်များ သုံးရန်"</string>

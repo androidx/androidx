@@ -394,8 +394,8 @@ public abstract class ListenableWorker {
          * Returns an instance of {@link Result} that can be used to indicate that the work
          * completed with a permanent failure. Any work that depends on this will also be marked as
          * failed and will not be run. <b>If you need child workers to run, you need to use
-         * {@link #success()} or {@link #success(Data)}</b>; failure indicates a permanent stoppage
-         * of the chain of work.
+         * {@link #success()} or {@link #success(Data) success(Data)}</b>; failure indicates a
+         * permanent stoppage of the chain of work.
          *
          * @return An instance of {@link Result} indicating failure when executing work
          */
@@ -407,8 +407,8 @@ public abstract class ListenableWorker {
          * Returns an instance of {@link Result} that can be used to indicate that the work
          * completed with a permanent failure. Any work that depends on this will also be marked as
          * failed and will not be run. <b>If you need child workers to run, you need to use
-         * {@link #success()} or {@link #success(Data)}</b>; failure indicates a permanent stoppage
-         * of the chain of work.
+         * {@link #success()} or {@link #success(Data) success(Data)}</b>; failure indicates a
+         * permanent stoppage of the chain of work.
          *
          * @param outputData A {@link Data} object that can be used to keep track of why the work
          *                   failed

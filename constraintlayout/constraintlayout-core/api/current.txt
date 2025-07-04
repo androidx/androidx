@@ -2155,6 +2155,15 @@ package androidx.constraintlayout.core.state {
   }
 
   public class Dimension {
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Fixed(int);
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Fixed(Object!);
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Parent();
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Percent(Object!, float);
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Ratio(String!);
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Spread();
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Suggested(int);
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Suggested(Object!);
+    method @Deprecated public static androidx.constraintlayout.core.state.Dimension! Wrap();
     method public void apply(androidx.constraintlayout.core.state.State!, androidx.constraintlayout.core.widgets.ConstraintWidget!, int);
     method public static androidx.constraintlayout.core.state.Dimension! createFixed(int);
     method public static androidx.constraintlayout.core.state.Dimension! createFixed(Object!);

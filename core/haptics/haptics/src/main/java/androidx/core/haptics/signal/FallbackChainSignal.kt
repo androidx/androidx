@@ -31,7 +31,7 @@ import androidx.core.haptics.device.HapticDeviceProfile
 public class FallbackChainSignal(
 
     /** The ordered list of haptic signals that defines the fallback chain. */
-    public val signals: List<ResolvableSignal>,
+    public val signals: List<ResolvableSignal>
 ) : ResolvableSignal {
 
     public companion object {

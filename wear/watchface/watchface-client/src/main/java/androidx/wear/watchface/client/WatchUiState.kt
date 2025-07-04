@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo
             NotificationManager.INTERRUPTION_FILTER_ALL,
             NotificationManager.INTERRUPTION_FILTER_NONE,
             NotificationManager.INTERRUPTION_FILTER_PRIORITY,
-            NotificationManager.INTERRUPTION_FILTER_UNKNOWN
+            NotificationManager.INTERRUPTION_FILTER_UNKNOWN,
         ]
 )
 public annotation class InterruptionFilter
@@ -44,10 +44,15 @@ public annotation class InterruptionFilter
  *   [NotificationManager.INTERRUPTION_FILTER_ALL], [NotificationManager.INTERRUPTION_FILTER_NONE],
  *   [NotificationManager.INTERRUPTION_FILTER_PRIORITY],
  *   [NotificationManager.INTERRUPTION_FILTER_UNKNOWN]. @see [NotificationManager] for more details.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class WatchUiState(
     @get:JvmName("inAmbientMode") public val inAmbientMode: Boolean,
-    @InterruptionFilter public val interruptionFilter: Int
+    @InterruptionFilter public val interruptionFilter: Int,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

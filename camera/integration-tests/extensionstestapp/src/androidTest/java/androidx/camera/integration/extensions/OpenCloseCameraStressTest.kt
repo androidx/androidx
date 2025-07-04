@@ -149,7 +149,7 @@ class OpenCloseCameraStressTest(private val config: CameraXExtensionTestParams) 
      */
     private fun bindUseCase_unbindAll_toCheckCameraState_repeatedly(
         vararg useCases: UseCase,
-        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount()
+        repeatCount: Int = CameraXExtensionsTestUtil.getStressTestRepeatingCount(),
     ): Unit = runBlocking {
         repeat(repeatCount) {
             val openCameraLatch = CountDownLatch(1)

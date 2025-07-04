@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -39,7 +39,7 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-    implementation(project(":activity:activity-ktx"))
+    implementation("androidx.activity:activity:1.10.1")
     implementation("androidx.core:core-ktx")
     implementation(libs.material)
     implementation(project(":profileinstaller:profileinstaller"))

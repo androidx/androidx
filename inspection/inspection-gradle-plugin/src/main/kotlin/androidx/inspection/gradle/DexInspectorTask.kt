@@ -122,7 +122,7 @@ fun Project.registerBundleInspectorTask(
     variant: Variant,
     extension: BaseExtension,
     jarName: String?,
-    jar: TaskProvider<out Jar>
+    jar: TaskProvider<out Jar>,
 ): TaskProvider<Zip> {
     val name = jarName ?: "${project.name}.jar"
     val output = taskWorkingDir(variant, "dexedInspector").map { it.file(name) }
@@ -144,7 +144,7 @@ fun Project.registerBundleInspectorTask(
                         it.attributes {
                             it.attribute(
                                 Attribute.of("artifactType", String::class.java),
-                                "android-classes"
+                                "android-classes",
                             )
                         }
                     }

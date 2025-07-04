@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
  * @param compileTask The task that compiles the sources and build .o file for each source file.
  * @param archiveTask The task that will archive the output of the [compileTask] into a single .a
  *   file.
- * @param sharedLibTask The task that will created a shared library from the output of [compileTask]
+ * @param linkerTask The task that will created a shared library from the output of [compileTask]
  *   that also optionally links with [linkedObjects]
  * @param sources List of source files for the compilation.
  * @param includes List of include directories containing .h files for the compilation.
@@ -48,14 +48,14 @@ internal constructor(
     val konanTarget: KonanTarget,
     internal val compileTask: TaskProvider<ClangCompileTask>,
     internal val archiveTask: TaskProvider<ClangArchiveTask>,
-    internal val sharedLibTask: TaskProvider<ClangSharedLibraryTask>,
+    internal val linkerTask: TaskProvider<ClangLinkerTask>,
     val sources: ConfigurableFileCollection,
     val includes: ConfigurableFileCollection,
     val linkedObjects: ConfigurableFileCollection,
     @Suppress("unused") // used via build.gradle
     val linkerArgs: ListProperty<String>,
     @Suppress("unused") // used via build.gradle
-    val freeArgs: ListProperty<String>
+    val freeArgs: ListProperty<String>,
 ) : Named {
     override fun getName(): String = konanTarget.name
 
@@ -113,10 +113,7 @@ internal constructor(
                     listOf("darwin-x86/include", "darwin-x86/include/darwin")
                 }
                 Family.LINUX -> {
-                    listOf(
-                        "linux-x86/include",
-                        "linux-x86/include/linux",
-                    )
+                    listOf("linux-x86/include", "linux-x86/include/linux")
                 }
                 else -> error("unsupported family ($konanTarget) for JNI compilation")
             }

@@ -48,6 +48,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -84,10 +85,6 @@ import kotlinx.coroutines.yield
 /**
  * Composes a hero card rotator to highlight a piece of content.
  *
- * Note: The animations and focus management features have been dropped temporarily due to some
- * technical challenges. If you need them, consider using the previous version of the library
- * (1.0.0-alpha10) or kindly wait until the next alpha version (1.1.0-alpha01).
- *
  * Examples:
  *
  * @sample androidx.tv.material3.samples.SimpleCarousel
@@ -104,6 +101,7 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current item among all items.
  * @param content defines the items for a given index.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
@@ -120,7 +118,7 @@ fun Carousel(
             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
         )
     },
-    content: @Composable AnimatedContentScope.(index: Int) -> Unit
+    content: @Composable AnimatedContentScope.(index: Int) -> Unit,
 ) {
     CarouselStateUpdater(carouselState, itemCount)
     var focusState: FocusState? by remember { mutableStateOf(null) }
@@ -138,28 +136,28 @@ fun Carousel(
         itemCount = itemCount,
         carouselState = carouselState,
         doAutoScroll = shouldPerformAutoScroll(focusState, accessibilityManager),
-        onAutoScrollChange = { isAutoScrollActive = it }
+        onAutoScrollChange = { isAutoScrollActive = it },
     )
 
     Box(
         modifier =
             modifier
                 .carouselSemantics(itemCount = itemCount, state = carouselState)
-                // .bringIntoViewIfChildrenAreFocused()
+                .bringIntoViewIfChildrenAreFocused()
                 .focusRequester(carouselOuterBoxFocusRequester)
                 .onFocusChanged {
                     focusState = it
                     // When the carousel gains focus for the first time
-                    //            if (it.isFocused && isAutoScrollActive) {
-                    //                focusManager.moveFocus(FocusDirection.Enter)
-                    //            }
+                    if (it.isFocused && isAutoScrollActive) {
+                        focusManager.moveFocus(FocusDirection.Enter)
+                    }
                 }
                 .handleKeyEvents(
                     carouselState = carouselState,
                     outerBoxFocusRequester = carouselOuterBoxFocusRequester,
                     focusManager = focusManager,
                     itemCount = itemCount,
-                    isLtr = isLtr
+                    isLtr = isLtr,
                 ) {
                     focusState
                 }
@@ -174,7 +172,7 @@ fun Carousel(
                     contentTransformStartToEnd
                 }
             },
-            label = "CarouselAnimation"
+            label = "CarouselAnimation",
         ) { activeItemIndex ->
             LaunchedEffect(Unit) {
                 if (accessibilityManager.isEnabled) {
@@ -184,7 +182,7 @@ fun Carousel(
                     // Outer box is focused
                     if (!isAutoScrollActive && focusState?.isFocused == true) {
                         carouselOuterBoxFocusRequester.requestFocus()
-                        //                        focusManager.moveFocus(FocusDirection.Enter)
+                        focusManager.moveFocus(FocusDirection.Enter)
                     }
                 }
             }
@@ -203,7 +201,7 @@ fun Carousel(
 @Composable
 private fun shouldPerformAutoScroll(
     focusState: FocusState?,
-    accessibilityManager: AccessibilityManager
+    accessibilityManager: AccessibilityManager,
 ): Boolean {
     val carouselIsFocused = focusState?.isFocused ?: false
     val carouselHasFocus = focusState?.hasFocus ?: false
@@ -212,9 +210,8 @@ private fun shouldPerformAutoScroll(
     return !accessibilityManager.isEnabled && !(carouselIsFocused || carouselHasFocus)
 }
 
-// @OptIn(ExperimentalAnimationApi::class)
 private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspend () -> Unit) {
-    //    snapshotFlow { transition.currentState == transition.targetState }.first { it }
+    snapshotFlow { transition.currentState == transition.targetState }.first { it }
     action.invoke()
 }
 
@@ -249,16 +246,14 @@ private fun AutoScrollSideEffect(
     onAutoScrollChange(doAutoScroll)
 }
 
-@OptIn(
-    ExperimentalTvMaterial3Api::class,
-)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,
     outerBoxFocusRequester: FocusRequester,
     focusManager: FocusManager,
     itemCount: Int,
     isLtr: Boolean,
-    currentCarouselBoxFocusState: () -> FocusState?
+    currentCarouselBoxFocusState: () -> FocusState?,
 ): Modifier =
     onKeyEvent {
             fun showPreviousItem() {
@@ -306,7 +301,7 @@ private fun Modifier.handleKeyEvents(
                 // Ignore KeyUp action type
                 it.type == KeyUp -> KeyEventPropagation.ContinuePropagation
                 it.key == Key.Back -> {
-                    //            focusManager.moveFocus(FocusDirection.Exit)
+                    focusManager.moveFocus(FocusDirection.Exit)
                     KeyEventPropagation.ContinuePropagation
                 }
                 it.key == Key.DirectionLeft -> handledHorizontalFocusMove(Left)
@@ -316,14 +311,15 @@ private fun Modifier.handleKeyEvents(
         }
         .focusProperties {
             // allow exit along horizontal axis only for first and last slide.
-            //    exit = {
-            //        when {
-            //            shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
-            //                FocusRequester.Default
-            //
-            //            else -> FocusRequester.Cancel
-            //        }
-            //    }
+            // Suppressed the deprecation because onExit is not available in compose.ui 1.7.x
+            @Suppress("DEPRECATION")
+            exit = {
+                when {
+                    shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
+                        FocusRequester.Default
+                    else -> FocusRequester.Cancel
+                }
+            }
         }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -331,7 +327,7 @@ private fun shouldFocusExitCarousel(
     focusDirection: FocusDirection,
     carouselState: CarouselState,
     itemCount: Int,
-    isLtr: Boolean
+    isLtr: Boolean,
 ): Boolean =
     when {
         // LTR: Don't exit if not first item
@@ -501,9 +497,9 @@ object CarouselDefaults {
                         .background(
                             color = if (isActive) activeColor else inactiveColor,
                             shape = CircleShape,
-                        ),
+                        )
             )
-        }
+        },
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(spacing),
@@ -534,7 +530,7 @@ internal fun Modifier.carouselSemantics(itemCount: Int, state: CarouselState): M
                         // Last slide index represents the max. value
                         (itemCount - 1).toFloat()
                     },
-                    reverseScrolling = false
+                    reverseScrolling = false,
                 )
 
             val scrollByAction: ((x: Float, y: Float) -> Boolean) = { x, _ ->

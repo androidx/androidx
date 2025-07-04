@@ -22,9 +22,8 @@ public class MyCallbackClientProxy(
         remote.onCompleteInterface(MyInterfaceStubDelegate(myInterface, context))
     }
 
-    public override fun onCompleteUiInterface(myUiInterface: MyUiInterface) {
-        remote.onCompleteUiInterface(IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(myUiInterface.toCoreLibInfo(context),
-                MyUiInterfaceStubDelegate(myUiInterface, context)))
+    public override fun onCompleteUiInterface(myUiInterface: MyUiInterface, mySharedUiInterface: MySharedUiInterface) {
+        remote.onCompleteUiInterface(IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(myUiInterface.toCoreLibInfo(context), MyUiInterfaceStubDelegate(myUiInterface, context)), IMySharedUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(mySharedUiInterface.toCoreLibInfo(), MySharedUiInterfaceStubDelegate(mySharedUiInterface, context)))
     }
 
     public override suspend fun returnAValueFromCallback(): Response = suspendCancellableCoroutine {

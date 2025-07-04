@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -60,15 +60,6 @@
         message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        private val exif = Exif.createFromFile(file)"
         errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        private val exif = Exif.createFromFile(file)"
-        errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
     </issue>
@@ -141,15 +132,6 @@
         message="Exif.createFromInputStream can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            exif = Exif.createFromInputStream(inputStream!!)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Exif.createFromInputStream can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            exif = Exif.createFromInputStream(inputStream!!)"
-        errorLine2="                                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
     </issue>

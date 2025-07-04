@@ -79,7 +79,7 @@ internal constructor(
             testScope: TestScope,
             testContext: Context,
             cameraMetadata: CameraMetadata,
-            graphConfig: CameraGraph.Config
+            graphConfig: CameraGraph.Config,
         ): CameraGraphSimulator {
             val cameraPipeSimulator =
                 CameraPipeSimulator.create(testScope, testContext, listOf(cameraMetadata))
@@ -197,11 +197,7 @@ internal constructor(
     }
 
     /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */
-    public fun simulateImage(
-        streamId: StreamId,
-        imageTimestamp: Long,
-        outputId: OutputId? = null,
-    ) {
+    public fun simulateImage(streamId: StreamId, imageTimestamp: Long, outputId: OutputId? = null) {
         check(simulateImageInternal(streamId, outputId, imageTimestamp)) {
             "Failed to simulate image for $streamId on $this!"
         }
@@ -216,7 +212,7 @@ internal constructor(
     public fun simulateImages(
         request: Request,
         imageTimestamp: Long,
-        physicalCameraId: CameraId? = null
+        physicalCameraId: CameraId? = null,
     ) {
         var imageSimulated = false
         for (streamId in request.streams) {
@@ -239,7 +235,7 @@ internal constructor(
     private fun simulateImageInternal(
         streamId: StreamId,
         outputId: OutputId?,
-        imageTimestamp: Long
+        imageTimestamp: Long,
     ): Boolean {
         val stream = streams[streamId]
         checkNotNull(stream) { "Cannot simulate an image for invalid $streamId on $this!" }
@@ -291,13 +287,13 @@ internal constructor(
         public fun simulatePartialCaptureResult(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-            extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
+            extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
         ) {
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
-                    extraMetadata = extraMetadata
+                    extraMetadata = extraMetadata,
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -309,19 +305,19 @@ internal constructor(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
-            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap()
+            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap(),
         ) {
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
-                    extraMetadata = extraMetadata
+                    extraMetadata = extraMetadata,
                 )
             val frameInfo =
                 FakeFrameInfo(
                     metadata = metadata,
                     requestMetadata,
-                    createFakePhysicalMetadata(physicalResultMetadata)
+                    createFakePhysicalMetadata(physicalResultMetadata),
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -333,19 +329,19 @@ internal constructor(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
-            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap()
+            physicalResultMetadata: Map<CameraId, Map<CaptureResult.Key<*>, Any?>> = emptyMap(),
         ) {
             val metadata =
                 createFakeMetadataFor(
                     resultMetadata = resultMetadata,
                     extraResultMetadata = extraResultMetadata,
-                    extraMetadata = extraMetadata
+                    extraMetadata = extraMetadata,
                 )
             val frameInfo =
                 FakeFrameInfo(
                     metadata = metadata,
                     requestMetadata,
-                    createFakePhysicalMetadata(physicalResultMetadata)
+                    createFakePhysicalMetadata(physicalResultMetadata),
                 )
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -388,7 +384,7 @@ internal constructor(
          */
         public fun simulateImages(
             imageTimestamp: Long? = null,
-            physicalCameraId: CameraId? = null
+            physicalCameraId: CameraId? = null,
         ) {
             val timestamp = imageTimestamp ?: timestampNanos
             checkNotNull(timestamp) {
@@ -418,7 +414,7 @@ internal constructor(
                 frameNumber = frameNumber,
                 resultMetadata = resultMetadata.toMap(),
                 extraResultMetadata = extraResultMetadata.toMap(),
-                extraMetadata = extraMetadata.toMap()
+                extraMetadata = extraMetadata.toMap(),
             )
     }
 }

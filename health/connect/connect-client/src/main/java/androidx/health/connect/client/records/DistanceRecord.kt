@@ -38,7 +38,7 @@ public class DistanceRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Distance in [Length] unit. Required field. Valid range: 0-1000000 meters. */
     public val distance: Length,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
 
     init {

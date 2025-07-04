@@ -321,7 +321,7 @@ public class ActivityOptionsCompat {
             if (Build.VERSION.SDK_INT >= 26) {
                 return mActivityOptions.getLaunchDisplayId();
             } else {
-                return 0;
+                return Display.INVALID_DISPLAY;
             }
         }
 

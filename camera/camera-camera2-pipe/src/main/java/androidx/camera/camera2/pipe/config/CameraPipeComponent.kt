@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.config
 
 import android.app.admin.DevicePolicyManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendFactory
@@ -30,7 +31,6 @@ import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
-import androidx.camera.camera2.pipe.compat.AudioRestrictionControllerImpl
 import androidx.camera.camera2.pipe.compat.DevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.SystemTimeSource
@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import androidx.camera.camera2.pipe.internal.CameraDevicesImpl
+import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
 import androidx.camera.camera2.pipe.media.ImageReaderImageSources
 import androidx.camera.camera2.pipe.media.ImageSources
 import dagger.Binds
@@ -55,16 +56,13 @@ import javax.inject.Singleton
 @Qualifier internal annotation class CameraPipeContext
 
 @Singleton
-@Component(
-    modules =
-        [
-            CameraPipeConfigModule::class,
-            CameraPipeModules::class,
-            Camera2Module::class,
-        ]
-)
+@Component(modules = [CameraPipeModule::class, CameraPipeConfigModule::class, Camera2Module::class])
 internal interface CameraPipeComponent {
+    fun cameraPipeLifetime(): CameraPipeLifetime
+
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
+
+    fun frameGraphComponentBuilder(): FrameGraphComponent.Builder
 
     fun cameras(): CameraDevices
 
@@ -75,7 +73,10 @@ internal interface CameraPipeComponent {
     fun cameraAudioRestrictionController(): AudioRestrictionController
 }
 
-@Module(includes = [ThreadConfigModule::class], subcomponents = [CameraGraphComponent::class])
+@Module(
+    includes = [ThreadConfigModule::class],
+    subcomponents = [CameraGraphComponent::class, FrameGraphComponent::class],
+)
 internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
     @Provides fun provideCameraPipeConfig(): CameraPipe.Config = config
 
@@ -88,7 +89,7 @@ internal class CameraPipeConfigModule(private val config: CameraPipe.Config) {
 }
 
 @Module
-internal abstract class CameraPipeModules {
+internal abstract class CameraPipeModule {
     @Binds abstract fun bindCameras(impl: CameraDevicesImpl): CameraDevices
 
     @Binds abstract fun bindTimeSource(timeSource: SystemTimeSource): TimeSource
@@ -122,7 +123,7 @@ internal abstract class CameraPipeModules {
         fun provideCameraContext(
             @CameraPipeContext cameraPipeContext: Context,
             threads: Threads,
-            cameraBackends: CameraBackends
+            cameraBackends: CameraBackends,
         ): CameraContext =
             object : CameraContext {
                 override val appContext: Context = cameraPipeContext
@@ -132,11 +133,17 @@ internal abstract class CameraPipeModules {
 
         @Singleton
         @Provides
+        fun providePackageManager(@CameraPipeContext cameraPipeContext: Context): PackageManager =
+            cameraPipeContext.packageManager
+
+        @Singleton
+        @Provides
         fun provideCameraBackends(
             config: CameraPipe.Config,
             @DefaultCameraBackend defaultCameraBackend: Provider<CameraBackend>,
             @CameraPipeContext cameraPipeContext: Context,
             threads: Threads,
+            cameraPipeLifetime: CameraPipeLifetime,
         ): CameraBackends {
             // This is intentionally lazy. If an internalBackend is defined as part of the
             // CameraPipe configuration, we will never create the default cameraPipeCameraBackend.
@@ -158,13 +165,19 @@ internal abstract class CameraPipeModules {
                 "Failed to find $defaultBackendId in the list of available CameraPipe backends! " +
                     "Available values are ${allBackends.keys}"
             }
-            return CameraBackendsImpl(defaultBackendId, allBackends, cameraPipeContext, threads)
+            return CameraBackendsImpl(
+                defaultBackendId,
+                allBackends,
+                cameraPipeContext,
+                threads,
+                cameraPipeLifetime,
+            )
         }
 
         @Provides
         fun configureImageSources(
             imageReaderImageSources: ImageReaderImageSources,
-            cameraPipeConfig: CameraPipe.Config
+            cameraPipeConfig: CameraPipe.Config,
         ): ImageSources {
             if (cameraPipeConfig.imageSources != null) {
                 return cameraPipeConfig.imageSources
@@ -173,9 +186,5 @@ internal abstract class CameraPipeModules {
         }
 
         @Singleton @Provides fun provideCameraSurfaceManager() = CameraSurfaceManager()
-
-        @Singleton
-        @Provides
-        fun provideAudioRestrictionController() = AudioRestrictionControllerImpl()
     }
 }

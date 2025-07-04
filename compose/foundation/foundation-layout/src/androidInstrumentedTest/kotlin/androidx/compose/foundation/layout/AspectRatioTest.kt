@@ -101,24 +101,24 @@ class AspectRatioTest : LayoutTest() {
         assertEquals(IntSize(10, 10), getSize(1f, Constraints(maxWidth = 10, maxHeight = 30), true))
         assertEquals(
             IntSize(10, 20),
-            getSize(0.5f, Constraints(maxWidth = 10, maxHeight = 30), true)
+            getSize(0.5f, Constraints(maxWidth = 10, maxHeight = 30), true),
         )
         assertEquals(IntSize(5, 10), getSize(0.5f, Constraints(minWidth = 5, minHeight = 10), true))
         assertEquals(
             IntSize(10, 20),
-            getSize(0.5f, Constraints(minWidth = 10, minHeight = 5), true)
+            getSize(0.5f, Constraints(minWidth = 10, minHeight = 5), true),
         )
         assertEquals(IntSize(10, 20), getSize(0.5f, Constraints.fixed(20, 20), true))
         assertEquals(
             IntSize(25, 50),
-            getSize(0.5f, Constraints(minWidth = 20, minHeight = 50), true)
+            getSize(0.5f, Constraints(minWidth = 20, minHeight = 50), true),
         )
     }
 
     private fun getSize(
         aspectRatio: Float,
         childContraints: Constraints,
-        matchHeightConstraintsFirst: Boolean = false
+        matchHeightConstraintsFirst: Boolean = false,
     ): IntSize {
         val positionedLatch = CountDownLatch(1)
         val size = Ref<IntSize>()
@@ -150,7 +150,7 @@ class AspectRatioTest : LayoutTest() {
         assertThat(modifier.inspectableElements.asIterable())
             .containsExactly(
                 ValueElement("ratio", 2.0f),
-                ValueElement("matchHeightConstraintsFirst", false)
+                ValueElement("matchHeightConstraintsFirst", false),
             )
     }
 }

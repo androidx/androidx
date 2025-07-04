@@ -100,7 +100,7 @@ class ConflatedEventBusTest {
 
     private class Collector<T : Any>(
         private val scope: CoroutineScope,
-        private val bus: ConflatedEventBus<T>
+        private val bus: ConflatedEventBus<T>,
     ) {
         private val _values = mutableListOf<T>()
         val values

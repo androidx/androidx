@@ -35,7 +35,7 @@ internal class AutoSizePreset(
 
     override fun TextAutoSizeLayoutScope.getFontSize(
         constraints: Constraints,
-        text: AnnotatedString
+        text: AnnotatedString,
     ): TextUnit {
         var optimalFontSize = fallbackFontSize
         for (size in presets) {

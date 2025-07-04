@@ -22,58 +22,63 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
-import androidx.build.KotlinTarget
+import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
 
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-    id("com.google.protobuf")
 }
 
 dependencies {
+    api(libs.jspecify)
     api(libs.kotlinStdlib)
     api(project(":xr:arcore:arcore"))
     api(project(":xr:runtime:runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.savedstate:savedstate:1.2.1")
+    implementation(libs.androidx.core)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.activity:activity:1.9.3")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
     implementation(project(":xr:runtime:runtime-openxr"))
-    implementation("com.google.ar:impress:0.0.1")
-    implementation(libs.guavaListenableFuture)
-    implementation(libs.guavaAndroid)
-    implementation(libs.protobufLite)
+    implementation("com.google.ar:impress:0.0.4")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
+    testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
-    testImplementation(libs.mockitoCore)
-    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(project(":xr:scenecore:scenecore-testing"))
     testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
 
-    // For androidx.xr.extensions.
-    compileOnly(project(':xr:xr-stubs'))
-    testImplementation(project(':xr:xr-stubs'))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtTruth)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid5)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
+    androidTestImplementation(project(":xr:scenecore:scenecore-testing"))
+
+    // For com.android.xr.extensions.
+    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    testCompileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
+    testCompileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
 }
 
 android {
     defaultConfig {
         consumerProguardFiles 'proguard-rules.pro'
-        // TODO: This should be lower, possibly 21.
-        //       Address API calls that require higher versions.
-        minSdkVersion 30
+        minSdk = 24
     }
     sourceSets {
         test {
@@ -81,19 +86,20 @@ android {
                 srcDirs += ["src/test/java/androidx/xr/scenecore/impl/fake_assets"]
             }
         }
+        androidTest {
+            jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
+        }
     }
-    namespace "androidx.xr.scenecore"
+    namespace = "androidx.xr.scenecore"
 }
 
 androidx {
     name = "XR SceneCore"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Scene building libraries for the androidx.xr namespace."
 
     // TODO: b/379715750 - Remove this flag once the deprecated methods have been removed from the API.
     failOnDeprecationWarnings = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

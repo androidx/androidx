@@ -36,7 +36,7 @@ class JetsnackStartupBenchmark(val startupMode: StartupMode, val compilationMode
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = JETSNACK_TARGET_PACKAGE_NAME
+            packageName = JETSNACK_TARGET_PACKAGE_NAME,
         ) {
             this.action = action
         }

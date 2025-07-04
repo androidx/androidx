@@ -67,7 +67,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
     @get:Rule
     val cameraPipeConfigTestRule =
         CameraPipeConfigTestRule(
-            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
         )
 
     @get:Rule
@@ -80,7 +80,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                 } else {
                     CameraPipeConfig.defaultConfig()
                 }
-            )
+            ),
         )
 
     @get:Rule
@@ -94,11 +94,11 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         //  related to the attached bug.
         assumeFalse(
             "Cuttlefish does not correctly handle rotating. Unable to test.",
-            Build.MODEL.contains("Cuttlefish")
+            Build.MODEL.contains("Cuttlefish"),
         )
         assumeFalse(
             "Known issue on this device. Please see b/199115443",
-            Build.MODEL.contains("k61v1_basic_ref")
+            Build.MODEL.contains("k61v1_basic_ref"),
         )
 
         CoreAppTestUtil.assumeCompatibleDevice()
@@ -175,7 +175,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                 scenario.withActivity {
                     Pair(
                         getSensorRotationRelativeToCaptureTargetRotation(),
-                        mCaptureResult?.getRotation()
+                        mCaptureResult?.getRotation(),
                     )
                 }
             val areRotationsEqual = sensorToTargetRotation == imageRotationDegrees
@@ -227,14 +227,14 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         val analysisRunning = withActivity { mAnalysisRunning }
         Logger.w(
             LOG_TAG,
-            "Starting to wait for image analysis frames on thread [${Thread.currentThread().name}]"
+            "Starting to wait for image analysis frames on thread [${Thread.currentThread().name}]",
         )
         assertWithMessage("Timed out waiting on image analysis frames on $analysisRunning")
             .that(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS))
             .isTrue()
         Logger.w(
             LOG_TAG,
-            "No longer waiting for image analysis frames on thread [${Thread.currentThread().name}]"
+            "No longer waiting for image analysis frames on thread [${Thread.currentThread().name}]",
         )
     }
 
@@ -277,17 +277,22 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                 CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,
                 CameraActivity.IMAGE_CAPTURE_MODE_FILE,
                 CameraActivity.IMAGE_CAPTURE_MODE_OUTPUT_STREAM,
-                CameraActivity.IMAGE_CAPTURE_MODE_MEDIA_STORE
+                CameraActivity.IMAGE_CAPTURE_MODE_MEDIA_STORE,
             )
+
         @JvmStatic
         protected val lensFacingList =
-            arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+            arrayOf(
+                CameraSelector.LENS_FACING_BACK,
+                CameraSelector.LENS_FACING_FRONT,
+                CameraSelector.LENS_FACING_EXTERNAL,
+            )
 
         @JvmStatic
         protected val cameraXConfigList =
             arrayOf(
                 CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
-                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
+                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
             )
 
         @JvmStatic lateinit var testCameraRule: CameraUtil.PreTestCamera

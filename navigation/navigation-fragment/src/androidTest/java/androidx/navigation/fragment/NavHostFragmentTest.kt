@@ -42,7 +42,7 @@ class NavHostFragmentTest(private val activityClass: Class<NavigationBaseActivit
         fun data(): Array<Class<out NavigationBaseActivity>> {
             return arrayOf(
                 NavigationActivity::class.java,
-                NavigationActivityWithFragmentTag::class.java
+                NavigationActivityWithFragmentTag::class.java,
             )
         }
     }

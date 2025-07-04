@@ -18,10 +18,11 @@ package androidx.constraintlayout.core.state.helpers;
 
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.UNKNOWN;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.state.HelperReference;
 import androidx.constraintlayout.core.state.State;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 
@@ -55,13 +56,13 @@ public class ChainReference extends HelperReference {
     private HashMap<String, Float> mMapPreGoneMargin;
     private HashMap<String, Float> mMapPostGoneMargin;
 
-    protected @NonNull State.Chain mStyle = State.Chain.SPREAD;
+    protected State.@NonNull Chain mStyle = State.Chain.SPREAD;
 
-    public ChainReference(@NonNull State state, @NonNull State.Helper type) {
+    public ChainReference(@NonNull State state, State.@NonNull Helper type) {
         super(state, type);
     }
 
-    public @NonNull State.Chain getStyle() {
+    public State.@NonNull Chain getStyle() {
         return State.Chain.SPREAD;
     }
 
@@ -71,8 +72,7 @@ public class ChainReference extends HelperReference {
      * @param style Defines the way the chain will lay out its elements
      * @return This same instance
      */
-    @NonNull
-    public ChainReference style(@NonNull State.Chain style) {
+    public @NonNull ChainReference style(State.@NonNull Chain style) {
         mStyle = style;
         return this;
     }
@@ -191,9 +191,8 @@ public class ChainReference extends HelperReference {
     }
 
     // @TODO: add description
-    @NonNull
     @Override
-    public ChainReference bias(float bias) {
+    public @NonNull ChainReference bias(float bias) {
         mBias = bias;
         return this;
     }

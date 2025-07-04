@@ -89,9 +89,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * <a href="https://m3.material.io/components/segmented-buttons/overview" class="external"
- * target="_blank">Material Segmented Button</a>. Segmented buttons help people select options,
- * switch views, or sort elements.
+ * [Material Design segmented Button](https://m3.material.io/components/segmented-buttons/overview)
+ *
+ * Segmented buttons help people select options, switch views, or sort elements.
  *
  * A default Toggleable Segmented Button. Also known as Outlined Segmented Button. See
  * [Modifier.toggleable].
@@ -154,7 +154,7 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
                 .interactionZIndex(checked, interactionCount)
                 .defaultMinSize(
                     minWidth = ButtonDefaults.MinWidth,
-                    minHeight = ButtonDefaults.MinHeight
+                    minHeight = ButtonDefaults.MinHeight,
                 ),
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -163,16 +163,16 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
         color = containerColor,
         contentColor = contentColor,
         border = border,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         SegmentedButtonContent(icon = icon, content = label, contentPadding = contentPadding)
     }
 }
 
 /**
- * <a href="https://m3.material.io/components/segmented-buttons/overview" class="external"
- * target="_blank">Material Segmented Button</a>. Segmented buttons help people select options,
- * switch views, or sort elements.
+ * [Material Design segmented button](https://m3.material.io/components/segmented-buttons/overview)
+ *
+ * Segmented buttons help people select options, switch views, or sort elements.
  *
  * A default Toggleable Segmented Button. Also known as Outlined Segmented Button. See
  * [Modifier.selectable].
@@ -234,7 +234,7 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
                 .interactionZIndex(selected, interactionCount)
                 .defaultMinSize(
                     minWidth = ButtonDefaults.MinWidth,
-                    minHeight = ButtonDefaults.MinHeight
+                    minHeight = ButtonDefaults.MinHeight,
                 )
                 .semantics { role = Role.RadioButton },
         selected = selected,
@@ -244,7 +244,7 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
         color = containerColor,
         contentColor = contentColor,
         border = border,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         SegmentedButtonContent(icon, label, contentPadding)
     }
@@ -276,7 +276,7 @@ fun MultiChoiceSegmentedButtonRowScope.SegmentedButton(
         contentPadding = SegmentedButtonDefaults.ContentPadding,
         interactionSource = interactionSource,
         icon = icon,
-        label = label
+        label = label,
     )
 }
 
@@ -306,13 +306,12 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
         contentPadding = SegmentedButtonDefaults.ContentPadding,
         interactionSource = interactionSource,
         icon = icon,
-        label = label
+        label = label,
     )
 }
 
 /**
- * <a href="https://m3.material.io/components/segmented-buttons/overview" class="external"
- * target="_blank">Material Segmented Button</a>.
+ * [Material Design segmented button](https://m3.material.io/components/segmented-buttons/overview)
  *
  * A Layout to correctly position and size [SegmentedButton]s in a Row. It handles overlapping items
  * so that strokes of the item are correctly on top of each other. [SingleChoiceSegmentedButtonRow]
@@ -329,7 +328,7 @@ fun SingleChoiceSegmentedButtonRowScope.SegmentedButton(
 fun SingleChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
     space: Dp = SegmentedButtonDefaults.BorderWidth,
-    content: @Composable SingleChoiceSegmentedButtonRowScope.() -> Unit
+    content: @Composable SingleChoiceSegmentedButtonRowScope.() -> Unit,
 ) {
     Row(
         modifier =
@@ -338,7 +337,7 @@ fun SingleChoiceSegmentedButtonRow(
                 .defaultMinSize(minHeight = OutlinedSegmentedButtonTokens.ContainerHeight)
                 .width(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(-space),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val scope = remember { SingleChoiceSegmentedButtonScopeWrapper(this) }
         scope.content()
@@ -346,8 +345,7 @@ fun SingleChoiceSegmentedButtonRow(
 }
 
 /**
- * <a href="https://m3.material.io/components/segmented-buttons/overview" class="external"
- * target="_blank">Material Segmented Button</a>.
+ * [Material Design segmented button](https://m3.material.io/components/segmented-buttons/overview)
  *
  * A Layout to correctly position, size, and add semantics to [SegmentedButton]s in a Row. It
  * handles overlapping items so that strokes of the item are correctly on top of each other.
@@ -366,7 +364,7 @@ fun SingleChoiceSegmentedButtonRow(
 fun MultiChoiceSegmentedButtonRow(
     modifier: Modifier = Modifier,
     space: Dp = SegmentedButtonDefaults.BorderWidth,
-    content: @Composable MultiChoiceSegmentedButtonRowScope.() -> Unit
+    content: @Composable MultiChoiceSegmentedButtonRowScope.() -> Unit,
 ) {
     Row(
         modifier =
@@ -374,7 +372,7 @@ fun MultiChoiceSegmentedButtonRow(
                 .defaultMinSize(minHeight = OutlinedSegmentedButtonTokens.ContainerHeight)
                 .width(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(-space),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val scope = remember { MultiChoiceSegmentedButtonScopeWrapper(this) }
         scope.content()
@@ -400,7 +398,7 @@ private fun SegmentedButtonContent(
             Layout(
                 modifier = Modifier.height(IntrinsicSize.Min),
                 contents = listOf(icon, content),
-                measurePolicy = measurePolicy
+                measurePolicy = measurePolicy,
             )
         }
     }
@@ -408,14 +406,14 @@ private fun SegmentedButtonContent(
 
 internal class SegmentedButtonContentMeasurePolicy(
     val scope: CoroutineScope,
-    val animationSpec: AnimationSpec<Int>
+    val animationSpec: AnimationSpec<Int>,
 ) : MultiContentMeasurePolicy {
     var animatable: Animatable<Int, AnimationVector1D>? = null
     private var initialOffset: Int? = null
 
     override fun MeasureScope.measure(
         measurables: List<List<Measurable>>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val (iconMeasurables, contentMeasurables) = measurables
         val iconPlaceables = iconMeasurables.fastMap { it.measure(constraints) }
@@ -542,7 +540,7 @@ object SegmentedButtonDefaults {
             disabledActiveBorderColor = disabledActiveBorderColor,
             disabledInactiveContainerColor = disabledInactiveContainerColor,
             disabledInactiveContentColor = disabledInactiveContentColor,
-            disabledInactiveBorderColor = disabledInactiveBorderColor
+            disabledInactiveBorderColor = disabledInactiveBorderColor,
         )
 
     internal val ColorScheme.defaultSegmentedButtonColors: SegmentedButtonColors
@@ -562,8 +560,11 @@ object SegmentedButtonDefaults {
                         disabledActiveBorderColor =
                             fromToken(OutlineColor).copy(alpha = DisabledOutlineOpacity),
                         disabledInactiveContainerColor = Color.Transparent,
-                        disabledInactiveContentColor = fromToken(DisabledLabelTextColor),
-                        disabledInactiveBorderColor = fromToken(OutlineColor),
+                        disabledInactiveContentColor =
+                            fromToken(DisabledLabelTextColor)
+                                .copy(alpha = DisabledLabelTextOpacity),
+                        disabledInactiveBorderColor =
+                            fromToken(OutlineColor).copy(alpha = DisabledOutlineOpacity),
                     )
                     .also { defaultSegmentedButtonColorsCached = it }
         }
@@ -615,7 +616,7 @@ object SegmentedButtonDefaults {
         Icon(
             imageVector = Icons.Filled.Check,
             contentDescription = null,
-            modifier = Modifier.size(IconSize)
+            modifier = Modifier.size(IconSize),
         )
     }
 
@@ -631,7 +632,7 @@ object SegmentedButtonDefaults {
     fun Icon(
         active: Boolean,
         activeContent: @Composable () -> Unit = { ActiveIcon() },
-        inactiveContent: (@Composable () -> Unit)? = null
+        inactiveContent: (@Composable () -> Unit)? = null,
     ) {
         if (inactiveContent == null) {
             // TODO Load the motionScheme tokens from the component tokens file
@@ -643,7 +644,7 @@ object SegmentedButtonDefaults {
                         scaleIn(
                             initialScale = 0f,
                             transformOrigin = TransformOrigin(0f, 1f),
-                            animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
+                            animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
                         ),
             ) {
                 activeContent()
@@ -652,7 +653,7 @@ object SegmentedButtonDefaults {
             Crossfade(
                 targetState = active,
                 // TODO Load the motionScheme tokens from the component tokens file
-                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
             ) {
                 if (it) activeContent() else inactiveContent()
             }
@@ -664,10 +665,8 @@ object SegmentedButtonDefaults {
      * [color]. When using a width different than default make sure to also update
      * [MultiChoiceSegmentedButtonRow] or [SingleChoiceSegmentedButtonRow] space param.
      */
-    fun borderStroke(
-        color: Color,
-        width: Dp = BorderWidth,
-    ): BorderStroke = BorderStroke(width = width, color = color)
+    fun borderStroke(color: Color, width: Dp = BorderWidth): BorderStroke =
+        BorderStroke(width = width, color = color)
 }
 
 /**
@@ -705,7 +704,7 @@ class SegmentedButtonColors(
     // disable & inactive
     val disabledInactiveContainerColor: Color,
     val disabledInactiveContentColor: Color,
-    val disabledInactiveBorderColor: Color
+    val disabledInactiveBorderColor: Color,
 ) {
     /**
      * Returns a copy of this ChipColors, optionally overriding some of the ues. This uses the
@@ -723,7 +722,7 @@ class SegmentedButtonColors(
         disabledActiveBorderColor: Color = this.disabledActiveBorderColor,
         disabledInactiveContainerColor: Color = this.disabledInactiveContainerColor,
         disabledInactiveContentColor: Color = this.disabledInactiveContentColor,
-        disabledInactiveBorderColor: Color = this.disabledInactiveBorderColor
+        disabledInactiveBorderColor: Color = this.disabledInactiveBorderColor,
     ) =
         SegmentedButtonColors(
             activeContainerColor.takeOrElse { this.activeContainerColor },
@@ -737,7 +736,7 @@ class SegmentedButtonColors(
             disabledActiveBorderColor.takeOrElse { this.disabledActiveBorderColor },
             disabledInactiveContainerColor.takeOrElse { this.disabledInactiveContainerColor },
             disabledInactiveContentColor.takeOrElse { this.disabledInactiveContentColor },
-            disabledInactiveBorderColor.takeOrElse { this.disabledInactiveBorderColor }
+            disabledInactiveBorderColor.takeOrElse { this.disabledInactiveBorderColor },
         )
 
     /**

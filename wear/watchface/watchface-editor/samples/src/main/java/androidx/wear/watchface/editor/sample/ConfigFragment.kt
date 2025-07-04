@@ -84,7 +84,7 @@ internal class ConfigFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedState: Bundle?
+        savedState: Bundle?,
     ): View {
         settingIds = requireArguments().getStringArrayList(SETTINGS_ID)!!
 
@@ -116,11 +116,11 @@ internal class ConfigFragment : Fragment() {
                     icon =
                         Icon.createWithResource(
                             context,
-                            R.drawable.ic_elements_settings_complications
+                            R.drawable.ic_elements_settings_complications,
                         ),
                     title = resources.getString(R.string.settings_complications),
                     summary = "",
-                    highlight = false
+                    highlight = false,
                 )
             )
         }
@@ -137,7 +137,7 @@ internal class ConfigFragment : Fragment() {
                     icon = styleCategory.watchFaceEditorData?.icon ?: styleCategory.icon,
                     title = styleCategory.displayName.toString(),
                     summary = styleCategory.description.toString(),
-                    highlight = false
+                    highlight = false,
                 )
             )
         }
@@ -160,7 +160,7 @@ internal class ConfigFragment : Fragment() {
                 icon = Icon.createWithResource(context, R.drawable.ic_elements_comps_bg),
                 title = getResources().getString(R.string.settings_background_image),
                 summary = resources.getString(R.string.none_background_image_provider),
-                highlight = false
+                highlight = false,
             )
 
         // Update the summary with the actual background complication data source name, if there is
@@ -171,7 +171,7 @@ internal class ConfigFragment : Fragment() {
             val infoArray =
                 dataSourceInfoRetriever.retrieveComplicationDataSourceInfo(
                     watchFaceConfigActivity.editorSession.watchFaceComponentName,
-                    intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationSlotId!!)
+                    intArrayOf(watchFaceConfigActivity.editorSession.backgroundComplicationSlotId!!),
                 )
             infoArray?.let {
                 it[0].info?.apply { backgroundConfigOption.summary = name }
@@ -202,7 +202,7 @@ internal class ConfigFragment : Fragment() {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configOption.id,
                     editingSession.userStyleSchema,
-                    editingSession.userStyle.value
+                    editingSession.userStyle.value,
                 )
             }
         }
@@ -214,7 +214,7 @@ internal data class ConfigOption(
     val icon: Icon?,
     val title: String,
     var summary: String,
-    var highlight: Boolean
+    var highlight: Boolean,
 )
 
 internal class ConfigViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -248,7 +248,7 @@ internal class Helper {
 internal class ConfigViewAdapter(
     private val context: Context,
     private val configOptions: List<ConfigOption>,
-    val clickListener: (ConfigOption) -> Unit
+    val clickListener: (ConfigOption) -> Unit,
 ) : RecyclerView.Adapter<ConfigViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -291,10 +291,10 @@ internal class ConfigViewAdapter(
                     Helper.wrapIcon(context, drawable),
                     /* top = */ null,
                     /* end = */ null,
-                    /* bottom = */ null
+                    /* bottom = */ null,
                 )
             },
-            handler
+            handler,
         )
     }
 

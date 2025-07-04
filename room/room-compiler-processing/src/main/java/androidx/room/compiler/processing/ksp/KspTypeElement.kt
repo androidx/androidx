@@ -59,7 +59,7 @@ import com.squareup.kotlinpoet.javapoet.KClassName
 
 internal sealed class KspTypeElement(
     env: KspProcessingEnv,
-    override val declaration: KSClassDeclaration
+    override val declaration: KSClassDeclaration,
 ) :
     KspElement(env, declaration),
     XTypeElement,
@@ -87,9 +87,7 @@ internal sealed class KspTypeElement(
         declaration.typeParameters.map { KspTypeParameterElement(env, it) }
     }
 
-    override val qualifiedName: String by lazy {
-        (declaration.qualifiedName ?: declaration.simpleName).asString()
-    }
+    override val qualifiedName: String by lazy { asClassName().kotlin.canonicalName }
 
     override val type: KspType by lazy {
         env.wrap(ksType = declaration.asType(emptyList()), allowPrimitives = false)
@@ -134,7 +132,7 @@ internal sealed class KspTypeElement(
     @Deprecated(
         "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
         replaceWith =
-            ReplaceWith("asClassName().toJavaPoet()", "androidx.room.compiler.codegen.toJavaPoet")
+            ReplaceWith("asClassName().toJavaPoet()", "androidx.room.compiler.codegen.toJavaPoet"),
     )
     override val className: ClassName by lazy { xClassName.java }
 
@@ -200,7 +198,7 @@ internal sealed class KspTypeElement(
                                 KspSyntheticConstructorElement(
                                     env = env,
                                     declaration = it,
-                                    valueParameters = emptyList()
+                                    valueParameters = emptyList(),
                                 )
                             )
                         }
@@ -231,7 +229,7 @@ internal sealed class KspTypeElement(
                     env,
                     field,
                     element.accessor,
-                    isSyntheticStatic = true
+                    isSyntheticStatic = true,
                 )
             }
         }
@@ -324,7 +322,7 @@ internal sealed class KspTypeElement(
                             KspMethodElement.create(
                                 env = env,
                                 declaration = it,
-                                isSyntheticStatic = true
+                                isSyntheticStatic = true,
                             )
                         )
                     } else if (it is KSPropertyDeclaration) {

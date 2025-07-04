@@ -47,7 +47,7 @@ private const val TAG = "SignalGeneratorViewModel"
 
 enum class ActivationSignal {
     Active,
-    Inactive
+    Inactive,
 }
 
 class SignalGeneratorViewModel : ViewModel() {
@@ -79,7 +79,7 @@ class SignalGeneratorViewModel : ViewModel() {
     suspend fun initialRecorder(
         context: Context,
         lifecycleOwner: LifecycleOwner,
-        cameraImplementation: CameraImplementation
+        cameraImplementation: CameraImplementation,
     ) {
         cameraHelper = CameraHelper(cameraImplementation)
         withContext(Dispatchers.Main) {

@@ -204,7 +204,7 @@ interface InjectionScope : Density {
         /*@FloatRange(from = -1.0, to = 1.0)*/
         x: Float = 0f,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        y: Float = 0f
+        y: Float = 0f,
     ): Offset {
         return Offset(x * width, y * height)
     }

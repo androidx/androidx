@@ -76,7 +76,7 @@ internal fun ComposeContentTestRule.isShape(
     padding: Dp = 0.dp,
     backgroundColor: Color = Color.Red,
     shapeColor: Color = DEFAULT_SHAPE_COLOR,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     setContent {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
@@ -94,7 +94,7 @@ internal fun ComposeContentTestRule.isShape(
             verticalPadding = padding,
             backgroundColor = backgroundColor,
             antiAliasingGap = 2.0f,
-            shapeColor = shapeColor
+            shapeColor = shapeColor,
         )
 }
 
@@ -137,7 +137,7 @@ internal fun TestImage(modifier: Modifier = Modifier, iconLabel: String = "TestI
         iconLabel,
         modifier = modifier.fillMaxSize().testTag(iconLabel),
         contentScale = ContentScale.Fit,
-        alignment = Alignment.Center
+        alignment = Alignment.Center,
     )
 }
 
@@ -150,7 +150,7 @@ internal fun ComposeContentTestRule.setContentForSizeAssertions(
     parentMaxWidth: Dp = BigTestMaxWidth,
     parentMaxHeight: Dp = BigTestMaxHeight,
     useUnmergedTree: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): SemanticsNodeInteraction {
     setContent {
         Box {

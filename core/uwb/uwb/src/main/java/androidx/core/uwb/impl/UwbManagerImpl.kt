@@ -57,7 +57,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                 CONFIG_UNICAST_DS_TWR,
                 CONFIG_MULTICAST_DS_TWR,
                 CONFIG_PROVISIONED_UNICAST_DS_TWR,
-                CONFIG_PROVISIONED_MULTICAST_DS_TWR
+                CONFIG_PROVISIONED_MULTICAST_DS_TWR,
             )
         var iUwb: IUwb? = null
         var aospAvailabilityClient: IUwbClient? = null
@@ -150,7 +150,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     nearbyRangingCapabilities.supportedSlotDurations.toSet(),
                     nearbyRangingCapabilities.supportedRangingUpdateRates.toSet(),
                     nearbyRangingCapabilities.supportsRangingIntervalReconfigure(),
-                    nearbyRangingCapabilities.hasBackgroundRangingSupport()
+                    nearbyRangingCapabilities.hasBackgroundRangingSupport(),
                 )
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
@@ -158,7 +158,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     uwbClient,
                     rangingCapabilities,
                     localAddress,
-                    UwbComplexChannel(uwbComplexChannel.channel, uwbComplexChannel.preambleIndex)
+                    UwbComplexChannel(uwbComplexChannel.channel, uwbComplexChannel.preambleIndex),
                 )
             } else {
                 UwbControleeSessionScopeImpl(uwbClient, rangingCapabilities, localAddress)
@@ -198,7 +198,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                         it.supportedSlotDurations.toSet(),
                         it.supportedRangingUpdateRates.toSet(),
                         it.supportsRangingIntervalReconfigure,
-                        it.hasBackgroundRangingSupport
+                        it.hasBackgroundRangingSupport,
                     )
                 }
             return if (isController) {
@@ -207,7 +207,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     uwbClient,
                     rangingCapabilities!!,
                     localAddress!!,
-                    UwbComplexChannel(uwbComplexChannel!!.channel, uwbComplexChannel.preambleIndex)
+                    UwbComplexChannel(uwbComplexChannel!!.channel, uwbComplexChannel.preambleIndex),
                 )
             } else {
                 UwbControleeSessionScopeAospImpl(uwbClient, rangingCapabilities!!, localAddress!!)

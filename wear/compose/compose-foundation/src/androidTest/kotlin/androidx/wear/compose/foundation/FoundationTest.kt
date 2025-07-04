@@ -78,7 +78,7 @@ private fun ImageBitmap.histogram(): MutableMap<Color, Long> {
  * [Modifier.testTag], but specifically for curved containers.
  *
  * This is a convenience method for a [semantics] that sets [SemanticsPropertyReceiver.testTag].
- * Currently, this supports basic assert operations operations only.
+ * Currently, this supports basic assert operations only.
  *
  * @param tag The tag to apply to the curved container.
  */
@@ -88,8 +88,8 @@ private class TestTagWrapper(val child: CurvedChild, val tag: String) :
     BaseCurvedChildWrapper(child) {
 
     @Composable
-    override fun SubComposition() {
-        Box(modifier = Modifier.testTag(tag)) { super.SubComposition() }
+    override fun SubComposition(semanticProperties: CurvedSemanticProperties) {
+        Box(modifier = Modifier.testTag(tag)) { super.SubComposition(semanticProperties) }
     }
 }
 
@@ -113,7 +113,7 @@ internal data class RadialPoint(val distance: Float, val angle: Float)
 internal class RadialDimensions(
     absoluteClockwise: Boolean,
     rowCoords: LayoutCoordinates,
-    coords: LayoutCoordinates
+    coords: LayoutCoordinates,
 ) {
     // Row dimmensions
     val rowCenter: Offset
@@ -184,7 +184,7 @@ internal class RadialDimensions(
         // The outerRadius is greater than the innerRadius
         assertTrue(
             outerRadius > innerRadius + FLOAT_TOLERANCE,
-            "innerRadius = $innerRadius, outerRadius = $outerRadius"
+            "innerRadius = $innerRadius, outerRadius = $outerRadius",
         )
     }
 
@@ -197,7 +197,7 @@ internal class RadialDimensions(
             thickness = outerRadius - innerRadius,
             centerOffset = rowCenter,
             measureRadius = (outerRadius + innerRadius) / 2,
-            startAngleRadians = startAngle.toRadians()
+            startAngleRadians = startAngle.toRadians(),
         )
 
     fun toRadialCoordinates(coords: LayoutCoordinates, x: Float, y: Float): RadialPoint {

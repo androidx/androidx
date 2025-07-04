@@ -42,7 +42,7 @@ public class PropOverride(private val propName: String, private val overrideValu
         if (currentPropVal != overrideValue) {
             resetValue = currentPropVal
             Log.d(BenchmarkState.TAG, "setting $propName to $overrideValue (was $currentPropVal)")
-            Shell.executeScriptCaptureStdout("setprop $propName $overrideValue")
+            Shell.executeScriptSilent("setprop $propName $overrideValue")
         }
     }
 

@@ -133,7 +133,7 @@ class MeasureInPlacementTest {
             LookaheadScope {
                 Layout(
                     modifier = Modifier.fillMaxSize(),
-                    content = { Box(Modifier.size(10.dp)) }
+                    content = { Box(Modifier.size(10.dp)) },
                 ) { measurables, constraints ->
                     layout(100, 100) {
                         val p = measurables[0].measure(constraints)

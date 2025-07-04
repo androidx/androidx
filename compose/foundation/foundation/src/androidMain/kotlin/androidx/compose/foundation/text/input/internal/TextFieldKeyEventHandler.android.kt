@@ -23,6 +23,8 @@ import android.view.KeyEvent.KEYCODE_DPAD_DOWN
 import android.view.KeyEvent.KEYCODE_DPAD_LEFT
 import android.view.KeyEvent.KEYCODE_DPAD_RIGHT
 import android.view.KeyEvent.KEYCODE_DPAD_UP
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -48,19 +50,26 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         focusManager: FocusManager,
-        keyboardController: SoftwareKeyboardController
+        keyboardController: SoftwareKeyboardController,
     ): Boolean {
-        // do not proceed if common code has consumed the event
-        if (
+        val consumed =
             super.onPreKeyEvent(
                 event = event,
                 textFieldState = textFieldState,
                 textFieldSelectionState = textFieldSelectionState,
                 focusManager = focusManager,
-                keyboardController = keyboardController
+                keyboardController = keyboardController,
             )
+        // After fixing the Dpad navigation, we no longer need to intercept prekey events for the
+        // Android platform.
+        if (
+            @OptIn(ExperimentalFoundationApi::class)
+            ComposeFoundationFlags.isTextFieldDpadNavigationEnabled
         )
-            return true
+            return consumed
+
+        // do not proceed if common code has consumed the event
+        if (consumed) return true
 
         val device = event.nativeKeyEvent.device
         return when {
@@ -97,10 +106,13 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         textLayoutState: TextLayoutState,
         textFieldSelectionState: TextFieldSelectionState,
         clipboardKeyCommandsHandler: ClipboardKeyCommandsHandler,
+        keyboardController: SoftwareKeyboardController,
         editable: Boolean,
         singleLine: Boolean,
-        onSubmit: () -> Unit
+        onSubmit: () -> Boolean,
     ): Boolean {
+        // Before handing off the key processing to the super class, we check whether the event is
+        // coming from a hardware keyboard (virtual or not) to decide touch mode.
         if (
             event.type == KeyDown &&
                 event.nativeKeyEvent.isFromSource(InputDevice.SOURCE_KEYBOARD) &&
@@ -108,12 +120,14 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
         ) {
             textFieldSelectionState.isInTouchMode = false
         }
+
         return super.onKeyEvent(
             event,
             textFieldState,
             textLayoutState,
             textFieldSelectionState,
             clipboardKeyCommandsHandler,
+            keyboardController,
             editable,
             singleLine,
             onSubmit,

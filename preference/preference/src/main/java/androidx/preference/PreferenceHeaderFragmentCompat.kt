@@ -72,7 +72,7 @@ abstract class PreferenceHeaderFragmentCompat :
     @CallSuper
     override fun onPreferenceStartFragment(
         caller: PreferenceFragmentCompat,
-        pref: Preference
+        pref: Preference,
     ): Boolean {
         if (caller.id == R.id.preferences_header) {
             // Opens the preference header.
@@ -84,7 +84,7 @@ abstract class PreferenceHeaderFragmentCompat :
             val frag =
                 childFragmentManager.fragmentFactory.instantiate(
                     requireContext().classLoader,
-                    pref.fragment!!
+                    pref.fragment!!,
                 )
             frag.arguments = pref.extras
 
@@ -135,7 +135,7 @@ abstract class PreferenceHeaderFragmentCompat :
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val slidingPaneLayout = buildContentView(inflater)
         // Now create the header fragment
@@ -161,7 +161,7 @@ abstract class PreferenceHeaderFragmentCompat :
         val headerLayoutParams =
             SlidingPaneLayout.LayoutParams(
                     resources.getDimensionPixelSize(R.dimen.preferences_header_width),
-                    MATCH_PARENT
+                    MATCH_PARENT,
                 )
                 .apply {
                     weight =
@@ -175,7 +175,7 @@ abstract class PreferenceHeaderFragmentCompat :
         val detailLayoutParams =
             SlidingPaneLayout.LayoutParams(
                     resources.getDimensionPixelSize(R.dimen.preferences_detail_width),
-                    MATCH_PARENT
+                    MATCH_PARENT,
                 )
                 .apply {
                     weight =
@@ -243,7 +243,7 @@ abstract class PreferenceHeaderFragmentCompat :
                 header.fragment?.let {
                     childFragmentManager.fragmentFactory.instantiate(
                         requireContext().classLoader,
-                        it
+                        it,
                     )
                 }
             fragment?.apply { arguments = header.extras }

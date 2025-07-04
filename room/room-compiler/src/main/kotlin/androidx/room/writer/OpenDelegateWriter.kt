@@ -54,7 +54,7 @@ class OpenDelegateWriter(val database: Database) {
                 "%L, %S, %S",
                 database.version,
                 database.identityHash,
-                database.legacyIdentityHash
+                database.legacyIdentityHash,
             )
             .apply {
                 superclass(RoomTypeNames.ROOM_OPEN_DELEGATE)
@@ -90,7 +90,7 @@ class OpenDelegateWriter(val database: Database) {
                             } else {
                                 VisibilityModifier.PRIVATE
                             },
-                        isOverride = isPrimaryMethod
+                        isOverride = isPrimaryMethod,
                     )
                     .apply {
                         returns(RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT)
@@ -121,8 +121,8 @@ class OpenDelegateWriter(val database: Database) {
                                 "return %L",
                                 XCodeBlock.ofNewInstance(
                                     RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
-                                    "true, null"
-                                )
+                                    "true, null",
+                                ),
                             )
                         }
                     }
@@ -139,7 +139,7 @@ class OpenDelegateWriter(val database: Database) {
                         addLocalVariable(
                             name = resultVar,
                             typeName = RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
-                            isMutable = true
+                            isMutable = true,
                         )
                         methodBuilders.keys.drop(1).forEach { methodName ->
                             addStatement("%L = %L(%L)", resultVar, methodName, connectionParamName)
@@ -152,8 +152,8 @@ class OpenDelegateWriter(val database: Database) {
                             "return %L",
                             XCodeBlock.ofNewInstance(
                                 RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
-                                "true, null"
-                            )
+                                "true, null",
+                            ),
                         )
                     }
                     .build()
@@ -165,8 +165,8 @@ class OpenDelegateWriter(val database: Database) {
                     "return %L",
                     XCodeBlock.ofNewInstance(
                         RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
-                        "true, null"
-                    )
+                        "true, null",
+                    ),
                 )
         }
         return methodBuilders.values.map { it.build() }
@@ -176,7 +176,7 @@ class OpenDelegateWriter(val database: Database) {
         return XFunSpec.builder(
                 name = "onCreate",
                 visibility = VisibilityModifier.PUBLIC,
-                isOverride = true
+                isOverride = true,
             )
             .apply { addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION) }
             .build()
@@ -186,7 +186,7 @@ class OpenDelegateWriter(val database: Database) {
         return XFunSpec.builder(
                 name = "onOpen",
                 visibility = VisibilityModifier.PUBLIC,
-                isOverride = true
+                isOverride = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -196,8 +196,8 @@ class OpenDelegateWriter(val database: Database) {
                         XCodeBlock.ofExtensionCall(
                             memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
                             receiverVarName = connectionParamName,
-                            args = XCodeBlock.of("%S", "PRAGMA foreign_keys = ON")
-                        )
+                            args = XCodeBlock.of("%S", "PRAGMA foreign_keys = ON"),
+                        ),
                     )
                 }
                 addStatement("internalInitInvalidationTracker(%L)", connectionParamName)
@@ -209,7 +209,7 @@ class OpenDelegateWriter(val database: Database) {
         return XFunSpec.builder(
                 name = "createAllTables",
                 visibility = VisibilityModifier.PUBLIC,
-                isOverride = true
+                isOverride = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -219,8 +219,8 @@ class OpenDelegateWriter(val database: Database) {
                         XCodeBlock.ofExtensionCall(
                             memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
                             receiverVarName = connectionParamName,
-                            args = XCodeBlock.of("%S", createQuery)
-                        )
+                            args = XCodeBlock.of("%S", createQuery),
+                        ),
                     )
                 }
             }
@@ -231,7 +231,7 @@ class OpenDelegateWriter(val database: Database) {
         return XFunSpec.builder(
                 name = "dropAllTables",
                 visibility = VisibilityModifier.PUBLIC,
-                isOverride = true
+                isOverride = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -241,8 +241,8 @@ class OpenDelegateWriter(val database: Database) {
                         XCodeBlock.ofExtensionCall(
                             memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
                             receiverVarName = connectionParamName,
-                            args = XCodeBlock.of("%S", createDropTableQuery(it))
-                        )
+                            args = XCodeBlock.of("%S", createDropTableQuery(it)),
+                        ),
                     )
                 }
                 database.views.forEach {
@@ -251,8 +251,8 @@ class OpenDelegateWriter(val database: Database) {
                         XCodeBlock.ofExtensionCall(
                             memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
                             receiverVarName = connectionParamName,
-                            args = XCodeBlock.of("%S", createDropViewQuery(it))
-                        )
+                            args = XCodeBlock.of("%S", createDropViewQuery(it)),
+                        ),
                     )
                 }
             }
@@ -263,14 +263,14 @@ class OpenDelegateWriter(val database: Database) {
         return XFunSpec.builder(
                 name = "onPreMigrate",
                 visibility = VisibilityModifier.PUBLIC,
-                isOverride = true
+                isOverride = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
                 addStatement(
                     "%M(%L)",
                     RoomMemberNames.DB_UTIL_DROP_FTS_SYNC_TRIGGERS,
-                    connectionParamName
+                    connectionParamName,
                 )
             }
             .build()
@@ -280,7 +280,7 @@ class OpenDelegateWriter(val database: Database) {
         return XFunSpec.builder(
                 name = "onPostMigrate",
                 visibility = VisibilityModifier.PUBLIC,
-                isOverride = true
+                isOverride = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -294,8 +294,8 @@ class OpenDelegateWriter(val database: Database) {
                             XCodeBlock.ofExtensionCall(
                                 memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
                                 receiverVarName = connectionParamName,
-                                args = XCodeBlock.of("%S", syncTriggerQuery)
-                            )
+                                args = XCodeBlock.of("%S", syncTriggerQuery),
+                            ),
                         )
                     }
             }

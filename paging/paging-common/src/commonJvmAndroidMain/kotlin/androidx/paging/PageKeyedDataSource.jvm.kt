@@ -41,7 +41,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @Deprecated(
     message = "PageKeyedDataSource is deprecated and has been replaced by PagingSource",
-    replaceWith = ReplaceWith("PagingSource<Key, Value>", "androidx.paging.PagingSource")
+    replaceWith = ReplaceWith("PagingSource<Key, Value>", "androidx.paging.PagingSource"),
 )
 public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
     DataSource<Key, Value>(PAGE_KEYED) {
@@ -59,7 +59,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
      */
     public open class LoadInitialParams<Key : Any>(
         @JvmField public val requestedLoadSize: Int,
-        @JvmField public val placeholdersEnabled: Boolean
+        @JvmField public val placeholdersEnabled: Boolean,
     )
 
     /**
@@ -77,7 +77,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
      */
     public open class LoadParams<Key : Any>(
         @JvmField public val key: Key,
-        @JvmField public val requestedLoadSize: Int
+        @JvmField public val requestedLoadSize: Int,
     )
 
     /**
@@ -127,7 +127,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
             position: Int,
             totalCount: Int,
             previousPageKey: Key?,
-            nextPageKey: Key?
+            nextPageKey: Key?,
         )
 
         /**
@@ -205,7 +205,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
                         position: Int,
                         totalCount: Int,
                         previousPageKey: Key?,
-                        nextPageKey: Key?
+                        nextPageKey: Key?,
                     ) {
                         cont.resume(
                             BaseResult(
@@ -213,7 +213,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
                                 prevKey = previousPageKey,
                                 nextKey = nextPageKey,
                                 itemsBefore = position,
-                                itemsAfter = totalCount - data.size - position
+                                itemsAfter = totalCount - data.size - position,
                             )
                         )
                     }
@@ -221,11 +221,11 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
                     override fun onResult(
                         data: List<Value>,
                         previousPageKey: Key?,
-                        nextPageKey: Key?
+                        nextPageKey: Key?,
                     ) {
                         cont.resume(BaseResult(data, previousPageKey, nextPageKey))
                     }
-                }
+                },
             )
         }
 
@@ -243,7 +243,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
     @Suppress("RemoveRedundantQualifierName")
     private fun continuationAsCallback(
         continuation: CancellableContinuation<BaseResult<Value>>,
-        isAppend: Boolean
+        isAppend: Boolean,
     ): LoadCallback<Key, Value> {
         return object : LoadCallback<Key, Value>() {
             override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
@@ -251,7 +251,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
                     BaseResult(
                         data = data,
                         prevKey = if (isAppend) null else adjacentPageKey,
-                        nextKey = if (isAppend) adjacentPageKey else null
+                        nextKey = if (isAppend) adjacentPageKey else null,
                     )
                 )
             }
@@ -274,7 +274,7 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> :
      */
     public abstract fun loadInitial(
         params: LoadInitialParams<Key>,
-        callback: LoadInitialCallback<Key, Value>
+        callback: LoadInitialCallback<Key, Value>,
     )
 
     /**

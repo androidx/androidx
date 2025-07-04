@@ -61,7 +61,7 @@ fun BringIntoViewResponderDemo() {
                             measurable.measure(
                                 constraints.copy(
                                     maxWidth = Constraints.Infinity,
-                                    maxHeight = Constraints.Infinity
+                                    maxHeight = Constraints.Infinity,
                                 )
                             )
 
@@ -107,7 +107,7 @@ private fun LargeContentWithFocusableChildren() {
                         "$row x $column",
                         Modifier.focusable(interactionSource = interactionSource)
                             .then(if (isFocused) Modifier.border(1.dp, Color.Blue) else Modifier)
-                            .padding(8.dp)
+                            .padding(8.dp),
                     )
                 }
             }

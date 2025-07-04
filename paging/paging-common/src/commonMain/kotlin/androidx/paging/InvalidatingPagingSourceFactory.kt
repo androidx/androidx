@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.internal.ReentrantLock
+import androidx.paging.internal.SynchronizedLock
 import androidx.paging.internal.withLock
 
 /**
@@ -34,7 +34,7 @@ import androidx.paging.internal.withLock
 public class InvalidatingPagingSourceFactory<Key : Any, Value : Any>(
     private val pagingSourceFactory: () -> PagingSource<Key, Value>
 ) : PagingSourceFactory<Key, Value> {
-    private val lock = ReentrantLock()
+    private val lock = SynchronizedLock()
 
     private var pagingSources: List<PagingSource<Key, Value>> = emptyList()
 

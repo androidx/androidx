@@ -27,7 +27,7 @@ import kotlin.properties.Delegates
 class KeyValueView(
     context: Context,
     private val keyValueDataHolder: KeyValueDataHolder,
-    private val paints: Paints
+    private val paints: Paints,
 ) : View(context) {
 
     private var widthFloat by Delegates.notNull<Float>()

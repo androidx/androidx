@@ -42,10 +42,7 @@ class HapticDemosActivity : AppCompatActivity() {
 
         setContentView(R.layout.haptic_demos_activity)
         findViewById<Button>(R.id.standard_click_btn).setOnClickListener {
-            hapticManager.play(
-                predefinedClick(),
-                HapticAttributes(HapticAttributes.USAGE_TOUCH),
-            )
+            hapticManager.play(predefinedClick(), HapticAttributes(HapticAttributes.USAGE_TOUCH))
         }
         findViewById<Button>(R.id.scaled_click_btn).setOnClickListener {
             hapticManager.play(

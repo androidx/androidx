@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2024-2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package androidx.ink.geometry
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.Size
-import androidx.ink.geometry.internal.AffineTransformNative
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmField
 import kotlin.math.abs
 
@@ -232,7 +233,7 @@ public abstract class AffineTransform internal constructor() {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun applyTransform(box: Box): ImmutableParallelogram {
-        return AffineTransformNative.createFromApplyParallelogram(
+        return AffineTransformNative.createTransformedParallelogram(
             affineTransformA = m00,
             affineTransformB = m10,
             affineTransformC = m20,
@@ -245,8 +246,6 @@ public abstract class AffineTransform internal constructor() {
             parallelogramHeight = box.height,
             parallelogramRotation = 0f,
             parallelogramShearFactor = 0f,
-            ImmutableParallelogram::class.java,
-            ImmutableVec::class.java,
         )
     }
 
@@ -259,7 +258,7 @@ public abstract class AffineTransform internal constructor() {
         box: Box,
         outParallelogram: MutableParallelogram,
     ): MutableParallelogram {
-        AffineTransformNative.populateFromApplyParallelogram(
+        AffineTransformNative.populateTransformedParallelogram(
             affineTransformA = m00,
             affineTransformB = m10,
             affineTransformC = m20,
@@ -286,7 +285,7 @@ public abstract class AffineTransform internal constructor() {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun applyTransform(parallelogram: Parallelogram): ImmutableParallelogram {
-        return AffineTransformNative.createFromApplyParallelogram(
+        return AffineTransformNative.createTransformedParallelogram(
             affineTransformA = m00,
             affineTransformB = m10,
             affineTransformC = m20,
@@ -299,8 +298,6 @@ public abstract class AffineTransform internal constructor() {
             parallelogramHeight = parallelogram.height,
             parallelogramRotation = parallelogram.rotation,
             parallelogramShearFactor = parallelogram.shearFactor,
-            ImmutableParallelogram::class.java,
-            ImmutableVec::class.java,
         )
     }
 
@@ -313,7 +310,7 @@ public abstract class AffineTransform internal constructor() {
         parallelogram: Parallelogram,
         outParallelogram: MutableParallelogram,
     ): MutableParallelogram {
-        AffineTransformNative.populateFromApplyParallelogram(
+        AffineTransformNative.populateTransformedParallelogram(
             affineTransformA = m00,
             affineTransformB = m10,
             affineTransformC = m20,
@@ -437,4 +434,45 @@ public abstract class AffineTransform internal constructor() {
             output.m21 = lhs.m01 * rhs.m20 + lhs.m11 * rhs.m21 + lhs.m21
         }
     }
+}
+
+@UsedByNative
+private object AffineTransformNative {
+
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative
+    external fun populateTransformedParallelogram(
+        affineTransformA: Float,
+        affineTransformB: Float,
+        affineTransformC: Float,
+        affineTransformD: Float,
+        affineTransformE: Float,
+        affineTransformF: Float,
+        parallelogramCenterX: Float,
+        parallelogramCenterY: Float,
+        parallelogramWidth: Float,
+        parallelogramHeight: Float,
+        parallelogramRotation: Float,
+        parallelogramShearFactor: Float,
+        out: MutableParallelogram,
+    )
+
+    @UsedByNative
+    external fun createTransformedParallelogram(
+        affineTransformA: Float,
+        affineTransformB: Float,
+        affineTransformC: Float,
+        affineTransformD: Float,
+        affineTransformE: Float,
+        affineTransformF: Float,
+        parallelogramCenterX: Float,
+        parallelogramCenterY: Float,
+        parallelogramWidth: Float,
+        parallelogramHeight: Float,
+        parallelogramRotation: Float,
+        parallelogramShearFactor: Float,
+    ): ImmutableParallelogram
 }

@@ -54,17 +54,14 @@ class ScrollBenchmark(private val compilationMode: CompilationMode) {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-                ),
+                listOf(FrameTimingGfxInfoMetric(), MemoryUsageMetric(MemoryUsageMetric.Mode.Last)),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
                 intent.action = SCROLL_ACTIVITY
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val list = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.

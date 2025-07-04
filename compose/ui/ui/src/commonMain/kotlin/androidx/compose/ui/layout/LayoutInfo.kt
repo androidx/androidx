@@ -75,7 +75,7 @@ interface LayoutInfo {
 class ModifierInfo(
     val modifier: Modifier,
     val coordinates: LayoutCoordinates,
-    val extra: Any? = null
+    val extra: Any? = null,
 ) {
     override fun toString(): String {
         return "ModifierInfo($modifier, $coordinates, $extra)"

@@ -63,13 +63,13 @@ fun CancelFocusDemo() {
                                 right = Cancel
                             }
                         }
-                        .focusableWithBorder()
+                        .focusableWithBorder(),
             )
             Text(
                 text = "4",
                 modifier =
                     Modifier.focusProperties { left = if (blockFocusMove) Cancel else Default }
-                        .focusableWithBorder()
+                        .focusableWithBorder(),
             )
         }
     }

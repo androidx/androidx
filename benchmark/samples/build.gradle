@@ -21,16 +21,16 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace "androidx.benchmark.samples"
+    namespace = "androidx.benchmark.samples"
     defaultConfig {
         minSdk = 23
     }
@@ -40,7 +40,9 @@ dependencies {
     api(libs.jspecify)
     compileOnly(project(":annotation:annotation-sampled"))
 
+    implementation(project(":benchmark:benchmark-traceprocessor"))
     implementation(project(":benchmark:benchmark-junit4"))
+    implementation(project(":benchmark:benchmark-common"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
 
     implementation(libs.testExtJunit)
@@ -48,7 +50,7 @@ dependencies {
 
 androidx {
     name = "Benchmark Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code for the Androidx Benchmark libraries"
 }

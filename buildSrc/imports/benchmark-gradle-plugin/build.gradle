@@ -1,6 +1,11 @@
 apply from: "../../shared.gradle"
 apply plugin: "java-gradle-plugin"
 
+dependencies {
+    // Remove once b/407092809 is fixed
+    implementation(libs.androidGradlePlugin)
+}
+
 sourceSets {
     main.java.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/kotlin"
     main.resources.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/resources"

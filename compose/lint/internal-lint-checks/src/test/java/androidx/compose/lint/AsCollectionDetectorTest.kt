@@ -48,7 +48,7 @@ class AsCollectionDetectorTest(val types: CollectionType) : LintDetectorTest() {
                         fun foo(collection: ${types.immutable}${types.params}): ${types.collection}${types.params} =
                             collection.as${types.collection}()
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -77,7 +77,7 @@ src/androidx/compose/lint/test.kt:7: Error: Use method as${types.collection}() o
                         fun foo(collection: Mutable${types.immutable}${types.params}): ${types.collection}${types.params} =
                             collection.as${types.collection}()
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -106,7 +106,7 @@ src/androidx/compose/lint/test.kt:7: Error: Use method as${types.collection}() o
                         fun foo(collection: Mutable${types.immutable}${types.params}): Mutable${types.collection}${types.params} =
                             collection.asMutable${types.collection}()
                         """
-                )
+                ),
             )
             .run()
             .expect(
@@ -151,7 +151,7 @@ src/androidx/compose/lint/test.kt:7: Error: Use method asMutable${types.collecti
             listOf(
                 CollectionType("ScatterMap", "Map", "<String, String>"),
                 CollectionType("ScatterSet", "Set", "<String>"),
-                CollectionType("ObjectList", "List", "<String>")
+                CollectionType("ObjectList", "List", "<String>"),
             )
 
         val ScatterMapClass =

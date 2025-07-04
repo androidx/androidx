@@ -45,7 +45,7 @@ class RenderingUtilsTest {
                 scaledPageWidth,
                 scaledPageHeight,
                 pageWidth,
-                pageHeight
+                pageHeight,
             )
 
         val expectedMatrix =
@@ -73,7 +73,7 @@ class RenderingUtilsTest {
                 scaledPageWidth,
                 scaledPageHeight,
                 pageWidth,
-                pageHeight
+                pageHeight,
             )
 
         val expectedMatrix =

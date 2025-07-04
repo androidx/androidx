@@ -59,7 +59,7 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
                     if (!isStable) {
                         Log.d(
                             "ChangeDataSetWhileScrollingTest",
-                            "Final item not reached despite VP2 idle. $debugInfo"
+                            "Final item not reached despite VP2 idle. $debugInfo",
                         )
                     }
                     isStable
@@ -85,7 +85,7 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
         val rvScrollState: Int,
         val vpScrollState: Int,
         val rvIsAnimating: Boolean,
-        val firstItemTranslationX: Float?
+        val firstItemTranslationX: Float?,
     )
 
     private val Context.debugInfo: DebugInfo
@@ -106,7 +106,7 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
                 recyclerView.scrollState,
                 viewPager.scrollState,
                 recyclerView.isAnimating,
-                firstCompletelyVisibleItem?.translationX
+                firstCompletelyVisibleItem?.translationX,
             )
         }
 

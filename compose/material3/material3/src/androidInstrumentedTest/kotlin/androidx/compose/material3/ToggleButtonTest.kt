@@ -77,7 +77,7 @@ class ToggleButtonTest {
                 ToggleButton(
                     checked = checked,
                     modifier = Modifier.testTag(ToggleButtonTag),
-                    onCheckedChange = { checked = it }
+                    onCheckedChange = { checked = it },
                 ) {
                     Text("test")
                 }
@@ -102,7 +102,7 @@ class ToggleButtonTest {
                     checked = checked,
                     modifier = Modifier.testTag(ToggleButtonTag),
                     onCheckedChange = { checked = it },
-                    enabled = false
+                    enabled = false,
                 ) {
                     Text("test")
                 }
@@ -127,11 +127,11 @@ class ToggleButtonTest {
                     checked = checked,
                     modifier = Modifier.testTag(ToggleButtonTag),
                     onCheckedChange = { checked = it },
-                    enabled = false
+                    enabled = false,
                 ) {
                     Text(
                         text = "test",
-                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {}
+                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -152,7 +152,7 @@ class ToggleButtonTest {
                     checked = false,
                     modifier = Modifier.testTag(ToggleButtonTag),
                     onCheckedChange = {},
-                    enabled = false
+                    enabled = false,
                 ) {
                     Box(
                         modifier =
@@ -163,7 +163,7 @@ class ToggleButtonTest {
                     Spacer(modifier = Modifier.width(ToggleButtonDefaults.IconSpacing))
                     Text(
                         text = "test",
-                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {}
+                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -204,7 +204,7 @@ class ToggleButtonTest {
                                 alpha = FilledButtonTokens.DisabledLabelTextOpacity
                             ),
                         checkedContainerColor = FilledButtonTokens.SelectedContainerColor.value,
-                        checkedContentColor = FilledButtonTokens.SelectedPressedLabelTextColor.value
+                        checkedContentColor = FilledButtonTokens.SelectedPressedLabelTextColor.value,
                     )
                 )
         }
@@ -237,7 +237,7 @@ class ToggleButtonTest {
                             ),
                         checkedContainerColor = ElevatedButtonTokens.SelectedContainerColor.value,
                         checkedContentColor =
-                            ElevatedButtonTokens.SelectedPressedLabelTextColor.value
+                            ElevatedButtonTokens.SelectedPressedLabelTextColor.value,
                     )
                 )
         }
@@ -269,7 +269,7 @@ class ToggleButtonTest {
                                 alpha = TonalButtonTokens.DisabledLabelTextOpacity
                             ),
                         checkedContainerColor = TonalButtonTokens.SelectedContainerColor.value,
-                        checkedContentColor = TonalButtonTokens.SelectedLabelTextColor.value
+                        checkedContentColor = TonalButtonTokens.SelectedLabelTextColor.value,
                     )
                 )
         }
@@ -301,7 +301,7 @@ class ToggleButtonTest {
                                 alpha = OutlinedButtonTokens.DisabledLabelTextOpacity
                             ),
                         checkedContainerColor = OutlinedButtonTokens.SelectedContainerColor.value,
-                        checkedContentColor = OutlinedButtonTokens.SelectedLabelTextColor.value
+                        checkedContentColor = OutlinedButtonTokens.SelectedLabelTextColor.value,
                     )
                 )
         }
@@ -310,7 +310,7 @@ class ToggleButtonTest {
     @Test
     fun buttonShapes_AllRounded_hasRoundedShapesIsTrue() {
         assertThat(
-                ButtonShapes(
+                ToggleButtonShapes(
                         shape = RoundedCornerShape(10.dp),
                         pressedShape = RoundedCornerShape(10.dp),
                         checkedShape = RoundedCornerShape(4.dp),
@@ -323,7 +323,7 @@ class ToggleButtonTest {
     @Test
     fun buttonShapes_mixedShapes_hasRoundedShapesIsFalse() {
         assertThat(
-                ButtonShapes(
+                ToggleButtonShapes(
                         shape = RectangleShape,
                         pressedShape = RoundedCornerShape(10.dp),
                         checkedShape = RoundedCornerShape(4.dp),
@@ -335,34 +335,28 @@ class ToggleButtonTest {
 
     @Test
     fun toggleButton_XSmall_positioning() {
+        val size = ButtonDefaults.ExtraSmallContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ToggleButton(
                     checked = false,
                     onCheckedChange = {},
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.XSmallContainerHeight)
-                            .testTag(ToggleButtonTag),
-                    shapes =
-                        ToggleButtonDefaults.shapes(
-                            ToggleButtonDefaults.XSmallSquareShape,
-                            ToggleButtonDefaults.XSmallPressedShape,
-                            ToggleButtonDefaults.checkedShape
-                        ),
-                    contentPadding = ButtonDefaults.XSmallContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ToggleButtonTag),
+                    shapes = ToggleButtonDefaults.shapesFor(size),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Outlined.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.XSmallIconSize).testTag(IconTag).semantics(
-                                mergeDescendants = true
-                            ) {}
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
+                                .testTag(IconTag)
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.XSmallIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
-                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {}
+                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -379,35 +373,29 @@ class ToggleButtonTest {
 
     @Test
     fun toggleButton_Medium_positioning() {
+        val size = ButtonDefaults.MediumContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ToggleButton(
                     checked = false,
                     onCheckedChange = {},
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.MediumContainerHeight)
-                            .testTag(ToggleButtonTag),
-                    shapes =
-                        ToggleButtonDefaults.shapes(
-                            ToggleButtonDefaults.MediumSquareShape,
-                            ToggleButtonDefaults.MediumPressedShape,
-                            ToggleButtonDefaults.checkedShape
-                        ),
-                    contentPadding = ButtonDefaults.MediumContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ToggleButtonTag),
+                    shapes = ToggleButtonDefaults.shapesFor(size),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Outlined.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.MediumIconSize).testTag(IconTag).semantics(
-                                mergeDescendants = true
-                            ) {}
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
+                                .testTag(IconTag)
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.MediumIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {}
+                        style = ButtonDefaults.textStyleFor(size),
+                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -424,35 +412,29 @@ class ToggleButtonTest {
 
     @Test
     fun toggleButton_Large_positioning() {
+        val size = ButtonDefaults.LargeContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ToggleButton(
                     checked = false,
                     onCheckedChange = {},
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.LargeContainerHeight)
-                            .testTag(ToggleButtonTag),
-                    shapes =
-                        ToggleButtonDefaults.shapes(
-                            ToggleButtonDefaults.LargeSquareShape,
-                            ToggleButtonDefaults.LargePressedShape,
-                            ToggleButtonDefaults.checkedShape
-                        ),
-                    contentPadding = ButtonDefaults.LargeContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ToggleButtonTag),
+                    shapes = ToggleButtonDefaults.shapesFor(size),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Outlined.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.LargeIconSize).testTag(IconTag).semantics(
-                                mergeDescendants = true
-                            ) {}
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
+                                .testTag(IconTag)
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.LargeIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {}
+                        style = ButtonDefaults.textStyleFor(size),
+                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -469,35 +451,29 @@ class ToggleButtonTest {
 
     @Test
     fun toggleButton_XLarge_positioning() {
+        val size = ButtonDefaults.ExtraLargeContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             Box {
                 ToggleButton(
                     checked = false,
                     onCheckedChange = {},
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.XLargeContainerHeight)
-                            .testTag(ToggleButtonTag),
-                    shapes =
-                        ToggleButtonDefaults.shapes(
-                            ToggleButtonDefaults.XLargeSquareShape,
-                            ToggleButtonDefaults.XLargePressedShape,
-                            ToggleButtonDefaults.checkedShape
-                        ),
-                    contentPadding = ButtonDefaults.XLargeContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ToggleButtonTag),
+                    shapes = ToggleButtonDefaults.shapesFor(size),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Outlined.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.XLargeIconSize).testTag(IconTag).semantics(
-                                mergeDescendants = true
-                            ) {}
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
+                                .testTag(IconTag)
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.XLargeIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {}
+                        style = ButtonDefaults.textStyleFor(size),
+                        modifier = Modifier.testTag(TextTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }

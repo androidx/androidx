@@ -137,8 +137,6 @@ package androidx.paging {
   }
 
   public enum LoadType {
-    method public static androidx.paging.LoadType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.paging.LoadType[] values();
     enum_constant public static final androidx.paging.LoadType APPEND;
     enum_constant public static final androidx.paging.LoadType PREPEND;
     enum_constant public static final androidx.paging.LoadType REFRESH;
@@ -265,7 +263,7 @@ package androidx.paging {
   }
 
   public final class PagedListKt {
-    method @Deprecated @kotlin.jvm.JvmSynthetic public static <Key extends java.lang.Object, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional Key? initialKey);
+    method @Deprecated @kotlin.jvm.JvmSynthetic public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, optional androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback, optional Key? initialKey);
   }
 
   public final class Pager<Key, Value> {
@@ -319,7 +317,7 @@ package androidx.paging {
     method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method @CheckResult @kotlin.jvm.JvmSynthetic public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends java.lang.Iterable<? extends R>> transform);
-    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends java.lang.Object, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Iterable<? extends R>>,?> transform);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Iterable<? extends R>>,?> transform);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertFooterItem(androidx.paging.PagingData<T>, T item);
     method @CheckResult public static <T> androidx.paging.PagingData<T> insertHeaderItem(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, T item);
@@ -328,7 +326,7 @@ package androidx.paging {
     method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, optional androidx.paging.TerminalSeparatorType terminalSeparatorType, kotlin.jvm.functions.Function3<? super T,? super T,? super kotlin.coroutines.Continuation<? super R>,?> generator);
     method @CheckResult public static <R, T extends R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, java.util.concurrent.Executor executor, kotlin.jvm.functions.Function1<? super T,? extends R> transform);
-    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T extends java.lang.Object, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> transform);
+    method @CheckResult @kotlin.jvm.JvmSynthetic public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super R>,?> transform);
   }
 
   public abstract class PagingSource<Key, Value> {
@@ -478,8 +476,6 @@ package androidx.paging {
   }
 
   public enum RemoteMediator.InitializeAction {
-    method public static androidx.paging.RemoteMediator.InitializeAction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.paging.RemoteMediator.InitializeAction[] values();
     enum_constant public static final androidx.paging.RemoteMediator.InitializeAction LAUNCH_INITIAL_REFRESH;
     enum_constant public static final androidx.paging.RemoteMediator.InitializeAction SKIP_INITIAL_REFRESH;
   }
@@ -500,8 +496,6 @@ package androidx.paging {
   }
 
   public enum TerminalSeparatorType {
-    method public static androidx.paging.TerminalSeparatorType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.paging.TerminalSeparatorType[] values();
     enum_constant public static final androidx.paging.TerminalSeparatorType FULLY_COMPLETE;
     enum_constant public static final androidx.paging.TerminalSeparatorType SOURCE_COMPLETE;
   }

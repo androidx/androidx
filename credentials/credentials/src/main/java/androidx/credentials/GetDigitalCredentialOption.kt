@@ -73,7 +73,7 @@ internal constructor(
     ) : this(
         requestJson = requestJson,
         requestData = toBundle(requestJson),
-        candidateQueryData = toBundle(requestJson),
+        candidateQueryData = Bundle(),
         isSystemProviderRequired = false,
         isAutoSelectAllowed = false,
         allowedProviders = emptySet(),
@@ -111,7 +111,7 @@ internal constructor(
                     typePriorityHint =
                         requestData.getInt(
                             BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-                            PRIORITY_PASSKEY_OR_SIMILAR
+                            PRIORITY_PASSKEY_OR_SIMILAR,
                         ),
                 )
             } catch (e: Exception) {

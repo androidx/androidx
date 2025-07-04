@@ -138,7 +138,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             assertPositions(
                 0 to 0 + itemSize * fraction,
                 1 to itemSize - itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -180,7 +180,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to itemSize * 2,
                 3 to itemSize * 3,
                 4 to itemSize * 4 - itemSize * 4 * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -207,7 +207,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to itemSize * 2 - itemSize * fraction,
                 3 to itemSize * 3 - itemSize * fraction,
                 4 to itemSize * 4 - itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -234,7 +234,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize,
                 2 to itemSize * 2 + itemSize * fraction,
                 3 to itemSize * 3 + itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -259,7 +259,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to itemSize,
                 3 to itemSize * 3 - itemSize * fraction,
                 4 to itemSize * 3,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -286,7 +286,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to itemSize * 2 - itemSize * shorterAnimFraction,
                 3 to itemSize * 3 - itemSize * fraction,
                 4 to itemSize * 4 - itemSize * shorterAnimFraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -303,12 +303,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             }
         }
 
-        assertPositions(
-            0 to 0f,
-            1 to itemSize,
-            2 to itemSize * 2,
-            3 to itemSize * 3,
-        )
+        assertPositions(0 to 0f, 1 to itemSize, 2 to itemSize * 2, 3 to itemSize * 3)
 
         rule.runOnUiThread { list = listOf(2, 0) }
 
@@ -318,7 +313,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize + itemSize * 2 * fraction,
                 2 to itemSize * 2 - itemSize * 2 * fraction,
                 3 to itemSize * 3 - itemSize * 2 * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -343,7 +338,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize * 3,
                 2 to itemSize * 2 - itemSize * 2 * fraction,
                 3 to itemSize,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -355,17 +350,13 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             LazyList(
                 arrangement = arrangement,
                 minSize = itemSizeDp * 5,
-                maxSize = itemSizeDp * 5
+                maxSize = itemSizeDp * 5,
             ) {
                 items(listOf(1, 2, 3), key = { it }) { Item(it) }
             }
         }
 
-        assertPositions(
-            1 to itemSize,
-            2 to itemSize * 2,
-            3 to itemSize * 3,
-        )
+        assertPositions(1 to itemSize, 2 to itemSize * 2, 3 to itemSize * 3)
 
         rule.runOnUiThread { arrangement = Arrangement.SpaceBetween }
         rule.mainClock.advanceTimeByFrame()
@@ -375,7 +366,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize - itemSize * fraction,
                 2 to itemSize * 2,
                 3 to itemSize * 3 + itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -508,7 +499,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSizePlusSpacing - itemSizePlusSpacing * fraction,
                 2 to itemSizePlusSpacing * 2 - itemSizePlusSpacing * fraction,
                 3 to itemSizePlusSpacing * 3 - itemSizePlusSpacing * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -551,7 +542,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             LazyList(
                 maxSize = listSizeDp,
                 startIndex = 3,
-                crossAxisAlignment = CrossAxisAlignment.Center
+                crossAxisAlignment = CrossAxisAlignment.Center,
             ) {
                 items(list, key = { it }) {
                     Item(it)
@@ -627,7 +618,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             LazyList(
                 maxSize = itemSizeDp * 3 + spacingDp * 2,
                 startIndex = 3,
-                arrangement = Arrangement.spacedBy(spacingDp)
+                arrangement = Arrangement.spacedBy(spacingDp),
             ) {
                 items(list, key = { it }) { Item(it) }
             }
@@ -781,12 +772,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             1 to 0f,
             2 to itemSize,
             3 to itemSize * 2,
-            crossAxis =
-                listOf(
-                    1 to 0f,
-                    2 to item2Start,
-                    3 to item3Start,
-                )
+            crossAxis = listOf(1 to 0f, 2 to item2Start, 3 to item3Start),
         )
 
         rule.runOnUiThread { alignment = CrossAxisAlignment.Center }
@@ -805,7 +791,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                         2 to item2Start + (item2End - item2Start) * fraction,
                         3 to item3Start + (item3End - item3Start) * fraction,
                     ),
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -838,9 +824,9 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     listOf(
                         1 to (containerSize - itemSize) * fraction,
                         2 to (containerSize - itemSize2) * fraction,
-                        3 to (containerSize - itemSize3) * fraction
+                        3 to (containerSize - itemSize3) * fraction,
                     ),
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -867,12 +853,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             1 to 0f,
             2 to itemSize,
             3 to itemSize * 2,
-            crossAxis =
-                listOf(
-                    1 to 0f,
-                    2 to 0f,
-                    3 to 0f,
-                )
+            crossAxis = listOf(1 to 0f, 2 to 0f, 3 to 0f),
         )
 
         rule.runOnUiThread { alignment = CrossAxisAlignment.Center }
@@ -887,9 +868,9 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     listOf(
                         1 to 0f,
                         2 to (itemSize / 2 - itemSize2 / 2) * fraction,
-                        3 to (itemSize / 2 - itemSize3 / 2) * fraction
+                        3 to (itemSize / 2 - itemSize3 / 2) * fraction,
                     ),
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -925,7 +906,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to startPadding + itemSize * 2 - itemSize * fraction,
                 3 to startPadding + itemSize * 3 - itemSize * fraction,
                 4 to startPadding + itemSize * 4 - itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -942,7 +923,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             LazyList(
                 maxSize = itemSizeDp * 4,
                 startPadding = startPaddingDp,
-                endPadding = endPaddingDp
+                endPadding = endPaddingDp,
             ) {
                 items(list, key = { it }) { Item(it) }
             }
@@ -953,7 +934,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             0 to startPadding,
             1 to startPadding + itemSize,
             2 to startPadding + itemSize * 2,
-            3 to startPadding + itemSize * 3
+            3 to startPadding + itemSize * 3,
         )
 
         rule.runOnUiThread { list = listOf(1, 2, 3, 4) }
@@ -964,7 +945,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to startPadding + itemSize * 2 - itemSize * fraction,
                 3 to startPadding + itemSize * 3 - itemSize * fraction,
                 4 to startPadding + itemSize * 4 - itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1010,7 +991,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize / 2,
                 2 to itemSize * 3 / 2,
                 3 to itemSize * 5 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1031,7 +1012,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize / 2,
                 2 to itemSize * 3 / 2,
                 3 to itemSize * 5 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1052,7 +1033,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 2 to itemSize / 2,
                 3 to itemSize * 3 / 2,
                 4 to itemSize * 5 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1073,7 +1054,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 3 to itemSize / 2,
                 4 to itemSize * 3 / 2,
                 5 to itemSize * 5 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1094,7 +1075,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize / 2,
                 2 to itemSize * 3 / 2,
                 3 to itemSize * 5 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1117,7 +1098,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 3 to itemSize / 2,
                 4 to itemSize2 + itemSize / 2,
                 5 to itemSize2 + itemSize * 3 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1142,7 +1123,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to itemSize / 2,
                 2 to itemSize2 + itemSize / 2,
                 3 to itemSize2 + itemSize * 3 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1169,7 +1150,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 1 to -itemSize / 2,
                 2 to itemSize / 2,
                 3 to itemSize * 3 / 2,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1443,7 +1424,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 0 to -scrollDelta,
                 1 to itemSize - scrollDelta + itemSize * fraction,
                 2 to itemSize * 2 - scrollDelta - itemSize * fraction,
-                fraction = fraction
+                fraction = fraction,
             )
         }
     }
@@ -1475,15 +1456,15 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                             .getValueAtFrame(
                                 (fraction * Duration / FrameDuration).toInt(),
                                 from = itemSize - scrollDelta,
-                                to = itemSize * 3 - scrollDelta
+                                to = itemSize * 3 - scrollDelta,
                             ),
-                    fraction = fraction
+                    fraction = fraction,
                 )
             } else {
                 assertPositions(
                     0 to -scrollDelta,
                     1 to itemSize + (containerSize - itemSize) * fraction,
-                    fraction = fraction
+                    fraction = fraction,
                 )
             }
         }
@@ -1516,15 +1497,15 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                         interruptionSpec.getValueAtFrame(
                             (Duration / FrameDuration * fraction).toInt(),
                             from = itemSize,
-                            to = -2 * itemSize - scrollDelta
+                            to = -2 * itemSize - scrollDelta,
                         ),
-                    fraction = fraction
+                    fraction = fraction,
                 )
             } else {
                 assertPositions(
                     2 to -scrollDelta,
                     3 to itemSize - (itemSize * 2 * fraction),
-                    fraction = fraction
+                    fraction = fraction,
                 )
             }
         }
@@ -1552,7 +1533,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     // after the first scroll the new position of item 1 is still not reached
                     // so the target didn't change, we still aim to end right after the bounds
                     1 to postFirstScrollItem2Offset,
-                    fraction = fraction
+                    fraction = fraction,
                 )
                 rule.runOnUiThread { runBlocking { state.scrollBy(scrollDelta) } }
                 assertPositions(
@@ -1562,7 +1543,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     // position. the animation is now targeting the real end position and now
                     // we are reacting on the scroll deltas
                     1 to postFirstScrollItem2Offset - scrollDelta,
-                    fraction = fraction
+                    fraction = fraction,
                 )
             }
             if (!isInLookaheadScope) {
@@ -1570,7 +1551,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     2 to -scrollDelta,
                     3 to itemSize - scrollDelta,
                     1 to itemSize - scrollDelta + itemSize * fraction,
-                    fraction = fraction
+                    fraction = fraction,
                 )
             } else {
                 // Expect interruption to lookahead placement animation on 0th frame.
@@ -1581,9 +1562,9 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                         interruptionSpec.getValueAtFrame(
                             (Duration / FrameDuration * fraction).toInt(),
                             from = -itemSize - scrollDelta,
-                            to = 2 * itemSize - scrollDelta
+                            to = 2 * itemSize - scrollDelta,
                         ),
-                    fraction = fraction
+                    fraction = fraction,
                 )
             }
         }
@@ -1664,7 +1645,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                         1,
                         from = startValue,
                         to = 0f,
-                        initialVelocity = startVelocity
+                        initialVelocity = startVelocity,
                     )
                 assertPositions(0 to 0f, 1 to valueAfterThreeFrames)
             }
@@ -1675,7 +1656,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         vararg expected: Pair<Any, Float>,
         crossAxis: List<Pair<Any, Float>>? = null,
         fraction: Float? = null,
-        autoReverse: Boolean = reverseLayout
+        autoReverse: Boolean = reverseLayout,
     ) {
         val roundedExpected = expected.map { it.first to it.second.roundToInt() }
         val actualBounds =
@@ -1684,7 +1665,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 .fetchSemanticsNodes()
                 .associateBy(
                     keySelector = { it.config.get(SemanticsProperties.TestTag) },
-                    valueTransform = { IntRect(it.positionInRoot.round(), it.size) }
+                    valueTransform = { IntRect(it.positionInRoot.round(), it.size) },
                 )
         val actualOffsets =
             expected.map {
@@ -1768,7 +1749,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Start,
         startPadding: Dp = 0.dp,
         endPadding: Dp = 0.dp,
-        content: LazyListScope.() -> Unit
+        content: LazyListScope.() -> Unit,
     ) {
         val container: @Composable (@Composable () -> Unit) -> Unit =
             if (isInLookaheadScope) {
@@ -1805,7 +1786,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     horizontalAlignment = horizontalAlignment,
                     reverseLayout = reverseLayout,
                     contentPadding = PaddingValues(top = startPadding, bottom = endPadding),
-                    content = content
+                    content = content,
                 )
             } else {
                 val horizontalArrangement =
@@ -1834,7 +1815,7 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                     verticalAlignment = verticalAlignment,
                     reverseLayout = reverseLayout,
                     contentPadding = PaddingValues(start = startPadding, end = endPadding),
-                    content = content
+                    content = content,
                 )
             }
         }
@@ -1845,14 +1826,14 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
         tag: Int,
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = size,
-        animSpec: FiniteAnimationSpec<IntOffset>? = AnimSpec
+        animSpec: FiniteAnimationSpec<IntOffset>? = AnimSpec,
     ) {
         Box(
             if (animSpec != null) {
                     Modifier.animateItem(
                         fadeInSpec = null,
                         fadeOutSpec = null,
-                        placementSpec = animSpec
+                        placementSpec = animSpec,
                     )
                 } else {
                     Modifier
@@ -1883,13 +1864,13 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
                 Config(isVertical = false, reverseLayout = false, isInLookaheadScope = false),
                 Config(isVertical = true, reverseLayout = true, isInLookaheadScope = false),
                 Config(isVertical = false, reverseLayout = true, isInLookaheadScope = false),
-                Config(isVertical = true, reverseLayout = false, isInLookaheadScope = true)
+                Config(isVertical = true, reverseLayout = false, isInLookaheadScope = true),
             )
 
         class Config(
             val isVertical: Boolean,
             val reverseLayout: Boolean,
-            val isInLookaheadScope: Boolean
+            val isInLookaheadScope: Boolean,
         ) {
             override fun toString() =
                 (if (isVertical) "LazyColumn" else "LazyRow") +
@@ -1909,14 +1890,14 @@ private val NodesWithTagMatcher =
 private enum class CrossAxisAlignment {
     Start,
     End,
-    Center
+    Center,
 }
 
 internal fun SpringSpec<IntOffset>.getValueAtFrame(
     frameCount: Int,
     from: Float,
     to: Float,
-    initialVelocity: IntOffset = IntOffset.Zero
+    initialVelocity: IntOffset = IntOffset.Zero,
 ): Float {
     val frameInNanos = TimeUnit.MILLISECONDS.toNanos(FrameDuration)
     val vectorized = vectorize(converter = IntOffset.VectorConverter)
@@ -1926,7 +1907,7 @@ internal fun SpringSpec<IntOffset>.getValueAtFrame(
                 initialValue =
                     IntOffset.VectorConverter.convertToVector(IntOffset(0, from.toInt())),
                 targetValue = IntOffset.VectorConverter.convertToVector(IntOffset(0, to.toInt())),
-                initialVelocity = IntOffset.VectorConverter.convertToVector(initialVelocity)
+                initialVelocity = IntOffset.VectorConverter.convertToVector(initialVelocity),
             )
         )
         .y
@@ -1937,7 +1918,7 @@ internal fun SpringSpec<IntOffset>.getVelocityAtFrame(
     frameCount: Int,
     from: Float,
     to: Float,
-    initialVelocity: IntOffset = IntOffset.Zero
+    initialVelocity: IntOffset = IntOffset.Zero,
 ): IntOffset {
     val frameInNanos = TimeUnit.MILLISECONDS.toNanos(FrameDuration)
     val vectorized = vectorize(converter = IntOffset.VectorConverter)
@@ -1946,7 +1927,7 @@ internal fun SpringSpec<IntOffset>.getVelocityAtFrame(
             playTimeNanos = frameInNanos * frameCount,
             initialValue = IntOffset.VectorConverter.convertToVector(IntOffset(0, from.toInt())),
             targetValue = IntOffset.VectorConverter.convertToVector(IntOffset(0, to.toInt())),
-            initialVelocity = IntOffset.VectorConverter.convertToVector(initialVelocity)
+            initialVelocity = IntOffset.VectorConverter.convertToVector(initialVelocity),
         )
     )
 }

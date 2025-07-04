@@ -33,7 +33,7 @@ import kotlinx.coroutines.withContext
 
 internal class MultiProcessCoordinator(
     private val context: CoroutineContext,
-    protected val file: File
+    protected val file: File,
 ) : InterProcessCoordinator {
     // TODO(b/269375542): the flow should `flowOn` the provided [context]
     override val updateNotifications: Flow<Unit> = MulticastFileObserver.observe(file)
@@ -71,7 +71,7 @@ internal class MultiProcessCoordinator(
                                 .tryLock(
                                     /* position= */ 0L,
                                     /* size= */ Long.MAX_VALUE,
-                                    /* shared= */ true
+                                    /* shared= */ true,
                                 )
                     } catch (ex: IOException) {
                         // TODO(b/255419657): Update the shared lock IOException handling logic for
@@ -123,7 +123,6 @@ internal class MultiProcessCoordinator(
     }
 
     private val lazySharedCounter = lazy {
-        SharedCounter.loadLib()
         SharedCounter.create {
             val versionFile = fileWithSuffix(VERSION_SUFFIX)
             versionFile.createIfNotExists()

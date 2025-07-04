@@ -75,18 +75,15 @@ public class FontResourcesParserCompat {
      * A class that represents a font provider based font-family element in an xml file.
      */
     public static final class ProviderResourceEntry implements FamilyResourceEntry {
-        private final @NonNull FontRequest mRequest;
-        private final @Nullable FontRequest mFallbackRequest;
+        private final @NonNull List<FontRequest> mRequests;
         private final int mTimeoutMs;
         private final @FetchStrategy int mStrategy;
         private final @Nullable String mSystemFontFamilyName;
 
         @RestrictTo(LIBRARY)
-        public ProviderResourceEntry(@NonNull FontRequest request,
-                @Nullable FontRequest fallbackRequest, @FetchStrategy int strategy,
-                int timeoutMs, @Nullable String systemFontFamilyName) {
-            mRequest = request;
-            mFallbackRequest = fallbackRequest;
+        public ProviderResourceEntry(@NonNull List<FontRequest> requests,
+                @FetchStrategy int strategy, int timeoutMs, @Nullable String systemFontFamilyName) {
+            mRequests = requests;
             mStrategy = strategy;
             mTimeoutMs = timeoutMs;
             mSystemFontFamilyName = systemFontFamilyName;
@@ -94,15 +91,25 @@ public class FontResourcesParserCompat {
 
         public ProviderResourceEntry(@NonNull FontRequest request, @FetchStrategy int strategy,
                 int timeoutMs) {
-            this(request, null, strategy, timeoutMs, null /*systemFontFamilyName*/);
+            this(Collections.singletonList(request), strategy, timeoutMs,
+                    null /*systemFontFamilyName*/);
+        }
+
+        @RestrictTo(LIBRARY)
+        public @NonNull List<FontRequest> getRequests() {
+            return mRequests;
         }
 
         public @NonNull FontRequest getRequest() {
-            return mRequest;
+            return mRequests.get(0);
         }
 
         public @Nullable FontRequest getFallbackRequest() {
-            return mFallbackRequest;
+            if (mRequests.size() < 2) {
+                return null;
+            } else {
+                return mRequests.get(1);
+            }
         }
 
         public @FetchStrategy int getFetchStrategy() {
@@ -226,25 +233,48 @@ public class FontResourcesParserCompat {
                 .getString(R.styleable.FontFamily_fontProviderSystemFontFamily);
 
         array.recycle();
-        if (authority != null && providerPackage != null && query != null) {
-            while (parser.next() != XmlPullParser.END_TAG) {
-                skip(parser);
-            }
+
+        boolean isProviderFont = authority != null && providerPackage != null;
+
+        if (isProviderFont) {
             List<List<byte[]>> certs = readCerts(resources, certsId);
-            FontRequest fallbackRequest;
-            if (fallbackQuery != null) {
-                fallbackRequest = new FontRequest(authority, providerPackage, fallbackQuery, certs);
-            } else {
-                fallbackRequest = null;
+
+            List<FontRequest> requests = new ArrayList<>();
+            while (parser.next() != XmlPullParser.END_TAG) {
+                if (parser.getEventType() != XmlPullParser.START_TAG) continue;
+                String tag = parser.getName();
+                if (tag.equals("fallback")) {
+                    requests.add(readFallback(
+                            parser,
+                            resources,
+                            authority,
+                            providerPackage,
+                            certs));
+                } else {
+                    skip(parser);
+                }
             }
-            return new ProviderResourceEntry(
-                    new FontRequest(authority, providerPackage, query, certs),
-                    fallbackRequest,
-                    strategy,
-                    timeoutMs,
-                    systemFontFamilyName
-            );
+
+            if (!requests.isEmpty()) {
+                // If both fallback children and query attribute are provided, ignore the query
+                // attribute.
+                return new ProviderResourceEntry(requests, strategy, timeoutMs,
+                        systemFontFamilyName);
+            } else if (query != null) {
+                // Legacy font provider definition.
+                requests.add(new FontRequest(authority, providerPackage, query, certs, null, null));
+                if (fallbackQuery != null) {
+                    requests.add(new FontRequest(authority, providerPackage, fallbackQuery, certs,
+                            null, null));
+                }
+                return new ProviderResourceEntry(requests, strategy, timeoutMs,
+                        systemFontFamilyName);
+            } else {
+                throw new IllegalArgumentException(
+                        "The provider font XML requires query attribute or fallback children.");
+            }
         }
+
         List<FontFileResourceEntry> fonts = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -318,6 +348,27 @@ public class FontResourcesParserCompat {
             result.add(Base64.decode(item, Base64.DEFAULT));
         }
         return result;
+    }
+
+    private static FontRequest readFallback(XmlPullParser parser, Resources res,
+            @NonNull String authority, @NonNull String pkg, @NonNull List<List<byte[]>> cert
+    ) throws XmlPullParserException, IOException {
+        AttributeSet attrs = Xml.asAttributeSet(parser);
+        try (TypedArray a = res.obtainAttributes(attrs, R.styleable.FontFamilyProviderFallback)) {
+            final String query = a.getString(
+                    R.styleable.FontFamilyProviderFallback_fontProviderQuery);
+            final String systemFont = a.getString(
+                    R.styleable.FontFamilyProviderFallback_fontProviderSystemFontFamily);
+            final String variationSettings = a.getString(
+                    R.styleable.FontFamilyProviderFallback_fontVariationSettings);
+            if (query == null) {
+                throw new XmlPullParserException("query attribute must be set in fallback element");
+            }
+            while (parser.next() != XmlPullParser.END_TAG) {
+                skip(parser);
+            }
+            return new FontRequest(authority, pkg, query, cert, systemFont, variationSettings);
+        }
     }
 
     private static FontFileResourceEntry readFont(XmlPullParser parser, Resources resources)

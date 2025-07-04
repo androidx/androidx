@@ -75,7 +75,7 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
     IOS_ARM_64("iosarm64", PlatformGroup.MAC),
     WATCHOS_SIMULATOR_ARM_64("watchossimulatorarm64", PlatformGroup.MAC),
     WATCHOS_X_64("watchosx64", PlatformGroup.MAC),
-    WATCHOS_ARM_32("watchosarm64", PlatformGroup.MAC),
+    WATCHOS_ARM_32("watchosarm32", PlatformGroup.MAC),
     WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
     WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
     TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
@@ -84,7 +84,7 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
     DESKTOP("desktop", PlatformGroup.JVM);
 
     companion object {
-        private val byId = values().associateBy { it.id }
+        private val byId = PlatformIdentifier.entries.associateBy { it.id }
 
         fun fromId(id: String): PlatformIdentifier? = byId[id]
     }

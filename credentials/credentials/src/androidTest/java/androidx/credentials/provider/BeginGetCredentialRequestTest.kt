@@ -47,7 +47,7 @@ class BeginGetCredentialRequestTest {
         val beginGetCredentialRequest =
             BeginGetCredentialRequest(
                 listOf(BeginGetCustomCredentialOption(expectedId, expectedType, expectedBundle)),
-                null
+                null,
             )
         val actualBeginGetCredentialOptionList = beginGetCredentialRequest.beginGetCredentialOptions
         val actualBeginGetCredentialOptionsSize = actualBeginGetCredentialOptionList.size

@@ -1,5 +1,6 @@
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
@@ -10,8 +11,7 @@ android {
     defaultConfig {
         applicationId = "androidx.pdf.testapp"
         minSdk = 31
-        compileSdk = 35
-        targetSdk = 31
+        compileSdk = 36
     }
 
     sourceSets {
@@ -21,11 +21,19 @@ android {
     viewBinding {
         enabled = true
     }
+
+    testOptions {
+        // speed up execution and improve flakiness of instrumented tests.
+        animationsDisabled = true
+    }
 }
 
 dependencies {
     api("com.google.android.material:material:1.11.0")
     implementation(project(":pdf:pdf-viewer-fragment"))
+    implementation(project(":pdf:pdf-compose"))
+    implementation("androidx.compose.ui:ui:1.7.8")
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
     implementation(libs.constraintLayout)
     implementation(libs.testCore)
 
@@ -41,6 +49,7 @@ dependencies {
     androidTestImplementation(project(":pdf:pdf-viewer-fragment"))
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.testUiautomator)
+    androidTestImplementation('androidx.test.espresso:espresso-intents:3.6.1')
 
     debugImplementation("androidx.fragment:fragment-testing-manifest:1.8.1")
     debugImplementation("androidx.fragment:fragment-testing:1.7.1")

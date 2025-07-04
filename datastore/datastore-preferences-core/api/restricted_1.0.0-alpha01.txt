@@ -1,12 +1,12 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.datastore.preferences {
 
   public final class PreferenceDataStoreFactory {
     ctor public PreferenceDataStoreFactory();
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.core.Preferences>>> migrationProducers = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.core.Preferences>>> migrationProducers = listOf());
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler = null);
     method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler);
+    method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.core.Preferences>>> migrationProducers);
+    method public androidx.datastore.DataStore<androidx.datastore.preferences.core.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>? corruptionHandler, optional java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.core.Preferences>>> migrationProducers, optional kotlinx.coroutines.CoroutineScope scope);
   }
 
   public final class Preferences {
@@ -41,7 +41,7 @@ package androidx.datastore.preferences {
   }
 
   public final class SharedPreferencesToPreferencesKt {
-    method public static kotlin.jvm.functions.Function0<androidx.datastore.DataMigration<androidx.datastore.preferences.core.Preferences>> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate = SharedPreferencesToPreferences.MIGRATE_ALL_KEYS, boolean deleteEmptyPreferences = true);
+    method public static kotlin.jvm.functions.Function0<androidx.datastore.DataMigration<androidx.datastore.preferences.core.Preferences>> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, optional java.util.Set<java.lang.String>? keysToMigrate, optional boolean deleteEmptyPreferences);
   }
 
 }

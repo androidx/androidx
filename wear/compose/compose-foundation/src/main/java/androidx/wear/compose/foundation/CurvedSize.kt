@@ -42,7 +42,7 @@ public fun CurvedModifier.sizeIn(
             minSweepDegrees = minSweepDegrees,
             maxSweepDegrees = maxSweepDegrees,
             minThickness = minThickness,
-            maxThickness = maxThickness
+            maxThickness = maxThickness,
         )
     }
 
@@ -55,13 +55,13 @@ public fun CurvedModifier.sizeIn(
  */
 public fun CurvedModifier.size(
     @FloatRange(from = 0.0, to = 360.0) sweepDegrees: Float,
-    thickness: Dp
+    thickness: Dp,
 ): CurvedModifier =
     sizeIn(
         minSweepDegrees = sweepDegrees,
         maxSweepDegrees = sweepDegrees,
         minThickness = thickness,
-        maxThickness = thickness
+        maxThickness = thickness,
     )
 
 /**
@@ -78,7 +78,7 @@ public fun CurvedModifier.angularSizeDp(angularWidth: Dp): CurvedModifier =
             minAngularWidth = angularWidth,
             maxAngularWidth = angularWidth,
             minThickness = 0.dp,
-            maxThickness = Dp.Infinity
+            maxThickness = Dp.Infinity,
         )
     }
 
@@ -118,7 +118,7 @@ internal class AngularWidthSizeWrapper(
     val minAngularWidth: Dp,
     val maxAngularWidth: Dp,
     minThickness: Dp,
-    maxThickness: Dp
+    maxThickness: Dp,
 ) : BaseSizeWrapper(child, minThickness, maxThickness) {
 
     private var minAngularWidthPx = 0f
@@ -160,19 +160,19 @@ internal abstract class BaseSizeWrapper(
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,
-        centerOffset: Offset
+        centerOffset: Offset,
     ): Float {
         wrapped.angularPosition(
             parentStartAngleRadians,
             parentSweepRadians = calculateSweepRadians(parentSweepRadians, measureRadius),
-            centerOffset
+            centerOffset,
         )
         return parentStartAngleRadians
     }
 
     override fun doRadialPosition(
         parentOuterRadius: Float,
-        parentThickness: Float
+        parentThickness: Float,
     ): PartialLayoutInfo {
         val partialLayoutInfo = wrapped.radialPosition(parentOuterRadius, estimatedThickness)
         return PartialLayoutInfo(
@@ -180,7 +180,7 @@ internal abstract class BaseSizeWrapper(
             parentOuterRadius,
             thickness = estimatedThickness,
             measureRadius =
-                partialLayoutInfo.measureRadius + partialLayoutInfo.outerRadius - parentOuterRadius
+                partialLayoutInfo.measureRadius + partialLayoutInfo.outerRadius - parentOuterRadius,
         )
     }
 }

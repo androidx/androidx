@@ -46,7 +46,7 @@ public class CameraAppConfig(
     private val cameraThreadConfig: CameraThreadConfig,
     private val cameraPipe: CameraPipe,
     private val camera2InteropCallbacks: CameraInteropStateCallbackRepository,
-    private val cameraCoordinator: CameraCoordinator
+    private val cameraCoordinator: CameraCoordinator,
 ) {
     @Provides public fun provideContext(): Context = context
 

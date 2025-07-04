@@ -24,7 +24,7 @@
 
 import androidx.build.BuildOnServerKt
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -61,8 +61,8 @@ dependencies {
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
     implementation(libs.javapoet)
-    implementation(libs.kotlinPoet)
-    implementation(libs.kotlinPoetJavaPoet)
+    implementation("com.squareup:kotlinpoet:2.0.0")
+    implementation("com.squareup:kotlinpoet-javapoet:2.0.0")
     implementation(libs.kspApi)
     // Must be compileOnly to not bring in antlr4 in runtime
     // Repackaged antlr4 brought in by
@@ -238,8 +238,8 @@ tasks.withType(Test).configureEach {
 
 androidx {
     name = "Room Compiler"
-    type = LibraryType.ANNOTATION_PROCESSOR
+    type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

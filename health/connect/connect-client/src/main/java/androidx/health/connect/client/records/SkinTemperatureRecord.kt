@@ -66,10 +66,10 @@ class SkinTemperatureRecord(
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
+    override val metadata: Metadata,
     val deltas: List<Delta>,
     val baseline: Temperature? = null,
     @SkinTemperatureMeasurementLocation val measurementLocation: Int = MEASUREMENT_LOCATION_UNKNOWN,
-    override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
 
     init {
@@ -141,7 +141,7 @@ class SkinTemperatureRecord(
                 SKIN_TEMPERATURE_TYPE_NAME,
                 AVERAGE,
                 TEMPERATURE_DELTA_FIELD_NAME,
-                TemperatureDelta::celsius
+                TemperatureDelta::celsius,
             )
 
         /**
@@ -156,7 +156,7 @@ class SkinTemperatureRecord(
                 SKIN_TEMPERATURE_TYPE_NAME,
                 MINIMUM,
                 TEMPERATURE_DELTA_FIELD_NAME,
-                TemperatureDelta::celsius
+                TemperatureDelta::celsius,
             )
 
         /**
@@ -171,7 +171,7 @@ class SkinTemperatureRecord(
                 SKIN_TEMPERATURE_TYPE_NAME,
                 MAXIMUM,
                 TEMPERATURE_DELTA_FIELD_NAME,
-                TemperatureDelta::celsius
+                TemperatureDelta::celsius,
             )
 
         /** Use this if the location is unknown. */

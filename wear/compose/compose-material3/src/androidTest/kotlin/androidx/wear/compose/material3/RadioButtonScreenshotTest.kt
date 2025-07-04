@@ -51,132 +51,84 @@ class RadioButtonScreenshotTest {
 
     @get:Rule val testName = TestName()
 
-    @Test
-    fun radio_button_selected() = verifyScreenshot {
-        sampleRadioButton(
-            selected = true,
-        )
-    }
+    @Test fun radio_button_selected() = verifyScreenshot { sampleRadioButton(selected = true) }
 
-    @Test
-    fun radio_button_unselected() = verifyScreenshot {
-        sampleRadioButton(
-            selected = false,
-        )
-    }
+    @Test fun radio_button_unselected() = verifyScreenshot { sampleRadioButton(selected = false) }
 
     @Test
     fun radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleRadioButton(
-                selected = true,
-            )
+            sampleRadioButton(selected = true)
         }
 
     @Test
     fun radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleRadioButton(
-                selected = false,
-            )
+            sampleRadioButton(selected = false)
         }
 
     @Test
     fun disabled_radio_button_selected() = verifyScreenshot {
-        sampleRadioButton(
-            selected = true,
-            enabled = false,
-        )
+        sampleRadioButton(selected = true, enabled = false)
     }
 
     @Test
     fun disabled_radio_button_unselected() = verifyScreenshot {
-        sampleRadioButton(
-            selected = false,
-            enabled = false,
-        )
+        sampleRadioButton(selected = false, enabled = false)
     }
 
     @Test
     fun disabled_radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleRadioButton(
-                selected = true,
-                enabled = false,
-            )
+            sampleRadioButton(selected = true, enabled = false)
         }
 
     @Test
     fun disabled_radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleRadioButton(
-                selected = false,
-                enabled = false,
-            )
+            sampleRadioButton(selected = false, enabled = false)
         }
 
     @Test
-    fun split_radio_button_selected() = verifyScreenshot {
-        sampleSplitRadioButton(
-            selected = true,
-        )
-    }
+    fun split_radio_button_selected() = verifyScreenshot { sampleSplitRadioButton(selected = true) }
 
     @Test
     fun split_radio_button_unselected() = verifyScreenshot {
-        sampleSplitRadioButton(
-            selected = false,
-        )
+        sampleSplitRadioButton(selected = false)
     }
 
     @Test
     fun split_radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitRadioButton(
-                selected = true,
-            )
+            sampleSplitRadioButton(selected = true)
         }
 
     @Test
     fun split_radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitRadioButton(
-                selected = false,
-            )
+            sampleSplitRadioButton(selected = false)
         }
 
     @Test
     fun disabled_split_radio_button_selected() = verifyScreenshot {
-        sampleSplitRadioButton(
-            selected = true,
-            enabled = false,
-        )
+        sampleSplitRadioButton(selected = true, enabled = false)
     }
 
     @Test
     fun disabled_split_radio_button_unselected() = verifyScreenshot {
-        sampleSplitRadioButton(
-            selected = false,
-            enabled = false,
-        )
+        sampleSplitRadioButton(selected = false, enabled = false)
     }
 
     @Test
     fun disabled_split_radio_button_selected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitRadioButton(
-                selected = true,
-                enabled = false,
-            )
+            sampleSplitRadioButton(selected = true, enabled = false)
         }
 
     @Test
     fun disabled_split_radio_button_unselected_rtl() =
         verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-            sampleSplitRadioButton(
-                selected = false,
-                enabled = false,
-            )
+            sampleSplitRadioButton(selected = false, enabled = false)
         }
 
     @Test
@@ -190,10 +142,7 @@ class RadioButtonScreenshotTest {
     }
 
     @Composable
-    private fun sampleRadioButton(
-        enabled: Boolean = true,
-        selected: Boolean = true,
-    ) {
+    private fun sampleRadioButton(enabled: Boolean = true, selected: Boolean = true) {
         RadioButton(
             icon = { TestIcon() },
             label = { Text("RadioButton") },
@@ -226,7 +175,7 @@ class RadioButtonScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {

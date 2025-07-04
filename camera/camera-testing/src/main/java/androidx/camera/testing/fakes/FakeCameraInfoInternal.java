@@ -17,8 +17,11 @@
 package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.DynamicRange.SDR;
+import static androidx.camera.core.internal.StreamSpecsCalculator.NO_OP_STREAM_SPECS_CALCULATOR;
+import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.util.Range;
@@ -30,12 +33,16 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
+import androidx.camera.core.CameraUseCaseAdapterProvider;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.Logger;
 import androidx.camera.core.TorchState;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
@@ -45,6 +52,8 @@ import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
+import androidx.camera.core.internal.StreamSpecsCalculator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -69,6 +78,7 @@ import java.util.concurrent.Executor;
  * <p>This camera info can be constructed with fake values.
  */
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
+    private static final String TAG = "FakeCameraInfoInternal";
     private static final Set<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList(
                     new Range<>(12, 30),
@@ -109,8 +119,25 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private @Nullable CameraManager mCameraManager;
 
+    private final @NonNull StreamSpecsCalculator mStreamSpecsCalculator;
+
+    private @Nullable CameraUseCaseAdapterProvider mCameraUseCaseAdapterProvider;
+
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCameraInfoInternal(@NonNull StreamSpecsCalculator streamSpecsCalculator) {
+        this(/*cameraId=*/ "0", /*sensorRotation=*/ 0, CameraSelector.LENS_FACING_BACK,
+                ApplicationProvider.getApplicationContext(), streamSpecsCalculator);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCameraInfoInternal(@NonNull String cameraId,
+            @NonNull StreamSpecsCalculator streamSpecsCalculator) {
+        this(cameraId, /*sensorRotation=*/ 0, CameraSelector.LENS_FACING_BACK,
+                ApplicationProvider.getApplicationContext(), streamSpecsCalculator);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -145,11 +172,19 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public FakeCameraInfoInternal(@NonNull String cameraId, int sensorRotation,
             @CameraSelector.LensFacing int lensFacing,
             @NonNull Context context) {
+        this(cameraId, sensorRotation, lensFacing, context, NO_OP_STREAM_SPECS_CALCULATOR);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCameraInfoInternal(@NonNull String cameraId, int sensorRotation,
+            @CameraSelector.LensFacing int lensFacing,
+            @NonNull Context context, @NonNull StreamSpecsCalculator streamSpecsCalculator) {
         mCameraId = cameraId;
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
         mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mStreamSpecsCalculator = streamSpecsCalculator;
     }
 
     /**
@@ -333,6 +368,16 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     }
 
     /**
+     * Returns a {@link Rect} corresponding to
+     * {@link FakeCameraDeviceSurfaceManager#MAX_OUTPUT_SIZE}.
+     */
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull Rect getSensorRect() {
+        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
+    }
+
+    /**
      * Returns the supported dynamic ranges of this camera from a set of candidate dynamic ranges.
      *
      * <p>The dynamic ranges which represent what the camera supports will come from the dynamic
@@ -499,6 +544,40 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         } catch (CameraAccessException e) {
             throw new IllegalStateException("can't get CameraCharacteristics", e);
         }
+    }
+
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isUseCaseCombinationSupported(@NonNull List<@NonNull UseCase> useCases,
+            int cameraMode, boolean isFeatureComboInvocation, @NonNull CameraConfig cameraConfig) {
+        try {
+            StreamSpecsCalculator.Companion.calculateSuggestedStreamSpecsCompat(
+                    mStreamSpecsCalculator,
+                    cameraMode,
+                    this,
+                    useCases,
+                    cameraConfig,
+                    isFeatureComboInvocation
+            );
+        } catch (IllegalArgumentException e) {
+            Logger.d(TAG, "isUseCaseCombinationSupported: calculateSuggestedStreamSpecs failed", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void setCameraUseCaseAdapterProvider(
+            @NonNull CameraUseCaseAdapterProvider cameraUseCaseAdapterProvider) {
+        CameraInfoInternal.super.setCameraUseCaseAdapterProvider(cameraUseCaseAdapterProvider);
+        mCameraUseCaseAdapterProvider = cameraUseCaseAdapterProvider;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @Nullable CameraUseCaseAdapterProvider getCameraUseCaseAdapterProvider() {
+        return mCameraUseCaseAdapterProvider;
     }
 
     static final class FakeExposureState implements ExposureState {

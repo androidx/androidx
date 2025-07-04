@@ -84,7 +84,7 @@ internal class GraphState3A @Inject constructor() {
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
         aeLock: Boolean? = null,
-        awbLock: Boolean? = null
+        awbLock: Boolean? = null,
     ) {
         synchronized(this) {
             aeMode?.let { this.aeMode = it }

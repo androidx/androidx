@@ -81,7 +81,7 @@ public class PartialCaptureResultAdapter(
 public class CaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
     private val frameNumber: FrameNumber,
-    internal val result: FrameInfo
+    internal val result: FrameInfo,
 ) : CameraCaptureResult, UnsafeWrapper {
     override fun getAfMode(): AfMode = result.metadata.getAfMode()
 

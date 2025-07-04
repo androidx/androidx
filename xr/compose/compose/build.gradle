@@ -22,8 +22,8 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
-import androidx.build.KotlinTarget
+import androidx.build.AndroidXConfig
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -34,13 +34,16 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
+    api(project(":xr:runtime:runtime"))
+    api(project(":xr:scenecore:scenecore"))
+    api("androidx.core:core-viewtree:1.0.0")
 
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.savedstate:savedstate:1.2.1")
     implementation("androidx.activity:activity:1.9.3")
+    implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.lifecycle:lifecycle-common:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
-    implementation(project(":xr:scenecore:scenecore"))
 
     implementation("androidx.compose.animation:animation-core:1.7.5")
     implementation("androidx.compose.foundation:foundation:1.7.5")
@@ -48,10 +51,13 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.7.5")
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.compose.ui:ui-unit:1.7.5")
+    implementation("androidx.compose.ui:ui-util:1.6.0-beta01")
 
+    testImplementation(libs.espressoCore)
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoKotlin)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
@@ -60,23 +66,22 @@ dependencies {
     testImplementation("androidx.compose.ui:ui-test:1.7.5")
     testImplementation("androidx.compose.ui:ui-test-junit4:1.7.5")
     testImplementation(project(":xr:compose:compose-testing"))
+
+    compileOnly(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.jar")))
+    testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
 }
 
 android {
     defaultConfig {
-        // TODO: This should be lower, possibly 21.
-        //       Address API calls that require higher versions.
-        minSdkVersion 30
+        minSdk = 24
     }
-    namespace "androidx.xr.compose"
+    namespace = "androidx.xr.compose"
 }
 
 androidx {
     name = "XR Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Compose libraries for the androidx.xr namespace."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

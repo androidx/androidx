@@ -52,7 +52,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             "Nexus 4",
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 22)
+                            Range<Int>(21, 22),
                         )
                     )
                 )
@@ -63,7 +63,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             "Nexus 4",
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 22)
+                            Range<Int>(21, 22),
                         )
                     )
                 )
@@ -74,7 +74,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             "Nexus 4",
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 22)
+                            Range<Int>(21, 22),
                         )
                     )
                 )
@@ -85,7 +85,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             "Nexus 4",
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 22)
+                            Range<Int>(21, 22),
                         )
                     )
                 )
@@ -96,7 +96,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                             TargetAspectRatio.RATIO_ORIGINAL,
-                            ALL_API_LEVELS
+                            ALL_API_LEVELS,
                         )
                     )
                 )
@@ -107,7 +107,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                             TargetAspectRatio.RATIO_ORIGINAL,
-                            ALL_API_LEVELS
+                            ALL_API_LEVELS,
                         )
                     )
                 )
@@ -118,7 +118,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                             TargetAspectRatio.RATIO_ORIGINAL,
-                            ALL_API_LEVELS
+                            ALL_API_LEVELS,
                         )
                     )
                 )
@@ -129,7 +129,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                             TargetAspectRatio.RATIO_ORIGINAL,
-                            ALL_API_LEVELS
+                            ALL_API_LEVELS,
                         )
                     )
                 )
@@ -141,7 +141,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 21)
+                            Range<Int>(21, 21),
                         )
                     )
                 )
@@ -152,7 +152,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 21)
+                            Range<Int>(21, 21),
                         )
                     )
                 )
@@ -163,7 +163,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 21)
+                            Range<Int>(21, 21),
                         )
                     )
                 )
@@ -174,7 +174,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                             null,
                             CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                             TargetAspectRatio.RATIO_MAX_JPEG,
-                            Range<Int>(21, 21)
+                            Range<Int>(21, 21),
                         )
                     )
                 )
@@ -197,8 +197,8 @@ class TargetAspectRatioTest(val config: TestConfig) {
                 characteristics =
                     mapOf(
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to config.hardwareLevel,
-                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map
-                    )
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map,
+                    ),
             )
 
         val outputSizesCorrector = OutputSizesCorrector(cameraMetadata, map)
@@ -216,12 +216,13 @@ class TargetAspectRatioTest(val config: TestConfig) {
         else TargetAspectRatio.RATIO_ORIGINAL
     }
 
+    @Suppress("DATA_CLASS_COPY_VISIBILITY_WILL_BE_CHANGED_WARNING")
     data class TestConfig
     internal constructor(
         val brand: String?,
         val model: String?,
         val hardwareLevel: Int,
         @field:TargetAspectRatio.Ratio @param:TargetAspectRatio.Ratio val expectedAspectRatio: Int,
-        val affectedApiLevels: Range<Int>
+        val affectedApiLevels: Range<Int>,
     )
 }

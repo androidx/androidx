@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/420551535
+
 package androidx.compose.foundation.lazy.list
 
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.ComposeFoundationFlags.isAutomaticNestedPrefetchEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -39,6 +42,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -53,15 +57,16 @@ class LazyListNestedPrefetchingTest(val config: Config) :
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> =
-            arrayOf(
-                Config(Orientation.Vertical),
-                Config(Orientation.Horizontal),
-            )
+            arrayOf(Config(Orientation.Vertical), Config(Orientation.Horizontal))
 
-        class Config(
-            val orientation: Orientation,
-        ) {
+        class Config(val orientation: Orientation) {
             override fun toString() = "orientation=$orientation"
+        }
+
+        @JvmStatic
+        @BeforeClass
+        fun setUp() {
+            isAutomaticNestedPrefetchEnabled = false
         }
     }
 
@@ -172,7 +177,7 @@ class LazyListNestedPrefetchingTest(val config: Config) :
             state,
             createNestedLazyListState = {
                 LazyListState(prefetchStrategy = LazyListPrefetchStrategy(1))
-            }
+            },
         )
 
         val prefetchIndex = 2
@@ -208,7 +213,7 @@ class LazyListNestedPrefetchingTest(val config: Config) :
                 LazyListState(
                     prefetchStrategy = NestedPrefetchWithConstraintsStrategy(nestedConstraints)
                 )
-            }
+            },
         )
 
         val prefetchIndex = 2
@@ -257,6 +262,63 @@ class LazyListNestedPrefetchingTest(val config: Config) :
             .inOrder()
     }
 
+    @Test
+    fun automaticNestedPrefetchingBasedOnNumberOfVisibleItems() {
+        isAutomaticNestedPrefetchEnabled = true
+
+        val state = createState() // using the default strategy
+        composeList(
+            state,
+            createNestedLazyListState = {
+                LazyListState(
+                    prefetchStrategy = LazyListPrefetchStrategy(1),
+                    firstVisibleItemIndex = 5,
+                )
+            },
+        )
+
+        val prefetchIndex = 2
+        val actions = trackingActions {
+            rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
+
+            waitForPrefetch()
+        }
+
+        // First scroll will initialize the nested prefetch count to 2, but use 1 as the initial
+        // nested prefetch count
+        assertThat(actions)
+            .containsExactly(
+                Action.Compose(prefetchIndex),
+                Action.Compose(prefetchIndex, 5),
+                Action.Measure(prefetchIndex),
+                Action.Measure(prefetchIndex, 5),
+                Action.Compose(prefetchIndex, 6),
+                Action.Measure(prefetchIndex, 6),
+            )
+            .inOrder()
+
+        // jump ahead
+        rule.runOnIdle { runBlocking { state.scrollToItem(10) } }
+
+        val newActions = trackingActions {
+            rule.runOnIdle { runBlocking { state.scrollBy(5f) } }
+
+            waitForPrefetch()
+        }
+
+        // Second scroll will use the initialized nested prefetch count
+        assertThat(newActions)
+            .containsExactly(
+                Action.Compose(prefetchIndex + 10),
+                Action.Compose(prefetchIndex + 10, 5),
+                Action.Compose(prefetchIndex + 10, 6),
+                Action.Measure(prefetchIndex + 10),
+                Action.Measure(prefetchIndex + 10, 5),
+                Action.Measure(prefetchIndex + 10, 6),
+            )
+            .inOrder()
+    }
+
     private var actions: MutableList<Action>? = null
 
     /** Returns the list of Actions performed during block() */
@@ -282,14 +344,14 @@ class LazyListNestedPrefetchingTest(val config: Config) :
 
     private fun composeList(
         lazyListState: LazyListState,
-        createNestedLazyListState: (index: Int) -> LazyListState = { LazyListState() }
+        createNestedLazyListState: (index: Int) -> LazyListState = { LazyListState() },
     ) {
         rule.setContent {
             LazyColumnOrRow(
                 modifier = Modifier.mainAxisSize(itemsSizeDp * 1.5f),
-                state = lazyListState
+                state = lazyListState,
             ) {
-                items(100) { index ->
+                items(100, contentType = { "NESTED_LIST" }) { index ->
                     TrackActiveNodesEffect(index)
                     val nestedState = remember(index) { createNestedLazyListState(index) }
                     LazyColumnOrRow(
@@ -338,15 +400,21 @@ class LazyListNestedPrefetchingTest(val config: Config) :
     @OptIn(ExperimentalFoundationApi::class)
     private class NestedPrefetchWithConstraintsStrategy(
         private val childConstraints: Constraints,
-        private val nestedPrefetchItemCount: Int = 2
+        private val initialNestedPrefetchItemCount: Int = 2,
     ) : LazyListPrefetchStrategy {
         override fun LazyListPrefetchScope.onScroll(delta: Float, layoutInfo: LazyListLayoutInfo) {}
 
         override fun LazyListPrefetchScope.onVisibleItemsUpdated(layoutInfo: LazyListLayoutInfo) {}
 
         override fun NestedPrefetchScope.onNestedPrefetch(firstVisibleItemIndex: Int) {
-            repeat(nestedPrefetchItemCount) { i ->
-                schedulePrefetch(firstVisibleItemIndex + i, childConstraints)
+            val resolvedNestedPrefetchCount =
+                if (nestedPrefetchItemCount == -1) {
+                    initialNestedPrefetchItemCount
+                } else {
+                    nestedPrefetchItemCount
+                }
+            repeat(resolvedNestedPrefetchCount) { i ->
+                schedulePrecompositionAndPremeasure(firstVisibleItemIndex + i, childConstraints)
             }
         }
     }

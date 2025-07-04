@@ -45,7 +45,7 @@ class CancelTest {
                 arrayOf(
                     { this.verifyMouseEvent(0, Enter, false, Offset.Zero) },
                     { this.verifyMouseEvent(0, Press, true, Offset.Zero, PrimaryButton) },
-                )
+                ),
         )
 
     @Test

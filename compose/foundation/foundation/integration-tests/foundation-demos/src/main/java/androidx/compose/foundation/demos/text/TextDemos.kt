@@ -41,6 +41,8 @@ import androidx.compose.foundation.samples.HandwritingDetectorSample
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.ui.text.samples.AnnotatedStringFromHtml
+import androidx.compose.ui.text.samples.AnnotatedStringWithBulletListCustomBulletSample
+import androidx.compose.ui.text.samples.AnnotatedStringWithBulletListSample
 
 val TextDemos =
     DemoCategory(
@@ -53,15 +55,15 @@ val TextDemos =
                     ComposableDemo("Brush") { TextBrushDemo() },
                     ComposableDemo("Brush Span") { BrushAnimatingSpanDemo() },
                     ComposableDemo("drawText") { DrawTextDemo() },
-                    ComposableDemo("Stroke") { TextStrokeDemo() }
-                )
+                    ComposableDemo("Stroke") { TextStrokeDemo() },
+                ),
             ),
             DemoCategory(
                 "Animation",
                 listOf(
                     ComposableDemo("color = { animatedColor.value }") { TextColorAnimation() },
                     ComposableDemo("GraphicsLayer (skew, scale, etc)") { TextAnimationDemo() },
-                )
+                ),
             ),
             DemoCategory(
                 "Text Layout",
@@ -76,8 +78,8 @@ val TextDemos =
                             ComposableDemo("Ellipsize and letterspacing") {
                                 EllipsizeWithLetterSpacing()
                             },
-                            ComposableDemo("Letterspacing") { LetterSpacingDemo() }
-                        )
+                            ComposableDemo("Letterspacing") { LetterSpacingDemo() },
+                        ),
                     ),
                     DemoCategory(
                         "Text Overflow",
@@ -92,25 +94,29 @@ val TextDemos =
                             ComposableDemo("Min/max lines") { BasicTextMinMaxLinesDemo() },
                             ComposableDemo("Get last character after clip") {
                                 LastClippedCharacterDemo()
-                            }
-                        )
+                            },
+                            ComposableDemo("Ellipses plays well with redraw") {
+                                EllipsizeRedrawDemo()
+                            },
+                        ),
                     ),
                     ComposableDemo("IncludeFontPadding & Clip") { TextFontPaddingDemo() },
                     ComposableDemo("Line Height Behavior") { TextLineHeightDemo() },
                     ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                     ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
-                    ComposableDemo("Auto Size") { AutoSizeTextDemo() }
-                )
+                    ComposableDemo("Auto Size") { AutoSizeTextDemo() },
+                ),
             ),
             DemoCategory(
                 "Fonts",
                 listOf(
                     ComposableDemo("Typeface") { TypefaceDemo() },
                     ComposableDemo("Variable Fonts") { VariableFontsDemo() },
+                    ComposableDemo("Font Variation Settings") { FontVariationSettingsDemo() },
                     ComposableDemo("FontFamily fallback") { FontFamilyDemo() },
                     ComposableDemo("All system font families") { SystemFontFamilyDemo() },
                     ComposableDemo("Emoji Compat") { EmojiCompatDemo() },
-                )
+                ),
             ),
             DemoCategory(
                 "Legacy Text Input (BasicTextFieldv1)",
@@ -127,8 +133,8 @@ val TextDemos =
                             },
                             ComposableDemo("Unfocused window") {
                                 CursorNotBlinkingInUnfocusedWindowDemo()
-                            }
-                        )
+                            },
+                        ),
                     ),
                     DemoCategory(
                         "Focus",
@@ -139,7 +145,7 @@ val TextDemos =
                             },
                             ComposableDemo("Focus immediately") { FocusTextFieldImmediatelyDemo() },
                             ComposableDemo("TextField focus") { TextFieldFocusDemo() },
-                        )
+                        ),
                     ),
                     ComposableDemo("Full-screen field") { FullScreenTextFieldDemo() },
                     ComposableDemo("Ime Action") { ImeActionDemo() },
@@ -155,8 +161,8 @@ val TextDemos =
                     ComposableDemo("Tail Following Text Field") { TailFollowingTextFieldDemo() },
                     ComposableDemo("Secondary input system") { PlatformTextInputAdapterDemo() },
                     ComposableDemo("Read-only field") { ReadOnlyTextFieldDemo() },
-                    ComposableDemo("Interop") { InteropTextFieldDemo() }
-                )
+                    ComposableDemo("Interop") { InteropTextFieldDemo() },
+                ),
             ),
             DemoCategory(
                 "Text Input (BasicTextFieldv2)",
@@ -165,6 +171,10 @@ val TextDemos =
                     ComposableDemo("Value/callback overload") { BasicTextFieldValueCallbackDemo() },
                     ComposableDemo("Keyboard Options") { KeyboardOptionsDemos() },
                     ComposableDemo("Keyboard Actions") { KeyboardActionsDemos() },
+                    DemoCategory(
+                        "Focus",
+                        listOf(ComposableDemo("Keyboard Navigation") { BasicTextFieldFocusDemo() }),
+                    ),
                     ComposableDemo("Decoration Box") { DecorationBoxDemos() },
                     ComposableDemo("Line limits") { TextFieldLineLimitsDemos() },
                     DemoCategory(
@@ -172,7 +182,7 @@ val TextDemos =
                         listOf(
                             ComposableDemo("Ltr") { ScrollableDemos() },
                             ComposableDemo("Rtl") { ScrollableDemosRtl() },
-                        )
+                        ),
                     ),
                     ComposableDemo("Inside Scrollable") { BasicTextFieldInScrollableDemo() },
                     ComposableDemo("Input Transformation") {
@@ -183,7 +193,7 @@ val TextDemos =
                         listOf(
                             ComposableDemo("Basic") { TextFieldReceiveContentDemo() },
                             ComposableDemo("Nested") { NestedReceiveContentDemo() },
-                        )
+                        ),
                     ),
                     ComposableDemo("Output Transformation") {
                         BasicTextFieldOutputTransformationDemos()
@@ -197,8 +207,8 @@ val TextDemos =
                     ComposableDemo("Undo/Redo") { BasicTextFieldUndoSample() },
                     ComposableDemo("Long text") { BasicTextFieldLongTextDemo() },
                     ComposableDemo("Cursor") { TextFieldCursorNotBlinkingInUnfocusedWindowDemo() },
-                    ComposableDemo("Handwriting detector") { HandwritingDetectorSample() }
-                )
+                    ComposableDemo("Handwriting detector") { HandwritingDetectorSample() },
+                ),
             ),
             DemoCategory(
                 "Selection",
@@ -214,19 +224,28 @@ val TextDemos =
                     },
                     ComposableDemo("Selection & DropdownMenu") { DropdownMenuSelection() },
                     ComposableDemo("Selection in Popup") { SelectionPopupDemo() },
-                )
+                ),
             ),
             DemoCategory(
                 "\uD83D\uDD75️️️ Memory allocs",
                 listOf(
                     ComposableDemo("\uD83D\uDD75️ SetText") { MemoryAllocsSetText() },
                     ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() },
-                    ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() }
-                )
+                    ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() },
+                ),
             ),
             ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() },
             ComposableDemo("Text Pointer Icon") { TextPointerIconDemo() },
-            ComposableDemo("Html") { AnnotatedStringFromHtml() },
+            DemoCategory(
+                "Html and bullets",
+                listOf(
+                    ComposableDemo("Html") { AnnotatedStringFromHtml() },
+                    ComposableDemo("Default bullets") { AnnotatedStringWithBulletListSample() },
+                    ComposableDemo("Custom bullets") {
+                        AnnotatedStringWithBulletListCustomBulletSample()
+                    },
+                ),
+            ),
             ComposableDemo("Show/hide keyboard via scroll") { windowInsetsNestedScrollDemo() },
-        )
+        ),
     )

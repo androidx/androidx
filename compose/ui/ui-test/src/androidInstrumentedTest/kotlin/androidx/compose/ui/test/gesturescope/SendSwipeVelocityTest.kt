@@ -56,7 +56,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
         LeftToRight(Offset(boxStart, boxMiddle), Offset(boxEnd, boxMiddle)),
         RightToLeft(Offset(boxEnd, boxMiddle), Offset(boxStart, boxMiddle)),
         TopToBottom(Offset(boxMiddle, boxStart), Offset(boxMiddle, boxEnd)),
-        BottomToTop(Offset(boxMiddle, boxEnd), Offset(boxMiddle, boxStart))
+        BottomToTop(Offset(boxMiddle, boxEnd), Offset(boxMiddle, boxStart)),
     }
 
     companion object {

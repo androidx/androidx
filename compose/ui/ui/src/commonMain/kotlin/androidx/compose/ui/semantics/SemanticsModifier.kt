@@ -37,7 +37,7 @@ interface SemanticsModifier : Modifier.Element {
         message =
             "SemanticsModifier.id is now unused and has been set to a fixed value. " +
                 "Retrieve the id from LayoutInfo instead.",
-        replaceWith = ReplaceWith("")
+        replaceWith = ReplaceWith(""),
     )
     val id: Int
         get() = -1
@@ -52,7 +52,7 @@ interface SemanticsModifier : Modifier.Element {
 internal class CoreSemanticsModifierNode(
     var mergeDescendants: Boolean,
     var isClearingSemantics: Boolean,
-    var properties: SemanticsPropertyReceiver.() -> Unit
+    var properties: SemanticsPropertyReceiver.() -> Unit,
 ) : Modifier.Node(), SemanticsModifierNode {
     override val shouldClearDescendantSemantics: Boolean
         get() = isClearingSemantics
@@ -104,14 +104,14 @@ internal class EmptySemanticsModifier : Modifier.Node(), SemanticsModifierNode {
  */
 fun Modifier.semantics(
     mergeDescendants: Boolean = false,
-    properties: (SemanticsPropertyReceiver.() -> Unit)
+    properties: (SemanticsPropertyReceiver.() -> Unit),
 ): Modifier =
     this then AppendedSemanticsElement(mergeDescendants = mergeDescendants, properties = properties)
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
-internal data class AppendedSemanticsElement(
+internal class AppendedSemanticsElement(
     val mergeDescendants: Boolean,
-    val properties: (SemanticsPropertyReceiver.() -> Unit)
+    val properties: (SemanticsPropertyReceiver.() -> Unit),
 ) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
 
     // This should only ever be called by layout inspector
@@ -126,7 +126,7 @@ internal data class AppendedSemanticsElement(
         return CoreSemanticsModifierNode(
             mergeDescendants = mergeDescendants,
             isClearingSemantics = false,
-            properties = properties
+            properties = properties,
         )
     }
 
@@ -139,6 +139,22 @@ internal data class AppendedSemanticsElement(
         name = "semantics"
         properties["mergeDescendants"] = mergeDescendants
         addSemanticsPropertiesFrom(semanticsConfiguration)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AppendedSemanticsElement) return false
+
+        if (mergeDescendants != other.mergeDescendants) return false
+        if (properties !== other.properties) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = mergeDescendants.hashCode()
+        result = 31 * result + properties.hashCode()
+        return result
     }
 }
 
@@ -165,9 +181,8 @@ fun Modifier.clearAndSetSemantics(properties: (SemanticsPropertyReceiver.() -> U
     this then ClearAndSetSemanticsElement(properties)
 
 // Implement SemanticsModifier to allow tooling to inspect the semantics configuration
-internal data class ClearAndSetSemanticsElement(
-    val properties: SemanticsPropertyReceiver.() -> Unit
-) : ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
+internal class ClearAndSetSemanticsElement(val properties: SemanticsPropertyReceiver.() -> Unit) :
+    ModifierNodeElement<CoreSemanticsModifierNode>(), SemanticsModifier {
 
     // This should only ever be called by layout inspector
     override val semanticsConfiguration: SemanticsConfiguration
@@ -182,7 +197,7 @@ internal data class ClearAndSetSemanticsElement(
         return CoreSemanticsModifierNode(
             mergeDescendants = false,
             isClearingSemantics = true,
-            properties = properties
+            properties = properties,
         )
     }
 
@@ -193,6 +208,19 @@ internal data class ClearAndSetSemanticsElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "clearAndSetSemantics"
         addSemanticsPropertiesFrom(semanticsConfiguration)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ClearAndSetSemanticsElement) return false
+
+        if (properties !== other.properties) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return properties.hashCode()
     }
 }
 

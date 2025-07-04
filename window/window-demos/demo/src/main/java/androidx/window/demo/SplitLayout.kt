@@ -50,7 +50,7 @@ class SplitLayout : FrameLayout {
     constructor(
         context: Context,
         attrs: AttributeSet?,
-        defStyleAttr: Int
+        defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr) {
         setAttributes(attrs)
     }
@@ -85,7 +85,7 @@ class SplitLayout : FrameLayout {
                 startPosition.left,
                 startPosition.top,
                 startPosition.right,
-                startPosition.bottom
+                startPosition.bottom,
             )
 
             val endPosition = splitPositions[1]
@@ -141,7 +141,7 @@ class SplitLayout : FrameLayout {
                             paddingLeft,
                             featureBounds.bottom,
                             paddingLeft + paddedWidth,
-                            paddingTop + paddedHeight
+                            paddingTop + paddedHeight,
                         )
 
                     if (
@@ -158,7 +158,7 @@ class SplitLayout : FrameLayout {
                             featureBounds.right,
                             paddingTop,
                             paddingLeft + paddedWidth,
-                            paddingTop + paddedHeight
+                            paddingTop + paddedHeight,
                         )
 
                     if (

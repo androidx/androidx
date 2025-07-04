@@ -29,7 +29,7 @@ import kotlin.math.sqrt
 public class MetricResult(
     val name: String,
     val data: List<Double>,
-    val iterationData: List<List<Double>>? = null
+    val iterationData: List<List<Double>>? = null,
 ) {
     val median: Double
     val medianIndex: Int

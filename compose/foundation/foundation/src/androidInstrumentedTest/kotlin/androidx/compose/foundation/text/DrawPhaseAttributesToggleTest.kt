@@ -52,7 +52,7 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
     class Config(
         private val description: String,
         val updateStyle: (TextStyle) -> TextStyle,
-        val initializeStyle: (TextStyle) -> TextStyle = { it }
+        val initializeStyle: (TextStyle) -> TextStyle = { it },
     ) {
         override fun toString(): String = "toggling $description"
     }
@@ -77,7 +77,7 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
                     initializeStyle = { it.copy(color = Color.Red) },
                     updateStyle = {
                         it.copy(brush = Brush.verticalGradient(listOf(Color.Blue, Color.Magenta)))
-                    }
+                    },
                 ),
                 Config(
                     "brush brushA/brushB/brushA",
@@ -86,21 +86,21 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
                     },
                     updateStyle = {
                         it.copy(brush = Brush.verticalGradient(listOf(Color.Red, Color.Blue)))
-                    }
+                    },
                 ),
                 Config(
                     "brush brushA/colorA/brushA",
                     initializeStyle = {
                         it.copy(brush = Brush.horizontalGradient(listOf(Color.Black, Color.Blue)))
                     },
-                    updateStyle = { it.copy(color = Color.Red) }
+                    updateStyle = { it.copy(color = Color.Red) },
                 ),
                 Config(
                     "alpha",
                     initializeStyle = {
                         it.copy(
                             alpha = 1f,
-                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta)
+                            brush = Brush.verticalGradient(0f to Color.Blue, 1f to Color.Magenta),
                         )
                     },
                     updateStyle = { it.copy(alpha = 0.5f, brush = it.brush) },
@@ -108,53 +108,53 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
                 Config(
                     "textDecoration none/lineThrough/none",
                     initializeStyle = { it.copy(textDecoration = TextDecoration.None) },
-                    updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) }
+                    updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) },
                 ),
                 Config(
                     "textDecoration lineThrough/none/lineThrough",
                     initializeStyle = { it.copy(textDecoration = TextDecoration.LineThrough) },
-                    updateStyle = { it.copy(textDecoration = TextDecoration.None) }
+                    updateStyle = { it.copy(textDecoration = TextDecoration.None) },
                 ),
                 Config(
                     "textDecoration null/lineThrough/null",
                     initializeStyle = { it.copy(textDecoration = null) },
-                    updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) }
+                    updateStyle = { it.copy(textDecoration = TextDecoration.LineThrough) },
                 ),
                 Config(
                     "shadow null/shadow/null",
                     initializeStyle = { it.copy(shadow = null) },
-                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) }
+                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) },
                 ),
                 Config(
                     "shadow shadowA/shadowB/shadowA",
                     initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
-                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) }
+                    updateStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 4f)) },
                 ),
                 Config(
                     "shadow shadowA/null/shadowA",
                     initializeStyle = { it.copy(shadow = Shadow(Color.Black, blurRadius = 1f)) },
-                    updateStyle = { it.copy(shadow = null) }
+                    updateStyle = { it.copy(shadow = null) },
                 ),
                 Config(
                     "drawStyle null/drawStyle/null",
                     initializeStyle = { it.copy(drawStyle = null) },
-                    updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) }
+                    updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) },
                 ),
                 Config(
                     "drawStyle drawStyleA/drawStyleB/drawStyleA",
                     initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                    updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) }
+                    updateStyle = { it.copy(drawStyle = Stroke(width = 2f)) },
                 ),
                 Config(
                     "drawStyle drawStyle/null/drawStyle",
                     initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                    updateStyle = { it.copy(drawStyle = null) }
+                    updateStyle = { it.copy(drawStyle = null) },
                 ),
                 Config(
                     "drawStyle stroke/fill/stroke",
                     initializeStyle = { it.copy(drawStyle = Stroke(width = 1f)) },
-                    updateStyle = { it.copy(drawStyle = Fill) }
-                )
+                    updateStyle = { it.copy(drawStyle = Fill) },
+                ),
             )
     }
 
@@ -203,7 +203,7 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
                 AnnotatedString("TextPainter"),
                 style = style,
                 modifier = Modifier.testTag(textTag),
-                onTextLayout = {} /* force to non-null */
+                onTextLayout = {}, /* force to non-null */
             )
         }
 
@@ -234,7 +234,7 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
                 "ABC",
                 onValueChange = {},
                 textStyle = style,
-                modifier = Modifier.testTag(textTag)
+                modifier = Modifier.testTag(textTag),
             )
         }
 

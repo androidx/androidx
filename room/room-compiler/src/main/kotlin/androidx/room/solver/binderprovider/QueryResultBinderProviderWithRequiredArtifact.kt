@@ -27,20 +27,20 @@ import androidx.room.solver.query.result.QueryResultBinder
 fun QueryResultBinderProvider.requireArtifact(
     context: Context,
     requiredType: XClassName,
-    missingArtifactErrorMsg: String
+    missingArtifactErrorMsg: String,
 ): QueryResultBinderProvider =
     QueryResultBinderProviderWithRequiredArtifact(
         context = context,
         requiredType = requiredType,
         missingArtifactErrorMsg = missingArtifactErrorMsg,
-        delegate = this
+        delegate = this,
     )
 
 private class QueryResultBinderProviderWithRequiredArtifact(
     val context: Context,
     val requiredType: XClassName,
     val missingArtifactErrorMsg: String,
-    val delegate: QueryResultBinderProvider
+    val delegate: QueryResultBinderProvider,
 ) : QueryResultBinderProvider {
     private val hasRequiredArtifact by
         lazy(LazyThreadSafetyMode.NONE) {
@@ -50,7 +50,7 @@ private class QueryResultBinderProviderWithRequiredArtifact(
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         return delegate.provide(declared, query, extras)
     }

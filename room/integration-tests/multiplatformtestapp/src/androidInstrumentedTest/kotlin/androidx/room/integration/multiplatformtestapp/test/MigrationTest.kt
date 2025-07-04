@@ -43,7 +43,7 @@ class MigrationTest : BaseMigrationTest() {
             instrumentation = instrumentation,
             driver = driver,
             databaseClass = MigrationDatabase::class,
-            file = file
+            file = file,
         )
 
     override fun getTestHelper() = migrationTestHelper
@@ -51,7 +51,7 @@ class MigrationTest : BaseMigrationTest() {
     override fun getDatabaseBuilder(): RoomDatabase.Builder<MigrationDatabase> {
         return Room.databaseBuilder<MigrationDatabase>(
                 context = instrumentation.targetContext,
-                name = file.path
+                name = file.path,
             )
             .setDriver(driver)
     }
@@ -66,7 +66,7 @@ class MigrationTest : BaseMigrationTest() {
         val v2Db =
             Room.databaseBuilder<MigrationDatabase>(
                     context = instrumentation.targetContext,
-                    name = file.path
+                    name = file.path,
                 )
                 .setDriver(driver)
                 .addMigrations(

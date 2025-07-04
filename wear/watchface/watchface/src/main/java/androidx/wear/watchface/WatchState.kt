@@ -63,7 +63,13 @@ import kotlinx.coroutines.flow.StateFlow
  * @param watchFaceInstanceId The ID associated with the watch face instance. Note there may be more
  *   than one instance associated with a [WatchFaceService]. See
  *   [androidx.wear.watchface.client.WatchFaceId] for more details.
+ *
+ *     @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class WatchState(
     public val interruptionFilter: StateFlow<Int?>,
     public val isAmbient: StateFlow<Boolean?>,
@@ -75,7 +81,7 @@ public class WatchState(
     public val digitalPreviewReferenceTimeMillis: Long,
     @Px @get:Px public val chinHeight: Int,
     public val isHeadless: Boolean,
-    public val watchFaceInstanceId: StateFlow<String>
+    public val watchFaceInstanceId: StateFlow<String>,
 ) {
     /** Whether the device is locked or not. */
     internal var isLocked: StateFlow<Boolean> = MutableStateFlow(false)
@@ -92,7 +98,7 @@ public class WatchState(
         @Px chinHeight: Int,
         isHeadless: Boolean,
         watchFaceInstanceId: StateFlow<String>,
-        isLocked: StateFlow<Boolean>
+        isLocked: StateFlow<Boolean>,
     ) : this(
         interruptionFilter,
         isAmbient,
@@ -104,7 +110,7 @@ public class WatchState(
         digitalPreviewReferenceTimeMillis,
         chinHeight,
         isHeadless,
-        watchFaceInstanceId
+        watchFaceInstanceId,
     ) {
         this.isLocked = isLocked
     }
@@ -120,7 +126,7 @@ public class WatchState(
         analogPreviewReferenceTimeMillis: Long,
         digitalPreviewReferenceTimeMillis: Long,
         chinHeight: Int,
-        isHeadless: Boolean
+        isHeadless: Boolean,
     ) : this(
         interruptionFilter,
         isAmbient,
@@ -133,7 +139,7 @@ public class WatchState(
         chinHeight,
         isHeadless,
         watchFaceInstanceId = MutableStateFlow(DEFAULT_INSTANCE_ID),
-        MutableStateFlow(false)
+        MutableStateFlow(false),
     )
 
     @UiThread
@@ -191,6 +197,6 @@ public class MutableWatchState() {
             chinHeight = chinHeight,
             isHeadless = isHeadless,
             watchFaceInstanceId = watchFaceInstanceId,
-            isLocked = isLocked
+            isLocked = isLocked,
         )
 }

@@ -66,7 +66,7 @@ class BasicTextFieldLayoutPhaseToggleTest {
             BasicTextField(
                 state = state,
                 textStyle = TextStyle(fontWeight = fontWeight),
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier.background(Color.White),
             )
         }
 
@@ -93,7 +93,7 @@ class BasicTextFieldLayoutPhaseToggleTest {
             BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(textAlign = textAlign),
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier.background(Color.White),
             )
         }
 
@@ -124,7 +124,7 @@ class BasicTextFieldLayoutPhaseToggleTest {
                     textStyle = textStyle,
                     modifier = Modifier.weight(1f),
                     lineLimits = TextFieldLineLimits.SingleLine,
-                    onTextLayout = { textLayoutResult = it.invoke() }
+                    onTextLayout = { textLayoutResult = it.invoke() },
                 )
             }
         }

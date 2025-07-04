@@ -630,7 +630,7 @@ class ProcessKeyInputTest {
      */
     private fun keyEvent(
         @Suppress("SameParameterValue") keycode: Int,
-        keyEventType: KeyEventType
+        keyEventType: KeyEventType,
     ): KeyEvent {
         val action =
             when (keyEventType) {

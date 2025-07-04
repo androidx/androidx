@@ -1,0 +1,83 @@
+// Signature format: 4.0
+package androidx.navigationevent {
+
+  public final class NavigationEvent {
+    ctor public NavigationEvent(float touchX, float touchY, float progress, int swipeEdge, optional long frameTimeMillis);
+    method public long getFrameTimeMillis();
+    method public float getProgress();
+    method public int getSwipeEdge();
+    method public float getTouchX();
+    method public float getTouchY();
+    property public long frameTimeMillis;
+    property public float progress;
+    property public int swipeEdge;
+    property public float touchX;
+    property public float touchY;
+    field public static final androidx.navigationevent.NavigationEvent.Companion Companion;
+    field public static final int EDGE_LEFT = 0; // 0x0
+    field public static final int EDGE_NONE = 2; // 0x2
+    field public static final int EDGE_RIGHT = 1; // 0x1
+  }
+
+  public static final class NavigationEvent.Companion {
+    property public static int EDGE_LEFT;
+    property public static int EDGE_NONE;
+    property public static int EDGE_RIGHT;
+  }
+
+  public abstract class NavigationEventCallback {
+    ctor public NavigationEventCallback(boolean isEnabled, optional boolean isPassThrough);
+    method public final boolean isEnabled();
+    method public final boolean isPassThrough();
+    method public void onEventCancelled();
+    method public void onEventCompleted();
+    method public void onEventProgressed(androidx.navigationevent.NavigationEvent event);
+    method public void onEventStarted(androidx.navigationevent.NavigationEvent event);
+    method public final void remove();
+    method public final void setEnabled(boolean);
+    property public final boolean isEnabled;
+    property public final boolean isPassThrough;
+  }
+
+  public final class NavigationEventDispatcher {
+    ctor public NavigationEventDispatcher();
+    ctor public NavigationEventDispatcher(optional kotlin.jvm.functions.Function0<kotlin.Unit>? fallbackOnBackPressed, optional kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHasEnabledCallbacksChanged);
+    method @MainThread public void addCallback(androidx.navigationevent.NavigationEventCallback callback, optional int priority);
+    method @BytecodeOnly @MainThread public void addCallback-3owFMvg(androidx.navigationevent.NavigationEventCallback, int);
+    method @MainThread public void dispatchOnCancelled();
+    method @MainThread public void dispatchOnCompleted();
+    method @MainThread public void dispatchOnProgressed(androidx.navigationevent.NavigationEvent event);
+    method @MainThread public void dispatchOnStarted(androidx.navigationevent.NavigationEvent event);
+    method public boolean hasEnabledCallbacks();
+  }
+
+  public interface NavigationEventDispatcherOwner {
+    method public androidx.navigationevent.NavigationEventDispatcher getNavigationEventDispatcher();
+    property public abstract androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
+  }
+
+  @kotlin.jvm.JvmInline public final value class NavigationEventPriority {
+    method @BytecodeOnly public static androidx.navigationevent.NavigationEventPriority! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.navigationevent.NavigationEventPriority.Companion Companion;
+  }
+
+  public static final class NavigationEventPriority.Companion {
+    method @BytecodeOnly public int getDefault-b1THaJE();
+    method @BytecodeOnly public int getOverlay-b1THaJE();
+    property public androidx.navigationevent.NavigationEventPriority Default;
+    property public androidx.navigationevent.NavigationEventPriority Overlay;
+  }
+
+  public final class NavigationInputHandler {
+    ctor public NavigationInputHandler(androidx.navigationevent.NavigationEventDispatcher dispatcher);
+    method @RequiresApi(33) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);
+  }
+
+  public final class ViewTreeNavigationEventDispatcherOwner_androidKt {
+    method public static androidx.navigationevent.NavigationEventDispatcherOwner? get(android.view.View);
+    method public static void set(android.view.View, androidx.navigationevent.NavigationEventDispatcherOwner navigationEventDispatcherOwner);
+  }
+
+}
+

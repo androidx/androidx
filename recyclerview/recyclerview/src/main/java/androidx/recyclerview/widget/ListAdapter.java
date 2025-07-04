@@ -16,8 +16,8 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -104,7 +104,7 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
     };
 
     @SuppressWarnings("unused")
-    protected ListAdapter(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
+    protected ListAdapter(DiffUtil.@NonNull ItemCallback<T> diffCallback) {
         mDiffer = new AsyncListDiffer<>(new AdapterListUpdateCallback(this),
                 new AsyncDifferConfig.Builder<>(diffCallback).build());
         mDiffer.addListListener(mListener);
@@ -142,7 +142,7 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      * @param commitCallback Optional runnable that is executed when the List is committed, if
      *                       it is committed.
      */
-    public void submitList(@Nullable List<T> list, @Nullable final Runnable commitCallback) {
+    public void submitList(@Nullable List<T> list, final @Nullable Runnable commitCallback) {
         mDiffer.submitList(list, commitCallback);
     }
 
@@ -168,8 +168,7 @@ public abstract class ListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @see #onCurrentListChanged(List, List)
      */
-    @NonNull
-    public List<T> getCurrentList() {
+    public @NonNull List<T> getCurrentList() {
         return mDiffer.getCurrentList();
     }
 

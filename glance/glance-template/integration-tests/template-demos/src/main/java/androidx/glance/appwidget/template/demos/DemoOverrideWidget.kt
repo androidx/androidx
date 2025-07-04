@@ -64,7 +64,7 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
                                 icon =
                                     TemplateImageWithDescription(
                                         ImageProvider(R.drawable.ic_widgets),
-                                        "icon"
+                                        "icon",
                                     ),
                             ),
                         textBlock =
@@ -74,7 +74,7 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
                                 text3 =
                                     TemplateText(
                                         "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
-                                        TextType.Label
+                                        TextType.Label,
                                     ),
                                 priority = 0,
                             ),
@@ -84,7 +84,7 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
                                     listOf(
                                         TemplateImageWithDescription(
                                             ImageProvider(R.drawable.palm_leaf),
-                                            "image"
+                                            "image",
                                         )
                                     ),
                                 priority = 1,
@@ -100,7 +100,7 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.Red),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 "User layout override for horizontal display",
@@ -108,8 +108,8 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
                     TextStyle(
                         fontSize = 36.sp,
                         color = ColorProvider(Color.White),
-                        textAlign = TextAlign.Center
-                    )
+                        textAlign = TextAlign.Center,
+                    ),
             )
         }
     }

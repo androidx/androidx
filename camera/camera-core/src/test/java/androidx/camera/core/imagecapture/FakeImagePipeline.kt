@@ -32,7 +32,7 @@ import org.mockito.Mockito.mock
 class FakeImagePipeline(
     config: ImageCaptureConfig,
     cameraSurfaceSize: Size,
-    cameraCharacteristics: CameraCharacteristics
+    cameraCharacteristics: CameraCharacteristics,
 ) : ImagePipeline(config, cameraSurfaceSize, cameraCharacteristics) {
 
     private var currentProcessingRequest: ProcessingRequest? = null
@@ -52,14 +52,14 @@ class FakeImagePipeline(
         this(
             createEmptyImageCaptureConfig(),
             Size(640, 480),
-            mock(CameraCharacteristics::class.java)
+            mock(CameraCharacteristics::class.java),
         )
 
     @MainThread
     internal override fun createRequests(
         request: TakePictureRequest,
         callback: TakePictureCallback,
-        captureFuture: ListenableFuture<Void>
+        captureFuture: ListenableFuture<Void>,
     ): Pair<CameraRequest, ProcessingRequest> {
         if (responseMap[request] == null) {
             val captureConfig =
@@ -68,7 +68,7 @@ class FakeImagePipeline(
             responseMap[request] =
                 Pair(
                     CameraRequest(captureConfig, callback),
-                    FakeProcessingRequest({ mutableListOf() }, callback, captureFuture)
+                    FakeProcessingRequest({ mutableListOf() }, callback, captureFuture),
                 )
         }
         return responseMap[request]!!

@@ -42,25 +42,47 @@ import kotlin.math.PI
  * be used to augment the [Brush] color when drawing. The default values below produce a static
  * circular tip shape with diameter equal to the [Brush] size and no color shift.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @ExperimentalInkCustomBrushApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
-public class BrushTip(
+public class BrushTip
+private constructor(
+    /** A handle to the underlying native [BrushTip] object. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long,
+    behaviors: List<BrushBehavior>,
+) {
     /**
-     * 2D scale used to calculate the initial width and height of the tip shape relative to the
-     * brush size prior to applying [slant] and [rotation].
-     *
-     * The base width and height of the tip will be equal to the brush size multiplied by [scaleX]
-     * and [scaleY] respectively. Valid values must be finite and non-negative, with at least one
-     * value greater than zero.
+     * A list of [BrushBehavior]s that allow dynamic properties of each input to augment the tip
+     * shape and color.
      */
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = true,
-        to = Double.POSITIVE_INFINITY,
-        toInclusive = false
+    public val behaviors: List<BrushBehavior> = unmodifiableList(behaviors.toList())
+
+    public constructor(
+        @FloatRange(from = 0.0, toInclusive = false) scaleX: Float = 1f,
+        @FloatRange(from = 0.0, toInclusive = false) scaleY: Float = 1f,
+        @FloatRange(from = 0.0, to = 1.0) cornerRounding: Float = 1f,
+        @FloatRange(from = -PI / 2, to = PI / 2) @AngleRadiansFloat slant: Float = Angle.ZERO,
+        @FloatRange(from = 0.0, to = 1.0) pinch: Float = 0f,
+        @AngleRadiansFloat rotation: Float = Angle.ZERO,
+        @FloatRange(from = 0.0, to = 2.0) opacityMultiplier: Float = 1f,
+        @FloatRange(from = 0.0, toInclusive = false) particleGapDistanceScale: Float = 0f,
+        @IntRange(from = 0L) particleGapDurationMillis: Long = 0L,
+        behaviors: List<BrushBehavior> = emptyList(),
+    ) : this(
+        BrushTipNative.create(
+            scaleX,
+            scaleY,
+            cornerRounding,
+            slant,
+            pinch,
+            rotation,
+            opacityMultiplier,
+            particleGapDistanceScale,
+            particleGapDurationMillis,
+            behaviors.map { it.nativePointer }.toLongArray(),
+        ),
+        behaviors,
     )
-    public val scaleX: Float = 1f,
 
     /**
      * 2D scale used to calculate the initial width and height of the tip shape relative to the
@@ -70,24 +92,33 @@ public class BrushTip(
      * and [scaleY] respectively. Valid values must be finite and non-negative, with at least one
      * value greater than zero.
      */
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = true,
-        to = Double.POSITIVE_INFINITY,
-        toInclusive = false
-    )
-    public val scaleY: Float = 1f,
+    @get:FloatRange(from = 0.0, toInclusive = false)
+    public val scaleX: Float
+        get() = BrushTipNative.getScaleX(nativePointer)
+
+    /**
+     * 2D scale used to calculate the initial width and height of the tip shape relative to the
+     * brush size prior to applying [slant] and [rotation].
+     *
+     * The base width and height of the tip will be equal to the brush size multiplied by [scaleX]
+     * and [scaleY] respectively. Valid values must be finite and non-negative, with at least one
+     * value greater than zero.
+     */
+    @get:FloatRange(from = 0.0, toInclusive = false)
+    public val scaleY: Float
+        get() = BrushTipNative.getScaleY(nativePointer)
 
     /**
      * A normalized value in the range [0, 1] that is used to calculate the initial radius of
      * curvature for the tip's corners. A value of 0 results in sharp corners and a value of 1
      * results in the maximum radius of curvature given the current tip dimensions.
      */
-    @FloatRange(from = 0.0, fromInclusive = true, to = 1.0, toInclusive = true)
-    public val cornerRounding: Float = 1f,
+    @get:FloatRange(from = 0.0, to = 1.0)
+    public val cornerRounding: Float
+        get() = BrushTipNative.getCornerRounding(nativePointer)
 
     /**
-     * Angle in readians used to calculate the initial slant of the tip shape prior to applying
+     * Angle in radians used to calculate the initial slant of the tip shape prior to applying
      * [rotation].
      *
      * The value should be in the range [-π/2, π/2] radians, and represents the angle by which
@@ -99,9 +130,10 @@ public class BrushTip(
      * to "pressing" a rectangle into a parallelogram with non-right angles while preserving the
      * side lengths.
      */
-    @FloatRange(from = -PI / 2, fromInclusive = true, to = PI / 2, toInclusive = true)
-    @AngleRadiansFloat
-    public val slant: Float = Angle.ZERO,
+    @get:FloatRange(from = -PI / 2, to = PI / 2)
+    @get:AngleRadiansFloat
+    public val slant: Float
+        get() = BrushTipNative.getSlantRadians(nativePointer)
 
     /**
      * A unitless parameter in the range [0, 1] that controls the separation between two of the
@@ -116,14 +148,17 @@ public class BrushTip(
      * will bring the corners closer together to result in a (possibly slanted) trapezoidal shape. A
      * value of 1 will make the two corners coincide and result in a triangular shape.
      */
-    @FloatRange(from = 0.0, fromInclusive = true, to = 1.0, toInclusive = true)
-    public val pinch: Float = 0f,
+    @get:FloatRange(from = 0.0, to = 1.0)
+    public val pinch: Float
+        get() = BrushTipNative.getPinch(nativePointer)
 
     /**
      * Angle in radians specifying the initial rotation of the tip shape after applying [scaleX],
      * [scaleY], [pinch], and [slant].
      */
-    @AngleRadiansFloat public val rotation: Float = Angle.ZERO,
+    @get:AngleRadiansFloat
+    public val rotation: Float
+        get() = BrushTipNative.getRotationRadians(nativePointer)
 
     /**
      * Scales the opacity of the base brush color for this tip, independent of `brush_behavior`s. A
@@ -132,8 +167,9 @@ public class BrushTip(
      * The multiplier must be in the range [0, 2] and the value ultimately applied can be modified
      * by applicable `brush_behavior`s.
      */
-    @FloatRange(from = 0.0, fromInclusive = true, to = 2.0, toInclusive = true)
-    public val opacityMultiplier: Float = 1f,
+    @get:FloatRange(from = 0.0, to = 2.0)
+    public val opacityMultiplier: Float
+        get() = BrushTipNative.getOpacityMultiplier(nativePointer)
 
     /**
      * Parameter controlling emission of particles as a function of distance traveled by the stroke
@@ -144,13 +180,9 @@ public class BrushTip(
      * made up of particles. A new particle will be emitted after at least
      * [particleGapDistanceScale] * [Brush.size] distance has been traveled by the stoke inputs.
      */
-    @FloatRange(
-        from = 0.0,
-        fromInclusive = true,
-        to = Double.POSITIVE_INFINITY,
-        toInclusive = false
-    )
-    public val particleGapDistanceScale: Float = 0f,
+    @get:FloatRange(from = 0.0, toInclusive = false)
+    public val particleGapDistanceScale: Float
+        get() = BrushTipNative.getParticleGapDistanceScale(nativePointer)
 
     /**
      * Parameter controlling emission of particles as a function of time elapsed along the stroke.
@@ -159,37 +191,9 @@ public class BrushTip(
      * gaps are introduced dynamically by `BrushBehavior`s. Otherwise, the stroke will be made up of
      * particles. Particles will be emitted at most once every [particleGapDurationMillis].
      */
-    @IntRange(from = 0L) public val particleGapDurationMillis: Long = 0L,
-
-    // The [behaviors] val below is a defensive copy of this parameter.
-    behaviors: List<BrushBehavior> = emptyList(),
-) {
-    /**
-     * A list of [BrushBehavior]s that allow dynamic properties of each input to augment the tip
-     * shape and color.
-     */
-    public val behaviors: List<BrushBehavior> = unmodifiableList(behaviors.toList())
-
-    /** A handle to the underlying native [BrushTip] object. */
-    internal val nativePointer: Long =
-        nativeCreateBrushTip(
-            scaleX,
-            scaleY,
-            cornerRounding,
-            slant,
-            pinch,
-            rotation,
-            opacityMultiplier,
-            particleGapDistanceScale,
-            particleGapDurationMillis,
-            behaviors.size,
-        )
-
-    init {
-        for (behavior in behaviors) {
-            nativeAppendBehavior(nativePointer, behavior.nativePointer)
-        }
-    }
+    @get:IntRange(from = 0L)
+    public val particleGapDurationMillis: Long
+        get() = BrushTipNative.getParticleGapDurationMillis(nativePointer)
 
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
@@ -197,15 +201,16 @@ public class BrushTip(
      */
     @JvmSynthetic
     public fun copy(
-        scaleX: Float = this.scaleX,
-        scaleY: Float = this.scaleY,
-        cornerRounding: Float = this.cornerRounding,
-        @AngleRadiansFloat slant: Float = this.slant,
-        pinch: Float = this.pinch,
+        @FloatRange(from = 0.0, toInclusive = false) scaleX: Float = this.scaleX,
+        @FloatRange(from = 0.0, toInclusive = false) scaleY: Float = this.scaleY,
+        @FloatRange(from = 0.0, to = 1.0) cornerRounding: Float = this.cornerRounding,
+        @FloatRange(from = -PI / 2, to = PI / 2) @AngleRadiansFloat slant: Float = this.slant,
+        @FloatRange(from = 0.0, to = 1.0) pinch: Float = this.pinch,
         @AngleRadiansFloat rotation: Float = this.rotation,
-        opacityMultiplier: Float = this.opacityMultiplier,
+        @FloatRange(from = 0.0, to = 2.0) opacityMultiplier: Float = this.opacityMultiplier,
+        @FloatRange(from = 0.0, toInclusive = false)
         particleGapDistanceScale: Float = this.particleGapDistanceScale,
-        particleGapDurationMillis: Long = this.particleGapDurationMillis,
+        @IntRange(from = 0L) particleGapDurationMillis: Long = this.particleGapDurationMillis,
         behaviors: List<BrushBehavior> = this.behaviors,
     ): BrushTip =
         BrushTip(
@@ -257,31 +262,43 @@ public class BrushTip(
         private var particleGapDurationMillis: Long = 0L
         private var behaviors: List<BrushBehavior> = emptyList()
 
-        public fun setScaleX(scaleX: Float): Builder = apply { this.scaleX = scaleX }
+        public fun setScaleX(@FloatRange(from = 0.0, toInclusive = false) scaleX: Float): Builder =
+            apply {
+                this.scaleX = scaleX
+            }
 
-        public fun setScaleY(scaleY: Float): Builder = apply { this.scaleY = scaleY }
+        public fun setScaleY(@FloatRange(from = 0.0, toInclusive = false) scaleY: Float): Builder =
+            apply {
+                this.scaleY = scaleY
+            }
 
-        public fun setCornerRounding(cornerRounding: Float): Builder = apply {
-            this.cornerRounding = cornerRounding
+        public fun setCornerRounding(
+            @FloatRange(from = 0.0, to = 1.0) cornerRounding: Float
+        ): Builder = apply { this.cornerRounding = cornerRounding }
+
+        public fun setSlant(
+            @FloatRange(from = -PI / 2, to = PI / 2) @AngleRadiansFloat slant: Float
+        ): Builder = apply { this.slant = slant }
+
+        public fun setPinch(@FloatRange(from = 0.0, to = 1.0) pinch: Float): Builder = apply {
+            this.pinch = pinch
         }
 
-        public fun setSlant(slant: Float): Builder = apply { this.slant = slant }
-
-        public fun setPinch(pinch: Float): Builder = apply { this.pinch = pinch }
-
-        public fun setRotation(rotation: Float): Builder = apply { this.rotation = rotation }
-
-        public fun setOpacityMultiplier(opacityMultiplier: Float): Builder = apply {
-            this.opacityMultiplier = opacityMultiplier
+        public fun setRotation(@AngleRadiansFloat rotation: Float): Builder = apply {
+            this.rotation = rotation
         }
 
-        public fun setParticleGapDistanceScale(particleGapDistanceScale: Float): Builder = apply {
-            this.particleGapDistanceScale = particleGapDistanceScale
-        }
+        public fun setOpacityMultiplier(
+            @FloatRange(from = 0.0, to = 2.0) opacityMultiplier: Float
+        ): Builder = apply { this.opacityMultiplier = opacityMultiplier }
 
-        public fun setParticleGapDurationMillis(particleGapDurationMillis: Long): Builder = apply {
-            this.particleGapDurationMillis = particleGapDurationMillis
-        }
+        public fun setParticleGapDistanceScale(
+            @FloatRange(from = 0.0, toInclusive = false) particleGapDistanceScale: Float
+        ): Builder = apply { this.particleGapDistanceScale = particleGapDistanceScale }
+
+        public fun setParticleGapDurationMillis(
+            @IntRange(from = 0L) particleGapDurationMillis: Long
+        ): Builder = apply { this.particleGapDurationMillis = particleGapDurationMillis }
 
         public fun setBehaviors(behaviors: List<BrushBehavior>): Builder = apply {
             this.behaviors = behaviors.toList()
@@ -337,14 +354,48 @@ public class BrushTip(
             " particleGapDurationMillis=$particleGapDurationMillis, behaviors=$behaviors)"
 
     /** Delete native BrushTip memory. */
+    // NOMUTANTS -- Not tested post garbage collection.
     protected fun finalize() {
-        // NOMUTANTS -- Not tested post garbage collection.
-        nativeFreeBrushTip(nativePointer)
+        // TODO: b/423019041 - Investigate why this is failing in native code with nativePointer=0
+        if (nativePointer != 0L) {
+            BrushTipNative.free(nativePointer)
+        }
+    }
+
+    // Companion object gets initialized before anything else.
+    public companion object {
+        /** Returns a new [BrushTip.Builder]. */
+        @JvmStatic public fun builder(): Builder = Builder()
+
+        /**
+         * Construct a [BrushTip] from an unowned heap-allocated native pointer to a C++ `BrushTip`.
+         *
+         * Some objects from legacy deserialization are passed in as parameters while code further
+         * down the stack is migrated to use new deserialization.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun wrapNative(unownedNativePointer: Long): BrushTip =
+            BrushTip(
+                unownedNativePointer,
+                (0 until BrushTipNative.getBehaviorCount(unownedNativePointer)).map { index ->
+                    BrushBehavior.wrapNative(
+                        BrushTipNative.newCopyOfBrushBehavior(unownedNativePointer, index)
+                    )
+                },
+            )
+    }
+}
+
+/** Singleton wrapper around native JNI calls. */
+@UsedByNative
+private object BrushTipNative {
+    init {
+        NativeLoader.load()
     }
 
     /** Create underlying native object and return reference for all subsequent native calls. */
     @UsedByNative
-    private external fun nativeCreateBrushTip(
+    external fun create(
         scaleX: Float,
         scaleY: Float,
         cornerRounding: Float,
@@ -354,27 +405,31 @@ public class BrushTip(
         opacityMultiplier: Float,
         particleGapDistanceScale: Float,
         particleGapDurationMillis: Long,
-        behaviorsCount: Int,
+        behaviorNativePointersArray: LongArray,
     ): Long
 
-    /**
-     * Appends a texture layer to a *mutable* C++ BrushTip object as referenced by [nativePointer].
-     * Only call during init{} so to keep this BrushTip object immutable after construction and
-     * equivalent across Kotlin and C++.
-     */
-    @UsedByNative
-    private external fun nativeAppendBehavior(tipNativePointer: Long, behaviorNativePointer: Long)
+    /** Release the underlying memory allocated in [create]. */
+    @UsedByNative external fun free(nativePointer: Long)
 
-    /** Release the underlying memory allocated in [nativeCreateBrushTip]. */
-    @UsedByNative private external fun nativeFreeBrushTip(nativePointer: Long)
+    @UsedByNative external fun getScaleX(nativePointer: Long): Float
 
-    // Companion object gets initialized before anything else.
-    public companion object {
-        init {
-            NativeLoader.load()
-        }
+    @UsedByNative external fun getScaleY(nativePointer: Long): Float
 
-        /** Returns a new [BrushTip.Builder]. */
-        @JvmStatic public fun builder(): Builder = Builder()
-    }
+    @UsedByNative external fun getCornerRounding(nativePointer: Long): Float
+
+    @UsedByNative external fun getSlantRadians(nativePointer: Long): Float
+
+    @UsedByNative external fun getPinch(nativePointer: Long): Float
+
+    @UsedByNative external fun getRotationRadians(nativePointer: Long): Float
+
+    @UsedByNative external fun getOpacityMultiplier(nativePointer: Long): Float
+
+    @UsedByNative external fun getParticleGapDistanceScale(nativePointer: Long): Float
+
+    @UsedByNative external fun getParticleGapDurationMillis(nativePointer: Long): Long
+
+    @UsedByNative external fun getBehaviorCount(nativePointer: Long): Int
+
+    @UsedByNative external fun newCopyOfBrushBehavior(nativePointer: Long, index: Int): Long
 }

@@ -46,7 +46,7 @@ import org.robolectric.util.ReflectionHelpers
 class FlashAvailabilityCheckerTest(
     private val manufacturer: String,
     private val model: String,
-    private val cameraProperties: CameraProperties
+    private val cameraProperties: CameraProperties,
 ) {
     @Before
     fun setup() {

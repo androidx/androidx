@@ -258,7 +258,8 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
             readValues.add(key)
             visitAncestors(Nodes.Locals) {
                 if (it.providedValues.contains(key)) {
-                    @Suppress("UNCHECKED_CAST") return it.providedValues[key] as T
+                    @Suppress("UNCHECKED_CAST")
+                    return it.providedValues[key] as T
                 }
             }
             return key.defaultFactory()
@@ -299,29 +300,29 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         return with(element as LayoutModifier) { measure(measurable, constraints) }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = with(element as LayoutModifier) { minIntrinsicWidth(measurable, height) }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = with(element as LayoutModifier) { minIntrinsicHeight(measurable, width) }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = with(element as LayoutModifier) { maxIntrinsicWidth(measurable, height) }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = with(element as LayoutModifier) { maxIntrinsicHeight(measurable, width) }
 
     override fun ContentDrawScope.draw() {
@@ -343,7 +344,7 @@ internal class BackwardsCompatNode(element: Modifier.Element) :
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         with(element as PointerInputModifier) {
             pointerInputFilter.onPointerEvent(pointerEvent, pass, bounds)

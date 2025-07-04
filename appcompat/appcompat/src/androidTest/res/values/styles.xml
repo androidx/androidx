@@ -151,4 +151,16 @@
         <item name="android:textSize">@dimen/textview_fontScaling_textSize</item>
         <item name="android:lineHeight">@dimen/textview_fontScaling_lineHeight</item>
     </style>
+
+    <style name="ActionBarContextViewTheme" parent="@style/Theme.AppCompat.NoActionBar">
+        <item name="actionModeStyle">@style/ActionBarContextViewActionModeTheme</item>
+    </style>
+
+    <style name="ActionBarContextViewActionModeTheme">
+        <item name="android:paddingLeft">10px</item>
+        <item name="android:paddingTop">20px</item>
+        <item name="android:paddingRight">30px</item>
+        <item name="android:paddingBottom">40px</item>
+        <item name="height">200px</item>
+    </style>
 </resources>

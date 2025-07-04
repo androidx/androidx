@@ -66,7 +66,7 @@ fun SystemFontFamilyDemoItem(fontFamily: FontFamily) {
                     "$weight",
                     fontFamily = fontFamily,
                     fontWeight = FontWeight(weight),
-                    fontStyle = FontStyle.Normal
+                    fontStyle = FontStyle.Normal,
                 )
             }
         }
@@ -77,7 +77,7 @@ fun SystemFontFamilyDemoItem(fontFamily: FontFamily) {
                     "$weight",
                     fontFamily = fontFamily,
                     fontWeight = FontWeight(weight),
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             }
         }

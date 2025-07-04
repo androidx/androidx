@@ -191,7 +191,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 longClick(
                     Offset(
                         rule.rootWidth().toSp().toPx() - ("xt Demo Text").length * characterSize,
-                        0.5f * characterSize
+                        0.5f * characterSize,
                     )
                 )
             }
@@ -223,12 +223,12 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag1),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag2),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
             }
         }
@@ -247,12 +247,12 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag1),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag2),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
             }
         }
@@ -271,13 +271,13 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag1),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
                 DisableSelection {
                     BasicText(
                         AnnotatedString(textContent),
                         Modifier.fillMaxWidth().testTag(tag2),
-                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                     )
                 }
             }
@@ -298,21 +298,21 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                     AnnotatedString("$textContent ".repeat(100)),
                     Modifier.fillMaxWidth().testTag(tag1),
                     style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                    softWrap = false
+                    softWrap = false,
                 )
                 DisableSelection {
                     BasicText(
                         textContent,
                         Modifier.fillMaxWidth(),
                         style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                        softWrap = false
+                        softWrap = false,
                     )
                 }
                 BasicText(
                     AnnotatedString("$textContent ".repeat(100)),
                     Modifier.fillMaxWidth().testTag(tag2),
                     style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                    softWrap = false
+                    softWrap = false,
                 )
             }
         }
@@ -334,7 +334,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                         AnnotatedString(longText),
                         Modifier.fillMaxWidth().testTag(tag1),
                         style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 }
             }
@@ -342,7 +342,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             startSelection(tag1)
             dragHandleTo(
                 handle = Handle.SelectionEnd,
-                offset = characterBox(tag1, 4).bottomRight + Offset(x = 0f, y = fontSize.toPx())
+                offset = characterBox(tag1, 4).bottomRight + Offset(x = 0f, y = fontSize.toPx()),
             )
 
             assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
@@ -360,7 +360,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                         Modifier.fillMaxWidth().testTag(tag1),
                         style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -368,7 +368,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             startSelection(tag1)
             dragHandleTo(
                 handle = Handle.SelectionEnd,
-                offset = characterBox(tag1, 4).bottomRight + Offset(x = 0f, y = fontSize.toPx())
+                offset = characterBox(tag1, 4).bottomRight + Offset(x = 0f, y = fontSize.toPx()),
             )
 
             assertAnchorInfo(selection.value?.start, offset = 0, selectableId = 1)
@@ -386,15 +386,9 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 )
             }
             Column {
-                BasicText(
-                    text = "Hello",
-                    modifier = Modifier.fillMaxWidth().testTag(tag1),
-                )
+                BasicText(text = "Hello", modifier = Modifier.fillMaxWidth().testTag(tag1))
                 BasicText(text = "THIS SHOULD NOT CAUSE CRASH", modifier = Modifier.height(0.dp))
-                BasicText(
-                    text = "World",
-                    modifier = Modifier.fillMaxWidth().testTag(tag2),
-                )
+                BasicText(text = "World", modifier = Modifier.fillMaxWidth().testTag(tag2))
             }
         }
 
@@ -416,15 +410,9 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                 )
             }
             Column {
-                BasicText(
-                    text = "Hello",
-                    modifier = Modifier.fillMaxWidth().testTag(tag1),
-                )
+                BasicText(text = "Hello", modifier = Modifier.fillMaxWidth().testTag(tag1))
                 BasicText(text = "THIS SHOULD NOT CAUSE CRASH", modifier = Modifier.width(0.dp))
-                BasicText(
-                    text = "World",
-                    modifier = Modifier.fillMaxWidth().testTag(tag2),
-                )
+                BasicText(text = "World", modifier = Modifier.fillMaxWidth().testTag(tag2))
             }
         }
 
@@ -500,10 +488,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             clipboard = LocalClipboard.current
             clipboardManager.setText(AnnotatedString("Clipboard content at start of test."))
             Column {
-                BasicText(
-                    text = "ExpectedText",
-                    modifier = Modifier.fillMaxWidth().testTag(tag1),
-                )
+                BasicText(text = "ExpectedText", modifier = Modifier.fillMaxWidth().testTag(tag1))
             }
         }
 
@@ -570,7 +555,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
                     DisableSelection {
                         TestButton(
                             Modifier.size(50.dp).testTag(tag1),
-                            onClick = { clickCounter++ }
+                            onClick = { clickCounter++ },
                         ) {
                             TestText("Button")
                         }
@@ -621,7 +606,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
         val slop =
             Offset(
                 x = viewConfiguration.touchSlop * delta.x.sign,
-                y = viewConfiguration.touchSlop * delta.y.sign
+                y = viewConfiguration.touchSlop * delta.y.sign,
             )
         moveBy(delta + slop)
     }

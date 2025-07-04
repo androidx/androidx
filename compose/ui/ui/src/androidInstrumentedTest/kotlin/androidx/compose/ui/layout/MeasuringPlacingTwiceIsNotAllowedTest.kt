@@ -67,7 +67,7 @@ class MeasuringPlacingTwiceIsNotAllowedTest {
     fun measureInBothStages() {
         assertException(
             measureBlock = { measurable, constraints -> measurable.measure(constraints) },
-            layoutBlock = { measurable, constraints -> measurable.measure(constraints) }
+            layoutBlock = { measurable, constraints -> measurable.measure(constraints) },
         )
     }
 
@@ -109,7 +109,7 @@ class MeasuringPlacingTwiceIsNotAllowedTest {
 
     private fun assertException(
         measureBlock: (Measurable, Constraints) -> Unit = { _, _ -> },
-        layoutBlock: PlacementScope.(Measurable, Constraints) -> Unit = { _, _ -> }
+        layoutBlock: PlacementScope.(Measurable, Constraints) -> Unit = { _, _ -> },
     ) {
         var exception: Exception? = null
         rule.setContent {

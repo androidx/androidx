@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.arch.core.internal {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K,V> {

@@ -27,8 +27,8 @@ class TestRunner(
         (
             sources: List<Source>,
             options: Map<String, String>,
-            handlers: List<(XTestInvocation) -> Unit>
-        ) -> Unit
+            handlers: List<(XTestInvocation) -> Unit>,
+        ) -> Unit,
 ) {
     operator fun invoke(handlers: List<(XTestInvocation) -> Unit>) =
         runner(emptyList(), emptyMap(), handlers)
@@ -39,7 +39,7 @@ class TestRunner(
     operator fun invoke(
         sources: List<Source>,
         options: Map<String, String> = emptyMap(),
-        handler: (XTestInvocation) -> Unit
+        handler: (XTestInvocation) -> Unit,
     ) = runner(sources, options, listOf(handler))
 
     override fun toString() = name
@@ -71,7 +71,7 @@ abstract class MultiBackendTest {
                     }
                 } else {
                     null
-                }
+                },
             )
     }
 }

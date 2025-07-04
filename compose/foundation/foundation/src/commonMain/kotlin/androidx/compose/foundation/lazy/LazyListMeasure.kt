@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
@@ -48,6 +49,7 @@ import kotlinx.coroutines.CoroutineScope
  * Measures and calculates the positions for the requested items. The result is produced as a
  * [LazyListMeasureResult] which contains all the calculations.
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyList(
     itemsCount: Int,
     measuredItemProvider: LazyListMeasuredItemProvider,
@@ -74,7 +76,7 @@ internal fun measureLazyList(
     placementScopeInvalidator: ObservableScopeInvalidator,
     graphicsContext: GraphicsContext,
     stickyItemsPlacement: StickyItemsPlacement?,
-    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
+    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): LazyListMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
     requirePrecondition(afterContentPadding >= 0) { "invalid afterContentPadding" }
@@ -97,7 +99,7 @@ internal fun measureLazyList(
             layoutMinOffset = 0,
             layoutMaxOffset = 0,
             coroutineScope = coroutineScope,
-            graphicsContext = graphicsContext
+            graphicsContext = graphicsContext,
         )
         if (!isLookingAhead) {
             val disappearingItemsSize = itemAnimator.minSizeToFitDisappearingItems
@@ -124,7 +126,7 @@ internal fun measureLazyList(
             remeasureNeeded = false,
             coroutineScope = coroutineScope,
             density = density,
-            childConstraints = measuredItemProvider.childConstraints
+            childConstraints = measuredItemProvider.childConstraints,
         )
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
@@ -314,7 +316,7 @@ internal fun measureLazyList(
                 currentFirstItemIndex = currentFirstItemIndex,
                 measuredItemProvider = measuredItemProvider,
                 beyondBoundsItemCount = beyondBoundsItemCount,
-                pinnedItems = pinnedItems
+                pinnedItems = pinnedItems,
             )
 
         // Update maxCrossAxis with extra items
@@ -330,7 +332,7 @@ internal fun measureLazyList(
                 pinnedItems = pinnedItems,
                 consumedScroll = consumedScroll,
                 isLookingAhead = isLookingAhead,
-                lastApproachLayoutInfo = approachLayoutInfo
+                lastApproachLayoutInfo = approachLayoutInfo,
             )
 
         // Update maxCrossAxis with extra items
@@ -377,7 +379,7 @@ internal fun measureLazyList(
             coroutineScope = coroutineScope,
             layoutMinOffset = currentFirstItemScrollOffset,
             layoutMaxOffset = currentMainAxisOffset,
-            graphicsContext = graphicsContext
+            graphicsContext = graphicsContext,
         )
 
         if (!isLookingAhead) {
@@ -398,12 +400,14 @@ internal fun measureLazyList(
         // apply sticky items logic.
         val stickingItems =
             stickyItemsPlacement.applyStickyItems(
+                visibleItems.firstOrNull()?.index ?: 0,
+                visibleItems.lastOrNull()?.index ?: 0,
                 positionedItems,
                 measuredItemProvider.headerIndexes,
                 beforeContentPadding,
                 afterContentPadding,
                 layoutWidth,
-                layoutHeight
+                layoutHeight,
             ) {
                 measuredItemProvider.getAndMeasure(it)
             }
@@ -443,7 +447,7 @@ internal fun measureLazyList(
                     firstVisibleIndex = firstVisibleIndex ?: 0,
                     lastVisibleIndex = lastVisibleIndex ?: 0,
                     positionedItems = positionedItems,
-                    stickingItems = stickingItems
+                    stickingItems = stickingItems,
                 ),
             viewportStartOffset = -beforeContentPadding,
             viewportEndOffset = maxOffset + afterContentPadding,
@@ -455,7 +459,7 @@ internal fun measureLazyList(
             remeasureNeeded = remeasureNeeded,
             coroutineScope = coroutineScope,
             density = density,
-            childConstraints = measuredItemProvider.childConstraints
+            childConstraints = measuredItemProvider.childConstraints,
         )
     }
 }
@@ -468,7 +472,7 @@ private fun createItemsAfterList(
     pinnedItems: List<Int>,
     consumedScroll: Float,
     isLookingAhead: Boolean,
-    lastApproachLayoutInfo: LazyListLayoutInfo?
+    lastApproachLayoutInfo: LazyListLayoutInfo?,
 ): List<LazyListMeasuredItem> {
     var list: MutableList<LazyListMeasuredItem>? = null
 
@@ -559,7 +563,7 @@ private fun createItemsBeforeList(
     currentFirstItemIndex: Int,
     measuredItemProvider: LazyListMeasuredItemProvider,
     beyondBoundsItemCount: Int,
-    pinnedItems: List<Int>
+    pinnedItems: List<Int>,
 ): List<LazyListMeasuredItem> {
     var list: MutableList<LazyListMeasuredItem>? = null
 

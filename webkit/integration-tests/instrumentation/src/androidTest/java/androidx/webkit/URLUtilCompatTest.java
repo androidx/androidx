@@ -31,22 +31,12 @@ import java.util.Arrays;
 /**
  * Tests for {@link URLUtilCompat}.
  *
- * This test suite does not use "image/jpeg" as a mime type, as this can result in 2
+ * <p>This test suite does not use "image/jpeg" as a mime type, as this can result in 2
  * different extensions depending on the OS platform, which leads to flakes.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class URLUtilCompatTest {
-
-    @Test
-    public void guessFileName_ctsTest() {
-        // This test mirrors the test in
-        // cts/tests/tests/webkit/src/android/webkit/cts/URLUtilTest.java for completeness.
-        String url = "ftp://example.url/test";
-        assertEquals("test.gif", URLUtilCompat.guessFileName(url, null, "image/gif"));
-        assertEquals("test.bin",
-                URLUtilCompat.guessFileName(url, null, "application/octet-stream"));
-    }
 
     @Test
     public void guessFileName_extractPathSegmentFromUrl() {
@@ -77,15 +67,9 @@ public class URLUtilCompatTest {
     }
 
     @Test
-    public void guessFileName_txtExtensionForUnknownTxtType() {
-        String url = "https://example.com/index";
-        assertEquals("index.txt", URLUtilCompat.guessFileName(url, null, "text/fantasy"));
-    }
-
-    @Test
     public void guessFileName_fallbackIfNoFilenamesAvailable() {
         String url = "https://example.com/";
-        assertEquals("downloadfile.bin", URLUtilCompat.guessFileName(url, null, null));
+        assertEquals("downloadfile", URLUtilCompat.guessFileName(url, null, null));
     }
 
     @Test
@@ -96,11 +80,17 @@ public class URLUtilCompatTest {
     }
 
     @Test
-    public void guessFileName_contentDispositionNameGetsAppendedMimeType() {
+    public void guessFileName_contentDispositionDoesNotGetMimeTypeExtension() {
         String url = "https://example.com/wrong";
         String contentDisposition = "attachment; filename=Test.png";
-        assertEquals("Test.png.gif",
-                URLUtilCompat.guessFileName(url, contentDisposition, "image/gif"));
+        assertEquals("Test.png", URLUtilCompat.guessFileName(url, contentDisposition, "image/gif"));
+    }
+
+    @Test
+    public void guessFileName_contentDispositionDoesNotGetMimeTypeExtensionEvenIfMissing() {
+        String url = "https://example.com/wrong";
+        String contentDisposition = "attachment; filename=Test";
+        assertEquals("Test", URLUtilCompat.guessFileName(url, contentDisposition, "image/gif"));
     }
 
     @Test
@@ -123,7 +113,6 @@ public class URLUtilCompatTest {
         String contentDisposition = "attachment; filename=\"Wrong.png\"; filename*=utf-8''Test.png";
         assertEquals("Test.png", URLUtilCompat.guessFileName(url, contentDisposition, null));
     }
-
 
     @Test
     public void parseContentDisposition_nullIfDispositionIsInline() {

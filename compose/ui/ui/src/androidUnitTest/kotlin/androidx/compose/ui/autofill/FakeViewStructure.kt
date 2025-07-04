@@ -56,7 +56,7 @@ internal data class FakeAndroidViewStructure(
     var bounds: Rect? = null,
     private val autofillId: AutofillId? = generateAutofillId(),
     private var autofillType: Int = View.AUTOFILL_TYPE_NONE,
-    private var autofillHints: Array<out String> = arrayOf()
+    private var autofillHints: Array<out String> = arrayOf(),
 ) : ViewStructure() {
 
     internal companion object {
@@ -98,7 +98,7 @@ internal data class FakeAndroidViewStructure(
         virtualId: Int,
         packageName: String?,
         typeName: String?,
-        entryName: String?
+        entryName: String?,
     ) {
         this.virtualId = virtualId
         this.packageName = packageName

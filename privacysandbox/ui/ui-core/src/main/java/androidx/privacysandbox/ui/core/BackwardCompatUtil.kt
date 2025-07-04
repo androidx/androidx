@@ -21,9 +21,9 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 @RestrictTo(LIBRARY_GROUP)
-object BackwardCompatUtil {
+public object BackwardCompatUtil {
 
-    fun canProviderBeRemote(): Boolean {
+    public fun canProviderBeRemote(): Boolean {
         // Provide can only be remote on devices that support separate SDK Runtime process
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }

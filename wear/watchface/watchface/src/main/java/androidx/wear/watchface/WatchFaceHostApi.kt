@@ -28,8 +28,16 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 
-/** The API [WatchFaceImpl] uses to communicate with the system. */
+/**
+ * The API [WatchFaceImpl] uses to communicate with the system.
+ *
+ * @deprecated use Watch Face Format instead
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public interface WatchFaceHostApi {
     /** The [WatchFaceService.SystemTimeProvider]. */
     public val systemTimeProvider: WatchFaceService.SystemTimeProvider
@@ -123,7 +131,7 @@ public interface WatchFaceHostApi {
         complicationSlotId: Int,
         dataSources: List<ComponentName>?,
         @DataSourceId fallbackSystemProvider: Int,
-        type: Int
+        type: Int,
     )
 
     /** Schedules a call to [Renderer.renderInternal] to draw the next frame. */

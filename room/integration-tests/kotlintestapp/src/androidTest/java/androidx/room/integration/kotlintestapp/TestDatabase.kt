@@ -74,7 +74,7 @@ import java.util.UUID
             PlaylistSongXRef::class,
             Artist::class,
             Album::class,
-            Image::class
+            Image::class,
         ],
     views = [PetWithUser::class],
     version = 1,

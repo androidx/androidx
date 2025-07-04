@@ -41,7 +41,7 @@ internal abstract class TextFieldMagnifierNode :
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
-        visible: Boolean
+        visible: Boolean,
     )
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {}
@@ -56,14 +56,14 @@ internal expect fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    visible: Boolean
+    visible: Boolean,
 ): TextFieldMagnifierNode
 
 internal fun calculateSelectionMagnifierCenterAndroid(
     textFieldState: TransformedTextFieldState,
     selectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    magnifierSize: IntSize
+    magnifierSize: IntSize,
 ): Offset {
     // state read of currentDragPosition so that we always recompose on drag position changes
     val localDragPosition = selectionState.handleDragPosition

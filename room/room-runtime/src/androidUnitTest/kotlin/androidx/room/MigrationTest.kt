@@ -152,7 +152,7 @@ private class FakeDB : SupportSQLiteDatabase {
         conflictAlgorithm: Int,
         values: ContentValues,
         whereClause: String?,
-        whereArgs: Array<out Any?>?
+        whereArgs: Array<out Any?>?,
     ): Int {
         throw UnsupportedOperationException()
     }

@@ -15,15 +15,21 @@
  */
 package androidx.wear.remote.interactions
 
+import android.net.Uri
+import android.os.OutcomeReceiver
+import androidx.annotation.ChecksSdkIntAtLeast
 import com.google.wear.services.remoteinteractions.RemoteInteractionsManager
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
-/** Forwards remote auth interaction availabilities to [RemoteInteractionsManager]. */
+/** Forwards remote interactions to [RemoteInteractionsManager]. */
 internal interface IRemoteInteractionsManager {
 
     /** Whether the availability status API is supported. */
     val isAvailabilityStatusApiSupported: Boolean
+
+    /** Whether the startRemoteActivity from the Wear SDK is supported. */
+    @get:ChecksSdkIntAtLeast(api = 36) val isWearSdkApiStartRemoteActivitySupported: Boolean
 
     /**
      * Forwards a call to [RemoteInteractionsManager.registerRemoteActivityHelperStatusListener].
@@ -34,4 +40,16 @@ internal interface IRemoteInteractionsManager {
      * Forwards a call to [RemoteInteractionsManager.unregisterRemoteActivityHelperStatusListener].
      */
     fun unregisterRemoteActivityHelperStatusListener(listener: Consumer<Int>)
+
+    /**
+     * Forwards a call to [RemoteInteractionsManager.startRemoteActivity].
+     *
+     * @throws IllegalStateException if the API is not supported.
+     */
+    fun startRemoteActivity(
+        dataUri: Uri,
+        additionalCategories: List<String>,
+        executor: Executor,
+        outcomeReceiver: OutcomeReceiver<Void?, Throwable>,
+    )
 }

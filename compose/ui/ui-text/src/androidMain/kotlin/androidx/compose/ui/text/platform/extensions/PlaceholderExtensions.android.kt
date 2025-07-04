@@ -30,7 +30,7 @@ import androidx.emoji2.text.EmojiSpan
 
 internal fun Spannable.setPlaceholders(
     placeholders: List<AnnotatedString.Range<Placeholder>>,
-    density: Density
+    density: Density,
 ) {
     placeholders.fastForEach {
         val (placeholder, start, end) = it
@@ -43,7 +43,7 @@ private fun Spannable.setPlaceholder(
     placeholder: Placeholder,
     start: Int,
     end: Int,
-    density: Density
+    density: Density,
 ) {
     getSpans(start, end, EmojiSpan::class.java).forEach { removeSpan(it) }
     setSpan(
@@ -54,11 +54,11 @@ private fun Spannable.setPlaceholder(
                 height = height.value,
                 heightUnit = height.spanUnit,
                 pxPerSp = density.fontScale * density.density,
-                verticalAlign = placeholderVerticalAlign.spanVerticalAlign
+                verticalAlign = placeholderVerticalAlign.spanVerticalAlign,
             )
         },
         start,
-        end
+        end,
     )
 }
 

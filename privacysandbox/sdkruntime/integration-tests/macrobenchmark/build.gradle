@@ -16,14 +16,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 android {
     namespace = "androidx.privacysandbox.sdkruntime.integration.macrobenchmark"
     targetProjectPath = ":privacysandbox:sdkruntime:integration-tests:testapp"
     experimentalProperties["android.experimental.self-instrumenting"] = true
     defaultConfig {
-        // :internal-testutils-macrobenchmark
+        // :internal-testutils-benchmark-macro
         minSdk = 23
     }
     privacySandbox {
@@ -39,7 +39,7 @@ androidComponents { beforeVariants(selector().all()) { enabled = buildType == "r
 dependencies {
     implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(libs.testRules)
     implementation(libs.testExtJunit)
     implementation(libs.testCore)

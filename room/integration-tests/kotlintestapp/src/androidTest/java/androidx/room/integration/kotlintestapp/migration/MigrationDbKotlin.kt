@@ -38,9 +38,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         [
             MigrationDbKotlin.Entity1::class,
             MigrationDbKotlin.Entity2::class,
-            MigrationDbKotlin.Entity4::class
+            MigrationDbKotlin.Entity4::class,
         ],
-    autoMigrations = [AutoMigration(7, 8)]
+    autoMigrations = [AutoMigration(7, 8)],
 )
 abstract class MigrationDbKotlin : RoomDatabase() {
 
@@ -67,7 +67,7 @@ abstract class MigrationDbKotlin : RoomDatabase() {
         @PrimaryKey var id: Int = 0,
         @get:Ignore var removedInV5: String?,
         var name: String?,
-        var addedInV8: Int = 1
+        var addedInV8: Int = 1,
     ) { // added in version 4, removed at 6
         companion object {
             val TABLE_NAME = "Entity3"
@@ -82,7 +82,7 @@ abstract class MigrationDbKotlin : RoomDatabase() {
                     entity = Entity1::class,
                     parentColumns = arrayOf("name"),
                     childColumns = arrayOf("name"),
-                    deferred = true
+                    deferred = true,
                 )
             )
     )

@@ -90,7 +90,7 @@ constructor(fromSp: FloatArray, toDp: FloatArray) : FontScaleConverter {
         private fun lookupAndInterpolate(
             sourceValue: Float,
             sourceValues: FloatArray,
-            targetValues: FloatArray
+            targetValues: FloatArray,
         ): Float {
             val sourceValuePositive = Math.abs(sourceValue)
             // TODO(b/247861374): find a match at a higher index?

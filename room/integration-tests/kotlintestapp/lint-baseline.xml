@@ -1,5 +1,266 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        flowable"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/BooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        flowable"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/BooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.increaseBookSalesSingle(TestUtil.BOOK_1.bookId).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.increaseBookSalesMaybe(TestUtil.BOOK_1.bookId).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.increaseBookSalesCompletable(TestUtil.BOOK_1.bookId).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.deleteUnsoldBooksSingle().subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.deleteUnsoldBooksMaybe().subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.deleteUnsoldBooksCompletable().subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.deleteBookWithIdsSingle(TestUtil.BOOK_1.bookId).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.deleteBookWithIdsMaybe(TestUtil.BOOK_1.bookId).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.deleteBookWithIdsCompletable(TestUtil.BOOK_1.bookId).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.insertPublisherSingle(&quot;ph3&quot;, &quot;publisher 3&quot;).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.insertPublisherMaybe(&quot;ph3&quot;, &quot;publisher 3&quot;).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.insertPublisherCompletable(&quot;ph3&quot;, &quot;publisher 3&quot;).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/DeferredBooksDaoTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `blockingGet` is not used"
+        errorLine1="            booksDao.deleteBookWithIdsSingle(&quot;b1&quot;, &quot;b2&quot;).subscribeOn(Schedulers.io()).blockingGet()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/RxJava2QueryTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertPublisherSingle(TestUtil.PUBLISHER).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookSingle(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookSingle(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.getBookFlowable(TestUtil.BOOK_1.bookId).subscribeWith(subscriber)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookMaybe(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookMaybe(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookMaybe(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.getBookFlowable(TestUtil.BOOK_1.bookId).subscribeWith(subscriber)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookCompletable(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.upsertBookCompletable(TestUtil.BOOK_1).subscribeWith(testObserver)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.getBooksFlowable().subscribeWith(subscriber)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `subscribeWith` is not used"
+        errorLine1="        booksDao.getBooksObservable().subscribeWith(observer)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/room/integration/kotlintestapp/test/UpsertTest.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"

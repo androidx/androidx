@@ -62,7 +62,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -99,7 +99,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
@@ -184,7 +184,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -225,7 +225,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(

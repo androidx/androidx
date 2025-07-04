@@ -39,7 +39,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -68,7 +68,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -120,7 +120,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -153,7 +153,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -208,7 +208,7 @@ public class TimeDifferenceTextTest {
                 123456789,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times before the end of the ref period...
@@ -237,7 +237,7 @@ public class TimeDifferenceTextTest {
                 refTime + 1000,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times before the end of the ref period...
@@ -266,7 +266,7 @@ public class TimeDifferenceTextTest {
                 refTime + 1569456,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times before the end of the ref period...
@@ -295,7 +295,7 @@ public class TimeDifferenceTextTest {
                 refTime + 654654,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for times before the end of the ref period...
@@ -328,7 +328,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for a time within the ref period
@@ -346,7 +346,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 false,
-                null
+                null,
             )
 
         // WHEN getText is called for a time within the ref period
@@ -364,7 +364,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 false,
-                null
+                null,
             )
 
         // WHEN getText is called for a time within the ref period
@@ -382,7 +382,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 false,
-                null
+                null,
             )
 
         // WHEN getText is called for a time within the ref period
@@ -400,7 +400,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 false,
-                null
+                null,
             )
 
         // WHEN getText is called for a time within the ref period
@@ -418,7 +418,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for a time within the ref period
@@ -436,7 +436,7 @@ public class TimeDifferenceTextTest {
                 refTime + 100000,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for the ref period start time
@@ -454,7 +454,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for the ref period end time
@@ -472,7 +472,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                null
+                null,
             )
 
         // WHEN we consider two times for which the text would differ.
@@ -498,7 +498,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN we consider two times for which the text would differ.
@@ -524,7 +524,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN we consider two times for which the text would differ.
@@ -550,7 +550,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN we consider two times for which the text would differ.
@@ -576,7 +576,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                TimeUnit.MINUTES
+                TimeUnit.MINUTES,
             )
 
         // WHEN we consider two times for which the text would differ without the minimum unit,
@@ -603,7 +603,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN we consider two times for which the text would differ without the minimum unit,
@@ -630,7 +630,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN we consider two times for which the text would differ without the minimum unit,
@@ -657,7 +657,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                TimeUnit.DAYS
+                TimeUnit.DAYS,
             )
 
         // WHEN we consider two times for which the text differs by a number of minutes
@@ -689,7 +689,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                TimeUnit.DAYS
+                TimeUnit.DAYS,
             )
 
         // WHEN we consider two times for which the text differs by a number of minutes
@@ -721,7 +721,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for a time a few seconds more than a whole number of hours after
@@ -756,7 +756,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for a time a whole number of minutes after the ref time
@@ -807,7 +807,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                null
+                null,
             )
 
         // WHEN getText is called for a time a whole number of hours after the ref time
@@ -831,7 +831,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -877,7 +877,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                TimeUnit.DAYS
+                TimeUnit.DAYS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -923,7 +923,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 true,
-                TimeUnit.MINUTES
+                TimeUnit.MINUTES,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -969,7 +969,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1015,7 +1015,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                TimeUnit.DAYS
+                TimeUnit.DAYS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1061,7 +1061,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                TimeUnit.MINUTES
+                TimeUnit.MINUTES,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1107,7 +1107,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                TimeUnit.SECONDS
+                TimeUnit.SECONDS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1153,7 +1153,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                TimeUnit.MINUTES
+                TimeUnit.MINUTES,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1199,7 +1199,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1245,7 +1245,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                TimeUnit.DAYS
+                TimeUnit.DAYS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1291,7 +1291,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_STOPWATCH,
                 true,
-                TimeUnit.SECONDS
+                TimeUnit.SECONDS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1337,7 +1337,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1383,7 +1383,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                TimeUnit.DAYS
+                TimeUnit.DAYS,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1429,7 +1429,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
                 true,
-                TimeUnit.MINUTES
+                TimeUnit.MINUTES,
             )
 
         // WHEN getText is called for times after the end of the ref period...
@@ -1483,7 +1483,7 @@ public class TimeDifferenceTextTest {
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
-                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT
+                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT,
             )
         for (style in styles) {
             val text = TimeDifferenceText(0, 1, style, true, null)
@@ -1506,7 +1506,7 @@ public class TimeDifferenceTextTest {
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
-                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT
+                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT,
             )
         for (style in styles) {
             val text = TimeDifferenceText(0, 1, style, true, TimeUnit.MINUTES)
@@ -1527,7 +1527,7 @@ public class TimeDifferenceTextTest {
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
-                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT
+                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT,
             )
         for (style in styles) {
             val text = TimeDifferenceText(0, 1, style, true, TimeUnit.HOURS)
@@ -1549,7 +1549,7 @@ public class TimeDifferenceTextTest {
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 ComplicationText.DIFFERENCE_STYLE_WORDS_SINGLE_UNIT,
-                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT
+                ComplicationText.DIFFERENCE_STYLE_SHORT_WORDS_SINGLE_UNIT,
             )
         for (style in styles) {
             val text = TimeDifferenceText(0, 1, style, true, TimeUnit.DAYS)
@@ -1572,7 +1572,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_SINGLE_UNIT,
                 false,
-                null
+                null,
             )
 
         // WHEN the object is parcelled and unparcelled
@@ -1594,7 +1594,7 @@ public class TimeDifferenceTextTest {
                 refTime,
                 ComplicationText.DIFFERENCE_STYLE_SHORT_DUAL_UNIT,
                 true,
-                TimeUnit.HOURS
+                TimeUnit.HOURS,
             )
 
         // WHEN the object is parcelled and unparcelled

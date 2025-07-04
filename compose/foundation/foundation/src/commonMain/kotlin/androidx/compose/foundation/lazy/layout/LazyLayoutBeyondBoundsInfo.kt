@@ -99,7 +99,7 @@ internal class LazyLayoutBeyondBoundsInfo {
         val start: Int,
 
         /** The end index for the interval. */
-        val end: Int
+        val end: Int,
     ) {
         init {
             requirePrecondition(start >= 0) { "negative start index" }

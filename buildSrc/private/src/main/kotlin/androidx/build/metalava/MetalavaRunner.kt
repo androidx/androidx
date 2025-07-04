@@ -18,7 +18,6 @@ package androidx.build.metalava
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
-import androidx.build.checkapi.CompilationInputs
 import androidx.build.getLibraryByName
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
@@ -76,6 +75,8 @@ fun runMetalavaWithArgs(
                 // Don't track annotations that aren't needed for review or checking compat.
                 "--exclude-annotation",
                 "androidx.annotation.ReplaceWith",
+                "--exclude-annotation",
+                "androidx.compose.runtime.ComposableInferredTarget",
             )
     val workQueue = workerExecutor.processIsolation()
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
@@ -156,7 +157,7 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                     // We should only treat these as warnings
                     "IntentBuilderName",
                     "OnNameExpected",
-                    "UserHandleName"
+                    "UserHandleName",
                 )
                 .joinToString(),
             "--error",
@@ -169,7 +170,6 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                     "MissingBuildMethod",
                     "SetterReturnsThis",
                     "OverlappingConstants",
-                    "IllegalStateException",
                     "ListenerLast",
                     "ExecutorRegistration",
                     "StreamFiles",
@@ -183,10 +183,17 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                     "StaticFinalBuilder",
                     "MissingGetterMatchingBuilder",
                     "HiddenSuperclass",
-                    "KotlinOperator"
+                    "KotlinOperator",
+                    "DataClassDefinition",
                 )
-                .joinToString()
+                .joinToString(),
         )
+    // Acronyms that can be used in their all-caps form. "SQ" is included to allow "SQLite".
+    val allowedAcronyms = listOf("SQL", "SQ", "URL", "EGL", "GL", "KHR")
+    for (acronym in allowedAcronyms) {
+        args.add("--api-lint-allowed-acronym")
+        args.add(acronym)
+    }
     val javaOnlyIssues = listOf("MissingJvmstatic", "ArrayReturn", "ValueClassDefinition")
     val javaOnlyErrorLevel =
         if (targetsJavaConsumers) {
@@ -201,24 +208,24 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
 
 /** Returns the args needed to generate a version history JSON from the previous API files. */
 internal fun getGenerateApiLevelsArgs(
+    apiDir: File,
     apiFiles: List<File>,
     currentVersion: Version,
-    outputLocation: File
+    outputLocation: File,
 ): List<String> {
-    val versions = getVersionsForApiLevels(apiFiles) + currentVersion
-
-    val args =
-        listOf(
-            "--generate-api-version-history",
-            outputLocation.absolutePath,
-            "--api-version-names",
-            versions.joinToString(" ")
-        )
-
-    return if (apiFiles.isEmpty()) {
-        args
-    } else {
-        args + listOf("--api-version-signature-files", apiFiles.joinToString(":"))
+    return buildList {
+        add("--generate-api-version-history")
+        add(outputLocation.absolutePath)
+        add("--current-version")
+        add(currentVersion.toString())
+        if (apiFiles.isNotEmpty()) {
+            add("--api-version-signature-files")
+            add(apiFiles.joinToString(":"))
+            add("--api-version-signature-pattern")
+            // Select the version from the files. The `*` wildcard matches and ignores any
+            // pre-release suffix.
+            add("$apiDir/{version:major.minor.patch}*.txt")
+        }
     }
 }
 
@@ -242,8 +249,9 @@ sealed class ApiLintMode {
  */
 internal fun generateApi(
     metalavaClasspath: FileCollection,
-    projectXml: File?,
-    files: CompilationInputs,
+    projectXml: File,
+    sourcePaths: Collection<File>,
+    compiledSources: File?,
     apiLocation: ApiLocation,
     apiLintMode: ApiLintMode,
     includeRestrictToLibraryGroupApis: Boolean,
@@ -267,7 +275,8 @@ internal fun generateApi(
         generateApi(
             metalavaClasspath,
             projectXml,
-            files,
+            sourcePaths,
+            compiledSources,
             apiLocation,
             generateApiMode,
             apiLintMode,
@@ -275,7 +284,7 @@ internal fun generateApi(
             k2UastEnabled,
             kotlinSourceLevel,
             workerExecutor,
-            pathToManifest
+            pathToManifest,
         )
     }
 }
@@ -286,8 +295,9 @@ internal fun generateApi(
  */
 private fun generateApi(
     metalavaClasspath: FileCollection,
-    projectXml: File?,
-    files: CompilationInputs,
+    projectXml: File,
+    sourcePaths: Collection<File>,
+    compiledSources: File?,
     outputLocation: ApiLocation,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
@@ -295,20 +305,18 @@ private fun generateApi(
     k2UastEnabled: Boolean,
     kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
-    pathToManifest: String? = null
+    pathToManifest: String? = null,
 ) {
     val args =
         getGenerateApiArgs(
-            files.bootClasspath,
-            files.dependencyClasspath,
             projectXml,
-            files.sourcePaths.files,
-            files.commonModuleSourcePaths.files,
+            sourcePaths,
+            compiledSources,
             outputLocation,
             generateApiMode,
             apiLintMode,
             apiLevelsArgs,
-            pathToManifest
+            pathToManifest,
         )
     runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, kotlinSourceLevel, workerExecutor)
 }
@@ -318,39 +326,29 @@ private fun generateApi(
  * [GenerateApiMode.PublicApi].
  */
 fun getGenerateApiArgs(
-    bootClasspath: FileCollection,
-    dependencyClasspath: FileCollection,
-    projectXml: File?,
+    projectXml: File,
     sourcePaths: Collection<File>,
-    commonModuleSourcePaths: Collection<File>,
+    compiledSources: File?,
     outputLocation: ApiLocation?,
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
     apiLevelsArgs: List<String>,
-    pathToManifest: String? = null
+    pathToManifest: String? = null,
 ): List<String> {
     // generate public API txt
     val args =
         mutableListOf(
             "--source-path",
             sourcePaths.filter { it.exists() }.joinToString(File.pathSeparator),
+            "--project",
+            projectXml.path,
         )
 
-    // If there's a project xml file, the classpath isn't needed
-    args +=
-        if (projectXml != null) {
-            listOf("--project", projectXml.path)
-        } else {
-            listOf(
-                "--classpath",
-                (bootClasspath.files + dependencyClasspath.files).joinToString(File.pathSeparator)
-            )
-        }
-
-    val existentCommonModuleSourcePaths = commonModuleSourcePaths.filter { it.exists() }
-    if (existentCommonModuleSourcePaths.isNotEmpty()) {
-        args += listOf("--common-source-path", existentCommonModuleSourcePaths.joinToString(":"))
+    // Include the jar file to generate bytecode-only APIs if this project has any Kotlin source.
+    if (compiledSources != null && sourcePaths.any { containsKotlinFiles(it) }) {
+        args += listOf("--compiled-sources", compiledSources.absolutePath)
     }
+
     args += listOf("--format=v4", "--warnings-as-errors")
 
     pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
@@ -391,21 +389,21 @@ fun getGenerateApiArgs(
                         "LIBRARY_GROUP_PREFIX)",
                     "--show-annotation",
                     "kotlin.PublishedApi",
-                    "--show-unannotated"
+                    "--show-unannotated",
                 )
             if (generateApiMode is GenerateApiMode.AllRestrictedApis) {
                 args +=
                     listOf(
                         "--show-annotation",
                         "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                            "LIBRARY_GROUP)"
+                            "LIBRARY_GROUP)",
                     )
             } else {
                 args +=
                     listOf(
                         "--hide-annotation",
                         "androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope." +
-                            "LIBRARY_GROUP)"
+                            "LIBRARY_GROUP)",
                     )
             }
         }
@@ -430,7 +428,7 @@ fun getGenerateApiArgs(
     https://issuetracker.google.com/issues/new?component=739152&template=1344623
 
     If you are doing a refactoring or suppression above does not work, use ./gradlew updateApiLintBaseline
-"""
+""",
                 )
             )
         }
@@ -442,11 +440,20 @@ fun getGenerateApiArgs(
                     "--hide",
                     "ReferencesHidden",
                     "--hide",
-                    "ReferencesDeprecated"
+                    "ReferencesDeprecated",
                 )
             )
         }
     }
 
     return args
+}
+
+/** Whether the [file] is a kotlin file or is a directory containing one (recursively). */
+private fun containsKotlinFiles(file: File): Boolean {
+    return if (file.isDirectory) {
+        file.listFiles().any { containsKotlinFiles(it) }
+    } else {
+        file.extension == "kt"
+    }
 }

@@ -18,7 +18,7 @@ package androidx.compose.ui.text
 
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
-    message = "This is internal API that may change frequently and without warning."
+    message = "This is internal API that may change frequently and without warning.",
 )
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)

@@ -40,9 +40,9 @@ def rename_and_copy_files_to_new_location(input_path):
         input = ''
         output = ''
         for line in current_file.readlines():
-            if line.startswith('current_screenshot_file_name'):
+            if line.startswith('image_location_test'):
                 input = input_path+line.split(':')[1].strip().replace('"', '')
-            elif line.startswith('location_of_golden_in_repo'):
+            elif line.startswith('image_location_golden'):
                 output = output_path+line.split(':')[1].strip().replace('"', '')
         if input == '' or output == '':
            print('There was an error processing file -', file)

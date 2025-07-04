@@ -37,18 +37,14 @@ class AidlMethodSpecTest {
             listOf(
                 AidlParameterSpec(
                     "foo",
-                    AidlTypeSpec(
-                        Type("", "boolean"),
-                        AidlTypeKind.PRIMITIVE,
-                        isList = true,
-                    )
+                    AidlTypeSpec(Type("", "boolean"), AidlTypeKind.PRIMITIVE, isList = true),
                 ),
                 AidlParameterSpec(
                     "bar",
                     AidlTypeSpec(
                         Type("com.mysdk", "IListStringTransactionCallback"),
-                        AidlTypeKind.INTERFACE
-                    )
+                        AidlTypeKind.INTERFACE,
+                    ),
                 ),
             )
         val method = AidlMethodSpec(name, parameters)

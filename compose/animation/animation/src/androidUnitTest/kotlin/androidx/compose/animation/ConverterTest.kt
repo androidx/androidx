@@ -55,7 +55,7 @@ class ConverterTest {
         assertEquals(
             0f,
             converter.convertFromVector(AnimationVector4D(-0.1f, 1f, 0f, 0f)).alpha,
-            0f
+            0f,
         )
 
         // all channels are clamped before conversion, the result of 3/3/3 in OkLab should be
@@ -64,17 +64,17 @@ class ConverterTest {
         assertEquals(
             maxOkLab.red,
             converter.convertFromVector(AnimationVector4D(1.0f, 3f, 3f, 3f)).red,
-            0f
+            0f,
         )
         assertEquals(
             maxOkLab.green,
             converter.convertFromVector(AnimationVector4D(1.0f, 3f, 3f, 3f)).green,
-            0f
+            0f,
         )
         assertEquals(
             maxOkLab.blue,
             converter.convertFromVector(AnimationVector4D(1.0f, 3f, 3f, 3f)).blue,
-            0f
+            0f,
         )
 
         // all channels are clamped before conversion, the result of -3/-3/-3 in OkLab should be
@@ -83,17 +83,17 @@ class ConverterTest {
         assertEquals(
             minOkLab.red,
             converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f)).red,
-            0f
+            0f,
         )
         assertEquals(
             minOkLab.green,
             converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f)).green,
-            0f
+            0f,
         )
         assertEquals(
             minOkLab.blue,
             converter.convertFromVector(AnimationVector4D(1.0f, -3f, -3f, -3f)).blue,
-            0f
+            0f,
         )
     }
 
@@ -101,11 +101,11 @@ class ConverterTest {
     fun testRectConverter() {
         assertEquals(
             Rect.VectorConverter.convertToVector(Rect(1f, 2f, 3f, 4f)),
-            AnimationVector4D(1f, 2f, 3f, 4f)
+            AnimationVector4D(1f, 2f, 3f, 4f),
         )
         assertEquals(
             Rect.VectorConverter.convertFromVector(AnimationVector4D(-400f, -300f, -200f, -100f)),
-            Rect(-400f, -300f, -200f, -100f)
+            Rect(-400f, -300f, -200f, -100f),
         )
     }
 
@@ -124,7 +124,7 @@ class ConverterTest {
         val y = Random.nextFloat()
         assertEquals(
             Offset(x, y),
-            Offset.VectorConverter.convertFromVector(AnimationVector2D(x, y))
+            Offset.VectorConverter.convertFromVector(AnimationVector2D(x, y)),
         )
         assertEquals(AnimationVector2D(x, y), Offset.VectorConverter.convertToVector(Offset(x, y)))
     }

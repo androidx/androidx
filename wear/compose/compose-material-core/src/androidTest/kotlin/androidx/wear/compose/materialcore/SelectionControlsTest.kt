@@ -17,7 +17,6 @@
 package androidx.wear.compose.materialcore
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
@@ -57,6 +56,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 
@@ -121,7 +121,7 @@ class SelectionControlsTest {
                     checked = true,
                     modifier = Modifier.testTag(TEST_TAG),
                     width = width,
-                    height = height
+                    height = height,
                 )
             }
             .assertHeightIsEqualTo(height)
@@ -134,7 +134,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -149,7 +149,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image },
             )
         }
 
@@ -164,7 +164,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = true,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -178,7 +178,7 @@ class SelectionControlsTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -192,7 +192,7 @@ class SelectionControlsTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -205,7 +205,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = true,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -220,7 +220,7 @@ class SelectionControlsTest {
                 checked = true,
                 enabled = false,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -234,7 +234,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -248,7 +248,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = false,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -263,7 +263,7 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -278,14 +278,14 @@ class SelectionControlsTest {
             CheckboxWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_enabled_checked_colors_are_customisable() {
         setupCheckBoxWithCustomColors(enabled = true, checked = true)
@@ -295,7 +295,7 @@ class SelectionControlsTest {
         checkboxImage.assertContainsColor(checkmarkColorChecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_enabled_unchecked_colors_are_customisable() {
         setupCheckBoxWithCustomColors(enabled = true, checked = false)
@@ -305,7 +305,7 @@ class SelectionControlsTest {
         checkboxImage.assertDoesNotContainColor(checkmarkColorChecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_disabled_checked_colors_are_customisable() {
         setupCheckBoxWithCustomColors(enabled = false, checked = true)
@@ -317,7 +317,7 @@ class SelectionControlsTest {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_disabled_unchecked_colors_are_customisable() {
         setupCheckBoxWithCustomColors(enabled = false, checked = false)
@@ -342,7 +342,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -357,7 +357,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image }
+                modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image },
             )
         }
 
@@ -372,7 +372,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = true,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -386,7 +386,7 @@ class SelectionControlsTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -400,7 +400,7 @@ class SelectionControlsTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -413,7 +413,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = true,
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -427,7 +427,7 @@ class SelectionControlsTest {
                 checked = true,
                 enabled = false,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -441,7 +441,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -455,7 +455,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = false,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -470,7 +470,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -485,7 +485,7 @@ class SelectionControlsTest {
             SwitchWithDefaults(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -503,14 +503,14 @@ class SelectionControlsTest {
                     checked = true,
                     modifier = Modifier.testTag(TEST_TAG),
                     width = width,
-                    height = height
+                    height = height,
                 )
             }
             .assertHeightIsEqualTo(height)
             .assertWidthIsEqualTo(width)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switch_enabled_checked_colors_are_customisable() {
         setupSwitchWithCustomColors(enabled = true, checked = true)
@@ -523,7 +523,7 @@ class SelectionControlsTest {
         image.assertContainsColor(thumbIconColorChecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switch_enabled_unchecked_colors_are_customisable() {
         setupSwitchWithCustomColors(enabled = true, checked = false)
@@ -536,7 +536,7 @@ class SelectionControlsTest {
         image.assertContainsColor(thumbIconColorUnchecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switch_disabled_checked_colors_are_customisable() {
         setupSwitchWithCustomColors(enabled = false, checked = true)
@@ -549,7 +549,7 @@ class SelectionControlsTest {
         image.assertContainsColor(thumbIconColorDisabledChecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switch_disabled_unchecked_colors_are_customisable() {
         setupSwitchWithCustomColors(enabled = false, checked = false)
@@ -582,7 +582,7 @@ class SelectionControlsTest {
                     modifier = Modifier.testTag(TEST_TAG),
                     selected = true,
                     width = width,
-                    height = height
+                    height = height,
                 )
             }
             .assertHeightIsEqualTo(height)
@@ -595,7 +595,7 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -610,7 +610,7 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG).semantics { role = Role.Image },
                 selected = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -625,7 +625,7 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = true,
-                enabled = true
+                enabled = true,
             )
         }
 
@@ -681,7 +681,7 @@ class SelectionControlsTest {
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = true,
                 enabled = false,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -695,7 +695,7 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -709,7 +709,7 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = false,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -725,7 +725,7 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = selected,
-                onClick = { selected = !selected }
+                onClick = { selected = !selected },
             )
         }
 
@@ -741,14 +741,14 @@ class SelectionControlsTest {
             RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG),
                 selected = selected,
-                onClick = { selected = !selected }
+                onClick = { selected = !selected },
             )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsSelected().performClick().assertIsNotSelected()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radiobutton_enabled_checked_colors_are_customisable() {
         setupRadioButtonWithCustomColors(enabled = true, selected = true)
@@ -758,7 +758,7 @@ class SelectionControlsTest {
         radioImage.assertContainsColor(radioDotChecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radiobutton_enabled_unchecked_colors_are_customisable() {
         setupRadioButtonWithCustomColors(enabled = true, selected = false)
@@ -768,7 +768,7 @@ class SelectionControlsTest {
         radioImage.assertDoesNotContainColor(radioDotUnchecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radiobutton_disabled_checked_colors_are_customisable() {
         setupRadioButtonWithCustomColors(enabled = false, selected = true)
@@ -778,7 +778,7 @@ class SelectionControlsTest {
         radioImage.assertContainsColor(radioDotDisabledChecked)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radiobutton_disabled_unchecked_colors_are_customisable() {
         setupRadioButtonWithCustomColors(enabled = false, selected = false)
@@ -800,7 +800,7 @@ class SelectionControlsTest {
                     Color.Blue,
                     Color.Red,
                     Color.Green,
-                    Color.Gray
+                    Color.Gray,
                 )
             },
         checkmarkColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
@@ -811,7 +811,7 @@ class SelectionControlsTest {
                     Color.Cyan,
                     Color.Magenta,
                     Color.White,
-                    Color.Yellow
+                    Color.Yellow,
                 )
             },
         enabled: Boolean = true,
@@ -819,7 +819,7 @@ class SelectionControlsTest {
         interactionSource: MutableInteractionSource? = null,
         drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _, _ -> },
         width: Dp = 24.dp,
-        height: Dp = 24.dp
+        height: Dp = 24.dp,
     ) =
         Checkbox(
             checked = checked,
@@ -833,7 +833,7 @@ class SelectionControlsTest {
             progressAnimationSpec = tween(200, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
             width = width,
             height = height,
-            ripple = EmptyIndication
+            ripple = EmptyIndication,
         )
 
     @Composable
@@ -851,7 +851,7 @@ class SelectionControlsTest {
                     Color.Blue,
                     Color.Red,
                     Color.Green,
-                    Color.Gray
+                    Color.Gray,
                 )
             },
         trackStrokeColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
@@ -862,7 +862,7 @@ class SelectionControlsTest {
                     Color.Blue,
                     Color.Red,
                     Color.Green,
-                    Color.Gray
+                    Color.Gray,
                 )
             },
         thumbColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
@@ -873,7 +873,7 @@ class SelectionControlsTest {
                     Color.Cyan,
                     Color.Magenta,
                     Color.White,
-                    Color.Yellow
+                    Color.Yellow,
                 )
             },
         thumbIconColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
@@ -884,14 +884,14 @@ class SelectionControlsTest {
                     Color.Cyan,
                     Color.Magenta,
                     Color.White,
-                    Color.Yellow
+                    Color.Yellow,
                 )
             },
         trackWidth: Dp = 32.dp,
         trackHeight: Dp = 24.dp,
         drawThumb: FunctionDrawThumb = FunctionDrawThumb { _, _, _, _, _ -> },
         width: Dp = 32.dp,
-        height: Dp = 24.dp
+        height: Dp = 24.dp,
     ) =
         Switch(
             checked = checked,
@@ -909,7 +909,7 @@ class SelectionControlsTest {
             progressAnimationSpec = tween(150, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
             width = width,
             height = height,
-            ripple = EmptyIndication
+            ripple = EmptyIndication,
         )
 
     @Composable
@@ -925,7 +925,7 @@ class SelectionControlsTest {
                     Color.Blue,
                     Color.Red,
                     Color.Green,
-                    Color.Gray
+                    Color.Gray,
                 )
             },
         dotColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
@@ -936,7 +936,7 @@ class SelectionControlsTest {
                     Color.Blue,
                     Color.Red,
                     Color.Green,
-                    Color.Gray
+                    Color.Gray,
                 )
             },
         onClick: (() -> Unit)? = null,
@@ -949,7 +949,7 @@ class SelectionControlsTest {
         dotAlphaProgressDelay: Int = 100,
         progressAnimationEasing: CubicBezierEasing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f),
         width: Dp = 32.dp,
-        height: Dp = 24.dp
+        height: Dp = 24.dp,
     ) =
         RadioButton(
             modifier = modifier,
@@ -965,7 +965,7 @@ class SelectionControlsTest {
             easing = progressAnimationEasing,
             width = width,
             height = height,
-            ripple = EmptyIndication
+            ripple = EmptyIndication,
         )
 
     private fun setupCheckBoxWithCustomColors(checked: Boolean, enabled: Boolean) {
@@ -981,7 +981,7 @@ class SelectionControlsTest {
                         checkedColor = boxColorChecked,
                         uncheckedColor = boxColorUnchecked,
                         disabledCheckedColor = boxColorDisabledChecked,
-                        disabledUncheckedColor = boxColorDisabledUnchecked
+                        disabledUncheckedColor = boxColorDisabledUnchecked,
                     )
                 },
                 checkmarkColor = { enabled, checked ->
@@ -991,10 +991,10 @@ class SelectionControlsTest {
                         checkedColor = checkmarkColorChecked,
                         uncheckedColor = checkmarkColorUnchecked,
                         disabledCheckedColor = checkmarkColorDisabledChecked,
-                        disabledUncheckedColor = checkmarkColorDisabledUnchecked
+                        disabledUncheckedColor = checkmarkColorDisabledUnchecked,
                     )
                 },
-                drawBox = { drawScope, color, _, _ -> drawScope.drawRoundRect(color) }
+                drawBox = { drawScope, color, _, _ -> drawScope.drawRoundRect(color) },
             )
         }
     }
@@ -1012,7 +1012,7 @@ class SelectionControlsTest {
                         checkedColor = trackColorChecked,
                         uncheckedColor = trackColorUnchecked,
                         disabledCheckedColor = trackColorDisabledChecked,
-                        disabledUncheckedColor = trackColorDisabledUnchecked
+                        disabledUncheckedColor = trackColorDisabledUnchecked,
                     )
                 },
                 trackStrokeColor = { enabled, checked ->
@@ -1022,7 +1022,7 @@ class SelectionControlsTest {
                         checkedColor = trackStrokeColorChecked,
                         uncheckedColor = trackStrokeColorUnchecked,
                         disabledCheckedColor = trackStrokeColorDisabledChecked,
-                        disabledUncheckedColor = trackStrokeColorDisabledUnchecked
+                        disabledUncheckedColor = trackStrokeColorDisabledUnchecked,
                     )
                 },
                 thumbColor = { enabled, checked ->
@@ -1032,7 +1032,7 @@ class SelectionControlsTest {
                         checkedColor = thumbColorChecked,
                         uncheckedColor = thumbColorUnchecked,
                         disabledCheckedColor = thumbColorDisabledChecked,
-                        disabledUncheckedColor = thumbColorDisabledUnchecked
+                        disabledUncheckedColor = thumbColorDisabledUnchecked,
                     )
                 },
                 thumbIconColor = { enabled, checked ->
@@ -1042,19 +1042,19 @@ class SelectionControlsTest {
                         checkedColor = thumbIconColorChecked,
                         uncheckedColor = thumbIconColorUnchecked,
                         disabledCheckedColor = thumbIconColorDisabledChecked,
-                        disabledUncheckedColor = thumbIconColorDisabledUnchecked
+                        disabledUncheckedColor = thumbIconColorDisabledUnchecked,
                     )
                 },
                 drawThumb = { drawScope, thumbColor, _, thumbIconColor, _ ->
                     // drawing
                     drawScope.drawCircle(
                         color = thumbColor,
-                        radius = with(drawScope) { 10.dp.toPx() }
+                        radius = with(drawScope) { 10.dp.toPx() },
                     )
                     // drawing thumb icon
                     drawScope.drawCircle(
                         color = thumbIconColor,
-                        radius = with(drawScope) { 5.dp.toPx() }
+                        radius = with(drawScope) { 5.dp.toPx() },
                     )
                 },
             )
@@ -1074,7 +1074,7 @@ class SelectionControlsTest {
                         checkedColor = radioRingChecked,
                         uncheckedColor = radioRingUnchecked,
                         disabledCheckedColor = radioRingDisabledChecked,
-                        disabledUncheckedColor = radioRingDisabledUnchecked
+                        disabledUncheckedColor = radioRingDisabledUnchecked,
                     )
                 },
                 dotColor = { enabled, checked ->
@@ -1084,9 +1084,9 @@ class SelectionControlsTest {
                         checkedColor = radioDotChecked,
                         uncheckedColor = radioDotUnchecked,
                         disabledCheckedColor = radioDotDisabledChecked,
-                        disabledUncheckedColor = radioDotDisabledUnchecked
+                        disabledUncheckedColor = radioDotDisabledUnchecked,
                     )
-                }
+                },
             )
         }
     }
@@ -1115,7 +1115,7 @@ class SelectionControlsTest {
         checkedColor: Color,
         uncheckedColor: Color,
         disabledCheckedColor: Color,
-        disabledUncheckedColor: Color
+        disabledUncheckedColor: Color,
     ) =
         animateColorAsState(
             if (enabled) {

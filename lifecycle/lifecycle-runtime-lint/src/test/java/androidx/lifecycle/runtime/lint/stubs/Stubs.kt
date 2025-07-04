@@ -61,7 +61,7 @@ internal val LIFECYCLE_STUB =
         suspend fun <T> LifecycleOwner.whenResumed(block: suspend CoroutineScope.() -> T): T {
             throw Error()
         }
-    """
+    """,
         )
         .indented()
         .within("src")
@@ -80,7 +80,7 @@ internal val COROUTINES_STUB =
             fun launch(block: suspend () -> Unit) {}
         }
 
-    """
+    """,
         )
         .indented()
         .within("src")
@@ -147,7 +147,7 @@ private val REPEAT_ON_LIFECYCLE_STUB =
         ) {
             throw Error()
         }
-    """
+    """,
         )
         .indented()
         .within("src")

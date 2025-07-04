@@ -220,7 +220,7 @@ constructor(
                             if (maxAfRegionCount > 0) Lock3ABehavior.IMMEDIATE else null,
                         afTriggerStartAeMode = cameraProperties.getSupportedAeMode(AeMode.ON),
                         timeLimitNs =
-                            TimeUnit.NANOSECONDS.convert(finalFocusTimeout, TimeUnit.MILLISECONDS)
+                            TimeUnit.NANOSECONDS.convert(finalFocusTimeout, TimeUnit.MILLISECONDS),
                     )
                 }
 
@@ -463,7 +463,7 @@ constructor(
                         cropRegionAspectRatio,
                         defaultAspectRatio,
                         meteringMode,
-                        meteringRegionCorrection
+                        meteringRegionCorrection,
                     )
                 val meteringRectangle: MeteringRectangle =
                     getMeteringRect(adjustedPoint, meteringPoint.size, cropSensorRegion)
@@ -515,7 +515,7 @@ constructor(
         private fun getMeteringRect(
             normalizedPointF: PointF,
             normalizedSize: Float,
-            cropRegion: Rect
+            cropRegion: Rect,
         ): MeteringRectangle {
             val centerX = (cropRegion.left + normalizedPointF.x * cropRegion.width()).toInt()
             val centerY = (cropRegion.top + normalizedPointF.y * cropRegion.height()).toInt()
@@ -526,7 +526,7 @@ constructor(
                     centerX - width / 2,
                     centerY - height / 2,
                     centerX + width / 2,
-                    centerY + height / 2
+                    centerY + height / 2,
                 )
             focusRect.left = focusRect.left.coerceIn(cropRegion.left, cropRegion.right)
             focusRect.right = focusRect.right.coerceIn(cropRegion.left, cropRegion.right)

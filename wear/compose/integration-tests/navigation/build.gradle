@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
@@ -43,12 +44,14 @@ android {
 dependencies {
 
     implementation("androidx.activity:activity-compose:1.5.1")
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":wear:compose:compose-material"))
+    implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-foundation-samples"))
     implementation(project(":wear:compose:compose-material-samples"))
@@ -56,5 +59,8 @@ dependencies {
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
 
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.7")
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.9.0")
+}
+
+androidx {
 }

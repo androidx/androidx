@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import android.util.Range;
 
 import androidx.camera.core.ExtendableBuilder;
@@ -29,8 +31,6 @@ import androidx.camera.core.internal.TargetConfig;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * Configuration containing options for use cases.
@@ -80,10 +80,22 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
             Option.create("camerax.core.useCase.surfaceOccupancyPriority", int.class);
 
     /**
+     * Option: camerax.core.useCase.sessionType
+     */
+    Option<Integer> OPTION_SESSION_TYPE =
+            Config.Option.create("camerax.core.useCase.sessionType", int.class);
+
+    /**
      * Option: camerax.core.useCase.targetFrameRate
      */
     Option<Range<Integer>> OPTION_TARGET_FRAME_RATE =
             Config.Option.create("camerax.core.useCase.targetFrameRate", Range.class);
+
+    /**
+     * Option: camerax.core.useCase.isStrictFrameRateRequired
+     */
+    Option<Boolean> OPTION_IS_STRICT_FRAME_RATE_REQUIRED =
+            Config.Option.create("camerax.core.useCase.isStrictFrameRateRequired", Boolean.class);
 
     /**
      * Option: camerax.core.useCase.zslDisabled
@@ -118,6 +130,12 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
     Option<TakePictureManager.Provider> OPTION_TAKE_PICTURE_MANAGER_PROVIDER =
             Option.create("camerax.core.useCase.takePictureManagerProvider",
                     TakePictureManager.Provider.class);
+
+    /**
+     * Option: camerax.core.useCase.streamUseCase
+     */
+    Option<StreamUseCase> OPTION_STREAM_USE_CASE =
+            Option.create("camerax.core.useCase.streamUseCase", StreamUseCase.class);
 
     // *********************************************************************************************
 
@@ -265,13 +283,39 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
     }
 
     /**
+     * Retrieves the session type
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return the stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration
+     */
+    default int getSessionType(int valueIfMissing) {
+        return retrieveOption(OPTION_SESSION_TYPE, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the session type
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    default int getSessionType() {
+        return retrieveOption(OPTION_SESSION_TYPE);
+    }
+
+    /**
      * Retrieves target frame rate
-     * @param valueIfMissing
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return the stored value or <code>valueIfMissing</code> if the value does not exist in
      * this configuration
      */
     default @Nullable Range<Integer> getTargetFrameRate(@Nullable Range<Integer> valueIfMissing) {
         return retrieveOption(OPTION_TARGET_FRAME_RATE, valueIfMissing);
+    }
+
+    default boolean isStrictFrameRateRequired() {
+        return requireNonNull(retrieveOption(OPTION_IS_STRICT_FRAME_RATE_REQUIRED, false));
     }
 
     /**
@@ -334,7 +378,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
      * @return The {@link TakePictureManager} implementation for {@link ImageCapture} use case.
      */
     default TakePictureManager.@NonNull Provider getTakePictureManagerProvider() {
-        return Objects.requireNonNull(retrieveOption(OPTION_TAKE_PICTURE_MANAGER_PROVIDER,
+        return requireNonNull(retrieveOption(OPTION_TAKE_PICTURE_MANAGER_PROVIDER,
                 new TakePictureManager.Provider() {
                     @Override
                     public @NonNull TakePictureManager newInstance(
@@ -342,6 +386,14 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
                         return new TakePictureManagerImpl(imageCaptureControl);
                     }
                 }));
+    }
+
+    /**
+     * @return The stream use case of this UseCaseConfig.
+     */
+    @NonNull
+    default StreamUseCase getStreamUseCase() {
+        return requireNonNull(retrieveOption(OPTION_STREAM_USE_CASE, StreamUseCase.DEFAULT));
     }
 
     /**
@@ -440,6 +492,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
          * @param captureType The capture type for this use case.
          */
         @NonNull B setCaptureType(UseCaseConfigFactory.@NonNull CaptureType captureType);
+
+        /**
+         * Sets the stream use case for this configuration.
+         *
+         * @param streamUseCase The stream use case for this use case.
+         */
+        @NonNull B setStreamUseCase(@NonNull StreamUseCase streamUseCase);
 
         /**
          * Retrieves the configuration used by this builder.

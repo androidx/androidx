@@ -50,12 +50,12 @@ object Common {
         TestViewConfiguration(
             doubleTapMinTimeMillis = DoubleClickMin,
             doubleTapTimeoutMillis = DoubleClickMax,
-            longPressTimeoutMillis = DefaultLongClickTimeMillis
+            longPressTimeoutMillis = DefaultLongClickTimeMillis,
         )
 
     fun runMouseInputInjectionTest(
         mouseInput: MouseInjectionScope.() -> Unit,
-        vararg eventVerifiers: DataPoint.() -> Unit
+        vararg eventVerifiers: DataPoint.() -> Unit,
     ): Unit = runComposeUiTest {
         mainClock.autoAdvance = false
         val recorder = SinglePointerInputRecorder()
@@ -70,7 +70,7 @@ object Common {
         expectedEventType: PointerEventType,
         expectedDown: Boolean,
         expectedPosition: Offset,
-        expectedButtons: PointerButtons = PointerButtons(0)
+        expectedButtons: PointerButtons = PointerButtons(0),
     ) {
         verify(
             expectedTimestamp = expectedTimestamp,
@@ -79,7 +79,7 @@ object Common {
             expectedPosition = expectedPosition,
             expectedPointerType = PointerType.Mouse,
             expectedEventType = expectedEventType,
-            expectedButtons = expectedButtons
+            expectedButtons = expectedButtons,
         )
     }
 
@@ -90,7 +90,7 @@ object Common {
         expectedDown: Boolean,
         expectedPosition: Offset,
         expectedScrollDelta: Offset,
-        expectedButtons: PointerButtons = PointerButtons(0)
+        expectedButtons: PointerButtons = PointerButtons(0),
     ) {
         verify(
             expectedTimestamp = expectedTimestamp,
@@ -100,7 +100,7 @@ object Common {
             expectedPointerType = PointerType.Mouse,
             expectedEventType = expectedEventType,
             expectedButtons = expectedButtons,
-            expectedScrollDelta = expectedScrollDelta
+            expectedScrollDelta = expectedScrollDelta,
         )
     }
 }

@@ -61,9 +61,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     SampledAnnotationDetector.UNRESOLVED_SAMPLE_LINK,
                     SampledAnnotationDetector.MULTIPLE_FUNCTIONS_FOUND,
                     SampledAnnotationDetector.INVALID_SAMPLES_LOCATION,
-                    TestSizeAnnotationEnforcer.MISSING_TEST_SIZE_ANNOTATION,
                     TestSizeAnnotationEnforcer.UNEXPECTED_TEST_SIZE_ANNOTATION,
-                    TestSizeAnnotationEnforcer.UNSUPPORTED_TEST_RUNNER,
                     BanUncheckedReflection.ISSUE,
                     ObsoleteBuildCompatUsageDetector.ISSUE,
                     BanSynchronizedMethods.ISSUE,
@@ -87,6 +85,9 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     TypeMirrorToString.ISSUE,
                     BanNullMarked.ISSUE,
                     AutoValueNullnessOverride.ISSUE,
+                    FlaggedApiDetector.ISSUE,
+                    ClassVerificationFailureDetector.METHOD_CALL_ISSUE,
+                    ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE,
                 )
             }
     }

@@ -31,7 +31,6 @@ import java.io.IOException
  * that class requires overriding certain methods, support implementation uses [Factory.create] to
  * create this and [Callback] to implement the methods that should be overridden.
  */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public interface SupportSQLiteOpenHelper : Closeable {
     /**
      * Return the name of the SQLite database being opened, as given to the constructor. `null`
@@ -260,7 +259,7 @@ public interface SupportSQLiteOpenHelper : Closeable {
          * If `true` the database will be delete and its data loss in the case that it cannot be
          * opened.
          */
-        @JvmField @Suppress("ListenerLast") public val allowDataLossOnRecovery: Boolean = false
+        @JvmField @Suppress("ListenerLast") public val allowDataLossOnRecovery: Boolean = false,
     ) {
 
         /** Builder class for [Configuration]. */
@@ -293,7 +292,7 @@ public interface SupportSQLiteOpenHelper : Closeable {
                     name,
                     callback,
                     useNoBackupDirectory,
-                    allowDataLossOnRecovery
+                    allowDataLossOnRecovery,
                 )
             }
 

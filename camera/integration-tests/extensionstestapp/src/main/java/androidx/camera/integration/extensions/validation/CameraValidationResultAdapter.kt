@@ -33,7 +33,7 @@ class CameraValidationResultAdapter(
     private val layoutInflater: LayoutInflater,
     private val cameraLensFacingMap: LinkedHashMap<String, Int>,
     private val cameraExtensionResultMap:
-        LinkedHashMap<Pair<String, String>, LinkedHashMap<Int, Pair<Int, String>>>
+        LinkedHashMap<Pair<String, String>, LinkedHashMap<Int, Pair<Int, String>>>,
 ) : BaseAdapter() {
 
     override fun getCount(): Int {

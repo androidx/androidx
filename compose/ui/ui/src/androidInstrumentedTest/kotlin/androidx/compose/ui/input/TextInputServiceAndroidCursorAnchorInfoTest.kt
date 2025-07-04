@@ -107,13 +107,13 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 view,
                 positionCalculator,
                 inputMethodManager,
-                inputCommandProcessorExecutor = choreographer.asExecutor()
+                inputCommandProcessorExecutor = choreographer.asExecutor(),
             )
         textInputService.startInput(
             value = TextFieldValue(""),
             imeOptions = ImeOptions.Default,
             onEditCommand = {},
-            onImeActionPerformed = {}
+            onImeActionPerformed = {},
         )
         inputConnection =
             textInputService.createInputConnection(EditorInfo()) as RecordingInputConnection
@@ -136,7 +136,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
@@ -150,7 +150,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -162,7 +162,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // No further updates since monitoring is off
@@ -191,7 +191,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Immediate update
@@ -203,7 +203,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -215,7 +215,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // No further updates since monitoring is off
@@ -239,7 +239,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(InputConnection.CURSOR_UPDATE_MONITOR)
@@ -255,7 +255,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Monitoring update
@@ -267,7 +267,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -286,7 +286,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Monitoring update
@@ -298,7 +298,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected2)
     }
@@ -320,7 +320,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(
@@ -336,7 +336,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
@@ -348,7 +348,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // Monitoring update
@@ -360,7 +360,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 textLayoutResult,
                 androidMatrix,
                 innerTextFieldBounds,
-                decorationBoxBounds
+                decorationBoxBounds,
             )
         verify(inputMethodManager).updateCursorAnchorInfo(expected2)
     }
@@ -382,7 +382,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         inputConnection.requestCursorUpdates(
@@ -405,7 +405,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
             textLayoutResult = textLayoutResult,
             textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
-            decorationBoxBounds = decorationBoxBounds
+            decorationBoxBounds = decorationBoxBounds,
         )
 
         // No monitoring update
@@ -427,7 +427,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 density = defaultDensity,
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = fontFamilyResolver,
-                constraints = Constraints(maxWidth = width)
+                constraints = Constraints(maxWidth = width),
             )
 
         val paragraph =
@@ -436,7 +436,7 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
                 style = input.style,
                 constraints = Constraints(maxWidth = width),
                 density = input.density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
 
         return TextLayoutResult(input, paragraph, IntSize(width, ceil(paragraph.height).toInt()))

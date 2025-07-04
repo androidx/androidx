@@ -91,7 +91,7 @@ class HeightInLinesModifierTest {
                 },
                 onTextLayoutResult = { subjectLayout = it },
                 text = "abc",
-                lineLimits = MultiLine(minHeightInLines = 2)
+                lineLimits = MultiLine(minHeightInLines = 2),
             )
             HeightObservingText(
                 onGlobalHeightPositioned = {
@@ -100,7 +100,7 @@ class HeightInLinesModifierTest {
                 },
                 onTextLayoutResult = {},
                 text = "1\n2",
-                lineLimits = MultiLine(minHeightInLines = 2)
+                lineLimits = MultiLine(minHeightInLines = 2),
             )
         }
         assertThat(positionedLatch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -158,7 +158,7 @@ class HeightInLinesModifierTest {
                     Modifier.heightInLines(
                         textStyle = TextStyle.Default,
                         minLines = 2,
-                        maxLines = 1
+                        maxLines = 1,
                     )
             )
         }
@@ -193,7 +193,7 @@ class HeightInLinesModifierTest {
                 },
                 onTextLayoutResult = { subjectLayout = it },
                 text = longText,
-                lineLimits = MultiLine(maxHeightInLines = 2)
+                lineLimits = MultiLine(maxHeightInLines = 2),
             )
             HeightObservingText(
                 onGlobalHeightPositioned = {
@@ -202,7 +202,7 @@ class HeightInLinesModifierTest {
                 },
                 onTextLayoutResult = {},
                 text = "1\n2",
-                lineLimits = MultiLine(maxHeightInLines = 2)
+                lineLimits = MultiLine(maxHeightInLines = 2),
             )
         }
         assertThat(positionedLatch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -239,7 +239,7 @@ class HeightInLinesModifierTest {
                     override val weight: FontWeight = FontWeight.Normal
                     override val style: FontStyle = FontStyle.Normal
                 },
-                TEST_FONT
+                TEST_FONT,
             )
 
         val heights = mutableListOf<Int>()
@@ -247,14 +247,14 @@ class HeightInLinesModifierTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalFontFamilyResolver provides resolver,
-                LocalDensity provides Density(1.0f, 1f)
+                LocalDensity provides Density(1.0f, 1f),
             ) {
                 HeightObservingText(
                     onGlobalHeightPositioned = { heights.add(it) },
                     onTextLayoutResult = {},
                     text = longText,
                     lineLimits = MultiLine(maxHeightInLines = 10),
-                    textStyle = TextStyle.Default.copy(fontFamily = fontFamily, fontSize = 80.sp)
+                    textStyle = TextStyle.Default.copy(fontFamily = fontFamily, fontSize = 80.sp),
                 )
             }
         }
@@ -280,7 +280,7 @@ class HeightInLinesModifierTest {
             .containsExactly(
                 ValueElement("minLines", 5),
                 ValueElement("maxLines", 10),
-                ValueElement("textStyle", TextStyle.Default)
+                ValueElement("textStyle", TextStyle.Default),
             )
 
         isDebugInspectorInfoEnabled = false
@@ -288,7 +288,7 @@ class HeightInLinesModifierTest {
 
     private fun setTextFieldWithMaxLines(
         text: String,
-        lines: MultiLine
+        lines: MultiLine,
     ): Pair<(() -> TextLayoutResult?)?, Int?> {
         var textLayoutResult: (() -> TextLayoutResult?)? = null
         var height: Int? = null
@@ -302,7 +302,7 @@ class HeightInLinesModifierTest {
                 },
                 onTextLayoutResult = { textLayoutResult = it },
                 text = text,
-                lineLimits = lines
+                lineLimits = lines,
             )
         }
         assertThat(positionedLatch.await(1, TimeUnit.SECONDS)).isTrue()
@@ -316,7 +316,7 @@ class HeightInLinesModifierTest {
         onTextLayoutResult: Density.(getResult: () -> TextLayoutResult?) -> Unit,
         text: String,
         lineLimits: MultiLine,
-        textStyle: TextStyle = TextStyle.Default
+        textStyle: TextStyle = TextStyle.Default,
     ) {
         Box(Modifier.onGloballyPositioned { onGlobalHeightPositioned(it.size.height) }) {
             BasicTextField(
@@ -324,7 +324,7 @@ class HeightInLinesModifierTest {
                 textStyle = textStyle,
                 lineLimits = lineLimits,
                 modifier = Modifier.requiredWidth(100.dp),
-                onTextLayout = onTextLayoutResult
+                onTextLayout = onTextLayoutResult,
             )
         }
     }

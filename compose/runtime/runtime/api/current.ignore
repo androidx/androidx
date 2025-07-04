@@ -1,11 +1,7 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.ControlledComposition#getAndSetShouldPauseCallback(androidx.compose.runtime.ShouldPauseCallback):
-    Added method androidx.compose.runtime.ControlledComposition.getAndSetShouldPauseCallback(androidx.compose.runtime.ShouldPauseCallback)
-
-
-BecameUnchecked: androidx.compose.runtime.Composer#compoundKeyHash:
-    Removed property Composer.compoundKeyHash from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.Composer#recomposeScope:
-    Removed property Composer.recomposeScope from compatibility checked API surface
-BecameUnchecked: androidx.compose.runtime.internal.LiveLiteralKt#isLiveLiteralsEnabled:
-    Removed property LiveLiteralKt.isLiveLiteralsEnabled from compatibility checked API surface
+BecameUnchecked: androidx.compose.runtime.ComposablesKt#getCurrentCompositionContext(androidx.compose.runtime.Composer, int):
+    Removed method androidx.compose.runtime.ComposablesKt.getCurrentCompositionContext(androidx.compose.runtime.Composer,int) from compatibility checked API surface
+BecameUnchecked: androidx.compose.runtime.ComposablesKt#getCurrentCompositionContext(androidx.compose.runtime.Composer, int) parameter #0:
+    Removed parameter arg1 in androidx.compose.runtime.ComposablesKt.getCurrentCompositionContext(androidx.compose.runtime.Composer arg1, int arg2) from compatibility checked API surface
+BecameUnchecked: androidx.compose.runtime.ComposablesKt#getCurrentCompositionContext(androidx.compose.runtime.Composer, int) parameter #1:
+    Removed parameter arg2 in androidx.compose.runtime.ComposablesKt.getCurrentCompositionContext(androidx.compose.runtime.Composer arg1, int arg2) from compatibility checked API surface

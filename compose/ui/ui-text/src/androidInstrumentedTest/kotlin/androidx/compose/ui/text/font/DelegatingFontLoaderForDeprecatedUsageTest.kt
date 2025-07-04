@@ -157,7 +157,7 @@ class DelegatingFontLoaderForDeprecatedUsageTest {
 
         @Deprecated(
             "Replaced by FontFamily.Resolver, this method should not be called",
-            replaceWith = ReplaceWith("FontFamily.Resolver.resolve(font, )")
+            replaceWith = ReplaceWith("FontFamily.Resolver.resolve(font, )"),
         )
         @Suppress("DEPRECATION")
         override fun load(font: Font): Any {

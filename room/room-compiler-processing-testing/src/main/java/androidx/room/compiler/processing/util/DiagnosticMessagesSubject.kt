@@ -30,7 +30,7 @@ internal constructor(
 ) :
     Subject<DiagnosticMessagesSubject, List<DiagnosticMessage>>(
         failureMetadata,
-        diagnosticMessages
+        diagnosticMessages,
     ) {
 
     private val lineContents by lazy {

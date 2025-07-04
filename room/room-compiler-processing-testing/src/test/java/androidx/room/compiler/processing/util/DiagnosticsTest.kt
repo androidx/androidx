@@ -102,7 +102,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
                 val field: String = "foo"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(listOf(source)) { invocation ->
             val field =
@@ -113,7 +113,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             invocation.processingEnv.messager.printMessage(
                 kind = Diagnostic.Kind.WARNING,
                 msg = "warning on field",
-                element = field
+                element = field,
             )
             invocation.assertCompilationResult {
                 hasWarningContaining("on field").onLine(3).onSource(source)
@@ -132,7 +132,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
                 String field = "";
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(listOf(source)) { invocation ->
             val field =
@@ -143,7 +143,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             invocation.processingEnv.messager.printMessage(
                 kind = Diagnostic.Kind.WARNING,
                 msg = "warning on field",
-                element = field
+                element = field,
             )
             invocation.assertCompilationResult {
                 hasWarningContaining("on field").onLine(3).onSource(source)
@@ -161,7 +161,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             public class Subject {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         cleanCompilationHasNoWarnings(javaSource)
         cleanCompilationHasNoWarnings(options = mapOf("foo" to "bar"), javaSource)
@@ -177,7 +177,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             class Subject {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         cleanCompilationHasNoWarnings(kotlinSource)
         cleanCompilationHasNoWarnings(options = mapOf("foo" to "bar"), kotlinSource)
@@ -192,7 +192,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             package foo.bar;
             public @interface MyAnnotation {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val source =
             Source.java(
@@ -202,7 +202,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             @MyAnnotation
             public class Subject {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         cleanCompilationHasNoWarnings(annotation, source)
     }
@@ -218,7 +218,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             @MyAnnotation
             class Subject {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         cleanCompilationHasNoWarnings(source)
     }
@@ -231,7 +231,7 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
                     Diagnostic.Kind.ERROR,
                     "error: This is the first line\n" +
                         "    This is the second line\n" +
-                        "    This is the third line"
+                        "    This is the third line",
                 )
             }
             invocation.assertCompilationResult {

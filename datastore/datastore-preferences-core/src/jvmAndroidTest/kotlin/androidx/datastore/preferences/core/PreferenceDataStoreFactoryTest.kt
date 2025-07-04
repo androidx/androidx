@@ -70,7 +70,7 @@ class PreferenceDataStoreFactoryTest {
         val store =
             PreferenceDataStoreFactory.create(
                 corruptionHandler = ReplaceFileCorruptionHandler<Preferences> { valueToReplace },
-                scope = dataStoreScope
+                scope = dataStoreScope,
             ) {
                 testFile
             }
@@ -110,7 +110,7 @@ class PreferenceDataStoreFactoryTest {
         val store =
             PreferenceDataStoreFactory.create(
                 migrations = listOf(migrateTo5, migratePlus1),
-                scope = dataStoreScope
+                scope = dataStoreScope,
             ) {
                 testFile
             }

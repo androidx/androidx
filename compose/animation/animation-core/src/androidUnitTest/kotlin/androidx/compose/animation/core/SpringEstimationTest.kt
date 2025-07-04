@@ -88,7 +88,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                 dampingCoefficient = testCase.dampingCoefficient,
                 initialDisplacement = testCase.initialDisplacement,
                 initialVelocity = testCase.initialVelocity,
-                delta = 1.0
+                delta = 1.0,
             )
 
         val alternateEndTime =
@@ -97,7 +97,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                 dampingRatio = testCase.dampingRatio,
                 initialDisplacement = testCase.initialDisplacement,
                 initialVelocity = testCase.initialVelocity,
-                delta = 1.0
+                delta = 1.0,
             )
 
         // Test that the alternate implementation gives the same answer within 1ms.
@@ -105,7 +105,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             return TestCaseResult(
                 pass = false,
                 testCase = testCase,
-                reason = "stiffness/dampingRatio implementation discrepancy"
+                reason = "stiffness/dampingRatio implementation discrepancy",
             )
         }
 
@@ -115,19 +115,19 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
             springSimulation.updateValues(
                 lastDisplacement = testCase.initialDisplacement.toFloat(),
                 lastVelocity = testCase.initialVelocity.toFloat(),
-                timeElapsed = endTime + TwoFrames60fpsMillis
+                timeElapsed = endTime + TwoFrames60fpsMillis,
             )
         val simTwoFramesBefore =
             springSimulation.updateValues(
                 lastDisplacement = testCase.initialDisplacement.toFloat(),
                 lastVelocity = testCase.initialVelocity.toFloat(),
-                timeElapsed = max(endTime - TwoFrames60fpsMillis, 0L)
+                timeElapsed = max(endTime - TwoFrames60fpsMillis, 0L),
             )
         val simAtTime =
             springSimulation.updateValues(
                 lastDisplacement = testCase.initialDisplacement.toFloat(),
                 lastVelocity = testCase.initialVelocity.toFloat(),
-                timeElapsed = endTime
+                timeElapsed = endTime,
             )
 
         val pass =
@@ -167,7 +167,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                                 springConstant = k,
                                 dampingCoefficient = c.toDouble(),
                                 initialVelocity = v0.toDouble(),
-                                initialDisplacement = p0.toDouble()
+                                initialDisplacement = p0.toDouble(),
                             )
                         synchronized(testCases) { testCases.add(testCase) }
                     }
@@ -189,7 +189,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
                             springConstant = k,
                             dampingCoefficient = c,
                             initialVelocity = v0.toDouble(),
-                            initialDisplacement = p0.toDouble()
+                            initialDisplacement = p0.toDouble(),
                         )
 
                     synchronized(testCases) { testCases.add(testCase) }
@@ -204,7 +204,7 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
         val springConstant: Double,
         val dampingCoefficient: Double,
         val initialVelocity: Double,
-        val initialDisplacement: Double
+        val initialDisplacement: Double,
     ) {
         val dampingRatio: Double
             get() {
@@ -221,6 +221,6 @@ class SpringEstimationTest(private val m: Double, private val k: Double) {
     private data class TestCaseResult(
         val pass: Boolean,
         val testCase: TestCase,
-        val reason: String = ""
+        val reason: String = "",
     )
 }

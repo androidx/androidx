@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -44,13 +44,13 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.core.testing"
 }
 
 androidx {
     name = "Core Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2023"
     description = "Provides extensions for tests using Core APIs."

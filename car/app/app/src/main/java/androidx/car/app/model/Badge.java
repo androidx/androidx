@@ -29,17 +29,19 @@ import java.util.Objects;
  * Represents a badge that can be displayed as an overlay on top of an image.
  *
  * <p>A badge denotes some sort of call to action, notification, alert, etc. An example is
- * badging of application icons in a launcher to add a number at the top right corner which
- * denotes how many active notifications that application has.
+ * badging of application icons in a launcher to add a number which denotes how many active
+ * notifications that application has.
+ *
+ * <p>Badges may have a dot which is a colored circle appearing in a different location to the icon.
  */
 @CarProtocol
 @ExperimentalCarApi
 @KeepFields
 public class Badge {
-
     private final boolean mHasDot;
-    private final @Nullable CarColor mBackgroundColor;
+    private final @Nullable CarColor mDotColor;
     private final @Nullable CarIcon mIcon;
+    private final @Nullable CarColor mIconBackgroundColor;
 
     /**
      * Returns whether the badge has a dot.
@@ -51,10 +53,20 @@ public class Badge {
     }
 
     /**
-     * Returns the dot background color.
+     * Returns the dot color.
      */
+    public @Nullable CarColor getDotColor() {
+        return mDotColor;
+    }
+
+    /**
+     * Returns the dot background color.
+     *
+     * @deprecated use {@link #getDotColor()} instead.
+     */
+    @Deprecated
     public @Nullable CarColor getBackgroundColor() {
-        return mBackgroundColor;
+        return mDotColor;
     }
 
     /**
@@ -66,16 +78,24 @@ public class Badge {
         return mIcon;
     }
 
+    /**
+     * Returns the icon background color.
+     */
+    public @Nullable CarColor getIconBackgroundColor() {
+        return mIconBackgroundColor;
+    }
+
     @Override
     public @NonNull String toString() {
         return "[hasDot: " + mHasDot
-                + ", backgroundColor: " + mBackgroundColor
-                + ", icon: " + mIcon + "]";
+                + ", dotColor: " + mDotColor
+                + ", icon: " + mIcon
+                + ", iconBackgroundColor: " + mIconBackgroundColor + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mHasDot, mBackgroundColor, mIcon);
+        return Objects.hash(mHasDot, mDotColor, mIcon, mIconBackgroundColor);
     }
 
     @Override
@@ -89,28 +109,35 @@ public class Badge {
         Badge otherBadge = (Badge) other;
 
         return mHasDot == otherBadge.mHasDot
-                && Objects.equals(mBackgroundColor, otherBadge.mBackgroundColor)
-                && Objects.equals(mIcon, otherBadge.mIcon);
+                && Objects.equals(mDotColor, otherBadge.mDotColor)
+                && Objects.equals(mIcon, otherBadge.mIcon)
+                && Objects.equals(mIconBackgroundColor, otherBadge.mIconBackgroundColor);
     }
 
     Badge(Builder builder) {
         mHasDot = builder.mHasDot;
-        mBackgroundColor = builder.mBackgroundColor;
+        mDotColor = builder.mDotColor;
         mIcon = builder.mIcon;
+        mIconBackgroundColor = builder.mIconBackgroundColor;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private Badge() {
         mHasDot = false;
-        mBackgroundColor = null;
+        mDotColor = null;
         mIcon = null;
+        mIconBackgroundColor = null;
     }
 
     /** A builder of {@link Badge}. */
     public static final class Builder {
         boolean mHasDot;
-        @Nullable CarColor mBackgroundColor;
-        @Nullable CarIcon mIcon;
+        @Nullable
+        CarColor mDotColor;
+        @Nullable
+        CarIcon mIcon;
+        @Nullable
+        CarColor mIconBackgroundColor;
 
         /**
          * Enables a circular dot that denotes some sort of alert, notification, etc.
@@ -121,10 +148,21 @@ public class Badge {
         }
 
         /**
-         * Sets the color of the dot to the given {@code backgroundColor}.
+         * Sets the color of the dot to the given {@code color}.
          */
+        public @NonNull Builder setDotColor(@NonNull CarColor color) {
+            mDotColor = color;
+            return this;
+        }
+
+        /**
+         * Sets the color of the dot to the given {@code backgroundColor}.
+         *
+         * @deprecated use {@link #setDotColor(CarColor)} instead.
+         */
+        @Deprecated
         public @NonNull Builder setBackgroundColor(@NonNull CarColor backgroundColor) {
-            mBackgroundColor = backgroundColor;
+            mDotColor = backgroundColor;
             return this;
         }
 
@@ -141,16 +179,31 @@ public class Badge {
         }
 
         /**
+         * Sets the color of the icon background to the given {@code color}.
+         */
+        public @NonNull Builder setIconBackgroundColor(@NonNull CarColor color) {
+            mIconBackgroundColor = color;
+            return this;
+        }
+
+        /**
          * Constructs the {@link Badge} defined by this builder.
          *
          * @throws IllegalStateException if the badge doesn't have a dot or an icon.
+         * @throws IllegalStateException if the a dot color is set but the badge has no dot.
+         * @throws IllegalStateException if the a icon background color is set but the badge has
+         * no icon.
          */
         public @NonNull Badge build() {
             if (!mHasDot && mIcon == null) {
                 throw new IllegalStateException("A badge must have a dot or an icon set");
             }
-            if (!mHasDot && mBackgroundColor != null) {
-                throw new IllegalStateException("The dot must be enabled to set the background "
+            if (!mHasDot && mDotColor != null) {
+                throw new IllegalStateException("The dot must be enabled to set the dot "
+                        + "color.");
+            }
+            if (mIcon == null && mIconBackgroundColor != null) {
+                throw new IllegalStateException("The icon must be set to set the icon background "
                         + "color.");
             }
             return new Badge(this);

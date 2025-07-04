@@ -18,7 +18,6 @@ package androidx.build.metalava
 
 import androidx.build.Version
 import androidx.build.checkapi.ApiLocation
-import androidx.build.checkapi.StandardCompilationInputs
 import java.io.File
 import javax.inject.Inject
 import org.gradle.api.file.Directory
@@ -79,25 +78,19 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             check(compiled.exists()) { "File " + compiled + " does not exist" }
         }
 
-        val inputs =
-            StandardCompilationInputs(
-                sourcePaths = sourcePaths,
-                commonModuleSourcePaths = commonModuleSourcePaths,
-                dependencyClasspath = dependencyClasspath,
-                bootClasspath = bootClasspath
-            )
-
         val levelsArgs =
             getGenerateApiLevelsArgs(
+                projectApiDirectory.asFile,
                 getPastApiFiles(),
                 currentVersion.get(),
-                apiLocation.get().apiLevelsFile
+                apiLocation.get().apiLevelsFile,
             )
 
         generateApi(
             metalavaClasspath,
             createProjectXmlFile(),
-            inputs,
+            sourcePaths.files,
+            compiledSources.files.singleOrNull(),
             apiLocation.get(),
             ApiLintMode.CheckBaseline(baselines.get().apiLintFile, targetsJavaConsumers.get()),
             generateRestrictToLibraryGroupAPIs,
@@ -105,7 +98,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             k2UastEnabled.get(),
             kotlinSourceLevel.get(),
             workerExecutor,
-            manifestPath.orNull?.asFile?.absolutePath
+            manifestPath.orNull?.asFile?.absolutePath,
         )
     }
 }

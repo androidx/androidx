@@ -50,7 +50,7 @@ public class ComplicationHelperActivityTest {
         mapOf(
             ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER to createIntent(),
             ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY to
-                createPermissionOnlyIntent()
+                createPermissionOnlyIntent(),
         )
 
     @Test
@@ -206,7 +206,7 @@ public class ComplicationHelperActivityTest {
             helper.onRequestPermissionsResult(
                 ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER,
                 emptyArray(),
-                intArrayOf(PackageManager.PERMISSION_GRANTED)
+                intArrayOf(PackageManager.PERMISSION_GRANTED),
             )
 
             verify(helper.mDelegate).startComplicationDataSourceChooser()
@@ -224,7 +224,7 @@ public class ComplicationHelperActivityTest {
             helper.onRequestPermissionsResult(
                 ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY,
                 emptyArray(),
-                intArrayOf(PackageManager.PERMISSION_GRANTED)
+                intArrayOf(PackageManager.PERMISSION_GRANTED),
             )
 
             verify(helper.mDelegate, never()).startComplicationDataSourceChooser()
@@ -243,7 +243,7 @@ public class ComplicationHelperActivityTest {
                 helper.onRequestPermissionsResult(
                     requestId,
                     emptyArray(),
-                    intArrayOf(PackageManager.PERMISSION_DENIED)
+                    intArrayOf(PackageManager.PERMISSION_DENIED),
                 )
 
                 verify(helper.mDelegate).launchComplicationDeniedActivity()
@@ -258,7 +258,7 @@ public class ComplicationHelperActivityTest {
                 ComplicationHelperActivity
                     .PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT to createIntent(),
                 ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT to
-                    createPermissionOnlyIntent()
+                    createPermissionOnlyIntent(),
             )
         runOnMainThread {
             deniedScenarios.forEach { (requestId, intent) ->
@@ -269,7 +269,7 @@ public class ComplicationHelperActivityTest {
                 helper.onRequestPermissionsResult(
                     requestId,
                     emptyArray(),
-                    intArrayOf(PackageManager.PERMISSION_DENIED)
+                    intArrayOf(PackageManager.PERMISSION_DENIED),
                 )
 
                 verify(helper.mDelegate, never()).launchComplicationDeniedActivity()
@@ -285,7 +285,7 @@ public class ComplicationHelperActivityTest {
         vararg supportedTypes: ComplicationType = defaultSupportedTypes,
         complicationDeniedIntent: Intent? = Intent(),
         complicationRationalIntent: Intent? = Intent(),
-        userStyleData: UserStyleData? = null
+        userStyleData: UserStyleData? = null,
     ) =
         ComplicationHelperActivity.createComplicationDataSourceChooserHelperIntent(
             context,
@@ -295,19 +295,19 @@ public class ComplicationHelperActivityTest {
             instanceId,
             complicationDeniedIntent,
             complicationRationalIntent,
-            userStyleData
+            userStyleData,
         )
 
     private fun createPermissionOnlyIntent(
         watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
         complicationDeniedIntent: Intent? = Intent(),
-        complicationRationalIntent: Intent? = Intent()
+        complicationRationalIntent: Intent? = Intent(),
     ) =
         ComplicationHelperActivity.createPermissionRequestHelperIntent(
             context,
             watchFaceComponentName,
             complicationDeniedIntent,
-            complicationRationalIntent
+            complicationRationalIntent,
         )
 
     private companion object {

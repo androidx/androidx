@@ -873,7 +873,7 @@ class SnapshotTests {
 
             assertFalse(
                 observerSnapshot.apply().succeeded,
-                "applying observer snapshot with conflicting change"
+                "applying observer snapshot with conflicting change",
             )
         } finally {
             observer.dispose()
@@ -913,7 +913,7 @@ class SnapshotTests {
                 ise.message?.let {
                     it.contains("Snapshot is not open") && it.contains("applied=")
                 } == true,
-                "Incorrect message: ${ise.message}"
+                "Incorrect message: ${ise.message}",
             )
         } finally {
             snapshot.dispose()
@@ -935,7 +935,7 @@ class SnapshotTests {
                 ise.message?.let {
                     it.contains("Snapshot is not open") && it.contains("applied=")
                 } == true,
-                "Incorrect message: ${ise.message}"
+                "Incorrect message: ${ise.message}",
             )
         } finally {
             snapshot.dispose()
@@ -992,10 +992,10 @@ class SnapshotTests {
     fun testNestedWithinTransparentSnapshotDisposedCorrectly() {
         val outerSnapshot =
             TransparentObserverSnapshot(
-                previousSnapshot = currentSnapshot(),
+                parentSnapshot = currentSnapshot(),
                 specifiedReadObserver = null,
                 mergeParentObservers = false,
-                ownsPreviousSnapshot = false
+                ownsParentSnapshot = false,
             )
 
         try {
@@ -1021,7 +1021,7 @@ class SnapshotTests {
                 specifiedReadObserver = null,
                 specifiedWriteObserver = null,
                 mergeParentObservers = false,
-                ownsParentSnapshot = false
+                ownsParentSnapshot = false,
             )
 
         try {
@@ -1047,10 +1047,10 @@ class SnapshotTests {
 
         val outerSnapshot =
             TransparentObserverSnapshot(
-                previousSnapshot = currentSnapshot(),
+                parentSnapshot = currentSnapshot(),
                 specifiedReadObserver = { outerChanges++ },
                 mergeParentObservers = false,
-                ownsPreviousSnapshot = false
+                ownsParentSnapshot = false,
             )
 
         try {
@@ -1086,7 +1086,7 @@ class SnapshotTests {
                 specifiedReadObserver = { outerChanges++ },
                 specifiedWriteObserver = null,
                 mergeParentObservers = false,
-                ownsParentSnapshot = false
+                ownsParentSnapshot = false,
             )
 
         try {
@@ -1213,7 +1213,7 @@ class SnapshotTests {
                 specifiedReadObserver = null,
                 specifiedWriteObserver = null,
                 mergeParentObservers = false,
-                ownsParentSnapshot = false
+                ownsParentSnapshot = false,
             )
         try {
             transparentSnapshot.enter {
@@ -1269,7 +1269,7 @@ class SnapshotTests {
             {
                 it.value = 2
                 2
-            }
+            },
         )
         test(
             { mutableLongStateOf(1L) },
@@ -1277,7 +1277,7 @@ class SnapshotTests {
             {
                 it.value = 2L
                 2L
-            }
+            },
         )
         test(
             { mutableFloatStateOf(1f) },
@@ -1285,7 +1285,7 @@ class SnapshotTests {
             {
                 it.value = 2f
                 2f
-            }
+            },
         )
         test(
             { mutableDoubleStateOf(1.0) },
@@ -1293,7 +1293,7 @@ class SnapshotTests {
             {
                 it.value = 2.0
                 2.0
-            }
+            },
         )
         test(
             { mutableStateListOf<Int>() },
@@ -1301,7 +1301,7 @@ class SnapshotTests {
             {
                 it.add(1)
                 it.isEmpty()
-            }
+            },
         )
         test(
             { mutableStateMapOf<Int, Int>() },
@@ -1309,7 +1309,7 @@ class SnapshotTests {
             {
                 it[23] = 42
                 it.isEmpty()
-            }
+            },
         )
     }
 
@@ -1371,17 +1371,21 @@ class SnapshotTests {
         }
     }
 
-    @Test(expected = IllegalStateException::class)
+    @Test
     fun throwInWithMutableSnapshot() {
-        Snapshot.withMutableSnapshot { error("Test error") }
+        assertFailsWith<IllegalStateException> {
+            Snapshot.withMutableSnapshot { error("Test error") }
+        }
     }
 
-    @Test(expected = SnapshotApplyConflictException::class)
+    @Test
     fun throwInApplyWithMutableSnapshot() {
-        val state = mutableStateOf(0)
-        Snapshot.withMutableSnapshot {
-            Snapshot.global { state.value = 1 }
-            state.value = 2
+        assertFailsWith<SnapshotApplyConflictException> {
+            val state = mutableStateOf(0)
+            Snapshot.withMutableSnapshot {
+                Snapshot.global { state.value = 1 }
+                state.value = 2
+            }
         }
     }
 

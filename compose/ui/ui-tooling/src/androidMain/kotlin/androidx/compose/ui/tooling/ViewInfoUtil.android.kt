@@ -35,19 +35,20 @@ private fun List<ViewInfo>.filterTree(filter: (ViewInfo) -> Boolean = { true }):
                     it.bounds,
                     it.location,
                     acceptedNodes,
-                    it.layoutInfo
+                    it.layoutInfo,
+                    it.name,
                 )
             )
         } else {
             // Create a fake node to attach the children to
-            listOf(ViewInfo("<root>", -1, IntRect.Zero, null, acceptedNodes, null))
+            listOf(ViewInfo("<root>", -1, IntRect.Zero, null, acceptedNodes, null, null))
         }
     }
 
 @OptIn(UiToolingDataApi::class)
 internal fun List<ViewInfo>.toDebugString(
     indentation: Int = 0,
-    filter: (ViewInfo) -> Boolean = { true }
+    filter: (ViewInfo) -> Boolean = { true },
 ): String {
     val indentString = ".".repeat(indentation)
     val builder = StringBuilder()

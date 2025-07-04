@@ -35,11 +35,11 @@ import java.util.concurrent.Executor
 class FakeImageCaptureExtenderImpl(
     val supportedRequestKeys: List<CaptureRequest.Key<out Any>> = emptyList(),
     val supportedSizes: List<Pair<Int, Array<Size>>>? = null,
-    val captureProcessorImpl: CaptureProcessorImpl? = null
+    val captureProcessorImpl: CaptureProcessorImpl? = null,
 ) : ImageCaptureExtenderImpl {
     override fun isExtensionAvailable(
         cameraId: String,
-        cameraCharacteristics: CameraCharacteristics
+        cameraCharacteristics: CameraCharacteristics,
     ): Boolean = true
 
     override fun init(cameraId: String, cameraCharacteristics: CameraCharacteristics) {}
@@ -75,7 +75,7 @@ class FakeImageCaptureExtenderImpl(
     override fun onInit(
         cameraId: String,
         cameraCharacteristics: CameraCharacteristics,
-        context: Context
+        context: Context,
     ) {}
 
     override fun onDeInit() {}
@@ -99,13 +99,13 @@ class FakeCaptureProcessorImpl : CaptureProcessorImpl {
     override fun process(
         results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
         resultCallback: ProcessResultImpl,
-        executor: Executor?
+        executor: Executor?,
     ) {}
 
     override fun processWithPostview(
         results: MutableMap<Int, Pair<Image, TotalCaptureResult>>,
         resultCallback: ProcessResultImpl,
-        executor: Executor?
+        executor: Executor?,
     ) {}
 
     override fun onOutputSurface(surface: Surface, imageFormat: Int) {}

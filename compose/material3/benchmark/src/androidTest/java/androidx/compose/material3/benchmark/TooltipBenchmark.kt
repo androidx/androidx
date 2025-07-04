@@ -60,7 +60,7 @@ class TooltipBenchmark {
     fun plainTooltipVisibilityTest() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = plainTooltipTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -68,7 +68,7 @@ class TooltipBenchmark {
     fun richTooltipVisibilityTest() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = richTooltipTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }
@@ -122,7 +122,7 @@ private class TooltipTestCase(val tooltipType: TooltipType) :
     private fun TooltipScope.RichTooltipTest() {
         RichTooltip(
             title = { Text("Subhead") },
-            action = { TextButton(onClick = {}) { Text(text = "Action") } }
+            action = { TextButton(onClick = {}) { Text(text = "Action") } },
         ) {
             Text(text = "Text")
         }
@@ -131,5 +131,5 @@ private class TooltipTestCase(val tooltipType: TooltipType) :
 
 private enum class TooltipType {
     Plain,
-    Rich
+    Rich,
 }

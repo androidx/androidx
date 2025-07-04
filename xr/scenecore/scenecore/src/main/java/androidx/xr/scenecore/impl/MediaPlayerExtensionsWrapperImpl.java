@@ -18,36 +18,38 @@ package androidx.xr.scenecore.impl;
 
 import android.media.MediaPlayer;
 
-import androidx.annotation.NonNull;
-import androidx.xr.extensions.media.MediaPlayerExtensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.MediaPlayerExtensionsWrapper;
-import androidx.xr.scenecore.JxrPlatformAdapter.PointSourceAttributes;
-import androidx.xr.scenecore.JxrPlatformAdapter.SoundFieldAttributes;
+import androidx.xr.runtime.internal.MediaPlayerExtensionsWrapper;
+import androidx.xr.runtime.internal.PointSourceParams;
+import androidx.xr.runtime.internal.SoundFieldAttributes;
+
+import com.android.extensions.xr.media.MediaPlayerExtensions;
+
+import org.jspecify.annotations.NonNull;
 
 /** Implementation of the {@link MediaPlayerExtensionsWrapper}. */
 final class MediaPlayerExtensionsWrapperImpl implements MediaPlayerExtensionsWrapper {
 
-    private final MediaPlayerExtensions extensions;
+    private final MediaPlayerExtensions mExtensions;
 
-    public MediaPlayerExtensionsWrapperImpl(@NonNull MediaPlayerExtensions extensions) {
-        this.extensions = extensions;
+    MediaPlayerExtensionsWrapperImpl(@NonNull MediaPlayerExtensions extensions) {
+        mExtensions = extensions;
     }
 
     @Override
-    public void setPointSourceAttributes(
-            @NonNull MediaPlayer mediaPlayer, @NonNull PointSourceAttributes attributes) {
-        androidx.xr.extensions.media.PointSourceAttributes extAttributes =
-                MediaUtils.convertPointSourceAttributesToExtensions(attributes);
+    public void setPointSourceParams(
+            @NonNull MediaPlayer mediaPlayer, @NonNull PointSourceParams params) {
+        com.android.extensions.xr.media.PointSourceParams extParams =
+                MediaUtils.convertPointSourceParamsToExtensions(params);
 
-        extensions.setPointSourceAttributes(mediaPlayer, extAttributes);
+        MediaPlayer unused = mExtensions.setPointSourceParams(mediaPlayer, extParams);
     }
 
     @Override
     public void setSoundFieldAttributes(
             @NonNull MediaPlayer mediaPlayer, @NonNull SoundFieldAttributes attributes) {
-        androidx.xr.extensions.media.SoundFieldAttributes extAttributes =
+        com.android.extensions.xr.media.SoundFieldAttributes extAttributes =
                 MediaUtils.convertSoundFieldAttributesToExtensions(attributes);
 
-        extensions.setSoundFieldAttributes(mediaPlayer, extAttributes);
+        MediaPlayer unused = mExtensions.setSoundFieldAttributes(mediaPlayer, extAttributes);
     }
 }

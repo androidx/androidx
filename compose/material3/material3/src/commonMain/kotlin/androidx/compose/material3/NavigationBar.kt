@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -78,8 +77,8 @@ import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://m3.material.io/components/navigation-bar/overview" class="external"
- * target="_blank">Material Design bottom navigation bar</a>.
+ * [Material Design bottom navigation
+ * bar](https://m3.material.io/components/navigation-bar/overview)
  *
  * Navigation bars offer a persistent and convenient way to switch between primary destinations in
  * an app.
@@ -117,18 +116,48 @@ fun NavigationBar(
     contentColor: Color = MaterialTheme.colorScheme.contentColorFor(containerColor),
     tonalElevation: Dp = NavigationBarDefaults.Elevation,
     windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
-    val context =
-        NavigationBarComponentOverrideContext(
-            modifier = modifier,
-            containerColor = containerColor,
+    with(LocalNavigationBarOverride.current) {
+        NavigationBarOverrideScope(
+                modifier = modifier,
+                containerColor = containerColor,
+                contentColor = contentColor,
+                tonalElevation = tonalElevation,
+                windowInsets = windowInsets,
+                content = content,
+            )
+            .NavigationBar()
+    }
+}
+
+/**
+ * This override provides the default behavior of the [NavigationBar] component.
+ *
+ * [NavigationBarOverride] used when no override is specified.
+ */
+@ExperimentalMaterial3ComponentOverrideApi
+object DefaultNavigationBarOverride : NavigationBarOverride {
+    @Composable
+    override fun NavigationBarOverrideScope.NavigationBar() {
+        Surface(
+            color = containerColor,
             contentColor = contentColor,
             tonalElevation = tonalElevation,
-            windowInsets = windowInsets,
-            content = content,
-        )
-    with(LocalNavigationBarComponentOverride.current) { context.NavigationBar() }
+            modifier = modifier,
+        ) {
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .windowInsetsPadding(windowInsets)
+                        .defaultMinSize(minHeight = NavigationBarHeight)
+                        .selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(NavigationBarItemHorizontalPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                content = content,
+            )
+        }
+    }
 }
 
 /**
@@ -175,7 +204,7 @@ fun RowScope.NavigationBarItem(
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = true,
     colors: NavigationBarItemColors = NavigationBarItemDefaults.colors(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -186,7 +215,7 @@ fun RowScope.NavigationBarItem(
             val iconColor by
                 animateColorAsState(
                     targetValue = colors.iconColor(selected = selected, enabled = enabled),
-                    animationSpec = colorAnimationSpec
+                    animationSpec = colorAnimationSpec,
                 )
             // If there's a label, don't have a11y services repeat the icon description.
             val clearSemantics = label != null && (alwaysShowLabel || selected)
@@ -202,12 +231,12 @@ fun RowScope.NavigationBarItem(
                 val textColor by
                     animateColorAsState(
                         targetValue = colors.textColor(selected = selected, enabled = enabled),
-                        animationSpec = colorAnimationSpec
+                        animationSpec = colorAnimationSpec,
                     )
                 ProvideContentColorTextStyle(
                     contentColor = textColor,
                     textStyle = style,
-                    content = label
+                    content = label,
                 )
             }
         }
@@ -234,13 +263,13 @@ fun RowScope.NavigationBarItem(
             animateFloatAsState(
                 targetValue = if (selected) 1f else 0f,
                 // TODO Load the motionScheme tokens from the component tokens file
-                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
             )
         val sizeAnimationProgress: State<Float> =
             animateFloatAsState(
                 targetValue = if (selected) 1f else 0f,
                 // TODO Load the motionScheme tokens from the component tokens file
-                animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
+                animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
             )
         // The entire item is selectable, but only the indicator pill shows the ripple. To achieve
         // this, we re-map the coordinates of the item's InteractionSource into the coordinates of
@@ -285,7 +314,7 @@ fun RowScope.NavigationBarItem(
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
             alphaAnimationProgress = { alphaAnimationProgress.value },
-            sizeAnimationProgress = { sizeAnimationProgress.value }
+            sizeAnimationProgress = { sizeAnimationProgress.value },
         )
     }
 }
@@ -373,7 +402,7 @@ object NavigationBarItemDefaults {
 
     @Deprecated(
         "Use overload with disabledIconColor and disabledTextColor",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     @Composable
     fun colors(
@@ -535,16 +564,14 @@ private fun NavigationBarItemLayout(
 
             if (label != null) {
                 Box(
-                    Modifier.layoutId(LabelLayoutIdTag)
-                        .graphicsLayer {
-                            alpha = if (alwaysShowLabel) 1f else alphaAnimationProgress()
-                        }
-                        .padding(horizontal = NavigationBarItemHorizontalPadding / 2)
+                    Modifier.layoutId(LabelLayoutIdTag).graphicsLayer {
+                        alpha = if (alwaysShowLabel) 1f else alphaAnimationProgress()
+                    }
                 ) {
                     label()
                 }
             }
-        }
+        },
     ) { measurables, constraints ->
         @Suppress("NAME_SHADOWING")
         // Ensure that the progress is >= 0. It may be negative on bouncy springs, for example.
@@ -582,7 +609,7 @@ private fun NavigationBarItemLayout(
                 indicatorPlaceable,
                 constraints,
                 alwaysShowLabel,
-                animationProgress
+                animationProgress,
             )
         }
     }
@@ -593,7 +620,7 @@ private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
     indicatorRipplePlaceable: Placeable,
     indicatorPlaceable: Placeable?,
-    constraints: Constraints
+    constraints: Constraints,
 ): MeasureResult {
     val width =
         if (constraints.maxWidth == Constraints.Infinity) {
@@ -746,15 +773,20 @@ private val IndicatorVerticalOffset: Dp = 12.dp
 /*@VisibleForTesting*/
 internal val NavigationBarItemToIconMinimumPadding: Dp = 44.dp
 
-/** Interface that allows libraries to override the behavior of the [NavigationBar] component. */
+/**
+ * Interface that allows libraries to override the behavior of the [NavigationBar] component.
+ *
+ * To override this component, implement the member function of this interface, then provide the
+ * implementation to [LocalNavigationBarOverride] in the Compose hierarchy.
+ */
 @ExperimentalMaterial3ComponentOverrideApi
-interface NavigationBarComponentOverride {
+interface NavigationBarOverride {
     /** Behavior function that is called by the [NavigationBar] component. */
-    @Composable fun NavigationBarComponentOverrideContext.NavigationBar()
+    @Composable fun NavigationBarOverrideScope.NavigationBar()
 }
 
 /**
- * Parameters available to NavigationBar.
+ * Parameters available to [NavigationBar].
  *
  * @param modifier the [Modifier] to be applied to this navigation bar
  * @param containerColor the color used for the background of this navigation bar. Use
@@ -769,7 +801,7 @@ interface NavigationBarComponentOverride {
  * @param content the content of this navigation bar, typically 3-5 [NavigationBarItem]s
  */
 @ExperimentalMaterial3ComponentOverrideApi
-class NavigationBarComponentOverrideContext
+class NavigationBarOverrideScope
 internal constructor(
     val modifier: Modifier = Modifier,
     val containerColor: Color,
@@ -779,37 +811,9 @@ internal constructor(
     val content: @Composable RowScope.() -> Unit,
 )
 
-/** [NavigationBarComponentOverride] used when no override is specified. */
+/** CompositionLocal containing the currently-selected [NavigationBarOverride]. */
 @ExperimentalMaterial3ComponentOverrideApi
-object DefaultNavigationBarComponentOverride : NavigationBarComponentOverride {
-    @Composable
-    override fun NavigationBarComponentOverrideContext.NavigationBar() {
-        Surface(
-            color = containerColor,
-            contentColor = contentColor,
-            tonalElevation = tonalElevation,
-            modifier = modifier
-        ) {
-            Row(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .windowInsetsPadding(windowInsets)
-                        .defaultMinSize(minHeight = NavigationBarHeight)
-                        .selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(NavigationBarItemHorizontalPadding),
-                verticalAlignment = Alignment.CenterVertically,
-                content = content
-            )
-        }
-    }
-}
-
-/** CompositionLocal containing the currently-selected [NavigationBarComponentOverride]. */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalMaterial3ComponentOverrideApi
-@ExperimentalMaterial3ComponentOverrideApi
-val LocalNavigationBarComponentOverride:
-    ProvidableCompositionLocal<NavigationBarComponentOverride> =
+val LocalNavigationBarOverride: ProvidableCompositionLocal<NavigationBarOverride> =
     compositionLocalOf {
-        DefaultNavigationBarComponentOverride
+        DefaultNavigationBarOverride
     }

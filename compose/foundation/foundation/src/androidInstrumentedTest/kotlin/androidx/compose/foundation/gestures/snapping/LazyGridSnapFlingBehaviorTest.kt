@@ -238,7 +238,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
             object : NestedScrollConnection {
                 override suspend fun onPostFling(
                     consumed: Velocity,
-                    available: Velocity
+                    available: Velocity,
                 ): Velocity {
                     latestAvailableVelocity = available
                     return Velocity.Zero
@@ -286,7 +286,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
             object : NestedScrollConnection {
                 override suspend fun onPostFling(
                     consumed: Velocity,
-                    available: Velocity
+                    available: Velocity,
                 ): Velocity {
                     latestAvailableVelocity = available
                     return Velocity.Zero
@@ -307,7 +307,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 1.5f * stepSize,
-                10000f // use a not so high velocity
+                10000f, // use a not so high velocity
             )
         }
 
@@ -327,7 +327,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 -1.5f * stepSize,
-                10000f // use a not so high velocity
+                10000f, // use a not so high velocity
             )
         }
 
@@ -381,7 +381,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
             cells = GridCells.FixedSize(ItemSize),
             state = state,
             modifier = Modifier.testTag(TestTag),
-            flingBehavior = snapFlingBehavior
+            flingBehavior = snapFlingBehavior,
         ) {
             items(200) {
                 Box(modifier = Modifier.size(ItemSize).background(Color.Yellow)) {
@@ -423,7 +423,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
                     itemOffset = it.offsetOnMainAxis(orientation = layoutInfo.orientation),
                     itemIndex = it.index,
                     snapPosition = Center,
-                    itemCount = layoutInfo.totalItemsCount
+                    itemCount = layoutInfo.totalItemsCount,
                 )
             if (abs(distance) < minDistance) {
                 minDistance = abs(distance)
@@ -436,7 +436,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
     private fun TouchInjectionScope.swipeMainAxisWithVelocity(
         scrollSize: Float,
         endVelocity: Float,
-        reversed: Boolean = false
+        reversed: Boolean = false,
     ) {
         val (start, end) =
             if (orientation == Orientation.Vertical) {

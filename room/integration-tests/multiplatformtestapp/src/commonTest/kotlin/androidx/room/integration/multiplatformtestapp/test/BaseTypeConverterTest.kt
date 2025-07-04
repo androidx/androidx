@@ -66,6 +66,18 @@ abstract class BaseTypeConverterTest {
             )
     }
 
+    @Test
+    fun extraTypeConverter() {
+        assertThrows<IllegalArgumentException> {
+                getDatabaseBuilder()
+                    .addTypeConverter(BarConverter())
+                    .addTypeConverter(FooConverter)
+                    .build()
+            }
+            .hasMessageThat()
+            .startsWith("Unexpected type converter")
+    }
+
     @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
     @TypeConverters(FooConverter::class, BarConverter::class)
     @ConstructedBy(BaseTypeConverterTest_TestDatabaseConstructor::class)

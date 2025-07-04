@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.inputText
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.text
@@ -84,10 +85,80 @@ class FindersTest {
     }
 
     @Test
+    fun findByText_matches_substring() {
+        rule.setContent { BoundaryNode { text = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("World", substring = true).assertExists()
+    }
+
+    @Test
+    fun findByText_matches_ignoreCase() {
+        rule.setContent { BoundaryNode { text = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("hello worlD", ignoreCase = true).assertExists()
+    }
+
+    @Test
+    fun findByText_matches_substring_ignoreCase() {
+        rule.setContent { BoundaryNode { text = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("world", substring = true, ignoreCase = true).assertExists()
+    }
+
+    @Test
+    fun findByText_withInputText_matches() {
+        rule.setContent { BoundaryNode { inputText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("Hello World").assertExists()
+    }
+
+    @Test
+    fun findByText_withInputText_matches_substring() {
+        rule.setContent { BoundaryNode { inputText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("World", substring = true).assertExists()
+    }
+
+    @Test
+    fun findByText_withInputText_matches_ignoreCase() {
+        rule.setContent { BoundaryNode { inputText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("hello worlD", ignoreCase = true).assertExists()
+    }
+
+    @Test
+    fun findByText_withInputText_matches_substring_ignoreCase() {
+        rule.setContent { BoundaryNode { inputText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("world", substring = true, ignoreCase = true).assertExists()
+    }
+
+    @Test
     fun findByText_withEditableText_matches() {
         rule.setContent { BoundaryNode { editableText = AnnotatedString("Hello World") } }
 
         rule.onNodeWithText("Hello World").assertExists()
+    }
+
+    @Test
+    fun findByText_withEditableText_matches_substring() {
+        rule.setContent { BoundaryNode { editableText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("World", substring = true).assertExists()
+    }
+
+    @Test
+    fun findByText_withEditableText_matches_ignoreCase() {
+        rule.setContent { BoundaryNode { editableText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("hello worlD", ignoreCase = true).assertExists()
+    }
+
+    @Test
+    fun findByText_withEditableText_matches_substring_ignoreCase() {
+        rule.setContent { BoundaryNode { editableText = AnnotatedString("Hello World") } }
+
+        rule.onNodeWithText("world", substring = true, ignoreCase = true).assertExists()
     }
 
     @Test

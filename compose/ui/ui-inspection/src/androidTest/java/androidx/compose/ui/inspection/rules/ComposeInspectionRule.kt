@@ -54,7 +54,7 @@ import org.junit.rules.ExternalResource
  */
 class ComposeInspectionRule(
     val clazz: KClass<out ComponentActivity>,
-    private val useInspector: Boolean = true
+    private val useInspector: Boolean = true,
 ) : ExternalResource() {
     val rootsForTest = mutableListOf<ViewRootForTest>()
     val roots = mutableListOf<View>()
@@ -82,7 +82,7 @@ class ComposeInspectionRule(
             rootsForTest.add(it)
             it.view.setTag(
                 R.id.inspection_slot_table_set,
-                Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
+                Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>()),
             )
         }
 

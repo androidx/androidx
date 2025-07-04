@@ -59,7 +59,7 @@ public fun Scaffold(
     positionIndicator: @Composable (() -> Unit)? = null,
     pageIndicator: @Composable (() -> Unit)? = null,
     timeText: @Composable (() -> Unit)? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
         content()

@@ -30,28 +30,28 @@ private constructor(
     env: JavacProcessingEnv,
     override val typeMirror: DeclaredType,
     nullability: XNullability?,
-    override val kotlinType: KmTypeContainer?
+    override val kotlinType: KmTypeContainer?,
 ) : JavacType(env, typeMirror, nullability) {
     constructor(
         env: JavacProcessingEnv,
-        typeMirror: DeclaredType
+        typeMirror: DeclaredType,
     ) : this(env = env, typeMirror = typeMirror, nullability = null, kotlinType = null)
 
     constructor(
         env: JavacProcessingEnv,
         typeMirror: DeclaredType,
-        kotlinType: KmTypeContainer
+        kotlinType: KmTypeContainer,
     ) : this(
         env = env,
         typeMirror = typeMirror,
         nullability = kotlinType.nullability,
-        kotlinType = kotlinType
+        kotlinType = kotlinType,
     )
 
     constructor(
         env: JavacProcessingEnv,
         typeMirror: DeclaredType,
-        nullability: XNullability
+        nullability: XNullability,
     ) : this(env = env, typeMirror = typeMirror, nullability = nullability, kotlinType = null)
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(typeMirror) }
@@ -61,7 +61,7 @@ private constructor(
             env.wrap<JavacType>(
                 typeMirror = typeMirror,
                 kotlinType = kotlinType?.typeArguments?.getOrNull(index),
-                elementNullability = XNullability.UNKNOWN
+                elementNullability = XNullability.UNKNOWN,
             )
         }
     }
@@ -71,7 +71,7 @@ private constructor(
             env = env,
             typeMirror = typeMirror,
             kotlinType = kotlinType,
-            nullability = nullability
+            nullability = nullability,
         )
     }
 }

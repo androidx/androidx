@@ -25,10 +25,7 @@ import android.os.Bundle
  * after the proposal is final.
  */
 internal class FederatedCredential private constructor() :
-    Credential(
-        TYPE_FEDERATED_CREDENTIAL,
-        Bundle(),
-    ) {
+    Credential(TYPE_FEDERATED_CREDENTIAL, Bundle()) {
     companion object {
         /** The type value for federated credential related operations. */
         const val TYPE_FEDERATED_CREDENTIAL: String = "type.federated_credential"

@@ -57,11 +57,7 @@ internal class CameraPipeComponentTest {
                 .build()
 
         val cameraId = fakeCameraId
-        val config =
-            CameraGraph.Config(
-                camera = cameraId,
-                streams = listOf(),
-            )
+        val config = CameraGraph.Config(camera = cameraId, streams = listOf())
         val module = CameraGraphConfigModule(config)
         val builder = component.cameraGraphComponentBuilder()
         builder.cameraGraphConfigModule(module)
@@ -83,10 +79,7 @@ internal class CameraPipeComponentTest {
                 .cameraGraphComponentBuilder()
                 .cameraGraphConfigModule(
                     CameraGraphConfigModule(
-                        CameraGraph.Config(
-                            camera = fakeCameraId,
-                            streams = listOf(),
-                        )
+                        CameraGraph.Config(camera = fakeCameraId, streams = listOf())
                     )
                 )
                 .build()

@@ -19,6 +19,7 @@ package androidx.compose.animation.core
 import androidx.compose.animation.core.AnimationEndReason.BoundReached
 import androidx.compose.animation.core.AnimationEndReason.Finished
 import androidx.compose.runtime.State
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -46,11 +47,13 @@ import kotlinx.coroutines.CancellationException
  * @see animateDecay
  */
 @Suppress("NotCloseable")
-public class Animatable<T, V : AnimationVector>(
+public class Animatable<T, V : AnimationVector>
+@RememberInComposition
+constructor(
     initialValue: T,
     public val typeConverter: TwoWayConverter<T, V>,
     private val visibilityThreshold: T? = null,
-    public val label: String = "Animatable"
+    public val label: String = "Animatable",
 ) {
 
     @Deprecated(
@@ -59,12 +62,12 @@ public class Animatable<T, V : AnimationVector>(
             ReplaceWith(
                 "Animatable(initialValue, typeConverter, visibilityThreshold, \"Animatable\")"
             ),
-        DeprecationLevel.HIDDEN
+        DeprecationLevel.HIDDEN,
     )
     public constructor(
         initialValue: T,
         typeConverter: TwoWayConverter<T, V>,
-        visibilityThreshold: T? = null
+        visibilityThreshold: T? = null,
     ) : this(initialValue, typeConverter, visibilityThreshold, "Animatable")
 
     internal val internalState =
@@ -225,7 +228,7 @@ public class Animatable<T, V : AnimationVector>(
         targetValue: T,
         animationSpec: AnimationSpec<T> = defaultSpringSpec,
         initialVelocity: T = velocity,
-        block: (Animatable<T, V>.() -> Unit)? = null
+        block: (Animatable<T, V>.() -> Unit)? = null,
     ): AnimationResult<T, V> {
         val anim =
             TargetBasedAnimation(
@@ -233,7 +236,7 @@ public class Animatable<T, V : AnimationVector>(
                 initialValue = value,
                 targetValue = targetValue,
                 typeConverter = typeConverter,
-                initialVelocity = initialVelocity
+                initialVelocity = initialVelocity,
             )
         return runAnimation(anim, initialVelocity, block)
     }
@@ -272,14 +275,14 @@ public class Animatable<T, V : AnimationVector>(
     public suspend fun animateDecay(
         initialVelocity: T,
         animationSpec: DecayAnimationSpec<T>,
-        block: (Animatable<T, V>.() -> Unit)? = null
+        block: (Animatable<T, V>.() -> Unit)? = null,
     ): AnimationResult<T, V> {
         val anim =
             DecayAnimation(
                 animationSpec = animationSpec,
                 initialValue = value,
                 initialVelocityVector = typeConverter.convertToVector(initialVelocity),
-                typeConverter = typeConverter
+                typeConverter = typeConverter,
             )
         return runAnimation(anim, initialVelocity, block)
     }
@@ -288,7 +291,7 @@ public class Animatable<T, V : AnimationVector>(
     private suspend fun runAnimation(
         animation: Animation<T, V>,
         initialVelocity: T,
-        block: (Animatable<T, V>.() -> Unit)?
+        block: (Animatable<T, V>.() -> Unit)?,
     ): AnimationResult<T, V> {
 
         // Store the start time before it's reset during job cancellation.
@@ -426,9 +429,10 @@ public class Animatable<T, V : AnimationVector>(
  * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  *   [Spring.DefaultDisplacementThreshold] by default.
  */
+@RememberInComposition
 public fun Animatable(
     initialValue: Float,
-    visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
+    visibilityThreshold: Float = Spring.DefaultDisplacementThreshold,
 ): Animatable<Float, AnimationVector1D> =
     Animatable(initialValue, Float.VectorConverter, visibilityThreshold)
 
@@ -459,7 +463,7 @@ public class AnimationResult<T, V : AnimationVector>(
      *   [upperBound][Animatable.upperBound] in any dimension, the animation will end with
      *   [BoundReached] being the end reason.
      */
-    public val endReason: AnimationEndReason
+    public val endReason: AnimationEndReason,
 ) {
     override fun toString(): String = "AnimationResult(endReason=$endReason, endState=$endState)"
 }
@@ -474,7 +478,7 @@ private val positiveInfinityBounds4D =
         Float.POSITIVE_INFINITY,
         Float.POSITIVE_INFINITY,
         Float.POSITIVE_INFINITY,
-        Float.POSITIVE_INFINITY
+        Float.POSITIVE_INFINITY,
     )
 
 private val negativeInfinityBounds1D = AnimationVector(Float.NEGATIVE_INFINITY)
@@ -487,5 +491,5 @@ private val negativeInfinityBounds4D =
         Float.NEGATIVE_INFINITY,
         Float.NEGATIVE_INFINITY,
         Float.NEGATIVE_INFINITY,
-        Float.NEGATIVE_INFINITY
+        Float.NEGATIVE_INFINITY,
     )

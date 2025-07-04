@@ -73,7 +73,7 @@ class CoroutineRoomCancellationTest {
                 autoMigrationSpecs = emptyList(),
                 allowDestructiveMigrationForAllTables = false,
                 sqliteDriver = null,
-                queryCoroutineContext = dispatcher
+                queryCoroutineContext = dispatcher,
             )
         )
     }
@@ -104,7 +104,7 @@ class CoroutineRoomCancellationTest {
                             inQueryLatch.countDown()
                             // fake a long query so we can cancel
                             cancelledLatch.await()
-                        }
+                        },
                 )
             }
         inQueryLatch.await()
@@ -141,7 +141,7 @@ class CoroutineRoomCancellationTest {
                         Callable {
                             // this should never execute
                             fail("Blocking query triggered")
-                        }
+                        },
                 )
             }
         inCoroutineLatch.await()
@@ -163,7 +163,7 @@ class CoroutineRoomCancellationTest {
                     db = database,
                     inTransaction = false,
                     cancellationSignal = cancellationSignal,
-                    callable = Callable { throw SQLiteException("stuff happened") }
+                    callable = Callable { throw SQLiteException("stuff happened") },
                 )
             } catch (exception: Throwable) {
                 assertThat(exception).isInstanceOf<SQLiteException>()
@@ -187,7 +187,7 @@ class CoroutineRoomCancellationTest {
                     db = database,
                     inTransaction = false,
                     cancellationSignal = cancellationSignal,
-                    callable = Callable { /* nothing to do */ }
+                    callable = Callable { /* nothing to do */ },
                 )
             }
         testScope.runCurrent()

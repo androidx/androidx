@@ -21,68 +21,66 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     api(project(":camera:viewfinder:viewfinder-core"))
-    implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
-    implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
 
-    annotationProcessor(libs.autoValue)
-
     testImplementation(libs.testRunner)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
+    testImplementation("org.robolectric:annotations:4.14")
+    testImplementation("org.robolectric:shadowapi:4.14")
+    testImplementation(libs.junit)
 
     androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation("androidx.core:core-ktx:1.15.0")
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testMonitor)
 }
 
 android {
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
-    }
-
-    testOptions.unitTests.includeAndroidResources = true
-    namespace = "androidx.camera.viewfinder"
-    lintOptions {
-        enable 'CameraXQuirksClassDetector'
+    compileSdk = 35
+    namespace = "androidx.camera.viewfinder.view"
+    lint {
+        enable.add("CameraXQuirksClassDetector")
     }
 }
 
 androidx {
     name = "Camera Viewfinder View"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Standalone View-based Viewfinder for Camera"
     legacyDisableKotlinStrictApiMode = true
+    addGoldenImageAssets()
+    enableRobolectric()
 }

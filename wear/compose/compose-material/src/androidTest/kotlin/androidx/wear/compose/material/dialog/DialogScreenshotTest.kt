@@ -58,7 +58,7 @@ class DialogScreenshotTest {
                 Text(
                     text = "Power off",
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground
+                    color = MaterialTheme.colors.onBackground,
                 )
             },
             negativeButton = {
@@ -86,7 +86,7 @@ class DialogScreenshotTest {
                 Text(
                     text = "Allow access to location?",
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.onBackground
+                    color = MaterialTheme.colors.onBackground,
                 )
             },
             negativeButton = {
@@ -106,7 +106,7 @@ class DialogScreenshotTest {
             title = {
                 Text(
                     text = "Grant location permission to use this app",
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             },
             modifier = Modifier.testTag(TEST_TAG),
@@ -129,7 +129,7 @@ class DialogScreenshotTest {
             title = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(text = "Title that is quite long", textAlign = TextAlign.Center)
                 }
@@ -138,7 +138,7 @@ class DialogScreenshotTest {
                 Text(
                     text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.body2,
                 )
             },
             modifier = Modifier.testTag(TEST_TAG),
@@ -156,17 +156,13 @@ class DialogScreenshotTest {
 
     @Test
     fun confirmation() = verifyScreenshot {
-        Confirmation(
-            onTimeout = {},
-            icon = { TestIcon() },
-            modifier = Modifier.testTag(TEST_TAG),
-        ) {
+        Confirmation(onTimeout = {}, icon = { TestIcon() }, modifier = Modifier.testTag(TEST_TAG)) {
             Text(text = "Success", textAlign = TextAlign.Center)
         }
     }
 
     private fun verifyScreenshot(content: @Composable () -> Unit) {
-        rule.setContentWithTheme { content() }
+        rule.setContentWithTheme { ScreenConfiguration(SCREEN_SIZE_LARGE) { content() } }
 
         rule
             .onNodeWithTag(TEST_TAG)

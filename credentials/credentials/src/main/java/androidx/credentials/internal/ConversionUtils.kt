@@ -50,10 +50,7 @@ import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentia
 /** Take the create request's `credentialData` and add SDK specific values to it. */
 @RequiresApi(Build.VERSION_CODES.M)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-fun getFinalCreateCredentialData(
-    request: CreateCredentialRequest,
-    context: Context,
-): Bundle {
+fun getFinalCreateCredentialData(request: CreateCredentialRequest, context: Context): Bundle {
     val createCredentialData = request.credentialData
     val displayInfoBundle = request.displayInfo.toBundle()
     displayInfoBundle.putParcelable(
@@ -61,15 +58,15 @@ fun getFinalCreateCredentialData(
         Icon.createWithResource(
             context,
             when (request) {
-                is CreatePasswordRequest -> R.drawable.ic_password
-                is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey
-                else -> R.drawable.ic_other_sign_in
-            }
-        )
+                is CreatePasswordRequest -> R.drawable.adx_ic_password
+                is CreatePublicKeyCredentialRequest -> R.drawable.adx_ic_passkey
+                else -> R.drawable.adx_ic_other_sign_in
+            },
+        ),
     )
     createCredentialData.putBundle(
         CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
-        displayInfoBundle
+        displayInfoBundle,
     )
     return createCredentialData
 }
@@ -105,9 +102,10 @@ fun toJetpackGetException(errorType: String, errorMsg: CharSequence?): GetCreden
     }
 }
 
-internal fun toJetpackCreateException(
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+fun toJetpackCreateException(
     errorType: String,
-    errorMsg: CharSequence?
+    errorMsg: CharSequence? = null,
 ): CreateCredentialException {
     return when (errorType) {
         android.credentials.CreateCredentialException.TYPE_NO_CREATE_OPTIONS ->
@@ -136,4 +134,10 @@ internal fun toJetpackCreateException(
             }
         }
     }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+fun isValidBase64Url(s: String): Boolean {
+    val base64UrlRegex = Regex("^[A-Za-z0-9\\-_]*\$")
+    return s.matches(base64UrlRegex)
 }

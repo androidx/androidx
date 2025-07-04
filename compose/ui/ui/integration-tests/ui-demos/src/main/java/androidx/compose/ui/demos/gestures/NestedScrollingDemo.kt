@@ -101,7 +101,7 @@ private fun ScrollableContainer(content: @Composable () -> Unit) {
                                 }
                             offset += dyToConsume
                             dyToConsume
-                        }
+                        },
                 )
                 .clipToBounds(),
         measurePolicy = { measurables, constraints ->
@@ -115,7 +115,7 @@ private fun ScrollableContainer(content: @Composable () -> Unit) {
             layout(constraints.maxWidth, constraints.maxHeight) {
                 placeable.placeRelative(0, offset.roundToInt())
             }
-        }
+        },
     )
 }
 
@@ -156,7 +156,7 @@ private fun Pressable(height: Dp) {
                 detectTapGestures(
                     onTap = onTap,
                     onDoubleTap = onDoubleTap,
-                    onLongPress = onLongPress
+                    onLongPress = onLongPress,
                 )
             }
 

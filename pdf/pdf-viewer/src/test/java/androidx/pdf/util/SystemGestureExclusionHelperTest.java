@@ -27,8 +27,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Rect;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +35,6 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.List;
 
 /** Unit tests for {@link SystemGestureExclusionHelper}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class SystemGestureExclusionHelperTest {
 

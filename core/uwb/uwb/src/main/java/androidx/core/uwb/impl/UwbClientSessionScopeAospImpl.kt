@@ -149,8 +149,8 @@ internal open class UwbClientSessionScopeAospImpl(
                                 position.distance?.let { RangingMeasurement(it.value) },
                                 position.azimuth?.let { RangingMeasurement(it.value) },
                                 position.elevation?.let { RangingMeasurement(it.value) },
-                                position.elapsedRealtimeNanos
-                            )
+                                position.elapsedRealtimeNanos,
+                            ),
                         )
                     )
                 }
@@ -185,7 +185,7 @@ internal open class UwbClientSessionScopeAospImpl(
     override suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     ) {
         try {
             uwbClient.reconfigureRangeDataNtf(configType, proximityNear, proximityFar)

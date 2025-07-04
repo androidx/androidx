@@ -73,8 +73,8 @@ class ClickableInScrollableViewGroupTest {
                             modifier =
                                 Modifier.testTag("myClickable").combinedClickable(
                                     interactionSource = interactionSource,
-                                    indication = null
-                                ) {}
+                                    indication = null,
+                                ) {},
                         )
                     }
                 }
@@ -136,8 +136,8 @@ class ClickableInScrollableViewGroupTest {
                                     modifier =
                                         Modifier.testTag("myClickable").combinedClickable(
                                             interactionSource = interactionSource,
-                                            indication = null
-                                        ) {}
+                                            indication = null,
+                                        ) {},
                                 )
                             }
                         }
@@ -207,8 +207,8 @@ class ClickableInScrollableViewGroupTest {
                                     modifier =
                                         Modifier.testTag("myClickable").combinedClickable(
                                             interactionSource = interactionSource,
-                                            indication = null
-                                        ) {}
+                                            indication = null,
+                                        ) {},
                                 )
                             }
                         }

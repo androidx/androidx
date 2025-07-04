@@ -75,7 +75,7 @@ class AppBarTest {
                 TopAppBar(
                     navigationIcon = { FakeIcon(Modifier.testTag("navigationIcon")) },
                     title = { Text("title", Modifier.testTag("title")) },
-                    actions = { FakeIcon(Modifier.testTag("action")) }
+                    actions = { FakeIcon(Modifier.testTag("action")) },
                 )
             }
         }
@@ -120,7 +120,7 @@ class AppBarTest {
                     windowInsets = WindowInsets(fakeInset, fakeInset, fakeInset, fakeInset),
                     navigationIcon = { FakeIcon(Modifier.testTag("navigationIcon")) },
                     title = { Text("title", Modifier.testTag("title")) },
-                    actions = { FakeIcon(Modifier.testTag("action")) }
+                    actions = { FakeIcon(Modifier.testTag("action")) },
                 )
             }
         }
@@ -167,7 +167,7 @@ class AppBarTest {
             Box(Modifier.testTag("bar")) {
                 TopAppBar(
                     title = { Text("title", Modifier.testTag("title")) },
-                    actions = { FakeIcon(Modifier.testTag("action")) }
+                    actions = { FakeIcon(Modifier.testTag("action")) },
                 )
             }
         }
@@ -221,7 +221,7 @@ class AppBarTest {
                         medium = ContentAlpha.medium
                     },
                     navigationIcon = { navigationIconAlpha = LocalContentAlpha.current },
-                    actions = { actionAlpha = LocalContentAlpha.current }
+                    actions = { actionAlpha = LocalContentAlpha.current },
                 )
             }
         }
@@ -285,7 +285,7 @@ class AppBarTest {
         rule.setMaterialContent {
             BottomAppBar(
                 WindowInsets(fakeInsets, fakeInsets, fakeInsets, fakeInsets),
-                Modifier.testTag("bar")
+                Modifier.testTag("bar"),
             ) {
                 FakeIcon(Modifier.testTag("icon"))
             }

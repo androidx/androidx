@@ -25,6 +25,9 @@ import androidx.compose.foundation.MutatorMutex
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 /**
  * A read-only state of a three pane scaffold. It provides information about the [Transition]
@@ -53,6 +56,9 @@ sealed class ThreePaneScaffoldState {
      */
     @get:FloatRange(from = 0.0, to = 1.0) abstract val progressFraction: Float
 
+    /** Whether a predictive back navigation is currently in progress. */
+    abstract val isPredictiveBackInProgress: Boolean
+
     @Composable internal abstract fun rememberTransition(): Transition<ThreePaneScaffoldValue>
 }
 
@@ -76,6 +82,9 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
     override val progressFraction
         get() = transitionState.fraction
 
+    override var isPredictiveBackInProgress by mutableStateOf(false)
+        private set
+
     private val mutatorMutex = MutatorMutex()
 
     /**
@@ -96,7 +105,10 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      * @see SeekableTransitionState.snapTo
      */
     suspend fun snapTo(targetState: ThreePaneScaffoldValue) {
-        mutatorMutex.mutate { transitionState.snapTo(targetState) }
+        mutatorMutex.mutate {
+            this.isPredictiveBackInProgress = false
+            transitionState.snapTo(targetState)
+        }
     }
 
     /**
@@ -105,13 +117,19 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      *
      * @param fraction The fractional progress of the transition.
      * @param targetState The [ThreePaneScaffoldValue] state to seek to.
+     * @param isPredictiveBackInProgress whether this seek is associated with a predictive back
+     *   gesture on the scaffold.
      * @see SeekableTransitionState.seekTo
      */
     suspend fun seekTo(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float,
         targetState: ThreePaneScaffoldValue = this.targetState,
+        isPredictiveBackInProgress: Boolean = false,
     ) {
-        mutatorMutex.mutate { transitionState.seekTo(fraction, targetState) }
+        mutatorMutex.mutate {
+            this.isPredictiveBackInProgress = isPredictiveBackInProgress
+            transitionState.seekTo(fraction, targetState)
+        }
     }
 
     /**
@@ -121,12 +139,22 @@ class MutableThreePaneScaffoldState(initialScaffoldValue: ThreePaneScaffoldValue
      * @param targetState The [ThreePaneScaffoldValue] state to animate towards.
      * @param animationSpec If provided, is used to animate the animation fraction. If `null`, the
      *   transition is linearly traversed based on the duration of the transition.
+     * @param isPredictiveBackInProgress whether this animation is associated with a predictive back
+     *   gesture on the scaffold.
      * @see SeekableTransitionState.animateTo
      */
     suspend fun animateTo(
         targetState: ThreePaneScaffoldValue = this.targetState,
         animationSpec: FiniteAnimationSpec<Float>? = null,
+        isPredictiveBackInProgress: Boolean = false,
     ) {
-        mutatorMutex.mutate { transitionState.animateTo(targetState, animationSpec) }
+        mutatorMutex.mutate {
+            try {
+                this.isPredictiveBackInProgress = isPredictiveBackInProgress
+                transitionState.animateTo(targetState, animationSpec)
+            } finally {
+                this.isPredictiveBackInProgress = false
+            }
+        }
     }
 }

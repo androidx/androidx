@@ -92,7 +92,7 @@ private fun NavigationSnippet5(navController: NavHostController) {
         /*...*/
         composable(
             "profile/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
+            arguments = listOf(navArgument("userId") { type = NavType.StringType }),
         ) { /*...*/
         }
     }
@@ -112,7 +112,7 @@ private fun NavigationSnippet7(navController: NavHostController) {
 private fun NavGraphBuilder.NavigationSnippet8(navController: NavHostController) {
     composable(
         "profile?userId={userId}",
-        arguments = listOf(navArgument("userId") { defaultValue = "me" })
+        arguments = listOf(navArgument("userId") { defaultValue = "me" }),
     ) { backStackEntry ->
         Profile(navController, backStackEntry.arguments?.getString("userId"))
     }
@@ -138,7 +138,7 @@ private fun NavigationSnippet10() {
             Intent.ACTION_VIEW,
             "https://example.com/$id".toUri(),
             context,
-            MyActivity::class.java
+            MyActivity::class.java,
         )
 
     val deepLinkPendingIntent: PendingIntent? =
@@ -165,7 +165,7 @@ private fun NavigationSnippet11(items: List<Screen>) {
                             // This is the equivalent to popUpTo the start destination
                             navController.popBackStack(
                                 navController.graph.startDestinationId,
-                                false
+                                false,
                             )
 
                             // This if check gives us a "singleTop" behavior where we do not create
@@ -175,7 +175,7 @@ private fun NavigationSnippet11(items: List<Screen>) {
                             if (currentRoute != screen.route) {
                                 navController.navigate(screen.route)
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -184,7 +184,7 @@ private fun NavigationSnippet11(items: List<Screen>) {
         NavHost(
             navController,
             startDestination = Screen.Profile.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         ) {
             composable(Screen.Profile.route) { Profile(navController) }
             composable(Screen.FriendsList.route) { FriendsList(navController) }
@@ -195,7 +195,7 @@ private fun NavigationSnippet11(items: List<Screen>) {
 private fun NavGraphBuilder.NavigationSnippet12(navController: NavHostController) {
     composable(
         "profile?userId={userId}",
-        arguments = listOf(navArgument("userId") { defaultValue = "me" })
+        arguments = listOf(navArgument("userId") { defaultValue = "me" }),
     ) { backStackEntry ->
         Profile(backStackEntry.arguments?.getString("userId")) { friendUserId ->
             navController.navigate("profile?userId=$friendUserId")

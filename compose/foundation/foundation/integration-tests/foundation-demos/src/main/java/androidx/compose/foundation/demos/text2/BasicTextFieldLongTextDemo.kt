@@ -35,7 +35,7 @@ fun BasicTextFieldLongTextDemo() {
         BasicTextField(
             state = text,
             modifier = Modifier.weight(1f).then(demoTextFieldModifiers),
-            lineLimits = MultiLine(maxHeightInLines = 20)
+            lineLimits = MultiLine(maxHeightInLines = 20),
         )
         Text("Char count: ${text.text.length}")
     }

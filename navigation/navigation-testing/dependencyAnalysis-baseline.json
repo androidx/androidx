@@ -1,0 +1,27 @@
+{
+  "projectPath": ":navigation:navigation-testing",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-runtime-testing"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":lifecycle:lifecycle-runtime-testing"
+      },
+      "toConfiguration": "androidTestImplementation"
+    }
+  ]
+}

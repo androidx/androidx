@@ -19,9 +19,9 @@ package androidx.wear.watchface
 import android.content.Context
 import android.os.Build
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -40,7 +40,7 @@ internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
     private var surfaceHolderOverride: SurfaceHolder,
     private var onUiThreadGlSurfaceCreatedFuture: ListenableFuture<Unit>,
     private var onBackgroundThreadGlContextFuture: ListenableFuture<Unit>,
-    private var sharedAssetsFuture: ListenableFuture<TestSharedAssets>
+    private var sharedAssetsFuture: ListenableFuture<TestSharedAssets>,
 ) : WatchFaceService() {
     val lock = Any()
     val onUiThreadGlSurfaceCreatedFutureLatch = CountDownLatch(1)
@@ -60,7 +60,7 @@ internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
             WatchFaceType.DIGITAL,
@@ -69,11 +69,11 @@ internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
                     surfaceHolder,
                     currentUserStyleRepository,
                     watchState,
-                    16
+                    16,
                 ) {
                 override fun onUiThreadGlSurfaceCreatedFuture(
                     width: Int,
-                    height: Int
+                    height: Int,
                 ): ListenableFuture<Unit> {
                     onUiThreadGlSurfaceCreatedFutureLatch.countDown()
                     return onUiThreadGlSurfaceCreatedFuture
@@ -100,16 +100,16 @@ internal class TestAsyncGlesRenderWithSharedAssetsTestWatchFaceService(
 
                 override fun renderHighlightLayer(
                     zonedDateTime: ZonedDateTime,
-                    sharedAssets: TestSharedAssets
+                    sharedAssets: TestSharedAssets,
                 ) {
                     // NOP
                 }
-            }
+            },
         )
 }
 
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 @RunWith(AndroidJUnit4::class)
 public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTest() {
 
@@ -125,7 +125,7 @@ public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTes
                 glSurfaceHolder,
                 onUiThreadGlSurfaceCreatedFuture,
                 onBackgroundThreadGlContextFuture,
-                sharedAssetsFuture
+                sharedAssetsFuture,
             )
         val controlClient = createWatchFaceControlClientService()
 
@@ -137,7 +137,7 @@ public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTes
                     DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
                     null,
-                    emptyMap()
+                    emptyMap(),
                 )
             }
 
@@ -148,7 +148,7 @@ public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTes
             assertThat(
                     watchFaceService.sharedAssetsFutureLatch.await(
                         TIMEOUT_MILLIS,
-                        TimeUnit.MILLISECONDS
+                        TimeUnit.MILLISECONDS,
                     )
                 )
                 .isTrue()
@@ -157,7 +157,7 @@ public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTes
             assertThat(
                     watchFaceService.onBackgroundThreadGlContextFutureLatch.await(
                         TIMEOUT_MILLIS,
-                        TimeUnit.MILLISECONDS
+                        TimeUnit.MILLISECONDS,
                     )
                 )
                 .isTrue()
@@ -169,7 +169,7 @@ public class AsyncListenableGlesRenderer2Test : WatchFaceControlClientServiceTes
             assertThat(
                     watchFaceService.onUiThreadGlSurfaceCreatedFutureLatch.await(
                         TIMEOUT_MILLIS,
-                        TimeUnit.MILLISECONDS
+                        TimeUnit.MILLISECONDS,
                     )
                 )
                 .isTrue()

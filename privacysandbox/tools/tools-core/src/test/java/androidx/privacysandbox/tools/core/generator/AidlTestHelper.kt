@@ -48,7 +48,7 @@ internal object AidlTestHelper {
                 .map {
                     Source.java(
                         "${it.packageName.replace('.', '/')}/${it.interfaceName}",
-                        it.file.readText()
+                        it.file.readText(),
                     )
                 }
                 .toList()

@@ -35,7 +35,7 @@ public class AudioChecker {
 
         public fun canAudioStreamBeStarted(
             videoCapabilities: VideoCapabilities,
-            qualitySelector: QualitySelector
+            qualitySelector: QualitySelector,
         ): Boolean {
             return try {
                 checkAudioStreamCanBeStarted(videoCapabilities, qualitySelector)
@@ -50,7 +50,7 @@ public class AudioChecker {
         @SuppressLint("MissingPermission")
         private fun checkAudioStreamCanBeStarted(
             videoCapabilities: VideoCapabilities,
-            qualitySelector: QualitySelector
+            qualitySelector: QualitySelector,
         ) = runBlocking {
             // Only standard dynamic range is checked, since video and audio should be independent.
             val sdr = DynamicRange.SDR
@@ -63,11 +63,12 @@ public class AudioChecker {
                             audioSpec,
                             videoCapabilities
                                 .getProfiles(priorityQuality, sdr)!!
-                                .defaultAudioProfile!!
+                                .defaultAudioProfile!!,
+                            null,
                         )
                         .get()
                 } else {
-                    AudioSettingsDefaultResolver(audioSpec).get()
+                    AudioSettingsDefaultResolver(audioSpec, null).get()
                 }
             with(AudioStreamImpl(audioSettings, null)) {
                 try {
@@ -81,7 +82,7 @@ public class AudioChecker {
         @SuppressLint("VisibleForTests")
         private fun getPriorityQuality(
             videoCapabilities: VideoCapabilities,
-            qualitySelector: QualitySelector
+            qualitySelector: QualitySelector,
         ): Quality? {
             // Only standard dynamic range is checked, since video and audio should be independent.
             val sdr = DynamicRange.SDR

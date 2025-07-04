@@ -78,7 +78,7 @@ class BenchmarkPlugin : Plugin<Project> {
     private fun configureWithAndroidExtension(
         project: Project,
         extension: TestedExtension,
-        componentsExtension: AndroidComponentsExtension<*, *, *>
+        componentsExtension: AndroidComponentsExtension<*, *, *>,
     ) {
         val defaultConfig = extension.defaultConfig
         val testBuildType = "release"
@@ -188,7 +188,7 @@ class BenchmarkPlugin : Plugin<Project> {
                             it.logger.info(
                                 "Benchmark",
                                 "Benchmark report files generated at " +
-                                    outputDir.get().asFile.absolutePath
+                                    outputDir.get().asFile.absolutePath,
                             )
                         }
                     }

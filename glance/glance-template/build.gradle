@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.AndroidXComposePlugin
 
 plugins {
@@ -49,7 +49,6 @@ dependencies {
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.4.1")
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -69,8 +68,6 @@ dependencies {
 }
 
 android {
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     resourcePrefix "glance_template_"
     namespace = "androidx.glance.template"
     compileSdk = 35
@@ -78,11 +75,10 @@ android {
 
 androidx {
     name = "Glance Templates"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.GLANCE_TEMPLATE
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
-    legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
+    enableRobolectric()
 }

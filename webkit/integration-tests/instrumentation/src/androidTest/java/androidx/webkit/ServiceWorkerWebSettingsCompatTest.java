@@ -20,22 +20,34 @@ import static androidx.webkit.WebViewFeature.isFeatureSupported;
 
 import android.annotation.SuppressLint;
 import android.os.SystemClock;
+import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.webkit.test.common.WebkitUtils;
 import androidx.webkit.test.common.WebViewOnUiThread;
+import androidx.webkit.test.common.WebkitUtils;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.HttpUrl;
@@ -58,33 +70,34 @@ public class ServiceWorkerWebSettingsCompatTest {
     // Website which installs a service worker and sends an empty message to it once it's ready.
     // Once the serviceworker responds to the message, the website then unregisters any installed
     // serviceworkers again to clean up.
-    private static final String INDEX_HTML_DOCUMENT = "<!DOCTYPE html>\n"
-            + "<link rel=\"icon\" href=\"data:;base64,=\">\n"
-            + "<script>\n"
-            + "window.done=false;\n"
-            + "function swReady(sw) {\n"
-            + "   sw.postMessage({});\n"
-            + "}\n"
-            + "navigator.serviceWorker.register('sw.js')\n"
-            + "    .then(sw_reg => {\n"
-            + "        let sw = sw_reg.installing || sw_reg.waiting || sw_reg.active;\n"
-            + "        if (sw.state == 'activated') {\n"
-            + "            swReady(sw);\n"
-            + "        } else {\n"
-            + "            sw.addEventListener('statechange', e => {\n"
-            + "                if(e.target.state == 'activated') swReady(e.target); \n"
-            + "            });\n"
-            + "        }\n"
-            + "    });\n"
-            + "navigator.serviceWorker.addEventListener('message', _ => {\n"
-            + "    navigator.serviceWorker.getRegistrations()\n"
-            + "        .then(registrations => {\n"
-            + "            registrations.forEach(reg => reg.unregister());\n"
-            + "            window.done=true;\n"
-            + "        }\n"
-            + "    );\n"
-            + "});\n"
-            + "</script>";
+    private static final String INDEX_HTML_DOCUMENT =
+            "<!DOCTYPE html>\n"
+                    + "<link rel=\"icon\" href=\"data:;base64,=\">\n"
+                    + "<script>\n"
+                    + "window.done=false;\n"
+                    + "function swReady(sw) {\n"
+                    + "   sw.postMessage({});\n"
+                    + "}\n"
+                    + "navigator.serviceWorker.register('sw.js')\n"
+                    + "    .then(sw_reg => {\n"
+                    + "        let sw = sw_reg.installing || sw_reg.waiting || sw_reg.active;\n"
+                    + "        if (sw.state == 'activated') {\n"
+                    + "            swReady(sw);\n"
+                    + "        } else {\n"
+                    + "            sw.addEventListener('statechange', e => {\n"
+                    + "                if(e.target.state == 'activated') swReady(e.target); \n"
+                    + "            });\n"
+                    + "        }\n"
+                    + "    });\n"
+                    + "navigator.serviceWorker.addEventListener('message', _ => {\n"
+                    + "    navigator.serviceWorker.getRegistrations()\n"
+                    + "        .then(registrations => {\n"
+                    + "            registrations.forEach(reg => reg.unregister());\n"
+                    + "            window.done=true;\n"
+                    + "        }\n"
+                    + "    );\n"
+                    + "});\n"
+                    + "</script>";
 
     private static final String SERVICE_WORKER_PATH = "/sw.js";
     // ServiceWorker which registers a message event listener that fetches a file and then sends
@@ -109,6 +122,7 @@ public class ServiceWorkerWebSettingsCompatTest {
         private boolean mAllowFileAccess;
         private boolean mBlockNetworkLoads;
         private Set<String> mRequestedHeaderOriginAllowList;
+        private boolean mInterceptCookies;
 
         ServiceWorkerWebSettingsCompatCache(ServiceWorkerWebSettingsCompat settingsCompat) {
             if (isFeatureSupported(WebViewFeature.SERVICE_WORKER_CACHE_MODE)) {
@@ -127,6 +141,10 @@ public class ServiceWorkerWebSettingsCompatTest {
                 mRequestedHeaderOriginAllowList =
                         settingsCompat.getRequestedWithHeaderOriginAllowList();
             }
+            if (isFeatureSupported(WebViewFeature.COOKIE_INTERCEPT)) {
+                mInterceptCookies =
+                        settingsCompat.isIncludeCookiesOnShouldInterceptRequestEnabled();
+            }
         }
 
         void restoreSavedValues(ServiceWorkerWebSettingsCompat mSettings) {
@@ -144,6 +162,9 @@ public class ServiceWorkerWebSettingsCompatTest {
             }
             if (isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {
                 mSettings.setRequestedWithHeaderOriginAllowList(mRequestedHeaderOriginAllowList);
+            }
+            if (isFeatureSupported(WebViewFeature.COOKIE_INTERCEPT)) {
+                mSettings.setIncludeCookiesOnShouldInterceptRequestEnabled(mInterceptCookies);
             }
         }
     }
@@ -164,6 +185,8 @@ public class ServiceWorkerWebSettingsCompatTest {
         if (mSavedDefaults != null) {
             mSavedDefaults.restoreSavedValues(mSettings);
         }
+        WebkitUtils.onMainThreadSync(() -> CookieManager.getInstance().removeAllCookies(value -> {
+        }));
     }
 
     /**
@@ -243,7 +266,7 @@ public class ServiceWorkerWebSettingsCompatTest {
         Assert.assertTrue("The allow-list should be empty by default",
                 mSettings.getRequestedWithHeaderOriginAllowList().isEmpty());
 
-        try (MockWebServer server = getXRequestedWithMockWebServer();
+        try (MockWebServer server = getServiceWorkerMockServer();
              WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
 
             webViewOnUiThread.getSettings().setJavaScriptEnabled(true);
@@ -253,8 +276,8 @@ public class ServiceWorkerWebSettingsCompatTest {
             Set<String> allowList = Collections.singleton(requestOrigin);
             mSettings.setRequestedWithHeaderOriginAllowList(allowList);
 
-            Assert.assertEquals("The allow-list should be returned once set",
-                    allowList, mSettings.getRequestedWithHeaderOriginAllowList());
+            Assert.assertEquals("The allow-list should be returned once set", allowList,
+                    mSettings.getRequestedWithHeaderOriginAllowList());
 
             String requestUrl = url.toString();
             webViewOnUiThread.loadUrl(requestUrl);
@@ -274,7 +297,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      * Create, configure and start a MockWebServer to test the X-Requested-With header for
      * ServiceWorkers.
      */
-    MockWebServer getXRequestedWithMockWebServer() throws IOException {
+    static MockWebServer getServiceWorkerMockServer() throws IOException {
         MockWebServer server = new MockWebServer();
         server.setDispatcher(new Dispatcher() {
             @Override
@@ -314,10 +337,10 @@ public class ServiceWorkerWebSettingsCompatTest {
      * See b/230078824.
      */
     @SuppressLint("BanThreadSleep")
-    private void waitForServiceWorkerDone(final WebViewOnUiThread webViewOnUiThread) {
+    private static void waitForServiceWorkerDone(final WebViewOnUiThread webViewOnUiThread) {
         long timeout = SystemClock.uptimeMillis() + POLL_TIMEOUT_DURATION_MS;
-        while (SystemClock.uptimeMillis() < timeout
-                && !"true".equals(webViewOnUiThread.evaluateJavascriptSync("window.done"))) {
+        while (SystemClock.uptimeMillis() < timeout && !"true".equals(
+                webViewOnUiThread.evaluateJavascriptSync("window.done"))) {
             try {
                 //noinspection BusyWait We want to wait, to let the WebView finish the test
                 Thread.sleep(POLL_INTERVAL_MS);
@@ -326,6 +349,88 @@ public class ServiceWorkerWebSettingsCompatTest {
             }
         }
         Assert.assertEquals("true", webViewOnUiThread.evaluateJavascriptSync("window.done"));
+    }
+
+    @Test
+    public void testCookieInterceptReceivesHeader() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.COOKIE_INTERCEPT);
+        mSettings.setIncludeCookiesOnShouldInterceptRequestEnabled(true);
+
+        BlockingQueue<Map<String, String>> interceptInfo = new LinkedBlockingQueue<>();
+
+        String interceptUrl = runCookieInterceptServiceWorkerLoad(interceptInfo);
+
+        Map<String, String> requestHeaders = interceptInfo.take();
+        Assert.assertTrue(requestHeaders.containsKey("Cookie"));
+        Assert.assertEquals("foo=bar", requestHeaders.get("Cookie"));
+
+        CookieManager cookieManager = CookieManager.getInstance();
+
+        Set<String> cookies = new HashSet<>(
+                CookieManagerCompat.getCookieInfo(cookieManager, interceptUrl));
+        Assert.assertEquals(Set.of(
+                "foo=bar; domain=localhost; path=/",
+                "bar=baz; domain=localhost; path=/",
+                "baz=foo; domain=localhost; path=/"), cookies);
+    }
+
+    @Test
+    public void testCookieInterceptNoHeadersIfDisabled() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.COOKIE_INTERCEPT);
+        mSettings.setIncludeCookiesOnShouldInterceptRequestEnabled(false);
+
+        BlockingQueue<Map<String, String>> interceptInfo = new LinkedBlockingQueue<>();
+        String interceptUrl = runCookieInterceptServiceWorkerLoad(interceptInfo);
+
+        Map<String, String> requestHeaders = interceptInfo.take();
+        Assert.assertFalse(requestHeaders.containsKey("Cookie"));
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        Set<String> cookies = new HashSet<>(
+                CookieManagerCompat.getCookieInfo(cookieManager, interceptUrl));
+        Assert.assertEquals(Set.of("foo=bar; domain=localhost; path=/"), cookies);
+    }
+
+    /**
+     * Starts a test web server that serves a service worker, ensures a cookie is present for the
+     * URL fetched by the service worker, loads the page, intercepts the response, adds a number
+     * of set-cookie header values and returns the URL that was used.
+     */
+    private static @NonNull String runCookieInterceptServiceWorkerLoad(
+            BlockingQueue<Map<String, String>> interceptInfo) throws Exception {
+        CookieManager cookieManager = CookieManager.getInstance();
+        try (MockWebServer server = getServiceWorkerMockServer();
+                WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
+            webViewOnUiThread.getSettings().setJavaScriptEnabled(true);
+            final String interceptUrl = server.url(TEXT_CONTENT_PATH).toString();
+            cookieManager.setCookie(interceptUrl, "foo=bar");
+
+            ServiceWorkerControllerCompat.getInstance().setServiceWorkerClient(
+                    new ServiceWorkerClientCompat() {
+                        @Override
+                        public @Nullable WebResourceResponse
+                        shouldInterceptRequest(
+                                @NonNull WebResourceRequest request) {
+                            if (request.getUrl().toString().equals(interceptUrl)) {
+                                interceptInfo.add(request.getRequestHeaders());
+                                WebResourceResponseCompat response = new WebResourceResponseCompat(
+                                        "text/text", "utf-8", 200, "OK",
+                                        Collections.emptyMap(),
+                                        new ByteArrayInputStream(
+                                                TEXT_CONTENT.getBytes(StandardCharsets.UTF_8)));
+                                response.setCookies(
+                                        List.of("bar=baz", "baz=foo"));
+                                return response.toWebResourceResponse();
+                            }
+                            return null;
+                        }
+                    });
+
+            String requestUrl = server.url(INDEX_HTML_PATH).toString();
+            webViewOnUiThread.loadUrl(requestUrl);
+            waitForServiceWorkerDone(webViewOnUiThread);
+            return interceptUrl;
+        }
     }
 
 

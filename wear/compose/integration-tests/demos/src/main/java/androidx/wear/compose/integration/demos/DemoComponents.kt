@@ -55,17 +55,13 @@ fun DemoIcon(
 }
 
 @Composable
-fun DemoImage(
-    resourceId: Int,
-    modifier: Modifier = Modifier,
-    size: Dp = 24.dp,
-) {
+fun DemoImage(resourceId: Int, modifier: Modifier = Modifier, size: Dp = 24.dp) {
     Image(
         painter = painterResource(id = resourceId),
         contentDescription = null,
         modifier = modifier.size(size),
         contentScale = ContentScale.Crop,
-        alpha = LocalContentAlpha.current
+        alpha = LocalContentAlpha.current,
     )
 }
 
@@ -79,9 +75,9 @@ fun TextIcon(text: String, size: Dp = 24.dp, style: TextStyle = MaterialTheme.ty
                 disabledBackgroundColor =
                     MaterialTheme.colors.primary.copy(alpha = LocalContentAlpha.current),
                 disabledContentColor =
-                    MaterialTheme.colors.onPrimary.copy(alpha = LocalContentAlpha.current)
+                    MaterialTheme.colors.onPrimary.copy(alpha = LocalContentAlpha.current),
             ),
-        enabled = false
+        enabled = false,
     ) {
         Box(
             modifier =

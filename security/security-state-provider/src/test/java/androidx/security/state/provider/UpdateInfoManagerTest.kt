@@ -33,20 +33,13 @@ import org.mockito.Mockito
 import org.mockito.Mockito.times
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 
 @RunWith(AndroidJUnit4::class)
 class UpdateInfoManagerTest {
 
     private lateinit var manager: UpdateInfoManager
-    private val mockSpl = SecurityPatchState.DateBasedSecurityPatchLevel(2022, 1, 1)
-    private val mockSecurityState: SecurityPatchState =
-        mock<SecurityPatchState> {
-            on {
-                getComponentSecurityPatchLevel(eq(COMPONENT_SYSTEM), Mockito.anyString())
-            } doReturn mockSpl
-        }
+    private val mockSecurityState: SecurityPatchState = mock<SecurityPatchState>()
     @SuppressLint("NewApi")
     private val publishedDate = Date.from(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC))
     private val updateInfo =
@@ -59,7 +52,7 @@ class UpdateInfoManagerTest {
     private val expectedJson =
         Json.encodeToString(
             SerializableUpdateInfo.serializer(),
-            updateInfo.toSerializableUpdateInfo()
+            updateInfo.toSerializableUpdateInfo(),
         )
     private val mockEmptyEditor: SharedPreferences.Editor = mock<SharedPreferences.Editor> {}
     private val mockEditor: SharedPreferences.Editor =

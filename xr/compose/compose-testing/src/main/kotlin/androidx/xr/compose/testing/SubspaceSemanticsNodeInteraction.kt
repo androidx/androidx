@@ -17,7 +17,7 @@
 package androidx.xr.compose.testing
 
 import androidx.annotation.RestrictTo
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 /**
@@ -62,7 +62,7 @@ internal constructor(
      *   be: "Failed to perform doOnClick.".
      * @throws [AssertionError] if 0 or multiple nodes found.
      */
-    public fun fetchSemanticsNode(errorMessageOnFail: String? = null): SubspaceSemanticsNode {
+    public fun fetchSemanticsNode(errorMessageOnFail: String? = null): SubspaceSemanticsInfo {
         return fetchOneOrThrow(errorMessageOnFail)
     }
 
@@ -105,13 +105,13 @@ internal constructor(
     }
 
     @CanIgnoreReturnValue
-    private fun fetchOneOrThrow(errorMessageOnFail: String? = null): SubspaceSemanticsNode {
+    private fun fetchOneOrThrow(errorMessageOnFail: String? = null): SubspaceSemanticsInfo {
         val finalErrorMessage = errorMessageOnFail ?: "Failed: assertExists."
 
         val result =
             fetchSemanticsNodes(
                 atLeastOneRootRequired = true,
-                errorMessageOnFail = finalErrorMessage
+                errorMessageOnFail = finalErrorMessage,
             )
         if (result.selectedNodes.count() != 1) {
             if (result.customErrorOnNoMatch != null) {
@@ -163,19 +163,19 @@ private constructor(
     private fun fetchSemanticsNodes(
         atLeastOneRootRequired: Boolean = true,
         errorMessageOnFail: String? = null,
-    ): List<SubspaceSemanticsNode> {
+    ): List<SubspaceSemanticsInfo> {
         if (nodeIds == null) {
             return selector
                 .map(
                     testContext.getAllSemanticsNodes(atLeastOneRootRequired),
-                    errorMessageOnFail.orEmpty()
+                    errorMessageOnFail.orEmpty(),
                 )
-                .apply { nodeIds = selectedNodes.map { it.id }.toList() }
+                .apply { nodeIds = selectedNodes.map { it.semanticsId }.toList() }
                 .selectedNodes
         }
 
         return testContext.getAllSemanticsNodes(atLeastOneRootRequired).filter {
-            it.id in nodeIds!!
+            it.semanticsId in nodeIds!!
         }
     }
 

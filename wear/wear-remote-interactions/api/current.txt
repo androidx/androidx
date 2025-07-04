@@ -9,7 +9,7 @@ package androidx.wear.remote.interactions {
     method public static String? getTargetNodeId(android.content.Intent intent);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent, optional String? targetNodeId);
-    property public final kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
+    property public kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
     field public static final String ACTION_REMOTE_INTENT = "com.google.android.wearable.intent.action.REMOTE_INTENT";
     field public static final androidx.wear.remote.interactions.RemoteActivityHelper.Companion Companion;
     field public static final int RESULT_FAILED = 1; // 0x1
@@ -23,13 +23,13 @@ package androidx.wear.remote.interactions {
   public static final class RemoteActivityHelper.Companion {
     method public android.content.Intent? getTargetIntent(android.content.Intent intent);
     method public String? getTargetNodeId(android.content.Intent intent);
-    property public static final String ACTION_REMOTE_INTENT;
-    property public static final int RESULT_FAILED;
-    property public static final int RESULT_OK;
-    property public static final int STATUS_AVAILABLE;
-    property public static final int STATUS_TEMPORARILY_UNAVAILABLE;
-    property public static final int STATUS_UNAVAILABLE;
-    property public static final int STATUS_UNKNOWN;
+    property public static String ACTION_REMOTE_INTENT;
+    property public static int RESULT_FAILED;
+    property public static int RESULT_OK;
+    property public static int STATUS_AVAILABLE;
+    property public static int STATUS_TEMPORARILY_UNAVAILABLE;
+    property public static int STATUS_UNAVAILABLE;
+    property public static int STATUS_UNKNOWN;
   }
 
   public static final class RemoteActivityHelper.RemoteIntentException extends java.lang.Exception {

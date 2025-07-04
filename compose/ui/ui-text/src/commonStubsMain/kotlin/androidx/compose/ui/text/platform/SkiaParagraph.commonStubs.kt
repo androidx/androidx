@@ -37,7 +37,7 @@ internal actual fun ActualParagraph(
     ellipsis: Boolean,
     width: Float,
     density: Density,
-    @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader
+    @Suppress("DEPRECATION") resourceLoader: Font.ResourceLoader,
 ): Paragraph = implementedInJetBrainsFork()
 
 internal actual fun ActualParagraph(
@@ -49,12 +49,12 @@ internal actual fun ActualParagraph(
     overflow: TextOverflow,
     constraints: Constraints,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): Paragraph = implementedInJetBrainsFork()
 
 internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     overflow: TextOverflow,
-    constraints: Constraints
+    constraints: Constraints,
 ): Paragraph = implementedInJetBrainsFork()

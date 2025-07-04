@@ -16,27 +16,21 @@
 
 package androidx.webkit;
 
-import android.net.Uri;
-import android.webkit.WebView;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.webkit.test.common.TestWebMessageListener;
-import androidx.webkit.test.common.WebkitUtils;
 import androidx.webkit.test.common.WebViewOnUiThread;
+import androidx.webkit.test.common.WebkitUtils;
 
-import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Test
@@ -51,10 +45,11 @@ public class WebViewDocumentStartJavaScriptTest {
     private static final String JS_OBJECT_NAME = "myObject";
     private static final String BASIC_USAGE = "<!DOCTYPE html><html><body></body></html>";
     private static final String BASIC_SCRIPT = "myObject.postMessage('hello');";
-    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet<>(Arrays.asList(BASE_URI));
+    private static final Set<String> MATCH_EXAMPLE_COM = new HashSet<>(
+            Collections.singletonList(BASE_URI));
 
     private WebViewOnUiThread mWebViewOnUiThread;
-    private TestWebMessageListener mListener = new TestWebMessageListener();
+    private final TestWebMessageListener mListener = new TestWebMessageListener();
 
     @Before
     public void setUp() {

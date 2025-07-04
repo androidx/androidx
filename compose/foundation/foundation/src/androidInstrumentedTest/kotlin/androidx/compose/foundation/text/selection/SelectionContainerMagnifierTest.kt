@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // TODO(): Remove when migrating away from RequiresDevice
+
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.layout.Column
@@ -55,7 +57,7 @@ internal class SelectionContainerMagnifierTest : AbstractSelectionMagnifierTests
         modifier: Modifier,
         style: TextStyle,
         onTextLayout: (TextLayoutResult) -> Unit,
-        maxLines: Int
+        maxLines: Int,
     ) {
         SelectionContainer(modifier) {
             BasicText(text, style = style, onTextLayout = onTextLayout, maxLines = maxLines)
@@ -87,12 +89,12 @@ internal class SelectionContainerMagnifierTest : AbstractSelectionMagnifierTests
                             // Center the text to give the magnifier lots of room to move.
                             .fillMaxSize()
                             .wrapContentSize()
-                            .testTag(tag),
+                            .testTag(tag)
                 ) {
                     Column(Modifier.width(IntrinsicSize.Max)) {
                         BasicText(
                             text = RtlChar.repeat(4),
-                            modifier = Modifier.fillMaxWidth().testTag(nonEmptyTag)
+                            modifier = Modifier.fillMaxWidth().testTag(nonEmptyTag),
                         )
                         BasicText(text = "", modifier = Modifier.fillMaxWidth().testTag(emptyTag))
                     }

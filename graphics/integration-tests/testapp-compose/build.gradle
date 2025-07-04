@@ -37,22 +37,19 @@ dependencies {
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.compose.ui:ui:1.5.4")
-    implementation("androidx.compose.ui:ui-graphics:1.5.4")
-    implementation("androidx.compose.foundation:foundation:1.5.4")
-    implementation("androidx.compose.foundation:foundation-layout:1.5.4")
-    implementation("androidx.compose.runtime:runtime:1.5.4")
+    implementation("androidx.compose.ui:ui:1.6.0")
+    implementation("androidx.compose.ui:ui-graphics:1.6.0")
+    implementation("androidx.compose.foundation:foundation:1.6.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.6.0")
+    implementation("androidx.compose.runtime:runtime:1.6.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.fragment:fragment:1.6.1")
     implementation(project(":compose:material3:material3"))
     implementation("androidx.compose.material:material-icons-core:1.7.0")
-    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }
 
 android {
     compileSdk = 35
-
     namespace = "androidx.graphics.shapes.testcompose"
-    // TODO(b/313699418): need to update compose.runtime version to 1.6.0+
-    experimentalProperties["android.lint.useK2Uast"] = false
 }

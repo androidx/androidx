@@ -41,9 +41,10 @@ class TorchFlashRequiredFor3AUpdateQuirkTest(
     private val model: String,
     private val lensFacing: Int,
     private val externalFlashAeModeSupported: Boolean,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) {
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(
             name = "Model: {0}, lens facing: {1}, external ae mode: {2}, enabled: {3}"
@@ -61,10 +62,7 @@ class TorchFlashRequiredFor3AUpdateQuirkTest(
             )
     }
 
-    private fun getCameraQuirks(
-        lensFacing: Int,
-        externalFlashAeModeSupported: Boolean,
-    ): Quirks {
+    private fun getCameraQuirks(lensFacing: Int, externalFlashAeModeSupported: Boolean): Quirks {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
         shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing)
@@ -72,7 +70,7 @@ class TorchFlashRequiredFor3AUpdateQuirkTest(
             CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
             if (externalFlashAeModeSupported) {
                 intArrayOf(CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
-            } else intArrayOf(CONTROL_AE_MODE_ON)
+            } else intArrayOf(CONTROL_AE_MODE_ON),
         )
         val characteristicsCompat =
             CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics, CAMERA_ID_0)

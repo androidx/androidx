@@ -42,6 +42,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.PlatformEventSources;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
@@ -133,6 +134,262 @@ public class ProtoLayoutDynamicDataPipelineTest {
         mRootContainer = new FrameLayout(getApplicationContext());
         // This needs to be an attached view to test animations in data pipeline.
         Robolectric.buildActivity(Activity.class).setup().get().setContentView(mRootContainer);
+    }
+
+    @Test
+    public void markForChildRemoval_ifNotCommitted_doesNotReleaseQuota() {
+        DynamicBool expressionWith4Nodes = buildBoolExpressionWithFixedNumberOfNodes(5);
+        FixedQuotaManagerImpl dynamicNodesQuotaManager = new FixedQuotaManagerImpl(8);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                new ProtoLayoutDynamicDataPipeline(
+                        /* platformDataProviders= */ ImmutableMap.of(),
+                        mStateStore,
+                        /* animationQuotaManager= */ new FixedQuotaManagerImpl(MAX_VALUE),
+                        dynamicNodesQuotaManager);
+        pipeline.newPipelineMaker()
+                .addPipelineFor(
+                        expressionWith4Nodes,
+                        /* invalidData= */ false,
+                        NODE_1_1,
+                        /* consumer= */ (value) -> {})
+                .addPipelineFor(
+                        expressionWith4Nodes,
+                        /* invalidData= */ false,
+                        NODE_1_1_1,
+                        /* consumer= */ (value) -> {})
+                .commit(mRootContainer, /* isReattaching= */ false);
+
+        pipeline.newPipelineMaker().markForChildRemoval(NODE_1_1);
+
+        expect.that(dynamicNodesQuotaManager.getRemainingQuota()).isEqualTo(0);
+    }
+
+    @Test
+    public void markForChildRemoval_ifCommitted_releaseQuota() {
+        DynamicBool expressionWith4Nodes = buildBoolExpressionWithFixedNumberOfNodes(5);
+        FixedQuotaManagerImpl dynamicNodesQuotaManager = new FixedQuotaManagerImpl(8);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                new ProtoLayoutDynamicDataPipeline(
+                        /* platformDataProviders= */ ImmutableMap.of(),
+                        mStateStore,
+                        /* animationQuotaManager= */ new FixedQuotaManagerImpl(MAX_VALUE),
+                        dynamicNodesQuotaManager);
+        pipeline.newPipelineMaker()
+                .addPipelineFor(
+                        expressionWith4Nodes,
+                        /* invalidData= */ false,
+                        NODE_1_1,
+                        /* consumer= */ (value) -> {})
+                .addPipelineFor(
+                        expressionWith4Nodes,
+                        /* invalidData= */ false,
+                        NODE_1_1_1,
+                        /* consumer= */ (value) -> {})
+                .commit(mRootContainer, /* isReattaching= */ false);
+
+        pipeline.newPipelineMaker()
+                .markForChildRemoval(NODE_1_1)
+                .commit(mRootContainer, /* isReattaching= */ false);
+
+        expect.that(dynamicNodesQuotaManager.getRemainingQuota()).isEqualTo(4);
+    }
+
+    @Test
+    public void addPipelineFor_ifNotCommitted_doesNotAcquireQuota() {
+        int quotaCap = 1;
+        DynamicBool dynamicBool = dynamicBool("key");
+        AddToListCallback<Boolean> receiver =
+                new AddToListCallback<>(/* list= */ new ArrayList<>());
+        FixedQuotaManagerImpl dynamicNodesQuotaManager = new FixedQuotaManagerImpl(quotaCap);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                new ProtoLayoutDynamicDataPipeline(
+                        /* platformDataProviders= */ ImmutableMap.of(),
+                        mStateStore,
+                        /* animationQuotaManager= */ new FixedQuotaManagerImpl(MAX_VALUE),
+                        dynamicNodesQuotaManager);
+
+        pipeline.newPipelineMaker().addPipelineFor(dynamicBool, TEST_POS_ID, receiver);
+
+        expect.that(dynamicNodesQuotaManager.getRemainingQuota()).isEqualTo(quotaCap);
+    }
+
+    @Test
+    public void addPipelineFor_ifCommitted_acquiresQuota() {
+        int quotaCap = 1;
+        DynamicBool dynamicBool = dynamicBool("key");
+        AddToListCallback<Boolean> receiver =
+                new AddToListCallback<>(/* list= */ new ArrayList<>());
+        FixedQuotaManagerImpl dynamicNodesQuotaManager = new FixedQuotaManagerImpl(quotaCap);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                new ProtoLayoutDynamicDataPipeline(
+                        /* platformDataProviders= */ ImmutableMap.of(),
+                        mStateStore,
+                        /* animationQuotaManager= */ new FixedQuotaManagerImpl(MAX_VALUE),
+                        dynamicNodesQuotaManager);
+
+        pipeline.newPipelineMaker()
+                .addPipelineFor(dynamicBool, TEST_POS_ID, receiver)
+                .commit(mRootContainer, /* isReattaching= */ false);
+
+        expect.that(dynamicNodesQuotaManager.getRemainingQuota()).isEqualTo(0);
+    }
+
+    @Test
+    public void addPipelineFor_ifNoQuotaAvailableAndNotCommitted_doesNotSetInvalidValue() {
+        DynamicBool dynamicBool = dynamicBool("key");
+        List<Boolean> invalidResults = new ArrayList<>();
+        AddToListCallback<Boolean> receiver =
+                new AddToListCallback<>(/* list= */ new ArrayList<>(), invalidResults);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                new ProtoLayoutDynamicDataPipeline(
+                        /* platformDataProviders= */ ImmutableMap.of(),
+                        mStateStore,
+                        /* animationQuotaManager= */ new FixedQuotaManagerImpl(MAX_VALUE),
+                        /* dynamicNodesQuotaManager= */ new FixedQuotaManagerImpl(
+                                /* quotaCap= */ 0));
+
+        pipeline.newPipelineMaker().addPipelineFor(dynamicBool, TEST_POS_ID, receiver);
+
+        expect.that(invalidResults).isEmpty();
+    }
+
+    @Test
+    public void addPipelineFor_ifNoQuotaAvailableAndCommitted_setsInvalidValue() {
+        DynamicBool dynamicBool = dynamicBool("key");
+        List<Boolean> invalidResults = new ArrayList<>();
+        AddToListCallback<Boolean> receiver =
+                new AddToListCallback<>(/* list= */ new ArrayList<>(), invalidResults);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                new ProtoLayoutDynamicDataPipeline(
+                        /* platformDataProviders= */ ImmutableMap.of(),
+                        mStateStore,
+                        /* animationQuotaManager= */ new FixedQuotaManagerImpl(MAX_VALUE),
+                        /* dynamicNodesQuotaManager= */ new FixedQuotaManagerImpl(
+                                /* quotaCap= */ 0));
+
+        pipeline.newPipelineMaker()
+                .addPipelineFor(dynamicBool, TEST_POS_ID, receiver)
+                .commit(mRootContainer, /* isReattaching= */ false);
+
+        expect.that(invalidResults).hasSize(1);
+        expect.that(invalidResults).containsExactly(true);
+    }
+
+    @Test
+    public void buildPipeline_dynamicBoolLayoutVisibility_assignsValues() {
+        List<Boolean> results = new ArrayList<>();
+        DynamicBool dynamicBool = PlatformEventSources.isLayoutVisible().toDynamicBoolProto();
+
+        ProtoLayoutDynamicDataPipeline pipeline =
+                initPipeline(results, results, true, dynamicBool, 0);
+
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure that the initial value has been sent.
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(true);
+
+        // Make sure we don't send value if it hasn't changed from before.
+        pipeline.setFullyVisible(true);
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(true);
+
+        // Make sure we send a new value.
+        pipeline.setFullyVisible(false);
+        expect.that(results).hasSize(2);
+        expect.that(results).containsExactly(true, false);
+    }
+
+    @Test
+    public void buildPipeline_dynamicBoolLayoutVisibility_updatesDisabled_notSendingValues() {
+        List<Boolean> results = new ArrayList<>();
+        DynamicBool dynamicBool = PlatformEventSources.isLayoutVisible().toDynamicBoolProto();
+
+        ProtoLayoutDynamicDataPipeline pipeline =
+                initPipeline(results, results, true, dynamicBool, 0);
+
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure that the initial value has been sent.
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(true);
+
+        pipeline.setUpdatesEnabled(false);
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure we don't send next values as updates are disabled.
+        pipeline.setFullyVisible(false);
+        pipeline.setFullyVisible(true);
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(true);
+
+        pipeline.setUpdatesEnabled(true);
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure we send a new value once updates are enabled.
+        pipeline.setFullyVisible(false);
+        expect.that(results).hasSize(2);
+        expect.that(results).containsExactly(true, false);
+    }
+
+    @Test
+    public void setLayoutUpdateStatus_assignsValues() {
+        List<Integer> results = new ArrayList<>();
+        DynamicInt32 dynamicInt = PlatformEventSources.layoutUpdateStatus().toDynamicInt32Proto();
+        ProtoLayoutDynamicDataPipeline pipeline =
+                initPipeline(results, new ArrayList<>(), true, dynamicInt, 0);
+
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure that the initial value has been sent.
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(PlatformEventSources.LAYOUT_UPDATE_IDLE);
+
+        // Make sure we don't send value if it hasn't changed from before.
+        pipeline.setLayoutUpdateStatus(PlatformEventSources.LAYOUT_UPDATE_IDLE);
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(PlatformEventSources.LAYOUT_UPDATE_IDLE);
+
+        // Make sure we send a new value.
+        pipeline.setLayoutUpdateStatus(PlatformEventSources.LAYOUT_UPDATE_WAITING);
+        expect.that(results).hasSize(2);
+        expect.that(results)
+                .containsExactly(
+                        PlatformEventSources.LAYOUT_UPDATE_IDLE,
+                        PlatformEventSources.LAYOUT_UPDATE_WAITING);
+    }
+
+    @Test
+    public void setLayoutUpdateStatus_ifUpdatesDisabled_doesNotAssignValues() {
+        List<Integer> results = new ArrayList<>();
+        DynamicInt32 dynamicInt = PlatformEventSources.layoutUpdateStatus().toDynamicInt32Proto();
+        ProtoLayoutDynamicDataPipeline pipeline =
+                initPipeline(results, new ArrayList<>(), true, dynamicInt, 0);
+
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure that the initial value has been sent.
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(PlatformEventSources.LAYOUT_UPDATE_IDLE);
+
+        pipeline.setUpdatesEnabled(false);
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure we don't send next values as updates are disabled.
+        pipeline.setLayoutUpdateStatus(PlatformEventSources.LAYOUT_UPDATE_WAITING);
+        expect.that(results).hasSize(1);
+        expect.that(results).containsExactly(PlatformEventSources.LAYOUT_UPDATE_IDLE);
+
+        pipeline.setUpdatesEnabled(true);
+        shadowOf(getMainLooper()).idle();
+
+        // Make sure we send a new value once updates are enabled.
+        pipeline.setLayoutUpdateStatus(PlatformEventSources.LAYOUT_UPDATE_WAITING);
+        expect.that(results).hasSize(2);
+        expect.that(results)
+                .containsExactly(
+                        PlatformEventSources.LAYOUT_UPDATE_IDLE,
+                        PlatformEventSources.LAYOUT_UPDATE_WAITING);
     }
 
     @Test
@@ -898,7 +1155,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         makePipelineForDynamicString(
                 pipeline, dynamicString, staticValue, "posId", currentValue::set);
         pipeline.initNewLayout();
-        expect.that(pipeline.mPositionIdTree.get("posId").getFailedBindingRequest().size())
+        expect.that(pipeline.mPositionIdTree.get("posId").getPendingBindingRequests().size())
                 .isEqualTo(1);
         expect.that(currentValue.get()).isEqualTo(staticValue);
     }
@@ -968,9 +1225,9 @@ public class ProtoLayoutDynamicDataPipelineTest {
         pipeline.initNewLayout();
 
         // Remaining quota not enough for nodeInfo2 expression to bound.
-        expect.that(pipeline.mPositionIdTree.get(nodeInfo1).getFailedBindingRequest().size())
+        expect.that(pipeline.mPositionIdTree.get(nodeInfo1).getPendingBindingRequests().size())
                 .isEqualTo(0);
-        expect.that(pipeline.mPositionIdTree.get(nodeInfo2).getFailedBindingRequest().size())
+        expect.that(pipeline.mPositionIdTree.get(nodeInfo2).getPendingBindingRequests().size())
                 .isEqualTo(1);
 
         // Remove nodeInfo1 and add nodeInfo3. nodeInfo2 still in the pipeline.
@@ -982,9 +1239,9 @@ public class ProtoLayoutDynamicDataPipelineTest {
         // Now the pipeline will have a total expression cost of 6 = 5 + 1 nodeInfo2 (failed to
         // bound previously) and nodeInfo3(new) should be able to bound
         expect.that(quotaManager.getRemainingQuota()).isEqualTo(2);
-        expect.that(pipeline.mPositionIdTree.get(nodeInfo3).getFailedBindingRequest().size())
+        expect.that(pipeline.mPositionIdTree.get(nodeInfo3).getPendingBindingRequests().size())
                 .isEqualTo(0);
-        expect.that(pipeline.mPositionIdTree.get(nodeInfo2).getFailedBindingRequest().size())
+        expect.that(pipeline.mPositionIdTree.get(nodeInfo2).getPendingBindingRequests().size())
                 .isEqualTo(0);
     }
 
@@ -1020,7 +1277,7 @@ public class ProtoLayoutDynamicDataPipelineTest {
         expect.that(
                         pipeline.mPositionIdTree
                                 .findFirst((node) -> node.getPosId().equals("posId1.0"))
-                                .getFailedBindingRequest()
+                                .getPendingBindingRequests()
                                 .size())
                 .isEqualTo(1);
 
@@ -1696,8 +1953,8 @@ public class ProtoLayoutDynamicDataPipelineTest {
                 .build();
     }
 
-    private @NonNull DynamicFloat animatableFixedFloat(float from, float to, int duration,
-            int delay) {
+    private @NonNull DynamicFloat animatableFixedFloat(
+            float from, float to, int duration, int delay) {
         return DynamicFloat.newBuilder()
                 .setAnimatableFixed(
                         AnimatableFixedFloat.newBuilder()
@@ -1809,6 +2066,37 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     private ProtoLayoutDynamicDataPipeline initPipeline(
+            List<Integer> results,
+            @Nullable List<Boolean> invalidResults,
+            boolean enableAnimations,
+            DynamicInt32 proto,
+            int animationsNum) {
+        AddToListCallback<Integer> receiver = new AddToListCallback<>(results, invalidResults);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                enableAnimations
+                        ? new ProtoLayoutDynamicDataPipeline(
+                                /* platformDataProviders= */ ImmutableMap.of(),
+                                mStateStore,
+                                new FixedQuotaManagerImpl(MAX_VALUE),
+                                new FixedQuotaManagerImpl(MAX_VALUE))
+                        : new ProtoLayoutDynamicDataPipeline(
+                                /* platformDataProviders= */ ImmutableMap.of(), mStateStore);
+        shadowOf(getMainLooper()).idle();
+
+        pipeline.setFullyVisible(true);
+        pipeline.newPipelineMaker()
+                .addPipelineFor(proto, TEST_POS_ID, receiver)
+                .commit(mRootContainer, /* isReattaching= */ false);
+        if (enableAnimations) {
+            assertThat(pipeline.getRunningAnimationsCount()).isEqualTo(animationsNum);
+        }
+        shadowOf(getMainLooper()).idle();
+        assertThat(pipeline.getRunningAnimationsCount()).isEqualTo(0);
+
+        return pipeline;
+    }
+
+    private ProtoLayoutDynamicDataPipeline initPipeline(
             List<Float> results, boolean enableAnimations, DynamicFloat proto, int animationsNum) {
         return initPipeline(
                 results, /* invalidResults= */ null, enableAnimations, proto, animationsNum);
@@ -1821,6 +2109,37 @@ public class ProtoLayoutDynamicDataPipelineTest {
             DynamicFloat proto,
             int animationsNum) {
         AddToListCallback<Float> receiver = new AddToListCallback<>(results, invalidResults);
+        ProtoLayoutDynamicDataPipeline pipeline =
+                enableAnimations
+                        ? new ProtoLayoutDynamicDataPipeline(
+                                /* platformDataProviders= */ ImmutableMap.of(),
+                                mStateStore,
+                                new FixedQuotaManagerImpl(MAX_VALUE),
+                                new FixedQuotaManagerImpl(MAX_VALUE))
+                        : new ProtoLayoutDynamicDataPipeline(
+                                /* platformDataProviders= */ ImmutableMap.of(), mStateStore);
+        shadowOf(getMainLooper()).idle();
+
+        pipeline.setFullyVisible(true);
+        pipeline.newPipelineMaker()
+                .addPipelineFor(proto, TEST_POS_ID, receiver)
+                .commit(mRootContainer, /* isReattaching= */ false);
+        if (enableAnimations) {
+            assertThat(pipeline.getRunningAnimationsCount()).isEqualTo(animationsNum);
+        }
+        shadowOf(getMainLooper()).idle();
+        assertThat(pipeline.getRunningAnimationsCount()).isEqualTo(0);
+
+        return pipeline;
+    }
+
+    private ProtoLayoutDynamicDataPipeline initPipeline(
+            List<Boolean> results,
+            @Nullable List<Boolean> invalidResults,
+            boolean enableAnimations,
+            DynamicBool proto,
+            int animationsNum) {
+        AddToListCallback<Boolean> receiver = new AddToListCallback<>(results, invalidResults);
         ProtoLayoutDynamicDataPipeline pipeline =
                 enableAnimations
                         ? new ProtoLayoutDynamicDataPipeline(

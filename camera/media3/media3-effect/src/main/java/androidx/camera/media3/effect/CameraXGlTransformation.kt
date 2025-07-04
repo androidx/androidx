@@ -28,7 +28,7 @@ import androidx.media3.effect.GlMatrixTransformation
 @SuppressLint("UnsafeOptInUsageError")
 internal class CameraXGlTransformation(
     cameraXTransformation: FloatArray,
-    private val outputSize: Size
+    private val outputSize: Size,
 ) : GlMatrixTransformation {
     // Adjusted orientation matrix for vertex shader usage
     private val glMatrix = FloatArray(16)
@@ -92,7 +92,7 @@ internal class CameraXGlTransformation(
                 0.5f,
                 0.5f,
                 0.0f,
-                1.0f
+                1.0f,
             )
 
         // Matrix that maps NDC [-1, 1] to texture space [0, 1]
@@ -113,7 +113,7 @@ internal class CameraXGlTransformation(
                 -1.0f,
                 -1.0f,
                 0.0f,
-                1.0f
+                1.0f,
             )
     }
 }

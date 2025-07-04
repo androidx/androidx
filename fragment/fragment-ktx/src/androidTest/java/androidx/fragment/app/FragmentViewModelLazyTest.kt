@@ -83,7 +83,7 @@ class FragmentViewModelLazyTest {
                         set(VIEW_MODEL_STORE_OWNER_KEY, requireActivity())
                         set(DEFAULT_ARGS_KEY, bundleOf("test" to "value3"))
                     }
-                }
+                },
             )
 
         override fun onCreate(savedInstanceState: Bundle?) {

@@ -20,6 +20,7 @@ package androidx.xr.scenecore
 
 import android.media.SoundPool
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Session
 
 /** Provides spatial audio extensions on the framework [SoundPool] class. */
 @Suppress("ClassShouldBeObject")
@@ -28,12 +29,12 @@ public class SpatialSoundPool private constructor() {
 
     public companion object {
         /**
-         * Plays a spatialized sound effect emitted relative [Node] in the [PointSourceAttributes].
+         * Plays a spatialized sound effect emitted relative [Node] in the [PointSourceParams].
          *
          * @param session The current SceneCore [Session] instance.
          * @param soundPool The [SoundPool] to use to the play the sound.
          * @param soundID a soundId returned by the load() function.
-         * @param attributes attributes to specify sound source. [PointSourceAttributes]
+         * @param params params to specify sound source. [PointSourceParams]
          * @param volume value (range = 0.0 to 1.0)
          * @param priority stream priority (0 = lowest priority)
          * @param loop loop mode (0 = no loop, -1 = loop forever, N = loop N times)
@@ -45,17 +46,17 @@ public class SpatialSoundPool private constructor() {
             session: Session,
             soundPool: SoundPool,
             soundID: Int,
-            attributes: PointSourceAttributes,
+            params: PointSourceParams,
             volume: Float,
             priority: Int,
             loop: Int,
             rate: Float,
         ): Int {
 
-            return session.runtime.soundPoolExtensionsWrapper.play(
+            return session.platformAdapter.soundPoolExtensionsWrapper.play(
                 soundPool,
                 soundID,
-                attributes.rtPointSourceAttributes,
+                params.rtPointSourceParams,
                 volume,
                 priority,
                 loop,
@@ -88,7 +89,7 @@ public class SpatialSoundPool private constructor() {
             rate: Float,
         ): Int {
 
-            return session.runtime.soundPoolExtensionsWrapper.play(
+            return session.platformAdapter.soundPoolExtensionsWrapper.play(
                 soundPool,
                 soundID,
                 attributes.rtSoundFieldAttributes,
@@ -111,9 +112,9 @@ public class SpatialSoundPool private constructor() {
         public fun getSpatialSourceType(
             session: Session,
             soundPool: SoundPool,
-            streamId: Int
+            streamId: Int,
         ): Int {
-            return session.runtime.soundPoolExtensionsWrapper
+            return session.platformAdapter.soundPoolExtensionsWrapper
                 .getSpatialSourceType(soundPool, streamId)
                 .sourceTypeToJxr()
         }

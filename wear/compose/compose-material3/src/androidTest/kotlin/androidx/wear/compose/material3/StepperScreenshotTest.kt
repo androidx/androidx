@@ -94,9 +94,7 @@ class StepperScreenshotTest {
                 steps = 3,
                 onValueChange = {},
                 decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
-                increaseIcon = {
-                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
-                },
+                increaseIcon = { Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "") },
             ) {}
         }
     }
@@ -115,7 +113,7 @@ class StepperScreenshotTest {
                 FilledTonalButton(
                     onClick = {},
                     modifier = Modifier.width(146.dp),
-                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) }
+                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) },
                 )
             }
         }
@@ -136,7 +134,7 @@ class StepperScreenshotTest {
                         buttonContainerColor = Color.Green,
                         contentColor = Color.Yellow,
                         buttonIconColor = Color.Magenta,
-                    )
+                    ),
             ) {
                 Text("Demo")
             }
@@ -153,7 +151,7 @@ class StepperScreenshotTest {
                 steps = 3,
                 increaseIcon = { IncreaseIcon() },
                 decreaseIcon = { DecreaseIcon() },
-                onValueChange = {}
+                onValueChange = {},
             ) {}
         }
     }
@@ -168,7 +166,7 @@ class StepperScreenshotTest {
                 steps = 3,
                 increaseIcon = { IncreaseIcon() },
                 decreaseIcon = { DecreaseIcon() },
-                onValueChange = {}
+                onValueChange = {},
             ) {}
         }
     }
@@ -206,7 +204,7 @@ class StepperScreenshotTest {
                             Icon(
                                 modifier = Modifier.testTag("increase_icon"),
                                 imageVector = Icons.Filled.Add,
-                                contentDescription = "Increase"
+                                contentDescription = "Increase",
                             )
                         },
                         decreaseIcon = { DecreaseIcon() },
@@ -242,7 +240,7 @@ class StepperScreenshotTest {
                             Icon(
                                 modifier = Modifier.testTag("decrease_icon"),
                                 imageVector = RangeIcons.Minus,
-                                contentDescription = "Decrease"
+                                contentDescription = "Decrease",
                             )
                         },
                     ) {}
@@ -283,7 +281,7 @@ private fun IncreaseIcon() =
     Icon(
         imageVector = Icons.Filled.Add,
         contentDescription = "Increase",
-        modifier = Modifier.size(IconSize)
+        modifier = Modifier.size(IconSize),
     )
 
 @Composable
@@ -291,5 +289,5 @@ private fun DecreaseIcon() =
     Icon(
         imageVector = RangeIcons.Minus,
         contentDescription = "Decrease",
-        modifier = Modifier.size(IconSize)
+        modifier = Modifier.size(IconSize),
     )

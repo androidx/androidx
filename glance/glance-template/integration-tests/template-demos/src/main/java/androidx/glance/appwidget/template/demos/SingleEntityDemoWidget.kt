@@ -56,7 +56,7 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
                             icon =
                                 TemplateImageWithDescription(
                                     ImageProvider(R.drawable.ic_widgets),
-                                    "Header icon"
+                                    "Header icon",
                                 ),
                         ),
                     textBlock =
@@ -64,13 +64,13 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
                             text1 =
                                 TemplateText(
                                     getTitle(currentState<Preferences>()[ToggleKey] == true),
-                                    TextType.Title
+                                    TextType.Title,
                                 ),
                             text2 = TemplateText("Subtitle", TextType.Label),
                             text3 =
                                 TemplateText(
                                     "Body Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                                    TextType.Body
+                                    TextType.Body,
                                 ),
                             priority = 0,
                         ),
@@ -80,7 +80,7 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
                                 listOf(
                                     TemplateImageWithDescription(
                                         ImageProvider(R.drawable.palm_leaf),
-                                        "Compose image"
+                                        "Compose image",
                                     )
                                 ),
                             priority = 1,
@@ -91,9 +91,9 @@ class SingleEntityDemoWidget : GlanceTemplateAppWidget() {
                                 listOf(
                                     TemplateTextButton(
                                         actionRunCallback<SEButtonAction>(),
-                                        "Toggle title"
-                                    ),
-                                ),
+                                        "Toggle title",
+                                    )
+                                )
                         ),
                 )
             )
@@ -109,7 +109,7 @@ class SEButtonAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {
         updateAppWidgetState(context, glanceId) { it[ToggleKey] = it[ToggleKey] != true }
         SingleEntityDemoWidget().update(context, glanceId)

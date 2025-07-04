@@ -36,13 +36,13 @@ abstract class CornerBasedShape(
     val topStart: CornerSize,
     val topEnd: CornerSize,
     val bottomEnd: CornerSize,
-    val bottomStart: CornerSize
+    val bottomStart: CornerSize,
 ) : Shape {
 
     final override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         var topStart = topStart.toPx(size, density)
         var topEnd = topEnd.toPx(size, density)
@@ -71,7 +71,7 @@ abstract class CornerBasedShape(
             topEnd = topEnd,
             bottomEnd = bottomEnd,
             bottomStart = bottomStart,
-            layoutDirection = layoutDirection
+            layoutDirection = layoutDirection,
         )
     }
 
@@ -91,7 +91,7 @@ abstract class CornerBasedShape(
         topEnd: Float,
         bottomEnd: Float,
         bottomStart: Float,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ): Outline
 
     /**
@@ -106,7 +106,7 @@ abstract class CornerBasedShape(
         topStart: CornerSize = this.topStart,
         topEnd: CornerSize = this.topEnd,
         bottomEnd: CornerSize = this.bottomEnd,
-        bottomStart: CornerSize = this.bottomStart
+        bottomStart: CornerSize = this.bottomStart,
     ): CornerBasedShape
 
     /**

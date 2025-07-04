@@ -133,7 +133,7 @@ class WindowInsetsOverrideTest {
                     top,
                     right,
                     bottom,
-                    AndroidXInsets.of(1, 2, 3, 4)
+                    AndroidXInsets.of(1, 2, 3, 4),
                 )
             )
             .build()
@@ -166,7 +166,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
             Modifier.navigationBarsPadding(),
-            sentInsets = AndroidXInsets.of(10, 0, 0, 0)
+            sentInsets = AndroidXInsets.of(10, 0, 0, 0),
         )
     }
 
@@ -175,7 +175,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
             Modifier.navigationBarsPadding(),
-            sentInsets = AndroidXInsets.of(0, 0, 12, 0)
+            sentInsets = AndroidXInsets.of(0, 0, 12, 0),
         )
     }
 
@@ -184,7 +184,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
             Modifier.navigationBarsPadding(),
-            sentInsets = AndroidXInsets.of(0, 0, 0, 13)
+            sentInsets = AndroidXInsets.of(0, 0, 0, 13),
         )
     }
 
@@ -193,7 +193,7 @@ class WindowInsetsOverrideTest {
     fun navigationBarsPaddingApi30() {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
-            Modifier.navigationBarsPadding()
+            Modifier.navigationBarsPadding(),
         )
     }
 
@@ -216,7 +216,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.statusBars(),
             sentInsets = AndroidXInsets.of(0, 10, 0, 0),
-            expected = { w, h -> Rect(0f, 10f, w.toFloat(), h.toFloat()) }
+            expected = { w, h -> Rect(0f, 10f, w.toFloat(), h.toFloat()) },
         ) {
             Modifier.windowInsetsPadding(WindowInsets.statusBars)
         }
@@ -260,7 +260,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
             sentInsets = AndroidXInsets.of(10, 0, 0, 0),
-            expected = { width, height -> Rect(10f, 0f, width.toFloat(), height.toFloat()) }
+            expected = { width, height -> Rect(10f, 0f, width.toFloat(), height.toFloat()) },
         ) {
             Modifier.windowInsetsPadding(WindowInsets.navigationBars)
         }
@@ -270,7 +270,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
             sentInsets = AndroidXInsets.of(0, 0, 10, 0),
-            expected = { width, height -> Rect(0f, 0f, width - 10f, height.toFloat()) }
+            expected = { width, height -> Rect(0f, 0f, width - 10f, height.toFloat()) },
         ) {
             Modifier.windowInsetsPadding(WindowInsets.navigationBars)
         }
@@ -280,7 +280,7 @@ class WindowInsetsOverrideTest {
         testInsetsPadding(
             WindowInsetsCompat.Type.navigationBars(),
             sentInsets = AndroidXInsets.of(0, 0, 0, 10),
-            expected = { width, height -> Rect(0f, 0f, width.toFloat(), height - 10f) }
+            expected = { width, height -> Rect(0f, 0f, width.toFloat(), height - 10f) },
         ) {
             Modifier.windowInsetsPadding(WindowInsets.navigationBars)
         }
@@ -333,7 +333,7 @@ class WindowInsetsOverrideTest {
                 WindowInsetsCompat.Builder()
                     .setInsets(
                         WindowInsetsCompat.Type.navigationBars(),
-                        AndroidXInsets.of(0, 0, 0, 15)
+                        AndroidXInsets.of(0, 0, 0, 15),
                     )
                     .setInsets(WindowInsetsCompat.Type.statusBars(), AndroidXInsets.of(0, 10, 0, 0))
                     .setInsets(WindowInsetsCompat.Type.ime(), AndroidXInsets.of(0, 0, 0, 5))
@@ -365,7 +365,7 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.systemBars(),
-                            AndroidXInsets.of(10, 11, 12, 13)
+                            AndroidXInsets.of(10, 11, 12, 13),
                         )
                         .build()
                 ) then DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
@@ -402,11 +402,11 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.statusBars(),
-                            AndroidXInsets.of(0, 5, 0, 0)
+                            AndroidXInsets.of(0, 5, 0, 0),
                         )
                         .setInsets(
                             WindowInsetsCompat.Type.systemBars(),
-                            AndroidXInsets.of(10, 11, 12, 13)
+                            AndroidXInsets.of(10, 11, 12, 13),
                         )
                         .build()
                 ) then DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Ltr)
@@ -476,9 +476,9 @@ class WindowInsetsOverrideTest {
                 sentInsets.left.toFloat(),
                 sentInsets.top.toFloat(),
                 width - sentInsets.right.toFloat(),
-                height - sentInsets.bottom.toFloat()
+                height - sentInsets.bottom.toFloat(),
             )
-        }
+        },
     ) {
         testInsetsPadding(type, sentInsets, expected) { modifier }
     }
@@ -494,7 +494,7 @@ class WindowInsetsOverrideTest {
         val coordinates =
             setInsetContent(
                 WindowInsetsCompat.Builder().setInsets(type, sentInsets).build(),
-                modifier
+                modifier,
             )
 
         rule.waitUntil {
@@ -516,7 +516,7 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.systemBars(),
-                            AndroidXInsets.of(10, 11, 12, 13)
+                            AndroidXInsets.of(10, 11, 12, 13),
                         )
                         .build()
                 )
@@ -551,11 +551,11 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.statusBars(),
-                            AndroidXInsets.of(0, 10, 0, 0)
+                            AndroidXInsets.of(0, 10, 0, 0),
                         )
                         .setInsets(
                             WindowInsetsCompat.Type.navigationBars(),
-                            AndroidXInsets.of(0, 0, 0, 11)
+                            AndroidXInsets.of(0, 0, 0, 11),
                         )
                         .setInsets(WindowInsetsCompat.Type.ime(), AndroidXInsets.of(0, 10, 0, 20))
                         .build()
@@ -596,7 +596,7 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.statusBars(),
-                            AndroidXInsets.of(0, 35, 0, 0)
+                            AndroidXInsets.of(0, 35, 0, 0),
                         )
                         .build()
                 )
@@ -647,7 +647,7 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.statusBars(),
-                            AndroidXInsets.of(0, 35, 0, 0)
+                            AndroidXInsets.of(0, 35, 0, 0),
                         )
                         .build()
                 )
@@ -694,7 +694,7 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.statusBars(),
-                            AndroidXInsets.of(0, 20, 0, 0)
+                            AndroidXInsets.of(0, 20, 0, 0),
                         )
                         .build()
                 )
@@ -737,7 +737,7 @@ class WindowInsetsOverrideTest {
                     WindowInsetsCompat.Builder()
                         .setInsets(
                             WindowInsetsCompat.Type.statusBars(),
-                            AndroidXInsets.of(0, 30, 0, 0)
+                            AndroidXInsets.of(0, 30, 0, 0),
                         )
                         .build()
                 )
@@ -759,7 +759,7 @@ class WindowInsetsOverrideTest {
 
     private fun setInsetContent(
         windowInsets: WindowInsetsCompat,
-        insetsModifier: @Composable () -> Modifier
+        insetsModifier: @Composable () -> Modifier,
     ): LayoutCoordinates {
         lateinit var coordinates: LayoutCoordinates
 
@@ -774,10 +774,7 @@ class WindowInsetsOverrideTest {
         return coordinates
     }
 
-    private fun setContent(
-        windowInsets: WindowInsetsCompat,
-        content: @Composable () -> Unit,
-    ) {
+    private fun setContent(windowInsets: WindowInsetsCompat, content: @Composable () -> Unit) {
         rule.setContent {
             DeviceConfigurationOverride(DeviceConfigurationOverride.WindowInsets(windowInsets)) {
                 content()

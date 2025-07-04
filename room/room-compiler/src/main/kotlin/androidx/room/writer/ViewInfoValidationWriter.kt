@@ -38,8 +38,8 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                         RoomTypeNames.VIEW_INFO,
                         "%S, %S",
                         view.viewName,
-                        view.createViewQuery
-                    )
+                        view.createViewQuery,
+                    ),
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
@@ -49,7 +49,7 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                 "%M(%L, %S)",
                 RoomMemberNames.VIEW_INFO_READ,
                 connectionParamName,
-                view.viewName
+                view.viewName,
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -61,8 +61,8 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                         "${view.viewName}(${view.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,
                         "\n Found:\n",
-                        existingVar
-                    )
+                        existingVar,
+                    ),
                 )
             }
             endControlFlow()

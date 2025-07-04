@@ -31,7 +31,7 @@ public class MyDao_Impl(
           _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
           _result = MyEntity(_tmpPk)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
         }
         _result
       } finally {

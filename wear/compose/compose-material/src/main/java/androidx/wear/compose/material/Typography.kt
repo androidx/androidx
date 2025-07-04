@@ -83,14 +83,14 @@ internal constructor(
                 fontWeight = FontWeight.Medium,
                 fontSize = 40.sp,
                 lineHeight = 46.sp,
-                letterSpacing = 0.5.sp
+                letterSpacing = 0.5.sp,
             ),
         display2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 34.sp,
                 lineHeight = 40.sp,
-                letterSpacing = 1.sp
+                letterSpacing = 1.sp,
             ),
         display3: TextStyle =
             DefaultTextStyle.copy(
@@ -104,64 +104,64 @@ internal constructor(
                 fontWeight = FontWeight.Medium,
                 fontSize = 24.sp,
                 lineHeight = 28.sp,
-                letterSpacing = 0.2.sp
+                letterSpacing = 0.2.sp,
             ),
         title2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 20.sp,
                 lineHeight = 24.sp,
-                letterSpacing = 0.2.sp
+                letterSpacing = 0.2.sp,
             ),
         title3: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
                 lineHeight = 20.sp,
-                letterSpacing = 0.2.sp
+                letterSpacing = 0.2.sp,
             ),
         body1: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 16.sp,
                 lineHeight = 20.sp,
-                letterSpacing = 0.18.sp
+                letterSpacing = 0.18.sp,
             ),
         body2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Normal,
                 fontSize = 14.sp,
                 lineHeight = 18.sp,
-                letterSpacing = 0.2.sp
+                letterSpacing = 0.2.sp,
             ),
         button: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
                 lineHeight = 19.sp,
-                letterSpacing = 0.38.sp
+                letterSpacing = 0.38.sp,
             ),
         caption1: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
                 lineHeight = 18.sp,
-                letterSpacing = 0.1.sp
+                letterSpacing = 0.1.sp,
             ),
         caption2: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 12.sp,
                 lineHeight = 16.sp,
-                letterSpacing = 0.1.sp
+                letterSpacing = 0.1.sp,
             ),
         caption3: TextStyle =
             DefaultTextStyle.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 10.sp,
                 lineHeight = 14.sp,
-                letterSpacing = 0.1.sp
-            )
+                letterSpacing = 0.1.sp,
+            ),
     ) : this(
         display1 = display1.withDefaultFontFamily(defaultFontFamily),
         display2 = display2.withDefaultFontFamily(defaultFontFamily),

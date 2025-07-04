@@ -84,7 +84,7 @@ private val excludeTaskNames =
         "bundleAndroidMainAar",
         "bundleAndroidMainLocalLintAar",
         "repackageAndroidMainAar",
-        "repackageAarWithResourceApiAndroidMain"
+        "repackageAarWithResourceApiAndroidMain",
     )
 
 /**
@@ -246,7 +246,7 @@ fun Project.configureSbomPublishing() {
 
                 override fun mapScmForProject(
                     original: ScmInfo,
-                    projectInfo: ProjectInfo
+                    projectInfo: ProjectInfo,
                 ): ScmInfo {
                     val url = getGitRemoteUrl(projectInfo.projectDirectory, supportRootDir)
                     return ScmInfo.from("git", url, headShaProvider.get())
@@ -333,12 +333,12 @@ private fun Project.getRepoPublicUrls(): Map<String, String> {
     return if (ProjectLayoutType.isPlayground(this)) {
         mapOf(
             MAVEN_CENTRAL_REPO_URL to MAVEN_CENTRAL_REPO_URL,
-            AndroidXPlaygroundRootImplPlugin.INTERNAL_PREBUILTS_REPO_URL to GMAVEN_REPO_URL
+            AndroidXPlaygroundRootImplPlugin.INTERNAL_PREBUILTS_REPO_URL to GMAVEN_REPO_URL,
         )
     } else {
         mapOf(
             "file:${getPrebuiltsRoot()}/androidx/external" to MAVEN_CENTRAL_REPO_URL,
-            "file:${getPrebuiltsRoot()}/androidx/internal" to GMAVEN_REPO_URL
+            "file:${getPrebuiltsRoot()}/androidx/internal" to GMAVEN_REPO_URL,
         )
     }
 }

@@ -20,8 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Point;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides support for auto-scrolling a view.

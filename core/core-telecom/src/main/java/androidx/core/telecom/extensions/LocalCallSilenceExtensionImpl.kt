@@ -39,7 +39,7 @@ internal class LocalCallSilenceExtensionImpl(
     coroutineContext: CoroutineContext,
     private val callStateFlow: MutableSharedFlow<CallStateEvent>,
     private val initialSilenceState: Boolean,
-    private val onLocalSilenceUpdate: suspend (Boolean) -> Unit
+    private val onLocalSilenceUpdate: suspend (Boolean) -> Unit,
 ) : LocalCallSilenceExtension {
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var mIsGloballyMuted: Boolean = false
@@ -59,7 +59,7 @@ internal class LocalCallSilenceExtensionImpl(
                 } else if (isInactive() && shouldRemute) {
                     Log.i(
                         TAG,
-                        "MUTING the mic globally to put the device back in its original state"
+                        "MUTING the mic globally to put the device back in its original state",
                     )
                     mAudioManager.setMicrophoneMute(true)
                     shouldRemute = false
@@ -121,7 +121,7 @@ internal class LocalCallSilenceExtensionImpl(
     private fun onCreateLocalSilenceExtension(
         coroutineScope: CoroutineScope,
         remoteActions: Set<Int>,
-        binder: LocalCallSilenceStateListenerRemote
+        binder: LocalCallSilenceStateListenerRemote,
     ) {
         Log.d(TAG, "onCreateLocalSilenceExtension: actions=$remoteActions")
         // Synchronize initial state with remote

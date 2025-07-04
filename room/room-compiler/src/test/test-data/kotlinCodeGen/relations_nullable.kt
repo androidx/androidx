@@ -77,7 +77,7 @@ public class MyDao_Impl(
           }
           _result = SongWithArtist(_tmpSong,_tmpArtist)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <SongWithArtist>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'SongWithArtist'.")
         }
         _result
       } finally {
@@ -114,7 +114,7 @@ public class MyDao_Impl(
           _tmpSongsCollection = _collectionSongs.getValue(_tmpKey_1)
           _result = ArtistAndSongs(_tmpArtist,_tmpSongsCollection)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <ArtistAndSongs>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'ArtistAndSongs'.")
         }
         _result
       } finally {
@@ -151,7 +151,7 @@ public class MyDao_Impl(
           _tmpSongsCollection = _collectionSongs.getValue(_tmpKey_1)
           _result = PlaylistAndSongs(_tmpPlaylist,_tmpSongsCollection)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <PlaylistAndSongs>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'PlaylistAndSongs'.")
         }
         _result
       } finally {
@@ -160,8 +160,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection,
-      _map: MutableMap<Long, Artist?>) {
+  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: MutableMap<Long, Artist?>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
@@ -206,8 +205,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection,
-      _map: MutableMap<Long, MutableList<Song>>) {
+  private fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
@@ -266,8 +264,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection,
-      _map: MutableMap<Long, MutableList<Song>>) {
+  private fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return

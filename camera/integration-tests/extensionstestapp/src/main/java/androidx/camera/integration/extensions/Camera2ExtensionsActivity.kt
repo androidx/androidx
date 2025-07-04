@@ -212,7 +212,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private val streamConfigurationLatency =
         mutableMapOf<String, MutableList<Long>>(
             KEY_CAMERA2_LATENCY to mutableListOf(),
-            KEY_CAMERA_EXTENSION_LATENCY to mutableListOf()
+            KEY_CAMERA_EXTENSION_LATENCY to mutableListOf(),
         )
 
     /** Still capture image reader */
@@ -232,7 +232,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             override fun onSurfaceTextureAvailable(
                 surfaceTexture: SurfaceTexture,
                 with: Int,
-                height: Int
+                height: Int,
             ) {
                 previewSurface = Surface(surfaceTexture)
                 setupAndStartPreview()
@@ -241,7 +241,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             override fun onSurfaceTextureSizeChanged(
                 surfaceTexture: SurfaceTexture,
                 with: Int,
-                height: Int
+                height: Int,
             ) {}
 
             override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture): Boolean {
@@ -280,7 +280,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         object : ExtensionCaptureCallback() {
             override fun onCaptureProcessStarted(
                 session: CameraExtensionSession,
-                request: CaptureRequest
+                request: CaptureRequest,
             ) {
                 handleCaptureStartedEvent()
             }
@@ -296,7 +296,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 session: CameraCaptureSession,
                 request: CaptureRequest,
                 timestamp: Long,
-                frameNumber: Long
+                frameNumber: Long,
             ) {
                 handleCaptureStartedEvent()
             }
@@ -444,7 +444,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 Toast.makeText(
                         this,
                         "Can't find camera supporting Camera2 extensions.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     )
                     .show()
                 switchActivity(CameraExtensionsActivity::class.java.name)
@@ -519,13 +519,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         Toast.makeText(
                             this@Camera2ExtensionsActivity,
                             "Extension is enabled!",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         )
                     } else {
                         Toast.makeText(
                             this@Camera2ExtensionsActivity,
                             "Extension is disabled!",
-                            Toast.LENGTH_SHORT
+                            Toast.LENGTH_SHORT,
                         )
                     }
                 toast?.cancel()
@@ -578,7 +578,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         Log.d(
             TAG,
             "updateExtensionInfo() - camera Id: $currentCameraId, current extension mode: " +
-                "$currentExtensionMode"
+                "$currentExtensionMode",
         )
         extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(currentCameraId)
         supportedExtensionModes.clear()
@@ -687,7 +687,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     private fun determineNextStepOnUiThread(
         state: Int,
         cameraId: String,
-        extensionMode: Int? = null
+        extensionMode: Int? = null,
     ) {
         coroutineScope.launch(Dispatchers.Main) {
             when (state) {
@@ -740,7 +740,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             Toast.makeText(
                     this,
                     "Camera of the other lens facing doesn't support Camera2 extensions.",
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                 )
                 .show()
             return
@@ -793,10 +793,10 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                             Log.d(TAG, "stillImageReader closed. ${stillImageReader?.surface}")
                             imageSaverThread.quitSafely()
                         },
-                        mainExecutor
+                        mainExecutor,
                     )
                 },
-                mainExecutor
+                mainExecutor,
             )
 
         streamConfigurationLatency[KEY_CAMERA2_LATENCY]?.also {
@@ -806,7 +806,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
             Log.d(
                 TAG,
-                "Camera2 Stream Configuration Latency: min=${min}ms max=${max}ms avg=${avg}ms"
+                "Camera2 Stream Configuration Latency: min=${min}ms max=${max}ms avg=${avg}ms",
             )
         }
         var testResultDetails = ""
@@ -837,7 +837,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             currentCameraId,
             currentExtensionMode,
             testResult,
-            testResultDetails
+            testResultDetails,
         )
 
         Log.d(TAG, "onDestroy()--")
@@ -894,7 +894,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 cameraManager,
                 currentCameraId,
                 resources.displayMetrics,
-                if (extensionModeEnabled) currentExtensionMode else EXTENSION_MODE_NONE
+                if (extensionModeEnabled) currentExtensionMode else EXTENSION_MODE_NONE,
             )
 
         if (previewResolution == null) {
@@ -907,7 +907,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
         textureView.surfaceTexture?.setDefaultBufferSize(
             previewResolution.width,
-            previewResolution.height
+            previewResolution.height,
         )
 
         textureView.layoutParams =
@@ -925,7 +925,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             previewResolution,
             windowManager.defaultDisplay.rotation,
             cameraSensorRotationDegrees,
-            lensFacing == CameraCharacteristics.LENS_FACING_BACK
+            lensFacing == CameraCharacteristics.LENS_FACING_BACK,
         )
 
         tapToFocusDetector =
@@ -983,7 +983,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         checkRunOnCameraThread()
         Log.d(
             TAG,
-            "Old state: ${getStateString(currentState)}, new state: ${getStateString(state)}"
+            "Old state: ${getStateString(currentState)}, new state: ${getStateString(state)}",
         )
         currentState = state
     }
@@ -1003,10 +1003,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
     /** Opens and returns the camera (as the result of the suspend coroutine) */
     @SuppressLint("MissingPermission")
-    fun openCamera(
-        manager: CameraManager,
-        cameraId: String,
-    ) =
+    fun openCamera(manager: CameraManager, cameraId: String) =
         coroutineScope.async(cameraTaskDispatcher) {
             Log.d(TAG, "openCamera()++: $cameraId")
             if (getCurrentState() != STATE_CAMERA_CLOSED) {
@@ -1059,7 +1056,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         setCurrentState(STATE_CAMERA_CLOSING)
                         closeCamera()
                     }
-                }
+                },
             )
             Log.d(TAG, "openCamera()--: $cameraId")
         }
@@ -1121,7 +1118,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         handleCaptureSessionOnConfiguredEvent(
                             session,
                             session.device.id,
-                            EXTENSION_MODE_NONE
+                            EXTENSION_MODE_NONE,
                         )
                     }
 
@@ -1129,7 +1126,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         Log.e(TAG, "CaptureSession - onConfigureFailed: $session")
                         handleCaptureSessionOnConfigureFailedEvent()
                     }
-                }
+                },
             )
         cameraDevice!!.createCaptureSession(sessionConfiguration)
         Log.d(TAG, "createCameraCaptureSession--")
@@ -1138,7 +1135,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     /** Creates extension mode CameraExtensionSession */
     private fun createCameraExtensionSession(
         outputConfigs: ArrayList<OutputConfiguration>,
-        extensionMode: Int
+        extensionMode: Int,
     ) {
         checkRunOnCameraThread()
         Log.d(TAG, "createCameraExtensionSession++, extensionMode=$extensionMode")
@@ -1158,7 +1155,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         handleCaptureSessionOnConfiguredEvent(
                             session,
                             cameraDevice!!.id,
-                            extensionMode
+                            extensionMode,
                         )
                     }
 
@@ -1166,7 +1163,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         Log.e(TAG, "Extension CaptureSession - onConfigureFailed: $session")
                         handleCaptureSessionOnConfigureFailedEvent()
                     }
-                }
+                },
             )
         Log.d(TAG, "createCameraExtensionSession########")
         cameraDevice!!.createExtensionSession(extensionConfiguration)
@@ -1260,13 +1257,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 (cameraCaptureSession as CameraCaptureSession).setRepeatingRequest(
                     captureRequest ?: getCaptureRequestBuilder().build(),
                     comboCaptureCallbackNormalMode,
-                    normalModeCaptureHandler
+                    normalModeCaptureHandler,
                 )
             } else {
                 (cameraCaptureSession as CameraExtensionSession).setRepeatingRequest(
                     captureRequest ?: getCaptureRequestBuilder().build(),
                     cameraTaskDispatcher.asExecutor(),
-                    comboCaptureCallbackExtensionMode
+                    comboCaptureCallbackExtensionMode,
                 )
             }
         }
@@ -1303,7 +1300,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             pickStillImageResolution(
                 cameraManager.getCameraCharacteristics(cameraId),
                 extensionCharacteristics,
-                extensionMode
+                extensionMode,
             )
 
         Log.d(TAG, "Setup image reader - size: $size, format: $format")
@@ -1325,7 +1322,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 calculateRelativeImageRotationDegrees(
                     (surfaceRotationToRotationDegrees(display!!.rotation)),
                     cameraSensorRotationDegrees,
-                    lensFacing == CameraCharacteristics.LENS_FACING_BACK
+                    lensFacing == CameraCharacteristics.LENS_FACING_BACK,
                 )
         } catch (e: Exception) {
             Log.e(TAG, e.toString())
@@ -1358,13 +1355,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         if (imageUri == null) {
                             result.putExtra(
                                 INTENT_EXTRA_KEY_ERROR_CODE,
-                                ERROR_CODE_SAVE_IMAGE_FAILED
+                                ERROR_CODE_SAVE_IMAGE_FAILED,
                             )
                         } else {
                             result.putExtra(INTENT_EXTRA_KEY_IMAGE_URI, imageUri)
                             result.putExtra(
                                 INTENT_EXTRA_KEY_IMAGE_ROTATION_DEGREES,
-                                rotationDegrees
+                                rotationDegrees,
                             )
                         }
                         finish()
@@ -1373,7 +1370,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                     }
                 }
             },
-            imageSaverHandler
+            imageSaverHandler,
         )
         submitStillImageCaptureRequest(takePictureCompleter!!)
     }
@@ -1383,7 +1380,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         imageReader: ImageReader,
         fileName: String,
         suffix: String,
-        rotationDegrees: Int
+        rotationDegrees: Int,
     ): Uri? {
         var uri: Uri?
 
@@ -1401,7 +1398,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                             suffix,
                             "Pictures/ExtensionsPictures",
                             contentResolver,
-                            rotationDegrees
+                            rotationDegrees,
                         )
                     }
             } finally {
@@ -1429,7 +1426,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         coroutineScope.launch(cameraTaskDispatcher) {
             Preconditions.checkState(
                 cameraCaptureSession != null,
-                "take picture button is only enabled when session is configured successfully"
+                "take picture button is only enabled when session is configured successfully",
             )
 
             val captureBuilder =
@@ -1443,13 +1440,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                         override fun onCaptureFailed(
                             session: CameraCaptureSession,
                             request: CaptureRequest,
-                            failure: CaptureFailure
+                            failure: CaptureFailure,
                         ) {
                             takePictureCompleter?.set(null)
                             Log.e(TAG, "Failed to take picture.")
                         }
                     },
-                    normalModeCaptureHandler
+                    normalModeCaptureHandler,
                 )
             } else {
                 (cameraCaptureSession as CameraExtensionSession).capture(
@@ -1458,7 +1455,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                     object : ExtensionCaptureCallback() {
                         override fun onCaptureFailed(
                             session: CameraExtensionSession,
-                            request: CaptureRequest
+                            request: CaptureRequest,
                         ) {
                             takePictureCompleter?.set(null)
                             Log.e(TAG, "Failed to take picture.")
@@ -1466,11 +1463,11 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
                         override fun onCaptureSequenceCompleted(
                             session: CameraExtensionSession,
-                            sequenceId: Int
+                            sequenceId: Int,
                         ) {
                             Log.v(TAG, "onCaptureProcessSequenceCompleted: $sequenceId")
                         }
-                    }
+                    },
                 )
             }
         }
@@ -1621,7 +1618,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         zoomRatio =
             (zoomRatio * scaleFactor).coerceIn(
                 ZoomUtil.minZoom(cameraManager.getCameraCharacteristics(currentCameraId)),
-                ZoomUtil.maxZoom(cameraManager.getCameraCharacteristics(currentCameraId))
+                ZoomUtil.maxZoom(cameraManager.getCameraCharacteristics(currentCameraId)),
             )
         Log.d(TAG, "onScale: $zoomRatio")
         setRepeatingRequest()
@@ -1645,7 +1642,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         fun hasZoomSupport(
             cameraId: String,
             cameraManager: CameraManager,
-            extensionMode: Int
+            extensionMode: Int,
         ): Boolean =
             cameraManager
                 .getCameraExtensionCharacteristics(cameraId)
@@ -1688,14 +1685,14 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         override fun onCaptureStarted(
             session: CameraExtensionSession,
             request: CaptureRequest,
-            timestamp: Long
+            timestamp: Long,
         ) {
             captureCallbacks.forEach { it.onCaptureStarted(session, request, timestamp) }
         }
 
         override fun onCaptureProcessStarted(
             session: CameraExtensionSession,
-            request: CaptureRequest
+            request: CaptureRequest,
         ) {
             captureCallbacks.forEach { it.onCaptureProcessStarted(session, request) }
         }
@@ -1704,7 +1701,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         override fun onCaptureResultAvailable(
             session: CameraExtensionSession,
             request: CaptureRequest,
-            result: TotalCaptureResult
+            result: TotalCaptureResult,
         ) {
             captureCallbacks.forEach { it.onCaptureResultAvailable(session, request, result) }
         }
@@ -1735,7 +1732,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
             session: CameraCaptureSession,
             request: CaptureRequest,
             timestamp: Long,
-            frameNumber: Long
+            frameNumber: Long,
         ) {
             captureCallbacks.forEach {
                 it.onCaptureStarted(session, request, timestamp, frameNumber)
@@ -1745,7 +1742,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         override fun onCaptureCompleted(
             session: CameraCaptureSession,
             request: CaptureRequest,
-            result: TotalCaptureResult
+            result: TotalCaptureResult,
         ) {
             captureCallbacks.forEach { it.onCaptureCompleted(session, request, result) }
         }

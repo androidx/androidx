@@ -64,15 +64,15 @@ class BenchmarkDataTest {
             assertEquals(
                 "startup[startup=COLD,compilation=Partial(" +
                     "baselineProfile=UseIfAvailable,iterations=0)]",
-                name
+                name,
             )
             assertEquals(
                 mapOf( // Note: parsing error in source data!
                     "compilation" to "Partial(baselineProfile=UseIfAvailable",
                     "startup" to "COLD",
-                    "iterations" to "0)"
+                    "iterations" to "0)",
                 ),
-                params
+                params,
             )
             assertEquals(2, metrics["methodsJitCompiled"]!!.runs.size)
             assertEquals(2, metrics["timeToInitialDisplayMs"]!!.runs.size)
@@ -101,30 +101,40 @@ class BenchmarkDataTest {
                         BenchmarkData.TestResult.ProfilerOutput(
                             BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
                             "duplicate label",
-                            "filename1.trace"
+                            "filename1.trace",
                         ),
                         BenchmarkData.TestResult.ProfilerOutput(
                             BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
                             "duplicate label",
-                            "filename2.trace"
-                        )
-                    )
+                            "filename2.trace",
+                        ),
+                    ),
             )
         }
     }
 
     @Test
     fun osCodenameAbbreviated() {
+        // tests the abbreviated codename displayed in json for (together with SDK_INT) identifying
+        // the build, e.g. in CI OS version tagging
         BenchmarkData.Context().osCodenameAbbreviated.run {
-            assertEquals(1, length, "expected 1 char codename, observed $this")
-            assertContains('A'..'Z', this[0])
-            if (Build.VERSION.SDK_INT != 30) {
-                // check we're not incorrectly parsing R from "REL"
-                assertNotEquals("R", this)
-            }
-            if (Build.VERSION.SDK_INT !in listOf(23, 35)) {
-                // check we're not incorrectly parsing M from "MAIN"
-                assertNotEquals("M", this)
+            if (Build.VERSION.SDK_INT >= 35 && Build.VERSION.CODENAME == "REL") {
+                // Newer REL-eased versions of the platform don't have a discoverable codename
+                // letter. Rather than trying to find one, we just display "REL"
+                assertEquals("REL", this)
+            } else {
+                // single letter case
+                assertEquals(1, length, "expected 1 char codename, observed $this")
+                assertContains('A'..'Z', this[0])
+
+                if (Build.VERSION.SDK_INT != 30) {
+                    // check we're not incorrectly parsing R from "REL"
+                    assertNotEquals("R", this)
+                }
+                if (Build.VERSION.SDK_INT !in listOf(23)) {
+                    // check we're not incorrectly parsing M from "MAIN"
+                    assertNotEquals("M", this)
+                }
             }
         }
     }

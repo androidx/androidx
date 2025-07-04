@@ -63,7 +63,7 @@ class JankAggregatorActivity : AppCompatActivity() {
         override fun onJankReport(
             reason: String,
             totalFrames: Int,
-            jankFrameData: List<FrameData>
+            jankFrameData: List<FrameData>,
         ) {
             println(
                 "Jank Report ($reason), totalFrames = $totalFrames, " +

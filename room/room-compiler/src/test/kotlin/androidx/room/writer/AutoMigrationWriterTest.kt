@@ -21,9 +21,9 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runJavaProcessorTest
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.processor.Context
-import androidx.room.runKspTestWithK1
 import androidx.room.util.SchemaDiffResult
 import androidx.room.vo.AutoMigration
 import loadTestSource
@@ -44,7 +44,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
         public abstract class MyDatabase extends RoomDatabase {
         }
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     private val kotlinDatabaseSource =
@@ -57,7 +57,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
         abstract class MyDatabase : RoomDatabase() {
         }
         """
-                .trimIndent()
+                .trimIndent(),
         )
 
     @Test
@@ -73,7 +73,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 import androidx.sqlite.db.SupportSQLiteDatabase;
                 public class ValidAutoMigrationWithDefault implements AutoMigrationSpec {}
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 CodeLanguage.KOTLIN ->
                     Source.kotlin(
@@ -84,11 +84,11 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 import androidx.sqlite.db.SupportSQLiteDatabase
                 class ValidAutoMigrationWithDefault : AutoMigrationSpec {}
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
             }
 
-        runProcessorTestWithK1(listOf(specSource)) { invocation ->
+        runProcessorTest(sources = listOf(specSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn =
                 AutoMigration(
                     from = 1,
@@ -99,7 +99,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                                 listOf(
                                     AutoMigration.AddedColumn(
                                         "Song",
-                                        FieldBundle("artistId", "artistId", "INTEGER", true, "0")
+                                        FieldBundle("artistId", "artistId", "INTEGER", true, "0"),
                                     )
                                 ),
                             deletedColumns = listOf(),
@@ -108,13 +108,13 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                             renamedTables = mapOf(),
                             deletedTables = listOf(),
                             fromViews = emptyList(),
-                            toViews = emptyList()
+                            toViews = emptyList(),
                         ),
                     specElement =
                         invocation.processingEnv.requireTypeElement(
                             "foo.bar.ValidAutoMigrationWithDefault"
                         ),
-                    isSpecProvided = false
+                    isSpecProvided = false,
                 )
             AutoMigrationWriter(
                     autoMigration = autoMigrationResultWithNewAddedColumn,
@@ -123,8 +123,8 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                         TypeWriter.WriterContext(
                             codeLanguage = codeLanguage,
                             javaLambdaSyntaxAvailable = false,
-                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                        )
+                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                        ),
                 )
                 .write(invocation.processingEnv)
 
@@ -137,7 +137,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/$expectedFile",
-                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl"
+                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl",
                     )
                 )
             }
@@ -157,7 +157,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 import androidx.sqlite.db.SupportSQLiteDatabase;
                 public class ValidAutoMigrationWithoutDefault implements AutoMigrationSpec {}
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 CodeLanguage.KOTLIN ->
                     Source.kotlin(
@@ -168,11 +168,11 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 import androidx.sqlite.db.SupportSQLiteDatabase
                 class ValidAutoMigrationWithoutDefault : AutoMigrationSpec {}
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
             }
 
-        runProcessorTestWithK1(listOf(specSource)) { invocation ->
+        runProcessorTest(listOf(specSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn =
                 AutoMigration(
                     from = 1,
@@ -183,7 +183,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                                 listOf(
                                     AutoMigration.AddedColumn(
                                         "Song",
-                                        FieldBundle("artistId", "artistId", "INTEGER", false, "")
+                                        FieldBundle("artistId", "artistId", "INTEGER", false, ""),
                                     )
                                 ),
                             deletedColumns = listOf(),
@@ -192,13 +192,13 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                             renamedTables = mapOf(),
                             deletedTables = listOf(),
                             fromViews = emptyList(),
-                            toViews = emptyList()
+                            toViews = emptyList(),
                         ),
                     specElement =
                         invocation.processingEnv.requireTypeElement(
                             "foo.bar.ValidAutoMigrationWithoutDefault"
                         ),
-                    isSpecProvided = false
+                    isSpecProvided = false,
                 )
             AutoMigrationWriter(
                     autoMigration = autoMigrationResultWithNewAddedColumn,
@@ -207,8 +207,8 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                         TypeWriter.WriterContext(
                             codeLanguage = codeLanguage,
                             javaLambdaSyntaxAvailable = false,
-                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                        )
+                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                        ),
                 )
                 .write(invocation.processingEnv)
 
@@ -221,7 +221,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/$expectedFile",
-                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl"
+                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl",
                     )
                 )
             }
@@ -246,7 +246,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                     public AutoMigrationWithProvidedSpec(String data) {}
                 }
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 CodeLanguage.KOTLIN ->
                     Source.kotlin(
@@ -260,11 +260,11 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 @ProvidedAutoMigrationSpec
                 class AutoMigrationWithProvidedSpec(val data: String) : AutoMigrationSpec {}
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
             }
 
-        runProcessorTestWithK1(listOf(specSource)) { invocation ->
+        runProcessorTest(listOf(specSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn =
                 AutoMigration(
                     from = 1,
@@ -275,7 +275,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                                 listOf(
                                     AutoMigration.AddedColumn(
                                         "Song",
-                                        FieldBundle("artistId", "artistId", "INTEGER", false, "")
+                                        FieldBundle("artistId", "artistId", "INTEGER", false, ""),
                                     )
                                 ),
                             deletedColumns = listOf(),
@@ -284,13 +284,13 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                             renamedTables = mapOf(),
                             deletedTables = listOf(),
                             fromViews = emptyList(),
-                            toViews = emptyList()
+                            toViews = emptyList(),
                         ),
                     specElement =
                         invocation.processingEnv.requireTypeElement(
                             "foo.bar.AutoMigrationWithProvidedSpec"
                         ),
-                    isSpecProvided = true
+                    isSpecProvided = true,
                 )
             AutoMigrationWriter(
                     autoMigration = autoMigrationResultWithNewAddedColumn,
@@ -299,8 +299,8 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                         TypeWriter.WriterContext(
                             codeLanguage = codeLanguage,
                             javaLambdaSyntaxAvailable = false,
-                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                        )
+                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                        ),
                 )
                 .write(invocation.processingEnv)
 
@@ -313,28 +313,29 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                 generatedSource(
                     loadTestSource(
                         "autoMigrationWriter/output/$expectedFile",
-                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl"
+                        "foo.bar.MyDatabase_AutoMigration_1_2_Impl",
                     )
                 )
             }
         }
     }
 
-    private fun runProcessorTestWithK1(sources: List<Source>, handler: (XTestInvocation) -> Unit) {
+    private fun runProcessorTest(sources: List<Source>, handler: (XTestInvocation) -> Unit) {
         when (codeLanguage) {
             CodeLanguage.JAVA ->
                 runJavaProcessorTest(
                     sources = sources + javaDatabaseSource,
                     options =
                         mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
-                    handler = handler
+                    handler = handler,
                 )
             CodeLanguage.KOTLIN ->
-                runKspTestWithK1(
+                runKspTest(
                     sources = sources + kotlinDatabaseSource,
                     options =
                         mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
-                    handler = handler
+                    kotlincArguments = listOf("-jvm-target=11"),
+                    handler = handler,
                 )
         }
     }

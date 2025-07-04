@@ -95,7 +95,7 @@ private fun ViewPortBasedSnappingDemo() {
 private fun RowSnappingMainLayout(
     snapFlingBehavior: FlingBehavior,
     scrollState: ScrollState,
-    onLayoutSizeChanged: (IntSize) -> Unit
+    onLayoutSizeChanged: (IntSize) -> Unit,
 ) {
     Box(
         modifier =
@@ -103,7 +103,7 @@ private fun RowSnappingMainLayout(
                 drawContent()
                 drawAnchor(CenterAnchor)
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Row(
             modifier =
@@ -129,7 +129,7 @@ private fun RowSnappingItem(position: Int) {
                     drawContent()
                     drawAnchor(CenterAnchor)
                 },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = position.toString(), fontSize = 40.sp)
     }
@@ -138,14 +138,14 @@ private fun RowSnappingItem(position: Int) {
 @Composable
 private fun rememberRowSnapLayoutInfoProvider(
     scrollState: ScrollState,
-    layoutSize: () -> Float
+    layoutSize: () -> Float,
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
     return remember(scrollState, layoutSize) {
         SnapLayoutInfoProvider(
             scrollState = scrollState,
             itemSize = { with(density) { RowItemSize.toPx() } },
-            layoutSize = layoutSize
+            layoutSize = layoutSize,
         )
     }
 }
@@ -153,14 +153,14 @@ private fun rememberRowSnapLayoutInfoProvider(
 @Composable
 private fun rememberNextItemSnappingLayoutInfoProvider(
     scrollState: ScrollState,
-    layoutSize: () -> Float
+    layoutSize: () -> Float,
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
     val basedSnappingLayoutInfoProvider =
         SnapLayoutInfoProvider(
             scrollState = scrollState,
             itemSize = { with(density) { RowItemSize.toPx() } },
-            layoutSize = layoutSize
+            layoutSize = layoutSize,
         )
     return remember(scrollState, layoutSize) {
         object : SnapLayoutInfoProvider by basedSnappingLayoutInfoProvider {
@@ -172,7 +172,7 @@ private fun rememberNextItemSnappingLayoutInfoProvider(
 @Composable
 private fun rememberViewPortSnapLayoutInfoProvider(
     scrollState: ScrollState,
-    layoutSize: () -> Float
+    layoutSize: () -> Float,
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
     val decayAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
@@ -184,7 +184,7 @@ private fun rememberViewPortSnapLayoutInfoProvider(
             baseSnapLayoutInfoProvider,
             decayAnimationSpec,
             viewPortStep = layoutSize,
-            itemSize = { with(density) { RowItemSize.toPx() } }
+            itemSize = { with(density) { RowItemSize.toPx() } },
         )
     }
 }
@@ -192,14 +192,14 @@ private fun rememberViewPortSnapLayoutInfoProvider(
 @Composable
 private fun rememberScrollStateLayoutInfoProvider(
     scrollState: ScrollState,
-    layoutSize: () -> Float
+    layoutSize: () -> Float,
 ): SnapLayoutInfoProvider {
     val density = LocalDensity.current
     return remember(scrollState, layoutSize, density) {
         SnapLayoutInfoProvider(
             scrollState = scrollState,
             itemSize = { with(density) { RowItemSize.toPx() } },
-            layoutSize = layoutSize
+            layoutSize = layoutSize,
         )
     }
 }

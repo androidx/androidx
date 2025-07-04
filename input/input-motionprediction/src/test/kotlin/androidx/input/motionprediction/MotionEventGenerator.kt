@@ -30,7 +30,7 @@ class MotionEventGenerator(
     constructor(
         firstXGenerator: (Long) -> Float,
         firstYGenerator: (Long) -> Float,
-        firstPressureGenerator: ((Long) -> Float)?
+        firstPressureGenerator: ((Long) -> Float)?,
     ) : this(firstXGenerator, firstYGenerator, firstPressureGenerator, null, null, null)
 
     private val downEventTime: Long = System.currentTimeMillis()

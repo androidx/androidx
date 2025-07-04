@@ -22,7 +22,6 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.persisten
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.requirePrecondition
-import kotlin.jvm.JvmName
 
 /**
  * An implementation of [MutableList] that can be observed and snapshot. This is the result type
@@ -33,18 +32,14 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateListOf
  */
 @Stable
-class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T>) :
+public expect class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T>) :
     StateObject, MutableList<T>, RandomAccess {
-    constructor() : this(persistentListOf())
+    public constructor()
 
-    override var firstStateRecord: StateRecord = stateRecordWith(persistentList)
+    override var firstStateRecord: StateRecord
         private set
 
-    override fun prependStateRecord(value: StateRecord) {
-        value.next = firstStateRecord
-        @Suppress("UNCHECKED_CAST")
-        firstStateRecord = value as StateListStateRecord<T>
-    }
+    override fun prependStateRecord(value: StateRecord)
 
     /**
      * Return a list containing all the elements of this list.
@@ -61,208 +56,163 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
      * It is recommended to use [toList] when using returning the value of this list from
      * [androidx.compose.runtime.snapshotFlow].
      */
-    fun toList(): List<T> = readable.list
-
-    internal val structure: Int
-        get() = withCurrent { structuralChange }
-
-    @Suppress("UNCHECKED_CAST")
-    internal val readable: StateListStateRecord<T>
-        get() = (firstStateRecord as StateListStateRecord<T>).readable(this)
-
-    /** This is an internal implementation class of [SnapshotStateList]. Do not use. */
-    internal class StateListStateRecord<T>
-    internal constructor(snapshotId: SnapshotId, internal var list: PersistentList<T>) :
-        StateRecord(snapshotId) {
-        internal var modification = 0
-        internal var structuralChange = 0
-
-        override fun assign(value: StateRecord) {
-            synchronized(sync) {
-                @Suppress("UNCHECKED_CAST")
-                list = (value as StateListStateRecord<T>).list
-                modification = value.modification
-                structuralChange = value.structuralChange
-            }
-        }
-
-        override fun create(): StateRecord = create(currentSnapshot().snapshotId)
-
-        override fun create(snapshotId: SnapshotId): StateRecord =
-            StateListStateRecord(snapshotId, list)
-    }
+    public fun toList(): List<T>
 
     override val size: Int
-        get() = readable.list.size
 
-    override fun contains(element: T) = readable.list.contains(element)
+    override fun contains(element: T): Boolean
 
-    override fun containsAll(elements: Collection<T>) = readable.list.containsAll(elements)
+    override fun containsAll(elements: Collection<T>): Boolean
 
-    override fun get(index: Int) = readable.list[index]
+    override fun get(index: Int): T
 
-    override fun indexOf(element: T): Int = readable.list.indexOf(element)
+    override fun indexOf(element: T): Int
 
-    override fun isEmpty() = readable.list.isEmpty()
+    override fun isEmpty(): Boolean
 
-    override fun iterator(): MutableIterator<T> = listIterator()
+    override fun iterator(): MutableIterator<T>
 
-    override fun lastIndexOf(element: T) = readable.list.lastIndexOf(element)
+    override fun lastIndexOf(element: T): Int
 
-    override fun listIterator(): MutableListIterator<T> = StateListIterator(this, 0)
+    override fun listIterator(): MutableListIterator<T>
 
-    override fun listIterator(index: Int): MutableListIterator<T> = StateListIterator(this, index)
+    override fun listIterator(index: Int): MutableListIterator<T>
 
-    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        requirePrecondition(fromIndex in 0..toIndex && toIndex <= size) {
-            "fromIndex or toIndex are out of bounds"
-        }
-        return SubList(this, fromIndex, toIndex)
-    }
+    override fun subList(fromIndex: Int, toIndex: Int): MutableList<T>
 
-    @Suppress("UNCHECKED_CAST")
-    override fun toString(): String =
-        (firstStateRecord as StateListStateRecord<T>).withCurrent {
-            "SnapshotStateList(value=${it.list})@${hashCode()}"
-        }
+    override fun add(element: T): Boolean
 
-    override fun add(element: T) = conditionalUpdate { it.add(element) }
+    override fun add(index: Int, element: T)
 
-    override fun add(index: Int, element: T) = update { it.add(index, element) }
+    override fun addAll(elements: Collection<T>): Boolean
 
-    override fun addAll(index: Int, elements: Collection<T>) = mutateBoolean {
-        it.addAll(index, elements)
-    }
+    override fun addAll(index: Int, elements: Collection<T>): Boolean
 
-    override fun addAll(elements: Collection<T>) = conditionalUpdate { it.addAll(elements) }
+    override fun clear()
 
-    override fun clear() {
-        writable {
-            synchronized(sync) {
-                list = persistentListOf()
-                modification++
-                structuralChange++
-            }
-        }
-    }
+    override fun remove(element: T): Boolean
 
-    override fun remove(element: T) = conditionalUpdate { it.remove(element) }
+    override fun removeAll(elements: Collection<T>): Boolean
 
-    override fun removeAll(elements: Collection<T>) = conditionalUpdate { it.removeAll(elements) }
+    override fun removeAt(index: Int): T
 
-    override fun removeAt(index: Int): T = get(index).also { update { it.removeAt(index) } }
+    override fun retainAll(elements: Collection<T>): Boolean
 
-    override fun retainAll(elements: Collection<T>) = mutateBoolean { it.retainAll(elements) }
+    override fun set(index: Int, element: T): T
 
-    override fun set(index: Int, element: T): T =
-        get(index).also { update(structural = false) { it.set(index, element) } }
+    public fun removeRange(fromIndex: Int, toIndex: Int)
 
-    fun removeRange(fromIndex: Int, toIndex: Int) {
-        mutate { it.subList(fromIndex, toIndex).clear() }
-    }
+    internal fun retainAllInRange(elements: Collection<T>, start: Int, end: Int): Int
+}
 
-    internal fun retainAllInRange(elements: Collection<T>, start: Int, end: Int): Int {
-        val startSize = size
-        mutate<Unit> { it.subList(start, end).retainAll(elements) }
-        return startSize - size
-    }
+internal inline fun <R, T> SnapshotStateList<T>.writable(
+    block: StateListStateRecord<T>.() -> R
+): R =
+    @Suppress("UNCHECKED_CAST") (firstStateRecord as StateListStateRecord<T>).writable(this, block)
 
-    /**
-     * An internal function used by the debugger to display the value of the current list without
-     * triggering read observers.
-     */
-    @Suppress("unused")
-    internal val debuggerDisplayValue: List<T>
-        @JvmName("getDebuggerDisplayValue") get() = withCurrent { list }
+internal inline fun <R, T> SnapshotStateList<T>.withCurrent(
+    block: StateListStateRecord<T>.() -> R
+): R = @Suppress("UNCHECKED_CAST") (firstStateRecord as StateListStateRecord<T>).withCurrent(block)
 
-    private inline fun <R> writable(block: StateListStateRecord<T>.() -> R): R =
-        @Suppress("UNCHECKED_CAST")
-        (firstStateRecord as StateListStateRecord<T>).writable(this, block)
+internal fun <T> SnapshotStateList<T>.mutateBoolean(block: (MutableList<T>) -> Boolean): Boolean =
+    mutate(block)
 
-    private inline fun <R> withCurrent(block: StateListStateRecord<T>.() -> R): R =
-        @Suppress("UNCHECKED_CAST") (firstStateRecord as StateListStateRecord<T>).withCurrent(block)
-
-    private fun mutateBoolean(block: (MutableList<T>) -> Boolean): Boolean = mutate(block)
-
-    private inline fun <R> mutate(block: (MutableList<T>) -> R): R {
-        var result: R
-        while (true) {
-            var oldList: PersistentList<T>? = null
-            var currentModification = 0
-            synchronized(sync) {
-                val current = withCurrent { this }
-                currentModification = current.modification
-                oldList = current.list
-            }
-            val builder = oldList!!.builder()
-            result = block(builder)
-            val newList = builder.build()
-            if (
-                newList == oldList ||
-                    writable { attemptUpdate(currentModification, newList, structural = true) }
-            )
-                break
-        }
-        return result
-    }
-
-    private inline fun update(
-        structural: Boolean = true,
-        block: (PersistentList<T>) -> PersistentList<T>
-    ) {
-        conditionalUpdate(structural, block)
-    }
-
-    private inline fun conditionalUpdate(
-        structural: Boolean = true,
-        block: (PersistentList<T>) -> PersistentList<T>
-    ) = run {
-        val result: Boolean
-        while (true) {
-            var oldList: PersistentList<T>? = null
-            var currentModification = 0
-            synchronized(sync) {
-                val current = withCurrent { this }
-                currentModification = current.modification
-                oldList = current.list
-            }
-            val newList = block(oldList!!)
-            if (newList == oldList) {
-                result = false
-                break
-            }
-            if (writable { attemptUpdate(currentModification, newList, structural) }) {
-                result = true
-                break
-            }
-        }
-        result
-    }
-
-    // NOTE: do not inline this method to avoid class verification failures, see b/369909868
-    private fun StateListStateRecord<T>.attemptUpdate(
-        currentModification: Int,
-        newList: PersistentList<T>,
-        structural: Boolean
-    ): Boolean =
+internal inline fun <R, T> SnapshotStateList<T>.mutate(block: (MutableList<T>) -> R): R {
+    var result: R
+    while (true) {
+        var oldList: PersistentList<T>? = null
+        var currentModification = 0
         synchronized(sync) {
-            if (modification == currentModification) {
-                list = newList
-                if (structural) structuralChange++
-                modification++
-                true
-            } else false
+            val current = withCurrent { this }
+            currentModification = current.modification
+            oldList = current.list
         }
+        val builder = oldList!!.builder()
+        result = block(builder)
+        val newList = builder.build()
+        if (
+            newList == oldList ||
+                writable { attemptUpdate(currentModification, newList, structural = true) }
+        )
+            break
+    }
+    return result
+}
 
-    private fun stateRecordWith(list: PersistentList<T>): StateRecord {
-        val snapshot = currentSnapshot()
-        return StateListStateRecord(snapshot.snapshotId, list).also {
-            if (snapshot !is GlobalSnapshot) {
-                it.next = StateListStateRecord(Snapshot.PreexistingSnapshotId.toSnapshotId(), list)
-            }
+internal inline fun <T> SnapshotStateList<T>.update(
+    structural: Boolean = true,
+    block: (PersistentList<T>) -> PersistentList<T>,
+) {
+    conditionalUpdate(structural, block)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun <T> SnapshotStateList<T>.clearImpl() {
+    writable {
+        synchronized(sync) {
+            list = persistentListOf()
+            modification++
+            structuralChange++
         }
     }
 }
+
+internal inline fun <T> SnapshotStateList<T>.conditionalUpdate(
+    structural: Boolean = true,
+    block: (PersistentList<T>) -> PersistentList<T>,
+) = run {
+    val result: Boolean
+    while (true) {
+        var oldList: PersistentList<T>? = null
+        var currentModification = 0
+        synchronized(sync) {
+            val current = withCurrent { this }
+            currentModification = current.modification
+            oldList = current.list
+        }
+        val newList = block(oldList!!)
+        if (newList == oldList) {
+            result = false
+            break
+        }
+        if (writable { attemptUpdate(currentModification, newList, structural) }) {
+            result = true
+            break
+        }
+    }
+    result
+}
+
+// NOTE: do not inline this method to avoid class verification failures, see b/369909868
+internal fun <T> StateListStateRecord<T>.attemptUpdate(
+    currentModification: Int,
+    newList: PersistentList<T>,
+    structural: Boolean,
+): Boolean =
+    synchronized(sync) {
+        if (modification == currentModification) {
+            list = newList
+            if (structural) structuralChange++
+            modification++
+            true
+        } else false
+    }
+
+internal fun <T> SnapshotStateList<T>.stateRecordWith(list: PersistentList<T>): StateRecord {
+    val snapshot = currentSnapshot()
+    return StateListStateRecord(snapshot.snapshotId, list).also {
+        if (snapshot !is GlobalSnapshot) {
+            it.next = StateListStateRecord(Snapshot.PreexistingSnapshotId.toSnapshotId(), list)
+        }
+    }
+}
+
+internal val <T> SnapshotStateList<T>.structure: Int
+    get() = withCurrent { structuralChange }
+
+@Suppress("UNCHECKED_CAST")
+internal val <T> SnapshotStateList<T>.readable: StateListStateRecord<T>
+    get() = (firstStateRecord as StateListStateRecord<T>).readable(this)
 
 /**
  * Creates a new snapshot state list with the specified [size], where each element is calculated by
@@ -271,7 +221,7 @@ class SnapshotStateList<T> internal constructor(persistentList: PersistentList<T
  * The function [init] is called for each list element sequentially starting from the first one. It
  * should return the value for a list element given its index.
  */
-fun <T> SnapshotStateList(size: Int, init: (index: Int) -> T): SnapshotStateList<T> {
+public fun <T> SnapshotStateList(size: Int, init: (index: Int) -> T): SnapshotStateList<T> {
     if (size == 0) {
         return SnapshotStateList()
     }
@@ -281,6 +231,28 @@ fun <T> SnapshotStateList(size: Int, init: (index: Int) -> T): SnapshotStateList
         builder.add(init(i))
     }
     return SnapshotStateList(builder.build())
+}
+
+/** This is an internal implementation class of [SnapshotStateList]. Do not use. */
+internal class StateListStateRecord<T>
+internal constructor(snapshotId: SnapshotId, internal var list: PersistentList<T>) :
+    StateRecord(snapshotId) {
+    internal var modification = 0
+    internal var structuralChange = 0
+
+    override fun assign(value: StateRecord) {
+        synchronized(sync) {
+            @Suppress("UNCHECKED_CAST")
+            list = (value as StateListStateRecord<T>).list
+            modification = value.modification
+            structuralChange = value.structuralChange
+        }
+    }
+
+    override fun create(): StateRecord = create(currentSnapshot().snapshotId)
+
+    override fun create(snapshotId: SnapshotId): StateRecord =
+        StateListStateRecord(snapshotId, list)
 }
 
 /**
@@ -312,7 +284,7 @@ private fun invalidIteratorSet(): Nothing =
             "or immediately after a call to add() or remove()"
     )
 
-private class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int) :
+internal class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int) :
     MutableListIterator<T> {
     private var index = offset - 1
     private var lastRequested = -1
@@ -351,7 +323,7 @@ private class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int) 
 
     override fun remove() {
         validateModification()
-        list.removeAt(index)
+        list.removeAt(lastRequested)
         index--
         lastRequested = -1
         structure = list.structure
@@ -371,7 +343,7 @@ private class StateListIterator<T>(val list: SnapshotStateList<T>, offset: Int) 
     }
 }
 
-private class SubList<T>(val parentList: SnapshotStateList<T>, fromIndex: Int, toIndex: Int) :
+internal class SubList<T>(val parentList: SnapshotStateList<T>, fromIndex: Int, toIndex: Int) :
     MutableList<T> {
     private val offset = fromIndex
     private var structure = parentList.structure

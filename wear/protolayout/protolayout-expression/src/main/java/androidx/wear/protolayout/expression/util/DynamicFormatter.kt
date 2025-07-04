@@ -144,7 +144,7 @@ public class DynamicFormatter {
                 val formatAttributes =
                     match.toFormatStringVariable(
                         lastIndex = lastVariableIndex,
-                        lastPositionalIndex = lastPositionalVariableIndex
+                        lastPositionalIndex = lastPositionalVariableIndex,
                     )
                 lastVariableIndex = formatAttributes.index
                 if (formatAttributes.isPositionalIndex) {
@@ -191,7 +191,7 @@ public class DynamicFormatter {
      */
     private fun MatchResult.toFormatStringVariable(
         lastIndex: Int,
-        lastPositionalIndex: Int
+        lastPositionalIndex: Int,
     ): FormatStringVariable =
         destructured.let { (indexType, index, flags, width, precision, dateTimePrefix, conversion)
             ->

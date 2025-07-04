@@ -54,15 +54,9 @@ class Camera2OutputConfigConverterTest {
                 emptyList(),
                 SIZE,
                 IMAGE_FORMAT,
-                MAX_IMAGES
+                MAX_IMAGES,
             ),
-            FakeSurfaceConfigImpl(
-                ID,
-                SURFACE_GROUP_ID,
-                PHYSICAL_CAMERA_ID,
-                emptyList(),
-                surface,
-            )
+            FakeSurfaceConfigImpl(ID, SURFACE_GROUP_ID, PHYSICAL_CAMERA_ID, emptyList(), surface),
         )
 
     @Test
@@ -76,7 +70,7 @@ class Camera2OutputConfigConverterTest {
                 sharedConfigImpls,
                 SIZE,
                 IMAGE_FORMAT,
-                MAX_IMAGES
+                MAX_IMAGES,
             )
 
         // Act
@@ -115,7 +109,7 @@ class Camera2OutputConfigConverterTest {
                 PHYSICAL_CAMERA_ID,
                 sharedConfigImpls,
                 IMAGE_FORMAT,
-                MAX_IMAGES
+                MAX_IMAGES,
             )
 
         // Act
@@ -129,13 +123,7 @@ class Camera2OutputConfigConverterTest {
     fun canConvertFromImpl_surfaceSharingConfigsIsNull() {
         // Arrange
         val outputConfigImpl =
-            FakeSurfaceConfigImpl(
-                ID,
-                SURFACE_GROUP_ID,
-                PHYSICAL_CAMERA_ID,
-                null,
-                surface,
-            )
+            FakeSurfaceConfigImpl(ID, SURFACE_GROUP_ID, PHYSICAL_CAMERA_ID, null, surface)
 
         // Act
         val outputConfig = Camera2OutputConfigConverter.fromImpl(outputConfigImpl)
@@ -146,7 +134,7 @@ class Camera2OutputConfigConverterTest {
 
     private fun assertOutputConfigElements(
         outputConfig: Camera2OutputConfig,
-        outputConfigImpl: Camera2OutputConfigImpl
+        outputConfigImpl: Camera2OutputConfigImpl,
     ) {
         assertThat(outputConfig.id).isEqualTo(outputConfigImpl.id)
         assertThat(outputConfig.physicalCameraId).isEqualTo(outputConfigImpl.physicalCameraId)

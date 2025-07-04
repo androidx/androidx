@@ -23,7 +23,6 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.room.InvalidationTracker;
 import androidx.room.Room;
@@ -36,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;

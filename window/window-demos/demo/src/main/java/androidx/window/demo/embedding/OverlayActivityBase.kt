@@ -197,7 +197,7 @@ open class OverlayActivityBase :
                         Intent().apply {
                             setClassName(
                                 "androidx.window.demo2",
-                                "androidx.window.demo2.embedding.UntrustedEmbeddingActivity"
+                                "androidx.window.demo2.embedding.UntrustedEmbeddingActivity",
                             )
                         },
                         ActivityOptions.makeBasic()
@@ -213,8 +213,8 @@ open class OverlayActivityBase :
                                             DEFAULT_OVERLAY_ATTRIBUTES
                                         }
                                     )
-                                    .build()
-                            )
+                                    .build(),
+                            ),
                     )
                 } catch (e: ActivityNotFoundException) {
                     Toast.makeText(this, R.string.install_samples_2, Toast.LENGTH_LONG).show()
@@ -235,14 +235,11 @@ open class OverlayActivityBase :
                         if (viewBinding.checkboxLaunchToOverlay.isChecked) {
                             ActivityOptions.makeBasic()
                                 .toBundle()
-                                .setLaunchingActivityStack(
-                                    this,
-                                    it,
-                                )
+                                .setLaunchingActivityStack(this, it)
                         } else {
                             null
                         }
-                    }
+                    },
                 )
             R.id.button_finish_this_activity -> finish()
             R.id.button_update_overlay_layout -> {
@@ -412,21 +409,12 @@ open class OverlayActivityBase :
 
         internal val DEFAULT_OVERLAY_ATTRIBUTES =
             OverlayAttributes(
-                EmbeddingBounds(
-                    ALIGN_RIGHT,
-                    Dimension.ratio(0.5f),
-                    Dimension.ratio(0.8f),
-                )
+                EmbeddingBounds(ALIGN_RIGHT, Dimension.ratio(0.5f), Dimension.ratio(0.8f))
             )
 
         private val POSITION_TEXT_ARRAY = arrayOf("top", "left", "bottom", "right")
         private val ALIGNMENT_VALUE_ARRAY =
-            arrayListOf(
-                ALIGN_TOP,
-                ALIGN_LEFT,
-                ALIGN_BOTTOM,
-                ALIGN_RIGHT,
-            )
+            arrayListOf(ALIGN_TOP, ALIGN_LEFT, ALIGN_BOTTOM, ALIGN_RIGHT)
 
         private val DIMENSION_TYPE_TEXT_ARRAY =
             arrayOf(

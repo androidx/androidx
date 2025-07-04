@@ -21,6 +21,7 @@ import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
+@IgnoreWebTarget
 class CommonLifecycleRegistryTest {
     private lateinit var mLifecycleOwner: LifecycleOwner
     private lateinit var mRegistry: LifecycleRegistry
@@ -149,7 +150,7 @@ class CommonLifecycleRegistryTest {
             .containsExactly(
                 Lifecycle.Event.ON_CREATE,
                 Lifecycle.Event.ON_START,
-                Lifecycle.Event.ON_RESUME
+                Lifecycle.Event.ON_RESUME,
             )
             .inOrder()
     }

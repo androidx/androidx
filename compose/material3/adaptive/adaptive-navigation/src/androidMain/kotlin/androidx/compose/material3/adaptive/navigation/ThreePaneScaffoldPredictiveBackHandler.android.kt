@@ -17,61 +17,91 @@
 package androidx.compose.material3.adaptive.navigation
 
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldState
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
-import androidx.compose.ui.util.lerp
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+/**
+ * An effect to add predictive back handling to a three pane scaffold.
+ *
+ * [NavigableListDetailPaneScaffold] and [NavigableSupportingPaneScaffold] apply this effect
+ * automatically. If instead you are using [ListDetailPaneScaffold] or [SupportingPaneScaffold], use
+ * the overloads that accept a [ThreePaneScaffoldState] and pass
+ * [navigator.scaffoldState][ThreePaneScaffoldNavigator.scaffoldState] to the scaffold after adding
+ * this effect to your composition.
+ *
+ * A predictive back gesture will cause the [navigator] to
+ * [seekBack][ThreePaneScaffoldNavigator.seekBack] to the previous scaffold value. The progress can
+ * be read from the [progressFraction][ThreePaneScaffoldState.progressFraction] of the navigator's
+ * scaffold state. It will range from 0 (representing the start of the predictive back gesture) to
+ * some fraction less than 1 (representing a "peek" or "preview" of the previous scaffold value). If
+ * the gesture is committed, back navigation is performed. If the gesture is cancelled, the
+ * navigator's scaffold state is reset.
+ *
+ * @param navigator The navigator instance to navigate through the scaffold.
+ * @param backBehavior The back navigation behavior when the system back event happens. See
+ *   [BackNavigationBehavior].
+ */
+@ExperimentalMaterial3AdaptiveApi
 @Composable
-internal fun <T> ThreePaneScaffoldPredictiveBackHandler(
+fun <T> ThreePaneScaffoldPredictiveBackHandler(
     navigator: ThreePaneScaffoldNavigator<T>,
     backBehavior: BackNavigationBehavior,
-    scale: Animatable<Float, AnimationVector1D>,
 ) {
-    fun backProgressToAnimationProgress(value: Float): Float =
-        PredictiveBackDefaults.Easing.transform(value) *
-            when (navigator.scaffoldValue.expandedCount) {
-                1 -> PredictiveBackDefaults.SinglePaneProgressRatio
-                2 -> PredictiveBackDefaults.DualPaneProgressRatio
-                else -> PredictiveBackDefaults.TriplePaneProgressRatio
-            }
-    fun backProgressToScale(value: Float): Float =
-        lerp(1f, PredictiveBackDefaults.MinScale, PredictiveBackDefaults.Easing.transform(value))
-
     key(navigator, backBehavior) {
         PredictiveBackHandler(enabled = navigator.canNavigateBack(backBehavior)) { progress ->
             // code for gesture back started
             try {
                 progress.collect { backEvent ->
-                    scale.snapTo(backProgressToScale(backEvent.progress))
                     navigator.seekBack(
                         backBehavior,
-                        fraction = backProgressToAnimationProgress(backEvent.progress),
+                        fraction =
+                            backProgressToStateProgress(
+                                progress = backEvent.progress,
+                                scaffoldValue = navigator.scaffoldValue,
+                            ),
                     )
                 }
                 // code for completion
-                scale.animateTo(1f)
                 navigator.navigateBack(backBehavior)
             } catch (e: CancellationException) {
                 // code for cancellation
-                withContext(NonCancellable) {
-                    scale.animateTo(1f)
-                    navigator.seekBack(backBehavior, fraction = 0f)
-                }
+                withContext(NonCancellable) { navigator.seekBack(backBehavior, fraction = 0f) }
             }
         }
     }
 }
+
+/**
+ * Converts a progress value originating from a predictive back gesture into a progress value to
+ * control a [ThreePaneScaffoldState].
+ */
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun backProgressToStateProgress(
+    progress: Float,
+    scaffoldValue: ThreePaneScaffoldValue,
+): Float =
+    ThreePaneScaffoldPredictiveBackEasing.transform(progress) *
+        when (scaffoldValue.expandedCount) {
+            1 -> SinglePaneProgressRatio
+            2 -> DualPaneProgressRatio
+            else -> TriplePaneProgressRatio
+        }
+
+private val ThreePaneScaffoldPredictiveBackEasing: Easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f)
+private const val SinglePaneProgressRatio: Float = 0.1f
+private const val DualPaneProgressRatio: Float = 0.15f
+private const val TriplePaneProgressRatio: Float = 0.2f
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val ThreePaneScaffoldValue.expandedCount: Int
@@ -88,11 +118,3 @@ private val ThreePaneScaffoldValue.expandedCount: Int
         }
         return count
     }
-
-private object PredictiveBackDefaults {
-    val Easing: Easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f)
-    const val MinScale: Float = 0.95f
-    const val SinglePaneProgressRatio: Float = 0.1f
-    const val DualPaneProgressRatio: Float = 0.15f
-    const val TriplePaneProgressRatio: Float = 0.2f
-}

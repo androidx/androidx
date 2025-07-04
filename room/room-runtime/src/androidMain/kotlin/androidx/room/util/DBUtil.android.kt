@@ -27,27 +27,28 @@ import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
 import androidx.room.TransactionElement
 import androidx.room.coroutines.RawConnectionAccessor
-import androidx.room.driver.SupportSQLiteConnection
+import androidx.room.coroutines.runBlockingUninterruptible
 import androidx.room.withTransactionContext
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
+import androidx.sqlite.driver.SupportSQLiteConnection
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.coroutineContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /** Performs a database operation. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performSuspending(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public actual suspend fun <R> performSuspending(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> R
+    block: (SQLiteConnection) -> R,
 ): R =
     db.compatCoroutineExecute(inTransaction) {
         db.internalPerform(isReadOnly, inTransaction) { connection ->
@@ -57,19 +58,26 @@ actual suspend fun <R> performSuspending(
     }
 
 /** Blocking version of [performSuspending] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun <R> performBlocking(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun <R> performBlocking(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> R
+    block: (SQLiteConnection) -> R,
 ): R {
     db.assertNotMainThread()
     db.assertNotSuspendingTransaction()
-    return runBlocking {
-        db.internalPerform(isReadOnly, inTransaction) { connection ->
-            val rawConnection = (connection as RawConnectionAccessor).rawConnection
-            block.invoke(rawConnection)
+    val context = db.suspendingTransactionContext.get() ?: EmptyCoroutineContext
+    return runBlockingUninterruptible {
+        withContext(context) {
+            // If in compatibility mode and the database is already in a transaction, then do not
+            // start a nested transaction to avoid the overhead and because the SupportSQLite APIs
+            // do not support real SAVEPOINT-based nested transactions.
+            val inTransaction = !(db.inCompatibilityMode() && db.inTransaction()) && inTransaction
+            db.internalPerform(isReadOnly, inTransaction) { connection ->
+                val rawConnection = (connection as RawConnectionAccessor).rawConnection
+                block.invoke(rawConnection)
+            }
         }
     }
 }
@@ -80,14 +88,17 @@ fun <R> performBlocking(
  * This function should only be invoked from generated code and is needed to support `@Transaction`
  * delegates in Java and Kotlin. It is preferred to use the other 'perform' functions.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual suspend fun <R> performInTransactionSuspending(db: RoomDatabase, block: suspend () -> R): R =
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public actual suspend fun <R> performInTransactionSuspending(
+    db: RoomDatabase,
+    block: suspend () -> R,
+): R =
     if (db.inCompatibilityMode()) {
         db.withTransactionContext {
             db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
         }
     } else {
-        withContext(db.getCoroutineScope().coroutineContext) {
+        db.compatCoroutineExecute(true) {
             db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
         }
     }
@@ -99,7 +110,7 @@ actual suspend fun <R> performInTransactionSuspending(db: RoomDatabase, block: s
  */
 private suspend inline fun <R> RoomDatabase.compatCoroutineExecute(
     inTransaction: Boolean,
-    crossinline block: suspend () -> R
+    crossinline block: suspend () -> R,
 ): R {
     if (inCompatibilityMode() && isOpenInternal && inTransaction()) {
         return block.invoke()
@@ -115,13 +126,19 @@ private suspend inline fun <R> RoomDatabase.compatCoroutineExecute(
 internal actual suspend fun RoomDatabase.getCoroutineContext(
     inTransaction: Boolean
 ): CoroutineContext {
+    val transactionDispatcher = coroutineContext[TransactionElement]?.transactionDispatcher
     return if (inCompatibilityMode()) {
         // If in compatibility mode check if we are on a transaction coroutine, if so combine
         // it with the database context, otherwise use the database dispatchers.
-        coroutineContext[TransactionElement]?.transactionDispatcher?.let { getQueryContext() + it }
-            ?: if (inTransaction) getTransactionContext() else getQueryContext()
+        if (transactionDispatcher != null) {
+            getQueryContext() + transactionDispatcher
+        } else if (inTransaction) {
+            getTransactionContext()
+        } else {
+            getQueryContext()
+        }
     } else {
-        getCoroutineScope().coroutineContext
+        getQueryContext() + (transactionDispatcher ?: EmptyCoroutineContext)
     }
 }
 
@@ -138,8 +155,8 @@ internal actual suspend fun RoomDatabase.getCoroutineContext(
  * @return Result of the query.
  */
 @Deprecated("This is only used in the generated code and shouldn't be called directly.")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean): Cursor {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean): Cursor {
     return query(db, sqLiteQuery, maybeCopy, null)
 }
 
@@ -156,12 +173,12 @@ fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean)
  * @param signal The cancellation signal to be attached to the query.
  * @return Result of the query.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun query(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun query(
     db: RoomDatabase,
     sqLiteQuery: SupportSQLiteQuery,
     maybeCopy: Boolean,
-    signal: CancellationSignal?
+    signal: CancellationSignal?,
 ): Cursor {
     val cursor = db.query(sqLiteQuery, signal)
     if (maybeCopy && cursor is AbstractWindowedCursor) {
@@ -188,14 +205,14 @@ fun query(
  * @param db The database.
  */
 @Deprecated("Replaced by dropFtsSyncTriggers(connection: SQLiteConnection)")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun dropFtsSyncTriggers(db: SupportSQLiteDatabase) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun dropFtsSyncTriggers(db: SupportSQLiteDatabase) {
     dropFtsSyncTriggers(SupportSQLiteConnection(db))
 }
 
 /** Checks for foreign key violations by executing a PRAGMA foreign_key_check. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun foreignKeyCheck(db: SupportSQLiteDatabase, tableName: String) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun foreignKeyCheck(db: SupportSQLiteDatabase, tableName: String) {
     foreignKeyCheck(SupportSQLiteConnection(db), tableName)
 }
 
@@ -208,9 +225,9 @@ fun foreignKeyCheck(db: SupportSQLiteDatabase, tableName: String) {
  *   missing permissions.
  * @see [User Version Number](https://www.sqlite.org/fileformat.html.user_version_number).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 @Throws(IOException::class)
-fun readVersion(databaseFile: File): Int {
+public fun readVersion(databaseFile: File): Int {
     FileInputStream(databaseFile).channel.use { input ->
         val buffer = ByteBuffer.allocate(4)
         input.tryLock(60, 4, true)
@@ -230,12 +247,12 @@ fun readVersion(databaseFile: File): Int {
  * @return A new instance of CancellationSignal.
  */
 @Deprecated("Use constructor", ReplaceWith("CancellationSignal()", "android.os.CancellationSignal"))
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun createCancellationSignal(): CancellationSignal {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun createCancellationSignal(): CancellationSignal {
     return CancellationSignal()
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun toSQLiteConnection(db: SupportSQLiteDatabase): SQLiteConnection {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun toSQLiteConnection(db: SupportSQLiteDatabase): SQLiteConnection {
     return SupportSQLiteConnection(db)
 }

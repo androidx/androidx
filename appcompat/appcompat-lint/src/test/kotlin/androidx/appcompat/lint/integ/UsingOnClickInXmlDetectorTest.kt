@@ -28,7 +28,7 @@ class UsingOnClickInXmlDetectorTest {
         val input =
             arrayOf(
                 javaSample("com.example.android.appcompat.ActivityWithClick"),
-                xmlSample("layout.view_with_click")
+                xmlSample("layout.view_with_click"),
             )
 
         val expected =

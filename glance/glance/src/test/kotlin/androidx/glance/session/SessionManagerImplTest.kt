@@ -25,10 +25,13 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.testing.WorkManagerTestInitHelper
+import androidx.work.workDataOf
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.UUID
@@ -49,12 +52,48 @@ import org.robolectric.RobolectricTestRunner
 class SessionManagerImplTest {
     private lateinit var context: Context
     private lateinit var sessionManager: SessionManagerImpl
+    private val workManagerProxy =
+        object : WorkManagerProxy {
+            val enqueueCalls = mutableListOf<Pair<String, OneTimeWorkRequest>>()
+            val isRunningCalls = mutableListOf<String>()
+
+            override suspend fun enqueueUniqueWork(
+                context: Context,
+                uniqueWorkName: String,
+                existingWorkPolicy: ExistingWorkPolicy,
+                workRequest: OneTimeWorkRequest,
+            ) {
+                enqueueCalls.add(uniqueWorkName to workRequest)
+                WorkManagerProxy.Default.enqueueUniqueWork(
+                    context,
+                    uniqueWorkName,
+                    existingWorkPolicy,
+                    workRequest,
+                )
+            }
+
+            override suspend fun workerIsRunningOrEnqueued(
+                context: Context,
+                uniqueWorkName: String,
+            ): Boolean {
+                isRunningCalls.add(uniqueWorkName)
+                return WorkManagerProxy.Default.workerIsRunningOrEnqueued(context, uniqueWorkName)
+            }
+        }
+    private val inputDataFactory: InputDataFactory = { session ->
+        workDataOf("KEY" to session.key, "foo" to "bar")
+    }
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         WorkManagerTestInitHelper.initializeTestWorkManager(context)
-        sessionManager = SessionManagerImpl(TestWorker::class.java)
+        sessionManager =
+            SessionManagerImpl(
+                workerClass = TestWorker::class.java,
+                workManagerProxy = workManagerProxy,
+                inputDataFactory = inputDataFactory,
+            )
     }
 
     @After
@@ -133,6 +172,53 @@ class SessionManagerImplTest {
         sessionManager.runWithLock { assertThat(firstRan.get()).isTrue() }
     }
 
+    @Test
+    fun usesWorkManagerProxy() = runTest {
+        sessionManager.runWithLock {
+            val key = newKey()
+            val session = createTestSession(key)
+            startSession(context, session)
+            assertWithMessage(getDebugMessage(session))
+                .that(isSessionRunning(context, key))
+                .isTrue()
+
+            assertThat(workManagerProxy.enqueueCalls.size).isEqualTo(2)
+            assertThat(workManagerProxy.isRunningCalls.size).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun usesWorkerClass() = runTest {
+        sessionManager.runWithLock {
+            val key = newKey()
+            val session = createTestSession(key)
+            startSession(context, session)
+            assertWithMessage(getDebugMessage(session))
+                .that(isSessionRunning(context, key))
+                .isTrue()
+
+            val (_, workRequest) = workManagerProxy.enqueueCalls.single { it.first == key }
+            assertThat(workRequest.workSpec.workerClassName)
+                .isEqualTo(TestWorker::class.java.canonicalName)
+        }
+    }
+
+    @Test
+    fun usesInputDataFactory() = runTest {
+        sessionManager.runWithLock {
+            val key = newKey()
+            val session = createTestSession(key)
+            startSession(context, session)
+            assertWithMessage(getDebugMessage(session))
+                .that(isSessionRunning(context, key))
+                .isTrue()
+
+            val (_, workRequest) = workManagerProxy.enqueueCalls.single { it.first == key }
+            assertThat(workRequest.workSpec.input.getString("KEY")).isEqualTo(key)
+            assertThat(workRequest.workSpec.input.getString("foo")).isEqualTo("bar")
+        }
+    }
+
     private suspend fun getDebugMessage(session: Session): String {
         val sessionWorkStateInfo =
             WorkManager.getInstance(context)
@@ -160,12 +246,16 @@ class SessionManagerImplTest {
 
                 override suspend fun processEmittableTree(
                     context: Context,
-                    root: EmittableWithChildren
+                    root: EmittableWithChildren,
                 ): Boolean {
                     TODO("Not yet implemented")
                 }
 
                 override suspend fun processEvent(context: Context, event: Any) {
+                    TODO("Not yet implemented")
+                }
+
+                override suspend fun recreateWithEvents(events: List<Any>): Session {
                     TODO("Not yet implemented")
                 }
             }

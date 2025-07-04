@@ -186,7 +186,7 @@ class LayoutInspectorTreeTest {
                             color = Color.Green,
                             fontSize = 10.sp,
                             lineHeight = 10.sp,
-                            fontFamily = fontFamily
+                            fontFamily = fontFamily,
                         )
                         // width: 24.dp, height: 24.dp
                         Icon(Icons.Filled.FavoriteBorder, null)
@@ -198,7 +198,7 @@ class LayoutInspectorTreeTest {
                                     text = "ok",
                                     fontSize = 10.sp,
                                     lineHeight = 10.sp,
-                                    fontFamily = fontFamily
+                                    fontFamily = fontFamily,
                                 )
                             }
                         }
@@ -252,7 +252,7 @@ class LayoutInspectorTreeTest {
                 top = 34.dp,
                 width = 64.dp,
                 height = 48.dp,
-                children = listOf("Button")
+                children = listOf("Button"),
             )
             node(
                 name = "Button",
@@ -262,7 +262,7 @@ class LayoutInspectorTreeTest {
                 top = 40.dp,
                 width = 64.dp,
                 height = 36.dp,
-                children = listOf("Text")
+                children = listOf("Text"),
             )
             node(
                 name = "Text",
@@ -288,7 +288,7 @@ class LayoutInspectorTreeTest {
                             text = "helloworld",
                             fontSize = 10.sp,
                             fontFamily = fontFamily,
-                            modifier = Modifier.graphicsLayer(rotationZ = -90f)
+                            modifier = Modifier.graphicsLayer(rotationZ = -90f),
                         )
                     }
                 }
@@ -340,7 +340,7 @@ class LayoutInspectorTreeTest {
                             Text(text = "Hello World", color = Color.Green)
                             Button(onClick = {}) { Text(text = "OK") }
                         }
-                    }
+                    },
                 )
             }
         }
@@ -375,7 +375,7 @@ class LayoutInspectorTreeTest {
                             Text(text = "Hello World", color = Color.Green)
                             Button(onClick = {}) { Text(text = "OK") }
                         }
-                    }
+                    },
                 )
             }
         }
@@ -449,7 +449,7 @@ class LayoutInspectorTreeTest {
                 Column {
                     BasicText(
                         text = "Some text",
-                        style = TextStyle(textDecoration = TextDecoration.Underline)
+                        style = TextStyle(textDecoration = TextDecoration.Underline),
                     )
                 }
             }
@@ -473,7 +473,7 @@ class LayoutInspectorTreeTest {
                 paramsNode,
                 ParameterKind.Normal,
                 MAX_RECURSIONS,
-                MAX_ITERABLE_SIZE
+                MAX_ITERABLE_SIZE,
             )
         assertThat(params).isNotEmpty()
         val text = params.find { it.name == "text" }
@@ -557,7 +557,7 @@ class LayoutInspectorTreeTest {
                     Text("Hello World!")
                     AlertDialog(
                         onDismissRequest = {},
-                        confirmButton = { Button({}) { Text("This is the Confirm Button") } }
+                        confirmButton = { Button({}) { Text("This is the Confirm Button") } },
                     )
                 }
             }
@@ -585,11 +585,7 @@ class LayoutInspectorTreeTest {
                 inlined = true,
                 isRenderNode = true,
             )
-            node(
-                name = "Text",
-                isRenderNode = false,
-                fileName = "LayoutInspectorTreeTest.kt",
-            )
+            node(name = "Text", isRenderNode = false, fileName = "LayoutInspectorTreeTest.kt")
         }
 
         val dialogNodes = allNodes[dialogView.uniqueDrawingId] ?: emptyList()
@@ -600,19 +596,15 @@ class LayoutInspectorTreeTest {
             node(
                 name = "AlertDialog",
                 fileName = "LayoutInspectorTreeTest.kt",
-                children = listOf("Button")
+                children = listOf("Button"),
             )
             node(
                 name = "Button",
                 fileName = "LayoutInspectorTreeTest.kt",
                 isRenderNode = true,
-                children = listOf("Text")
+                children = listOf("Text"),
             )
-            node(
-                name = "Text",
-                isRenderNode = false,
-                fileName = "LayoutInspectorTreeTest.kt",
-            )
+            node(name = "Text", isRenderNode = false, fileName = "LayoutInspectorTreeTest.kt")
         }
     }
 
@@ -648,11 +640,7 @@ class LayoutInspectorTreeTest {
                 children = listOf("Text"),
                 inlined = true,
             )
-            node(
-                name = "Text",
-                isRenderNode = false,
-                fileName = "LayoutInspectorTreeTest.kt",
-            )
+            node(name = "Text", isRenderNode = false, fileName = "LayoutInspectorTreeTest.kt")
         }
 
         val popupNodes = allNodes[popupView.uniqueDrawingId] ?: emptyList()
@@ -661,11 +649,7 @@ class LayoutInspectorTreeTest {
         // Verify that the Popup is captured with content
         validate(popupNodes, builder) {
             node(name = "Popup", fileName = "LayoutInspectorTreeTest.kt", children = listOf("Text"))
-            node(
-                name = "Text",
-                isRenderNode = false,
-                fileName = "LayoutInspectorTreeTest.kt",
-            )
+            node(name = "Text", isRenderNode = false, fileName = "LayoutInspectorTreeTest.kt")
         }
     }
 
@@ -694,18 +678,17 @@ class LayoutInspectorTreeTest {
             node(
                 name = "AndroidView",
                 fileName = "LayoutInspectorTreeTest.kt",
-                children = listOf("AndroidView")
+                children = listOf("AndroidView"),
             )
             node(
                 name = "AndroidView",
                 fileName = "AndroidView.android.kt",
-                children = listOf("ComposeNode")
+                children = listOf("ComposeNode"),
             )
             node(
                 name = "ComposeNode",
                 fileName = "AndroidView.android.kt",
                 hasViewIdUnder = composeView,
-                isRenderNode = true,
                 inlined = true,
             )
         }
@@ -723,7 +706,7 @@ class LayoutInspectorTreeTest {
                         factory = { context -> TextView(context).apply { text = "AndroidView" } },
                         onReset = {
                             // Do nothing, just use the overload.
-                        }
+                        },
                     )
                 }
             }
@@ -741,13 +724,12 @@ class LayoutInspectorTreeTest {
             node(
                 name = "AndroidView",
                 fileName = "LayoutInspectorTreeTest.kt",
-                children = listOf("ReusableComposeNode")
+                children = listOf("ReusableComposeNode"),
             )
             node(
                 name = "ReusableComposeNode",
                 fileName = "AndroidView.android.kt",
                 hasViewIdUnder = composeView,
-                isRenderNode = true,
                 inlined = true,
             )
         }
@@ -796,28 +778,28 @@ class LayoutInspectorTreeTest {
             modifier =
                 Modifier.heightIn(min = 128.dp)
                     .graphicsLayer { translationY = offset }
-                    .background(color = MaterialTheme.colors.background)
+                    .background(color = MaterialTheme.colors.background),
         ) {
             Spacer(Modifier.height(16.dp))
             Text(
                 text = "Snack",
                 style = MaterialTheme.typography.h4,
                 color = MaterialTheme.colors.secondary,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier.padding(horizontal = 24.dp),
             )
             Text(
                 text = "Tagline",
                 style = MaterialTheme.typography.subtitle2,
                 fontSize = 20.sp,
                 color = MaterialTheme.colors.secondary,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier.padding(horizontal = 24.dp),
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "$2.95",
                 style = MaterialTheme.typography.h6,
                 color = MaterialTheme.colors.primary,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                modifier = Modifier.padding(horizontal = 24.dp),
             )
             Spacer(Modifier.height(8.dp))
         }
@@ -1024,7 +1006,7 @@ class LayoutInspectorTreeTest {
         checkLineNumbers: Boolean = false,
         checkRenderNodes: Boolean = true,
         density: Density = this.density,
-        block: TreeValidationReceiver.() -> Unit = {}
+        block: TreeValidationReceiver.() -> Unit = {},
     ) {
         if (DEBUG) {
             return
@@ -1038,7 +1020,7 @@ class LayoutInspectorTreeTest {
                 checkSemantics,
                 checkLineNumbers,
                 checkRenderNodes,
-                builder
+                builder,
             )
         tree.block()
     }
@@ -1050,7 +1032,7 @@ class LayoutInspectorTreeTest {
         val checkSemantics: Boolean,
         val checkLineNumbers: Boolean,
         val checkRenderNodes: Boolean,
-        val builder: LayoutInspectorTree
+        val builder: LayoutInspectorTree,
     ) {
         fun node(
             name: String,
@@ -1067,7 +1049,7 @@ class LayoutInspectorTreeTest {
             width: Dp = Dp.Unspecified,
             height: Dp = Dp.Unspecified,
             children: List<String> = listOf(),
-            block: ParameterValidationReceiver.() -> Unit = {}
+            block: ParameterValidationReceiver.() -> Unit = {},
         ) {
             assertWithMessage("No such node found: $name").that(nodeIterator.hasNext()).isTrue()
             val node = nodeIterator.next()
@@ -1142,7 +1124,7 @@ class LayoutInspectorTreeTest {
                         node,
                         ParameterKind.Normal,
                         MAX_RECURSIONS,
-                        MAX_ITERABLE_SIZE
+                        MAX_ITERABLE_SIZE,
                     )
                 val receiver = ParameterValidationReceiver(params.listIterator())
                 receiver.block()
@@ -1200,7 +1182,7 @@ class LayoutInspectorTreeTest {
         node: InspectorNode,
         view: View,
         builder: LayoutInspectorTree,
-        generateParameters: Boolean = false
+        generateParameters: Boolean = false,
     ) {
         with(density) {
             val left = round(node.left.toDp())
@@ -1236,9 +1218,9 @@ class LayoutInspectorTreeTest {
                     node,
                     ParameterKind.Normal,
                     MAX_RECURSIONS,
-                    MAX_ITERABLE_SIZE
+                    MAX_ITERABLE_SIZE,
                 ),
-                0
+                0,
             )
         }
         println()
@@ -1334,7 +1316,7 @@ private class CompositionDataRecordImpl : CompositionDataRecord {
 @OptIn(InternalComposeApi::class)
 internal fun Inspectable(
     compositionDataRecord: CompositionDataRecord,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     currentComposer.collectParameterInformation()
     val store = (compositionDataRecord as CompositionDataRecordImpl).store
@@ -1342,7 +1324,7 @@ internal fun Inspectable(
     CompositionLocalProvider(
         LocalInspectionMode provides true,
         LocalInspectionTables provides store,
-        content = content
+        content = content,
     )
 }
 

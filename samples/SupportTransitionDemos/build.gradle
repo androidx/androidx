@@ -22,7 +22,7 @@ android {
     aaptOptions {
         additionalParameters "--no-version-transitions"
     }
-    compileSdk = 35
+    compileSdk = 36
     namespace = "com.example.android.support.transition"
 }
 

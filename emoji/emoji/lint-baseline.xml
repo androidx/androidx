@@ -1,5 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(editable, start, end);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/EmojiCompatTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(processed, original.length() - EMOJI_SINGLE_CODEPOINT.charCount(),"
+        errorLine2="        ^">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/EmojiCompatTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiInputConnectionTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/widget/EmojiKeyListenerTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="                EmojiCompat.get().process(text);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiTextWatcher.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/HardDeleteTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/HardDeleteTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/SoftDeleteTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/SoftDeleteTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/SoftDeleteTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/SoftDeleteTest.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `process` is not used"
+        errorLine1="        EmojiCompat.get().process(mEditable);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/emoji/text/SoftDeleteTest.java"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"
@@ -142,7 +250,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static EmojiCompat init(@NonNull final Config config) {"
+        errorLine1="    public static EmojiCompat init(final @NonNull Config config) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
@@ -151,7 +259,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static EmojiCompat reset(@NonNull final Config config) {"
+        errorLine1="    public static EmojiCompat reset(final @NonNull Config config) {"
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
@@ -196,7 +304,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence) {"
+        errorLine1="    public CharSequence process(final @NonNull CharSequence charSequence) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
@@ -205,7 +313,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence,"
+        errorLine1="    public CharSequence process(final @NonNull CharSequence charSequence,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
@@ -214,7 +322,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence,"
+        errorLine1="    public CharSequence process(final @NonNull CharSequence charSequence,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
@@ -223,7 +331,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public CharSequence process(@NonNull final CharSequence charSequence,"
+        errorLine1="    public CharSequence process(final @NonNull CharSequence charSequence,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/EmojiCompat.java"/>
@@ -691,7 +799,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MetadataRepo create(@NonNull final Typeface typeface,"
+        errorLine1="    public static MetadataRepo create(final @NonNull Typeface typeface,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
@@ -700,7 +808,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MetadataRepo create(@NonNull final Typeface typeface,"
+        errorLine1="    public static MetadataRepo create(final @NonNull Typeface typeface,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>
@@ -709,7 +817,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MetadataRepo create(@NonNull final AssetManager assetManager,"
+        errorLine1="    public static MetadataRepo create(final @NonNull AssetManager assetManager,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji/text/MetadataRepo.java"/>

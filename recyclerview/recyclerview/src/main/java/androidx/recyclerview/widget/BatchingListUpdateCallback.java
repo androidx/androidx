@@ -17,7 +17,7 @@ package androidx.recyclerview.widget;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Wraps a {@link ListUpdateCallback} callback and batches operations that can be merged.

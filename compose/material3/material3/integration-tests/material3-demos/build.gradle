@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -34,22 +34,24 @@ dependencies {
 
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:material3:material3"))
+    implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
+    implementation(project(":compose:material3:material3-window-size-class"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-text"))
 
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }
 
 androidx {
     name = "Compose Material3 Components Demos"
-    type = LibraryType.TEST_APPLICATION
+    type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2022"
     description = "Contains the demo code for the AndroidX Compose Material 3 components."
 }

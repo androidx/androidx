@@ -109,10 +109,7 @@ internal class ExposedDropdownMenuTestCase(private val expanded: Boolean) :
         Column(Modifier.fillMaxSize()) {
             Spacer(Modifier.height(state.value))
 
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = {},
-            ) {
+            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {}) {
                 Spacer(
                     Modifier.size(100.dp)
                         .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)

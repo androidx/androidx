@@ -56,7 +56,7 @@ import androidx.glance.unit.ResourceColorProvider
 
 internal fun RemoteViews.translateEmittableText(
     translationContext: TranslationContext,
-    element: EmittableText
+    element: EmittableText,
 ) {
     val viewDef = insertView(translationContext, LayoutType.Text, element.modifier)
     setText(
@@ -122,7 +122,7 @@ internal fun RemoteViews.setText(
             TextTranslatorApi31Impl.setTextViewGravity(
                 this,
                 resId,
-                align.toGravity() or verticalTextGravity
+                align.toGravity() or verticalTextGravity,
             )
         } else {
             spans.add(AlignmentSpan.Standard(align.toAlignment(translationContext.isRtl)))
@@ -145,7 +145,7 @@ internal fun RemoteViews.setText(
                 setTextViewTextColor(
                     resId,
                     notNight = colorProvider.day.toArgb(),
-                    night = colorProvider.night.toArgb()
+                    night = colorProvider.night.toArgb(),
                 )
             } else {
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())

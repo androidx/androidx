@@ -25,8 +25,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MultiMeasureLayout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
@@ -52,7 +54,7 @@ internal fun LateMotionLayout(
     optimizationLevel: Int,
     finishedAnimationListener: (() -> Unit)?,
     modifier: Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
     val measurer = remember { MotionMeasurer(density) }
@@ -71,14 +73,14 @@ internal fun LateMotionLayout(
             compositionSource = compositionSource,
             motionProgress = motionProgress,
             measurer = measurer,
-            optimizationLevel = optimizationLevel
+            optimizationLevel = optimizationLevel,
         )
 
     @Suppress("DEPRECATION")
     MultiMeasureLayout(
         modifier = modifier.semantics { designInfoProvider = measurer },
         measurePolicy = measurePolicy,
-        content = content
+        content = content,
     )
 
     LaunchedEffect(channel) {
@@ -117,6 +119,9 @@ private fun lateMotionLayoutMeasurePolicy(
     measurer: MotionMeasurer,
     optimizationLevel: Int,
 ): MeasurePolicy = MeasurePolicy { measurables, constraints ->
+    // Map to properly capture Placeables across Measure and Layout passes
+    val placeableMap = mutableMapOf<Measurable, Placeable>()
+
     // Do a state read, to guarantee that we control measure when the content recomposes without
     // notifying our Composable caller
     contentTracker.value
@@ -129,12 +134,15 @@ private fun lateMotionLayoutMeasurePolicy(
             constraintSetEnd = endProvider(),
             transition = TransitionImpl.EMPTY,
             measurables = measurables,
+            placeableMap = placeableMap,
             optimizationLevel = optimizationLevel,
             progress = motionProgress.value,
             compositionSource = compositionSource.value ?: CompositionSource.Unknown,
-            invalidateOnConstraintsCallback = null
+            invalidateOnConstraintsCallback = null,
         )
     compositionSource.value = CompositionSource.Unknown // Reset after measuring
 
-    layout(layoutSize.width, layoutSize.height) { with(measurer) { performLayout(measurables) } }
+    layout(layoutSize.width, layoutSize.height) {
+        with(measurer) { performLayout(measurables = measurables, placeableMap = placeableMap) }
+    }
 }

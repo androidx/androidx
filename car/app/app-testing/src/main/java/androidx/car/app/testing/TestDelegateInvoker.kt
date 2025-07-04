@@ -46,7 +46,7 @@ public object TestDelegateInvoker {
 
     public fun <T> ListDelegate<T>.requestItemRangeForTest(
         startIndex: Int,
-        endIndex: Int
+        endIndex: Int,
     ): List<T> = runForResult {
         this@requestItemRangeForTest.requestItemRange(startIndex, endIndex, it)
     }
@@ -87,7 +87,8 @@ public object TestDelegateInvoker {
         fun getResponseOrCrash(): TResponse {
             check(hasResponse) { "Callback was never invoked." }
 
-            @Suppress("UNCHECKED_CAST") return response?.get() as TResponse
+            @Suppress("UNCHECKED_CAST")
+            return response?.get() as TResponse
         }
     }
 }

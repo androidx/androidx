@@ -97,7 +97,7 @@ class BaselineProfile {
                 testDestination(description = SLIDER)
                 testDestination(description = STEPPER)
                 testDestination(description = SWIPE_TO_REVEAL)
-            }
+            },
         )
     }
 

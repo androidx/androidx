@@ -71,7 +71,7 @@ public interface SharedOutputImage : OutputImage {
 
         private class SharedOutputImageImpl(
             private val outputImage: OutputImage,
-            private val sharedReference: SharedReference<OutputImage>
+            private val sharedReference: SharedReference<OutputImage>,
         ) : OutputImage by outputImage, SharedOutputImage {
             private val closed = atomic(false)
 

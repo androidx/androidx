@@ -64,7 +64,7 @@ fun ComposeInCooperatingViewNestedScrollInteropSample() {
             Box(
                 modifier =
                     Modifier.padding(16.dp).height(56.dp).fillMaxWidth().background(Color.Gray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(item.toString())
             }
@@ -83,7 +83,7 @@ fun ViewInComposeNestedScrollInteropSample() {
                     // components that participate in nested scrolling
                     it
                 },
-                Orientation.Vertical
+                Orientation.Vertical,
             )
     ) {
         AndroidView({ context ->
@@ -121,12 +121,12 @@ fun CollapsingToolbarComposeViewComposeNestedScrollInteropSample() {
                 Modifier.height(ToolbarHeight).offset {
                     IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt())
                 },
-            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") }
+            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") },
         )
         // Android View
         AndroidView(
             factory = { context -> AndroidViewWithCompose(context) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -147,14 +147,14 @@ private fun AndroidViewWithCompose(context: Context): View {
 private fun LazyColumnWithNestedScrollInteropEnabled() {
     LazyColumn(
         modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
-        contentPadding = PaddingValues(top = ToolbarHeight)
+        contentPadding = PaddingValues(top = ToolbarHeight),
     ) {
         item { Text("This is a Lazy Column") }
         items(40) { item ->
             Box(
                 modifier =
                     Modifier.padding(16.dp).height(56.dp).fillMaxWidth().background(Color.Gray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(item.toString())
             }

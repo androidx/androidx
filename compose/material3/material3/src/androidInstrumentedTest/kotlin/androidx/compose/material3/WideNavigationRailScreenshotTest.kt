@@ -51,7 +51,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -76,7 +75,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "wideNavigationRail_${scheme.name}"
+            goldenIdentifier = "wideNavigationRail_${scheme.name}",
         )
     }
 
@@ -96,7 +95,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = PressInteraction.Press(Offset(10f, 10f)),
-            goldenIdentifier = "wideNavigationRail_${scheme.name}_pressed"
+            goldenIdentifier = "wideNavigationRail_${scheme.name}_pressed",
         )
     }
 
@@ -111,7 +110,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             DefaultWideNavigationRail(
                 interactionSource = interactionSource,
                 expanded = scheme.expanded,
-                setUnselectedItemsAsDisabled = true
+                setUnselectedItemsAsDisabled = true,
             )
         }
 
@@ -119,7 +118,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "wideNavigationRail_${scheme.name}_disabled"
+            goldenIdentifier = "wideNavigationRail_${scheme.name}_disabled",
         )
     }
 
@@ -143,7 +142,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             scope = scope!!,
             interactionSource = interactionSource,
             interaction = null,
-            goldenIdentifier = "wideNavigationRail_${expanded}_lightTheme_defaultColors_withHeader"
+            goldenIdentifier = "wideNavigationRail_${expanded}_lightTheme_defaultColors_withHeader",
         )
     }
 
@@ -158,7 +157,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             DefaultWideNavigationRail(
                 interactionSource,
                 expanded = scheme.expanded,
-                arrangement = Arrangement.Center
+                arrangement = Arrangement.Center,
             )
         }
 
@@ -168,7 +167,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             interactionSource = interactionSource,
             interaction = null,
             goldenIdentifier =
-                "wideNavigationRail_${expanded}_lightTheme_defaultColors_centeredArrangement"
+                "wideNavigationRail_${expanded}_lightTheme_defaultColors_centeredArrangement",
         )
     }
 
@@ -183,7 +182,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             DefaultWideNavigationRail(
                 interactionSource,
                 expanded = scheme.expanded,
-                arrangement = Arrangement.Bottom
+                arrangement = Arrangement.Bottom,
             )
         }
 
@@ -193,7 +192,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             interactionSource = interactionSource,
             interaction = null,
             goldenIdentifier =
-                "wideNavigationRail_${expanded}_lightTheme_defaultColors_bottomArrangement"
+                "wideNavigationRail_${expanded}_lightTheme_defaultColors_bottomArrangement",
         )
     }
 
@@ -210,7 +209,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
         scope: CoroutineScope,
         interactionSource: MutableInteractionSource,
         interaction: Interaction? = null,
-        goldenIdentifier: String
+        goldenIdentifier: String,
     ) {
         if (interaction != null) {
             composeTestRule.runOnIdle {
@@ -244,17 +243,17 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
                 TestWrapper(
                     expanded = false,
                     "collapsed_lightTheme_defaultColors",
-                    lightColorScheme()
+                    lightColorScheme(),
                 ),
                 TestWrapper(
                     expanded = false,
                     "collapsed_darkTheme_defaultColors",
-                    darkColorScheme()
+                    darkColorScheme(),
                 ),
                 TestWrapper(
                     expanded = true,
                     "expanded_lightTheme_defaultColors",
-                    lightColorScheme()
+                    lightColorScheme(),
                 ),
                 TestWrapper(expanded = true, "expanded_darkTheme_defaultColors", darkColorScheme()),
             )
@@ -278,7 +277,6 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
  * @param withHeader when true, shows a [FloatingActionButton] as the header
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DefaultWideNavigationRail(
     interactionSource: MutableInteractionSource,
@@ -298,7 +296,7 @@ private fun DefaultWideNavigationRail(
                     { Header() }
                 } else {
                     null
-                }
+                },
         ) {
             WideNavigationRailItem(
                 railExpanded = expanded,
@@ -306,7 +304,7 @@ private fun DefaultWideNavigationRail(
                 label = { Text("Favorites") },
                 selected = true,
                 onClick = {},
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             WideNavigationRailItem(
                 railExpanded = expanded,
@@ -314,7 +312,7 @@ private fun DefaultWideNavigationRail(
                 label = { Text("Home") },
                 selected = false,
                 enabled = !setUnselectedItemsAsDisabled,
-                onClick = {}
+                onClick = {},
             )
             WideNavigationRailItem(
                 railExpanded = expanded,
@@ -322,7 +320,7 @@ private fun DefaultWideNavigationRail(
                 label = { Text("Search") },
                 selected = false,
                 enabled = !setUnselectedItemsAsDisabled,
-                onClick = {}
+                onClick = {},
             )
         }
     }

@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id("AndroidXPlugin")
+    id("androidx.privacysandboxplugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "androidx.privacysandbox.ui.macrobenchmark.testapp.mediateesdkprovider"
+    compileSdk = 35
+    compileSdkExtension = 14
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+        }
+    }
+
+    privacySandbox {
+        enable = true
+    }
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.8.1")
+    implementation(project(":privacysandbox:sdkruntime:sdkruntime-provider"))
+    implementation(project(":privacysandbox:ui:ui-provider"))
+    implementation(project(":privacysandbox:ui:macrobenchmark:testapp:sdkproviderutils"))
+
+    // Add library dependencies at head - to override the dependencies that will be added by
+    // privacysandboxplugin.
+    ksp(project(':privacysandbox:tools:tools-apicompiler'))
+    implementation(project(':privacysandbox:tools:tools'))
+    implementation(project(":privacysandbox:ui:ui-core"))
+    implementation(project(':privacysandbox:activity:activity-core'))
+    implementation(project(':privacysandbox:activity:activity-provider'))
+}

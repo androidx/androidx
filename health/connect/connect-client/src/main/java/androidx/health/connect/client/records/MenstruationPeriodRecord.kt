@@ -27,7 +27,7 @@ class MenstruationPeriodRecord(
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
 
     init {

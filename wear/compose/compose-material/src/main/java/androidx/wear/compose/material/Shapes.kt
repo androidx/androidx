@@ -40,12 +40,7 @@ public class Shapes(
         small: CornerBasedShape = this.small,
         medium: CornerBasedShape = this.medium,
         large: CornerBasedShape = this.large,
-    ): Shapes =
-        Shapes(
-            small = small,
-            medium = medium,
-            large = large,
-        )
+    ): Shapes = Shapes(small = small, medium = medium, large = large)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

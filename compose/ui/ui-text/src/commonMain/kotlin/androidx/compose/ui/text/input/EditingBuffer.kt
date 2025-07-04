@@ -36,7 +36,7 @@ class EditingBuffer(
      * selection must points the valid index of the initialText, otherwise IndexOutOfBoundsException
      * will be thrown.
      */
-    selection: TextRange
+    selection: TextRange,
 ) {
     internal companion object {
         internal const val NOWHERE = -1
@@ -118,7 +118,7 @@ class EditingBuffer(
 
     internal constructor(
         text: String,
-        selection: TextRange
+        selection: TextRange,
     ) : this(AnnotatedString(text), selection)
 
     init {

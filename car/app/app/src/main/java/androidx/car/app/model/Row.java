@@ -547,8 +547,10 @@ public final class Row implements Item {
         /**
          * Sets a numeric decoration to display in the row.
          *
-         * <p> Numeric decorations are displayed at the end of the row, but before any actions.
-         * Numeric decorations are not displayed in half-list templates.
+         * <p> Numeric decorations are displayed at the end of the row. A numeric decoration cannot
+         * be set with only a <b>single</b> action which will end up only showing the action;
+         * however, the decoration may be set with 2 actions. Numeric decorations are not displayed
+         * in half-list templates.
          *
          * <p> Numeric decorations typically represent a quantity of unseen content. For example, a
          * decoration might represent a number of missed notifications, or a number of unread

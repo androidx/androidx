@@ -51,7 +51,7 @@ class LocalesConfigChangesWithoutLayoutDirectionTestCase {
             expectedLocales =
                 LocalesUpdateActivity.overlayCustomAndSystemLocales(
                     LocalesUtils.CUSTOM_LOCALE_LIST,
-                    systemLocales
+                    systemLocales,
                 )
         }
     }
@@ -70,7 +70,7 @@ class LocalesConfigChangesWithoutLayoutDirectionTestCase {
             assertNull(it.lastConfigurationChangeAndClear)
             LocalesUtils.assertConfigurationLocalesEquals(
                 expectedLocales,
-                it.resources.configuration!!
+                it.resources.configuration!!,
             )
         }
     }

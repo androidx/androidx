@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -31,8 +31,10 @@ plugins {
 
 dependencies {
     api("androidx.camera:camera-core:1.4.0")
-    implementation("androidx.media3:media3-common:1.5.0-alpha01")
-    implementation("androidx.media3:media3-effect:1.5.0-alpha01")
+    api(libs.androidx.core)
+    implementation(libs.androidx.annotation)
+    implementation("androidx.media3:media3-common:1.6.0")
+    implementation("androidx.media3:media3-effect:1.6.0")
 
     testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.kotlinCoroutinesTest)
@@ -40,8 +42,6 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-    testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -50,21 +50,25 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.camera:camera-camera2:1.4.0")
+    androidTestImplementation("androidx.camera:camera-lifecycle:1.4.0")
     androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.3.1")
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.jspecify)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
+    androidTestImplementation(project(":camera:camera-core"))
 }
 
 android {
     compileSdk = 35
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.camera.media3.effect"
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
 }
 
 androidx {
     name = "androidx.camera.media3:media3-effect"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Media3 effect components for the Jetpack Camera Library, a library providing a seamless integration that enables media3 effect in CameraX."
+    enableRobolectric()
 }

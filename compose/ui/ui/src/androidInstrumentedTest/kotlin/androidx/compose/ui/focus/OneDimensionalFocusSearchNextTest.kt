@@ -540,7 +540,7 @@ class OneDimensionalFocusSearchNextTest {
 
     private fun ComposeContentTestRule.setContentForTest(
         initializeFocus: Boolean = false,
-        composable: @Composable () -> Unit
+        composable: @Composable () -> Unit,
     ) {
         setContent {
             focusManager = LocalFocusManager.current

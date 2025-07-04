@@ -35,16 +35,23 @@ fun SemanticsNodeInteraction.onParent(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) }
+        selector.addSelectionFromSingleNode("parent") { listOfNotNull(it.parent) },
     )
 }
 
-/** Returns children of this node. */
+/**
+ * Returns children of this node at the moment of invocation, it only captures nodes that are
+ * currently present in the semantic tree.
+ *
+ * This is especially relevant for lazy layouts like 'LazyColumn' or 'LazyRow' where only a subset
+ * of items are currently composed and exist in the tree. Therefore, this function will only return
+ * those currently composed items, not all the items in the backing data set.
+ */
 fun SemanticsNodeInteraction.onChildren(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("children") { it.children }
+        selector.addSelectionFromSingleNode("children") { it.children },
     )
 }
 
@@ -61,7 +68,7 @@ fun SemanticsNodeInteraction.onChild(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("child") { it.children }
+        selector.addSelectionFromSingleNode("child") { it.children },
     )
 }
 
@@ -89,7 +96,7 @@ fun SemanticsNodeInteraction.onSiblings(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("siblings") { it.siblings }
+        selector.addSelectionFromSingleNode("siblings") { it.siblings },
     )
 }
 
@@ -106,7 +113,7 @@ fun SemanticsNodeInteraction.onSibling(): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("sibling") { it.siblings }
+        selector.addSelectionFromSingleNode("sibling") { it.siblings },
     )
 }
 
@@ -126,7 +133,7 @@ fun SemanticsNodeInteraction.onAncestors(): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() }
+        selector.addSelectionFromSingleNode("ancestors") { it.ancestors.toList() },
     )
 }
 
@@ -163,7 +170,7 @@ fun SemanticsNodeInteractionCollection.filter(
     return SemanticsNodeInteractionCollection(
         testContext,
         useUnmergedTree,
-        selector.addSelectorViaMatcher("filter", matcher)
+        selector.addSelectorViaMatcher("filter", matcher),
     )
 }
 
@@ -182,6 +189,6 @@ fun SemanticsNodeInteractionCollection.filterToOne(
     return SemanticsNodeInteraction(
         testContext,
         useUnmergedTree,
-        selector.addSelectorViaMatcher("filterToOne", matcher)
+        selector.addSelectorViaMatcher("filterToOne", matcher),
     )
 }

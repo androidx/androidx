@@ -52,7 +52,7 @@ actual constructor(
     private val renderEffect: RenderEffect?,
     private val radiusX: Float,
     private val radiusY: Float,
-    private val edgeTreatment: TileMode
+    private val edgeTreatment: TileMode,
 ) : RenderEffect() {
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -61,7 +61,7 @@ actual constructor(
             renderEffect,
             radiusX,
             radiusY,
-            edgeTreatment
+            edgeTreatment,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -127,7 +127,7 @@ private object RenderEffectVerificationHelper {
         inputRenderEffect: RenderEffect?,
         radiusX: Float,
         radiusY: Float,
-        edgeTreatment: TileMode
+        edgeTreatment: TileMode,
     ): android.graphics.RenderEffect =
         if (radiusX == 0f && radiusY == 0f) {
             // Workaround for preventing exceptions to be thrown if apps animate blur radii values
@@ -140,20 +140,20 @@ private object RenderEffectVerificationHelper {
             android.graphics.RenderEffect.createBlurEffect(
                 radiusX,
                 radiusY,
-                edgeTreatment.toAndroidTileMode()
+                edgeTreatment.toAndroidTileMode(),
             )
         } else {
             android.graphics.RenderEffect.createBlurEffect(
                 radiusX,
                 radiusY,
                 inputRenderEffect.asAndroidRenderEffect(),
-                edgeTreatment.toAndroidTileMode()
+                edgeTreatment.toAndroidTileMode(),
             )
         }
 
     fun createOffsetEffect(
         inputRenderEffect: RenderEffect?,
-        offset: Offset
+        offset: Offset,
     ): android.graphics.RenderEffect =
         if (inputRenderEffect == null) {
             android.graphics.RenderEffect.createOffsetEffect(offset.x, offset.y)
@@ -161,7 +161,7 @@ private object RenderEffectVerificationHelper {
             android.graphics.RenderEffect.createOffsetEffect(
                 offset.x,
                 offset.y,
-                inputRenderEffect.asAndroidRenderEffect()
+                inputRenderEffect.asAndroidRenderEffect(),
             )
         }
 }

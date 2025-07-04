@@ -76,7 +76,7 @@ internal fun intArgument(name: String, hasDefaultValue: Boolean = false) =
 internal fun <D : Enum<*>> enumArgument(
     name: String,
     clazz: Class<D>,
-    hasDefaultValue: Boolean = false
+    hasDefaultValue: Boolean = false,
 ) =
     navArgument(name) {
         type = NavType.EnumType(clazz)

@@ -451,6 +451,7 @@ public class ConstraintWidgetContainer extends WidgetContainer {
      * Update the frame of the layout and its children from the solver
      *
      * @param system the solver we get the values from.
+     * @param flags  the flag set associated with this solver
      */
     public boolean updateChildrenFromSolver(LinearSystem system, boolean[] flags) {
         flags[Optimizer.FLAG_RECOMPUTE_BOUNDS] = false;

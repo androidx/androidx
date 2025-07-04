@@ -6,7 +6,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation(project(":webkit:integration-tests:common"))
 
     androidTestImplementation(libs.okhttpMockwebserver)
+    androidTestImplementation(libs.okhttpTls)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -56,6 +57,6 @@ dependencies {
 }
 
 androidx {
-    type = type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = type = SoftwareType.INTERNAL_TEST_LIBRARY
     additionalDeviceTestApkKeys.add("chrome")
 }

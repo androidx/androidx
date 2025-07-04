@@ -36,7 +36,7 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.CONSTRUCTOR,
     AnnotationTarget.FIELD,
-    AnnotationTarget.FILE
+    AnnotationTarget.FILE,
 )
 @Suppress("SupportAnnotationUsage")
 @OptIn(ExperimentalMultiplatform::class)
@@ -45,5 +45,5 @@ public expect annotation class RequiresApi(
     /** The API level to require. Alias for [.api] which allows you to leave out the `api=` part. */
     @IntRange(from = 1) val value: Int = 1,
     /** The API level to require */
-    @IntRange(from = 1) val api: Int = 1
+    @IntRange(from = 1) val api: Int = 1,
 )

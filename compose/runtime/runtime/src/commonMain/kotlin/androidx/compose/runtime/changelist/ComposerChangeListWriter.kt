@@ -40,7 +40,7 @@ internal class ComposerChangeListWriter(
      */
     private val composer: ComposerImpl,
     /** The ChangeList that will be written to */
-    var changeList: ChangeList
+    var changeList: ChangeList,
 ) {
     private val reader: SlotReader
         get() = composer.reader
@@ -429,7 +429,7 @@ internal class ComposerChangeListWriter(
     fun releaseMovableGroupAtCurrent(
         composition: ControlledComposition,
         parentContext: CompositionContext,
-        reference: MovableContentStateReference
+        reference: MovableContentStateReference,
     ) {
         changeList.pushReleaseMovableGroupAtCurrent(composition, parentContext, reference)
     }

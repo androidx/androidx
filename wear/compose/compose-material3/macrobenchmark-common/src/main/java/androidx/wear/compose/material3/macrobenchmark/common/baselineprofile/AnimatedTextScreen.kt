@@ -67,7 +67,7 @@ val AnimatedTextScreen =
                     val textStyle = remember {
                         TextStyle.Default.copy(
                             fontFamily = Font(R.font.robotoflex_variable).toFontFamily(),
-                            fontSize = 50.sp
+                            fontSize = 50.sp,
                         )
                     }
                     val fontRegistry =
@@ -75,20 +75,20 @@ val AnimatedTextScreen =
                             startFontVariationSettings =
                                 FontVariation.Settings(
                                     FontVariation.width(10f),
-                                    FontVariation.weight(100)
+                                    FontVariation.weight(100),
                                 ),
                             endFontVariationSettings =
                                 FontVariation.Settings(
                                     FontVariation.width(100f),
-                                    FontVariation.weight(900)
+                                    FontVariation.weight(900),
                                 ),
-                            textStyle = textStyle
+                            textStyle = textStyle,
                         )
 
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         var textValue by remember { mutableIntStateOf(150) }
                         Box(
@@ -102,7 +102,7 @@ val AnimatedTextScreen =
                                             animatable.animateTo(0.5f)
                                         }
                                     },
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             Text("-", fontSize = 30.sp, textAlign = TextAlign.Center)
                         }
@@ -110,7 +110,7 @@ val AnimatedTextScreen =
                             AnimatedText(
                                 text = textValue.toString(),
                                 fontRegistry = fontRegistry,
-                                progressFraction = { animatable.value }
+                                progressFraction = { animatable.value },
                             )
                         }
                         Box(
@@ -124,7 +124,7 @@ val AnimatedTextScreen =
                                             animatable.animateTo(0.5f)
                                         }
                                     },
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             Text("+", fontSize = 30.sp)
                         }
@@ -138,7 +138,7 @@ val AnimatedTextScreen =
                     device
                         .wait(
                             Until.findObject(By.desc(MinusContentDescription)),
-                            FIND_OBJECT_TIMEOUT_MS
+                            FIND_OBJECT_TIMEOUT_MS,
                         )
                         .click()
                     SystemClock.sleep(250L)
@@ -147,7 +147,7 @@ val AnimatedTextScreen =
                     device
                         .wait(
                             Until.findObject(By.desc(PlusContentDescription)),
-                            FIND_OBJECT_TIMEOUT_MS
+                            FIND_OBJECT_TIMEOUT_MS,
                         )
                         .click()
                     SystemClock.sleep(250L)

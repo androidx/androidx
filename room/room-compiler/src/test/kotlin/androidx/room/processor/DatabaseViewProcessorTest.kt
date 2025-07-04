@@ -19,9 +19,9 @@ package androidx.room.processor
 import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParserErrors
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.verifier.ColumnInfo
 import androidx.room.vo.DatabaseView
@@ -54,7 +54,7 @@ class DatabaseViewProcessorTest {
                         public int id;
                         public String name;
                     }
-                """
+                """,
                 ),
                 Source.java(
                     "foo.bar.Employee",
@@ -69,8 +69,8 @@ class DatabaseViewProcessorTest {
                         public int teamId;
                         public Integer managerId;
                     }
-                """
-                )
+                """,
+                ),
             )
     }
 
@@ -82,7 +82,7 @@ class DatabaseViewProcessorTest {
             @DatabaseView("SELECT * FROM Team")
             public class MyView {
             }
-        """
+        """,
         ) { view, _ ->
             assertThat(view.query.original).isEqualTo("SELECT * FROM Team")
             assertThat(view.query.errors).isEmpty()
@@ -96,7 +96,7 @@ class DatabaseViewProcessorTest {
             assertThat(resultInfo.columns)
                 .containsAtLeast(
                     ColumnInfo("id", SQLTypeAffinity.INTEGER, "Team"),
-                    ColumnInfo("name", SQLTypeAffinity.TEXT, "Team")
+                    ColumnInfo("name", SQLTypeAffinity.TEXT, "Team"),
                 )
             assertThat(view.viewName).isEqualTo("MyView")
         }
@@ -110,7 +110,7 @@ class DatabaseViewProcessorTest {
             @DatabaseView(value = "SELECT * FROM Team", viewName = "abc")
             public class MyView {
             }
-        """
+        """,
         ) { view, _ ->
             assertThat(view.viewName).isEqualTo("abc")
         }
@@ -125,7 +125,7 @@ class DatabaseViewProcessorTest {
             public class MyView {
             }
         """,
-            verify = false
+            verify = false,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE)
@@ -142,7 +142,7 @@ class DatabaseViewProcessorTest {
             public class MyView {
             }
         """,
-            verify = false
+            verify = false,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
@@ -159,7 +159,7 @@ class DatabaseViewProcessorTest {
             public class MyView {
             }
         """,
-            verify = false
+            verify = false,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS)
@@ -176,7 +176,7 @@ class DatabaseViewProcessorTest {
             public class MyView {
             }
         """,
-            verify = false
+            verify = false,
         ) { _, invocation ->
             invocation.assertCompilationResult { hasErrorContaining(ParserErrors.NOT_ONE_QUERY) }
         }
@@ -190,7 +190,7 @@ class DatabaseViewProcessorTest {
             public class MyView {
             }
         """,
-            verify = false
+            verify = false,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW)
@@ -211,7 +211,7 @@ class DatabaseViewProcessorTest {
                         public String name;
                         public Integer managerId;
                     }
-                """
+                """,
             )
         singleView(
             "foo.bar.EmployeeName",
@@ -222,7 +222,7 @@ class DatabaseViewProcessorTest {
                 public String name;
             }
         """,
-            ENTITIES + summary
+            ENTITIES + summary,
         ) { view, _ ->
             assertThat(view.viewName).isEqualTo("EmployeeName")
         }
@@ -233,9 +233,9 @@ class DatabaseViewProcessorTest {
         input: String,
         sources: List<Source> = ENTITIES,
         verify: Boolean = true,
-        handler: (view: DatabaseView, invocation: XTestInvocation) -> Unit
+        handler: (view: DatabaseView, invocation: XTestInvocation) -> Unit,
     ) {
-        runProcessorTestWithK1(sources = sources + Source.java(name, DATABASE_PREFIX + input)) {
+        runProcessorTest(sources = sources + Source.java(name, DATABASE_PREFIX + input)) {
             invocation ->
             val view = invocation.processingEnv.requireTypeElement(name)
             val verifier =

@@ -54,10 +54,7 @@ fun SimpleStaggeredDemo() {
     var mode by remember { mutableStateOf(StaggeredMode.Normal) }
     var animateToEnd by remember { mutableStateOf(false) }
     val progress by
-        animateFloatAsState(
-            targetValue = if (animateToEnd) 1f else 0f,
-            animationSpec = tween(3000),
-        )
+        animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f, animationSpec = tween(3000))
     val boxesId: IntArray = remember { IntArray(10) { it } }
     val staggeredValue by remember {
         derivedStateOf {
@@ -89,14 +86,14 @@ fun SimpleStaggeredDemo() {
                         constraintSet {
                             createVerticalChain(*refs, chainStyle = ChainStyle.Packed(1f))
                             constrain(*refs) { end.linkTo(parent.end) }
-                        }
+                        },
                     ) {
                         maxStaggerDelay = staggeredValue
                     }
                 }
             },
             progress = progress,
-            Modifier.fillMaxWidth().weight(1f, true)
+            Modifier.fillMaxWidth().weight(1f, true),
         ) {
             for (id in boxesId) {
                 Box(modifier = Modifier.size(25.dp).background(Color.Red).layoutId(id))
@@ -123,5 +120,5 @@ fun SimpleStaggeredDemo() {
 private enum class StaggeredMode {
     Normal,
     Inverted,
-    Custom
+    Custom,
 }

@@ -51,7 +51,7 @@ class DisplayInfoManagerTest {
 
         // Act
         val size = Point()
-        displayInfoManager.defaultDisplay.getRealSize(size)
+        displayInfoManager.getMaxSizeDisplay().getRealSize(size)
 
         // Assert
         assertEquals(currentDisplaySize, size)
@@ -63,7 +63,7 @@ class DisplayInfoManagerTest {
         val previewSize = displayInfoManager.getPreviewSize()
         assertTrue(
             "$previewSize has larger area than 1920 * 1080",
-            previewSize.width * previewSize.height <= 1920 * 1080
+            previewSize.width * previewSize.height <= 1920 * 1080,
         )
     }
 }

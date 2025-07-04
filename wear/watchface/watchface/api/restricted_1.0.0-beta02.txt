@@ -124,10 +124,10 @@ package androidx.wear.watchface {
   }
 
   public final class RenderParameters {
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer, optional java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents);
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer);
-    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RenderParameters(androidx.wear.watchface.data.RenderParametersWireFormat wireFormat);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer);
+    ctor public RenderParameters(androidx.wear.watchface.DrawMode drawMode, java.util.Set<? extends androidx.wear.watchface.style.WatchFaceLayer> watchFaceLayers, optional androidx.wear.watchface.RenderParameters.HighlightLayer? highlightLayer, optional java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> lastComplicationTapDownEvents);
     method public androidx.wear.watchface.DrawMode getDrawMode();
     method public androidx.wear.watchface.RenderParameters.HighlightLayer? getHighlightLayer();
     method public java.util.Map<java.lang.Integer,androidx.wear.watchface.TapEvent> getLastComplicationTapDownEvents();
@@ -208,9 +208,9 @@ package androidx.wear.watchface {
   }
 
   public abstract static class Renderer.GlesRenderer extends androidx.wear.watchface.Renderer {
-    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
-    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
+    ctor @WorkerThread @kotlin.jvm.Throws(exceptionClasses=GlesException::class) public Renderer.GlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList) throws androidx.wear.watchface.Renderer.GlesRenderer.GlesException;
     method public final android.opengl.EGLContext getEglBackgroundThreadContext();
     method public final android.opengl.EGLConfig getEglConfig();
     method public final android.opengl.EGLDisplay getEglDisplay();
@@ -275,8 +275,8 @@ package androidx.wear.watchface {
   }
 
   public static final class WatchFace.LegacyWatchFaceOverlayStyle {
-    ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted, optional @ColorInt int accentColor);
     ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted);
+    ctor public WatchFace.LegacyWatchFaceOverlayStyle(int viewProtectionMode, int statusBarGravity, boolean tapEventsAccepted, optional @ColorInt int accentColor);
     method public int getAccentColor();
     method public int getStatusBarGravity();
     method public boolean getTapEventsAccepted();

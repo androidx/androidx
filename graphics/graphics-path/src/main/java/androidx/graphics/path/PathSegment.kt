@@ -39,7 +39,7 @@ class PathSegment
 internal constructor(
     val type: Type,
     @get:Suppress("ArrayReturn") val points: Array<PointF>,
-    val weight: Float
+    val weight: Float,
 ) {
     /**
      * Type of a given segment in a [path][android.graphics.Path], either a command ([Type.Move],
@@ -95,7 +95,7 @@ internal constructor(
          * Done command, which indicates that no further segment will be found in the path. It
          * typically indicates the end of an iteration over a path and can be ignored.
          */
-        Done
+        Done,
     }
 
     override fun equals(other: Any?): Boolean {

@@ -15,6 +15,7 @@ package androidx.privacysandbox.ui.provider {
     method public final java.util.Set<java.lang.String> getSignalOptions();
     method public void notifyConfigurationChanged(android.content.res.Configuration configuration);
     method public void notifyResized(int width, int height);
+    method public void notifySessionRendered(java.util.Set<java.lang.String> supportedSignalOptions);
     method public void notifyUiChanged(android.os.Bundle uiContainerInfo);
     method public void notifyZOrderChanged(boolean isZOrderOnTop);
     property public final java.util.Set<java.lang.String> signalOptions;
@@ -29,6 +30,10 @@ package androidx.privacysandbox.ui.provider {
     method public java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> getSessionObserverFactories();
     method public void removeObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
     property public abstract java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> sessionObserverFactories;
+  }
+
+  public final class SharedUiAdapterProxy {
+    method @SuppressCompatibility @androidx.privacysandbox.ui.core.ExperimentalFeatures.SharedUiPresentationApi public static android.os.Bundle toCoreLibInfo(androidx.privacysandbox.ui.core.SharedUiAdapter);
   }
 
 }

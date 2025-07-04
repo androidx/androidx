@@ -39,16 +39,13 @@ fun ExposedDropdownMenuSample() {
     var expanded by remember { mutableStateOf(false) }
     val textFieldState = rememberTextFieldState(options[0])
     // We want to react on tap/press on TextField to show menu
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         TextField(
             readOnly = true,
             state = textFieldState,
             label = { Text("Label") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors()
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { selectionOption ->
@@ -72,15 +69,12 @@ fun EditableExposedDropdownMenuSample() {
     val options = listOf("Option 1", "Option 2", "Option 3", "Option 4", "Option 5")
     var expanded by remember { mutableStateOf(false) }
     val textFieldState = rememberTextFieldState()
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it },
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         TextField(
             state = textFieldState,
             label = { Text("Label") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors()
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         // filter options based on text field value
         val filteringOptions =

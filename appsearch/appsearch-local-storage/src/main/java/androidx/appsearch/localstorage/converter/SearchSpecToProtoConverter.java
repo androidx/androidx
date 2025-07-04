@@ -283,9 +283,13 @@ public final class SearchSpecToProtoConverter {
     }
 
 
-    /** Extracts {@link SearchSpecProto} information from a {@link SearchSpec}. */
+    /**
+     * Extracts {@link SearchSpecProto} information from a {@link SearchSpec}.
+     *
+     * @param isVMEnabled Whether or not icing is running in a pVM.
+     */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    public @NonNull SearchSpecProto toSearchSpecProto() {
+    public @NonNull SearchSpecProto toSearchSpecProto(boolean isVMEnabled) {
         // set query to SearchSpecProto and override schema and namespace filter by
         // targetPrefixedFilters which contains all existing and also accessible to the caller
         // filters.
@@ -357,9 +361,9 @@ public final class SearchSpecToProtoConverter {
             JoinSpecProto.NestedSpecProto nestedSpec =
                     JoinSpecProto.NestedSpecProto.newBuilder()
                             .setResultSpec(mNestedConverter.toResultSpecProto(
-                                    mNamespaceCache, mSchemaCache))
+                                    mNamespaceCache, mSchemaCache, isVMEnabled))
                             .setScoringSpec(mNestedConverter.toScoringSpecProto())
-                            .setSearchSpec(mNestedConverter.toSearchSpecProto())
+                            .setSearchSpec(mNestedConverter.toSearchSpecProto(isVMEnabled))
                             .build();
 
             // This cannot be null, otherwise mNestedConverter would be null as well.
@@ -423,20 +427,30 @@ public final class SearchSpecToProtoConverter {
     /**
      * Extracts {@link ResultSpecProto} information from a {@link SearchSpec}.
      *
-     * @param namespaceCache  The NamespaceCache instance held in AppSearch.
-     * @param schemaCache     The SchemaCache instance held in AppSearch.
+     * @param namespaceCache The NamespaceCache instance held in AppSearch.
+     * @param schemaCache The SchemaCache instance held in AppSearch.
+     * @param isVMEnabled Whether or not icing is running in a pVM.
      */
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public @NonNull ResultSpecProto toResultSpecProto(
-            @NonNull NamespaceCache namespaceCache,
-            @NonNull SchemaCache schemaCache) {
+            @NonNull NamespaceCache namespaceCache, @NonNull SchemaCache schemaCache,
+            boolean isVMEnabled) {
         ResultSpecProto.Builder resultSpecBuilder = ResultSpecProto.newBuilder()
                 .setNumPerPage(mSearchSpec.getResultCountPerPage())
                 .setSnippetSpec(
                         ResultSpecProto.SnippetSpecProto.newBuilder()
                                 .setNumToSnippet(mSearchSpec.getSnippetCount())
                                 .setNumMatchesPerProperty(mSearchSpec.getSnippetCountPerProperty())
-                                .setMaxWindowUtf32Length(mSearchSpec.getMaxSnippetSize()))
-                .setNumTotalBytesPerPageThreshold(mIcingOptionsConfig.getMaxPageBytesLimit());
+                                .setMaxWindowUtf32Length(mSearchSpec.getMaxSnippetSize())
+                                .setGetEmbeddingMatchInfo(
+                                        mSearchSpec.shouldRetrieveEmbeddingMatchInfos()));
+        if (isVMEnabled) {
+            resultSpecBuilder.setNumTotalBytesPerPageThreshold(
+                    mIcingOptionsConfig.getMaxPageBytesLimitForVm());
+        } else {
+            resultSpecBuilder.setNumTotalBytesPerPageThreshold(
+                    mIcingOptionsConfig.getMaxPageBytesLimit());
+        }
         JoinSpec joinSpec = mSearchSpec.getJoinSpec();
         if (joinSpec != null) {
             resultSpecBuilder.setMaxJoinedChildrenPerParentToReturn(

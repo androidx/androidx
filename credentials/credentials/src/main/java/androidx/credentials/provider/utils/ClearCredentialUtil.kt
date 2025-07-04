@@ -35,7 +35,7 @@ class ClearCredentialUtil {
                 CallingAppInfo.create(
                     request.callingAppInfo.packageName,
                     request.callingAppInfo.signingInfo,
-                    request.callingAppInfo.origin
+                    request.callingAppInfo.origin,
                 )
             )
         }

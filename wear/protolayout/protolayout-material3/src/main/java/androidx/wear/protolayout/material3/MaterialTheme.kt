@@ -19,12 +19,14 @@ package androidx.wear.protolayout.material3
 import android.annotation.SuppressLint
 import androidx.annotation.OptIn
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
-import androidx.wear.protolayout.DimensionBuilders.SpProp
-import androidx.wear.protolayout.DimensionBuilders.sp
+import androidx.wear.protolayout.LayoutElementBuilders.FontSetting
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental
+import androidx.wear.protolayout.expression.RequiresSchemaVersion
 import androidx.wear.protolayout.material3.Typography.TypographyToken
 import androidx.wear.protolayout.material3.tokens.TextStyle
+import androidx.wear.protolayout.types.sp
+import kotlin.math.roundToInt
 
 /**
  * MaterialTheme defines the styling principle from the Wear Material3 design specification which
@@ -46,10 +48,11 @@ import androidx.wear.protolayout.material3.tokens.TextStyle
  * ProtoLayout Material3 components use the values provided here to style their looks.
  *
  * @param colorScheme The customized colors for each color role.
+ * @param shapes The shapes values for each shape role.
  */
 internal class MaterialTheme(
     internal val colorScheme: ColorScheme = ColorScheme(),
-    internal val shapes: Shapes = Shapes()
+    internal val shapes: Shapes = Shapes(),
 ) {
     /** Retrieves the [FontStyle.Builder] with the typography name. */
     internal fun getFontStyleBuilder(@TypographyToken typographyToken: Int) =
@@ -65,20 +68,58 @@ internal class MaterialTheme(
 internal fun createFontStyleBuilder(
     @TypographyToken typographyToken: Int,
     deviceConfiguration: DeviceParameters? = null,
-    isScalable: Boolean = true
+    isScalable: Boolean = true,
+    @RequiresSchemaVersion(major = 1, minor = 400) settings: List<FontSetting> = emptyList(),
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    incrementsForTypographySize: List<Float> = emptyList(),
 ): FontStyle.Builder {
     val textStyle: TextStyle = Typography.fromToken(typographyToken)
-    val sizeSp: SpProp = textStyle.size
-    return FontStyle.Builder()
-        .setSize(
-            if (!isScalable && deviceConfiguration != null) {
-                sp(sizeSp.value.dpToSp(deviceConfiguration.fontScale))
-            } else {
-                sizeSp
-            }
+    val baseSize = textStyle.size.value
+    val baseSizeInFinalSp =
+        baseSize.adjustSpIfNotScalable(
+            deviceConfiguration = deviceConfiguration,
+            isScalable = isScalable,
         )
+
+    return FontStyle.Builder()
+        .setSize(baseSizeInFinalSp.sp)
         .setLetterSpacing(textStyle.letterSpacing)
-        .setSettings(*textStyle.fontSettings.toTypedArray())
+        // Apply newly provided settings first so that they will override theme ones if set.
+        .setSettings(*(settings + textStyle.fontSettings).toTypedArray())
         .setVariant(TypographyFontSelection.getFontVariant(typographyToken))
         .setWeight(TypographyFontSelection.getFontWeight(typographyToken))
+        .apply {
+            if (incrementsForTypographySize.isNotEmpty()) {
+                setSizes(
+                    // Original size should be at the end for renderers not supporting the feature.
+                    *(incrementsForTypographySize
+                        .map {
+                            ((baseSize + it).adjustSpIfNotScalable(
+                                    deviceConfiguration = deviceConfiguration,
+                                    isScalable = isScalable,
+                                ))
+                                .roundToInt()
+                        }
+                        .toIntArray() + baseSizeInFinalSp.roundToInt())
+                )
+            }
+        }
 }
+
+/**
+ * Returns final value of the given number representing size in SP dimension, based on scalability
+ * of that size.
+ *
+ * If [isScalable] is `true`, returns the same object, meaning this size should scale with the user
+ * font size changes. If [isScalable] is `false`, calculation is applied so that this SP value is
+ * represented as a DP value, i.e. it doesn't scale with the user font size.
+ */
+internal fun Float.adjustSpIfNotScalable(
+    deviceConfiguration: DeviceParameters? = null,
+    isScalable: Boolean = true,
+): Float =
+    if (!isScalable && deviceConfiguration != null) {
+        dpToSp(deviceConfiguration.fontScale)
+    } else {
+        this
+    }

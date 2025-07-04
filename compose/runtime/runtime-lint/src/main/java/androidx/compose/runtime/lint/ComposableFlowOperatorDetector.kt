@@ -67,7 +67,7 @@ class ComposableFlowOperatorDetector : Detector(), SourceCodeScanner {
                             FlowOperatorInvokedInComposition,
                             node,
                             context.getNameLocation(node),
-                            "Flow operator functions should not be invoked within composition"
+                            "Flow operator functions should not be invoked within composition",
                         )
                     }
                 }
@@ -88,8 +88,8 @@ class ComposableFlowOperatorDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     ComposableFlowOperatorDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

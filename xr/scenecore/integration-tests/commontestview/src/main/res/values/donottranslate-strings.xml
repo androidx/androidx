@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string name="recreate_activity" description="button text to recreate current activity [CHAR LIMIT=40]">Recreate Activity</string>
+  <string name="application_name_label" description="Label for running application's name [CHAR LIMIT=30]">Application Name: </string>
+  <string name="build_fingerprint_label" description="Label for the Android OS' build number similar to what's shown in Settings->About Phone->Build Number[CHAR LIMIT=30]">Build Fingerprint: </string>
+  <string name="build_date_label" description="Label for the date that the Android OS was built[CHAR LIMIT=30]">OS Build Date: </string>
+  <string name="cl_number_label" description="Label for the SceneCore CL Number [CHAR LIMIT=30]">SceneCore CL: </string>
+</resources>

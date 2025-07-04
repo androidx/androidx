@@ -44,7 +44,7 @@ val Context.basic by preferencesDataStore(name = "test1")
 val Context.withCorruptionHandler by
     preferencesDataStore(
         name = "test2",
-        corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(booleanKey to true) }
+        corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(booleanKey to true) },
     )
 
 val Context.withMigrations by
@@ -73,9 +73,9 @@ val Context.withMigrations by
                             .toPreferences()
 
                     override suspend fun cleanUp() {}
-                }
+                },
             )
-        }
+        },
     )
 
 @ObsoleteCoroutinesApi
@@ -100,7 +100,7 @@ class PreferenceDataStoreDelegateTest {
 
             assertEquals(
                 context.basic.edit { prefs -> prefs[stringKey] = "value" },
-                expectedPreferences
+                expectedPreferences,
             )
             assertEquals(expectedPreferences, context.basic.data.first())
         }

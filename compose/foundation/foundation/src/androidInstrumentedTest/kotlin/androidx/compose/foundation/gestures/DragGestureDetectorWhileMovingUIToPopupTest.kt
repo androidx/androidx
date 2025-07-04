@@ -218,7 +218,7 @@ class DragGestureDetectorWhileMovingUIToPopupTest {
                             onDragEnd()
                             showPopup = false
                             offset = Offset.Zero
-                        }
+                        },
                     )
                 }
         ) {

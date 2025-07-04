@@ -28,6 +28,7 @@ import org.robolectric.annotation.Config
 class ActivityOptionsCompatTest {
 
     @Config(minSdk = 33)
+    @Suppress("deprecation")
     @Test
     fun testSetPendingIntentBackgroundActivityStartMode() {
         val activityOptionsCompat = ActivityOptionsCompat.makeBasic()
@@ -48,5 +49,15 @@ class ActivityOptionsCompatTest {
 
         activityOptionsCompat.setLaunchDisplayId(0)
         assertEquals(activityOptionsCompat.launchDisplayId, 0)
+    }
+
+    @Config(maxSdk = 25)
+    @Test
+    fun testGetLaunchDisplayId_pre26() {
+        val activityOptionsCompat = ActivityOptionsCompat.makeBasic()
+        assertEquals(activityOptionsCompat.launchDisplayId, Display.INVALID_DISPLAY)
+
+        activityOptionsCompat.launchDisplayId = 0
+        assertEquals(activityOptionsCompat.launchDisplayId, Display.INVALID_DISPLAY)
     }
 }

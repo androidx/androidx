@@ -120,7 +120,7 @@ fun BasicNav() {
                 } else {
                     null
                 }
-            }
+            },
         ) {
             Dashboard(navController)
         }
@@ -140,7 +140,7 @@ fun BasicNav() {
                 } else {
                     null
                 }
-            }
+            },
         ) {
             Scrollable(navController)
         }
@@ -229,7 +229,7 @@ fun ProfileWithArgs(navController: NavController) {
             TextField(
                 value = state.value,
                 onValueChange = { state.value = it },
-                placeholder = { Text("Enter userId here") }
+                placeholder = { Text("Enter userId here") },
             )
         }
         Divider(color = Color.Black)
@@ -274,7 +274,7 @@ fun NavigateButton(text: String, listener: () -> Unit = {}) {
     Button(
         onClick = listener,
         colors = ButtonDefaults.buttonColors(backgroundColor = LightGray),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(text = "Navigate to $text")
     }
@@ -291,7 +291,7 @@ fun NavigateBackButton(navController: NavController) {
         Button(
             onClick = { navController.popBackStack() },
             colors = ButtonDefaults.buttonColors(backgroundColor = LightGray),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(text = "Go to Previous screen")
         }
@@ -301,9 +301,7 @@ fun NavigateBackButton(navController: NavController) {
 @Preview
 @Composable
 fun NavHostPreview() {
-    CompositionLocalProvider(
-        LocalInspectionMode provides true,
-    ) {
+    CompositionLocalProvider(LocalInspectionMode provides true) {
         Box(Modifier.fillMaxSize().background(Color.Red)) {
             NavHost(navController = rememberNavController(), startDestination = "home") {
                 composable("home") {
@@ -389,7 +387,7 @@ private val phrases =
         "Fool's Gold",
         "It's Not Brain Surgery",
         "Fight Fire With Fire",
-        "Go For Broke"
+        "Go For Broke",
     )
 
 @Serializable

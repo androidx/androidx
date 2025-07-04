@@ -63,7 +63,7 @@ class Adb {
         adbCmd: String,
         deviceId: String? = null,
         shouldThrow: Boolean = true,
-        silent: Boolean = false
+        silent: Boolean = false,
     ): ProcessResult {
         val subCmd = adbCmd.trim().split(Regex("\\s+")).toTypedArray()
         val adbArgs = if (!deviceId.isNullOrEmpty()) arrayOf("-s", deviceId) else emptyArray()

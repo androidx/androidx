@@ -225,7 +225,7 @@ class TextPreparedSelectionTest {
         initText: String = "",
         initSelection: TextRange = TextRange(0),
         rtl: Boolean = false,
-        test: SelectionScope<TextPreparedSelection>.(TextPreparedSelection) -> Unit
+        test: SelectionScope<TextPreparedSelection>.(TextPreparedSelection) -> Unit,
     ) {
         var textLayout: TextLayoutResult? = null
         val direction =
@@ -239,7 +239,7 @@ class TextPreparedSelectionTest {
                 BasicText(
                     text = initText,
                     style = TextStyle(fontFamily = TEST_FONT_FAMILY),
-                    onTextLayout = { textLayout = it }
+                    onTextLayout = { textLayout = it },
                 )
             }
         }
@@ -248,7 +248,7 @@ class TextPreparedSelectionTest {
             TextPreparedSelection(
                 originalText = AnnotatedString(initText),
                 originalSelection = initSelection,
-                layoutResult = textLayout!!
+                layoutResult = textLayout!!,
             )
 
         test(SelectionScope(prepared), prepared)

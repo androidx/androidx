@@ -69,7 +69,7 @@ public interface MeasureClient {
     public fun registerMeasureCallback(
         dataType: DeltaDataType<*, *>,
         executor: Executor,
-        callback: MeasureCallback
+        callback: MeasureCallback,
     )
 
     /**
@@ -82,7 +82,7 @@ public interface MeasureClient {
      */
     public fun unregisterMeasureCallbackAsync(
         dataType: DeltaDataType<*, *>,
-        callback: MeasureCallback
+        callback: MeasureCallback,
     ): ListenableFuture<Void>
 
     /**

@@ -36,7 +36,7 @@ class FrameworkSQLiteDatabaseTest {
             dbName,
             OpenHelperRecoveryTest.EmptyCallback(),
             useNoBackupDirectory = false,
-            allowDataLossOnRecovery = false
+            allowDataLossOnRecovery = false,
         )
 
     @Before
@@ -86,7 +86,7 @@ class FrameworkSQLiteDatabaseTest {
                 "test2.db",
                 OpenHelperRecoveryTest.EmptyCallback(),
                 useNoBackupDirectory = false,
-                allowDataLossOnRecovery = false
+                allowDataLossOnRecovery = false,
             )
         val db1 = openHelper.writableDatabase
         val db2 = openHelper2.writableDatabase
@@ -125,7 +125,7 @@ class FrameworkSQLiteDatabaseTest {
                     override fun onUpgrade(
                         db: SupportSQLiteDatabase,
                         oldVersion: Int,
-                        newVersion: Int
+                        newVersion: Int,
                     ) {
                         // Do a query, this query will get cached, but we expect it to get evicted
                         // if
@@ -155,7 +155,7 @@ class FrameworkSQLiteDatabaseTest {
                     }
                 },
                 useNoBackupDirectory = false,
-                allowDataLossOnRecovery = false
+                allowDataLossOnRecovery = false,
             )
             .writableDatabase
             .close()

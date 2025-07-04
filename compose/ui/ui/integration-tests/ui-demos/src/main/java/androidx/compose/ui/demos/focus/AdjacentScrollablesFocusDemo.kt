@@ -84,7 +84,7 @@ private fun FocusableBox(text: String, modifier: Modifier = Modifier) {
                 .border(2.dp, Color.Black)
                 .onFocusChanged { color = if (it.isFocused) Color.Red else Color.White }
                 .background(color)
-                .focusable()
+                .focusable(),
     )
 }
 
@@ -94,6 +94,6 @@ private fun NonFocusableBox(text: String, modifier: Modifier = Modifier) {
         text = text,
         fontSize = 50.sp,
         textAlign = TextAlign.Center,
-        modifier = modifier.size(100.dp).border(2.dp, Color.Black).background(Color.White)
+        modifier = modifier.size(100.dp).border(2.dp, Color.Black).background(Color.White),
     )
 }

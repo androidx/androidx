@@ -111,7 +111,7 @@ class ImageVectorTest {
                             painterResource(
                                 androidx.compose.ui.graphics.benchmark.R.drawable.ic_auto_mirror
                             ),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }
@@ -154,11 +154,11 @@ class ImageVectorTest {
             assertEquals(Color.Red.toArgb(), getPixel(width - insetRectSize - 2, insetRectSize + 2))
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(insetRectSize + 2, height - insetRectSize - 2)
+                getPixel(insetRectSize + 2, height - insetRectSize - 2),
             )
             assertEquals(
                 Color.Red.toArgb(),
-                getPixel(width - insetRectSize - 2, height - insetRectSize - 2)
+                getPixel(width - insetRectSize - 2, height - insetRectSize - 2),
             )
         }
     }

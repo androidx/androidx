@@ -21,13 +21,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXRepackagePlugin")
     id("kotlin")
     id("com.google.protobuf")
 }
@@ -35,10 +35,22 @@ plugins {
 def buildToolsVersion = AndroidXConfig.getDefaultAndroidConfig(project).getBuildToolsVersion()
 def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
 
+repackage {
+    // Must match what is in privacysandbox/tools/tools-core-external-protobuf/build.gradle
+    addRelocation {
+        sourcePackage = "com.google.protobuf"
+        targetPackage =  "androidx.privacysandbox.tools.core.proto"
+    }
+}
+
 dependencies {
     api(libs.kotlinStdlib)
-    api(libs.protobuf)
-    api(libs.kotlinPoet)
+    api("com.squareup:kotlinpoet:2.0.0")
+    api(project(":privacysandbox:tools:tools-core-external-protobuf"))
+    // Must be compileOnly to not bring in protobufLite in runtime
+    // Repackaged protobufLite brought in by
+    // project(":privacysandbox:tools:tools-core-external-protobuf") and used at runtime
+    compileOnly(libs.protobufLite)
     implementation(libs.guava)
     implementation(project(":privacysandbox:tools:tools"))
 
@@ -70,8 +82,7 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-core"
-    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2022"
     description = "Core utilities for Privacy Sandbox Tools."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

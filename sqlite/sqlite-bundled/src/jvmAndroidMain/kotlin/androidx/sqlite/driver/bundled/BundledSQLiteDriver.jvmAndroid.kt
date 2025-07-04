@@ -24,10 +24,23 @@ import androidx.sqlite.SQLiteDriver
 /**
  * A [SQLiteDriver] that uses a bundled version of SQLite included as a native component of the
  * library.
+ *
+ * The bundled SQLite used by this driver is compiled in
+ * [multi-thread mode](https://www.sqlite.org/threadsafe.html) which means connections opened by the
+ * driver are NOT thread-safe. If multiple connections are desired, then a connection pool is
+ * required in order for the connections be used in a multi-thread and concurrent environment. If
+ * only a single connection is needed then a thread-safe connection can be opened by using the
+ * [SQLITE_OPEN_FULLMUTEX] flag. If the application is single threaded, then no additional
+ * configuration is required.
  */
 // TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external
 // functions.
 public actual class BundledSQLiteDriver : SQLiteDriver {
+
+    @Suppress("INAPPLICABLE_JVM_NAME") // Due to KT-31420
+    @get:JvmName("hasConnectionPool")
+    override val hasConnectionPool: Boolean
+        get() = false
 
     /**
      * The thread safe mode SQLite was compiled with.
@@ -38,7 +51,7 @@ public actual class BundledSQLiteDriver : SQLiteDriver {
     public actual val threadingMode: Int
         get() = nativeThreadSafeMode()
 
-    override fun open(fileName: String): SQLiteConnection {
+    actual override fun open(fileName: String): SQLiteConnection {
         return open(fileName, SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE)
     }
 
@@ -52,11 +65,12 @@ public actual class BundledSQLiteDriver : SQLiteDriver {
      * @return the database connection.
      */
     public actual fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection {
+        NativeLibraryObject // loads native library
         val address = nativeOpen(fileName, flags)
         return BundledSQLiteConnection(address)
     }
 
-    private companion object {
+    private object NativeLibraryObject {
         init {
             NativeLibraryLoader.loadLibrary("sqliteJni")
         }

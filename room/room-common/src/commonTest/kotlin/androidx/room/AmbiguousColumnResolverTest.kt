@@ -27,15 +27,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "A", "C", "D"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(2, 3, 4),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1), intArrayOf(2, 3, 4)))
     }
 
     @Test
@@ -45,15 +39,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "A", "C", "D"),
-                arrayOf(arrayOf("A", "C", "D"), arrayOf("A", "B"))
+                arrayOf(arrayOf("A", "C", "D"), arrayOf("A", "B")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(2, 3, 4),
-                    intArrayOf(0, 1),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(2, 3, 4), intArrayOf(0, 1)))
     }
 
     @Test
@@ -68,15 +56,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "A", "B", "C", "D"),
-                arrayOf(arrayOf("A", "C", "D"), arrayOf("A", "B"))
+                arrayOf(arrayOf("A", "C", "D"), arrayOf("A", "B")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(2, 3, 4),
-                    intArrayOf(0, 1),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(2, 3, 4), intArrayOf(0, 1)))
     }
 
     @Test
@@ -85,15 +67,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "D", "A"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(4, 2, 3),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1), intArrayOf(4, 2, 3)))
     }
 
     @Test
@@ -102,15 +78,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("B", "A", "C", "D", "A"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(1, 0),
-                    intArrayOf(4, 2, 3),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(1, 0), intArrayOf(4, 2, 3)))
     }
 
     @Test
@@ -119,15 +89,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "A", "C", "D"),
-                arrayOf(arrayOf("A", "B", "C"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B", "C"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1, 2),
-                    intArrayOf(3, 4, 5),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1, 2), intArrayOf(3, 4, 5)))
     }
 
     @Test
@@ -137,15 +101,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "A", "B"),
-                arrayOf(arrayOf("A", "B", "C"), arrayOf("A", "B"))
+                arrayOf(arrayOf("A", "B", "C"), arrayOf("A", "B")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1, 2),
-                    intArrayOf(3, 4),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1, 2), intArrayOf(3, 4)))
     }
 
     @Test
@@ -158,18 +116,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "A", "B"),
-                arrayOf(
-                    arrayOf("A", "B"),
-                    arrayOf("A", "B", "C"),
-                )
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "B", "C")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(3, 4),
-                    intArrayOf(0, 1, 2),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(3, 4), intArrayOf(0, 1, 2)))
     }
 
     @Test
@@ -178,15 +127,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "A", "D", "E", "F"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "D", "E"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "D", "E")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(3, 4, 5),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1), intArrayOf(3, 4, 5)))
     }
 
     @Test
@@ -195,15 +138,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "X", "B", "C", "A", "D", "E", "F", "B"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "B", "D", "E"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "B", "D", "E")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 2),
-                    intArrayOf(4, 8, 5, 6),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 2), intArrayOf(4, 8, 5, 6)))
     }
 
     @Test
@@ -213,15 +150,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "A", "B"),
-                arrayOf(arrayOf("A"), arrayOf("A", "B"))
+                arrayOf(arrayOf("A"), arrayOf("A", "B")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0),
-                    intArrayOf(1, 2),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0), intArrayOf(1, 2)))
     }
 
     @Test
@@ -231,15 +162,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "A"),
-                arrayOf(arrayOf("A"), arrayOf("A", "B"))
+                arrayOf(arrayOf("A"), arrayOf("A", "B")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0),
-                    intArrayOf(2, 1),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0), intArrayOf(2, 1)))
     }
 
     @Test
@@ -248,13 +173,7 @@ class AmbiguousColumnResolverTest {
         // solution just like Cursor.getColumnIndex().
         val result =
             AmbiguousColumnResolver.resolve(arrayOf("A", "A"), arrayOf(arrayOf("A"), arrayOf("A")))
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0),
-                    intArrayOf(1),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0), intArrayOf(1)))
     }
 
     @Test
@@ -264,15 +183,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "A", "C", "D"),
-                arrayOf(arrayOf("A", "B", "A"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B", "A"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1, 0),
-                    intArrayOf(2, 3, 4),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1, 0), intArrayOf(2, 3, 4)))
     }
 
     @Test
@@ -281,15 +194,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "D"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(0, 2, 3),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1), intArrayOf(0, 2, 3)))
     }
 
     @Test
@@ -297,15 +204,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C"),
-                arrayOf(arrayOf("B"), arrayOf("A", "B", "C"))
+                arrayOf(arrayOf("B"), arrayOf("A", "B", "C")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(1),
-                    intArrayOf(0, 1, 2),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(1), intArrayOf(0, 1, 2)))
     }
 
     @Test
@@ -313,18 +214,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "B"),
-                arrayOf(
-                    arrayOf("A", "B", "C"),
-                    arrayOf("C", "B"),
-                )
+                arrayOf(arrayOf("A", "B", "C"), arrayOf("C", "B")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1, 2),
-                    intArrayOf(2, 3),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1, 2), intArrayOf(2, 3)))
     }
 
     @Test
@@ -332,18 +224,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "B"),
-                arrayOf(
-                    arrayOf("C", "B"),
-                    arrayOf("A", "B", "C"),
-                )
+                arrayOf(arrayOf("C", "B"), arrayOf("A", "B", "C")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(2, 3),
-                    intArrayOf(0, 1, 2),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(2, 3), intArrayOf(0, 1, 2)))
     }
 
     @Test
@@ -353,18 +236,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("A", "B", "C", "B", "D"),
-                arrayOf(
-                    arrayOf("A", "B", "C"),
-                    arrayOf("A", "B", "D"),
-                )
+                arrayOf(arrayOf("A", "B", "C"), arrayOf("A", "B", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1, 2),
-                    intArrayOf(0, 3, 4),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1, 2), intArrayOf(0, 3, 4)))
     }
 
     @Test
@@ -372,15 +246,9 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("a", "B", "A", "c", "D"),
-                arrayOf(arrayOf("A", "b"), arrayOf("a", "C", "d"))
+                arrayOf(arrayOf("A", "b"), arrayOf("a", "C", "d")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(2, 3, 4),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1), intArrayOf(2, 3, 4)))
     }
 
     @Test
@@ -388,14 +256,8 @@ class AmbiguousColumnResolverTest {
         val result =
             AmbiguousColumnResolver.resolve(
                 arrayOf("`A`", "B", "A", "`C`", "D"),
-                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D"))
+                arrayOf(arrayOf("A", "B"), arrayOf("A", "C", "D")),
             )
-        assertThat(result)
-            .isEqualTo(
-                arrayOf(
-                    intArrayOf(0, 1),
-                    intArrayOf(2, 3, 4),
-                )
-            )
+        assertThat(result).isEqualTo(arrayOf(intArrayOf(0, 1), intArrayOf(2, 3, 4)))
     }
 }

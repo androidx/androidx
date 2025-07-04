@@ -57,7 +57,7 @@ class LocalControllerTest {
                 SDK_PACKAGE_NAME,
                 applicationContext,
                 localSdkRegistry,
-                appOwnedSdkRegistry
+                appOwnedSdkRegistry,
             )
     }
 
@@ -147,7 +147,7 @@ class LocalControllerTest {
                 "LocalControllerTest.anotherSdk",
                 applicationContext,
                 localSdkRegistry,
-                appOwnedSdkRegistry
+                appOwnedSdkRegistry,
             )
         val anotherSdkHandler =
             object : SdkSandboxActivityHandlerCompat {

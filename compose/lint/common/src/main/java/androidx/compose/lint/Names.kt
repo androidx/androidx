@@ -56,6 +56,12 @@ object Names {
         val ReusableContent = Name(PackageName, "ReusableContent")
         val Key = Name(PackageName, "key")
         val StructuralEqualityPolicy = Name(PackageName, "structuralEqualityPolicy")
+
+        object Annotation {
+            val PackageName = Package(Runtime.PackageName, "annotation")
+            val FrequentlyChangingValue = Name(PackageName, "FrequentlyChangingValue")
+            val RememberInComposition = Name(PackageName, "RememberInComposition")
+        }
     }
 
     object Ui {
@@ -66,6 +72,12 @@ object Names {
         object Layout {
             val PackageName = Package("androidx.compose.ui.layout")
             val ParentDataModifier = Name(PackageName, "ParentDataModifier")
+        }
+
+        object Platform {
+            val PackageName = Package(Ui.PackageName, "platform")
+            val LocalConfiguration = Name(PackageName, "LocalConfiguration")
+            val LocalResources = Name(PackageName, "LocalResources")
         }
 
         object Pointer {
@@ -82,6 +94,7 @@ object Names {
 
         object Node {
             val PackageName = Package(Ui.PackageName, "node")
+            val ModifierNodeElement = Name(PackageName, "ModifierNodeElement")
             val CurrentValueOf = Name(PackageName, "currentValueOf")
         }
     }

@@ -188,18 +188,18 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                         assertThat(
                             "Events should start with a state change to DRAGGING",
                             draggingIx,
-                            equalTo(0)
+                            equalTo(0),
                         )
                         assertThat(
                             "Last event should be a state change to IDLE",
                             idleIx,
-                            equalTo(lastIx)
+                            equalTo(lastIx),
                         )
                         assertThat(
                             "All events but the state changes to DRAGGING and IDLE" +
                                 " should be scroll events",
                             scrollEventCount,
-                            equalTo(eventCount - 2)
+                            equalTo(eventCount - 2),
                         )
 
                         // dive into scroll events
@@ -207,17 +207,17 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                             assertThat(
                                 "All scroll events should report page $targetPage",
                                 it.position,
-                                equalTo(targetPage)
+                                equalTo(targetPage),
                             )
                             assertThat(
                                 "All scroll events should report an offset of 0f",
                                 it.positionOffset,
-                                equalTo(0f)
+                                equalTo(0f),
                             )
                             assertThat(
                                 "All scroll events should report an offset of 0px",
                                 it.positionOffsetPixels,
-                                equalTo(0)
+                                equalTo(0),
                             )
                         }
                     }
@@ -263,38 +263,38 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 assertThat(
                     "There should be exactly 1 dragging event",
                     stateEvents(SCROLL_STATE_DRAGGING).size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "There should be exactly 1 settling event",
                     stateEvents(SCROLL_STATE_SETTLING).size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "There should be exactly 1 idle event",
                     stateEvents(SCROLL_STATE_IDLE).size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "Events should start with a state change to DRAGGING",
                     draggingIx,
-                    equalTo(0)
+                    equalTo(0),
                 )
                 assertThat(
                     "The settling event should be fired between the first and the last" +
                         " scroll event",
                     settlingIx,
-                    isBetweenInEx(firstScrolledIx + 1, lastScrolledIx)
+                    isBetweenInEx(firstScrolledIx + 1, lastScrolledIx),
                 )
                 assertThat(
                     "The idle event should be the last global event",
                     idleIx,
-                    equalTo(lastIx)
+                    equalTo(lastIx),
                 )
                 assertThat(
                     "All events other then the state changes should be scroll events",
                     scrollEventCount,
-                    equalTo(eventCount - 3)
+                    equalTo(eventCount - 3),
                 )
 
                 // dive into scroll events
@@ -302,7 +302,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 scrollEventsBeforeSettling.assertOffsetSorted(SortOrder.ASC)
                 assertThat(
                     scrollEvents, // quick check
-                    equalTo(scrollEventsBeforeSettling + scrollEventsAfterSettling)
+                    equalTo(scrollEventsBeforeSettling + scrollEventsAfterSettling),
                 )
                 scrollEvents.assertValueCorrectness(0, 0, viewPager.pageSize)
                 scrollEvents.assertLastCorrect(0)
@@ -349,38 +349,38 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 assertThat(
                     "There should be exactly 1 dragging event",
                     stateEvents(SCROLL_STATE_DRAGGING).size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "There should be exactly 1 settling event",
                     stateEvents(SCROLL_STATE_SETTLING).size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "There should be exactly 1 idle event",
                     stateEvents(SCROLL_STATE_IDLE).size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "Events should start with a state change to DRAGGING",
                     draggingIx,
-                    equalTo(0)
+                    equalTo(0),
                 )
                 assertThat(
                     "The settling event should be fired between the first and the last " +
                         "scroll event",
                     settlingIx,
-                    isBetweenInEx(firstScrolledIx + 1, lastScrolledIx)
+                    isBetweenInEx(firstScrolledIx + 1, lastScrolledIx),
                 )
                 assertThat(
                     "The idle event should be the last global event",
                     idleIx,
-                    equalTo(lastIx)
+                    equalTo(lastIx),
                 )
                 assertThat(
                     "All events other then the state changes should be scroll events",
                     scrollEventCount,
-                    equalTo(eventCount - 3)
+                    equalTo(eventCount - 3),
                 )
 
                 // dive into scroll events
@@ -389,7 +389,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 scrollEventsAfterSettling.assertOffsetSorted(SortOrder.ASC)
                 assertThat(
                     scrollEvents, // quick check
-                    equalTo(scrollEventsBeforeSettling + scrollEventsAfterSettling)
+                    equalTo(scrollEventsBeforeSettling + scrollEventsAfterSettling),
                 )
                 scrollEvents.assertValueCorrectness(1, 2, viewPager.pageSize)
                 scrollEvents.dropLast(1).assertValueCorrectness(1, 1, viewPager.pageSize)
@@ -459,7 +459,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                             scrollEvents.assertValueCorrectness(
                                 currentPage,
                                 targetPage,
-                                viewPager.pageSize
+                                viewPager.pageSize,
                             )
                             scrollEvents.assertLastCorrect(targetPage)
                             scrollEvents.assertMaxShownPages()
@@ -535,7 +535,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 assertThat(selectEvents.map { it.position }, equalTo(listOf(targetPage)))
                 assertThat(
                     stateEvents.map { it.state },
-                    equalTo(listOf(SCROLL_STATE_SETTLING, SCROLL_STATE_IDLE))
+                    equalTo(listOf(SCROLL_STATE_SETTLING, SCROLL_STATE_IDLE)),
                 )
                 assertTargetReachedAfterMarker(targetPage, marker)
             }
@@ -605,7 +605,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
      */
     private fun test_configChangeDuringFarSmoothScroll(
         targetPage: Int,
-        delayCallback: (ViewPager2) -> Unit
+        delayCallback: (ViewPager2) -> Unit,
     ) {
         // given
         assertThat(targetPage, greaterThanOrEqualTo(4))
@@ -635,23 +635,23 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 assertThat(
                     "viewPager.getCurrentItem() does not return the target page",
                     viewPager.currentItem,
-                    equalTo(targetPage)
+                    equalTo(targetPage),
                 )
                 assertThat(
                     "Currently shown page is not the target page",
                     viewPager.currentCompletelyVisibleItem,
-                    equalTo(targetPage)
+                    equalTo(targetPage),
                 )
                 assertThat("First overall event is not a SETTLING event", settlingIx, equalTo(0))
                 assertThat(
                     "Number of onPageSelected events is not 2",
                     selectEvents.count(),
-                    equalTo(2)
+                    equalTo(2),
                 )
                 assertThat(
                     "First onPageSelected event is not the second overall event",
                     pageSelectedIx(targetPage),
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "Unexpected events were fired after the config change",
@@ -659,9 +659,9 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                     equalTo(
                         listOf(
                             OnPageSelectedEvent(targetPage),
-                            OnPageScrolledEvent(targetPage, 0f, 0)
+                            OnPageScrolledEvent(targetPage, 0f, 0),
                         )
-                    )
+                    ),
                 )
             }
         }
@@ -705,7 +705,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                             assertThat(pageSelectedIx(targetPage), equalTo(0))
                             assertThat(
                                 scrollEvents.last(),
-                                equalTo(OnPageScrolledEvent(targetPage, 0f, 0))
+                                equalTo(OnPageScrolledEvent(targetPage, 0f, 0)),
                             )
                         }
                     }
@@ -736,7 +736,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 test.resetViewPagerTo(currentPage)
                 test.viewPager.unregisterOnPageChangeCallback(recorder)
                 recorder = test.viewPager.addNewRecordingCallback()
-            }
+            },
         ) {
             val settleLatch = test.viewPager.addWaitForStateLatch(SCROLL_STATE_SETTLING)
             val idleLatch = test.viewPager.addWaitForIdleLatch()
@@ -774,9 +774,9 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                     SCROLL_STATE_SETTLING,
                     SCROLL_STATE_DRAGGING,
                     SCROLL_STATE_SETTLING,
-                    SCROLL_STATE_IDLE
+                    SCROLL_STATE_IDLE,
                 )
-            )
+            ),
         )
 
         // 3) Page selected sequence was select(1) -> select(0)
@@ -834,21 +834,21 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     fun test_scrollStateValuesInSync() {
         assertThat(
             ViewPager2.SCROLL_STATE_IDLE,
-            allOf(equalTo(ViewPager.SCROLL_STATE_IDLE), equalTo(RecyclerView.SCROLL_STATE_IDLE))
+            allOf(equalTo(ViewPager.SCROLL_STATE_IDLE), equalTo(RecyclerView.SCROLL_STATE_IDLE)),
         )
         assertThat(
             ViewPager2.SCROLL_STATE_DRAGGING,
             allOf(
                 equalTo(ViewPager.SCROLL_STATE_DRAGGING),
-                equalTo(RecyclerView.SCROLL_STATE_DRAGGING)
-            )
+                equalTo(RecyclerView.SCROLL_STATE_DRAGGING),
+            ),
         )
         assertThat(
             ViewPager2.SCROLL_STATE_SETTLING,
             allOf(
                 equalTo(ViewPager.SCROLL_STATE_SETTLING),
-                equalTo(RecyclerView.SCROLL_STATE_SETTLING)
-            )
+                equalTo(RecyclerView.SCROLL_STATE_SETTLING),
+            ),
         )
     }
 
@@ -886,7 +886,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         @ViewPager2.ScrollState state: Int,
         expectedTargetPage: Int,
         checkSettling: Boolean = false,
-        viewPagerAction: () -> Unit
+        viewPagerAction: () -> Unit,
     ) {
         val stateLatch = test.viewPager.addWaitForStateLatch(state)
         val settlingLatch = test.viewPager.addWaitForStateLatch(SCROLL_STATE_SETTLING)
@@ -923,7 +923,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         fun expectedEvents(page: Int): List<Event> {
             return listOf(
                 OnPageSelectedEvent(page) as Event,
-                OnPageScrolledEvent(page, 0f, 0) as Event
+                OnPageScrolledEvent(page, 0f, 0) as Event,
             )
         }
 
@@ -959,7 +959,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 expectedEvents(targetPage)
                     .plus(MarkerEvent(marker))
                     .plus(expectedEvents(targetPage))
-            )
+            ),
         )
     }
 
@@ -974,7 +974,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 "Test should only test setCurrentItem for pages out of bounds, " +
                     "bounds are [0, $n)",
                 targetPage,
-                not(isBetweenInEx(0, n))
+                not(isBetweenInEx(0, n)),
             )
             // given
             val initialPage = test.viewPager.currentItem
@@ -1020,7 +1020,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 override fun onCreateViewHolder(
                     parent: ViewGroup,
-                    type: Int
+                    type: Int,
                 ): RecyclerView.ViewHolder {
                     return object : RecyclerView.ViewHolder(View(parent.context)) {}
                 }
@@ -1093,7 +1093,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -1189,7 +1189,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
@@ -1223,7 +1223,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                     val currScrollPosition = event.position + event.positionOffset.toDouble()
                     assertThat(
                         currScrollPosition,
-                        isBetweenInInMinMax(prevScrollPosition, selectedPage.toDouble())
+                        isBetweenInInMinMax(prevScrollPosition, selectedPage.toDouble()),
                     )
                     prevScrollPosition = currScrollPosition
                 }
@@ -1243,7 +1243,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         assertThat(finalEvents[0], equalTo(OnPageScrolledEvent(targetPage, 0f, 0) as Event))
         assertThat(
             finalEvents[1],
-            equalTo(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event)
+            equalTo(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event),
         )
     }
 
@@ -1261,7 +1261,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
-        pageSize: Int
+        pageSize: Int,
     ) = forEach {
         assertThat(it.position, isBetweenInInMinMax(initialPage, otherPage))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
@@ -1271,7 +1271,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     private fun List<Event>.assertScrollEventsBetweenEventsSorted(
         first: Event,
         second: Event,
-        sortOrder: SortOrder
+        sortOrder: SortOrder,
     ) {
         slice(first, second).mapNotNull { it as? OnPageScrolledEvent }.assertOffsetSorted(sortOrder)
     }

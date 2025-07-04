@@ -44,38 +44,38 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                     XCodeBlock.of(
                         "%T.INSTANCE.%L(%L)",
                         custom.className,
-                        custom.getMethodName(scope.language),
-                        inputVarName
+                        custom.getFunctionName(scope.language),
+                        inputVarName,
                     )
                 CodeLanguage.KOTLIN ->
                     XCodeBlock.of(
                         "%T.%L(%L)",
                         custom.className,
-                        custom.getMethodName(scope.language),
-                        inputVarName
+                        custom.getFunctionName(scope.language),
+                        inputVarName,
                     )
             }
         } else if (custom.isStatic) {
             XCodeBlock.of(
                 "%T.%L(%L)",
                 custom.className,
-                custom.getMethodName(scope.language),
-                inputVarName
+                custom.getFunctionName(scope.language),
+                inputVarName,
             )
         } else {
             if (custom.isProvidedConverter) {
                 XCodeBlock.of(
                     "%N().%L(%L)",
                     providedTypeConverter(scope),
-                    custom.getMethodName(scope.language),
-                    inputVarName
+                    custom.getFunctionName(scope.language),
+                    inputVarName,
                 )
             } else {
                 XCodeBlock.of(
                     "%N.%L(%L)",
                     typeConverter(scope),
-                    custom.getMethodName(scope.language),
-                    inputVarName
+                    custom.getFunctionName(scope.language),
+                    inputVarName,
                 )
             }
         }
@@ -110,7 +110,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                                         addStatement(
                                             "checkNotNull(%L.getTypeConverter(%L))",
                                             DaoWriter.DB_PROPERTY_NAME,
-                                            XCodeBlock.ofKotlinClassLiteral(custom.className)
+                                            XCodeBlock.ofKotlinClassLiteral(custom.className),
                                         )
                                         endControlFlow()
                                     }
@@ -127,9 +127,9 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                 }
 
                 override fun prepare(
-                    methodName: String,
+                    functionName: String,
                     writer: TypeWriter,
-                    builder: XFunSpec.Builder
+                    builder: XFunSpec.Builder,
                 ) {
                     val body = buildConvertFunctionBody()
                     builder.applyToJavaPoet {
@@ -150,7 +150,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                                     "%N = %L.getTypeConverter(%L)",
                                     converterField,
                                     DaoWriter.DB_PROPERTY_NAME,
-                                    XCodeBlock.ofJavaClassLiteral(custom.className)
+                                    XCodeBlock.ofJavaClassLiteral(custom.className),
                                 )
                             }
                             endControlFlow()

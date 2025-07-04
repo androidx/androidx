@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
 }
@@ -37,13 +37,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":activity:activity-ktx"))
+    implementation("androidx.activity:activity:1.10.1")
     implementation(project(":fragment:fragment-ktx"))
     implementation(libs.kotlinStdlib)
     implementation(libs.hiltAndroid)
     ksp(libs.hiltCompiler)
 
-    androidTestImplementation(project(":activity:activity-ktx"))
+    androidTestImplementation("androidx.activity:activity:1.10.1")
     androidTestImplementation(project(":fragment:fragment-ktx"))
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testCore)

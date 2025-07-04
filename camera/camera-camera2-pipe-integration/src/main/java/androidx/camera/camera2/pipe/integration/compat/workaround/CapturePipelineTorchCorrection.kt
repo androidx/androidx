@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
+import androidx.camera.camera2.pipe.integration.impl.TorchControl.TorchMode
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.TorchState
@@ -63,7 +64,7 @@ constructor(
         sessionConfigOptions: Config,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
-        @ImageCapture.FlashMode flashMode: Int
+        @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
         val needCorrectTorchState = isCorrectionRequired(configs, requestTemplate)
 
@@ -75,15 +76,15 @@ constructor(
                 sessionConfigOptions,
                 captureMode,
                 flashType,
-                flashMode
+                flashMode,
             )
 
         if (needCorrectTorchState) {
             threads.sequentialScope.launch {
                 deferredResults.joinAll()
                 Log.debug { "Re-enable Torch to correct the Torch state" }
-                torchControl.setTorchAsync(torch = false).join()
-                torchControl.setTorchAsync(torch = true).join()
+                torchControl.setTorchAsync(TorchMode.OFF).join()
+                torchControl.setTorchAsync(TorchMode.USED_AS_FLASH).join()
                 Log.debug { "Re-enable Torch to correct the Torch state, done" }
             }
         }
@@ -94,7 +95,7 @@ constructor(
     override suspend fun getCameraCapturePipeline(
         captureMode: Int,
         flashMode: Int,
-        flashType: Int
+        flashType: Int,
     ): CameraCapturePipeline =
         capturePipelineImpl.getCameraCapturePipeline(captureMode, flashMode, flashType)
 
@@ -113,11 +114,8 @@ constructor(
         requestTemplate: RequestTemplate,
     ): Boolean {
         return captureConfigs.any {
-            it.getStillCaptureTemplate(
-                    requestTemplate,
-                    isLegacyDevice,
-                )
-                .value == CameraDevice.TEMPLATE_STILL_CAPTURE
+            it.getStillCaptureTemplate(requestTemplate, isLegacyDevice).value ==
+                CameraDevice.TEMPLATE_STILL_CAPTURE
         } && isTorchOn()
     }
 

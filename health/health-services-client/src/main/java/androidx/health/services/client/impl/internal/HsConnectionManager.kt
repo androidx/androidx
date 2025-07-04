@@ -52,7 +52,7 @@ public object HsConnectionManager {
         val handlerThread =
             HandlerThread(
                 "HsConnectionManager",
-                Process.THREAD_PRIORITY_BACKGROUND + Process.THREAD_PRIORITY_MORE_FAVORABLE
+                Process.THREAD_PRIORITY_BACKGROUND + Process.THREAD_PRIORITY_MORE_FAVORABLE,
             )
         handlerThread.start()
         return handlerThread.looper

@@ -32,7 +32,7 @@ data class Metrics(
     val key: Map<String, String>,
     val results: List<Metric>,
     val version: Long = 1L,
-    @SerializedName("git_hash") val referenceSha: String? = null
+    @SerializedName("git_hash") val referenceSha: String? = null,
 ) {
     companion object {
         fun buildMetrics(
@@ -49,7 +49,7 @@ data class Metrics(
                     "targetSdk" to runDestination.targetSDKRecord.identifier.value,
                     "identifier" to runDestination.localComputerRecord.identifier.value,
                     "modelName" to runDestination.localComputerRecord.modelName.value,
-                    "modelCode" to runDestination.localComputerRecord.modelCode.value
+                    "modelCode" to runDestination.localComputerRecord.modelCode.value,
                 )
             val results = summaries.flatMap { it.toMetrics() }
             return Metrics(metricsKeys, results, referenceSha = referenceSha)

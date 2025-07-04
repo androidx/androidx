@@ -18,6 +18,9 @@ package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.TypeConverter
 import java.util.Date
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 object DateConverter {
     @TypeConverter
@@ -29,4 +32,10 @@ object DateConverter {
     fun toTimestamp(date: Date?): Long? {
         return date?.time
     }
+
+    @TypeConverter fun durationToLong(duration: Duration?): Long? = duration?.inWholeMilliseconds
+
+    @TypeConverter
+    fun durationFromLong(milliseconds: Long?): Duration? =
+        milliseconds?.toDuration(DurationUnit.MILLISECONDS)
 }

@@ -28,12 +28,12 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
 fun configurePublicResourcesStub(
     libraryVariant: LibraryVariant,
-    copyPublicResourcesDirTask: TaskProvider<CopyPublicResourcesDirTask>
+    copyPublicResourcesDirTask: TaskProvider<CopyPublicResourcesDirTask>,
 ) =
     libraryVariant.sources.res.also {
         it?.addGeneratedSourceDirectory(
             copyPublicResourcesDirTask,
-            CopyPublicResourcesDirTask::outputFolder
+            CopyPublicResourcesDirTask::outputFolder,
         )
     }
 

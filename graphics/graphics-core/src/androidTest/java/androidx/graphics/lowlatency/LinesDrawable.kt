@@ -61,5 +61,6 @@ class LinesDrawable : Drawable() {
         invalidateSelf()
     }
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407504449
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 }

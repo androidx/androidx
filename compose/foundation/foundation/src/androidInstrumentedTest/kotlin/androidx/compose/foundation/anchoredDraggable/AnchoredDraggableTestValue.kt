@@ -19,5 +19,5 @@ package androidx.compose.foundation.anchoredDraggable
 internal enum class AnchoredDraggableTestValue {
     A,
     B,
-    C
+    C,
 }

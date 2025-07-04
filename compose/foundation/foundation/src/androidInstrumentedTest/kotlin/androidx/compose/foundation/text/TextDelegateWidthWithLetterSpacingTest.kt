@@ -72,7 +72,7 @@ class TextDelegateWidthWithLetterSpacingTest {
                 softWrap = true,
                 overflow = TextOverflow.Clip,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResult = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
         assertThat(layoutResult.lineCount).isEqualTo(1)

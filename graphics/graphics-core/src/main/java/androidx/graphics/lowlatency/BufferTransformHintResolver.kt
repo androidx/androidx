@@ -57,7 +57,7 @@ internal class BufferTransformHintResolver {
 
     internal fun getBufferTransformHintFromInstallOrientation(
         orientation: String,
-        rotation: Int
+        rotation: Int,
     ): Int =
         when (orientation) {
             ORIENTATION_90 -> {
@@ -118,7 +118,7 @@ internal class BufferTransformHintResolver {
             matrix: Matrix,
             width: Float,
             height: Float,
-            @SurfaceControlCompat.Companion.BufferTransform transform: Int
+            @SurfaceControlCompat.Companion.BufferTransform transform: Int,
         ): Matrix =
             matrix.apply {
                 when (transform) {

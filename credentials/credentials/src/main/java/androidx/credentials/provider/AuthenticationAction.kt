@@ -59,10 +59,7 @@ import java.util.Collections
  * @throws IllegalArgumentException If the [title] is empty
  * @see android.service.credentials.BeginGetCredentialResponse for more usage details.
  */
-class AuthenticationAction(
-    val title: CharSequence,
-    val pendingIntent: PendingIntent,
-) {
+class AuthenticationAction(val title: CharSequence, val pendingIntent: PendingIntent) {
     init {
         require(title.isNotEmpty()) { "title must not be empty" }
     }
@@ -120,7 +117,7 @@ class AuthenticationAction(
                     Slice.Builder(sliceBuilder)
                         .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                         .build(),
-                    /*subType=*/ null
+                    /*subType=*/ null,
                 )
                 .addText(title, /* subType= */ null, listOf(SLICE_HINT_TITLE))
             return sliceBuilder.build()
@@ -190,7 +187,7 @@ class AuthenticationAction(
             for (i in indices) {
                 bundle.putParcelable(
                     "$EXTRA_AUTH_ACTION_PENDING_INTENT_PREFIX$i",
-                    this[i].pendingIntent
+                    this[i].pendingIntent,
                 )
                 bundle.putCharSequence("$EXTRA_AUTH_ACTION_TITLE_PREFIX$i", this[i].title)
             }

@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.stats.BaseStats;
 import androidx.collection.ArraySet;
-import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -45,7 +45,7 @@ import java.util.Set;
  * <!--@exportToFramework:hide-->
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CallStats {
+public class CallStats extends BaseStats {
     /** Call types. */
     @IntDef(value = {
             CALL_TYPE_UNKNOWN,
@@ -129,6 +129,10 @@ public class CallStats {
     public static final int CALL_TYPE_GLOBAL_OPEN_READ_BLOB = 35;
     public static final int CALL_TYPE_REMOVE_BLOB = 36;
     public static final int CALL_TYPE_SET_BLOB_VISIBILITY = 37;
+    // Most call types are for AppSearchManager APIs. This call type is for internal calls, such
+    // as from indexers.
+    public static final int INTERNAL_CALL_TYPE_APP_OPEN_EVENT_INDEXER = 38;
+
 
     // These strings are for the subset of call types that correspond to an AppSearchManager API
     private static final String CALL_TYPE_STRING_INITIALIZE = "initialize";
@@ -183,9 +187,10 @@ public class CallStats {
     private final int mEstimatedBinderLatencyMillis;
     private final int mNumOperationsSucceeded;
     private final int mNumOperationsFailed;
+    private final long mCallReceivedTimestampMillis;
 
     CallStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mPackageName = builder.mPackageName;
         mDatabase = builder.mDatabase;
         mStatusCode = builder.mStatusCode;
@@ -194,6 +199,7 @@ public class CallStats {
         mEstimatedBinderLatencyMillis = builder.mEstimatedBinderLatencyMillis;
         mNumOperationsSucceeded = builder.mNumOperationsSucceeded;
         mNumOperationsFailed = builder.mNumOperationsFailed;
+        mCallReceivedTimestampMillis = builder.mCallReceivedTimestampMillis;
     }
 
     /** Returns calling package name. */
@@ -263,8 +269,13 @@ public class CallStats {
         return mNumOperationsFailed;
     }
 
+    /** Returns the wall-clock timestamp in milliseconds when the API call was received. */
+    public long getCallReceivedTimestampMillis() {
+        return mCallReceivedTimestampMillis;
+    }
+
     /** Builder for {@link CallStats}. */
-    public static class Builder {
+    public static class Builder extends BaseStats.Builder<CallStats.Builder> {
         @Nullable String mPackageName;
         @Nullable String mDatabase;
         @AppSearchResult.ResultCode
@@ -275,6 +286,7 @@ public class CallStats {
         int mEstimatedBinderLatencyMillis;
         int mNumOperationsSucceeded;
         int mNumOperationsFailed;
+        long mCallReceivedTimestampMillis;
 
         /** Sets the PackageName used by the session. */
         @CanIgnoreReturnValue
@@ -357,7 +369,15 @@ public class CallStats {
             return this;
         }
 
+        /** Sets the wall-clock timestamp in milliseconds when the API call was received. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setCallReceivedTimestampMillis(long callReceivedTimestampMillis) {
+            mCallReceivedTimestampMillis = callReceivedTimestampMillis;
+            return this;
+        }
+
         /** Creates {@link CallStats} object from {@link Builder} instance. */
+        @Override
         public @NonNull CallStats build() {
             return new CallStats(/* builder= */ this);
         }

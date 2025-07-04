@@ -34,7 +34,7 @@ fun NavGraph(initialFavoriteRoute: String?) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = if (initialFavoriteRoute == null) SpecificationRoute else Material3Route
+        startDestination = if (initialFavoriteRoute == null) SpecificationRoute else Material3Route,
     ) {
         composable(SpecificationRoute) {
             Specification(
@@ -45,7 +45,7 @@ fun NavGraph(initialFavoriteRoute: String?) {
                         Material3Specification -> navController.navigate(Material3Route)
                         else -> throw IllegalArgumentException("Unknown specification")
                     }
-                }
+                },
             )
         }
         composable(MaterialRoute) { MaterialCatalogApp() }

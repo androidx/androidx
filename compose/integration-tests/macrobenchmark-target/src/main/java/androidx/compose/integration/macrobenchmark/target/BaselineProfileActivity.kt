@@ -80,13 +80,13 @@ internal fun M3ListRow(entry: Entry) {
         Row {
             androidx.compose.material3.Text(
                 text = entry.contents,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             )
             Spacer(modifier = Modifier.weight(1f, fill = true))
             androidx.compose.material3.Checkbox(
                 checked = false,
                 onCheckedChange = {},
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             )
         }
     }

@@ -56,7 +56,7 @@ class SystemPropertyResolverTest {
         ShadowSystemProperties.override(
             ALIAS_BITSET_PROP_NAME,
             // java.lang.Long.parseLong("-9223372036854775808").toHexString()) = 8000000000000000
-            "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9223372036854775808"
+            "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-9223372036854775808",
         )
         ShadowBuild.reset()
         val resolver = SystemPropertyResolver()

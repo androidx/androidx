@@ -82,7 +82,7 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
     private fun newWorkerParams(
         factory: WorkerFactory,
         progressUpdater: ProgressUpdater,
-        foregroundUpdater: ForegroundUpdater
+        foregroundUpdater: ForegroundUpdater,
     ) =
         WorkerParameters(
             UUID.randomUUID(),
@@ -96,7 +96,7 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
             WorkManagerTaskExecutor(SynchronousExecutor()),
             factory,
             progressUpdater,
-            foregroundUpdater
+            foregroundUpdater,
         )
 }
 
@@ -104,7 +104,7 @@ class NoOpFactory : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ): ListenableWorker? {
         return null
     }
@@ -114,7 +114,7 @@ class FailedWorkerFactory : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ): ListenableWorker {
         return FailureWorker(appContext, workerParameters)
     }

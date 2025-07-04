@@ -69,7 +69,7 @@ class FrameStateTest {
             requestMetadata = fakeRequestMetadata,
             frameNumber = frameNumber,
             frameTimestamp = frameTimestamp,
-            imageStreams
+            imageStreams,
         )
 
     private val imageResult1 = frameState.imageOutputs.first { it.streamId == stream1Id }
@@ -108,7 +108,7 @@ class FrameStateTest {
             frameTimestamp,
             64L,
             frameTimestampNs,
-            OutputResult.from(outputImage)
+            OutputResult.from(outputImage),
         )
 
         assertThat(fakeImage.isClosed).isFalse()
@@ -132,7 +132,7 @@ class FrameStateTest {
             frameTimestamp,
             64L,
             frameTimestampNs,
-            OutputResult.from(outputImage)
+            OutputResult.from(outputImage),
         )
 
         assertThat(fakeImage.isClosed).isTrue()
@@ -146,7 +146,7 @@ class FrameStateTest {
             frameTimestamp,
             64L,
             frameTimestampNs,
-            OutputResult.from(outputImage)
+            OutputResult.from(outputImage),
         )
         val imageCopy1 = imageResult1.outputOrNull()
         val imageCopy2 = imageResult1.outputOrNull()
@@ -173,7 +173,7 @@ class FrameStateTest {
             frameTimestamp,
             10,
             frameNumber.value,
-            OutputResult.from(fakeFrameInfo)
+            OutputResult.from(fakeFrameInfo),
         )
 
         assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.AVAILABLE)
@@ -187,7 +187,7 @@ class FrameStateTest {
             frameTimestamp,
             10,
             1,
-            OutputResult.from(fakeFrameInfo)
+            OutputResult.from(fakeFrameInfo),
         )
 
         assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.AVAILABLE)
@@ -202,7 +202,7 @@ class FrameStateTest {
             frameTimestamp,
             10,
             frameNumber.value,
-            OutputResult.from(fakeFrameInfo)
+            OutputResult.from(fakeFrameInfo),
         )
 
         assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.UNAVAILABLE)

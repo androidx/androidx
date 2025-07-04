@@ -21,33 +21,33 @@ import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /** A data class that holds the information about an FTS table. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-actual class FtsTableInfo(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public actual class FtsTableInfo(
     /** The table name */
-    @JvmField actual val name: String,
+    @JvmField public actual val name: String,
 
     /** The column names */
-    @JvmField actual val columns: Set<String>,
+    @JvmField public actual val columns: Set<String>,
 
     /**
      * The set of options. Each value in the set contains the option in the following format: <key,
      * value>.
      */
-    @JvmField actual val options: Set<String>
+    @JvmField public actual val options: Set<String>,
 ) {
-    actual constructor(
+    public actual constructor(
         name: String,
         columns: Set<String>,
-        createSql: String
+        createSql: String,
     ) : this(name, columns, parseFtsOptions(createSql))
 
-    override fun equals(other: Any?) = equalsCommon(other)
+    override fun equals(other: Any?): Boolean = equalsCommon(other)
 
-    override fun hashCode() = hashCodeCommon()
+    override fun hashCode(): Int = hashCodeCommon()
 
-    override fun toString() = toStringCommon()
+    override fun toString(): String = toStringCommon()
 
-    actual companion object {
+    public actual companion object {
         /**
          * Reads the table information from the given database.
          *
@@ -56,7 +56,7 @@ actual class FtsTableInfo(
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
         @JvmStatic
-        actual fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo {
+        public actual fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo {
             val columns = readFtsColumns(connection, tableName)
             val options = readFtsOptions(connection, tableName)
             return FtsTableInfo(tableName, columns, options)

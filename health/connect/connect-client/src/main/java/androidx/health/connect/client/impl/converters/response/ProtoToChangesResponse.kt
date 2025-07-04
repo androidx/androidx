@@ -32,7 +32,7 @@ fun toChangesResponse(proto: ResponseProto.GetChangesResponse): ChangesResponse 
         changes = extractChanges(proto.changesList),
         nextChangesToken = proto.nextChangesToken,
         hasMore = proto.hasMore,
-        changesTokenExpired = proto.changesTokenExpired
+        changesTokenExpired = proto.changesTokenExpired,
     )
 }
 

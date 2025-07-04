@@ -289,7 +289,7 @@ internal inline fun <E> SparseArrayCompat<E>.commonReplace(key: Int, value: E): 
 internal inline fun <E> SparseArrayCompat<E>.commonReplace(
     key: Int,
     oldValue: E,
-    newValue: E
+    newValue: E,
 ): Boolean {
     val index = indexOfKey(key)
     if (index >= 0) {
@@ -398,7 +398,8 @@ internal inline fun <E> SparseArrayCompat<E>.commonValueAt(index: Int): E {
     if (index >= values.size) {
         throw CollectionPlatformUtils.createIndexOutOfBoundsException()
     }
-    @Suppress("UNCHECKED_CAST") return values[index] as E
+    @Suppress("UNCHECKED_CAST")
+    return values[index] as E
 }
 
 @Suppress("NOTHING_TO_INLINE")

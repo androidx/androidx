@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.liters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -23,7 +24,9 @@ import java.time.Instant
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
+@Config(minSdk = 28)
 @RunWith(AndroidJUnit4::class)
 class HydrationRecordTest {
 
@@ -35,6 +38,7 @@ class HydrationRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                     volume = 10.liters,
                 )
             )
@@ -44,6 +48,7 @@ class HydrationRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                     volume = 10.liters,
                 )
             )
@@ -57,6 +62,7 @@ class HydrationRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
                 volume = 10.liters,
             )
         }
@@ -70,7 +76,8 @@ class HydrationRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
-                        volume = 2.4.liters
+                        metadata = Metadata.unknownRecordingMethod(),
+                        volume = 2.4.liters,
                     )
                     .toString()
             )

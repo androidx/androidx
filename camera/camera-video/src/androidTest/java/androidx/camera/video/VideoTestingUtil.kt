@@ -47,7 +47,7 @@ import org.junit.Assume.assumeTrue
 fun assumeExtraCroppingQuirk(implName: String) {
     assumeFalse(
         "Devices in ExtraCroppingQuirk will get a fixed resolution regardless of any settings",
-        hasExtraCroppingQuirk(implName)
+        hasExtraCroppingQuirk(implName),
     )
 }
 
@@ -70,14 +70,7 @@ fun assumeSuccessfulSurfaceProcessing() {
     // Skip for b/253211491
     assumeFalse(
         "Skip tests for Cuttlefish API 30 eglCreateWindowSurface issue",
-        Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
-    )
-}
-
-fun assumeNotBrokenEmulator() {
-    assumeFalse(
-        "Skip tests for Emulator API 30 crashing issue",
-        Build.MODEL.contains("gphone") && Build.VERSION.SDK_INT == 30
+        Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30,
     )
 }
 
@@ -98,13 +91,13 @@ fun isSurfaceProcessingEnabled(videoCapture: VideoCapture<*>) =
 
 class ProcessCameraProviderWrapper(
     private val cameraProvider: ProcessCameraProvider,
-    private val forceEnableStreamSharing: Boolean
+    private val forceEnableStreamSharing: Boolean,
 ) {
 
     fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
-        vararg useCases: UseCase
+        vararg useCases: UseCase,
     ): Camera {
         if (useCases.isEmpty()) {
             return cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, *useCases)

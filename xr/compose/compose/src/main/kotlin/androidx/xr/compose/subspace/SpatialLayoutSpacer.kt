@@ -16,13 +16,12 @@
 
 package androidx.xr.compose.subspace
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
-import androidx.xr.compose.subspace.layout.Measurable
-import androidx.xr.compose.subspace.layout.MeasurePolicy
-import androidx.xr.compose.subspace.layout.MeasureResult
-import androidx.xr.compose.subspace.layout.MeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceLayout
+import androidx.xr.compose.subspace.layout.SubspaceMeasurable
+import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
+import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
+import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.width
@@ -36,37 +35,15 @@ import androidx.xr.compose.unit.VolumeConstraints
  */
 @Composable
 @SubspaceComposable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SpatialLayoutSpacer(modifier: SubspaceModifier = SubspaceModifier) {
-    SubspaceLayout(
-        name = defaultSpatialLayoutSpacerName(),
-        modifier = modifier,
-        measurePolicy = SpacerMeasurePolicy,
-    )
+    SubspaceLayout(modifier = modifier, measurePolicy = SpacerMeasurePolicy)
 }
 
-/**
- * A composable that represents an empty space layout. Its size can be controlled using modifiers
- * like [SubspaceModifier.width], [SubspaceModifier.height], etc.
- *
- * @param modifier Modifiers to apply to this spacer.
- * @param name The name of this SpatialLayoutSpacer element.
- */
-@Composable
-@SubspaceComposable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public fun SpatialLayoutSpacer(
-    modifier: SubspaceModifier = SubspaceModifier,
-    name: String = defaultSpatialLayoutSpacerName(),
-) {
-    SubspaceLayout(name = name, modifier = modifier, measurePolicy = SpacerMeasurePolicy)
-}
-
-private object SpacerMeasurePolicy : MeasurePolicy {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
+private object SpacerMeasurePolicy : SubspaceMeasurePolicy {
+    override fun SubspaceMeasureScope.measure(
+        measurables: List<SubspaceMeasurable>,
         constraints: VolumeConstraints,
-    ): MeasureResult {
+    ): SubspaceMeasureResult {
         return with(constraints) {
             val width = if (hasBoundedWidth) maxWidth else 0
             val height = if (hasBoundedHeight) maxHeight else 0
@@ -74,10 +51,4 @@ private object SpacerMeasurePolicy : MeasurePolicy {
             layout(width, height, depth) {}
         }
     }
-}
-
-private var spatialLayoutSpacerNamePart: Int = 0
-
-private fun defaultSpatialLayoutSpacerName(): String {
-    return "Spacer-${spatialLayoutSpacerNamePart++}"
 }

@@ -196,7 +196,7 @@ class TextPaintExtensionsTest {
                 fontFamily = fontFamily,
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis
+                fontSynthesis = fontSynthesis,
             )
 
         val tp = AndroidTextPaint(0, density.density)
@@ -217,7 +217,7 @@ class TextPaintExtensionsTest {
                     calledFontSynthesis = synthesis
                     Typeface.MONOSPACE
                 },
-                density
+                density,
             )
 
         assertThat(tp.typeface).isEqualTo(Typeface.MONOSPACE)

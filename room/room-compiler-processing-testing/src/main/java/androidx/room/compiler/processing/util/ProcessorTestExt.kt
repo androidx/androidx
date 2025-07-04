@@ -24,7 +24,6 @@ import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
-import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import androidx.room.compiler.processing.util.runner.JavacCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KaptCompilationTestRunner
 import androidx.room.compiler.processing.util.runner.KspCompilationTestRunner
@@ -42,47 +41,68 @@ import javax.lang.model.SourceVersion
 private fun defaultTestConfig(options: Map<String, String>) =
     XProcessingEnvironmentTestConfigProvider.createConfig(options)
 
-@ExperimentalProcessingApi
-private fun runTests(params: TestCompilationParameters, vararg runners: CompilationTestRunner) {
-    val runCount =
-        runners.count { runner ->
-            if (runner.canRun(params)) {
-                withTempDir { tmpDir ->
-                    val compilationResult = runner.compile(tmpDir, params)
-                    val subject = CompilationResultSubject.assertThat(compilationResult)
-                    // if any assertion failed, throw first those.
-                    subject.assertNoProcessorAssertionErrors()
-                    compilationResult.processor.invocationInstances.forEach {
-                        it.runPostCompilationChecks(subject)
-                    }
-                    assertWithMessage(
-                            "compilation should've run the processor callback at least once"
-                        )
-                        .that(compilationResult.processor.invocationInstances)
-                        .isNotEmpty()
+private enum class RunnerKind {
+    JAVAC,
+    KAPT,
+    KSP,
+}
 
-                    subject.assertCompilationResult()
-                    subject.assertAllExpectedRoundsAreCompleted()
-                }
-                true
-            } else {
-                false
-            }
+@ExperimentalProcessingApi
+private fun runTests(
+    sources: List<Source> = emptyList(),
+    classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
+    supportedRunners: Set<RunnerKind> = RunnerKind.entries.toSet(),
+    javacProcessors: List<Processor> = emptyList(),
+    symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
+    handlers: List<(XTestInvocation) -> Unit> = listOf({}),
+    onCompilationResult: (CompilationResultSubject) -> Unit = {},
+) {
+    val params =
+        TestCompilationParameters(
+            sources = sources,
+            classpath = classpath.distinct(),
+            options = options,
+            handlers = handlers,
+            javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
+            config = config,
+        )
+    val runners = buildList {
+        if (
+            sources.none { it is Source.KotlinSource } &&
+                supportedRunners.contains(RunnerKind.JAVAC)
+        ) {
+            add(JavacCompilationTestRunner(javacProcessors))
+        } else if (supportedRunners.contains(RunnerKind.KAPT)) {
+            add(KaptCompilationTestRunner(javacProcessors))
         }
-    // make sure some tests did run. Ksp tests might be disabled so if it is the only test given,
-    // ignore the check
-    val minTestCount =
-        when {
-            CompilationTestCapabilities.canTestWithKsp ||
-                (runners.count { it !is KspCompilationTestRunner } > 0) -> {
-                1
-            }
-            else -> {
-                // is ok if we don't run any tests if ksp is disabled and it is the only test
-                0
-            }
+        if (supportedRunners.contains(RunnerKind.KSP)) {
+            add(KspCompilationTestRunner(symbolProcessorProviders))
         }
-    assertThat(runCount).isAtLeast(minTestCount)
+    }
+    // Make sure there's at least one runner.
+    assertThat(runners).isNotEmpty()
+    runners.forEach { runner ->
+        withTempDir { tmpDir ->
+            val compilationResult = runner.compile(tmpDir, params)
+            val subject = CompilationResultSubject.assertThat(compilationResult)
+            // if any assertion failed, throw first those.
+            subject.assertNoProcessorAssertionErrors()
+            compilationResult.processor.invocationInstances.forEach {
+                it.runPostCompilationChecks(subject)
+            }
+            assertWithMessage("compilation should've run the processor callback at least once")
+                .that(compilationResult.processor.invocationInstances)
+                .isNotEmpty()
+            onCompilationResult(subject)
+            subject.assertCompilationResult()
+            subject.assertAllExpectedRoundsAreCompleted()
+        }
+    }
 }
 
 @ExperimentalProcessingApi
@@ -93,23 +113,18 @@ fun runProcessorTestWithoutKsp(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handler: (XTestInvocation) -> Unit
-) {
+    handler: (XTestInvocation) -> Unit,
+) =
     runTests(
-        params =
-            TestCompilationParameters(
-                sources = sources,
-                classpath = classpath,
-                options = options,
-                javacArguments = javacArguments,
-                kotlincArguments = kotlincArguments,
-                config = config,
-                handlers = listOf(handler),
-            ),
-        JavacCompilationTestRunner(),
-        KaptCompilationTestRunner()
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
+        supportedRunners = setOf(RunnerKind.JAVAC, RunnerKind.KAPT),
+        config = config,
+        handlers = listOf(handler),
     )
-}
 
 /**
  * Runs the compilation test with ksp and one of javac or kapt, depending on whether input has
@@ -133,16 +148,16 @@ fun runProcessorTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handler: (XTestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit,
 ) =
-    runProcessorTest(
+    runTests(
         sources = sources,
         classpath = classpath,
         options = options,
         javacArguments = javacArguments,
         kotlincArguments = kotlincArguments,
         config = config,
-        handlers = listOf(handler)
+        handlers = listOf(handler),
     )
 
 /**
@@ -168,7 +183,7 @@ fun runProcessorTest(
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
     createProcessingSteps: () -> Iterable<XProcessingStep>,
-    onCompilationResult: (CompilationResultSubject) -> Unit
+    onCompilationResult: (CompilationResultSubject) -> Unit,
 ) {
     val javacProcessor =
         object : JavacBasicAnnotationProcessor(configureEnv = { config }) {
@@ -191,7 +206,7 @@ fun runProcessorTest(
         config = config,
         javacProcessors = listOf(javacProcessor),
         symbolProcessorProviders = listOf(ksProvider),
-        onCompilationResult = onCompilationResult
+        onCompilationResult = onCompilationResult,
     )
 }
 
@@ -215,30 +230,49 @@ fun runProcessorTest(
     config: XProcessingEnvConfig = defaultTestConfig(options),
     javacProcessors: List<Processor>,
     symbolProcessorProviders: List<SymbolProcessorProvider>,
-    onCompilationResult: (CompilationResultSubject) -> Unit
-) {
-    val javaApRunner =
-        if (sources.any { it is Source.KotlinSource }) {
-            KaptCompilationTestRunner(javacProcessors)
-        } else {
-            JavacCompilationTestRunner(javacProcessors)
-        }
-    val handler: (XTestInvocation) -> Unit = { it.assertCompilationResult(onCompilationResult) }
+    onCompilationResult: (CompilationResultSubject) -> Unit,
+) =
     runTests(
-        params =
-            TestCompilationParameters(
-                sources = sources,
-                classpath = classpath.distinct(),
-                options = options,
-                handlers = listOf(handler),
-                javacArguments = javacArguments,
-                kotlincArguments = kotlincArguments,
-                config = config
-            ),
-        javaApRunner,
-        KspCompilationTestRunner(symbolProcessorProviders)
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
+        config = config,
+        javacProcessors = javacProcessors,
+        symbolProcessorProviders = symbolProcessorProviders,
+        onCompilationResult = onCompilationResult,
     )
-}
+
+/**
+ * Runs the [symbolProcessorProviders] with ksp and skips javac/kapt processing.
+ *
+ * [onCompilationResult] will be called with a [CompilationResultSubject] after compilation
+ * finishes.
+ *
+ * By default, the compilation is expected to succeed. If it should fail, there must be an assertion
+ * on [onCompilationResult] which expects a failure (e.g. checking errors).
+ */
+@ExperimentalProcessingApi
+fun runKspProcessorTest(
+    sources: List<Source> = emptyList(),
+    classpath: List<File> = emptyList(),
+    options: Map<String, String> = emptyMap(),
+    kotlincArguments: List<String> = emptyList(),
+    config: XProcessingEnvConfig = defaultTestConfig(options),
+    symbolProcessorProviders: List<SymbolProcessorProvider>,
+    onCompilationResult: (CompilationResultSubject) -> Unit,
+) =
+    runTests(
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        kotlincArguments = kotlincArguments,
+        config = config,
+        supportedRunners = setOf(RunnerKind.KSP),
+        symbolProcessorProviders = symbolProcessorProviders,
+        onCompilationResult = onCompilationResult,
+    )
 
 /** @see runProcessorTest */
 @ExperimentalProcessingApi
@@ -249,29 +283,17 @@ fun runProcessorTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handlers: List<(XTestInvocation) -> Unit>
-) {
-    val javaApRunner =
-        if (sources.any { it is Source.KotlinSource }) {
-            KaptCompilationTestRunner()
-        } else {
-            JavacCompilationTestRunner()
-        }
+    handlers: List<(XTestInvocation) -> Unit>,
+) =
     runTests(
-        params =
-            TestCompilationParameters(
-                sources = sources,
-                classpath = classpath.distinct(),
-                options = options,
-                handlers = handlers,
-                javacArguments = javacArguments,
-                kotlincArguments = kotlincArguments,
-                config = config
-            ),
-        javaApRunner,
-        KspCompilationTestRunner()
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
+        config = config,
+        handlers = handlers,
     )
-}
 
 /**
  * Runs the test only with javac compilation backend.
@@ -284,14 +306,14 @@ fun runJavaProcessorTest(
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handler: (XTestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit,
 ) =
     runJavaProcessorTest(
         sources = sources,
         classpath = classpath,
         options = options,
         config = config,
-        handlers = listOf(handler)
+        handlers = listOf(handler),
     )
 
 /** @see runJavaProcessorTest */
@@ -301,20 +323,16 @@ fun runJavaProcessorTest(
     classpath: List<File> = emptyList(),
     options: Map<String, String> = emptyMap(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handlers: List<(XTestInvocation) -> Unit>
-) {
+    handlers: List<(XTestInvocation) -> Unit>,
+) =
     runTests(
-        params =
-            TestCompilationParameters(
-                sources = sources,
-                classpath = classpath,
-                options = options,
-                handlers = handlers,
-                config = config,
-            ),
-        JavacCompilationTestRunner()
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        handlers = handlers,
+        supportedRunners = setOf(RunnerKind.JAVAC),
+        config = config,
     )
-}
 
 /** Runs the test only with kapt compilation backend */
 @ExperimentalProcessingApi
@@ -325,7 +343,7 @@ fun runKaptTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handler: (XTestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit,
 ) =
     runKaptTest(
         sources = sources,
@@ -334,7 +352,7 @@ fun runKaptTest(
         javacArguments = javacArguments,
         kotlincArguments = kotlincArguments,
         config = config,
-        handlers = listOf(handler)
+        handlers = listOf(handler),
     )
 
 /** @see runKaptTest */
@@ -346,22 +364,18 @@ fun runKaptTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handlers: List<(XTestInvocation) -> Unit>
-) {
+    handlers: List<(XTestInvocation) -> Unit>,
+) =
     runTests(
-        params =
-            TestCompilationParameters(
-                sources = sources,
-                classpath = classpath,
-                options = options,
-                handlers = handlers,
-                javacArguments = javacArguments,
-                kotlincArguments = kotlincArguments,
-                config = config,
-            ),
-        KaptCompilationTestRunner()
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        handlers = handlers,
+        supportedRunners = setOf(RunnerKind.KAPT),
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
+        config = config,
     )
-}
 
 /** Runs the test only with ksp compilation backend */
 @ExperimentalProcessingApi
@@ -372,7 +386,7 @@ fun runKspTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handler: (XTestInvocation) -> Unit
+    handler: (XTestInvocation) -> Unit,
 ) =
     runKspTest(
         sources = sources,
@@ -381,7 +395,7 @@ fun runKspTest(
         javacArguments = javacArguments,
         kotlincArguments = kotlincArguments,
         config = config,
-        handlers = listOf(handler)
+        handlers = listOf(handler),
     )
 
 /** @see runKspTest */
@@ -393,22 +407,18 @@ fun runKspTest(
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
     config: XProcessingEnvConfig = defaultTestConfig(options),
-    handlers: List<(XTestInvocation) -> Unit>
-) {
+    handlers: List<(XTestInvocation) -> Unit>,
+) =
     runTests(
-        params =
-            TestCompilationParameters(
-                sources = sources,
-                classpath = classpath,
-                options = options,
-                handlers = handlers,
-                javacArguments = javacArguments,
-                kotlincArguments = kotlincArguments,
-                config = config,
-            ),
-        KspCompilationTestRunner()
+        sources = sources,
+        classpath = classpath,
+        options = options,
+        handlers = handlers,
+        supportedRunners = setOf(RunnerKind.KSP),
+        javacArguments = javacArguments,
+        kotlincArguments = kotlincArguments,
+        config = config,
     )
-}
 
 /**
  * Compiles the given set of sources into a temporary folder and returns the full classpath that
@@ -429,7 +439,7 @@ fun compileFiles(
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     javacArguments: List<String> = emptyList(),
     kotlincArguments: List<String> = emptyList(),
-    includeSystemClasspath: Boolean = true
+    includeSystemClasspath: Boolean = true,
 ): List<File> {
     val workingDir = Files.createTempDir()
     val result =
@@ -442,8 +452,8 @@ fun compileFiles(
                     symbolProcessorProviders = symbolProcessorProviders,
                     processorOptions = options,
                     javacArguments = javacArguments,
-                    kotlincArguments = kotlincArguments
-                )
+                    kotlincArguments = kotlincArguments,
+                ),
         )
     if (!result.success) {
         throw AssertionError(
@@ -480,9 +490,10 @@ fun compileFilesIntoJar(
     outputDirectory: File,
     sources: List<Source>,
     options: Map<String, String> = emptyMap(),
+    javacArguments: List<String> = emptyList(),
+    kotlincArguments: List<String> = emptyList(),
     annotationProcessors: List<Processor> = emptyList(),
     symbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
-    javacArguments: List<String> = emptyList(),
 ): File {
     val compiledFiles =
         compileFiles(
@@ -491,6 +502,7 @@ fun compileFilesIntoJar(
             annotationProcessors = annotationProcessors,
             symbolProcessorProviders = symbolProcessorProviders,
             javacArguments = javacArguments,
+            kotlincArguments = kotlincArguments,
             includeSystemClasspath = false,
         )
     val outputFile = File.createTempFile("compiled_", ".jar", outputDirectory)
@@ -538,8 +550,8 @@ private fun addJarEntry(source: File, changeDir: String, target: JarOutputStream
 /**
  * Runs a block in a temporary directory and cleans it up afterwards.
  *
- * This method intentionally returns Unit to make it harder to return something that might reference
- * the temporary directory.
+ * This function intentionally returns Unit to make it harder to return something that might
+ * reference the temporary directory.
  */
 private inline fun withTempDir(block: (tmpDir: File) -> Unit) {
     val tmpDir = Files.createTempDir()

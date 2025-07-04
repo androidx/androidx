@@ -77,7 +77,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             Log.v(
                 FragmentManager.TAG,
                 "SpecialEffectsController: Enqueuing add operation for fragment " +
-                    fragmentStateManager.fragment
+                    fragmentStateManager.fragment,
             )
         }
         enqueue(finalState, Operation.LifecycleImpact.ADDING, fragmentStateManager)
@@ -88,7 +88,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             Log.v(
                 FragmentManager.TAG,
                 "SpecialEffectsController: Enqueuing show operation for fragment " +
-                    fragmentStateManager.fragment
+                    fragmentStateManager.fragment,
             )
         }
         enqueue(Operation.State.VISIBLE, Operation.LifecycleImpact.NONE, fragmentStateManager)
@@ -99,7 +99,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             Log.v(
                 FragmentManager.TAG,
                 "SpecialEffectsController: Enqueuing hide operation for fragment " +
-                    fragmentStateManager.fragment
+                    fragmentStateManager.fragment,
             )
         }
         enqueue(Operation.State.GONE, Operation.LifecycleImpact.NONE, fragmentStateManager)
@@ -110,7 +110,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             Log.v(
                 FragmentManager.TAG,
                 "SpecialEffectsController: Enqueuing remove operation for fragment " +
-                    fragmentStateManager.fragment
+                    fragmentStateManager.fragment,
             )
         }
         enqueue(Operation.State.REMOVED, Operation.LifecycleImpact.REMOVING, fragmentStateManager)
@@ -119,15 +119,18 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
     private fun enqueue(
         finalState: Operation.State,
         lifecycleImpact: Operation.LifecycleImpact,
-        fragmentStateManager: FragmentStateManager
+        fragmentStateManager: FragmentStateManager,
     ) {
         synchronized(pendingOperations) {
             val existingOperation =
                 findPendingOperation(fragmentStateManager.fragment)
-                    // Get the running operation if the fragment is current transitioning as that
-                    // means
-                    // we can reverse the effect via the merge if needed.
-                    ?: if (fragmentStateManager.fragment.mTransitioning) {
+                    // Get the running operation if the fragment is current transitioning or the
+                    // fragment is removing as that means we can reverse the effect via the merge if
+                    // needed.
+                    ?: if (
+                        fragmentStateManager.fragment.mTransitioning ||
+                            fragmentStateManager.fragment.mRemoving
+                    ) {
                         findRunningOperation(fragmentStateManager.fragment)
                     } else {
                         null
@@ -227,7 +230,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         Log.v(
                             FragmentManager.TAG,
                             "SpecialEffectsController: Completing non-seekable " +
-                                "operation $operation"
+                                "operation $operation",
                         )
                     }
                     operation.complete()
@@ -235,7 +238,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(
                             FragmentManager.TAG,
-                            "SpecialEffectsController: Cancelling operation $operation"
+                            "SpecialEffectsController: Cancelling operation $operation",
                         )
                     }
                     operation.cancel(container)
@@ -258,7 +261,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         FragmentManager.TAG,
-                        "SpecialEffectsController: Executing pending operations"
+                        "SpecialEffectsController: Executing pending operations",
                     )
                 }
                 collectEffects(newPendingOperations, operationDirectionIsPop)
@@ -270,7 +273,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     Log.v(
                         FragmentManager.TAG,
                         "SpecialEffectsController: Operation seekable = $seekable \n" +
-                            "transition = $transitioning"
+                            "transition = $transitioning",
                     )
                 }
 
@@ -290,7 +293,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         FragmentManager.TAG,
-                        "SpecialEffectsController: Finished executing pending operations"
+                        "SpecialEffectsController: Finished executing pending operations",
                     )
                 }
             }
@@ -329,7 +332,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(
                 FragmentManager.TAG,
-                "SpecialEffectsController: Forcing all operations to complete"
+                "SpecialEffectsController: Forcing all operations to complete",
             )
         }
         val attachedToWindow = container.isAttachedToWindow()
@@ -354,7 +357,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         FragmentManager.TAG,
                         "SpecialEffectsController: " +
                             notAttachedMessage +
-                            "Cancelling running operation $operation"
+                            "Cancelling running operation $operation",
                     )
                 }
                 operation.cancel(container)
@@ -377,7 +380,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         FragmentManager.TAG,
                         "SpecialEffectsController: " +
                             notAttachedMessage +
-                            "Cancelling pending operation $operation"
+                            "Cancelling pending operation $operation",
                     )
                 }
                 operation.cancel(container)
@@ -458,7 +461,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(
                 FragmentManager.TAG,
-                "SpecialEffectsController: Processing Progress ${backEvent.progress}"
+                "SpecialEffectsController: Processing Progress ${backEvent.progress}",
             )
         }
 
@@ -512,6 +515,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
              * @param container The ViewGroup to add the view too if it does not have a parent.
              */
             fun applyState(view: View, container: ViewGroup) {
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "SpecialEffectsController: Calling apply state")
+                }
                 when (this) {
                     REMOVED -> {
                         val parent = view.parent as? ViewGroup
@@ -520,7 +526,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                                 Log.v(
                                     FragmentManager.TAG,
                                     "SpecialEffectsController: " +
-                                        "Removing view $view from container $parent"
+                                        "Removing view $view from container $parent",
                                 )
                             }
                             parent.removeView(view)
@@ -530,7 +536,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                             Log.v(
                                 FragmentManager.TAG,
-                                "SpecialEffectsController: " + "Setting view $view to VISIBLE"
+                                "SpecialEffectsController: " + "Setting view $view to VISIBLE",
                             )
                         }
                         val parent = view.parent as? ViewGroup
@@ -539,7 +545,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                                 Log.v(
                                     FragmentManager.TAG,
                                     "SpecialEffectsController: " +
-                                        "Adding view $view to Container $container"
+                                        "Adding view $view to Container $container",
                                 )
                             }
                             container.addView(view)
@@ -550,7 +556,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                             Log.v(
                                 FragmentManager.TAG,
-                                "SpecialEffectsController: Setting view $view to GONE"
+                                "SpecialEffectsController: Setting view $view to GONE",
                             )
                         }
                         view.visibility = View.GONE
@@ -559,7 +565,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                             Log.v(
                                 FragmentManager.TAG,
-                                "SpecialEffectsController: Setting view $view to INVISIBLE"
+                                "SpecialEffectsController: Setting view $view to INVISIBLE",
                             )
                         }
                         view.visibility = View.INVISIBLE
@@ -654,7 +660,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                                 FragmentManager.TAG,
                                 "SpecialEffectsController: For fragment $fragment " +
                                     "mFinalState = REMOVED -> VISIBLE. " +
-                                    "mLifecycleImpact = ${this.lifecycleImpact} to ADDING."
+                                    "mLifecycleImpact = ${this.lifecycleImpact} to ADDING.",
                             )
                         }
                         // Applying an ADDING operation to a REMOVED fragment
@@ -669,7 +675,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             FragmentManager.TAG,
                             "SpecialEffectsController: For fragment $fragment " +
                                 "mFinalState = ${this.finalState} -> REMOVED. " +
-                                "mLifecycleImpact  = ${this.lifecycleImpact} to REMOVING."
+                                "mLifecycleImpact  = ${this.lifecycleImpact} to REMOVING.",
                         )
                     }
                     // Any REMOVING operation overrides whatever we had before
@@ -683,7 +689,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             Log.v(
                                 FragmentManager.TAG,
                                 "SpecialEffectsController: For fragment $fragment " +
-                                    "mFinalState = ${this.finalState} -> $finalState."
+                                    "mFinalState = ${this.finalState} -> $finalState.",
                             )
                         }
                         this.finalState = finalState
@@ -733,12 +739,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         finalState: State,
         lifecycleImpact: LifecycleImpact,
         private val fragmentStateManager: FragmentStateManager,
-    ) :
-        Operation(
-            finalState,
-            lifecycleImpact,
-            fragmentStateManager.fragment,
-        ) {
+    ) : Operation(finalState, lifecycleImpact, fragmentStateManager.fragment) {
         override fun onStart() {
             if (isStarted) {
                 return
@@ -752,7 +753,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                         Log.v(
                             FragmentManager.TAG,
-                            "requestFocus: Saved focused view $focusedView for Fragment $fragment"
+                            "requestFocus: Saved focused view $focusedView for Fragment $fragment",
                         )
                     }
                 }
@@ -761,22 +762,37 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 // for ADDING operations to properly handle cases where the
                 // exit animation was interrupted.
                 if (view.parent == null) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(
+                            FragmentManager.TAG,
+                            "Adding fragment $fragment view $view to container in onStart",
+                        )
+                    }
                     fragmentStateManager.addViewToContainer()
                     view.alpha = 0f
                 }
                 // Change the view alphas back to their original values before we execute our
                 // transitions.
                 if (view.alpha == 0f && view.visibility == View.VISIBLE) {
+                    if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                        Log.v(FragmentManager.TAG, "Making view $view INVISIBLE in onStart")
+                    }
                     view.visibility = View.INVISIBLE
                 }
                 view.alpha = fragment.postOnViewCreatedAlpha
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(
+                        FragmentManager.TAG,
+                        "Setting view alpha to ${fragment.postOnViewCreatedAlpha} in onStart",
+                    )
+                }
             } else if (lifecycleImpact == LifecycleImpact.REMOVING) {
                 val fragment = fragmentStateManager.fragment
                 val view = fragment.requireView()
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(
                         FragmentManager.TAG,
-                        "Clearing focus ${view.findFocus()} on view $view for Fragment $fragment"
+                        "Clearing focus ${view.findFocus()} on view $view for Fragment $fragment",
                     )
                 }
                 view.clearFocus()
@@ -834,7 +850,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         @JvmStatic
         fun getOrCreateController(
             container: ViewGroup,
-            fragmentManager: FragmentManager
+            fragmentManager: FragmentManager,
         ): SpecialEffectsController {
             val factory = fragmentManager.specialEffectsControllerFactory
             return getOrCreateController(container, factory)
@@ -852,7 +868,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         @JvmStatic
         fun getOrCreateController(
             container: ViewGroup,
-            factory: SpecialEffectsControllerFactory
+            factory: SpecialEffectsControllerFactory,
         ): SpecialEffectsController {
             val controller = container.getTag(R.id.special_effects_controller_view_tag)
             if (controller is SpecialEffectsController) {

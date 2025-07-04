@@ -31,5 +31,5 @@ public class TransitionInfo(
     public val specType: String,
     public val startTimeMillis: Long,
     public val endTimeMillis: Long,
-    public val values: Map<Long, Any?>
+    public val values: Map<Long, Any?>,
 )

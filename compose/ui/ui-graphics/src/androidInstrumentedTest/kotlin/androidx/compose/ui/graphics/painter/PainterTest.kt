@@ -137,7 +137,7 @@ class PainterTest {
                             alpha = alpha,
                             red = Color.Red.red,
                             blue = Color.Red.blue,
-                            green = Color.Red.green
+                            green = Color.Red.green,
                         )
                     return true
                 }
@@ -196,7 +196,7 @@ class PainterTest {
             p,
             Canvas(image),
             size,
-            colorFilter = ColorFilter.tint(Color.Blue, BlendMode.SrcIn)
+            colorFilter = ColorFilter.tint(Color.Blue, BlendMode.SrcIn),
         )
         assertEquals(Color.Blue, image.toPixelMap()[50, 50])
     }

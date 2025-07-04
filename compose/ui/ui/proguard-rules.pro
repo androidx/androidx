@@ -52,3 +52,4 @@
 -keepnames class androidx.compose.ui.input.pointer.PointerInputEventHandler {
     *;
 }
+

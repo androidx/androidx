@@ -42,7 +42,7 @@ class PagedListAdapterTest {
     @Suppress("DEPRECATION")
     inner class Adapter(
         private val onChangedLegacy: AsyncPagedListDiffer.PagedListListener<String>? = null,
-        private val onChanged: AsyncPagedListDiffer.PagedListListener<String>? = null
+        private val onChanged: AsyncPagedListDiffer.PagedListListener<String>? = null,
     ) : PagedListAdapter<String, RecyclerView.ViewHolder>(differConfig) {
         init {
             differ.mainThreadExecutor = mainThread
@@ -56,7 +56,7 @@ class PagedListAdapterTest {
 
         @Deprecated(
             "Use the two argument variant instead.",
-            replaceWith = ReplaceWith("onCurrentListChanged(previousList, currentList)")
+            replaceWith = ReplaceWith("onCurrentListChanged(previousList, currentList)"),
         )
         @Suppress("OverridingDeprecatedMember")
         override fun onCurrentListChanged(currentList: PagedList<String>?) {
@@ -65,7 +65,7 @@ class PagedListAdapterTest {
 
         override fun onCurrentListChanged(
             previousList: PagedList<String>?,
-            currentList: PagedList<String>?
+            currentList: PagedList<String>?,
         ) {
             onChanged?.onCurrentListChanged(previousList, currentList)
         }
@@ -136,12 +136,12 @@ class PagedListAdapterTest {
         assertEquals(1, legacyListener.onCurrentListChangedEvents.size)
         assertEquals(
             PagedListListenerFake.OnCurrentListChangedEvent(null, first),
-            legacyListener.onCurrentListChangedEvents[0]
+            legacyListener.onCurrentListChangedEvents[0],
         )
         assertEquals(1, listener.onCurrentListChangedEvents.size)
         assertEquals(
             PagedListListenerFake.OnCurrentListChangedEvent(null, first),
-            listener.onCurrentListChangedEvents[0]
+            listener.onCurrentListChangedEvents[0],
         )
         // Assert exactly 1 call to callback.run().
         assertEquals(1, callback.runEvents.size)
@@ -163,12 +163,12 @@ class PagedListAdapterTest {
         assertEquals(2, legacyListener.onCurrentListChangedEvents.size)
         assertEquals(
             PagedListListenerFake.OnCurrentListChangedEvent(null, second),
-            legacyListener.onCurrentListChangedEvents[1]
+            legacyListener.onCurrentListChangedEvents[1],
         )
         assertEquals(2, listener.onCurrentListChangedEvents.size)
         assertEquals(
             PagedListListenerFake.OnCurrentListChangedEvent(first, second),
-            listener.onCurrentListChangedEvents[1]
+            listener.onCurrentListChangedEvents[1],
         )
         // Assert exactly 1 call to callback.run().
         assertEquals(2, callback.runEvents.size)
@@ -198,12 +198,12 @@ class PagedListAdapterTest {
         assertEquals(3, legacyListener.onCurrentListChangedEvents.size)
         assertEquals(
             PagedListListenerFake.OnCurrentListChangedEvent<String>(null, null),
-            legacyListener.onCurrentListChangedEvents[2]
+            legacyListener.onCurrentListChangedEvents[2],
         )
         assertEquals(3, listener.onCurrentListChangedEvents.size)
         assertEquals(
             PagedListListenerFake.OnCurrentListChangedEvent(second, null),
-            listener.onCurrentListChangedEvents[2]
+            listener.onCurrentListChangedEvents[2],
         )
         // Assert exactly 1 call to callback.run().
         assertEquals(4, callback.runEvents.size)

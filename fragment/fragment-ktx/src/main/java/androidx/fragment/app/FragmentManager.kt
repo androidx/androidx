@@ -27,7 +27,7 @@ import androidx.annotation.MainThread
  */
 public inline fun FragmentManager.commit(
     allowStateLoss: Boolean = false,
-    body: FragmentTransaction.() -> Unit
+    body: FragmentTransaction.() -> Unit,
 ) {
     val transaction = beginTransaction()
     transaction.body()
@@ -49,7 +49,7 @@ public inline fun FragmentManager.commit(
 @MainThread
 public inline fun FragmentManager.commitNow(
     allowStateLoss: Boolean = false,
-    body: FragmentTransaction.() -> Unit
+    body: FragmentTransaction.() -> Unit,
 ) {
     val transaction = beginTransaction()
     transaction.body()
@@ -77,7 +77,7 @@ public inline fun FragmentManager.commitNow(
 public inline fun FragmentManager.transaction(
     now: Boolean = false,
     allowStateLoss: Boolean = false,
-    body: FragmentTransaction.() -> Unit
+    body: FragmentTransaction.() -> Unit,
 ) {
     val transaction = beginTransaction()
     transaction.body()

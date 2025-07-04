@@ -52,7 +52,7 @@ private constructor(
     @get:VisibleForTesting val rgbD: FloatArray,
     val fl: Float,
     @get:VisibleForTesting val flRoot: Float,
-    val z: Float
+    val z: Float,
 ) {
     companion object {
         // Standard viewing conditions assumed in RGB specification - Stokes, Anderson,
@@ -83,7 +83,7 @@ private constructor(
                 (200.0f / PI * yFromLstar(50.0) / 100.0).toFloat(),
                 50.0f,
                 2.0f,
-                false
+                false,
             )
 
         /** Create a custom frame. */
@@ -92,7 +92,7 @@ private constructor(
             adaptingLuminance: Float,
             backgroundLstar: Float,
             surround: Float,
-            discountingIlluminant: Boolean
+            discountingIlluminant: Boolean,
         ): Frame {
             // Transform white point XYZ to 'cone'/'rgb' responses
             val matrix = CamUtils.XYZ_TO_CAM16RGB
@@ -168,7 +168,7 @@ private constructor(
                 floatArrayOf(
                     (fl * rgbD[0] * rW / 100f).pow(0.42f),
                     (fl * rgbD[1] * gW / 100f).pow(0.42f),
-                    (fl * rgbD[2] * bW / 100f).pow(0.42f)
+                    (fl * rgbD[2] * bW / 100f).pow(0.42f),
                 )
 
             val rgbA =

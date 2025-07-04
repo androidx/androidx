@@ -40,7 +40,7 @@ class RecompositionTestActivity : ComponentActivity() {
                     Column {
                         Button(
                             onClick = { clickCount1.value = clickCount1.value + 1 },
-                            modifier = Modifier.padding(16.dp, 4.dp)
+                            modifier = Modifier.padding(16.dp, 4.dp),
                         ) {
                             Text("Click row 1")
                         }
@@ -54,7 +54,7 @@ class RecompositionTestActivity : ComponentActivity() {
                     Column {
                         Button(
                             onClick = { clickCount2.value = clickCount2.value + 1 },
-                            modifier = Modifier.padding(16.dp, 4.dp)
+                            modifier = Modifier.padding(16.dp, 4.dp),
                         ) {
                             Text("Click row 2")
                         }

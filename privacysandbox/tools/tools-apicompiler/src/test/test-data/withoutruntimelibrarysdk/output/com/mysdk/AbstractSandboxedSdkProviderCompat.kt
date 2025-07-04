@@ -17,13 +17,12 @@ public abstract class AbstractSandboxedSdkProviderCompat : SandboxedSdkProvider(
     return SandboxedSdk(WithoutRuntimeLibrarySdkStubDelegate(sdk, ctx))
   }
 
+  protected abstract fun createWithoutRuntimeLibrarySdk(context: Context): WithoutRuntimeLibrarySdk
+
   public override fun getView(
     windowContext: Context,
     params: Bundle,
     width: Int,
     height: Int,
-  ): View = throw
-      UnsupportedOperationException("This SDK doesn't support explicit SurfaceView requests.")
-
-  protected abstract fun createWithoutRuntimeLibrarySdk(context: Context): WithoutRuntimeLibrarySdk
+  ): View = throw UnsupportedOperationException("This SDK doesn't support explicit SurfaceView requests.")
 }

@@ -64,7 +64,7 @@ class CardContainerTest {
                         SampleImage()
                     }
                 },
-                title = { Text("${count.value}") }
+                title = { Text("${count.value}") },
             )
         }
 
@@ -96,7 +96,7 @@ class CardContainerTest {
                         SampleImage()
                     }
                 },
-                title = { Text("${count.value}") }
+                title = { Text("${count.value}") },
             )
         }
 
@@ -126,7 +126,7 @@ class CardContainerTest {
                         SampleImage()
                     }
                 },
-                title = { Text("${count.value}") }
+                title = { Text("${count.value}") },
             )
         }
 
@@ -157,7 +157,7 @@ class CardContainerTest {
                         SampleImage()
                     }
                 },
-                title = { Text("${count.value}") }
+                title = { Text("${count.value}") },
             )
         }
 

@@ -21,7 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
@@ -34,7 +33,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,10 +47,15 @@ public class ByteBufferColumnTypeAdapterTest {
 
     @Entity(tableName = "byteBufferFoo")
     public static class ByteBufferFoo {
-        @PrimaryKey @NonNull public String id;
+        @PrimaryKey
+        @androidx.annotation.NonNull
+        // This project is tested against a version of the room compiler that doesn't recognize
+        // JSpecify for primary keys
+        @SuppressWarnings("JSpecifyNullness")
+        public String id;
         public ByteBuffer buffer;
 
-        public ByteBufferFoo(@NotNull String id, ByteBuffer buffer) {
+        public ByteBufferFoo(@NonNull String id, ByteBuffer buffer) {
             this.id = id;
             this.buffer = buffer;
         }

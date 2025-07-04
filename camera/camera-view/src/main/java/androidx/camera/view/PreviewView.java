@@ -192,6 +192,7 @@ public final class PreviewView extends FrameLayout {
 
         @Override
         @AnyThread
+        @SuppressWarnings("WrongThread") // View.getContext()
         public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
             if (!Threads.isMainThread()) {
                 // Post on main thread to ensure thread safety.
@@ -205,7 +206,7 @@ public final class PreviewView extends FrameLayout {
             // PreviewViewMeteringPointFactory will convert the coordinates from previewView (x,y)
             // to sensor coordinates and then to normalized coordinates. Thus sensor rect is needed.
             mPreviewViewMeteringPointFactory.setSensorRect(
-                    camera.getCameraControlInternal().getSensorRect());
+                    camera.getCameraInfoInternal().getSensorRect());
             surfaceRequest.setTransformationInfoListener(
                     getMainExecutor(getContext()),
                     transformationInfo -> {
@@ -581,11 +582,12 @@ public final class PreviewView extends FrameLayout {
     @UiThread
     public @Nullable ViewPort getViewPort() {
         checkMainThread();
-        if (getDisplay() == null) {
+        Display defaultDisplay = getDefaultDisplay();
+        if (defaultDisplay == null) {
             // Returns null if the layout is not ready.
             return null;
         }
-        return getViewPort(getDisplay().getRotation());
+        return getViewPort(defaultDisplay.getRotation());
     }
 
     /**
@@ -715,7 +717,7 @@ public final class PreviewView extends FrameLayout {
     @SuppressWarnings("WeakerAccess")
     void updateDisplayRotationIfNeeded() {
         if (mUseDisplayRotation) {
-            Display display = getDisplay();
+            Display display = getDefaultDisplay();
             if (display != null && mCameraInfoInternal != null) {
                 mPreviewTransform.overrideWithDisplayRotation(
                         mCameraInfoInternal.getSensorRotationDegrees(
@@ -1094,8 +1096,10 @@ public final class PreviewView extends FrameLayout {
         if (context == null) {
             return null;
         }
-        return (DisplayManager) context.getApplicationContext()
-                .getSystemService(Context.DISPLAY_SERVICE);
+        // Use context instead of context.getApplication because the DisplayManager created
+        // from context.getApplication() will not contain the default display when external display
+        // is connected.
+        return (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     }
 
     /**
@@ -1173,6 +1177,24 @@ public final class PreviewView extends FrameLayout {
     }
 
     /**
+     * Gets the default display that will normally have the camera attached.
+     * To avoid the orientation issue when apps run in connected external display,
+     * use the rotation of the default display if possible.
+     *
+     * It will return null when getDisplay() returns null to indicate the layout is not ready.
+     */
+    @Nullable
+    Display getDefaultDisplay() {
+        if (getDisplay() == null) {
+            // Let it return null to indicate layout is not ready.
+            return null;
+        }
+        DisplayManager displayManager = getDisplayManager();
+        Display display = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        return display != null ? display : getDisplay();
+    }
+
+    /**
      * Listener for display rotation changes.
      *
      * <p> When the device is rotated 180° from side to side, the activity is not
@@ -1193,7 +1215,7 @@ public final class PreviewView extends FrameLayout {
 
         @Override
         public void onDisplayChanged(int displayId) {
-            Display display = getDisplay();
+            Display display = getDefaultDisplay();
             if (display != null && display.getDisplayId() == displayId) {
                 redrawPreview();
             }

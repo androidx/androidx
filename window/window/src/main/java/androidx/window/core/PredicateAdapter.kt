@@ -50,7 +50,7 @@ internal class PredicateAdapter(private val loader: ClassLoader) {
     fun <T : Any, U : Any> buildPairPredicate(
         firstClazz: KClass<T>,
         secondClazz: KClass<U>,
-        predicate: (T, U) -> Boolean
+        predicate: (T, U) -> Boolean,
     ): Any {
         val predicateHandler = PairPredicateStubHandler(firstClazz, secondClazz, predicate)
 
@@ -102,7 +102,7 @@ internal class PredicateAdapter(private val loader: ClassLoader) {
 
     private class PredicateStubHandler<T : Any>(
         clazzT: KClass<T>,
-        private val predicate: (T) -> Boolean
+        private val predicate: (T) -> Boolean,
     ) : BaseHandler<T>(clazzT) {
         override fun invokeTest(obj: Any, parameter: T): Boolean {
             return predicate(parameter)
@@ -120,7 +120,7 @@ internal class PredicateAdapter(private val loader: ClassLoader) {
     private class PairPredicateStubHandler<T : Any, U : Any>(
         private val clazzT: KClass<T>,
         private val clazzU: KClass<U>,
-        private val predicate: (T, U) -> Boolean
+        private val predicate: (T, U) -> Boolean,
     ) : BaseHandler<Pair<*, *>>(Pair::class) {
         override fun invokeTest(obj: Any, parameter: Pair<*, *>): Boolean {
             val t = clazzT.cast(parameter.first)

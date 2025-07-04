@@ -57,7 +57,7 @@ class SwipeBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val swipeToDismissBox = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
             swipeToDismissBox.setGestureMargin(device.displayWidth / 5)

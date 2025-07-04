@@ -63,5 +63,5 @@ public class SampleCallbackHelper(
     val preparePop: () -> Unit,
     val updateProgress: (progress: Float) -> Unit,
     val popBackStack: () -> Unit,
-    val cancelPop: () -> Unit
+    val cancelPop: () -> Unit,
 )

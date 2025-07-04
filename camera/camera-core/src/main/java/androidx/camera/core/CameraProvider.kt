@@ -48,7 +48,7 @@ public interface CameraProvider {
      * For example, to select a front camera and a back camera and bind to [LifecycleOwner] with
      * preview [UseCase], this function could be used with `bindToLifecycle`.
      *
-     * @sample androidx.camera.lifecycle.samples.bindConcurrentCameraSample
+     * @sample androidx.camera.core.samples.bindConcurrentCameraSample
      * @return List of combinations of [CameraInfo].
      */
     @get:RestrictTo(Scope.LIBRARY_GROUP)
@@ -91,4 +91,7 @@ public interface CameraProvider {
     public fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
         throw UnsupportedOperationException("The camera provider is not implemented properly.")
     }
+
+    /** Returns the [CameraXConfig] implementation type. */
+    @get:RestrictTo(Scope.LIBRARY_GROUP) @CameraXConfig.ImplType public val configImplType: Int
 }

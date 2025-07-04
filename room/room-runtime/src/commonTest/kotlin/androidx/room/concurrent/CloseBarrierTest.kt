@@ -19,7 +19,6 @@ package androidx.room.concurrent
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.Test
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -34,9 +33,9 @@ class CloseBarrierTest {
     @Test
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun oneBlocker() = runTest {
-        val actionPerformed = atomic(false)
+        val actionPerformed = AtomicBoolean(false)
         val closeBarrier = CloseBarrier {
-            assertThat(actionPerformed.compareAndSet(expect = false, update = true)).isTrue()
+            assertThat(actionPerformed.compareAndSet(false, true)).isTrue()
         }
         val jobLaunched = Mutex(locked = true)
 
@@ -52,14 +51,14 @@ class CloseBarrierTest {
 
         // yield for launch and verify the close action has not been performed
         yield()
-        jobLaunched.withLock { assertThat(actionPerformed.value).isFalse() }
+        jobLaunched.withLock { assertThat(actionPerformed.get()).isFalse() }
 
         // unblock the barrier, close job should complete
         closeBarrier.unblock()
         closeJob.join()
 
         // verify action was performed
-        assertThat(actionPerformed.value).isTrue()
+        assertThat(actionPerformed.get()).isTrue()
 
         // verify a new block is not granted since the barrier is already close
         assertThat(closeBarrier.block()).isFalse()
@@ -67,15 +66,15 @@ class CloseBarrierTest {
 
     @Test
     fun noBlockers() = runTest {
-        val actionPerformed = atomic(false)
+        val actionPerformed = AtomicBoolean(false)
         val closeBarrier = CloseBarrier {
-            assertThat(actionPerformed.compareAndSet(expect = false, update = true)).isTrue()
+            assertThat(actionPerformed.compareAndSet(false, true)).isTrue()
         }
 
         // Validate close action is performed immediately if there are no blockers
         closeBarrier.close()
 
-        assertThat(actionPerformed.value).isTrue()
+        assertThat(actionPerformed.get()).isTrue()
     }
 
     @Test
@@ -89,9 +88,9 @@ class CloseBarrierTest {
     @Test
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     fun noStarvation() = runTest {
-        val actionPerformed = atomic(false)
+        val actionPerformed = AtomicBoolean(false)
         val closeBarrier = CloseBarrier {
-            assertThat(actionPerformed.compareAndSet(expect = false, update = true)).isTrue()
+            assertThat(actionPerformed.compareAndSet(false, true)).isTrue()
         }
         val jobLaunched = Mutex(locked = true)
 
@@ -111,12 +110,12 @@ class CloseBarrierTest {
         // yield for launch and verify the close action has not been performed in an attempt to
         // get the block / unblock loop going
         yield()
-        jobLaunched.withLock { assertThat(actionPerformed.value).isFalse() }
+        jobLaunched.withLock { assertThat(actionPerformed.get()).isFalse() }
 
         // initiate the close action, test should not deadlock (or timeout) meaning the barrier
         // will not cause the caller to starve
         closeBarrier.close()
         blockerJob.join()
-        assertThat(actionPerformed.value).isTrue()
+        assertThat(actionPerformed.get()).isTrue()
     }
 }

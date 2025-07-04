@@ -51,7 +51,7 @@ internal fun TextLayoutResult.canReuse(
     density: Density,
     layoutDirection: LayoutDirection,
     fontFamilyResolver: FontFamily.Resolver,
-    constraints: Constraints
+    constraints: Constraints,
 ): Boolean {
 
     // NOTE(text-perf-review): might make sense to short-circuit instance equality here
@@ -122,7 +122,7 @@ internal fun TextLayoutResult.getLineHeight(offset: Int): Float {
         minOf(
             multiParagraph.getLineForOffset(offset),
             multiParagraph.maxLines - 1,
-            multiParagraph.lineCount - 1
+            multiParagraph.lineCount - 1,
         )
     val lineEnd = multiParagraph.getLineEnd(line)
     if (offset > lineEnd) return 0f

@@ -41,6 +41,8 @@ public class Chain {
      *
      * @param constraintWidgetContainer root container
      * @param system                    the linear system we add the equations to
+     * @param widgets                   if this is null or contains any chainheads' widgets,
+     *                                  constrain all chains / the corresponding chains
      * @param orientation               HORIZONTAL or VERTICAL
      */
     public static void applyChainConstraints(

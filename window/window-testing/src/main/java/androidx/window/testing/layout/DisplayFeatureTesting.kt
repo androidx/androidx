@@ -75,7 +75,7 @@ fun FoldingFeature(
     @IntRange(from = -1) center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
     state: State = HALF_OPENED,
-    orientation: Orientation = HORIZONTAL
+    orientation: Orientation = HORIZONTAL,
 ): FoldingFeature {
     val metricsCalculator = WindowMetricsCalculator.getOrCreate()
     val windowBounds = metricsCalculator.computeCurrentWindowMetrics(activity).bounds
@@ -84,7 +84,7 @@ fun FoldingFeature(
         center = center,
         size = size,
         state = state,
-        orientation = orientation
+        orientation = orientation,
     )
 }
 
@@ -121,7 +121,7 @@ fun FoldingFeature(
     @IntRange(from = -1) center: Int = FOLDING_FEATURE_CENTER_DEFAULT,
     size: Int = 0,
     state: State = HALF_OPENED,
-    orientation: Orientation = HORIZONTAL
+    orientation: Orientation = HORIZONTAL,
 ): FoldingFeature {
     return foldingFeatureInternal(windowBounds, center, size, state, orientation)
 }
@@ -131,7 +131,7 @@ private fun foldingFeatureInternal(
     center: Int = -1,
     size: Int = 0,
     state: State = HALF_OPENED,
-    orientation: Orientation = HORIZONTAL
+    orientation: Orientation = HORIZONTAL,
 ): FoldingFeature {
     val shouldTreatAsHinge = size != 0
     val isSeparating = shouldTreatAsHinge || state == HALF_OPENED
@@ -165,7 +165,7 @@ private fun foldingFeatureInternal(
         isSeparating = isSeparating,
         occlusionType = occlusionType,
         orientation = orientation,
-        state = state
+        state = state,
     )
 }
 
@@ -174,7 +174,7 @@ private class FakeFoldingFeature(
     override val isSeparating: Boolean,
     override val occlusionType: FoldingFeature.OcclusionType,
     override val orientation: Orientation,
-    override val state: State
+    override val state: State,
 ) : FoldingFeature {
     init {
         require(!(bounds.width() == 0 && bounds.height() == 0)) { "Bounds must be non zero" }

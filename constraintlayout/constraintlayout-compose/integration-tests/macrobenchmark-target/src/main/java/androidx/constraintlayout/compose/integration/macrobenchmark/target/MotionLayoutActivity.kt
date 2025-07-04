@@ -47,7 +47,7 @@ class MotionLayoutActivity : ComponentActivity() {
                         Modifier.fillMaxSize()
                             // Required to reference UI elements by Macrobenchmark
                             .semantics { testTagsAsResourceId = true },
-                    color = MaterialTheme.colors.background
+                    color = MaterialTheme.colors.background,
                 ) {
                     // Here we resolve the Composable requested by Macrobenchark
                     when (name) {

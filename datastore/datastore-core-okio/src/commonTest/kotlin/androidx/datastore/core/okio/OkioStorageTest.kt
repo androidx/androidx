@@ -347,4 +347,18 @@ class OkioStorageTest {
             testConnection.writeData(1)
             assertThat(testConnection.readData()).isEqualTo(1)
         }
+
+    @Test
+    fun handleConcurrentNewDatastores() =
+        testScope.runTest {
+            val fakeFileSystem = OkioFakeFileSystem(fileSystem)
+            testIO = OkioTestIO(fakeFileSystem)
+            val fakeTestPath = testIO.newTempFile().path
+            val fakeTestStorage = OkioStorage(fakeFileSystem, testingSerializer) { fakeTestPath }
+            val fakeTestConnection = fakeTestStorage.createConnection()
+            fakeTestConnection.writeData(5.toByte())
+
+            // Succeeds without throwing "FileNotFoundException", confirm we read the value written.
+            assertThat(fakeTestConnection.readData()).isEqualTo(5.toByte())
+        }
 }

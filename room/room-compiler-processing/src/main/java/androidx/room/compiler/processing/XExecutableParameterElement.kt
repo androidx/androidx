@@ -50,7 +50,7 @@ interface XExecutableParameterElement : XVariableElement {
     /** The enclosing [XExecutableElement] this parameter belongs to. */
     @Deprecated(
         message = "use XExecutableParameterElement#enclosingElement() instead.",
-        replaceWith = ReplaceWith("enclosingElement")
+        replaceWith = ReplaceWith("enclosingElement"),
     )
     val enclosingMethodElement: XExecutableElement
         get() = enclosingElement

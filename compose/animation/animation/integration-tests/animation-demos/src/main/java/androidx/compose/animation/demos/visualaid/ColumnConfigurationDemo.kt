@@ -61,7 +61,7 @@ fun ColumnConfigurationDemo() {
                     Dp.VectorConverter,
                     250.dp,
                     520.dp,
-                    animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow)
+                    animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
                 ) { value, _ ->
                     this.value = value
                 }
@@ -81,53 +81,53 @@ fun ResizableColumn(height: Dp) {
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Row(
             verticalAlignment = Alignment.Bottom,
-            modifier = Modifier.background(Color.White, RoundedCornerShape(5.dp)).padding(10.dp)
+            modifier = Modifier.background(Color.White, RoundedCornerShape(5.dp)).padding(10.dp),
         ) {
             Text(
                 text = "Equal\nWeight",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = "Space\nBetween",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 11.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = "Space\nAround",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = "Space\nEvenly",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = "Top",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = "Center",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = "Bottom",
                 modifier = Modifier.width(50.dp).padding(2.dp),
                 fontSize = 12.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
         Row(Modifier.height(520.dp).requiredHeight(height)) {

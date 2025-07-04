@@ -66,6 +66,6 @@ public annotation class BuiltInTypeConverters(
          * The value is inherited from the higher scope. See [TypeConverters] documentation to learn
          * more about [TypeConverter] scoping. If this value is never set, it defaults to [ENABLED].
          */
-        INHERITED
+        INHERITED,
     }
 }

@@ -21,7 +21,7 @@ package androidx.work
  * inputs, this implementation is best suited for cases where conflicts will not happen, or where
  * overwriting is a valid strategy to deal with them.
  */
-class OverwritingInputMerger : InputMerger() {
+public class OverwritingInputMerger : InputMerger() {
     override fun merge(inputs: List<Data>): Data {
         val output = Data.Builder()
         val mergedValues = mutableMapOf<String, Any?>()

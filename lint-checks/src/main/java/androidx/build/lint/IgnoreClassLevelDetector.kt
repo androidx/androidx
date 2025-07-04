@@ -124,8 +124,8 @@ class IgnoreClassLevelDetector : Detector(), Detector.UastScanner {
                 Severity.ERROR,
                 Implementation(
                     IgnoreClassLevelDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

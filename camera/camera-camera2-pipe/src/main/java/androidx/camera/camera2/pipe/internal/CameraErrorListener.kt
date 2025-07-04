@@ -28,6 +28,6 @@ public interface CameraErrorListener {
     public fun onCameraError(
         cameraId: CameraId,
         cameraError: CameraError,
-        willAttemptRetry: Boolean = false
+        willAttemptRetry: Boolean = false,
     )
 }

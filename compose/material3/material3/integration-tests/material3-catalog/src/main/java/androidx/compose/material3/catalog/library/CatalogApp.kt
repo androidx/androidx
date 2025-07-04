@@ -36,7 +36,7 @@ fun Material3CatalogApp(initialFavoriteRoute: String?) {
         NavGraph(
             initialFavoriteRoute = initialFavoriteRoute,
             theme = theme,
-            onThemeChange = { coroutineScope.launch { userPreferencesRepository.saveTheme(it) } }
+            onThemeChange = { coroutineScope.launch { userPreferencesRepository.saveTheme(it) } },
         )
     }
 }

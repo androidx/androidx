@@ -65,5 +65,5 @@ public annotation class DatabaseView(
      *
      * @return The SQLite view name.
      */
-    val viewName: String = ""
+    val viewName: String = "",
 )

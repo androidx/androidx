@@ -53,13 +53,13 @@ internal class PlatformSdkLoader private constructor(private val loaderImpl: Loa
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: LoadSdkCallback
+            callback: LoadSdkCallback,
         ) {
             executor.execute {
                 callback.onError(
                     LoadSdkCompatException(
                         LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-                        "Loading SDK not supported on this device"
+                        "Loading SDK not supported on this device",
                     )
                 )
             }
@@ -75,7 +75,7 @@ internal class PlatformSdkLoader private constructor(private val loaderImpl: Loa
             sdkName: String,
             params: Bundle,
             executor: Executor,
-            callback: LoadSdkCallback
+            callback: LoadSdkCallback,
         ) {
             controller.loadSdk(
                 sdkName,
@@ -89,7 +89,7 @@ internal class PlatformSdkLoader private constructor(private val loaderImpl: Loa
                     override fun onError(error: LoadSdkException) {
                         callback.onError(toLoadCompatSdkException(error))
                     }
-                }
+                },
             )
         }
     }

@@ -72,7 +72,7 @@ internal fun assertPathEquals(
     expected: Path,
     actual: Path,
     points1: FloatArray = FloatArray(8),
-    points2: FloatArray = FloatArray(8)
+    points2: FloatArray = FloatArray(8),
 ) {
     val iterator1 = expected.iterator()
     val iterator2 = actual.iterator()

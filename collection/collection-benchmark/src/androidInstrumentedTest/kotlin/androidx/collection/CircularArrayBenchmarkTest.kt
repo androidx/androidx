@@ -37,9 +37,6 @@ class CircularArrayBenchmarkTest(size: Int) {
     companion object {
         @JvmStatic
         @Parameters(name = "size={0}")
-        fun parameters() =
-            buildParameters(
-                listOf(10, 100, 1_000, 10_000),
-            )
+        fun parameters() = buildParameters(listOf(10, 100, 1_000, 10_000))
     }
 }

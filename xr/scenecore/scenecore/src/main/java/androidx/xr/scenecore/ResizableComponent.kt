@@ -20,6 +20,10 @@ package androidx.xr.scenecore
 
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.internal.JxrPlatformAdapter
+import androidx.xr.runtime.internal.ResizeEventListener as RtResizeEventListener
+import androidx.xr.runtime.math.FloatSize3d
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 
@@ -31,23 +35,22 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ResizableComponent
 private constructor(
-    private val runtime: JxrPlatformAdapter,
-    minimumSize: Dimensions,
-    maximumSize: Dimensions,
+    private val platformAdapter: JxrPlatformAdapter,
+    minimumSize: FloatSize3d,
+    maximumSize: FloatSize3d,
 ) : Component {
-    private val resizeListenerMap =
-        ConcurrentHashMap<ResizeListener, JxrPlatformAdapter.ResizeEventListener>()
+    private val resizeListenerMap = ConcurrentHashMap<ResizeListener, RtResizeEventListener>()
     /**
      * The current size of the entity, in meters. This property is automatically updated after
      * resize events to match the resize affordance to the newly suggested size of the content. The
      * apps can still override it. The default value is set to 1 meter, updated to the size of the
      * entity when attached.
      */
-    public var size: Dimensions = kDimensionsOneMeter
+    public var size: FloatSize3d = kDimensionsOneMeter
         set(value) {
             if (field != value) {
                 field = value
-                rtResizableComponent.setSize(value.toRtDimensions())
+                rtResizableComponent.size = value.toRtDimensions()
             }
         }
 
@@ -56,11 +59,11 @@ private constructor(
      * user can resize the bounding box of the entity. The size of the content inside that bounding
      * box is fully controlled by the application.
      */
-    public var minimumSize: Dimensions = minimumSize
+    public var minimumSize: FloatSize3d = minimumSize
         set(value) {
             if (field != value) {
                 field = value
-                rtResizableComponent.setMinimumSize(value.toRtDimensions())
+                rtResizableComponent.minimumSize = value.toRtDimensions()
             }
         }
 
@@ -69,11 +72,11 @@ private constructor(
      * can resize the bounding box of the entity. The size of the content inside that bounding box
      * is fully controlled by the application.
      */
-    public var maximumSize: Dimensions = maximumSize
+    public var maximumSize: FloatSize3d = maximumSize
         set(value) {
             if (field != value) {
                 field = value
-                rtResizableComponent.setMaximumSize(value.toRtDimensions())
+                rtResizableComponent.maximumSize = value.toRtDimensions()
             }
         }
 
@@ -93,12 +96,55 @@ private constructor(
         set(value) {
             if (field != value) {
                 field = value
-                rtResizableComponent.setFixedAspectRatio(value)
+                rtResizableComponent.fixedAspectRatio = value
+            }
+        }
+
+    /**
+     * Whether the content of the entity (and all child entities) should be automatically hidden
+     * while it is being resized.
+     */
+    @get:Suppress("GetterSetterNames")
+    public var autoHideContent: Boolean = true
+        set(value) {
+            if (field != value) {
+                field = value
+                rtResizableComponent.autoHideContent = value
+            }
+        }
+
+    /**
+     * Whether the size of the ResizableComponent should be automatically updated to match during an
+     * ongoing resize (to match the proposed size as resize events are received).
+     */
+    @get:Suppress("GetterSetterNames")
+    public var autoUpdateSize: Boolean = true
+        set(value) {
+            if (field != value) {
+                field = value
+                rtResizableComponent.autoUpdateSize = value
+            }
+        }
+
+    /**
+     * Whether the resize overlay should be shown even if the entity is not being resized.
+     *
+     * This is useful for resizing multiple panels at once.
+     */
+    @get:Suppress("GetterSetterNames")
+    public var forceShowResizeOverlay: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                rtResizableComponent.forceShowResizeOverlay = value
             }
         }
 
     private val rtResizableComponent by lazy {
-        runtime.createResizableComponent(minimumSize.toRtDimensions(), maximumSize.toRtDimensions())
+        platformAdapter.createResizableComponent(
+            minimumSize.toRtDimensions(),
+            maximumSize.toRtDimensions(),
+        )
     }
 
     private var entity: Entity? = null
@@ -142,23 +188,35 @@ private constructor(
      * @param executor The executor to use for the listener callback.
      * @param resizeListener The listener to be invoked when a resize event occurs.
      */
+    @Suppress("ExecutorRegistration")
     public fun addResizeListener(executor: Executor, resizeListener: ResizeListener) {
-        val rtResizeEventListener =
-            JxrPlatformAdapter.ResizeEventListener { rtResizeEvent ->
-                run {
-                    val resizeEvent = rtResizeEvent.toResizeEvent()
-                    when (resizeEvent.resizeState) {
-                        ResizeEvent.RESIZE_STATE_ONGOING ->
-                            entity?.let { resizeListener.onResizeUpdate(it, resizeEvent.newSize) }
-                        ResizeEvent.RESIZE_STATE_END ->
-                            entity?.let { resizeListener.onResizeEnd(it, resizeEvent.newSize) }
-                        ResizeEvent.RESIZE_STATE_START ->
-                            entity?.let { resizeListener.onResizeStart(it, size) }
-                    }
+        val rtResizeEventListener = RtResizeEventListener { rtResizeEvent ->
+            run {
+                val resizeEvent = rtResizeEvent.toResizeEvent()
+                when (resizeEvent.resizeState) {
+                    ResizeEvent.RESIZE_STATE_ONGOING ->
+                        entity?.let { resizeListener.onResizeUpdate(it, resizeEvent.newSize) }
+                    ResizeEvent.RESIZE_STATE_END ->
+                        entity?.let { resizeListener.onResizeEnd(it, resizeEvent.newSize) }
+                    ResizeEvent.RESIZE_STATE_START ->
+                        entity?.let { resizeListener.onResizeStart(it, resizeEvent.newSize) }
                 }
             }
+        }
         rtResizableComponent.addResizeEventListener(executor, rtResizeEventListener)
         resizeListenerMap[resizeListener] = rtResizeEventListener
+    }
+
+    /**
+     * Adds the listener to the set of listeners that are invoked through the resize operation, such
+     * as start, ongoing and end.
+     *
+     * The listener is invoked on the main thread.
+     *
+     * @param resizeListener The listener to be invoked when a resize event occurs.
+     */
+    public fun addResizeListener(resizeListener: ResizeListener) {
+        addResizeListener(HandlerExecutor.mainThreadExecutor, resizeListener)
     }
 
     /**
@@ -173,19 +231,46 @@ private constructor(
         }
     }
 
-    internal companion object {
-        private val kDimensionsOneMeter = Dimensions(1f, 1f, 1f)
+    public companion object {
+        private val kDimensionsOneMeter = FloatSize3d(1f, 1f, 1f)
         /** Defaults min and max sizes in meters. */
-        internal val kMinimumSize: Dimensions = Dimensions(0f, 0f, 0f)
-        internal val kMaximumSize: Dimensions = Dimensions(10f, 10f, 10f)
+        internal val kMinimumSize: FloatSize3d = FloatSize3d(0f, 0f, 0f)
+        internal val kMaximumSize: FloatSize3d = FloatSize3d(10f, 10f, 10f)
 
         /** Factory function for creating [ResizableComponent] instance. */
         internal fun create(
-            runtime: JxrPlatformAdapter,
-            minimumSize: Dimensions = kMinimumSize,
-            maximumSize: Dimensions = kMaximumSize,
+            platformAdapter: JxrPlatformAdapter,
+            minimumSize: FloatSize3d = kMinimumSize,
+            maximumSize: FloatSize3d = kMaximumSize,
         ): ResizableComponent {
-            return ResizableComponent(runtime, minimumSize, maximumSize)
+            return ResizableComponent(platformAdapter, minimumSize, maximumSize)
         }
+
+        /**
+         * Public factory function for creating a ResizableComponent. This component can be attached
+         * to a single instance of any non-Anchor Entity.
+         *
+         * When attached, this Component will enable the user to resize the Entity by dragging along
+         * the boundaries of the interaction highlight.
+         *
+         * @param session The Session to create the ResizableComponent in.
+         * @param minimumSize A lower bound for the User's resize actions, in meters. This value is
+         *   used to set constraints on how small the user can resize the bounding box of the entity
+         *   down to. The size of the content inside that bounding box is fully controlled by the
+         *   application. The default value for this param is 0 meters.
+         * @param maximumSize An upper bound for the User's resize actions, in meters. This value is
+         *   used to set constraints on how large the user can resize the bounding box of the entity
+         *   up to. The size of the content inside that bounding box is fully controlled by the
+         *   application. The default value for this param is 10 meters.
+         * @return [ResizableComponent] instance.
+         */
+        @JvmOverloads
+        @JvmStatic
+        public fun create(
+            session: Session,
+            minimumSize: FloatSize3d = ResizableComponent.kMinimumSize,
+            maximumSize: FloatSize3d = ResizableComponent.kMaximumSize,
+        ): ResizableComponent =
+            ResizableComponent.create(session.platformAdapter, minimumSize, maximumSize)
     }
 }

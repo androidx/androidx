@@ -95,9 +95,7 @@ internal constructor(
         return this
     }
 
-    public fun startAndVerify(
-        statusCount: Int = defaultVerifyStatusCount,
-    ): Recording {
+    public fun startAndVerify(statusCount: Int = defaultVerifyStatusCount): Recording {
         start()
         verifyStart()
         verifyStatus(statusCount)
@@ -112,12 +110,23 @@ internal constructor(
         }
     }
 
-    public fun verifyStatus(
-        statusCount: Int = defaultVerifyStatusCount,
-    ): List<Status> {
+    public fun verifyStatus(statusCount: Int = defaultVerifyStatusCount): List<Status> {
         try {
             return if (statusCount > 0) {
-                listener.verifyStatus(eventCount = statusCount)
+                listener.verifyStatus(eventCount = statusCount).also {
+                    if (withAudio) {
+                        // Ensure audio is recorded.
+                        listener.verifyAcceptCall(
+                            Status::class.java,
+                            /*inOrder=*/ false,
+                            defaultVerifyStatusTimeoutMs,
+                            CallTimesAtLeast(1),
+                            ArgumentMatcher<VideoRecordEvent> {
+                                it.recordingStats.audioStats.audioBytesRecorded > 0L
+                            },
+                        )
+                    }
+                }
             } else emptyList()
         } catch (t: Throwable) {
             throw AssertionError("Failed on #verifyStatus", t)
@@ -237,7 +246,7 @@ internal constructor(
                 /*inOrder=*/ true,
                 defaultVerifyStatusTimeoutMs,
                 CallTimesAtLeast(1),
-                matcher
+                matcher,
             )
         } catch (t: Throwable) {
             throw AssertionError("Failed on #verifyMute", t)
@@ -254,7 +263,7 @@ internal constructor(
     public fun verifyNoMoreEvent(): Unit = listener.verifyNoMoreAcceptCalls(/* inOrder= */ true)
 
     private fun MockConsumer<VideoRecordEvent>.verifyStatus(
-        eventCount: Int = defaultVerifyStatusCount,
+        eventCount: Int = defaultVerifyStatusCount
     ): List<Status> =
         verifyEvent(
             Status::class.java,
@@ -270,7 +279,8 @@ internal constructor(
     ): List<T> {
         val captor = ArgumentCaptor<VideoRecordEvent> { argument -> eventType.isInstance(argument) }
         verifyAcceptCall(eventType, inOrder, timeoutMs, callTimes, captor)
-        @Suppress("UNCHECKED_CAST") return captor.allValues as List<T>
+        @Suppress("UNCHECKED_CAST")
+        return captor.allValues as List<T>
     }
 
     private fun <T : VideoRecordEvent> MockConsumer<VideoRecordEvent>.getAllEvents(

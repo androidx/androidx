@@ -63,7 +63,7 @@ object DatePickerBenchmark : MacrobenchmarkScreen {
                     },
                     minValidDate = minDate,
                     maxValidDate = maxDate,
-                    datePickerType = DatePickerType.YearMonthDay
+                    datePickerType = DatePickerType.YearMonthDay,
                 )
             } else {
                 Button(
@@ -84,19 +84,14 @@ object DatePickerBenchmark : MacrobenchmarkScreen {
             device.waitForIdle()
             SystemClock.sleep(500)
             repeat(3) { columnIndex ->
-                repeat(2) { i ->
-                    val endY =
-                        if (i % 2 == 0) {
-                            device.displayHeight / 10 // scroll up
-                        } else {
-                            device.displayHeight * 9 / 10 // scroll down
-                        }
+                repeat(20) {
+                    val endY = device.displayHeight * 9 / 10 // scroll down
                     device.swipe(
                         device.displayWidth / 2,
                         device.displayHeight / 2,
                         device.displayWidth / 2,
                         endY,
-                        10
+                        10,
                     )
                     device.waitForIdle()
                     SystemClock.sleep(500)

@@ -28,9 +28,9 @@ import android.view.View
     replaceWith =
         ReplaceWith(
             "findViewTreeSavedStateRegistryOwner()",
-            "androidx.savedstate.findViewTreeSavedStateRegistryOwner"
+            "androidx.savedstate.findViewTreeSavedStateRegistryOwner",
         ),
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 public fun findViewTreeSavedStateRegistryOwner(view: View): SavedStateRegistryOwner? =
     view.findViewTreeSavedStateRegistryOwner()

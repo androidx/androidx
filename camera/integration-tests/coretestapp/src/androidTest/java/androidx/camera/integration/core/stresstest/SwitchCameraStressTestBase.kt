@@ -65,15 +65,13 @@ import org.junit.runners.Parameterized
 abstract class SwitchCameraStressTestBase(
     val implName: String,
     val cameraConfig: CameraXConfig,
-    val cameraId: String
+    val cameraId: String,
 ) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCamera =
@@ -85,7 +83,7 @@ abstract class SwitchCameraStressTestBase(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule val labTest: LabTestRule = LabTestRule()
@@ -159,7 +157,7 @@ abstract class SwitchCameraStressTestBase(
         cameraId: String,
         useCaseCombination: Int,
         verificationTarget: Int,
-        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT,
     ) {
         // Launches CameraXActivity and wait for the preview ready.
         val activityScenario =
@@ -202,7 +200,7 @@ abstract class SwitchCameraStressTestBase(
         cameraId: String,
         useCaseCombination: Int,
         verificationTarget: Int,
-        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT,
     ) {
         // Launches CameraXActivity and wait for the preview ready.
         val activityScenario =
@@ -242,7 +240,7 @@ abstract class SwitchCameraStressTestBase(
 
     protected fun assumeBothLensFacingCamerasSupportUseCaseCombination(
         camera: Camera,
-        useCaseCombination: Int
+        useCaseCombination: Int,
     ): Unit = runBlocking {
         // Checks whether the input camera can support the use case combination
         assumeCameraSupportUseCaseCombination(camera, useCaseCombination)

@@ -18,12 +18,16 @@ package androidx.work.multiprocess.parcelable;
 
 import static androidx.work.impl.model.WorkTypeConverters.intToState;
 import static androidx.work.impl.model.WorkTypeConverters.stateToInt;
+import static androidx.work.multiprocess.parcelable.ParcelUtils.readBooleanValue;
+import static androidx.work.multiprocess.parcelable.ParcelUtils.writeBooleanValue;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
+import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
 
@@ -68,8 +72,30 @@ public class ParcelableWorkInfo implements Parcelable {
         Data progress = parcelableProgressData.getData();
         // runAttemptCount
         int runAttemptCount = parcel.readInt();
+        // generation
         int generation = parcel.readInt();
-        mWorkInfo = new WorkInfo(id, state, tags, output, progress, runAttemptCount, generation);
+        // constraints
+        ParcelableConstraints parcelableConstraints = new ParcelableConstraints(parcel);
+        Constraints constraints = parcelableConstraints.getConstraints();
+        // initialDelay
+        long initialDelay = parcel.readLong();
+        // periodicityInfo
+        boolean hasPeriodicityInfo = readBooleanValue(parcel);
+        WorkInfo.PeriodicityInfo periodicityInfo = null;
+        if (hasPeriodicityInfo) {
+            long repeatInterval = parcel.readLong();
+            long flexInterval = parcel.readLong();
+            periodicityInfo = new WorkInfo.PeriodicityInfo(repeatInterval, flexInterval);
+        }
+        // nextScheduleTimeMillis
+        long nextScheduleTimeMillis = parcel.readLong();
+        // stopReason
+        int stopReason = WorkInfo.STOP_REASON_NOT_STOPPED;
+        if (Build.VERSION.SDK_INT >= 31) {
+            stopReason = parcel.readInt();
+        }
+        mWorkInfo = new WorkInfo(id, state, tags, output, progress, runAttemptCount, generation,
+                constraints, initialDelay, periodicityInfo, nextScheduleTimeMillis, stopReason);
     }
 
     public @NonNull WorkInfo getWorkInfo() {
@@ -112,6 +138,27 @@ public class ParcelableWorkInfo implements Parcelable {
         parcelableProgress.writeToParcel(parcel, flags);
         // runAttemptCount
         parcel.writeInt(mWorkInfo.getRunAttemptCount());
+        // generation
         parcel.writeInt(mWorkInfo.getGeneration());
+        // constraints
+        ParcelableConstraints parcelableConstraints = new ParcelableConstraints(
+                mWorkInfo.getConstraints());
+        parcelableConstraints.writeToParcel(parcel, flags);
+        // initialDelay
+        parcel.writeLong(mWorkInfo.getInitialDelayMillis());
+        // periodicityInfo
+        WorkInfo.PeriodicityInfo periodicityInfo = mWorkInfo.getPeriodicityInfo();
+        boolean hasPeriodicityInfo = periodicityInfo != null;
+        writeBooleanValue(parcel, hasPeriodicityInfo);
+        if (hasPeriodicityInfo) {
+            parcel.writeLong(periodicityInfo.getRepeatIntervalMillis());
+            parcel.writeLong(periodicityInfo.getFlexIntervalMillis());
+        }
+        // nextScheduleTimeMillis
+        parcel.writeLong(mWorkInfo.getNextScheduleTimeMillis());
+        // stopReason
+        if (Build.VERSION.SDK_INT >= 31) {
+            parcel.writeInt(mWorkInfo.getStopReason());
+        }
     }
 }

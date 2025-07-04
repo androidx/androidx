@@ -15,7 +15,9 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.meters
@@ -30,13 +32,20 @@ public class ElevationGainedRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Elevation in [Length] units. Required field. Valid range: -1000000-1000000 meters. */
     public val elevation: Length,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
-
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        elevation.requireNotLess(other = MIN_ELEVATION_GAIN, name = "elevation")
-        elevation.requireNotMore(other = MAX_ELEVATION_GAIN, name = "elevation")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            elevation.requireNotLess(other = MIN_ELEVATION_GAIN, name = "elevation")
+            elevation.requireNotMore(other = MAX_ELEVATION_GAIN, name = "elevation")
+        }
     }
 
     /*

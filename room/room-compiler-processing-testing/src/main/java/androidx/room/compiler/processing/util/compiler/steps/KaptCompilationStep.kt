@@ -41,13 +41,18 @@ internal class KaptCompilationStep(
         check(annotationProcessors.size <= PROCESSOR_DELEGATES_SIZE) {
             "Only $PROCESSOR_DELEGATES_SIZE annotation processor can be loaded for test " +
                 "compilation for now, but requested ${annotationProcessors.size}. " +
-                "Tell Dany to support more!"
+                "Tell Dany to support more! Existing processors: [\n    " +
+                annotationProcessors
+                    .map { it.javaClass.canonicalName }
+                    .sorted()
+                    .joinToString(",\n    ") +
+                "]"
         }
     }
 
     override fun execute(
         workingDir: File,
-        arguments: CompilationStepArguments
+        arguments: CompilationStepArguments,
     ): CompilationStepResult {
         if (annotationProcessors.isEmpty()) {
             return CompilationStepResult.skip(arguments)
@@ -71,7 +76,7 @@ internal class KaptCompilationStep(
                 delegateProcessors.set(annotationProcessors)
                 KotlinCliRunner.runKotlinCli(
                     arguments = argumentsWithKapt,
-                    destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME)
+                    destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
                 )
             } finally {
                 delegateProcessors.remove()
@@ -79,12 +84,12 @@ internal class KaptCompilationStep(
         val generatedSources =
             listOfNotNull(
                 workingDir.resolve(JAVA_SRC_OUT_FOLDER_NAME).toSourceSet(),
-                workingDir.resolve(KOTLIN_SRC_OUT_FOLDER_NAME).toSourceSet()
+                workingDir.resolve(KOTLIN_SRC_OUT_FOLDER_NAME).toSourceSet(),
             )
         val diagnostics =
             resolveDiagnostics(
                 diagnostics = result.diagnostics,
-                sourceSets = arguments.sourceSets + generatedSources
+                sourceSets = arguments.sourceSets + generatedSources,
             )
         val outputResources = workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
         val outputClasspath = listOf(result.compiledClasspath) + outputResources
@@ -101,13 +106,13 @@ internal class KaptCompilationStep(
             nextCompilerArguments =
                 arguments.copy(sourceSets = arguments.sourceSets + generatedSources),
             outputClasspath = outputClasspath,
-            generatedResources = generatedResources
+            generatedResources = generatedResources,
         )
     }
 
     private fun createKaptCliOptions(
         workingDir: File,
-        arguments: CompilationStepArguments
+        arguments: CompilationStepArguments,
     ): List<Pair<KaptCliOption, String>> = buildList {
         add(KaptCliOption.APT_MODE_OPTION to AptMode.STUBS_AND_APT.stringValue)
         add(
@@ -140,7 +145,7 @@ internal class KaptCompilationStep(
             // annotation processor option.
             put(
                 "kapt.kotlin.generated",
-                workingDir.resolve(KOTLIN_SRC_OUT_FOLDER_NAME).also { it.mkdirs() }.canonicalPath
+                workingDir.resolve(KOTLIN_SRC_OUT_FOLDER_NAME).also { it.mkdirs() }.canonicalPath,
             )
             putAll(processorOptions)
         }
@@ -246,4 +251,64 @@ sealed class TestDelegateProcessor(val delegate: Processor) : Processor by deleg
     class KaptTestDelegateAP18 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[18])
 
     class KaptTestDelegateAP19 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[19])
+
+    class KaptTestDelegateAP20 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[20])
+
+    class KaptTestDelegateAP21 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[21])
+
+    class KaptTestDelegateAP22 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[22])
+
+    class KaptTestDelegateAP23 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[23])
+
+    class KaptTestDelegateAP24 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[24])
+
+    class KaptTestDelegateAP25 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[25])
+
+    class KaptTestDelegateAP26 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[26])
+
+    class KaptTestDelegateAP27 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[27])
+
+    class KaptTestDelegateAP28 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[28])
+
+    class KaptTestDelegateAP29 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[29])
+
+    class KaptTestDelegateAP30 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[30])
+
+    class KaptTestDelegateAP31 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[31])
+
+    class KaptTestDelegateAP32 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[32])
+
+    class KaptTestDelegateAP33 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[33])
+
+    class KaptTestDelegateAP34 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[34])
+
+    class KaptTestDelegateAP35 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[35])
+
+    class KaptTestDelegateAP36 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[36])
+
+    class KaptTestDelegateAP37 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[37])
+
+    class KaptTestDelegateAP38 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[38])
+
+    class KaptTestDelegateAP39 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[39])
+
+    class KaptTestDelegateAP40 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[40])
+
+    class KaptTestDelegateAP41 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[41])
+
+    class KaptTestDelegateAP42 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[42])
+
+    class KaptTestDelegateAP43 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[43])
+
+    class KaptTestDelegateAP44 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[44])
+
+    class KaptTestDelegateAP45 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[45])
+
+    class KaptTestDelegateAP46 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[46])
+
+    class KaptTestDelegateAP47 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[47])
+
+    class KaptTestDelegateAP48 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[48])
+
+    class KaptTestDelegateAP49 : TestDelegateProcessor(checkNotNull(delegateProcessors.get())[49])
 }

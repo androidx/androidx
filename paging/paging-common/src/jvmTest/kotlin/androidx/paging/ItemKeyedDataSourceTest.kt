@@ -42,7 +42,7 @@ class ItemKeyedDataSourceTest {
         dataSource: ItemDataSource,
         key: Key?,
         initialLoadSize: Int,
-        enablePlaceholders: Boolean
+        enablePlaceholders: Boolean,
     ): DataSource.BaseResult<Item> {
         return dataSource.loadInitial(
             ItemKeyedDataSource.LoadInitialParams(key, initialLoadSize, enablePlaceholders)
@@ -185,7 +185,7 @@ class ItemKeyedDataSourceTest {
 
         dataSource.loadBefore(
             ItemKeyedDataSource.LoadParams(dataSource.getKey(ITEMS_BY_NAME_ID[5]), 5),
-            callback
+            callback,
         )
 
         @Suppress("UNCHECKED_CAST")
@@ -204,16 +204,16 @@ class ItemKeyedDataSourceTest {
         val name: String,
         val id: Int,
         val balance: Double,
-        val address: String
+        val address: String,
     )
 
     internal class ItemDataSource(
         private val counted: Boolean = true,
-        private val items: List<Item> = ITEMS_BY_NAME_ID
+        private val items: List<Item> = ITEMS_BY_NAME_ID,
     ) : ItemKeyedDataSource<Key, Item>() {
         override fun loadInitial(
             params: LoadInitialParams<Key>,
-            callback: LoadInitialCallback<Item>
+            callback: LoadInitialCallback<Item>,
         ) {
             val key = params.requestedInitialKey ?: Key("", Int.MAX_VALUE)
             val start = maxOf(0, findFirstIndexAfter(key) - params.requestedLoadSize / 2)
@@ -259,7 +259,7 @@ class ItemKeyedDataSourceTest {
 
     private fun performLoadInitial(
         invalidateDataSource: Boolean = false,
-        callbackInvoker: (callback: ItemKeyedDataSource.LoadInitialCallback<String>) -> Unit
+        callbackInvoker: (callback: ItemKeyedDataSource.LoadInitialCallback<String>) -> Unit,
     ) {
         val dataSource =
             object : ItemKeyedDataSource<String, String>() {
@@ -269,7 +269,7 @@ class ItemKeyedDataSourceTest {
 
                 override fun loadInitial(
                     params: LoadInitialParams<String>,
-                    callback: LoadInitialCallback<String>
+                    callback: LoadInitialCallback<String>,
                 ) {
                     if (invalidateDataSource) {
                         // invalidate data source so it's invalid when onResult() called
@@ -284,7 +284,7 @@ class ItemKeyedDataSourceTest {
 
                 override fun loadBefore(
                     params: LoadParams<String>,
-                    callback: LoadCallback<String>
+                    callback: LoadCallback<String>,
                 ) {
                     fail("loadBefore not expected")
                 }
@@ -380,7 +380,7 @@ class ItemKeyedDataSourceTest {
                     override fun onResult(data: List<A>) {
                         callback.onResult(convert(data))
                     }
-                }
+                },
             )
         }
 
@@ -391,7 +391,7 @@ class ItemKeyedDataSourceTest {
                     override fun onResult(data: List<A>) {
                         callback.onResult(convert(data))
                     }
-                }
+                },
             )
         }
 
@@ -402,7 +402,7 @@ class ItemKeyedDataSourceTest {
                     override fun onResult(data: List<A>) {
                         callback.onResult(convert(data))
                     }
-                }
+                },
             )
         }
 
@@ -500,7 +500,7 @@ class ItemKeyedDataSourceTest {
                         names[it % 10],
                         it,
                         Random.nextDouble(1000.0),
-                        Random.nextInt(200).toString() + " fake st."
+                        Random.nextInt(200).toString() + " fake st.",
                     )
                 }
                 .sortedWith(ITEM_COMPARATOR)

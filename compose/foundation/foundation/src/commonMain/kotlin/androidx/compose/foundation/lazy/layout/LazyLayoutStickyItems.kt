@@ -37,7 +37,7 @@ internal interface StickyItemsPlacement {
     fun getStickingIndices(
         firstVisibleItemIndex: Int,
         lastVisibleItemIndex: Int,
-        stickyItems: IntList
+        stickyItems: IntList,
     ): IntList
 
     /**
@@ -62,7 +62,7 @@ internal interface StickyItemsPlacement {
         beforeContentPadding: Int,
         afterContentPadding: Int,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ): Int
 
     companion object {
@@ -81,7 +81,7 @@ internal interface StickyItemsPlacement {
                     beforeContentPadding: Int,
                     afterContentPadding: Int,
                     layoutWidth: Int,
-                    layoutHeight: Int
+                    layoutHeight: Int,
                 ): Int {
 
                     // the next item offset
@@ -115,7 +115,7 @@ internal interface StickyItemsPlacement {
                 override fun getStickingIndices(
                     firstVisibleItemIndex: Int,
                     lastVisibleItemIndex: Int,
-                    stickyItems: IntList
+                    stickyItems: IntList,
                 ): IntList {
                     // no items present
                     if ((lastVisibleItemIndex - firstVisibleItemIndex) < 0 || stickyItems.isEmpty())
@@ -158,7 +158,7 @@ private inline fun debugLog(generateMsg: () -> String) {
 }
 
 private val LazyLayoutMeasuredItem.mainAxisOffset
-    get() = getOffset(0).let { if (isVertical) it.y else it.x }
+    get() = if (placeablesCount == 0) 0 else getOffset(0).let { if (isVertical) it.y else it.x }
 
 /**
  * This glue logic is not meant to become public. In here we will use [StickyItemsPlacement] to
@@ -167,22 +167,20 @@ private val LazyLayoutMeasuredItem.mainAxisOffset
  * of existing items.
  */
 internal fun <T : LazyLayoutMeasuredItem> StickyItemsPlacement?.applyStickyItems(
+    firstVisibleItemIndex: Int,
+    lastVisibleItemIndex: Int,
     positionedItems: MutableList<T>,
     stickyItems: IntList,
     beforeContentPadding: Int,
     afterContentPadding: Int,
     layoutWidth: Int,
     layoutHeight: Int,
-    getAndMeasure: (Int) -> T
+    getAndMeasure: (Int) -> T,
 ): List<T> {
     return if (this != null && positionedItems.isNotEmpty() && stickyItems.isNotEmpty()) {
         // gather sticking items
         val stickingItems =
-            getStickingIndices(
-                positionedItems.first().index,
-                positionedItems.last().index,
-                stickyItems
-            )
+            getStickingIndices(firstVisibleItemIndex, lastVisibleItemIndex, stickyItems)
 
         val positionedStickingItems = mutableListOf<T>()
         val visibleStickyItems = positionedItems.fastFilter { stickyItems.contains(it.index) }
@@ -206,7 +204,7 @@ internal fun <T : LazyLayoutMeasuredItem> StickyItemsPlacement?.applyStickyItems
                     beforeContentPadding,
                     afterContentPadding,
                     layoutWidth,
-                    layoutHeight
+                    layoutHeight,
                 )
             item.nonScrollableItem = true
             item.position(offset, 0, layoutWidth, layoutHeight)

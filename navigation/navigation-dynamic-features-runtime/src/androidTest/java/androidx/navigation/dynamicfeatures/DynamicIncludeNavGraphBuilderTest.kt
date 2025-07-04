@@ -44,7 +44,7 @@ public class DynamicIncludeNavGraphBuilderTest {
                     context,
                     navigatorProvider,
                     navInflater,
-                    AndroidTestDynamicInstallManager(context)
+                    AndroidTestDynamicInstallManager(context),
                 )
             navigatorProvider += NoOpNavigator()
         }

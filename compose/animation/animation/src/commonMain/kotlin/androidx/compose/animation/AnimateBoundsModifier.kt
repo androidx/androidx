@@ -230,7 +230,7 @@ internal class BoundsAnimationModifierNode(
 
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         // The animated value is null on the first frame as we don't get the full bounds
         // information until placement, so we can safely use the current Size.
@@ -260,7 +260,7 @@ internal class BoundsAnimationModifierNode(
                         lookaheadScopeCoordinates.localPositionOf(
                             sourceCoordinates = coordinates,
                             relativeToSource = Offset.Zero,
-                            includeMotionFrameOfReference = animateMotionFrameOfReference
+                            includeMotionFrameOfReference = animateMotionFrameOfReference,
                         )
                     }
                 }
@@ -396,7 +396,7 @@ internal class BoundsTransformDeferredAnimation {
                 val targetOffset =
                     lookaheadScopeCoordinates.localLookaheadPositionOf(
                         sourceCoordinates = coordinates,
-                        includeMotionFrameOfReference = includeMotionFrameOfReference
+                        includeMotionFrameOfReference = includeMotionFrameOfReference,
                     )
                 updateTargetOffset(targetOffset + additionalOffset)
 
@@ -407,10 +407,7 @@ internal class BoundsTransformDeferredAnimation {
         }
     }
 
-    private fun animate(
-        coroutineScope: CoroutineScope,
-        boundsTransform: BoundsTransform,
-    ): Rect {
+    private fun animate(coroutineScope: CoroutineScope, boundsTransform: BoundsTransform): Rect {
         if (targetOffset.isSpecified && targetSize.isSpecified) {
             // Initialize Animatable when possible, we might not use it but we need to have it
             // instantiated since at the first pass the lookahead information will become the
@@ -438,6 +435,6 @@ private val DefaultBoundsTransform = BoundsTransform { _, _ ->
     spring(
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessMediumLow,
-        visibilityThreshold = Rect.VisibilityThreshold
+        visibilityThreshold = Rect.VisibilityThreshold,
     )
 }

@@ -26,6 +26,6 @@ val PagingDemos =
         "Paging",
         listOf(
             ComposableDemo("Paging Backend Demo") { PagingBackendSample() },
-            ComposableDemo("Paging Room Demo") { PagingRoomDemo() }
-        )
+            ComposableDemo("Paging Room Demo") { PagingRoomDemo() },
+        ),
     )

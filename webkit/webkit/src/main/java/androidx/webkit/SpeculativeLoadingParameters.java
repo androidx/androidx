@@ -16,6 +16,8 @@
 
 package androidx.webkit;
 
+import android.webkit.WebSettings;
+
 import androidx.annotation.RequiresFeature;
 
 import org.jspecify.annotations.NonNull;
@@ -96,6 +98,10 @@ public final class SpeculativeLoadingParameters {
          * for the same key, the latest value will be used.
          * <p>
          * Header keys must be RFC 2616-compliant.
+         * <p>
+         * The logic for handling additional header isn't guaranteed to match the
+         * {@link android.webkit.WebView#loadUrl(String, Map)}'s logic and is subject to change
+         * in the future.
          */
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder addAdditionalHeader(@NonNull String key, @NonNull String value) {
@@ -135,6 +141,10 @@ public final class SpeculativeLoadingParameters {
          * {@code true} if the WebView's that will be loading the prefetched
          * response will have javascript enabled. This affects whether or not
          * client hints header is sent with the prefetch request.
+         * <p>
+         * Note: This flag is ignored for prefetches initiated by the
+         * prerendering API. The value from
+         * {@link WebSettings#getJavaScriptEnabled()} will be used instead.
          */
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder setJavaScriptEnabled(boolean javaScriptEnabled) {

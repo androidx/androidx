@@ -119,7 +119,7 @@ class TransformableTest {
                 Offset(leftStartX, center.y),
                 Offset(leftEndX, center.y),
                 Offset(rightStartX, center.y),
-                Offset(rightEndX, center.y)
+                Offset(rightEndX, center.y),
             )
         }
 
@@ -237,7 +237,7 @@ class TransformableTest {
                                     rememberTransformableState { _, _, _ ->
                                         // no-op
                                     },
-                                canPan = { false }
+                                canPan = { false },
                             )
                     )
                 }
@@ -272,7 +272,7 @@ class TransformableTest {
                                 canPan = { offset ->
                                     lastCanPanOffset = offset
                                     false
-                                }
+                                },
                             )
                     )
                 }
@@ -332,7 +332,7 @@ class TransformableTest {
             Modifier.transformable(
                 lockRotationOnZoomPan = rotationLock.value,
                 state =
-                    rememberTransformableState { _, _, rotation -> cumulativeRotation += rotation }
+                    rememberTransformableState { _, _, rotation -> cumulativeRotation += rotation },
             )
         }
 
@@ -400,7 +400,7 @@ class TransformableTest {
                 Offset(leftStartX, center.y),
                 Offset(leftEndX, center.y),
                 Offset(rightStartX, center.y),
-                Offset(rightEndX, center.y)
+                Offset(rightEndX, center.y),
             )
         }
 
@@ -448,7 +448,7 @@ class TransformableTest {
         setTransformableContent {
             Modifier.transformable(
                 enabled = enabled.value,
-                state = rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom }
+                state = rememberTransformableState { zoom, _, _ -> cumulativeScale *= zoom },
             )
         }
 
@@ -462,7 +462,7 @@ class TransformableTest {
                 Offset(leftStartX, center.y),
                 Offset(leftEndX, center.y),
                 Offset(rightStartX, center.y),
-                Offset(rightEndX, center.y)
+                Offset(rightEndX, center.y),
             )
         }
 
@@ -486,7 +486,7 @@ class TransformableTest {
                 Offset(leftStartX, center.y),
                 Offset(leftEndX, center.y),
                 Offset(rightStartX, center.y),
-                Offset(rightEndX, center.y)
+                Offset(rightEndX, center.y),
             )
         }
 

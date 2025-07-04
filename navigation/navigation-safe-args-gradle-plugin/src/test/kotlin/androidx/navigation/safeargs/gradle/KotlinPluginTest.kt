@@ -73,7 +73,7 @@ class KotlinPluginTest : BasePluginTest() {
                     }
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
         runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
 

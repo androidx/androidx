@@ -40,12 +40,12 @@ internal fun DatabaseConfiguration.isMigrationRequired(fromVersion: Int, toVersi
     return if (isDowngrade && this.allowDestructiveMigrationOnDowngrade) {
         false
     } else {
+        val migrationNotRequiredFrom = this.migrationNotRequiredFrom
         // Migrations are required between the two versions if we generally require migrations
         // AND EITHER there are no exceptions OR the supplied fromVersion is not one of the
         // exceptions.
         this.requireMigration &&
-            (this.migrationNotRequiredFrom == null ||
-                !this.migrationNotRequiredFrom.contains(fromVersion))
+            (migrationNotRequiredFrom == null || !migrationNotRequiredFrom.contains(fromVersion))
     }
 }
 
@@ -89,7 +89,7 @@ private fun MigrationContainer.findUpMigrationPath(
     result: MutableList<Migration>,
     upgrade: Boolean,
     start: Int,
-    end: Int
+    end: Int,
 ): List<Migration>? {
     var migrationStart = start
     while (if (upgrade) migrationStart < end else migrationStart > end) {

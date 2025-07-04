@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,11 +33,16 @@ plugins {
 dependencies {
     api(project(":camera:viewfinder:viewfinder-core"))
     implementation("androidx.compose.foundation:foundation-layout:1.6.1")
-    implementation("androidx.compose.foundation:foundation:1.6.1")
     implementation("androidx.compose.runtime:runtime:1.6.1")
+    implementation("androidx.compose.ui:ui:1.7.8")
+    implementation("androidx.compose.ui:ui-util:1.7.8")
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation(libs.atomicFu)
     implementation(libs.kotlinStdlib)
+    implementation("androidx.compose.ui:ui-geometry:1.7.8")
+    implementation("androidx.compose.ui:ui-graphics:1.7.8")
+    implementation("androidx.compose.ui:ui-unit:1.7.8")
+    implementation(libs.androidx.annotation)
+    implementation(libs.kotlinCoroutinesCore)
 
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
@@ -46,6 +51,19 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.androidx.annotation)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinCoroutinesCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:ui:ui-geometry"))
+    androidTestImplementation(project(":compose:ui:ui-graphics"))
+    androidTestImplementation(project(":compose:ui:ui-test"))
+    androidTestImplementation(project(":compose:ui:ui-unit"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 
 android {
@@ -55,7 +73,7 @@ android {
 
 androidx {
     name = "Camera Viewfinder Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Standalone Composable Viewfinder for Camera"
     legacyDisableKotlinStrictApiMode = true

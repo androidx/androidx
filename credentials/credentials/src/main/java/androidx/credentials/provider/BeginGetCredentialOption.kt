@@ -45,7 +45,7 @@ internal constructor(val id: String, val type: String, val candidateQueryData: B
         internal fun createFrom(
             id: String,
             type: String,
-            candidateQueryData: Bundle
+            candidateQueryData: Bundle,
         ): BeginGetCredentialOption {
             return when (type) {
                 PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {

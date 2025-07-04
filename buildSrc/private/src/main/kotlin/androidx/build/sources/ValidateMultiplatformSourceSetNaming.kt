@@ -132,7 +132,7 @@ fun Project.registerValidateMultiplatformSourceSetNamingTask() {
     tasks
         .register(
             "validateMultiplatformSourceSetNaming",
-            ValidateMultiplatformSourceSetNaming::class.java
+            ValidateMultiplatformSourceSetNaming::class.java,
         ) { task ->
             targets
                 .filterNot { target -> target.platformType.name == "common" }

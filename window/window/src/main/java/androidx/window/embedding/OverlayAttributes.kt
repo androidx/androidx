@@ -21,9 +21,9 @@ import androidx.annotation.RestrictTo
 /**
  * The attributes to describe how an overlay container should look like.
  *
- * @constructor creates an overlay attributes.
  * @property bounds The overlay container's [EmbeddingBounds], which defaults to
  *   [EmbeddingBounds.BOUNDS_EXPANDED] if not specified.
+ * @constructor creates an overlay attributes.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayAttributes

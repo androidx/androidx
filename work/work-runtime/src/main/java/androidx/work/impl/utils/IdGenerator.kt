@@ -28,9 +28,9 @@ import java.util.concurrent.Callable
  *
  * @param workDatabase The [WorkDatabase] where metadata is persisted.
  */
-class IdGenerator(private val workDatabase: WorkDatabase) {
+public class IdGenerator(private val workDatabase: WorkDatabase) {
     /** Generates IDs for [android.app.job.JobInfo] jobs given a reserved range. */
-    fun nextJobSchedulerIdWithRange(minInclusive: Int, maxInclusive: Int): Int {
+    public fun nextJobSchedulerIdWithRange(minInclusive: Int, maxInclusive: Int): Int {
         return workDatabase.runInTransaction(
             Callable {
                 var id = workDatabase.nextId(NEXT_JOB_SCHEDULER_ID_KEY)
@@ -45,7 +45,7 @@ class IdGenerator(private val workDatabase: WorkDatabase) {
     }
 
     /** Generates IDs for [android.app.AlarmManager] work. */
-    fun nextAlarmManagerId(): Int {
+    public fun nextAlarmManagerId(): Int {
         return workDatabase.runInTransaction(
             Callable { workDatabase.nextId(NEXT_ALARM_MANAGER_ID_KEY) }
         )
@@ -64,13 +64,13 @@ private fun WorkDatabase.updatePreference(key: String, value: Int) =
     this.preferenceDao().insertPreference(Preference(key, value.toLong()))
 
 /** The initial id used for JobInfos and Alarms. */
-const val INITIAL_ID = 0
-const val NEXT_JOB_SCHEDULER_ID_KEY = "next_job_scheduler_id"
-const val NEXT_ALARM_MANAGER_ID_KEY = "next_alarm_manager_id"
-const val PREFERENCE_FILE_KEY = "androidx.work.util.id"
+public const val INITIAL_ID: Int = 0
+public const val NEXT_JOB_SCHEDULER_ID_KEY: String = "next_job_scheduler_id"
+public const val NEXT_ALARM_MANAGER_ID_KEY: String = "next_alarm_manager_id"
+public const val PREFERENCE_FILE_KEY: String = "androidx.work.util.id"
 
 /**
- * Migrates [IdGenerator] from [android.content.SharedPreferences] to the [WorkDatabase].
+ * Migrates [IdGenerator] from [SharedPreferences] to the [WorkDatabase].
  *
  * @param context The application [Context]
  */
@@ -86,10 +86,13 @@ internal fun migrateLegacyIdGenerator(context: Context, sqLiteDatabase: SupportS
         val nextAlarmId = sharedPreferences.getInt(NEXT_ALARM_MANAGER_ID_KEY, INITIAL_ID)
         sqLiteDatabase.beginTransaction()
         try {
-            sqLiteDatabase.execSQL(INSERT_PREFERENCE, arrayOf(NEXT_JOB_SCHEDULER_ID_KEY, nextJobId))
             sqLiteDatabase.execSQL(
                 INSERT_PREFERENCE,
-                arrayOf(NEXT_ALARM_MANAGER_ID_KEY, nextAlarmId)
+                arrayOf<Any>(NEXT_JOB_SCHEDULER_ID_KEY, nextJobId),
+            )
+            sqLiteDatabase.execSQL(
+                INSERT_PREFERENCE,
+                arrayOf<Any>(NEXT_ALARM_MANAGER_ID_KEY, nextAlarmId),
             )
             // Cleanup
             sharedPreferences.edit().clear().apply()

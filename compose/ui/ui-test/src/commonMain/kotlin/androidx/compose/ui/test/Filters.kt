@@ -20,6 +20,9 @@ import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsProperties.EditableText
+import androidx.compose.ui.semantics.SemanticsProperties.InputText
+import androidx.compose.ui.semantics.SemanticsProperties.Text
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
@@ -162,7 +165,7 @@ fun hasNoScrollAction(): SemanticsMatcher =
 fun hasContentDescription(
     value: String,
     substring: Boolean = false,
-    ignoreCase: Boolean = false
+    ignoreCase: Boolean = false,
 ): SemanticsMatcher {
     return if (substring) {
         SemanticsMatcher(
@@ -211,7 +214,7 @@ fun hasContentDescriptionExactly(vararg values: String): SemanticsMatcher {
 /**
  * Returns whether the node's text contains the given [text].
  *
- * This will also search in [SemanticsProperties.EditableText].
+ * This will also search in [SemanticsProperties.EditableText] and [SemanticsProperties.InputText].
  *
  * Note that in merged semantics tree there can be a list of text items that got merged from the
  * child nodes. Typically an accessibility tooling will decide based on its heuristics which ones to
@@ -226,34 +229,30 @@ fun hasContentDescriptionExactly(vararg values: String): SemanticsMatcher {
 fun hasText(
     text: String,
     substring: Boolean = false,
-    ignoreCase: Boolean = false
+    ignoreCase: Boolean = false,
 ): SemanticsMatcher {
-    val propertyName = "${SemanticsProperties.Text.name} + ${SemanticsProperties.EditableText.name}"
+    val propertyName = "${Text.name} + ${InputText.name} + ${EditableText.name}"
     return if (substring) {
         SemanticsMatcher("$propertyName contains '$text' (ignoreCase: $ignoreCase) as substring") {
+            val isInInputTextValue =
+                it.config.getOrNull(InputText)?.text?.contains(text, ignoreCase) ?: false
             val isInEditableTextValue =
-                it.config
-                    .getOrNull(SemanticsProperties.EditableText)
-                    ?.text
-                    ?.contains(text, ignoreCase) ?: false
+                it.config.getOrNull(EditableText)?.text?.contains(text, ignoreCase) ?: false
             val isInTextValue =
-                it.config.getOrNull(SemanticsProperties.Text)?.any { item ->
-                    item.text.contains(text, ignoreCase)
-                } ?: false
-            isInEditableTextValue || isInTextValue
+                it.config.getOrNull(Text)?.any { item -> item.text.contains(text, ignoreCase) }
+                    ?: false
+            isInInputTextValue || isInEditableTextValue || isInTextValue
         }
     } else {
         SemanticsMatcher("$propertyName contains '$text' (ignoreCase: $ignoreCase)") {
+            val isInInputTextValue =
+                it.config.getOrNull(InputText)?.text?.equals(text, ignoreCase) ?: false
             val isInEditableTextValue =
-                it.config
-                    .getOrNull(SemanticsProperties.EditableText)
-                    ?.text
-                    ?.equals(text, ignoreCase) ?: false
+                it.config.getOrNull(EditableText)?.text?.equals(text, ignoreCase) ?: false
             val isInTextValue =
-                it.config.getOrNull(SemanticsProperties.Text)?.any { item ->
-                    item.text.equals(text, ignoreCase)
-                } ?: false
-            isInEditableTextValue || isInTextValue
+                it.config.getOrNull(Text)?.any { item -> item.text.equals(text, ignoreCase) }
+                    ?: false
+            isInInputTextValue || isInEditableTextValue || isInTextValue
         }
     }
 }
@@ -274,23 +273,21 @@ fun hasText(
  */
 fun hasTextExactly(
     vararg textValues: String,
-    includeEditableText: Boolean = true
+    includeEditableText: Boolean = true,
 ): SemanticsMatcher {
     val expected = textValues.toList()
     val propertyName =
         if (includeEditableText) {
-            "${SemanticsProperties.Text.name} + ${SemanticsProperties.EditableText.name}"
+            "${Text.name} + ${EditableText.name}"
         } else {
-            SemanticsProperties.Text.name
+            Text.name
         }
     return SemanticsMatcher("$propertyName = [${textValues.joinToString(",")}]") { node ->
         val actual = mutableListOf<String>()
         if (includeEditableText) {
-            node.config.getOrNull(SemanticsProperties.EditableText)?.let { actual.add(it.text) }
+            node.config.getOrNull(EditableText)?.let { actual.add(it.text) }
         }
-        node.config.getOrNull(SemanticsProperties.Text)?.let {
-            actual.addAll(it.map { anStr -> anStr.text })
-        }
+        node.config.getOrNull(Text)?.let { actual.addAll(it.map { anStr -> anStr.text }) }
         actual.containsAll(expected) && expected.containsAll(actual)
     }
 }

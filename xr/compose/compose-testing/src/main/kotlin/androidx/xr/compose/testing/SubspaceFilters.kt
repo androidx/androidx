@@ -21,7 +21,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.util.fastAny
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
  * Verifies that the node is focusable.
@@ -127,7 +127,7 @@ public fun isRoot(): SubspaceSemanticsMatcher = SubspaceSemanticsMatcher("isRoot
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasParent(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasParentThat(${matcher.description})") {
-        it.parent?.run { matcher.matches(this) } ?: false
+        it.semanticsParent?.run { matcher.matches(this) } ?: false
     }
 }
 
@@ -140,7 +140,7 @@ public fun hasParent(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatche
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun hasAnyChild(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasAnyChildThat(${matcher.description})") {
-        matcher.matchesAny(it.children)
+        matcher.matchesAny(it.semanticsChildren)
     }
 }
 
@@ -155,8 +155,11 @@ public fun hasAnyChild(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatc
 public fun hasAnySibling(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     return SubspaceSemanticsMatcher("hasAnySiblingThat(${matcher.description})") {
         val node = it
-        it.parent?.run { matcher.matchesAny(this.children.filter { child -> child.id != node.id }) }
-            ?: false
+        it.semanticsParent?.run {
+            matcher.matchesAny(
+                this.semanticsChildren.filter { child -> child.semanticsId != node.semanticsId }
+            )
+        } ?: false
     }
 }
 
@@ -205,13 +208,13 @@ public fun hasAnyAncestor(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsM
 public fun hasAnyDescendant(matcher: SubspaceSemanticsMatcher): SubspaceSemanticsMatcher {
     fun checkIfSubtreeMatches(
         matcher: SubspaceSemanticsMatcher,
-        node: SubspaceSemanticsNode,
+        node: SubspaceSemanticsInfo,
     ): Boolean {
-        if (matcher.matchesAny(node.children)) {
+        if (matcher.matchesAny(node.semanticsChildren)) {
             return true
         }
 
-        return node.children.fastAny { checkIfSubtreeMatches(matcher, it) }
+        return node.semanticsChildren.fastAny { checkIfSubtreeMatches(matcher, it) }
     }
 
     return SubspaceSemanticsMatcher("hasAnyDescendantThat(${matcher.description})") {
@@ -219,19 +222,19 @@ public fun hasAnyDescendant(matcher: SubspaceSemanticsMatcher): SubspaceSemantic
     }
 }
 
-private val SubspaceSemanticsNode.ancestors: Iterable<SubspaceSemanticsNode>
+private val SubspaceSemanticsInfo.ancestors: Iterable<SubspaceSemanticsInfo>
     get() =
-        object : Iterable<SubspaceSemanticsNode> {
-            override fun iterator(): Iterator<SubspaceSemanticsNode> {
-                return object : Iterator<SubspaceSemanticsNode> {
-                    var next = parent
+        object : Iterable<SubspaceSemanticsInfo> {
+            override fun iterator(): Iterator<SubspaceSemanticsInfo> {
+                return object : Iterator<SubspaceSemanticsInfo> {
+                    var next = semanticsParent
 
                     override fun hasNext(): Boolean {
                         return next != null
                     }
 
-                    override fun next(): SubspaceSemanticsNode {
-                        return next!!.also { next = it.parent }
+                    override fun next(): SubspaceSemanticsInfo {
+                        return next!!.also { next = it.semanticsParent }
                     }
                 }
             }

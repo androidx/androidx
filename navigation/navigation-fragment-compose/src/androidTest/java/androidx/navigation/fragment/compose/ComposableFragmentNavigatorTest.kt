@@ -45,7 +45,7 @@ class ComposableFragmentNavigatorTest {
             FragmentNavigator(
                 testRule.activity,
                 testRule.activity.supportFragmentManager,
-                R.id.fragment_container
+                R.id.fragment_container,
             )
         navController.navigatorProvider +=
             ComposableFragmentNavigator(navController.navigatorProvider)

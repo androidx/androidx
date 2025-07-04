@@ -18,6 +18,7 @@ package androidx.camera.core.streamsharing
 
 import android.graphics.Rect
 import android.os.Build
+import android.util.Pair
 import android.util.Rational
 import android.util.Size
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
@@ -98,7 +99,7 @@ class ResolutionsMergerTest {
                 SIZE_1280_960,
                 SIZE_960_720,
                 SIZE_1920_1080,
-                SIZE_1280_720
+                SIZE_1280_720,
             )
             .inOrder()
     }
@@ -197,7 +198,7 @@ class ResolutionsMergerTest {
                 SIZE_1920_1440,
                 SIZE_1280_960,
                 SIZE_960_720,
-                SIZE_720_480
+                SIZE_720_480,
             )
             .inOrder()
     }
@@ -226,7 +227,7 @@ class ResolutionsMergerTest {
                 SIZE_1920_1440,
                 SIZE_1280_960,
                 SIZE_960_720,
-                SIZE_720_480
+                SIZE_720_480,
             )
             .inOrder()
     }
@@ -337,7 +338,7 @@ class ResolutionsMergerTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun getPreferredChildSizePair_whenConfigNotPassedToConstructor_throwsException() {
+    fun getPreferredChildSize_whenUseCaseConfigNotPassedToConstructor_throwsException() {
         // Arrange.
         val config = createUseCaseConfig()
         val sorter = FakeSupportedOutputSizesSorter(mapOf(config to SIZES_16_9))
@@ -345,11 +346,11 @@ class ResolutionsMergerTest {
 
         // Act.
         val useCaseConfigNotPassed = createUseCaseConfig()
-        merger.getPreferredChildSizePair(useCaseConfigNotPassed, SIZE_1920_1440.toRect(), 0, false)
+        merger.getPreferredChildSize(useCaseConfigNotPassed, SIZE_1920_1440.toRect(), 0, false)
     }
 
     @Test
-    fun getPreferredChildSizePair_whenViewportIsNotSet_canReturnCorrectly() {
+    fun getPreferredChildSize_whenViewportIsNotSet_canReturnCorrectly() {
         // Arrange.
         val config = createUseCaseConfig()
         val candidateChildSizes =
@@ -360,35 +361,32 @@ class ResolutionsMergerTest {
                 SIZE_640_480,
                 // 16:9
                 SIZE_1920_1080,
-                SIZE_960_540
+                SIZE_960_540,
             )
         val sorter = FakeSupportedOutputSizesSorter(mapOf(config to candidateChildSizes))
         val merger = ResolutionsMerger(SENSOR_SIZE, CAMERA_INFO, setOf(config), sorter)
 
         // Act & Assert, should returns the first child size that do not need upscale and cause
         // double-cropping.
-        merger
-            .getPreferredChildSizePair(config, SIZE_2560_1440.toRect(), 0, false)
-            .containsExactly(SIZE_2560_1440.toRect(), SIZE_1920_1080)
-        merger
-            .getPreferredChildSizePair(config, SIZE_1280_720.toRect(), 0, false)
-            .containsExactly(SIZE_1280_720.toRect(), SIZE_960_540)
+        assertThat(merger.getPreferredChildSize(config, SIZE_2560_1440.toRect(), 0, false))
+            .isEqualTo(PreferredChildSize(SIZE_2560_1440.toRect(), SIZE_1920_1080, SIZE_1920_1080))
+        assertThat(merger.getPreferredChildSize(config, SIZE_1280_720.toRect(), 0, false))
+            .isEqualTo(PreferredChildSize(SIZE_1280_720.toRect(), SIZE_960_540, SIZE_960_540))
 
         // Act & Assert, should returns parent size when no matching.
-        merger
-            .getPreferredChildSizePair(config, SIZE_192_108.toRect(), 0, false)
-            .containsExactly(SIZE_192_108.toRect(), SIZE_192_108)
+        assertThat(merger.getPreferredChildSize(config, SIZE_192_108.toRect(), 0, false))
+            .isEqualTo(PreferredChildSize(SIZE_192_108.toRect(), SIZE_192_108, SIZE_192_108))
     }
 
     @Test
-    fun getPreferredChildSizePair_whenViewportIsSet_canReturnCorrectly() {
+    fun getPreferredChildSize_whenViewportIsSet_canReturnCorrectly() {
         // Arrange.
         val config = createUseCaseConfig()
         val candidateChildSizes =
             listOf(
                 // 16:9
                 SIZE_1920_1080,
-                SIZE_960_540
+                SIZE_960_540,
             )
         val sorter = FakeSupportedOutputSizesSorter(mapOf(config to candidateChildSizes))
         val merger = ResolutionsMerger(SENSOR_SIZE, CAMERA_INFO, setOf(config), sorter)
@@ -396,32 +394,29 @@ class ResolutionsMergerTest {
         // Act & Assert, should returns 1:1 crop rect and size, that are generated from the first
         // child size that do not need upscale.
         val rect1440To1440 = SIZE_2560_1920.crop(Size(1440, 1440))
-        merger
-            .getPreferredChildSizePair(config, rect1440To1440, 0, true)
-            .containsExactly(rect1440To1440, Size(1080, 1080))
+        assertThat(merger.getPreferredChildSize(config, rect1440To1440, 0, true))
+            .isEqualTo(PreferredChildSize(rect1440To1440, Size(1080, 1080), SIZE_1920_1080))
         val rect720To720 = SIZE_1280_720.crop(Size(720, 720))
-        merger
-            .getPreferredChildSizePair(config, rect720To720, 0, true)
-            .containsExactly(rect720To720, Size(540, 540))
+        assertThat(merger.getPreferredChildSize(config, rect720To720, 0, true))
+            .isEqualTo(PreferredChildSize(rect720To720, Size(540, 540), SIZE_960_540))
 
         // Act & Assert, should returns crop rect and size, that are generated from parent size
         // when no matching.
         val size108To108 = Size(108, 108)
         val rect108To108 = SIZE_192_108.crop(size108To108)
-        merger
-            .getPreferredChildSizePair(config, rect108To108, 0, true)
-            .containsExactly(rect108To108, size108To108)
+        assertThat(merger.getPreferredChildSize(config, rect108To108, 0, true))
+            .isEqualTo(PreferredChildSize(rect108To108, size108To108, size108To108))
     }
 
     @Test
-    fun getPreferredChildSizePair_whenViewportIsSetAndRotationIs90_canReturnCorrectly() {
+    fun getPreferredChildSize_whenViewportIsSetAndRotationIs90_canReturnCorrectly() {
         // Arrange.
         val config = createUseCaseConfig()
         val candidateChildSizes =
             listOf(
                 // 16:9
                 SIZE_1920_1080,
-                SIZE_960_540
+                SIZE_960_540,
             )
         val sorter = FakeSupportedOutputSizesSorter(mapOf(config to candidateChildSizes))
         val merger = ResolutionsMerger(SENSOR_SIZE, CAMERA_INFO, setOf(config), sorter)
@@ -429,20 +424,18 @@ class ResolutionsMergerTest {
         // Act & Assert, should returns 1:2 crop rect and size, that are generated from the first
         // child size that do not need upscale.
         val rect1280To2560 = SIZE_2560_1440.crop(Size(2560, 1280)).reverse()
-        merger
-            .getPreferredChildSizePair(config, rect1280To2560, 90, true)
-            .containsExactly(rect1280To2560, Size(960, 1920))
+        assertThat(merger.getPreferredChildSize(config, rect1280To2560, 90, true))
+            .isEqualTo(PreferredChildSize(rect1280To2560, Size(960, 1920), SIZE_1920_1080))
         val rect640To1280 = SIZE_1280_720.crop(Size(1280, 640)).reverse()
-        merger
-            .getPreferredChildSizePair(config, rect640To1280, 90, true)
-            .containsExactly(rect640To1280, Size(480, 960))
+        assertThat(merger.getPreferredChildSize(config, rect640To1280, 90, true))
+            .isEqualTo(PreferredChildSize(rect640To1280, Size(480, 960), SIZE_960_540))
 
         // Act & Assert, should returns crop rect and size, that are generated from parent size
         // when no matching.
-        val rect96To192 = SIZE_192_108.crop(Size(192, 96)).reverse()
-        merger
-            .getPreferredChildSizePair(config, rect96To192, 90, true)
-            .containsExactly(rect96To192, rectToSize(rect96To192))
+        val size192To96 = Size(192, 96)
+        val rect96To192 = SIZE_192_108.crop(size192To96).reverse()
+        assertThat(merger.getPreferredChildSize(config, rect96To192, 90, true))
+            .isEqualTo(PreferredChildSize(rect96To192, rectToSize(rect96To192), size192To96))
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -488,7 +481,7 @@ class ResolutionsMergerTest {
                 SIZE_1920_1080,
                 SIZE_960_540,
                 // 3:2
-                SIZE_720_480
+                SIZE_720_480,
             )
         val sorter = FakeSupportedOutputSizesSorter(mapOf(config to candidateChildSizes))
         val merger = ResolutionsMerger(SENSOR_SIZE, CAMERA_INFO, setOf(config), sorter)
@@ -531,13 +524,13 @@ class ResolutionsMergerTest {
         // Act & Assert, should returns the first child size that can be cropped to parent
         // aspect-ratio and do not cause upscaling.
         assertThat(merger.getPreferredChildSizeForViewport(SIZE_2560_1920, config))
-            .isEqualTo(SIZE_1920_1440)
+            .isEqualTo(Pair.create(SIZE_1920_1440, SIZE_1920_1440))
         assertThat(merger.getPreferredChildSizeForViewport(SIZE_1280_960, config))
-            .isEqualTo(SIZE_960_720)
+            .isEqualTo(Pair.create(SIZE_960_720, SIZE_960_720))
 
         // Act & Assert, should returns parent size when no matching.
         assertThat(merger.getPreferredChildSizeForViewport(SIZE_640_480, config))
-            .isEqualTo(SIZE_640_480)
+            .isEqualTo(Pair.create(SIZE_640_480, SIZE_640_480))
     }
 
     @Test
@@ -548,7 +541,7 @@ class ResolutionsMergerTest {
             listOf(
                 // 16:9
                 SIZE_1920_1080,
-                SIZE_1280_720
+                SIZE_1280_720,
             )
         val sorter = FakeSupportedOutputSizesSorter(mapOf(config to candidateChildSizes))
         val merger = ResolutionsMerger(SENSOR_SIZE, CAMERA_INFO, setOf(config), sorter)
@@ -556,13 +549,13 @@ class ResolutionsMergerTest {
         // Act & Assert, should returns the first child size that can be cropped to parent
         // aspect-ratio and do not cause upscaling.
         assertThat(merger.getPreferredChildSizeForViewport(SIZE_1920_1440, config))
-            .isEqualTo(Size(1440, 1080))
+            .isEqualTo(Pair.create(SIZE_1920_1080, Size(1440, 1080)))
         assertThat(merger.getPreferredChildSizeForViewport(SIZE_1280_960, config))
-            .isEqualTo(SIZE_960_720)
+            .isEqualTo(Pair.create(SIZE_1280_720, SIZE_960_720))
 
         // Act & Assert, should returns parent size when no matching.
         assertThat(merger.getPreferredChildSizeForViewport(SIZE_640_480, config))
-            .isEqualTo(SIZE_640_480)
+            .isEqualTo(Pair.create(SIZE_640_480, SIZE_640_480))
     }
 
     @Test
@@ -618,7 +611,7 @@ class ResolutionsMergerTest {
                 SIZE_1280_960,
                 SIZE_960_720,
                 SIZE_640_480,
-                SIZE_320_240
+                SIZE_320_240,
             )
         val childSizes = setOf(SIZE_1920_1080, SIZE_1280_720, SIZE_960_540)
         assertThat(filterOutParentSizeThatIsTooSmall(childSizes, parentSizes))
@@ -657,7 +650,7 @@ class ResolutionsMergerTest {
                 SIZE_1280_960,
                 SIZE_960_720,
                 SIZE_640_480,
-                SIZE_320_240
+                SIZE_320_240,
             )
         val childSizes = emptySet<Size>()
         assertThat(filterOutParentSizeThatIsTooSmall(childSizes, parentSizes)).isEmpty()
@@ -673,7 +666,7 @@ class ResolutionsMergerTest {
                 SIZE_1280_960,
                 SIZE_960_720,
                 SIZE_640_480,
-                SIZE_320_240
+                SIZE_320_240,
             )
         val childSizes = setOf(SIZE_1920_1080, SIZE_1280_720, SIZE_960_540)
         assertThat(getParentSizesThatAreTooLarge(childSizes, parentSizes))
@@ -724,7 +717,7 @@ class ResolutionsMergerTest {
                 SIZE_1280_960,
                 SIZE_960_720,
                 SIZE_640_480,
-                SIZE_320_240
+                SIZE_320_240,
             )
         val childSizes = emptySet<Size>()
         assertThat(getParentSizesThatAreTooLarge(childSizes, parentSizes)).isEmpty()
@@ -776,11 +769,6 @@ class ResolutionsMergerTest {
         return FakeUseCaseConfig.Builder().useCaseConfig
     }
 
-    private fun android.util.Pair<Rect, Size>.containsExactly(rect: Rect, size: Size) {
-        assertThat(first).isEqualTo(rect)
-        assertThat(second).isEqualTo(size)
-    }
-
     private fun Rect.hasMatchingAspectRatio(resolution: Size): Boolean {
         return AspectRatioUtil.hasMatchingAspectRatio(resolution, Rational(width(), height()))
     }
@@ -823,7 +811,7 @@ class ResolutionsMergerTest {
                 SIZE_1280_960,
                 SIZE_960_720,
                 SIZE_640_480,
-                SIZE_320_240
+                SIZE_320_240,
             )
 
         // 16:9 resolutions.
@@ -840,7 +828,7 @@ class ResolutionsMergerTest {
                 SIZE_1920_1080,
                 SIZE_1280_720,
                 SIZE_960_540,
-                SIZE_192_108
+                SIZE_192_108,
             )
 
         // Other aspect-ratio resolutions.
@@ -863,7 +851,7 @@ class ResolutionsMergerTest {
                 SIZE_720_720,
                 SIZE_720_480,
                 SIZE_500_400,
-                SIZE_176_144
+                SIZE_176_144,
             )
         private val CAMERA_SUPPORTED_SIZES = SIZES_4_3 + SIZES_16_9 + SIZES_OTHER_ASPECT_RATIO
         private val CAMERA_INFO = createCameraInfo(supportedResolutions = CAMERA_SUPPORTED_SIZES)
@@ -884,13 +872,13 @@ class ResolutionsMergerTest {
                         Size(2992, 2992),
                         Size(4000, 1800),
                         Size(2560, 1920),
-                    )
+                    ),
             )
         private val SENSOR_SIZE = SIZE_3264_2448 // 4:3
 
         private fun createCameraInfo(
             supportedResolutions: List<Size>? = null,
-            supportedHighResolutions: List<Size>? = null
+            supportedHighResolutions: List<Size>? = null,
         ): FakeCameraInfoInternal {
             val cameraInfo = FakeCameraInfoInternal()
             supportedResolutions?.let {

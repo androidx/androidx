@@ -31,6 +31,22 @@ import androidx.compose.ui.util.lerp
 @Immutable
 @kotlin.jvm.JvmInline
 value class BaselineShift(val multiplier: Float) {
+    /**
+     * Returns this [BaselineShift] if it is specified or [default] if it is
+     * [BaselineShift.Unspecified].
+     */
+    inline fun takeOrElse(default: () -> BaselineShift): BaselineShift {
+        return if (multiplier.isNaN()) default() else this
+    }
+
+    /**
+     * Returns `true` if this baseline shift is not [BaselineShift.Unspecified].
+     *
+     * @see BaselineShift.Unspecified
+     */
+    val isSpecified: Boolean
+        get() = !multiplier.isNaN()
+
     companion object {
         /** Default baseline shift for superscript. */
         @Stable val Superscript = BaselineShift(0.5f)
@@ -40,6 +56,9 @@ value class BaselineShift(val multiplier: Float) {
 
         /** Constant for no baseline shift. */
         @Stable val None = BaselineShift(0.0f)
+
+        /** Constant for an unset baseline shift. */
+        @Stable val Unspecified = BaselineShift(Float.NaN)
     }
 }
 

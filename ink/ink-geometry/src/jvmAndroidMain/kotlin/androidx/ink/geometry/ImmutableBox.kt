@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
+import androidx.annotation.RestrictTo
 import kotlin.math.max
 import kotlin.math.min
 
@@ -27,7 +28,7 @@ import kotlin.math.min
  * (e.g. the positive `Y` axis being "down"), because it is intended to be used with any coordinate
  * system rather than just Android screen/View space.
  */
-public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
+public class ImmutableBox internal constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
 
     /** The lower bound in the `X` direction. */
     override val xMin: Float = min(x1, x2)
@@ -40,6 +41,8 @@ public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y
 
     /** The upper bound in the `Y` direction. */
     override val yMax: Float = max(y1, y2)
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun asImmutable(): ImmutableBox = this
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Box && Box.areEquivalent(this, other))

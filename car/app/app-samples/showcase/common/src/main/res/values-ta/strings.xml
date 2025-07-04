@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"மெசேஜ் டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"மெசேஜ்கள் இங்கே செல்லும்.\nகூடுதல் உரைகள் இரண்டாவது வரியில் இருக்கும்."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"குறுகிய மெசேஜ் டெம்ப்ளேட்டின் டெமோ"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"பிரிக்கப்பட்டதன் டெம்ப்ளேட் டெமோ"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ரேடியோ பட்டன் பிரிவு"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"நிலைமாற்றம் பிரிவு"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"அதிக வரிசைகள் பிரிவு"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"கட்ட உள்ளடக்கப் பிரிவு"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"பெட்டி டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"இருப்பிடப் பட்டியல் டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"இடங்களைக் கண்டறியுங்கள்"</string>

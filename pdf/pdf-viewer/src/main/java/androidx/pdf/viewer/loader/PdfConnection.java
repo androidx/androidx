@@ -175,10 +175,14 @@ public class PdfConnection implements ServiceConnection {
     }
 
     void disconnect() {
-        if (mConnected) {
-            mContext.unbindService(this);
-            mConnected = false;
+        mLock.lock();
+        try {
+            if (mConnected) {
+                mContext.unbindService(this);
+                mConnected = false;
+            }
+        } finally {
+            mLock.unlock();
         }
     }
-
 }

@@ -104,11 +104,11 @@ class ModalBottomSheetScreenshotTest {
                 scope = rememberCoroutineScope(),
                 sheetState = rememberSheetState(initialValue = SheetValue.Expanded),
                 animateToDismiss = {},
-                settleToDismiss = {}
+                settleToDismiss = {},
             ) {
                 Text(
                     "Modal Bottom Sheet Predictive Back\nProgress: $progress",
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 )
             }
         }

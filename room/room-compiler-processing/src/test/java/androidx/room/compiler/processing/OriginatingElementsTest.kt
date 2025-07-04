@@ -53,7 +53,7 @@ class OriginatingElementsTest {
                     }
                 }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) {
@@ -114,11 +114,9 @@ class OriginatingElementsTest {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
-        runProcessorTest(
-            sources = listOf(source),
-        ) { invocation ->
+        runProcessorTest(sources = listOf(source)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("Foo")
             val syntheticPropertyElements = element.getDeclaredMethods()
 
@@ -145,9 +143,7 @@ class OriginatingElementsTest {
             }
         }
 
-        runProcessorTest(
-            classpath = compileFiles(listOf(source)),
-        ) { invocation: XTestInvocation ->
+        runProcessorTest(classpath = compileFiles(listOf(source))) { invocation: XTestInvocation ->
             val element = invocation.processingEnv.requireTypeElement("Foo")
             val syntheticPropertyElements = element.getDeclaredMethods()
 
@@ -196,7 +192,7 @@ class OriginatingElementsTest {
                     }
                 }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     )
                 )
         ) {
@@ -227,7 +223,7 @@ class OriginatingElementsTest {
             package foo.bar
             fun f(): String = TODO()
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) {
             it.processingEnv.getElementsFromPackage("foo.bar").forEach { element ->

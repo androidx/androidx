@@ -42,14 +42,14 @@ class WorkInfoTest {
                 id = id,
                 state = RUNNING,
                 tags = setOf("a"),
-                constraints = Constraints(requiredNetworkType = NetworkType.CONNECTED)
+                constraints = Constraints(requiredNetworkType = NetworkType.CONNECTED),
             )
         val info2 =
             WorkInfo(
                 id = id,
                 state = RUNNING,
                 tags = setOf("a"),
-                constraints = Constraints(requiredNetworkType = NetworkType.NOT_ROAMING)
+                constraints = Constraints(requiredNetworkType = NetworkType.NOT_ROAMING),
             )
         assertThat(info1 == info2).isFalse()
     }
@@ -63,7 +63,7 @@ class WorkInfoTest {
                 id = id,
                 state = RUNNING,
                 tags = setOf("a"),
-                stopReason = WorkInfo.STOP_REASON_UNKNOWN
+                stopReason = WorkInfo.STOP_REASON_UNKNOWN,
             )
         assertThat(info1 == info2).isFalse()
     }

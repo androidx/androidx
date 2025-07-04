@@ -1,20 +1,19 @@
 // Signature format: 4.0
 package androidx.xr.arcore {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Anchor {
-    ctor public Anchor(androidx.xr.runtime.internal.Anchor runtimeAnchor);
+  public final class Anchor {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Anchor(androidx.xr.runtime.internal.Anchor runtimeAnchor);
     method public static androidx.xr.arcore.AnchorCreateResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public void detach();
     method public static java.util.List<java.util.UUID> getPersistedAnchorUuids(androidx.xr.runtime.Session session);
-    method public androidx.xr.runtime.internal.Anchor getRuntimeAnchor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.internal.Anchor getRuntimeAnchor();
     method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> getState();
     method public static androidx.xr.arcore.AnchorCreateResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
-    method public static androidx.xr.arcore.Anchor loadFromNativePointer(androidx.xr.runtime.Session session, long nativePointer);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.arcore.Anchor loadFromNativePointer(androidx.xr.runtime.Session session, long nativePointer);
     method public suspend Object? persist(kotlin.coroutines.Continuation<? super java.util.UUID>);
     method public static void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
-    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public final androidx.xr.runtime.internal.Anchor runtimeAnchor;
-    property public final kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> state;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.internal.Anchor runtimeAnchor;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Anchor.State> state;
     field public static final androidx.xr.arcore.Anchor.Companion Companion;
   }
 
@@ -22,64 +21,302 @@ package androidx.xr.arcore {
     method public androidx.xr.arcore.AnchorCreateResult create(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Pose pose);
     method public java.util.List<java.util.UUID> getPersistedAnchorUuids(androidx.xr.runtime.Session session);
     method public androidx.xr.arcore.AnchorCreateResult load(androidx.xr.runtime.Session session, java.util.UUID uuid);
-    method public androidx.xr.arcore.Anchor loadFromNativePointer(androidx.xr.runtime.Session session, long nativePointer);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.Anchor loadFromNativePointer(androidx.xr.runtime.Session session, long nativePointer);
     method public void unpersist(androidx.xr.runtime.Session session, java.util.UUID uuid);
   }
 
   public static final class Anchor.State {
-    ctor public Anchor.State(androidx.xr.runtime.internal.TrackingState trackingState, androidx.xr.runtime.math.Pose pose);
     method public androidx.xr.runtime.math.Pose getPose();
-    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
-    property public final androidx.xr.runtime.math.Pose pose;
-    property public final androidx.xr.runtime.internal.TrackingState trackingState;
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    property public androidx.xr.runtime.math.Pose pose;
+    property public androidx.xr.runtime.TrackingState trackingState;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorCreateResourcesExhausted extends androidx.xr.arcore.AnchorCreateResult {
+  public final class AnchorCreateIllegalState extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateIllegalState();
+  }
+
+  public final class AnchorCreateNotAuthorized extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateNotAuthorized();
+  }
+
+  public final class AnchorCreateResourcesExhausted extends androidx.xr.arcore.AnchorCreateResult {
     ctor public AnchorCreateResourcesExhausted();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract sealed class AnchorCreateResult {
+  public abstract sealed class AnchorCreateResult {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AnchorCreateSuccess extends androidx.xr.arcore.AnchorCreateResult {
+  public final class AnchorCreateSuccess extends androidx.xr.arcore.AnchorCreateResult {
     ctor public AnchorCreateSuccess(androidx.xr.arcore.Anchor anchor);
     method public androidx.xr.arcore.Anchor getAnchor();
-    property public final androidx.xr.arcore.Anchor anchor;
+    property public androidx.xr.arcore.Anchor anchor;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class HitResult {
-    method public androidx.xr.arcore.Anchor createAnchor();
+  public final class AnchorCreateTrackingUnavailable extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateTrackingUnavailable();
+  }
+
+  public final class AnchorCreateUnsupportedLocation extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorCreateUnsupportedLocation();
+  }
+
+  public final class AnchorLoadInvalidUuid extends androidx.xr.arcore.AnchorCreateResult {
+    ctor public AnchorLoadInvalidUuid();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArDevice {
+    method public static androidx.xr.arcore.ArDevice getInstance(androidx.xr.runtime.Session session);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ArDevice.State> getState();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ArDevice.State> state;
+    field public static final androidx.xr.arcore.ArDevice.Companion Companion;
+  }
+
+  public static final class ArDevice.Companion {
+    method public androidx.xr.arcore.ArDevice getInstance(androidx.xr.runtime.Session session);
+  }
+
+  public static final class ArDevice.State {
+    ctor public ArDevice.State(androidx.xr.runtime.math.Pose devicePose);
+    method public androidx.xr.runtime.math.Pose getDevicePose();
+    property public androidx.xr.runtime.math.Pose devicePose;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AugmentedObject implements androidx.xr.arcore.Trackable<androidx.xr.arcore.AugmentedObject.State> {
+    method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.AugmentedObject.State> getState();
+    method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.AugmentedObject>> subscribe(androidx.xr.runtime.Session session);
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.AugmentedObject.State> state;
+    field public static final androidx.xr.arcore.AugmentedObject.Companion Companion;
+  }
+
+  public static final class AugmentedObject.Companion {
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.AugmentedObject>> subscribe(androidx.xr.runtime.Session session);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class AugmentedObject.State implements androidx.xr.arcore.Trackable.State {
+    ctor public AugmentedObject.State(androidx.xr.runtime.TrackingState trackingState, androidx.xr.runtime.AugmentedObjectCategory category, androidx.xr.runtime.math.Pose centerPose, androidx.xr.runtime.math.Vector3 extents);
+    method public androidx.xr.runtime.AugmentedObjectCategory getCategory();
+    method public androidx.xr.runtime.math.Pose getCenterPose();
+    method public androidx.xr.runtime.math.Vector3 getExtents();
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    property public androidx.xr.runtime.AugmentedObjectCategory category;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.Vector3 extents;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CreateGeospatialPoseFromPoseIllegalState extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
+    ctor public CreateGeospatialPoseFromPoseIllegalState();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CreateGeospatialPoseFromPoseNotTracking extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
+    ctor public CreateGeospatialPoseFromPoseNotTracking();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract sealed class CreateGeospatialPoseFromPoseResult {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CreateGeospatialPoseFromPoseSuccess extends androidx.xr.arcore.CreateGeospatialPoseFromPoseResult {
+    ctor public CreateGeospatialPoseFromPoseSuccess(androidx.xr.runtime.math.GeospatialPose pose, double horizontalAccuracy, double verticalAccuracy, double orientationYawAccuracy);
+    method public double getHorizontalAccuracy();
+    method public double getOrientationYawAccuracy();
+    method public androidx.xr.runtime.math.GeospatialPose getPose();
+    method public double getVerticalAccuracy();
+    property public double horizontalAccuracy;
+    property public double orientationYawAccuracy;
+    property public androidx.xr.runtime.math.GeospatialPose pose;
+    property public double verticalAccuracy;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CreatePoseFromGeospatialPoseIllegalState extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
+    ctor public CreatePoseFromGeospatialPoseIllegalState();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CreatePoseFromGeospatialPoseNotTracking extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
+    ctor public CreatePoseFromGeospatialPoseNotTracking();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract sealed class CreatePoseFromGeospatialPoseResult {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CreatePoseFromGeospatialPoseSuccess extends androidx.xr.arcore.CreatePoseFromGeospatialPoseResult {
+    ctor public CreatePoseFromGeospatialPoseSuccess(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.runtime.math.Pose getPose();
+    property public androidx.xr.runtime.math.Pose pose;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class DepthMap {
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.DepthMap.State> getState();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.DepthMap.State> state;
+  }
+
+  public static final class DepthMap.State {
+    ctor public DepthMap.State(int width, int height, java.nio.FloatBuffer? rawDepthMap, java.nio.ByteBuffer? rawConfidenceMap, java.nio.FloatBuffer? smoothDepthMap, java.nio.ByteBuffer? smoothConfidenceMap);
+    method public int getHeight();
+    method public java.nio.ByteBuffer? getRawConfidenceMap();
+    method public java.nio.FloatBuffer? getRawDepthMap();
+    method public java.nio.ByteBuffer? getSmoothConfidenceMap();
+    method public java.nio.FloatBuffer? getSmoothDepthMap();
+    method public int getWidth();
+    property public int height;
+    property public java.nio.ByteBuffer? rawConfidenceMap;
+    property public java.nio.FloatBuffer? rawDepthMap;
+    property public java.nio.ByteBuffer? smoothConfidenceMap;
+    property public java.nio.FloatBuffer? smoothDepthMap;
+    property public int width;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Earth {
+    method public androidx.xr.arcore.AnchorCreateResult createAnchor(double latitude, double longitude, double altitude, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion);
+    method public suspend Object? createAnchorOnSurface(double latitude, double longitude, double altitudeAboveSurface, androidx.xr.runtime.math.Quaternion eastUpSouthQuaternion, androidx.xr.arcore.Earth.Surface surface, kotlin.coroutines.Continuation<? super androidx.xr.arcore.AnchorCreateResult>);
+    method public androidx.xr.arcore.CreateGeospatialPoseFromPoseResult createGeospatialPoseFromDevicePose();
+    method public androidx.xr.arcore.CreateGeospatialPoseFromPoseResult createGeospatialPoseFromPose(androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.arcore.CreatePoseFromGeospatialPoseResult createPoseFromGeospatialPose(androidx.xr.runtime.math.GeospatialPose geospatialPose);
+    method public static androidx.xr.arcore.Earth getInstance(androidx.xr.runtime.Session session);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Earth.State> getState();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Earth.State> state;
+    field public static final androidx.xr.arcore.Earth.Companion Companion;
+  }
+
+  public static final class Earth.Companion {
+    method public androidx.xr.arcore.Earth getInstance(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Earth.State {
+    field public static final androidx.xr.arcore.Earth.State.Companion Companion;
+    field public static final androidx.xr.arcore.Earth.State ERROR_APK_VERSION_TOO_OLD;
+    field public static final androidx.xr.arcore.Earth.State ERROR_APP_PREEMPTED;
+    field public static final androidx.xr.arcore.Earth.State ERROR_INTERNAL;
+    field public static final androidx.xr.arcore.Earth.State ERROR_NOT_AUTHORIZED;
+    field public static final androidx.xr.arcore.Earth.State ERROR_RESOURCES_EXHAUSTED;
+    field public static final androidx.xr.arcore.Earth.State RUNNING;
+    field public static final androidx.xr.arcore.Earth.State STOPPED;
+  }
+
+  public static final class Earth.State.Companion {
+    property public androidx.xr.arcore.Earth.State ERROR_APK_VERSION_TOO_OLD;
+    property public androidx.xr.arcore.Earth.State ERROR_APP_PREEMPTED;
+    property public androidx.xr.arcore.Earth.State ERROR_INTERNAL;
+    property public androidx.xr.arcore.Earth.State ERROR_NOT_AUTHORIZED;
+    property public androidx.xr.arcore.Earth.State ERROR_RESOURCES_EXHAUSTED;
+    property public androidx.xr.arcore.Earth.State RUNNING;
+    property public androidx.xr.arcore.Earth.State STOPPED;
+  }
+
+  public static final class Earth.Surface {
+    field public static final androidx.xr.arcore.Earth.Surface.Companion Companion;
+    field public static final androidx.xr.arcore.Earth.Surface ROOFTOP;
+    field public static final androidx.xr.arcore.Earth.Surface TERRAIN;
+  }
+
+  public static final class Earth.Surface.Companion {
+    property public androidx.xr.arcore.Earth.Surface ROOFTOP;
+    property public androidx.xr.arcore.Earth.Surface TERRAIN;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Face {
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> getState();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Face.State> state;
+    field public static final androidx.xr.arcore.Face.Companion Companion;
+  }
+
+  public static final class Face.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.Face? getUserFace(androidx.xr.runtime.Session session);
+  }
+
+  public static final class Face.State {
+    ctor public Face.State(androidx.xr.runtime.TrackingState trackingState, float[] blendShapeValues, float[] confidenceValues);
+    method public java.util.Map<androidx.xr.runtime.FaceBlendShapeType,java.lang.Float> getBlendShapes();
+    method public float getConfidence();
+    method public float getConfidence(int regionIndex);
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    property public java.util.Map<androidx.xr.runtime.FaceBlendShapeType,java.lang.Float> blendShapes;
+    property public float confidence;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class Hand {
+    method public static androidx.xr.arcore.Hand.HandSide getPrimaryHandSide(android.content.ContentResolver resolver);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> getState();
+    method public static androidx.xr.arcore.Hand? left(androidx.xr.runtime.Session session);
+    method public static androidx.xr.arcore.Hand? right(androidx.xr.runtime.Session session);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Hand.State> state;
+    field public static final androidx.xr.arcore.Hand.Companion Companion;
+  }
+
+  public static final class Hand.Companion {
+    method public androidx.xr.arcore.Hand.HandSide getPrimaryHandSide(android.content.ContentResolver resolver);
+    method public androidx.xr.arcore.Hand? left(androidx.xr.runtime.Session session);
+    method public androidx.xr.arcore.Hand? right(androidx.xr.runtime.Session session);
+  }
+
+  public enum Hand.HandSide {
+    enum_constant public static final androidx.xr.arcore.Hand.HandSide LEFT;
+    enum_constant public static final androidx.xr.arcore.Hand.HandSide RIGHT;
+    enum_constant public static final androidx.xr.arcore.Hand.HandSide UNKNOWN;
+  }
+
+  public static final class Hand.State {
+    method public java.util.Map<androidx.xr.runtime.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.nio.FloatBuffer getHandJointsBuffer();
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    property public java.util.Map<androidx.xr.runtime.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.nio.FloatBuffer handJointsBuffer;
+    property public androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  public final class HitResult {
+    method public androidx.xr.arcore.AnchorCreateResult createAnchor();
     method public float getDistance();
     method public androidx.xr.runtime.math.Pose getHitPose();
     method public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> getTrackable();
-    property public final float distance;
-    property public final androidx.xr.runtime.math.Pose hitPose;
-    property public final androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> trackable;
+    property public float distance;
+    property public androidx.xr.runtime.math.Pose hitPose;
+    property public androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State> trackable;
   }
 
   public final class Interaction {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static java.util.List<androidx.xr.arcore.HitResult> hitTest(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Ray ray);
+    method public static java.util.List<androidx.xr.arcore.HitResult> hitTest(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Ray ray);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PerceptionState {
+  public final class PerceptionState {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.ArDevice getArDevice();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.arcore.DepthMap> getDepthMaps();
+    method public androidx.xr.arcore.Hand? getLeftHand();
+    method public androidx.xr.arcore.Hand? getRightHand();
     method public kotlin.time.ComparableTimeMark getTimeMark();
     method public java.util.Collection<androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State>> getTrackables();
-    property public final kotlin.time.ComparableTimeMark timeMark;
-    property public final java.util.Collection<androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State>> trackables;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.Face? getUserFace();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.arcore.ViewCamera> getViewCameras();
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.ArDevice arDevice;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.arcore.DepthMap> depthMaps;
+    property public androidx.xr.arcore.Hand? leftHand;
+    property public androidx.xr.arcore.Hand? rightHand;
+    property public kotlin.time.ComparableTimeMark timeMark;
+    property public java.util.Collection<androidx.xr.arcore.Trackable<androidx.xr.arcore.Trackable.State>> trackables;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.arcore.Face? userFace;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.xr.arcore.ViewCamera> viewCameras;
   }
 
   public final class PerceptionStateExtenderKt {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.arcore.PerceptionState? getPerceptionState(androidx.xr.runtime.CoreState);
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.arcore.PerceptionState? androidx.xr.runtime.CoreState.perceptionState;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Plane implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Plane.State> {
-    method public androidx.xr.arcore.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+  public final class Plane implements androidx.xr.arcore.Trackable<androidx.xr.arcore.Plane.State> {
+    method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> getState();
     method public androidx.xr.arcore.Plane.Type getType();
     method public static kotlinx.coroutines.flow.StateFlow<java.util.Collection<androidx.xr.arcore.Plane>> subscribe(androidx.xr.runtime.Session session);
-    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Plane.State> state;
-    property public final androidx.xr.arcore.Plane.Type type;
+    property public androidx.xr.arcore.Plane.Type type;
     field public static final androidx.xr.arcore.Plane.Companion Companion;
   }
 
@@ -88,60 +325,81 @@ package androidx.xr.arcore {
   }
 
   public static final class Plane.Label {
-    field public static final androidx.xr.arcore.Plane.Label Ceiling;
+    field public static final androidx.xr.arcore.Plane.Label CEILING;
     field public static final androidx.xr.arcore.Plane.Label.Companion Companion;
-    field public static final androidx.xr.arcore.Plane.Label Floor;
-    field public static final androidx.xr.arcore.Plane.Label Table;
-    field public static final androidx.xr.arcore.Plane.Label Unknown;
-    field public static final androidx.xr.arcore.Plane.Label Wall;
+    field public static final androidx.xr.arcore.Plane.Label FLOOR;
+    field public static final androidx.xr.arcore.Plane.Label TABLE;
+    field public static final androidx.xr.arcore.Plane.Label UNKNOWN;
+    field public static final androidx.xr.arcore.Plane.Label WALL;
   }
 
   public static final class Plane.Label.Companion {
-    property public final androidx.xr.arcore.Plane.Label Ceiling;
-    property public final androidx.xr.arcore.Plane.Label Floor;
-    property public final androidx.xr.arcore.Plane.Label Table;
-    property public final androidx.xr.arcore.Plane.Label Unknown;
-    property public final androidx.xr.arcore.Plane.Label Wall;
+    property public androidx.xr.arcore.Plane.Label CEILING;
+    property public androidx.xr.arcore.Plane.Label FLOOR;
+    property public androidx.xr.arcore.Plane.Label TABLE;
+    property public androidx.xr.arcore.Plane.Label UNKNOWN;
+    property public androidx.xr.arcore.Plane.Label WALL;
   }
 
   public static final class Plane.State implements androidx.xr.arcore.Trackable.State {
-    ctor public Plane.State(androidx.xr.runtime.internal.TrackingState trackingState, androidx.xr.arcore.Plane.Label label, androidx.xr.runtime.math.Pose centerPose, androidx.xr.runtime.math.Vector2 extents, androidx.xr.arcore.Plane? subsumedBy, java.util.List<androidx.xr.runtime.math.Vector2> vertices);
     method public androidx.xr.runtime.math.Pose getCenterPose();
     method public androidx.xr.runtime.math.Vector2 getExtents();
     method public androidx.xr.arcore.Plane.Label getLabel();
     method public androidx.xr.arcore.Plane? getSubsumedBy();
-    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
+    method public androidx.xr.runtime.TrackingState getTrackingState();
     method public java.util.List<androidx.xr.runtime.math.Vector2> getVertices();
-    property public final androidx.xr.runtime.math.Pose centerPose;
-    property public final androidx.xr.runtime.math.Vector2 extents;
-    property public final androidx.xr.arcore.Plane.Label label;
-    property public final androidx.xr.arcore.Plane? subsumedBy;
-    property public androidx.xr.runtime.internal.TrackingState trackingState;
-    property public final java.util.List<androidx.xr.runtime.math.Vector2> vertices;
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.runtime.math.Vector2 extents;
+    property public androidx.xr.arcore.Plane.Label label;
+    property public androidx.xr.arcore.Plane? subsumedBy;
+    property public androidx.xr.runtime.TrackingState trackingState;
+    property public java.util.List<androidx.xr.runtime.math.Vector2> vertices;
   }
 
   public static final class Plane.Type {
     field public static final androidx.xr.arcore.Plane.Type.Companion Companion;
-    field public static final androidx.xr.arcore.Plane.Type HorizontalDownwardFacing;
-    field public static final androidx.xr.arcore.Plane.Type HorizontalUpwardFacing;
-    field public static final androidx.xr.arcore.Plane.Type Vertical;
+    field public static final androidx.xr.arcore.Plane.Type HORIZONTAL_DOWNWARD_FACING;
+    field public static final androidx.xr.arcore.Plane.Type HORIZONTAL_UPWARD_FACING;
+    field public static final androidx.xr.arcore.Plane.Type VERTICAL;
   }
 
   public static final class Plane.Type.Companion {
-    property public final androidx.xr.arcore.Plane.Type HorizontalDownwardFacing;
-    property public final androidx.xr.arcore.Plane.Type HorizontalUpwardFacing;
-    property public final androidx.xr.arcore.Plane.Type Vertical;
+    property public androidx.xr.arcore.Plane.Type HORIZONTAL_DOWNWARD_FACING;
+    property public androidx.xr.arcore.Plane.Type HORIZONTAL_UPWARD_FACING;
+    property public androidx.xr.arcore.Plane.Type VERTICAL;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Trackable<State> {
-    method public androidx.xr.arcore.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+  public interface Trackable<State> {
+    method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Trackable.State> getState();
     property public abstract kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Trackable.State> state;
   }
 
   public static interface Trackable.State {
-    method public androidx.xr.runtime.internal.TrackingState getTrackingState();
-    property public abstract androidx.xr.runtime.internal.TrackingState trackingState;
+    method public androidx.xr.runtime.TrackingState getTrackingState();
+    property public abstract androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewCamera {
+    method public static java.util.List<androidx.xr.arcore.ViewCamera> getAll(androidx.xr.runtime.Session session);
+    method public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ViewCamera.State> getState();
+    method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.ViewCamera.State> state;
+    field public static final androidx.xr.arcore.ViewCamera.Companion Companion;
+  }
+
+  public static final class ViewCamera.Companion {
+    method public java.util.List<androidx.xr.arcore.ViewCamera> getAll(androidx.xr.runtime.Session session);
+  }
+
+  public static final class ViewCamera.State {
+    ctor public ViewCamera.State(androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.math.Pose localPose, androidx.xr.runtime.FieldOfView fieldOfView);
+    method public androidx.xr.runtime.FieldOfView getFieldOfView();
+    method public androidx.xr.runtime.math.Pose getLocalPose();
+    method public androidx.xr.runtime.math.Pose getPose();
+    property public androidx.xr.runtime.FieldOfView fieldOfView;
+    property public androidx.xr.runtime.math.Pose localPose;
+    property public androidx.xr.runtime.math.Pose pose;
   }
 
 }

@@ -29,7 +29,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import kotlin.reflect.KClass
 
 internal class KspRoundEnv(
-    private val env: KspProcessingEnv?, // null on last round (i.e. isProcessingOver == true)
+    private val env: KspProcessingEnv? // null on last round (i.e. isProcessingOver == true)
 ) : XRoundEnv {
     override val isProcessingOver: Boolean
         get() = env == null
@@ -77,7 +77,7 @@ internal class KspRoundEnv(
                                     KspSyntheticPropertyMethodElement.create(
                                         env,
                                         symbol,
-                                        isSyntheticStatic = true
+                                        isSyntheticStatic = true,
                                     )
                                 )
                             }
@@ -94,7 +94,7 @@ internal class KspRoundEnv(
                                     KspSyntheticPropertyMethodElement.create(
                                         env,
                                         symbol,
-                                        isSyntheticStatic = false
+                                        isSyntheticStatic = false,
                                     )
                                 )
                             }

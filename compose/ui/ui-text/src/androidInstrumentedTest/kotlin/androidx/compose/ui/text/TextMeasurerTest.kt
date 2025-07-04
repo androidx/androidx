@@ -75,7 +75,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = longText,
                     softWrap = true,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -90,7 +90,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -106,7 +106,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.StartEllipsis,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -122,7 +122,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.MiddleEllipsis,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -137,7 +137,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -154,7 +154,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -170,7 +170,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = multiLineText,
                     softWrap = false,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             )
 
@@ -184,7 +184,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = multiLineText,
                     softWrap = false,
-                    overflow = TextOverflow.StartEllipsis
+                    overflow = TextOverflow.StartEllipsis,
                 )
             )
 
@@ -198,7 +198,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = multiLineText,
                     softWrap = false,
-                    overflow = TextOverflow.MiddleEllipsis
+                    overflow = TextOverflow.MiddleEllipsis,
                 )
             )
 
@@ -212,7 +212,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = multiLineText,
                     softWrap = true,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             )
 
@@ -226,7 +226,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = multiLineText,
                     softWrap = true,
-                    overflow = TextOverflow.MiddleEllipsis
+                    overflow = TextOverflow.MiddleEllipsis,
                 )
             )
 
@@ -240,7 +240,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = multiLineText,
                     softWrap = true,
-                    overflow = TextOverflow.StartEllipsis
+                    overflow = TextOverflow.StartEllipsis,
                 )
             )
 
@@ -255,7 +255,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -271,7 +271,7 @@ class TextMeasurerTest {
                     text = longText,
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints(maxWidth = 200)
+                    constraints = Constraints(maxWidth = 200),
                 )
             )
 
@@ -287,7 +287,7 @@ class TextMeasurerTest {
                     text = AnnotatedString("A"),
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints.fixedWidth(400)
+                    constraints = Constraints.fixedWidth(400),
                 )
             )
 
@@ -304,7 +304,7 @@ class TextMeasurerTest {
                     style = TextStyle(fontSize = fontSize.sp),
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints(maxWidth = 400)
+                    constraints = Constraints(maxWidth = 400),
                 )
             )
 
@@ -319,7 +319,7 @@ class TextMeasurerTest {
                     text = AnnotatedString("A"),
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints.fixedHeight(400)
+                    constraints = Constraints.fixedHeight(400),
                 )
             )
 
@@ -336,7 +336,7 @@ class TextMeasurerTest {
                     style = TextStyle(fontSize = fontSize),
                     softWrap = false,
                     overflow = TextOverflow.Clip,
-                    constraints = Constraints(maxHeight = 400)
+                    constraints = Constraints(maxHeight = 400),
                 )
             )
 
@@ -352,7 +352,7 @@ class TextMeasurerTest {
             layoutText(
                 textLayoutInput(
                     text = multiLineText,
-                    style = TextStyle(textDirection = TextDirection.Rtl)
+                    style = TextStyle(textDirection = TextDirection.Rtl),
                 )
             )
 
@@ -366,13 +366,13 @@ class TextMeasurerTest {
         val firstTextLayout =
             layoutText(
                 textLayoutInput(text = longText, style = TextStyle(color = Color.Red)),
-                textMeasurer
+                textMeasurer,
             )
 
         val secondTextLayout =
             layoutText(
                 textLayoutInput(text = longText, style = TextStyle(color = Color.Blue)),
-                textMeasurer
+                textMeasurer,
             )
 
         assertThat(firstTextLayout.multiParagraph).isSameInstanceAs(secondTextLayout.multiParagraph)
@@ -387,9 +387,9 @@ class TextMeasurerTest {
             layoutText(
                 textLayoutInput(
                     text = longText,
-                    style = TextStyle(brush = Brush.linearGradient(listOf(Color.Red, Color.Blue)))
+                    style = TextStyle(brush = Brush.linearGradient(listOf(Color.Red, Color.Blue))),
                 ),
-                textMeasurer
+                textMeasurer,
             )
 
         val secondTextLayout =
@@ -397,9 +397,9 @@ class TextMeasurerTest {
                 textLayoutInput(
                     text = longText,
                     style =
-                        TextStyle(brush = Brush.linearGradient(listOf(Color.Green, Color.Yellow)))
+                        TextStyle(brush = Brush.linearGradient(listOf(Color.Green, Color.Yellow))),
                 ),
-                textMeasurer
+                textMeasurer,
             )
 
         assertThat(firstTextLayout.multiParagraph).isSameInstanceAs(secondTextLayout.multiParagraph)
@@ -415,13 +415,13 @@ class TextMeasurerTest {
         val firstTextLayout =
             layoutText(
                 textLayoutInput(text = longText, style = TextStyle(shadow = Shadow(Color.Red))),
-                textMeasurer
+                textMeasurer,
             )
 
         val secondTextLayout =
             layoutText(
                 textLayoutInput(text = longText, style = TextStyle(shadow = Shadow(Color.Blue))),
-                textMeasurer
+                textMeasurer,
             )
 
         assertThat(firstTextLayout.multiParagraph).isSameInstanceAs(secondTextLayout.multiParagraph)
@@ -436,18 +436,18 @@ class TextMeasurerTest {
             layoutText(
                 textLayoutInput(
                     text = longText,
-                    style = TextStyle(textDecoration = TextDecoration.Underline)
+                    style = TextStyle(textDecoration = TextDecoration.Underline),
                 ),
-                textMeasurer
+                textMeasurer,
             )
 
         val secondTextLayout =
             layoutText(
                 textLayoutInput(
                     text = longText,
-                    style = TextStyle(textDecoration = TextDecoration.LineThrough)
+                    style = TextStyle(textDecoration = TextDecoration.LineThrough),
                 ),
-                textMeasurer
+                textMeasurer,
             )
 
         assertThat(firstTextLayout.multiParagraph).isSameInstanceAs(secondTextLayout.multiParagraph)
@@ -465,7 +465,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     constraints = Constraints(minWidth = 1000, maxWidth = Int.MAX_VALUE)
                 ),
-                textMeasurer
+                textMeasurer,
             )
 
         val secondTextLayout =
@@ -473,7 +473,7 @@ class TextMeasurerTest {
                 textLayoutInput(
                     constraints = Constraints(minWidth = 500, maxWidth = Int.MAX_VALUE)
                 ),
-                textMeasurer
+                textMeasurer,
             )
 
         assertThat(firstTextLayout.multiParagraph)
@@ -498,7 +498,7 @@ class TextMeasurerTest {
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        constraints: Constraints = Constraints()
+        constraints: Constraints = Constraints(),
     ): TextLayoutInput {
         return TextLayoutInput(
             text = text,
@@ -510,7 +510,7 @@ class TextMeasurerTest {
             density = density,
             layoutDirection = layoutDirection,
             fontFamilyResolver = fontFamilyResolver,
-            constraints = constraints
+            constraints = constraints,
         )
     }
 
@@ -520,18 +520,18 @@ class TextMeasurerTest {
         placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
-        fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver
+        fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
     ): MultiParagraphIntrinsics {
         return MultiParagraphIntrinsics(
             annotatedString = text,
             style =
                 resolveDefaults(
                     style.merge(TextStyle(fontFamily = fontFamilyMeasureFont)),
-                    layoutDirection
+                    layoutDirection,
                 ),
             placeholders = placeholders,
             density = density,
-            fontFamilyResolver = fontFamilyResolver
+            fontFamilyResolver = fontFamilyResolver,
         )
     }
 
@@ -539,13 +539,13 @@ class TextMeasurerTest {
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
         density: Density = this.defaultDensity,
         layoutDirection: LayoutDirection = this.layoutDirection,
-        cacheSize: Int = 0
+        cacheSize: Int = 0,
     ): TextMeasurer = TextMeasurer(fontFamilyResolver, density, layoutDirection, cacheSize)
 
     private fun layoutText(
         textLayoutInput: TextLayoutInput,
         textMeasurer: TextMeasurer? = null,
-        skipCache: Boolean = false
+        skipCache: Boolean = false,
     ) =
         with(textLayoutInput) {
             (textMeasurer ?: textMeasurer()).measure(
@@ -559,7 +559,7 @@ class TextMeasurerTest {
                 layoutDirection = layoutDirection,
                 density = density,
                 fontFamilyResolver = fontFamilyResolver,
-                skipCache = skipCache
+                skipCache = skipCache,
             )
         }
 }

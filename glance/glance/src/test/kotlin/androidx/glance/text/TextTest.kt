@@ -60,8 +60,8 @@ class TextTest {
                         TextStyle(
                             fontSize = 20.sp,
                             fontStyle = FontStyle.Italic,
-                            fontWeight = FontWeight.Medium
-                        )
+                            fontWeight = FontWeight.Medium,
+                        ),
                 )
             }
 
@@ -73,7 +73,7 @@ class TextTest {
                     TextStyle(
                         fontSize = 20.sp,
                         fontStyle = FontStyle.Italic,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
                     )
                 )
         }

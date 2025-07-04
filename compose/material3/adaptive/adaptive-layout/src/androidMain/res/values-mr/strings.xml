@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description" msgid="9058489142432490820">"पेन विस्तार ड्रॅग हँडल"</string>
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_state_description" msgid="3470811934112444098">"सद्य पेन स्प्लिट, %s"</string>
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_action_description" msgid="9031621431415014327">"स्प्लिट पेन %s वर बदला"</string>
+    <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description" msgid="1205294531112795522">"%d टक्के"</string>
+    <string name="m3_adaptive_default_pane_expansion_start_offset_anchor_description" msgid="5056616348537665604">"सुरुवातीपासून %d DPs"</string>
+    <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description" msgid="6412636251656811002">"शेवटापासून %d DPs"</string>
+</resources>

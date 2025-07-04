@@ -25,11 +25,3 @@ package androidx.privacysandbox.sdkruntime.client {
 
 }
 
-package androidx.privacysandbox.sdkruntime.client.activity {
-
-  public final class SdkActivity extends androidx.activity.ComponentActivity {
-    ctor public SdkActivity();
-  }
-
-}
-

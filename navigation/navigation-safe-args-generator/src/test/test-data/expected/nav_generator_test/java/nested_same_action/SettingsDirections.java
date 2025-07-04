@@ -1,6 +1,7 @@
 package foo;
 
 import android.os.Bundle;
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import java.lang.IllegalArgumentException;
@@ -14,6 +15,7 @@ public class SettingsDirections {
     private SettingsDirections() {
     }
 
+    @CheckResult
     @NonNull
     public static Exit exit() {
         return new Exit();

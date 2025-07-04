@@ -16,71 +16,131 @@
 
 package androidx.xr.scenecore.impl;
 
-import android.content.res.Resources;
+import static java.lang.Math.min;
 
-import androidx.xr.extensions.XrExtensions;
-import androidx.xr.extensions.node.Node;
-import androidx.xr.extensions.node.NodeTransaction;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.Resources;
+import android.util.TypedValue;
+
+import androidx.core.util.TypedValueCompat;
+import androidx.xr.runtime.internal.CameraViewActivityPose;
+import androidx.xr.runtime.internal.Dimensions;
+import androidx.xr.runtime.internal.PanelEntity;
+import androidx.xr.runtime.internal.PerceivedResolutionResult;
+import androidx.xr.runtime.internal.PixelDimensions;
+import androidx.xr.runtime.internal.Space;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.PanelEntity;
-import androidx.xr.scenecore.JxrPlatformAdapter.PixelDimensions;
+
+import com.android.extensions.xr.XrExtensions;
+import com.android.extensions.xr.node.Node;
+import com.android.extensions.xr.node.NodeTransaction;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.ScheduledExecutorService;
 
 /** BasePanelEntity provides implementations of capabilities common to PanelEntities. */
-@SuppressWarnings("deprecation") // TODO(b/373435470): Remove
+@SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
-    protected PixelDimensions pixelDimensions;
-    private float cornerRadius;
+    private static final float DEFAULT_CORNER_RADIUS_DP = 32.0f;
+    protected PixelDimensions mPixelDimensions;
+    private float mCornerRadius;
 
     BasePanelEntity(
+            Context context,
             Node node,
             XrExtensions extensions,
             EntityManager entityManager,
             ScheduledExecutorService executor) {
-        super(node, extensions, entityManager, executor);
+        super(context, node, extensions, entityManager, executor);
     }
 
-    private float getDefaultPixelDensity() {
-        return extensions
+    protected float getDefaultPixelDensity() {
+        return mExtensions
                 .getConfig()
                 .defaultPixelsPerMeter(Resources.getSystem().getDisplayMetrics().density);
     }
 
-    @Override
-    public Vector3 getPixelDensity() {
-        Vector3 scale = getWorldSpaceScale();
-        float defaultPixelDensity = getDefaultPixelDensity();
-        return new Vector3(
-                defaultPixelDensity / scale.getX(),
-                defaultPixelDensity / scale.getY(),
-                defaultPixelDensity / scale.getZ());
+    protected float getDefaultCornerRadiusInMeters() {
+        // Get the width and height of the panel in DP.
+        float widthDp =
+                TypedValueCompat.deriveDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        mPixelDimensions.width,
+                        Resources.getSystem().getDisplayMetrics());
+        float heightDp =
+                TypedValueCompat.deriveDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        mPixelDimensions.height,
+                        Resources.getSystem().getDisplayMetrics());
+        float radiusDp = DEFAULT_CORNER_RADIUS_DP;
+
+        // If the pixel dimensions are smaller than the default corner radius, use the smaller of
+        // the
+        // two dimensions as the corner radius.
+        if (mPixelDimensions != null
+                && (widthDp < DEFAULT_CORNER_RADIUS_DP * 2
+                        || heightDp < DEFAULT_CORNER_RADIUS_DP * 2)) {
+            radiusDp = min(widthDp / 2, heightDp / 2);
+        }
+
+        // Convert the updated corner radius to pixels.
+        float radiusPixels =
+                TypedValueCompat.dpToPx(radiusDp, Resources.getSystem().getDisplayMetrics());
+
+        // Convert the pixel radius to meters.
+        return radiusPixels / getDefaultPixelDensity();
     }
 
     @Override
-    public Dimensions getSize() {
-        Vector3 pixelDensity = getPixelDensity();
+    public @NonNull Dimensions getSize() {
+        float pixelDensity = getDefaultPixelDensity();
         return new Dimensions(
-                pixelDimensions.width / pixelDensity.getX(),
-                pixelDimensions.height / pixelDensity.getY(),
-                0);
+                mPixelDimensions.width / pixelDensity, mPixelDimensions.height / pixelDensity, 0);
     }
 
     @Override
-    public void setSize(Dimensions dimensions) {
-        // TODO(b/352630025): remove this method.
-        setPixelDimensions(new PixelDimensions((int) dimensions.width, (int) dimensions.height));
+    public void setSize(@NonNull Dimensions dimensions) {
+        float pixelDensity = getDefaultPixelDensity();
+        setSizeInPixels(
+                new PixelDimensions(
+                        (int) (dimensions.width * pixelDensity),
+                        (int) (dimensions.height * pixelDensity)));
     }
 
     @Override
-    public PixelDimensions getPixelDimensions() {
-        return pixelDimensions;
+    public @NonNull PixelDimensions getSizeInPixels() {
+        return mPixelDimensions;
     }
 
     @Override
-    public void setPixelDimensions(PixelDimensions dimensions) {
-        pixelDimensions = dimensions;
+    public void setSizeInPixels(@NonNull PixelDimensions dimensions) {
+        mPixelDimensions = dimensions;
+    }
+
+    @Override
+    public @NonNull PerceivedResolutionResult getPerceivedResolution() {
+        // Get the Camera View with which to compute Perceived Resolution
+        CameraViewActivityPose cameraView =
+                PerceivedResolutionUtils.getPerceivedResolutionCameraView(mEntityManager);
+        if (cameraView == null) {
+            return new PerceivedResolutionResult.InvalidCameraView();
+        }
+
+        // Compute the width, height, and distance to camera, of the panel in activity space units
+        float panelWidthInActivitySpace = getSize().width * getScale(Space.ACTIVITY).getX();
+        float panelHeightInActivitySpace = getSize().height * getScale(Space.ACTIVITY).getY();
+        Vector3 cameraPositionInActivitySpace = cameraView.getActivitySpacePose().getTranslation();
+        float PanelDistanceToCameraInActivitySpace =
+                Vector3.distance(
+                        cameraPositionInActivitySpace, getPose(Space.ACTIVITY).getTranslation());
+
+        return PerceivedResolutionUtils.getPerceivedResolutionOfPanel(
+                cameraView,
+                panelWidthInActivitySpace,
+                panelHeightInActivitySpace,
+                PanelDistanceToCameraInActivitySpace);
     }
 
     @Override
@@ -88,14 +148,22 @@ abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
         if (value < 0.0f) {
             throw new IllegalArgumentException("Corner radius can't be negative: " + value);
         }
-        try (NodeTransaction transaction = extensions.createNodeTransaction()) {
-            transaction.setCornerRadius(node, value).apply();
-            cornerRadius = value;
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction.setCornerRadius(mNode, value).apply();
+            mCornerRadius = value;
         }
+    }
+
+    // Sets just the value of the corner radius, without updating the node. This should be only be
+    // used when constructing the entity so that the stored value is consistent with the value set
+    // in
+    // the node transaction.
+    public void setCornerRadiusValue(float value) {
+        mCornerRadius = value;
     }
 
     @Override
     public float getCornerRadius() {
-        return cornerRadius;
+        return mCornerRadius;
     }
 }

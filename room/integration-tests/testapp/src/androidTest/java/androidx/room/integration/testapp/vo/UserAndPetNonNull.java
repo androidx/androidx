@@ -23,6 +23,8 @@ public class UserAndPetNonNull {
     @Embedded
     private User mUser;
     @Embedded
+    // This project is tested against a version of the room compiler that doesn't recognize JSpecify
+    @SuppressWarnings("JSpecifyNullness")
     @NonNull
     private Pet mPet;
 

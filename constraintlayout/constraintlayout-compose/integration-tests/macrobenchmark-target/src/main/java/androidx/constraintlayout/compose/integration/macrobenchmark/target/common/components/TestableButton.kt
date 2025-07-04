@@ -28,10 +28,6 @@ import androidx.compose.ui.platform.testTag
  * [text] is also applied to [Modifier.testTag] so that it's addressable by UI Automator.
  */
 @Composable
-internal fun TestableButton(
-    onClick: () -> Unit,
-    text: String,
-    modifier: Modifier = Modifier,
-) {
+internal fun TestableButton(onClick: () -> Unit, text: String, modifier: Modifier = Modifier) {
     Button(modifier = modifier.testTag(text), onClick = onClick) { Text(text = text) }
 }

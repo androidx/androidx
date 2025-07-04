@@ -506,7 +506,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch3.countDown()
@@ -877,7 +877,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch.countDown()
@@ -910,7 +910,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch2.countDown()
@@ -972,7 +972,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(
             listOf(restoredEntry),
             NavOptions.Builder().setRestoreState(true).build(),
-            null
+            null,
         )
         assertThat(navigatorState.backStack.value).containsExactly(entry, restoredEntry).inOrder()
         fragmentManager.executePendingTransactions()
@@ -1070,7 +1070,7 @@ class FragmentNavigatorTest {
                         object : LifecycleEventObserver {
                             override fun onStateChanged(
                                 source: LifecycleOwner,
-                                event: Lifecycle.Event
+                                event: Lifecycle.Event,
                             ) {
                                 if (event == Lifecycle.Event.ON_DESTROY) {
                                     countDownLatch.countDown()
@@ -1082,7 +1082,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_DESTROY) {
                                 entry2RestoredDestroyed = true
@@ -1204,7 +1204,7 @@ class FragmentNavigatorTest {
                         object : LifecycleEventObserver {
                             override fun onStateChanged(
                                 source: LifecycleOwner,
-                                event: Lifecycle.Event
+                                event: Lifecycle.Event,
                             ) {
                                 if (event == Lifecycle.Event.ON_DESTROY) {
                                     countDownLatch.countDown()
@@ -1216,7 +1216,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_DESTROY) {
                                 entry2RestoredDestroyed = true
@@ -1412,7 +1412,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch.countDown()
@@ -1495,7 +1495,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 viewCountDownLatch.countDown()
@@ -1586,7 +1586,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 viewCountDownLatch.countDown()
@@ -1666,7 +1666,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch1.countDown()
@@ -1807,7 +1807,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch2.countDown()
@@ -1894,7 +1894,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch2.countDown()
@@ -1930,7 +1930,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch3.countDown()
@@ -1959,7 +1959,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch2.countDown()
@@ -2019,7 +2019,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_START) {
                                 // second back press here imitates two back to back back presses
@@ -2046,7 +2046,7 @@ class FragmentNavigatorTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 countDownLatch.countDown()
@@ -2117,7 +2117,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(
             listOf(restoredEntry),
             NavOptions.Builder().setRestoreState(true).build(),
-            null
+            null,
         )
         assertThat(navigatorState.backStack.value).containsExactly(entry, restoredEntry).inOrder()
         fragmentManager.executePendingTransactions()
@@ -2187,7 +2187,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(
             listOf(restoredEntry),
             NavOptions.Builder().setRestoreState(true).build(),
-            null
+            null,
         )
         assertThat(navigatorState.backStack.value).containsExactly(entry, restoredEntry).inOrder()
         fragmentManager.executePendingTransactions()
@@ -2233,7 +2233,7 @@ class FragmentNavigatorTest {
 
     private fun createBackStackEntry(
         destId: Int = INITIAL_FRAGMENT,
-        clazz: KClass<out Fragment> = EmptyFragment::class
+        clazz: KClass<out Fragment> = EmptyFragment::class,
     ): NavBackStackEntry {
         val destination =
             fragmentNavigator.createDestination().apply {
@@ -2284,7 +2284,7 @@ class SavedStateFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return FrameLayout(requireContext())
     }

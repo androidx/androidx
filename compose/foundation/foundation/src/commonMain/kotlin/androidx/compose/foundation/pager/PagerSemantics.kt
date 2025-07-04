@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 @Composable
 internal fun rememberPagerSemanticState(
     state: PagerState,
-    isVertical: Boolean
+    isVertical: Boolean,
 ): LazyLayoutSemanticState {
     return remember(state, isVertical) { LazyLayoutSemanticState(state, isVertical) }
 }

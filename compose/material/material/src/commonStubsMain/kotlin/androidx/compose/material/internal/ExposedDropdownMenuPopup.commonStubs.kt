@@ -24,7 +24,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 internal actual fun ExposedDropdownMenuPopup(
     onDismissRequest: (() -> Unit)?,
     popupPositionProvider: PopupPositionProvider,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     implementedInJetBrainsFork()
 }

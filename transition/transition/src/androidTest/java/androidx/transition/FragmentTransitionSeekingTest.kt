@@ -518,7 +518,7 @@ class FragmentTransitionSeekingTest {
                     object : LifecycleEventObserver {
                         override fun onStateChanged(
                             source: LifecycleOwner,
-                            event: Lifecycle.Event
+                            event: Lifecycle.Event,
                         ) {
                             if (event.targetState == Lifecycle.State.RESUMED) {
                                 fragment2ResumedLatch.countDown()
@@ -736,6 +736,137 @@ class FragmentTransitionSeekingTest {
                     BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
                 )
                 resumedAfterOnBackStarted = fragment2.isResumed
+
+                dispatcher.onBackPressed()
+            }
+
+            assertThat(resumedBeforeOnBackStarted).isFalse()
+            assertThat(resumedAfterOnBackStarted).isTrue()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun popFollowedByReplaceOperationNonReordered() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = TransitionFragment(R.layout.scene1)
+            fragment1.enterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment1.exitTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment1.reenterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment1.returnTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            withActivity {
+                fm.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment1, "1")
+                    .addToBackStack(null)
+                    .commit()
+                fm.executePendingTransactions()
+            }
+
+            val fragment2 = TransitionFragment()
+            fragment2.enterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment2.exitTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment2.reenterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment2.returnTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+
+            withActivity {
+                fm.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment2, "2")
+                    .addToBackStack(null)
+                    .commit()
+                fm.executePendingTransactions()
+            }
+
+            val fragment3 = TransitionFragment()
+            fragment3.enterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment3.exitTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment3.reenterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment3.returnTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+
+            withActivity {
+                fm.popBackStack()
+                fm.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment3, "3")
+                    .addToBackStack(null)
+                    .commit()
+                fm.executePendingTransactions()
+            }
+
+            val fragment4 = TransitionFragment()
+            fragment4.enterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment4.exitTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment4.reenterTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+            fragment4.returnTransition.apply {
+                setRealTransition(true)
+                duration = 1000
+            }
+
+            withActivity {
+                fm.popBackStack()
+                fm.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment4, "4")
+                    .addToBackStack(null)
+                    .commit()
+                fm.executePendingTransactions()
+            }
+
+            var resumedBeforeOnBackStarted = false
+            var resumedAfterOnBackStarted = false
+
+            withActivity {
+                resumedBeforeOnBackStarted = fragment4.isResumed
+
+                val dispatcher = onBackPressedDispatcher
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+                resumedAfterOnBackStarted = fragment4.isResumed
 
                 dispatcher.onBackPressed()
             }

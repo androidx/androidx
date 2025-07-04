@@ -16,15 +16,22 @@
 
 package androidx.xr.scenecore.impl;
 
+import android.content.Context;
 import android.util.Log;
 
+import androidx.concurrent.futures.ResolvableFuture;
+import androidx.xr.runtime.internal.ActivityPose;
+import androidx.xr.runtime.internal.Entity;
+import androidx.xr.runtime.internal.HitTestResult;
+import androidx.xr.runtime.internal.InputEventListener;
+import androidx.xr.runtime.internal.LoggingEntity;
+import androidx.xr.runtime.internal.SpaceValue;
 import androidx.xr.runtime.math.Pose;
-import androidx.xr.scenecore.JxrPlatformAdapter.ActivityPose;
-import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity;
-import androidx.xr.scenecore.JxrPlatformAdapter.InputEventListener;
-import androidx.xr.scenecore.JxrPlatformAdapter.LoggingEntity;
-import androidx.xr.scenecore.common.BaseEntity;
+import androidx.xr.runtime.math.Vector3;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -32,32 +39,38 @@ import java.util.concurrent.Executor;
 /** Implementation of a RealityCore Entity that logs its function calls. */
 class LoggingEntityImpl extends BaseEntity implements LoggingEntity {
 
-    private static final String TAG = "RealityCoreRuntime";
+    private static final String TAG = "SceneCore";
 
-    public LoggingEntityImpl() {
+    LoggingEntityImpl(Context context) {
+        super(context);
         Log.i(TAG, "Creating LoggingEntity.");
     }
 
     @Override
-    public Pose getPose() {
-        Log.i(TAG, "Getting Logging Entity pose: " + super.getPose());
-        return super.getPose();
+    public @NonNull Pose getPose(@SpaceValue int relativeTo) {
+        Log.i(
+                TAG,
+                "Getting Logging Entity pose: "
+                        + super.getPose(relativeTo)
+                        + " relativeTo: "
+                        + relativeTo);
+        return super.getPose(relativeTo);
     }
 
     @Override
-    public void setPose(Pose pose) {
-        Log.i(TAG, "Setting Logging Entity pose to: " + pose);
-        super.setPose(pose);
+    public void setPose(@NonNull Pose pose, @SpaceValue int relativeTo) {
+        Log.i(TAG, "Setting Logging Entity pose to: " + pose + " relativeTo: " + relativeTo);
+        super.setPose(pose, relativeTo);
     }
 
     @Override
-    public Pose getActivitySpacePose() {
+    public @NonNull Pose getActivitySpacePose() {
         Log.i(TAG, "Getting Logging Entity activitySpacePose.");
         return new Pose();
     }
 
     @Override
-    public Pose transformPoseTo(Pose pose, ActivityPose destination) {
+    public @NonNull Pose transformPoseTo(@NonNull Pose pose, @NonNull ActivityPose destination) {
         Log.i(
                 TAG,
                 "Transforming pose "
@@ -67,14 +80,41 @@ class LoggingEntityImpl extends BaseEntity implements LoggingEntity {
         return new Pose();
     }
 
+    // ResolvableFuture is marked as RestrictTo(LIBRARY_GROUP_PREFIX), which is intended for classes
+    // within AndroidX. We're in the process of migrating to AndroidX. Without suppressing this
+    // warning, however, we get a build error - go/bugpattern/RestrictTo.
+    @SuppressWarnings("RestrictTo")
     @Override
-    public void addChild(Entity child) {
+    public @NonNull ListenableFuture<HitTestResult> hitTest(
+            @NonNull Vector3 origin,
+            @NonNull Vector3 direction,
+            @HitTestFilterValue int hitTestFilter) {
+        Log.i(
+                TAG,
+                "Hit testing Logging Entity with origin: "
+                        + origin
+                        + " direction: "
+                        + direction
+                        + " hitTestFilter: "
+                        + hitTestFilter);
+        ResolvableFuture<HitTestResult> future = ResolvableFuture.create();
+        future.set(
+                new HitTestResult(
+                        new Vector3(),
+                        new Vector3(),
+                        HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN,
+                        1f));
+        return future;
+    }
+
+    @Override
+    public void addChild(@NonNull Entity child) {
         Log.i(TAG, "Adding child Entity: " + child);
         super.addChild(child);
     }
 
     @Override
-    public void addChildren(List<Entity> children) {
+    public void addChildren(@NonNull List<? extends Entity> children) {
         Log.i(TAG, "Adding child Entities: " + children);
         super.addChildren(children);
     }
@@ -96,23 +136,19 @@ class LoggingEntityImpl extends BaseEntity implements LoggingEntity {
     }
 
     @Override
-    public List<Entity> getChildren() {
+    public @NonNull List<Entity> getChildren() {
         Log.i(TAG, "Getting Logging Entity children: " + super.getChildren());
         return super.getChildren();
     }
 
     @Override
-    public void setSize(Dimensions dimensions) {
-        Log.i(TAG, "Set size to " + dimensions);
-    }
-
-    @Override
-    public void addInputEventListener(Executor executor, InputEventListener consumer) {
+    public void addInputEventListener(
+            @NonNull Executor executor, @NonNull InputEventListener consumer) {
         Log.i(TAG, "Add input consumer " + consumer + " executor " + executor);
     }
 
     @Override
-    public void removeInputEventListener(InputEventListener consumer) {
+    public void removeInputEventListener(@NonNull InputEventListener consumer) {
         Log.i(TAG, "Remove input consumer " + consumer);
     }
 

@@ -53,7 +53,7 @@ class NullabilityAwareTypeConversionTest {
         dao =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    NullAwareConverterDatabase::class.java
+                    NullAwareConverterDatabase::class.java,
                 )
                 .addTypeConverter(nullableConvertors)
                 .build()
@@ -178,14 +178,7 @@ class NullabilityAwareTypeConversionTest {
         assertThat(nullableConvertors.fromStringInvocations).containsExactly(null)
     }
 
-    @Database(
-        version = 1,
-        entities =
-            [
-                User::class,
-            ],
-        exportSchema = false
-    )
+    @Database(version = 1, entities = [User::class], exportSchema = false)
     @TypeConverters(NonNullTypeConverters::class)
     abstract class NullAwareConverterDatabase : RoomDatabase() {
         abstract val userDao: UserDao
@@ -208,7 +201,7 @@ class NullabilityAwareTypeConversionTest {
         @TypeConverters(NullableTypeConverters::class)
         abstract fun setNullableCountryWithNullableTypeConverter(
             id: Long,
-            nullableCountry: Country?
+            nullableCountry: Country?,
         )
 
         @Query("SELECT nonNullCountry FROM user WHERE id = :id")

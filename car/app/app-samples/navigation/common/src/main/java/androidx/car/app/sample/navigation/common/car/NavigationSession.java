@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
-import androidx.car.app.SessionInfo;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
@@ -178,11 +177,9 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
                 }
             };
 
-    NavigationSession(@NonNull SessionInfo sessionInfo) {
-        if (sessionInfo.getDisplayType() == SessionInfo.DISPLAY_TYPE_MAIN) {
+    NavigationSession() {
             Lifecycle lifecycle = getLifecycle();
             lifecycle.addObserver(mLifeCycleObserver);
-        }
     }
 
     @Override

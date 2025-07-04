@@ -57,7 +57,7 @@ private constructor(
             TypeAdapterStore.create(
                 this,
                 typeConverters.builtInConverterFlags,
-                typeConverters.converters
+                typeConverters.converters,
             )
         }
     }
@@ -123,9 +123,9 @@ private constructor(
                 parent = null,
                 converters = LinkedHashSet(),
                 suppressedWarnings = emptySet(),
-                builtInConverterFlags = BuiltInConverterFlags.DEFAULT
+                builtInConverterFlags = BuiltInConverterFlags.DEFAULT,
             ),
-        canRewriteQueriesToDropUnusedColumns = false
+        canRewriteQueriesToDropUnusedColumns = false,
     )
 
     val schemaInFolderPath by lazy {
@@ -172,7 +172,7 @@ private constructor(
                 typeConverters = this.typeConverters,
                 inheritedAdapterStore = typeAdapterStore,
                 cache = cache,
-                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns
+                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns,
             )
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
@@ -192,7 +192,7 @@ private constructor(
     fun fork(
         element: XElement,
         forceSuppressedWarnings: Set<Warning> = emptySet(),
-        forceBuiltInConverters: BuiltInConverterFlags? = null
+        forceBuiltInConverters: BuiltInConverterFlags? = null,
     ): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val processConvertersResult =
@@ -227,7 +227,7 @@ private constructor(
                 parent = cache,
                 converters = subTypeConverters.classes,
                 suppressedWarnings = subSuppressedWarnings,
-                builtInConverterFlags = subBuiltInConverterFlags
+                builtInConverterFlags = subBuiltInConverterFlags,
             )
         val subCanRemoveUnusedColumns =
             canRewriteQueriesToDropUnusedColumns || element.hasRemoveUnusedColumnsAnnotation()
@@ -238,7 +238,7 @@ private constructor(
                 typeConverters = subTypeConverters,
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache,
-                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns
+                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns,
             )
         subContext.databaseVerifier = databaseVerifier
         return subContext
@@ -250,7 +250,7 @@ private constructor(
                 logger.w(
                     warning = Warning.EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS,
                     element = this,
-                    msg = ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED
+                    msg = ProcessorErrors.EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED,
                 )
             }
         }

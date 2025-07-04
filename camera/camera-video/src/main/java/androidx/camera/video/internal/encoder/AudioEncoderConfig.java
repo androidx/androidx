@@ -58,8 +58,11 @@ public abstract class AudioEncoderConfig implements EncoderConfig {
     /** Gets the bitrate. */
     public abstract int getBitrate();
 
-    /** Gets the sample bitrate. */
-    public abstract int getSampleRate();
+    /** Gets the capture sample rate. */
+    public abstract int getCaptureSampleRate();
+
+    /** Gets the encode sample rate. */
+    public abstract int getEncodeSampleRate();
 
     /** Gets the channel count. */
     public abstract int getChannelCount();
@@ -67,8 +70,8 @@ public abstract class AudioEncoderConfig implements EncoderConfig {
     /** {@inheritDoc} */
     @Override
     public @NonNull MediaFormat toMediaFormat() {
-        MediaFormat mediaFormat = MediaFormat.createAudioFormat(getMimeType(), getSampleRate(),
-                getChannelCount());
+        MediaFormat mediaFormat = MediaFormat.createAudioFormat(getMimeType(),
+                getEncodeSampleRate(), getChannelCount());
         mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, getBitrate());
         if (getProfile() != CODEC_PROFILE_NONE) {
             if (getMimeType().equals(MediaFormat.MIMETYPE_AUDIO_AAC)) {
@@ -107,8 +110,11 @@ public abstract class AudioEncoderConfig implements EncoderConfig {
         /** Sets the bitrate. */
         public abstract @NonNull Builder setBitrate(int bitrate);
 
-        /** Sets the sample rate. */
-        public abstract @NonNull Builder setSampleRate(int sampleRate);
+        /** Sets the capture sample rate. */
+        public abstract @NonNull Builder setCaptureSampleRate(int sampleRate);
+
+        /** Sets the encode sample rate. */
+        public abstract @NonNull Builder setEncodeSampleRate(int sampleRate);
 
         /** Sets the channel count. */
         public abstract @NonNull Builder setChannelCount(int channelCount);

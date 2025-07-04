@@ -42,7 +42,7 @@ private constructor(
     val connection: Connection,
     val context: Context,
     entities: List<Entity>,
-    views: List<DatabaseView>
+    views: List<DatabaseView>,
 ) {
     val entitiesAndViews: List<EntityOrView> = entities + views
 
@@ -107,7 +107,7 @@ private constructor(
             context: Context,
             element: XElement,
             entities: List<Entity>,
-            views: List<DatabaseView>
+            views: List<DatabaseView>,
         ): DatabaseVerifier? {
             try {
                 // Re-register driver in case it was unregistered, this is a no-op is already there.
@@ -118,7 +118,7 @@ private constructor(
                 context.logger.w(
                     Warning.CANNOT_CREATE_VERIFICATION_DATABASE,
                     element,
-                    DatabaseVerificationErrors.cannotCreateConnection(ex)
+                    DatabaseVerificationErrors.cannotCreateConnection(ex),
                 )
                 return null
             }

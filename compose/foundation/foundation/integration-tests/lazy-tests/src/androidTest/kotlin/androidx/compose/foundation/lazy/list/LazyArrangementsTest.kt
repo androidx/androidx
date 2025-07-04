@@ -155,7 +155,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(itemSize),
-                modifier = Modifier.testTag(ContainerTag)
+                modifier = Modifier.testTag(ContainerTag),
             ) {
                 items(2) { Box(Modifier.requiredSize(itemSize)) }
             }
@@ -172,7 +172,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(itemSize),
-                modifier = Modifier.testTag(ContainerTag)
+                modifier = Modifier.testTag(ContainerTag),
             ) {
                 items(2) { Box(Modifier.requiredSize(itemSize)) }
             }
@@ -191,7 +191,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(itemSize),
-                modifier = Modifier.requiredSize(itemSize * 3.5f)
+                modifier = Modifier.requiredSize(itemSize * 3.5f),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -207,7 +207,7 @@ class LazyArrangementsTest {
         rule.setContentWithTestViewConfiguration {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(itemSize),
-                modifier = Modifier.requiredSize(itemSize * 3.5f).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 3.5f).testTag(ContainerTag),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -225,7 +225,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(itemSize),
-                modifier = Modifier.requiredSize(itemSize * 3.5f)
+                modifier = Modifier.requiredSize(itemSize * 3.5f),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -241,7 +241,7 @@ class LazyArrangementsTest {
         rule.setContentWithTestViewConfiguration {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(itemSize),
-                modifier = Modifier.requiredSize(itemSize * 3.5f).testTag(ContainerTag)
+                modifier = Modifier.requiredSize(itemSize * 3.5f).testTag(ContainerTag),
             ) {
                 items(3) { Box(Modifier.requiredSize(itemSize).testTag(it.toString())) }
             }
@@ -265,7 +265,7 @@ class LazyArrangementsTest {
             LazyColumn(
                 Modifier.size(itemSize * 3),
                 state = rememberLazyListState().also { state = it },
-                verticalArrangement = Arrangement.spacedBy(spacingSize)
+                verticalArrangement = Arrangement.spacedBy(spacingSize),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -292,7 +292,7 @@ class LazyArrangementsTest {
             LazyColumn(
                 Modifier.size(itemSize * 3),
                 state = rememberLazyListState().also { state = it },
-                verticalArrangement = Arrangement.spacedBy(spacingSize)
+                verticalArrangement = Arrangement.spacedBy(spacingSize),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -321,7 +321,7 @@ class LazyArrangementsTest {
             LazyRow(
                 Modifier.size(itemSize * 3),
                 state = rememberLazyListState().also { state = it },
-                horizontalArrangement = Arrangement.spacedBy(spacingSize)
+                horizontalArrangement = Arrangement.spacedBy(spacingSize),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -348,7 +348,7 @@ class LazyArrangementsTest {
             LazyRow(
                 Modifier.size(itemSize * 3),
                 state = rememberLazyListState().also { state = it },
-                horizontalArrangement = Arrangement.spacedBy(spacingSize)
+                horizontalArrangement = Arrangement.spacedBy(spacingSize),
             ) {
                 items(5) { Spacer(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -396,7 +396,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyColumn(
                 modifier = Modifier.requiredSize(containerSize),
-                verticalArrangement = arrangement
+                verticalArrangement = arrangement,
             ) {
                 items(2) { Item(it) }
             }
@@ -415,7 +415,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyRow(
                 modifier = Modifier.requiredSize(containerSize),
-                horizontalArrangement = arrangement
+                horizontalArrangement = arrangement,
             ) {
                 items(2) { Item(it) }
             }
@@ -436,7 +436,7 @@ class LazyArrangementsTest {
             LazyColumn(
                 modifier = Modifier.requiredSize(itemSize),
                 verticalArrangement = Arrangement.spacedBy(-halfItemSize),
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -467,7 +467,7 @@ class LazyArrangementsTest {
             LazyRow(
                 modifier = Modifier.requiredSize(itemSize),
                 horizontalArrangement = Arrangement.spacedBy(-halfItemSize),
-                state = state
+                state = state,
             ) {
                 items(100) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -498,7 +498,7 @@ class LazyArrangementsTest {
             LazyColumn(
                 modifier = Modifier.requiredSize(itemSize),
                 verticalArrangement = Arrangement.spacedBy(-largerThanItemSize),
-                state = state
+                state = state,
             ) {
                 items(4) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -520,7 +520,7 @@ class LazyArrangementsTest {
             LazyRow(
                 modifier = Modifier.requiredSize(itemSize),
                 horizontalArrangement = Arrangement.spacedBy(-largerThanItemSize),
-                state = state
+                state = state,
             ) {
                 items(4) { index -> Box(Modifier.size(itemSize).testTag(index.toString())) }
             }
@@ -538,7 +538,7 @@ class LazyArrangementsTest {
         rule.setContent {
             LazyColumn(
                 verticalArrangement = arrangement,
-                modifier = Modifier.requiredSize(containerSize)
+                modifier = Modifier.requiredSize(containerSize),
             ) {
                 items(2) { Item(it) }
             }
@@ -550,7 +550,7 @@ class LazyArrangementsTest {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 LazyRow(
                     horizontalArrangement = arrangement,
-                    modifier = Modifier.requiredSize(containerSize)
+                    modifier = Modifier.requiredSize(containerSize),
                 ) {
                     items(2) { Item(it) }
                 }
@@ -567,7 +567,7 @@ class LazyArrangementsTest {
 
     fun assertArrangementForTwoItems(
         arrangement: Arrangement.Vertical,
-        reverseLayout: Boolean = false
+        reverseLayout: Boolean = false,
     ) {
         with(rule.density) {
             val sizes =
@@ -588,7 +588,7 @@ class LazyArrangementsTest {
     fun assertArrangementForTwoItems(
         arrangement: Arrangement.Horizontal,
         layoutDirection: LayoutDirection,
-        reverseLayout: Boolean = false
+        reverseLayout: Boolean = false,
     ) {
         with(rule.density) {
             val sizes =

@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraConstrainedHighSpeedCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.SessionConfiguration;
@@ -179,6 +180,16 @@ public interface SynchronizedCaptureSession {
     int setRepeatingBurstRequests(
             @NonNull List<CaptureRequest> requests,
             CameraCaptureSession.@NonNull CaptureCallback listener)
+            throws CameraAccessException;
+
+    /**
+     * Create a unmodifiable list of requests that is suitable for constrained high speed capture
+     * session streaming.
+     *
+     * @see CameraConstrainedHighSpeedCaptureSession#createHighSpeedRequestList(CaptureRequest)
+     */
+    @NonNull
+    List<CaptureRequest> createHighSpeedRequestList(@NonNull CaptureRequest request)
             throws CameraAccessException;
 
     /**

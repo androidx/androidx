@@ -17,6 +17,7 @@
 package a.b.reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage;
 
 import a.b.secondreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage.R;
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.navigation.ActionOnlyNavDirections;
 import androidx.navigation.NavDirections;
@@ -25,6 +26,7 @@ public class LongPackageFragmentDirections {
     private LongPackageFragmentDirections() {
     }
 
+    @CheckResult
     @NonNull
     public static NavDirections next() {
         return new ActionOnlyNavDirections(R.id.next);

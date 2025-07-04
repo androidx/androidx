@@ -27,7 +27,7 @@ import androidx.work.loge
  * @param tag Tag used for logging [Throwable] thrown from the handler
  * @receiver The worker exception handler
  */
-fun Consumer<WorkerExceptionInfo>.safeAccept(info: WorkerExceptionInfo, tag: String) {
+public fun Consumer<WorkerExceptionInfo>.safeAccept(info: WorkerExceptionInfo, tag: String) {
     try {
         accept(info)
     } catch (throwable: Throwable) {

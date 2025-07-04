@@ -183,7 +183,7 @@ class LinkClickTest {
                                 InlineTextContent(inlinePlaceholder) {
                                     Box(Modifier.clickable {}.fillMaxSize().background(Color.Red))
                                 }
-                        )
+                        ),
                 )
             }
         }

@@ -15,8 +15,10 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.annotation.IntRange
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -37,12 +39,20 @@ public class StepsRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Count. Required field. Valid range: 1-1000000. */
     @IntRange(from = 1, to = 1000_000) public val count: Long,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        count.requireNotLess(other = 1, name = "count")
-        count.requireNotMore(other = 1000_000, name = "count")
         require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            count.requireNotLess(other = 1, name = "count")
+            count.requireNotMore(other = 1000_000, name = "count")
+        }
     }
 
     override fun equals(other: Any?): Boolean {

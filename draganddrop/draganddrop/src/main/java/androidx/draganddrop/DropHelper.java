@@ -26,12 +26,13 @@ import android.view.View.OnDragListener;
 import android.widget.EditText;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.OnReceiveContentListener;
 import androidx.core.view.ViewCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,9 +95,9 @@ public final class DropHelper {
     public static void configureView(
             @NonNull Activity activity,
             @NonNull View dropTarget,
-            @NonNull String[] mimeTypes,
-            @NonNull @SuppressWarnings("ExecutorRegistration")
-                    OnReceiveContentListener onReceiveContentListener) {
+            String @NonNull [] mimeTypes,
+            @SuppressWarnings("ExecutorRegistration")
+                    @NonNull OnReceiveContentListener onReceiveContentListener) {
         configureView(
                 activity,
                 dropTarget,
@@ -129,10 +130,10 @@ public final class DropHelper {
     public static void configureView(
             @NonNull Activity activity,
             @NonNull View dropTarget,
-            @NonNull String[] mimeTypes,
+            String @NonNull [] mimeTypes,
             @NonNull Options options,
-            @NonNull @SuppressWarnings("ExecutorRegistration")
-                    OnReceiveContentListener onReceiveContentListener) {
+            @SuppressWarnings("ExecutorRegistration")
+                    @NonNull OnReceiveContentListener onReceiveContentListener) {
         DropAffordanceHighlighter.Builder highlighterBuilder = DropAffordanceHighlighter.forView(
                 dropTarget,
                 clipDescription -> {
@@ -415,8 +416,8 @@ public final class DropHelper {
              * @param editTexts The {@code EditText} elements contained in the drop target.
              * @return This {@link DropHelper.Options.Builder} instance.
              */
-            public @NonNull Options.Builder addInnerEditTexts(
-                    @NonNull EditText... editTexts) {
+            public Options.@NonNull Builder addInnerEditTexts(
+                    EditText @NonNull ... editTexts) {
                 if (this.mInnerEditTexts == null) {
                     this.mInnerEditTexts = new ArrayList<>();
                 }
@@ -437,7 +438,7 @@ public final class DropHelper {
              * @param highlightColor The highlight color.
              * @return This {@link DropHelper.Options.Builder} instance.
              */
-            public @NonNull Options.Builder setHighlightColor(@ColorInt int highlightColor) {
+            public Options.@NonNull Builder setHighlightColor(@ColorInt int highlightColor) {
                 this.mHighlightColor = highlightColor;
                 this.mHighlightColorHasBeenSupplied = true;
                 return this;
@@ -454,7 +455,7 @@ public final class DropHelper {
              * @param highlightCornerRadiusPx The highlight corner radius in pixels.
              * @return This {@link DropHelper.Options.Builder} instance.
              */
-            public @NonNull Options.Builder setHighlightCornerRadiusPx(
+            public Options.@NonNull Builder setHighlightCornerRadiusPx(
                     int highlightCornerRadiusPx) {
                 this.mHighlightCornerRadiusPx = highlightCornerRadiusPx;
                 this.mHighlightCornerRadiusPxHasBeenSupplied = true;
@@ -478,7 +479,7 @@ public final class DropHelper {
              *      local state.
              * @return This {@link DropHelper.Options.Builder} instance.
              */
-            public @NonNull Options.Builder setAcceptDragsWithLocalState(
+            public Options.@NonNull Builder setAcceptDragsWithLocalState(
                     boolean acceptDragsWithLocalState) {
                 this.mAcceptDragsWithLocalState = acceptDragsWithLocalState;
                 return this;

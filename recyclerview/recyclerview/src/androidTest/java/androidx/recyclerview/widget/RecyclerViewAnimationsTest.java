@@ -30,7 +30,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.testutils.AnimationDurationScaleRule;
@@ -38,6 +37,7 @@ import androidx.testutils.PollingCheck;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.NonNull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -125,7 +125,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         RecyclerView.ViewHolder vh = mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(0));
         LoggingItemAnimator animator = new LoggingItemAnimator() {
             @Override
-            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,
+            public boolean canReuseUpdatedViewHolder(RecyclerView.@NonNull ViewHolder viewHolder,
                     @NonNull List<Object> payloads) {
                 return reUse;
             }
@@ -572,7 +572,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                     @Override
                     public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                            @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                            @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                         if (view == targetChild[0]) {
                             outRect.set(10, 20, 30, 40);
                         } else {
@@ -937,19 +937,19 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         final View[] testView = new View[1];
         mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
             @Override
-            public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
+            public boolean animateAdd(RecyclerView.@NonNull ViewHolder holder) {
                 addVH.add(holder);
                 return true;
             }
 
             @Override
-            public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
+            public boolean animateRemove(RecyclerView.@NonNull ViewHolder holder) {
                 removeVH.add(holder);
                 return true;
             }
 
             @Override
-            public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX,
+            public boolean animateMove(RecyclerView.@NonNull ViewHolder holder, int fromX,
                     int fromY, int toX, int toY) {
                 moveVH.add(holder);
                 return true;
@@ -1148,7 +1148,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         setupBasic(testAdapter.getItemCount(), 0, 10, testAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
             @Override
-            public boolean canReuseUpdatedViewHolder(@NonNull RecyclerView.ViewHolder viewHolder,
+            public boolean canReuseUpdatedViewHolder(RecyclerView.@NonNull ViewHolder viewHolder,
                     @NonNull List<Object> payloads) {
                 return canReUse && super.canReuseUpdatedViewHolder(viewHolder, payloads);
             }
@@ -1903,7 +1903,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 = new ArrayList<RecyclerView.ViewHolder>();
         DefaultItemAnimator animator = new DefaultItemAnimator() {
             @Override
-            public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
+            public boolean animateRemove(RecyclerView.@NonNull ViewHolder holder) {
                 animateRemoveList.add(holder);
                 return super.animateRemove(holder);
             }

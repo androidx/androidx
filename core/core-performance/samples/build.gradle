@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -38,7 +38,7 @@ dependencies {
 
 androidx {
     name = "Core Performance Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     inceptionYear = "2021"
     description = "Samples for AndroidX Core Performance Library"

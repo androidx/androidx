@@ -52,7 +52,7 @@ import androidx.annotation.RestrictTo
             UI_MODE_NIGHT_MASK,
             UI_MODE_NIGHT_UNDEFINED,
             UI_MODE_NIGHT_NO,
-            UI_MODE_NIGHT_YES
+            UI_MODE_NIGHT_YES,
         ]
 )
 annotation class UiMode

@@ -39,7 +39,7 @@ import org.junit.runners.Parameterized
 class ComposeStateReadBenchmark(private val readContext: ReadContext) {
     enum class ReadContext {
         Composition,
-        Measure
+        Measure,
     }
 
     companion object {
@@ -122,7 +122,7 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
     private fun benchmarkRead(
         before: () -> Unit = {},
         after: () -> Unit = {},
-        measure: () -> Unit
+        measure: () -> Unit,
     ) {
         val benchmarkState = benchmarkRule.getState()
         benchmarkRule.measureRepeatedOnMainThread {
@@ -164,7 +164,7 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
     private fun SnapshotStateObserver.recursiveObserve(
         nodes: List<Any>,
         depth: Int,
-        block: () -> Unit
+        block: () -> Unit,
     ) {
         if (depth == 0) {
             block()

@@ -21,16 +21,20 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.testutils"
+        androidResources.enable = true
+    }
     desktop()
 
     sourceSets {
@@ -55,6 +59,7 @@ androidXMultiplatform {
             compileOnly(project(":compose:ui:ui-android-stubs"))
             implementation(libs.testCore)
             implementation(libs.testRules)
+            implementation(libs.espressoCore)
         }
 
         commonTest {
@@ -100,12 +105,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Internal Test Utils"
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2020"
     description = "Compose internal test utils."
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.testutils"
 }

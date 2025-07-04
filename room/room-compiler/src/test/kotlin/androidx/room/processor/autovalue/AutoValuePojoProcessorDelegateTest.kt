@@ -20,10 +20,10 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.DataClassProcessor
-import androidx.room.processor.FieldProcessor
 import androidx.room.processor.ProcessorErrors
-import androidx.room.runProcessorTestWithK1
+import androidx.room.processor.PropertyProcessor
 import androidx.room.testing.context
 import androidx.room.vo.DataClass
 import com.google.auto.value.processor.AutoValueProcessor
@@ -80,10 +80,10 @@ class AutoValueDataClassProcessorDelegateTest {
                 AutoValue_MyDataClass(long id) { this.id = id; }
                 @PrimaryKey
                 long getId() { return this.id; }
-                """
+                """,
         ) { dataClass, invocation ->
             assertThat(dataClass.type.asTypeName(), `is`(MY_DATA_CLASS))
-            assertThat(dataClass.fields.size, `is`(1))
+            assertThat(dataClass.properties.size, `is`(1))
             assertThat(dataClass.constructor?.element, `is`(notNullValue()))
             invocation.assertCompilationResult { hasNoWarnings() }
         }
@@ -104,24 +104,22 @@ class AutoValueDataClassProcessorDelegateTest {
                     abstract long getValue();
                     static MyDataClass create(long value) { return new AutoValue_MyDataClass(value); }
                     $FOOTER
-                    """
+                    """,
                         )
                     ),
                 annotationProcessors = listOf(AutoValueProcessor()),
                 // keep parameters as the naming convention for parameters is not the same
                 // between javac (argN) and kotlinc (pN).
-                javacArguments = listOf("-parameters")
+                javacArguments = listOf("-parameters"),
             )
         // https://github.com/google/ksp/issues/2033
-        runProcessorTestWithK1(
-            sources = emptyList(),
-            classpath = libraryClasspath,
-        ) { invocation: XTestInvocation ->
+        runProcessorTest(sources = emptyList(), classpath = libraryClasspath) {
+            invocation: XTestInvocation ->
             DataClassProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                    bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
-                    parent = null
+                    bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
+                    parent = null,
                 )
                 .process()
             invocation.assertCompilationResult { hasNoWarnings() }
@@ -140,7 +138,7 @@ class AutoValueDataClassProcessorDelegateTest {
                 private final long id;
                 AutoValue_MyDataClass(long id) { this.id = id; }
                 long getId() { return this.id; }
-                """
+                """,
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
@@ -188,7 +186,7 @@ class AutoValueDataClassProcessorDelegateTest {
                     String getValue() { return this.value; };
                 $FOOTER
                 """,
-            Source.java("foo.bar.ParentDataClass", parent)
+            Source.java("foo.bar.ParentDataClass", parent),
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasWarningCount(2)
@@ -236,7 +234,7 @@ class AutoValueDataClassProcessorDelegateTest {
                     public String getValue() { return this.value; };
                 $FOOTER
                 """,
-            Source.java("foo.bar.InterfaceDataClass", parent)
+            Source.java("foo.bar.InterfaceDataClass", parent),
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasWarningContaining(ProcessorErrors.MISSING_COPY_ANNOTATIONS)
@@ -250,7 +248,7 @@ class AutoValueDataClassProcessorDelegateTest {
         autoValueDataClassCode: String,
         classpathFiles: List<File> = emptyList(),
         vararg sources: Source,
-        handler: (dataClass: DataClass, invocation: XTestInvocation) -> Unit
+        handler: (dataClass: DataClass, invocation: XTestInvocation) -> Unit,
     ) {
         @Suppress("CHANGING_ARGUMENTS_EXECUTION_ORDER_FOR_NAMED_VARARGS")
         singleRunFullClass(
@@ -268,7 +266,7 @@ class AutoValueDataClassProcessorDelegateTest {
                     """,
             sources = sources,
             classpathFiles = classpathFiles,
-            handler = handler
+            handler = handler,
         )
     }
 
@@ -277,22 +275,22 @@ class AutoValueDataClassProcessorDelegateTest {
         autoValueDataClassCode: String,
         vararg sources: Source,
         classpathFiles: List<File> = emptyList(),
-        handler: (DataClass, XTestInvocation) -> Unit
+        handler: (DataClass, XTestInvocation) -> Unit,
     ) {
         val dataClassSource = Source.java(MY_DATA_CLASS.canonicalName, dataClassCode)
         val autoValueDataClassSource =
             Source.java(AUTOVALUE_MY_DATA_CLASS.canonicalName, autoValueDataClassCode)
         val all: List<Source> = sources.toList() + dataClassSource + autoValueDataClassSource
-        runProcessorTestWithK1(sources = all, classpath = classpathFiles) { invocation ->
+        runProcessorTest(sources = all, classpath = classpathFiles) { invocation ->
             handler.invoke(
                 DataClassProcessor.createFor(
                         context = invocation.context,
                         element = invocation.processingEnv.requireTypeElement(MY_DATA_CLASS),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_STMT,
-                        parent = null
+                        bindingScope = PropertyProcessor.BindingScope.READ_FROM_STMT,
+                        parent = null,
                     )
                     .process(),
-                invocation
+                invocation,
             )
         }
     }

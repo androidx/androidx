@@ -28,7 +28,6 @@ import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -36,7 +35,6 @@ import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
@@ -137,7 +135,7 @@ class PointerInputEventProcessorTest {
                 PointerType.Touch,
                 PointerType.Mouse,
                 PointerType.Stylus,
-                PointerType.Eraser
+                PointerType.Eraser,
             )
 
         // Arrange
@@ -159,7 +157,7 @@ class PointerInputEventProcessorTest {
                         originalEventPosition = Offset(offset.x + index, offset.y + index),
                         down = true,
                         pressure = 1.0f,
-                        type = pointerType
+                        type = pointerType,
                     )
                 val data = previousEvents.map { it.copy(uptime = index.toLong()) }
                 PointerInputEvent(index.toLong(), data)
@@ -209,7 +207,7 @@ class PointerInputEventProcessorTest {
                 override fun onPointerEvent(
                     pointerEvent: PointerEvent,
                     pass: PointerEventPass,
-                    bounds: IntSize
+                    bounds: IntSize,
                 ) {
                     if (pass != PointerEventPass.Initial) {
                         return
@@ -265,7 +263,7 @@ class PointerInputEventProcessorTest {
             arrayOf(
                 PointerInputEvent(8712, 3, offset, true),
                 PointerInputEvent(8712, 11, offset2, true),
-                PointerInputEvent(8712, 13, offset2, false)
+                PointerInputEvent(8712, 13, offset2, false),
             )
 
         val down = down(8712, 3, offset.x, offset.y)
@@ -325,7 +323,7 @@ class PointerInputEventProcessorTest {
                     5,
                     offsets[index] - childOffset,
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             }
 
@@ -371,7 +369,7 @@ class PointerInputEventProcessorTest {
                 Offset(300f, 199f),
                 Offset(300f, 401f),
                 Offset(301f, 200f),
-                Offset(301f, 400f)
+                Offset(301f, 400f),
             )
 
         val events = Array(8) { index -> PointerInputEvent(index, 0, offsets[index], true) }
@@ -478,7 +476,7 @@ class PointerInputEventProcessorTest {
                 3,
                 Offset(0f, 0f),
                 true,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedOutput =
             PointerInputChange(
@@ -489,7 +487,7 @@ class PointerInputEventProcessorTest {
                 3,
                 Offset(0f, 0f),
                 true,
-                isInitiallyConsumed = true
+                isInitiallyConsumed = true,
             )
 
         val pointerInputFilter =
@@ -501,7 +499,7 @@ class PointerInputEventProcessorTest {
 
                         if (change.positionChanged()) change.consume()
                     }
-                }
+                },
             )
 
         val layoutNode = LayoutNode(0, 0, 500, 500, PointerInputModifierImpl2(pointerInputFilter))
@@ -546,7 +544,7 @@ class PointerInputEventProcessorTest {
             43,
             51,
             99,
-            99
+            99,
         )
     }
 
@@ -568,7 +566,7 @@ class PointerInputEventProcessorTest {
             -43,
             -51,
             1,
-            1
+            1,
         )
     }
 
@@ -594,7 +592,7 @@ class PointerInputEventProcessorTest {
         aOX: Int,
         aOY: Int,
         pointerX: Int,
-        pointerY: Int
+        pointerY: Int,
     ) {
 
         // Arrange
@@ -637,7 +635,7 @@ class PointerInputEventProcessorTest {
                     7,
                     offset - additionalOffset,
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 ),
                 PointerInputChange(
                     id = PointerId(0),
@@ -647,7 +645,7 @@ class PointerInputEventProcessorTest {
                     7,
                     offset - middleOffset - additionalOffset,
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 ),
                 PointerInputChange(
                     id = PointerId(0),
@@ -657,15 +655,15 @@ class PointerInputEventProcessorTest {
                     7,
                     offset - middleOffset - childOffset - additionalOffset,
                     false,
-                    isInitiallyConsumed = false
-                )
+                    isInitiallyConsumed = false,
+                ),
             )
 
         val expectedSizes =
             arrayOf(
                 IntSize(pX2 - pX1, pY2 - pY1),
                 IntSize(mX2 - mX1, mY2 - mY1),
-                IntSize(cX2 - cX1, cY2 - cY1)
+                IntSize(cX2 - cX1, cY2 - cY1),
             )
 
         // Act
@@ -685,63 +683,63 @@ class PointerInputEventProcessorTest {
             parentPointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[0]),
             PointerEventPass.Initial,
-            expectedSizes[0]
+            expectedSizes[0],
         )
         filteredLog.verifyOnPointerEventCall(
             1,
             middlePointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[1]),
             PointerEventPass.Initial,
-            expectedSizes[1]
+            expectedSizes[1],
         )
         filteredLog.verifyOnPointerEventCall(
             2,
             childPointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[2]),
             PointerEventPass.Initial,
-            expectedSizes[2]
+            expectedSizes[2],
         )
         filteredLog.verifyOnPointerEventCall(
             3,
             childPointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[2]),
             PointerEventPass.Main,
-            expectedSizes[2]
+            expectedSizes[2],
         )
         filteredLog.verifyOnPointerEventCall(
             4,
             middlePointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[1]),
             PointerEventPass.Main,
-            expectedSizes[1]
+            expectedSizes[1],
         )
         filteredLog.verifyOnPointerEventCall(
             5,
             parentPointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[0]),
             PointerEventPass.Main,
-            expectedSizes[0]
+            expectedSizes[0],
         )
         filteredLog.verifyOnPointerEventCall(
             6,
             parentPointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[0]),
             PointerEventPass.Final,
-            expectedSizes[0]
+            expectedSizes[0],
         )
         filteredLog.verifyOnPointerEventCall(
             7,
             middlePointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[1]),
             PointerEventPass.Final,
-            expectedSizes[1]
+            expectedSizes[1],
         )
         filteredLog.verifyOnPointerEventCall(
             8,
             childPointerInputFilter,
             pointerEventOf(expectedPointerInputChanges[2]),
             PointerEventPass.Final,
-            expectedSizes[2]
+            expectedSizes[2],
         )
     }
 
@@ -776,8 +774,8 @@ class PointerInputEventProcessorTest {
                 5,
                 listOf(
                     PointerInputEventData(0, 5, offset1, true),
-                    PointerInputEventData(1, 5, offset2, true)
-                )
+                    PointerInputEventData(1, 5, offset2, true),
+                ),
             )
 
         val expectedChange1 =
@@ -789,7 +787,7 @@ class PointerInputEventProcessorTest {
                 5,
                 offset1,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange2 =
             PointerInputChange(
@@ -800,7 +798,7 @@ class PointerInputEventProcessorTest {
                 5,
                 offset2 - Offset(50f, 50f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -831,21 +829,21 @@ class PointerInputEventProcessorTest {
             null,
             pointerEventOf(expectedChange1),
             PointerEventPass.Initial,
-            expectedBounds
+            expectedBounds,
         )
         child1Log.verifyOnPointerEventCall(
             1,
             null,
             pointerEventOf(expectedChange1),
             PointerEventPass.Main,
-            expectedBounds
+            expectedBounds,
         )
         child1Log.verifyOnPointerEventCall(
             2,
             null,
             pointerEventOf(expectedChange1),
             PointerEventPass.Final,
-            expectedBounds
+            expectedBounds,
         )
 
         child2Log.verifyOnPointerEventCall(
@@ -853,21 +851,21 @@ class PointerInputEventProcessorTest {
             null,
             pointerEventOf(expectedChange2),
             PointerEventPass.Initial,
-            expectedBounds
+            expectedBounds,
         )
         child2Log.verifyOnPointerEventCall(
             1,
             null,
             pointerEventOf(expectedChange2),
             PointerEventPass.Main,
-            expectedBounds
+            expectedBounds,
         )
         child2Log.verifyOnPointerEventCall(
             2,
             null,
             pointerEventOf(expectedChange2),
             PointerEventPass.Final,
-            expectedBounds
+            expectedBounds,
         )
     }
 
@@ -908,8 +906,8 @@ class PointerInputEventProcessorTest {
                 listOf(
                     PointerInputEventData(0, 5, offset1, true),
                     PointerInputEventData(1, 5, offset2, true),
-                    PointerInputEventData(2, 5, offset3, true)
-                )
+                    PointerInputEventData(2, 5, offset3, true),
+                ),
             )
 
         val expectedChange1 =
@@ -921,7 +919,7 @@ class PointerInputEventProcessorTest {
                 5,
                 offset1,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange2 =
             PointerInputChange(
@@ -932,7 +930,7 @@ class PointerInputEventProcessorTest {
                 5,
                 offset2 - Offset(50f, 50f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange3 =
             PointerInputChange(
@@ -943,7 +941,7 @@ class PointerInputEventProcessorTest {
                 5,
                 offset3 - Offset(100f, 100f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -977,21 +975,21 @@ class PointerInputEventProcessorTest {
             null,
             pointerEventOf(expectedChange1),
             PointerEventPass.Initial,
-            expectedBounds
+            expectedBounds,
         )
         child1Log.verifyOnPointerEventCall(
             1,
             null,
             pointerEventOf(expectedChange1),
             PointerEventPass.Main,
-            expectedBounds
+            expectedBounds,
         )
         child1Log.verifyOnPointerEventCall(
             2,
             null,
             pointerEventOf(expectedChange1),
             PointerEventPass.Final,
-            expectedBounds
+            expectedBounds,
         )
 
         child2Log.verifyOnPointerEventCall(
@@ -999,21 +997,21 @@ class PointerInputEventProcessorTest {
             null,
             pointerEventOf(expectedChange2),
             PointerEventPass.Initial,
-            expectedBounds
+            expectedBounds,
         )
         child2Log.verifyOnPointerEventCall(
             1,
             null,
             pointerEventOf(expectedChange2),
             PointerEventPass.Main,
-            expectedBounds
+            expectedBounds,
         )
         child2Log.verifyOnPointerEventCall(
             2,
             null,
             pointerEventOf(expectedChange2),
             PointerEventPass.Final,
-            expectedBounds
+            expectedBounds,
         )
 
         child3Log.verifyOnPointerEventCall(
@@ -1021,21 +1019,21 @@ class PointerInputEventProcessorTest {
             null,
             pointerEventOf(expectedChange3),
             PointerEventPass.Initial,
-            expectedBounds
+            expectedBounds,
         )
         child3Log.verifyOnPointerEventCall(
             1,
             null,
             pointerEventOf(expectedChange3),
             PointerEventPass.Main,
-            expectedBounds
+            expectedBounds,
         )
         child3Log.verifyOnPointerEventCall(
             2,
             null,
             pointerEventOf(expectedChange3),
             PointerEventPass.Final,
-            expectedBounds
+            expectedBounds,
         )
     }
 
@@ -1071,8 +1069,8 @@ class PointerInputEventProcessorTest {
                 listOf(
                     PointerInputEventData(0, 7, offset1, true),
                     PointerInputEventData(1, 7, offset2, true),
-                    PointerInputEventData(2, 7, offset3, true)
-                )
+                    PointerInputEventData(2, 7, offset3, true),
+                ),
             )
 
         val expectedChange1 =
@@ -1084,7 +1082,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset1,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange2 =
             PointerInputChange(
@@ -1095,7 +1093,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset2 - Offset(25f, 50f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange3 =
             PointerInputChange(
@@ -1106,7 +1104,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset3,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1129,14 +1127,14 @@ class PointerInputEventProcessorTest {
                 null,
                 pointerEventOf(expectedChange1, expectedChange3),
                 pass,
-                IntSize(100, 150)
+                IntSize(100, 150),
             )
             log2.verifyOnPointerEventCall(
                 index,
                 null,
                 pointerEventOf(expectedChange2),
                 pass,
-                IntSize(50, 50)
+                IntSize(50, 50),
             )
         }
     }
@@ -1173,8 +1171,8 @@ class PointerInputEventProcessorTest {
                 listOf(
                     PointerInputEventData(0, 11, offset1, true),
                     PointerInputEventData(1, 11, offset2, true),
-                    PointerInputEventData(2, 11, offset3, true)
-                )
+                    PointerInputEventData(2, 11, offset3, true),
+                ),
             )
 
         val expectedChange1 =
@@ -1186,7 +1184,7 @@ class PointerInputEventProcessorTest {
                 11,
                 offset1,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange2 =
             PointerInputChange(
@@ -1197,7 +1195,7 @@ class PointerInputEventProcessorTest {
                 11,
                 offset2 - Offset(50f, 25f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
         val expectedChange3 =
             PointerInputChange(
@@ -1208,7 +1206,7 @@ class PointerInputEventProcessorTest {
                 11,
                 offset3,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1231,14 +1229,14 @@ class PointerInputEventProcessorTest {
                 null,
                 pointerEventOf(expectedChange1, expectedChange3),
                 pass,
-                IntSize(150, 100)
+                IntSize(150, 100),
             )
             log2.verifyOnPointerEventCall(
                 index,
                 null,
                 pointerEventOf(expectedChange2),
                 pass,
-                IntSize(50, 50)
+                IntSize(50, 50),
             )
         }
     }
@@ -1296,7 +1294,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11,
-                (allOffsets.indices).map { PointerInputEventData(it, 11, allOffsets[it], true) }
+                (allOffsets.indices).map { PointerInputEventData(it, 11, allOffsets[it], true) },
             )
 
         // Act
@@ -1315,7 +1313,7 @@ class PointerInputEventProcessorTest {
                     11,
                     Offset(offsetsTopLeft[it].x, offsetsTopLeft[it].y),
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             }
 
@@ -1329,7 +1327,7 @@ class PointerInputEventProcessorTest {
                     11,
                     Offset(offsetsTopRight[it].x - 3f, offsetsTopRight[it].y),
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             }
 
@@ -1343,7 +1341,7 @@ class PointerInputEventProcessorTest {
                     11,
                     Offset(offsetsBottomLeft[it].x, offsetsBottomLeft[it].y - 3f),
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             }
 
@@ -1357,7 +1355,7 @@ class PointerInputEventProcessorTest {
                     11,
                     Offset(offsetsBottomRight[it].x - 3f, offsetsBottomRight[it].y - 3f),
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             }
 
@@ -1372,22 +1370,22 @@ class PointerInputEventProcessorTest {
             logTopLeft.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChangesTopLeft.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
             logTopRight.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChangesTopRight.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
             logBottomLeft.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChangesBottomLeft.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
             logBottomRight.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChangesBottomRight.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
         }
     }
@@ -1419,7 +1417,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11,
-                (allOffsets.indices).map { PointerInputEventData(it, 11, allOffsets[it], true) }
+                (allOffsets.indices).map { PointerInputEventData(it, 11, allOffsets[it], true) },
             )
 
         // Act
@@ -1438,7 +1436,7 @@ class PointerInputEventProcessorTest {
                     11,
                     offsetsThatHit[it] - Offset(1f, 1f),
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             }
 
@@ -1452,7 +1450,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChanges.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
         }
     }
@@ -1486,7 +1484,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset1 - Offset(25f, 50f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1510,19 +1508,19 @@ class PointerInputEventProcessorTest {
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange),
                 expectedPass = pass,
-                expectedBounds = IntSize(50, 50)
+                expectedBounds = IntSize(50, 50),
             )
             log2.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange),
                 expectedPass = pass,
-                expectedBounds = IntSize(50, 50)
+                expectedBounds = IntSize(50, 50),
             )
             log3.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange),
                 expectedPass = pass,
-                expectedBounds = IntSize(50, 50)
+                expectedBounds = IntSize(50, 50),
             )
         }
     }
@@ -1551,7 +1549,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset1 - Offset(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1571,7 +1569,7 @@ class PointerInputEventProcessorTest {
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange),
                 expectedPass = pass,
-                expectedBounds = IntSize(499, 495)
+                expectedBounds = IntSize(499, 495),
             )
         }
     }
@@ -1591,7 +1589,7 @@ class PointerInputEventProcessorTest {
                 500,
                 500,
                 PointerInputModifierImpl2(pointerInputFilter1) then
-                    PointerInputModifierImpl2(pointerInputFilter2)
+                    PointerInputModifierImpl2(pointerInputFilter2),
             )
         val layoutNode2: LayoutNode = LayoutNode(2, 7, 500, 500).apply { insertAt(0, layoutNode1) }
         val layoutNode3 =
@@ -1601,7 +1599,7 @@ class PointerInputEventProcessorTest {
                     500,
                     500,
                     PointerInputModifierImpl2(pointerInputFilter3) then
-                        PointerInputModifierImpl2(pointerInputFilter4)
+                        PointerInputModifierImpl2(pointerInputFilter4),
                 )
                 .apply { insertAt(0, layoutNode2) }
 
@@ -1622,7 +1620,7 @@ class PointerInputEventProcessorTest {
                 3,
                 offset1 - Offset(1f + 2f + 3f + 4f + 5f, 6f + 7f + 8f + 9f + 10f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         val expectedChange2 =
@@ -1634,7 +1632,7 @@ class PointerInputEventProcessorTest {
                 3,
                 offset1 - Offset(3f + 4f + 5f, 8f + 9f + 10f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1660,25 +1658,25 @@ class PointerInputEventProcessorTest {
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange1),
                 expectedPass = pass,
-                expectedBounds = IntSize(499, 494)
+                expectedBounds = IntSize(499, 494),
             )
             log2.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange1),
                 expectedPass = pass,
-                expectedBounds = IntSize(499, 494)
+                expectedBounds = IntSize(499, 494),
             )
             log3.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange2),
                 expectedPass = pass,
-                expectedBounds = IntSize(497, 492)
+                expectedBounds = IntSize(497, 492),
             )
             log4.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange2),
                 expectedPass = pass,
-                expectedBounds = IntSize(497, 492)
+                expectedBounds = IntSize(497, 492),
             )
         }
     }
@@ -1752,7 +1750,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(250f, 250f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1775,7 +1773,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange),
-                expectedPass = pass
+                expectedPass = pass,
             )
         }
         log.verifyOnCancelCall(PointerEventPass.values().size)
@@ -1799,8 +1797,8 @@ class PointerInputEventProcessorTest {
                 10,
                 listOf(
                     PointerInputEventData(7, 10, Offset(200f, 200f), true),
-                    PointerInputEventData(9, 10, Offset(300f, 300f), true)
-                )
+                    PointerInputEventData(9, 10, Offset(300f, 300f), true),
+                ),
             )
 
         val expectedChanges1 =
@@ -1813,7 +1811,7 @@ class PointerInputEventProcessorTest {
                     5,
                     Offset(200f, 200f),
                     false,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 )
             )
 
@@ -1827,7 +1825,7 @@ class PointerInputEventProcessorTest {
                     5,
                     Offset(200f, 200f),
                     true,
-                    isInitiallyConsumed = false
+                    isInitiallyConsumed = false,
                 ),
                 PointerInputChange(
                     id = PointerId(9),
@@ -1837,8 +1835,8 @@ class PointerInputEventProcessorTest {
                     10,
                     Offset(300f, 300f),
                     false,
-                    isInitiallyConsumed = false
-                )
+                    isInitiallyConsumed = false,
+                ),
             )
 
         // Act
@@ -1863,7 +1861,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChanges1.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -1871,7 +1869,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(*expectedChanges2.toTypedArray()),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -1908,7 +1906,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(100f, 100f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         val expectedChange2 =
@@ -1920,7 +1918,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(100f, 100f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -1949,12 +1947,12 @@ class PointerInputEventProcessorTest {
             log1.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange1),
-                expectedPass = pass
+                expectedPass = pass,
             )
             log2.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedChange2),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -1985,7 +1983,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(200f, 200f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         val expectedMove =
@@ -1997,7 +1995,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(200f, 200f),
                 true,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -2022,7 +2020,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedDown),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -2030,7 +2028,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedMove),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -2058,7 +2056,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(200f, 200f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -2082,7 +2080,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedDown),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -2112,7 +2110,7 @@ class PointerInputEventProcessorTest {
                 5,
                 Offset(200f, 200f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         val expectedDown2 =
@@ -2124,7 +2122,7 @@ class PointerInputEventProcessorTest {
                 10,
                 Offset(200f, 200f),
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -2149,7 +2147,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedDown1),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -2159,7 +2157,7 @@ class PointerInputEventProcessorTest {
             log.verifyOnPointerEventCall(
                 index = index,
                 expectedEvent = pointerEventOf(expectedDown2),
-                expectedPass = pass
+                expectedPass = pass,
             )
             index++
         }
@@ -2196,7 +2194,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         val expectedUpChange =
@@ -2208,7 +2206,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset,
                 true,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -2231,48 +2229,48 @@ class PointerInputEventProcessorTest {
         parentLog.verifyOnPointerEventCall(
             index = 0,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Initial
+            expectedPass = PointerEventPass.Initial,
         )
         parentLog.verifyOnPointerEventCall(
             index = 1,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Main
+            expectedPass = PointerEventPass.Main,
         )
         parentLog.verifyOnPointerEventCall(
             index = 2,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Final
+            expectedPass = PointerEventPass.Final,
         )
         parentLog.verifyOnPointerEventCall(
             index = 3,
             expectedEvent = pointerEventOf(expectedUpChange),
-            expectedPass = PointerEventPass.Initial
+            expectedPass = PointerEventPass.Initial,
         )
         parentLog.verifyOnPointerEventCall(
             index = 4,
             expectedEvent = pointerEventOf(expectedUpChange),
-            expectedPass = PointerEventPass.Main
+            expectedPass = PointerEventPass.Main,
         )
         parentLog.verifyOnPointerEventCall(
             index = 5,
             expectedEvent = pointerEventOf(expectedUpChange),
-            expectedPass = PointerEventPass.Final
+            expectedPass = PointerEventPass.Final,
         )
 
         childLog.verifyOnPointerEventCall(
             index = 0,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Initial
+            expectedPass = PointerEventPass.Initial,
         )
         childLog.verifyOnPointerEventCall(
             index = 1,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Main
+            expectedPass = PointerEventPass.Main,
         )
         childLog.verifyOnPointerEventCall(
             index = 2,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Final
+            expectedPass = PointerEventPass.Final,
         )
     }
 
@@ -2339,7 +2337,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset,
                 false,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         val expectedUpChange =
@@ -2351,7 +2349,7 @@ class PointerInputEventProcessorTest {
                 7,
                 offset,
                 true,
-                isInitiallyConsumed = false
+                isInitiallyConsumed = false,
             )
 
         // Act
@@ -2374,48 +2372,48 @@ class PointerInputEventProcessorTest {
         parentLog.verifyOnPointerEventCall(
             index = 0,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Initial
+            expectedPass = PointerEventPass.Initial,
         )
         parentLog.verifyOnPointerEventCall(
             index = 1,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Main
+            expectedPass = PointerEventPass.Main,
         )
         parentLog.verifyOnPointerEventCall(
             index = 2,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Final
+            expectedPass = PointerEventPass.Final,
         )
         parentLog.verifyOnPointerEventCall(
             index = 3,
             expectedEvent = pointerEventOf(expectedUpChange),
-            expectedPass = PointerEventPass.Initial
+            expectedPass = PointerEventPass.Initial,
         )
         parentLog.verifyOnPointerEventCall(
             index = 4,
             expectedEvent = pointerEventOf(expectedUpChange),
-            expectedPass = PointerEventPass.Main
+            expectedPass = PointerEventPass.Main,
         )
         parentLog.verifyOnPointerEventCall(
             index = 5,
             expectedEvent = pointerEventOf(expectedUpChange),
-            expectedPass = PointerEventPass.Final
+            expectedPass = PointerEventPass.Final,
         )
 
         childLog.verifyOnPointerEventCall(
             index = 0,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Initial
+            expectedPass = PointerEventPass.Initial,
         )
         childLog.verifyOnPointerEventCall(
             index = 1,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Main
+            expectedPass = PointerEventPass.Main,
         )
         childLog.verifyOnPointerEventCall(
             index = 2,
             expectedEvent = pointerEventOf(expectedDownChange),
-            expectedPass = PointerEventPass.Final
+            expectedPass = PointerEventPass.Final,
         )
     }
 
@@ -2461,7 +2459,8 @@ class PointerInputEventProcessorTest {
             .isEqualTo(
                 ProcessResult(
                     dispatchedToAPointerInputModifier = false,
-                    anyMovementConsumed = false
+                    anyMovementConsumed = false,
+                    anyChangeConsumed = false,
                 )
             )
     }
@@ -2481,7 +2480,7 @@ class PointerInputEventProcessorTest {
         val pointerInputEvent =
             PointerInputEvent(
                 11,
-                (offsets.indices).map { PointerInputEventData(it, 11, offsets[it], true) }
+                (offsets.indices).map { PointerInputEventData(it, 11, offsets[it], true) },
             )
 
         // Act
@@ -2494,7 +2493,8 @@ class PointerInputEventProcessorTest {
             .isEqualTo(
                 ProcessResult(
                     dispatchedToAPointerInputModifier = false,
-                    anyMovementConsumed = false
+                    anyMovementConsumed = false,
+                    anyChangeConsumed = false,
                 )
             )
     }
@@ -2517,7 +2517,11 @@ class PointerInputEventProcessorTest {
 
         assertThat(result)
             .isEqualTo(
-                ProcessResult(dispatchedToAPointerInputModifier = true, anyMovementConsumed = false)
+                ProcessResult(
+                    dispatchedToAPointerInputModifier = true,
+                    anyMovementConsumed = false,
+                    anyChangeConsumed = false,
+                )
             )
     }
 
@@ -2544,7 +2548,8 @@ class PointerInputEventProcessorTest {
             .isEqualTo(
                 ProcessResult(
                     dispatchedToAPointerInputModifier = false,
-                    anyMovementConsumed = false
+                    anyMovementConsumed = false,
+                    anyChangeConsumed = false,
                 )
             )
     }
@@ -2569,7 +2574,11 @@ class PointerInputEventProcessorTest {
 
         assertThat(result)
             .isEqualTo(
-                ProcessResult(dispatchedToAPointerInputModifier = true, anyMovementConsumed = false)
+                ProcessResult(
+                    dispatchedToAPointerInputModifier = true,
+                    anyMovementConsumed = false,
+                    anyChangeConsumed = false,
+                )
             )
     }
 
@@ -2603,40 +2612,117 @@ class PointerInputEventProcessorTest {
 
         assertThat(result)
             .isEqualTo(
-                ProcessResult(dispatchedToAPointerInputModifier = true, anyMovementConsumed = true)
+                ProcessResult(
+                    dispatchedToAPointerInputModifier = true,
+                    anyMovementConsumed = true,
+                    anyChangeConsumed = true,
+                )
             )
     }
 
     @Test
-    fun processResult_trueTrue_propValuesAreCorrect() {
+    fun process_noMovementWithScrollDelta_somethingInteractedWithAnyChangeConsumed() {
+        val pointerInputFilter: PointerInputFilter =
+            PointerInputFilterMock(
+                pointerEventHandler = { pointerEvent, pass, _ ->
+                    if (pass == PointerEventPass.Main) {
+                        pointerEvent.changes.forEach {
+                            if (it.scrollDelta != Offset.Zero) it.consume()
+                        }
+                    }
+                }
+            )
+
+        val layoutNode = LayoutNode(0, 0, 1, 1, PointerInputModifierImpl2(pointerInputFilter))
+        addToRoot(layoutNode)
+
+        val scrollDeltaEvent =
+            PointerInputEventData(
+                    id = PointerId(1L),
+                    uptime = 11,
+                    positionOnScreen = Offset(0f, 0f),
+                    position = Offset(0f, 0f),
+                    down = false,
+                    type = PointerType.Mouse,
+                    pressure = 0f,
+                    scrollDelta = Offset(0f, 100f),
+                )
+                .let { PointerInputEvent(uptime = 11, pointers = listOf(it)) }
+
+        val result = pointerInputEventProcessor.process(scrollDeltaEvent)
+        assertThat(result)
+            .isEqualTo(
+                ProcessResult(
+                    dispatchedToAPointerInputModifier = true,
+                    anyMovementConsumed = false,
+                    anyChangeConsumed = true,
+                )
+            )
+    }
+
+    @Test
+    fun processResult_trueTrueTrue_propValuesAreCorrect() {
         val processResult1 =
-            ProcessResult(dispatchedToAPointerInputModifier = true, anyMovementConsumed = true)
+            ProcessResult(
+                dispatchedToAPointerInputModifier = true,
+                anyMovementConsumed = true,
+                anyChangeConsumed = true,
+            )
         assertThat(processResult1.dispatchedToAPointerInputModifier).isTrue()
         assertThat(processResult1.anyMovementConsumed).isTrue()
+        assertThat(processResult1.anyChangeConsumed).isTrue()
     }
 
     @Test
-    fun processResult_trueFalse_propValuesAreCorrect() {
+    fun processResult_trueFalseTrue_propValuesAreCorrect() {
         val processResult1 =
-            ProcessResult(dispatchedToAPointerInputModifier = true, anyMovementConsumed = false)
+            ProcessResult(
+                dispatchedToAPointerInputModifier = true,
+                anyMovementConsumed = false,
+                anyChangeConsumed = true,
+            )
         assertThat(processResult1.dispatchedToAPointerInputModifier).isTrue()
         assertThat(processResult1.anyMovementConsumed).isFalse()
+        assertThat(processResult1.anyChangeConsumed).isTrue()
     }
 
     @Test
-    fun processResult_falseTrue_propValuesAreCorrect() {
+    fun processResult_falseTrueTrue_propValuesAreCorrect() {
         val processResult1 =
-            ProcessResult(dispatchedToAPointerInputModifier = false, anyMovementConsumed = true)
+            ProcessResult(
+                dispatchedToAPointerInputModifier = false,
+                anyMovementConsumed = true,
+                anyChangeConsumed = true,
+            )
         assertThat(processResult1.dispatchedToAPointerInputModifier).isFalse()
         assertThat(processResult1.anyMovementConsumed).isTrue()
+        assertThat(processResult1.anyChangeConsumed).isTrue()
     }
 
     @Test
-    fun processResult_falseFalse_propValuesAreCorrect() {
+    fun processResult_falseFalseFalse_propValuesAreCorrect() {
         val processResult1 =
-            ProcessResult(dispatchedToAPointerInputModifier = false, anyMovementConsumed = false)
+            ProcessResult(
+                dispatchedToAPointerInputModifier = false,
+                anyMovementConsumed = false,
+                anyChangeConsumed = false,
+            )
         assertThat(processResult1.dispatchedToAPointerInputModifier).isFalse()
         assertThat(processResult1.anyMovementConsumed).isFalse()
+        assertThat(processResult1.anyChangeConsumed).isFalse()
+    }
+
+    @Test
+    fun processResult_falseFalseTrue_propValuesAreCorrect() {
+        val processResult1 =
+            ProcessResult(
+                dispatchedToAPointerInputModifier = false,
+                anyMovementConsumed = false,
+                anyChangeConsumed = true,
+            )
+        assertThat(processResult1.dispatchedToAPointerInputModifier).isFalse()
+        assertThat(processResult1.anyMovementConsumed).isFalse()
+        assertThat(processResult1.anyChangeConsumed).isTrue()
     }
 
     @Test
@@ -2673,7 +2759,7 @@ class PointerInputEventProcessorTest {
                 MotionEvent.BUTTON_BACK or
                     MotionEvent.BUTTON_STYLUS_PRIMARY to
                     ButtonValidation(0, 3, primary = true, back = true),
-                0 to ButtonValidation(anyPressed = false)
+                0 to ButtonValidation(anyPressed = false),
             )
 
         for (entry in buttonCheckerMap) {
@@ -2697,8 +2783,8 @@ class PointerInputEventProcessorTest {
                         0,
                         0,
                         InputDevice.SOURCE_MOUSE,
-                        0
-                    )
+                        0,
+                    ),
                 )
             pointerInputEventProcessor.process(event)
 
@@ -2738,7 +2824,7 @@ class PointerInputEventProcessorTest {
             val function: Boolean = false,
             val capsLock: Boolean = false,
             val scrollLock: Boolean = false,
-            val numLock: Boolean = false
+            val numLock: Boolean = false,
         )
 
         val buttonCheckerMap =
@@ -2780,8 +2866,8 @@ class PointerInputEventProcessorTest {
                         0,
                         0,
                         InputDevice.SOURCE_MOUSE,
-                        0
-                    )
+                        0,
+                    ),
                 )
             pointerInputEventProcessor.process(event)
 
@@ -2823,7 +2909,7 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
             object : LayoutNode.NoIntrinsicsMeasurePolicy("not supported") {
                 override fun MeasureScope.measure(
                     measurables: List<Measurable>,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult =
                     innerCoordinator.layout(x2 - x, y2 - y) {
                         measurables.forEach { it.measure(constraints).place(0, 0) }
@@ -2844,7 +2930,9 @@ private class TestOwner : Owner {
         delegate.updateRootConstraints(Constraints(maxWidth = 500, maxHeight = 500))
     }
 
-    override fun requestFocus(): Boolean = false
+    override fun requestAutofill(node: LayoutNode) {
+        TODO("Not yet implemented")
+    }
 
     override val rootForTest: RootForTest
         get() = TODO("Not yet implemented")
@@ -2924,7 +3012,7 @@ private class TestOwner : Owner {
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
-        replaceWith = ReplaceWith("fontFamilyResolver")
+        replaceWith = ReplaceWith("fontFamilyResolver"),
     )
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     override val fontLoader: Font.ResourceLoader
@@ -2944,7 +3032,7 @@ private class TestOwner : Owner {
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
         forceRequest: Boolean,
-        scheduleMeasureAndLayout: Boolean
+        scheduleMeasureAndLayout: Boolean,
     ) {
         if (affectsLookahead) {
             delegate.requestLookaheadRemeasure(layoutNode)
@@ -2956,7 +3044,7 @@ private class TestOwner : Owner {
     override fun onRequestRelayout(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
     ) {
         if (affectsLookahead) {
             delegate.requestLookaheadRelayout(layoutNode)
@@ -2997,7 +3085,6 @@ private class TestOwner : Owner {
         drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?,
-        forceUseOldLayers: Boolean
     ): OwnedLayer {
         TODO("Not yet implemented")
     }
@@ -3009,10 +3096,6 @@ private class TestOwner : Owner {
     override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
 
     override fun onInteropViewLayoutChange(view: InteropView) {}
-
-    override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
-        TODO("Not yet implemented")
-    }
 
     override val measureIteration: Long
         get() = 0
@@ -3048,7 +3131,7 @@ private fun List<LogEntry>.verifyOnPointerEventCall(
     expectedPif: PointerInputFilter? = null,
     expectedEvent: PointerEvent,
     expectedPass: PointerEventPass,
-    expectedBounds: IntSize? = null
+    expectedBounds: IntSize? = null,
 ) {
     val logEntry = this[index]
     assertThat(logEntry).isInstanceOf(OnPointerEventFilterEntry::class.java)

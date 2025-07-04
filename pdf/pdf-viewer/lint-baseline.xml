@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.5.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0-alpha06)" variant="all" version="8.5.0-alpha06">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="BanParcelableUsage"
@@ -31,8 +31,8 @@
     <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;obs&quot;, in androidx.pdf.data.FutureValues.observeAsFuture) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull T... target) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            T @NonNull ... target) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/pdf/data/FutureValues.java"/>
     </issue>

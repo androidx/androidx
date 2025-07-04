@@ -46,7 +46,7 @@ fun TestTextField(
     width: Float = Width,
     height: Float = Height,
     tag: String = Tag,
-    textContent: String = Content
+    textContent: String = Content,
 ) {
     Column(Modifier.padding(20.dp)) {
         val textState = remember { mutableStateOf(TextFieldValue()) }
@@ -54,7 +54,7 @@ fun TestTextField(
             modifier = Modifier.padding(20.dp).testTag(tag).requiredSize(width.dp, height.dp),
             keyboardActions = KeyboardActions.Default,
             value = textState.value,
-            onValueChange = { textState.value = it }
+            onValueChange = { textState.value = it },
         )
         Text("$textContent ${textState.value.text}")
     }

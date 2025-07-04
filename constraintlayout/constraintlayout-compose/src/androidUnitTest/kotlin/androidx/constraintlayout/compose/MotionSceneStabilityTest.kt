@@ -50,7 +50,7 @@ class MotionSceneStabilityTest {
                         createHorizontalChain(
                             box0,
                             box1.withHorizontalChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                            box2
+                            box2,
                         )
                     },
                 to =
@@ -74,9 +74,9 @@ class MotionSceneStabilityTest {
                         createVerticalChain(
                             box0,
                             box1.withVerticalChainParams(topMargin = 8.dp, bottomMargin = 8.dp),
-                            box2
+                            box2,
                         )
-                    }
+                    },
             ) {
                 keyAttributes(box1) {
                     frame(33) { alpha = 0.25f }
@@ -115,7 +115,7 @@ class MotionSceneStabilityTest {
                                 createHorizontalChain(
                                     box0,
                                     box1.withChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                                    box2
+                                    box2,
                                 )
                             },
                         to =
@@ -142,9 +142,9 @@ class MotionSceneStabilityTest {
                                 createVerticalChain(
                                     box0,
                                     box1.withChainParams(topMargin = 8.dp, bottomMargin = 8.dp),
-                                    box2
+                                    box2,
                                 )
-                            }
+                            },
                     ) {
                         val box1 = createRefFor("box1")
                         keyAttributes(box1) {
@@ -152,7 +152,7 @@ class MotionSceneStabilityTest {
                             frame(66) { alpha = 0.8f }
                         }
                     }
-                }
+                },
         )
     }
 }

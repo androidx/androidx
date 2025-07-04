@@ -97,7 +97,7 @@ class BackHandlerOnBackPressedDetectorTest : LintDetectorTest() {
                 BACK_HANDLER,
                 COMPONENT_ACTIVITY,
                 ON_BACK_PRESSED_DISPATCHER,
-                PREDICTIVE_BACK_HANDLER
+                PREDICTIVE_BACK_HANDLER,
             )
             .run()
             .expect(

@@ -1,0 +1,23 @@
+// Signature format: 4.0
+package androidx.privacysandbox.databridge.client {
+
+  public abstract class DataBridgeClient {
+    method public static final androidx.privacysandbox.databridge.client.DataBridgeClient getInstance(android.content.Context context);
+    method public abstract suspend Object? getValue(androidx.privacysandbox.databridge.core.Key key, kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.lang.Object?>>);
+    method @BytecodeOnly public abstract Object? getValue-gIAlu-s(androidx.privacysandbox.databridge.core.Key, kotlin.coroutines.Continuation<? super kotlin.Result<? extends java.lang.Object!>!>);
+    method public abstract suspend Object? getValues(java.util.Set<androidx.privacysandbox.databridge.core.Key> keys, kotlin.coroutines.Continuation<? super java.util.Map<androidx.privacysandbox.databridge.core.Key,? extends kotlin.Result<? extends java.lang.Object?>>>);
+    method public abstract void registerKeyUpdateCallback(java.util.Set<androidx.privacysandbox.databridge.core.Key> keys, java.util.concurrent.Executor executor, androidx.privacysandbox.databridge.core.KeyUpdateCallback callback);
+    method public abstract suspend Object? removeValue(androidx.privacysandbox.databridge.core.Key key, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? removeValues(java.util.Set<androidx.privacysandbox.databridge.core.Key> keys, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? setValue(androidx.privacysandbox.databridge.core.Key key, Object? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? setValues(java.util.Map<androidx.privacysandbox.databridge.core.Key,? extends java.lang.Object?> keyValueMap, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract void unregisterKeyUpdateCallback(androidx.privacysandbox.databridge.core.KeyUpdateCallback callback);
+    field public static final androidx.privacysandbox.databridge.client.DataBridgeClient.Companion Companion;
+  }
+
+  public static final class DataBridgeClient.Companion {
+    method public androidx.privacysandbox.databridge.client.DataBridgeClient getInstance(android.content.Context context);
+  }
+
+}
+

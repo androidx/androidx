@@ -32,7 +32,7 @@ import javax.tools.Diagnostic.Kind.WARNING
 class RLog(
     val messager: XMessager,
     val suppressedWarnings: Set<Warning>,
-    val defaultElement: XElement?
+    val defaultElement: XElement?,
 ) {
     private fun String.safeFormat(vararg args: Any): String {
         try {
@@ -82,7 +82,7 @@ class RLog(
         val msg: String,
         val element: XElement?,
         val annotation: XAnnotation?,
-        val annotationValue: XAnnotationValue?
+        val annotationValue: XAnnotationValue?,
     )
 
     class CollectingMessager : XMessager() {
@@ -93,7 +93,7 @@ class RLog(
             msg: String,
             element: XElement?,
             annotation: XAnnotation?,
-            annotationValue: XAnnotationValue?
+            annotationValue: XAnnotationValue?,
         ) {
             messages
                 .getOrPut(kind) { arrayListOf() }
@@ -107,7 +107,7 @@ class RLog(
 
         fun writeTo(
             context: Context,
-            filterPredicate: (Diagnostic.Kind, String) -> Boolean = { _, _ -> true }
+            filterPredicate: (Diagnostic.Kind, String) -> Boolean = { _, _ -> true },
         ) {
             messages.forEach { (kind, diagnosticMessages) ->
                 diagnosticMessages
@@ -119,7 +119,7 @@ class RLog(
                             diagnosticMessage.msg,
                             diagnosticMessage.element,
                             diagnosticMessage.annotation,
-                            diagnosticMessage.annotationValue
+                            diagnosticMessage.annotationValue,
                         )
                     }
             }
@@ -140,7 +140,7 @@ class RLog(
             msg: String,
             element: XElement? = null,
             annotation: XAnnotation? = null,
-            annotationValue: XAnnotationValue? = null
+            annotationValue: XAnnotationValue? = null,
         ) {
             if (element == null) {
                 check(annotation == null && annotationValue == null) {

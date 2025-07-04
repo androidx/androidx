@@ -124,12 +124,12 @@ public fun ToggleChip(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked),
                 textStyle = MaterialTheme.typography.button,
-                content = label
+                content = label,
             ),
         toggleControl =
             provideContent(
                 contentColor = colors.toggleControlColor(enabled, checked),
-                content = toggleControl
+                content = toggleControl,
             ),
         selectionControl = null,
         modifier =
@@ -139,13 +139,13 @@ public fun ToggleChip(
         icon =
             provideNullableScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked = checked),
-                content = appIcon
+                content = appIcon,
             ),
         secondaryLabel =
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, checked),
                 textStyle = MaterialTheme.typography.caption2,
-                content = secondaryLabel
+                content = secondaryLabel,
             ),
         background = { isEnabled, isChecked ->
             val painter = colors.background(enabled = isEnabled, checked = isChecked).value
@@ -161,7 +161,7 @@ public fun ToggleChip(
         labelSpacerSize = 0.dp,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /**
@@ -255,13 +255,13 @@ public fun SplitToggleChip(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled),
                 textStyle = MaterialTheme.typography.button,
-                content = label
+                content = label,
             ),
         onClick = onClick,
         toggleControl =
             provideScopeContent(
                 contentColor = colors.toggleControlColor(enabled = enabled, checked = checked),
-                content = toggleControl
+                content = toggleControl,
             ),
         selectionControl = null,
         modifier =
@@ -272,7 +272,7 @@ public fun SplitToggleChip(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled),
                 textStyle = MaterialTheme.typography.caption2,
-                content = secondaryLabel
+                content = secondaryLabel,
             ),
         backgroundColor = { isEnabled, _ -> colors.backgroundColor(enabled = isEnabled) },
         splitBackgroundColor = { isEnabled, isChecked ->
@@ -285,7 +285,7 @@ public fun SplitToggleChip(
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,
-        ripple = ripple()
+        ripple = ripple(),
     )
 
 /** Represents the background and content colors used in [ToggleChip]s in different states. */
@@ -421,7 +421,7 @@ public object ToggleChipDefaults {
         uncheckedContentColor: Color = contentColorFor(checkedEndBackgroundColor),
         uncheckedSecondaryContentColor: Color = uncheckedContentColor,
         uncheckedToggleControlColor: Color = uncheckedContentColor,
-        gradientDirection: LayoutDirection = LocalLayoutDirection.current
+        gradientDirection: LayoutDirection = LocalLayoutDirection.current,
     ): ToggleChipColors {
         val checkedBackgroundColors: List<Color>
         val disabledCheckedBackgroundColors: List<Color>
@@ -430,7 +430,7 @@ public object ToggleChipDefaults {
             disabledCheckedBackgroundColors =
                 listOf(
                     checkedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                    checkedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
+                    checkedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
                 )
         } else {
             checkedBackgroundColors = listOf(checkedEndBackgroundColor, checkedStartBackgroundColor)
@@ -448,7 +448,7 @@ public object ToggleChipDefaults {
             disabledUncheckedBackgroundColors =
                 listOf(
                     uncheckedStartBackgroundColor.copy(alpha = ContentAlpha.disabled),
-                    uncheckedEndBackgroundColor.copy(alpha = ContentAlpha.disabled)
+                    uncheckedEndBackgroundColor.copy(alpha = ContentAlpha.disabled),
                 )
         } else {
             uncheckedBackgroundColors =
@@ -547,7 +547,7 @@ public object ToggleChipDefaults {
             start = ChipHorizontalPadding,
             top = ChipVerticalPadding,
             end = ChipHorizontalPadding,
-            bottom = ChipVerticalPadding
+            bottom = ChipVerticalPadding,
         )
 
     /**
@@ -558,9 +558,7 @@ public object ToggleChipDefaults {
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
      *   or 'off' (unchecked/false)
      */
-    public fun switchIcon(
-        checked: Boolean,
-    ): ImageVector = if (checked) SwitchOn else SwitchOff
+    public fun switchIcon(checked: Boolean): ImageVector = if (checked) SwitchOn else SwitchOff
 
     /**
      * Creates a radio button style toggle [ImageVector]s for use in the toggleControl slot of a
@@ -570,9 +568,7 @@ public object ToggleChipDefaults {
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
      *   or 'off' (unchecked/false)
      */
-    public fun radioIcon(
-        checked: Boolean,
-    ): ImageVector = if (checked) RadioOn else RadioOff
+    public fun radioIcon(checked: Boolean): ImageVector = if (checked) RadioOn else RadioOff
 
     /**
      * Creates checkbox style toggle [ImageVector]s for use in the toggleControl slot of a
@@ -582,9 +578,8 @@ public object ToggleChipDefaults {
      * @param checked whether the [ToggleChip] or [SplitToggleChip] is currently 'on' (checked/true)
      *   or 'off' (unchecked/false)
      */
-    public fun checkboxIcon(
-        checked: Boolean,
-    ): ImageVector = if (checked) CheckboxOn else CheckboxOff
+    public fun checkboxIcon(checked: Boolean): ImageVector =
+        if (checked) CheckboxOn else CheckboxOff
 
     /**
      * The default height applied for the [ToggleChip] or [SplitToggleChip]. Note that you can

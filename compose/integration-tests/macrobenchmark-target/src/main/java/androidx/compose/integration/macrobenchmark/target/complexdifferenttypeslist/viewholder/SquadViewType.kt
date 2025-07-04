@@ -23,5 +23,5 @@ enum class SquadViewType : BaseAdapterItemType {
     VIEW_TOP_PLAYERS,
     POSITION_SECTION_HEADER,
     COACH,
-    PLAYER_ROW
+    PLAYER_ROW,
 }

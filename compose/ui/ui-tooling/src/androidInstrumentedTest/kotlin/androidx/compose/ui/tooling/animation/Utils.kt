@@ -41,19 +41,19 @@ object Utils {
     enum class EnumState {
         One,
         Two,
-        Three
+        Three,
     }
 
     val nullableFloatConverter =
         TwoWayConverter<Float?, AnimationVector1D>(
             { AnimationVector1D(it ?: 0f) },
-            { if (it.value == 0f) null else it.value }
+            { if (it.value == 0f) null else it.value },
         )
 
     val stringConverter =
         TwoWayConverter<String, AnimationVector1D>(
             { AnimationVector1D(it.toFloat()) },
-            { it.value.toString() }
+            { it.value.toString() },
         )
 
     val enumConverter =
@@ -87,7 +87,7 @@ object Utils {
     internal fun ComposeContentTestRule.addAnimations(
         search: AnimationSearch.Search<*>,
         additionalSearch: AnimationSearch.Search<*>? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val slotTableRecord = CompositionDataRecord.create()
         this.setContent { Inspectable(slotTableRecord) { content() } }
@@ -102,7 +102,7 @@ object Utils {
     @OptIn(UiToolingDataApi::class)
     internal fun ComposeContentTestRule.hasAnimations(
         search: AnimationSearch.Search<*>,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ): Boolean {
         val slotTableRecord = CompositionDataRecord.create()
         this.setContent { Inspectable(slotTableRecord) { content() } }
@@ -116,7 +116,7 @@ object Utils {
     @OptIn(UiToolingDataApi::class)
     internal fun ComposeContentTestRule.attachAllAnimations(
         clock: PreviewAnimationClock,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val search = AnimationSearch({ clock }) {}
         val slotTableRecord = CompositionDataRecord.create()
@@ -133,11 +133,7 @@ object Utils {
     fun createTestAnimatedVisibility(): Transition<Boolean> {
         val selected by remember { mutableStateOf(false) }
         val transition = updateTransition(selected, "TestAnimatedVisibility")
-        transition.AnimatedVisibility(
-            visible = { it },
-        ) {
-            Text(text = "It is fine today.")
-        }
+        transition.AnimatedVisibility(visible = { it }) { Text(text = "It is fine today.") }
         return transition
     }
 

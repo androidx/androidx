@@ -24,6 +24,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextMotion
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.material3.tokens.ArcTypographyKeyTokens
 import androidx.wear.compose.material3.tokens.TypographyKeyTokens
 import androidx.wear.compose.material3.tokens.TypographyTokens
 
@@ -112,9 +114,9 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
 @Immutable
 public class Typography
 internal constructor(
-    public val arcLarge: TextStyle,
-    public val arcMedium: TextStyle,
-    public val arcSmall: TextStyle,
+    public val arcLarge: CurvedTextStyle,
+    public val arcMedium: CurvedTextStyle,
+    public val arcSmall: CurvedTextStyle,
     public val displayLarge: TextStyle,
     public val displayMedium: TextStyle,
     public val displaySmall: TextStyle,
@@ -136,9 +138,9 @@ internal constructor(
 ) {
     public constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
-        arcLarge: TextStyle = TypographyTokens.ArcLarge,
-        arcMedium: TextStyle = TypographyTokens.ArcMedium,
-        arcSmall: TextStyle = TypographyTokens.ArcSmall,
+        arcLarge: CurvedTextStyle = TypographyTokens.ArcLarge,
+        arcMedium: CurvedTextStyle = TypographyTokens.ArcMedium,
+        arcSmall: CurvedTextStyle = TypographyTokens.ArcSmall,
         displayLarge: TextStyle = TypographyTokens.DisplayLarge,
         displayMedium: TextStyle = TypographyTokens.DisplayMedium,
         displaySmall: TextStyle = TypographyTokens.DisplaySmall,
@@ -183,9 +185,9 @@ internal constructor(
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
     public fun copy(
-        arcLarge: TextStyle = this.arcLarge,
-        arcMedium: TextStyle = this.arcMedium,
-        arcSmall: TextStyle = this.arcSmall,
+        arcLarge: CurvedTextStyle = this.arcLarge,
+        arcMedium: CurvedTextStyle = this.arcMedium,
+        arcSmall: CurvedTextStyle = this.arcSmall,
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
         displaySmall: TextStyle = this.displaySmall,
@@ -317,28 +319,34 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
 
+/**
+ * @return [this] if there is a [FontFamily] defined, otherwise copies [this] with [default] as the
+ *   [FontFamily].
+ */
+private fun CurvedTextStyle.withDefaultFontFamily(default: FontFamily): CurvedTextStyle {
+    return if (fontFamily != null) this else copy(fontFamily = default)
+}
+
 private const val DefaultIncludeFontPadding = false
 
 internal val DefaultLineHeightStyle =
-    LineHeightStyle(
-        alignment = LineHeightStyle.Alignment.Center,
-        trim = LineHeightStyle.Trim.None,
-    )
+    LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
 
-/** Returns theme default [TextStyle] with default [PlatformTextStyle]. */
+/**
+ * Returns theme default [TextStyle] with default [PlatformTextStyle]. Text styles are proportional
+ * by default but can be made tabular using copy(fontFeatureSettings = "tnum").
+ */
 internal val DefaultTextStyle =
     TextStyle.Default.copy(
         platformStyle = PlatformTextStyle(includeFontPadding = DefaultIncludeFontPadding),
         lineHeightStyle = DefaultLineHeightStyle,
         textMotion = TextMotion.Animated,
+        fontFeatureSettings = "pnum",
     )
 
 /** Helper function for typography tokens. */
 internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
-        TypographyKeyTokens.ArcLarge -> arcLarge
-        TypographyKeyTokens.ArcMedium -> arcMedium
-        TypographyKeyTokens.ArcSmall -> arcSmall
         TypographyKeyTokens.DisplayLarge -> displayLarge
         TypographyKeyTokens.DisplayMedium -> displayMedium
         TypographyKeyTokens.DisplaySmall -> displaySmall
@@ -360,11 +368,27 @@ internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     }
 }
 
+/** Helper function for arc typography tokens. */
+internal fun Typography.fromToken(value: ArcTypographyKeyTokens): CurvedTextStyle {
+    return when (value) {
+        ArcTypographyKeyTokens.ArcLarge -> arcLarge
+        ArcTypographyKeyTokens.ArcMedium -> arcMedium
+        ArcTypographyKeyTokens.ArcSmall -> arcSmall
+    }
+}
+
 /**
  * Converts the [TypographyKeyTokens] to the local text style provided by the theme. The text style
  * refers to the [LocalTypography].
  */
 internal val TypographyKeyTokens.value: TextStyle
+    @Composable @ReadOnlyComposable get() = MaterialTheme.typography.fromToken(this)
+
+/**
+ * Converts the [TypographyKeyTokens] to the local text style provided by the theme. The text style
+ * refers to the [LocalTypography].
+ */
+internal val ArcTypographyKeyTokens.value: CurvedTextStyle
     @Composable @ReadOnlyComposable get() = MaterialTheme.typography.fromToken(this)
 
 /**

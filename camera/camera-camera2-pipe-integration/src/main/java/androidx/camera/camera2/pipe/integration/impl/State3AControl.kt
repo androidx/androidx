@@ -179,7 +179,7 @@ constructor(
                         CaptureRequest.CONTROL_AWB_MODE to
                             cameraProperties.metadata.getSupportedAwbMode(
                                 CaptureRequest.CONTROL_AWB_MODE_AUTO
-                            )
+                            ),
                     )
 
                 requestControl?.setParametersAsync(values = parameters)

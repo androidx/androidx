@@ -217,7 +217,7 @@ class ImageValidationActivity : AppCompatActivity() {
                 testType,
                 cameraId,
                 extensionMode,
-                TEST_RESULT_FAILED
+                TEST_RESULT_FAILED,
             )
             finish()
             return
@@ -287,14 +287,14 @@ class ImageValidationActivity : AppCompatActivity() {
                 contentResolver,
                 imageUris[viewPager.currentItem],
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
 
         if (outputUri != null) {
             Toast.makeText(
                     this,
                     "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_LONG,
                 )
                 .show()
         } else {
@@ -309,7 +309,7 @@ class ImageValidationActivity : AppCompatActivity() {
                 testType,
                 cameraId,
                 extensionMode,
-                TEST_RESULT_FAILED
+                TEST_RESULT_FAILED,
             )
             finish()
         }
@@ -320,7 +320,7 @@ class ImageValidationActivity : AppCompatActivity() {
                 testType,
                 cameraId,
                 extensionMode,
-                TEST_RESULT_PASSED
+                TEST_RESULT_PASSED,
             )
             finish()
         }
@@ -373,7 +373,7 @@ class ImageValidationActivity : AppCompatActivity() {
             return PhotoFragment(
                 imageUris[position],
                 imageRotationDegrees[position],
-                scaleGestureListener
+                scaleGestureListener,
             )
         }
     }
@@ -448,7 +448,7 @@ class ImageValidationActivity : AppCompatActivity() {
         x: Float,
         y: Float,
         previousX: Float,
-        previousY: Float
+        previousY: Float,
     ) {
         val newTranslationX = translationX + x - previousX
 
@@ -509,7 +509,7 @@ class ImageValidationActivity : AppCompatActivity() {
             decodeImageToBitmap(
                 this@ImageValidationActivity.contentResolver,
                 imageUris[viewPager.currentItem],
-                imageRotationDegrees[viewPager.currentItem]
+                imageRotationDegrees[viewPager.currentItem],
             )
 
         photoImageView.setImageBitmap(bitmap)

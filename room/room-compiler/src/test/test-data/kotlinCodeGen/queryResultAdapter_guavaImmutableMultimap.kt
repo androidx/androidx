@@ -62,8 +62,7 @@ public class MyDao_Impl(
         val _columnIndexOfArtistId: Int = getColumnIndexOrThrow(_stmt, "artistId")
         val _columnIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
         val _columnIndexOfArtistKey: Int = getColumnIndexOrThrow(_stmt, "artistKey")
-        val _mapBuilder: ImmutableListMultimap.Builder<Artist, Song> =
-            ImmutableListMultimap.builder()
+        val _mapBuilder: ImmutableListMultimap.Builder<Artist, Song> = ImmutableListMultimap.builder()
         while (_stmt.step()) {
           val _key: Artist
           val _tmpArtistId: String

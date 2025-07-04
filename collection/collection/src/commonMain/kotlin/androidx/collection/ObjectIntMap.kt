@@ -59,12 +59,7 @@ public fun <K> objectIntMapOf(key1: K, value1: Int): ObjectIntMap<K> =
  * Returns a new [ObjectIntMap] with only [key1] and [key2] associated with [value1] and [value2],
  * respectively.
  */
-public fun <K> objectIntMapOf(
-    key1: K,
-    value1: Int,
-    key2: K,
-    value2: Int,
-): ObjectIntMap<K> =
+public fun <K> objectIntMapOf(key1: K, value1: Int, key2: K, value2: Int): ObjectIntMap<K> =
     MutableObjectIntMap<K>().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -137,10 +132,8 @@ public fun <K> objectIntMapOf(
 public fun <K> mutableObjectIntMapOf(): MutableObjectIntMap<K> = MutableObjectIntMap()
 
 /** Returns a new [MutableObjectIntMap] with only [key1] associated with [value1]. */
-public fun <K> mutableObjectIntMapOf(
-    key1: K,
-    value1: Int,
-): MutableObjectIntMap<K> = MutableObjectIntMap<K>().also { map -> map[key1] = value1 }
+public fun <K> mutableObjectIntMapOf(key1: K, value1: Int): MutableObjectIntMap<K> =
+    MutableObjectIntMap<K>().also { map -> map[key1] = value1 }
 
 /**
  * Returns a new [MutableObjectIntMap] with only [key1] and [key2] associated with [value1] and
@@ -230,7 +223,7 @@ public fun <K> mutableObjectIntMapOf(
  * @param builderAction Lambda in which the [MutableObjectIntMap] can be populated.
  */
 public inline fun <K> buildObjectIntMap(
-    builderAction: MutableObjectIntMap<K>.() -> Unit,
+    builderAction: MutableObjectIntMap<K>.() -> Unit
 ): ObjectIntMap<K> {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableObjectIntMap<K>().apply(builderAction)
@@ -495,7 +488,7 @@ public sealed class ObjectIntMap<K> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: K, value: Int) -> CharSequence
+        crossinline transform: (key: K, value: Int) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

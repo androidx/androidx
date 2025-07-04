@@ -42,7 +42,7 @@ internal class Camera2CameraExtensionMetadata(
     override val isRedacted: Boolean,
     override val cameraExtension: Int,
     private val extensionCharacteristics: CameraExtensionCharacteristics,
-    private val metadata: Map<Metadata.Key<*>, Any?>
+    private val metadata: Map<Metadata.Key<*>, Any?>,
 ) : CameraExtensionMetadata {
     @GuardedBy("supportedExtensionSizesByFormat")
     private val supportedExtensionSizesByFormat = mutableMapOf<Int, Lazy<Set<Size>>>()
@@ -97,7 +97,7 @@ internal class Camera2CameraExtensionMetadata(
                         Api31Compat.getExtensionSupportedSizes(
                                 extensionCharacteristics,
                                 cameraExtension,
-                                imageFormat
+                                imageFormat,
                             )
                             .toSet()
                     }
@@ -114,7 +114,7 @@ internal class Camera2CameraExtensionMetadata(
                         Api31Compat.getExtensionSupportedSizes(
                                 extensionCharacteristics,
                                 cameraExtension,
-                                klass
+                                klass,
                             )
                             .toSet()
                     }
@@ -136,7 +136,7 @@ internal class Camera2CameraExtensionMetadata(
                                 extensionCharacteristics,
                                 cameraExtension,
                                 captureSize,
-                                format
+                                format,
                             )
                             .toSet()
                     }
@@ -150,7 +150,7 @@ internal class Camera2CameraExtensionMetadata(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 Api33Compat.getAvailableCaptureRequestKeys(
                         extensionCharacteristics,
-                        cameraExtension
+                        cameraExtension,
                     )
                     .toSet()
             } else {
@@ -182,7 +182,7 @@ internal class Camera2CameraExtensionMetadata(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 Api34Compat.isCaptureProcessProgressAvailable(
                     extensionCharacteristics,
-                    cameraExtension
+                    cameraExtension,
                 )
             } else {
                 false

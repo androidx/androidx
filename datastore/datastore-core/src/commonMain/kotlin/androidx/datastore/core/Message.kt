@@ -35,6 +35,6 @@ internal sealed class Message<T> {
         /** Used to signal (un)successful completion of the update to the caller. */
         val ack: CompletableDeferred<T>,
         override val lastState: State<T>?,
-        val callerContext: CoroutineContext
+        val callerContext: CoroutineContext,
     ) : Message<T>()
 }

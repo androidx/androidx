@@ -132,7 +132,7 @@ object Release {
         val zipTasks =
             listOfNotNull(
                 projectZipTask,
-                getGlobalFullZipTask(project, androidXExtension.isIsolatedProjectsEnabled())
+                getGlobalFullZipTask(project, androidXExtension.isIsolatedProjectsEnabled()),
             )
 
         val publishTask = project.tasks.named("publish")
@@ -151,7 +151,7 @@ object Release {
                         project.rootProject.getRepositoryDirectory()
                     )
                 },
-                onRegister = {}
+                onRegister = {},
             )
         archiveAnchorTask.configure { it.dependsOn(task) }
     }
@@ -161,7 +161,7 @@ object Release {
      */
     private fun getGlobalFullZipTask(
         project: Project,
-        projectIsolationEnabled: Boolean
+        projectIsolationEnabled: Boolean,
     ): TaskProvider<GMavenZipTask>? {
         if (projectIsolationEnabled) return null
         return project.rootProject.maybeRegister(
@@ -174,13 +174,13 @@ object Release {
             },
             onRegister = { taskProvider: TaskProvider<GMavenZipTask> ->
                 project.addToAnchorTask(taskProvider)
-            }
+            },
         )
     }
 
     private fun getProjectZipTask(
         project: Project,
-        projectIsolationEnabled: Boolean
+        projectIsolationEnabled: Boolean,
     ): TaskProvider<GMavenZipTask> {
         val taskProvider =
             project.tasks.register(PROJECT_ARCHIVE_ZIP_TASK_NAME, GMavenZipTask::class.java) {

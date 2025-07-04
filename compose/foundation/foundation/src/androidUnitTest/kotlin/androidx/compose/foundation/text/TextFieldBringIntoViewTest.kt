@@ -86,7 +86,7 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                constraints = mock()
+                constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
 
@@ -95,7 +95,7 @@ class TextFieldBringIntoViewTest {
                 editorState,
                 delegate,
                 textLayoutResult,
-                OffsetMapping.Identity
+                OffsetMapping.Identity,
             )
         }
         verifyBlocking(bringIntoViewRequester) { bringIntoView(rect) }
@@ -119,7 +119,7 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                constraints = mock()
+                constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
 
@@ -128,7 +128,7 @@ class TextFieldBringIntoViewTest {
                 editorState,
                 delegate,
                 textLayoutResult,
-                OffsetMapping.Identity
+                OffsetMapping.Identity,
             )
         }
         verifyBlocking(bringIntoViewRequester) { bringIntoView(rect) }
@@ -152,7 +152,7 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                constraints = mock()
+                constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
         layoutCoordinates = MockCoordinates(rootOffset = point)
@@ -162,7 +162,7 @@ class TextFieldBringIntoViewTest {
                 editorState,
                 delegate,
                 textLayoutResult,
-                skippingOffsetMap
+                skippingOffsetMap,
             )
         }
         verify(textLayoutResult).getBoundingBox(6)
@@ -188,7 +188,7 @@ class TextFieldBringIntoViewTest {
                 density = Density(1.0f),
                 layoutDirection = LayoutDirection.Ltr,
                 fontFamilyResolver = mock(),
-                constraints = mock()
+                constraints = mock(),
             )
         whenever(textLayoutResult.layoutInput).thenReturn(input)
 
@@ -205,7 +205,7 @@ class TextFieldBringIntoViewTest {
                 TextFieldValue(text = "Hello, World", selection = TextRange(0)),
                 delegate,
                 textLayoutResult,
-                offsetMapping
+                offsetMapping,
             )
         }
         verifyBlocking(bringIntoViewRequester) { bringIntoView(rect) }
@@ -217,7 +217,7 @@ class TextFieldBringIntoViewTest {
                 TextFieldValue(text = "Hello, World", selection = TextRange(24)),
                 delegate,
                 textLayoutResult,
-                offsetMapping
+                offsetMapping,
             )
         }
         verifyBlocking(bringIntoViewRequester) { bringIntoView(rect) }
@@ -229,7 +229,7 @@ class TextFieldBringIntoViewTest {
                 TextFieldValue(text = "Hello, World", selection = TextRange(25)),
                 delegate,
                 textLayoutResult,
-                offsetMapping
+                offsetMapping,
             )
         }
         verifyBlocking(bringIntoViewRequester) { bringIntoView(rect) }
@@ -239,7 +239,7 @@ class TextFieldBringIntoViewTest {
         override val size: IntSize = IntSize.Zero,
         val localOffset: Offset = Offset.Zero,
         val globalOffset: Offset = Offset.Zero,
-        val rootOffset: Offset = Offset.Zero
+        val rootOffset: Offset = Offset.Zero,
     ) : LayoutCoordinates {
         override val providedAlignmentLines: Set<AlignmentLine>
             get() = emptySet()
@@ -261,12 +261,12 @@ class TextFieldBringIntoViewTest {
 
         override fun localPositionOf(
             sourceCoordinates: LayoutCoordinates,
-            relativeToSource: Offset
+            relativeToSource: Offset,
         ): Offset = Offset.Zero
 
         override fun localBoundingBoxOf(
             sourceCoordinates: LayoutCoordinates,
-            clipBounds: Boolean
+            clipBounds: Boolean,
         ): Rect = Rect.Zero
 
         override fun get(alignmentLine: AlignmentLine): Int = 0

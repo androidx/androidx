@@ -75,10 +75,10 @@ import com.example.androidx.mediarouting.player.Player;
 import com.example.androidx.mediarouting.player.RemotePlayer;
 import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.providers.WrapperMediaRouteProvider;
+import com.example.androidx.mediarouting.services.WrapperMediaRouteProviderService;
 import com.example.androidx.mediarouting.session.SessionManager;
 import com.example.androidx.mediarouting.ui.LibraryAdapter;
 import com.example.androidx.mediarouting.ui.PlaylistAdapter;
-import com.example.androidx.mediarouting.util.Utils;
 import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -114,8 +114,6 @@ public class MainActivity extends AppCompatActivity {
             createTransferListener();
     private final MediaRouter.Callback mMediaRouterCB = new SampleMediaRouterCallback();
 
-    private boolean mSimpleRouteProviderEnabled;
-    private boolean mWrapperRouteProviderEnabled;
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mSelector;
     private PlaylistAdapter mPlayListItems;
@@ -135,8 +133,6 @@ public class MainActivity extends AppCompatActivity {
 
         requestRequiredPermissions();
 
-        initializeMediaRouteProviderService();
-
         mMediaRouter = MediaRouter.getInstance(this);
         mMediaRouter.setRouterParams(getRouterParams());
 
@@ -144,19 +140,15 @@ public class MainActivity extends AppCompatActivity {
         routesManager.reloadDialogType();
 
         // Create a route selector for the type of routes that we care about.
-        MediaRouteSelector.Builder selectorBuilder =
+        mSelector =
                 new MediaRouteSelector.Builder()
                         .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
                         .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_AUDIO_PLAYBACK)
                         .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_VIDEO_PLAYBACK)
-                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
-        if (mSimpleRouteProviderEnabled) {
-            selectorBuilder.addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE);
-        }
-        if (mWrapperRouteProviderEnabled) {
-            selectorBuilder.addControlCategory(WrapperMediaRouteProvider.CATEGORY_WRAPPER_ROUTE);
-        }
-        mSelector = selectorBuilder.build();
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                        .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
+                        .addControlCategory(WrapperMediaRouteProvider.CATEGORY_WRAPPER_ROUTE)
+                        .build();
 
         mMediaRouter.setOnPrepareTransferListener(mOnPrepareTransferListener);
 
@@ -179,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
         String[] mediaNames = getResources().getStringArray(R.array.media_names);
         String[] mediaUris = getResources().getStringArray(R.array.media_uris);
         String[] mediaMimes = getResources().getStringArray(R.array.media_mimes);
-        LibraryAdapter libraryItems = new LibraryAdapter(/* mainActivity= */ this,
-                /* sessionManager= */  mSessionManager);
+        LibraryAdapter libraryItems =
+                new LibraryAdapter(/* mainActivity= */ this, /* sessionManager= */ mSessionManager);
         for (int i = 0; i < mediaNames.length; i++) {
             libraryItems.add(new MediaItem(
                     "[streaming] " + mediaNames[i], Uri.parse(mediaUris[i]), mediaMimes[i]));
@@ -405,16 +397,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initializeMediaRouteProviderService() {
-        Context context = getApplicationContext();
-        mSimpleRouteProviderEnabled =
-                SettingsPreferenceFragment.isSimpleRouteProviderEnabled(context);
-        Utils.setSimpleRouteProviderServiceEnabled(context, mSimpleRouteProviderEnabled);
-        mWrapperRouteProviderEnabled =
-                SettingsPreferenceFragment.isWrapperRouteProviderEnabled(context);
-        Utils.setWrapperRouteProviderServiceEnabled(context, mWrapperRouteProviderEnabled);
-    }
-
     private void createMediaSession() {
         // Create the MediaSession
         mMediaSession = new MediaSessionCompat(this, "SampleMediaRouter", mEventReceiver,
@@ -570,6 +552,10 @@ public class MainActivity extends AppCompatActivity {
                         .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
                         .setTransferToLocalEnabled(
                                 true); // Phone speaker will be shown when casting.
+        boolean wrapperRouteProviderEnabled =
+                SettingsActivity.isServiceEnabled(
+                        getApplicationContext(), WrapperMediaRouteProviderService.class);
+        routerParams.setMediaTransferRestrictedToSelfProviders(wrapperRouteProviderEnabled);
         return routerParams.build();
     }
 
@@ -585,9 +571,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Media route discovery fragment.
-     */
+    /** Media route discovery fragment. */
     public static final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
         private MediaRouter.Callback mCallback;
 
@@ -711,6 +695,41 @@ public class MainActivity extends AppCompatActivity {
                 updateUi();
                 oldPlayer.release();
             }
+        }
+
+        @Override
+        public void onRouteUnselected(
+                @NonNull MediaRouter router, @NonNull RouteInfo route, int reason) {
+            Log.d(TAG, "onRouteUnselected: route=" + route);
+        }
+
+        @Override
+        public void onRouteConnected(
+                @NonNull MediaRouter router,
+                @NonNull RouteInfo connectedRoute,
+                @NonNull RouteInfo requestedRoute) {
+            Log.d(
+                    TAG,
+                    "onRouteConnected: connectedRoute="
+                            + connectedRoute
+                            + ", requestedRoute="
+                            + requestedRoute);
+        }
+
+        @Override
+        public void onRouteDisconnected(
+                @NonNull MediaRouter router,
+                @Nullable RouteInfo disconnectedRoute,
+                @NonNull RouteInfo requestedRoute,
+                int reason) {
+            Log.d(
+                    TAG,
+                    "onRouteDisconnected: disconnectedRoute="
+                            + disconnectedRoute
+                            + ", requestedRoute = "
+                            + requestedRoute
+                            + " and reason="
+                            + reason);
         }
 
         @Override

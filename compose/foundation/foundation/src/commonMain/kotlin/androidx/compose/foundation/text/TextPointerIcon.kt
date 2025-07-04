@@ -18,5 +18,4 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.pointer.PointerIcon
 
-internal expect val textPointerIcon: PointerIcon
 internal expect val handwritingPointerIcon: PointerIcon

@@ -34,7 +34,7 @@ class CpuInfoTest {
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
-                    CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000)
+                    CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
                 )
             )
         )
@@ -48,7 +48,7 @@ class CpuInfoTest {
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 3, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 3, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 3, 1000),
-                    CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000)
+                    CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
                 )
             )
         )
@@ -62,7 +62,7 @@ class CpuInfoTest {
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 2, 1000),
                     CpuInfo.CoreDir("", true, listOf(2, 3), 3, 1000),
-                    CpuInfo.CoreDir("", true, listOf(2, 3), 3, 1000)
+                    CpuInfo.CoreDir("", true, listOf(2, 3), 3, 1000),
                 )
             )
         )
@@ -76,7 +76,7 @@ class CpuInfoTest {
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 1, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 1, 1000),
                     CpuInfo.CoreDir("", true, listOf(1, 2, 3), 1, 1000),
-                    CpuInfo.CoreDir("", true, listOf(1, 2, 3), 1, 1000)
+                    CpuInfo.CoreDir("", true, listOf(1, 2, 3), 1, 1000),
                 )
             )
         )

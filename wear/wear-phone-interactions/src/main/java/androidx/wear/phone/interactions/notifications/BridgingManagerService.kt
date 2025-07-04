@@ -43,7 +43,7 @@ public fun interface BridgingConfigurationHandler {
  */
 public class BridgingManagerService(
     private val context: Context,
-    private val bridgingConfigurationHandler: BridgingConfigurationHandler
+    private val bridgingConfigurationHandler: BridgingConfigurationHandler,
 ) : Service() {
     override fun onBind(intent: Intent?): IBinder? =
         if (intent?.action == BridgingManager.ACTION_BIND_BRIDGING_MANAGER)
@@ -53,7 +53,7 @@ public class BridgingManagerService(
 
 internal class BridgingManagerServiceImpl(
     private val context: Context,
-    private val bridgingConfigurationHandler: BridgingConfigurationHandler
+    private val bridgingConfigurationHandler: BridgingConfigurationHandler,
 ) : IBridgingManagerService.Stub() {
 
     override fun getApiVersion(): Int = IBridgingManagerService.API_VERSION

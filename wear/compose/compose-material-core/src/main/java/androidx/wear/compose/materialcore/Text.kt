@@ -97,7 +97,7 @@ public fun Text(
     minLines: Int,
     inlineContent: Map<String, InlineTextContent>,
     onTextLayout: (TextLayoutResult) -> Unit,
-    style: TextStyle
+    style: TextStyle,
 ) {
     BasicText(
         text = text,
@@ -112,13 +112,13 @@ public fun Text(
                 fontFamily = fontFamily,
                 textDecoration = textDecoration,
                 fontStyle = fontStyle,
-                letterSpacing = letterSpacing
+                letterSpacing = letterSpacing,
             ),
         onTextLayout = onTextLayout,
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        inlineContent = inlineContent
+        inlineContent = inlineContent,
     )
 }

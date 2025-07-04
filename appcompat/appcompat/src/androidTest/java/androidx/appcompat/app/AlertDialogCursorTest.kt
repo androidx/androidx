@@ -37,6 +37,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import java.io.File
 import org.hamcrest.Matchers
@@ -115,6 +116,7 @@ class AlertDialogCursorTest {
         databaseFile.delete()
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     @Test
     fun testSimpleItemsFromCursor() {
         cursor = database.query("test", PROJECTION_WITHOUT_CHECKED, null, null, null, null, null)
@@ -133,7 +135,7 @@ class AlertDialogCursorTest {
         Assert.assertEquals(
             "List has $expectedCount entries",
             expectedCount.toLong(),
-            listAdapter.count.toLong()
+            listAdapter.count.toLong(),
         )
 
         // Test that all items are showing
@@ -145,7 +147,7 @@ class AlertDialogCursorTest {
                 Espresso.onData(
                     AllOf.allOf(
                         Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
-                        TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, s)
+                        TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, s),
                     )
                 )
             rowInteraction
@@ -157,7 +159,7 @@ class AlertDialogCursorTest {
         Mockito.verify(mockClickListener, Mockito.never())
             .onClick(
                 ArgumentMatchers.any(DialogInterface::class.java),
-                ArgumentMatchers.any(Int::class.javaPrimitiveType)
+                ArgumentMatchers.any(Int::class.javaPrimitiveType),
             )
 
         // Test that a click on an item invokes the registered listener
@@ -168,8 +170,8 @@ class AlertDialogCursorTest {
                     Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
                     TestUtilsMatchers.withCursorItemContent(
                         TEXT_COLUMN_NAME,
-                        TEXT_CONTENT[indexToClick]
-                    )
+                        TEXT_CONTENT[indexToClick],
+                    ),
                 )
             )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
@@ -186,7 +188,7 @@ class AlertDialogCursorTest {
      */
     private fun verifyMultiChoiceItemsState(
         @Suppress("SameParameterValue") expectedContent: Array<String>,
-        checkedTracker: BooleanArray
+        checkedTracker: BooleanArray,
     ) {
         val expectedCount = expectedContent.size
         val listView = alertDialog!!.listView
@@ -195,7 +197,7 @@ class AlertDialogCursorTest {
         Assert.assertEquals(
             "List has $expectedCount entries",
             expectedCount.toLong(),
-            listAdapter.count.toLong()
+            listAdapter.count.toLong(),
         )
         for (i in 0 until expectedCount) {
             val checkedStateMatcher =
@@ -209,8 +211,8 @@ class AlertDialogCursorTest {
                         Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
                         TestUtilsMatchers.withCursorItemContent(
                             TEXT_COLUMN_NAME,
-                            expectedContent[i]
-                        )
+                            expectedContent[i],
+                        ),
                     )
                 )
             rowInteraction
@@ -223,13 +225,14 @@ class AlertDialogCursorTest {
                             ViewMatchers.isDescendantOfA(
                                 ViewMatchers.isAssignableFrom(ListView::class.java)
                             ),
-                            checkedStateMatcher
+                            checkedStateMatcher,
                         )
                     )
                 )
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     @LargeTest
     @Test
     fun testMultiChoiceItemsFromCursor() {
@@ -252,7 +255,7 @@ class AlertDialogCursorTest {
                         "test",
                         valuesToUpdate,
                         "$TEXT_COLUMN_NAME = ?",
-                        arrayOf(cursor!!.getString(1))
+                        arrayOf(cursor!!.getString(1)),
                     )
                     cursor!!.requery()
                     checkedTracker[which] = isChecked
@@ -269,7 +272,7 @@ class AlertDialogCursorTest {
         Assert.assertEquals(
             "List has $expectedCount entries",
             expectedCount.toLong(),
-            listAdapter.count.toLong()
+            listAdapter.count.toLong(),
         )
 
         // Test that all items are showing
@@ -286,7 +289,7 @@ class AlertDialogCursorTest {
             Espresso.onData(
                 AllOf.allOf(
                     Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
-                    TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, TEXT_CONTENT[1])
+                    TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, TEXT_CONTENT[1]),
                 )
             )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
@@ -308,8 +311,8 @@ class AlertDialogCursorTest {
                     Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
                     TestUtilsMatchers.withCursorItemContent(
                         TEXT_COLUMN_NAME,
-                        TEXT_CONTENT[expectedCount - 1]
-                    )
+                        TEXT_CONTENT[expectedCount - 1],
+                    ),
                 )
             )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
@@ -325,7 +328,7 @@ class AlertDialogCursorTest {
      */
     private fun verifySingleChoiceItemsState(
         @Suppress("SameParameterValue") expectedContent: Array<String>,
-        currentlyExpectedSelectionIndex: Int
+        currentlyExpectedSelectionIndex: Int,
     ) {
         val expectedCount = expectedContent.size
         val listView = alertDialog!!.listView
@@ -334,7 +337,7 @@ class AlertDialogCursorTest {
         Assert.assertEquals(
             "List has $expectedCount entries",
             expectedCount.toLong(),
-            listAdapter.count.toLong()
+            listAdapter.count.toLong(),
         )
         for (i in 0 until expectedCount) {
             val checkedStateMatcher =
@@ -348,8 +351,8 @@ class AlertDialogCursorTest {
                         Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
                         TestUtilsMatchers.withCursorItemContent(
                             TEXT_COLUMN_NAME,
-                            expectedContent[i]
-                        )
+                            expectedContent[i],
+                        ),
                     )
                 )
             rowInteraction
@@ -362,13 +365,14 @@ class AlertDialogCursorTest {
                             ViewMatchers.isDescendantOfA(
                                 ViewMatchers.isAssignableFrom(ListView::class.java)
                             ),
-                            checkedStateMatcher
+                            checkedStateMatcher,
                         )
                     )
                 )
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246833
     @LargeTest
     @Test
     fun testSingleChoiceItemsFromCursor() {
@@ -400,8 +404,8 @@ class AlertDialogCursorTest {
                     Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
                     TestUtilsMatchers.withCursorItemContent(
                         TEXT_COLUMN_NAME,
-                        TEXT_CONTENT[currentlyExpectedSelectionIndex]
-                    )
+                        TEXT_CONTENT[currentlyExpectedSelectionIndex],
+                    ),
                 )
             )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
@@ -424,8 +428,8 @@ class AlertDialogCursorTest {
                     Is.`is`(Matchers.instanceOf(SQLiteCursor::class.java)),
                     TestUtilsMatchers.withCursorItemContent(
                         TEXT_COLUMN_NAME,
-                        TEXT_CONTENT[currentlyExpectedSelectionIndex]
-                    )
+                        TEXT_CONTENT[currentlyExpectedSelectionIndex],
+                    ),
                 )
             )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
@@ -444,12 +448,12 @@ class AlertDialogCursorTest {
             arrayOf(
                 "_id", // 0
                 TEXT_COLUMN_NAME, // 1
-                CHECKED_COLUMN_NAME // 2
+                CHECKED_COLUMN_NAME, // 2
             )
         private val PROJECTION_WITHOUT_CHECKED: Array<String> =
             arrayOf(
                 "_id", // 0
-                TEXT_COLUMN_NAME // 1
+                TEXT_COLUMN_NAME, // 1
             )
     }
 }

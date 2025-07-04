@@ -63,13 +63,13 @@ fun SimpleInteractionSourceSample() {
         Modifier.draggable(
             interactionSource = interactionSource,
             orientation = Orientation.Horizontal,
-            state = rememberDraggableState { /* update some business state here */ }
+            state = rememberDraggableState { /* update some business state here */ },
         )
 
     val clickable =
         Modifier.clickable(
             interactionSource = interactionSource,
-            indication = LocalIndication.current
+            indication = LocalIndication.current,
         ) { /* update some business state here */
         }
 
@@ -98,7 +98,7 @@ fun SimpleInteractionSourceSample() {
             Text(
                 text,
                 style = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                modifier = Modifier.fillMaxSize().wrapContentSize()
+                modifier = Modifier.fillMaxSize().wrapContentSize(),
             )
         }
     }
@@ -116,7 +116,7 @@ fun InteractionSourceFlowSample() {
         Modifier.draggable(
             interactionSource = interactionSource,
             orientation = Orientation.Horizontal,
-            state = rememberDraggableState { /* update some business state here */ }
+            state = rememberDraggableState { /* update some business state here */ },
         )
 
     val clickable =
@@ -127,7 +127,7 @@ fun InteractionSourceFlowSample() {
             // draggable. As a result we want to show indication for the _whole_ component, and not
             // just for clickable area. We set `null` indication here and provide an explicit
             // Modifier.indication instance later that will draw indication for the whole component.
-            indication = null
+            indication = null,
         ) { /* update some business state here */
         }
 
@@ -164,7 +164,7 @@ fun InteractionSourceFlowSample() {
             // our hoisted MutableInteractionSource
             Modifier.indication(
                 interactionSource = interactionSource,
-                indication = LocalIndication.current
+                indication = LocalIndication.current,
             )
         ) {
             Box(
@@ -177,7 +177,7 @@ fun InteractionSourceFlowSample() {
                 Text(
                     text = if (pressed) "Pressed" else "Not pressed",
                     style = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                    modifier = Modifier.fillMaxSize().wrapContentSize()
+                    modifier = Modifier.fillMaxSize().wrapContentSize(),
                 )
             }
             Box(
@@ -190,14 +190,14 @@ fun InteractionSourceFlowSample() {
                 Text(
                     text = if (dragged) "Dragged" else "Not dragged",
                     style = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-                    modifier = Modifier.fillMaxSize().wrapContentSize()
+                    modifier = Modifier.fillMaxSize().wrapContentSize(),
                 )
             }
         }
         Text(
             text = text,
             style = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
-            modifier = Modifier.fillMaxSize().wrapContentSize()
+            modifier = Modifier.fillMaxSize().wrapContentSize(),
         )
     }
 }

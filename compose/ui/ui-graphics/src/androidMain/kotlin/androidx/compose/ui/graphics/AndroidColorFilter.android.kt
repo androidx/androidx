@@ -81,7 +81,7 @@ private object BlendModeColorFilterHelper {
         return BlendModeColorFilter(
             Color(androidBlendModeColorFilter.color),
             androidBlendModeColorFilter.mode.toComposeBlendMode(),
-            androidBlendModeColorFilter
+            androidBlendModeColorFilter,
         )
     }
 }

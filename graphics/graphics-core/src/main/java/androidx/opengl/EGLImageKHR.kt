@@ -21,7 +21,6 @@ package androidx.opengl
  * APIs). This is similar to EGL's EGLImage API except the KHR suffix indicates it is generated as
  * part of the extension APIs namely through [EGLExt.eglCreateImageFromHardwareBuffer]
  */
-@Suppress("AcronymName")
 class EGLImageKHR(override val nativeHandle: Long) : EGLHandle {
 
     override fun equals(other: Any?): Boolean {

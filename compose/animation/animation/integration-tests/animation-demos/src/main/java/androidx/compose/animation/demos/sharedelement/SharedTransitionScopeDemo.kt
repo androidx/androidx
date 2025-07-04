@@ -69,6 +69,10 @@ fun SharedElementDemos() {
             "AnimatedContent" to { SharedElementInAnimatedContentSample() },
             "Text transform" to { TextSharedBoundsExperiments() },
             "Nav Shared Tool Bar" to { NavigationWithSharedToolBarDemo() },
+            "Shared Element with Movable Content" to { SharedElementWithMovableContent() },
+            "Shared Element in Pager" to { SharedElementInPagerDemo() },
+            "Shared Element in LazyStaggeredGrid" to { SharedElementInLazyStaggeredGridDemo() },
+            "Shared Element in LazyGrid" to { LazyGridSharedElementDemo() },
         )
 
     Column {
@@ -77,7 +81,7 @@ fun SharedElementDemos() {
                 Tab(
                     index == selectedTab,
                     { selectedTab = index },
-                    modifier = Modifier.padding(5.dp)
+                    modifier = Modifier.padding(5.dp),
                 ) {
                     Text(text)
                 }
@@ -146,7 +150,7 @@ fun ScaleContentTransition() {
                                 EnterTransition.None,
                                 ExitTransition.None,
                                 resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
-                            )
+                            ),
                 )
             } else {
                 Image(
@@ -162,7 +166,7 @@ fun ScaleContentTransition() {
                                 resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
                             )
                             .requiredSize(200.dp)
-                            .clip(shape = RoundedCornerShape(10))
+                            .clip(shape = RoundedCornerShape(10)),
                 )
             }
         }

@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.selection.gestures
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
@@ -36,7 +37,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.util.fastForEach
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
 import org.junit.Before
@@ -44,7 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelectionGesturesTest() {
     private val textContent = "line1\nline2 text1 text2!\nline3"
 
@@ -64,17 +64,13 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag)
+            modifier = Modifier.testTag(pointerAreaTag),
         ) {
             Column {
                 texts.fastForEach { (str, tag) ->
                     BasicText(
                         text = str,
-                        style =
-                            TextStyle(
-                                fontFamily = fontFamily,
-                                fontSize = fontSize,
-                            ),
+                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                         modifier = Modifier.testTag(tag),
                     )
                 }
@@ -90,8 +86,9 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
                     textContent = textContent,
                     rule = rule,
                     textToolbar = textToolbar,
+                    spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
-                    getActual = { selection.value }
+                    getActual = { selection.value },
                 ) {
                 override fun subAssert() {
                     Truth.assertAbout(MultiSelectionSubject.withContent(texts))

@@ -43,11 +43,11 @@ object WindowDialogBenchmark : MacrobenchmarkScreen {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = OPEN_DIALOG }
+                    modifier = Modifier.semantics { contentDescription = OPEN_DIALOG },
                 ) {
                     Text("Open")
                 }
@@ -55,7 +55,7 @@ object WindowDialogBenchmark : MacrobenchmarkScreen {
             if (showDialog.value) {
                 androidx.compose.ui.window.Dialog(
                     onDismissRequest = { showDialog.value = false },
-                    properties = DialogProperties()
+                    properties = DialogProperties(),
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Button(
@@ -63,7 +63,7 @@ object WindowDialogBenchmark : MacrobenchmarkScreen {
                                 Modifier.align(Alignment.Center).semantics {
                                     contentDescription = DIALOG_CONFIRM
                                 },
-                            onClick = { showDialog.value = false }
+                            onClick = { showDialog.value = false },
                         ) {
                             Text("Close dialog")
                         }

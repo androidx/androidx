@@ -133,7 +133,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         // NoSuchMethodError will be thrown if getSupportedResolutions is not implemented in
@@ -150,7 +150,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
         assertThat(impl.onPresetSession()).isNull()
     }
@@ -164,7 +164,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
         val latencyInfo =
             extensionsManager.getEstimatedCaptureLatencyRange(
                 baseCameraSelector,
-                config.extensionMode
+                config.extensionMode,
             )
 
         // Creates ImageCaptureExtenderImpl directly to retrieve the capture latency range info
@@ -172,7 +172,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
         val expectedLatencyInfo = impl.getEstimatedCaptureLatencyRange(null)
 
@@ -197,7 +197,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         // Runs the test only when postview is available
@@ -223,7 +223,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
                     assertThat(
                             AspectRatioUtil.hasMatchingAspectRatio(
                                 postviewSize,
-                                Rational(captureSize.width, captureSize.height)
+                                Rational(captureSize.width, captureSize.height),
                             )
                         )
                         .isTrue()
@@ -249,7 +249,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         // onSessionType is allowed to return any OEM customized session type, therefore, we can
@@ -261,7 +261,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createPreviewExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         val previewSessionType = previewExtenderImpl.onSessionType()
@@ -280,7 +280,7 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
             CameraXExtensionsTestUtil.createImageCaptureExtenderImpl(
                 config.extensionMode,
                 config.cameraId,
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         // Makes sure isCaptureProcessProgressAvailable API can be called without any exception

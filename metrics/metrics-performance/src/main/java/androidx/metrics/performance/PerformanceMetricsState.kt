@@ -71,7 +71,7 @@ class PerformanceMetricsState private constructor() {
         frameStartTime: Long,
         frameEndTime: Long,
         frameStates: MutableList<StateInfo>,
-        activeStates: MutableList<StateData>
+        activeStates: MutableList<StateData>,
     ) {
         for (i in activeStates.indices.reversed()) {
             // idea: add state if state was active during this frame
@@ -87,10 +87,10 @@ class PerformanceMetricsState private constructor() {
                 // most recently added should be logged, as it replaces the earlier ones.
                 statesHolder.add(item)
                 if (activeStates == singleFrameStates && item.timeRemoved == -1L) {
-                    // This marks a single frame state for removal now that it has logged data
-                    // It will actually be removed at the end of the frame, to give it a chance to
-                    // log data for multiple listeners.
-                    item.timeRemoved = System.nanoTime()
+                    // This marks a single frame state for removal now that it has logged data.
+                    // It will actually be removed on the next frame, with the removal logic
+                    // above, to give it a chance to log data for multiple listeners on this frame.
+                    item.timeRemoved = frameStartTime
                 }
             }
         }
@@ -288,7 +288,7 @@ class PerformanceMetricsState private constructor() {
     internal fun getIntervalStates(
         startTime: Long,
         endTime: Long,
-        frameStates: MutableList<StateInfo>
+        frameStates: MutableList<StateInfo>,
     ) {
         synchronized(singleFrameStates) {
             frameStates.clear()

@@ -437,11 +437,11 @@ final class ExpectedAttributes {
         }
 
         public Builder setMake(@Nullable String make) {
+            mMake = make;
             if (make == null) {
                 mMakeOffset = 0;
                 mMakeLength = 0;
             } else {
-                mMake = make;
                 mMakeLength = make.length() + 1;
             }
             return this;

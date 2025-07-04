@@ -216,7 +216,7 @@ internal class BasicTextFieldImmIntegrationTest {
                     val initialSelection = selection
                     append("world")
                     selection = initialSelection
-                }
+                },
             )
         }
         requestFocus(Tag)
@@ -248,7 +248,7 @@ internal class BasicTextFieldImmIntegrationTest {
                     val initialSelection = selection
                     append("world")
                     selection = initialSelection
-                }
+                },
             )
         }
         requestFocus(Tag)
@@ -276,7 +276,7 @@ internal class BasicTextFieldImmIntegrationTest {
                     val initialSelection = selection
                     append("world")
                     selection = initialSelection
-                }
+                },
             )
         }
         requestFocus(Tag)
@@ -294,7 +294,7 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = { selectAll() }
+                inputTransformation = { selectAll() },
             )
         }
         requestFocus(Tag)
@@ -404,7 +404,7 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             )
         }
         requestFocus(Tag)
@@ -435,7 +435,7 @@ internal class BasicTextFieldImmIntegrationTest {
                         override fun TextFieldBuffer.transformInput() {
                             append('A')
                         }
-                    }
+                    },
             )
         }
         requestFocus(Tag)
@@ -461,7 +461,7 @@ internal class BasicTextFieldImmIntegrationTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                keyboardOptions = KeyboardOptions(hintLocales = LocaleList("tr"))
+                keyboardOptions = KeyboardOptions(hintLocales = LocaleList("tr")),
             )
         }
         requestFocus(Tag)

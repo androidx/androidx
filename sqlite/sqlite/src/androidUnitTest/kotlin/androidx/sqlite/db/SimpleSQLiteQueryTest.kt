@@ -57,7 +57,7 @@ class SimpleSQLiteQueryTest {
 
     @Test
     fun argCount_withArgs() {
-        val query = SimpleSQLiteQuery("foo", arrayOf("bar", 2, true))
+        val query = SimpleSQLiteQuery("foo", arrayOf<Any>("bar", 2, true))
         assertThat(query.argCount, `is`(3))
     }
 

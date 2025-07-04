@@ -30,8 +30,8 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                 Stubs.BuildCompat,
                 Stubs.ChecksSdkIntAtLeast,
                 Stubs.JetpackRequiresOptIn,
-                Stubs.RestrictTo
-            )
+                Stubs.RestrictTo,
+            ),
     ) {
     @Test
     fun `Versioned dependency with isAtLeastU is flagged`() {

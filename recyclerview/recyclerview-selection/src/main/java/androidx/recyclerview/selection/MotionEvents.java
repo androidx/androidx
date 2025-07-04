@@ -21,7 +21,7 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Utility methods for working with {@link MotionEvent} instances.
@@ -113,15 +113,6 @@ final class MotionEvents {
         // returned.
         return (isTouchpadEvent(e) || isMouseEvent(e)) && isActionMove(e)
                 && e.getButtonState() == 0;
-    }
-
-    /**
-     * Returns true if the event is a drag event (which is presumbaly, but not
-     * explicitly required to be a mouse event).
-     */
-    static boolean isPointerDragEvent(MotionEvent e) {
-        return isPrimaryMouseButtonPressed(e)
-                && isActionMove(e);
     }
 
     private static boolean hasBit(int metaState, int bit) {

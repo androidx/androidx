@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -39,12 +39,12 @@ dependencies {
 }
 
 android {
-    namespace "androidx.webkit.test.common"
+    namespace = "androidx.webkit.test.common"
 }
 
 androidx {
     name = "androidx.webkit.test.common:common"
     inceptionYear = "2024"
     description = "Utility classes for writing WebView tests"
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
 }

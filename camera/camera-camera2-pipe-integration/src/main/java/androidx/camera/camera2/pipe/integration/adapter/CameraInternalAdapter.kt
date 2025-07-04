@@ -50,7 +50,7 @@ constructor(
     private val cameraInfo: CameraInfoInternal,
     private val cameraController: CameraControlInternal,
     private val threads: UseCaseThreads,
-    private val cameraStateAdapter: CameraStateAdapter
+    private val cameraStateAdapter: CameraStateAdapter,
 ) : CameraInternal {
     private val cameraId = config.cameraId
     private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =

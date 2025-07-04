@@ -71,7 +71,7 @@ fun ShapeViewer() {
             numVerticesPerRadius = 8,
             width = 2f,
             height = .4f,
-            rounding = CornerRounding(.5f)
+            rounding = CornerRounding(.5f),
         )
     val morph = Morph(shape1, shape2)
     val progress = remember { Animatable(0f) }
@@ -85,7 +85,7 @@ fun ShapeViewer() {
                     Modifier.weight(1f).aspectRatio(1f).padding(horizontal = 5.dp).clickable {
                         scope.launch { doAnimation(progress, reverse = true) }
                     },
-                shapeColor1
+                shapeColor1,
             )
             ShapeView(
                 shape2,
@@ -93,14 +93,14 @@ fun ShapeViewer() {
                     Modifier.weight(1f).aspectRatio(1f).padding(horizontal = 5.dp).clickable {
                         scope.launch { doAnimation(progress) }
                     },
-                shapeColor2
+                shapeColor2,
             )
         }
         Row {
             MorphView(
                 modifier = Modifier.weight(1f).aspectRatio(1f).padding(horizontal = 5.dp),
                 morph = morph,
-                progress = progress.value
+                progress = progress.value,
             )
         }
         Row {
@@ -118,7 +118,7 @@ fun ShapeViewer() {
                     Text(
                         "Hello Compose",
                         color = MaterialTheme.colorScheme.onSecondary,
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 }
             }
@@ -133,7 +133,7 @@ fun ShapeViewer() {
                     Text(
                         "Hello Compose",
                         color = MaterialTheme.colorScheme.onSecondary,
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 }
             }
@@ -187,7 +187,7 @@ fun MorphView(morph: Morph, modifier: Modifier = Modifier, progress: Float) {
 
 private suspend fun doAnimation(
     progress: Animatable<Float, AnimationVector1D>,
-    reverse: Boolean = false
+    reverse: Boolean = false,
 ) {
     val startValue = if (reverse) 1f else 0f
     val endValue = if (reverse) 0f else 1f

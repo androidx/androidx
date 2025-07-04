@@ -44,7 +44,7 @@ class TextLayoutDirectionTest {
                     onValueChange = {},
                     onTextLayout = { result ->
                         layoutDirection = result.layoutInput.layoutDirection
-                    }
+                    },
                 )
             }
         }

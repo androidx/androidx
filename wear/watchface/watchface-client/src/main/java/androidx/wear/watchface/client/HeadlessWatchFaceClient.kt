@@ -46,7 +46,13 @@ import java.util.concurrent.Executor
  * affecting the current watchface.
  *
  * Note clients should call [close] when finished.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public interface HeadlessWatchFaceClient : AutoCloseable {
     public companion object {
         internal const val BINDER_KEY = "HeadlessWatchFaceClient"
@@ -113,7 +119,7 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
         renderParameters: RenderParameters,
         instant: Instant,
         userStyle: UserStyle?,
-        slotIdToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
     ): Bitmap
 
     /** Whether or not the watch face supports [renderWatchFaceToSurface]. */
@@ -188,7 +194,7 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
                         executor.execute { listener.onClientDisconnected() }
                     }
                 },
-                0
+                0,
             )
     }
 
@@ -218,7 +224,7 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
         get() =
             iHeadlessWatchFace.complicationState.associateBy(
                 { it.id },
-                { ComplicationSlotState(it.complicationState) }
+                { ComplicationSlotState(it.complicationState) },
             )
 
     @RequiresApi(27)
@@ -226,7 +232,7 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
         renderParameters: RenderParameters,
         instant: Instant,
         userStyle: UserStyle?,
-        slotIdToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
     ): Bitmap =
         TraceEvent("HeadlessWatchFaceClientImpl.renderWatchFaceToBitmap").use {
             SharedMemoryImage.ashmemReadImageBundle(
@@ -238,9 +244,9 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
                         slotIdToComplicationData?.map {
                             IdAndComplicationDataWireFormat(
                                 it.key,
-                                it.value.asWireComplicationData()
+                                it.value.asWireComplicationData(),
                             )
-                        }
+                        },
                     )
                 )
             )
@@ -272,7 +278,7 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
 
     override fun addClientDisconnectListener(
         listener: HeadlessWatchFaceClient.ClientDisconnectListener,
-        executor: Executor
+        executor: Executor,
     ) {
         synchronized(lock) {
             require(!listeners.contains(listener)) {

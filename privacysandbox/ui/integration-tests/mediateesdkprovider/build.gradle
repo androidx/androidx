@@ -22,7 +22,7 @@ plugins {
 
 android {
     namespace = "androidx.privacysandbox.ui.integration.mediateesdkprovider"
-    compileSdk = 35
+    compileSdk = 36
     compileSdkExtension = 14
 
     buildTypes {
@@ -45,8 +45,8 @@ dependencies {
 
     // Add library dependencies at head - to override the dependencies that will be added by
     // privacysandboxplugin.
-    implementation(project(':privacysandbox:tools:tools'))
     ksp(project(':privacysandbox:tools:tools-apicompiler'))
+    implementation(project(':privacysandbox:tools:tools'))
     implementation(project(":privacysandbox:ui:ui-core"))
     implementation(project(':privacysandbox:activity:activity-core'))
     implementation(project(':privacysandbox:activity:activity-provider'))

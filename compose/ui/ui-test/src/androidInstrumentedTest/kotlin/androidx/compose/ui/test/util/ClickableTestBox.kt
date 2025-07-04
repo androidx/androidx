@@ -40,7 +40,7 @@ fun ClickableTestBox(
     width: Float = defaultSize,
     height: Float = defaultSize,
     color: Color = defaultColor,
-    tag: String = defaultTag
+    tag: String = defaultTag,
 ) {
     with(LocalDensity.current) {
         Box(

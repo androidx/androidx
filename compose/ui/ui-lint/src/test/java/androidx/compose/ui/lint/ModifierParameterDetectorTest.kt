@@ -55,7 +55,7 @@ class ModifierParameterDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -97,7 +97,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 10: Change name to modifier:
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -141,7 +141,7 @@ Fix for src/androidx/compose/ui/foo/test.kt line 10: Change type to Modifier:
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -183,7 +183,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 12: Change default valu
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -219,7 +219,7 @@ src/androidx/compose/ui/foo/test.kt:11: Warning: Modifier parameter should be th
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -275,7 +275,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -305,7 +305,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -340,7 +340,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 13: Change default valu
             """
                 ),
                 Stubs.Composable,
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()

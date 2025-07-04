@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -43,7 +43,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.7.0")
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(libs.kotlinTest)
     implementation(libs.testRules)
     implementation(libs.testExtJunit)

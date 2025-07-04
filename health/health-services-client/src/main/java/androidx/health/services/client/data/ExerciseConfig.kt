@@ -24,7 +24,6 @@ import androidx.health.services.client.proto.DataProto
 /**
  * Defines configuration for an exercise tracked using Health Services.
  *
- * @constructor Creates a new ExerciseConfig for an exercise tracked using Health Services
  * @property exerciseType [ExerciseType] user is performing for this exercise
  * @property dataTypes [DataType] which will be tracked for this exercise
  * @property isAutoPauseAndResumeEnabled whether auto-pause/resume is enabled for this exercise
@@ -44,6 +43,7 @@ import androidx.health.services.client.proto.DataProto
  * @property exerciseEventTypes [ExerciseEventType]s which should be tracked for this exercise
  * @property debouncedGoals [DebouncedGoal]s for this exercise. [DataType]s in [DebouncedGoal]s must
  *   also be tracked.
+ * @constructor Creates a new ExerciseConfig for an exercise tracked using Health Services
  */
 @Suppress("ParcelCreator")
 class ExerciseConfig

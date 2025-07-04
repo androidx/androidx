@@ -107,7 +107,7 @@ private fun pathFromCubics(path: Path, cubics: List<Cubic>, closePath: Boolean =
             cubic.control1X,
             cubic.control1Y,
             cubic.anchor1X,
-            cubic.anchor1Y
+            cubic.anchor1Y,
         )
     }
     if (closePath) {
@@ -138,14 +138,14 @@ fun Morph.getBounds() = calculateBounds().let { Rect(it[0], it[1], it[2], it[3])
  */
 class RoundedPolygonShape(
     private val polygon: RoundedPolygon,
-    private var matrix: Matrix = Matrix()
+    private var matrix: Matrix = Matrix(),
 ) : Shape {
     private val path = Path()
 
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         path.rewind()
         polygon.toPath(path)
@@ -172,14 +172,14 @@ class RoundedPolygonShape(
 class MorphShape(
     private val morph: Morph,
     private val progress: Float,
-    private var matrix: Matrix = Matrix()
+    private var matrix: Matrix = Matrix(),
 ) : Shape {
     private val path = Path()
 
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         path.rewind()
         morph.toPath(progress, path)

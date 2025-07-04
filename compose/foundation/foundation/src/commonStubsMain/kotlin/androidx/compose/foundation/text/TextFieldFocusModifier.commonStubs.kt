@@ -22,5 +22,5 @@ import androidx.compose.ui.focus.FocusManager
 
 internal actual fun Modifier.interceptDPadAndMoveFocus(
     state: LegacyTextFieldState,
-    focusManager: FocusManager
+    focusManager: FocusManager,
 ): Modifier = implementedInJetBrainsFork()

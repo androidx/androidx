@@ -65,7 +65,7 @@ class FontMatcherTest {
                 .matchFont(
                     FontFamily(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK),
                     FontWeight.W100,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK))
@@ -88,10 +88,10 @@ class FontMatcherTest {
                         FONT_100_REGULAR,
                         FONT_100_ITALIC,
                         FONT_200_REGULAR,
-                        FONT_200_ITALIC
+                        FONT_200_ITALIC,
                     ),
                     FontWeight.W200,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_200_ITALIC))
@@ -107,10 +107,10 @@ class FontMatcherTest {
                         FONT_100_ITALIC,
                         FONT_200_REGULAR,
                         FONT_200_ITALIC,
-                        FONT_200_ITALIC_FALLBACK
+                        FONT_200_ITALIC_FALLBACK,
                     ),
                     FontWeight.W200,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_200_ITALIC, FONT_200_ITALIC_FALLBACK))
@@ -125,10 +125,10 @@ class FontMatcherTest {
                         FONT_100_REGULAR,
                         FONT_200_ITALIC,
                         FONT_200_REGULAR,
-                        FONT_300_REGULAR
+                        FONT_300_REGULAR,
                     ),
                     FontWeight.W200,
-                    FontStyle.Normal
+                    FontStyle.Normal,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_200_REGULAR))
@@ -150,10 +150,10 @@ class FontMatcherTest {
                         FONT_100_ITALIC,
                         FONT_300_REGULAR,
                         FONT_400_REGULAR,
-                        FONT_400_ITALIC
+                        FONT_400_ITALIC,
                     ),
                     FontWeight.W300,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC))
@@ -176,10 +176,10 @@ class FontMatcherTest {
                         FONT_100_ITALIC_FALLBACK,
                         FONT_300_REGULAR,
                         FONT_400_REGULAR,
-                        FONT_400_ITALIC
+                        FONT_400_ITALIC,
                     ),
                     FontWeight.W300,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK))
@@ -201,10 +201,10 @@ class FontMatcherTest {
                         FONT_200_REGULAR,
                         FONT_300_REGULAR,
                         FONT_400_REGULAR,
-                        FONT_400_ITALIC
+                        FONT_400_ITALIC,
                     ),
                     FontWeight.W200,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC))
@@ -227,10 +227,10 @@ class FontMatcherTest {
                         FONT_300_REGULAR,
                         FONT_400_REGULAR,
                         FONT_400_ITALIC,
-                        FONT_400_ITALIC_FALLBACK
+                        FONT_400_ITALIC_FALLBACK,
                     ),
                     FontWeight.W200,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC, FONT_400_ITALIC_FALLBACK))
@@ -254,10 +254,10 @@ class FontMatcherTest {
                         FONT_600_REGULAR,
                         FONT_700_REGULAR,
                         FONT_800_REGULAR,
-                        FONT_800_ITALIC
+                        FONT_800_ITALIC,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_800_ITALIC))
@@ -282,10 +282,10 @@ class FontMatcherTest {
                         FONT_700_REGULAR,
                         FONT_800_REGULAR,
                         FONT_800_ITALIC,
-                        FONT_800_ITALIC_FALLBACK
+                        FONT_800_ITALIC_FALLBACK,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_800_ITALIC, FONT_800_ITALIC_FALLBACK))
@@ -308,10 +308,10 @@ class FontMatcherTest {
                         FONT_400_ITALIC,
                         FONT_500_REGULAR,
                         FONT_600_REGULAR,
-                        FONT_700_REGULAR
+                        FONT_700_REGULAR,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC))
@@ -336,10 +336,10 @@ class FontMatcherTest {
                         FONT_400_ITALIC_FALLBACK,
                         FONT_500_REGULAR,
                         FONT_600_REGULAR,
-                        FONT_700_REGULAR
+                        FONT_700_REGULAR,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_400_ITALIC, FONT_400_ITALIC_FALLBACK))
@@ -362,10 +362,10 @@ class FontMatcherTest {
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
                         FONT_500_ITALIC,
-                        FONT_600_ITALIC
+                        FONT_600_ITALIC,
                     ),
                     FontWeight.W400,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_500_ITALIC))
@@ -389,10 +389,10 @@ class FontMatcherTest {
                         FONT_500_REGULAR,
                         FONT_500_ITALIC,
                         FONT_600_ITALIC,
-                        FONT_500_ITALIC_FALLBACK
+                        FONT_500_ITALIC_FALLBACK,
                     ),
                     FontWeight.W400,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_500_ITALIC, FONT_500_ITALIC_FALLBACK))
@@ -412,7 +412,7 @@ class FontMatcherTest {
                 .matchFont(
                     FontFamily(FONT_300_ITALIC, FONT_500_REGULAR, FONT_600_ITALIC),
                     FontWeight.W400,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC))
@@ -434,10 +434,10 @@ class FontMatcherTest {
                         FONT_300_ITALIC,
                         FONT_500_REGULAR,
                         FONT_600_ITALIC,
-                        FONT_300_ITALIC_FALLBACK
+                        FONT_300_ITALIC_FALLBACK,
                     ),
                     FontWeight.W400,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC, FONT_300_ITALIC_FALLBACK))
@@ -457,7 +457,7 @@ class FontMatcherTest {
                 .matchFont(
                     FontFamily(FONT_300_ITALIC, FONT_500_REGULAR, FONT_600_ITALIC),
                     FontWeight.W500,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC))
@@ -479,10 +479,10 @@ class FontMatcherTest {
                         FONT_300_ITALIC,
                         FONT_500_REGULAR,
                         FONT_600_ITALIC,
-                        FONT_300_ITALIC_FALLBACK
+                        FONT_300_ITALIC_FALLBACK,
                     ),
                     FontWeight.W500,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_300_ITALIC, FONT_300_ITALIC_FALLBACK))
@@ -504,10 +504,10 @@ class FontMatcherTest {
                         FONT_300_REGULAR,
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
-                        FONT_600_ITALIC
+                        FONT_600_ITALIC,
                     ),
                     FontWeight.W400,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC))
@@ -530,10 +530,10 @@ class FontMatcherTest {
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
                         FONT_600_ITALIC,
-                        FONT_600_ITALIC_FALLBACK
+                        FONT_600_ITALIC_FALLBACK,
                     ),
                     FontWeight.W400,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC, FONT_600_ITALIC_FALLBACK))
@@ -555,10 +555,10 @@ class FontMatcherTest {
                         FONT_300_REGULAR,
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
-                        FONT_600_ITALIC
+                        FONT_600_ITALIC,
                     ),
                     FontWeight.W500,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC))
@@ -581,10 +581,10 @@ class FontMatcherTest {
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
                         FONT_600_ITALIC,
-                        FONT_600_ITALIC_FALLBACK
+                        FONT_600_ITALIC_FALLBACK,
                     ),
                     FontWeight.W500,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC, FONT_600_ITALIC_FALLBACK))
@@ -600,10 +600,10 @@ class FontMatcherTest {
                         FONT_200_REGULAR,
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
-                        FONT_600_ITALIC
+                        FONT_600_ITALIC,
                     ),
                     FontWeight.W100,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC))
@@ -620,10 +620,10 @@ class FontMatcherTest {
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
                         FONT_600_ITALIC,
-                        FONT_600_ITALIC_FALLBACK
+                        FONT_600_ITALIC_FALLBACK,
                     ),
                     FontWeight.W100,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_ITALIC, FONT_600_ITALIC_FALLBACK))
@@ -639,10 +639,10 @@ class FontMatcherTest {
                         FONT_200_REGULAR,
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
-                        FONT_600_REGULAR
+                        FONT_600_REGULAR,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC))
@@ -659,10 +659,10 @@ class FontMatcherTest {
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
                         FONT_600_REGULAR,
-                        FONT_100_ITALIC_FALLBACK
+                        FONT_100_ITALIC_FALLBACK,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_100_ITALIC, FONT_100_ITALIC_FALLBACK))
@@ -675,7 +675,7 @@ class FontMatcherTest {
                 .matchFont(
                     FontFamily(FONT_200_REGULAR, FONT_300_REGULAR, FONT_400_REGULAR),
                     FontWeight.W300,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_300_REGULAR))
@@ -690,10 +690,10 @@ class FontMatcherTest {
                         FONT_200_REGULAR,
                         FONT_300_REGULAR,
                         FONT_300_REGULAR_FALLBACK,
-                        FONT_400_REGULAR
+                        FONT_400_REGULAR,
                     ),
                     FontWeight.W300,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_300_REGULAR, FONT_300_REGULAR_FALLBACK))
@@ -708,10 +708,10 @@ class FontMatcherTest {
                         FONT_400_REGULAR,
                         FONT_500_REGULAR,
                         FONT_600_REGULAR,
-                        FONT_700_REGULAR
+                        FONT_700_REGULAR,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_REGULAR))
@@ -727,10 +727,10 @@ class FontMatcherTest {
                         FONT_500_REGULAR,
                         FONT_600_REGULAR,
                         FONT_700_REGULAR,
-                        FONT_600_REGULAR_FALLBACK
+                        FONT_600_REGULAR_FALLBACK,
                     ),
                     FontWeight.W600,
-                    FontStyle.Italic
+                    FontStyle.Italic,
                 )
 
         assertThat(font).isEqualTo(listOf(FONT_600_REGULAR, FONT_600_REGULAR_FALLBACK))
@@ -749,7 +749,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = true,
                     minSearchRange = null,
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 
@@ -770,7 +770,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = false,
                     minSearchRange = null,
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 
@@ -795,7 +795,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = false,
                     minSearchRange = null,
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 
@@ -816,7 +816,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = false,
                     minSearchRange = null,
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 
@@ -841,7 +841,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = true,
                     minSearchRange = null,
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 
@@ -862,7 +862,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = true,
                     minSearchRange = null,
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 
@@ -883,7 +883,7 @@ class FontMatcherTest {
                     fontWeight = FontWeight(417),
                     preferBelow = true,
                     minSearchRange = FontWeight(450),
-                    maxSearchRange = null
+                    maxSearchRange = null,
                 )
             }
 

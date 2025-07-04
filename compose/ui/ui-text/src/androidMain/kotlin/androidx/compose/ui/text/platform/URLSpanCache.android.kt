@@ -42,8 +42,6 @@ import java.util.WeakHashMap
  *
  * See b/253292081.
  */
-// "URL" violates naming guidelines, but that is intentional to match the platform API.
-@Suppress("AcronymName")
 @OptIn(ExperimentalTextApi::class)
 @InternalTextApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -54,11 +52,9 @@ class URLSpanCache {
     private val linkSpansWithListenerByAnnotation =
         WeakHashMap<AnnotatedString.Range<LinkAnnotation>, ComposeClickableSpan>()
 
-    @Suppress("AcronymName")
     fun toURLSpan(urlAnnotation: UrlAnnotation): URLSpan =
         spansByAnnotation.getOrPut(urlAnnotation) { URLSpan(urlAnnotation.url) }
 
-    @Suppress("AcronymName")
     fun toURLSpan(urlRange: AnnotatedString.Range<LinkAnnotation.Url>): URLSpan =
         urlSpansByAnnotation.getOrPut(urlRange) { URLSpan(urlRange.item.url) }
 

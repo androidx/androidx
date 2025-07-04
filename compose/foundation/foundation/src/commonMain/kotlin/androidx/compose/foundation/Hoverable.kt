@@ -82,7 +82,7 @@ private class HoverableNode(private var interactionSource: MutableInteractionSou
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         if (pass == PointerEventPass.Main) {
             when (pointerEvent.type) {

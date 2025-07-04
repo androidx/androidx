@@ -53,7 +53,7 @@ object FunSpecHelper {
 
     private fun overriding(
         executableElement: XMethodElement,
-        resolvedType: XMethodType
+        resolvedType: XMethodType,
     ): FunSpec.Builder {
         return FunSpec.builder(executableElement.name).apply {
             addModifiers(KModifier.OVERRIDE)
@@ -114,11 +114,11 @@ object PropertySpecHelper {
 
     private fun overriding(
         executableElement: XMethodElement,
-        resolvedType: XMethodType
+        resolvedType: XMethodType,
     ): PropertySpec.Builder {
         return PropertySpec.builder(
                 name = checkNotNull(executableElement.propertyName),
-                type = resolvedType.returnType.asTypeName().kotlin
+                type = resolvedType.returnType.asTypeName().kotlin,
             )
             .apply {
                 addModifiers(KModifier.OVERRIDE)

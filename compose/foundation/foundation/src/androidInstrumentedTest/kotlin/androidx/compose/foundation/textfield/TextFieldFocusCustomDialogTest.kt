@@ -68,7 +68,7 @@ class TextFieldFocusCustomDialogTest {
     fun keyboardShown_forFieldInAndroidDialog_whenFocusRequestedImmediately_fromLaunchedEffect() {
         keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
             runEffect = { LaunchedEffect(Unit) { it() } },
-            wrapContent = { CustomDialog(content = it) }
+            wrapContent = { CustomDialog(content = it) },
         )
     }
 
@@ -85,13 +85,13 @@ class TextFieldFocusCustomDialogTest {
                     onDispose {}
                 }
             },
-            wrapContent = { CustomDialog(content = it) }
+            wrapContent = { CustomDialog(content = it) },
         )
     }
 
     private fun keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
         runEffect: @Composable (body: () -> Unit) -> Unit,
-        wrapContent: @Composable (@Composable () -> Unit) -> Unit = { it() }
+        wrapContent: @Composable (@Composable () -> Unit) -> Unit = { it() },
     ) {
         val focusRequester = FocusRequester()
         val keyboardHelper = KeyboardHelper(rule)
@@ -108,7 +108,7 @@ class TextFieldFocusCustomDialogTest {
                 BasicTextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 )
             }
         }
@@ -153,7 +153,7 @@ class TextFieldFocusCustomDialogTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View =
             ComposeView(requireContext()).also {
                 it.setViewTreeLifecycleOwner(this)

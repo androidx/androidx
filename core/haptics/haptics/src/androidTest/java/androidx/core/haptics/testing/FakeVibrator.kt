@@ -43,9 +43,7 @@ internal sealed class FakeVibrator(
 
     override fun hasAmplitudeControl(): Boolean = amplitudeControlSupported
 
-    override fun areEffectsSupported(
-        effects: IntArray,
-    ): Array<VibratorWrapper.EffectSupport> =
+    override fun areEffectsSupported(effects: IntArray): Array<VibratorWrapper.EffectSupport> =
         effects
             .map {
                 when {
@@ -89,9 +87,7 @@ internal sealed interface VibratorRequest
 internal object CancelVibration : VibratorRequest
 
 /** Represents a request to play a given vibration. */
-internal data class PlayVibration(
-    val vibration: VibrationWrapper,
-) : VibratorRequest
+internal data class PlayVibration(val vibration: VibrationWrapper) : VibratorRequest
 
 /** Represents a request to vibrate with different API levels of support. */
 internal data class AttributedVibration(
@@ -100,30 +96,21 @@ internal data class AttributedVibration(
 )
 
 /** Vibrator that has no vibrator motor available on device. */
-internal class NoVibrator :
-    FakeVibrator(
-        amplitudeControlSupported = false,
-    ) {
+internal class NoVibrator : FakeVibrator(amplitudeControlSupported = false) {
     override fun hasVibrator(): Boolean = false
 }
 
 /** Vibrator that only supports on-off patterns. */
-internal class PatternVibrator :
-    FakeVibrator(
-        amplitudeControlSupported = false,
-    )
+internal class PatternVibrator : FakeVibrator(amplitudeControlSupported = false)
 
 /** Vibrator that only supports amplitude control. */
-internal class AmplitudeVibrator :
-    FakeVibrator(
-        amplitudeControlSupported = true,
-    )
+internal class AmplitudeVibrator : FakeVibrator(amplitudeControlSupported = true)
 
 /** Vibrator that supports amplitude control and all predefined effects. */
 internal class PredefinedEffectsAndAmplitudeVibrator :
     FakeVibrator(
         amplitudeControlSupported = true,
-        effectsSupported = PredefinedEffectSignal.ALL_EFFECTS.map { it.type }.toIntArray()
+        effectsSupported = PredefinedEffectSignal.ALL_EFFECTS.map { it.type }.toIntArray(),
     )
 
 /** Vibrator that supports amplitude control, all predefined effects and given primitives. */
@@ -139,9 +126,7 @@ internal class PartialVibrator(
     )
 
 /** Vibrator that supports amplitude control and all predefined and primitive effects. */
-internal class FullVibrator(
-    fakePrimitiveDuration: Duration? = 20.milliseconds,
-) :
+internal class FullVibrator(fakePrimitiveDuration: Duration? = 20.milliseconds) :
     FakeVibrator(
         amplitudeControlSupported = true,
         effectsSupported = PredefinedEffectSignal.ALL_EFFECTS.map { it.type }.toIntArray(),
@@ -153,11 +138,7 @@ internal class FullVibrator(
     )
 
 /** Helper to create [android.os.VibrationEffect.Composition] entries. */
-internal data class CompositionPrimitive(
-    val primitiveId: Int,
-    val scale: Float,
-    val delayMs: Int,
-) {
+internal data class CompositionPrimitive(val primitiveId: Int, val scale: Float, val delayMs: Int) {
     constructor(
         primitive: PrimitiveAtom,
         scale: Float = primitive.amplitudeScale,
@@ -166,10 +147,8 @@ internal data class CompositionPrimitive(
 }
 
 /** Helper to create [VibrationWrapper] request for a on-off pattern. */
-internal fun vibration(
-    pattern: LongArray,
-    repeat: Int = -1,
-): VibrationWrapper = PatternVibrationWrapper(pattern, repeat)
+internal fun vibration(pattern: LongArray, repeat: Int = -1): VibrationWrapper =
+    PatternVibrationWrapper(pattern, repeat)
 
 /** Helper to create [VibrationWrapper] request for a predefined effect. */
 @RequiresApi(Build.VERSION_CODES.Q)

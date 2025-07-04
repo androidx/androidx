@@ -21,7 +21,7 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
 )
 
 package androidx.collection
@@ -177,7 +177,7 @@ internal val EmptyGroup =
     longArrayOf(
         // NOTE: the first byte in the array's logical order is in the LSB
         -0x7f7f7f7f_7f7f7f01L, // Sentinel, Empty, Empty... or 0xFF80808080808080UL
-        -1L // 0xFFFFFFFFFFFFFFFFUL
+        -1L, // 0xFFFFFFFFFFFFFFFFUL
     )
 
 // Width of a group, in bytes. Since we can only use types as large as
@@ -297,7 +297,8 @@ public sealed class ScatterMap<K, V> {
      */
     public operator fun get(key: K): V? {
         val index = findKeyIndex(key)
-        @Suppress("UNCHECKED_CAST") return if (index >= 0) values[index] as V? else null
+        @Suppress("UNCHECKED_CAST")
+        return if (index >= 0) values[index] as V? else null
     }
 
     /**
@@ -307,7 +308,8 @@ public sealed class ScatterMap<K, V> {
     public fun getOrDefault(key: K, defaultValue: V): V {
         val index = findKeyIndex(key)
         if (index >= 0) {
-            @Suppress("UNCHECKED_CAST") return values[index] as V
+            @Suppress("UNCHECKED_CAST")
+            return values[index] as V
         }
         return defaultValue
     }
@@ -425,7 +427,7 @@ public sealed class ScatterMap<K, V> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        transform: ((key: K, value: V) -> CharSequence)? = null
+        transform: ((key: K, value: V) -> CharSequence)? = null,
     ): String = buildString {
         append(prefix)
         var index = 0
@@ -733,7 +735,8 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
         keys[index] = key
         values[index] = value
 
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return oldValue as V?
     }
 
     /**
@@ -894,7 +897,8 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
         val oldValue = values[index]
         values[index] = null
 
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return oldValue as V?
     }
 
     /** Removes all mappings from this map. */
@@ -1499,7 +1503,7 @@ private open class MapWrapper<K, V>(private val parent: ScatterMap<K, V>) : Map<
 private class MutableMapEntry<K, V>(
     val keys: Array<Any?>,
     val values: Array<Any?>,
-    val index: Int
+    val index: Int,
 ) : MutableMap.MutableEntry<K, V> {
 
     @Suppress("UNCHECKED_CAST")
@@ -1626,7 +1630,8 @@ private class MutableKeys<K, V>(private val parent: MutableScatterMap<K, V>) : M
 
             override fun next(): K {
                 current = iterator.next()
-                @Suppress("UNCHECKED_CAST") return parent.keys[current] as K
+                @Suppress("UNCHECKED_CAST")
+                return parent.keys[current] as K
             }
 
             override fun remove() {
@@ -1700,7 +1705,8 @@ private class MutableValues<K, V>(private val parent: MutableScatterMap<K, V>) :
 
             override fun next(): V {
                 current = iterator.next()
-                @Suppress("UNCHECKED_CAST") return parent.values[current] as V
+                @Suppress("UNCHECKED_CAST")
+                return parent.values[current] as V
             }
 
             override fun remove() {

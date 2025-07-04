@@ -99,7 +99,7 @@ class PullRefreshIndicatorTest {
                     {
                         refreshing = true
                         refreshCount++
-                    }
+                    },
                 )
 
             Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
@@ -185,7 +185,7 @@ class PullRefreshIndicatorTest {
                                 // bounds
                                 indicatorSize = it
                             }
-                            .testTag(IndicatorTag)
+                            .testTag(IndicatorTag),
                 )
             }
         }

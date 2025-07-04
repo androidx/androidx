@@ -17,7 +17,7 @@
 package androidx.credentials.playservices
 
 import android.os.Bundle
-import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.PublicKeyCredentialControllerUtility
+import androidx.credentials.playservices.controllers.identityauth.createpublickeycredential.PublicKeyCredentialControllerUtility
 import com.google.android.gms.common.ConnectionResult
 import org.json.JSONArray
 import org.json.JSONObject
@@ -65,7 +65,7 @@ class TestUtils {
         fun isSubsetJson(
             superset: JSONObject,
             subset: JSONObject,
-            requiredKeys: JSONObject
+            requiredKeys: JSONObject,
         ): Boolean {
             val keys = requiredKeys.keys()
             for (key in keys) {
@@ -89,7 +89,7 @@ class TestUtils {
                         !isSubsetJson(
                             superValues as JSONObject,
                             values as JSONObject,
-                            requiredValues
+                            requiredValues,
                         )
                     ) {
                         return false
@@ -171,7 +171,7 @@ class TestUtils {
                 ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED,
                 ConnectionResult.SIGN_IN_FAILED,
                 ConnectionResult.SIGN_IN_REQUIRED,
-                ConnectionResult.TIMEOUT
+                ConnectionResult.TIMEOUT,
             )
     }
 }

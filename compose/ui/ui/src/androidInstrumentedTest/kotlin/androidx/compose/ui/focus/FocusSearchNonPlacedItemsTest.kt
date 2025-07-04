@@ -425,7 +425,7 @@ class FocusSearchNonPlacedItemsTest {
         width: Dp,
         height: Dp,
         focusRequester: FocusRequester? = null,
-        content: @Composable BoxScope.() -> Unit = {}
+        content: @Composable BoxScope.() -> Unit = {},
     ) {
         Box(
             modifier =
@@ -434,7 +434,7 @@ class FocusSearchNonPlacedItemsTest {
                     .focusRequester(focusRequester ?: remember { FocusRequester() })
                     .onFocusChanged { isFocused.value = it.isFocused }
                     .focusTarget(),
-            content = content
+            content = content,
         )
     }
 
@@ -450,7 +450,7 @@ class FocusSearchNonPlacedItemsTest {
             modifier =
                 Modifier.focusRequester(focusRequester ?: remember { FocusRequester() })
                     .onFocusChanged { isFocused.value = it.isFocused }
-                    .focusTarget()
+                    .focusTarget(),
         ) { measurables, constraints ->
             var width = 0
             var height = 0
@@ -479,14 +479,14 @@ class FocusSearchNonPlacedItemsTest {
         isFocused: MutableState<Boolean>,
         unplacedIndices: List<Int>,
         focusRequester: FocusRequester? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         Layout(
             content = content,
             modifier =
                 Modifier.focusRequester(focusRequester ?: remember { FocusRequester() })
                     .onFocusChanged { isFocused.value = it.isFocused }
-                    .focusTarget()
+                    .focusTarget(),
         ) { measurables, constraints ->
             var width = 0
             var height = 0

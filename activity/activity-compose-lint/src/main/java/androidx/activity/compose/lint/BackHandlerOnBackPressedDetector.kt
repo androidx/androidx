@@ -78,7 +78,7 @@ class BackHandlerOnBackPressedDetector : Detector(), Detector.UastScanner, Sourc
                             InvalidOnBackPressed,
                             node,
                             location,
-                            "Should not call onBackPressed inside of BackHandler"
+                            "Should not call onBackPressed inside of BackHandler",
                         )
                     }
                 }
@@ -101,8 +101,8 @@ class BackHandlerOnBackPressedDetector : Detector(), Detector.UastScanner, Sourc
                     implementation =
                         Implementation(
                             BackHandlerOnBackPressedDetector::class.java,
-                            EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                        )
+                            EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                        ),
                 )
                 .addMoreInfo(
                     "https://developer.android.com/guide/navigation/custom-back/" +

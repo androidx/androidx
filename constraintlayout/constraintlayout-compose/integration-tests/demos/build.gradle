@@ -24,7 +24,7 @@ plugins {
 dependencies {
     implementation(project(":constraintlayout:constraintlayout-compose"))
 
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))

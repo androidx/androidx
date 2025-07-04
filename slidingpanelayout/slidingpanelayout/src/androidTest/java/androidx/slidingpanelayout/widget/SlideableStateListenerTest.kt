@@ -48,8 +48,8 @@ class SlideableStateListenerTest {
                 layout,
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ),
             )
             val slidingPaneLayout =
                 container.findViewById<SlidingPaneLayout>(R.id.sliding_pane_layout)
@@ -78,8 +78,8 @@ class SlideableStateListenerTest {
                 layout,
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                ),
             )
             val slideableStateListener = SlideableStateListener { isSlideableCalled = true }
 

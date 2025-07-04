@@ -378,14 +378,14 @@ internal fun HitTestResult.hitInMinimumTouchTarget(
     string: String,
     distanceFromEdge: Float,
     isInLayer: Boolean,
-    childHitTest: () -> Unit
+    childHitTest: () -> Unit,
 ) = hitInMinimumTouchTarget(SNode(string), distanceFromEdge, isInLayer, childHitTest)
 
 internal fun HitTestResult.speculativeHit(
     string: String,
     distanceFromEdge: Float,
     isInLayer: Boolean,
-    childHitTest: () -> Unit
+    childHitTest: () -> Unit,
 ) = speculativeHit(SNode(string), distanceFromEdge, isInLayer, childHitTest)
 
 internal fun HitTestResult.contains(string: String) = contains(SNode(string))

@@ -555,7 +555,7 @@ class DiffUtilTest {
             existing.copy(
                 changed = true,
                 data = UUID.randomUUID().toString(),
-                payload = UUID.randomUUID().toString()
+                payload = UUID.randomUUID().toString(),
             )
         after[index] = replica
         log.append("updateWithPayload(").append(index).append(");\n")
@@ -578,7 +578,7 @@ class DiffUtilTest {
         val newItem: Boolean,
         var changed: Boolean = false,
         var payload: String? = null,
-        var data: String = UUID.randomUUID().toString()
+        var data: String = UUID.randomUUID().toString(),
     ) {
         constructor(newItem: Boolean) : this(id = idCounter++, newItem = newItem)
 
@@ -590,7 +590,7 @@ class DiffUtilTest {
     private class ItemListCallback(
         private val oldList: List<Item>,
         private val newList: List<Item>,
-        private val assertCalls: Boolean = true
+        private val assertCalls: Boolean = true,
     ) : DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size
 

@@ -36,7 +36,6 @@ import androidx.pdf.util.ObservableValue;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.pdf.widget.MosaicView;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -49,7 +48,6 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.List;
 
 /** Unit tests for {@link PageMosaicView}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class PageMosaicViewTest {
     @Mock

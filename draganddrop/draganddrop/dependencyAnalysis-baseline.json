@@ -1,0 +1,21 @@
+{
+  "projectPath": ":draganddrop:draganddrop",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.linkedin.dexmaker:dexmaker-mockito",
+        "resolvedVersion": "2.28.4"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "junit:junit",
+        "resolvedVersion": "4.13.2"
+      },
+      "toConfiguration": "androidTestImplementation"
+    }
+  ]
+}

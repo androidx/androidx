@@ -25,14 +25,59 @@ import org.junit.runners.JUnit4
 class KeylineSnapPositionTest {
 
     @Test
-    fun testSnapPosition_forCenterAlignedStrategy() {
+    fun testCenterAlignedSnapPosition_singleFocalItem() {
         val itemCount = 6
         val strategy = testCenterAlignedStrategy()
-        val expectedSnapPositions = arrayListOf(0, 200, 300, 300, 400, 600)
-        repeat(itemCount) { i ->
-            assertThat(getSnapPositionOffset(strategy, i, itemCount))
-                .isEqualTo(expectedSnapPositions[i])
-        }
+        // l=400, m=200, s=100
+        val expectedSnapPositions =
+            arrayListOf(
+                0, // i=0 [l, m, m, s, s]
+                200, // i=1 [m, l, m, s, s]
+                300, // i=2 [s, m, l, m, s]
+                300, // i=3 [s, m, l, m, s]
+                400, // i=4 [s, s, m, l, m]
+                600, // i=5 [s, s, m, m, l]
+            )
+        val actualSnapPositions =
+            (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }
+
+        assertThat(actualSnapPositions).isEqualTo(expectedSnapPositions)
+    }
+
+    @Test
+    fun testCenterAlignedSnapPosition_multipleFocalItems() {
+        val itemCount = 10
+        val carouselSize = 10f + 40f + 100f + 100f + 40f + 10f
+        val keylineList =
+            keylineListOf(carouselSize, 0f, CarouselAlignment.Center) {
+                add(5f, isAnchor = true)
+                add(10f)
+                add(40f)
+                add(100f)
+                add(100f)
+                add(40f)
+                add(10f)
+                add(5f, isAnchor = true)
+            }
+        val strategy = Strategy(keylineList, carouselSize, 0f, 0f, 0f)
+
+        val expectedSnapPositions =
+            arrayListOf(
+                0, // i=0 [l, l, m, m, s, s]
+                40, // i=1 [m, l, l, m, s, s]
+                50, // i=2 [s, m, l, l, m, s]
+                50, // i=3 [s, m, l, l, m, s]
+                50, // i=4 [s, m, l, l, m, s]
+                50, // i=5 [s, m, l, l, m, s]
+                50, // i=6 [s, m, l, l, m, s]
+                50, // i=6 [s, m, l, l, m, s]
+                60, // i=7 [s, s, m, l, l, m]
+                100, // i=8 [s, s, m, m, l, l]
+            )
+        val actualSnapPositions =
+            (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }
+
+        assertThat(actualSnapPositions).isEqualTo(expectedSnapPositions)
     }
 
     @Test
@@ -50,23 +95,39 @@ class KeylineSnapPositionTest {
     fun testSnapPosition_forStartAlignedStrategyWithMultipleFocal() {
         val itemCount = 5
         val strategy = testStartAlignedStrategyWithMultipleFocal()
-        val expectedSnapPositions = arrayListOf(0, 0, 75, 200, 200)
-        repeat(itemCount) { i ->
-            assertThat(getSnapPositionOffset(strategy, i, itemCount))
-                .isEqualTo(expectedSnapPositions[i])
-        }
+        // l=400, m=125, s=75
+        val expectedSnapPositions =
+            arrayListOf(
+                0, // i=0 [l, l, m, s]
+                0, // i=1 [l, l, m, s]
+                0, // i=2 [l, l, m, s]
+                75, // i=3 [s, l, l, m]
+                200, // i=4 [s, m, l, l]
+            )
+
+        val actualSnapPositions =
+            (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }
+
+        assertThat(actualSnapPositions).isEqualTo(expectedSnapPositions)
     }
 
     @Test
     fun testSnapPosition_forStartAlignedStrategyWithMultipleFocalAndLessItems() {
         val strategy = testStartAlignedStrategyWithMultipleFocal()
         // item count is the number of keylines minus anchor keylines
-        val itemCount = strategy.defaultKeylines.size - 2
-        val expectedSnapPositions = arrayListOf(0, 75, 200, 200)
-        repeat(itemCount) { i ->
-            assertThat(getSnapPositionOffset(strategy, i, itemCount))
-                .isEqualTo(expectedSnapPositions[i])
-        }
+        val itemCount = strategy.defaultKeylines.size - 2 // 4
+        // l=400, m=125, s=75
+        val expectedSnapPositions =
+            arrayListOf(
+                0, // i=0 [l, l, m, s]
+                0, // i=1 [l, l, m, s]
+                75, // i=2 [s, l, l, m]
+                200, // i=3 [s, m, l, l]
+            )
+        val actualSnapPositions =
+            (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }
+
+        assertThat(actualSnapPositions).isEqualTo(expectedSnapPositions)
     }
 
     @Test
@@ -74,10 +135,14 @@ class KeylineSnapPositionTest {
         val strategy = testStartAlignedStrategyWithMultipleFocal()
         // item count is the number of focal keylines minus one
         val itemCount =
-            strategy.defaultKeylines.lastFocalIndex - strategy.defaultKeylines.firstFocalIndex
-        repeat(itemCount) { i ->
-            assertThat(getSnapPositionOffset(strategy, i, itemCount)).isEqualTo(0)
-        }
+            strategy.defaultKeylines.lastFocalIndex - strategy.defaultKeylines.firstFocalIndex // 1
+        val expectedSnapPositions =
+            arrayListOf(
+                0 // i=0 [l]
+            )
+        val actualSnapPositions =
+            (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }
+        assertThat(actualSnapPositions).isEqualTo(expectedSnapPositions)
     }
 
     // Test strategy that is center aligned and has a complex keyline state, ie:
@@ -99,7 +164,7 @@ class KeylineSnapPositionTest {
             keylineListOf(
                 carouselMainAxisSize = 1000f,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Center
+                carouselAlignment = CarouselAlignment.Center,
             ) {
                 add(xSmallSize, isAnchor = true)
                 add(smallSize)
@@ -115,7 +180,7 @@ class KeylineSnapPositionTest {
             availableSpace = 1000f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
-            afterContentPadding = 0f
+            afterContentPadding = 0f,
         )
     }
 
@@ -137,7 +202,7 @@ class KeylineSnapPositionTest {
             keylineListOf(
                 carouselMainAxisSize = 1000f,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(xSmallSize, isAnchor = true)
                 add(largeSize)
@@ -152,7 +217,7 @@ class KeylineSnapPositionTest {
             availableSpace = 1000f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
-            afterContentPadding = 0f
+            afterContentPadding = 0f,
         )
     }
 
@@ -182,7 +247,7 @@ class KeylineSnapPositionTest {
             availableSpace = 1000f,
             itemSpacing = 0f,
             beforeContentPadding = 0f,
-            afterContentPadding = 0f
+            afterContentPadding = 0f,
         )
     }
 }

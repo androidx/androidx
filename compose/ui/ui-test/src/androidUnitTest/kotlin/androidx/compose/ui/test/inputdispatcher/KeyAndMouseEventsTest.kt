@@ -150,21 +150,21 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
         recorder.events[5].verifyKeyEvent(
             keyUp,
             scrollLock.nativeKeyCode,
-            expectedMetaState = allLockMasks
+            expectedMetaState = allLockMasks,
         )
         recorder.events[6].verifyMouseEvent(
             MotionEvent.ACTION_DOWN,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = allLockMasks
+            expectedMetaState = allLockMasks,
         )
         recorder.events[7].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = allLockMasks
+            expectedMetaState = allLockMasks,
         )
     }
 
@@ -187,21 +187,21 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
         recorder.events[8].verifyKeyEvent(
             keyDown,
             rightShift.nativeKeyCode,
-            expectedMetaState = allMetaMasks
+            expectedMetaState = allMetaMasks,
         )
         recorder.events[9].verifyMouseEvent(
             MotionEvent.ACTION_DOWN,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = allMetaMasks
+            expectedMetaState = allMetaMasks,
         )
         recorder.events[10].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = allMetaMasks
+            expectedMetaState = allMetaMasks,
         )
     }
 
@@ -227,21 +227,21 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
         recorder.events[14].verifyKeyEvent(
             keyDown,
             rightShift.nativeKeyCode,
-            expectedMetaState = allMasks
+            expectedMetaState = allMasks,
         )
         recorder.events[15].verifyMouseEvent(
             MotionEvent.ACTION_DOWN,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = allMasks
+            expectedMetaState = allMasks,
         )
         recorder.events[16].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = allMasks
+            expectedMetaState = allMasks,
         )
     }
 
@@ -308,14 +308,14 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             hoverEvent.verifyMouseEvent(
                 MotionEvent.ACTION_HOVER_MOVE,
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
         }
 
@@ -327,7 +327,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             scrollEvent.verifyMouseEvent(
                 MotionEvent.ACTION_SCROLL,
@@ -335,7 +335,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 position1,
                 buttonState,
                 scrollAxis(1f),
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
         }
 
@@ -348,21 +348,21 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             downEvent.verifyMouseEvent(
                 MotionEvent.ACTION_DOWN,
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             pressEvent.verifyMouseEvent(
                 MotionEvent.ACTION_BUTTON_PRESS,
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
         }
 
@@ -374,7 +374,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             scrollEvent.verifyMouseEvent(
                 MotionEvent.ACTION_SCROLL,
@@ -382,7 +382,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 position1,
                 buttonState,
                 scrollAxis(2f),
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
         }
 
@@ -395,28 +395,28 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             upEvent.verifyMouseEvent(
                 MotionEvent.ACTION_UP,
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             enterEvent.verifyMouseEvent(
                 MotionEvent.ACTION_HOVER_ENTER,
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             hoverEvent.verifyMouseEvent(
                 MotionEvent.ACTION_HOVER_MOVE,
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
         }
 
@@ -428,7 +428,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 t,
                 position1,
                 buttonState,
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
             scrollEvent.verifyMouseEvent(
                 MotionEvent.ACTION_SCROLL,
@@ -436,7 +436,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
                 position1,
                 buttonState,
                 scrollAxis(3f),
-                expectedMetaState = allMasks
+                expectedMetaState = allMasks,
             )
         }
     }
@@ -471,7 +471,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
         recorder.events[0].verifyKeyEvent(
             keyDown,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
 
         // Mouse Press
@@ -480,14 +480,14 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[2].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
 
         // Mouse Release
@@ -496,28 +496,28 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[4].verifyMouseEvent(
             MotionEvent.ACTION_UP,
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[5].verifyMouseEvent(
             MotionEvent.ACTION_HOVER_ENTER,
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[6].verifyMouseEvent(
             MotionEvent.ACTION_HOVER_MOVE,
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
 
         // Key Release
@@ -528,19 +528,19 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             MotionEvent.ACTION_HOVER_EXIT,
             0L,
             Offset.Zero,
-            MotionEvent.BUTTON_PRIMARY
+            MotionEvent.BUTTON_PRIMARY,
         )
         recorder.events[9].verifyMouseEvent(
             MotionEvent.ACTION_DOWN,
             0L,
             Offset.Zero,
-            MotionEvent.BUTTON_PRIMARY
+            MotionEvent.BUTTON_PRIMARY,
         )
         recorder.events[10].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
-            MotionEvent.BUTTON_PRIMARY
+            MotionEvent.BUTTON_PRIMARY,
         )
     }
 
@@ -560,12 +560,12 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
         recorder.events[0].verifyKeyEvent(
             keyDown,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[1].verifyKeyEvent(
             keyUp,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
 
         // Mouse Press
@@ -574,14 +574,14 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[3].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
             MotionEvent.BUTTON_PRIMARY,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
 
         // Mouse Release
@@ -590,35 +590,35 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[5].verifyMouseEvent(
             MotionEvent.ACTION_UP,
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[6].verifyMouseEvent(
             MotionEvent.ACTION_HOVER_ENTER,
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[7].verifyMouseEvent(
             MotionEvent.ACTION_HOVER_MOVE,
             0L,
             Offset.Zero,
             0,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
 
         // Key Toggle Off
         recorder.events[8].verifyKeyEvent(
             keyDown,
             key.nativeKeyCode,
-            expectedMetaState = expectedMetaState
+            expectedMetaState = expectedMetaState,
         )
         recorder.events[9].verifyKeyEvent(keyUp, key.nativeKeyCode)
 
@@ -627,19 +627,19 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
             MotionEvent.ACTION_HOVER_EXIT,
             0L,
             Offset.Zero,
-            MotionEvent.BUTTON_PRIMARY
+            MotionEvent.BUTTON_PRIMARY,
         )
         recorder.events[11].verifyMouseEvent(
             MotionEvent.ACTION_DOWN,
             0L,
             Offset.Zero,
-            MotionEvent.BUTTON_PRIMARY
+            MotionEvent.BUTTON_PRIMARY,
         )
         recorder.events[12].verifyMouseEvent(
             MotionEvent.ACTION_BUTTON_PRESS,
             0L,
             Offset.Zero,
-            MotionEvent.BUTTON_PRIMARY
+            MotionEvent.BUTTON_PRIMARY,
         )
     }
 }

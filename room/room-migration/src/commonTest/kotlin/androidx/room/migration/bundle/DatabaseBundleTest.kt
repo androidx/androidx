@@ -30,7 +30,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo1")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val entity2 =
             EntityBundle(
@@ -39,7 +39,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo2")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val bundle =
             DatabaseBundle(
@@ -47,7 +47,7 @@ class DatabaseBundleTest {
                 identityHash = "hash",
                 entities = listOf(entity1, entity2),
                 views = emptyList(),
-                setupQueries = emptyList()
+                setupQueries = emptyList(),
             )
 
         assertThat(bundle.buildCreateQueries()).containsExactly("sq1", "sq2")
@@ -62,7 +62,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo1")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val entity2 =
             FtsEntityBundle(
@@ -72,7 +72,7 @@ class DatabaseBundleTest {
                 primaryKey = PrimaryKeyBundle(false, listOf("foo2")),
                 ftsVersion = "FTS4",
                 ftsOptions = createFtsOptionsBundle(""),
-                contentSyncSqlTriggers = emptyList()
+                contentSyncSqlTriggers = emptyList(),
             )
         val entity3 =
             EntityBundle(
@@ -81,7 +81,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo3")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val bundle =
             DatabaseBundle(
@@ -89,7 +89,7 @@ class DatabaseBundleTest {
                 identityHash = "hash",
                 entities = listOf(entity1, entity2, entity3),
                 views = emptyList(),
-                setupQueries = emptyList()
+                setupQueries = emptyList(),
             )
 
         assertThat(bundle.buildCreateQueries()).containsExactly("sq1", "sq2", "sq3")
@@ -104,7 +104,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo1"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo1")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val entity2 =
             FtsEntityBundle(
@@ -114,7 +114,7 @@ class DatabaseBundleTest {
                 primaryKey = PrimaryKeyBundle(false, listOf("foo2")),
                 ftsVersion = "FTS4",
                 ftsOptions = createFtsOptionsBundle("e3"),
-                contentSyncSqlTriggers = listOf("e2_trig")
+                contentSyncSqlTriggers = listOf("e2_trig"),
             )
         val entity3 =
             EntityBundle(
@@ -123,7 +123,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo3"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo3")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val bundle =
             DatabaseBundle(
@@ -131,7 +131,7 @@ class DatabaseBundleTest {
                 identityHash = "hash",
                 entities = listOf(entity1, entity2, entity3),
                 views = emptyList(),
-                setupQueries = emptyList()
+                setupQueries = emptyList(),
             )
 
         assertThat(bundle.buildCreateQueries()).containsExactly("sq1", "sq3", "sq2", "e2_trig")
@@ -146,7 +146,7 @@ class DatabaseBundleTest {
                 fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
         val view = DatabaseViewBundle(viewName = "bar", createSql = "sq")
         val bundle1 =
@@ -155,7 +155,7 @@ class DatabaseBundleTest {
                 identityHash = "hash",
                 entities = listOf(entity),
                 views = emptyList(),
-                setupQueries = emptyList()
+                setupQueries = emptyList(),
             )
         val bundle2 =
             DatabaseBundle(
@@ -163,7 +163,7 @@ class DatabaseBundleTest {
                 identityHash = "hash",
                 entities = listOf(entity),
                 views = listOf(view),
-                setupQueries = emptyList()
+                setupQueries = emptyList(),
             )
         assertThat(bundle1.isSchemaEqual(bundle2)).isFalse()
     }
@@ -174,7 +174,7 @@ class DatabaseBundleTest {
             columnName = name,
             affinity = "text",
             isNonNull = false,
-            defaultValue = null
+            defaultValue = null,
         )
     }
 
@@ -187,7 +187,7 @@ class DatabaseBundleTest {
             matchInfo = "",
             notIndexedColumns = emptyList(),
             prefixSizes = emptyList(),
-            preferredOrder = ""
+            preferredOrder = "",
         )
     }
 }

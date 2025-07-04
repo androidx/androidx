@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"କୌଣସି PIN, ପାଟର୍ନ ବା ପାସୱାର୍ଡ ସେଟ୍ ହୋଇନାହିଁ।"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ଏହି ଡିଭାଇସ୍ PIN, ପାଟର୍ନ କିମ୍ବା ପାସୱାର୍ଡକୁ ସମର୍ଥନ କରେ ନାହିଁ।"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ଟିପଚିହ୍ନ ଆଇକନ୍"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"ବିଷୟବସ୍ତୁ ଭ୍ୟୁରେ ଅଧିକ ବିକଳ୍ପ ବଟନ କ୍ଲିକ କରାଯାଇଛି।"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"ଟିପଚିହ୍ନ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="use_face_label" msgid="6533512708069459542">"ଫେସ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"ବାୟୋମେଟ୍ରିକ୍ସ ବ୍ୟବହାର କରନ୍ତୁ"</string>

@@ -84,7 +84,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 30,
                 delayOnceInHowMany = 30,
                 nullValueOnceInHowMany = 35,
-                changeModeOnceInHowMany = 5
+                changeModeOnceInHowMany = 5,
             ),
         CameraMetadataKey.LENS_FOCAL_LENGTH to
             DataGenerationParams1D(
@@ -96,7 +96,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 23,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 15,
-                changeModeOnceInHowMany = 10
+                changeModeOnceInHowMany = 10,
             ),
         CameraMetadataKey.CONTROL_AE_MODE to
             DataGenerationParams1D(
@@ -108,7 +108,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 4,
                 delayOnceInHowMany = 30,
                 nullValueOnceInHowMany = 10,
-                changeModeOnceInHowMany = 20
+                changeModeOnceInHowMany = 20,
             ),
         CameraMetadataKey.CONTROL_AF_MODE to
             DataGenerationParams1D(
@@ -120,7 +120,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 5,
                 delayOnceInHowMany = 30,
                 nullValueOnceInHowMany = 10,
-                changeModeOnceInHowMany = 25
+                changeModeOnceInHowMany = 25,
             ),
         CameraMetadataKey.CONTROL_AWB_MODE to
             DataGenerationParams1D(
@@ -132,7 +132,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 8,
                 delayOnceInHowMany = 30,
                 nullValueOnceInHowMany = 10,
-                changeModeOnceInHowMany = 25
+                changeModeOnceInHowMany = 25,
             ),
         CameraMetadataKey.BLACK_LEVEL_LOCK to
             DataGenerationParams1D(
@@ -144,7 +144,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 1,
                 delayOnceInHowMany = 30,
                 nullValueOnceInHowMany = 10,
-                changeModeOnceInHowMany = 25
+                changeModeOnceInHowMany = 25,
             ),
         CameraMetadataKey.JPEG_QUALITY to
             DataGenerationParams1D(
@@ -156,7 +156,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 95,
                 delayOnceInHowMany = 30,
                 nullValueOnceInHowMany = 10,
-                changeModeOnceInHowMany = 30
+                changeModeOnceInHowMany = 30,
             ),
         CameraMetadataKey.COLOR_CORRECTION_ABERRATION_MODE to
             DataGenerationParams1D(
@@ -168,7 +168,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 2,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 20,
-                changeModeOnceInHowMany = 40
+                changeModeOnceInHowMany = 40,
             ),
         CameraMetadataKey.CONTROL_AE_EXPOSURE_COMPENSATION to
             DataGenerationParams1D(
@@ -180,7 +180,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 5,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 20,
-                changeModeOnceInHowMany = 40
+                changeModeOnceInHowMany = 40,
             ),
         CameraMetadataKey.CONTROL_ZOOM_RATIO to
             DataGenerationParams1D(
@@ -192,7 +192,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 5,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 15,
-                changeModeOnceInHowMany = 10
+                changeModeOnceInHowMany = 10,
             ),
         CameraMetadataKey.JPEG_ORIENTATION to
             DataGenerationParams1D(
@@ -204,7 +204,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 270,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 15,
-                changeModeOnceInHowMany = 10
+                changeModeOnceInHowMany = 10,
             ),
         CameraMetadataKey.LENS_FILTER_DENSITY to
             DataGenerationParams1D(
@@ -216,7 +216,7 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 100,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 15,
-                changeModeOnceInHowMany = 10
+                changeModeOnceInHowMany = 10,
             ),
         CameraMetadataKey.SENSOR_SENSITIVITY to
             DataGenerationParams1D(
@@ -228,8 +228,8 @@ val DATA_GENERATION_PARAMS: Map<CameraMetadataKey, DataGenerationParams1D> =
                 valueUpperBound = 270,
                 delayOnceInHowMany = 50,
                 nullValueOnceInHowMany = 15,
-                changeModeOnceInHowMany = 10
-            )
+                changeModeOnceInHowMany = 10,
+            ),
     )
 
 /** Defines how the data is generated for 1D visualizations */
@@ -258,5 +258,5 @@ data class DataGenerationParams1D(
     val nullValueOnceInHowMany: Int,
 
     /** Once in this many times, the value changes from what it was before */
-    val changeModeOnceInHowMany: Int
+    val changeModeOnceInHowMany: Int,
 )

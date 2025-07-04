@@ -22,21 +22,37 @@
  * modifying its settings.
  */
 
-
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
-    jvmStubs(/* runTests */ true)
-    linuxX64Stubs()
+    androidLibrary {
+        namespace = "androidx.compose.runtime"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
+    }
+    desktop()
+    mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -44,14 +60,17 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                implementation(libs.kotlinCoroutinesCore)
-                implementation(project(":collection:collection"))
+                api(libs.kotlinCoroutinesCore)
+                api(project(":compose:runtime:runtime-annotation"))
+                implementation("androidx.collection:collection:1.5.0")
             }
         }
 
         commonTest {
             dependencies {
-                implementation kotlin("test")
+                // For KotlinWasm/Js, versions of toolchain and stdlib need to be the same (2.1):
+                // https://youtrack.jetbrains.com/issue/KT-71032
+                implementation(libs.kotlinTestForWasmTests)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
                 implementation(project(":compose:runtime:runtime-test-utils"))
@@ -78,7 +97,6 @@ androidXMultiplatform {
             dependsOn(nonEmulatorJvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
             }
         }
 
@@ -100,6 +118,7 @@ androidXMultiplatform {
                 implementation(libs.testExtJunit)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
+                implementation(libs.espressoCore)
                 implementation(libs.truth)
             }
         }
@@ -113,18 +132,122 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        jvmStubsMain {
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
             dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
 
-        jvmStubsTest {
+        desktopTest {
             dependsOn(jvmTest)
             dependsOn(nonEmulatorJvmTest)
+            dependsOn(nonAndroidTest)
         }
 
-        linuxx64StubsMain {
+        nonJvmMain {
             dependsOn(nonAndroidMain)
+            dependencies {
+                implementation(libs.atomicFu)
+            }
+        }
+
+        nonJvmTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+            dependsOn(nonJvmTest)
+            dependsOn(nonEmulatorCommonTest)
+        }
+
+        webMain {
+            dependsOn(nonJvmMain)
+        }
+
+        webTest {
+            dependsOn(nonJvmTest)
+            dependsOn(nonEmulatorCommonTest)
+        }
+
+        jsMain {
+            dependsOn(webMain)
+            dependencies {
+                // For KotlinWasm/Js, versions of toolchain and stdlib need to be the same (2.1):
+                // https://youtrack.jetbrains.com/issue/KT-71032
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        jsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinTestJs)
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webMain)
+            dependencies {
+                // For KotlinWasm/Js, versions of toolchain and stdlib need to be the same (2.1):
+                // https://youtrack.jetbrains.com/issue/KT-71032
+                implementation(libs.kotlinStdlibWasm)
+                implementation(libs.kotlinXw3c)
+            }
+        }
+
+        wasmJsTest {
+            dependsOn(webTest)
+            dependencies {
+                implementation(libs.kotlinTestWasm)
+            }
+        }
+
+        unixMain {
+            dependsOn(nativeMain)
+        }
+
+        unixTest {
+            dependsOn(nativeTest)
+        }
+
+        darwinMain {
+            dependsOn(unixMain)
+        }
+
+        darwinTest {
+            dependsOn(unixTest)
+        }
+
+        linuxMain {
+            dependsOn(unixMain)
+        }
+
+        linuxTest {
+            dependsOn(unixTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
+                } else if (target.konanTarget.family == Family.LINUX) {
+                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
+                } else {
+                    target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                    target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+                }
+            }
         }
     }
 }
@@ -134,20 +257,10 @@ dependencies {
     lintPublish(project(":compose:runtime:runtime-lint"))
 }
 
-android {
-    defaultConfig {
-        consumerProguardFiles 'proguard-rules.pro'
-    }
-    namespace = "androidx.compose.runtime"
-}
-
 androidx {
     name = "Compose Runtime"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Tree composition support for code generated by the Compose compiler plugin and corresponding public API"
-    legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:runtime:runtime:runtime-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

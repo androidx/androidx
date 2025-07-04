@@ -61,11 +61,11 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                 "--spec",
                 yamlFile.get().asFile.absolutePath,
                 "--project",
-                outputFile.parent
+                outputFile.parent,
             )
         execOperations.executeQuietly(args)
         require(outputFile.exists()) {
-            "Project $projectName must match the `name` declaration in $yamlFile"
+            "Project ${projectName.get()} must match the `name` declaration in ${yamlFile.get()}"
         }
         copyProjectMetadata()
     }

@@ -32,7 +32,7 @@ class SimpleWorker
 constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
-    private val logger: MyLogger
+    private val logger: MyLogger,
 ) : Worker(context, params) {
     override fun doWork(): Result {
         logger.log("Hi")
@@ -46,7 +46,7 @@ class SimpleCoroutineWorker
 constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
-    private val logger: MyLogger
+    private val logger: MyLogger,
 ) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         logger.log("Hi from Coroutines World!")
@@ -61,7 +61,7 @@ object TopClass {
     constructor(
         @Assisted context: Context,
         @Assisted params: WorkerParameters,
-        private val logger: MyLogger
+        private val logger: MyLogger,
     ) : Worker(context, params) {
         override fun doWork() = Result.success()
     }

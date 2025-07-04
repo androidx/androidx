@@ -32,7 +32,7 @@ import kotlin.reflect.KClass
 /** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
 internal class AndroidFrameMetadata(
     private val captureResult: CaptureResult,
-    override val camera: CameraId
+    override val camera: CameraId,
 ) : FrameMetadata {
     override fun <T> get(key: Metadata.Key<T>): T? = null
 
@@ -64,7 +64,7 @@ internal class AndroidFrameMetadata(
 /** A version of [FrameMetadata] that can override (fix) metadata. */
 internal class CorrectedFrameMetadata(
     private var frameMetadata: FrameMetadata,
-    override var extraMetadata: Map<*, Any?>
+    override var extraMetadata: Map<*, Any?>,
 ) : FrameMetadata {
 
     @Suppress("UNCHECKED_CAST")
@@ -91,7 +91,7 @@ internal class CorrectedFrameMetadata(
 internal class AndroidFrameInfo(
     private val totalCaptureResult: TotalCaptureResult,
     override val camera: CameraId,
-    override val requestMetadata: RequestMetadata
+    override val requestMetadata: RequestMetadata,
 ) : FrameInfo {
 
     private val result = AndroidFrameMetadata(totalCaptureResult, camera)

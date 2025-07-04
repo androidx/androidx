@@ -63,7 +63,7 @@ class IconToggleButtonScreenshotTest {
         rule.verifyScreenshot(
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton() }
+            content = { sampleIconToggleButton() },
         )
 
     @Test
@@ -71,7 +71,7 @@ class IconToggleButtonScreenshotTest {
         rule.verifyScreenshot(
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(checked = false) }
+            content = { sampleIconToggleButton(checked = false) },
         )
 
     @Test
@@ -79,7 +79,7 @@ class IconToggleButtonScreenshotTest {
         rule.verifyScreenshot(
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(enabled = false) }
+            content = { sampleIconToggleButton(enabled = false) },
         )
 
     @Test
@@ -87,7 +87,7 @@ class IconToggleButtonScreenshotTest {
         rule.verifyScreenshot(
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(enabled = false, checked = false) }
+            content = { sampleIconToggleButton(enabled = false, checked = false) },
         )
 
     @Test
@@ -95,7 +95,7 @@ class IconToggleButtonScreenshotTest {
         rule.verifyScreenshot(
             methodName = testName.methodName,
             screenshotRule = screenshotRule,
-            content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) }
+            content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) },
         )
 
     @Ignore("TODO: b/345199060 work out how to show pressed state in test")
@@ -115,7 +115,7 @@ class IconToggleButtonScreenshotTest {
                     sampleIconToggleButton(
                         checked = false,
                         shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
-                        interactionSource = interactionSource
+                        interactionSource = interactionSource,
                     )
                 }
             }
@@ -140,7 +140,7 @@ class IconToggleButtonScreenshotTest {
                     checked = true,
                     shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                 )
-            }
+            },
         )
 
     @Test
@@ -153,7 +153,7 @@ class IconToggleButtonScreenshotTest {
                     checked = false,
                     shapes = IconToggleButtonDefaults.variantAnimatedShapes(),
                 )
-            }
+            },
         )
 
     @Composable
@@ -162,7 +162,7 @@ class IconToggleButtonScreenshotTest {
         checked: Boolean = true,
         modifier: Modifier = Modifier,
         shapes: IconToggleButtonShapes = IconToggleButtonDefaults.shapes(),
-        interactionSource: MutableInteractionSource? = null
+        interactionSource: MutableInteractionSource? = null,
     ) {
         IconToggleButton(
             checked = checked,
@@ -170,7 +170,7 @@ class IconToggleButtonScreenshotTest {
             enabled = enabled,
             modifier = modifier.testTag(TEST_TAG),
             shapes = shapes,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         ) {
             Icon(imageVector = Icons.Outlined.Star, contentDescription = "Favourite")
         }

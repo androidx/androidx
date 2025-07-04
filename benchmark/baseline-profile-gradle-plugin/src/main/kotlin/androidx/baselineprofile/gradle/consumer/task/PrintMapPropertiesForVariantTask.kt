@@ -36,13 +36,10 @@ abstract class PrintMapPropertiesForVariantTask : DefaultTask() {
 
         private const val TASK_NAME_PREFIX = "printExperimentalPropertiesForVariant"
 
-        internal fun registerForVariant(
-            project: Project,
-            variant: Variant,
-        ) {
+        internal fun registerForVariant(project: Project, variant: Variant) {
             project.tasks.maybeRegister<PrintMapPropertiesForVariantTask>(
                 TASK_NAME_PREFIX,
-                variant.name
+                variant.name,
             ) {
                 it.properties.set(variant.experimentalProperties)
             }

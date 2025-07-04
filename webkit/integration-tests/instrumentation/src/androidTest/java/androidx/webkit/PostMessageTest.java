@@ -26,8 +26,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat;
 import androidx.webkit.test.common.PollingCheck;
-import androidx.webkit.test.common.WebkitUtils;
 import androidx.webkit.test.common.WebViewOnUiThread;
+import androidx.webkit.test.common.WebkitUtils;
 
 import org.jspecify.annotations.NonNull;
 import org.junit.After;
@@ -197,7 +197,7 @@ public class PostMessageTest {
         for (int i = 0; i < messageCount; i++) {
             // The JavaScript code simply appends an integer counter to the end of the message it
             // receives, which is why we have a second i on the end.
-            String expectedMessageFromJavascript = WEBVIEW_MESSAGE + i + "" + i;
+            String expectedMessageFromJavascript = WEBVIEW_MESSAGE + i + i;
             Assert.assertEquals(expectedMessageFromJavascript,
                     WebkitUtils.waitForNextQueueElement(queue));
         }

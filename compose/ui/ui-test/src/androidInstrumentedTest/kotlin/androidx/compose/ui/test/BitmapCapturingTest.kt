@@ -63,7 +63,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         fun createTestSet(): List<TestConfig> =
             listOf(
                 TestConfig(ComponentActivity::class.java),
-                TestConfig(CustomComposeHostActivity::class.java)
+                TestConfig(CustomComposeHostActivity::class.java),
             )
     }
 

@@ -81,5 +81,5 @@ private val SizeSaver =
 private val NullableSizeSaver =
     listSaver<NullableSize?, Int?>(
         save = { listOf(it?.x, it?.y) },
-        restore = { NullableSize(it[0], it[1]) }
+        restore = { NullableSize(it[0], it[1]) },
     )

@@ -43,7 +43,7 @@ object PrimitiveBooleanToIntConverter {
                 override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
                     return XCodeBlock.of("%L != 0", inputVarName)
                 }
-            }
+            },
         )
     }
 }

@@ -104,7 +104,7 @@ object Camera2ExtensionsUtil {
     fun isCamera2ExtensionModeSupported(
         context: Context,
         cameraId: String,
-        extensionMode: Int
+        extensionMode: Int,
     ): Boolean {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
@@ -121,7 +121,7 @@ object Camera2ExtensionsUtil {
         cameraManager: CameraManager,
         cameraId: String,
         displayMetrics: DisplayMetrics,
-        extensionMode: Int
+        extensionMode: Int,
     ): Size? {
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
         val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
@@ -171,7 +171,7 @@ object Camera2ExtensionsUtil {
         val extensionSizes =
             extensionCharacteristics.getExtensionSupportedSizes(
                 extensionMode,
-                SurfaceTexture::class.java
+                SurfaceTexture::class.java,
             )
         if (extensionSizes.isEmpty()) {
             return null
@@ -197,7 +197,7 @@ object Camera2ExtensionsUtil {
             Log.w(
                 TAG,
                 "No overlap between supported camera and extensions preview sizes using" +
-                    " first available!"
+                    " first available!",
             )
         }
 
@@ -210,7 +210,7 @@ object Camera2ExtensionsUtil {
     fun pickStillImageResolution(
         cameraCharacteristics: CameraCharacteristics,
         extensionCharacteristics: CameraExtensionCharacteristics,
-        extensionMode: Int
+        extensionMode: Int,
     ): Pair<Size, Int> {
         val yuvColorEncodingSystemSizes =
             if (extensionMode == EXTENSION_MODE_NONE) {
@@ -221,7 +221,7 @@ object Camera2ExtensionsUtil {
             } else {
                 extensionCharacteristics.getExtensionSupportedSizes(
                     extensionMode,
-                    ImageFormat.YUV_420_888
+                    ImageFormat.YUV_420_888,
                 )
             }
         val jpegSizes =

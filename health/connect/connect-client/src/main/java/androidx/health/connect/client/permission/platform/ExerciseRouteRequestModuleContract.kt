@@ -48,7 +48,7 @@ internal class ExerciseRouteRequestModuleContract :
         val route =
             intent?.getParcelableExtra(
                 HealthConnectManager.EXTRA_EXERCISE_ROUTE,
-                PlatformExerciseRoute::class.java
+                PlatformExerciseRoute::class.java,
             )
         if (route == null) {
             Logger.debug(HealthConnectClient.HEALTH_CONNECT_CLIENT_TAG, "No route returned.")

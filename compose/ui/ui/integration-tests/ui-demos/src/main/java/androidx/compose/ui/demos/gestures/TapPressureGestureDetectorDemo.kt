@@ -57,7 +57,7 @@ fun DetectTapPressureGesturesDemo() {
             text =
                 "Each box displays pressure (with and without gestures).\n" +
                     "Use a stylus or finger to see pressure values.\n" +
-                    "For some pen supported devices, a finger touch pressure will equal 1.0."
+                    "For some pen supported devices, a finger touch pressure will equal 1.0.",
         )
 
         var gestureOffsetX by remember { mutableFloatStateOf(0f) }
@@ -92,7 +92,7 @@ fun DetectTapPressureGesturesDemo() {
                             gesturePressure = change.pressure
                         }
                     },
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.TopCenter,
         ) {
             Text(
                 modifier = Modifier.fillMaxSize(),
@@ -102,7 +102,7 @@ fun DetectTapPressureGesturesDemo() {
                 text =
                     "detectDragGestures + pressure:\n" +
                         "x: $gestureOffsetX, y: $gestureOffsetY,\n" +
-                        "pressure: $gesturePressure"
+                        "pressure: $gesturePressure",
             )
         }
 
@@ -129,13 +129,13 @@ fun DetectTapPressureGesturesDemo() {
                             }
                         }
                     },
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.TopCenter,
         ) {
             Text(
                 modifier = Modifier.fillMaxSize(),
                 fontSize = pressureBoxTextSize,
                 textAlign = TextAlign.Center,
-                text = "awaitPointerEventScope + pressure:\n$awaitPointerEventScopePressureMessage"
+                text = "awaitPointerEventScope + pressure:\n$awaitPointerEventScopePressureMessage",
             )
         }
     }

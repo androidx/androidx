@@ -19,74 +19,83 @@
 package androidx.health.connect.client.impl.platform.aggregate
 
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregationResult
-import androidx.health.connect.client.impl.platform.div
-import androidx.health.connect.client.impl.platform.duration
-import androidx.health.connect.client.impl.platform.minus
-import androidx.health.connect.client.impl.platform.toInstantWithDefaultZoneFallback
-import androidx.health.connect.client.impl.platform.useLocalTime
-import androidx.health.connect.client.records.IntervalRecord
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
+import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
-import java.time.Instant
-import kotlin.math.max
 
 internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
     aggregateRequest: AggregateRequest
 ): AggregationResult {
-    val aggregator = TransFatTotalAggregator(aggregateRequest.timeRangeFilter)
-
-    readRecordsFlow(
-            ReadRecordsRequest(
-                NutritionRecord::class,
-                aggregateRequest.timeRangeFilter.withBufferedStart(),
-                aggregateRequest.dataOriginFilter
-            )
-        )
-        .collect { records ->
-            records
-                .filter { it.overlaps(aggregateRequest.timeRangeFilter) }
-                .forEach { aggregator += it }
-        }
-
-    return aggregator.getResult()
+    val timeRange = createTimeRange(aggregateRequest.timeRangeFilter)
+    return aggregate(
+        ReadRecordsRequest(
+            NutritionRecord::class,
+            aggregateRequest.timeRangeFilter.withBufferedStart(),
+            aggregateRequest.dataOriginFilter,
+        ),
+        ResultAggregator(timeRange, TransFatTotalAggregationProcessor(timeRange)),
+    )
 }
 
-internal fun IntervalRecord.sliceFactor(timeRangeFilter: TimeRangeFilter): Double {
-    val startTime: Instant
-    val endTime: Instant
+internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
+    aggregateRequest: AggregateGroupByPeriodRequest
+): List<AggregationResultGroupedByPeriod> {
+    return aggregate(
+        ReadRecordsRequest(
+            NutritionRecord::class,
+            aggregateRequest.timeRangeFilter.withBufferedStart(),
+            aggregateRequest.dataOriginFilter,
+        ),
+        ResultGroupedByPeriodAggregator(
+            createLocalTimeRange(aggregateRequest.timeRangeFilter),
+            aggregateRequest.timeRangeSlicer,
+        ) {
+            TransFatTotalAggregationProcessor(it)
+        },
+    )
+}
 
-    if (timeRangeFilter.useLocalTime()) {
-        val requestStartTime =
-            timeRangeFilter.localStartTime?.toInstantWithDefaultZoneFallback(startZoneOffset)
-        val requestEndTime =
-            timeRangeFilter.localEndTime?.toInstantWithDefaultZoneFallback(endZoneOffset)
-        startTime = maxOf(this.startTime, requestStartTime ?: this.startTime)
-        endTime = minOf(this.endTime, requestEndTime ?: this.endTime)
-    } else {
-        startTime = maxOf(this.startTime, timeRangeFilter.startTime ?: this.startTime)
-        endTime = minOf(this.endTime, timeRangeFilter.endTime ?: this.endTime)
+internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
+    aggregateRequest: AggregateGroupByDurationRequest
+): List<AggregationResultGroupedByDurationWithMinTime> {
+    return aggregate(
+        ReadRecordsRequest(
+            NutritionRecord::class,
+            aggregateRequest.timeRangeFilter.withBufferedStart(),
+            aggregateRequest.dataOriginFilter,
+        ),
+        ResultGroupedByDurationAggregator(
+            createTimeRange(aggregateRequest.timeRangeFilter),
+            aggregateRequest.timeRangeSlicer,
+        ) {
+            TransFatTotalAggregationProcessor(it)
+        },
+    )
+}
+
+@VisibleForTesting
+internal class TransFatTotalAggregationProcessor(private val timeRange: TimeRange<*>) :
+    AggregationProcessor<NutritionRecord> {
+
+    private var total = 0.0
+    private val dataOrigins = mutableSetOf<DataOrigin>()
+
+    override fun processRecord(record: NutritionRecord) {
+        total += record.transFat!!.inGrams * AggregatorUtils.sliceFactor(record, timeRange)
+        dataOrigins += record.metadata.dataOrigin
     }
 
-    return max(0.0, (endTime - startTime) / duration)
-}
-
-private class TransFatTotalAggregator(val timeRangeFilter: TimeRangeFilter) :
-    SingeResultAggregator<NutritionRecord>() {
-    var total = 0.0
-
-    override val dataOrigins = mutableSetOf<DataOrigin>()
-    override val doubleValues: Map<String, Double>
-        get() = mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to total)
-
-    override operator fun plusAssign(value: NutritionRecord) {
-        if (value.transFat != null && value.sliceFactor(timeRangeFilter) > 0) {
-            total += value.transFat.inGrams * value.sliceFactor(timeRangeFilter)
-            dataOrigins += value.metadata.dataOrigin
-        }
+    override fun getProcessedAggregationResult(): AggregationResult {
+        val doubleValues =
+            if (dataOrigins.isEmpty()) emptyMap()
+            else mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to total)
+        return AggregationResult(emptyMap(), doubleValues, dataOrigins)
     }
 }

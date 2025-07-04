@@ -43,7 +43,7 @@ internal fun executeRemoteWorker(
                     taskExecutor.executeOnTaskThread {
                         handler.safeAccept(
                             WorkerExceptionInfo(workerClassName, workerParameters, throwable),
-                            ListenableWorkerImpl.TAG
+                            ListenableWorkerImpl.TAG,
                         )
                     }
                 }

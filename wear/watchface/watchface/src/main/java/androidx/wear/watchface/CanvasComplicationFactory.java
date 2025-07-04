@@ -23,8 +23,10 @@ import org.jspecify.annotations.NonNull;
 /**
  * Factory for creating a CanvasComplication. This decouples construction of Complications and their
  * CanvasComplication renderers.
+ * @deprecated use Watch Face Format instead
  */
 // TODO(b/188035300): Put links into the comments.
+@Deprecated
 public interface CanvasComplicationFactory {
     /**
      * Creates a CanvasComplication. This will be called on a background thread, however all

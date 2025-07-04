@@ -33,7 +33,7 @@ internal class KspExecutableParameterElement(
     env: KspProcessingEnv,
     override val enclosingElement: KspExecutableElement,
     val parameter: KSValueParameter,
-    val parameterIndex: Int
+    val parameterIndex: Int,
 ) :
     KspElement(env, parameter),
     XExecutableParameterElement,
@@ -82,9 +82,9 @@ internal class KspExecutableParameterElement(
                         parameter.typeAsMemberOf(
                             functionDeclaration = enclosingElement.declaration,
                             ksType = container?.ksType,
-                            resolved = resolvedType
+                            resolved = resolvedType,
                         ),
-                    allowPrimitives = !resolvedType.isTypeParameter()
+                    allowPrimitives = !resolvedType.isTypeParameter(),
                 )
                 .copyWithScope(
                     KSTypeVarianceResolverScope.MethodParameter(
@@ -123,7 +123,7 @@ internal class KspExecutableParameterElement(
     companion object {
         fun create(
             env: KspProcessingEnv,
-            parameter: KSValueParameter
+            parameter: KSValueParameter,
         ): XExecutableParameterElement {
             val parent =
                 checkNotNull(parameter.parent) {

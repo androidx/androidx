@@ -29,13 +29,13 @@ class Material3IssueRegistry : IssueRegistry() {
         get() =
             listOf(
                 MaterialImportDetector.UsingMaterialAndMaterial3Libraries,
-                ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter
+                ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter,
             )
 
     override val vendor =
         Vendor(
             vendorName = "Jetpack Compose",
             identifier = "androidx.compose.material3",
-            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128",
         )
 }

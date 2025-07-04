@@ -26,7 +26,7 @@ internal abstract class LazyGridMeasuredLineProvider(
     private val gridItemsCount: Int,
     private val spaceBetweenLines: Int,
     private val measuredItemProvider: LazyGridMeasuredItemProvider,
-    private val spanLayoutProvider: LazyGridSpanLayoutProvider
+    private val spanLayoutProvider: LazyGridSpanLayoutProvider,
 ) {
     // The constraints for cross axis size. The main axis is not restricted.
     internal fun childConstraints(startSlot: Int, span: Int): Constraints {
@@ -78,12 +78,19 @@ internal abstract class LazyGridMeasuredLineProvider(
                         constraints = constraints,
                         lane = startSlot,
                         span = span,
-                        mainAxisSpacing = mainAxisSpacing
+                        mainAxisSpacing = mainAxisSpacing,
                     )
                     .also { startSlot += span }
             }
         return createLine(lineIndex, items, lineConfiguration.spans, mainAxisSpacing)
     }
+
+    /**
+     * Utility method to be used during the keep around pass. This may change implementations in the
+     * future so we created a new method to show the separation between keep around and
+     * getAndMeasure.
+     */
+    fun keepAround(lineIndex: Int) = getAndMeasure(lineIndex)
 
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of the
@@ -96,6 +103,6 @@ internal abstract class LazyGridMeasuredLineProvider(
         index: Int,
         items: Array<LazyGridMeasuredItem>,
         spans: List<GridItemSpan>,
-        mainAxisSpacing: Int
+        mainAxisSpacing: Int,
     ): LazyGridMeasuredLine
 }

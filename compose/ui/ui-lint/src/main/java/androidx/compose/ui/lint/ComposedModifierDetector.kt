@@ -82,7 +82,7 @@ class ComposedModifierDetector : Detector(), SourceCodeScanner {
                 UnnecessaryComposedModifier,
                 node,
                 context.getNameLocation(node),
-                "Unnecessary use of Modifier.composed"
+                "Unnecessary use of Modifier.composed",
             )
         }
     }
@@ -103,8 +103,8 @@ class ComposedModifierDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ComposedModifierDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

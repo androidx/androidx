@@ -153,6 +153,6 @@ public class ActivityRule extends EmbeddingRule {
     @Override
     public @NonNull String toString() {
         return "ActivityRule{mTag=" + getTag()
-                + "mShouldAlwaysExpand=" + mShouldAlwaysExpand + '}';
+                + ", mShouldAlwaysExpand=" + mShouldAlwaysExpand + '}';
     }
 }

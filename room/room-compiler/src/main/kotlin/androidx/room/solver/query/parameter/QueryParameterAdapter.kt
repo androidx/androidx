@@ -25,7 +25,7 @@ abstract class QueryParameterAdapter(val isMultiple: Boolean) {
         inputVarName: String,
         stmtVarName: String,
         startIndexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     )
 
     /** Should declare and set the given value with the count */

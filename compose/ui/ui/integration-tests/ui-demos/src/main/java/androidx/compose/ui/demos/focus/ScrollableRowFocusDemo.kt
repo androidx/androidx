@@ -62,6 +62,6 @@ private fun FocusableBox(text: String, modifier: Modifier = Modifier) {
                 .border(2.dp, Black)
                 .onFocusChanged { color = if (it.isFocused) Red else White }
                 .background(color)
-                .focusable()
+                .focusable(),
     )
 }

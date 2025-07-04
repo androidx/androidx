@@ -97,11 +97,11 @@ class LongListTest {
         assertEquals("${1L}, ${2L}, ${3L}, ${4L}, ${5L}", list.joinToString())
         assertEquals(
             "x${1L}, ${2L}, ${3L}...",
-            list.joinToString(prefix = "x", postfix = "y", limit = 3)
+            list.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${1L}-${2L}-${3L}-${4L}-${5L}<",
-            list.joinToString(separator = "-", prefix = ">", postfix = "<")
+            list.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         assertEquals(
             "one, two, three...",
@@ -112,7 +112,7 @@ class LongListTest {
                     3 -> "three"
                     else -> "whoops"
                 }
-            }
+            },
         )
     }
 
@@ -163,21 +163,21 @@ class LongListTest {
             list.elementAtOrElse(0) {
                 assertEquals(0, it)
                 0L
-            }
+            },
         )
         assertEquals(
             0L,
             list.elementAtOrElse(-1) {
                 assertEquals(-1, it)
                 0L
-            }
+            },
         )
         assertEquals(
             0L,
             list.elementAtOrElse(5) {
                 assertEquals(5, it)
                 0L
-            }
+            },
         )
     }
 
@@ -366,7 +366,7 @@ class LongListTest {
     fun foldIndexed() {
         assertEquals(
             "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" }
+            list.foldIndexed("") { index, acc, i -> "$acc$index${i.toInt()}-" },
         )
     }
 
@@ -379,7 +379,7 @@ class LongListTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" }
+            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.toInt()}-" },
         )
     }
 

@@ -54,7 +54,7 @@ import org.robolectric.shadows.ShadowCameraManager
 @DoNotInstrument
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = ["androidx.camera.camera2.internal"]
+    instrumentedPackages = ["androidx.camera.camera2.internal"],
 )
 class Camera2CameraCoordinatorTest {
 
@@ -145,13 +145,13 @@ class Camera2CameraCoordinatorTest {
         verify(listener)
             .onCameraOperatingModeUpdated(
                 CAMERA_OPERATING_MODE_UNSPECIFIED,
-                CAMERA_OPERATING_MODE_CONCURRENT
+                CAMERA_OPERATING_MODE_CONCURRENT,
             )
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
         verify(listener)
             .onCameraOperatingModeUpdated(
                 CAMERA_OPERATING_MODE_CONCURRENT,
-                CAMERA_OPERATING_MODE_SINGLE
+                CAMERA_OPERATING_MODE_SINGLE,
             )
 
         reset(listener)
@@ -191,7 +191,7 @@ class Camera2CameraCoordinatorTest {
 
         return listOf(
             Camera2CameraInfoImpl("0", cameraManagerCompat),
-            Camera2CameraInfoImpl("1", cameraManagerCompat)
+            Camera2CameraInfoImpl("1", cameraManagerCompat),
         )
     }
 
@@ -200,7 +200,7 @@ class Camera2CameraCoordinatorTest {
         private val mCameraManagerImpl =
             CameraManagerCompat.CameraManagerCompatImpl.from(
                 ApplicationProvider.getApplicationContext(),
-                MainThreadAsyncHandler.getInstance()
+                MainThreadAsyncHandler.getInstance(),
             )
 
         private val mCameraIdCharacteristics = HashMap<String, CameraCharacteristics>()
@@ -219,7 +219,7 @@ class Camera2CameraCoordinatorTest {
 
         override fun registerAvailabilityCallback(
             executor: Executor,
-            callback: CameraManager.AvailabilityCallback
+            callback: CameraManager.AvailabilityCallback,
         ) {}
 
         override fun unregisterAvailabilityCallback(callback: CameraManager.AvailabilityCallback) {}
@@ -231,7 +231,7 @@ class Camera2CameraCoordinatorTest {
         override fun openCamera(
             cameraId: String,
             executor: Executor,
-            callback: CameraDevice.StateCallback
+            callback: CameraDevice.StateCallback,
         ) {}
 
         override fun getCameraManager(): CameraManager {

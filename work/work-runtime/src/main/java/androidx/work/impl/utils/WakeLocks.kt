@@ -47,7 +47,7 @@ internal fun newWakeLock(context: Context, tag: String): PowerManager.WakeLock {
  * [androidx.work.impl.background.systemalarm.SystemAlarmService] holds when all the pending
  * commands have been drained in the command queue.
  */
-fun checkWakeLocks() {
+public fun checkWakeLocks() {
     // There is a small chance that while we are checking if all the commands in the queue are
     // drained and wake locks are no longer being held, a new command comes along and we end up
     // with a ConcurrentModificationException. The addition of commands happens on the command

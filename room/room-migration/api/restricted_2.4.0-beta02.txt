@@ -7,8 +7,8 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseBundle {
-    ctor public DatabaseBundle(int, String!, java.util.List<androidx.room.migration.bundle.EntityBundle!>!, java.util.List<androidx.room.migration.bundle.DatabaseViewBundle!>!, java.util.List<java.lang.String!>!);
     ctor public DatabaseBundle();
+    ctor public DatabaseBundle(int, String!, java.util.List<androidx.room.migration.bundle.EntityBundle!>!, java.util.List<androidx.room.migration.bundle.DatabaseViewBundle!>!, java.util.List<java.lang.String!>!);
     method public java.util.List<java.lang.String!>! buildCreateQueries();
     method public java.util.List<androidx.room.migration.bundle.EntityBundle!>! getEntities();
     method public java.util.Map<java.lang.String!,androidx.room.migration.bundle.EntityBundle!>! getEntitiesByTableName();

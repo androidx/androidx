@@ -18,6 +18,7 @@ package androidx.xr.scenecore
 
 import android.media.MediaPlayer
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Session
 
 @Suppress("ClassShouldBeObject")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -25,25 +26,25 @@ public class SpatialMediaPlayer {
 
     public companion object {
         /**
-         * Sets a [PointSourceAttributes] on a [MediaPlayer] instance.
+         * Sets a [PointSourceParams] on a [MediaPlayer] instance.
          *
          * Must be called before prepare(), not compatible with instances created by
-         * MediaPlayer#create(). Only the attributes from the most recent call to
-         * setPointSourceAttributes or [setSoundFieldAttributes] will apply.
+         * MediaPlayer#create(). Only the params or attributes from the most recent call to
+         * setPointSourceParams or [setSoundFieldAttributes] will apply.
          *
          * @param session The current SceneCore [Session] instance.
-         * @param mediaPlayer The [MediaPlayer] instance on which to set the attributes
-         * @param attributes The source attributes to be set.
+         * @param mediaPlayer The [MediaPlayer] instance on which to set the params
+         * @param params The source params to be set.
          */
         @JvmStatic
-        public fun setPointSourceAttributes(
+        public fun setPointSourceParams(
             session: Session,
             mediaPlayer: MediaPlayer,
-            attributes: PointSourceAttributes,
+            params: PointSourceParams,
         ) {
-            session.runtime.mediaPlayerExtensionsWrapper.setPointSourceAttributes(
+            session.platformAdapter.mediaPlayerExtensionsWrapper.setPointSourceParams(
                 mediaPlayer,
-                attributes.rtPointSourceAttributes,
+                params.rtPointSourceParams,
             )
         }
 
@@ -51,7 +52,7 @@ public class SpatialMediaPlayer {
          * Sets a [SoundFieldAttributes] on a [MediaPlayer] instance.
          *
          * Must be called before prepare(), not compatible with instances created by
-         * MediaPlayer#create(). Only the attributes from the most recent call to
+         * MediaPlayer#create(). Only the attributes or params from the most recent call to
          * setSoundFieldAttributes or [setPointSourceAttributes] will apply.
          *
          * @param session The current SceneCore [Session] instance.
@@ -64,7 +65,7 @@ public class SpatialMediaPlayer {
             mediaPlayer: MediaPlayer,
             attributes: SoundFieldAttributes,
         ) {
-            session.runtime.mediaPlayerExtensionsWrapper.setSoundFieldAttributes(
+            session.platformAdapter.mediaPlayerExtensionsWrapper.setSoundFieldAttributes(
                 mediaPlayer,
                 attributes.rtSoundFieldAttributes,
             )

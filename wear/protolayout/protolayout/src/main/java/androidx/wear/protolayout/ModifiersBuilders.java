@@ -27,7 +27,9 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ActionBuilders.Action;
+import androidx.wear.protolayout.ColorBuilders.Brush;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
+import androidx.wear.protolayout.ColorBuilders.LinearGradient;
 import androidx.wear.protolayout.DimensionBuilders.DegreesProp;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
 import androidx.wear.protolayout.DimensionBuilders.PivotDimension;
@@ -558,6 +560,11 @@ public final class ModifiersBuilders {
             }
         }
 
+        /** Gets whether this element should be marked as heading for accessibility. */
+        public boolean isHeading() {
+            return mImpl.getHeading();
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public @Nullable Fingerprint getFingerprint() {
@@ -590,6 +597,8 @@ public final class ModifiersBuilders {
                     + getRole()
                     + ", stateDescription="
                     + getStateDescription()
+                    + ", heading="
+                    + isHeading()
                     + "}";
         }
 
@@ -624,6 +633,18 @@ public final class ModifiersBuilders {
                 mImpl.setStateDescription(stateDescription.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(stateDescription.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets whether this element should be marked as heading for accessibility. Defaults to
+             * false.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 600)
+            @SuppressLint("MissingGetterMatchingBuilder")
+            public @NonNull Builder setHeading(boolean heading) {
+                mImpl.setHeading(heading);
+                mFingerprint.recordPropertyUpdate(5, Boolean.hashCode(heading));
                 return this;
             }
 
@@ -677,6 +698,8 @@ public final class ModifiersBuilders {
         /**
          * Gets the padding on the end of the content, depending on the layout direction, in DP and
          * the value of "rtl_aware".
+         *
+         * <p>Note that negative values are supported on schema versions of 1.6 or higher.
          */
         public @Nullable DpProp getEnd() {
             if (mImpl.hasEnd()) {
@@ -689,6 +712,8 @@ public final class ModifiersBuilders {
         /**
          * Gets the padding on the start of the content, depending on the layout direction, in DP
          * and the value of "rtl_aware".
+         *
+         * <p>Note that negative values are supported on schema versions of 1.6 or higher.
          */
         public @Nullable DpProp getStart() {
             if (mImpl.hasStart()) {
@@ -698,7 +723,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the padding at the top, in DP. */
+        /**
+         * Gets the padding at the top, in DP.
+         *
+         * <p>Note that negative values are supported on schema versions of 1.6 or higher.
+         */
         public @Nullable DpProp getTop() {
             if (mImpl.hasTop()) {
                 return DpProp.fromProto(mImpl.getTop());
@@ -707,7 +736,11 @@ public final class ModifiersBuilders {
             }
         }
 
-        /** Gets the padding at the bottom, in DP. */
+        /**
+         * Gets the padding at the bottom, in DP.
+         *
+         * <p>Note that negative values are supported on schema versions of 1.6 or higher.
+         */
         public @Nullable DpProp getBottom() {
             if (mImpl.hasBottom()) {
                 return DpProp.fromProto(mImpl.getBottom());
@@ -792,6 +825,8 @@ public final class ModifiersBuilders {
              * Sets the padding on the end of the content, depending on the layout direction, in DP
              * and the value of "rtl_aware".
              *
+             * <p>Note that negative values are supported on schema versions of 1.6 or higher.
+             *
              * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
@@ -810,6 +845,8 @@ public final class ModifiersBuilders {
              * Sets the padding on the start of the content, depending on the layout direction, in
              * DP and the value of "rtl_aware".
              *
+             * <p>Note that negative values are supported on schema versions of 1.6 or higher.
+             *
              * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
@@ -827,6 +864,8 @@ public final class ModifiersBuilders {
             /**
              * Sets the padding at the top, in DP.
              *
+             * <p>Note that negative values are supported on schema versions of 1.6 or higher.
+             *
              * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
@@ -843,6 +882,8 @@ public final class ModifiersBuilders {
 
             /**
              * Sets the padding at the bottom, in DP.
+             *
+             * <p>Note that negative values are supported on schema versions of 1.6 or higher.
              *
              * <p>Note that this field only supports static values.
              */
@@ -890,7 +931,13 @@ public final class ModifiersBuilders {
                 return setRtlAware(new BoolProp.Builder(rtlAware).build());
             }
 
-            /** Sets the padding for all sides of the content, in DP. */
+            /**
+             * Sets the padding for all sides of the content, in DP.
+             *
+             * <p>Note that negative values are supported on schema versions of 1.6 or higher.
+             *
+             * <p>Note that this field only supports static values.
+             */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
             public @NonNull Builder setAll(@NonNull DpProp value) {
@@ -1034,13 +1081,13 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * A radius with values on both horizontal and vertical axes set to zero. It can be used
-         * to have right-angle corners.
+         * A radius with values on both horizontal and vertical axes set to zero. It can be used to
+         * have right-angle corners.
          */
         @RequiresSchemaVersion(major = 1, minor = 400)
         private static final CornerRadius ZERO =
-                new CornerRadius.Builder(new DpProp.Builder(0f).build(),
-                        new DpProp.Builder(0f).build())
+                new CornerRadius.Builder(
+                                new DpProp.Builder(0f).build(), new DpProp.Builder(0f).build())
                         .build();
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -1091,8 +1138,7 @@ public final class ModifiersBuilders {
             }
 
             @RequiresSchemaVersion(major = 1, minor = 400)
-            Builder() {
-            }
+            Builder() {}
 
             /**
              * Sets the radius value in dp on the horizontal axis.
@@ -1195,10 +1241,8 @@ public final class ModifiersBuilders {
         private @NonNull CornerRadius toCornerRadius(@Nullable DpProp radius) {
             return radius == null
                     ? CornerRadius.ZERO
-                    : new CornerRadius.Builder(
-                            dp(radius.getValue()),
-                            dp(radius.getValue())
-                    ).build();
+                    : new CornerRadius.Builder(dp(radius.getValue()), dp(radius.getValue()))
+                            .build();
         }
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -1326,8 +1370,8 @@ public final class ModifiersBuilders {
              * or defaults to zeros when radius is also not set.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
-            public @NonNull Builder setTopLeftRadius(@NonNull DpProp xRadius,
-                    @NonNull DpProp yRadius) {
+            public @NonNull Builder setTopLeftRadius(
+                    @NonNull DpProp xRadius, @NonNull DpProp yRadius) {
                 return setTopLeftRadius(new CornerRadius.Builder(xRadius, yRadius).build());
             }
 
@@ -1337,8 +1381,8 @@ public final class ModifiersBuilders {
              * or defaults to zeros when radius is also not set.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
-            public @NonNull Builder setTopRightRadius(@NonNull DpProp xRadius,
-                    @NonNull DpProp yRadius) {
+            public @NonNull Builder setTopRightRadius(
+                    @NonNull DpProp xRadius, @NonNull DpProp yRadius) {
                 return setTopRightRadius(new CornerRadius.Builder(xRadius, yRadius).build());
             }
 
@@ -1348,8 +1392,8 @@ public final class ModifiersBuilders {
              * set; or defaults to zeros when radius is also not set.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
-            public @NonNull Builder setBottomRightRadius(@NonNull DpProp xRadius,
-                    @NonNull DpProp yRadius) {
+            public @NonNull Builder setBottomRightRadius(
+                    @NonNull DpProp xRadius, @NonNull DpProp yRadius) {
                 return setBottomRightRadius(new CornerRadius.Builder(xRadius, yRadius).build());
             }
 
@@ -1359,8 +1403,8 @@ public final class ModifiersBuilders {
              * set; or defaults to zeros when radius is also not set.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
-            public @NonNull Builder setBottomLeftRadius(@NonNull DpProp xRadius,
-                    @NonNull DpProp yRadius) {
+            public @NonNull Builder setBottomLeftRadius(
+                    @NonNull DpProp xRadius, @NonNull DpProp yRadius) {
                 return setBottomLeftRadius(new CornerRadius.Builder(xRadius, yRadius).build());
             }
 
@@ -1388,6 +1432,9 @@ public final class ModifiersBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * <p>If a brush is set, this color will only be used if brush is not supported by the
+         * renderer (versions below 1.5).
          */
         public @Nullable ColorProp getColor() {
             if (mImpl.hasColor()) {
@@ -1405,6 +1452,18 @@ public final class ModifiersBuilders {
         public @Nullable Corner getCorner() {
             if (mImpl.hasCorner()) {
                 return Corner.fromProto(mImpl.getCorner());
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets a brush used to draw the background. If set, the brush will be used instead of the
+         * color provided in {@code setColor()}.
+         */
+        public @Nullable Brush getBrush() {
+            if (mImpl.hasBrush()) {
+                return ColorBuilders.brushFromProto(mImpl.getBrush());
             } else {
                 return null;
             }
@@ -1435,7 +1494,14 @@ public final class ModifiersBuilders {
 
         @Override
         public @NonNull String toString() {
-            return "Background{" + "color=" + getColor() + ", corner=" + getCorner() + "}";
+            return "Background{"
+                    + "color="
+                    + getColor()
+                    + ", corner="
+                    + getCorner()
+                    + ", brush="
+                    + getBrush()
+                    + "}";
         }
 
         /** Builder for {@link Background} */
@@ -1453,6 +1519,9 @@ public final class ModifiersBuilders {
              *
              * <p>While this field is statically accessible from 1.0, it's only bindable since
              * version 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+             *
+             * <p>If a brush is set, this color will only be used if brush is not supported by the
+             * renderer (versions below 1.5).
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             public @NonNull Builder setColor(@NonNull ColorProp color) {
@@ -1472,6 +1541,24 @@ public final class ModifiersBuilders {
                 mImpl.setCorner(corner.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(corner.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets a brush used to draw the background. If set and supported, the brush will be
+             * used instead of the color provided in {@code setColor()}.
+             *
+             * @throws IllegalArgumentException if the brush is not a {@link LinearGradient}.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            public @NonNull Builder setBrush(@NonNull Brush brush) {
+                if (!(brush instanceof LinearGradient)) {
+                    throw new IllegalArgumentException(
+                            "Only LinearGradient is supported for Background.");
+                }
+                mImpl.setBrush(brush.toBrushProto());
+                mFingerprint.recordPropertyUpdate(
+                        3, checkNotNull(brush.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 

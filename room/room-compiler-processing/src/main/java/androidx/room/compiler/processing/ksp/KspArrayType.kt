@@ -81,7 +81,7 @@ internal sealed class KspArrayType(
             ksType: KSType,
             originalKSAnnotations: Sequence<KSAnnotation>,
             scope: KSTypeVarianceResolverScope?,
-            typeAlias: KSType?
+            typeAlias: KSType?,
         ) = BoxedArray(env, ksType, originalKSAnnotations, scope, typeAlias)
     }
 
@@ -107,7 +107,7 @@ internal sealed class KspArrayType(
             ksType: KSType,
             originalKSAnnotations: Sequence<KSAnnotation>,
             scope: KSTypeVarianceResolverScope?,
-            typeAlias: KSType?
+            typeAlias: KSType?,
         ) = PrimitiveArray(env, ksType, originalKSAnnotations, scope, typeAlias, componentType)
     }
 
@@ -154,7 +154,7 @@ internal sealed class KspArrayType(
                                     componentType.typeArg.variance
                                 } else {
                                     Variance.INVARIANT
-                                }
+                                },
                             )
                         )
                     ),
@@ -168,17 +168,10 @@ internal sealed class KspArrayType(
         fun createIfArray(ksType: KSType): KspArrayType? {
             val qName = ksType.declaration.qualifiedName?.asString()
             if (qName == KOTLIN_ARRAY_Q_NAME) {
-                return BoxedArray(
-                    env = env,
-                    ksType = ksType,
-                )
+                return BoxedArray(env = env, ksType = ksType)
             }
             builtInArrays[qName]?.let { primitiveType ->
-                return PrimitiveArray(
-                    env = env,
-                    ksType = ksType,
-                    componentType = primitiveType,
-                )
+                return PrimitiveArray(env = env, ksType = ksType, componentType = primitiveType)
             }
             return null
         }

@@ -91,14 +91,14 @@ class CardView(layoutInflater: LayoutInflater, container: ViewGroup?) {
                     R.color.green_100,
                     R.color.green_300,
                     R.color.green_500,
-                    R.color.green_700
+                    R.color.green_700,
                 ),
                 intArrayOf(
                     R.color.yellow_100,
                     R.color.yellow_300,
                     R.color.yellow_500,
-                    R.color.yellow_700
-                )
+                    R.color.yellow_700,
+                ),
             )
     }
 }

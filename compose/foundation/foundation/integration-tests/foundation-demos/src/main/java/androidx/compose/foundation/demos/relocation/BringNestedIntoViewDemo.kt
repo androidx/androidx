@@ -79,14 +79,14 @@ private fun ScrollableGrid(rows: Int, columns: Int, requesters: List<BringIntoVi
                     .horizontalScroll(rememberScrollState())
                     .width(600.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Circles
                 repeat(columns) { column ->
                     val index = row * columns + column
                     TextCircle(
                         index.toString(),
-                        Modifier.size(75.dp).bringIntoViewRequester(requesters[index])
+                        Modifier.size(75.dp).bringIntoViewRequester(requesters[index]),
                     )
                 }
             }

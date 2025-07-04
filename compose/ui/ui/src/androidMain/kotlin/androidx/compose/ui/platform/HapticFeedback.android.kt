@@ -42,6 +42,8 @@ internal class DefaultHapticFeedback(private val view: View) : HapticFeedback {
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
             HapticFeedbackType.GestureThresholdActivate ->
                 view.performHapticFeedback(HapticFeedbackConstants.GESTURE_THRESHOLD_ACTIVATE)
+            HapticFeedbackType.KeyboardTap ->
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             HapticFeedbackType.LongPress ->
                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
             HapticFeedbackType.Reject -> view.performHapticFeedback(HapticFeedbackConstants.REJECT)
@@ -85,7 +87,7 @@ internal object HapticDefaults {
                 vibrator.areAllPrimitivesSupported(
                     VibrationEffect.Composition.PRIMITIVE_CLICK,
                     VibrationEffect.Composition.PRIMITIVE_TICK,
-                    VibrationEffect.Composition.PRIMITIVE_THUD
+                    VibrationEffect.Composition.PRIMITIVE_THUD,
                 )
             ) {
                 return true

@@ -23,7 +23,6 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.core.Threading
 import androidx.camera.camera2.pipe.core.Threads
 import java.util.concurrent.CountDownLatch
 import javax.inject.Inject
@@ -69,6 +68,15 @@ constructor(
                 }
             }
 
+            /**
+             * Only remove the audio restriction when CameraDeviceWrapper is present. When
+             * closeCamera is called without a CameraDeviceWrapper, that means a wrapper hadn't been
+             * created for the opened camera.
+             */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                audioRestrictionController.removeListener(cameraDeviceWrapper)
+            }
+
             val currentCameras =
                 handleQuirksBeforeClosing(
                     cameraDeviceWrapper,
@@ -79,6 +87,7 @@ constructor(
                 )
             if (currentCameras == null) {
                 Log.error { "Failed to handle quirks before closing the camera device!" }
+                cameraDeviceWrapper.onDeviceClosing()
                 cameraDeviceWrapper.onDeviceClosed()
                 androidCameraState.onFinalized(unwrappedCameraDevice)
                 return
@@ -88,21 +97,17 @@ constructor(
             val currentCameraDevice =
                 checkNotNull(currentCameraDeviceWrapper.unwrapAs(CameraDevice::class))
 
+            // This call would eventually disconnect the capture session state, preventing any
+            // additional capture session calls to be made. This is needed because we would no
+            // longer be able to make any function calls on the underlying CameraCaptureSession
+            // once we've already invoked CameraDevice.close().
+            cameraDeviceWrapper.onDeviceClosing()
             closeCameraDevice(currentCameraDevice, currentAndroidCameraState)
             cameraDeviceWrapper.onDeviceClosed()
 
             // If the camera was reopened, make sure to finalize the camera state to finish closing.
             if (shouldReopenCamera) {
                 androidCameraState.onFinalized(unwrappedCameraDevice)
-            }
-
-            /**
-             * Only remove the audio restriction when CameraDeviceWrapper is present. When
-             * closeCamera is called without a CameraDeviceWrapper, that means a wrapper hadn't been
-             * created for the opened camera.
-             */
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                audioRestrictionController.removeListener(cameraDeviceWrapper)
             }
 
             // We only need to close the device once (don't want to create another capture session).
@@ -135,7 +140,7 @@ constructor(
         shouldReopenCamera: Boolean,
         shouldCreateEmptyCaptureSession: Boolean,
     ): Pair<CameraDeviceWrapper, AndroidCameraState>? {
-        Log.debug { "$this#handleQuirksBeforeClosing($cameraDevice)" }
+        Log.debug { "handleQuirksBeforeClosing($cameraDevice)" }
         val cameraId = cameraDeviceWrapper.cameraId
         val cameras =
             if (shouldReopenCamera) {
@@ -167,16 +172,17 @@ constructor(
         cameraDevice: CameraDevice,
         androidCameraState: AndroidCameraState,
     ) {
-        Log.debug { "$this#closeCameraDevice($cameraDevice)" }
+        val cameraDeviceId = cameraDevice.id
+        Log.debug { "closeCameraDevice($cameraDeviceId)" }
         var cameraDeviceClosed = false
-        Threading.runBlockingCheckedOrNull(threads.backgroundDispatcher, CAMERA_CLOSE_TIMEOUT_MS) {
+        threads.runBlockingCheckedOrNull(CAMERA_CLOSE_TIMEOUT_MS) {
             cameraDevice.closeWithTrace()
             cameraDeviceClosed = true
         }
             ?: run {
                 Log.error {
-                    "Camera device close timed out after ${CAMERA_CLOSE_TIMEOUT_MS}ms. " +
-                        "The camera is likely in a bad state."
+                    "Failed to close CameraDevice($cameraDeviceId) after " +
+                        "${CAMERA_CLOSE_TIMEOUT_MS}ms. The camera is likely in a bad state."
                 }
             }
 

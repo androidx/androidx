@@ -128,7 +128,7 @@ class CheckboxTest {
                     checked,
                     {},
                     enabled = false,
-                    modifier = Modifier.testTag(defaultTag).semantics { focused = true }
+                    modifier = Modifier.testTag(defaultTag).semantics { focused = true },
                 )
             }
         }
@@ -179,7 +179,7 @@ class CheckboxTest {
         materialSizeTestForValue(
             checkboxValue = Indeterminate,
             clickable = true,
-            minimumTouchTarget = true
+            minimumTouchTarget = true,
         )
     }
 
@@ -188,7 +188,7 @@ class CheckboxTest {
         materialSizeTestForValue(
             checkboxValue = Indeterminate,
             clickable = true,
-            minimumTouchTarget = false
+            minimumTouchTarget = false,
         )
     }
 
@@ -217,7 +217,7 @@ class CheckboxTest {
         materialSizeTestForValue(
             checkboxValue = Indeterminate,
             clickable = false,
-            minimumTouchTarget = true
+            minimumTouchTarget = true,
         )
     }
 
@@ -226,7 +226,7 @@ class CheckboxTest {
         materialSizeTestForValue(
             checkboxValue = Indeterminate,
             clickable = false,
-            minimumTouchTarget = false
+            minimumTouchTarget = false,
         )
     }
 
@@ -234,7 +234,7 @@ class CheckboxTest {
     private fun materialSizeTestForValue(
         checkboxValue: ToggleableState,
         clickable: Boolean,
-        minimumTouchTarget: Boolean
+        minimumTouchTarget: Boolean,
     ) {
         rule
             .setMaterialContentForSizeAssertions {
@@ -247,7 +247,7 @@ class CheckboxTest {
                             if (clickable) {
                                 {}
                             } else null,
-                        enabled = false
+                        enabled = false,
                     )
                 }
             }
@@ -271,7 +271,7 @@ class CheckboxTest {
                     TriStateCheckbox(
                         state = state,
                         onClick = { state = On },
-                        modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag)
+                        modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag),
                     )
                 }
             }

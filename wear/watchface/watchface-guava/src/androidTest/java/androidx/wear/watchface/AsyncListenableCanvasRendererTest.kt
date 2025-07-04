@@ -21,9 +21,9 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -41,7 +41,7 @@ import org.junit.runner.RunWith
 internal class TestAsyncCanvasRenderInitWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder,
-    private var initFuture: ListenableFuture<Unit>
+    private var initFuture: ListenableFuture<Unit>,
 ) : WatchFaceService() {
 
     val lock = Any()
@@ -58,7 +58,7 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
             WatchFaceType.DIGITAL,
@@ -69,7 +69,7 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16
+                    16,
                 ) {
                 override fun initFuture(): ListenableFuture<Unit> {
                     initFutureLatch.countDown()
@@ -84,11 +84,11 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
                 ) {
                     // NOP
                 }
-            }
+            },
         )
 
     override fun getSystemTimeProvider() =
@@ -100,7 +100,7 @@ internal class TestAsyncCanvasRenderInitWatchFaceService(
 }
 
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 @RunWith(AndroidJUnit4::class)
 public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTest() {
 
@@ -119,7 +119,7 @@ public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTe
                     DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
                     null,
-                    emptyMap()
+                    emptyMap(),
                 )
             }
 

@@ -40,8 +40,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -134,7 +134,7 @@ class AnimatedContentTest {
                                     tween(durationMillis = 80, easing = LinearEasing)
                                 }
                         }
-                    }
+                    },
                 ) {
                     if (it) {
                         Box(modifier = Modifier.size(size = size1.dp))
@@ -204,7 +204,7 @@ class AnimatedContentTest {
                             SizeTransform { _, _ ->
                                 tween(durationMillis = 160, easing = LinearEasing)
                             }
-                    }
+                    },
                 ) {
                     if (it) {
                         Box(modifier = Modifier.size(size = size1.dp))
@@ -263,7 +263,7 @@ class AnimatedContentTest {
                 Alignment.BottomStart,
                 Alignment.Center,
                 Alignment.BottomEnd,
-                Alignment.TopEnd
+                Alignment.TopEnd,
             )
         var contentAlignment by mutableStateOf(Alignment.TopStart)
         rule.setContent {
@@ -279,7 +279,7 @@ class AnimatedContentTest {
                             SizeTransform { _, _ ->
                                 tween(durationMillis = 80, easing = LinearEasing)
                             }
-                    }
+                    },
                 ) {
                     if (it) {
                         Box(
@@ -323,13 +323,13 @@ class AnimatedContentTest {
                         // This gets removed when the animation is finished at 80ms
                         assertEquals(
                             position1,
-                            IntOffset(offset1.x.roundToInt(), offset1.y.roundToInt())
+                            IntOffset(offset1.x.roundToInt(), offset1.y.roundToInt()),
                         )
                     }
                     if (playTimeMillis > 0) {
                         assertEquals(
                             position2,
-                            IntOffset(offset2.x.roundToInt(), offset2.y.roundToInt())
+                            IntOffset(offset2.x.roundToInt(), offset2.y.roundToInt()),
                         )
                     }
                 }
@@ -353,13 +353,13 @@ class AnimatedContentTest {
                     if (playTimeMillis > 0) {
                         assertEquals(
                             position1,
-                            IntOffset(offset1.x.roundToInt(), offset1.y.roundToInt())
+                            IntOffset(offset1.x.roundToInt(), offset1.y.roundToInt()),
                         )
                     }
                     if (playTimeMillis < 80) {
                         assertEquals(
                             position2,
-                            IntOffset(offset2.x.roundToInt(), offset2.y.roundToInt())
+                            IntOffset(offset2.x.roundToInt(), offset2.y.roundToInt()),
                         )
                     }
                 }
@@ -394,20 +394,20 @@ class AnimatedContentTest {
                         if (true isTransitioningTo false) {
                             slideIntoContainer(
                                 AnimatedContentTransitionScope.SlideDirection.Start,
-                                animSpec
+                                animSpec,
                             ) togetherWith
                                 slideOutOfContainer(
                                     AnimatedContentTransitionScope.SlideDirection.Start,
-                                    animSpec
+                                    animSpec,
                                 )
                         } else {
                             slideIntoContainer(
                                 AnimatedContentTransitionScope.SlideDirection.End,
-                                animSpec
+                                animSpec,
                             ) togetherWith
                                 slideOutOfContainer(
                                     towards = AnimatedContentTransitionScope.SlideDirection.End,
-                                    animSpec
+                                    animSpec,
                                 )
                         }
                     }
@@ -484,7 +484,7 @@ class AnimatedContentTest {
                         slideInHorizontally { -200 } togetherWith
                             slideOutHorizontally(snap()) { 200 } + fadeOut(tween(200))
                     },
-                    contentKey = { it > 3 }
+                    contentKey = { it > 3 },
                 ) { target ->
                     Box(
                         Modifier.requiredSize(200.dp).onGloballyPositioned {
@@ -516,7 +516,7 @@ class AnimatedContentTest {
             assertNotNull(actualIncomingPosition)
             assertEquals(
                 targetPosition!!.copy(x = targetPosition!!.x + 200),
-                actualOutgoingPosition
+                actualOutgoingPosition,
             )
         }
     }
@@ -528,7 +528,7 @@ class AnimatedContentTest {
                 Scaffold(
                     Modifier.fillMaxSize().testTag(""),
                     topBar = {},
-                    floatingActionButton = {}
+                    floatingActionButton = {},
                 ) {
                     Surface() {
                         SubcomposeLayout(Modifier.fillMaxWidth()) { constraints ->
@@ -563,7 +563,7 @@ class AnimatedContentTest {
                                 var contentWidth =
                                     minOf(
                                             tabMeasurables[index].maxIntrinsicWidth(tabRowHeight),
-                                            tabWidth
+                                            tabWidth,
                                         )
                                         .toDp()
                                 contentWidth -= 32.dp
@@ -595,9 +595,9 @@ class AnimatedContentTest {
                     Scaffold(
                         Modifier.fillMaxSize().testTag(""),
                         topBar = {},
-                        floatingActionButton = {}
+                        floatingActionButton = {},
                     ) {
-                        TabRow(selectedTabIndex = 0) {
+                        SecondaryTabRow(selectedTabIndex = 0) {
                             repeat(15) { Text(it.toString(), Modifier.width(100.dp)) }
                         }
                     }
@@ -677,7 +677,7 @@ class AnimatedContentTest {
                     } else {
                         fadeIn(tween(2000)) togetherWith fadeOut(tween(2000))
                     }
-                }
+                },
             ) { state ->
                 if (state) {
                     Box(
@@ -685,7 +685,7 @@ class AnimatedContentTest {
                             Modifier.onGloballyPositioned {
                                     assertEquals(
                                         Offset.Zero,
-                                        rootCoords!!.localPositionOf(it, Offset.Zero)
+                                        rootCoords!!.localPositionOf(it, Offset.Zero),
                                     )
                                 }
                                 .fillMaxSize()
@@ -704,7 +704,7 @@ class AnimatedContentTest {
                             Modifier.onGloballyPositioned {
                                     assertEquals(
                                         Offset.Zero,
-                                        rootCoords!!.localPositionOf(it, Offset.Zero)
+                                        rootCoords!!.localPositionOf(it, Offset.Zero),
                                     )
                                 }
                                 .fillMaxSize()
@@ -728,7 +728,7 @@ class AnimatedContentTest {
                 transitionSpec = {
                     fadeIn(tween(200)) togetherWith
                         fadeOut(tween(5)) + ExitTransition.KeepUntilTransitionsFinished
-                }
+                },
             ) {
                 if (it) {
                     Box(Modifier.size(200.dp)) {
@@ -781,10 +781,10 @@ class AnimatedContentTest {
                             initialContentExit =
                                 slideOutOfContainer(
                                     AnimatedContentTransitionScope.SlideDirection.Start,
-                                    animationSpec = tween(durationMillis = 500)
+                                    animationSpec = tween(durationMillis = 500),
                                 ),
                             targetContentZIndex = -1.0f,
-                            sizeTransform = SizeTransform(clip = false)
+                            sizeTransform = SizeTransform(clip = false),
                         )
                     } else {
                         ContentTransform(
@@ -794,11 +794,11 @@ class AnimatedContentTest {
                                 ),
                             initialContentExit = ExitTransition.KeepUntilTransitionsFinished,
                             targetContentZIndex = 0.0f,
-                            sizeTransform = SizeTransform(clip = false)
+                            sizeTransform = SizeTransform(clip = false),
                         )
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) { flag ->
                 Spacer(
                     modifier =
@@ -936,7 +936,7 @@ class AnimatedContentTest {
                                         }
                                 }
                             },
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             if (it) {
                                 Box(modifier = Modifier.size(size = size1.dp))
@@ -959,7 +959,7 @@ class AnimatedContentTest {
                                                                 lookaheadScopeCoordinates
                                                                     .localPositionOf(
                                                                         coordinates!!,
-                                                                        Offset.Zero
+                                                                        Offset.Zero,
                                                                     )
                                                         }
                                                         place(0, 0)
@@ -1012,13 +1012,13 @@ class AnimatedContentTest {
                             modifier =
                                 Modifier.animateBounds(
                                         this@LookaheadScope,
-                                        if (!large) Modifier.size(200.dp) else Modifier.size(300.dp)
+                                        if (!large) Modifier.size(200.dp) else Modifier.size(300.dp),
                                     )
                                     .layout { m, c ->
                                         m.measure(
                                                 c.copy(
                                                     maxWidth = Constraints.Infinity,
-                                                    maxHeight = Constraints.Infinity
+                                                    maxHeight = Constraints.Infinity,
                                                 )
                                             )
                                             .run {
@@ -1032,7 +1032,7 @@ class AnimatedContentTest {
                                     .background(Color.Gray),
                             targetState = large,
                             contentKey = { true },
-                            transitionSpec = { fadeIn().togetherWith(fadeOut()) }
+                            transitionSpec = { fadeIn().togetherWith(fadeOut()) },
                         ) {
                             Box(Modifier.background(Color.Black).size(200.dp, 100.dp))
                         }
@@ -1078,7 +1078,7 @@ class AnimatedContentTest {
                 playTimeMillis = (transition.playTimeNanos / 1_000_000L).toInt()
                 transition.AnimatedContent(
                     contentAlignment = Alignment.Center,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() using null }
+                    transitionSpec = { fadeIn() togetherWith fadeOut() using null },
                 ) {
                     if (it) {
                         Box(
@@ -1173,7 +1173,7 @@ class AnimatedContentTest {
                                 currentSize = it
                                 assertNotEquals(IntSize.Zero, it)
                             },
-                        transitionSpec = { fadeIn() togetherWith fadeOut() }
+                        transitionSpec = { fadeIn() togetherWith fadeOut() },
                     ) {
                         if (it) {
                             Box(Modifier.background(Color.Red).size(200.dp))

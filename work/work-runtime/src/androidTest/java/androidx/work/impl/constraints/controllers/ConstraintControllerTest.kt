@@ -89,7 +89,7 @@ class ConstraintControllerTest {
     private class FakeConstraintTracker :
         ConstraintTracker<Boolean>(
             ApplicationProvider.getApplicationContext(),
-            InstantWorkTaskExecutor()
+            InstantWorkTaskExecutor(),
         ) {
         var tracking = false
         var deviceIdle = false

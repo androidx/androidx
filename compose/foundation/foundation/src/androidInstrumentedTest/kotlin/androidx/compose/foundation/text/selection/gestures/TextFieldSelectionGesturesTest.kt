@@ -31,6 +31,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGesturesTest() {
@@ -124,6 +125,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     // Regression for magnifier not showing when the text field begins empty,
     // then text is added, the magnifier continues not to show.
+    @Ignore // b/424585312
     @Test
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
         textContent = ""
@@ -236,6 +238,8 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             selection = 6 to 29
             hapticsCount++
         }
+
+        performTouchGesture { up() }
     }
 
     @Test
@@ -260,6 +264,8 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
             selection = 17 to 6
             hapticsCount++
         }
+
+        performTouchGesture { up() }
     }
 
     @Test
@@ -369,32 +375,20 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withLongPressThenDragToUpperEndPaddingAndBack_selectsWordsThenChars() {
-        touchLongPressThenDragToEndPaddingTest(
-            endOffset = topEnd,
-            endSelection = 17 to 0,
-        )
+        touchLongPressThenDragToEndPaddingTest(endOffset = topEnd, endSelection = 17 to 0)
     }
 
     @Test
     fun whenTouch_withLongPressThenDragToMiddleEndPaddingAndBack_selectsWordsThenChars() {
-        touchLongPressThenDragToEndPaddingTest(
-            endOffset = centerEnd,
-            endSelection = 12 to 23,
-        )
+        touchLongPressThenDragToEndPaddingTest(endOffset = centerEnd, endSelection = 12 to 23)
     }
 
     @Test
     fun whenTouch_withLongPressThenDragToLowerEndPaddingAndBack_selectsWordsThenChars() {
-        touchLongPressThenDragToEndPaddingTest(
-            endOffset = bottomEnd,
-            endSelection = 12 to 29,
-        )
+        touchLongPressThenDragToEndPaddingTest(endOffset = bottomEnd, endSelection = 12 to 29)
     }
 
-    private fun touchLongPressThenDragToEndPaddingTest(
-        endOffset: Offset,
-        endSelection: TextRange,
-    ) {
+    private fun touchLongPressThenDragToEndPaddingTest(endOffset: Offset, endSelection: TextRange) {
         performTouchGesture { longPress(characterPosition(13)) }
 
         asserter.applyAndAssert {
@@ -637,34 +631,22 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withSingleClickThenDragLeft_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(8),
-            endSelection = 13 to 8,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(8), endSelection = 13 to 8)
     }
 
     @Test
     fun whenMouse_withSingleClickThenDragUp_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(2),
-            endSelection = 13 to 2,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(2), endSelection = 13 to 2)
     }
 
     @Test
     fun whenMouse_withSingleClickThenDragRight_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(19),
-            endSelection = 13 to 19,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(19), endSelection = 13 to 19)
     }
 
     @Test
     fun whenMouse_withSingleClickThenDragDown_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(26),
-            endSelection = 13 to 26,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(26), endSelection = 13 to 26)
     }
 
     private fun mouseSingleClickThenDragTest(endOffset: Offset, endSelection: TextRange) {
@@ -686,34 +668,22 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withDoubleClickThenDragLeft_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(8),
-            endSelection = 17 to 6,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(8), endSelection = 17 to 6)
     }
 
     @Test
     fun whenMouse_withDoubleClickThenDragUp_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(2),
-            endSelection = 17 to 0,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(2), endSelection = 17 to 0)
     }
 
     @Test
     fun whenMouse_withDoubleClickThenDragRight_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(19),
-            endSelection = 12 to 23,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(19), endSelection = 12 to 23)
     }
 
     @Test
     fun whenMouse_withDoubleClickThenDragDown_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(26),
-            endSelection = 12 to 29,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(26), endSelection = 12 to 29)
     }
 
     private fun mouseDoubleClickThenDragTest(endOffset: Offset, endSelection: TextRange) {
@@ -735,34 +705,22 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withTripleClickThenDragLeft_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(8),
-            endSelection = 6 to 23,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(8), endSelection = 6 to 23)
     }
 
     @Test
     fun whenMouse_withTripleClickThenDragUp_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(2),
-            endSelection = 23 to 0,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(2), endSelection = 23 to 0)
     }
 
     @Test
     fun whenMouse_withTripleClickThenDragRight_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(19),
-            endSelection = 6 to 23,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(19), endSelection = 6 to 23)
     }
 
     @Test
     fun whenMouse_withTripleClickThenDragDown_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(26),
-            endSelection = 6 to 29,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(26), endSelection = 6 to 29)
     }
 
     private fun mouseTripleClickThenDragTest(endOffset: Offset, endSelection: TextRange) {
@@ -777,26 +735,17 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withSingleClickOnFirstLetterOfLine_collapsedSelection() {
-        mouseFirstLetterOfLineClicksTest(
-            numClicks = 1,
-            selection = 6.collapsed,
-        )
+        mouseFirstLetterOfLineClicksTest(numClicks = 1, selection = 6.collapsed)
     }
 
     @Test
     fun whenMouse_withDoubleClickOnFirstLetterOfLine_selectsFirstWord() {
-        mouseFirstLetterOfLineClicksTest(
-            numClicks = 2,
-            selection = 6 to 11,
-        )
+        mouseFirstLetterOfLineClicksTest(numClicks = 2, selection = 6 to 11)
     }
 
     @Test
     fun whenMouse_withTripleClickOnFirstLetterOfLine_selectsParagraph() {
-        mouseFirstLetterOfLineClicksTest(
-            numClicks = 3,
-            selection = 6 to 23,
-        )
+        mouseFirstLetterOfLineClicksTest(numClicks = 3, selection = 6 to 23)
     }
 
     // regression test for when selections would overflow onto previous line
@@ -813,26 +762,17 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenMouse_withSingleClickInEndPaddingOfLine_collapsedSelection() {
-        mouseEndPaddingClicksTest(
-            numClicks = 1,
-            selection = 23.collapsed,
-        )
+        mouseEndPaddingClicksTest(numClicks = 1, selection = 23.collapsed)
     }
 
     @Test
     fun whenMouse_withDoubleClickOInEndPaddingOfLine_selectsLastWord() {
-        mouseEndPaddingClicksTest(
-            numClicks = 2,
-            selection = 18 to 23,
-        )
+        mouseEndPaddingClicksTest(numClicks = 2, selection = 18 to 23)
     }
 
     @Test
     fun whenMouse_withTripleClickInEndPaddingOfLine_selectsParagraph() {
-        mouseEndPaddingClicksTest(
-            numClicks = 3,
-            selection = 6 to 23,
-        )
+        mouseEndPaddingClicksTest(numClicks = 3, selection = 6 to 23)
     }
 
     // regression test for when selections would overflow onto next line
@@ -852,7 +792,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         startOffset: Offset,
         endOffset: Offset,
         startSelection: TextRange,
-        endSelection: TextRange
+        endSelection: TextRange,
     ) {
         check(numClicks > 0) { "Must be at least one click" }
         performMouseGesture {

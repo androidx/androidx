@@ -26,7 +26,7 @@ package androidx.room
     AnnotationTarget.FUNCTION,
     AnnotationTarget.FIELD,
     AnnotationTarget.CONSTRUCTOR,
-    AnnotationTarget.PROPERTY_GETTER
+    AnnotationTarget.PROPERTY_GETTER,
 )
 @Retention(AnnotationRetention.BINARY)
 public annotation class Ignore

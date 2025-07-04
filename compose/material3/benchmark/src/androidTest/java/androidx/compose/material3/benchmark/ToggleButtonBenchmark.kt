@@ -61,7 +61,7 @@ class ToggleButtonBenchmark(private val type: ToggleButtonType) {
     fun toggleButton_toggleRecomposeMeasureLayout() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             toggleButtonTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 }
@@ -104,5 +104,5 @@ enum class ToggleButtonType {
     Filled,
     Elevated,
     Tonal,
-    Outlined
+    Outlined,
 }

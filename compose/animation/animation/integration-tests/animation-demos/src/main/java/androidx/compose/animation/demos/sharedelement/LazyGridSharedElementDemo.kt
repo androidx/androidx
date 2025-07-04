@@ -70,12 +70,12 @@ fun LazyGridSharedElementDemo() {
                 (fadeIn() togetherWith fadeOut()).apply {
                     targetContentZIndex = if (targetState == List) 1f else 0f
                 }
-            }
+            },
         ) {
             if (it == List) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(5.dp)
+                    contentPadding = PaddingValues(5.dp),
                 ) {
                     items(20) {
                         if (it % 5 == 0) {
@@ -93,7 +93,7 @@ fun LazyGridSharedElementDemo() {
                                         // defined above.
                                         this@AnimatedContent,
                                     ),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
                             )
                         } else {
                             Box(
@@ -121,7 +121,7 @@ fun LazyGridSharedElementDemo() {
                                 // defined above.
                                 this@AnimatedContent,
                             ),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
                     Text(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla" +
@@ -145,7 +145,7 @@ fun LazyGridSharedElementDemo() {
                         // content and target content are exactly the same (i.e. same
                         // size/font/color)
                         modifier =
-                            Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally)
+                            Modifier.fillMaxWidth().wrapContentWidth(Alignment.CenterHorizontally),
                     )
                 }
             }

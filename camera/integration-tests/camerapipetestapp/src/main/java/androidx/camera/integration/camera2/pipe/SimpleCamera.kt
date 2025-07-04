@@ -57,7 +57,7 @@ class SimpleCamera(
     private val cameraConfig: CameraGraph.Config,
     private val cameraGraph: CameraGraph,
     private val cameraMetadata: CameraMetadata,
-    private val imageReader: ImageReader? = null
+    private val imageReader: ImageReader? = null,
 ) {
     companion object {
         fun create(
@@ -65,7 +65,7 @@ class SimpleCamera(
             cameraId: CameraId,
             viewfinder: Viewfinder,
             listeners: List<Request.Listener> = emptyList(),
-            operatingMode: CameraGraph.OperatingMode? = CameraGraph.OperatingMode.NORMAL
+            operatingMode: CameraGraph.OperatingMode? = CameraGraph.OperatingMode.NORMAL,
         ): SimpleCamera {
             if (operatingMode == CameraGraph.OperatingMode.HIGH_SPEED) {
                 return createHighSpeedCamera(cameraPipe, cameraId, viewfinder, listeners)
@@ -77,7 +77,7 @@ class SimpleCamera(
             cameraPipe: CameraPipe,
             cameraIds: List<CameraId>,
             viewfinders: List<Viewfinder>,
-            sizes: List<Size>
+            sizes: List<Size>,
         ): List<SimpleCamera> {
             return createConcurrentCameras(cameraPipe, cameraIds, viewfinders, sizes)
         }
@@ -86,7 +86,7 @@ class SimpleCamera(
             cameraPipe: CameraPipe,
             cameraId: CameraId,
             viewfinder: Viewfinder,
-            listeners: List<Request.Listener> = emptyList()
+            listeners: List<Request.Listener> = emptyList(),
         ): SimpleCamera {
             // TODO: It may be worthwhile to turn this into a suspending function to avoid running
             //   camera-finding and metadata querying on the main thread.
@@ -137,7 +137,7 @@ class SimpleCamera(
                 Config.create(
                     yuvSize,
                     StreamFormat.UNKNOWN,
-                    outputType = OutputStream.OutputType.SURFACE_VIEW
+                    outputType = OutputStream.OutputType.SURFACE_VIEW,
                 )
 
             val privateStreamConfig =
@@ -145,7 +145,7 @@ class SimpleCamera(
                     privateOutputSize,
                     StreamFormat.PRIVATE,
                     outputType = OutputStream.OutputType.SURFACE_VIEW,
-                    streamUseCase = OutputStream.StreamUseCase.PREVIEW
+                    streamUseCase = OutputStream.StreamUseCase.PREVIEW,
                 )
 
             val config =
@@ -156,10 +156,10 @@ class SimpleCamera(
                     defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
                     sessionMode = CameraGraph.OperatingMode.HIGH_SPEED,
                     defaultParameters =
-                        mapOf(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(120, 120))
+                        mapOf(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE to Range(120, 120)),
                 )
 
-            val cameraGraph = cameraPipe.create(config)
+            val cameraGraph = cameraPipe.createCameraGraph(config)
 
             val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
             val viewfinderOutput = viewfinderStream.outputs.single()
@@ -171,7 +171,7 @@ class SimpleCamera(
                         Log.i("CXCP-App", "Viewfinder surface changed to $surface at $size")
                         cameraGraph.setSurface(viewfinderStream.id, surface)
                     }
-                }
+                },
             )
             val privateStream = cameraGraph.streams[privateStreamConfig]!!
             val privateOutput = privateStream.outputs.single()
@@ -183,14 +183,14 @@ class SimpleCamera(
                         privateOutput.size.height,
                         privateOutput.format.value,
                         10,
-                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE,
                     )
                 } else {
                     ImageReader.newInstance(
                         privateOutput.size.width,
                         privateOutput.size.height,
                         privateOutput.format.value,
-                        10
+                        10,
                     )
                 }
             cameraGraph.setSurface(privateStream.id, imageReader.surface)
@@ -206,7 +206,7 @@ class SimpleCamera(
             cameraPipe: CameraPipe,
             cameraId: CameraId,
             viewfinder: Viewfinder,
-            listeners: List<Request.Listener> = emptyList()
+            listeners: List<Request.Listener> = emptyList(),
         ): SimpleCamera {
             // TODO: It may be worthwhile to turn this into a suspending function to avoid running
             //   camera-finding and metadata querying on the main thread.
@@ -236,7 +236,7 @@ class SimpleCamera(
                 Config.create(
                     yuvSize,
                     StreamFormat.UNKNOWN,
-                    outputType = OutputStream.OutputType.SURFACE_VIEW
+                    outputType = OutputStream.OutputType.SURFACE_VIEW,
                 )
 
             val yuvStreamConfig = Config.create(yuvSize, StreamFormat.YUV_420_888)
@@ -246,10 +246,10 @@ class SimpleCamera(
                     camera = cameraId,
                     streams = listOf(viewfinderStreamConfig, yuvStreamConfig),
                     defaultListeners = listeners,
-                    defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW)
+                    defaultTemplate = RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
                 )
 
-            val cameraGraph = cameraPipe.create(config)
+            val cameraGraph = cameraPipe.createCameraGraph(config)
 
             val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
             val viewfinderOutput = viewfinderStream.outputs.single()
@@ -261,7 +261,7 @@ class SimpleCamera(
                         Log.i("CXCP-App", "Viewfinder surface changed to $surface at $size")
                         cameraGraph.setSurface(viewfinderStream.id, surface)
                     }
-                }
+                },
             )
             val yuvStream = cameraGraph.streams[yuvStreamConfig]!!
             val yuvOutput = yuvStream.outputs.single()
@@ -271,7 +271,7 @@ class SimpleCamera(
                     yuvOutput.size.width,
                     yuvOutput.size.height,
                     yuvOutput.format.value,
-                    10
+                    10,
                 )
             cameraGraph.setSurface(yuvStream.id, imageReader.surface)
 
@@ -336,7 +336,7 @@ class SimpleCamera(
                             Log.i("CXCP-App", "Viewfinder$i surface changed to $surface at $size")
                             cameraGraphs[i].setSurface(viewfinderStreams[i].id, surface)
                         }
-                    }
+                    },
                 )
             }
 
@@ -376,7 +376,7 @@ class SimpleCamera(
                 val image = imageReader.acquireNextImage()
                 image?.close()
             },
-            handler
+            handler,
         )
     }
 
@@ -414,7 +414,7 @@ class SimpleCamera(
             height: Int,
             format: Int,
             maxImages: Int,
-            usage: Long
+            usage: Long,
         ): ImageReader {
             return ImageReader.newInstance(width, height, format, maxImages, usage)
         }

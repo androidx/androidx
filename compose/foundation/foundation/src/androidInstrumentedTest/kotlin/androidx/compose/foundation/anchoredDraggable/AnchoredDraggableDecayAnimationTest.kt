@@ -71,7 +71,7 @@ class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
             val decaySpec =
                 createFakeDecayAnimationSpec(
                     from = parameters.from,
-                    to = parameters.to + parameters.directionalOvershoot
+                    to = parameters.to + parameters.directionalOvershoot,
                 )
             val generatedSpec = decaySpec.generateDecayAnimationSpec<Float>()
             val state by
@@ -82,7 +82,7 @@ class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
                         velocityThreshold = defaultVelocityThreshold,
                         anchors = parameters.anchors,
                         decayAnimationSpec = generatedSpec,
-                        snapAnimationSpec = defaultAnimationSpec
+                        snapAnimationSpec = defaultAnimationSpec,
                     )
                 )
 
@@ -98,7 +98,7 @@ class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
                     targetValue = state.anchors.closestAnchor(parameters.to)!!,
                     velocity = defaultVelocityThreshold() * 10f * parameters.direction,
                     snapAnimationSpec = defaultAnimationSpec,
-                    decayAnimationSpec = generatedSpec
+                    decayAnimationSpec = generatedSpec,
                 )
             }
             parameterizedRule.mainClock.advanceTimeUntil {
@@ -141,7 +141,7 @@ class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
 
     enum class ParameterizedTestAnchorValue {
         Start,
-        End
+        End,
     }
 
     companion object {
@@ -154,7 +154,7 @@ class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
 private fun createFakeDecayAnimationSpec(
     from: Float,
     to: Float,
-    stepSize: Int = 10
+    stepSize: Int = 10,
 ): FakeDecayAnimationSpec {
     val distance = abs(from - to).roundToInt()
     val direction = sign(to - from)
@@ -190,7 +190,7 @@ private class FakeDecayAnimationSpec(val values: FloatArray, val velocities: Flo
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ) = values[getFrameForPlayTime(playTimeNanos)]
 
     override fun getDurationNanos(initialValue: Float, initialVelocity: Float) =
@@ -199,7 +199,7 @@ private class FakeDecayAnimationSpec(val values: FloatArray, val velocities: Flo
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ) = getFrameForPlayTime(playTimeNanos).toFloat()
 
     override fun getTargetValue(initialValue: Float, initialVelocity: Float) = values.last()

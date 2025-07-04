@@ -53,7 +53,7 @@ class KeyframeArcAnimationTest {
                 (500).toLong() * 1_000_000,
                 createFilledVector(initialValue),
                 createFilledVector(targetValue),
-                createFilledVector(0f)
+                createFilledVector(0f),
             )
         linearVector = linearValueAt(1f / 6f)
         assertTrue(arcVector[0] > linearVector[0]) // X is higher for ArcAbove (in this scenario)
@@ -64,7 +64,7 @@ class KeyframeArcAnimationTest {
                 (1500).toLong() * 1_000_000,
                 createFilledVector(initialValue),
                 createFilledVector(targetValue),
-                createFilledVector(0f)
+                createFilledVector(0f),
             )
         linearVector = linearValueAt(3f / 6f)
         assertTrue(arcVector[0] < linearVector[0]) // X is lower for ArcBelow
@@ -75,7 +75,7 @@ class KeyframeArcAnimationTest {
                 (2500).toLong() * 1_000_000,
                 createFilledVector(initialValue),
                 createFilledVector(targetValue),
-                createFilledVector(0f)
+                createFilledVector(0f),
             )
         linearVector = linearValueAt(5f / 6f)
         assertEquals(linearVector[0], arcVector[0], error) // X is equals for ArcLinear
@@ -104,7 +104,7 @@ class KeyframeArcAnimationTest {
                 (500).toLong() * 1_000_000,
                 createFilledVector(initialValue),
                 createFilledVector(targetValue),
-                createFilledVector(0f)
+                createFilledVector(0f),
             )
         linearVector = linearValueAt(1f / 6f)
         // X & Y are lower for EaseInCubic
@@ -117,7 +117,7 @@ class KeyframeArcAnimationTest {
                 (1500).toLong() * 1_000_000,
                 createFilledVector(initialValue),
                 createFilledVector(targetValue),
-                createFilledVector(0f)
+                createFilledVector(0f),
             )
         linearVector = linearValueAt(3f / 6f)
         assertEquals(linearVector[0], arcVector[0], error) // X is equals with LinearEasing
@@ -129,7 +129,7 @@ class KeyframeArcAnimationTest {
                 (2500).toLong() * 1_000_000,
                 createFilledVector(initialValue),
                 createFilledVector(targetValue),
-                createFilledVector(0f)
+                createFilledVector(0f),
             )
         linearVector = linearValueAt(5f / 6f)
         // X & Y are higher for EaseOutCubic

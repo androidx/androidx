@@ -16,9 +16,8 @@
 
 package androidx.collection
 
-internal class CircularyArrayAddFromHeadAndPopFromTailBenchmark(
-    private val seed: List<String>,
-) : CollectionBenchmark {
+internal class CircularyArrayAddFromHeadAndPopFromTailBenchmark(private val seed: List<String>) :
+    CollectionBenchmark {
     override fun measuredBlock() {
         val array = CircularArray<String>()
         for (e in seed) {

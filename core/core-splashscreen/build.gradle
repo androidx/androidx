@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,19 +40,23 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.appcompat:appcompat-resources:1.7.0")
 
-    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.hamcrestCore)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":appcompat:appcompat"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
 }
 
 androidx {
     name = "SplashScreen"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
     inceptionYear = "2021"
     description = "This library provides the compatibility APIs for SplashScreen " +

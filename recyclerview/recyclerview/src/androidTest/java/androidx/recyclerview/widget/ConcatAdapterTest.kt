@@ -178,7 +178,7 @@ class ConcatAdapterTest {
                 RecycledViewHolderEvent(
                     itemId = 12,
                     absoluteAdapterPosition = NO_POSITION,
-                    bindingAdapterPosition = NO_POSITION
+                    bindingAdapterPosition = NO_POSITION,
                 )
             )
         assertThat(adapter2.failedToRecycleEvents()).hasSize(1)
@@ -342,13 +342,13 @@ class ConcatAdapterTest {
                 RecycledViewHolderEvent(
                     itemId = 0,
                     absoluteAdapterPosition = 0,
-                    bindingAdapterPosition = 0
+                    bindingAdapterPosition = 0,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 1,
                     absoluteAdapterPosition = 1,
-                    bindingAdapterPosition = 1
-                )
+                    bindingAdapterPosition = 1,
+                ),
             )
             .inOrder()
     }
@@ -377,7 +377,7 @@ class ConcatAdapterTest {
                 RecycledViewHolderEvent(
                     itemId = 1,
                     absoluteAdapterPosition = 1,
-                    bindingAdapterPosition = 1
+                    bindingAdapterPosition = 1,
                 )
             )
         assertThat(adapter1.recycleEvents())
@@ -385,7 +385,7 @@ class ConcatAdapterTest {
                 RecycledViewHolderEvent(
                     itemId = 0,
                     absoluteAdapterPosition = 0,
-                    bindingAdapterPosition = 0
+                    bindingAdapterPosition = 0,
                 )
             )
     }
@@ -415,28 +415,28 @@ class ConcatAdapterTest {
                 RecycledViewHolderEvent(
                     itemId = 0,
                     bindingAdapterPosition = 0,
-                    absoluteAdapterPosition = 0
+                    absoluteAdapterPosition = 0,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 1,
                     bindingAdapterPosition = NO_POSITION,
-                    absoluteAdapterPosition = NO_POSITION
+                    absoluteAdapterPosition = NO_POSITION,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 2,
                     bindingAdapterPosition = 1,
-                    absoluteAdapterPosition = 1
+                    absoluteAdapterPosition = 1,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 3,
                     bindingAdapterPosition = NO_POSITION,
-                    absoluteAdapterPosition = NO_POSITION
+                    absoluteAdapterPosition = NO_POSITION,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 4,
                     bindingAdapterPosition = 2,
-                    absoluteAdapterPosition = 2
-                )
+                    absoluteAdapterPosition = 2,
+                ),
             )
     }
 
@@ -481,33 +481,33 @@ class ConcatAdapterTest {
                 RecycledViewHolderEvent(
                     itemId = 7,
                     bindingAdapterPosition = NO_POSITION,
-                    absoluteAdapterPosition = NO_POSITION
+                    absoluteAdapterPosition = NO_POSITION,
                 ),
                 // pos 4 (item id 9) is removed from adapter 2
                 RecycledViewHolderEvent(
                     itemId = 9,
                     bindingAdapterPosition = NO_POSITION,
-                    absoluteAdapterPosition = NO_POSITION
+                    absoluteAdapterPosition = NO_POSITION,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 11,
                     bindingAdapterPosition = 4,
-                    absoluteAdapterPosition = 7
+                    absoluteAdapterPosition = 7,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 12,
                     bindingAdapterPosition = 5,
-                    absoluteAdapterPosition = 8
+                    absoluteAdapterPosition = 8,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 13,
                     bindingAdapterPosition = 6,
-                    absoluteAdapterPosition = 9
+                    absoluteAdapterPosition = 9,
                 ),
                 RecycledViewHolderEvent(
                     itemId = 14,
                     bindingAdapterPosition = 7,
-                    absoluteAdapterPosition = 10
+                    absoluteAdapterPosition = 10,
                 ),
             )
     }
@@ -609,7 +609,7 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(3)
         observer.assertEventsAndClear(
             "adapter with count should trigger notify",
-            Inserted(positionStart = 0, itemCount = 3)
+            Inserted(positionStart = 0, itemCount = 3),
         )
 
         val adapter2 = NestedTestAdapter(5)
@@ -617,7 +617,7 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(8)
         observer.assertEventsAndClear(
             "appended non-empty adapter should trigger insert event",
-            Inserted(positionStart = 3, itemCount = 5)
+            Inserted(positionStart = 3, itemCount = 5),
         )
 
         val adapter3 = NestedTestAdapter(2)
@@ -625,7 +625,7 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(10)
         observer.assertEventsAndClear(
             "appended non-empty adapter should trigger insert event in right index",
-            Inserted(positionStart = 3, itemCount = 2)
+            Inserted(positionStart = 3, itemCount = 2),
         )
 
         concatenated.addAdapter(NestedTestAdapter(0))
@@ -645,34 +645,34 @@ class ConcatAdapterTest {
         adapter1.addItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "non-empty adapter triggers an event",
-            Inserted(positionStart = 0, itemCount = 3)
+            Inserted(positionStart = 0, itemCount = 3),
         )
         assertThat(concatenated).hasItemCount(3)
         adapter1.addItems(positionStart = 1, itemCount = 2)
         observer.assertEventsAndClear(
             "inner adapter change should trigger an event",
-            Inserted(positionStart = 1, itemCount = 2)
+            Inserted(positionStart = 1, itemCount = 2),
         )
         assertThat(concatenated).hasItemCount(5)
         val adapter2 = NestedTestAdapter(2)
         concatenated.addAdapter(adapter2)
         observer.assertEventsAndClear(
             "added adapter should trigger an event",
-            Inserted(positionStart = 5, itemCount = 2)
+            Inserted(positionStart = 5, itemCount = 2),
         )
         assertThat(concatenated).hasItemCount(7)
 
         adapter2.addItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "nested adapter prepends data",
-            Inserted(positionStart = 5, itemCount = 3)
+            Inserted(positionStart = 5, itemCount = 3),
         )
         assertThat(concatenated).hasItemCount(10)
 
         adapter2.addItems(positionStart = 2, itemCount = 4)
         observer.assertEventsAndClear(
             "nested adapter adds items with inner offset",
-            Inserted(positionStart = 7, itemCount = 4)
+            Inserted(positionStart = 7, itemCount = 4),
         )
         assertThat(concatenated).hasItemCount(14)
     }
@@ -690,57 +690,57 @@ class ConcatAdapterTest {
         adapter1.removeItems(positionStart = 0, itemCount = 2)
         observer.assertEventsAndClear(
             "removal from first adapter top",
-            Removed(positionStart = 0, itemCount = 2)
+            Removed(positionStart = 0, itemCount = 2),
         )
         assertThat(concatenated).hasItemCount(43)
         adapter1.removeItems(positionStart = 2, itemCount = 1)
         observer.assertEventsAndClear(
             "removal from first adapter inner",
-            Removed(positionStart = 2, itemCount = 1)
+            Removed(positionStart = 2, itemCount = 1),
         )
         assertThat(concatenated).hasItemCount(42)
         // now first adapter has size 7
         adapter2.removeItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "removal from second adapter should be offset",
-            Removed(positionStart = adapter1.itemCount, itemCount = 3)
+            Removed(positionStart = adapter1.itemCount, itemCount = 3),
         )
         assertThat(concatenated).hasItemCount(39)
         adapter2.removeItems(positionStart = 6, itemCount = 4)
         observer.assertEventsAndClear(
             "inner item removal from middle adapter should be offset",
-            Removed(positionStart = adapter1.itemCount + 6, itemCount = 4)
+            Removed(positionStart = adapter1.itemCount + 6, itemCount = 4),
         )
         assertThat(concatenated).hasItemCount(35)
 
         adapter3.removeItems(positionStart = 0, itemCount = 3)
         observer.assertEventsAndClear(
             "removal from last adapter should be offset by adapter 1 and 2",
-            Removed(positionStart = adapter1.itemCount + adapter2.itemCount, itemCount = 3)
+            Removed(positionStart = adapter1.itemCount + adapter2.itemCount, itemCount = 3),
         )
 
         adapter3.removeItems(positionStart = 2, itemCount = 5)
         observer.assertEventsAndClear(
             "removal from inner items from last adapter should be offset by adapter 1 & 2",
-            Removed(positionStart = adapter1.itemCount + adapter2.itemCount + 2, itemCount = 5)
+            Removed(positionStart = adapter1.itemCount + adapter2.itemCount + 2, itemCount = 5),
         )
 
         concatenated.removeAdapter(adapter2)
         observer.assertEventsAndClear(
             "removing an adapter should trigger removal",
-            Removed(positionStart = adapter1.itemCount, itemCount = adapter2.itemCount)
+            Removed(positionStart = adapter1.itemCount, itemCount = adapter2.itemCount),
         )
         assertThat(concatenated).hasItemCount(adapter1.itemCount + adapter3.itemCount)
         concatenated.removeAdapter(adapter1)
         observer.assertEventsAndClear(
             "removing first adapter should trigger removal",
-            Removed(positionStart = 0, itemCount = adapter1.itemCount)
+            Removed(positionStart = 0, itemCount = adapter1.itemCount),
         )
         assertThat(concatenated).hasItemCount(adapter3.itemCount)
         concatenated.removeAdapter(adapter3)
         observer.assertEventsAndClear(
             "removing last adapter should trigger a removal",
-            Removed(positionStart = 0, itemCount = adapter3.itemCount)
+            Removed(positionStart = 0, itemCount = adapter3.itemCount),
         )
         assertThat(concatenated).hasItemCount(0)
     }
@@ -755,21 +755,21 @@ class ConcatAdapterTest {
         adapter1.moveItem(fromPosition = 3, toPosition = 5)
         observer.assertEventsAndClear(
             "move from first adapter should come as is",
-            Moved(fromPosition = 3, toPosition = 5)
+            Moved(fromPosition = 3, toPosition = 5),
         )
         assertThat(concatenated).hasItemCount(45)
         adapter2.moveItem(fromPosition = 2, toPosition = 4)
         observer.assertEventsAndClear(
             "move in adapter 2 should be offset",
-            Moved(fromPosition = adapter1.itemCount + 2, toPosition = adapter1.itemCount + 4)
+            Moved(fromPosition = adapter1.itemCount + 2, toPosition = adapter1.itemCount + 4),
         )
         adapter3.moveItem(fromPosition = 7, toPosition = 2)
         observer.assertEventsAndClear(
             "move in adapter 3 should be offset by adapter 1 & 2",
             Moved(
                 fromPosition = adapter1.itemCount + adapter2.itemCount + 7,
-                toPosition = adapter1.itemCount + adapter2.itemCount + 2
-            )
+                toPosition = adapter1.itemCount + adapter2.itemCount + 2,
+            ),
         )
         assertThat(concatenated).hasItemCount(45)
     }
@@ -788,13 +788,13 @@ class ConcatAdapterTest {
         adapter1.changeItems(positionStart = 3, itemCount = 5, payload = payload)
         observer.assertEventsAndClear(
             "change from first adapter should come as is",
-            Changed(positionStart = 3, itemCount = 5, payload = payload)
+            Changed(positionStart = 3, itemCount = 5, payload = payload),
         )
         assertThat(concatenated).hasItemCount(45)
         adapter2.changeItems(positionStart = 2, itemCount = 4, payload = payload)
         observer.assertEventsAndClear(
             "change in adapter 2 should be offset",
-            Changed(positionStart = adapter1.itemCount + 2, itemCount = 4, payload = payload)
+            Changed(positionStart = adapter1.itemCount + 2, itemCount = 4, payload = payload),
         )
         adapter3.changeItems(positionStart = 7, itemCount = 2, payload = payload)
         observer.assertEventsAndClear(
@@ -802,8 +802,8 @@ class ConcatAdapterTest {
             Changed(
                 positionStart = adapter1.itemCount + adapter2.itemCount + 7,
                 itemCount = 2,
-                payload = payload
-            )
+                payload = payload,
+            ),
         )
         assertThat(concatenated).hasItemCount(45)
     }
@@ -825,7 +825,7 @@ class ConcatAdapterTest {
         adapter2.changeDataSet(20)
         observer.assertEventsAndClear(
             "data set change in adapter 2 should become full data set change",
-            DataSetChanged
+            DataSetChanged,
         )
         assertThat(concatenated).hasItemCount(43)
         adapter3.changeDataSet(newSize = 0)
@@ -836,7 +836,7 @@ class ConcatAdapterTest {
                 |everything is delayed but not here if we immediately read the item count
             """
                 .trimMargin(),
-            DataSetChanged
+            DataSetChanged,
         )
         assertThat(concatenated).hasItemCount(23)
     }
@@ -1013,7 +1013,7 @@ class ConcatAdapterTest {
                     "[androidx.recyclerview.widget.RecyclerView.AdapterDataObserver]) : void",
                 "canRestoreState([]) : boolean",
                 "onBindViewHolder([androidx.recyclerview.widget.RecyclerView.ViewHolder, int, " +
-                    "java.util.List]) : void"
+                    "java.util.List]) : void",
             )
         val adapterMethods =
             RecyclerView.Adapter::class
@@ -1237,7 +1237,7 @@ class ConcatAdapterTest {
     internal open inner class NestedTestAdapter(
         count: Int = 0,
         val getLayoutParams: ((ConcatAdapterViewHolder) -> LayoutParams)? = null,
-        val itemTypeLookup: ((TestItem, position: Int) -> Int)? = null
+        val itemTypeLookup: ((TestItem, position: Int) -> Int)? = null,
     ) : RecyclerView.Adapter<ConcatAdapterViewHolder>() {
         private val attachedViewHolders = mutableListOf<ConcatAdapterViewHolder>()
         private val recycledViewHolderEvents = mutableListOf<RecycledViewHolderEvent>()
@@ -1461,7 +1461,7 @@ class ConcatAdapterTest {
             data class Changed(
                 val positionStart: Int,
                 val itemCount: Int,
-                val payload: Any? = null
+                val payload: Any? = null,
             ) : Event()
 
             data class Inserted(val positionStart: Int, val itemCount: Int) : Event()
@@ -1488,7 +1488,7 @@ class ConcatAdapterTest {
         ) : this(
             itemId = viewHolder.boundItem()?.id,
             absoluteAdapterPosition = viewHolder.absoluteAdapterPosition,
-            bindingAdapterPosition = viewHolder.bindingAdapterPosition
+            bindingAdapterPosition = viewHolder.bindingAdapterPosition,
         )
     }
 }

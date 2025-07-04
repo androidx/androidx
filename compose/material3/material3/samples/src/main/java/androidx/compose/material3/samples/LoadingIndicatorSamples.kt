@@ -89,8 +89,8 @@ fun DeterminateLoadingIndicatorSample() {
                 spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
                     stiffness = Spring.StiffnessVeryLow,
-                    visibilityThreshold = 1 / 1000f
-                )
+                    visibilityThreshold = 1 / 1000f,
+                ),
         )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -119,8 +119,8 @@ fun DeterminateContainedLoadingIndicatorSample() {
                 spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
                     stiffness = Spring.StiffnessVeryLow,
-                    visibilityThreshold = 1 / 1000f
-                )
+                    visibilityThreshold = 1 / 1000f,
+                ),
         )
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -165,7 +165,7 @@ fun LoadingIndicatorPullToRefreshSample() {
             Modifier.pullToRefresh(
                 state = state,
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh
+                onRefresh = onRefresh,
             ),
         topBar = {
             TopAppBar(
@@ -175,9 +175,9 @@ fun LoadingIndicatorPullToRefreshSample() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Box(Modifier.padding(it)) {
             LazyColumn(Modifier.fillMaxSize()) {

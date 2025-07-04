@@ -137,4 +137,36 @@ class FoldTest {
             assertThat(findViewX(R.id.list_pane)).isLessThan(findViewX(R.id.detail_pane))
         }
     }
+
+    @Test
+    fun testFold_hasPaneSpacing() {
+        val foldWidth = 10
+        val paneSpacing = 20
+
+        TestActivity.onActivityCreated = { activity ->
+            val spl =
+                activity.layoutInflater.inflate(R.layout.activity_test_fold_layout, null, false)
+                    as SlidingPaneLayout
+            spl.paneSpacing = paneSpacing
+            activity.setContentView(spl)
+        }
+
+        with(ActivityScenario.launch(TestActivity::class.java)) {
+            withActivity {
+                val testFeature =
+                    FoldingFeature(activity = this, orientation = VERTICAL, size = foldWidth)
+                val info = WindowLayoutInfo(listOf(testFeature))
+                rule.overrideWindowLayoutInfo(info)
+            }
+
+            val spl = findViewById(R.id.sliding_pane_fold_layout) as SlidingPaneLayout
+            val listPane = findViewById(R.id.list_pane)
+            val detailPane = findViewById(R.id.detail_pane)
+
+            assertThat(spl.isSlideable).isFalse()
+            val expectedWidth = (spl.width - foldWidth - paneSpacing) / 2
+            assertThat(listPane.width).isEqualTo(expectedWidth)
+            assertThat(detailPane.width).isEqualTo(expectedWidth)
+        }
+    }
 }

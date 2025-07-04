@@ -21,7 +21,7 @@
     "PropertyName",
     "ConstPropertyName",
     "PrivatePropertyName",
-    "NOTHING_TO_INLINE"
+    "NOTHING_TO_INLINE",
 )
 
 package androidx.collection
@@ -299,7 +299,7 @@ public sealed class ScatterSet<E> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        transform: ((E) -> CharSequence)? = null
+        transform: ((E) -> CharSequence)? = null,
     ): String = buildString {
         append(prefix)
         var index = 0

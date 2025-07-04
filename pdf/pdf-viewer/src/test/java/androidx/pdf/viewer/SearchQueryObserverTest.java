@@ -19,13 +19,10 @@ package androidx.pdf.viewer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class SearchQueryObserverTest {
 

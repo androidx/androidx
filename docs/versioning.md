@@ -323,6 +323,10 @@ Release candidates are expected to be nearly-identical to the final release, but
 may contain critical last-minute fixes for issues found during integration
 testing.
 
+To allow for continued development, Jetpack allows concurrent releases of RC
+versions from a release branch and alpha or beta versions from a working branch
+like `androidx-main`.
+
 #### Checklist for moving to `rc01`
 
 *   All previous checklists still apply

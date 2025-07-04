@@ -36,7 +36,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -51,7 +51,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = returnTypeName.box(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -60,7 +60,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement?.invoke(scope, statementVar)
@@ -76,7 +76,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", performBlock)
     }

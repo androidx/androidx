@@ -180,12 +180,26 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/FileProviderImage"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:visibility="visible"
+                app:srcCompat="@drawable/android"
+                tools:visibility="visible" />
+
+            <Button
+                android:id="@+id/ToggleFileProviderImage"
+                android:layout_width="154dp"
+                android:layout_height="match_parent"
+                android:text="Generate next icon" />
+
+            <ImageView
                 android:id="@+id/LocalCallSilenceImage"
-                android:layout_width="38dp"
+                android:layout_width="40dp"
                 android:layout_height="match_parent"
                 android:visibility="visible"
                 app:srcCompat="@drawable/mic"
@@ -193,9 +207,9 @@
 
             <Button
                 android:id="@+id/toggleLocalCallSilence"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Toggle Local Call Silence" />
+                android:text="Toggle Local Silence" />
         </LinearLayout>
 
     </LinearLayout>

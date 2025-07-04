@@ -43,7 +43,7 @@ public fun EncryptedFile(
     masterKey: MasterKey,
     fileEncryptionScheme: FileEncryptionScheme = FileEncryptionScheme.AES256_GCM_HKDF_4KB,
     keysetPrefName: String? = null,
-    keysetAlias: String? = null
+    keysetAlias: String? = null,
 ): EncryptedFile =
     EncryptedFile.Builder(context, file, masterKey, fileEncryptionScheme)
         .apply {

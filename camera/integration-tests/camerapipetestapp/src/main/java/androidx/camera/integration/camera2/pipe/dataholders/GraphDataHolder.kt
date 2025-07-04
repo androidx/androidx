@@ -34,7 +34,7 @@ interface GraphDataHolder {
     /** Fetches data points in time window with the given end and of the given length */
     fun getPointsInTimeWindow(
         timeWindowLengthNanos: Long,
-        timeWindowEndNanos: Long
+        timeWindowEndNanos: Long,
     ): List<GraphDataPoint> =
         graphData.getPointsInTimeWindow(timeWindowLengthNanos, timeWindowEndNanos)
 }

@@ -14,7 +14,6 @@ dependencies {
     api(libs.jspecify)
     implementation(project(":appcompat:appcompat"))
     implementation(project(":mediarouter:mediarouter"))
-    implementation(project(":preference:preference"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":concurrent:concurrent-futures"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))

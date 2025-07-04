@@ -34,7 +34,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class ReentrantFragmentTest(
     private val fromState: StrictFragment.State,
-    private val toState: StrictFragment.State
+    private val toState: StrictFragment.State,
 ) {
     companion object {
         @JvmStatic

@@ -100,7 +100,7 @@ class FragmentInjectionTest {
             val fragment =
                 supportFragmentManager.fragmentFactory.instantiate(
                     TestFragment::class.java.classLoader!!,
-                    TestFragment::class.java.name
+                    TestFragment::class.java.name,
                 )
             supportFragmentManager.beginTransaction().add(0, fragment, FRAGMENT_TAG).commitNow()
         }

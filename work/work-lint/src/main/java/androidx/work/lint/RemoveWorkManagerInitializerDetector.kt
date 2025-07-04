@@ -67,8 +67,8 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
                 implementation =
                     Implementation(
                         RemoveWorkManagerInitializerDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST),
+                    ),
             )
 
         private const val ATTR_NODE = "node"
@@ -148,7 +148,7 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
             context.evaluator.implementsInterface(
                 declaration.javaPsi,
                 "androidx.work.Configuration.Provider",
-                false
+                false,
             )
         ) {
             applicationImplementsConfigurationProvider = true

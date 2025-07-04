@@ -27,6 +27,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.collection.intSetOf
+import androidx.glance.appwidget.GlanceAppWidgetManager.Companion.SET_WIDGET_PREVIEWS_RESULT_SUCCESS
 import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -110,7 +111,7 @@ class GlanceAppWidgetManagerTest {
             GlanceAppWidgetManager(context)
                 .requestPinGlanceAppWidget(
                     TestGlanceAppWidgetReceiver::class.java,
-                    preview = TestGlanceAppWidget
+                    preview = TestGlanceAppWidget,
                 )
 
         assertThat(result).isTrue()
@@ -123,9 +124,7 @@ class GlanceAppWidgetManagerTest {
     fun pinInvalidAppWidget() = runTest {
         val result =
             GlanceAppWidgetManager(context)
-                .requestPinGlanceAppWidget(
-                    DummyGlanceAppWidgetReceiver::class.java,
-                )
+                .requestPinGlanceAppWidget(DummyGlanceAppWidgetReceiver::class.java)
 
         assertThat(result).isFalse()
     }
@@ -141,7 +140,7 @@ class GlanceAppWidgetManagerTest {
             assertThat(manager.listKnownReceivers())
                 .containsExactly(
                     DummyGlanceAppWidgetReceiver::class.java.canonicalName,
-                    TestGlanceAppWidgetReceiver::class.java.canonicalName
+                    TestGlanceAppWidgetReceiver::class.java.canonicalName,
                 )
 
             manager.cleanReceivers()
@@ -166,7 +165,7 @@ class GlanceAppWidgetManagerTest {
                 val result =
                     GlanceAppWidgetManager(context)
                         .setWidgetPreviews<TestGlanceAppWidgetReceiver>(categories)
-                assertThat(result).isTrue()
+                assertThat(result).isEqualTo(SET_WIDGET_PREVIEWS_RESULT_SUCCESS)
 
                 categories.forEach { category ->
                     val preview =
@@ -174,7 +173,7 @@ class GlanceAppWidgetManagerTest {
                             .getWidgetPreview(
                                 ComponentName(context, TestGlanceAppWidgetReceiver::class.java),
                                 /* profile= */ null,
-                                category
+                                category,
                             )
                     assertNotNull(preview)
 

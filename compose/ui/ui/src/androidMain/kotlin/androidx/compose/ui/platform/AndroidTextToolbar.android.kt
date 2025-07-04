@@ -39,7 +39,7 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
         onPasteRequested: (() -> Unit)?,
         onCutRequested: (() -> Unit)?,
         onSelectAllRequested: (() -> Unit)?,
-        onAutofillRequested: (() -> Unit)?
+        onAutofillRequested: (() -> Unit)?,
     ) {
         textActionModeCallback.rect = rect
         textActionModeCallback.onCopyRequested = onCopyRequested
@@ -54,7 +54,7 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
                     TextToolbarHelperMethods.startActionMode(
                         view,
                         FloatingTextActionModeCallback(textActionModeCallback),
-                        ActionMode.TYPE_FLOATING
+                        ActionMode.TYPE_FLOATING,
                     )
                 } else {
                     view.startActionMode(PrimaryTextActionModeCallback(textActionModeCallback))
@@ -69,7 +69,7 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
         onCopyRequested: (() -> Unit)?,
         onPasteRequested: (() -> Unit)?,
         onCutRequested: (() -> Unit)?,
-        onSelectAllRequested: (() -> Unit)?
+        onSelectAllRequested: (() -> Unit)?,
     ) {
         showMenu(
             rect = rect,
@@ -77,7 +77,7 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
             onPasteRequested = onPasteRequested,
             onCutRequested = onCutRequested,
             onSelectAllRequested = onSelectAllRequested,
-            onAutofillRequested = null
+            onAutofillRequested = null,
         )
     }
 
@@ -99,7 +99,7 @@ internal object TextToolbarHelperMethods {
     fun startActionMode(
         view: View,
         actionModeCallback: ActionMode.Callback,
-        type: Int
+        type: Int,
     ): ActionMode? {
         return view.startActionMode(actionModeCallback, type)
     }

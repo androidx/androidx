@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demo van berichttemplate"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Bericht komt hier.\nMeer tekst op tweede regel."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo voor template voor kort bericht"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo van template voor opgesplitste items"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Gedeelte met keuzerondjes"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Gedeelte schakelen"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Gedeelte met veel rijen"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Sectie voor rasteritem"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo van deelvenstertemplate"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo template voor plaatslijst"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Browsen door plaatsen"</string>

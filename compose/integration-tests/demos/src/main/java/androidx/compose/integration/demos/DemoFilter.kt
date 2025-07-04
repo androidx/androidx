@@ -66,12 +66,12 @@ fun FilterAppBar(
     filterText: String,
     onFilter: (String) -> Unit,
     onClose: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     TopAppBar(
         navigationIcon = { IconButton(onClick = onClose) { Icon(Icons.Filled.Close, null) } },
         title = { FilterField(filterText, onFilter, Modifier.fillMaxWidth()) },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
     )
 }
 
@@ -81,13 +81,13 @@ fun FilterAppBar(
 private fun FilterField(
     filterText: String,
     onFilter: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
     TextField(
         modifier = modifier.focusRequester(focusRequester),
         value = filterText,
-        onValueChange = onFilter
+        onValueChange = onFilter,
     )
     DisposableEffect(focusRequester) {
         focusRequester.requestFocus()
@@ -122,7 +122,7 @@ private fun FilteredDemoListItem(demo: Demo, filterText: String, onNavigate: (De
         ListItem(onClick = { onNavigate(demo) }) {
             Text(
                 modifier = Modifier.height(56.dp).wrapContentSize(Alignment.Center),
-                text = annotatedString
+                text = annotatedString,
             )
         }
     }

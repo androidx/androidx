@@ -78,6 +78,21 @@
                 android:text="@string/device_credential_label" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <CheckBox
+                android:id="@+id/allow_identity_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                style="@style/LabelText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/identity_check_label" />
+        </LinearLayout>
+
         <include android:id="@+id/common" layout="@layout/common_section" />
 
     </LinearLayout>

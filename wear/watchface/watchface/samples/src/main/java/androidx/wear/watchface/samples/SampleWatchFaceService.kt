@@ -41,7 +41,7 @@ abstract class SampleWatchFaceService : WatchFaceService() {
                 }
             },
             IntentFilter("androidx.wear.watchface.samples.QUIT"),
-            Context.RECEIVER_EXPORTED
+            Context.RECEIVER_EXPORTED,
         )
     }
 

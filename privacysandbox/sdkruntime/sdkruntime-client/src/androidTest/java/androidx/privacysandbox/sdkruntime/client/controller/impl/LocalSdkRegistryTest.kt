@@ -99,7 +99,7 @@ class LocalSdkRegistryTest {
             Assert.assertThrows(LoadSdkCompatException::class.java) {
                 localSdkRegistry.loadSdk(
                     TestSdkConfigs.forSdkName("invalidEntryPoint").packageName,
-                    Bundle()
+                    Bundle(),
                 )
             }
 
@@ -208,7 +208,10 @@ class LocalSdkRegistryTest {
             loadSdk(TestSdkConfigs.CURRENT.packageName, Bundle())
         } else {
             val customHandshake =
-                VersionHandshake(overrideApiVersion = clientFeature.availableFrom.apiLevel)
+                VersionHandshake(
+                    overrideClientVersion = clientFeature.availableFrom.apiLevel,
+                    overrideSdkVersion = clientFeature.availableFrom.apiLevel,
+                )
             loadSdk(TestSdkConfigs.CURRENT.packageName, Bundle(), customHandshake)
         }
     }

@@ -39,7 +39,7 @@ class FrequencyCapFiltersTest {
         listOf(
             KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
             KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
+            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)),
         )
 
     @Test
@@ -55,7 +55,7 @@ class FrequencyCapFiltersTest {
                 keyedFrequencyCapsForWinEvents,
                 keyedFrequencyCapsForImpressionEvents,
                 keyedFrequencyCapsForViewEvents,
-                keyedFrequencyCapsForClickEvents
+                keyedFrequencyCapsForClickEvents,
             )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
@@ -67,7 +67,7 @@ class FrequencyCapFiltersTest {
                 keyedFrequencyCapsForWinEvents,
                 keyedFrequencyCapsForImpressionEvents,
                 keyedFrequencyCapsForViewEvents,
-                keyedFrequencyCapsForClickEvents
+                keyedFrequencyCapsForClickEvents,
             )
         var frequencyCapFilters2 =
             FrequencyCapFilters(
@@ -77,8 +77,8 @@ class FrequencyCapFiltersTest {
                 listOf(
                     KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
                     KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
-                )
+                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)),
+                ),
             )
         Truth.assertThat(frequencyCapFilters1 == frequencyCapFilters2).isTrue()
     }

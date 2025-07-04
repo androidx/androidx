@@ -47,13 +47,13 @@ fun SnapFlingBehaviorSimpleSample() {
         modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
         state = state,
-        flingBehavior = rememberSnapFlingBehavior(lazyListState = state)
+        flingBehavior = rememberSnapFlingBehavior(lazyListState = state),
     ) {
         items(200) {
             Box(
                 modifier =
                     Modifier.height(400.dp).width(200.dp).padding(8.dp).background(Color.Gray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(it.toString(), fontSize = 32.sp)
             }
@@ -74,13 +74,13 @@ fun SnapFlingBehaviorCustomizedSample() {
         modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
         state = state,
-        flingBehavior = flingBehavior
+        flingBehavior = flingBehavior,
     ) {
         items(200) {
             Box(
                 modifier =
                     Modifier.height(400.dp).width(200.dp).padding(8.dp).background(Color.Gray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(it.toString(), fontSize = 32.sp)
             }
@@ -106,7 +106,7 @@ fun SnapFlingBehaviorSnapPosition() {
                         beforeContentPadding: Int,
                         afterContentPadding: Int,
                         itemIndex: Int,
-                        itemCount: Int
+                        itemCount: Int,
                     ): Int {
                         return with(density) { beforeContentPadding + 200.dp.roundToPx() }
                     }
@@ -119,13 +119,13 @@ fun SnapFlingBehaviorSnapPosition() {
         modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
         state = state,
-        flingBehavior = flingBehavior
+        flingBehavior = flingBehavior,
     ) {
         items(200) {
             Box(
                 modifier =
                     Modifier.height(400.dp).width(200.dp).padding(8.dp).background(Color.Gray),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Text(it.toString(), fontSize = 32.sp)
             }

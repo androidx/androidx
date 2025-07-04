@@ -34,7 +34,7 @@ import androidx.glance.unit.ResourceColorProvider
 
 internal fun RemoteViews.translateEmittableCircularProgressIndicator(
     translationContext: TranslationContext,
-    element: EmittableCircularProgressIndicator
+    element: EmittableCircularProgressIndicator,
 ) {
     val viewDef =
         insertView(translationContext, LayoutType.CircularProgressIndicator, element.modifier)
@@ -44,20 +44,20 @@ internal fun RemoteViews.translateEmittableCircularProgressIndicator(
             is FixedColorProvider -> {
                 setProgressBarIndeterminateTintList(
                     viewId = viewDef.mainViewId,
-                    tint = ColorStateList.valueOf(indicatorColor.color.toArgb())
+                    tint = ColorStateList.valueOf(indicatorColor.color.toArgb()),
                 )
             }
             is ResourceColorProvider -> {
                 setProgressBarIndeterminateTintList(
                     viewId = viewDef.mainViewId,
-                    resId = indicatorColor.resId
+                    resId = indicatorColor.resId,
                 )
             }
             is DayNightColorProvider -> {
                 setProgressBarIndeterminateTintList(
                     viewId = viewDef.mainViewId,
                     notNightTint = ColorStateList.valueOf(indicatorColor.day.toArgb()),
-                    nightTint = ColorStateList.valueOf(indicatorColor.night.toArgb())
+                    nightTint = ColorStateList.valueOf(indicatorColor.night.toArgb()),
                 )
             }
             else ->

@@ -40,7 +40,7 @@ class AndroidColorSpaceTest {
     fun testSrgbColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Srgb, // Compose
-            ColorSpace.get(ColorSpace.Named.SRGB) // Framework
+            ColorSpace.get(ColorSpace.Named.SRGB), // Framework
         )
     }
 
@@ -49,7 +49,7 @@ class AndroidColorSpaceTest {
     fun testAcesColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Aces, // Compose
-            ColorSpace.get(ColorSpace.Named.ACES) // Framework
+            ColorSpace.get(ColorSpace.Named.ACES), // Framework
         )
     }
 
@@ -58,7 +58,7 @@ class AndroidColorSpaceTest {
     fun testAcescgColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Acescg, // Compose
-            ColorSpace.get(ColorSpace.Named.ACESCG) // Framework
+            ColorSpace.get(ColorSpace.Named.ACESCG), // Framework
         )
     }
 
@@ -67,7 +67,7 @@ class AndroidColorSpaceTest {
     fun testAdobeRgbColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.AdobeRgb, // Compose
-            ColorSpace.get(ColorSpace.Named.ADOBE_RGB) // Framework
+            ColorSpace.get(ColorSpace.Named.ADOBE_RGB), // Framework
         )
     }
 
@@ -76,7 +76,7 @@ class AndroidColorSpaceTest {
     fun testBt2020Colorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Bt2020, // Compose
-            ColorSpace.get(ColorSpace.Named.BT2020) // Framework
+            ColorSpace.get(ColorSpace.Named.BT2020), // Framework
         )
     }
 
@@ -85,7 +85,7 @@ class AndroidColorSpaceTest {
     fun testBt709Colorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Bt709, // Compose
-            ColorSpace.get(ColorSpace.Named.BT709) // Framework
+            ColorSpace.get(ColorSpace.Named.BT709), // Framework
         )
     }
 
@@ -94,7 +94,7 @@ class AndroidColorSpaceTest {
     fun testCieLabColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.CieLab, // Compose
-            ColorSpace.get(ColorSpace.Named.CIE_LAB) // Framework
+            ColorSpace.get(ColorSpace.Named.CIE_LAB), // Framework
         )
     }
 
@@ -103,7 +103,7 @@ class AndroidColorSpaceTest {
     fun testCieXyzColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.CieXyz, // Compose
-            ColorSpace.get(ColorSpace.Named.CIE_XYZ) // Framework
+            ColorSpace.get(ColorSpace.Named.CIE_XYZ), // Framework
         )
     }
 
@@ -112,7 +112,7 @@ class AndroidColorSpaceTest {
     fun testDciP3Colorspace() {
         colorSpaceTestHelper(
             ColorSpaces.DciP3, // Compose
-            ColorSpace.get(ColorSpace.Named.DCI_P3) // Framework
+            ColorSpace.get(ColorSpace.Named.DCI_P3), // Framework
         )
     }
 
@@ -121,7 +121,7 @@ class AndroidColorSpaceTest {
     fun testDisplayP3Colorspace() {
         colorSpaceTestHelper(
             ColorSpaces.DisplayP3, // Compose
-            ColorSpace.get(ColorSpace.Named.DISPLAY_P3) // Framework
+            ColorSpace.get(ColorSpace.Named.DISPLAY_P3), // Framework
         )
     }
 
@@ -130,7 +130,7 @@ class AndroidColorSpaceTest {
     fun testExtendedSrgbColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.ExtendedSrgb, // Compose
-            ColorSpace.get(ColorSpace.Named.EXTENDED_SRGB) // Framework
+            ColorSpace.get(ColorSpace.Named.EXTENDED_SRGB), // Framework
         )
     }
 
@@ -139,7 +139,7 @@ class AndroidColorSpaceTest {
     fun testLinearExtendedSrgbColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.LinearExtendedSrgb, // Compose
-            ColorSpace.get(ColorSpace.Named.LINEAR_EXTENDED_SRGB) // Framework
+            ColorSpace.get(ColorSpace.Named.LINEAR_EXTENDED_SRGB), // Framework
         )
     }
 
@@ -148,7 +148,7 @@ class AndroidColorSpaceTest {
     fun testLinearSrgbColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.LinearSrgb, // Compose
-            ColorSpace.get(ColorSpace.Named.LINEAR_SRGB) // Framework
+            ColorSpace.get(ColorSpace.Named.LINEAR_SRGB), // Framework
         )
     }
 
@@ -157,7 +157,7 @@ class AndroidColorSpaceTest {
     fun testNtsc1953Colorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Ntsc1953, // Compose
-            ColorSpace.get(ColorSpace.Named.NTSC_1953) // Framework
+            ColorSpace.get(ColorSpace.Named.NTSC_1953), // Framework
         )
     }
 
@@ -166,7 +166,7 @@ class AndroidColorSpaceTest {
     fun testProPhotoRgbColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.ProPhotoRgb, // Compose
-            ColorSpace.get(ColorSpace.Named.PRO_PHOTO_RGB) // Framework
+            ColorSpace.get(ColorSpace.Named.PRO_PHOTO_RGB), // Framework
         )
     }
 
@@ -175,7 +175,7 @@ class AndroidColorSpaceTest {
     fun testSmpteCColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.SmpteC, // Compose
-            ColorSpace.get(ColorSpace.Named.SMPTE_C) // Framework
+            ColorSpace.get(ColorSpace.Named.SMPTE_C), // Framework
         )
     }
 
@@ -184,7 +184,7 @@ class AndroidColorSpaceTest {
     fun testBt2020HlgColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Bt2020Hlg, // Compose
-            ColorSpace.get(ColorSpace.Named.BT2020_HLG) // Framework
+            ColorSpace.get(ColorSpace.Named.BT2020_HLG), // Framework
         )
     }
 
@@ -193,7 +193,7 @@ class AndroidColorSpaceTest {
     fun testBt2020PqColorspace() {
         colorSpaceTestHelper(
             ColorSpaces.Bt2020Pq, // Compose
-            ColorSpace.get(ColorSpace.Named.BT2020_PQ) // Framework
+            ColorSpace.get(ColorSpace.Named.BT2020_PQ), // Framework
         )
     }
 
@@ -210,7 +210,7 @@ class AndroidColorSpaceTest {
                 0.4, // d
                 0.5, // e
                 0.6, // f
-                0.7 // g
+                0.7, // g
             )
         val primaries = floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f)
         colorSpaceTestHelper(
@@ -218,9 +218,9 @@ class AndroidColorSpaceTest {
                 name = name,
                 primaries = primaries,
                 WhitePoint(1.0f, 2.0f, 3.0f),
-                TransferParameters(0.7, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)
+                TransferParameters(0.7, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
             ),
-            ColorSpace.Rgb(name, primaries, whitePoint, transferParameters)
+            ColorSpace.Rgb(name, primaries, whitePoint, transferParameters),
         )
     }
 
@@ -240,15 +240,7 @@ class AndroidColorSpaceTest {
                 2f,
                 4f,
             ),
-            ColorSpace.Rgb(
-                name,
-                primaries,
-                whitePoint,
-                { _ -> 1.0 },
-                { _ -> 2.0 },
-                2f,
-                4f,
-            )
+            ColorSpace.Rgb(name, primaries, whitePoint, { _ -> 1.0 }, { _ -> 2.0 }, 2f, 4f),
         )
     }
 
@@ -265,7 +257,7 @@ class AndroidColorSpaceTest {
                 0.4, // d
                 0.5, // e
                 0.6, // f
-                0.7 // g
+                0.7, // g
             )
         val primaries = floatArrayOf(1f, 2f, 3f, 4f, 5f, 6f)
 
@@ -274,9 +266,9 @@ class AndroidColorSpaceTest {
                 name = name,
                 primaries = primaries,
                 WhitePoint(1.0f, 2.0f),
-                TransferParameters(0.7, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6)
+                TransferParameters(0.7, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
             ),
-            ColorSpace.Rgb(name, primaries, whitePoint, transferParameters)
+            ColorSpace.Rgb(name, primaries, whitePoint, transferParameters),
         )
     }
 
@@ -287,7 +279,7 @@ class AndroidColorSpaceTest {
             @RequiresApi(Build.VERSION_CODES.O)
             fun colorSpaceTestHelper(
                 composeColorSpace: androidx.compose.ui.graphics.colorspace.ColorSpace,
-                frameworkColorSpace: ColorSpace
+                frameworkColorSpace: ColorSpace,
             ) {
                 val convertedColorSpace = frameworkColorSpace.toComposeColorSpace()
                 Assert.assertEquals(composeColorSpace, convertedColorSpace)

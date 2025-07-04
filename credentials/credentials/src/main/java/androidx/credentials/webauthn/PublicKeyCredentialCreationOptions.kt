@@ -46,7 +46,7 @@ class PublicKeyCredentialCreationOptions(requestJson: String) {
             PublicKeyCredentialUserEntity(
                 rpUser.getString("name"),
                 userId,
-                rpUser.getString("displayName")
+                rpUser.getString("displayName"),
             )
         val pubKeyCredParamsJson = json.getJSONArray("pubKeyCredParams")
         val pubKeyCredParamsTmp: MutableList<PublicKeyCredentialParameters> = mutableListOf()

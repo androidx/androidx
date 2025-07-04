@@ -41,7 +41,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_100_regular,
                 weight = FontWeight.W100,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_100_ITALIC =
@@ -51,7 +51,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_200_regular,
                 weight = FontWeight.W200,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_200_ITALIC =
@@ -64,7 +64,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_300_regular,
                 weight = FontWeight.W300,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_300_ITALIC =
@@ -74,7 +74,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_400_regular,
                 weight = FontWeight.W400,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_400_ITALIC =
@@ -84,7 +84,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_500_regular,
                 weight = FontWeight.W500,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_500_ITALIC =
@@ -94,7 +94,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_600_regular,
                 weight = FontWeight.W600,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_600_ITALIC =
@@ -104,7 +104,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_700_regular,
                 weight = FontWeight.W700,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_700_ITALIC =
@@ -114,7 +114,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_800_regular,
                 weight = FontWeight.W800,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_800_ITALIC =
@@ -124,7 +124,7 @@ class FontTestData {
             Font(
                 resId = R.font.test_900_regular,
                 weight = FontWeight.W900,
-                style = FontStyle.Normal
+                style = FontStyle.Normal,
             )
 
         val FONT_900_ITALIC =

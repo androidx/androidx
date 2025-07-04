@@ -33,11 +33,8 @@ public class MyDao_Impl(
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _statementIndices: Array<IntArray> =
-            AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"),
-            arrayOf("id", "userId", "text")))
-        val _result: MutableMap<User, MutableList<Comment>> =
-            LinkedHashMap<User, MutableList<Comment>>()
+        val _statementIndices: Array<IntArray> = AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"), arrayOf("id", "userId", "text")))
+        val _result: MutableMap<User, MutableList<Comment>> = LinkedHashMap<User, MutableList<Comment>>()
         while (_stmt.step()) {
           val _key: User
           val _tmpId: Int
@@ -52,8 +49,7 @@ public class MyDao_Impl(
             _values = mutableListOf()
             _result.put(_key, _values)
           }
-          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) &&
-              _stmt.isNull(_statementIndices[1][2])) {
+          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) && _stmt.isNull(_statementIndices[1][2])) {
             continue
           }
           val _value: Comment
@@ -74,14 +70,12 @@ public class MyDao_Impl(
   }
 
   public override fun getUserCommentMapWithoutStarProjection(): Map<User, List<Comment>> {
-    val _sql: String =
-        "SELECT User.id, name, Comment.id, userId, text FROM User JOIN Comment ON User.id = Comment.userId"
+    val _sql: String = "SELECT User.id, name, Comment.id, userId, text FROM User JOIN Comment ON User.id = Comment.userId"
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
         val _statementIndices: Array<IntArray> = arrayOf(intArrayOf(0, 1), intArrayOf(2, 3, 4))
-        val _result: MutableMap<User, MutableList<Comment>> =
-            LinkedHashMap<User, MutableList<Comment>>()
+        val _result: MutableMap<User, MutableList<Comment>> = LinkedHashMap<User, MutableList<Comment>>()
         while (_stmt.step()) {
           val _key: User
           val _tmpId: Int
@@ -96,8 +90,7 @@ public class MyDao_Impl(
             _values = mutableListOf()
             _result.put(_key, _values)
           }
-          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) &&
-              _stmt.isNull(_statementIndices[1][2])) {
+          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) && _stmt.isNull(_statementIndices[1][2])) {
             continue
           }
           val _value: Comment
@@ -122,16 +115,10 @@ public class MyDao_Impl(
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _statementIndices: Array<IntArray> =
-            AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"),
-            arrayOf("id", "userId", "text")))
-        val _wrappedStmt: SQLiteStatement = wrapMappedColumns(_stmt, arrayOf("id", "name"),
-            intArrayOf(_statementIndices[0][0], _statementIndices[0][1]))
-        val _wrappedStmt_1: SQLiteStatement = wrapMappedColumns(_stmt, arrayOf("id", "userId",
-            "text"), intArrayOf(_statementIndices[1][0], _statementIndices[1][1],
-            _statementIndices[1][2]))
-        val _result: MutableMap<User, MutableList<Comment>> =
-            LinkedHashMap<User, MutableList<Comment>>()
+        val _statementIndices: Array<IntArray> = AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"), arrayOf("id", "userId", "text")))
+        val _wrappedStmt: SQLiteStatement = wrapMappedColumns(_stmt, arrayOf("id", "name"), intArrayOf(_statementIndices[0][0], _statementIndices[0][1]))
+        val _wrappedStmt_1: SQLiteStatement = wrapMappedColumns(_stmt, arrayOf("id", "userId", "text"), intArrayOf(_statementIndices[1][0], _statementIndices[1][1], _statementIndices[1][2]))
+        val _result: MutableMap<User, MutableList<Comment>> = LinkedHashMap<User, MutableList<Comment>>()
         while (_stmt.step()) {
           val _key: User
           _key = __entityStatementConverter_User(_wrappedStmt)
@@ -142,8 +129,7 @@ public class MyDao_Impl(
             _values = mutableListOf()
             _result.put(_key, _values)
           }
-          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) &&
-              _stmt.isNull(_statementIndices[1][2])) {
+          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) && _stmt.isNull(_statementIndices[1][2])) {
             continue
           }
           val _value: Comment
@@ -169,7 +155,7 @@ public class MyDao_Impl(
     }
     val _tmpName: String
     if (_columnIndexOfName == -1) {
-      error("Missing value for a NON-NULL column 'name', found NULL value instead.")
+      error("Missing column 'name' for a NON-NULL value, column not found in result.")
     } else {
       _tmpName = statement.getText(_columnIndexOfName)
     }
@@ -196,7 +182,7 @@ public class MyDao_Impl(
     }
     val _tmpText: String
     if (_columnIndexOfText == -1) {
-      error("Missing value for a NON-NULL column 'text', found NULL value instead.")
+      error("Missing column 'text' for a NON-NULL value, column not found in result.")
     } else {
       _tmpText = statement.getText(_columnIndexOfText)
     }

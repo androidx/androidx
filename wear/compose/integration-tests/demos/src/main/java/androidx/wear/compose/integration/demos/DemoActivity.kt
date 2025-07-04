@@ -95,7 +95,7 @@ class DemoActivity : ComponentActivity() {
                                 if (!navigator.navigateBack()) {
                                     ActivityCompat.finishAffinity(this)
                                 }
-                            }
+                            },
                         )
                     }
                 }
@@ -162,12 +162,12 @@ private constructor(
     private val backDispatcher: OnBackPressedDispatcher,
     private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
     initialDemo: Demo,
-    private val backStack: MutableList<Demo>
+    private val backStack: MutableList<Demo>,
 ) {
     constructor(
         rootDemo: Demo,
         backDispatcher: OnBackPressedDispatcher,
-        launchActivityDemo: (ActivityDemo<*>) -> Unit
+        launchActivityDemo: (ActivityDemo<*>) -> Unit,
     ) : this(backDispatcher, launchActivityDemo, rootDemo, mutableListOf<Demo>())
 
     private val onBackPressed =
@@ -217,7 +217,7 @@ private constructor(
         fun Saver(
             rootDemo: DemoCategory,
             backDispatcher: OnBackPressedDispatcher,
-            launchActivityDemo: (ActivityDemo<*>) -> Unit
+            launchActivityDemo: (ActivityDemo<*>) -> Unit,
         ): Saver<Navigator, *> =
             listSaver<Navigator, String>(
                 save = { navigator ->
@@ -231,7 +231,7 @@ private constructor(
                         }
                     val initial = backStack.removeAt(backStack.lastIndex)
                     Navigator(backDispatcher, launchActivityDemo, initial, backStack)
-                }
+                },
             )
     }
 }

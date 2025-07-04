@@ -20,20 +20,19 @@ import static androidx.recyclerview.widget.RecyclerView.Adapter.StateRestoration
 
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Wrapper for each adapter in {@link ConcatAdapter}.
  */
 class NestedAdapterWrapper {
-    @NonNull
-    private final ViewTypeStorage.ViewTypeLookup mViewTypeLookup;
-    @NonNull
-    private final StableIdStorage.StableIdLookup mStableIdLookup;
+    private final ViewTypeStorage.@NonNull ViewTypeLookup mViewTypeLookup;
+    private final StableIdStorage.@NonNull StableIdLookup mStableIdLookup;
     public final Adapter<ViewHolder> adapter;
     @SuppressWarnings("WeakerAccess")
     final Callback mCallback;

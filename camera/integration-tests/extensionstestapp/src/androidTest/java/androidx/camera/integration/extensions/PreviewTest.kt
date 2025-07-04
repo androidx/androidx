@@ -139,11 +139,11 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
                 ApplicationProvider.getApplicationContext(),
                 extensionsManager,
                 cameraId,
-                config.extensionMode
+                config.extensionMode,
             )
         assumeTrue(
             "Cannot find next camera id that supports extensions mode($extensionsMode)",
-            nextCameraId != null
+            nextCameraId != null,
         )
     }
 

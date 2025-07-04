@@ -105,7 +105,7 @@ class JSpecifyNullnessMigration : Detector(), Detector.UastScanner {
                     Location.create(
                             context.file,
                             context.getContents()!!.toString(),
-                            annotationStart.line
+                            annotationStart.line,
                         )
                         .start!!
                 }
@@ -216,8 +216,8 @@ class JSpecifyNullnessMigration : Detector(), Detector.UastScanner {
                 Severity.ERROR,
                 Implementation(
                     JSpecifyNullnessMigration::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

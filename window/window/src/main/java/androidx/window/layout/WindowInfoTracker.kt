@@ -109,10 +109,34 @@ interface WindowInfoTracker {
      * @see windowLayoutInfo
      */
     @RequiresWindowSdkExtension(version = 6)
+    @get:RequiresWindowSdkExtension(version = 6)
     val supportedPostures: List<SupportedPosture>
         get() {
             throw NotImplementedError("Method was not implemented.")
         }
+
+    /**
+     * Returns the current [WindowLayoutInfo] for the given [context].
+     *
+     * This API provides a convenient way to access the current [WindowLayoutInfo]. It can be used
+     * after the [context] associated window has been created, such as [Activity.onCreate]. Calling
+     * it before that will return an empty info.
+     *
+     * For apps that need to update layout UI based on the [WindowLayoutInfo], it should also listen
+     * to [windowLayoutInfo] for any changes later.
+     *
+     * @param context a [UiContext] such as an [Activity], an [InputMethodService], or an instance
+     *   created via [Context.createWindowContext] that listens to configuration changes.
+     * @return the current [WindowLayoutInfo] for the given [context]. If the [context] is not
+     *   associated with a window, returns an empty [WindowLayoutInfo].
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 9.
+     * @throws IllegalArgumentException when [context] is not an [UiContext].
+     * @throws NotImplementedError when this method has no supporting implementation.
+     */
+    @RequiresWindowSdkExtension(version = 9)
+    fun getCurrentWindowLayoutInfo(@UiContext context: Context): WindowLayoutInfo =
+        throw NotImplementedError("Method was not implemented.")
 
     companion object {
 
@@ -156,7 +180,7 @@ interface WindowInfoTracker {
                 WindowInfoTrackerImpl(
                     WindowMetricsCalculatorCompat(),
                     backend,
-                    WindowSdkExtensions.getInstance()
+                    WindowSdkExtensions.getInstance(),
                 )
             return decorator.decorate(repo)
         }

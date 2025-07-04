@@ -228,5 +228,5 @@ internal val BaselineTonalPalette =
         neutralVariant17 = Color.Unspecified,
         neutralVariant12 = Color.Unspecified,
         neutralVariant6 = Color.Unspecified,
-        neutralVariant4 = Color.Unspecified
+        neutralVariant4 = Color.Unspecified,
     )

@@ -52,7 +52,7 @@ internal fun Modifier.layoutTestId(id: Any): Modifier = testTag(id.toString()).l
 internal fun SemanticsNodeInteraction.performSwipe(
     from: TouchInjectionScope.() -> Offset,
     to: TouchInjectionScope.() -> Offset,
-    endWithUp: Boolean = true
+    endWithUp: Boolean = true,
 ) {
     performTouchInput {
         // Do a periodic swipe between two points that lasts 500ms

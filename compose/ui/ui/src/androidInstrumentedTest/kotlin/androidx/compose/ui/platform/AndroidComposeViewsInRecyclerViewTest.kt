@@ -72,7 +72,7 @@ class AndroidComposeViewsRecyclerViewTest {
             container.layoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
             activity.setContentView(container)
             recyclerView = RecyclerView(activity)
@@ -468,7 +468,7 @@ class AndroidComposeViewsRecyclerViewTest {
 class PoolingContainerTestAdapter(
     val context: Context,
     var items: Int,
-    private val itemHeightPx: Int = 1
+    private val itemHeightPx: Int = 1,
 ) : RecyclerView.Adapter<PoolingContainerTestAdapter.ViewHolder>() {
     init {
         if (items > MaxItemsInAnyTest) {
@@ -508,7 +508,7 @@ class PoolingContainerTestAdapter(
 
 class DisposalCountingComposeView(
     context: Context,
-    private val adapter: PoolingContainerTestAdapter
+    private val adapter: PoolingContainerTestAdapter,
 ) : AbstractComposeView(context) {
     @Composable
     override fun Content() {

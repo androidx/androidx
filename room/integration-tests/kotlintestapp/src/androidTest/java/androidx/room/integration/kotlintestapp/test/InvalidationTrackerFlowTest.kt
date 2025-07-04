@@ -56,7 +56,7 @@ class InvalidationTrackerFlowTest {
         database =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    TestDatabase::class.java
+                    TestDatabase::class.java,
                 )
                 .setQueryCoroutineContext(testCoroutineScope.coroutineContext)
                 .build()
@@ -125,7 +125,7 @@ class InvalidationTrackerFlowTest {
             booksDao.addBooks(TestUtil.BOOK_1)
         }
 
-        advanceUntilIdle()
+        testScheduler.advanceUntilIdle()
 
         val result = resultChannel.receive()
         assertThat(result).containsExactly("author", "publisher", "book")
@@ -328,6 +328,7 @@ class InvalidationTrackerFlowTest {
     private fun runTest(testBody: suspend TestScope.() -> Unit) =
         testCoroutineScope.runTest(timeout = 10.minutes) {
             testBody.invoke(this)
+            testScheduler.advanceUntilIdle()
             database.close()
         }
 }

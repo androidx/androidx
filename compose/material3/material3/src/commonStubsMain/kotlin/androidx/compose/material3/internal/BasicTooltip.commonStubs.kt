@@ -16,22 +16,12 @@
 
 package androidx.compose.material3.internal
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TooltipState
 import androidx.compose.material3.implementedInJetBrainsFork
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.PopupPositionProvider
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal actual fun BasicTooltipBox(
-    positionProvider: PopupPositionProvider,
-    tooltip: @Composable () -> Unit,
-    state: TooltipState,
-    modifier: Modifier,
-    onDismissRequest: (() -> Unit)?,
-    focusable: Boolean,
-    enableUserInput: Boolean,
-    content: @Composable () -> Unit
-): Unit = implementedInJetBrainsFork()
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+internal actual object BasicTooltipStrings {
+    @Composable actual fun label(): String = implementedInJetBrainsFork()
+
+    @Composable actual fun description(): String = implementedInJetBrainsFork()
+}

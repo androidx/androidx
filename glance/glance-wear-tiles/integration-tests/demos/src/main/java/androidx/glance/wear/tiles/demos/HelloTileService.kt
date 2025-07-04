@@ -49,14 +49,14 @@ class HelloTileService : GlanceTileService() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
                 provider = ImageProvider(R.drawable.ic_waving_hand),
                 modifier = GlanceModifier.size(imageSize.width, imageSize.height),
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(ColorProvider(Color.Yellow)),
-                contentDescription = "Hello tile icon"
+                contentDescription = "Hello tile icon",
             )
             Spacer(GlanceModifier.height(10.dp))
             Text(
@@ -65,8 +65,8 @@ class HelloTileService : GlanceTileService() {
                     TextStyle(
                         color = ColorProvider(Color.White),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
+                        fontSize = 20.sp,
+                    ),
             )
         }
     }

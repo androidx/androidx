@@ -69,9 +69,14 @@ public final class Api23Impl {
 
     /**
      * Builds an {@link AudioRecord} from an {@link AudioRecord.Builder}.
+     *
+     * @throws UnsupportedOperationException if the parameters set on the <code>Builder</code>
+     *     were incompatible, if the parameters are not supported by the device, if the caller
+     *     does not hold the appropriate permissions, or if the device was not available.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    public static @NonNull AudioRecord build(AudioRecord.@NonNull Builder audioRecordBuilder) {
+    public static @NonNull AudioRecord build(AudioRecord.@NonNull Builder audioRecordBuilder)
+            throws UnsupportedOperationException {
         return audioRecordBuilder.build();
     }
 }

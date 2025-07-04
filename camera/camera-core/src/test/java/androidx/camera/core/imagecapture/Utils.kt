@@ -67,7 +67,7 @@ object Utils {
 
     internal fun createProcessingRequest(
         takePictureCallback: TakePictureCallback = FakeTakePictureCallback(),
-        captureBundle: CaptureBundle = CaptureBundles.singleDefaultCaptureBundle()
+        captureBundle: CaptureBundle = CaptureBundles.singleDefaultCaptureBundle(),
     ): ProcessingRequest {
         return ProcessingRequest(
             captureBundle,
@@ -77,10 +77,10 @@ object Utils {
                 CROP_RECT,
                 SENSOR_TO_BUFFER,
                 ROTATION_DEGREES,
-                JPEG_QUALITY
+                JPEG_QUALITY,
             ),
             takePictureCallback,
-            Futures.immediateFuture(null)
+            Futures.immediateFuture(null),
         )
     }
 
@@ -120,7 +120,7 @@ object Utils {
         sensorToBufferTransform: Matrix,
         rotationDegrees: Int,
         jpegQuality: Int,
-        isSimultaneousCapture: Boolean = false
+        isSimultaneousCapture: Boolean = false,
     ): TakePictureRequest {
         var onDiskCallback: ImageCapture.OnImageSavedCallback? = null
         var onMemoryCallback: ImageCapture.OnImageCapturedCallback? = null
@@ -142,7 +142,7 @@ object Utils {
             jpegQuality,
             ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
             isSimultaneousCapture,
-            listOf()
+            listOf(),
         )
     }
 }

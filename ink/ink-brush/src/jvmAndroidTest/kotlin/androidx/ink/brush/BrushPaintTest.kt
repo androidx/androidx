@@ -35,13 +35,16 @@ class BrushPaintTest {
                 BrushPaint(
                     listOf(
                         BrushPaint.TextureLayer(
-                            colorTextureUri = makeTestTextureUri(1),
+                            clientTextureId = TEST_TEXTURE_ID,
                             sizeX = 123.45F,
                             sizeY = 678.90F,
                             offsetX = 0.1f,
                             offsetY = 0.2f,
                             rotation = Angle.QUARTER_TURN_RADIANS,
                             opacity = 0.3f,
+                            animationFrames = 1,
+                            animationRows = 1,
+                            animationColumns = 1,
                             BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                             BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
                             BrushPaint.TextureMapping.TILING,
@@ -49,13 +52,16 @@ class BrushPaintTest {
                             BrushPaint.TextureWrap.REPEAT,
                         ),
                         BrushPaint.TextureLayer(
-                            colorTextureUri = makeTestTextureUri(2),
+                            clientTextureId = TEST_TEXTURE_ID,
                             sizeX = 256F,
                             sizeY = 256F,
                             offsetX = 0.8f,
                             offsetY = 0.9f,
                             rotation = Angle.HALF_TURN_RADIANS,
                             opacity = 0.7f,
+                            animationFrames = 1,
+                            animationRows = 1,
+                            animationColumns = 1,
                             BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                             BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
                             BrushPaint.TextureMapping.TILING,
@@ -105,51 +111,49 @@ class BrushPaintTest {
     @Test
     @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidSizes_throwsIllegalArgumentException() {
-        val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, -32F, 64F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, -32F, 64F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, 32F, -64F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, 32F, -64F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, -32F, -64F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, -32F, -64F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, 0F, 128F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, 0F, 128F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, 128F, 0F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, 128F, 0F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, Float.NaN, 128F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, Float.NaN, 128F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, 128F, Float.NaN)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, 128F, Float.NaN)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, Float.POSITIVE_INFINITY, 128F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, Float.POSITIVE_INFINITY, 128F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, 128F, Float.POSITIVE_INFINITY)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, 128F, Float.POSITIVE_INFINITY)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, Float.NEGATIVE_INFINITY, 128F)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, Float.NEGATIVE_INFINITY, 128F)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, 128F, Float.NEGATIVE_INFINITY)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, 128F, Float.NEGATIVE_INFINITY)
         }
     }
 
     @Test
     fun textureLayerConstructor_withInvalidOffsetX_throwsIllegalArgumentException() {
-        val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, offsetX = Float.NaN)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, offsetX = Float.NaN)
         }
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(
-                fakeValidUri,
+                TEST_TEXTURE_ID,
                 sizeX = 1f,
                 sizeY = 1f,
                 offsetX = Float.POSITIVE_INFINITY,
@@ -157,7 +161,7 @@ class BrushPaintTest {
         }
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(
-                fakeValidUri,
+                TEST_TEXTURE_ID,
                 sizeX = 1f,
                 sizeY = 1f,
                 offsetX = Float.NEGATIVE_INFINITY,
@@ -167,13 +171,12 @@ class BrushPaintTest {
 
     @Test
     fun textureLayerConstructor_withInvalidOffsetY_throwsIllegalArgumentException() {
-        val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, offsetY = Float.NaN)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, offsetY = Float.NaN)
         }
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(
-                fakeValidUri,
+                TEST_TEXTURE_ID,
                 sizeX = 1f,
                 sizeY = 1f,
                 offsetY = Float.POSITIVE_INFINITY,
@@ -181,7 +184,7 @@ class BrushPaintTest {
         }
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(
-                fakeValidUri,
+                TEST_TEXTURE_ID,
                 sizeX = 1f,
                 sizeY = 1f,
                 offsetY = Float.NEGATIVE_INFINITY,
@@ -191,13 +194,12 @@ class BrushPaintTest {
 
     @Test
     fun textureLayerConstructor_withInvalidRotation_throwsIllegalArgumentException() {
-        val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, rotation = Float.NaN)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, rotation = Float.NaN)
         }
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(
-                fakeValidUri,
+                TEST_TEXTURE_ID,
                 sizeX = 1f,
                 sizeY = 1f,
                 rotation = Float.POSITIVE_INFINITY,
@@ -205,7 +207,7 @@ class BrushPaintTest {
         }
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(
-                fakeValidUri,
+                TEST_TEXTURE_ID,
                 sizeX = 1f,
                 sizeY = 1f,
                 rotation = Float.NEGATIVE_INFINITY,
@@ -216,15 +218,52 @@ class BrushPaintTest {
     @Test
     @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidOpacity_throwsIllegalArgumentException() {
-        val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, opacity = Float.NaN)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, opacity = Float.NaN)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, opacity = -0.001f)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, opacity = -0.001f)
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(fakeValidUri, sizeX = 1f, sizeY = 1f, opacity = 1.001f)
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, opacity = 1.001f)
+        }
+    }
+
+    @Test
+    @Suppress("Range") // Testing error cases.
+    fun textureLayerConstructor_withInvalidAnimationFrames_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationFrames = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationFrames = 0)
+        }
+    }
+
+    @Test
+    @Suppress("Range") // Testing error cases.
+    fun textureLayerConstructor_withInvalidAnimationAtlasDimensions_throwsIllegalArgumentException() {
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationRows = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationRows = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationColumns = -1)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationColumns = 0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushPaint.TextureLayer(
+                TEST_TEXTURE_ID,
+                sizeX = 1f,
+                sizeY = 1f,
+                animationFrames = 7,
+                animationRows = 2,
+                animationColumns = 3,
+            )
         }
     }
 
@@ -237,13 +276,16 @@ class BrushPaintTest {
     fun textureLayerEquals_checksEqualityOfValues() {
         val layer =
             BrushPaint.TextureLayer(
-                colorTextureUri = makeTestTextureUri(),
+                clientTextureId = TEST_TEXTURE_ID,
                 sizeX = 128F,
                 sizeY = 128F,
                 offsetX = 0.1f,
                 offsetY = 0.2f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
                 opacity = 0.3f,
+                animationFrames = 2,
+                animationRows = 3,
+                animationColumns = 4,
                 BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                 BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
                 BrushPaint.TextureMapping.WINDING,
@@ -256,13 +298,16 @@ class BrushPaintTest {
         assertThat(layer)
             .isEqualTo(
                 BrushPaint.TextureLayer(
-                    colorTextureUri = makeTestTextureUri(),
+                    clientTextureId = TEST_TEXTURE_ID,
                     sizeX = 128F,
                     sizeY = 128F,
                     offsetX = 0.1f,
                     offsetY = 0.2f,
                     rotation = Angle.QUARTER_TURN_RADIANS,
                     opacity = 0.3f,
+                    animationFrames = 2,
+                    animationRows = 3,
+                    animationColumns = 4,
                     BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                     BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
                     BrushPaint.TextureMapping.WINDING,
@@ -275,13 +320,16 @@ class BrushPaintTest {
         // different values.
         assertThat(layer).isNotEqualTo(null)
         assertThat(layer).isNotEqualTo(Any())
-        assertThat(layer).isNotEqualTo(layer.copy(colorTextureUri = makeTestTextureUri(2)))
+        assertThat(layer).isNotEqualTo(layer.copy(clientTextureId = OTHER_TEXTURE_ID))
         assertThat(layer).isNotEqualTo(layer.copy(sizeX = 999F))
         assertThat(layer).isNotEqualTo(layer.copy(sizeY = 999F))
         assertThat(layer).isNotEqualTo(layer.copy(offsetX = 0.999F))
         assertThat(layer).isNotEqualTo(layer.copy(offsetY = 0.999F))
         assertThat(layer).isNotEqualTo(layer.copy(rotation = Angle.HALF_TURN_RADIANS))
         assertThat(layer).isNotEqualTo(layer.copy(opacity = 0.999f))
+        assertThat(layer).isNotEqualTo(layer.copy(animationFrames = 5))
+        assertThat(layer).isNotEqualTo(layer.copy(animationRows = 6))
+        assertThat(layer).isNotEqualTo(layer.copy(animationColumns = 7))
         assertThat(layer)
             .isNotEqualTo(layer.copy(sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES))
         assertThat(layer)
@@ -305,13 +353,16 @@ class BrushPaintTest {
     fun textureLayerCopy_withArguments_createsCopyWithChanges() {
         val originalLayer =
             BrushPaint.TextureLayer(
-                colorTextureUri = makeTestTextureUri(),
+                clientTextureId = TEST_TEXTURE_ID,
                 sizeX = 128F,
                 sizeY = 128F,
                 offsetX = 0.1f,
                 offsetY = 0.2f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
                 opacity = 0.3f,
+                animationFrames = 2,
+                animationRows = 3,
+                animationColumns = 4,
                 BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                 BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
                 BrushPaint.TextureMapping.WINDING,
@@ -328,13 +379,16 @@ class BrushPaintTest {
         assertThat(changedSizeX)
             .isEqualTo(
                 BrushPaint.TextureLayer(
-                    colorTextureUri = makeTestTextureUri(),
+                    clientTextureId = TEST_TEXTURE_ID,
                     sizeX = 999F, // Changed
                     sizeY = 128F,
                     offsetX = 0.1f,
                     offsetY = 0.2f,
                     rotation = Angle.QUARTER_TURN_RADIANS,
                     opacity = 0.3f,
+                    animationFrames = 2,
+                    animationRows = 3,
+                    animationColumns = 4,
                     BrushPaint.TextureSizeUnit.BRUSH_SIZE,
                     BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
                     BrushPaint.TextureMapping.WINDING,
@@ -349,11 +403,12 @@ class BrushPaintTest {
     fun textureLayerToString_returnsExpectedValues() {
         val string = makeTestTextureLayer().toString()
         assertThat(string).contains("TextureLayer")
-        assertThat(string).contains("colorTextureUri")
+        assertThat(string).contains("clientTextureId")
         assertThat(string).contains("size")
         assertThat(string).contains("offset")
         assertThat(string).contains("rotation")
         assertThat(string).contains("opacity")
+        assertThat(string).contains("animationFrames")
         assertThat(string).contains("sizeUnit")
         assertThat(string).contains("origin")
         assertThat(string).contains("mapping")
@@ -557,18 +612,18 @@ class BrushPaintTest {
     @UsedByNative
     private external fun matchesNativeCustomPaint(brushPaintNativePointer: Long): Boolean
 
-    private fun makeTestTextureUri(version: Int = 0) =
-        "ink://ink/texture:test-texture" + if (version == 0) "" else ":" + version
-
     private fun makeTestTextureLayer() =
         BrushPaint.TextureLayer(
-            colorTextureUri = makeTestTextureUri(),
+            clientTextureId = TEST_TEXTURE_ID,
             sizeX = 128F,
             sizeY = 128F,
             offsetX = 0.1f,
             offsetY = 0.2f,
             rotation = Angle.QUARTER_TURN_RADIANS,
             opacity = 0.3f,
+            animationFrames = 2,
+            animationRows = 3,
+            animationColumns = 4,
             BrushPaint.TextureSizeUnit.BRUSH_SIZE,
             BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
             BrushPaint.TextureMapping.WINDING,
@@ -578,4 +633,9 @@ class BrushPaintTest {
         )
 
     private fun makeTestPaint() = BrushPaint(listOf(makeTestTextureLayer()))
+
+    private companion object {
+        const val TEST_TEXTURE_ID = "test-texture"
+        const val OTHER_TEXTURE_ID = "other-texture"
+    }
 }

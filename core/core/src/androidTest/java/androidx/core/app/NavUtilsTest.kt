@@ -49,7 +49,7 @@ class NavUtilsTest {
         val aliasComponentName =
             ComponentName(
                 InstrumentationRegistry.getInstrumentation().context,
-                "androidx.core.app.NavUtilsAliasActivity"
+                "androidx.core.app.NavUtilsAliasActivity",
             )
         val activity =
             activityRule.launchActivity(Intent().apply { component = aliasComponentName })
@@ -62,7 +62,7 @@ class NavUtilsTest {
         val aliasComponentName =
             ComponentName(
                 InstrumentationRegistry.getInstrumentation().context,
-                "androidx.core.app.NavUtilsAliasActivity"
+                "androidx.core.app.NavUtilsAliasActivity",
             )
         val activity =
             activityRule.launchActivity(Intent().apply { component = aliasComponentName })
@@ -70,7 +70,7 @@ class NavUtilsTest {
         packageManager.setComponentEnabledSetting(
             aliasComponentName,
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
+            PackageManager.DONT_KILL_APP,
         )
         try {
             assertThat(NavUtils.getParentActivityName(activity))
@@ -79,7 +79,7 @@ class NavUtilsTest {
             packageManager.setComponentEnabledSetting(
                 aliasComponentName,
                 PackageManager.COMPONENT_ENABLED_STATE_DEFAULT,
-                PackageManager.DONT_KILL_APP
+                PackageManager.DONT_KILL_APP,
             )
         }
     }

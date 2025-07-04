@@ -18,10 +18,10 @@ package androidx.room.processor.cache
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.processor.FieldProcessor
+import androidx.room.processor.PropertyProcessor
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.vo.DataClass
-import androidx.room.vo.EmbeddedField
+import androidx.room.vo.EmbeddedProperty
 import androidx.room.vo.Entity
 import androidx.room.vo.Warning
 
@@ -35,7 +35,7 @@ class Cache(
     val parent: Cache?,
     val converters: Set<XTypeElement>,
     val suppressedWarnings: Set<Warning>,
-    val builtInConverterFlags: BuiltInConverterFlags
+    val builtInConverterFlags: BuiltInConverterFlags,
 ) {
     val entities: Bucket<EntityKey, Entity> = Bucket(parent?.entities)
     val dataClasses: Bucket<DataClassKey, DataClass> = Bucket(parent?.dataClasses)
@@ -55,8 +55,8 @@ class Cache(
     /** Key for data class cache */
     data class DataClassKey(
         val element: XElement,
-        val scope: FieldProcessor.BindingScope,
-        val parent: EmbeddedField?
+        val scope: PropertyProcessor.BindingScope,
+        val parent: EmbeddedProperty?,
     )
 
     /**
@@ -68,6 +68,6 @@ class Cache(
         val converters: Set<XTypeElement>,
         val suppressedWarnings: Set<Warning>,
         val builtInConverterFlags: BuiltInConverterFlags,
-        val key: T
+        val key: T,
     )
 }

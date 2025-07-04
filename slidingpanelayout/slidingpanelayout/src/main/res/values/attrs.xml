@@ -25,6 +25,7 @@
             <enum name="relayoutWhenComplete" value="0"/>
             <enum name="relayoutWhenMoved" value="1"/>
         </attr>
+        <attr name="paneSpacing" format="dimension"/>
     </declare-styleable>
     <declare-styleable name="SlidingPaneLayout_Layout">
         <attr name="android:layout_weight"/>

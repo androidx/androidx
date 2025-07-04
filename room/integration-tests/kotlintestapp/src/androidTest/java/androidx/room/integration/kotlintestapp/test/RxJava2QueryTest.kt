@@ -76,14 +76,21 @@ class RxJava2QueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        booksDao.getBookSingle(TestUtil.BOOK_1.bookId).test().assertComplete().assertValue { book ->
-            book == TestUtil.BOOK_1
-        }
+        booksDao
+            .getBookSingle(TestUtil.BOOK_1.bookId)
+            .test()
+            .also { drain() }
+            .assertComplete()
+            .assertValue { book -> book == TestUtil.BOOK_1 }
     }
 
     @Test
     fun observeBooksByIdSingle_noBook() {
-        booksDao.getBookSingle("x").test().assertError(EmptyResultSetException::class.java)
+        booksDao
+            .getBookSingle("x")
+            .test()
+            .also { drain() }
+            .assertError(EmptyResultSetException::class.java)
     }
 
     @Test
@@ -92,14 +99,23 @@ class RxJava2QueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        booksDao.getBookMaybe(TestUtil.BOOK_1.bookId).test().assertComplete().assertValue { book ->
-            book == TestUtil.BOOK_1
-        }
+        booksDao
+            .getBookMaybe(TestUtil.BOOK_1.bookId)
+            .test()
+            .also { drain() }
+            .assertComplete()
+            .assertValue { book -> book == TestUtil.BOOK_1 }
     }
 
     @Test
     fun observeBooksByIdMaybe_noBook() {
-        booksDao.getBookMaybe("x").test().assertComplete().assertNoErrors().assertNoValues()
+        booksDao
+            .getBookMaybe("x")
+            .test()
+            .also { drain() }
+            .assertComplete()
+            .assertNoErrors()
+            .assertNoValues()
     }
 
     @Test

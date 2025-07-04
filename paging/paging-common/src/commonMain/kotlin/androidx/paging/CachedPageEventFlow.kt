@@ -48,7 +48,7 @@ internal class CachedPageEventFlow<T : Any>(src: Flow<PageEvent<T>>, scope: Coro
         MutableSharedFlow<IndexedValue<PageEvent<T>>?>(
             replay = 1,
             extraBufferCapacity = Channel.UNLIMITED,
-            onBufferOverflow = BufferOverflow.SUSPEND
+            onBufferOverflow = BufferOverflow.SUSPEND,
         )
 
     /**
@@ -255,7 +255,7 @@ internal class FlattenedPageEventStorage<T : Any> {
                     placeholdersBefore = placeholdersBefore,
                     placeholdersAfter = placeholdersAfter,
                     sourceLoadStates = source,
-                    mediatorLoadStates = mediatorStates
+                    mediatorLoadStates = mediatorStates,
                 )
             )
         } else {

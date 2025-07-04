@@ -76,14 +76,19 @@ public class WatchFaceId(public val id: String) {
  *   [androidx.wear.watchface.editor.EditorRequest]. If [shouldCommitChanges] is `false` then this
  *   will also be `null` (see implementation of
  *   [androidx.wear.watchface.editor.EditorSession.close]).
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class EditorState
 internal constructor(
     public val watchFaceId: WatchFaceId,
     public val userStyle: UserStyleData,
     public val previewComplicationsData: Map<Int, ComplicationData>,
     @get:JvmName("shouldCommitChanges") public val shouldCommitChanges: Boolean,
-    public val previewImage: Bitmap?
+    public val previewImage: Bitmap?,
 ) {
     override fun toString(): String =
         "{watchFaceId: ${watchFaceId.id}, userStyle: $userStyle" +
@@ -123,7 +128,7 @@ public fun EditorStateWireFormat.asApiEditorState(): EditorState {
         UserStyleData(userStyle.mUserStyle),
         previewComplicationData.associateBy(
             { it.id },
-            { it.complicationData.toApiComplicationData() }
+            { it.complicationData.toApiComplicationData() },
         ),
         commitChanges,
         previewImageBundle?.let {
@@ -132,6 +137,6 @@ public fun EditorStateWireFormat.asApiEditorState(): EditorState {
             } else {
                 null
             }
-        }
+        },
     )
 }

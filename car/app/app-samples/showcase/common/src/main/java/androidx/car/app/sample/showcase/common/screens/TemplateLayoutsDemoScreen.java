@@ -33,6 +33,7 @@ import androidx.car.app.sample.showcase.common.screens.templatelayouts.ListTempl
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.MessageTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.PaneTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.SearchTemplateDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.SectionedItemTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.SignInTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.TabTemplateLayoutsDemoScreen;
 import androidx.car.app.versioning.CarAppApiLevels;
@@ -56,6 +57,10 @@ public final class TemplateLayoutsDemoScreen extends Screen {
     @Override
     public @NonNull Template onGetTemplate() {
         List<Row> screenList = new ArrayList<>();
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_8) {
+            screenList.add(buildRowForTemplate(new SectionedItemTemplateDemoScreen(getCarContext()),
+                    R.string.sectioned_item_template_demo_title));
+        }
         screenList.add(buildRowForTemplate(new ListTemplateDemoScreen(getCarContext()),
                 R.string.list_template_demo_title));
         screenList.add(buildRowForTemplate(new GridTemplateMenuDemoScreen(getCarContext()),

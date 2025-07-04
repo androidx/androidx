@@ -22,7 +22,7 @@ package androidx.annotation.experimental {
 
   @Deprecated @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.ANNOTATION_CLASS) public @interface Experimental {
     method @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level();
-    property public abstract androidx.annotation.experimental.Experimental.Level level;
+    property @Deprecated public abstract androidx.annotation.experimental.Experimental.Level level;
   }
 
   @Deprecated public enum Experimental.Level {
@@ -32,7 +32,7 @@ package androidx.annotation.experimental {
 
   @Deprecated @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FILE, AnnotationTarget.TYPEALIAS}) public @interface UseExperimental {
     method @Deprecated public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>[] markerClass();
-    property public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>![] markerClass;
+    property @Deprecated public abstract kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>![] markerClass;
   }
 
 }

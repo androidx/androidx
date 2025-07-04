@@ -18,7 +18,7 @@ package androidx.xr.runtime.openxr
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.xr.runtime.internal.TrackingState
+import androidx.xr.runtime.TrackingState
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
@@ -45,20 +45,20 @@ class AnchorStateTest {
     fun constructor_noArguments_returnsPausedTrackingState() {
         val underTest = AnchorState()
 
-        assertThat(underTest.trackingState).isEqualTo(TrackingState.Paused)
+        assertThat(underTest.trackingState).isEqualTo(TrackingState.PAUSED)
     }
 
     @Test
     fun constructor_TrackingAndNullPose_throwsIllegalArgumentException() {
         assertFailsWith<IllegalArgumentException> {
-            AnchorState(trackingState = TrackingState.Tracking, pose = null)
+            AnchorState(trackingState = TrackingState.TRACKING, pose = null)
         }
     }
 
     @Test
     fun constructor_PausedAndNullPose_throwsIllegalArgumentException() {
         assertFailsWith<IllegalArgumentException> {
-            AnchorState(trackingState = TrackingState.Paused, pose = null)
+            AnchorState(trackingState = TrackingState.PAUSED, pose = null)
         }
     }
 
@@ -73,27 +73,27 @@ class AnchorStateTest {
     fun fromOpenXrLocationFlags_OnlyValidBitsFlipped_returnsPausedTrackingState() {
         val trackingState = TrackingState.fromOpenXrLocationFlags(0x00000003) // 0b...0011
 
-        assertThat(trackingState).isEqualTo(TrackingState.Paused)
+        assertThat(trackingState).isEqualTo(TrackingState.PAUSED)
     }
 
     @Test
     fun fromOpenXrLocationFlags_ValidAndTrackingBitsFlipped_returnsTrackingTrackingState() {
         val trackingState = TrackingState.fromOpenXrLocationFlags(0x0000000F) // 0b...1111
 
-        assertThat(trackingState).isEqualTo(TrackingState.Tracking)
+        assertThat(trackingState).isEqualTo(TrackingState.TRACKING)
     }
 
     @Test
     fun fromOpenXrLocationFlags_OnlyTrackingBitsFlipped_returnsStoppedTrackingState() {
         val trackingState = TrackingState.fromOpenXrLocationFlags(0x0000000C) // 0b...1100
 
-        assertThat(trackingState).isEqualTo(TrackingState.Stopped)
+        assertThat(trackingState).isEqualTo(TrackingState.STOPPED)
     }
 
     @Test
     fun fromOpenXrLocationFlags_OneTrackingAndValidBitFlipped_returnsStoppedTrackingState() {
         val trackingState = TrackingState.fromOpenXrLocationFlags(0x0000000A) // 0b...1010
 
-        assertThat(trackingState).isEqualTo(TrackingState.Stopped)
+        assertThat(trackingState).isEqualTo(TrackingState.STOPPED)
     }
 }

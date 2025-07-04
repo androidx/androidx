@@ -17,8 +17,17 @@
 package androidx.xr.scenecore
 
 import android.app.Activity
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.internal.ActivitySpace as RtActivitySpace
+import androidx.xr.runtime.internal.Entity as RtEntity
+import androidx.xr.runtime.internal.InputEvent as RtInputEvent
+import androidx.xr.runtime.internal.InputEventListener as RtInputEventListener
+import androidx.xr.runtime.internal.JxrPlatformAdapter
+import androidx.xr.runtime.internal.PointerCaptureComponent as RtPointerCaptureComponent
+import androidx.xr.runtime.internal.SpatialCapabilities as RtSpatialCapabilities
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.FakeRuntimeFactory
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import org.junit.Before
@@ -34,11 +43,13 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class PointerCaptureComponentTest {
+    private val fakeRuntimeFactory = FakeRuntimeFactory()
     private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
     private val mockRuntime = mock<JxrPlatformAdapter>()
     private lateinit var session: Session
-    private val mockRtEntity = mock<JxrPlatformAdapter.Entity>()
-    private val mockRtComponent = mock<JxrPlatformAdapter.PointerCaptureComponent>()
+    private val mockActivitySpace = mock<RtActivitySpace>()
+    private val mockRtEntity = mock<RtEntity>()
+    private val mockRtComponent = mock<RtPointerCaptureComponent>()
 
     private val stateListener =
         object : PointerCaptureComponent.StateListener {
@@ -61,22 +72,23 @@ class PointerCaptureComponentTest {
     @Before
     fun setUp() {
         whenever(mockRuntime.spatialEnvironment).thenReturn(mock())
-        whenever(mockRuntime.activitySpace).thenReturn(mock())
-        whenever(mockRuntime.activitySpaceRootImpl).thenReturn(mock())
+        whenever(mockRuntime.activitySpace).thenReturn(mockActivitySpace)
+        whenever(mockRuntime.activitySpaceRootImpl).thenReturn(mockActivitySpace)
         whenever(mockRuntime.headActivityPose).thenReturn(mock())
         whenever(mockRuntime.perceptionSpaceActivityPose).thenReturn(mock())
         whenever(mockRuntime.mainPanelEntity).thenReturn(mock())
-        whenever(mockRuntime.createEntity(any(), any(), any())).thenReturn(mockRtEntity)
+        whenever(mockRuntime.spatialCapabilities).thenReturn(RtSpatialCapabilities(0))
+        whenever(mockRuntime.createGroupEntity(any(), any(), any())).thenReturn(mockRtEntity)
         whenever(mockRtEntity.addComponent(any())).thenReturn(true)
         whenever(mockRuntime.createPointerCaptureComponent(any(), any(), any()))
             .thenReturn(mockRtComponent)
 
-        session = Session.create(activity, mockRuntime)
+        session = Session(activity, fakeRuntimeFactory.createRuntime(activity), mockRuntime)
     }
 
     @Test
     fun addComponent_addsRuntimeComponent() {
-        val entity = session.createEntity("test")
+        val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
@@ -89,7 +101,7 @@ class PointerCaptureComponentTest {
 
     @Test
     fun addComponent_failsIfAlreadyAttached() {
-        val entity = session.createEntity("test")
+        val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
@@ -100,78 +112,81 @@ class PointerCaptureComponentTest {
 
     @Test
     fun stateListener_propagatesCorrectlyFromRuntime() {
-        val entity = session.createEntity("test")
+        val entity = GroupEntity.create(session, "test")
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
-        val stateListenerCaptor =
-            argumentCaptor<JxrPlatformAdapter.PointerCaptureComponent.StateListener>()
+        val stateListenerCaptor = argumentCaptor<RtPointerCaptureComponent.StateListener>()
 
         assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
         verify(mockRuntime)
             .createPointerCaptureComponent(any(), stateListenerCaptor.capture(), any())
 
         // Verify all states are properly converted and propagated.
-        val stateListenerCaptured: JxrPlatformAdapter.PointerCaptureComponent.StateListener =
+        val stateListenerCaptured: RtPointerCaptureComponent.StateListener =
             stateListenerCaptor.lastValue
         stateListenerCaptured.onStateChanged(
-            JxrPlatformAdapter.PointerCaptureComponent.POINTER_CAPTURE_STATE_ACTIVE
+            RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE
         )
         assertThat(stateListener.lastState)
-            .isEqualTo(PointerCaptureComponent.POINTER_CAPTURE_STATE_ACTIVE)
+            .isEqualTo(PointerCaptureComponent.Companion.POINTER_CAPTURE_STATE_ACTIVE)
 
         stateListenerCaptured.onStateChanged(
-            JxrPlatformAdapter.PointerCaptureComponent.POINTER_CAPTURE_STATE_PAUSED
+            RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED
         )
         assertThat(stateListener.lastState)
-            .isEqualTo(PointerCaptureComponent.POINTER_CAPTURE_STATE_PAUSED)
+            .isEqualTo(PointerCaptureComponent.Companion.POINTER_CAPTURE_STATE_PAUSED)
 
         stateListenerCaptured.onStateChanged(
-            JxrPlatformAdapter.PointerCaptureComponent.POINTER_CAPTURE_STATE_STOPPED
+            RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED
         )
         assertThat(stateListener.lastState)
-            .isEqualTo(PointerCaptureComponent.POINTER_CAPTURE_STATE_STOPPED)
+            .isEqualTo(PointerCaptureComponent.Companion.POINTER_CAPTURE_STATE_STOPPED)
     }
 
     @Test
     fun inputEventListener_propagatesFromRuntime() {
-        val entity = session.createEntity("test")
+        val entity = GroupEntity.create(session, "test")
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
-        val inputListenerCaptor = argumentCaptor<JxrPlatformAdapter.InputEventListener>()
+        val inputListenerCaptor = argumentCaptor<RtInputEventListener>()
 
         assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
         verify(mockRuntime)
             .createPointerCaptureComponent(any(), any(), inputListenerCaptor.capture())
 
         val inputEvent =
-            JxrPlatformAdapter.InputEvent(
-                JxrPlatformAdapter.InputEvent.SOURCE_HANDS,
-                JxrPlatformAdapter.InputEvent.POINTER_TYPE_LEFT,
+            RtInputEvent(
+                RtInputEvent.Source.HANDS,
+                RtInputEvent.Pointer.LEFT,
                 100,
                 Vector3(),
                 Vector3(0f, 0f, 1f),
-                JxrPlatformAdapter.InputEvent.ACTION_DOWN,
-                JxrPlatformAdapter.InputEvent.HitInfo(mockRtEntity, Vector3.One, Matrix4.Identity),
-                null,
+                RtInputEvent.Action.DOWN,
+                listOf(RtInputEvent.HitInfo(mockRtEntity, Vector3.One, Matrix4.Identity)),
             )
 
         // Only compare non-floating point values for stability
         inputListenerCaptor.lastValue.onInputEvent(inputEvent)
-        assertThat(inputListener.lastEvent.source).isEqualTo(InputEvent.SOURCE_HANDS)
-        assertThat(inputListener.lastEvent.pointerType).isEqualTo(InputEvent.POINTER_TYPE_LEFT)
+        assertThat(inputListener.lastEvent.source).isEqualTo(InputEvent.Source.SOURCE_HANDS)
+        assertThat(inputListener.lastEvent.pointerType)
+            .isEqualTo(InputEvent.Pointer.POINTER_TYPE_LEFT)
         assertThat(inputListener.lastEvent.timestamp).isEqualTo(inputEvent.timestamp)
-        assertThat(inputListener.lastEvent.action).isEqualTo(InputEvent.ACTION_DOWN)
-        assertThat(inputListener.lastEvent.hitInfo).isNotNull()
-        val hitInfo = inputListener.lastEvent.hitInfo!!
+        assertThat(inputListener.lastEvent.action).isEqualTo(InputEvent.Action.ACTION_DOWN)
+        assertThat(inputListener.lastEvent.hitInfoList).isNotEmpty()
+        val hitInfoList = inputListener.lastEvent.hitInfoList
+        assertThat(hitInfoList).isNotEmpty()
+        assertThat(hitInfoList.size).isEqualTo(1)
+
+        val hitInfo = hitInfoList[0]
+
         assertThat(hitInfo.inputEntity).isEqualTo(entity)
         assertThat(hitInfo.hitPosition).isEqualTo(Vector3.One)
         assertThat(hitInfo.transform).isEqualTo(Matrix4.Identity)
-        assertThat(inputListener.lastEvent.secondaryHitInfo).isNull()
     }
 
     @Test
     fun removeComponent_removesRuntimeComponent() {
-        val entity = session.createEntity("test")
+        val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =

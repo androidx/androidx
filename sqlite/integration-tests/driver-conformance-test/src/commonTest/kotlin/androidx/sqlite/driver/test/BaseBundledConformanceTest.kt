@@ -22,7 +22,6 @@ import androidx.sqlite.driver.bundled.SQLITE_OPEN_CREATE
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_FULLMUTEX
 import androidx.sqlite.driver.bundled.SQLITE_OPEN_READWRITE
 import androidx.sqlite.execSQL
-import androidx.sqlite.use
 import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -58,7 +57,7 @@ abstract class BaseBundledConformanceTest : BaseConformanceTest() {
             getDriver()
                 .open(
                     fileName = getDatabaseFileName(),
-                    flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_FULLMUTEX
+                    flags = SQLITE_OPEN_READWRITE or SQLITE_OPEN_CREATE or SQLITE_OPEN_FULLMUTEX,
                 )
         connection.execSQL("CREATE TABLE Test (col)")
         // Concurrently use the connection, many threads inserting and two threads reading, due to
@@ -97,6 +96,6 @@ abstract class BaseBundledConformanceTest : BaseConformanceTest() {
     }
 
     companion object {
-        const val EXPECTED_SQLITE_VERSION = "3.46.0"
+        const val EXPECTED_SQLITE_VERSION = "3.50.1"
     }
 }

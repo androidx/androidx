@@ -67,7 +67,7 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                     modifier = Modifier.size(30.dp),
                     state = lazyListState,
                     beyondBoundsItemCount = 1,
-                    reverseLayout = reverseLayout
+                    reverseLayout = reverseLayout,
                 ) {
                     items(5) { index -> Box(Modifier.size(10.dp).trackPlaced(index)) }
                     item {
@@ -120,7 +120,7 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                     modifier = Modifier.size(30.dp),
                     state = lazyListState,
                     beyondBoundsItemCount = 1,
-                    reverseLayout = reverseLayout
+                    reverseLayout = reverseLayout,
                 ) {
                     items(5) { index -> Box(Modifier.size(10.dp).trackPlaced(index)) }
                     item {
@@ -178,7 +178,7 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
                                     orientation,
                                     beyondBoundsLayoutDirection,
                                     reverseLayout,
-                                    layoutDirection
+                                    layoutDirection,
                                 )
                             )
                         }
@@ -191,7 +191,7 @@ class LazyListBeyondBoundsAndExtraItemsTest(val config: Config) :
             val orientation: Orientation,
             val beyondBoundsLayoutDirection: BeyondBoundsLayout.LayoutDirection,
             val reverseLayout: Boolean,
-            val layoutDirection: LayoutDirection
+            val layoutDirection: LayoutDirection,
         ) {
             override fun toString(): String {
                 return "orientation=$orientation " +

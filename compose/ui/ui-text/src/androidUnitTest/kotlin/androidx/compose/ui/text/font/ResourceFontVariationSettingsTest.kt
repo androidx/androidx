@@ -32,7 +32,7 @@ internal class ResourceFontVariationSettingsTest {
                 -1,
                 FontWeight(100),
                 FontStyle.Italic,
-                variationSettings = FontVariation.Settings(FontVariation.grade(3))
+                variationSettings = FontVariation.Settings(FontVariation.grade(3)),
             )
         assertThat(resourceFont.variationSettings.settings).containsExactly(FontVariation.grade(3))
     }
@@ -45,14 +45,14 @@ internal class ResourceFontVariationSettingsTest {
                 -1,
                 FontWeight(100),
                 FontStyle.Italic,
-                variationSettings = FontVariation.Settings(FontVariation.grade(3))
+                variationSettings = FontVariation.Settings(FontVariation.grade(3)),
             )
         val resourceFont2 =
             ResourceFont(
                 -1,
                 FontWeight(100),
                 FontStyle.Italic,
-                variationSettings = FontVariation.Settings(FontVariation.grade(4))
+                variationSettings = FontVariation.Settings(FontVariation.grade(4)),
             )
 
         assertThat(resourceFont).isNotEqualTo(resourceFont2)
@@ -66,14 +66,14 @@ internal class ResourceFontVariationSettingsTest {
                 -1,
                 FontWeight(100),
                 FontStyle.Italic,
-                variationSettings = FontVariation.Settings(FontVariation.grade(3))
+                variationSettings = FontVariation.Settings(FontVariation.grade(3)),
             )
         val resourceFont2 =
             ResourceFont(
                 -1,
                 FontWeight(100),
                 FontStyle.Italic,
-                variationSettings = FontVariation.Settings(FontVariation.grade(4))
+                variationSettings = FontVariation.Settings(FontVariation.grade(4)),
             )
 
         assertThat(resourceFont.hashCode()).isNotEqualTo(resourceFont2.hashCode())

@@ -64,8 +64,5 @@ class UUIDTest {
         suspend fun getEntity(uuid: UUID): UUIDEntity
     }
 
-    @Entity
-    data class UUIDEntity(
-        @PrimaryKey val id_UUID: UUID,
-    )
+    @Entity data class UUIDEntity(@PrimaryKey val id_UUID: UUID)
 }

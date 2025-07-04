@@ -42,32 +42,33 @@ class DatabaseTest {
                             mock(XTypeElement::class.java),
                             tableName = "TheTable",
                             type = mock(XType::class.java),
-                            fields = emptyList(),
-                            embeddedFields = emptyList(),
-                            primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
+                            properties = emptyList(),
+                            embeddedProperties = emptyList(),
+                            primaryKey =
+                                PrimaryKey(mock(XElement::class.java), Properties(), false),
                             indices =
                                 listOf(
                                     Index(
                                         name = "leIndex",
                                         unique = false,
-                                        fields = Fields(),
-                                        orders = emptyList()
+                                        properties = Properties(),
+                                        orders = emptyList(),
                                     ),
                                     Index(
                                         name = "leIndex2",
                                         unique = true,
-                                        fields = Fields(),
-                                        orders = emptyList()
-                                    )
+                                        properties = Properties(),
+                                        orders = emptyList(),
+                                    ),
                                 ),
                             foreignKeys = emptyList(),
                             constructor =
                                 Constructor(mock(XConstructorElement::class.java), emptyList()),
-                            shadowTableName = null
+                            shadowTableName = null,
                         )
                     ),
                 views = emptyList(),
-                daoMethods = emptyList(),
+                daoFunctions = emptyList(),
                 version = 1,
                 exportSchema = false,
                 enableForeignKeys = false,

@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"మెసేజ్ టెంప్లేట్ డెమో"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"మెసేజ్‌ను ఇక్కడ టైప్ చేయాలి.\nరెండవ లైన్‌లో మరింత టెక్స్ట్‌ను జోడించవచ్చు."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"షార్ట్ మెసేజ్ టెంప్లేట్ డెమో"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"విభజించిన ఐటెమ్ టెంప్లేట్ డెమో"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"రేడియో బటన్ విభాగం"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"టోగుల్ విభాగం"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"పలు అడ్డు వరుసల విభాగం"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"గ్రిడ్ ఐటెమ్ విభాగం"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"పేన్ టెంప్లేట్ డెమో"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"స్థలాల లిస్ట్ టెంప్లేట్ డెమో"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"స్థలాలను బ్రౌజ్ చేయండి"</string>

@@ -23,6 +23,7 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraColorSpace
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.DynamicRangeProfile
 import androidx.camera.camera2.pipe.OutputStream.MirrorMode
@@ -52,6 +53,7 @@ internal data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
     val sessionTemplateId: Int,
     val sessionParameters: Map<*, Any?>,
+    val sessionColorSpace: CameraColorSpace?,
 )
 
 /**
@@ -69,7 +71,7 @@ internal data class ExtensionSessionConfigData(
     val sessionParameters: Map<*, Any?>,
     val extensionMode: Int? = null,
     val extensionStateCallback: CameraExtensionSessionWrapper.StateCallback? = null,
-    val postviewOutputConfiguration: OutputConfigurationWrapper? = null
+    val postviewOutputConfiguration: OutputConfigurationWrapper? = null,
 )
 
 internal object Camera2SessionTypes {
@@ -140,7 +142,7 @@ internal class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,
     override val maxSharedSurfaceCount: Int,
-    override val physicalCameraId: CameraId?
+    override val physicalCameraId: CameraId?,
 ) : OutputConfigurationWrapper {
 
     @RequiresApi(24)
@@ -161,8 +163,6 @@ internal class AndroidOutputConfiguration(
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
             physicalCameraId: CameraId? = null,
-            cameraId: CameraId? = null,
-            camera2MetadataProvider: Camera2MetadataProvider? = null,
         ): OutputConfigurationWrapper? {
             check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 
@@ -261,14 +261,9 @@ internal class AndroidOutputConfiguration(
                 }
             }
 
-            if (streamUseCase != null && cameraId != null && camera2MetadataProvider != null) {
+            if (streamUseCase != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val cameraMetadata = camera2MetadataProvider.awaitCameraMetadata(cameraId)
-                    val availableStreamUseCases =
-                        Api33Compat.getAvailableStreamUseCases(cameraMetadata)
-                    if (availableStreamUseCases?.contains(streamUseCase.value) == true) {
-                        Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
-                    }
+                    Api33Compat.setStreamUseCase(configuration, streamUseCase.value)
                 }
             }
 
@@ -294,7 +289,7 @@ internal class AndroidOutputConfiguration(
                 } else {
                     1
                 },
-                physicalCameraId
+                physicalCameraId,
             )
         }
 

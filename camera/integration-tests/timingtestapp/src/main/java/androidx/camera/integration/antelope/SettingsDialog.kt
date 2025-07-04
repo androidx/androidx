@@ -50,7 +50,7 @@ internal class SettingsDialog : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val args = arguments
         val type = args?.getString(DIALOG_TYPE)
@@ -141,7 +141,7 @@ internal class SettingsDialog : DialogFragment() {
             type: String,
             title: String,
             cameraNames: Array<String>,
-            cameraIds: Array<String>
+            cameraIds: Array<String>,
         ): SettingsDialog {
 
             val args = Bundle()

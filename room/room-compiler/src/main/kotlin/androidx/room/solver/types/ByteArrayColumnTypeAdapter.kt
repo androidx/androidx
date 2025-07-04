@@ -29,7 +29,7 @@ class ByteArrayColumnTypeAdapter private constructor(out: XType) :
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             if (out.nullability == XNullability.NONNULL) {
@@ -50,7 +50,7 @@ class ByteArrayColumnTypeAdapter private constructor(out: XType) :
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             if (out.nullability == XNullability.NONNULL) {
@@ -71,7 +71,7 @@ class ByteArrayColumnTypeAdapter private constructor(out: XType) :
             return if (env.backend == XProcessingEnv.Backend.KSP) {
                 listOf(
                     ByteArrayColumnTypeAdapter(arrayType.makeNullable()),
-                    ByteArrayColumnTypeAdapter(arrayType.makeNonNullable())
+                    ByteArrayColumnTypeAdapter(arrayType.makeNonNullable()),
                 )
             } else {
                 listOf(ByteArrayColumnTypeAdapter(out = arrayType))

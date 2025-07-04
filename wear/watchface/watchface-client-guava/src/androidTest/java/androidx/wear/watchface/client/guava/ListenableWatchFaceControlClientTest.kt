@@ -23,10 +23,10 @@ import android.graphics.Rect
 import android.os.Build
 import android.view.Surface
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.Renderer
@@ -59,7 +59,7 @@ private const val TIMEOUT_MS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 public class ListenableWatchFaceControlClientTest {
 
     @get:Rule val mocks = MockitoJUnit.rule()
@@ -81,7 +81,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -91,7 +91,7 @@ public class ListenableWatchFaceControlClientTest {
                 ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
                 DeviceConfig(false, false, 0, 0),
                 400,
-                400
+                400,
             )!!
 
         assertThat(headlessInstance.userStyleSchema.userStyleSettings.map { it.id.value })
@@ -100,7 +100,7 @@ public class ListenableWatchFaceControlClientTest {
                 "draw_hour_pips_style_setting",
                 "watch_hand_length_style_setting",
                 "complications_style_setting",
-                "hours_draw_freq_style_setting"
+                "hours_draw_freq_style_setting",
             )
 
         headlessInstance.close()
@@ -112,7 +112,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -122,7 +122,7 @@ public class ListenableWatchFaceControlClientTest {
                 ComponentName("?", "i.do.not.exist"),
                 DeviceConfig(false, false, 0, 0),
                 400,
-                400
+                400,
             )
         )
         client.close()
@@ -134,7 +134,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -145,7 +145,7 @@ public class ListenableWatchFaceControlClientTest {
                 DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 null,
-                null
+                null,
             )
 
         val service =
@@ -160,7 +160,7 @@ public class ListenableWatchFaceControlClientTest {
                 surfaceHolder,
                 0,
                 surfaceHolder.surfaceFrame.width(),
-                surfaceHolder.surfaceFrame.height()
+                surfaceHolder.surfaceFrame.height(),
             )
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -170,7 +170,7 @@ public class ListenableWatchFaceControlClientTest {
                 "draw_hour_pips_style_setting",
                 "watch_hand_length_style_setting",
                 "complications_style_setting",
-                "hours_draw_freq_style_setting"
+                "hours_draw_freq_style_setting",
             )
 
         interactiveInstance.close()
@@ -182,7 +182,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -192,7 +192,7 @@ public class ListenableWatchFaceControlClientTest {
                 ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
                 DeviceConfig(false, false, 0, 0),
                 400,
-                400
+                400,
             )!!
 
         val headlessInstance2 =
@@ -201,7 +201,7 @@ public class ListenableWatchFaceControlClientTest {
                 ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
                 DeviceConfig(false, false, 0, 0),
                 400,
-                400
+                400,
             )!!
 
         val headlessInstance3 =
@@ -210,7 +210,7 @@ public class ListenableWatchFaceControlClientTest {
                 ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
                 DeviceConfig(false, false, 0, 0),
                 400,
-                400
+                400,
             )!!
 
         headlessInstance3.close()
@@ -224,7 +224,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -235,7 +235,7 @@ public class ListenableWatchFaceControlClientTest {
                 DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 null,
-                null
+                null,
             )
 
         val service =
@@ -250,7 +250,7 @@ public class ListenableWatchFaceControlClientTest {
                 surfaceHolder,
                 0,
                 surfaceHolder.surfaceFrame.width(),
-                surfaceHolder.surfaceFrame.height()
+                surfaceHolder.surfaceFrame.height(),
             )
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -260,7 +260,7 @@ public class ListenableWatchFaceControlClientTest {
                 ComponentName(context, ExampleCanvasAnalogWatchFaceService::class.java),
                 DeviceConfig(false, false, 0, 0),
                 400,
-                400
+                400,
             )!!
 
         headlessInstance1.close()
@@ -273,7 +273,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -289,7 +289,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         assertThat(client).isNotNull()
@@ -302,7 +302,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -315,7 +315,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -327,7 +327,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -338,7 +338,7 @@ public class ListenableWatchFaceControlClientTest {
                 DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 null,
-                null
+                null,
             )
             .cancel(true)
 
@@ -350,7 +350,7 @@ public class ListenableWatchFaceControlClientTest {
                 DeviceConfig(false, false, 0, 0),
                 WatchUiState(false, 0),
                 null,
-                null
+                null,
             )
         val service =
             object : ExampleCanvasAnalogWatchFaceService() {
@@ -364,7 +364,7 @@ public class ListenableWatchFaceControlClientTest {
                 surfaceHolder,
                 0,
                 surfaceHolder.surfaceFrame.width(),
-                surfaceHolder.surfaceFrame.height()
+                surfaceHolder.surfaceFrame.height(),
             )
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -378,7 +378,7 @@ public class ListenableWatchFaceControlClientTest {
         val client =
             ListenableWatchFaceControlClient.createWatchFaceControlClient(
                     context,
-                    context.packageName
+                    context.packageName,
                 )
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
 
@@ -391,7 +391,7 @@ public class ListenableWatchFaceControlClientTest {
                 null,
                 null,
                 { runnable -> runnable.run() },
-                { lastPreviewImageUpdateRequestedId = it }
+                { lastPreviewImageUpdateRequestedId = it },
             )
 
         val service = TestWatchFaceServiceWithPreviewImageUpdateRequest(context, surfaceHolder)
@@ -401,7 +401,7 @@ public class ListenableWatchFaceControlClientTest {
                 surfaceHolder,
                 0,
                 surfaceHolder.surfaceFrame.width(),
-                surfaceHolder.surfaceFrame.height()
+                surfaceHolder.surfaceFrame.height(),
             )
 
         val interactiveInstance = interactiveInstanceFuture.get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
@@ -437,7 +437,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
         @Suppress("deprecation")
         renderer =
@@ -447,7 +447,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16
+                    16,
                 ) {
                 override suspend fun init() {
                     rendererInitializedLatch.countDown()
@@ -458,7 +458,7 @@ internal class TestWatchFaceServiceWithPreviewImageUpdateRequest(
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
                 ) {}
             }
         return WatchFace(WatchFaceType.DIGITAL, renderer)

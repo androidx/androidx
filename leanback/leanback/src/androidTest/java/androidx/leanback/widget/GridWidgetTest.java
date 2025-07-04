@@ -3157,6 +3157,29 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testFocusFirstFocusable() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 1);
+        intent.putExtra(GridActivity.EXTRA_ITEMS_FOCUSABLE, new boolean[] {false, true});
+        initActivity(intent);
+
+        humanDelay(500);
+        assertTrue(mGridView.hasFocus());
+
+        performAndWaitForAnimation(new Runnable() {
+            @Override
+            public void run() {
+                mActivity.addItems(1, new int[]{1});
+            }
+        });
+        humanDelay(500);
+
+        assertTrue(mGridView.getLayoutManager().findViewByPosition(1).hasFocus());
+    }
+
+    @Test
     public void testNonFocusableHorizontal() throws Throwable {
         final int numItems = 200;
         final int startPos = 45;

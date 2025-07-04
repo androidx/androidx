@@ -139,7 +139,7 @@ fun GestureAnimationSample() {
     Column {
         Button(
             modifier = Modifier.padding(10.dp).align(Alignment.CenterHorizontally),
-            onClick = { useRed = !useRed }
+            onClick = { useRed = !useRed },
         ) {
             Text("Change Color")
         }
@@ -155,18 +155,18 @@ fun GestureAnimationSample() {
 
 private enum class SquareSize {
     Small,
-    Large
+    Large,
 }
 
 private enum class ComponentState {
     Pressed,
-    Released
+    Released,
 }
 
 private enum class ButtonStatus {
     Initial,
     Pressed,
-    Released
+    Released,
 }
 
 @Sampled
@@ -260,7 +260,7 @@ fun InitialStateSample() {
             Modifier.graphicsLayer(scaleX = scale, scaleY = scale)
                 .size(200.dp, 100.dp)
                 .fillMaxWidth(),
-            elevation = elevation
+            elevation = elevation,
         ) {}
     }
 }
@@ -268,7 +268,7 @@ fun InitialStateSample() {
 enum class LikedStates {
     Initial,
     Liked,
-    Disappeared
+    Disappeared,
 }
 
 @Sampled
@@ -359,7 +359,7 @@ fun DoubleTapToLikeSample() {
                 "Like",
                 Modifier.align(Alignment.Center)
                     .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
-                tint = Color.Red
+                tint = Color.Red,
             )
         }
     }
@@ -427,7 +427,7 @@ fun CreateChildTransitionSample() {
                         parentTransition.createChildTransition {
                             it == DialerState.DialerMinimized
                         },
-                    modifier = Modifier.matchParentSize()
+                    modifier = Modifier.matchParentSize(),
                 )
             }
         }
@@ -436,7 +436,7 @@ fun CreateChildTransitionSample() {
 
 enum class DialerState {
     DialerMinimized,
-    NumberPad
+    NumberPad,
 }
 
 @Sampled
@@ -485,7 +485,7 @@ fun TransitionStateIsIdleSample() {
 enum class BoxSize {
     Small,
     Medium,
-    Large
+    Large,
 }
 
 @Sampled
@@ -498,31 +498,31 @@ fun SeekingAnimationSample() {
             Row {
                 Button(
                     onClick = { scope.launch { seekingState.animateTo(BoxSize.Small) } },
-                    Modifier.wrapContentWidth().weight(1f)
+                    Modifier.wrapContentWidth().weight(1f),
                 ) {
                     Text("Animate Small")
                 }
                 Button(
                     onClick = { scope.launch { seekingState.seekTo(0f, BoxSize.Small) } },
-                    Modifier.wrapContentWidth().weight(1f)
+                    Modifier.wrapContentWidth().weight(1f),
                 ) {
                     Text("Seek Small")
                 }
                 Button(
                     onClick = { scope.launch { seekingState.seekTo(0f, BoxSize.Medium) } },
-                    Modifier.wrapContentWidth().weight(1f)
+                    Modifier.wrapContentWidth().weight(1f),
                 ) {
                     Text("Seek Medium")
                 }
                 Button(
                     onClick = { scope.launch { seekingState.seekTo(0f, BoxSize.Large) } },
-                    Modifier.wrapContentWidth().weight(1f)
+                    Modifier.wrapContentWidth().weight(1f),
                 ) {
                     Text("Seek Large")
                 }
                 Button(
                     onClick = { scope.launch { seekingState.animateTo(BoxSize.Large) } },
-                    Modifier.wrapContentWidth().weight(1f)
+                    Modifier.wrapContentWidth().weight(1f),
                 ) {
                     Text("Animate Large")
                 }
@@ -531,14 +531,14 @@ fun SeekingAnimationSample() {
         Slider(
             value = seekingState.fraction,
             modifier = Modifier.systemGestureExclusion().padding(10.dp),
-            onValueChange = { value -> scope.launch { seekingState.seekTo(fraction = value) } }
+            onValueChange = { value -> scope.launch { seekingState.seekTo(fraction = value) } },
         )
         val transition = rememberTransition(seekingState)
 
         val scale: Float by
             transition.animateFloat(
                 transitionSpec = { tween(easing = LinearEasing) },
-                label = "Scale"
+                label = "Scale",
             ) { state ->
                 when (state) {
                     BoxSize.Small -> 1f
@@ -582,7 +582,7 @@ fun SeekToSample() {
     Slider(
         value = seekingState.fraction,
         modifier = Modifier.systemGestureExclusion().padding(10.dp),
-        onValueChange = { value -> scope.launch { seekingState.seekTo(fraction = value) } }
+        onValueChange = { value -> scope.launch { seekingState.seekTo(fraction = value) } },
     )
     val transition = rememberTransition(seekingState)
     // use the transition

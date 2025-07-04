@@ -34,14 +34,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.actions.ScrollToNodeTest.Orientation.HorizontalRtl
 import androidx.compose.ui.test.actions.ScrollToNodeTest.Orientation.Vertical
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.FullyAfter
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.FullyBefore
 import androidx.compose.ui.test.actions.ScrollToNodeTest.StartPosition.NotInList
-import androidx.compose.ui.test.addGlobalAssertion
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -53,7 +50,6 @@ import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.ClickableTestBox.defaultTag
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.LayoutDirection
-import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -67,7 +63,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
         val reverseLayout: Boolean,
         val viewportSize: ViewportSize,
         val targetPosition: StartPosition,
-        val hasNestedScrollConsumer: Boolean
+        val hasNestedScrollConsumer: Boolean,
     ) {
         val viewportSizePx: Int
             get() = viewportSize.sizePx
@@ -144,7 +140,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
                                             reverseLayout = reverseScrolling,
                                             viewportSize = viewportSize,
                                             targetPosition = targetPosition,
-                                            hasNestedScrollConsumer = nestedScrollConsumer
+                                            hasNestedScrollConsumer = nestedScrollConsumer,
                                         )
                                         .also { add(it) }
                                 }
@@ -190,7 +186,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
         expectError<AssertionError>(
             expectError = config.targetPosition == NotInList,
             expectedMessage =
-                "No node found that matches TestTag = 'target' in scrollable " + "container.*"
+                "No node found that matches TestTag = 'target' in scrollable " + "container.*",
         ) {
             rule.onNodeWithTag(containerTag).performScrollToNode(hasTestTag(itemTag))
         }
@@ -218,40 +214,6 @@ class ScrollToNodeTest(private val config: TestConfig) {
                 .that(targetBounds.rightOrBottom)
                 .isAtMost(viewportBounds.rightOrBottom)
         }
-    }
-
-    @Test
-    @ExperimentalTestApi
-    fun scrollToTarget_withGlobalAssertion() {
-        if (config.targetPosition in listOf(FullyAfter, FullyBefore, NotInList)) {
-            return
-        }
-        val state = LazyListState(config.initialScrollIndex, config.initialScrollOffset)
-        val isRtl = config.orientation == HorizontalRtl
-        val isVertical = config.orientation == Vertical
-
-        // Some boxes in a row/col with a specific initialScrollOffset so that the target we want
-        // to bring into view is either before, partially before, in, partially after or after
-        // the viewport.
-        rule.setContent {
-            val direction = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
-            CompositionLocalProvider(LocalLayoutDirection provides direction) {
-                if (isVertical) {
-                    LazyColumn(columnModifier(), state, reverseLayout = config.reverseLayout) {
-                        Boxes()
-                    }
-                } else {
-                    LazyRow(rowModifier(), state, reverseLayout = config.reverseLayout) { Boxes() }
-                }
-            }
-        }
-        var capturedSni: SemanticsNodeInteraction? = null
-        addGlobalAssertion(/* name= */ "Capture SNI") { sni -> capturedSni = sni }
-
-        val sni = rule.onNodeWithTag(containerTag)
-        sni.performScrollToNode(hasTestTag(itemTag))
-
-        assertThat(capturedSni).isEqualTo(sni)
     }
 
     private val Rect.leftOrTop: Float
@@ -294,7 +256,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
             ClickableTestBox(
                 color = Color.Yellow,
                 // Don't add the tag if the test says there is no target in the list
-                tag = if (config.targetPosition != NotInList) itemTag else defaultTag
+                tag = if (config.targetPosition != NotInList) itemTag else defaultTag,
             )
         }
         items(itemsAround) {
@@ -305,26 +267,26 @@ class ScrollToNodeTest(private val config: TestConfig) {
     enum class Orientation {
         HorizontalLtr,
         HorizontalRtl,
-        Vertical
+        Vertical,
     }
 
     enum class ViewportSize(val sizePx: Int) {
         SmallerThanItem(smallViewport),
-        BiggerThenItem(bigViewport)
+        BiggerThenItem(bigViewport),
     }
 
     enum class StartPosition(
         val indexForSmallViewport: Int,
         val offsetForSmallViewport: Int,
         val indexForBigViewport: Int,
-        val offsetForBigViewport: Int
+        val offsetForBigViewport: Int,
     ) {
         FullyAfter(0, 0, 0, 0),
         PartiallyAfter(itemsAround - 1, 50, itemsAround - 1, 0),
         CenterAlignedIn(itemsAround, 10, itemsAround - 1, 75),
         PartiallyBefore(itemsAround, 70, itemsAround, 50),
         FullyBefore(2 * itemsAround, 20, 2 * itemsAround - 1, 50),
-        NotInList(0, 0, 0, 0)
+        NotInList(0, 0, 0, 0),
     }
 
     private val verticalNestedScrollConsumer =

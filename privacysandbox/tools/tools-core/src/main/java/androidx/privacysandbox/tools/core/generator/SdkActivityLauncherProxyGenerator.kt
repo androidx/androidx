@@ -49,12 +49,8 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
                 primaryConstructor(
                     listOf(
                         PropertySpec.builder("remote", iSdkActivityLauncher).build(),
-                        PropertySpec.builder(
-                                "launcherInfo",
-                                SpecNames.bundleClass,
-                            )
-                            .build(),
-                    ),
+                        PropertySpec.builder("launcherInfo", SpecNames.bundleClass).build(),
+                    )
                 )
                 addFunction(launchSdkActivityFunSpec())
             }
@@ -72,7 +68,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
                 ClassName(
                     "androidx.privacysandbox.activity.core",
                     "ISdkActivityLauncherCallback",
-                    "Stub"
+                    "Stub",
                 )
             val tokenParameterName = "sdkActivityHandlerToken"
 
@@ -104,7 +100,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
                         addControlFlow("override fun onLaunchError(message: String?)") {
                             addStatement(
                                 "it.%M(RuntimeException(message))",
-                                resumeWithExceptionMethod
+                                resumeWithExceptionMethod,
                             )
                         }
                     }
@@ -128,10 +124,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
                     addStatement(
                         """requireNotNull(remote) { "Invalid SdkActivityLauncher info bundle." }"""
                     )
-                    addStatement(
-                        "val binder = %T.Stub.asInterface(remote)",
-                        iSdkActivityLauncher,
-                    )
+                    addStatement("val binder = %T.Stub.asInterface(remote)", iSdkActivityLauncher)
                     addStatement("return SdkActivityLauncherProxy(binder, launcherInfo)")
                 }
             )
@@ -147,7 +140,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
                     }
                     addStatement(
                         "return launcher.%M()",
-                        MemberName("androidx.privacysandbox.activity.client", "toLauncherInfo")
+                        MemberName("androidx.privacysandbox.activity.client", "toLauncherInfo"),
                     )
                 }
             )

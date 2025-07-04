@@ -32,7 +32,7 @@ internal data class AidlMethodSpec(
 ) {
     constructor(
         name: String,
-        parameters: List<AidlParameterSpec>
+        parameters: List<AidlParameterSpec>,
     ) : this(name, parameters, aidlTransactionId(name, parameters))
 
     override fun toString(): String {
@@ -68,10 +68,7 @@ internal data class AidlMethodSpec(
 internal fun aidlTransactionId(name: String, parameters: List<AidlParameterSpec>): Int {
     val hash =
         Hashing.farmHashFingerprint64()
-            .hashString(
-                signature(name, parameters),
-                Charsets.UTF_8,
-            )
+            .hashString(signature(name, parameters), Charsets.UTF_8)
             .asLong()
             .toULong()
     val maxValue = AIDL_MAX_TRANSACTION_ID - RESERVED_ID_COUNT - JAVA_MAX_METHOD_COUNT + 1UL

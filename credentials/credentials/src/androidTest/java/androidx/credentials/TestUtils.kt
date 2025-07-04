@@ -37,6 +37,7 @@ import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.ProviderClearCredentialStateRequest
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import androidx.credentials.provider.ProviderGetCredentialRequest
+import androidx.credentials.provider.ProviderSignalCredentialStateRequest
 import androidx.credentials.provider.PublicKeyCredentialEntry
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -124,34 +125,28 @@ fun equals(a: CallingAppInfo, b: CallingAppInfo): Boolean {
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun equals(
     createCredentialRequest: android.service.credentials.CreateCredentialRequest,
-    request: ProviderCreateCredentialRequest
+    request: ProviderCreateCredentialRequest,
 ) {
     assertThat(createCredentialRequest.type).isEqualTo(request.callingRequest.type)
     equals(createCredentialRequest.data, request.callingRequest.credentialData)
     Assert.assertEquals(
         createCredentialRequest.callingAppInfo.packageName,
-        request.callingAppInfo.packageName
+        request.callingAppInfo.packageName,
     )
     Assert.assertEquals(
         createCredentialRequest.callingAppInfo.origin,
-        request.callingAppInfo.origin
+        request.callingAppInfo.origin,
     )
 }
 
-fun assertEquals(
-    actual: ProviderGetCredentialRequest,
-    expected: ProviderGetCredentialRequest,
-) {
+fun assertEquals(actual: ProviderGetCredentialRequest, expected: ProviderGetCredentialRequest) {
     if (actual === expected) return
     assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
     assertThat(actual.biometricPromptResult).isEqualTo(expected.biometricPromptResult)
     assertEquals(actual.credentialOptions, expected.credentialOptions)
 }
 
-fun assertEquals(
-    actual: List<CredentialOption>,
-    expected: List<CredentialOption>,
-) {
+fun assertEquals(actual: List<CredentialOption>, expected: List<CredentialOption>) {
     if (actual === expected) return
     assertThat(actual).hasSize(expected.size)
     for (i in expected.indices) {
@@ -159,10 +154,7 @@ fun assertEquals(
     }
 }
 
-fun assertEquals(
-    actual: CredentialOption,
-    expected: CredentialOption,
-) {
+fun assertEquals(actual: CredentialOption, expected: CredentialOption) {
     if (actual === expected) return
     assertThat(actual.type).isEqualTo(expected.type)
     assertEquals(actual.requestData, expected.requestData)
@@ -189,10 +181,7 @@ fun assertEquals(
     }
 }
 
-fun assertEquals(
-    actual: CreateCredentialResponse,
-    expected: CreateCredentialResponse,
-) {
+fun assertEquals(actual: CreateCredentialResponse, expected: CreateCredentialResponse) {
     if (actual === expected) return
     assertThat(actual.type).isEqualTo(expected.type)
     assertEquals(actual.data, expected.data)
@@ -211,10 +200,7 @@ fun assertEquals(
     }
 }
 
-fun assertEquals(
-    actual: BeginGetCredentialRequest,
-    expected: BeginGetCredentialRequest,
-) {
+fun assertEquals(actual: BeginGetCredentialRequest, expected: BeginGetCredentialRequest) {
     if (actual === expected) return
     assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
     assertEqual(actual.beginGetCredentialOptions, expected.beginGetCredentialOptions)
@@ -242,11 +228,7 @@ fun assertEquals(
 }
 
 @RequiresApi(23)
-fun assertEquals(
-    context: Context,
-    actual: List<CredentialEntry>,
-    expected: List<CredentialEntry>,
-) {
+fun assertEquals(context: Context, actual: List<CredentialEntry>, expected: List<CredentialEntry>) {
     if (actual === expected) return
     assertThat(actual).hasSize(expected.size)
     for (i in expected.indices) {
@@ -255,11 +237,7 @@ fun assertEquals(
 }
 
 @RequiresApi(23)
-fun assertEquals(
-    context: Context,
-    actual: CredentialEntry,
-    expected: CredentialEntry,
-) {
+fun assertEquals(context: Context, actual: CredentialEntry, expected: CredentialEntry) {
     if (actual === expected) return
     assertThat(actual.type).isEqualTo(expected.type)
     assertEqual(actual.beginGetCredentialOption, expected.beginGetCredentialOption)
@@ -321,10 +299,7 @@ fun assertEquals(
     }
 }
 
-fun assertEqual(
-    actual: BeginGetCredentialOption,
-    expected: BeginGetCredentialOption,
-) {
+fun assertEqual(actual: BeginGetCredentialOption, expected: BeginGetCredentialOption) {
     if (actual === expected) return
     assertThat(actual.type).isEqualTo(expected.type)
     assertThat(actual.id).isEqualTo(expected.id)
@@ -335,7 +310,7 @@ fun assertEqual(
 fun assertEquals(
     context: Context,
     actual: ProviderCreateCredentialRequest,
-    expected: ProviderCreateCredentialRequest
+    expected: ProviderCreateCredentialRequest,
 ) {
     if (actual === expected) return
     assertThat(actual.biometricPromptResult).isEqualTo(expected.biometricPromptResult)
@@ -343,9 +318,27 @@ fun assertEquals(
     assertEquals(context, actual.callingRequest, expected.callingRequest)
 }
 
+@RequiresApi(28)
+fun assertEquals(
+    actual: ProviderSignalCredentialStateRequest,
+    expected: ProviderSignalCredentialStateRequest,
+) {
+    if (actual === expected) return
+    assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
+    assertEquals(actual.callingRequest, expected.callingRequest)
+}
+
+@RequiresApi(28)
+fun assertEquals(actual: SignalCredentialStateRequest, expected: SignalCredentialStateRequest) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertThat(actual.requestJson).isEqualTo(expected.requestJson)
+    assertThat(actual.origin).isEqualTo(expected.origin)
+}
+
 fun assertEquals(
     actual: ProviderClearCredentialStateRequest,
-    expected: ProviderClearCredentialStateRequest
+    expected: ProviderClearCredentialStateRequest,
 ) {
     if (actual === expected) return
     assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
@@ -355,7 +348,7 @@ fun assertEquals(
 fun assertEquals(
     context: Context,
     actual: CreateCredentialRequest,
-    expected: CreateCredentialRequest
+    expected: CreateCredentialRequest,
 ) {
     if (actual === expected) return
     assertThat(actual.type).isEqualTo(expected.type)
@@ -373,7 +366,7 @@ fun assertEquals(
 fun assertEquals(
     context: Context,
     actual: CreateCredentialRequest.DisplayInfo,
-    expected: CreateCredentialRequest.DisplayInfo
+    expected: CreateCredentialRequest.DisplayInfo,
 ) {
     if (actual === expected) return
     assertThat(actual.userId).isEqualTo(expected.userId)
@@ -383,11 +376,7 @@ fun assertEquals(
 }
 
 @RequiresApi(23)
-fun assertEquals(
-    context: Context,
-    actual: Icon?,
-    expected: Icon?,
-) {
+fun assertEquals(context: Context, actual: Icon?, expected: Icon?) {
     if (actual === expected) return
     if (actual != null && expected != null) {
         val actualDrawable = actual.loadDrawable(context)
@@ -407,11 +396,11 @@ fun assertEquals(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun equals(
     getCredentialRequest: android.service.credentials.GetCredentialRequest,
-    request: ProviderGetCredentialRequest
+    request: ProviderGetCredentialRequest,
 ) {
     Assert.assertEquals(
         getCredentialRequest.callingAppInfo.packageName,
-        request.callingAppInfo.packageName
+        request.callingAppInfo.packageName,
     )
     Assert.assertEquals(getCredentialRequest.callingAppInfo.origin, request.callingAppInfo.origin)
     equals(getCredentialRequest.credentialOptions, request.credentialOptions)
@@ -420,7 +409,7 @@ fun equals(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private fun equals(
     credentialOptions: List<android.credentials.CredentialOption>,
-    credentialOptions1: List<CredentialOption>
+    credentialOptions1: List<CredentialOption>,
 ) {
     assertThat(credentialOptions.size).isEqualTo(credentialOptions1.size)
     for (i in credentialOptions.indices) {
@@ -431,7 +420,7 @@ private fun equals(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun equals(
     frameworkRequest1: android.credentials.GetCredentialRequest,
-    frameworkRequest2: android.credentials.GetCredentialRequest
+    frameworkRequest2: android.credentials.GetCredentialRequest,
 ) {
     equals(frameworkRequest1.data, frameworkRequest2.data)
     credentialOptionsEqual(frameworkRequest1.credentialOptions, frameworkRequest2.credentialOptions)
@@ -440,7 +429,7 @@ fun equals(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private fun credentialOptionsEqual(
     credentialOptions1: List<android.credentials.CredentialOption>,
-    credentialOptions2: List<android.credentials.CredentialOption>
+    credentialOptions2: List<android.credentials.CredentialOption>,
 ) {
     assertThat(credentialOptions1.size).isEqualTo(credentialOptions2.size)
     for (i in credentialOptions1.indices) {
@@ -451,7 +440,7 @@ private fun credentialOptionsEqual(
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun equals(
     credentialOption: android.credentials.CredentialOption,
-    credentialOption1: CredentialOption
+    credentialOption1: CredentialOption,
 ) {
     assertThat(credentialOption.type).isEqualTo(credentialOption1.type)
     assertThat(credentialOption.isSystemProviderRequired)
@@ -469,7 +458,7 @@ fun setUpCreatePasswordRequest(): android.service.credentials.CreateCredentialRe
         android.service.credentials.CreateCredentialRequest(
             android.service.credentials.CallingAppInfo("calling_package", SigningInfo()),
             PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
-            passwordReq.credentialData
+            passwordReq.credentialData,
         )
     return request
 }
@@ -477,7 +466,7 @@ fun setUpCreatePasswordRequest(): android.service.credentials.CreateCredentialRe
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 fun equals(
     credentialOption1: android.credentials.CredentialOption,
-    credentialOption2: android.credentials.CredentialOption
+    credentialOption2: android.credentials.CredentialOption,
 ) {
     equals(credentialOption1.candidateQueryData, credentialOption2.candidateQueryData)
     equals(credentialOption1.credentialRetrievalData, credentialOption2.credentialRetrievalData)
@@ -489,7 +478,7 @@ fun equals(
 
 fun equals(
     getCredentialResponse1: GetCredentialResponse,
-    getCredentialResponse2: GetCredentialResponse
+    getCredentialResponse2: GetCredentialResponse,
 ) {
     equals(getCredentialResponse1.credential, getCredentialResponse2.credential)
 }
@@ -497,7 +486,7 @@ fun equals(
 @RequiresApi(34)
 fun assertEquals(
     actual: android.credentials.CreateCredentialResponse,
-    expected: CreatePasswordResponse
+    expected: CreatePasswordResponse,
 ) {
     assertEquals(actual.data, expected.data)
 }
@@ -505,7 +494,7 @@ fun assertEquals(
 @RequiresApi(34)
 fun assertEquals(
     actual: android.credentials.GetCredentialResponse,
-    expected: GetCredentialResponse
+    expected: GetCredentialResponse,
 ) {
     equals(actual.credential, expected.credential)
 }
@@ -521,10 +510,7 @@ fun equals(credential1: Credential, credential2: Credential) {
     equals(credential1.data, credential2.data)
 }
 
-fun assertEquals(
-    actual: BeginCreateCredentialRequest,
-    expected: BeginCreateCredentialRequest,
-) {
+fun assertEquals(actual: BeginCreateCredentialRequest, expected: BeginCreateCredentialRequest) {
     if (actual === expected) return
     assertThat(actual.type).isEqualTo(expected.type)
     assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
@@ -538,7 +524,7 @@ fun getTestCallingAppInfo(context: Context, origin: String? = null): CallingAppI
         val packageInfo =
             context.packageManager.getPackageInfo(
                 packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
+                PackageManager.GET_SIGNING_CERTIFICATES,
             )
         assertThat(packageInfo.signingInfo).isNotNull()
         return CallingAppInfo(packageName, packageInfo.signingInfo!!, null)
@@ -574,11 +560,7 @@ fun assertCreateEntryListEquals(
 }
 
 @RequiresApi(23)
-fun assertEquals(
-    context: Context,
-    actual: CreateEntry,
-    expected: CreateEntry,
-) {
+fun assertEquals(context: Context, actual: CreateEntry, expected: CreateEntry) {
     if (actual === expected) return
     assertThat(actual.accountName).isEqualTo(expected.accountName)
     assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
@@ -608,7 +590,7 @@ fun getTestCallingAppInfo(origin: String?): CallingAppInfo {
         val packageInfo =
             context.packageManager.getPackageInfo(
                 packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
+                PackageManager.GET_SIGNING_CERTIFICATES,
             )
         Assert.assertNotNull(packageInfo.signingInfo)
         return CallingAppInfo(packageName, packageInfo.signingInfo!!, origin)

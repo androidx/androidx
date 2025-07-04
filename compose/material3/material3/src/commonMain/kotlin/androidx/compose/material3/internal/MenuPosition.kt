@@ -46,11 +46,7 @@ internal object MenuPosition {
      */
     @Stable
     fun interface Vertical {
-        fun position(
-            anchorBounds: IntRect,
-            windowSize: IntSize,
-            menuHeight: Int,
-        ): Int
+        fun position(anchorBounds: IntRect, windowSize: IntSize, menuHeight: Int): Int
     }
 
     /**
@@ -163,10 +159,7 @@ internal object MenuPosition {
      * given [margin] from the top and bottom edges of the window.
      */
     fun topToWindowTop(margin: Int = 0): Vertical =
-        WindowAlignmentMarginPosition.Vertical(
-            alignment = Alignment.Top,
-            margin = margin,
-        )
+        WindowAlignmentMarginPosition.Vertical(alignment = Alignment.Top, margin = margin)
 
     /**
      * Returns a [MenuPosition.Vertical] which aligns the bottom of the menu to the bottom of the
@@ -176,10 +169,7 @@ internal object MenuPosition {
      * given [margin] from the top and bottom edges of the window.
      */
     fun bottomToWindowBottom(margin: Int = 0): Vertical =
-        WindowAlignmentMarginPosition.Vertical(
-            alignment = Alignment.Bottom,
-            margin = margin,
-        )
+        WindowAlignmentMarginPosition.Vertical(alignment = Alignment.Bottom, margin = margin)
 }
 
 @Immutable
@@ -210,11 +200,7 @@ internal object AnchorAlignmentOffsetPosition {
                     layoutDirection = layoutDirection,
                 )
             val menuAlignmentOffset =
-                -menuAlignment.align(
-                    size = 0,
-                    space = menuWidth,
-                    layoutDirection,
-                )
+                -menuAlignment.align(size = 0, space = menuWidth, layoutDirection)
             val resolvedOffset = if (layoutDirection == LayoutDirection.Ltr) offset else -offset
             return anchorBounds.left + anchorAlignmentOffset + menuAlignmentOffset + resolvedOffset
         }
@@ -230,21 +216,9 @@ internal object AnchorAlignmentOffsetPosition {
         private val anchorAlignment: Alignment.Vertical,
         private val offset: Int,
     ) : MenuPosition.Vertical {
-        override fun position(
-            anchorBounds: IntRect,
-            windowSize: IntSize,
-            menuHeight: Int,
-        ): Int {
-            val anchorAlignmentOffset =
-                anchorAlignment.align(
-                    size = 0,
-                    space = anchorBounds.height,
-                )
-            val menuAlignmentOffset =
-                -menuAlignment.align(
-                    size = 0,
-                    space = menuHeight,
-                )
+        override fun position(anchorBounds: IntRect, windowSize: IntSize, menuHeight: Int): Int {
+            val anchorAlignmentOffset = anchorAlignment.align(size = 0, space = anchorBounds.height)
+            val menuAlignmentOffset = -menuAlignment.align(size = 0, space = menuHeight)
             return anchorBounds.top + anchorAlignmentOffset + menuAlignmentOffset + offset
         }
     }
@@ -261,10 +235,8 @@ internal object WindowAlignmentMarginPosition {
      * the menu is too wide, then it is centered horizontally instead.
      */
     @Immutable
-    data class Horizontal(
-        private val alignment: Alignment.Horizontal,
-        private val margin: Int,
-    ) : MenuPosition.Horizontal {
+    data class Horizontal(private val alignment: Alignment.Horizontal, private val margin: Int) :
+        MenuPosition.Horizontal {
         override fun position(
             anchorBounds: IntRect,
             windowSize: IntSize,
@@ -297,26 +269,16 @@ internal object WindowAlignmentMarginPosition {
      * the menu is too tall, then it is centered vertically instead.
      */
     @Immutable
-    data class Vertical(
-        private val alignment: Alignment.Vertical,
-        private val margin: Int,
-    ) : MenuPosition.Vertical {
-        override fun position(
-            anchorBounds: IntRect,
-            windowSize: IntSize,
-            menuHeight: Int,
-        ): Int {
+    data class Vertical(private val alignment: Alignment.Vertical, private val margin: Int) :
+        MenuPosition.Vertical {
+        override fun position(anchorBounds: IntRect, windowSize: IntSize, menuHeight: Int): Int {
             if (menuHeight >= windowSize.height - 2 * margin) {
                 return Alignment.CenterVertically.align(
                     size = menuHeight,
                     space = windowSize.height,
                 )
             }
-            val y =
-                alignment.align(
-                    size = menuHeight,
-                    space = windowSize.height,
-                )
+            val y = alignment.align(size = menuHeight, space = windowSize.height)
             return y.coerceIn(margin, windowSize.height - margin - menuHeight)
         }
     }
@@ -328,7 +290,7 @@ internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
     val density: Density,
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
-    val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> }
+    val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
 ) : PopupPositionProvider {
     // Horizontal position
     private val startToAnchorStart: MenuPosition.Horizontal
@@ -362,7 +324,7 @@ internal data class DropdownMenuPositionProvider(
         anchorBounds: IntRect,
         windowSize: IntSize,
         layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
+        popupContentSize: IntSize,
     ): IntOffset {
         val xCandidates =
             listOf(
@@ -372,7 +334,7 @@ internal data class DropdownMenuPositionProvider(
                     leftToWindowLeft
                 } else {
                     rightToWindowRight
-                }
+                },
             )
         var x = 0
         for (index in xCandidates.indices) {
@@ -381,7 +343,7 @@ internal data class DropdownMenuPositionProvider(
                     anchorBounds = anchorBounds,
                     windowSize = windowSize,
                     menuWidth = popupContentSize.width,
-                    layoutDirection = layoutDirection
+                    layoutDirection = layoutDirection,
                 )
             if (
                 index == xCandidates.lastIndex ||
@@ -401,7 +363,7 @@ internal data class DropdownMenuPositionProvider(
                     topToWindowTop
                 } else {
                     bottomToWindowBottom
-                }
+                },
             )
         var y = 0
         for (index in yCandidates.indices) {
@@ -409,7 +371,7 @@ internal data class DropdownMenuPositionProvider(
                 yCandidates[index].position(
                     anchorBounds = anchorBounds,
                     windowSize = windowSize,
-                    menuHeight = popupContentSize.height
+                    menuHeight = popupContentSize.height,
                 )
             if (
                 index == yCandidates.lastIndex ||
@@ -424,7 +386,7 @@ internal data class DropdownMenuPositionProvider(
         val menuOffset = IntOffset(x, y)
         onPositionCalculated(
             /* anchorBounds = */ anchorBounds,
-            /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize)
+            /* menuBounds = */ IntRect(offset = menuOffset, size = popupContentSize),
         )
         return menuOffset
     }

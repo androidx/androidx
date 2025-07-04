@@ -99,7 +99,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
     private fun handleStatefulAdapterItemChange(
         targetPage: Int,
         items: MutableList<String>,
-        context: Context
+        context: Context,
     ) {
         context.apply {
             val currentPage = viewPager.currentItem
@@ -159,7 +159,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
         val adapterProvider: AdapterProviderForItems,
         val actions: List<Action>,
         @ViewPager2.Orientation val orientation: Int,
-        val expectedEndItems: List<String>
+        val expectedEndItems: List<String>,
     ) {
         val items: MutableList<String> = _items.toMutableList()
     }
@@ -206,7 +206,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(RemoveItem(_position = 0)),
                         orientation = orientation,
-                        expectedEndItems = listOf("1", "2", "3", "4", "5", "6", "7", "8")
+                        expectedEndItems = listOf("1", "2", "3", "4", "5", "6", "7", "8"),
                     )
 
                 result +=
@@ -216,7 +216,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(RemoveItem(_position = 4)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "5", "6", "7", "8")
+                        expectedEndItems = listOf("0", "1", "2", "3", "5", "6", "7", "8"),
                     )
 
                 result +=
@@ -226,7 +226,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(RemoveItem(_position = 1)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "2", "3", "4")
+                        expectedEndItems = listOf("0", "2", "3", "4"),
                     )
 
                 result +=
@@ -236,7 +236,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(RemoveItem(_position = 3)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "4")
+                        expectedEndItems = listOf("0", "1", "2", "4"),
                     )
 
                 result +=
@@ -246,7 +246,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(RemoveItem(_position = 8)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7")
+                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7"),
                     )
 
                 result +=
@@ -257,7 +257,7 @@ private fun createTestSet(): List<TestConfig> {
                         actions = listOf(AddItem(_position = 0, item = "1000")),
                         orientation = orientation,
                         expectedEndItems =
-                            listOf("1000", "0", "1", "2", "3", "4", "5", "6", "7", "8")
+                            listOf("1000", "0", "1", "2", "3", "4", "5", "6", "7", "8"),
                     )
 
                 result +=
@@ -267,7 +267,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 1, item = "99")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "99", "1", "2", "3", "4")
+                        expectedEndItems = listOf("0", "99", "1", "2", "3", "4"),
                     )
 
                 result +=
@@ -277,7 +277,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 2, item = "99")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "99", "2", "3", "4")
+                        expectedEndItems = listOf("0", "1", "99", "2", "3", "4"),
                     )
 
                 result +=
@@ -287,7 +287,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 3, item = "99")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "99", "3", "4")
+                        expectedEndItems = listOf("0", "1", "2", "99", "3", "4"),
                     )
 
                 result +=
@@ -297,7 +297,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 8, item = "88")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "88", "8")
+                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "88", "8"),
                     )
 
                 result +=
@@ -307,7 +307,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 9, item = "99")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "99")
+                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "99"),
                     )
 
                 result +=
@@ -317,7 +317,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(ChangeItem(_position = 0)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0-suffix", "1", "2", "3", "4")
+                        expectedEndItems = listOf("0-suffix", "1", "2", "3", "4"),
                     )
 
                 result +=
@@ -327,7 +327,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(ChangeItem(_position = 2)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2-suffix", "3", "4")
+                        expectedEndItems = listOf("0", "1", "2-suffix", "3", "4"),
                     )
 
                 result +=
@@ -337,7 +337,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(ChangeItem(_position = 4)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "4-suffix")
+                        expectedEndItems = listOf("0", "1", "2", "3", "4-suffix"),
                     )
 
                 result +=
@@ -347,7 +347,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 0, item = "1"), RemoveItem(0)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0")
+                        expectedEndItems = listOf("0"),
                     )
 
                 result +=
@@ -357,7 +357,7 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(RemoveItem(2), RemoveItem(1)),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "3", "4", "5")
+                        expectedEndItems = listOf("0", "3", "4", "5"),
                     )
 
                 result +=
@@ -368,7 +368,7 @@ private fun createTestSet(): List<TestConfig> {
                         actions =
                             listOf(RemoveItem(_position = 0), AddItem(_position = 1, item = "3")),
                         orientation = orientation,
-                        expectedEndItems = listOf("1", "3", "2")
+                        expectedEndItems = listOf("1", "3", "2"),
                     )
 
                 result +=
@@ -379,7 +379,7 @@ private fun createTestSet(): List<TestConfig> {
                         actions =
                             listOf(RemoveItem(_position = 0), AddItem(_position = 0, item = "3")),
                         orientation = orientation,
-                        expectedEndItems = listOf("3", "1", "2")
+                        expectedEndItems = listOf("3", "1", "2"),
                     )
 
                 repeat(RANDOM_TESTS_PER_CONFIG) {
@@ -393,7 +393,7 @@ private fun createTestSet(): List<TestConfig> {
 
 private fun generateRandomTest(
     adapterProvider: AdapterProviderForItems,
-    orientation: Int
+    orientation: Int,
 ): TestConfig {
     return generateRandomTest(adapterProvider, orientation, seed = Random().nextLong())
 }
@@ -401,7 +401,7 @@ private fun generateRandomTest(
 private fun generateRandomTest(
     adapterProvider: AdapterProviderForItems,
     orientation: Int,
-    seed: Long
+    seed: Long,
 ): TestConfig {
     val random = Random(seed)
     val initialItems: List<String> = stringSequence(random.nextInt(10))
@@ -437,6 +437,6 @@ private fun generateRandomTest(
         adapterProvider = adapterProvider,
         actions = actions.toList(),
         orientation = orientation,
-        expectedEndItems = currentItems.toList()
+        expectedEndItems = currentItems.toList(),
     )
 }

@@ -20,13 +20,11 @@ import android.view.MotionEvent
 import androidx.input.motionprediction.MotionEventGenerator
 import androidx.input.motionprediction.common.Configuration
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.pow
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@MediumTest
 @RunWith(AndroidJUnit4::class)
 class SinglePointerPredictorTest {
 
@@ -46,7 +44,7 @@ class SinglePointerPredictorTest {
                 { delta: Long -> delta.toFloat().pow(2) / 2 },
                 // Acceleration & velocity
                 { delta: Long -> delta.toFloat() + delta.toFloat().pow(2) / 4 },
-                { delta: Long -> -delta.toFloat() - delta.toFloat().pow(2) / 4 }
+                { delta: Long -> -delta.toFloat() - delta.toFloat().pow(2) / 4 },
             )
         for ((xIndex, xGenerator) in generators.withIndex()) {
             for ((yIndex, yGenerator) in generators.withIndex()) {

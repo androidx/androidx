@@ -78,7 +78,7 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
                 lambdaArgument = lambdaArgument,
                 node = node,
                 context = context,
-                issue = UnusedContentLambdaTargetStateParameter
+                issue = UnusedContentLambdaTargetStateParameter,
             )
         }
 
@@ -88,7 +88,7 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
                 lambdaArgument = lambdaArgument,
                 node = node,
                 context = context,
-                issue = UnusedTargetStateInContentKeyLambda
+                issue = UnusedTargetStateInContentKeyLambda,
             )
         }
     }
@@ -97,7 +97,7 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
         lambdaArgument: ULambdaExpression,
         node: UCallExpression,
         context: JavaContext,
-        issue: Issue
+        issue: Issue,
     ) {
         lambdaArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
             val location =
@@ -108,7 +108,7 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
                 issue = issue,
                 scope = node,
                 location = location,
-                message = "Target state parameter `$name` is not used"
+                message = "Target state parameter `$name` is not used",
             )
         }
     }
@@ -133,8 +133,8 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         AnimatedContentDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
 
         val UnusedTargetStateInContentKeyLambda =
@@ -154,8 +154,8 @@ class AnimatedContentDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         AnimatedContentDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
     }
 }

@@ -121,7 +121,7 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
             },
             // Listen to broadcasts from the system or the app itself,
             // so it does not have to be exported
-            Context.RECEIVER_NOT_EXPORTED
+            Context.RECEIVER_NOT_EXPORTED,
         )
 
         // Fetch the initial battery state. NB Intent.ACTION_BATTERY_CHANGED is sticky.

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".VisibilityTestActivity">
+  <androidx.xr.scenecore.samples.commontestview.CommonTestView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+   <Button
+      android:id="@+id/toggle_fsm_hsm"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Toggle FSM / HSM" />
+   <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:background="@android:color/white"
+      android:orientation="vertical">
+      <Button
+         android:id="@+id/hide_space"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:text="Hide Activity Space (for 3s)" />
+      <Button
+         android:id="@+id/hide_main_panel"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:text="Hide Main Panel (for 3s)" />
+      <Switch
+         android:id="@+id/hide_panel1_pointer"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Hide pointer for 1st child panel" />
+      <Switch
+         android:id="@+id/hide_all"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="@string/hide_all_entities" />
+      <Switch
+         android:id="@+id/hide_gltf0"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Hide parent gltf" />
+      <Switch
+         android:id="@+id/hide_gltf1"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:text="Hide 1st child gltf" />
+      <Switch
+         android:id="@+id/hide_gltf2"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Hide 2nd child gltf" />
+      <Button
+         android:id="@+id/move_gltf0"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Move parent gltf" />
+      <Switch
+         android:id="@+id/hide_panel0"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Hide parent panel" />
+      <Switch
+         android:id="@+id/hide_panel1"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Hide 1st child panel" />
+      <Switch
+         android:id="@+id/hide_panel2"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@android:color/white"
+         android:text="Hide 2nd child panel" />
+      </LinearLayout>
+</LinearLayout>

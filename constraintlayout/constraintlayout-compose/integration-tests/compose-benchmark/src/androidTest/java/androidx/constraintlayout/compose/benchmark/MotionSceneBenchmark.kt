@@ -72,7 +72,7 @@ class MotionSceneBenchmark {
                                 bottom.linkTo(parent.bottom, 8.dp)
                                 end.linkTo(parent.end, 8.dp)
                             }
-                        }
+                        },
                 )
             }
         }
@@ -250,7 +250,7 @@ class MotionSceneBenchmark {
                     }
                 defaultTransition(
                     from = constraintSetFor(NewMessageLayout.Fab),
-                    to = constraintSetFor(NewMessageLayout.Full)
+                    to = constraintSetFor(NewMessageLayout.Full),
                 ) {
                     maxStaggerDelay = 0.6f
 
@@ -262,7 +262,7 @@ class MotionSceneBenchmark {
 
                 transition(
                     from = constraintSetFor(NewMessageLayout.Full),
-                    to = constraintSetFor(NewMessageLayout.Mini)
+                    to = constraintSetFor(NewMessageLayout.Mini),
                 ) {
                     onSwipe =
                         OnSwipe(
@@ -270,7 +270,7 @@ class MotionSceneBenchmark {
                             side = SwipeSide.Middle,
                             direction = SwipeDirection.Down,
                             onTouchUp = SwipeTouchUp.AutoComplete,
-                            mode = SwipeMode.spring(threshold = 0.001f)
+                            mode = SwipeMode.spring(threshold = 0.001f),
                         )
 
                     keyCycles(minIcon) {
@@ -288,6 +288,6 @@ class MotionSceneBenchmark {
     private enum class NewMessageLayout {
         Full,
         Mini,
-        Fab
+        Fab,
     }
 }

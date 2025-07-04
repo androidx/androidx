@@ -111,7 +111,7 @@ public sealed class EnterTransition {
                 changeSize = enter.data.changeSize ?: data.changeSize,
                 scale = enter.data.scale ?: data.scale,
                 // `enter` after plus operator to prioritize its values on the map
-                effectsMap = data.effectsMap + enter.data.effectsMap
+                effectsMap = data.effectsMap + enter.data.effectsMap,
             )
         )
     }
@@ -203,7 +203,7 @@ public sealed class ExitTransition {
                 scale = exit.data.scale ?: data.scale,
                 hold = exit.data.hold || data.hold,
                 // `exit` after plus operator to prioritize its values on the map
-                effectsMap = data.effectsMap + exit.data.effectsMap
+                effectsMap = data.effectsMap + exit.data.effectsMap,
             )
         )
     }
@@ -293,7 +293,7 @@ internal infix fun ExitTransition.withEffect(effect: TransitionEffect): ExitTran
 @Stable
 public fun fadeIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
-    initialAlpha: Float = 0f
+    initialAlpha: Float = 0f,
 ): EnterTransition {
     return EnterTransitionImpl(TransitionData(fade = Fade(initialAlpha, animationSpec)))
 }
@@ -339,7 +339,7 @@ public fun slideIn(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+            visibilityThreshold = IntOffset.VisibilityThreshold,
         ),
     initialOffset: (fullSize: IntSize) -> IntOffset,
 ): EnterTransition {
@@ -369,7 +369,7 @@ public fun slideOut(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+            visibilityThreshold = IntOffset.VisibilityThreshold,
         ),
     targetOffset: (fullSize: IntSize) -> IntOffset,
 ): ExitTransition {
@@ -429,7 +429,7 @@ public fun scaleIn(
 public fun scaleOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetScale: Float = 0f,
-    transformOrigin: TransformOrigin = TransformOrigin.Center
+    transformOrigin: TransformOrigin = TransformOrigin.Center,
 ): ExitTransition {
     return ExitTransitionImpl(
         TransitionData(scale = Scale(targetScale, transformOrigin, animationSpec))
@@ -466,7 +466,7 @@ public fun expandIn(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     expandFrom: Alignment = Alignment.BottomEnd,
     clip: Boolean = true,
@@ -506,7 +506,7 @@ public fun shrinkOut(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     shrinkTowards: Alignment = Alignment.BottomEnd,
     clip: Boolean = true,
@@ -544,7 +544,7 @@ public fun expandHorizontally(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     expandFrom: Alignment.Horizontal = Alignment.End,
     clip: Boolean = true,
@@ -582,7 +582,7 @@ public fun expandVertically(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     expandFrom: Alignment.Vertical = Alignment.Bottom,
     clip: Boolean = true,
@@ -620,11 +620,11 @@ public fun shrinkHorizontally(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     shrinkTowards: Alignment.Horizontal = Alignment.End,
     clip: Boolean = true,
-    targetWidth: (fullWidth: Int) -> Int = { 0 }
+    targetWidth: (fullWidth: Int) -> Int = { 0 },
 ): ExitTransition {
     // TODO: Support different animation types
     return shrinkOut(animationSpec, shrinkTowards.toAlignment(), clip) {
@@ -659,7 +659,7 @@ public fun shrinkVertically(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntSize.VisibilityThreshold
+            visibilityThreshold = IntSize.VisibilityThreshold,
         ),
     shrinkTowards: Alignment.Vertical = Alignment.Bottom,
     clip: Boolean = true,
@@ -692,13 +692,13 @@ public fun slideInHorizontally(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+            visibilityThreshold = IntOffset.VisibilityThreshold,
         ),
     initialOffsetX: (fullWidth: Int) -> Int = { -it / 2 },
 ): EnterTransition =
     slideIn(
         initialOffset = { IntOffset(initialOffsetX(it.width), 0) },
-        animationSpec = animationSpec
+        animationSpec = animationSpec,
     )
 
 /**
@@ -722,13 +722,13 @@ public fun slideInVertically(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+            visibilityThreshold = IntOffset.VisibilityThreshold,
         ),
     initialOffsetY: (fullHeight: Int) -> Int = { -it / 2 },
 ): EnterTransition =
     slideIn(
         initialOffset = { IntOffset(0, initialOffsetY(it.height)) },
-        animationSpec = animationSpec
+        animationSpec = animationSpec,
     )
 
 /**
@@ -752,13 +752,13 @@ public fun slideOutHorizontally(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+            visibilityThreshold = IntOffset.VisibilityThreshold,
         ),
     targetOffsetX: (fullWidth: Int) -> Int = { -it / 2 },
 ): ExitTransition =
     slideOut(
         targetOffset = { IntOffset(targetOffsetX(it.width), 0) },
-        animationSpec = animationSpec
+        animationSpec = animationSpec,
     )
 
 /**
@@ -780,13 +780,13 @@ public fun slideOutVertically(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = IntOffset.VisibilityThreshold
+            visibilityThreshold = IntOffset.VisibilityThreshold,
         ),
     targetOffsetY: (fullHeight: Int) -> Int = { -it / 2 },
 ): ExitTransition =
     slideOut(
         targetOffset = { IntOffset(0, targetOffsetY(it.height)) },
-        animationSpec = animationSpec
+        animationSpec = animationSpec,
     )
 
 /** ********************* Below are internal classes and methods ***************** */
@@ -796,7 +796,7 @@ internal data class Fade(val alpha: Float, val animationSpec: FiniteAnimationSpe
 @Immutable
 internal data class Slide(
     val slideOffset: (fullSize: IntSize) -> IntOffset,
-    val animationSpec: FiniteAnimationSpec<IntOffset>
+    val animationSpec: FiniteAnimationSpec<IntOffset>,
 )
 
 @Immutable
@@ -804,14 +804,14 @@ internal data class ChangeSize(
     val alignment: Alignment,
     val size: (fullSize: IntSize) -> IntSize = { IntSize(0, 0) },
     val animationSpec: FiniteAnimationSpec<IntSize>,
-    val clip: Boolean = true
+    val clip: Boolean = true,
 )
 
 @Immutable
 internal data class Scale(
     val scale: Float,
     val transformOrigin: TransformOrigin,
-    val animationSpec: FiniteAnimationSpec<Float>
+    val animationSpec: FiniteAnimationSpec<Float>,
 )
 
 @Immutable private class EnterTransitionImpl(override val data: TransitionData) : EnterTransition()
@@ -839,7 +839,7 @@ internal data class TransitionData(
     val changeSize: ChangeSize? = null,
     val scale: Scale? = null,
     val hold: Boolean = false,
-    val effectsMap: Map<TransitionEffectKey<*>, TransitionEffect> = emptyMap()
+    val effectsMap: Map<TransitionEffectKey<*>, TransitionEffect> = emptyMap(),
 )
 
 @Suppress("UNCHECKED_CAST")
@@ -857,7 +857,7 @@ internal fun Transition<EnterExitState>.createModifier(
     enter: EnterTransition,
     exit: ExitTransition,
     isEnabled: () -> Boolean = { true },
-    label: String
+    label: String,
 ): Modifier {
     val activeEnter = trackActiveEnter(enter = enter)
     val activeExit = trackActiveExit(exit = exit)
@@ -881,7 +881,7 @@ internal fun Transition<EnterExitState>.createModifier(
         if (shouldAnimateSizeChange) {
             createDeferredAnimation(
                 IntOffset.VectorConverter,
-                remember { "$label InterruptionHandlingOffset" }
+                remember { "$label InterruptionHandlingOffset" },
             )
         } else null
 
@@ -900,7 +900,7 @@ internal fun Transition<EnterExitState>.createModifier(
                 activeEnter,
                 activeExit,
                 isEnabled,
-                graphicsLayerBlock
+                graphicsLayerBlock,
             )
         )
 }
@@ -953,7 +953,7 @@ internal fun interface GraphicsLayerBlockForEnterExit {
 private fun Transition<EnterExitState>.createGraphicsLayerBlock(
     enter: EnterTransition,
     exit: ExitTransition,
-    label: String
+    label: String,
 ): GraphicsLayerBlockForEnterExit {
 
     val shouldAnimateAlpha = enter.data.fade != null || exit.data.fade != null
@@ -966,7 +966,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
         if (shouldAnimateAlpha) {
             createDeferredAnimation(
                 typeConverter = Float.VectorConverter,
-                label = remember { "$label alpha" }
+                label = remember { "$label alpha" },
             )
         } else null
 
@@ -974,7 +974,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
         if (shouldAnimateScale) {
             createDeferredAnimation(
                 typeConverter = Float.VectorConverter,
-                label = remember { "$label scale" }
+                label = remember { "$label scale" },
             )
         } else null
 
@@ -982,7 +982,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
         if (shouldAnimateScale) {
             createDeferredAnimation(
                 TransformOriginVectorConverter,
-                label = "TransformOriginInterruptionHandling"
+                label = "TransformOriginInterruptionHandling",
             )
         } else null
 
@@ -997,7 +997,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
                             exit.data.fade?.animationSpec ?: DefaultAlphaAndScaleSpring
                         else -> DefaultAlphaAndScaleSpring
                     }
-                },
+                }
             ) {
                 when (it) {
                     EnterExitState.Visible -> 1f
@@ -1056,7 +1056,7 @@ private fun Transition<EnterExitState>.createGraphicsLayerBlock(
 private val TransformOriginVectorConverter =
     TwoWayConverter<TransformOrigin, AnimationVector2D>(
         convertToVector = { AnimationVector2D(it.pivotFractionX, it.pivotFractionY) },
-        convertFromVector = { TransformOrigin(it.v1, it.v2) }
+        convertFromVector = { TransformOrigin(it.v1, it.v2) },
     )
 
 private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.StiffnessMediumLow)
@@ -1064,7 +1064,7 @@ private val DefaultAlphaAndScaleSpring = spring<Float>(stiffness = Spring.Stiffn
 private val DefaultOffsetAnimationSpec =
     spring(
         stiffness = Spring.StiffnessMediumLow,
-        visibilityThreshold = IntOffset.VisibilityThreshold
+        visibilityThreshold = IntOffset.VisibilityThreshold,
     )
 
 private class EnterExitTransitionModifierNode(
@@ -1076,7 +1076,7 @@ private class EnterExitTransitionModifierNode(
     var enter: EnterTransition,
     var exit: ExitTransition,
     var isEnabled: () -> Boolean,
-    var graphicsLayerBlock: GraphicsLayerBlockForEnterExit
+    var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
 ) : LayoutModifierNodeWithPassThroughIntrinsics() {
 
     private var lookaheadConstraintsAvailable = false
@@ -1149,7 +1149,7 @@ private class EnterExitTransitionModifierNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         if (transition.currentState == transition.targetState) {
             currentAlignment = null
@@ -1191,7 +1191,7 @@ private class EnterExitTransitionModifierNode(
                     offset.x + offsetDelta.x,
                     offset.y + offsetDelta.y,
                     0f,
-                    layerBlock
+                    layerBlock,
                 )
             }
         } else {
@@ -1235,7 +1235,7 @@ private data class EnterExitTransitionElement(
     var enter: EnterTransition,
     var exit: ExitTransition,
     var isEnabled: () -> Boolean,
-    var graphicsLayerBlock: GraphicsLayerBlockForEnterExit
+    var graphicsLayerBlock: GraphicsLayerBlockForEnterExit,
 ) : ModifierNodeElement<EnterExitTransitionModifierNode>() {
     override fun create(): EnterExitTransitionModifierNode =
         EnterExitTransitionModifierNode(
@@ -1246,7 +1246,7 @@ private data class EnterExitTransitionElement(
             enter,
             exit,
             isEnabled,
-            graphicsLayerBlock
+            graphicsLayerBlock,
         )
 
     override fun update(node: EnterExitTransitionModifierNode) {

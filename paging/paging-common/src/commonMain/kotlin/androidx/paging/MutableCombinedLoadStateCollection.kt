@@ -110,28 +110,28 @@ internal class MutableCombinedLoadStateCollection {
     private fun computeNewState(
         previousState: CombinedLoadStates?,
         newSource: LoadStates,
-        newRemote: LoadStates?
+        newRemote: LoadStates?,
     ): CombinedLoadStates {
         val refresh =
             computeHelperState(
                 previousState = previousState?.refresh ?: NotLoading.Incomplete,
                 sourceRefreshState = newSource.refresh,
                 sourceState = newSource.refresh,
-                remoteState = newRemote?.refresh
+                remoteState = newRemote?.refresh,
             )
         val prepend =
             computeHelperState(
                 previousState = previousState?.prepend ?: NotLoading.Incomplete,
                 sourceRefreshState = newSource.refresh,
                 sourceState = newSource.prepend,
-                remoteState = newRemote?.prepend
+                remoteState = newRemote?.prepend,
             )
         val append =
             computeHelperState(
                 previousState = previousState?.append ?: NotLoading.Incomplete,
                 sourceRefreshState = newSource.refresh,
                 sourceState = newSource.append,
-                remoteState = newRemote?.append
+                remoteState = newRemote?.append,
             )
 
         return CombinedLoadStates(
@@ -154,7 +154,7 @@ internal class MutableCombinedLoadStateCollection {
         previousState: LoadState,
         sourceRefreshState: LoadState,
         sourceState: LoadState,
-        remoteState: LoadState?
+        remoteState: LoadState?,
     ): LoadState {
         if (remoteState == null) return sourceState
 

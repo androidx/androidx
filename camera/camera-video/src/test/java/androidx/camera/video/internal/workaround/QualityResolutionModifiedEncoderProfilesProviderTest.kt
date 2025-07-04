@@ -49,7 +49,7 @@ class QualityResolutionModifiedEncoderProfilesProviderTest {
                 QUALITY_2160P to PROFILES_2160P,
                 QUALITY_1080P to PROFILES_1080P,
                 QUALITY_720P to PROFILES_720P,
-                QUALITY_480P to PROFILES_480P
+                QUALITY_480P to PROFILES_480P,
             )
         )
 
@@ -105,9 +105,8 @@ class QualityResolutionModifiedEncoderProfilesProviderTest {
         return Quirks(listOf(FakeQuirk(resolutionMap)))
     }
 
-    class FakeQuirk(
-        private val resolutionMap: Map<Int, Size> = emptyMap(),
-    ) : StretchedVideoResolutionQuirk() {
+    class FakeQuirk(private val resolutionMap: Map<Int, Size> = emptyMap()) :
+        StretchedVideoResolutionQuirk() {
 
         override fun getAlternativeResolution(quality: Int): Size? {
             return resolutionMap[quality]

@@ -29,13 +29,15 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.ExperimentalSubspaceVolumeApi
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.subspace.Volume
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setSubspaceContent
 import androidx.xr.scenecore.MovableComponent
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -52,8 +54,12 @@ class MovableModifierTest {
 
     @Test
     fun movable_noComponentByDefault() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(SubspaceModifier.testTag("panel")) { Text(text = "Panel") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("panel")) { Text(text = "Panel") }
+                }
+            }
         }
         assertTrue(
             composeTestRule
@@ -66,85 +72,104 @@ class MovableModifierTest {
 
     @Test
     fun movable_componentIsNotNullAndOnlyContainsSingleMovable() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(SubspaceModifier.testTag("panel").movable()) { Text(text = "Panel") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("panel").movable()) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
         }
         assertSingleMovableComponentExist()
     }
 
     @Test
     fun movable_modifierIsDisabledAndComponentDoesNotExist() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(SubspaceModifier.testTag("panel").movable(false)) { Text(text = "Panel") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("panel").movable(false)) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
         }
-
         assertMovableComponentDoesNotExist()
     }
 
     @Test
     fun movable_modifierDoesNotChangeAndOnlyOneComponentExist() {
-        composeTestRule.setSubspaceContent {
-            var panelWidth by remember { mutableStateOf(50.dp) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel").width(panelWidth).movable(enabled = true)
-            ) {
-                Button(modifier = Modifier.testTag("button"), onClick = { panelWidth += 50.dp }) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var panelWidth by remember { mutableStateOf(50.dp) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel").width(panelWidth).movable(enabled = true)
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = { panelWidth += 50.dp },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose there should still only exist one Component.
         assertSingleMovableComponentExist()
     }
 
     @Test
     fun movable_modifierEnabledToDisabledAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var movableEnabled by remember { mutableStateOf(true) }
-            SpatialPanel(SubspaceModifier.testTag("panel").movable(enabled = movableEnabled)) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = { movableEnabled = !movableEnabled },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var movableEnabled by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel").movable(enabled = movableEnabled)
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = { movableEnabled = !movableEnabled },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose no Components should exist.
         assertMovableComponentDoesNotExist()
     }
 
     @Test
     fun movable_modifierOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var onPoseReturnValue by remember { mutableStateOf(true) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .movable(enabled = true, onPoseChange = { onPoseReturnValue })
-            ) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = { onPoseReturnValue = !onPoseReturnValue },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var onPoseReturnValue by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .movable(enabled = true, onMove = { onPoseReturnValue })
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = { onPoseReturnValue = !onPoseReturnValue },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose there should only exist one Component, not necessarily the same as
         // before.
         assertSingleMovableComponentExist()
@@ -152,116 +177,118 @@ class MovableModifierTest {
 
     @Test
     fun movable_modifierDisableWithOnPoseChangeUpdateAndComponentRemoved() {
-        composeTestRule.setSubspaceContent {
-            var movableEnabled by remember { mutableStateOf(true) }
-            var onPoseReturnValue by remember { mutableStateOf(true) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .movable(enabled = movableEnabled, onPoseChange = { onPoseReturnValue })
-            ) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = {
-                        movableEnabled = !movableEnabled
-                        onPoseReturnValue = !onPoseReturnValue
-                    },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var movableEnabled by remember { mutableStateOf(true) }
+                    var onPoseReturnValue by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .movable(enabled = movableEnabled, onMove = { onPoseReturnValue })
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = {
+                                movableEnabled = !movableEnabled
+                                onPoseReturnValue = !onPoseReturnValue
+                            },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose Component should be removed.
         assertMovableComponentDoesNotExist()
     }
 
     @Test
     fun movable_modifierEnabledWithOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var movableEnabled by remember { mutableStateOf(false) }
-            var onPoseReturnValue by remember { mutableStateOf(true) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .movable(enabled = movableEnabled, onPoseChange = { onPoseReturnValue })
-            ) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = {
-                        movableEnabled = !movableEnabled
-                        onPoseReturnValue = !onPoseReturnValue
-                    },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var movableEnabled by remember { mutableStateOf(false) }
+                    var onPoseReturnValue by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .movable(enabled = movableEnabled, onMove = { onPoseReturnValue })
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = {
+                                movableEnabled = !movableEnabled
+                                onPoseReturnValue = !onPoseReturnValue
+                            },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertMovableComponentDoesNotExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose Component should exist and be attached.
         assertSingleMovableComponentExist()
     }
 
     @Test
     fun movable_modifierDisabledThenEnabledAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var movableEnabled by remember { mutableStateOf(true) }
-            SpatialPanel(SubspaceModifier.testTag("panel").movable(enabled = movableEnabled)) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = { movableEnabled = !movableEnabled },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var movableEnabled by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel").movable(enabled = movableEnabled)
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = { movableEnabled = !movableEnabled },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After disabled, recompose Component should not exist.
         assertMovableComponentDoesNotExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After enabled, recompose Component should be attached.
         assertSingleMovableComponentExist()
     }
 
     @Test
     fun movable_modifierOnPoseChangeTwiceUpdateAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var onPoseReturnValue by remember { mutableStateOf(true) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .movable(enabled = true, onPoseChange = { onPoseReturnValue })
-            ) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = { onPoseReturnValue = !onPoseReturnValue },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var onPoseReturnValue by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .movable(enabled = true, onMove = { onPoseReturnValue })
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = { onPoseReturnValue = !onPoseReturnValue },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose there should only exist one Component, not necessarily the same as
         // before.
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After recompose there should only exist one Component, not necessarily the same as
         // before.
         assertSingleMovableComponentExist()
@@ -269,34 +296,33 @@ class MovableModifierTest {
 
     @Test
     fun movable_modifierDisabledThenEnabledWithOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var movableEnabled by remember { mutableStateOf(true) }
-            var onPoseReturnValue by remember { mutableStateOf(true) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .movable(enabled = movableEnabled, onPoseChange = { onPoseReturnValue })
-            ) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = {
-                        movableEnabled = !movableEnabled
-                        onPoseReturnValue = !onPoseReturnValue
-                    },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var movableEnabled by remember { mutableStateOf(true) }
+                    var onPoseReturnValue by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .movable(enabled = movableEnabled, onMove = { onPoseReturnValue })
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = {
+                                movableEnabled = !movableEnabled
+                                onPoseReturnValue = !onPoseReturnValue
+                            },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After disabled, recompose removes Component.
         assertMovableComponentDoesNotExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After enabled, recompose Component should be attached. There should only exist one
         // Component,
         // not necessarily the same as before.
@@ -305,45 +331,48 @@ class MovableModifierTest {
 
     @Test
     fun movable_modifierEnabledThenDisabledWithOnPoseChangeUpdateAndComponentUpdates() {
-        composeTestRule.setSubspaceContent {
-            var movableEnabled by remember { mutableStateOf(false) }
-            var onPoseReturnValue by remember { mutableStateOf(true) }
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .movable(enabled = movableEnabled, onPoseChange = { onPoseReturnValue })
-            ) {
-                Button(
-                    modifier = Modifier.testTag("button"),
-                    onClick = {
-                        movableEnabled = !movableEnabled
-                        onPoseReturnValue = !onPoseReturnValue
-                    },
-                ) {
-                    Text(text = "Sample button for testing")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    var movableEnabled by remember { mutableStateOf(false) }
+                    var onPoseReturnValue by remember { mutableStateOf(true) }
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .movable(enabled = movableEnabled, onMove = { onPoseReturnValue })
+                    ) {
+                        Button(
+                            modifier = Modifier.testTag("button"),
+                            onClick = {
+                                movableEnabled = !movableEnabled
+                                onPoseReturnValue = !onPoseReturnValue
+                            },
+                        ) {
+                            Text(text = "Sample button for testing")
+                        }
+                    }
                 }
             }
         }
-
         assertMovableComponentDoesNotExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After enabled, recompose Component should be attached. There should only exist one
         // Component,
         // not necessarily the same as before.
         assertSingleMovableComponentExist()
-
         composeTestRule.onNodeWithTag("button").performClick()
-
         // After disabled, recompose removes Component.
         assertMovableComponentDoesNotExist()
     }
 
     @Test
     fun movable_columnEntity_noComponentByDefault() {
-        composeTestRule.setSubspaceContent {
-            SpatialColumn(SubspaceModifier.testTag("column")) {
-                SpatialPanel { Text(text = "Column") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialColumn(SubspaceModifier.testTag("column")) {
+                        SpatialPanel { Text(text = "Column") }
+                    }
+                }
             }
         }
         assertTrue(
@@ -357,9 +386,13 @@ class MovableModifierTest {
 
     @Test
     fun movable_columnEntity_noComponentWhenMovableIsEnabled() {
-        composeTestRule.setSubspaceContent {
-            SpatialColumn(SubspaceModifier.testTag("column").movable()) {
-                SpatialPanel { Text(text = "Column") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialColumn(SubspaceModifier.testTag("column").movable()) {
+                        SpatialPanel { Text(text = "Column") }
+                    }
+                }
             }
         }
         assertMovableComponentDoesNotExist("column")
@@ -367,9 +400,13 @@ class MovableModifierTest {
 
     @Test
     fun movable_columnEntity_noComponentWhenMovableIsDisabled() {
-        composeTestRule.setSubspaceContent {
-            SpatialColumn(SubspaceModifier.testTag("column").movable(false)) {
-                SpatialPanel { Text(text = "Column") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialColumn(SubspaceModifier.testTag("column").movable(false)) {
+                        SpatialPanel { Text(text = "Column") }
+                    }
+                }
             }
         }
         assertMovableComponentDoesNotExist("column")
@@ -377,8 +414,14 @@ class MovableModifierTest {
 
     @Test
     fun movable_rowEntity_noComponentByDefault() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.testTag("row")) { SpatialPanel { Text(text = "Row") } }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.testTag("row")) {
+                        SpatialPanel { Text(text = "Row") }
+                    }
+                }
+            }
         }
         assertTrue(
             composeTestRule
@@ -391,9 +434,13 @@ class MovableModifierTest {
 
     @Test
     fun movable_rowEntity_noComponentWhenMovableIsEnabled() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.testTag("row").movable()) {
-                SpatialPanel { Text(text = "Row") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.testTag("row").movable()) {
+                        SpatialPanel { Text(text = "Row") }
+                    }
+                }
             }
         }
         assertMovableComponentDoesNotExist("row")
@@ -401,17 +448,24 @@ class MovableModifierTest {
 
     @Test
     fun movable_rowEntity_noComponentWhenMovableIsDisabled() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.testTag("row").movable(false)) {
-                SpatialPanel { Text(text = "Row") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.testTag("row").movable(false)) {
+                        SpatialPanel { Text(text = "Row") }
+                    }
+                }
             }
         }
         assertMovableComponentDoesNotExist("row")
     }
 
+    @OptIn(ExperimentalSubspaceVolumeApi::class)
     @Test
     fun movable_volumeEntity_noComponentByDefault() {
-        composeTestRule.setSubspaceContent { Volume(SubspaceModifier.testTag("volume")) {} }
+        composeTestRule.setContent {
+            TestSetup { Subspace { Volume(SubspaceModifier.testTag("volume")) {} } }
+        }
         assertTrue(
             composeTestRule
                 .onSubspaceNodeWithTag("volume")
@@ -421,18 +475,20 @@ class MovableModifierTest {
         )
     }
 
+    @OptIn(ExperimentalSubspaceVolumeApi::class)
     @Test
     fun movable_volumeEntity_noComponentWhenMovableIsEnabled() {
-        composeTestRule.setSubspaceContent {
-            Volume(SubspaceModifier.testTag("volume").movable()) {}
+        composeTestRule.setContent {
+            TestSetup { Subspace { Volume(SubspaceModifier.testTag("volume").movable()) {} } }
         }
         assertMovableComponentDoesNotExist("volume")
     }
 
+    @OptIn(ExperimentalSubspaceVolumeApi::class)
     @Test
     fun movable_volumeEntity_noComponentWhenMovableIsDisabled() {
-        composeTestRule.setSubspaceContent {
-            Volume(SubspaceModifier.testTag("volume").movable(false)) {}
+        composeTestRule.setContent {
+            TestSetup { Subspace { Volume(SubspaceModifier.testTag("volume").movable(false)) {} } }
         }
         assertMovableComponentDoesNotExist("volume")
     }

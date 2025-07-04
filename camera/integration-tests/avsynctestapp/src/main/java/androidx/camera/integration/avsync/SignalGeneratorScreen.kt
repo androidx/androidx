@@ -50,7 +50,7 @@ fun SignalGeneratorScreen(
     beepFrequency: Int,
     beepEnabled: Boolean,
     cameraImplementation: CameraImplementation,
-    viewModel: SignalGeneratorViewModel = viewModel()
+    viewModel: SignalGeneratorViewModel = viewModel(),
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -141,7 +141,7 @@ private fun SignalControl(
         AdvancedFloatingActionButton(
             enabled = enabled,
             onClick = if (isStarted) onStopClick else onStartClick,
-            backgroundColor = Color.Cyan
+            backgroundColor = Color.Cyan,
         ) {
             Icon(icon, stringResource(R.string.desc_signal_control))
         }
@@ -163,36 +163,30 @@ private fun RecordingControl(
     val pauseResumeIconRes = if (isPaused) R.drawable.ic_record else R.drawable.ic_pause
 
     Row(modifier = modifier.fillMaxSize()) {
-        Box(
-            modifier = modifier.weight(1f).fillMaxHeight(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
             AdvancedFloatingActionButton(
                 enabled = enabled,
                 onClick = if (isStarted) onStopClick else onStartClick,
-                backgroundColor = Color.Cyan
+                backgroundColor = Color.Cyan,
             ) {
                 Icon(
                     painterResource(startStopIconRes),
                     stringResource(R.string.desc_recording_control),
-                    modifier.size(16.dp)
+                    modifier.size(16.dp),
                 )
             }
         }
-        Box(
-            modifier = modifier.weight(1f).fillMaxHeight(),
-            contentAlignment = Alignment.Center,
-        ) {
+        Box(modifier = modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
             if (enabled && isStarted) {
                 AdvancedFloatingActionButton(
                     enabled = true,
                     onClick = if (isPaused) onResumeClick else onPauseClick,
-                    backgroundColor = Color.Cyan
+                    backgroundColor = Color.Cyan,
                 ) {
                     Icon(
                         painterResource(pauseResumeIconRes),
                         stringResource(R.string.desc_pause_control),
-                        modifier.size(16.dp)
+                        modifier.size(16.dp),
                     )
                 }
             }

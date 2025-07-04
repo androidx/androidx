@@ -37,7 +37,7 @@ internal object BatteryDischargeQuery {
 
     fun getBatteryDischargeMetrics(
         session: TraceProcessor.Session,
-        slice: Slice
+        slice: Slice,
     ): List<BatteryDischargeMeasurement> {
         val queryResult = session.query(query = getFullQuery(slice)).toList()
 
@@ -51,12 +51,9 @@ internal object BatteryDischargeQuery {
 
         val row = queryResult.single()
         return listOf(
-            BatteryDischargeMeasurement(
-                name = "Start",
-                chargeMah = row["startMah"] as Double,
-            ),
+            BatteryDischargeMeasurement(name = "Start", chargeMah = row["startMah"] as Double),
             BatteryDischargeMeasurement(name = "End", chargeMah = row["endMah"] as Double),
-            BatteryDischargeMeasurement(name = "Diff", chargeMah = row["diffMah"] as Double)
+            BatteryDischargeMeasurement(name = "Diff", chargeMah = row["diffMah"] as Double),
         )
     }
 }

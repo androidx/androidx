@@ -23,11 +23,11 @@ import androidx.room.vo.Warning
 object SuppressWarningProcessor {
 
     fun getSuppressedWarnings(element: XElement): Set<Warning> = buildSet {
-        element.getAnnotation(SuppressWarnings::class)?.value?.let {
-            addAll(it.value.mapNotNull(Warning.Companion::fromPublicKey))
+        element.getAnnotation(SuppressWarnings::class)?.let {
+            addAll(it.getAsStringList("value").mapNotNull(Warning.Companion::fromPublicKey))
         }
-        element.getAnnotation(Suppress::class)?.value?.let {
-            addAll(it.names.mapNotNull(Warning.Companion::fromPublicKey))
+        element.getAnnotation(Suppress::class)?.let {
+            addAll(it.getAsStringList("names").mapNotNull(Warning.Companion::fromPublicKey))
         }
     }
 }

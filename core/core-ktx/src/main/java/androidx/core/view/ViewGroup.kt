@@ -143,7 +143,7 @@ public val ViewGroup.descendants: Sequence<View>
  */
 internal class TreeIterator<T>(
     rootIterator: Iterator<T>,
-    private val getChildIterator: ((T) -> Iterator<T>?)
+    private val getChildIterator: ((T) -> Iterator<T>?),
 ) : Iterator<T> {
     private val stack = mutableListOf<Iterator<T>>()
 
@@ -200,7 +200,7 @@ public inline fun ViewGroup.MarginLayoutParams.updateMargins(
     @Px left: Int = leftMargin,
     @Px top: Int = topMargin,
     @Px right: Int = rightMargin,
-    @Px bottom: Int = bottomMargin
+    @Px bottom: Int = bottomMargin,
 ) {
     setMargins(left, top, right, bottom)
 }
@@ -220,7 +220,7 @@ public inline fun ViewGroup.MarginLayoutParams.updateMarginsRelative(
     @Px start: Int = marginStart,
     @Px top: Int = topMargin,
     @Px end: Int = marginEnd,
-    @Px bottom: Int = bottomMargin
+    @Px bottom: Int = bottomMargin,
 ) {
     marginStart = start
     topMargin = top

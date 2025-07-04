@@ -97,7 +97,7 @@ class SurfaceProcessorImplDeviceTest {
                 Surface.ROTATION_90,
                 true,
                 TRANSFORM,
-                true
+                true,
             )
         surfaceRequest = SurfaceRequest(size, FakeCamera()) {}
         surfaceRequest.updateTransformationInfo(transformationInfo)
@@ -389,7 +389,7 @@ class SurfaceProcessorImplDeviceTest {
 
         override fun getSurface(
             executor: Executor,
-            listener: Consumer<SurfaceOutput.Event>
+            listener: Consumer<SurfaceOutput.Event>,
         ): Surface {
             return surface
         }

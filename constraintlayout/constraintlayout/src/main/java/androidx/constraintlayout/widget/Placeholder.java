@@ -26,8 +26,9 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * <b>Added in 1.1</b>

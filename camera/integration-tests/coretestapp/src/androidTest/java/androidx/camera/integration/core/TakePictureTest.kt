@@ -64,14 +64,12 @@ class TakePictureTest(private val implName: String, private val cameraConfig: St
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private val launchIntent =
         Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
@@ -86,12 +84,12 @@ class TakePictureTest(private val implName: String, private val cameraConfig: St
             listOf(
                 arrayOf(
                     Camera2Config::class.simpleName,
-                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION
+                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION,
                 ),
                 arrayOf(
                     CameraPipeConfig::class.simpleName,
-                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION
-                )
+                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+                ),
             )
     }
 

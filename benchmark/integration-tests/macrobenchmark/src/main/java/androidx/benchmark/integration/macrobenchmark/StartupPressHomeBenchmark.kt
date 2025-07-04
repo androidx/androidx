@@ -62,7 +62,7 @@ class StartupPressHomeBenchmark(
                 if (!pressHomeInMeasure) {
                     pressHome()
                 }
-            }
+            },
         ) {
             if (pressHomeInMeasure) {
                 pressHome()

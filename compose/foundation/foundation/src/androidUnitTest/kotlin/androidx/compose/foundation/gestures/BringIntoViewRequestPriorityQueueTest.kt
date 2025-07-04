@@ -45,22 +45,22 @@ class BringIntoViewRequestPriorityQueueTest {
     private val largeRequest =
         Request(
             currentBounds = { Rect(Offset.Zero, Size(10f, 10f)) },
-            continuation = createContinuation()
+            continuation = createContinuation(),
         )
     private val mediumRequest =
         Request(
             currentBounds = { Rect(Offset.Zero, Size(5f, 5f)) },
-            continuation = createContinuation()
+            continuation = createContinuation(),
         )
     private val otherMediumRequest =
         Request(
             currentBounds = { Rect(Offset(5f, 5f), Size(5f, 5f)) },
-            continuation = createContinuation()
+            continuation = createContinuation(),
         )
     private val smallRequest =
         Request(
             currentBounds = { Rect(Offset.Zero, Size(1f, 1f)) },
-            continuation = createContinuation()
+            continuation = createContinuation(),
         )
 
     @After
@@ -80,7 +80,7 @@ class BringIntoViewRequestPriorityQueueTest {
         val request =
             Request(
                 currentBounds = { Rect.Zero },
-                continuation = createContinuation(CoroutineName("sam"))
+                continuation = createContinuation(CoroutineName("sam")),
             )
 
         assertThat(request.toString()).contains("[sam]")

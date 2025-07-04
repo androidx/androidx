@@ -34,7 +34,7 @@ class AndroidTextViewTestCase(private val texts: List<String>) : AndroidTestCase
         column.layoutParams =
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT,
             )
         for (text in texts) {
             val textView = TextView(activity)
@@ -42,14 +42,14 @@ class AndroidTextViewTestCase(private val texts: List<String>) : AndroidTestCase
             textView.layoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
                 )
 
             textView.width =
                 TypedValue.applyDimension(
                         TypedValue.COMPLEX_UNIT_DIP,
                         160f,
-                        activity.resources.displayMetrics
+                        activity.resources.displayMetrics,
                     )
                     .roundToInt()
 

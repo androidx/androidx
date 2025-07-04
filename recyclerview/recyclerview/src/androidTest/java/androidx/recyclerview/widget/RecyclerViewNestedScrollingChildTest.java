@@ -36,8 +36,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
@@ -49,6 +47,8 @@ import androidx.testutils.FlingData;
 import androidx.testutils.MotionEventData;
 import androidx.testutils.SimpleGestureGeneratorKt;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -478,8 +478,8 @@ public class RecyclerViewNestedScrollingChildTest {
         }
 
         @Override
-        public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
-                int type) {
+        public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+                int @NonNull [] consumed, int type) {
             onNestedPreScrollConsumedX = consumed[0];
             onNestedPreScrollConsumedY = consumed[1];
         }
@@ -501,25 +501,25 @@ public class RecyclerViewNestedScrollingChildTest {
 
         @Override
         public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, @Nullable int[] offsetInWindow, int type) {
+                int dyUnconsumed, int @Nullable [] offsetInWindow, int type) {
             return false;
         }
 
         @Override
-        public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed,
-                @Nullable int[] offsetInWindow, int type) {
+        public boolean dispatchNestedPreScroll(int dx, int dy, int @Nullable [] consumed,
+                int @Nullable [] offsetInWindow, int type) {
             return false;
         }
 
         @Override
         public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed, int type, @NonNull int[] consumed) {
+                int dxUnconsumed, int dyUnconsumed, int type, int @NonNull [] consumed) {
         }
 
         @Override
         public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
-                @NonNull int[] consumed) {
+                int dyUnconsumed, int @Nullable [] offsetInWindow, int type,
+                int @NonNull [] consumed) {
         }
 
         @Override
@@ -592,7 +592,7 @@ public class RecyclerViewNestedScrollingChildTest {
 
         @Override
         public void onNestedPreScroll(
-                @NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+                @NonNull View target, int dx, int dy, int @NonNull [] consumed) {
 
         }
 
@@ -627,9 +627,8 @@ public class RecyclerViewNestedScrollingChildTest {
             mVertical = vertical;
         }
 
-        @NonNull
         @Override
-        public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public @NonNull TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = new View(mContext);
 
             int width;

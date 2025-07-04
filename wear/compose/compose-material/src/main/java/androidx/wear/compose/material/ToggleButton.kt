@@ -74,7 +74,7 @@ import androidx.compose.ui.unit.dp
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
         "A newer overload is available with an additional shape parameter.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun ToggleButton(
@@ -95,7 +95,7 @@ public fun ToggleButton(
         interactionSource,
         CircleShape,
         ToggleButtonDefaults.DefaultRole,
-        content
+        content,
     )
 
 /**
@@ -139,7 +139,7 @@ public fun ToggleButton(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available with an additional semantic role parameter.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun ToggleButton(
@@ -161,7 +161,7 @@ public fun ToggleButton(
         interactionSource,
         shape,
         ToggleButtonDefaults.DefaultRole,
-        content
+        content,
     )
 
 /**
@@ -232,8 +232,8 @@ public fun ToggleButton(
             provideScopeContent(
                 colors.contentColor(enabled = enabled, checked = checked),
                 MaterialTheme.typography.button,
-                content
-            )
+                content,
+            ),
     )
 }
 

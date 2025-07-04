@@ -132,7 +132,7 @@ class AndroidViewCompatTest {
                             it.size = squareSize.value
                             it.ref = squareRef
                         }
-                    }
+                    },
                 ) { measurables, constraints ->
                     assertEquals(1, measurables.size)
                     val placeable = measurables.first().measure(constraints.copyMaxDimensions())
@@ -242,7 +242,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
             Constraints.fixed(20, 30),
-            ViewGroup.LayoutParams(40, 50)
+            ViewGroup.LayoutParams(40, 50),
         )
     }
 
@@ -252,7 +252,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
             Constraints.fixed(20, 30),
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT),
         )
     }
 
@@ -262,7 +262,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
             Constraints.fixed(20, 30),
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT),
         )
     }
 
@@ -274,7 +274,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
             Constraints(minWidth = 20, maxWidth = 30, minHeight = 35, maxHeight = 45),
-            ViewGroup.LayoutParams(25, 35)
+            ViewGroup.LayoutParams(25, 35),
         )
     }
 
@@ -284,7 +284,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(20, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
             Constraints(minWidth = 20, maxWidth = 30, minHeight = 35, maxHeight = 45),
-            ViewGroup.LayoutParams(15, 25)
+            ViewGroup.LayoutParams(15, 25),
         )
     }
 
@@ -294,7 +294,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(30, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(45, MeasureSpec.EXACTLY),
             Constraints(minWidth = 20, maxWidth = 30, minHeight = 35, maxHeight = 45),
-            ViewGroup.LayoutParams(35, 50)
+            ViewGroup.LayoutParams(35, 50),
         )
     }
 
@@ -304,7 +304,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(40, MeasureSpec.AT_MOST),
             MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
             Constraints(maxWidth = 40, maxHeight = 50),
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT),
         )
     }
 
@@ -314,7 +314,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(40, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(50, MeasureSpec.EXACTLY),
             Constraints(maxWidth = 40, maxHeight = 50),
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT),
         )
     }
 
@@ -326,7 +326,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(25, MeasureSpec.EXACTLY),
             MeasureSpec.makeMeasureSpec(35, MeasureSpec.EXACTLY),
             Constraints(),
-            ViewGroup.LayoutParams(25, 35)
+            ViewGroup.LayoutParams(25, 35),
         )
     }
 
@@ -336,7 +336,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
             Constraints(),
-            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            ViewGroup.LayoutParams(WRAP_CONTENT, WRAP_CONTENT),
         )
     }
 
@@ -346,7 +346,7 @@ class AndroidViewCompatTest {
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
             MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
             Constraints(),
-            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT),
         )
     }
 
@@ -354,7 +354,7 @@ class AndroidViewCompatTest {
         expectedWidthSpec: Int,
         expectedHeightSpec: Int,
         constraints: Constraints,
-        layoutParams: ViewGroup.LayoutParams
+        layoutParams: ViewGroup.LayoutParams,
     ) {
         val viewRef = Ref<MeasureSpecSaverView>()
         val widthMeasureSpecRef = Ref<Int>()
@@ -421,40 +421,40 @@ class AndroidViewCompatTest {
                 assertEquals(MeasureSpec.UNSPECIFIED, MeasureSpec.getMode(obtainedWidthMeasureSpec))
                 assertEquals(
                     MeasureSpec.makeMeasureSpec(70, MeasureSpec.AT_MOST),
-                    obtainedHeightMeasureSpec
+                    obtainedHeightMeasureSpec,
                 )
                 assertEquals(20, view.maxIntrinsicWidth(80))
                 assertEquals(MeasureSpec.UNSPECIFIED, MeasureSpec.getMode(obtainedWidthMeasureSpec))
                 assertEquals(
                     MeasureSpec.makeMeasureSpec(80, MeasureSpec.AT_MOST),
-                    obtainedHeightMeasureSpec
+                    obtainedHeightMeasureSpec,
                 )
                 assertEquals(40, view.minIntrinsicHeight(70))
                 assertEquals(
                     MeasureSpec.makeMeasureSpec(70, MeasureSpec.AT_MOST),
-                    obtainedWidthMeasureSpec
+                    obtainedWidthMeasureSpec,
                 )
                 assertEquals(
                     MeasureSpec.UNSPECIFIED,
-                    MeasureSpec.getMode(obtainedHeightMeasureSpec)
+                    MeasureSpec.getMode(obtainedHeightMeasureSpec),
                 )
                 assertEquals(40, view.minIntrinsicHeight(80))
                 assertEquals(
                     MeasureSpec.makeMeasureSpec(80, MeasureSpec.AT_MOST),
-                    obtainedWidthMeasureSpec
+                    obtainedWidthMeasureSpec,
                 )
                 assertEquals(
                     MeasureSpec.UNSPECIFIED,
-                    MeasureSpec.getMode(obtainedHeightMeasureSpec)
+                    MeasureSpec.getMode(obtainedHeightMeasureSpec),
                 )
                 view.measure(Constraints(maxWidth = 50, maxHeight = 50))
                 assertEquals(
                     MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
-                    obtainedWidthMeasureSpec
+                    obtainedWidthMeasureSpec,
                 )
                 assertEquals(
                     MeasureSpec.makeMeasureSpec(50, MeasureSpec.AT_MOST),
-                    obtainedHeightMeasureSpec
+                    obtainedHeightMeasureSpec,
                 )
                 layout(0, 0) {}
             }
@@ -583,7 +583,7 @@ class AndroidViewCompatTest {
                                 update = {
                                     init { node = this }
                                     set(noOpMeasurePolicy, ComposeUiNode.SetMeasurePolicy)
-                                }
+                                },
                             )
                         }
                     }
@@ -594,7 +594,7 @@ class AndroidViewCompatTest {
         Espresso.onView(
                 allOf(
                     withClassName(endsWith("AndroidComposeView")),
-                    not(isDescendantOfA(withClassName(endsWith("AndroidComposeView"))))
+                    not(isDescendantOfA(withClassName(endsWith("AndroidComposeView")))),
                 )
             )
             .check { view, exception ->
@@ -606,7 +606,7 @@ class AndroidViewCompatTest {
         Espresso.onView(
                 allOf(
                     withClassName(endsWith("AndroidComposeView")),
-                    isDescendantOfA(withClassName(endsWith("AndroidComposeView")))
+                    isDescendantOfA(withClassName(endsWith("AndroidComposeView"))),
                 )
             )
             .check { view, exception ->
@@ -823,7 +823,7 @@ class AndroidViewCompatTest {
                     ACTION_MOVE,
                     ACTION_POINTER_UP,
                     ACTION_MOVE,
-                    ACTION_UP
+                    ACTION_UP,
                 )
         }
     }
@@ -836,7 +836,7 @@ class AndroidViewCompatTest {
                     view = CaptureEventsView(it)
                     view
                 },
-                modifier = Modifier.fillMaxSize().testTag(tag)
+                modifier = Modifier.fillMaxSize().testTag(tag),
             )
         }
         return rule.runOnIdle { view }
@@ -878,7 +878,7 @@ class AndroidViewCompatTest {
             drawnAfterLastColorChange = true
             canvas.drawRect(
                 Rect(0, 0, size, size),
-                Paint().apply { color = this@ColoredSquareView.color.toArgb() }
+                Paint().apply { color = this@ColoredSquareView.color.toArgb() },
             )
         }
     }
@@ -922,7 +922,7 @@ class AndroidViewCompatTest {
             object : LayoutModifier {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     val placeable = measurable.measure(childConstraints)
                     return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -942,7 +942,7 @@ class AndroidViewCompatTest {
         object : LayoutNode.NoIntrinsicsMeasurePolicy("") {
             override fun MeasureScope.measure(
                 measurables: List<Measurable>,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 return object : MeasureResult {
                     override val width = 0

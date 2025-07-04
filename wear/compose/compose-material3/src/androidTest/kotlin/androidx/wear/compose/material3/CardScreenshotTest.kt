@@ -17,14 +17,17 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -62,57 +65,59 @@ class CardScreenshotTest {
 
     @Test
     fun card_image_background() = verifyScreenshot {
-        TestCard(
-            colors =
-                CardDefaults.imageCardColors(
-                    containerPainter =
-                        CardDefaults.imageWithScrimBackgroundPainter(
-                            backgroundImagePainter =
-                                painterResource(
-                                    id =
-                                        androidx.wear.compose.material3.test.R.drawable
-                                            .backgroundimage1
-                                ),
-                            forcedSize = Size.Unspecified
-                        )
+        TestCardWithContainerPainter(
+            image =
+                painterResource(
+                    id = androidx.wear.compose.material3.test.R.drawable.backgroundimage1
                 ),
-            contentPadding = CardDefaults.ImageContentPadding,
+            sizeToIntrinsics = false,
         )
     }
 
     @Test
     fun card_image_background_with_intrinsic_size() = verifyScreenshot {
-        TestCard(
-            colors =
-                CardDefaults.imageCardColors(
-                    containerPainter =
-                        CardDefaults.imageWithScrimBackgroundPainter(
-                            backgroundImagePainter =
-                                painterResource(
-                                    id =
-                                        androidx.wear.compose.material3.test.R.drawable
-                                            .backgroundimage1
-                                ),
-                            forcedSize = null
-                        ),
+        TestCardWithContainerPainter(
+            image =
+                painterResource(
+                    id = androidx.wear.compose.material3.test.R.drawable.backgroundimage1
                 ),
-            contentPadding = CardDefaults.ImageContentPadding,
+            sizeToIntrinsics = true,
         )
     }
 
     @Test
     fun outlined_card_ltr() =
-        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { TestOutlinedCard() }
+        verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
+            OutlinedCard(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
+            ) {
+                Text("Outlined Card: Some body content")
+            }
+        }
 
     @Test
     fun outlined_card_disabled() =
         verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-            TestOutlinedCard(enabled = false)
+            OutlinedCard(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
+                enabled = false,
+            ) {
+                Text("Outlined Card: Some body content")
+            }
         }
 
     @Test
     fun outlined_card_rtl() =
-        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) { TestOutlinedCard() }
+        verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
+            OutlinedCard(
+                onClick = {},
+                modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
+            ) {
+                Text("Outlined Card: Some body content")
+            }
+        }
 
     @Test
     fun app_card_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) { TestAppCard() }
@@ -186,20 +191,12 @@ class CardScreenshotTest {
 
     @Test
     fun title_card_image_background() = verifyScreenshot {
-        TestTitleCard(
-            colors =
-                CardDefaults.imageCardColors(
-                    containerPainter =
-                        CardDefaults.imageWithScrimBackgroundPainter(
-                            backgroundImagePainter =
-                                painterResource(
-                                    id =
-                                        androidx.wear.compose.material3.test.R.drawable
-                                            .backgroundimage1
-                                ),
-                        )
+        TestTitleCardWithContainerPainter(
+            image =
+                painterResource(
+                    id = androidx.wear.compose.material3.test.R.drawable.backgroundimage1
                 ),
-            contentPadding = CardDefaults.ImageContentPadding,
+            sizeToIntrinsics = false,
         )
     }
 
@@ -207,7 +204,7 @@ class CardScreenshotTest {
     private fun TestCard(
         enabled: Boolean = true,
         colors: CardColors = CardDefaults.cardColors(),
-        contentPadding: PaddingValues = CardDefaults.ContentPadding
+        contentPadding: PaddingValues = CardDefaults.ContentPadding,
     ) {
         Card(
             enabled = enabled,
@@ -221,22 +218,9 @@ class CardScreenshotTest {
     }
 
     @Composable
-    private fun TestOutlinedCard(
-        enabled: Boolean = true,
-    ) {
-        OutlinedCard(
-            enabled = enabled,
-            onClick = {},
-            modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
-        ) {
-            Text("Outlined Card: Some body content")
-        }
-    }
-
-    @Composable
     private fun TestAppCard(
         enabled: Boolean = true,
-        colors: CardColors = CardDefaults.cardColors()
+        colors: CardColors = CardDefaults.cardColors(),
     ) {
         AppCard(
             enabled = enabled,
@@ -256,13 +240,59 @@ class CardScreenshotTest {
     private fun TestTitleCard(
         enabled: Boolean = true,
         contentPadding: PaddingValues = CardDefaults.ContentPadding,
-        colors: CardColors = CardDefaults.cardColors()
+        colors: CardColors = CardDefaults.cardColors(),
     ) {
         TitleCard(
             enabled = enabled,
             onClick = {},
             title = { Text("TitleCard") },
             time = { Text("now") },
+            colors = colors,
+            contentPadding = contentPadding,
+            modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
+        ) {
+            Text("Some body content and some more body content")
+        }
+    }
+
+    @Composable
+    fun TestCardWithContainerPainter(
+        image: Painter,
+        sizeToIntrinsics: Boolean,
+        enabled: Boolean = true,
+        contentPadding: PaddingValues = CardDefaults.CardWithContainerPainterContentPadding,
+        colors: CardColors = CardDefaults.cardWithContainerPainterColors(),
+    ) {
+        Card(
+            containerPainter =
+                CardDefaults.containerPainter(image = image, sizeToIntrinsics = sizeToIntrinsics),
+            enabled = enabled,
+            onClick = {},
+            colors = colors,
+            contentPadding = contentPadding,
+            modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
+        ) {
+            Text("Card: Some body content")
+        }
+    }
+
+    @Composable
+    fun TestTitleCardWithContainerPainter(
+        image: Painter,
+        sizeToIntrinsics: Boolean,
+        title: String = "TitleCard",
+        time: String = "now",
+        enabled: Boolean = true,
+        contentPadding: PaddingValues = CardDefaults.CardWithContainerPainterContentPadding,
+        colors: CardColors = CardDefaults.cardWithContainerPainterColors(),
+    ) {
+        TitleCard(
+            containerPainter =
+                CardDefaults.containerPainter(image = image, sizeToIntrinsics = sizeToIntrinsics),
+            title = { Text(title) },
+            time = { Text(time) },
+            enabled = enabled,
+            onClick = {},
             colors = colors,
             contentPadding = contentPadding,
             modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
@@ -299,10 +329,17 @@ class CardScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                ) {
+                    content()
+                }
+            }
         }
 
         rule

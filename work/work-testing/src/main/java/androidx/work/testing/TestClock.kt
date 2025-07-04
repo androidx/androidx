@@ -21,7 +21,7 @@ import androidx.work.Clock
 
 /** A settable [Clock] that can be used to control time and precisely test schedules */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TestClock(var timeMillis: Long) : Clock {
+public class TestClock(public var timeMillis: Long) : Clock {
 
     override fun currentTimeMillis(): Long {
         return timeMillis

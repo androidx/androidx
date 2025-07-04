@@ -30,9 +30,16 @@ internal val Placeable?.widthOrZero: Int
 internal val Placeable?.heightOrZero: Int
     get() = this?.height ?: 0
 
+/**
+ * Subtracts one value from another, where both values represent constraints used in layout.
+ *
+ * Notably:
+ * - if [this] is [Constraints.Infinity], the result stays [Constraints.Infinity]
+ * - the result is coerced to be non-negative
+ */
 internal fun Int.subtractConstraintSafely(other: Int): Int {
     if (this == Constraints.Infinity) {
         return this
     }
-    return this - other
+    return (this - other).coerceAtLeast(0)
 }

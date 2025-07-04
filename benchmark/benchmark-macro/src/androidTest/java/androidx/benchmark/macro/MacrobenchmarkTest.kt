@@ -64,7 +64,7 @@ class MacrobenchmarkTest {
                     startupMode = null,
                     experimentalConfig = null,
                     setupBlock = {},
-                    measureBlock = {}
+                    measureBlock = {},
                 )
             }
         assertTrue(exception.message!!.contains("Empty list of metrics"))
@@ -85,7 +85,7 @@ class MacrobenchmarkTest {
                     startupMode = null,
                     experimentalConfig = null,
                     setupBlock = {},
-                    measureBlock = {}
+                    measureBlock = {},
                 )
             }
         assertTrue(exception.message!!.contains("Require iterations > 0"))
@@ -112,18 +112,18 @@ class MacrobenchmarkTest {
                                 ".TRIVIAL_STARTUP_ACTIVITY"
                         )
                     )
-                }
+                },
             )
         assertEquals(1, result.profilerOutputs!!.size)
         assertEquals(
             result.profilerOutputs!!.single().type,
-            BenchmarkData.TestResult.ProfilerOutput.Type.PerfettoTrace
+            BenchmarkData.TestResult.ProfilerOutput.Type.PerfettoTrace,
         )
     }
 
     enum class Block {
         Setup,
-        Measure
+        Measure,
     }
 
     @RequiresApi(29)
@@ -156,7 +156,7 @@ class MacrobenchmarkTest {
                     measurementIterations += iteration
                 }
                 assertEquals(Packages.TARGET, packageName)
-            }
+            },
         )
         if (startupMode == StartupMode.WARM || startupMode == StartupMode.HOT) {
             // measure block is executed an extra time, before first
@@ -168,9 +168,9 @@ class MacrobenchmarkTest {
                     Block.Setup,
                     Block.Measure,
                     Block.Setup,
-                    Block.Measure
+                    Block.Measure,
                 ),
-                opOrder
+                opOrder,
             )
             assertEquals(listOf(null, 0, 1), setupIterations)
             assertEquals(listOf(null, 0, 1), measurementIterations)
@@ -222,7 +222,7 @@ class MacrobenchmarkTest {
                     startupMode = null,
                     experimentalConfig = ExperimentalConfig(PerfettoConfig.MinimalTest(atraceApps)),
                     setupBlock = {},
-                    measureBlock = { trace(TRACE_LABEL) { Thread.sleep(2) } }
+                    measureBlock = { trace(TRACE_LABEL) { Thread.sleep(2) } },
                 )
                 .metrics[TRACE_LABEL + "SumMs"]!!
                 .runs

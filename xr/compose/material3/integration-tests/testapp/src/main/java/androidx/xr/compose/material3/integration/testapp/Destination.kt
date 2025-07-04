@@ -18,10 +18,12 @@ package androidx.xr.compose.material3.integration.testapp
 
 internal enum class Destination {
     Dialog,
+    Toolbar,
 }
 
 internal val Destination.label: String
     get() =
         when (this) {
             Destination.Dialog -> "Dialog"
+            Destination.Toolbar -> "Toolbar"
         }

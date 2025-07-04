@@ -187,7 +187,7 @@ class JankStatsTest {
         assertEquals(
             "numJankFrames != numFrames",
             latchedListener.numFrames,
-            latchedListener.numJankFrames
+            latchedListener.numJankFrames,
         )
     }
 
@@ -237,24 +237,28 @@ class JankStatsTest {
         assertEquals(
             "Should be exactly one occurrence of SingleFrameState",
             1,
-            checkSingleStateExistence(testState, latchedListener.jankData, insertTime)
+            checkSingleStateExistence(testState, latchedListener.jankData, insertTime),
         )
         synchronized(secondListenerFrameData) {
             assertEquals(
                 "Should be exactly one occurrence of SingleFrameState",
                 1,
-                checkSingleStateExistence(testState, secondListenerFrameData, insertTime)
+                checkSingleStateExistence(testState, secondListenerFrameData, insertTime),
             )
         }
 
         jankStats2.isTrackingEnabled = false
+        // isTrackingEnabled=false is async, so we sync with
+        // onActivity main thread before resetting 2nd listener count
+        delayedActivityRule.scenario.onActivity { /* just block */ }
         numSecondListenerCalls = 0
+
         latchedListener.reset()
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals(0, numSecondListenerCalls)
         assertTrue(
             "Removal of second listener should not have removed first",
-            latchedListener.jankData.size > 0
+            latchedListener.jankData.size > 0,
         )
 
         // Now make sure that extra listeners can be added concurrently from other threads
@@ -284,7 +288,7 @@ class JankStatsTest {
     fun checkSingleStateExistence(
         singleState: StateInfo,
         frameData: List<FrameData>,
-        insertionTimeNanos: Long
+        insertionTimeNanos: Long,
     ): Int {
         var numOccurrences = 0
         for (item in frameData) {
@@ -293,7 +297,7 @@ class JankStatsTest {
                     numOccurrences++
                     assertTrue(
                         "State be added before frame end time",
-                        (item.frameStartNanos + item.frameDurationUiNanos) > insertionTimeNanos
+                        (item.frameStartNanos + item.frameDurationUiNanos) > insertionTimeNanos,
                     )
                 }
             }
@@ -315,7 +319,7 @@ class JankStatsTest {
             "There should be ${latchedListener.numFrames} frames " +
                 "with jank data, not ${latchedListener.jankData.size}",
             latchedListener.numFrames,
-            latchedListener.jankData.size
+            latchedListener.jankData.size,
         )
         latchedListener.reset()
 
@@ -324,7 +328,7 @@ class JankStatsTest {
         assertEquals(
             "multiplier 20, extremeMs 0: numJankFrames should equal 0",
             0,
-            latchedListener.numJankFrames
+            latchedListener.numJankFrames,
         )
     }
 
@@ -347,7 +351,7 @@ class JankStatsTest {
             "frameDelay 100: There should be ${latchedListener.numFrames} frames with" +
                 "jank data",
             latchedListener.numFrames,
-            latchedListener.jankData.size
+            latchedListener.jankData.size,
         )
         var item0: FrameData = latchedListener.jankData[0]
         assertEquals("There should be 3 states at frame 0", 3, item0.states.size)
@@ -380,7 +384,7 @@ class JankStatsTest {
         assertEquals(
             "States should be empty after being cleared, but got ${item0.states}",
             0,
-            item0.states.size
+            item0.states.size,
         )
         latchedListener.reset()
         val state3 = Pair("Testing State 3", "sampleStateD")
@@ -408,7 +412,7 @@ class JankStatsTest {
     data class FrameStateInputData(
         val addSFStates: List<Pair<String, String>> = emptyList(),
         val addStates: List<Pair<String, String>> = emptyList(),
-        val removeStates: List<String> = emptyList()
+        val removeStates: List<String> = emptyList(),
     )
 
     /**
@@ -454,44 +458,34 @@ class JankStatsTest {
         var perFrameStateData =
             mutableListOf(
                 // 0: A:0
-                JankStatsTest.FrameStateInputData(
-                    addStates = listOf("stateNameA" to "0"),
-                ),
+                JankStatsTest.FrameStateInputData(addStates = listOf("stateNameA" to "0")),
                 // 1: A:0
                 JankStatsTest.FrameStateInputData(),
                 // 2: A:1
-                JankStatsTest.FrameStateInputData(
-                    addStates = listOf("stateNameA" to "1"),
-                ),
+                JankStatsTest.FrameStateInputData(addStates = listOf("stateNameA" to "1")),
                 // 3: A:2
-                JankStatsTest.FrameStateInputData(
-                    addStates = listOf("stateNameA" to "2"),
-                ),
+                JankStatsTest.FrameStateInputData(addStates = listOf("stateNameA" to "2")),
                 // 4: A:2
-                JankStatsTest.FrameStateInputData(
-                    removeStates = listOf("stateNameA"),
-                ),
+                JankStatsTest.FrameStateInputData(removeStates = listOf("stateNameA")),
                 // 5: [nothing]
                 JankStatsTest.FrameStateInputData(),
                 // 6: A:0, B:10
                 JankStatsTest.FrameStateInputData(
-                    addStates = listOf("stateNameA" to "0", "stateNameB" to "10"),
+                    addStates = listOf("stateNameA" to "0", "stateNameB" to "10")
                 ),
                 // 7: A:0, B:10, C:100
-                JankStatsTest.FrameStateInputData(
-                    addSFStates = listOf("stateNameC" to "100"),
-                ),
+                JankStatsTest.FrameStateInputData(addSFStates = listOf("stateNameC" to "100")),
                 // 8: A:0, B:10
                 JankStatsTest.FrameStateInputData(),
                 // 9: A:0, B:10
                 JankStatsTest.FrameStateInputData(
-                    removeStates = listOf("stateNameA", "stateNameB"),
+                    removeStates = listOf("stateNameA", "stateNameB")
                 ),
                 // 10: empty
                 JankStatsTest.FrameStateInputData(),
                 // 11: A:1
                 JankStatsTest.FrameStateInputData(
-                    addStates = listOf("stateNameA" to "0", "stateNameA" to "1"),
+                    addStates = listOf("stateNameA" to "0", "stateNameA" to "1")
                 ),
                 // 12-16: empty, just to allow extra frames to pulse
                 // Run more than the exact number of frames we have states for. Sometimes the system
@@ -531,7 +525,7 @@ class JankStatsTest {
             frameDelay = 0,
             numFrames = perFrameStateData.size,
             latchedListener,
-            perFrameStateData
+            perFrameStateData,
         )
 
         // There might be one or two dropped frames, check that we have nearly the number
@@ -539,7 +533,7 @@ class JankStatsTest {
         assertTrue(
             "There should be at least ${expectedResults.size - 2} frames of data" +
                 "but there were ${latchedListener.jankData.size}",
-            (latchedListener.jankData.size > expectedResults.size - 2)
+            (latchedListener.jankData.size > expectedResults.size - 2),
         )
 
         // A more flexible way to check for the above, accounting for very minor frame boundary
@@ -598,7 +592,7 @@ class JankStatsTest {
 
     private fun checkFrameStates(
         expectedResult: Map<String, String>,
-        testResultStates: List<StateInfo>
+        testResultStates: List<StateInfo>,
     ): Boolean {
         if (expectedResult.size != testResultStates.size) return false
         for (state in testResultStates) {
@@ -661,7 +655,7 @@ class JankStatsTest {
         frameDelay: Int,
         numFrames: Int,
         listener: LatchedListener,
-        perFrameStateData: List<FrameStateInputData>? = null
+        perFrameStateData: List<FrameStateInputData>? = null,
     ) {
         val latch = CountDownLatch(1)
         listener.latch = latch

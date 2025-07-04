@@ -49,7 +49,7 @@ class NavDrawerActivityTest {
         androidx.test.rule.ActivityTestRule(
             OldTranslateActivity::class.java,
             /* initialTouchMode = */ false,
-            /* launchActivity = */ false
+            /* launchActivity = */ false,
         )
 
     private lateinit var activity: OldTranslateActivity
@@ -81,7 +81,7 @@ class NavDrawerActivityTest {
         // Rotate the screen.
         UITestUtils.rotateScreen(
             InstrumentationRegistry.getInstrumentation(),
-            originalScreenOrientation
+            originalScreenOrientation,
         )
 
         // Close the top activity.

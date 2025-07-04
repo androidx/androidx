@@ -32,7 +32,7 @@ import kotlinx.atomicfu.atomic
 internal class AsyncCameraDevice(
     private val cameraManager: CameraManager,
     private val camId: String,
-    private val cameraHandler: Handler
+    private val cameraHandler: Handler,
 ) {
 
     private var closed = atomic(false)
@@ -64,7 +64,7 @@ internal class AsyncCameraDevice(
                                 closeCompleter.set(null)
                             }
                         },
-                        cameraHandler
+                        cameraHandler,
                     )
                 } catch (ex: Exception) {
                     openCompleter.setException(RuntimeException("Unable to open camera", ex))

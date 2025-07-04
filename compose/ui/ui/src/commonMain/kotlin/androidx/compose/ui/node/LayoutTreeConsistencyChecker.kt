@@ -28,7 +28,7 @@ import androidx.compose.ui.util.fastForEach
 internal class LayoutTreeConsistencyChecker(
     private val root: LayoutNode,
     private val relayoutNodes: DepthSortedSetsForDifferentPasses,
-    private val postponedMeasureRequests: List<MeasureAndLayoutDelegate.PostponedRequest>
+    private val postponedMeasureRequests: List<MeasureAndLayoutDelegate.PostponedRequest>,
 ) {
     fun assertConsistent() {
         val inconsistencyFound = !isTreeConsistent(root)

@@ -264,7 +264,7 @@ class ConsumeInLayoutNode :
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         // Consume Static local
         view = currentValueOf(LocalView)
@@ -304,9 +304,9 @@ class ConsumeInAttachNode :
 inline fun OldLayoutSkippableUpdate(
     content: @Composable @UiComposable () -> Unit,
     modifier: Modifier = Modifier,
-    measurePolicy: MeasurePolicy
+    measurePolicy: MeasurePolicy,
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHash = @Suppress("DEPRECATION") currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val viewConfiguration = LocalViewConfiguration.current
@@ -326,7 +326,7 @@ inline fun OldLayoutSkippableUpdate(
         // versions
         // of UI, despite this name being different now.
         skippableUpdate = materializerOfWithCompositionLocalInjection(modifier),
-        content = content
+        content = content,
     )
 }
 
@@ -334,7 +334,7 @@ inline fun OldLayoutSkippableUpdate(
 @Composable
 @UiComposable
 internal inline fun OldLayout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHash = @Suppress("DEPRECATION") currentCompositeKeyHash
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val viewConfiguration = LocalViewConfiguration.current

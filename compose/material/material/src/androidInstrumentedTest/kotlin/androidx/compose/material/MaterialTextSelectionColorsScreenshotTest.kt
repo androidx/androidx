@@ -199,7 +199,7 @@ private fun FilledTextFieldTestContent(colors: Colors) {
             TextField(
                 value = TextFieldText,
                 onValueChange = {},
-                modifier = Modifier.requiredWidth(280.dp)
+                modifier = Modifier.requiredWidth(280.dp),
             )
         }
     }
@@ -212,7 +212,7 @@ private fun OutlinedTextFieldTestContent(colors: Colors) {
             OutlinedTextField(
                 value = TextFieldText,
                 onValueChange = {},
-                modifier = Modifier.requiredWidth(280.dp)
+                modifier = Modifier.requiredWidth(280.dp),
             )
         }
     }
@@ -223,6 +223,6 @@ private val TextFieldText =
     TextFieldValue(
         text = "Selected text",
         selection = TextRange(0, 8),
-        composition = TextRange(0, 8)
+        composition = TextRange(0, 8),
     )
 private const val Tag = "TestTag"

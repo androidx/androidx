@@ -40,7 +40,7 @@ class DateTimeFormatterCommonOptionsTest {
             19, // Date
             21,
             42,
-            12 // Time
+            12, // Time
         )
 
     @Test
@@ -64,31 +64,31 @@ class DateTimeFormatterCommonOptionsTest {
                     "Sunday, September 19, 2021",
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH to "9/2021",
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_DAY to "9/19/2021",
-                DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to "Sun, 9/19/2021"
+                DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to "Sun, 9/19/2021",
             )
         val commonFormatsVersionDependent =
             when {
                 Build.VERSION.SDK_INT >= 34 ->
                     mapOf(
                         DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42\u202FPM",
-                        DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12\u202FPM"
+                        DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12\u202FPM",
                     )
                 else ->
                     mapOf(
                         DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42 PM",
-                        DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12 PM"
+                        DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12 PM",
                     )
             }
         commonFormats.forEach { entry ->
             assertEquals(
                 entry.value,
-                DateTimeFormatter(appContext, entry.key, Locale.US).format(testCalendar)
+                DateTimeFormatter(appContext, entry.key, Locale.US).format(testCalendar),
             )
         }
         commonFormatsVersionDependent.forEach { entry ->
             assertEquals(
                 entry.value,
-                DateTimeFormatter(appContext, entry.key, Locale.US).format(testCalendar)
+                DateTimeFormatter(appContext, entry.key, Locale.US).format(testCalendar),
             )
         }
     }
@@ -117,7 +117,7 @@ class DateTimeFormatterCommonOptionsTest {
                 DateTimeFormatterCommonOptions.YEAR_MONTH_WEEKDAY_DAY to "yMMMMEEEEd",
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH to "yM",
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_DAY to "yMd",
-                DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to "yMEd"
+                DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to "yMEd",
             )
         commonFormats.forEach { entry -> assertEquals(entry.value, entry.key.toString()) }
     }
@@ -155,7 +155,7 @@ class DateTimeFormatterCommonOptionsTest {
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH to DateFormat.YEAR_NUM_MONTH,
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_DAY to DateFormat.YEAR_NUM_MONTH_DAY,
                 DateTimeFormatterCommonOptions.YEAR_NUM_MONTH_WEEKDAY_DAY to
-                    DateFormat.YEAR_NUM_MONTH_WEEKDAY_DAY
+                    DateFormat.YEAR_NUM_MONTH_WEEKDAY_DAY,
             )
         commonFormats.forEach { entry -> assertEquals(entry.value, entry.key.toString()) }
     }

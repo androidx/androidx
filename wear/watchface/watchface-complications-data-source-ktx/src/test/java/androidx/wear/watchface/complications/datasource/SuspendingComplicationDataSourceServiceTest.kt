@@ -36,14 +36,14 @@ class TestService : SuspendingComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest) =
         ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("Complication").build(),
-                ComplicationText.EMPTY
+                ComplicationText.EMPTY,
             )
             .build()
 
     override fun getPreviewData(type: ComplicationType) =
         ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("Preview").build(),
-                ComplicationText.EMPTY
+                ComplicationText.EMPTY,
             )
             .build()
 }
@@ -53,28 +53,28 @@ class TestTimelineService : SuspendingTimelineComplicationDataSourceService() {
         ComplicationDataTimeline(
             ShortTextComplicationData.Builder(
                     PlainComplicationText.Builder("Default").build(),
-                    ComplicationText.EMPTY
+                    ComplicationText.EMPTY,
                 )
                 .build(),
             listOf(
                 TimelineEntry(
                     TimeInterval(
                         Instant.ofEpochSecond(100000000),
-                        Instant.ofEpochSecond(100001000)
+                        Instant.ofEpochSecond(100001000),
                     ),
                     ShortTextComplicationData.Builder(
                             PlainComplicationText.Builder("Override").build(),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
-                        .build()
+                        .build(),
                 )
-            )
+            ),
         )
 
     override fun getPreviewData(type: ComplicationType) =
         ShortTextComplicationData.Builder(
                 PlainComplicationText.Builder("Preview").build(),
-                ComplicationText.EMPTY
+                ComplicationText.EMPTY,
             )
             .build()
 }
@@ -109,7 +109,7 @@ public class SuspendingComplicationDataSourceServiceTest {
                 override fun onComplicationData(complicationData: ComplicationData?) {
                     result = complicationData!!
                 }
-            }
+            },
         )
 
         assertThat((result as ShortTextComplicationData).text.getTextAt(resources, Instant.EPOCH))
@@ -131,7 +131,7 @@ public class SuspendingComplicationDataSourceServiceTest {
                 ) {
                     result = complicationDataTimeline!!
                 }
-            }
+            },
         )
 
         assertThat(
@@ -162,7 +162,7 @@ public class SuspendingComplicationDataSourceServiceTest {
                     .text
                     .getTextAt(
                         ApplicationProvider.getApplicationContext<Context>().resources,
-                        Instant.EPOCH
+                        Instant.EPOCH,
                     )
             )
             .isEqualTo("Preview")

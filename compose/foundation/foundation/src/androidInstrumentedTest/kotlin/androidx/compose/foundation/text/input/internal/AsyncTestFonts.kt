@@ -66,7 +66,7 @@ class AsyncFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
-    private val name: String = "AsyncFauxFont"
+    private val name: String = "AsyncFauxFont",
 ) : AndroidFont(Async, typefaceLoader, FontVariation.Settings(weight, style)) {
     override fun toString(): String {
         return "$name[$weight, $style]"

@@ -81,7 +81,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(top = 10.dp),
             singleLine = false,
             expectedHeight = 10.dp + InnerTextFieldHeight + TextFieldPadding,
-            expectedPosition = 10.dp
+            expectedPosition = 10.dp,
         )
     }
 
@@ -91,7 +91,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(top = 10.dp),
             singleLine = true,
             expectedHeight = 10.dp + InnerTextFieldHeight + TextFieldPadding,
-            expectedPosition = (10.dp + TextFieldPadding) / 2
+            expectedPosition = (10.dp + TextFieldPadding) / 2,
         )
     }
 
@@ -101,7 +101,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(bottom = 10.dp),
             singleLine = false,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 10.dp,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -111,7 +111,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(bottom = 10.dp),
             singleLine = true,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 10.dp,
-            expectedPosition = (10.dp + TextFieldPadding) / 2
+            expectedPosition = (10.dp + TextFieldPadding) / 2,
         )
     }
 
@@ -121,7 +121,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(start = 10.dp),
             rtl = false,
             expectedWidth = 10.dp + InnerTextFieldWidth + TextFieldPadding,
-            expectedPosition = 10.dp
+            expectedPosition = 10.dp,
         )
     }
 
@@ -131,7 +131,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(start = 10.dp),
             rtl = true,
             expectedWidth = 10.dp + InnerTextFieldWidth + TextFieldPadding,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -141,7 +141,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(end = 20.dp),
             rtl = false,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 20.dp,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -151,7 +151,7 @@ class TextFieldDecoratorTest {
             padding = OutlinedTextFieldDefaults.contentPadding(end = 20.dp),
             rtl = true,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 20.dp,
-            expectedPosition = 20.dp
+            expectedPosition = 20.dp,
         )
     }
 
@@ -162,7 +162,7 @@ class TextFieldDecoratorTest {
             singleLine = true,
             hasLabel = false,
             expectedHeight = 40.dp + InnerTextFieldHeight + TextFieldPadding,
-            expectedPosition = (40.dp + TextFieldPadding) / 2
+            expectedPosition = (40.dp + TextFieldPadding) / 2,
         )
     }
 
@@ -174,7 +174,7 @@ class TextFieldDecoratorTest {
             hasLabel = true,
             expectedHeight =
                 40.dp + LabelHeight + InnerTextFieldHeight + TextFieldWithLabelVerticalPadding,
-            expectedPosition = 40.dp + LabelHeight
+            expectedPosition = 40.dp + LabelHeight,
         )
     }
 
@@ -185,7 +185,7 @@ class TextFieldDecoratorTest {
             singleLine = true,
             hasLabel = false,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 40.dp,
-            expectedPosition = (TextFieldPadding + 40.dp) / 2
+            expectedPosition = (TextFieldPadding + 40.dp) / 2,
         )
     }
 
@@ -197,7 +197,7 @@ class TextFieldDecoratorTest {
             hasLabel = true,
             expectedHeight =
                 TextFieldWithLabelVerticalPadding + LabelHeight + InnerTextFieldHeight + 40.dp,
-            expectedPosition = TextFieldWithLabelVerticalPadding + LabelHeight
+            expectedPosition = TextFieldWithLabelVerticalPadding + LabelHeight,
         )
     }
 
@@ -208,7 +208,7 @@ class TextFieldDecoratorTest {
             singleLine = false,
             hasLabel = false,
             expectedHeight = 40.dp + InnerTextFieldHeight + TextFieldPadding,
-            expectedPosition = 40.dp
+            expectedPosition = 40.dp,
         )
     }
 
@@ -220,7 +220,7 @@ class TextFieldDecoratorTest {
             hasLabel = true,
             expectedHeight =
                 40.dp + LabelHeight + InnerTextFieldHeight + TextFieldWithLabelVerticalPadding,
-            expectedPosition = 40.dp + LabelHeight
+            expectedPosition = 40.dp + LabelHeight,
         )
     }
 
@@ -231,7 +231,7 @@ class TextFieldDecoratorTest {
             singleLine = false,
             hasLabel = false,
             expectedHeight = TextFieldPadding + InnerTextFieldHeight + 40.dp,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -243,7 +243,7 @@ class TextFieldDecoratorTest {
             hasLabel = true,
             expectedHeight =
                 TextFieldWithLabelVerticalPadding + LabelHeight + InnerTextFieldHeight + 40.dp,
-            expectedPosition = TextFieldWithLabelVerticalPadding + LabelHeight
+            expectedPosition = TextFieldWithLabelVerticalPadding + LabelHeight,
         )
     }
 
@@ -254,7 +254,7 @@ class TextFieldDecoratorTest {
             rtl = false,
             hasLabel = true,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
-            expectedPosition = 40.dp
+            expectedPosition = 40.dp,
         )
     }
 
@@ -265,7 +265,7 @@ class TextFieldDecoratorTest {
             rtl = true,
             hasLabel = true,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -276,7 +276,7 @@ class TextFieldDecoratorTest {
             rtl = false,
             hasLabel = false,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
-            expectedPosition = 40.dp
+            expectedPosition = 40.dp,
         )
     }
 
@@ -287,7 +287,7 @@ class TextFieldDecoratorTest {
             rtl = true,
             hasLabel = false,
             expectedWidth = 40.dp + InnerTextFieldWidth + TextFieldPadding,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -298,7 +298,7 @@ class TextFieldDecoratorTest {
             rtl = false,
             hasLabel = true,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -309,7 +309,7 @@ class TextFieldDecoratorTest {
             rtl = true,
             hasLabel = true,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
-            expectedPosition = 40.dp
+            expectedPosition = 40.dp,
         )
     }
 
@@ -320,7 +320,7 @@ class TextFieldDecoratorTest {
             rtl = false,
             hasLabel = false,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
-            expectedPosition = TextFieldPadding
+            expectedPosition = TextFieldPadding,
         )
     }
 
@@ -331,7 +331,7 @@ class TextFieldDecoratorTest {
             rtl = true,
             hasLabel = false,
             expectedWidth = TextFieldPadding + InnerTextFieldWidth + 40.dp,
-            expectedPosition = 40.dp
+            expectedPosition = 40.dp,
         )
     }
 
@@ -354,7 +354,7 @@ class TextFieldDecoratorTest {
                     modifier =
                         Modifier.size(
                             with(Density) { textFieldWidth.toDp() },
-                            with(Density) { textFieldHeight.toDp() }
+                            with(Density) { textFieldHeight.toDp() },
                         ),
                     lineLimits = lineLimits,
                     interactionSource = interactionSource,
@@ -372,12 +372,12 @@ class TextFieldDecoratorTest {
                                     colors = colors,
                                     interactionSource = interactionSource,
                                     shape = RectangleShape,
-                                    unfocusedBorderThickness = with(Density) { borderWidth.toDp() }
+                                    unfocusedBorderThickness = with(Density) { borderWidth.toDp() },
                                 )
                             },
                             colors = colors,
                             contentPadding = PaddingValues(0.dp),
-                        )
+                        ),
                 )
             }
         }
@@ -417,11 +417,11 @@ class TextFieldDecoratorTest {
                                 colors = colors,
                                 interactionSource = interactionSource,
                                 unfocusedIndicatorLineThickness =
-                                    with(Density) { borderWidth.toDp() }
+                                    with(Density) { borderWidth.toDp() },
                             )
                             .size(
                                 with(Density) { textFieldWidth.toDp() },
-                                with(Density) { textFieldHeight.toDp() }
+                                with(Density) { textFieldHeight.toDp() },
                             ),
                     lineLimits = lineLimits,
                     interactionSource = interactionSource,
@@ -433,8 +433,8 @@ class TextFieldDecoratorTest {
                             interactionSource = interactionSource,
                             lineLimits = lineLimits,
                             colors = colors,
-                            contentPadding = PaddingValues(0.dp)
-                        )
+                            contentPadding = PaddingValues(0.dp),
+                        ),
                 )
             }
         }
@@ -479,8 +479,8 @@ class TextFieldDecoratorTest {
                             interactionSource = interactionSource,
                             lineLimits = lineLimits,
                             placeholder = { Spacer(Modifier.size(placeholderDimension)) },
-                            contentPadding = PaddingValues(vertical = verticalPadding)
-                        )
+                            contentPadding = PaddingValues(vertical = verticalPadding),
+                        ),
                 )
             }
         }
@@ -506,7 +506,7 @@ class TextFieldDecoratorTest {
             label = {
                 // imitates the multiline label
                 Box(Modifier.size(10.dp, LabelHeight))
-            }
+            },
         )
     }
 
@@ -522,7 +522,7 @@ class TextFieldDecoratorTest {
             label = {
                 // imitates the multiline label
                 Box(Modifier.size(10.dp, LabelHeight))
-            }
+            },
         )
     }
 
@@ -530,7 +530,7 @@ class TextFieldDecoratorTest {
         padding: PaddingValues,
         singleLine: Boolean,
         expectedHeight: Dp,
-        expectedPosition: Dp
+        expectedPosition: Dp,
     ) {
         assertSizeAndPosition(
             padding = padding,
@@ -546,7 +546,7 @@ class TextFieldDecoratorTest {
         padding: PaddingValues,
         rtl: Boolean,
         expectedWidth: Dp,
-        expectedPosition: Dp
+        expectedPosition: Dp,
     ) {
         assertSizeAndPosition(
             padding = padding,
@@ -555,7 +555,7 @@ class TextFieldDecoratorTest {
             expectedPosition = expectedPosition,
             isVertical = false,
             isOutlined = true,
-            layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+            layoutDirection = if (rtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
         )
     }
 
@@ -564,7 +564,7 @@ class TextFieldDecoratorTest {
         singleLine: Boolean,
         hasLabel: Boolean,
         expectedHeight: Dp,
-        expectedPosition: Dp
+        expectedPosition: Dp,
     ) {
         assertSizeAndPosition(
             padding = padding,
@@ -587,7 +587,7 @@ class TextFieldDecoratorTest {
         rtl: Boolean,
         hasLabel: Boolean,
         expectedWidth: Dp,
-        expectedPosition: Dp
+        expectedPosition: Dp,
     ) {
         assertSizeAndPosition(
             padding = padding,
@@ -622,7 +622,7 @@ class TextFieldDecoratorTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(
                 LocalLayoutDirection provides layoutDirection,
-                LocalDensity provides Density
+                LocalDensity provides Density,
             ) {
                 Box(Modifier.onSizeChanged { size = it }) {
                     val value = "Text"
@@ -653,7 +653,7 @@ class TextFieldDecoratorTest {
                                         outputTransformation = null,
                                         interactionSource = interactionSource,
                                         contentPadding = padding,
-                                        label = label
+                                        label = label,
                                     )
                                     .Decoration(innerTextField)
                             } else {
@@ -664,11 +664,11 @@ class TextFieldDecoratorTest {
                                         outputTransformation = null,
                                         interactionSource = interactionSource,
                                         contentPadding = padding,
-                                        label = label
+                                        label = label,
                                     )
                                     .Decoration(innerTextField)
                             }
-                        }
+                        },
                     )
                 }
             }

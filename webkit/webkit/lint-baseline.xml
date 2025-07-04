@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: WebMessagePayloadType.TYPE_STRING, WebMessagePayloadType.TYPE_ARRAY_BUFFER"
+        errorLine1="        mType = WebMessageCompat.TYPE_STRING;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePayloadAdapter.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: WebMessagePayloadType.TYPE_STRING, WebMessagePayloadType.TYPE_ARRAY_BUFFER"
+        errorLine1="        mType = WebMessageCompat.TYPE_ARRAY_BUFFER;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePayloadAdapter.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="        return (PackageInfo) webViewFactoryClass.getMethod("
+        errorLine2="                             ^">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="        return (InvocationHandler) createProviderFactoryMethod.invoke(null);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewGlueCommunicator.java"/>
+    </issue>
+
+    <issue
+        id="BanUncheckedReflection"
+        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        errorLine1="            return getFactoryMethod.invoke(null);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewGlueCommunicator.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="class MimeUtil {"
+        errorLine2="      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/MimeUtil.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class PrefetchOperationCallbackAdapter {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/PrefetchOperationCallbackAdapter.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class UserAgentMetadataInternal {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/UserAgentMetadataInternal.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.M` is never true here"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.M) return;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewClientCompat.java"/>
+    </issue>
+
+</issues>

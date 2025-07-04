@@ -58,7 +58,7 @@ class UndoManagerTest {
             UndoManager(
                 initialUndoStack = listOf(1, 2),
                 initialRedoStack = listOf(1, 2),
-                capacity = 3
+                capacity = 3,
             )
         }
     }

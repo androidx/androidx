@@ -126,7 +126,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         // a contract for their mainAxis position. The crossAxis position for those
                         // items is subject to change.
                         IntOffset(UnspecifiedOffset, 300),
-                        IntOffset(UnspecifiedOffset, 300)
+                        IntOffset(UnspecifiedOffset, 300),
                     )
                 } else {
                     listOf(
@@ -142,7 +142,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         // a contract for their mainAxis position. The crossAxis position for those
                         // items is subject to change.
                         IntOffset(300, UnspecifiedOffset),
-                        IntOffset(300, UnspecifiedOffset)
+                        IntOffset(300, UnspecifiedOffset),
                     )
                 },
             targetExpectedLookaheadPositions =
@@ -157,7 +157,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(100, 0),
                         IntOffset(0, 0),
                         IntOffset(0, -100),
-                        IntOffset(100, -100)
+                        IntOffset(100, -100),
                     )
                 } else {
                     listOf(
@@ -170,11 +170,11 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(0, 100),
                         IntOffset(0, 0),
                         IntOffset(-100, 0),
-                        IntOffset(-100, 100)
+                        IntOffset(-100, 100),
                     )
                 },
             startingIndex = 2,
-            crossAxisSize = 200
+            crossAxisSize = 200,
         )
     }
 
@@ -191,7 +191,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(0, 0),
                         IntOffset(0, 100),
                         IntOffset(0, 200),
-                        IntOffset(0, 300)
+                        IntOffset(0, 300),
                     )
                 } else {
                     listOf(
@@ -200,7 +200,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(0, 0),
                         IntOffset(100, 0),
                         IntOffset(200, 0),
-                        IntOffset(300, 0)
+                        IntOffset(300, 0),
                     )
                 },
             targetExpectedLookaheadPositions =
@@ -211,7 +211,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(0, 0),
                         IntOffset(0, 200),
                         IntOffset(0, -100),
-                        IntOffset(0, -200)
+                        IntOffset(0, -200),
                     )
                 } else {
                     listOf(
@@ -220,10 +220,10 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(0, 0),
                         IntOffset(200, 0),
                         IntOffset(-100, 0),
-                        IntOffset(-200, 0)
+                        IntOffset(-200, 0),
                     )
                 },
-            startingIndex = 2
+            startingIndex = 2,
         )
     }
 
@@ -244,7 +244,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(0, 100),
                         IntOffset(100, 100),
                         IntOffset(0, 200),
-                        IntOffset(100, 200)
+                        IntOffset(100, 200),
                     )
                 } else {
                     listOf(
@@ -257,7 +257,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(100, 0),
                         IntOffset(100, 100),
                         IntOffset(200, 0),
-                        IntOffset(200, 100)
+                        IntOffset(200, 100),
                     )
                 },
             targetExpectedLookaheadPositions =
@@ -275,7 +275,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(UnspecifiedOffset, -100),
                         IntOffset(UnspecifiedOffset, -100),
                         IntOffset(UnspecifiedOffset, -200),
-                        IntOffset(UnspecifiedOffset, -200)
+                        IntOffset(UnspecifiedOffset, -200),
                     )
                 } else {
                     listOf(
@@ -291,12 +291,12 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         IntOffset(-100, UnspecifiedOffset),
                         IntOffset(-100, UnspecifiedOffset),
                         IntOffset(-200, UnspecifiedOffset),
-                        IntOffset(-200, UnspecifiedOffset)
+                        IntOffset(-200, UnspecifiedOffset),
                     )
                 },
             startingIndex = 4,
             lanes = 2,
-            crossAxisSize = 200
+            crossAxisSize = 200,
         )
     }
 
@@ -307,7 +307,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
         initialExpectedLookaheadPositions: List<IntOffset?>,
         targetExpectedLookaheadPositions: List<IntOffset?>,
         startingIndex: Int = 0,
-        crossAxisSize: Int? = null
+        crossAxisSize: Int? = null,
     ) {
         val itemSize = 100
         var list by mutableStateOf(initialList)
@@ -323,7 +323,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                     lookaheadPosition = lookaheadPosition,
                     approachPosition = approachPosition,
                     itemSize = itemSize,
-                    crossAxisSize = crossAxisSize
+                    crossAxisSize = crossAxisSize,
                 )
             }
         }
@@ -374,7 +374,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
         lookaheadPosition: MutableMap<Int, IntOffset>,
         approachPosition: MutableMap<Int, IntOffset>,
         itemSize: Int,
-        crossAxisSize: Int? = null
+        crossAxisSize: Int? = null,
     ) {
         LookaheadScope {
             LazyStaggeredGrid(
@@ -392,21 +392,20 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                             else Modifier
                         )
                 },
-                state =
-                    rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = startingIndex),
+                state = rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = startingIndex),
             ) {
                 items(list, key = { it }) { item ->
                     Box(
                         Modifier.animateItem(
                                 fadeInSpec = null,
                                 fadeOutSpec = null,
-                                placementSpec = tween<IntOffset>(160)
+                                placementSpec = tween<IntOffset>(160),
                             )
                             .trackPositions(
                                 lookaheadPosition,
                                 approachPosition,
                                 this@LookaheadScope,
-                                item
+                                item,
                             )
                             .requiredSize(itemSize.dp)
                     )
@@ -419,7 +418,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
         lookaheadPosition: MutableMap<Int, IntOffset>,
         approachPosition: MutableMap<Int, IntOffset>,
         lookaheadScope: LookaheadScope,
-        item: Int
+        item: Int,
     ): Modifier =
         this.layout { measurable, constraints ->
             measurable.measure(constraints).run {
@@ -454,20 +453,20 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                         lanes = 2,
                         if (vertical) // Define cross axis size
                          Modifier.requiredWidth(200.dp)
-                        else Modifier.requiredHeight(200.dp)
+                        else Modifier.requiredHeight(200.dp),
                     ) {
                         items(8, key = { it }) {
                             Box(
                                 Modifier.animateItem(
                                         fadeInSpec = null,
                                         fadeOutSpec = null,
-                                        placementSpec = tween(160, easing = LinearEasing)
+                                        placementSpec = tween(160, easing = LinearEasing),
                                     )
                                     .trackPositions(
                                         lookaheadPosition,
                                         approachPosition,
                                         this@LookaheadScope,
-                                        it
+                                        it,
                                     )
                                     .then(
                                         if (animateSizeChange)
@@ -509,13 +508,13 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                     assertEquals(it / 2 * itemSize * 2, lookaheadPosition[it]?.y)
                     assertEquals(
                         (it / 2 * itemSize * (1 + fraction)).roundToInt(),
-                        approachPosition[it]?.y
+                        approachPosition[it]?.y,
                     )
                 } else {
                     assertEquals(it / 2 * itemSize * 2, lookaheadPosition[it]?.x)
                     assertEquals(
                         (it / 2 * itemSize * (1 + fraction)).roundToInt(),
-                        approachPosition[it]?.x
+                        approachPosition[it]?.x,
                     )
                 }
             }
@@ -537,13 +536,13 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                     assertEquals(it / 2 * itemSize, lookaheadPosition[it]?.y)
                     assertEquals(
                         (it / 2 * (2 - fraction) * itemSize).roundToInt(),
-                        approachPosition[it]?.y
+                        approachPosition[it]?.y,
                     )
                 } else {
                     assertEquals(it / 2 * itemSize, lookaheadPosition[it]?.x)
                     assertEquals(
                         (it / 2 * (2 - fraction) * itemSize).roundToInt(),
-                        approachPosition[it]?.x
+                        approachPosition[it]?.x,
                     )
                 }
             }
@@ -567,13 +566,13 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                                     Modifier.animateItem(
                                             fadeInSpec = null,
                                             fadeOutSpec = null,
-                                            placementSpec = tween(160, easing = LinearEasing)
+                                            placementSpec = tween(160, easing = LinearEasing),
                                         )
                                         .trackPositions(
                                             lookaheadPosition,
                                             approachPosition,
                                             this@LookaheadScope,
-                                            it
+                                            it,
                                         )
                                 ) {
                                     Box(Modifier.requiredSize(itemSize.dp))
@@ -586,13 +585,13 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                                     Modifier.animateItem(
                                             fadeInSpec = null,
                                             fadeOutSpec = null,
-                                            placementSpec = tween(160, easing = LinearEasing)
+                                            placementSpec = tween(160, easing = LinearEasing),
                                         )
                                         .trackPositions(
                                             lookaheadPosition,
                                             approachPosition,
                                             this@LookaheadScope,
-                                            it
+                                            it,
                                         )
                                 ) {
                                     Box(Modifier.requiredSize(itemSize.dp))
@@ -624,7 +623,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                 assertEquals(it * itemSize * 2, lookaheadPosition[it]?.mainAxisPosition)
                 assertEquals(
                     (it * itemSize * (1 + fraction)).roundToInt(),
-                    approachPosition[it]?.mainAxisPosition
+                    approachPosition[it]?.mainAxisPosition,
                 )
             }
             rule.mainClock.advanceTimeByFrame()
@@ -652,7 +651,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                             measurable.measure(constraints).run {
                                 layout(width, height) { place(0, 0) }
                             }
-                        }
+                        },
                     ) {
                         items(8) {
                             Box(
@@ -762,7 +761,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                             measurable.measure(constraints).run {
                                 layout(width, height) { place(0, 0) }
                             }
-                        }
+                        },
                     ) {
                         items(8) {
                             Box(
@@ -981,7 +980,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                                 if (isLookingAhead) Constraints.fixed(400, lookaheadHeight)
                                 else Constraints.fixed(400, approachHeight)
                             m.measure(c).run { layout(width, lookaheadHeight) { place(0, 0) } }
-                        }
+                        },
                     ) {
                         items(20) {
                             Box(Modifier.height(100.dp).fillMaxWidth())
@@ -1023,7 +1022,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                             LazyVerticalStaggeredGrid(
                                 columns = StaggeredGridCells.Fixed(2),
                                 state = state,
-                                modifier = Modifier.requiredHeight(500.dp).fillMaxWidth()
+                                modifier = Modifier.requiredHeight(500.dp).fillMaxWidth(),
                             ) {
                                 items(30) {
                                     BasicText(
@@ -1044,7 +1043,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                                                 else Modifier
                                             )
                                             .height(100.dp)
-                                            .animateItem()
+                                            .animateItem(),
                                     )
                                 }
                             }
@@ -1095,7 +1094,7 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                 LazyStaggeredGrid(
                     lanes = 1,
                     Modifier.mainAxisSize(containerSizeDp),
-                    state = state
+                    state = state,
                 ) {
                     repeat(20) { item { Box(Modifier.size(itemSizeDp).testTag("$it")) } }
                 }

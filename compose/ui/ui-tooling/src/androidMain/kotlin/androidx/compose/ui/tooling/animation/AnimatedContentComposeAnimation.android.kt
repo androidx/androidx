@@ -26,7 +26,7 @@ internal class AnimatedContentComposeAnimation<T>
 private constructor(
     override val animationObject: Transition<T>,
     override val states: Set<Any>,
-    override val label: String?
+    override val label: String?,
 ) : ComposeAnimation, TransitionBasedAnimation<T> {
     override val type = ComposeAnimationType.ANIMATED_CONTENT
 

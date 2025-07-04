@@ -37,7 +37,7 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
             import android.app.job.JobService
 
             class TestJobService: JobService()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -68,7 +68,7 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
             import android.app.job.JobService
 
             class TestJobService: JobService()
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -87,7 +87,7 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
                    builder.setJobSchedulerJobIdRange(0, 1000)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

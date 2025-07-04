@@ -151,7 +151,7 @@ public class ZoomUtils {
     public static float calculateZoomForDoubleTap(
             int viewportWidth,
             int viewportHeight,
-            int contentWidth,
+            float contentWidth,
             float currentZoom,
             float minZoom,
             float maxZoom
@@ -161,7 +161,7 @@ public class ZoomUtils {
                 ZoomUtils.calculateZoomToFit(
                         (float) viewportWidth,
                         (float) viewportHeight,
-                        (float) contentWidth,
+                        contentWidth,
                         1f
                 );
 

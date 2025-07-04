@@ -31,7 +31,7 @@ import androidx.compose.ui.geometry.Rect
 @Suppress("DEPRECATION") // b/376080744
 internal fun Modifier.fakeScrollable(
     parentOffset: Offset = Offset.Zero,
-    onBringIntoView: suspend (() -> Rect?) -> Unit
+    onBringIntoView: suspend (() -> Rect?) -> Unit,
 ): Modifier =
     bringIntoViewResponder(
             object : BringIntoViewResponder {

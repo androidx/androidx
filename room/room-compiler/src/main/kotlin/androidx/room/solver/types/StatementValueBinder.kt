@@ -27,6 +27,6 @@ interface StatementValueBinder {
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     )
 }

@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"പിൻ, പാറ്റേൺ, അല്ലെങ്കിൽ പാസ്‍വേഡ് ഇവയൊന്നും സജ്ജീകരിച്ചിട്ടില്ല."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"പിൻ, പാറ്റേൺ, പാസ്‌വേഡ് എന്നിവ ഈ ഉപകരണം പിന്തുണയ്ക്കുന്നില്ല."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ഫിംഗർപ്രിന്റ് ഐക്കൺ"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"ഉള്ളടക്ക കാഴ്‌ചയിലെ കൂടുതൽ ഓപ്‌ഷനുകൾ ബട്ടൺ ക്ലിക്ക് ചെയ്‌തു."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"ഫിംഗർപ്രിന്റ് ഉപയോഗിക്കുക"</string>
     <string name="use_face_label" msgid="6533512708069459542">"മുഖം ഉപയോഗിക്കുക"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"ബയോമെട്രിക്‌സ് ഉപയോഗിക്കുക"</string>

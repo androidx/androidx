@@ -57,7 +57,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
         activitiesInProcess: List<Activity>,
-        isEmpty: Boolean
+        isEmpty: Boolean,
     ) : this(activitiesInProcess, isEmpty, token = null)
 
     @RequiresWindowSdkExtension(5)

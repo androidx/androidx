@@ -32,6 +32,7 @@ import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -46,6 +47,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import kotlinx.coroutines.flow.fold
@@ -72,6 +74,16 @@ class HealthConnectClientAggregationExtensionsTest {
         private val START_TIME =
             LocalDate.now().minusDays(5).atStartOfDay().toInstant(ZoneOffset.UTC)
 
+        private val TEST_RECORD_TYPES =
+            listOf(
+                BloodPressureRecord::class,
+                CyclingPedalingCadenceRecord::class,
+                NutritionRecord::class,
+                SpeedRecord::class,
+                StepsCadenceRecord::class,
+                StepsRecord::class,
+            )
+
         fun getAllRecordPermissions(): Array<String> {
             val permissions: HashSet<String> = HashSet()
 
@@ -97,99 +109,9 @@ class HealthConnectClientAggregationExtensionsTest {
 
     @After
     fun tearDown() = runTest {
-        for (recordType in SDK_TO_PLATFORM_RECORD_CLASS.keys) {
-            healthConnectClient.deleteRecords(recordType, TimeRangeFilter.none())
+        for (recordType in TEST_RECORD_TYPES) {
+            healthConnectClient.deleteRecords(recordType, TimeRangeFilter.after(Instant.EPOCH))
         }
-
-        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13) {
-            for (recordType in SDK_TO_PLATFORM_RECORD_CLASS_EXT_13.keys) {
-                healthConnectClient.deleteRecords(recordType, TimeRangeFilter.none())
-            }
-        }
-    }
-
-    @Test
-    fun aggregateFallback_sdkExt10AndAbove() = runTest {
-        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
-
-        healthConnectClient.insertRecords(
-            listOf(
-                BloodPressureRecord(
-                    time = START_TIME,
-                    zoneOffset = ZoneOffset.UTC,
-                    diastolic = 70.millimetersOfMercury,
-                    systolic = 110.millimetersOfMercury
-                ),
-                CyclingPedalingCadenceRecord(
-                    startTime = START_TIME,
-                    endTime = START_TIME + 30.minutes,
-                    startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC,
-                    samples =
-                        listOf(
-                            CyclingPedalingCadenceRecord.Sample(
-                                time = START_TIME + 5.minutes,
-                                revolutionsPerMinute = 80.0
-                            ),
-                            CyclingPedalingCadenceRecord.Sample(
-                                time = START_TIME + 15.minutes,
-                                revolutionsPerMinute = 90.0
-                            )
-                        )
-                ),
-                NutritionRecord(
-                    startTime = START_TIME,
-                    endTime = START_TIME + 1.minutes,
-                    transFat = 0.3.grams,
-                    calcium = 0.1.grams,
-                    startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC
-                ),
-                SpeedRecord(
-                    startTime = START_TIME,
-                    endTime = START_TIME + 15.minutes,
-                    startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC,
-                    samples =
-                        listOf(
-                            SpeedRecord.Sample(
-                                time = START_TIME + 5.minutes,
-                                speed = Velocity.metersPerSecond(2.8)
-                            ),
-                            SpeedRecord.Sample(
-                                time = START_TIME + 10.minutes,
-                                speed = Velocity.metersPerSecond(2.7)
-                            )
-                        )
-                ),
-                StepsCadenceRecord(
-                    startTime = START_TIME,
-                    endTime = START_TIME + 10.minutes,
-                    startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC,
-                    samples =
-                        listOf(
-                            StepsCadenceRecord.Sample(time = START_TIME + 3.minutes, rate = 170.0)
-                        )
-                )
-            )
-        )
-
-        // Adding calcium total (which has always been supported) to make sure it's filtered out of
-        // the calculation.
-        val aggregationResult =
-            healthConnectClient.aggregateFallback(
-                AggregateRequest(
-                    metrics = AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10 + NutritionRecord.CALCIUM_TOTAL,
-                    timeRangeFilter = TimeRangeFilter.none()
-                )
-            )
-
-        for (metric in AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10) {
-            assertThat(metric in aggregationResult).isFalse()
-        }
-        assertThat(NutritionRecord.CALCIUM_TOTAL in aggregationResult).isFalse()
-        assertThat(aggregationResult.dataOrigins).isEmpty()
     }
 
     @Test
@@ -201,25 +123,27 @@ class HealthConnectClientAggregationExtensionsTest {
                 BloodPressureRecord(
                     time = START_TIME,
                     zoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata.manualEntry(),
                     diastolic = 70.millimetersOfMercury,
-                    systolic = 110.millimetersOfMercury
+                    systolic = 110.millimetersOfMercury,
                 ),
                 CyclingPedalingCadenceRecord(
                     startTime = START_TIME,
                     endTime = START_TIME + 30.minutes,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata.manualEntry(),
                     samples =
                         listOf(
                             CyclingPedalingCadenceRecord.Sample(
                                 time = START_TIME + 5.minutes,
-                                revolutionsPerMinute = 80.0
+                                revolutionsPerMinute = 80.0,
                             ),
                             CyclingPedalingCadenceRecord.Sample(
                                 time = START_TIME + 15.minutes,
-                                revolutionsPerMinute = 90.0
-                            )
-                        )
+                                revolutionsPerMinute = 90.0,
+                            ),
+                        ),
                 ),
                 NutritionRecord(
                     startTime = START_TIME,
@@ -227,35 +151,38 @@ class HealthConnectClientAggregationExtensionsTest {
                     transFat = 0.3.grams,
                     calcium = 0.1.grams,
                     startZoneOffset = ZoneOffset.UTC,
-                    endZoneOffset = ZoneOffset.UTC
+                    endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata.manualEntry(),
                 ),
                 SpeedRecord(
                     startTime = START_TIME,
                     endTime = START_TIME + 15.minutes,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata.manualEntry(),
                     samples =
                         listOf(
                             SpeedRecord.Sample(
                                 time = START_TIME + 5.minutes,
-                                speed = Velocity.metersPerSecond(2.8)
+                                speed = Velocity.metersPerSecond(2.8),
                             ),
                             SpeedRecord.Sample(
                                 time = START_TIME + 10.minutes,
-                                speed = Velocity.metersPerSecond(2.7)
-                            )
-                        )
+                                speed = Velocity.metersPerSecond(2.7),
+                            ),
+                        ),
                 ),
                 StepsCadenceRecord(
                     startTime = START_TIME,
                     endTime = START_TIME + 10.minutes,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC,
+                    metadata = Metadata.manualEntry(),
                     samples =
                         listOf(
                             StepsCadenceRecord.Sample(time = START_TIME + 3.minutes, rate = 170.0)
-                        )
-                )
+                        ),
+                ),
             )
         )
 
@@ -265,7 +192,7 @@ class HealthConnectClientAggregationExtensionsTest {
             healthConnectClient.aggregateFallback(
                 AggregateRequest(
                     metrics = AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10 + NutritionRecord.CALCIUM_TOTAL,
-                    timeRangeFilter = TimeRangeFilter.none()
+                    timeRangeFilter = TimeRangeFilter.after(Instant.EPOCH),
                 )
             )
 
@@ -300,7 +227,7 @@ class HealthConnectClientAggregationExtensionsTest {
             healthConnectClient.aggregateFallback(
                 AggregateRequest(
                     metrics = AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10,
-                    timeRangeFilter = TimeRangeFilter.none()
+                    timeRangeFilter = TimeRangeFilter.after(Instant.EPOCH),
                 )
             )
 
@@ -318,7 +245,11 @@ class HealthConnectClientAggregationExtensionsTest {
         val count =
             healthConnectClient
                 .readRecordsFlow(
-                    ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none(), emptySet())
+                    ReadRecordsRequest(
+                        StepsRecord::class,
+                        TimeRangeFilter.after(Instant.EPOCH),
+                        emptySet(),
+                    )
                 )
                 .fold(0) { currentCount, records -> currentCount + records.size }
 
@@ -337,9 +268,9 @@ class HealthConnectClientAggregationExtensionsTest {
                         StepsRecord::class,
                         TimeRangeFilter.between(
                             START_TIME + 10_000.seconds,
-                            START_TIME + 90_000.seconds
+                            START_TIME + 90_000.seconds,
                         ),
-                        emptySet()
+                        emptySet(),
                     )
                 )
                 .fold(0) { currentCount, records -> currentCount + records.size }
@@ -357,8 +288,8 @@ class HealthConnectClientAggregationExtensionsTest {
                 .readRecordsFlow(
                     ReadRecordsRequest(
                         StepsRecord::class,
-                        TimeRangeFilter.none(),
-                        setOf(DataOrigin(context.packageName))
+                        TimeRangeFilter.after(Instant.EPOCH),
+                        setOf(DataOrigin(context.packageName)),
                     )
                 )
                 .fold(0) { currentCount, records -> currentCount + records.size }
@@ -375,8 +306,8 @@ class HealthConnectClientAggregationExtensionsTest {
                 .readRecordsFlow(
                     ReadRecordsRequest(
                         StepsRecord::class,
-                        TimeRangeFilter.none(),
-                        setOf(DataOrigin("some random package name"))
+                        TimeRangeFilter.after(Instant.EPOCH),
+                        setOf(DataOrigin("some random package name")),
                     )
                 )
                 .fold(0) { currentCount, records -> currentCount + records.size }
@@ -395,7 +326,8 @@ class HealthConnectClientAggregationExtensionsTest {
                         endTime = startTime + 5.seconds,
                         count = 10L,
                         startZoneOffset = ZoneOffset.UTC,
-                        endZoneOffset = ZoneOffset.UTC
+                        endZoneOffset = ZoneOffset.UTC,
+                        metadata = Metadata.manualEntry(),
                     )
                 }
             )

@@ -58,7 +58,7 @@ object TransformUtil {
     fun calculateRelativeImageRotationDegrees(
         destRotationDegrees: Int,
         sourceRotationDegrees: Int,
-        isOppositeFacing: Boolean
+        isOppositeFacing: Boolean,
     ): Int =
         if (isOppositeFacing) {
             (sourceRotationDegrees - destRotationDegrees + 360) % 360
@@ -78,7 +78,7 @@ object TransformUtil {
         resolution: Size,
         targetRotation: Int,
         sensorRotationDegrees: Int,
-        isOppositeFacing: Boolean
+        isOppositeFacing: Boolean,
     ) {
         // For TextureView, correct the orientation to match the target rotation.
         preview.setTransform(getTextureViewCorrectionMatrix(resolution, targetRotation))
@@ -90,8 +90,8 @@ object TransformUtil {
                 calculateRelativeImageRotationDegrees(
                     surfaceRotationToRotationDegrees(targetRotation),
                     sensorRotationDegrees,
-                    isOppositeFacing
-                )
+                    isOppositeFacing,
+                ),
             )
 
         preview.pivotX = 0f
@@ -155,7 +155,7 @@ object TransformUtil {
     private fun getTransformedSurfaceRect(
         containerViewSize: Size,
         resolution: Size,
-        rotationDegrees: Int
+        rotationDegrees: Int,
     ): RectF {
         val surfaceToPreviewMatrix =
             getSurfaceToPreviewMatrix(containerViewSize, resolution, rotationDegrees)
@@ -173,7 +173,7 @@ object TransformUtil {
     private fun getSurfaceToPreviewMatrix(
         containerViewSize: Size,
         resolution: Size,
-        rotationDegrees: Int
+        rotationDegrees: Int,
     ): Matrix {
         val surfaceRect = RectF(0f, 0f, resolution.width.toFloat(), resolution.height.toFloat())
 
@@ -189,7 +189,7 @@ object TransformUtil {
     private fun getPreviewCropRect(
         containerViewSize: Size,
         surfaceCropRect: Rect,
-        rotationDegrees: Int
+        rotationDegrees: Int,
     ): RectF {
         val containerViewRect =
             RectF(0f, 0f, containerViewSize.width.toFloat(), containerViewSize.height.toFloat())

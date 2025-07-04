@@ -16,31 +16,63 @@
 
 package androidx.xr.compose.spatial
 
-import androidx.annotation.RestrictTo
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.unit.toMeter
 
 /**
- * Represents the resting elevation level for spatial elements.
+ * Defines standardized resting elevation levels for spatial UI elements. These levels provide a
+ * consistent visual hierarchy.
  *
- * Elevation levels range from `Level0` (no elevation) to `Level5` (highest allowed elevation).
- *
- * NOTE: Level0 is not visually distinguishable from base-level content but is present to support
- * smooth transitioning between elevation levels.
- *
- * Values are expressed in meters for consistency with spatial positioning.
+ * Elevation levels range from [Level0] (imperceptible, for smooth transitions) to [Level5] (highest
+ * recommended).
  */
-@JvmInline
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public value class SpatialElevationLevel internal constructor(public val level: Float) {
-    public companion object {
-        internal val ActivityDefault = SpatialElevationLevel(0f)
-        public val Level0: SpatialElevationLevel = SpatialElevationLevel(0.1.dp.toMeter().value)
-        public val Level1: SpatialElevationLevel = SpatialElevationLevel(15.dp.toMeter().value)
-        public val Level2: SpatialElevationLevel = SpatialElevationLevel(30.dp.toMeter().value)
-        public val Level3: SpatialElevationLevel = SpatialElevationLevel(60.dp.toMeter().value)
-        public val Level4: SpatialElevationLevel = SpatialElevationLevel(90.dp.toMeter().value)
-        public val Level5: SpatialElevationLevel = SpatialElevationLevel(120.dp.toMeter().value)
-        internal val DialogDefault = SpatialElevationLevel(125.dp.toMeter().value)
-    }
+public object SpatialElevationLevel {
+
+    /**
+     * Default elevation for the overall activity or screen background. Usually no elevation. Value:
+     * `0.dp`.
+     */
+    public val ActivityDefault: Dp = 0.dp
+
+    /**
+     * The base elevation, used for the main content panel. Visually indistinct from no elevation
+     * (0.dp) but crucial for animation and transition purposes.
+     */
+    public val Level0: Dp = 0.1.dp
+
+    /**
+     * Elevation for secondary UI elements like orbiters that float above the main panel. Value:
+     * `16.dp`.
+     */
+    public val Level1: Dp = 16.dp
+
+    /**
+     * Elevation for transient UI elements such as Menus (Dropdown, Autocomplete, Select) and
+     * Orbiters Menus. Value: `24.dp`.
+     */
+    public val Level2: Dp = 24.dp
+
+    /**
+     * An intermediate elevation. No assigned to default components but available for custom
+     * layering. Value: `32.dp`.
+     */
+    public val Level3: Dp = 32.dp
+
+    /**
+     * A higher intermediate elevation. Not assigned to default components but available for custom
+     * layering. Value: `40.dp`.
+     */
+    public val Level4: Dp = 40.dp
+
+    /**
+     * The highest standard elevation, typically reserved for elements like `SpatialDialog`. Value:
+     * `56.dp`.
+     */
+    public val Level5: Dp = 56.dp
+
+    /**
+     * Default elevation specifically for Dialogs, typically the highest. Mirrors [Level5]. Value:
+     * `56.dp`.
+     */
+    public val DialogDefault: Dp = 56.dp
 }

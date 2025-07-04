@@ -86,7 +86,7 @@ interface OverscrollEffect {
     fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
-        performScroll: (Offset) -> Offset
+        performScroll: (Offset) -> Offset,
     ): Offset
 
     /**
@@ -133,7 +133,7 @@ interface OverscrollEffect {
         "This has been replaced with `node`. If you are calling this property to render overscroll, use Modifier.overscroll() instead. If you are implementing OverscrollEffect, override `node` instead to render your overscroll.",
         level = DeprecationLevel.ERROR,
         replaceWith =
-            ReplaceWith("Modifier.overscroll(this)", "androidx.compose.foundation.overscroll")
+            ReplaceWith("Modifier.overscroll(this)", "androidx.compose.foundation.overscroll"),
     )
     val effectModifier: Modifier
         get() = Modifier
@@ -175,7 +175,7 @@ fun OverscrollEffect.withoutVisualEffect(): OverscrollEffect =
     WrappedOverscrollEffect(
         attachNode = false,
         eventHandlingEnabled = true,
-        innerOverscrollEffect = this
+        innerOverscrollEffect = this,
     )
 
 /**
@@ -198,19 +198,19 @@ fun OverscrollEffect.withoutEventHandling(): OverscrollEffect =
     WrappedOverscrollEffect(
         attachNode = true,
         eventHandlingEnabled = false,
-        innerOverscrollEffect = this
+        innerOverscrollEffect = this,
     )
 
 @Immutable
 private class WrappedOverscrollEffect(
     private val attachNode: Boolean,
     private val eventHandlingEnabled: Boolean,
-    private val innerOverscrollEffect: OverscrollEffect
+    private val innerOverscrollEffect: OverscrollEffect,
 ) : OverscrollEffect {
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
-        performScroll: (Offset) -> Offset
+        performScroll: (Offset) -> Offset,
     ): Offset {
         return if (eventHandlingEnabled) {
             innerOverscrollEffect.applyToScroll(delta, source, performScroll)
@@ -221,7 +221,7 @@ private class WrappedOverscrollEffect(
 
     override suspend fun applyToFling(
         velocity: Velocity,
-        performFling: suspend (Velocity) -> Velocity
+        performFling: suspend (Velocity) -> Velocity,
     ) {
         if (eventHandlingEnabled) {
             innerOverscrollEffect.applyToFling(velocity, performFling)
@@ -281,9 +281,8 @@ fun Modifier.overscroll(overscrollEffect: OverscrollEffect?): Modifier {
     return this.then(modifier)
 }
 
-private class OverscrollModifierElement(
-    private val overscrollEffect: OverscrollEffect?,
-) : ModifierNodeElement<OverscrollModifierNode>() {
+private class OverscrollModifierElement(private val overscrollEffect: OverscrollEffect?) :
+    ModifierNodeElement<OverscrollModifierNode>() {
     override fun create(): OverscrollModifierNode {
         return OverscrollModifierNode(overscrollEffect?.node)
     }

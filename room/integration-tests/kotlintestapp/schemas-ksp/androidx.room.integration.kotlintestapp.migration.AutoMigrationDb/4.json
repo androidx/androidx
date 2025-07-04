@@ -675,7 +675,7 @@
       },
       {
         "tableName": "Entity22",
-        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1)",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, `addedInV4` INTEGER NOT NULL DEFAULT 2)",
         "fields": [
           {
             "fieldPath": "name",
@@ -689,6 +689,13 @@
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "1"
+          },
+          {
+            "fieldPath": "addedInV4",
+            "columnName": "addedInV4",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "2"
           }
         ],
         "primaryKey": {

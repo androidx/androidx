@@ -16,8 +16,9 @@
 
 package androidx.recyclerview.selection.testing;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
+
+import org.jspecify.annotations.NonNull;
 
 public final class TestSelectionPredicate<K> extends SelectionPredicate<K> {
 

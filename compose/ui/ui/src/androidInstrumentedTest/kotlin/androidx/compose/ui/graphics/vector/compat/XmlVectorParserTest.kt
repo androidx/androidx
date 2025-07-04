@@ -253,7 +253,7 @@ class XmlVectorParserTest {
         assertTrue(
             "Expected type ${T::class.java.simpleName} but was actually " +
                 this::class.java.simpleName,
-            this is T
+            this is T,
         )
         return this as T
     }
@@ -263,7 +263,7 @@ class XmlVectorParserTest {
         assertTrue(
             "Expected type ${T::class.java.simpleName} but was actually " +
                 this::class.java.simpleName,
-            this is T
+            this is T,
         )
         return this as T
     }

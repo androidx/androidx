@@ -82,7 +82,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.theming_options),
                 style = MaterialTheme.typography.body1,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             Spacer(modifier = Modifier.height(ThemePickerPadding))
         }
@@ -90,7 +90,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.primary_color),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             LazyRow(contentPadding = PaddingValues(end = ThemePickerPadding)) {
                 items(ThemeColor.values()) { themeColor ->
@@ -99,11 +99,11 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                             Modifier.padding(
                                 start = ThemePickerPadding,
                                 top = ThemePickerPadding,
-                                bottom = ThemePickerPadding
+                                bottom = ThemePickerPadding,
                             ),
                         themeColor = themeColor,
                         selected = { it == themeState.primaryColor },
-                        onClick = { themeState = themeState.copy(primaryColor = it) }
+                        onClick = { themeState = themeState.copy(primaryColor = it) },
                     )
                 }
             }
@@ -112,7 +112,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.secondary_color),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             LazyRow(contentPadding = PaddingValues(end = ThemePickerPadding)) {
                 items(ThemeColor.values()) { themeColor ->
@@ -121,11 +121,11 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                             Modifier.padding(
                                 start = ThemePickerPadding,
                                 top = ThemePickerPadding,
-                                bottom = ThemePickerPadding
+                                bottom = ThemePickerPadding,
                             ),
                         themeColor = themeColor,
                         selected = { it == themeState.secondaryColor },
-                        onClick = { themeState = themeState.copy(secondaryColor = it) }
+                        onClick = { themeState = themeState.copy(secondaryColor = it) },
                     )
                 }
             }
@@ -136,7 +136,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.font_family),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             // LazyVerticalGrid can't be used within LazyColumn due to nested scrolling
             val themeFontFamilies = ThemeFontFamily.values()
@@ -146,14 +146,14 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                         modifier = Modifier.weight(1f),
                         themeFontFamily = themeFontFamilies[0],
                         selected = { it == themeState.fontFamily },
-                        onClick = { themeState = themeState.copy(fontFamily = it) }
+                        onClick = { themeState = themeState.copy(fontFamily = it) },
                     )
                     Spacer(modifier = Modifier.width(ThemePickerPadding))
                     ThemeFontFamilyItem(
                         modifier = Modifier.weight(1f),
                         themeFontFamily = themeFontFamilies[1],
                         selected = { it == themeState.fontFamily },
-                        onClick = { themeState = themeState.copy(fontFamily = it) }
+                        onClick = { themeState = themeState.copy(fontFamily = it) },
                     )
                 }
                 Spacer(modifier = Modifier.height(ThemePickerPadding))
@@ -162,14 +162,14 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                         modifier = Modifier.weight(1f),
                         themeFontFamily = themeFontFamilies[2],
                         selected = { it == themeState.fontFamily },
-                        onClick = { themeState = themeState.copy(fontFamily = it) }
+                        onClick = { themeState = themeState.copy(fontFamily = it) },
                     )
                     Spacer(modifier = Modifier.width(ThemePickerPadding))
                     ThemeFontFamilyItem(
                         modifier = Modifier.weight(1f),
                         themeFontFamily = themeFontFamilies[3],
                         selected = { it == themeState.fontFamily },
-                        onClick = { themeState = themeState.copy(fontFamily = it) }
+                        onClick = { themeState = themeState.copy(fontFamily = it) },
                     )
                 }
                 Spacer(modifier = Modifier.height(ThemePickerPadding))
@@ -178,7 +178,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                         modifier = Modifier.weight(1f),
                         themeFontFamily = themeFontFamilies[4],
                         selected = { it == themeState.fontFamily },
-                        onClick = { themeState = themeState.copy(fontFamily = it) }
+                        onClick = { themeState = themeState.copy(fontFamily = it) },
                     )
                 }
             }
@@ -189,14 +189,14 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.shape_corner_family),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             LazyRow(
                 contentPadding =
                     PaddingValues(
                         start = ThemePickerPadding,
                         top = ThemePickerPadding,
-                        bottom = ThemePickerPadding
+                        bottom = ThemePickerPadding,
                     )
             ) {
                 items(ThemeShapeCornerFamily.values()) { themeShapeCornerFamily ->
@@ -204,7 +204,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                         modifier = Modifier.padding(end = ThemePickerPadding),
                         themeShapeCornerFamily = themeShapeCornerFamily,
                         selected = { it == themeState.shapeCornerFamily },
-                        onClick = { themeState = themeState.copy(shapeCornerFamily = it) }
+                        onClick = { themeState = themeState.copy(shapeCornerFamily = it) },
                     )
                 }
             }
@@ -213,13 +213,13 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.small_shape_corner_size),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             ThemeShapeCornerSizeItem(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = ThemePickerPadding),
                 themeShapeCornerSize = themeState.smallShapeCornerSize,
                 themeShapeCornerSizeMax = MaxSmallShapeCornerSize,
-                onValueChange = { themeState = themeState.copy(smallShapeCornerSize = it) }
+                onValueChange = { themeState = themeState.copy(smallShapeCornerSize = it) },
             )
             Spacer(modifier = Modifier.height(ThemePickerPadding))
         }
@@ -227,13 +227,13 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.medium_shape_corner_size),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             ThemeShapeCornerSizeItem(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = ThemePickerPadding),
                 themeShapeCornerSize = themeState.mediumShapeCornerSize,
                 themeShapeCornerSizeMax = MaxMediumShapeCornerSize,
-                onValueChange = { themeState = themeState.copy(mediumShapeCornerSize = it) }
+                onValueChange = { themeState = themeState.copy(mediumShapeCornerSize = it) },
             )
             Spacer(modifier = Modifier.height(ThemePickerPadding))
         }
@@ -241,13 +241,13 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
             Text(
                 text = stringResource(id = R.string.large_shape_corner_size),
                 style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = ThemePickerPadding)
+                modifier = Modifier.padding(horizontal = ThemePickerPadding),
             )
             ThemeShapeCornerSizeItem(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = ThemePickerPadding),
                 themeShapeCornerSize = themeState.largeShapeCornerSize,
                 themeShapeCornerSizeMax = MaxLargeShapeCornerSize,
-                onValueChange = { themeState = themeState.copy(largeShapeCornerSize = it) }
+                onValueChange = { themeState = themeState.copy(largeShapeCornerSize = it) },
             )
             Spacer(modifier = Modifier.height(ThemePickerPadding))
             Divider()
@@ -259,7 +259,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                     onClick = { onThemeChange(themeState) },
                     modifier = Modifier.weight(1f),
                     enabled = themeState != theme,
-                    elevation = null
+                    elevation = null,
                 ) {
                     Text(text = stringResource(R.string.apply))
                 }
@@ -270,7 +270,7 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                         onThemeChange(themeState)
                     },
                     modifier = Modifier.weight(1f),
-                    enabled = theme != DefaultTheme
+                    enabled = theme != DefaultTheme,
                 ) {
                     Text(text = stringResource(R.string.reset))
                 }
@@ -284,7 +284,7 @@ private fun ThemeColorItem(
     modifier: Modifier = Modifier,
     themeColor: ThemeColor,
     selected: (themeColor: ThemeColor) -> Boolean,
-    onClick: (themeColor: ThemeColor) -> Unit
+    onClick: (themeColor: ThemeColor) -> Unit,
 ) {
     val darkTheme = !MaterialTheme.colors.isLight
     RadioButton(
@@ -294,8 +294,8 @@ private fun ThemeColorItem(
         colors =
             RadioButtonDefaults.colors(
                 selectedColor = themeColor.getColor(darkTheme),
-                unselectedColor = themeColor.getColor(darkTheme)
-            )
+                unselectedColor = themeColor.getColor(darkTheme),
+            ),
     )
 }
 
@@ -304,7 +304,7 @@ private fun ThemeFontFamilyItem(
     modifier: Modifier = Modifier,
     themeFontFamily: ThemeFontFamily,
     selected: (themeFontFamily: ThemeFontFamily) -> Boolean,
-    onClick: (themeFontFamily: ThemeFontFamily) -> Unit
+    onClick: (themeFontFamily: ThemeFontFamily) -> Unit,
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         RadioButton(selected = selected(themeFontFamily), onClick = { onClick(themeFontFamily) })
@@ -312,7 +312,7 @@ private fun ThemeFontFamilyItem(
         Text(
             text = themeFontFamily.label,
             style =
-                MaterialTheme.typography.body2.copy(fontFamily = themeFontFamily.getFontFamily())
+                MaterialTheme.typography.body2.copy(fontFamily = themeFontFamily.getFontFamily()),
         )
     }
 }
@@ -322,7 +322,7 @@ private fun ThemeShapeCornerFamilyItem(
     modifier: Modifier = Modifier,
     themeShapeCornerFamily: ThemeShapeCornerFamily,
     selected: (themeShapeCornerFamily: ThemeShapeCornerFamily) -> Boolean,
-    onClick: (themeShapeCornerFamily: ThemeShapeCornerFamily) -> Unit
+    onClick: (themeShapeCornerFamily: ThemeShapeCornerFamily) -> Unit,
 ) {
     TextButton(
         onClick = { onClick(themeShapeCornerFamily) },
@@ -334,7 +334,7 @@ private fun ThemeShapeCornerFamilyItem(
                 ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
                 )
-            }
+            },
     ) {
         val iconId =
             when (themeShapeCornerFamily) {
@@ -344,7 +344,7 @@ private fun ThemeShapeCornerFamilyItem(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(iconId),
-                contentDescription = themeShapeCornerFamily.label
+                contentDescription = themeShapeCornerFamily.label,
             )
             Spacer(modifier = Modifier.width(ThemePickerPadding))
             Text(text = themeShapeCornerFamily.label)
@@ -357,7 +357,7 @@ private fun ThemeShapeCornerSizeItem(
     modifier: Modifier = Modifier,
     themeShapeCornerSize: Int,
     themeShapeCornerSizeMax: Int,
-    onValueChange: (themeShapeCornerSize: Int) -> Unit
+    onValueChange: (themeShapeCornerSize: Int) -> Unit,
 ) {
     Column(modifier = modifier) {
         Slider(
@@ -367,7 +367,7 @@ private fun ThemeShapeCornerSizeItem(
         )
         Text(
             text = stringResource(id = R.string.dp, themeShapeCornerSize),
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.body2,
         )
     }
 }

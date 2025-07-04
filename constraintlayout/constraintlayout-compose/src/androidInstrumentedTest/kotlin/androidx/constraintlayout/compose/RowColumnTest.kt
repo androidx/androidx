@@ -70,7 +70,7 @@ class RowColumnTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
             )
         }
         var expectedX = 0.dp
@@ -108,7 +108,7 @@ class RowColumnTest {
                 spans = "''",
                 skips = "'1:2'",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
             )
         }
         var expectedX = 0.dp
@@ -148,7 +148,7 @@ class RowColumnTest {
                 spans = "'0:2'",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
             )
         }
         // 10.dp is the size of a singular box
@@ -185,7 +185,7 @@ class RowColumnTest {
                 spans = "''",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
             )
         }
         var expectedX = 0.dp
@@ -223,7 +223,7 @@ class RowColumnTest {
                 spans = "''",
                 skips = "'1:2'",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
             )
         }
         var expectedX = 0.dp
@@ -263,7 +263,7 @@ class RowColumnTest {
                 spans = "'0:2'",
                 skips = "''",
                 rowWeights = "''",
-                columnWeights = "''"
+                columnWeights = "''",
             )
         }
         // 10.dp is the size of a singular box
@@ -323,7 +323,7 @@ class RowColumnTest {
         }
         """
                         .trimIndent()
-                )
+                ),
         ) {
             ids.forEach { id ->
                 Box(Modifier.layoutId(id).size(10.dp).background(Color.Red).testTag(id))

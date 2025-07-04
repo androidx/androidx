@@ -80,50 +80,22 @@ class IntLongMapTest {
 
     @Test
     fun intLongMapInitFunction() {
-        val map1 =
-            intLongMapOf(
-                1,
-                1L,
-            )
+        val map1 = intLongMapOf(1, 1L)
         assertEquals(1, map1.size)
         assertEquals(1L, map1[1])
 
-        val map2 =
-            intLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-            )
+        val map2 = intLongMapOf(1, 1L, 2, 2L)
         assertEquals(2, map2.size)
         assertEquals(1L, map2[1])
         assertEquals(2L, map2[2])
 
-        val map3 =
-            intLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-                3,
-                3L,
-            )
+        val map3 = intLongMapOf(1, 1L, 2, 2L, 3, 3L)
         assertEquals(3, map3.size)
         assertEquals(1L, map3[1])
         assertEquals(2L, map3[2])
         assertEquals(3L, map3[3])
 
-        val map4 =
-            intLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-                3,
-                3L,
-                4,
-                4L,
-            )
+        val map4 = intLongMapOf(1, 1L, 2, 2L, 3, 3L, 4, 4L)
 
         assertEquals(4, map4.size)
         assertEquals(1L, map4[1])
@@ -131,19 +103,7 @@ class IntLongMapTest {
         assertEquals(3L, map4[3])
         assertEquals(4L, map4[4])
 
-        val map5 =
-            intLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-                3,
-                3L,
-                4,
-                4L,
-                5,
-                5L,
-            )
+        val map5 = intLongMapOf(1, 1L, 2, 2L, 3, 3L, 4, 4L, 5, 5L)
 
         assertEquals(5, map5.size)
         assertEquals(1L, map5[1])
@@ -155,50 +115,22 @@ class IntLongMapTest {
 
     @Test
     fun mutableIntLongMapInitFunction() {
-        val map1 =
-            mutableIntLongMapOf(
-                1,
-                1L,
-            )
+        val map1 = mutableIntLongMapOf(1, 1L)
         assertEquals(1, map1.size)
         assertEquals(1L, map1[1])
 
-        val map2 =
-            mutableIntLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-            )
+        val map2 = mutableIntLongMapOf(1, 1L, 2, 2L)
         assertEquals(2, map2.size)
         assertEquals(1L, map2[1])
         assertEquals(2L, map2[2])
 
-        val map3 =
-            mutableIntLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-                3,
-                3L,
-            )
+        val map3 = mutableIntLongMapOf(1, 1L, 2, 2L, 3, 3L)
         assertEquals(3, map3.size)
         assertEquals(1L, map3[1])
         assertEquals(2L, map3[2])
         assertEquals(3L, map3[3])
 
-        val map4 =
-            mutableIntLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-                3,
-                3L,
-                4,
-                4L,
-            )
+        val map4 = mutableIntLongMapOf(1, 1L, 2, 2L, 3, 3L, 4, 4L)
 
         assertEquals(4, map4.size)
         assertEquals(1L, map4[1])
@@ -206,19 +138,7 @@ class IntLongMapTest {
         assertEquals(3L, map4[3])
         assertEquals(4L, map4[4])
 
-        val map5 =
-            mutableIntLongMapOf(
-                1,
-                1L,
-                2,
-                2L,
-                3,
-                3L,
-                4,
-                4L,
-                5,
-                5L,
-            )
+        val map5 = mutableIntLongMapOf(1, 1L, 2, 2L, 3, 3L, 4, 4L, 5, 5L)
 
         assertEquals(5, map5.size)
         assertEquals(1L, map5[1])
@@ -628,24 +548,24 @@ class IntLongMapTest {
                 "${order[1].toLong()}, ${order[2].toInt()}=${order[2].toLong()}," +
                 " ${order[3].toInt()}=${order[3].toLong()}, ${order[4].toInt()}=" +
                 "${order[4].toLong()}",
-            map.joinToString()
+            map.joinToString(),
         )
         assertEquals(
             "x${order[0].toInt()}=${order[0].toLong()}, ${order[1].toInt()}=" +
                 "${order[1].toLong()}, ${order[2].toInt()}=${order[2].toLong()}...",
-            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+            map.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${order[0].toInt()}=${order[0].toLong()}-${order[1].toInt()}=" +
                 "${order[1].toLong()}-${order[2].toInt()}=${order[2].toLong()}-" +
                 "${order[3].toInt()}=${order[3].toLong()}-${order[4].toInt()}=" +
                 "${order[4].toLong()}<",
-            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+            map.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         val names = arrayOf("one", "two", "three", "four", "five")
         assertEquals(
             "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
-            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] },
         )
     }
 

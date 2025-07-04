@@ -20,15 +20,6 @@
     </issue>
 
     <issue
-        id="MissingServiceExportedEqualsTrue"
-        message="Missing exported=true in &lt;service> tag"
-        errorLine1="        &lt;service"
-        errorLine2="        ^">
-        <location
-            file="src/main/AndroidManifest.xml"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; `SDK_INT` is never &lt; 21"
         errorLine1="    if (Build.VERSION.SDK_INT &lt; 21) {"

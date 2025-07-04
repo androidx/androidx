@@ -69,13 +69,13 @@ class LayoutElementAssertionTest {
     @Test
     fun assert_withMatcher_success() {
         val assertion = LayoutElementAssertion(ELEMENT_DESCRIPTION, Box.Builder().build())
-        assertion.assert(LayoutElementMatcher("Element type is Box") { it is Box })
+        assertion.assert(LayoutElementMatcher("Element type is Box") { element -> element is Box })
     }
 
     @Test
     fun assert_withMatcher_error() {
         val assertion = LayoutElementAssertion(ELEMENT_DESCRIPTION, Box.Builder().build())
-        val matcher = LayoutElementMatcher("Element type is Text") { it is Text }
+        val matcher = LayoutElementMatcher("Element type is Text") { element -> element is Text }
 
         val assertionError = assertThrows(AssertionError::class.java) { assertion.assert(matcher) }
 
@@ -92,10 +92,11 @@ class LayoutElementAssertionTest {
         val textContent = "testing text"
         val assertion =
             LayoutElementAssertion(ELEMENT_DESCRIPTION, Text.Builder().setText(textContent).build())
-        val typeMatcher = LayoutElementMatcher("Element type is Text") { it is Text }
+        val typeMatcher =
+            LayoutElementMatcher("Element type is Text") { element -> element is Text }
         val contentMatcher =
-            LayoutElementMatcher("Element text = '$textContent'") {
-                it is Text && it.text?.value == textContent
+            LayoutElementMatcher("Element text = '$textContent'") { element ->
+                element is Text && element.text?.value == textContent
             }
 
         assertion.assert(typeMatcher).assert(contentMatcher)
@@ -106,8 +107,9 @@ class LayoutElementAssertionTest {
         val textContent = "testing text"
         val assertion =
             LayoutElementAssertion(ELEMENT_DESCRIPTION, Text.Builder().setText(textContent).build())
-        val firstMatcher = LayoutElementMatcher("Element type is Box") { it is Box }
-        val secondMatcher = LayoutElementMatcher("Element type is Text") { it is Text }
+        val firstMatcher = LayoutElementMatcher("Element type is Box") { element -> element is Box }
+        val secondMatcher =
+            LayoutElementMatcher("Element type is Text") { element -> element is Text }
 
         val assertionError =
             assertThrows(AssertionError::class.java) {
@@ -128,8 +130,10 @@ class LayoutElementAssertionTest {
         val textContent = "testing text"
         val assertion =
             LayoutElementAssertion(ELEMENT_DESCRIPTION, Text.Builder().setText(textContent).build())
-        val firstMatcher = LayoutElementMatcher("Element type is Text") { it is Text }
-        val secondMatcher = LayoutElementMatcher("Element type is Box") { it is Box }
+        val firstMatcher =
+            LayoutElementMatcher("Element type is Text") { element -> element is Text }
+        val secondMatcher =
+            LayoutElementMatcher("Element type is Box") { element -> element is Box }
 
         val assertionError =
             assertThrows(AssertionError::class.java) {

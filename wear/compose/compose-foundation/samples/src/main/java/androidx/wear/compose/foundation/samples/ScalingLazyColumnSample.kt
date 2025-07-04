@@ -46,7 +46,7 @@ fun SimpleScalingLazyColumn() {
             Chip(
                 onClick = {},
                 label = { Text("List item $it") },
-                colors = ChipDefaults.secondaryChipColors()
+                colors = ChipDefaults.secondaryChipColors(),
             )
         }
     }
@@ -67,7 +67,7 @@ fun SimpleScalingLazyColumnWithSnap() {
             Chip(
                 onClick = {},
                 label = { Text("List item $it") },
-                colors = ChipDefaults.secondaryChipColors()
+                colors = ChipDefaults.secondaryChipColors(),
             )
         }
     }
@@ -83,7 +83,7 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
     val state =
         rememberScalingLazyListState(
             initialCenterItemIndex = 1,
-            initialCenterItemScrollOffset = scrollOffset
+            initialCenterItemScrollOffset = scrollOffset,
         )
 
     ScalingLazyColumn(
@@ -91,7 +91,7 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
         anchorType = ScalingLazyListAnchorType.ItemStart,
         verticalArrangement = Arrangement.spacedBy(itemSpacing),
         state = state,
-        autoCentering = AutoCenteringParams(itemOffset = scrollOffset)
+        autoCentering = AutoCenteringParams(itemOffset = scrollOffset),
     ) {
         item { ListHeader { Text(text = "List Header") } }
         items(20) {
@@ -103,7 +103,7 @@ fun ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo() {
                     }
                 },
                 label = { Text("List item $it") },
-                colors = ChipDefaults.secondaryChipColors()
+                colors = ChipDefaults.secondaryChipColors(),
             )
         }
     }
@@ -115,14 +115,14 @@ fun SimpleScalingLazyColumnWithContentPadding() {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(top = 20.dp, bottom = 20.dp),
-        autoCentering = null
+        autoCentering = null,
     ) {
         item { ListHeader { Text(text = "List Header") } }
         items(20) {
             Chip(
                 onClick = {},
                 label = { Text("List item $it") },
-                colors = ChipDefaults.secondaryChipColors()
+                colors = ChipDefaults.secondaryChipColors(),
             )
         }
     }

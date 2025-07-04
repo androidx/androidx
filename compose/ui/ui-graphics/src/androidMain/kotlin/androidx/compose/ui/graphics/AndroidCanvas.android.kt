@@ -84,7 +84,7 @@ internal class AndroidCanvas() : Canvas {
             bounds.right,
             bounds.bottom,
             paint.asFrameworkPaint(),
-            android.graphics.Canvas.ALL_SAVE_FLAG
+            android.graphics.Canvas.ALL_SAVE_FLAG,
         )
     }
 
@@ -150,7 +150,7 @@ internal class AndroidCanvas() : Canvas {
         bottom: Float,
         radiusX: Float,
         radiusY: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         internalCanvas.drawRoundRect(
             left,
@@ -159,7 +159,7 @@ internal class AndroidCanvas() : Canvas {
             bottom,
             radiusX,
             radiusY,
-            paint.asFrameworkPaint()
+            paint.asFrameworkPaint(),
         )
     }
 
@@ -180,7 +180,7 @@ internal class AndroidCanvas() : Canvas {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         internalCanvas.drawArc(
             left,
@@ -190,7 +190,7 @@ internal class AndroidCanvas() : Canvas {
             startAngle,
             sweepAngle,
             useCenter,
-            paint.asFrameworkPaint()
+            paint.asFrameworkPaint(),
         )
     }
 
@@ -205,7 +205,7 @@ internal class AndroidCanvas() : Canvas {
             image.asAndroidBitmap(),
             topLeftOffset.x,
             topLeftOffset.y,
-            paint.asFrameworkPaint()
+            paint.asFrameworkPaint(),
         )
     }
 
@@ -216,7 +216,7 @@ internal class AndroidCanvas() : Canvas {
         srcSize: IntSize,
         dstOffset: IntOffset,
         dstSize: IntSize,
-        paint: Paint
+        paint: Paint,
     ) {
         // There is no framework API to draw a subset of a target bitmap
         // that consumes only primitives so lazily allocate a src and dst
@@ -239,7 +239,7 @@ internal class AndroidCanvas() : Canvas {
                 right = dstOffset.x + dstSize.width
                 bottom = dstOffset.y + dstSize.height
             },
-            paint.asFrameworkPaint()
+            paint.asFrameworkPaint(),
         )
     }
 
@@ -365,7 +365,7 @@ internal class AndroidCanvas() : Canvas {
             vertices.indices,
             0, // TODO(njawad) figure out proper indexOffset)
             vertices.indices.size,
-            paint.asFrameworkPaint()
+            paint.asFrameworkPaint(),
         )
     }
 }

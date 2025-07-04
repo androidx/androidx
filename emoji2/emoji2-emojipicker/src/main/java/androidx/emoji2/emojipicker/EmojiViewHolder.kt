@@ -30,7 +30,7 @@ internal class EmojiViewHolder(
     height: Int,
     private val stickyVariantProvider: StickyVariantProvider,
     private val onEmojiPickedListener: EmojiViewHolder.(EmojiViewItem) -> Unit,
-    private val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit
+    private val onEmojiPickedFromPopupListener: EmojiViewHolder.(String) -> Unit,
 ) : ViewHolder(EmojiView(context)) {
     private val onEmojiLongClickListener: OnLongClickListener =
         OnLongClickListener { targetEmojiView ->
@@ -49,9 +49,7 @@ internal class EmojiViewHolder(
     private lateinit var emojiViewItem: EmojiViewItem
     private lateinit var emojiPickerPopupViewController: EmojiPickerPopupViewController
 
-    fun bindEmoji(
-        emoji: String,
-    ) {
+    fun bindEmoji(emoji: String) {
         emojiView.emoji = emoji
         emojiViewItem = makeEmojiViewItem(emoji)
 
@@ -82,7 +80,7 @@ internal class EmojiViewHolder(
                     clickedEmojiView.sendAccessibilityEvent(
                         AccessibilityEvent.TYPE_VIEW_HOVER_ENTER
                     )
-                }
+                },
             )
         emojiPickerPopupViewController =
             EmojiPickerPopupViewController(context, emojiPickerPopupView, clickedEmojiView)

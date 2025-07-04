@@ -14,6 +14,8 @@ package androidx.preference {
     method public static operator java.util.Iterator<androidx.preference.Preference> iterator(androidx.preference.PreferenceGroup);
     method public static inline operator void minusAssign(androidx.preference.PreferenceGroup, androidx.preference.Preference preference);
     method public static inline operator void plusAssign(androidx.preference.PreferenceGroup, androidx.preference.Preference preference);
+    property public static kotlin.sequences.Sequence<androidx.preference.Preference> androidx.preference.PreferenceGroup.children;
+    property public static inline int androidx.preference.PreferenceGroup.size;
   }
 
 }

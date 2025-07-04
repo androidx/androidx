@@ -16,8 +16,6 @@
 
 package androidx.camera.video.internal.encoder;
 
-import static androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo;
-
 import android.media.MediaCodecInfo;
 import android.util.Range;
 
@@ -35,19 +33,6 @@ import java.util.Objects;
 public class AudioEncoderInfoImpl extends EncoderInfoImpl implements AudioEncoderInfo {
 
     private final MediaCodecInfo.AudioCapabilities mAudioCapabilities;
-
-    /**
-     * Returns an AudioEncoderInfoImpl from a AudioEncoderConfig.
-     *
-     * <p>The input AudioEncoderConfig is used to find the corresponding encoder.
-     *
-     * @throws InvalidConfigException if the encoder is not found.
-     */
-    public static @NonNull AudioEncoderInfoImpl from(@NonNull AudioEncoderConfig encoderConfig)
-            throws InvalidConfigException {
-        return new AudioEncoderInfoImpl(findCodecAndGetCodecInfo(encoderConfig),
-                encoderConfig.getMimeType());
-    }
 
     AudioEncoderInfoImpl(@NonNull MediaCodecInfo codecInfo, @NonNull String mime)
             throws InvalidConfigException {

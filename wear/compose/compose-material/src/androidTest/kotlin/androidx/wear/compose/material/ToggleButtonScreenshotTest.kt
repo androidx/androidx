@@ -52,7 +52,7 @@ class ToggleButtonScreenshotTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("On")
             }
@@ -64,7 +64,7 @@ class ToggleButtonScreenshotTest {
             ToggleButton(
                 checked = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 Text("On")
             }
@@ -76,7 +76,7 @@ class ToggleButtonScreenshotTest {
             checked = false,
             onCheckedChange = {},
             enabled = false,
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {
             Text("Off")
         }
@@ -84,7 +84,7 @@ class ToggleButtonScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

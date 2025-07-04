@@ -37,12 +37,12 @@ class LiveDataQueryResultBinderProvider(context: Context) :
     override fun create(
         typeArg: XType,
         resultAdapter: QueryResultAdapter?,
-        tableNames: Set<String>
+        tableNames: Set<String>,
     ): QueryResultBinder {
         return LiveDataQueryResultBinder(
             typeArg = typeArg,
             tableNames = tableNames,
-            adapter = resultAdapter
+            adapter = resultAdapter,
         )
     }
 

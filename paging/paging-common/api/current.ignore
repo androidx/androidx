@@ -1,3 +1,11 @@
 // Baseline format: 1.0
-RemovedJvmDefaultWithCompatibility: androidx.paging.Logger:
-    Cannot remove @kotlin.jvm.JvmDefaultWithCompatibility annotation from class androidx.paging.Logger: Incompatible change
+RemovedFromJava: androidx.paging.PagedList#remove(int):
+    Source breaking change: method androidx.paging.PagedList.remove(int) can no longer be resolved from Java source
+RemovedFromJava: androidx.paging.PagedList#size():
+    Source breaking change: method androidx.paging.PagedList.size() can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.paging.PagedList#remove(int):
+    Source breaking change: method androidx.paging.PagedList.remove(int) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.paging.PagedList#size():
+    Source breaking change: method androidx.paging.PagedList.size() can no longer be resolved from Kotlin source

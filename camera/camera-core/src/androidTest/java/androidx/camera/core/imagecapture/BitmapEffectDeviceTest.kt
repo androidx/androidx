@@ -53,7 +53,7 @@ class BitmapEffectDeviceTest {
                 Utils.CROP_RECT,
                 Utils.ROTATION_DEGREES,
                 Utils.SENSOR_TO_BUFFER,
-                Utils.CAMERA_CAPTURE_RESULT
+                Utils.CAMERA_CAPTURE_RESULT,
             )
 
         val output = operation.apply(input)

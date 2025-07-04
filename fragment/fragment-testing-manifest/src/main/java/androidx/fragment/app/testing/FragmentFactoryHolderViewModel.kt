@@ -25,15 +25,15 @@ import androidx.lifecycle.ViewModelProvider
 
 /** A view-model to hold a fragment factory. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class FragmentFactoryHolderViewModel : ViewModel() {
-    var fragmentFactory: FragmentFactory? = null
+public class FragmentFactoryHolderViewModel : ViewModel() {
+    public var fragmentFactory: FragmentFactory? = null
 
     override fun onCleared() {
         super.onCleared()
         fragmentFactory = null
     }
 
-    companion object {
+    public companion object {
         @Suppress("MemberVisibilityCanBePrivate")
         internal val FACTORY: ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
@@ -44,7 +44,7 @@ class FragmentFactoryHolderViewModel : ViewModel() {
                 }
             }
 
-        fun getInstance(activity: FragmentActivity): FragmentFactoryHolderViewModel {
+        public fun getInstance(activity: FragmentActivity): FragmentFactoryHolderViewModel {
             val viewModel: FragmentFactoryHolderViewModel by activity.viewModels { FACTORY }
             return viewModel
         }

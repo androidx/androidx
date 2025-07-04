@@ -22,8 +22,10 @@
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -53,14 +55,6 @@ configurations {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.sqlite.db.framework"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     ios() {
         // Link to sqlite3 available in iOS
@@ -151,8 +145,8 @@ dependencies {
 
 androidx {
     name = "SQLite Framework Integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "The implementation of SQLite library using the framework code."
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }
-

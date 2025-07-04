@@ -243,6 +243,19 @@ limitations under the License.
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ImageButton
+        android:id="@+id/iterate_camera_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_camera_switch_v2"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/direction_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <ImageButton
         android:id="@+id/flash_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -252,7 +265,7 @@ limitations under the License.
         android:scaleType="fitXY"
         android:src="@drawable/ic_flash_off"
         android:translationZ="1dp"
-        app:layout_constraintLeft_toRightOf="@id/direction_toggle"
+        app:layout_constraintLeft_toRightOf="@id/iterate_camera_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ImageButton
@@ -265,8 +278,8 @@ limitations under the License.
         android:scaleType="fitXY"
         android:src="@drawable/ic_flashlight"
         android:translationZ="1dp"
-        app:layout_constraintLeft_toRightOf="@id/flash_toggle"
-        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/direction_toggle" />
 
     <ToggleButton
         android:id="@+id/capture_quality"
@@ -279,7 +292,7 @@ limitations under the License.
         android:textOff="@string/toggle_capture_quality_off"
         android:textSize="11dp"
         android:translationZ="1dp"
-        app:layout_constraintLeft_toRightOf="@id/torch_toggle"
+        app:layout_constraintLeft_toRightOf="@id/flash_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ToggleButton
@@ -293,9 +306,8 @@ limitations under the License.
         android:textOn="@string/toggle_capture_zsl_on"
         android:textSize="11dp"
         android:translationZ="1dp"
-        app:layout_constraintLeft_toRightOf="@id/torch_toggle"
-        app:layout_constraintStart_toEndOf="@+id/dec_ev_toggle"
-        app:layout_constraintTop_toTopOf="@+id/flash_toggle" />
+        app:layout_constraintLeft_toRightOf="@id/preview_stabilization"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <Button
         android:id="@+id/plus_ev_toggle"
@@ -336,8 +348,23 @@ limitations under the License.
         android:textOn="@string/toggle_preview_stabilization_on"
         android:textSize="11dp"
         android:translationZ="1dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/direction_toggle" />
+        app:layout_constraintLeft_toRightOf="@+id/dec_ev_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <ToggleButton
+        android:id="@+id/low_light_boost"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:visibility="gone"
+        android:textOff="@string/toggle_low_light_boost_off"
+        android:textOn="@string/toggle_low_light_boost_inactive"
+        android:textSize="11dp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/preview_stabilization"
+        app:layout_constraintTop_toTopOf="@id/preview_stabilization" />
 
     <Button
         android:id="@+id/dynamic_range"
@@ -394,6 +421,32 @@ limitations under the License.
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.612"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/torchStrength"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="3dp"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius= "1"
+        android:text="L1"
+        android:textSize="20dp"
+        android:textColor="#FFFFFF"
+        android:layout_marginRight="10dp"
+        app:layout_constraintTop_toTopOf="@+id/torch_toggle"
+        app:layout_constraintBottom_toBottomOf="@+id/torch_toggle"
+        app:layout_constraintLeft_toRightOf="@+id/torch_toggle" />
+
+    <SeekBar
+        android:id="@+id/torchStrengthBar"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+
+        app:layout_constraintTop_toTopOf="@+id/torchStrength"
+        app:layout_constraintBottom_toBottomOf="@+id/torchStrength"
+        app:layout_constraintLeft_toRightOf="@+id/torchStrength" />
 
     <Button
         android:id="@+id/zoom_reset_toggle"

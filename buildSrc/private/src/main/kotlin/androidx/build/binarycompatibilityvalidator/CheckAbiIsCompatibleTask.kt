@@ -80,9 +80,6 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
             currentApiDump.get().asFile.let { it.path to it.readText() }
         val shouldFreeze =
             shouldFreezeApis(Version(referenceVersion.get()), Version(projectVersion.get()))
-        if (shouldFreeze && previousApiDumpText != currentApiDumpText) {
-            throw GradleException(frozenApiErrorMessage(referenceVersion.get()))
-        }
 
         // Execute BCV code as a WorkAction to allow setting the classpath for the action.
         // This is to work around the kotlin compiler needing to be a compileOnly dependency for
@@ -94,21 +91,20 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
             params.currentApiDumpText.set(currentApiDumpText)
             params.currentApiPath.set(currentApiPath)
             params.baseline.set(ignoreFile)
+            params.shouldFreeze.set(shouldFreeze)
+            params.referenceVersion.set(referenceVersion)
         }
     }
-
-    private fun frozenApiErrorMessage(referenceVersion: String) =
-        "The API surface was finalized in $referenceVersion. Revert the changes unless you have " +
-            "permission from Android API Council. " +
-            summarizeDiff(previousApiDump.get().asFile, currentApiDump.get().asFile)
 }
 
 private interface CheckCompatibilityParameters : WorkParameters {
     val previousApiDumpText: Property<String>
-    val previousApiPath: Property<String?>
+    val previousApiPath: Property<String>
     val currentApiDumpText: Property<String>
-    val currentApiPath: Property<String?>
+    val currentApiPath: Property<String>
     val baseline: RegularFileProperty
+    val referenceVersion: Property<String>
+    val shouldFreeze: Property<Boolean>
 }
 
 private abstract class CheckCompatibilityWorker : WorkAction<CheckCompatibilityParameters> {
@@ -125,9 +121,20 @@ private abstract class CheckCompatibilityWorker : WorkAction<CheckCompatibilityP
             BinaryCompatibilityChecker.checkAllBinariesAreCompatible(
                 currentDump,
                 previousDump,
-                parameters.baseline.get().asFile.takeIf { it.exists() }
+                parameters.baseline.get().asFile.takeIf { it.exists() },
+                validate = true,
+                shouldFreeze = parameters.shouldFreeze.get(),
             )
         } catch (e: ValidationException) {
+            if (parameters.shouldFreeze.get()) {
+                throw GradleException(
+                    frozenApiErrorMessage(
+                        parameters.referenceVersion.get(),
+                        previousApiDump = File(parameters.previousApiPath.get()),
+                        currentApiDump = File(parameters.currentApiPath.get()),
+                    )
+                )
+            }
             throw GradleException(compatErrorMessage(e), e)
         }
     }
@@ -137,4 +144,13 @@ private abstract class CheckCompatibilityWorker : WorkAction<CheckCompatibilityP
             "\n${validationException.message}" +
             "\nIf you believe these changes are actually compatible and that this is a tooling " +
             "error, please file a bug. $NEW_ISSUE_URL"
+
+    private fun frozenApiErrorMessage(
+        referenceVersion: String,
+        previousApiDump: File,
+        currentApiDump: File,
+    ) =
+        "The API surface was finalized in $referenceVersion. Revert the changes unless you have " +
+            "permission from Android API Council. " +
+            summarizeDiff(previousApiDump, currentApiDump)
 }

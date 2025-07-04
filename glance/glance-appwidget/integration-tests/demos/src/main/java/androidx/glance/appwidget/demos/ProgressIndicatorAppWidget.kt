@@ -71,9 +71,9 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                 titleBar = {
                     TitleBar(
                         startIcon = ImageProvider(R.drawable.ic_android),
-                        title = "Progress Indicator Demo"
+                        title = "Progress Indicator Demo",
                     )
-                }
+                },
             ) {
                 ProgressIndicatorDemo()
             }
@@ -101,7 +101,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
         Box(
             modifier = GlanceModifier.width(cellWidth),
             contentAlignment = Alignment.Center,
-            content = content
+            content = content,
         )
     }
 
@@ -110,7 +110,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
         Row(
             modifier = GlanceModifier.fillMaxWidth().padding(5.dp),
             verticalAlignment = Alignment.CenterVertically,
-            content = content
+            content = content,
         )
     }
 
@@ -125,7 +125,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                     color = GlanceTheme.colors.onSurface,
                     fontWeight = FontWeight.Medium,
                 ),
-            modifier = GlanceModifier.fillMaxWidth()
+            modifier = GlanceModifier.fillMaxWidth(),
         )
     }
 
@@ -137,7 +137,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                 LinearProgressIndicator(
                     progress = 0.8f,
                     color = ColorProvider(Color.Yellow),
-                    backgroundColor = ColorProvider(Color.White)
+                    backgroundColor = ColorProvider(Color.White),
                 )
             }
             Cell { CircularProgressIndicator(color = ColorProvider(Color.Yellow)) }
@@ -153,7 +153,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                     progress = .66f,
                     modifier = GlanceModifier.padding(bottom = 8.dp),
                     color = ColorProvider(day = Color.White, night = Color.Red),
-                    backgroundColor = ColorProvider(day = Color.Red, night = Color.White)
+                    backgroundColor = ColorProvider(day = Color.Red, night = Color.White),
                 )
             }
             Cell {
@@ -174,7 +174,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                     modifier = GlanceModifier.padding(bottom = 8.dp),
                     color = ColorProvider(androidx.glance.R.color.glance_colorError),
                     backgroundColor =
-                        ColorProvider(resId = androidx.glance.R.color.glance_colorSecondary)
+                        ColorProvider(resId = androidx.glance.R.color.glance_colorSecondary),
                 )
             }
             Cell {
@@ -193,7 +193,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                 LinearProgressIndicator(
                     progress = 0.5f,
                     color = GlanceTheme.colors.primary,
-                    backgroundColor = GlanceTheme.colors.onBackground
+                    backgroundColor = GlanceTheme.colors.onBackground,
                 )
             }
             Cell { CircularProgressIndicator(color = GlanceTheme.colors.primary) }
@@ -246,10 +246,7 @@ internal object ProgressIndicatorDemoColorScheme {
         )
 
     private val DarkColors =
-        darkColorScheme(
-            primary = md_theme_dark_primary,
-            onBackground = md_theme_dark_onBackground,
-        )
+        darkColorScheme(primary = md_theme_dark_primary, onBackground = md_theme_dark_onBackground)
 
     val colors = ColorProviders(light = LightColors, dark = DarkColors)
 

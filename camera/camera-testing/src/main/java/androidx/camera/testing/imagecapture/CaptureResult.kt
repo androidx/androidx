@@ -38,7 +38,7 @@ import androidx.camera.testing.imagecapture.CaptureResult.Companion.CAPTURE_STAT
 public class CaptureResult
 private constructor(
     public val captureStatus: @CaptureStatus Int,
-    public val cameraCaptureResult: FakeCameraCaptureResult? = null
+    public val cameraCaptureResult: FakeCameraCaptureResult? = null,
 ) {
     /**
      * The capture result status used in fake image capture completion.
@@ -69,7 +69,7 @@ private constructor(
         ): CaptureResult =
             CaptureResult(
                 captureStatus = CAPTURE_STATUS_SUCCESSFUL,
-                cameraCaptureResult = fakeCameraCaptureResult
+                cameraCaptureResult = fakeCameraCaptureResult,
             )
 
         /** Represents a failed [CaptureResult]. */
@@ -80,8 +80,6 @@ private constructor(
         /** Represents a cancelled [CaptureResult]. */
         @JvmStatic
         public fun cancelledResult(): CaptureResult =
-            CaptureResult(
-                captureStatus = CAPTURE_STATUS_CANCELLED,
-            )
+            CaptureResult(captureStatus = CAPTURE_STATUS_CANCELLED)
     }
 }

@@ -107,7 +107,7 @@ class LazyGridRequestScrollTest(private val orientation: Orientation) :
                         Orientation.Vertical -> topCenter
                         Orientation.Horizontal -> centerLeft
                     },
-                endVelocity = 5_000F
+                endVelocity = 5_000F,
             )
         }
 
@@ -145,7 +145,7 @@ class LazyGridRequestScrollTest(private val orientation: Orientation) :
                     cells = GridCells.FixedSize(itemSize),
                     modifier = Modifier.width(listSize).height(listSize),
                     state = state,
-                    reverseLayout = true
+                    reverseLayout = true,
                 ) {
                     items(list, key = { it }) { Item(remember { "$it" }) }
                 }
@@ -156,7 +156,7 @@ class LazyGridRequestScrollTest(private val orientation: Orientation) :
                         // This scrolls to the start of the first item.
                         state.requestScrollToItem(
                             index = 1,
-                            scrollOffset = with(rule.density) { -listSize.roundToPx() }
+                            scrollOffset = with(rule.density) { -listSize.roundToPx() },
                         )
                     }
                 }
@@ -273,7 +273,7 @@ class LazyGridRequestScrollTest(private val orientation: Orientation) :
             LazyGrid(
                 modifier = Modifier.size(itemSize * 2.5f),
                 cells = GridCells.FixedSize(itemSize),
-                state = state
+                state = state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -336,7 +336,7 @@ class LazyGridRequestScrollTest(private val orientation: Orientation) :
             LazyGrid(
                 modifier = Modifier.size(itemSize),
                 cells = GridCells.FixedSize(itemSize),
-                state = state
+                state = state,
             ) {
                 items(15, key = { it }) { Item(remember { "$it" }) }
             }

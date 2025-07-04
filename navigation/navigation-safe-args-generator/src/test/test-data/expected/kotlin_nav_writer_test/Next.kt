@@ -39,16 +39,14 @@ private data class Next(
       } else if (Serializable::class.java.isAssignableFrom(ActivityInfo::class.java)) {
         result.putSerializable("parcelable", this.parcelable as Serializable)
       } else {
-        throw UnsupportedOperationException(ActivityInfo::class.java.name +
-            " must implement Parcelable or Serializable or must be an Enum.")
+        throw UnsupportedOperationException(ActivityInfo::class.java.name + " must implement Parcelable or Serializable or must be an Enum.")
       }
       if (Parcelable::class.java.isAssignableFrom(ActivityInfo.WindowLayout::class.java)) {
         result.putParcelable("innerData", this.innerData as Parcelable)
       } else if (Serializable::class.java.isAssignableFrom(ActivityInfo.WindowLayout::class.java)) {
         result.putSerializable("innerData", this.innerData as Serializable)
       } else {
-        throw UnsupportedOperationException(ActivityInfo.WindowLayout::class.java.name +
-            " must implement Parcelable or Serializable or must be an Enum.")
+        throw UnsupportedOperationException(ActivityInfo.WindowLayout::class.java.name + " must implement Parcelable or Serializable or must be an Enum.")
       }
       return result
     }

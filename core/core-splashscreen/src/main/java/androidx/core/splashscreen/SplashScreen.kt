@@ -251,7 +251,7 @@ public class SplashScreen private constructor(activity: Activity) {
                 currentTheme.resolveAttribute(
                     R.attr.windowSplashScreenAnimatedIcon,
                     typedValue,
-                    true
+                    true,
                 )
             ) {
                 icon = AppCompatResources.getDrawable(activity, typedValue.resourceId)
@@ -266,7 +266,7 @@ public class SplashScreen private constructor(activity: Activity) {
 
         protected fun setPostSplashScreenTheme(
             currentTheme: Resources.Theme,
-            typedValue: TypedValue
+            typedValue: TypedValue,
         ) {
             if (currentTheme.resolveAttribute(R.attr.postSplashScreenTheme, typedValue, true)) {
                 finalThemeId = typedValue.resourceId
@@ -323,7 +323,7 @@ public class SplashScreen private constructor(activity: Activity) {
                         oldLeft: Int,
                         oldTop: Int,
                         oldRight: Int,
-                        oldBottom: Int
+                        oldBottom: Int,
                     ) {
                         if (!view.isAttachedToWindow) {
                             return

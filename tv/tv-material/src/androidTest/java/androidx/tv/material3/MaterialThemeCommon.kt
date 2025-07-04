@@ -40,7 +40,7 @@ fun DarkMaterialTheme(content: @Composable () -> Unit) {
 @OptIn(ExperimentalTvMaterial3Api::class)
 fun ComposeContentTestRule.setMaterialContent(
     colorScheme: ColorScheme,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     setContent { MaterialTheme(colorScheme = colorScheme) { content() } }
 }

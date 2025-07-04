@@ -55,7 +55,7 @@ class FontFamilyResolverFileTest {
         fontFamily: FontFamily? = null,
         fontWeight: FontWeight = FontWeight.Normal,
         fontStyle: FontStyle = FontStyle.Normal,
-        fontSynthesis: FontSynthesis = FontSynthesis.All
+        fontSynthesis: FontSynthesis = FontSynthesis.All,
     ): Typeface {
         return fontFamilyResolver.resolve(fontFamily, fontWeight, fontStyle, fontSynthesis).value
             as Typeface

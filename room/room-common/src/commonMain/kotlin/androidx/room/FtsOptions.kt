@@ -36,7 +36,7 @@ public object FtsOptions {
          *
          * @see Fts4.matchInfo
          */
-        FTS4
+        FTS4,
     }
 
     public enum class Order {
@@ -52,7 +52,7 @@ public object FtsOptions {
          *
          * @see Fts4.order
          */
-        DESC
+        DESC,
     }
 
     /**

@@ -75,7 +75,7 @@ class ValidatingOffsetMappingKtTest {
                         if (offset == throwAtPosition) Int.MAX_VALUE else offset
 
                     override fun transformedToOriginal(offset: Int) = offset
-                }
+                },
         )
 
     private fun throwTransformedToOriginal(throwAtPosition: Int) =
@@ -87,6 +87,6 @@ class ValidatingOffsetMappingKtTest {
 
                     override fun transformedToOriginal(offset: Int) =
                         if (offset == throwAtPosition) Int.MAX_VALUE else offset
-                }
+                },
         )
 }

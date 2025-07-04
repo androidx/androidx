@@ -70,7 +70,7 @@ import kotlin.jvm.JvmInline
 @Composable
 fun rememberScaffoldState(
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): ScaffoldState = remember { ScaffoldState(drawerState, snackbarHostState) }
 
 /** The possible positions for a [FloatingActionButton] attached to a [Scaffold]. */
@@ -106,8 +106,7 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
 }
 
 /**
- * <a href="https://material.io/design/layout/understanding-layout.html" class="external"
- * target="_blank">Material Design layout</a>.
+ * [Material Design layout](https://material.io/design/layout/understanding-layout.html)
  *
  * Scaffold implements the basic Material Design visual layout structure.
  *
@@ -194,7 +193,7 @@ fun Scaffold(
     drawerScrimColor: Color = DrawerDefaults.scrimColor,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val safeInsets = remember(contentWindowInsets) { MutableWindowInsets(contentWindowInsets) }
     val child =
@@ -207,7 +206,7 @@ fun Scaffold(
                         safeInsets.insets = contentWindowInsets.exclude(consumedWindowInsets)
                     },
                 color = backgroundColor,
-                contentColor = contentColor
+                contentColor = contentColor,
             ) {
                 ScaffoldLayout(
                     isFabDocked = isFloatingActionButtonDocked,
@@ -217,7 +216,7 @@ fun Scaffold(
                     contentWindowInsets = safeInsets,
                     snackbar = { snackbarHost(scaffoldState.snackbarHostState) },
                     fab = floatingActionButton,
-                    bottomBar = bottomBar
+                    bottomBar = bottomBar,
                 )
             }
         }
@@ -233,7 +232,7 @@ fun Scaffold(
             drawerBackgroundColor = drawerBackgroundColor,
             drawerContentColor = drawerContentColor,
             scrimColor = drawerScrimColor,
-            content = { child(Modifier) }
+            content = { child(Modifier) },
         )
     } else {
         child(modifier)
@@ -241,8 +240,7 @@ fun Scaffold(
 }
 
 /**
- * <a href="https://material.io/design/layout/understanding-layout.html" class="external"
- * target="_blank">Material Design layout</a>.
+ * [Material Design layout](https://material.io/design/layout/understanding-layout.html)
  *
  * Scaffold implements the basic Material Design visual layout structure.
  *
@@ -320,7 +318,7 @@ fun Scaffold(
     drawerScrimColor: Color = DrawerDefaults.scrimColor,
     backgroundColor: Color = MaterialTheme.colors.background,
     contentColor: Color = contentColorFor(backgroundColor),
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
         WindowInsets(0.dp),
@@ -341,7 +339,7 @@ fun Scaffold(
         drawerScrimColor,
         backgroundColor,
         contentColor,
-        content
+        content,
     )
 }
 
@@ -375,7 +373,7 @@ private fun ScaffoldLayout(
     snackbar: @Composable @UiComposable () -> Unit,
     fab: @Composable @UiComposable () -> Unit,
     contentWindowInsets: WindowInsets,
-    bottomBar: @Composable @UiComposable () -> Unit
+    bottomBar: @Composable @UiComposable () -> Unit,
 ) {
     // Create the backing value for the content padding
     // These values will be updated during measurement, but before subcomposing the body content
@@ -462,7 +460,7 @@ private fun ScaffoldLayout(
                         isDocked = isFabDocked,
                         left = fabLeftOffset,
                         width = fabWidth,
-                        height = fabHeight
+                        height = fabHeight,
                     )
                 } else {
                     null
@@ -475,7 +473,7 @@ private fun ScaffoldLayout(
             subcompose(ScaffoldLayoutContent.BottomBar) {
                     CompositionLocalProvider(
                         LocalFabPlacement provides fabPlacement,
-                        content = bottomBar
+                        content = bottomBar,
                     )
                 }
                 .fastMap { it.measure(looseConstraints) }
@@ -526,7 +524,7 @@ private fun ScaffoldLayout(
                         bottomBarHeight.toDp()
                     },
                 start = insets.calculateStartPadding(layoutDirection),
-                end = insets.calculateEndPadding(layoutDirection)
+                end = insets.calculateEndPadding(layoutDirection),
             )
 
         val bodyContentHeight = layoutHeight - topBarHeight
@@ -577,5 +575,5 @@ private enum class ScaffoldLayoutContent {
     MainContent,
     Snackbar,
     Fab,
-    BottomBar
+    BottomBar,
 }

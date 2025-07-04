@@ -30,12 +30,16 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
+import android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
 import androidx.activity.ComponentDialog
 import androidx.activity.addCallback
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,6 +99,7 @@ import kotlin.math.roundToInt
  *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE] on [Build.VERSION_CODES.R] and below and
  *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING] on [Build.VERSION_CODES.S] and above.
  *   [Window.isFloating] will be `false` when `decorFitsSystemWindows` is `false`.
+ * @property windowTitle Title to be set on the dialog's window.
  */
 @Immutable
 actual class DialogProperties(
@@ -102,7 +107,8 @@ actual class DialogProperties(
     actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     actual val usePlatformDefaultWidth: Boolean = true,
-    val decorFitsSystemWindows: Boolean = true
+    val decorFitsSystemWindows: Boolean = true,
+    val windowTitle: String = "",
 ) {
     actual constructor(
         dismissOnBackPress: Boolean,
@@ -113,7 +119,23 @@ actual class DialogProperties(
         dismissOnClickOutside = dismissOnClickOutside,
         securePolicy = SecureFlagPolicy.Inherit,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
-        decorFitsSystemWindows = true
+        decorFitsSystemWindows = true,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth: Boolean = true,
+        decorFitsSystemWindows: Boolean = true,
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        decorFitsSystemWindows = true,
+        windowTitle = "",
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -126,7 +148,7 @@ actual class DialogProperties(
         dismissOnClickOutside = dismissOnClickOutside,
         securePolicy = securePolicy,
         usePlatformDefaultWidth = true,
-        decorFitsSystemWindows = true
+        decorFitsSystemWindows = true,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -174,7 +196,7 @@ actual class DialogProperties(
 actual fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val view = LocalView.current
     val density = LocalDensity.current
@@ -187,17 +209,14 @@ actual fun Dialog(
             DialogWrapper(onDismissRequest, properties, view, layoutDirection, density, dialogId)
                 .apply {
                     setContent(composition) {
-                        // TODO(b/159900354): draw a scrim and add margins around the Compose
-                        // Dialog, and
-                        //  consume clicks so they can't pass through to the underlying UI
                         DialogLayout(Modifier.semantics { dialog() }, currentContent)
                     }
                 }
         }
 
-    DisposableEffect(dialog) {
-        dialog.show()
+    LaunchedEffect(Unit) { dialog.show() }
 
+    DisposableEffect(dialog) {
         onDispose {
             dialog.dismiss()
             dialog.disposeComposition()
@@ -208,7 +227,7 @@ actual fun Dialog(
         dialog.updateParameters(
             onDismissRequest = onDismissRequest,
             properties = properties,
-            layoutDirection = layoutDirection
+            layoutDirection = layoutDirection,
         )
     }
 }
@@ -242,16 +261,16 @@ private class DialogLayout(context: Context, override val window: Window) :
             object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
                 override fun onStart(
                     animation: WindowInsetsAnimationCompat,
-                    bounds: WindowInsetsAnimationCompat.BoundsCompat
+                    bounds: WindowInsetsAnimationCompat.BoundsCompat,
                 ): WindowInsetsAnimationCompat.BoundsCompat =
                     insetValue(bounds) { l, t, r, b -> bounds.inset(Insets.of(l, t, r, b)) }
 
                 override fun onProgress(
                     insets: WindowInsetsCompat,
-                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                    runningAnimations: MutableList<WindowInsetsAnimationCompat>,
                 ): WindowInsetsCompat =
                     insetValue(insets) { l, t, r, b -> insets.inset(l, t, r, b) }
-            }
+            },
         )
     }
 
@@ -336,14 +355,17 @@ private class DialogLayout(context: Context, override val window: Window) :
         setMeasuredDimension(measuredWidth, measuredHeight)
 
         if (
-            !usePlatformDefaultWidth &&
-                !decorFitsSystemWindows &&
+            !decorFitsSystemWindows &&
                 child.measuredHeight + verticalPadding > height &&
                 window.attributes.height == WRAP_CONTENT
         ) {
-            // The size of the window is too small with WRAP_CONTENT for height. Change it
-            // to use MATCH_PARENT to give as much room as possible
-            window.setLayout(MATCH_PARENT, MATCH_PARENT)
+            // We're going to use the full screen, so don't put a background behind the system bars
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            if (!usePlatformDefaultWidth) {
+                // The size of the window is too small with WRAP_CONTENT for height. Change it
+                // to use MATCH_PARENT to give as much room as possible
+                window.setLayout(MATCH_PARENT, MATCH_PARENT)
+            }
         }
     }
 
@@ -380,7 +402,7 @@ private class DialogLayout(context: Context, override val window: Window) :
 
     private inline fun <T> insetValue(
         unchangedValue: T,
-        block: (left: Int, top: Int, right: Int, bottom: Int) -> T
+        block: (left: Int, top: Int, right: Int, bottom: Int) -> T,
     ): T {
         if (decorFitsSystemWindows) {
             return unchangedValue
@@ -419,7 +441,7 @@ private class DialogWrapper(
     private val composeView: View,
     layoutDirection: LayoutDirection,
     density: Density,
-    dialogId: UUID
+    dialogId: UUID,
 ) :
     ComponentDialog(
         /**
@@ -432,7 +454,7 @@ private class DialogWrapper(
                 R.style.DialogWindowTheme
             } else {
                 R.style.FloatingDialogWindowTheme
-            }
+            },
         )
     ),
     ViewRootForInspector {
@@ -443,6 +465,8 @@ private class DialogWrapper(
     // elevation, so high values of maxSupportedElevation break accessibility services: b/232788477.
     private val maxSupportedElevation = 8.dp
 
+    private var isPressOutside = false
+
     override val subCompositionView: AbstractComposeView
         get() = dialogLayout
 
@@ -452,9 +476,27 @@ private class DialogWrapper(
         window.setBackgroundDrawableResource(android.R.color.transparent)
         WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
         window.setGravity(Gravity.CENTER)
+        if (!properties.decorFitsSystemWindows) {
+            @Suppress("DEPRECATION")
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+            )
+            val attrs = window.attributes
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                Api28Impl.setLayoutInDisplayCutout(attrs)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Api30Impl.setFitInsetsSides(attrs, 0)
+                Api30Impl.setFitInsetsTypes(attrs, 0)
+            }
+            window.attributes = attrs
+        }
 
         dialogLayout =
             DialogLayout(context, window).apply {
+                // Set window title.
+                setTitle(properties.windowTitle)
                 // Set unique id for AbstractComposeView. This allows state restoration for the
                 // state
                 // defined inside the Dialog via rememberSaveable()
@@ -537,8 +579,6 @@ private class DialogWrapper(
             }
     }
 
-    // TODO(b/159900354): Make the Android Dialog full screen and the scrim fully transparent
-
     fun setContent(parentComposition: CompositionContext, children: @Composable () -> Unit) {
         dialogLayout.setContent(parentComposition, children)
     }
@@ -552,14 +592,14 @@ private class DialogWrapper(
             } else {
                 WindowManager.LayoutParams.FLAG_SECURE.inv()
             },
-            WindowManager.LayoutParams.FLAG_SECURE
+            WindowManager.LayoutParams.FLAG_SECURE,
         )
     }
 
     fun updateParameters(
         onDismissRequest: () -> Unit,
         properties: DialogProperties,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ) {
         this.onDismissRequest = onDismissRequest
         this.properties = properties
@@ -568,7 +608,7 @@ private class DialogWrapper(
         val decorFitsSystemWindows = properties.decorFitsSystemWindows
         dialogLayout.updateProperties(
             usePlatformDefaultWidth = properties.usePlatformDefaultWidth,
-            decorFitsSystemWindows = decorFitsSystemWindows
+            decorFitsSystemWindows = decorFitsSystemWindows,
         )
         setCanceledOnTouchOutside(properties.dismissOnClickOutside)
         val window = window
@@ -592,8 +632,25 @@ private class DialogWrapper(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         var result = super.onTouchEvent(event)
         if (properties.dismissOnClickOutside && !dialogLayout.isInsideContent(event)) {
-            onDismissRequest()
-            result = true
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    isPressOutside = true
+                    result = true
+                }
+                MotionEvent.ACTION_UP ->
+                    if (isPressOutside) {
+                        onDismissRequest()
+                        result = true
+                        isPressOutside = false
+                    }
+                MotionEvent.ACTION_CANCEL -> isPressOutside = false
+            }
+        } else {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN,
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> isPressOutside = false
+            }
         }
 
         return result
@@ -622,5 +679,26 @@ private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () 
             maxHeight = constraints.minHeight
         }
         layout(maxWidth, maxHeight) { placeables.fastForEach { it.placeRelative(0, 0) } }
+    }
+}
+
+@RequiresApi(28)
+private object Api28Impl {
+    @DoNotInline
+    fun setLayoutInDisplayCutout(attrs: WindowManager.LayoutParams) {
+        attrs.layoutInDisplayCutoutMode = LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+    }
+}
+
+@RequiresApi(30)
+private object Api30Impl {
+    @DoNotInline
+    fun setFitInsetsSides(attrs: WindowManager.LayoutParams, sides: Int) {
+        attrs.setFitInsetsSides(sides)
+    }
+
+    @DoNotInline
+    fun setFitInsetsTypes(attrs: WindowManager.LayoutParams, types: Int) {
+        attrs.setFitInsetsTypes(types)
     }
 }

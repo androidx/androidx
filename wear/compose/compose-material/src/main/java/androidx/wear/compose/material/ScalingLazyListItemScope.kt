@@ -81,7 +81,7 @@ public sealed interface ScalingLazyListItemScope {
 
 internal data class ScalingLazyListItemScopeImpl(
     val density: Density,
-    val constraints: Constraints
+    val constraints: Constraints,
 ) : ScalingLazyListItemScope {
     private val maxWidth: Dp = with(density) { constraints.maxWidth.toDp() }
     private val maxHeight: Dp = with(density) { constraints.maxHeight.toDp() }

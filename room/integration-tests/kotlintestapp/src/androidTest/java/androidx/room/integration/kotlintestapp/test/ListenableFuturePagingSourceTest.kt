@@ -83,7 +83,7 @@ class ListenableFuturePagingSourceTest {
         db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    PagingDb::class.java
+                    PagingDb::class.java,
                 )
                 .setQueryCallback(
                     object : RoomDatabase.QueryCallback {
@@ -247,7 +247,7 @@ class ListenableFuturePagingSourceTest {
                 // mimic real use case of wrapping the source returned from Room.
                 ListenableFuturePagingSourceImpl(baseSource).also { pagingSources.add(it) }
             },
-        block: suspend () -> Unit
+        block: suspend () -> Unit,
     ) {
         val collection =
             coroutineScope.launch(Dispatchers.Main) {

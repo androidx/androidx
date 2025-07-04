@@ -27,7 +27,7 @@ import org.junit.runners.JUnit4
 class CameraXQuirksClassDetectorTest :
     AbstractLintDetectorTest(
         useDetector = CameraXQuirksClassDetector(),
-        useIssues = listOf(CameraXQuirksClassDetector.ISSUE)
+        useIssues = listOf(CameraXQuirksClassDetector.ISSUE),
     ) {
 
     @Test

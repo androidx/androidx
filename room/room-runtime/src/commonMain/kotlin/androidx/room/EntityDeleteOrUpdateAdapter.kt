@@ -19,7 +19,6 @@ import androidx.annotation.RestrictTo
 import androidx.room.util.getTotalChangedRows
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.use
 
 /**
  * Implementations of this class know how to delete or update a particular entity.
@@ -30,8 +29,8 @@ import androidx.sqlite.use
  * @constructor Creates a DeletionOrUpdateAdapter that can delete or update the entity type T on the
  *   given database.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-abstract class EntityDeleteOrUpdateAdapter<T> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public abstract class EntityDeleteOrUpdateAdapter<T> {
     /**
      * Create the deletion or update query
      *
@@ -53,7 +52,7 @@ abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entity The entity to delete or update
      * @return The number of affected rows
      */
-    fun handle(connection: SQLiteConnection, entity: T?): Int {
+    public fun handle(connection: SQLiteConnection, entity: T?): Int {
         if (entity == null) return 0
         connection.prepare(createQuery()).use { stmt ->
             bind(stmt, entity)
@@ -68,7 +67,7 @@ abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    fun handleMultiple(connection: SQLiteConnection, entities: Iterable<T?>?): Int {
+    public fun handleMultiple(connection: SQLiteConnection, entities: Iterable<T?>?): Int {
         if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->
@@ -89,7 +88,7 @@ abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    fun handleMultiple(connection: SQLiteConnection, entities: Array<out T?>?): Int {
+    public fun handleMultiple(connection: SQLiteConnection, entities: Array<out T?>?): Int {
         if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->

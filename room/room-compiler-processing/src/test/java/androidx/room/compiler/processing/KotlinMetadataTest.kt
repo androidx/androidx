@@ -36,7 +36,7 @@ class KotlinMetadataTest {
                 """
             class Dummy
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) {
             val element = it.processingEnv.requireTypeElement(KotlinTestClass::class)
@@ -61,7 +61,7 @@ class KotlinMetadataTest {
                     inline fun <reified T> inlineReifiedFun(t: T) {}
                 }
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runKaptTest(sources = listOf(source), kotlincArguments = listOf("-Xuse-k2-kapt")) {
             invocation ->

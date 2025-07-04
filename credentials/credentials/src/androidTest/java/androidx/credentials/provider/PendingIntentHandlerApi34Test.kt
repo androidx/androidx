@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.service.credentials.CallingAppInfo
 import android.service.credentials.CreateCredentialRequest
 import android.service.credentials.GetCredentialRequest
-import androidx.annotation.RequiresApi
 import androidx.credentials.CreateCustomCredentialResponse
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.GetCredentialResponse
@@ -47,7 +46,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(34)
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 class PendingIntentHandlerApi34Test {
     companion object {
@@ -57,7 +55,7 @@ class PendingIntentHandlerApi34Test {
         private val GET_CREDENTIAL_REQUEST =
             GetCredentialRequest(
                 CallingAppInfo("package_name", SigningInfo()),
-                ArrayList(setOf(GET_CREDENTIAL_OPTION))
+                ArrayList(setOf(GET_CREDENTIAL_OPTION)),
             )
 
         private const val BIOMETRIC_AUTHENTICATOR_TYPE = 1
@@ -103,7 +101,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertNotNull(biometricPromptResult.authenticationResult)
             Assert.assertEquals(
                 retrievedRequest.biometricPromptResult!!.authenticationResult!!.authenticationType,
-                jetpackResult
+                jetpackResult,
             )
         }
     }
@@ -121,7 +119,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertEquals(biometricPromptResult, request.biometricPromptResult)
             Assert.assertEquals(
                 request.biometricPromptResult!!.authenticationResult!!.authenticationType,
-                jetpackResult
+                jetpackResult,
             )
         }
     }
@@ -135,7 +133,7 @@ class PendingIntentHandlerApi34Test {
                 BiometricPromptResult(
                     AuthenticationResult.createFrom(
                         uiAuthenticationType = frameworkResult,
-                        isFrameworkBiometricPrompt = true
+                        isFrameworkBiometricPrompt = true,
                     )
                 )
             val request = setUpCreatePasswordRequest()
@@ -151,7 +149,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertNotNull(biometricPromptResult.authenticationResult)
             Assert.assertEquals(
                 retrievedRequest.biometricPromptResult!!.authenticationResult!!.authenticationType,
-                expectedResult
+                expectedResult,
             )
         }
     }
@@ -165,7 +163,7 @@ class PendingIntentHandlerApi34Test {
                 BiometricPromptResult(
                     AuthenticationResult.createFrom(
                         uiAuthenticationType = frameworkResult,
-                        isFrameworkBiometricPrompt = true
+                        isFrameworkBiometricPrompt = true,
                     )
                 )
             val expectedResult =
@@ -179,7 +177,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertEquals(biometricPromptResult, request.biometricPromptResult)
             Assert.assertEquals(
                 request.biometricPromptResult!!.authenticationResult!!.authenticationType,
-                expectedResult
+                expectedResult,
             )
         }
     }
@@ -202,7 +200,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
             Assert.assertEquals(
                 retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
-                jetpackError
+                jetpackError,
             )
         }
     }
@@ -223,7 +221,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
             Assert.assertEquals(
                 retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
-                jetpackError
+                jetpackError,
             )
         }
     }
@@ -236,7 +234,7 @@ class PendingIntentHandlerApi34Test {
                     AuthenticationError.createFrom(
                         uiErrorCode = frameworkError,
                         uiErrorMessage = BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
-                        isFrameworkBiometricPrompt = true
+                        isFrameworkBiometricPrompt = true,
                     )
                 )
             val expectedErrorCode =
@@ -252,7 +250,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
             Assert.assertEquals(
                 retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
-                expectedErrorCode
+                expectedErrorCode,
             )
         }
     }
@@ -265,7 +263,7 @@ class PendingIntentHandlerApi34Test {
                     AuthenticationError.createFrom(
                         uiErrorCode = frameworkError,
                         uiErrorMessage = BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
-                        isFrameworkBiometricPrompt = true
+                        isFrameworkBiometricPrompt = true,
                     )
                 )
             val expectedErrorCode =
@@ -279,7 +277,7 @@ class PendingIntentHandlerApi34Test {
             Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
             Assert.assertEquals(
                 retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
-                expectedErrorCode
+                expectedErrorCode,
             )
         }
     }
@@ -339,7 +337,7 @@ class PendingIntentHandlerApi34Test {
             BiometricPromptResult(
                 AuthenticationError(
                     BIOMETRIC_AUTHENTICATOR_ERROR_CODE,
-                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
                 )
             )
         val request = setUpCreatePasswordRequest()
@@ -371,7 +369,7 @@ class PendingIntentHandlerApi34Test {
             BiometricPromptResult(
                 AuthenticationError(
                     BIOMETRIC_AUTHENTICATOR_ERROR_CODE,
-                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
                 )
             )
         val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
@@ -385,12 +383,12 @@ class PendingIntentHandlerApi34Test {
 
     private fun prepareIntentWithGetRequest(
         request: GetCredentialRequest,
-        biometricPromptResult: BiometricPromptResult
+        biometricPromptResult: BiometricPromptResult,
     ): Intent {
         val intent = Intent()
         intent.putExtra(
             android.service.credentials.CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
-            request
+            request,
         )
         prepareIntentWithBiometricResult(intent, biometricPromptResult)
         return intent
@@ -398,12 +396,12 @@ class PendingIntentHandlerApi34Test {
 
     private fun prepareIntentWithCreateRequest(
         request: CreateCredentialRequest,
-        biometricPromptResult: BiometricPromptResult
+        biometricPromptResult: BiometricPromptResult,
     ): Intent {
         val intent = Intent()
         intent.putExtra(
             android.service.credentials.CredentialProviderService.EXTRA_CREATE_CREDENTIAL_REQUEST,
-            request
+            request,
         )
         prepareIntentWithBiometricResult(intent, biometricPromptResult)
         return intent
@@ -411,14 +409,14 @@ class PendingIntentHandlerApi34Test {
 
     private fun prepareIntentWithBiometricResult(
         intent: Intent,
-        biometricPromptResult: BiometricPromptResult
+        biometricPromptResult: BiometricPromptResult,
     ) {
         if (biometricPromptResult.isSuccessful) {
             Assert.assertNotNull(biometricPromptResult.authenticationResult)
             var extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE
             intent.putExtra(
                 extraResultKey,
-                biometricPromptResult.authenticationResult!!.authenticationType
+                biometricPromptResult.authenticationResult!!.authenticationType,
             )
         } else {
             Assert.assertNotNull(biometricPromptResult.authenticationError)
@@ -427,7 +425,7 @@ class PendingIntentHandlerApi34Test {
             intent.putExtra(extraErrorKey, biometricPromptResult.authenticationError!!.errorCode)
             intent.putExtra(
                 extraErrorMessageKey,
-                biometricPromptResult.authenticationError!!.errorMsg
+                biometricPromptResult.authenticationError!!.errorMsg,
             )
         }
     }

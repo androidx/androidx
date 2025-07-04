@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demonstracija šablona poruke"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Ovde ide poruka.\nViše teksta u drugom redu."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demonstracija šablona kratke poruke"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo verzija šablona stavke sa odeljcima"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Odeljak sa dugmetom za izbor"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Odeljak sa prekidačem"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Odeljak sa mnogo redova"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Odeljak stavke mreže"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstracija šablona okna"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstracija šablona liste mesta"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Pregledajte mesta"</string>

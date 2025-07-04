@@ -36,7 +36,7 @@ internal class JavacAnnotationValue(
     override val valueType: XType = method.returnType,
     private val valueProvider: () -> Any? = {
         UNWRAP_VISITOR.visit(annotationValue, VisitorData(env, method))
-    }
+    },
 ) : InternalXAnnotationValue() {
     override val name: String
         get() = method.element.simpleName.toString()
@@ -88,7 +88,7 @@ private val UNWRAP_VISITOR =
                 env = data.env,
                 entryElement = c,
                 enclosingElement =
-                    JavacTypeElement.create(data.env, enumTypeElement) as XEnumTypeElement
+                    JavacTypeElement.create(data.env, enumTypeElement) as XEnumTypeElement,
             )
         }
 
@@ -97,7 +97,7 @@ private val UNWRAP_VISITOR =
 
         override fun visitArray(
             vals: MutableList<out AnnotationValue>,
-            data: VisitorData
+            data: VisitorData,
         ): List<JavacAnnotationValue> {
             // The method's return type has to be an array type since visitArray was called.
             val valueType = (data.method.returnType as XArrayType).componentType

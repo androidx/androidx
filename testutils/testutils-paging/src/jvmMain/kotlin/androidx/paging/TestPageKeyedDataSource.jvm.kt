@@ -24,7 +24,7 @@ class TestPageKeyedDataSource<T : Any>(list: List<T>) : PageKeyedDataSource<Int,
 
     override fun loadInitial(
         params: LoadInitialParams<Int>,
-        callback: LoadInitialCallback<Int, T>
+        callback: LoadInitialCallback<Int, T>,
     ) {
         val totalCount = list.size
         val sublist = list.subList(0, minOf(params.requestedLoadSize, totalCount))
@@ -34,14 +34,14 @@ class TestPageKeyedDataSource<T : Any>(list: List<T>) : PageKeyedDataSource<Int,
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, T>) {
         callback.onResult(
             list.subList(params.key - params.requestedLoadSize + 1, params.key + 1),
-            params.key - 1
+            params.key - 1,
         )
     }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, T>) {
         callback.onResult(
             list.subList(params.key, params.key + params.requestedLoadSize),
-            params.key + params.requestedLoadSize
+            params.key + params.requestedLoadSize,
         )
     }
 }

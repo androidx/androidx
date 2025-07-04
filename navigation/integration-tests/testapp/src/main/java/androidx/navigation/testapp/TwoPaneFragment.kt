@@ -30,7 +30,7 @@ class TwoPaneFragment : AbstractListDetailFragment() {
     override fun onCreateListPaneView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         return inflater.inflate(R.layout.list_pane, container, false)
     }
@@ -61,7 +61,7 @@ class TwoPaneFragment : AbstractListDetailFragment() {
                         setExitAnim(R.anim.nav_default_exit_anim)
                     }
                 }
-                .build()
+                .build(),
         )
         slidingPaneLayout.open()
     }
@@ -73,7 +73,7 @@ class TwoPaneFragment : AbstractListDetailFragment() {
                 "second" to R.id.second_fragment,
                 "third" to R.id.third_fragment,
                 "fourth" to R.id.fourth_fragment,
-                "fifth" to R.id.fifth_fragment
+                "fifth" to R.id.fifth_fragment,
             )
     }
 }

@@ -120,7 +120,7 @@ class ParallelogramInterfaceTest {
                     .isAlmostEqual(
                         ImmutableBox.fromTwoPoints(
                             ImmutableVec(-1.5f, -2.5f),
-                            ImmutableVec(1.5f, 2.5f)
+                            ImmutableVec(1.5f, 2.5f),
                         ),
                         tolerance,
                     )
@@ -151,7 +151,7 @@ class ParallelogramInterfaceTest {
                 box.isAlmostEqual(
                     ImmutableBox.fromTwoPoints(
                         ImmutableVec(-1.5f, -2.5f),
-                        ImmutableVec(1.5f, 2.5f)
+                        ImmutableVec(1.5f, 2.5f),
                     ),
                     tolerance,
                 )
@@ -182,7 +182,7 @@ class ParallelogramInterfaceTest {
                     .isAlmostEqual(
                         ImmutableBox.fromTwoPoints(
                             ImmutableVec(-5.5f, -1.5f),
-                            ImmutableVec(5.5f, 1.5f)
+                            ImmutableVec(5.5f, 1.5f),
                         ),
                         tolerance,
                     )
@@ -213,7 +213,7 @@ class ParallelogramInterfaceTest {
                 box.isAlmostEqual(
                     ImmutableBox.fromTwoPoints(
                         ImmutableVec(-5.5f, -1.5f),
-                        ImmutableVec(5.5f, 1.5f)
+                        ImmutableVec(5.5f, 1.5f),
                     ),
                     tolerance,
                 )

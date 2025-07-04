@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"पिन, पैटर्न या पासवर्ड सेट नहीं है."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"इस डिवाइस को पिन, पैटर्न या पासवर्ड की मदद से लॉक/अनलॉक नहीं किया जा सकता."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फ़िंगरप्रिंट आइकॉन"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"कॉन्टेंट व्यू में, \'ज़्यादा विकल्प\' बटन पर क्लिक किया गया."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"फ़िंगरप्रिंट का इस्तेमाल करें"</string>
     <string name="use_face_label" msgid="6533512708069459542">"चेहरा दिखाएं"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"बायोमेट्रिक्स का इस्तेमाल करें"</string>

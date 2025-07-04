@@ -119,7 +119,7 @@ class NavigationRailBenchmark {
                 NavigationRailTestCase(
                     isWideNavRail = true,
                     initialStateValue = WideNavigationRailValue.Expanded,
-                    changeSelectionToggleTestCase = false
+                    changeSelectionToggleTestCase = false,
                 )
             },
             assertOneRecomposition = false,
@@ -176,14 +176,14 @@ internal class NavigationRailTestCase(
                     onClick = {},
                     icon = { Spacer(Modifier.size(24.dp)) },
                     railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
-                    label = { Spacer(Modifier.size(24.dp)) }
+                    label = { Spacer(Modifier.size(24.dp)) },
                 )
                 WideNavigationRailItem(
                     selected = selectedIndexState.value == 1,
                     onClick = {},
                     icon = { Spacer(Modifier.size(24.dp)) },
                     railExpanded = state.targetValue == WideNavigationRailValue.Expanded,
-                    label = { Spacer(Modifier.size(24.dp)) }
+                    label = { Spacer(Modifier.size(24.dp)) },
                 )
             }
         } else {
@@ -235,17 +235,14 @@ internal class ModalWideNavigationRailTestCase(
         state = rememberWideNavigationRailState(initialStateValue)
         scope = rememberCoroutineScope()
 
-        ModalWideNavigationRail(
-            state = state,
-            hideOnCollapse = isDismissible,
-        ) {
+        ModalWideNavigationRail(state = state, hideOnCollapse = isDismissible) {
             WideNavigationRailItem(
                 selected = true,
                 onClick = {},
                 icon = { Spacer(Modifier.size(24.dp)) },
                 railExpanded =
                     isDismissible || state.targetValue == WideNavigationRailValue.Expanded,
-                label = { Spacer(Modifier.size(24.dp)) }
+                label = { Spacer(Modifier.size(24.dp)) },
             )
             WideNavigationRailItem(
                 selected = false,
@@ -253,7 +250,7 @@ internal class ModalWideNavigationRailTestCase(
                 icon = { Spacer(Modifier.size(24.dp)) },
                 railExpanded =
                     isDismissible || state.targetValue == WideNavigationRailValue.Expanded,
-                label = { Spacer(Modifier.size(24.dp)) }
+                label = { Spacer(Modifier.size(24.dp)) },
             )
         }
     }

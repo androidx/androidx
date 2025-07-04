@@ -20,7 +20,7 @@ package androidx.room.migration.bundle
 internal object SchemaEqualityUtil {
     fun <T, K : SchemaEquality<K>> checkSchemaEquality(
         map1: Map<T, K>?,
-        map2: Map<T, K>?
+        map2: Map<T, K>?,
     ): Boolean {
         return when {
             map1 == null -> map2 == null

@@ -48,7 +48,7 @@ class ValueConverterFileGenerator(
     fun generate(value: AnnotatedValue) =
         FileSpec.builder(
                 value.converterNameSpec().packageName,
-                value.converterNameSpec().simpleName
+                value.converterNameSpec().simpleName,
             )
             .build {
                 addCommonSettings()
@@ -99,8 +99,8 @@ class ValueConverterFileGenerator(
                 "parcelable.${property.name} = %L",
                 binderConverter.convertToBinderCode(
                     property.type,
-                    "annotatedValue.${property.name}"
-                )
+                    "annotatedValue.${property.name}",
+                ),
             )
         }
 
@@ -125,7 +125,7 @@ class ValueConverterFileGenerator(
                     returns(value.type.poetTypeName())
                     addStatement(
                         "return enumValues[parcelable.variant_ordinal]",
-                        value.type.poetTypeName()
+                        value.type.poetTypeName(),
                     )
                 }
         }
@@ -134,7 +134,7 @@ class ValueConverterFileGenerator(
         CodeBlock.builder().build {
             add(
                 "${property.name} = %L",
-                binderConverter.convertToModelCode(property.type, "parcelable.${property.name}")
+                binderConverter.convertToModelCode(property.type, "parcelable.${property.name}"),
             )
         }
 

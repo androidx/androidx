@@ -24,7 +24,7 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 internal abstract class AbstractMainTestClock(
     private val testScheduler: TestCoroutineScheduler,
     private val frameDelayMillis: Long,
-    private val runOnUiThread: (action: () -> Unit) -> Unit
+    private val runOnUiThread: (action: () -> Unit) -> Unit,
 ) : MainTestClock {
 
     override val currentTime: Long

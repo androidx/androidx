@@ -23,9 +23,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.ByteString.Companion.decodeBase64
 
-@OptIn(
-    kotlinx.coroutines.ExperimentalCoroutinesApi::class,
-)
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PreferencesCompatibilityTest {
 
     @Test

@@ -26,7 +26,7 @@ class QueryParameterProcessor(
     val containing: XType,
     val element: XExecutableParameterElement,
     private val sqlName: String,
-    private val bindVarSection: Section.BindVar?
+    private val bindVarSection: Section.BindVar?,
 ) {
     val context = baseContext.fork(element)
 
@@ -35,25 +35,25 @@ class QueryParameterProcessor(
         val parameterAdapter =
             context.typeAdapterStore.findQueryParameterAdapter(
                 typeMirror = asMember,
-                isMultipleParameter = bindVarSection?.isMultiple ?: false
+                isMultipleParameter = bindVarSection?.isMultiple ?: false,
             )
         context.checker.check(
             parameterAdapter != null,
             element,
-            ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT
+            ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT,
         )
 
         val name = element.name
         context.checker.check(
             !name.startsWith("_"),
             element,
-            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE
+            ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE,
         )
         return QueryParameter(
             name = name,
             sqlName = sqlName,
             type = asMember,
-            queryParamAdapter = parameterAdapter
+            queryParamAdapter = parameterAdapter,
         )
     }
 }

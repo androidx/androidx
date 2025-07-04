@@ -115,5 +115,5 @@ public class FakeHealthConnectClientOverrides(
      */
     public var aggregateGroupByPeriod:
         Stub<AggregateGroupByPeriodRequest, List<AggregationResultGroupedByPeriod>>? =
-        null
+        null,
 )

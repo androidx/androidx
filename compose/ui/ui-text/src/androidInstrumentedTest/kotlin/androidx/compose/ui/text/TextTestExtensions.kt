@@ -70,7 +70,7 @@ fun Paragraph.bitmap(
     shadow: Shadow? = null,
     textDecoration: TextDecoration? = null,
     drawStyle: DrawStyle? = null,
-    blendMode: BlendMode = BlendMode.SrcOver
+    blendMode: BlendMode = BlendMode.SrcOver,
 ): Bitmap {
     return onCanvas { canvas ->
         this.paint(
@@ -79,7 +79,7 @@ fun Paragraph.bitmap(
             shadow = shadow,
             textDecoration = textDecoration,
             drawStyle = drawStyle,
-            blendMode = blendMode
+            blendMode = blendMode,
         )
     }
 }
@@ -90,7 +90,7 @@ fun Paragraph.bitmap(
     shadow: Shadow? = null,
     textDecoration: TextDecoration? = null,
     drawStyle: DrawStyle? = null,
-    blendMode: BlendMode = BlendMode.SrcOver
+    blendMode: BlendMode = BlendMode.SrcOver,
 ): Bitmap {
     return onCanvas { canvas ->
         this.paint(
@@ -100,7 +100,7 @@ fun Paragraph.bitmap(
             shadow = shadow,
             textDecoration = textDecoration,
             drawStyle = drawStyle,
-            blendMode = blendMode
+            blendMode = blendMode,
         )
     }
 }
@@ -118,7 +118,7 @@ fun MultiParagraph.bitmap(
     alpha: Float = Float.NaN,
     textDecoration: TextDecoration? = null,
     drawStyle: DrawStyle? = null,
-    blendMode: BlendMode = BlendMode.SrcOver
+    blendMode: BlendMode = BlendMode.SrcOver,
 ): Bitmap {
     return onCanvas { canvas ->
         if (brush != null) {
@@ -128,14 +128,14 @@ fun MultiParagraph.bitmap(
                 alpha,
                 decoration = textDecoration,
                 drawStyle = drawStyle,
-                blendMode = blendMode
+                blendMode = blendMode,
             )
         } else {
             this.paint(
                 canvas = canvas,
                 decoration = textDecoration,
                 drawStyle = drawStyle,
-                blendMode = blendMode
+                blendMode = blendMode,
             )
         }
     }
@@ -146,14 +146,14 @@ internal fun UncachedFontFamilyResolver(context: Context): FontFamily.Resolver =
 
 internal fun UncachedFontFamilyResolver(
     platformFontLoader: PlatformFontLoader,
-    platformResolveInterceptor: PlatformResolveInterceptor
+    platformResolveInterceptor: PlatformResolveInterceptor,
 ): FontFamily.Resolver =
     FontFamilyResolverImpl(
         platformFontLoader,
         platformResolveInterceptor,
         TypefaceRequestCache(),
         FontListFontFamilyTypefaceAdapter(AsyncTypefaceCache()),
-        PlatformFontFamilyTypefaceAdapter()
+        PlatformFontFamilyTypefaceAdapter(),
     )
 
 fun MultiParagraph.bitmap(): Bitmap {
@@ -176,7 +176,7 @@ internal fun getLtrCharacterBoundariesForTestFont(
     fontSize: Float,
     // assumes that the test font is used and fontSize is equal to default line height
     lineHeight: Float = fontSize,
-    initialTop: Float = 0f
+    initialTop: Float = 0f,
 ): Array<Rect> {
     var top = initialTop
     var left = 0f
@@ -204,7 +204,7 @@ internal fun getRtlCharacterBoundariesForTestFont(
     text: String,
     width: Float,
     fontSize: Float,
-    lineHeight: Float = fontSize
+    lineHeight: Float = fontSize,
 ): Array<Rect> {
     var top = 0f
     var right = width

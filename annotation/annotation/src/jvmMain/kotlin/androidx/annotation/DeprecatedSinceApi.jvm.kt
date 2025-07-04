@@ -33,5 +33,5 @@ public annotation class DeprecatedSinceApi(
     /** The API level where it is deprecated. */
     val api: Int,
     /** Suggested replacement. */
-    val message: String = ""
+    val message: String = "",
 )

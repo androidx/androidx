@@ -87,7 +87,7 @@ fun AwaitHorizontalDragOrCancellationSample() {
                                 val newValue =
                                     (originalX + change.positionChange().x).coerceIn(
                                         0f,
-                                        width - 50.dp.toPx()
+                                        width - 50.dp.toPx(),
                                     )
                                 change.consume()
                                 offsetX.value = newValue
@@ -127,7 +127,7 @@ fun HorizontalDragSample() {
                                 val newValue =
                                     (originalX + it.positionChange().x).coerceIn(
                                         0f,
-                                        width - 50.dp.toPx()
+                                        width - 50.dp.toPx(),
                                     )
                                 it.consume()
                                 offsetX.value = newValue
@@ -192,7 +192,7 @@ fun AwaitVerticalDragOrCancellationSample() {
                                 val newValue =
                                     (originalY + change.positionChange().y).coerceIn(
                                         0f,
-                                        height - 50.dp.toPx()
+                                        height - 50.dp.toPx(),
                                     )
                                 change.consume()
                                 offsetY.value = newValue
@@ -233,7 +233,7 @@ fun VerticalDragSample() {
                                 val newValue =
                                     (originalY + it.positionChange().y).coerceIn(
                                         0f,
-                                        height - 50.dp.toPx()
+                                        height - 50.dp.toPx(),
                                     )
                                 it.consume()
                                 offsetY.value = newValue
@@ -289,7 +289,7 @@ fun AwaitDragOrCancellationSample() {
                                 val newValue =
                                     Offset(
                                         x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
-                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx()),
                                     )
                                 change.consume()
                                 offsetX.value = newValue.x
@@ -303,7 +303,7 @@ fun AwaitDragOrCancellationSample() {
                                 val newValue =
                                     Offset(
                                         x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
-                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx()),
                                     )
                                 change.consume()
                                 offsetX.value = newValue.x
@@ -337,7 +337,7 @@ fun DragSample() {
                                 val newValue =
                                     Offset(
                                         x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
-                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx()),
                                     )
                                 change.consume()
                                 offsetX.value = newValue.x
@@ -350,7 +350,7 @@ fun DragSample() {
                                 val newValue =
                                     Offset(
                                         x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
-                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                        y = summed.y.coerceIn(0f, size.height - 50.dp.toPx()),
                                     )
                                 it.consume()
                                 offsetX.value = newValue.x
@@ -381,7 +381,7 @@ fun DetectDragGesturesSample() {
                         val newValue =
                             Offset(
                                 x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
-                                y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                y = summed.y.coerceIn(0f, size.height - 50.dp.toPx()),
                             )
                         offsetX.value = newValue.x
                         offsetY.value = newValue.y
@@ -409,7 +409,7 @@ fun DetectDragWithLongPressGesturesSample() {
                         val newValue =
                             Offset(
                                 x = summed.x.coerceIn(0f, size.width - 50.dp.toPx()),
-                                y = summed.y.coerceIn(0f, size.height - 50.dp.toPx())
+                                y = summed.y.coerceIn(0f, size.height - 50.dp.toPx()),
                             )
                         offsetX.value = newValue.x
                         offsetY.value = newValue.y

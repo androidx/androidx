@@ -21,7 +21,6 @@ import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.telecom.Connection
 import android.telecom.ConnectionRequest
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.CallChannels
@@ -44,7 +43,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class JetpackConnectionServiceTest : BaseTelecomTest() {
     private val callChannels = CallChannels()
@@ -70,13 +68,13 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         val attributes =
             TestUtils.createCallAttributes(
                 CallAttributesCompat.DIRECTION_OUTGOING,
-                mPackagePhoneAccountHandle
+                mPackagePhoneAccountHandle,
             )
         // simulate the connection being created
         val connection =
             mConnectionService.createSelfManagedConnection(
                 createConnectionRequest(attributes),
-                CallAttributesCompat.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING,
             )
         // verify / assert connection properties
         verifyConnectionPropertiesBasics(connection)
@@ -94,13 +92,13 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         val attributes =
             TestUtils.createCallAttributes(
                 CallAttributesCompat.DIRECTION_INCOMING,
-                mPackagePhoneAccountHandle
+                mPackagePhoneAccountHandle,
             )
         // simulate the connection being created
         val connection =
             mConnectionService.createSelfManagedConnection(
                 createConnectionRequest(attributes),
-                CallAttributesCompat.DIRECTION_INCOMING
+                CallAttributesCompat.DIRECTION_INCOMING,
             )
         // verify / assert connection properties
         verifyConnectionPropertiesBasics(connection)
@@ -118,13 +116,13 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         val attributes =
             TestUtils.createCallAttributes(
                 CallAttributesCompat.DIRECTION_INCOMING,
-                mPackagePhoneAccountHandle
+                mPackagePhoneAccountHandle,
             )
         // simulate the connection being created
         val connection =
             mConnectionService.createSelfManagedConnection(
                 createConnectionRequest(attributes),
-                CallAttributesCompat.DIRECTION_INCOMING
+                CallAttributesCompat.DIRECTION_INCOMING,
             )
         // verify / assert connection extras
         val unwrappedConnection = connection!!
@@ -144,7 +142,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
     fun testOnCreateOutgoingConnectionWithNullArgs() {
         mConnectionService.onCreateOutgoingConnection(
             null /* connectionManagerPhoneAccount */,
-            null /* request */
+            null, /* request */
         )
     }
 
@@ -157,7 +155,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
     fun testOnCreateOutgoingConnectionFailedWithNullArgs() {
         mConnectionService.onCreateOutgoingConnectionFailed(
             null /* connectionManagerPhoneAccount */,
-            null /* request */
+            null, /* request */
         )
     }
 
@@ -170,7 +168,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
     fun testOnCreateIncomingConnectionWithNullArgs() {
         mConnectionService.onCreateIncomingConnection(
             null /* connectionManagerPhoneAccount */,
-            null /* request */
+            null, /* request */
         )
     }
 
@@ -183,7 +181,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
     fun testOnCreateIncomingConnectionFailedWithNullArgs() {
         mConnectionService.onCreateIncomingConnectionFailed(
             null /* connectionManagerPhoneAccount */,
-            null /* request */
+            null, /* request */
         )
     }
 
@@ -198,13 +196,13 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         val attributes =
             TestUtils.createCallAttributes(
                 CallAttributesCompat.DIRECTION_OUTGOING,
-                mPackagePhoneAccountHandle
+                mPackagePhoneAccountHandle,
             )
         // simulate the connection being created
         val connection =
             mConnectionService.createSelfManagedConnection(
                 createConnectionRequest(attributes),
-                CallAttributesCompat.DIRECTION_OUTGOING
+                CallAttributesCompat.DIRECTION_OUTGOING,
             )
         // verify / assert connection extras
         val unwrappedConnection = connection!!
@@ -253,7 +251,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
                     TestUtils.mOnEventLambda,
                     MutableSharedFlow(),
                     null,
-                    CompletableDeferred()
+                    CompletableDeferred(),
                 )
             )
 
@@ -270,11 +268,11 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         assertEquals(TestUtils.TEST_ADDRESS, unwrappedConnection.address)
         assertEquals(
             Connection.CAPABILITY_HOLD,
-            unwrappedConnection.connectionCapabilities and Connection.CAPABILITY_HOLD
+            unwrappedConnection.connectionCapabilities and Connection.CAPABILITY_HOLD,
         )
         assertEquals(
             Connection.CAPABILITY_SUPPORT_HOLD,
-            unwrappedConnection.connectionCapabilities and Connection.CAPABILITY_SUPPORT_HOLD
+            unwrappedConnection.connectionCapabilities and Connection.CAPABILITY_SUPPORT_HOLD,
         )
         assertEquals(0, JetpackConnectionService.mPendingConnectionRequests.size)
     }
@@ -287,7 +285,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         val pendingRequestIdBundle = Bundle()
         pendingRequestIdBundle.putString(
             JetpackConnectionService.REQUEST_ID_MATCHER_KEY,
-            pendingRequestId
+            pendingRequestId,
         )
         val pr =
             JetpackConnectionService.PendingConnectionRequest(
@@ -304,7 +302,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
                 TestUtils.mOnEventLambda,
                 MutableSharedFlow(),
                 null,
-                CompletableDeferred()
+                CompletableDeferred(),
             )
 
         // add to the list of pendingRequests
@@ -313,7 +311,7 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
         return ConnectionRequest(
             mPackagePhoneAccountHandle,
             TestUtils.TEST_ADDRESS,
-            pendingRequestIdBundle
+            pendingRequestIdBundle,
         )
     }
 }

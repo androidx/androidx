@@ -16,15 +16,13 @@
 
 package androidx.xr.runtime.testing
 
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.internal.Anchor
 
 /** Object that holds [Anchor] instances. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface AnchorHolder {
+internal interface AnchorHolder {
 
     /** Notifies the [AnchorHolder] that the given [Anchor] has been persisted. */
-    public fun persistAnchor(anchor: Anchor)
+    public fun onAnchorPersisted(anchor: Anchor)
 
     /**
      * Detaches the given [Anchor] from this trackable. Single [Anchor] instances rely on this

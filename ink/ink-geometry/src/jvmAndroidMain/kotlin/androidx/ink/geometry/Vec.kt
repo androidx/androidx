@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2024-2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.geometry.internal.VecNative
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
@@ -65,8 +66,7 @@ public abstract class Vec internal constructor() {
      * For performance-sensitive code, use [computeUnitVec] with a pre-allocated instance of
      * [MutableVec].
      */
-    public fun computeUnitVec(): ImmutableVec =
-        VecNative.unitVec(this.x, this.y, ImmutableVec::class.java)
+    public fun computeUnitVec(): ImmutableVec = VecNative.unitVec(this.x, this.y)
 
     /**
      * Modifies [outVec] into a vector with the same direction as this one, but with a magnitude of
@@ -261,4 +261,32 @@ public abstract class Vec internal constructor() {
         /** Returns a string representation for [vec] using its [Vec] properties. */
         internal fun string(vec: Vec): String = "Vec(x=${vec.x}, y=${vec.y})"
     }
+}
+
+@UsedByNative
+internal object VecNative {
+
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative external fun unitVec(vecX: Float, vecY: Float): ImmutableVec
+
+    @UsedByNative external fun populateUnitVec(vecX: Float, vecY: Float, output: MutableVec)
+
+    @UsedByNative
+    external fun absoluteAngleBetween(
+        firstVecX: Float,
+        firstVecY: Float,
+        secondVecX: Float,
+        secondVecY: Float,
+    ): Float
+
+    @UsedByNative
+    external fun signedAngleBetween(
+        firstVecX: Float,
+        firstVecY: Float,
+        secondVecX: Float,
+        secondVecY: Float,
+    ): Float
 }

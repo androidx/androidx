@@ -30,7 +30,7 @@ import org.robolectric.shadows.ShadowBuild
 class ControlZoomRatioRangeAssertionErrorQuirkTest(
     private val brand: String,
     private val model: String,
-    private val quirkEnablingExpected: Boolean
+    private val quirkEnablingExpected: Boolean,
 ) {
     @Test
     fun canEnableControlZoomRatioRangeAssertionErrorQuirkCorrectly() {
@@ -42,6 +42,7 @@ class ControlZoomRatioRangeAssertionErrorQuirkTest(
     }
 
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Brand: {0}, Model: {1}")
         fun data() =

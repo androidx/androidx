@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.FakeNoArgImpl_IsEnabled_False#noArg</id>
+        <enabledByDefault>false</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <schemaCategory>fake_schema_category</schemaCategory>
+        <schemaName>noArg</schemaName>
+        <schemaVersion>1</schemaVersion>
+        <functionId>com.testdata.FakeNoArgImpl_IsEnabled_False#noArg</functionId>
+    </appfunction>
+    <AppFunctionComponentMetadataDocument>
+        <id>unused</id>
+    </AppFunctionComponentMetadataDocument>
+</appfunctions>

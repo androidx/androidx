@@ -46,7 +46,7 @@ import org.robolectric.annotation.Config
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class Controller3AForCaptureTest {
     private val graphTestContext = GraphTestContext()
-    private val graphState3A = graphTestContext.graphProcessor.graphState3A
+    private val graphState3A = GraphState3A()
     private val graphProcessor = graphTestContext.graphProcessor
     private val captureSequenceProcessor = graphTestContext.captureSequenceProcessor
 
@@ -62,13 +62,9 @@ class Controller3AForCaptureTest {
     @Test
     fun testLock3AForCaptureFailsImmediatelyWithoutRepeatingRequest() = runTest {
         val graphProcessor2 = FakeGraphProcessor()
+        val graphState3A2 = GraphState3A()
         val controller3A =
-            Controller3A(
-                graphProcessor2,
-                FakeCameraMetadata(),
-                graphProcessor2.graphState3A,
-                listener3A
-            )
+            Controller3A(graphProcessor2, FakeCameraMetadata(), graphState3A2, listener3A)
         val result = controller3A.lock3AForCapture()
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
     }
@@ -96,7 +92,7 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_SEARCHING
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING,
                         )
             )
         }
@@ -114,7 +110,7 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
+                                CaptureResult.CONTROL_AE_STATE_CONVERGED,
                         )
             )
         }
@@ -207,7 +203,7 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_SEARCHING
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING,
                         )
             )
         }
@@ -259,7 +255,7 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
+                                CaptureResult.CONTROL_AE_STATE_CONVERGED,
                         )
             )
         }
@@ -294,7 +290,7 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_INACTIVE,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_SEARCHING
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING,
                         )
             )
         }
@@ -312,7 +308,7 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_INACTIVE,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
+                                CaptureResult.CONTROL_AE_STATE_CONVERGED,
                         )
             )
         }
@@ -335,7 +331,7 @@ class Controller3AForCaptureTest {
                     listOf(
                             CaptureResult.CONTROL_AE_STATE_CONVERGED,
                             CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
-                            CaptureResult.CONTROL_AE_STATE_LOCKED
+                            CaptureResult.CONTROL_AE_STATE_LOCKED,
                         )
                         .contains(it)
                 } ?: true
@@ -344,7 +340,7 @@ class Controller3AForCaptureTest {
                 frameMetadata[CaptureResult.CONTROL_AF_STATE]?.let {
                     listOf(
                             CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED
+                            CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED,
                         )
                         .contains(it)
                 } ?: true
@@ -369,9 +365,9 @@ class Controller3AForCaptureTest {
                         resultMetadata =
                             mapOf(
                                 CaptureResult.CONTROL_AF_STATE to
-                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                            )
-                    )
+                                    CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN
+                            ),
+                    ),
                 )
                 delay(FRAME_RATE_MS)
             }
@@ -389,9 +385,9 @@ class Controller3AForCaptureTest {
                 resultMetadata =
                     mapOf(
                         CaptureResult.CONTROL_AF_STATE to
-                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-                    )
-            )
+                            CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                    ),
+            ),
         )
 
         // Assert, task should be completed with Status.Ok
@@ -437,9 +433,9 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                )
+                                CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                        ),
+                ),
             )
         }
 
@@ -467,9 +463,9 @@ class Controller3AForCaptureTest {
                             CaptureResult.CONTROL_AF_STATE to
                                 CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                             CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_CONVERGED
-                        )
-                )
+                                CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                        ),
+                ),
             )
         }
 
@@ -484,13 +480,13 @@ class Controller3AForCaptureTest {
             assertThat(event1.requiredParameters)
                 .containsEntry(
                     CaptureRequest.CONTROL_AF_TRIGGER,
-                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL,
                 )
         }
         assertThat(event1.requiredParameters)
             .containsEntry(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL,
             )
     }
 
@@ -505,7 +501,7 @@ class Controller3AForCaptureTest {
             listener3A.onPartialCaptureResult(
                 FakeRequestMetadata(requestNumber = RequestNumber(1)),
                 FrameNumber(101L),
-                FakeFrameMetadata(frameNumber = FrameNumber(101L), resultMetadata = mapOf())
+                FakeFrameMetadata(frameNumber = FrameNumber(101L), resultMetadata = mapOf()),
             )
         }
 
@@ -521,7 +517,7 @@ class Controller3AForCaptureTest {
             assertThat(event1.requiredParameters)
                 .containsEntry(
                     CaptureRequest.CONTROL_AF_TRIGGER,
-                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL,
                 )
         }
 
@@ -545,7 +541,7 @@ class Controller3AForCaptureTest {
         assertThat(event1.requiredParameters)
             .containsEntry(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START,
             )
     }
 
@@ -558,12 +554,12 @@ class Controller3AForCaptureTest {
 private fun Listener3A.sendPartialCaptureResult(
     requestNumber: Long = 1L,
     frameNumber: Long = 101L,
-    resultMetadata: Map<CaptureResult.Key<*>, Any?>
+    resultMetadata: Map<CaptureResult.Key<*>, Any?>,
 ) {
     onRequestSequenceCreated(FakeRequestMetadata(requestNumber = RequestNumber(requestNumber)))
     onPartialCaptureResult(
         FakeRequestMetadata(requestNumber = RequestNumber(requestNumber)),
         FrameNumber(frameNumber),
-        FakeFrameMetadata(frameNumber = FrameNumber(101L), resultMetadata = resultMetadata)
+        FakeFrameMetadata(frameNumber = FrameNumber(101L), resultMetadata = resultMetadata),
     )
 }

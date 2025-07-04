@@ -54,8 +54,8 @@ package androidx.camera.view {
   }
 
   @RequiresApi(21) public static final class CameraController.OutputSize {
-    ctor public CameraController.OutputSize(int);
     ctor public CameraController.OutputSize(android.util.Size);
+    ctor public CameraController.OutputSize(int);
     method public int getAspectRatio();
     method public android.util.Size? getResolution();
     field public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff

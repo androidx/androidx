@@ -51,7 +51,7 @@ class IdeaSuppressionDetector : Detector(), SourceCodeScanner {
             UVariable::class.java,
             UMethod::class.java,
             UClass::class.java,
-            ULiteralExpression::class.java
+            ULiteralExpression::class.java,
         )
     }
 
@@ -119,11 +119,7 @@ class IdeaSuppressionDetector : Detector(), SourceCodeScanner {
      * associated AST [element] is used to look look up suppress annotations and to find the right
      * error range.
      */
-    private fun visitComment(
-        context: JavaContext,
-        element: UElement,
-        source: CharSequence,
-    ) {
+    private fun visitComment(context: JavaContext, element: UElement, source: CharSequence) {
         if (source.startsWith("//noinspection ")) {
             val warnings = source.split(" ").drop(1).filter { JAVA_WARNINGS.contains(it) }
             if (warnings.isNotEmpty()) {

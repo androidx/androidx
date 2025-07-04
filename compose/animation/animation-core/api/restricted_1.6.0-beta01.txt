@@ -76,8 +76,6 @@ package androidx.compose.animation.core {
   }
 
   public enum AnimationEndReason {
-    method public static androidx.compose.animation.core.AnimationEndReason valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.animation.core.AnimationEndReason[] values();
     enum_constant public static final androidx.compose.animation.core.AnimationEndReason BoundReached;
     enum_constant public static final androidx.compose.animation.core.AnimationEndReason Finished;
   }
@@ -334,7 +332,7 @@ package androidx.compose.animation.core {
     property public static final androidx.compose.animation.core.Easing LinearOutSlowInEasing;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. " + "It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for AnimationSpec. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAnimationSpecApi {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental animation API for Transition. It may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTransitionApi {
@@ -500,8 +498,6 @@ package androidx.compose.animation.core {
   }
 
   public enum RepeatMode {
-    method public static androidx.compose.animation.core.RepeatMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.animation.core.RepeatMode[] values();
     enum_constant public static final androidx.compose.animation.core.RepeatMode Restart;
     enum_constant public static final androidx.compose.animation.core.RepeatMode Reverse;
   }

@@ -37,10 +37,8 @@ class TypeConverterCostTest {
     @Test
     fun sum2() {
         val sum =
-            Cost(
-                converters = 1,
-                upCasts = 60,
-            ) + Cost(converters = 1, nullSafeWrapper = 2, upCasts = 20)
+            Cost(converters = 1, upCasts = 60) +
+                Cost(converters = 1, nullSafeWrapper = 2, upCasts = 20)
         assertThat(sum).isEqualTo(Cost(converters = 2, nullSafeWrapper = 2, upCasts = 80))
     }
 

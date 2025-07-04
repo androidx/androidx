@@ -73,7 +73,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
     internal fun observeLayoutSnapshotReads(
         node: LayoutNode,
         affectsLookahead: Boolean = true,
-        block: () -> Unit
+        block: () -> Unit,
     ) {
         if (affectsLookahead && node.lookaheadRoot != null) {
             observeReads(node, onCommitAffectingLookahead, block)
@@ -86,7 +86,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
     internal fun observeLayoutModifierSnapshotReads(
         node: LayoutNode,
         affectsLookahead: Boolean = true,
-        block: () -> Unit
+        block: () -> Unit,
     ) {
         if (affectsLookahead && node.lookaheadRoot != null) {
             observeReads(node, onCommitAffectingLayoutModifierInLookahead, block)
@@ -99,7 +99,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
     internal fun observeMeasureSnapshotReads(
         node: LayoutNode,
         affectsLookahead: Boolean = true,
-        block: () -> Unit
+        block: () -> Unit,
     ) {
         if (affectsLookahead && node.lookaheadRoot != null) {
             observeReads(node, onCommitAffectingLookaheadMeasure, block)
@@ -119,7 +119,7 @@ internal class OwnerSnapshotObserver(onChangedExecutor: (callback: () -> Unit) -
     internal fun <T : OwnerScope> observeReads(
         target: T,
         onChanged: (T) -> Unit,
-        block: () -> Unit
+        block: () -> Unit,
     ) {
         observer.observeReads(target, onChanged, block)
     }

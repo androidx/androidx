@@ -340,7 +340,7 @@ class ColorProvidersTest {
                 inverseOnSurface = testColor,
                 inverseSurface = testColor,
                 inversePrimary = testColor,
-                widgetBackground = testColor
+                widgetBackground = testColor,
             )
         )
     }

@@ -79,12 +79,7 @@ fun AppCardWithImage() {
                         .wrapContentSize(align = Alignment.Center),
             )
         },
-        title = {
-            Text(
-                text = "Title with maximum two lines",
-                maxLines = 2,
-            )
-        },
+        title = { Text(text = "Title with maximum two lines", maxLines = 2) },
         time = { Text("now") },
     ) {
         Spacer(Modifier.height(6.dp))
@@ -93,7 +88,7 @@ fun AppCardWithImage() {
                 Modifier.padding(end = 28.dp).aspectRatio(16f / 9f).clip(RoundedCornerShape(16.dp)),
             painter = painterResource(R.drawable.card_background),
             contentScale = ContentScale.Crop,
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }
@@ -101,11 +96,7 @@ fun AppCardWithImage() {
 @Sampled
 @Composable
 fun TitleCardStandard() {
-    TitleCard(
-        onClick = {},
-        title = { Text("TitleCard") },
-        time = { Text("now") },
-    ) {
+    TitleCard(onClick = {}, title = { Text("TitleCard") }, time = { Text("now") }) {
         Text("Some body content")
         Text("and some more body content")
     }
@@ -126,9 +117,7 @@ fun TitleCardWithImageBackground() {
     ) {
         // Apply 24.dp padding in bottom for TitleCard with an ImageBackground.
         // Already 12.dp padding exists. Ref - [CardDefaults.ContentPadding]
-        Column(
-            modifier = Modifier.fillMaxSize().padding(bottom = 12.dp),
-        ) {
+        Column(modifier = Modifier.fillMaxSize().padding(bottom = 12.dp)) {
             Text("Text coloured to stand out on the image")
         }
     }

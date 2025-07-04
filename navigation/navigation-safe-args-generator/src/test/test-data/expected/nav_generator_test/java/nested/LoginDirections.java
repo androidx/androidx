@@ -16,6 +16,7 @@
 
 package foo;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.navigation.ActionOnlyNavDirections;
 import androidx.navigation.NavDirections;
@@ -24,6 +25,7 @@ public class LoginDirections {
     private LoginDirections() {
     }
 
+    @CheckResult
     @NonNull
     public static NavDirections actionDone() {
         return new ActionOnlyNavDirections(R.id.action_done);

@@ -55,8 +55,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = -1,
                         nextKey = 1,
                         itemsBefore = 50,
-                        itemsAfter = 50
-                    )
+                        itemsAfter = 50,
+                    ),
             )
 
             assertEquals(0, pagerState.placeholdersBefore)
@@ -65,12 +65,12 @@ class PageFetcherSnapshotStateTest {
             pagerState.insert(
                 loadId = 0,
                 loadType = PREPEND,
-                page = Page(data = listOf(), prevKey = -2, nextKey = 0, itemsBefore = 25)
+                page = Page(data = listOf(), prevKey = -2, nextKey = 0, itemsBefore = 25),
             )
             pagerState.insert(
                 loadId = 0,
                 loadType = APPEND,
-                page = Page(data = listOf(), prevKey = 0, nextKey = 2, itemsBefore = 25)
+                page = Page(data = listOf(), prevKey = 0, nextKey = 2, itemsBefore = 25),
             )
 
             assertEquals(0, pagerState.placeholdersBefore)
@@ -86,8 +86,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = -3,
                         nextKey = 0,
                         itemsBefore = COUNT_UNDEFINED,
-                        itemsAfter = COUNT_UNDEFINED
-                    )
+                        itemsAfter = COUNT_UNDEFINED,
+                    ),
             )
             pagerState.insert(
                 loadId = 0,
@@ -98,8 +98,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = 0,
                         nextKey = 3,
                         itemsBefore = COUNT_UNDEFINED,
-                        itemsAfter = COUNT_UNDEFINED
-                    )
+                        itemsAfter = COUNT_UNDEFINED,
+                    ),
             )
 
             assertEquals(0, pagerState.placeholdersBefore)
@@ -111,7 +111,7 @@ class PageFetcherSnapshotStateTest {
                         loadType = PREPEND,
                         minPageOffset = -2,
                         maxPageOffset = -2,
-                        placeholdersRemaining = 100
+                        placeholdersRemaining = 100,
                     )
             )
             pagerState.drop(
@@ -120,7 +120,7 @@ class PageFetcherSnapshotStateTest {
                         loadType = APPEND,
                         minPageOffset = 2,
                         maxPageOffset = 2,
-                        placeholdersRemaining = 100
+                        placeholdersRemaining = 100,
                     )
             )
 
@@ -149,8 +149,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = -1,
                         nextKey = 1,
                         itemsBefore = 50,
-                        itemsAfter = 50
-                    )
+                        itemsAfter = 50,
+                    ),
             )
 
             assertEquals(50, pagerState.placeholdersBefore)
@@ -165,8 +165,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = -2,
                         nextKey = 0,
                         itemsBefore = 25,
-                        itemsAfter = COUNT_UNDEFINED
-                    )
+                        itemsAfter = COUNT_UNDEFINED,
+                    ),
             )
             pagerState.insert(
                 loadId = 0,
@@ -177,8 +177,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = 0,
                         nextKey = 2,
                         itemsBefore = COUNT_UNDEFINED,
-                        itemsAfter = 25
-                    )
+                        itemsAfter = 25,
+                    ),
             )
 
             assertEquals(25, pagerState.placeholdersBefore)
@@ -194,8 +194,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = -3,
                         nextKey = 0,
                         itemsBefore = COUNT_UNDEFINED,
-                        itemsAfter = COUNT_UNDEFINED
-                    )
+                        itemsAfter = COUNT_UNDEFINED,
+                    ),
             )
             pagerState.insert(
                 loadId = 0,
@@ -206,8 +206,8 @@ class PageFetcherSnapshotStateTest {
                         prevKey = 0,
                         nextKey = 3,
                         itemsBefore = COUNT_UNDEFINED,
-                        itemsAfter = COUNT_UNDEFINED
-                    )
+                        itemsAfter = COUNT_UNDEFINED,
+                    ),
             )
 
             assertEquals(24, pagerState.placeholdersBefore)
@@ -219,7 +219,7 @@ class PageFetcherSnapshotStateTest {
                         loadType = PREPEND,
                         minPageOffset = -2,
                         maxPageOffset = -2,
-                        placeholdersRemaining = 100
+                        placeholdersRemaining = 100,
                     )
             )
             pagerState.drop(
@@ -228,7 +228,7 @@ class PageFetcherSnapshotStateTest {
                         loadType = APPEND,
                         minPageOffset = 2,
                         maxPageOffset = 2,
-                        placeholdersRemaining = 100
+                        placeholdersRemaining = 100,
                     )
             )
 
@@ -250,9 +250,9 @@ class PageFetcherSnapshotStateTest {
                         prevKey = 3,
                         nextKey = 6,
                         itemsBefore = 4,
-                        itemsAfter = 4
+                        itemsAfter = 4,
                     ),
-                    Page(data = listOf(6, 7), prevKey = 5, nextKey = 8)
+                    Page(data = listOf(6, 7), prevKey = 5, nextKey = 8),
                 )
 
             state.insert(0, REFRESH, pages[1])
@@ -280,7 +280,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 4,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -291,7 +291,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 0,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -302,7 +302,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 9,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -315,7 +315,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 4,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -328,7 +328,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 0,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -341,7 +341,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 9,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -354,7 +354,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 4,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -367,7 +367,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 0,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -380,7 +380,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 9,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -391,7 +391,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 4,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -402,7 +402,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 0,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -413,7 +413,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 9,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -424,7 +424,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 4,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -435,7 +435,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 0,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
 
@@ -446,7 +446,7 @@ class PageFetcherSnapshotStateTest {
                         pages = pages,
                         anchorPosition = 9,
                         config = config,
-                        leadingPlaceholderCount = 2
+                        leadingPlaceholderCount = 2,
                     )
                 )
         }
@@ -469,10 +469,7 @@ class PageFetcherSnapshotStateTest {
             state.sourceLoadStates.set(REFRESH, NotLoading.Incomplete)
             assertThat(state.sourceLoadStates.snapshot())
                 .isEqualTo(
-                    loadStates(
-                        refresh = NotLoading.Incomplete,
-                        append = NotLoading.Complete,
-                    )
+                    loadStates(refresh = NotLoading.Incomplete, append = NotLoading.Complete)
                 )
             assertThat(state.sourceLoadStates.get(APPEND)).isEqualTo(NotLoading.Complete)
         }

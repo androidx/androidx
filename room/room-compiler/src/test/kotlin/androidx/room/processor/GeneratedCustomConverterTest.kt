@@ -26,7 +26,7 @@ import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.Source
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.squareup.javapoet.ClassName
@@ -73,13 +73,13 @@ class GeneratedCustomConverterTest {
 
             annotation class GenConverter
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = listOf(src),
             javacProcessors = listOf(RoomProcessor(), JavacCustomConverter()),
             symbolProcessorProviders =
-                listOf(RoomKspProcessor.Provider(), KspCustomConverter.Provider())
+                listOf(RoomKspProcessor.Provider(), KspCustomConverter.Provider()),
         ) {
             it.hasNoWarnings()
         }
@@ -91,7 +91,7 @@ class GeneratedCustomConverterTest {
         override fun process(
             env: XProcessingEnv,
             elementsByAnnotation: Map<String, Set<XElement>>,
-            isLastRound: Boolean
+            isLastRound: Boolean,
         ): Set<XElement> {
             val elements = elementsByAnnotation.getOrDefault("GenConverter", emptySet())
             val element = elements.singleOrNull() ?: return emptySet()

@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"বাৰ্তাৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ইয়াত বাৰ্তা ওলাব।\nদ্বিতীয় শাৰীত অধিক পাঠ।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"চুটি বাৰ্তাৰ টেমপ্লে’টৰ ডেম’"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"শাখা হিচাপে ৰখা বস্তুৰ টেম্পলে’টৰ ডেম’"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ৰেডিঅ’ বুটামৰ শাখা"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ট’গলৰ শাখা"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"বহুত বেছি শাৰীৰ শাখা"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"গ্ৰিডৰ বস্তুৰ বাছনি"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"পে’নৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ঠাইৰ সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ঠাইসমূহ ব্ৰাউজ কৰক"</string>

@@ -98,5 +98,5 @@ class DraggableAnchorsTest {
 private enum class TestValue {
     A,
     B,
-    C
+    C,
 }

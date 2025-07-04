@@ -32,5 +32,5 @@ public class RangingPosition(
     public val distance: RangingMeasurement?,
     public val azimuth: RangingMeasurement?,
     public val elevation: RangingMeasurement?,
-    public val elapsedRealtimeNanos: Long
+    public val elapsedRealtimeNanos: Long,
 )

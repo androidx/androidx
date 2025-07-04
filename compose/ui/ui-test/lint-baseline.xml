@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 8.12.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha04)" variant="all" version="8.12.0-alpha04">
 
     <issue
         id="BanThreadSleep"
@@ -17,6 +17,51 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/test/android/WindowCapture.android.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            setContent { rememberCoroutineScope().launch { withFrameNanos {} } }"
+        errorLine2="                                                  ~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/CustomEffectContextTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun rowModifier(): Modifier ="
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun columnModifier(): Modifier ="
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun rowModifier(scrollState: ScrollState): Modifier ="
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun columnModifier(scrollState: ScrollState): Modifier ="
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/test/actions/ScrollToTest.kt"/>
     </issue>
 
     <issue
@@ -147,15 +192,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field nodeIds with type List&lt;Integer>: replace with IntList"
-        errorLine1="    private var nodeIds: List&lt;Int>? = null"
-        errorLine2="                         ~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/test/SemanticsNodeInteraction.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="method moveWithHistoryMultiPointer has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
         errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
         errorLine2="                                 ~~~~~~~~~~">
@@ -184,7 +220,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method swipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
-        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList(),"
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
@@ -193,46 +229,10 @@
     <issue
         id="PrimitiveInCollection"
         message="method multiTouchSwipe has parameter keyTimes with type List&lt;Long>: replace with LongList"
-        errorLine1="    keyTimes: List&lt;Long> = emptyList()"
+        errorLine1="    keyTimes: List&lt;Long> = emptyList(),"
         errorLine2="              ~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/test/TouchInjectionScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method isMonotonicBetween has parameter $this$isMonotonicBetween with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.isMonotonicBetween(a: Float, b: Float, tolerance: Float = 1e-3f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method assertSame has parameter $this$assertSame with type List&lt;Float>: replace with FloatList"
-        errorLine1="fun List&lt;Float>.assertSame(tolerance: Float = 0f) {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/androidCommonTest/kotlin/androidx/compose/ui/test/util/Verifications.kt"/>
     </issue>
 
 </issues>

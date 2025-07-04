@@ -260,7 +260,7 @@ public class RemoteInputIntentHelper private constructor() {
         @NonNull
         public fun putSmartReplyContextExtra(
             intent: Intent,
-            smartReplyContext: List<CharSequence>
+            smartReplyContext: List<CharSequence>,
         ): Intent = intent.putExtra(EXTRA_SMART_REPLY_CONTEXT, ArrayList(smartReplyContext))
     }
 }

@@ -44,7 +44,7 @@ internal class CommonIntegration(
     fun configureSchemaCopyTask(
         apTaskNames: Set<String>,
         oldSchemaConfig: SchemaConfiguration?,
-        newSchemaConfig: SchemaConfiguration
+        newSchemaConfig: SchemaConfiguration,
     ) {
         // If a schema config is being replaced, unlink ap generating tasks from it.
         if (oldSchemaConfig != null) {
@@ -82,14 +82,14 @@ internal class CommonIntegration(
     fun createArgumentProvider(
         schemaConfiguration: SchemaConfiguration,
         roomOptions: RoomOptions,
-        task: Task
+        task: Task,
     ): RoomArgumentProvider {
         return RoomArgumentProvider(
             forKsp = task.isKspTask(),
             schemaInputDir = schemaConfiguration.copyTask.flatMap { it.schemaDirectory },
             schemaOutputDir =
                 providerFactory.provider { apTaskSchemaOutputDirs.getValue(task.name).get() },
-            options = roomOptions
+            options = roomOptions,
         )
     }
 }

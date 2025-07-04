@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +35,6 @@ dependencies {
 
     api(libs.kotlinStdlib)
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.mockitoCore4)
 
@@ -48,9 +47,10 @@ android {
 
 androidx {
     name = "Android Wear Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.WEAR_CORE
     inceptionYear = "2024"
     description = "Low-level utilities for building apps and libraries for Wear OS."
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

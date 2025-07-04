@@ -160,8 +160,8 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
                 Severity.ERROR,
                 Implementation(
                     MissingJvmDefaultWithCompatibilityDetector::class.java,
-                    Scope.JAVA_FILE_SCOPE
-                )
+                    Scope.JAVA_FILE_SCOPE,
+                ),
             )
 
         const val JVM_DEFAULT_WITH_COMPATIBILITY = "kotlin.jvm.JvmDefaultWithCompatibility"

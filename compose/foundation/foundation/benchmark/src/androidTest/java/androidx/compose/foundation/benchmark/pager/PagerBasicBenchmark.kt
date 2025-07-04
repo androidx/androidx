@@ -139,7 +139,7 @@ class PagerTestCase(val fullPages: Boolean = true) : LayeredComposeTestCase() {
         HorizontalPager(
             state = rememberPagerState { 100 },
             modifier = Modifier.size(400.dp),
-            pageSize = pageSize
+            pageSize = pageSize,
         ) {
             Box(modifier = Modifier.fillMaxSize())
         }

@@ -232,7 +232,7 @@ class SelectionRegistrarImplTest {
 
 private fun mockSelectable(
     selectableId: Long,
-    layoutCoordinates: LayoutCoordinates? = null
+    layoutCoordinates: LayoutCoordinates? = null,
 ): Selectable {
     val selectable: Selectable = mock()
     whenever(selectable.selectableId).thenReturn(selectableId)

@@ -1,0 +1,61 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+}
+android {
+    namespace = "androidx.appfunctions.integration.testapp"
+    compileSdk = 36
+    defaultConfig {
+        applicationId = "androidx.appfunctions.integration.testapp"
+        minSdk = 33
+        ksp {
+            arg("appfunctions:aggregateAppFunctions", "true")
+            arg("appfunctions:generateMetadataFromSchema", "true")
+        }
+    }
+    buildTypes {
+        // Release build is not used when running AndroidX Test. This is only used to
+        // manually examine the output APK.
+        release {
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+    }
+}
+
+dependencies {
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation(project(":appfunctions:appfunctions"))
+    androidTestImplementation(project(":appfunctions:appfunctions-service"))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation("androidx.appsearch:appsearch:1.1.0-rc01")
+    androidTestImplementation("androidx.appsearch:appsearch-platform-storage:1.1.0-rc01")
+    androidTestImplementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
+    androidTestImplementation(project(":appfunctions:integration-tests:multi-modules-testapp:shared-library"))
+   kspAndroidTest(project(":appfunctions:appfunctions-compiler"))
+}

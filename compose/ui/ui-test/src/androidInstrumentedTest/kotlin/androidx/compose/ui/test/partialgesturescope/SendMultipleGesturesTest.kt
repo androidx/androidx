@@ -53,7 +53,7 @@ class SendMultipleGesturesTest {
             expectedDifference = 1273,
             betweenGesturesBlock = {
                 rule.mainClock.advanceTimeBy(1273, ignoreFrameDuration = true)
-            }
+            },
         )
     }
 

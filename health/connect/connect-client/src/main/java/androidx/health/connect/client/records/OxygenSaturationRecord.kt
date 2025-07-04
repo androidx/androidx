@@ -15,6 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Percentage
 import java.time.Instant
@@ -30,12 +32,20 @@ public class OxygenSaturationRecord(
     override val zoneOffset: ZoneOffset?,
     /** Percentage. Required field. Valid range: 0-100. */
     public val percentage: Percentage,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        requireNonNegative(value = percentage.value, name = "percentage")
-        percentage.value.requireNotMore(other = 100.0, name = "percentage")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            requireNonNegative(value = percentage.value, name = "percentage")
+            percentage.value.requireNotMore(other = 100.0, name = "percentage")
+        }
     }
 
     /*

@@ -1,0 +1,22 @@
+name: testapp-darwin
+targets:
+  App:
+    type: application
+    platform: [macOS]
+    info:
+      path: Info.plist
+    sources:
+      - path: 'src'
+    preBuildScripts:
+      - script: |
+              cd ${PROJECT_DIR}/../../..
+              ./gradlew :tracing:tracing:embedAndSignAppleFrameworkForXcode
+        name: Compile androidx.tracing
+
+
+settings:
+  CODE_SIGN_IDENTITY: ''
+  CODE_SIGNING_REQUIRED: 'NO'
+  CODE_SIGN_ENTITLEMENTS: ''
+  CODE_SIGNING_ALLOWED: 'NO'
+

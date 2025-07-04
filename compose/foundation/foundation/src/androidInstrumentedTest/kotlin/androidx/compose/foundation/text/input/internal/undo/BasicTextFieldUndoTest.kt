@@ -21,6 +21,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboard
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.semantics.SemanticsActions
@@ -313,6 +315,34 @@ internal class BasicTextFieldUndoTest {
         state.undoState.undo()
 
         state.assertTextAndSelection("abc def ghi", TextRange(11))
+    }
+
+    @Test
+    fun undoDoesNotReadSnapshotState_whileInitializing() {
+        var invalidationCount = 0
+        val observer = SnapshotStateObserver(onChangedExecutor = { it() })
+        lateinit var state: TextFieldState
+        observer.start()
+        try {
+            observer.observeReads(scope = Unit, onValueChangedForScope = { invalidationCount++ }) {
+                state = TextFieldState("Hello")
+            }
+            assertThat(invalidationCount).isEqualTo(0)
+
+            // Act.
+            // Change the state in a way that will contribute to UndoManager. The first edit goes
+            // into undo staging area. The second one flushes the staging area and puts the first
+            // edit into undo stack.
+            Snapshot.withMutableSnapshot {
+                state.editAsUser(null) { append(" World!") }
+                state.editAsUser(null) { replace(0, length, "abc") }
+            }
+
+            // Assert.
+            assertThat(invalidationCount).isEqualTo(0)
+        } finally {
+            observer.stop()
+        }
     }
 
     private fun SemanticsNodeInteraction.typeText(text: String) {

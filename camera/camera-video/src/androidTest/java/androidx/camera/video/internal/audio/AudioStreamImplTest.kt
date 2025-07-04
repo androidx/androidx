@@ -74,7 +74,7 @@ class AudioStreamImplTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
         assumeTrue(AudioStreamImpl.isSettingsSupported(SAMPLE_RATE, CHANNEL_COUNT, AUDIO_FORMAT))
@@ -84,11 +84,12 @@ class AudioStreamImplTest {
             AudioStreamImpl(
                 AudioSettings.builder()
                     .setAudioSource(AUDIO_SOURCE)
-                    .setSampleRate(SAMPLE_RATE)
+                    .setCaptureSampleRate(SAMPLE_RATE)
+                    .setEncodeSampleRate(SAMPLE_RATE)
                     .setChannelCount(CHANNEL_COUNT)
                     .setAudioFormat(AUDIO_FORMAT)
                     .build(),
-                /*attributionContext=*/ null
+                /*attributionContext=*/ null,
             )
         audioStreamCallback = AudioStreamCallback()
         audioStream.setCallback(audioStreamCallback, ioExecutor())
@@ -253,7 +254,7 @@ class AudioStreamImplTest {
                 inOder,
                 timeoutMs,
                 callTimes,
-                captor
+                captor,
             )
             onSilenceStateChanged?.invoke(captor!!.allValues)
         }

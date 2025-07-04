@@ -25,6 +25,9 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +63,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -79,6 +83,7 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlin.test.assertNotEquals
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -111,7 +116,7 @@ class ComposeViewTest {
             if (Build.VERSION.SDK_INT >= 23) {
                 assertEquals(
                     "androidx.compose.ui.platform.ComposeView",
-                    view.getAccessibilityClassName()
+                    view.getAccessibilityClassName(),
                 )
             }
         }
@@ -193,7 +198,7 @@ class ComposeViewTest {
         assertNotNull("composeViewCapture should not be null", composeViewCapture)
         assertTrue(
             "ComposeView should not have a composition",
-            composeViewCapture?.hasComposition == false
+            composeViewCapture?.hasComposition == false,
         )
     }
 
@@ -218,7 +223,7 @@ class ComposeViewTest {
         assertNotNull("composeViewCapture should not be null", composeViewCapture)
         assertTrue(
             "ComposeView should not have a composition",
-            composeViewCapture?.hasComposition == false
+            composeViewCapture?.hasComposition == false,
         )
     }
 
@@ -242,7 +247,7 @@ class ComposeViewTest {
         assertNotNull("composeViewCapture should not be null", composeViewCapture)
         assertTrue(
             "ComposeView should not have a composition",
-            composeViewCapture?.hasComposition == false
+            composeViewCapture?.hasComposition == false,
         )
     }
 
@@ -290,7 +295,7 @@ class ComposeViewTest {
                                         rect.left.roundToInt(),
                                         rect.top.roundToInt(),
                                         rect.right.roundToInt(),
-                                        rect.bottom.roundToInt()
+                                        rect.bottom.roundToInt(),
                                     )
                             }
                     )
@@ -312,9 +317,9 @@ class ComposeViewTest {
                 offsetFromRoot.x + 1,
                 offsetFromRoot.y + 2,
                 offsetFromRoot.x + 11,
-                offsetFromRoot.y + 12
+                offsetFromRoot.y + 12,
             ),
-            boundsInWindow
+            boundsInWindow,
         )
     }
 
@@ -338,7 +343,7 @@ class ComposeViewTest {
                                         rect.left.roundToInt(),
                                         rect.top.roundToInt(),
                                         rect.right.roundToInt(),
-                                        rect.bottom.roundToInt()
+                                        rect.bottom.roundToInt(),
                                     )
                             }
                     )
@@ -362,9 +367,9 @@ class ComposeViewTest {
                 offsetFromRoot.x,
                 offsetFromRoot.y,
                 offsetFromRoot.x + 7,
-                offsetFromRoot.y + 10
+                offsetFromRoot.y + 10,
             ),
-            boundsInWindow
+            boundsInWindow,
         )
 
         // Offset to the top
@@ -375,9 +380,9 @@ class ComposeViewTest {
                 offsetFromRoot.x,
                 offsetFromRoot.y,
                 offsetFromRoot.x + 10,
-                offsetFromRoot.y + 6
+                offsetFromRoot.y + 6,
             ),
-            boundsInWindow
+            boundsInWindow,
         )
 
         // Offset to the right
@@ -388,9 +393,9 @@ class ComposeViewTest {
                 offsetFromRoot.x + rootSize.width - 5,
                 offsetFromRoot.y,
                 offsetFromRoot.x + rootSize.width,
-                offsetFromRoot.y + 10
+                offsetFromRoot.y + 10,
             ),
-            boundsInWindow
+            boundsInWindow,
         )
 
         // Offset to the bottom
@@ -401,9 +406,9 @@ class ComposeViewTest {
                 offsetFromRoot.x,
                 offsetFromRoot.y + rootSize.height - 6,
                 offsetFromRoot.x + 10,
-                offsetFromRoot.y + rootSize.height
+                offsetFromRoot.y + rootSize.height,
             ),
-            boundsInWindow
+            boundsInWindow,
         )
     }
 
@@ -427,7 +432,7 @@ class ComposeViewTest {
                                         rect.left.roundToInt(),
                                         rect.top.roundToInt(),
                                         rect.right.roundToInt(),
-                                        rect.bottom.roundToInt()
+                                        rect.bottom.roundToInt(),
                                     )
                             }
                     )
@@ -484,6 +489,29 @@ class ComposeViewTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(IntSize(100, 100), size)
+    }
+
+    @Test
+    fun composeHierarchyScrollsViewTreeCallbackIsInvoked() {
+        var countCalls = 0
+        rule.activityRule.scenario.onActivity { activity ->
+            val composeView = ComposeView(activity)
+            activity.setContentView(composeView)
+            composeView.setContent {
+                Box(
+                    Modifier.size(400.dp)
+                        .testTag("SCROLLABLE")
+                        .scrollable(
+                            state = rememberScrollableState { 0f },
+                            orientation = Orientation.Vertical,
+                        )
+                )
+            }
+            composeView.viewTreeObserver.addOnScrollChangedListener { countCalls += 1 }
+        }
+
+        rule.onNodeWithTag("SCROLLABLE").performTouchInput { swipeUp() }
+        assertNotEquals(countCalls, 0)
     }
 
     @Test
@@ -703,7 +731,7 @@ class ComposeViewTest {
                                 }
                             )
                         }
-                    }
+                    },
                 )
             }
         }
@@ -760,7 +788,7 @@ private fun View.assertCanScroll(
     left: Boolean = false,
     up: Boolean = false,
     right: Boolean = false,
-    down: Boolean = false
+    down: Boolean = false,
 ) {
     assertEquals(left, canScrollHorizontally(-1))
     assertEquals(right, canScrollHorizontally(1))
@@ -777,7 +805,7 @@ private inline fun ViewGroup.assertUnsupported(testName: String, test: ViewGroup
     }
     assertTrue(
         "$testName throws UnsupportedOperationException",
-        exception is UnsupportedOperationException
+        exception is UnsupportedOperationException,
     )
 }
 
@@ -828,7 +856,7 @@ private class TestComposeView(context: Context) : AbstractComposeView(context) {
         child: View?,
         index: Int,
         params: LayoutParams?,
-        preventRequestLayout: Boolean
+        preventRequestLayout: Boolean,
     ): Boolean {
         return super.addViewInLayout(child, index, params, preventRequestLayout)
     }

@@ -61,6 +61,8 @@
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"Reduza a secção inferior"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"Ignore a secção inferior"</string>
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"Expanda a secção inferior"</string>
+    <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"Reduzir barra de ferramentas"</string>
+    <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"Expandir barra de ferramentas"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"Sugestão"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"Mostrar sugestão"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -75,6 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"Hora"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"para minutos"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"para hora"</string>
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"Mude para o método de introdução de texto para a introdução da hora"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"Mude para o modo de relógio para a introdução da hora"</string>
+    <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Selecione uma hora"</string>
+    <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Introduza uma hora"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Fechar barra"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Barra de navegação"</string>
 </resources>

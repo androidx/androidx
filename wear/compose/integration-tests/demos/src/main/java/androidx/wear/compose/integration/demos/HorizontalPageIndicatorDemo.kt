@@ -59,7 +59,7 @@ fun CustomizedHorizontalPageIndicator() {
         animateFloatAsState(
             targetValue = selectedPage.toFloat(),
             animationSpec = TweenSpec(durationMillis = 500),
-            label = "page-indicator"
+            label = "page-indicator",
         )
 
     val pageIndicatorState: PageIndicatorState = remember {
@@ -81,7 +81,7 @@ fun CustomizedHorizontalPageIndicator() {
             value = selectedPage,
             segmented = true,
             valueProgression = 0 until maxPages,
-            onValueChange = { selectedPage = it }
+            onValueChange = { selectedPage = it },
         )
         HorizontalPageIndicator(
             pageIndicatorState = pageIndicatorState,
@@ -89,7 +89,7 @@ fun CustomizedHorizontalPageIndicator() {
             unselectedColor = MaterialTheme.colors.onSecondary,
             indicatorSize = 15.dp,
             indicatorShape = TriangleShape,
-            spacing = 8.dp
+            spacing = 8.dp,
         )
     }
 }
@@ -126,10 +126,7 @@ fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
             modifier = Modifier.fillMaxSize().edgeSwipeToDismiss(swipeState),
             state = pagerState,
             flingBehavior =
-                PagerDefaults.flingBehavior(
-                    pagerState,
-                    snapAnimationSpec = tween(150, 0),
-                )
+                PagerDefaults.flingBehavior(pagerState, snapAnimationSpec = tween(150, 0)),
         ) { page ->
             val scrollState = rememberScalingLazyListState()
             ScalingLazyColumn(state = scrollState, modifier = Modifier.fillMaxWidth()) {
@@ -137,7 +134,7 @@ fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
                 items(4) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         Chip(
                             onClick = {
@@ -145,15 +142,13 @@ fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
                                     if (background == Color.Black) Color.DarkGray else Color.Black
                             },
                             label = { Text(text = "Click", color = Color.Black) },
-                            enabled = !pagerState.isScrollInProgress
+                            enabled = !pagerState.isScrollInProgress,
                         )
                     }
                 }
             }
         }
-        HorizontalPageIndicator(
-            pageIndicatorState = pageIndicatorState,
-        )
+        HorizontalPageIndicator(pageIndicatorState = pageIndicatorState)
     }
 }
 

@@ -39,7 +39,7 @@ class TestMainActivity : AppCompatActivity() {
         AppOwnedSdkSandboxInterfaceCompat(
             name = "AppOwnedSdk",
             version = 42,
-            binder = AppOwnedSdk()
+            binder = AppOwnedSdk(),
         )
 
     override fun onCreate(savedInstanceState: Bundle?) {

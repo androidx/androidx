@@ -41,7 +41,7 @@ internal sealed class RoomTrackingLiveData<T>(
     protected val database: RoomDatabase,
     private val container: InvalidationLiveDataContainer,
     protected val inTransaction: Boolean,
-    tableNames: Array<out String>
+    tableNames: Array<out String>,
 ) : LiveData<T>() {
     private val observer: InvalidationTracker.Observer =
         object : InvalidationTracker.Observer(tableNames) {
@@ -83,7 +83,7 @@ internal sealed class RoomTrackingLiveData<T>(
                         } catch (e: Exception) {
                             throw RuntimeException(
                                 "Exception while computing database live data.",
-                                e
+                                e,
                             )
                         }
                     }
@@ -134,7 +134,7 @@ internal class RoomCallableTrackingLiveData<T>(
     container: InvalidationLiveDataContainer,
     inTransaction: Boolean,
     tableNames: Array<out String>,
-    private val callableFunction: Callable<T?>
+    private val callableFunction: Callable<T?>,
 ) : RoomTrackingLiveData<T>(database, container, inTransaction, tableNames) {
     override suspend fun compute(): T? {
         return callableFunction.call()
@@ -146,7 +146,7 @@ internal class RoomLambdaTrackingLiveData<T>(
     container: InvalidationLiveDataContainer,
     inTransaction: Boolean,
     tableNames: Array<out String>,
-    private val lambdaFunction: ((SQLiteConnection) -> T?)
+    private val lambdaFunction: ((SQLiteConnection) -> T?),
 ) : RoomTrackingLiveData<T>(database, container, inTransaction, tableNames) {
     override suspend fun compute(): T? {
         return performSuspending(database, true, inTransaction, lambdaFunction)

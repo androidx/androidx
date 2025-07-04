@@ -46,6 +46,8 @@ public class VisibleBoundsTestActivity extends Activity {
         public void onClick(View view) {
             Rect visibleRegion = new Rect();
             view.getGlobalVisibleRect(visibleRegion);
+            int[] windowOffset = getWindowOffset(view);
+            visibleRegion.offset(windowOffset[0], windowOffset[1]);
             ((TextView) view).setText(visibleRegion.toString());
         }
     }
@@ -55,9 +57,28 @@ public class VisibleBoundsTestActivity extends Activity {
         public boolean onLongClick(View view) {
             Rect visibleRegion = new Rect();
             view.getGlobalVisibleRect(visibleRegion);
+            // To get the absolute screen coordinates of this view, it should apply the offset from
+            // the host window to screen.
+            int[] windowOffset = getWindowOffset(view);
+            visibleRegion.offset(windowOffset[0], windowOffset[1]);
             Point visibleRegionCenter = new Point(visibleRegion.centerX(), visibleRegion.centerY());
             ((TextView) view).setText(visibleRegionCenter.toString());
             return true;
         }
+    }
+
+    /** Returns the offset from the host window of the view to screen. */
+    static int[] getWindowOffset(View view) {
+        // Gets top-left in screen and the host window of the given view.
+        int[] screenXY = new int[2];
+        int[] windowXY = new int[2];
+        view.getLocationOnScreen(screenXY);
+        view.getLocationInWindow(windowXY);
+
+        // Gets the offset between window and screen coordinates. This will be non-zero when the
+        // view's host window is in desktop mode or a popup.
+        int offsetX = screenXY[0] - windowXY[0];
+        int offsetY = screenXY[1] - windowXY[1];
+        return new int[]{offsetX, offsetY};
     }
 }

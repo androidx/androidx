@@ -81,7 +81,7 @@ public abstract class RegistryManager internal constructor() {
             object :
                 CredentialManagerCallback<
                     RegisterCredentialsResponse,
-                    RegisterCredentialsException
+                    RegisterCredentialsException,
                 > {
                 override fun onResult(result: RegisterCredentialsResponse) {
                     if (continuation.isActive) {
@@ -102,7 +102,44 @@ public abstract class RegistryManager internal constructor() {
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
             Runnable::run,
-            callback
+            callback,
+        )
+    }
+
+    /**
+     * Clear registries that were registered using the [registerCredentials] (Kotlin) or
+     * [registerCredentialsAsync] (Java) API.
+     *
+     * @param request the request to specify clearing configurations
+     */
+    public suspend fun clearCredentialRegistry(
+        request: ClearCredentialRegistryRequest
+    ): ClearCredentialRegistryResponse = suspendCancellableCoroutine { continuation ->
+        val callback =
+            object :
+                CredentialManagerCallback<
+                    ClearCredentialRegistryResponse,
+                    ClearCredentialRegistryException,
+                > {
+                override fun onResult(result: ClearCredentialRegistryResponse) {
+                    if (continuation.isActive) {
+                        continuation.resume(result)
+                    }
+                }
+
+                override fun onError(e: ClearCredentialRegistryException) {
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(e)
+                    }
+                }
+            }
+
+        clearCredentialRegistryAsync(
+            request,
+            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+            // handle getting to the right thread or pool via the ContinuationInterceptor.
+            Runnable::run,
+            callback,
         )
     }
 
@@ -127,8 +164,26 @@ public abstract class RegistryManager internal constructor() {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback:
-            CredentialManagerCallback<RegisterCredentialsResponse, RegisterCredentialsException>
+            CredentialManagerCallback<RegisterCredentialsResponse, RegisterCredentialsException>,
     )
 
-    // TODO: b/355652174 add clear registry APIs.
+    /**
+     * Clear registries that were registered using the [registerCredentials] (Kotlin) or
+     * [registerCredentialsAsync] (Java) API.
+     *
+     * This API uses callbacks instead of Kotlin coroutines.
+     *
+     * @param request the request to specify clearing configurations
+     * @param executor the callback will take place on this executor
+     * @param callback the callback invoked when the request succeeds or fails
+     */
+    public abstract fun clearCredentialRegistryAsync(
+        request: ClearCredentialRegistryRequest,
+        executor: Executor,
+        callback:
+            CredentialManagerCallback<
+                ClearCredentialRegistryResponse,
+                ClearCredentialRegistryException,
+            >,
+    )
 }

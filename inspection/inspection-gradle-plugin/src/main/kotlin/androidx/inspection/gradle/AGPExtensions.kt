@@ -39,7 +39,7 @@ internal fun com.android.build.gradle.api.BaseVariant.taskName(baseName: String)
 @Suppress("DEPRECATION") // BaseVariant
 internal fun Project.taskWorkingDir(
     variant: com.android.build.gradle.api.BaseVariant,
-    baseName: String
+    baseName: String,
 ): File {
     val inspectionDir = File(project.buildDir, "androidx_inspection")
     return File(File(inspectionDir, baseName), variant.dirName)

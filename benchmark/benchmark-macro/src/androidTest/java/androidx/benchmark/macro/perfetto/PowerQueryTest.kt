@@ -45,7 +45,7 @@ class PowerQueryTest {
             TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
                 PowerQuery.getPowerMetrics(
                     this,
-                    querySlices(MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
+                    querySlices(MEASURE_BLOCK_SECTION_NAME, packageName = null).first(),
                 )
             }
 
@@ -60,19 +60,19 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "CpuBig",
                                     energyUws = 31935.0,
-                                    powerUw = 6.621397470454074
+                                    powerUw = 6.621397470454074,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "CpuLittle",
                                     energyUws = 303264.0,
-                                    powerUw = 62.878706199460915
+                                    powerUw = 62.878706199460915,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "CpuMid",
                                     energyUws = 55179.0,
-                                    powerUw = 11.440804478540327
-                                )
-                            )
+                                    powerUw = 11.440804478540327,
+                                ),
+                            ),
                     ),
                 PowerCategory.DISPLAY to
                     PowerQuery.CategoryMeasurement(
@@ -83,9 +83,9 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "Display",
                                     energyUws = 1006934.0,
-                                    powerUw = 208.77752436243003
+                                    powerUw = 208.77752436243003,
                                 )
-                            )
+                            ),
                     ),
                 PowerCategory.GPU to
                     PowerQuery.CategoryMeasurement(
@@ -96,9 +96,9 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "Gpu",
                                     energyUws = 66555.0,
-                                    powerUw = 13.799502384408045
+                                    powerUw = 13.799502384408045,
                                 )
-                            )
+                            ),
                     ),
                 PowerCategory.MEMORY to
                     PowerQuery.CategoryMeasurement(
@@ -109,24 +109,24 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "DdrA",
                                     energyUws = 48458.0,
-                                    powerUw = 10.047273481235745
+                                    powerUw = 10.047273481235745,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "DdrB",
                                     energyUws = 54988.0,
-                                    powerUw = 11.401202571013892
+                                    powerUw = 11.401202571013892,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "DdrC",
                                     energyUws = 100082.0,
-                                    powerUw = 20.75098486419241
+                                    powerUw = 20.75098486419241,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "MemoryInterface",
                                     energyUws = 151912.0,
-                                    powerUw = 31.497408252125233
+                                    powerUw = 31.497408252125233,
                                 ),
-                            )
+                            ),
                     ),
                 PowerCategory.MACHINE_LEARNING to
                     PowerQuery.CategoryMeasurement(
@@ -137,9 +137,9 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "Tpu",
                                     energyUws = 50775.0,
-                                    powerUw = 10.527679867302508
+                                    powerUw = 10.527679867302508,
                                 )
-                            )
+                            ),
                     ),
                 PowerCategory.NETWORK to
                     PowerQuery.CategoryMeasurement(
@@ -150,29 +150,29 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "AocLogic",
                                     energyUws = 74972.0,
-                                    powerUw = 15.544681733360978
+                                    powerUw = 15.544681733360978,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "AocMemory",
                                     energyUws = 19601.0,
-                                    powerUw = 4.0640680074642335
+                                    powerUw = 4.0640680074642335,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "Modem",
                                     energyUws = 8369.0,
-                                    powerUw = 1.7352270371138296
+                                    powerUw = 1.7352270371138296,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "RadioFrontend",
                                     energyUws = 0.0,
-                                    powerUw = 0.0
+                                    powerUw = 0.0,
                                 ),
                                 PowerQuery.ComponentMeasurement(
                                     name = "WifiBt",
                                     energyUws = 493868.0,
-                                    powerUw = 102.39850715322413
-                                )
-                            )
+                                    powerUw = 102.39850715322413,
+                                ),
+                            ),
                     ),
                 PowerCategory.UNCATEGORIZED to
                     PowerQuery.CategoryMeasurement(
@@ -183,12 +183,12 @@ class PowerQueryTest {
                                 PowerQuery.ComponentMeasurement(
                                     name = "SystemFabric",
                                     energyUws = 122766.0,
-                                    powerUw = 25.454281567489115
+                                    powerUw = 25.454281567489115,
                                 )
-                            )
-                    )
+                            ),
+                    ),
             ),
-            actualMetrics
+            actualMetrics,
         )
     }
 
@@ -202,7 +202,7 @@ class PowerQueryTest {
             TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
                 PowerQuery.getPowerMetrics(
                     this,
-                    querySlices(MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
+                    querySlices(MEASURE_BLOCK_SECTION_NAME, packageName = null).first(),
                 )
             }
 

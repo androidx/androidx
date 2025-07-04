@@ -58,6 +58,7 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.internal.StreamSpecsCalculatorImpl;
 import androidx.camera.testing.impl.CameraUtil;
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
@@ -178,11 +179,13 @@ public class ExposureDeviceTest {
                 new FakeCameraDeviceSurfaceManager();
         fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(mCameraId, FakeUseCaseConfig.class,
                 StreamSpec.builder(new Size(640, 480)).build());
+        FakeUseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
         mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 mCamera2CameraImpl,
                 mCameraCoordinator,
-                fakeCameraDeviceSurfaceManager, new FakeUseCaseConfigFactory());
+                new StreamSpecsCalculatorImpl(useCaseConfigFactory, fakeCameraDeviceSurfaceManager),
+                useCaseConfigFactory);
     }
 
     @After

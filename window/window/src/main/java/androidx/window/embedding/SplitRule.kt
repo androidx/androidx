@@ -140,7 +140,7 @@ internal constructor(
         Preconditions.checkArgumentNonnegative(minHeightDp, "minHeightDp must be non-negative")
         Preconditions.checkArgumentNonnegative(
             minSmallestWidthDp,
-            "minSmallestWidthDp must be non-negative"
+            "minSmallestWidthDp must be non-negative",
         )
     }
 
@@ -195,6 +195,13 @@ internal constructor(
         internal val value: Int,
     ) {
         override fun toString(): String = description
+
+        // Override #hashCode to return consistent value every time.
+        @Suppress("EqualsAndHashCode")
+        override fun hashCode(): Int {
+            var result = description.hashCode()
+            return 31 * result + value
+        }
 
         companion object {
             /** Never finish the associated container. */

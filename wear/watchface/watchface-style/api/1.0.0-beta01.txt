@@ -15,8 +15,8 @@ package androidx.wear.watchface.style {
     method public int getSize();
     method public java.util.Iterator<java.util.Map.Entry<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option>> iterator();
     method public operator void set(androidx.wear.watchface.style.UserStyleSetting setting, androidx.wear.watchface.style.UserStyleSetting.Option option);
-    method public operator void set(androidx.wear.watchface.style.UserStyleSetting.Id settingId, androidx.wear.watchface.style.UserStyleSetting.Option option);
     method public operator void set(androidx.wear.watchface.style.UserStyleSetting setting, androidx.wear.watchface.style.UserStyleSetting.Option.Id optionId);
+    method public operator void set(androidx.wear.watchface.style.UserStyleSetting.Id settingId, androidx.wear.watchface.style.UserStyleSetting.Option option);
     method public operator void set(androidx.wear.watchface.style.UserStyleSetting.Id settingId, androidx.wear.watchface.style.UserStyleSetting.Option.Id optionId);
     method public androidx.wear.watchface.style.UserStyle toUserStyle();
     property public final int size;
@@ -24,8 +24,8 @@ package androidx.wear.watchface.style {
 
   public final class UserStyle implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option> {
     ctor public UserStyle(androidx.wear.watchface.style.UserStyle userStyle);
-    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions);
     ctor public UserStyle(androidx.wear.watchface.style.UserStyleData userStyle, androidx.wear.watchface.style.UserStyleSchema styleSchema);
+    ctor public UserStyle(java.util.Map<androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option> selectedOptions);
     method public boolean containsKey(androidx.wear.watchface.style.UserStyleSetting key);
     method public boolean containsValue(androidx.wear.watchface.style.UserStyleSetting.Option value);
     method public operator androidx.wear.watchface.style.UserStyleSetting.Option? get(androidx.wear.watchface.style.UserStyleSetting key);

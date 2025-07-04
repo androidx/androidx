@@ -59,7 +59,7 @@ private const val size = childSize * n
 class LinearLayoutManagerFindZeroPxReferenceChildTest(
     private val config: Config,
     addExtraLayoutSpace: Boolean,
-    zeroPxItemPosition: Int
+    zeroPxItemPosition: Int,
 ) : BaseLinearLayoutManagerTest() {
 
     companion object {
@@ -76,7 +76,7 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
                                         mItemCount = Config.DEFAULT_ITEM_COUNT
                                     },
                                     addExtraLayoutSpace,
-                                    zeroPxItemPosition
+                                    zeroPxItemPosition,
                                 )
                             }
                         }
@@ -93,13 +93,13 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
     private val itemLayoutParams =
         RecyclerView.LayoutParams(
             if (config.mOrientation == HORIZONTAL) childSize else size,
-            if (config.mOrientation == VERTICAL) childSize else size
+            if (config.mOrientation == VERTICAL) childSize else size,
         )
 
     private val emptyItemLayoutParams =
         RecyclerView.LayoutParams(
             if (config.mOrientation == HORIZONTAL) 0 else size,
-            if (config.mOrientation == VERTICAL) 0 else size
+            if (config.mOrientation == VERTICAL) 0 else size,
         )
 
     @Test
@@ -151,7 +151,7 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
 
         override fun calculateExtraLayoutSpace(
             state: RecyclerView.State,
-            extraLayoutSpaceArray: IntArray
+            extraLayoutSpaceArray: IntArray,
         ) {
             extraLayoutSpaceArray[0] = extraLayoutSpace
             extraLayoutSpaceArray[1] = extraLayoutSpace
@@ -161,14 +161,14 @@ class LinearLayoutManagerFindZeroPxReferenceChildTest(
             recycler: RecyclerView.Recycler?,
             state: RecyclerView.State?,
             layoutFromEnd: Boolean,
-            traverseChildrenInReverseOrder: Boolean
+            traverseChildrenInReverseOrder: Boolean,
         ): View {
             val referenceChild =
                 super.findReferenceChild(
                     recycler,
                     state,
                     layoutFromEnd,
-                    traverseChildrenInReverseOrder
+                    traverseChildrenInReverseOrder,
                 )
             recordedReferenceChildren.add(getPosition(referenceChild))
             return referenceChild

@@ -96,7 +96,7 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             BottomSheetScaffold(
                 sheetContent = { Box(Modifier.fillMaxSize().testTag(sheetContent)) },
-                sheetPeekHeight = peekHeight
+                sheetPeekHeight = peekHeight,
             ) {
                 Text("Content")
             }
@@ -118,7 +118,7 @@ class BottomSheetScaffoldTest {
                 sheetContent = {
                     Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
                 },
-                sheetPeekHeight = peekHeight
+                sheetPeekHeight = peekHeight,
             ) {
                 Text("Content")
             }
@@ -140,7 +140,7 @@ class BottomSheetScaffoldTest {
                 sheetContent = {
                     Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
                 },
-                sheetPeekHeight = peekHeight
+                sheetPeekHeight = peekHeight,
             ) {
                 Text("Content")
             }
@@ -171,7 +171,7 @@ class BottomSheetScaffoldTest {
                 sheetContent = {
                     Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
                 },
-                sheetPeekHeight = peekHeight
+                sheetPeekHeight = peekHeight,
             ) {
                 Text("Content")
             }
@@ -205,7 +205,7 @@ class BottomSheetScaffoldTest {
                             Modifier.fillMaxWidth().requiredHeight(peekHeight).testTag(sheetContent)
                         )
                     },
-                    sheetPeekHeight = peekHeight
+                    sheetPeekHeight = peekHeight,
                 ) {
                     Text("Content")
                 }
@@ -232,7 +232,7 @@ class BottomSheetScaffoldTest {
                         Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
                     },
                     sheetPeekHeight = peekHeight,
-                    content = { Text("Content") }
+                    content = { Text("Content") },
                 )
             }
 
@@ -269,7 +269,7 @@ class BottomSheetScaffoldTest {
                     Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight,
-                content = { Text("Content") }
+                content = { Text("Content") },
             )
         }
 
@@ -301,18 +301,16 @@ class BottomSheetScaffoldTest {
             bottomSheetState =
                 rememberBottomSheetState(
                     BottomSheetValue.Collapsed,
-                    confirmStateChange = { it != BottomSheetValue.Expanded }
+                    confirmStateChange = { it != BottomSheetValue.Expanded },
                 )
             BottomSheetScaffold(
                 scaffoldState =
-                    rememberBottomSheetScaffoldState(
-                        bottomSheetState = bottomSheetState,
-                    ),
+                    rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState),
                 sheetContent = {
                     Box(Modifier.fillMaxWidth().requiredHeight(300.dp).testTag(sheetContent))
                 },
                 sheetPeekHeight = peekHeight,
-                content = { Text("Content") }
+                content = { Text("Content") },
             )
         }
 
@@ -355,7 +353,7 @@ class BottomSheetScaffoldTest {
                 },
                 sheetGesturesEnabled = false,
                 sheetPeekHeight = peekHeight,
-                content = { Text("Content") }
+                content = { Text("Content") },
             )
         }
 
@@ -396,7 +394,7 @@ class BottomSheetScaffoldTest {
                     },
                     sheetGesturesEnabled = false,
                     sheetPeekHeight = peekHeight,
-                    content = { Box(Modifier.fillMaxSize()) { Text("Content") } }
+                    content = { Box(Modifier.fillMaxSize()) { Text("Content") } },
                 )
             }
 
@@ -405,7 +403,7 @@ class BottomSheetScaffoldTest {
             val offsetBeforeScroll = bottomSheetState.requireOffset()
             scrollDispatcher.dispatchPreScroll(
                 Offset(x = 0f, y = -sheetHeightPx),
-                NestedScrollSource.UserInput
+                NestedScrollSource.UserInput,
             )
             rule.waitForIdle()
             Truth.assertWithMessage("Offset after scroll is equal to offset before scroll")
@@ -436,7 +434,7 @@ class BottomSheetScaffoldTest {
                             }
                     )
                 },
-                sheetContent = { Box(Modifier.requiredSize(10.dp)) }
+                sheetContent = { Box(Modifier.requiredSize(10.dp)) },
             ) {
                 Box(
                     Modifier.onGloballyPositioned {
@@ -474,7 +472,7 @@ class BottomSheetScaffoldTest {
                                         fabSize = positioned.size
                                     }
                                     .testTag(fabTag),
-                            onClick = {}
+                            onClick = {},
                         ) {
                             Icon(Icons.Filled.Favorite, null)
                         }
@@ -526,13 +524,13 @@ class BottomSheetScaffoldTest {
                                         fabSize = positioned.size
                                     }
                                     .testTag(fabTag),
-                            onClick = {}
+                            onClick = {},
                         ) {
                             Icon(Icons.Filled.Favorite, null)
                         }
                     },
                     floatingActionButtonPosition = FabPosition.End,
-                    content = { Text("Content") }
+                    content = { Text("Content") },
                 )
             }
             with(rule.density) {
@@ -578,7 +576,7 @@ class BottomSheetScaffoldTest {
                                 .background(color = Color.White)
                         )
                     },
-                    sheetContent = { Box(Modifier.requiredSize(0.dp)) }
+                    sheetContent = { Box(Modifier.requiredSize(0.dp)) },
                 ) {
                     Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
@@ -601,7 +599,7 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             BottomSheetScaffold(
                 sheetContent = { Box(Modifier.fillMaxWidth().requiredHeight(100.dp)) },
-                sheetPeekHeight = peekHeight
+                sheetPeekHeight = peekHeight,
             ) {
                 innerPadding = it
                 Text("body")
@@ -624,7 +622,7 @@ class BottomSheetScaffoldTest {
                 topBar = {},
                 snackbarHost = {},
                 floatingActionButton = {},
-                content = {}
+                content = {},
             )
         }
     }
@@ -640,13 +638,13 @@ class BottomSheetScaffoldTest {
             state =
                 rememberBottomSheetState(
                     BottomSheetValue.Collapsed,
-                    tween(animationLengthMillis, easing = LinearEasing)
+                    tween(animationLengthMillis, easing = LinearEasing),
                 )
             scope = rememberCoroutineScope()
             BottomSheetScaffold(
                 scaffoldState = rememberBottomSheetScaffoldState(state),
                 sheetContent = { Box(Modifier.fillMaxSize()) },
-                content = { Box(Modifier.fillMaxSize()) }
+                content = { Box(Modifier.fillMaxSize()) },
             )
         }
 

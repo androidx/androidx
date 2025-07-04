@@ -50,7 +50,7 @@ class TransportCancellationGenerator(private val basePackageName: String) {
                             .addModifiers(KModifier.PRIVATE)
                             .build()
                     ),
-                    KModifier.INTERNAL
+                    KModifier.INTERNAL,
                 )
                 addProperty(
                     PropertySpec.builder("hasCancelled", atomicBooleanClass, KModifier.PRIVATE)

@@ -52,7 +52,7 @@ class TextToggleTextBenchmark(private val textLength: Int) {
                 textLength = textLength,
                 textNumber = textBenchmarkRule.repeatTimes,
                 width = width,
-                fontSize = fontSize
+                fontSize = fontSize,
             )
         }
     }

@@ -28,7 +28,7 @@ import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.Updater
 import androidx.compose.runtime.currentComposer
-import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
@@ -46,7 +46,6 @@ import androidx.compose.ui.node.UiApplier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.unit.Density
@@ -55,6 +54,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
 /**
  * Composes an Android [View] obtained from [factory]. The [factory] block will be called exactly
@@ -101,7 +101,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 fun <T : View> AndroidView(
     factory: (Context) -> T,
     modifier: Modifier = Modifier,
-    update: (T) -> Unit = NoOpUpdate
+    update: (T) -> Unit = NoOpUpdate,
 ) {
     AndroidView(factory = factory, modifier = modifier, update = update, onRelease = NoOpUpdate)
 }
@@ -196,9 +196,9 @@ fun <T : View> AndroidView(
     modifier: Modifier = Modifier,
     onReset: ((T) -> Unit)? = null,
     onRelease: (T) -> Unit = NoOpUpdate,
-    update: (T) -> Unit = NoOpUpdate
+    update: (T) -> Unit = NoOpUpdate,
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHash = currentCompositeKeyHashCode.hashCode()
     val materializedModifier = currentComposer.materialize(modifier.focusInteropModifier())
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
@@ -222,12 +222,12 @@ fun <T : View> AndroidView(
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
                     layoutDirection = layoutDirection,
-                    compositionLocalMap = compositionLocalMap
+                    compositionLocalMap = compositionLocalMap,
                 )
                 set(onReset) { requireViewFactoryHolder<T>().resetBlock = it }
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
                 set(onRelease) { requireViewFactoryHolder<T>().releaseBlock = it }
-            }
+            },
         )
     } else {
         ComposeNode<LayoutNode, UiApplier>(
@@ -240,18 +240,18 @@ fun <T : View> AndroidView(
                     lifecycleOwner = lifecycleOwner,
                     savedStateRegistryOwner = savedStateRegistryOwner,
                     layoutDirection = layoutDirection,
-                    compositionLocalMap = compositionLocalMap
+                    compositionLocalMap = compositionLocalMap,
                 )
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
                 set(onRelease) { requireViewFactoryHolder<T>().releaseBlock = it }
-            }
+            },
         )
     }
 }
 
 @Composable
 private fun <T : View> createAndroidViewNodeFactory(factory: (Context) -> T): () -> LayoutNode {
-    val compositeKeyHash = currentCompositeKeyHash
+    val compositeKeyHash = currentCompositeKeyHashCode.hashCode()
     val context = LocalContext.current
     val parentReference = rememberCompositionContext()
     val stateRegistry = LocalSaveableStateRegistry.current
@@ -264,7 +264,7 @@ private fun <T : View> createAndroidViewNodeFactory(factory: (Context) -> T): ()
                 parentContext = parentReference,
                 saveStateRegistry = stateRegistry,
                 compositeKeyHash = compositeKeyHash,
-                owner = ownerView as Owner
+                owner = ownerView as Owner,
             )
             .layoutNode
     }
@@ -277,7 +277,7 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
     lifecycleOwner: LifecycleOwner,
     savedStateRegistryOwner: SavedStateRegistryOwner,
     layoutDirection: LayoutDirection,
-    compositionLocalMap: CompositionLocalMap
+    compositionLocalMap: CompositionLocalMap,
 ) {
     set(compositionLocalMap, SetResolvedCompositionLocals)
     set(modifier) { requireViewFactoryHolder<T>().modifier = it }

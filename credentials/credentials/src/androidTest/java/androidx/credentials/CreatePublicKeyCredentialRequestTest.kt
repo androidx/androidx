@@ -95,7 +95,7 @@ class CreatePublicKeyCredentialRequestTest {
                 TEST_REQUEST_JSON,
                 clientDataHash,
                 preferImmediatelyAvailableCredentialsExpected,
-                origin
+                origin,
             )
 
         val preferImmediatelyAvailableCredentialsActual =
@@ -152,21 +152,21 @@ class CreatePublicKeyCredentialRequestTest {
         expectedCandidateQueryData.putString(
             PublicKeyCredential.BUNDLE_KEY_SUBTYPE,
             CreatePublicKeyCredentialRequest
-                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
+                .BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST,
         )
         expectedCandidateQueryData.putString(BUNDLE_KEY_REQUEST_JSON, requestJsonExpected)
         expectedCandidateQueryData.putByteArray(
             CreatePublicKeyCredentialRequest.BUNDLE_KEY_CLIENT_DATA_HASH,
-            clientDataHash
+            clientDataHash,
         )
         expectedCandidateQueryData.putBoolean(
             CreateCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED,
-            autoSelectExpected
+            autoSelectExpected,
         )
         val expectedCredentialData = expectedCandidateQueryData.deepCopy()
         expectedCredentialData.putBoolean(
             BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS,
-            preferImmediatelyAvailableCredentialsExpected
+            preferImmediatelyAvailableCredentialsExpected,
         )
 
         val request =
@@ -175,7 +175,7 @@ class CreatePublicKeyCredentialRequestTest {
                 clientDataHash,
                 preferImmediatelyAvailableCredentialsExpected,
                 origin = null,
-                autoSelectExpected
+                autoSelectExpected,
             )
 
         assertThat(request.type).isEqualTo(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
@@ -208,7 +208,7 @@ class CreatePublicKeyCredentialRequestTest {
                     ) as Icon?)!!
                     .resId
             )
-            .isEqualTo(R.drawable.ic_passkey)
+            .isEqualTo(R.drawable.adx_ic_passkey)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -224,7 +224,7 @@ class CreatePublicKeyCredentialRequestTest {
                 clientDataHashExpected,
                 preferImmediatelyAvailableCredentialsExpected,
                 originExpected,
-                isAutoSelectAllowedExpected
+                isAutoSelectAllowedExpected,
             )
         // Add additional data to the request data and candidate query data to make sure
         // they persist after the conversion
@@ -245,7 +245,7 @@ class CreatePublicKeyCredentialRequestTest {
                 credentialData,
                 candidateQueryData,
                 request.isSystemProviderRequired,
-                request.origin
+                request.origin,
             )
 
         assertThat(convertedRequest).isInstanceOf(CreatePublicKeyCredentialRequest::class.java)
@@ -260,7 +260,7 @@ class CreatePublicKeyCredentialRequestTest {
         val displayInfo = convertedSubclassRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isEqualTo(TEST_USER_DISPLAYNAME)
         assertThat(displayInfo.userId).isEqualTo(TEST_USERNAME)
-        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_passkey)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.adx_ic_passkey)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)
         assertThat(convertedRequest.candidateQueryData.getBoolean(customCandidateQueryDataKey))
@@ -280,7 +280,7 @@ class CreatePublicKeyCredentialRequestTest {
                 clientDataHashExpected,
                 preferImmediatelyAvailableCredentialsExpected,
                 originExpected,
-                isAutoSelectAllowedExpected
+                isAutoSelectAllowedExpected,
             )
         // Add additional data to the request data and candidate query data to make sure
         // they persist after the conversion
@@ -300,7 +300,7 @@ class CreatePublicKeyCredentialRequestTest {
                 android.credentials.CreateCredentialRequest.Builder(
                         request.type,
                         credentialData,
-                        candidateQueryData
+                        candidateQueryData,
                     )
                     .setOrigin(originExpected)
                     .setIsSystemProviderRequired(request.isSystemProviderRequired)
@@ -319,7 +319,7 @@ class CreatePublicKeyCredentialRequestTest {
         val displayInfo = convertedSubclassRequest.displayInfo
         assertThat(displayInfo.userDisplayName).isEqualTo(TEST_USER_DISPLAYNAME)
         assertThat(displayInfo.userId).isEqualTo(TEST_USERNAME)
-        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.ic_passkey)
+        assertThat(displayInfo.credentialTypeIcon!!.resId).isEqualTo(R.drawable.adx_ic_passkey)
         assertThat(convertedRequest.credentialData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)
         assertThat(convertedRequest.candidateQueryData.getBoolean(customCandidateQueryDataKey))

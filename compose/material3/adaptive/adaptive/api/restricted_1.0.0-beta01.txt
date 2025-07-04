@@ -11,7 +11,7 @@ package androidx.compose.material3.adaptive {
     method @androidx.compose.runtime.Composable public static long currentWindowSize();
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 adaptive API is experimental and is likely to change or to beremoved in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
   @androidx.compose.runtime.Immutable public final class HingeInfo {

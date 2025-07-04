@@ -23,6 +23,10 @@ import androidx.wear.protolayout.LayoutElementBuilders.Image
 import androidx.wear.protolayout.LayoutElementBuilders.Layout
 import androidx.wear.protolayout.LayoutElementBuilders.Row
 import androidx.wear.protolayout.LayoutElementBuilders.Text
+import androidx.wear.protolayout.expression.PlatformEventSources
+import androidx.wear.protolayout.expression.PlatformHealthSources
+import androidx.wear.protolayout.expression.intAppDataKey
+import androidx.wear.protolayout.expression.mapTo
 import com.google.common.truth.ExpectFailure
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertTrue
@@ -87,9 +91,41 @@ class LayoutElementAssertionsProviderTest {
             .isEqualTo("Expected $elementDescription to not exist, but it does.")
     }
 
+    @Test
+    fun injectedData_valueConfirmedInMatcher() {
+        val intAppKey = intAppDataKey("intKey")
+        val intAppValue = 13
+        val dailySteps = 4567
+        val visibility = true
+        val provider =
+            LayoutElementAssertionsProvider(TEST_LAYOUT)
+                .withDynamicData(
+                    intAppKey mapTo intAppValue,
+                    PlatformHealthSources.Keys.DAILY_STEPS mapTo dailySteps,
+                )
+                .withDynamicData(PlatformEventSources.Keys.LAYOUT_VISIBILITY mapTo visibility)
+
+        val appDataMatcher =
+            LayoutElementMatcher("app data") { _, context ->
+                context.dynamicData[intAppKey] == intAppValue
+            }
+        val platformDataMatcher =
+            LayoutElementMatcher("platform data") { _, context ->
+                context.dynamicData[PlatformHealthSources.Keys.DAILY_STEPS] == dailySteps
+            }
+        val platformEventMatcher =
+            LayoutElementMatcher("platform event") { _, context ->
+                context.dynamicData[PlatformEventSources.Keys.LAYOUT_VISIBILITY] == visibility
+            }
+
+        provider.onRoot().assert(appDataMatcher)
+        provider.onRoot().assert(platformDataMatcher)
+        provider.onRoot().assert(platformEventMatcher)
+    }
+
     companion object {
-        val isImage = LayoutElementMatcher("Element type is Image") { it is Image }
-        val isText = LayoutElementMatcher("Element type is Text") { it is Text }
+        val isImage = LayoutElementMatcher("Element type is Image") { element -> element is Image }
+        val isText = LayoutElementMatcher("Element type is Text") { element -> element is Text }
         val TEST_LAYOUT =
             Layout.Builder()
                 .setRoot(

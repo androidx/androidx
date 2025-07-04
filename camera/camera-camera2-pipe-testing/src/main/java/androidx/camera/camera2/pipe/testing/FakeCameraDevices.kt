@@ -22,6 +22,8 @@ import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * This provides a fake implementation of [CameraDevices] for tests with a fixed list of Cameras.
@@ -29,7 +31,7 @@ import kotlinx.coroutines.Deferred
 public class FakeCameraDevices(
     private val defaultCameraBackendId: CameraBackendId,
     private val concurrentCameraBackendIds: Set<Set<CameraBackendId>>,
-    private val cameraMetadataMap: Map<CameraBackendId, List<CameraMetadata>>
+    private val cameraMetadataMap: Map<CameraBackendId, List<CameraMetadata>>,
 ) : CameraDevices {
     private val cameraBackends: Map<CameraBackendId, CameraBackend>
 
@@ -43,6 +45,9 @@ public class FakeCameraDevices(
                 FakeCameraBackend(entry.value.associateBy { it.camera })
             }
     }
+
+    override fun cameraIdsFlow(cameraBackendId: CameraBackendId?): Flow<List<CameraId>> =
+        flowOf(awaitCameraIds(null) ?: emptyList())
 
     override suspend fun getCameraIds(cameraBackendId: CameraBackendId?): List<CameraId>? =
         awaitCameraIds(cameraBackendId)
@@ -68,12 +73,12 @@ public class FakeCameraDevices(
 
     override suspend fun getCameraMetadata(
         cameraId: CameraId,
-        cameraBackendId: CameraBackendId?
+        cameraBackendId: CameraBackendId?,
     ): CameraMetadata? = awaitCameraMetadata(cameraId, cameraBackendId)
 
     override fun awaitCameraMetadata(
         cameraId: CameraId,
-        cameraBackendId: CameraBackendId?
+        cameraBackendId: CameraBackendId?,
     ): CameraMetadata? {
         val backendId = cameraBackendId ?: defaultCameraBackendId
         return cameraMetadataMap[backendId]?.firstOrNull { it.camera == cameraId }
@@ -91,7 +96,7 @@ public class FakeCameraDevices(
 
     override fun disconnectAsync(
         cameraId: CameraId,
-        cameraBackendId: CameraBackendId?
+        cameraBackendId: CameraBackendId?,
     ): Deferred<Unit> {
         val cameraBackend = getCameraBackend(cameraBackendId)
         return cameraBackend.disconnectAsync(cameraId)
@@ -110,21 +115,21 @@ public class FakeCameraDevices(
     @Deprecated(
         "findAll() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraIds"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override fun findAll(): List<CameraId> = checkNotNull(awaitCameraIds())
 
     @Deprecated(
         "ids() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraIds"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override suspend fun ids(): List<CameraId> = checkNotNull(getCameraIds())
 
     @Deprecated(
         "getMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("getCameraMetadata"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override suspend fun getMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(getCameraMetadata(camera))
@@ -132,7 +137,7 @@ public class FakeCameraDevices(
     @Deprecated(
         "awaitMetadata() is not able to specify a specific CameraBackendId to query.",
         replaceWith = ReplaceWith("awaitCameraMetadata"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     override fun awaitMetadata(camera: CameraId): CameraMetadata =
         checkNotNull(awaitCameraMetadata(camera))

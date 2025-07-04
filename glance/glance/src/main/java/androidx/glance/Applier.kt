@@ -22,7 +22,7 @@ import java.lang.IllegalStateException
 
 /** Applier for the Glance composition. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
+public class Applier(root: EmittableWithChildren) : AbstractApplier<Emittable>(root) {
     private val newRootMaxDepth = root.maxDepth
 
     override fun onClear() {

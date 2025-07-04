@@ -72,7 +72,7 @@ fun Subject(text: AnnotatedString, style: TextStyle) {
 fun Subject(
     text: AnnotatedString,
     style: TextStyle,
-    inlineContent: Map<String, InlineTextContent>
+    inlineContent: Map<String, InlineTextContent>,
 ) {
     Text(text, style = style, inlineContent = inlineContent)
 }

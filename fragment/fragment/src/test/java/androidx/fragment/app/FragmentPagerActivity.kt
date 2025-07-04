@@ -48,7 +48,7 @@ open class FragmentPagerActivity : FragmentActivity() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             return TextView(activity)
         }

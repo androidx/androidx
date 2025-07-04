@@ -40,7 +40,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.custom.FitWindowsContentLayout;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
@@ -183,8 +182,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
-    @RequiresApi(21)
+    @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 34) // b/427246833
     public void testOnApplyWindowInsetsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -200,7 +198,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 23)
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 34) // b/427246833
     public void testOnApplyWindowInsetsReachesContent_matchesRootBottom() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -223,7 +221,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @Test
     @SdkSuppress(minSdkVersion = 28, maxSdkVersion = 33) // maxSdk 33 b/322355781
-    @RequiresApi(28)
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.widget.Button;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
@@ -32,6 +33,7 @@ import org.junit.Test;
 public class ComposeTest extends BaseTest {
 
     @Test
+    @SdkSuppress(minSdkVersion = 22)
     public void testEndToEnd() {
         launchTestActivity(ComposeTestActivity.class);
 

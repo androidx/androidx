@@ -84,7 +84,7 @@ class PopupDismissTest(private val focusable: Boolean) {
                                 // UiDevice needs screen relative coordinates
                                 @Suppress("DEPRECATION")
                                 btnPos = it.localToRoot(Offset.Zero)
-                            }
+                            },
                 )
 
                 Popup(
@@ -93,7 +93,7 @@ class PopupDismissTest(private val focusable: Boolean) {
                     onDismissRequest = {
                         dismissCounter++
                         latch.countDown()
-                    }
+                    },
                 ) {
                     Box(Modifier.size(100.dp, 100.dp)) {
                         BasicText(text = "Popup", style = TextStyle(textAlign = TextAlign.Center))
@@ -117,7 +117,7 @@ class PopupDismissTest(private val focusable: Boolean) {
 
             device.click(
                 viewPos[0] + btnPos.x.toInt() + btnBounds.width.roundToPx() / 2,
-                viewPos[1] + btnPos.y.toInt() + btnBounds.height.roundToPx() / 2
+                viewPos[1] + btnPos.y.toInt() + btnBounds.height.roundToPx() / 2,
             )
         }
 

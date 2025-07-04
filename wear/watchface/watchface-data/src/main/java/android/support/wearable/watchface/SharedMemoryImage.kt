@@ -75,7 +75,7 @@ public class SharedMemoryImage {
                         Bitmap.createBitmap(
                             width,
                             height,
-                            Bitmap.Config.values().find { it.ordinal == configOrdinal }!!
+                            Bitmap.Config.values().find { it.ordinal == configOrdinal }!!,
                         )
                     byteBuffer = ashmem.mapReadOnly()
                     bitmap.copyPixelsFromBuffer(byteBuffer)

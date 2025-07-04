@@ -19,32 +19,37 @@
 package androidx.compose.material3.adaptive.navigationsuite.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuite
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItem
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
+import androidx.compose.material3.adaptive.navigationsuite.rememberNavigationSuiteScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowHeightSizeClass
 import androidx.window.core.layout.WindowWidthSizeClass
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -52,29 +57,48 @@ fun NavigationSuiteScaffoldSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val navItems = listOf("Songs", "Artists", "Playlists")
     val navSuiteType =
-        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+        NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfo())
+    val state = rememberNavigationSuiteScaffoldState()
+    val scope = rememberCoroutineScope()
 
     NavigationSuiteScaffold(
-        navigationSuiteItems = {
+        state = state,
+        navigationItems = {
             navItems.forEachIndexed { index, navItem ->
-                item(
-                    icon = { Icon(Icons.Filled.Favorite, contentDescription = navItem) },
+                NavigationSuiteItem(
+                    icon = {
+                        Icon(
+                            if (selectedItem == index) Icons.Filled.Favorite
+                            else Icons.Outlined.FavoriteBorder,
+                            contentDescription = null,
+                        )
+                    },
                     label = { Text(navItem) },
                     selected = selectedItem == index,
-                    onClick = { selectedItem = index }
+                    onClick = { selectedItem = index },
                 )
             }
-        }
+        },
     ) {
         // Screen content.
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = "Current NavigationSuiteType: $navSuiteType"
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text =
+                    "Current NavigationSuiteType: $navSuiteType\n" +
+                        "Visibility: ${state.currentValue}",
+                textAlign = TextAlign.Center,
+            )
+            Button(onClick = { scope.launch { state.toggle() } }) {
+                Text("Hide/show navigation component")
+            }
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -82,84 +106,64 @@ fun NavigationSuiteScaffoldSample() {
 fun NavigationSuiteScaffoldCustomConfigSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val navItems = listOf("Songs", "Artists", "Playlists")
-    val adaptiveInfo = currentWindowAdaptiveInfo()
-    // Custom configuration that shows a navigation drawer in large screens.
-    val customNavSuiteType =
-        with(adaptiveInfo) {
-            if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-                NavigationSuiteType.NavigationDrawer
+    // Custom configuration that shows a wide navigation rail in small/medium width screens, an
+    // expanded wide navigation rail in expanded width screens, and a short navigation bar in small
+    // height screens.
+    val navSuiteType =
+        with(currentWindowAdaptiveInfo()) {
+            if (
+                windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT ||
+                    windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
+            ) {
+                NavigationSuiteType.WideNavigationRailCollapsed
+            } else if (windowSizeClass.windowHeightSizeClass == WindowHeightSizeClass.COMPACT) {
+                NavigationSuiteType.ShortNavigationBarMedium
+            } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+                NavigationSuiteType.WideNavigationRailExpanded
             } else {
-                NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
+                NavigationSuiteScaffoldDefaults.navigationSuiteType(currentWindowAdaptiveInfo())
             }
         }
+    val state = rememberNavigationSuiteScaffoldState()
+    val scope = rememberCoroutineScope()
 
     NavigationSuiteScaffold(
-        layoutType = customNavSuiteType,
-        navigationSuiteItems = {
+        navigationSuiteType = navSuiteType,
+        state = state,
+        navigationItemVerticalArrangement = Arrangement.Center,
+        navigationItems = {
             navItems.forEachIndexed { index, navItem ->
-                item(
-                    icon = { Icon(Icons.Filled.Favorite, contentDescription = navItem) },
+                NavigationSuiteItem(
+                    navigationSuiteType = navSuiteType,
+                    icon = {
+                        Icon(
+                            if (selectedItem == index) Icons.Filled.Favorite
+                            else Icons.Outlined.FavoriteBorder,
+                            contentDescription = null,
+                        )
+                    },
                     label = { Text(navItem) },
                     selected = selectedItem == index,
-                    onClick = { selectedItem = index }
+                    onClick = { selectedItem = index },
                 )
             }
-        }
+        },
     ) {
         // Screen content.
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = "Current custom NavigationSuiteType: $customNavSuiteType"
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@Preview
-@Sampled
-@Composable
-fun NavigationSuiteScaffoldCustomNavigationRail() {
-    var selectedItem by remember { mutableIntStateOf(0) }
-    val navItems = listOf("Songs", "Artists", "Playlists")
-    val navSuiteType =
-        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
-
-    NavigationSuiteScaffoldLayout(
-        navigationSuite = {
-            // Custom Navigation Rail with centered items.
-            if (navSuiteType == NavigationSuiteType.NavigationRail) {
-                NavigationRail {
-                    // Adding Spacers before and after the item so they are pushed towards the
-                    // center of the NavigationRail.
-                    Spacer(Modifier.weight(1f))
-                    navItems.forEachIndexed { index, item ->
-                        NavigationRailItem(
-                            icon = { Icon(Icons.Filled.Favorite, contentDescription = item) },
-                            label = { Text(item) },
-                            selected = selectedItem == index,
-                            onClick = { selectedItem = index }
-                        )
-                    }
-                    Spacer(Modifier.weight(1f))
-                }
-            } else {
-                NavigationSuite {
-                    navItems.forEachIndexed { index, item ->
-                        item(
-                            icon = { Icon(Icons.Filled.Favorite, contentDescription = item) },
-                            label = { Text(item) },
-                            selected = selectedItem == index,
-                            onClick = { selectedItem = index }
-                        )
-                    }
-                }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text =
+                    "Current NavigationSuiteType: $navSuiteType\n" +
+                        "Visibility: ${state.currentValue}",
+                textAlign = TextAlign.Center,
+            )
+            Button(onClick = { scope.launch { state.toggle() } }) {
+                Text("Hide/show navigation component")
             }
         }
-    ) {
-        // Screen content.
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = "Current NavigationSuiteType: $navSuiteType"
-        )
     }
 }

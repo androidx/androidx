@@ -42,7 +42,7 @@ class Paging3PagingSourceQueryResultBinder(
     private val listAdapter: ListQueryResultAdapter?,
     private val tableNames: Set<String>,
     private val convertRowsOverrideInfo: ConvertRowsOverrideInfo,
-    className: XClassName
+    className: XClassName,
 ) : QueryResultBinder(listAdapter) {
 
     private val itemTypeName: XTypeName =
@@ -55,7 +55,7 @@ class Paging3PagingSourceQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val rawQueryVarName = scope.getTmpVar("_rawQuery")
         val stmtVarName = scope.getTmpVar("_stmt")
@@ -71,7 +71,7 @@ class Paging3PagingSourceQueryResultBinder(
                             Function1TypeSpec(
                                 parameterTypeName = SQLiteDriverTypeNames.STATEMENT,
                                 parameterName = stmtVarName,
-                                returnTypeName = KotlinTypeNames.UNIT
+                                returnTypeName = KotlinTypeNames.UNIT,
                             ) {
                                 val functionScope = scope.fork()
                                 functionScope.builder
@@ -79,7 +79,7 @@ class Paging3PagingSourceQueryResultBinder(
                                     .build()
                                 addCode(functionScope.generate())
                                 addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
-                            }
+                            },
                         )
                     } else {
                         XCodeBlock.ofNewInstance(typeName = RAW_QUERY, "%L", sqlQueryVar)
@@ -88,7 +88,7 @@ class Paging3PagingSourceQueryResultBinder(
                     addLocalVariable(
                         name = rawQueryVarName,
                         typeName = RAW_QUERY,
-                        assignExpr = assignExpr
+                        assignExpr = assignExpr,
                     )
                     addStatement(
                         "return %L",
@@ -97,8 +97,8 @@ class Paging3PagingSourceQueryResultBinder(
                             rawQueryVarName = rawQueryVarName,
                             stmtVarName = stmtVarName,
                             dbProperty = dbProperty,
-                            inTransaction = inTransaction
-                        )
+                            inTransaction = inTransaction,
+                        ),
                     )
                 }
             }
@@ -111,7 +111,7 @@ class Paging3PagingSourceQueryResultBinder(
                             RAW_QUERY,
                             RAW_QUERY,
                             sqlQueryVar,
-                            stmtVarName
+                            stmtVarName,
                         )
                         bindStatement.invoke(scope, stmtVarName)
                         endControlFlow()
@@ -123,8 +123,8 @@ class Paging3PagingSourceQueryResultBinder(
                                 XCodeBlock.ofNewInstance(
                                     typeName = RAW_QUERY,
                                     argsFormat = "%N",
-                                    sqlQueryVar
-                                )
+                                    sqlQueryVar,
+                                ),
                         )
                     }
                     addStatement(
@@ -134,8 +134,8 @@ class Paging3PagingSourceQueryResultBinder(
                             rawQueryVarName = rawQueryVarName,
                             stmtVarName = stmtVarName,
                             dbProperty = dbProperty,
-                            inTransaction = false
-                        )
+                            inTransaction = false,
+                        ),
                     )
                 }
             }
@@ -147,14 +147,14 @@ class Paging3PagingSourceQueryResultBinder(
         rawQueryVarName: String,
         stmtVarName: String,
         dbProperty: XPropertySpec,
-        inTransaction: Boolean
+        inTransaction: Boolean,
     ): XTypeSpec {
         val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
         return XTypeSpec.anonymousClassBuilder(
                 argsFormat = "%L, %N, %L",
                 rawQueryVarName,
                 dbProperty,
-                tableNamesList
+                tableNamesList,
             )
             .apply {
                 superclass(pagingSourceTypeName)
@@ -163,7 +163,7 @@ class Paging3PagingSourceQueryResultBinder(
                         scope = scope,
                         dbProperty = dbProperty,
                         stmtVarName = stmtVarName,
-                        inTransaction = inTransaction
+                        inTransaction = inTransaction,
                     )
                 )
             }
@@ -174,12 +174,12 @@ class Paging3PagingSourceQueryResultBinder(
         scope: CodeGenScope,
         dbProperty: XPropertySpec,
         stmtVarName: String,
-        inTransaction: Boolean
+        inTransaction: Boolean,
     ): XFunSpec {
         val resultVar = scope.getTmpVar("_result")
         return XFunSpec.overridingBuilder(
-                element = convertRowsOverrideInfo.method,
-                owner = convertRowsOverrideInfo.owner
+                element = convertRowsOverrideInfo.function,
+                owner = convertRowsOverrideInfo.owner,
             )
             .apply {
                 val limitRawQueryParamName = "limitOffsetQuery"
@@ -198,7 +198,7 @@ class Paging3PagingSourceQueryResultBinder(
                                     parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                                     parameterName = connectionVar,
                                     returnTypeName = convertRowsOverrideInfo.returnTypeName,
-                                    javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                                    javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                                 ) {
                                 override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                                     applyTo { language ->
@@ -212,13 +212,13 @@ class Paging3PagingSourceQueryResultBinder(
                                             SQLiteDriverTypeNames.STATEMENT,
                                             "%L.prepare(%L.$getSql)",
                                             connectionVar,
-                                            limitRawQueryParamName
+                                            limitRawQueryParamName,
                                         )
                                     }
                                     addStatement(
                                         "%L.getBindingFunction().invoke(%L)",
                                         limitRawQueryParamName,
-                                        stmtVarName
+                                        stmtVarName,
                                     )
                                     beginControlFlow("try").apply {
                                         listAdapter?.convert(resultVar, stmtVarName, scope)
@@ -235,7 +235,7 @@ class Paging3PagingSourceQueryResultBinder(
                                     addStatement("%L.close()", stmtVarName)
                                     endControlFlow()
                                 }
-                            }
+                            },
                     )
                 rowsScope.builder.add("return %L", performBlock)
                 addCode(rowsScope.generate())

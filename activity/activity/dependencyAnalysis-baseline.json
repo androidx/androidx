@@ -1,0 +1,29 @@
+{
+  "projectPath": ":activity:activity",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.squareup.leakcanary:leakcanary-android-core",
+        "resolvedVersion": "2.13"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.squareup.leakcanary:shark-android",
+        "resolvedVersion": "2.13"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.squareup.leakcanary:shark",
+        "resolvedVersion": "2.13"
+      },
+      "toConfiguration": "androidTestImplementation"
+    }
+  ]
+}

@@ -38,7 +38,7 @@ import java.io.Serializable
 /** Creates [DisposableSaveableStateRegistry] associated with these [view] and [owner]. */
 internal fun DisposableSaveableStateRegistry(
     view: View,
-    owner: SavedStateRegistryOwner
+    owner: SavedStateRegistryOwner,
 ): DisposableSaveableStateRegistry {
     // The view id of AbstractComposeView is used as a key for SavedStateRegistryOwner. If there
     // are multiple AbstractComposeViews in the same Activity/Fragment with the same id(or with
@@ -64,7 +64,7 @@ internal fun DisposableSaveableStateRegistry(
  */
 internal fun DisposableSaveableStateRegistry(
     id: String,
-    savedStateRegistryOwner: SavedStateRegistryOwner
+    savedStateRegistryOwner: SavedStateRegistryOwner,
 ): DisposableSaveableStateRegistry {
     val key = "${SaveableStateRegistry::class.java.simpleName}:$id"
 
@@ -96,7 +96,7 @@ internal fun DisposableSaveableStateRegistry(
 /** [SaveableStateRegistry] which can be disposed using [dispose]. */
 internal class DisposableSaveableStateRegistry(
     saveableStateRegistry: SaveableStateRegistry,
-    private val onDispose: () -> Unit
+    private val onDispose: () -> Unit,
 ) : SaveableStateRegistry by saveableStateRegistry {
 
     fun dispose() {
@@ -156,7 +156,7 @@ private val AcceptableClasses =
         SparseArray::class.java,
         Binder::class.java,
         Size::class.java,
-        SizeF::class.java
+        SizeF::class.java,
     )
 
 @Suppress("DEPRECATION")

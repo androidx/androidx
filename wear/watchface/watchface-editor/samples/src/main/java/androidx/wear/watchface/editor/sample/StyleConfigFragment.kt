@@ -72,11 +72,11 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                         putCharSequence(SETTING_ID, settingId)
                         putParcelable(
                             STYLE_SCHEMA,
-                            ParcelUtils.toParcelable(styleSchema.toWireFormat())
+                            ParcelUtils.toParcelable(styleSchema.toWireFormat()),
                         )
                         putParcelable(
                             USER_STYLE,
-                            ParcelUtils.toParcelable(userStyle.toWireFormat())
+                            ParcelUtils.toParcelable(userStyle.toWireFormat()),
                         )
                     }
             }
@@ -85,7 +85,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedState: Bundle?
+        savedState: Bundle?,
     ): View {
         readOptionsFromArguments()
 
@@ -115,7 +115,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                         requireContext(),
                         styleSetting.options.filterIsInstance<ListUserStyleSetting.ListOption>(),
                         this@StyleConfigFragment,
-                        currentSelection = userStyleOption
+                        currentSelection = userStyleOption,
                     )
                 styleOptionsList.isEdgeItemsCenteringEnabled = true
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -126,7 +126,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                     ComplicationsStyleSettingViewAdapter(
                         requireContext(),
                         styleSetting.options.filterIsInstance<ComplicationSlotsOption>(),
-                        this@StyleConfigFragment
+                        this@StyleConfigFragment,
                     )
                 styleOptionsList.isEdgeItemsCenteringEnabled = true
                 styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
@@ -202,7 +202,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                         requireArguments().getParcelable(USER_STYLE)!!
                     )!!
                 ),
-                styleSchema
+                styleSchema,
             )
 
         styleSetting = styleSchema[UserStyleSetting.Id(settingId)]!!
@@ -229,7 +229,7 @@ internal class StyleConfigFragment : Fragment(), ClickListener {
                     newInstance(
                         userStyleOption.childSettings.first().id.value,
                         styleSchema,
-                        userStyle
+                        userStyle,
                     )
                 )
             } else {
@@ -272,7 +272,7 @@ internal class ListStyleSettingViewAdapter(
     private val context: Context,
     private val styleOptions: List<ListUserStyleSetting.ListOption>,
     private val clickListener: ClickListener,
-    private var currentSelection: UserStyleSetting.Option
+    private var currentSelection: UserStyleSetting.Option,
 ) : RecyclerView.Adapter<StyleSettingViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -306,10 +306,10 @@ internal class ListStyleSettingViewAdapter(
                     Helper.wrapIcon(context, drawable),
                     /* top = */ null,
                     /* end = */ null,
-                    /* bottom = */ null
+                    /* bottom = */ null,
                 )
             },
-            handler
+            handler,
         )
     }
 
@@ -320,7 +320,7 @@ internal class ListStyleSettingViewAdapter(
 internal class ComplicationsStyleSettingViewAdapter(
     private val context: Context,
     private val styleOptions: List<ComplicationSlotsOption>,
-    private val clickListener: ClickListener
+    private val clickListener: ClickListener,
 ) : RecyclerView.Adapter<StyleSettingViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -345,10 +345,10 @@ internal class ComplicationsStyleSettingViewAdapter(
                     Helper.wrapIcon(context, drawable),
                     /* top = */ null,
                     /* end = */ null,
-                    /* bottom = */ null
+                    /* bottom = */ null,
                 )
             },
-            handler
+            handler,
         )
     }
 

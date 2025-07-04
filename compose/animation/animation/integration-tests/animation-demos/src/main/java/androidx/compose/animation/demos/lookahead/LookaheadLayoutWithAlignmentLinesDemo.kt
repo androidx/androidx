@@ -51,7 +51,7 @@ fun LookaheadLayoutWithAlignmentLinesDemo() {
     val helloWorld = createHelloWorld()
     Column(
         Modifier.fillMaxSize().padding(top = 100.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         var horizontal by remember { mutableStateOf(true) }
         Button({ horizontal = !horizontal }) { Text("Toggle Layout") }
@@ -64,7 +64,7 @@ fun LookaheadLayoutWithAlignmentLinesDemo() {
                     Row(
                         Modifier.fillMaxWidth().wrapContentHeight().background(Color(0xffb4c8ea)),
                         horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         helloWorld(Modifier.alignByBaseline())
                         Spacer(Modifier.size(10.dp))
@@ -75,7 +75,7 @@ fun LookaheadLayoutWithAlignmentLinesDemo() {
                             modifier =
                                 Modifier.alignByBaseline()
                                     .sharedElement()
-                                    .background(color = Color(0xffffb900), RoundedCornerShape(10))
+                                    .background(color = Color(0xffffb900), RoundedCornerShape(10)),
                         )
                     }
                     Spacer(Modifier.fillMaxWidth().requiredHeight(1.dp).background(Color.Black))
@@ -92,7 +92,7 @@ fun LookaheadLayoutWithAlignmentLinesDemo() {
                 Column(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     helloWorld(Modifier)
                 }
@@ -107,7 +107,7 @@ private fun HelloText(modifier: Modifier = Modifier) {
         text = "Hello",
         fontSize = 80.sp,
         color = Color.White,
-        modifier = modifier.background(color = Color(0xfff3722c), RoundedCornerShape(10))
+        modifier = modifier.background(color = Color(0xfff3722c), RoundedCornerShape(10)),
     )
 }
 
@@ -117,7 +117,7 @@ private fun WorldText(modifier: Modifier = Modifier) {
         text = "World",
         color = Color.White,
         fontSize = 30.sp,
-        modifier = modifier.background(color = Color(0xff90be6d), RoundedCornerShape(10))
+        modifier = modifier.background(color = Color(0xff90be6d), RoundedCornerShape(10)),
     )
 }
 
@@ -132,7 +132,7 @@ private fun createHelloWorld(): SharedElement {
                 modifier =
                     modifier
                         .sharedElement()
-                        .background(color = Color(0xfff3722c), RoundedCornerShape(10))
+                        .background(color = Color(0xfff3722c), RoundedCornerShape(10)),
             )
             Spacer(Modifier.size(10.dp))
             Text(
@@ -142,7 +142,7 @@ private fun createHelloWorld(): SharedElement {
                 modifier =
                     modifier
                         .sharedElement()
-                        .background(color = Color(0xff90be6d), RoundedCornerShape(10))
+                        .background(color = Color(0xff90be6d), RoundedCornerShape(10)),
             )
         }
     }

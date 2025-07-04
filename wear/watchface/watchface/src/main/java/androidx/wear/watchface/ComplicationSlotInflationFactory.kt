@@ -21,7 +21,13 @@ package androidx.wear.watchface
  * edge complication [ComplicationTapFilter]s needed for inflating [ComplicationSlot]s.
  *
  * If a watch face doesn't define it's [ComplicationSlot]s in XML then this isn't used.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public abstract class ComplicationSlotInflationFactory {
     /** Returns the [CanvasComplicationFactory] to be used for the given [slotId]. */
     abstract fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory

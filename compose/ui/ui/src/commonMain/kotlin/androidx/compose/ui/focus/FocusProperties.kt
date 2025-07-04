@@ -123,10 +123,7 @@ interface FocusProperties {
      *
      * @sample androidx.compose.ui.samples.CustomFocusEnterSample
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    @set:ExperimentalComposeUiApi
     @set:Deprecated("Use onEnter instead", ReplaceWith("onEnter"))
     var enter: (FocusDirection) -> FocusRequester
         get() = { FocusRequester.Default }
@@ -165,10 +162,7 @@ interface FocusProperties {
      *
      * @sample androidx.compose.ui.samples.CustomFocusExitSample
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    @set:ExperimentalComposeUiApi
     @set:Deprecated("Use onExit instead", ReplaceWith("onExit"))
     var exit: (FocusDirection) -> FocusRequester
         get() = { FocusRequester.Default }
@@ -229,7 +223,7 @@ sealed interface FocusEnterExitScope {
 }
 
 internal class CancelIndicatingFocusBoundaryScope(
-    override val requestedFocusDirection: FocusDirection,
+    override val requestedFocusDirection: FocusDirection
 ) : FocusEnterExitScope {
     var isCanceled = false
         private set
@@ -276,9 +270,8 @@ private data class FocusPropertiesElement(val scope: FocusPropertiesScope) :
     }
 }
 
-private class FocusPropertiesNode(
-    var focusPropertiesScope: FocusPropertiesScope,
-) : FocusPropertiesModifierNode, Modifier.Node() {
+private class FocusPropertiesNode(var focusPropertiesScope: FocusPropertiesScope) :
+    FocusPropertiesModifierNode, Modifier.Node() {
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusPropertiesScope.apply(focusProperties)

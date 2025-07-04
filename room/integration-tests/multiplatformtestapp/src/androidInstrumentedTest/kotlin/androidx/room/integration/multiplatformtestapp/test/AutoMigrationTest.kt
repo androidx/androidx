@@ -39,7 +39,7 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
             driver = driver,
             databaseClass = AutoMigrationDatabase::class,
             file = file,
-            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3()),
         )
 
     override fun getTestHelper() = migrationTestHelper
@@ -47,7 +47,7 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
     override fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase> {
         return Room.databaseBuilder<AutoMigrationDatabase>(
                 context = instrumentation.targetContext,
-                name = file.path
+                name = file.path,
             )
             .setDriver(driver)
     }

@@ -50,14 +50,14 @@ fun RadioButtonDemo() {
             DemoRadioButton(
                 enabled = true,
                 selected = selectedRadioIndex == 0,
-                onSelected = { selectedRadioIndex = 0 }
+                onSelected = { selectedRadioIndex = 0 },
             )
         }
         item {
             DemoRadioButton(
                 enabled = true,
                 selected = selectedRadioIndex == 1,
-                onSelected = { selectedRadioIndex = 1 }
+                onSelected = { selectedRadioIndex = 1 },
             )
         }
         item { ListHeader { Text("Disabled Radio Button") } }
@@ -68,7 +68,7 @@ fun RadioButtonDemo() {
             DemoRadioButton(
                 enabled = true,
                 selected = selectedIconRadioIndex == 0,
-                onSelected = { selectedIconRadioIndex = 0 }
+                onSelected = { selectedIconRadioIndex = 0 },
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
@@ -78,7 +78,7 @@ fun RadioButtonDemo() {
                 enabled = true,
                 selected = selectedIconRadioIndex == 1,
                 onSelected = { selectedIconRadioIndex = 1 },
-                secondary = "Secondary label"
+                secondary = "Secondary label",
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
             }
@@ -86,10 +86,7 @@ fun RadioButtonDemo() {
         item { ListHeader { Text("Disabled Radio Button with Icon") } }
         for (selected in booleanArrayOf(true, false)) {
             item {
-                DemoRadioButton(
-                    enabled = false,
-                    selected = selected,
-                ) {
+                DemoRadioButton(enabled = false, selected = selected) {
                     Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
                 }
             }
@@ -97,7 +94,7 @@ fun RadioButtonDemo() {
                 DemoRadioButton(
                     enabled = false,
                     selected = selected,
-                    secondary = "Secondary label"
+                    secondary = "Secondary label",
                 ) {
                     Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
                 }
@@ -110,7 +107,7 @@ fun RadioButtonDemo() {
                 selected = selectedMultiLineRadioIndex == 0,
                 onSelected = { selectedMultiLineRadioIndex = 0 },
                 primary = "8:15AM",
-                secondary = "Monday"
+                secondary = "Monday",
             )
         }
         item {
@@ -118,7 +115,7 @@ fun RadioButtonDemo() {
                 enabled = true,
                 selected = selectedMultiLineRadioIndex == 1,
                 onSelected = { selectedMultiLineRadioIndex = 1 },
-                primary = "Primary Label with at most three lines of content"
+                primary = "Primary Label with at most three lines of content",
             )
         }
         item {
@@ -127,7 +124,7 @@ fun RadioButtonDemo() {
                 selected = selectedMultiLineRadioIndex == 2,
                 onSelected = { selectedMultiLineRadioIndex = 2 },
                 primary = "Primary Label with at most three lines of content",
-                secondary = "Secondary label with at most two lines of text"
+                secondary = "Secondary label with at most two lines of text",
             )
         }
         item {
@@ -159,18 +156,10 @@ private fun DemoRadioButton(
             Text(
                 primary,
                 Modifier.fillMaxWidth(),
-                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines
+                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines,
             )
         },
-        secondaryLabel =
-            secondary?.let {
-                {
-                    Text(
-                        secondary,
-                        Modifier.fillMaxWidth(),
-                    )
-                }
-            },
+        secondaryLabel = secondary?.let { { Text(secondary, Modifier.fillMaxWidth()) } },
         selected = selected,
         onSelect = onSelected,
         enabled = enabled,

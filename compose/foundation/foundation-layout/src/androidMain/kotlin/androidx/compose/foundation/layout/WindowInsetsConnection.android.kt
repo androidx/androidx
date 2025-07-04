@@ -77,7 +77,7 @@ fun Modifier.imeNestedScroll(): Modifier {
         val nestedScrollConnection =
             rememberWindowInsetsConnection(
                 WindowInsetsHolder.current().ime,
-                WindowInsetsSides.Bottom
+                WindowInsetsSides.Bottom,
             )
         nestedScroll(nestedScrollConnection)
     }
@@ -102,7 +102,7 @@ fun Modifier.imeNestedScroll(): Modifier {
 @Composable
 internal fun rememberWindowInsetsConnection(
     windowInsets: AndroidWindowInsets,
-    side: WindowInsetsSides
+    side: WindowInsetsSides,
 ): NestedScrollConnection {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         return DoNothingNestedScrollConnection
@@ -142,7 +142,7 @@ private class WindowInsetsNestedScrollConnection(
     val windowInsets: AndroidWindowInsets,
     val view: View,
     val sideCalculator: SideCalculator,
-    val density: Density
+    val density: Density,
 ) : NestedScrollConnection, WindowInsetsAnimationControlListener {
 
     /**
@@ -189,7 +189,7 @@ private class WindowInsetsNestedScrollConnection(
                 -1, // durationMillis
                 null, // interpolator
                 cancellationSignal,
-                this
+                this,
             )
         }
     }
@@ -212,7 +212,7 @@ private class WindowInsetsNestedScrollConnection(
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
     ): Offset = scroll(available, sideCalculator.showMotion(available.x, available.y))
 
     /** Scrolls [scrollAmount] and returns the consumed amount of [available]. */
@@ -283,7 +283,7 @@ private class WindowInsetsNestedScrollConnection(
     private suspend fun fling(
         available: Velocity,
         flingAmount: Float,
-        towardShown: Boolean
+        towardShown: Boolean,
     ): Velocity {
         animationJob?.cancel(WindowInsetsAnimationCancelledException())
         animationJob = null
@@ -329,7 +329,7 @@ private class WindowInsetsNestedScrollConnection(
                     animateDecay(
                         initialValue = current.toFloat(),
                         initialVelocity = flingAmount,
-                        animationSpec = spec
+                        animationSpec = spec,
                     ) { value, velocity ->
                         if (value in hidden.toFloat()..shown.toFloat()) {
                             adjustInsets(value)
@@ -580,7 +580,7 @@ private class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayA
     private fun getSplineDeceleration(velocity: Float): Double =
         AndroidFlingSpline.deceleration(
             velocity,
-            PlatformFlingScrollFriction * magicPhysicalCoefficient
+            PlatformFlingScrollFriction * magicPhysicalCoefficient,
         )
 
     /** Compute the distance of a fling in units given an initial [velocity] of units/second */
@@ -599,7 +599,7 @@ private class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayA
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         val duration = getDurationNanos(0f, initialVelocity)
         val splinePos = if (duration > 0) playTimeNanos / duration.toFloat() else 1f
@@ -618,7 +618,7 @@ private class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayA
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         val duration = getDurationNanos(0f, initialVelocity)
         val splinePos = if (duration > 0L) playTimeNanos / duration.toFloat() else 1f

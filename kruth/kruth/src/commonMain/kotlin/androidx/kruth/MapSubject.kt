@@ -25,11 +25,8 @@ import androidx.kruth.Fact.Companion.simpleFact
  * @constructor Constructor for use by subclasses. If you want to create an instance of this class
  *   itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
  */
-open class MapSubject<K, V>
-protected constructor(
-    metadata: FailureMetadata,
-    actual: Map<K, V>?,
-) : Subject<Map<K, V>>(actual, metadata = metadata, typeDescriptionOverride = null) {
+open class MapSubject<K, V> protected constructor(metadata: FailureMetadata, actual: Map<K, V>?) :
+    Subject<Map<K, V>>(actual, metadata = metadata, typeDescriptionOverride = null) {
 
     internal constructor(actual: Map<K, V>?, metadata: FailureMetadata) : this(metadata, actual)
 
@@ -153,10 +150,7 @@ protected constructor(
      */
     fun containsExactly(vararg entries: Pair<K, V>): Ordered =
         containsExactlyEntriesIn(
-            accumulateMap(
-                functionName = "containsExactly",
-                entries = entries.toList(),
-            )
+            accumulateMap(functionName = "containsExactly", entries = entries.toList())
         )
 
     /**
@@ -165,10 +159,7 @@ protected constructor(
      */
     fun containsAtLeast(vararg entries: Pair<K, V>): Ordered =
         containsAtLeastEntriesIn(
-            accumulateMap(
-                functionName = "containsAtLeast",
-                entries = entries.toList(),
-            )
+            accumulateMap(functionName = "containsAtLeast", entries = entries.toList())
         )
 
     /** Fails if the map does not contain exactly the given set of entries in the given map. */
@@ -198,10 +189,7 @@ protected constructor(
         return MapInOrder(expectedMap = expectedMap, allowUnexpected = true)
     }
 
-    private fun containsEntriesInAnyOrder(
-        expectedMap: Map<K, V>,
-        allowUnexpected: Boolean,
-    ) {
+    private fun containsEntriesInAnyOrder(expectedMap: Map<K, V>, allowUnexpected: Boolean) {
         val actual = requireNonNull(actual)
         val expectedSet = expectedMap.mapTo(HashSet()) { (key, value) -> key to value }
         val actualSet = actual.mapTo(HashSet()) { (key, value) -> key to value }

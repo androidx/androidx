@@ -53,7 +53,7 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
     val rule =
         PerfettoTraceRule(
             enableAppTagTracing = enableAppTagTracing,
-            enableUserspaceTracing = enableUserspaceTracing
+            enableUserspaceTracing = enableUserspaceTracing,
         ) { trace ->
             val expectedSlices =
                 sequence {

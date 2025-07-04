@@ -89,7 +89,7 @@ private fun getPendingIntentForAction(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
-                                flags.toString()
+                                flags.toString(),
                             )
                     }
                 },
@@ -115,7 +115,7 @@ private fun getPendingIntentForAction(
             ) {
                 ApplyActionApi26Impl.getForegroundServicePendingIntent(
                     context = translationContext.context,
-                    intent = intent
+                    intent = intent,
                 )
             } else {
                 PendingIntent.getService(
@@ -151,7 +151,7 @@ private fun getPendingIntentForAction(
                 ActionCallbackBroadcastReceiver.createIntent(
                         translationContext,
                         action.callbackClass,
-                        editParams(action.parameters)
+                        editParams(action.parameters),
                     )
                     .apply {
                         data =
@@ -207,7 +207,7 @@ private fun getPendingIntentForAction(
                         PendingIntent.FLAG_MUTABLE
                     } else {
                         mutability
-                    }
+                    },
             )
         }
         else -> error("Cannot create PendingIntent for action type: $action")
@@ -218,14 +218,14 @@ private fun getFillInIntentForAction(
     action: Action,
     translationContext: TranslationContext,
     @IdRes viewId: Int,
-    editParams: (ActionParameters) -> ActionParameters = { it }
+    editParams: (ActionParameters) -> ActionParameters = { it },
 ): Intent =
     when (action) {
         is StartActivityAction -> {
             getStartActivityIntent(
                     action = action,
                     translationContext = translationContext,
-                    params = editParams(action.parameters)
+                    params = editParams(action.parameters),
                 )
                 .apply {
                     if (data == null) {
@@ -264,7 +264,7 @@ private fun getFillInIntentForAction(
             ActionCallbackBroadcastReceiver.createIntent(
                     translationContext,
                     action.callbackClass,
-                    editParams(action.parameters)
+                    editParams(action.parameters),
                 )
                 .applyTrampolineIntent(
                     translationContext,

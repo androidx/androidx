@@ -53,7 +53,7 @@ fun DropdownMenuSelection() {
                 appendCode("Text")
                 append("s are in a popup.")
                 append(" Attempting to select these texts should not crash the app.")
-            },
+            }
         )
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
             DropdownMenuInSelectionContainer()
@@ -69,7 +69,7 @@ fun DropdownMenuSelection() {
                 append(" is in the popup, it shouldn't crash on long press.")
                 append(" However, the selection features (handles, magnifier, toolbar) should")
                 append(" appear in the correct places, attached to the selection.")
-            },
+            }
         )
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
             SelectionContainerInDropdownMenu()

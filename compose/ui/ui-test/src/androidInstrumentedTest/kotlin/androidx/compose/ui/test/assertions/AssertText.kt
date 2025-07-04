@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.inputText
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.test.assertTextContains
@@ -115,6 +116,18 @@ class AssertText {
             BoundaryNode {
                 testTag = "test"
                 editableText = AnnotatedString("Hello World")
+            }
+        }
+
+        rule.onNodeWithTag("test").assertTextEquals("Hello")
+    }
+
+    @Test(expected = AssertionError::class)
+    fun assertTextFieldText_fails2() {
+        rule.setContent {
+            BoundaryNode {
+                testTag = "test"
+                inputText = AnnotatedString("Hello World")
             }
         }
 

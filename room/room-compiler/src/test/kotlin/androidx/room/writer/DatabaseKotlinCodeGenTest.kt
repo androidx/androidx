@@ -19,8 +19,8 @@ package androidx.room.writer
 import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
-import androidx.room.runKspTestWithK1
 import loadTestSource
 import org.junit.Rule
 import org.junit.Test
@@ -56,7 +56,7 @@ class DatabaseKotlinCodeGenTest {
                 var pk: Int
             )
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
@@ -121,7 +121,7 @@ class DatabaseKotlinCodeGenTest {
             @DatabaseView("SELECT text FROM MyFtsEntity")
             data class MyView(val text: String)
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
@@ -146,12 +146,13 @@ class DatabaseKotlinCodeGenTest {
             }
 
             @Entity
+            @ConsistentCopyVisibility
             internal data class MyEntity internal constructor(
                 @PrimaryKey
                 var pk: Int
             )
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
@@ -169,7 +170,7 @@ class DatabaseKotlinCodeGenTest {
               abstract MyDao getDao();
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val daoSrc =
             Source.java(
@@ -184,7 +185,7 @@ class DatabaseKotlinCodeGenTest {
               @NonNull MyEntity getEntity();
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val entitySrc =
             Source.java(
@@ -198,11 +199,11 @@ class DatabaseKotlinCodeGenTest {
                 public int pk;
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(
             sources = listOf(dbSrc, daoSrc, entitySrc),
-            expectedFilePath = getTestGoldenPath(testName.methodName)
+            expectedFilePath = getTestGoldenPath(testName.methodName),
         )
     }
 
@@ -231,7 +232,7 @@ class DatabaseKotlinCodeGenTest {
                 val pk: Int
             )
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
     }
@@ -243,18 +244,19 @@ class DatabaseKotlinCodeGenTest {
     private fun runTest(
         sources: List<Source>,
         expectedFilePath: String,
-        handler: (XTestInvocation) -> Unit = {}
+        handler: (XTestInvocation) -> Unit = {},
     ) {
-        runKspTestWithK1(
+        runKspTest(
             sources = sources,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
+            kotlincArguments = listOf("-jvm-target=11"),
         ) {
             val databaseFqn = "androidx.room.Database"
             DatabaseProcessingStep()
                 .process(
                     it.processingEnv,
                     mapOf(databaseFqn to it.roundEnv.getElementsAnnotatedWith(databaseFqn)),
-                    it.roundEnv.isProcessingOver
+                    it.roundEnv.isProcessingOver,
                 )
             it.assertCompilationResult {
                 val expectedSrc = loadTestSource(expectedFilePath, "MyDatabase_Impl")
@@ -265,7 +267,7 @@ class DatabaseKotlinCodeGenTest {
                         checkNotNull(this.findGeneratedSource(expectedSrc.relativePath)) {
                             "Couldn't find gen src: $expectedSrc"
                         },
-                        expectedFilePath
+                        expectedFilePath,
                     )
                 }
                 this.generatedSource(expectedSrc)

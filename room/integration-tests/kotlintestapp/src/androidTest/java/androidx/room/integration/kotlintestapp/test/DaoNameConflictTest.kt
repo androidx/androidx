@@ -43,7 +43,7 @@ class DaoNameConflictTest {
         mDb =
             inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    ConflictDatabase::class.java
+                    ConflictDatabase::class.java,
                 )
                 .build()
     }

@@ -69,12 +69,12 @@ class ResizingComposeViewTest {
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    1f
-                )
+                    1f,
+                ),
             )
             linearLayout.addView(
                 View(rule.activity),
-                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10000f)
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 10000f),
             )
             composeView.setContent { ResizingChild(layoutHeight = { height }) }
         }
@@ -153,7 +153,7 @@ class ResizingComposeViewTest {
                         },
                     content = {
                         ResizingChild(layoutHeight = { childHeight }, viewHeight = { parentSize })
-                    }
+                    },
                 ) { measurables, constraints ->
                     val placeable = measurables[0].measure(constraints)
                     layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -228,7 +228,7 @@ class ResizingComposeViewTest {
                                 )
                             layout(placeable.width, placeable.height) { placeable.place(0, 0) }
                         },
-                    content = { IntrinsicsChild(intrinsicsHeight = { intrinsicsHeight }) }
+                    content = { IntrinsicsChild(intrinsicsHeight = { intrinsicsHeight }) },
                 ) { measurables, constraints ->
                     val placeable = measurables[0].measure(constraints)
                     layout(placeable.width, placeable.height) { placeable.place(0, 0) }
@@ -256,7 +256,7 @@ class ResizingComposeViewTest {
             composeView.setContent {
                 ResizingChild(
                     layoutHeight = { childHeight },
-                    modifier = RemeasurementElement { remeasurement = it }
+                    modifier = RemeasurementElement { remeasurement = it },
                 )
             }
         }
@@ -292,7 +292,7 @@ class ResizingComposeViewTest {
             composeView.setContent {
                 ResizingChild(
                     layoutHeight = { 10 },
-                    modifier = RemeasurementElement { remeasurement = it }
+                    modifier = RemeasurementElement { remeasurement = it },
                 )
             }
         }
@@ -319,7 +319,7 @@ class ResizingComposeViewTest {
     private fun ResizingChild(
         layoutHeight: () -> Int,
         viewHeight: () -> Int = layoutHeight,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         Layout(
             {},
@@ -333,7 +333,7 @@ class ResizingComposeViewTest {
                     .that(composeView.measuredHeight)
                     .isEqualTo(expectedViewHeight)
                 drawLatch.countDown()
-            }
+            },
         ) { _, constraints ->
             layout(constraints.maxWidth, layoutHeight()) {}
         }
@@ -356,16 +356,16 @@ class ResizingComposeViewTest {
             object : MeasurePolicy {
                 override fun MeasureScope.measure(
                     measurables: List<Measurable>,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     return layout(constraints.maxWidth, constraints.maxHeight) {}
                 }
 
                 override fun IntrinsicMeasureScope.minIntrinsicHeight(
                     measurables: List<IntrinsicMeasurable>,
-                    width: Int
+                    width: Int,
                 ): Int = intrinsicsHeight()
-            }
+            },
         )
     }
 }

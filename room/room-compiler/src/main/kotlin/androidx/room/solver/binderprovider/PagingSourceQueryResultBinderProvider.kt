@@ -29,11 +29,11 @@ fun PagingSourceQueryResultBinderProvider(context: Context): QueryResultBinderPr
     return MultiTypedPagingSourceQueryResultBinderProvider(
             context = context,
             roomPagingClassName = limitOffsetPagingSource,
-            pagingSourceTypeName = PagingTypeNames.PAGING_SOURCE
+            pagingSourceTypeName = PagingTypeNames.PAGING_SOURCE,
         )
         .requireArtifact(
             context = context,
             requiredType = limitOffsetPagingSource,
-            missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT
+            missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_PAGING_ARTIFACT,
         )
 }

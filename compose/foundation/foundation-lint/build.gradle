@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,14 +32,14 @@ plugins {
 BundleInsideHelper.forInsideLintJar(project)
 
 dependencies {
-    compileOnly(libs.androidLintMinApi)
+    compileOnly(libs.androidLintApiStableAnalysis)
     compileOnly(libs.kotlinStdlib)
 
     bundleInside(project(":compose:lint:common"))
 
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintStableAnalysis)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -47,7 +47,7 @@ dependencies {
 
 androidx {
     name = "Compose Foundation Lint Checks"
-    type = LibraryType.STANDALONE_PUBLISHED_LINT
+    type = SoftwareType.STANDALONE_PUBLISHED_LINT
     inceptionYear = "2022"
     description = "Compose Foundation Lint Checks"
 }

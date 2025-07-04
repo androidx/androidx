@@ -48,7 +48,7 @@ import kotlinx.coroutines.isActive
 internal fun Modifier.motionPointerInput(
     key: Any,
     motionProgress: MutableFloatState,
-    measurer: MotionMeasurer
+    measurer: MotionMeasurer,
 ): Modifier =
     composed(
         inspectorInfo =
@@ -126,7 +126,7 @@ internal fun Modifier.motionPointerInput(
                     velocityTracker.addPointerInputChange(change)
                     // As dragging is done, pass the dragAmount to update the MotionLayout progress.
                     dragChannel.trySend(MotionDragState.onDrag(dragAmount))
-                }
+                },
             )
         }
     }
@@ -135,7 +135,7 @@ internal fun Modifier.motionPointerInput(
 internal data class MotionDragState(
     val isDragging: Boolean,
     val dragAmount: Offset,
-    val velocity: Velocity
+    val velocity: Velocity,
 ) {
     companion object {
 
@@ -146,7 +146,7 @@ internal data class MotionDragState(
             MotionDragState(
                 isDragging = false,
                 dragAmount = Offset.Unspecified,
-                velocity = velocity
+                velocity = velocity,
             )
     }
 }
@@ -160,7 +160,7 @@ private suspend fun PointerInputScope.detectDragGesturesWhenNeeded(
     onDragStart: (Offset) -> Unit,
     onDragEnd: () -> Unit,
     onDragCancel: () -> Unit,
-    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
+    onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit,
 ) {
     awaitEachGesture {
         val down = awaitFirstDown(requireUnconsumed = true)

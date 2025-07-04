@@ -101,12 +101,12 @@ public enum MetadataPropertyAnnotation implements PropertyAnnotation {
         switch (this) {
             case ID: // fall-through
             case NAMESPACE:
-                return helper.mStringType;
+                return helper.stringType;
             case CREATION_TIMESTAMP_MILLIS: // fall-through
             case TTL_MILLIS:
-                return helper.mLongPrimitiveType;
+                return helper.longPrimitiveType;
             case SCORE:
-                return helper.mIntPrimitiveType;
+                return helper.intPrimitiveType;
             default:
                 throw new IllegalStateException("Unhandled metadata property annotation: " + this);
         }

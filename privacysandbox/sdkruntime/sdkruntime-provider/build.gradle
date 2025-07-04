@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -31,6 +31,9 @@ plugins {
 
 dependencies {
     api(project(":privacysandbox:sdkruntime:sdkruntime-core"))
+    implementation("androidx.core:core:1.15.0")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.activity:activity:1.9.3")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -50,8 +53,7 @@ android {
 
 androidx {
     name = "SdkRuntime Provider"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Provides components for SdkRuntime aware SDKs"
-    legacyDisableKotlinStrictApiMode = true
 }

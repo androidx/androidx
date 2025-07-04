@@ -237,7 +237,7 @@ internal abstract class AgpPlugin(
     protected fun <T : Task> addArtifactToConfiguration(
         configurationName: String,
         taskProvider: TaskProvider<T>,
-        artifactType: String
+        artifactType: String,
     ) {
         project.artifacts { artifactHandler ->
             artifactHandler.add(configurationName, taskProvider) { artifact ->
@@ -309,7 +309,7 @@ internal abstract class AgpPlugin(
         Gradle Plugin version $maxAgpVersionExclusive and it may not work as intended.
         Current version is $agpVersion.
                 """
-                        .trimIndent()
+                        .trimIndent(),
             )
         }
     }
@@ -402,7 +402,7 @@ internal fun Project.isGradleSyncRunning() =
 internal enum class AgpPluginId(val value: String) {
     ID_ANDROID_APPLICATION_PLUGIN("com.android.application"),
     ID_ANDROID_LIBRARY_PLUGIN("com.android.library"),
-    ID_ANDROID_TEST_PLUGIN("com.android.test")
+    ID_ANDROID_TEST_PLUGIN("com.android.test"),
 }
 
 /**

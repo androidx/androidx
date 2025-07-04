@@ -34,7 +34,7 @@ class DebouncedGoalTest {
                 120.0,
                 GREATER_THAN,
                 /* initialDelay= */ 60,
-                /* durationAtThreshold= */ 5
+                /* durationAtThreshold= */ 5,
             )
         val proto = (DebouncedGoal.createSampleDebouncedGoal(debouncedDataTypeCondition)).proto
         val debouncedGoal = DebouncedGoal.fromProto(proto)
@@ -50,7 +50,7 @@ class DebouncedGoalTest {
                 4.0,
                 GREATER_THAN,
                 /* initialDelay= */ 60,
-                /* durationAtThreshold= */ 5
+                /* durationAtThreshold= */ 5,
             )
         val proto = (DebouncedGoal.createAggregateDebouncedGoal(debouncedDataTypeCondition)).proto
         val debouncedGoal = DebouncedGoal.fromProto(proto)

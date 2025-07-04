@@ -29,13 +29,14 @@ import androidx.room.compiler.codegen.impl.XCodeBlockImpl
 internal class JavaPropertySpec(
     override val name: String,
     override val type: XTypeName,
-    internal val actual: JPropertySpec
-) : XSpec(), XPropertySpec {
+    override val actual: JPropertySpec,
+) : JavaSpec<JPropertySpec>(), XPropertySpec {
+    override fun toBuilder() = Builder(name, type, actual.toBuilder())
 
     internal class Builder(
         private val name: String,
         private val type: XTypeName,
-        internal val actual: JPropertySpecBuilder
+        internal val actual: JPropertySpecBuilder,
     ) : XSpec.Builder(), XPropertySpec.Builder {
 
         override fun addAnnotation(annotation: XAnnotationSpec) = apply {

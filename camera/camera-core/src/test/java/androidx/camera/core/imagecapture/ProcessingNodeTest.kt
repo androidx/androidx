@@ -89,10 +89,10 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: process the request.
@@ -119,10 +119,10 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: process the request.
@@ -151,10 +151,10 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: process the request.
@@ -162,7 +162,7 @@ class ProcessingNodeTest {
             createRawFakeImageProxy(
                 CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
                 WIDTH,
-                HEIGHT
+                HEIGHT,
             )
         val dngImage2Disk = mock(DngImage2Disk::class.java)
         node.mDngImage2Disk = dngImage2Disk
@@ -192,10 +192,10 @@ class ProcessingNodeTest {
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
                     /*jpegQuality=*/ 100,
-                    isSimultaneousCapture = true
+                    isSimultaneousCapture = true,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: process the request.
@@ -212,7 +212,7 @@ class ProcessingNodeTest {
             createRawFakeImageProxy(
                 CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
                 WIDTH,
-                HEIGHT
+                HEIGHT,
             )
         val dngImage2Disk = mock(DngImage2Disk::class.java)
         node.mDngImage2Disk = dngImage2Disk
@@ -239,10 +239,10 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: process the request.
@@ -268,10 +268,10 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: input the postview image.
@@ -298,10 +298,10 @@ class ProcessingNodeTest {
                     Rect(0, 0, WIDTH, HEIGHT),
                     SENSOR_TO_BUFFER,
                     ROTATION_DEGREES,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 callback,
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
 
         // Act: input the postview image.
@@ -364,7 +364,7 @@ class ProcessingNodeTest {
                 CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
                 brokenJpegByteArray,
                 WIDTH,
-                HEIGHT
+                HEIGHT,
             )
         val processingRequest = createProcessingRequest(takePictureCallback)
         val input = ProcessingNode.InputPacket.of(processingRequest, image)

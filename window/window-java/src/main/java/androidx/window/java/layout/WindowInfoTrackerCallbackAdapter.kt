@@ -33,7 +33,7 @@ import java.util.concurrent.Executor
 class WindowInfoTrackerCallbackAdapter
 private constructor(
     private val tracker: WindowInfoTracker,
-    private val callbackToFlowAdapter: CallbackToFlowAdapter
+    private val callbackToFlowAdapter: CallbackToFlowAdapter,
 ) : WindowInfoTracker by tracker {
 
     constructor(tracker: WindowInfoTracker) : this(tracker, CallbackToFlowAdapter())
@@ -50,7 +50,7 @@ private constructor(
     fun addWindowLayoutInfoListener(
         activity: Activity,
         executor: Executor,
-        consumer: Consumer<WindowLayoutInfo>
+        consumer: Consumer<WindowLayoutInfo>,
     ) {
         callbackToFlowAdapter.connect(executor, consumer, tracker.windowLayoutInfo(activity))
     }
@@ -68,7 +68,7 @@ private constructor(
     fun addWindowLayoutInfoListener(
         @UiContext context: Context,
         executor: Executor,
-        consumer: Consumer<WindowLayoutInfo>
+        consumer: Consumer<WindowLayoutInfo>,
     ) {
         callbackToFlowAdapter.connect(executor, consumer, tracker.windowLayoutInfo(context))
     }

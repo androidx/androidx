@@ -15,8 +15,7 @@
  */
 
 import androidx.build.BundleInsideHelper
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -26,21 +25,20 @@ plugins {
 BundleInsideHelper.forInsideLintJar(project)
 
 dependencies {
-    compileOnly(libs.androidLintApiPrevKotlin)
+    compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
 
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLintPrevKotlin)
-    testImplementation(libs.androidLintTestsPrevKotlin)
+    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }
 
 androidx {
     name = "Compose UI Text Lint Checks"
-    type = LibraryType.STANDALONE_PUBLISHED_LINT
+    type = SoftwareType.STANDALONE_PUBLISHED_LINT
     inceptionYear = "2024"
     description = "Lint checks for Compose UI Text"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

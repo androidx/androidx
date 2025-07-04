@@ -122,7 +122,7 @@ class CameraGraphSimulatorTest {
 
                 frame.simulateComplete(
                     resultMetadata,
-                    extraMetadata = mapOf(CaptureResult.LENS_APERTURE to 4.0f)
+                    extraMetadata = mapOf(CaptureResult.LENS_APERTURE to 4.0f),
                 )
             }
 

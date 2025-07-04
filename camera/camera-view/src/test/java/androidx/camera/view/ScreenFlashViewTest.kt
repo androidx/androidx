@@ -122,7 +122,7 @@ class ScreenFlashViewTest {
         shadowOf(getMainLooper())
             .idleFor(
                 screenFlashView.visibilityRampUpAnimationDurationMillis + 1,
-                TimeUnit.MILLISECONDS
+                TimeUnit.MILLISECONDS,
             )
         assertThat(screenFlashView.alpha).isEqualTo(1f)
     }

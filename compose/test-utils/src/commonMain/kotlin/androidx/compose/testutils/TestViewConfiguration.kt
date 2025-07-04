@@ -50,14 +50,14 @@ class TestViewConfiguration(
     override val doubleTapTimeoutMillis: Long = Default.doubleTapTimeoutMillis,
     override val doubleTapMinTimeMillis: Long = Default.doubleTapMinTimeMillis,
     override val touchSlop: Float = Default.touchSlop,
-    override val minimumTouchTargetSize: DpSize = Default.minimumTouchTargetSize
+    override val minimumTouchTargetSize: DpSize = Default.minimumTouchTargetSize,
 ) : ViewConfiguration
 
 @Composable
 fun WithLongPressTimeoutMillis(longPressTimeoutMillis: Long, content: @Composable () -> Unit) {
     WithViewConfiguration(
         TestViewConfiguration(longPressTimeoutMillis = longPressTimeoutMillis),
-        content = content
+        content = content,
     )
 }
 
@@ -65,7 +65,7 @@ fun WithLongPressTimeoutMillis(longPressTimeoutMillis: Long, content: @Composabl
 fun WithDoubleTapTimeoutMillis(doubleTapTimeoutMillis: Long, content: @Composable () -> Unit) {
     WithViewConfiguration(
         TestViewConfiguration(doubleTapTimeoutMillis = doubleTapTimeoutMillis),
-        content = content
+        content = content,
     )
 }
 
@@ -73,7 +73,7 @@ fun WithDoubleTapTimeoutMillis(doubleTapTimeoutMillis: Long, content: @Composabl
 fun WithDoubleTapMinTimeMillis(doubleTapMinTimeMillis: Long, content: @Composable () -> Unit) {
     WithViewConfiguration(
         TestViewConfiguration(doubleTapMinTimeMillis = doubleTapMinTimeMillis),
-        content = content
+        content = content,
     )
 }
 
@@ -86,17 +86,17 @@ fun WithTouchSlop(touchSlop: Float, content: @Composable () -> Unit) {
 fun WithMinimumTouchTargetSize(minimumTouchTargetSize: DpSize, content: @Composable () -> Unit) {
     WithViewConfiguration(
         TestViewConfiguration(minimumTouchTargetSize = minimumTouchTargetSize),
-        content = content
+        content = content,
     )
 }
 
 @Composable
 fun WithViewConfiguration(
     testViewConfiguration: TestViewConfiguration,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
         LocalViewConfiguration provides testViewConfiguration,
-        content = content
+        content = content,
     )
 }

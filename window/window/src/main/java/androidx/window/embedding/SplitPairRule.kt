@@ -68,7 +68,7 @@ internal constructor(
     @IntRange(from = 0) minHeightDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
     @IntRange(from = 0) minSmallestWidthDp: Int = SPLIT_MIN_DIMENSION_DP_DEFAULT,
     maxAspectRatioInPortrait: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT,
-    maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
+    maxAspectRatioInLandscape: EmbeddingAspectRatio = SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT,
 ) :
     SplitRule(
         tag,
@@ -77,7 +77,7 @@ internal constructor(
         minSmallestWidthDp,
         maxAspectRatioInPortrait,
         maxAspectRatioInLandscape,
-        defaultSplitAttributes
+        defaultSplitAttributes,
     ) {
 
     /**

@@ -18,6 +18,8 @@ package androidx.camera.camera2.pipe
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /** This is used to uniquely identify a specific backend implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -40,6 +42,15 @@ public value class CameraBackendId(public val value: String)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraBackend {
     public val id: CameraBackendId
+
+    /**
+     * A flow of the list of currently openable [CameraId]s from this CameraBackend. It should
+     * continuously return a list of current cameras, and the list should be updated as camera
+     * availability changes, e.g., an external camera is plugged or unplugged. The flow should also
+     * replay the most recent value for each new subscriber.
+     */
+    public val cameraIds: Flow<List<CameraId>>
+        get() = flowOf(awaitCameraIds() ?: emptyList())
 
     /**
      * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report

@@ -47,7 +47,7 @@ fun LazyLayoutPinnableItem(
     key: Any?,
     index: Int,
     pinnedItemList: LazyLayoutPinnedItemList,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val pinnableItem = remember(key, pinnedItemList) { LazyLayoutPinnableItem(key, pinnedItemList) }
     pinnableItem.index = index

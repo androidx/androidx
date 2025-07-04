@@ -29,5 +29,5 @@ data class SquadPlayerUiModel(
 
 data class TableRowColorUiModel(
     val isHighlighted: Boolean = false,
-    val hasDarkerBackground: Boolean = false
+    val hasDarkerBackground: Boolean = false,
 )

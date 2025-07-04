@@ -142,7 +142,7 @@ fun disableSoftKeyboardSample() {
                     awaitCancellation()
                 }
             },
-            content = content
+            content = content,
         )
     }
 }

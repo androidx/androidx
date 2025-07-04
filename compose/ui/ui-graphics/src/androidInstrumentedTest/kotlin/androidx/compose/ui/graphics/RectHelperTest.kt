@@ -38,32 +38,23 @@ class RectHelperTest {
     fun rectToAndroidRectFConverts() {
         assertEquals(
             android.graphics.RectF(2f, 3.1f, 4.5f, 5.99f),
-            Rect(2f, 3.1f, 4.5f, 5.99f).toAndroidRectF()
+            Rect(2f, 3.1f, 4.5f, 5.99f).toAndroidRectF(),
         )
     }
 
     @Test
     fun androidRectToRectConverts() {
-        assertEquals(
-            Rect(2f, 3f, 4f, 5f),
-            android.graphics.Rect(2, 3, 4, 5).toComposeRect(),
-        )
+        assertEquals(Rect(2f, 3f, 4f, 5f), android.graphics.Rect(2, 3, 4, 5).toComposeRect())
     }
 
     @Test
     fun intRectToAndroidRectConverts() {
-        assertEquals(
-            android.graphics.Rect(2, 3, 4, 5),
-            IntRect(2, 3, 4, 5).toAndroidRect(),
-        )
+        assertEquals(android.graphics.Rect(2, 3, 4, 5), IntRect(2, 3, 4, 5).toAndroidRect())
     }
 
     @Test
     fun androidRectToIntRectConverts() {
-        assertEquals(
-            IntRect(2, 3, 4, 5),
-            android.graphics.Rect(2, 3, 4, 5).toComposeIntRect(),
-        )
+        assertEquals(IntRect(2, 3, 4, 5), android.graphics.Rect(2, 3, 4, 5).toComposeIntRect())
     }
 
     @Test

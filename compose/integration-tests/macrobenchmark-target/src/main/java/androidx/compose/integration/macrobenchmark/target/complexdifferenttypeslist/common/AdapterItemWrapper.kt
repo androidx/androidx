@@ -20,7 +20,7 @@ class AdapterItemWrapper(
     val type: BaseAdapterItemType,
     val data: Any? = null,
     var id: Any? = null,
-    val isSticky: Boolean = false
+    val isSticky: Boolean = false,
 ) {
 
     override fun hashCode(): Int {
@@ -50,7 +50,7 @@ class AdapterItemWrapper(
         type: BaseAdapterItemType = this.type,
         data: Any? = this.data,
         id: Any? = this.id,
-        isSticky: Boolean = this.isSticky
+        isSticky: Boolean = this.isSticky,
     ): AdapterItemWrapper =
         AdapterItemWrapper(type = type, data = data, id = id, isSticky = isSticky)
 }

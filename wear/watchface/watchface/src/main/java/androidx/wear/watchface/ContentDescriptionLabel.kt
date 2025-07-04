@@ -33,7 +33,7 @@ import java.util.Objects
 public class ContentDescriptionLabel(
     public val text: ComplicationText,
     public val bounds: Rect,
-    public val tapAction: PendingIntent?
+    public val tapAction: PendingIntent?,
 ) {
     /**
      * Returns the text that should be displayed for the given timestamp.

@@ -46,7 +46,7 @@ class RecyclerViewMeasureTest(
     private val expectedWidthMode: Int,
     private val expectedWidth: Int,
     private val expectedHeightMode: Int,
-    private val expectedHeight: Int
+    private val expectedHeight: Int,
 ) {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mMockLayoutManager: MockLayoutManager
@@ -93,7 +93,7 @@ class RecyclerViewMeasureTest(
                             expectedMode,
                             500,
                             expectedMode,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -122,7 +122,7 @@ class RecyclerViewMeasureTest(
                             expectedMode,
                             500,
                             EXACTLY,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -151,7 +151,7 @@ class RecyclerViewMeasureTest(
                             EXACTLY,
                             500,
                             expectedMode,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -183,7 +183,7 @@ class RecyclerViewMeasureTest(
                             EXACTLY,
                             500,
                             EXACTLY,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -206,7 +206,7 @@ class RecyclerViewMeasureTest(
                             EXACTLY,
                             500,
                             EXACTLY,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -229,7 +229,7 @@ class RecyclerViewMeasureTest(
                             EXACTLY,
                             500,
                             EXACTLY,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -259,7 +259,7 @@ class RecyclerViewMeasureTest(
                             EXACTLY,
                             500,
                             EXACTLY,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -289,7 +289,7 @@ class RecyclerViewMeasureTest(
                             EXACTLY,
                             500,
                             EXACTLY,
-                            1000
+                            1000,
                         )
                     )
                 }
@@ -318,7 +318,7 @@ class RecyclerViewMeasureTest(
             expectedWidthMode,
             expectedWidth,
             expectedHeightMode,
-            expectedHeight
+            expectedHeight,
         )
     }
 
@@ -326,20 +326,20 @@ class RecyclerViewMeasureTest(
         widthMeasureMode: Int,
         width: Int,
         heightMeasureMode: Int,
-        height: Int
+        height: Int,
     ) {
         Assert.assertEquals(
             widthMeasureMode.toLong(),
-            mMockLayoutManager.mWidthModeAtLastLayoutChildren.toLong()
+            mMockLayoutManager.mWidthModeAtLastLayoutChildren.toLong(),
         )
         Assert.assertEquals(width.toLong(), mMockLayoutManager.mWidthAtLastLayoutChildren.toLong())
         Assert.assertEquals(
             heightMeasureMode.toLong(),
-            mMockLayoutManager.mHeightModeAtLastLayoutChildren.toLong()
+            mMockLayoutManager.mHeightModeAtLastLayoutChildren.toLong(),
         )
         Assert.assertEquals(
             height.toLong(),
-            mMockLayoutManager.mHeightAtLastLayoutChildren.toLong()
+            mMockLayoutManager.mHeightAtLastLayoutChildren.toLong(),
         )
     }
 
@@ -385,7 +385,7 @@ class RecyclerViewMeasureTest(
         override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
             return RecyclerView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
         }
     }

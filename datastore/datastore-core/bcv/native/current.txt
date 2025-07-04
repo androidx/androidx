@@ -77,6 +77,7 @@ final object androidx.datastore.core/DataStoreFactory { // androidx.datastore.co
 }
 
 final fun androidx.datastore.core/createSingleProcessCoordinator(kotlin/String): androidx.datastore.core/InterProcessCoordinator // androidx.datastore.core/createSingleProcessCoordinator|createSingleProcessCoordinator(kotlin.String){}[0]
+final fun androidx.datastore.core/wrapExceptionIfDueToDirectBoot(kotlin/String?, kotlin/Exception): kotlin/Exception // androidx.datastore.core/wrapExceptionIfDueToDirectBoot|wrapExceptionIfDueToDirectBoot(kotlin.String?;kotlin.Exception){}[0]
 final inline fun <#A: androidx.datastore.core/Closeable, #B: kotlin/Any?> (#A).androidx.datastore.core/use(kotlin/Function1<#A, #B>): #B // androidx.datastore.core/use|use@0:0(kotlin.Function1<0:0,0:1>){0§<androidx.datastore.core.Closeable>;1§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.datastore.core/StorageConnection<#A>).androidx.datastore.core/readData(): #A // androidx.datastore.core/readData|readData@androidx.datastore.core.StorageConnection<0:0>(){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.datastore.core/StorageConnection<#A>).androidx.datastore.core/writeData(#A) // androidx.datastore.core/writeData|writeData@androidx.datastore.core.StorageConnection<0:0>(0:0){0§<kotlin.Any?>}[0]

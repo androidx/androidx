@@ -57,7 +57,7 @@ fun LongPressDragGestureFilterDemo() {
                     detectDragGesturesAfterLongPress(
                         onDragStart = { color.value = Blue },
                         onDragEnd = { color.value = Grey },
-                        onDragCancel = { color.value = Grey }
+                        onDragCancel = { color.value = Grey },
                     ) { _, dragAmount ->
                         offset.value += dragAmount
                     }

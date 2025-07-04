@@ -27,9 +27,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A MotionButton is an AppCompatButton that can round its edges. <b>Added in 2.0</b>

@@ -137,15 +137,15 @@ class FragmentActivityResultTest {
             withActivity {
                 fragment.startActivityForResult(
                     Intent(this, ResultActivity1::class.java),
-                    ResultActivity1.REQUEST_CODE
+                    ResultActivity1.REQUEST_CODE,
                 )
                 fragment.startActivityForResult(
                     Intent(this, ResultActivity2::class.java),
-                    ResultActivity2.REQUEST_CODE
+                    ResultActivity2.REQUEST_CODE,
                 )
                 fragment.startActivityForResult(
                     Intent(this, ResultActivity3::class.java),
-                    ResultActivity3.REQUEST_CODE
+                    ResultActivity3.REQUEST_CODE,
                 )
             }
 
@@ -169,7 +169,7 @@ class ActivityResultFragment : Fragment() {
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
                 input: I,
-                options: ActivityOptionsCompat?
+                options: ActivityOptionsCompat?,
             ) {}
         }
 
@@ -188,7 +188,7 @@ class DoubleActivityResultFragment : Fragment() {
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
                 input: I,
-                options: ActivityOptionsCompat?
+                options: ActivityOptionsCompat?,
             ) {
                 dispatchResult(requestCode, Activity.RESULT_OK, Intent())
             }
@@ -216,7 +216,7 @@ class RegisterInLifecycleCallbackFragment(val state: Int) : Fragment() {
                 requestCode: Int,
                 contract: ActivityResultContract<I, O>,
                 input: I,
-                options: ActivityOptionsCompat?
+                options: ActivityOptionsCompat?,
             ) {
                 dispatchResult(requestCode, Activity.RESULT_OK, Intent())
             }
@@ -257,6 +257,7 @@ class LaunchMultipleActivitiesFragment : Fragment() {
     val launcherInfoMap: MutableMap<Int, String> = mutableMapOf()
     val onActivityResultCountDownLatch = CountDownLatch(3)
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407500169
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

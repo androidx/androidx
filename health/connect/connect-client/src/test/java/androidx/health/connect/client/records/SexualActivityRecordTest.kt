@@ -44,12 +44,12 @@ class SexualActivityRecordTest {
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
                         protectionUsed = SexualActivityRecord.PROTECTION_USED_PROTECTED,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata.manualEntry(),
                     )
                     .toString()
             )
             .isEqualTo(
-                "SexualActivityRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, protectionUsed=1, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+                "SexualActivityRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, protectionUsed=1, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=3))"
             )
     }
 }

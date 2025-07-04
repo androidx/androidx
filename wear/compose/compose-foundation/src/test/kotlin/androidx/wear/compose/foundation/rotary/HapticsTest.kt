@@ -118,7 +118,7 @@ class ThrottleLatestTest {
     private suspend fun Channel<RotaryHapticsType>.sendEventsWithDelay(
         event: RotaryHapticsType,
         eventCount: Int,
-        delayMillis: Long
+        delayMillis: Long,
     ) {
         for (i in 0 until eventCount) {
             trySend(event)

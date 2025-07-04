@@ -50,7 +50,7 @@ private val Context.dsWithSpMigration by
         "ds_with_sp_migration",
         produceMigrations = { applicationContext ->
             listOf(SharedPreferencesMigration(applicationContext, sharedPrefsName))
-        }
+        },
     )
 
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -323,7 +323,7 @@ class SharedPreferencesToPreferencesTest {
             SharedPreferencesMigration(
                 context = context,
                 sharedPreferencesName = sharedPrefsName,
-                keysToMigrate = setOf(stringKey.name, integerKey.name)
+                keysToMigrate = setOf(stringKey.name, integerKey.name),
             )
 
         val preferencesStore = getDataStoreWithMigrations(listOf(migration))
@@ -345,7 +345,7 @@ class SharedPreferencesToPreferencesTest {
             SharedPreferencesMigration(
                 context = context,
                 sharedPreferencesName = sharedPrefsName,
-                keysToMigrate = setOf(missingKey.name)
+                keysToMigrate = setOf(missingKey.name),
             )
 
         val preferencesStore = getDataStoreWithMigrations(listOf(migration))
@@ -368,7 +368,7 @@ class SharedPreferencesToPreferencesTest {
             SharedPreferencesMigration(
                 context = context,
                 sharedPreferencesName = sharedPrefsName,
-                keysToMigrate = setOf(integerKey.name, missingKey.name)
+                keysToMigrate = setOf(integerKey.name, missingKey.name),
             )
 
         val preferencesStore = getDataStoreWithMigrations(listOf(migration))
@@ -385,7 +385,7 @@ class SharedPreferencesToPreferencesTest {
             SharedPreferencesMigration(
                 context = context,
                 sharedPreferencesName = sharedPrefsName,
-                keysToMigrate = setOf()
+                keysToMigrate = setOf(),
             )
 
         val preferencesStore = getDataStoreWithMigrations(listOf(migration))
@@ -416,7 +416,7 @@ class SharedPreferencesToPreferencesTest {
 
             assertEquals(
                 123,
-                context.dsWithSpMigration.data.first()[intPreferencesKey("integer_key")]
+                context.dsWithSpMigration.data.first()[intPreferencesKey("integer_key")],
             )
         }
 
@@ -425,7 +425,7 @@ class SharedPreferencesToPreferencesTest {
     ): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(
             migrations = migrations,
-            scope = TestScope(UnconfinedTestDispatcher())
+            scope = TestScope(UnconfinedTestDispatcher()),
         ) {
             datastoreFile
         }

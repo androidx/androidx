@@ -16,7 +16,11 @@
 package androidx.activity
 
 import androidx.annotation.MainThread
+import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEventCallback
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.collections.minusAssign
+import kotlin.collections.plusAssign
 
 /**
  * Class for handling [OnBackPressedDispatcher.onBackPressed] callbacks without strongly coupling
@@ -37,6 +41,16 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @see OnBackPressedDispatcher
  */
 abstract class OnBackPressedCallback(enabled: Boolean) {
+
+    /**
+     * This [OnBackPressedCallback] class will delegate all interactions to [eventCallbacks], which
+     * provides a KMP-compatible API while preserving behavior compatibility with existing callback
+     * mechanisms.
+     *
+     * @see [OnBackPressedDispatcher.eventDispatcher]
+     */
+    private val eventCallbacks: MutableList<NavigationEventCallback> = mutableListOf()
+
     /**
      * The enabled state of the callback. Only when this callback is enabled will it receive
      * callbacks to [handleOnBackPressed].
@@ -50,14 +64,25 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     var isEnabled: Boolean = enabled
         set(value) {
             field = value
-            enabledChangedCallback?.invoke()
+            for (callback in eventCallbacks) {
+                callback.isEnabled = value
+            }
         }
 
-    private val cancellables = CopyOnWriteArrayList<Cancellable>()
-    internal var enabledChangedCallback: (() -> Unit)? = null
+    private val closeables = CopyOnWriteArrayList<AutoCloseable>()
 
     /** Removes this callback from any [OnBackPressedDispatcher] it is currently added to. */
-    @MainThread fun remove() = cancellables.forEach { it.cancel() }
+    @MainThread
+    fun remove() {
+        for (closeable in closeables) {
+            closeable.close()
+        }
+        closeables.clear()
+        for (callback in eventCallbacks) {
+            callback.remove()
+        }
+        eventCallbacks.clear()
+    }
 
     /**
      * Callback for handling the system UI generated equivalent to
@@ -92,13 +117,36 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
     @MainThread
     open fun handleOnBackCancelled() {}
 
-    @JvmName("addCancellable")
-    internal fun addCancellable(cancellable: Cancellable) {
-        cancellables.add(cancellable)
+    internal fun addCloseable(closeable: AutoCloseable) {
+        closeables += closeable
     }
 
-    @JvmName("removeCancellable")
-    internal fun removeCancellable(cancellable: Cancellable) {
-        cancellables.remove(cancellable)
+    internal fun removeCloseable(closeable: AutoCloseable) {
+        closeables -= closeable
+    }
+
+    internal fun createNavigationEventCallback(): NavigationEventCallback {
+        val newCallback = EventCallback(this)
+        eventCallbacks += newCallback
+        return newCallback
+    }
+
+    private class EventCallback(private val onBackPressedCallback: OnBackPressedCallback) :
+        NavigationEventCallback(isEnabled = onBackPressedCallback.isEnabled) {
+        override fun onEventStarted(event: NavigationEvent) {
+            onBackPressedCallback.handleOnBackStarted(BackEventCompat(event))
+        }
+
+        override fun onEventProgressed(event: NavigationEvent) {
+            onBackPressedCallback.handleOnBackProgressed(BackEventCompat(event))
+        }
+
+        override fun onEventCompleted() {
+            onBackPressedCallback.handleOnBackPressed()
+        }
+
+        override fun onEventCancelled() {
+            onBackPressedCallback.handleOnBackCancelled()
+        }
     }
 }

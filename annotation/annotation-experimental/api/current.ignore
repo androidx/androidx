@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+AddedMethod: androidx.annotation.OptIn#OptIn(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...):
+    Added constructor androidx.annotation.OptIn(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...)
+AddedMethod: androidx.annotation.RequiresOptIn#RequiresOptIn(androidx.annotation.RequiresOptIn.Level, String):
+    Added constructor androidx.annotation.RequiresOptIn(androidx.annotation.RequiresOptIn.Level,String)
+AddedMethod: androidx.annotation.experimental.Experimental#Experimental(androidx.annotation.experimental.Experimental.Level):
+    Added constructor androidx.annotation.experimental.Experimental(androidx.annotation.experimental.Experimental.Level)
+AddedMethod: androidx.annotation.experimental.UseExperimental#UseExperimental(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...):
+    Added constructor androidx.annotation.experimental.UseExperimental(kotlin.reflect.KClass<? extends java.lang.annotation.Annotation>...)

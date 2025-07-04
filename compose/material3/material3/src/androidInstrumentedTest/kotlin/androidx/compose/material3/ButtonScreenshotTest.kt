@@ -31,6 +31,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -48,6 +49,8 @@ class ButtonScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+
+    private val buttonTestTag = "button"
 
     @Test
     fun default_button_light_theme() {
@@ -143,14 +146,14 @@ class ButtonScreenshotTest {
             FilledTonalButton(
                 onClick = {},
                 enabled = false,
-                modifier = Modifier.testTag("button")
+                modifier = Modifier.testTag(buttonTestTag),
             ) {
                 Text("Filled tonal Button")
             }
         }
 
         rule
-            .onNodeWithTag("button")
+            .onNodeWithTag(buttonTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "filled_tonal_button_disabled_light_theme")
     }
@@ -170,13 +173,17 @@ class ButtonScreenshotTest {
     @Test
     fun disabled_outlined_button_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            OutlinedButton(onClick = {}, enabled = false, modifier = Modifier.testTag("button")) {
+            OutlinedButton(
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
                 Text("Outlined Button")
             }
         }
 
         rule
-            .onNodeWithTag("button")
+            .onNodeWithTag(buttonTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "outlined_button_disabled_light_theme")
     }
@@ -196,13 +203,13 @@ class ButtonScreenshotTest {
     @Test
     fun disabled_text_button_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            TextButton(onClick = {}, enabled = false, modifier = Modifier.testTag("button")) {
+            TextButton(onClick = {}, enabled = false, modifier = Modifier.testTag(buttonTestTag)) {
                 Text("Text Button")
             }
         }
 
         rule
-            .onNodeWithTag("button")
+            .onNodeWithTag(buttonTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "text_button_disabled_light_theme")
     }
@@ -212,12 +219,12 @@ class ButtonScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Button(
                 onClick = { /* Do something! */ },
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
             ) {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = "Localized description",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text("Like")
@@ -237,12 +244,12 @@ class ButtonScreenshotTest {
                 onClick = { /* Do something! */ },
                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                 enabled = false,
-                modifier = Modifier.testTag("button")
+                modifier = Modifier.testTag(buttonTestTag),
             ) {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = "Localized description",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text("Like")
@@ -250,7 +257,7 @@ class ButtonScreenshotTest {
         }
 
         rule
-            .onNodeWithTag("button")
+            .onNodeWithTag(buttonTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_withIcon_disabled_lightTheme")
     }
@@ -260,12 +267,12 @@ class ButtonScreenshotTest {
         rule.setMaterialContent(darkColorScheme()) {
             Button(
                 onClick = { /* Do something! */ },
-                contentPadding = ButtonDefaults.ButtonWithIconContentPadding
+                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
             ) {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = "Localized description",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text("Like")
@@ -285,12 +292,12 @@ class ButtonScreenshotTest {
                 onClick = { /* Do something! */ },
                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                 enabled = false,
-                modifier = Modifier.testTag("button")
+                modifier = Modifier.testTag(buttonTestTag),
             ) {
                 Icon(
                     Icons.Filled.Favorite,
                     contentDescription = "Localized description",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text("Like")
@@ -298,8 +305,534 @@ class ButtonScreenshotTest {
         }
 
         rule
-            .onNodeWithTag("button")
+            .onNodeWithTag(buttonTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "button_withIcon_disabled_darkTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_withAnimatedShape_default_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Button(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_default_lightTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_withAnimatedShape_default_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Button(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_default_darkTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun elevatedButton_withAnimatedShape_default_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ElevatedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "elevatedButton_withAnimatedShape_default_lightTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun elevatedButton_withAnimatedShape_default_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            ElevatedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "elevatedButton_withAnimatedShape_default_darkTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun filledTonalButton_withAnimatedShape_default_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilledTonalButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "filledTonalButton_withAnimatedShape_default_lightTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun filledTonalButton_withAnimatedShape_default_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Button(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "filledTonalButton_withAnimatedShape_default_darkTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun outlinedButton_withAnimatedShape_default_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "outlinedButton_withAnimatedShape_default_lightTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun outlinedButton_withAnimatedShape_default_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "outlinedButton_withAnimatedShape_default_darkTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun textButton_withAnimatedShape_default_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_default_lightTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun textButton_withAnimatedShape_default_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            TextButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_default_darkTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_withAnimatedShape_pressed_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Button(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_pressed_lightTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_withAnimatedShape_pressed_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Button(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "button_withAnimatedShape_pressed_darkTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun elevatedButton_withAnimatedShape_pressed_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            ElevatedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "elevatedButton_withAnimatedShape_pressed_lightTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun elevatedButton_withAnimatedShape_pressed_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            ElevatedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "elevatedButton_withAnimatedShape_pressed_darkTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun filledTonalButton_withAnimatedShape_pressed_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            FilledTonalButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "filledTonalButton_withAnimatedShape_pressed_lightTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun filledTonalButton_withAnimatedShape_pressed_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            Button(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "filledTonalButton_withAnimatedShape_pressed_darkTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun outlinedButton_withAnimatedShape_pressed_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "outlinedButton_withAnimatedShape_pressed_lightTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun outlinedButton_withAnimatedShape_pressed_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            OutlinedButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "outlinedButton_withAnimatedShape_pressed_darkTheme",
+            )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun textButton_withAnimatedShape_pressed_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_pressed_lightTheme")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun textButton_withAnimatedShape_pressed_darkTheme() {
+        rule.setMaterialContent(darkColorScheme()) {
+            TextButton(
+                onClick = {},
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(buttonTestTag),
+            ) {
+                Text("Button")
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(buttonTestTag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        rule
+            .onNodeWithTag(buttonTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "textButton_withAnimatedShape_pressed_darkTheme")
     }
 }

@@ -45,7 +45,7 @@ internal class MilestoneMarkerSummaryTest {
                     summaryMetrics =
                         DataPointContainer(
                             listOf(DataPoints.caloriesTotal(130.0, 15.instant(), 35.instant()))
-                        )
+                        ),
                 )
                 .proto
 

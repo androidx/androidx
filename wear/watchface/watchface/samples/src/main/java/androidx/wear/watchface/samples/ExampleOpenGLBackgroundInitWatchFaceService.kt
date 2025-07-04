@@ -51,7 +51,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                             UserStyleSetting.Option.Id("yellow_style"),
                             resources,
                             R.string.colors_style_yellow,
-                            R.string.colors_style_yellow_screen_reader
+                            R.string.colors_style_yellow_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.yellow_style) }
                         .build(),
@@ -59,15 +59,15 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                             UserStyleSetting.Option.Id("blue_style"),
                             resources,
                             R.string.colors_style_blue,
-                            R.string.colors_style_blue_screen_reader
+                            R.string.colors_style_blue_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
-                        .build()
+                        .build(),
                 ),
                 listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
                 resources,
                 R.string.colors_style_setting,
-                R.string.colors_style_setting_description
+                R.string.colors_style_setting_description,
             )
             .build()
     }
@@ -78,7 +78,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
         // Init is performed on a worker thread, however all rendering is done on the UiThread so
         // it's expected to construct the MainThreadRenderer here.
@@ -88,7 +88,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                 currentUserStyleRepository,
                 watchState,
                 resources,
-                colorStyleSetting
+                colorStyleSetting,
             )
         return WatchFace(WatchFaceType.ANALOG, renderer)
             .setComplicationDeniedDialogIntent(Intent(this, ComplicationDeniedActivity::class.java))
@@ -113,7 +113,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
             GLES20.glDeleteTextures(
                 3,
                 intArrayOf(yellowWatchBodyTexture, blueWatchBodyTexture, watchHandTexture),
-                0
+                0,
             )
             checkGLError("glDeleteTextures")
 
@@ -125,7 +125,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
             left: Float,
             top: Float,
             width: Float,
-            height: Float
+            height: Float,
         ) =
             Gles2TexturedTriangleList(
                 program,
@@ -147,9 +147,9 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                     0.0f,
                     top + height,
                     left + width,
-                    0.0f
+                    0.0f,
                 ),
-                floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f)
+                floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
             )
 
         private fun loadTextureFromResource(resources: Resources, resourceId: Int): Int {
@@ -162,19 +162,19 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                         resourceId,
                         BitmapFactory.Options().apply {
                             inScaled = false // No pre-scaling
-                        }
+                        },
                     )
                 GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0])
                 checkGLError("glBindTexture")
                 GLES20.glTexParameteri(
                     GLES20.GL_TEXTURE_2D,
                     GLES20.GL_TEXTURE_MIN_FILTER,
-                    GLES20.GL_NEAREST
+                    GLES20.GL_NEAREST,
                 )
                 GLES20.glTexParameteri(
                     GLES20.GL_TEXTURE_2D,
                     GLES20.GL_TEXTURE_MAG_FILTER,
-                    GLES20.GL_NEAREST
+                    GLES20.GL_NEAREST,
                 )
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0)
                 bitmap.recycle()
@@ -194,7 +194,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
             surfaceHolder,
             currentUserStyleRepository,
             watchState,
-            FRAME_PERIOD_MS
+            FRAME_PERIOD_MS,
         ) {
         private val projectionMatrix = FloatArray(16)
         private val viewMatrix =
@@ -220,7 +220,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                 -1f /* bottom */,
                 1f /* top */,
                 0.1f /* near */,
-                100f /* far */
+                100f, /* far */
             )
         }
 
@@ -236,7 +236,7 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
                     "yellow_style" -> sharedAssets.yellowWatchBodyTexture
                     "blue_style" -> sharedAssets.blueWatchBodyTexture
                     else -> throw UnsupportedOperationException()
-                }
+                },
             )
 
             GLES20.glEnable(GLES20.GL_BLEND)
@@ -277,14 +277,14 @@ open class ExampleOpenGLBackgroundInitWatchFaceService() : SampleWatchFaceServic
 
         override fun renderHighlightLayer(
             zonedDateTime: ZonedDateTime,
-            sharedAssets: ExampleSharedAssets
+            sharedAssets: ExampleSharedAssets,
         ) {
             val highlightLayer = renderParameters.highlightLayer!!
             GLES20.glClearColor(
                 Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,
                 Color.green(highlightLayer.backgroundTint).toFloat() / 256.0f,
                 Color.blue(highlightLayer.backgroundTint).toFloat() / 256.0f,
-                Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f
+                Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f,
             )
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         }

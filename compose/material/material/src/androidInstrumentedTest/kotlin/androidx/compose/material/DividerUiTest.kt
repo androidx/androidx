@@ -92,7 +92,7 @@ class DividerUiTest {
                 Divider(
                     modifier = Modifier.testTag(testTag).fillMaxWidth(),
                     color = Color.Blue,
-                    thickness = Dp.Hairline
+                    thickness = Dp.Hairline,
                 )
             }
         }

@@ -51,7 +51,7 @@ constructor(
     val credentialEntries: List<CredentialEntry> = listOf(),
     val actions: List<Action> = listOf(),
     val authenticationActions: List<AuthenticationAction> = listOf(),
-    val remoteEntry: RemoteEntry? = null
+    val remoteEntry: RemoteEntry? = null,
 ) {
     /** Builder for [BeginGetCredentialResponse]. */
     class Builder {
@@ -150,7 +150,7 @@ constructor(
                 credentialEntries.toList(),
                 actions.toList(),
                 authenticationActions.toList(),
-                remoteEntry
+                remoteEntry,
             )
         }
     }
@@ -163,7 +163,7 @@ constructor(
         fun asBundle(bundle: Bundle, response: BeginGetCredentialResponse) {
             bundle.putParcelable(
                 REQUEST_KEY,
-                BeginGetCredentialUtil.convertToFrameworkResponse(response)
+                BeginGetCredentialUtil.convertToFrameworkResponse(response),
             )
         }
 
@@ -172,7 +172,7 @@ constructor(
             val frameworkResponse =
                 bundle.getParcelable(
                     REQUEST_KEY,
-                    android.service.credentials.BeginGetCredentialResponse::class.java
+                    android.service.credentials.BeginGetCredentialResponse::class.java,
                 )
             if (frameworkResponse != null) {
                 return BeginGetCredentialUtil.convertToJetpackResponse(frameworkResponse)
@@ -209,7 +209,7 @@ constructor(
                 credentialEntries,
                 actions,
                 authenticationActions,
-                remoteEntry
+                remoteEntry,
             )
         }
     }

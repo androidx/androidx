@@ -258,4 +258,52 @@ public class WebSettingsAdapter {
     public boolean getBackForwardCacheEnabled() {
         return mBoundaryInterface.getBackForwardCacheEnabled();
     }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setPaymentRequestEnabled(WebSettings, boolean)}
+     */
+    public void setPaymentRequestEnabled(boolean enabled) {
+        mBoundaryInterface.setPaymentRequestEnabled(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getPaymentRequestEnabled(WebSettings)}
+     */
+    public boolean getPaymentRequestEnabled() {
+        return mBoundaryInterface.getPaymentRequestEnabled();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setHasEnrolledInstrumentEnabled(WebSettings, boolean)}
+     */
+    public void setHasEnrolledInstrumentEnabled(boolean enabled) {
+        mBoundaryInterface.setHasEnrolledInstrumentEnabled(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#getHasEnrolledInstrumentEnabled(WebSettings)}
+     */
+    public boolean getHasEnrolledInstrumentEnabled() {
+        return mBoundaryInterface.getHasEnrolledInstrumentEnabled();
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#setCookiesIncludedInShouldInterceptRequest(WebSettings, boolean)}
+     */
+    public void setCookieAccessForShouldInterceptRequestEnabled(boolean enabled) {
+        mBoundaryInterface.setIncludeCookiesOnIntercept(enabled);
+    }
+
+    /**
+     * Adapter method for
+     * {@link androidx.webkit.WebSettingsCompat#areCookiesIncludedInShouldInterceptRequest(WebSettings)}
+     */
+    public boolean getCookieAccessForShouldInterceptRequestEnabled() {
+        return mBoundaryInterface.getIncludeCookiesOnIntercept();
+    }
 }

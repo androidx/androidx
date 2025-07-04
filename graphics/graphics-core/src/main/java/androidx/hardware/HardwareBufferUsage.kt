@@ -49,6 +49,6 @@ import androidx.annotation.RestrictTo
     USAGE_SENSOR_DIRECT_DATA,
     USAGE_GPU_CUBE_MAP,
     USAGE_GPU_MIPMAP_COMPLETE,
-    USAGE_FRONT_BUFFER
+    USAGE_FRONT_BUFFER,
 )
 annotation class HardwareBufferUsage

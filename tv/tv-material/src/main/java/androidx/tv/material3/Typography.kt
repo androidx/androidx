@@ -92,7 +92,7 @@ class Typography(
     val bodySmall: TextStyle = TypographyTokens.BodySmall,
     val labelLarge: TextStyle = TypographyTokens.LabelLarge,
     val labelMedium: TextStyle = TypographyTokens.LabelMedium,
-    val labelSmall: TextStyle = TypographyTokens.LabelSmall
+    val labelSmall: TextStyle = TypographyTokens.LabelSmall,
 ) {
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
@@ -111,7 +111,7 @@ class Typography(
         bodySmall: TextStyle = this.bodySmall,
         labelLarge: TextStyle = this.labelLarge,
         labelMedium: TextStyle = this.labelMedium,
-        labelSmall: TextStyle = this.labelSmall
+        labelSmall: TextStyle = this.labelSmall,
     ): Typography =
         Typography(
             displayLarge = displayLarge,
@@ -128,7 +128,7 @@ class Typography(
             bodySmall = bodySmall,
             labelLarge = labelLarge,
             labelMedium = labelMedium,
-            labelSmall = labelSmall
+            labelSmall = labelSmall,
         )
 
     override fun equals(other: Any?): Boolean {

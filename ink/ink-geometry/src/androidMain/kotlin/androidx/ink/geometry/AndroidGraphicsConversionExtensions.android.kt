@@ -23,7 +23,6 @@ import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
 import androidx.ink.geometry.internal.threadLocal
 
 /** Scratch space to be used as the argument to [Matrix.getValues] and [Matrix.setValues]. */
@@ -41,7 +40,6 @@ private val populateOutlinePositionScratchMutableVec by threadLocal { MutableVec
  * Performance-sensitive code should use the [populateMatrix] overload that takes a pre-allocated
  * [Matrix], so that the instance can be reused across multiple calls.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public fun AffineTransform.toMatrix(): Matrix {
     getValues(matrixValuesScratchArray)
     matrixValuesScratchArray[Matrix.MPERSP_0] = 0f
@@ -50,27 +48,32 @@ public fun AffineTransform.toMatrix(): Matrix {
     return Matrix().apply { setValues(matrixValuesScratchArray) }
 }
 
-/** Writes the values from this [AffineTransform] to [matrixOut]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun AffineTransform.populateMatrix(matrixOut: Matrix) {
+/**
+ * Writes the values from this [AffineTransform] to [out].
+ *
+ * Returns the modified [Matrix] to allow chaining calls.
+ *
+ * @return [out]
+ */
+public fun AffineTransform.populateMatrix(out: Matrix) {
     getValues(matrixValuesScratchArray)
     matrixValuesScratchArray[Matrix.MPERSP_0] = 0f
     matrixValuesScratchArray[Matrix.MPERSP_1] = 0f
     matrixValuesScratchArray[Matrix.MPERSP_2] = 1f
-    matrixOut.setValues(matrixValuesScratchArray)
+    out.setValues(matrixValuesScratchArray)
 }
 
 /**
- * Constructs an ImmutableAffineTransform with the values from [matrix], if and only if [matrix] is
- * an affine transform. Returns null if [matrix] is not an affine transform.
+ * Constructs an [ImmutableAffineTransform] with the values from [matrix].
+ *
+ * If [matrix] is not an affine transform, returns null instead.
  *
  * Performance-sensitive code should use the [populateFrom] overload that takes a pre-allocated
  * [MutableAffineTransform], so that the instance can be reused across multiple calls.
  *
- * Java callers should prefer
- * `AndroidGraphicsConverter.createAffineTransform(Matrix)`([createAffineTransform]).
+ * Java callers should prefer `AndroidGraphicsConverter.createAffineTransform(Matrix)`
+ * ([createAffineTransform]).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public fun ImmutableAffineTransform.Companion.from(matrix: Matrix): ImmutableAffineTransform? {
     if (!matrix.isAffine) {
         return null
@@ -80,25 +83,28 @@ public fun ImmutableAffineTransform.Companion.from(matrix: Matrix): ImmutableAff
 }
 
 /**
- * Constructs an ImmutableAffineTransform with the values from [matrix], if and only if [matrix] is
- * an affine transform. Returns null if [matrix] is not an affine transform.
+ * Constructs an [ImmutableAffineTransform] with the values from [matrix].
+ *
+ * If [matrix] is not an affine transform, returns null instead.
  *
  * Performance-sensitive code should use the [populateFrom] overload that takes a pre-allocated
  * [MutableAffineTransform], so that the instance can be reused across multiple calls.
  *
  * Kotlin callers should prefer [ImmutableAffineTransform.Companion.from].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public fun createAffineTransform(matrix: Matrix): ImmutableAffineTransform? =
     ImmutableAffineTransform.from(matrix)
 
 /**
- * If [matrix] is an affine transform, copies the values from [matrix] to this
- * [MutableAffineTransform] and returns [this].
+ * Fills this [MutableAffineTransform] with the values from [matrix].
  *
- * @Throws [IllegalArgumentException] if [matrix] is not an affine transform.
+ * If [matrix] is not an affine transform, throws [IllegalArgumentException] instead.
+ *
+ * Leaves [matrix] unchanged. Returns this modified instance to allow chaining calls.
+ *
+ * @return `this`
+ * @throws [IllegalArgumentException] if [matrix] is not an affine transform.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public fun MutableAffineTransform.populateFrom(matrix: Matrix): MutableAffineTransform {
     if (!matrix.isAffine) {
         throw IllegalArgumentException("Matrix is not affine")
@@ -109,109 +115,122 @@ public fun MutableAffineTransform.populateFrom(matrix: Matrix): MutableAffineTra
 }
 
 /** Constructs a [PointF] with the same coordinates as the [Vec] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public fun Vec.toPointF(): PointF = PointF(x, y)
 
-/** Writes the values from this [Vec] to [pointFOut]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun Vec.populatePointF(pointFOut: PointF) {
-    pointFOut.x = x
-    pointFOut.y = y
+/**
+ * Writes the values from this [Vec] to [out].
+ *
+ * Returns the modified [PointF] instance to allow chaining calls.
+ *
+ * @return [out]
+ */
+public fun Vec.populatePointF(out: PointF): PointF {
+    out.x = x
+    out.y = y
+    return out
 }
 
 /**
- * Constructs an [ImmutableVec] with the values from [pointF].
+ * Constructs an [ImmutableVec] with the values from [point].
  *
  * Java callers should prefer `AndroidGraphicsConverter.createVec(PointF)`([createVec]).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun ImmutableVec.Companion.from(pointF: PointF): ImmutableVec =
-    ImmutableVec(pointF.x, pointF.y)
+public fun ImmutableVec.Companion.from(point: PointF): ImmutableVec = ImmutableVec(point.x, point.y)
 
 /**
- * Constructs an [ImmutableVec] with the values from [pointF].
+ * Constructs an [ImmutableVec] with the values from [point].
  *
  * Kotlin callers should prefer [ImmutableVec.Companion.from].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun createVec(pointF: PointF): ImmutableVec = ImmutableVec(pointF.x, pointF.y)
-
-/** Writes the values from [pointF] to this [MutableVec]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun MutableVec.populateFrom(pointF: PointF) {
-    x = pointF.x
-    y = pointF.y
-}
-
-/** Constructs a [RectF] with the same coordinates as the [Box] */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun Box.toRectF(): RectF = RectF(xMin, yMin, xMax, yMax)
-
-/** Writes the values from this [Box] to [rectFOut]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun Box.populateRectF(rectFOut: RectF) {
-    rectFOut.left = xMin
-    rectFOut.top = yMin
-    rectFOut.right = xMax
-    rectFOut.bottom = yMax
-}
+public fun createVec(point: PointF): ImmutableVec = ImmutableVec(point.x, point.y)
 
 /**
- * Constructs an [ImmutableBox] with the values from [rectF], if and only if [rectF] is not empty.
- * Returns null if [rectF] is empty.
+ * Fills this [MutableVec] with the values from [point].
  *
- * Java callers should prefer `AndroidGraphicsConverter.createBox`([createBox]).
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun ImmutableBox.Companion.from(rectF: RectF): ImmutableBox? =
-    if (rectF.isEmpty) {
-        null
-    } else {
-        fromTwoPoints(ImmutableVec(rectF.left, rectF.bottom), ImmutableVec(rectF.right, rectF.top))
-    }
-
-/**
- * Constructs an [ImmutableBox] with the values from [rectF], if and only if [rectF] is not empty.
- * Returns null if [rectF] is empty.
- *
- * Kotlin callers should prefer [ImmutableBox.Companion.from].
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun createBox(rectF: RectF): ImmutableBox? = ImmutableBox.from(rectF)
-
-/**
- * Expands the accumulated bounding box (if necessary) such that it also contains [rectf]. If
- * [rectf] is null, this is a no-op.
- *
- * This is functionally equivalent to, but more efficient than: `add(ImmutableBox.from(rectF))`
+ * Leaves [point] unchanged. Returns the modified instance to allow chaining calls.
  *
  * @return `this`
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun BoxAccumulator.add(rectF: RectF): BoxAccumulator {
-    if (!rectF.isEmpty) {
-        boxAccumulatorScratchMutableBox.setXBounds(rectF.left, rectF.right)
-        boxAccumulatorScratchMutableBox.setYBounds(rectF.top, rectF.bottom)
+public fun MutableVec.populateFrom(point: PointF): MutableVec {
+    x = point.x
+    y = point.y
+    return this
+}
+
+/** Constructs a [Rect] with the same coordinates as the [Box] */
+public fun Box.toRectF(): RectF = RectF(xMin, yMin, xMax, yMax)
+
+/**
+ * Writes the values from this [Box] to [out].
+ *
+ * Returns the modified [RectF] instance to allow chaining calls.
+ *
+ * @return [out]
+ */
+public fun Box.populateRectF(out: RectF): RectF {
+    out.left = xMin
+    out.top = yMin
+    out.right = xMax
+    out.bottom = yMax
+    return out
+}
+
+/**
+ * Constructs an [ImmutableBox] with the values from [rect].
+ *
+ * If [rect] is empty, returns null instead.
+ *
+ * Java callers should prefer `AndroidGraphicsConverter.createBox`([createBox]).
+ */
+public fun ImmutableBox.Companion.from(rect: RectF): ImmutableBox? =
+    if (rect.isEmpty) {
+        null
+    } else {
+        fromTwoPoints(ImmutableVec(rect.left, rect.bottom), ImmutableVec(rect.right, rect.top))
+    }
+
+/**
+ * Constructs an [ImmutableBox] with the values from [rect].
+ *
+ * If [rect] is empty, returns null instead.
+ *
+ * Kotlin callers should prefer [ImmutableBox.Companion.from].
+ */
+public fun createBox(rect: RectF): ImmutableBox? = ImmutableBox.from(rect)
+
+/**
+ * Expands the accumulated bounding box (if necessary) such that it also contains [rect]. If [rect]
+ * is null, this is a no-op.
+ *
+ * This is functionally equivalent to, but more efficient than: `add(ImmutableBox.from(rect))`
+ *
+ * @return `this`
+ */
+public fun BoxAccumulator.add(rect: RectF): BoxAccumulator {
+    if (!rect.isEmpty) {
+        boxAccumulatorScratchMutableBox.setXBounds(rect.left, rect.right)
+        boxAccumulatorScratchMutableBox.setYBounds(rect.top, rect.bottom)
         add(boxAccumulatorScratchMutableBox)
     }
     return this
 }
 
 /** Returns a [Path] containing the outlines in the render group at [renderGroupIndex]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun PartitionedMesh.outlinesToPath(@IntRange(from = 0) renderGroupIndex: Int): Path {
-    val path = Path()
-    populatePathFromOutlines(renderGroupIndex, path)
-    return path
-}
+public fun PartitionedMesh.outlinesToPath(@IntRange(from = 0) renderGroupIndex: Int): Path =
+    populateOutlines(renderGroupIndex, Path())
 
-/** Replaces the contents of [path] with the outline of the render group at [renderGroupIndex]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public fun PartitionedMesh.populatePathFromOutlines(
+/**
+ * Replaces the contents of [out] with the outline of the render group at [renderGroupIndex].
+ *
+ * Returns the modified [Path] to allow chaining calls.
+ *
+ * @return [out]
+ */
+public fun PartitionedMesh.populateOutlines(
     @IntRange(from = 0) renderGroupIndex: Int,
-    path: Path,
-) {
-    path.rewind()
+    out: Path,
+): Path {
+    out.rewind()
     for (outlineIndex in 0 until getOutlineCount(renderGroupIndex)) {
         val outlineVertexCount = getOutlineVertexCount(renderGroupIndex, outlineIndex)
         if (outlineVertexCount == 0) continue
@@ -222,7 +241,7 @@ public fun PartitionedMesh.populatePathFromOutlines(
             0,
             populateOutlinePositionScratchMutableVec,
         )
-        path.moveTo(
+        out.moveTo(
             populateOutlinePositionScratchMutableVec.x,
             populateOutlinePositionScratchMutableVec.y,
         )
@@ -234,12 +253,13 @@ public fun PartitionedMesh.populatePathFromOutlines(
                 outlineVertexIndex,
                 populateOutlinePositionScratchMutableVec,
             )
-            path.lineTo(
+            out.lineTo(
                 populateOutlinePositionScratchMutableVec.x,
                 populateOutlinePositionScratchMutableVec.y,
             )
         }
 
-        path.close()
+        out.close()
     }
+    return out
 }

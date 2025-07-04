@@ -43,11 +43,11 @@ object AlertDialogBenchmark : MacrobenchmarkScreen {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = OPEN_ALERT_DIALOG }
+                    modifier = Modifier.semantics { contentDescription = OPEN_ALERT_DIALOG },
                 ) {
                     Text("Open")
                 }
@@ -59,9 +59,9 @@ object AlertDialogBenchmark : MacrobenchmarkScreen {
                 confirmButton = {
                     AlertDialogDefaults.ConfirmButton(
                         onClick = { showDialog.value = false },
-                        modifier = Modifier.semantics { contentDescription = DIALOG_CONFIRM }
+                        modifier = Modifier.semantics { contentDescription = DIALOG_CONFIRM },
                     )
-                }
+                },
             )
         }
 

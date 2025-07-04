@@ -23,6 +23,9 @@ import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
 import com.squareup.kotlinpoet.javapoet.KAnnotationSpec
 
 interface XAnnotationSpec {
+
+    fun toBuilder(): Builder
+
     interface Builder {
         // TODO(b/127483380): Only supports one value, add support for arrays
         fun addMember(name: String, code: XCodeBlock): Builder
@@ -60,7 +63,7 @@ interface XAnnotationSpec {
         fun builder(className: XClassName): Builder =
             XAnnotationSpecImpl.Builder(
                 JavaAnnotationSpec.Builder(JAnnotationSpec.builder(className.java)),
-                KotlinAnnotationSpec.Builder(KAnnotationSpec.builder(className.kotlin))
+                KotlinAnnotationSpec.Builder(KAnnotationSpec.builder(className.kotlin)),
             )
     }
 }

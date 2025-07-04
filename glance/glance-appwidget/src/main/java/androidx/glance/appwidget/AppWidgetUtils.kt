@@ -59,7 +59,7 @@ internal const val MaxComposeTreeDepth = 50
 internal fun appWidgetMinSize(
     displayMetrics: DisplayMetrics,
     appWidgetManager: AppWidgetManager,
-    appWidgetId: Int
+    appWidgetId: Int,
 ): DpSize {
     val info = appWidgetManager.getAppWidgetInfo(appWidgetId) ?: return DpSize.Zero
     return info.getMinSize(displayMetrics)
@@ -151,7 +151,7 @@ internal fun AppWidgetProviderInfo.getMinSize(displayMetrics: DisplayMetrics): D
                 minResizeWidth
             } else {
                 Int.MAX_VALUE
-            }
+            },
         )
     val minHeight =
         min(
@@ -160,7 +160,7 @@ internal fun AppWidgetProviderInfo.getMinSize(displayMetrics: DisplayMetrics): D
                 minResizeHeight
             } else {
                 Int.MAX_VALUE
-            }
+            },
         )
     return DpSize(minWidth.pixelsToDp(displayMetrics), minHeight.pixelsToDp(displayMetrics))
 }
@@ -175,16 +175,16 @@ internal fun logException(throwable: Throwable) {
 
 /** [Tracing] contains methods for tracing sections of GlanceAppWidget. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object Tracing {
-    val enabled = AtomicBoolean(false)
+public object Tracing {
+    public val enabled: AtomicBoolean = AtomicBoolean(false)
 
-    fun beginGlanceAppWidgetUpdate() {
+    public fun beginGlanceAppWidgetUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && enabled.get()) {
             TracingApi29Impl.beginAsyncSection("GlanceAppWidget::update", 0)
         }
     }
 
-    fun endGlanceAppWidgetUpdate() {
+    public fun endGlanceAppWidgetUpdate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && enabled.get()) {
             TracingApi29Impl.endAsyncSection("GlanceAppWidget::update", 0)
         }
@@ -193,15 +193,10 @@ object Tracing {
 
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object TracingApi29Impl {
-    fun beginAsyncSection(
-        methodName: String,
-        cookie: Int,
-    ) = Trace.beginAsyncSection(methodName, cookie)
+    fun beginAsyncSection(methodName: String, cookie: Int) =
+        Trace.beginAsyncSection(methodName, cookie)
 
-    fun endAsyncSection(
-        methodName: String,
-        cookie: Int,
-    ) = Trace.endAsyncSection(methodName, cookie)
+    fun endAsyncSection(methodName: String, cookie: Int) = Trace.endAsyncSection(methodName, cookie)
 }
 
 internal val Context.appWidgetManager: AppWidgetManager
@@ -250,7 +245,7 @@ internal fun optionsBundleOf(@SuppressLint("PrimitiveInCollection") sizes: List<
         sizes.fold(sizes[0] to sizes[0]) { acc, s ->
             DpSize(
                 androidx.compose.ui.unit.min(acc.first.width, s.width),
-                androidx.compose.ui.unit.min(acc.first.height, s.height)
+                androidx.compose.ui.unit.min(acc.first.height, s.height),
             ) to DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
         }
     return Bundle().apply {

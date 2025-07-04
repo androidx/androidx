@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string name="play_soundpool_point_label" description="Label for the button to play a SoundPool point source. [CHAR_LIMIT=50]">Play SoundPool Point Sound</string>
+  <string name="play_soundpool_soundfield_label" description="Label for the button to play a SoundPool sound field. [CHAR_LIMIT=50]">Play SoundPool Sound Field</string>
+  <string name="play_audiotrack_default_label" description="Label for the button to play an AudioTrack default behaviour. [CHAR_LIMIT=50]">Play AudioTrack Default</string>
+  <string name="play_audiotrack_point_label" description="Label for the button to play an AudioTrack point source. [CHAR_LIMIT=50]">Play AudioTrack Point Sound</string>
+  <string name="play_audiotrack_soundfield_label" description="Label for the button to play an AudioTrack sound field. [CHAR_LIMIT=50]">Play AudioTrack Sound Field</string>
+  <string name="play_mediaplayer_point_label" description="Label for the button to play a MediaPlayer point source. [CHAR_LIMIT=50]">Play MediaPlayer Point Sound</string>
+  <string name="play_mediaplayer_soundfield_label" description="Label for the button to play a MediaPlayer sound field WAV files. [CHAR_LIMIT=50]">Play MediaPlayer WAV Sound Field</string>
+  <string name="play_mediaplayer_soundfield_opus_label" description="Label for the button to play a MediaPlayer sound field OPUS files. [CHAR_LIMIT=50]">Play MediaPlayer OPUS Sound Field</string>
+  <string name="spatial_panel_label" description="Label for the spatial audio panel. [CHAR_LIMIT=50]">Spatial Audio Panel</string>
+  <string name="audiotrack_default_set_params_label" description="Label for the button to set AudioTrack params. [CHAR_LIMIT=50]">Audio Track Default Set Params</string>
+  <string name="audiotrack_set_params_label" description="Label for the button to set AudioTrack params. [CHAR_LIMIT=50]">Audio Track Point Set Params</string>
+  <string name="audiotrack_set_params_error_label" description="Label for the button to set AudioTrack params and cause an error. [CHAR_LIMIT=50]">Audio Track Set Params Log Error</string>
+</resources>

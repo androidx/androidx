@@ -49,18 +49,15 @@ internal object DokkaInputModels {
         @get:Input val noAndroidSdkLink: Boolean,
         @Nested val dependentSourceSets: List<SourceSetId>,
         @Nested val externalDocumentationLinks: List<GlobalDocsLink>,
-        @Nested val sourceLinks: List<SrcLink>
+        @Nested val sourceLinks: List<SrcLink>,
     )
 
-    class SourceSetId(
-        @get:Input val sourceSetName: String,
-        @get:Input val scopeId: String,
-    )
+    class SourceSetId(@get:Input val sourceSetName: String, @get:Input val scopeId: String)
 
     class SrcLink(
         @get:InputDirectory @PathSensitive(PathSensitivity.RELATIVE) val localDirectory: File,
         @get:Input val remoteUrl: String,
-        @get:Input val remoteLineSuffix: String = ";l="
+        @get:Input val remoteLineSuffix: String = ";l=",
     )
 
     class GlobalDocsLink(@get:Input val url: String, @get:Input val packageListUrl: String?)

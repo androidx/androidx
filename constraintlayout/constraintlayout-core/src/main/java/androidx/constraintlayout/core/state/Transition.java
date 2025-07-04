@@ -16,7 +16,6 @@
 
 package androidx.constraintlayout.core.state;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.motion.CustomVariable;
 import androidx.constraintlayout.core.motion.Motion;
@@ -34,6 +33,8 @@ import androidx.constraintlayout.core.motion.utils.TypedValues;
 import androidx.constraintlayout.core.motion.utils.Utils;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
 import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -432,10 +433,11 @@ public class Transition implements TypedValues {
      * Converts from xy drag to progress
      * This should be used till touch up
      *
-     * @param baseW parent width
-     * @param baseH parent height
-     * @param dx    change in x
-     * @param dy    change in y
+     * @param currentProgress 0...1 progress in
+     * @param baseW           parent width
+     * @param baseH           parent height
+     * @param dx              change in x
+     * @param dy              change in y
      * @return the change in progress
      */
     public float dragToProgress(float currentProgress, int baseW, int baseH, float dx, float dy) {

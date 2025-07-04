@@ -56,7 +56,6 @@ import org.mockito.quality.Strictness
 @RunWith(Parameterized::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @get:Rule val rule = createComposeRule()
@@ -73,7 +72,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 val monthInUtcMillis = dayInUtcMilliseconds(year = 2021, month = 1, dayOfMonth = 1)
                 DatePicker(
                     state = rememberDatePickerState(initialDisplayedMonthMillis = monthInUtcMillis),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -94,7 +93,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     DatePicker(
                         state =
                             rememberDatePickerState(initialDisplayedMonthMillis = monthInUtcMillis),
-                        showModeToggle = false
+                        showModeToggle = false,
                     )
                 }
             }
@@ -122,9 +121,9 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                                         override fun isSelectableDate(
                                             utcTimeMillis: Long
                                         ): Boolean = false
-                                    }
+                                    },
                             ),
-                        showModeToggle = false
+                        showModeToggle = false,
                     )
                 }
             }
@@ -173,9 +172,9 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     state =
                         rememberDatePickerState(
                             initialDisplayedMonthMillis = monthInUtcMillis,
-                            initialSelectedDateMillis = selectedDayMillis
+                            initialSelectedDateMillis = selectedDayMillis,
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -196,9 +195,9 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                                     // All dates are invalid for the sake of this test.
                                     override fun isSelectableDate(utcTimeMillis: Long): Boolean =
                                         false
-                                }
+                                },
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -212,7 +211,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 val monthInUtcMillis = dayInUtcMilliseconds(year = 2000, month = 5, dayOfMonth = 1)
                 DatePicker(
                     state = rememberDatePickerState(initialDisplayedMonthMillis = monthInUtcMillis),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -229,15 +228,15 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             DatePickerDialog(
                 onDismissRequest = {},
                 confirmButton = { TextButton(onClick = {}) { Text("OK") } },
-                dismissButton = { TextButton(onClick = {}) { Text("Cancel") } }
+                dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
             ) {
                 DatePicker(
                     state =
                         rememberDatePickerState(
                             initialDisplayedMonthMillis = monthInUtcMillis,
-                            initialSelectedDateMillis = selectedDayMillis
+                            initialSelectedDateMillis = selectedDayMillis,
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -246,7 +245,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             .captureToImage()
             .assertAgainstGolden(
                 rule = screenshotRule,
-                goldenIdentifier = "datePicker_inDialog_${scheme.name}"
+                goldenIdentifier = "datePicker_inDialog_${scheme.name}",
             )
     }
 
@@ -262,15 +261,15 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 DatePickerDialog(
                     onDismissRequest = {},
                     confirmButton = { TextButton(onClick = {}) { Text("OK") } },
-                    dismissButton = { TextButton(onClick = {}) { Text("Cancel") } }
+                    dismissButton = { TextButton(onClick = {}) { Text("Cancel") } },
                 ) {
                     DatePicker(
                         state =
                             rememberDatePickerState(
                                 initialDisplayedMonthMillis = monthInUtcMillis,
-                                initialSelectedDateMillis = selectedDayMillis
+                                initialSelectedDateMillis = selectedDayMillis,
                             ),
-                        showModeToggle = false
+                        showModeToggle = false,
                     )
                 }
             }
@@ -280,7 +279,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             .captureToImage()
             .assertAgainstGolden(
                 rule = screenshotRule,
-                goldenIdentifier = "datePicker_noMinimumInteractiveSize_${scheme.name}"
+                goldenIdentifier = "datePicker_noMinimumInteractiveSize_${scheme.name}",
             )
     }
 
@@ -294,7 +293,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
             CompositionLocalProvider(
                 LocalContext provides newContext,
                 LocalConfiguration provides config,
-                LocalLayoutDirection provides LayoutDirection.Rtl
+                LocalLayoutDirection provides LayoutDirection.Rtl,
             ) {
                 Box(wrap.testTag(wrapperTestTag)) {
                     val monthInUtcMillis =

@@ -22,6 +22,7 @@ import androidx.annotation.OptIn;
 import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -41,7 +42,18 @@ final class FeaturesImpl implements Features {
     @Override
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public boolean isFeatureSupported(@NonNull String feature) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            // AppSearch landed in platform in S, however it was not updatable via mainline until T.
+            // So all features here are not available below T.
+            return false;
+        }
         switch (feature) {
+            // Aliases for other features
+            case Features.SEARCH_AND_CLICK_ACCUMULATOR:
+                // Requires JoinSpec to create the Click schema. TakenAction API is optional as we
+                // can index search and click as regular documents if TakenActions aren't available.
+                return isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID);
+
             // Android T Features
             case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
                 // fall through
@@ -54,9 +66,12 @@ final class FeaturesImpl implements Features {
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 
-            // Android U Features
+            // SDK extension U Base features
             case Features.JOIN_SPEC_AND_QUALIFIED_ID:
-                // fall through
+                return BuildCompat.T_EXTENSION_INT
+                        >= AppSearchVersionUtil.TExtensionVersions.U_BASE;
+
+            // Android U Features
             case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // fall through
             case Features.NUMERIC_SEARCH:
@@ -75,11 +90,13 @@ final class FeaturesImpl implements Features {
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
             // Android V Features
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                return BuildCompat.T_EXTENSION_INT
+                        >= AppSearchVersionUtil.TExtensionVersions.V_BASE;
+
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
                 // fall through
             case Features.SCHEMA_ADD_PARENT_TYPE:
-                // fall through
-            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 // fall through
@@ -94,22 +111,38 @@ final class FeaturesImpl implements Features {
             case Features.ENTERPRISE_GLOBAL_SEARCH_SESSION:
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
 
-
-            // Beyond Android V Features
-            case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
-                // TODO(b/326656531) : Update when feature is ready in service-appsearch.
+            // M-2024-08 Features
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT:
                 // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE:
+                // For devices that receive mainline updates, this will be available in M-2024-08,
+                // and in V for devices that don't receive mainline updates.
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+                        || AppSearchVersionUtil.getAppSearchVersionCode(mContext)
+                        >= AppSearchVersionUtil.APPSEARCH_V_BASE_VERSION_CODE;
+
+            // M-2024-11 Features
+            case Features.INDEXER_MOBILE_APPLICATIONS:
+                // For devices that receive mainline updates, this will be available in M-2024-11,
+                // and in B for devices that don't receive mainline updates.
+                return AppSearchVersionUtil.isAtLeastB()
+                        || AppSearchVersionUtil.getAppSearchVersionCode(mContext)
+                        >= AppSearchVersionUtil.APPSEARCH_M2024_11_VERSION_CODE;
+
+            // Android B Features
+            case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
+                // fall through
+            case Features.SEARCH_RESULT_PARENT_TYPES:
+                return AppSearchVersionUtil.isAtLeastB();
+
+            // Pending Android B Features
             case Features.SCHEMA_EMBEDDING_QUANTIZATION:
                 // TODO(b/359959345) : Update when feature is ready in service-appsearch.
                 // fall through
-            case Features.SCHEMA_SET_DESCRIPTION:
-                // TODO(b/326987971) : Update when feature is ready in service-appsearch.
-                // fall through
             case Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS:
                 // TODO(b/332620561) : Update when feature is ready in service-appsearch.
-                // fall through
-            case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
-                // TODO(b/332642571) : Update when feature is ready in service-appsearch.
                 // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS:
                 // TODO(b/367464836) : Update when feature is ready in service-appsearch.
@@ -120,18 +153,16 @@ final class FeaturesImpl implements Features {
             case Features.SCHEMA_SCORABLE_PROPERTY_CONFIG:
                 // TODO(b/357105837) : Update when feature is ready in service-appsearch.
                 // fall through
-            case Features.SEARCH_RESULT_PARENT_TYPES:
-                // TODO(b/371610934) : Update when feature is ready in service-appsearch.
+
+            // Beyond Android B Features
+            case Features.SCHEMA_SET_DESCRIPTION:
+                // TODO(b/326987971) : Update when feature is ready in service-appsearch.
                 // fall through
             case Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM:
-                // TODO(b/376913014) : Update when feature is ready in service-appsearch.
-                // fall through
+                // TODO(b/384947619) : Update when feature is ready in service-appsearch.
+            case Features.SEARCH_EMBEDDING_MATCH_INFO:
+                // TODO(395128139) : Update when feature is ready in service-appsearch.
                 return false;
-
-            // Android B Features
-            case Features.INDEXER_MOBILE_APPLICATIONS:
-                // TODO(b/275592563) : Update when B version code is available
-                return Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM;
 
             default:
                 return false;

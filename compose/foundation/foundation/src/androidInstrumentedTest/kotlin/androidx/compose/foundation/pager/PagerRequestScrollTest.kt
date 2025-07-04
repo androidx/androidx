@@ -61,7 +61,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { it }
+                key = { it },
             ) {
                 Page(remember { "$it" })
 
@@ -106,7 +106,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                     pageSize = PageSize.Fixed(proposedPageSize),
                     state = state,
                     reverseLayout = true,
-                    key = { it }
+                    key = { it },
                 ) {
                     Page(remember { "$it" })
                 }
@@ -120,7 +120,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                             pageOffsetFraction =
                                 with(rule.density) {
                                     -listSize.roundToPx() / state.pageSizeWithSpacing.toFloat()
-                                }
+                                },
                         )
                     }
                 }
@@ -167,7 +167,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                     modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                     pageSize = PageSize.Fixed(proposedPageSize),
                     state = state,
-                    key = { list[it] }
+                    key = { list[it] },
                 ) {
                     Page(remember { "$it" })
                 }
@@ -208,7 +208,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                     modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                     pageSize = PageSize.Fixed(proposedPageSize),
                     state = state,
-                    key = { list[it] }
+                    key = { list[it] },
                 ) {
                     Page(remember { "$it" })
                 }
@@ -250,7 +250,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { list[it] }
+                key = { list[it] },
             ) {
                 Page(remember { "$it" })
             }
@@ -280,7 +280,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { list[it] }
+                key = { list[it] },
             ) {
                 Page(remember { "$it" })
             }
@@ -295,7 +295,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 state.requestScrollToPage(
                     page = 0,
                     pageOffsetFraction =
-                        proposedPageSize.roundToPx() * 30f / state.pageSizeWithSpacing
+                        proposedPageSize.roundToPx() * 30f / state.pageSizeWithSpacing,
                 )
             }
         }
@@ -321,7 +321,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { it }
+                key = { it },
             ) {
                 Page(remember { "$it" })
             }
@@ -361,7 +361,7 @@ class PagerRequestScrollTest(private val orientation: Orientation) :
                 modifier = Modifier.size(proposedPageSize * 2.5f).testTag(PagerTestTag),
                 pageSize = PageSize.Fixed(proposedPageSize),
                 state = state,
-                key = { list[it] }
+                key = { list[it] },
             ) {
                 Page(remember { "$it" })
 

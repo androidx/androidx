@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.callbackFlow
 class TestUwbClientSessionScope(
     private val uwbClient: TestUwbClient,
     override val rangingCapabilities: RangingCapabilities,
-    override val localAddress: UwbAddress
+    override val localAddress: UwbAddress,
 ) : UwbClientSessionScope {
     private var sessionStarted = false
     private val uwbDevice = createForAddress(ByteArray(0))
@@ -53,7 +53,7 @@ class TestUwbClientSessionScope(
                 0x03,
                 0x04,
                 0x05,
-                0x06
+                0x06,
             ),
             null,
             null,
@@ -61,7 +61,7 @@ class TestUwbClientSessionScope(
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
             UwbRangeDataNtfConfig(1, 1, 100),
             2,
-            false
+            false,
         )
 
     override fun prepareSession(parameters: RangingParameters) = callbackFlow {
@@ -97,8 +97,8 @@ class TestUwbClientSessionScope(
                                 RangingMeasurement(position.distance.value),
                                 position.azimuth?.let { RangingMeasurement(it.value) },
                                 position.elevation?.let { RangingMeasurement(it.value) },
-                                position.elapsedRealtimeNanos
-                            )
+                                position.elapsedRealtimeNanos,
+                            ),
                         )
                     )
                 }
@@ -131,7 +131,7 @@ class TestUwbClientSessionScope(
     override suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     ) {
         TODO("Not yet implemented")
     }

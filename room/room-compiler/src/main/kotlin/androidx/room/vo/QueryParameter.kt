@@ -26,5 +26,5 @@ data class QueryParameter(
     // this is the name used in the query. Might be different for kotlin queries
     val sqlName: String,
     val type: XType,
-    val queryParamAdapter: QueryParameterAdapter?
+    val queryParamAdapter: QueryParameterAdapter?,
 )

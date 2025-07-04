@@ -20,18 +20,21 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Window
 import androidx.activity.ComponentActivity
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
- * Activity to start for SDKs running locally. Not for App / SDK Usage.
+ * Activity to start for SDKs running locally. Internal component, not for App / SDK Usage.
  *
- * SDK should use [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler] for handler
- * registration.
+ * SDK should use
+ * [androidx.privacysandbox.sdkruntime.provider.controller.SdkSandboxControllerCompat.registerSdkSandboxActivityHandler]
+ * for handler registration.
  *
  * App should use [SdkSandboxManagerCompat.startSdkSandboxActivity] for starting activity.
  */
-class SdkActivity : ComponentActivity() {
+@RestrictTo(LIBRARY_GROUP)
+public class SdkActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

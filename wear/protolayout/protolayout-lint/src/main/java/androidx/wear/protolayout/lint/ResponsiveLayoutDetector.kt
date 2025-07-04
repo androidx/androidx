@@ -52,7 +52,7 @@ class ResponsiveLayoutDetector : Detector(), SourceCodeScanner {
     override fun visitConstructor(
         context: JavaContext,
         node: UCallExpression,
-        constructor: PsiMethod
+        constructor: PsiMethod,
     ) {
         val containingClass = constructor.containingClass
         val evaluator = context.evaluator
@@ -169,7 +169,7 @@ class ResponsiveLayoutDetector : Detector(), SourceCodeScanner {
                     context.getCallLocation(
                         foundFalseResponsive!!,
                         includeReceiver = false,
-                        includeArguments = true
+                        includeArguments = true,
                     )
                 )
                 .pattern("(.*)")

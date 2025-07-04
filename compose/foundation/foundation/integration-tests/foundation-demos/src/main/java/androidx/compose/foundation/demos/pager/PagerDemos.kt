@@ -75,24 +75,14 @@ val PagerDemos =
 @Composable
 private fun VerticalPagerDemo() {
     val pagerState = rememberPagerState { PagesCount }
-    VerticalPager(
-        modifier = Modifier.fillMaxSize(),
-        state = pagerState,
-    ) {
-        PagerItem(it)
-    }
+    VerticalPager(modifier = Modifier.fillMaxSize(), state = pagerState) { PagerItem(it) }
 }
 
 @Composable
 internal fun HorizontalPagerDemo() {
     val pagerState = rememberPagerState { PagesCount }
 
-    HorizontalPager(
-        modifier = Modifier.fillMaxSize(),
-        state = pagerState,
-    ) {
-        PagerItem(it)
-    }
+    HorizontalPager(modifier = Modifier.fillMaxSize(), state = pagerState) { PagerItem(it) }
 }
 
 @Composable
@@ -104,7 +94,7 @@ internal fun PagerItem(index: Int) {
                 .background(Color.Blue)
                 .fillMaxWidth()
                 .aspectRatio(1f),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = index.toString(), fontSize = 32.sp)
     }

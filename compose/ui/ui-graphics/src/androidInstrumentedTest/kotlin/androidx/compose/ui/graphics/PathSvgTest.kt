@@ -38,7 +38,7 @@ class PathSvgTest {
 
             """
                 .trimIndent(),
-            Path().toSvg(asDocument = true)
+            Path().toSvg(asDocument = true),
         )
 
         assertTrue(Path().toSvg().isEmpty())
@@ -57,7 +57,7 @@ class PathSvgTest {
 
             """
                 .trimIndent(),
-            svg
+            svg,
         )
     }
 
@@ -79,7 +79,7 @@ class PathSvgTest {
 
             """
                 .trimIndent(),
-            svg
+            svg,
         )
     }
 
@@ -102,7 +102,7 @@ class PathSvgTest {
 
             """
                 .trimIndent(),
-            svg
+            svg,
         )
     }
 
@@ -118,7 +118,7 @@ class PathSvgTest {
 
         assertEquals(
             "M0.0 0.0L10.0 0.0 10.0 10.0 0.0 10.0ZM20.0 20.0L50.0 20.0 50.0 50.0 20.0 50.0Z",
-            svg
+            svg,
         )
     }
 
@@ -138,7 +138,7 @@ class PathSvgTest {
 
             """
                 .trimIndent(),
-            hole.toSvg(asDocument = true)
+            hole.toSvg(asDocument = true),
         )
 
         hole.fillType = PathFillType.EvenOdd
@@ -151,7 +151,7 @@ class PathSvgTest {
 
             """
                 .trimIndent(),
-            hole.toSvg(asDocument = true)
+            hole.toSvg(asDocument = true),
         )
     }
 

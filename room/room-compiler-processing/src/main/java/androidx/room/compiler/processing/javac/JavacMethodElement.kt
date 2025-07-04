@@ -65,7 +65,7 @@ internal class JavacMethodElement(env: JavacProcessingEnv, element: ExecutableEl
                     val metadataParamIndex = if (isExtensionFunction()) index - 1 else index
                     kotlinMetadata?.parameters?.getOrNull(metadataParamIndex)
                 },
-                argIndex = index
+                argIndex = index,
             )
         }
     }
@@ -78,7 +78,7 @@ internal class JavacMethodElement(env: JavacProcessingEnv, element: ExecutableEl
         JavacMethodType.create(
             env = env,
             element = this,
-            executableType = MoreTypes.asExecutable(element.asType())
+            executableType = MoreTypes.asExecutable(element.asType()),
         )
     }
 
@@ -96,7 +96,7 @@ internal class JavacMethodElement(env: JavacProcessingEnv, element: ExecutableEl
                 } else {
                     kotlinMetadata?.returnType
                 },
-            elementNullability = element.nullability
+            elementNullability = element.nullability,
         )
     }
 
@@ -113,7 +113,7 @@ internal class JavacMethodElement(env: JavacProcessingEnv, element: ExecutableEl
             JavacMethodType.create(
                 env = env,
                 element = this,
-                executableType = MoreTypes.asExecutable(asMemberOf)
+                executableType = MoreTypes.asExecutable(asMemberOf),
             )
         }
     }
@@ -142,7 +142,7 @@ internal class JavacMethodElement(env: JavacProcessingEnv, element: ExecutableEl
     override fun hasKotlinDefaultImpl(): Boolean {
         fun paramsMatch(
             ourParams: List<JavacMethodParameter>,
-            theirParams: List<JavacMethodParameter>
+            theirParams: List<JavacMethodParameter>,
         ): Boolean {
             if (ourParams.size != theirParams.size - 1) {
                 return false

@@ -36,7 +36,7 @@ class SplitPairFilter
 internal constructor(
     private val _primaryActivityName: ActivityComponentInfo,
     private val _secondaryActivityName: ActivityComponentInfo,
-    val secondaryActivityIntentAction: String?
+    val secondaryActivityIntentAction: String?,
 ) {
 
     /**
@@ -83,11 +83,11 @@ internal constructor(
          * If it is not `null`, the [SplitPairFilter] will check the activity [Intent.getAction]
          * besides the component name. If it is `null`, [Intent.getAction] will be ignored.
          */
-        secondaryActivityIntentAction: String?
+        secondaryActivityIntentAction: String?,
     ) : this(
         ActivityComponentInfo(primaryActivityName),
         ActivityComponentInfo(secondaryActivityName),
-        secondaryActivityIntentAction
+        secondaryActivityIntentAction,
     )
 
     init {
@@ -126,7 +126,7 @@ internal constructor(
             Log.d(
                 sMatchersTag,
                 "Checking filter $this against activity pair: (${primaryActivity.componentName}, " +
-                    "${secondaryActivity.componentName}) - $matchString"
+                    "${secondaryActivity.componentName}) - $matchString",
             )
         }
         return match
@@ -143,7 +143,7 @@ internal constructor(
      */
     fun matchesActivityIntentPair(
         primaryActivity: Activity,
-        secondaryActivityIntent: Intent
+        secondaryActivityIntent: Intent,
     ): Boolean {
         val match =
             if (!isActivityMatching(primaryActivity, _primaryActivityName)) {
@@ -159,7 +159,7 @@ internal constructor(
             Log.w(
                 sMatchersTag,
                 "Checking filter $this against activity-intent pair: " +
-                    "(${primaryActivity.componentName}, $secondaryActivityIntent) - $matchString"
+                    "(${primaryActivity.componentName}, $secondaryActivityIntent) - $matchString",
             )
         }
         return match

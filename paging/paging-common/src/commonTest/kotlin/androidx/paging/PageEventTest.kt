@@ -32,7 +32,7 @@ internal fun <T : Any> adjacentInsertEvent(
     isPrepend: Boolean,
     page: List<T>,
     originalPageOffset: Int,
-    placeholdersRemaining: Int
+    placeholdersRemaining: Int,
 ) =
     if (isPrepend) {
         localPrepend(
@@ -51,18 +51,10 @@ class PageEventTest {
     @Test
     fun placeholdersException() {
         assertFailsWith<IllegalArgumentException> {
-            localRefresh<Char>(
-                pages = listOf(),
-                placeholdersBefore = 1,
-                placeholdersAfter = -1,
-            )
+            localRefresh<Char>(pages = listOf(), placeholdersBefore = 1, placeholdersAfter = -1)
         }
         assertFailsWith<IllegalArgumentException> {
-            localRefresh<Char>(
-                pages = listOf(),
-                placeholdersBefore = -1,
-                placeholdersAfter = 1,
-            )
+            localRefresh<Char>(pages = listOf(), placeholdersBefore = -1, placeholdersAfter = 1)
         }
     }
 
@@ -73,7 +65,7 @@ class PageEventTest {
                 loadType = REFRESH,
                 minPageOffset = 0,
                 maxPageOffset = 0,
-                placeholdersRemaining = 4
+                placeholdersRemaining = 4,
             )
         }
     }
@@ -85,7 +77,7 @@ class PageEventTest {
                 loadType = REFRESH,
                 minPageOffset = 2,
                 maxPageOffset = 0,
-                placeholdersRemaining = 4
+                placeholdersRemaining = 4,
             )
         }
     }
@@ -97,7 +89,7 @@ class PageEventTest {
                 loadType = REFRESH,
                 minPageOffset = 0,
                 maxPageOffset = 0,
-                placeholdersRemaining = -1
+                placeholdersRemaining = -1,
             )
         }
     }
@@ -110,7 +102,7 @@ class PageEventTest {
                     loadType = PREPEND,
                     minPageOffset = 0,
                     maxPageOffset = 0,
-                    placeholdersRemaining = 0
+                    placeholdersRemaining = 0,
                 )
 
             assertSame(drop, drop.map { it + 1 })
@@ -141,7 +133,7 @@ class PageEventTest {
                     pages = listOf(TransformablePage(listOf("a", "b"))),
                     placeholdersAfter = 4,
                 ),
-                insert.map { it.toString() }
+                insert.map { it.toString() },
             )
 
             assertEquals(insert, insert.map { it.toString() }.map { it[0] })
@@ -158,7 +150,7 @@ class PageEventTest {
                                 originalPageOffsets = intArrayOf(0),
                                 data = listOf("a", "b"),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0, 2)
+                                hintOriginalIndices = listOf(0, 2),
                             )
                         ),
                     placeholdersAfter = 4,
@@ -170,12 +162,12 @@ class PageEventTest {
                                     originalPageOffsets = intArrayOf(0),
                                     data = listOf("a", "b"),
                                     hintOriginalPageOffset = 0,
-                                    hintOriginalIndices = listOf(0, 2)
+                                    hintOriginalIndices = listOf(0, 2),
                                 )
                             ),
                         placeholdersAfter = 4,
                     )
-                    .map { it.toString() }
+                    .map { it.toString() },
             )
         }
 
@@ -199,12 +191,12 @@ class PageEventTest {
                                 originalPageOffsets = intArrayOf(0),
                                 data = listOf('a', 'b', 'd'),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0, 1, 3)
+                                hintOriginalIndices = listOf(0, 1, 3),
                             )
                         ),
                     placeholdersAfter = 4,
                 ),
-                insertNoC
+                insertNoC,
             )
 
             // now filter out A, to validate filtration when lookup present
@@ -216,12 +208,12 @@ class PageEventTest {
                                 originalPageOffsets = intArrayOf(0),
                                 data = listOf('b', 'd'),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(1, 3)
+                                hintOriginalIndices = listOf(1, 3),
                             )
                         ),
                     placeholdersAfter = 4,
                 ),
-                insertNoC.filter { it != 'a' }
+                insertNoC.filter { it != 'a' },
             )
         }
 
@@ -244,12 +236,12 @@ class PageEventTest {
                                 originalPageOffsets = intArrayOf(0),
                                 data = listOf("a1", "a2", "b1", "b2"),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0, 0, 1, 1)
+                                hintOriginalIndices = listOf(0, 0, 1, 1),
                             )
                         ),
                     placeholdersAfter = 4,
                 ),
-                flatMapped
+                flatMapped,
             )
 
             val flatMappedAgain = flatMapped.flatMap { listOf(it, "-") }
@@ -262,22 +254,18 @@ class PageEventTest {
                                 originalPageOffsets = intArrayOf(0),
                                 data = listOf("a1", "-", "a2", "-", "b1", "-", "b2", "-"),
                                 hintOriginalPageOffset = 0,
-                                hintOriginalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
+                                hintOriginalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1),
                             )
                         ),
                     placeholdersAfter = 4,
                 ),
-                flatMappedAgain
+                flatMappedAgain,
             )
         }
 
     class StaticPagingData {
         companion object {
-            fun initParameters() =
-                listOf(
-                    listOf("a", "b", "c"),
-                    emptyList(),
-                )
+            fun initParameters() = listOf(listOf("a", "b", "c"), emptyList())
         }
 
         private val presenter = TestPagingDataPresenter<String>(EmptyCoroutineContext)

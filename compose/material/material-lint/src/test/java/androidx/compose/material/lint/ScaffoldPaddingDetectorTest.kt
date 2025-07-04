@@ -127,7 +127,7 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
         NKVSsIQMVaUQ3jrZI9yluLJ5enbDtUZ7r1FVjTjsF2jSWieQFQr/3h6SOu7p
         eF/HB/hQx0f4WMcnqO6B+djEp3uY9jHl474P1ce8j7yPz3zIPmZ9zPn43MfW
         S5104ZQXCQAA
-        """
+        """,
         )
 
     @Test
@@ -156,7 +156,7 @@ class ScaffoldPaddingDetectorTest : LintDetectorTest() {
                 ScaffoldStub,
                 Stubs.Modifier,
                 Stubs.PaddingValues,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -224,7 +224,7 @@ src/test/foo/test.kt:15: Error: Content padding parameter innerPadding is not us
                 ScaffoldStub,
                 Stubs.Modifier,
                 Stubs.PaddingValues,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -266,7 +266,7 @@ src/test/foo/test.kt:21: Error: Content padding parameter innerPadding is not us
                 ScaffoldStub,
                 Stubs.Modifier,
                 Stubs.PaddingValues,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()

@@ -32,7 +32,7 @@ object Stubs {
             class TestInitializer: Initializer<Unit> {
                 override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -50,7 +50,7 @@ object Stubs {
                     SecondInitializer::class.java
                 )
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -66,7 +66,7 @@ object Stubs {
             class SecondInitializer: Initializer<Unit> {
                 override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -83,7 +83,7 @@ object Stubs {
             class TestInitializer extends Initializer<Void> {
 
             }
-        """
+        """,
             )
             .indented()
             .within("src")
@@ -97,7 +97,7 @@ object Stubs {
             interface Initializer<out T : Any> {
                 fun dependencies(): List<Class<out Initializer<*>>>
             }
-        """
+        """,
             )
             .indented()
             .within("src")

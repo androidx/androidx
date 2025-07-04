@@ -53,7 +53,7 @@ fun MultilineTextField() {
         onValueChange = { state.value = it },
         modifier = demoTextFieldModifiers.requiredSize(200.dp),
         singleLine = false,
-        textStyle = TextStyle(fontSize = fontSize8)
+        textStyle = TextStyle(fontSize = fontSize8),
     )
 }
 
@@ -66,6 +66,6 @@ fun SingleLineTextField() {
         onValueChange = { state.value = it },
         modifier = demoTextFieldModifiers.requiredWidth(200.dp),
         singleLine = true,
-        textStyle = TextStyle(fontSize = fontSize8)
+        textStyle = TextStyle(fontSize = fontSize8),
     )
 }

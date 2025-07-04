@@ -1,0 +1,18 @@
+// Signature format: 4.0
+package androidx.navigationevent.compose {
+
+  public final class LocalNavigationEventDispatcherOwner {
+    method @androidx.compose.runtime.Composable public androidx.navigationevent.NavigationEventDispatcherOwner? getCurrent();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.navigationevent.NavigationEventDispatcherOwner? getCurrent(androidx.compose.runtime.Composer?, int);
+    method public infix androidx.compose.runtime.ProvidedValue<androidx.navigationevent.NavigationEventDispatcherOwner?> provides(androidx.navigationevent.NavigationEventDispatcherOwner navigationEventDispatcherOwner);
+    property @androidx.compose.runtime.Composable public androidx.navigationevent.NavigationEventDispatcherOwner? current;
+    field public static final androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner INSTANCE;
+  }
+
+  public final class NavigationEventHandlerKt {
+    method @androidx.compose.runtime.Composable public static void NavigationEventHandler(optional kotlin.jvm.functions.Function0<java.lang.Boolean> enabled, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.flow.Flow<? extends androidx.navigationevent.NavigationEvent>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onEvent);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void NavigationEventHandler(kotlin.jvm.functions.Function0<java.lang.Boolean!>?, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.flow.Flow<androidx.navigationevent.NavigationEvent!>!,? super kotlin.coroutines.Continuation<? super kotlin.Unit!>!,? extends java.lang.Object!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+

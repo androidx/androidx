@@ -100,7 +100,7 @@ internal class HandwritingHoverIconTest {
                     modifier =
                         Modifier.fillMaxWidth()
                             .height(HandwritingBoundsVerticalOffset)
-                            .testTag(basicTextFieldTag)
+                            .testTag(basicTextFieldTag),
                 )
                 // This spacer is within the extended handwriting bounds of both text fields
                 Spacer(
@@ -116,7 +116,7 @@ internal class HandwritingHoverIconTest {
                     modifier =
                         Modifier.fillMaxWidth()
                             .height(HandwritingBoundsVerticalOffset)
-                            .testTag(coreTextFieldTag)
+                            .testTag(coreTextFieldTag),
                 )
                 // This spacer is within the extended handwriting bounds of coreTextField
                 Spacer(
@@ -140,7 +140,7 @@ internal class HandwritingHoverIconTest {
                     modifier =
                         Modifier.fillMaxWidth()
                             .height(HandwritingBoundsVerticalOffset)
-                            .testTag(coreTextFieldUnsupportedTag)
+                            .testTag(coreTextFieldUnsupportedTag),
                 )
             }
         }

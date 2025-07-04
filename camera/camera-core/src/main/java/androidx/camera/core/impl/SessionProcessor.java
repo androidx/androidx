@@ -17,12 +17,14 @@
 package androidx.camera.core.impl;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraExtensionSession;
 import android.media.ImageReader;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 
+import androidx.annotation.IntRange;
 import androidx.camera.core.CameraInfo;
 
 import org.jspecify.annotations.NonNull;
@@ -49,6 +51,17 @@ import java.util.Set;
  * {@link #deInitSession()} is called.
  */
 public interface SessionProcessor {
+    /**
+     * The session processor is used for CameraX extension modes that will directly access the
+     * vendor library implementation.
+     */
+    int TYPE_VENDOR_LIBRARY = 0;
+
+    /**
+     * The session processor is used for Camera2 extension modes that should create the capture
+     * session via Camera2 Extensions API.
+     */
+    int TYPE_CAMERA2_EXTENSION = 1;
 
     /**
      * Initializes the session and returns a transformed {@link SessionConfig} which should be
@@ -59,12 +72,15 @@ public interface SessionProcessor {
      *
      * @param cameraInfo                 cameraInfo for querying the camera info
      * @param outputSurfaceConfig output surface configuration for preview, image capture,
-     *                                  image analysis and the postview.
+     *                                  image analysis and the postview. This can be null under
+     *                                  Camera2 Extensions implementation mode. In that case, this
+     *                                  function is invoked to setup the necessary stuffs only.
      * @return a {@link SessionConfig} that contains the surfaces and the session parameters and
-     * should be used to configure the camera session.
+     * should be used to configure the camera session. Return null when the input
+     * <code>outputSurfaceConfig</code> is null.
      */
-    @NonNull SessionConfig initSession(@NonNull CameraInfo cameraInfo,
-            @NonNull OutputSurfaceConfiguration outputSurfaceConfig);
+    @Nullable SessionConfig initSession(@NonNull CameraInfo cameraInfo,
+            @Nullable OutputSurfaceConfiguration outputSurfaceConfig);
 
     /**
      * De-initializes the session. This is called after the camera session is closed.
@@ -191,7 +207,6 @@ public interface SessionProcessor {
         return null;
     }
 
-
     /**
      * Returns the dynamically calculated capture latency pair in milliseconds.
      *
@@ -213,6 +228,36 @@ public interface SessionProcessor {
      */
     default @Nullable Pair<Long, Long> getRealtimeCaptureLatency() {
         return null;
+    }
+
+    /**
+     * Returns the implementation type info composited by the extension impl type and the
+     * extension mode.
+     *
+     * <p>The first value of the returned {@link Pair} can be {@link #TYPE_VENDOR_LIBRARY} or
+     * {@link #TYPE_CAMERA2_EXTENSION} that can let the caller know how to use the
+     * SessionProcessor to create the capture session. The second value is the mode under the impl
+     * type.
+     *
+     * @return a {@link Pair} composited by the extension impl type and the extension mode.
+     */
+    @NonNull
+    default Pair<Integer, Integer> getImplementationType() {
+        return Pair.create(TYPE_VENDOR_LIBRARY, 0 /* ExtensionMode.None */);
+    }
+
+    /**
+     * Sets a {@link CaptureSessionRequestProcessor} for retrieving specific information from the
+     * camera capture session or submitting requests.
+     *
+     * <p>This is used for the SessionProcessor implementation that needs to directly interact
+     * with the camera capture session to retrieve specific information or submit requests.
+     *
+     * <p>Callers should clear this by calling with null to avoid the session processor to hold
+     * the camera capture session related resources.
+     */
+    default void setCaptureSessionRequestProcessor(
+            @Nullable CaptureSessionRequestProcessor processor) {
     }
 
     /**
@@ -304,5 +349,27 @@ public interface SessionProcessor {
          * @param progress             Value between 0 and 100.
          */
         default void onCaptureProcessProgressed(int progress) {}
+    }
+
+    /**
+     * An interface for retrieving specific information from the camera capture session or
+     * submitting requests.
+     */
+    interface CaptureSessionRequestProcessor {
+        /**
+         * Returns the realtime still capture latency information.
+         *
+         * @see CameraExtensionSession#getRealtimeStillCaptureLatency()
+         */
+        @Nullable
+        Pair<Long, Long> getRealtimeStillCaptureLatency();
+
+        /**
+         * Sets the strength of the extension post-processing effect.
+         *
+         * @param strength the new extension strength value
+         * @see android.hardware.camera2.CaptureRequest#EXTENSION_STRENGTH
+         */
+        void setExtensionStrength(@IntRange(from = 0, to = 100) int strength);
     }
 }

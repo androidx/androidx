@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -29,18 +29,18 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.androidLintApiPrevAnalysis)
+    compileOnly(libs.androidLintApiStableAnalysis)
     compileOnly(libs.kotlinStdlib)
 
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLintPrevAnalysis)
-    testImplementation(libs.androidLintTestsPrevAnalysis)
+    testImplementation(libs.androidLintStableAnalysis)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
 }
 
 androidx {
     name = "LiveData Kotlin Lint Checks"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2019"
     description = "Lint Checks for LiveData Kotlin Extensions"
 }

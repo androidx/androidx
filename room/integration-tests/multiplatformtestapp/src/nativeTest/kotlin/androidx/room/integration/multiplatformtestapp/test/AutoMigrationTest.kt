@@ -36,7 +36,7 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
             fileName = filename,
             driver = driver,
             databaseClass = AutoMigrationDatabase::class,
-            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
+            autoMigrationSpecs = listOf(ProvidedSpecFrom2To3()),
         )
 
     override fun getTestHelper() = migrationTestHelper

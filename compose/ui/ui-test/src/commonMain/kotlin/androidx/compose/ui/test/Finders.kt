@@ -28,7 +28,7 @@ package androidx.compose.ui.test
  */
 fun SemanticsNodeInteractionsProvider.onNodeWithTag(
     testTag: String,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction = onNode(hasTestTag(testTag), useUnmergedTree)
 
 /**
@@ -43,7 +43,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithTag(
  */
 fun SemanticsNodeInteractionsProvider.onAllNodesWithTag(
     testTag: String,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection = onAllNodes(hasTestTag(testTag), useUnmergedTree)
 
 /**
@@ -63,7 +63,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithContentDescription(
     label: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction =
     onNode(hasContentDescription(label, substring, ignoreCase), useUnmergedTree)
 
@@ -84,7 +84,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithContentDescription(
     label: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection =
     onAllNodes(hasContentDescription(label, substring, ignoreCase), useUnmergedTree)
 
@@ -105,7 +105,7 @@ fun SemanticsNodeInteractionsProvider.onNodeWithText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteraction = onNode(hasText(text, substring, ignoreCase), useUnmergedTree)
 
 /**
@@ -125,7 +125,7 @@ fun SemanticsNodeInteractionsProvider.onAllNodesWithText(
     text: String,
     substring: Boolean = false,
     ignoreCase: Boolean = false,
-    useUnmergedTree: Boolean = false
+    useUnmergedTree: Boolean = false,
 ): SemanticsNodeInteractionCollection =
     onAllNodes(hasText(text, substring, ignoreCase), useUnmergedTree)
 

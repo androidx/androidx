@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,11 +45,18 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
     testImplementation(project(":wear:watchface:watchface"))
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions.suppressWarnings = true
+}
+
+tasks.withType(JavaCompile){
+    options.compilerArgs <<"-Xlint:-deprecation"
 }
 
 android {
@@ -59,19 +66,18 @@ android {
     defaultConfig {
         minSdk = 26
     }
-    lintOptions {
-        disable 'NullabilityAnnotationsDetector' // False alarm on transformed files.
+    lint {
+        disable.add("NullabilityAnnotationsDetector") // False alarm on transformed files.
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.watchface.complications.rendering"
 }
 
 androidx {
     name = "Android Wear Watchface Complication Rendering"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Support for rendering complications on the watch face"
     legacyDisableKotlinStrictApiMode = true
+    failOnDeprecationWarnings = false
+    enableRobolectric()
 }

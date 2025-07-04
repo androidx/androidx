@@ -16,11 +16,8 @@
 
 package androidx.privacysandbox.tools.apicompiler.generator
 
-import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextClass
 import androidx.privacysandbox.tools.core.generator.SpecNames.contextPropertyName
-import androidx.privacysandbox.tools.core.generator.SpecNames.viewClass
-import androidx.privacysandbox.tools.core.generator.build
 import androidx.privacysandbox.tools.core.generator.poetTypeName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -45,8 +42,12 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
                 .superclass(superclassName)
                 .addModifiers(KModifier.ABSTRACT)
                 .addFunction(generateOnLoadSdkFunction())
-                .addFunction(generateGetViewFunction())
                 .addFunction(generateCreateServiceFunction(api.getOnlyService()))
+
+        val getViewFunction = generateGetViewFunction()
+        if (getViewFunction != null) {
+            classSpec.addFunction(getViewFunction)
+        }
 
         return FileSpec.builder(packageName, className).addType(classSpec.build()).build()
     }
@@ -55,23 +56,10 @@ internal abstract class AbstractSdkProviderGenerator(protected val api: ParsedAp
 
     abstract fun generateOnLoadSdkFunction(): FunSpec
 
+    abstract fun generateGetViewFunction(): FunSpec?
+
     protected fun createServiceFunctionName(service: AnnotatedInterface) =
         "create${service.type.simpleName}"
-
-    private fun generateGetViewFunction(): FunSpec {
-        return FunSpec.builder("getView").build {
-            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
-            addParameter("windowContext", contextClass)
-            addParameter("params", bundleClass)
-            addParameter("width", Int::class)
-            addParameter("height", Int::class)
-            returns(viewClass)
-            addStatement(
-                "throw UnsupportedOperationException(%S)",
-                "This SDK doesn't support explicit SurfaceView requests."
-            )
-        }
-    }
 
     private fun generateCreateServiceFunction(service: AnnotatedInterface): FunSpec {
         return FunSpec.builder(createServiceFunctionName(service))

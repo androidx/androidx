@@ -28,7 +28,7 @@ class TestCaseContextWrapper(private val context: XCTestCase) : TestCaseContext 
     override fun measureWithMetrics(
         metrics: List<*>,
         options: XCTMeasureOptions,
-        block: () -> Unit
+        block: () -> Unit,
     ) {
         context.measureWithMetrics(metrics, options, block)
     }

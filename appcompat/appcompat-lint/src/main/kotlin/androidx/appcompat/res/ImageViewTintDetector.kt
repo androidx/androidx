@@ -38,7 +38,7 @@ class ImageViewTintDetector : LayoutDetector() {
                 Category.CORRECTNESS,
                 1,
                 Severity.ERROR,
-                Implementation(ImageViewTintDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+                Implementation(ImageViewTintDetector::class.java, Scope.RESOURCE_FILE_SCOPE),
             )
     }
 
@@ -63,11 +63,11 @@ class ImageViewTintDetector : LayoutDetector() {
                         .set(
                             SdkConstants.AUTO_URI,
                             "tint",
-                            element.getAttributeNS(SdkConstants.ANDROID_URI, "tint")
+                            element.getAttributeNS(SdkConstants.ANDROID_URI, "tint"),
                         )
                         .build(),
-                    LintFix.create().unset(SdkConstants.ANDROID_URI, "tint").build()
-                )
+                    LintFix.create().unset(SdkConstants.ANDROID_URI, "tint").build(),
+                ),
         )
     }
 }

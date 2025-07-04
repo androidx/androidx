@@ -69,7 +69,7 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
                                 retainInstance = true
                             }
                         },
-                        CHILD_FRAGMENT_TAG
+                        CHILD_FRAGMENT_TAG,
                     )
                     .commitNow()
             }
@@ -95,6 +95,7 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
             onAttachListener.invoke(context)
         }
 
+        @Suppress("OVERRIDE_DEPRECATION") // b/407500169
         override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
             onActivityResultCalled = true
             onActivityResultRequestCode = requestCode

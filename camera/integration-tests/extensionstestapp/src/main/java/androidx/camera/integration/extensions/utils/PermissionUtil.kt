@@ -57,7 +57,7 @@ object PermissionUtil {
         ActivityCompat.requestPermissions(
             activity,
             getRequiredPermissions(activity),
-            PERMISSIONS_REQUEST_CODE
+            PERMISSIONS_REQUEST_CODE,
         )
     }
 
@@ -81,14 +81,17 @@ object PermissionUtil {
             info =
                 activity.packageManager.getPackageInfo(
                     activity.packageName,
-                    PackageManager.GET_PERMISSIONS
+                    PackageManager.GET_PERMISSIONS,
                 )
         } catch (exception: PackageManager.NameNotFoundException) {
             Log.e(TAG, "Failed to obtain all required permissions.", exception)
             return arrayOfNulls(0)
         }
 
-        if (info.requestedPermissions == null || info.requestedPermissions.isEmpty()) {
+        if (
+            info.requestedPermissions == null ||
+                (info.requestedPermissions as Array<out Any>).isEmpty()
+        ) {
             return arrayOfNulls(0)
         }
 
@@ -99,7 +102,8 @@ object PermissionUtil {
         // READ_EXTERNAL_STORAGE will also be included if we specify WRITE_EXTERNAL_STORAGE
         // requirement in AndroidManifest.xml. Therefore, also need to skip the permission check
         // of READ_EXTERNAL_STORAGE.
-        for (permission in info.requestedPermissions) {
+        val requestedPermissions = info.requestedPermissions as Array<out Any>
+        for (permission in requestedPermissions) {
             if (
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                     (Manifest.permission.WRITE_EXTERNAL_STORAGE == permission ||
@@ -108,7 +112,7 @@ object PermissionUtil {
                 continue
             }
 
-            requiredPermissions.add(permission)
+            requiredPermissions.add(permission.toString())
         }
 
         val permissions = requiredPermissions.toTypedArray<String?>()

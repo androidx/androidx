@@ -79,7 +79,7 @@ internal fun SemanticsNode.getSelectionHandleInfo(): SelectionHandleInfo {
 @OptIn(ExperimentalTestApi::class)
 internal fun ComposeTestRule.withHandlePressed(
     handle: Handle,
-    block: HandlePressedScope.() -> Unit
+    block: HandlePressedScope.() -> Unit,
 ) {
     val matcher = isSelectionHandle(handle)
     onNode(matcher).run {

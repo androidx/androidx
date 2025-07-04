@@ -388,7 +388,7 @@ class ScatterSetTest {
         set += "Ciao"
         set += "Annyeong"
 
-        // Reach the upper limit of what we can store without increasing the map size
+        // Reach the upper limit of what we can store without increasing the set size
         for (i in 0..7) {
             set += i.toString()
         }
@@ -531,20 +531,20 @@ class ScatterSetTest {
         set.forEach { element -> order[index++] = element }
         assertEquals(
             "${order[0]}, ${order[1]}, ${order[2]}, ${order[3]}, ${order[4]}",
-            set.joinToString()
+            set.joinToString(),
         )
         assertEquals(
             "x${order[0]}, ${order[1]}, ${order[2]}...",
-            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+            set.joinToString(prefix = "x", postfix = "y", limit = 3),
         )
         assertEquals(
             ">${order[0]}-${order[1]}-${order[2]}-${order[3]}-${order[4]}<",
-            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+            set.joinToString(separator = "-", prefix = ">", postfix = "<"),
         )
         val names = arrayOf("one", "two", "three", "four", "five")
         assertEquals(
             "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
-            set.joinToString(limit = 3) { names[it] }
+            set.joinToString(limit = 3) { names[it] },
         )
     }
 
@@ -815,7 +815,7 @@ class ScatterSetTest {
                 "Ciao",
                 "Mondo",
                 "Annyeong",
-                "Sesang"
+                "Sesang",
             )
         )
         set.removeAll(
@@ -937,39 +937,39 @@ class ScatterSetTest {
 
     @Test
     fun insertManyRemoveMany() {
-        val map = MutableScatterMap<Int, String>()
+        val set = MutableScatterSet<Int>()
 
         for (i in 0..100) {
-            map[i] = i.toString()
+            set.add(i)
         }
 
         for (i in 0..100) {
             if (i % 2 == 0) {
-                map.remove(i)
+                set.remove(i)
             }
         }
 
         for (i in 0..100) {
             if (i % 2 == 0) {
-                map[i] = i.toString()
+                set.add(i)
             }
         }
 
         for (i in 0..100) {
             if (i % 2 != 0) {
-                map.remove(i)
+                set.remove(i)
             }
         }
 
         for (i in 0..100) {
             if (i % 2 != 0) {
-                map[i] = i.toString()
+                set.add(i)
             }
         }
 
-        assertEquals(127, map.capacity)
+        assertEquals(127, set.capacity)
         for (i in 0..100) {
-            assertTrue(map.contains(i), "Map should contain element $i")
+            assertTrue(set.contains(i), "Set should contain element $i")
         }
     }
 

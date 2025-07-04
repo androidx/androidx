@@ -29,7 +29,7 @@ class Diagnosis {
         context: Context,
         tasks: List<DiagnosisTask>,
         cameraController: LifecycleCameraController,
-        isAggregated: Boolean
+        isAggregated: Boolean,
     ): File? {
 
         if (tasks.isEmpty()) {

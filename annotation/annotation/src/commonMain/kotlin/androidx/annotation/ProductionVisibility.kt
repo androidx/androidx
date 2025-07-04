@@ -20,7 +20,7 @@ package androidx.annotation
     VisibleForTesting.PRIVATE,
     VisibleForTesting.PACKAGE_PRIVATE,
     VisibleForTesting.PROTECTED,
-    VisibleForTesting.NONE
+    VisibleForTesting.NONE,
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)

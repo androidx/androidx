@@ -24,7 +24,7 @@ import kotlin.jvm.JvmInline
 /** Maps values to a set of scopes. */
 @JvmInline
 internal value class ScopeMap<Key : Any, Scope : Any>(
-    val map: MutableScatterMap<Any, Any> = mutableScatterMapOf(),
+    val map: MutableScatterMap<Any, Any> = mutableScatterMapOf()
 ) {
 
     /** The number of values in the map. */
@@ -129,6 +129,23 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
                 }
                 else -> {
                     @Suppress("UNCHECKED_CAST") predicate(value as Scope)
+                }
+            }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    inline fun removeIf(crossinline predicate: (Key, Scope) -> Boolean) {
+        map.removeIf { key, scopes ->
+            key as Key
+            when (scopes) {
+                is MutableScatterSet<*> -> {
+                    scopes as MutableScatterSet<Scope>
+                    scopes.removeIf { predicate(key, it) }
+                    scopes.isEmpty()
+                }
+                else -> {
+                    predicate(key, scopes as Scope)
                 }
             }
         }

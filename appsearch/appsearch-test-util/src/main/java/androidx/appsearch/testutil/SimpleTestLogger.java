@@ -22,9 +22,9 @@ import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchSessionStats;
-import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
@@ -47,8 +47,8 @@ public final class SimpleTestLogger implements AppSearchLogger {
     public @Nullable PutDocumentStats mPutDocumentStats;
     /** Holds {@link InitializeStats} after logging. */
     public @Nullable InitializeStats mInitializeStats;
-    /** Holds {@link SearchStats} after logging. */
-    public @Nullable SearchStats mSearchStats;
+    /** Holds {@link QueryStats} after logging. */
+    public @Nullable QueryStats mQueryStats;
     /** Holds {@link RemoveStats} after logging. */
     public @Nullable RemoveStats mRemoveStats;
     /** Holds {@link OptimizeStats} after logging. */
@@ -76,8 +76,8 @@ public final class SimpleTestLogger implements AppSearchLogger {
     }
 
     @Override
-    public void logStats(@NonNull SearchStats stats) {
-        mSearchStats = stats;
+    public void logStats(@NonNull QueryStats stats) {
+        mQueryStats = stats;
     }
 
     @Override

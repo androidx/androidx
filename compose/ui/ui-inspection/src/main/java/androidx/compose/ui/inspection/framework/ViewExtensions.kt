@@ -69,7 +69,7 @@ fun View.addSlotTable(): Int {
     }
     setTag(
         R.id.inspection_slot_table_set,
-        Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
+        Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>()),
     )
     return 1
 }

@@ -67,5 +67,5 @@ internal class ListHeaderTestCase(private val type: ListHeaderType) : LayeredCom
 
 enum class ListHeaderType {
     ListHeader,
-    ListSubheader
+    ListSubheader,
 }

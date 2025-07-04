@@ -276,7 +276,7 @@ class CompositionAndDerivedStateTests {
                 useD or useF,
                 useD or useE or useF,
                 useE or useF,
-                useNone
+                useNone,
             )
         for (newUse in states) {
             switchTo(newUse)

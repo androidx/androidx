@@ -18,6 +18,7 @@ package androidx.xr.scenecore
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.FloatSize3d
 
 /**
  * A high-level resize event which is sent in response to the User interacting with the Entity.
@@ -27,7 +28,7 @@ import androidx.annotation.RestrictTo
  */
 internal data class ResizeEvent(
     @ResizeState public val resizeState: Int,
-    public val newSize: Dimensions,
+    public val newSize: FloatSize3d,
 ) {
     public companion object {
         /** Constant for {@link resizeState}: The resize state is unknown. */
@@ -59,7 +60,7 @@ public interface ResizeListener {
      * @param originalSize The original size of the entity in meters at the start of the resize
      *   operation.
      */
-    public fun onResizeStart(entity: Entity, originalSize: Dimensions) {}
+    public fun onResizeStart(entity: Entity, originalSize: FloatSize3d) {}
 
     /**
      * Called continuously while the user is resizing the entity.
@@ -67,7 +68,7 @@ public interface ResizeListener {
      * @param entity The entity being resized.
      * @param newSize The new proposed size of the entity in meters.
      */
-    public fun onResizeUpdate(entity: Entity, newSize: Dimensions) {}
+    public fun onResizeUpdate(entity: Entity, newSize: FloatSize3d) {}
 
     /**
      * Called when the user has finished resizing the entity, for example when the user concludes
@@ -76,5 +77,5 @@ public interface ResizeListener {
      * @param entity The entity being resized.
      * @param finalSize The final proposed size of the entity in meters.
      */
-    public fun onResizeEnd(entity: Entity, finalSize: Dimensions) {}
+    public fun onResizeEnd(entity: Entity, finalSize: FloatSize3d) {}
 }

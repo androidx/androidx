@@ -67,7 +67,7 @@ public class IconWireSizeAndDimensionsTest {
                     listOf(WatchFaceLayer.BASE),
                     false,
                     "displayName",
-                    "description"
+                    "description",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -88,7 +88,7 @@ public class IconWireSizeAndDimensionsTest {
                     listOf(WatchFaceLayer.BASE),
                     false,
                     "displayName",
-                    "description"
+                    "description",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -115,7 +115,7 @@ public class IconWireSizeAndDimensionsTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         Truth.assertThat(
@@ -130,7 +130,7 @@ public class IconWireSizeAndDimensionsTest {
             UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
                     UserStyleSetting.Option.Id("classic_style"),
                     "Classic",
-                    "Classic screen reader name"
+                    "Classic screen reader name",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -139,7 +139,7 @@ public class IconWireSizeAndDimensionsTest {
             UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
                     UserStyleSetting.Option.Id("modern_style"),
                     "Modern",
-                    "Modern screen reader name"
+                    "Modern screen reader name",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -148,7 +148,7 @@ public class IconWireSizeAndDimensionsTest {
             UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
                     UserStyleSetting.Option.Id("gothic_style"),
                     "Gothic",
-                    "Gothic screen reader name"
+                    "Gothic screen reader name",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -161,7 +161,7 @@ public class IconWireSizeAndDimensionsTest {
                     watchHandStyleList,
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     "Hand Style",
-                    "Hand visual look"
+                    "Hand visual look",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -184,7 +184,7 @@ public class IconWireSizeAndDimensionsTest {
                     2,
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     "Hand length",
-                    "Scale of watch hands"
+                    "Scale of watch hands",
                 )
                 .setIcon(testIcon)
                 .build()
@@ -202,7 +202,7 @@ public class IconWireSizeAndDimensionsTest {
         val setting =
             UserStyleSetting.CustomValueUserStyleSetting(
                 listOf(WatchFaceLayer.BASE),
-                "custom value".encodeToByteArray()
+                "custom value".encodeToByteArray(),
             )
         Truth.assertThat(
                 setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
@@ -223,7 +223,7 @@ public class IconWireSizeAndDimensionsTest {
                                     UserStyleSetting.Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                                     listOf(),
                                     "Both",
-                                    "Both screen reader name"
+                                    "Both screen reader name",
                                 )
                                 .setIcon(testIcon)
                                 .build(),
@@ -235,10 +235,10 @@ public class IconWireSizeAndDimensionsTest {
                                             .build(),
                                         ComplicationSlotOverlay.Builder(rightComplicationID)
                                             .setEnabled(false)
-                                            .build()
+                                            .build(),
                                     ),
                                     "None",
-                                    "None screen reader name"
+                                    "None screen reader name",
                                 )
                                 .setIcon(testIcon)
                                 .build(),
@@ -250,7 +250,7 @@ public class IconWireSizeAndDimensionsTest {
                                             .build()
                                     ),
                                     "Left",
-                                    "Left screen reader name"
+                                    "Left screen reader name",
                                 )
                                 .setIcon(testIcon)
                                 .build(),
@@ -262,14 +262,14 @@ public class IconWireSizeAndDimensionsTest {
                                             .build()
                                     ),
                                     "Right",
-                                    "Right screen reader name"
+                                    "Right screen reader name",
                                 )
                                 .setIcon(testIcon)
-                                .build()
+                                .build(),
                         ),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .setIcon(testIcon)
                 .build()

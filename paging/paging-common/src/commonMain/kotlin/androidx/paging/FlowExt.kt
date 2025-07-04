@@ -45,7 +45,7 @@ private val NULL = Any()
 /** Temporary `scan` operator on Flow without experimental APIs. */
 internal fun <T, R> Flow<T>.simpleScan(
     initial: R,
-    operation: suspend (accumulator: R, value: T) -> R
+    operation: suspend (accumulator: R, value: T) -> R,
 ): Flow<R> = flow {
     var accumulator: R = initial
     emit(accumulator)

@@ -96,7 +96,7 @@ internal class NavGraphBuilderTest {
                 bottomSheet(firstRoute) {}
                 bottomSheet(
                     secondRoute,
-                    arguments = listOf(navArgument(key) { defaultValue = defaultArg })
+                    arguments = listOf(navArgument(key) { defaultValue = defaultArg }),
                 ) {}
             }
         }
@@ -140,7 +140,7 @@ internal class NavGraphBuilderTest {
                 bottomSheet(firstRoute) {}
                 bottomSheet(
                     secondRoute,
-                    deepLinks = listOf(navDeepLink { uriPattern = uriString })
+                    deepLinks = listOf(navDeepLink { uriPattern = uriString }),
                 ) {}
             }
         }

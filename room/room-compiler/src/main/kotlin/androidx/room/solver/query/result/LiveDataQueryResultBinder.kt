@@ -33,7 +33,7 @@ import androidx.room.solver.CodeGenScope
 class LiveDataQueryResultBinder(
     val typeArg: XType,
     val tableNames: Set<String>,
-    adapter: QueryResultAdapter?
+    adapter: QueryResultAdapter?,
 ) : BaseObservableQueryResultBinder(adapter) {
 
     override fun convertAndReturn(
@@ -42,7 +42,7 @@ class LiveDataQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val arrayOfTableNamesLiteral =
             ArrayLiteral(CommonTypeNames.STRING, *tableNames.toTypedArray())
@@ -57,7 +57,7 @@ class LiveDataQueryResultBinder(
                         when (scope.language) {
                             CodeLanguage.JAVA -> "getInvalidationTracker()"
                             CodeLanguage.KOTLIN -> "invalidationTracker"
-                        }
+                        },
                     ),
                 argFormat = listOf("%L", "%L"),
                 args = listOf(arrayOfTableNamesLiteral, inTransaction),
@@ -67,7 +67,7 @@ class LiveDataQueryResultBinder(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = typeArg.asTypeName(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -76,7 +76,7 @@ class LiveDataQueryResultBinder(
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement?.invoke(scope, statementVar)
@@ -92,7 +92,7 @@ class LiveDataQueryResultBinder(
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         scope.builder.add("return %L", createBlock)
     }

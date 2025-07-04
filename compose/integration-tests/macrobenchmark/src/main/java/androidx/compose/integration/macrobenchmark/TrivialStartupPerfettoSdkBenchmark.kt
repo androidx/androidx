@@ -39,7 +39,7 @@ import org.junit.runners.Parameterized
 class TrivialStartupPerfettoSdkBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode,
-    private val isPerfettoSdkEnabled: Boolean
+    private val isPerfettoSdkEnabled: Boolean,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -54,7 +54,7 @@ class TrivialStartupPerfettoSdkBenchmark(
                     TraceSectionMetric(
                         "%TrivialStartupTracingActivity.onCreate%" +
                             " (TrivialStartupTracingActivity.kt:%)",
-                        TraceSectionMetric.Mode.First
+                        TraceSectionMetric.Mode.First,
                     )
                 benchmarkRule.measureStartup(
                     compilationMode = compilationMode,
@@ -62,7 +62,7 @@ class TrivialStartupPerfettoSdkBenchmark(
                     iterations =
                         1, // we are only verifying presence of entries (not the timing data)
                     metrics = listOf(perfettoSdkTraceSection),
-                    packageName = "androidx.compose.integration.macrobenchmark.target"
+                    packageName = "androidx.compose.integration.macrobenchmark.target",
                 ) {
                     action =
                         "androidx.compose.integration.macrobenchmark.target." +

@@ -233,12 +233,14 @@ public final class ExtensionsManager {
                 throw new IllegalStateException("Not yet done deinitializing extensions");
             }
             sDeinitializeFuture = null;
+            Context applicationContext = ContextUtil.getApplicationContext(context);
 
             // Will be initialized, with an empty implementation which will report all extensions
             // as unavailable
             if (ExtensionVersion.getRuntimeVersion() == null) {
                 return Futures.immediateFuture(
-                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE, cameraProvider));
+                        getOrCreateExtensionsManager(ExtensionsAvailability.NONE, cameraProvider,
+                                applicationContext));
             }
 
             // Prior to 1.1 no additional initialization logic required
@@ -246,21 +248,21 @@ public final class ExtensionsManager {
                     || ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_0)) {
                 return Futures.immediateFuture(
                         getOrCreateExtensionsManager(ExtensionsAvailability.LIBRARY_AVAILABLE,
-                                cameraProvider));
+                                cameraProvider, applicationContext));
             }
 
             if (sInitializeFuture == null) {
                 sInitializeFuture = CallbackToFutureAdapter.getFuture(completer -> {
                     try {
                         InitializerImpl.init(clientVersion.toVersionString(),
-                                ContextUtil.getApplicationContext(context),
+                                applicationContext,
                                 new InitializerImpl.OnExtensionsInitializedCallback() {
                                     @Override
                                     public void onSuccess() {
                                         Logger.d(TAG, "Successfully initialized extensions");
                                         completer.set(getOrCreateExtensionsManager(
                                                 ExtensionsAvailability.LIBRARY_AVAILABLE,
-                                                cameraProvider));
+                                                cameraProvider, applicationContext));
                                     }
 
                                     @Override
@@ -269,7 +271,7 @@ public final class ExtensionsManager {
                                         completer.set(getOrCreateExtensionsManager(
                                                 ExtensionsAvailability
                                                         .LIBRARY_UNAVAILABLE_ERROR_LOADING,
-                                                cameraProvider));
+                                                cameraProvider, applicationContext));
                                     }
                                 },
                                 CameraXExecutors.directExecutor());
@@ -278,7 +280,7 @@ public final class ExtensionsManager {
                                 + "are missed in the vendor library. " + e);
                         completer.set(getOrCreateExtensionsManager(
                                 ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION,
-                                cameraProvider));
+                                cameraProvider, applicationContext));
                     } catch (RuntimeException e) {
                         // Catches all unexpected runtime exceptions and still returns an
                         // ExtensionsManager instance which performs default behavior.
@@ -288,7 +290,7 @@ public final class ExtensionsManager {
                                         + e);
                         completer.set(getOrCreateExtensionsManager(
                                 ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING,
-                                cameraProvider));
+                                cameraProvider, applicationContext));
                     }
 
                     return "Initialize extensions";
@@ -382,13 +384,15 @@ public final class ExtensionsManager {
 
     static ExtensionsManager getOrCreateExtensionsManager(
             @NonNull ExtensionsAvailability extensionsAvailability,
-            @NonNull CameraProvider cameraProvider) {
+            @NonNull CameraProvider cameraProvider,
+            @NonNull Context applicationContext) {
         synchronized (EXTENSIONS_LOCK) {
             if (sExtensionsManager != null) {
                 return sExtensionsManager;
             }
 
-            sExtensionsManager = new ExtensionsManager(extensionsAvailability, cameraProvider);
+            sExtensionsManager = new ExtensionsManager(extensionsAvailability, cameraProvider,
+                    applicationContext);
 
             return sExtensionsManager;
         }
@@ -549,8 +553,8 @@ public final class ExtensionsManager {
     }
 
     private ExtensionsManager(@NonNull ExtensionsAvailability extensionsAvailability,
-            @NonNull CameraProvider cameraProvider) {
+            @NonNull CameraProvider cameraProvider, @NonNull Context applicationContext) {
         mExtensionsAvailability = extensionsAvailability;
-        mExtensionsInfo = new ExtensionsInfo(cameraProvider);
+        mExtensionsInfo = new ExtensionsInfo(cameraProvider, applicationContext);
     }
 }

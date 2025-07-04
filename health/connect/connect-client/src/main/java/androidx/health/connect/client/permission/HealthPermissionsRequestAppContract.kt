@@ -37,7 +37,7 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class HealthPermissionsRequestAppContract(
-    private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
+    private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME
 ) : ActivityResultContract<Set<String>, Set<String>>() {
 
     override fun createIntent(context: Context, input: Set<String>): Intent {

@@ -18,8 +18,6 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,25 +70,25 @@ class ButtonGroupScreenshotTest {
         require(numItems in 1..3)
         rule.setContentWithTheme {
             ScreenConfiguration(SCREEN_SIZE_SMALL) {
-                val interactionSource1 = remember { MutableInteractionSource() }
-                val interactionSource2 = remember { MutableInteractionSource() }
-                val interactionSource3 = remember { MutableInteractionSource() }
                 ButtonGroup(
                     Modifier.testTag(TEST_TAG),
                     spacing = spacing,
-                    expansionWidth = expansionWidth
+                    expansionWidth = expansionWidth,
                 ) {
-                    buttonGroupItem(interactionSource1, minWidth1, weight1) {
-                        Text("A", Modifier.background(Color.Gray))
+                    // Modifiers inverted here to check order doesn't matter
+                    Text("A", Modifier.background(Color.Gray).weight(weight1).minWidth(minWidth1))
+                    if (numItems >= 2) {
+                        Text(
+                            "B",
+                            Modifier.background(Color.Gray).minWidth(minWidth2).weight(weight2),
+                        )
                     }
-                    if (numItems >= 2)
-                        buttonGroupItem(interactionSource2, minWidth2, weight2) {
-                            Text("B", Modifier.background(Color.Gray))
-                        }
-                    if (numItems >= 3)
-                        buttonGroupItem(interactionSource3, minWidth3, weight3) {
-                            Text("C", Modifier.background(Color.Gray))
-                        }
+                    if (numItems >= 3) {
+                        Text(
+                            "C",
+                            Modifier.background(Color.Gray).minWidth(minWidth3).weight(weight3),
+                        )
+                    }
                 }
             }
         }

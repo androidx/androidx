@@ -30,7 +30,7 @@ internal class AndroidTypefaceWrapper(val typeface: Typeface) : AndroidTypeface 
     override fun getNativeTypeface(
         fontWeight: FontWeight,
         fontStyle: FontStyle,
-        synthesis: FontSynthesis
+        synthesis: FontSynthesis,
     ): Typeface {
         return typeface
     }

@@ -65,15 +65,18 @@ internal val SYSTEM_CLASSNAME = ClassName.get("java.lang", "System")
 internal abstract class Annotations {
     abstract val NULLABLE_CLASSNAME: ClassName
     abstract val NONNULL_CLASSNAME: ClassName
+    abstract val CHECK_RESULT: ClassName
 
     private object AndroidAnnotations : Annotations() {
         override val NULLABLE_CLASSNAME = ClassName.get("android.support.annotation", "Nullable")
         override val NONNULL_CLASSNAME = ClassName.get("android.support.annotation", "NonNull")
+        override val CHECK_RESULT = error("Must be using AndroidX for CheckResult Annotation")
     }
 
-    private object AndroidXAnnotations : Annotations() {
+    internal object AndroidXAnnotations : Annotations() {
         override val NULLABLE_CLASSNAME = ClassName.get("androidx.annotation", "Nullable")
         override val NONNULL_CLASSNAME = ClassName.get("androidx.annotation", "NonNull")
+        override val CHECK_RESULT = ClassName.get("androidx.annotation", "CheckResult")
     }
 
     companion object {
@@ -90,7 +93,7 @@ internal fun NavType.addBundleGetStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     lValue: String,
-    bundle: String
+    bundle: String,
 ): MethodSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -101,7 +104,7 @@ internal fun NavType.addBundleGetStatement(
                         PARCELABLE_CLASSNAME,
                         arg.type.typeName(),
                         SERIALIZABLE_CLASSNAME,
-                        arg.type.typeName()
+                        arg.type.typeName(),
                     )
                     .apply {
                         addStatement(
@@ -110,7 +113,7 @@ internal fun NavType.addBundleGetStatement(
                             arg.type.typeName(),
                             bundle,
                             "get",
-                            arg.name
+                            arg.name,
                         )
                     }
                     .nextControlFlow("else")
@@ -119,7 +122,7 @@ internal fun NavType.addBundleGetStatement(
                             "throw new UnsupportedOperationException($T.class.getName() + " +
                                 "\" must implement Parcelable or Serializable " +
                                 "or must be an Enum.\")",
-                            arg.type.typeName()
+                            arg.type.typeName(),
                         )
                     }
                     .endControlFlow()
@@ -134,7 +137,7 @@ internal fun NavType.addBundleGetStatement(
                     arrayName,
                     bundle,
                     bundleGetMethod(),
-                    arg.name
+                    arg.name,
                 )
                 beginControlFlow("if ($N != null)", arrayName).apply {
                     addStatement("$N = new $T[$N.length]", lValue, baseType, arrayName)
@@ -143,7 +146,7 @@ internal fun NavType.addBundleGetStatement(
                         SYSTEM_CLASSNAME,
                         arrayName,
                         lValue,
-                        arrayName
+                        arrayName,
                     )
                 }
                 nextControlFlow("else").apply { addStatement("$N = null", lValue) }
@@ -156,7 +159,7 @@ internal fun NavType.addBundlePutStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     bundle: String,
-    argValue: String
+    argValue: String,
 ): MethodSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -165,7 +168,7 @@ internal fun NavType.addBundlePutStatement(
                         "if ($T.class.isAssignableFrom($T.class) || $N == null)",
                         PARCELABLE_CLASSNAME,
                         arg.type.typeName(),
-                        argValue
+                        argValue,
                     )
                     .apply {
                         addStatement(
@@ -174,13 +177,13 @@ internal fun NavType.addBundlePutStatement(
                             "putParcelable",
                             arg.name,
                             PARCELABLE_CLASSNAME,
-                            argValue
+                            argValue,
                         )
                     }
                     .nextControlFlow(
                         "else if ($T.class.isAssignableFrom($T.class))",
                         SERIALIZABLE_CLASSNAME,
-                        arg.type.typeName()
+                        arg.type.typeName(),
                     )
                     .apply {
                         addStatement(
@@ -189,7 +192,7 @@ internal fun NavType.addBundlePutStatement(
                             "putSerializable",
                             arg.name,
                             SERIALIZABLE_CLASSNAME,
-                            argValue
+                            argValue,
                         )
                     }
                     .nextControlFlow("else")
@@ -197,7 +200,7 @@ internal fun NavType.addBundlePutStatement(
                         addStatement(
                             "throw new UnsupportedOperationException($T.class.getName() + " +
                                 "\" must implement Parcelable or Serializable or must be an Enum.\")",
-                            arg.type.typeName()
+                            arg.type.typeName(),
                         )
                     }
                     .endControlFlow()
@@ -209,7 +212,7 @@ internal fun NavType.addBundlePutStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     bundle: String,
-    argValue: CodeBlock
+    argValue: CodeBlock,
 ): MethodSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -223,7 +226,7 @@ internal fun NavType.addSavedStateHandleSetStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     savedStateHandle: String,
-    argValue: String
+    argValue: String,
 ): MethodSpec.Builder =
     when (this) {
         is ObjectType ->
@@ -232,7 +235,7 @@ internal fun NavType.addSavedStateHandleSetStatement(
                         "if ($T.class.isAssignableFrom($T.class) || $N == null)",
                         PARCELABLE_CLASSNAME,
                         arg.type.typeName(),
-                        argValue
+                        argValue,
                     )
                     .apply {
                         addStatement(
@@ -240,13 +243,13 @@ internal fun NavType.addSavedStateHandleSetStatement(
                             savedStateHandle,
                             arg.name,
                             PARCELABLE_CLASSNAME,
-                            argValue
+                            argValue,
                         )
                     }
                     .nextControlFlow(
                         "else if ($T.class.isAssignableFrom($T.class))",
                         SERIALIZABLE_CLASSNAME,
-                        arg.type.typeName()
+                        arg.type.typeName(),
                     )
                     .apply {
                         addStatement(
@@ -254,7 +257,7 @@ internal fun NavType.addSavedStateHandleSetStatement(
                             savedStateHandle,
                             arg.name,
                             SERIALIZABLE_CLASSNAME,
-                            argValue
+                            argValue,
                         )
                     }
                     .nextControlFlow("else")
@@ -262,7 +265,7 @@ internal fun NavType.addSavedStateHandleSetStatement(
                         addStatement(
                             "throw new UnsupportedOperationException($T.class.getName() + " +
                                 "\" must implement Parcelable or Serializable or must be an Enum.\")",
-                            arg.type.typeName()
+                            arg.type.typeName(),
                         )
                     }
                     .endControlFlow()
@@ -274,7 +277,7 @@ internal fun NavType.addSavedStateHandleSetStatement(
     builder: MethodSpec.Builder,
     arg: Argument,
     savedStateHandle: String,
-    argValue: CodeBlock
+    argValue: CodeBlock,
 ): MethodSpec.Builder =
     when (this) {
         is ObjectType ->

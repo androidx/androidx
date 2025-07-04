@@ -34,6 +34,7 @@ public interface AlertCallbackDelegate {
     /**
      * Notifies that a cancel event happened with given {@code reason}.
      *
+     * @param reason the {@link AlertCallback.Reason} for which the alert was cancelled
      * @param callback the {@link OnDoneCallback} to trigger when the client finishes handling
      *                 the event
      */

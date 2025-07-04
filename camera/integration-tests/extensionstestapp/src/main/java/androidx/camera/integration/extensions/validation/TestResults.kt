@@ -84,7 +84,7 @@ class TestResults private constructor(val context: Context) {
 
     fun loadTestResults(
         cameraProvider: ProcessCameraProvider,
-        extensionsManager: ExtensionsManager
+        extensionsManager: ExtensionsManager,
     ) {
         initTestResult(cameraProvider, extensionsManager)
         refreshTestResultsFromFile()
@@ -100,13 +100,13 @@ class TestResults private constructor(val context: Context) {
         cameraId: String,
         extensionMode: Int,
         testResult: Int,
-        testResultDetails: String = ""
+        testResultDetails: String = "",
     ) {
         Log.d(
             TAG,
             "updateTestResultAndSave: testType: $testType, cameraId: $cameraId" +
                 ", extensionMode: $extensionMode, testResult: $testResult" +
-                ", testResultDetails: $testResultDetails"
+                ", testResultDetails: $testResultDetails",
         )
         val results = cameraExtensionResultMap[Pair(testType, cameraId)] ?: linkedMapOf()
         results[extensionMode] = Pair(testResult, testResultDetails)
@@ -164,7 +164,7 @@ class TestResults private constructor(val context: Context) {
                 put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
                 put(
                     MediaStore.MediaColumns.RELATIVE_PATH,
-                    "$DIRECTORY_DOCUMENTS/ExtensionsValidation"
+                    "$DIRECTORY_DOCUMENTS/ExtensionsValidation",
                 )
             }
 
@@ -173,7 +173,7 @@ class TestResults private constructor(val context: Context) {
                 contentResolver,
                 testResultsFile.toUri(),
                 MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
-                contentValues
+                contentValues,
             ) != null
         ) {
             return "$DIRECTORY_DOCUMENTS/ExtensionsValidation/$savedFileName"
@@ -184,7 +184,7 @@ class TestResults private constructor(val context: Context) {
 
     fun resetTestResults(
         cameraProvider: ProcessCameraProvider,
-        extensionsManager: ExtensionsManager
+        extensionsManager: ExtensionsManager,
     ) {
         val testResultsFile = File(context.getExternalFilesDir(null), TEST_RESULTS_FILE_NAME)
 
@@ -199,7 +199,7 @@ class TestResults private constructor(val context: Context) {
 
     private fun initTestResult(
         cameraProvider: ProcessCameraProvider,
-        extensionsManager: ExtensionsManager
+        extensionsManager: ExtensionsManager,
     ) {
         val availableCameraIds = mutableListOf<String>()
 

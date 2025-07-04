@@ -19,7 +19,7 @@ package androidx.work
  * An enumeration of the conflict resolution policies available to unique [PeriodicWorkRequest]s in
  * case of a collision.
  */
-enum class ExistingPeriodicWorkPolicy {
+public enum class ExistingPeriodicWorkPolicy {
     /**
      * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
      * it. Then, insert the newly-specified work.

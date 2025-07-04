@@ -127,7 +127,7 @@ class TestFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) =
         ComposeView(requireContext()).apply {
             setContent {
@@ -145,7 +145,7 @@ class TestFragmentFrameLayout : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val view = FrameLayout(requireContext())
         frameLayout = view

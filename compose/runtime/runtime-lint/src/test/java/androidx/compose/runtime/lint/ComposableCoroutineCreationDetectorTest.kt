@@ -95,7 +95,7 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         WjbVceMif4+UR75FntOqleo+qdC1Tr725BL+Rbn9YFkMgmySbf4qQINQgI+V
         P4fXqdo9K5/BTy7R/IjVizLB8bC0d7FV/lX0GQiwdopKhOsRbkS4iVsUYj1C
         G51TsBy3sUH7OYIcd3J4PwGm9PkckgIAAA==
-        """
+        """,
         )
 
     private val flowStub: TestFile =
@@ -127,7 +127,7 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         D1nu4P+H8QmrdKGBZvcnWj+YCDxlDBdmA9uM7T8BxFjlGuDZIhVgZ1G38Jzr
         a860OXNvhKCH+z2s9ZBgnSk2eniAzRHI4iEejdCwWLV4bNGxiO4ApHDXcycC
         AAA=
-        """
+        """,
         )
 
     private val flowBuildersStub: TestFile =
@@ -163,7 +163,7 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         B1zVmSeO+a+w33/GzU+pVXjIaC14C1XG4pUGJTgc9xaaHB4tVflF/XiBu3jC
         8YjZdd6l3IXp4ZaH2x7u4K6He9jweP9KFxRjC9tdZOP0ux9jJ0YphvULZwN9
         KR0DAAA=
-        """
+        """,
         )
 
     private val flowCollectStub: TestFile =
@@ -239,7 +239,7 @@ class ComposableCoroutineCreationDetectorTest : LintDetectorTest() {
         SqRnV1LyMRKrqZQvv2H8HfuCqS5mjnHrsz8/+gGBsogA4nhA9mQvD3OYD3Bn
         kcQCxR8Gt6N4RHpEIkcsKOrLEB6TlOk0HqRM4UlwOYdN0k/JnyFqt/cRUnFH
         xaKKJSyrWMGqijXc3QdzsA5lHxGHPjtkqS0H8w6SDhZ+AcPOvm8nBQAA
-        """
+        """,
         )
 
     @Test

@@ -123,7 +123,7 @@ package androidx.compose.foundation {
     method @Deprecated public static androidx.compose.ui.Modifier excludeFromSystemGesture(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.geometry.Rect> exclusion);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This foundation API is experimental and is likely to change or be removed in the " + "future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFoundationApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This foundation API is experimental and is likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFoundationApi {
   }
 
   public final class FocusableKt {
@@ -188,8 +188,6 @@ package androidx.compose.foundation {
   }
 
   public enum MutatePriority {
-    method public static androidx.compose.foundation.MutatePriority valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.foundation.MutatePriority[] values();
     enum_constant public static final androidx.compose.foundation.MutatePriority Default;
     enum_constant public static final androidx.compose.foundation.MutatePriority PreventUserInput;
     enum_constant public static final androidx.compose.foundation.MutatePriority UserInput;
@@ -441,8 +439,6 @@ package androidx.compose.foundation.gestures {
   }
 
   public enum Orientation {
-    method public static androidx.compose.foundation.gestures.Orientation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.foundation.gestures.Orientation[] values();
     enum_constant public static final androidx.compose.foundation.gestures.Orientation Horizontal;
     enum_constant public static final androidx.compose.foundation.gestures.Orientation Vertical;
   }
@@ -1437,7 +1433,7 @@ package androidx.compose.foundation.text {
     method public static void appendInlineContent(androidx.compose.ui.text.AnnotatedString.Builder, String id, optional String alternateText);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="Internal/Unstable API for use only between foundation modules sharing " + "the same exact version, subject to change without notice.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InternalFoundationTextApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="Internal/Unstable API for use only between foundation modules sharing the same exact version, subject to change without notice.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InternalFoundationTextApi {
   }
 
   public interface KeyboardActionScope {

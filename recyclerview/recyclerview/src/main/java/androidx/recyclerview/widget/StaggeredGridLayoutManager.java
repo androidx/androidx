@@ -30,10 +30,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,10 +112,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * Primary orientation is the layout's orientation, secondary orientation is the orientation
      * for spans. Having both makes code much cleaner for calculations.
      */
-    @NonNull
-    OrientationHelper mPrimaryOrientation;
-    @NonNull
-    OrientationHelper mSecondaryOrientation;
+    @NonNull OrientationHelper mPrimaryOrientation;
+    @NonNull OrientationHelper mSecondaryOrientation;
 
     private int mOrientation;
 
@@ -123,8 +122,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      */
     private int mSizePerSpan;
 
-    @NonNull
-    private final LayoutState mLayoutState;
+    private final @NonNull LayoutState mLayoutState;
 
     boolean mReverseLayout = false;
 
@@ -605,8 +603,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    public void onAdapterChanged(@Nullable RecyclerView.Adapter oldAdapter,
-            @Nullable RecyclerView.Adapter newAdapter) {
+    public void onAdapterChanged(RecyclerView.@Nullable Adapter oldAdapter,
+            RecyclerView.@Nullable Adapter newAdapter) {
         // RV will remove all views so we should clear all spans and assignments of views into spans
         mLazySpanLookup.clear();
         for (int i = 0; i < mSpanCount; i++) {
@@ -1290,8 +1288,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+    public void onInitializeAccessibilityNodeInfo(RecyclerView.@NonNull Recycler recycler,
+            RecyclerView.@NonNull State state, @NonNull AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(recycler, state, info);
         // Setting the classname allows accessibility services to set a role for staggered grids
         // and ensures that they are treated distinctly from canonical grids with clear row/column
@@ -1300,8 +1298,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    public void onInitializeAccessibilityNodeInfoForItem(@NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state, @NonNull View host,
+    public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.@NonNull Recycler recycler,
+            RecyclerView.@NonNull State state, @NonNull View host,
             @NonNull AccessibilityNodeInfoCompat info) {
         ViewGroup.LayoutParams lp = host.getLayoutParams();
         if (!(lp instanceof LayoutParams)) {
@@ -1352,8 +1350,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    public int getRowCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state) {
+    public int getRowCountForAccessibility(RecyclerView.@NonNull Recycler recycler,
+            RecyclerView.@NonNull State state) {
         if (mOrientation == HORIZONTAL) {
             return Math.min(mSpanCount, state.getItemCount());
         }
@@ -1361,8 +1359,8 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
     }
 
     @Override
-    public int getColumnCountForAccessibility(@NonNull RecyclerView.Recycler recycler,
-            @NonNull RecyclerView.State state) {
+    public int getColumnCountForAccessibility(RecyclerView.@NonNull Recycler recycler,
+            RecyclerView.@NonNull State state) {
         if (mOrientation == VERTICAL) {
             return Math.min(mSpanCount, state.getItemCount());
         }
@@ -2303,10 +2301,9 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         return mOrientation;
     }
 
-    @Nullable
     @Override
-    public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,
-            RecyclerView.State state) {
+    public @Nullable View onFocusSearchFailed(View focused, int direction,
+            RecyclerView.Recycler recycler, RecyclerView.State state) {
         if (getChildCount() == 0) {
             return null;
         }

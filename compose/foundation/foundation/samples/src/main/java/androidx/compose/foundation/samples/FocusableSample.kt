@@ -60,7 +60,7 @@ fun FocusableSample() {
                 Modifier
                     // add focusRequester modifier before the focusable (or even in the parent)
                     .focusRequester(focusRequester)
-                    .focusable(interactionSource = interactionSource)
+                    .focusable(interactionSource = interactionSource),
         )
         Button(onClick = { focusRequester.requestFocus() }) {
             Text("Bring focus to the text above")

@@ -36,7 +36,7 @@ val DatePickerScreen =
                         onDatePicked = {},
                         minValidDate = minDate,
                         maxValidDate = maxDate,
-                        datePickerType = DatePickerType.YearMonthDay
+                        datePickerType = DatePickerType.YearMonthDay,
                     )
                 }
             }

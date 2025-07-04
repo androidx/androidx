@@ -436,14 +436,16 @@ public class GenericDocumentToProtoConverterTest {
                         new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new LocalStorageIcingOptionsConfig(),
                                 /* storeParentInfoAsSyntheticProperty= */ false,
-                                /* shouldRetrieveParentInfo= */ true));
+                                /* shouldRetrieveParentInfo= */ true,
+                                /* persistToDiskRecoveryProof=*/false));
         GenericDocument actualDocWithParentAsSyntheticProperty =
                 GenericDocumentToProtoConverter.toGenericDocument(documentProto, PREFIX,
                         new SchemaCache(schemaMap),
                         new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new LocalStorageIcingOptionsConfig(),
                                 /* storeParentInfoAsSyntheticProperty= */ true,
-                                /* shouldRetrieveParentInfo= */ true));
+                                /* shouldRetrieveParentInfo= */ true,
+                                /* persistToDiskRecoveryProof=*/false));
 
         assertThat(actualDocWithParentAsMetaField).isEqualTo(expectedDocWithParentAsMetaField);
         assertThat(actualDocWithParentAsMetaField).isNotEqualTo(
@@ -505,14 +507,16 @@ public class GenericDocumentToProtoConverterTest {
                         new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new LocalStorageIcingOptionsConfig(),
                                 /* storeParentInfoAsSyntheticProperty= */ false,
-                                /* shouldRetrieveParentInfo= */ true));
+                                /* shouldRetrieveParentInfo= */ true,
+                                /* persistToDiskRecoveryProof=*/false));
         GenericDocument actualDoc2 =
                 GenericDocumentToProtoConverter.toGenericDocument(documentProto, PREFIX,
                         new SchemaCache(schemaMap),
                         new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                                 new LocalStorageIcingOptionsConfig(),
                                 /* storeParentInfoAsSyntheticProperty= */ true,
-                                /* shouldRetrieveParentInfo= */ true));
+                                /* shouldRetrieveParentInfo= */ true,
+                                /* persistToDiskRecoveryProof=*/false));
         assertThat(actualDoc1).isEqualTo(expectedDoc);
         assertThat(actualDoc2).isEqualTo(expectedDoc);
     }

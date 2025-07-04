@@ -187,7 +187,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f))),
         )
     }
 
@@ -197,7 +197,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f))),
         )
     }
 
@@ -207,7 +207,7 @@ class PointerInputTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 6f, 12f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(Offset(6f, 12f))),
         )
     }
 
@@ -477,7 +477,7 @@ class PointerInputTest {
         previousDown: Boolean,
         consumedX: Float,
         consumedY: Float,
-        consumedDown: Boolean
+        consumedDown: Boolean,
     ): PointerInputChange {
         return PointerInputChange(
             PointerId(0),
@@ -487,7 +487,7 @@ class PointerInputTest {
             0,
             Offset(previousX, previousY),
             previousDown,
-            isInitiallyConsumed = consumedX != 0f || consumedY != 0f || consumedDown
+            isInitiallyConsumed = consumedX != 0f || consumedY != 0f || consumedDown,
         )
     }
 }
@@ -540,5 +540,5 @@ private fun PointerInputChange.deepCopy(): PointerInputChange =
         previousPressed = this.previousPressed,
         isInitiallyConsumed = this.isConsumed,
         type = this.type,
-        scrollDelta = this.scrollDelta
+        scrollDelta = this.scrollDelta,
     )

@@ -5,8 +5,8 @@ package androidx.compose.ui.text.googlefonts {
     ctor public GoogleFont(String name, optional boolean bestEffort);
     method public boolean getBestEffort();
     method public String getName();
-    property public final boolean bestEffort;
-    property public final String name;
+    property public boolean bestEffort;
+    property public String name;
   }
 
   public static final class GoogleFont.Provider {
@@ -16,6 +16,7 @@ package androidx.compose.ui.text.googlefonts {
 
   public final class GoogleFontKt {
     method public static androidx.compose.ui.text.font.Font Font(androidx.compose.ui.text.googlefonts.GoogleFont googleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider fontProvider, optional androidx.compose.ui.text.font.FontWeight weight, optional int style);
+    method @BytecodeOnly public static androidx.compose.ui.text.font.Font Font-wCLgNak(androidx.compose.ui.text.googlefonts.GoogleFont, androidx.compose.ui.text.googlefonts.GoogleFont.Provider, androidx.compose.ui.text.font.FontWeight, int);
     method @WorkerThread public static boolean isAvailableOnDevice(androidx.compose.ui.text.googlefonts.GoogleFont.Provider, android.content.Context context);
   }
 

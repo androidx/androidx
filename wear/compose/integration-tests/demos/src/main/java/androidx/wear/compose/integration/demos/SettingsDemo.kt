@@ -40,21 +40,21 @@ fun SettingsDemo() {
         ScalingLazyColumn(
             state = scalingLazyListState,
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item { ListHeader(modifier = Modifier.fillMaxWidth()) { Text("Settings") } }
             // Connectivity
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_connectivity,
-                    text = "Connectivity"
+                    text = "Connectivity",
                 )
             }
             // Display
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_brightness,
-                    text = "Display"
+                    text = "Display",
                 )
             }
             // Gestures
@@ -65,7 +65,7 @@ fun SettingsDemo() {
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_apps,
-                    text = "Apps & Notifications"
+                    text = "Apps & Notifications",
                 )
             }
             // Google
@@ -78,7 +78,7 @@ fun SettingsDemo() {
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_vibration,
-                    text = "Vibration"
+                    text = "Vibration",
                 )
             }
             // Battery
@@ -89,14 +89,14 @@ fun SettingsDemo() {
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_watch_device,
-                    text = "General"
+                    text = "General",
                 )
             }
             // Health Profile
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_health_profile,
-                    text = "Health Profile"
+                    text = "Health Profile",
                 )
             }
             // Location
@@ -107,14 +107,14 @@ fun SettingsDemo() {
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_emergency,
-                    text = "Safety and Emergency"
+                    text = "Safety and Emergency",
                 )
             }
             // Accessibility
             item {
                 SettingsChip(
                     painterResourceId = R.drawable.ic_settings_accessibility,
-                    text = "Accessibility"
+                    text = "Accessibility",
                 )
             }
             // Security
@@ -136,6 +136,6 @@ private fun SettingsChip(painterResourceId: Int, text: String) {
         modifier = Modifier.fillMaxSize(),
         colors = ChipDefaults.secondaryChipColors(),
         icon = { Icon(painter = painterResource(painterResourceId), contentDescription = text) },
-        label = { Text(text) }
+        label = { Text(text) },
     )
 }

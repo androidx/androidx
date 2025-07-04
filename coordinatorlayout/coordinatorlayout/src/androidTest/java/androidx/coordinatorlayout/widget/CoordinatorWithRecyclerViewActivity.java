@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.BaseTestActivity;
 import androidx.coordinatorlayout.test.R;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +27,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +72,8 @@ public class CoordinatorWithRecyclerViewActivity extends BaseTestActivity {
         }
 
         public static class ViewHolder extends RecyclerView.ViewHolder {
-            @NonNull public TextView textViewHeader;
-            @NonNull public TextView textViewSubHeader;
+            public @NonNull TextView textViewHeader;
+            public @NonNull TextView textViewSubHeader;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -81,9 +82,8 @@ public class CoordinatorWithRecyclerViewActivity extends BaseTestActivity {
             }
         }
 
-        @NonNull
         @Override
-        public MyAdapter.ViewHolder onCreateViewHolder(
+        public MyAdapter.@NonNull ViewHolder onCreateViewHolder(
                 @NonNull ViewGroup parent,
                 int viewType
         ) {

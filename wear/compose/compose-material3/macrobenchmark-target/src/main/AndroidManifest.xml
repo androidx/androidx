@@ -76,16 +76,6 @@
         </activity>
 
         <activity
-            android:name=".BlankScreenActivity"
-            android:theme="@style/AppTheme"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="androidx.wear.compose.material3.macrobenchmark.target.BLANK_SCREEN_ACTIVITY" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".ButtonActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
@@ -162,6 +152,17 @@
         </activity>
 
         <activity
+            android:name=".AlertDialogDismissActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.ALERT_DIALOG_DISMISS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".FailureConfirmationActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
@@ -173,12 +174,34 @@
         </activity>
 
         <activity
+            android:name=".HorizontalPageIndicatorActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.PAGE_INDICATOR_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".HorizontalPagerActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.HORIZONTAL_PAGER_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".HorizontalPagerScaffoldActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.HORIZONTAL_PAGER_SCAFFOLD_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -225,12 +248,57 @@
         </activity>
 
         <activity
+            android:name=".PickerGroupActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.PICKER_GROUP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name=".ScrollIndicatorActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.SCROLL_INDICATOR_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ScalingLazyColumnActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.SCALING_LAZY_COLUMN_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".SliderActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.SLIDER_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".StartupActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.STARTUP_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -268,6 +336,26 @@
         </activity>
 
         <activity
+            android:name=".SwipeToRevealInListActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.material3.macrobenchmark.target.SWIPE_TO_REVEAL_IN_LIST_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SwipeToDismissBoxActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.material3.macrobenchmark.target.SWIPE_TO_DISMISS_BOX_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".TimePickerActivity"
             android:theme="@style/AppTheme"
             android:exported="true"
@@ -275,6 +363,29 @@
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.TIME_PICKER_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TimePickerScrollMinutesActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true"
+            tools:targetApi="o">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TIME_PICKER_SCROLL_MINUTES_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TimeTextActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TIME_TEXT_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -291,12 +402,44 @@
         </activity>
 
         <activity
+            android:name=".TransformingLazyColumnNotificationsActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_NOTIFICATIONS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TransformingLazyColumnMorphingNotificationsActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_MORPHING_NOTIFICATIONS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".WindowDialogActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.WINDOW_DIALOG_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RotaryScrollActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.ROTARY_SCROLL_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

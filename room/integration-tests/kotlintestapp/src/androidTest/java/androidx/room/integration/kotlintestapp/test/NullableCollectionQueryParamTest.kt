@@ -45,7 +45,7 @@ class NullableCollectionQueryParamTest {
         db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    TestDatabase::class.java
+                    TestDatabase::class.java,
                 )
                 .build()
         dao = db.getDao()

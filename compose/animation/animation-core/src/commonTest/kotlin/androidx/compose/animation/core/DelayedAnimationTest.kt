@@ -35,7 +35,7 @@ class DelayedAnimationTest {
                 vectorizedSpec.getDurationNanos(
                     initialValue = initialValue,
                     targetValue = targetValue,
-                    initialVelocity = initialVelocity
+                    initialVelocity = initialVelocity,
                 )
             )
             .isEqualTo(1500L * MillisToNanos)
@@ -59,7 +59,7 @@ class DelayedAnimationTest {
                         playTimeNanos = 0L,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(0f)
@@ -70,7 +70,7 @@ class DelayedAnimationTest {
                         playTimeNanos = delayNanos,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(0f)
@@ -81,7 +81,7 @@ class DelayedAnimationTest {
                         playTimeNanos = 1000L * MillisToNanos,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(500f)
@@ -92,7 +92,7 @@ class DelayedAnimationTest {
                         playTimeNanos = 1500L * MillisToNanos,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(1000f)
@@ -116,7 +116,7 @@ class DelayedAnimationTest {
                         playTimeNanos = 0L,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(30f)
@@ -127,7 +127,7 @@ class DelayedAnimationTest {
                         playTimeNanos = delayNanos,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(30f)
@@ -138,7 +138,7 @@ class DelayedAnimationTest {
             vectorizedSpringSpec.getDurationNanos(
                 initialValue = initialValue,
                 targetValue = targetValue,
-                initialVelocity = initialVelocity
+                initialVelocity = initialVelocity,
             )
 
         assertThat(
@@ -147,7 +147,7 @@ class DelayedAnimationTest {
                         playTimeNanos = (delayNanos) + (springDuration / 5),
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(
@@ -156,7 +156,7 @@ class DelayedAnimationTest {
                         playTimeNanos = springDuration / 5,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
 
@@ -166,7 +166,7 @@ class DelayedAnimationTest {
                         playTimeNanos = (delayNanos) + (springDuration / 2),
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(
@@ -175,7 +175,7 @@ class DelayedAnimationTest {
                         playTimeNanos = springDuration / 2,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
 
@@ -185,7 +185,7 @@ class DelayedAnimationTest {
                         playTimeNanos = (delayNanos) + springDuration,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
             .isEqualTo(
@@ -194,7 +194,7 @@ class DelayedAnimationTest {
                         playTimeNanos = springDuration,
                         initialValue = initialValue,
                         targetValue = targetValue,
-                        initialVelocity = initialVelocity
+                        initialVelocity = initialVelocity,
                     )[0]
             )
     }
@@ -214,7 +214,7 @@ class DelayedAnimationTest {
                 vectorizedSpec.getDurationNanos(
                     initialValue = initialValue,
                     targetValue = targetValue,
-                    initialVelocity = initialVelocity
+                    initialVelocity = initialVelocity,
                 )
             )
             .isEqualTo(0L)

@@ -49,7 +49,7 @@ class FocusWrapperTest {
             hostView = LocalView.current
             AndroidView(
                 factory = { FocusableView(it).apply { view = this } },
-                modifier = Modifier.onFocusChanged { wrapperState = it }
+                modifier = Modifier.onFocusChanged { wrapperState = it },
             )
         }
 

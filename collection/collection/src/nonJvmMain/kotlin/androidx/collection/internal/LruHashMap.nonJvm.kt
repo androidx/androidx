@@ -17,10 +17,7 @@
 package androidx.collection.internal
 
 internal actual class LruHashMap<K : Any, V : Any>
-actual constructor(
-    initialCapacity: Int,
-    loadFactor: Float,
-) {
+actual constructor(initialCapacity: Int, loadFactor: Float) {
 
     actual constructor(
         original: LruHashMap<out K, V>

@@ -36,7 +36,7 @@ import org.gradle.api.provider.Provider
 fun Project.getChangedFilesFromChangeInfoProvider(
     manifestPath: String,
     changeInfoPath: String,
-    projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString()
+    projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString(),
 ): Provider<List<String>> {
     val manifestTextProvider =
         project.providers
@@ -95,7 +95,7 @@ internal data class FileInfo(val path: String?, val oldPath: String?, val status
  */
 fun Project.getHeadShaFromManifestProvider(
     manifestPath: String,
-    projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString()
+    projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString(),
 ): Provider<String> {
     val contentsProvider =
         project.providers.fileContents(project.objects.fileProperty().fileValue(File(manifestPath)))

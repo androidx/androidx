@@ -126,7 +126,7 @@ class DeprecationMismatchDetector : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(DeprecationMismatchDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(DeprecationMismatchDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         private const val DEPRECATED_ANNOTATION = "java.lang.Deprecated"

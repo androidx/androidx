@@ -40,7 +40,7 @@ internal interface InputMethodManager {
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
-        compositionEnd: Int
+        compositionEnd: Int,
     )
 
     fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo)
@@ -88,7 +88,7 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
         selectionStart: Int,
         selectionEnd: Int,
         compositionStart: Int,
-        compositionEnd: Int
+        compositionEnd: Int,
     ) {
         imm.updateSelection(view, selectionStart, selectionEnd, compositionStart, compositionEnd)
     }

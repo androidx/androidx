@@ -97,7 +97,7 @@ class LayerTouchTransformTest {
                                             translationX = 50.0f,
                                             translationY = 30.0f,
                                             rotationZ = 45.0f,
-                                            transformOrigin = TransformOrigin(1.0f, 1.0f)
+                                            transformOrigin = TransformOrigin(1.0f, 1.0f),
                                         )
                                         .drawBehind { drawRect(color) }
                                         .then(latchDrawModifier)
@@ -136,7 +136,7 @@ class LayerTouchTransformTest {
         node.captureToImage().asAndroidBitmap().apply {
             Assert.assertEquals(
                 Color.Red.toArgb(),
-                getPixel(mappedPosition.x.toInt(), mappedPosition.y.toInt())
+                getPixel(mappedPosition.x.toInt(), mappedPosition.y.toInt()),
             )
         }
     }

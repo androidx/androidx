@@ -136,7 +136,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.setupHorizontallyScrollableContent(
             scrollerPosition,
             longText,
-            Modifier.size(width = 300.dp, height = 50.dp)
+            Modifier.size(width = 300.dp, height = 50.dp),
         )
 
         rule.runOnIdle {
@@ -152,7 +152,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.setupVerticallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = longText,
-            modifier = Modifier.size(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp),
         )
 
         rule.runOnIdle {
@@ -169,7 +169,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             modifier = Modifier.width(100.dp),
             scrollerPosition = scrollerPosition,
             text = longText,
-            maxLines = 3
+            maxLines = 3,
         )
 
         rule.runOnIdle {
@@ -185,7 +185,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.setupHorizontallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = "text",
-            modifier = Modifier.size(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp),
         )
 
         rule.runOnIdle { assertThat(scrollerPosition.maximum).isEqualTo(0f) }
@@ -198,7 +198,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.setupVerticallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = "text",
-            modifier = Modifier.size(width = 300.dp, height = 100.dp)
+            modifier = Modifier.size(width = 300.dp, height = 100.dp),
         )
 
         rule.runOnIdle { assertThat(scrollerPosition.maximum).isEqualTo(0f) }
@@ -219,7 +219,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollerPosition = TextFieldScrollerPosition(Orientation.Horizontal),
                         text = longText,
-                        isVertical = false
+                        isVertical = false,
                     )
                 }
             }
@@ -249,7 +249,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                         modifier = Modifier.size(textFieldSize.toDp()),
                         scrollerPosition = TextFieldScrollerPosition(),
                         text = longText,
-                        isVertical = true
+                        isVertical = true,
                     )
                 }
             }
@@ -271,7 +271,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.setupHorizontallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = longText,
-            modifier = Modifier.size(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp),
         )
 
         rule.runOnIdle { assertThat(scrollerPosition.offset).isEqualTo(0f) }
@@ -292,7 +292,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         rule.setupVerticallyScrollableContent(
             scrollerPosition = scrollerPosition,
             text = longText,
-            modifier = Modifier.size(width = 300.dp, height = 50.dp)
+            modifier = Modifier.size(width = 300.dp, height = 50.dp),
         )
 
         rule.runOnIdle { assertThat(scrollerPosition.offset).isEqualTo(0f) }
@@ -320,7 +320,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                 modifier = Modifier.size(width = 300.dp, height = 50.dp),
                 scrollerPosition = scrollerPosition!!,
                 text = longText,
-                isVertical = false
+                isVertical = false,
             )
         }
 
@@ -377,7 +377,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                     modifier = Modifier.size(size, height),
                     scrollerPosition = textFieldScrollPosition,
                     text = text,
-                    isVertical = true
+                    isVertical = true,
                 )
                 Box(Modifier.size(size))
                 Box(Modifier.size(size))
@@ -427,7 +427,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                     Modifier.size(widthDp, heightDp).textFieldScroll(
                         remember { scrollerPosition },
                         TextFieldValue(text),
-                        VisualTransformation.None
+                        VisualTransformation.None,
                     ) {
                         textLayoutResultRef.value
                     },
@@ -435,7 +435,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                     object : MeasurePolicy {
                         override fun MeasureScope.measure(
                             measurables: List<Measurable>,
-                            constraints: Constraints
+                            constraints: Constraints,
                         ): MeasureResult {
                             measuredConstraints = constraints
                             return layout(width / 2, height) {}
@@ -443,11 +443,11 @@ class TextFieldScrollTest : FocusedWindowTest {
 
                         override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                             measurables: List<IntrinsicMeasurable>,
-                            height: Int
+                            height: Int,
                         ): Int {
                             return width / 2
                         }
-                    }
+                    },
             )
         }
 
@@ -477,7 +477,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                     Modifier.size(widthDp, heightDp).textFieldScroll(
                         remember { scrollerPosition },
                         TextFieldValue(text),
-                        VisualTransformation.None
+                        VisualTransformation.None,
                     ) {
                         textLayoutResultRef.value
                     },
@@ -485,7 +485,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                     object : MeasurePolicy {
                         override fun MeasureScope.measure(
                             measurables: List<Measurable>,
-                            constraints: Constraints
+                            constraints: Constraints,
                         ): MeasureResult {
                             measuredConstraints = constraints
                             return layout(width * 2, height) {}
@@ -493,11 +493,11 @@ class TextFieldScrollTest : FocusedWindowTest {
 
                         override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                             measurables: List<IntrinsicMeasurable>,
-                            height: Int
+                            height: Int,
                         ): Int {
                             return width * 2
                         }
-                    }
+                    },
             )
         }
 
@@ -508,7 +508,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                         minWidth = width,
                         maxWidth = Constraints.Infinity,
                         minHeight = height,
-                        maxHeight = height
+                        maxHeight = height,
                     )
                 )
         }
@@ -524,7 +524,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                 BasicTextField(
                     value = longText,
                     onValueChange = {},
-                    modifier = Modifier.padding(size.toDp()).size(size.toDp()).testTag(tag)
+                    modifier = Modifier.padding(size.toDp()).size(size.toDp()).testTag(tag),
                 )
             }
         }
@@ -564,7 +564,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                             .padding(size.toDp())
                             .border(0.dp, Color.Black)
                             .size(size.toDp())
-                            .testTag(tag)
+                            .testTag(tag),
                 )
             }
         }
@@ -600,7 +600,7 @@ class TextFieldScrollTest : FocusedWindowTest {
     private fun ComposeContentTestRule.setupHorizontallyScrollableContent(
         scrollerPosition: TextFieldScrollerPosition,
         text: String,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         setContent {
             ScrollableContent(
@@ -608,7 +608,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                 text = text,
                 isVertical = false,
                 modifier = modifier,
-                maxLines = 1
+                maxLines = 1,
             )
         }
     }
@@ -617,7 +617,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         scrollerPosition: TextFieldScrollerPosition,
         text: String,
         modifier: Modifier = Modifier,
-        maxLines: Int = Int.MAX_VALUE
+        maxLines: Int = Int.MAX_VALUE,
     ) {
         setContent {
             ScrollableContent(
@@ -625,7 +625,7 @@ class TextFieldScrollTest : FocusedWindowTest {
                 text = text,
                 isVertical = true,
                 modifier = modifier,
-                maxLines = maxLines
+                maxLines = maxLines,
             )
         }
     }
@@ -636,7 +636,7 @@ class TextFieldScrollTest : FocusedWindowTest {
         scrollerPosition: TextFieldScrollerPosition,
         text: String,
         isVertical: Boolean,
-        maxLines: Int = Int.MAX_VALUE
+        maxLines: Int = Int.MAX_VALUE,
     ) {
         val textLayoutResultRef: Ref<TextLayoutResultProxy?> = remember { Ref() }
         val resolvedMaxLines = if (isVertical) maxLines else 1
@@ -654,8 +654,8 @@ class TextFieldScrollTest : FocusedWindowTest {
                         remember { scrollerPosition },
                         TextFieldValue(text),
                         VisualTransformation.None,
-                        { textLayoutResultRef.value }
-                    )
+                        { textLayoutResultRef.value },
+                    ),
         )
     }
 }

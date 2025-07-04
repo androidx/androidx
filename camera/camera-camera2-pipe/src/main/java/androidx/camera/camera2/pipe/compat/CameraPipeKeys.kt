@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraExtensionCharacteristics
 import androidx.camera.camera2.pipe.Metadata
 
 public object CameraPipeKeys {
-
     /** Keys for sessionParameters when creating Extension sessions. */
     public val camera2ExtensionMode: Metadata.Key<Int> =
         Metadata.Key.create<Int>("androidx.camera.camera2.pipe.ExtensionMode")

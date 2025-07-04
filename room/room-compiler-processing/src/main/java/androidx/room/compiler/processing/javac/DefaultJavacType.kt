@@ -29,28 +29,28 @@ private constructor(
     env: JavacProcessingEnv,
     typeMirror: TypeMirror,
     nullability: XNullability?,
-    override val kotlinType: KmTypeContainer?
+    override val kotlinType: KmTypeContainer?,
 ) : JavacType(env, typeMirror, nullability) {
     constructor(
         env: JavacProcessingEnv,
-        typeMirror: TypeMirror
+        typeMirror: TypeMirror,
     ) : this(env = env, typeMirror = typeMirror, nullability = null, kotlinType = null)
 
     constructor(
         env: JavacProcessingEnv,
         typeMirror: TypeMirror,
-        kotlinType: KmTypeContainer
+        kotlinType: KmTypeContainer,
     ) : this(
         env = env,
         typeMirror = typeMirror,
         nullability = kotlinType.nullability,
-        kotlinType = kotlinType
+        kotlinType = kotlinType,
     )
 
     constructor(
         env: JavacProcessingEnv,
         typeMirror: TypeMirror,
-        nullability: XNullability
+        nullability: XNullability,
     ) : this(env = env, typeMirror = typeMirror, nullability = nullability, kotlinType = null)
 
     override val equalityItems by lazy { arrayOf(typeMirror) }
@@ -69,14 +69,14 @@ private constructor(
                     typeMirror =
                         env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror)).asType(),
                     kotlinType = kotlinType,
-                    elementNullability = XNullability.NULLABLE
+                    elementNullability = XNullability.NULLABLE,
                 )
             }
             typeMirror.kind == TypeKind.VOID -> {
                 env.wrap(
                     typeMirror = env.elementUtils.getTypeElement("java.lang.Void").asType(),
                     kotlinType = kotlinType,
-                    elementNullability = XNullability.NULLABLE
+                    elementNullability = XNullability.NULLABLE,
                 )
             }
             else -> {
@@ -90,7 +90,7 @@ private constructor(
             env = env,
             typeMirror = typeMirror,
             kotlinType = kotlinType,
-            nullability = nullability
+            nullability = nullability,
         )
     }
 }

@@ -61,23 +61,13 @@ class ButtonScreenshotTest {
     @Test
     fun button_outlined_ltr() =
         verifyScreenshot(LayoutDirection.Ltr) {
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                Text("abc")
-            }
+            OutlinedButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
         }
 
     @Test
     fun button_outlined_rtl() =
         verifyScreenshot(LayoutDirection.Rtl) {
-            OutlinedButton(
-                onClick = {},
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                Text("abc")
-            }
+            OutlinedButton(onClick = {}, modifier = Modifier.testTag(TEST_TAG)) { Text("abc") }
         }
 
     @Test
@@ -106,7 +96,7 @@ class ButtonScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

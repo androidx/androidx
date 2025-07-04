@@ -16,6 +16,8 @@
 
 package androidx.biometric;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -33,7 +35,9 @@ public final class PromptContentItemBulletedText implements PromptContentItem {
         mText = text;
     }
 
-    @NonNull String getText() {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public String getText() {
         return mText;
     }
 }

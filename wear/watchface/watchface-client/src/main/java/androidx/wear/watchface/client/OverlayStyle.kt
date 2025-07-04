@@ -37,7 +37,7 @@ public class OverlayStyle(
      * must be either [Color.BLACK] or [Color.WHITE]. If this is `null` then the system default will
      * be used.
      */
-    val foregroundColor: Color?
+    val foregroundColor: Color?,
 ) {
     /**
      * Default constructor when when there's no data available. E.g. when dealing with an old watch

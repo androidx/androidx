@@ -103,7 +103,7 @@ class RouteFilledTest {
         val clazz = TestClass("test", 0)
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(nullableStringArgument("arg"), nullableIntArgument("arg2"))
+                listOf(nullableStringArgument("arg"), nullableIntArgument("arg2")),
             )
             .isEqualTo("$PATH_SERIAL_NAME/test/0")
     }
@@ -117,7 +117,7 @@ class RouteFilledTest {
         val clazz = TestClass(null, null)
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(nullableStringArgument("arg"), nullableIntArgument("arg2"))
+                listOf(nullableStringArgument("arg"), nullableIntArgument("arg2")),
             )
             .isEqualTo("$PATH_SERIAL_NAME/null/null")
     }
@@ -176,7 +176,7 @@ class RouteFilledTest {
         val clazz = TestClass()
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(nullableStringArgument("arg", true), nullableIntArgument("arg2", true))
+                listOf(nullableStringArgument("arg", true), nullableIntArgument("arg2", true)),
             )
             .isEqualTo("$PATH_SERIAL_NAME?arg=test&arg2=0")
     }
@@ -190,7 +190,7 @@ class RouteFilledTest {
         val clazz = TestClass()
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(nullableStringArgument("arg", true), nullableIntArgument("arg2", true))
+                listOf(nullableStringArgument("arg", true), nullableIntArgument("arg2", true)),
             )
             .isEqualTo("$PATH_SERIAL_NAME?arg=null&arg2=null")
     }
@@ -204,7 +204,7 @@ class RouteFilledTest {
         val clazz = TestClass("test")
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(stringArgument("pathArg"), intArgument("queryArg", true))
+                listOf(stringArgument("pathArg"), intArgument("queryArg", true)),
             )
             .isEqualTo("$PATH_SERIAL_NAME/test?queryArg=0")
     }
@@ -218,7 +218,7 @@ class RouteFilledTest {
         val clazz = TestClass(1, "test")
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(intArgument("queryArg", true), stringArgument("pathArg"))
+                listOf(intArgument("queryArg", true), stringArgument("pathArg")),
             )
             .isEqualTo("$PATH_SERIAL_NAME/test?queryArg=1")
     }
@@ -232,7 +232,7 @@ class RouteFilledTest {
         val clazz = TestClass("test", 1)
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(nullableStringArgument("pathArg"), nullableIntArgument("queryArg", true))
+                listOf(nullableStringArgument("pathArg"), nullableIntArgument("queryArg", true)),
             )
             .isEqualTo("$PATH_SERIAL_NAME/test?queryArg=1")
     }
@@ -273,7 +273,7 @@ class RouteFilledTest {
         val clazz = TestClass("test", intArrayOf(0, 1, 2))
         assertThatRouteFilledFrom(
                 clazz,
-                listOf(stringArgument("string"), intArrayArgument("array"))
+                listOf(stringArgument("string"), intArrayArgument("array")),
             )
             .isEqualTo("$PATH_SERIAL_NAME/test?array=0&array=1&array=2")
     }
@@ -300,7 +300,7 @@ class RouteFilledTest {
                         nullable = false
                         unknownDefaultValuePresent = false
                     }
-                )
+                ),
             )
             .isEqualTo("$PATH_SERIAL_NAME?list=1&list=2")
     }
@@ -356,8 +356,8 @@ class RouteFilledTest {
                 clazz,
                 listOf(
                     enumArgument("arg", TestEnum::class.java),
-                    enumArgument("arg2", TestEnum::class.java)
-                )
+                    enumArgument("arg2", TestEnum::class.java),
+                ),
             )
             .isEqualTo("$PATH_SERIAL_NAME/ONE/TWO")
     }
@@ -373,8 +373,8 @@ class RouteFilledTest {
                 clazz,
                 listOf(
                     enumArgument("arg", TestEnum::class.java),
-                    enumArgument("arg2", TestEnum::class.java)
-                )
+                    enumArgument("arg2", TestEnum::class.java),
+                ),
             )
             .isEqualTo("$PATH_SERIAL_NAME/ONE/null")
     }
@@ -446,7 +446,7 @@ class RouteFilledTest {
         @SerialName(PATH_SERIAL_NAME)
         class TestClass(
             val arg: Int,
-            @Serializable(with = CustomSerializer::class) val arg2: CustomSerializerClass
+            @Serializable(with = CustomSerializer::class) val arg2: CustomSerializerClass,
         )
 
         val customArg =
@@ -456,7 +456,7 @@ class RouteFilledTest {
                         override fun put(
                             bundle: Bundle,
                             key: String,
-                            value: CustomSerializerClass
+                            value: CustomSerializerClass,
                         ) {}
 
                         override fun get(bundle: Bundle, key: String) = null
@@ -497,7 +497,7 @@ class RouteFilledTest {
             }
         assertThatRouteFilledFrom(
                 TestClass(CustomType()),
-                listOf(navArgument("custom") { type = navType })
+                listOf(navArgument("custom") { type = navType }),
             )
             .isEqualTo("$PATH_SERIAL_NAME/customValue")
     }
@@ -519,12 +519,12 @@ class RouteFilledTest {
                 override fun put(
                     bundle: Bundle,
                     key: String,
-                    value: CustomType<TypeParam<TypeParamNested>>
+                    value: CustomType<TypeParam<TypeParamNested>>,
                 ) {}
 
                 override fun get(
                     bundle: Bundle,
-                    key: String
+                    key: String,
                 ): CustomType<TypeParam<TypeParamNested>>? = null
 
                 override fun parseValue(value: String): CustomType<TypeParam<TypeParamNested>> =
@@ -535,7 +535,7 @@ class RouteFilledTest {
             }
         assertThatRouteFilledFrom(
                 TestClass(CustomType()),
-                listOf(navArgument("custom") { type = navType })
+                listOf(navArgument("custom") { type = navType }),
             )
             .isEqualTo("$PATH_SERIAL_NAME/customValue")
     }
@@ -594,10 +594,7 @@ class RouteFilledTest {
         @Serializable @SerialName(PATH_SERIAL_NAME) class TestClass : TestAbstractClass()
 
         val clazz = TestClass()
-        assertThatRouteFilledFrom(
-                clazz,
-            )
-            .isEqualTo(PATH_SERIAL_NAME)
+        assertThatRouteFilledFrom(clazz).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -655,7 +652,7 @@ class RouteFilledTest {
                 TestClassCollectionArg(
                     listOf(CustomTypeWithArg(1), CustomTypeWithArg(3), CustomTypeWithArg(5))
                 ),
-                listOf(navArgument("list") { type = collectionNavType })
+                listOf(navArgument("list") { type = collectionNavType }),
             )
             .isEqualTo("$PATH_SERIAL_NAME?list=1&list=3&list=5")
     }
@@ -849,7 +846,7 @@ class RouteFilledTest {
         val clazz = TestClass(listOf(TestEnum.ONE, TestEnum.TWO))
         val arg =
             navArgument("arg") {
-                type = InternalNavType.EnumListType(TestEnum::class.java)
+                type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
                 nullable = false
             }
         assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo("$PATH_SERIAL_NAME?arg=ONE&arg=TWO")
@@ -862,7 +859,7 @@ class RouteFilledTest {
         val clazz = TestClass(null)
         val arg =
             navArgument("arg") {
-                type = InternalNavType.EnumListType(TestEnum::class.java)
+                type = InternalAndroidNavType.EnumListType(TestEnum::class.java)
                 nullable = true
             }
         assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo(PATH_SERIAL_NAME)
@@ -871,7 +868,7 @@ class RouteFilledTest {
 
 private fun <T : Any> assertThatRouteFilledFrom(
     obj: T,
-    customArgs: List<NamedNavArgument>? = null
+    customArgs: List<NamedNavArgument>? = null,
 ): String {
     val typeMap = mutableMapOf<String, NavType<Any?>>()
     customArgs?.forEach { typeMap[it.name] = it.argument.type }
@@ -951,5 +948,5 @@ private fun intArrayArgument(name: String, hasDefaultValue: Boolean = false) =
 @Serializable
 private enum class TestEnum {
     ONE,
-    TWO
+    TWO,
 }

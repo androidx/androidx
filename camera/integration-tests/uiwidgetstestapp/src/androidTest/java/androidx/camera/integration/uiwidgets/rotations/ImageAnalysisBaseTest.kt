@@ -58,7 +58,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
     @get:Rule
     val cameraPipeConfigTestRule =
         CameraPipeConfigTestRule(
-            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
         )
 
     @get:Rule
@@ -71,7 +71,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
                 } else {
                     CameraPipeConfig.defaultConfig()
                 }
-            )
+            ),
         )
 
     @get:Rule
@@ -130,7 +130,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
                 scenario.withActivity {
                     Pair(
                         getSensorRotationRelativeToAnalysisTargetRotation(),
-                        mAnalysisImageRotation
+                        mAnalysisImageRotation,
                     )
                 }
             assertWithMessage(
@@ -172,13 +172,17 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
 
         @JvmStatic
         protected val lensFacingList =
-            arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
+            arrayOf(
+                CameraSelector.LENS_FACING_BACK,
+                CameraSelector.LENS_FACING_FRONT,
+                CameraSelector.LENS_FACING_EXTERNAL,
+            )
 
         @JvmStatic
         protected val cameraXConfigList =
             arrayOf(
                 CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
-                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
+                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
             )
 
         @JvmStatic lateinit var testCameraRule: CameraUtil.PreTestCamera

@@ -210,15 +210,7 @@ class DelegatingNodeTest {
         }
         val recorder = Recorder()
         x.visitSubtree(Nodes.Draw, block = recorder)
-        assertThat(recorder.recorded)
-            .isEqualTo(
-                listOf(
-                    a.wrapped,
-                    b,
-                    c.wrapped,
-                    d,
-                )
-            )
+        assertThat(recorder.recorded).isEqualTo(listOf(a.wrapped, b, c.wrapped, d))
     }
 
     @Test
@@ -231,15 +223,7 @@ class DelegatingNodeTest {
         layout(a) { layout(b) { layout(c) { layout(d, x) } } }
         val recorder = Recorder()
         x.visitAncestors(Nodes.Draw, block = recorder)
-        assertThat(recorder.recorded)
-            .isEqualTo(
-                listOf(
-                    d,
-                    c.wrapped,
-                    b,
-                    a.wrapped,
-                )
-            )
+        assertThat(recorder.recorded).isEqualTo(listOf(d, c.wrapped, b, a.wrapped))
     }
 
     @Test
@@ -776,7 +760,8 @@ private fun NodeChain.clearInvalidations() {
     check(owner is MockOwner)
     owner.onRequestMeasureParams.clear()
     owner.invalidatedLayers.clear()
-    owner.semanticsChanged = false
+    layoutNode.isSemanticsInvalidated = false
+    //    owner.semanticsChanged = false
 }
 
 private fun NodeChain.layoutInvalidated(): Boolean {
@@ -792,14 +777,12 @@ private fun NodeChain.drawInvalidated(): Boolean {
 }
 
 private fun NodeChain.semanticsInvalidated(): Boolean {
-    val owner = layoutNode.owner
-    check(owner is MockOwner)
-    return owner.semanticsChanged
+    return layoutNode.isSemanticsInvalidated
 }
 
 internal fun layout(
     vararg modifiers: Modifier.Node,
-    block: LayoutScope.() -> Unit = {}
+    block: LayoutScope.() -> Unit = {},
 ): NodeChain {
     val owner = MockOwner()
     val root = LayoutNode()
@@ -852,7 +835,7 @@ interface LayoutScope {
 internal inline fun <reified T> assertDispatchOrder(
     node: Modifier.Node,
     kind: NodeKind<T>,
-    vararg expected: T
+    vararg expected: T,
 ) {
     val dispatches = mutableListOf<T>()
     node.dispatchForKind(kind) { dispatches.add(it) }
@@ -878,7 +861,7 @@ class SemanticsMod(val id: String = "") : SemanticsModifierNode, Modifier.Node()
 class LayoutMod(val id: String = "") : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.place(0, 0) }

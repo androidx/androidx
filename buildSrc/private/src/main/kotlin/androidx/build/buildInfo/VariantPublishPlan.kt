@@ -32,5 +32,5 @@ data class VariantPublishPlan(
     val artifactId: String,
     val taskSuffix: String = "",
     val dependencies: Provider<List<Dependency>>,
-    val dependencyConstraints: Provider<List<DependencyConstraint>>
+    val dependencyConstraints: Provider<List<DependencyConstraint>>,
 )

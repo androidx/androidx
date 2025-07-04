@@ -37,7 +37,7 @@ fun InlineSliderSample() {
         decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 3f..6f,
         steps = 5,
-        segmented = false
+        segmented = false,
     )
 }
 
@@ -52,7 +52,7 @@ fun InlineSliderSegmentedSample() {
         decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 1f..4f,
         steps = 7,
-        segmented = true
+        segmented = true,
     )
 }
 
@@ -66,6 +66,6 @@ fun InlineSliderWithIntegerSample() {
         increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
         decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueProgression = 0..10,
-        segmented = false
+        segmented = false,
     )
 }

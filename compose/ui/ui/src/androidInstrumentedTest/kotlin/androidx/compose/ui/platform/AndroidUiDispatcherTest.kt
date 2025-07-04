@@ -137,7 +137,7 @@ class AndroidUiDispatcherTest {
                         layoutRect.complete(rect)
                     }
                 },
-                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
             )
         }
 
@@ -163,19 +163,19 @@ class AndroidUiDispatcherTest {
                 assertEquals(
                     "touch and launched job resume happened on same frame",
                     viewTouched,
-                    inputJob
+                    inputJob,
                 )
                 assertEquals(
                     "withFrame ran on the same frame where it was called",
                     inputJob,
-                    withFrameOnFrame.await()
+                    withFrameOnFrame.await(),
                 )
                 assertEquals(
                     "second withFrame call was invoked on the very next frame",
                     inputJob + 1,
-                    withFrameSecondCall.await()
+                    withFrameSecondCall.await(),
                 )
-            }
+            },
         )
     }
 

@@ -48,7 +48,7 @@ class LegacyTextInputMethodRequestEmojiTest {
             LegacyTextInputMethodRequest(
                 view = View(getInstrumentation().targetContext),
                 localToScreen = {},
-                inputMethodManager = mock<InputMethodManager>()
+                inputMethodManager = mock<InputMethodManager>(),
             )
         textInputService.startInput(TextFieldValue(""), null, ImeOptions.Default, {}, {})
 

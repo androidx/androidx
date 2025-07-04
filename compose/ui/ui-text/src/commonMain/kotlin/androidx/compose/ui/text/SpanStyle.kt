@@ -102,7 +102,7 @@ internal constructor(
     val textDecoration: TextDecoration? = null,
     val shadow: Shadow? = null,
     val platformStyle: PlatformSpanStyle? = null,
-    val drawStyle: DrawStyle? = null
+    val drawStyle: DrawStyle? = null,
 ) : AnnotatedString.Annotation {
 
     /**
@@ -138,7 +138,7 @@ internal constructor(
         "SpanStyle constructors that do not take new stable parameters " +
             "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
             "constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         color: Color = Color.Unspecified,
@@ -154,7 +154,7 @@ internal constructor(
         localeList: LocaleList? = null,
         background: Color = Color.Unspecified,
         textDecoration: TextDecoration? = null,
-        shadow: Shadow? = null
+        shadow: Shadow? = null,
     ) : this(
         textForegroundStyle = TextForegroundStyle.from(color),
         fontSize = fontSize,
@@ -170,7 +170,7 @@ internal constructor(
         background = background,
         textDecoration = textDecoration,
         shadow = shadow,
-        platformStyle = null
+        platformStyle = null,
     )
 
     /**
@@ -207,7 +207,7 @@ internal constructor(
         "SpanStyle constructors that do not take new stable parameters " +
             "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
             "constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         color: Color = Color.Unspecified,
@@ -224,7 +224,7 @@ internal constructor(
         background: Color = Color.Unspecified,
         textDecoration: TextDecoration? = null,
         shadow: Shadow? = null,
-        platformStyle: PlatformSpanStyle? = null
+        platformStyle: PlatformSpanStyle? = null,
     ) : this(
         textForegroundStyle = TextForegroundStyle.from(color),
         fontSize = fontSize,
@@ -240,7 +240,7 @@ internal constructor(
         background = background,
         textDecoration = textDecoration,
         shadow = shadow,
-        platformStyle = platformStyle
+        platformStyle = platformStyle,
     )
 
     /**
@@ -291,7 +291,7 @@ internal constructor(
         textDecoration: TextDecoration? = null,
         shadow: Shadow? = null,
         platformStyle: PlatformSpanStyle? = null,
-        drawStyle: DrawStyle? = null
+        drawStyle: DrawStyle? = null,
     ) : this(
         textForegroundStyle = TextForegroundStyle.from(color),
         fontSize = fontSize,
@@ -308,7 +308,7 @@ internal constructor(
         textDecoration = textDecoration,
         shadow = shadow,
         platformStyle = platformStyle,
-        drawStyle = drawStyle
+        drawStyle = drawStyle,
     )
 
     /**
@@ -364,7 +364,7 @@ internal constructor(
         textDecoration: TextDecoration? = null,
         shadow: Shadow? = null,
         platformStyle: PlatformSpanStyle? = null,
-        drawStyle: DrawStyle? = null
+        drawStyle: DrawStyle? = null,
     ) : this(
         textForegroundStyle = TextForegroundStyle.from(brush, alpha),
         fontSize = fontSize,
@@ -381,7 +381,7 @@ internal constructor(
         textDecoration = textDecoration,
         shadow = shadow,
         platformStyle = platformStyle,
-        drawStyle = drawStyle
+        drawStyle = drawStyle,
     )
 
     /** Color to draw text. */
@@ -429,7 +429,7 @@ internal constructor(
             textDecoration = other.textDecoration,
             shadow = other.shadow,
             platformStyle = other.platformStyle,
-            drawStyle = other.drawStyle
+            drawStyle = other.drawStyle,
         )
     }
 
@@ -440,7 +440,7 @@ internal constructor(
         "SpanStyle copy constructors that do not take new stable parameters " +
             "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
             "copy constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         color: Color = this.color,
@@ -456,7 +456,7 @@ internal constructor(
         localeList: LocaleList? = this.localeList,
         background: Color = this.background,
         textDecoration: TextDecoration? = this.textDecoration,
-        shadow: Shadow? = this.shadow
+        shadow: Shadow? = this.shadow,
     ): SpanStyle {
         return SpanStyle(
             textForegroundStyle =
@@ -479,7 +479,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = this.platformStyle,
-            drawStyle = this.drawStyle
+            drawStyle = this.drawStyle,
         )
     }
 
@@ -487,7 +487,7 @@ internal constructor(
         "SpanStyle copy constructors that do not take new stable parameters " +
             "like PlatformStyle, DrawStyle are deprecated. Please use the new stable " +
             "copy constructor.",
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     fun copy(
         color: Color = this.color,
@@ -504,49 +504,7 @@ internal constructor(
         background: Color = this.background,
         textDecoration: TextDecoration? = this.textDecoration,
         shadow: Shadow? = this.shadow,
-        platformStyle: PlatformSpanStyle? = this.platformStyle
-    ): SpanStyle {
-        return SpanStyle(
-            textForegroundStyle =
-                if (color == this.color) {
-                    textForegroundStyle
-                } else {
-                    TextForegroundStyle.from(color)
-                },
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFamily = fontFamily,
-            fontFeatureSettings = fontFeatureSettings,
-            letterSpacing = letterSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            localeList = localeList,
-            background = background,
-            textDecoration = textDecoration,
-            shadow = shadow,
-            platformStyle = platformStyle
-        )
-    }
-
-    fun copy(
-        color: Color = this.color,
-        fontSize: TextUnit = this.fontSize,
-        fontWeight: FontWeight? = this.fontWeight,
-        fontStyle: FontStyle? = this.fontStyle,
-        fontSynthesis: FontSynthesis? = this.fontSynthesis,
-        fontFamily: FontFamily? = this.fontFamily,
-        fontFeatureSettings: String? = this.fontFeatureSettings,
-        letterSpacing: TextUnit = this.letterSpacing,
-        baselineShift: BaselineShift? = this.baselineShift,
-        textGeometricTransform: TextGeometricTransform? = this.textGeometricTransform,
-        localeList: LocaleList? = this.localeList,
-        background: Color = this.background,
-        textDecoration: TextDecoration? = this.textDecoration,
-        shadow: Shadow? = this.shadow,
         platformStyle: PlatformSpanStyle? = this.platformStyle,
-        drawStyle: DrawStyle? = this.drawStyle
     ): SpanStyle {
         return SpanStyle(
             textForegroundStyle =
@@ -569,7 +527,49 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle,
-            drawStyle = drawStyle
+        )
+    }
+
+    fun copy(
+        color: Color = this.color,
+        fontSize: TextUnit = this.fontSize,
+        fontWeight: FontWeight? = this.fontWeight,
+        fontStyle: FontStyle? = this.fontStyle,
+        fontSynthesis: FontSynthesis? = this.fontSynthesis,
+        fontFamily: FontFamily? = this.fontFamily,
+        fontFeatureSettings: String? = this.fontFeatureSettings,
+        letterSpacing: TextUnit = this.letterSpacing,
+        baselineShift: BaselineShift? = this.baselineShift,
+        textGeometricTransform: TextGeometricTransform? = this.textGeometricTransform,
+        localeList: LocaleList? = this.localeList,
+        background: Color = this.background,
+        textDecoration: TextDecoration? = this.textDecoration,
+        shadow: Shadow? = this.shadow,
+        platformStyle: PlatformSpanStyle? = this.platformStyle,
+        drawStyle: DrawStyle? = this.drawStyle,
+    ): SpanStyle {
+        return SpanStyle(
+            textForegroundStyle =
+                if (color == this.color) {
+                    textForegroundStyle
+                } else {
+                    TextForegroundStyle.from(color)
+                },
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            textDecoration = textDecoration,
+            shadow = shadow,
+            platformStyle = platformStyle,
+            drawStyle = drawStyle,
         )
     }
 
@@ -590,7 +590,7 @@ internal constructor(
         textDecoration: TextDecoration? = this.textDecoration,
         shadow: Shadow? = this.shadow,
         platformStyle: PlatformSpanStyle? = this.platformStyle,
-        drawStyle: DrawStyle? = this.drawStyle
+        drawStyle: DrawStyle? = this.drawStyle,
     ): SpanStyle {
         return SpanStyle(
             textForegroundStyle = TextForegroundStyle.from(brush, alpha),
@@ -608,7 +608,7 @@ internal constructor(
             textDecoration = textDecoration,
             shadow = shadow,
             platformStyle = platformStyle,
-            drawStyle = drawStyle
+            drawStyle = drawStyle,
         )
     }
 
@@ -741,7 +741,7 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
             lerp(
                 start.fontWeight ?: FontWeight.Normal,
                 stop.fontWeight ?: FontWeight.Normal,
-                fraction
+                fraction,
             ),
         fontStyle = lerpDiscrete(start.fontStyle, stop.fontStyle, fraction),
         fontSynthesis = lerpDiscrete(start.fontSynthesis, stop.fontSynthesis, fraction),
@@ -752,27 +752,27 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
             lerp(
                 start.baselineShift ?: BaselineShift(0f),
                 stop.baselineShift ?: BaselineShift(0f),
-                fraction
+                fraction,
             ),
         textGeometricTransform =
             lerp(
                 start.textGeometricTransform ?: TextGeometricTransform.None,
                 stop.textGeometricTransform ?: TextGeometricTransform.None,
-                fraction
+                fraction,
             ),
         localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
         background = lerp(start.background, stop.background, fraction),
         textDecoration = lerpDiscrete(start.textDecoration, stop.textDecoration, fraction),
         shadow = lerp(start.shadow ?: Shadow(), stop.shadow ?: Shadow(), fraction),
         platformStyle = lerpPlatformStyle(start.platformStyle, stop.platformStyle, fraction),
-        drawStyle = lerpDiscrete(start.drawStyle, stop.drawStyle, fraction)
+        drawStyle = lerpDiscrete(start.drawStyle, stop.drawStyle, fraction),
     )
 }
 
 private fun lerpPlatformStyle(
     start: PlatformSpanStyle?,
     stop: PlatformSpanStyle?,
-    fraction: Float
+    fraction: Float,
 ): PlatformSpanStyle? {
     if (start == null && stop == null) return null
     val startNonNull = start ?: PlatformSpanStyle.Default
@@ -795,14 +795,15 @@ internal fun resolveSpanStyleDefaults(style: SpanStyle) =
             } else {
                 style.letterSpacing
             },
-        baselineShift = style.baselineShift ?: BaselineShift.None,
+        baselineShift =
+            (style.baselineShift ?: BaselineShift.None).takeOrElse { BaselineShift.None },
         textGeometricTransform = style.textGeometricTransform ?: TextGeometricTransform.None,
         localeList = style.localeList ?: LocaleList.current,
         background = style.background.takeOrElse { DefaultBackgroundColor },
         textDecoration = style.textDecoration ?: TextDecoration.None,
         shadow = style.shadow ?: Shadow.None,
         platformStyle = style.platformStyle,
-        drawStyle = style.drawStyle ?: Fill
+        drawStyle = style.drawStyle ?: Fill,
     )
 
 internal fun SpanStyle.fastMerge(
@@ -823,7 +824,7 @@ internal fun SpanStyle.fastMerge(
     textDecoration: TextDecoration?,
     shadow: Shadow?,
     platformStyle: PlatformSpanStyle?,
-    drawStyle: DrawStyle?
+    drawStyle: DrawStyle?,
 ): SpanStyle {
     // prioritize the parameters to Text in diffs here
     /**
@@ -889,7 +890,7 @@ internal fun SpanStyle.fastMerge(
         textDecoration = textDecoration ?: this.textDecoration,
         shadow = shadow ?: this.shadow,
         platformStyle = mergePlatformStyle(platformStyle),
-        drawStyle = drawStyle ?: this.drawStyle
+        drawStyle = drawStyle ?: this.drawStyle,
     )
 }
 

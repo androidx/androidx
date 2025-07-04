@@ -107,7 +107,7 @@ protected actual constructor(metadata: FailureMetadata, actual: String?) :
             failWithoutActualInternal(
                 fact("expected to match", regex),
                 fact("but was", actual),
-                simpleFact("Did you mean to call containsMatch() instead of match()?")
+                simpleFact("Did you mean to call containsMatch() instead of match()?"),
             )
         } else {
             failWithActualInternal("expected to match", regex)

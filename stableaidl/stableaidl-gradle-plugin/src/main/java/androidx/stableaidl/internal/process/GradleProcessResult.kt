@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("DEPRECATION") // Usage of ExecException b/412771528
+
 package androidx.stableaidl.internal.process
 
 import com.android.ide.common.process.ProcessException
@@ -25,7 +28,7 @@ import org.gradle.process.internal.ExecException
 /** Cloned from `com.android.build.gradle.internal.process.GradleProcessResult`. */
 internal class GradleProcessResult(
     private val result: ExecResult,
-    private val processInfo: ProcessInfo
+    private val processInfo: ProcessInfo,
 ) : ProcessResult {
     @Throws(ProcessException::class)
     override fun assertNormalExitValue(): ProcessResult {
@@ -56,9 +59,9 @@ internal class GradleProcessResult(
             String.format(
                 "Error while executing %s with arguments {%s}",
                 processInfo.description,
-                Joiner.on(' ').join(processInfo.args)
+                Joiner.on(' ').join(processInfo.args),
             ),
-            e
+            e,
         )
     }
 }

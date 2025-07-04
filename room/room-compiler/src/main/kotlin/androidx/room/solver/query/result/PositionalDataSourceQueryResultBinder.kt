@@ -47,7 +47,7 @@ class PositionalDataSourceQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         // first comma for table names comes from the string since it might be empty in which case
         // we don't need a comma. If list is empty, this prevents generating bad code (it is still
@@ -60,7 +60,7 @@ class PositionalDataSourceQueryResultBinder(
                     sqlQueryVar,
                     inTransaction,
                     true,
-                    tableNamesList
+                    tableNamesList,
                 )
                 .apply {
                     superclass(typeName)
@@ -82,7 +82,7 @@ class PositionalDataSourceQueryResultBinder(
                     typeName = CONNECTION,
                     assignExprFormat = assignExprFormat,
                     DB_UTIL_SUPPORT_DB_TO_CONNECTION,
-                    dbProperty.name
+                    dbProperty.name,
                 )
             }
         }
@@ -94,7 +94,7 @@ class PositionalDataSourceQueryResultBinder(
             XFunSpec.builder(
                     name = "convertRows",
                     visibility = VisibilityModifier.PROTECTED,
-                    isOverride = true
+                    isOverride = true,
                 )
                 .apply {
                     returns(LIST.parametrizedBy(itemTypeName))

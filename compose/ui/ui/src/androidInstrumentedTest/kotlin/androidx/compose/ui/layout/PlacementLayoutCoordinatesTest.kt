@@ -296,7 +296,7 @@ class PlacementLayoutCoordinatesTest {
                                     textLayoutInvocations++
                                     p.place(0, 0)
                                 }
-                            }
+                            },
                     )
                 }
                 val content = @Composable { Text("World") }
@@ -308,7 +308,7 @@ class PlacementLayoutCoordinatesTest {
                             p[LastBaseline] // invoke alignment
                             p.place(0, 10)
                         }
-                    }
+                    },
                 ) { measurables, constraints ->
                     val p = measurables[0].measure(constraints)
                     layout(p.width, p.height) {
@@ -616,13 +616,13 @@ class PlacementLayoutCoordinatesTest {
                 FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    Gravity.TOP or Gravity.LEFT
-                )
+                    Gravity.TOP or Gravity.LEFT,
+                ),
             )
             container.layoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
             rule.activity.setContentView(container)
         }
@@ -697,7 +697,7 @@ class PlacementLayoutCoordinatesTest {
         fun assert(
             relayoutExpected: Boolean,
             description: String,
-            action: (LayoutCoordinates) -> Unit
+            action: (LayoutCoordinates) -> Unit,
         ) {
             coordinatesAction = action
             rule.runOnIdle {
@@ -710,7 +710,7 @@ class PlacementLayoutCoordinatesTest {
                         "${if (!relayoutExpected) " not" else ""} expected, but " +
                         "$layoutBlockCalls calls happened",
                     if (relayoutExpected) 1 else 0,
-                    layoutBlockCalls
+                    layoutBlockCalls,
                 )
             }
         }
@@ -756,7 +756,7 @@ class PlacementLayoutCoordinatesTest {
         fun assert(
             relayoutExpected: Boolean,
             description: String,
-            action: (LayoutCoordinates) -> Unit
+            action: (LayoutCoordinates) -> Unit,
         ) {
             coordinatesAction = action
             rule.runOnIdle {
@@ -769,7 +769,7 @@ class PlacementLayoutCoordinatesTest {
                         "${if (!relayoutExpected) " not" else ""} expected, but " +
                         "$layoutBlockCalls calls happened",
                     if (relayoutExpected) 1 else 0,
-                    layoutBlockCalls
+                    layoutBlockCalls,
                 )
             }
         }
@@ -831,7 +831,7 @@ class PlacementLayoutCoordinatesTest {
         fun assert(
             relayoutExpected: Boolean,
             description: String,
-            action: (LayoutCoordinates) -> Unit
+            action: (LayoutCoordinates) -> Unit,
         ) {
             coordinatesAction = action
             rule.runOnIdle {
@@ -844,7 +844,7 @@ class PlacementLayoutCoordinatesTest {
                         "${if (!relayoutExpected) " not" else ""} expected, but " +
                         "$intermediateLayoutBlockCalls calls happened",
                     if (relayoutExpected) 1 else 0,
-                    intermediateLayoutBlockCalls
+                    intermediateLayoutBlockCalls,
                 )
             }
         }

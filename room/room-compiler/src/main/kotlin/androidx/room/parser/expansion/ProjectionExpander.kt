@@ -24,17 +24,17 @@ import androidx.room.solver.query.result.DataClassRowAdapter
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.verifier.QueryResultInfo
 import androidx.room.vo.DataClass
-import androidx.room.vo.EmbeddedField
+import androidx.room.vo.EmbeddedProperty
 import androidx.room.vo.Entity
 import androidx.room.vo.EntityOrView
-import androidx.room.vo.Field
+import androidx.room.vo.Property
 import androidx.room.vo.columnNames
 import java.util.Locale
 
 /**
  * Interprets and rewrites SQL queries in the context of the provided entities and views such that
- * star projection (select *) turn into explicit column lists and embedded fields are re-named to
- * avoid conflicts in the response data set.
+ * star projection (select *) turn into explicit column lists and embedded properties are re-named
+ * to avoid conflicts in the response data set.
  */
 class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter {
 
@@ -58,7 +58,7 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
         interpret(
             query =
                 ExpandableSqlParser.parse(query.original).also { it.resultInfo = query.resultInfo },
-            dataClass = dataClass
+            dataClass = dataClass,
         )
 
     override fun rewrite(query: ParsedQuery, resultAdapter: QueryResultAdapter): ParsedQuery {
@@ -73,7 +73,7 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
         return if (rowAdapter is DataClassRowAdapter) {
             interpret(
                     query = ExpandableSqlParser.parse(query.original),
-                    dataClass = rowAdapter.dataClass
+                    dataClass = rowAdapter.dataClass,
                 )
                 .let {
                     val reParsed = SqlParser.parse(it)
@@ -110,7 +110,7 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
         query: ExpandableParsedQuery,
         section: ExpandableSection.Projection,
         dataClass: DataClass,
-        queriedTableNames: List<String>
+        queriedTableNames: List<String>,
     ): String {
         val aliasToName = query.tables.map { (name, alias) -> alias to name }.toMap(IdentifierMap())
         val nameToAlias =
@@ -128,30 +128,30 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
                     // We should not prepend the prefix-dot to the columns.
                     shallow = findEntityOrView(dataClass)?.tableName in queriedTableNames,
                     nameToAlias = nameToAlias,
-                    resultInfo = query.resultInfo
+                    resultInfo = query.resultInfo,
                 )
             }
             is ExpandableSection.Projection.Table -> {
-                val embedded = findEmbeddedField(dataClass, section.tableAlias)
+                val embedded = findEmbeddedProperty(dataClass, section.tableAlias)
                 if (embedded != null) {
-                    expandEmbeddedField(
+                    expandEmbeddedProperty(
                             embedded = embedded,
                             table = findEntityOrView(embedded.dataClass),
                             shallow = false,
-                            tableToAlias = nameToAlias
+                            tableToAlias = nameToAlias,
                         )
                         .joinToString(", ")
                 } else {
                     val tableName = aliasToName[section.tableAlias] ?: section.tableAlias
                     val table = tables.find { it.tableName == tableName }
-                    dataClass.fields
-                        .filter { field ->
-                            field.parent == null &&
-                                field.columnName !in query.explicitColumns &&
-                                table?.columnNames?.contains(field.columnName) == true
+                    dataClass.properties
+                        .filter { property ->
+                            property.parent == null &&
+                                property.columnName !in query.explicitColumns &&
+                                table?.columnNames?.contains(property.columnName) == true
                         }
-                        .joinToString(", ") { field ->
-                            "`${section.tableAlias}`.`${field.columnName}`"
+                        .joinToString(", ") { property ->
+                            "`${section.tableAlias}`.`${property.columnName}`"
                         }
                 }
             }
@@ -162,14 +162,14 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
         return tables.find { it.typeName == dataClass.typeName }
     }
 
-    private fun findEmbeddedField(dataClass: DataClass, tableAlias: String): EmbeddedField? {
+    private fun findEmbeddedProperty(dataClass: DataClass, tableAlias: String): EmbeddedProperty? {
         // Try to find by the prefix.
-        val matchByPrefix = dataClass.embeddedFields.find { it.prefix == tableAlias }
+        val matchByPrefix = dataClass.embeddedProperties.find { it.prefix == tableAlias }
         if (matchByPrefix != null) {
             return matchByPrefix
         }
         // Try to find by the table name.
-        return dataClass.embeddedFields.find {
+        return dataClass.embeddedProperties.find {
             it.prefix.isEmpty() && findEntityOrView(it.dataClass)?.tableName == tableAlias
         }
     }
@@ -179,27 +179,27 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
         ignoredColumnNames: List<String>,
         shallow: Boolean,
         nameToAlias: Map<String, String>,
-        resultInfo: QueryResultInfo?
+        resultInfo: QueryResultInfo?,
     ): String {
         val table = findEntityOrView(dataClass)
-        return (dataClass.embeddedFields.flatMap {
-                expandEmbeddedField(it, findEntityOrView(it.dataClass), shallow, nameToAlias)
+        return (dataClass.embeddedProperties.flatMap {
+                expandEmbeddedProperty(it, findEntityOrView(it.dataClass), shallow, nameToAlias)
             } +
-                dataClass.fields
-                    .filter { field ->
-                        field.parent == null &&
-                            field.columnName !in ignoredColumnNames &&
-                            (resultInfo == null || resultInfo.hasColumn(field.columnName))
+                dataClass.properties
+                    .filter { property ->
+                        property.parent == null &&
+                            property.columnName !in ignoredColumnNames &&
+                            (resultInfo == null || resultInfo.hasColumn(property.columnName))
                     }
-                    .map { field ->
+                    .map { property ->
                         if (table != null && table is Entity) {
                             // Should not happen when defining a view
                             val tableAlias =
                                 nameToAlias[table.tableName.lowercase(Locale.ENGLISH)]
                                     ?: table.tableName
-                            "`$tableAlias`.`${field.columnName}` AS `${field.columnName}`"
+                            "`$tableAlias`.`${property.columnName}` AS `${property.columnName}`"
                         } else {
-                            "`${field.columnName}`"
+                            "`${property.columnName}`"
                         }
                     })
             .joinToString(", ")
@@ -209,30 +209,30 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
         return columns.any { column -> column.name == columnName }
     }
 
-    private fun expandEmbeddedField(
-        embedded: EmbeddedField,
+    private fun expandEmbeddedProperty(
+        embedded: EmbeddedProperty,
         table: EntityOrView?,
         shallow: Boolean,
-        tableToAlias: Map<String, String>
+        tableToAlias: Map<String, String>,
     ): List<String> {
         val pojo = embedded.dataClass
         return if (table != null) {
             if (embedded.prefix.isNotEmpty()) {
-                table.fields.map { field ->
+                table.properties.map { property ->
                     if (shallow) {
-                        "`${embedded.prefix}${field.columnName}`"
+                        "`${embedded.prefix}${property.columnName}`"
                     } else {
-                        "`${embedded.prefix}`.`${field.columnName}` " +
-                            "AS `${embedded.prefix}${field.columnName}`"
+                        "`${embedded.prefix}`.`${property.columnName}` " +
+                            "AS `${embedded.prefix}${property.columnName}`"
                     }
                 }
             } else {
-                table.fields.map { field ->
+                table.properties.map { property ->
                     if (shallow) {
-                        "`${field.columnName}`"
+                        "`${property.columnName}`"
                     } else {
                         val tableAlias = tableToAlias[table.tableName] ?: table.tableName
-                        "`$tableAlias`.`${field.columnName}` AS `${field.columnName}`"
+                        "`$tableAlias`.`${property.columnName}` AS `${property.columnName}`"
                     }
                 }
             }
@@ -240,17 +240,17 @@ class ProjectionExpander(private val tables: List<EntityOrView>) : QueryRewriter
             if (
                 !shallow && embedded.prefix.isNotEmpty() && embedded.prefix in tableToAlias.values
             ) {
-                pojo.fields.map { field ->
-                    "`${embedded.prefix}`.`${field.columnNameWithoutPrefix(embedded.prefix)}` " +
-                        "AS `${field.columnName}`"
+                pojo.properties.map { property ->
+                    "`${embedded.prefix}`.`${property.columnNameWithoutPrefix(embedded.prefix)}` " +
+                        "AS `${property.columnName}`"
                 }
             } else {
-                pojo.fields.map { field -> "`${field.columnName}`" }
+                pojo.properties.map { property -> "`${property.columnName}`" }
             }
         }
     }
 
-    private fun Field.columnNameWithoutPrefix(prefix: String): String {
+    private fun Property.columnNameWithoutPrefix(prefix: String): String {
         return if (columnName.startsWith(prefix)) {
             columnName.substring(prefix.length)
         } else {

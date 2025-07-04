@@ -181,7 +181,7 @@ class LayoutNodeDensityTest {
                 override fun createOutline(
                     size: Size,
                     layoutDirection: LayoutDirection,
-                    density: Density
+                    density: Density,
                 ): Outline {
                     lastOutlineDensity = density
                     return Outline.Rectangle(size.toRect())

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <!-- Spoken content description of a drag handle that use to control pane expansion. -->
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description">
+        Pane expansion drag handle
+    </string>
+    <!-- Spoken state description of a drag handle that describes the current pane split state.
+         It's supposed to be used with the below m3_xxxxxxx_anchor_description strings. -->
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_state_description">
+        Current pane split, %s
+    </string>
+    <!-- Spoken action description of a drag handle to control pane expansion.
+         It's supposed to be used with the below m3_xxxxxxx_anchor_description strings. -->
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_action_description">
+        Change pane split to %s
+    </string>
+    <!-- Spoken description of a pane expansion anchor point based on proportion in percentages
+         a user can anchor the pane expansion to. -->
+    <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description">
+        %d percent
+    </string>
+    <!-- Spoken description of a pane expansion anchor point based on offset from start in DPs a
+         user can anchor the pane expansion to. -->
+    <string name="m3_adaptive_default_pane_expansion_start_offset_anchor_description">
+        %d DPs from start
+    </string>
+    <!-- Spoken description of a pane expansion anchor point based on offset from end in DPs a user
+         can anchor the pane expansion to. -->
+    <string name="m3_adaptive_default_pane_expansion_end_offset_anchor_description">
+        %d DPs from end
+    </string>
+</resources>

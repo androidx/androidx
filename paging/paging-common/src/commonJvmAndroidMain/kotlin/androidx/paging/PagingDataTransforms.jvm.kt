@@ -47,7 +47,7 @@ public fun <T : Any, R : Any> PagingData<T>.map(
 @CheckResult
 public fun <T : Any, R : Any> PagingData<T>.flatMap(
     executor: Executor,
-    transform: (T) -> Iterable<R>
+    transform: (T) -> Iterable<R>,
 ): PagingData<R> = transform { event ->
     withContext(executor.asCoroutineDispatcher()) { event.flatMap { transform(it) } }
 }
@@ -61,7 +61,7 @@ public fun <T : Any, R : Any> PagingData<T>.flatMap(
 @JvmName("filter")
 public fun <T : Any> PagingData<T>.filter(
     executor: Executor,
-    predicate: (T) -> Boolean
+    predicate: (T) -> Boolean,
 ): PagingData<T> = transform { event ->
     withContext(executor.asCoroutineDispatcher()) { event.filter { predicate(it) } }
 }

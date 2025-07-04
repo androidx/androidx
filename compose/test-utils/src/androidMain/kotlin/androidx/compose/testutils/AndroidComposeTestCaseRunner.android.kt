@@ -49,7 +49,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 /** Factory method to provide implementation of [ComposeBenchmarkScope]. */
 fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
     testCaseFactory: () -> T,
-    activity: ComponentActivity
+    activity: ComponentActivity,
 ): ComposeBenchmarkScope<T> {
     return AndroidComposeTestCaseRunner(testCaseFactory, activity)
 }
@@ -57,7 +57,7 @@ fun <T : ComposeTestCase> createAndroidComposeBenchmarkRunner(
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTestApi::class)
 internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private val testCaseFactory: () -> T,
-    private val activity: ComponentActivity
+    private val activity: ComponentActivity,
 ) : ComposeBenchmarkScope<T> {
 
     override val measuredWidth: Int
@@ -230,7 +230,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             /* l= */ 0,
             /* t= */ 0,
             /* r= */ view.measuredWidth,
-            /* b= */ view.measuredHeight
+            /* b= */ view.measuredHeight,
         )
         simulationState = SimulationState.LayoutDone
     }
@@ -332,7 +332,7 @@ private enum class SimulationState {
     DrawPrepared,
     DrawInProgress,
     DrawDone,
-    RecomposeDone
+    RecomposeDone,
 }
 
 private fun findViewRootForTest(activity: Activity): ViewRootForTest? {

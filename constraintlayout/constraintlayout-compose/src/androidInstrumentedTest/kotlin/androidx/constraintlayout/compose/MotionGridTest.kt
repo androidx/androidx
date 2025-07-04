@@ -118,7 +118,7 @@ class MotionGridTest {
             }
             """
                     ),
-                progress = progress
+                progress = progress,
             ) {
                 val numArray = arrayOf("box1", "box2", "box3", "box4")
                 for (num in numArray) {
@@ -240,7 +240,7 @@ class MotionGridTest {
             }
             """
                     ),
-                progress = progress
+                progress = progress,
             ) {
                 val numArray = arrayOf("box1", "box2", "box3", "box4")
                 for (num in numArray) {

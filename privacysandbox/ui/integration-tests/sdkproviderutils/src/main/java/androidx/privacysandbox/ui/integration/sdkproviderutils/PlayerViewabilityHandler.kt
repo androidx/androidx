@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
+import androidx.privacysandbox.ui.core.SandboxedUiAdapterSignalOptions
 import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.core.SessionObserverFactory
@@ -29,6 +30,7 @@ class PlayerViewabilityHandler {
 
     private class SessionObserverFactoryImpl(val playerViewProvider: PlayerViewProvider) :
         SessionObserverFactory {
+        override val signalOptions: Set<String> = setOf(SandboxedUiAdapterSignalOptions.GEOMETRY)
 
         override fun create(): SessionObserver {
             return SessionObserverImpl(playerViewProvider)
@@ -52,7 +54,7 @@ class PlayerViewabilityHandler {
                 if (updatedVisibility != isPlayerVisible) {
                     Log.i(
                         TAG,
-                        "Video player previous visibility $isPlayerVisible, updated visibility $updatedVisibility"
+                        "Video player previous visibility $isPlayerVisible, updated visibility $updatedVisibility",
                     )
                     isPlayerVisible = updatedVisibility
                     if (isPlayerVisible) {
@@ -76,7 +78,7 @@ class PlayerViewabilityHandler {
 
         fun addObserverFactoryToAdapter(
             adapter: AbstractSandboxedUiAdapter,
-            playerViewProvider: PlayerViewProvider
+            playerViewProvider: PlayerViewProvider,
         ) {
             return adapter.addObserverFactory(SessionObserverFactoryImpl(playerViewProvider))
         }

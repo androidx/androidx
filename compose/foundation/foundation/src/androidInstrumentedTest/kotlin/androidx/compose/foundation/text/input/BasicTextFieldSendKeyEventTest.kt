@@ -138,6 +138,6 @@ private fun softKeyEvent(keyCode: Int, keyEventType: KeyEventType): KeyEvent {
         0,
         KeyCharacterMap.VIRTUAL_KEYBOARD,
         0,
-        KeyEvent.FLAG_SOFT_KEYBOARD or KeyEvent.FLAG_KEEP_TOUCH_MODE
+        KeyEvent.FLAG_SOFT_KEYBOARD or KeyEvent.FLAG_KEEP_TOUCH_MODE,
     )
 }

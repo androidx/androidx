@@ -36,7 +36,7 @@ internal object JavaSourceCompilationStep : KotlinCompilationStep {
 
     override fun execute(
         workingDir: File,
-        arguments: CompilationStepArguments
+        arguments: CompilationStepArguments,
     ): CompilationStepResult {
         val javaSources: Map<JavaFileObject, Source> =
             arguments.sourceSets.asSequence().flatMap { it.javaSources }.associateBy { it.toJFO() }
@@ -89,7 +89,7 @@ internal object JavaSourceCompilationStep : KotlinCompilationStep {
                     sourceSets = arguments.sourceSets
                 ),
             outputClasspath = generatedClasses,
-            generatedResources = emptyList()
+            generatedResources = emptyList(),
         )
     }
 

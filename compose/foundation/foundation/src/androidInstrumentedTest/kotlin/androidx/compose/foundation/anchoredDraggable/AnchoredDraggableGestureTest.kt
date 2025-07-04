@@ -205,7 +205,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             createStateAndModifier(
                 initialValue = A,
                 orientation = Orientation.Horizontal,
-                enabled = false
+                enabled = false,
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -247,7 +247,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             createStateAndModifier(
                 initialValue = A,
                 orientation = Orientation.Vertical,
-                enabled = false
+                enabled = false,
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -294,7 +294,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                             A at 0f
                             B at 100f
                             C at 200f
-                        }
+                        },
                 )
             val flingBehavior = createAnchoredDraggableFlingBehavior(state, rule.density)
             state.dispatchRawDelta(60f)
@@ -313,7 +313,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                         A at 0f
                         B at 100f
                         C at 200f
-                    }
+                    },
                 )
             val flingBehavior = createAnchoredDraggableFlingBehavior(state, rule.density)
 
@@ -331,7 +331,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                     DraggableAnchors {
                         A at 0f
                         B at 200f
-                    }
+                    },
                 )
             val flingBehavior = createAnchoredDraggableFlingBehavior(state, rule.density)
 
@@ -381,7 +381,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(right / 2, 0f),
-                endVelocity = AnchoredDraggableMinFlingVelocityPx * 1.1f
+                endVelocity = AnchoredDraggableMinFlingVelocityPx * 1.1f,
             )
         }
 
@@ -416,7 +416,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(right / 4, 0f),
-                endVelocity = AnchoredDraggableMinFlingVelocityPx * 0.9f
+                endVelocity = AnchoredDraggableMinFlingVelocityPx * 0.9f,
             )
         }
 
@@ -597,7 +597,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                         A at 0f
                         B at 250f
                         C at 500f
-                    }
+                    },
             )
         val state2 =
             createAnchoredDraggableState(
@@ -606,7 +606,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                     DraggableAnchors {
                         A at 0f
                         B at 250f
-                    }
+                    },
             )
         var state by mutableStateOf(state1)
 
@@ -669,7 +669,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                         C at 500f
                     },
                 orientation = Orientation.Horizontal,
-                reverseDirection = true
+                reverseDirection = true,
             )
         rule.setContent {
             WithTouchSlop(0f) {
@@ -688,7 +688,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
         rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
             swipe(
                 start = Offset(x = state.anchors.positionOf(B), y = 0f),
-                end = Offset(x = state.anchors.positionOf(A), y = 0f)
+                end = Offset(x = state.anchors.positionOf(A), y = 0f),
             )
         }
 
@@ -706,7 +706,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
                         B at 250f
                         C at 500f
                     },
-                orientation = Orientation.Horizontal
+                orientation = Orientation.Horizontal,
             )
         var layoutDirection by mutableStateOf(LayoutDirection.Ltr)
         rule.setContent {
@@ -730,7 +730,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
         rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
             swipe(
                 start = Offset(x = state.anchors.positionOf(A), y = 0f),
-                end = Offset(x = state.anchors.positionOf(B), y = 0f)
+                end = Offset(x = state.anchors.positionOf(B), y = 0f),
             )
         }
         assertThat(state.offset).isEqualTo(state.anchors.positionOf(B))
@@ -741,7 +741,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
         rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
             swipe(
                 start = Offset(x = state.anchors.positionOf(B), y = 0f),
-                end = Offset(x = state.anchors.positionOf(A), y = 0f)
+                end = Offset(x = state.anchors.positionOf(A), y = 0f),
             )
         }
         assertThat(state.offset).isEqualTo(state.anchors.positionOf(C))
@@ -754,7 +754,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             createStateAndModifier(
                 initialValue = A,
                 orientation = Orientation.Horizontal,
-                shouldCreateFling = false
+                shouldCreateFling = false,
             )
 
         var density by mutableStateOf(rule.density)
@@ -786,7 +786,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(offsetDisplaced, 0f),
-                endVelocity = originalThreshold
+                endVelocity = originalThreshold,
             )
         }
 
@@ -801,7 +801,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(offsetDisplaced, 0f),
-                endVelocity = originalThreshold
+                endVelocity = originalThreshold,
             )
         }
 
@@ -814,7 +814,7 @@ class AnchoredDraggableGestureTest(val testNewBehavior: Boolean) :
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(offsetDisplaced, 0f),
-                endVelocity = with(density) { AnchoredDraggableMinFlingVelocity.toPx() } * 1.1f
+                endVelocity = with(density) { AnchoredDraggableMinFlingVelocity.toPx() } * 1.1f,
             )
         }
 

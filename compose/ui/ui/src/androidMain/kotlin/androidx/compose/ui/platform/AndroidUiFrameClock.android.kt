@@ -24,7 +24,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 class AndroidUiFrameClock
 internal constructor(
     val choreographer: Choreographer,
-    private val dispatcher: AndroidUiDispatcher?
+    private val dispatcher: AndroidUiDispatcher?,
 ) : androidx.compose.runtime.MonotonicFrameClock {
 
     constructor(choreographer: Choreographer) : this(choreographer, null)

@@ -35,7 +35,7 @@ interface VerticalAnchorable {
     fun linkTo(
         anchor: ConstraintLayoutBaseScope.VerticalAnchor,
         margin: Dp = 0.dp,
-        goneMargin: Dp = 0.dp
+        goneMargin: Dp = 0.dp,
     )
 }
 
@@ -49,14 +49,14 @@ interface HorizontalAnchorable {
     fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp = 0.dp,
-        goneMargin: Dp = 0.dp
+        goneMargin: Dp = 0.dp,
     )
 
     /** Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor]. */
     fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp = 0.dp,
-        goneMargin: Dp = 0.dp
+        goneMargin: Dp = 0.dp,
     )
 }
 
@@ -70,14 +70,14 @@ interface BaselineAnchorable {
     fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp = 0.dp,
-        goneMargin: Dp = 0.dp
+        goneMargin: Dp = 0.dp,
     )
 
     /** Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor]. */
     fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp = 0.dp,
-        goneMargin: Dp = 0.dp
+        goneMargin: Dp = 0.dp,
     )
 }
 
@@ -88,7 +88,7 @@ internal abstract class BaseVerticalAnchorable(private val containerObject: CLOb
     final override fun linkTo(
         anchor: ConstraintLayoutBaseScope.VerticalAnchor,
         margin: Dp,
-        goneMargin: Dp
+        goneMargin: Dp,
     ) {
         val targetAnchorName = AnchorFunctions.verticalAnchorIndexToAnchorName(anchor.index)
         val constraintArray =
@@ -104,14 +104,14 @@ internal abstract class BaseVerticalAnchorable(private val containerObject: CLOb
 
 internal abstract class BaseHorizontalAnchorable(
     private val containerObject: CLObject,
-    index: Int
+    index: Int,
 ) : HorizontalAnchorable {
     private val anchorName: String = AnchorFunctions.horizontalAnchorIndexToAnchorName(index)
 
     final override fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp,
-        goneMargin: Dp
+        goneMargin: Dp,
     ) {
         val targetAnchorName = AnchorFunctions.horizontalAnchorIndexToAnchorName(anchor.index)
         val constraintArray =
@@ -127,7 +127,7 @@ internal abstract class BaseHorizontalAnchorable(
     final override fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp,
-        goneMargin: Dp
+        goneMargin: Dp,
     ) {
         val constraintArray =
             CLArray(charArrayOf()).apply {

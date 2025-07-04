@@ -35,7 +35,7 @@ class SplitRuleTest {
     fun test_minSmallestWidthMustBeNonNegative() {
         SplitRule(
             minSmallestWidthDp = -1,
-            defaultSplitAttributes = SplitAttributes.Builder().build()
+            defaultSplitAttributes = SplitAttributes.Builder().build(),
         )
     }
 }

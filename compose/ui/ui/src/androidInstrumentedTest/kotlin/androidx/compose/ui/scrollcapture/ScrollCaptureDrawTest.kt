@@ -273,10 +273,7 @@ class ScrollCaptureDrawTest {
         }
 
     @Composable
-    private fun TestContent(
-        scrollState: ScrollState,
-        reverseScrolling: Boolean = false,
-    ) {
+    private fun TestContent(scrollState: ScrollState, reverseScrolling: Boolean = false) {
         with(LocalDensity.current) {
             Column(
                 Modifier.size(10.toDp())

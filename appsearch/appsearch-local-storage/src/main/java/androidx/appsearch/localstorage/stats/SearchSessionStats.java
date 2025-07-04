@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.stats;
 
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -40,7 +41,7 @@ import java.util.List;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SearchSessionStats {
+public final class SearchSessionStats extends BaseStats {
     private final @NonNull String mPackageName;
 
     private final @Nullable String mDatabase;
@@ -48,7 +49,7 @@ public final class SearchSessionStats {
     private final @NonNull List<SearchIntentStats> mSearchIntentsStats;
 
     SearchSessionStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mPackageName = builder.mPackageName;
         mDatabase = builder.mDatabase;
         mSearchIntentsStats = builder.mSearchIntentsStats;
@@ -101,7 +102,7 @@ public final class SearchSessionStats {
     }
 
     /** Builder for {@link SearchSessionStats}. */
-    public static final class Builder {
+    public static final class Builder extends BaseStats.Builder<SearchSessionStats.Builder> {
         private final @NonNull String mPackageName;
 
         private @Nullable String mDatabase;
@@ -157,6 +158,7 @@ public final class SearchSessionStats {
         }
 
         /** Builds a new {@link SearchSessionStats} from the {@link Builder}. */
+        @Override
         public @NonNull SearchSessionStats build() {
             mBuilt = true;
             return new SearchSessionStats(/* builder= */ this);

@@ -35,7 +35,7 @@ public class SizeFilteredEncoderProfilesProvider(
     private val provider: EncoderProfilesProvider,
 
     /** The list of supported sizes. */
-    private val supportedSizes: List<Size>
+    private val supportedSizes: List<Size>,
 ) : EncoderProfilesProvider {
 
     private val encoderProfilesCache = mutableMapOf<Int, EncoderProfilesProxy?>()
@@ -81,7 +81,7 @@ public class SizeFilteredEncoderProfilesProvider(
         // cts/CamcorderProfileTest.java ensures all video profiles have the same size so we just
         // need to check the first video profile.
         val videoProfile = profiles.videoProfiles[0]
-        return supportedSizes.contains(Size(videoProfile.width, videoProfile.height))
+        return supportedSizes.contains(videoProfile.resolution)
     }
 
     /**

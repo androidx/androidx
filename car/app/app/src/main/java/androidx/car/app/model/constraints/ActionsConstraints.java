@@ -131,12 +131,14 @@ public final class ActionsConstraints {
      * Constraints for additional row actions. Only allows custom actions.
      * Note: From Car API 8 onwards, Rows are allowed to have 2 max actions to be set.
      */
+    @SuppressWarnings("UnsafeOptInUsageError")
     public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
             new ActionsConstraints.Builder()
                     .setMaxActions(2)
                     .setMaxCustomTitles(2)
                     .setMaxPrimaryActions(1)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .addAllowedActionType(Action.TYPE_MEDIA_PLAYBACK)
                     .setOnClickListenerAllowed(true)
                     .build();
 
@@ -157,7 +159,8 @@ public final class ActionsConstraints {
      *
      * <ul>
      *     <li>Maximum of {@code 2}
-     *     <li>Must be of type {@link Action#TYPE_CUSTOM} or {@link Action#TYPE_COMPOSE_MESSAGE}
+     *     <li>Must be of type {@link Action#TYPE_CUSTOM} or {@link Action#TYPE_COMPOSE_MESSAGE} or
+     *     {@link Action#TYPE_MEDIA_PLAYBACK}
      *     <li>Must have an icon
      *     <li>Must have a background color, though the host may choose to ignore this color
      *     depending on where it appears (eg. usually only the first action is rendered with a
@@ -171,6 +174,7 @@ public final class ActionsConstraints {
                     .setMaxActions(2)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
                     .addAllowedActionType(Action.TYPE_COMPOSE_MESSAGE)
+                    .addAllowedActionType(Action.TYPE_MEDIA_PLAYBACK)
                     .setRequireActionIcons(true)
                     .setRequireActionBackgroundColor(true)
                     .setOnClickListenerAllowed(true)

@@ -22,8 +22,8 @@ import androidx.room.RoomProcessor
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.Context
-import androidx.room.runProcessorTestWithK1
 import androidx.testutils.generateAllEnumerations
 import loadTestSource
 import org.junit.Test
@@ -41,17 +41,17 @@ class DatabaseWriterTest {
             singleDb(
                 loadTestSource(
                     fileName = "databasewriter/input/ComplexDatabase.java",
-                    qName = "foo.bar.ComplexDatabase"
+                    qName = "foo.bar.ComplexDatabase",
                 ),
                 loadTestSource(
                     fileName = "daoWriter/input/ComplexDao.java",
-                    qName = "foo.bar.ComplexDao"
-                )
+                    qName = "foo.bar.ComplexDao",
+                ),
             ) {
                 it.generatedSource(
                     loadTestSource(
                         fileName = "databasewriter/output/ComplexDatabase.java",
-                        qName = "foo.bar.ComplexDatabase_Impl"
+                        qName = "foo.bar.ComplexDatabase_Impl",
                     )
                 )
             }
@@ -101,7 +101,7 @@ class DatabaseWriterTest {
 
                         $entityValues
                     }
-                    """
+                    """,
                     )
                 entitySources.add("Entity$entityCount" to entitySource)
                 statementCount += valuesPerEntity
@@ -119,7 +119,7 @@ class DatabaseWriterTest {
 
                     @Database(entities = {$entityClasses}, version = 1)
                     public abstract class TestDatabase extends RoomDatabase {}
-                    """
+                    """,
                 )
             singleDb(*(listOf(dbSource) + entitySources.map { it.second }).toTypedArray()) {
                 // no assertion, if compilation succeeded, it is good
@@ -139,7 +139,7 @@ class DatabaseWriterTest {
 
 private fun singleDb(
     vararg inputs: Source,
-    onCompilationResult: (CompilationResultSubject) -> Unit
+    onCompilationResult: (CompilationResultSubject) -> Unit,
 ) {
     val sources =
         listOf(
@@ -158,15 +158,16 @@ private fun singleDb(
                 COMMON.GUAVA_ROOM,
                 COMMON.LISTENABLE_FUTURE,
                 COMMON.PAGING_SOURCE,
-                COMMON.LIMIT_OFFSET_PAGING_SOURCE
+                COMMON.LIMIT_OFFSET_PAGING_SOURCE,
             )
         )
-    runProcessorTestWithK1(
+    runProcessorTest(
         sources = sources,
         classpath = libs,
         options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+        kotlincArguments = listOf("-jvm-target=11"),
         javacProcessors = listOf(RoomProcessor()),
         symbolProcessorProviders = listOf(RoomKspProcessor.Provider()),
-        onCompilationResult = onCompilationResult
+        onCompilationResult = onCompilationResult,
     )
 }

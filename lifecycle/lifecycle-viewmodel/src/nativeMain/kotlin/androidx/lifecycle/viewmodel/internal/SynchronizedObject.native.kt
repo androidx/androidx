@@ -13,73 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.lifecycle.viewmodel.internal
 
-import kotlin.native.internal.createCleaner
-import kotlinx.cinterop.Arena
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.ptr
-import platform.posix.pthread_mutex_destroy
-import platform.posix.pthread_mutex_init
-import platform.posix.pthread_mutex_lock
-import platform.posix.pthread_mutex_t
-import platform.posix.pthread_mutex_unlock
-import platform.posix.pthread_mutexattr_destroy
-import platform.posix.pthread_mutexattr_init
-import platform.posix.pthread_mutexattr_settype
-import platform.posix.pthread_mutexattr_t
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.ref.createCleaner
 
 /**
  * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which is represented as kotlin.Int on darwin
- * platforms and kotlin.UInt on linuxX64 See: // https://youtrack.jetbrains.com/issue/KT-41509
+ * platforms and kotlin.UInt on linuxX64 See: https://youtrack.jetbrains.com/issue/KT-41509
  */
 internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 
-internal actual class SynchronizedObject actual constructor() {
+internal expect class SynchronizedObjectImpl() {
+    internal fun lock(): Int
 
-    private val resource = Resource()
+    internal fun unlock(): Int
+
+    internal fun dispose()
+}
+
+internal actual class SynchronizedObject actual constructor() {
+    private val impl = SynchronizedObjectImpl()
 
     @Suppress("unused") // The returned Cleaner must be assigned to a property
-    @OptIn(ExperimentalStdlibApi::class)
-    private val cleaner = createCleaner(resource, Resource::dispose)
+    @OptIn(ExperimentalNativeApi::class)
+    private val cleaner = createCleaner(impl, SynchronizedObjectImpl::dispose)
 
     fun lock() {
-        resource.lock()
+        impl.lock()
     }
 
     fun unlock() {
-        resource.unlock()
-    }
-
-    @OptIn(ExperimentalForeignApi::class)
-    private class Resource {
-        private val arena: Arena = Arena()
-        private val attr: pthread_mutexattr_t = arena.alloc()
-        private val mutex: pthread_mutex_t = arena.alloc()
-
-        init {
-            pthread_mutexattr_init(attr.ptr)
-            pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE)
-            pthread_mutex_init(mutex.ptr, attr.ptr)
-        }
-
-        fun lock(): Int = pthread_mutex_lock(mutex.ptr)
-
-        fun unlock(): Int = pthread_mutex_unlock(mutex.ptr)
-
-        fun dispose() {
-            pthread_mutex_destroy(mutex.ptr)
-            pthread_mutexattr_destroy(attr.ptr)
-            arena.clear()
-        }
+        impl.unlock()
     }
 }
 
+@OptIn(ExperimentalContracts::class)
 internal actual inline fun <T> synchronizedImpl(
     lock: SynchronizedObject,
-    crossinline action: () -> T
+    crossinline action: () -> T,
 ): T {
+    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
     lock.lock()
     return try {
         action()

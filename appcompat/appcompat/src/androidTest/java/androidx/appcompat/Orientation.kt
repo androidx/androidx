@@ -20,7 +20,7 @@ import androidx.test.uiautomator.UiDevice
 
 public enum class Orientation {
     LEFT,
-    RIGHT
+    RIGHT,
 }
 
 public fun UiDevice.withOrientation(orientation: Orientation, doThis: () -> Unit) {

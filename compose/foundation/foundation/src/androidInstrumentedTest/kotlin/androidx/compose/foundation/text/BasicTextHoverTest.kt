@@ -58,7 +58,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier = Modifier,
-            expectedTextIcon = TYPE_TEXT
+            expectedTextIcon = TYPE_TEXT,
         )
 
     @Suppress("DEPRECATION")
@@ -68,7 +68,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
-            expectedTextIcon = TYPE_TEXT
+            expectedTextIcon = TYPE_TEXT,
         )
 
     @Suppress("DEPRECATION")
@@ -79,7 +79,7 @@ class BasicTextHoverTest {
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier =
                 Modifier.pointerHoverIcon(icon = PointerIcon.Crosshair, overrideDescendants = true),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Test
@@ -88,7 +88,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier = Modifier,
-            expectedTextIcon = TYPE_TEXT
+            expectedTextIcon = TYPE_TEXT,
         )
 
     @Test
@@ -97,7 +97,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
-            expectedTextIcon = TYPE_TEXT
+            expectedTextIcon = TYPE_TEXT,
         )
 
     @Test
@@ -107,7 +107,7 @@ class BasicTextHoverTest {
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier =
                 Modifier.pointerHoverIcon(icon = PointerIcon.Crosshair, overrideDescendants = true),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     private fun runSelectableTest(
@@ -132,7 +132,7 @@ class BasicTextHoverTest {
                 ) {
                     BasicText(
                         text = "this is selectable text",
-                        modifier = Modifier.then(textModifier).testTag(textTag)
+                        modifier = Modifier.then(textModifier).testTag(textTag),
                     )
                 }
             }
@@ -145,7 +145,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier = Modifier,
-            expectedTextIcon = TYPE_DEFAULT
+            expectedTextIcon = TYPE_DEFAULT,
         )
 
     @Suppress("DEPRECATION")
@@ -155,7 +155,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Suppress("DEPRECATION")
@@ -166,7 +166,7 @@ class BasicTextHoverTest {
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier =
                 Modifier.pointerHoverIcon(icon = PointerIcon.Crosshair, overrideDescendants = true),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Test
@@ -175,7 +175,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier = Modifier,
-            expectedTextIcon = TYPE_HAND
+            expectedTextIcon = TYPE_HAND,
         )
 
     @Test
@@ -184,7 +184,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Test
@@ -194,7 +194,7 @@ class BasicTextHoverTest {
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier =
                 Modifier.pointerHoverIcon(icon = PointerIcon.Crosshair, overrideDescendants = true),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     private fun runNonSelectableTest(
@@ -218,7 +218,7 @@ class BasicTextHoverTest {
             ) {
                 BasicText(
                     text = "this is selectable text",
-                    modifier = Modifier.then(textModifier).testTag(textTag)
+                    modifier = Modifier.then(textModifier).testTag(textTag),
                 )
             }
         }
@@ -230,7 +230,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier = Modifier,
-            expectedTextIcon = TYPE_DEFAULT
+            expectedTextIcon = TYPE_DEFAULT,
         )
 
     @Suppress("DEPRECATION")
@@ -240,7 +240,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier,
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Suppress("DEPRECATION")
@@ -251,7 +251,7 @@ class BasicTextHoverTest {
             expectedSelectionContainerIcon = TYPE_DEFAULT,
             textIconModifier =
                 Modifier.pointerHoverIcon(icon = PointerIcon.Crosshair, overrideDescendants = true),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Test
@@ -260,7 +260,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier = Modifier,
-            expectedTextIcon = TYPE_HAND
+            expectedTextIcon = TYPE_HAND,
         )
 
     @Test
@@ -269,7 +269,7 @@ class BasicTextHoverTest {
             selectionContainerIconModifier = Modifier.pointerHoverIcon(PointerIcon.Hand),
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier = Modifier.pointerHoverIcon(PointerIcon.Crosshair),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     @Test
@@ -279,7 +279,7 @@ class BasicTextHoverTest {
             expectedSelectionContainerIcon = TYPE_HAND,
             textIconModifier =
                 Modifier.pointerHoverIcon(icon = PointerIcon.Crosshair, overrideDescendants = true),
-            expectedTextIcon = TYPE_CROSSHAIR
+            expectedTextIcon = TYPE_CROSSHAIR,
         )
 
     private fun runDisabledSelectionText(
@@ -305,7 +305,7 @@ class BasicTextHoverTest {
                     DisableSelection {
                         BasicText(
                             text = "this is selectable text",
-                            modifier = Modifier.then(textModifier).testTag(textTag)
+                            modifier = Modifier.then(textModifier).testTag(textTag),
                         )
                     }
                 }
@@ -320,7 +320,7 @@ class BasicTextHoverTest {
         contentBlock:
             @Composable
             (
-                containerTag: String, textTag: String, boxModifier: Modifier, textModifier: Modifier
+                containerTag: String, textTag: String, boxModifier: Modifier, textModifier: Modifier,
             ) -> Unit,
     ) =
         with(PointerIconTestScope(rule)) {

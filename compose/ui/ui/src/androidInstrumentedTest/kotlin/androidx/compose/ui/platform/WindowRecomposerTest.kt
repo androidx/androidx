@@ -221,7 +221,7 @@ class WindowRecomposerTest {
                 assertEquals(
                     "did not unregister LifecycleObserver after detach; lifecycle observer count",
                     0,
-                    lifecycleOwner.lifecycle.observerCount
+                    lifecycleOwner.lifecycle.observerCount,
                 )
             }
         }

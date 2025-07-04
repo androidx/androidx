@@ -112,7 +112,7 @@ public fun ScalingLazyListScope.expandableItems(
     state: ExpandableState,
     count: Int,
     key: ((index: Int) -> Any)? = null,
-    itemContent: @Composable BoxScope.(index: Int) -> Unit
+    itemContent: @Composable BoxScope.(index: Int) -> Unit,
 ) {
     repeat(count) { itemIndex ->
         // Animations for each item start in inverse order, the first item animates last.
@@ -122,7 +122,7 @@ public fun ScalingLazyListScope.expandableItems(
             item(key = key?.invoke(itemIndex)) {
                 Layout(
                     modifier = Modifier.clipToBounds(),
-                    content = { Box(content = { itemContent(itemIndex) }) }
+                    content = { Box(content = { itemContent(itemIndex) }) },
                 ) { measurables, constraints ->
                     val placeable = measurables.first().measure(constraints)
                     val shownHeight = (placeable.height * animationProgress).roundToInt()
@@ -157,7 +157,7 @@ public fun ScalingLazyListScope.expandableItems(
 public fun ScalingLazyListScope.expandableItem(
     state: ExpandableState,
     key: Any? = null,
-    content: @Composable (expanded: Boolean) -> Unit
+    content: @Composable (expanded: Boolean) -> Unit,
 ): Unit = expandableItemImpl(state, key, content = content)
 
 /**
@@ -178,14 +178,14 @@ public fun ScalingLazyListScope.expandableItem(
 public fun ScalingLazyListScope.expandableButton(
     state: ExpandableState,
     key: Any? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = expandableItemImpl(state, key, invertProgress = true, content = { if (it) content() })
 
 private fun ScalingLazyListScope.expandableItemImpl(
     state: ExpandableState,
     key: Any? = null,
     invertProgress: Boolean = false,
-    content: @Composable (expanded: Boolean) -> Unit
+    content: @Composable (expanded: Boolean) -> Unit,
 ) {
     item(key = key) {
         Layout(
@@ -193,7 +193,7 @@ private fun ScalingLazyListScope.expandableItemImpl(
                 Box { content(false) }
                 Box { content(true) }
             },
-            modifier = Modifier.clipToBounds()
+            modifier = Modifier.clipToBounds(),
         ) { measurables, constraints ->
             val progress = if (invertProgress) 1f - state.expandProgress else state.expandProgress
 
@@ -231,7 +231,7 @@ internal constructor(
     initiallyExpanded: Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,
-    private val collapseAnimationSpec: AnimationSpec<Float>
+    private val collapseAnimationSpec: AnimationSpec<Float>,
 ) {
     private val _expandProgress = Animatable(if (initiallyExpanded) 1f else 0f)
 
@@ -279,9 +279,9 @@ internal constructor(
                         initiallyExpanded = it,
                         expandAnimationSpec = expandAnimationSpec,
                         collapseAnimationSpec = collapseAnimationSpec,
-                        coroutineScope = coroutineScope
+                        coroutineScope = coroutineScope,
                     )
-                }
+                },
             )
         }
     }
@@ -297,7 +297,7 @@ internal constructor(
     private val initiallyExpanded: (key: T) -> Boolean,
     private val coroutineScope: CoroutineScope,
     private val expandAnimationSpec: AnimationSpec<Float>,
-    private val collapseAnimationSpec: AnimationSpec<Float>
+    private val collapseAnimationSpec: AnimationSpec<Float>,
 ) {
 
     private val states = mutableStateMapOf<T, ExpandableState>()
@@ -314,7 +314,7 @@ internal constructor(
                 initiallyExpanded(key),
                 coroutineScope,
                 expandAnimationSpec,
-                collapseAnimationSpec
+                collapseAnimationSpec,
             )
         }
 }

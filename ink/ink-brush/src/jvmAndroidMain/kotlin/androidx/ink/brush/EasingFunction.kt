@@ -19,6 +19,8 @@ package androidx.ink.brush
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.geometry.ImmutableVec
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import java.util.Collections.unmodifiableList
 import kotlin.jvm.JvmField
 
@@ -29,11 +31,39 @@ import kotlin.jvm.JvmField
  * values outside [0, 1] are possible.
  */
 @ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public abstract class EasingFunction private constructor() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 
-    public class Predefined private constructor(@JvmField internal val value: Int) :
-        EasingFunction() {
+// NotCloseable: Finalize is only used to free the native peer.
+@Suppress("NotCloseable")
+public abstract class EasingFunction private constructor(internal val nativePointer: Long) {
+
+    // NOMUTANTS -- Not tested post garbage collection.
+    protected fun finalize() {
+        // TODO: b/423019041 - Investigate why this is failing in native code with nativePointer=0
+        if (nativePointer != 0L) {
+            EasingFunctionNative.free(nativePointer)
+        }
+    }
+
+    public companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun wrapNative(unownedNativePointer: Long): EasingFunction =
+            when (EasingFunctionNative.getParametersType(unownedNativePointer)) {
+                0 -> Predefined(unownedNativePointer)
+                1 -> CubicBezier(unownedNativePointer)
+                2 -> Linear(unownedNativePointer)
+                3 -> Steps(unownedNativePointer)
+                else -> throw IllegalArgumentException("Invalid easing function type")
+            }
+    }
+
+    public class Predefined internal constructor(nativePointer: Long) :
+        EasingFunction(nativePointer) {
+
+        private constructor(value: Int) : this(EasingFunctionNative.createPredefined(value))
+
+        internal val value: Int
+            get() = EasingFunctionNative.getPredefinedValueInt(nativePointer)
 
         internal fun toSimpleString(): String =
             when (value) {
@@ -110,9 +140,8 @@ public abstract class EasingFunction private constructor() {
      * A cubic Bezier is generally defined by four points, P0 - P3. In the case of the easing
      * function, P0 is defined to be the point (0, 0), and P3 is defined to be the point (1, 1). The
      * values of [x1] and [x2] are required to be in the range [0, 1]. This guarantees that the
-     * resulting curve is a function with respect to x and follows the CSS cubic Bezier
-     * specification:
-     * [https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function#cubic_b%C3%A9zier_easing_function](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function#cubic_b%C3%A9zier_easing_function)
+     * resulting curve is a function with respect to x and follows the
+     * [CSS specification](https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions)
      *
      * Valid parameters must have all finite values, and [x1] and [x2] must be in the interval
      * [0, 1].
@@ -121,21 +150,41 @@ public abstract class EasingFunction private constructor() {
      * not. This is somewhat different from the w3c defined cubic Bezier that allows extrapolated
      * values outside x in [0, 1] by following end-point tangents.
      */
-    public class CubicBezier(
-        @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
-        public val x1: Float,
-        public val y1: Float,
-        @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
-        public val x2: Float,
-        public val y2: Float,
-    ) : EasingFunction() {
-        init {
-            require(x1.isFinite() && x2.isFinite() && y1.isFinite() && y2.isFinite()) {
-                "All parameters must be finite. x1 = $x1, x2 = $x2, y1 = $y1, y2 = $y2"
-            }
-            require(x1 in 0.0..1.0) { "x1 = $x1 is required to be in the range [0, 1]" }
-            require(x2 in 0.0..1.0) { "x2 = $x2 is required to be in the range [0, 1]" }
-        }
+    public class CubicBezier internal constructor(nativePointer: Long) :
+        EasingFunction(nativePointer) {
+
+        /**
+         * Creates a new [CubicBezier] easing function.
+         *
+         * @param x1 The x-coordinate of the first control point. Must be in the range [0, 1].
+         * @param y1 The y-coordinate of the first control point.
+         * @param x2 The x-coordinate of the second control point. Must be in the range [0, 1].
+         * @param y2 The y-coordinate of the second control point.
+         */
+        public constructor(
+            @FloatRange(from = 0.0, to = 1.0) x1: Float,
+            y1: Float,
+            @FloatRange(from = 0.0, to = 1.0) x2: Float,
+            y2: Float,
+        ) : this(EasingFunctionNative.createCubicBezier(x1, y1, x2, y2))
+
+        /** The x-coordinate of the first control point. Must be in the range [0, 1]. */
+        @get:FloatRange(from = 0.0, to = 1.0)
+        public val x1: Float
+            get() = EasingFunctionNative.getCubicBezierX1(nativePointer)
+
+        /** The y-coordinate of the first control point. */
+        public val y1: Float
+            get() = EasingFunctionNative.getCubicBezierY1(nativePointer)
+
+        /** The x-coordinate of the second control point. Must be in the range [0, 1]. */
+        @get:FloatRange(from = 0.0, to = 1.0)
+        public val x2: Float
+            get() = EasingFunctionNative.getCubicBezierX2(nativePointer)
+
+        /** The y-coordinate of the second control point. */
+        public val y2: Float
+            get() = EasingFunctionNative.getCubicBezierY2(nativePointer)
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is CubicBezier) {
@@ -179,25 +228,38 @@ public abstract class EasingFunction private constructor() {
      * If the input x-value is outside the interval [0, 1], the output will be extrapolated from the
      * first/last line segment.
      */
-    public class Linear(
-        // The [points] val below is a defensive copy of this parameter.
-        points: List<ImmutableVec>
-    ) : EasingFunction() {
-        public val points: List<ImmutableVec> = unmodifiableList(points.toList())
+    public class Linear internal constructor(nativePointer: Long) : EasingFunction(nativePointer) {
 
-        init {
-            for (point: ImmutableVec in points) {
-                require(point.x.isFinite() && point.y.isFinite()) {
-                    "All points must be finite. Got $point"
+        /**
+         * Creates a new [Linear] easing function.
+         *
+         * @param points The points that define the piecewise-linear function.
+         */
+        public constructor(
+            points: List<ImmutableVec>
+        ) : this(
+            EasingFunctionNative.createLinear(
+                FloatArray(points.size * 2) { index ->
+                    if (index % 2 == 0) {
+                        points[index / 2].x
+                    } else {
+                        points[index / 2].y
+                    }
                 }
-                require(point.x in 0.0..1.0) {
-                    "point.x is required to be in the range [0, 1]. Got $point"
+            )
+        )
+
+        /** The points that define the piecewise-linear function. */
+        public val points: List<ImmutableVec> =
+            unmodifiableList(
+                List<ImmutableVec>(EasingFunctionNative.getLinearNumPoints(nativePointer)) { index
+                    ->
+                    ImmutableVec(
+                        EasingFunctionNative.getLinearPointX(nativePointer, index),
+                        EasingFunctionNative.getLinearPointY(nativePointer, index),
+                    )
                 }
-            }
-            for ((a, b) in points.zipWithNext()) {
-                require(a.x <= b.x) { "Points must be sorted by x-value. Got $a before $b" }
-            }
-        }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is Linear) {
@@ -222,20 +284,33 @@ public abstract class EasingFunction private constructor() {
      * A step function is defined by the number of equal-sized steps into which the
      * [0, 1) interval of input-x is split and the behavior at the extremes. When x < 0, the output will always be 0. When x >= 1, the output will always be 1. The output of the first and last steps is governed by the [StepPosition].
      *
-     * @param stepCount The number of steps. Must always be greater than 0, and must be greater than
-     *   1 if [stepPosition] is [StepPosition.JUMP_NONE].
-     *
      * The behavior and naming follows the CSS steps() specification at
-     * [https://www.w3.org/TR/css-easing-1/#step-easing-functions](https://www.w3.org/TR/css-easing-1/#step-easing-functions)
+     * [CSS Easing Functions](https://www.w3.org/TR/css-easing-1/#step-easing-functions)
      */
-    public class Steps(public val stepCount: Int, public val stepPosition: StepPosition) :
-        EasingFunction() {
-        init {
-            require(stepCount > 0) { "stepCount = $stepCount is required to be greater than 0." }
-            require(stepPosition != StepPosition.JUMP_NONE || stepCount > 1) {
-                "stepCount = $stepCount is required to be greater than 1 if stepPosition = JUMP_NONE."
-            }
-        }
+    public class Steps internal constructor(nativePointer: Long) : EasingFunction(nativePointer) {
+
+        /**
+         * Creates a new [Steps] easing function.
+         *
+         * @param stepCount The number of steps. Must always be greater than 0, and must be greater
+         *   than 1 if [stepPosition] is [StepPosition.JUMP_NONE].
+         * @param stepPosition The behavior of the first and last steps.
+         */
+        public constructor(
+            stepCount: Int,
+            stepPosition: StepPosition,
+        ) : this(EasingFunctionNative.createSteps(stepCount, stepPosition.value))
+
+        /**
+         * The number of steps. Must always be greater than 0, and must be greater than 1 if
+         * [stepPosition] is [StepPosition.JUMP_NONE].
+         */
+        public val stepCount: Int
+            get() = EasingFunctionNative.getStepsCount(nativePointer)
+
+        /** The behavior of the first and last steps. */
+        public val stepPosition: StepPosition
+            get() = EasingFunctionNative.getStepsPosition(nativePointer)
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is Steps) {
@@ -261,8 +336,7 @@ public abstract class EasingFunction private constructor() {
      * Setting to determine the desired output value of the first and last step of
      * [0, 1) for [EasingFunction.Steps].
      */
-    public class StepPosition private constructor(@JvmField internal val value: Int) :
-        EasingFunction() {
+    public class StepPosition internal constructor(@JvmField internal val value: Int) {
 
         internal fun toSimpleString(): String =
             when (value) {
@@ -308,4 +382,55 @@ public abstract class EasingFunction private constructor() {
             private const val PREFIX = "EasingFunction.StepPosition."
         }
     }
+}
+
+@OptIn(ExperimentalInkCustomBrushApi::class)
+@UsedByNative
+private object EasingFunctionNative {
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative external fun createPredefined(value: Int): Long
+
+    @UsedByNative external fun createCubicBezier(x1: Float, y1: Float, x2: Float, y2: Float): Long
+
+    @UsedByNative external fun createLinear(points: FloatArray): Long
+
+    @UsedByNative external fun createSteps(stepCount: Int, stepPosition: Int): Long
+
+    @UsedByNative external fun free(nativePointer: Long)
+
+    @UsedByNative external fun getParametersType(nativePointer: Long): Int
+
+    // Predefined easing function accessors:
+
+    @UsedByNative external fun getPredefinedValueInt(nativePointer: Long): Int
+
+    // Cubic Bezier easing function accessors:
+
+    @UsedByNative external fun getCubicBezierX1(nativePointer: Long): Float
+
+    @UsedByNative external fun getCubicBezierY1(nativePointer: Long): Float
+
+    @UsedByNative external fun getCubicBezierX2(nativePointer: Long): Float
+
+    @UsedByNative external fun getCubicBezierY2(nativePointer: Long): Float
+
+    // Linear easing function accessors:
+
+    @UsedByNative external fun getLinearNumPoints(nativePointer: Long): Int
+
+    @UsedByNative external fun getLinearPointX(nativePointer: Long, index: Int): Float
+
+    @UsedByNative external fun getLinearPointY(nativePointer: Long, index: Int): Float
+
+    // Steps easing function accessors:
+
+    @UsedByNative external fun getStepsCount(nativePointer: Long): Int
+
+    fun getStepsPosition(nativePointer: Long): EasingFunction.StepPosition =
+        EasingFunction.StepPosition(getStepsPositionInt(nativePointer))
+
+    @UsedByNative private external fun getStepsPositionInt(nativePointer: Long): Int
 }

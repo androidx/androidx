@@ -109,7 +109,7 @@ public constructor(
     private val createValueFromKey: (key: K) -> V? = { null },
     private val onEntryRemoved: (key: K, oldValue: V, newValue: V?, evicted: Boolean) -> Unit =
         { _, _, _, _ ->
-        }
+        },
 ) {
     @PublishedApi @JvmField internal var metadata: LongArray = EmptyGroup
     @PublishedApi @JvmField internal var keys: Array<Any?> = EMPTY_OBJECTS
@@ -227,7 +227,8 @@ public constructor(
         val index = findKeyIndex(key)
         if (index >= 0) {
             markNodeVisited(index)
-            @Suppress("UNCHECKED_CAST") return values[index] as V?
+            @Suppress("UNCHECKED_CAST")
+            return values[index] as V?
         }
 
         val createdValue = createValueFromKey(key) ?: return null
@@ -653,7 +654,8 @@ public constructor(
 
         removeNode(index)
 
-        @Suppress("UNCHECKED_CAST") return previousValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return previousValue as V?
     }
 
     private inline fun removeNode(index: Int) {

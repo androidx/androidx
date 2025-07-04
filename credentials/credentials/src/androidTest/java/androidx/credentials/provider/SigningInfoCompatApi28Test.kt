@@ -44,7 +44,7 @@ class SigningInfoCompatApi28Test {
         val packageInfo =
             context.packageManager.getPackageInfo(
                 context.packageName,
-                PackageManager.GET_SIGNING_CERTIFICATES
+                PackageManager.GET_SIGNING_CERTIFICATES,
             )
         assertNotNull(packageInfo.signingInfo)
         signingInfo = packageInfo.signingInfo

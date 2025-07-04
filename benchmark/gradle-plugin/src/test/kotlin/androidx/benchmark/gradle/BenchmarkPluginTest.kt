@@ -82,7 +82,7 @@ class BenchmarkPluginTest {
                     ${projectSetup.allRepositoryPaths.joinToString("\n") { """ maven { url "$it" } """ }}
                 }
                 dependencies {
-                    classpath "com.android.tools.build:gradle:7.3.0"
+                    classpath "com.android.tools.build:gradle:8.1.1"
                     classpath "androidx.benchmark:androidx.benchmark.gradle.plugin:+"
                 }
             }
@@ -104,11 +104,14 @@ class BenchmarkPluginTest {
                     .trimIndent(),
             suffix =
                 """
+            android {
+                namespace = "androidx.benchmark.gradle.test"
+            }
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
@@ -141,7 +144,16 @@ class BenchmarkPluginTest {
 
     @Test
     fun applyPluginNonBenchmarkProject() {
-        projectSetup.writeDefaultBuildGradle(prefix = PLUGINS_HEADER, suffix = "")
+        projectSetup.writeDefaultBuildGradle(
+            prefix = PLUGINS_HEADER,
+            suffix =
+                """
+                android {
+                    namespace = "androidx.benchmark.gradle.test"
+                }
+            """
+                    .trimIndent(),
+        )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
         assertTrue { output.output.contains("lockClocks - ") }
@@ -154,11 +166,14 @@ class BenchmarkPluginTest {
             prefix = PLUGINS_HEADER,
             suffix =
                 """
+            android {
+                namespace = "androidx.benchmark.gradle.test"
+            }
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val output = gradleRunner.withArguments("tasks", "--stacktrace").build()
@@ -173,6 +188,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunnerArguments additionalTestOutputDir: "/fake_path/files"
                 }
@@ -186,7 +202,7 @@ class BenchmarkPluginTest {
                 println android.testBuildType
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         projectSetup.gradlePropertiesFile.appendText("android.enableAdditionalTestOutput=true")
@@ -211,6 +227,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunnerArguments.remove("additionalTestOutputDir")
                 }
@@ -228,7 +245,7 @@ class BenchmarkPluginTest {
                 println android.testBuildType
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         versionPropertiesFile.writeText("buildVersion=3.5.0-rc03")
@@ -253,6 +270,9 @@ class BenchmarkPluginTest {
             prefix = "import com.android.build.gradle.TestedExtension\n$PLUGINS_HEADER",
             suffix =
                 """
+            android {
+                namespace = "androidx.benchmark.gradle.test"
+            }
             dependencies {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
             }
@@ -266,7 +286,7 @@ class BenchmarkPluginTest {
                 println extension.buildTypes.getByName("debug").testCoverageEnabled
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val runnerOutput = gradleRunner.withArguments("printTestInstrumentationRunner").build()
@@ -285,6 +305,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 }
@@ -309,7 +330,7 @@ class BenchmarkPluginTest {
                 println extension.buildTypes.getByName("debug").testCoverageEnabled
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val runnerOutput = gradleRunner.withArguments("printTestInstrumentationRunner").build()
@@ -336,7 +357,7 @@ class BenchmarkPluginTest {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha04"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
         projectSetup.gradlePropertiesFile.appendText("android.enableAdditionalTestOutput=true")
 
@@ -362,7 +383,7 @@ class BenchmarkPluginTest {
                 androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha04"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         assertFailsWith(UnexpectedBuildFailure::class) {
@@ -377,6 +398,7 @@ class BenchmarkPluginTest {
             suffix =
                 """
             android {
+                namespace = "androidx.benchmark.gradle.test"
                 defaultConfig {
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 }
@@ -392,7 +414,7 @@ class BenchmarkPluginTest {
                 println "BenchmarkPluginTestKt_applyPluginSigningConfig_${"$"}signingConfigName"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
 
         val releaseTask = gradleRunner.withArguments("printReleaseSigningConfig").build()

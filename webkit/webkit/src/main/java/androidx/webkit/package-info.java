@@ -18,19 +18,17 @@
  * The androidx.webkit library is a static library you can add to your Android application
  * in order to use android.webkit APIs that are not available for older platform versions.
  *
- * <p><b>Requirements</b>
- * <p>The minimum sdk version to use this library is 14.
+ * <p><b>How to use this library in your app</b>
+ * <p>Add this to your {@code build.gradle} file:
  *
- * <p><b>How to declare the dependencies to use the library</b>
+ * <pre class="prettyprint">
+ * dependencies {
+ *     implementation "androidx.webkit:webkit:1.13.0"
+ * }
+ * </pre>
  *
- * <p>Please check the <a
- * href="https://developer.android.com/jetpack/androidx/releases/webkit#declaring_dependencies">
- * release notes</a> for instructions to add the latest release to your {@code build.gradle} file.
- *
- * <p><b>Public bug tracker</b>
- *
- * <p>If you find bugs in the androidx.webkit library or want to request new features, please
- * <a href="https://issuetracker.google.com/issues/new?component=460423">do so here</a>.
+ * <p><b>Important:</b> replace {@code 1.13.0} with the latest version from
+ * <a href="https://developer.android.com/jetpack/androidx/releases/webkit">https://developer.android.com/jetpack/androidx/releases/webkit</a>.
  *
  * <p><b>Sample apps</b>
  *
@@ -41,6 +39,11 @@
  * <p>For more APIs, check out the sample app in the <a
  * href="https://android.googlesource.com/platform/frameworks/support/+/androidx-main/webkit/integration-tests/testapp/README.md">AndroidX
  * repo</a>.
+ *
+ * <p><b>Public bug tracker</b>
+ *
+ * <p>If you find bugs in the androidx.webkit library or want to request new features, please
+ * <a href="https://issuetracker.google.com/issues/new?component=460423">file a ticket</a>.
  *
  * <p><b>Migrating to androidx.webkit</b>
  *

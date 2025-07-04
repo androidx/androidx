@@ -80,7 +80,7 @@ class ChipScreenshotTest {
                 label = "Long label to show truncation which does not fit into 1 line",
                 secondaryLabel =
                     "Long secondary label that will not fit on one single lines and " +
-                        "flows onto another line"
+                        "flows onto another line",
             )
         }
 
@@ -153,7 +153,7 @@ class ChipScreenshotTest {
     @Composable
     private fun sampleOutlinedChip(
         enabled: Boolean = true,
-        colors: ChipColors = ChipDefaults.outlinedChipColors()
+        colors: ChipColors = ChipDefaults.outlinedChipColors(),
     ) {
         OutlinedChip(
             enabled = enabled,
@@ -179,7 +179,7 @@ class ChipScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

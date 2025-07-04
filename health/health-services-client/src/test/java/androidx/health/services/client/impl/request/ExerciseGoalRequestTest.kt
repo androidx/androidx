@@ -37,9 +37,9 @@ class ExerciseGoalRequestTest {
                     DataTypeCondition(
                         DataType.HEART_RATE_BPM_STATS,
                         192.0,
-                        ComparisonType.GREATER_THAN
+                        ComparisonType.GREATER_THAN,
                     )
-                )
+                ),
             )
         val parcel = Parcel.obtain()
 

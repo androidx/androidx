@@ -50,7 +50,7 @@ class FlattenedPageEventStorageTest {
                 Snapshot(
                     items = listOf("a", "b", "c"),
                     placeholdersBefore = 3,
-                    placeholdersAfter = 5
+                    placeholdersAfter = 5,
                 )
             )
     }
@@ -69,7 +69,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("x1")),
-                        TransformablePage(data = listOf("x2"))
+                        TransformablePage(data = listOf("x2")),
                     ),
                 placeholdersBefore = 1,
             )
@@ -79,7 +79,7 @@ class FlattenedPageEventStorageTest {
                 Snapshot(
                     items = listOf("x1", "x2", "a", "b", "c"),
                     placeholdersBefore = 1,
-                    placeholdersAfter = 5
+                    placeholdersAfter = 5,
                 )
             )
     }
@@ -99,7 +99,7 @@ class FlattenedPageEventStorageTest {
                     listOf(
                         TransformablePage(data = listOf("x1")),
                         TransformablePage(data = listOf("x2")),
-                        TransformablePage(data = listOf("x3"))
+                        TransformablePage(data = listOf("x3")),
                     ),
                 placeholdersAfter = 2,
             )
@@ -109,7 +109,7 @@ class FlattenedPageEventStorageTest {
                 Snapshot(
                     items = listOf("a", "b", "c", "x1", "x2", "x3"),
                     placeholdersBefore = 3,
-                    placeholdersAfter = 2
+                    placeholdersAfter = 2,
                 )
             )
     }
@@ -143,7 +143,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
@@ -154,7 +154,7 @@ class FlattenedPageEventStorageTest {
                 Snapshot(
                     items = listOf("a", "b", "c", "d", "e"),
                     placeholdersBefore = 3,
-                    placeholdersAfter = 5
+                    placeholdersAfter = 5,
                 )
             )
         list.add(
@@ -162,7 +162,7 @@ class FlattenedPageEventStorageTest {
                 loadType = PREPEND,
                 minPageOffset = 0,
                 maxPageOffset = 0,
-                placeholdersRemaining = 6
+                placeholdersRemaining = 6,
             )
         )
         assertThat(list.snapshot())
@@ -178,7 +178,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
@@ -189,7 +189,7 @@ class FlattenedPageEventStorageTest {
                 Snapshot(
                     items = listOf("a", "b", "c", "d", "e"),
                     placeholdersBefore = 3,
-                    placeholdersAfter = 5
+                    placeholdersAfter = 5,
                 )
             )
         list.add(
@@ -200,7 +200,7 @@ class FlattenedPageEventStorageTest {
                 Snapshot(
                     items = listOf("a", "b", "c"),
                     placeholdersBefore = 3,
-                    placeholdersAfter = 7
+                    placeholdersAfter = 7,
                 )
             )
     }
@@ -268,12 +268,7 @@ class FlattenedPageEventStorageTest {
 
     @Test
     fun staticList_afterInsertOverridesStates() {
-        val initialLoadStates =
-            loadStates(
-                refresh = Loading,
-                prepend = Loading,
-                append = Loading,
-            )
+        val initialLoadStates = loadStates(refresh = Loading, prepend = Loading, append = Loading)
         val overridenloadStates =
             loadStates(
                 refresh = Error(TEST_EXCEPTION),
@@ -285,7 +280,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
@@ -324,12 +319,7 @@ class FlattenedPageEventStorageTest {
 
     @Test
     fun staticList_afterInsertOverridesOnlySourceStates() {
-        val initialLoadStates =
-            loadStates(
-                refresh = Loading,
-                prepend = Loading,
-                append = Loading,
-            )
+        val initialLoadStates = loadStates(refresh = Loading, prepend = Loading, append = Loading)
         val overridenloadStates =
             loadStates(
                 refresh = Error(TEST_EXCEPTION),
@@ -341,7 +331,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
@@ -380,12 +370,7 @@ class FlattenedPageEventStorageTest {
 
     @Test
     fun staticList_afterInsertOverridesOnlyMediatorStates() {
-        val initialLoadStates =
-            loadStates(
-                refresh = Loading,
-                prepend = Loading,
-                append = Loading,
-            )
+        val initialLoadStates = loadStates(refresh = Loading, prepend = Loading, append = Loading)
         val overridenloadStates =
             loadStates(
                 refresh = Error(TEST_EXCEPTION),
@@ -397,7 +382,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
@@ -447,7 +432,7 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
@@ -486,11 +471,11 @@ class FlattenedPageEventStorageTest {
                 pages =
                     listOf(
                         TransformablePage(data = listOf("a", "b", "c")),
-                        TransformablePage(data = listOf("d", "e"))
+                        TransformablePage(data = listOf("d", "e")),
                     ),
                 placeholdersBefore = 3,
                 placeholdersAfter = 5,
-                source = loadStates(prepend = Loading, append = error)
+                source = loadStates(prepend = Loading, append = error),
             )
         )
         assertThat(list.snapshot())
@@ -503,8 +488,8 @@ class FlattenedPageEventStorageTest {
                         loadStates(
                             refresh = NotLoading.Incomplete,
                             prepend = Loading,
-                            append = error
-                        )
+                            append = error,
+                        ),
                 )
             )
     }
@@ -534,8 +519,7 @@ class FlattenedPageEventStorageTest {
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = event.sourceLoadStates ?: snapshot.sourceLoadStates,
-                        mediatorLoadStates =
-                            event.mediatorLoadStates ?: snapshot.mediatorLoadStates,
+                        mediatorLoadStates = event.mediatorLoadStates ?: snapshot.mediatorLoadStates,
                     )
                 }
             }
@@ -547,7 +531,7 @@ class FlattenedPageEventStorageTest {
         val sourceLoadStates: LoadStates = loadStates(),
         val mediatorLoadStates: LoadStates? = null,
         val placeholdersBefore: Int = 0,
-        val placeholdersAfter: Int = 0
+        val placeholdersAfter: Int = 0,
     )
 }
 

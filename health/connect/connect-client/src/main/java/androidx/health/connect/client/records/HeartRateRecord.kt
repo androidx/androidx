@@ -28,7 +28,7 @@ public class HeartRateRecord(
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val samples: List<Sample>,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : SeriesRecord<HeartRateRecord.Sample> {
 
     init {
@@ -79,7 +79,7 @@ public class HeartRateRecord(
             AggregateMetric.longMetric(
                 HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.AVERAGE,
-                BPM_FIELD_NAME
+                BPM_FIELD_NAME,
             )
 
         /** Metric identifier to retrieve the minimum heart rate from [AggregationResult]. */
@@ -88,7 +88,7 @@ public class HeartRateRecord(
             AggregateMetric.longMetric(
                 HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.MINIMUM,
-                BPM_FIELD_NAME
+                BPM_FIELD_NAME,
             )
 
         /** Metric identifier to retrieve the maximum heart rate from [AggregationResult]. */
@@ -97,7 +97,7 @@ public class HeartRateRecord(
             AggregateMetric.longMetric(
                 HEART_RATE_TYPE_NAME,
                 AggregateMetric.AggregationType.MAXIMUM,
-                BPM_FIELD_NAME
+                BPM_FIELD_NAME,
             )
 
         /**

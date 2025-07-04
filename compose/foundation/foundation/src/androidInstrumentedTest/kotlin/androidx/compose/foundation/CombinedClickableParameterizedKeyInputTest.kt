@@ -81,7 +81,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                 Key.Enter.keyCode,
                 Key.NumPadEnter.keyCode,
                 Key.DirectionCenter.keyCode,
-                Key.Spacebar.keyCode
+                Key.Spacebar.keyCode,
             )
     }
 
@@ -99,7 +99,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                 modifier =
                     Modifier.testTag("myClickable")
                         .focusRequester(focusRequester)
-                        .combinedClickable { counter++ }
+                        .combinedClickable { counter++ },
             )
         }
         rule.runOnIdle {
@@ -130,7 +130,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                     modifier =
                         Modifier.testTag("myClickable")
                             .focusRequester(clickableFocusRequester)
-                            .combinedClickable { counter++ }
+                            .combinedClickable { counter++ },
                 )
             }
         }
@@ -173,7 +173,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                     modifier =
                         Modifier.testTag("myClickable")
                             .focusRequester(clickableFocusRequester)
-                            .combinedClickable { counter++ }
+                            .combinedClickable { counter++ },
                 )
             }
         }
@@ -214,8 +214,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                         .focusRequester(focusRequester)
                         .combinedClickable(
                             onLongClick = { ++longClickCounter },
-                            onClick = { ++clickCounter }
-                        )
+                            onClick = { ++clickCounter },
+                        ),
             )
         }
         rule.runOnIdle {
@@ -262,8 +262,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .combinedClickable(
                                 onLongClick = { ++longClickCounter },
                                 onClick = { ++clickCounter },
-                                hapticFeedbackEnabled = true
-                            )
+                                hapticFeedbackEnabled = true,
+                            ),
                 )
             }
         }
@@ -300,7 +300,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                     modifier =
                         Modifier.testTag("myClickable")
                             .focusRequester(clickableFocusRequester)
-                            .combinedClickable(onLongClick = { counter++ }) {}
+                            .combinedClickable(onLongClick = { counter++ }) {},
                 )
             }
         }
@@ -342,8 +342,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                         .focusRequester(focusRequester)
                         .combinedClickable(
                             onDoubleClick = { ++doubleClickCounter },
-                            onClick = { ++clickCounter }
-                        )
+                            onClick = { ++clickCounter },
+                        ),
             )
         }
         rule.runOnIdle {
@@ -381,8 +381,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                         .focusRequester(focusRequester)
                         .combinedClickable(
                             onDoubleClick = { ++doubleClickCounter },
-                            onClick = { ++clickCounter }
-                        )
+                            onClick = { ++clickCounter },
+                        ),
             )
         }
         rule.runOnIdle {
@@ -434,8 +434,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                         .focusRequester(focusRequester)
                         .combinedClickable(
                             onDoubleClick = { ++doubleClickCounter },
-                            onClick = { ++clickCounter }
-                        )
+                            onClick = { ++clickCounter },
+                        ),
             )
         }
         rule.runOnIdle {
@@ -504,8 +504,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                         .combinedClickable(
                             onDoubleClick = { ++doubleClickCounter },
                             onClick = { ++clickCounter },
-                            onLongClick = { ++longClickCounter }
-                        )
+                            onLongClick = { ++longClickCounter },
+                        ),
             )
         }
         rule.runOnIdle {
@@ -547,8 +547,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .focusRequester(focusRequester)
                             .combinedClickable(
                                 interactionSource = interactionSource,
-                                indication = null
-                            ) {}
+                                indication = null,
+                            ) {},
                 )
             }
         }
@@ -593,8 +593,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .focusRequester(clickableFocusRequester)
                             .combinedClickable(
                                 interactionSource = interactionSource,
-                                indication = null
-                            ) {}
+                                indication = null,
+                            ) {},
                 )
             }
         }
@@ -642,8 +642,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .focusRequester(focusRequester)
                             .combinedClickable(
                                 interactionSource = interactionSource,
-                                indication = null
-                            ) {}
+                                indication = null,
+                            ) {},
                 )
             }
         }
@@ -708,7 +708,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .combinedClickable(
                                 interactionSource = interactionSource,
                                 indication = null,
-                            ) {}
+                            ) {},
                 )
             }
         }
@@ -762,8 +762,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .combinedClickable(
                                 interactionSource = interactionSource,
                                 indication = null,
-                                enabled = enabled.value
-                            ) {}
+                                enabled = enabled.value,
+                            ) {},
                 )
             }
         }
@@ -825,8 +825,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                         .focusRequester(focusRequester)
                         .combinedClickable(
                             onLongClick = mutableOnLongClick,
-                            onClick = { ++clickCounter }
-                        )
+                            onClick = { ++clickCounter },
+                        ),
             )
         }
         rule.runOnIdle {
@@ -872,8 +872,8 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                             .focusRequester(focusRequester)
                             .combinedClickable(
                                 onLongClick = { ++longClickCounter },
-                                onClick = { ++clickCounter }
-                            )
+                                onClick = { ++clickCounter },
+                            ),
                 )
             }
         }

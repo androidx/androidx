@@ -60,13 +60,14 @@ fun splitAttributesCalculatorSample() {
                         SplitAttributes.LayoutDirection.LOCALE
                     }
                 )
-                // Optionally set the animation background to use when switching between
-                // vertical and horizontal
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
                 .setAnimationParams(
                     EmbeddingAnimationParams.Builder()
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
                         )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()
@@ -78,13 +79,14 @@ fun splitAttributesCalculatorSample() {
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                // Optionally set the animation background to use when switching between
-                // vertical and horizontal
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
                 .setAnimationParams(
                     EmbeddingAnimationParams.Builder()
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
                         )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()
@@ -105,26 +107,28 @@ fun splitWithOrientations() {
         return@setSplitAttributesCalculator if (parentConfiguration.screenWidthDp >= 600) {
             builder
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                // Optionally set the animation background to use when switching between
-                // vertical and horizontal
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
                 .setAnimationParams(
                     EmbeddingAnimationParams.Builder()
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
                         )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()
         } else if (parentConfiguration.screenHeightDp >= 600) {
             builder
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                // Optionally set the animation background to use when switching between
-                // vertical and horizontal
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
                 .setAnimationParams(
                     EmbeddingAnimationParams.Builder()
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
                         )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()

@@ -146,7 +146,7 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                                     if (listStyle == ListStyle.Full)
                                         TemplateText(
                                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                                            TextType.Body
+                                            TextType.Body,
                                         )
                                     else null,
                                 text3 =
@@ -161,7 +161,7 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                                     listOf(
                                         TemplateImageWithDescription(
                                             ImageProvider(R.drawable.palm_leaf),
-                                            "$i"
+                                            "$i",
                                         )
                                     ),
                                 size = ImageSize.Medium,
@@ -175,10 +175,10 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                                             itemSelectAction(actionParametersOf(ClickedKey to i)),
                                             TemplateImageWithDescription(
                                                 ImageProvider(R.drawable.ic_bookmark),
-                                                "button"
-                                            )
-                                        ),
-                                    ),
+                                                "button",
+                                            ),
+                                        )
+                                    )
                             ),
                     )
                 )
@@ -192,12 +192,12 @@ abstract class BaseListDemoWidget : GlanceTemplateAppWidget() {
                                 icon =
                                     TemplateImageWithDescription(
                                         ImageProvider(R.drawable.ic_widgets),
-                                        "Logo"
+                                        "Logo",
                                     ),
                             )
                         else null,
                     listContent = content,
-                    listStyle = listStyle
+                    listStyle = listStyle,
                 )
             )
         }
@@ -208,7 +208,7 @@ class DefaultNoopAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {}
 }
 
@@ -216,7 +216,7 @@ class ListTemplateItemAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters
+        parameters: ActionParameters,
     ) {
         updateAppWidgetState(context, glanceId) {
             it[ItemClickedKey] = parameters[ClickedKey] ?: -1

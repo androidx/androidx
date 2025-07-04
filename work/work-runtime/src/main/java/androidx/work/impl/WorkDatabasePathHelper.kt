@@ -32,14 +32,14 @@ private val DATABASE_EXTRA_FILES = arrayOf("-journal", "-shm", "-wal")
 
 /** Keeps track of {@link WorkDatabase} paths. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object WorkDatabasePathHelper {
+public object WorkDatabasePathHelper {
     /**
      * Migrates [WorkDatabase] to the no-backup directory.
      *
      * @param context The application context.
      */
     @JvmStatic
-    fun migrateDatabase(context: Context) {
+    public fun migrateDatabase(context: Context) {
         val defaultDatabasePath = getDefaultDatabasePath(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && defaultDatabasePath.exists()) {
             Logger.get().debug(TAG, "Migrating WorkDatabase to the no-backup directory")
@@ -67,7 +67,7 @@ object WorkDatabasePathHelper {
      * @param context The application [Context]
      * @return a [Map] of paths to be migrated from source -> destination
      */
-    fun migrationPaths(context: Context): Map<File, File> {
+    public fun migrationPaths(context: Context): Map<File, File> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val databasePath = getDefaultDatabasePath(context)
             val migratedPath = getDatabasePath(context)
@@ -83,7 +83,7 @@ object WorkDatabasePathHelper {
      * @param context The application [Context]
      * @return The database path before migration to the no-backup directory.
      */
-    fun getDefaultDatabasePath(context: Context): File {
+    public fun getDefaultDatabasePath(context: Context): File {
         return context.getDatabasePath(WORK_DATABASE_NAME)
     }
 
@@ -91,7 +91,7 @@ object WorkDatabasePathHelper {
      * @param context The application [Context]
      * @return The the migrated database path.
      */
-    fun getDatabasePath(context: Context): File {
+    public fun getDatabasePath(context: Context): File {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             // No notion of a backup directory exists.
             getDefaultDatabasePath(context)

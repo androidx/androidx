@@ -4,7 +4,7 @@ import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
@@ -26,7 +26,7 @@ class BaseDaoTest {
             void insertMe(T t);
         """
         ) { dao ->
-            assertThat(dao.insertMethods.size, `is`(1))
+            assertThat(dao.insertFunctions.size, `is`(1))
         }
     }
 
@@ -38,7 +38,7 @@ class BaseDaoTest {
             void insertMe(T[] t);
         """
         ) { dao ->
-            assertThat(dao.insertMethods.size, `is`(1))
+            assertThat(dao.insertFunctions.size, `is`(1))
         }
     }
 
@@ -50,7 +50,7 @@ class BaseDaoTest {
             void insertMe(T... t);
         """
         ) { dao ->
-            assertThat(dao.insertMethods.size, `is`(1))
+            assertThat(dao.insertFunctions.size, `is`(1))
         }
     }
 
@@ -62,7 +62,7 @@ class BaseDaoTest {
             void insertMe(List<T> t);
         """
         ) { dao ->
-            assertThat(dao.insertMethods.size, `is`(1))
+            assertThat(dao.insertFunctions.size, `is`(1))
         }
     }
 
@@ -74,7 +74,7 @@ class BaseDaoTest {
             void deleteMe(T t);
         """
         ) { dao ->
-            assertThat(dao.deleteMethods.size, `is`(1))
+            assertThat(dao.deleteFunctions.size, `is`(1))
         }
     }
 
@@ -86,7 +86,7 @@ class BaseDaoTest {
             void deleteMe(T[] t);
         """
         ) { dao ->
-            assertThat(dao.deleteMethods.size, `is`(1))
+            assertThat(dao.deleteFunctions.size, `is`(1))
         }
     }
 
@@ -98,7 +98,7 @@ class BaseDaoTest {
             void deleteMe(T... t);
         """
         ) { dao ->
-            assertThat(dao.deleteMethods.size, `is`(1))
+            assertThat(dao.deleteFunctions.size, `is`(1))
         }
     }
 
@@ -110,7 +110,7 @@ class BaseDaoTest {
             void deleteMe(List<T> t);
         """
         ) { dao ->
-            assertThat(dao.deleteMethods.size, `is`(1))
+            assertThat(dao.deleteFunctions.size, `is`(1))
         }
     }
 
@@ -122,7 +122,7 @@ class BaseDaoTest {
             void updateMe(T t);
         """
         ) { dao ->
-            assertThat(dao.updateMethods.size, `is`(1))
+            assertThat(dao.updateFunctions.size, `is`(1))
         }
     }
 
@@ -134,7 +134,7 @@ class BaseDaoTest {
             void updateMe(T[] t);
         """
         ) { dao ->
-            assertThat(dao.updateMethods.size, `is`(1))
+            assertThat(dao.updateFunctions.size, `is`(1))
         }
     }
 
@@ -146,7 +146,7 @@ class BaseDaoTest {
             void updateMe(T... t);
         """
         ) { dao ->
-            assertThat(dao.updateMethods.size, `is`(1))
+            assertThat(dao.updateFunctions.size, `is`(1))
         }
     }
 
@@ -158,7 +158,7 @@ class BaseDaoTest {
             void updateMe(List<T> t);
         """
         ) { dao ->
-            assertThat(dao.updateMethods.size, `is`(1))
+            assertThat(dao.updateFunctions.size, `is`(1))
         }
     }
 
@@ -207,9 +207,9 @@ class BaseDaoTest {
             abstract class MyDb : RoomDatabase() {
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
-        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
+        runProcessorTest(sources = listOf(source)) { invocation ->
             val dbElm = invocation.context.processingEnv.requireTypeElement("MyDb")
             val dbType = dbElm.type
             // if we could create valid code, it is good, no need for assertions.
@@ -223,8 +223,8 @@ class BaseDaoTest {
                             TypeWriter.WriterContext(
                                 codeLanguage = CodeLanguage.JAVA,
                                 javaLambdaSyntaxAvailable = false,
-                                targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                            )
+                                targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                            ),
                     )
                     .write(invocation.processingEnv)
             }
@@ -243,7 +243,7 @@ class BaseDaoTest {
                 interface BaseDao<K, T> {
                     $code
                 }
-            """
+            """,
             )
         val extension =
             Source.java(
@@ -254,7 +254,7 @@ class BaseDaoTest {
                 @Dao
                 interface MyDao extends BaseDao<Integer, User> {
                 }
-            """
+            """,
             )
         val fakeDb =
             Source.java(
@@ -266,11 +266,11 @@ class BaseDaoTest {
                 // check requirements
                 abstract class MyDb extends RoomDatabase {
                 }
-            """
+            """,
             )
         // https://github.com/google/ksp/issues/2051
-        runProcessorTestWithK1(sources = listOf(baseClass, extension, COMMON.USER, fakeDb)) {
-            invocation ->
+        runProcessorTest(sources = listOf(baseClass, extension, COMMON.USER, fakeDb)) { invocation
+            ->
             val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
             val dbElm = invocation.context.processingEnv.requireTypeElement("foo.bar.MyDb")
             val dbType = dbElm.type
@@ -283,8 +283,8 @@ class BaseDaoTest {
                         TypeWriter.WriterContext(
                             codeLanguage = CodeLanguage.JAVA,
                             javaLambdaSyntaxAvailable = false,
-                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                        )
+                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM),
+                        ),
                 )
                 .write(invocation.processingEnv)
         }

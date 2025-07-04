@@ -76,7 +76,7 @@ private fun MorphView(
     modifier: Modifier = Modifier,
     fillColor: Color = MaterialTheme.colorScheme.primary,
     isDebug: Boolean = false,
-    stroked: Boolean = false
+    stroked: Boolean = false,
 ) {
     val scheme = MaterialTheme.colorScheme
     Box(modifier.fillMaxSize()) {
@@ -97,7 +97,7 @@ private fun MorphView(
                         val style = if (stroked) Stroke(size.width / 10f) else Fill
                         drawPath(path, fillColor, style = style)
                     }
-                },
+                }
         )
     }
 }
@@ -107,7 +107,7 @@ fun AnimatedMorphView(
     shapes: List<RoundedPolygon>,
     selectedStartShape: Int,
     selectedEndShape: Int,
-    baseAnimation: DurationBasedAnimationSpec<Float> = tween(1400)
+    baseAnimation: DurationBasedAnimationSpec<Float> = tween(1400),
 ) {
     var selectedDisplayIndex by remember { mutableIntStateOf(0) }
     val debug = selectedDisplayIndex != 0
@@ -133,11 +133,7 @@ fun AnimatedMorphView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimatedMorphViewHeader(selectedIndex: Int, onSelectedModeIndexChanged: (Int) -> Unit) {
-    val options =
-        listOf(
-            "Output",
-            "Debug",
-        )
+    val options = listOf("Output", "Debug")
 
     TopAppBar(
         title = { Text("Morph Preview") },
@@ -149,13 +145,13 @@ fun AnimatedMorphViewHeader(selectedIndex: Int, onSelectedModeIndexChanged: (Int
                             SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                         onClick = { onSelectedModeIndexChanged(index) },
                         selected = index == selectedIndex,
-                        icon = {}
+                        icon = {},
                     ) {
                         Text(label)
                     }
                 }
             }
-        }
+        },
     )
 }
 
@@ -163,7 +159,7 @@ fun AnimatedMorphViewHeader(selectedIndex: Int, onSelectedModeIndexChanged: (Int
 private fun AnimationControls(
     progress: Animatable<Float, AnimationVector1D>,
     scope: CoroutineScope,
-    baseAnimation: DurationBasedAnimationSpec<Float>
+    baseAnimation: DurationBasedAnimationSpec<Float>,
 ) {
     val selectedColors = IconButtonDefaults.filledIconButtonColors()
     val unselectedColors = IconButtonDefaults.iconButtonColors()
@@ -173,7 +169,7 @@ private fun AnimationControls(
 
     Row(
         Modifier.padding(horizontal = 5.dp).fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround
+        horizontalArrangement = Arrangement.SpaceAround,
     ) {
         IconButton(
             onClick = {
@@ -190,7 +186,7 @@ private fun AnimationControls(
         Slider(
             value = progress.value.coerceIn(0f, 1f),
             onValueChange = { scope.launch { progress.snapTo(it) } },
-            Modifier.fillMaxWidth(0.75f)
+            Modifier.fillMaxWidth(0.75f),
         )
 
         IconButton(
@@ -201,7 +197,7 @@ private fun AnimationControls(
                 }
             },
             colors = if (playBackwards) selectedColors else unselectedColors,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(40.dp),
         ) {
             Icon(Icons.AutoMirrored.Default.Undo, contentDescription = "Play Backwards")
         }
@@ -218,7 +214,7 @@ private fun AnimationControls(
                 }
             },
             colors = if (isRepeat) selectedColors else unselectedColors,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(40.dp),
         ) {
             Icon(Icons.Default.Repeat, contentDescription = "Repeat Animation")
         }
@@ -238,7 +234,7 @@ private suspend fun restartAnimation(
         if (isRepeat)
             infiniteRepeatable(
                 animation = baseAnimation,
-                repeatMode = if (isReverse) RepeatMode.Reverse else RepeatMode.Restart
+                repeatMode = if (isReverse) RepeatMode.Reverse else RepeatMode.Restart,
             )
         else spring(dampingRatio = 0.65f, stiffness = 50f)
 
@@ -250,7 +246,7 @@ private suspend fun restartOrPause(
     progress: Animatable<Float, AnimationVector1D>,
     isRepeat: Boolean,
     isReverse: Boolean,
-    baseAnimation: DurationBasedAnimationSpec<Float>
+    baseAnimation: DurationBasedAnimationSpec<Float>,
 ) {
     if (animationCanBeStopped(progress, isRepeat)) {
         progress.stop()
@@ -261,7 +257,7 @@ private suspend fun restartOrPause(
 
 private fun animationCanBeStopped(
     progress: Animatable<Float, AnimationVector1D>,
-    isRepeat: Boolean
+    isRepeat: Boolean,
 ): Boolean {
     return isRepeat && progress.isRunning
 }

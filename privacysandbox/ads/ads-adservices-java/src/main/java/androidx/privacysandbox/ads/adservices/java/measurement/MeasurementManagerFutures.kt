@@ -39,7 +39,7 @@ import kotlinx.coroutines.async
  * This provides APIs for App and Ad-Sdks to access Privacy Sandbox Measurement APIs in a privacy
  * preserving way. This class can be used by Java clients.
  */
-abstract class MeasurementManagerFutures internal constructor() {
+public abstract class MeasurementManagerFutures internal constructor() {
     /**
      * Delete previous registrations.
      *
@@ -47,7 +47,9 @@ abstract class MeasurementManagerFutures internal constructor() {
      * @return ListenableFuture. If the deletion is successful, result is null.
      */
     @SuppressWarnings("MissingNullability")
-    abstract fun deleteRegistrationsAsync(deletionRequest: DeletionRequest): ListenableFuture<Unit>
+    public abstract fun deleteRegistrationsAsync(
+        deletionRequest: DeletionRequest
+    ): ListenableFuture<Unit>
 
     /**
      * Register an attribution source (click or view).
@@ -59,9 +61,9 @@ abstract class MeasurementManagerFutures internal constructor() {
      */
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun registerSourceAsync(
+    public abstract fun registerSourceAsync(
         attributionSource: Uri,
-        inputEvent: InputEvent?
+        inputEvent: InputEvent?,
     ): ListenableFuture<Unit>
 
     /**
@@ -72,7 +74,7 @@ abstract class MeasurementManagerFutures internal constructor() {
      */
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun registerTriggerAsync(trigger: Uri): ListenableFuture<Unit>
+    public abstract fun registerTriggerAsync(trigger: Uri): ListenableFuture<Unit>
 
     /**
      * Register attribution sources(click or view). This API will not process any redirects, all
@@ -83,7 +85,9 @@ abstract class MeasurementManagerFutures internal constructor() {
     @ExperimentalFeatures.RegisterSourceOptIn
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun registerSourceAsync(request: SourceRegistrationRequest): ListenableFuture<Unit>
+    public abstract fun registerSourceAsync(
+        request: SourceRegistrationRequest
+    ): ListenableFuture<Unit>
 
     /**
      * Register an attribution source(click or view) from web context. This API will not process any
@@ -94,7 +98,7 @@ abstract class MeasurementManagerFutures internal constructor() {
      */
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun registerWebSourceAsync(
+    public abstract fun registerWebSourceAsync(
         request: WebSourceRegistrationRequest
     ): ListenableFuture<Unit>
 
@@ -107,8 +111,8 @@ abstract class MeasurementManagerFutures internal constructor() {
      */
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun registerWebTriggerAsync(
-        request: WebTriggerRegistrationRequest,
+    public abstract fun registerWebTriggerAsync(
+        request: WebTriggerRegistrationRequest
     ): ListenableFuture<Unit>
 
     /**
@@ -119,7 +123,7 @@ abstract class MeasurementManagerFutures internal constructor() {
      */
     @SuppressWarnings("MissingNullability")
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
-    abstract fun getMeasurementApiStatusAsync(): ListenableFuture<Int>
+    public abstract fun getMeasurementApiStatusAsync(): ListenableFuture<Int>
 
     private class Api33Ext5JavaImpl(private val mMeasurementManager: MeasurementManager) :
         MeasurementManagerFutures() {
@@ -137,7 +141,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
         override fun registerSourceAsync(
             attributionSource: Uri,
-            inputEvent: InputEvent?
+            inputEvent: InputEvent?,
         ): ListenableFuture<Unit> {
             return CoroutineScope(Dispatchers.Default)
                 .async { mMeasurementManager.registerSource(attributionSource, inputEvent) }
@@ -176,7 +180,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         @DoNotInline
         @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
         override fun registerWebTriggerAsync(
-            request: WebTriggerRegistrationRequest,
+            request: WebTriggerRegistrationRequest
         ): ListenableFuture<Unit> {
             return CoroutineScope(Dispatchers.Default)
                 .async { mMeasurementManager.registerWebTrigger(request) }
@@ -192,7 +196,7 @@ abstract class MeasurementManagerFutures internal constructor() {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates [MeasurementManagerFutures].
          *
@@ -200,7 +204,7 @@ abstract class MeasurementManagerFutures internal constructor() {
          *   the value returned is null.
          */
         @JvmStatic
-        fun from(context: Context): MeasurementManagerFutures? {
+        public fun from(context: Context): MeasurementManagerFutures? {
             return obtain(context)?.let { Api33Ext5JavaImpl(it) }
         }
     }

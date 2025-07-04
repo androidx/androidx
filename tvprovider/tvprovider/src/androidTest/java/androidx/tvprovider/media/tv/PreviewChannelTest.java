@@ -122,6 +122,17 @@ public class PreviewChannelTest extends TestCase {
     }
 
     @Test
+    public void testNotPreviewChannelRow() {
+        PreviewChannel channel = createFullyPopulatedPreviewChannel();
+        ContentValues contentValues = channel.toContentValues();
+        contentValues.put(Channels.COLUMN_TYPE, Channels.TYPE_OTHER);
+        PreviewChannel clonedChannelFromCursor = PreviewChannel.fromCursor(
+                getPreviewChannelCursor(contentValues));
+
+        assertNull(clonedChannelFromCursor);
+    }
+
+    @Test
     public void testChannelEquals() {
         assertEquals(createFullyPopulatedPreviewChannel(), createFullyPopulatedPreviewChannel());
     }

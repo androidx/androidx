@@ -103,7 +103,7 @@ class TextFieldDelegateTest {
             textLayoutResultProxy,
             processor,
             OffsetMapping.Identity,
-            onValueChange
+            onValueChange,
         )
 
         verify(onValueChange, times(1))
@@ -118,7 +118,7 @@ class TextFieldDelegateTest {
                 singleLine = true,
                 capitalization = KeyboardCapitalization.Sentences,
                 keyboardType = KeyboardType.Phone,
-                imeAction = ImeAction.Search
+                imeAction = ImeAction.Search,
             )
 
         val textInputSession: TextInputSession = mock()
@@ -127,7 +127,7 @@ class TextFieldDelegateTest {
                     eq(editorState),
                     eq(imeOptions),
                     any(),
-                    eq(onEditorActionPerformed)
+                    eq(onEditorActionPerformed),
                 )
             )
             .thenReturn(textInputSession)
@@ -139,14 +139,14 @@ class TextFieldDelegateTest {
                 editProcessor = processor,
                 imeOptions = imeOptions,
                 onValueChange = onValueChange,
-                onImeActionPerformed = onEditorActionPerformed
+                onImeActionPerformed = onEditorActionPerformed,
             )
         verify(textInputService)
             .startInput(
                 eq(TextFieldValue(text = editorState.text, selection = editorState.selection)),
                 eq(imeOptions),
                 any(),
-                eq(onEditorActionPerformed)
+                eq(onEditorActionPerformed),
             )
 
         assertThat(actual).isEqualTo(textInputSession)
@@ -158,7 +158,7 @@ class TextFieldDelegateTest {
             TextFieldValue(
                 text = "Hello, World",
                 selection = TextRange(1),
-                composition = TextRange(3, 5)
+                composition = TextRange(3, 5),
             )
         whenever(processor.toTextFieldValue()).thenReturn(editorState)
 
@@ -183,7 +183,7 @@ class TextFieldDelegateTest {
             textLayoutResultProxy,
             processor,
             skippingOffsetMap,
-            onValueChange
+            onValueChange,
         )
 
         verify(onValueChange, times(1))
@@ -223,13 +223,13 @@ class TextFieldDelegateTest {
                             append("Hello, World")
                         }
                         .toAnnotatedString(),
-                offsetMapping = identityOffsetMapping
+                offsetMapping = identityOffsetMapping,
             )
 
         val result =
             TextFieldDelegate.applyCompositionDecoration(
                 compositionRange = TextRange(3, 6),
-                transformed = input
+                transformed = input,
             )
 
         assertThat(result.text.text).isEqualTo(input.text.text)
@@ -260,13 +260,13 @@ class TextFieldDelegateTest {
                             append("Hello, World")
                         }
                         .toAnnotatedString(),
-                offsetMapping = identityOffsetMapping
+                offsetMapping = identityOffsetMapping,
             )
 
         val result =
             TextFieldDelegate.applyCompositionDecoration(
                 compositionRange = TextRange(3, 0),
-                transformed = input
+                transformed = input,
             )
         assertThat(result.text.spanStyles)
             .contains(
@@ -293,14 +293,14 @@ class TextFieldDelegateTest {
                             append("Hello World")
                         }
                         .toAnnotatedString(),
-                offsetMapping = offsetMapping
+                offsetMapping = offsetMapping,
             )
 
         val range = TextRange(0, 2)
         val result =
             TextFieldDelegate.applyCompositionDecoration(
                 compositionRange = range,
-                transformed = input
+                transformed = input,
             )
 
         assertThat(result.text.spanStyles.size).isEqualTo(1)
@@ -309,7 +309,7 @@ class TextFieldDelegateTest {
                 AnnotatedString.Range(
                     SpanStyle(textDecoration = TextDecoration.Underline),
                     range.start + offsetAmount,
-                    range.end + offsetAmount
+                    range.end + offsetAmount,
                 )
             )
     }

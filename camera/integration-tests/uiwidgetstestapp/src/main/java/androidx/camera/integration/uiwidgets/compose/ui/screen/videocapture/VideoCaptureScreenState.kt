@@ -162,7 +162,7 @@ class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
                             lifecycleOwner,
                             cameraSelector,
                             preview,
-                            videoCapture
+                            videoCapture,
                         )
 
                     this.camera = camera
@@ -172,7 +172,7 @@ class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
                     Log.e(TAG, "Use Cases binding failed", exc)
                 }
             },
-            ContextCompat.getMainExecutor(context)
+            ContextCompat.getMainExecutor(context),
         )
     }
 
@@ -203,7 +203,7 @@ class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
                     val recordAudioPermission =
                         PermissionChecker.checkSelfPermission(
                             context,
-                            Manifest.permission.RECORD_AUDIO
+                            Manifest.permission.RECORD_AUDIO,
                         )
 
                     if (recordAudioPermission == PermissionChecker.PERMISSION_GRANTED) {
@@ -264,7 +264,7 @@ class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
 
         return MediaStoreOutputOptions.Builder(
                 contentResolver,
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
             )
             .setContentValues(contentValues)
             .build()
@@ -299,7 +299,7 @@ class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
     enum class RecordState {
         IDLE,
         RECORDING,
-        STOPPING
+        STOPPING,
     }
 
     companion object {
@@ -308,7 +308,7 @@ class VideoCaptureScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
         val saver: Saver<VideoCaptureScreenState, *> =
             listSaver(
                 save = { listOf(it.lensFacing) },
-                restore = { VideoCaptureScreenState(initialLensFacing = it[0]) }
+                restore = { VideoCaptureScreenState(initialLensFacing = it[0]) },
             )
     }
 }

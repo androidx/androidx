@@ -120,7 +120,7 @@ interface XProcessingEnv {
 
     @Deprecated(
         message = "Prefer using XTypeName or String overload instead of JavaPoet.",
-        replaceWith = ReplaceWith(expression = "requireTypeElement(typeName.toString())")
+        replaceWith = ReplaceWith(expression = "requireTypeElement(typeName.toString())"),
     )
     fun requireTypeElement(typeName: JTypeName) = requireTypeElement(typeName.toString())
 
@@ -148,7 +148,7 @@ interface XProcessingEnv {
 
     @Deprecated(
         message = "Prefer using XTypeName or String overload instead of JavaPoet.",
-        replaceWith = ReplaceWith(expression = "findTypeElement(typeName.toString())")
+        replaceWith = ReplaceWith(expression = "findTypeElement(typeName.toString())"),
     )
     fun findTypeElement(typeName: JTypeName) = findTypeElement(typeName.toString())
 
@@ -166,7 +166,7 @@ interface XProcessingEnv {
 
     @Deprecated(
         message = "Prefer using XTypeName or String overload instead of JavaPoet.",
-        replaceWith = ReplaceWith(expression = "requireType(typeName.toString())")
+        replaceWith = ReplaceWith(expression = "requireType(typeName.toString())"),
     )
     fun requireType(typeName: JTypeName) =
         checkNotNull(findType(typeName.toString())) { "cannot find required type $typeName" }
@@ -205,7 +205,7 @@ interface XProcessingEnv {
 
     @Deprecated(
         message = "Prefer using XTypeName or String overload instead of JavaPoet.",
-        replaceWith = ReplaceWith(expression = "findType(typeName.toString())")
+        replaceWith = ReplaceWith(expression = "findType(typeName.toString())"),
     )
     fun findType(typeName: JTypeName): XType? {
         if (typeName is JArrayTypeName) {
@@ -221,14 +221,14 @@ interface XProcessingEnv {
 
     enum class Backend {
         JAVAC,
-        KSP
+        KSP,
     }
 
     enum class Platform {
         JVM,
         NATIVE,
         JS,
-        UNKNOWN
+        UNKNOWN,
     }
 
     companion object {
@@ -237,7 +237,7 @@ interface XProcessingEnv {
         @JvmOverloads
         fun create(
             env: ProcessingEnvironment,
-            config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT
+            config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT,
         ): XProcessingEnv = JavacProcessingEnv(env, config)
 
         /** Creates a new [XProcessingEnv] implementation derived from the given KSP environment. */
@@ -246,7 +246,7 @@ interface XProcessingEnv {
         fun create(
             symbolProcessorEnvironment: SymbolProcessorEnvironment,
             resolver: Resolver,
-            config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT
+            config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT,
         ): XProcessingEnv =
             KspProcessingEnv(delegate = symbolProcessorEnvironment, config = config).also {
                 it.resolver = resolver

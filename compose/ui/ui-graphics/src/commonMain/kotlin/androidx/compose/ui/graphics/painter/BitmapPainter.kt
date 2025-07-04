@@ -47,7 +47,7 @@ fun BitmapPainter(
     image: ImageBitmap,
     srcOffset: IntOffset = IntOffset.Zero,
     srcSize: IntSize = IntSize(image.width, image.height),
-    filterQuality: FilterQuality = FilterQuality.Low
+    filterQuality: FilterQuality = FilterQuality.Low,
 ): BitmapPainter =
     BitmapPainter(image, srcOffset, srcSize).apply { this.filterQuality = filterQuality }
 
@@ -67,7 +67,7 @@ fun BitmapPainter(
 class BitmapPainter(
     private val image: ImageBitmap,
     private val srcOffset: IntOffset = IntOffset.Zero,
-    private val srcSize: IntSize = IntSize(image.width, image.height)
+    private val srcSize: IntSize = IntSize(image.width, image.height),
 ) : Painter() {
 
     // Not ideal, however, in order to maintain binary compatibility, leave this as an
@@ -93,11 +93,11 @@ class BitmapPainter(
             dstSize =
                 IntSize(
                     this@onDraw.size.width.fastRoundToInt(),
-                    this@onDraw.size.height.fastRoundToInt()
+                    this@onDraw.size.height.fastRoundToInt(),
                 ),
             alpha = alpha,
             colorFilter = colorFilter,
-            filterQuality = filterQuality
+            filterQuality = filterQuality,
         )
     }
 

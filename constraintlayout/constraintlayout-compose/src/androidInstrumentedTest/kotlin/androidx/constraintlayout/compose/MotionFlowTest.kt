@@ -102,7 +102,7 @@ class MotionFlowTest {
             }
             """
                     ),
-                progress = progress
+                progress = progress,
             ) {
                 val numArray = arrayOf("1", "2", "3", "4")
                 for (num in numArray) {

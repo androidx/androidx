@@ -52,7 +52,7 @@ fun SelectionPopupDemo() {
         Popup(alignment = Alignment.Center) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.background(columnColor)
+                modifier = Modifier.background(columnColor),
             ) {
                 BasicText("SelectionContainer")
                 SelectionContainer { BasicText(text = text, modifier = modifier) }

@@ -79,7 +79,7 @@ internal class MotionEventAdapter {
      */
     internal fun convertToPointerInputEvent(
         motionEvent: MotionEvent,
-        positionCalculator: PositionCalculator
+        positionCalculator: PositionCalculator,
     ): PointerInputEvent? {
         val action = motionEvent.actionMasked
         if (action == ACTION_CANCEL || action == ACTION_OUTSIDE) {
@@ -124,7 +124,7 @@ internal class MotionEventAdapter {
                     // 1. we're not hovered
                     // 2. we didn't get UP event for a pointer
                     // 3. button on the mouse is pressed BUT it's not a "scroll" simulated button
-                    !isHover && i != upIndex && (!isScroll || motionEvent.buttonState != 0)
+                    !isHover && i != upIndex && (!isScroll || motionEvent.buttonState != 0),
                 )
             )
         }
@@ -244,7 +244,7 @@ internal class MotionEventAdapter {
         positionCalculator: PositionCalculator,
         motionEvent: MotionEvent,
         index: Int,
-        pressed: Boolean
+        pressed: Boolean,
     ): PointerInputEventData {
 
         val motionEventPointerId = motionEvent.getPointerId(index)
@@ -286,7 +286,7 @@ internal class MotionEventAdapter {
                         HistoricalChange(
                             getHistoricalEventTime(pos),
                             originalEventPosition,
-                            originalEventPosition
+                            originalEventPosition,
                         )
                     historical.add(historicalChange)
                 }

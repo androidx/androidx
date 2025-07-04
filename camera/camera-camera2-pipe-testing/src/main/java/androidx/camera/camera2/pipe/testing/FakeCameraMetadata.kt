@@ -104,7 +104,7 @@ public class FakeCameraExtensionMetadata(
     private val postviewSizes: Map<Int, Map<Size, Set<Size>>> = emptyMap(),
     override val isRedacted: Boolean = false,
     override val isPostviewSupported: Boolean = false,
-    override val isCaptureProgressSupported: Boolean = false
+    override val isCaptureProgressSupported: Boolean = false,
 ) : FakeMetadata(metadata), CameraExtensionMetadata {
     override fun getOutputSizes(imageFormat: Int): Set<Size> {
         return captureOutputSizes[imageFormat] ?: emptySet()

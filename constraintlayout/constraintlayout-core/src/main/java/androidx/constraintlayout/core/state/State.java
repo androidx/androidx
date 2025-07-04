@@ -20,7 +20,6 @@ import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_PACK
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.CHAIN_SPREAD_INSIDE;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.core.state.helpers.AlignHorizontallyReference;
 import androidx.constraintlayout.core.state.helpers.AlignVerticallyReference;
 import androidx.constraintlayout.core.state.helpers.BarrierReference;
@@ -32,6 +31,8 @@ import androidx.constraintlayout.core.state.helpers.VerticalChainReference;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
 import androidx.constraintlayout.core.widgets.ConstraintWidgetContainer;
 import androidx.constraintlayout.core.widgets.HelperWidget;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -423,8 +424,7 @@ public class State {
      * @param gridType type of Grid pattern - Grid, Row, or Column
      * @return a GridReference object
      */
-    @NonNull
-    public GridReference getGrid(@NonNull Object key, @NonNull String gridType) {
+    public @NonNull GridReference getGrid(@NonNull Object key, @NonNull String gridType) {
         ConstraintReference reference = constraints(key);
         if (reference.getFacade() == null || !(reference.getFacade() instanceof GridReference)) {
             State.Helper Type = Helper.GRID;

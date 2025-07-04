@@ -125,7 +125,7 @@ fun FloatingActionButtonMenuDemo() {
                     initialIconColor = MaterialTheme.colorScheme.onTertiary,
                     finalIconColor = MaterialTheme.colorScheme.onTertiary,
                     itemContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                )
+                ),
             )
         val (selectedColor, onColorSelected) = remember { mutableStateOf(colorOptions[0]) }
 
@@ -184,12 +184,12 @@ fun FloatingActionButtonMenuDemo() {
                 Icon(
                     imageVector = Icons.Filled.Palette,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.secondary,
                 )
                 Text(
                     text = "Color Options",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
             Column(Modifier.selectableGroup()) {
@@ -200,16 +200,16 @@ fun FloatingActionButtonMenuDemo() {
                             .selectable(
                                 selected = (color.label == selectedColor.label),
                                 onClick = { onColorSelected(color) },
-                                role = Role.RadioButton
+                                role = Role.RadioButton,
                             )
                             .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(selected = (color.label == selectedColor.label), onClick = null)
                         Text(
                             text = color.label,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
                         )
                     }
                 }
@@ -221,12 +221,12 @@ fun FloatingActionButtonMenuDemo() {
                 Icon(
                     imageVector = Icons.Filled.FormatSize,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.secondary,
                 )
                 Text(
                     text = "Size Options",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
             Column(Modifier.selectableGroup()) {
@@ -237,16 +237,16 @@ fun FloatingActionButtonMenuDemo() {
                             .selectable(
                                 selected = (size.label == selectedSize.label),
                                 onClick = { onSizeSelected(size) },
-                                role = Role.RadioButton
+                                role = Role.RadioButton,
                             )
                             .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(selected = (size.label == selectedSize.label), onClick = null)
                         Text(
                             text = size.label,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
                         )
                     }
                 }
@@ -258,12 +258,12 @@ fun FloatingActionButtonMenuDemo() {
                 Icon(
                     imageVector = Icons.Filled.AlignHorizontalCenter,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.secondary,
                 )
                 Text(
                     text = "Alignment Options",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
             Column(Modifier.selectableGroup()) {
@@ -274,19 +274,19 @@ fun FloatingActionButtonMenuDemo() {
                             .selectable(
                                 selected = (alignment.label == selectedAlignment.label),
                                 onClick = { onAlignmentSelected(alignment) },
-                                role = Role.RadioButton
+                                role = Role.RadioButton,
                             )
                             .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
                             selected = (alignment.label == selectedAlignment.label),
-                            onClick = null
+                            onClick = null,
                         )
                         Text(
                             text = alignment.label,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
                         )
                     }
                 }
@@ -325,7 +325,7 @@ fun FloatingActionButtonMenuDemo() {
                     containerColor =
                         ToggleFloatingActionButtonDefaults.containerColor(
                             selectedColor.initialContainerColor,
-                            selectedColor.finalContainerColor
+                            selectedColor.finalContainerColor,
                         ),
                     containerSize = selectedSize.initialContainerSize,
                     containerCornerRadius = selectedSize.initialContainerCornerRadius,
@@ -344,13 +344,13 @@ fun FloatingActionButtonMenuDemo() {
                                 color =
                                     ToggleFloatingActionButtonDefaults.iconColor(
                                         selectedColor.initialIconColor,
-                                        selectedColor.finalIconColor
+                                        selectedColor.finalIconColor,
                                     ),
-                                size = selectedSize.initialIconSize
-                            )
+                                size = selectedSize.initialIconSize,
+                            ),
                     )
                 }
-            }
+            },
         ) {
             items.forEachIndexed { i, item ->
                 FloatingActionButtonMenuItem(
@@ -368,7 +368,7 @@ fun FloatingActionButtonMenuDemo() {
                                             action = {
                                                 fabMenuExpanded = false
                                                 true
-                                            }
+                                            },
                                         )
                                     )
                             }

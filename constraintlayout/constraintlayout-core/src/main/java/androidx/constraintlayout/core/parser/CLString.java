@@ -15,7 +15,7 @@
  */
 package androidx.constraintlayout.core.parser;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * {@link CLElement} implementation for json Strings when used as property values or array elements.
@@ -34,8 +34,7 @@ public class CLString extends CLElement {
     /**
      * Creates a {@link CLString} element from a String object.
      */
-    @NonNull
-    public static CLString from(@NonNull String content) {
+    public static @NonNull CLString from(@NonNull String content) {
         CLString stringElement = new CLString(content.toCharArray());
         stringElement.setStart(0L);
         stringElement.setEnd(content.length() - 1);

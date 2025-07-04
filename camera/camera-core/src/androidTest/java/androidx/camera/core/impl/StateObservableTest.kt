@@ -134,7 +134,7 @@ public class StateObservableTest {
                 override fun onError(t: Throwable) {
                     deferred.completeExceptionally(t)
                 }
-            }
+            },
         )
 
         // Post the state
@@ -159,7 +159,7 @@ public class StateObservableTest {
                 override fun onError(t: Throwable) {
                     deferred.completeExceptionally(t)
                 }
-            }
+            },
         )
 
         // Post the error
@@ -241,7 +241,7 @@ public class StateObservableTest {
 
     data class DeferredCompletingObserver<T>(
         val observer: Observer<T>,
-        val deferred: CompletableDeferred<T>
+        val deferred: CompletableDeferred<T>,
     )
 
     private fun <T> Observable<T>.addObserver(targetState: T): DeferredCompletingObserver<T> {

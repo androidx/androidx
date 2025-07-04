@@ -18,6 +18,7 @@ package androidx.tv.material3.samples
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.tv.material3.ColorScheme as TvColorScheme
 
 @Composable
@@ -53,5 +54,12 @@ fun mapColorScheme(tvColorScheme: TvColorScheme): ColorScheme {
         outline = tvColorScheme.border,
         outlineVariant = tvColorScheme.borderVariant,
         scrim = tvColorScheme.scrim,
+        surfaceDim = Color.Unspecified,
+        surfaceBright = Color.Unspecified,
+        surfaceContainer = Color.Unspecified,
+        surfaceContainerLow = Color.Unspecified,
+        surfaceContainerHigh = Color.Unspecified,
+        surfaceContainerLowest = Color.Unspecified,
+        surfaceContainerHighest = Color.Unspecified,
     )
 }

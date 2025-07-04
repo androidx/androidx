@@ -53,7 +53,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
@@ -70,7 +70,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
@@ -85,7 +85,7 @@ class OutputOptionsTest {
         val mediaStoreOutputOptions =
             MediaStoreOutputOptions.Builder(
                     contentResolver,
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 )
                 .setContentValues(contentValues)
                 .build()
@@ -102,7 +102,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
@@ -120,7 +120,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
@@ -128,7 +128,7 @@ class OutputOptionsTest {
         val mediaStoreOutputOptions =
             MediaStoreOutputOptions.Builder(
                     contentResolver,
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                 )
                 .build()
 
@@ -141,7 +141,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val outputOptions =
             FakeOutputOptions.Builder()
@@ -159,7 +159,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val outputOptions = FakeOutputOptions.Builder().build()
 
@@ -173,7 +173,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         assertThrows(IllegalArgumentException::class.java) {
             FakeOutputOptions.Builder().setFileSizeLimit(INVALID_FILE_SIZE_LIMIT)
@@ -185,7 +185,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         assertThrows(IllegalArgumentException::class.java) {
             FakeOutputOptions.Builder().setDurationLimitMillis(INVALID_DURATION_LIMIT)
@@ -197,7 +197,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         listOf(
                 createLocation(0.0, 0.0),
@@ -219,7 +219,7 @@ class OutputOptionsTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         listOf(
                 createLocation(Double.NaN, 0.0),
@@ -239,7 +239,7 @@ class OutputOptionsTest {
     private fun createLocation(
         latitude: Double,
         longitude: Double,
-        provider: String = "FakeProvider"
+        provider: String = "FakeProvider",
     ): Location =
         Location(provider).apply {
             this.latitude = latitude

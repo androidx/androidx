@@ -74,7 +74,7 @@ class PrimitiveColumnTypeAdapter(
                 PrimitiveColumnTypeAdapter(
                     out = processingEnvironment.requireType(it.typeName),
                     typeAffinity = getAffinity(it),
-                    primitive = it
+                    primitive = it,
                 )
             }
         }
@@ -88,7 +88,7 @@ class PrimitiveColumnTypeAdapter(
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         // These primitives don't have an exact statement setter.
         val castFunction =
@@ -122,7 +122,7 @@ class PrimitiveColumnTypeAdapter(
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.addStatement(
             "%L = %L",
@@ -146,7 +146,7 @@ class PrimitiveColumnTypeAdapter(
                         CodeLanguage.KOTLIN -> add(XCodeBlock.of("%L.%L()", it, castFunction))
                     }
                 }
-            }
+            },
         )
     }
 }

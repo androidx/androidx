@@ -68,7 +68,7 @@ class CacheTextLayoutInputTest {
                         AnnotatedString.Range(
                             Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline),
                             0,
-                            1
+                            1,
                         )
                     )
             )
@@ -79,7 +79,7 @@ class CacheTextLayoutInputTest {
                         AnnotatedString.Range(
                             Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.AboveBaseline),
                             1,
-                            2
+                            2,
                         )
                     )
             )
@@ -220,7 +220,7 @@ class CacheTextLayoutInputTest {
         density: Density = Density(context),
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         fontFamilyResolver: FontFamily.Resolver = this.fontFamilyResolver,
-        constraints: Constraints = Constraints()
+        constraints: Constraints = Constraints(),
     ): CacheTextLayoutInput {
         return CacheTextLayoutInput(
             TextLayoutInput(
@@ -233,7 +233,7 @@ class CacheTextLayoutInputTest {
                 density = density,
                 layoutDirection = layoutDirection,
                 fontFamilyResolver = fontFamilyResolver,
-                constraints = constraints
+                constraints = constraints,
             )
         )
     }

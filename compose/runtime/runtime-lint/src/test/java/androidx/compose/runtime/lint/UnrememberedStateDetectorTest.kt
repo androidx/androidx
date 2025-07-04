@@ -117,7 +117,7 @@ class UnrememberedStateDetectorTest : LintDetectorTest() {
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -316,7 +316,7 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .run()
             .expectClean()
@@ -415,7 +415,7 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
                 ),
                 Stubs.Composable,
                 Stubs.SnapshotState,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .run()
             .expectClean()
@@ -490,7 +490,7 @@ src/androidx/compose/runtime/foo/{.kt:69: Error: Creating a state object during 
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -599,7 +599,7 @@ src/androidx/compose/runtime/foo/{.kt:56: Error: Creating a state object during 
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -812,7 +812,7 @@ src/androidx/compose/runtime/foo/{.kt:53: Error: Creating a state object during 
                 Stubs.Composable,
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()

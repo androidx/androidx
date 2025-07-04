@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"സന്ദേശങ്ങൾ ഇവിടെ കാണാം.\nകൂടുതലുള്ള ടെക്സ്റ്റ് രണ്ടാമത്തെ വരിയിലും."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ഹ്രസ്വ സന്ദേശ ടെംപ്ലേറ്റ് ഡെമോ"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"വിഭാഗീകരിച്ച ഇനത്തിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"റേഡിയോ ബട്ടൺ വിഭാഗം"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"\'ടോഗിൾ ചെയ്യുക\' വിഭാഗം"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"നിരവധി വരികളുള്ള വിഭാഗം"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ഗ്രിഡ് ഇന വിഭാഗം"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"പെയിൻ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"സ്ഥലങ്ങളുടെ ലിസ്റ്റിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>

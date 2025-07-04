@@ -50,6 +50,7 @@
 
         <activity
             android:name="androidx.core.view.ViewCompatActivity"
+            android:theme="@android:style/Theme.NoTitleBar"
             android:exported="true" />
 
         <activity

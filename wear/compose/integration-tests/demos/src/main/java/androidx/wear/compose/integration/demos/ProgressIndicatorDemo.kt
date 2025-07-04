@@ -62,7 +62,7 @@ public fun ProgressWithCustomAngles() {
         ScalingLazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item { Text("Start Angle:$startAngle") }
             item {
@@ -70,7 +70,7 @@ public fun ProgressWithCustomAngles() {
                     value = startAngle,
                     onValueChange = { startAngle = it },
                     steps = 15,
-                    valueRange = 0f..360f
+                    valueRange = 0f..360f,
                 )
             }
             item { Text("End Angle:$endAngle") }
@@ -79,7 +79,7 @@ public fun ProgressWithCustomAngles() {
                     value = endAngle,
                     onValueChange = { endAngle = it },
                     steps = 15,
-                    valueRange = 0f..360f
+                    valueRange = 0f..360f,
                 )
             }
             item { Text("Progress:$progress") }
@@ -88,7 +88,7 @@ public fun ProgressWithCustomAngles() {
                     value = progress,
                     onValueChange = { progress = it },
                     steps = 4,
-                    valueRange = 0f..1f
+                    valueRange = 0f..1f,
                 )
             }
         }
@@ -96,7 +96,7 @@ public fun ProgressWithCustomAngles() {
             startAngle = startAngle,
             endAngle = endAngle,
             progress = animatedProgress,
-            modifier = Modifier.clearAndSetSemantics {}.fillMaxSize().padding(all = 1.dp)
+            modifier = Modifier.clearAndSetSemantics {}.fillMaxSize().padding(all = 1.dp),
         )
     }
 }
@@ -120,7 +120,7 @@ public fun ProgressWithMedia() {
                             startPlaying(playerState.progress)
                         }
                     },
-                    colors = ButtonDefaults.iconButtonColors()
+                    colors = ButtonDefaults.iconButtonColors(),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_previous),
@@ -151,7 +151,7 @@ public fun ProgressWithMedia() {
                             }
                         },
                         colors = ButtonDefaults.secondaryButtonColors(),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         Icon(
                             painter =
@@ -170,7 +170,7 @@ public fun ProgressWithMedia() {
                             startAngle = playerState.startOffsetAngle,
                             indicatorColor = MaterialTheme.colors.secondary,
                             trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
-                            strokeWidth = 4.dp
+                            strokeWidth = 4.dp,
                         )
                     else
                         CircularProgressIndicator(
@@ -179,7 +179,7 @@ public fun ProgressWithMedia() {
                             startAngle = playerState.startOffsetAngle,
                             indicatorColor = MaterialTheme.colors.secondary,
                             trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
-                            strokeWidth = 4.dp
+                            strokeWidth = 4.dp,
                         )
                 }
                 Spacer(modifier = Modifier.size(12.dp))
@@ -190,7 +190,7 @@ public fun ProgressWithMedia() {
                             startPlaying(playerState.progress)
                         }
                     },
-                    colors = ButtonDefaults.iconButtonColors()
+                    colors = ButtonDefaults.iconButtonColors(),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_next),
@@ -203,7 +203,7 @@ public fun ProgressWithMedia() {
             CompactChip(
                 modifier = Modifier.width(110.dp),
                 label = { Text(text = "Start loading") },
-                onClick = { status = Status.Loading }
+                onClick = { status = Status.Loading },
             )
         }
     }
@@ -225,7 +225,7 @@ public fun TransformingCustomProgressIndicator() {
                     Button(
                         onClick = { scope.launch { transformState.stopPlayingStartLoading() } },
                         colors = ButtonDefaults.secondaryButtonColors(),
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_play),
@@ -240,7 +240,7 @@ public fun TransformingCustomProgressIndicator() {
                         startAngle = transformState.startOffsetAngle,
                         indicatorColor = MaterialTheme.colors.secondary,
                         trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
-                        strokeWidth = 4.dp
+                        strokeWidth = 4.dp,
                     )
                 }
                 Spacer(modifier = Modifier.size(12.dp))
@@ -251,7 +251,7 @@ public fun TransformingCustomProgressIndicator() {
                             startPlaying(transformState.progress)
                         }
                     },
-                    colors = ButtonDefaults.iconButtonColors()
+                    colors = ButtonDefaults.iconButtonColors(),
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_skip_next),
@@ -267,7 +267,7 @@ public fun TransformingCustomProgressIndicator() {
 private enum class Status {
     Stopped,
     Playing,
-    Loading
+    Loading,
 }
 
 private suspend fun startPlaying(progress: Animatable<Float, AnimationVector1D>) {
@@ -304,7 +304,7 @@ private class PlayerState {
             launch {
                 _startOffsetAngle.animateTo(
                     270f,
-                    animationSpec = TweenSpec(easing = LinearOutSlowInEasing)
+                    animationSpec = TweenSpec(easing = LinearOutSlowInEasing),
                 )
                 _startOffsetAngle.snapTo(-90f)
             }
@@ -331,7 +331,7 @@ private class TransformingState {
             launch {
                 _startAngle.animateTo(
                     targetValue = if (_startAngle.value < 180) 270f else 630f,
-                    animationSpec = TweenSpec(easing = LinearOutSlowInEasing)
+                    animationSpec = TweenSpec(easing = LinearOutSlowInEasing),
                 )
                 _startAngle.snapTo(-90f)
             }
@@ -367,11 +367,11 @@ private class TransformingState {
                                     easing = CubicBezierEasing(0.4f, 0.0f, 0.7f, 1.0f),
                                     // This duration is set as a half of startAngle duration because
                                     // it reverts
-                                    durationMillis = 800
+                                    durationMillis = 800,
                                 ),
                             repeatMode = RepeatMode.Reverse,
-                            initialStartOffset = StartOffset(200)
-                        )
+                            initialStartOffset = StartOffset(200),
+                        ),
                 )
             }
             launch {
@@ -383,10 +383,10 @@ private class TransformingState {
                                 TweenSpec(
                                     delay = 400,
                                     easing = CubicBezierEasing(0.7f, 0.0f, 0.75f, 1.0f),
-                                    durationMillis = 1600
+                                    durationMillis = 1600,
                                 ),
-                            repeatMode = RepeatMode.Restart
-                        )
+                            repeatMode = RepeatMode.Restart,
+                        ),
                 )
             }
         }
@@ -397,7 +397,7 @@ private class TransformingState {
             launch {
                 _startAngle.animateTo(
                     270f,
-                    animationSpec = TweenSpec(easing = LinearOutSlowInEasing)
+                    animationSpec = TweenSpec(easing = LinearOutSlowInEasing),
                 )
                 _startAngle.snapTo(-90f)
             }

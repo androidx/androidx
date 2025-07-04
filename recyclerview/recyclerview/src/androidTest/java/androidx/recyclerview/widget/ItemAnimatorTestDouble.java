@@ -22,7 +22,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -113,21 +113,21 @@ public class ItemAnimatorTestDouble extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
+    public boolean animateRemove(RecyclerView.@NonNull ViewHolder holder) {
         mRemoves.add(holder);
         dispatchRemoveStarting(holder);
         return false;
     }
 
     @Override
-    public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
+    public boolean animateAdd(RecyclerView.@NonNull ViewHolder holder) {
         mAdds.add(holder);
         dispatchAddStarting(holder);
         return false;
     }
 
     @Override
-    public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX, int fromY,
+    public boolean animateMove(RecyclerView.@NonNull ViewHolder holder, int fromX, int fromY,
             int toX, int toY) {
         mMoves.add(holder);
         dispatchMoveStarting(holder);
@@ -135,7 +135,7 @@ public class ItemAnimatorTestDouble extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
+    public boolean animateChange(RecyclerView.@NonNull ViewHolder oldHolder,
             RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         mChangesOld.add(oldHolder);
         mChangesNew.add(newHolder);
@@ -223,7 +223,7 @@ public class ItemAnimatorTestDouble extends SimpleItemAnimator {
     }
 
     @Override
-    public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
+    public void endAnimation(RecyclerView.@NonNull ViewHolder item) {
         if (mAdds.remove(item)) {
             dispatchAddFinished(item);
         } else if (mRemoves.remove(item)) {

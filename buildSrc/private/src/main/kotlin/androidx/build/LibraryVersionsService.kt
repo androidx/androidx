@@ -78,6 +78,15 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
             val groupId = association.libraryGroup.group
             val existingAssociation = result[groupId]
             if (existingAssociation != null) {
+                if (
+                    existingAssociation.atomicGroupVersion != null &&
+                        association.libraryGroup.atomicGroupVersion != null &&
+                        existingAssociation.group !in ALLOWED_ATOMIC_GROUP_EXCEPTIONS
+                ) {
+                    throw GradleException(
+                        "Multiple atomic groups defined with the same Maven group ID: $groupId"
+                    )
+                }
                 if (association.overrideIncludeInProjectPaths.isEmpty()) {
                     throw GradleException(
                         "Duplicate library group $groupId defined in " +
@@ -132,7 +141,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                 readGroupVersion(
                     groupDefinition = groupDefinition,
                     groupName = groupName,
-                    key = AtomicGroupVersion
+                    key = AtomicGroupVersion,
                 )
             val overrideApplyToProjects =
                 (groupDefinition.getArray("overrideInclude")?.toList() ?: listOf()).map {
@@ -151,7 +160,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
 
             return project.gradle.sharedServices.registerIfAbsent(
                 "libraryVersionsService",
-                LibraryVersionsService::class.java
+                LibraryVersionsService::class.java,
             ) { spec ->
                 spec.parameters.tomlFileName = tomlFileName
                 spec.parameters.tomlFileContents = toml
@@ -167,8 +176,18 @@ private data class LibraryGroupAssociation(
     // the group
     val libraryGroup: LibraryGroup,
     // the paths of any additional projects that this group should be assigned to
-    val overrideIncludeInProjectPaths: List<String>
+    val overrideIncludeInProjectPaths: List<String>,
 )
 
 private const val VersionReferencePrefix = "versions."
 private const val AtomicGroupVersion = "atomicGroupVersion"
+
+// Maven groups that should be skipped for atomic duplication checks. Do not add further entries.
+// TODO(b/401002936, b/401000219, b/401003097, b/401005632): Remove groups from this list
+private val ALLOWED_ATOMIC_GROUP_EXCEPTIONS =
+    listOf(
+        "androidx.camera",
+        "androidx.compose.material3",
+        "androidx.lifecycle",
+        "androidx.tracing",
+    )

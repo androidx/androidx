@@ -16,24 +16,22 @@
 
 package androidx.xr.scenecore.impl;
 
-import androidx.xr.scenecore.JxrPlatformAdapter.ExrImageResource;
+import androidx.xr.runtime.internal.ExrImageResource;
 
 /**
- * Implementation of a RealityCore ExrImageResource.
+ * Implementation of a SceneCore ExrImageResource for the Split Engine.
  *
  * <p>EXR Images are high dynamic range images that can be used as environmental skyboxes, and can
  * be used for Image Based Lighting.
  */
-@SuppressWarnings({"deprecation", "UnnecessarilyFullyQualified"}) // TODO(b/373435470): Remove
 final class ExrImageResourceImpl implements ExrImageResource {
-    // Note: right now the "environment" format accessible through the XRExtensions layer is .EXR
-    private final androidx.xr.extensions.asset.EnvironmentToken token;
+    private final long mToken;
 
-    public ExrImageResourceImpl(androidx.xr.extensions.asset.EnvironmentToken token) {
-        this.token = token;
+    ExrImageResourceImpl(long token) {
+        mToken = token;
     }
 
-    public androidx.xr.extensions.asset.EnvironmentToken getToken() {
-        return token;
+    public long getExtensionImageToken() {
+        return mToken;
     }
 }

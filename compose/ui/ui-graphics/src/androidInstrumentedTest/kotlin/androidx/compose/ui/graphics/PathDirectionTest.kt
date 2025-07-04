@@ -96,7 +96,7 @@ class PathDirectionTest {
         val path = Path()
         path.addRoundRect(
             RoundRect(10.0f, 10.0f, 40.0f, 40.0f, 6.0f, 6.0f),
-            Path.Direction.Clockwise
+            Path.Direction.Clockwise,
         )
         assertEquals(Path.Direction.Clockwise, path.computeDirection())
 
@@ -104,7 +104,7 @@ class PathDirectionTest {
 
         path.addRoundRect(
             RoundRect(10.0f, 10.0f, 40.0f, 40.0f, 6.0f, 6.0f),
-            Path.Direction.CounterClockwise
+            Path.Direction.CounterClockwise,
         )
         assertEquals(Path.Direction.CounterClockwise, path.computeDirection())
     }

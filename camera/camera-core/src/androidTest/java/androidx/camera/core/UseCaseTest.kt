@@ -18,6 +18,7 @@ package androidx.camera.core
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.util.LayoutDirection
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -28,12 +29,17 @@ import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED
 import androidx.camera.core.UseCase.snapToSurfaceRotation
 import androidx.camera.core.concurrent.CameraCoordinator
+import androidx.camera.core.featuregroup.GroupableFeature.Companion.FPS_60
+import androidx.camera.core.featuregroup.GroupableFeature.Companion.HDR_HLG10
+import androidx.camera.core.featuregroup.GroupableFeature.Companion.IMAGE_ULTRA_HDR
+import androidx.camera.core.featuregroup.GroupableFeature.Companion.PREVIEW_STABILIZATION
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.core.internal.StreamSpecsCalculatorImpl
 import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -42,11 +48,14 @@ import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +63,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
+@OptIn(ExperimentalSessionConfig::class)
 class UseCaseTest {
     private lateinit var fakeCamera: FakeCamera
     private lateinit var fakeFrontCamera: FakeCamera
@@ -324,9 +334,219 @@ class UseCaseTest {
             fakeUseCase.mergeConfigs(
                 FakeCameraInfoInternal(0, CameraSelector.LENS_FACING_BACK),
                 extendedConfig,
-                defaultConfig
+                defaultConfig,
             )
         assertThat(mergedConfig.targetName).isEqualTo(targetName)
+    }
+
+    @Test
+    fun bindToCamera_whenHlg10FeatureIsSet_getDynamicRangeReturnsHlg10() {
+        val preview = Preview.Builder().build()
+        assumeFalse(preview.dynamicRange == DynamicRange.HLG_10_BIT)
+
+        preview.setFeatureGroup(setOf(HDR_HLG10))
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.HLG_10_BIT)
+    }
+
+    @Test
+    fun bindToCamera_whenOtherFeatureIsSet_getDynamicRangeReturnsSdr() {
+        val preview = Preview.Builder().build()
+
+        preview.setFeatureGroup(setOf(FPS_60))
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
+    fun bindToCamera_whenNoFeatureGroupIsSet_getDynamicRangeReturnsUnspecified() {
+        val preview = Preview.Builder().build()
+
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.UNSPECIFIED)
+    }
+
+    @Test
+    fun bindToCamera_whenEmptyFeatureGroupIsSet_getDynamicRangeReturnsSdr() {
+        val preview = Preview.Builder().build()
+
+        preview.setFeatureGroup(emptySet())
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.SDR)
+    }
+
+    @Test
+    fun bindToCamera_when60FpsFeatureIsSet_getTargetFrameRateReturns60() {
+        val preview = Preview.Builder().build()
+        assumeFalse(preview.targetFrameRate == Range(60, 60))
+
+        preview.setFeatureGroup(setOf(FPS_60))
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.targetFrameRate).isEqualTo(Range(60, 60))
+    }
+
+    @Test
+    fun bindToCamera_whenOtherFeatureIsSet_getTargetFrameRateReturnsUnspecified() {
+        val preview = Preview.Builder().build()
+
+        preview.setFeatureGroup(setOf(HDR_HLG10))
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.targetFrameRate).isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+    }
+
+    @Test
+    fun bindToCamera_whenNoFeatureGroupIsSet_getTargetFrameRateReturnsUnspecified() {
+        val preview = Preview.Builder().build()
+
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.targetFrameRate).isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+    }
+
+    @Test
+    fun bindToCamera_whenEmptyFeatureGroupIsSet_getTargetFrameRateReturns30() {
+        val preview = Preview.Builder().build()
+
+        preview.setFeatureGroup(emptySet())
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.targetFrameRate).isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
+    }
+
+    @Test
+    fun bindToCamera_whenUltraHdrFeatureIsSet_getImageFormatReturnsJpegUltraHdr() {
+        val imageCapture = ImageCapture.Builder().build()
+        assumeFalse(imageCapture.imageFormat == ImageFormat.JPEG_R)
+
+        imageCapture.setFeatureGroup(setOf(IMAGE_ULTRA_HDR))
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.imageFormat).isEqualTo(ImageFormat.JPEG_R)
+    }
+
+    @Test
+    fun bindToCamera_whenOtherFeatureIsSet_getImageFormatReturnsJpeg() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        imageCapture.setFeatureGroup(setOf(FPS_60))
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.imageFormat).isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    fun bindToCamera_whenNoFeatureGroupIsSet_getImageFormatReturnsJpeg() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.imageFormat).isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    fun bindToCamera_whenEmptyFeatureGroupIsSet_getImageFormatReturnsJpeg() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        imageCapture.setFeatureGroup(emptySet())
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.imageFormat).isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    fun bindToCamera_whenUltraHdrFeatureIsSet_getOutputFormatReturnsJpegUltraHdr() {
+        val imageCapture = ImageCapture.Builder().build()
+        assumeFalse(imageCapture.outputFormat == ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR)
+
+        imageCapture.setFeatureGroup(setOf(IMAGE_ULTRA_HDR))
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.outputFormat).isEqualTo(ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR)
+    }
+
+    @Test
+    fun bindToCamera_whenOtherFeatureIsSet_getOutputFormatReturnsJpeg() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        imageCapture.setFeatureGroup(setOf(FPS_60))
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.outputFormat).isEqualTo(ImageCapture.OUTPUT_FORMAT_JPEG)
+    }
+
+    @Test
+    fun bindToCamera_whenNoFeatureGroupIsSet_getOutputFormatReturnsJpeg() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.outputFormat).isEqualTo(ImageCapture.OUTPUT_FORMAT_JPEG)
+    }
+
+    @Test
+    fun bindToCamera_whenEmptyFeatureGroupIsSet_getOutputFormatReturnsJpeg() {
+        val imageCapture = ImageCapture.Builder().build()
+
+        imageCapture.setFeatureGroup(emptySet())
+        imageCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(imageCapture.outputFormat).isEqualTo(ImageCapture.OUTPUT_FORMAT_JPEG)
+    }
+
+    @Test
+    fun bindToCamera_whenPreviewStabilizationFeatureIsSet_isPreviewStabilizationReturnsEnabled() {
+        val preview = Preview.Builder().build()
+        assumeFalse(preview.isPreviewStabilizationEnabled)
+
+        preview.setFeatureGroup(setOf(PREVIEW_STABILIZATION))
+        preview.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(preview.isPreviewStabilizationEnabled).isTrue()
+    }
+
+    @Test
+    fun bindToCamera_whenPreviewStabilizationFeatureIsSet_isVideoStabilizationReturnsDisabled() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        videoCapture.setFeatureGroup(setOf(PREVIEW_STABILIZATION))
+        videoCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(videoCapture.isVideoStabilizationEnabled).isFalse()
+    }
+
+    @Test
+    fun bindToCamera_whenOtherFeatureIsSet_isVideoStabilizationReturnsDisabled() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        videoCapture.setFeatureGroup(setOf(FPS_60))
+        videoCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(videoCapture.isVideoStabilizationEnabled).isFalse()
+    }
+
+    @Test
+    fun bindToCamera_whenNoFeatureGroupIsSet_isVideoStabilizationReturnsDisabled() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        videoCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(videoCapture.isVideoStabilizationEnabled).isFalse()
+    }
+
+    @Test
+    fun bindToCamera_whenEmptyFeatureGroupIsSet_isVideoStabilizationReturnsDisabled() {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+
+        videoCapture.setFeatureGroup(emptySet())
+        videoCapture.bindToCamera(fakeCamera, null, null, null)
+
+        assertThat(videoCapture.isVideoStabilizationEnabled).isFalse()
     }
 
     private fun createFakeUseCase(
@@ -349,15 +569,15 @@ class UseCaseTest {
         fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(
             cameraId,
             FakeUseCaseConfig::class.java,
-            TEST_STREAM_SPEC
+            TEST_STREAM_SPEC,
         )
         val useCaseConfigFactory: UseCaseConfigFactory = FakeUseCaseConfigFactory()
         val cameraCoordinator: CameraCoordinator = FakeCameraCoordinator()
         return CameraUseCaseAdapter(
             fakeCamera,
             cameraCoordinator,
-            fakeCameraDeviceSurfaceManager,
-            useCaseConfigFactory
+            StreamSpecsCalculatorImpl(useCaseConfigFactory, fakeCameraDeviceSurfaceManager),
+            useCaseConfigFactory,
         )
     }
 

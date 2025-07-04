@@ -269,7 +269,9 @@ internal abstract class BaseImportMavenCommand(
             if (!result.dependenciesPassedVerification) {
                 logger.warn(
                     """
-                   [33mOur Gradle build won't trust any artifacts that are unsigned or are signed with new keys. To trust these artifacts, run `development/update-verification-metadata.sh
+                   [33mOur Gradle build won't trust any artifacts that are unsigned or are signed with new keys.
+                   To trust these artifacts, you might need run `development/update-verification-metadata.sh`
+                   later if Gradle's dependency verification fails when you run a Gradle command. [0m
                    """.trimIndent()
                 )
             }
@@ -426,6 +428,11 @@ internal fun createCliCommands() = ImportArtifact()
     )
 
 fun main(args: Array<String>) {
-    createCliCommands().main(args)
-    exitProcess(0)
+    try {
+        createCliCommands().main(args)
+        exitProcess(0)
+    } catch (e: Throwable) {
+        e.printStackTrace()
+        exitProcess(1)
+    }
 }

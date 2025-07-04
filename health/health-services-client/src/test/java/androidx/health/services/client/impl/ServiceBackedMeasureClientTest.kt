@@ -69,7 +69,7 @@ class ServiceBackedMeasureClientTest {
             .setComponentNameAndServiceForBindServiceForIntent(
                 Intent().setPackage(packageName).setAction(action),
                 ComponentName(packageName, ServiceBackedMeasureClient.CLIENT),
-                fakeService
+                fakeService,
             )
     }
 
@@ -133,7 +133,7 @@ class ServiceBackedMeasureClientTest {
                         DataPoints.heartRate(
                             50.0,
                             Duration.ofSeconds(42),
-                            HeartRateAccuracy(ACCURACY_HIGH)
+                            HeartRateAccuracy(ACCURACY_HIGH),
                         )
                     )
                 )
@@ -186,7 +186,7 @@ class ServiceBackedMeasureClientTest {
     class FakeCallback : MeasureCallback {
         data class AvailabilityChangeEvent(
             val dataType: DataType<*, *>,
-            val availability: Availability
+            val availability: Availability,
         )
 
         data class DataReceivedEvent(val data: DataPointContainer)
@@ -206,7 +206,7 @@ class ServiceBackedMeasureClientTest {
 
         override fun onAvailabilityChanged(
             dataType: DeltaDataType<*, *>,
-            availability: Availability
+            availability: Availability,
         ) {
             availabilityChangeEvents += AvailabilityChangeEvent(dataType, availability)
         }
@@ -221,13 +221,13 @@ class ServiceBackedMeasureClientTest {
         class RegisterEvent(
             val request: MeasureRegistrationRequest,
             val callback: IMeasureCallback,
-            val statusCallback: IStatusCallback
+            val statusCallback: IStatusCallback,
         )
 
         class UnregisterEvent(
             val request: MeasureUnregistrationRequest,
             val callback: IMeasureCallback,
-            val statusCallback: IStatusCallback
+            val statusCallback: IStatusCallback,
         )
 
         var statusCallbackAction: (IStatusCallback) -> Unit = { it.onSuccess() }
@@ -241,7 +241,7 @@ class ServiceBackedMeasureClientTest {
         override fun registerCallback(
             request: MeasureRegistrationRequest,
             callback: IMeasureCallback,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             registerEvents += RegisterEvent(request, callback, statusCallback)
             statusCallbackAction.invoke(statusCallback)
@@ -250,7 +250,7 @@ class ServiceBackedMeasureClientTest {
         override fun unregisterCallback(
             request: MeasureUnregistrationRequest,
             callback: IMeasureCallback,
-            statusCallback: IStatusCallback
+            statusCallback: IStatusCallback,
         ) {
             unregisterEvents += UnregisterEvent(request, callback, statusCallback)
             statusCallbackAction.invoke(statusCallback)

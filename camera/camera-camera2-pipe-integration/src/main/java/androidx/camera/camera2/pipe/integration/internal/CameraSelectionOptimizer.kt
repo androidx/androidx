@@ -27,6 +27,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.internal.StreamSpecsCalculator
 
 /**
  * The [CameraSelectionOptimizer] is responsible for determining available camera Ids based on
@@ -34,18 +35,31 @@ import androidx.camera.core.impl.CameraInfoInternal
  */
 internal class CameraSelectionOptimizer {
     companion object {
-
-        @Throws(InitializationException::class)
         fun getSelectedAvailableCameraIds(
             cameraFactory: CameraFactory,
-            availableCamerasSelector: CameraSelector?
+            availableCamerasSelector: CameraSelector?,
+            streamSpecsCalculator: StreamSpecsCalculator,
+        ): List<String> {
+            val cameraAppComponent = cameraFactory.cameraManager as CameraAppComponent
+            val cameraDevices = cameraAppComponent.getCameraDevices()
+            val cameraIdList = checkNotNull(cameraDevices.awaitCameraIds()).map { it.value }
+            return getSelectedAvailableCameraIds(
+                cameraAppComponent,
+                availableCamerasSelector,
+                cameraIdList,
+                streamSpecsCalculator,
+            )
+        }
+
+        fun getSelectedAvailableCameraIds(
+            cameraAppComponent: CameraAppComponent,
+            availableCamerasSelector: CameraSelector?,
+            cameraIdList: List<String>,
+            streamSpecsCalculator: StreamSpecsCalculator,
         ): List<String> {
             try {
                 val availableCameraIds = mutableListOf<String>()
-                val cameraAppComponent = cameraFactory.cameraManager as CameraAppComponent
                 val cameraDevices = cameraAppComponent.getCameraDevices()
-
-                val cameraIdList = checkNotNull(cameraDevices.awaitCameraIds()).map { it.value }
                 if (availableCamerasSelector == null) {
                     return cameraIdList
                 }
@@ -55,7 +69,7 @@ internal class CameraSelectionOptimizer {
                     try {
                         decideSkippedCameraIdByHeuristic(
                             cameraDevices,
-                            availableCamerasSelector.lensFacing
+                            availableCamerasSelector.lensFacing,
                         )
                     } catch (e: IllegalStateException) {
                         // Device doesn't need to have front and/or back camera.
@@ -73,6 +87,7 @@ internal class CameraSelectionOptimizer {
                         cameraAppComponent
                             .cameraBuilder()
                             .config(CameraConfig(CameraId(id)))
+                            .streamSpecsCalculator(streamSpecsCalculator)
                             .build()
                             .getCameraInternal()
                             .cameraInfoInternal
@@ -96,7 +111,7 @@ internal class CameraSelectionOptimizer {
         // Returns null if no camera ids can be skipped.
         private fun decideSkippedCameraIdByHeuristic(
             cameraDevices: CameraDevices,
-            lensFacingInteger: Int?
+            lensFacingInteger: Int?,
         ): String? {
             var skippedCameraId: String? = null
 

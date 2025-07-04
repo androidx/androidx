@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 @Composable
 internal fun rememberLazyListSemanticState(
     state: LazyListState,
-    isVertical: Boolean
+    isVertical: Boolean,
 ): LazyLayoutSemanticState {
     return remember(state, isVertical) {
         LazyLayoutSemanticState(state = state, isVertical = isVertical)

@@ -26,7 +26,7 @@ class TransformedText(
     val text: AnnotatedString,
 
     /** The map used for bidirectional offset mapping from original to transformed text. */
-    val offsetMapping: OffsetMapping
+    val offsetMapping: OffsetMapping,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -97,7 +97,7 @@ class PasswordVisualTransformation(val mask: Char = '\u2022') : VisualTransforma
     override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(
             AnnotatedString(mask.toString().repeat(text.text.length)),
-            OffsetMapping.Identity
+            OffsetMapping.Identity,
         )
     }
 

@@ -55,13 +55,10 @@ interface SchemaFileResolver {
             // interface's. This is because build tools will isolate annotation processor's
             // classpath and the default class loader (i.e. current thread's context class
             // loader) might miss a provided implementation.
-            ServiceLoader.load(
-                    SchemaFileResolver::class.java,
-                )
-                .firstOrNull()
+            ServiceLoader.load(SchemaFileResolver::class.java).firstOrNull()
                 ?: ServiceLoader.load(
                         SchemaFileResolver::class.java,
-                        SchemaFileResolver::class.java.classLoader
+                        SchemaFileResolver::class.java.classLoader,
                     )
                     .firstOrNull()
                 ?: DEFAULT_RESOLVER

@@ -29,7 +29,7 @@ class RowSectionTest {
     private val testItemList =
         listOf(
             Row.Builder().setTitle("Test title").build(),
-            Row.Builder().setTitle("Test another title").build()
+            Row.Builder().setTitle("Test another title").build(),
         )
 
     @Test
@@ -150,7 +150,7 @@ class RowSectionTest {
                 RowSection.Builder().setItems(testItemList).build(),
                 RowSection.Builder().setItems(testItemList).setAsSelectionGroup(1).build(),
                 RowSection.Builder().setTitle(testHeader).build(),
-                RowSection.Builder().setNoItemsMessage(testNoItemsMessage)
+                RowSection.Builder().setNoItemsMessage(testNoItemsMessage),
             )
 
         // Test all different sections against each other

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2025 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main"
+    tools:context=".visibility.VisibilityActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/visibility_top_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/google_blue"
+            app:title="Visibility Test"
+            app:titleCentered="true"
+            app:titleTextColor="@color/white"
+            app:navigationIcon="@drawable/arrow_back"
+            app:layout_scrollFlags="enterAlways|snap" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="60dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Content inside the FrameLayout -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/visibility_toggle_fsm_hsm"
+                        android:layout_height="wrap_content"
+                        android:layout_width="425dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/test_button"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="TOGGLE FSM/HSM" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"/>
+
+                    <Button
+                        android:id="@+id/visibility_hide_activity_space"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/test_button"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE ACTIVITY SPACE (FOR 3S)" />
+
+                    <Button
+                        android:id="@+id/visibility_hide_main_panel"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/test_button"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE MAIN PANEL (FOR 3S)" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOutlineVariant"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"/>
+
+                    <Button
+                        android:id="@+id/visibility_move_parent_gltf"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:background="@drawable/test_button"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="MOVE PARENT GLTF" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/colorOutlineVariant"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_all_entities"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        app:backgroundTint="#4285F4"
+                        android:text="HIDE ALL ENTITIES (EXCEPT THE MAIN PANEL)" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_parent_gltf"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE PARENT GLTF" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_first_child_gltf"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE FIRST CHILD GLTF" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_second_child_gltf"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE SECOND CHILD GLTF" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?attr/colorOutlineVariant" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_parent_panel"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE PARENT PANEL" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_first_child_panel"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE FIRST CHILD PANEL" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/visibility_hide_second_child_panel"
+                        android:layout_width="425dp"
+                        android:layout_height="wrap_content"
+                        android:textFontWeight="400"
+                        android:textSize="16sp"
+                        android:text="HIDE SECOND CHILD PANEL" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </FrameLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bottomCenterFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:scaleX="1.25"
+        android:scaleY="1.25"
+        android:backgroundTint="@color/google_blue"
+        android:src="@drawable/recreate"
+        android:layout_gravity="bottom|end"
+        app:layout_anchorGravity="bottom|right"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

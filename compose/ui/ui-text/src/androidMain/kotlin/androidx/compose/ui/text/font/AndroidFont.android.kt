@@ -46,7 +46,7 @@ fun Font(
     assetManager: AssetManager,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font = AndroidAssetFont(assetManager, path, weight, style, variationSettings)
 
 /**
@@ -66,7 +66,7 @@ fun Font(
     file: File,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font = AndroidFileFont(file, weight, style, variationSettings)
 
 /**
@@ -86,7 +86,7 @@ fun Font(
     fileDescriptor: ParcelFileDescriptor,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal,
-    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style)
+    variationSettings: FontVariation.Settings = FontVariation.Settings(weight, style),
 ): Font = AndroidFileDescriptorFont(fileDescriptor, weight, style, variationSettings)
 
 /**
@@ -132,7 +132,7 @@ constructor(
 
     @Deprecated(
         "Replaced with fontVariation constructor",
-        ReplaceWith("AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())")
+        ReplaceWith("AndroidFont(loadingStrategy, typefaceLoader, FontVariation.Settings())"),
     )
     constructor(
         loadingStrategy: FontLoadingStrategy,

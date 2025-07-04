@@ -65,6 +65,9 @@ internal value class Strings(@StringRes val value: Int) {
         inline val TimePickerPeriod
             get() = Strings(R.string.wear_m3c_time_picker_period)
 
+        inline val TimePickerHeading
+            get() = Strings(R.string.wear_m3c_time_picker_heading)
+
         inline val DatePickerYear
             get() = Strings(R.string.wear_m3c_date_picker_year)
 
@@ -74,16 +77,25 @@ internal value class Strings(@StringRes val value: Int) {
         inline val DatePickerDay
             get() = Strings(R.string.wear_m3c_date_picker_day)
 
+        inline val DatePickerHeading
+            get() = Strings(R.string.wear_m3c_date_picker_heading)
+
+        inline val PickerClickToAdjustHint
+            get() = Strings(R.string.wear_m3c_picker_click_to_adjust_hint)
+
+        inline val PickerClickToSelectHint
+            get() = Strings(R.string.wear_m3c_picker_click_to_select_hint)
+
         inline val PickerConfirmButtonContentDescription
             get() = Strings(R.string.wear_m3c_picker_confirm_button_content_description)
 
         inline val PickerNextButtonContentDescription
             get() = Strings(R.string.wear_m3c_picker_next_button_content_description)
 
-        inline val SliderDecreaseButtonContentDescription
+        inline val SliderDecreaseIconContentDescription
             get() = Strings(R.string.wear_m3c_slider_decrease_content_description)
 
-        inline val SliderIncreaseButtonContentDescription
+        inline val SliderIncreaseIconContentDescription
             get() = Strings(R.string.wear_m3c_slider_increase_content_description)
 
         inline val AlertDialogContentDescriptionConfirmButton
@@ -91,6 +103,9 @@ internal value class Strings(@StringRes val value: Int) {
 
         inline val AlertDialogContentDescriptionDismissButton
             get() = Strings(R.string.wear_m3c_alert_dialog_content_description_dismiss_button)
+
+        inline val OpenOnPhoneContentDescriptionIcon
+            get() = Strings(R.string.wear_m3c_open_on_phone_icon_content_description)
     }
 }
 

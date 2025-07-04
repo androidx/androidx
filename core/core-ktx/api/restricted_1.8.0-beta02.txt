@@ -91,11 +91,11 @@ package androidx.core.graphics {
   }
 
   public final class CanvasKt {
+    method public static inline void withClip(android.graphics.Canvas, android.graphics.Path clipPath, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withClip(android.graphics.Canvas, android.graphics.Rect clipRect, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withClip(android.graphics.Canvas, android.graphics.RectF clipRect, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline void withClip(android.graphics.Canvas, int left, int top, int right, int bottom, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withClip(android.graphics.Canvas, float left, float top, float right, float bottom, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline void withClip(android.graphics.Canvas, android.graphics.Path clipPath, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withClip(android.graphics.Canvas, int left, int top, int right, int bottom, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withMatrix(android.graphics.Canvas, optional android.graphics.Matrix matrix, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withRotation(android.graphics.Canvas, optional float degrees, optional float pivotX, optional float pivotY, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withSave(android.graphics.Canvas, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
@@ -117,12 +117,12 @@ package androidx.core.graphics {
     method @RequiresApi(26) public static inline operator float component4(android.graphics.Color);
     method public static inline operator int component4(@ColorInt int);
     method @RequiresApi(26) public static inline operator float component4(@ColorLong long);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace.Named colorSpace);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace colorSpace);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace.Named colorSpace);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace colorSpace);
-    method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
     method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
+    method @RequiresApi(26) public static inline infix android.graphics.Color convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace.Named colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace.Named colorSpace);
     method public static inline int getAlpha(@ColorInt int);
     method @RequiresApi(26) public static inline float getAlpha(@ColorLong long);
     method public static inline int getBlue(@ColorInt int);
@@ -139,8 +139,8 @@ package androidx.core.graphics {
     method @RequiresApi(26) public static operator android.graphics.Color plus(android.graphics.Color, android.graphics.Color c);
     method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorInt int);
     method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorLong long);
-    method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorInt public static inline int toColorInt(String);
+    method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorLong @RequiresApi(26) public static inline long toColorLong(@ColorInt int);
   }
 
@@ -180,12 +180,12 @@ package androidx.core.graphics {
     method public static inline operator int component2(android.graphics.Point);
     method public static inline operator float component2(android.graphics.PointF);
     method public static inline operator android.graphics.Point minus(android.graphics.Point, android.graphics.Point p);
-    method public static inline operator android.graphics.PointF minus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.Point minus(android.graphics.Point, int xy);
+    method public static inline operator android.graphics.PointF minus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.PointF minus(android.graphics.PointF, float xy);
     method public static inline operator android.graphics.Point plus(android.graphics.Point, android.graphics.Point p);
-    method public static inline operator android.graphics.PointF plus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.Point plus(android.graphics.Point, int xy);
+    method public static inline operator android.graphics.PointF plus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.PointF plus(android.graphics.PointF, float xy);
     method public static inline android.graphics.Point toPoint(android.graphics.PointF);
     method public static inline android.graphics.PointF toPointF(android.graphics.Point);
@@ -211,23 +211,23 @@ package androidx.core.graphics {
     method public static inline operator float component4(android.graphics.RectF);
     method public static inline operator boolean contains(android.graphics.Rect, android.graphics.Point p);
     method public static inline operator boolean contains(android.graphics.RectF, android.graphics.PointF p);
-    method public static inline operator android.graphics.Region minus(android.graphics.Rect, android.graphics.Rect r);
-    method public static inline operator android.graphics.Region minus(android.graphics.RectF, android.graphics.RectF r);
-    method public static inline operator android.graphics.Rect minus(android.graphics.Rect, int xy);
-    method public static inline operator android.graphics.RectF minus(android.graphics.RectF, float xy);
     method public static inline operator android.graphics.Rect minus(android.graphics.Rect, android.graphics.Point xy);
+    method public static inline operator android.graphics.Region minus(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline operator android.graphics.Rect minus(android.graphics.Rect, int xy);
     method public static inline operator android.graphics.RectF minus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.Region minus(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.RectF minus(android.graphics.RectF, float xy);
     method public static inline infix android.graphics.Rect or(android.graphics.Rect, android.graphics.Rect r);
     method public static inline infix android.graphics.RectF or(android.graphics.RectF, android.graphics.RectF r);
-    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Rect r);
-    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.RectF r);
-    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, int xy);
-    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, float xy);
     method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Point xy);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, int xy);
     method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, float xy);
     method public static inline operator android.graphics.Rect times(android.graphics.Rect, int factor);
-    method public static inline operator android.graphics.RectF times(android.graphics.RectF, int factor);
     method public static inline operator android.graphics.RectF times(android.graphics.RectF, float factor);
+    method public static inline operator android.graphics.RectF times(android.graphics.RectF, int factor);
     method public static inline android.graphics.Rect toRect(android.graphics.RectF);
     method public static inline android.graphics.RectF toRectF(android.graphics.Rect);
     method public static inline android.graphics.Region toRegion(android.graphics.Rect);
@@ -268,8 +268,8 @@ package androidx.core.graphics.drawable {
   }
 
   public final class ColorDrawableKt {
-    method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
     method @RequiresApi(26) public static inline android.graphics.drawable.ColorDrawable toDrawable(android.graphics.Color);
+    method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
   }
 
   public final class DrawableKt {
@@ -300,8 +300,8 @@ package androidx.core.net {
 
   public final class UriKt {
     method public static java.io.File toFile(android.net.Uri);
-    method public static inline android.net.Uri toUri(String);
     method public static inline android.net.Uri toUri(java.io.File);
+    method public static inline android.net.Uri toUri(String);
   }
 
 }
@@ -309,8 +309,8 @@ package androidx.core.net {
 package androidx.core.os {
 
   public final class BundleKt {
-    method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
     method public static android.os.Bundle bundleOf();
+    method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
   }
 
   public final class HandlerKt {
@@ -323,8 +323,8 @@ package androidx.core.os {
   }
 
   public final class PersistableBundleKt {
-    method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf();
+    method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
     method @RequiresApi(21) public static android.os.PersistableBundle toPersistableBundle(java.util.Map<java.lang.String,?>);
   }
 
@@ -355,8 +355,8 @@ package androidx.core.text {
     method public static inline android.text.SpannableStringBuilder bold(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannedString buildSpannedString(kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder color(android.text.SpannableStringBuilder, @ColorInt int color, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
-    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object![] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object span, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object![] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder italic(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder scale(android.text.SpannableStringBuilder, float proportion, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder strikeThrough(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
@@ -415,10 +415,10 @@ package androidx.core.util {
   }
 
   public final class HalfKt {
-    method @RequiresApi(26) public static inline android.util.Half toHalf(@HalfFloat short);
-    method @RequiresApi(26) public static inline android.util.Half toHalf(float);
     method @RequiresApi(26) public static inline android.util.Half toHalf(double);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(float);
     method @RequiresApi(26) public static inline android.util.Half toHalf(String);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(@HalfFloat short);
   }
 
   public final class LongSparseArrayKt {
@@ -444,20 +444,20 @@ package androidx.core.util {
   }
 
   public final class PairKt {
-    method public static inline operator <F, S> F! component1(androidx.core.util.Pair<F,S>);
     method public static inline operator <F, S> F! component1(android.util.Pair<F,S>);
-    method public static inline operator <F, S> S! component2(androidx.core.util.Pair<F,S>);
+    method public static inline operator <F, S> F! component1(androidx.core.util.Pair<F,S>);
     method public static inline operator <F, S> S! component2(android.util.Pair<F,S>);
+    method public static inline operator <F, S> S! component2(androidx.core.util.Pair<F,S>);
     method public static inline <F, S> android.util.Pair<F,S> toAndroidPair(kotlin.Pair<? extends F,? extends S>);
     method public static inline <F, S> androidx.core.util.Pair<F,S> toAndroidXPair(kotlin.Pair<? extends F,? extends S>);
-    method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(androidx.core.util.Pair<F,S>);
     method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(android.util.Pair<F,S>);
+    method public static inline <F, S> kotlin.Pair<F,S> toKotlinPair(androidx.core.util.Pair<F,S>);
   }
 
   public final class RangeKt {
     method @RequiresApi(21) public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> and(android.util.Range<T>, android.util.Range<T> other);
-    method @RequiresApi(21) public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, T value);
     method @RequiresApi(21) public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, android.util.Range<T> other);
+    method @RequiresApi(21) public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, T value);
     method @RequiresApi(21) public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> rangeTo(T, T that);
     method @RequiresApi(21) public static <T extends java.lang.Comparable<? super T>> kotlin.ranges.ClosedRange<T> toClosedRange(android.util.Range<T>);
     method @RequiresApi(21) public static <T extends java.lang.Comparable<? super T>> android.util.Range<T> toRange(kotlin.ranges.ClosedRange<T>);

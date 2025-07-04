@@ -43,7 +43,7 @@ class AeFpsRangeLegacyQuirkTest {
         val aeFpsRangeQuirk =
             createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                availableFpsRanges
+                availableFpsRanges,
             )
         assertThat(aeFpsRangeQuirk!!.targetAeFpsRange).isEqualTo(Range(15, 30))
     }
@@ -55,7 +55,7 @@ class AeFpsRangeLegacyQuirkTest {
         val aeFpsRangeQuirk =
             createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                availableFpsRanges
+                availableFpsRanges,
             )
         assertThat(aeFpsRangeQuirk!!.targetAeFpsRange)
             .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
@@ -75,7 +75,7 @@ class AeFpsRangeLegacyQuirkTest {
         val aeFpsRangeQuirk =
             createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
-                availableFpsRanges
+                availableFpsRanges,
             )
         assertThat(aeFpsRangeQuirk).isNull()
     }
@@ -86,7 +86,7 @@ class AeFpsRangeLegacyQuirkTest {
         val aeFpsRangeQuirk =
             createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                availableFpsRanges
+                availableFpsRanges,
             )
         assertThat(aeFpsRangeQuirk).isNull()
     }
@@ -97,14 +97,14 @@ class AeFpsRangeLegacyQuirkTest {
         val aeFpsRangeQuirk =
             createAeFpsRangeQuirk(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
-                availableFpsRanges
+                availableFpsRanges,
             )
         assertThat(aeFpsRangeQuirk).isNull()
     }
 
     private fun createAeFpsRangeQuirk(
         hardwareLevel: Int,
-        availableFpsRanges: Array<Range<Int>>?
+        availableFpsRanges: Array<Range<Int>>?,
     ): AeFpsRangeQuirk? {
         val streamConfigurationMap = StreamConfigurationMapBuilder.newBuilder().build()
 
@@ -114,15 +114,15 @@ class AeFpsRangeLegacyQuirkTest {
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
                     CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
                         availableFpsRanges,
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap,
                 )
             )
         return CameraQuirks(
                 metadata,
                 StreamConfigurationMapCompat(
                     streamConfigurationMap,
-                    OutputSizesCorrector(metadata, streamConfigurationMap)
-                )
+                    OutputSizesCorrector(metadata, streamConfigurationMap),
+                ),
             )
             .quirks
             .getAll(AeFpsRangeQuirk::class.java)

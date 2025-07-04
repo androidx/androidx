@@ -49,7 +49,7 @@ internal class TilesConnectionBinder(
     private val context: Context,
     private val componentName: ComponentName,
     private val coroutineScope: CoroutineScope,
-    private val backgroundCoroutineDispatcher: CoroutineDispatcher
+    private val backgroundCoroutineDispatcher: CoroutineDispatcher,
 ) {
     companion object {
         internal val BIND_TIMEOUT_MILLIS = SECONDS.toMillis(10)
@@ -140,7 +140,7 @@ internal class TilesConnectionBinder(
                         object : ServiceConnection {
                             override fun onServiceConnected(
                                 name: ComponentName?,
-                                service: IBinder?
+                                service: IBinder?,
                             ) {
                                 val boundTileProvider = TileProvider.Stub.asInterface(service)
                                 continuation.resume(boundTileProvider)

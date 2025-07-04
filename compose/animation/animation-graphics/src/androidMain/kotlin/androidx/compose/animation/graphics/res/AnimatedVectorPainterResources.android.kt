@@ -41,7 +41,7 @@ import androidx.compose.ui.util.fastForEach
 @Composable
 public fun rememberAnimatedVectorPainter(
     animatedImageVector: AnimatedImageVector,
-    atEnd: Boolean
+    atEnd: Boolean,
 ): Painter {
     return rememberAnimatedVectorPainter(animatedImageVector, atEnd) { group, overrides ->
         RenderVectorGroup(group, overrides)
@@ -53,7 +53,7 @@ public fun rememberAnimatedVectorPainter(
 internal fun rememberAnimatedVectorPainter(
     animatedImageVector: AnimatedImageVector,
     atEnd: Boolean,
-    render: @Composable @VectorComposable (VectorGroup, Map<String, VectorConfig>) -> Unit
+    render: @Composable @VectorComposable (VectorGroup, Map<String, VectorConfig>) -> Unit,
 ): Painter {
     return rememberVectorPainter(
         defaultWidth = animatedImageVector.imageVector.defaultWidth,
@@ -63,7 +63,7 @@ internal fun rememberAnimatedVectorPainter(
         name = animatedImageVector.imageVector.name,
         tintColor = animatedImageVector.imageVector.tintColor,
         tintBlendMode = animatedImageVector.imageVector.tintBlendMode,
-        autoMirror = true
+        autoMirror = true,
     ) { _, _ ->
         val transition = updateTransition(atEnd, label = animatedImageVector.imageVector.name)
         val map = mutableMapOf<String, StateVectorConfig>()

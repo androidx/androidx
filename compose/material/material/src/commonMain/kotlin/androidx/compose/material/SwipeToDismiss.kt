@@ -48,7 +48,7 @@ enum class DismissDirection {
     StartToEnd,
 
     /** Can be dismissed by swiping in the reverse of the reading direction. */
-    EndToStart
+    EndToStart,
 }
 
 /** Possible values of [DismissState]. */
@@ -60,7 +60,7 @@ enum class DismissValue {
     DismissedToEnd,
 
     /** Indicates the component has been dismissed in the reverse of the reading direction. */
-    DismissedToStart
+    DismissedToStart,
 }
 
 /**
@@ -72,7 +72,7 @@ enum class DismissValue {
 @ExperimentalMaterialApi
 class DismissState(
     initialValue: DismissValue,
-    confirmStateChange: (DismissValue) -> Boolean = { true }
+    confirmStateChange: (DismissValue) -> Boolean = { true },
 ) : SwipeableState<DismissValue>(initialValue, confirmStateChange = confirmStateChange) {
     /**
      * The direction (if any) in which the composable has been or is being dismissed.
@@ -117,7 +117,7 @@ class DismissState(
         fun Saver(confirmStateChange: (DismissValue) -> Boolean) =
             Saver<DismissState, DismissValue>(
                 save = { it.currentValue },
-                restore = { DismissState(it, confirmStateChange) }
+                restore = { DismissState(it, confirmStateChange) },
             )
     }
 }
@@ -132,7 +132,7 @@ class DismissState(
 @ExperimentalMaterialApi
 fun rememberDismissState(
     initialValue: DismissValue = Default,
-    confirmStateChange: (DismissValue) -> Boolean = { true }
+    confirmStateChange: (DismissValue) -> Boolean = { true },
 ): DismissState {
     return rememberSaveable(saver = DismissState.Saver(confirmStateChange)) {
         DismissState(initialValue, confirmStateChange)
@@ -162,7 +162,7 @@ fun SwipeToDismiss(
         FixedThreshold(DISMISS_THRESHOLD)
     },
     background: @Composable RowScope.() -> Unit,
-    dismissContent: @Composable RowScope.() -> Unit
+    dismissContent: @Composable RowScope.() -> Unit,
 ) =
     BoxWithConstraints(modifier) {
         val width = constraints.maxWidth.toFloat()
@@ -191,14 +191,14 @@ fun SwipeToDismiss(
                     ResistanceConfig(
                         basis = width,
                         factorAtMin = minFactor,
-                        factorAtMax = maxFactor
-                    )
+                        factorAtMax = maxFactor,
+                    ),
             )
         ) {
             Row(content = background, modifier = Modifier.matchParentSize())
             Row(
                 content = dismissContent,
-                modifier = Modifier.offset { IntOffset(state.offset.value.roundToInt(), 0) }
+                modifier = Modifier.offset { IntOffset(state.offset.value.roundToInt(), 0) },
             )
         }
     }

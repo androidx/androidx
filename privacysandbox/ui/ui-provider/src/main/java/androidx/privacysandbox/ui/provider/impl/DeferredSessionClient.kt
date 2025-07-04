@@ -57,7 +57,7 @@ internal class DeferredSessionClient(
         fun <T : SandboxedUiAdapter.SessionClient> create(
             clientFactory: Supplier<T>,
             clientInit: Consumer<T>,
-            errorHandler: Consumer<Throwable>
+            errorHandler: Consumer<Throwable>,
         ): DeferredSessionClient {
             return DeferredSessionClient(
                 DeferredObjectHolder(
@@ -67,7 +67,7 @@ internal class DeferredSessionClient(
                         Log.e(TAG, "Exception during actual client initialization", it)
                         errorHandler.accept(it)
                     },
-                    FailClient
+                    FailClient,
                 )
             )
         }

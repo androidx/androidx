@@ -116,7 +116,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                 count = 8,
                 startIndex = 2,
                 startOffset = -10,
-                cells = 2
+                cells = 2,
             )
         }
     }
@@ -205,7 +205,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                     } else {
                         IntSize(itemSizePx * 2, itemSizePx)
                     },
-                cells = 1
+                cells = 1,
             )
             currentInfo = null
             size = itemSizeDp
@@ -216,7 +216,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
             currentInfo!!.assertVisibleItems(
                 count = 1,
                 expectedSize = IntSize(itemSizePx, itemSizePx),
-                cells = 1
+                cells = 1,
             )
         }
     }
@@ -297,7 +297,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                         beforeContent = beforeContentPaddingDp,
                         afterContent = afterContentPaddingDp,
                         beforeContentCrossAxis = 2.dp,
-                        afterContentCrossAxis = 2.dp
+                        afterContentCrossAxis = 2.dp,
                     ),
                 reverseLayout = reverseLayout,
                 state = rememberLazyGridState().also { state = it },
@@ -362,8 +362,8 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                 contentPadding =
                     PaddingValues(
                         beforeContent = beforeContentPaddingDp,
-                        afterContent = afterContentPaddingDp
-                    )
+                        afterContent = afterContentPaddingDp,
+                    ),
             ) {}
         }
 
@@ -403,8 +403,8 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                 contentPadding =
                     PaddingValues(
                         beforeContent = beforeContentPaddingDp,
-                        afterContent = afterContentPaddingDp
-                    )
+                        afterContent = afterContentPaddingDp,
+                    ),
             ) {
                 item { Box(Modifier.size(sizeDp / 2)) }
             }
@@ -467,7 +467,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                 modifier = Modifier.mainAxisSize(itemSizeDp * 5).crossAxisSize(itemSizeDp * 2),
                 state = state,
                 reverseLayout = reverseLayout,
-                reverseArrangement = true
+                reverseArrangement = true,
             ) {
                 items(8) { Box(Modifier.requiredSize(itemSizeDp)) }
             }
@@ -509,7 +509,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
                 cells = 1,
                 modifier = Modifier.size(15.dp),
                 reverseLayout = reverseLayout,
-                state = state
+                state = state,
             ) {
                 items(100) { Box(Modifier.size(10.dp)) }
             }
@@ -550,7 +550,7 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
         startIndex: Int = 0,
         startOffset: Int = 0,
         expectedSize: IntSize = IntSize(itemSizePx, itemSizePx),
-        spacing: Int = 0
+        spacing: Int = 0,
     ) {
         assertThat(visibleItemsInfo.size).isEqualTo(count)
         if (count == 0) return

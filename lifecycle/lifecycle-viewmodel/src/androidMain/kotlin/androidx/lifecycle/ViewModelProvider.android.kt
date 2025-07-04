@@ -18,6 +18,7 @@
 package androidx.lifecycle
 
 import android.app.Application
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras.Key
@@ -30,9 +31,7 @@ import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 
 public actual open class ViewModelProvider
-private constructor(
-    private val impl: ViewModelProviderImpl,
-) {
+private constructor(private val impl: ViewModelProviderImpl) {
 
     /**
      * Creates a [ViewModelProvider]. This provider generates [ViewModel] instances using the
@@ -61,11 +60,11 @@ private constructor(
      * be used.
      */
     public constructor(
-        owner: ViewModelStoreOwner,
+        owner: ViewModelStoreOwner
     ) : this(
         store = owner.viewModelStore,
         factory = ViewModelProviders.getDefaultFactory(owner),
-        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner)
+        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
     )
 
     /**
@@ -83,9 +82,10 @@ private constructor(
     ) : this(
         store = owner.viewModelStore,
         factory = factory,
-        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner)
+        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
     )
 
+    @MainThread
     public actual operator fun <T : ViewModel> get(modelClass: KClass<T>): T =
         impl.getViewModel(modelClass)
 
@@ -103,6 +103,7 @@ private constructor(
      */
     public open operator fun <T : ViewModel> get(modelClass: Class<T>): T = get(modelClass.kotlin)
 
+    @MainThread
     public actual operator fun <T : ViewModel> get(key: String, modelClass: KClass<T>): T =
         impl.getViewModel(modelClass, key)
 
@@ -144,10 +145,8 @@ private constructor(
         public fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
             create(modelClass)
 
-        public actual fun <T : ViewModel> create(
-            modelClass: KClass<T>,
-            extras: CreationExtras,
-        ): T = create(modelClass.java, extras)
+        public actual fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T =
+            create(modelClass.java, extras)
 
         public companion object {
             /**
@@ -344,7 +343,7 @@ private constructor(
         public actual fun create(
             store: ViewModelStore,
             factory: Factory,
-            extras: CreationExtras
+            extras: CreationExtras,
         ): ViewModelProvider = ViewModelProvider(store, factory, extras)
 
         @JvmField public actual val VIEW_MODEL_KEY: Key<String> = CreationExtras.Companion.Key()

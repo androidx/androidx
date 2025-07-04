@@ -62,14 +62,14 @@ class JpegBytes2DiskDeviceTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 ROTATION_DEGREES,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         // Act: save to a OutputStream.
         FileOutputStream(TEMP_FILE).use {
             val input =
                 JpegBytes2Disk.In.of(
                     inputPacket,
-                    ImageCapture.OutputFileOptions.Builder(it).build()
+                    ImageCapture.OutputFileOptions.Builder(it).build(),
                 )
             operation.apply(input)
         }
@@ -97,7 +97,7 @@ class JpegBytes2DiskDeviceTest {
     private fun saveFileAndGetPath(
         exif: Exif = ExifUtil.createExif(createJpegBytes(WIDTH, HEIGHT)),
         metadata: ImageCapture.Metadata = ImageCapture.Metadata(),
-        rotation: Int = ROTATION_DEGREES
+        rotation: Int = ROTATION_DEGREES,
     ): String {
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val inputPacket =
@@ -109,7 +109,7 @@ class JpegBytes2DiskDeviceTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 rotation,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         val options =
             ImageCapture.OutputFileOptions.Builder(TEMP_FILE).setMetadata(metadata).build()

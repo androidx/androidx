@@ -42,6 +42,6 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     )
 }

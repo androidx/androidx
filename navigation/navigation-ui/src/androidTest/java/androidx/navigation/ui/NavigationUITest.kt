@@ -27,6 +27,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.createGraph
 import androidx.navigation.ui.test.R
+import androidx.savedstate.SavedState
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -119,7 +120,7 @@ class NavigationUITest {
                 toolbar = toolbar,
                 bundle = Bundle(),
                 context = context,
-                navController = navController
+                navController = navController,
             )
 
         // navigate to destination. Since the argument {test} is not present in the bundle,
@@ -158,7 +159,7 @@ class NavigationUITest {
                 toolbar = toolbar,
                 bundle = null,
                 context = context,
-                navController = navController
+                navController = navController,
             )
 
         // navigate to destination, should throw due to template found but null bundle
@@ -218,16 +219,51 @@ class NavigationUITest {
         assertThat(toolbar.title.toString()).isEqualTo(expected)
     }
 
+    @UiThreadTest
+    @Test
+    fun navigateWithLabelEncodedByNavType() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+        val navType =
+            object : NavType<Int>(false) {
+                override fun put(bundle: SavedState, key: String, value: Int) {
+                    IntType.put(bundle, key, value)
+                }
+
+                override fun get(bundle: SavedState, key: String): Int? = IntType[bundle, key]!! + 1
+
+                override fun parseValue(value: String): Int = IntType.parseValue(value)
+            }
+        navController.graph =
+            navController.createGraph(startDestination = startDestination) {
+                test(startDestination)
+                test("$endDestination/{test}") {
+                    label = "{test}"
+                    argument(name = "test") { type = navType }
+                }
+            }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+        val arg = 1
+        navController.navigate("$endDestination/$arg")
+
+        assertThat(toolbar.title.toString()).isEqualTo((arg + 1).toString())
+    }
+
     private fun createToolbarOnDestinationChangedListener(
         toolbar: Toolbar,
         bundle: Bundle?,
         context: Context,
-        navController: NavController
+        navController: NavController,
     ): NavController.OnDestinationChangedListener {
         return object :
             AbstractAppBarOnDestinationChangedListener(
                 context,
-                AppBarConfiguration.Builder(navController.graph).build()
+                AppBarConfiguration.Builder(navController.graph).build(),
             ) {
             override fun setTitle(title: CharSequence?) {
                 toolbar.title = title
@@ -236,7 +272,7 @@ class NavigationUITest {
             override fun onDestinationChanged(
                 controller: NavController,
                 destination: NavDestination,
-                arguments: Bundle?
+                arguments: Bundle?,
             ) {
                 super.onDestinationChanged(controller, destination, bundle)
             }

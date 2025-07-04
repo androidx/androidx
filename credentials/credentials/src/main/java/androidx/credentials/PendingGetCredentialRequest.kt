@@ -34,5 +34,5 @@ import android.view.View
  */
 class PendingGetCredentialRequest(
     val request: GetCredentialRequest,
-    val callback: (GetCredentialResponse) -> Unit
+    val callback: (GetCredentialResponse) -> Unit,
 )

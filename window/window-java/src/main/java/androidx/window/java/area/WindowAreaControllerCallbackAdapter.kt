@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.Flow
 class WindowAreaControllerCallbackAdapter
 private constructor(
     private val controller: WindowAreaController,
-    private val callbackToFlowAdapter: CallbackToFlowAdapter
+    private val callbackToFlowAdapter: CallbackToFlowAdapter,
 ) : WindowAreaController() {
 
     constructor(controller: WindowAreaController) : this(controller, CallbackToFlowAdapter())
@@ -52,7 +52,7 @@ private constructor(
      */
     fun addWindowAreaInfoListListener(
         executor: Executor,
-        listener: Consumer<List<WindowAreaInfo>>
+        listener: Consumer<List<WindowAreaInfo>>,
     ) {
         callbackToFlowAdapter.connect(executor, listener, controller.windowAreaInfos)
     }
@@ -76,25 +76,25 @@ private constructor(
         token: Binder,
         activity: Activity,
         executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback
+        windowAreaSessionCallback: WindowAreaSessionCallback,
     ) =
         controller.transferActivityToWindowArea(
             token,
             activity,
             executor,
-            windowAreaSessionCallback
+            windowAreaSessionCallback,
         )
 
     override fun presentContentOnWindowArea(
         token: Binder,
         activity: Activity,
         executor: Executor,
-        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
+        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
     ) =
         controller.presentContentOnWindowArea(
             token,
             activity,
             executor,
-            windowAreaPresentationSessionCallback
+            windowAreaPresentationSessionCallback,
         )
 }

@@ -79,7 +79,7 @@ class ContextMenuAreaTest {
             state = state,
             onDismiss = onDismiss,
             contextMenuBuilderBlock = contextMenuBuilderBlock,
-            modifier = modifier.testTag(tag)
+            modifier = modifier.testTag(tag),
         )
     }
 
@@ -129,7 +129,7 @@ class ContextMenuAreaTest {
                     TestMenu(
                         state = state,
                         modifier =
-                            Modifier.testTag(menuTag).onGloballyPositioned { menuLayout = it }
+                            Modifier.testTag(menuTag).onGloballyPositioned { menuLayout = it },
                     )
                 }
             }
@@ -211,7 +211,7 @@ class ContextMenuAreaTest {
             contextMenuBuilderBlock = contextMenuBuilderBlock,
             enabled = enabled,
             content = content,
-            modifier = modifier.testTag(tag)
+            modifier = modifier.testTag(tag),
         )
     }
 
@@ -278,7 +278,7 @@ class ContextMenuAreaTest {
             TestArea(
                 state = state,
                 contextMenuBuilderBlock = { testItem(modifier = Modifier.testTag(itemTag)) },
-                modifier = Modifier.background(Color.LightGray).size(100.dp)
+                modifier = Modifier.background(Color.LightGray).size(100.dp),
             )
         }
 
@@ -295,7 +295,7 @@ class ContextMenuAreaTest {
                 contextMenuBuilderBlock = {
                     testItem(modifier = Modifier.testTag(itemTag)) { state.close() }
                 },
-                modifier = Modifier.background(Color.LightGray).size(100.dp)
+                modifier = Modifier.background(Color.LightGray).size(100.dp),
             )
         }
 
@@ -318,7 +318,7 @@ class ContextMenuAreaTest {
                 contextMenuBuilderBlock = {
                     testItem(modifier = Modifier.testTag(itemTag)) { state.close() }
                 },
-                modifier = Modifier.background(Color.LightGray).size(100.dp)
+                modifier = Modifier.background(Color.LightGray).size(100.dp),
             )
         }
 

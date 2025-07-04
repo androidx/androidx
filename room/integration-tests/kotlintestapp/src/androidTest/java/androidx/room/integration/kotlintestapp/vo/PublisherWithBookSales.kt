@@ -27,7 +27,7 @@ constructor(
         parentColumn = "publisherId", // publisher.publisherId
         entityColumn = "bookPublisherId", // book.bookPublisherId
         entity = Book::class,
-        projection = ["salesCnt"]
+        projection = ["salesCnt"],
     )
-    var sales: List<Int>? = emptyList()
+    var sales: List<Int>? = emptyList(),
 )

@@ -18,11 +18,13 @@ package androidx.compose.material
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
@@ -56,7 +58,7 @@ class TextTest {
             textAlign = TextAlign.End,
             fontSize = 32.sp,
             fontStyle = FontStyle.Italic,
-            letterSpacing = 0.3.em
+            letterSpacing = 0.3.em,
         )
 
     private val TestText = "TestText"
@@ -96,7 +98,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -112,6 +114,25 @@ class TextTest {
     }
 
     @Test
+    fun testChangingFontSizeDoesNotInvalidateSemantics() {
+        val fontSize = mutableStateOf(16.sp)
+        var count = 0
+        val countModifier = Modifier.semantics { count++ }
+        rule.setContent {
+            ProvideTextStyle(ExpectedTextStyle) {
+                Box(Modifier.background(Color.White)) {
+                    Text(modifier = countModifier, text = TestText, fontSize = fontSize.value)
+                }
+            }
+        }
+        rule.runOnIdle {
+            count = 0
+            fontSize.value = 20.sp
+        }
+        rule.runOnIdle { assertThat(count).isEqualTo(0) }
+    }
+
+    @Test
     fun settingCustomTextStyle() {
         var textColor: Color? = null
         var textAlign: TextAlign? = null
@@ -124,7 +145,7 @@ class TextTest {
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 fontStyle = FontStyle.Normal,
-                letterSpacing = 0.6.em
+                letterSpacing = 0.6.em,
             )
         rule.setContent {
             ProvideTextStyle(ExpectedTextStyle) {
@@ -138,7 +159,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -180,7 +201,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -224,7 +245,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }

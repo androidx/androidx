@@ -124,8 +124,6 @@ package androidx.wear.watchface {
   }
 
   public enum DrawMode {
-    method public static androidx.wear.watchface.DrawMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.watchface.DrawMode[] values();
     enum_constant public static final androidx.wear.watchface.DrawMode AMBIENT;
     enum_constant public static final androidx.wear.watchface.DrawMode INTERACTIVE;
     enum_constant public static final androidx.wear.watchface.DrawMode LOW_BATTERY_INTERACTIVE;

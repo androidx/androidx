@@ -44,8 +44,8 @@ public class Camera2Interop private constructor() {
      * Extends a [ExtendableBuilder] to add Camera2 options.
      *
      * @param T the type being built by the extendable builder.
-     * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      * @property baseBuilder The builder being extended.
+     * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      */
     public class Extender<T>(private var baseBuilder: ExtendableBuilder<T>) {
 
@@ -62,14 +62,14 @@ public class Camera2Interop private constructor() {
          */
         public fun <ValueT> setCaptureRequestOption(
             key: CaptureRequest.Key<ValueT>,
-            value: ValueT
+            value: ValueT,
         ): Extender<T> {
             // Reify the type so we can obtain the class
             val opt = key.createCaptureRequestOption()
             baseBuilder.mutableConfig.insertOption(
                 opt,
                 Config.OptionPriority.ALWAYS_OVERRIDE,
-                value
+                value,
             )
             return this
         }

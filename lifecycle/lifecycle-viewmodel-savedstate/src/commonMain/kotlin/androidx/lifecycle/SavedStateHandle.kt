@@ -17,8 +17,12 @@ package androidx.lifecycle
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
+import androidx.savedstate.SavedStateRegistryOwner
 import kotlin.jvm.JvmStatic
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,12 +46,30 @@ public expect class SavedStateHandle {
     /**
      * Creates a handle with the given initial arguments.
      *
+     * **Important:** This constructor should only be used directly in tests. The created
+     * [SavedStateHandle] is not bound to the current [SavedStateRegistryOwner], meaning its
+     * internal state will not be restored in the event of a process death.
+     *
+     * In production, use [viewModelFactory] or implement [ViewModelProvider.Factory] directly,
+     * using [CreationExtras.createSavedStateHandle] to create a [SavedStateHandle] that is bound to
+     * the current [SavedStateRegistryOwner].
+     *
      * @param initialState initial arguments for the SavedStateHandle
      */
-    public constructor(initialState: Map<String, Any?>)
+    @VisibleForTesting public constructor(initialState: Map<String, Any?>)
 
-    /** Creates a handle with the empty state. */
-    public constructor()
+    /**
+     * Creates a handle with the empty state.
+     *
+     * **Important:** This constructor should only be used directly in tests. The created
+     * [SavedStateHandle] is not bound to the current [SavedStateRegistryOwner], meaning its
+     * internal state will not be restored in the event of a process death.
+     *
+     * In production, use [viewModelFactory] or implement [ViewModelProvider.Factory] directly,
+     * using [CreationExtras.createSavedStateHandle] to create a [SavedStateHandle] that is bound
+     * with the current [SavedStateRegistryOwner].
+     */
+    @VisibleForTesting public constructor()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun savedStateProvider(): SavedStateProvider
 
@@ -231,7 +253,7 @@ public expect class SavedStateHandle {
         @Suppress("DEPRECATION")
         public fun createHandle(
             restoredState: SavedState?,
-            defaultState: SavedState?
+            defaultState: SavedState?,
         ): SavedStateHandle
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun validateValue(value: Any?): Boolean

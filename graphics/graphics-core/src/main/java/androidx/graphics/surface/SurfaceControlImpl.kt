@@ -132,7 +132,7 @@ internal interface SurfaceControlImpl {
          */
         fun reparent(
             surfaceControl: SurfaceControlImpl,
-            newParent: SurfaceControlImpl?
+            newParent: SurfaceControlImpl?,
         ): Transaction
 
         /**
@@ -147,7 +147,7 @@ internal interface SurfaceControlImpl {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         fun reparent(
             surfaceControl: SurfaceControlImpl,
-            attachedSurfaceControl: AttachedSurfaceControl
+            attachedSurfaceControl: AttachedSurfaceControl,
         ): Transaction
 
         /**
@@ -176,7 +176,7 @@ internal interface SurfaceControlImpl {
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl? = null,
-            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null,
         ): Transaction
 
         /**
@@ -204,7 +204,7 @@ internal interface SurfaceControlImpl {
         @RequiresApi(Build.VERSION_CODES.S)
         fun addTransactionCommittedListener(
             executor: Executor,
-            listener: TransactionCommittedListener
+            listener: TransactionCommittedListener,
         ): Transaction
 
         /**
@@ -281,7 +281,7 @@ internal interface SurfaceControlImpl {
          */
         fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
-            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int,
         ): Transaction
 
         /** See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness] */
@@ -289,7 +289,7 @@ internal interface SurfaceControlImpl {
         fun setExtendedRangeBrightness(
             surfaceControl: SurfaceControlImpl,
             currentBufferRatio: Float,
-            desiredRatio: Float
+            desiredRatio: Float,
         ): Transaction
 
         /** See [SurfaceControlCompat.Transaction.setDataSpace] */
@@ -301,14 +301,12 @@ internal interface SurfaceControlImpl {
             scImpl: SurfaceControlImpl,
             frameRate: Float,
             compatibility: Int,
-            changeFrameRateStrategy: Int
+            changeFrameRateStrategy: Int,
         ): Transaction
 
         /** See [SurfaceControlCompat.Transaction.clearFrameRate] */
         @RequiresApi(Build.VERSION_CODES.R)
-        fun clearFrameRate(
-            scImpl: SurfaceControlImpl,
-        ): Transaction
+        fun clearFrameRate(scImpl: SurfaceControlImpl): Transaction
 
         /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.

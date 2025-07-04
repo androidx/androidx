@@ -195,14 +195,14 @@ class SessionConfigTest {
     fun builderDefaultSessionTypeIsRegular() {
         val builder = SessionConfig.Builder()
         val sessionConfig = builder.build()
-        assertThat(sessionConfig.sessionType == SessionConfiguration.SESSION_REGULAR)
+        assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
     }
 
     @Test
     fun builderSetSessionType() {
         val builder = SessionConfig.Builder().setSessionType(2)
         val sessionConfig = builder.build()
-        assertThat(sessionConfig.sessionType == 2)
+        assertThat(sessionConfig.sessionType).isEqualTo(2)
     }
 
     @Test
@@ -374,18 +374,20 @@ class SessionConfigTest {
     fun addImplementationOptionForStreamUseCase() {
         val validatingBuilder = ValidatingBuilder()
         assertThat(
-            !validatingBuilder
-                .build()
-                .implementationOptions
-                .containsOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)
-        )
+                !validatingBuilder
+                    .build()
+                    .implementationOptions
+                    .containsOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)
+            )
+            .isTrue()
         validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, 1L)
         assertThat(
-            validatingBuilder
-                .build()
-                .implementationOptions
-                .retrieveOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION) == 1L
-        )
+                validatingBuilder
+                    .build()
+                    .implementationOptions
+                    .retrieveOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)
+            )
+            .isEqualTo(1L)
     }
 
     @Test
@@ -931,13 +933,13 @@ class SessionConfigTest {
                 repeatingCallback0,
                 cameraCallback0,
                 repeatingCallback1,
-                cameraCallback1
+                cameraCallback1,
             )
         assertThat(sessionConfig.singleCameraCaptureCallbacks)
             .containsExactly(cameraCallback0, cameraCallback1)
         sessionConfig.errorListener!!.onError(
             sessionConfig,
-            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
         )
         assertThat(errorCallbackInvoked0).isTrue()
         assertThat(errorCallbackInvoked1).isTrue()
@@ -1088,7 +1090,7 @@ class SessionConfigTest {
         // listeners
         sessionConfig.errorListener!!.onError(
             sessionConfig,
-            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET,
         )
         assertThat(errorCallbackInvoked1).isTrue()
     }

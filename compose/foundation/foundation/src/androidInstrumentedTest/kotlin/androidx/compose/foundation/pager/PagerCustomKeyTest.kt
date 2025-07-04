@@ -43,7 +43,7 @@ class PagerCustomKeyTest {
                 key = {
                     keyCalls++
                     0
-                }
+                },
             ) {
                 Spacer(Modifier.fillMaxSize())
             }

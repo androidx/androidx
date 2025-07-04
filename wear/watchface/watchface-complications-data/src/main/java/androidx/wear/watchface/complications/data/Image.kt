@@ -127,7 +127,7 @@ public enum class SmallImageType {
      * this style may be cropped to fit the shape of the complication - in particular, the image may
      * be cropped to a circle. Photos must not be recolored.
      */
-    PHOTO
+    PHOTO,
 }
 
 /**
@@ -146,7 +146,7 @@ public class SmallImage
 internal constructor(
     public val image: Icon,
     public val type: SmallImageType,
-    public val ambientImage: Icon?
+    public val ambientImage: Icon?,
 ) {
     /**
      * Builder for [SmallImage].

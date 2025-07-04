@@ -26,8 +26,13 @@ import static org.junit.Assert.assertThrows;
 import android.graphics.Color;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.protolayout.ColorBuilders.ColorProp;
+import androidx.wear.protolayout.ColorBuilders.LinearGradient;
+import androidx.wear.protolayout.ColorBuilders.SweepGradient;
+import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.proto.ColorProto;
 import androidx.wear.protolayout.proto.ModifiersProto;
 
 import org.junit.Test;
@@ -36,8 +41,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ModifiersBuildersTest {
     private static final String STATE_KEY = "state-key";
-    private static final ColorBuilders.ColorProp COLOR =
-            new ColorBuilders.ColorProp.Builder(Color.RED)
+    private static final ColorProp COLOR =
+            new ColorProp.Builder(Color.RED)
                     .setDynamicValue(DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))
                     .build();
 
@@ -54,8 +59,7 @@ public class ModifiersBuildersTest {
 
     @Test
     public void backgroundSupportsDynamicColor() {
-        ModifiersBuilders.Background background1 =
-                new ModifiersBuilders.Background.Builder().setColor(COLOR).build();
+        Background background1 = new Background.Builder().setColor(COLOR).build();
 
         ModifiersProto.Background background1Proto = background1.toProto();
         assertThat(background1Proto.getColor().getArgb()).isEqualTo(COLOR.getArgb());
@@ -95,7 +99,7 @@ public class ModifiersBuildersTest {
                 () ->
                         new ModifiersBuilders.Shadow.Builder()
                                 .setColor(
-                                        new ColorBuilders.ColorProp.Builder(Color.BLACK)
+                                        new ColorProp.Builder(Color.BLACK)
                                                 .setDynamicValue(
                                                         DynamicBuilders.DynamicColor.constant(
                                                                 Color.GRAY))
@@ -169,7 +173,7 @@ public class ModifiersBuildersTest {
 
     @Test
     public void buildAsymmetricalCornerModifier() {
-        float [] values = new float[]{1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f};
+        float[] values = new float[] {1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f};
         ModifiersBuilders.Corner cornerModifier =
                 new ModifiersBuilders.Corner.Builder()
                         .setTopLeftRadius(dp(values[0]), dp(values[1]))
@@ -203,11 +207,9 @@ public class ModifiersBuildersTest {
                                         new DimensionBuilders.DpProp.Builder(2.f)
                                                 .setDynamicValue(
                                                         DynamicBuilders.DynamicFloat.animate(
-                                                                2.f,
-                                                                5.f))
+                                                                2.f, 5.f))
                                                 .build(),
-                                        dp(1f))
-                );
+                                        dp(1f)));
     }
 
     @Test
@@ -221,8 +223,7 @@ public class ModifiersBuildersTest {
                                         new DimensionBuilders.DpProp.Builder(2.f)
                                                 .setDynamicValue(
                                                         DynamicBuilders.DynamicFloat.animate(
-                                                                2.f,
-                                                                5.f))
+                                                                2.f, 5.f))
                                                 .build()));
     }
 
@@ -246,5 +247,26 @@ public class ModifiersBuildersTest {
         cornerRadius = cornerModifier.getBottomLeftRadius();
         assertThat(cornerRadius.getX().getValue()).isEqualTo(5f);
         assertThat(cornerRadius.getY().getValue()).isEqualTo(5f);
+    }
+
+    @Test
+    public void backgroundSupportsLinearGradient() {
+        Background backgroundLinear =
+                new Background.Builder()
+                        .setBrush(
+                                new LinearGradient.Builder(argb(Color.BLUE), argb(Color.RED))
+                                        .build())
+                        .build();
+        ModifiersProto.Background backgroundLinearProto = backgroundLinear.toProto();
+        assertThat(backgroundLinearProto.getBrush().getInnerCase())
+                .isEqualTo(ColorProto.Brush.InnerCase.LINEAR_GRADIENT);
+    }
+
+    @Test
+    public void background_withSweepGradient_throws() {
+        SweepGradient sweep = new SweepGradient.Builder(argb(Color.BLUE), argb(Color.RED)).build();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Background.Builder().setBrush(sweep).build());
     }
 }

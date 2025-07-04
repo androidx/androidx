@@ -68,7 +68,7 @@ class Rectangle {
         left: Float,
         top: Float,
         right: Float,
-        bottom: Float
+        bottom: Float,
     ) {
 
         mColor[0] = Color.red(color) / 255f
@@ -111,7 +111,7 @@ class Rectangle {
             GLES20.GL_FLOAT,
             false,
             vertexStride,
-            mVertexBuffer
+            mVertexBuffer,
         )
         // get handle to fragment shader's vColor member
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor")
@@ -126,7 +126,7 @@ class Rectangle {
             GLES20.GL_TRIANGLES,
             DRAW_ORDER.size,
             GLES20.GL_UNSIGNED_SHORT,
-            mDrawListBuffer
+            mDrawListBuffer,
         )
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle)

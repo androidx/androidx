@@ -19,6 +19,7 @@ package androidx.camera.integration.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.OrientationEventListener
 import android.widget.Button
@@ -57,6 +58,7 @@ private const val PREFIX_INFORMATION = "test_information"
 private const val PREFIX_VIDEO = "video"
 private const val KEY_ORIENTATION = "device_orientation"
 private const val KEY_STREAM_SHARING_STATE = "is_stream_sharing_enabled"
+private const val KEY_VIEW_FINDER_RECT = "view_finder_rect"
 
 // Possible values for this intent key (case-insensitive): "portrait", "landscape".
 private const val INTENT_SCREEN_ORIENTATION = "orientation"
@@ -188,7 +190,7 @@ class StreamSharingActivity : AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(applicationContext)
         cameraProviderFuture.addListener(
             { bindUseCases(cameraProviderFuture.get()) },
-            ContextCompat.getMainExecutor(applicationContext)
+            ContextCompat.getMainExecutor(applicationContext),
         )
     }
 
@@ -201,7 +203,7 @@ class StreamSharingActivity : AppCompatActivity() {
                 createPreview(),
                 createImageCapture(),
                 createImageAnalysis(),
-                createVideoCapture()
+                createVideoCapture(),
             )
         isUseCasesBound =
             try {
@@ -278,7 +280,7 @@ class StreamSharingActivity : AppCompatActivity() {
         return if (canDeviceWriteToMediaStore()) {
             recorder.prepareRecording(
                 context,
-                generateVideoMediaStoreOptions(context.contentResolver, fileName)
+                generateVideoMediaStoreOptions(context.contentResolver, fileName),
             )
         } else {
             recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))
@@ -290,9 +292,23 @@ class StreamSharingActivity : AppCompatActivity() {
         val information =
             "$KEY_ORIENTATION:$deviceOrientation" +
                 "\n" +
-                "$KEY_STREAM_SHARING_STATE:${isStreamSharingEnabled()}"
+                "$KEY_STREAM_SHARING_STATE:${isStreamSharingEnabled()}" +
+                "\n" +
+                "$KEY_VIEW_FINDER_RECT:${getViewFinderCoordinates()}"
 
         writeTextToExternalFile(information, fileName)
+    }
+
+    /**
+     * Gets the global coordinates of the preview view's visible area.
+     *
+     * @return A string representing the rectangle coordinates in format "left,top,right,bottom".
+     */
+    private fun getViewFinderCoordinates(): String {
+        val rect = Rect()
+        previewView.getGlobalVisibleRect(rect)
+
+        return "${rect.left},${rect.top},${rect.right},${rect.bottom}"
     }
 
     private fun generateFileName(prefix: String? = null): String {

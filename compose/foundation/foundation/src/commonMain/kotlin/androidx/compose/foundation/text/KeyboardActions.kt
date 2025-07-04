@@ -67,7 +67,7 @@ class KeyboardActions(
      * This is run when the user triggers the [Send][ImeAction.Send] action. A null value indicates
      * that the default implementation if any, should be executed.
      */
-    val onSend: (KeyboardActionScope.() -> Unit)? = null
+    val onSend: (KeyboardActionScope.() -> Unit)? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -109,7 +109,7 @@ fun KeyboardActions(onAny: KeyboardActionScope.() -> Unit): KeyboardActions =
         onNext = onAny,
         onPrevious = onAny,
         onSearch = onAny,
-        onSend = onAny
+        onSend = onAny,
     )
 
 /** This scope can be used to execute the default action implementation. */

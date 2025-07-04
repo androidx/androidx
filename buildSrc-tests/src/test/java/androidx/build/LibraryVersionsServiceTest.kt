@@ -19,7 +19,6 @@ package androidx.build
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.create
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.Test
@@ -138,10 +137,7 @@ class LibraryVersionsServiceTest {
 
         assertThrows<Exception> { service.libraryGroupsByGroupId["g.g1"] }
             .hasMessageThat()
-            .contains(
-                "Duplicate library group g.g1 defined in G2 does not set overrideInclude. " +
-                    "Declarations beyond the first can only have an effect if they set overrideInclude"
-            )
+            .contains("Multiple atomic groups defined with the same Maven group ID: g.g1")
     }
 
     @Test
@@ -157,38 +153,9 @@ class LibraryVersionsServiceTest {
             """
             )
 
-        assertThat(service.libraryGroupsByGroupId["g.g1"])
-            .isEqualTo(LibraryGroup(group = "g.g1", atomicGroupVersion = Version("1.2.3")))
-    }
-
-    private fun runAndroidExtensionTest(
-        projectPath: String,
-        tomlFile: String,
-        validateWithoutKmp: (AndroidXExtension) -> Unit,
-        validateWithKmp: (AndroidXExtension) -> Unit
-    ) {
-        listOf(false, true).forEach { useKmpVersions ->
-            val rootProjectDir = tempDir.newFolder()
-            val rootProject = ProjectBuilder.builder().withProjectDir(rootProjectDir).build()
-            val subject =
-                ProjectBuilder.builder().withParent(rootProject).withName(projectPath).build()
-            // create the service before extensions are created so that they'll use the test service
-            // we've created.
-            createLibraryVersionsService(
-                tomlFileContents = tomlFile,
-                project = rootProject,
-            )
-            // needed for AndroidXExtension initialization
-            rootProject.setSupportRootFolder(rootProjectDir)
-            // create androidx extensions
-            val extension =
-                subject.extensions.create<AndroidXExtension>(AndroidXImplPlugin.EXTENSION_NAME)
-            if (useKmpVersions) {
-                validateWithKmp(extension)
-            } else {
-                validateWithoutKmp(extension)
-            }
-        }
+        assertThrows<Exception> { service.libraryGroupsByGroupId["g.g1"] }
+            .hasMessageThat()
+            .contains("Multiple atomic groups defined with the same Maven group ID: g.g1")
     }
 
     private fun createLibraryVersionsService(

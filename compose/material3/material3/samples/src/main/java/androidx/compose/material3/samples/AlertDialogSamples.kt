@@ -63,7 +63,7 @@ fun AlertDialogSample() {
             },
             dismissButton = {
                 TextButton(onClick = { openDialog.value = false }) { Text("Dismiss") }
-            }
+            },
         )
     }
 }
@@ -95,7 +95,7 @@ fun AlertDialogWithIconSample() {
             },
             dismissButton = {
                 TextButton(onClick = { openDialog.value = false }) { Text("Dismiss") }
-            }
+            },
         )
     }
 }
@@ -119,18 +119,18 @@ fun BasicAlertDialogSample() {
             Surface(
                 modifier = Modifier.wrapContentWidth().wrapContentHeight(),
                 shape = MaterialTheme.shapes.large,
-                tonalElevation = AlertDialogDefaults.TonalElevation
+                tonalElevation = AlertDialogDefaults.TonalElevation,
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text =
                             "This area typically contains the supportive text " +
-                                "which presents the details regarding the Dialog's purpose.",
+                                "which presents the details regarding the Dialog's purpose."
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     TextButton(
                         onClick = { openDialog.value = false },
-                        modifier = Modifier.align(Alignment.End)
+                        modifier = Modifier.align(Alignment.End),
                     ) {
                         Text("Confirm")
                     }

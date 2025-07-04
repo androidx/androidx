@@ -40,12 +40,25 @@ class CameraSelectionOptimizer {
 
     static List<String> getSelectedAvailableCameraIds(
             @NonNull Camera2CameraFactory cameraFactory,
-            @Nullable CameraSelector availableCamerasSelector)
+            @Nullable CameraSelector availableCamerasSelector) throws InitializationException {
+        try {
+            return getSelectedAvailableCameraIds(
+                    cameraFactory,
+                    availableCamerasSelector,
+                    Arrays.asList(cameraFactory.getCameraManager().getCameraIdList())
+            );
+        } catch (CameraAccessExceptionCompat e) {
+            throw new InitializationException(CameraUnavailableExceptionHelper.createFrom(e));
+        }
+    }
+
+    static List<String> getSelectedAvailableCameraIds(
+            @NonNull Camera2CameraFactory cameraFactory,
+            @Nullable CameraSelector availableCamerasSelector,
+            @NonNull List<String> cameraIdList)
             throws InitializationException {
         try {
             List<String> availableCameraIds = new ArrayList<>();
-            List<String> cameraIdList =
-                    Arrays.asList(cameraFactory.getCameraManager().getCameraIdList());
             if (availableCamerasSelector == null) {
                 for (String id : cameraIdList) {
                     availableCameraIds.add(id);

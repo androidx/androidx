@@ -20,7 +20,7 @@ internal actual fun String.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
     startIndex: Int,
-    endIndex: Int
+    endIndex: Int,
 ) {
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     (this as java.lang.String).getChars(startIndex, endIndex, destination, destinationOffset)

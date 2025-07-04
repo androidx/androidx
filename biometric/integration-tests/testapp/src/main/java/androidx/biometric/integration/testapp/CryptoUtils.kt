@@ -46,7 +46,7 @@ private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
 @RequiresApi(Build.VERSION_CODES.M)
 internal fun createCryptoObject(
     allowBiometricAuth: Boolean,
-    allowDeviceCredentialAuth: Boolean
+    allowDeviceCredentialAuth: Boolean,
 ): BiometricPrompt.CryptoObject {
     // Create a spec for the key to be generated.
     val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
@@ -62,7 +62,7 @@ internal fun createCryptoObject(
                     this,
                     timeout = 0,
                     allowBiometricAuth,
-                    allowDeviceCredentialAuth
+                    allowDeviceCredentialAuth,
                 )
             } else {
                 Api23Impl.setUserAuthenticationValidityDurationSeconds(this, -1)
@@ -107,7 +107,7 @@ private object Api30Impl {
         builder: KeyGenParameterSpec.Builder,
         timeout: Int,
         allowBiometricAuth: Boolean,
-        allowDeviceCredentialAuth: Boolean
+        allowDeviceCredentialAuth: Boolean,
     ) {
         // Set the key type according to the allowed auth types.
         var keyType = 0
@@ -127,7 +127,7 @@ private object Api30Impl {
 private object Api23Impl {
     fun createKeyGenParameterSpecBuilder(
         keyName: String,
-        keyPurpose: Int
+        keyPurpose: Int,
     ): KeyGenParameterSpec.Builder = KeyGenParameterSpec.Builder(keyName, keyPurpose)
 
     fun setBlockModeCBC(builder: KeyGenParameterSpec.Builder) {
@@ -140,7 +140,7 @@ private object Api23Impl {
 
     fun setUserAuthenticationRequired(
         builder: KeyGenParameterSpec.Builder,
-        userAuthenticationRequired: Boolean
+        userAuthenticationRequired: Boolean,
     ) {
         builder.setUserAuthenticationRequired(userAuthenticationRequired)
     }
@@ -148,7 +148,7 @@ private object Api23Impl {
     @Suppress("DEPRECATION")
     fun setUserAuthenticationValidityDurationSeconds(
         builder: KeyGenParameterSpec.Builder,
-        userAuthenticationValidityDurationSeconds: Int
+        userAuthenticationValidityDurationSeconds: Int,
     ) {
         builder.setUserAuthenticationValidityDurationSeconds(
             userAuthenticationValidityDurationSeconds

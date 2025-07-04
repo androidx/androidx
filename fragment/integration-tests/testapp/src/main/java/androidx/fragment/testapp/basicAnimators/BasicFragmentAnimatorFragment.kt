@@ -34,7 +34,7 @@ class BasicFragmentAnimatorFragment : Fragment(R.layout.basic_animators_main) {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         if (savedInstanceState == null) {
             parentFragmentManager.beginTransaction().setPrimaryNavigationFragment(this).commit()

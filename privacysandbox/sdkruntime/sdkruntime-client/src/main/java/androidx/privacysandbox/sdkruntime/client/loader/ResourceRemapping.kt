@@ -37,7 +37,7 @@ internal object ResourceRemapping {
             Class.forName(
                 remappingConfig.rPackageClassName,
                 /* initialize = */ false,
-                sdkClassLoader
+                sdkClassLoader,
             )
 
         val field = rPackageClass.getDeclaredField(PACKAGE_ID_FIELD_NAME)

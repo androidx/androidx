@@ -53,12 +53,12 @@ class BatteryDischargeQueryTest {
             listOf(
                 BatteryDischargeQuery.BatteryDischargeMeasurement(
                     name = "Start",
-                    chargeMah = 1020.0
+                    chargeMah = 1020.0,
                 ),
                 BatteryDischargeQuery.BatteryDischargeMeasurement(name = "End", chargeMah = 1007.0),
-                BatteryDischargeQuery.BatteryDischargeMeasurement(name = "Diff", chargeMah = 13.0)
+                BatteryDischargeQuery.BatteryDischargeMeasurement(name = "Diff", chargeMah = 13.0),
             ),
-            actualMetrics
+            actualMetrics,
         )
     }
 }

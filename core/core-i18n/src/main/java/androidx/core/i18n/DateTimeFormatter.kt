@@ -46,7 +46,7 @@ public class DateTimeFormatter {
     public constructor(
         context: Context,
         options: DateTimeFormatterSkeletonOptions,
-        locale: Locale = getDefaultFormattingLocale()
+        locale: Locale = getDefaultFormattingLocale(),
     ) {
         val resolvedSkeleton = skeletonRespectingPrefs(context, locale, options.toString())
         dateFormatter =
@@ -60,7 +60,7 @@ public class DateTimeFormatter {
     @JvmOverloads
     public constructor(
         options: DateTimeFormatterJdkStyleOptions,
-        locale: Locale = getDefaultFormattingLocale()
+        locale: Locale = getDefaultFormattingLocale(),
     ) {
         dateFormatter = DateTimeFormatterImplJdkStyle(options.dateStyle, options.timeStyle, locale)
     }

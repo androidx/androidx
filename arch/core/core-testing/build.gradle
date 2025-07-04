@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,18 +35,15 @@ dependencies {
     api(libs.junit)
     api(libs.mockitoCore)
 
-    testImplementation(libs.junit)
-
-    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.hamcrestCore)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
+    androidTestRuntimeOnly(libs.testCore)
 }
 
 androidx {
     name = "Core-Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Core-Testing"
 }

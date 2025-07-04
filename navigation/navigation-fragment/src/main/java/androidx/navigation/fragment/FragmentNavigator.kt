@@ -64,7 +64,7 @@ import java.lang.ref.WeakReference
 public open class FragmentNavigator(
     private val context: Context,
     private val fragmentManager: FragmentManager,
-    private val containerId: Int
+    private val containerId: Int,
 ) : Navigator<Destination>() {
     // Logging for FragmentNavigator is automatically enabled along with FragmentManager logging.
     // see more at [Debug your fragments][https://developer.android.com/guide/fragments/debugging]
@@ -102,7 +102,7 @@ public open class FragmentNavigator(
                     Log.v(
                         TAG,
                         "Marking transition complete for entry $entry " +
-                            "due to fragment $source lifecycle reaching DESTROYED"
+                            "due to fragment $source lifecycle reaching DESTROYED",
                     )
                 }
                 state.markTransitionComplete(entry)
@@ -119,7 +119,7 @@ public open class FragmentNavigator(
                     Log.v(
                         TAG,
                         "Marking transition complete for entry $entry due " +
-                            "to fragment $owner view lifecycle reaching RESUMED"
+                            "to fragment $owner view lifecycle reaching RESUMED",
                     )
                 }
                 state.markTransitionComplete(entry)
@@ -130,7 +130,7 @@ public open class FragmentNavigator(
                     Log.v(
                         TAG,
                         "Marking transition complete for entry $entry due " +
-                            "to fragment $owner view lifecycle reaching DESTROYED"
+                            "to fragment $owner view lifecycle reaching DESTROYED",
                     )
                 }
                 state.markTransitionComplete(entry)
@@ -150,7 +150,7 @@ public open class FragmentNavigator(
                 Log.v(
                     TAG,
                     "Attaching fragment $fragment associated with entry " +
-                        "$entry to FragmentManager $fragmentManager"
+                        "$entry to FragmentManager $fragmentManager",
                 )
             }
             if (entry != null) {
@@ -176,7 +176,7 @@ public open class FragmentNavigator(
                             Log.v(
                                 TAG,
                                 "OnBackStackChangedStarted for fragment " +
-                                    "$fragment associated with entry $entry"
+                                    "$fragment associated with entry $entry",
                             )
                         }
                         entry?.let { state.prepareForTransition(it) }
@@ -199,7 +199,7 @@ public open class FragmentNavigator(
                         Log.v(
                             TAG,
                             "OnBackStackChangedCommitted for fragment " +
-                                "$fragment associated with entry $entry"
+                                "$fragment associated with entry $entry",
                         )
                     }
 
@@ -227,7 +227,7 @@ public open class FragmentNavigator(
                                 Log.v(
                                     TAG,
                                     "OnBackStackChangedCommitted for fragment $fragment " +
-                                        "popping associated entry $entry via system back"
+                                        "popping associated entry $entry via system back",
                                 )
                             }
                             state.popWithTransition(entry, false)
@@ -260,13 +260,13 @@ public open class FragmentNavigator(
     internal fun attachClearViewModel(
         fragment: Fragment,
         entry: NavBackStackEntry,
-        state: NavigatorState
+        state: NavigatorState,
     ) {
         val viewModel =
             ViewModelProvider(
                 fragment.viewModelStore,
                 viewModelFactory { initializer { ClearEntryStateViewModel() } },
-                CreationExtras.Empty
+                CreationExtras.Empty,
             )[ClearEntryStateViewModel::class.java]
         viewModel.completeTransition = WeakReference {
             entry.let {
@@ -275,7 +275,7 @@ public open class FragmentNavigator(
                         Log.v(
                             TAG,
                             "Marking transition complete for entry " +
-                                "$entry due to fragment $fragment viewmodel being cleared"
+                                "$entry due to fragment $fragment viewmodel being cleared",
                         )
                     }
                     state.markTransitionComplete(entry)
@@ -327,7 +327,7 @@ public open class FragmentNavigator(
                 if (entry == initialEntry) {
                     Log.i(
                         TAG,
-                        "FragmentManager cannot save the state of the initial destination $entry"
+                        "FragmentManager cannot save the state of the initial destination $entry",
                     )
                 } else {
                     fragmentManager.saveBackStack(entry.id)
@@ -341,7 +341,7 @@ public open class FragmentNavigator(
             Log.v(
                 TAG,
                 "Calling popWithTransition via popBackStack() on entry " +
-                    "$popUpTo with savedState $savedState"
+                    "$popUpTo with savedState $savedState",
             )
         }
 
@@ -374,7 +374,7 @@ public open class FragmentNavigator(
         context: Context,
         fragmentManager: FragmentManager,
         className: String,
-        args: Bundle?
+        args: Bundle?,
     ): Fragment {
         return fragmentManager.fragmentFactory.instantiate(context.classLoader, className)
     }
@@ -394,7 +394,7 @@ public open class FragmentNavigator(
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         if (fragmentManager.isStateSaved) {
             Log.i(TAG, "Ignoring navigate() call: FragmentManager has already saved its state")
@@ -408,7 +408,7 @@ public open class FragmentNavigator(
     private fun navigate(
         entry: NavBackStackEntry,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         val initialNavigation = state.backStack.value.isEmpty()
         val restoreState =
@@ -465,7 +465,7 @@ public open class FragmentNavigator(
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG,
-                "Ignoring onLaunchSingleTop() call: FragmentManager has already saved its state"
+                "Ignoring onLaunchSingleTop() call: FragmentManager has already saved its state",
             )
             return
         }
@@ -483,7 +483,7 @@ public open class FragmentNavigator(
             addPendingOps(backStackEntry.id, isPop = true)
             fragmentManager.popBackStack(
                 backStackEntry.id,
-                FragmentManager.POP_BACK_STACK_INCLUSIVE
+                FragmentManager.POP_BACK_STACK_INCLUSIVE,
             )
 
             addPendingOps(backStackEntry.id, deduplicate = false)
@@ -496,7 +496,7 @@ public open class FragmentNavigator(
 
     private fun createFragmentTransaction(
         entry: NavBackStackEntry,
-        navOptions: NavOptions?
+        navOptions: NavOptions?,
     ): FragmentTransaction {
         val destination = entry.destination as Destination
         val args = entry.arguments

@@ -164,7 +164,7 @@ internal constructor(
         beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_passkey),
         isAutoSelectAllowed: Boolean = false,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
     ) : this(
@@ -225,7 +225,7 @@ internal constructor(
         beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_passkey),
         isAutoSelectAllowed: Boolean = false,
         isDefaultIconPreferredAsSingleProvider: Boolean = false,
         biometricPromptData: BiometricPromptData? = null,
@@ -282,7 +282,7 @@ internal constructor(
                     "beginGetPublicKeyCredentialOption, displayName, lastUsedTime, icon, " +
                     "isAutoSelectAllowed, isDefaultIconPreferredAsSingleProvider, biometricPromptData)"
             ),
-        level = DeprecationLevel.HIDDEN
+        level = DeprecationLevel.HIDDEN,
     )
     constructor(
         context: Context,
@@ -291,7 +291,7 @@ internal constructor(
         beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
         displayName: CharSequence? = null,
         lastUsedTime: Instant? = null,
-        icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
+        icon: Icon = Icon.createWithResource(context, R.drawable.adx_ic_passkey),
         isAutoSelectAllowed: Boolean = false,
     ) : this(
         username = username,
@@ -303,7 +303,7 @@ internal constructor(
         lastUsedTime = lastUsedTime,
         isAutoSelectAllowed = isAutoSelectAllowed,
         beginGetPublicKeyCredentialOption = beginGetPublicKeyCredentialOption,
-        isDefaultIconPreferredAsSingleProvider = false
+        isDefaultIconPreferredAsSingleProvider = false,
     )
 
     @RequiresApi(34)
@@ -338,20 +338,20 @@ internal constructor(
                 sliceBuilder.addInt(
                     biometricPromptData.allowedAuthenticators,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS),
                 )
                 biometricPromptData.cryptoObject?.let {
                     sliceBuilder.addLong(
                         getOperationHandle(biometricPromptData.cryptoObject),
                         /*subType=*/ null,
-                        listOf(SLICE_HINT_CRYPTO_OP_ID)
+                        listOf(SLICE_HINT_CRYPTO_OP_ID),
                     )
                 }
                 val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
                 sliceBuilder.addBundle(
                     biometricBundle,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA),
                 )
             }
         }
@@ -395,7 +395,7 @@ internal constructor(
                     biometricPromptData =
                         if (biometricPromptDataBundle != null)
                             BiometricPromptData.fromBundle(biometricPromptDataBundle!!)
-                        else null
+                        else null,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -413,7 +413,7 @@ internal constructor(
                 return entry.isDefaultIconFromSlice
             }
             return entry.icon.type == Icon.TYPE_RESOURCE &&
-                entry.icon.resId == R.drawable.ic_passkey
+                entry.icon.resId == R.drawable.adx_ic_passkey
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -442,18 +442,18 @@ internal constructor(
                 .addText(
                     beginGetCredentialOption.id,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_OPTION_ID)
+                    listOf(SLICE_HINT_OPTION_ID),
                 )
                 .addText(entryGroupId, /* subTypes= */ null, listOf(SLICE_HINT_DEDUPLICATION_ID))
                 .addText(
                     isUsingDefaultIcon,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED)
+                    listOf(SLICE_HINT_IS_DEFAULT_ICON_PREFERRED),
                 )
                 .addText(
                     affiliatedDomain,
                     /*subTypes=*/ null,
-                    listOf(SLICE_HINT_AFFILIATED_DOMAIN)
+                    listOf(SLICE_HINT_AFFILIATED_DOMAIN),
                 )
             val title = entry.username
             val subtitle = entry.displayName
@@ -479,7 +479,7 @@ internal constructor(
                     sliceBuilder.addInt(
                         /*true=*/ 1,
                         /*subType=*/ null,
-                        listOf(SLICE_HINT_DEFAULT_ICON_RES_ID)
+                        listOf(SLICE_HINT_DEFAULT_ICON_RES_ID),
                     )
                 }
             } catch (_: IllegalStateException) {}
@@ -487,14 +487,14 @@ internal constructor(
                 sliceBuilder.addInt(
                     /*true=*/ 1,
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_AUTO_SELECT_FROM_OPTION)
+                    listOf(SLICE_HINT_AUTO_SELECT_FROM_OPTION),
                 )
             }
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
                     lastUsedTime.toEpochMilli(),
                     /*subType=*/ null,
-                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS),
                 )
             }
             sliceBuilder.addAction(
@@ -502,7 +502,7 @@ internal constructor(
                 Slice.Builder(sliceBuilder)
                     .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
                     .build(),
-                /*subType=*/ null
+                /*subType=*/ null,
             )
         }
 
@@ -652,24 +652,24 @@ internal constructor(
             this.marshallCommonProperties(bundle, index)
             bundle.putParcelable(
                 "$EXTRA_CREDENTIAL_ENTRY_PENDING_INTENT_PREFIX$index",
-                this.pendingIntent
+                this.pendingIntent,
             )
             bundle.putBoolean(
                 "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
-                this.isAutoSelectAllowed
+                this.isAutoSelectAllowed,
             )
             bundle.putBoolean(
                 "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_FROM_OPTION_PREFIX$index",
-                this.isAutoSelectAllowedFromOption
+                this.isAutoSelectAllowedFromOption,
             )
             bundle.putBoolean(
                 "$EXTRA_CREDENTIAL_ENTRY_HAS_DEFAULT_ICON_PREFIX$index",
-                this.hasDefaultIcon
+                this.hasDefaultIcon,
             )
             bundle.putCharSequence("$EXTRA_CREDENTIAL_TITLE_PREFIX$index", this.username)
             bundle.putCharSequence(
                 "$EXTRA_CREDENTIAL_TYPE_DISPLAY_NAME_PREFIX$index",
-                this.typeDisplayName
+                this.typeDisplayName,
             )
             bundle.putParcelable("$EXTRA_CREDENTIAL_TYPE_ICON_PREFIX$index", this.icon)
             this.displayName?.let {
@@ -680,7 +680,7 @@ internal constructor(
                 this.lastUsedTime?.let {
                     bundle.putSerializable(
                         "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX$index",
-                        it
+                        it,
                     )
                 }
             }
@@ -697,7 +697,7 @@ internal constructor(
                 val isDefaultIconPreferredAsSingleProvider: Boolean =
                     bundle.getBoolean(
                         "$EXTRA_CREDENTIAL_ENTRY_IS_DEFAULT_ICON_PREFERRED_AS_SINGLE_PROV_PREFIX$index",
-                        false
+                        false,
                     )
                 val affiliatedDomain: CharSequence? =
                     bundle.getCharSequence("$EXTRA_CREDENTIAL_ENTRY_AFFILIATED_DOMAIN_PREFIX$index")
@@ -706,17 +706,17 @@ internal constructor(
                 val isAutoSelectAllowed: Boolean =
                     bundle.getBoolean(
                         "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
-                        false
+                        false,
                     )
                 val isAutoSelectAllowedFromOption: Boolean =
                     bundle.getBoolean(
                         "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_FROM_OPTION_PREFIX$index",
-                        false
+                        false,
                     )
                 val hasDefaultIcon: Boolean =
                     bundle.getBoolean(
                         "$EXTRA_CREDENTIAL_ENTRY_HAS_DEFAULT_ICON_PREFIX$index",
-                        false
+                        false,
                     )
                 val username: CharSequence =
                     bundle.getCharSequence("$EXTRA_CREDENTIAL_TITLE_PREFIX$index")!!
@@ -747,7 +747,7 @@ internal constructor(
                         affiliatedDomain = affiliatedDomain,
                         autoSelectAllowedFromOption = isAutoSelectAllowedFromOption,
                         isCreatedFromSlice = true,
-                        isDefaultIconFromSlice = hasDefaultIcon
+                        isDefaultIconFromSlice = hasDefaultIcon,
                     )
                 } else {
                     PublicKeyCredentialEntry(
@@ -766,7 +766,7 @@ internal constructor(
                         affiliatedDomain = affiliatedDomain,
                         autoSelectAllowedFromOption = isAutoSelectAllowedFromOption,
                         isCreatedFromSlice = true,
-                        isDefaultIconFromSlice = hasDefaultIcon
+                        isDefaultIconFromSlice = hasDefaultIcon,
                     )
                 }
             } catch (e: Exception) {
@@ -780,7 +780,7 @@ internal constructor(
         private val context: Context,
         private val username: CharSequence,
         private val pendingIntent: PendingIntent,
-        private val beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption
+        private val beginGetPublicKeyCredentialOption: BeginGetPublicKeyCredentialOption,
     ) {
         private var displayName: CharSequence? = null
         private var lastUsedTime: Instant? = null
@@ -844,7 +844,7 @@ internal constructor(
         /** Builds an instance of [PublicKeyCredentialEntry] */
         fun build(): PublicKeyCredentialEntry {
             if (icon == null && Build.VERSION.SDK_INT >= 23) {
-                icon = Icon.createWithResource(context, R.drawable.ic_passkey)
+                icon = Icon.createWithResource(context, R.drawable.adx_ic_passkey)
             }
             val typeDisplayName =
                 context.getString(R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL)

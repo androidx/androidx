@@ -30,7 +30,7 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun stateChangeTriggersCallback() {
-        val data = "Hello World"
+        val data = ValueWrapper("Hello World")
         var changes = 0
 
         val state = mutableStateOf(0)
@@ -38,7 +38,7 @@ class SnapshotStateObserverTestsCommon {
         try {
             stateObserver.start()
 
-            val onChangeListener: (String) -> Unit = { affected ->
+            val onChangeListener: (ValueWrapper) -> Unit = { affected ->
                 assertEquals(data, affected)
                 assertEquals(0, changes)
                 changes++
@@ -61,9 +61,9 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun multipleStagesWorksTogether() {
-        val strStage1 = "Stage1"
-        val strStage2 = "Stage2"
-        val strStage3 = "Stage3"
+        val strStage1 = ValueWrapper("Stage1")
+        val strStage2 = ValueWrapper("Stage2")
+        val strStage3 = ValueWrapper("Stage3")
         var stage1Changes = 0
         var stage2Changes = 0
         var stage3Changes = 0
@@ -71,17 +71,17 @@ class SnapshotStateObserverTestsCommon {
         val stage2Model = mutableStateOf(0)
         val stage3Model = mutableStateOf(0)
 
-        val onChangeStage1: (String) -> Unit = { affectedData ->
+        val onChangeStage1: (ValueWrapper) -> Unit = { affectedData ->
             assertEquals(strStage1, affectedData)
             assertEquals(0, stage1Changes)
             stage1Changes++
         }
-        val onChangeStage2: (String) -> Unit = { affectedData ->
+        val onChangeStage2: (ValueWrapper) -> Unit = { affectedData ->
             assertEquals(strStage2, affectedData)
             assertEquals(0, stage2Changes)
             stage2Changes++
         }
-        val onChangeStage3: (String) -> Unit = { affectedData ->
+        val onChangeStage3: (ValueWrapper) -> Unit = { affectedData ->
             assertEquals(strStage3, affectedData)
             assertEquals(0, stage3Changes)
             stage3Changes++
@@ -114,9 +114,9 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun enclosedStagesCorrectlyObserveChanges() {
-        val stage1Info = "stage 1"
-        val stage2Info1 = "stage 1 - value 1"
-        val stage2Info2 = "stage 2 - value 2"
+        val stage1Info = ValueWrapper("stage 1")
+        val stage2Info1 = ValueWrapper("stage 1 - value 1")
+        val stage2Info2 = ValueWrapper("stage 2 - value 2")
         var stage1Changes = 0
         var stage2Changes1 = 0
         var stage2Changes2 = 0
@@ -124,12 +124,12 @@ class SnapshotStateObserverTestsCommon {
         val stage2Data1 = mutableStateOf(0)
         val stage2Data2 = mutableStateOf(0)
 
-        val onChangeStage1Listener: (String) -> Unit = { affected ->
+        val onChangeStage1Listener: (ValueWrapper) -> Unit = { affected ->
             assertEquals(affected, stage1Info)
             assertEquals(stage1Changes, 0)
             stage1Changes++
         }
-        val onChangeState2Listener: (String) -> Unit = { affected ->
+        val onChangeState2Listener: (ValueWrapper) -> Unit = { affected ->
             when (affected) {
                 stage2Info1 -> {
                     assertEquals(0, stage2Changes1)
@@ -177,11 +177,11 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun stateReadTriggersCallbackAfterSwitchingAdvancingGlobalWithinObserveReads() {
-        val info = "Hello"
+        val info = ValueWrapper("Hello")
         var changes = 0
 
         val state = mutableStateOf(0)
-        val onChangeListener: (String) -> Unit = { _ ->
+        val onChangeListener: (ValueWrapper) -> Unit = { _ ->
             assertEquals(0, changes)
             changes++
         }
@@ -216,7 +216,7 @@ class SnapshotStateObserverTestsCommon {
     @Suppress("DEPRECATION")
     @Test
     fun pauseStopsObserving() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
@@ -230,7 +230,7 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun withoutReadObservationStopsObserving() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
@@ -244,7 +244,7 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun changeAfterWithoutReadObservationIsObserving() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
@@ -260,7 +260,7 @@ class SnapshotStateObserverTestsCommon {
     @Suppress("DEPRECATION")
     @Test
     fun nestedPauseStopsObserving() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
@@ -277,7 +277,7 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun nestedWithoutReadObservation() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
@@ -294,7 +294,7 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun simpleObserving() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
@@ -307,7 +307,7 @@ class SnapshotStateObserverTestsCommon {
     @Suppress("DEPRECATION")
     @Test
     fun observeWithinPause() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes1 = 0
         var changes2 = 0
 
@@ -324,7 +324,7 @@ class SnapshotStateObserverTestsCommon {
 
     @Test
     fun observeWithinWithoutReadObservation() {
-        val data = "data"
+        val data = ValueWrapper("data")
         var changes1 = 0
         var changes2 = 0
 
@@ -345,8 +345,8 @@ class SnapshotStateObserverTestsCommon {
         var changes2 = 0
 
         runSimpleTest { stateObserver, state ->
-            stateObserver.observeReads("scope1", { changes1++ }) {
-                stateObserver.observeReads("scope2", { changes2++ }) {
+            stateObserver.observeReads(ValueWrapper("scope1"), { changes1++ }) {
+                stateObserver.observeReads(ValueWrapper("scope2"), { changes2++ }) {
                     Snapshot.withoutReadObservation { state.value }
                 }
             }
@@ -361,8 +361,8 @@ class SnapshotStateObserverTestsCommon {
         var changes2 = 0
 
         runSimpleTest { stateObserver, state ->
-            stateObserver.observeReads("scope1", { changes1++ }) {
-                stateObserver.observeReads("scope2", { changes2++ }) {
+            stateObserver.observeReads(ValueWrapper("scope1"), { changes1++ }) {
+                stateObserver.observeReads(ValueWrapper("scope2"), { changes2++ }) {
                     Snapshot.withoutReadObservation {
                         val newSnapshot = Snapshot.takeMutableSnapshot()
                         newSnapshot.enter { state.value }
@@ -382,8 +382,8 @@ class SnapshotStateObserverTestsCommon {
         var changes2 = 0
 
         runSimpleTest { stateObserver, state ->
-            stateObserver.observeReads("scope1", { changes1++ }) {
-                stateObserver.observeReads("scope2", { changes2++ }) {
+            stateObserver.observeReads(ValueWrapper("scope1"), { changes1++ }) {
+                stateObserver.observeReads(ValueWrapper("scope2"), { changes2++ }) {
                     Snapshot.withoutReadObservation {
                         val newSnapshot = Snapshot.takeSnapshot()
                         newSnapshot.enter { state.value }
@@ -401,7 +401,7 @@ class SnapshotStateObserverTestsCommon {
         var changes = 0
 
         runSimpleTest { stateObserver, state ->
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 val newSnapshot = Snapshot.takeSnapshot()
                 newSnapshot.enter { Snapshot.withoutReadObservation { state.value } }
                 newSnapshot.dispose()
@@ -417,7 +417,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             val derivedState = derivedStateOf { state.value }
 
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 // read
                 derivedState.value
             }
@@ -433,7 +433,7 @@ class SnapshotStateObserverTestsCommon {
             val state = mutableStateOf(mutableListOf(42), referentialEqualityPolicy())
             val derivedState = derivedStateOf { state.value }
 
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 // read
                 derivedState.value
             }
@@ -451,7 +451,7 @@ class SnapshotStateObserverTestsCommon {
             val derivedState = derivedStateOf { state.value }
             val derivedState2 = derivedStateOf { derivedState.value }
 
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 // read
                 derivedState2.value
             }
@@ -467,7 +467,7 @@ class SnapshotStateObserverTestsCommon {
             val state = mutableStateOf(mutableListOf(1), referentialEqualityPolicy())
             val derivedState = derivedStateOf(referentialEqualityPolicy()) { state.value }
 
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 // read
                 derivedState.value
             }
@@ -485,7 +485,7 @@ class SnapshotStateObserverTestsCommon {
             val state = mutableStateOf(mutableListOf(1), referentialEqualityPolicy())
             val derivedState = derivedStateOf(structuralEqualityPolicy()) { state.value }
 
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 // read
                 derivedState.value
             }
@@ -502,7 +502,7 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             val derivedState = derivedStateOf { state.value >= 0 }
 
-            stateObserver.observeReads("scope", { changes++ }) {
+            stateObserver.observeReads(ValueWrapper("scope"), { changes++ }) {
                 // read derived state
                 derivedState.value
                 // read dependency
@@ -525,9 +525,10 @@ class SnapshotStateObserverTestsCommon {
                     null
                 }
             }
-            val onChange: (String) -> Unit = { changes++ }
+            val onChange: (ValueWrapper) -> Unit = { changes++ }
 
-            stateObserver.observeReads("scope", onChange) {
+            val scope = ValueWrapper("scope")
+            stateObserver.observeReads(scope, onChange) {
                 // read derived state
                 derivedState.value
             }
@@ -537,7 +538,7 @@ class SnapshotStateObserverTestsCommon {
             Snapshot.sendApplyNotifications()
             Snapshot.notifyObjectsInitialized()
 
-            stateObserver.observeReads("scope", onChange) {
+            stateObserver.observeReads(scope, onChange) {
                 // read derived state
                 derivedState.value
             }
@@ -552,20 +553,21 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             val derivedState = derivedStateOf { state.value }
 
-            val onChange: (String) -> Unit = { changes++ }
-            stateObserver.observeReads("scope", onChange) {
+            val onChange: (ValueWrapper) -> Unit = { changes++ }
+            stateObserver.observeReads(ValueWrapper("scope"), onChange) {
                 // read derived state
                 derivedState.value
             }
 
+            val scope2 = ValueWrapper("other scope")
             // read the same state in other scope
-            stateObserver.observeReads("other scope", onChange) { derivedState.value }
+            stateObserver.observeReads(scope2, onChange) { derivedState.value }
 
             // advance snapshot to invalidate reads
             Snapshot.notifyObjectsInitialized()
 
             // stop observing state in other scope
-            stateObserver.observeReads("other scope", onChange) {
+            stateObserver.observeReads(scope2, onChange) {
                 /* no-op */
             }
         }
@@ -581,20 +583,20 @@ class SnapshotStateObserverTestsCommon {
             stateObserver.start()
             Snapshot.notifyObjectsInitialized()
 
-            val onChange: (String) -> Unit = { scope ->
-                if (scope == "scope" && state1.value < 2) {
+            val onChange: (ValueWrapper) -> Unit = { scope ->
+                if (scope.s == "scope" && state1.value < 2) {
                     state1.value++
                     Snapshot.sendApplyNotifications()
                 }
             }
 
-            stateObserver.observeReads("scope", onChange) {
+            stateObserver.observeReads(ValueWrapper("scope"), onChange) {
                 state1.value
                 state2.value
             }
 
             repeat(10) {
-                stateObserver.observeReads("scope $it", onChange) {
+                stateObserver.observeReads(ValueWrapper("scope $it"), onChange) {
                     state1.value
                     state2.value
                 }
@@ -620,8 +622,8 @@ class SnapshotStateObserverTestsCommon {
             stateObserver.start()
             Snapshot.notifyObjectsInitialized()
 
-            val onChange: (String) -> Unit = { scope ->
-                if (scope == "scope" && state1.value < 2) {
+            val onChange: (ValueWrapper) -> Unit = { scope ->
+                if (scope.s == "scope" && state1.value < 2) {
                     state1.value++
                     Snapshot.sendApplyNotifications()
                     state2.value++
@@ -633,7 +635,7 @@ class SnapshotStateObserverTestsCommon {
                 }
             }
 
-            stateObserver.observeReads("scope", onChange) {
+            stateObserver.observeReads(ValueWrapper("scope"), onChange) {
                 state1.value
                 state2.value
                 state3.value
@@ -641,7 +643,7 @@ class SnapshotStateObserverTestsCommon {
             }
 
             repeat(10) {
-                stateObserver.observeReads("scope $it", onChange) {
+                stateObserver.observeReads(ValueWrapper("scope $it"), onChange) {
                     state1.value
                     state2.value
                     state3.value
@@ -667,16 +669,17 @@ class SnapshotStateObserverTestsCommon {
         runSimpleTest { stateObserver, state ->
             val changeBlock: (Any) -> Unit = { changes++ }
             // record observation
-            stateObserver.observeReads("scope", changeBlock) {
+            val s = ValueWrapper("scope")
+            stateObserver.observeReads(s, changeBlock) {
                 // read state
                 state.value
             }
 
             // clear scope
-            stateObserver.clear("scope")
+            stateObserver.clear(s)
 
             // record again
-            stateObserver.observeReads("scope", changeBlock) {
+            stateObserver.observeReads(s, changeBlock) {
                 // read state
                 state.value
             }
@@ -765,3 +768,6 @@ class SnapshotStateObserverTestsCommon {
         }
     }
 }
+
+// In k/js string is a primitive type and it doesn't have identityHashCode
+private class ValueWrapper(val s: String)

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
+import androidx.wear.compose.material3.samples.IndeterminateProgressArcSample
 import androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
@@ -37,6 +38,7 @@ val ProgressIndicatorScreen =
                 OverflowProgressIndicatorSample()
                 SmallValuesProgressIndicatorSample()
                 IndeterminateProgressIndicatorSample()
+                IndeterminateProgressArcSample()
                 SegmentedProgressIndicatorSample()
                 SegmentedProgressIndicatorBinarySample()
                 SmallSegmentedProgressIndicatorSample()

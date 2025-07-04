@@ -45,7 +45,7 @@ class HealthPermissionsRequestModuleContractTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE)
+                setOf(HealthPermission.READ_STEPS, HealthPermission.WRITE_DISTANCE),
             )
 
         assertThat(intent.action).isEqualTo(RequestMultiplePermissions.ACTION_REQUEST_PERMISSIONS)
@@ -65,8 +65,8 @@ class HealthPermissionsRequestModuleContractTest {
                 HealthPermission.READ_STEPS,
                 HealthPermission.WRITE_STEPS,
                 HealthPermission.WRITE_DISTANCE,
-                HealthPermission.READ_HEART_RATE
-            )
+                HealthPermission.READ_HEART_RATE,
+            ),
         )
         intent.putExtra(
             RequestMultiplePermissions.EXTRA_PERMISSION_GRANT_RESULTS,
@@ -74,8 +74,8 @@ class HealthPermissionsRequestModuleContractTest {
                 PackageManager.PERMISSION_GRANTED,
                 PackageManager.PERMISSION_DENIED,
                 PackageManager.PERMISSION_GRANTED,
-                PackageManager.PERMISSION_DENIED
-            )
+                PackageManager.PERMISSION_DENIED,
+            ),
         )
 
         val result = requestPermissionContract.parseResult(Activity.RESULT_OK, intent)

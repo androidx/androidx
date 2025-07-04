@@ -28,5 +28,5 @@ class HorizontalPagerBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = HorizontalPagerBenchmark,
-        actionSuffix = "HORIZONTAL_PAGER_ACTIVITY"
+        actionSuffix = "HORIZONTAL_PAGER_ACTIVITY",
     )

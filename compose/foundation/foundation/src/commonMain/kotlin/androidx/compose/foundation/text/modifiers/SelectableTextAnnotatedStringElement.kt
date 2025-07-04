@@ -30,7 +30,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 
 /** Element for any text that is in a selection container. */
-internal data class SelectableTextAnnotatedStringElement(
+internal class SelectableTextAnnotatedStringElement(
     private val text: AnnotatedString,
     private val style: TextStyle,
     private val fontFamilyResolver: FontFamily.Resolver,
@@ -43,7 +43,7 @@ internal data class SelectableTextAnnotatedStringElement(
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
     private val color: ColorProducer? = null,
-    private val autoSize: TextAutoSize? = null
+    private val autoSize: TextAutoSize? = null,
 ) : ModifierNodeElement<SelectableTextAnnotatedStringNode>() {
 
     override fun create(): SelectableTextAnnotatedStringNode =
@@ -60,7 +60,7 @@ internal data class SelectableTextAnnotatedStringElement(
             onPlaceholderLayout,
             selectionController,
             color,
-            autoSize
+            autoSize,
         )
 
     override fun update(node: SelectableTextAnnotatedStringNode) {
@@ -77,7 +77,7 @@ internal data class SelectableTextAnnotatedStringElement(
             onPlaceholderLayout = onPlaceholderLayout,
             selectionController = selectionController,
             color = color,
-            autoSize = autoSize
+            autoSize = autoSize,
         )
     }
 

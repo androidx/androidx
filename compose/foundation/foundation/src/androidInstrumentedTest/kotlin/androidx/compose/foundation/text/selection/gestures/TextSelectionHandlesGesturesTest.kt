@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -37,7 +38,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextStyle
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
@@ -47,7 +47,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest() {
 
     override val pointerAreaTag = "selectionContainer"
@@ -65,6 +65,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                     textContent = textContent.value,
                     rule = rule,
                     textToolbar = textToolbar,
+                    spyTextActionModeCallback = spyTextActionModeCallback,
                     hapticFeedback = hapticFeedback,
                     getActual = { currentSelection.value },
                 ) {
@@ -85,15 +86,11 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
         SelectionContainer(
             selection = currentSelection.value,
             onSelectionChange = { currentSelection.value = it },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             BasicText(
                 text = textContent.value,
-                style =
-                    TextStyle(
-                        fontFamily = fontFamily,
-                        fontSize = fontSize,
-                    ),
+                style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 modifier = Modifier.fillMaxWidth().wrapContentHeight().testTag(pointerAreaTag),
             )
         }

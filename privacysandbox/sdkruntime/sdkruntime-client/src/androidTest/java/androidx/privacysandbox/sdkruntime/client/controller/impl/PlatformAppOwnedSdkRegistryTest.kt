@@ -25,7 +25,6 @@ import androidx.annotation.RequiresExtension
 import androidx.core.content.getSystemService
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
-import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -42,7 +41,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
 @RequiresExtension(extension = AD_SERVICES, version = 8)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class PlatformAppOwnedSdkRegistryTest {
 
     private lateinit var context: Context
@@ -52,7 +51,7 @@ class PlatformAppOwnedSdkRegistryTest {
     fun setUp() {
         assumeTrue(
             "Requires AppOwnedInterfacesApi API available",
-            isAppOwnedInterfacesApiAvailable()
+            isAppOwnedInterfacesApiAvailable(),
         )
         context = ApplicationProvider.getApplicationContext()
         sdkRegistry = PlatformAppOwnedSdkRegistry(context)
@@ -122,6 +121,5 @@ class PlatformAppOwnedSdkRegistryTest {
         }
     }
 
-    private fun isAppOwnedInterfacesApiAvailable() =
-        BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 || AdServicesInfo.isDeveloperPreview()
+    private fun isAppOwnedInterfacesApiAvailable() = BuildCompat.AD_SERVICES_EXTENSION_INT >= 8
 }

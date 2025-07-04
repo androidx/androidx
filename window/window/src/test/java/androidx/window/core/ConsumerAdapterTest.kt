@@ -79,7 +79,7 @@ class ConsumerAdapterTest {
             String::class,
             "addConsumer",
             "removeConsumer",
-            mock()
+            mock(),
         ) { s: String ->
             values.add(s)
         }
@@ -102,7 +102,7 @@ class ConsumerAdapterTest {
             String::class,
             "addConsumer",
             "removeConsumer",
-            context
+            context,
         ) { s: String ->
             values.add(s)
         }
@@ -121,7 +121,7 @@ class ConsumerAdapterTest {
                 String::class,
                 "addConsumer",
                 "removeConsumer",
-                mock()
+                mock(),
             ) { s: String ->
                 values.add(s)
             }
@@ -140,7 +140,7 @@ class ConsumerAdapterTest {
                 String::class,
                 "addConsumer",
                 "removeConsumer",
-                context
+                context,
             ) { s: String ->
                 values.add(s)
             }

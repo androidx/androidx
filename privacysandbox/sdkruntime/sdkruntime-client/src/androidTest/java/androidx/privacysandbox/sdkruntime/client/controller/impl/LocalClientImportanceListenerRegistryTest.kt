@@ -49,7 +49,7 @@ class LocalClientImportanceListenerRegistryTest {
                 LocalClientImportanceListenerRegistry.register(
                     sdkPackageName = "LocalClientImportanceListenerRegistryTest.sdk",
                     executor = Runnable::run,
-                    listener = listener
+                    listener = listener,
                 )
                 assertThat(events).isEmpty()
 
@@ -83,12 +83,12 @@ class LocalClientImportanceListenerRegistryTest {
         LocalClientImportanceListenerRegistry.register(
             sdkPackageName = sdkPackage,
             executor = Runnable::run,
-            listener = listener
+            listener = listener,
         )
         LocalClientImportanceListenerRegistry.register(
             sdkPackageName = anotherSdkPackage,
             executor = Runnable::run,
-            listener = listener
+            listener = listener,
         )
         assertThat(LocalClientImportanceListenerRegistry.hasListenersForSdk(sdkPackage)).isTrue()
         assertThat(LocalClientImportanceListenerRegistry.hasListenersForSdk(anotherSdkPackage))

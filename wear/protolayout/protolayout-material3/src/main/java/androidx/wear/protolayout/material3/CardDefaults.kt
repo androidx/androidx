@@ -16,28 +16,82 @@
 
 package androidx.wear.protolayout.material3
 
+import android.graphics.Color
+import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledProgressIndicatorColors
+import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledTonalProgressIndicatorColors
+import androidx.wear.protolayout.material3.CircularProgressIndicatorDefaults.filledVariantProgressIndicatorColors
 import androidx.wear.protolayout.types.LayoutColor
+import androidx.wear.protolayout.types.argb
 
 /**
  * Represents colors used in card components, such as [titleCard] or [appCard].
  *
- * @param background [LayoutColor] which is used to as the background color for the card.
- * @param title the color used for title for the card.
- * @param content the content color for the card.
- * @param time the color used for time for the card.
- * @param label the color used for label for the card.
- * @param secondaryIcon the color used for icon in the data card type.
- * @param secondaryText the color used for secondary label for the data card type.
+ * @param backgroundColor [LayoutColor] which is used to as the background color for the card.
+ * @param titleColor the color used for title for the card.
+ * @param contentColor the content color for the card.
+ * @param timeColor the color used for time for the card.
+ * @param labelColor the color used for label for the card.
+ * @param secondaryIconColor the color used for icon in the data card type.
+ * @param secondaryTextColor the color used for secondary label for the data card type.
+ * @param graphicProgressIndicatorColors the color used for the progress indicator set as graphic of
+ *   the card. If null, uses the default color defined in [circularProgressIndicator] and
+ *   [segmentedCircularProgressIndicator], which is [filledProgressIndicatorColors].
+ * @param graphicIconColor the color used for the icon to be put at the center of the progress
+ *   indicator to compose the graphic. If null, uses the default icon color, which is
+ *   [ColorScheme.primary].
  */
 public class CardColors(
-    public val background: LayoutColor,
-    public val title: LayoutColor,
-    public val content: LayoutColor,
-    public val time: LayoutColor = content,
-    public val label: LayoutColor = title,
-    public val secondaryIcon: LayoutColor = title,
-    public val secondaryText: LayoutColor = time,
-)
+    public val backgroundColor: LayoutColor = Color.BLACK.argb,
+    public val titleColor: LayoutColor = Color.BLACK.argb,
+    public val contentColor: LayoutColor = Color.BLACK.argb,
+    public val timeColor: LayoutColor = contentColor,
+    public val labelColor: LayoutColor = titleColor,
+    public val secondaryIconColor: LayoutColor = titleColor,
+    public val secondaryTextColor: LayoutColor = timeColor,
+    public val graphicProgressIndicatorColors: ProgressIndicatorColors? = null,
+    public val graphicIconColor: LayoutColor? = null,
+) {
+    /**
+     * Returns a copy of this [CardColors], optionally overriding some of the values.
+     *
+     * @param backgroundColor [LayoutColor] which is used to as the background color for the card.
+     * @param titleColor the color used for title for the card.
+     * @param contentColor the content color for the card.
+     * @param timeColor the color used for time for the card.
+     * @param labelColor the color used for label for the card.
+     * @param secondaryIconColor the color used for icon in the data card type.
+     * @param secondaryTextColor the color used for secondary label for the data card type.
+     * @param graphicProgressIndicatorColors the color used for the progress indicator set as
+     *   graphic of the card. If null, uses the default color defined in [circularProgressIndicator]
+     *   and [segmentedCircularProgressIndicator], which is [filledProgressIndicatorColors].
+     * @param graphicIconColor the color used for the icon to be put at the center of the progress
+     *   indicator to compose the graphic. If null, uses the default icon color, which is
+     *   [ColorScheme.primary].
+     */
+    public fun copy(
+        backgroundColor: LayoutColor = this.backgroundColor,
+        titleColor: LayoutColor = this.titleColor,
+        contentColor: LayoutColor = this.contentColor,
+        timeColor: LayoutColor = this.timeColor,
+        labelColor: LayoutColor = this.labelColor,
+        secondaryIconColor: LayoutColor = this.secondaryIconColor,
+        secondaryTextColor: LayoutColor = this.secondaryTextColor,
+        graphicProgressIndicatorColors: ProgressIndicatorColors? =
+            this.graphicProgressIndicatorColors,
+        graphicIconColor: LayoutColor? = this.graphicIconColor,
+    ): CardColors =
+        CardColors(
+            backgroundColor = backgroundColor,
+            titleColor = titleColor,
+            contentColor = contentColor,
+            timeColor = timeColor,
+            labelColor = labelColor,
+            secondaryIconColor = secondaryIconColor,
+            secondaryTextColor = secondaryTextColor,
+            graphicProgressIndicatorColors = graphicProgressIndicatorColors,
+            graphicIconColor = graphicIconColor,
+        )
+}
 
 public object CardDefaults {
     /**
@@ -45,54 +99,63 @@ public object CardDefaults {
      * common action on a screen.
      *
      * These colors are using [ColorScheme.primary] for background color and [ColorScheme.onPrimary]
-     * for content colors.
+     * for content colors from the given [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledCardColors(): CardColors =
         CardColors(
-            background = theme.colorScheme.primary,
-            title = theme.colorScheme.onPrimary,
-            content = theme.colorScheme.onPrimary.withOpacity(0.8f)
+            backgroundColor = theme.colorScheme.primary,
+            titleColor = theme.colorScheme.onPrimary,
+            contentColor = theme.colorScheme.onPrimary.withOpacity(0.8f),
+            graphicProgressIndicatorColors = filledProgressIndicatorColors(),
+            graphicIconColor = theme.colorScheme.primaryContainer,
         )
 
     /**
      * [CardColors] for the medium-emphasis card.
      *
      * These colors are using [ColorScheme.surfaceContainer] for background color and
-     * [ColorScheme.onSurface] and [ColorScheme.onSurfaceVariant] for content colors.
+     * [ColorScheme.onSurface] and [ColorScheme.onSurfaceVariant] for content colors from the given
+     * [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.filledTonalCardColors(): CardColors =
         CardColors(
-            background = theme.colorScheme.surfaceContainer,
-            title = theme.colorScheme.onSurface,
-            content = theme.colorScheme.onSurfaceVariant,
-            secondaryIcon = theme.colorScheme.primary
+            backgroundColor = theme.colorScheme.surfaceContainer,
+            titleColor = theme.colorScheme.onSurface,
+            contentColor = theme.colorScheme.onSurfaceVariant,
+            secondaryIconColor = theme.colorScheme.primary,
+            graphicProgressIndicatorColors = filledTonalProgressIndicatorColors(),
+            graphicIconColor = theme.colorScheme.primaryDim,
         )
 
     /**
      * Alternative [CardColors] for the high-emphasis card.
      *
      * These colors are using [ColorScheme.primaryContainer] for background color and
-     * [ColorScheme.primaryContainer] for content colors.
+     * [ColorScheme.primaryContainer] for content colors from the given [MaterialScope]'s
+     * [ColorScheme].
      */
     public fun MaterialScope.filledVariantCardColors(): CardColors =
         CardColors(
-            background = theme.colorScheme.primaryContainer,
-            title = theme.colorScheme.onPrimaryContainer,
-            content = theme.colorScheme.onPrimaryContainer.withOpacity(0.9f)
+            backgroundColor = theme.colorScheme.primaryContainer,
+            titleColor = theme.colorScheme.onPrimaryContainer,
+            contentColor = theme.colorScheme.onPrimaryContainer.withOpacity(0.9f),
+            graphicProgressIndicatorColors = filledVariantProgressIndicatorColors(),
+            graphicIconColor = theme.colorScheme.primaryDim,
         )
 
     /**
      * Alternative [CardColors] for the card with [backgroundImage] as a background.
      *
-     * These colors are using [ColorScheme.onBackground] for content colors.
+     * These colors are using [ColorScheme.onBackground] for content colors from the given
+     * [MaterialScope]'s [ColorScheme].
      */
     public fun MaterialScope.imageBackgroundCardColors(): CardColors =
         CardColors(
-            background = theme.colorScheme.background,
-            title = theme.colorScheme.onBackground,
-            content = theme.colorScheme.onBackground
+            backgroundColor = theme.colorScheme.background,
+            titleColor = theme.colorScheme.onBackground,
+            contentColor = theme.colorScheme.onBackground,
         )
 
     internal const val METADATA_TAG: String = "CR"
-    internal const val DEFAULT_CONTENT_PADDING: Int = 4
+    internal const val DEFAULT_CONTENT_PADDING = 4f
 }

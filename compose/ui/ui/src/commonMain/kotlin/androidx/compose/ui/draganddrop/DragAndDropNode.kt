@@ -47,7 +47,7 @@ import kotlin.jvm.JvmName
     message =
         "This interface is deprecated in favor to " +
             "DragAndDropSourceModifierNode and DragAndDropTargetModifierNode",
-    replaceWith = ReplaceWith("DragAndDropSourceModifierNode")
+    replaceWith = ReplaceWith("DragAndDropSourceModifierNode"),
 )
 interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
     /**
@@ -120,7 +120,7 @@ sealed interface DragAndDropTargetModifierNode : LayoutAwareModifierNode
  */
 @Deprecated(
     message = "Use DragAndDropSourceModifierNode instead",
-    replaceWith = ReplaceWith("DragAndDropSourceModifierNode")
+    replaceWith = ReplaceWith("DragAndDropSourceModifierNode"),
 )
 @Suppress("DEPRECATION")
 @JsName("funDragAndDropModifierNode1")
@@ -138,13 +138,13 @@ fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode(onStart
  */
 @Deprecated(
     message = "Use DragAndDropTargetModifierNode instead",
-    replaceWith = ReplaceWith("DragAndDropTargetModifierNode")
+    replaceWith = ReplaceWith("DragAndDropTargetModifierNode"),
 )
 @Suppress("DEPRECATION")
 @JsName("funDragAndDropModifierNode2")
 fun DragAndDropModifierNode(
     shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
-    target: DragAndDropTarget
+    target: DragAndDropTarget,
 ): DragAndDropModifierNode =
     DragAndDropNode(
         onDropTargetValidate = { event -> if (shouldStartDragAndDrop(event)) target else null }
@@ -158,7 +158,7 @@ fun DragAndDropModifierNode(
  *   It takes an [Offset] parameter representing the start position of the drag.
  */
 fun DragAndDropSourceModifierNode(
-    onStartTransfer: DragAndDropStartTransferScope.(Offset) -> Unit,
+    onStartTransfer: DragAndDropStartTransferScope.(Offset) -> Unit
 ): DragAndDropSourceModifierNode = DragAndDropNode(onStartTransfer = onStartTransfer)
 
 /**
@@ -172,7 +172,7 @@ fun DragAndDropSourceModifierNode(
  */
 fun DragAndDropTargetModifierNode(
     shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
-    target: DragAndDropTarget
+    target: DragAndDropTarget,
 ): DragAndDropTargetModifierNode =
     DragAndDropNode(
         onDropTargetValidate = { event -> if (shouldStartDragAndDrop(event)) target else null }
@@ -269,7 +269,7 @@ internal class DragAndDropNode(
      */
     fun DragAndDropStartTransferScope.startDragAndDropTransfer(
         offset: Offset,
-        isTransferStarted: () -> Boolean
+        isTransferStarted: () -> Boolean,
     ) {
         val nodeCoordinates = requireLayoutNode().coordinates
         traverseSelfAndDescendants { currentNode ->
@@ -308,7 +308,7 @@ internal class DragAndDropNode(
     override fun drag(
         transferData: DragAndDropTransferData,
         decorationSize: Size,
-        drawDragDecoration: DrawScope.() -> Unit
+        drawDragDecoration: DrawScope.() -> Unit,
     ) {
         checkPrecondition(onStartTransfer == null)
         onStartTransfer = {

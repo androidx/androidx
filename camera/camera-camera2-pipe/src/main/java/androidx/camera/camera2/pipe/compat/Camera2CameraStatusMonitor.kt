@@ -100,7 +100,7 @@ internal class Camera2CameraStatusMonitor(
             Api28Compat.registerAvailabilityCallback(
                 manager,
                 threads.lightweightExecutor,
-                availabilityCallback
+                availabilityCallback,
             )
         } else {
             manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)

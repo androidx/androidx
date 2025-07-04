@@ -37,7 +37,7 @@ object AnimatedIconButtonBenchmark : ButtonBenchmarkBase {
             Column(
                 Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceAround,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 repeat(4) {
                     IconButton(
@@ -47,12 +47,12 @@ object AnimatedIconButtonBenchmark : ButtonBenchmarkBase {
                             },
                         colors = IconButtonDefaults.filledIconButtonColors(),
                         shapes = IconButtonDefaults.animatedShapes(),
-                        onClick = {}
+                        onClick = {},
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.ic_favorite_rounded),
                             contentDescription = null,
-                            modifier = Modifier.size(IconButtonDefaults.DefaultIconSize)
+                            modifier = Modifier.size(IconButtonDefaults.DefaultIconSize),
                         )
                     }
                 }

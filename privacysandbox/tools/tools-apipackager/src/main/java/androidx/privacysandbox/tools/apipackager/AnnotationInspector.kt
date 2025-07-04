@@ -44,7 +44,7 @@ internal object AnnotationInspector {
         val annotationExtractor = AnnotationExtractor()
         reader.accept(
             annotationExtractor,
-            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES
+            ClassReader.SKIP_CODE or ClassReader.SKIP_DEBUG or ClassReader.SKIP_FRAMES,
         )
         return annotationExtractor.hasPrivacySandboxAnnotation
     }

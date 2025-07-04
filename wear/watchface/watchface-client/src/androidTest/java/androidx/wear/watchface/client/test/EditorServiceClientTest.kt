@@ -52,12 +52,12 @@ public class EditorServiceClientTest {
                 UserStyleWireFormat(
                     mapOf(
                         "color" to "red".encodeToByteArray(),
-                        "size" to "small".encodeToByteArray()
+                        "size" to "small".encodeToByteArray(),
                     )
                 ),
                 emptyList(),
                 true,
-                null
+                null,
             )
         )
 

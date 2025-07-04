@@ -215,11 +215,7 @@ class MapSubjectTest {
 
     @Test
     fun containsAtLeastWithNullKey() {
-        val actual =
-            mapOf(
-                null to "value",
-                "unexpectedKey" to "unexpectedValue",
-            )
+        val actual = mapOf(null to "value", "unexpectedKey" to "unexpectedValue")
 
         val expected = mapOf<String?, String>(null to "value")
 
@@ -231,11 +227,7 @@ class MapSubjectTest {
 
     @Test
     fun containsAtLeastWithNullValue() {
-        val actual =
-            mapOf(
-                "key" to null,
-                "unexpectedKey" to "unexpectedValue",
-            )
+        val actual = mapOf("key" to null, "unexpectedKey" to "unexpectedValue")
 
         val expected = mapOf<String, String?>("key" to null)
 

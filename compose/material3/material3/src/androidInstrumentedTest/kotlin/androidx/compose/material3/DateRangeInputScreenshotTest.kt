@@ -40,7 +40,6 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @get:Rule val rule = createComposeRule()
@@ -56,7 +55,7 @@ class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
             Box(wrap.testTag(wrapperTestTag)) {
                 DateRangePicker(
                     state = rememberDateRangePickerState(initialDisplayMode = DisplayMode.Input),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }
@@ -86,9 +85,9 @@ class DateRangeInputScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         rememberDateRangePickerState(
                             initialSelectedStartDateMillis = startDayMillis,
                             initialSelectedEndDateMillis = endDayMillis,
-                            initialDisplayMode = DisplayMode.Input
+                            initialDisplayMode = DisplayMode.Input,
                         ),
-                    showModeToggle = false
+                    showModeToggle = false,
                 )
             }
         }

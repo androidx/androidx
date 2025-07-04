@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedFinal: androidx.navigation.NavController#clearBackStack():
+    Method androidx.navigation.NavController.clearBackStack has added 'final' qualifier
+AddedFinal: androidx.navigation.NavController#getBackStackEntry():
+    Method androidx.navigation.NavController.getBackStackEntry has added 'final' qualifier
+AddedFinal: androidx.navigation.NavController#popBackStack(boolean, boolean):
+    Method androidx.navigation.NavController.popBackStack has added 'final' qualifier

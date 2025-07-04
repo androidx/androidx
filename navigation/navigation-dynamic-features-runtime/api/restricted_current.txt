@@ -11,7 +11,7 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicActivityNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     method public String? getModuleName();
     method public void setModuleName(String?);
-    property public final String? moduleName;
+    property public String? moduleName;
   }
 
   @androidx.navigation.NavDestinationDsl public final class DynamicActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
@@ -31,12 +31,12 @@ package androidx.navigation.dynamicfeatures {
     method public void setDataPattern(String?);
     method public void setModuleName(String?);
     method public void setTargetPackage(String?);
-    property public final String? action;
-    property public final String? activityClassName;
-    property public final android.net.Uri? data;
-    property public final String? dataPattern;
-    property public final String? moduleName;
-    property public final String? targetPackage;
+    property public String? action;
+    property public String? activityClassName;
+    property public android.net.Uri? data;
+    property public String? dataPattern;
+    property public String? moduleName;
+    property public String? targetPackage;
   }
 
   public final class DynamicActivityNavigatorDestinationBuilderKt {
@@ -51,8 +51,8 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicExtras(optional androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor, optional androidx.navigation.Navigator.Extras? destinationExtras);
     method public androidx.navigation.Navigator.Extras? getDestinationExtras();
     method public androidx.navigation.dynamicfeatures.DynamicInstallMonitor? getInstallMonitor();
-    property public final androidx.navigation.Navigator.Extras? destinationExtras;
-    property public final androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor;
+    property public androidx.navigation.Navigator.Extras? destinationExtras;
+    property public androidx.navigation.dynamicfeatures.DynamicInstallMonitor? installMonitor;
   }
 
   @androidx.navigation.Navigator.Name("navigation") public final class DynamicGraphNavigator extends androidx.navigation.NavGraphNavigator {
@@ -67,8 +67,8 @@ package androidx.navigation.dynamicfeatures {
     method public int getProgressDestination();
     method public void setModuleName(String?);
     method public void setProgressDestination(int);
-    property public final String? moduleName;
-    property public final int progressDestination;
+    property public String? moduleName;
+    property public int progressDestination;
   }
 
   @androidx.navigation.Navigator.Name("include-dynamic") public final class DynamicIncludeGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
@@ -83,9 +83,9 @@ package androidx.navigation.dynamicfeatures {
     method public void setGraphPackage(String?);
     method public void setGraphResourceName(String?);
     method public void setModuleName(String?);
-    property public final String? graphPackage;
-    property public final String? graphResourceName;
-    property public final String? moduleName;
+    property public String? graphPackage;
+    property public String? graphResourceName;
+    property public String? moduleName;
   }
 
   @androidx.navigation.NavDestinationDsl public final class DynamicIncludeNavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph> {
@@ -95,7 +95,7 @@ package androidx.navigation.dynamicfeatures {
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph build();
     method public String? getGraphPackage();
     method public void setGraphPackage(String?);
-    property public final String? graphPackage;
+    property public String? graphPackage;
   }
 
   public final class DynamicIncludeNavGraphBuilderKt {
@@ -118,10 +118,10 @@ package androidx.navigation.dynamicfeatures {
     method public int getSessionId();
     method public androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState> getStatus();
     method public boolean isInstallRequired();
-    property public final Exception? exception;
-    property public final boolean isInstallRequired;
-    property public final int sessionId;
-    property public final androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState> status;
+    property public Exception? exception;
+    property public boolean isInstallRequired;
+    property public int sessionId;
+    property public androidx.lifecycle.LiveData<com.google.android.play.core.splitinstall.SplitInstallSessionState> status;
   }
 
   @androidx.navigation.NavDestinationDsl public final class DynamicNavGraphBuilder extends androidx.navigation.NavGraphBuilder {
@@ -135,9 +135,9 @@ package androidx.navigation.dynamicfeatures {
     method public void setModuleName(String?);
     method public void setProgressDestination(int);
     method public void setProgressDestinationRoute(String?);
-    property public final String? moduleName;
-    property public final int progressDestination;
-    property public final String? progressDestinationRoute;
+    property public String? moduleName;
+    property public int progressDestination;
+    property public String? progressDestinationRoute;
   }
 
   public final class DynamicNavGraphBuilderKt {

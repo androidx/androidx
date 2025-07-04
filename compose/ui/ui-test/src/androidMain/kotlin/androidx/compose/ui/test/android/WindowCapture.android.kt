@@ -67,7 +67,7 @@ internal fun runWithRetryWhenNoData(retryBlock: () -> Unit) {
             if (e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA && retryAttempts >= 2) {
                 throw PixelCopyException(
                     e.copyResultStatus,
-                    "PixelCopy failed with result ERROR_SOURCE_NO_DATA after 3 retry attempts!"
+                    "PixelCopy failed with result ERROR_SOURCE_NO_DATA after 3 retry attempts!",
                 )
             } else if (e.copyResultStatus == PixelCopy.ERROR_SOURCE_NO_DATA) {
                 shouldRetry = true
@@ -130,7 +130,7 @@ private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
         Bitmap.createBitmap(
             boundsInWindow.width(),
             boundsInWindow.height(),
-            Bitmap.Config.ARGB_8888
+            Bitmap.Config.ARGB_8888,
         )
     generateBitmapFromPixelCopy(boundsInWindow, destBitmap)
     return destBitmap
@@ -150,7 +150,7 @@ private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap:
         boundsInWindow,
         destBitmap,
         onCopyFinished,
-        Handler(Looper.getMainLooper())
+        Handler(Looper.getMainLooper()),
     )
 
     if (!latch.await(1, TimeUnit.SECONDS)) {
@@ -194,7 +194,7 @@ private object PixelCopyHelper {
         srcRect: Rect?,
         dest: Bitmap,
         listener: PixelCopy.OnPixelCopyFinishedListener,
-        listenerThread: Handler
+        listenerThread: Handler,
     ) {
         PixelCopy.request(source, srcRect, dest, listener, listenerThread)
     }

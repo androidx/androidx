@@ -22,7 +22,7 @@ class AnswerConverter {
 
     enum class Answer {
         YES,
-        NO
+        NO,
     }
 
     @TypeConverter fun toAnswer(value: String?) = value?.let { Answer.valueOf(it) }

@@ -73,18 +73,18 @@ interface TypeConverterStore {
         fun create(
             context: Context,
             typeConverters: List<TypeConverter>,
-            knownColumnTypes: List<XType>
+            knownColumnTypes: List<XType>,
         ) =
             if (context.useNullAwareConverter) {
                 NullAwareTypeConverterStore(
                     context = context,
                     typeConverters = typeConverters,
-                    knownColumnTypes = knownColumnTypes
+                    knownColumnTypes = knownColumnTypes,
                 )
             } else {
                 TypeConverterStoreImpl(
                     typeConverters = typeConverters,
-                    knownColumnTypes = knownColumnTypes
+                    knownColumnTypes = knownColumnTypes,
                 )
             }
     }

@@ -166,7 +166,7 @@ internal value class TestValueClassList(val list: LongList) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: TestValueClass) -> R
+        operation: (index: Int, acc: R, element: TestValueClass) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldIndexed(initial) { index, acc, element ->
@@ -185,7 +185,7 @@ internal value class TestValueClassList(val list: LongList) {
      */
     public inline fun <R> foldRight(
         initial: R,
-        operation: (element: TestValueClass, acc: R) -> R
+        operation: (element: TestValueClass, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldRight(initial) { element, acc ->
@@ -199,7 +199,7 @@ internal value class TestValueClassList(val list: LongList) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: TestValueClass, acc: R) -> R
+        operation: (index: Int, element: TestValueClass, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldRightIndexed(initial) { index, element, acc ->
@@ -280,7 +280,7 @@ internal value class TestValueClassList(val list: LongList) {
      */
     public inline fun elementAtOrElse(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> TestValueClass
+        defaultValue: (index: Int) -> TestValueClass,
     ): TestValueClass =
         TestValueClass(list.elementAtOrElse(index) { defaultValue(it).value.toLong() }.toULong())
 
@@ -485,7 +485,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: TestValueClass) -> R
+        operation: (index: Int, acc: R, element: TestValueClass) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldIndexed(initial) { index, acc, element ->
@@ -504,7 +504,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun <R> foldRight(
         initial: R,
-        operation: (element: TestValueClass, acc: R) -> R
+        operation: (element: TestValueClass, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldRight(initial) { element, acc ->
@@ -518,7 +518,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: TestValueClass, acc: R) -> R
+        operation: (index: Int, element: TestValueClass, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         return list.foldRightIndexed(initial) { index, element, acc ->
@@ -599,7 +599,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun elementAtOrElse(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> TestValueClass
+        defaultValue: (index: Int) -> TestValueClass,
     ): TestValueClass =
         TestValueClass(list.elementAtOrElse(index) { defaultValue(it).value.toLong() }.toULong())
 
@@ -687,7 +687,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun add(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        element: TestValueClass
+        element: TestValueClass,
     ) = list.add(index, element.value.toLong())
 
     /**
@@ -700,7 +700,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun addAll(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: TestValueClassList
+        elements: TestValueClassList,
     ): Boolean = list.addAll(index, elements.list)
 
     /**
@@ -713,7 +713,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun addAll(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: MutableTestValueClassList
+        elements: MutableTestValueClassList,
     ): Boolean = list.addAll(index, elements.list)
 
     /**
@@ -813,7 +813,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline fun removeRange(
         @androidx.annotation.IntRange(from = 0) start: Int,
-        @androidx.annotation.IntRange(from = 0) end: Int
+        @androidx.annotation.IntRange(from = 0) end: Int,
     ) = list.removeRange(start, end)
 
     /**
@@ -840,7 +840,7 @@ internal value class MutableTestValueClassList(val list: MutableLongList) {
      */
     public inline operator fun set(
         @androidx.annotation.IntRange(from = 0) index: Int,
-        element: TestValueClass
+        element: TestValueClass,
     ): TestValueClass = TestValueClass(list.set(index, element.value.toLong()).toULong())
 }
 
@@ -861,7 +861,7 @@ internal inline fun testValueClassListOf(element1: TestValueClass): TestValueCla
  */
 internal inline fun testValueClassListOf(
     element1: TestValueClass,
-    element2: TestValueClass
+    element2: TestValueClass,
 ): TestValueClassList =
     TestValueClassList(mutableLongListOf(element1.value.toLong(), element2.value.toLong()))
 
@@ -872,7 +872,7 @@ internal inline fun testValueClassListOf(
 internal inline fun testValueClassListOf(
     element1: TestValueClass,
     element2: TestValueClass,
-    element3: TestValueClass
+    element3: TestValueClass,
 ): TestValueClassList =
     TestValueClassList(
         mutableLongListOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
@@ -892,7 +892,7 @@ internal inline fun mutableTestValueClassListOf(
  */
 internal inline fun mutableTestValueClassListOf(
     element1: TestValueClass,
-    element2: TestValueClass
+    element2: TestValueClass,
 ): MutableTestValueClassList =
     MutableTestValueClassList(mutableLongListOf(element1.value.toLong(), element2.value.toLong()))
 
@@ -903,7 +903,7 @@ internal inline fun mutableTestValueClassListOf(
 internal inline fun mutableTestValueClassListOf(
     element1: TestValueClass,
     element2: TestValueClass,
-    element3: TestValueClass
+    element3: TestValueClass,
 ): MutableTestValueClassList =
     MutableTestValueClassList(
         mutableLongListOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())

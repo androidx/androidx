@@ -43,4 +43,10 @@ internal interface SubspaceOwner {
      * @param node the node that is being detached from this owner's element system.
      */
     public fun onDetach(node: SubspaceLayoutNode)
+
+    /**
+     * Called by [SubspaceLayoutNode] when it needs to be re-laid out due to a change that doesn't
+     * trigger a recomposition.
+     */
+    public fun requestRelayout()
 }

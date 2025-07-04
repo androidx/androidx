@@ -15,8 +15,7 @@
  */
 
 import androidx.build.AndroidXConfig
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -37,11 +36,6 @@ androidXMultiplatform {
     jvm()
     androidLibrary {
         namespace = "androidx.benchmark.traceprocessor"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
     }
 
     defaultPlatform(PlatformIdentifier.JVM)
@@ -65,6 +59,7 @@ tasks.withType(KotlinCompile).configureEach {
         // Enable using experimental APIs from within same version group
         freeCompilerArgs += [
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
         ]
     }
 }
@@ -134,9 +129,8 @@ wire {
 
 androidx {
     name = "Benchmark TraceProcessor"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "AndroidX Benchmark TraceProcessor"
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    samples(project(":benchmark:benchmark-samples"))
 }

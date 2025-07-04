@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -70,7 +71,7 @@ class IsDisplayedTest(val config: TestConfig) {
         fun createTestSet(): List<TestConfig> =
             listOf(
                 TestConfig(ComponentActivity::class.java),
-                TestConfig(CustomComposeHostActivity::class.java)
+                TestConfig(CustomComposeHostActivity::class.java),
             )
     }
 
@@ -310,6 +311,44 @@ class IsDisplayedTest(val config: TestConfig) {
         setContent { Item(0) }
 
         assertThat(rule.onNodeWithTag("item0").isNotDisplayed()).isFalse()
+    }
+
+    @Test
+    fun isDisplayed_throws_whenNodeIsNotVisible() {
+        setContent { Item(0) }
+        val interaction = rule.onNodeWithTag("item1")
+        val message = "Assert failed: The component with TestTag = 'item1' is not displayed!"
+        val error = assertFailsWith<AssertionError> { interaction.assertIsDisplayed() }
+        assertThat(error.message).isEqualTo(message)
+    }
+
+    @Test
+    fun isNotDisplayed_throws_whenNodeIsVisible() {
+        setContent { Item(0) }
+        val interaction = rule.onNodeWithTag("item0")
+        val message = "Assert failed: The component with TestTag = 'item0' is displayed!"
+        val error = assertFailsWith<AssertionError> { interaction.assertIsNotDisplayed() }
+        assertThat(error.message).isEqualTo(message)
+    }
+
+    @Test
+    fun isDisplayed_throws_whenNodeIsNotVisibleWithText() {
+        setContent { BasicText(text = "item0") }
+        val interaction = rule.onNodeWithText("item1")
+        val message =
+            "Assert failed: The component with Text + InputText + EditableText contains 'item1' (ignoreCase: false) is not displayed!"
+        val error = assertFailsWith<AssertionError> { interaction.assertIsDisplayed() }
+        assertThat(error.message).isEqualTo(message)
+    }
+
+    @Test
+    fun isNotDisplayed_throws_whenNodeIsVisibleWithText() {
+        setContent { BasicText(text = "item0") }
+        val interaction = rule.onNodeWithText("item0")
+        val message =
+            "Assert failed: The component with Text + InputText + EditableText contains 'item0' (ignoreCase: false) is displayed!"
+        val error = assertFailsWith<AssertionError> { interaction.assertIsNotDisplayed() }
+        assertThat(error.message).isEqualTo(message)
     }
 
     private fun setContent(content: @Composable () -> Unit) {

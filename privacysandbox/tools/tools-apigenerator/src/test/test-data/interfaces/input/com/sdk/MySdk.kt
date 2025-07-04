@@ -4,6 +4,7 @@ import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.PrivacySandboxInterface
 import androidx.privacysandbox.tools.PrivacySandboxService
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.core.SharedUiAdapter
 import androidx.privacysandbox.activity.core.SdkActivityLauncher
 
 @PrivacySandboxService
@@ -13,15 +14,17 @@ interface MySdk {
     suspend fun maybeGetInterface(): MyInterface?
 
     suspend fun getUiInterface(): MySecondInterface
+
+    suspend fun getSharedUiInterface(): MySharedUiInterface
 }
 
 @PrivacySandboxInterface
 interface MyInterface {
     suspend fun add(x: Int, y: Int): Int
 
-    fun doSomething(firstInterface: MyInterface, secondInterface: MySecondInterface)
+    fun doSomething(firstInterface: MyInterface, secondInterface: MySecondInterface, sharedUiInterface: MySharedUiInterface)
 
-    fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?)
+    fun doSomethingWithNullableInterface(maybeInterface: MySecondInterface?, maybeSharedUiInterface: MySharedUiInterface?)
 
     public fun doSomethingWithSdkActivityLauncher(launcher: SdkActivityLauncher)
 
@@ -44,4 +47,9 @@ interface MyInterface {
 @PrivacySandboxInterface
 interface MySecondInterface : SandboxedUiAdapter {
    fun doStuff()
+}
+
+@PrivacySandboxInterface
+interface MySharedUiInterface : SharedUiAdapter {
+    fun doStuff()
 }

@@ -18,7 +18,7 @@ package androidx.compose.runtime
 
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
-    message = "This in experimental API that may change frequently and without warning."
+    message = "This in experimental API that may change frequently and without warning.",
 )
 @Target(
     AnnotationTarget.CLASS,
@@ -28,4 +28,4 @@ package androidx.compose.runtime
     AnnotationTarget.PROPERTY_GETTER,
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalComposeRuntimeApi
+public annotation class ExperimentalComposeRuntimeApi

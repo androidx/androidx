@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
@@ -23,13 +24,13 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -55,7 +56,7 @@ internal fun rememberPagerMeasurePolicy(
     coroutineScope: CoroutineScope,
     pageCount: () -> Int,
 ) =
-    remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
+    remember(
         state,
         contentPadding,
         reverseLayout,
@@ -67,14 +68,14 @@ internal fun rememberPagerMeasurePolicy(
         snapPosition,
         pageCount,
         beyondViewportPageCount,
-        coroutineScope
+        coroutineScope,
     ) {
-        { containerConstraints ->
+        LazyLayoutMeasurePolicy { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
             val isVertical = orientation == Orientation.Vertical
             checkScrollableContainerConstraints(
                 containerConstraints,
-                if (isVertical) Orientation.Vertical else Orientation.Horizontal
+                if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             )
 
             // resolve content paddings
@@ -132,7 +133,7 @@ internal fun rememberPagerMeasurePolicy(
                     // we offset start padding by negative space between paddings.
                     IntOffset(
                         if (isVertical) startPadding else startPadding + mainAxisAvailableSize,
-                        if (isVertical) topPadding + mainAxisAvailableSize else topPadding
+                        if (isVertical) topPadding + mainAxisAvailableSize else topPadding,
                     )
                 }
 
@@ -155,7 +156,7 @@ internal fun rememberPagerMeasurePolicy(
                             contentConstraints.maxHeight
                         } else {
                             pageAvailableSize
-                        }
+                        },
                 )
             val itemProvider = itemProviderLambda()
 
@@ -174,15 +175,17 @@ internal fun rememberPagerMeasurePolicy(
                         afterContentPadding,
                         state.currentPage,
                         state.currentPageOffsetFraction,
-                        state.pageCount
+                        state.pageCount,
                     )
             }
 
             val pinnedPages =
                 itemProvider.calculateLazyLayoutPinnedIndices(
                     pinnedItemList = state.pinnedPages,
-                    beyondBoundsInfo = state.beyondBoundsInfo
+                    beyondBoundsInfo = state.beyondBoundsInfo,
                 )
+
+            val placeablesCache = mutableIntObjectMapOf<List<Placeable>>()
 
             // todo: wrap with snapshot when b/341782245 is resolved
             val measureResult =
@@ -207,14 +210,15 @@ internal fun rememberPagerMeasurePolicy(
                     snapPosition = snapPosition,
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     coroutineScope = coroutineScope,
+                    placeablesCache = placeablesCache,
                     layout = { width, height, placement ->
                         layout(
                             containerConstraints.constrainWidth(width + totalHorizontalPadding),
                             containerConstraints.constrainHeight(height + totalVerticalPadding),
                             emptyMap(),
-                            placement
+                            placement,
                         )
-                    }
+                    },
                 )
             state.applyMeasureResult(measureResult, isLookingAhead = isLookingAhead)
             measureResult

@@ -181,7 +181,7 @@ class RecompositionTest {
             name: String,
             composables: GetComposablesResponse,
             parameters: GetAllParametersResponse,
-            predicate: (String) -> Boolean
+            predicate: (String) -> Boolean,
         ): ComposableNode {
             val strings = composables.stringsList.toMap()
             return composables.rootsList
@@ -194,7 +194,7 @@ class RecompositionTest {
         private fun hasText(
             node: ComposableNode,
             parameters: GetAllParametersResponse,
-            predicate: (String) -> Boolean
+            predicate: (String) -> Boolean,
         ): Boolean {
             val strings = parameters.stringsList.toMap()
             val group = parameters.parameterGroupsList.single { it.composableId == node.id }

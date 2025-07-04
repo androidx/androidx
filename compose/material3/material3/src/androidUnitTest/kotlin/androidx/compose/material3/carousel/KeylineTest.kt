@@ -39,7 +39,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = carouselMainAxisSize,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(SmallSize, isAnchor = true)
                 add(LargeSize)
@@ -57,7 +57,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = carouselMainAxisSize,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.End
+                carouselAlignment = CarouselAlignment.End,
             ) {
                 add(SmallSize, isAnchor = true)
                 add(MediumSize)
@@ -106,7 +106,7 @@ class KeylineTest {
                 carouselMainAxisSize = carouselMainAxisSize,
                 itemSpacing = 0f,
                 pivotIndex = 1,
-                pivotOffset = StrategyTest.large / 2
+                pivotOffset = StrategyTest.large / 2,
             ) {
                 add(StrategyTest.xSmall, isAnchor = true)
                 add(StrategyTest.large)
@@ -119,7 +119,7 @@ class KeylineTest {
                 carouselMainAxisSize = carouselMainAxisSize,
                 itemSpacing = 0f,
                 pivotIndex = 2,
-                pivotOffset = StrategyTest.small + (StrategyTest.large / 2)
+                pivotOffset = StrategyTest.small + (StrategyTest.large / 2),
             ) {
                 add(StrategyTest.xSmall, isAnchor = true)
                 add(StrategyTest.small)
@@ -138,7 +138,7 @@ class KeylineTest {
                     Keyline(60f, 30f, 10f, false, false, false, 0f),
                     Keyline(80f, 100f, 110f, true, false, true, 0f),
                     Keyline(40f, 160f, 210f, false, false, false, 0f),
-                    Keyline(StrategyTest.xSmall, 182.5f, 310f, false, true, false, 0f)
+                    Keyline(StrategyTest.xSmall, 182.5f, 310f, false, true, false, 0f),
                 )
             )
 
@@ -153,7 +153,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 120f,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(10f, true)
                 add(100f)
@@ -164,7 +164,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 120f,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(10f, true)
                 add(100f)
@@ -182,7 +182,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 120f,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(11f, true)
                 add(100f)
@@ -193,7 +193,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 120f,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(10f, true)
                 add(100f)
@@ -211,7 +211,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 380f,
                 itemSpacing = 8f,
-                carouselAlignment = CarouselAlignment.Start
+                carouselAlignment = CarouselAlignment.Start,
             ) {
                 add(10f, isAnchor = true)
                 add(186f)
@@ -235,7 +235,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 768f,
                 itemSpacing = 8f,
-                carouselAlignment = CarouselAlignment.Center
+                carouselAlignment = CarouselAlignment.Center,
             ) {
                 add(10f, isAnchor = true)
                 add(56f)
@@ -263,7 +263,7 @@ class KeylineTest {
             keylineListOf(
                 carouselMainAxisSize = 380f,
                 itemSpacing = 8f,
-                carouselAlignment = CarouselAlignment.End
+                carouselAlignment = CarouselAlignment.End,
             ) {
                 add(10f, isAnchor = true)
                 add(56f)
@@ -296,7 +296,7 @@ class KeylineTest {
             return keylineListOf(
                 carouselMainAxisSize = carouselMainAxisSize,
                 itemSpacing = 0f,
-                carouselAlignment = CarouselAlignment.Center
+                carouselAlignment = CarouselAlignment.Center,
             ) {
                 add(XSmallSize, isAnchor = true)
                 add(SmallSize)

@@ -88,15 +88,15 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
 
                             override fun areItemsTheSame(
                                 oldItemPosition: Int,
-                                newItemPosition: Int
+                                newItemPosition: Int,
                             ) = idsOld[oldItemPosition] == idsNew[newItemPosition]
 
                             override fun areContentsTheSame(
                                 oldItemPosition: Int,
-                                newItemPosition: Int
+                                newItemPosition: Int,
                             ) = areItemsTheSame(oldItemPosition, newItemPosition)
                         },
-                        true
+                        true,
                     )
                     .dispatchUpdatesTo(viewPager.adapter!!)
             } else {

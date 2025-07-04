@@ -34,7 +34,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @SuppressLint("NewApi")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-open class AdSelectionManagerImplCommon(
+public open class AdSelectionManagerImplCommon(
     protected val mAdSelectionManager: android.adservices.adselection.AdSelectionManager
 ) : AdSelectionManager() {
 
@@ -71,7 +71,7 @@ open class AdSelectionManagerImplCommon(
             mAdSelectionManager.reportImpression(
                 reportImpressionRequest.convertToAdServices(),
                 Runnable::run,
-                continuation.asOutcomeReceiver()
+                continuation.asOutcomeReceiver(),
             )
         }
     }
@@ -95,7 +95,7 @@ open class AdSelectionManagerImplCommon(
         if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersionS() >= 9) {
             return Ext8Impl.updateAdCounterHistogram(
                 mAdSelectionManager,
-                updateAdCounterHistogramRequest
+                updateAdCounterHistogramRequest,
             )
         }
         throw UnsupportedOperationException(
@@ -126,7 +126,7 @@ open class AdSelectionManagerImplCommon(
         ) {
             return Ext10Impl.persistAdSelectionResult(
                 mAdSelectionManager,
-                persistAdSelectionResultRequest
+                persistAdSelectionResultRequest,
             )
         }
         throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
@@ -140,7 +140,7 @@ open class AdSelectionManagerImplCommon(
             @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
             suspend fun getAdSelectionData(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
-                getAdSelectionDataRequest: GetAdSelectionDataRequest
+                getAdSelectionDataRequest: GetAdSelectionDataRequest,
             ): GetAdSelectionDataOutcome {
                 return GetAdSelectionDataOutcome(
                     suspendCancellableCoroutine<
@@ -149,7 +149,7 @@ open class AdSelectionManagerImplCommon(
                         adSelectionManager.getAdSelectionData(
                             getAdSelectionDataRequest.convertToAdServices(),
                             Runnable::run,
-                            continuation.asOutcomeReceiver()
+                            continuation.asOutcomeReceiver(),
                         )
                     }
                 )
@@ -159,14 +159,14 @@ open class AdSelectionManagerImplCommon(
             @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
             suspend fun persistAdSelectionResult(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
-                persistAdSelectionResultRequest: PersistAdSelectionResultRequest
+                persistAdSelectionResultRequest: PersistAdSelectionResultRequest,
             ): AdSelectionOutcome {
                 return AdSelectionOutcome(
                     suspendCancellableCoroutine { continuation ->
                         adSelectionManager.persistAdSelectionResult(
                             persistAdSelectionResultRequest.convertToAdServices(),
                             Runnable::run,
-                            continuation.asOutcomeReceiver()
+                            continuation.asOutcomeReceiver(),
                         )
                     }
                 )
@@ -176,14 +176,14 @@ open class AdSelectionManagerImplCommon(
             @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
             suspend fun selectAds(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
-                adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
+                adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig,
             ): AdSelectionOutcome {
                 return AdSelectionOutcome(
                     suspendCancellableCoroutine { continuation ->
                         adSelectionManager.selectAds(
                             adSelectionFromOutcomesConfig.convertToAdServices(),
                             Runnable::run,
-                            continuation.asOutcomeReceiver()
+                            continuation.asOutcomeReceiver(),
                         )
                     }
                 )
@@ -199,13 +199,13 @@ open class AdSelectionManagerImplCommon(
             @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
             suspend fun updateAdCounterHistogram(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
-                updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
+                updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest,
             ) {
                 suspendCancellableCoroutine<Any> { cont ->
                     adSelectionManager.updateAdCounterHistogram(
                         updateAdCounterHistogramRequest.convertToAdServices(),
                         Runnable::run,
-                        cont.asOutcomeReceiver()
+                        cont.asOutcomeReceiver(),
                     )
                 }
             }
@@ -214,13 +214,13 @@ open class AdSelectionManagerImplCommon(
             @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
             suspend fun reportEvent(
                 adSelectionManager: android.adservices.adselection.AdSelectionManager,
-                reportEventRequest: ReportEventRequest
+                reportEventRequest: ReportEventRequest,
             ) {
                 suspendCancellableCoroutine<Any> { continuation ->
                     adSelectionManager.reportEvent(
                         reportEventRequest.convertToAdServices(),
                         Runnable::run,
-                        continuation.asOutcomeReceiver()
+                        continuation.asOutcomeReceiver(),
                     )
                 }
             }

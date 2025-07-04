@@ -118,7 +118,7 @@ class ModifierLocalMapTest {
             modifierLocalMapOf(
                 stringModifierLocal to "first",
                 colorModifierLocal to Color.Red,
-                directionModifierLocal to LayoutDirection.Rtl
+                directionModifierLocal to LayoutDirection.Rtl,
             )
 
         // Assert.

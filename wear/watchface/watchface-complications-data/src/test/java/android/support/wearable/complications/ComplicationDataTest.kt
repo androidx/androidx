@@ -44,7 +44,7 @@ public class ComplicationDataTest {
             ApplicationProvider.getApplicationContext(),
             0,
             Intent("ACTION"),
-            0
+            0,
         )
     private val mResources = ApplicationProvider.getApplicationContext<Context>().resources
 
@@ -796,7 +796,7 @@ public class ComplicationDataTest {
                 .build()
         Assert.assertEquals(
             TEST_CONTENT_DESCRIPTION,
-            data.contentDescription!!.getTextAt(mResources, 0)
+            data.contentDescription!!.getTextAt(mResources, 0),
         )
     }
 
@@ -811,7 +811,7 @@ public class ComplicationDataTest {
                 .build()
         Assert.assertEquals(
             TEST_CONTENT_DESCRIPTION,
-            data.contentDescription!!.getTextAt(mResources, 0)
+            data.contentDescription!!.getTextAt(mResources, 0),
         )
     }
 
@@ -844,7 +844,7 @@ public class ComplicationDataTest {
         Assert.assertEquals(TEST_LONG_TEXT, data.longText!!.getTextAt(mResources, 0))
         Assert.assertEquals(
             TEST_CONTENT_DESCRIPTION,
-            data.contentDescription!!.getTextAt(mResources, 0)
+            data.contentDescription!!.getTextAt(mResources, 0),
         )
     }
 
@@ -874,7 +874,7 @@ public class ComplicationDataTest {
                 .build()
         Assert.assertEquals(
             TEST_CONTENT_DESCRIPTION,
-            data.contentDescription!!.getTextAt(mResources, 0)
+            data.contentDescription!!.getTextAt(mResources, 0),
         )
     }
 
@@ -889,7 +889,7 @@ public class ComplicationDataTest {
                 .build()
         Assert.assertEquals(
             TEST_CONTENT_DESCRIPTION,
-            data.contentDescription!!.getTextAt(mResources, 0)
+            data.contentDescription!!.getTextAt(mResources, 0),
         )
     }
 
@@ -906,7 +906,7 @@ public class ComplicationDataTest {
                 .build()
         Assert.assertEquals(
             TEST_CONTENT_DESCRIPTION,
-            data.contentDescription!!.getTextAt(mResources, 0)
+            data.contentDescription!!.getTextAt(mResources, 0),
         )
     }
 

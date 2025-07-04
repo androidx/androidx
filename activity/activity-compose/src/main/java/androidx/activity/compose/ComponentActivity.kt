@@ -49,7 +49,7 @@ import androidx.savedstate.setViewTreeSavedStateRegistryOwner
  */
 public fun ComponentActivity.setContent(
     parent: CompositionContext? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val existingComposeView =
         window.decorView.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as? ComposeView

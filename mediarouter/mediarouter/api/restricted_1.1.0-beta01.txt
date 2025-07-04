@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.mediarouter.app {
 
   public class MediaRouteActionProvider extends androidx.core.view.ActionProvider {
@@ -154,8 +154,8 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaItemStatus.Builder {
-    ctor public MediaItemStatus.Builder(int);
     ctor public MediaItemStatus.Builder(androidx.mediarouter.media.MediaItemStatus!);
+    ctor public MediaItemStatus.Builder(int);
     method public androidx.mediarouter.media.MediaItemStatus! build();
     method public androidx.mediarouter.media.MediaItemStatus.Builder! setContentDuration(long);
     method public androidx.mediarouter.media.MediaItemStatus.Builder! setContentPosition(long);
@@ -193,8 +193,8 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaRouteDescriptor.Builder {
-    ctor public MediaRouteDescriptor.Builder(String!, String!);
     ctor public MediaRouteDescriptor.Builder(androidx.mediarouter.media.MediaRouteDescriptor!);
+    ctor public MediaRouteDescriptor.Builder(String!, String!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilter(android.content.IntentFilter!);
     method public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addControlFilters(java.util.Collection<android.content.IntentFilter!>!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteDescriptor.Builder! addGroupMemberId(String!);
@@ -476,8 +476,8 @@ package androidx.mediarouter.media {
   }
 
   public static final class MediaSessionStatus.Builder {
-    ctor public MediaSessionStatus.Builder(int);
     ctor public MediaSessionStatus.Builder(androidx.mediarouter.media.MediaSessionStatus!);
+    ctor public MediaSessionStatus.Builder(int);
     method public androidx.mediarouter.media.MediaSessionStatus! build();
     method public androidx.mediarouter.media.MediaSessionStatus.Builder! setExtras(android.os.Bundle!);
     method public androidx.mediarouter.media.MediaSessionStatus.Builder! setQueuePaused(boolean);

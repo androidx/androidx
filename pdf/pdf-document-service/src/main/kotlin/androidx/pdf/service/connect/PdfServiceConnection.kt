@@ -21,6 +21,8 @@ import android.content.ServiceConnection
 import android.net.Uri
 import androidx.annotation.RestrictTo
 import androidx.pdf.PdfDocumentRemote
+import java.util.Queue
+import kotlinx.coroutines.Job
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface PdfServiceConnection : ServiceConnection {
@@ -32,11 +34,25 @@ public interface PdfServiceConnection : ServiceConnection {
     public val context: Context
     /** True if the service is actively bound */
     public val isConnected: Boolean
+
+    /**
+     * True if the document needs to be reopened. This is expected to be set when the service
+     * connection is re-established after unexpected disconnection.
+     */
+    public var needsToReopenDocument: Boolean
+
     /** The [PdfDocumentRemote] instance, if the service is actively bound */
     public val documentBinder: PdfDocumentRemote?
 
+    /**
+     * Queue for all the job that are working with document. This does not enforce FIFO executing of
+     * the task, but rather works as a list with safe concurrent modifications. see
+     * [java.util.concurrent.ConcurrentLinkedQueue]
+     */
+    public val pendingJobs: Queue<Job>
+
     /** Initiates binding to the service, and suspends until the service is bound */
-    public suspend fun bindAndConnect(uri: Uri)
+    public suspend fun connect(uri: Uri)
 
     /** Immediately unbinds the service */
     public fun disconnect()

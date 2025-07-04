@@ -36,7 +36,7 @@ abstract class TestIO<F : TestFile<F>, IOE : Throwable>(getTmpDir: () -> F) {
         serializerConfig: TestingSerializerConfig,
         scope: CoroutineScope,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> F
+        futureFile: () -> F,
     ): DataStore<Byte> {
         return create(getStorage(serializerConfig, coordinatorProducer, futureFile), scope = scope)
     }
@@ -44,7 +44,7 @@ abstract class TestIO<F : TestFile<F>, IOE : Throwable>(getTmpDir: () -> F) {
     abstract fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> F = { newTempFile() }
+        futureFile: () -> F = { newTempFile() },
     ): Storage<Byte>
 
     private fun randomName(prefix: String): String {
@@ -54,10 +54,7 @@ abstract class TestIO<F : TestFile<F>, IOE : Throwable>(getTmpDir: () -> F) {
             }
     }
 
-    protected fun createNewRandomChild(
-        parent: F,
-        namePrefix: String = "test-file-",
-    ): F {
+    protected fun createNewRandomChild(parent: F, namePrefix: String = "test-file-"): F {
         while (true) {
             val child = parent.resolve(randomName(namePrefix))
             if (!child.exists()) {

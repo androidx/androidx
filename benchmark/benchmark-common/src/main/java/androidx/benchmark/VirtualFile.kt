@@ -196,7 +196,7 @@ class ShellFile(override val absolutePath: String) : VirtualFile() {
 
     constructor(
         directory: String,
-        filename: String
+        filename: String,
     ) : this("${if (directory.endsWith("/")) directory else "$directory/"}$filename")
 
     override fun <T> useInputStream(block: (InputStream) -> T): T {
@@ -343,7 +343,7 @@ private class RootState(val sessionRooted: Boolean, val suAvailable: Boolean) {
                         uiAutomation
                             .executeShellCommand("su root id")
                             .fullyReadInputStream()
-                            .contains("uid=0(root)")
+                            .contains("uid=0(root)"),
             )
     }
 

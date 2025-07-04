@@ -57,7 +57,7 @@ fun IconButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier =
@@ -68,9 +68,9 @@ fun IconButton(
                     enabled = enabled,
                     role = Role.Button,
                     interactionSource = interactionSource,
-                    indication = ripple(bounded = false, radius = RippleRadius)
+                    indication = ripple(bounded = false, radius = RippleRadius),
                 ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         val contentAlpha = if (enabled) LocalContentAlpha.current else ContentAlpha.disabled
         CompositionLocalProvider(LocalContentAlpha provides contentAlpha, content = content)
@@ -101,7 +101,7 @@ fun IconToggleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Box(
         modifier =
@@ -113,9 +113,9 @@ fun IconToggleButton(
                     enabled = enabled,
                     role = Role.Checkbox,
                     interactionSource = interactionSource,
-                    indication = ripple(bounded = false, radius = RippleRadius)
+                    indication = ripple(bounded = false, radius = RippleRadius),
                 ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         val contentAlpha = if (enabled) LocalContentAlpha.current else ContentAlpha.disabled
         CompositionLocalProvider(LocalContentAlpha provides contentAlpha, content = content)

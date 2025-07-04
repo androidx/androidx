@@ -31,7 +31,7 @@ internal class JavacRawType(env: JavacProcessingEnv, original: JavacType) : XRaw
         XTypeName(
             erased.safeTypeName(),
             XTypeName.UNAVAILABLE_KTYPE_NAME,
-            original.maybeNullability ?: XNullability.UNKNOWN
+            original.maybeNullability ?: XNullability.UNKNOWN,
         )
     }
 

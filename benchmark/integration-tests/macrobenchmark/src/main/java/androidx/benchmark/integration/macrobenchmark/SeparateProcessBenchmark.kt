@@ -41,7 +41,7 @@ class SeparateProcessBenchmark {
             startupMode = StartupMode.COLD,
             packageName = "androidx.benchmark.integration.macrobenchmark.target",
             metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
-            iterations = 2
+            iterations = 2,
         ) {
             startActivityAndWait(Intent("$packageName.SEPARATE_PROCESS_ACTIVITY"))
         }

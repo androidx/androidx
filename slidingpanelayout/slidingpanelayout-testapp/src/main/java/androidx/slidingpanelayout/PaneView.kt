@@ -37,7 +37,7 @@ class PaneView(context: Context) : View(context) {
                 MeasureSpec.AT_MOST -> suggestedMinimumHeight.coerceAtMost(heightSize)
                 MeasureSpec.UNSPECIFIED -> suggestedMinimumHeight
                 else -> error("bad width mode $heightMode")
-            }
+            },
         )
     }
 }

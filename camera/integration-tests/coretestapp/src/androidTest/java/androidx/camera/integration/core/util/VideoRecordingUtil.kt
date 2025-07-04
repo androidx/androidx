@@ -90,7 +90,7 @@ suspend fun doTempRecording(
     videoCapture: VideoCapture<Recorder>,
     minDurationMillis: Long,
     pauseDurationMillis: Long = 1000,
-    withAudio: Boolean = true
+    withAudio: Boolean = true,
 ): File {
     val tmpFile = createTempFileForRecording().apply { deleteOnExit() }
 
@@ -160,7 +160,7 @@ suspend fun doTempRecording(
                 Log.i(
                     TAG,
                     "Recording finalized " +
-                        if (!finalize.hasError()) "successfully" else "with error ${finalize.error}"
+                        if (!finalize.hasError()) "successfully" else "with error ${finalize.error}",
                 )
             }
         }

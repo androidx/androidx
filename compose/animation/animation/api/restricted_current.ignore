@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion#getDown():
+    Binary breaking change: Removed method androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.getDown()
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion#getEnd():
+    Binary breaking change: Removed method androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.getEnd()
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion#getLeft():
+    Binary breaking change: Removed method androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.getLeft()
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion#getRight():
+    Binary breaking change: Removed method androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.getRight()
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion#getStart():
+    Binary breaking change: Removed method androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.getStart()
+RemovedMethod: androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion#getUp():
+    Binary breaking change: Removed method androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.Companion.getUp()

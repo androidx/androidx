@@ -53,18 +53,18 @@ fun SimpleScaffoldWithScrollIndicator() {
                 Vignette(vignettePosition = vignetteState.value)
             }
         },
-        timeText = { TimeText() }
+        timeText = { TimeText() },
     ) {
         ScalingLazyColumn(
             contentPadding = PaddingValues(top = 40.dp),
             state = listState,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             item {
                 Chip(
                     onClick = { showVignette.value = false },
                     label = { Text("No Vignette") },
-                    colors = ChipDefaults.secondaryChipColors()
+                    colors = ChipDefaults.secondaryChipColors(),
                 )
             }
             item {
@@ -74,7 +74,7 @@ fun SimpleScaffoldWithScrollIndicator() {
                         vignetteState.value = VignettePosition.Top
                     },
                     label = { Text("Top Vignette only") },
-                    colors = ChipDefaults.secondaryChipColors()
+                    colors = ChipDefaults.secondaryChipColors(),
                 )
             }
             item {
@@ -84,7 +84,7 @@ fun SimpleScaffoldWithScrollIndicator() {
                         vignetteState.value = VignettePosition.Bottom
                     },
                     label = { Text("Bottom Vignette only") },
-                    colors = ChipDefaults.secondaryChipColors()
+                    colors = ChipDefaults.secondaryChipColors(),
                 )
             }
             item {
@@ -94,14 +94,14 @@ fun SimpleScaffoldWithScrollIndicator() {
                         vignetteState.value = VignettePosition.TopAndBottom
                     },
                     label = { Text("Top and Bottom Vignette") },
-                    colors = ChipDefaults.secondaryChipColors()
+                    colors = ChipDefaults.secondaryChipColors(),
                 )
             }
             items(20) {
                 Chip(
                     onClick = {},
                     label = { Text("List item $it") },
-                    colors = ChipDefaults.secondaryChipColors()
+                    colors = ChipDefaults.secondaryChipColors(),
                 )
             }
         }

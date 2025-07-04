@@ -28,7 +28,6 @@ import androidx.pdf.util.ObservableValue
 import androidx.pdf.util.ZoomUtils
 import androidx.pdf.widget.ZoomView
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SmallTest
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.junit.Before
 import org.junit.Test
@@ -41,7 +40,6 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 
-@SmallTest
 @RunWith(RobolectricTestRunner::class)
 class SingleTapHandlerTest {
 
@@ -75,7 +73,7 @@ class SingleTapHandlerTest {
                 mockSelectionModel,
                 mockPaginationModel,
                 mockLayoutHandler,
-                mockImmersiveModeRequester
+                mockImmersiveModeRequester,
             )
         whenever(mockSelectionModel.selection()).thenReturn(mockSelection)
         whenever(mockSelectionModel.selection().get()).thenReturn(mockPageSelection)
@@ -223,7 +221,7 @@ class SingleTapHandlerTest {
                 mockZoomView.viewportWidth.toFloat(),
                 mockZoomView.viewportHeight.toFloat(),
                 mockPageRect.width().toFloat(),
-                1F
+                1F,
             )
 
         // Verify the zoom level and centering
@@ -231,7 +229,7 @@ class SingleTapHandlerTest {
         verify(mockZoomView)
             .centerAt(
                 mockPageRect.centerX().toFloat(),
-                mockPaginationModel.getLookAtY(pageNumber, yCoordinate.toInt()).toFloat()
+                mockPaginationModel.getLookAtY(pageNumber, yCoordinate.toInt()).toFloat(),
             )
     }
 
@@ -285,7 +283,7 @@ class SingleTapHandlerTest {
                 mockZoomView.viewportWidth.toFloat(),
                 mockZoomView.viewportHeight.toFloat(),
                 mockPageRect.width().toFloat(),
-                mockPageRect.height().toFloat()
+                mockPageRect.height().toFloat(),
             )
 
         verify(mockZoomView).setZoom(expectedZoom)

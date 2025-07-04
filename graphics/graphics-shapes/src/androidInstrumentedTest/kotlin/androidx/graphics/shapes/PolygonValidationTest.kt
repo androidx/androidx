@@ -25,32 +25,10 @@ import org.junit.Test
 @SmallTest
 class PolygonValidationTest {
     private val pentagonPoints =
-        floatArrayOf(
-            0.2f,
-            0.0f,
-            0.8f,
-            0.0f,
-            1.0f,
-            0.6f,
-            0.5f,
-            1.0f,
-            0.0f,
-            0.6f,
-        )
+        floatArrayOf(0.2f, 0.0f, 0.8f, 0.0f, 1.0f, 0.6f, 0.5f, 1.0f, 0.0f, 0.6f)
 
     private val reverseOrientedPentagonPoints =
-        floatArrayOf(
-            0.2f,
-            0.0f,
-            0.0f,
-            0.6f,
-            0.5f,
-            1.0f,
-            1.0f,
-            0.6f,
-            0.8f,
-            0.0f,
-        )
+        floatArrayOf(0.2f, 0.0f, 0.0f, 0.6f, 0.5f, 1.0f, 1.0f, 0.6f, 0.8f, 0.0f)
 
     @Test fun doesNotFixValidSharpPolygon() = staysUnchanged(RoundedPolygon(5))
 

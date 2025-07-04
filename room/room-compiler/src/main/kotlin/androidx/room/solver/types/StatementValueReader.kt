@@ -30,6 +30,6 @@ interface StatementValueReader {
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     )
 }

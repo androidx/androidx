@@ -41,17 +41,21 @@ import kotlinx.coroutines.CoroutineExceptionHandler
  * ```
  */
 // TODO(b/200151447): When this moves over to ui-test, move the code sample above to ui-test:samples
-internal class UncaughtExceptionHandler :
+internal class UncaughtExceptionHandler(private val delegate: CoroutineExceptionHandler? = null) :
     AbstractCoroutineContextElement(CoroutineExceptionHandler), CoroutineExceptionHandler {
     private var exception: Throwable? = null
     private val lock = makeSynchronizedObject(this)
 
     override fun handleException(context: CoroutineContext, exception: Throwable) {
-        synchronized(lock) {
-            if (this.exception == null) {
-                this.exception = exception
-            } else {
-                this.exception!!.addSuppressed(exception)
+        try {
+            delegate?.handleException(context, exception) ?: throw exception
+        } catch (e: Throwable) {
+            synchronized(lock) {
+                if (this.exception == null) {
+                    this.exception = e
+                } else {
+                    this.exception!!.addSuppressed(e)
+                }
             }
         }
     }

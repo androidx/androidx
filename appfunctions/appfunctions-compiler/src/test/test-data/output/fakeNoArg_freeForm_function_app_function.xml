@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <function_id>com.testdata.FakeNoArg#noArg</function_id>
+        <enabled_by_default>true</enabled_by_default>
+    </appfunction>
+</appfunctions>

@@ -21,6 +21,10 @@ import android.view.FocusFinder
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.focus.FocusInteropUtils.Companion.tempCoordinates
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -53,6 +57,31 @@ internal fun FocusDirection.toAndroidFocusDirection(): Int? =
         FocusDirection.Previous -> ViewGroup.FOCUS_BACKWARD
         else -> null
     }
+
+/** The [FocusDirection] represented by the specified keyEvent. */
+internal fun KeyEvent.toFocusDirection(): FocusDirection? {
+    return when (key) {
+        Key.NavigatePrevious -> FocusDirection.Previous
+        Key.NavigateNext -> FocusDirection.Next
+        Key.Tab -> if (isShiftPressed) FocusDirection.Previous else FocusDirection.Next
+        Key.DirectionRight -> FocusDirection.Right
+        Key.DirectionLeft -> FocusDirection.Left
+        // For the initial key input of a new composable, both up/down and page up/down will
+        // trigger the composable to get focus (so the composable can handle key events to
+        // move focus or scroll content). Remember, a composable can't receive key events without
+        // focus.
+        Key.DirectionUp,
+        Key.PageUp -> FocusDirection.Up
+        Key.DirectionDown,
+        Key.PageDown -> FocusDirection.Down
+        Key.DirectionCenter,
+        Key.Enter,
+        Key.NumPadEnter -> FocusDirection.Enter
+        Key.Back,
+        Key.Escape -> FocusDirection.Exit
+        else -> null
+    }
+}
 
 /** Convert an Android layout direction to a compose [layout direction][LayoutDirection]. */
 internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection? {

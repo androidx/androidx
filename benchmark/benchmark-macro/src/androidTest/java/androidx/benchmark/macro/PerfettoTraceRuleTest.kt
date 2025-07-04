@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.junit4.PerfettoTraceRule
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoHelper
@@ -74,6 +75,12 @@ class PerfettoTraceRuleTest {
     @Test
     fun simple() {
         trace(UNIQUE_SLICE_NAME) {}
+    }
+
+    @Test
+    fun inMemoryTrace() {
+        // in memory tracing support is temporary, see b/409397427
+        inMemoryTrace(UNIQUE_SLICE_NAME) {}
     }
 
     @Test(expected = IllegalStateException::class)

@@ -154,7 +154,7 @@ internal class BringIntoViewResponderNode(
      */
     override suspend fun bringIntoView(
         childCoordinates: LayoutCoordinates,
-        boundsProvider: () -> Rect?
+        boundsProvider: () -> Rect?,
     ) {
         @Suppress("NAME_SHADOWING")
         fun localRect(): Rect? {

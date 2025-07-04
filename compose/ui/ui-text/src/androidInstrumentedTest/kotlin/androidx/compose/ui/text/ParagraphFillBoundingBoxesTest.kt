@@ -58,7 +58,7 @@ class ParagraphFillBoundingBoxesTest {
             Paragraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize, letterSpacing = 10.sp),
-                width = Float.MAX_VALUE
+                width = Float.MAX_VALUE,
             )
 
         val singleLetterWithoutLetterSpacing =
@@ -207,7 +207,7 @@ class ParagraphFillBoundingBoxesTest {
                         platformStyle =
                             @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false),
                         lineHeightStyle =
-                            LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.None)
+                            LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.None),
                     ),
             )
 
@@ -216,7 +216,7 @@ class ParagraphFillBoundingBoxesTest {
                 ltrCharacterBoundariesForTestFont(
                     text = text,
                     fontSizeInPx = fontSizeInPx,
-                    lineHeightInPx = lineHeightInPx
+                    lineHeightInPx = lineHeightInPx,
                 )
             )
     }
@@ -236,8 +236,8 @@ class ParagraphFillBoundingBoxesTest {
                         lineHeightStyle =
                             LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.None),
                         platformStyle =
-                            @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false)
-                    )
+                            @Suppress("DEPRECATION") PlatformTextStyle(includeFontPadding = false),
+                    ),
             )
 
         assertThat(paragraph.getBoundingBoxes(TextRange(0, text.length)))
@@ -245,7 +245,7 @@ class ParagraphFillBoundingBoxesTest {
                 ltrCharacterBoundariesForTestFont(
                     text = text,
                     fontSizeInPx = fontSizeInPx,
-                    lineHeightInPx = lineHeightInPx
+                    lineHeightInPx = lineHeightInPx,
                 )
             )
     }
@@ -258,7 +258,7 @@ class ParagraphFillBoundingBoxesTest {
             Paragraph(
                 text = text,
                 width = width,
-                style = TextStyle(textDirection = TextDirection.Content)
+                style = TextStyle(textDirection = TextDirection.Content),
             )
 
         assertThat(paragraph.getBoundingBoxes(TextRange(0, text.length)))
@@ -367,7 +367,7 @@ class ParagraphFillBoundingBoxesTest {
                 style =
                     TextStyle(
                         textIndent = TextIndent(firstLine = firstIndent, restLine = restIndent)
-                    )
+                    ),
             )
 
         // will be rendered as
@@ -390,7 +390,7 @@ class ParagraphFillBoundingBoxesTest {
                         restLeft + fontSizeInPx,
                         fontSizeInPx,
                         restLeft + 2 * fontSizeInPx,
-                        2 * fontSizeInPx
+                        2 * fontSizeInPx,
                     ),
                     // d
                     Rect(restLeft, 2 * fontSizeInPx, restLeft + fontSizeInPx, 3 * fontSizeInPx),
@@ -399,7 +399,7 @@ class ParagraphFillBoundingBoxesTest {
                         restLeft + fontSizeInPx,
                         2 * fontSizeInPx,
                         restLeft + fontSizeInPx,
-                        3 * fontSizeInPx
+                        3 * fontSizeInPx,
                     ),
                     // e
                     Rect(firstLeft, 3 * fontSizeInPx, firstLeft + fontSizeInPx, 4 * fontSizeInPx),
@@ -427,7 +427,7 @@ class ParagraphFillBoundingBoxesTest {
                     // 2 width for b
                     Rect(fontSizeInPx, 0f, 3 * fontSizeInPx, doubleFontSizeInPx),
                     // 1 width for c
-                    Rect(3 * fontSizeInPx, 0f, 4 * fontSizeInPx, doubleFontSizeInPx)
+                    Rect(3 * fontSizeInPx, 0f, 4 * fontSizeInPx, doubleFontSizeInPx),
                 )
             )
     }
@@ -450,7 +450,7 @@ class ParagraphFillBoundingBoxesTest {
                             0f,
                             0f,
                             2 * fontSizeInPx - letterSpaceHalf, // left letter spacing is not added.
-                            fontSizeInPx
+                            fontSizeInPx,
                         ),
                         // b
                         Rect(
@@ -460,7 +460,7 @@ class ParagraphFillBoundingBoxesTest {
                             // left letter spacing.
                             0f,
                             4 * fontSizeInPx - letterSpaceHalf,
-                            fontSizeInPx
+                            fontSizeInPx,
                         ),
                         // c
                         Rect(
@@ -468,29 +468,29 @@ class ParagraphFillBoundingBoxesTest {
                             0f,
                             6 * fontSizeInPx - letterSpaceHalf * 2, // right letter spacing is not
                             // added.
-                            fontSizeInPx
+                            fontSizeInPx,
                         ),
                         // \n
                         Rect(
                             6 * fontSizeInPx - letterSpaceHalf * 2,
                             0f,
                             6 * fontSizeInPx - letterSpaceHalf * 2,
-                            fontSizeInPx
+                            fontSizeInPx,
                         ),
                         // c
                         Rect(
                             0f,
                             fontSizeInPx,
                             2 * fontSizeInPx - letterSpaceHalf, // left letter spacing is not added.
-                            2 * fontSizeInPx
+                            2 * fontSizeInPx,
                         ),
                         // d
                         Rect(
                             2 * fontSizeInPx - letterSpaceHalf,
                             fontSizeInPx,
                             4 * fontSizeInPx - letterSpaceHalf * 2,
-                            2 * fontSizeInPx
-                        )
+                            2 * fontSizeInPx,
+                        ),
                     )
                 } else {
                     arrayOf(
@@ -505,7 +505,7 @@ class ParagraphFillBoundingBoxesTest {
                         // c
                         Rect(0f, fontSizeInPx, 2 * fontSizeInPx, 2 * fontSizeInPx),
                         // d
-                        Rect(2 * fontSizeInPx, fontSizeInPx, 4 * fontSizeInPx, 2 * fontSizeInPx)
+                        Rect(2 * fontSizeInPx, fontSizeInPx, 4 * fontSizeInPx, 2 * fontSizeInPx),
                     )
                 }
             )
@@ -518,7 +518,7 @@ class ParagraphFillBoundingBoxesTest {
             Paragraph(
                 width = text.length * fontSizeInPx * 2,
                 text = text,
-                style = TextStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center),
             )
 
         assertThat(paragraph.getBoundingBoxes(TextRange(0, text.length)))
@@ -537,7 +537,7 @@ class ParagraphFillBoundingBoxesTest {
             Paragraph(
                 width = text.length * fontSizeInPx * 2,
                 text = text,
-                style = TextStyle(textAlign = TextAlign.End)
+                style = TextStyle(textAlign = TextAlign.End),
             )
 
         assertThat(paragraph.getBoundingBoxes(TextRange(0, text.length)))
@@ -555,14 +555,14 @@ class ParagraphFillBoundingBoxesTest {
         val paragraph =
             Paragraph(
                 text = text,
-                style = TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 2.0f))
+                style = TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 2.0f)),
             )
 
         assertThat(paragraph.getBoundingBoxes(TextRange(0, text.length)))
             .isEqualToWithTolerance(
                 arrayOf(
                     Rect(0f, 0f, 2 * fontSizeInPx, fontSizeInPx),
-                    Rect(2 * fontSizeInPx, 0f, 4 * fontSizeInPx, fontSizeInPx)
+                    Rect(2 * fontSizeInPx, 0f, 4 * fontSizeInPx, fontSizeInPx),
                 )
             )
     }
@@ -573,7 +573,7 @@ class ParagraphFillBoundingBoxesTest {
         val paragraph =
             Paragraph(
                 text = text,
-                style = TextStyle(textGeometricTransform = TextGeometricTransform(skewX = -1f))
+                style = TextStyle(textGeometricTransform = TextGeometricTransform(skewX = -1f)),
             )
 
         // skew does not change the boundary, character glyph goes outside of boundary
@@ -581,7 +581,7 @@ class ParagraphFillBoundingBoxesTest {
             .isEqualToWithTolerance(
                 arrayOf(
                     Rect(0f, 0f, fontSizeInPx, fontSizeInPx),
-                    Rect(fontSizeInPx, 0f, 2 * fontSizeInPx, fontSizeInPx)
+                    Rect(fontSizeInPx, 0f, 2 * fontSizeInPx, fontSizeInPx),
                 )
             )
     }
@@ -613,7 +613,7 @@ class ParagraphFillBoundingBoxesTest {
                     // b
                     Rect(shiftedStart, 0f, shiftedEnd, fontSizeInPx),
                     // c
-                    Rect(shiftedEnd, 0f, shiftedEnd + fontSizeInPx, fontSizeInPx)
+                    Rect(shiftedEnd, 0f, shiftedEnd + fontSizeInPx, fontSizeInPx),
                 )
             )
     }
@@ -633,12 +633,12 @@ class ParagraphFillBoundingBoxesTest {
                                 Placeholder(
                                     width = doubleFontSize,
                                     height = doubleFontSize,
-                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Top
+                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Top,
                                 ),
                             start = 1,
-                            end = 2
+                            end = 2,
                         )
-                    )
+                    ),
             )
 
         assertThat(paragraph.getBoundingBoxes(TextRange(0, text.length)))
@@ -646,7 +646,7 @@ class ParagraphFillBoundingBoxesTest {
                 arrayOf(
                     Rect(0f, 0f, fontSizeInPx, doubleFontSizeInPx),
                     Rect(fontSizeInPx, 0f, 3 * fontSizeInPx, doubleFontSizeInPx),
-                    Rect(3 * fontSizeInPx, 0f, 4 * fontSizeInPx, doubleFontSizeInPx)
+                    Rect(3 * fontSizeInPx, 0f, 4 * fontSizeInPx, doubleFontSizeInPx),
                 )
             )
     }
@@ -663,7 +663,7 @@ class ParagraphFillBoundingBoxesTest {
         fontSizeInPx: Float = this.fontSizeInPx,
         // assumes that the test font is used and fontSize is equal to default line height
         lineHeightInPx: Float = fontSizeInPx,
-        initialTop: Float = 0f
+        initialTop: Float = 0f,
     ): Array<Rect> =
         getLtrCharacterBoundariesForTestFont(text, fontSizeInPx, lineHeightInPx, initialTop)
 
@@ -674,14 +674,14 @@ class ParagraphFillBoundingBoxesTest {
         text: String,
         style: TextStyle? = null,
         width: Float = Float.MAX_VALUE,
-        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     ): AndroidParagraph = Paragraph(AnnotatedString(text), style, width, placeholders)
 
     private fun Paragraph(
         text: AnnotatedString,
         style: TextStyle? = null,
         width: Float = Float.MAX_VALUE,
-        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
+        placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     ): AndroidParagraph {
         return Paragraph(
             text = text.text,
@@ -689,7 +689,7 @@ class ParagraphFillBoundingBoxesTest {
                 TextStyle(
                         fontSize = fontSize,
                         fontFamily = fontFamilyMeasureFont,
-                        textDirection = TextDirection.Content
+                        textDirection = TextDirection.Content,
                     )
                     .merge(style),
             spanStyles = text.spanStyles,
@@ -698,7 +698,7 @@ class ParagraphFillBoundingBoxesTest {
             overflow = TextOverflow.Clip,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
-            fontFamilyResolver = fontFamilyResolver
+            fontFamilyResolver = fontFamilyResolver,
         )
             as AndroidParagraph
     }

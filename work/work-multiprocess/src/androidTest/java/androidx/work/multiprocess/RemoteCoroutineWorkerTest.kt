@@ -172,12 +172,12 @@ public class RemoteCoroutineWorkerTest {
             buildDelegatedRemoteRequestData(
                 delegatedWorkerName = RemoteSuccessWorker::class.java.name,
                 componentName = ComponentName(packageName, className),
-                inputData
+                inputData,
             )
         assertEquals(data.isRemoteWorkRequest(), true)
         assertEquals(
             data.getString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME),
-            RemoteSuccessWorker::class.java.name
+            RemoteSuccessWorker::class.java.name,
         )
         assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME), packageName)
         assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_CLASS_NAME), className)
@@ -190,7 +190,7 @@ public class RemoteCoroutineWorkerTest {
                 .putString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME, mContext.packageName)
                 .putString(
                     RemoteListenableWorker.ARGUMENT_CLASS_NAME,
-                    RemoteWorkerService::class.java.name
+                    RemoteWorkerService::class.java.name,
                 )
                 .putString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME, T::class.java.name)
                 .build()
@@ -212,7 +212,7 @@ public class RemoteCoroutineWorkerTest {
                 mForegroundProcessor,
                 mDatabase,
                 mDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
-                emptyList()
+                emptyList(),
             )
             .build()
     }

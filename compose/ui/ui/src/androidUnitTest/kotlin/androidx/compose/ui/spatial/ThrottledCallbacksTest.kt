@@ -18,8 +18,8 @@ package androidx.compose.ui.spatial
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.DelegatableNode.RegistrationHandle
 import androidx.compose.ui.node.LayoutNode
-import kotlinx.coroutines.DisposableHandle
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,21 +60,21 @@ class ThrottledCallbacksTest {
         assertEquals(1, b)
         assertEquals(1, c)
 
-        hb.dispose()
+        hb.unregister()
         fire(1)
 
         assertEquals(2, a)
         assertEquals(1, b)
         assertEquals(2, c)
 
-        ha.dispose()
+        ha.unregister()
         fire(1)
 
         assertEquals(2, a)
         assertEquals(1, b)
         assertEquals(3, c)
 
-        hc.dispose()
+        hc.unregister()
         fire(1)
 
         assertEquals(2, a)
@@ -208,6 +208,29 @@ class ThrottledCallbacksTest {
         assertEquals(3, called) // called right away
     }
 
+    @Test
+    fun testThrottleAndDebounceWithLargerDebounce() = test {
+        var called = 0
+        register(1, throttleMs = 20, debounceMs = 400) { called++ }
+        fire(1)
+        assertEquals(1, called) // called right away
+        advanceBy(16) // above debounce but below throttle
+        assertEquals(1, called) // not called again
+        fire(1) // this should get ignored since it is below throttle limit
+        assertEquals(1, called)
+        advanceBy(16) // advance above throttle limit
+        assertEquals(1, called) // still one since we haven't fired again
+        fire(1)
+        assertEquals(2, called) // triggered, since we are above throttle
+        advanceBy(10)
+        fire(1) // this shouldn't fire right away, since we just fired one
+        assertEquals(2, called) // no new calls
+        advanceBy(100) // advance past throttle limit
+        assertEquals(2, called) // still not called
+        advanceBy(500) // advance past debounce limit
+        assertEquals(3, called) // now it gets called because of debouncs
+    }
+
     var currentTime: Long = 1
 
     private fun ThrottledCallbacks.advanceBy(ms: Long) {
@@ -223,8 +246,8 @@ class ThrottledCallbacksTest {
         id: Int,
         throttleMs: Long,
         debounceMs: Long,
-        callback: (RelativeLayoutBounds) -> Unit
-    ): DisposableHandle {
+        callback: (RelativeLayoutBounds) -> Unit,
+    ): RegistrationHandle {
         return registerOnRectChanged(id, throttleMs, debounceMs, fakeNode(), callback)
     }
 

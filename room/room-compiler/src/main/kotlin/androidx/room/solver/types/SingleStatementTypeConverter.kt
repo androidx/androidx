@@ -31,7 +31,7 @@ abstract class SingleStatementTypeConverter(from: XType, to: XType) : TypeConver
         scope.builder.addLocalVariable(
             name = outputVarName,
             typeName = to.asTypeName(),
-            assignExpr = buildStatement(inputVarName, scope)
+            assignExpr = buildStatement(inputVarName, scope),
         )
         return outputVarName
     }

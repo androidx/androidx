@@ -50,7 +50,7 @@ class LayoutUtilsKtTest {
                 Constraints(0, 500, 0, BigConstraintValue - 1),
                 true /* width matters */,
                 TextOverflow.Ellipsis,
-                (BigConstraintValue - 1).toFloat()
+                (BigConstraintValue - 1).toFloat(),
             )
         assertThat(subject).isNotNull()
     }
@@ -113,7 +113,7 @@ class LayoutUtilsKtTest {
                         minWidth = width,
                         maxWidth = width,
                         minHeight = height,
-                        maxHeight = height
+                        maxHeight = height,
                     )
                 println("$width $height => $constraints")
                 b++

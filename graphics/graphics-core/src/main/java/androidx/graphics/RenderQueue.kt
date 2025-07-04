@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 internal class RenderQueue(
     private val handlerThread: HandlerThreadExecutor,
     private val frameProducer: FrameProducer,
-    private val frameCallback: FrameCallback
+    private val frameCallback: FrameCallback,
 ) {
 
     /**
@@ -53,7 +53,7 @@ internal class RenderQueue(
     interface FrameProducer {
         fun renderFrame(
             executor: Executor,
-            requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit
+            requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit,
         )
     }
 

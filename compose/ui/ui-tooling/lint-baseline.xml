@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 8.10.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.0-alpha07)" variant="all" version="8.10.0-alpha07">
 
     <issue
         id="BanThreadSleep"
@@ -17,6 +17,78 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/ComposeViewAdapterTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedContentLambdaTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="        rule.addAnimations(search) { AnimatedContent(1.dp) {} }"
+        errorLine2="                                                           ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedContentLambdaTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="        rule.addAnimations(search) { AnimatedContent(1.dp) {} }"
+        errorLine2="                                                           ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedContentLambdaTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="        rule.addAnimations(search) { AnimatedContent(targetState = 1.dp) {} }"
+        errorLine2="                                                                         ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedTransitionTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="        ) {"
+        errorLine2="          ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedTransitionTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="                    ) {"
+        errorLine2="                      ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedTransitionTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="                    ) {"
+        errorLine2="                      ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedTransitionTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="                ) {"
+        errorLine2="                  ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedTransitionTargetStateParameter"
+        message="Target state parameter `it` is not used"
+        errorLine1="                ) {"
+        errorLine2="                  ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/animation/clock/TransitionClockTest.kt"/>
     </issue>
 
     <issue
@@ -71,6 +143,33 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/tooling/animation/clock/Utils.android.kt"/>
+    </issue>
+
+    <issue
+        id="UseOfNonLambdaOffsetOverload"
+        message="State backed values should use the lambda overload of Modifier.offset"
+        errorLine1="        Modifier.padding(size).offset(offset.dp).pointerInput(Unit) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/TestAnimationPreview.kt"/>
+    </issue>
+
+    <issue
+        id="UseOfNonLambdaOffsetOverload"
+        message="State backed values should use the lambda overload of Modifier.offset"
+        errorLine1="        Modifier.padding(size).offset(offset.dp).pointerInput(Unit) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/TestAnimationPreview.kt"/>
+    </issue>
+
+    <issue
+        id="UseOfNonLambdaOffsetOverload"
+        message="State backed values should use the lambda overload of Modifier.offset"
+        errorLine1="    Box(Modifier.offset(offset?.dp ?: 1.dp))"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/tooling/TestAnimationPreview.kt"/>
     </issue>
 
 </issues>

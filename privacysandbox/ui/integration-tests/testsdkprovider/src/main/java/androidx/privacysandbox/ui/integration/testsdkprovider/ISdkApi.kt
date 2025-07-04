@@ -21,11 +21,22 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 
 @PrivacySandboxService
 interface ISdkApi {
-    suspend fun loadBannerAd(
+    suspend fun loadAd(
+        adFormat: Int,
         adType: Int,
         mediationOption: Int,
         waitInsideOnDraw: Boolean,
-        drawViewability: Boolean
+        drawViewability: Boolean,
+    ): Bundle
+
+    // This new method is needed since we cannot add optional params to shim methods.
+    suspend fun loadBannerAdForAutomatedTests(
+        adFormat: Int,
+        adType: Int,
+        mediationOption: Int,
+        waitInsideOnDraw: Boolean,
+        drawViewability: Boolean,
+        automatedTestCallbackBundle: Bundle,
     ): Bundle
 
     fun requestResize(width: Int, height: Int)
@@ -33,4 +44,10 @@ interface ISdkApi {
     fun triggerProcessDeath()
 
     fun launchFullscreenAd(launcherInfo: Bundle, screenOrientation: Int, backButtonNavigation: Int)
+
+    /**
+     * Registers the In-App mediatee adapter so that it can be used by the Mediator later to show
+     * ads.
+     */
+    fun registerInAppMediateeAdapter(mediateeAdapter: MediateeAdapterInterface)
 }

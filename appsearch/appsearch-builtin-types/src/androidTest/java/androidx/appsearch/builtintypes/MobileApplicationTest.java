@@ -226,4 +226,24 @@ public class MobileApplicationTest {
                     new SetSchemaRequest.Builder().setForceOverride(true).build()).get();
         }
     }
+
+    @Test
+    public void testBuildMobileApplication_nullAlternateNames() throws Exception {
+        // Create a minimal mobile application where alternate names specifically is null
+        GenericDocument genericDocMobileApplication =
+                new GenericDocument.Builder<>("apps", "com.example.app",
+                        "builtin:MobileApplication")
+                        .setPropertyString(FrameworkSchemaUtil
+                                .MOBILE_APPLICATION_PROPERTY_PACKAGE_NAME, "com.example.app")
+                        .setPropertyBytes(FrameworkSchemaUtil
+                                        .MOBILE_APPLICATION_PROPERTY_SHA256_CERTIFICATE,
+                                new byte[] {1, 2, 3})
+                        .build();
+
+        // This should not throw an error
+        MobileApplication converted =
+                genericDocMobileApplication.toDocumentClass(MobileApplication.class);
+        assertThat(converted.getPackageName()).isEqualTo("com.example.app");
+        assertThat(converted.getAlternateNames()).isEmpty();
+    }
 }

@@ -45,7 +45,7 @@ class RenderEffectTest {
                 "radiusY=10.0, " +
                 "edgeTreatment=Clamp" +
                 ")",
-            BlurEffect(5f, 10.0f, TileMode.Clamp).toString()
+            BlurEffect(5f, 10.0f, TileMode.Clamp).toString(),
         )
     }
 
@@ -74,7 +74,7 @@ class RenderEffectTest {
                 BlurEffect(5.0f, 10.0f, TileMode.Clamp),
                 radiusX = 15.0f,
                 radiusY = 20.0f,
-                TileMode.Decal
+                TileMode.Decal,
             )
         assertEquals(
             "BlurEffect(" +
@@ -89,7 +89,7 @@ class RenderEffectTest {
                 "radiusY=20.0, " +
                 "edgeTreatment=Decal" +
                 ")",
-            blur.toString()
+            blur.toString(),
         )
     }
 
@@ -111,7 +111,7 @@ class RenderEffectTest {
     fun testOffsetEffectToString() {
         assertEquals(
             "OffsetEffect(" + "renderEffect=null, " + "offset=Offset(5.0, 10.0)" + ")",
-            OffsetEffect(5f, 10.0f).toString()
+            OffsetEffect(5f, 10.0f).toString(),
         )
     }
 
@@ -145,7 +145,7 @@ class RenderEffectTest {
                 "edgeTreatment=Clamp" +
                 "), " +
                 "offset=Offset(15.0, 20.0))",
-            renderEffect.toString()
+            renderEffect.toString(),
         )
     }
 }

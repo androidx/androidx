@@ -25,92 +25,92 @@ import androidx.sqlite.throwSQLiteException
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public actual class BundledSQLiteStatement(
     private val connectionPointer: Long,
-    private val statementPointer: Long
+    private val statementPointer: Long,
 ) : SQLiteStatement {
 
     @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
 
-    override fun bindBlob(index: Int, value: ByteArray) {
+    actual override fun bindBlob(index: Int, value: ByteArray) {
         throwIfClosed()
         nativeBindBlob(statementPointer, index, value)
     }
 
-    override fun bindDouble(index: Int, value: Double) {
+    actual override fun bindDouble(index: Int, value: Double) {
         throwIfClosed()
         nativeBindDouble(statementPointer, index, value)
     }
 
-    override fun bindLong(index: Int, value: Long) {
+    actual override fun bindLong(index: Int, value: Long) {
         throwIfClosed()
         nativeBindLong(statementPointer, index, value)
     }
 
-    override fun bindText(index: Int, value: String) {
+    actual override fun bindText(index: Int, value: String) {
         throwIfClosed()
         nativeBindText(statementPointer, index, value)
     }
 
-    override fun bindNull(index: Int) {
+    actual override fun bindNull(index: Int) {
         throwIfClosed()
         nativeBindNull(statementPointer, index)
     }
 
-    override fun getBlob(index: Int): ByteArray {
+    actual override fun getBlob(index: Int): ByteArray {
         throwIfClosed()
         return nativeGetBlob(statementPointer, index)
     }
 
-    override fun getDouble(index: Int): Double {
+    actual override fun getDouble(index: Int): Double {
         throwIfClosed()
         return nativeGetDouble(statementPointer, index)
     }
 
-    override fun getLong(index: Int): Long {
+    actual override fun getLong(index: Int): Long {
         throwIfClosed()
         return nativeGetLong(statementPointer, index)
     }
 
-    override fun getText(index: Int): String {
+    actual override fun getText(index: Int): String {
         throwIfClosed()
         return nativeGetText(statementPointer, index)
     }
 
-    override fun isNull(index: Int): Boolean {
+    actual override fun isNull(index: Int): Boolean {
         throwIfClosed()
         return nativeGetColumnType(statementPointer, index) == COLUMN_TYPE_NULL
     }
 
-    override fun getColumnCount(): Int {
+    actual override fun getColumnCount(): Int {
         throwIfClosed()
         return nativeGetColumnCount(statementPointer)
     }
 
-    override fun getColumnName(index: Int): String {
+    actual override fun getColumnName(index: Int): String {
         throwIfClosed()
         return nativeGetColumnName(statementPointer, index)
     }
 
-    override fun getColumnType(index: Int): Int {
+    actual override fun getColumnType(index: Int): Int {
         throwIfClosed()
         return nativeGetColumnType(statementPointer, index)
     }
 
-    override fun step(): Boolean {
+    actual override fun step(): Boolean {
         throwIfClosed()
         return nativeStep(statementPointer)
     }
 
-    override fun reset() {
+    actual override fun reset() {
         throwIfClosed()
         nativeReset(statementPointer)
     }
 
-    override fun clearBindings() {
+    actual override fun clearBindings() {
         throwIfClosed()
         nativeClearBindings(statementPointer)
     }
 
-    override fun close() {
+    actual override fun close() {
         if (!isClosed) {
             nativeClose(statementPointer)
         }
@@ -152,11 +152,11 @@ private external fun nativeGetLong(pointer: Long, index: Int): Long
 
 private external fun nativeGetText(pointer: Long, index: Int): String
 
-private external fun nativeGetColumnType(pointer: Long, index: Int): Int
-
 private external fun nativeGetColumnCount(pointer: Long): Int
 
 private external fun nativeGetColumnName(pointer: Long, index: Int): String
+
+private external fun nativeGetColumnType(pointer: Long, index: Int): Int
 
 private external fun nativeReset(pointer: Long)
 

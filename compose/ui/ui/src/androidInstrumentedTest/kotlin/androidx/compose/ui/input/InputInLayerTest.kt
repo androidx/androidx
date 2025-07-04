@@ -69,7 +69,7 @@ class InputInLayerTest {
                                     val matrix = Matrix()
                                     outerLayoutCoordinates.transformFrom(it, matrix)
                                     rootPoint = matrix.map(Offset.Zero)
-                                },
+                                }
                     )
                 } else {
                     Spacer(
@@ -82,7 +82,7 @@ class InputInLayerTest {
                                     val matrix = Matrix()
                                     outerLayoutCoordinates.transformFrom(it, matrix)
                                     rootPoint = matrix.map(Offset.Zero)
-                                },
+                                }
                     )
                 }
             }

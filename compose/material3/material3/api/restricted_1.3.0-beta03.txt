@@ -690,10 +690,10 @@ package androidx.compose.material3 {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public static androidx.compose.material3.ColorScheme dynamicLightColorScheme(android.content.Context context);
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3Api {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3Api {
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 API is experimental and is likely to change or to be removed in the" + " future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3ExpressiveApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3 API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3ExpressiveApi {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public abstract sealed class ExposedDropdownMenuBoxScope {

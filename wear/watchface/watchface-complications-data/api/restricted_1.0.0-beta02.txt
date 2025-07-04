@@ -261,8 +261,8 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class TimeDifferenceComplicationText.Builder {
-    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.watchface.complications.data.TimeDifferenceStyle style, androidx.wear.watchface.complications.data.CountUpTimeReference countUpTimeReference);
     ctor public TimeDifferenceComplicationText.Builder(androidx.wear.watchface.complications.data.TimeDifferenceStyle style, androidx.wear.watchface.complications.data.CountDownTimeReference countDownTimeReference);
+    ctor public TimeDifferenceComplicationText.Builder(androidx.wear.watchface.complications.data.TimeDifferenceStyle style, androidx.wear.watchface.complications.data.CountUpTimeReference countUpTimeReference);
     method public androidx.wear.watchface.complications.data.TimeDifferenceComplicationText build();
     method public androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder setDisplayAsNow(boolean displayAsNow);
     method public androidx.wear.watchface.complications.data.TimeDifferenceComplicationText.Builder setMinimumTimeUnit(java.util.concurrent.TimeUnit? minimumUnit);

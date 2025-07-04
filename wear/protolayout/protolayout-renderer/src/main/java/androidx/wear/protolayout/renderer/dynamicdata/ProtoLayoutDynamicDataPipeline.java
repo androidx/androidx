@@ -39,7 +39,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.PlatformEventSources;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
@@ -67,6 +69,7 @@ import androidx.wear.protolayout.proto.TypesProto.BoolProp;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -104,6 +107,11 @@ public class ProtoLayoutDynamicDataPipeline {
     final @NonNull QuotaManager mAnimationQuotaManager;
     private final @NonNull DynamicTypeEvaluator mEvaluator;
     private final @NonNull PlatformTimeUpdateNotifierImpl mTimeNotifier;
+    private final @NonNull DynamicTypePlatformDataProvider<Boolean, DynamicBuilders.DynamicBool>
+            mVisibilityStatusDataProvider;
+    private final @NonNull
+            DynamicTypePlatformDataProvider<Integer, PlatformEventSources.DynamicLayoutUpdateStatus>
+            mLayoutUpdateStatusDataProvider;
 
     /** Creates a {@link ProtoLayoutDynamicDataPipeline} without animation support. */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -149,15 +157,39 @@ public class ProtoLayoutDynamicDataPipeline {
         DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
                 new DynamicTypeEvaluator.Config.Builder().setStateStore(stateStore);
         evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
+
+        // Platform sensor data.
         for (Map.Entry<PlatformDataProvider, Set<PlatformDataKey<?>>> providerEntry :
                 platformDataProviders.entrySet()) {
             evaluatorConfigBuilder.addPlatformDataProvider(
                     providerEntry.getKey(), providerEntry.getValue());
         }
+
+        // Platform visibility data.
+        // Add additional provider for visibility status. It's not needed to come from external
+        // callers, as this pipeline knows visibility status
+        mVisibilityStatusDataProvider =
+                DynamicTypePlatformDataProvider.forDynamicBool(
+                        PlatformEventSources.Keys.LAYOUT_VISIBILITY, mFullyVisible);
+        evaluatorConfigBuilder.addPlatformDataProvider(
+                mVisibilityStatusDataProvider,
+                ImmutableSet.of(PlatformEventSources.Keys.LAYOUT_VISIBILITY));
+
+        // Add an additional provider for platform layout update state.
+        mLayoutUpdateStatusDataProvider =
+                DynamicTypePlatformDataProvider.forDynamicLayoutUpdateStatus(
+                        PlatformEventSources.Keys.LAYOUT_UPDATE_STATUS,
+                        PlatformEventSources.LAYOUT_UPDATE_IDLE);
+        evaluatorConfigBuilder.addPlatformDataProvider(
+                mLayoutUpdateStatusDataProvider,
+                ImmutableSet.of(PlatformEventSources.Keys.LAYOUT_UPDATE_STATUS));
+
+        // Time data.
         this.mTimeNotifier = new PlatformTimeUpdateNotifierImpl();
 
         evaluatorConfigBuilder.setPlatformTimeUpdateNotifier(this.mTimeNotifier);
         mTimeNotifier.setUpdatesEnabled(true);
+        mVisibilityStatusDataProvider.setUpdatesEnabled(true);
 
         if (enableAnimations) {
             evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
@@ -187,7 +219,7 @@ public class ProtoLayoutDynamicDataPipeline {
     public @NonNull PipelineMaker newPipelineMaker(
             @NonNull BiFunction<EnterTransition, View, AnimationSet> enterAnimationInflator,
             @NonNull BiFunction<ExitTransition, View, AnimationSet> exitAnimationInflator) {
-        return new PipelineMaker(this, enterAnimationInflator, exitAnimationInflator, mEvaluator);
+        return new PipelineMaker(this, enterAnimationInflator, exitAnimationInflator);
     }
 
     /**
@@ -210,6 +242,8 @@ public class ProtoLayoutDynamicDataPipeline {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void setUpdatesEnabled(boolean canUpdate) {
         mTimeNotifier.setUpdatesEnabled(canUpdate);
+        mVisibilityStatusDataProvider.setUpdatesEnabled(canUpdate);
+        mLayoutUpdateStatusDataProvider.setUpdatesEnabled(canUpdate);
     }
 
     /** Closes existing gateways. */
@@ -217,7 +251,7 @@ public class ProtoLayoutDynamicDataPipeline {
     @SuppressWarnings("RestrictTo")
     public void close() {
         mPositionIdTree.clear();
-        mTimeNotifier.setUpdatesEnabled(false);
+        setUpdatesEnabled(false);
     }
 
     /**
@@ -246,18 +280,15 @@ public class ProtoLayoutDynamicDataPipeline {
         private final @NonNull List<String> mNodesPendingChildrenRemoval = new ArrayList<>();
         private final @NonNull Set<String> mChangedNodes = new ArraySet<>();
         private final @NonNull Set<String> mParentsOfChangedNodes = new ArraySet<>();
-        private final @NonNull DynamicTypeEvaluator mEvaluator;
         private int mExitAnimationsCounter = 0;
 
         PipelineMaker(
                 @NonNull ProtoLayoutDynamicDataPipeline pipeline,
                 @NonNull BiFunction<EnterTransition, View, AnimationSet> enterAnimationInflator,
-                @NonNull BiFunction<ExitTransition, View, AnimationSet> exitAnimationInflator,
-                @NonNull DynamicTypeEvaluator evaluator) {
+                @NonNull BiFunction<ExitTransition, View, AnimationSet> exitAnimationInflator) {
             this.mPipeline = pipeline;
             this.mEnterAnimationInflator = enterAnimationInflator;
             this.mExitAnimationInflator = exitAnimationInflator;
-            this.mEvaluator = evaluator;
         }
 
         /**
@@ -412,6 +443,17 @@ public class ProtoLayoutDynamicDataPipeline {
                 mChangedNodes.clear();
             }
 
+            // Try binding requests
+            mPipeline.mPositionIdTree.forEach(
+                    nodeInfo ->
+                            nodeInfo.getPendingBindingRequests()
+                                    .removeIf(
+                                            pendingRequest ->
+                                                    mPipeline.tryBindRequest(
+                                                            nodeInfo,
+                                                            pendingRequest.getRequest(),
+                                                            pendingRequest.getOnBindFailed())));
+
             // Capture nodes with EnterTransition animation.
             Map<String, EnterTransition> enterTransitionNodes = new ArrayMap<>();
             boolean hasSlideInAnimation = false;
@@ -519,7 +561,7 @@ public class ProtoLayoutDynamicDataPipeline {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicStringInternal(
                             stringSource, ULocale.forLocale(locale), consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -535,7 +577,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicTypeValueReceiver<Integer> consumer) {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicInt32Internal(int32Source, consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -567,7 +609,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicTypeValueReceiver<Float> consumer) {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicFloatInternal(floatSource, consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -598,7 +640,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicTypeValueReceiver<Integer> consumer) {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicColorInternal(colorSource, consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -629,7 +671,7 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicBoolInternal(boolSource, consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -660,7 +702,7 @@ public class ProtoLayoutDynamicDataPipeline {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicFloatInternal(
                             dpProp.getDynamicValue(), consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -677,7 +719,7 @@ public class ProtoLayoutDynamicDataPipeline {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicFloatInternal(
                             degreesProp.getDynamicValue(), consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -694,7 +736,7 @@ public class ProtoLayoutDynamicDataPipeline {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicColorInternal(
                             colorProp.getDynamicValue(), consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -711,7 +753,7 @@ public class ProtoLayoutDynamicDataPipeline {
             DynamicTypeBindingRequest bindingRequest =
                     DynamicTypeBindingRequest.forDynamicBoolInternal(
                             boolProp.getDynamicValue(), consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            addToPendingBindingRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
         }
 
@@ -773,18 +815,10 @@ public class ProtoLayoutDynamicDataPipeline {
             return addPipelineFor(boolProp, posId, buildStateUpdateCallback(invalidData, consumer));
         }
 
-        private void tryBindRequest(
-                String posId, DynamicTypeBindingRequest request, Runnable onFailure) {
-            BoundDynamicType dynamicType = null;
+        private void addToPendingBindingRequest(
+                String posId, DynamicTypeBindingRequest request, Runnable onFailed) {
             NodeInfo nodeInfo = getNodeInfo(posId);
-            try {
-                dynamicType = mEvaluator.bind(request);
-                nodeInfo.addBoundType(dynamicType);
-            } catch (EvaluationException exception) {
-                Log.e(TAG, "Fails to bind dynamicType.", exception);
-                nodeInfo.addFailedBindingRequest(request);
-                onFailure.run();
-            }
+            nodeInfo.addPendingBindingRequest(request, onFailed);
         }
 
         /** This store method shall be called during the layout inflation in a background thread. */
@@ -965,25 +999,22 @@ public class ProtoLayoutDynamicDataPipeline {
         playAvdAnimations(Trigger.InnerCase.ON_LOAD_TRIGGER);
         setAnimationVisibility(mFullyVisible);
 
-        // Retry failing binding requests
-        mPositionIdTree.forEach(
-                nodeInfo ->
-                        nodeInfo.getFailedBindingRequest()
-                                .removeIf(request -> retryBindingRequest(nodeInfo, request)));
-
         mPositionIdTree.forEach(NodeInfo::initPendingBoundTypes);
     }
 
-    private boolean retryBindingRequest(NodeInfo nodeInfo, DynamicTypeBindingRequest request) {
-        BoundDynamicType dynamicType = null;
+    private boolean tryBindRequest(
+            @NonNull NodeInfo nodeInfo,
+            @NonNull DynamicTypeBindingRequest request,
+            @NonNull Runnable onBindFailed) {
         try {
-            dynamicType = mEvaluator.bind(request);
+            BoundDynamicType dynamicType = mEvaluator.bind(request);
             nodeInfo.addBoundType(dynamicType);
             return true;
         } catch (EvaluationException exception) {
-            Log.v(TAG, "Retry to bind dynamicType failed.", exception);
+            Log.e(TAG, "Failed to bind dynamicType.", exception);
+            onBindFailed.run();
+            return false;
         }
-        return false;
     }
 
     /** Play the animation with the given trigger type. */
@@ -1036,9 +1067,14 @@ public class ProtoLayoutDynamicDataPipeline {
         }
 
         this.mFullyVisible = fullyVisible;
+
         // Set visibility to already started INFINITE AVD will pause the animation when the drawable
         // is invisible and resume the animation when becomes visible again.
         setAnimationVisibility(fullyVisible);
+
+        // Send platform data on visibility.
+        this.mVisibilityStatusDataProvider.setValue(fullyVisible);
+
         if (fullyVisible) {
             playAvdAnimations(Trigger.InnerCase.ON_VISIBLE_TRIGGER);
             playAvdAnimations(Trigger.InnerCase.ON_VISIBLE_ONCE_TRIGGER);
@@ -1053,6 +1089,19 @@ public class ProtoLayoutDynamicDataPipeline {
             stopAvdAnimations(Trigger.InnerCase.ON_VISIBLE_TRIGGER);
             resetAvdAnimations(Trigger.InnerCase.ON_VISIBLE_TRIGGER);
         }
+    }
+
+    /**
+     * Sets the layout's update status.
+     *
+     * <p>This is used to update {@link PlatformEventSources#layoutUpdateStatus()} platform data
+     * binding.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @UiThread
+    public void setLayoutUpdateStatus(
+            @PlatformEventSources.LayoutUpdateStatus int layoutUpdateStatus) {
+        this.mLayoutUpdateStatusDataProvider.setValue(layoutUpdateStatus);
     }
 
     /**

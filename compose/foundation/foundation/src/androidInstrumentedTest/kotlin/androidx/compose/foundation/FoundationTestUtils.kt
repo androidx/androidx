@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
  */
 internal fun ComposeContentTestRule.setFocusableContent(
     extraItemForInitialFocus: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     setContent {
         if (extraItemForInitialFocus) {

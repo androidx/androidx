@@ -20,6 +20,7 @@ import android.app.Application;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
@@ -37,6 +38,8 @@ import androidx.camera.core.internal.TargetConfig;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -62,6 +65,32 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("HiddenSuperclass")
 public final class CameraXConfig implements TargetConfig<CameraX> {
+
+    /**
+     * Unknown CameraX config impl type.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN = -1;
+    /**
+     * camera-camera2 CameraX config impl type.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2 = 0;
+    /**
+     * camera-camera2-pipe-integration CameraX config impl type.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAMERAX_CONFIG_IMPL_TYPE_PIPE = 1;
+
+    /**
+     * The different implementation types the CameraXConfig can be configured for.
+     */
+    @IntDef({CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN, CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2,
+            CAMERAX_CONFIG_IMPL_TYPE_PIPE})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @interface ImplType {
+    }
 
     /**
      * An interface which can be implemented to provide the configuration for CameraX.
@@ -127,6 +156,9 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             Option.create(
                     "camerax.core.appConfig.quirksSettings",
                     QuirkSettings.class);
+
+    static final Option<Integer> OPTION_CONFIG_IMPL_TYPE =
+            Option.create("camerax.core.appConfig.configImplType", int.class);
 
     // *********************************************************************************************
 
@@ -245,6 +277,18 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @Nullable QuirkSettings getQuirkSettings() {
         return mConfig.retrieveOption(OPTION_QUIRK_SETTINGS, null);
+    }
+
+    /**
+     * Returns the config impl type.
+     *
+     * @return the config impl type.
+     *
+     * @see Builder#setConfigImplType(int)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @ImplType int getConfigImplType() {
+        return mConfig.retrieveOption(OPTION_CONFIG_IMPL_TYPE, CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -505,6 +549,18 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         @Override
         public @NonNull Builder setTargetName(@NonNull String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
+            return this;
+        }
+
+        /**
+         * Sets the config impl type.
+         *
+         * <p>The available impl types are {@link #CAMERAX_CONFIG_IMPL_TYPE_CAMERA_CAMERA2},
+         * {@link #CAMERAX_CONFIG_IMPL_TYPE_PIPE} and {@link #CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setConfigImplType(@ImplType int configImplType) {
+            getMutableConfig().insertOption(OPTION_CONFIG_IMPL_TYPE, configImplType);
             return this;
         }
     }

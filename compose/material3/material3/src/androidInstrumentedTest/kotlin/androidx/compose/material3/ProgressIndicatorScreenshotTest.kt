@@ -83,7 +83,7 @@ class ProgressIndicatorScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 LinearProgressIndicator(
                     modifier = Modifier.size(240.dp, 16.dp),
-                    progress = { 0.5f }
+                    progress = { 0.5f },
                 )
             }
         }
@@ -194,7 +194,7 @@ class ProgressIndicatorScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 CircularProgressIndicator(
                     trackColor = MaterialTheme.colorScheme.secondaryContainer,
-                    gapSize = 0.dp
+                    gapSize = 0.dp,
                 )
             }
         }
@@ -229,7 +229,7 @@ class ProgressIndicatorScreenshotTest {
                 CircularProgressIndicator(
                     progress = { 0.5f },
                     trackColor = Color.Gray,
-                    strokeCap = StrokeCap.Butt
+                    strokeCap = StrokeCap.Butt,
                 )
             }
         }

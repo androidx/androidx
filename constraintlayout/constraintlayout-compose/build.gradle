@@ -21,16 +21,19 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.constraintlayout.compose"
+        androidResources.enable = true
+    }
 
     sourceSets {
         commonMain {
@@ -42,6 +45,7 @@ androidXMultiplatform {
                 implementation("androidx.compose.foundation:foundation-layout:1.7.0")
                 implementation(project(":constraintlayout:constraintlayout-core"))
                 implementation("androidx.collection:collection:1.4.2")
+                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -77,6 +81,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
+                implementation(libs.espressoCore)
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(project(":compose:foundation:foundation"))
@@ -105,16 +110,10 @@ dependencies {
 
 androidx {
     name = "ConstraintLayout Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT_COMPOSE
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":constraintlayout:constraintlayout-compose:constraintlayout-compose-samples"))
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.constraintlayout.compose"
 }

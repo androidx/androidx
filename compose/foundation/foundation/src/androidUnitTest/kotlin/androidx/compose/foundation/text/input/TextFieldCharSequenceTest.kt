@@ -83,7 +83,7 @@ class TextFieldCharSequenceTest {
                 text = "a",
                 selection = TextRange(1),
                 composition = TextRange(2),
-                highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
+                highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1)),
             )
 
         assertThat(textFieldValue).isEqualTo(textFieldValue)
@@ -96,7 +96,7 @@ class TextFieldCharSequenceTest {
                 text = "a",
                 selection = TextRange(1),
                 composition = TextRange(2),
-                highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1))
+                highlight = Pair(TextHighlightType.HandwritingSelectPreview, TextRange(0, 1)),
             )
 
         assertThat(
@@ -104,7 +104,7 @@ class TextFieldCharSequenceTest {
                     textFieldValue,
                     textFieldValue.selection,
                     textFieldValue.composition,
-                    textFieldValue.highlight
+                    textFieldValue.highlight,
                 )
             )
             .isEqualTo(textFieldValue)

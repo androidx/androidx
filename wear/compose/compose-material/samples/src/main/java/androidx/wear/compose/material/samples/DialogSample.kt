@@ -17,7 +17,6 @@
 package androidx.wear.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
@@ -61,7 +60,7 @@ fun AlertDialogSample() {
         Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Chip(
                 onClick = { showDialog = true },
@@ -92,7 +91,7 @@ fun AlertDialogSample() {
                     Text(
                         text = "Message content goes here",
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.body2,
                     )
                 },
             ) {
@@ -115,7 +114,6 @@ fun AlertDialogSample() {
     }
 }
 
-@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Sampled
 @Composable
 fun ConfirmationDialogSample() {
@@ -124,7 +122,7 @@ fun ConfirmationDialogSample() {
         Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 25.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Chip(
                 onClick = { showDialog = true },
@@ -150,7 +148,7 @@ fun ConfirmationDialogSample() {
                     Image(
                         painter = rememberAnimatedVectorPainter(animation, atEnd),
                         contentDescription = "Open on phone",
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(48.dp),
                     )
                 },
                 durationMillis = 3000,
@@ -178,7 +176,7 @@ fun AlertWithButtons() {
                 colors = ButtonDefaults.secondaryButtonColors(),
                 onClick = {
                     /* Do something e.g. navController.popBackStack()*/
-                }
+                },
             ) {
                 Text("No")
             }
@@ -196,7 +194,7 @@ fun AlertWithButtons() {
     ) {
         Text(
             text = "Body text displayed here " + "(swipe right to dismiss)",
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -219,7 +217,7 @@ fun AlertWithChips() {
             Text(
                 text = "Message content goes here " + "(swipe right to dismiss)",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body2
+                style = MaterialTheme.typography.body2,
             )
         },
     ) {
@@ -240,7 +238,6 @@ fun AlertWithChips() {
     }
 }
 
-@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Sampled
 @Composable
 fun ConfirmationWithAnimation() {
@@ -261,14 +258,14 @@ fun ConfirmationWithAnimation() {
             Image(
                 painter = rememberAnimatedVectorPainter(animation, atEnd),
                 contentDescription = "Open on phone",
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
             )
         },
         durationMillis = animation.totalDuration * 2L,
     ) {
         Text(
             text = "Body text displayed here " + "(swipe right to dismiss)",
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

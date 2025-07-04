@@ -40,5 +40,5 @@ internal expect fun MultiParagraph.drawMultiParagraph(
     shadow: Shadow? = null,
     decoration: TextDecoration? = null,
     drawStyle: DrawStyle? = null,
-    blendMode: BlendMode = BlendMode.SrcOver
+    blendMode: BlendMode = BlendMode.SrcOver,
 )

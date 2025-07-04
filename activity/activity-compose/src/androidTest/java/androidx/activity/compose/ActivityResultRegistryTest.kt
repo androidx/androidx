@@ -66,7 +66,7 @@ class ActivityResultRegistryTest {
                         requestCode: Int,
                         contract: ActivityResultContract<I, O>,
                         input: I,
-                        options: ActivityOptionsCompat?
+                        options: ActivityOptionsCompat?,
                     ) {
                         launchCount++
                     }
@@ -166,7 +166,7 @@ class ActivityResultRegistryTest {
                             requestCode: Int,
                             contract: ActivityResultContract<I, O>,
                             input: I,
-                            options: ActivityOptionsCompat?
+                            options: ActivityOptionsCompat?,
                         ) {
                             launchCount++
                         }
@@ -202,7 +202,7 @@ class ActivityResultRegistryTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     code = requestCode
                 }
@@ -253,7 +253,7 @@ class ActivityResultRegistryTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     code = requestCode
                     launchCount++
@@ -302,7 +302,7 @@ class ActivityResultRegistryTest {
                     requestCode: Int,
                     contract: ActivityResultContract<I, O>,
                     input: I,
-                    options: ActivityOptionsCompat?
+                    options: ActivityOptionsCompat?,
                 ) {
                     code = requestCode
                     launchCount++

@@ -1,11 +1,20 @@
 // Signature format: 4.0
 package androidx.pdf.viewer.fragment {
 
+  public final class PdfStylingOptions {
+    ctor public PdfStylingOptions(@StyleRes int containerStyleResId);
+    method public int getContainerStyleResId();
+    property @StyleRes public int containerStyleResId;
+  }
+
   @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=13) public class PdfViewerFragment extends androidx.fragment.app.Fragment {
     ctor public PdfViewerFragment();
+    ctor protected PdfViewerFragment(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
     method public final android.net.Uri? getDocumentUri();
     method public final boolean isTextSearchActive();
     method public final boolean isToolboxVisible();
+    method public static final androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
+    method protected boolean onLinkClicked(androidx.pdf.content.ExternalLink externalLink);
     method public void onLoadDocumentError(Throwable error);
     method public void onLoadDocumentSuccess();
     method public void onRequestImmersiveMode(boolean enterImmersive);
@@ -15,6 +24,11 @@ package androidx.pdf.viewer.fragment {
     property public final android.net.Uri? documentUri;
     property public final boolean isTextSearchActive;
     property public final boolean isToolboxVisible;
+    field public static final androidx.pdf.viewer.fragment.PdfViewerFragment.Companion Companion;
+  }
+
+  public static final class PdfViewerFragment.Companion {
+    method public androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
   }
 
 }

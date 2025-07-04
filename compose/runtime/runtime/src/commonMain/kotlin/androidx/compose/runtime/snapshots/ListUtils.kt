@@ -138,7 +138,7 @@ internal fun <T> List<T>.fastJoinToString(
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): String {
     return fastJoinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform)
         .toString()
@@ -163,7 +163,7 @@ private fun <T, A : Appendable> List<T>.fastJoinTo(
     postfix: CharSequence = "",
     limit: Int = -1,
     truncated: CharSequence = "...",
-    transform: ((T) -> CharSequence)? = null
+    transform: ((T) -> CharSequence)? = null,
 ): A {
     buffer.append(prefix)
     var count = 0

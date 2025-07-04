@@ -52,7 +52,7 @@ internal class EndpointUtils {
         fun getEndpointsFromAudioDeviceInfo(
             c: Context,
             flowId: Int,
-            adiArr: List<AudioDeviceInfo>?
+            adiArr: List<AudioDeviceInfo>?,
         ): List<CallEndpointCompat> {
             if (adiArr == null) {
                 return listOf()
@@ -88,7 +88,7 @@ internal class EndpointUtils {
         private fun getEndpointFromAudioDeviceInfo(
             c: Context,
             flowId: Int,
-            adi: AudioDeviceInfo
+            adi: AudioDeviceInfo,
         ): CallEndpointCompat {
             val endpointName = remapAudioDeviceNameToEndpointName(c, adi)
             val endpointType = remapAudioDeviceTypeToCallEndpointType(adi.type)
@@ -96,7 +96,7 @@ internal class EndpointUtils {
                 CallEndpointCompat(
                     endpointName,
                     endpointType,
-                    getUuid(flowId, endpointType, endpointName)
+                    getUuid(flowId, endpointType, endpointName),
                 )
             if (SDK_INT >= P && newEndpoint.isBluetoothType()) {
                 newEndpoint.mMackAddress = adi.address
@@ -106,7 +106,7 @@ internal class EndpointUtils {
 
         private fun remapAudioDeviceNameToEndpointName(
             c: Context,
-            audioDeviceInfo: AudioDeviceInfo
+            audioDeviceInfo: AudioDeviceInfo,
         ): String {
             return when (audioDeviceInfo.type) {
                 AudioDeviceInfo.TYPE_BUILTIN_EARPIECE ->
@@ -172,6 +172,13 @@ internal class EndpointUtils {
             return endpoint.type == CallEndpointCompat.TYPE_EARPIECE
         }
 
+        fun isSpeakerEndpoint(endpoint: CallEndpointCompat?): Boolean {
+            if (endpoint == null) {
+                return false
+            }
+            return endpoint.type == CallEndpointCompat.TYPE_SPEAKER
+        }
+
         fun isWiredHeadsetOrBtEndpoint(endpoint: CallEndpointCompat?): Boolean {
             if (endpoint == null) {
                 return false
@@ -212,7 +219,7 @@ internal class EndpointUtils {
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_EARPIECE),
                         CallEndpointCompat.TYPE_EARPIECE,
-                        getUuid(sessionId, CallEndpointCompat.TYPE_EARPIECE)
+                        getUuid(sessionId, CallEndpointCompat.TYPE_EARPIECE),
                     )
                 )
             }
@@ -227,8 +234,8 @@ internal class EndpointUtils {
                             getUuid(
                                 sessionId,
                                 CallEndpointCompat.TYPE_BLUETOOTH,
-                                endpointTypeToString(CallEndpointCompat.TYPE_BLUETOOTH)
-                            )
+                                endpointTypeToString(CallEndpointCompat.TYPE_BLUETOOTH),
+                            ),
                         )
                     )
                 }
@@ -238,7 +245,7 @@ internal class EndpointUtils {
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_WIRED_HEADSET),
                         CallEndpointCompat.TYPE_WIRED_HEADSET,
-                        getUuid(sessionId, CallEndpointCompat.TYPE_WIRED_HEADSET)
+                        getUuid(sessionId, CallEndpointCompat.TYPE_WIRED_HEADSET),
                     )
                 )
             }
@@ -247,7 +254,7 @@ internal class EndpointUtils {
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_SPEAKER),
                         CallEndpointCompat.TYPE_SPEAKER,
-                        getUuid(sessionId, CallEndpointCompat.TYPE_SPEAKER)
+                        getUuid(sessionId, CallEndpointCompat.TYPE_SPEAKER),
                     )
                 )
             }
@@ -256,7 +263,7 @@ internal class EndpointUtils {
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_STREAMING),
                         CallEndpointCompat.TYPE_STREAMING,
-                        getUuid(sessionId, CallEndpointCompat.TYPE_STREAMING)
+                        getUuid(sessionId, CallEndpointCompat.TYPE_STREAMING),
                     )
                 )
             }
@@ -340,7 +347,7 @@ internal class EndpointUtils {
         @JvmStatic
         fun getBluetoothEndpoints(
             state: CallAudioState,
-            sessionId: Int
+            sessionId: Int,
         ): ArrayList<CallEndpointCompat> {
             val endpoints: ArrayList<CallEndpointCompat> = ArrayList()
             val supportedBluetoothDevices = state.supportedBluetoothDevices
@@ -353,7 +360,7 @@ internal class EndpointUtils {
         @JvmStatic
         fun getCallEndpointFromBluetoothDevice(
             btDevice: BluetoothDevice,
-            sessionId: Int
+            sessionId: Int,
         ): CallEndpointCompat {
             var endpointName: String? = null
             var mackAddress: String? = null
@@ -374,21 +381,21 @@ internal class EndpointUtils {
                 mackAddress = UUID.randomUUID().toString()
                 Log.i(
                     "BluetoothApi28PlusImpl",
-                    "setting mac_address[${getMaskedMacAddress(mackAddress)}]"
+                    "setting mac_address[${getMaskedMacAddress(mackAddress)}]",
                 )
             }
             return CallEndpointCompat(
                 endpointName,
                 CallEndpointCompat.TYPE_BLUETOOTH,
                 sessionId,
-                mackAddress = mackAddress
+                mackAddress = mackAddress,
             )
         }
 
         @JvmStatic
         fun getCallEndpointFromAudioState(
             state: CallAudioState,
-            sessionId: Int
+            sessionId: Int,
         ): CallEndpointCompat {
             return getCallEndpointFromBluetoothDevice(state.activeBluetoothDevice, sessionId)
         }

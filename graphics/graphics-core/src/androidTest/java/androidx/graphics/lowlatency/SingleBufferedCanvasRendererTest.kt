@@ -55,7 +55,7 @@ class SingleBufferedCanvasRendererTest {
         val topLeft: Int,
         val topRight: Int,
         val bottomLeft: Int,
-        val bottomRight: Int
+        val bottomRight: Int,
     )
 
     @Test
@@ -66,14 +66,14 @@ class SingleBufferedCanvasRendererTest {
                 topLeft = Color.RED,
                 topRight = Color.YELLOW,
                 bottomRight = Color.BLUE,
-                bottomLeft = Color.GREEN
+                bottomLeft = Color.GREEN,
             ),
             RectColors(
                 topLeft = Color.RED,
                 topRight = Color.YELLOW,
                 bottomRight = Color.BLUE,
-                bottomLeft = Color.GREEN
-            )
+                bottomLeft = Color.GREEN,
+            ),
         )
     }
 
@@ -86,14 +86,14 @@ class SingleBufferedCanvasRendererTest {
                 topLeft = Color.RED,
                 topRight = Color.YELLOW,
                 bottomRight = Color.BLUE,
-                bottomLeft = Color.GREEN
+                bottomLeft = Color.GREEN,
             ),
             RectColors(
                 topLeft = Color.YELLOW,
                 topRight = Color.BLUE,
                 bottomRight = Color.GREEN,
-                bottomLeft = Color.RED
-            )
+                bottomLeft = Color.RED,
+            ),
         )
     }
 
@@ -105,14 +105,14 @@ class SingleBufferedCanvasRendererTest {
                 topLeft = Color.RED,
                 topRight = Color.YELLOW,
                 bottomRight = Color.BLUE,
-                bottomLeft = Color.GREEN
+                bottomLeft = Color.GREEN,
             ),
             RectColors(
                 topLeft = Color.BLUE,
                 topRight = Color.GREEN,
                 bottomRight = Color.RED,
-                bottomLeft = Color.YELLOW
-            )
+                bottomLeft = Color.YELLOW,
+            ),
         )
     }
 
@@ -125,14 +125,14 @@ class SingleBufferedCanvasRendererTest {
                 topLeft = Color.RED,
                 topRight = Color.YELLOW,
                 bottomRight = Color.BLUE,
-                bottomLeft = Color.GREEN
+                bottomLeft = Color.GREEN,
             ),
             RectColors(
                 topLeft = Color.GREEN,
                 topRight = Color.RED,
                 bottomRight = Color.YELLOW,
-                bottomLeft = Color.BLUE
-            )
+                bottomLeft = Color.BLUE,
+            ),
         )
     }
 
@@ -159,14 +159,14 @@ class SingleBufferedCanvasRendererTest {
 
                     override fun onBufferReady(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         syncFenceCompat?.awaitForever()
                         buffer = hardwareBuffer
                         firstRenderLatch.countDown()
                         clearLatch.countDown()
                     }
-                }
+                },
             )
         try {
             renderer.render(Unit)
@@ -215,14 +215,14 @@ class SingleBufferedCanvasRendererTest {
 
                     override fun onBufferReady(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         syncFenceCompat?.awaitForever()
                         buffer = hardwareBuffer
                         initialDrawLatch.countDown()
                         drawCancelledRequestLatch?.countDown()
                     }
-                }
+                },
             )
         try {
             renderer.render(Color.RED)
@@ -272,11 +272,11 @@ class SingleBufferedCanvasRendererTest {
 
                     override fun onBufferReady(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         // NO-OP
                     }
-                }
+                },
             )
         try {
             val latch = CountDownLatch(1)
@@ -322,13 +322,13 @@ class SingleBufferedCanvasRendererTest {
 
                     override fun onBufferReady(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         syncFenceNull = syncFenceCompat == null
                         syncFenceCompat?.awaitForever()
                         drawLatch?.countDown()
                     }
-                }
+                },
             )
         try {
             renderer.isVisible = false
@@ -376,19 +376,19 @@ class SingleBufferedCanvasRendererTest {
 
                     override fun onBufferReady(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         // NO-OP
                     }
 
                     override fun onBufferCancelled(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         bufferRenderCancelled = true
                         bufferLatch.countDown()
                     }
-                }
+                },
             )
         try {
             renderer.render(Color.RED)
@@ -410,7 +410,7 @@ class SingleBufferedCanvasRendererTest {
     private fun testRenderWithTransform(
         transform: Int,
         actualColors: RectColors,
-        expectedColors: RectColors
+        expectedColors: RectColors,
     ) {
         val transformer = BufferTransformer()
         transformer.computeTransform(TEST_WIDTH, TEST_HEIGHT, transform)
@@ -432,19 +432,19 @@ class SingleBufferedCanvasRendererTest {
                             actualColors.topLeft,
                             actualColors.topRight,
                             actualColors.bottomLeft,
-                            actualColors.bottomRight
+                            actualColors.bottomRight,
                         )
                     }
 
                     override fun onBufferReady(
                         hardwareBuffer: HardwareBuffer,
-                        syncFenceCompat: SyncFenceCompat?
+                        syncFenceCompat: SyncFenceCompat?,
                     ) {
                         syncFenceCompat?.awaitForever()
                         buffer = hardwareBuffer
                         renderLatch.countDown()
                     }
-                }
+                },
             )
         try {
             renderer.render(0)
@@ -459,7 +459,7 @@ class SingleBufferedCanvasRendererTest {
                 expectedColors.topLeft,
                 expectedColors.topRight,
                 expectedColors.bottomLeft,
-                expectedColors.bottomRight
+                expectedColors.bottomRight,
             )
         } finally {
             val latch = CountDownLatch(1)

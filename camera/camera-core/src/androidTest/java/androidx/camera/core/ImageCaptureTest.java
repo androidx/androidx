@@ -41,6 +41,8 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.core.internal.StreamSpecsCalculator;
+import androidx.camera.core.internal.StreamSpecsCalculatorImpl;
 import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -93,10 +95,12 @@ public class ImageCaptureTest {
                 StreamSpec.builder(new Size(640, 480)).build());
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
+        StreamSpecsCalculator streamSpecsCalculator = new StreamSpecsCalculatorImpl(
+                useCaseConfigFactory, fakeCameraDeviceSurfaceManager);
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 fakeCamera,
                 new FakeCameraCoordinator(),
-                fakeCameraDeviceSurfaceManager,
+                streamSpecsCalculator,
                 useCaseConfigFactory);
     }
 
@@ -554,11 +558,12 @@ public class ImageCaptureTest {
                         .build());
 
         UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
+        StreamSpecsCalculator streamSpecsCalculator = new StreamSpecsCalculatorImpl(
+                useCaseConfigFactory, fakeCameraDeviceSurfaceManager);
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 fakeCamera,
                 new FakeCameraCoordinator(),
-                fakeCameraDeviceSurfaceManager,
-                useCaseConfigFactory);
+                streamSpecsCalculator, useCaseConfigFactory);
 
         ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
                 ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG).build();

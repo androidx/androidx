@@ -168,7 +168,7 @@ class WideButtonScreenshotTest {
                     title = { Text("Settings") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -188,7 +188,7 @@ class WideButtonScreenshotTest {
                     title = { Text("Settings") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -209,7 +209,7 @@ class WideButtonScreenshotTest {
                     title = { Text("Settings") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -230,7 +230,7 @@ class WideButtonScreenshotTest {
                     title = { Text("Settings") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -251,7 +251,7 @@ class WideButtonScreenshotTest {
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -272,7 +272,7 @@ class WideButtonScreenshotTest {
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -294,7 +294,7 @@ class WideButtonScreenshotTest {
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -304,7 +304,7 @@ class WideButtonScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "disabled_wide_button_with_subtitle_and_icon_light_theme"
+                "disabled_wide_button_with_subtitle_and_icon_light_theme",
             )
     }
 
@@ -319,7 +319,7 @@ class WideButtonScreenshotTest {
                     subtitle = { Text(text = "Update device preferences") },
                     icon = {
                         Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
-                    }
+                    },
                 )
             }
         }
@@ -329,7 +329,7 @@ class WideButtonScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "disabled_wide_button_with_subtitle_and_icon_dark_theme"
+                "disabled_wide_button_with_subtitle_and_icon_dark_theme",
             )
     }
 }

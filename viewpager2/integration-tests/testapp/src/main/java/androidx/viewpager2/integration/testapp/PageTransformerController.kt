@@ -36,7 +36,7 @@ class PageTransformerController(private val viewPager: ViewPager2, private val s
             listOf(
                 "None" to ViewPager2.PageTransformer { _, _ -> /* no op */ },
                 "Margin 50px" to MarginPageTransformer(50),
-                "Margin 32dp" to MarginPageTransformer(32.dpToPx)
+                "Margin 32dp" to MarginPageTransformer(32.dpToPx),
             )
 
         val cancelTranslationsTransformer =
@@ -49,7 +49,7 @@ class PageTransformerController(private val viewPager: ViewPager2, private val s
             ArrayAdapter(
                     spinner.context,
                     android.R.layout.simple_spinner_item,
-                    transformers.map { it.first }.toList()
+                    transformers.map { it.first }.toList(),
                 )
                 .also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
 
@@ -59,7 +59,7 @@ class PageTransformerController(private val viewPager: ViewPager2, private val s
                     parent: AdapterView<*>,
                     view: View?,
                     position: Int,
-                    id: Long
+                    id: Long,
                 ) {
                     val selected = transformers.first { it.first == parent.selectedItem }.second
                     viewPager.setPageTransformer(
@@ -79,7 +79,7 @@ class PageTransformerController(private val viewPager: ViewPager2, private val s
             TypedValue.applyDimension(
                     COMPLEX_UNIT_DIP,
                     this.toFloat(),
-                    viewPager.resources.displayMetrics
+                    viewPager.resources.displayMetrics,
                 )
                 .toInt()
 }

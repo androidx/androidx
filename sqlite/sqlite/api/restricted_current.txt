@@ -4,12 +4,11 @@ package androidx.sqlite {
   public final class SQLite {
     method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
     method public static Void throwSQLiteException(int errorCode, String? errorMsg);
-    method public static inline <R> R use(androidx.sqlite.SQLiteStatement, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block);
-    property public static final int SQLITE_DATA_BLOB;
-    property public static final int SQLITE_DATA_FLOAT;
-    property public static final int SQLITE_DATA_INTEGER;
-    property public static final int SQLITE_DATA_NULL;
-    property public static final int SQLITE_DATA_TEXT;
+    property public static int SQLITE_DATA_BLOB;
+    property public static int SQLITE_DATA_FLOAT;
+    property public static int SQLITE_DATA_INTEGER;
+    property public static int SQLITE_DATA_NULL;
+    property public static int SQLITE_DATA_TEXT;
     field public static final int SQLITE_DATA_BLOB = 4; // 0x4
     field public static final int SQLITE_DATA_FLOAT = 2; // 0x2
     field public static final int SQLITE_DATA_INTEGER = 1; // 0x1
@@ -17,16 +16,19 @@ package androidx.sqlite {
     field public static final int SQLITE_DATA_TEXT = 3; // 0x3
   }
 
-  public interface SQLiteConnection {
+  public interface SQLiteConnection extends java.lang.AutoCloseable {
     method public void close();
+    method public default boolean inTransaction();
     method public androidx.sqlite.SQLiteStatement prepare(String sql);
   }
 
   public interface SQLiteDriver {
+    method public default boolean hasConnectionPool();
     method public androidx.sqlite.SQLiteConnection open(String fileName);
+    property public default boolean hasConnectionPool;
   }
 
-  public interface SQLiteStatement {
+  public interface SQLiteStatement extends java.lang.AutoCloseable {
     method public void bindBlob(@IntRange(from=1L) int index, byte[] value);
     method public default void bindBoolean(@IntRange(from=1L) int index, boolean value);
     method public void bindDouble(@IntRange(from=1L) int index, double value);
@@ -71,6 +73,21 @@ package androidx.sqlite.db {
 
   public static final class SimpleSQLiteQuery.Companion {
     method public void bind(androidx.sqlite.db.SupportSQLiteProgram statement, Object?[]? bindArgs);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SupportSQLiteCompat {
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class SupportSQLiteCompat.Api16Impl {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void cancel(android.os.CancellationSignal cancellationSignal);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.os.CancellationSignal createCancellationSignal();
+    field @Deprecated public static final androidx.sqlite.db.SupportSQLiteCompat.Api16Impl INSTANCE;
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class SupportSQLiteCompat.Api19Impl {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.net.Uri getNotificationUri(android.database.Cursor cursor);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static boolean isLowRamDevice(android.app.ActivityManager activityManager);
+    field @Deprecated public static final androidx.sqlite.db.SupportSQLiteCompat.Api19Impl INSTANCE;
   }
 
   public interface SupportSQLiteDatabase extends java.io.Closeable {
@@ -155,11 +172,11 @@ package androidx.sqlite.db {
   public static final class SupportSQLiteOpenHelper.Configuration {
     ctor public SupportSQLiteOpenHelper.Configuration(android.content.Context context, String? name, androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback, optional boolean useNoBackupDirectory, optional boolean allowDataLossOnRecovery);
     method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context context);
-    property public final boolean allowDataLossOnRecovery;
-    property public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
-    property public final android.content.Context context;
-    property public final String? name;
-    property public final boolean useNoBackupDirectory;
+    property public boolean allowDataLossOnRecovery;
+    property public androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
+    property public android.content.Context context;
+    property public String? name;
+    property public boolean useNoBackupDirectory;
     field public static final androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Companion Companion;
     field public final boolean allowDataLossOnRecovery;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;

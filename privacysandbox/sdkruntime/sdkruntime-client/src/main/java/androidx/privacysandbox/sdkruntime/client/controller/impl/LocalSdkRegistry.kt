@@ -36,9 +36,7 @@ import org.jetbrains.annotations.TestOnly
  * 1) [androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat]
  * 2) [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat]
  */
-internal class LocalSdkRegistry(
-    private val configHolder: LocalSdkConfigsHolder,
-) : SdkRegistry {
+internal class LocalSdkRegistry(private val configHolder: LocalSdkConfigsHolder) : SdkRegistry {
     private lateinit var sdkLoader: SdkLoader
 
     private val sdks = HashMap<String, Entry>()
@@ -53,20 +51,20 @@ internal class LocalSdkRegistry(
     fun loadSdk(
         sdkName: String,
         params: Bundle,
-        overrideVersionHandshake: VersionHandshake?
+        overrideVersionHandshake: VersionHandshake?,
     ): SandboxedSdkCompat {
         val sdkConfig =
             configHolder.getSdkConfig(sdkName)
                 ?: throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-                    "$sdkName not bundled with app"
+                    "$sdkName not bundled with app",
                 )
 
         synchronized(sdks) {
             if (sdks.containsKey(sdkName)) {
                 throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_ALREADY_LOADED,
-                    "$sdkName already loaded"
+                    "$sdkName already loaded",
                 )
             }
 
@@ -119,7 +117,7 @@ internal class LocalSdkRegistry(
             localSdkRegistry.sdkLoader =
                 SdkLoader.create(
                     context,
-                    LocalControllerFactory(context, localSdkRegistry, appOwnedSdkRegistry)
+                    LocalControllerFactory(context, localSdkRegistry, appOwnedSdkRegistry),
                 )
 
             return localSdkRegistry

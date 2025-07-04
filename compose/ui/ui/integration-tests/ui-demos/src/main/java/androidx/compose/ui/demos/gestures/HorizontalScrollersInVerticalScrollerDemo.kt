@@ -101,7 +101,7 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
                                 }
                             offset = offset + toConsume
                             toConsume
-                        }
+                        },
                 )
                 .then(ClipModifier),
         measurePolicy = { measurables, constraints ->
@@ -145,7 +145,7 @@ private fun Scrollable(orientation: Orientation, content: @Composable () -> Unit
                     Orientation.Vertical -> placeable.placeRelative(0, offset.roundToInt())
                 }
             }
-        }
+        },
     )
 }
 
@@ -193,7 +193,7 @@ private fun Pressable(width: Dp, height: Dp) {
                 detectTapGestures(
                     onTap = onTap,
                     onDoubleTap = onDoubleTap,
-                    onLongPress = onLongPress
+                    onLongPress = onLongPress,
                 )
             }
 

@@ -36,7 +36,7 @@ class SwitchUsageCodeDetectorTest {
             import android.widget.Switch
 
             class CustomSwitch(context: Context): Switch(context)
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -76,7 +76,7 @@ class CustomSwitch(context: Context): Switch(context)
                     mySwitch.setChecked(true)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")

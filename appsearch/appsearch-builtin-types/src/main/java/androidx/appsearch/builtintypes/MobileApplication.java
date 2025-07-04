@@ -30,6 +30,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /** Represents an installed app to enable searching using names, nicknames, and package names. */
@@ -87,7 +88,11 @@ public class MobileApplication extends Thing {
                 alternateNames, description, image, url, potentialActions);
         mPackageName = Preconditions.checkNotNull(packageName);
         mDisplayName = displayName;
-        mAlternateNames = Preconditions.checkNotNull(alternateNames);
+        if (alternateNames == null) {
+            mAlternateNames = Collections.emptyList();
+        } else {
+            mAlternateNames = Collections.unmodifiableList(alternateNames);
+        }
         mIconUri = iconUri;
         mSha256Certificate = Preconditions.checkNotNull(sha256Certificate);
         mUpdatedTimestampMillis = updatedTimestampMillis;

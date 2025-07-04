@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
+import androidx.tracing.Trace
 import androidx.work.impl.DefaultRunnableScheduler
 import androidx.work.impl.Scheduler
 import androidx.work.impl.utils.INITIAL_ID
@@ -44,57 +45,57 @@ import kotlinx.coroutines.asExecutor
  * To set a custom Configuration for WorkManager, see [WorkManager.initialize].
  */
 @OptIn(ExperimentalConfigurationApi::class)
-class Configuration internal constructor(builder: Builder) {
+public class Configuration internal constructor(builder: Builder) {
     /** The [Executor] used by [WorkManager] to execute [Worker]s. */
-    val executor: Executor
+    public val executor: Executor
 
     /** The [CoroutineContext] used by [WorkManager] to execute [CoroutineWorker]s. */
-    val workerCoroutineContext: CoroutineContext
+    public val workerCoroutineContext: CoroutineContext
 
     /** The [Executor] used by [WorkManager] for all its internal business logic */
-    val taskExecutor: Executor
+    public val taskExecutor: Executor
 
     /** The [Clock] used by [WorkManager] to calculate schedules and perform book-keeping. */
-    val clock: Clock
+    public val clock: Clock
 
     /** The [WorkerFactory] used by [WorkManager] to create [ListenableWorker]s */
-    val workerFactory: WorkerFactory
+    public val workerFactory: WorkerFactory
 
     /** The [InputMergerFactory] used by [WorkManager] to create instances of [InputMerger]s. */
-    val inputMergerFactory: InputMergerFactory
+    public val inputMergerFactory: InputMergerFactory
 
     /** The [RunnableScheduler] to keep track of timed work in the in-process scheduler. */
-    val runnableScheduler: RunnableScheduler
+    public val runnableScheduler: RunnableScheduler
 
     /**
      * The exception handler that is used to intercept exceptions caused when trying to initialize
      * [WorkManager].
      */
-    val initializationExceptionHandler: Consumer<Throwable>?
+    public val initializationExceptionHandler: Consumer<Throwable>?
 
     /**
      * The exception handler that can be used to intercept exceptions caused when trying to schedule
      * [WorkRequest]s.
      */
-    val schedulingExceptionHandler: Consumer<Throwable>?
+    public val schedulingExceptionHandler: Consumer<Throwable>?
 
     /**
      * The exception handler that can be used to intercept exceptions caused when trying to
      * initialize [ListenableWorker]s.
      */
-    val workerInitializationExceptionHandler: Consumer<WorkerExceptionInfo>?
+    public val workerInitializationExceptionHandler: Consumer<WorkerExceptionInfo>?
 
     /**
      * The exception handler that can be used to intercept exceptions caused when trying to execute
      * [ListenableWorker]s.
      */
-    val workerExecutionExceptionHandler: Consumer<WorkerExceptionInfo>?
+    public val workerExecutionExceptionHandler: Consumer<WorkerExceptionInfo>?
 
     /** The [String] name of the process where work should be scheduled. */
-    val defaultProcessName: String?
+    public val defaultProcessName: String?
 
-    /** The minimum logging level, corresponding to the constants found in [android.util.Log] */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val minimumLoggingLevel: Int
+    /** The minimum logging level, corresponding to the constants found in [Log] */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val minimumLoggingLevel: Int
 
     /**
      * The first valid id (inclusive) used by [WorkManager] when creating new instances of
@@ -104,7 +105,7 @@ class Configuration internal constructor(builder: Builder) {
      * ([Configuration.minJobSchedulerId], [Configuration.maxJobSchedulerId]), it is reset to
      * ([Configuration.minJobSchedulerId]).
      */
-    val minJobSchedulerId: Int
+    public val minJobSchedulerId: Int
 
     /**
      * The last valid id (inclusive) used by [WorkManager] when creating new instances of
@@ -114,7 +115,7 @@ class Configuration internal constructor(builder: Builder) {
      * ([Configuration.minJobSchedulerId], [Configuration.maxJobSchedulerId]), it is reset to
      * ([Configuration.minJobSchedulerId]).
      */
-    val maxJobSchedulerId: Int
+    public val maxJobSchedulerId: Int
 
     /**
      * Maximum number of Workers with [Constraints.contentUriTriggers] that could be enqueued
@@ -124,7 +125,7 @@ class Configuration internal constructor(builder: Builder) {
      * occupy slots in JobScheduler to avoid missing updates, thus they are separated in its own
      * category.
      */
-    val contentUriTriggerWorkersLimit: Int
+    public val contentUriTriggerWorkersLimit: Int
 
     /**
      * The maximum number of system requests which can be enqueued by [WorkManager] when using
@@ -132,26 +133,31 @@ class Configuration internal constructor(builder: Builder) {
      */
     @get:IntRange(from = MIN_SCHEDULER_LIMIT.toLong(), to = Scheduler.MAX_SCHEDULER_LIMIT.toLong())
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val maxSchedulerLimit: Int
+    public val maxSchedulerLimit: Int
 
     /** @return `true` If the default task [Executor] is being used */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val isUsingDefaultTaskExecutor: Boolean
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val isUsingDefaultTaskExecutor: Boolean
+
+    // Note: public experimental properties are not allowed because the accessors will not appear
+    // experimental to Java clients. There is a public accessor for this property below.
+    @property:ExperimentalConfigurationApi
+    private val isMarkingJobsAsImportantWhileForeground: Boolean
 
     /**
      * Specifies whether WorkManager automatically set
      * [android.app.job.JobInfo.Builder.setImportantWhileForeground] for workers that are eligible
      * to run immediately.
      */
-    @get:ExperimentalConfigurationApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @property:ExperimentalConfigurationApi
-    val isMarkingJobsAsImportantWhileForeground: Boolean
+    @ExperimentalConfigurationApi
+    public fun isMarkingJobsAsImportantWhileForeground(): Boolean {
+        return isMarkingJobsAsImportantWhileForeground
+    }
 
     /**
      * @return The [Tracer] instance that can be used by [WorkManager] to record trace spans when
      *   executing [WorkRequest]s.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val tracer: Tracer
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val tracer: Tracer
 
     init {
         val builderWorkerDispatcher = builder.workerContext
@@ -200,7 +206,7 @@ class Configuration internal constructor(builder: Builder) {
     }
 
     /** A Builder for [Configuration]s. */
-    class Builder {
+    public class Builder {
         internal var executor: Executor? = null
         internal var workerContext: CoroutineContext? = null
         internal var workerFactory: WorkerFactory? = null
@@ -222,7 +228,7 @@ class Configuration internal constructor(builder: Builder) {
         internal var tracer: Tracer? = null
 
         /** Creates a new [Configuration.Builder]. */
-        constructor()
+        public constructor()
 
         /**
          * Creates a new [Configuration.Builder] with an existing [Configuration] as its template.
@@ -230,7 +236,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param configuration An existing [Configuration] to use as a template
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        constructor(configuration: Configuration) {
+        public constructor(configuration: Configuration) {
             // Note that these must be accessed through fields and not the getters, which can
             // otherwise manipulate the returned value (see getMaxSchedulerLimit(), for example).
             executor = configuration.executor
@@ -261,7 +267,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param workerFactory A [WorkerFactory] for creating [ListenableWorker]s
          * @return This [Builder] instance
          */
-        fun setWorkerFactory(workerFactory: WorkerFactory): Builder {
+        public fun setWorkerFactory(workerFactory: WorkerFactory): Builder {
             this.workerFactory = workerFactory
             return this
         }
@@ -272,7 +278,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param inputMergerFactory A [InputMergerFactory] for creating [InputMerger]s
          * @return This [Builder] instance
          */
-        fun setInputMergerFactory(inputMergerFactory: InputMergerFactory): Builder {
+        public fun setInputMergerFactory(inputMergerFactory: InputMergerFactory): Builder {
             this.inputMergerFactory = inputMergerFactory
             return this
         }
@@ -286,7 +292,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param executor An [Executor] for running [Worker]s
          * @return This [Builder] instance
          */
-        fun setExecutor(executor: Executor): Builder {
+        public fun setExecutor(executor: Executor): Builder {
             this.executor = executor
             return this
         }
@@ -301,7 +307,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param context A [CoroutineContext] for running [CoroutineWorker]s
          * @return This [Builder] instance
          */
-        fun setWorkerCoroutineContext(context: CoroutineContext): Builder {
+        public fun setWorkerCoroutineContext(context: CoroutineContext): Builder {
             this.workerContext = context
             return this
         }
@@ -318,7 +324,7 @@ class Configuration internal constructor(builder: Builder) {
          *   book-keeping
          * @return This [Builder] instance
          */
-        fun setTaskExecutor(taskExecutor: Executor): Builder {
+        public fun setTaskExecutor(taskExecutor: Executor): Builder {
             this.taskExecutor = taskExecutor
             return this
         }
@@ -332,7 +338,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param clock The [Clock] to use
          * @return This [Builder] instance
          */
-        fun setClock(clock: Clock): Builder {
+        public fun setClock(clock: Clock): Builder {
             this.clock = clock
             return this
         }
@@ -353,7 +359,10 @@ class Configuration internal constructor(builder: Builder) {
          * @return This [Builder] instance
          * @throws IllegalArgumentException when the size of the range is less than 1000
          */
-        fun setJobSchedulerJobIdRange(minJobSchedulerId: Int, maxJobSchedulerId: Int): Builder {
+        public fun setJobSchedulerJobIdRange(
+            minJobSchedulerId: Int,
+            maxJobSchedulerId: Int,
+        ): Builder {
             require(maxJobSchedulerId - minJobSchedulerId >= 1000) {
                 "WorkManager needs a range of at least 1000 job ids."
             }
@@ -384,7 +393,7 @@ class Configuration internal constructor(builder: Builder) {
          * @throws IllegalArgumentException if `maxSchedulerLimit` is less than
          *   [Configuration.MIN_SCHEDULER_LIMIT]
          */
-        fun setMaxSchedulerLimit(maxSchedulerLimit: Int): Builder {
+        public fun setMaxSchedulerLimit(maxSchedulerLimit: Int): Builder {
             require(maxSchedulerLimit >= MIN_SCHEDULER_LIMIT) {
                 "WorkManager needs to be able to schedule at least 20 jobs in JobScheduler."
             }
@@ -400,22 +409,21 @@ class Configuration internal constructor(builder: Builder) {
          * occupy slots in JobScheduler to avoid missing updates, thus they are separated in its own
          * category.
          */
-        fun setContentUriTriggerWorkersLimit(contentUriTriggerWorkersLimit: Int): Builder {
+        public fun setContentUriTriggerWorkersLimit(contentUriTriggerWorkersLimit: Int): Builder {
             this.contentUriTriggerWorkersLimit = max(contentUriTriggerWorkersLimit, 0)
             return this
         }
 
         /**
-         * Specifies the minimum logging level, corresponding to the constants found in
-         * [android.util.Log]. For example, specifying [android.util.Log.VERBOSE] will log
-         * everything, whereas specifying [android.util.Log.ERROR] will only log errors and
-         * assertions.The default value is [android.util.Log.INFO].
+         * Specifies the minimum logging level, corresponding to the constants found in [Log]. For
+         * example, specifying [Log.VERBOSE] will log everything, whereas specifying [Log.ERROR]
+         * will only log errors and assertions.The default value is [Log.INFO].
          *
          * @param loggingLevel The minimum logging level, corresponding to the constants found in
-         *   [android.util.Log]
+         *   [Log]
          * @return This [Builder] instance
          */
-        fun setMinimumLoggingLevel(loggingLevel: Int): Builder {
+        public fun setMinimumLoggingLevel(loggingLevel: Int): Builder {
             this.loggingLevel = loggingLevel
             return this
         }
@@ -428,7 +436,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param runnableScheduler The [RunnableScheduler] to be used
          * @return This [Builder] instance
          */
-        fun setRunnableScheduler(runnableScheduler: RunnableScheduler): Builder {
+        public fun setRunnableScheduler(runnableScheduler: RunnableScheduler): Builder {
             this.runnableScheduler = runnableScheduler
             return this
         }
@@ -443,7 +451,9 @@ class Configuration internal constructor(builder: Builder) {
          * @param exceptionHandler an instance to handle exceptions
          * @return This [Builder] instance
          */
-        fun setInitializationExceptionHandler(exceptionHandler: Consumer<Throwable>): Builder {
+        public fun setInitializationExceptionHandler(
+            exceptionHandler: Consumer<Throwable>
+        ): Builder {
             this.initializationExceptionHandler = exceptionHandler
             return this
         }
@@ -460,7 +470,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param schedulingExceptionHandler an instance to handle exceptions
          * @return This [Builder] instance
          */
-        fun setSchedulingExceptionHandler(
+        public fun setSchedulingExceptionHandler(
             schedulingExceptionHandler: Consumer<Throwable>
         ): Builder {
             this.schedulingExceptionHandler = schedulingExceptionHandler
@@ -476,7 +486,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param workerExceptionHandler an instance to handle exceptions
          * @return This [Builder] instance
          */
-        fun setWorkerInitializationExceptionHandler(
+        public fun setWorkerInitializationExceptionHandler(
             workerExceptionHandler: Consumer<WorkerExceptionInfo>
         ): Builder {
             this.workerInitializationExceptionHandler = workerExceptionHandler
@@ -492,7 +502,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param workerExceptionHandler an instance to handle exceptions
          * @return This [Builder] instance
          */
-        fun setWorkerExecutionExceptionHandler(
+        public fun setWorkerExecutionExceptionHandler(
             workerExceptionHandler: Consumer<WorkerExceptionInfo>
         ): Builder {
             this.workerExecutionExceptionHandler = workerExceptionHandler
@@ -505,7 +515,7 @@ class Configuration internal constructor(builder: Builder) {
          * @param processName The [String] process name.
          * @return This [Builder] instance
          */
-        fun setDefaultProcessName(processName: String): Builder {
+        public fun setDefaultProcessName(processName: String): Builder {
             defaultProcessName = processName
             return this
         }
@@ -521,7 +531,7 @@ class Configuration internal constructor(builder: Builder) {
          * @return This [Builder] instance
          */
         @ExperimentalConfigurationApi
-        fun setMarkingJobsAsImportantWhileForeground(markAsImportant: Boolean): Builder {
+        public fun setMarkingJobsAsImportantWhileForeground(markAsImportant: Boolean): Builder {
             this.markJobsAsImportantWhileForeground = markAsImportant
             return this
         }
@@ -533,7 +543,7 @@ class Configuration internal constructor(builder: Builder) {
          * @return This [Builder] instance
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun setTracer(tracer: Tracer): Builder {
+        public fun setTracer(tracer: Tracer): Builder {
             this.tracer = tracer
             return this
         }
@@ -543,7 +553,7 @@ class Configuration internal constructor(builder: Builder) {
          *
          * @return A [Configuration] object with this [Builder]'s parameters.
          */
-        fun build(): Configuration {
+        public fun build(): Configuration {
             return Configuration(this)
         }
     }
@@ -561,17 +571,17 @@ class Configuration internal constructor(builder: Builder) {
      *
      * @see WorkManager.initialize
      */
-    interface Provider {
+    public interface Provider {
         /** The [Configuration] used to initialize WorkManager */
-        val workManagerConfiguration: Configuration
+        public val workManagerConfiguration: Configuration
     }
 
-    companion object {
+    public companion object {
         /**
          * The minimum number of system requests which can be enqueued by [WorkManager] when using
          * [android.app.job.JobScheduler] or [android.app.AlarmManager].
          */
-        const val MIN_SCHEDULER_LIMIT = 20
+        public const val MIN_SCHEDULER_LIMIT: Int = 20
     }
 }
 
@@ -591,7 +601,7 @@ private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
     return Executors.newFixedThreadPool(
         // This value is the same as the core pool size for AsyncTask#THREAD_POOL_EXECUTOR.
         max(2, min(Runtime.getRuntime().availableProcessors() - 1, 4)),
-        factory
+        factory,
     )
 }
 
@@ -601,23 +611,23 @@ private fun createDefaultTracer(): Tracer {
     val tracer =
         object : Tracer {
             override fun isEnabled(): Boolean {
-                return androidx.tracing.Trace.isEnabled()
+                return Trace.isEnabled()
             }
 
             override fun beginSection(label: String) {
-                androidx.tracing.Trace.beginSection(label)
+                Trace.beginSection(label)
             }
 
             override fun endSection() {
-                androidx.tracing.Trace.endSection()
+                Trace.endSection()
             }
 
             override fun beginAsyncSection(methodName: String, cookie: Int) {
-                androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
+                Trace.beginAsyncSection(methodName, cookie)
             }
 
             override fun endAsyncSection(methodName: String, cookie: Int) {
-                androidx.tracing.Trace.endAsyncSection(methodName, cookie)
+                Trace.endAsyncSection(methodName, cookie)
             }
         }
     return tracer

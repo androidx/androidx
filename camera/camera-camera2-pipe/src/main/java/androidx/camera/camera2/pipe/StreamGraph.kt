@@ -49,7 +49,7 @@ public interface StreamGraph {
     /** Wrapper class for [CameraExtensionSession.StillCaptureLatency] object. */
     public data class OutputLatency(
         public val estimatedCaptureLatencyNs: Long,
-        public val estimatedProcessingLatencyNs: Long
+        public val estimatedProcessingLatencyNs: Long,
     ) {
         public val estimatedLatencyNs: Long
             get() = estimatedCaptureLatencyNs + estimatedProcessingLatencyNs

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
@@ -40,7 +40,7 @@ android {
 
 androidx {
     name = "Emoji Picker Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2022"
     description = "Contains sample code for the Androidx Emoji Picker"
 }

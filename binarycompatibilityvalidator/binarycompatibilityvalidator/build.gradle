@@ -22,7 +22,8 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
@@ -30,9 +31,30 @@ plugins {
     id("kotlin")
 }
 
+configurations {
+    // TODO(b/410631668): Migrate away from using internal API in binary compatibility validator
+    // Until we migrate, use the configuration below. It removes need for suppressing
+    // INVISIBLE_REFERENCE and INVISIBLE_MEMBER in the
+    // :binarycompatibilityvalidator:binarycompatibilityvalidator module.
+    // IDE does not support this configuration yet, so you will still see references to internal
+    // members marked as an error
+    friends {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+        attributes {
+            attribute(
+                    Attribute.of("artifactType", String), "jar"
+            )
+        }
+    }
+    compileOnly.extendsFrom(friends)
+
+}
+
 dependencies {
     api(libs.kotlinStdlib)
-    compileOnly(libs.kotlinCompiler)
+    friends(libs.kotlinCompiler)
     implementation(libs.binaryCompatibilityValidator)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
@@ -42,7 +64,13 @@ dependencies {
 
 androidx {
     name = "AndroidX Binary Compatibility Validator"
-    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_HOST_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Enforce binary compatibility for klibs"
+}
+
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        friendPaths.from(configurations.friends.incoming.artifactView {}.files)
+    }
 }

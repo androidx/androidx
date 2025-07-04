@@ -33,7 +33,7 @@ internal constructor(
      * expand to the full task bounds, independent of the state of the split. An example is an
      * activity that blocks all user interactions, such as a warning dialog.
      */
-    val alwaysExpand: Boolean = false
+    val alwaysExpand: Boolean = false,
 ) : EmbeddingRule(tag) {
 
     /**
@@ -41,9 +41,7 @@ internal constructor(
      *
      * @param filters See [ActivityRule.filters].
      */
-    class Builder(
-        private val filters: Set<ActivityFilter>,
-    ) {
+    class Builder(private val filters: Set<ActivityFilter>) {
         private var tag: String? = null
         private var alwaysExpand: Boolean = false
 

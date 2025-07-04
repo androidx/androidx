@@ -43,7 +43,7 @@ public class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayAn
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         val playTimeMillis = playTimeNanos / 1_000_000L
         return initialValue + flingCalculator.flingInfo(initialVelocity).position(playTimeMillis)
@@ -57,7 +57,7 @@ public class SplineBasedFloatDecayAnimationSpec(density: Density) : FloatDecayAn
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         val playTimeMillis = playTimeNanos / 1_000_000L
         return flingCalculator.flingInfo(initialVelocity).velocity(playTimeMillis)

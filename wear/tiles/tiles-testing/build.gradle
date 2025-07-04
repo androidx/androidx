@@ -21,37 +21,31 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.8.1")
+    api(libs.guavaAndroid)
     api(libs.guavaListenableFuture)
+    api(project(':wear:protolayout:protolayout'))
     api(project(":wear:tiles:tiles-renderer"))
 
-    implementation "androidx.concurrent:concurrent-futures:1.1.0"
-    implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
-    implementation "androidx.core:core:1.3.2"
-    implementation "androidx.wear:wear:1.2.0"
-
-    implementation(project(":wear:tiles:tiles"))
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.robolectric)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.test:core:1.5.0")
+    implementation(project(":wear:tiles:tiles"))
 
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
-    testImplementation(libs.testCore)
+    testImplementation(libs.junit)
     testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 }
 
@@ -60,15 +54,14 @@ android {
         minSdk = 26
     }
 
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.tiles.testing"
 }
 
 androidx {
     name = "Android Wear Tiles Testing Utilities"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

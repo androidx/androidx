@@ -58,12 +58,7 @@ public fun <V> longObjectMapOf(key1: Long, value1: V): LongObjectMap<V> =
  * Returns a new [LongObjectMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun <V> longObjectMapOf(
-    key1: Long,
-    value1: V,
-    key2: Long,
-    value2: V,
-): LongObjectMap<V> =
+public fun <V> longObjectMapOf(key1: Long, value1: V, key2: Long, value2: V): LongObjectMap<V> =
     MutableLongObjectMap<V>().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -227,7 +222,7 @@ public fun <V> mutableLongObjectMapOf(
  * @param builderAction Lambda in which the [MutableLongObjectMap] can be populated.
  */
 public inline fun <V> buildLongObjectMap(
-    builderAction: MutableLongObjectMap<V>.() -> Unit,
+    builderAction: MutableLongObjectMap<V>.() -> Unit
 ): LongObjectMap<V> {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableLongObjectMap<V>().apply(builderAction)
@@ -322,7 +317,8 @@ public sealed class LongObjectMap<V> {
      */
     public operator fun get(key: Long): V? {
         val index = findKeyIndex(key)
-        @Suppress("UNCHECKED_CAST") return if (index >= 0) values[index] as V? else null
+        @Suppress("UNCHECKED_CAST")
+        return if (index >= 0) values[index] as V? else null
     }
 
     /**
@@ -332,7 +328,8 @@ public sealed class LongObjectMap<V> {
     public fun getOrDefault(key: Long, defaultValue: V): V {
         val index = findKeyIndex(key)
         if (index >= 0) {
-            @Suppress("UNCHECKED_CAST") return values[index] as V
+            @Suppress("UNCHECKED_CAST")
+            return values[index] as V
         }
         return defaultValue
     }
@@ -482,7 +479,7 @@ public sealed class LongObjectMap<V> {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: Long, value: V) -> CharSequence
+        crossinline transform: (key: Long, value: V) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0
@@ -704,7 +701,8 @@ public class MutableLongObjectMap<V>(initialCapacity: Int = DefaultScatterCapaci
         keys[index] = key
         values[index] = value
 
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return oldValue as V?
     }
 
     /** Puts all the key/value mappings in the [from] map into this map. */
@@ -784,7 +782,8 @@ public class MutableLongObjectMap<V>(initialCapacity: Int = DefaultScatterCapaci
         val oldValue = values[index]
         values[index] = null
 
-        @Suppress("UNCHECKED_CAST") return oldValue as V?
+        @Suppress("UNCHECKED_CAST")
+        return oldValue as V?
     }
 
     /** Removes all mappings from this map. */

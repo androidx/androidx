@@ -8,7 +8,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -33,6 +33,6 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "com.example.android.supportv4"
 }

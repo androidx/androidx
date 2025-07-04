@@ -20,7 +20,7 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 
 internal class AutoCloserTestWatch(
     private val autoCloseTimeout: Long,
-    private val testDispatcher: TestCoroutineScheduler
+    private val testDispatcher: TestCoroutineScheduler,
 ) : AutoCloser.Watch {
 
     private var currentMillis: Long = 0

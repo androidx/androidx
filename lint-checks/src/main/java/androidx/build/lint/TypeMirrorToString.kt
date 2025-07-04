@@ -88,7 +88,7 @@ class TypeMirrorToString : Detector(), SourceCodeScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(TypeMirrorToString::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(TypeMirrorToString::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

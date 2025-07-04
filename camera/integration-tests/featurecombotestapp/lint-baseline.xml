@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.12.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha04)" variant="all" version="8.12.0-alpha04">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        Logger.d(TAG, &quot;Selected features: $features&quot;)"
+        errorLine2="                               ~">
+        <location
+            file="src/main/java/androidx/camera/integration/featurecombo/ui/CameraViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="PendingRecording.start can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            videoCapture.output.prepareRecording(context, mediaStoreOutput).start { event ->"
+        errorLine2="                                                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/featurecombo/ui/CameraViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.d(TAG, &quot;updateUnsupportedFeatures: duration = $duration&quot;)"
+        errorLine2="                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/featurecombo/ui/CameraViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Log.d(TAG, &quot;isSupported: cameraSelector lensFacing = ${cameraSelector.lensFacing}&quot;)"
+        errorLine2="                                                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/featurecombo/ui/CameraViewModel.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        Log.d(TAG, &quot;isSupported: cameraSelector lensFacing = ${cameraSelector.lensFacing}&quot;)"
+        errorLine2="                                                                              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/featurecombo/ui/CameraViewModel.kt"/>
+    </issue>
+
+</issues>

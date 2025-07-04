@@ -29,9 +29,9 @@ import androidx.room.PrimaryKey
                 entity = Pet::class,
                 parentColumns = ["mPetId"],
                 childColumns = ["mPetId"],
-                deferred = true
+                deferred = true,
             )
-        ]
+        ],
 )
 data class Toy(@PrimaryKey(autoGenerate = true) val mId: Int, var mName: String?, var mPetId: Int) {
     override fun equals(other: Any?): Boolean {

@@ -58,7 +58,7 @@ class Bitmap2JpegBytesTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 90,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         val input = Bitmap2JpegBytes.In.of(inputPacket, 100)
 
@@ -84,7 +84,7 @@ class Bitmap2JpegBytesTest {
                 Rect(0, 0, WIDTH, HEIGHT),
                 90,
                 Matrix(),
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         val input = Bitmap2JpegBytes.In.of(inputPacket, 100)
 

@@ -28,6 +28,17 @@ internal fun isAtLeastSdkExtension13(): Boolean {
     return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13
 }
 
+@RequiresApi(Build.VERSION_CODES.R)
+internal fun isAtLeastSdkExtension15(): Boolean {
+    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+internal fun isAtLeastSdkExtension16(): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA ||
+        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 16
+}
+
 internal fun <T : Comparable<T>> T.requireNotLess(other: T, name: String) {
     require(this >= other) { "$name must not be less than $other, currently $this." }
 }
@@ -51,4 +62,12 @@ internal fun Map<String, Int>.reverse(): Map<Int, String> {
 internal fun <T : Comparable<T>> T.requireInRange(min: T, max: T, name: String) {
     requireNotLess(min, name)
     requireNotMore(max, name)
+}
+
+internal fun toString(obj: Any, fieldMap: Map<String, Any?>): String {
+    val content =
+        fieldMap.entries.joinToString(separator = ", ", prefix = "(", postfix = ")") {
+            "${it.key}=${it.value}"
+        }
+    return "${obj.javaClass.simpleName}@${Integer.toHexString(System.identityHashCode(obj))}: $content"
 }

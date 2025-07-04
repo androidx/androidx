@@ -18,6 +18,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
         <activity
-            android:name="androidx.hilt.navigation.compose.HiltViewModelComposeTest$TestActivity" />
+            android:name="androidx.hilt.navigation.compose.HiltNavigationViewModelComposeTest$TestActivity" />
     </application>
 </manifest>

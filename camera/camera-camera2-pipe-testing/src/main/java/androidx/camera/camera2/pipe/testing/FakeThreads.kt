@@ -17,40 +17,59 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.os.Handler
+import android.os.HandlerThread
 import androidx.camera.camera2.pipe.core.Threads
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 
 public object FakeThreads {
-    public fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
+    public fun fromDispatcher(
+        dispatcher: CoroutineDispatcher,
+        blockingDispatcher: CoroutineDispatcher? = null,
+    ): Threads {
         val scope = CoroutineScope(dispatcher + CoroutineName("CXCP-TestScope"))
-        return create(scope, dispatcher)
+        return create(scope, dispatcher, blockingDispatcher)
     }
 
-    public fun fromTestScope(scope: TestScope): Threads {
+    public fun fromTestScope(
+        scope: TestScope,
+        blockingDispatcher: CoroutineDispatcher? = null,
+    ): Threads {
         val dispatcher = StandardTestDispatcher(scope.testScheduler, "CXCP-TestScope")
-        return create(scope, dispatcher)
+        return create(scope, dispatcher, blockingDispatcher)
     }
 
-    private fun create(scope: CoroutineScope, dispatcher: CoroutineDispatcher): Threads {
+    private fun create(
+        scope: CoroutineScope,
+        dispatcher: CoroutineDispatcher,
+        blockingDispatcher: CoroutineDispatcher?,
+    ): Threads {
+        val cameraPipeDispatchScope =
+            CoroutineScope(SupervisorJob() + CoroutineName("CXCP-Dispatch"))
         val executor = dispatcher.asExecutor()
 
-        @Suppress("deprecation") val fakeHandler = { Handler() }
+        @Suppress("deprecation")
+        val fakeHandler = {
+            val handlerThread = HandlerThread("FakeHandlerThread").apply { start() }
+            Handler(handlerThread.looper)
+        }
 
         return Threads(
-            scope,
-            blockingExecutor = executor,
-            blockingDispatcher = dispatcher,
+            cameraPipeScope = scope,
+            cameraPipeDispatchScope = cameraPipeDispatchScope,
+            blockingExecutor = blockingDispatcher?.asExecutor() ?: executor,
+            blockingDispatcher = blockingDispatcher ?: dispatcher,
             backgroundExecutor = executor,
             backgroundDispatcher = dispatcher,
             lightweightExecutor = executor,
             lightweightDispatcher = dispatcher,
             camera2Handler = fakeHandler,
-            camera2Executor = { executor }
+            camera2Executor = { executor },
         )
     }
 }

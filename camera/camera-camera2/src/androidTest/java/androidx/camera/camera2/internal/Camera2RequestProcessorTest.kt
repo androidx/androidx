@@ -97,7 +97,7 @@ class Camera2RequestProcessorTest {
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
             cameraManager.getCameraCharacteristics(cameraId),
-            cameraId
+            cameraId,
         )
     }
 
@@ -115,7 +115,7 @@ class Camera2RequestProcessorTest {
                 handler,
                 captureSessionRepository,
                 CameraQuirks.get(CAMERA_ID, cameraCharacteristics),
-                DeviceQuirks.getAll()
+                DeviceQuirks.getAll(),
             )
 
         cameraDeviceHolder =
@@ -132,7 +132,7 @@ class Camera2RequestProcessorTest {
                 surfaceTexture.release()
                 surface.release()
             },
-            CameraXExecutors.directExecutor()
+            CameraXExecutors.directExecutor(),
         )
 
         // Capture Surface
@@ -146,12 +146,12 @@ class Camera2RequestProcessorTest {
                 val image = imageReader.acquireNextImage()
                 image.close()
             },
-            handler
+            handler,
         )
         captureSurface = SessionProcessorSurface(imageReader.surface, CAPTURE_OUTPUT_CONFIG_ID)
         captureSurface.terminationFuture.addListener(
             { imageReader.close() },
-            CameraXExecutors.directExecutor()
+            CameraXExecutors.directExecutor(),
         )
     }
 
@@ -192,7 +192,7 @@ class Camera2RequestProcessorTest {
                             .apply {
                                 setCaptureRequestOption(
                                     CaptureRequest.JPEG_ORIENTATION,
-                                    ORIENTATION_1
+                                    ORIENTATION_1,
                                 )
                             }
                             .build()
@@ -304,7 +304,7 @@ class Camera2RequestProcessorTest {
                             .apply {
                                 setCaptureRequestOption(
                                     CaptureRequest.JPEG_ORIENTATION,
-                                    ORIENTATION_1
+                                    ORIENTATION_1,
                                 )
                             }
                             .build()
@@ -321,7 +321,7 @@ class Camera2RequestProcessorTest {
                             .apply {
                                 setCaptureRequestOption(
                                     CaptureRequest.JPEG_ORIENTATION,
-                                    ORIENTATION_2
+                                    ORIENTATION_2,
                                 )
                             }
                             .build()
@@ -383,7 +383,7 @@ class Camera2RequestProcessorTest {
                             .apply {
                                 setCaptureRequestOption(
                                     CaptureRequest.JPEG_ORIENTATION,
-                                    ORIENTATION_1
+                                    ORIENTATION_1,
                                 )
                             }
                             .build()
@@ -454,10 +454,7 @@ class Camera2RequestProcessorTest {
             .await()
 
         val requestProcessor =
-            Camera2RequestProcessor(
-                captureSession,
-                listOf(previewSurface, captureSurface),
-            )
+            Camera2RequestProcessor(captureSession, listOf(previewSurface, captureSurface))
         val invalidRequest1 = RequestProcessorRequest.Builder().build()
         val invalidRequest2 =
             RequestProcessorRequest.Builder()
@@ -505,17 +502,17 @@ class Camera2RequestProcessorTest {
         override fun onCaptureStarted(
             request: RequestProcessor.Request,
             frameNumber: Long,
-            timestamp: Long
+            timestamp: Long,
         ) {}
 
         override fun onCaptureProgressed(
             request: RequestProcessor.Request,
-            captureResult: CameraCaptureResult
+            captureResult: CameraCaptureResult,
         ) {}
 
         override fun onCaptureCompleted(
             request: RequestProcessor.Request,
-            captureResult: CameraCaptureResult
+            captureResult: CameraCaptureResult,
         ) {
             if (completedCount >= numOfCaptureResultToVerify) {
                 return
@@ -529,13 +526,13 @@ class Camera2RequestProcessorTest {
 
         override fun onCaptureFailed(
             request: RequestProcessor.Request,
-            captureFailure: CameraCaptureFailure
+            captureFailure: CameraCaptureFailure,
         ) {}
 
         override fun onCaptureBufferLost(
             request: RequestProcessor.Request,
             frameNumber: Long,
-            outputConfigId: Int
+            outputConfigId: Int,
         ) {}
 
         override fun onCaptureSequenceCompleted(sequenceId: Int, frameNumber: Long) {

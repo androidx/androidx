@@ -47,7 +47,7 @@ class SegmentedCircularProgressIndicatorTest {
             SegmentedCircularProgressIndicator(
                 segmentCount = 5,
                 progress = { 0.5f },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -87,7 +87,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -111,7 +111,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -136,7 +136,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -165,7 +165,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -192,7 +192,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -219,7 +219,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
                 strokeWidth = 36.dp,
             )
@@ -248,7 +248,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -272,7 +272,7 @@ class SegmentedCircularProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -328,9 +328,9 @@ class SegmentedCircularProgressIndicatorTest {
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = customIndicatorColor,
                         trackColor = customTrackColor,
-                        overflowTrackColor = customOverflowTrackColor
+                        overflowTrackColor = customOverflowTrackColor,
                     ),
-                allowProgressOverflow = true
+                allowProgressOverflow = true,
             )
         }
         rule.waitForIdle()
@@ -357,9 +357,9 @@ class SegmentedCircularProgressIndicatorTest {
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = customIndicatorColor,
                         trackColor = customTrackColor,
-                        overflowTrackColor = customOverflowTrackColor
+                        overflowTrackColor = customOverflowTrackColor,
                     ),
-                allowProgressOverflow = false
+                allowProgressOverflow = false,
             )
         }
         rule.waitForIdle()

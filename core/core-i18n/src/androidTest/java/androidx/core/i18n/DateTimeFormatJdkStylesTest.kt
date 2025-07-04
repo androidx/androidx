@@ -42,7 +42,7 @@ class DateTimeFormatJdkStylesTest {
             19, // Date
             23,
             42,
-            12 // Time
+            12, // Time
         )
 
     init {
@@ -97,14 +97,14 @@ class DateTimeFormatJdkStylesTest {
         val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(
             Helper.normalizeNnbsp(jdkFormatter.format(testCalendar.time)),
-            Helper.normalizeNnbsp(compatFormatter.format(testCalendar))
+            Helper.normalizeNnbsp(compatFormatter.format(testCalendar)),
         )
     }
 
     private fun checkDateTime(
         locale: Locale,
         javaDateStyle: @DateTimeStyle Int,
-        javaTimeStyle: @DateTimeStyle Int
+        javaTimeStyle: @DateTimeStyle Int,
     ) {
         val jdkFormatter = DateFormat.getDateTimeInstance(javaDateStyle, javaTimeStyle, locale)
         val options =
@@ -112,7 +112,7 @@ class DateTimeFormatJdkStylesTest {
         val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(
             Helper.normalizeNnbsp(jdkFormatter.format(testCalendar.time)),
-            Helper.normalizeNnbsp(compatFormatter.format(testCalendar))
+            Helper.normalizeNnbsp(compatFormatter.format(testCalendar)),
         )
     }
 

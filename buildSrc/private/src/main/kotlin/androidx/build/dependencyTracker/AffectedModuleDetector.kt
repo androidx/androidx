@@ -53,7 +53,7 @@ import org.gradle.api.services.BuildServiceSpec
 enum class ProjectSubset {
     DEPENDENT_PROJECTS,
     CHANGED_PROJECTS,
-    NONE
+    NONE,
 }
 
 /**
@@ -111,7 +111,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
             rootProject.extensions.add(ROOT_PROP_NAME, instance)
 
             val enabledProvider = rootProject.providers.gradleProperty(ENABLE_ARG)
-            val enabled = enabledProvider.isPresent() && enabledProvider.get() != "false"
+            val enabled = enabledProvider.isPresent && enabledProvider.get() != "false"
 
             val distDir = rootProject.getDistributionDirectory()
             val outputFile = distDir.resolve(LOG_FILE_NAME)
@@ -127,7 +127,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                             val params = spec.parameters
                             params.acceptAll = true
                             params.log = logger
-                        }
+                        },
                     )
                 logger.info("using AcceptAll")
                 instance.wrapped = provider
@@ -159,7 +159,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
 
         private fun setupWithParams(
             rootProject: Project,
-            configureAction: Action<BuildServiceSpec<AffectedModuleDetectorLoader.Parameters>>
+            configureAction: Action<BuildServiceSpec<AffectedModuleDetectorLoader.Parameters>>,
         ): Provider<AffectedModuleDetectorLoader> {
             if (!rootProject.isRoot) {
                 throw IllegalArgumentException("this should've been the root project")
@@ -167,7 +167,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
             return rootProject.gradle.sharedServices.registerIfAbsent(
                 SERVICE_NAME,
                 AffectedModuleDetectorLoader::class.java,
-                configureAction
+                configureAction,
             )
         }
 
@@ -271,7 +271,7 @@ abstract class AffectedModuleDetectorLoader :
                     parameters.alwaysBuildIfExists
                         ?: AffectedModuleDetectorImpl.ALWAYS_BUILD_IF_EXISTS,
                 ignoredPaths = parameters.ignoredPaths ?: AffectedModuleDetectorImpl.IGNORED_PATHS,
-                changedFilesProvider = parameters.gitChangedFilesProvider
+                changedFilesProvider = parameters.gitChangedFilesProvider,
             )
         }
     }
@@ -306,7 +306,7 @@ class AffectedModuleDetectorImpl(
     private val cobuiltTestPaths: Set<Set<String>> = COBUILT_TEST_PATHS,
     private val alwaysBuildIfExists: Set<String> = ALWAYS_BUILD_IF_EXISTS,
     private val ignoredPaths: Set<String> = IGNORED_PATHS,
-    private val changedFilesProvider: Provider<List<String>>
+    private val changedFilesProvider: Provider<List<String>>,
 ) : AffectedModuleDetector(logger) {
 
     private val allProjects by lazy { projectGraph.allProjects }
@@ -476,7 +476,7 @@ class AffectedModuleDetectorImpl(
 
     private fun getAffectedCobuiltProjects(
         affectedProjects: Set<String>,
-        allCobuiltSets: Set<Set<String>>
+        allCobuiltSets: Set<Set<String>>,
     ): Set<String> {
         val cobuilts = mutableSetOf<String>()
         affectedProjects.forEach { project ->
@@ -501,32 +501,21 @@ class AffectedModuleDetectorImpl(
             setOf(
                 // placeholder test project to ensure no failure due to no instrumentation.
                 // We can eventually remove if we resolve b/127819369
-                ":placeholder-tests",
+                ":placeholder-tests"
             )
 
         // Some tests are codependent even if their modules are not. Enable manual bundling of tests
         val COBUILT_TEST_PATHS =
             setOf(
-                // Install media tests together per b/128577735
-                setOf(
-                    // Making a change in :media:version-compat-tests makes
-                    // mediaGenerateTestConfiguration run (an unfortunate but low priority bug). To
-                    // prevent failures from missing apks, we make sure to build the
-                    // version-compat-tests projects in that case.
-                    ":media:version-compat-tests",
-                    ":media:version-compat-tests:client",
-                    ":media:version-compat-tests:service",
-                    ":media:version-compat-tests:client-previous",
-                    ":media:version-compat-tests:service-previous"
-                ), // Link material and material-ripple
+                // Link material and material-ripple
                 setOf(":compose:material:material-ripple", ":compose:material:material"),
                 setOf(
                     ":benchmark:benchmark-macro",
-                    ":benchmark:integration-tests:macrobenchmark-target"
+                    ":benchmark:integration-tests:macrobenchmark-target",
                 ), // link benchmark-macro's correctness test and its target
                 setOf(
                     ":benchmark:benchmark-macro-junit4",
-                    ":benchmark:integration-tests:macrobenchmark-target"
+                    ":benchmark:integration-tests:macrobenchmark-target",
                 ), // link benchmark-macro-junit4's correctness test and its target
                 setOf(
                     ":profileinstaller:integration-tests:profile-verification",

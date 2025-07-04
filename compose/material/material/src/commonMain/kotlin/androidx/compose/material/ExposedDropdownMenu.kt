@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ExposedDropdownMenu_androidKt")
+
 package androidx.compose.material
 
 import androidx.compose.animation.animateColorAsState
@@ -61,6 +63,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
+import kotlin.jvm.JvmName
 import kotlin.math.max
 
 /**
@@ -88,7 +91,7 @@ fun ExposedDropdownMenuBox(
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable ExposedDropdownMenuBoxScope.() -> Unit
+    content: @Composable ExposedDropdownMenuBoxScope.() -> Unit,
 ) {
     val density = LocalDensity.current
     val windowBoundsCalculator = platformWindowBoundsCalculator()
@@ -121,14 +124,14 @@ fun ExposedDropdownMenuBox(
                 updateHeight(
                     windowBounds = windowBoundsCalculator.getVisibleWindowBounds(),
                     coordinates = coordinates.value,
-                    verticalMarginInPx = verticalMarginInPx
+                    verticalMarginInPx = verticalMarginInPx,
                 ) { newHeight ->
                     menuHeight = newHeight
                 }
             }
             .expandable(
                 onExpandedChange = { onExpandedChange(!expanded) },
-                menuLabel = getString(Strings.ExposedDropdownMenu)
+                menuLabel = getString(Strings.ExposedDropdownMenu),
             )
             .focusRequester(focusRequester)
     ) {
@@ -141,7 +144,7 @@ fun ExposedDropdownMenuBox(
         updateHeight(
             windowBounds = windowBoundsCalculator.getVisibleWindowBounds(),
             coordinates = coordinates.value,
-            verticalMarginInPx = verticalMarginInPx
+            verticalMarginInPx = verticalMarginInPx,
         ) { newHeight ->
             menuHeight = newHeight
         }
@@ -180,7 +183,7 @@ abstract class ExposedDropdownMenuBoxScope {
         onDismissRequest: () -> Unit,
         modifier: Modifier = Modifier,
         scrollState: ScrollState = rememberScrollState(),
-        content: @Composable ColumnScope.() -> Unit
+        content: @Composable ColumnScope.() -> Unit,
     ) {
         // TODO(b/202810604): use DropdownMenu when PopupProperties constructor is stable
         // return DropdownMenu(
@@ -204,14 +207,14 @@ abstract class ExposedDropdownMenuBoxScope {
 
             ExposedDropdownMenuPopup(
                 onDismissRequest = onDismissRequest,
-                popupPositionProvider = popupPositionProvider
+                popupPositionProvider = popupPositionProvider,
             ) {
                 DropdownMenuContent(
                     expandedStates = expandedStates,
                     transformOriginState = transformOriginState,
                     scrollState = scrollState,
                     modifier = modifier.exposedDropdownSize(),
-                    content = content
+                    content = content,
                 )
             }
         }
@@ -239,7 +242,7 @@ object ExposedDropdownMenuDefaults {
             Icon(
                 Icons.Filled.ArrowDropDown,
                 "Trailing icon for exposed dropdown menu",
-                Modifier.rotate(if (expanded) 180f else 360f)
+                Modifier.rotate(if (expanded) 180f else 360f),
             )
         }
     }
@@ -315,7 +318,7 @@ object ExposedDropdownMenuDefaults {
         disabledLabelColor: Color = unfocusedLabelColor.copy(ContentAlpha.disabled),
         errorLabelColor: Color = MaterialTheme.colors.error,
         placeholderColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
-        disabledPlaceholderColor: Color = placeholderColor.copy(ContentAlpha.disabled)
+        disabledPlaceholderColor: Color = placeholderColor.copy(ContentAlpha.disabled),
     ): TextFieldColors =
         DefaultTextFieldForExposedDropdownMenusColors(
             textColor = textColor,
@@ -339,7 +342,7 @@ object ExposedDropdownMenuDefaults {
             disabledLabelColor = disabledLabelColor,
             errorLabelColor = errorLabelColor,
             placeholderColor = placeholderColor,
-            disabledPlaceholderColor = disabledPlaceholderColor
+            disabledPlaceholderColor = disabledPlaceholderColor,
         )
 
     /**
@@ -410,7 +413,7 @@ object ExposedDropdownMenuDefaults {
         disabledLabelColor: Color = unfocusedLabelColor.copy(ContentAlpha.disabled),
         errorLabelColor: Color = MaterialTheme.colors.error,
         placeholderColor: Color = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
-        disabledPlaceholderColor: Color = placeholderColor.copy(ContentAlpha.disabled)
+        disabledPlaceholderColor: Color = placeholderColor.copy(ContentAlpha.disabled),
     ): TextFieldColors =
         DefaultTextFieldForExposedDropdownMenusColors(
             textColor = textColor,
@@ -434,7 +437,7 @@ object ExposedDropdownMenuDefaults {
             disabledLabelColor = disabledLabelColor,
             errorLabelColor = errorLabelColor,
             placeholderColor = placeholderColor,
-            disabledPlaceholderColor = disabledPlaceholderColor
+            disabledPlaceholderColor = disabledPlaceholderColor,
         )
 }
 
@@ -463,7 +466,7 @@ private fun updateHeight(
     windowBounds: IntRect,
     coordinates: LayoutCoordinates?,
     verticalMarginInPx: Int,
-    onHeightUpdate: (Int) -> Unit
+    onHeightUpdate: (Int) -> Unit,
 ) {
     coordinates ?: return
     val heightAbove = coordinates.boundsInWindow().top - windowBounds.top
@@ -494,10 +497,10 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     private val disabledLabelColor: Color,
     private val errorLabelColor: Color,
     private val placeholderColor: Color,
-    private val disabledPlaceholderColor: Color
+    private val disabledPlaceholderColor: Color,
 ) : TextFieldColors {
 
-    @Suppress("OVERRIDE_DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION") // b/407490794
     @Composable
     override fun leadingIconColor(enabled: Boolean, isError: Boolean): State<Color> {
         return rememberUpdatedState(
@@ -509,7 +512,7 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
         )
     }
 
-    @Suppress("OVERRIDE_DEPRECATION")
+    @Suppress("OVERRIDE_DEPRECATION") // b/407490794
     @Composable
     override fun trailingIconColor(enabled: Boolean, isError: Boolean): State<Color> {
         return rememberUpdatedState(
@@ -525,7 +528,7 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     override fun trailingIconColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
+        interactionSource: InteractionSource,
     ): State<Color> {
         val focused by interactionSource.collectIsFocusedAsState()
 
@@ -543,7 +546,7 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     override fun indicatorColor(
         enabled: Boolean,
         isError: Boolean,
-        interactionSource: InteractionSource
+        interactionSource: InteractionSource,
     ): State<Color> {
         val focused by interactionSource.collectIsFocusedAsState()
 
@@ -575,7 +578,7 @@ private class DefaultTextFieldForExposedDropdownMenusColors(
     override fun labelColor(
         enabled: Boolean,
         error: Boolean,
-        interactionSource: InteractionSource
+        interactionSource: InteractionSource,
     ): State<Color> {
         val focused by interactionSource.collectIsFocusedAsState()
 

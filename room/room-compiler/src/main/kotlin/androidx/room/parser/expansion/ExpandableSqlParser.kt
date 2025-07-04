@@ -32,7 +32,7 @@ class ExpandableQueryVisitor(
     private val original: String,
     private val syntaxErrors: List<String>,
     statement: ParseTree,
-    private val forRuntimeQuery: Boolean
+    private val forRuntimeQuery: Boolean,
 ) : SQLiteParserBaseVisitor<Void?>() {
     private val resultColumns = arrayListOf<SectionInfo>()
     private val explicitColumns = arrayListOf<String>()
@@ -72,13 +72,13 @@ class ExpandableQueryVisitor(
     override fun visitResult_column(ctx: SQLiteParser.Result_columnContext?): Void? {
         fun addProjectionSection(
             c: SQLiteParser.Result_columnContext,
-            p: ExpandableSection.Projection
+            p: ExpandableSection.Projection,
         ) {
             resultColumns.add(
                 SectionInfo(
                     Position(c.start.line - 1, c.start.charPositionInLine),
                     Position(c.stop.line - 1, c.stop.charPositionInLine + c.stop.text.length),
-                    p
+                    p,
                 )
             )
         }
@@ -94,8 +94,8 @@ class ExpandableQueryVisitor(
                             c,
                             ExpandableSection.Projection.Table(
                                 c.table_name().text.trim('`'),
-                                original.substring(c.start.startIndex, c.stop.stopIndex + 1)
-                            )
+                                original.substring(c.start.startIndex, c.stop.stopIndex + 1),
+                            ),
                         )
                     }
                     c.column_alias() != null -> {
@@ -117,13 +117,13 @@ class ExpandableQueryVisitor(
                 SectionInfo(
                     Position(
                         bindParameter.symbol.line - 1,
-                        bindParameter.symbol.charPositionInLine
+                        bindParameter.symbol.charPositionInLine,
                     ),
                     Position(
                         bindParameter.symbol.line - 1,
-                        bindParameter.symbol.charPositionInLine + bindParameter.text.length
+                        bindParameter.symbol.charPositionInLine + bindParameter.text.length,
                     ),
-                    ExpandableSection.BindVar(bindParameter.text)
+                    ExpandableSection.BindVar(bindParameter.text),
                 )
             )
         }
@@ -139,7 +139,7 @@ class ExpandableQueryVisitor(
             inputs = bindingExpressions.toList(),
             tables = tableNames,
             syntaxErrors = syntaxErrors,
-            runtimeQueryPlaceholder = forRuntimeQuery
+            runtimeQueryPlaceholder = forRuntimeQuery,
         )
     }
 
@@ -161,7 +161,7 @@ class ExpandableQueryVisitor(
                 tableNames.add(
                     Table(
                         unescapeIdentifier(tableName),
-                        unescapeIdentifier(tableAlias ?: tableName)
+                        unescapeIdentifier(tableAlias ?: tableName),
                     )
                 )
             }
@@ -205,7 +205,7 @@ class ExpandableSqlParser {
                             original = input,
                             syntaxErrors = syntaxErrors,
                             statement = statement,
-                            forRuntimeQuery = false
+                            forRuntimeQuery = false,
                         )
                         .createParsedQuery()
                 },
@@ -218,9 +218,9 @@ class ExpandableSqlParser {
                         inputs = emptyList(),
                         tables = emptySet(),
                         syntaxErrors = syntaxErrors,
-                        runtimeQueryPlaceholder = false
+                        runtimeQueryPlaceholder = false,
                     )
-                }
+                },
             )
     }
 }

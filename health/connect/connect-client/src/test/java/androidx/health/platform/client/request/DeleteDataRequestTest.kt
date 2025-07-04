@@ -60,7 +60,7 @@ class DeleteDataRequestTest {
                             .setDataType(DataProto.DataType.newBuilder().setName("Steps").build())
                             .setId("clientId3")
                             .build(),
-                    )
+                    ),
             )
 
         val parcel: Parcel = Parcel.obtain()

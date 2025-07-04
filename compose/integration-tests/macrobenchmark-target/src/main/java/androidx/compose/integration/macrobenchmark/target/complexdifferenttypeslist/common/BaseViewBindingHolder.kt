@@ -19,9 +19,8 @@ package androidx.compose.integration.macrobenchmark.target.complexdifferenttypes
 import androidx.viewbinding.ViewBinding
 
 /** Base view holder class for all views with view binding in recycler view adapter. */
-abstract class BaseViewBindingHolder<VB, T>(
-    protected val binding: VB,
-) : BaseViewHolder<T>(binding.root) where VB : ViewBinding {
+abstract class BaseViewBindingHolder<VB, T>(protected val binding: VB) :
+    BaseViewHolder<T>(binding.root) where VB : ViewBinding {
 
     /** Overrides bind fun without view binding to call one with view binding. */
     override fun bind(viewModel: T) {

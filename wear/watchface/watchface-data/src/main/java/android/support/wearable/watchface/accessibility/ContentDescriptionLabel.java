@@ -31,7 +31,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-/** Holds labels for screen regions which should respond to accessibility events. */
+/** Holds labels for screen regions which should respond to accessibility events.
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("BanParcelableUsage")
 public final class ContentDescriptionLabel implements Parcelable {

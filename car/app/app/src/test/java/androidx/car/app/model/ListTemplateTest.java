@@ -277,6 +277,30 @@ public class ListTemplateTest {
     }
 
     @Test
+    public void createInstance_addMediaPlaybackActionAsFAB() {
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setSingleList(getList())
+                        .addAction(Action.MEDIA_PLAYBACK)
+                        .build();
+        assertThat(template.getActions()).containsExactly(Action.MEDIA_PLAYBACK);
+    }
+
+    @Test
+    public void createInstance_addMediaPlaybackActionAsRowSecondaryAction() {
+        ListTemplate template =
+                new ListTemplate.Builder()
+                        .setSingleList(
+                                new ItemList.Builder()
+                                .addItem(createRowWithMediaAction())
+                                .build())
+                        .build();
+
+        Row row  = (Row) template.getSingleList().getItems().get(0);
+        assertThat(row.getActions().get(0)).isEqualTo(Action.MEDIA_PLAYBACK);
+    }
+
+    @Test
     public void createInstance_addComposeAction() {
         CarIcon icon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
                 "ic_test_1");
@@ -691,6 +715,10 @@ public class ListTemplateTest {
                         .build())
                 .addAction(TestUtils.createAction(icon, CarColor.BLUE))
                 .build();
+    }
+
+    private static Row createRowWithMediaAction() {
+        return new Row.Builder().setTitle("Bananas").addAction(Action.MEDIA_PLAYBACK).build();
     }
 
     private static ItemList getList() {

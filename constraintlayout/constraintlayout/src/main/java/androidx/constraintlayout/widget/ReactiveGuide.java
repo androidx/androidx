@@ -23,8 +23,9 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.motion.widget.MotionLayout;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Utility class representing a reactive Guideline helper object for {@link ConstraintLayout}.

@@ -33,6 +33,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -55,7 +56,7 @@ class PdfViewNavigationTest {
                     pdfDocument = fakePdfDocument
                     id = PDF_VIEW_ID
                 },
-                ViewGroup.LayoutParams(width, height)
+                ViewGroup.LayoutParams(width, height),
             )
             activity.setContentView(container)
         }
@@ -79,13 +80,13 @@ class PdfViewNavigationTest {
                                                     pageNumber = VALID_PAGE_NUMBER,
                                                     xCoordinate = 10f,
                                                     yCoordinate = 40f,
-                                                    zoom = 1f
-                                                )
+                                                    zoom = 1f,
+                                                ),
                                         )
                                     ),
-                                externalLinks = emptyList()
-                            ),
-                    )
+                                externalLinks = emptyList(),
+                            )
+                    ),
             )
         setupPdfView(100, 1000, fakePdfDocument)
 
@@ -129,13 +130,13 @@ class PdfViewNavigationTest {
                                                     pageNumber = NON_EXISTENT_PAGE_NUMBER,
                                                     xCoordinate = 10f,
                                                     yCoordinate = 40f,
-                                                    zoom = 1f
-                                                )
+                                                    zoom = 1f,
+                                                ),
                                         )
                                     ),
-                                externalLinks = emptyList()
+                                externalLinks = emptyList(),
                             )
-                    )
+                    ),
             )
         setupPdfView(100, 1000, fakePdfDocument)
 
@@ -161,11 +162,12 @@ class PdfViewNavigationTest {
         assertThat(visiblePagesCount).isGreaterThan(0)
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/428002520
     @Test
     fun testExternalLinkNavigation_withValidUri() = runTest {
         val fakePdfDocument =
             FakePdfDocument(
-                pages = List(10) { Point(100, 200) },
+                pages = List(10) { Point(200, 200) },
                 pageLinks =
                     mapOf(
                         0 to
@@ -175,13 +177,13 @@ class PdfViewNavigationTest {
                                     listOf(
                                         PdfPageLinkContent(
                                             bounds = listOf(RectF(0f, 0f, 100f, 200f)),
-                                            uri = Uri.parse(URI_WITH_VALID_SCHEME)
+                                            uri = Uri.parse(URI_WITH_VALID_SCHEME),
                                         )
                                     ),
-                            ),
-                    )
+                            )
+                    ),
             )
-        setupPdfView(100, 1000, fakePdfDocument)
+        setupPdfView(200, 1000, fakePdfDocument)
 
         Intents.init()
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {

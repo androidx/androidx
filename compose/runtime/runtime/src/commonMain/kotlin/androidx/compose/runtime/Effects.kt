@@ -19,10 +19,12 @@ package androidx.compose.runtime
 import androidx.compose.runtime.internal.PlatformOptimizedCancellationException
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
+import androidx.compose.runtime.tooling.CompositionErrorContextImpl
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.jvm.JvmField
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -47,7 +49,7 @@ import kotlinx.coroutines.launch
 @NonRestartableComposable
 @ExplicitGroupsComposable
 @OptIn(InternalComposeApi::class)
-fun SideEffect(effect: () -> Unit) {
+public fun SideEffect(effect: () -> Unit) {
     currentComposer.recordSideEffect(effect)
 }
 
@@ -55,12 +57,12 @@ fun SideEffect(effect: () -> Unit) {
  * Receiver scope for [DisposableEffect] that offers the [onDispose] clause that should be the last
  * statement in any call to [DisposableEffect].
  */
-class DisposableEffectScope {
+public class DisposableEffectScope {
     /**
      * Provide [onDisposeEffect] to the [DisposableEffect] to run when it leaves the composition or
      * its key changes.
      */
-    inline fun onDispose(crossinline onDisposeEffect: () -> Unit): DisposableEffectResult =
+    public inline fun onDispose(crossinline onDisposeEffect: () -> Unit): DisposableEffectResult =
         object : DisposableEffectResult {
             override fun dispose() {
                 onDisposeEffect()
@@ -68,8 +70,8 @@ class DisposableEffectScope {
         }
 }
 
-interface DisposableEffectResult {
-    fun dispose()
+public interface DisposableEffectResult {
+    public fun dispose()
 }
 
 private val InternalDisposableEffectScope = DisposableEffectScope()
@@ -115,7 +117,7 @@ private const val LaunchedEffectNoParamError =
 @NonRestartableComposable
 @Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
 @Deprecated(DisposableEffectNoParamError, level = DeprecationLevel.ERROR)
-fun DisposableEffect(effect: DisposableEffectScope.() -> DisposableEffectResult): Unit =
+public fun DisposableEffect(effect: DisposableEffectScope.() -> DisposableEffectResult): Unit =
     error(DisposableEffectNoParamError)
 
 /**
@@ -146,7 +148,10 @@ fun DisposableEffect(effect: DisposableEffectScope.() -> DisposableEffectResult)
  */
 @Composable
 @NonRestartableComposable
-fun DisposableEffect(key1: Any?, effect: DisposableEffectScope.() -> DisposableEffectResult) {
+public fun DisposableEffect(
+    key1: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult,
+) {
     remember(key1) { DisposableEffectImpl(effect) }
 }
 
@@ -179,10 +184,10 @@ fun DisposableEffect(key1: Any?, effect: DisposableEffectScope.() -> DisposableE
  */
 @Composable
 @NonRestartableComposable
-fun DisposableEffect(
+public fun DisposableEffect(
     key1: Any?,
     key2: Any?,
-    effect: DisposableEffectScope.() -> DisposableEffectResult
+    effect: DisposableEffectScope.() -> DisposableEffectResult,
 ) {
     remember(key1, key2) { DisposableEffectImpl(effect) }
 }
@@ -216,11 +221,11 @@ fun DisposableEffect(
  */
 @Composable
 @NonRestartableComposable
-fun DisposableEffect(
+public fun DisposableEffect(
     key1: Any?,
     key2: Any?,
     key3: Any?,
-    effect: DisposableEffectScope.() -> DisposableEffectResult
+    effect: DisposableEffectScope.() -> DisposableEffectResult,
 ) {
     remember(key1, key2, key3) { DisposableEffectImpl(effect) }
 }
@@ -254,18 +259,26 @@ fun DisposableEffect(
 @Composable
 @NonRestartableComposable
 @Suppress("ArrayReturn")
-fun DisposableEffect(
+public fun DisposableEffect(
     vararg keys: Any?,
-    effect: DisposableEffectScope.() -> DisposableEffectResult
+    effect: DisposableEffectScope.() -> DisposableEffectResult,
 ) {
     remember(*keys) { DisposableEffectImpl(effect) }
 }
 
 internal class LaunchedEffectImpl(
-    parentCoroutineContext: CoroutineContext,
-    private val task: suspend CoroutineScope.() -> Unit
-) : RememberObserver {
-    private val scope = CoroutineScope(parentCoroutineContext)
+    private val parentCoroutineContext: CoroutineContext,
+    private val task: suspend CoroutineScope.() -> Unit,
+) : RememberObserver, CoroutineExceptionHandler {
+    private val scope =
+        CoroutineScope(
+            parentCoroutineContext +
+                if (parentCoroutineContext[CompositionErrorContextImpl] != null) {
+                    this
+                } else {
+                    EmptyCoroutineContext
+                }
+        )
     private var job: Job? = null
 
     override fun onRemembered() {
@@ -283,6 +296,18 @@ internal class LaunchedEffectImpl(
         job?.cancel(LeftCompositionCancellationException())
         job = null
     }
+
+    // CoroutineExceptionHandler implementation to save on allocations
+    override val key: CoroutineContext.Key<*>
+        get() = CoroutineExceptionHandler.Key
+
+    override fun handleException(context: CoroutineContext, exception: Throwable) {
+        context[CompositionErrorContextImpl]?.apply {
+            exception.attachComposeStackTrace(this@LaunchedEffectImpl)
+        }
+        parentCoroutineContext[CoroutineExceptionHandler]?.handleException(context, exception)
+            ?: throw exception
+    }
 }
 
 /**
@@ -297,7 +322,7 @@ internal class LaunchedEffectImpl(
 @Deprecated(LaunchedEffectNoParamError, level = DeprecationLevel.ERROR)
 @Suppress("DeprecatedCallableAddReplaceWith", "UNUSED_PARAMETER")
 @Composable
-fun LaunchedEffect(block: suspend CoroutineScope.() -> Unit): Unit =
+public fun LaunchedEffect(block: suspend CoroutineScope.() -> Unit): Unit =
     error(LaunchedEffectNoParamError)
 
 /**
@@ -314,7 +339,7 @@ fun LaunchedEffect(block: suspend CoroutineScope.() -> Unit): Unit =
 @Composable
 @NonRestartableComposable
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(key1: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(key1: Any?, block: suspend CoroutineScope.() -> Unit) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -333,7 +358,7 @@ fun LaunchedEffect(key1: Any?, block: suspend CoroutineScope.() -> Unit) {
 @Composable
 @NonRestartableComposable
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(key1: Any?, key2: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(key1: Any?, key2: Any?, block: suspend CoroutineScope.() -> Unit) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1, key2) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -352,7 +377,12 @@ fun LaunchedEffect(key1: Any?, key2: Any?, block: suspend CoroutineScope.() -> U
 @Composable
 @NonRestartableComposable
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(key1: Any?, key2: Any?, key3: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    block: suspend CoroutineScope.() -> Unit,
+) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -375,7 +405,7 @@ private class LeftCompositionCancellationException :
 @NonRestartableComposable
 @Suppress("ArrayReturn")
 @OptIn(InternalComposeApi::class)
-fun LaunchedEffect(vararg keys: Any?, block: suspend CoroutineScope.() -> Unit) {
+public fun LaunchedEffect(vararg keys: Any?, block: suspend CoroutineScope.() -> Unit) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(*keys) { LaunchedEffectImpl(applyContext, block) }
 }
@@ -442,6 +472,24 @@ internal class RememberedCoroutineScope(
             if (
                 localCoroutineContext == null || localCoroutineContext === CancelledCoroutineContext
             ) {
+                val traceContext = parentContext[CompositionErrorContextImpl]
+                val exceptionHandler =
+                    if (traceContext != null) {
+                        // If trace context is present, override exception handler, so all child
+                        // jobs would have the composable trace appended.
+                        // On exception, call overlay -> parent and throw if neither are present.
+                        CoroutineExceptionHandler { c, e ->
+                            traceContext.apply {
+                                e.attachComposeStackTrace(this@RememberedCoroutineScope)
+                            }
+                            overlayContext[CoroutineExceptionHandler]?.handleException(c, e)
+                                ?: parentContext[CoroutineExceptionHandler]?.handleException(c, e)
+                                ?: throw e
+                        }
+                    } else {
+                        EmptyCoroutineContext
+                    }
+
                 // Yes, we're leaking our lock here by using the instance of the object
                 // that also gets handled by user code as a CoroutineScope as an intentional
                 // tradeoff for avoiding the allocation of a dedicated lock object.
@@ -453,7 +501,8 @@ internal class RememberedCoroutineScope(
                     if (localCoroutineContext == null) {
                         val parentContext = parentContext
                         val childJob = Job(parentContext[Job])
-                        localCoroutineContext = parentContext + childJob + overlayContext
+                        localCoroutineContext =
+                            parentContext + childJob + overlayContext + exceptionHandler
                     } else if (localCoroutineContext === CancelledCoroutineContext) {
                         // Lazily initialize the child job here, already cancelled.
                         // Assemble the CoroutineContext exactly as otherwise expected.
@@ -462,7 +511,8 @@ internal class RememberedCoroutineScope(
                             Job(parentContext[Job]).apply {
                                 cancel(ForgottenCoroutineScopeException())
                             }
-                        localCoroutineContext = parentContext + cancelledChildJob + overlayContext
+                        localCoroutineContext =
+                            parentContext + cancelledChildJob + overlayContext + exceptionHandler
                     }
                     _coroutineContext = localCoroutineContext
                 }
@@ -508,8 +558,8 @@ internal class RememberedCoroutineScope(
 @OptIn(InternalComposeApi::class)
 internal fun createCompositionCoroutineScope(
     coroutineContext: CoroutineContext,
-    composer: Composer
-) =
+    composer: Composer,
+): CoroutineScope =
     if (coroutineContext[Job] != null) {
         CoroutineScope(
             Job().apply {
@@ -550,7 +600,7 @@ internal fun createCompositionCoroutineScope(
  * jobs.
  */
 @Composable
-inline fun rememberCoroutineScope(
+public inline fun rememberCoroutineScope(
     crossinline getContext: @DisallowComposableCalls () -> CoroutineContext = {
         EmptyCoroutineContext
     }

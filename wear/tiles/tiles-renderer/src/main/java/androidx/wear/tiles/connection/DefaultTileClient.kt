@@ -75,22 +75,22 @@ public class DefaultTileClient : TileClient {
         private val TILE_ADD_EVENT =
             TileAddEventData(
                 EventBuilders.TileAddEvent.Builder().build().toProto().toByteArray(),
-                TileAddEventData.VERSION_PROTOBUF
+                TileAddEventData.VERSION_PROTOBUF,
             )
         private val TILE_REMOVE_EVENT =
             TileRemoveEventData(
                 EventBuilders.TileRemoveEvent.Builder().build().toProto().toByteArray(),
-                TileRemoveEventData.VERSION_PROTOBUF
+                TileRemoveEventData.VERSION_PROTOBUF,
             )
         private val TILE_ENTER_EVENT =
             TileEnterEventData(
                 EventBuilders.TileEnterEvent.Builder().build().toProto().toByteArray(),
-                TileEnterEventData.VERSION_PROTOBUF
+                TileEnterEventData.VERSION_PROTOBUF,
             )
         private val TILE_LEAVE_EVENT =
             TileLeaveEventData(
                 EventBuilders.TileLeaveEvent.Builder().build().toProto().toByteArray(),
-                TileLeaveEventData.VERSION_PROTOBUF
+                TileLeaveEventData.VERSION_PROTOBUF,
             )
     }
 
@@ -112,7 +112,7 @@ public class DefaultTileClient : TileClient {
         context: Context,
         componentName: ComponentName,
         coroutineScope: CoroutineScope,
-        coroutineDispatcher: CoroutineDispatcher
+        coroutineDispatcher: CoroutineDispatcher,
     ) {
         this.coroutineScope = coroutineScope
         this.coroutineDispatcher = coroutineDispatcher
@@ -145,7 +145,7 @@ public class DefaultTileClient : TileClient {
             val params =
                 TileRequestData(
                     requestParams.toProto().toByteArray(),
-                    TileRequestData.VERSION_PROTOBUF
+                    TileRequestData.VERSION_PROTOBUF,
                 )
 
             suspendCancellableCoroutine<TileBuilders.Tile> { continuation ->
@@ -161,7 +161,7 @@ public class DefaultTileClient : TileClient {
             val params =
                 ResourcesRequestData(
                     requestParams.toProto().toByteArray(),
-                    ResourcesRequestData.VERSION_PROTOBUF
+                    ResourcesRequestData.VERSION_PROTOBUF,
                 )
 
             suspendCancellableCoroutine { continuation ->
@@ -172,7 +172,7 @@ public class DefaultTileClient : TileClient {
 
     @Deprecated(
         "Use requestTileResourcesAsync instead.",
-        replaceWith = ReplaceWith("requestTileResourcesAsync")
+        replaceWith = ReplaceWith("requestTileResourcesAsync"),
     )
     @Suppress("deprecation")
     public override fun requestResources(
@@ -183,7 +183,7 @@ public class DefaultTileClient : TileClient {
                 { res: ResourceBuilders.Resources ->
                     androidx.wear.tiles.ResourceBuilders.Resources.fromProto(res.toProto())
                 },
-                MoreExecutors.directExecutor()
+                MoreExecutors.directExecutor(),
             )
     }
 

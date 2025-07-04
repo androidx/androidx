@@ -34,10 +34,8 @@ import javax.lang.model.element.Element
 import javax.tools.Diagnostic
 import kotlin.io.path.extension
 
-internal class KspFiler(
-    private val delegate: CodeGenerator,
-    private val messager: XMessager,
-) : XFiler {
+internal class KspFiler(private val delegate: CodeGenerator, private val messager: XMessager) :
+    XFiler {
     override fun write(javaFile: JavaFile, mode: XFiler.Mode) {
         val originatingElements = javaFile.typeSpec.originatingElements.toOriginatingElements()
 
@@ -46,7 +44,7 @@ internal class KspFiler(
                 packageName = javaFile.packageName,
                 fileName = javaFile.typeSpec.name,
                 extensionName = "java",
-                aggregating = mode == XFiler.Mode.Aggregating
+                aggregating = mode == XFiler.Mode.Aggregating,
             )
             .use { outputStream ->
                 outputStream.bufferedWriter(Charsets.UTF_8).use { javaFile.writeTo(it) }
@@ -65,7 +63,7 @@ internal class KspFiler(
                 packageName = fileSpec.packageName,
                 fileName = fileSpec.name,
                 extensionName = "kt",
-                aggregating = mode == XFiler.Mode.Aggregating
+                aggregating = mode == XFiler.Mode.Aggregating,
             )
             .use { outputStream ->
                 outputStream.bufferedWriter(Charsets.UTF_8).use { fileSpec.writeTo(it) }
@@ -77,7 +75,7 @@ internal class KspFiler(
         fileNameWithoutExtension: String,
         extension: String,
         originatingElements: List<XElement>,
-        mode: XFiler.Mode
+        mode: XFiler.Mode,
     ): OutputStream {
         require(extension == "java" || extension == "kt") {
             "Source file extension must be either 'java' or 'kt', but was: $extension"
@@ -89,14 +87,14 @@ internal class KspFiler(
             packageName = packageName,
             fileName = fileNameWithoutExtension,
             extensionName = extension,
-            aggregating = mode == XFiler.Mode.Aggregating
+            aggregating = mode == XFiler.Mode.Aggregating,
         )
     }
 
     override fun writeResource(
         filePath: Path,
         originatingElements: List<XElement>,
-        mode: XFiler.Mode
+        mode: XFiler.Mode,
     ): OutputStream {
         require(filePath.extension != "java" && filePath.extension != "kt") {
             "Could not create resource file with a source type extension. File must not be " +
@@ -109,7 +107,7 @@ internal class KspFiler(
             packageName = "",
             fileName = filePath.toString().substringBeforeLast("."),
             extensionName = filePath.extension,
-            aggregating = mode == XFiler.Mode.Aggregating
+            aggregating = mode == XFiler.Mode.Aggregating,
         )
     }
 
@@ -118,7 +116,7 @@ internal class KspFiler(
         packageName: String,
         fileName: String,
         extensionName: String,
-        aggregating: Boolean
+        aggregating: Boolean,
     ): OutputStream {
         val dependencies =
             if (originatingElements.isEmpty()) {
@@ -129,14 +127,14 @@ internal class KspFiler(
                         Diagnostic.Kind.WARNING,
                         "No dependencies reported for generated source $filePath which will" +
                             "prevent incremental compilation.\n" +
-                            "Please file a bug at $ISSUE_TRACKER_LINK."
+                            "Please file a bug at $ISSUE_TRACKER_LINK.",
                     )
                 }
                 Dependencies.ALL_FILES
             } else {
                 Dependencies(
                     aggregating = aggregating,
-                    sources = originatingElements.files.distinct().toTypedArray()
+                    sources = originatingElements.files.distinct().toTypedArray(),
                 )
             }
 
@@ -145,7 +143,7 @@ internal class KspFiler(
                 classes = originatingElements.classes,
                 packageName = packageName,
                 fileName = fileName,
-                extensionName = extensionName
+                extensionName = extensionName,
             )
         }
 
@@ -153,7 +151,7 @@ internal class KspFiler(
             dependencies = dependencies,
             packageName = packageName,
             fileName = fileName,
-            extensionName = extensionName
+            extensionName = extensionName,
         )
     }
 

@@ -56,7 +56,7 @@ internal class LazyGridMeasuredItem(
     private val animator: LazyLayoutItemAnimator<LazyGridMeasuredItem>,
     override val constraints: Constraints,
     override val lane: Int,
-    override val span: Int
+    override val span: Int,
 ) : LazyGridItemInfo, LazyLayoutMeasuredItem {
     /** Main axis size of the item - the max main axis size of the placeables. */
     val mainAxisSize: Int
@@ -109,7 +109,7 @@ internal class LazyGridMeasuredItem(
         mainAxisOffset: Int,
         crossAxisOffset: Int,
         layoutWidth: Int,
-        layoutHeight: Int
+        layoutHeight: Int,
     ) {
         position(
             mainAxisOffset,
@@ -117,7 +117,7 @@ internal class LazyGridMeasuredItem(
             layoutWidth,
             layoutHeight,
             LazyGridItemInfo.UnknownRow,
-            LazyGridItemInfo.UnknownColumn
+            LazyGridItemInfo.UnknownColumn,
         )
     }
 
@@ -134,7 +134,7 @@ internal class LazyGridMeasuredItem(
         layoutWidth: Int,
         layoutHeight: Int,
         row: Int,
-        column: Int
+        column: Int,
     ) {
         mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
         val crossAxisLayoutSize = if (isVertical) layoutWidth else layoutHeight

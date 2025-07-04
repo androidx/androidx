@@ -27,10 +27,18 @@ import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import kotlin.math.floor
 
-/** Helper for rendering a thick outline around a complication to highlight it. */
+/**
+ * Helper for rendering a thick outline around a complication to highlight it.
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ComplicationHighlightRenderer(
     @Px private val outlineExpansion: Float,
-    @Px outlineStrokeWidth: Float
+    @Px outlineStrokeWidth: Float,
 ) {
     private val transparentWhitePaint =
         Paint().apply {
@@ -70,11 +78,11 @@ public class ComplicationHighlightRenderer(
                     bounds.left.toFloat() - outlineExpansion,
                     bounds.top.toFloat() - outlineExpansion,
                     bounds.right.toFloat() + outlineExpansion,
-                    bounds.bottom.toFloat() + outlineExpansion
+                    bounds.bottom.toFloat() + outlineExpansion,
                 ),
                 radius,
                 radius,
-                transparentWhitePaint
+                transparentWhitePaint,
             )
 
             canvas.drawRoundRect(
@@ -82,11 +90,11 @@ public class ComplicationHighlightRenderer(
                     bounds.left.toFloat() - outlineExpansion,
                     bounds.top.toFloat() - outlineExpansion,
                     bounds.right.toFloat() + outlineExpansion,
-                    bounds.bottom.toFloat() + outlineExpansion
+                    bounds.bottom.toFloat() + outlineExpansion,
                 ),
                 radius,
                 radius,
-                outlinePaint
+                outlinePaint,
             )
         }
     }

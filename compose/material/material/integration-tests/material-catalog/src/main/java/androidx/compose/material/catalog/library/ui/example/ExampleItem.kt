@@ -47,7 +47,7 @@ fun ExampleItem(example: Example, onClick: (example: Example) -> Unit) {
     Card(
         elevation = 0.dp,
         border = BorderStroke(width = BorderWidth, color = compositeBorderColor()),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(modifier = Modifier.clickable { onClick(example) }.padding(ExampleItemPadding)) {
             Column(modifier = Modifier.weight(1f, fill = true)) {
@@ -61,7 +61,7 @@ fun ExampleItem(example: Example, onClick: (example: Example) -> Unit) {
             Icon(
                 imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier.align(Alignment.CenterVertically),
             )
         }
     }

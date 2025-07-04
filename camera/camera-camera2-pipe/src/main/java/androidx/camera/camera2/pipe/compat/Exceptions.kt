@@ -33,7 +33,7 @@ internal class ObjectUnavailableException(e: Throwable) : Exception(e)
 internal inline fun <T> catchAndReportCameraExceptions(
     cameraId: CameraId,
     cameraErrorListener: CameraErrorListener,
-    crossinline block: () -> T
+    crossinline block: () -> T,
 ): T? {
     // Camera2 has, at different points in time, thrown a large number of checked and/or
     // unchecked exceptions under different circumstances that are not listed in the
@@ -53,9 +53,9 @@ internal inline fun <T> catchAndReportCameraExceptions(
     try {
         return block()
     } catch (e: Exception) {
-        Log.warn { "Unexpected error: " + e.message }
         when (e) {
             is CameraAccessException -> {
+                Log.warn { "Failed to execute call: Camera encountered an error: " + e.message }
                 cameraErrorListener.onCameraError(
                     cameraId,
                     CameraError.from(e),
@@ -67,15 +67,19 @@ internal inline fun <T> catchAndReportCameraExceptions(
                 return null
             }
             is IllegalArgumentException,
-            is IllegalStateException,
             is SecurityException,
             is UnsupportedOperationException,
             is NullPointerException -> {
+                Log.warn { "Failed to execute call: Unexpected exception: " + e.message }
                 cameraErrorListener.onCameraError(
                     cameraId,
                     CameraError.ERROR_GRAPH_CONFIG,
-                    willAttemptRetry = false
+                    willAttemptRetry = false,
                 )
+                return null
+            }
+            is IllegalStateException -> {
+                Log.debug { "Failed to execute call: Camera may be closed" }
                 return null
             }
             else -> throw e

@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-// Parcelize object is testing internal implementation of datastore-core library
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-
 package androidx.datastore.testapp.multiprocess.ipcActions
 
 import android.annotation.SuppressLint

@@ -57,7 +57,7 @@ import java.util.Locale
 class ImageAvailableListener(
     internal val activity: MainActivity,
     internal var params: CameraParams,
-    internal val testConfig: TestConfig
+    internal val testConfig: TestConfig,
 ) : ImageReader.OnImageAvailableListener {
 
     override fun onImageAvailable(reader: ImageReader) {
@@ -94,7 +94,7 @@ class ImageAvailableListener(
                         capturedImageRotation,
                         params.isFront,
                         params,
-                        testConfig
+                        testConfig,
                     )
                 )
             }
@@ -116,7 +116,7 @@ internal constructor(
     private val rotation: Int,
     private val flip: Boolean,
     private val params: CameraParams,
-    private val testConfig: TestConfig
+    private val testConfig: TestConfig,
 ) : Runnable {
 
     override fun run() {
@@ -196,7 +196,7 @@ fun writeFileBeforeQ(activity: MainActivity, bytes: ByteArray) {
                 File.separatorChar +
                 "Antelope" +
                 generateTimestamp() +
-                ".jpg"
+                ".jpg",
         )
 
     val photosDir =
@@ -209,7 +209,7 @@ fun writeFileBeforeQ(activity: MainActivity, bytes: ByteArray) {
                 Toast.makeText(
                         activity,
                         "DCIM/" + PHOTOS_DIR + " creation failed.",
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     )
                     .show()
             }
@@ -369,7 +369,7 @@ fun isHDRPlus(bytes: ByteArray?): Boolean {
 class CameraXImageAvailableListener(
     internal val activity: MainActivity,
     internal var params: CameraParams,
-    internal val testConfig: TestConfig
+    internal val testConfig: TestConfig,
 ) : ImageCapture.OnImageCapturedCallback() {
 
     /** Image was captured successfully */
@@ -411,7 +411,7 @@ class CameraXImageAvailableListener(
                         capturedImageRotation,
                         params.isFront,
                         params,
-                        testConfig
+                        testConfig,
                     )
                 )
             }

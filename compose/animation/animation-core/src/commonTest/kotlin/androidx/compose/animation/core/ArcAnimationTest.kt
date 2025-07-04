@@ -62,7 +62,7 @@ class ArcAnimationTest {
         assertEquals(
             targetValue - animation.valueAt(0.25f)[0],
             animation.valueAt(0.75f)[1],
-            error // Bound to have some minor differences :)
+            error, // Bound to have some minor differences :)
         )
 
         var arcVelocity: AnimationVector2D
@@ -108,7 +108,7 @@ class ArcAnimationTest {
         assertEquals(
             targetValue - animation.valueAt(0.25f)[1],
             animation.valueAt(0.75f)[0],
-            error // Bound to have some minor differences :)
+            error, // Bound to have some minor differences :)
         )
 
         var arcVelocity: AnimationVector2D
@@ -238,7 +238,7 @@ class ArcAnimationTest {
         assertEquals(
             targetValue - animation.valueAt(0.25f)[0],
             animation.valueAt(0.75f)[1],
-            error // Bound to have some minor differences :)
+            error, // Bound to have some minor differences :)
         )
 
         var arcVelocity: AnimationVector3D
@@ -307,14 +307,14 @@ class ArcAnimationTest {
                 mode = ArcBelow,
                 durationMillis = 13,
                 delayMillis = 17,
-                easing = EaseInOut
+                easing = EaseInOut,
             )
         animationB =
             ArcAnimationSpec(
                 mode = ArcBelow,
                 durationMillis = 13,
                 delayMillis = 17,
-                easing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f) // Re-declared EasInOut
+                easing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f), // Re-declared EasInOut
             )
         assertEquals(animationA, animationB)
     }
@@ -387,7 +387,7 @@ class ArcAnimationTest {
         assertArcSplineCurve(
             segment = CurveSegment.All,
             expectGraphX = expectX,
-            expectGraphY = expectY
+            expectGraphY = expectY,
         )
     }
 
@@ -436,7 +436,7 @@ class ArcAnimationTest {
         assertArcSplineCurve(
             segment = CurveSegment.Start,
             expectGraphX = expectX,
-            expectGraphY = expectY
+            expectGraphY = expectY,
         )
     }
 
@@ -485,14 +485,14 @@ class ArcAnimationTest {
         assertArcSplineCurve(
             segment = CurveSegment.End,
             expectGraphX = expectX,
-            expectGraphY = expectY
+            expectGraphY = expectY,
         )
     }
 
     private fun assertArcSplineCurve(
         segment: CurveSegment,
         expectGraphX: String,
-        expectGraphY: String
+        expectGraphY: String,
     ) {
         val startTime = 0f
         val endTime = 5f
@@ -500,14 +500,14 @@ class ArcAnimationTest {
             ArcSpline(
                 arcModes = intArrayOf(ArcSplineArcBelow),
                 timePoints = floatArrayOf(startTime, endTime),
-                y = arrayOf(floatArrayOf(0f, 0f), floatArrayOf(200f, 400f))
+                y = arrayOf(floatArrayOf(0f, 0f), floatArrayOf(200f, 400f)),
             )
         val arcSplineX =
             plot2DArcSpline(
                 spline = arcSpline,
                 dimensionToPlot = 0,
                 start = endTime * segment.startPercent,
-                end = endTime * segment.endPercent
+                end = endTime * segment.endPercent,
             )
         assertEquals(expectGraphX, arcSplineX, message = "Graph on X dimension not equals")
 
@@ -516,7 +516,7 @@ class ArcAnimationTest {
                 spline = arcSpline,
                 dimensionToPlot = 1,
                 start = endTime * segment.startPercent,
-                end = endTime * segment.endPercent
+                end = endTime * segment.endPercent,
             )
         assertEquals(expectGraphY, arcSplineY, message = "Graph on Y dimension not equals")
     }
@@ -527,7 +527,7 @@ class ArcAnimationTest {
             playTimeNanos = (durationMillis * timePercent).toLong() * 1_000_000,
             initialValue = createFilledVector(initialValue),
             targetValue = createFilledVector(targetValue),
-            initialVelocity = createFilledVector(0f)
+            initialVelocity = createFilledVector(0f),
         )
 
     private inline fun <reified V : AnimationVector> VectorizedDurationBasedAnimationSpec<V>
@@ -536,7 +536,7 @@ class ArcAnimationTest {
             playTimeNanos = (durationMillis * timePercent).toLong() * 1_000_000,
             initialValue = createFilledVector(initialValue),
             targetValue = createFilledVector(targetValue),
-            initialVelocity = createFilledVector(0f)
+            initialVelocity = createFilledVector(0f),
         )
 
     private inline fun <reified V : AnimationVector> linearValueAt(timePercent: Float): V {
@@ -547,7 +547,7 @@ class ArcAnimationTest {
     /** Creates an [ArcAnimationSpec] for the given [AnimationVector] type. */
     private inline fun <reified V : AnimationVector> createArcAnimation(
         mode: ArcMode,
-        easing: Easing = LinearEasing
+        easing: Easing = LinearEasing,
     ): VectorizedDurationBasedAnimationSpec<V> {
         val spec =
             ArcAnimationSpec<FloatArray>(mode = mode, durationMillis = timeMillis, easing = easing)
@@ -558,7 +558,7 @@ class ArcAnimationTest {
 private enum class CurveSegment(val startPercent: Float, val endPercent: Float) {
     All(0f, 1f),
     Start(0f, 1f / 5f),
-    End(4f / 5f, 1f)
+    End(4f / 5f, 1f),
 }
 
 /** Plot an [ArcSpline] under the assumption that it has 2 dimensions in values. */
@@ -566,7 +566,7 @@ private fun plot2DArcSpline(
     spline: ArcSpline,
     dimensionToPlot: Int,
     start: Float,
-    end: Float
+    end: Float,
 ): String {
     val count = 60
     val x = FloatArray(count)

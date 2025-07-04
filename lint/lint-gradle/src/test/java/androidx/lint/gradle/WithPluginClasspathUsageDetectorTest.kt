@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4
 class WithPluginClasspathUsageDetectorTest :
     GradleLintDetectorTest(
         detector = WithPluginClasspathUsageDetector(),
-        issues = listOf(WithPluginClasspathUsageDetector.ISSUE)
+        issues = listOf(WithPluginClasspathUsageDetector.ISSUE),
     ) {
     @Test
     fun `Test withPluginClassPath usage`() {

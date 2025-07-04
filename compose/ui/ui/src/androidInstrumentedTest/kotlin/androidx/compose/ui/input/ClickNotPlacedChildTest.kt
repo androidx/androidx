@@ -53,7 +53,7 @@ class ClickNotPlacedChildTest {
                     Box(Modifier.fillMaxSize().clickable { firstClickedTimes++ })
                     Box(Modifier.fillMaxSize().clickable { secondClickedTimes++ })
                 },
-                modifier = Modifier.requiredSize(100.dp).testTag("parent")
+                modifier = Modifier.requiredSize(100.dp).testTag("parent"),
             ) { measutables, constraints ->
                 val first = measutables[0].measure(constraints)
                 measutables[1].measure(constraints)

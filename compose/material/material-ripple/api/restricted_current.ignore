@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.material.ripple.RippleTheme#defaultColor-WaAFU9c(androidx.compose.runtime.Composer, int):
+    Binary breaking change: Added method androidx.compose.material.ripple.RippleTheme.defaultColor-WaAFU9c(androidx.compose.runtime.Composer,int)
+AddedAbstractMethod: androidx.compose.material.ripple.RippleTheme#rippleAlpha(androidx.compose.runtime.Composer, int):
+    Binary breaking change: Added method androidx.compose.material.ripple.RippleTheme.rippleAlpha(androidx.compose.runtime.Composer,int)

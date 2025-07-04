@@ -126,7 +126,7 @@ internal class FrameDeferringContinuationInterceptor(parentInterceptor: Continua
 
     private class TrampolinedTask<T>(
         private val continuation: Continuation<T>,
-        private val result: Result<T>
+        private val result: Result<T>,
     ) {
         fun resume() = continuation.resumeWith(result)
 

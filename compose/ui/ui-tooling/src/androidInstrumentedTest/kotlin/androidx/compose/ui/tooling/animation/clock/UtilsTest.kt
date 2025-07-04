@@ -198,7 +198,7 @@ class UtilsTest {
             parseParametersToValue(
                 Rect(10f, 20f, 30f, 40f),
                 Rect(50f, 60f, 70f, 80f),
-                Rect(90f, 100f, 110f, 120f)
+                Rect(90f, 100f, 110f, 120f),
             )
         assertEquals(TargetState(Rect(50f, 60f, 70f, 80f), Rect(90f, 100f, 110f, 120f)), value)
     }
@@ -209,7 +209,7 @@ class UtilsTest {
             parseParametersToValue(
                 Rect(10f, 20f, 30f, 40f),
                 listOf(50f, 60f, 70f, 80f),
-                listOf(90f, 100f, 110f, 120f)
+                listOf(90f, 100f, 110f, 120f),
             )
         assertEquals(TargetState(Rect(50f, 60f, 70f, 80f), Rect(90f, 100f, 110f, 120f)), value)
     }
@@ -220,11 +220,11 @@ class UtilsTest {
             parseParametersToValue(
                 Color(0.1f, 0.2f, 0.3f, 0.4f),
                 Color(0.5f, 0.6f, 0.7f, 0.8f),
-                Color(0.55f, 0.65f, 0.75f, 0.85f)
+                Color(0.55f, 0.65f, 0.75f, 0.85f),
             )
         assertEquals(
             TargetState(Color(0.5f, 0.6f, 0.7f, 0.8f), Color(0.55f, 0.65f, 0.75f, 0.85f)),
-            value
+            value,
         )
     }
 
@@ -234,11 +234,11 @@ class UtilsTest {
             parseParametersToValue(
                 Color(0.1f, 0.2f, 0.3f, 0.4f),
                 listOf(0.5f, 0.6f, 0.7f, 0.8f),
-                listOf(0.55f, 0.65f, 0.75f, 0.85f)
+                listOf(0.55f, 0.65f, 0.75f, 0.85f),
             )
         assertEquals(
             TargetState(Color(0.5f, 0.6f, 0.7f, 0.8f), Color(0.55f, 0.65f, 0.75f, 0.85f)),
-            value
+            value,
         )
     }
 }

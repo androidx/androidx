@@ -163,7 +163,7 @@ class TransformedTextSelectionMovementTest {
             calculateNextCursorPositionAndWedgeAffinity(
                 proposedCursor = state.visualText.toString().findFollowingBreak(cursor),
                 cursor = cursor,
-                transformedTextFieldState = state
+                transformedTextFieldState = state,
             )
         state.placeCursorBeforeCharAt(newCursor)
         wedgeAffinity?.let { state.selectionWedgeAffinity = SelectionWedgeAffinity(wedgeAffinity) }
@@ -175,7 +175,7 @@ class TransformedTextSelectionMovementTest {
             calculateNextCursorPositionAndWedgeAffinity(
                 proposedCursor = state.visualText.toString().findPrecedingBreak(cursor),
                 cursor = cursor,
-                transformedTextFieldState = state
+                transformedTextFieldState = state,
             )
         state.placeCursorBeforeCharAt(newCursor)
         wedgeAffinity?.let { state.selectionWedgeAffinity = SelectionWedgeAffinity(wedgeAffinity) }

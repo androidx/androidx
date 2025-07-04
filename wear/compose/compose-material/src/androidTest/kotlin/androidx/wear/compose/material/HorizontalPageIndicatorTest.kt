@@ -17,7 +17,6 @@
 package androidx.wear.compose.material
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.AbsoluteCutCornerShape
@@ -30,10 +29,11 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 
-@RequiresApi(Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class HorizontalPageIndicatorTest {
     @get:Rule val rule = createComposeRule()
 
@@ -43,7 +43,7 @@ class HorizontalPageIndicatorTest {
             HorizontalPageIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 pageIndicatorState = pageIndicatorState(),
-                indicatorStyle = PageIndicatorStyle.Curved
+                indicatorStyle = PageIndicatorStyle.Curved,
             )
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -55,7 +55,7 @@ class HorizontalPageIndicatorTest {
             HorizontalPageIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 pageIndicatorState = pageIndicatorState(),
-                indicatorStyle = PageIndicatorStyle.Linear
+                indicatorStyle = PageIndicatorStyle.Linear,
             )
         }
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -104,7 +104,7 @@ class HorizontalPageIndicatorTest {
                     pageIndicatorState =
                         pageIndicatorState(pageOffset = 0f, selectedPage = 1, pageCount = 9),
                     indicatorSize = indicatorSize,
-                    spacing = spacing
+                    spacing = spacing,
                 )
             }
         }
@@ -128,10 +128,10 @@ class HorizontalPageIndicatorTest {
                         pageIndicatorState(
                             pageOffset = 0f,
                             selectedPage = 1,
-                            pageCount = pagesCount
+                            pageCount = pagesCount,
                         ),
                     indicatorSize = indicatorSize,
-                    spacing = spacing
+                    spacing = spacing,
                 )
             }
         }
@@ -148,7 +148,7 @@ class HorizontalPageIndicatorTest {
                     pageIndicatorState = pageIndicatorState(),
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
-                    indicatorSize = 20.dp
+                    indicatorSize = 20.dp,
                 )
             }
         }
@@ -176,7 +176,7 @@ class HorizontalPageIndicatorTest {
                     indicatorStyle = indicatorStyle,
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
-                    indicatorSize = 20.dp
+                    indicatorSize = 20.dp,
                 )
             }
         }
@@ -202,7 +202,7 @@ class HorizontalPageIndicatorTest {
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
                     indicatorShape = AbsoluteCutCornerShape(0f),
-                    indicatorSize = 20.dp
+                    indicatorSize = 20.dp,
                 )
             }
         }

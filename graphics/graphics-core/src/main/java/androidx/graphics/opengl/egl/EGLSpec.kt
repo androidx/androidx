@@ -45,7 +45,6 @@ import androidx.opengl.EGLSyncKHR
  *
  * EGLSpec is not thread safe and is up to the caller of these methods to guarantee thread safety.
  */
-@Suppress("AcronymName")
 interface EGLSpec {
 
     /**
@@ -69,7 +68,7 @@ interface EGLSpec {
      */
     fun eglCreatePBufferSurface(
         config: EGLConfig,
-        configAttributes: EGLConfigAttributes?
+        configAttributes: EGLConfigAttributes?,
     ): EGLSurface
 
     /**
@@ -85,7 +84,7 @@ interface EGLSpec {
     fun eglCreateWindowSurface(
         config: EGLConfig,
         surface: Surface,
-        configAttributes: EGLConfigAttributes?
+        configAttributes: EGLConfigAttributes?,
     ): EGLSurface
 
     /**
@@ -118,7 +117,7 @@ interface EGLSpec {
     fun eglMakeCurrent(
         context: EGLContext,
         drawSurface: EGLSurface,
-        readSurface: EGLSurface
+        readSurface: EGLSurface,
     ): Boolean
 
     /**
@@ -224,7 +223,6 @@ interface EGLSpec {
      *
      * See www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
      */
-    @Suppress("AcronymName")
     @RequiresApi(Build.VERSION_CODES.O)
     fun eglCreateImageFromHardwareBuffer(hardwareBuffer: HardwareBuffer): EGLImageKHR?
 
@@ -240,7 +238,7 @@ interface EGLSpec {
      * @param image EGLImageKHR to be destroyed
      * @return `true` if the destruction of the EGLImageKHR object was successful, `false` otherwise
      */
-    @Suppress("AcronymName") fun eglDestroyImageKHR(image: EGLImageKHR): Boolean
+    fun eglDestroyImageKHR(image: EGLImageKHR): Boolean
 
     /**
      * Creates a sync object of the specified type associated with the specified display, and
@@ -260,7 +258,6 @@ interface EGLSpec {
      * @return the [EGLSyncKHR] object to be used as a fence or null if this extension is not
      *   supported
      */
-    @Suppress("AcronymName")
     fun eglCreateSyncKHR(type: Int, attributes: EGLConfigAttributes?): EGLSyncKHR?
 
     /**
@@ -280,12 +277,11 @@ interface EGLSpec {
      *   not matching the display that was used to create this sync object. Additionally if the
      *   queried attribute is not supported for the sync object, false is returned.
      */
-    @Suppress("AcronymName")
     fun eglGetSyncAttribKHR(
         sync: EGLSyncKHR,
         @EGLSyncAttribute attribute: Int,
         value: IntArray,
-        offset: Int
+        offset: Int,
     ): Boolean
 
     /**
@@ -301,7 +297,7 @@ interface EGLSpec {
      *   or if the display provided in this method does not match the display used to create this
      *   sync in [eglCreateSyncKHR].
      */
-    @Suppress("AcronymName") fun eglDestroySyncKHR(sync: EGLSyncKHR): Boolean
+    fun eglDestroySyncKHR(sync: EGLSyncKHR): Boolean
 
     /**
      * Blocks the calling thread until the specified sync object is signalled or until
@@ -342,11 +338,10 @@ interface EGLSpec {
      *   [EGL_TIMEOUT_EXPIRED_KHR] if the sync did not signal within the specified timeout, or
      *   [EGL_FALSE] if an error occurs.
      */
-    @Suppress("AcronymName")
     fun eglClientWaitSyncKHR(
         sync: EGLSyncKHR,
         flags: Int,
-        timeoutNanos: Long
+        timeoutNanos: Long,
     ): @EGLClientWaitResult Int
 
     companion object {
@@ -365,7 +360,7 @@ interface EGLSpec {
                         // that only
                         // seems to be configured on SystemUIApplication. This might be useful for
                         // front buffer rendering situations for performance.
-                        EGL14.EGL_NONE
+                        EGL14.EGL_NONE,
                     )
 
                 override fun eglInitialize(): EGLVersion {
@@ -381,7 +376,7 @@ interface EGLSpec {
                     } else {
                         throw EGLException(
                             EGL14.eglGetError(),
-                            "Unable to initialize default display"
+                            "Unable to initialize default display",
                         )
                     }
                 }
@@ -397,13 +392,13 @@ interface EGLSpec {
 
                 override fun eglCreatePBufferSurface(
                     config: EGLConfig,
-                    configAttributes: EGLConfigAttributes?
+                    configAttributes: EGLConfigAttributes?,
                 ): EGLSurface =
                     EGL14.eglCreatePbufferSurface(
                         getDefaultDisplay(),
                         config,
                         configAttributes?.attrs,
-                        0
+                        0,
                     )
 
                 override fun eglCreateWindowSurface(
@@ -416,7 +411,7 @@ interface EGLSpec {
                         config,
                         surface,
                         configAttributes?.attrs ?: DefaultWindowSurfaceConfig.attrs,
-                        0
+                        0,
                     )
 
                 override fun eglSwapBuffers(surface: EGLSurface): Boolean =
@@ -426,7 +421,7 @@ interface EGLSpec {
                     surface: EGLSurface,
                     attribute: Int,
                     result: IntArray,
-                    offset: Int
+                    offset: Int,
                 ): Boolean =
                     EGL14.eglQuerySurface(getDefaultDisplay(), surface, attribute, result, offset)
 
@@ -436,7 +431,7 @@ interface EGLSpec {
                 override fun eglMakeCurrent(
                     context: EGLContext,
                     drawSurface: EGLSurface,
-                    readSurface: EGLSurface
+                    readSurface: EGLSurface,
                 ): Boolean =
                     EGL14.eglMakeCurrent(getDefaultDisplay(), drawSurface, readSurface, context)
 
@@ -451,7 +446,7 @@ interface EGLSpec {
                             0,
                             1,
                             intArrayOf(1),
-                            0
+                            0,
                         )
                     ) {
                         configs[0]
@@ -466,7 +461,7 @@ interface EGLSpec {
                         config,
                         EGL14.EGL_NO_CONTEXT, // not creating from a shared context
                         contextAttributes,
-                        0
+                        0,
                     )
                 }
 
@@ -487,14 +482,14 @@ interface EGLSpec {
 
                 override fun eglCreateSyncKHR(
                     type: Int,
-                    attributes: EGLConfigAttributes?
+                    attributes: EGLConfigAttributes?,
                 ): EGLSyncKHR? = EGLExt.eglCreateSyncKHR(getDefaultDisplay(), type, attributes)
 
                 override fun eglGetSyncAttribKHR(
                     sync: EGLSyncKHR,
                     attribute: Int,
                     value: IntArray,
-                    offset: Int
+                    offset: Int,
                 ): Boolean =
                     EGLExt.eglGetSyncAttribKHR(getDefaultDisplay(), sync, attribute, value, offset)
 
@@ -506,7 +501,7 @@ interface EGLSpec {
                 override fun eglClientWaitSyncKHR(
                     sync: EGLSyncKHR,
                     flags: Int,
-                    timeoutNanos: Long
+                    timeoutNanos: Long,
                 ): Int = EGLExt.eglClientWaitSyncKHR(getDefaultDisplay(), sync, flags, timeoutNanos)
 
                 private fun getDefaultDisplay() = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
@@ -550,7 +545,6 @@ interface EGLSpec {
  * @param error Error code reported via eglGetError
  * @param msg Optional message describing the exception being thrown
  */
-@Suppress("AcronymName")
 class EGLException(val error: Int, val msg: String = "") : RuntimeException() {
 
     override val message: String
@@ -563,7 +557,7 @@ class EGLException(val error: Int, val msg: String = "") : RuntimeException() {
  * @param major Major version of the EGL implementation
  * @param minor Minor version of the EGL implementation
  */
-@Suppress("AcronymName")
+@Suppress("DataClassDefinition")
 data class EGLVersion(val major: Int, val minor: Int) {
 
     override fun toString(): String {

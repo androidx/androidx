@@ -66,7 +66,7 @@ class DragDropTargetTest {
                                     dropEvents.add(targetKey)
                                     return@DragAndDropTarget true
                                 }
-                            }
+                            },
                     )
             )
         }
@@ -126,7 +126,7 @@ class DragDropTargetTest {
                                     dropEvents.add(targetKey)
                                     return@DragAndDropTarget true
                                 }
-                            }
+                            },
                     )
             )
         }
@@ -169,7 +169,7 @@ class DragDropTargetTest {
                                 DragAndDropTarget {
                                     return@DragAndDropTarget true
                                 }
-                            }
+                            },
                     )
             )
         }
@@ -199,7 +199,7 @@ class DragDropTargetTest {
 
     private fun DragAndDropTarget(
         onEvent: (Boolean) -> Unit = {},
-        onDrop: (DragAndDropEvent) -> Boolean
+        onDrop: (DragAndDropEvent) -> Boolean,
     ) =
         object : DragAndDropTarget {
             override fun onEntered(event: DragAndDropEvent) = onEvent(true)

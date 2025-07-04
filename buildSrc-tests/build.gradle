@@ -17,8 +17,7 @@
 // This project contains tests for code contained in buildSrc
 // This project is stored outside of buildSrc/ so that waiting for these tests to complete doesn't delay the rest of the build
 
-import androidx.build.LibraryType
-import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -60,14 +59,14 @@ dependencies {
     api(libs.kotlinNativeUtils)
     api(libs.kotlinStdlib)
 
+    // Remove once b/407096518 is fixed
+    implementation(libs.androidGradlePlugin)
+
     implementation(project(":benchmark:benchmark-gradle-plugin"))
     implementation(project(":inspection:inspection-gradle-plugin"))
     implementation(project(":stableaidl:stableaidl-gradle-plugin"))
     implementation(project(":binarycompatibilityvalidator:binarycompatibilityvalidator"))
     implementation(project.ext.findGradleKotlinDsl())
-    // Workaround for targeting KotlinTarget.KOTLIN_1_9, but linking agaist kotlin compiler
-    // embeddable 2.0 in buildSrc
-    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:${libs.versions.kotlin.get()}")
     implementation(libs.kotlinGradlePluginAnnotations)
     implementation(libs.kotlinToolingCore)
     implementation(libs.binaryCompatibilityValidator)
@@ -89,8 +88,7 @@ tasks.withType(Test).configureEach {
 }
 
 androidx {
-    type = LibraryType.INTERNAL_GRADLE_PLUGIN
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    type = SoftwareType.INTERNAL_GRADLE_PLUGIN
 }
 
 // Also do style checking of the buildSrc project from within this project

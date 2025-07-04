@@ -17,22 +17,27 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CaptureRequest;
 import android.media.MediaActionSound;
 import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.FloatRange;
+import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
+import androidx.camera.core.featuregroup.GroupableFeature;
 import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.internal.compat.MediaActionSoundCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,6 +50,12 @@ import java.util.Set;
  * <p>Applications can retrieve an instance via {@link Camera#getCameraInfo()}.
  */
 public interface CameraInfo {
+
+    /**
+     * The torch strength level when the device doesn't have a flash unit or doesn't support
+     * adjusting torch strength.
+     */
+    int TORCH_STRENGTH_LEVEL_UNSUPPORTED = 0;
 
     /**
      * An unknown intrinsic zoom ratio. Usually to indicate the camera is unable to provide
@@ -307,13 +318,50 @@ public interface CameraInfo {
      * <p>There is no guarantee that these ranges can be used for every size surface or
      * combination of use cases. If attempting to run the device using an unsupported range, there
      * may be stability issues or the device may quietly choose another frame rate operating range.
-     *
-     * <p>The returned set does not have any ordering guarantees and frame rate ranges may overlap.
+     * The returned set does not have any ordering guarantees. To get the guaranteed supported
+     * frame rate ranges under UseCase combination constraints, use
+     * {@link #getSupportedFrameRateRanges(SessionConfig)}.
      *
      * @return The set of FPS ranges supported by the device's AE algorithm
      * @see androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)
      */
     default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Returns an unordered set of the frame rate ranges, in frames per second, supported by this
+     * device's AE algorithm for a specific {@link SessionConfig}.
+     *
+     * <p>These are the frame rate ranges that the AE algorithm on the device can support when a
+     * particular {@link SessionConfig} is applied. This allows for querying supported frame rates
+     * based on the specific configuration of {@link UseCase}s, which might influence the
+     * available ranges.
+     *
+     * <p>If the provided {@link SessionConfig} has a target frame rate range already set (e.g.,
+     * set via {@link androidx.camera.video.VideoCapture.Builder#setTargetFrameRate(Range)}),
+     * this method will ignore that specific setting. The returned set represents all ranges the
+     * device can support under the given {@link SessionConfig}, irrespective of any pre-defined
+     * target frame rate within the config itself.
+     *
+     * <p>When CameraX is configured to run with the camera2 implementation, this list will be
+     * derived from
+     * {@link android.hardware.camera2.CameraCharacteristics#CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES}
+     * , though ranges may be added or removed for compatibility reasons or due to constraints
+     * imposed by the {@link SessionConfig}.
+     *
+     * <p>The returned set of frame rate ranges is guaranteed to be supported with the given
+     * {@link SessionConfig}. An empty set will be returned if the provided {@link SessionConfig}
+     * is invalid. The returned set does not have any ordering guarantees.
+     *
+     * @param sessionConfig The {@link SessionConfig} to query supported frame rate ranges for.
+     * @return The set of FPS ranges supported by the device's AE algorithm for the given session
+     * config.
+     * @see SessionConfig.Builder#setFrameRateRange(Range)
+     */
+    @ExperimentalSessionConfig
+    default @NonNull Set<Range<Integer>> getSupportedFrameRateRanges(
+            @NonNull SessionConfig sessionConfig) {
         return Collections.emptySet();
     }
 
@@ -423,11 +471,144 @@ public interface CameraInfo {
         return Collections.emptySet();
     }
 
+    /**
+     * Returns the maximum torch strength level.
+     *
+     * @return The maximum strength level, or {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED} if the
+     * device doesn't have a flash unit or doesn't support configuring torch strength.
+     */
+    @IntRange(from = 0)
+    default int getMaxTorchStrengthLevel() {
+        return TORCH_STRENGTH_LEVEL_UNSUPPORTED;
+    }
+
+    /**
+     * Returns the {@link LiveData} of the torch strength level.
+     *
+     * <p>The value of the {@link LiveData} will be the default torch strength level of this
+     * device if {@link CameraControl#setTorchStrengthLevel(int)} hasn't been called.
+     *
+     * <p>The value of the {@link LiveData} will be {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED} if
+     * the device doesn't have a flash unit or doesn't support configuring torch strength.
+     */
+    default @NonNull LiveData<Integer> getTorchStrengthLevel() {
+        return new MutableLiveData<>(TORCH_STRENGTH_LEVEL_UNSUPPORTED);
+    }
+
+    /**
+     * Returns if configuring torch strength is supported on the device.
+     *
+     * <p>If supported, {@link CameraControl#setTorchStrengthLevel(int)} can be used to configure
+     * torch strength.
+     *
+     * <p>If not supported, {@link #getMaxTorchStrengthLevel()} and
+     * {@link #getTorchStrengthLevel()} will return {@link #TORCH_STRENGTH_LEVEL_UNSUPPORTED}
+     * when called.
+     *
+     * @return {@code true} if configuring torch strength is supported on the device, otherwise
+     * {@code false}.
+     * @see CameraControl#setTorchStrengthLevel(int)
+     */
+    default boolean isTorchStrengthSupported() {
+        return false;
+    }
+
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
             IMPLEMENTATION_TYPE_CAMERA2_LEGACY, IMPLEMENTATION_TYPE_CAMERA2,
             IMPLEMENTATION_TYPE_FAKE})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     @interface ImplementationType {
+    }
+
+    /**
+     * Returns if low-light boost is supported on the device. Low-light boost can be turned on via
+     * {@link CameraControl#enableLowLightBoostAsync(boolean)}.
+     *
+     * @return true if
+     * {@link CaptureRequest#CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY} is supported,
+     * otherwise false.
+     * @see CameraControl#enableLowLightBoostAsync(boolean)
+     * @see CaptureRequest#CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+     */
+    default boolean isLowLightBoostSupported() {
+        return false;
+    }
+
+    /**
+     * Returns a {@link LiveData} of current {@link LowLightBoostState}.
+     *
+     * <p>Low-light boost can be turned on via
+     * {@link CameraControl#enableLowLightBoostAsync(boolean)} which will trigger the change
+     * event to the returned {@link LiveData}. Apps can either get immediate value via
+     * {@link LiveData#getValue()} or observe it via
+     * {@link LiveData#observe(LifecycleOwner, Observer)} to update low-light boost UI accordingly.
+     *
+     * <p>If the camera doesn't support low-light boost, then the state will always be
+     * {@link LowLightBoostState#OFF}.
+     *
+     * @return a {@link LiveData} containing current low-light boost state.
+     */
+    default @NonNull LiveData<Integer> getLowLightBoostState() {
+        return new MutableLiveData<>(LowLightBoostState.OFF);
+    }
+
+    /**
+     * Returns if the {@link GroupableFeature} groups set to the provided {@link SessionConfig} is
+     * supported.
+     *
+     * <p> This API can be used before calling `bindToLifecycle` API to know if binding a
+     * {@link SessionConfig} with some given combination of feature groups will work or not.
+     *
+     * <p> The following pseudo-code shows an example of how to use this API:
+     * <pre>{@code
+     * // Disable the unsupported feature options in app feature menu UI once some features have
+     * // already been selected and adding these features will lead to an unsupported configuration.
+     * void disableUnsupportedFeatures(Set<GroupableFeature> selectedFeatures,
+     *         Set<GroupableFeature> appFeatureOptions) {
+     *     for (GroupableFeature featureOption : appFeatureOptions) {
+     *         if (selectedFeatures.contains(featureOption)) { continue; }
+     *
+     *         List<GroupableFeature> combinedFeatures = new ArrayList<>(selectedFeatures);
+     *         combinedFeatures.add(featureOption);
+     *         SessionConfig sessionConfig =
+     *             new SessionConfig.Builder(useCases)
+     *                 .addRequiredFeatureGroup(combinedFeatures.toArray(new Feature[0]))
+     *                 .build();
+     *
+     *         if (!cameraInfo.isFeatureGroupSupported(sessionConfig)) {
+     *             disableFeatureOptionInUi(featureOption); // e.g. app logic to disable a menu item
+     *         }
+     *     }
+     * }}</pre>
+     *
+     * @param sessionConfig The {@link SessionConfig} containing some required or preferred
+     *   feature groups.
+     * @return Whether the feature group is supported or not.
+     * @throws IllegalArgumentException If some features conflict with each other by having
+     *   different values for the same feature type and can thus never be supported together.
+     * @see androidx.camera.core.featuregroup.GroupableFeature
+     */
+    @ExperimentalSessionConfig
+    default boolean isFeatureGroupSupported(@NonNull SessionConfig sessionConfig) {
+        return false;
+    }
+
+    /**
+     * Returns the unique, stable CameraX identifier for this camera, if available.
+     *
+     * <p>For most standard CameraX implementations, this will return a non-null identifier.
+     * However, some legacy or testing implementations may not have a valid identifier, in which
+     * case this method will return {@code null}.
+     *
+     * @return The {@link CameraIdentifier} for this camera, or {@code null} if one is not
+     * available.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    default CameraIdentifier getCameraIdentifier() {
+        // For classes that implement CameraInfo but do not override this method,
+        // return null to indicate that no identifier is available.
+        return null;
     }
 }

@@ -28,7 +28,6 @@ import androidx.pdf.ActivityUtils;
 import androidx.pdf.viewer.ImmersiveModeRequester;
 import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.loader.PdfLoader;
-import androidx.test.filters.SmallTest;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -46,7 +45,6 @@ import org.robolectric.RobolectricTestRunner;
 /**
  * Unit tests for {@link FindInFileView}
  */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class FindInFileViewTest extends TestCase {
     @Mock

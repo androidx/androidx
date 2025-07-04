@@ -24,7 +24,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.recyclerview.selection.GridModel.GridHost;
 import androidx.recyclerview.selection.testing.TestAdapter;
@@ -37,6 +36,7 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -35,7 +35,7 @@ class MigrationTest : BaseMigrationTest() {
             schemaDirectoryPath = Path("schemas-ksp"),
             databasePath = tempFilePath,
             driver = driver,
-            databaseClass = MigrationDatabase::class
+            databaseClass = MigrationDatabase::class,
         )
 
     override fun getTestHelper() = migrationTestHelper

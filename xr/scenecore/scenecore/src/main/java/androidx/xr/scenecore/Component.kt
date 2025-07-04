@@ -18,25 +18,26 @@ package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
 
-/**
- * Base interface for all components.
- *
- * Components are attached to entities, to add functionality to those entities.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/** A Component adds functionality or behaviors to an [Entity]. */
 public interface Component {
-    /**
-     * Called when this component is attached to the entity.
-     *
-     * @param entity Entity this component is being attached to.
-     * @return True if the component can attach to given Entity.
-     */
-    public fun onAttach(entity: Entity): Boolean
 
     /**
-     * Called when this component is detached from the entity.
+     * Called by an [Entity] when it attempts to add this Component to itself.
      *
-     * @param entity Entity this component is being detached from.
+     * This method is restricted because it is only called from [Entity.addComponent].
+     *
+     * @param entity Entity to which this Component was attached.
+     * @return True if the Component was attached to the given Entity. False if the Entity did not
+     *   support having this Component attached.
      */
-    public fun onDetach(entity: Entity)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public fun onAttach(entity: Entity): Boolean
+
+    /**
+     * Called by an [Entity] when it attempts to detach this Component from itself.
+     *
+     * This method is restricted because it is only called from [Entity.removeComponent].
+     *
+     * @param entity Entity from which this Component was detached.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public fun onDetach(entity: Entity)
 }

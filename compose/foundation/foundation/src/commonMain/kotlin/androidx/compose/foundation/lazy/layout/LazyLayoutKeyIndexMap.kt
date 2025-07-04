@@ -48,7 +48,7 @@ internal interface LazyLayoutKeyIndexMap {
  */
 internal class NearestRangeKeyIndexMap(
     nearestRange: IntRange,
-    intervalContent: LazyLayoutIntervalContent<*>
+    intervalContent: LazyLayoutIntervalContent<*>,
 ) : LazyLayoutKeyIndexMap {
     private val map: ObjectIntMap<Any>
     private val keys: Array<Any?>
@@ -71,10 +71,7 @@ internal class NearestRangeKeyIndexMap(
             keysStartIndex = first
             map =
                 MutableObjectIntMap<Any>(size).also { map ->
-                    list.forEach(
-                        fromIndex = first,
-                        toIndex = last,
-                    ) {
+                    list.forEach(fromIndex = first, toIndex = last) {
                         val keyFactory = it.value.key
                         val start = maxOf(first, it.startIndex)
                         val end = minOf(last, it.startIndex + it.size - 1)

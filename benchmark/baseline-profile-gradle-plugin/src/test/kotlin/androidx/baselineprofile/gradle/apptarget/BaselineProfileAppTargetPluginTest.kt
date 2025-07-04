@@ -18,8 +18,7 @@ package androidx.baselineprofile.gradle.apptarget
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_1
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.containsOnly
@@ -28,27 +27,9 @@ import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
 
-private val agp810AndAbovePostProcessingBlock =
-    """
-    postprocessing {
-        proguardFile("proguard-rules1.pro")
-    }
-    """
-        .trimIndent()
-
-private val agp810AndAbovePostProcessingPrintTask =
-    """
-    text += "postProcessingProguardFiles=" + buildType.postprocessing.getProguardFiles(EXPLICIT) + "\n"
-    """
-        .trimIndent()
-
-private fun createBuildGradle(
-    agpVersion: TestAgpVersion,
-    overrideExtendedBuildTypesForRelease: Boolean = false
-) =
+private fun createBuildGradle(overrideExtendedBuildTypesForRelease: Boolean = false) =
     """
     import static com.android.build.gradle.internal.ProguardFileType.EXPLICIT;
 
@@ -78,7 +59,9 @@ private fun createBuildGradle(
             anotherRelease {
                 initWith(release)
                 minifyEnabled true
-                ${if (agpVersion != TEST_AGP_VERSION_8_0_0) agp810AndAbovePostProcessingBlock else ""}
+                postprocessing {
+                    proguardFile("proguard-rules1.pro")
+                }
             }
             myCustomRelease {
                 initWith(release)
@@ -120,7 +103,7 @@ private fun createBuildGradle(
                 text += "debuggable=" + buildType.debuggable.toString() + "\n"
                 text += "profileable=" + buildType.profileable.toString() + "\n"
                 text += "proguardFiles=" + buildType.proguardFiles.toString() + "\n"
-                ${if (agpVersion != TEST_AGP_VERSION_8_0_0) agp810AndAbovePostProcessingPrintTask else ""}
+                text += "postProcessingProguardFiles=" + buildType.postprocessing.getProguardFiles(EXPLICIT) + "\n"
                 t.text.set(text)
             }
             tasks.register(variant.name + "JavaSources", DisplaySourceSets) { t ->
@@ -134,127 +117,54 @@ private fun createBuildGradle(
     """
         .trimIndent()
 
-@RunWith(JUnit4::class)
-class BaselineProfileAppTargetPluginTestWithAgp80 {
-
-    private val agpVersion = TEST_AGP_VERSION_8_0_0
-
-    @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
-
-    private val buildGradle = createBuildGradle(agpVersion)
-
-    @Test
-    fun verifyBuildTypes() {
-        projectSetup.appTarget.setBuildGradle(buildGradle)
-
-        // Assert properties of the baseline profile build types.
-
-        // For `release`, `minifiedEnabled` is false -> we expect the value to be copied.
-        projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(
-            "nonMinifiedReleaseBuildProperties"
-        ) {
-            contains("minifyEnabled=false")
-            contains("testCoverageEnabled=false")
-            contains("debuggable=false")
-            contains("profileable=true")
-        }
-
-        // For `anotherRelease`, `minifiedEnabled` is true -> we expect the value to be copied.
-        projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(
-            "nonMinifiedAnotherReleaseBuildProperties"
-        ) {
-            contains("minifyEnabled=true")
-            contains("testCoverageEnabled=false")
-            contains("debuggable=false")
-            contains("profileable=true")
-        }
-
-        // Note that the proguard file path does not exist till the generate keep rule task is
-        // executed. For this reason we call directly the `assemble` task and check the task log.
-        // Also the generate keep rules task is the same across multiple variant builds so it will
-        // be executed only once.
-
-        projectSetup.appTarget.gradleRunner.build("assemble", "--info") {
-            val logLine =
-                it.lines().firstOrNull { l ->
-                    l.startsWith("Generated keep rule file for baseline profiles build type in") &&
-                        l.endsWith("intermediates/baselineprofiles/tmp/dontobfuscate.pro")
-                }
-            assertThat(logLine).isNotNull()
-        }
-    }
-
-    @Test
-    fun verifyUnitTestDisabled() {
-        projectSetup.appTarget.setBuildGradle(buildGradle)
-        projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput("test", "--dry-run") {
-            contains(":testDebugUnitTest ")
-            contains(":testReleaseUnitTest ")
-            contains(":testAnotherReleaseUnitTest ")
-            doesNotContain(":testNonMinifiedReleaseUnitTest ")
-            doesNotContain(":testNonMinifiedAnotherReleaseUnitTest ")
-            doesNotContain(":testBenchmarkAnotherReleaseUnitTest ")
-        }
-    }
-}
-
 @RunWith(Parameterized::class)
-class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
-    private val agpVersion: TestAgpVersion,
-) {
+class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_1_0)
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_1_1)
     }
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
 
-    private val buildGradle = createBuildGradle(agpVersion)
+    private val buildGradle = createBuildGradle()
 
     @Test
     fun additionalBuildTypesShouldNotBeCreatedForExistingNonMinifiedAndBenchmarkBuildTypes() =
-        arrayOf(
-                true,
-                false,
+        arrayOf(true, false).forEach { overrideExtendedBuildTypesForRelease ->
+            projectSetup.appTarget.setBuildGradle(
+                buildGradleContent =
+                    createBuildGradle(
+                        overrideExtendedBuildTypesForRelease = overrideExtendedBuildTypesForRelease
+                    )
             )
-            .forEach { overrideExtendedBuildTypesForRelease ->
-                projectSetup.appTarget.setBuildGradle(
-                    buildGradleContent =
-                        createBuildGradle(
-                            agpVersion = agpVersion,
-                            overrideExtendedBuildTypesForRelease =
-                                overrideExtendedBuildTypesForRelease,
-                        )
-                )
-                projectSetup.appTarget.gradleRunner.build("printVariants") {
-                    val variants =
-                        it.lines()
-                            .filter { l -> l.startsWith("print-variant:") }
-                            .map { l -> l.substringAfter("print-variant:").trim() }
-                            .toSet()
-                            .toList()
+            projectSetup.appTarget.gradleRunner.build("printVariants") {
+                val variants =
+                    it.lines()
+                        .filter { l -> l.startsWith("print-variant:") }
+                        .map { l -> l.substringAfter("print-variant:").trim() }
+                        .toSet()
+                        .toList()
 
-                    assertThat(
-                            variants.containsOnly(
-                                "debug",
-                                "release",
-                                "benchmarkRelease",
-                                "nonMinifiedRelease",
-                                "anotherRelease",
-                                "nonMinifiedAnotherRelease",
-                                "benchmarkAnotherRelease",
-                                "myCustomRelease",
-                                "nonMinifiedMyCustomRelease",
-                                "benchmarkMyCustomRelease",
-                            )
+                assertThat(
+                        variants.containsOnly(
+                            "debug",
+                            "release",
+                            "benchmarkRelease",
+                            "nonMinifiedRelease",
+                            "anotherRelease",
+                            "nonMinifiedAnotherRelease",
+                            "benchmarkAnotherRelease",
+                            "myCustomRelease",
+                            "nonMinifiedMyCustomRelease",
+                            "benchmarkMyCustomRelease",
                         )
-                        .isTrue()
-                }
+                    )
+                    .isTrue()
             }
+        }
 
     @Test
     fun verifyUnitTestDisabled() {
@@ -346,7 +256,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
             val benchmarkBuildType: String,
             val baselineProfileBuildType: String,
             val expectedProguardFile: String?,
-            val expectedPostProcessingProguardFile: String?
+            val expectedPostProcessingProguardFile: String?,
         )
 
         arrayOf(
@@ -378,7 +288,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
                             "proguardFiles=[${
                                 File(
                                     projectSetup.appTarget.rootDir.canonicalFile,
-                                    it.expectedProguardFile
+                                    it.expectedProguardFile,
                                 )
                             }]"
                         )
@@ -388,7 +298,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
                             "postProcessingProguardFiles=\\[[^,]+, ${
                                 File(
                                     projectSetup.appTarget.rootDir.canonicalFile,
-                                    it.expectedPostProcessingProguardFile
+                                    it.expectedPostProcessingProguardFile,
                                 )
                             }"
                         )
@@ -402,7 +312,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
                             "proguardFiles=[${
                                 File(
                                     projectSetup.appTarget.rootDir.canonicalFile,
-                                    it.expectedProguardFile
+                                    it.expectedProguardFile,
                                 )
                             }]"
                         )
@@ -412,7 +322,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
                             "postProcessingProguardFiles=\\[[^,]+, ${
                                 File(
                                     projectSetup.appTarget.rootDir.canonicalFile,
-                                    it.expectedPostProcessingProguardFile
+                                    it.expectedPostProcessingProguardFile,
                                 )
                             }"
                         )
@@ -423,18 +333,18 @@ class BaselineProfileAppTargetPluginTestWithAgp81AndAbove(
 }
 
 @RunWith(Parameterized::class)
-class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(private val agpVersion: TestAgpVersion) {
+class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_0_0)
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_1_1)
     }
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
 
-    private val buildGradle = createBuildGradle(agpVersion)
+    private val buildGradle = createBuildGradle()
 
     @Test
     fun testSrcSetAreAddedToVariantsForApplications() {
@@ -450,16 +360,12 @@ class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(private val agpVersion
                             "src/main/java",
                             "src/anotherRelease/java",
                             "src/nonMinifiedAnotherRelease/java",
-                        )
+                        ),
                 ),
                 TaskAndExpected(
                     taskName = "nonMinifiedReleaseJavaSources",
                     expectedDirs =
-                        listOf(
-                            "src/main/java",
-                            "src/release/java",
-                            "src/nonMinifiedRelease/java",
-                        )
+                        listOf("src/main/java", "src/release/java", "src/nonMinifiedRelease/java"),
                 ),
                 TaskAndExpected(
                     taskName = "nonMinifiedAnotherReleaseKotlinSources",
@@ -468,7 +374,7 @@ class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(private val agpVersion
                             "src/main/kotlin",
                             "src/anotherRelease/kotlin",
                             "src/nonMinifiedAnotherRelease/kotlin",
-                        )
+                        ),
                 ),
                 TaskAndExpected(
                     taskName = "nonMinifiedReleaseKotlinSources",
@@ -477,8 +383,8 @@ class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(private val agpVersion
                             "src/main/kotlin",
                             "src/release/kotlin",
                             "src/nonMinifiedRelease/kotlin",
-                        )
-                )
+                        ),
+                ),
             )
             .forEach { t ->
 
@@ -493,40 +399,34 @@ class BaselineProfileAppTargetPluginTestWithAgp80AndAbove(private val agpVersion
 
     @Test
     fun additionalBuildTypesShouldNotBeCreatedForExistingNonMinifiedAndBenchmarkBuildTypes() =
-        arrayOf(
-                true,
-                false,
+        arrayOf(true, false).forEach { overrideExtendedBuildTypesForRelease ->
+            projectSetup.appTarget.setBuildGradle(
+                buildGradleContent =
+                    createBuildGradle(
+                        overrideExtendedBuildTypesForRelease = overrideExtendedBuildTypesForRelease
+                    )
             )
-            .forEach { overrideExtendedBuildTypesForRelease ->
-                projectSetup.appTarget.setBuildGradle(
-                    buildGradleContent =
-                        createBuildGradle(
-                            agpVersion = agpVersion,
-                            overrideExtendedBuildTypesForRelease =
-                                overrideExtendedBuildTypesForRelease,
-                        )
-                )
 
-                projectSetup.appTarget.gradleRunner.build("printVariants") {
-                    val variants =
-                        it.lines()
-                            .filter { l -> l.startsWith("print-variant:") }
-                            .map { l -> l.substringAfter("print-variant:").trim() }
-                            .toSet()
-                            .toList()
+            projectSetup.appTarget.gradleRunner.build("printVariants") {
+                val variants =
+                    it.lines()
+                        .filter { l -> l.startsWith("print-variant:") }
+                        .map { l -> l.substringAfter("print-variant:").trim() }
+                        .toSet()
+                        .toList()
 
-                    assertThat(
-                            variants.containsOnly(
-                                "debug",
-                                "release",
-                                "nonMinifiedRelease",
-                                "anotherRelease",
-                                "nonMinifiedAnotherRelease",
-                                "myCustomRelease",
-                                "nonMinifiedMyCustomRelease",
-                            )
+                assertThat(
+                        variants.containsOnly(
+                            "debug",
+                            "release",
+                            "nonMinifiedRelease",
+                            "anotherRelease",
+                            "nonMinifiedAnotherRelease",
+                            "myCustomRelease",
+                            "nonMinifiedMyCustomRelease",
                         )
-                        .isTrue()
-                }
+                    )
+                    .isTrue()
             }
+        }
 }

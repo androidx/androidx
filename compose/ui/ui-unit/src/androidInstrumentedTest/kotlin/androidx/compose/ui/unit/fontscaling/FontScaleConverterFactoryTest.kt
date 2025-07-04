@@ -302,7 +302,7 @@ class FontScaleConverterFactoryTest {
 
 fun generateSequenceOfFractions(
     range: ClosedFloatingPointRange<Float>,
-    step: Float
+    step: Float,
 ): Sequence<Float> {
     val multiplier = 1f / step
     val start = floor(range.start * multiplier).toInt()

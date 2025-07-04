@@ -31,7 +31,7 @@ import androidx.room.TypeConverters
                 entity = Publisher::class,
                 parentColumns = arrayOf("publisherId"),
                 childColumns = arrayOf("bookPublisherId"),
-                deferred = true
+                deferred = true,
             )
         )
 )
@@ -40,5 +40,5 @@ data class Book(
     val title: String,
     val bookPublisherId: String,
     @ColumnInfo(defaultValue = "0") @field:TypeConverters(Lang::class) val languages: Set<Lang>,
-    @ColumnInfo(defaultValue = "0") val salesCnt: Int
+    @ColumnInfo(defaultValue = "0") val salesCnt: Int,
 )

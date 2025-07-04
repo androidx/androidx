@@ -77,7 +77,7 @@ class IconTest {
                     defaultWidth = width,
                     defaultHeight = height,
                     viewportWidth = width.value,
-                    viewportHeight = height.value
+                    viewportHeight = height.value,
                 )
                 .build()
         rule
@@ -170,7 +170,7 @@ class IconTest {
                 null,
                 // Force Icon to be 50dp
                 modifier = Modifier.requiredSize(50.dp).testTag(testTag),
-                tint = Color.Unspecified
+                tint = Color.Unspecified,
             )
             with(LocalDensity.current) {
                 val dimension = 50.dp.roundToPx()
@@ -230,7 +230,7 @@ class IconTest {
             Icon(
                 bitmap = ImageBitmap(100, 100),
                 contentDescription = "qwerty",
-                modifier = Modifier.testTag(testTag)
+                modifier = Modifier.testTag(testTag),
             )
         }
 
@@ -244,7 +244,7 @@ class IconTest {
         density: Density,
         width: Int,
         height: Int,
-        color: Color
+        color: Color,
     ): ImageBitmap {
         val size = Size(width.toFloat(), height.toFloat())
         val image = ImageBitmap(width, height)

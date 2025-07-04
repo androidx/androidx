@@ -25,7 +25,7 @@ import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
 /** Implementation backed by [SdkSandboxManager]. */
-@RequiresApi(33)
+@RequiresApi(34)
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
 internal class PlatformAppOwnedSdkRegistry(context: Context) : AppOwnedSdkRegistry {
 

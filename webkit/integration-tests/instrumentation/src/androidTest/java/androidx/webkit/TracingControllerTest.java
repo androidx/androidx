@@ -22,8 +22,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.webkit.test.common.PollingCheck;
-import androidx.webkit.test.common.WebkitUtils;
 import androidx.webkit.test.common.WebViewOnUiThread;
+import androidx.webkit.test.common.WebkitUtils;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -232,6 +232,7 @@ public class TracingControllerTest {
     private ThreadFactory getCustomThreadFactory() {
         return new ThreadFactory() {
             private final AtomicInteger mThreadCount = new AtomicInteger(0);
+
             @Override
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r);
@@ -296,6 +297,7 @@ public class TracingControllerTest {
             return mChunkCount;
 
         }
+
         boolean getComplete() {
             return mComplete;
         }

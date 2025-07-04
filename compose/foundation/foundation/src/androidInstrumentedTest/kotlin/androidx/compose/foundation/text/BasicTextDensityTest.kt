@@ -59,7 +59,7 @@ class BasicTextDensityTest {
                         Modifier.onGloballyPositioned {
                             // do not read the size from onTextLayout, it takes a different path
                             textSize = it.size
-                        }
+                        },
                 )
             }
         }
@@ -96,7 +96,7 @@ class BasicTextDensityTest {
                         Modifier.onGloballyPositioned {
                             // do not read the size from onTextLayout, it takes a different path
                             textSize = it.size
-                        }
+                        },
                 )
             }
         }
@@ -131,7 +131,7 @@ class BasicTextDensityTest {
                             Modifier.onGloballyPositioned {
                                 // do not read the size from onTextLayout, it takes a different path
                                 textSize = it.size
-                            }
+                            },
                     )
                 }
             }

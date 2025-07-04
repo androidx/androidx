@@ -36,7 +36,7 @@ import java.util.Locale;
 /**
  * Represents a collection of {@link UseCase}.
  *
- * When the {@link UseCaseGroup} is bound to {@link Lifecycle}, it binds all the
+ * <p>When the {@link UseCaseGroup} is bound to {@link Lifecycle}, it binds all the
  * {@link UseCase}s to the same {@link Lifecycle}. {@link UseCase}s inside of a
  * {@link UseCaseGroup} usually share some common properties like the FOV defined by
  * {@link ViewPort}.
@@ -90,7 +90,6 @@ public final class UseCaseGroup {
         private ViewPort mViewPort;
         private final List<UseCase> mUseCases;
         private final List<CameraEffect> mEffects;
-
 
         public Builder() {
             mUseCases = new ArrayList<>();

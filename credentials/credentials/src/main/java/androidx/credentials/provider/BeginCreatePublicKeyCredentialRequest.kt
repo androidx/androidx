@@ -64,7 +64,7 @@ constructor(
     BeginCreateCredentialRequest(
         PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
         candidateQueryData,
-        callingAppInfo
+        callingAppInfo,
     ) {
     init {
         require(RequestValidationUtil.isValidJSON(requestJson)) {
@@ -83,14 +83,14 @@ constructor(
         @VisibleForTesting
         fun createForTest(
             data: Bundle,
-            callingAppInfo: CallingAppInfo?
+            callingAppInfo: CallingAppInfo?,
         ): BeginCreatePublicKeyCredentialRequest {
             return createFrom(data, callingAppInfo)
         }
 
         internal fun createFrom(
             data: Bundle,
-            callingAppInfo: CallingAppInfo?
+            callingAppInfo: CallingAppInfo?,
         ): BeginCreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
@@ -99,7 +99,7 @@ constructor(
                     requestJson!!,
                     callingAppInfo,
                     data,
-                    clientDataHash
+                    clientDataHash,
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

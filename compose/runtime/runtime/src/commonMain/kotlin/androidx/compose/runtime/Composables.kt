@@ -21,7 +21,7 @@ package androidx.compose.runtime
  * composition. Recomposition will always return the value produced by composition.
  */
 @Composable
-inline fun <T> remember(crossinline calculation: @DisallowComposableCalls () -> T): T =
+public inline fun <T> remember(crossinline calculation: @DisallowComposableCalls () -> T): T =
     currentComposer.cache(false, calculation)
 
 /**
@@ -29,7 +29,10 @@ inline fun <T> remember(crossinline calculation: @DisallowComposableCalls () -> 
  * in the previous composition, otherwise produce and remember a new value by calling [calculation].
  */
 @Composable
-inline fun <T> remember(key1: Any?, crossinline calculation: @DisallowComposableCalls () -> T): T {
+public inline fun <T> remember(
+    key1: Any?,
+    crossinline calculation: @DisallowComposableCalls () -> T,
+): T {
     return currentComposer.cache(currentComposer.changed(key1), calculation)
 }
 
@@ -39,14 +42,14 @@ inline fun <T> remember(key1: Any?, crossinline calculation: @DisallowComposable
  * [calculation].
  */
 @Composable
-inline fun <T> remember(
+public inline fun <T> remember(
     key1: Any?,
     key2: Any?,
-    crossinline calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T,
 ): T {
     return currentComposer.cache(
         currentComposer.changed(key1) or currentComposer.changed(key2),
-        calculation
+        calculation,
     )
 }
 
@@ -56,17 +59,17 @@ inline fun <T> remember(
  * calling [calculation].
  */
 @Composable
-inline fun <T> remember(
+public inline fun <T> remember(
     key1: Any?,
     key2: Any?,
     key3: Any?,
-    crossinline calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T,
 ): T {
     return currentComposer.cache(
         currentComposer.changed(key1) or
             currentComposer.changed(key2) or
             currentComposer.changed(key3),
-        calculation
+        calculation,
     )
 }
 
@@ -76,9 +79,9 @@ inline fun <T> remember(
  * calling [calculation].
  */
 @Composable
-inline fun <T> remember(
+public inline fun <T> remember(
     vararg keys: Any?,
-    crossinline calculation: @DisallowComposableCalls () -> T
+    crossinline calculation: @DisallowComposableCalls () -> T,
 ): T {
     var invalid = false
     for (key in keys) invalid = invalid or currentComposer.changed(key)
@@ -121,8 +124,10 @@ inline fun <T> remember(
  * @param block The composable children for this group.
  */
 @Composable
-inline fun <T> key(@Suppress("UNUSED_PARAMETER") vararg keys: Any?, block: @Composable () -> T) =
-    block()
+public inline fun <T> key(
+    @Suppress("UNUSED_PARAMETER") vararg keys: Any?,
+    block: @Composable () -> T,
+): T = block()
 
 /**
  * A utility function to mark a composition as supporting recycling. If the [key] changes the
@@ -134,7 +139,7 @@ inline fun <T> key(@Suppress("UNUSED_PARAMETER") vararg keys: Any?, block: @Comp
  * @param content the composable children that are recyclable.
  */
 @Composable
-inline fun ReusableContent(key: Any?, content: @Composable () -> Unit) {
+public inline fun ReusableContent(key: Any?, content: @Composable () -> Unit) {
     currentComposer.startReusableGroup(reuseKey, key)
     content()
     currentComposer.endReusableGroup()
@@ -155,7 +160,10 @@ inline fun ReusableContent(key: Any?, content: @Composable () -> Unit) {
  */
 @Composable
 @ExplicitGroupsComposable
-inline fun ReusableContentHost(active: Boolean, crossinline content: @Composable () -> Unit) {
+public inline fun ReusableContentHost(
+    active: Boolean,
+    crossinline content: @Composable () -> Unit,
+) {
     currentComposer.startReusableGroup(reuseKey, active)
     val activeChanged = currentComposer.changed(active)
     if (active) {
@@ -167,7 +175,7 @@ inline fun ReusableContentHost(active: Boolean, crossinline content: @Composable
 }
 
 /** TODO(lmr): provide documentation */
-val currentComposer: Composer
+public val currentComposer: Composer
     @ReadOnlyComposable
     @Composable
     get() {
@@ -175,10 +183,23 @@ val currentComposer: Composer
     }
 
 /**
+ * Returns the [CompositionContext] associated for the current composer.
+ *
+ * This API is exposed for internal usages only. It should not be invoked outside of the Compose
+ * Runtime
+ */
+@InternalComposeApi
+public val currentCompositionContext: CompositionContext
+    @TestOnly
+    @ReadOnlyComposable
+    @Composable
+    get() = (currentComposer.composition as CompositionImpl).parent
+
+/**
  * Returns an object which can be used to invalidate the current scope at this point in composition.
  * This object can be used to manually cause recompositions.
  */
-val currentRecomposeScope: RecomposeScope
+public val currentRecomposeScope: RecomposeScope
     @ReadOnlyComposable
     @OptIn(InternalComposeApi::class)
     @Composable
@@ -195,7 +216,7 @@ val currentRecomposeScope: RecomposeScope
  * needed if another composition is not a subcomposition of the current one.
  */
 @OptIn(InternalComposeApi::class)
-val currentCompositionLocalContext: CompositionLocalContext
+public val currentCompositionLocalContext: CompositionLocalContext
     @Composable
     get() = CompositionLocalContext(currentComposer.buildContext().getCompositionLocalScope())
 
@@ -206,12 +227,35 @@ val currentCompositionLocalContext: CompositionLocalContext
  * This value is likely to be unique but is not guaranteed unique. There are known cases, such as
  * for loops without a [key], where the runtime does not have enough information to make the
  * compound key hash unique.
+ *
+ * @see currentCompositeKeyHashCode
  */
-val currentCompositeKeyHash: Int
+@Deprecated(
+    "Prefer the higher-precision currentCompositeKeyHashCode",
+    ReplaceWith("currentCompositeKeyHashCode"),
+)
+@Suppress("DEPRECATION")
+public val currentCompositeKeyHash: Int
     @Composable
     @ExplicitGroupsComposable
     @OptIn(InternalComposeApi::class)
     get() = currentComposer.compoundKeyHash
+
+/**
+ * A higher-precision variation of [currentCompositeKeyHash] used to map externally stored state to
+ * the composition. By stepping up to a Long, this variation of the key hash is exponentially less
+ * likely to experience a collision.
+ *
+ * In practice, because the hash is not perfectly distributed and because there are situations where
+ * the runtime can't uniquely identify certain repeated content, collisions are still possible. This
+ * higher precision does, however, afford more confidence in the assumption that an arbitrarily
+ * sized composition hierarchy will not experience two unrelated groups having the same key hash.
+ */
+public val currentCompositeKeyHashCode: CompositeKeyHashCode
+    @Composable
+    @ExplicitGroupsComposable
+    @OptIn(InternalComposeApi::class)
+    get() = currentComposer.compositeKeyHashCode
 
 /**
  * Emits a node into the composition of type [T].
@@ -232,9 +276,9 @@ val currentCompositeKeyHash: Int
 // it is okay to use.
 @Suppress("NONREADONLY_CALL_IN_READONLY_COMPOSABLE", "UnnecessaryLambdaCreation")
 @Composable
-inline fun <T : Any, reified E : Applier<*>> ComposeNode(
+public inline fun <T : Any, reified E : Applier<*>> ComposeNode(
     noinline factory: () -> T,
-    update: @DisallowComposableCalls Updater<T>.() -> Unit
+    update: @DisallowComposableCalls Updater<T>.() -> Unit,
 ) {
     if (currentComposer.applier !is E) invalidApplier()
     currentComposer.startNode()
@@ -266,9 +310,9 @@ inline fun <T : Any, reified E : Applier<*>> ComposeNode(
 // it is okay to use.
 @Suppress("NONREADONLY_CALL_IN_READONLY_COMPOSABLE", "UnnecessaryLambdaCreation")
 @Composable
-inline fun <T : Any, reified E : Applier<*>> ReusableComposeNode(
+public inline fun <T : Any, reified E : Applier<*>> ReusableComposeNode(
     noinline factory: () -> T,
-    update: @DisallowComposableCalls Updater<T>.() -> Unit
+    update: @DisallowComposableCalls Updater<T>.() -> Unit,
 ) {
     if (currentComposer.applier !is E) invalidApplier()
     currentComposer.startReusableNode()
@@ -302,10 +346,10 @@ inline fun <T : Any, reified E : Applier<*>> ReusableComposeNode(
 // it is okay to use.
 @Suppress("NONREADONLY_CALL_IN_READONLY_COMPOSABLE")
 @Composable
-inline fun <T : Any?, reified E : Applier<*>> ComposeNode(
+public inline fun <T : Any?, reified E : Applier<*>> ComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     if (currentComposer.applier !is E) invalidApplier()
     currentComposer.startNode()
@@ -340,10 +384,10 @@ inline fun <T : Any?, reified E : Applier<*>> ComposeNode(
 // it is okay to use.
 @Suppress("NONREADONLY_CALL_IN_READONLY_COMPOSABLE")
 @Composable
-inline fun <T : Any?, reified E : Applier<*>> ReusableComposeNode(
+public inline fun <T : Any?, reified E : Applier<*>> ReusableComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     if (currentComposer.applier !is E) invalidApplier()
     currentComposer.startReusableNode()
@@ -382,11 +426,11 @@ inline fun <T : Any?, reified E : Applier<*>> ReusableComposeNode(
  */
 @Composable
 @ExplicitGroupsComposable
-inline fun <T, reified E : Applier<*>> ComposeNode(
+public inline fun <T, reified E : Applier<*>> ComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
     noinline skippableUpdate: @Composable SkippableUpdater<T>.() -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     if (currentComposer.applier !is E) invalidApplier()
     currentComposer.startNode()
@@ -428,11 +472,11 @@ inline fun <T, reified E : Applier<*>> ComposeNode(
  */
 @Composable
 @ExplicitGroupsComposable
-inline fun <T, reified E : Applier<*>> ReusableComposeNode(
+public inline fun <T, reified E : Applier<*>> ReusableComposeNode(
     noinline factory: () -> T,
     update: @DisallowComposableCalls Updater<T>.() -> Unit,
     noinline skippableUpdate: @Composable SkippableUpdater<T>.() -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     if (currentComposer.applier !is E) invalidApplier()
     currentComposer.startReusableNode()
@@ -459,6 +503,6 @@ inline fun <T, reified E : Applier<*>> ReusableComposeNode(
  */
 @OptIn(InternalComposeApi::class)
 @Composable
-fun rememberCompositionContext(): CompositionContext {
+public fun rememberCompositionContext(): CompositionContext {
     return currentComposer.buildContext()
 }

@@ -33,11 +33,18 @@ class ContextMenuPopupPositionProviderTest {
         val position = IntOffset(x = 40, y = 30) // 50, 50 when translated to window
         val popupContentSize = IntSize(width = 10, height = 200)
 
-        val subject = ContextMenuPopupPositionProvider(position)
+        val expected = IntOffset(50, 0)
+        val subject =
+            ContextMenuPopupPositionProvider(position) { pos, menuBounds ->
+                assertThat(pos).isEqualTo(position)
+                assertThat(menuBounds.topLeft).isEqualTo(expected)
+                assertThat(menuBounds.size).isEqualTo(popupContentSize)
+            }
+
         val actual =
             subject.calculatePosition(anchorBounds, windowSize, layoutDirection, popupContentSize)
 
-        assertThat(actual).isEqualTo(IntOffset(50, 0))
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -48,11 +55,18 @@ class ContextMenuPopupPositionProviderTest {
         val position = IntOffset(x = 40, y = 30) // 50, 50 when translated to window
         val popupContentSize = IntSize(width = 200, height = 10)
 
-        val subject = ContextMenuPopupPositionProvider(position)
+        val expected = IntOffset(0, 50)
+        val subject =
+            ContextMenuPopupPositionProvider(position) { pos, menuBounds ->
+                assertThat(pos).isEqualTo(position)
+                assertThat(menuBounds.topLeft).isEqualTo(expected)
+                assertThat(menuBounds.size).isEqualTo(popupContentSize)
+            }
+
         val actual =
             subject.calculatePosition(anchorBounds, windowSize, layoutDirection, popupContentSize)
 
-        assertThat(actual).isEqualTo(IntOffset(0, 50))
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -63,11 +77,18 @@ class ContextMenuPopupPositionProviderTest {
         val position = IntOffset(x = 40, y = 30) // 50, 50 when translated to window
         val popupContentSize = IntSize(width = 10, height = 10)
 
-        val subject = ContextMenuPopupPositionProvider(position)
+        val expected = IntOffset(50, 50)
+        val subject =
+            ContextMenuPopupPositionProvider(position) { pos, menuBounds ->
+                assertThat(pos).isEqualTo(position)
+                assertThat(menuBounds.topLeft).isEqualTo(expected)
+                assertThat(menuBounds.size).isEqualTo(popupContentSize)
+            }
+
         val actual =
             subject.calculatePosition(anchorBounds, windowSize, layoutDirection, popupContentSize)
 
-        assertThat(actual).isEqualTo(IntOffset(50, 50))
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -78,11 +99,18 @@ class ContextMenuPopupPositionProviderTest {
         val position = IntOffset(x = 40, y = 30) // 50, 50 when translated to window
         val popupContentSize = IntSize(width = 10, height = 10)
 
-        val subject = ContextMenuPopupPositionProvider(position)
+        val expected = IntOffset(40, 50)
+        val subject =
+            ContextMenuPopupPositionProvider(position) { pos, menuBounds ->
+                assertThat(pos).isEqualTo(position)
+                assertThat(menuBounds.topLeft).isEqualTo(expected)
+                assertThat(menuBounds.size).isEqualTo(popupContentSize)
+            }
+
         val actual =
             subject.calculatePosition(anchorBounds, windowSize, layoutDirection, popupContentSize)
 
-        assertThat(actual).isEqualTo(IntOffset(40, 50))
+        assertThat(actual).isEqualTo(expected)
     }
 
     // endregion ContextMenuPopupPositionProvider Tests
@@ -132,37 +160,27 @@ class ContextMenuPopupPositionProviderTest {
         position: Int,
         popupLength: Int,
         closeAffinity: Boolean,
-        expected: Int
+        expected: Int,
     ) {
         val actual =
             alignPopupAxis(
                 position = position,
                 popupLength = popupLength,
                 windowLength = 100,
-                closeAffinity = closeAffinity
+                closeAffinity = closeAffinity,
             )
         assertThat(actual).isEqualTo(expected)
     }
 
     @Test
     fun alignPopupAxis_popupBarelyFitsInAfterSpace() {
-        val actual =
-            alignPopupAxis(
-                position = 74,
-                popupLength = 25,
-                windowLength = 100,
-            )
+        val actual = alignPopupAxis(position = 74, popupLength = 25, windowLength = 100)
         assertThat(actual).isEqualTo(74)
     }
 
     @Test
     fun alignPopupAxis_popupBarelyDoesNotFitInAfterSpace() {
-        val actual =
-            alignPopupAxis(
-                position = 75,
-                popupLength = 25,
-                windowLength = 100,
-            )
+        val actual = alignPopupAxis(position = 75, popupLength = 25, windowLength = 100)
         assertThat(actual).isEqualTo(50)
     }
 
@@ -173,7 +191,7 @@ class ContextMenuPopupPositionProviderTest {
                 position = 25,
                 popupLength = 25,
                 windowLength = 100,
-                closeAffinity = false
+                closeAffinity = false,
             )
         assertThat(actual).isEqualTo(0)
     }
@@ -185,7 +203,7 @@ class ContextMenuPopupPositionProviderTest {
                 position = 24,
                 popupLength = 25,
                 windowLength = 100,
-                closeAffinity = false
+                closeAffinity = false,
             )
         assertThat(actual).isEqualTo(24)
     }

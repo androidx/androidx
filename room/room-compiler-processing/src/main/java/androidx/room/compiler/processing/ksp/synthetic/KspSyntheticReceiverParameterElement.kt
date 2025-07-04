@@ -38,7 +38,7 @@ internal class KspSyntheticReceiverParameterElement(
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = receiverType, // for @receiver use-site annotations
-        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_RECEIVER
+        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_RECEIVER,
     ) {
 
     override fun isContinuationParam() = false
@@ -89,20 +89,18 @@ internal class KspSyntheticReceiverParameterElement(
                 if (container?.ksType == null || it.isError) {
                     return@let it
                 }
-                val asMember = enclosingElement.declaration.asMemberOf(container?.ksType)
+                val asMember =
+                    enclosingElement.declaration.asMemberOf((container as KspType).ksType)
                 checkNotNull(asMember.extensionReceiverType)
             }
-        return env.wrap(
-                originatingReference = receiverType,
-                ksType = asMemberReceiverType,
-            )
+        return env.wrap(originatingReference = receiverType, ksType = asMemberReceiverType)
             .copyWithScope(
                 KSTypeVarianceResolverScope.MethodParameter(
                     kspExecutableElement = enclosingElement,
                     parameterIndex = 0, // Receiver param is the 1st one
                     annotated = enclosingElement.declaration,
                     container = container?.ksType?.declaration,
-                    asMemberOf = container
+                    asMemberOf = container,
                 )
             )
     }

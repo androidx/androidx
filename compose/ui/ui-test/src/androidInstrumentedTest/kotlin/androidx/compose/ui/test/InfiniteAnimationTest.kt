@@ -61,7 +61,7 @@ class InfiniteAnimationTest {
                 animate(
                     initialValue = 1f,
                     targetValue = 0f,
-                    animationSpec = infiniteRepeatable(tween(), RepeatMode.Reverse)
+                    animationSpec = infiniteRepeatable(tween(), RepeatMode.Reverse),
                 ) { value, _ ->
                     offset.value = value
                 }
@@ -90,7 +90,7 @@ class InfiniteAnimationTest {
             val animationSpec =
                 infiniteRepeatable<Float>(
                     tween(durationMillis = 200, easing = LinearEasing),
-                    RepeatMode.Reverse
+                    RepeatMode.Reverse,
                 )
             val offset = transition.animateFloat(0f, 100f, animationSpec)
             ClickableTestBox(Modifier.padding(start = offset.value.dp))

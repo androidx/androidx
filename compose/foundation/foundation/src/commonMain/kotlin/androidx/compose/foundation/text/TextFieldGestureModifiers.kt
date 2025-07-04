@@ -29,7 +29,7 @@ internal fun Modifier.textFieldFocusModifier(
     enabled: Boolean,
     focusRequester: FocusRequester,
     interactionSource: MutableInteractionSource?,
-    onFocusChanged: (FocusState) -> Unit
+    onFocusChanged: (FocusState) -> Unit,
 ) =
     this.focusRequester(focusRequester)
         .onFocusChanged(onFocusChanged)

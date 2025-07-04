@@ -28,15 +28,15 @@ class AddCallResultTest {
     fun testAddCallResultErrorCodesAreSetProperly() {
         assertEquals(
             CallException.ERROR_UNKNOWN,
-            AddCallResult.Error(CallException.ERROR_UNKNOWN).errorCode
+            AddCallResult.Error(CallException.ERROR_UNKNOWN).errorCode,
         )
         assertEquals(
             CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD,
-            AddCallResult.Error(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD).errorCode
+            AddCallResult.Error(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD).errorCode,
         )
         assertEquals(
             CallException.ERROR_CALL_IS_NOT_BEING_TRACKED,
-            AddCallResult.Error(CallException.ERROR_CALL_IS_NOT_BEING_TRACKED).errorCode
+            AddCallResult.Error(CallException.ERROR_CALL_IS_NOT_BEING_TRACKED).errorCode,
         )
     }
 

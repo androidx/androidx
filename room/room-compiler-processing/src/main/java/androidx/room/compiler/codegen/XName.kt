@@ -17,11 +17,7 @@
 package androidx.room.compiler.codegen
 
 /** Represents a name (e.g. method name) which may differ in Java and Kotlin. */
-class XName
-internal constructor(
-    internal val java: String,
-    internal val kotlin: String,
-) {
+class XName internal constructor(internal val java: String, internal val kotlin: String) {
     companion object {
         @JvmStatic fun of(name: String) = of(java = name, kotlin = name)
 

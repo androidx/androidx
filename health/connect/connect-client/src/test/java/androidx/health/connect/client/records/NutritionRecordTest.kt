@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.calories
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,7 +25,9 @@ import java.time.Instant
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
+@Config(minSdk = 28)
 @RunWith(AndroidJUnit4::class)
 class NutritionRecordTest {
 
@@ -32,20 +35,22 @@ class NutritionRecordTest {
     fun validRecord_equals() {
         assertThat(
                 NutritionRecord(
-                    startTime = Instant.ofEpochMilli(1234L),
+                    startTime = Instant.ofEpochMilli(1678900000L),
                     startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(1236L),
+                    endTime = Instant.ofEpochMilli(1678900002L),
                     endZoneOffset = null,
-                    energy = Energy.calories(5.0)
+                    metadata = Metadata.manualEntry(),
+                    energy = Energy.calories(150.0),
                 )
             )
             .isEqualTo(
                 NutritionRecord(
-                    startTime = Instant.ofEpochMilli(1234L),
+                    startTime = Instant.ofEpochMilli(1678900000L),
                     startZoneOffset = null,
-                    endTime = Instant.ofEpochMilli(1236L),
+                    endTime = Instant.ofEpochMilli(1678900002L),
                     endZoneOffset = null,
-                    energy = Energy.calories(5.0)
+                    metadata = Metadata.manualEntry(),
+                    energy = Energy.calories(150.0),
                 )
             )
     }
@@ -58,7 +63,8 @@ class NutritionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
-                energy = Energy.calories(-1.0)
+                metadata = Metadata.manualEntry(),
+                energy = Energy.calories(-1.0),
             )
         }
         assertFailsWith<IllegalArgumentException> {
@@ -67,7 +73,8 @@ class NutritionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
-                energy = Energy.calories(100000001.0)
+                metadata = Metadata.manualEntry(),
+                energy = Energy.calories(100000001.0),
             )
         }
     }
@@ -80,6 +87,7 @@ class NutritionRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
             )
         }
     }
@@ -92,7 +100,8 @@ class NutritionRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
-                        energy = 240.calories
+                        metadata = Metadata.unknownRecordingMethod(),
+                        energy = 240.calories,
                     )
                     .toString()
             )

@@ -130,7 +130,7 @@ public final class MediaRouter {
     public static final int UNSELECT_REASON_ROUTE_CHANGED = 3;
 
     @IntDef({
-        REASON_DISCONNECTED,
+        REASON_DISCONNECT_CALLED,
         REASON_ROUTE_NOT_AVAILABLE,
         REASON_ROUTE_NOT_ENABLED,
         REASON_REJECTED_FOR_SELECTED_ROUTE,
@@ -146,7 +146,7 @@ public final class MediaRouter {
      *
      * @see Callback#onRouteDisconnected(MediaRouter, RouteInfo, RouteInfo, int)
      */
-    public static final int REASON_DISCONNECTED = 1;
+    public static final int REASON_DISCONNECT_CALLED = 1;
 
     /**
      * The route connection has failed because the requested route is no longer available.
@@ -164,6 +164,9 @@ public final class MediaRouter {
 
     /**
      * The route connection has failed because the requested route is a selected route.
+     *
+     * <p>If a route is already selected, then calling {@link RouteInfo#connect()} on the selected
+     * route will be rejected and do nothing.
      *
      * @see Callback#onRouteDisconnected(MediaRouter, RouteInfo, RouteInfo, int)
      */
@@ -1615,15 +1618,19 @@ public final class MediaRouter {
         /**
          * Returns true if this route is currently selected.
          *
+         * <p>Only one representative route can return true. For instance:
+         *
+         * <ul>
+         *   <li>If this route is a selected (non-group) route, it returns true.
+         *   <li>If this route is a selected group route, it returns true.
+         *   <li>If this route is a selected member route of a group, it returns false.
+         * </ul>
+         *
          * <p>Must be called on the main thread.
          *
          * @return True if this route is currently selected.
          * @see MediaRouter#getSelectedRoute
          */
-        // Note: Only one representative route can return true. For instance:
-        //   - If this route is a selected (non-group) route, it returns true.
-        //   - If this route is a selected group route, it returns true.
-        //   - If this route is a selected member route of a group, it returns false.
         @MainThread
         public boolean isSelected() {
             checkCallingThread();
@@ -2062,7 +2069,22 @@ public final class MediaRouter {
         /**
          * Connects this route without selecting it.
          *
-         * <p>If the route is already selected, connecting this route will do nothing.
+         * <p>A route may be selected or connected. Route selection is performed using the {@link
+         * #select()} method. The media router library supports a single selected route which is
+         * typically the active playback device chosen by the user. This method enables connection
+         * to additional routes while maintaining the current route selection. If the specified
+         * route is already selected, this method has no effect.
+         *
+         * <p>The route controller dialog should display only the selected route, as this is the one
+         * users directly interact with. Connected routes are typically managed by the application
+         * in the background and are not generally relevant to the user.
+         *
+         * <p>After calling this method to connect a route, the application will receive the {@link
+         * MediaRouter.Callback#onRouteConnected(MediaRouter, RouteInfo, RouteInfo)} callback when
+         * the connection is established. The connected {@link RouteInfo} can then be used to send
+         * control commands to the route. If the connection fails, the application receives the
+         * {@link MediaRouter.Callback#onRouteDisconnected(MediaRouter, RouteInfo, RouteInfo, int)}
+         * callback with error details.
          *
          * <p>Must be called on the main thread.
          */
@@ -2080,6 +2102,10 @@ public final class MediaRouter {
          *
          * <p>If it is a connected route, then it will disconnect this route. If it is a selected
          * route, disconnecting this route will do nothing.
+         *
+         * <p>After calling this method to disconnect a route, the application receives the {@link
+         * MediaRouter.Callback#onRouteDisconnected(MediaRouter, RouteInfo, RouteInfo, int)}
+         * callback.
          *
          * <p>Must be called on the main thread.
          */
@@ -2466,14 +2492,14 @@ public final class MediaRouter {
             UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE,
             UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION
         })
-        @interface UpdateRoutesReason {}
+        /* package */ @interface UpdateRoutesReason {}
 
         /**
          * The {@link #updateRoutes(List)} has updated routes for the dynamic group.
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_SUCCESSFUL = 1;
+        /* package */ static final int UPDATE_ROUTES_SUCCESSFUL = 1;
 
         /**
          * Updating routes for a dynamic group has failed because the updated routes don't contain
@@ -2481,7 +2507,7 @@ public final class MediaRouter {
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_FAILED_REASON_NOT_TRANSFERABLE = 2;
+        /* package */ static final int UPDATE_ROUTES_FAILED_REASON_NOT_TRANSFERABLE = 2;
 
         /**
          * Updating routes for a dynamic group has failed because the group route doesn't support
@@ -2489,7 +2515,7 @@ public final class MediaRouter {
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE = 3;
+        /* package */ static final int UPDATE_ROUTES_FAILED_REASON_UNSUPPORTED_FOR_GROUP_ROUTE = 3;
 
         /**
          * Updating routes for a dynamic group has failed because the group route is a connected
@@ -2497,7 +2523,8 @@ public final class MediaRouter {
          *
          * @see #updateRoutes(List)
          */
-        public static final int UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION = 4;
+        /* package */ static final int UPDATE_ROUTES_FAILED_REASON_NOT_AVAILABLE_ROUTE_CONNECTION =
+                4;
 
         @NonNull private final List<RouteInfo> mRoutesInGroup = new ArrayList<>();
 
@@ -2556,15 +2583,17 @@ public final class MediaRouter {
         }
 
         /**
-         * Updates the routes to be members of the dynamic group if the routes are transferable.
-         * Non-transferable routes will not be included in the dynamic group.
+         * Updates the routes to be members of the dynamic group if the routes are transferable. The
+         * dynamic group will remove all existing routes and then add all of the transferable routes
+         * of the given routes. Non-transferable routes will not be included in the updated dynamic
+         * group.
          *
          * @return The state of updating routes for the dynamic group.
          * @see #isTransferable(RouteInfo)
          */
         @UpdateRoutesReason
         @MainThread
-        public int updateRoutes(@NonNull List<RouteInfo> routes) {
+        /* package */ int updateRoutes(@NonNull List<RouteInfo> routes) {
             checkCallingThread();
             return getGlobalRouter().updateRoutesForGroup(this, routes);
         }
@@ -2612,6 +2641,7 @@ public final class MediaRouter {
          * Returns {@code true} if the route is transferable and can be updated for the dynamic
          * group with the {@link #updateRoutes(List)} method.
          */
+        @RestrictTo(LIBRARY)
         public boolean isTransferable(@NonNull RouteInfo route) {
             DynamicRouteDescriptor dynamicRouteDescriptor =
                     mRouteIdToDynamicRouteDescriptorMap.get(route.getId());
@@ -2849,7 +2879,8 @@ public final class MediaRouter {
          * routes while connecting to other routes.
          *
          * <p>The connected route could be different from the route requested by {@link
-         * RouteInfo#connect()}.
+         * RouteInfo#connect()}. This can happen when the {@link MediaTransferReceiver media
+         * transfer feature} is enabled.
          *
          * @param router the media router reporting the event.
          * @param connectedRoute the route that has been connected.
@@ -3038,7 +3069,7 @@ public final class MediaRouter {
             }
 
             // In order to notify the app of cast-to-phone event, the onRouteSelected(phone)
-            // should be called regaredless of the callbakck's control category.
+            // should be called regardless of the callback's control category.
             if (isTransferToLocalEnabled() && route.isDefaultOrBluetooth()
                     && what == GlobalMediaRouter.CallbackHandler.MSG_ROUTE_SELECTED
                     && reason == UNSELECT_REASON_ROUTE_CHANGED

@@ -665,7 +665,7 @@ class FragmentAnimatorTest {
                 android.R.animator.fade_in,
                 android.R.animator.fade_out,
                 android.R.animator.fade_in,
-                android.R.animator.fade_out
+                android.R.animator.fade_out,
             )
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
@@ -731,7 +731,7 @@ class FragmentAnimatorTest {
                 android.R.animator.fade_in,
                 android.R.animator.fade_out,
                 android.R.animator.fade_in,
-                android.R.animator.fade_out
+                android.R.animator.fade_out,
             )
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
@@ -825,7 +825,7 @@ class FragmentAnimatorTest {
         fragment: AnimatorFragment,
         numAnimators: Int,
         isEnter: Boolean,
-        animatorResourceId: Int
+        animatorResourceId: Int,
     ) {
         assertThat(fragment.numStartedAnimators).isEqualTo(numAnimators)
         assertThat(fragment.baseEnter).isEqualTo(isEnter)

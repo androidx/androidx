@@ -73,9 +73,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -99,9 +99,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = true,
                     isPrivateReprocessingSupported = false,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -118,9 +118,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = true,
                     isPrivateReprocessingSupported = false,
-                    isJpegValidOutputFormat = false
+                    isJpegValidOutputFormat = false,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -137,9 +137,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = false,
-                    isJpegValidOutputFormat = false
+                    isJpegValidOutputFormat = false,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -156,9 +156,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
         zslControl.isZslDisabledByUserCaseConfig = true
 
@@ -176,9 +176,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
         zslControl.isZslDisabledByFlashMode = true
 
@@ -203,9 +203,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -227,9 +227,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -249,9 +249,9 @@ class ZslControlImplTest {
                     hasCapabilities = true,
                     isYuvReprocessingSupported = false,
                     isPrivateReprocessingSupported = true,
-                    isJpegValidOutputFormat = true
+                    isJpegValidOutputFormat = true,
                 ),
-                CameraXExecutors.mainThreadExecutor()
+                CameraXExecutors.mainThreadExecutor(),
             )
 
         zslControl.addZslConfig(sessionConfigBuilder)
@@ -271,7 +271,7 @@ class ZslControlImplTest {
         hasCapabilities: Boolean,
         isYuvReprocessingSupported: Boolean,
         isPrivateReprocessingSupported: Boolean,
-        isJpegValidOutputFormat: Boolean
+        isJpegValidOutputFormat: Boolean,
     ): CameraCharacteristicsCompat {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
@@ -289,7 +289,7 @@ class ZslControlImplTest {
         if (hasCapabilities) {
             shadowCharacteristics.set(
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
-                capabilities.toIntArray()
+                capabilities.toIntArray(),
             )
 
             // Input formats
@@ -325,13 +325,13 @@ class ZslControlImplTest {
 
             shadowCharacteristics.set(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                streamConfigurationMap
+                streamConfigurationMap,
             )
         }
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
             characteristics,
-            CAMERA_ID_0
+            CAMERA_ID_0,
         )
     }
 }

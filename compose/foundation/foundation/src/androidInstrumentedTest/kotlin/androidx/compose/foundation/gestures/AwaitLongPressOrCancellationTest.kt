@@ -83,7 +83,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -109,7 +109,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -135,7 +135,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -170,7 +170,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -205,7 +205,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -246,7 +246,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -285,7 +285,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -334,7 +334,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -368,7 +368,7 @@ class AwaitTouchEventTest {
                                 val down = awaitFirstDown(requireUnconsumed = false)
                                 awaitLongPressOrCancellation(down.id)?.let { counter++ }
                             }
-                        }
+                        },
                 )
             }
         }
@@ -405,7 +405,7 @@ class AwaitTouchEventTest {
                 /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
                 /* displayId = */ 0,
                 /* flags = */ 0,
-                /* classification = */ CLASSIFICATION_NONE
+                /* classification = */ CLASSIFICATION_NONE,
             )
 
         view.dispatchTouchEvent(downEvent)
@@ -433,7 +433,7 @@ class AwaitTouchEventTest {
                 /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
                 /* displayId = */ 0,
                 /* flags = */ 0,
-                /* classification = */ CLASSIFICATION_DEEP_PRESS
+                /* classification = */ CLASSIFICATION_DEEP_PRESS,
             )
 
         view.dispatchTouchEvent(deepPressMoveEvent)

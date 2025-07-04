@@ -63,17 +63,12 @@ class TransformingLazyColumnScrollTest {
         spacingPx: Int = 0,
         containerSizePx: Int = itemSizePx * 3,
         scrollBlock: suspend () -> Unit,
-        assertBlock: () -> Unit
+        assertBlock: () -> Unit,
     ) {
         rule.setContent {
             state = rememberTransformingLazyColumnState()
             scope = rememberCoroutineScope()
-            with(rule.density) {
-                TestContent(
-                    spacingPx.toDp(),
-                    containerSizePx.toDp(),
-                )
-            }
+            with(rule.density) { TestContent(spacingPx.toDp(), containerSizePx.toDp()) }
         }
         runBlocking { withContext(Dispatchers.Main + AutoTestFrameClock()) { scrollBlock() } }
         rule.runOnIdle { assertBlock() }
@@ -82,7 +77,7 @@ class TransformingLazyColumnScrollTest {
     @Test
     fun setupWorks() =
         testScroll(scrollBlock = {}) {
-            assertThat(state.anchorItemIndex).isEqualTo(0)
+            assertThat(state.anchorItemIndex).isEqualTo(1)
             assertThat(state.anchorItemScrollOffset).isEqualTo(0)
         }
 
@@ -111,25 +106,22 @@ class TransformingLazyColumnScrollTest {
     @Test
     fun scrollToItemWithOffsetLargerThanAvailableSize() =
         testScroll(scrollBlock = { state.scrollToItem(itemsCount - 1, -10) }) {
-            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 1)
+            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 2) // last item feels the space
             assertThat(state.anchorItemScrollOffset).isEqualTo(0) // not 10
         }
 
     @Test
     fun scrollToItemWithIndexLargerThanItemsCount() =
         testScroll(scrollBlock = { state.scrollToItem(itemsCount + 2) }) {
-            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 1)
+            assertThat(state.anchorItemIndex).isEqualTo(itemsCount - 2) // last item feels the space
         }
 
     @Composable
-    private fun TestContent(
-        spacingDp: Dp,
-        containerSizeDp: Dp,
-    ) =
+    private fun TestContent(spacingDp: Dp, containerSizeDp: Dp) =
         TransformingLazyColumn(
             Modifier.height(containerSizeDp).testTag(lazyListTag),
             state,
-            verticalArrangement = Arrangement.spacedBy(spacingDp)
+            verticalArrangement = Arrangement.spacedBy(spacingDp),
         ) {
             items(itemsCount) { Spacer(modifier = Modifier.height(itemSizeDp)) }
         }

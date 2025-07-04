@@ -47,7 +47,7 @@ class KSAsMemberOfTest {
                 val subClassProp : String = "abc"
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -69,7 +69,7 @@ class KSAsMemberOfTest {
             val listOfStringsTypeName =
                 ParameterizedTypeName.get(
                     List::class.className(),
-                    WildcardTypeName.subtypeOf(String::class.className())
+                    WildcardTypeName.subtypeOf(String::class.className()),
                 )
             base.getField("mapOfStringToGeneric2").let { prop ->
                 assertThat(prop.asMemberOf(sub).typeName)
@@ -77,7 +77,7 @@ class KSAsMemberOfTest {
                         ParameterizedTypeName.get(
                             Map::class.className(),
                             String::class.className(),
-                            listOfStringsTypeName
+                            listOfStringsTypeName,
                         )
                     )
             }
@@ -88,7 +88,7 @@ class KSAsMemberOfTest {
                         ParameterizedTypeName.get(
                             Pair::class.className(),
                             TypeName.INT.box(),
-                            listOfStringsTypeName
+                            listOfStringsTypeName,
                         )
                     )
             }
@@ -110,7 +110,7 @@ class KSAsMemberOfTest {
             abstract class NonNullSubject : MyInterface<String>()
             abstract class NullableSubject: MyInterface<String?>()
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
@@ -165,7 +165,7 @@ class KSAsMemberOfTest {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val javaSrc =
             Source.java(
@@ -176,7 +176,7 @@ class KSAsMemberOfTest {
                 static String staticProp;
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runKspTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             listOf("KotlinClass", "JavaClass").forEach {

@@ -249,7 +249,7 @@ class AnimateXAsStateComposeAnimationTest {
         search: AnimationSearch.AnimateXAsStateSearch,
         label: String,
         defaultValue: Any,
-        numberOfStates: Int = 1
+        numberOfStates: Int = 1,
     ): AnimateXAsStateComposeAnimation<*, *> {
         assertEquals(1, search.animations.size)
         val composeAnimation = search.animations.first().parse()!!

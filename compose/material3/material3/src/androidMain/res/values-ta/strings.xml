@@ -61,6 +61,8 @@
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"கீழ்ப்புற ஷீட்டைச் சுருக்கும்"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"கீழ்ப்புற ஷீட்டை நிராகரிக்கும்"</string>
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"கீழ்ப்புற ஷீட்டை விரிவாக்கும்"</string>
+    <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"கருவிப்பட்டியைச் சுருக்கும்"</string>
+    <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"கருவிப்பட்டியை விரிவாக்கும்"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"உதவிக்குறிப்பு"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"உதவிக்குறிப்பைக் காட்டு"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -75,6 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"மணிநேரம்"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"நிமிடங்களுக்கு"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"மணிநேரத்திற்கு"</string>
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"நேர உள்ளீட்டிற்காக, எழுத்து உள்ளீட்டு முறைக்கு மாற்றும்"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"நேர உள்ளீட்டிற்காக, கடிகாரப் பயன்முறைக்கு மாற்றும்"</string>
+    <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"நேரத்தைத் தேர்ந்தெடுங்கள்"</string>
+    <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"நேரத்தை டைப் செய்யுங்கள்"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"பாதையை மூடும்"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"வழிசெலுத்தல் பாதை"</string>
 </resources>

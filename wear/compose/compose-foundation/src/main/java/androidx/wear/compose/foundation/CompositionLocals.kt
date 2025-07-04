@@ -17,41 +17,45 @@
 package androidx.wear.compose.foundation
 
 import android.content.ContentResolver
-import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Looper
 import android.provider.Settings
-import androidx.compose.runtime.Composable
+import android.util.Log
+import androidx.compose.runtime.CompositionLocal
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.HandlerCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import java.util.concurrent.atomic.AtomicReference
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.stateIn
 
 /**
- * CompositionLocal for global reduce-motion setting, which turns off animations and screen
- * movements. To use, call LocalReduceMotion.current.enabled(), which returns a Boolean.
+ * [CompositionLocal] for global reduce-motion setting, which turns off animations and screen
+ * movements. To use, call LocalReduceMotion.current, which returns a Boolean.
  */
-public val LocalReduceMotion: ProvidableCompositionLocal<ReduceMotion> = staticCompositionLocalOf {
-    ReduceMotion {
-        val context = LocalContext.current.applicationContext
-        val flow = getReduceMotionFlowFor(context)
-        flow.collectAsStateWithLifecycle().value
+public val LocalReduceMotion: ProvidableCompositionLocal<Boolean> =
+    compositionLocalWithComputedDefaultOf {
+        if (cachedReducedMotion.value == null) {
+            val applicationContext = LocalContext.currentValue.applicationContext
+            val resolver = applicationContext.contentResolver
+            val contentObserver =
+                object : ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
+                    override fun onChange(selfChange: Boolean, uri: Uri?) {
+                        cachedReducedMotion.value = getReducedMotionSettingValue(resolver)
+                    }
+                }
+            val reduceMotionUri = Settings.Global.getUriFor(REDUCE_MOTION)
+            resolver.registerContentObserver(reduceMotionUri, false, contentObserver)
+            cachedReducedMotion.value = getReducedMotionSettingValue(resolver)
+        }
+        cachedReducedMotion.value!!
     }
-}
 
 /**
- * CompositionLocal containing the background scrim color of [BasicSwipeToDismissBox].
+ * [CompositionLocal] containing the background scrim color of [BasicSwipeToDismissBox].
  *
  * Defaults to [Color.Black] if not explicitly set.
  */
@@ -61,7 +65,7 @@ public val LocalSwipeToDismissBackgroundScrimColor: ProvidableCompositionLocal<C
     }
 
 /**
- * CompositionLocal containing the content scrim color of [BasicSwipeToDismissBox].
+ * [CompositionLocal] containing the content scrim color of [BasicSwipeToDismissBox].
  *
  * Defaults to [Color.Black] if not explicitly set.
  */
@@ -71,57 +75,29 @@ public val LocalSwipeToDismissContentScrimColor: ProvidableCompositionLocal<Colo
     }
 
 /**
- * ReduceMotion provides a means for callers to determine whether an app should turn off animations
- * and screen movement.
+ * [CompositionLocal] used to express/determine if a screen is active, as specified by each
+ * component (for example, it could be updated when the user is in the middle of the gesture to
+ * switch screens, or after the gesture is done). Components that manage multiple screens (like
+ * pager and swipe to dismiss) provide this, and can be used at the screen level to update the UI or
+ * perform optimizations on inactive screens.
+ *
+ * Defaults to true
  */
-public fun interface ReduceMotion {
-    @Composable public fun enabled(): Boolean
-}
-
-private val reduceMotionCache = AtomicReference<StateFlow<Boolean>>()
-
-// Callers of this function should pass an application context. Passing an activity context might
-// result in activity leaks.
-private fun getReduceMotionFlowFor(applicationContext: Context): StateFlow<Boolean> {
-    val resolver = applicationContext.contentResolver
-    val reduceMotionUri = Settings.Global.getUriFor(REDUCE_MOTION)
-
-    return reduceMotionCache.updateAndGet {
-        it
-            ?: callbackFlow {
-                    val contentObserver =
-                        object :
-                            ContentObserver(HandlerCompat.createAsync(Looper.getMainLooper())) {
-                            override fun deliverSelfNotifications(): Boolean {
-                                // Returning true to receive change notification so that
-                                // the flow sends new value after it is initialized.
-                                return true
-                            }
-
-                            override fun onChange(selfChange: Boolean, uri: Uri?) {
-                                super.onChange(selfChange, uri)
-                                trySend(getReducedMotionSettingValue(resolver))
-                            }
-                        }
-
-                    resolver.registerContentObserver(reduceMotionUri, false, contentObserver)
-                    // Force send value when flow is initialized
-                    resolver.notifyChange(reduceMotionUri, contentObserver)
-
-                    awaitClose { resolver.unregisterContentObserver(contentObserver) }
-                }
-                .stateIn(
-                    MainScope(),
-                    SharingStarted.WhileSubscribed(5000),
-                    getReducedMotionSettingValue(resolver)
-                )
-    }
-}
+public val LocalScreenIsActive: ProvidableCompositionLocal<Boolean> = compositionLocalOf { true }
 
 private fun getReducedMotionSettingValue(resolver: ContentResolver): Boolean {
-    return Settings.Global.getInt(resolver, REDUCE_MOTION, REDUCE_MOTION_DEFAULT) == 1
+    return try {
+        Settings.Global.getInt(resolver, REDUCE_MOTION, REDUCE_MOTION_DEFAULT) == 1
+    } catch (e: SecurityException) {
+        Log.w(TAG, "Failed to fetch reduce motion setting, using value: false", e)
+        false
+    }
 }
 
 // See framework's Settings.Global.Wearable#REDUCE_MOTION.
 private const val REDUCE_MOTION = "reduce_motion"
 private const val REDUCE_MOTION_DEFAULT = 0
+
+internal const val TAG = "CompositionLocals"
+
+private val cachedReducedMotion: MutableState<Boolean?> = mutableStateOf(null)

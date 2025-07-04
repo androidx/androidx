@@ -327,7 +327,7 @@ class AndroidEmbeddedExternalSurfaceTest {
                 Canvas(modifier = Modifier.size(size)) { drawRect(Color.White) }
                 AndroidEmbeddedExternalSurface(
                     modifier = Modifier.size(size).testTag("EmbeddedExternalSurface"),
-                    isOpaque = false
+                    isOpaque = false,
                 ) {
                     onSurface { surface, _, _ ->
                         surface.lockHardwareCanvas().apply {
@@ -382,7 +382,7 @@ class AndroidEmbeddedExternalSurfaceTest {
                         translate(s, s)
                         rotateZ(180.0f)
                         translate(-s, -s)
-                    }
+                    },
             ) {
                 onSurface { surface, _, _ ->
                     // Draw the top half in red, the bottom half in blue

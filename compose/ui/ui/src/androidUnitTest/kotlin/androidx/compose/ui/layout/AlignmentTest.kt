@@ -37,11 +37,11 @@ class AlignmentTest {
     fun testAlign_topStart() {
         assertEquals(
             IntOffset(0, 0),
-            Alignment.TopStart.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.TopStart.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(100, 0),
-            Alignment.TopStart.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.TopStart.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -49,11 +49,11 @@ class AlignmentTest {
     fun testAlign_topCenter() {
         assertEquals(
             IntOffset(50, 0),
-            Alignment.TopCenter.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.TopCenter.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(50, 0),
-            Alignment.TopCenter.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.TopCenter.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -61,11 +61,11 @@ class AlignmentTest {
     fun testAlign_topEnd() {
         assertEquals(
             IntOffset(100, 0),
-            Alignment.TopEnd.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.TopEnd.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(0, 0),
-            Alignment.TopEnd.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.TopEnd.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -73,11 +73,11 @@ class AlignmentTest {
     fun testAlign_centerStart() {
         assertEquals(
             IntOffset(0, 50),
-            Alignment.CenterStart.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.CenterStart.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(100, 50),
-            Alignment.CenterStart.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.CenterStart.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -85,11 +85,11 @@ class AlignmentTest {
     fun testAlign_center() {
         assertEquals(
             IntOffset(50, 50),
-            Alignment.Center.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.Center.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(50, 50),
-            Alignment.Center.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.Center.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -97,11 +97,11 @@ class AlignmentTest {
     fun testAlign_centerEnd() {
         assertEquals(
             IntOffset(100, 50),
-            Alignment.CenterEnd.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.CenterEnd.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(0, 50),
-            Alignment.CenterEnd.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.CenterEnd.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -109,11 +109,11 @@ class AlignmentTest {
     fun testAlign_bottomStart() {
         assertEquals(
             IntOffset(0, 100),
-            Alignment.BottomStart.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.BottomStart.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(100, 100),
-            Alignment.BottomStart.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.BottomStart.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -121,11 +121,11 @@ class AlignmentTest {
     fun testAlign_bottomCenter() {
         assertEquals(
             IntOffset(50, 100),
-            Alignment.BottomCenter.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.BottomCenter.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(50, 100),
-            Alignment.BottomCenter.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.BottomCenter.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -133,11 +133,11 @@ class AlignmentTest {
     fun testAlign_bottomEnd() {
         assertEquals(
             IntOffset(100, 100),
-            Alignment.BottomEnd.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            Alignment.BottomEnd.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(0, 100),
-            Alignment.BottomEnd.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            Alignment.BottomEnd.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -204,11 +204,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_topLeft() {
         assertEquals(
             IntOffset(0, 0),
-            AbsoluteAlignment.TopLeft.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            AbsoluteAlignment.TopLeft.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(0, 0),
-            AbsoluteAlignment.TopLeft.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            AbsoluteAlignment.TopLeft.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -216,11 +216,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_topRight() {
         assertEquals(
             IntOffset(100, 0),
-            AbsoluteAlignment.TopRight.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            AbsoluteAlignment.TopRight.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(100, 0),
-            AbsoluteAlignment.TopRight.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            AbsoluteAlignment.TopRight.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -228,11 +228,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_centerLeft() {
         assertEquals(
             IntOffset(0, 50),
-            AbsoluteAlignment.CenterLeft.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            AbsoluteAlignment.CenterLeft.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(0, 50),
-            AbsoluteAlignment.CenterLeft.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            AbsoluteAlignment.CenterLeft.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -240,11 +240,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_centerRight() {
         assertEquals(
             IntOffset(100, 50),
-            AbsoluteAlignment.CenterRight.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            AbsoluteAlignment.CenterRight.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(100, 50),
-            AbsoluteAlignment.CenterRight.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            AbsoluteAlignment.CenterRight.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -252,11 +252,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_bottomLeft() {
         assertEquals(
             IntOffset(0, 100),
-            AbsoluteAlignment.BottomLeft.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            AbsoluteAlignment.BottomLeft.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(0, 100),
-            AbsoluteAlignment.BottomLeft.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            AbsoluteAlignment.BottomLeft.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -264,11 +264,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_bottomRight() {
         assertEquals(
             IntOffset(100, 100),
-            AbsoluteAlignment.BottomRight.align(IntSize.Zero, space, LayoutDirection.Ltr)
+            AbsoluteAlignment.BottomRight.align(IntSize.Zero, space, LayoutDirection.Ltr),
         )
         assertEquals(
             IntOffset(100, 100),
-            AbsoluteAlignment.BottomRight.align(IntSize.Zero, space, LayoutDirection.Rtl)
+            AbsoluteAlignment.BottomRight.align(IntSize.Zero, space, LayoutDirection.Rtl),
         )
     }
 
@@ -283,11 +283,11 @@ class AlignmentTest {
     fun testAbsoluteAlign_custom1D() {
         assertEquals(
             75,
-            BiasAbsoluteAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Ltr)
+            BiasAbsoluteAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Ltr),
         )
         assertEquals(
             75,
-            BiasAbsoluteAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Rtl)
+            BiasAbsoluteAlignment.Horizontal(0.5f).align(0, space1D, LayoutDirection.Rtl),
         )
     }
 }

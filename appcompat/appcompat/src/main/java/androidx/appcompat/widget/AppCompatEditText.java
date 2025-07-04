@@ -19,10 +19,12 @@ package androidx.appcompat.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleDragEventViaPerformReceiveContent;
 import static androidx.appcompat.widget.AppCompatReceiveContentHelper.maybeHandleMenuActionViaPerformReceiveContent;
+import static androidx.appcompat.widget.AppCompatTextHelper.FontVariationSettingsManager;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Editable;
@@ -41,6 +43,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.OnReceiveContentListener;
@@ -86,6 +89,17 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     private final TextViewOnReceiveContentListener mDefaultOnReceiveContentListener;
     private final @NonNull AppCompatEmojiEditTextHelper mAppCompatEmojiEditTextHelper;
     private @Nullable SuperCaller mSuperCaller;
+
+    private FontVariationSettingsManager mFontVariationSettingsManager;
+    @RequiresApi(26)
+    @VisibleForTesting
+    @NonNull FontVariationSettingsManager getFontVariationSettingsManager() {
+        if (mFontVariationSettingsManager == null) {
+            mFontVariationSettingsManager = new FontVariationSettingsManager(this,
+                    AppCompatEditText.super::setTypeface);
+        }
+        return mFontVariationSettingsManager;
+    }
 
     public AppCompatEditText(@NonNull Context context) {
         this(context, null);
@@ -515,6 +529,38 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
 
         public void setTextClassifier(TextClassifier textClassifier) {
             AppCompatEditText.super.setTextClassifier(textClassifier);
+        }
+    }
+
+    @RequiresApi(26)
+    @Override
+    public boolean setFontVariationSettings(@Nullable String fontVariationSettings) {
+        return getFontVariationSettingsManager().setFontVariationSettings(fontVariationSettings);
+    }
+
+    @RequiresApi(26)
+    @Override
+    public @Nullable String getFontVariationSettings() {
+        return getFontVariationSettingsManager().getFontVariationSettings();
+    }
+
+    @Override
+    public void setTypeface(@Nullable Typeface tf) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            getFontVariationSettingsManager().setTypeface(tf);
+        } else {
+            super.setTypeface(tf);
+        }
+    }
+
+    @Override
+    // Code inspection reveals that the superclass method can return null.
+    @SuppressWarnings("InvalidNullabilityOverride")
+    public @Nullable Typeface getTypeface() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return getFontVariationSettingsManager().getTypeface();
+        } else {
+            return super.getTypeface();
         }
     }
 }

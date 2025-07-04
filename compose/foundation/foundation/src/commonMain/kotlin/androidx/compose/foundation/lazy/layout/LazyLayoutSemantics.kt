@@ -199,7 +199,7 @@ private class LazyLayoutSemanticsModifierNode(
             ScrollAxisRange(
                 value = { state.scrollOffset },
                 maxValue = { state.maxScrollOffset },
-                reverseScrolling = reverseScrolling
+                reverseScrolling = reverseScrolling,
             )
 
         scrollToIndexAction =
@@ -247,7 +247,7 @@ internal interface LazyLayoutSemanticState {
 // fewer than ~16000 items, the integer value is exactly preserved).
 internal fun estimatedLazyScrollOffset(
     firstVisibleItemIndex: Int,
-    firstVisibleItemScrollOffset: Int
+    firstVisibleItemScrollOffset: Int,
 ): Float {
     return (firstVisibleItemScrollOffset + firstVisibleItemIndex * 500).toFloat()
 }
@@ -255,7 +255,7 @@ internal fun estimatedLazyScrollOffset(
 internal fun estimatedLazyMaxScrollOffset(
     firstVisibleItemIndex: Int,
     firstVisibleItemScrollOffset: Int,
-    canScrollForward: Boolean
+    canScrollForward: Boolean,
 ): Float {
     return if (canScrollForward) {
             // If we can scroll further, indicate that by setting it slightly higher than

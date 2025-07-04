@@ -32,7 +32,7 @@ class CollectDeviceInfoTask : DiagnosisTask("CollectDeviceInfoTask") {
     override suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,
         dataStore: DataStore,
-        context: Context
+        context: Context,
     ) {
         // write file/section header
         dataStore.appendTitle(this.getTaskName())

@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiHelperForP;
 import androidx.webkit.internal.StartupApiFeature;
 import androidx.webkit.internal.WebViewFeatureInternal;
@@ -149,7 +148,7 @@ public class ProcessGlobalConfig {
      * cache files when disk space is low and WebView may not function properly if this occurs.
      * Refer to
      * <a href="https://developer.android.com/training/data-storage/app-specific#internal-remove-cache">this</a>
-     *  link.
+     * link.
      * <p>
      * If the specified directories already exist then they must be readable and writable by the
      * current process. If they do not already exist, WebView will attempt to create them during
@@ -191,13 +190,13 @@ public class ProcessGlobalConfig {
     }
 
     /**
-     * Configures whether partitioned cookies {@see https://github.com/privacycg/CHIPS}
-     * should be enabled or not.
+     * Configures whether partitioned cookies should be enabled or not. Refer to
+     * <a href="https://github.com/privacycg/CHIPS">this</a>
+     * link for more details.
      *
-     * Partitioned cookies will be enabled by default for apps that target Android B and above.
-     * For apps that target below Android B, this is disabled.
+     * <p>
+     * This is enabled for WebView M114 and above.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_CONFIGURE_PARTITIONED_COOKIES,
             enforcement =
                     "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")

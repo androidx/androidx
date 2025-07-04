@@ -1,3 +1,3 @@
 // Baseline format: 1.0
-AddedMethod: androidx.graphics.shapes.CornerRounding#CornerRounding():
-    Added constructor androidx.graphics.shapes.CornerRounding()
+AddedAbstractMethod: androidx.graphics.shapes.PointTransformer#transform-XgqJiTY(float, float):
+    Binary breaking change: Added method androidx.graphics.shapes.PointTransformer.transform-XgqJiTY(float,float)

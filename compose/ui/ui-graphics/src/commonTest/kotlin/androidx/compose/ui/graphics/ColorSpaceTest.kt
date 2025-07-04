@@ -530,7 +530,7 @@ class ColorSpaceTest {
                 0.09710153f,
                 0.14308129f,
                 0.06061824f,
-                0.71415880f
+                0.71415880f,
             )
 
         assertArrayEquals(sRGBD50, (adapted as Rgb).getTransform(), 1e-7f)
@@ -551,7 +551,7 @@ class ColorSpaceTest {
         assertArrayEquals(
             connector1.transform(source[0], source[1], source[2]),
             connector2.transform(source[0], source[1], source[2]),
-            1e-7f
+            1e-7f,
         )
     }
 
@@ -742,8 +742,8 @@ class ColorSpaceTest {
             ColorSpaces.Srgb,
             ColorSpaces.match(
                 SRGB_TO_XYZ_D50,
-                TransferParameters(2.4, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045)
-            )
+                TransferParameters(2.4, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045),
+            ),
         )
     }
 
@@ -815,7 +815,7 @@ class ColorSpaceTest {
                 0.119195f,
                 0.180481f,
                 0.072192f,
-                0.950532f
+                0.950532f,
             )
         // Column-major XYZ->RGB transform matrix for the sRGB color space
         private val XYZ_TO_SRGB =
@@ -828,7 +828,7 @@ class ColorSpaceTest {
                 -0.203977f,
                 -0.498611f,
                 0.041555f,
-                1.056971f
+                1.056971f,
             )
 
         // Column-major RGB->XYZ transform matrix for the sRGB color space and a D50 white point
@@ -842,7 +842,7 @@ class ColorSpaceTest {
                 0.0971045f,
                 0.1430804f,
                 0.0606169f,
-                0.7141733f
+                0.7141733f,
             )
 
         private val SRGB_PRIMARIES_xyY =
@@ -859,7 +859,7 @@ class ColorSpaceTest {
                 0.166667f,
                 2.500000f,
                 1.000000f,
-                13.166667f
+                13.166667f,
             )
         private val SRGB_WHITE_POINT_XYZ = WhitePoint(0.950456f, 1.000f, 1.089058f)
 

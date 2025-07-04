@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY;
 import static android.os.Looper.getMainLooper;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -75,6 +77,8 @@ public class TorchControlTest {
 
     private TorchControl mNoFlashUnitTorchControl;
     private TorchControl mTorchControl;
+    private CameraCharacteristicsCompat mLlbEnabledCameraCharacteristicsCompat;
+    private Camera2CameraControlImpl mLlbEnabledCamera2CameraControl;
     private Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener;
     private TestLifecycleOwner mLifecycleOwner;
 
@@ -104,22 +108,25 @@ public class TorchControlTest {
         /* Prepare CameraControl 1 which flash is available */
         CameraCharacteristics cameraCharacteristics1 =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
-        CameraCharacteristicsCompat characteristicsCompat1 =
+        mLlbEnabledCameraCharacteristicsCompat =
                 CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics1,
                         CAMERA1_ID);
 
-        Camera2CameraControlImpl camera2CameraControlImpl1 =
-                spy(new Camera2CameraControlImpl(characteristicsCompat1,
-                        CameraXExecutors.mainThreadExecutor(),
-                        CameraXExecutors.mainThreadExecutor(),
-                        mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mTorchControl = new TorchControl(camera2CameraControlImpl1, characteristicsCompat1,
+        mLlbEnabledCamera2CameraControl = new Camera2CameraControlImpl(
+                mLlbEnabledCameraCharacteristicsCompat,
+                CameraXExecutors.mainThreadExecutor(),
+                CameraXExecutors.mainThreadExecutor(),
+                mock(CameraControlInternal.ControlUpdateCallback.class));
+        Camera2CameraControlImpl camera2CameraControl1 = spy(mLlbEnabledCamera2CameraControl);
+        mTorchControl = new TorchControl(camera2CameraControl1,
+                mLlbEnabledCameraCharacteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         mTorchControl.setActive(true);
 
         ArgumentCaptor<Camera2CameraControlImpl.CaptureResultListener> argumentCaptor =
                 ArgumentCaptor.forClass(Camera2CameraControlImpl.CaptureResultListener.class);
-        verify(camera2CameraControlImpl1).addCaptureResultListener(argumentCaptor.capture());
+        verify(camera2CameraControl1).addCaptureResultListener(
+                argumentCaptor.capture());
         mCaptureResultListener = argumentCaptor.getValue();
 
         /* Prepare Lifecycle for test LiveData */
@@ -145,6 +152,17 @@ public class TorchControlTest {
         int torchState =
                 Objects.requireNonNull(mNoFlashUnitTorchControl.getTorchState().getValue());
         assertThat(torchState).isEqualTo(TorchState.OFF);
+    }
+
+    @Test
+    public void setTorchStrengthLevel_throwExceptionWhenNoFlashUnit() throws InterruptedException {
+        Throwable cause = null;
+        try {
+            mNoFlashUnitTorchControl.setTorchStrengthLevel(1).get();
+        } catch (ExecutionException e) {
+            cause = e.getCause();
+        }
+        assertThat(cause).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
@@ -305,6 +323,60 @@ public class TorchControlTest {
         assertThat(torchStates.get(2)).isEqualTo(TorchState.OFF); // by enableTorch(false)
     }
 
+    @Config(minSdk = 35)
+    @Test
+    public void enableTorchIsCanceled_whenLowLightBoostIsOn() {
+        // Activates the Camera2CameraControlImpl and ensures low-light boost is turned on
+        mLlbEnabledCamera2CameraControl.incrementUseCount();
+        mLlbEnabledCamera2CameraControl.setActive(true);
+
+        TorchControl torchControl = mLlbEnabledCamera2CameraControl.getTorchControl();
+
+        mLlbEnabledCamera2CameraControl.enableLowLightBoostAsync(true);
+        shadowOf(getMainLooper()).idle();
+        assertThat(mLlbEnabledCamera2CameraControl.isLowLightBoostOn()).isTrue();
+
+        // Verifies that enabling torch operation will run failed with IllegalStateException cause
+        ListenableFuture<Void> future = torchControl.enableTorch(true);
+        shadowOf(getMainLooper()).idle();
+        Throwable cause = null;
+        try {
+            future.get();
+        } catch (ExecutionException | InterruptedException e) {
+            // The real cause is wrapped in ExecutionException, retrieve it and check.
+            cause = e.getCause();
+        }
+
+        assertThat(cause).isInstanceOf(IllegalStateException.class);
+    }
+
+    @SuppressLint("BanThreadSleep")
+    @Config(minSdk = 35)
+    @Test
+    public void torchIsDisabled_whenLowLightBoostIsTurnedOn() {
+        // Activates the Camera2CameraControlImpl
+        mLlbEnabledCamera2CameraControl.incrementUseCount();
+        mLlbEnabledCamera2CameraControl.setActive(true);
+
+        TorchControl torchControl = mLlbEnabledCamera2CameraControl.getTorchControl();
+        assertThat(torchControl.getTorchState().getValue()).isEqualTo(TorchState.OFF);
+
+        // Turns on torch
+        torchControl.enableTorch(true);
+        shadowOf(getMainLooper()).idle();
+        assertThat(mLlbEnabledCamera2CameraControl.isTorchOn()).isTrue();
+        assertThat(torchControl.getTorchState().getValue()).isEqualTo(TorchState.ON);
+
+        // Turns on low-light boost
+        mLlbEnabledCamera2CameraControl.enableLowLightBoostAsync(true);
+        shadowOf(getMainLooper()).idle();
+
+        // Verifies that enabling torch operation will run failed with IllegalStateException cause
+        assertThat(mLlbEnabledCamera2CameraControl.isLowLightBoostOn()).isTrue();
+        assertThat(mLlbEnabledCamera2CameraControl.isTorchOn()).isFalse();
+        assertThat(torchControl.getTorchState().getValue()).isEqualTo(TorchState.OFF);
+    }
+
     private void initShadowCameraManager() {
         // **** Camera 0 characteristics ****//
         CameraCharacteristics characteristics0 =
@@ -326,6 +398,11 @@ public class TorchControlTest {
         ShadowCameraCharacteristics shadowCharacteristics1 = Shadow.extract(characteristics1);
 
         shadowCharacteristics1.set(CameraCharacteristics.FLASH_INFO_AVAILABLE, true);
+        if (Build.VERSION.SDK_INT >= 35) {
+            // Adds low-light boost capability for related tests
+            shadowCharacteristics1.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
+                    new int[]{CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY});
+        }
 
         ((ShadowCameraManager)
                 Shadow.extract(

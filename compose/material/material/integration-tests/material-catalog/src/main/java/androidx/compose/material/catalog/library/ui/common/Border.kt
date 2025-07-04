@@ -41,7 +41,7 @@ fun Modifier.gridItemBorder(
     itemIndex: Int,
     cellsCount: Int,
     color: Color,
-    width: Dp = BorderWidth
+    width: Dp = BorderWidth,
 ) = drawBehind {
     val end = itemIndex.inc().rem(cellsCount) == 0
     drawLine(
@@ -49,7 +49,7 @@ fun Modifier.gridItemBorder(
         strokeWidth = width.toPx(),
         cap = StrokeCap.Square,
         start = Offset(0f, size.height),
-        end = Offset(size.width, size.height)
+        end = Offset(size.width, size.height),
     )
     if (!end)
         drawLine(
@@ -57,7 +57,7 @@ fun Modifier.gridItemBorder(
             strokeWidth = width.toPx(),
             cap = StrokeCap.Square,
             start = Offset(size.width, size.height),
-            end = Offset(size.width, 0f)
+            end = Offset(size.width, 0f),
         )
 }
 

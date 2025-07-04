@@ -110,5 +110,5 @@ internal val VisibilityThresholdMap: Map<TwoWayConverter<*, *>, Float> =
         Size.VectorConverter to PxVisibilityThreshold,
         Offset.VectorConverter to PxVisibilityThreshold,
         Dp.VectorConverter to DpVisibilityThreshold,
-        DpOffset.VectorConverter to DpVisibilityThreshold
+        DpOffset.VectorConverter to DpVisibilityThreshold,
     )

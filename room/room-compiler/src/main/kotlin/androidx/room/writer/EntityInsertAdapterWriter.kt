@@ -26,7 +26,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DataClass
-import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.PropertyWithIndex
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.columnNames
 
@@ -35,7 +35,7 @@ private constructor(
     val tableName: String,
     val dataClass: DataClass,
     val primitiveAutoGenerateColumn: String?,
-    val onConflict: String
+    val onConflict: String,
 ) {
     companion object {
         fun create(entity: ShortcutEntity, onConflict: String): EntityInsertAdapterWriter {
@@ -43,7 +43,7 @@ private constructor(
             // not set. For such fields, we must generate a slightly different insertion SQL.
             val primitiveAutoGenerateField =
                 if (entity.primaryKey.autoGenerateId) {
-                    entity.primaryKey.fields.firstOrNull()?.let { field ->
+                    entity.primaryKey.properties.firstOrNull()?.let { field ->
                         field.statementBinder?.typeMirror()?.let { binderType ->
                             if (binderType.nullability == XNullability.NONNULL) {
                                 field
@@ -59,14 +59,12 @@ private constructor(
                 tableName = entity.tableName,
                 dataClass = entity.dataClass,
                 primitiveAutoGenerateColumn = primitiveAutoGenerateField?.columnName,
-                onConflict = onConflict
+                onConflict = onConflict,
             )
         }
     }
 
-    fun createAnonymous(
-        typeWriter: TypeWriter,
-    ): XTypeSpec {
+    fun createAnonymous(typeWriter: TypeWriter): XTypeSpec {
         return XTypeSpec.anonymousClassBuilder()
             .apply {
                 superclass(RoomTypeNames.INSERT_ADAPTER.parametrizedBy(dataClass.typeName))
@@ -74,7 +72,7 @@ private constructor(
                     XFunSpec.builder(
                             name = "createQuery",
                             visibility = VisibilityModifier.PROTECTED,
-                            isOverride = true
+                            isOverride = true,
                         )
                         .apply {
                             returns(CommonTypeNames.STRING)
@@ -87,7 +85,7 @@ private constructor(
                                 append(" (${dataClass.columnNames.joinToString(",") { "`$it`" }})")
                                 append(" VALUES (")
                                 append(
-                                    dataClass.fields.joinToString(",") {
+                                    dataClass.properties.joinToString(",") {
                                         if (it.columnName == primitiveAutoGenerateColumn) {
                                             "nullif(?, 0)"
                                         } else {
@@ -105,7 +103,7 @@ private constructor(
                     XFunSpec.builder(
                             name = "bind",
                             visibility = VisibilityModifier.PROTECTED,
-                            isOverride = true
+                            isOverride = true,
                         )
                         .apply {
                             returns(XTypeName.UNIT_VOID)
@@ -113,13 +111,13 @@ private constructor(
                             addParameter(stmtParam, SQLiteDriverTypeNames.STATEMENT)
                             val entityParam = "entity"
                             addParameter(entityParam, dataClass.typeName)
-                            val mapped = FieldWithIndex.byOrder(dataClass.fields)
+                            val mapped = PropertyWithIndex.byOrder(dataClass.properties)
                             val bindScope = CodeGenScope(writer = typeWriter)
-                            FieldReadWriteWriter.bindToStatement(
+                            PropertyReadWriteWriter.bindToStatement(
                                 ownerVar = entityParam,
                                 stmtParamVar = stmtParam,
-                                fieldsWithIndices = mapped,
-                                scope = bindScope
+                                propertiesWithIndices = mapped,
+                                scope = bindScope,
                             )
                             addCode(bindScope.generate())
                         }

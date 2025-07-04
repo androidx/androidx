@@ -22,6 +22,7 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.ConfigQueryResult
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -40,13 +41,13 @@ class CameraPipeSimulatorTest {
         FakeCameraMetadata(
             cameraId = FakeCameraIds.next(),
             characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK),
         )
     private val frontCameraMetadata =
         FakeCameraMetadata(
             cameraId = FakeCameraIds.next(),
             characteristics =
-                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
         )
 
     private val streamConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
@@ -58,13 +59,13 @@ class CameraPipeSimulatorTest {
         CameraPipeSimulator.create(
             testScope,
             context,
-            listOf(frontCameraMetadata, backCameraMetadata)
+            listOf(frontCameraMetadata, backCameraMetadata),
         )
 
     @Test
     fun cameraPipeSimulatorCanCreateCameraGraphSimulators() =
         testScope.runTest {
-            val cameraGraph1 = cameraPipe.create(graphConfig)
+            val cameraGraph1 = cameraPipe.createCameraGraph(graphConfig)
             val cameraGraphSimulator1 = cameraPipe.cameraGraphs.find { it == cameraGraph1 }
 
             assertThat(cameraGraph1).isInstanceOf(CameraGraphSimulator::class.java)
@@ -124,9 +125,9 @@ class CameraPipeSimulatorTest {
         val graphConfig3 =
             CameraGraph.Config(camera = frontCameraMetadata.camera, streams = listOf(streamConfig))
 
-        val cameraGraph1 = cameraPipe.create(graphConfig1)
-        val cameraGraph2 = cameraPipe.create(graphConfig2)
-        val cameraGraph3 = cameraPipe.create(graphConfig3)
+        val cameraGraph1 = cameraPipe.createCameraGraph(graphConfig1)
+        val cameraGraph2 = cameraPipe.createCameraGraph(graphConfig2)
+        val cameraGraph3 = cameraPipe.createCameraGraph(graphConfig3)
 
         assertThat(cameraPipe.cameraGraphs)
             .containsExactly(cameraGraph1, cameraGraph2, cameraGraph3)
@@ -139,7 +140,7 @@ class CameraPipeSimulatorTest {
 
     @Test
     fun cameraPipeSimulatorCanCheckForUnclosedResources() {
-        val cameraGraph = cameraPipe.create(graphConfig)
+        val cameraGraph = cameraPipe.createCameraGraph(graphConfig)
         val fakeImageReader =
             cameraPipe.fakeImageReaders.create(cameraGraph.streams[streamConfig]!!, 1)
         val fakeImage = fakeImageReader.simulateImage(123)
@@ -163,15 +164,9 @@ class CameraPipeSimulatorTest {
     @Test
     fun cameraPipeSimulatorCanCreateConcurrentCameraGraphs() {
         val config1 =
-            CameraGraph.Config(
-                camera = frontCameraMetadata.camera,
-                streams = listOf(streamConfig),
-            )
+            CameraGraph.Config(camera = frontCameraMetadata.camera, streams = listOf(streamConfig))
         val config2 =
-            CameraGraph.Config(
-                camera = backCameraMetadata.camera,
-                streams = listOf(streamConfig),
-            )
+            CameraGraph.Config(camera = backCameraMetadata.camera, streams = listOf(streamConfig))
         val concurrentCameras = listOf(config1, config2)
 
         val cameraGraphs =
@@ -184,5 +179,13 @@ class CameraPipeSimulatorTest {
         val config1Stream1 = cameraGraphs[0].streams[streamConfig]
         val config2Stream1 = cameraGraphs[1].streams[streamConfig]
         assertThat(config1Stream1).isNotEqualTo(config2Stream1)
+    }
+
+    @Test
+    fun cameraPipeSimulatorSupportIsConfigureSupportedApi() {
+        val config =
+            CameraGraph.Config(camera = frontCameraMetadata.camera, streams = listOf(streamConfig))
+        val result = cameraPipe.isConfigSupported(config)
+        assertThat(result).isEqualTo(ConfigQueryResult.UNKNOWN)
     }
 }

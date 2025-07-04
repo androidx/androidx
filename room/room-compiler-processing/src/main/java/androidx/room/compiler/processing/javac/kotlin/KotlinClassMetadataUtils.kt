@@ -91,9 +91,9 @@ internal class KmClassContainer(private val env: JavacProcessingEnv, private val
                                 classifier = KmClassifier.Class(kmTypeParameter.name)
                             },
                         typeArguments = emptyList(),
-                        upperBounds = kmTypeParameter.upperBounds.map { it.asContainer() }
+                        upperBounds = kmTypeParameter.upperBounds.map { it.asContainer() },
                     )
-                }
+                },
         )
     }
 
@@ -198,7 +198,7 @@ internal class KmClassContainer(private val env: JavacProcessingEnv, private val
                         Diagnostic.Kind.ERROR,
                         "Unable to read Kotlin metadata due to unsupported metadata " +
                             "kind: $classMetadata.",
-                        element
+                        element,
                     )
                     null
                 }
@@ -281,7 +281,7 @@ private open class KmPropertyFunctionContainerImpl(
     override val propertyName: String?,
     val isSetterMethod: Boolean,
     val isGetterMethod: Boolean,
-    val syntheticMethodForAnnotations: Boolean = false
+    val syntheticMethodForAnnotations: Boolean = false,
 ) : KmFunctionContainer {
     override val typeParameters: List<KmTypeParameterContainer> = emptyList()
     override val isSuspend: Boolean = false
@@ -342,7 +342,7 @@ internal class KmTypeContainer(
     /** The extends bounds are only non-null for wildcard (i.e. in/out variant) types. */
     val extendsBound: KmTypeContainer? = null,
     /** The upper bounds are only non-empty for type variable types with upper bounds. */
-    override val upperBounds: List<KmTypeContainer> = emptyList()
+    override val upperBounds: List<KmTypeContainer> = emptyList(),
 ) : KmBaseTypeContainer {
     fun isNullable() = kmType.isNullable
 
@@ -382,7 +382,7 @@ internal class KmAnnotationContainer(private val kmAnnotation: KmAnnotation) {
 
 internal class KmAnnotationArgumentContainer(
     private val env: JavacProcessingEnv,
-    private val kmAnnotationArgument: KmAnnotationArgument
+    private val kmAnnotationArgument: KmAnnotationArgument,
 ) {
     fun getValue(method: XMethodElement): Any? {
         return kmAnnotationArgument.let {
@@ -420,7 +420,7 @@ internal class KmAnnotationArgumentContainer(
 
 internal class KmTypeParameterContainer(
     private val kmTypeParameter: KmTypeParameter,
-    override val upperBounds: List<KmTypeContainer>
+    override val upperBounds: List<KmTypeContainer>,
 ) : KmBaseTypeContainer {
     val name: String
         get() = kmTypeParameter.name
@@ -431,7 +431,7 @@ internal class KmTypeParameterContainer(
 
 internal class KmValueParameterContainer(
     private val kmValueParameter: KmValueParameter,
-    val type: KmTypeContainer
+    val type: KmTypeContainer,
 ) : KmData {
     val name: String
         get() = kmValueParameter.name
@@ -446,7 +446,7 @@ internal class KmValueParameterContainer(
 private fun computeTypeNullability(
     isNullable: Boolean,
     upperBounds: List<KmTypeContainer>,
-    extendsBound: KmTypeContainer?
+    extendsBound: KmTypeContainer?,
 ): XNullability {
     if (isNullable) {
         return XNullability.NULLABLE
@@ -528,13 +528,13 @@ private fun KmProperty.asContainer(): KmPropertyContainer =
 private fun KmType.asContainer(): KmTypeContainer =
     KmTypeContainer(
         kmType = this,
-        typeArguments = this.arguments.mapNotNull { it.type?.asContainer() }
+        typeArguments = this.arguments.mapNotNull { it.type?.asContainer() },
     )
 
 private fun KmTypeParameter.asContainer(): KmTypeParameterContainer =
     KmTypeParameterContainer(
         kmTypeParameter = this,
-        upperBounds = this.upperBounds.map { it.asContainer() }
+        upperBounds = this.upperBounds.map { it.asContainer() },
     )
 
 private fun KmValueParameter.asContainer(): KmValueParameterContainer =

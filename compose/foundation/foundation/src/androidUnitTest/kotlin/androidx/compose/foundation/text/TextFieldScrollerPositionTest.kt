@@ -34,7 +34,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 0f,
             cursorEnd = 10f,
-            containerSize = ContainerSize
+            containerSize = ContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(0f)
     }
@@ -44,7 +44,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 10f,
             cursorEnd = 20f,
-            containerSize = ContainerSize
+            containerSize = ContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(10f)
     }
@@ -55,7 +55,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 20f,
             cursorEnd = 30f,
-            containerSize = ContainerSize
+            containerSize = ContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(initialOffset)
     }
@@ -65,7 +65,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 30f,
             cursorEnd = 40f,
-            containerSize = ContainerSize
+            containerSize = ContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(20f)
     }
@@ -75,7 +75,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 40f,
             cursorEnd = 50f,
-            containerSize = ContainerSize
+            containerSize = ContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(30f)
     }
@@ -85,7 +85,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 0f,
             cursorEnd = 10f,
-            containerSize = SmallContainerSize
+            containerSize = SmallContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(2f)
     }
@@ -95,7 +95,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 10f,
             cursorEnd = 20f,
-            containerSize = SmallContainerSize
+            containerSize = SmallContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(12f)
     }
@@ -105,7 +105,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 14f,
             cursorEnd = 24f,
-            containerSize = SmallContainerSize
+            containerSize = SmallContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(16f)
     }
@@ -115,7 +115,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 20f,
             cursorEnd = 30f,
-            containerSize = SmallContainerSize
+            containerSize = SmallContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(22f)
     }
@@ -125,7 +125,7 @@ class TextFieldScrollerPositionTest {
         scrollerPosition.coerceOffset(
             cursorStart = 30f,
             cursorEnd = 40f,
-            containerSize = SmallContainerSize
+            containerSize = SmallContainerSize,
         )
         assertThat(scrollerPosition.offset).isEqualTo(32f)
     }

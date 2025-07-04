@@ -51,7 +51,7 @@ internal class ExerciseGoalTest {
         val proto =
             ExerciseGoal.createMilestone(
                     DataTypeCondition(DISTANCE_TOTAL, 500.0, GREATER_THAN),
-                    period = 1000.0
+                    period = 1000.0,
                 )
                 .proto
 

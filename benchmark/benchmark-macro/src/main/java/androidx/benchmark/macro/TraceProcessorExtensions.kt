@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.security.NetworkSecurityPolicy
 import android.util.Log
+import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InMemoryTracing
@@ -31,12 +32,11 @@ import androidx.benchmark.ShellScript
 import androidx.benchmark.StartedShellScript
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi
 import androidx.benchmark.traceprocessor.PerfettoTrace
 import androidx.benchmark.traceprocessor.ServerLifecycleManager
 import androidx.benchmark.traceprocessor.TraceProcessor
 import java.io.IOException
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 @RequiresApi(24)
 private object Api24Impl {
@@ -142,48 +142,60 @@ internal class ShellServerLifecycleManager : ServerLifecycleManager {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> TraceProcessor.Companion.runSingleSessionServer(
     absoluteTracePath: String,
-    block: TraceProcessor.Session.() -> T
+    block: TraceProcessor.Session.() -> T,
 ) = TraceProcessor.runServer { loadTrace(PerfettoTrace(absoluteTracePath), block) }
 
 /**
- * Starts a Perfetto Trace Processor shell server in http mode, loads a trace and executes the given
- * block. It stops the server after the block is complete
+ * Starts a Perfetto TraceProcessor shell server in http mode.
  *
- * Uses a default timeout of 60 seconds.
+ * The server is stopped after the block is complete.
  *
+ * @sample androidx.benchmark.samples.traceProcessorRunServerSimple
+ * @param timeoutMs maximum duration in milliseconds for waiting for operations like loading the
+ *   server, or querying a trace.
  * @param block Command to execute using trace processor
  */
-fun <T> TraceProcessor.Companion.runServer(block: TraceProcessor.() -> T): T =
-    TraceProcessor.runServer(60.seconds, block)
+@JvmOverloads
+@ExperimentalTraceProcessorApi
+fun <T> TraceProcessor.Companion.runServer(
+    timeoutMs: Long = DEFAULT_TIMEOUT_MS,
+    block: TraceProcessor.() -> T,
+): T = startServer(timeoutMs).use { block(it.traceProcessor) }
 
 /**
- * Starts a Perfetto Trace Processor shell server in http mode, loads a trace and executes the given
- * block. It stops the server after the block is complete
+ * Starts a Perfetto TraceProcessor shell server in http mode.
  *
- * @param timeout waiting for the server to start. If less or equal to zero uses 60 seconds
- * @param block Command to execute using trace processor
+ * @sample androidx.benchmark.samples.traceProcessorStartServerSimple
+ * @param timeoutMs maximum duration in milliseconds for waiting for operations like loading the
+ *   server, or querying a trace.
  */
-fun <T> TraceProcessor.Companion.runServer(timeout: Duration, block: TraceProcessor.() -> T): T =
-    runServer(
+@JvmOverloads
+@ExperimentalTraceProcessorApi
+@CheckResult
+fun TraceProcessor.Companion.startServer(
+    timeoutMs: Long = DEFAULT_TIMEOUT_MS
+): TraceProcessor.Handle =
+    startServer(
         ShellServerLifecycleManager(),
         eventCallback =
             object : TraceProcessor.EventCallback {
                 override fun onLoadTraceFailure(trace: PerfettoTrace, throwable: Throwable) {
                     // TODO: consider a label argument to control logging like this in the success
-                    // case as
-                    //  well, which lets us get rid of FileLinkingRule (which doesn't work well
-                    // anyway)
+                    //  case as well, which lets us get rid of FileLinkingRule (which doesn't work
+                    //  well anyway)
                     if (trace.path.startsWith(Outputs.outputDirectory.absolutePath)) {
                         // only link trace with failure to Studio if it's an output file
                         InstrumentationResults.instrumentationReport {
                             val label =
-                                "Trace with processing error: ${throwable.message?.take(50)?.trim()}..."
+                                "Trace with processing error: ${
+                                throwable.message?.take(50)?.trim()
+                            }..."
                             reportSummaryToIde(
                                 profilerResults =
                                     listOf(
                                         Profiler.ResultFile.ofPerfettoTrace(
                                             label = label,
-                                            absolutePath = trace.path
+                                            absolutePath = trace.path,
                                         )
                                     )
                             )
@@ -201,6 +213,5 @@ fun <T> TraceProcessor.Companion.runServer(timeout: Duration, block: TraceProces
                     InMemoryTracing.endSection()
                 }
             },
-        timeout = timeout,
-        block = block,
+        timeoutMs = timeoutMs,
     )

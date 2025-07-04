@@ -16,23 +16,16 @@
 
 package androidx.xr.compose.platform
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
-import androidx.compose.ui.platform.LocalContext
-import androidx.xr.scenecore.Session
+import androidx.xr.runtime.Session
 
 /**
  * A composition local that provides the current Jetpack XR [Session].
  *
  * In non-XR environments, this composition local will return `null`.
  */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public val LocalSession: ProvidableCompositionLocal<Session?> =
     compositionLocalWithComputedDefaultOf {
-        if (SpatialConfiguration.hasXrSpatialFeature(LocalContext.currentValue)) {
-            Session.create(LocalContext.currentValue.getActivity())
-        } else {
-            null
-        }
+        LocalComposeXrOwners.currentValue?.session
     }

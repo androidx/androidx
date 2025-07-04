@@ -96,7 +96,7 @@ class EmojiProcessBenchmark(private val size: Int, private val replaceAll: Boole
         initializeEmojiCompatWithBundledForTest(replaceAll)
         val ec = EmojiCompat.get()
         benchmarkRule.measureRepeated {
-            val text = runWithTimingDisabled(stepFactory)
+            val text = runWithMeasurementDisabled(stepFactory)
             ec.process(text)
         }
     }

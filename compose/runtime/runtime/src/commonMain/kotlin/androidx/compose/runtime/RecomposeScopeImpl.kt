@@ -20,23 +20,20 @@ import androidx.collection.MutableObjectIntMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.ScatterSet
 import androidx.compose.runtime.platform.makeSynchronizedObject
-import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
-import androidx.compose.runtime.tooling.CompositionObserverHandle
-import androidx.compose.runtime.tooling.RecomposeScopeObserver
 
 /**
  * Represents a recomposable scope or section of the composition hierarchy. Can be used to manually
  * invalidate the scope to schedule it for recomposition.
  */
-interface RecomposeScope {
+public interface RecomposeScope {
     /**
      * Invalidate the corresponding scope, requesting the composer recompose this scope.
      *
      * This method is thread safe.
      */
-    fun invalidate()
+    public fun invalidate()
 }
 
 private const val changedLowBitMask = 0b001_001_001_001_001_001_001_001_001_001_0
@@ -67,6 +64,7 @@ private const val ForcedRecomposeFlag = 0x040
 private const val ForceReusing = 0x080
 private const val Paused = 0x100
 private const val Resuming = 0x200
+private const val ResetReusing = 0x400
 
 internal interface RecomposeScopeOwner {
     fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult
@@ -84,11 +82,11 @@ private val callbackLock = makeSynchronizedObject()
  * in [anchor] and call [block] when recomposition is requested. It is created by
  * [Composer.startRestartGroup] and is used to track how to restart the group.
  */
-internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScope, RecomposeScope {
+internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
+    ScopeUpdateScope, RecomposeScope {
 
+    /** The backing store for the boolean flags tracked by the recompose scope. */
     private var flags: Int = 0
-
-    private var owner: RecomposeScopeOwner? = owner
 
     /**
      * An anchor to the location in the slot table that start the group associated with this
@@ -113,14 +111,9 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * that is stored in [block] will be used.
      */
     var used: Boolean
-        get() = flags and UsedFlag != 0
+        get() = getFlag(UsedFlag)
         set(value) {
-            flags =
-                if (value) {
-                    flags or UsedFlag
-                } else {
-                    flags and UsedFlag.inv()
-                }
+            setFlag(UsedFlag, value)
         }
 
     /**
@@ -128,38 +121,33 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * content.
      */
     var reusing: Boolean
-        get() = flags and ForceReusing != 0
+        get() = getFlag(ForceReusing)
         set(value) {
-            flags =
-                if (value) {
-                    flags or ForceReusing
-                } else {
-                    flags and ForceReusing.inv()
-                }
+            setFlag(ForceReusing, value)
+        }
+
+    /**
+     * Used to restore the reusing state after unpausing a composition that was paused in a reusing
+     * state.
+     */
+    var resetReusing: Boolean
+        get() = getFlag(ResetReusing)
+        set(value) {
+            setFlag(ResetReusing, value)
         }
 
     /** Used to flag a scope as paused for pausable compositions */
     var paused: Boolean
-        get() = flags and Paused != 0
+        get() = getFlag(Paused)
         set(value) {
-            flags =
-                if (value) {
-                    flags or Paused
-                } else {
-                    flags and Paused.inv()
-                }
+            setFlag(Paused, value)
         }
 
     /** Used to flag a scope as paused for pausable compositions */
     var resuming: Boolean
-        get() = flags and Resuming != 0
+        get() = getFlag(Resuming)
         set(value) {
-            flags =
-                if (value) {
-                    flags or Resuming
-                } else {
-                    flags and Resuming.inv()
-                }
+            setFlag(Resuming, value)
         }
 
     /**
@@ -169,13 +157,9 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * invalidated.
      */
     var defaultsInScope: Boolean
-        get() = flags and DefaultsInScopeFlag != 0
+        get() = getFlag(DefaultsInScopeFlag)
         set(value) {
-            if (value) {
-                flags = flags or DefaultsInScopeFlag
-            } else {
-                flags = flags and DefaultsInScopeFlag.inv()
-            }
+            setFlag(DefaultsInScopeFlag, value)
         }
 
     /**
@@ -183,13 +167,9 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * [defaultsInScope] for details.
      */
     var defaultsInvalid: Boolean
-        get() = flags and DefaultsInvalidFlag != 0
+        get() = getFlag(DefaultsInvalidFlag)
         set(value) {
-            if (value) {
-                flags = flags or DefaultsInvalidFlag
-            } else {
-                flags = flags and DefaultsInvalidFlag.inv()
-            }
+            setFlag(DefaultsInvalidFlag, value)
         }
 
     /**
@@ -198,20 +178,13 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * parameters are the same as the previous recomposition.
      */
     var requiresRecompose: Boolean
-        get() = flags and RequiresRecomposeFlag != 0
+        get() = getFlag(RequiresRecomposeFlag)
         set(value) {
-            if (value) {
-                flags = flags or RequiresRecomposeFlag
-            } else {
-                flags = flags and RequiresRecomposeFlag.inv()
-            }
+            setFlag(RequiresRecomposeFlag, value)
         }
 
     /** The lambda to call to restart the scopes composition. */
     private var block: ((Composer, Int) -> Unit)? = null
-
-    /** The recompose scope observer, if one is registered. */
-    @ExperimentalComposeRuntimeApi private var observer: RecomposeScopeObserver? = null
 
     /**
      * Restart the scope's composition. It is an error if [block] was not updated. The code
@@ -219,34 +192,8 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * set but it might occur if the compiler is out-of-date (or ahead of the runtime) or incorrect
      * direct calls to [Composer.startRestartGroup] and [Composer.endRestartGroup].
      */
-    @OptIn(ExperimentalComposeRuntimeApi::class)
     fun compose(composer: Composer) {
-        val block = block
-        val observer = observer
-        if (observer != null && block != null) {
-            observer.onBeginScopeComposition(this)
-            try {
-                block(composer, 1)
-            } finally {
-                observer.onEndScopeComposition(this)
-            }
-            return
-        }
         block?.invoke(composer, 1) ?: error("Invalid restart scope")
-    }
-
-    @ExperimentalComposeRuntimeApi
-    internal fun observe(observer: RecomposeScopeObserver): CompositionObserverHandle {
-        synchronized(callbackLock) { this.observer = observer }
-        return object : CompositionObserverHandle {
-            override fun dispose() {
-                synchronized(callbackLock) {
-                    if (this@RecomposeScopeImpl.observer == observer) {
-                        this@RecomposeScopeImpl.observer = null
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -265,7 +212,7 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
         owner = null
         trackedInstances = null
         trackedDependencies = null
-        @OptIn(ExperimentalComposeRuntimeApi::class) observer?.onScopeDisposed(this)
+        block = null
     }
 
     /**
@@ -298,13 +245,9 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
     private var trackedInstances: MutableObjectIntMap<Any>? = null
     private var trackedDependencies: MutableScatterMap<DerivedState<*>, Any?>? = null
     private var rereading: Boolean
-        get() = flags and RereadingFlag != 0
+        get() = getFlag(RereadingFlag)
         set(value) {
-            if (value) {
-                flags = flags or RereadingFlag
-            } else {
-                flags = flags and RereadingFlag.inv()
-            }
+            setFlag(RereadingFlag, value)
         }
 
     /**
@@ -313,24 +256,16 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
      * it) was invalidated and the path to this scope has also been forced.
      */
     var forcedRecompose: Boolean
-        get() = flags and ForcedRecomposeFlag != 0
+        get() = getFlag(ForcedRecomposeFlag)
         set(value) {
-            if (value) {
-                flags = flags or ForcedRecomposeFlag
-            } else {
-                flags = flags and ForcedRecomposeFlag.inv()
-            }
+            setFlag(ForcedRecomposeFlag, value)
         }
 
     /** Indicates whether the scope was skipped (e.g. [scopeSkipped] was called. */
     internal var skipped: Boolean
-        get() = flags and SkippedFlag != 0
+        get() = getFlag(SkippedFlag)
         private set(value) {
-            if (value) {
-                flags = flags or SkippedFlag
-            } else {
-                flags = flags and SkippedFlag.inv()
-            }
+            setFlag(SkippedFlag, value)
         }
 
     /**
@@ -467,11 +402,24 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
         }
     }
 
+    @Suppress("NOTHING_TO_INLINE") private inline fun getFlag(flag: Int) = flags and flag != 0
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun setFlag(flag: Int, value: Boolean) {
+        val existingFlags = flags
+        flags =
+            if (value) {
+                existingFlags or flag
+            } else {
+                existingFlags and flag.inv()
+            }
+    }
+
     companion object {
         internal fun adoptAnchoredScopes(
             slots: SlotWriter,
             anchors: List<Anchor>,
-            newOwner: RecomposeScopeOwner
+            newOwner: RecomposeScopeOwner,
         ) {
             if (anchors.isNotEmpty()) {
                 anchors.fastForEach { anchor ->

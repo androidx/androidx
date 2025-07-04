@@ -17,6 +17,7 @@
 package a.b;
 
 import android.os.Bundle;
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import java.lang.IllegalArgumentException;
@@ -30,11 +31,13 @@ public class MainFragmentDirections {
     private MainFragmentDirections() {
     }
 
+    @CheckResult
     @NonNull
     public static Previous previous(@NonNull String arg1, @NonNull String arg2) {
         return new Previous(arg1, arg2);
     }
 
+    @CheckResult
     @NonNull
     public static Next next(@NonNull String main) {
         return new Next(main);

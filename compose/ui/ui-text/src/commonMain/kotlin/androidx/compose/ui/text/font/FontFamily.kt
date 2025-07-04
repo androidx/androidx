@@ -90,7 +90,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
             fontFamily: FontFamily? = null,
             fontWeight: FontWeight = FontWeight.Normal,
             fontStyle: FontStyle = FontStyle.Normal,
-            fontSynthesis: FontSynthesis = FontSynthesis.All
+            fontSynthesis: FontSynthesis = FontSynthesis.All,
         ): State<Any>
     }
 
@@ -141,7 +141,7 @@ sealed class FontFamily(canLoadSynchronously: Boolean) {
     @Suppress("CanBePrimaryConstructorProperty") // for deprecation
     @get:Deprecated(
         message = "Unused property that has no meaning. Do not use.",
-        level = DeprecationLevel.ERROR
+        level = DeprecationLevel.ERROR,
     )
     val canLoadSynchronously = canLoadSynchronously
 }

@@ -1,0 +1,40 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.material:material-ripple>
+abstract interface androidx.compose.material.ripple/RippleTheme { // androidx.compose.material.ripple/RippleTheme|null[0]
+    abstract fun defaultColor(): androidx.compose.ui.graphics/Color // androidx.compose.material.ripple/RippleTheme.defaultColor|defaultColor(){}[0]
+    abstract fun rippleAlpha(): androidx.compose.material.ripple/RippleAlpha // androidx.compose.material.ripple/RippleTheme.rippleAlpha|rippleAlpha(){}[0]
+
+    final object Companion { // androidx.compose.material.ripple/RippleTheme.Companion|null[0]
+        final fun defaultRippleAlpha(androidx.compose.ui.graphics/Color, kotlin/Boolean): androidx.compose.material.ripple/RippleAlpha // androidx.compose.material.ripple/RippleTheme.Companion.defaultRippleAlpha|defaultRippleAlpha(androidx.compose.ui.graphics.Color;kotlin.Boolean){}[0]
+        final fun defaultRippleColor(androidx.compose.ui.graphics/Color, kotlin/Boolean): androidx.compose.ui.graphics/Color // androidx.compose.material.ripple/RippleTheme.Companion.defaultRippleColor|defaultRippleColor(androidx.compose.ui.graphics.Color;kotlin.Boolean){}[0]
+    }
+}
+
+final class androidx.compose.material.ripple/RippleAlpha { // androidx.compose.material.ripple/RippleAlpha|null[0]
+    constructor <init>(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.compose.material.ripple/RippleAlpha.<init>|<init>(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+
+    final val draggedAlpha // androidx.compose.material.ripple/RippleAlpha.draggedAlpha|{}draggedAlpha[0]
+        final fun <get-draggedAlpha>(): kotlin/Float // androidx.compose.material.ripple/RippleAlpha.draggedAlpha.<get-draggedAlpha>|<get-draggedAlpha>(){}[0]
+    final val focusedAlpha // androidx.compose.material.ripple/RippleAlpha.focusedAlpha|{}focusedAlpha[0]
+        final fun <get-focusedAlpha>(): kotlin/Float // androidx.compose.material.ripple/RippleAlpha.focusedAlpha.<get-focusedAlpha>|<get-focusedAlpha>(){}[0]
+    final val hoveredAlpha // androidx.compose.material.ripple/RippleAlpha.hoveredAlpha|{}hoveredAlpha[0]
+        final fun <get-hoveredAlpha>(): kotlin/Float // androidx.compose.material.ripple/RippleAlpha.hoveredAlpha.<get-hoveredAlpha>|<get-hoveredAlpha>(){}[0]
+    final val pressedAlpha // androidx.compose.material.ripple/RippleAlpha.pressedAlpha|{}pressedAlpha[0]
+        final fun <get-pressedAlpha>(): kotlin/Float // androidx.compose.material.ripple/RippleAlpha.pressedAlpha.<get-pressedAlpha>|<get-pressedAlpha>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material.ripple/RippleAlpha.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material.ripple/RippleAlpha.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material.ripple/RippleAlpha.toString|toString(){}[0]
+}
+
+final val androidx.compose.material.ripple/LocalRippleTheme // androidx.compose.material.ripple/LocalRippleTheme|{}LocalRippleTheme[0]
+    final fun <get-LocalRippleTheme>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.material.ripple/RippleTheme> // androidx.compose.material.ripple/LocalRippleTheme.<get-LocalRippleTheme>|<get-LocalRippleTheme>(){}[0]
+
+final fun androidx.compose.material.ripple/createRippleModifierNode(androidx.compose.foundation.interaction/InteractionSource, kotlin/Boolean, androidx.compose.ui.unit/Dp, androidx.compose.ui.graphics/ColorProducer, kotlin/Function0<androidx.compose.material.ripple/RippleAlpha>): androidx.compose.ui.node/DelegatableNode // androidx.compose.material.ripple/createRippleModifierNode|createRippleModifierNode(androidx.compose.foundation.interaction.InteractionSource;kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.ColorProducer;kotlin.Function0<androidx.compose.material.ripple.RippleAlpha>){}[0]
+final fun androidx.compose.material.ripple/rememberRipple(kotlin/Boolean = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.graphics/Color = ...): androidx.compose.foundation/Indication // androidx.compose.material.ripple/rememberRipple|rememberRipple(kotlin.Boolean;androidx.compose.ui.unit.Dp;androidx.compose.ui.graphics.Color){}[0]

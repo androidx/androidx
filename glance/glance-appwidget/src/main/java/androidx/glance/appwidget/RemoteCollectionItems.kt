@@ -25,7 +25,7 @@ private constructor(
     private val ids: LongArray,
     private val views: Array<RemoteViews>,
     private val hasStableIds: Boolean,
-    private val _viewTypeCount: Int
+    private val _viewTypeCount: Int,
 ) {
     init {
         require(ids.size == views.size) {
@@ -138,7 +138,7 @@ private constructor(
                 ids.toLongArray(),
                 views.toTypedArray(),
                 hasStableIds,
-                maxOf(viewTypeCount, 1)
+                maxOf(viewTypeCount, 1),
             )
         }
     }
@@ -149,7 +149,7 @@ private constructor(
                 ids = longArrayOf(),
                 views = emptyArray(),
                 hasStableIds = false,
-                _viewTypeCount = 1
+                _viewTypeCount = 1,
             )
     }
 }

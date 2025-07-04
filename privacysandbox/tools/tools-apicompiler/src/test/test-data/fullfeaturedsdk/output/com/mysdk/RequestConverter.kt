@@ -9,13 +9,11 @@ public class RequestConverter(
     public fun fromParcelable(parcelable: ParcelableRequest): Request {
         val annotatedValue = Request(
                 query = parcelable.query,
-                extraValues = parcelable.extraValues.map {
-                        InnerValueConverter(context).fromParcelable(it) }.toList(),
-                maybeValue = parcelable.maybeValue?.let { notNullValue ->
-                        InnerValueConverter(context).fromParcelable(notNullValue) },
+                extraValues = parcelable.extraValues.map { InnerValueConverter(context).fromParcelable(it) }.toList(),
+                maybeValue = parcelable.maybeValue?.let { notNullValue -> InnerValueConverter(context).fromParcelable(notNullValue) },
                 myInterface = (parcelable.myInterface as MyInterfaceStubDelegate).delegate,
-                myUiInterface = (parcelable.myUiInterface.binder as
-                        MyUiInterfaceStubDelegate).delegate,
+                myUiInterface = (parcelable.myUiInterface.binder as MyUiInterfaceStubDelegate).delegate,
+                mySharedUiInterface = (parcelable.mySharedUiInterface.binder as MySharedUiInterfaceStubDelegate).delegate,
                 activityLauncher = SdkActivityLauncherAndBinderWrapper(parcelable.activityLauncher),
                 flag = RequestFlagConverter(context).fromParcelable(parcelable.flag))
         return annotatedValue
@@ -24,16 +22,12 @@ public class RequestConverter(
     public fun toParcelable(annotatedValue: Request): ParcelableRequest {
         val parcelable = ParcelableRequest()
         parcelable.query = annotatedValue.query
-        parcelable.extraValues = annotatedValue.extraValues.map {
-                InnerValueConverter(context).toParcelable(it) }.toTypedArray()
-        parcelable.maybeValue = annotatedValue.maybeValue?.let { notNullValue ->
-                InnerValueConverter(context).toParcelable(notNullValue) }
+        parcelable.extraValues = annotatedValue.extraValues.map { InnerValueConverter(context).toParcelable(it) }.toTypedArray()
+        parcelable.maybeValue = annotatedValue.maybeValue?.let { notNullValue -> InnerValueConverter(context).toParcelable(notNullValue) }
         parcelable.myInterface = MyInterfaceStubDelegate(annotatedValue.myInterface, context)
-        parcelable.myUiInterface =
-                IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.myUiInterface.toCoreLibInfo(context),
-                MyUiInterfaceStubDelegate(annotatedValue.myUiInterface, context))
-        parcelable.activityLauncher =
-                SdkActivityLauncherAndBinderWrapper.getLauncherInfo(annotatedValue.activityLauncher)
+        parcelable.myUiInterface = IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.myUiInterface.toCoreLibInfo(context), MyUiInterfaceStubDelegate(annotatedValue.myUiInterface, context))
+        parcelable.mySharedUiInterface = IMySharedUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable(annotatedValue.mySharedUiInterface.toCoreLibInfo(), MySharedUiInterfaceStubDelegate(annotatedValue.mySharedUiInterface, context))
+        parcelable.activityLauncher = SdkActivityLauncherAndBinderWrapper.getLauncherInfo(annotatedValue.activityLauncher)
         parcelable.flag = RequestFlagConverter(context).toParcelable(annotatedValue.flag)
         return parcelable
     }

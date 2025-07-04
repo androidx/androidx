@@ -71,7 +71,7 @@ class DeferredObjectHolderTest {
         val exceptionOnCreate = RuntimeException("Error during creation")
         demandObject_beforePreloadObject_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnCreate = exceptionOnCreate),
-            exceptionOnCreate
+            exceptionOnCreate,
         )
     }
 
@@ -80,13 +80,13 @@ class DeferredObjectHolderTest {
         val exceptionOnInit = RuntimeException("Error during initialization")
         demandObject_beforePreloadObject_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnInit = exceptionOnInit),
-            exceptionOnInit
+            exceptionOnInit,
         )
     }
 
     private fun demandObject_beforePreloadObject_createAndInitObject_fail(
         deferredObjectHolder: DeferredObjectHolder<StubObject, StubObject>,
-        expectedError: Throwable
+        expectedError: Throwable,
     ) {
         deferredObjectHolder.demandObjectAndAssertThatSameInstanceAs(errorObject)
         errorHandler.assertErrorAndReset(expectedError)
@@ -122,7 +122,7 @@ class DeferredObjectHolderTest {
         val exceptionOnCreate = RuntimeException("Error during creation")
         demandObject_beforeIdle_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnCreate = exceptionOnCreate),
-            exceptionOnCreate
+            exceptionOnCreate,
         )
     }
 
@@ -131,13 +131,13 @@ class DeferredObjectHolderTest {
         val exceptionOnInit = RuntimeException("Error during initialization")
         demandObject_beforeIdle_createAndInitObject_fail(
             createDeferredObjectHolder(exceptionOnInit = exceptionOnInit),
-            exceptionOnInit
+            exceptionOnInit,
         )
     }
 
     private fun demandObject_beforeIdle_createAndInitObject_fail(
         deferredObjectHolder: DeferredObjectHolder<StubObject, StubObject>,
-        expectedError: Throwable
+        expectedError: Throwable,
     ) {
         deferredObjectHolder.preloadObject(messageQueue)
         assertThat(messageQueue.handlerRegistered).isTrue()
@@ -322,12 +322,12 @@ class DeferredObjectHolderTest {
 
     private fun createDeferredObjectHolder(
         exceptionOnCreate: Throwable? = null,
-        exceptionOnInit: Throwable? = null
+        exceptionOnInit: Throwable? = null,
     ): DeferredObjectHolder<StubObject, StubObject> =
         createDeferredObjectHolder(
             StubObjectFactory(
                 exceptionOnCreate = exceptionOnCreate,
-                stubObject = StubObject(exceptionOnInit = exceptionOnInit)
+                stubObject = StubObject(exceptionOnInit = exceptionOnInit),
             )
         )
 
@@ -338,7 +338,7 @@ class DeferredObjectHolderTest {
             objectFactory = objectFactory,
             objectInit = StubObject::initialize,
             errorHandler = errorHandler,
-            errorObject = errorObject
+            errorObject = errorObject,
         )
     }
 

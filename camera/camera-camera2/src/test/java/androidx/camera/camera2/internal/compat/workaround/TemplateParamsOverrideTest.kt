@@ -60,13 +60,7 @@ class TemplateParamsOverrideTest(
         @ParameterizedRobolectricTestRunner.Parameters(name = "testName={0}")
         fun data() =
             mutableListOf<Array<Any?>>().apply {
-                add(
-                    arrayOf(
-                        "no quirk",
-                        null,
-                        emptyParamsMap,
-                    )
-                )
+                add(arrayOf("no quirk", null, emptyParamsMap))
                 add(
                     arrayOf(
                         "CaptureIntentPreviewQuirk with false workaround flag",
@@ -106,7 +100,7 @@ class TemplateParamsOverrideTest(
                 TEMPLATE_STILL_CAPTURE,
                 TEMPLATE_MANUAL,
                 TEMPLATE_VIDEO_SNAPSHOT,
-                TEMPLATE_ZERO_SHUTTER_LAG
+                TEMPLATE_ZERO_SHUTTER_LAG,
             )) {
             val params = TemplateParamsOverride(quirks).getOverrideParams(template)
             val expectedParams = expectedParamsMap[template] ?: emptyParamsMap

@@ -113,8 +113,8 @@ public final class DynamicDataBuilders {
          *
          * @throws IllegalArgumentException if the byte array is too small
          */
-        default int toDynamicDataValueByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        default int toDynamicDataValueByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             CodedOutputStream stream = CodedOutputStream.newInstance(byteArray, offset, length);
             try {
                 toDynamicDataValueProto().writeTo(stream);
@@ -291,6 +291,16 @@ public final class DynamicDataBuilders {
          */
         default @NonNull Duration getDurationValue() {
             throw new IllegalStateException("Type mismatch.");
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataValue} contains a value of the specified {@code
+         * type}. Otherwise returns false.
+         */
+        default boolean hasValueOfType(@NonNull Class<?> type) {
+            throw new UnsupportedOperationException(
+                    String.format(
+                            "Class %s has not implemented 'hasValueOfType' method.", getClass()));
         }
 
         /** Get the fingerprint for this object or null if unknown. */

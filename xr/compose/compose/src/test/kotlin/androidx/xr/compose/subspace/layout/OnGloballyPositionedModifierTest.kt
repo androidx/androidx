@@ -20,9 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.testing.SubspaceTestingActivity
-import androidx.xr.compose.testing.setSubspaceContent
+import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.toDp
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -38,16 +39,20 @@ class OnGloballyPositionedModifierTest {
     @Test
     fun onGloballyPositioned_positionIsAlwaysSet() {
         var coordinates: SubspaceLayoutCoordinates? = null
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(
-                SubspaceModifier.offset(20.dp, 20.dp, 20.dp).onGloballyPositioned {
-                    coordinates = it
-                    assertEquals(20.dp, coordinates?.poseInRoot?.translation?.x?.toDp())
-                    assertEquals(20.dp, coordinates?.poseInRoot?.translation?.y?.toDp())
-                    assertEquals(20.dp, coordinates?.poseInRoot?.translation?.z?.toDp())
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.offset(20.dp, 20.dp, 20.dp).onGloballyPositioned {
+                            coordinates = it
+                            assertEquals(20.dp, coordinates?.poseInRoot?.translation?.x?.toDp())
+                            assertEquals(20.dp, coordinates?.poseInRoot?.translation?.y?.toDp())
+                            assertEquals(20.dp, coordinates?.poseInRoot?.translation?.z?.toDp())
+                        }
+                    ) {
+                        Text(text = "Panel")
+                    }
                 }
-            ) {
-                Text(text = "Panel")
             }
         }
 

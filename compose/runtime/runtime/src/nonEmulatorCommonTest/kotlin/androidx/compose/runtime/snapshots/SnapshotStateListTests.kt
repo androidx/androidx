@@ -23,6 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -108,6 +109,16 @@ class SnapshotStateListTests {
                 iterator.next()
                 iterator.remove()
             }
+        }
+    }
+
+    @Test // b/417493222
+    fun validateIterator_previous_remove() {
+        validate(mutableStateListOf(100)) { normalList ->
+            val iterator = normalList.listIterator(1)
+            val value = iterator.previous()
+            assertEquals(100, value)
+            iterator.remove()
         }
     }
 
@@ -560,116 +571,120 @@ class SnapshotStateListTests {
         }
     }
 
-    @Test(timeout = 10_000)
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentGlobalModifications_addAll(): Unit = runTest {
-        repeat(100) {
-            val list = mutableStateListOf<Int>()
-            coroutineScope {
-                repeat(100) { index ->
-                    launch(Dispatchers.Default) {
-                        list.addAll(0, Array(10) { index * 100 + it }.toList())
-                    }
-                }
-            }
-
-            repeat(100) { index ->
-                repeat(10) {
-                    assertTrue(list.contains(index * 100 + it), "Missing ${index * 100 + it}")
-                }
-            }
-        }
-    }
-
-    @Test(timeout = 30_000)
-    @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_add(): Unit = runTest {
-        repeat(10) {
-            val lists = Array(100) { mutableStateListOf<Int>() }.toList()
-            val channel = Channel<Unit>(Channel.CONFLATED)
-            coroutineScope {
-                // Launch mutator
-                launch(Dispatchers.Default) {
+    fun concurrentGlobalModifications_addAll() =
+        runTest(timeout = 30.seconds) {
+            repeat(100) {
+                val list = mutableStateListOf<Int>()
+                coroutineScope {
                     repeat(100) { index ->
-                        lists.fastForEach { list -> list.add(index) }
-
-                        // Simulate the write observer
-                        channel.trySend(Unit)
+                        launch(Dispatchers.Default) {
+                            list.addAll(0, Array(10) { index * 100 + it }.toList())
+                        }
                     }
-                    channel.close()
                 }
 
-                // Simulate the global snapshot manager
-                launch(Dispatchers.Default) {
-                    channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                repeat(100) { index ->
+                    repeat(10) {
+                        assertTrue(list.contains(index * 100 + it), "Missing ${index * 100 + it}")
+                    }
                 }
             }
         }
-        // Should only get here if the above doesn't deadlock.
-    }
 
-    @Test(timeout = 30_000)
+    @Test
+    @IgnoreJsTarget // Not relevant in a single threaded environment
+    fun concurrentMixingWriteApply_add() =
+        runTest(timeout = 30.seconds) {
+            repeat(10) {
+                val lists = Array(100) { mutableStateListOf<Int>() }.toList()
+                val channel = Channel<Unit>(Channel.CONFLATED)
+                coroutineScope {
+                    // Launch mutator
+                    launch(Dispatchers.Default) {
+                        repeat(100) { index ->
+                            lists.fastForEach { list -> list.add(index) }
+
+                            // Simulate the write observer
+                            channel.trySend(Unit)
+                        }
+                        channel.close()
+                    }
+
+                    // Simulate the global snapshot manager
+                    launch(Dispatchers.Default) {
+                        channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    }
+                }
+            }
+            // Should only get here if the above doesn't deadlock.
+        }
+
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_addAll_clear(): Unit = runTest {
-        repeat(10) {
-            val lists = Array(100) { mutableStateListOf<Int>() }.toList()
-            val data = Array(100) { index -> index }.toList()
-            val channel = Channel<Unit>(Channel.CONFLATED)
-            coroutineScope {
-                // Launch mutator
-                launch(Dispatchers.Default) {
-                    repeat(100) {
-                        lists.fastForEach { list ->
-                            list.addAll(data)
-                            list.clear()
+    fun concurrentMixingWriteApply_addAll_clear() =
+        runTest(timeout = 30.seconds) {
+            repeat(10) {
+                val lists = Array(100) { mutableStateListOf<Int>() }.toList()
+                val data = Array(100) { index -> index }.toList()
+                val channel = Channel<Unit>(Channel.CONFLATED)
+                coroutineScope {
+                    // Launch mutator
+                    launch(Dispatchers.Default) {
+                        repeat(100) {
+                            lists.fastForEach { list ->
+                                list.addAll(data)
+                                list.clear()
+                            }
+                            // Simulate the write observer
+                            channel.trySend(Unit)
                         }
-                        // Simulate the write observer
-                        channel.trySend(Unit)
+                        channel.close()
                     }
-                    channel.close()
-                }
 
-                // Simulate the global snapshot manager
-                launch(Dispatchers.Default) {
-                    channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    // Simulate the global snapshot manager
+                    launch(Dispatchers.Default) {
+                        channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    }
                 }
             }
+            // Should only get here if the above doesn't deadlock.
         }
-        // Should only get here if the above doesn't deadlock.
-    }
 
-    @Test(timeout = 30_000)
+    @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_addAll_removeRange(): Unit = runTest {
-        repeat(4) {
-            val lists = Array(100) { mutableStateListOf<Int>() }.toList()
-            val data = Array(100) { index -> index }.toList()
-            val channel = Channel<Unit>(Channel.CONFLATED)
-            coroutineScope {
-                // Launch mutator
-                launch(Dispatchers.Default) {
-                    repeat(100) {
-                        lists.fastForEach { list ->
-                            list.addAll(data)
-                            list.removeRange(0, data.size)
+    fun concurrentMixingWriteApply_addAll_removeRange() =
+        runTest(timeout = 30.seconds) {
+            repeat(4) {
+                val lists = Array(100) { mutableStateListOf<Int>() }.toList()
+                val data = Array(100) { index -> index }.toList()
+                val channel = Channel<Unit>(Channel.CONFLATED)
+                coroutineScope {
+                    // Launch mutator
+                    launch(Dispatchers.Default) {
+                        repeat(100) {
+                            lists.fastForEach { list ->
+                                list.addAll(data)
+                                list.removeRange(0, data.size)
+                            }
+                            // Simulate the write observer
+                            channel.trySend(Unit)
                         }
-                        // Simulate the write observer
-                        channel.trySend(Unit)
+                        channel.close()
                     }
-                    channel.close()
-                }
 
-                // Simulate the global snapshot manager
-                launch(Dispatchers.Default) {
-                    channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    // Simulate the global snapshot manager
+                    launch(Dispatchers.Default) {
+                        channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    }
                 }
             }
+            // Should only get here if the above doesn't deadlock.
         }
-        // Should only get here if the above doesn't deadlock.
-    }
 
     @Test
     fun modificationAcrossSnapshots() {

@@ -47,14 +47,14 @@ class SupportedRepeatingSurfaceSizeTest(
                     arrayOf(
                         "Huawei",
                         "mha-l29",
-                        arrayOf(Size(320, 240), Size(352, 288), Size(400, 400))
+                        arrayOf(Size(320, 240), Size(352, 288), Size(400, 400)),
                     )
                 )
                 add(
                     arrayOf(
                         "HUAWEI",
                         "MHA-L29",
-                        arrayOf(Size(320, 240), Size(352, 288), Size(400, 400))
+                        arrayOf(Size(320, 240), Size(352, 288), Size(400, 400)),
                     )
                 )
                 add(arrayOf("Huawei", "Not_mha-l29", inputSizes))

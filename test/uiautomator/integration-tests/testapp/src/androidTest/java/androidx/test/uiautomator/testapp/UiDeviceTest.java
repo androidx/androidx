@@ -21,8 +21,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.view.KeyEvent;
 import android.view.Surface;
 import android.widget.TextView;
@@ -252,7 +254,7 @@ public class UiDeviceTest extends BaseTest {
         mDevice.pressKeyCodes(new int[]{KeyEvent.KEYCODE_Z,
                 KeyEvent.KEYCODE_SHIFT_LEFT});
         assertTrue(textView.wait(Until.textEquals(
-                "keycode Z pressed; keycode shift left pressed; with meta shift left on; "),
+                        "keycode Z pressed; keycode shift left pressed; with meta shift left on; "),
                 TIMEOUT_MS));
     }
 
@@ -263,13 +265,15 @@ public class UiDeviceTest extends BaseTest {
         UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
         mDevice.pressKeyCodes(new int[]{KeyEvent.KEYCODE_SHIFT_LEFT, KeyEvent.KEYCODE_Z});
         assertTrue(textView.wait(Until.textEquals(
-                "keycode shift left pressed; with meta shift left on; keycode Z pressed;"
-                        + " with meta shift left on; "),
+                        "keycode shift left pressed; with meta shift left on; keycode Z pressed;"
+                                + " with meta shift left on; "),
                 TIMEOUT_MS));
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 24) // required for multi-window
     public void testPressRecentApps() throws Exception {
+        assumeFalse("The app title is in the header in desktop mode", isDesktopWindowing());
         launchTestActivity(MainActivity.class);
 
         // Test app appears in the "Recent Apps" screen after pressing button (may need to wait
@@ -330,10 +334,13 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
 
-        int width = mDevice.getDisplayWidth();
-        int height = mDevice.getDisplayHeight();
-        mDevice.swipe(width / 10, height / 2, 9 * width / 10, height / 2, 10);
-
+        Rect visibleBounds = swipeRegion.getVisibleBounds();
+        int width = visibleBounds.right - visibleBounds.left;
+        int height = visibleBounds.bottom - visibleBounds.top;
+        // Swipe horizontally from 10% to 90% of the width of the visible view.
+        Rect swipeBounds = new Rect(width / 10, height / 2, 9 * width / 10, height / 2);
+        swipeBounds.offset(visibleBounds.left, visibleBounds.top);
+        mDevice.swipe(swipeBounds.left, swipeBounds.top, swipeBounds.right, swipeBounds.bottom, 10);
         assertTrue(swipeRegion.wait(Until.textEquals("swipe_right"), TIMEOUT_MS));
     }
 
@@ -359,12 +366,16 @@ public class UiDeviceTest extends BaseTest {
 
         UiObject2 swipeRegion = mDevice.findObject(By.res(TEST_APP, "swipe_region"));
 
-        int width = mDevice.getDisplayWidth();
-        int height = mDevice.getDisplayHeight();
+        Rect visibleBounds = swipeRegion.getVisibleBounds();
+        int width = visibleBounds.right - visibleBounds.left;
+        int height = visibleBounds.bottom - visibleBounds.top;
 
         Point point1 = new Point(width / 10, height / 2);
         Point point2 = new Point(width / 2, height / 2);
         Point point3 = new Point(9 * width / 10, height / 2);
+        point1.offset(visibleBounds.left, visibleBounds.top);
+        point2.offset(visibleBounds.left, visibleBounds.top);
+        point3.offset(visibleBounds.left, visibleBounds.top);
 
         mDevice.swipe(new Point[]{point1, point2, point3}, 10);
 
@@ -467,6 +478,7 @@ public class UiDeviceTest extends BaseTest {
         validateMainActivityXml(xml);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testWaitForWindowUpdate() {
         launchTestActivity(WaitTestActivity.class);

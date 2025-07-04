@@ -18,30 +18,29 @@
 
 package androidx.xr.scenecore
 
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity as RuntimeEntity
+import androidx.xr.runtime.internal.Entity as RtEntity
 import java.util.concurrent.ConcurrentHashMap
 
 /** Manages the mapping between [RuntimeEntity] and [Entity] for a given SceneCore [Session]. */
 internal class EntityManager {
-    private val rtEntityEntityMap = ConcurrentHashMap<RuntimeEntity, Entity>()
+    private val rtEntityEntityMap = ConcurrentHashMap<RtEntity, Entity>()
 
     /**
-     * Returns the [Entity] associated with the given [RuntimeEntity].
+     * Returns the [Entity] associated with the given [RtEntity].
      *
-     * @param rtEntity the [RuntimeEntity] to get the associated [Entity] for.
-     * @return [java.util.Optional] containing the [Entity] associated with the given
-     *   [RuntimeEntity], or empty if no such [Entity] exists.
+     * @param rtEntity the [RtEntity] to get the associated [Entity] for.
+     * @return [java.util.Optional] containing the [Entity] associated with the given [RtEntity], or
+     *   empty if no such [Entity] exists.
      */
-    internal fun getEntityForRtEntity(rtEntity: RuntimeEntity): Entity? =
-        rtEntityEntityMap[rtEntity]
+    internal fun getEntityForRtEntity(rtEntity: RtEntity): Entity? = rtEntityEntityMap[rtEntity]
 
     /**
-     * Sets the [Entity] associated with the given [RuntimeEntity].
+     * Sets the [Entity] associated with the given [RtEntity].
      *
-     * @param rtEntity the [RuntimeEntity] to set the associated [Entity] for.
-     * @param entity the [Entity] to associate with the given [RuntimeEntity].
+     * @param rtEntity the [RtEntity] to set the associated [Entity] for.
+     * @param entity the [Entity] to associate with the given [RtEntity].
      */
-    internal fun setEntityForRtEntity(rtEntity: RuntimeEntity, entity: Entity) {
+    internal fun setEntityForRtEntity(rtEntity: RtEntity, entity: Entity) {
         rtEntityEntityMap[rtEntity] = entity
     }
 
@@ -83,11 +82,11 @@ internal class EntityManager {
     }
 
     /**
-     * Removes the given [JxrPlatformAdapter.Entity] from the map.
+     * Removes the given [RtEntity] from the map.
      *
-     * @param entity the [JxrPlatformAdapter.Entity] to remove from the map.
+     * @param entity the [RtEntity] to remove from the map.
      */
-    internal fun removeEntity(entity: JxrPlatformAdapter.Entity) {
+    internal fun removeEntity(entity: RtEntity) {
         rtEntityEntityMap.remove(entity)
     }
 

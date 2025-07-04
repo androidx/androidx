@@ -157,7 +157,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                         node,
                         annotation,
                         ISSUE,
-                        atomicGroupList
+                        atomicGroupList,
                     )
                 }
             }
@@ -297,10 +297,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             )
 
         private val APPLICATION_OPT_IN_ANNOTATIONS =
-            listOf(
-                "androidx.annotation.OptIn",
-                "kotlin.OptIn",
-            )
+            listOf("androidx.annotation.OptIn", "kotlin.OptIn")
 
         // This must match the definition in ExportAtomicLibraryGroupsToTextTask
         const val ATOMIC_LIBRARY_GROUPS_FILENAME = "atomic-library-groups.txt"

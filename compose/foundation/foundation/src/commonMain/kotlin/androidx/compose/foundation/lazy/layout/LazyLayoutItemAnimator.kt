@@ -81,7 +81,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         layoutMinOffset: Int,
         layoutMaxOffset: Int,
         coroutineScope: CoroutineScope,
-        graphicsContext: GraphicsContext
+        graphicsContext: GraphicsContext,
     ) {
         val previousKeyToIndexMap = this.keyIndexMap
         this.keyIndexMap = keyIndexMap
@@ -139,7 +139,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         initializeAnimation(
                             item,
                             item.getOffset(0).let { if (item.isVertical) it.y else it.x },
-                            newItemInfo
+                            newItemInfo,
                         )
                         if (shouldAnimateAppearance) {
                             newItemInfo.animations.forEach { it?.animateAppearance() }
@@ -256,7 +256,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         index = newIndex,
                         constraints = info.constraints!!,
                         lane = info.lane,
-                        span = info.span
+                        span = info.span,
                     )
 
                 item.nonScrollableItem = true
@@ -273,7 +273,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                         graphicsContext,
                         layoutMinOffset,
                         layoutMaxOffset,
-                        crossAxisOffset = info.crossAxisOffset
+                        crossAxisOffset = info.crossAxisOffset,
                     )
                     if (newIndex < firstVisibleIndex) {
                         movingAwayToStartBound.add(item)
@@ -300,7 +300,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     mainAxisOffset = mainAxisOffset,
                     crossAxisOffset = itemInfo.crossAxisOffset,
                     layoutWidth = layoutWidth,
-                    layoutHeight = layoutHeight
+                    layoutHeight = layoutHeight,
                 )
                 if (shouldSetupAnimation) {
                     startPlacementAnimationsIfNeeded(item, isMovingAway = true)
@@ -375,7 +375,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
     private fun initializeAnimation(
         item: T,
         mainAxisOffset: Int,
-        itemInfo: ItemInfo = keyToItemInfoMap[item.key]!!
+        itemInfo: ItemInfo = keyToItemInfoMap[item.key]!!,
     ) {
         val firstPlaceableOffset = item.getOffset(0)
 
@@ -436,7 +436,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     size =
                         IntSize(
                             width = maxOf(size.width, it.rawOffset.x + layer.size.width),
-                            height = maxOf(size.height, it.rawOffset.y + layer.size.height)
+                            height = maxOf(size.height, it.rawOffset.y + layer.size.height),
                         )
                 }
             }
@@ -490,7 +490,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             graphicsContext: GraphicsContext,
             layoutMinOffset: Int,
             layoutMaxOffset: Int,
-            crossAxisOffset: Int = positionedItem.crossAxisOffset
+            crossAxisOffset: Int = positionedItem.crossAxisOffset,
         ) {
             if (!isRunningPlacement) {
                 this.layoutMinOffset = layoutMinOffset
@@ -520,7 +520,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                                     // until b/329417380 is fixed we have to trigger any
                                     // invalidation in
                                     // order for the layer properties change to be applied:
-                                    onLayerPropertyChanged = { displayingNode?.invalidateDraw() }
+                                    onLayerPropertyChanged = { displayingNode?.invalidateDraw() },
                                 )
                                 .also { animations[index] = it }
                     animation.fadeInSpec = specs.fadeInSpec

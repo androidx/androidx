@@ -328,7 +328,7 @@ class AssertShapeTest {
         size: Size,
         center: Offset,
         density: Density = Density(1f),
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         val backgroundOffset = center - (size / 2f).asOffset()
         val backgroundOutline = shape.createOutline(size, layoutDirection, density)

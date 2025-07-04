@@ -45,7 +45,7 @@ import androidx.compose.ui.window.Popup
 @Composable
 fun ContainerMovesContentToPopupOnDrag(
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val movableContent = remember { movableContentOf(content) }
     var showPopup by remember { mutableStateOf(false) }
@@ -66,7 +66,7 @@ fun ContainerMovesContentToPopupOnDrag(
                     onDragEnd = {
                         showPopup = false
                         offset = Offset.Zero
-                    }
+                    },
                 )
             }
     ) {

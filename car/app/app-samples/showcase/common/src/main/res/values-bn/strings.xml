@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"মেসেজ টেমপ্লেটের ডেমো"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"মেসেজে এখানে লেখা হবে।\nবেশি টেক্সট হলে, দ্বিতীয় লাইনে লিখুন।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ছোট মেসেজ টেমপ্লেট সংক্রান্ত ডেমো"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"বিভাগ অনুযায়ী আইটেম টেমপ্লেটের ডেমো"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"রেডিও বাটন বিভাগ"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"টগল বিভাগ"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"অসংখ্য সারি বিভাগ"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"গ্রিড আইটেমের বিভাগ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"প্যানেল টেমপ্লেটের ডেমো"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"জায়গার তালিকার টেমপ্লেটের ডেমো"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"জায়গা ব্রাউজ করুন"</string>

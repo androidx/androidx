@@ -32,7 +32,7 @@ public class InitialPagedList<K : Any, V : Any>(
     notifyDispatcher: CoroutineDispatcher,
     backgroundDispatcher: CoroutineDispatcher,
     config: Config,
-    initialLastKey: K?
+    initialLastKey: K?,
 ) :
     ContiguousPagedList<K, V>(
         pagingSource = LegacyPagingSource(notifyDispatcher, InitialDataSource()),
@@ -42,5 +42,5 @@ public class InitialPagedList<K : Any, V : Any>(
         boundaryCallback = null,
         config = config,
         initialPage = PagingSource.LoadResult.Page.empty(),
-        initialLastKey = initialLastKey
+        initialLastKey = initialLastKey,
     )

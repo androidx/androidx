@@ -26,7 +26,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
@@ -69,16 +68,15 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class CameraDisconnectTest(
+    private val testName: String,
     private val lensFacing: Int,
     private val implName: String,
-    private val cameraConfig: CameraXConfig
+    private val cameraConfig: CameraXConfig,
 ) {
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -88,37 +86,36 @@ class CameraDisconnectTest(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule val labTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0} configName={1} config={2}")
+        @Parameterized.Parameters(name = "{0}")
         fun data() =
-            listOf(
-                arrayOf(
-                    CameraSelector.LENS_FACING_BACK,
-                    Camera2Config::class.simpleName,
-                    Camera2Config.defaultConfig()
-                ),
-                arrayOf(
-                    CameraSelector.LENS_FACING_FRONT,
-                    Camera2Config::class.simpleName,
-                    Camera2Config.defaultConfig()
-                ),
-                arrayOf(
-                    CameraSelector.LENS_FACING_BACK,
-                    CameraPipeConfig::class.simpleName,
-                    CameraPipeConfig.defaultConfig()
-                ),
-                arrayOf(
-                    CameraSelector.LENS_FACING_FRONT,
-                    CameraPipeConfig::class.simpleName,
-                    CameraPipeConfig.defaultConfig()
-                )
-            )
+            mutableListOf<Array<Any?>>().apply {
+                CameraUtil.getAvailableCameraSelectors().forEach { selector ->
+                    val lensFacing = selector.lensFacing
+                    add(
+                        arrayOf(
+                            "config=${Camera2Config::class.simpleName} lensFacing={$lensFacing}",
+                            lensFacing,
+                            Camera2Config::class.simpleName,
+                            Camera2Config.defaultConfig(),
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lensFacing}",
+                            lensFacing,
+                            CameraPipeConfig::class.simpleName,
+                            CameraPipeConfig.defaultConfig(),
+                        )
+                    )
+                }
+            }
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -199,7 +196,7 @@ class CameraDisconnectTest(
                 CoreAppTestUtil.launchActivity(
                         InstrumentationRegistry.getInstrumentation(),
                         Camera2TestActivity::class.java,
-                        intent
+                        intent,
                     )
                     ?.apply {
                         // Wait for preview to become active to make sure the 2nd activity can
@@ -287,7 +284,7 @@ class CameraDisconnectTest(
                     synchronized(cameraLock) { cameraDevice = null }
                 }
             },
-            backgroundCameraHandler
+            backgroundCameraHandler,
         )
 
         assertThat(cameraOpenCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()

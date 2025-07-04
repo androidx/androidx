@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY;
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON;
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
@@ -62,6 +63,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.LowLightBoostState;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
@@ -72,6 +74,7 @@ import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -135,6 +138,8 @@ public class Camera2CameraInfoImplTest {
     @RequiresApi(33)
     private static final DynamicRangeProfiles CAMERA0_DYNAMIC_RANGE_PROFILES =
             new DynamicRangeProfiles(new long[]{DynamicRangeProfiles.HLG10, 0, 0});
+    private static final int CAMERA0_DEFAULT_TORCH_STRENGTH = 25;
+    private static final int CAMERA0_MAX_TORCH_STRENGTH = 50;
 
     private static final String CAMERA1_ID = "1";
     private static final int CAMERA1_SUPPORTED_HARDWARE_LEVEL =
@@ -163,6 +168,7 @@ public class Camera2CameraInfoImplTest {
     private CameraManagerCompat mCameraManagerCompat;
     private ZoomControl mMockZoomControl;
     private TorchControl mMockTorchControl;
+    private LowLightBoostControl mMockLowLightBoostControl;
     private ExposureControl mExposureControl;
     private FocusMeteringControl mFocusMeteringControl;
     private Camera2CameraControlImpl mMockCameraControl;
@@ -254,6 +260,27 @@ public class Camera2CameraInfoImplTest {
         assertThat(cameraInfoInternal.hasFlashUnit()).isEqualTo(CAMERA1_FLASH_INFO_BOOLEAN);
     }
 
+    @Config(minSdk = 35)
+    @Test
+    public void cameraInfo_canReturnLowLightBoostSupported_forBackCamera()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+        assertThat(cameraInfoInternal.isLowLightBoostSupported()).isTrue();
+    }
+
+    @Test
+    public void cameraInfo_canReturnLowLightBoostSupported_forFrontCamera()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        CameraInfoInternal cameraInfoInternal =
+                new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
+        assertThat(cameraInfoInternal.isLowLightBoostSupported()).isFalse();
+    }
+
     @Test
     public void cameraInfoWithoutCameraControl_canReturnDefaultTorchState()
             throws CameraAccessExceptionCompat {
@@ -294,6 +321,46 @@ public class Camera2CameraInfoImplTest {
         // TorchState LiveData instances are the same before and after the linkWithCameraControl.
         assertThat(camera2CameraInfoImpl.getTorchState()).isSameInstanceAs(torchStateLiveData);
         assertThat(camera2CameraInfoImpl.getTorchState().getValue()).isEqualTo(TorchState.ON);
+    }
+
+    @Config(minSdk = 35)
+    @Test
+    public void cameraInfoWithCameraControl_canReturnLowLightBoostState()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        when(mMockLowLightBoostControl.getLowLightBoostState()).thenReturn(
+                new MutableLiveData<>(LowLightBoostState.ACTIVE));
+        Camera2CameraInfoImpl camera2CameraInfoImpl =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+        camera2CameraInfoImpl.linkWithCameraControl(mMockCameraControl);
+        assertThat(camera2CameraInfoImpl.getLowLightBoostState().getValue()).isEqualTo(
+                LowLightBoostState.ACTIVE);
+    }
+
+    @Config(minSdk = 35)
+    @Test
+    public void lowLightBoostStateLiveData_SameInstanceBeforeAndAfterCameraControlLink()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ false);
+
+        Camera2CameraInfoImpl camera2CameraInfoImpl =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        // Calls getLowLightBoostState() to trigger RedirectableLiveData
+        LiveData<Integer> lowLightBoostStateLiveData =
+                camera2CameraInfoImpl.getLowLightBoostState();
+
+        when(mMockLowLightBoostControl.getLowLightBoostState()).thenReturn(
+                new MutableLiveData<>(LowLightBoostState.ACTIVE));
+        camera2CameraInfoImpl.linkWithCameraControl(mMockCameraControl);
+
+        // LowLightBoostState LiveData instances are the same before and after the
+        // linkWithCameraControl.
+        assertThat(camera2CameraInfoImpl.getLowLightBoostState()).isSameInstanceAs(
+                lowLightBoostStateLiveData);
+        assertThat(camera2CameraInfoImpl.getLowLightBoostState().getValue()).isEqualTo(
+                LowLightBoostState.ACTIVE);
     }
 
     // zoom related tests just ensure it uses ZoomControl to get the value
@@ -492,7 +559,7 @@ public class Camera2CameraInfoImplTest {
     }
 
     @Config(minSdk = 28)
-    @RequiresApi(28)
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     public void canReturnCameraCharacteristicsMapWithPhysicalCameras()
             throws CameraAccessExceptionCompat {
@@ -518,7 +585,7 @@ public class Camera2CameraInfoImplTest {
     }
 
     @Config(minSdk = 28)
-    @RequiresApi(28)
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     public void canReturnPhysicalCameraInfos()
             throws CameraAccessExceptionCompat {
@@ -812,6 +879,81 @@ public class Camera2CameraInfoImplTest {
         assertThat(supportedDynamicRanges).containsExactly(SDR, HLG_10_BIT);
     }
 
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    public void apiVersionMet_torchStrengthPropagateCorrectly()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID,
+                mCameraManagerCompat);
+        int strength = 30;
+        when(mMockTorchControl.getTorchStrengthLevel()).thenReturn(new MutableLiveData<>(strength));
+        cameraInfo.linkWithCameraControl(mMockCameraControl);
+
+        assertThat(cameraInfo.getTorchStrengthLevel().getValue()).isEqualTo(strength);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    public void apiVersionMet_canReturnDefaultTorchStrength()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.getTorchStrengthLevel().getValue()).isEqualTo(
+                CAMERA0_DEFAULT_TORCH_STRENGTH);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    public void apiVersionMet_canReturnMaxTorchStrength()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.getMaxTorchStrengthLevel()).isEqualTo(CAMERA0_MAX_TORCH_STRENGTH);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    public void apiVersionMet_canReturnMaxTorchStrengthUnsupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.getMaxTorchStrengthLevel()).isEqualTo(
+                CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED);
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    public void apiVersionMet_canReturnIsTorchStrengthSupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo0 = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+        final CameraInfo cameraInfo1 = new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo0.isTorchStrengthSupported()).isTrue();
+        assertThat(cameraInfo1.isTorchStrengthSupported()).isFalse();
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @Test
+    public void apiVersionMet_canReturnTorchStrengthUnsupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA1_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.getTorchStrengthLevel().getValue()).isEqualTo(
+                CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED);
+    }
+
     @Config(minSdk = 33)
     @Test
     public void apiVersionMet_canReturnSupportedDynamicRanges_fromFullySpecified()
@@ -836,6 +978,18 @@ public class Camera2CameraInfoImplTest {
         Set<DynamicRange> supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
                 Collections.singleton(UNSPECIFIED));
         assertThat(supportedDynamicRanges).containsExactly(SDR);
+    }
+
+    @Config(maxSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM - 1)
+    @Test
+    public void apiVersionNotMet_returnMaxTorchStrengthUnsupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.getMaxTorchStrengthLevel()).isEqualTo(
+                CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED);
     }
 
     @Config(maxSdk = 32)
@@ -937,12 +1091,14 @@ public class Camera2CameraInfoImplTest {
 
         mMockZoomControl = mock(ZoomControl.class);
         mMockTorchControl = mock(TorchControl.class);
+        mMockLowLightBoostControl = mock(LowLightBoostControl.class);
         mExposureControl = mock(ExposureControl.class);
         mMockCameraControl = mock(Camera2CameraControlImpl.class);
         mFocusMeteringControl = mock(FocusMeteringControl.class);
 
         when(mMockCameraControl.getZoomControl()).thenReturn(mMockZoomControl);
         when(mMockCameraControl.getTorchControl()).thenReturn(mMockTorchControl);
+        when(mMockCameraControl.getLowLightBoostControl()).thenReturn(mMockLowLightBoostControl);
         when(mMockCameraControl.getExposureControl()).thenReturn(mExposureControl);
         when(mMockCameraControl.getFocusMeteringControl()).thenReturn(mFocusMeteringControl);
     }
@@ -1020,6 +1176,20 @@ public class Camera2CameraInfoImplTest {
                             CONTROL_VIDEO_STABILIZATION_MODE_OFF,
                             CONTROL_VIDEO_STABILIZATION_MODE_ON
                     });
+        }
+
+        // Adds low-light boost support for the back camera since API 35
+        if (Build.VERSION.SDK_INT >= 35) {
+            shadowCharacteristics0.set(
+                    CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
+                    new int[]{
+                            CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                    }
+            );
+            shadowCharacteristics0.set(CameraCharacteristics.FLASH_TORCH_STRENGTH_DEFAULT_LEVEL,
+                    CAMERA0_DEFAULT_TORCH_STRENGTH);
+            shadowCharacteristics0.set(CameraCharacteristics.FLASH_TORCH_STRENGTH_MAX_LEVEL,
+                    CAMERA0_MAX_TORCH_STRENGTH);
         }
 
         // Mock the request capability

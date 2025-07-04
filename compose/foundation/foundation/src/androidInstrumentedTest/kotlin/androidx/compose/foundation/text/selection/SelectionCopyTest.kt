@@ -142,7 +142,7 @@ class SelectionCopyTest {
             BasicText(
                 text = textContent,
                 modifier = Modifier.wrapContentSize().testTag(textTag),
-                style = testTextStyle
+                style = testTextStyle,
             )
         }
     }

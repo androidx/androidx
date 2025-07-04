@@ -21,12 +21,12 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -47,24 +47,30 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.dexmakerMockito)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions.suppressWarnings = true
+}
+
+tasks.withType(JavaCompile){
+    options.compilerArgs <<"-Xlint:-deprecation"
 }
 
 androidx {
     name = "Android Wear Watchface Guava Integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Guava wrappers for the Androidx Wear Watchface library"
     legacyDisableKotlinStrictApiMode = true
+    failOnDeprecationWarnings = false
+    enableRobolectric()
 }
 
 android {
     defaultConfig {
         minSdk = 26
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.wear.watchface.guava"
 }

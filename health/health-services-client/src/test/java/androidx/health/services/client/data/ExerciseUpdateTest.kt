@@ -48,7 +48,7 @@ internal class ExerciseUpdateTest {
                     120.0,
                     GREATER_THAN_OR_EQUAL,
                     /* initialDelay= */ 60,
-                    /* durationAtThreshold= */ 5
+                    /* durationAtThreshold= */ 5,
                 )
             )
         val proto =
@@ -67,7 +67,7 @@ internal class ExerciseUpdateTest {
                                 goal,
                                 DataPointContainer(
                                     listOf(DataPoints.calories(130.0, 15.duration(), 35.duration()))
-                                )
+                                ),
                             )
                         ),
                     exerciseStateInfo =
@@ -83,7 +83,7 @@ internal class ExerciseUpdateTest {
                                 GolfExerciseTypeConfig(
                                     GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo
                                         .GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY
-                                )
+                                ),
                         ),
                     activeDurationCheckpoint =
                         ActiveDurationCheckpoint(42.instant(), 30.duration()),
@@ -144,7 +144,7 @@ internal class ExerciseUpdateTest {
                                 goal,
                                 DataPointContainer(
                                     listOf(DataPoints.calories(130.0, 15.duration(), 35.duration()))
-                                )
+                                ),
                             )
                         ),
                     exerciseStateInfo =

@@ -25,7 +25,7 @@ internal class ViewPortBasedSnappingLayoutInfoProvider(
     private val baseSnapLayoutInfoProvider: SnapLayoutInfoProvider,
     private val decayAnimationSpec: DecayAnimationSpec<Float>,
     private val viewPortStep: () -> Float,
-    private val itemSize: () -> Float
+    private val itemSize: () -> Float,
 ) : SnapLayoutInfoProvider by baseSnapLayoutInfoProvider {
     override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
         val finalOffset =

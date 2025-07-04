@@ -27,10 +27,10 @@ import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -88,7 +88,7 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
         mItemDecoration = new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                    @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                 outRect.set(0, 5, 0, 10);
             }
         };
@@ -109,7 +109,7 @@ public class GridLayoutManagerWrapContentTest extends BaseWrapContentTest {
         mItemDecoration = new RecyclerView.ItemDecoration() {
             @Override
             public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                    @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                 outRect.set(5, 0, 10, 0);
             }
         };

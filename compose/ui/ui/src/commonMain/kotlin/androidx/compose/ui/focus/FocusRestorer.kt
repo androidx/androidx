@@ -93,7 +93,7 @@ fun Modifier.focusRestorer(fallback: FocusRequester = Default): Modifier =
 @Deprecated(
     "Use focusRestorer(FocusRequester) instead",
     ReplaceWith("this.focusRestorer(onRestoreFailed())"),
-    DeprecationLevel.WARNING
+    DeprecationLevel.WARNING,
 )
 fun Modifier.focusRestorer(onRestoreFailed: (() -> FocusRequester)?): Modifier =
     focusRestorer(fallback = onRestoreFailed?.invoke() ?: Default)
@@ -104,32 +104,20 @@ internal class FocusRestorerNode(var fallback: FocusRequester) :
     FocusRequesterModifierNode,
     Modifier.Node() {
 
-    private var pinnedHandle: PinnedHandle? = null
-    private val onExit: FocusEnterExitScope.() -> Unit = {
-        saveFocusedChild()
-        pinnedHandle?.release()
-        pinnedHandle = pinFocusedChild()
-    }
+    private val onExit: FocusEnterExitScope.() -> Unit = { saveFocusedChild() }
 
     private val onEnter: FocusEnterExitScope.() -> Unit = {
-        pinnedHandle?.release()
-        pinnedHandle = null
-        if (restoreFocusedChild() || fallback == Cancel) {
-            cancelFocusChange()
-        } else if (fallback != Default) {
-            fallback.requestFocus()
+        // Restoring the focused child involved calling requestFocus() and will automatically cancel
+        // the current focus change. If restoration fails, we don't need to do anything for the
+        // default case, where focus will enter this block. We have to handle the non-default case.
+        if (!restoreFocusedChild() && fallback != Default) {
+            if (fallback == Cancel) cancelFocusChange() else fallback.requestFocus()
         }
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
         focusProperties.onEnter = onEnter
         focusProperties.onExit = onExit
-    }
-
-    override fun onDetach() {
-        pinnedHandle?.release()
-        pinnedHandle = null
-        super.onDetach()
     }
 }
 

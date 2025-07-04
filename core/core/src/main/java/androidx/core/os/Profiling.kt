@@ -88,7 +88,7 @@ public fun registerForAllProfilingResults(context: Context): Flow<ProfilingResul
 public fun registerForAllProfilingResults(
     context: Context,
     executor: Executor,
-    listener: Consumer<ProfilingResult>
+    listener: Consumer<ProfilingResult>,
 ) {
     val service = context.getSystemService(ProfilingManager::class.java)
     service.registerForAllProfilingResults(executor, listener)
@@ -125,7 +125,7 @@ public fun requestProfiling(
     context: Context,
     profilingRequest: ProfilingRequest,
     executor: Executor?,
-    listener: Consumer<ProfilingResult>?
+    listener: Consumer<ProfilingResult>?,
 ) {
     val service = context.getSystemService(ProfilingManager::class.java)
     service.requestProfiling(
@@ -134,7 +134,7 @@ public fun requestProfiling(
         profilingRequest.tag,
         profilingRequest.cancellationSignal,
         executor,
-        listener
+        listener,
     )
 }
 
@@ -364,5 +364,5 @@ internal constructor(
     public val profilingType: Int,
     public val params: Bundle,
     public val tag: String?,
-    public val cancellationSignal: CancellationSignal?
+    public val cancellationSignal: CancellationSignal?,
 )

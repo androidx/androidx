@@ -42,6 +42,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
@@ -61,6 +62,8 @@ import androidx.core.view.accessibility.AccessibilityViewCommand.SetTextArgument
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -1636,6 +1639,9 @@ public class AccessibilityNodeInfoCompat {
     private static final String STATE_DESCRIPTION_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.STATE_DESCRIPTION_KEY";
 
+    private static final String SUPPLEMENTAL_DESCRIPTION_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.SUPPLEMENTAL_DESCRIPTION_KEY";
+
     private static final String UNIQUE_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
@@ -1645,9 +1651,17 @@ public class AccessibilityNodeInfoCompat {
     private static final String BOUNDS_IN_WINDOW_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.BOUNDS_IN_WINDOW_KEY";
 
+    private static final String EXPANDED_STATE_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.EXPANDED_STATE_KEY";
+
     private static final String MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat."
                     + "MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY";
+    private static final String IS_REQUIRED_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.IS_REQUIRED_KEY";
+
+    private static final String CHECKED_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.CHECKED_KEY";
 
     // These don't line up with the internal framework constants, since they are independent
     // and we might as well get all 32 bits of utility here.
@@ -2177,21 +2191,54 @@ public class AccessibilityNodeInfoCompat {
     /**
      * Key used to request and locate extra data for text character location. This key requests that
      * an array of {@link android.graphics.RectF}s be added to the extras. This request is made with
-     * {@link #refreshWithExtraData(String, Bundle)}. The arguments taken by this request are two
-     * integers: {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
+     * {@link android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}.
+     * The arguments taken by this request are two integers:
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
      * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}. The starting index must be valid
      * inside the CharSequence returned by {@link #getText()}, and the length must be positive.
      * <p>
      * The data can be retrieved from the {@code Bundle} returned by {@link #getExtras()} using this
      * string as a key for {@link Bundle#getParcelableArray(String)}. The
-     * {@link android.graphics.RectF} will be null for characters that either do not exist or are
-     * off the screen.
+     * {@link android.graphics.RectF} will be {@code null} for characters that either do not exist
+     * or are off the screen.
+     * <p>
+     * Note that character locations returned are modified by changes in display magnification.
      *
-     * {@see #refreshWithExtraData(String, Bundle)}
+     * {@see android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}
      */
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY =
             "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY";
+
+    /**
+     * Key used to request and locate extra data for text character location in
+     * window coordinates. This key requests that an array of
+     * {@link android.graphics.RectF}s be added to the extras. This request is made with
+     * {@link android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}.
+     * The arguments taken by this request are two integers:
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}. The starting index
+     * must be valid inside the CharSequence returned by {@link #getText()}, and
+     * the length must be positive.
+     * <p>
+     * Providers may advertise that they support text characters in window coordinates using
+     * {@link #setAvailableExtraData(List)}. Services may check if an implementation supports text
+     * characters in window coordinates with {@link #getAvailableExtraData()}.
+     * <p>
+     * The data can be retrieved from the {@code Bundle} returned by
+     * {@link #getExtras()} using this string as a key for
+     * {@link Bundle#getParcelableArray(String, Class)}. The
+     * {@link android.graphics.RectF} will be {@code null} for characters that either do
+     * not exist or are outside of the window bounds.
+     * <p>
+     * Note that character locations in window bounds are not modified by
+     * changes in display magnification.
+     *
+     * {@see android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}
+     */
+    @SuppressWarnings("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_IN_WINDOW_KEY =
+            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_IN_WINDOW_KEY";
 
     /**
      * Integer argument specifying the start index of the requested text location data. Must be
@@ -2284,6 +2331,27 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressLint("MinMaxConstant")
     public static final int MAX_NUMBER_OF_PREFETCHED_NODES = 50;
+
+    @IntDef(
+            flag = false,
+            value = {
+                AccessibilityNodeInfo.EXPANDED_STATE_UNDEFINED,
+                AccessibilityNodeInfo.EXPANDED_STATE_COLLAPSED,
+                AccessibilityNodeInfo.EXPANDED_STATE_PARTIAL,
+                AccessibilityNodeInfo.EXPANDED_STATE_FULL,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface ExpandedState {}
+
+    @IntDef(
+            flag = false,
+            value = {
+                AccessibilityNodeInfo.CHECKED_STATE_FALSE,
+                AccessibilityNodeInfo.CHECKED_STATE_TRUE,
+                AccessibilityNodeInfo.CHECKED_STATE_PARTIAL,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface CheckedState {}
 
     private static int sClickableSpanId = 0;
 
@@ -2709,6 +2777,53 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the expanded state for this node.
+     *
+     * @return The expanded state, one of:
+     *     <ul>
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_UNDEFINED}
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_COLLAPSED}
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_FULL}
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_PARTIAL}
+     *     </ul>
+     */
+    @ExpandedState
+    public int getExpandedState() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.getExpandedState(mInfo);
+        } else {
+            return mInfo.getExtras().getInt(EXPANDED_STATE_KEY,
+                AccessibilityNodeInfo.EXPANDED_STATE_UNDEFINED);
+        }
+    }
+
+    /**
+     * Sets the expanded state of the node.
+     *
+     * <p><strong>Note:</strong> Cannot be called from an {@link
+     * android.accessibilityservice.AccessibilityService}. This class is made immutable before being
+     * delivered to an {@link android.accessibilityservice.AccessibilityService}.
+     *
+     * @param state new expanded state of this node.
+     * @throws IllegalArgumentException If state is not one of:
+     *     <ul>
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_UNDEFINED}
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_COLLAPSED}
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_PARTIAL}
+     *       <li>{@link AccessibilityNodeInfo#EXPANDED_STATE_FULL}
+     *     </ul>
+     *
+     * @throws IllegalStateException If called from an AccessibilityService
+     */
+    public void setExpandedState(@ExpandedState int state) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            Api36Impl.setExpandedState(mInfo, state);
+        } else {
+            mInfo.getExtras().putInt(EXPANDED_STATE_KEY, state);
+        }
+    }
+
+    /**
      * Finds {@link android.view.accessibility.AccessibilityNodeInfo}s by text. The match
      * is case insensitive containment. The search is relative to this info i.e. this
      * info is the root of the traversed tree.
@@ -2956,7 +3071,10 @@ public class AccessibilityNodeInfoCompat {
      * Gets whether this node is checked.
      *
      * @return True if the node is checked.
+     *
+     * @deprecated Use {@link #getChecked()} instead.
      */
+    @Deprecated
     public boolean isChecked() {
         return mInfo.isChecked();
     }
@@ -2971,9 +3089,108 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param checked True if the node is checked.
      * @throws IllegalStateException If called from an AccessibilityService.
+     *
+     * @deprecated Use {@link #setChecked(int)} instead.
      */
+    @Deprecated
     public void setChecked(boolean checked) {
         mInfo.setChecked(checked);
+    }
+
+    /**
+     * Gets the checked state of this node.
+     * <p>
+     * Note that this is only meaningful when {@link #isCheckable()} returns {@code true}.
+     *
+     * @see #setCheckable(boolean)
+     * @see #isCheckable()
+     * @see #setChecked(int)
+     * @return The checked state, one of:
+     *          <ul>
+     *          <li>{@link AccessibilityNodeInfo#CHECKED_STATE_FALSE}
+     *          <li>{@link AccessibilityNodeInfo#CHECKED_STATE_TRUE}
+     *          <li>{@link AccessibilityNodeInfo#CHECKED_STATE_PARTIAL}
+     *          </ul>
+     */
+    @CheckedState
+    public int getChecked() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.getChecked(mInfo);
+        } else {
+            return mInfo.getExtras().getInt(CHECKED_KEY,
+                    mInfo.isChecked() ? AccessibilityNodeInfo.CHECKED_STATE_TRUE
+                            : AccessibilityNodeInfo.CHECKED_STATE_FALSE);
+        }
+    }
+
+    /**
+     * Sets the checked state of this node. This is only meaningful
+     * when {@link #isCheckable()} returns {@code true}.
+     * <p><strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}. This class is made immutable
+     *   before being delivered to an AccessibilityService.
+     *
+     * @see #setCheckable(boolean)
+     * @see #isCheckable()
+     * @see #getChecked()
+     * @param checked The checked state. One of
+     *          <ul>
+     *          <li>{@link AccessibilityNodeInfo#CHECKED_STATE_FALSE}
+     *          <li>{@link AccessibilityNodeInfo#CHECKED_STATE_TRUE}
+     *          <li>{@link AccessibilityNodeInfo#CHECKED_STATE_PARTIAL}
+     *          </ul>
+     * @throws IllegalStateException If called from an AccessibilityService.
+     * @throws IllegalArgumentException if {@code checked} is not one of
+     * {@link AccessibilityNodeInfo#CHECKED_STATE_FALSE},
+     *          {@link AccessibilityNodeInfo#CHECKED_STATE_TRUE}, or
+     *          {@link AccessibilityNodeInfo#CHECKED_STATE_PARTIAL}.
+     */
+    public void setChecked(@CheckedState int checked) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            Api36Impl.setChecked(mInfo, checked);
+            return;
+        }
+
+        if (checked == AccessibilityNodeInfo.CHECKED_STATE_TRUE
+                || checked == AccessibilityNodeInfo.CHECKED_STATE_PARTIAL
+                || checked == AccessibilityNodeInfo.CHECKED_STATE_FALSE) {
+            mInfo.setChecked(checked == AccessibilityNodeInfo.CHECKED_STATE_TRUE);
+            mInfo.getExtras().putInt(CHECKED_KEY, checked);
+        } else {
+            throw new IllegalArgumentException("Unknown checked argument: " + checked);
+        }
+    }
+
+    /**
+     * Gets whether a node representing a form field requires input or selection.
+     *
+     * @return {@code true} if {@code this} node represents a form field that requires input or
+     *     selection, {@code false} otherwise.
+     */
+    public boolean isFieldRequired() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.isFieldRequired(mInfo);
+        } else {
+            return mInfo.getExtras().getBoolean(IS_REQUIRED_KEY);
+        }
+    }
+
+    /**
+     * Sets whether {@code this} node represents a form field that requires input or selection.
+     *
+     * <p><strong>Note:</strong> Cannot be called from an AccessibilityService. This class is made
+     * immutable before being delivered to an AccessibilityService.
+     *
+     * @param required {@code true} if input or selection of this node should be required, {@code
+     *     false} otherwise.
+     * @throws IllegalStateException If called from an AccessibilityService
+     */
+    public void setFieldRequired(boolean required) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            Api36Impl.setFieldRequired(mInfo, required);
+        } else {
+            mInfo.getExtras().putBoolean(IS_REQUIRED_KEY, required);
+        }
     }
 
     /**
@@ -4114,11 +4331,126 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Adds the view which serves as the label of the view represented by this info for
+     * accessibility purposes. When multiple labels are added, the content from each label is
+     * combined in the order that they are added.
+     * <p>
+     * If visible text can be used to describe or give meaning to this UI, this method is
+     * preferred. For example, a TextView before an EditText in the UI usually specifies what
+     * information is contained in the EditText. Hence, the EditText is labeled by the TextView.
+     *
+     * @param label A view that labels this node's source.
+     */
+    public void addLabeledBy(@NonNull View label) {
+        addLabeledBy(label, NO_ID);
+    }
+
+    /**
+     * Adds the view which serves as the label of the view represented by this info for
+     * accessibility purposes. If <code>virtualDescendantId</code> is {@link View#NO_ID} the root
+     * is set as the label.
+     * <p>
+     * A virtual descendant is an imaginary View that is reported as a part of the view hierarchy
+     * for accessibility purposes. This enables custom views that draw complex content to report
+     * themselves as a tree of virtual views, thus conveying their logical structure.
+     * <p>
+     * If visible text can be used to describe or give meaning to this UI, this method is
+     * preferred. For example, a TextView before an EditText in the UI usually specifies what
+     * information is contained in the EditText. Hence, the EditText is labeled by the TextView.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong>  Starting with Android 36, when multiple labels are added, the
+     *   content from each label is combined in the order that they are added. Before Android 36,
+     *   the most recently added label is set as the only label.
+     * </p>
+     *
+     * @param root A root whose virtual descendant labels this node's source.
+     * @param virtualDescendantId The id of the virtual descendant.
+     */
+    public void addLabeledBy(@NonNull View root, int virtualDescendantId) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            Api36Impl.addLabeledBy(mInfo, root, virtualDescendantId);
+        } else {
+            setLabeledBy(root, virtualDescendantId);
+        }
+    }
+
+    /**
+     * Gets the list of node infos which serve as the labels of the view represented by this info
+     * for accessibility purposes.
+     *
+     * @return The list of labels in the order that they were added.
+     */
+    public @NonNull List<AccessibilityNodeInfoCompat> getLabeledByList() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.getLabeledByList(mInfo);
+        } else {
+            List<AccessibilityNodeInfoCompat> labels = new ArrayList<>(1);
+            AccessibilityNodeInfoCompat label = getLabeledBy();
+            if (label != null) {
+                labels.add(label);
+            }
+            return labels;
+        }
+    }
+
+    /**
+     * Removes a label. If the label was not previously added to the node, calling this method
+     * has no effect.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> If the Android version is less than 36, this method has no effect;
+     *   call {@link #setLabeledBy(View)} with <code>null</code> to remove the current label.
+     * </p>
+     *
+     * @param label The node which serves as this node's label.
+     * @return true if the label was present
+     * @see #addLabeledBy(View)
+     */
+    public boolean removeLabeledBy(@NonNull View label) {
+        return removeLabeledBy(label, NO_ID);
+    }
+
+    /**
+     * Removes a label which is a virtual descendant of the given <code>root</code>. If
+     * <code>virtualDescendantId</code> is {@link View#NO_ID} the root is set as the label. If
+     * the label was not previously added to the node, calling this method has no effect.
+     * <p>
+     *   <strong>Note:</strong> If the Android version is less than 36, this method has no effect;
+     *   call {@link #setLabeledBy(View)} with <code>null</code> to remove the current label.
+     * </p>
+     *
+     * @param root The root of the virtual subtree.
+     * @param virtualDescendantId The id of the virtual node which serves as this node's label.
+     * @return true if the label was present
+     * @see #addLabeledBy(View, int)
+     */
+    public boolean removeLabeledBy(@NonNull View root, int virtualDescendantId) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.removeLabeledBy(mInfo, root, virtualDescendantId);
+        } else {
+            return false;
+        }
+    }
+
+
+    /**
      * Sets the view which serves as the label of the view represented by
      * this info for accessibility purposes.
      *
      * @param label The view that labels this node's source.
+     * @deprecated Use {@link AccessibilityNodeInfoCompat#addLabeledBy(View)} or
+     * {@link AccessibilityNodeInfoCompat#removeLabeledBy(View)} instead.
      */
+    @Deprecated
     public void setLabeledBy(View label) {
         mInfo.setLabeledBy(label);
     }
@@ -4141,7 +4473,10 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param root The root whose virtual descendant labels this node's source.
      * @param virtualDescendantId The id of the virtual descendant.
+     * @deprecated Use {@link AccessibilityNodeInfoCompat#addLabeledBy(View, int)} or
+     * {@link AccessibilityNodeInfoCompat#removeLabeledBy(View, int)} instead.
      */
+    @Deprecated
     public void setLabeledBy(View root, int virtualDescendantId) {
         mInfo.setLabeledBy(root, virtualDescendantId);
     }
@@ -4151,7 +4486,9 @@ public class AccessibilityNodeInfoCompat {
      * this info for accessibility purposes.
      *
      * @return The label.
+     * @deprecated Use {@link AccessibilityNodeInfoCompat#getLabeledByList()} instead.
      */
+    @Deprecated
     public AccessibilityNodeInfoCompat getLabeledBy() {
         return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabeledBy());
     }
@@ -4254,7 +4591,7 @@ public class AccessibilityNodeInfoCompat {
      * <p>
      * Some data that is useful for some accessibility services is expensive to compute, and would
      * place undue overhead on apps to compute all the time. That data can be requested with
-     * {@link #refreshWithExtraData(String, Bundle)}.
+     * {@link android.view.accessibility.AccessibilityNodeInfo#refreshWithExtraData(String, Bundle)}.
      *
      * @return An unmodifiable list of keys corresponding to extra data that can be requested.
      * @see #EXTRA_DATA_RENDERING_INFO_KEY
@@ -4963,6 +5300,64 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    /**
+     * Returns the supplemental description of this {@link AccessibilityNodeInfoCompat}.
+     * <p>
+     * A supplemental description provides brief supplemental information for this node, such as
+     * the purpose of the node when that purpose is not conveyed within its textual representation.
+     * For example, if a dropdown select has a purpose of setting font family, the supplemental
+     * description could be "font family". If this node has children, its supplemental description
+     * serves as additional information and is not intended to replace any existing information in
+     * the subtree. This is different from the {@link #getContentDescription()} in that this
+     * description is purely supplemental while a content description may be used to replace a
+     * description for a node or its subtree that an assistive technology would otherwise compute
+     * based on other properties of the node and its descendants.
+     *
+     * @return The supplemental description.
+     * @see #setSupplementalDescription(CharSequence)
+     * @see #getContentDescription()
+     */
+    @Nullable
+    public CharSequence getSupplementalDescription() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.getSupplementalDescription(mInfo);
+        } else {
+            return mInfo.getExtras().getCharSequence(SUPPLEMENTAL_DESCRIPTION_KEY);
+        }
+    }
+
+    /**
+     * Sets the supplemental description of this {@link AccessibilityNodeInfoCompat}.
+     * <p>
+     * A supplemental description provides brief supplemental information for this node, such as
+     * the purpose of the node when that purpose is not conveyed within its textual representation.
+     * For example, if a dropdown select has a purpose of setting font family, the supplemental
+     * description could be "font family". If this node has children, its supplemental description
+     * serves as additional information and is not intended to replace any existing information in
+     * the subtree. This is different from the {@link #setContentDescription(CharSequence)} in that
+     * this description is purely supplemental while a content description may be used to replace a
+     * description for a node or its subtree that an assistive technology would otherwise compute
+     * based on other properties of the node and its descendants.
+     *
+     * <p>
+     * <strong>Note:</strong> Cannot be called from an {@link
+     * android.accessibilityservice.AccessibilityService}. This class is made immutable before being
+     * delivered to an AccessibilityService.
+     *
+     * @param supplementalDescription The supplemental description.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     * @see #getSupplementalDescription()
+     * @see #setContentDescription(CharSequence)
+     */
+    public void setSupplementalDescription(@Nullable CharSequence supplementalDescription) {
+        if (Build.VERSION.SDK_INT >= 36) {
+            Api36Impl.setSupplementalDescription(mInfo, supplementalDescription);
+        } else {
+            mInfo.getExtras()
+                    .putCharSequence(SUPPLEMENTAL_DESCRIPTION_KEY, supplementalDescription);
+        }
+    }
+
     @Override
     public int hashCode() {
         return (mInfo == null) ? 0 : mInfo.hashCode();
@@ -5020,18 +5415,22 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; maxTextLength: ").append(getMaxTextLength());
         builder.append("; stateDescription: ").append(getStateDescription());
         builder.append("; contentDescription: ").append(getContentDescription());
+        builder.append("; supplementalDescription: ").append(getSupplementalDescription());
         builder.append("; tooltipText: ").append(getTooltipText());
         builder.append("; viewIdResName: ").append(getViewIdResourceName());
         builder.append("; uniqueId: ").append(getUniqueId());
 
         builder.append("; checkable: ").append(isCheckable());
-        builder.append("; checked: ").append(isChecked());
+        builder.append("; checked: ").append(getCheckedString());
+        builder.append("; fieldRequired: ").append(isFieldRequired());
         builder.append("; focusable: ").append(isFocusable());
         builder.append("; focused: ").append(isFocused());
         builder.append("; selected: ").append(isSelected());
         builder.append("; clickable: ").append(isClickable());
         builder.append("; longClickable: ").append(isLongClickable());
         builder.append("; contextClickable: ").append(isContextClickable());
+        builder.append("; expandedState: ").append(
+                getExpandedStateSymbolicName(getExpandedState()));
         builder.append("; enabled: ").append(isEnabled());
         builder.append("; password: ").append(isPassword());
         builder.append("; scrollable: " + isScrollable());
@@ -5074,6 +5473,17 @@ public class AccessibilityNodeInfoCompat {
         Bundle extras = getExtras();
         if (extras == null) return false;
         return (extras.getInt(BOOLEAN_PROPERTY_KEY, 0) & property) == property;
+    }
+
+    private String getCheckedString() {
+        @CheckedState int checkedState = getChecked();
+        if (checkedState == AccessibilityNodeInfo.CHECKED_STATE_TRUE) {
+            return "TRUE";
+        } else if (checkedState == AccessibilityNodeInfo.CHECKED_STATE_PARTIAL) {
+            return "PARTIAL";
+        } else {
+            return "FALSE";
+        }
     }
 
     static String getActionSymbolicName(int action) {
@@ -5164,6 +5574,21 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_SCROLL_IN_DIRECTION";
             default:
                 return "ACTION_UNKNOWN";
+        }
+    }
+
+    static String getExpandedStateSymbolicName(@ExpandedState int state) {
+        switch(state) {
+            case AccessibilityNodeInfo.EXPANDED_STATE_UNDEFINED:
+                return "UNDEFINED";
+            case AccessibilityNodeInfo.EXPANDED_STATE_COLLAPSED:
+                return "COLLAPSED";
+            case AccessibilityNodeInfo.EXPANDED_STATE_PARTIAL:
+                return "PARTIAL";
+            case AccessibilityNodeInfo.EXPANDED_STATE_FULL:
+                return "FULL";
+            default:
+                return "UNKNOWN";
         }
     }
 
@@ -5337,6 +5762,69 @@ public class AccessibilityNodeInfoCompat {
                     .setItemCount(itemCount)
                     .setImportantForAccessibilityItemCount(importantForAccessibilityItemCount)
                     .build());
+        }
+    }
+
+    @RequiresApi(36)
+    private static class Api36Impl {
+        private Api36Impl() {
+            // This class is non instantiable.
+        }
+
+        @ExpandedState
+        public static int getExpandedState(AccessibilityNodeInfo info) {
+            return info.getExpandedState();
+        }
+
+        public static void setExpandedState(AccessibilityNodeInfo info, @ExpandedState int state) {
+            info.setExpandedState(state);
+        }
+
+        public static boolean isFieldRequired(AccessibilityNodeInfo info) {
+            return info.isFieldRequired();
+        }
+
+        public static void setFieldRequired(AccessibilityNodeInfo info, boolean required) {
+            info.setFieldRequired(required);
+        }
+
+        @Nullable
+        public static CharSequence getSupplementalDescription(AccessibilityNodeInfo info) {
+            return info.getSupplementalDescription();
+        }
+
+        public static void setSupplementalDescription(
+                AccessibilityNodeInfo info, @Nullable CharSequence supplementalDescription) {
+            info.setSupplementalDescription(supplementalDescription);
+        }
+
+        @CheckedState
+        private static int getChecked(AccessibilityNodeInfo info) {
+            return info.getChecked();
+        }
+
+        private static void setChecked(AccessibilityNodeInfo info, @CheckedState int checked) {
+            info.setChecked(checked);
+        }
+
+        private static void addLabeledBy(AccessibilityNodeInfo info, @NonNull View root,
+                int virtualDescendantId) {
+            info.addLabeledBy(root, virtualDescendantId);
+        }
+
+        private static @NonNull List<AccessibilityNodeInfoCompat> getLabeledByList(
+                AccessibilityNodeInfo info) {
+            List<AccessibilityNodeInfo> labels = info.getLabeledByList();
+            List<AccessibilityNodeInfoCompat> compatLabels = new ArrayList<>(labels.size());
+            for (AccessibilityNodeInfo labeledByInfo : labels) {
+                compatLabels.add(AccessibilityNodeInfoCompat.wrap(labeledByInfo));
+            }
+            return compatLabels;
+        }
+
+        private static boolean removeLabeledBy(AccessibilityNodeInfo info, @NonNull View root,
+                int virtualDescendantId) {
+            return info.removeLabeledBy(root, virtualDescendantId);
         }
     }
 }

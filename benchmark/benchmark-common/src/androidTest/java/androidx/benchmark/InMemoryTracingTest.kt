@@ -59,9 +59,9 @@ class InMemoryTracingTest {
                         uuid = packet.track_descriptor?.uuid,
                         name = "testLabel",
                         thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
-                        disallow_merging_with_system_tracks = true
-                    )
-            )
+                        disallow_merging_with_system_tracks = true,
+                    ),
+            ),
         )
     }
 
@@ -93,10 +93,10 @@ class InMemoryTracingTest {
                             type = TrackEvent.Type.TYPE_SLICE_BEGIN,
                             track_uuid = descriptor.uuid,
                             categories = listOf("benchmark"),
-                            name = "test trace section"
-                        )
+                            name = "test trace section",
+                        ),
                 ),
-                this
+                this,
             )
         }
         trace.packet[2].apply {
@@ -110,9 +110,9 @@ class InMemoryTracingTest {
                         TrackEvent(
                             type = TrackEvent.Type.TYPE_SLICE_END,
                             track_uuid = descriptor.uuid,
-                        )
+                        ),
                 ),
-                this
+                this,
             )
         }
     }
@@ -127,7 +127,7 @@ class InMemoryTracingTest {
             "test trace section",
             beforeTime,
             counterNames = listOf("counterLabel"),
-            counterValues = listOf(0.1)
+            counterValues = listOf(0.1),
         )
         InMemoryTracing.endSection(afterTime)
 
@@ -162,10 +162,10 @@ class InMemoryTracingTest {
                             categories = listOf("benchmark"),
                             name = "test trace section",
                             extra_double_counter_track_uuids = listOf(counterDescriptor.uuid!!),
-                            extra_double_counter_values = listOf(0.1)
-                        )
+                            extra_double_counter_values = listOf(0.1),
+                        ),
                 ),
-                this
+                this,
             )
         }
         trace.packet[3].apply {
@@ -179,9 +179,9 @@ class InMemoryTracingTest {
                         TrackEvent(
                             type = TrackEvent.Type.TYPE_SLICE_END,
                             track_uuid = sliceDescriptor.uuid,
-                        )
+                        ),
                 ),
-                this
+                this,
             )
         }
         trace.packet[4].apply {
@@ -196,9 +196,9 @@ class InMemoryTracingTest {
                             type = TrackEvent.Type.TYPE_COUNTER,
                             track_uuid = counterDescriptor.uuid,
                             double_counter_value = 1.0,
-                        )
+                        ),
                 ),
-                this
+                this,
             )
         }
     }

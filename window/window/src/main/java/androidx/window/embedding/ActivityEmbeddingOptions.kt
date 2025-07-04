@@ -94,6 +94,6 @@ fun Bundle.setLaunchingActivityStack(context: Context, activityStack: ActivitySt
 @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
 fun Bundle.setOverlayCreateParams(
     activity: Activity,
-    overlayCreateParams: OverlayCreateParams
+    overlayCreateParams: OverlayCreateParams,
 ): Bundle =
     OverlayController.getInstance(activity).setOverlayCreateParams(this, overlayCreateParams)

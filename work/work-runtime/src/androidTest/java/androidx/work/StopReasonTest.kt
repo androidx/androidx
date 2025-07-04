@@ -56,7 +56,7 @@ class StopReasonTest {
         Trackers(
             context = env.context,
             taskExecutor = env.taskExecutor,
-            batteryChargingTracker = fakeChargingTracker
+            batteryChargingTracker = fakeChargingTracker,
         )
     val workManager = WorkManager(env, listOf(GreedyScheduler(env, trackers)), trackers)
 

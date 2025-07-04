@@ -141,7 +141,7 @@ class RecordingInputConnectionInactiveTest {
         RecordingInputConnection(
             initState = TextFieldValue("", TextRange.Zero),
             eventCallback = mock(),
-            autoCorrect = true
+            autoCorrect = true,
         )
 
     // The following InputConnection functions does not have well defined inactive input

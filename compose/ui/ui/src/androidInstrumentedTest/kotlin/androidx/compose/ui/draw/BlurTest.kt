@@ -68,7 +68,7 @@ class BlurTest {
         blurredEdgeTreatment: BlurredEdgeTreatment,
         shape: Shape,
         clip: Boolean,
-        tileMode: TileMode
+        tileMode: TileMode,
     ) {
         val blurTag = "blurTag"
         val graphicsLayerTag = "graphicsLayerTag"
@@ -129,7 +129,7 @@ class BlurTest {
                 blurBuffer,
                 graphicsLayerBuffer,
                 blurPixelMap.width,
-                blurPixelMap.height
+                blurPixelMap.height,
             )
     }
 

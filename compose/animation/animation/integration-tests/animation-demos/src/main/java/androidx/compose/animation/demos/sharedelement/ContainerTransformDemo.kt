@@ -86,7 +86,7 @@ fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selecte
                     fadeOut(tween(600)) using
                     SizeTransform { _, _ -> spring() }
             },
-            label = ""
+            label = "",
         ) {
             // TODO: Double check on container transform scrolling
             if (it != null) {
@@ -95,7 +95,7 @@ fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selecte
                     this@SharedTransitionLayout,
                     model = model,
                     selected = it,
-                    model.items[6]
+                    model.items[6],
                 )
             } else {
                 GridView(this@AnimatedContent, this@SharedTransitionLayout, model = model)
@@ -108,7 +108,7 @@ fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selecte
 fun Details(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    kitty: Kitty
+    kitty: Kitty,
 ) {
     with(sharedTransitionScope) {
         Column(
@@ -129,8 +129,8 @@ fun Details(
                             Modifier.padding(start = 10.dp)
                                 .sharedBounds(
                                     rememberSharedContentState(key = kitty.name + kitty.id),
-                                    animatedVisibilityScope
-                                )
+                                    animatedVisibilityScope,
+                                ),
                     )
                     Text(
                         kitty.breed,
@@ -140,8 +140,8 @@ fun Details(
                             Modifier.padding(start = 10.dp)
                                 .sharedBounds(
                                     rememberSharedContentState(key = kitty.breed + kitty.id),
-                                    animatedVisibilityScope
-                                )
+                                    animatedVisibilityScope,
+                                ),
                     )
                     Spacer(Modifier.size(10.dp))
                 }
@@ -149,7 +149,7 @@ fun Details(
                 Icon(
                     Icons.Outlined.Favorite,
                     contentDescription = null,
-                    Modifier.background(Color(0xffffddee), CircleShape).padding(10.dp)
+                    Modifier.background(Color(0xffffddee), CircleShape).padding(10.dp),
                 )
                 Spacer(Modifier.size(10.dp))
             }
@@ -209,13 +209,13 @@ fun DetailView(
     sharedTransitionScope: SharedTransitionScope,
     model: MyModel,
     selected: Kitty,
-    next: Kitty?
+    next: Kitty?,
 ) {
     with(sharedTransitionScope) {
         Column(
             Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = null,
                 ) {
                     model.selected = null
                 }
@@ -238,11 +238,11 @@ fun DetailView(
                             .sharedElement(
                                 rememberSharedContentState(key = selected.id),
                                 animatedVisibilityScope,
-                                placeHolderSize = animatedSize
+                                placeHolderSize = animatedSize,
                             )
                             .fillMaxHeight()
                             .aspectRatio(1f)
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(RoundedCornerShape(20.dp)),
                 )
                 if (next != null) {
                     Image(
@@ -254,7 +254,7 @@ fun DetailView(
                                 .fillMaxWidth()
                                 .fillMaxHeight()
                                 .clip(RoundedCornerShape(20.dp))
-                                .blur(10.dp)
+                                .blur(10.dp),
                     )
                 }
             }
@@ -267,7 +267,7 @@ fun DetailView(
 fun GridView(
     animatedVisibilityScope: AnimatedVisibilityScope,
     sharedTransitionScope: SharedTransitionScope,
-    model: MyModel
+    model: MyModel,
 ) {
     with(animatedVisibilityScope) {
         with(sharedTransitionScope) {
@@ -281,14 +281,14 @@ fun GridView(
                 }
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(top = 90.dp)
+                    contentPadding = PaddingValues(top = 90.dp),
                 ) {
                     items(6) {
                         Box(modifier = Modifier.clickable { model.selected = model.items[it] }) {
                             KittyItem(
                                 animatedVisibilityScope,
                                 sharedTransitionScope,
-                                model.items[it]
+                                model.items[it],
                             )
                         }
                     }
@@ -316,7 +316,7 @@ class MyModel {
 fun KittyItem(
     animatedVisibilityScope: AnimatedVisibilityScope,
     sharedTransitionScope: SharedTransitionScope,
-    kitty: Kitty
+    kitty: Kitty,
 ) {
     with(sharedTransitionScope) {
         Column(
@@ -335,10 +335,10 @@ fun KittyItem(
                     Modifier.sharedElement(
                             rememberSharedContentState(key = kitty.id),
                             animatedVisibilityScope,
-                            placeHolderSize = animatedSize
+                            placeHolderSize = animatedSize,
                         )
                         .aspectRatio(1f)
-                        .clip(RoundedCornerShape(20.dp))
+                        .clip(RoundedCornerShape(20.dp)),
             )
             Spacer(Modifier.size(10.dp))
             Text(
@@ -348,8 +348,8 @@ fun KittyItem(
                     Modifier.padding(start = 10.dp)
                         .sharedBounds(
                             rememberSharedContentState(key = kitty.name + kitty.id),
-                            animatedVisibilityScope
-                        )
+                            animatedVisibilityScope,
+                        ),
             )
             Spacer(Modifier.size(5.dp))
             Text(
@@ -360,8 +360,8 @@ fun KittyItem(
                     Modifier.padding(start = 10.dp)
                         .sharedBounds(
                             rememberSharedContentState(key = kitty.breed + kitty.id),
-                            animatedVisibilityScope
-                        )
+                            animatedVisibilityScope,
+                        ),
             )
             Spacer(Modifier.size(10.dp))
         }

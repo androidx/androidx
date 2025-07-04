@@ -47,7 +47,7 @@ class GlanceWearTilesStateTest {
             GlanceState.deleteStore(
                 context,
                 PreferencesGlanceStateDefinition,
-                wearTileId.tileServiceClass.name
+                wearTileId.tileServiceClass.name,
             )
         }
     }

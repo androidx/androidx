@@ -34,7 +34,7 @@ class PagerLazyLayoutScrollScopeTest : BasePagerTest(ParamConfig(Orientation.Hor
             object : PageSize {
                 override fun Density.calculateMainAxisPageSize(
                     availableSpace: Int,
-                    pageSpacing: Int
+                    pageSpacing: Int,
                 ): Int {
                     return (availableSpace * 0.75).roundToInt()
                 }

@@ -46,7 +46,7 @@ internal class Camera2MetadataCacheTest {
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                     CameraCharacteristics.SENSOR_ORIENTATION to 90,
                     CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                    CameraCharacteristics.FLASH_INFO_AVAILABLE to true
+                    CameraCharacteristics.FLASH_INFO_AVAILABLE to true,
                 )
             )
 
@@ -57,7 +57,7 @@ internal class Camera2MetadataCacheTest {
                         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
                     CameraCharacteristics.SENSOR_ORIENTATION to 0,
                     CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT,
-                    CameraCharacteristics.FLASH_INFO_AVAILABLE to false
+                    CameraCharacteristics.FLASH_INFO_AVAILABLE to false,
                 )
             )
 
@@ -67,7 +67,7 @@ internal class Camera2MetadataCacheTest {
                 FakeThreads.fromTestScope(this),
                 Permissions(RobolectricCameras.application),
                 CameraPipe.CameraMetadataConfig(),
-                SystemTimeSource()
+                SystemTimeSource(),
             )
 
         val metadata0 = cache.awaitCameraMetadata(camera0)

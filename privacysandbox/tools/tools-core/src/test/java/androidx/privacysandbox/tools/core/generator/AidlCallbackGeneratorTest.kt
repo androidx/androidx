@@ -48,13 +48,13 @@ class AidlCallbackGeneratorTest {
                                             listOf(
                                                 Parameter(
                                                     "callback",
-                                                    Type("com.mysdk", "MyCallback")
+                                                    Type("com.mysdk", "MyCallback"),
                                                 )
                                             ),
                                         returnType = Types.unit,
                                         isSuspend = false,
-                                    ),
-                                )
+                                    )
+                                ),
                         )
                     ),
                 callbacks =
@@ -65,10 +65,7 @@ class AidlCallbackGeneratorTest {
                                 listOf(
                                     Method(
                                         name = "onComplete",
-                                        parameters =
-                                            listOf(
-                                                Parameter("result", Types.boolean),
-                                            ),
+                                        parameters = listOf(Parameter("result", Types.boolean)),
                                         returnType = Types.unit,
                                         isSuspend = false,
                                     ),
@@ -77,10 +74,10 @@ class AidlCallbackGeneratorTest {
                                         parameters = listOf(),
                                         returnType = Types.string,
                                         isSuspend = true,
-                                    )
-                                )
+                                    ),
+                                ),
                         )
-                    )
+                    ),
             )
 
         val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)

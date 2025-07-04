@@ -68,7 +68,7 @@ class SnackbarTest {
             Box {
                 Snackbar(
                     content = { Text("Message") },
-                    action = { TextButton(onClick = { clicked = true }) { Text("UNDO") } }
+                    action = { TextButton(onClick = { clicked = true }) { Text("UNDO") } },
                 )
             }
         }
@@ -194,11 +194,11 @@ class SnackbarTest {
                         action = {
                             TextButton(
                                 onClick = {},
-                                modifier = Modifier.clipToBounds().testTag("button")
+                                modifier = Modifier.clipToBounds().testTag("button"),
                             ) {
                                 Text("Undo")
                             }
-                        }
+                        },
                     )
                 }
                 .assertWidthIsEqualTo(300.dp)
@@ -232,7 +232,7 @@ class SnackbarTest {
                         TextButton(onClick = {}, modifier = Modifier.testTag("button")) {
                             Text("Undo", fontSize = fontSize)
                         }
-                    }
+                    },
                 )
             }
 
@@ -290,7 +290,7 @@ class SnackbarTest {
                             TextButton(modifier = Modifier.testTag("button"), onClick = {}) {
                                 Text("Undo")
                             }
-                        }
+                        },
                     )
                 }
                 .assertWidthIsEqualTo(300.dp)
@@ -325,7 +325,7 @@ class SnackbarTest {
                             Text("Undo", Modifier.sizeIn(minWidth = 48.dp, minHeight = 48.dp))
                         }
                     },
-                    actionOnNewLine = true
+                    actionOnNewLine = true,
                 )
             }
 

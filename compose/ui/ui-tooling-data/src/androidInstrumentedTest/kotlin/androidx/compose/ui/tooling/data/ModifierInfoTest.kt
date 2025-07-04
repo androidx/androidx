@@ -93,7 +93,7 @@ class ModifierInfoTest : ToolingTest() {
                 "Box should only have LayoutModifiers, but the first was " +
                     "${boxModifierInfo[0].modifier}",
                 boxPaddingModifier,
-                boxModifierInfo[0].modifier
+                boxModifierInfo[0].modifier,
             )
             assertEquals(10f, boxModifierInfo[0].coordinates.positionInRoot().x)
 
@@ -101,7 +101,7 @@ class ModifierInfoTest : ToolingTest() {
                 "Box should only have LayoutModifiers, but the second was " +
                     "${boxModifierInfo[1].modifier}",
                 boxSizeModifier,
-                boxModifierInfo[1].modifier
+                boxModifierInfo[1].modifier,
             )
             assertEquals(15f, boxModifierInfo[1].coordinates.positionInRoot().x)
 
@@ -111,14 +111,14 @@ class ModifierInfoTest : ToolingTest() {
                 "The first modifier in the column should be a LayoutModifier" +
                     "but was ${columnModifierInfo[0].modifier}",
                 columnPaddingModifier,
-                columnModifierInfo[0].modifier
+                columnModifierInfo[0].modifier,
             )
             assertEquals(0f, columnModifierInfo[0].coordinates.positionInRoot().x)
             assertEquals(
                 "The second modifier in the column should be the graphicsLayer" +
                     "but was ${columnModifierInfo[1].modifier}",
                 graphicsLayer,
-                columnModifierInfo[1].modifier
+                columnModifierInfo[1].modifier,
             )
             assertTrue(columnModifierInfo[2].extra is GraphicLayerInfo)
             assertEquals(10f, columnModifierInfo[1].coordinates.positionInRoot().x)
@@ -126,7 +126,7 @@ class ModifierInfoTest : ToolingTest() {
                 "The third modifier in the column should be a DrawModifier" +
                     "but was ${columnModifierInfo[2].modifier}",
                 backgroundModifier,
-                columnModifierInfo[2].modifier
+                columnModifierInfo[2].modifier,
             )
             assertEquals(10f, columnModifierInfo[2].coordinates.positionInRoot().x)
         }

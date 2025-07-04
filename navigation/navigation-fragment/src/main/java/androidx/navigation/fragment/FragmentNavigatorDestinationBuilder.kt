@@ -34,7 +34,7 @@ import kotlin.reflect.KType
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your FragmentDestination instead",
-    ReplaceWith("fragment<F>(route = id.toString())")
+    ReplaceWith("fragment<F>(route = id.toString())"),
 )
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(@IdRes id: Int): Unit =
     fragment<F>(id) {}
@@ -48,11 +48,11 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(@IdRes id: Int
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your FragmentDestination instead",
-    ReplaceWith("fragment<F>(route = id.toString()) { builder.invoke() }")
+    ReplaceWith("fragment<F>(route = id.toString()) { builder.invoke() }"),
 )
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int,
-    builder: FragmentNavigatorDestinationBuilder.() -> Unit
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         FragmentNavigatorDestinationBuilder(provider[FragmentNavigator::class], id, F::class)
@@ -75,7 +75,7 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(route: String)
  */
 public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     route: String,
-    builder: FragmentNavigatorDestinationBuilder.() -> Unit
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         FragmentNavigatorDestinationBuilder(provider[FragmentNavigator::class], route, F::class)
@@ -90,7 +90,7 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
  *   [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap()
 ): Unit = fragment<F, T>(typeMap) {}
 
 /**
@@ -103,7 +103,7 @@ public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragme
  */
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: FragmentNavigatorDestinationBuilder.() -> Unit
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         FragmentNavigatorDestinationBuilder(
@@ -135,12 +135,12 @@ public class FragmentNavigatorDestinationBuilder :
         "Use routes to build your FragmentNavigatorDestination instead",
         ReplaceWith(
             "FragmentNavigatorDestinationBuilder(navigator, route = id.toString(), fragmentClass) "
-        )
+        ),
     )
     public constructor(
         navigator: FragmentNavigator,
         @IdRes id: Int,
-        fragmentClass: KClass<out Fragment>
+        fragmentClass: KClass<out Fragment>,
     ) : super(navigator, id) {
         this.fragmentClass = fragmentClass
     }
@@ -156,7 +156,7 @@ public class FragmentNavigatorDestinationBuilder :
     public constructor(
         navigator: FragmentNavigator,
         route: String,
-        fragmentClass: KClass<out Fragment>
+        fragmentClass: KClass<out Fragment>,
     ) : super(navigator, route) {
         this.fragmentClass = fragmentClass
     }
@@ -175,7 +175,7 @@ public class FragmentNavigatorDestinationBuilder :
         navigator: FragmentNavigator,
         route: KClass<out Any>,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
-        fragmentClass: KClass<out Fragment>
+        fragmentClass: KClass<out Fragment>,
     ) : super(navigator, route, typeMap) {
         this.fragmentClass = fragmentClass
     }

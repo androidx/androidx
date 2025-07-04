@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
+import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.JoinSpec;
@@ -30,6 +32,7 @@ import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.PutDocumentStats;
+import androidx.appsearch.localstorage.stats.QueryStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
@@ -92,6 +95,7 @@ public class AppSearchLoggerTest {
                 /*initStatsBuilder=*/ null,
                 /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
         mLogger = new SimpleTestLogger();
     }
@@ -116,6 +120,15 @@ public class AppSearchLoggerTest {
                 InitializeStatsProto.DocumentStoreDataStatus.NO_DATA_LOSS_VALUE;
         int nativeNumDocuments = 11;
         int nativeNumSchemaTypes = 12;
+        int nativeNumPreviousInitFailures = 13;
+        int nativeIntegerIndexRestorationCause =
+                InitializeStatsProto.RecoveryCause.UNKNOWN_OUT_OF_SYNC_VALUE;
+        int nativeQualifiedIdJoinIndexRestorationCause =
+                InitializeStatsProto.RecoveryCause.FEATURE_FLAG_CHANGED_VALUE;
+        int nativeEmbeddingIndexRestorationCause =
+                InitializeStatsProto.RecoveryCause.DEPENDENCIES_CHANGED_VALUE;
+        StatusProto.Code initializeIcuDataStatusCode = StatusProto.Code.OK;
+        int nativeNumFailedReindexedDocuments = 18;
         InitializeStatsProto.Builder nativeInitBuilder = InitializeStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setDocumentStoreRecoveryCause(InitializeStatsProto.RecoveryCause.forNumber(
@@ -131,28 +144,53 @@ public class AppSearchLoggerTest {
                 .setDocumentStoreDataStatus(InitializeStatsProto.DocumentStoreDataStatus.forNumber(
                         nativeDocumentStoreDataStatus))
                 .setNumDocuments(nativeNumDocuments)
-                .setNumSchemaTypes(nativeNumSchemaTypes);
+                .setNumSchemaTypes(nativeNumSchemaTypes)
+                .setNumPreviousInitFailures(nativeNumPreviousInitFailures)
+                .setIntegerIndexRestorationCause(
+                        InitializeStatsProto.RecoveryCause.forNumber(
+                                nativeIntegerIndexRestorationCause))
+                .setQualifiedIdJoinIndexRestorationCause(
+                        InitializeStatsProto.RecoveryCause.forNumber(
+                                nativeQualifiedIdJoinIndexRestorationCause))
+                .setEmbeddingIndexRestorationCause(
+                        InitializeStatsProto.RecoveryCause.forNumber(
+                                nativeEmbeddingIndexRestorationCause))
+                .setInitializeIcuDataStatus(StatusProto.newBuilder()
+                        .setCode(initializeIcuDataStatusCode))
+                .setNumFailedReindexedDocuments(nativeNumFailedReindexedDocuments);
         InitializeStats.Builder initBuilder = new InitializeStats.Builder();
 
         AppSearchLoggerHelper.copyNativeStats(nativeInitBuilder.build(), initBuilder);
 
         InitializeStats iStats = initBuilder.build();
         assertThat(iStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
-        assertThat(iStats.getDocumentStoreRecoveryCause()).isEqualTo(
+        assertThat(iStats.getNativeDocumentStoreRecoveryCause()).isEqualTo(
                 nativeDocumentStoreRecoveryCause);
-        assertThat(iStats.getIndexRestorationCause()).isEqualTo(nativeIndexRestorationCause);
-        assertThat(iStats.getSchemaStoreRecoveryCause()).isEqualTo(
+        assertThat(iStats.getNativeIndexRestorationCause()).isEqualTo(nativeIndexRestorationCause);
+        assertThat(iStats.getNativeSchemaStoreRecoveryCause()).isEqualTo(
                 nativeSchemaStoreRecoveryCause);
-        assertThat(iStats.getDocumentStoreRecoveryLatencyMillis()).isEqualTo(
+        assertThat(iStats.getNativeDocumentStoreRecoveryLatencyMillis()).isEqualTo(
                 nativeDocumentStoreRecoveryLatencyMillis);
-        assertThat(iStats.getIndexRestorationLatencyMillis()).isEqualTo(
+        assertThat(iStats.getNativeIndexRestorationLatencyMillis()).isEqualTo(
                 nativeIndexRestorationLatencyMillis);
-        assertThat(iStats.getSchemaStoreRecoveryLatencyMillis()).isEqualTo(
+        assertThat(iStats.getNativeSchemaStoreRecoveryLatencyMillis()).isEqualTo(
                 nativeSchemaStoreRecoveryLatencyMillis);
-        assertThat(iStats.getDocumentStoreDataStatus()).isEqualTo(
+        assertThat(iStats.getNativeDocumentStoreDataStatus()).isEqualTo(
                 nativeDocumentStoreDataStatus);
-        assertThat(iStats.getDocumentCount()).isEqualTo(nativeNumDocuments);
-        assertThat(iStats.getSchemaTypeCount()).isEqualTo(nativeNumSchemaTypes);
+        assertThat(iStats.getNativeDocumentCount()).isEqualTo(nativeNumDocuments);
+        assertThat(iStats.getNativeSchemaTypeCount()).isEqualTo(nativeNumSchemaTypes);
+        assertThat(iStats.getNativeNumPreviousInitFailures())
+                .isEqualTo(nativeNumPreviousInitFailures);
+        assertThat(iStats.getNativeIntegerIndexRestorationCause())
+                .isEqualTo(nativeIntegerIndexRestorationCause);
+        assertThat(iStats.getNativeQualifiedIdJoinIndexRestorationCause())
+                .isEqualTo(nativeQualifiedIdJoinIndexRestorationCause);
+        assertThat(iStats.getNativeEmbeddingIndexRestorationCause())
+                .isEqualTo(nativeEmbeddingIndexRestorationCause);
+        assertThat(iStats.getNativeInitializeIcuDataStatusCode())
+                .isEqualTo(initializeIcuDataStatusCode.getNumber());
+        assertThat(iStats.getNativeNumFailedReindexedDocuments())
+                .isEqualTo(nativeNumFailedReindexedDocuments);
     }
 
     @Test
@@ -168,6 +206,8 @@ public class AppSearchLoggerTest {
         final int nativeIntegerIndexLatencyMillis = 10;
         final int nativeQualifiedIdJoinIndexLatencyMillis = 11;
         final int nativeLiteIndexSortLatencyMillis = 12;
+        final int mMetadataTermIndexLatencyMillis = 13;
+        final int mEmbeddingIndexLatencyMillis = 14;
         PutDocumentStatsProto nativePutDocumentStats = PutDocumentStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setDocumentStoreLatencyMs(nativeDocumentStoreLatencyMillis)
@@ -181,6 +221,8 @@ public class AppSearchLoggerTest {
                 .setIntegerIndexLatencyMs(nativeIntegerIndexLatencyMillis)
                 .setQualifiedIdJoinIndexLatencyMs(nativeQualifiedIdJoinIndexLatencyMillis)
                 .setLiteIndexSortLatencyMs(nativeLiteIndexSortLatencyMillis)
+                .setMetadataTermIndexLatencyMs(mMetadataTermIndexLatencyMillis)
+                .setEmbeddingIndexLatencyMs(mEmbeddingIndexLatencyMillis)
                 .build();
         PutDocumentStats.Builder pBuilder = new PutDocumentStats.Builder(PACKAGE_NAME, DATABASE);
 
@@ -203,80 +245,173 @@ public class AppSearchLoggerTest {
                 nativeQualifiedIdJoinIndexLatencyMillis);
         assertThat(pStats.getNativeLiteIndexSortLatencyMillis()).isEqualTo(
                 nativeLiteIndexSortLatencyMillis);
+        assertThat(pStats.getMetadataTermIndexLatencyMillis()).isEqualTo(
+                mMetadataTermIndexLatencyMillis);
+        assertThat(pStats.getEmbeddingIndexLatencyMillis()).isEqualTo(
+                mEmbeddingIndexLatencyMillis);
     }
 
     @Test
     public void testAppSearchLoggerHelper_testCopyNativeStats_search() {
-        int nativeLatencyMillis = 4;
-        int nativeNumTerms = 5;
-        int nativeQueryLength = 6;
-        int nativeNumNamespacesFiltered = 7;
-        int nativeNumSchemaTypesFiltered = 8;
-        int nativeRequestedPageSize = 9;
-        int nativeNumResultsReturnedCurrentPage = 10;
-        boolean nativeIsFirstPage = true;
-        int nativeParseQueryLatencyMillis = 11;
+        int nativeNumTerms = 1;
+        int nativeQueryLength = 2;
+        int nativeNumNamespacesFiltered = 3;
+        int nativeNumSchemaTypesFiltered = 4;
         int nativeRankingStrategy = ScoringSpecProto.RankingStrategy.Code.CREATION_TIMESTAMP_VALUE;
-        int nativeNumDocumentsScored = 13;
-        int nativeScoringLatencyMillis = 14;
-        int nativeRankingLatencyMillis = 15;
-        int nativeNumResultsWithSnippets = 16;
-        int nativeDocumentRetrievingLatencyMillis = 17;
-        int nativeLockAcquisitionLatencyMillis = 18;
-        int javaToNativeJniLatencyMillis = 19;
-        int nativeToJavaJniLatencyMillis = 20;
-        QueryStatsProto nativeQueryStats = QueryStatsProto.newBuilder()
-                .setLatencyMs(nativeLatencyMillis)
-                .setNumTerms(nativeNumTerms)
+        int nativeNumDocumentsScored = 5;
+        int nativeParseQueryLatencyMillis = 6;
+        int nativeScoringLatencyMillis = 7;
+        boolean isNumericQuery = true;
+        int numFetchedHitsLiteIndex = 8;
+        int numFetchedHitsMainIndex = 9;
+        int numFetchedHitsIntegerIndex = 10;
+        int queryProcessorLexerExtractTokenLatencyMillis = 11;
+        int queryProcessorParserConsumeQueryLatencyMillis = 12;
+        int queryProcessorQueryVisitorLatencyMillis = 13;
+
+        QueryStatsProto.SearchStats searchStats = QueryStatsProto.SearchStats.newBuilder()
                 .setQueryLength(nativeQueryLength)
+                .setNumTerms(nativeNumTerms)
                 .setNumNamespacesFiltered(nativeNumNamespacesFiltered)
                 .setNumSchemaTypesFiltered(nativeNumSchemaTypesFiltered)
-                .setRequestedPageSize(nativeRequestedPageSize)
-                .setNumResultsReturnedCurrentPage(nativeNumResultsReturnedCurrentPage)
-                .setIsFirstPage(nativeIsFirstPage)
-                .setParseQueryLatencyMs(nativeParseQueryLatencyMillis)
                 .setRankingStrategy(
                         ScoringSpecProto.RankingStrategy.Code.forNumber(nativeRankingStrategy))
+                .setParseQueryLatencyMs(nativeParseQueryLatencyMillis)
                 .setNumDocumentsScored(nativeNumDocumentsScored)
                 .setScoringLatencyMs(nativeScoringLatencyMillis)
+                .setIsNumericQuery(isNumericQuery)
+                .setNumFetchedHitsLiteIndex(numFetchedHitsLiteIndex)
+                .setNumFetchedHitsMainIndex(numFetchedHitsMainIndex)
+                .setNumFetchedHitsIntegerIndex(numFetchedHitsIntegerIndex)
+                .setQueryProcessorLexerExtractTokenLatencyMs(
+                        queryProcessorLexerExtractTokenLatencyMillis)
+                .setQueryProcessorParserConsumeQueryLatencyMs(
+                        queryProcessorParserConsumeQueryLatencyMillis)
+                .setQueryProcessorQueryVisitorLatencyMs(queryProcessorQueryVisitorLatencyMillis)
+                .build();
+
+        boolean nativeIsFirstPage = true;
+        int nativeRequestedPageSize = 101;
+        int nativeNumResultsReturnedCurrentPage = 102;
+        int nativeLatencyMillis = 102;
+        int nativeRankingLatencyMillis = 103;
+        int nativeDocumentRetrievingLatencyMillis = 104;
+        int nativeNumResultsWithSnippets = 105;
+        int nativeLockAcquisitionLatencyMillis = 106;
+        int javaToNativeJniLatencyMillis = 107;
+        int nativeToJavaJniLatencyMillis = 108;
+        int nativeJoinLatencyMillis = 109;
+        int nativeNumJoinedResultsCurrentPage = 110;
+        long liteIndexHitBufferByteSize = 111;
+        long liteIndexHitBufferUnsortedByteSize = 112;
+        int pageTokenType = QueryStatsProto.PageTokenType.Code.EMPTY_VALUE;
+        int numResultStatesEvicted = 113;
+
+        QueryStatsProto nativeQueryStats = QueryStatsProto.newBuilder()
+                .setIsFirstPage(nativeIsFirstPage)
+                .setRequestedPageSize(nativeRequestedPageSize)
+                .setNumResultsReturnedCurrentPage(nativeNumResultsReturnedCurrentPage)
+                .setLatencyMs(nativeLatencyMillis)
                 .setRankingLatencyMs(nativeRankingLatencyMillis)
-                .setNumResultsWithSnippets(nativeNumResultsWithSnippets)
                 .setDocumentRetrievalLatencyMs(nativeDocumentRetrievingLatencyMillis)
+                .setNumResultsWithSnippets(nativeNumResultsWithSnippets)
                 .setLockAcquisitionLatencyMs(nativeLockAcquisitionLatencyMillis)
                 .setJavaToNativeJniLatencyMs(javaToNativeJniLatencyMillis)
                 .setNativeToJavaJniLatencyMs(nativeToJavaJniLatencyMillis)
+                .setJoinLatencyMs(nativeJoinLatencyMillis)
+                .setNumJoinedResultsReturnedCurrentPage(nativeNumJoinedResultsCurrentPage)
+                .setParentSearchStats(searchStats)
+                .setChildSearchStats(searchStats)
+                .setLiteIndexHitBufferByteSize(liteIndexHitBufferByteSize)
+                .setLiteIndexHitBufferUnsortedByteSize(liteIndexHitBufferUnsortedByteSize)
+                .setPageTokenType(QueryStatsProto.PageTokenType.Code.forNumber(pageTokenType))
+                .setNumResultStatesEvicted(numResultStatesEvicted)
                 .build();
-        SearchStats.Builder qBuilder = new SearchStats.Builder(SearchStats.VISIBILITY_SCOPE_LOCAL,
+        QueryStats.Builder qBuilder = new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL,
                 PACKAGE_NAME).setDatabase(DATABASE);
 
         AppSearchLoggerHelper.copyNativeStats(nativeQueryStats, qBuilder);
 
-        SearchStats sStats = qBuilder.build();
-        assertThat(sStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
-        assertThat(sStats.getTermCount()).isEqualTo(nativeNumTerms);
-        assertThat(sStats.getQueryLength()).isEqualTo(nativeQueryLength);
-        assertThat(sStats.getFilteredNamespaceCount()).isEqualTo(nativeNumNamespacesFiltered);
-        assertThat(sStats.getFilteredSchemaTypeCount()).isEqualTo(
-                nativeNumSchemaTypesFiltered);
+        QueryStats sStats = qBuilder.build();
+        assertThat(sStats.isFirstPage()).isTrue();
         assertThat(sStats.getRequestedPageSize()).isEqualTo(nativeRequestedPageSize);
         assertThat(sStats.getCurrentPageReturnedResultCount()).isEqualTo(
                 nativeNumResultsReturnedCurrentPage);
-        assertThat(sStats.isFirstPage()).isTrue();
-        assertThat(sStats.getParseQueryLatencyMillis()).isEqualTo(
-                nativeParseQueryLatencyMillis);
-        assertThat(sStats.getRankingStrategy()).isEqualTo(nativeRankingStrategy);
-        assertThat(sStats.getScoredDocumentCount()).isEqualTo(nativeNumDocumentsScored);
-        assertThat(sStats.getScoringLatencyMillis()).isEqualTo(nativeScoringLatencyMillis);
+        assertThat(sStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
         assertThat(sStats.getRankingLatencyMillis()).isEqualTo(nativeRankingLatencyMillis);
-        assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(nativeNumResultsWithSnippets);
         assertThat(sStats.getDocumentRetrievingLatencyMillis()).isEqualTo(
                 nativeDocumentRetrievingLatencyMillis);
+        assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(nativeNumResultsWithSnippets);
         assertThat(sStats.getNativeLockAcquisitionLatencyMillis()).isEqualTo(
                 nativeLockAcquisitionLatencyMillis);
         assertThat(sStats.getJavaToNativeJniLatencyMillis()).isEqualTo(
                 javaToNativeJniLatencyMillis);
-        assertThat(sStats.getNativeToJavaJniLatencyMillis()).isEqualTo(
-                nativeToJavaJniLatencyMillis);
+        assertThat(sStats.getJoinLatencyMillis()).isEqualTo(nativeJoinLatencyMillis);
+        assertThat(sStats.getNumJoinedResultsCurrentPage())
+                .isEqualTo(nativeNumJoinedResultsCurrentPage);
+        assertThat(sStats.getLiteIndexHitBufferByteSize()).isEqualTo(liteIndexHitBufferByteSize);
+        assertThat(sStats.getLiteIndexHitBufferUnsortedByteSize())
+                .isEqualTo(liteIndexHitBufferUnsortedByteSize);
+        assertThat(sStats.getPageTokenType()).isEqualTo(pageTokenType);
+        assertThat(sStats.getNumResultStatesEvicted()).isEqualTo(numResultStatesEvicted);
+
+        SearchStats parentSearchStats = sStats.getParentSearchStats();
+
+        assertThat(parentSearchStats.getNativeQueryLength()).isEqualTo(nativeQueryLength);
+        assertThat(parentSearchStats.getNativeTermCount()).isEqualTo(nativeNumTerms);
+        assertThat(parentSearchStats.getNativeFilteredNamespaceCount())
+                .isEqualTo(nativeNumNamespacesFiltered);
+        assertThat(parentSearchStats.getNativeFilteredSchemaTypeCount()).isEqualTo(
+                nativeNumSchemaTypesFiltered);
+        assertThat(parentSearchStats.getNativeRankingStrategy()).isEqualTo(nativeRankingStrategy);
+        assertThat(parentSearchStats.getNativeScoredDocumentCount())
+                .isEqualTo(nativeNumDocumentsScored);
+        assertThat(parentSearchStats.getNativeParseQueryLatencyMillis()).isEqualTo(
+                nativeParseQueryLatencyMillis);
+        assertThat(parentSearchStats.getNativeScoringLatencyMillis())
+                .isEqualTo(nativeScoringLatencyMillis);
+        assertThat(parentSearchStats.isNativeNumericQuery()).isEqualTo(isNumericQuery);
+        assertThat(parentSearchStats.getNativeNumFetchedHitsLiteIndex())
+                .isEqualTo(numFetchedHitsLiteIndex);
+        assertThat(parentSearchStats.getNativeNumFetchedHitsMainIndex())
+                .isEqualTo(numFetchedHitsMainIndex);
+        assertThat(parentSearchStats.getNativeNumFetchedHitsIntegerIndex())
+                .isEqualTo(numFetchedHitsIntegerIndex);
+        assertThat(parentSearchStats.getNativeQueryProcessorLexerExtractTokenLatencyMillis())
+                .isEqualTo(queryProcessorLexerExtractTokenLatencyMillis);
+        assertThat(parentSearchStats.getNativeQueryProcessorParserConsumeQueryLatencyMillis())
+                .isEqualTo(queryProcessorParserConsumeQueryLatencyMillis);
+        assertThat(parentSearchStats.getNativeQueryProcessorQueryVisitorLatencyMillis())
+                .isEqualTo(queryProcessorQueryVisitorLatencyMillis);
+
+        SearchStats childSearchStats = sStats.getParentSearchStats();
+
+        assertThat(childSearchStats.getNativeQueryLength()).isEqualTo(nativeQueryLength);
+        assertThat(childSearchStats.getNativeTermCount()).isEqualTo(nativeNumTerms);
+        assertThat(childSearchStats.getNativeFilteredNamespaceCount())
+                .isEqualTo(nativeNumNamespacesFiltered);
+        assertThat(childSearchStats.getNativeFilteredSchemaTypeCount()).isEqualTo(
+                nativeNumSchemaTypesFiltered);
+        assertThat(childSearchStats.getNativeRankingStrategy()).isEqualTo(nativeRankingStrategy);
+        assertThat(childSearchStats.getNativeScoredDocumentCount())
+                .isEqualTo(nativeNumDocumentsScored);
+        assertThat(childSearchStats.getNativeParseQueryLatencyMillis()).isEqualTo(
+                nativeParseQueryLatencyMillis);
+        assertThat(childSearchStats.getNativeScoringLatencyMillis())
+                .isEqualTo(nativeScoringLatencyMillis);
+        assertThat(childSearchStats.isNativeNumericQuery()).isEqualTo(isNumericQuery);
+        assertThat(childSearchStats.getNativeNumFetchedHitsLiteIndex())
+                .isEqualTo(numFetchedHitsLiteIndex);
+        assertThat(childSearchStats.getNativeNumFetchedHitsMainIndex())
+                .isEqualTo(numFetchedHitsMainIndex);
+        assertThat(childSearchStats.getNativeNumFetchedHitsIntegerIndex())
+                .isEqualTo(numFetchedHitsIntegerIndex);
+        assertThat(childSearchStats.getNativeQueryProcessorLexerExtractTokenLatencyMillis())
+                .isEqualTo(queryProcessorLexerExtractTokenLatencyMillis);
+        assertThat(childSearchStats.getNativeQueryProcessorParserConsumeQueryLatencyMillis())
+                .isEqualTo(queryProcessorParserConsumeQueryLatencyMillis);
+        assertThat(childSearchStats.getNativeQueryProcessorQueryVisitorLatencyMillis())
+                .isEqualTo(queryProcessorQueryVisitorLatencyMillis);
     }
 
     @Test
@@ -284,6 +419,12 @@ public class AppSearchLoggerTest {
         final int nativeLatencyMillis = 1;
         final int nativeDeleteType = 2;
         final int nativeNumDocumentDeleted = 3;
+        final int queryLength = 4;
+        final int numTerms = 5;
+        final int numNamespacesFiltered = 6;
+        final int numSchemaTypesFiltered = 7;
+        final int parseQueryLatencyMillis = 8;
+        final int documentRemovalLatencyMillis = 9;
         DeleteStatsProto nativeDeleteStatsProto = DeleteStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setDeleteType(DeleteStatsProto.DeleteType.Code.forNumber(nativeDeleteType))
@@ -291,7 +432,13 @@ public class AppSearchLoggerTest {
                 .build();
         RemoveStats.Builder rBuilder = new RemoveStats.Builder(
                 "packageName",
-                "database");
+                "database")
+                .setQueryLength(queryLength)
+                .setNumTerms(numTerms)
+                .setNumNamespacesFiltered(numNamespacesFiltered)
+                .setNumSchemaTypesFiltered(numSchemaTypesFiltered)
+                .setParseQueryLatencyMillis(parseQueryLatencyMillis)
+                .setDocumentRemovalLatencyMillis(documentRemovalLatencyMillis);
 
         AppSearchLoggerHelper.copyNativeStats(nativeDeleteStatsProto, rBuilder);
 
@@ -299,6 +446,13 @@ public class AppSearchLoggerTest {
         assertThat(rStats.getNativeLatencyMillis()).isEqualTo(nativeLatencyMillis);
         assertThat(rStats.getDeleteType()).isEqualTo(nativeDeleteType);
         assertThat(rStats.getDeletedDocumentCount()).isEqualTo(nativeNumDocumentDeleted);
+        assertThat(rStats.getQueryLength()).isEqualTo(queryLength);
+        assertThat(rStats.getNumTerms()).isEqualTo(numTerms);
+        assertThat(rStats.getNumNamespacesFiltered()).isEqualTo(numNamespacesFiltered);
+        assertThat(rStats.getNumSchemaTypesFiltered()).isEqualTo(numSchemaTypesFiltered);
+        assertThat(rStats.getParseQueryLatencyMillis()).isEqualTo(parseQueryLatencyMillis);
+        assertThat(rStats.getDocumentRemovalLatencyMillis())
+                .isEqualTo(documentRemovalLatencyMillis);
     }
 
     @Test
@@ -312,6 +466,9 @@ public class AppSearchLoggerTest {
         long nativeStorageSizeBeforeBytes = Integer.MAX_VALUE + 1;
         long nativeStorageSizeAfterBytes = Integer.MAX_VALUE + 2;
         long nativeTimeSinceLastOptimizeMillis = Integer.MAX_VALUE + 3;
+        int indexRestorationMode = OptimizeStats.FULL_INDEX_REBUILD;
+        int numOriginalNamespaces = 7;
+        int numDeletedNamespaces = 8;
         OptimizeStatsProto optimizeStatsProto = OptimizeStatsProto.newBuilder()
                 .setLatencyMs(nativeLatencyMillis)
                 .setDocumentStoreOptimizeLatencyMs(nativeDocumentStoreOptimizeLatencyMillis)
@@ -322,6 +479,10 @@ public class AppSearchLoggerTest {
                 .setStorageSizeBefore(nativeStorageSizeBeforeBytes)
                 .setStorageSizeAfter(nativeStorageSizeAfterBytes)
                 .setTimeSinceLastOptimizeMs(nativeTimeSinceLastOptimizeMillis)
+                .setIndexRestorationMode(
+                        OptimizeStatsProto.IndexRestorationMode.forNumber(indexRestorationMode))
+                .setNumOriginalNamespaces(numOriginalNamespaces)
+                .setNumDeletedNamespaces(numDeletedNamespaces)
                 .build();
         OptimizeStats.Builder oBuilder = new OptimizeStats.Builder();
 
@@ -340,6 +501,9 @@ public class AppSearchLoggerTest {
         assertThat(oStats.getStorageSizeAfterBytes()).isEqualTo(nativeStorageSizeAfterBytes);
         assertThat(oStats.getTimeSinceLastOptimizeMillis()).isEqualTo(
                 nativeTimeSinceLastOptimizeMillis);
+        assertThat(oStats.getIndexRestorationMode()).isEqualTo(indexRestorationMode);
+        assertThat(oStats.getNumOriginalNamespaces()).isEqualTo(numOriginalNamespaces);
+        assertThat(oStats.getNumDeletedNamespaces()).isEqualTo(numDeletedNamespaces);
     }
 
     @Test
@@ -383,6 +547,7 @@ public class AppSearchLoggerTest {
                 initStatsBuilder,
                 /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
         appSearchImpl.close();
@@ -394,16 +559,29 @@ public class AppSearchLoggerTest {
         // Total latency captured in LocalStorage
         assertThat(iStats.getTotalLatencyMillis()).isEqualTo(0);
         assertThat(iStats.hasDeSync()).isFalse();
-        assertThat(iStats.getDocumentStoreDataStatus()).isEqualTo(
-                InitializeStatsProto.DocumentStoreDataStatus.NO_DATA_LOSS_VALUE);
-        assertThat(iStats.getDocumentCount()).isEqualTo(0);
-        assertThat(iStats.getSchemaTypeCount()).isEqualTo(0);
+        assertThat(iStats.getNativeDocumentStoreDataStatus()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeDocumentCount()).isEqualTo(0);
+        assertThat(iStats.getNativeSchemaTypeCount()).isEqualTo(0);
         assertThat(iStats.hasReset()).isEqualTo(false);
         assertThat(iStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(iStats.getNativeNumPreviousInitFailures()).isEqualTo(0);
+        assertThat(iStats.getNativeIntegerIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeQualifiedIdJoinIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeEmbeddingIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeInitializeIcuDataStatusCode())
+                .isEqualTo(AppSearchResult.RESULT_INVALID_ARGUMENT);
+        assertThat(iStats.getNativeNumFailedReindexedDocuments()).isEqualTo(0);
     }
 
     @Test
     @RequiresFlagsDisabled(Flags.FLAG_ENABLE_BLOB_STORE)
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_initializeWithDocuments_success() throws Exception {
         final String testPackageName = "testPackage";
         final String testDatabase = "testDatabase";
@@ -415,6 +593,7 @@ public class AppSearchLoggerTest {
                 /*initStatsBuilder=*/ null,
                 /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
         List<AppSearchSchema> schemas = ImmutableList.of(
                 new AppSearchSchema.Builder("Type1").build(),
@@ -451,6 +630,7 @@ public class AppSearchLoggerTest {
         appSearchImpl = AppSearchImpl.create(folder, mConfig,
                 initStatsBuilder, /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
@@ -461,18 +641,31 @@ public class AppSearchLoggerTest {
         // Total latency captured in LocalStorage
         assertThat(iStats.getTotalLatencyMillis()).isEqualTo(0);
         assertThat(iStats.hasDeSync()).isFalse();
-        assertThat(iStats.getDocumentStoreDataStatus()).isEqualTo(
-                InitializeStatsProto.DocumentStoreDataStatus.NO_DATA_LOSS_VALUE);
-        assertThat(iStats.getDocumentCount()).isEqualTo(2);
+        assertThat(iStats.getNativeDocumentStoreDataStatus()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeDocumentCount()).isEqualTo(2);
         // Type1 + Type2 +2 for VisibilitySchema, +1 for VisibilityOverlay
-        assertThat(iStats.getSchemaTypeCount()).isEqualTo(5);
+        assertThat(iStats.getNativeSchemaTypeCount()).isEqualTo(5);
         assertThat(iStats.hasReset()).isEqualTo(false);
         assertThat(iStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
+        assertThat(iStats.getNativeNumPreviousInitFailures()).isEqualTo(0);
+        assertThat(iStats.getNativeIntegerIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeQualifiedIdJoinIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeEmbeddingIndexRestorationCause()).isEqualTo(
+                InitializeStats.RECOVERY_CAUSE_NONE);
+        assertThat(iStats.getNativeInitializeIcuDataStatusCode())
+                .isEqualTo(AppSearchResult.RESULT_INVALID_ARGUMENT);
+        assertThat(iStats.getNativeNumFailedReindexedDocuments()).isEqualTo(0);
         appSearchImpl.close();
     }
 
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_BLOB_STORE)
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_enableBlobStore_initializeWithDocuments_success()
             throws Exception {
         final String testPackageName = "testPackage";
@@ -485,6 +678,7 @@ public class AppSearchLoggerTest {
                 /*initStatsBuilder=*/ null,
                 /*visibilityChecker=*/ null,
                 new JetpackRevocableFileDescriptorStore(mConfig),
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas = ImmutableList.of(
@@ -522,6 +716,7 @@ public class AppSearchLoggerTest {
         appSearchImpl = AppSearchImpl.create(folder, mConfig,
                 initStatsBuilder, /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
@@ -532,18 +727,19 @@ public class AppSearchLoggerTest {
         // Total latency captured in LocalStorage
         assertThat(iStats.getTotalLatencyMillis()).isEqualTo(0);
         assertThat(iStats.hasDeSync()).isFalse();
-        assertThat(iStats.getDocumentStoreDataStatus()).isEqualTo(
+        assertThat(iStats.getNativeDocumentStoreDataStatus()).isEqualTo(
                 InitializeStatsProto.DocumentStoreDataStatus.NO_DATA_LOSS_VALUE);
-        assertThat(iStats.getDocumentCount()).isEqualTo(2);
+        assertThat(iStats.getNativeDocumentCount()).isEqualTo(2);
         // Type1 + Type2 + 2(document and blob visibility db)
         // * (2 for VisibilitySchema +1 for VisibilityOverlay)
-        assertThat(iStats.getSchemaTypeCount()).isEqualTo(8);
+        assertThat(iStats.getNativeSchemaTypeCount()).isEqualTo(8);
         assertThat(iStats.hasReset()).isEqualTo(false);
         assertThat(iStats.getResetStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
         appSearchImpl.close();
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_initialize_failure() throws Exception {
         final String testPackageName = "testPackage";
         final String testDatabase = "testDatabase";
@@ -552,6 +748,7 @@ public class AppSearchLoggerTest {
         AppSearchImpl appSearchImpl = AppSearchImpl.create(folder, mConfig,
                 /*initStatsBuilder=*/ null, /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
 
         List<AppSearchSchema> schemas = ImmutableList.of(
@@ -592,6 +789,7 @@ public class AppSearchLoggerTest {
         appSearchImpl = AppSearchImpl.create(folder, mConfig,
                 initStatsBuilder, /*visibilityChecker=*/ null,
                 /*revocableFileDescriptorStore=*/ null,
+                /*icingSearchEngine=*/ null,
                 ALWAYS_OPTIMIZE);
         InitializeStats iStats = initStatsBuilder.build();
 
@@ -603,6 +801,7 @@ public class AppSearchLoggerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_putDocument_success() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";
@@ -649,6 +848,7 @@ public class AppSearchLoggerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_putDocument_failure() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";
@@ -694,6 +894,7 @@ public class AppSearchLoggerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_search_success() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";
@@ -747,7 +948,6 @@ public class AppSearchLoggerTest {
                 /*sendChangeNotifications=*/ false,
                 mLogger);
 
-
         // No query filters specified. package2 should only get its own documents back.
         SearchSpec searchSpec =
                 new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE)
@@ -762,7 +962,7 @@ public class AppSearchLoggerTest {
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(document2);
         assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(document1);
 
-        SearchStats sStats = mLogger.mSearchStats;
+        QueryStats sStats = mLogger.mQueryStats;
 
         assertThat(sStats).isNotNull();
         // If the process goes really fast, the total latency could be 0. Since the default of total
@@ -770,17 +970,27 @@ public class AppSearchLoggerTest {
         assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
         assertThat(sStats.getDatabase()).isEqualTo(testDatabase);
         assertThat(sStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
-        assertThat(sStats.getVisibilityScope()).isEqualTo(SearchStats.VISIBILITY_SCOPE_LOCAL);
-        assertThat(sStats.getTermCount()).isEqualTo(2);
-        assertThat(sStats.getQueryLength()).isEqualTo(queryStr.length());
-        assertThat(sStats.getFilteredNamespaceCount()).isEqualTo(1);
-        assertThat(sStats.getFilteredSchemaTypeCount()).isEqualTo(1);
+        assertThat(sStats.getVisibilityScope()).isEqualTo(QueryStats.VISIBILITY_SCOPE_LOCAL);
         assertThat(sStats.getCurrentPageReturnedResultCount()).isEqualTo(2);
         assertThat(sStats.isFirstPage()).isTrue();
-        assertThat(sStats.getRankingStrategy()).isEqualTo(
-                SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP);
-        assertThat(sStats.getScoredDocumentCount()).isEqualTo(2);
         assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(0);
+        assertThat(sStats.getLiteIndexHitBufferByteSize()).isGreaterThan(0);
+        assertThat(sStats.getLiteIndexHitBufferUnsortedByteSize()).isGreaterThan(0);
+        assertThat(sStats.getPageTokenType()).isEqualTo(QueryStats.PAGE_TOKEN_TYPE_NONE);
+        assertThat(sStats.getNumResultStatesEvicted()).isEqualTo(0);
+
+        SearchStats parentSearchStats = sStats.getParentSearchStats();
+        assertThat(parentSearchStats.getNativeTermCount()).isEqualTo(2);
+        assertThat(parentSearchStats.getNativeQueryLength()).isEqualTo(queryStr.length());
+        assertThat(parentSearchStats.getNativeFilteredNamespaceCount()).isEqualTo(1);
+        assertThat(parentSearchStats.getNativeFilteredSchemaTypeCount()).isEqualTo(1);
+        assertThat(parentSearchStats.getNativeRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_CREATION_TIMESTAMP);
+        assertThat(parentSearchStats.getNativeScoredDocumentCount()).isEqualTo(2);
+        assertThat(parentSearchStats.isNativeNumericQuery()).isFalse();
+        assertThat(parentSearchStats.getNativeNumFetchedHitsLiteIndex()).isGreaterThan(0);
+        assertThat(parentSearchStats.getNativeNumFetchedHitsMainIndex()).isEqualTo(0);
+        assertThat(parentSearchStats.getNativeNumFetchedHitsIntegerIndex()).isEqualTo(0);
     }
 
     @Test
@@ -811,7 +1021,7 @@ public class AppSearchLoggerTest {
                 /* queryExpression= */ "",
                 searchSpec, /*logger=*/ mLogger);
 
-        SearchStats sStats = mLogger.mSearchStats;
+        QueryStats sStats = mLogger.mQueryStats;
         assertThat(sStats).isNotNull();
         assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
         assertThat(sStats.getDatabase()).isEqualTo(testPackageName);
@@ -819,6 +1029,7 @@ public class AppSearchLoggerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_search_join() throws Exception {
         AppSearchSchema actionSchema = new AppSearchSchema.Builder("ViewAction")
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("entityId")
@@ -946,23 +1157,16 @@ public class AppSearchLoggerTest {
         assertThat(searchResultPage.getResults().get(0).getGenericDocument()).isEqualTo(entity1);
         assertThat(searchResultPage.getResults().get(1).getGenericDocument()).isEqualTo(entity2);
 
-        SearchStats sStats = mLogger.mSearchStats;
+        QueryStats sStats = mLogger.mQueryStats;
 
         assertThat(sStats).isNotNull();
 
         assertThat(sStats.getPackageName()).isEqualTo(testPackageName);
         assertThat(sStats.getDatabase()).isEqualTo(testDatabase);
         assertThat(sStats.getStatusCode()).isEqualTo(AppSearchResult.RESULT_OK);
-        assertThat(sStats.getVisibilityScope()).isEqualTo(SearchStats.VISIBILITY_SCOPE_LOCAL);
-        assertThat(sStats.getTermCount()).isEqualTo(1);
-        assertThat(sStats.getQueryLength()).isEqualTo(queryStr.length());
-        assertThat(sStats.getFilteredNamespaceCount()).isEqualTo(1);
-        assertThat(sStats.getFilteredSchemaTypeCount()).isEqualTo(2);
+        assertThat(sStats.getVisibilityScope()).isEqualTo(QueryStats.VISIBILITY_SCOPE_LOCAL);
         assertThat(sStats.getCurrentPageReturnedResultCount()).isEqualTo(2);
         assertThat(sStats.isFirstPage()).isTrue();
-        assertThat(sStats.getRankingStrategy()).isEqualTo(
-                ScoringSpecProto.RankingStrategy.Code.JOIN_AGGREGATE_SCORE_VALUE);
-        assertThat(sStats.getScoredDocumentCount()).isEqualTo(2);
         assertThat(sStats.getResultWithSnippetsCount()).isEqualTo(0);
         // Join-specific stats. If the process goes really fast, the total latency could be 0.
         // Since the default of total latency is also 0, we just remove the assertion on
@@ -970,9 +1174,34 @@ public class AppSearchLoggerTest {
         assertThat(sStats.getJoinType()).isEqualTo(
                 AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
         assertThat(sStats.getNumJoinedResultsCurrentPage()).isEqualTo(4);
+        assertThat(sStats.getPageTokenType()).isEqualTo(QueryStats.PAGE_TOKEN_TYPE_NONE);
+        assertThat(sStats.getNumResultStatesEvicted()).isEqualTo(0);
+
+        SearchStats parentSearchStats = sStats.getParentSearchStats();
+        assertThat(parentSearchStats.getNativeTermCount()).isEqualTo(1);
+        assertThat(parentSearchStats.getNativeQueryLength()).isEqualTo(queryStr.length());
+        assertThat(parentSearchStats.getNativeFilteredNamespaceCount()).isEqualTo(1);
+        assertThat(parentSearchStats.getNativeFilteredSchemaTypeCount()).isEqualTo(2);
+        assertThat(parentSearchStats.getNativeRankingStrategy()).isEqualTo(
+                ScoringSpecProto.RankingStrategy.Code.JOIN_AGGREGATE_SCORE_VALUE);
+        assertThat(parentSearchStats.getNativeScoredDocumentCount()).isEqualTo(2);
+
+        SearchStats ChildSearchStats = sStats.getChildSearchStats();
+        assertThat(ChildSearchStats.getNativeTermCount()).isEqualTo(0);
+        assertThat(ChildSearchStats.getNativeQueryLength()).isEqualTo(0);
+        assertThat(ChildSearchStats.getNativeFilteredNamespaceCount()).isEqualTo(1);
+        assertThat(ChildSearchStats.getNativeFilteredSchemaTypeCount()).isEqualTo(2);
+        assertThat(ChildSearchStats.getNativeRankingStrategy()).isEqualTo(
+                SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
+        assertThat(ChildSearchStats.getNativeScoredDocumentCount()).isEqualTo(6);
+        assertThat(ChildSearchStats.isNativeNumericQuery()).isFalse();
+        assertThat(ChildSearchStats.getNativeNumFetchedHitsLiteIndex()).isEqualTo(0);
+        assertThat(ChildSearchStats.getNativeNumFetchedHitsMainIndex()).isEqualTo(0);
+        assertThat(ChildSearchStats.getNativeNumFetchedHitsIntegerIndex()).isEqualTo(0);
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_remove_success() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";
@@ -1012,6 +1241,7 @@ public class AppSearchLoggerTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // AppSearchImpl.putDocument
     public void testLoggingStats_remove_failure() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";
@@ -1056,14 +1286,21 @@ public class AppSearchLoggerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // DEPRECATED_QUERY_VALUE
+    @SuppressWarnings("deprecation") // DEPRECATED_QUERY_VALUE, AppSearchImpl.putDocument
     public void testLoggingStats_removeByQuery_success() throws Exception {
         // Insert schema
         final String testPackageName = "testPackage";
         final String testDatabase = "testDatabase";
         final String testNamespace = "testNameSpace";
-        List<AppSearchSchema> schemas =
-                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(
+                                new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                        .setCardinality(PropertyConfig.CARDINALITY_REQUIRED)
+                                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                        .setIndexingType(
+                                                StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                        .build()).build());
         InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
                 testPackageName,
                 testDatabase,
@@ -1074,9 +1311,11 @@ public class AppSearchLoggerTest {
                 /* setSchemaStatsBuilder= */ null);
         assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         GenericDocument document1 =
-                new GenericDocument.Builder<>(testNamespace, "id1", "type").build();
+                new GenericDocument.Builder<>(testNamespace, "id1", "type")
+                        .setPropertyString("body", "body1").build();
         GenericDocument document2 =
-                new GenericDocument.Builder<>(testNamespace, "id2", "type").build();
+                new GenericDocument.Builder<>(testNamespace, "id2", "type")
+                        .setPropertyString("body", "body2").build();
         mAppSearchImpl.putDocument(
                 testPackageName,
                 testDatabase,
@@ -1095,7 +1334,7 @@ public class AppSearchLoggerTest {
 
         RemoveStats.Builder rStatsBuilder = new RemoveStats.Builder(testPackageName, testDatabase);
         mAppSearchImpl.removeByQuery(testPackageName, testDatabase,
-                /*queryExpression=*/"", searchSpec,
+                /*queryExpression=*/"body", searchSpec,
                 rStatsBuilder);
         RemoveStats rStats = rStatsBuilder.build();
 
@@ -1106,6 +1345,10 @@ public class AppSearchLoggerTest {
         assertThat(rStats.getDeleteType())
                 .isEqualTo(DeleteStatsProto.DeleteType.Code.DEPRECATED_QUERY_VALUE);
         assertThat(rStats.getDeletedDocumentCount()).isEqualTo(2);
+        assertThat(rStats.getQueryLength()).isEqualTo(4);
+        assertThat(rStats.getNumTerms()).isEqualTo(1);
+        assertThat(rStats.getNumSchemaTypesFiltered()).isEqualTo(1);
+        assertThat(rStats.getNumNamespacesFiltered()).isEqualTo(1);
     }
 
     @Test

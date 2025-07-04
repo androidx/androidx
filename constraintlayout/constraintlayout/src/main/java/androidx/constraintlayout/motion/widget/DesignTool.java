@@ -184,6 +184,7 @@ public class DesignTool {
      *
      * @param view view to getMap the animation of
      * @param path array to be filled (x1,y1,x2,y2...)
+     * @param len  the desired number of point along animation
      * @return -1 if not under and animation 0 if not animated or number of point along animation
      */
     public int getAnimationPath(Object view, float[] path, int len) {
@@ -446,7 +447,8 @@ public class DesignTool {
      * The call is designed to be efficient because it will be called 30x Number of views a second
      *
      * @param view the view to return keyframe positions
-     * @param info
+     * @param type if type is -1, skip all keyframes with type != -1
+     * @param info array to fill with info on each keyframe
      * @return Number of keyFrames found
      */
     public int getKeyFrameInfo(Object view, int type, int[] info) {

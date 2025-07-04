@@ -1106,15 +1106,18 @@ public final class ContentRecommendation
             PendingIntent contentPending;
             if (mContentIntentData.mType == INTENT_TYPE_ACTIVITY) {
                 contentPending = PendingIntent.getActivity(context, mContentIntentData.mRequestCode,
-                        mContentIntentData.mIntent, PendingIntent.FLAG_UPDATE_CURRENT,
+                        mContentIntentData.mIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE,
                         mContentIntentData.mOptions);
             } else if (mContentIntentData.mType == INTENT_TYPE_SERVICE) {
                 contentPending = PendingIntent.getService(context, mContentIntentData.mRequestCode,
-                        mContentIntentData.mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mContentIntentData.mIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
             } else { // Default:INTENT_TYPE_BROADCAST{
                 contentPending = PendingIntent.getBroadcast(context,
                         mContentIntentData.mRequestCode,
-                        mContentIntentData.mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mContentIntentData.mIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
             }
             builder.setContentIntent(contentPending);
         }
@@ -1123,15 +1126,18 @@ public final class ContentRecommendation
             PendingIntent dismissPending;
             if (mDismissIntentData.mType == INTENT_TYPE_ACTIVITY) {
                 dismissPending = PendingIntent.getActivity(context, mDismissIntentData.mRequestCode,
-                        mDismissIntentData.mIntent, PendingIntent.FLAG_UPDATE_CURRENT,
+                        mDismissIntentData.mIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE,
                         mDismissIntentData.mOptions);
             } else if (mDismissIntentData.mType == INTENT_TYPE_SERVICE) {
                 dismissPending = PendingIntent.getService(context, mDismissIntentData.mRequestCode,
-                        mDismissIntentData.mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mDismissIntentData.mIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
             } else { // Default:INTENT_TYPE_BROADCAST{
                 dismissPending = PendingIntent.getBroadcast(context,
                         mDismissIntentData.mRequestCode,
-                        mDismissIntentData.mIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                        mDismissIntentData.mIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
             }
             builder.setDeleteIntent(dismissPending);
         }

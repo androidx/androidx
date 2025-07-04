@@ -44,7 +44,7 @@ class ActivityEmbeddingRule : TestRule {
         @Suppress("InvalidNullabilityOverride") // JUnit missing annotations
         base: Statement,
         @Suppress("InvalidNullabilityOverride") // JUnit missing annotations
-        description: Description
+        description: Description,
     ): Statement {
         return object : Statement() {
             override fun evaluate() {

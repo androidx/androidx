@@ -69,7 +69,7 @@ class NavGraphNavigatorTest {
 
     private fun createGraphWithDestination(
         destination: NavDestination,
-        startId: Int = destination.id
+        startId: Int = destination.id,
     ) =
         navGraphNavigator.createDestination().apply {
             addDestination(destination)

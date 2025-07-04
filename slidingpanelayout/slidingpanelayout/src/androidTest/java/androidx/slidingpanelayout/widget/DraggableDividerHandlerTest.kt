@@ -205,11 +205,8 @@ private class ExpectCounter {
 }
 
 /** Create a test [MotionEvent]; this will have bogus time values, no history */
-private fun motionEvent(
-    action: Int,
-    x: Float,
-    y: Float,
-) = MotionEvent.obtain(0L, 0L, action, x, y, 0)
+private fun motionEvent(action: Int, x: Float, y: Float) =
+    MotionEvent.obtain(0L, 0L, action, x, y, 0)
 
 private fun downEvent(x: Float, y: Float) = motionEvent(MotionEvent.ACTION_DOWN, x, y)
 

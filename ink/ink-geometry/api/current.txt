@@ -15,7 +15,27 @@ package androidx.ink.geometry {
   }
 
   public static final class AffineTransform.Companion {
-    property public final androidx.ink.geometry.ImmutableAffineTransform IDENTITY;
+    property public androidx.ink.geometry.ImmutableAffineTransform IDENTITY;
+  }
+
+  public final class AndroidGraphicsConverter {
+    method public static androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.BoxAccumulator, android.graphics.RectF rect);
+    method public static androidx.ink.geometry.ImmutableAffineTransform? createAffineTransform(android.graphics.Matrix matrix);
+    method public static androidx.ink.geometry.ImmutableBox? createBox(android.graphics.RectF rect);
+    method public static androidx.ink.geometry.ImmutableVec createVec(android.graphics.PointF point);
+    method public static androidx.ink.geometry.ImmutableAffineTransform? from(androidx.ink.geometry.ImmutableAffineTransform.Companion, android.graphics.Matrix matrix);
+    method public static androidx.ink.geometry.ImmutableBox? from(androidx.ink.geometry.ImmutableBox.Companion, android.graphics.RectF rect);
+    method public static androidx.ink.geometry.ImmutableVec from(androidx.ink.geometry.ImmutableVec.Companion, android.graphics.PointF point);
+    method public static android.graphics.Path outlinesToPath(androidx.ink.geometry.PartitionedMesh, @IntRange(from=0L) int renderGroupIndex);
+    method public static androidx.ink.geometry.MutableAffineTransform populateFrom(androidx.ink.geometry.MutableAffineTransform, android.graphics.Matrix matrix);
+    method public static androidx.ink.geometry.MutableVec populateFrom(androidx.ink.geometry.MutableVec, android.graphics.PointF point);
+    method public static void populateMatrix(androidx.ink.geometry.AffineTransform, android.graphics.Matrix out);
+    method public static android.graphics.Path populateOutlines(androidx.ink.geometry.PartitionedMesh, @IntRange(from=0L) int renderGroupIndex, android.graphics.Path out);
+    method public static android.graphics.PointF populatePointF(androidx.ink.geometry.Vec, android.graphics.PointF out);
+    method public static android.graphics.RectF populateRectF(androidx.ink.geometry.Box, android.graphics.RectF out);
+    method public static android.graphics.Matrix toMatrix(androidx.ink.geometry.AffineTransform);
+    method public static android.graphics.PointF toPointF(androidx.ink.geometry.Vec);
+    method public static android.graphics.RectF toRectF(androidx.ink.geometry.Box);
   }
 
   public final class Angle {
@@ -23,10 +43,10 @@ package androidx.ink.geometry {
     method @FloatRange(from=0.0, to=androidx.ink.geometry.Angle.FULL_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalized(@androidx.ink.geometry.AngleRadiansFloat float radians);
     method @FloatRange(from=-3.141592653589793, to=androidx.ink.geometry.Angle.HALF_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalizedAboutZero(@androidx.ink.geometry.AngleRadiansFloat float radians);
     method @androidx.ink.geometry.AngleDegreesFloat public static float radiansToDegrees(@androidx.ink.geometry.AngleRadiansFloat float radians);
-    property @androidx.ink.geometry.AngleRadiansFloat public final float FULL_TURN_RADIANS;
-    property @androidx.ink.geometry.AngleRadiansFloat public final float HALF_TURN_RADIANS;
-    property @androidx.ink.geometry.AngleRadiansFloat public final float QUARTER_TURN_RADIANS;
-    property @androidx.ink.geometry.AngleRadiansFloat public final float ZERO;
+    property @androidx.ink.geometry.AngleRadiansFloat public float FULL_TURN_RADIANS;
+    property @androidx.ink.geometry.AngleRadiansFloat public float HALF_TURN_RADIANS;
+    property @androidx.ink.geometry.AngleRadiansFloat public float QUARTER_TURN_RADIANS;
+    property @androidx.ink.geometry.AngleRadiansFloat public float ZERO;
     field @androidx.ink.geometry.AngleRadiansFloat public static final float FULL_TURN_RADIANS;
     field @androidx.ink.geometry.AngleRadiansFloat public static final float HALF_TURN_RADIANS;
     field public static final androidx.ink.geometry.Angle INSTANCE;
@@ -58,10 +78,6 @@ package androidx.ink.geometry {
     property public abstract float xMin;
     property public abstract float yMax;
     property public abstract float yMin;
-    field public static final androidx.ink.geometry.Box.Companion Companion;
-  }
-
-  public static final class Box.Companion {
   }
 
   public final class BoxAccumulator {
@@ -77,9 +93,9 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.Box? getBox();
     method public boolean isAlmostEqual(androidx.ink.geometry.BoxAccumulator other, @FloatRange(from=0.0) float tolerance);
     method public boolean isEmpty();
-    method public androidx.ink.geometry.BoxAccumulator populateFrom(androidx.ink.geometry.BoxAccumulator input);
+    method public androidx.ink.geometry.BoxAccumulator populateFrom(androidx.ink.geometry.Box? input);
     method public androidx.ink.geometry.BoxAccumulator reset();
-    property public final androidx.ink.geometry.Box? box;
+    property public androidx.ink.geometry.Box? box;
   }
 
   public final class ImmutableAffineTransform extends androidx.ink.geometry.AffineTransform {
@@ -182,30 +198,35 @@ package androidx.ink.geometry {
     method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Segment segment);
     method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Triangle triangle);
     method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Box, float x, float y);
     method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Box box);
     method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Parallelogram other);
     method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.PartitionedMesh mesh, androidx.ink.geometry.AffineTransform meshToParallelogram);
     method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Segment segment);
     method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Triangle triangle);
     method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Parallelogram, float x, float y);
     method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.Box box, androidx.ink.geometry.AffineTransform meshToBox);
     method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.Parallelogram parallelogram, androidx.ink.geometry.AffineTransform meshToParallelogram);
-    method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.PartitionedMesh other, androidx.ink.geometry.AffineTransform thisToCommonTransForm, androidx.ink.geometry.AffineTransform otherToCommonTransform);
+    method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.PartitionedMesh other, androidx.ink.geometry.AffineTransform thisToCommonTransform, androidx.ink.geometry.AffineTransform otherToCommonTransform);
     method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.Segment segment, androidx.ink.geometry.AffineTransform meshToSegment);
     method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.Triangle triangle, androidx.ink.geometry.AffineTransform meshToTriangle);
     method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, androidx.ink.geometry.Vec point, androidx.ink.geometry.AffineTransform meshToPoint);
+    method public static boolean intersects(androidx.ink.geometry.PartitionedMesh, float x, float y, androidx.ink.geometry.AffineTransform meshToPoint);
     method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Box box);
     method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Parallelogram parallelogram);
     method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.PartitionedMesh mesh, androidx.ink.geometry.AffineTransform meshToSegment);
     method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Segment other);
     method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Triangle triangle);
     method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Segment, float x, float y);
     method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Box box);
     method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Parallelogram parallelogram);
     method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.PartitionedMesh mesh, androidx.ink.geometry.AffineTransform meshToTriangle);
     method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Segment segment);
     method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Triangle other);
     method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Triangle, float x, float y);
     method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Box box);
     method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Parallelogram parallelogram);
     method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.PartitionedMesh mesh, androidx.ink.geometry.AffineTransform meshToPoint);
@@ -443,7 +464,7 @@ package androidx.ink.geometry {
     method public void multiply(float lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
     method @FloatRange(from=-3.141592653589793, to=java.lang.Math.PI, fromInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public float signedAngleBetween(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
     method public void subtract(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
-    property public final androidx.ink.geometry.ImmutableVec ORIGIN;
+    property public androidx.ink.geometry.ImmutableVec ORIGIN;
   }
 
 }

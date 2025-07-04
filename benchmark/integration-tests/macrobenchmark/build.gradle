@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -55,7 +55,7 @@ androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'r
 dependencies {
     implementation(project(":benchmark:benchmark-common"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(project(":tracing:tracing-ktx"))
     implementation(libs.kotlinTest)
     implementation(libs.testRules)

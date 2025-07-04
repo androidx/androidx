@@ -124,7 +124,7 @@ internal class TextAndroidCanvas : Canvas() {
         right: Float,
         bottom: Float,
         paint: Paint?,
-        saveFlags: Int
+        saveFlags: Int,
     ): Int {
         return nativeCanvas.saveLayer(left, top, right, bottom, paint, saveFlags)
     }
@@ -134,7 +134,7 @@ internal class TextAndroidCanvas : Canvas() {
         top: Float,
         right: Float,
         bottom: Float,
-        paint: Paint?
+        paint: Paint?,
     ): Int {
         return nativeCanvas.saveLayer(left, top, right, bottom, paint)
     }
@@ -155,7 +155,7 @@ internal class TextAndroidCanvas : Canvas() {
         right: Float,
         bottom: Float,
         alpha: Int,
-        saveFlags: Int
+        saveFlags: Int,
     ): Int {
         return nativeCanvas.saveLayerAlpha(left, top, right, bottom, alpha, saveFlags)
     }
@@ -165,7 +165,7 @@ internal class TextAndroidCanvas : Canvas() {
         top: Float,
         right: Float,
         bottom: Float,
-        alpha: Int
+        alpha: Int,
     ): Int {
         return nativeCanvas.saveLayerAlpha(left, top, right, bottom, alpha)
     }
@@ -235,7 +235,7 @@ internal class TextAndroidCanvas : Canvas() {
         top: Float,
         right: Float,
         bottom: Float,
-        op: Region.Op
+        op: Region.Op,
     ): Boolean {
         return nativeCanvas.clipRect(left, top, right, bottom, op)
     }
@@ -314,7 +314,7 @@ internal class TextAndroidCanvas : Canvas() {
         top: Float,
         right: Float,
         bottom: Float,
-        type: EdgeType
+        type: EdgeType,
     ): Boolean {
         return nativeCanvas.quickReject(left, top, right, bottom, type)
     }
@@ -341,7 +341,7 @@ internal class TextAndroidCanvas : Canvas() {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawArc(oval, startAngle, sweepAngle, useCenter, paint)
     }
@@ -354,7 +354,7 @@ internal class TextAndroidCanvas : Canvas() {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawArc(left, top, right, bottom, startAngle, sweepAngle, useCenter, paint)
     }
@@ -385,7 +385,7 @@ internal class TextAndroidCanvas : Canvas() {
         width: Int,
         height: Int,
         hasAlpha: Boolean,
-        paint: Paint?
+        paint: Paint?,
     ) {
         nativeCanvas.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint)
     }
@@ -400,7 +400,7 @@ internal class TextAndroidCanvas : Canvas() {
         width: Int,
         height: Int,
         hasAlpha: Boolean,
-        paint: Paint?
+        paint: Paint?,
     ) {
         nativeCanvas.drawBitmap(colors, offset, stride, x, y, width, height, hasAlpha, paint)
     }
@@ -417,7 +417,7 @@ internal class TextAndroidCanvas : Canvas() {
         vertOffset: Int,
         colors: IntArray?,
         colorOffset: Int,
-        paint: Paint?
+        paint: Paint?,
     ) {
         nativeCanvas.drawBitmapMesh(
             bitmap,
@@ -427,7 +427,7 @@ internal class TextAndroidCanvas : Canvas() {
             vertOffset,
             colors,
             colorOffset,
-            paint
+            paint,
         )
     }
 
@@ -514,7 +514,7 @@ internal class TextAndroidCanvas : Canvas() {
         index: Int,
         count: Int,
         pos: FloatArray,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawPosText(text, index, count, pos, paint)
     }
@@ -551,7 +551,7 @@ internal class TextAndroidCanvas : Canvas() {
         bottom: Float,
         rx: Float,
         ry: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawRoundRect(left, top, right, bottom, rx, ry, paint)
     }
@@ -564,7 +564,7 @@ internal class TextAndroidCanvas : Canvas() {
         inner: RectF,
         innerRx: Float,
         innerRy: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         CanvasCompatQ.drawDoubleRoundRect(
             nativeCanvas,
@@ -574,7 +574,7 @@ internal class TextAndroidCanvas : Canvas() {
             inner,
             innerRx,
             innerRy,
-            paint
+            paint,
         )
     }
 
@@ -584,7 +584,7 @@ internal class TextAndroidCanvas : Canvas() {
         outerRadii: FloatArray,
         inner: RectF,
         innerRadii: FloatArray,
-        paint: Paint
+        paint: Paint,
     ) {
         CanvasCompatQ.drawDoubleRoundRect(nativeCanvas, outer, outerRadii, inner, innerRadii, paint)
     }
@@ -597,7 +597,7 @@ internal class TextAndroidCanvas : Canvas() {
         positionOffset: Int,
         glyphCount: Int,
         font: Font,
-        paint: Paint
+        paint: Paint,
     ) {
         CanvasCompatS.drawGlyphs(
             nativeCanvas,
@@ -607,7 +607,7 @@ internal class TextAndroidCanvas : Canvas() {
             positionOffset,
             glyphCount,
             font,
-            paint
+            paint,
         )
     }
 
@@ -617,7 +617,7 @@ internal class TextAndroidCanvas : Canvas() {
         count: Int,
         x: Float,
         y: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawText(text, index, count, x, y, paint)
     }
@@ -636,7 +636,7 @@ internal class TextAndroidCanvas : Canvas() {
         end: Int,
         x: Float,
         y: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawText(text, start, end, x, y, paint)
     }
@@ -648,7 +648,7 @@ internal class TextAndroidCanvas : Canvas() {
         path: Path,
         hOffset: Float,
         vOffset: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawTextOnPath(text, index, count, path, hOffset, vOffset, paint)
     }
@@ -658,7 +658,7 @@ internal class TextAndroidCanvas : Canvas() {
         path: Path,
         hOffset: Float,
         vOffset: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawTextOnPath(text, path, hOffset, vOffset, paint)
     }
@@ -673,7 +673,7 @@ internal class TextAndroidCanvas : Canvas() {
         x: Float,
         y: Float,
         isRtl: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         CanvasCompatM.drawTextRun(
             nativeCanvas,
@@ -685,7 +685,7 @@ internal class TextAndroidCanvas : Canvas() {
             x,
             y,
             isRtl,
-            paint
+            paint,
         )
     }
 
@@ -699,7 +699,7 @@ internal class TextAndroidCanvas : Canvas() {
         x: Float,
         y: Float,
         isRtl: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         CanvasCompatM.drawTextRun(
             nativeCanvas,
@@ -711,7 +711,7 @@ internal class TextAndroidCanvas : Canvas() {
             x,
             y,
             isRtl,
-            paint
+            paint,
         )
     }
 
@@ -725,7 +725,7 @@ internal class TextAndroidCanvas : Canvas() {
         x: Float,
         y: Float,
         isRtl: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         CanvasCompatQ.drawTextRun(
             nativeCanvas,
@@ -737,7 +737,7 @@ internal class TextAndroidCanvas : Canvas() {
             x,
             y,
             isRtl,
-            paint
+            paint,
         )
     }
 
@@ -753,7 +753,7 @@ internal class TextAndroidCanvas : Canvas() {
         indices: ShortArray?,
         indexOffset: Int,
         indexCount: Int,
-        paint: Paint
+        paint: Paint,
     ) {
         nativeCanvas.drawVertices(
             mode,
@@ -767,7 +767,7 @@ internal class TextAndroidCanvas : Canvas() {
             indices,
             indexOffset,
             indexCount,
-            paint
+            paint,
         )
     }
 
@@ -790,7 +790,7 @@ private object CanvasCompatM {
         x: Float,
         y: Float,
         isRtl: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawTextRun(text, index, count, contextIndex, contextCount, x, y, isRtl, paint)
     }
@@ -805,7 +805,7 @@ private object CanvasCompatM {
         x: Float,
         y: Float,
         isRtl: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
@@ -866,7 +866,7 @@ private object CanvasCompatQ {
         inner: RectF,
         innerRx: Float,
         innerRy: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawDoubleRoundRect(outer, outerRx, outerRy, inner, innerRx, innerRy, paint)
     }
@@ -877,7 +877,7 @@ private object CanvasCompatQ {
         outerRadii: FloatArray,
         inner: RectF,
         innerRadii: FloatArray,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawDoubleRoundRect(outer, outerRadii, inner, innerRadii, paint)
     }
@@ -892,7 +892,7 @@ private object CanvasCompatQ {
         x: Float,
         y: Float,
         isRtl: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
@@ -936,7 +936,7 @@ private object CanvasCompatS {
         positionOffset: Int,
         glyphCount: Int,
         font: Font,
-        paint: Paint
+        paint: Paint,
     ) {
         canvas.drawGlyphs(
             glyphIds,
@@ -945,7 +945,7 @@ private object CanvasCompatS {
             positionOffset,
             glyphCount,
             font,
-            paint
+            paint,
         )
     }
 }

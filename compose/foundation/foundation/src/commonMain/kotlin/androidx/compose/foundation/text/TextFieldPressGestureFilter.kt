@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 internal fun Modifier.tapPressTextFieldModifier(
     interactionSource: MutableInteractionSource?,
     enabled: Boolean = true,
-    onTap: (Offset) -> Unit
+    onTap: (Offset) -> Unit,
 ): Modifier =
     if (enabled)
         composed {
@@ -78,7 +78,7 @@ internal fun Modifier.tapPressTextFieldModifier(
                             }
                         }
                     },
-                    onTap = { onTapState.value.invoke(it) }
+                    onTap = { onTapState.value.invoke(it) },
                 )
             }
         }

@@ -66,11 +66,7 @@ class TorchControlTest {
     }
 
     private val metadata =
-        FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.FLASH_INFO_AVAILABLE to true,
-            ),
-        )
+        FakeCameraMetadata(mapOf(CameraCharacteristics.FLASH_INFO_AVAILABLE to true))
 
     private val neverCompleteTorchRequestControl =
         FakeUseCaseCameraRequestControl().apply {
@@ -87,11 +83,9 @@ class TorchControlTest {
         torchControl =
             TorchControl(
                 fakeCameraProperties,
-                State3AControl(
-                        fakeCameraProperties,
-                        NoOpAutoFlashAEModeDisabler,
-                    )
-                    .apply { requestControl = fakeUseCaseCameraRequestControl },
+                State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                    requestControl = fakeUseCaseCameraRequestControl
+                },
                 fakeUseCaseThreads,
             )
         torchControl.requestControl = fakeUseCaseCameraRequestControl
@@ -106,11 +100,9 @@ class TorchControlTest {
             // Without a flash unit, this Job will complete immediately with a IllegalStateException
             TorchControl(
                     fakeCameraProperties,
-                    State3AControl(
-                            fakeCameraProperties,
-                            NoOpAutoFlashAEModeDisabler,
-                        )
-                        .apply { requestControl = fakeUseCaseCameraRequestControl },
+                    State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                        requestControl = fakeUseCaseCameraRequestControl
+                    },
                     fakeUseCaseThreads,
                 )
                 .also { it.requestControl = fakeUseCaseCameraRequestControl }
@@ -127,11 +119,9 @@ class TorchControlTest {
         val torchState =
             TorchControl(
                     fakeCameraProperties,
-                    State3AControl(
-                            fakeCameraProperties,
-                            NoOpAutoFlashAEModeDisabler,
-                        )
-                        .apply { requestControl = fakeUseCaseCameraRequestControl },
+                    State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                        requestControl = fakeUseCaseCameraRequestControl
+                    },
                     fakeUseCaseThreads,
                 )
                 .also { it.requestControl = fakeUseCaseCameraRequestControl }
@@ -149,11 +139,9 @@ class TorchControlTest {
 
             TorchControl(
                     fakeCameraProperties,
-                    State3AControl(
-                            fakeCameraProperties,
-                            NoOpAutoFlashAEModeDisabler,
-                        )
-                        .apply { requestControl = fakeUseCaseCameraRequestControl },
+                    State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                        requestControl = fakeUseCaseCameraRequestControl
+                    },
                     fakeUseCaseThreads,
                 )
                 .setTorchAsync(true)
@@ -182,11 +170,9 @@ class TorchControlTest {
         val torchControl =
             TorchControl(
                     fakeCameraProperties,
-                    State3AControl(
-                            fakeCameraProperties,
-                            NoOpAutoFlashAEModeDisabler,
-                        )
-                        .apply { requestControl = fakeUseCaseCameraRequestControl },
+                    State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                        requestControl = fakeUseCaseCameraRequestControl
+                    },
                     fakeUseCaseThreads,
                 )
                 .also {
@@ -272,7 +258,7 @@ class TorchControlTest {
                         receivedTorchState.add(value)
                     }
                 }
-            }
+            },
         )
         torchControl.setTorchAsync(true)
         torchControl.setTorchAsync(false)

@@ -37,7 +37,7 @@ import androidx.compose.ui.platform.PlatformTextInputSession
 @Composable
 fun PlatformTextInputMethodTestOverride(
     sessionHandler: PlatformTextInputSession,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     InterceptPlatformTextInput(
         interceptor = { request, _ ->
@@ -45,6 +45,6 @@ fun PlatformTextInputMethodTestOverride(
             // actual IME sending commands.
             sessionHandler.startInputMethod(request)
         },
-        content = content
+        content = content,
     )
 }

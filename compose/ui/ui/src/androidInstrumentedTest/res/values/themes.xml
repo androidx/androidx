@@ -26,4 +26,11 @@
     <style name="VectorTestTheme" parent="android:Theme.Material">
         <item name="android:colorAccent">#00FF00</item>
     </style>
+
+    <style name="CustomDialogTheme">
+        <item name="android:dialogTheme">@style/MyDialogTheme</item>
+    </style>
+    <style name="MyDialogTheme">
+        <item name="android:statusBarColor">#F00</item>
+    </style>
 </resources>

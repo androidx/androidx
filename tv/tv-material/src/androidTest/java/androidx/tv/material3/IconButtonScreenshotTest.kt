@@ -202,7 +202,7 @@ class IconButtonScreenshotTest {
                 Box(Modifier.size(50.dp).testTag(wrapperTestTag)) {
                     IconButton(
                         onClick = { /* doSomething() */ },
-                        modifier = Modifier.align(Alignment.Center).focusRequester(focusRequester)
+                        modifier = Modifier.align(Alignment.Center).focusRequester(focusRequester),
                     ) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                     }
@@ -225,7 +225,7 @@ class IconButtonScreenshotTest {
                 Box(Modifier.size(50.dp).testTag(wrapperTestTag)) {
                     IconButton(
                         onClick = { /* doSomething() */ },
-                        modifier = Modifier.align(Alignment.Center).focusRequester(focusRequester)
+                        modifier = Modifier.align(Alignment.Center).focusRequester(focusRequester),
                     ) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                     }
@@ -261,7 +261,7 @@ class IconButtonScreenshotTest {
                     OutlinedIconButton(onClick = { /* doSomething() */ }) {
                         Icon(
                             Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Localized description"
+                            contentDescription = "Localized description",
                         )
                     }
                 }
@@ -278,7 +278,7 @@ class IconButtonScreenshotTest {
                     OutlinedIconButton(onClick = { /* doSomething() */ }) {
                         Icon(
                             Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Localized description"
+                            contentDescription = "Localized description",
                         )
                     }
                 }
@@ -295,7 +295,7 @@ class IconButtonScreenshotTest {
                     OutlinedIconButton(onClick = { /* doSomething() */ }, enabled = false) {
                         Icon(
                             Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Localized description"
+                            contentDescription = "Localized description",
                         )
                     }
                 }
@@ -312,7 +312,7 @@ class IconButtonScreenshotTest {
                     OutlinedIconButton(onClick = { /* doSomething() */ }, enabled = false) {
                         Icon(
                             Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Localized description"
+                            contentDescription = "Localized description",
                         )
                     }
                 }

@@ -84,8 +84,15 @@ internal class ChangeList : OperationsDebugStringFormattable() {
     fun executeAndFlushAllPendingChanges(
         applier: Applier<*>,
         slots: SlotWriter,
-        rememberManager: RememberManager
-    ) = operations.executeAndFlushAllPendingOperations(applier, slots, rememberManager)
+        rememberManager: RememberManager,
+        errorContext: OperationErrorContext?,
+    ) =
+        operations.executeAndFlushAllPendingOperations(
+            applier,
+            slots,
+            rememberManager,
+            errorContext,
+        )
 
     fun pushRemember(value: RememberObserverHolder) {
         operations.push(Remember) { setObject(Remember.Value, value) }
@@ -173,7 +180,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                 InsertSlotsWithFixups.FromSlotTable,
                 from,
                 InsertSlotsWithFixups.Fixups,
-                fixups
+                fixups,
             )
         }
     }
@@ -188,7 +195,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                 EndCompositionScope.Action,
                 action,
                 EndCompositionScope.Composition,
-                composition
+                composition,
             )
         }
     }
@@ -242,7 +249,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                 DetermineMovableContentNodeIndex.EffectiveNodeIndexOut,
                 effectiveNodeIndexOut,
                 DetermineMovableContentNodeIndex.Anchor,
-                anchor
+                anchor,
             )
         }
     }
@@ -254,7 +261,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                     CopyNodesToNewAnchorLocation.Nodes,
                     nodes,
                     CopyNodesToNewAnchorLocation.EffectiveNodeIndex,
-                    effectiveNodeIndex
+                    effectiveNodeIndex,
                 )
             }
         }
@@ -276,7 +283,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                 CopySlotTableToAnchorLocation.To,
                 to,
                 CopySlotTableToAnchorLocation.From,
-                from
+                from,
             )
         }
     }
@@ -285,7 +292,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
     fun pushReleaseMovableGroupAtCurrent(
         composition: ControlledComposition,
         parentContext: CompositionContext,
-        reference: MovableContentStateReference
+        reference: MovableContentStateReference,
     ) {
         operations.push(ReleaseMovableGroupAtCurrent) {
             setObjects(
@@ -294,7 +301,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                 ReleaseMovableGroupAtCurrent.ParentCompositionContext,
                 parentContext,
                 ReleaseMovableGroupAtCurrent.Reference,
-                reference
+                reference,
             )
         }
     }
@@ -310,7 +317,7 @@ internal class ChangeList : OperationsDebugStringFormattable() {
                     ApplyChangeList.Changes,
                     changeList,
                     ApplyChangeList.EffectiveNodeIndex,
-                    effectiveNodeIndex
+                    effectiveNodeIndex,
                 )
             }
         }

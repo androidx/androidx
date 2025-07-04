@@ -1,11 +1,11 @@
 @file:Suppress(
     "UNCHECKED_CAST",
-    "UNSAFE_CALL",
+    "UNSAFE_CALL", // b/409324917
     "DEPRECATION",
     "DEPRECATION_ERROR",
     "OVERRIDE_DEPRECATION",
     "REDUNDANT_PROJECTION",
-    "RestrictedApiAndroidX"
+    "RestrictedApiAndroidX",
 ) // Generated code
 
 package androidx.room.integration.kotlintestapp.test
@@ -109,8 +109,8 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
                                 true,
                                 1,
                                 null,
-                                TableInfo.CREATED_FROM_ENTITY
-                            )
+                                TableInfo.CREATED_FROM_ENTITY,
+                            ),
                         )
                         _columnsTheEntity.put(
                             "text",
@@ -120,8 +120,8 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
                                 true,
                                 0,
                                 null,
-                                TableInfo.CREATED_FROM_ENTITY
-                            )
+                                TableInfo.CREATED_FROM_ENTITY,
+                            ),
                         )
                         _columnsTheEntity.put(
                             "custom",
@@ -131,8 +131,8 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
                                 true,
                                 0,
                                 null,
-                                TableInfo.CREATED_FROM_ENTITY
-                            )
+                                TableInfo.CREATED_FROM_ENTITY,
+                            ),
                         )
                         val _foreignKeysTheEntity: HashSet<TableInfo.ForeignKey> =
                             HashSet<TableInfo.ForeignKey>(0)
@@ -143,7 +143,7 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
                                 "TheEntity",
                                 _columnsTheEntity,
                                 _foreignKeysTheEntity,
-                                _indicesTheEntity
+                                _indicesTheEntity,
                             )
                         val _existingTheEntity: TableInfo = read(db, "TheEntity")
                         if (!_infoTheEntity.equals(_existingTheEntity)) {
@@ -160,14 +160,14 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
               | Found:
               |"""
                                         .trimMargin() +
-                                    _existingTheEntity
+                                    _existingTheEntity,
                             )
                         }
                         return RoomOpenHelper.ValidationResult(true, null)
                     }
                 },
                 "fbcbaa42ae194c6600f45bb10ebfcc1f",
-                "c5a810f0a0f12e6d217d248fa35d0d13"
+                "c5a810f0a0f12e6d217d248fa35d0d13",
             )
         val _sqliteConfig: SupportSQLiteOpenHelper.Configuration =
             SupportSQLiteOpenHelper.Configuration.builder(config.context)
@@ -205,7 +205,7 @@ public class PreKmpDatabase_Impl : PreKmpDatabase() {
             HashMap<Class<out Any>, List<Class<out Any>>>()
         _typeConvertersMap.put(
             PreKmpDatabase.TheDao::class.java,
-            PreKmpDatabase_TheDao_Impl.getRequiredConverters()
+            PreKmpDatabase_TheDao_Impl.getRequiredConverters(),
         )
         return _typeConvertersMap
     }

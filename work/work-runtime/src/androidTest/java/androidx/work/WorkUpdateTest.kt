@@ -75,7 +75,7 @@ class WorkUpdateTest {
         Trackers(
             context = env.context,
             taskExecutor = env.taskExecutor,
-            batteryChargingTracker = fakeChargingTracker
+            batteryChargingTracker = fakeChargingTracker,
         )
     val greedyScheduler = GreedyScheduler(env, trackers)
     val workManager = WorkManager(env, listOf(greedyScheduler), trackers)

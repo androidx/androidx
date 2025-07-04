@@ -17,7 +17,7 @@
 package androidx.build.docs
 
 import androidx.build.AndroidXExtension
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.addToBuildOnServer
 import androidx.build.checkapi.shouldConfigureApiTasks
 import androidx.build.getSupportRootFolder
@@ -92,7 +92,7 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
                 if (!extension.requiresDocs()) return@afterEvaluate
 
                 val docsType =
-                    if (extension.type == LibraryType.Companion.SAMPLES) {
+                    if (extension.type == SoftwareType.Companion.SAMPLES) {
                         DocsType.SAMPLES
                     } else if (multiplatformExtension != null) {
                         DocsType.KMP
@@ -103,7 +103,7 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
                 val checkDocs =
                     project.tasks.register(
                         "checkDocsTipOfTree",
-                        CheckTipOfTreeDocsTask::class.java
+                        CheckTipOfTreeDocsTask::class.java,
                     ) { task ->
                         task.tipOfTreeBuildFile.set(
                             project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")

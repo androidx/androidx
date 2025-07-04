@@ -23,8 +23,7 @@
  */
 
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -35,17 +34,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.material3.adaptive.navigationsuite"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
-
         compileSdk = 35
-        aarMetadata.minCompileSdk = 35
     }
     jvmStubs()
 
@@ -55,9 +44,9 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api(project(":compose:material3:material3"))
+                api("androidx.compose.material3:material3:1.4.0-alpha15")
                 api(project(":compose:material3:adaptive:adaptive"))
-                implementation("androidx.window:window-core:1.3.0")
+                implementation("androidx.window:window-core:1.4.0-rc01")
             }
         }
 
@@ -90,7 +79,7 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":compose:test-utils"))
-                implementation("androidx.window:window-testing:1.3.0")
+                implementation(project(":window:window-testing"))
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.truth)
@@ -102,7 +91,10 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.testRunner)
+                implementation(libs.espressoCore)
                 implementation(libs.truth)
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":window:window-core"))
             }
         }
     }
@@ -111,11 +103,9 @@ androidXMultiplatform {
 
 androidx {
     name = "Material Adaptive Navigation Suite"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Navigation Suite Library"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -22,18 +22,20 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.animation.graphics"
+        androidResources.enable = true
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -51,7 +53,7 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-geometry"))
 
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":collection:collection"))
+                implementation("androidx.collection:collection:1.5.0")
             }
         }
         androidMain.dependencies {
@@ -115,15 +117,8 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Animation Graphics"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose Animation Graphics Library for using animated-vector resources in Compose"
-    metalavaK2UastEnabled = false
     samples(project(":compose:animation:animation-graphics:animation-graphics-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-}
-
-android {
-    compileSdk = 35
-    namespace = "androidx.compose.animation.graphics"
 }

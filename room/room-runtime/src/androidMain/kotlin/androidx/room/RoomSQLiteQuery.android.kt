@@ -31,26 +31,27 @@ import java.util.TreeMap
  * Because it is relatively a big object, they are pooled and must be released after each use.
  */
 @SuppressLint("WrongConstant")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity: Int) :
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public class RoomSQLiteQuery
+private constructor(@field:VisibleForTesting public val capacity: Int) :
     SupportSQLiteQuery, SupportSQLiteProgram {
     @Volatile private var query: String? = null
 
-    @JvmField @VisibleForTesting val longBindings: LongArray
+    @JvmField @VisibleForTesting public val longBindings: LongArray
 
-    @JvmField @VisibleForTesting val doubleBindings: DoubleArray
+    @JvmField @VisibleForTesting public val doubleBindings: DoubleArray
 
-    @JvmField @VisibleForTesting val stringBindings: Array<String?>
+    @JvmField @VisibleForTesting public val stringBindings: Array<String?>
 
-    @JvmField @VisibleForTesting val blobBindings: Array<ByteArray?>
+    @JvmField @VisibleForTesting public val blobBindings: Array<ByteArray?>
 
     @Binding private val bindingTypes: IntArray
 
     // number of arguments in the query
-    override var argCount = 0
+    override var argCount: Int = 0
         private set
 
-    fun init(query: String, initArgCount: Int) {
+    public fun init(query: String, initArgCount: Int) {
         this.query = query
         argCount = initArgCount
     }
@@ -71,7 +72,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
      * After released, the statement might be returned when [.acquire] is called so you should never
      * re-use it after releasing.
      */
-    fun release() {
+    public fun release() {
         synchronized(queryPool) {
             queryPool[capacity] = this
             prunePoolLocked()
@@ -79,7 +80,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
     }
 
     /** Converts a SupportSQLiteStatement to a [RoomRawQuery]. */
-    fun toRoomRawQuery(): RoomRawQuery {
+    public fun toRoomRawQuery(): RoomRawQuery {
         return RoomRawQuery(sql = this.sql, onBindStatement = { this.bindTo(it) })
     }
 
@@ -98,7 +99,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
         }
     }
 
-    fun bindTo(statement: SQLiteStatement) {
+    public fun bindTo(statement: SQLiteStatement) {
         for (index in 1..argCount) {
             when (bindingTypes[index]) {
                 NULL -> statement.bindNull(index)
@@ -129,7 +130,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
         stringBindings[index] = value
     }
 
-    fun bindText(index: Int, value: String) = bindString(index, value)
+    public fun bindText(index: Int, value: String): Unit = bindString(index, value)
 
     override fun bindBlob(index: Int, value: ByteArray) {
         bindingTypes[index] = BLOB
@@ -145,7 +146,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
      *
      * @param other The other query, which holds the arguments to be copied.
      */
-    fun copyArgumentsFrom(other: RoomSQLiteQuery) {
+    public fun copyArgumentsFrom(other: RoomSQLiteQuery) {
         val argCount = other.argCount + 1 // +1 for the binding offsets
         System.arraycopy(other.bindingTypes, 0, bindingTypes, 0, argCount)
         System.arraycopy(other.longBindings, 0, longBindings, 0, argCount)
@@ -166,15 +167,17 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
     @IntDef(NULL, LONG, DOUBLE, STRING, BLOB)
     internal annotation class Binding
 
-    companion object {
+    public companion object {
         // Maximum number of queries we'll keep cached.
-        @VisibleForTesting const val POOL_LIMIT = 15
+        @VisibleForTesting public const val POOL_LIMIT: Int = 15
 
         // Once we hit POOL_LIMIT, we'll bring the pool size back to the desired number. We always
         // clear the bigger queries (# of arguments).
-        @VisibleForTesting const val DESIRED_POOL_SIZE = 10
+        @VisibleForTesting public const val DESIRED_POOL_SIZE: Int = 10
 
-        @JvmField @VisibleForTesting val queryPool = TreeMap<Int, RoomSQLiteQuery>()
+        @JvmField
+        @VisibleForTesting
+        public val queryPool: TreeMap<Int, RoomSQLiteQuery> = TreeMap<Int, RoomSQLiteQuery>()
 
         /**
          * Copies the given SupportSQLiteQuery and converts it into RoomSQLiteQuery.
@@ -183,7 +186,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
          * @return A new query copied from the provided one.
          */
         @JvmStatic
-        fun copyFrom(supportSQLiteQuery: SupportSQLiteQuery): RoomSQLiteQuery {
+        public fun copyFrom(supportSQLiteQuery: SupportSQLiteQuery): RoomSQLiteQuery {
             val query = acquire(supportSQLiteQuery.sql, supportSQLiteQuery.argCount)
 
             supportSQLiteQuery.bindTo(object : SupportSQLiteProgram by query {})
@@ -200,7 +203,7 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
          *   of arguments.
          */
         @JvmStatic
-        fun acquire(query: String, argumentCount: Int): RoomSQLiteQuery {
+        public fun acquire(query: String, argumentCount: Int): RoomSQLiteQuery {
             synchronized(queryPool) {
                 val entry = queryPool.ceilingEntry(argumentCount)
                 if (entry != null) {

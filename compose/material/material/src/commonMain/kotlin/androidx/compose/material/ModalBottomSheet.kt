@@ -81,7 +81,7 @@ enum class ModalBottomSheetValue {
      * The bottom sheet is partially visible at 50% of the screen height. This state is only enabled
      * if the height of the bottom sheet is more than 50% of the screen height.
      */
-    HalfExpanded
+    HalfExpanded,
 }
 
 /**
@@ -114,7 +114,7 @@ class ModalBottomSheetState(
             animationSpec = animationSpec,
             confirmValueChange = confirmValueChange,
             positionalThreshold = { with(density) { ModalBottomSheetPositionalThreshold.toPx() } },
-            velocityThreshold = { with(density) { ModalBottomSheetVelocityThreshold.toPx() } }
+            velocityThreshold = { with(density) { ModalBottomSheetVelocityThreshold.toPx() } },
         )
 
     /** The current value of the [ModalBottomSheetState]. */
@@ -134,7 +134,7 @@ class ModalBottomSheetState(
      */
     @Deprecated(
         message = "Please use the progress function to query progress explicitly between targets.",
-        replaceWith = ReplaceWith("progress(from = , to = )")
+        replaceWith = ReplaceWith("progress(from = , to = )"),
     )
     @get:FloatRange(from = 0.0, to = 1.0)
     @ExperimentalMaterialApi
@@ -155,7 +155,7 @@ class ModalBottomSheetState(
         val currentOffset =
             anchoredDraggableState.offset.coerceIn(
                 min(fromOffset, toOffset), // fromOffset might be > toOffset
-                max(fromOffset, toOffset)
+                max(fromOffset, toOffset),
             )
         val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
         return if (fraction.isNaN()) 1f else abs(fraction)
@@ -222,7 +222,7 @@ class ModalBottomSheetState(
 
     internal suspend fun animateTo(
         target: ModalBottomSheetValue,
-        velocity: Float = anchoredDraggableState.lastVelocity
+        velocity: Float = anchoredDraggableState.lastVelocity,
     ) = anchoredDraggableState.animateTo(target, velocity)
 
     internal suspend fun snapTo(target: ModalBottomSheetValue) =
@@ -239,7 +239,7 @@ class ModalBottomSheetState(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (ModalBottomSheetValue) -> Boolean,
             skipHalfExpanded: Boolean,
-            density: Density
+            density: Density,
         ): Saver<ModalBottomSheetState, *> =
             Saver(
                 save = { it.currentValue },
@@ -249,9 +249,9 @@ class ModalBottomSheetState(
                         density = density,
                         animationSpec = animationSpec,
                         isSkipHalfExpanded = skipHalfExpanded,
-                        confirmValueChange = confirmValueChange
+                        confirmValueChange = confirmValueChange,
                     )
-                }
+                },
             )
     }
 }
@@ -292,23 +292,23 @@ fun rememberModalBottomSheetState(
                     density = density,
                     animationSpec = animationSpec,
                     skipHalfExpanded = skipHalfExpanded,
-                    confirmValueChange = confirmValueChange
-                )
+                    confirmValueChange = confirmValueChange,
+                ),
         ) {
             ModalBottomSheetState(
                 density = density,
                 initialValue = initialValue,
                 animationSpec = animationSpec,
                 isSkipHalfExpanded = skipHalfExpanded,
-                confirmValueChange = confirmValueChange
+                confirmValueChange = confirmValueChange,
             )
         }
     }
 }
 
 /**
- * <a href="https://material.io/components/sheets-bottom#modal-bottom-sheet" class="external"
- * target="_blank">Material Design modal bottom sheet</a>.
+ * [Material Design modal bottom
+ * sheet](https://material.io/components/sheets-bottom#modal-bottom-sheet)
  *
  * Modal bottom sheets present a set of choices while blocking interaction with the rest of the
  * screen. They are an alternative to inline menus and simple dialogs, providing additional room for
@@ -349,7 +349,7 @@ fun ModalBottomSheetLayout(
     sheetBackgroundColor: Color = MaterialTheme.colors.surface,
     sheetContentColor: Color = contentColorFor(sheetBackgroundColor),
     scrimColor: Color = ModalBottomSheetDefaults.scrimColor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val orientation = Orientation.Vertical
@@ -363,7 +363,7 @@ fun ModalBottomSheetLayout(
                         scope.launch { sheetState.hide() }
                     }
                 },
-                visible = sheetState.anchoredDraggableState.targetValue != Hidden
+                visible = sheetState.anchoredDraggableState.targetValue != Hidden,
             )
         }
         Surface(
@@ -376,7 +376,7 @@ fun ModalBottomSheetLayout(
                             remember(sheetState.anchoredDraggableState, orientation) {
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                     state = sheetState.anchoredDraggableState,
-                                    orientation = orientation
+                                    orientation = orientation,
                                 )
                             }
                         )
@@ -434,7 +434,7 @@ fun ModalBottomSheetLayout(
             shape = sheetShape,
             elevation = sheetElevation,
             color = sheetBackgroundColor,
-            contentColor = sheetContentColor
+            contentColor = sheetContentColor,
         ) {
             Column(content = sheetContent)
         }
@@ -445,7 +445,7 @@ fun ModalBottomSheetLayout(
 private fun Modifier.modalBottomSheetAnchors(sheetState: ModalBottomSheetState) =
     draggableAnchors(
         state = sheetState.anchoredDraggableState,
-        orientation = Orientation.Vertical
+        orientation = Orientation.Vertical,
     ) { sheetSize, constraints ->
         val fullHeight = constraints.maxHeight.toFloat()
         val newAnchors = DraggableAnchors {
@@ -530,7 +530,7 @@ object ModalBottomSheetDefaults {
 @OptIn(ExperimentalMaterialApi::class)
 private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     state: AnchoredDraggableState<*>,
-    orientation: Orientation
+    orientation: Orientation,
 ): NestedScrollConnection =
     object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -545,7 +545,7 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         override fun onPostScroll(
             consumed: Offset,
             available: Offset,
-            source: NestedScrollSource
+            source: NestedScrollSource,
         ): Offset {
             return if (source == NestedScrollSource.UserInput) {
                 state.dispatchRawDelta(available.toFloat()).toOffset()
@@ -574,7 +574,7 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Float.toOffset(): Offset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) this else 0f,
-                y = if (orientation == Orientation.Vertical) this else 0f
+                y = if (orientation == Orientation.Vertical) this else 0f,
             )
 
         @JvmName("velocityToFloat")

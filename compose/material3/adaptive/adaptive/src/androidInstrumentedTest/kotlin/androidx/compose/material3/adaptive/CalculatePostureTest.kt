@@ -35,8 +35,8 @@ class CalculatePostureTest {
                     MockFoldingFeature(
                         isSeparating = false,
                         orientation = FoldingFeature.Orientation.HORIZONTAL,
-                        state = FoldingFeature.State.HALF_OPENED
-                    ),
+                        state = FoldingFeature.State.HALF_OPENED,
+                    )
                 )
             )
 
@@ -51,8 +51,8 @@ class CalculatePostureTest {
                     MockFoldingFeature(
                         isSeparating = true,
                         orientation = FoldingFeature.Orientation.HORIZONTAL,
-                        state = FoldingFeature.State.HALF_OPENED
-                    ),
+                        state = FoldingFeature.State.HALF_OPENED,
+                    )
                 )
             )
 
@@ -67,8 +67,8 @@ class CalculatePostureTest {
                     MockFoldingFeature(
                         isSeparating = false,
                         orientation = FoldingFeature.Orientation.VERTICAL,
-                        state = FoldingFeature.State.HALF_OPENED
-                    ),
+                        state = FoldingFeature.State.HALF_OPENED,
+                    )
                 )
             )
 
@@ -83,8 +83,8 @@ class CalculatePostureTest {
                     MockFoldingFeature(
                         isSeparating = false,
                         orientation = FoldingFeature.Orientation.HORIZONTAL,
-                        state = FoldingFeature.State.FLAT
-                    ),
+                        state = FoldingFeature.State.FLAT,
+                    )
                 )
             )
 
@@ -167,35 +167,35 @@ class CalculatePostureTest {
                 MockFoldingFeature(
                     isSeparating = false,
                     occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds1
+                    bounds = mockHingeBounds1,
                 ),
                 MockFoldingFeature(
                     isSeparating = true,
                     occlusionType = FoldingFeature.OcclusionType.FULL,
-                    bounds = mockHingeBounds2
+                    bounds = mockHingeBounds2,
                 ),
                 MockFoldingFeature(
                     isSeparating = true,
                     occlusionType = FoldingFeature.OcclusionType.NONE,
-                    bounds = mockHingeBounds3
+                    bounds = mockHingeBounds3,
                 ),
                 MockFoldingFeature(
                     isSeparating = false,
                     occlusionType = FoldingFeature.OcclusionType.FULL,
                     orientation = FoldingFeature.Orientation.HORIZONTAL,
-                    bounds = mockHingeBounds4
+                    bounds = mockHingeBounds4,
                 ),
                 MockFoldingFeature(
                     isSeparating = true,
                     occlusionType = FoldingFeature.OcclusionType.FULL,
                     orientation = FoldingFeature.Orientation.HORIZONTAL,
-                    bounds = mockHingeBounds5
+                    bounds = mockHingeBounds5,
                 ),
                 MockFoldingFeature(
                     isSeparating = true,
                     occlusionType = FoldingFeature.OcclusionType.NONE,
                     orientation = FoldingFeature.Orientation.HORIZONTAL,
-                    bounds = mockHingeBounds6
+                    bounds = mockHingeBounds6,
                 ),
             )
     }
@@ -206,5 +206,5 @@ internal class MockFoldingFeature(
     override val occlusionType: FoldingFeature.OcclusionType = FoldingFeature.OcclusionType.NONE,
     override val orientation: FoldingFeature.Orientation = FoldingFeature.Orientation.VERTICAL,
     override val state: FoldingFeature.State = FoldingFeature.State.FLAT,
-    override val bounds: Rect = Rect(0, 0, 1, 1)
+    override val bounds: Rect = Rect(0, 0, 1, 1),
 ) : FoldingFeature

@@ -300,7 +300,7 @@ class AndroidExternalSurfaceTest {
             Box(modifier = Modifier.size(size)) {
                 AndroidExternalSurface(
                     modifier = Modifier.size(size),
-                    zOrder = AndroidExternalSurfaceZOrder.Behind
+                    zOrder = AndroidExternalSurfaceZOrder.Behind,
                 ) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -318,7 +318,7 @@ class AndroidExternalSurfaceTest {
                 }
                 AndroidExternalSurface(
                     modifier = Modifier.size(size).testTag("GraphicSurface"),
-                    zOrder = AndroidExternalSurfaceZOrder.MediaOverlay
+                    zOrder = AndroidExternalSurfaceZOrder.MediaOverlay,
                 ) {
                     onSurface { surface, _, _ ->
                         repeat(FrameCount) {
@@ -357,7 +357,7 @@ class AndroidExternalSurfaceTest {
             Box(modifier = Modifier.size(size)) {
                 AndroidExternalSurface(
                     modifier = Modifier.size(size).testTag("GraphicSurface"),
-                    zOrder = AndroidExternalSurfaceZOrder.OnTop
+                    zOrder = AndroidExternalSurfaceZOrder.OnTop,
                 ) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -401,7 +401,7 @@ class AndroidExternalSurfaceTest {
                 AndroidExternalSurface(
                     modifier = Modifier.size(size).testTag("GraphicSurface"),
                     isOpaque = false,
-                    zOrder = AndroidExternalSurfaceZOrder.OnTop
+                    zOrder = AndroidExternalSurfaceZOrder.OnTop,
                 ) {
                     onSurface { surface, _, _ ->
                         // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -447,7 +447,7 @@ class AndroidExternalSurfaceTest {
         rule.setContent {
             AndroidExternalSurface(
                 modifier = Modifier.size(size).testTag("GraphicSurface"),
-                isSecure = true
+                isSecure = true,
             ) {
                 onSurface { surface, _, _ ->
                     // Draw > 3 frames to make sure the screenshot copy will pick up
@@ -529,7 +529,7 @@ private fun SemanticsNodeInteraction.screenshotToImage(
                                     bounds.left.toInt(),
                                     bounds.top.toInt(),
                                     bounds.width.toInt(),
-                                    bounds.height.toInt()
+                                    bounds.height.toInt(),
                                 )
                             bitmapFuture.set(bitmap)
                         } else {
@@ -573,7 +573,7 @@ internal fun Surface.captureToImage(width: Int, height: Int): ImageBitmap {
         Rect(0, 0, width, height),
         bitmap,
         onCopyFinished,
-        Handler(Looper.getMainLooper())
+        Handler(Looper.getMainLooper()),
     )
 
     if (!latch.await(1, TimeUnit.SECONDS)) {
@@ -623,13 +623,13 @@ private fun View.waitForWindowManager(onWindowManagerReady: () -> Unit): () -> U
         subWindow,
         WindowManager.LayoutParams(
                 WindowManager.LayoutParams.TYPE_APPLICATION_PANEL,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             )
             .apply {
                 width = WindowManager.LayoutParams.WRAP_CONTENT
                 height = WindowManager.LayoutParams.WRAP_CONTENT
                 gravity = Gravity.RIGHT or Gravity.BOTTOM
-            }
+            },
     )
 
     subWindow.doOnPreDraw { onWindowManagerReady() }

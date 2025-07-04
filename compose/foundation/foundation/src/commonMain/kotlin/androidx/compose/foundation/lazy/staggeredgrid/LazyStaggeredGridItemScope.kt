@@ -50,7 +50,7 @@ sealed interface LazyStaggeredGridItemScope {
         placementSpec: FiniteAnimationSpec<IntOffset>? =
             spring(
                 stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = IntOffset.VisibilityThreshold
+                visibilityThreshold = IntOffset.VisibilityThreshold,
             ),
         fadeOutSpec: FiniteAnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
     ): Modifier
@@ -60,7 +60,7 @@ internal object LazyStaggeredGridItemScopeImpl : LazyStaggeredGridItemScope {
     override fun Modifier.animateItem(
         fadeInSpec: FiniteAnimationSpec<Float>?,
         placementSpec: FiniteAnimationSpec<IntOffset>?,
-        fadeOutSpec: FiniteAnimationSpec<Float>?
+        fadeOutSpec: FiniteAnimationSpec<Float>?,
     ): Modifier =
         if (fadeInSpec == null && placementSpec == null && fadeOutSpec == null) {
             this

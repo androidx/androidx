@@ -41,14 +41,14 @@ class NightModeLateOnCreateTestCase {
         waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_NO,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
 
         // Simulate the user setting night mode, which should force an activity recreate().
         setNightModeAndWaitForRecreate(
             activityRule,
             AppCompatDelegate.MODE_NIGHT_YES,
-            NightModeUtils.NightSetMode.LOCAL
+            NightModeUtils.NightSetMode.LOCAL,
         )
 
         // Activity should be able to reach fully resumed state again.
@@ -57,7 +57,7 @@ class NightModeLateOnCreateTestCase {
         // The request night mode value should have been set during attachBaseContext().
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_YES,
-            activityRule.activity.resources.configuration
+            activityRule.activity.resources.configuration,
         )
     }
 }

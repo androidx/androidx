@@ -49,7 +49,7 @@ internal class PlaceholderSpan(
     private val height: Float,
     @Unit private val heightUnit: Int,
     private val pxPerSp: Float,
-    @VerticalAlign val verticalAlign: Int
+    @VerticalAlign val verticalAlign: Int,
 ) : ReplacementSpan() {
     companion object {
         const val ALIGN_ABOVE_BASELINE = 0
@@ -68,7 +68,7 @@ internal class PlaceholderSpan(
             ALIGN_CENTER,
             ALIGN_TEXT_TOP,
             ALIGN_TEXT_BOTTOM,
-            ALIGN_TEXT_CENTER
+            ALIGN_TEXT_CENTER,
         )
         internal annotation class VerticalAlign
 
@@ -110,7 +110,7 @@ internal class PlaceholderSpan(
         text: CharSequence?,
         start: Int,
         end: Int,
-        fm: Paint.FontMetricsInt?
+        fm: Paint.FontMetricsInt?,
     ): Int {
         isLaidOut = true
         val fontSize = paint.textSize
@@ -183,7 +183,7 @@ internal class PlaceholderSpan(
         top: Int,
         y: Int,
         bottom: Int,
-        paint: Paint
+        paint: Paint,
     ) {}
 }
 

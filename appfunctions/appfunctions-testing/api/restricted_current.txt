@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.appfunctions.testing {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public final class AppFunctionTestRule implements org.junit.rules.TestRule {
+    ctor public AppFunctionTestRule(android.content.Context context);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement? base, org.junit.runner.Description? description);
+    method public androidx.appfunctions.AppFunctionManagerCompat getAppFunctionManagerCompat();
+  }
+
+}
+

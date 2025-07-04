@@ -65,8 +65,8 @@ fun InfiniteTransitionSample() {
                         // start again from the [initialValue] defined above.
                         // This is the default [RepeatMode]. See [RepeatMode.Reverse] below for an
                         // alternative.
-                        repeatMode = RepeatMode.Restart
-                    )
+                        repeatMode = RepeatMode.Restart,
+                    ),
             )
 
         // Creates a Color animation as a part of the [InfiniteTransition].
@@ -83,8 +83,8 @@ fun InfiniteTransitionSample() {
                         // TargetValue to InitialValue). Then again from InitialValue to
                         // TargetValue. This
                         // [RepeatMode] ensures that the animation value is *always continuous*.
-                        repeatMode = RepeatMode.Reverse
-                    )
+                        repeatMode = RepeatMode.Reverse,
+                    ),
             )
 
         Box(Modifier.fillMaxSize()) {
@@ -93,7 +93,7 @@ fun InfiniteTransitionSample() {
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.Center).graphicsLayer(scaleX = scale, scaleY = scale),
-                tint = color
+                tint = color,
             )
         }
     }
@@ -119,7 +119,7 @@ fun InfiniteTransitionAnimateValueSample() {
                             80.dp at 300 using FastOutLinearInEasing
                         }
                     // Use the default RepeatMode.Restart to start from 0.dp after each iteration
-                )
+                ),
         )
 
     Box(Modifier.offset(x = offsetX)) {

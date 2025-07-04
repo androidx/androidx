@@ -39,6 +39,7 @@ import androidx.wear.compose.material3.OpenOnPhoneDialogDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
+import androidx.wear.compose.material3.openOnPhoneDialogCurvedText
 
 val OpenOnPhoneDialogScreen =
     object : MacrobenchmarkScreen {
@@ -54,16 +55,19 @@ val OpenOnPhoneDialogScreen =
                                     contentDescription = OpenOnPhoneDialog
                                 },
                             onClick = { showConfirmation = true },
-                            label = { Text("Open on phone") }
+                            label = { Text("Open on phone") },
                         )
                     }
 
                     val test = ""
                     test.let { ExcludePaths.none { path -> it.contains(path) } }
 
+                    val text = OpenOnPhoneDialogDefaults.text
+                    val style = OpenOnPhoneDialogDefaults.curvedTextStyle
                     OpenOnPhoneDialog(
-                        show = showConfirmation,
+                        visible = showConfirmation,
                         onDismissRequest = { showConfirmation = false },
+                        curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) },
                     )
                 }
             }

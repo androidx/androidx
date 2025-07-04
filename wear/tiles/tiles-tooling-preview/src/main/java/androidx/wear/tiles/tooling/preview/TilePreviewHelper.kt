@@ -33,7 +33,7 @@ object TilePreviewHelper {
      */
     @JvmStatic
     fun singleTimelineEntryTileBuilder(
-        layout: LayoutElementBuilders.Layout,
+        layout: LayoutElementBuilders.Layout
     ): TileBuilders.Tile.Builder =
         TileBuilders.Tile.Builder()
             .setResourcesVersion(PERMANENT_RESOURCES_VERSION)
@@ -58,7 +58,7 @@ object TilePreviewHelper {
      */
     @JvmStatic
     fun singleTimelineEntryTileBuilder(
-        layoutElement: LayoutElementBuilders.LayoutElement,
+        layoutElement: LayoutElementBuilders.LayoutElement
     ): TileBuilders.Tile.Builder =
         singleTimelineEntryTileBuilder(
             layout =

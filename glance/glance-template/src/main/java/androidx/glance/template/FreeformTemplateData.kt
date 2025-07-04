@@ -30,14 +30,14 @@ import androidx.glance.unit.ColorProvider
  * @param subtitle Text section subtitle, priority ordered
  * @param backgroundImage Background image, if set replaces the glanceable background
  */
-class FreeformTemplateData(
-    val backgroundColor: ColorProvider,
-    val headerIcon: TemplateImageWithDescription,
-    val actionIcon: TemplateImageButton?,
-    val header: TemplateText? = null,
-    val title: TemplateText? = null,
-    val subtitle: TemplateText? = null,
-    val backgroundImage: ImageProvider? = null,
+public class FreeformTemplateData(
+    public val backgroundColor: ColorProvider,
+    public val headerIcon: TemplateImageWithDescription,
+    public val actionIcon: TemplateImageButton?,
+    public val header: TemplateText? = null,
+    public val title: TemplateText? = null,
+    public val subtitle: TemplateText? = null,
+    public val backgroundImage: ImageProvider? = null,
 ) {
 
     override fun equals(other: Any?): Boolean {

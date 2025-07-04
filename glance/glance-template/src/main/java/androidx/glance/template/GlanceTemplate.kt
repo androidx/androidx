@@ -24,10 +24,10 @@ import androidx.glance.action.Action
 
 // TODO: Expand display context to include features other than orientation
 /** The glanceable display orientation */
-enum class TemplateMode {
+public enum class TemplateMode {
     Collapsed,
     Vertical,
-    Horizontal
+    Horizontal,
 }
 
 /**
@@ -36,7 +36,7 @@ enum class TemplateMode {
  * @param text The string to be displayed.
  * @param type The [TextType] of the item, used for styling. Default to [TextType.Title].
  */
-class TemplateText(val text: String, val type: TextType = TextType.Title) {
+public class TemplateText(public val text: String, public val type: TextType = TextType.Title) {
 
     override fun hashCode(): Int {
         var result = text.hashCode()
@@ -64,10 +64,10 @@ class TemplateText(val text: String, val type: TextType = TextType.Title) {
  * @param description The image description, usually used as alt text
  * @param cornerRadius The image corner radius in Dp
  */
-class TemplateImageWithDescription(
-    val image: ImageProvider,
-    val description: String,
-    val cornerRadius: Dp = 16.dp
+public class TemplateImageWithDescription(
+    public val image: ImageProvider,
+    public val description: String,
+    public val cornerRadius: Dp = 16.dp,
 ) {
 
     override fun hashCode(): Int =
@@ -89,7 +89,7 @@ class TemplateImageWithDescription(
  *
  * @param action The action to take when this button is clicked.
  */
-sealed class TemplateButton(val action: Action) {
+public sealed class TemplateButton(public val action: Action) {
 
     override fun hashCode(): Int = action.hashCode()
 
@@ -107,7 +107,7 @@ sealed class TemplateButton(val action: Action) {
  * @param action The onClick action
  * @param text The button display text
  */
-class TemplateTextButton(action: Action, val text: String) : TemplateButton(action) {
+public class TemplateTextButton(action: Action, public val text: String) : TemplateButton(action) {
 
     override fun hashCode(): Int = 31 * super.hashCode() + text.hashCode()
 
@@ -126,7 +126,7 @@ class TemplateTextButton(action: Action, val text: String) : TemplateButton(acti
  * @param action The onClick action
  * @param image The button image
  */
-class TemplateImageButton(action: Action, val image: TemplateImageWithDescription) :
+public class TemplateImageButton(action: Action, public val image: TemplateImageWithDescription) :
     TemplateButton(action) {
 
     override fun hashCode(): Int = 31 * super.hashCode() + image.hashCode()
@@ -159,11 +159,11 @@ class TemplateImageButton(action: Action, val image: TemplateImageWithDescriptio
  * @param text3 The text displayed third within the block.
  * @param priority The display priority number relative to other blocks.
  */
-class TextBlock(
-    val text1: TemplateText,
-    val text2: TemplateText? = null,
-    val text3: TemplateText? = null,
-    @IntRange(from = 0) val priority: Int = 0,
+public class TextBlock(
+    public val text1: TemplateText,
+    public val text2: TemplateText? = null,
+    public val text3: TemplateText? = null,
+    @IntRange(from = 0) public val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
         var result = text1.hashCode()
@@ -197,11 +197,11 @@ class TextBlock(
  * @param size The preferred size type of the images.
  * @param priority The display priority number relative to other blocks such as a [TextBlock].
  */
-class ImageBlock(
-    val images: List<TemplateImageWithDescription> = listOf(),
-    val aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
-    val size: ImageSize = ImageSize.Undefined,
-    @IntRange(from = 0) val priority: Int = 0,
+public class ImageBlock(
+    public val images: List<TemplateImageWithDescription> = listOf(),
+    public val aspectRatio: AspectRatio = AspectRatio.Ratio1x1,
+    public val size: ImageSize = ImageSize.Undefined,
+    @IntRange(from = 0) public val priority: Int = 0,
 ) {
     override fun hashCode(): Int {
         var result = images.hashCode()
@@ -232,9 +232,9 @@ class ImageBlock(
  * @param actionButtons The list of action buttons. Default to empty list.
  * @param type The type of action buttons. Default to [ButtonType.Icon]
  */
-class ActionBlock(
-    val actionButtons: List<TemplateButton> = listOf(),
-    val type: ButtonType = ButtonType.Icon,
+public class ActionBlock(
+    public val actionButtons: List<TemplateButton> = listOf(),
+    public val type: ButtonType = ButtonType.Icon,
 ) {
     override fun hashCode(): Int {
         var result = actionButtons.hashCode()
@@ -261,9 +261,9 @@ class ActionBlock(
  * @param text The header text.
  * @param icon The header image icon.
  */
-class HeaderBlock(
-    val text: TemplateText,
-    val icon: TemplateImageWithDescription? = null,
+public class HeaderBlock(
+    public val text: TemplateText,
+    public val icon: TemplateImageWithDescription? = null,
 ) {
     override fun hashCode(): Int {
         var result = text.hashCode()
@@ -290,16 +290,16 @@ class HeaderBlock(
  * Note that images not in the selected ratio are cropped for display by design.
  */
 @JvmInline
-value class AspectRatio private constructor(private val value: Int) {
-    companion object {
+public value class AspectRatio private constructor(private val value: Int) {
+    public companion object {
         /** The aspect ratio of 1 x 1. */
-        val Ratio1x1: AspectRatio = AspectRatio(0)
+        public val Ratio1x1: AspectRatio = AspectRatio(0)
 
         /** The aspect ratio of 16 x 9. */
-        val Ratio16x9: AspectRatio = AspectRatio(1)
+        public val Ratio16x9: AspectRatio = AspectRatio(1)
 
         /** The aspect ratio of 2 x 3. */
-        val Ratio2x3: AspectRatio = AspectRatio(2)
+        public val Ratio2x3: AspectRatio = AspectRatio(2)
     }
 }
 
@@ -307,37 +307,37 @@ value class AspectRatio private constructor(private val value: Int) {
  * The image size describes image scale category in sizing. Actual size is implementation dependent.
  */
 @JvmInline
-value class ImageSize private constructor(private val value: Int) {
-    companion object {
+public value class ImageSize private constructor(private val value: Int) {
+    public companion object {
         /** Unknown image scale for dynamic sizing by image hosting space available. */
-        val Undefined: ImageSize = ImageSize(0)
+        public val Undefined: ImageSize = ImageSize(0)
 
         /** Small sized image. */
-        val Small: ImageSize = ImageSize(1)
+        public val Small: ImageSize = ImageSize(1)
 
         /** Medium sized image. */
-        val Medium: ImageSize = ImageSize(2)
+        public val Medium: ImageSize = ImageSize(2)
 
         /** Large sized image. */
-        val Large: ImageSize = ImageSize(3)
+        public val Large: ImageSize = ImageSize(3)
     }
 }
 
 /** The type of button such as FAB/Icon/Text/IconText types */
 @JvmInline
-value class ButtonType private constructor(private val value: Int) {
-    companion object {
+public value class ButtonType private constructor(private val value: Int) {
+    public companion object {
         /** FAB (Floating Action Button) type of image button. */
-        val Fab: ButtonType = ButtonType(0)
+        public val Fab: ButtonType = ButtonType(0)
 
         /** Icon image button type. */
-        val Icon: ButtonType = ButtonType(1)
+        public val Icon: ButtonType = ButtonType(1)
 
         /** Text button type. */
-        val Text: ButtonType = ButtonType(2)
+        public val Text: ButtonType = ButtonType(2)
 
         /** Button with Text and Icon type. */
-        val TextIcon: ButtonType = ButtonType(3)
+        public val TextIcon: ButtonType = ButtonType(3)
     }
 }
 
@@ -346,21 +346,21 @@ value class ButtonType private constructor(private val value: Int) {
  * text styling.
  */
 @JvmInline
-value class TextType private constructor(private val value: Int) {
-    companion object {
+public value class TextType private constructor(private val value: Int) {
+    public companion object {
         /** The text is for display with large font size. */
-        val Display: TextType = TextType(0)
+        public val Display: TextType = TextType(0)
 
         /** The text is for title content with medium font size. */
-        val Title: TextType = TextType(1)
+        public val Title: TextType = TextType(1)
 
         /** The text is for label content with small font size. */
-        val Label: TextType = TextType(2)
+        public val Label: TextType = TextType(2)
 
         /** The text is for body content with small font size. */
-        val Body: TextType = TextType(3)
+        public val Body: TextType = TextType(3)
 
         /** The text is headline with small font size. */
-        val Headline: TextType = TextType(4)
+        public val Headline: TextType = TextType(4)
     }
 }

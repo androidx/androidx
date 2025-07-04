@@ -28,7 +28,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor
 
 /** Tracks whether or not the device's battery is charging. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
+public class BatteryChargingTracker(context: Context, taskExecutor: TaskExecutor) :
     BroadcastReceiverConstraintTracker<Boolean>(context, taskExecutor) {
 
     override fun readSystemState(): Boolean {

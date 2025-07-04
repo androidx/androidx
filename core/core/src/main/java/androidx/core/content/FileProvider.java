@@ -638,6 +638,9 @@ public class FileProvider extends ContentProvider {
         if (!info.grantUriPermissions) {
             throw new SecurityException("Provider must grant uri permissions");
         }
+        if (info.authority == null || info.authority.trim().isEmpty()) {
+            throw new SecurityException("Provider must have a non-empty authority");
+        }
 
         final String authority = info.authority.split(";")[0];
         synchronized (mLock) {

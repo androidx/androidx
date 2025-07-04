@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.IntRect
     replaceWith =
         ReplaceWith(
             "android.graphics.Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())"
-        )
+        ),
 )
 fun Rect.toAndroidRect(): android.graphics.Rect {
     return android.graphics.Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
@@ -52,7 +52,7 @@ fun android.graphics.Rect.toComposeRect(): androidx.compose.ui.geometry.Rect =
         this.left.toFloat(),
         this.top.toFloat(),
         this.right.toFloat(),
-        this.bottom.toFloat()
+        this.bottom.toFloat(),
     )
 
 /**

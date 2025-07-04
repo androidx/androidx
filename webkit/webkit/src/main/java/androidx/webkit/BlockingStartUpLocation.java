@@ -16,7 +16,7 @@
 
 package androidx.webkit;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * The code location where UI thread blocking WebView startup was triggered.

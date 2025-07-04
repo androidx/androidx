@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.12.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha02)" variant="all" version="8.12.0-alpha02">
 
     <issue
         id="BanInlineOptIn"
@@ -44,6 +44,42 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/ConstraintLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun gridComposableTest("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/constraintlayout/compose/GridDslTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun gridComposableGapTest(modifier: Modifier = Modifier, vGap: Int, hGap: Int) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/constraintlayout/compose/GridDslTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun gridComposableTest("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/constraintlayout/compose/GridTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun gridComposableGapTest("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/constraintlayout/compose/GridTest.kt"/>
     </issue>
 
     <issue

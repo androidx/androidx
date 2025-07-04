@@ -19,7 +19,6 @@ import android.content.Context
 import android.credentials.Credential
 import android.os.OutcomeReceiver
 import android.widget.EditText
-import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkImplHelper.Companion.convertGetRequestToFrameworkClass
 import androidx.credentials.internal.FrameworkImplHelper.Companion.convertGetResponseToJetpackClass
 import androidx.test.core.app.ApplicationProvider
@@ -42,7 +41,7 @@ class CredentialManagerViewHandlerTest {
     }
 
     @Test
-    @RequiresApi(35)
+    @SdkSuppress(minSdkVersion = 35)
     fun setPendingCredentialRequest_frameworkAttrSetSuccessfully() {
         val editText = EditText(mContext)
         val pendingGetCredentialRequest =
@@ -55,7 +54,7 @@ class CredentialManagerViewHandlerTest {
     }
 
     @Test
-    @RequiresApi(35)
+    @SdkSuppress(minSdkVersion = 35)
     @Throws(InterruptedException::class)
     fun setPendingCredentialRequest_callbackInvokedSuccessfully() {
         val latch1 = CountDownLatch(1)

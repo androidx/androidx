@@ -42,8 +42,10 @@ internal class KeyboardActionRunner(private val keyboardController: SoftwareKeyb
     /**
      * Run the keyboard action corresponding to the specified imeAction. If a keyboard action is not
      * specified, use the default implementation provided by [defaultKeyboardAction].
+     *
+     * @return Whether an action was actually performed.
      */
-    fun runAction(imeAction: ImeAction) {
+    fun runAction(imeAction: ImeAction): Boolean {
         val keyboardAction =
             when (imeAction) {
                 Done -> keyboardActions.onDone
@@ -56,22 +58,39 @@ internal class KeyboardActionRunner(private val keyboardController: SoftwareKeyb
                 None -> null
                 else -> error("invalid ImeAction")
             }
-        keyboardAction?.invoke(this) ?: defaultKeyboardAction(imeAction)
+        if (keyboardAction != null) {
+            keyboardAction()
+            return true
+        } else return defaultKeyboardActionWithResult(imeAction)
+    }
+
+    /**
+     * Performs the default keyboard action for the given [imeAction], if any.
+     *
+     * @return whether an action was actually performed.
+     */
+    private fun defaultKeyboardActionWithResult(imeAction: ImeAction): Boolean {
+        return when (imeAction) {
+            Next -> {
+                focusManager.moveFocus(FocusDirection.Next)
+                true
+            }
+            Previous -> {
+                focusManager.moveFocus(FocusDirection.Previous)
+                true
+            }
+            Done -> {
+                if (keyboardController != null) {
+                    keyboardController.hide()
+                    true
+                } else false
+            }
+            else -> false
+        }
     }
 
     /** Default implementations for [KeyboardActions]. */
     override fun defaultKeyboardAction(imeAction: ImeAction) {
-        when (imeAction) {
-            Next -> focusManager.moveFocus(FocusDirection.Next)
-            Previous -> focusManager.moveFocus(FocusDirection.Previous)
-            Done -> keyboardController?.hide()
-            // Note: Don't replace this with an else. These are specified explicitly so that we
-            // don't forget to update this when statement when new imeActions are added.
-            Go,
-            Search,
-            Send,
-            Default,
-            None -> Unit // Do Nothing.
-        }
+        defaultKeyboardActionWithResult(imeAction)
     }
 }

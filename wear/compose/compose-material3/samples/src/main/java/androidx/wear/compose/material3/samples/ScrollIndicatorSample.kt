@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,12 +28,30 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.ScrollIndicator
 import androidx.wear.compose.material3.Text
 
 @Sampled
+@Preview
+@Composable
+fun ScrollIndicatorWithTLCSample() {
+    val scrollState = rememberTransformingLazyColumnState()
+    Box {
+        TransformingLazyColumn(modifier = Modifier.background(Color.Black), state = scrollState) {
+            items(100) { Text(text = "Item $it") }
+        }
+        ScrollIndicator(modifier = Modifier.align(Alignment.CenterEnd), state = scrollState)
+    }
+}
+
+@Sampled
+@Preview
 @Composable
 fun ScrollIndicatorWithSLCSample() {
     val scrollState = rememberScalingLazyListState()
@@ -45,6 +64,7 @@ fun ScrollIndicatorWithSLCSample() {
 }
 
 @Sampled
+@Preview
 @Composable
 fun ScrollIndicatorWithLCSample() {
     val scrollState = rememberLazyListState()
@@ -52,7 +72,7 @@ fun ScrollIndicatorWithLCSample() {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            state = scrollState
+            state = scrollState,
         ) {
             items(100) { Text(text = "Item $it") }
         }
@@ -61,13 +81,14 @@ fun ScrollIndicatorWithLCSample() {
 }
 
 @Sampled
+@Preview
 @Composable
 fun ScrollIndicatorWithColumnSample() {
     val scrollState = rememberScrollState()
     Box {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             repeat(100) { Text(text = "Item $it") }
         }

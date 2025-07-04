@@ -61,6 +61,8 @@
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"ქვედა ფურცლის ჩაკეცვა"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"ქვედა ფურცლის უარყოფა"</string>
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"ქვედა ფურცლის გაშლა"</string>
+    <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"ხელსაწყოთა ზოლის ჩაკეცვა"</string>
+    <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"ხელსაწყოთა ზოლის გაფართოება"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"მინიშნება"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"მინიშნების ჩვენება"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -75,6 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"საათი"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"რამდენიმე წუთით"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"ერთი საათით"</string>
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"დროის შეყვანისთვის ტექსტის შეყვანის რეჟიმზე გადართვა"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"დროის შეყვანისთვის საათის რეჟიმზე გადართვა"</string>
+    <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"აირჩიეთ დრო"</string>
+    <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"შეიყვანეთ დრო"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"არხის დახურვა"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"ნავიგაციის არხი"</string>
 </resources>

@@ -144,6 +144,10 @@ public class SupportedOutputSizesSorter {
                 candidateSizes = applyHighResolutionSettings(candidateSizes,
                         resolutionSelector, useCaseConfig.getInputFormat());
             }
+
+            Logger.d(TAG,
+                    "useCaseConfig = " + useCaseConfig + ", candidateSizes = " + candidateSizes);
+
             return sortSupportedOutputSizesByResolutionSelector(
                     imageOutputConfig.getResolutionSelector(),
                     candidateSizes,

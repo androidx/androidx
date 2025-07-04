@@ -1,6 +1,7 @@
 package foo
 
 import android.os.Bundle
+import androidx.`annotation`.CheckResult
 import androidx.navigation.NavDirections
 import kotlin.Int
 import kotlin.String
@@ -20,9 +21,10 @@ public class InnerSettingsDirections private constructor() {
   }
 
   public companion object {
+    @CheckResult
     public fun exit(exitReason: Int): NavDirections = Exit(exitReason)
 
-    public fun main(enterReason: String = "DEFAULT"): NavDirections =
-        SettingsDirections.main(enterReason)
+    @CheckResult
+    public fun main(enterReason: String = "DEFAULT"): NavDirections = SettingsDirections.main(enterReason)
   }
 }

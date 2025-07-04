@@ -55,7 +55,7 @@ import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.marshall
  * @property isDefaultIconPreferredAsSingleProvider when set to true, the UI prefers to render the
  *   default credential type icon when you are the only available provider; see individual
  *   subclasses for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
- *   [R.drawable.ic_password])
+ *   [R.drawable.adx_ic_password])
  * @property biometricPromptData the data that is set optionally to utilize a credential manager
  *   flow that directly handles the biometric verification and presents back the response; set to
  *   null by default, so if not opted in, the embedded biometric prompt flow will not show
@@ -272,23 +272,23 @@ internal constructor(
             bundle.putString("$EXTRA_CREDENTIAL_ENTRY_ENTRY_TYPE_PREFIX$index", this.type)
             bundle.putString(
                 "$EXTRA_CREDENTIAL_ENTRY_OPTION_ID_PREFIX$index",
-                this.beginGetCredentialOption.id
+                this.beginGetCredentialOption.id,
             )
             bundle.putString(
                 "$EXTRA_CREDENTIAL_ENTRY_OPTION_TYPE_PREFIX$index",
-                this.beginGetCredentialOption.type
+                this.beginGetCredentialOption.type,
             )
             bundle.putBundle(
                 "$EXTRA_CREDENTIAL_ENTRY_OPTION_DATA_PREFIX$index",
-                this.beginGetCredentialOption.candidateQueryData
+                this.beginGetCredentialOption.candidateQueryData,
             )
             bundle.putCharSequence(
                 "$EXTRA_CREDENTIAL_ENTRY_ENTRY_GROUP_ID_PREFIX$index",
-                this.entryGroupId
+                this.entryGroupId,
             )
             bundle.putBoolean(
                 "$EXTRA_CREDENTIAL_ENTRY_IS_DEFAULT_ICON_PREFERRED_AS_SINGLE_PROV_PREFIX$index",
-                this.isDefaultIconPreferredAsSingleProvider
+                this.isDefaultIconPreferredAsSingleProvider,
             )
             this.affiliatedDomain?.let {
                 bundle.putCharSequence("$EXTRA_CREDENTIAL_ENTRY_AFFILIATED_DOMAIN_PREFIX$index", it)

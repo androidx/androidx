@@ -49,7 +49,7 @@ constructor(
     BeginGetCredentialOption(
         id,
         PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-        candidateQueryData
+        candidateQueryData,
     ) {
     init {
         require(RequestValidationUtil.isValidJSON(requestJson)) {
@@ -74,7 +74,7 @@ constructor(
         @JvmStatic
         internal fun createFromEntrySlice(
             data: Bundle,
-            id: String
+            id: String,
         ): BeginGetPublicKeyCredentialOption {
             val requestJson = "{\"dummy_key\":\"dummy_value\"}"
             return BeginGetPublicKeyCredentialOption(data, id, requestJson)

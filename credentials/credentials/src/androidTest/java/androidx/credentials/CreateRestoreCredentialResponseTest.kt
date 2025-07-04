@@ -36,7 +36,7 @@ class CreateRestoreCredentialResponseTest {
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             CreateRestoreCredentialResponse("")
         }
@@ -46,7 +46,7 @@ class CreateRestoreCredentialResponseTest {
     fun constructor_invalidJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
             "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             CreateRestoreCredentialResponse("invalid")
         }
@@ -71,7 +71,7 @@ class CreateRestoreCredentialResponseTest {
         val expectedData = Bundle()
         expectedData.putString(
             CreateRestoreCredentialResponse.BUNDLE_KEY_CREATE_RESTORE_CREDENTIAL_RESPONSE,
-            registrationResponseJsonExpected
+            registrationResponseJsonExpected,
         )
 
         val response = CreateRestoreCredentialResponse(registrationResponseJsonExpected)

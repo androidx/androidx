@@ -47,7 +47,7 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Char
                     it,
                     spanned.getSpanStart(it),
                     spanned.getSpanEnd(it),
-                    spanned.getSpanFlags(it)
+                    spanned.getSpanFlags(it),
                 )
             }
         return assertAbout(SpanIterableSubject.factory(spanClazz)).that(spans)!!
@@ -68,14 +68,12 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Char
         spanClazz: KClass<out T>,
         start: Int,
         end: Int,
-        predicate: ((T) -> Boolean)? = null
+        predicate: ((T) -> Boolean)? = null,
     ) {
         spans(spanClazz).has(start, end, predicate)
     }
 
-    fun <T : Any> doesNotHaveSpan(
-        spanClazz: KClass<out T>,
-    ) {
+    fun <T : Any> doesNotHaveSpan(spanClazz: KClass<out T>) {
         spans(spanClazz).isEmpty()
     }
 
@@ -92,7 +90,7 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Char
         spanClazz: KClass<out T>,
         start: Int,
         end: Int,
-        predicate: ((T) -> Boolean)? = null
+        predicate: ((T) -> Boolean)? = null,
     ) {
         spans(spanClazz).hasOnTop(start, end, predicate)
     }
@@ -103,7 +101,7 @@ internal class SpanIterableSubject<T : Any>
 private constructor(
     failureMetadata: FailureMetadata?,
     private val subjects: List<SpanInfo<out T>>?,
-    private val spanClazz: KClass<out T>
+    private val spanClazz: KClass<out T>,
 ) : IterableSubject(failureMetadata, subjects) {
 
     companion object {
@@ -181,7 +179,7 @@ private constructor(
             return "{" +
                 subjects.joinToString(
                     separator = ", ",
-                    transform = { "${it.span::class.java.simpleName}[${it.start}, ${it.end}]" }
+                    transform = { "${it.span::class.java.simpleName}[${it.start}, ${it.end}]" },
                 ) +
                 "}"
         } else {

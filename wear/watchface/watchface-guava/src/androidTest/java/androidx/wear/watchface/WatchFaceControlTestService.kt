@@ -97,7 +97,7 @@ public open class WatchFaceControlClientServiceTest {
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
             },
-            resourceOnlyWatchFacePackageName = null
+            resourceOnlyWatchFacePackageName = null,
         )
     }
 
@@ -108,7 +108,7 @@ public open class WatchFaceControlClientServiceTest {
                 Intent(context, WatchFaceControlTestService::class.java).apply {
                     action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
                 },
-                resourceOnlyWatchFacePackageName
+                resourceOnlyWatchFacePackageName,
             )
         }
 

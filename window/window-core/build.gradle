@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
@@ -34,17 +33,15 @@ androidXMultiplatform {
     jvm()
     androidLibrary {
         namespace = "androidx.window.core"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
     }
     mac()
     linux()
     ios()
     watchos()
     tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -58,12 +55,10 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation(libs.kotlinTest)
+                // https://youtrack.jetbrains.com/issue/KT-71032
+                implementation(libs.kotlinTestForWasmTests)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesCore)
-                // TODO remove when https://youtrack.jetbrains.com/issue/KT-62368/Kotlin-1.9.X-fails-to-detect-kotlin.test.Test-annotation-reference-on-commonTest-source-set-when-targeting-JVMAndroid
-                // is fixed
-                implementation(libs.kotlinTestJunit)
             }
         }
 
@@ -72,17 +67,40 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
             }
         }
-    }
 
-    enableBinaryCompatibilityValidator = false
+        jsMain {
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+            }
+        }
+
+        jsTest {
+            dependencies {
+                implementation(libs.kotlinStdlibJs)
+                implementation(libs.kotlinTestJs)
+            }
+        }
+
+        wasmJsMain {
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+            }
+        }
+
+        wasmJsTest {
+            dependencies {
+                implementation(libs.kotlinStdlibWasm)
+                implementation(libs.kotlinTestWasm)
+            }
+        }
+    }
 }
 
 androidx {
     name = "WindowManager Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "WindowManager Core Library."
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    samples(project(":window:window-core-samples"))
 }

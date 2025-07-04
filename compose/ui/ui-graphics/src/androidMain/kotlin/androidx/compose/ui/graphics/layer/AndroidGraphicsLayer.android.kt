@@ -41,7 +41,7 @@ import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.layer.LayerManager.Companion.isRobolectric
+import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -53,11 +53,7 @@ import androidx.compose.ui.util.fastRoundToInt
 import org.jetbrains.annotations.TestOnly
 
 @Suppress("NotCloseable")
-actual class GraphicsLayer
-internal constructor(
-    internal val impl: GraphicsLayerImpl,
-    private val layerManager: LayerManager?
-) {
+actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayerImpl) {
     private var density = DefaultDensity
     private var layoutDirection = LayoutDirection.Ltr
     private var drawBlock: DrawScope.() -> Unit = {}
@@ -67,9 +63,9 @@ internal constructor(
     private val clipDrawBlock: DrawScope.() -> Unit = {
         val path = outlinePath
         if (usePathForClip && clip && path != null) {
-            clipPath(path, block = drawBlock)
+            clipPath(path) { drawWithChildTracking() }
         } else {
-            drawBlock()
+            drawWithChildTracking()
         }
     }
 
@@ -421,7 +417,7 @@ internal constructor(
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) {
         this.size = size
         this.density = density
@@ -432,10 +428,14 @@ internal constructor(
     }
 
     private fun recordInternal() {
+        impl.record(density, layoutDirection, this, clipDrawBlock)
+    }
+
+    private fun DrawScope.drawWithChildTracking() {
         childDependenciesTracker.withTracking(
             onDependencyRemoved = { it.onRemovedFromParentLayer() }
         ) {
-            impl.record(density, layoutDirection, this, clipDrawBlock)
+            drawBlock()
         }
     }
 
@@ -550,7 +550,9 @@ internal constructor(
             impl.draw(canvas)
         } else {
             val drawScope = softwareDrawScope ?: CanvasDrawScope().also { softwareDrawScope = it }
-            drawScope.draw(density, layoutDirection, canvas, size.toSize(), drawBlock)
+            drawScope.draw(density, layoutDirection, canvas, size.toSize(), this) {
+                drawWithChildTracking()
+            }
         }
 
         if (willClipPath) {
@@ -595,7 +597,7 @@ internal constructor(
                         updatePathOutline(tmpPath)?.apply { alpha = this@GraphicsLayer.alpha }
                     impl.setOutline(
                         androidOutline,
-                        IntSize(bounds.width().fastRoundToInt(), bounds.height().fastRoundToInt())
+                        IntSize(bounds.width().fastRoundToInt(), bounds.height().fastRoundToInt()),
                     )
                     if (usePathForClip && clip) {
                         impl.clip = false
@@ -686,11 +688,7 @@ internal constructor(
 
     private fun discardContentIfReleasedAndHaveNoParentLayerUsages() {
         if (isReleased && parentLayerUsages == 0) {
-            if (layerManager != null) {
-                layerManager.release(this)
-            } else {
-                discardDisplayList()
-            }
+            discardDisplayList()
         }
     }
 
@@ -871,6 +869,7 @@ internal constructor(
     actual suspend fun toImageBitmap(): ImageBitmap = SnapshotImpl.toBitmap(this).asImageBitmap()
 
     companion object {
+        private val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
 
         // See b/340578758, fallback to software rendering for Robolectric tests
         private val SnapshotImpl =
@@ -984,7 +983,7 @@ internal interface GraphicsLayerImpl {
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     )
 
     val hasDisplayList: Boolean

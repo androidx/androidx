@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -34,21 +33,22 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.7.4")
-    api("androidx.compose.runtime:runtime:1.7.4")
-    api(project(":compose:ui:ui"))
-    api(project(":compose:ui:ui-text"))
+    api("androidx.compose.foundation:foundation:1.8.0")
+    api("androidx.compose.runtime:runtime:1.8.0")
+    api("androidx.compose.ui:ui:1.8.2")
+    api("androidx.compose.ui:ui-text:1.8.0")
     api(project(":wear:compose:compose-foundation"))
 
     implementation(libs.kotlinCoroutinesCore)
-    implementation("androidx.compose.animation:animation:1.7.4")
-    implementation("androidx.compose.material:material-icons-core:1.7.4")
-    implementation("androidx.compose.material:material-ripple:1.7.4")
-    implementation("androidx.compose.ui:ui-util:1.7.4")
+    implementation("androidx.compose.animation:animation:1.8.0")
+    implementation("androidx.compose.material:material-icons-core:1.7.7")
+    implementation("androidx.compose.material:material-ripple:1.7.7")
+    implementation("androidx.compose.ui:ui-util:1.8.0")
+    implementation("androidx.core:core:1.15.0")
     implementation(project(":wear:compose:compose-material-core"))
     implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.graphics:graphics-shapes:1.0.1")
-    implementation("androidx.compose.animation:animation-graphics:1.7.4")
+    implementation("androidx.compose.animation:animation-graphics:1.8.0")
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -58,6 +58,10 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":wear:compose:compose-material3-samples"))
+    androidTestImplementation(project(":wear:wear"))
+    androidTestImplementation(libs.leakcanary)
+    androidTestImplementation(libs.leakcanaryInstrumentation)
+    androidTestImplementation(libs.espressoCore)
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -74,26 +78,22 @@ android {
     defaultConfig {
         minSdk = 25
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
+    testOptions.unitTests.returnDefaultValues = true
     namespace = "androidx.wear.compose.material3"
 }
 
 androidx {
     name = "Android Wear Compose Material 3"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    mavenVersion = LibraryVersions.WEAR_COMPOSE_MATERIAL3
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2022"
     description = "WearOS Compose Material 3 Library. This library makes it easier for " +
             "developers to write Jetpack Compose applications for Wearable devices that " +
             "implement Wear Material 3 Design UX guidelines and specifications. It builds upon " +
             "the Jetpack Compose libraries."
-    metalavaK2UastEnabled = false
     samples(project(":wear:compose:compose-material3-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     addGoldenImageAssets()
 }
 

@@ -22,8 +22,8 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 
 /** Callback for [SdkSandboxControllerCompat.loadSdk] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface LoadSdkCallback {
-    fun onResult(result: SandboxedSdkCompat)
+public interface LoadSdkCallback {
+    public fun onResult(result: SandboxedSdkCompat)
 
-    fun onError(error: LoadSdkCompatException)
+    public fun onError(error: LoadSdkCompatException)
 }

@@ -116,7 +116,7 @@ class FragmentTest {
                     R.anim.long_fade_in,
                     R.anim.long_fade_out,
                     R.anim.long_fade_in,
-                    R.anim.long_fade_out
+                    R.anim.long_fade_out,
                 )
                 .replace(R.id.content, fragmentB)
                 .addToBackStack(null)
@@ -132,7 +132,7 @@ class FragmentTest {
                     R.anim.long_fade_in,
                     R.anim.long_fade_out,
                     R.anim.long_fade_in,
-                    R.anim.long_fade_out
+                    R.anim.long_fade_out,
                 )
                 .replace(R.id.content, fragmentA)
                 .addToBackStack(null)
@@ -172,7 +172,7 @@ class FragmentTest {
                     R.anim.long_fade_in,
                     R.anim.long_fade_out,
                     R.anim.long_fade_in,
-                    R.anim.long_fade_out
+                    R.anim.long_fade_out,
                 )
                 .replace(R.id.content, fragmentB)
                 .addToBackStack(null)

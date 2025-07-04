@@ -16,21 +16,27 @@
 package androidx.appcompat.widget;
 
 import static androidx.appcompat.testutils.TestUtilsActions.setTextAppearance;
+import static androidx.core.view.ViewKt.drawToBitmap;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeFalse;
 
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 
@@ -142,5 +148,38 @@ public class AppCompatButtonTest
         // Argument is nullable.
         view.setCustomSelectionActionModeCallback(null);
         assertNull(view.getCustomSelectionActionModeCallback());
+    }
+
+    @RequiresApi(26)
+    private void assertSystemHasVariableFont() {
+        AppCompatButton button = mActivity.findViewById(R.id.button_font_adjustment);
+
+        button.setFontVariationSettings("'wght' 400");
+        Bitmap regular = drawToBitmap(button, Bitmap.Config.ARGB_8888);
+
+        button.setFontVariationSettings("'wght' 700");
+        Bitmap bold = drawToBitmap(button, Bitmap.Config.ARGB_8888);
+
+        assumeFalse(regular.sameAs(bold));
+    }
+
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testFontAdjustment() {
+        // Skip if the system default font is not a variable font.
+        assertSystemHasVariableFont();
+
+        AppCompatButton button = mActivity.findViewById(R.id.button_font_adjustment);
+
+        button.setFontVariationSettings("'wght' 400.0");
+        Bitmap before = drawToBitmap(button, Bitmap.Config.ARGB_8888);
+
+        button.getFontVariationSettingsManager().setFontWeightAdjustmentForTesting(300);
+        button.setFontVariationSettings("'wght' 400.0");
+        Bitmap after = drawToBitmap(button, Bitmap.Config.ARGB_8888);
+
+        // The font weight adjustment should change the weight of the variation settings.
+        assertFalse(before.sameAs(after));
     }
 }

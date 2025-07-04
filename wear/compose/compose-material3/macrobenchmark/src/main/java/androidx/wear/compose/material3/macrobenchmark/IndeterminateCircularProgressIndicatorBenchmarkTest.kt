@@ -28,5 +28,5 @@ class IndeterminateCircularProgressIndicatorBenchmarkTest(compilationMode: Compi
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = IndeterminateCircularProgressIndicatorBenchmark,
-        actionSuffix = "INDETERMINATE_CIRCULAR_PROGRESS_INDICATOR_ACTIVITY"
+        actionSuffix = "INDETERMINATE_CIRCULAR_PROGRESS_INDICATOR_ACTIVITY",
     )

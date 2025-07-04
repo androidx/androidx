@@ -33,6 +33,7 @@ import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCame
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
 import androidx.camera.testing.impl.StressTestRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -115,6 +116,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
 
     @Test
     fun canCaptureSingleImage() {
+        assumePcsSupportedForImageCapture(context)
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
@@ -145,6 +147,7 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
 
     @Test
     fun canCaptureImage_afterPauseResume() {
+        assumePcsSupportedForImageCapture(context)
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity
@@ -172,12 +175,13 @@ class Camera2ExtensionsActivityTest(private val config: CameraIdExtensionModePai
         CoreAppTestUtil.launchAutoClosedForegroundActivity(
             context,
             InstrumentationRegistry.getInstrumentation(),
-            countingIdlingResource
+            countingIdlingResource,
         )
     }
 
     @Test
     fun canCaptureMultipleImages() {
+        assumePcsSupportedForImageCapture(context)
         val activityScenario =
             launchCamera2ExtensionsActivityAndWaitForCaptureSessionConfigured(config)
         with(activityScenario) { // Launches activity

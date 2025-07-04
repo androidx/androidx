@@ -56,7 +56,7 @@ class TrivialListScrollBenchmark(private val compilationMode: CompilationMode) {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             val recycler = device.findObject(By.res(PACKAGE_NAME, RESOURCE_ID))
             // Setting a gesture margin is important otherwise gesture nav is triggered.

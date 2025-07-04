@@ -31,10 +31,9 @@ import androidx.camera.video.Quality
 import androidx.camera.video.Quality.ConstantQuality
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
+import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
-import androidx.camera.video.internal.config.VideoConfigUtil
-import androidx.camera.video.internal.encoder.VideoEncoderConfig
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 
 /**
@@ -50,8 +49,7 @@ import androidx.camera.video.internal.encoder.VideoEncoderInfo
 public class DefaultEncoderProfilesProvider(
     private val cameraInfo: CameraInfoInternal,
     private val targetQualities: List<Quality>,
-    private val videoEncoderInfoFinder:
-        androidx.arch.core.util.Function<VideoEncoderConfig, VideoEncoderInfo>
+    private val videoEncoderInfoFinder: VideoEncoderInfo.Finder,
 ) : EncoderProfilesProvider {
 
     private val supportedSizes by lazy {
@@ -77,7 +75,7 @@ public class DefaultEncoderProfilesProvider(
 
         return createDefaultEncoderProfiles(
             videoProfile = videoProfile,
-            audioProfile = createDefaultAudioProfile()
+            audioProfile = createDefaultAudioProfile(),
         )
     }
 
@@ -91,7 +89,7 @@ public class DefaultEncoderProfilesProvider(
                 resolveVideoProfile(
                     width = size.width,
                     height = size.height,
-                    bitrate = qualityObj.getTypicalBitrate()
+                    bitrate = qualityObj.getTypicalBitrate(),
                 )
 
             if (videoProfile != null) {
@@ -104,9 +102,7 @@ public class DefaultEncoderProfilesProvider(
     private fun resolveVideoProfile(width: Int, height: Int, bitrate: Int): VideoProfileProxy? {
         val videoProfile =
             createDefaultVideoProfile(width = width, height = height, bitrate = bitrate)
-        val encoderInfo =
-            videoEncoderInfoFinder.apply(VideoConfigUtil.toVideoEncoderConfig(videoProfile))
-                ?: return null
+        val encoderInfo = videoEncoderInfoFinder.find(videoProfile.mediaType) ?: return null
 
         if (!encoderInfo.isSizeSupportedAllowSwapping(width, height)) {
             return null
@@ -133,13 +129,13 @@ public class DefaultEncoderProfilesProvider(
         defaultDurationSeconds: Int = DEFAULT_DURATION_SECONDS,
         recommendedFileFormat: Int = DEFAULT_OUTPUT_FORMAT,
         videoProfile: VideoProfileProxy,
-        audioProfile: AudioProfileProxy
+        audioProfile: AudioProfileProxy,
     ): EncoderProfilesProxy {
         return EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
             defaultDurationSeconds,
             recommendedFileFormat,
             listOf(audioProfile),
-            listOf(videoProfile)
+            listOf(videoProfile),
         )
     }
 
@@ -159,7 +155,7 @@ public class DefaultEncoderProfilesProvider(
         profile: Int = DEFAULT_VIDEO_PROFILE,
         bitDepth: Int = DEFAULT_VIDEO_BIT_DEPTH,
         chromaSubsampling: Int = DEFAULT_VIDEO_CHROMA_SUBSAMPLING,
-        hdrFormat: Int = DEFAULT_VIDEO_HDR_FORMAT
+        hdrFormat: Int = DEFAULT_VIDEO_HDR_FORMAT,
     ): VideoProfileProxy {
         return VideoProfileProxy.create(
             codec,
@@ -171,7 +167,7 @@ public class DefaultEncoderProfilesProvider(
             profile,
             bitDepth,
             chromaSubsampling,
-            hdrFormat
+            hdrFormat,
         )
     }
 
@@ -187,7 +183,7 @@ public class DefaultEncoderProfilesProvider(
         bitRate: Int = DEFAULT_AUDIO_BITRATE,
         sampleRate: Int = DEFAULT_AUDIO_SAMPLE_RATE,
         channels: Int = DEFAULT_AUDIO_CHANNELS,
-        profile: Int = DEFAULT_AUDIO_PROFILE
+        profile: Int = DEFAULT_AUDIO_PROFILE,
     ): AudioProfileProxy {
         return AudioProfileProxy.create(codec, mimeType, bitRate, sampleRate, channels, profile)
     }
@@ -208,7 +204,8 @@ public class DefaultEncoderProfilesProvider(
         }
 
     private fun List<Quality>.find(quality: Int): ConstantQuality? =
-        find { (it as ConstantQuality).getValue() == quality } as? ConstantQuality
+        find { (it as ConstantQuality).getQualityValue(QUALITY_SOURCE_REGULAR) == quality }
+            as? ConstantQuality
 
     public companion object {
         // Duration seconds value is observed from real devices.

@@ -43,14 +43,19 @@ import java.time.ZonedDateTime
  *   mode and burn in protection needed to render correctly.
  * @param invalidateCallback The [CanvasComplication.InvalidateCallback] associated with which can
  *   be used to request screen redrawing and to report updates
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public open class CanvasComplicationDrawable
 @SuppressWarnings("ExecutorRegistration") // invalidateCallback is owned by the library and
 // the callback is thread safe.
 constructor(
     drawable: ComplicationDrawable,
     private val watchState: WatchState,
-    private val invalidateCallback: CanvasComplication.InvalidateCallback
+    private val invalidateCallback: CanvasComplication.InvalidateCallback,
 ) : CanvasComplication {
 
     internal companion object {
@@ -66,13 +71,13 @@ constructor(
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 EXPANSION_DP,
-                Resources.getSystem().displayMetrics
+                Resources.getSystem().displayMetrics,
             ),
             TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 STROKE_WIDTH_DP,
-                Resources.getSystem().displayMetrics
-            )
+                Resources.getSystem().displayMetrics,
+            ),
         )
     }
 
@@ -111,7 +116,7 @@ constructor(
         bounds: Rect,
         zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters,
-        slotId: Int
+        slotId: Int,
     ) {
         if (!renderParameters.watchFaceLayers.contains(WatchFaceLayer.COMPLICATIONS)) {
             return
@@ -134,7 +139,7 @@ constructor(
         bounds: Rect,
         boundsType: Int,
         zonedDateTime: ZonedDateTime,
-        @ColorInt color: Int
+        @ColorInt color: Int,
     ) {
         if (boundsType == ComplicationSlotBoundsType.ROUND_RECT) {
             complicationHighlightRenderer.drawComplicationHighlight(canvas, bounds, color)
@@ -160,7 +165,7 @@ constructor(
     @CallSuper
     override fun loadData(
         complicationData: ComplicationData,
-        loadDrawablesAsynchronous: Boolean
+        loadDrawablesAsynchronous: Boolean,
     ): Unit =
         TraceEvent("CanvasComplicationDrawable.setIdAndData").use {
             _data = complicationData

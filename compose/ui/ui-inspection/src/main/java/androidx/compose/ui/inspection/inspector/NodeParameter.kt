@@ -26,7 +26,7 @@ internal constructor(
     val type: ParameterType,
 
     /** The value of the parameter. */
-    val value: Any?
+    val value: Any?,
 ) {
     /** Sub elements of the parameter. */
     val elements = mutableListOf<NodeParameter>()

@@ -19,13 +19,13 @@ package androidx.activity
 import android.content.Context
 import android.os.Build
 import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
@@ -61,7 +61,7 @@ class ComponentDialogTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     @Test
     @Throws(Throwable::class)
     fun savedState() {
@@ -201,7 +201,7 @@ class ViewOwnerDialog(context: Context) : ComponentDialog(context) {
             val onBackPressedDispatcherOwner = findViewTreeOnBackPressedDispatcherOwner()!!
             onBackPressedDispatcherOwner.onBackPressedDispatcher.addCallback(
                 onBackPressedDispatcherOwner,
-                onBackPressedCallback
+                onBackPressedCallback,
             )
         }
     }

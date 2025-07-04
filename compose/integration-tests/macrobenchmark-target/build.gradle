@@ -28,13 +28,32 @@ android {
     }
 }
 
+/**
+ * Exclusion groups for JetBrains Compose. When a dependency depends on JetBrains Compose, prebuilts
+ * for all other platforms will be pulled in. We also want to ensure we're using *Jetpack* Compose
+ * and not mix JetBrains and Jetpack Compose.
+ *
+ * IMPORTANT: When adding a dependency here, please make sure that it is otherwise present on the
+ * classpath.
+ */
+def jetbrainsComposeExcludeGroups = [
+        'org.jetbrains.androidx.lifecycle',
+        'org.jetbrains.compose.animation',
+        'org.jetbrains.compose.annotation-internal',
+        'org.jetbrains.compose.collection-internal',
+        'org.jetbrains.compose.foundation',
+        'org.jetbrains.compose.runtime',
+        'org.jetbrains.compose.ui',
+        'org.jetbrains.skiko'
+]
+
 dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     implementation(libs.kotlinStdlib)
     implementation(libs.material)
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.cardview:cardview:1.0.0")
     // old version of common-java8 conflicts with newer version, because both have
@@ -54,5 +73,9 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling"))
     implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":constraintlayout:constraintlayout-compose"))
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt.coil3:coil-compose-android:3.1.0") {
+        jetbrainsComposeExcludeGroups.each { group ->
+            exclude group: group
+        }
+    }
 }

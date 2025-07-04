@@ -35,7 +35,7 @@ public object Camera2Util {
     public suspend fun openCameraDevice(
         cameraManager: CameraManager,
         cameraId: String,
-        handler: Handler
+        handler: Handler,
     ): CameraDevice {
         val deferred = CompletableDeferred<CameraDevice>()
         cameraManager.openCamera(
@@ -55,7 +55,7 @@ public object Camera2Util {
                     )
                 }
             },
-            handler
+            handler,
         )
         return deferred.await()
     }
@@ -64,7 +64,7 @@ public object Camera2Util {
     public suspend fun openCaptureSession(
         cameraDevice: CameraDevice,
         surfaceList: List<Surface>,
-        handler: Handler
+        handler: Handler,
     ): CameraCaptureSession {
         val deferred = CompletableDeferred<CameraCaptureSession>()
         @Suppress("deprecation")
@@ -80,7 +80,7 @@ public object Camera2Util {
                     deferred.completeExceptionally(RuntimeException("onConfigureFailed"))
                 }
             },
-            handler
+            handler,
         )
         return deferred.await()
     }
@@ -93,7 +93,7 @@ public object Camera2Util {
         cameraDevice: CameraDevice,
         session: CameraCaptureSession,
         surfaces: List<Surface>,
-        handler: Handler
+        handler: Handler,
     ): TotalCaptureResult {
         val builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
         for (surface in surfaces) {
@@ -106,7 +106,7 @@ public object Camera2Util {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
-                    result: TotalCaptureResult
+                    result: TotalCaptureResult,
                 ) {
                     deferredCapture.complete(result)
                 }
@@ -114,12 +114,12 @@ public object Camera2Util {
                 override fun onCaptureFailed(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
-                    failure: CaptureFailure
+                    failure: CaptureFailure,
                 ) {
                     deferredCapture.completeExceptionally(RuntimeException("capture failed"))
                 }
             },
-            handler
+            handler,
         )
         return deferredCapture.await()
     }
@@ -131,7 +131,7 @@ public object Camera2Util {
         cameraDevice: CameraDevice,
         session: CameraCaptureSession,
         surfaces: List<Surface>,
-        blockForCaptureResult: (TotalCaptureResult) -> Unit
+        blockForCaptureResult: (TotalCaptureResult) -> Unit,
     ) {
         val builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
         for (surface in surfaces) {
@@ -144,7 +144,7 @@ public object Camera2Util {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
-                    result: TotalCaptureResult
+                    result: TotalCaptureResult,
                 ) {
                     blockForCaptureResult.invoke(result)
                 }
@@ -152,12 +152,12 @@ public object Camera2Util {
                 override fun onCaptureFailed(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
-                    failure: CaptureFailure
+                    failure: CaptureFailure,
                 ) {
                     deferredCapture.completeExceptionally(RuntimeException("capture failed"))
                 }
             },
-            Handler(Looper.getMainLooper())
+            Handler(Looper.getMainLooper()),
         )
     }
 }

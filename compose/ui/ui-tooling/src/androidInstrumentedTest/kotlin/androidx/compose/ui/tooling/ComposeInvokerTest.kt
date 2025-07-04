@@ -41,7 +41,7 @@ class ComposeInvokerTest {
             ComposableInvoker.invokeComposable(
                 "androidx.compose.ui.tooling.MyTestComposables",
                 "MyWorkingComposable",
-                currentComposer
+                currentComposer,
             )
         }
     }
@@ -52,7 +52,7 @@ class ComposeInvokerTest {
             ComposableInvoker.invokeComposable(
                 "androidx.compose.ui.tooling.MyTestComposableWithBooleanPreviewParams",
                 "TestContent",
-                currentComposer
+                currentComposer,
             )
         }
     }
@@ -63,7 +63,7 @@ class ComposeInvokerTest {
             ComposableInvoker.invokeComposable(
                 "androidx.compose.ui.tooling.MyTestComposableWithIntPreviewParams",
                 "TestContent",
-                currentComposer
+                currentComposer,
             )
         }
     }
@@ -75,7 +75,7 @@ class ComposeInvokerTest {
                 ComposableInvoker.invokeComposable(
                     "androidx.compose.ui.tooling.ClassDoesntExist",
                     "MyWorkingComposable",
-                    currentComposer
+                    currentComposer,
                 )
             }
             fail("ClassNotFoundException expected to be thrown")
@@ -91,7 +91,7 @@ class ComposeInvokerTest {
                 ComposableInvoker.invokeComposable(
                     "androidx.compose.ui.tooling.MyTestComposables",
                     "MethodDoesntExist",
-                    currentComposer
+                    currentComposer,
                 )
             }
             fail("NoSuchMethodException expected to be thrown")
@@ -107,7 +107,7 @@ class ComposeInvokerTest {
                 ComposableInvoker.invokeComposable(
                     "androidx.compose.ui.tooling.MyTestComposables",
                     "MyThrowExceptionComposable",
-                    currentComposer
+                    currentComposer,
                 )
             }
             fail("InvocationTargetException expected to be thrown")

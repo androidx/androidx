@@ -56,14 +56,16 @@ public class StepperScreenshotTest {
     @Test
     public fun stepper_no_content() {
         rule.setContentWithThemeAndBackground {
-            Stepper(
-                modifier = Modifier.testTag(TEST_TAG),
-                value = 2f,
-                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                steps = 3,
-                onValueChange = {}
-            ) {}
+            ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                Stepper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    value = 2f,
+                    increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                    decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                    steps = 3,
+                    onValueChange = {},
+                ) {}
+            }
         }
 
         rule
@@ -75,16 +77,20 @@ public class StepperScreenshotTest {
     @Test
     public fun stepper_custom_icons() {
         rule.setContentWithThemeAndBackground {
-            Stepper(
-                modifier = Modifier.testTag(TEST_TAG),
-                value = 2f,
-                steps = 3,
-                onValueChange = {},
-                decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
-                increaseIcon = {
-                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
-                },
-            ) {}
+            ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                Stepper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    value = 2f,
+                    steps = 3,
+                    onValueChange = {},
+                    decreaseIcon = {
+                        Icon(imageVector = Icons.Default.Star, contentDescription = "")
+                    },
+                    increaseIcon = {
+                        Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
+                    },
+                ) {}
+            }
         }
 
         rule
@@ -96,20 +102,22 @@ public class StepperScreenshotTest {
     @Test
     public fun stepper_with_content() {
         rule.setContentWithThemeAndBackground {
-            Stepper(
-                modifier = Modifier.testTag(TEST_TAG),
-                value = 2f,
-                steps = 3,
-                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                onValueChange = {}
-            ) {
-                Chip(
-                    onClick = {},
-                    modifier = Modifier.width(146.dp),
-                    colors = ChipDefaults.secondaryChipColors(),
-                    label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) }
-                )
+            ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                Stepper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    value = 2f,
+                    steps = 3,
+                    increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                    decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                    onValueChange = {},
+                ) {
+                    Chip(
+                        onClick = {},
+                        modifier = Modifier.width(146.dp),
+                        colors = ChipDefaults.secondaryChipColors(),
+                        label = { Text(text = "Demo", modifier = Modifier.fillMaxWidth()) },
+                    )
+                }
             }
         }
 
@@ -122,18 +130,20 @@ public class StepperScreenshotTest {
     @Test
     public fun stepper_with_custom_colors() {
         rule.setContentWithThemeAndBackground {
-            Stepper(
-                modifier = Modifier.testTag(TEST_TAG),
-                value = 2f,
-                steps = 3,
-                onValueChange = {},
-                increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                backgroundColor = Color.Green,
-                contentColor = Color.Yellow,
-                iconColor = Color.Magenta,
-            ) {
-                Text("Demo")
+            ScreenConfiguration(SCREEN_SIZE_LARGE) {
+                Stepper(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    value = 2f,
+                    steps = 3,
+                    onValueChange = {},
+                    increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
+                    decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
+                    backgroundColor = Color.Green,
+                    contentColor = Color.Yellow,
+                    iconColor = Color.Magenta,
+                ) {
+                    Text("Demo")
+                }
             }
         }
 

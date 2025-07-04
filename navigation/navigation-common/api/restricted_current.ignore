@@ -1,3 +1,13 @@
 // Baseline format: 1.0
+AddedFinal: androidx.navigation.NavDestinationBuilder#deepLink(String, kotlin.jvm.functions.Function1<? super androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>):
+    Method androidx.navigation.NavDestinationBuilder.deepLink has added 'final' qualifier
+AddedFinal: androidx.navigation.NavDestinationBuilder#deepLinkSafeArgs(String):
+    Method androidx.navigation.NavDestinationBuilder.deepLinkSafeArgs has added 'final' qualifier
+AddedFinal: androidx.navigation.NavGraph#findNode():
+    Method androidx.navigation.NavGraph.findNode has added 'final' qualifier
+AddedFinal: androidx.navigation.NavGraph#setStartDestination():
+    Method androidx.navigation.NavGraph.setStartDestination has added 'final' qualifier
+
+
 ChangedType: androidx.navigation.NavDestination.ClassType#value():
-    Method androidx.navigation.NavDestination.ClassType.value has changed return type from kotlin.reflect.KClass<?> to java.lang.Class<?>
+    Method androidx.navigation.NavDestination.ClassType.value has changed return type from java.lang.Class<?> to kotlin.reflect.KClass<?>

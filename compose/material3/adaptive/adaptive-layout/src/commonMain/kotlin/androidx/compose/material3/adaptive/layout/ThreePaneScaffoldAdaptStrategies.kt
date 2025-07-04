@@ -32,7 +32,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 class ThreePaneScaffoldAdaptStrategies(
     private val primaryPaneAdaptStrategy: AdaptStrategy,
     private val secondaryPaneAdaptStrategy: AdaptStrategy,
-    private val tertiaryPaneAdaptStrategy: AdaptStrategy
+    private val tertiaryPaneAdaptStrategy: AdaptStrategy,
 ) {
     operator fun get(role: ThreePaneScaffoldRole): AdaptStrategy {
         return when (role) {

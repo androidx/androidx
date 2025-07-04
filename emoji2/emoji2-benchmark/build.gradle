@@ -21,12 +21,12 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
@@ -64,7 +64,7 @@ dependencies {
 
 androidx {
     name = "Emoji2 Benchmarks"
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
     inceptionYear = "2021"
     description = "Emoji2 Benchmarks"
 }

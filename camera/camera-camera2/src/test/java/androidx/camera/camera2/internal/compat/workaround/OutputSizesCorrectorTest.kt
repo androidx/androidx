@@ -72,18 +72,14 @@ class OutputSizesCorrectorTest {
                 MOTOROLA_E5_PLAY_MODEL_NAME,
                 CAMERA_ID_0,
                 CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             )
 
         val resultList =
             outputSizesCorrector
                 .applyQuirks(
-                    arrayOf(
-                        Size(4128, 3096),
-                        Size(4128, 2322),
-                        Size(3088, 3088),
-                    ),
-                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+                    arrayOf(Size(4128, 3096), Size(4128, 2322), Size(3088, 3088)),
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 )
                 .toList()
 
@@ -111,18 +107,14 @@ class OutputSizesCorrectorTest {
                 MOTOROLA_E5_PLAY_MODEL_NAME,
                 CAMERA_ID_0,
                 CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
             )
 
         val resultList =
             outputSizesCorrector
                 .applyQuirks(
-                    arrayOf(
-                        Size(4128, 3096),
-                        Size(4128, 2322),
-                        Size(3088, 3088),
-                    ),
-                    SurfaceTexture::class.java
+                    arrayOf(Size(4128, 3096), Size(4128, 2322), Size(3088, 3088)),
+                    SurfaceTexture::class.java,
                 )
                 .toList()
 
@@ -151,7 +143,7 @@ class OutputSizesCorrectorTest {
                 null,
                 CAMERA_ID_0,
                 CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
             )
 
         val resultList =
@@ -193,7 +185,7 @@ class OutputSizesCorrectorTest {
                 null,
                 CAMERA_ID_0,
                 CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
             )
 
         val resultList =
@@ -221,7 +213,7 @@ class OutputSizesCorrectorTest {
         model: String?,
         cameraId: String,
         lensFacing: Int,
-        hardwareLevel: Int
+        hardwareLevel: Int,
     ): OutputSizesCorrector {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", brand)
         device?.let { ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", it) }
@@ -236,7 +228,7 @@ class OutputSizesCorrectorTest {
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
                 StreamConfigurationMapBuilder.newBuilder()
                     .apply { outputSizes.forEach { outputSize -> addOutputSize(outputSize) } }
-                    .build()
+                    .build(),
             )
         }
 

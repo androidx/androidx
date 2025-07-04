@@ -24,7 +24,7 @@ import org.junit.runners.JUnit4
 class FilePropertyDetectorTest :
     GradleLintDetectorTest(
         detector = FilePropertyDetector(),
-        issues = listOf(FilePropertyDetector.FILE_PROPERTY_ISSUE)
+        issues = listOf(FilePropertyDetector.FILE_PROPERTY_ISSUE),
     ) {
 
     @Test

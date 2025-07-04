@@ -74,7 +74,7 @@ private const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 // It provides the states and implementations used in the ImageCaptureScreen
 class ImageCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING,
-    initialFlashMode: Int = DEFAULT_FLASH_MODE
+    initialFlashMode: Int = DEFAULT_FLASH_MODE,
 ) {
     var lensFacing by mutableIntStateOf(initialLensFacing)
         private set
@@ -114,7 +114,7 @@ class ImageCaptureScreenState(
         MlKitAnalyzer(
             listOf(barcodeScanner),
             ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
-            Dispatchers.Main.asExecutor()
+            Dispatchers.Main.asExecutor(),
         ) { result ->
             val barcodes = result.getValue(barcodeScanner)
             qrCodeBoundingBox =
@@ -233,7 +233,7 @@ class ImageCaptureScreenState(
                             cameraSelector,
                             preview,
                             imageCapture,
-                            imageAnalysis
+                            imageAnalysis,
                         )
 
                     // Setup components that require Camera
@@ -245,7 +245,7 @@ class ImageCaptureScreenState(
                     Log.e(TAG, "Use Cases binding failed", exc)
                 }
             },
-            ContextCompat.getMainExecutor(context)
+            ContextCompat.getMainExecutor(context),
         )
     }
 
@@ -266,7 +266,7 @@ class ImageCaptureScreenState(
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
-            }
+            },
         )
     }
 
@@ -286,7 +286,7 @@ class ImageCaptureScreenState(
         return ImageCapture.OutputFileOptions.Builder(
                 contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
+                contentValues,
             )
             .build()
     }
@@ -356,14 +356,14 @@ class ImageCaptureScreenState(
             listOf(
                 ImageCapture.FLASH_MODE_ON,
                 ImageCapture.FLASH_MODE_OFF,
-                ImageCapture.FLASH_MODE_AUTO
+                ImageCapture.FLASH_MODE_AUTO,
             )
         val saver: Saver<ImageCaptureScreenState, *> =
             listSaver(
                 save = { listOf(it.lensFacing, it.flashMode) },
                 restore = {
                     ImageCaptureScreenState(initialLensFacing = it[0], initialFlashMode = it[1])
-                }
+                },
             )
     }
 }
@@ -371,16 +371,16 @@ class ImageCaptureScreenState(
 @Composable
 fun rememberImageCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING,
-    initialFlashMode: Int = DEFAULT_FLASH_MODE
+    initialFlashMode: Int = DEFAULT_FLASH_MODE,
 ): ImageCaptureScreenState {
     return rememberSaveable(
         initialLensFacing,
         initialFlashMode,
-        saver = ImageCaptureScreenState.saver
+        saver = ImageCaptureScreenState.saver,
     ) {
         ImageCaptureScreenState(
             initialLensFacing = initialLensFacing,
-            initialFlashMode = initialFlashMode
+            initialFlashMode = initialFlashMode,
         )
     }
 }

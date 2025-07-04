@@ -1,0 +1,84 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+}
+
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 36
+        namespace = "androidx.compose.material3.adaptive.navigation3"
+    }
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api(project(":compose:material3:adaptive:adaptive-navigation"))
+                api(project(":navigation3:navigation3-ui"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+            }
+        }
+
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.8.1")
+                implementation("androidx.activity:activity-compose:1.10.1")
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":compose:material3:material3"))
+                implementation(project(":compose:test-utils"))
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+    }
+}
+
+androidx {
+    name = "Material Adaptive"
+    mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_ADAPTIVE_NAV3
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2025"
+    description = "Compose Material Design Adaptive Library"
+    doNotDocumentReason = "Not published to maven"
+}

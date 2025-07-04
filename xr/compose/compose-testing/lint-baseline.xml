@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            it.config.getOrNull(SemanticsProperties.ContentDescription)?.any { item ->"
+        errorLine2="                                                                         ~~~">
+        <location
+            file="src/main/kotlin/androidx/xr/compose/testing/SubspaceFilters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            it.config.getOrNull(SemanticsProperties.ContentDescription)?.any { item ->"
+        errorLine2="                                                                         ~~~">
+        <location
+            file="src/main/kotlin/androidx/xr/compose/testing/SubspaceFilters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                this.semanticsChildren.filter { child -> child.semanticsId != node.semanticsId }"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/xr/compose/testing/SubspaceFilters.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .apply { nodeIds = selectedNodes.map { it.semanticsId }.toList() }"
+        errorLine2="                                                 ~~~">
+        <location
+            file="src/main/kotlin/androidx/xr/compose/testing/SubspaceSemanticsNodeInteraction.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                .apply { nodeIds = selectedNodes.map { it.semanticsId }.toList() }"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/xr/compose/testing/SubspaceSemanticsNodeInteraction.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        return roots.flatMap { it.getAllSemanticsNodes() }"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/xr/compose/testing/SubspaceTestContext.kt"/>
+    </issue>
+
+</issues>

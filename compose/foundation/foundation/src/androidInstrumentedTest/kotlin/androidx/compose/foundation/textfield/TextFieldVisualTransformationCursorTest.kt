@@ -65,7 +65,7 @@ class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
     private fun runTest(
         text: String = defaultText,
         visualTransformation: VisualTransformation = VisualTransformation.None,
-        block: (MutableState<TextFieldValue>) -> Unit
+        block: (MutableState<TextFieldValue>) -> Unit,
     ) {
         val textFieldValue = mutableStateOf(TextFieldValue(text))
         rule.setTextFieldTestContent {
@@ -88,9 +88,7 @@ class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
 
     @Test
     fun longPressOnEmpty_doesNotShowCursor() =
-        runTest(
-            text = "",
-        ) {
+        runTest(text = "") {
             rule.onNodeWithTag(testTag).performTouchInput { longClick() }
             assertCursorHandleShown(shown = false)
         }
@@ -100,7 +98,7 @@ class TextFieldVisualTransformationCursorTest : FocusedWindowTest {
         runTest(
             visualTransformation = {
                 TransformedText(AnnotatedString(text = ""), zeroedOffsetMapping)
-            },
+            }
         ) {
             rule.onNodeWithTag(testTag).performTouchInput { longClick() }
             assertCursorHandleShown(shown = false)

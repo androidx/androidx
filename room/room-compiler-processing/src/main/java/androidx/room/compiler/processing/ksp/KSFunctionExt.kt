@@ -36,7 +36,7 @@ internal fun KSFunctionDeclaration.hasOverloads() =
  */
 internal fun KSFunctionDeclaration.returnKspType(
     env: KspProcessingEnv,
-    containing: KspType?
+    containing: KspType?,
 ): KspType {
     val returnTypeReference = returnType
     returnTypeReference?.resolve()?.let { type ->
@@ -53,7 +53,7 @@ internal fun KSFunctionDeclaration.returnKspType(
     }
     return env.wrap(
         originatingReference = checkNotNull(getOriginatingReference()),
-        ksType = returnTypeAsMemberOf(ksType = containing?.ksType)
+        ksType = returnTypeAsMemberOf(ksType = containing?.ksType),
     )
 }
 

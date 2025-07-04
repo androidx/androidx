@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                                 setOf(
                                     ContentUriTrigger(
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                        true
+                                        true,
                                     )
                                 )
                         )
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
                         15,
                         TimeUnit.MINUTES,
                         10,
-                        TimeUnit.MINUTES
+                        TimeUnit.MINUTES,
                     )
                     .setInputData(input)
                     .build()
@@ -224,20 +224,20 @@ class MainActivity : AppCompatActivity() {
                                         .beginUniqueWork(
                                             REPLACE_COMPLETED_WORK,
                                             ExistingWorkPolicy.REPLACE,
-                                            from(TestWorker::class.java)
+                                            from(TestWorker::class.java),
                                         )
                                         .enqueue()
                                     count += 1
                                 }
                             }
                         }
-                    }
+                    },
                 )
             workManager
                 .beginUniqueWork(
                     REPLACE_COMPLETED_WORK,
                     ExistingWorkPolicy.REPLACE,
-                    from(TestWorker::class.java)
+                    from(TestWorker::class.java),
                 )
                 .enqueue()
         }
@@ -254,10 +254,10 @@ class MainActivity : AppCompatActivity() {
                         Toast.makeText(
                                 this@MainActivity,
                                 "Run attempt count #${value.runAttemptCount}",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                             .show()
-                    }
+                    },
                 )
         }
         findViewById<View>(R.id.run_recursive_worker).setOnClickListener {
@@ -408,7 +408,7 @@ class MainActivity : AppCompatActivity() {
                     jobScheduler.schedule(
                         JobInfo.Builder(
                                 100000 + i,
-                                ComponentName(this, SystemJobService::class.java)
+                                ComponentName(this, SystemJobService::class.java),
                             )
                             .setMinimumLatency((10 * 60 * 1000).toLong())
                             .build()

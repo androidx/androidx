@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
   jvm()
-  android()
+  androidLibrary {
+    namespace = "androidx.ink.nativeloader"
+    optimization {
+      it.consumerKeepRules.publish = true
+      it.consumerKeepRules.files.add(new File("used_by_native.pgcfg"))
+      it.consumerKeepRules.files.add(new File("external_referenced_by_native.pgcfg"))
+    }
+    androidResources.enable = true
+  }
 
   defaultPlatform(PlatformIdentifier.JVM)
 
@@ -51,19 +58,19 @@ androidXMultiplatform {
   }
 }
 
-android {
-  namespace = "androidx.ink.nativeloader"
-  sourceSets {
-    main.jniLibs.srcDirs += new File(
-        AndroidXConfig.getPrebuiltsRoot(project),
-        "androidx/ink/android")
+androidComponents {
+  onVariants(selector().all()) { variant ->
+    variant.sources.jniLibs.addStaticSourceDirectory(
+            new File(
+                    AndroidXConfig.getPrebuiltsRoot(project),
+                    "androidx/ink/android").absolutePath
+    )
   }
 }
 
 androidx {
     name = "Ink Native Loader"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Native dependencies for Ink"
-    metalavaK2UastEnabled = false
 }

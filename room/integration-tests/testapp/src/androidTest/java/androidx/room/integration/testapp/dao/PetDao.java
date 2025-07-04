@@ -31,9 +31,9 @@ import androidx.room.integration.testapp.vo.PetWithUser;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.List;
-
 import io.reactivex.Flowable;
+
+import java.util.List;
 
 @Dao
 public interface PetDao {

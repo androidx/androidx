@@ -574,7 +574,7 @@ class LazyStaggeredGridBeyondBoundsTest {
         size: Dp,
         firstVisibleItem: Int,
         cells: Int = 1,
-        content: LazyStaggeredGridScope.() -> Unit
+        content: LazyStaggeredGridScope.() -> Unit,
     ) {
         setContent {
             key(it) {
@@ -590,7 +590,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         Above,
                         Below ->
@@ -599,7 +599,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         else -> unsupportedDirection()
                     }
@@ -611,7 +611,7 @@ class LazyStaggeredGridBeyondBoundsTest {
     private fun ParameterizedComposeTestRule<Param>.setLazyContentInPerpendicularDirection(
         size: Dp,
         firstVisibleItem: Int,
-        content: LazyStaggeredGridScope.() -> Unit
+        content: LazyStaggeredGridScope.() -> Unit,
     ) {
         setContent {
             key(it) {
@@ -627,7 +627,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         Above,
                         Below ->
@@ -636,7 +636,7 @@ class LazyStaggeredGridBeyondBoundsTest {
                                 modifier = Modifier.size(size),
                                 state = lazyStaggeredGridState,
                                 reverseLayout = it.reverseLayout,
-                                content = content
+                                content = content,
                             )
                         else -> unsupportedDirection()
                     }

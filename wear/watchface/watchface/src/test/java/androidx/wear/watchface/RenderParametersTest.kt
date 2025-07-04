@@ -42,7 +42,7 @@ public class RenderParametersTest {
             RenderParameters(
                 RenderParameters(
                         DrawMode.AMBIENT,
-                        setOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+                        setOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     )
                     .toWireFormat()
             )
@@ -62,8 +62,8 @@ public class RenderParametersTest {
                         RenderParameters.HighlightLayer(
                             RenderParameters.HighlightedElement.AllComplicationSlots,
                             Color.RED,
-                            Color.BLACK
-                        )
+                            Color.BLACK,
+                        ),
                     )
                     .toWireFormat()
             )
@@ -72,7 +72,7 @@ public class RenderParametersTest {
             .containsExactly(
                 WatchFaceLayer.BASE,
                 WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                WatchFaceLayer.COMPLICATIONS_OVERLAY,
             )
         val highlightLayer = renderParameters.highlightLayer
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
@@ -91,8 +91,8 @@ public class RenderParametersTest {
                         RenderParameters.HighlightLayer(
                             RenderParameters.HighlightedElement.ComplicationSlot(123),
                             Color.RED,
-                            Color.BLACK
-                        )
+                            Color.BLACK,
+                        ),
                     )
                     .toWireFormat()
             )
@@ -101,7 +101,7 @@ public class RenderParametersTest {
             .containsExactly(
                 WatchFaceLayer.BASE,
                 WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                WatchFaceLayer.COMPLICATIONS_OVERLAY,
             )
         val highlightLayer = renderParameters.highlightLayer
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
@@ -126,8 +126,8 @@ public class RenderParametersTest {
                                 UserStyleSetting.Id("id-1")
                             ),
                             Color.RED,
-                            Color.BLACK
-                        )
+                            Color.BLACK,
+                        ),
                     )
                     .toWireFormat()
             )
@@ -136,7 +136,7 @@ public class RenderParametersTest {
             .containsExactly(
                 WatchFaceLayer.BASE,
                 WatchFaceLayer.COMPLICATIONS,
-                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                WatchFaceLayer.COMPLICATIONS_OVERLAY,
             )
         val highlightLayer = renderParameters.highlightLayer
         assertThat(highlightLayer!!.highlightTint).isEqualTo(Color.RED)
@@ -162,8 +162,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
                     Color.RED,
-                    Color.BLACK
-                )
+                    Color.BLACK,
+                ),
             )
         val renderParameters2b =
             RenderParameters(
@@ -172,8 +172,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-1")),
                     Color.RED,
-                    Color.BLACK
-                )
+                    Color.BLACK,
+                ),
             )
         val renderParameters2c =
             RenderParameters(
@@ -182,8 +182,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.UserStyle(UserStyleSetting.Id("id-2")),
                     Color.RED,
-                    Color.BLACK
-                )
+                    Color.BLACK,
+                ),
             )
 
         val renderParameters3a =
@@ -193,8 +193,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.ComplicationSlot(1),
                     Color.RED,
-                    Color.BLUE
-                )
+                    Color.BLUE,
+                ),
             )
         val renderParameters3b =
             RenderParameters(
@@ -203,8 +203,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.ComplicationSlot(1),
                     Color.RED,
-                    Color.BLUE
-                )
+                    Color.BLUE,
+                ),
             )
         val renderParameters3c =
             RenderParameters(
@@ -213,8 +213,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.ComplicationSlot(2),
                     Color.RED,
-                    Color.BLUE
-                )
+                    Color.BLUE,
+                ),
             )
 
         val renderParameters4a =
@@ -224,8 +224,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.RED,
-                    Color.BLUE
-                )
+                    Color.BLUE,
+                ),
             )
         val renderParameters4b =
             RenderParameters(
@@ -234,8 +234,8 @@ public class RenderParametersTest {
                 RenderParameters.HighlightLayer(
                     RenderParameters.HighlightedElement.AllComplicationSlots,
                     Color.RED,
-                    Color.BLUE
-                )
+                    Color.BLUE,
+                ),
             )
 
         assertThat(renderParameters1a).isEqualTo(renderParameters1a)

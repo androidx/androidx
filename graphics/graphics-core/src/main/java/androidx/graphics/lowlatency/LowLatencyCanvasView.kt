@@ -184,7 +184,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 holder: SurfaceHolder,
                 format: Int,
                 width: Int,
-                height: Int
+                height: Int,
             ) {
                 update(width, height)
             }
@@ -201,7 +201,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
             override fun surfaceRedrawNeededAsync(
                 holder: SurfaceHolder,
-                drawingFinished: Runnable
+                drawingFinished: Runnable,
             ) {
                 drawAsync(drawingFinished)
             }
@@ -241,7 +241,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 mInverseTransform,
                 bufferTransformer.bufferWidth.toFloat(),
                 bufferTransformer.bufferHeight.toFloat(),
-                inverse
+                inverse,
             )
             .apply { invert(this) }
 
@@ -294,7 +294,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
                         override fun onBufferReady(
                             hardwareBuffer: HardwareBuffer,
-                            syncFenceCompat: SyncFenceCompat?
+                            syncFenceCompat: SyncFenceCompat?,
                         ) {
                             mHardwareBuffer = hardwareBuffer
                             mBufferFence = syncFenceCompat
@@ -321,7 +321,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                                                 null
                                             } else {
                                                 syncFenceCompat
-                                            }
+                                            },
                                         )
                                         .setVisibility(frontBufferSurfaceControl, true)
                                 if (
@@ -329,7 +329,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                                 ) {
                                     transaction.setBufferTransform(
                                         frontBufferSurfaceControl,
-                                        transformHint
+                                        transformHint,
                                     )
                                 }
                                 if (isAndroidUPlus) {
@@ -337,7 +337,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                                 }
                                 mCallback?.onFrontBufferedLayerRenderComplete(
                                     frontBufferSurfaceControl,
-                                    transaction
+                                    transaction,
                                 )
                                 transaction.commit()
                                 syncFenceCompat?.close()
@@ -371,7 +371,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                             // Execute the pending runnable and mark as consumed
                             mDrawCompleteRunnable.getAndSet(null)?.run()
                         }
-                    }
+                    },
                 )
                 .apply {
                     this.colorSpace = colorSpace
@@ -521,7 +521,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     internal fun releaseInternal(
         cancelPending: Boolean = true,
-        onReleaseCallback: (() -> Unit)? = null
+        onReleaseCallback: (() -> Unit)? = null,
     ) {
         val renderer = mFrontBufferedRenderer
         if (renderer != null) {
@@ -630,12 +630,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          * @param width Logical width of the content that is being rendered.
          * @param height Logical height of the content that is being rendered.
          */
-        @WorkerThread
-        fun onDrawFrontBufferedLayer(
-            canvas: Canvas,
-            width: Int,
-            height: Int,
-        )
+        @WorkerThread fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int)
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but
@@ -653,7 +648,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         @WorkerThread
         fun onFrontBufferedLayerRenderComplete(
             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-            transaction: SurfaceControlCompat.Transaction
+            transaction: SurfaceControlCompat.Transaction,
         ) {
             // Default implementation is a no-op
         }

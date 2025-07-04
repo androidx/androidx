@@ -42,7 +42,7 @@ fun adjustFeaturePositionOffset(displayFeature: DisplayFeature, view: View): Rec
  */
 fun getLayoutParamsForFeatureInFrameLayout(
     displayFeature: DisplayFeature,
-    view: FrameLayout
+    view: FrameLayout,
 ): FrameLayout.LayoutParams {
     val featureRectInView = adjustFeaturePositionOffset(displayFeature, view)
     val lp = FrameLayout.LayoutParams(featureRectInView.width(), featureRectInView.height())

@@ -21,6 +21,7 @@ import androidx.collection.mutableFloatListOf
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -105,7 +106,7 @@ class RulerTest {
                             rulers = {
                                 verticalRuler.provides(35f)
                                 horizontalRuler.provides(53f)
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -149,7 +150,7 @@ class RulerTest {
                             rulers = {
                                 verticalRuler.provides(35f)
                                 horizontalRuler.provides(53f)
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -167,7 +168,7 @@ class RulerTest {
                                     verticalKeylineValues += verticalRuler.current(Float.NaN)
                                     p.place(0, 0)
                                 }
-                            }
+                            },
                     )
                     Text("World")
                 }
@@ -197,7 +198,7 @@ class RulerTest {
                             rulers = {
                                 verticalRuler.provides(5f)
                                 horizontalRuler.provides(7f)
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -238,7 +239,7 @@ class RulerTest {
                             layout(
                                 p.width,
                                 p.height,
-                                rulers = { verticalRuler.providesRelative(0f) }
+                                rulers = { verticalRuler.providesRelative(0f) },
                             ) {
                                 p.place(0, 0)
                             }
@@ -284,7 +285,7 @@ class RulerTest {
                             layout(
                                 p.width,
                                 p.height,
-                                rulers = { verticalRuler.providesRelative(0f) }
+                                rulers = { verticalRuler.providesRelative(0f) },
                             ) {
                                 p.place(0, 0)
                             }
@@ -331,7 +332,7 @@ class RulerTest {
                             layout(
                                 p.width,
                                 p.height,
-                                rulers = { verticalRuler.providesRelative(0f) }
+                                rulers = { verticalRuler.providesRelative(0f) },
                             ) {
                                 p.place(0, 0)
                             }
@@ -386,7 +387,7 @@ class RulerTest {
                             rulers = {
                                 verticalRuler.provides(vertValue)
                                 horizontalRuler.provides(horzValue)
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -441,7 +442,7 @@ class RulerTest {
                                     verticalRuler.provides(35f)
                                     horizontalRuler.provides(53f)
                                 }
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -495,7 +496,7 @@ class RulerTest {
                                     verticalRuler.provides(35f)
                                     horizontalRuler.provides(53f)
                                 }
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -547,7 +548,7 @@ class RulerTest {
                             rulers = {
                                 verticalRuler.provides(35f)
                                 horizontalRuler.provides(53f)
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -599,7 +600,7 @@ class RulerTest {
                             rulers = {
                                 val position = coordinates.positionInRoot().x
                                 verticalRuler.provides(-position)
-                            }
+                            },
                         ) {
                             p.place(0, 0)
                         }
@@ -621,5 +622,37 @@ class RulerTest {
         offset = 100
         rule.waitForIdle()
         assertThat(rulerValue).isWithin(0.01f).of(-100f)
+    }
+
+    @Test
+    fun verticalDerivedRuler() {
+        var rulerValue = 0f
+
+        val myRuler = VerticalRuler.derived { 10f }
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize().layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(p.width, p.height) { rulerValue = myRuler.current(Float.NaN) }
+                }
+            )
+        }
+        rule.runOnIdle { assertThat(rulerValue).isWithin(0.01f).of(10f) }
+    }
+
+    @Test
+    fun horizontalDerivedRuler() {
+        var rulerValue = 0f
+
+        val myRuler = HorizontalRuler.derived { 10f }
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize().layout { measurable, constraints ->
+                    val p = measurable.measure(constraints)
+                    layout(p.width, p.height) { rulerValue = myRuler.current(Float.NaN) }
+                }
+            )
+        }
+        rule.runOnIdle { assertThat(rulerValue).isWithin(0.01f).of(10f) }
     }
 }

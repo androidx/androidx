@@ -47,7 +47,7 @@ internal class KspMethodTypeVariableType(
         XTypeName(
             ksTypeVariable.asJTypeName(env.resolver),
             ksTypeVariable.asKTypeName(env.resolver),
-            nullability
+            nullability,
         )
     }
 

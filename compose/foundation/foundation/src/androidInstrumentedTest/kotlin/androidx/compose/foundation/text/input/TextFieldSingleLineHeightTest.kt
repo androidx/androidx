@@ -56,7 +56,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.onSizeChanged { reportedSize = it }
+                modifier = Modifier.onSizeChanged { reportedSize = it },
             )
         }
 
@@ -79,7 +79,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.onSizeChanged { reportedSize = it }
+                modifier = Modifier.onSizeChanged { reportedSize = it },
             )
         }
 
@@ -101,7 +101,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.SingleLine,
-                modifier = Modifier.testTag(TextfieldTag)
+                modifier = Modifier.testTag(TextfieldTag),
             )
         }
 
@@ -117,7 +117,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 lineLimits = TextFieldLineLimits.MultiLine(1, 1),
-                modifier = Modifier.testTag(TextfieldTag)
+                modifier = Modifier.testTag(TextfieldTag),
             )
         }
 

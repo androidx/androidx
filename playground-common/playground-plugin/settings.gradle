@@ -17,9 +17,21 @@
 pluginManagement {
     repositories {
         mavenCentral()
-        google()
+        google {
+            content {
+                includeGroupByRegex("androidx.*")
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+            }
+        }
         gradlePluginPortal().content {
             it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
+        }
+        maven {
+            url = "https://packages.jetbrains.team/maven/p/kt/dev"
+            content {
+                includeGroupByRegex("org\\.jetbrains\\.kotlin.*")
+            }
         }
     }
 }
@@ -27,7 +39,13 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        google()
+        google {
+            content {
+                includeGroupByRegex("androidx.*")
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+            }
+        }
         gradlePluginPortal().content {
             it.includeModule("com.gradle", "develocity-gradle-plugin")
             it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
@@ -35,6 +53,12 @@ dependencyResolutionManagement {
             it.includeModule("com.gradleup.shadow",
                     "com.gradleup.shadow.gradle.plugin")
             it.includeModule("com.gradleup.shadow", "shadow-gradle-plugin")
+        }
+        maven {
+            url = "https://packages.jetbrains.team/maven/p/kt/dev"
+            content {
+                includeGroupByRegex("org\\.jetbrains\\.kotlin.*")
+            }
         }
     }
 }
@@ -62,12 +86,6 @@ include(":shared")
 // Without this, Gradle Enterprise erroneously reports a problem with 'buildSrc' build cache configuration.
 def isCI = System.getenv("CI") == "true"
 buildCache {
-    local {
-        // Aggressively clean up stale build cache entries on CI
-        if (isCI) {
-            removeUnusedEntriesAfterDays = 1
-        }
-    }
     remote(HttpBuildCache) {
         url = "https://ge.androidx.dev/cache/"
         var buildCachePassword = System.getenv("GRADLE_BUILD_CACHE_PASSWORD")

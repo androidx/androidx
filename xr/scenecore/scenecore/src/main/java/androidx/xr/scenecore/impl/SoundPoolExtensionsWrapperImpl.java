@@ -18,54 +18,55 @@ package androidx.xr.scenecore.impl;
 
 import android.media.SoundPool;
 
-import androidx.xr.extensions.media.SoundPoolExtensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.PointSourceAttributes;
-import androidx.xr.scenecore.JxrPlatformAdapter.SoundFieldAttributes;
-import androidx.xr.scenecore.JxrPlatformAdapter.SoundPoolExtensionsWrapper;
+import androidx.xr.runtime.internal.PointSourceParams;
+import androidx.xr.runtime.internal.SoundFieldAttributes;
+import androidx.xr.runtime.internal.SoundPoolExtensionsWrapper;
+
+import com.android.extensions.xr.media.SoundPoolExtensions;
 
 /** Implementation of {@link SoundPoolExtensionsWrapper}. */
 final class SoundPoolExtensionsWrapperImpl implements SoundPoolExtensionsWrapper {
 
-    private final SoundPoolExtensions extensions;
+    private final SoundPoolExtensions mExtensions;
 
     SoundPoolExtensionsWrapperImpl(SoundPoolExtensions extensions) {
-        this.extensions = extensions;
+        mExtensions = extensions;
     }
 
     @Override
     public int play(
             SoundPool soundPool,
             int soundId,
-            PointSourceAttributes attributes,
+            PointSourceParams params,
             float volume,
             int priority,
             int loop,
             float rate) {
-        androidx.xr.extensions.media.PointSourceAttributes extAttributes =
-                MediaUtils.convertPointSourceAttributesToExtensions(attributes);
-        return extensions.playAsPointSource(
-                soundPool, soundId, extAttributes, volume, priority, loop, rate);
+        com.android.extensions.xr.media.PointSourceParams extParams =
+                MediaUtils.convertPointSourceParamsToExtensions(params);
+        return mExtensions.playAsPointSource(
+                soundPool, soundId, extParams, volume, priority, loop, rate);
     }
 
     @Override
     public int play(
             SoundPool soundPool,
             int soundId,
-            SoundFieldAttributes attributes,
+            SoundFieldAttributes params,
             float volume,
             int priority,
             int loop,
             float rate) {
-        androidx.xr.extensions.media.SoundFieldAttributes extAttributes =
-                MediaUtils.convertSoundFieldAttributesToExtensions(attributes);
+        com.android.extensions.xr.media.SoundFieldAttributes extAttributes =
+                MediaUtils.convertSoundFieldAttributesToExtensions(params);
 
-        return extensions.playAsSoundField(
+        return mExtensions.playAsSoundField(
                 soundPool, soundId, extAttributes, volume, priority, loop, rate);
     }
 
     @Override
     public int getSpatialSourceType(SoundPool soundPool, int streamId) {
         return MediaUtils.convertExtensionsToSourceType(
-                extensions.getSpatialSourceType(soundPool, streamId));
+                mExtensions.getSpatialSourceType(soundPool, streamId));
     }
 }

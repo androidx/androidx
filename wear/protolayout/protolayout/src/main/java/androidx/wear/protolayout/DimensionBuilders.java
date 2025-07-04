@@ -117,11 +117,12 @@ public final class DimensionBuilders {
     @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static final class DpProp
             implements AngularDimension,
-                ContainerDimension,
-                ImageDimension,
-                SpacerDimension,
-                ExtensionDimension,
-                PivotDimension {
+                    ContainerDimension,
+                    ImageDimension,
+                    SpacerDimension,
+                    ExtensionDimension,
+                    PivotDimension,
+                    OffsetDimension {
         private final DimensionProto.DpProp mImpl;
         private final @Nullable Fingerprint mFingerprint;
 
@@ -215,6 +216,12 @@ public final class DimensionBuilders {
         }
 
         @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public DimensionProto.@NonNull OffsetDimension toOffsetDimensionProto() {
+            return DimensionProto.OffsetDimension.newBuilder().setOffsetDp(mImpl).build();
+        }
+
+        @Override
         public @NonNull String toString() {
             return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
         }
@@ -227,7 +234,8 @@ public final class DimensionBuilders {
                         ImageDimension.Builder,
                         SpacerDimension.Builder,
                         ExtensionDimension.Builder,
-                        PivotDimension.Builder {
+                        PivotDimension.Builder,
+                        OffsetDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756413087);
 
@@ -600,9 +608,7 @@ public final class DimensionBuilders {
         }
     }
 
-    /**
-     * Interface defining the length of an arc element.
-     */
+    /** Interface defining the length of an arc element. */
     @RequiresSchemaVersion(major = 1, minor = 500)
     public interface AngularDimension {
         /** Get the protocol buffer representation of this object. */
@@ -642,7 +648,7 @@ public final class DimensionBuilders {
 
     /** A type for angular dimensions, measured in degrees. */
     @RequiresSchemaVersion(major = 1, minor = 0)
-    public static final class DegreesProp implements AngularDimension{
+    public static final class DegreesProp implements AngularDimension {
         private final DimensionProto.DegreesProp mImpl;
         private final @Nullable Fingerprint mFingerprint;
 
@@ -715,7 +721,7 @@ public final class DimensionBuilders {
 
         /** Builder for {@link DegreesProp} */
         @SuppressWarnings("HiddenSuperclass")
-        public static final class Builder implements AngularDimension.Builder{
+        public static final class Builder implements AngularDimension.Builder {
             private final DimensionProto.DegreesProp.Builder mImpl =
                     DimensionProto.DegreesProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1927567665);
@@ -1373,7 +1379,7 @@ public final class DimensionBuilders {
 
     /** Provide a position representation proportional to the bounding box width/height. */
     @RequiresSchemaVersion(major = 1, minor = 400)
-    public static final class BoundingBoxRatio implements PivotDimension {
+    public static final class BoundingBoxRatio implements PivotDimension, OffsetDimension {
         private final DimensionProto.BoundingBoxRatio mImpl;
         private final @Nullable Fingerprint mFingerprint;
 
@@ -1383,17 +1389,13 @@ public final class DimensionBuilders {
         }
 
         /**
-         * Gets the ratio proportional to the bounding box width/height. value 0 represents the
-         * location at the top / left of the bounding box and value 1 represents the location at the
-         * bottom / end of the bounding box. Its default value 0.5 represents the middle of the
-         * bounding box. Values outside [0, 1] are also valid. Dynamic value is supported.
+         * Gets the ratio proportional to the bounding box width/height. Value 0 represents the
+         * location at the top / start of the bounding box, value 1 represents the location at the
+         * bottom / end of the bounding box, and value 0.5 represents the middle of the bounding
+         * box. Values outside [0, 1] are also valid. Dynamic value is supported.
          */
         public @NonNull FloatProp getRatio() {
-            if (mImpl.hasRatio()) {
-                return FloatProp.fromProto(mImpl.getRatio());
-            } else {
-                return new FloatProp.Builder(0.5f).build();
-            }
+            return FloatProp.fromProto(mImpl.getRatio());
         }
 
         @Override
@@ -1425,38 +1427,49 @@ public final class DimensionBuilders {
         }
 
         @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public DimensionProto.@NonNull OffsetDimension toOffsetDimensionProto() {
+            return DimensionProto.OffsetDimension.newBuilder().setLocationRatio(mImpl).build();
+        }
+
+        @Override
         public @NonNull String toString() {
             return "BoundingBoxRatio{" + "ratio=" + getRatio() + "}";
         }
 
         /** Builder for {@link BoundingBoxRatio}. */
         @SuppressWarnings("HiddenSuperclass")
-        public static final class Builder implements PivotDimension.Builder {
+        public static final class Builder
+                implements PivotDimension.Builder, OffsetDimension.Builder {
             private final DimensionProto.BoundingBoxRatio.Builder mImpl =
                     DimensionProto.BoundingBoxRatio.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1387873430);
 
             /**
              * Creates an instance of {@link Builder}.
-             * @param ratio the ratio proportional to the bounding box width/height. value 0
-             *     represents the location at the top / left of the bounding box and value 1
-             *     represents the location at the bottom / end of the bounding box. Its default
-             *     value 0.5 represents the middle of the bounding box. Values outside [0, 1]
-             *     are also valid. Dynamic value is supported.
+             *
+             * @param ratio the ratio proportional to the bounding box width/height. Value 0
+             *     represents the location at the top / start of the bounding box, value 1
+             *     represents the location at the bottom / end of the bounding box, and value 0.5
+             *     represents the middle of the bounding box. Values outside [0, 1] are also valid.
+             *     Dynamic value is supported.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             public Builder(@NonNull FloatProp ratio) {
-               setRatio(ratio);
+                setRatio(ratio);
             }
 
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            Builder() {}
+
             /**
-             * Gets the ratio proportional to the bounding box width/height. value 0 represents the
-             * location at the top / left of the bounding box and value 1 represents the location at
-             * the bottom / end of the bounding box. Its default value 0.5 represents the middle
-             * of the bounding box. Values outside [0, 1] are also valid. Dynamic value is
-             * supported.
+             * Sets the ratio proportional to the bounding box width/height. Value 0 represents the
+             * location at the top / start of the bounding box, value 1 represents the location at
+             * the bottom / end of the bounding box, and value 0.5 represents the middle of the
+             * bounding box. Values outside [0, 1] are also valid. Dynamic value is supported.
              */
-            private @NonNull Builder setRatio(@NonNull FloatProp ratio) {
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull Builder setRatio(@NonNull FloatProp ratio) {
                 mImpl.setRatio(ratio.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(ratio.getFingerprint()).aggregateValueAsInt());
@@ -1510,5 +1523,45 @@ public final class DimensionBuilders {
     static @NonNull PivotDimension pivotDimensionFromProto(
             DimensionProto.@NonNull PivotDimension proto) {
         return pivotDimensionFromProto(proto, null);
+    }
+
+    /**
+     * Interface defining a dimension that represents an offset relative to the element's position.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 500)
+    public interface OffsetDimension {
+        /** Get the protocol buffer representation of this object. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        DimensionProto.@NonNull OffsetDimension toOffsetDimensionProto();
+
+        /** Get the fingerprint for this object or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable Fingerprint getFingerprint();
+
+        /** Builder to create {@link OffsetDimension} objects. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        interface Builder {
+
+            /** Builds an instance with values accumulated in this Builder. */
+            @NonNull OffsetDimension build();
+        }
+    }
+
+    /** Creates a new wrapper instance from the proto. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static @NonNull OffsetDimension offsetDimensionFromProto(
+            DimensionProto.@NonNull OffsetDimension proto, @Nullable Fingerprint fingerprint) {
+        if (proto.hasOffsetDp()) {
+            return DpProp.fromProto(proto.getOffsetDp(), fingerprint);
+        }
+        if (proto.hasLocationRatio()) {
+            return BoundingBoxRatio.fromProto(proto.getLocationRatio(), fingerprint);
+        }
+        throw new IllegalStateException("Proto was not a recognised instance of OffsetDimension");
+    }
+
+    static @NonNull OffsetDimension offsetDimensionFromProto(
+            DimensionProto.@NonNull OffsetDimension proto) {
+        return offsetDimensionFromProto(proto, null);
     }
 }

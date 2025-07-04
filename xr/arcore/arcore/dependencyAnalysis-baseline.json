@@ -1,0 +1,54 @@
+{
+  "projectPath": ":xr:arcore:arcore",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.appcompat:appcompat",
+        "resolvedVersion": "1.2.0"
+      },
+      "fromConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:core",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:runner",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "testImplementation",
+      "toConfiguration": "testRuntimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.jetbrains.kotlin:kotlin-test",
+        "resolvedVersion": "1.9.24"
+      },
+      "toConfiguration": "testImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "org.robolectric:robolectric",
+        "resolvedVersion": "4.14"
+      },
+      "fromConfiguration": "testImplementation",
+      "toConfiguration": "testRuntimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":kruth:kruth"
+      },
+      "fromConfiguration": "testImplementation"
+    }
+  ]
+}

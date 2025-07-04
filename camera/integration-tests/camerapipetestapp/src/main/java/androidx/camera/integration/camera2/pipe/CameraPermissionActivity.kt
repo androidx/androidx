@@ -23,12 +23,13 @@ import android.os.Trace
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 @Suppress(
     "DEPRECATION", // Editor does not detect deprecated API calls that are behind an SDK check
-    "ObsoleteSdkInt" // Editor does not realize the VERSION.SDK_INT can change at runtime.
+    "ObsoleteSdkInt", // Editor does not realize the VERSION.SDK_INT can change at runtime.
 )
 fun configureFullScreenCameraWindow(activity: Activity) {
     Trace.beginSection("CXCP-App#windowFlags")
@@ -37,7 +38,7 @@ fun configureFullScreenCameraWindow(activity: Activity) {
     // Make the navigation bar semi-transparent.
     window.setFlags(
         WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
-        WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+        WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
     )
 
     // Hide navigation to make the app full screen
@@ -73,7 +74,7 @@ fun configureFullScreenCameraWindow(activity: Activity) {
  * Utility class for handling simplified permission request/responses for the CameraPipe Sample
  * Apps.
  */
-open class CameraPermissionActivity : Activity() {
+open class CameraPermissionActivity : AppCompatActivity() {
     private var isStarted = true
     private var lastPermissionRequestNumber = 0
     private var permissionsGrantedCallback: (() -> Unit)? = null
@@ -121,7 +122,7 @@ open class CameraPermissionActivity : Activity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         // Standard edge case: If permissions dialog is canceled (eg user hits back button)
         if (grantResults.isEmpty()) {
@@ -135,7 +136,7 @@ open class CameraPermissionActivity : Activity() {
         if (callback == null) {
             Log.w(
                 "CXCP-App",
-                "Got permissions results for $requestCode but no callback was configured."
+                "Got permissions results for $requestCode but no callback was configured.",
             )
             return
         }
@@ -147,7 +148,7 @@ open class CameraPermissionActivity : Activity() {
                 "Got permissions results for " +
                     requestCode +
                     " but it does not match the last requestCode: " +
-                    lastPermissionRequestNumber
+                    lastPermissionRequestNumber,
             )
             return
         }
@@ -167,7 +168,7 @@ open class CameraPermissionActivity : Activity() {
                     " the permissions and grants have different lengths. Permissions: " +
                     permissions.contentToString() +
                     " Results: " +
-                    grantResults.contentToString()
+                    grantResults.contentToString(),
             )
             return
         }
@@ -212,7 +213,7 @@ open class CameraPermissionActivity : Activity() {
         ActivityCompat.requestPermissions(
             this,
             permissionsToRequest.toTypedArray(),
-            lastPermissionRequestNumber
+            lastPermissionRequestNumber,
         )
     }
 }

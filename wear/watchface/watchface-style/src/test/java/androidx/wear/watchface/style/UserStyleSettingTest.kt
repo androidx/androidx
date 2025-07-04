@@ -53,7 +53,7 @@ public class UserStyleSettingTest {
                     defaultValue,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
 
@@ -99,7 +99,7 @@ public class UserStyleSettingTest {
                     defaultValue,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
 
@@ -207,7 +207,7 @@ public class UserStyleSettingTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         val settingCopy =
@@ -218,7 +218,7 @@ public class UserStyleSettingTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         val settings1ModifiedInfo =
@@ -229,7 +229,7 @@ public class UserStyleSettingTest {
                     3.0,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting (modified)",
-                    "An example setting (modified)"
+                    "An example setting (modified)",
                 )
                 .build()
         val settings1ModifiedId =
@@ -240,7 +240,7 @@ public class UserStyleSettingTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         assertThat(setting).isEqualTo(setting)
@@ -259,7 +259,7 @@ public class UserStyleSettingTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         val settingCopy =
@@ -270,7 +270,7 @@ public class UserStyleSettingTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         val settings1ModifiedInfo =
@@ -281,7 +281,7 @@ public class UserStyleSettingTest {
                     3.0,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         val settings1ModifiedId =
@@ -292,7 +292,7 @@ public class UserStyleSettingTest {
                     0.1,
                     listOf(WatchFaceLayer.BASE),
                     "Example Ranged Setting",
-                    "An example setting"
+                    "An example setting",
                 )
                 .build()
         assertThat(setting.hashCode()).isEqualTo(setting.hashCode())
@@ -342,9 +342,9 @@ public class UserStyleSettingTest {
                         "right and left complications",
                         icon = null,
                         listOf(rightComplicationSlot, leftComplicationSlot),
-                    )
+                    ),
                 ),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             )
         }
     }
@@ -360,17 +360,17 @@ public class UserStyleSettingTest {
                         ListOption.Builder(
                                 Option.Id("florescent"),
                                 "florescent hands",
-                                "florescent hands"
+                                "florescent hands",
                             )
                             .build(),
                         ListOption.Builder(Option.Id("thick"), "thick hands", "thick hands")
                             .build(),
                         ListOption.Builder(Option.Id("plain"), "simple hands", "simple hands")
-                            .build()
+                            .build(),
                     ),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "Hands",
-                    "Configure the hands of the watch face"
+                    "Configure the hands of the watch face",
                 )
                 .build()
         }
@@ -386,9 +386,9 @@ public class UserStyleSettingTest {
                     ComplicationType.SHORT_TEXT.toWireComplicationType() to
                         RectF(0.1f, 0.2f, 0.3f, 0.4f),
                     ComplicationType.LONG_TEXT.toWireComplicationType() to
-                        RectF(0.5f, 0.6f, 0.7f, 0.8f)
+                        RectF(0.5f, 0.6f, 0.7f, 0.8f),
                 ),
-                null
+                null,
             )
 
         val overlay =
@@ -397,7 +397,7 @@ public class UserStyleSettingTest {
                 mapOf(
                     ComplicationType.LONG_TEXT.toWireComplicationType() to
                         RectF(0.2f, 0.2f, 0.2f, 0.2f)
-                )
+                ),
             )
         val bounds = overlay.complicationSlotBounds!!.perComplicationTypeBounds
 
@@ -452,9 +452,9 @@ public class UserStyleSettingTest {
                 ComplicationSlotOverlay(
                     1,
                     nameResourceId = null,
-                    screenReaderNameResourceId = null
+                    screenReaderNameResourceId = null,
                 ),
-                ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null)
+                ComplicationSlotOverlay(2, nameResourceId = null, screenReaderNameResourceId = null),
             )
     }
 }

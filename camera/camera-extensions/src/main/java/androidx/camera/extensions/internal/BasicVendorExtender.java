@@ -68,6 +68,7 @@ public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
     private final ExtensionDisabledValidator mExtensionDisabledValidator =
             new ExtensionDisabledValidator();
+    private final @ExtensionMode.Mode int mMode;
     private PreviewExtenderImpl mPreviewExtenderImpl = null;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
     private CameraInfoInternal mCameraInfo;
@@ -75,7 +76,7 @@ public class BasicVendorExtender implements VendorExtender {
     private CameraCharacteristics mCameraCharacteristics;
     private AvailableKeysRetriever mAvailableKeysRetriever = new AvailableKeysRetriever();
 
-    static final List<CaptureRequest.Key> sBaseSupportedKeys = new ArrayList<>(Arrays.asList(
+    static final List<CaptureRequest.Key<?>> sBaseSupportedKeys = new ArrayList<>(Arrays.asList(
             CaptureRequest.SCALER_CROP_REGION,
             CaptureRequest.CONTROL_AF_MODE,
             CaptureRequest.CONTROL_AF_TRIGGER,
@@ -94,6 +95,7 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     public BasicVendorExtender(@ExtensionMode.Mode int mode) {
+        mMode = mode;
         try {
             switch (mode) {
                 case ExtensionMode.BOKEH:
@@ -130,6 +132,7 @@ public class BasicVendorExtender implements VendorExtender {
             @Nullable PreviewExtenderImpl previewExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
+        mMode = ExtensionMode.NONE;
     }
 
     @Override
@@ -303,18 +306,20 @@ public class BasicVendorExtender implements VendorExtender {
         return new Size[0];
     }
 
-    private @NonNull List<CaptureRequest.Key> getSupportedParameterKeys(Context context) {
+    private @NonNull List<CaptureRequest.Key<?>> getSupportedParameterKeys(Context context) {
         if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
             try {
-                List<CaptureRequest.Key> keys =
+                List<CaptureRequest.Key<?>> keys = new ArrayList<>();
+                for (CaptureRequest.Key<?> key :
                         mAvailableKeysRetriever.getAvailableCaptureRequestKeys(
-                                mImageCaptureExtenderImpl,
-                                mCameraId,
-                                mCameraCharacteristics,
-                                context);
-                if (keys != null) {
-                    return Collections.unmodifiableList(keys);
+                        mImageCaptureExtenderImpl,
+                        mCameraId,
+                        mCameraCharacteristics,
+                        context)) {
+                    keys.add(key);
                 }
+
+                return Collections.unmodifiableList(keys);
             } catch (Exception e) {
                 // it could crash on some OEMs.
                 Logger.e(TAG, "ImageCaptureExtenderImpl.getAvailableCaptureRequestKeys "
@@ -398,6 +403,7 @@ public class BasicVendorExtender implements VendorExtender {
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
                 getSupportedParameterKeys(context),
                 this,
-                context);
+                context,
+                mMode);
     }
 }

@@ -91,7 +91,7 @@ class AlignmentLineTest : LayoutTest() {
                             childSize.value = it.size
                             childPosition.value = it.positionInRoot()
                             layoutLatch.countDown()
-                        }
+                        },
                     )
                 }
             }
@@ -100,14 +100,14 @@ class AlignmentLineTest : LayoutTest() {
             Assert.assertNotNull(parentSize.value)
             Assert.assertEquals(
                 beforeDp.roundToPx() + afterDp.roundToPx(),
-                parentSize.value!!.width
+                parentSize.value!!.width,
             )
             Assert.assertNotNull(childSize.value)
             Assert.assertEquals(childSize.value!!.height, parentSize.value!!.height)
             Assert.assertNotNull(childPosition.value)
             Assert.assertEquals(
                 (beforeDp.roundToPx() - lineDp.roundToPx()).toFloat(),
-                childPosition.value!!.x
+                childPosition.value!!.x,
             )
             Assert.assertEquals(0f, childPosition.value!!.y)
         }
@@ -142,7 +142,7 @@ class AlignmentLineTest : LayoutTest() {
                             childSize.value = it.size
                             childPosition.value = it.positionInRoot()
                             layoutLatch.countDown()
-                        }
+                        },
                     )
                 }
             }
@@ -153,13 +153,13 @@ class AlignmentLineTest : LayoutTest() {
             Assert.assertNotNull(parentSize.value)
             Assert.assertEquals(
                 beforeDp.roundToPx() + afterDp.roundToPx(),
-                parentSize.value!!.height
+                parentSize.value!!.height,
             )
             Assert.assertNotNull(childPosition.value)
             Assert.assertEquals(0f, childPosition.value!!.x)
             Assert.assertEquals(
                 (beforeDp.roundToPx() - lineDp.roundToPx()).toFloat(),
-                childPosition.value!!.y
+                childPosition.value!!.y,
             )
         }
 
@@ -184,7 +184,7 @@ class AlignmentLineTest : LayoutTest() {
                         testLine,
                         lineDp,
                         Modifier.saveLayoutInfo(childSize, childPosition, layoutLatch)
-                            .paddingFrom(testLine, beforeDp, afterDp)
+                            .paddingFrom(testLine, beforeDp, afterDp),
                     )
                 }
             }
@@ -219,7 +219,7 @@ class AlignmentLineTest : LayoutTest() {
                         testLine,
                         lineDp,
                         Modifier.paddingFrom(testLine, beforeDp, afterDp)
-                            .saveLayoutInfo(childSize, childPosition, layoutLatch)
+                            .saveLayoutInfo(childSize, childPosition, layoutLatch),
                     )
                 }
             }
@@ -256,7 +256,7 @@ class AlignmentLineTest : LayoutTest() {
                         lineDp,
                         Modifier.sizeIn(maxWidth = maxWidth)
                             .paddingFrom(testLine, beforeDp, afterDp)
-                            .saveLayoutInfo(childSize, childPosition, layoutLatch)
+                            .saveLayoutInfo(childSize, childPosition, layoutLatch),
                     )
                 }
             }
@@ -294,7 +294,7 @@ class AlignmentLineTest : LayoutTest() {
                         lineDp,
                         Modifier.sizeIn(maxHeight = maxHeight)
                             .paddingFrom(testLine, beforeDp, afterDp)
-                            .saveLayoutInfo(childSize, childPosition, layoutLatch)
+                            .saveLayoutInfo(childSize, childPosition, layoutLatch),
                     )
                 }
             }
@@ -375,10 +375,10 @@ class AlignmentLineTest : LayoutTest() {
                             .onGloballyPositioned {
                                 Assert.assertEquals(
                                     beforePx - linePositionPx,
-                                    it.positionInParent().x
+                                    it.positionInParent().x,
                                 )
                                 latch.countDown()
-                            }
+                            },
                     )
                     AlignmentLineLayout(
                         childSize,
@@ -390,10 +390,10 @@ class AlignmentLineTest : LayoutTest() {
                             .onGloballyPositioned {
                                 Assert.assertEquals(
                                     incomingSizePx - childSizePx - afterPx + linePositionPx,
-                                    it.positionInParent().x
+                                    it.positionInParent().x,
                                 )
                                 latch.countDown()
-                            }
+                            },
                     )
                 }
             }
@@ -428,10 +428,10 @@ class AlignmentLineTest : LayoutTest() {
                             .onGloballyPositioned {
                                 Assert.assertEquals(
                                     beforePx - linePositionPx,
-                                    it.positionInParent().y
+                                    it.positionInParent().y,
                                 )
                                 latch.countDown()
-                            }
+                            },
                     )
                     AlignmentLineLayout(
                         childSize,
@@ -443,10 +443,10 @@ class AlignmentLineTest : LayoutTest() {
                             .onGloballyPositioned {
                                 Assert.assertEquals(
                                     incomingSizePx - childSizePx - afterPx + linePositionPx,
-                                    it.positionInParent().y
+                                    it.positionInParent().y,
                                 )
                                 latch.countDown()
-                            }
+                            },
                     )
                 }
             }
@@ -469,7 +469,7 @@ class AlignmentLineTest : LayoutTest() {
                     Modifier.onSizeChanged { boxSize ->
                         Assert.assertEquals(
                             sizeDp.roundToPx() + (paddingPx - baselineOffsetPx) * 2,
-                            boxSize.height
+                            boxSize.height,
                         )
                         latch.countDown()
                     }
@@ -480,14 +480,14 @@ class AlignmentLineTest : LayoutTest() {
                             sizeDp,
                             FirstBaseline,
                             baselineOffsetDp,
-                            Modifier
+                            Modifier,
                         )
                         AlignmentLineLayout(
                             sizeDp,
                             sizeDp,
                             LastBaseline,
                             sizeDp - baselineOffsetDp,
-                            Modifier
+                            Modifier,
                         )
                     }
                 }
@@ -512,7 +512,7 @@ class AlignmentLineTest : LayoutTest() {
                     Modifier.onSizeChanged { boxSize ->
                         Assert.assertEquals(
                             sizeDp.roundToPx() + paddingPx - baselineOffsetPx,
-                            boxSize.height
+                            boxSize.height,
                         )
                         latch.countDown()
                     }
@@ -523,7 +523,7 @@ class AlignmentLineTest : LayoutTest() {
                             sizeDp,
                             FirstBaseline,
                             baselineOffsetDp,
-                            Modifier
+                            Modifier,
                         )
                     }
                 }
@@ -555,7 +555,7 @@ class AlignmentLineTest : LayoutTest() {
                             .onGloballyPositioned {
                                 Assert.assertEquals(
                                     beforePx - linePositionPx,
-                                    it.positionInParent().y
+                                    it.positionInParent().y,
                                 )
                                 latch.countDown()
                             }
@@ -565,14 +565,14 @@ class AlignmentLineTest : LayoutTest() {
                             childSize,
                             FirstBaseline,
                             linePosition,
-                            Modifier
+                            Modifier,
                         )
                         AlignmentLineLayout(
                             childSize,
                             childSize,
                             LastBaseline,
                             linePosition,
-                            Modifier
+                            Modifier,
                         )
                     }
                 }
@@ -590,7 +590,7 @@ class AlignmentLineTest : LayoutTest() {
             .containsExactly(
                 ValueElement("alignmentLine", alignment),
                 ValueElement("before", 2.0.dp),
-                ValueElement("after", Dp.Unspecified)
+                ValueElement("after", Dp.Unspecified),
             )
     }
 
@@ -600,13 +600,13 @@ class AlignmentLineTest : LayoutTest() {
         height: Dp,
         line: AlignmentLine,
         linePosition: Dp,
-        modifier: Modifier
+        modifier: Modifier,
     ) {
         Layout({}, modifier) { _, _ ->
             layout(
                 width.roundToPx(),
                 height.roundToPx(),
-                mapOf(line to linePosition.roundToPx())
+                mapOf(line to linePosition.roundToPx()),
             ) {}
         }
     }

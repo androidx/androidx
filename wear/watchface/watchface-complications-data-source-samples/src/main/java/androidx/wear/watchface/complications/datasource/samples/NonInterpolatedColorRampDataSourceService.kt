@@ -32,21 +32,21 @@ class NonInterpolatedColorRampDataSourceService : ComplicationDataSourceService(
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         listener.onComplicationData(
             RangedValueComplicationData.Builder(
                     value = 75f,
                     min = 0.0f,
                     max = 100.0f,
-                    plainText("Example")
+                    plainText("Example"),
                 )
                 .setText(plainText("Example"))
                 .setValueType(RangedValueComplicationData.TYPE_RATING)
                 .setColorRamp(
                     ColorRamp(
                         intArrayOf(Color.GREEN, Color.YELLOW, Color.RED),
-                        interpolated = false
+                        interpolated = false,
                     )
                 )
                 .build()
@@ -60,14 +60,14 @@ class NonInterpolatedColorRampDataSourceService : ComplicationDataSourceService(
                         value = 10f,
                         min = 0.0f,
                         max = 100.0f,
-                        plainText("Example")
+                        plainText("Example"),
                     )
                     .setText(plainText("Example"))
                     .setValueType(RangedValueComplicationData.TYPE_RATING)
                     .setColorRamp(
                         ColorRamp(
                             intArrayOf(Color.GREEN, Color.YELLOW, Color.RED),
-                            interpolated = false
+                            interpolated = false,
                         )
                     )
                     .build()

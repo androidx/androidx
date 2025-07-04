@@ -21,8 +21,10 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -31,14 +33,26 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.tracing"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
+    }
+    mac {
+        binaries.framework {
+            baseName = "AndroidXTracing"
         }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+
+    def signpostCompilation = createNativeCompilation("signpost") {
+        configureEachTarget { nativeCompilation ->
+            nativeCompilation.includes.from(
+                    project.layout.projectDirectory.dir("src/appleMain/objc/include")
+            )
+            nativeCompilation.sources.from(
+                    fileTree(project.layout.projectDirectory.dir("src/appleMain/objc"))
+                            .matching { include "**/*.mm" }
+            )
+        }
+    }
 
     sourceSets {
         commonMain {
@@ -62,15 +76,31 @@ androidXMultiplatform {
                 implementation(libs.junit)
             }
         }
+
+        appleMain {
+            dependsOn(commonMain)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                if (target.konanTarget.family.appleFamily) {
+                    signpostCompilation.configureTarget(target.konanTarget)
+                    createCinterop(target, signpostCompilation)
+
+                    target.compilations["main"].defaultSourceSet.dependsOn(appleMain)
+                } else {
+                    throw new GradleException("unknown native target ${target}")
+                }
+            }
+        }
     }
 }
 
 androidx {
     name = "Tracing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Tracing"
-    legacyDisableKotlinStrictApiMode = true
     deviceTests {
         enableAlsoRunningOnPhysicalDevices = true
     }

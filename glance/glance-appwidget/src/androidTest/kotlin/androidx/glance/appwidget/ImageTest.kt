@@ -58,7 +58,7 @@ class ImageTest {
                             ColorFilter.tint(GlanceTheme.colors.onSurface)
                         } else {
                             null
-                        }
+                        },
                 )
             }
         }
@@ -92,7 +92,7 @@ class ImageTest {
                         provider = ImageProvider(R.drawable.oval),
                         contentDescription = null,
                         modifier = GlanceModifier.size(24.dp),
-                        alpha = 0.5f
+                        alpha = 0.5f,
                     )
                 } else {
                     Image(

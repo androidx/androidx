@@ -167,4 +167,9 @@
         android:id="@+id/torch_state_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <ImageView
+        android:id="@+id/focus_on_tap_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/outline_circle_24" />
 </LinearLayout>

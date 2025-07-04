@@ -54,7 +54,7 @@ class CervicalMucusRecordTest {
                         zoneOffset = null,
                         appearance = CervicalMucusRecord.APPEARANCE_UNUSUAL,
                         sensation = CervicalMucusRecord.SENSATION_MEDIUM,
-                        metadata = Metadata.EMPTY,
+                        metadata = Metadata.unknownRecordingMethod(),
                     )
                     .toString()
             )

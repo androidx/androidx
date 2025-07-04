@@ -44,9 +44,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
 @RunWith(Parameterized::class)
 @SmallTest
-class PlayCompositionSignalSdk30AndAboveTest(
-    private val primitive: PrimitiveAtom,
-) {
+class PlayCompositionSignalSdk30AndAboveTest(private val primitive: PrimitiveAtom) {
     private val fakeVibrator = FullVibrator()
     private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
@@ -79,14 +77,7 @@ class PlayCompositionSignalSdk30AndAboveTest(
         @JvmStatic
         @Parameterized.Parameters(name = "primitive:{0}")
         fun data(): Collection<Any> {
-            val primitives =
-                mutableListOf(
-                    tick(),
-                    click(),
-                    slowRise(),
-                    quickRise(),
-                    quickFall(),
-                )
+            val primitives = mutableListOf(tick(), click(), slowRise(), quickRise(), quickFall())
             if (Build.VERSION.SDK_INT >= 31) {
                 primitives.apply {
                     add(lowTick())
@@ -102,9 +93,7 @@ class PlayCompositionSignalSdk30AndAboveTest(
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @RunWith(Parameterized::class)
 @SmallTest
-class PlayCompositionSignalBelowSdk30Test(
-    private val primitive: PrimitiveAtom,
-) {
+class PlayCompositionSignalBelowSdk30Test(private val primitive: PrimitiveAtom) {
     private val fakeVibrator = FullVibrator()
     private val hapticManager = requireNotNull(HapticManager.createForVibrator(fakeVibrator))
 
@@ -141,18 +130,9 @@ class PlayCompositionSignalPartialPrimitiveSdkSupportTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R, maxSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun play_api30AndPrimitiveFromApi31AndAbove_doesNotVibrate() {
-        hapticManager.play(
-            compositionOf(lowTick()),
-            HapticAttributes(HapticAttributes.USAGE_TOUCH),
-        )
-        hapticManager.play(
-            compositionOf(thud()),
-            HapticAttributes(HapticAttributes.USAGE_TOUCH),
-        )
-        hapticManager.play(
-            compositionOf(spin()),
-            HapticAttributes(HapticAttributes.USAGE_TOUCH),
-        )
+        hapticManager.play(compositionOf(lowTick()), HapticAttributes(HapticAttributes.USAGE_TOUCH))
+        hapticManager.play(compositionOf(thud()), HapticAttributes(HapticAttributes.USAGE_TOUCH))
+        hapticManager.play(compositionOf(spin()), HapticAttributes(HapticAttributes.USAGE_TOUCH))
         // Mix supported/unsupported primitives
         hapticManager.play(
             compositionOf(tick(), lowTick()),

@@ -1,156 +1,156 @@
 // Signature format: 4.0
 package androidx.wear.watchface.complications.rendering {
 
-  public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
-    ctor public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback invalidateCallback);
-    method public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color);
-    method public androidx.wear.watchface.complications.data.ComplicationData getData();
-    method public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
-    method @CallSuper public void loadData(androidx.wear.watchface.complications.data.ComplicationData complicationData, boolean loadDrawablesAsynchronous);
-    method public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters, int slotId);
-    method public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable);
-    property public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
+  @Deprecated public class CanvasComplicationDrawable implements androidx.wear.watchface.CanvasComplication {
+    ctor @Deprecated public CanvasComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.CanvasComplication.InvalidateCallback invalidateCallback);
+    method @Deprecated public void drawHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, int boundsType, java.time.ZonedDateTime zonedDateTime, @ColorInt int color);
+    method @Deprecated public androidx.wear.watchface.complications.data.ComplicationData getData();
+    method @Deprecated public final androidx.wear.watchface.complications.rendering.ComplicationDrawable getDrawable();
+    method @Deprecated @CallSuper public void loadData(androidx.wear.watchface.complications.data.ComplicationData complicationData, boolean loadDrawablesAsynchronous);
+    method @Deprecated public void render(android.graphics.Canvas canvas, android.graphics.Rect bounds, java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters, int slotId);
+    method @Deprecated public final void setDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable);
+    property @Deprecated public final androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable;
   }
 
-  public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
-    ctor public ComplicationDrawable();
-    ctor public ComplicationDrawable(android.content.Context context);
-    ctor public ComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable);
-    method public void draw(android.graphics.Canvas canvas);
-    method public androidx.wear.watchface.complications.rendering.ComplicationStyle getActiveStyle();
-    method public androidx.wear.watchface.complications.rendering.ComplicationStyle getAmbientStyle();
-    method public androidx.wear.watchface.complications.data.ComplicationData getComplicationData();
-    method public android.content.Context? getContext();
-    method public java.time.Instant getCurrentTime();
-    method public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
-    method public long getHighlightDuration();
-    method public CharSequence? getNoDataText();
+  @Deprecated public final class ComplicationDrawable extends android.graphics.drawable.Drawable {
+    ctor @Deprecated public ComplicationDrawable();
+    ctor @Deprecated public ComplicationDrawable(android.content.Context context);
+    ctor @Deprecated public ComplicationDrawable(androidx.wear.watchface.complications.rendering.ComplicationDrawable drawable);
+    method @Deprecated public void draw(android.graphics.Canvas canvas);
+    method @Deprecated public androidx.wear.watchface.complications.rendering.ComplicationStyle getActiveStyle();
+    method @Deprecated public androidx.wear.watchface.complications.rendering.ComplicationStyle getAmbientStyle();
+    method @Deprecated public androidx.wear.watchface.complications.data.ComplicationData getComplicationData();
+    method @Deprecated public android.content.Context? getContext();
+    method @Deprecated public java.time.Instant getCurrentTime();
+    method @Deprecated public static androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
+    method @Deprecated public long getHighlightDuration();
+    method @Deprecated public CharSequence? getNoDataText();
     method @Deprecated public int getOpacity();
-    method public boolean isBurnInProtectionOn();
-    method public boolean isHighlighted();
-    method public boolean isInAmbientMode();
-    method public boolean isLowBitAmbient();
-    method public boolean isRangedValueProgressHidden();
-    method public boolean onTap(@Px int x, @Px int y);
-    method public void setAlpha(@IntRange(from=0L, to=255L) int alpha);
-    method public void setBurnInProtectionOn(boolean);
-    method public void setColorFilter(android.graphics.ColorFilter? colorFilter);
-    method public void setComplicationData(androidx.wear.watchface.complications.data.ComplicationData complicationData, boolean loadDrawablesAsync);
-    method public void setContext(android.content.Context context);
-    method public void setCurrentTime(java.time.Instant);
-    method public void setHighlightDuration(@IntRange(from=0L) long);
-    method public void setHighlighted(boolean);
-    method public void setInAmbientMode(boolean);
-    method public void setLowBitAmbient(boolean);
-    method public void setNoDataText(CharSequence?);
-    method public void setRangedValueProgressHidden(boolean);
-    property public final androidx.wear.watchface.complications.rendering.ComplicationStyle activeStyle;
-    property public final androidx.wear.watchface.complications.rendering.ComplicationStyle ambientStyle;
-    property public final androidx.wear.watchface.complications.data.ComplicationData complicationData;
-    property public final android.content.Context? context;
-    property public final java.time.Instant currentTime;
-    property public final long highlightDuration;
-    property public final boolean isBurnInProtectionOn;
-    property public final boolean isHighlighted;
-    property public final boolean isInAmbientMode;
-    property public final boolean isLowBitAmbient;
-    property public final boolean isRangedValueProgressHidden;
-    property public final CharSequence? noDataText;
-    field public static final androidx.wear.watchface.complications.rendering.ComplicationDrawable.Companion Companion;
+    method @Deprecated public boolean isBurnInProtectionOn();
+    method @Deprecated public boolean isHighlighted();
+    method @Deprecated public boolean isInAmbientMode();
+    method @Deprecated public boolean isLowBitAmbient();
+    method @Deprecated public boolean isRangedValueProgressHidden();
+    method @Deprecated public boolean onTap(@Px int x, @Px int y);
+    method @Deprecated public void setAlpha(@IntRange(from=0L, to=255L) int alpha);
+    method @Deprecated public void setBurnInProtectionOn(boolean);
+    method @Deprecated public void setColorFilter(android.graphics.ColorFilter? colorFilter);
+    method @Deprecated public void setComplicationData(androidx.wear.watchface.complications.data.ComplicationData complicationData, boolean loadDrawablesAsync);
+    method @Deprecated public void setContext(android.content.Context context);
+    method @Deprecated public void setCurrentTime(java.time.Instant);
+    method @Deprecated public void setHighlightDuration(@IntRange(from=0L) long);
+    method @Deprecated public void setHighlighted(boolean);
+    method @Deprecated public void setInAmbientMode(boolean);
+    method @Deprecated public void setLowBitAmbient(boolean);
+    method @Deprecated public void setNoDataText(CharSequence?);
+    method @Deprecated public void setRangedValueProgressHidden(boolean);
+    property @Deprecated public androidx.wear.watchface.complications.rendering.ComplicationStyle activeStyle;
+    property @Deprecated public androidx.wear.watchface.complications.rendering.ComplicationStyle ambientStyle;
+    property @Deprecated public androidx.wear.watchface.complications.data.ComplicationData complicationData;
+    property @Deprecated public android.content.Context? context;
+    property @Deprecated public java.time.Instant currentTime;
+    property @Deprecated public long highlightDuration;
+    property @Deprecated public boolean isBurnInProtectionOn;
+    property @Deprecated public boolean isHighlighted;
+    property @Deprecated public boolean isInAmbientMode;
+    property @Deprecated public boolean isLowBitAmbient;
+    property @Deprecated public boolean isRangedValueProgressHidden;
+    property @Deprecated public CharSequence? noDataText;
+    field @Deprecated public static final androidx.wear.watchface.complications.rendering.ComplicationDrawable.Companion Companion;
   }
 
-  public static final class ComplicationDrawable.Companion {
-    method public androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
+  @Deprecated public static final class ComplicationDrawable.Companion {
+    method @Deprecated public androidx.wear.watchface.complications.rendering.ComplicationDrawable? getDrawable(android.content.Context context, int id);
   }
 
-  public final class ComplicationHighlightRenderer {
-    ctor public ComplicationHighlightRenderer(@Px float outlineExpansion, @Px float outlineStrokeWidth);
-    method public void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
+  @Deprecated public final class ComplicationHighlightRenderer {
+    ctor @Deprecated public ComplicationHighlightRenderer(@Px float outlineExpansion, @Px float outlineStrokeWidth);
+    method @Deprecated public void drawComplicationHighlight(android.graphics.Canvas canvas, android.graphics.Rect bounds, @ColorInt int color);
   }
 
-  public final class ComplicationStyle {
-    ctor public ComplicationStyle();
-    ctor public ComplicationStyle(androidx.wear.watchface.complications.rendering.ComplicationStyle style);
-    method @ColorInt public int getBackgroundColor();
-    method public android.graphics.drawable.Drawable? getBackgroundDrawable();
-    method @ColorInt public int getBorderColor();
-    method @Px public int getBorderDashGap();
-    method @Px public int getBorderDashWidth();
-    method @Px public int getBorderRadius();
-    method public int getBorderStyle();
-    method @Px public int getBorderWidth();
-    method @ColorInt public int getHighlightColor();
-    method @ColorInt public int getIconColor();
-    method public android.graphics.ColorFilter? getImageColorFilter();
-    method @ColorInt public int getRangedValuePrimaryColor();
-    method @Px public int getRangedValueRingWidth();
-    method @ColorInt public int getRangedValueSecondaryColor();
-    method @ColorInt public int getTextColor();
-    method @Px public int getTextSize();
-    method public android.graphics.Typeface getTextTypeface();
-    method @ColorInt public int getTitleColor();
-    method @Px public int getTitleSize();
-    method public android.graphics.Typeface getTitleTypeface();
-    method public void setBackgroundColor(@ColorInt int);
-    method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
-    method public void setBorderColor(@ColorInt int);
-    method public void setBorderDashGap(@Px int);
-    method public void setBorderDashWidth(@Px int);
-    method public void setBorderRadius(@Px int);
-    method public void setBorderStyle(int);
-    method public void setBorderWidth(@Px int);
-    method public void setHighlightColor(@ColorInt int);
-    method public void setIconColor(@ColorInt int);
-    method public void setImageColorFilter(android.graphics.ColorFilter?);
-    method public void setRangedValuePrimaryColor(@ColorInt int);
-    method public void setRangedValueRingWidth(@Px int);
-    method public void setRangedValueSecondaryColor(@ColorInt int);
-    method public void setTextColor(@ColorInt int);
-    method public void setTextSize(@Px int);
-    method public void setTextTypeface(android.graphics.Typeface textTypeface);
-    method public void setTitleColor(@ColorInt int);
-    method public void setTitleSize(@Px int);
-    method public void setTitleTypeface(android.graphics.Typeface titleTypeface);
-    property @ColorInt public final int backgroundColor;
-    property public final android.graphics.drawable.Drawable? backgroundDrawable;
-    property @ColorInt public final int borderColor;
-    property @Px public final int borderDashGap;
-    property @Px public final int borderDashWidth;
-    property @Px public final int borderRadius;
-    property public final int borderStyle;
-    property @Px public final int borderWidth;
-    property @ColorInt public final int highlightColor;
-    property @ColorInt public final int iconColor;
-    property public final android.graphics.ColorFilter? imageColorFilter;
-    property @ColorInt public final int rangedValuePrimaryColor;
-    property @Px public final int rangedValueRingWidth;
-    property @ColorInt public final int rangedValueSecondaryColor;
-    property @ColorInt public final int textColor;
-    property @Px public final int textSize;
-    property public final android.graphics.Typeface textTypeface;
-    property @ColorInt public final int titleColor;
-    property @Px public final int titleSize;
-    property public final android.graphics.Typeface titleTypeface;
-    field @Px public static final int BORDER_RADIUS_DEFAULT = 2147483647; // 0x7fffffff
-    field public static final int BORDER_STYLE_DASHED = 2; // 0x2
-    field public static final int BORDER_STYLE_NONE = 0; // 0x0
-    field public static final int BORDER_STYLE_SOLID = 1; // 0x1
-    field public static final androidx.wear.watchface.complications.rendering.ComplicationStyle.Companion Companion;
+  @Deprecated public final class ComplicationStyle {
+    ctor @Deprecated public ComplicationStyle();
+    ctor @Deprecated public ComplicationStyle(androidx.wear.watchface.complications.rendering.ComplicationStyle style);
+    method @Deprecated @ColorInt public int getBackgroundColor();
+    method @Deprecated public android.graphics.drawable.Drawable? getBackgroundDrawable();
+    method @Deprecated @ColorInt public int getBorderColor();
+    method @Deprecated @Px public int getBorderDashGap();
+    method @Deprecated @Px public int getBorderDashWidth();
+    method @Deprecated @Px public int getBorderRadius();
+    method @Deprecated public int getBorderStyle();
+    method @Deprecated @Px public int getBorderWidth();
+    method @Deprecated @ColorInt public int getHighlightColor();
+    method @Deprecated @ColorInt public int getIconColor();
+    method @Deprecated public android.graphics.ColorFilter? getImageColorFilter();
+    method @Deprecated @ColorInt public int getRangedValuePrimaryColor();
+    method @Deprecated @Px public int getRangedValueRingWidth();
+    method @Deprecated @ColorInt public int getRangedValueSecondaryColor();
+    method @Deprecated @ColorInt public int getTextColor();
+    method @Deprecated @Px public int getTextSize();
+    method @Deprecated public android.graphics.Typeface getTextTypeface();
+    method @Deprecated @ColorInt public int getTitleColor();
+    method @Deprecated @Px public int getTitleSize();
+    method @Deprecated public android.graphics.Typeface getTitleTypeface();
+    method @Deprecated public void setBackgroundColor(@ColorInt int);
+    method @Deprecated public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method @Deprecated public void setBorderColor(@ColorInt int);
+    method @Deprecated public void setBorderDashGap(@Px int);
+    method @Deprecated public void setBorderDashWidth(@Px int);
+    method @Deprecated public void setBorderRadius(@Px int);
+    method @Deprecated public void setBorderStyle(int);
+    method @Deprecated public void setBorderWidth(@Px int);
+    method @Deprecated public void setHighlightColor(@ColorInt int);
+    method @Deprecated public void setIconColor(@ColorInt int);
+    method @Deprecated public void setImageColorFilter(android.graphics.ColorFilter?);
+    method @Deprecated public void setRangedValuePrimaryColor(@ColorInt int);
+    method @Deprecated public void setRangedValueRingWidth(@Px int);
+    method @Deprecated public void setRangedValueSecondaryColor(@ColorInt int);
+    method @Deprecated public void setTextColor(@ColorInt int);
+    method @Deprecated public void setTextSize(@Px int);
+    method @Deprecated public void setTextTypeface(android.graphics.Typeface textTypeface);
+    method @Deprecated public void setTitleColor(@ColorInt int);
+    method @Deprecated public void setTitleSize(@Px int);
+    method @Deprecated public void setTitleTypeface(android.graphics.Typeface titleTypeface);
+    property @Deprecated @ColorInt public int backgroundColor;
+    property @Deprecated public android.graphics.drawable.Drawable? backgroundDrawable;
+    property @Deprecated @ColorInt public int borderColor;
+    property @Deprecated @Px public int borderDashGap;
+    property @Deprecated @Px public int borderDashWidth;
+    property @Deprecated @Px public int borderRadius;
+    property @Deprecated public int borderStyle;
+    property @Deprecated @Px public int borderWidth;
+    property @Deprecated @ColorInt public int highlightColor;
+    property @Deprecated @ColorInt public int iconColor;
+    property @Deprecated public android.graphics.ColorFilter? imageColorFilter;
+    property @Deprecated @ColorInt public int rangedValuePrimaryColor;
+    property @Deprecated @Px public int rangedValueRingWidth;
+    property @Deprecated @ColorInt public int rangedValueSecondaryColor;
+    property @Deprecated @ColorInt public int textColor;
+    property @Deprecated @Px public int textSize;
+    property @Deprecated public android.graphics.Typeface textTypeface;
+    property @Deprecated @ColorInt public int titleColor;
+    property @Deprecated @Px public int titleSize;
+    property @Deprecated public android.graphics.Typeface titleTypeface;
+    field @Deprecated @Px public static final int BORDER_RADIUS_DEFAULT = 2147483647; // 0x7fffffff
+    field @Deprecated public static final int BORDER_STYLE_DASHED = 2; // 0x2
+    field @Deprecated public static final int BORDER_STYLE_NONE = 0; // 0x0
+    field @Deprecated public static final int BORDER_STYLE_SOLID = 1; // 0x1
+    field @Deprecated public static final androidx.wear.watchface.complications.rendering.ComplicationStyle.Companion Companion;
   }
 
-  public static final class ComplicationStyle.Companion {
-    property @Px public static final int BORDER_RADIUS_DEFAULT;
-    property public static final int BORDER_STYLE_DASHED;
-    property public static final int BORDER_STYLE_NONE;
-    property public static final int BORDER_STYLE_SOLID;
+  @Deprecated public static final class ComplicationStyle.Companion {
+    property @Deprecated @Px public static int BORDER_RADIUS_DEFAULT;
+    property @Deprecated public static int BORDER_STYLE_DASHED;
+    property @Deprecated public static int BORDER_STYLE_NONE;
+    property @Deprecated public static int BORDER_STYLE_SOLID;
   }
 
-  public final class GlesTextureComplication {
-    ctor public GlesTextureComplication(androidx.wear.watchface.ComplicationSlot complicationSlot, @Px int textureWidth, @Px int textureHeight, int textureType);
-    method public void bind();
-    method public androidx.wear.watchface.ComplicationSlot getComplicationSlot();
-    method public void renderToTexture(java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
-    property public final androidx.wear.watchface.ComplicationSlot complicationSlot;
+  @Deprecated public final class GlesTextureComplication {
+    ctor @Deprecated public GlesTextureComplication(androidx.wear.watchface.ComplicationSlot complicationSlot, @Px int textureWidth, @Px int textureHeight, int textureType);
+    method @Deprecated public void bind();
+    method @Deprecated public androidx.wear.watchface.ComplicationSlot getComplicationSlot();
+    method @Deprecated public void renderToTexture(java.time.ZonedDateTime zonedDateTime, androidx.wear.watchface.RenderParameters renderParameters);
+    property @Deprecated public androidx.wear.watchface.ComplicationSlot complicationSlot;
   }
 
 }

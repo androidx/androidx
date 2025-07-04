@@ -19,6 +19,7 @@ package androidx.credentials.provider
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.internal.FrameworkClassParsingException
@@ -42,7 +43,7 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
         fun asBundle(bundle: Bundle, request: BeginCreateCredentialRequest) {
             bundle.putParcelable(
                 REQUEST_KEY,
-                BeginCreateCredentialUtil.convertToFrameworkRequest(request)
+                BeginCreateCredentialUtil.convertToFrameworkRequest(request),
             )
         }
 
@@ -51,7 +52,7 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
             val frameworkRequest =
                 bundle.getParcelable(
                     REQUEST_KEY,
-                    android.service.credentials.BeginCreateCredentialRequest::class.java
+                    android.service.credentials.BeginCreateCredentialRequest::class.java,
                 )
             if (frameworkRequest != null) {
                 return BeginCreateCredentialUtil.convertToJetpackRequest(frameworkRequest)
@@ -71,7 +72,7 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
             bundle.putString(EXTRA_BEGIN_CREATE_CREDENTIAL_REQUEST_TYPE, request.type)
             bundle.putBundle(
                 EXTRA_BEGIN_CREATE_CREDENTIAL_REQUEST_CANDIDATE_QUERY_DATA,
-                request.candidateQueryData
+                request.candidateQueryData,
             )
             request.callingAppInfo?.let { bundle.setCallingAppInfo(it) }
         }
@@ -88,23 +89,25 @@ constructor(val type: String, val candidateQueryData: Bundle, val callingAppInfo
     }
 
     companion object {
-        internal fun createFrom(
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun createFrom(
             type: String,
             candidateQueryData: Bundle,
-            callingAppInfo: CallingAppInfo?
+            callingAppInfo: CallingAppInfo?,
         ): BeginCreateCredentialRequest {
             return try {
                 when (type) {
                     PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
                         BeginCreatePasswordCredentialRequest.createFrom(
                             candidateQueryData,
-                            callingAppInfo
+                            callingAppInfo,
                         )
                     }
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
                         BeginCreatePublicKeyCredentialRequest.createFrom(
                             candidateQueryData,
-                            callingAppInfo
+                            callingAppInfo,
                         )
                     }
                     else -> {

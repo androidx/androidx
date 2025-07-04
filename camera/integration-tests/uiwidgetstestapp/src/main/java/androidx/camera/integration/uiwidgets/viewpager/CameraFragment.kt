@@ -91,7 +91,7 @@ class CameraFragment : Fragment() {
                 throw IllegalStateException(
                     "WARNING: CameraX is currently configured to a different implementation " +
                         "this would have resulted in unexpected behavior.",
-                    e
+                    e,
                 )
             }
         }
@@ -113,7 +113,7 @@ class CameraFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentTextureviewBinding.inflate(inflater, container, false)
         return binding.root
@@ -136,7 +136,7 @@ class CameraFragment : Fragment() {
                     Log.d(TAG, "Skip camera setup since the lifecycle is closed")
                 }
             },
-            ContextCompat.getMainExecutor(requireContext())
+            ContextCompat.getMainExecutor(requireContext()),
         )
     }
 
@@ -195,7 +195,7 @@ class CameraFragment : Fragment() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
-                    result: TotalCaptureResult
+                    result: TotalCaptureResult,
                 ) {
                     super.onCaptureCompleted(session, request, result)
 

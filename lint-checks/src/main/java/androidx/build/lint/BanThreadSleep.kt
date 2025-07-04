@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import java.util.EnumSet
 import org.jetbrains.uast.UCallExpression
 
 class BanThreadSleep : Detector(), SourceCodeScanner {
@@ -56,7 +57,10 @@ class BanThreadSleep : Detector(), SourceCodeScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanThreadSleep::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(
+                    BanThreadSleep::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

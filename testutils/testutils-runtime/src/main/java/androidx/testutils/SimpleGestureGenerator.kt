@@ -50,14 +50,14 @@ data class MotionEventData(
     val action: Int,
     val x: Float,
     val y: Float,
-    val metaState: Int
+    val metaState: Int,
 )
 
 enum class Direction {
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
 }
 
 fun MotionEventData.toMotionEvent(downTime: Long): MotionEvent =
@@ -67,7 +67,7 @@ fun MotionEventData.toMotionEvent(downTime: Long): MotionEvent =
         this.action,
         this.x,
         this.y,
-        this.metaState
+        this.metaState,
     )
 
 /**
@@ -122,7 +122,7 @@ private fun ceilToInterval(value: Int, interval: Int): Int =
 fun FlingData.generateFlingMotionEventData(
     originX: Float,
     originY: Float,
-    fingerDirection: Direction
+    fingerDirection: Direction,
 ): List<MotionEventData> {
 
     // Ceiling the time and distance to match up with motion event intervals.
@@ -191,11 +191,11 @@ fun View.simulateFling(
     originX: Float,
     originY: Float,
     direction: Direction,
-    velocityPixelsPerSecond: Float? = null
+    velocityPixelsPerSecond: Float? = null,
 ) {
     dispatchTouchEvents(
         downTime,
         generateFlingData(context, velocityPixelsPerSecond)
-            .generateFlingMotionEventData(originX, originY, direction)
+            .generateFlingMotionEventData(originX, originY, direction),
     )
 }

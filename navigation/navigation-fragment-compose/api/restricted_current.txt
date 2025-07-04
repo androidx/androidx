@@ -30,7 +30,7 @@ package androidx.navigation.fragment.compose {
 
   public final class LocalFragmentKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> getLocalFragment();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> LocalFragment;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> LocalFragment;
   }
 
 }

@@ -63,7 +63,6 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
             CameraStateAdapter(),
             cameraGraph,
             streamConfigMap,
-            sessionProcessorManager = null
         )
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
@@ -94,7 +93,7 @@ class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
 
 // TODO: Further implement the methods in this class as needed
 open class FakeUseCaseCameraRequestControl(
-    private val scope: CoroutineScope = CoroutineScope(SupervisorJob()),
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob())
 ) : UseCaseCameraRequestControl {
     val addParameterCalls = mutableListOf<Map<CaptureRequest.Key<*>, Any>>()
     var addParameterResult = CompletableDeferred(Unit)
@@ -169,7 +168,7 @@ open class FakeUseCaseCameraRequestControl(
                 afLockBehavior,
                 awbLockBehavior,
                 afTriggerStartAeMode,
-                timeLimitNs
+                timeLimitNs,
             )
         )
 
@@ -208,12 +207,16 @@ open class FakeUseCaseCameraRequestControl(
     override fun update3aRegions(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
+        awbRegions: List<MeteringRectangle>?,
     ): Deferred<Result3A> {
         this.aeRegions = aeRegions
         this.afRegions = afRegions
         this.awbRegions = awbRegions
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
+    }
+
+    override suspend fun awaitSurfaceSetup(): Boolean {
+        return true
     }
 
     override fun close() {}
@@ -238,12 +241,12 @@ open class FakeUseCaseCameraRequestControl(
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(
-    override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
+    override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl()
 ) : UseCaseCamera {
     override suspend fun getCameraCapturePipeline(
         captureMode: Int,
         flashMode: Int,
-        flashType: Int
+        flashType: Int,
     ): CameraCapturePipeline = FakeCameraCapturePipeline()
 
     override fun close(): Job {

@@ -74,13 +74,13 @@ class AndroidVariableFontTest {
         val font1 =
             Font(
                 file = tempFile!!,
-                variationSettings = FontVariation.Settings(FontVariation.weight(1))
+                variationSettings = FontVariation.Settings(FontVariation.weight(1)),
             )
                 as AndroidFont
         val font1000 =
             Font(
                 file = tempFile!!,
-                variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+                variationSettings = FontVariation.Settings(FontVariation.weight(1000)),
             )
                 as AndroidFont
 
@@ -107,14 +107,14 @@ class AndroidVariableFontTest {
             Font(
                 path = assetFontPath,
                 context.assets,
-                variationSettings = FontVariation.Settings(FontVariation.weight(1))
+                variationSettings = FontVariation.Settings(FontVariation.weight(1)),
             )
                 as AndroidFont
         val font1000 =
             Font(
                 path = assetFontPath,
                 context.assets,
-                variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+                variationSettings = FontVariation.Settings(FontVariation.weight(1000)),
             )
                 as AndroidFont
 
@@ -143,7 +143,7 @@ class AndroidVariableFontTest {
             context.openFileInput(tempFile?.name).use { inputStream ->
                 Font(
                     ParcelFileDescriptor.dup(inputStream.fd),
-                    variationSettings = FontVariation.Settings(FontVariation.weight(1))
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1)),
                 )
                     as AndroidFont
             }
@@ -151,7 +151,7 @@ class AndroidVariableFontTest {
             context.openFileInput(tempFile?.name).use { inputStream ->
                 Font(
                     ParcelFileDescriptor.dup(inputStream.fd),
-                    variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1000)),
                 )
                     as AndroidFont
             }
@@ -168,7 +168,7 @@ class AndroidVariableFontTest {
             context.openFileInput(tempFile?.name).use { inputStream ->
                 Font(
                     ParcelFileDescriptor.dup(inputStream.fd),
-                    variationSettings = FontVariation.Settings(FontVariation.weight(1))
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1)),
                 )
                     as AndroidFont
             }
@@ -176,7 +176,7 @@ class AndroidVariableFontTest {
             context.openFileInput(tempFile?.name).use { inputStream ->
                 Font(
                     ParcelFileDescriptor.dup(inputStream.fd),
-                    variationSettings = FontVariation.Settings(FontVariation.weight(1000))
+                    variationSettings = FontVariation.Settings(FontVariation.weight(1000)),
                 )
                     as AndroidFont
             }

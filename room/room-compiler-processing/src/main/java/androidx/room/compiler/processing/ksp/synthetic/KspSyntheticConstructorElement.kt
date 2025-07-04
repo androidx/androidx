@@ -30,7 +30,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 internal class KspSyntheticConstructorElement(
     env: KspProcessingEnv,
     declaration: KSFunctionDeclaration,
-    valueParameters: List<KSValueParameter>
+    valueParameters: List<KSValueParameter>,
 ) : KspConstructorElement(env, declaration) {
 
     override fun isSyntheticConstructorForJvmOverloads() = true
@@ -41,7 +41,7 @@ internal class KspSyntheticConstructorElement(
                 env = env,
                 enclosingElement = this,
                 parameter = param,
-                parameterIndex = index
+                parameterIndex = index,
             )
         }
     }

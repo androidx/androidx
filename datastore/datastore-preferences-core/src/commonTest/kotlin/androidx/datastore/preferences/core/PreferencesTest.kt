@@ -395,7 +395,7 @@ class PreferencesTest {
                 stringKey to "abc",
                 stringSetKey to setOf("1", "2", "3"),
                 longKey to 10000000000L,
-                byteArrayKey to byteArrayOf(1, 2, 3, 4)
+                byteArrayKey to byteArrayOf(1, 2, 3, 4),
             )
 
         assertEquals(
@@ -411,7 +411,7 @@ class PreferencesTest {
             }
             """
                 .trimIndent(),
-            prefs.toString()
+            prefs.toString(),
         )
     }
 }

@@ -42,7 +42,7 @@ import kotlin.time.toKotlinDuration
 public class WaveformSignal(
 
     /** The waveform signal atoms that describes the vibration parameters over time. */
-    public val atoms: List<Atom>,
+    public val atoms: List<Atom>
 ) : FiniteSignal() {
     init {
         require(atoms.isNotEmpty()) { "Haptic signals cannot be empty" }
@@ -132,7 +132,7 @@ public class WaveformSignal(
         @JvmStatic
         public fun on(
             duration: java.time.Duration,
-            @FloatRange(from = 0.0, to = 1.0) amplitude: Float
+            @FloatRange(from = 0.0, to = 1.0) amplitude: Float,
         ): ConstantVibrationAtom = ConstantVibrationAtom(duration.toKotlinDuration(), amplitude)
 
         /**
@@ -147,7 +147,7 @@ public class WaveformSignal(
         @JvmStatic
         public fun on(
             durationMillis: Long,
-            @FloatRange(from = 0.0, to = 1.0) amplitude: Float
+            @FloatRange(from = 0.0, to = 1.0) amplitude: Float,
         ): ConstantVibrationAtom = ConstantVibrationAtom(durationMillis.milliseconds, amplitude)
     }
 

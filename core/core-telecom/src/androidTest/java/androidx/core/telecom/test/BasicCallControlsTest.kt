@@ -20,7 +20,6 @@ import android.os.Build.VERSION_CODES
 import android.telecom.Call
 import android.telecom.DisconnectCause
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
@@ -60,7 +59,6 @@ import org.junit.runner.RunWith
  * currentCallEndpoint.counter.getFirst() // The flow may never be collected } }
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.O)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class BasicCallControlsTest : BaseTelecomTest() {
     private val NUM_OF_TIMES_TO_TOGGLE = 3
@@ -323,13 +321,13 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         } else {
                             assertEquals(
                                 CallControlResult.Success(),
-                                answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+                                answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL),
                             )
                         }
                         TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
                         assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -353,7 +351,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         }
                         assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -373,7 +371,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         assertNotEquals(CallControlResult.Success(), setInactive())
                         assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -404,12 +402,12 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         // request an endpoint switch
                         assertEquals(
                             CallControlResult.Success(),
-                            requestEndpointChange(anotherEndpoint!!)
+                            requestEndpointChange(anotherEndpoint!!),
                         )
                     }
                     assertEquals(
                         CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                     )
                 }
             }
@@ -441,7 +439,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
                         waitForMuteStateChange(!initialMuteState, isMuted)
                         assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                         )
                     }
                 }
@@ -465,7 +463,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     private fun getAnotherEndpoint(
         currentEndpoint: CallEndpointCompat,
-        availableEndpoints: List<CallEndpointCompat>
+        availableEndpoints: List<CallEndpointCompat>,
     ): CallEndpointCompat? {
         for (endpoint in availableEndpoints) {
             if (endpoint.type != currentEndpoint.type) {

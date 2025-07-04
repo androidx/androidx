@@ -56,10 +56,7 @@ import androidx.wear.compose.material.Text
  * the offset of the swipe by snapping back to original position.
  */
 @Composable
-fun SwipeToDismissDemo(
-    navigateBack: () -> Unit,
-    demoState: MutableState<SwipeDismissDemoState>,
-) {
+fun SwipeToDismissDemo(navigateBack: () -> Unit, demoState: MutableState<SwipeDismissDemoState>) {
     val swipeDismissState = rememberSwipeToDismissBoxState()
     LaunchedEffect(swipeDismissState.currentValue) {
         if (swipeDismissState.currentValue == SwipeToDismissValue.Dismissed) {
@@ -77,9 +74,7 @@ fun SwipeToDismissDemo(
         }
     }
 
-    SwipeToDismissBox(
-        state = swipeDismissState,
-    ) { isBackground ->
+    SwipeToDismissBox(state = swipeDismissState) { isBackground ->
         if (isBackground) {
             // What to show behind the content whilst swiping.
             when (demoState.value) {
@@ -143,7 +138,7 @@ fun NestedSwipeToDismissDemo() {
         backgroundKey = previous ?: SwipeToDismissKeys.Background,
         contentKey = current,
         hasBackground = previous != null,
-        onDismissed = { items.removeLastOrNull() }
+        onDismissed = { items.removeLastOrNull() },
     ) { isBackground ->
         val item =
             if (isBackground) {
@@ -156,7 +151,7 @@ fun NestedSwipeToDismissDemo() {
             if (item != null) {
                 Chip(
                     onClick = { items.add(items.size + 1) },
-                    label = { Text("Screen number $item") }
+                    label = { Text("Screen number $item") },
                 )
             } else {
                 Text("Empty Screen")
@@ -178,14 +173,14 @@ private fun SwipeToDismissOptionsList(state: MutableState<SwipeDismissDemoState>
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         repeat(4) {
             Chip(
                 onClick = { state?.value = SwipeDismissDemoState.Detail },
                 colors = ChipDefaults.secondaryChipColors(),
                 label = { Text(text = "Click me") },
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.width(150.dp),
             )
         }
     }
@@ -196,7 +191,7 @@ private fun SwipeToDismissDetail() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 25.dp)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 25.dp),
     ) {
         Text(text = "Swipe Dismiss Demo Detail", textAlign = TextAlign.Center)
         Text(

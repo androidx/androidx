@@ -75,7 +75,7 @@ class RecompositionHandler(private val artTooling: ArtTooling) {
             try {
                 Class.forName("${Composer::class.java.name}Impl")
             } catch (ex: Throwable) {
-                Log.w("Compose", "Could not install recomposition hooks", ex)
+                Log.w(LOG_TAG, "Could not install recomposition hooks", ex)
                 return
             }
 

@@ -80,7 +80,7 @@ internal fun InputEvent.verifyTouchEvent(
     expectedPointerCount: Int,
     expectedAction: Int,
     expectedActionIndex: Int,
-    expectedRelativeTime: Long
+    expectedRelativeTime: Long,
 ) {
     if (this is MotionEvent) {
         assertThat(pointerCount).isEqualTo(expectedPointerCount)

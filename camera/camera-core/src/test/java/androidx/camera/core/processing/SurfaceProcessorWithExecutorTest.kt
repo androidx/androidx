@@ -88,7 +88,7 @@ class SurfaceProcessorWithExecutorTest {
                         PREVIEW,
                         mainThreadExecutor(),
                         processor,
-                        { errorReceived = it }
+                        { errorReceived = it },
                     ) {}
             )
 

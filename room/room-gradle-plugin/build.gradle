@@ -21,7 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
 import androidx.build.SdkResourceGenerator
 
 plugins {
@@ -41,7 +43,7 @@ configurations {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(gradleApi())
-    compileOnly("com.android.tools.build:gradle:8.1.0")
+    compileOnly("com.android.tools.build:gradle:8.1.1")
     compileOnly(libs.kotlinGradlePlugin)
     compileOnly(libs.kspGradlePlugin)
 
@@ -51,10 +53,10 @@ dependencies {
     testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testParameterInjector)
 
-    testPlugin("com.android.tools.build:gradle:8.1.0")
-    testPlugin("com.android.tools.build:aapt2:8.1.0-10154469")
-    testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:linux")
-    testPlugin("com.android.tools.build:aapt2:8.1.0-10154469:osx")
+    testPlugin("com.android.tools.build:gradle:8.1.1")
+    testPlugin("com.android.tools.build:aapt2:8.1.1-10154469")
+    testPlugin("com.android.tools.build:aapt2:8.1.1-10154469:linux")
+    testPlugin("com.android.tools.build:aapt2:8.1.1-10154469:osx")
     testPlugin(libs.kotlinGradlePlugin)
     testPlugin(libs.kspGradlePlugin)
 }
@@ -76,10 +78,6 @@ tasks.withType(Test).configureEach { test ->
     // Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
     // the test project executed with Gradle Test Kit.
     test.dependsOn(
-            ":annotation:annotation:publish",
-            ":collection:collection:publish",
-            ":annotation:annotation-experimental:publish",
-            ":collection:collection:publish",
             ":room:room-common:publish",
             ":room:room-runtime:publish",
             ":room:room-migration:publish",
@@ -102,7 +100,8 @@ gradlePlugin {
 
 androidx {
     name = "Room Gradle Plugin"
-    type = LibraryType.GRADLE_PLUGIN
+    type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Room Gradle Plugin"
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

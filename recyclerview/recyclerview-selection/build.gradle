@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +29,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.recyclerview:recyclerview:1.2.0")
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.1.0")
@@ -45,12 +46,10 @@ dependencies {
 
 androidx {
     name = "RecyclerView Selection"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.RECYCLERVIEW_SELECTION
     inceptionYear = "2017"
     description = "Library providing item selection framework for RecyclerView. Support for touch based and band selection is provided."
-    // TODO: b/326456246
-    optOutJSpecify = true
 }
 
 android {

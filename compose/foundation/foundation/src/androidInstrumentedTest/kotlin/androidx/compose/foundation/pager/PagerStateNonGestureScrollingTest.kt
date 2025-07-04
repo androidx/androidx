@@ -103,7 +103,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
             object : PageSize {
                 override fun Density.calculateMainAxisPageSize(
                     availableSpace: Int,
-                    pageSpacing: Int
+                    pageSpacing: Int,
                 ): Int {
                     return 0
                 }
@@ -197,7 +197,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
             pageContent = {
                 val item = dataset.value[it]
                 Box(modifier = Modifier.fillMaxSize().testTag(item.item))
-            }
+            },
         )
 
         Truth.assertThat(dataset.value[pagerState.currentPage].item).isEqualTo("B")
@@ -268,7 +268,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
             pageCount = { 0 },
             additionalContent = {
                 LaunchedEffect(pagerState) { pagerState.animateScrollToPage(10) }
-            }
+            },
         )
         Truth.assertThat(pagerState.currentPage).isEqualTo(0)
     }
@@ -314,7 +314,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         // Act
         createPager(
             modifier = Modifier.fillMaxSize(),
-            additionalContent = { LaunchedEffect(pagerState) { pagerState.scrollToPage(5) } }
+            additionalContent = { LaunchedEffect(pagerState) { pagerState.scrollToPage(5) } },
         )
 
         // Assert
@@ -385,7 +385,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
                     beforeContentPadding: Int,
                     afterContentPadding: Int,
                     itemIndex: Int,
-                    itemCount: Int
+                    itemCount: Int,
                 ): Int {
                     return with(rule.density) { 200.dp.roundToPx() }
                 }
@@ -394,7 +394,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         createPager(
             modifier = Modifier.fillMaxSize(),
             snapPosition = customSnapPosition,
-            pageSize = { PageSize.Fixed(100.dp) }
+            pageSize = { PageSize.Fixed(100.dp) },
         )
 
         onPager().performTouchInput {
@@ -418,7 +418,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
                                     itemOffset = it.offset,
                                     itemIndex = it.index,
                                     snapPosition = customSnapPosition,
-                                    itemCount = pagerState.pageCount
+                                    itemCount = pagerState.pageCount,
                                 )
                             )
                         }
@@ -432,7 +432,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         createPager(
             modifier = Modifier.fillMaxSize(),
             snapPosition = SnapPosition.Start,
-            pageSize = { PageSize.Fixed(100.dp) }
+            pageSize = { PageSize.Fixed(100.dp) },
         )
 
         onPager().performTouchInput {
@@ -460,7 +460,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         createPager(
             modifier = Modifier.size(50.dp),
             snapPosition = SnapPosition.Center,
-            pageSize = { PageSize.Fixed(10.dp) }
+            pageSize = { PageSize.Fixed(10.dp) },
         )
 
         onPager().performTouchInput {
@@ -489,7 +489,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         createPager(
             modifier = Modifier.size(50.dp),
             snapPosition = SnapPosition.End,
-            pageSize = { PageSize.Fixed(10.dp) }
+            pageSize = { PageSize.Fixed(10.dp) },
         )
 
         onPager().performTouchInput {
@@ -514,7 +514,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
         createPager(
             modifier = Modifier.size(pageSizeDp * 1.5f),
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         )
 
         val delta = (pageSizePx / 3f).roundToInt()
@@ -547,7 +547,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
         createPager(
             modifier = Modifier.size(pageSizeDp * 1.5f),
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         )
         val delta = -(pageSizePx / 3f).roundToInt()
         runBlocking {
@@ -581,7 +581,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         createPager(
             modifier = Modifier.size(pageSizeDp * 1.5f),
             pageSize = { PageSize.Fixed(pageSizeDp) },
-            contentPadding = PaddingValues(afterContent = afterContentPaddingDp)
+            contentPadding = PaddingValues(afterContent = afterContentPaddingDp),
         )
 
         val delta = -(pageSizePx / 3f).roundToInt()

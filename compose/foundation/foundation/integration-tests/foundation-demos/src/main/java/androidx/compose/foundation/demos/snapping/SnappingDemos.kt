@@ -57,7 +57,7 @@ internal fun SnappingDemoMainLayout(
     lazyListState: LazyListState,
     flingBehavior: FlingBehavior,
     contentPaddingValues: PaddingValues = PaddingValues(8.dp),
-    content: @Composable (Int) -> Unit
+    content: @Composable (Int) -> Unit,
 ) {
     LazyRow(
         modifier =
@@ -68,7 +68,7 @@ internal fun SnappingDemoMainLayout(
         contentPadding = contentPaddingValues,
         verticalAlignment = Alignment.CenterVertically,
         state = lazyListState,
-        flingBehavior = flingBehavior
+        flingBehavior = flingBehavior,
     ) {
         items(ItemNumber) { content(it) }
     }
@@ -86,7 +86,7 @@ internal fun DefaultSnapDemoItem(position: Int) {
                     drawContent()
                     drawAnchor(CenterAnchor)
                 },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = position.toString(), fontSize = 40.sp)
     }
@@ -104,7 +104,7 @@ internal fun ResizableSnapDemoItem(width: Dp, height: Dp, position: Int) {
                     drawContent()
                     drawAnchor(CenterAnchor)
                 },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(text = position.toString(), fontSize = 40.sp)
     }
@@ -115,7 +115,7 @@ internal fun ContentDrawScope.drawAnchor(
     contentPaddingValues: PaddingValues = PaddingValues(0.dp),
     shouldDrawPadding: Boolean = false,
     mainLineStrokeWidth: Float = Stroke.HairlineWidth,
-    paddingLineStrokeWidth: Float = Stroke.HairlineWidth
+    paddingLineStrokeWidth: Float = Stroke.HairlineWidth,
 ) {
     val beforePadding = contentPaddingValues.calculateStartPadding(LayoutDirection.Rtl).toPx()
     val afterPadding = contentPaddingValues.calculateEndPadding(LayoutDirection.Rtl).toPx()
@@ -126,7 +126,7 @@ internal fun ContentDrawScope.drawAnchor(
         Color.Red,
         start = Offset(center, 0f),
         end = Offset(center, size.height),
-        strokeWidth = mainLineStrokeWidth
+        strokeWidth = mainLineStrokeWidth,
     )
 
     if (shouldDrawPadding) {
@@ -134,14 +134,14 @@ internal fun ContentDrawScope.drawAnchor(
             Color.Magenta,
             start = Offset(beforePadding, 0f),
             end = Offset(beforePadding, size.height),
-            strokeWidth = paddingLineStrokeWidth
+            strokeWidth = paddingLineStrokeWidth,
         )
 
         drawLine(
             Color.Magenta,
             start = Offset(size.width - afterPadding, 0f),
             end = Offset(size.width - afterPadding, size.height),
-            strokeWidth = paddingLineStrokeWidth
+            strokeWidth = paddingLineStrokeWidth,
         )
     }
 }

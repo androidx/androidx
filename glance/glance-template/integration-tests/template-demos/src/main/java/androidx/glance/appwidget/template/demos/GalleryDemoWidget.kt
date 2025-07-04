@@ -93,7 +93,7 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
                 galleryContent.add(
                     TemplateImageWithDescription(
                         ImageProvider(R.drawable.palm_leaf),
-                        "gallery image $i"
+                        "gallery image $i",
                     )
                 )
             }
@@ -105,7 +105,7 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
                             icon =
                                 TemplateImageWithDescription(
                                     ImageProvider(R.drawable.ic_widgets),
-                                    "test logo"
+                                    "test logo",
                                 ),
                         ),
                     mainTextBlock =
@@ -121,7 +121,7 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
                                 listOf(
                                     TemplateImageWithDescription(
                                         ImageProvider(R.drawable.palm_leaf),
-                                        "test image"
+                                        "test image",
                                     )
                                 ),
                             size = ImageSize.Medium,
@@ -133,13 +133,13 @@ abstract class BaseGalleryTemplateWidget : GlanceTemplateAppWidget() {
                                 listOf(
                                     TemplateTextButton(
                                         actionRunCallback<DefaultNoopAction>(),
-                                        "Act1"
+                                        "Act1",
                                     ),
                                     TemplateTextButton(
                                         actionRunCallback<DefaultNoopAction>(),
-                                        "Act2"
+                                        "Act2",
                                     ),
-                                ),
+                                )
                         ),
                     galleryImageBlock =
                         ImageBlock(

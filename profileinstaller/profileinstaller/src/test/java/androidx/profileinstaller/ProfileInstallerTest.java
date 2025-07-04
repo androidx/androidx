@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
+import androidx.test.filters.SdkSuppress;
 
 import junit.framework.TestCase;
 
@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RunWith(JUnit4.class)
 public class ProfileInstallerTest extends TestCase {
 

@@ -56,12 +56,7 @@ public fun floatFloatMapOf(key1: Float, value1: Float): FloatFloatMap =
  * Returns a new [FloatFloatMap] with [key1], and [key2] associated with [value1], and [value2],
  * respectively.
  */
-public fun floatFloatMapOf(
-    key1: Float,
-    value1: Float,
-    key2: Float,
-    value2: Float,
-): FloatFloatMap =
+public fun floatFloatMapOf(key1: Float, value1: Float, key2: Float, value2: Float): FloatFloatMap =
     MutableFloatFloatMap().also { map ->
         map[key1] = value1
         map[key2] = value2
@@ -225,7 +220,7 @@ public fun mutableFloatFloatMapOf(
  * @param builderAction Lambda in which the [MutableFloatFloatMap] can be populated.
  */
 public inline fun buildFloatFloatMap(
-    builderAction: MutableFloatFloatMap.() -> Unit,
+    builderAction: MutableFloatFloatMap.() -> Unit
 ): FloatFloatMap {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableFloatFloatMap().apply(builderAction)
@@ -489,7 +484,7 @@ public sealed class FloatFloatMap {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (key: Float, value: Float) -> CharSequence
+        crossinline transform: (key: Float, value: Float) -> CharSequence,
     ): String = buildString {
         append(prefix)
         var index = 0

@@ -40,7 +40,7 @@
     <string name="reject_action_title" msgid="6730366705938402668">"ਅਸਵੀਕਾਰ ਕਰੋ"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"ਠੀਕ ਹੈ"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"ਲਾਗੂ ਕਰੋ"</string>
-    <string name="commute_action_title" msgid="2585755255290185096">"ਆਉਣ-ਜਾਣ ਕਰੋ"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"ਆਉਣ-ਜਾਣ"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"ਸਾਈਨ-ਆਊਟ ਕਰੋ"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"ਫਿਰ ਵੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"ਹਾਂ"</string>
@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"ਸੁਨੇਹਾ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ਸੁਨੇਹਾ ਇੱਥੇ ਜਾਂਦਾ ਹੈ।\nਦੂਜੀ ਲਾਈਨ ਵਿੱਚ ਹੋਰ ਲਿਖਤ।"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"ਛੋਟੇ ਸੁਨੇਹੇ ਦੇ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"ਸੈਕਸ਼ਨਬੱਧ ਆਈਟਮ ਦੇ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ਰੇਡੀਓ ਬਟਨ ਵਾਲਾ ਸੈਕਸ਼ਨ"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"ਟੌਗਲ ਵਾਲਾ ਸੈਕਸ਼ਨ"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ਕਈ ਕਤਾਰਾਂ ਵਾਲਾ ਸੈਕਸ਼ਨ"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ਗਰਿੱਡ ਆਈਟਮ ਸੈਕਸ਼ਨ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ਪੂਰਵ-ਝਲਕ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ਥਾਂ ਸੰਬੰਧੀ ਸੂਚੀ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ਥਾਵਾਂ ਬ੍ਰਾਊਜ਼ ਕਰੋ"</string>

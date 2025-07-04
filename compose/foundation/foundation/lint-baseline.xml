@@ -1,5 +1,590 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
+
+    <issue
+        id="CheckResult"
+        message="The result of `isWithin` is not used"
+        errorLine1="                    assertThat((it - expected).x).isWithin(0.01f)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `isWithin` is not used"
+        errorLine1="                    assertThat((it - expected).y).isWithin(0.01f)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `isWithin` is not used"
+        errorLine1="                assertThat((consumed - expectedConsumed).x).isWithin(0.001f)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `isWithin` is not used"
+        errorLine1="                assertThat((consumed - expectedConsumed).y).isWithin(0.001f)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/Scrollable2DTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `isWithin` is not used"
+        errorLine1="                    assertThat(it - expected).isWithin(0.01f)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ScrollableTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `isWithin` is not used"
+        errorLine1="                    assertThat(it - expected).isWithin(0.01f)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ScrollableTest.kt"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="            assertThat(texts.isEmpty())"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidUnitTest/kotlin/androidx/compose/foundation/text/input/TextFieldStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `setHandwritingGestures`"
+        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 34 (current min is 21): `EditorInfoApi34`"
+        errorLine1="        EditorInfoApi34.setHandwritingGestures(this)"
+        errorLine2="        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/foundation/text/input/internal/EditorInfo.android.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        if (onAttach != other.onAttach) return false"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ClickableTest.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        if (onDraw != other.onDraw) return false"
+        errorLine2="                   ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/IndicationTest.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        if (onCreate != other.onCreate) return false"
+        errorLine2="                     ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/IndicationTest.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        if (hasScrollableBlock != other.hasScrollableBlock) return false"
+        errorLine2="                               ~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ScrollableTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyboardActionsTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                        state = TextFieldState(longText),"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                        state = TextFieldState(longText),"
+        errorLine2="                                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                state = TextFieldState(longText),"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(text),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(text, initialSelection = TextRange.Zero),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    state = TextFieldState(text, initialSelection = TextRange.Zero),"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldScrollTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="    fun LazyGrid("
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/grid/BaseLazyGridTestWithOrientation.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerTest.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            rememberCoroutineScope().launch(start = CoroutineStart.UNDISPATCHED) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/SelectionContainerTest.kt"/>
+    </issue>
+
+    <issue
+        id="InvalidLanguageTagDelimiter"
+        message="A hyphen (-), not an underscore (_) delimiter should be used in a language tag"
+        errorLine1="                    TransformedText(text.toUpperCase(LocaleList(&quot;en_US&quot;)), OffsetMapping.Identity)"
+        errorLine2="                                                                ~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/textfield/TextFieldTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    internal fun &lt;T> createAnchoredDraggableModifier("
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/anchoredDraggable/AnchoredDraggableBackwardsCompatibleTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    fun LazyItemScope.fillParentMaxMainAxis() ="
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/list/BaseLazyListTestWithOrientation.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    fun LazyItemScope.fillParentMaxCrossAxis() ="
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/list/BaseLazyListTestWithOrientation.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun createSubject(text: AnnotatedString): TextAnnotatedStringElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringContentCaptureInvalidationTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun createSubject(text: String): TextStringSimpleElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/modifiers/TextStringContentCaptureTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="    private fun createSubject(text: AnnotatedString): TextAnnotatedStringElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringContentCaptureInvalidationTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryReturnType"
+        message="Modifier factory functions should have a return type of Modifier"
+        errorLine1="    private fun createSubject(text: String): TextStringSimpleElement {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/modifiers/TextStringContentCaptureTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/BasePagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be named modifier"
+        errorLine1="    private fun TestMarqueeContent(marqueeModifier: Modifier) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/BasicMarqueeTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuAreaTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuAreaTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier.testTag(tag),"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuUiTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="        modifier: Modifier = Modifier.testTag(tag),"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/contextmenu/ContextMenuUiTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/SingleParamBasePagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/SingleParamBasePagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryComposedModifier"
+        message="Unnecessary use of Modifier.composed"
+        errorLine1="                    Modifier.fillMaxSize().testTag(PagerTestTag).composed {"
+        errorLine2="                                                                 ~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/PagerTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        texts = derivedStateOf {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesBidiTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        textContentIndices = derivedStateOf { texts.value.textContentIndices() }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesBidiTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        texts = derivedStateOf {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesRtlTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        textContentIndices = derivedStateOf { texts.value.textContentIndices() }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesRtlTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        texts = derivedStateOf {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="        textContentIndices = derivedStateOf { texts.value.textContentIndices() }"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/selection/gestures/MultiTextSelectionGesturesTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/ClickableTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/CombinedClickableTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnusedBoxWithConstraintsScope"
+        message="BoxWithConstraints scope is not used"
+        errorLine1="                    BoxWithConstraints {"
+        errorLine2="                                       ^">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/modifiers/TextStringSimpleNodeTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            val stateValue = state.value"
+        errorLine2="                                   ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyEventTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            state.value += 1"
+        errorLine2="                  ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/TextFieldKeyEventTest.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInCollection"
@@ -184,7 +769,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method createItemsBeforeList has parameter pinnedItems with type List&lt;Integer>: replace with IntList"
-        errorLine1="    pinnedItems: List&lt;Int>"
+        errorLine1="    pinnedItems: List&lt;Int>,"
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/lazy/LazyListMeasure.kt"/>

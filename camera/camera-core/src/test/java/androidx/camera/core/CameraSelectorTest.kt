@@ -18,6 +18,7 @@ package androidx.camera.core
 
 import android.os.Build
 import androidx.camera.core.impl.CameraControlInternal
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
@@ -39,12 +40,16 @@ public class CameraSelectorTest {
 
     private val mRearId = "0"
     private val mFrontId = "1"
+    private val mExternalId = "2"
     private val mRearRotation = 0
     private val mFrontRotation = 90
+    private val mExternalRotation = 270
     private val mCameras = LinkedHashSet<CameraInternal>()
+    private val mCameraInfos = mutableListOf<CameraInfo>()
 
     private lateinit var mRearCamera: CameraInternal
     private lateinit var mFrontCamera: CameraInternal
+    private lateinit var mExternalCamera: CameraInternal
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
@@ -52,18 +57,39 @@ public class CameraSelectorTest {
         val cameraFactory = FakeCameraFactory()
         mRearCamera =
             FakeCamera(
+                mRearId,
                 Mockito.mock(CameraControlInternal::class.java),
-                FakeCameraInfoInternal(mRearRotation, CameraSelector.LENS_FACING_BACK)
+                FakeCameraInfoInternal(mRearId, mRearRotation, CameraSelector.LENS_FACING_BACK),
             )
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, mRearId) { mRearCamera }
         mCameras.add(mRearCamera)
+        mCameraInfos.add(mRearCamera.cameraInfo)
+
         mFrontCamera =
             FakeCamera(
+                mFrontId,
                 Mockito.mock(CameraControlInternal::class.java),
-                FakeCameraInfoInternal(mFrontRotation, CameraSelector.LENS_FACING_FRONT)
+                FakeCameraInfoInternal(mFrontId, mFrontRotation, CameraSelector.LENS_FACING_FRONT),
             )
         cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, mFrontId) { mFrontCamera }
         mCameras.add(mFrontCamera)
+        mCameraInfos.add(mFrontCamera.cameraInfo)
+
+        mExternalCamera =
+            FakeCamera(
+                mExternalId,
+                Mockito.mock(CameraControlInternal::class.java),
+                FakeCameraInfoInternal(
+                    mExternalId,
+                    mExternalRotation,
+                    CameraSelector.LENS_FACING_EXTERNAL,
+                ),
+            )
+        cameraFactory.insertCamera(CameraSelector.LENS_FACING_EXTERNAL, mExternalId) {
+            mExternalCamera
+        }
+        mCameras.add(mExternalCamera)
+        mCameraInfos.add(mExternalCamera.cameraInfo)
     }
 
     @Test
@@ -179,5 +205,92 @@ public class CameraSelectorTest {
 
         val filteredCameraInfos = backCameraSelector.filter(cameraInfos)
         assertThat(filteredCameraInfos).isEmpty()
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun ofIdentifier_throwsException_whenNoIdentifierProvided() {
+        CameraSelector.of()
+    }
+
+    @Test
+    fun ofIdentifier_selectsSingleCamera() {
+        val rearId = (mRearCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        val selector = CameraSelector.of(rearId)
+        val filtered = selector.filter(mCameraInfos)
+        assertThat(filtered).containsExactly(mRearCamera.cameraInfo)
+    }
+
+    @Test
+    fun ofIdentifier_prioritizesIdentifiersInOrder() {
+        val rearId = (mRearCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        val frontId = (mFrontCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        val externalId = (mExternalCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+
+        // Prioritize: External -> Front -> Rear
+        val selector = CameraSelector.of(externalId, frontId, rearId)
+        val filtered = selector.filter(mCameraInfos)
+
+        assertThat(filtered)
+            .containsExactly(
+                mExternalCamera.cameraInfo,
+                mFrontCamera.cameraInfo,
+                mRearCamera.cameraInfo,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun ofIdentifier_prioritizesIdentifiersInReversedOrder() {
+        val rearId = (mRearCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        val frontId = (mFrontCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        val externalId = (mExternalCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+
+        // Prioritize: Rear -> Front -> External
+        val selector = CameraSelector.of(rearId, frontId, externalId)
+        val filtered = selector.filter(mCameraInfos)
+
+        assertThat(filtered)
+            .containsExactly(
+                mRearCamera.cameraInfo,
+                mFrontCamera.cameraInfo,
+                mExternalCamera.cameraInfo,
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun ofIdentifier_ignoresNonExistentIdentifier() {
+        val rearId = (mRearCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        // Create an identifier that does not correspond to any available camera.
+        val fakeId = CameraIdentifier.create("fake-id")
+
+        val selector = CameraSelector.of(fakeId, rearId)
+        val filtered = selector.filter(mCameraInfos)
+
+        // Should correctly filter out the fake ID and only return the valid one.
+        assertThat(filtered).containsExactly(mRearCamera.cameraInfo)
+    }
+
+    @Test
+    fun ofIdentifier_returnsEmpty_whenOnlyNonExistentIdentifierIsUsed() {
+        val fakeId = CameraIdentifier.create("fake-id")
+        val selector = CameraSelector.of(fakeId)
+        val filtered = selector.filter(mCameraInfos)
+        assertThat(filtered).isEmpty()
+    }
+
+    @Test
+    fun ofIdentifier_handlesDuplicateIdentifiers() {
+        val rearId = (mRearCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+        val frontId = (mFrontCamera.cameraInfo as CameraInfoInternal).cameraIdentifier
+
+        // Provide duplicates in the priority list.
+        val selector = CameraSelector.of(rearId, frontId, rearId)
+        val filtered = selector.filter(mCameraInfos)
+
+        // The result should not contain duplicates and should respect the first-seen priority.
+        assertThat(filtered)
+            .containsExactly(mRearCamera.cameraInfo, mFrontCamera.cameraInfo)
+            .inOrder()
     }
 }

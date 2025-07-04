@@ -59,7 +59,7 @@ internal fun AppWidgetTemplateHeader(
             Image(
                 provider = it.image,
                 contentDescription = it.description,
-                modifier = GlanceModifier.height(24.dp).width(24.dp)
+                modifier = GlanceModifier.height(24.dp).width(24.dp),
             )
         }
         header?.let {
@@ -71,7 +71,7 @@ internal fun AppWidgetTemplateHeader(
                 modifier = GlanceModifier.defaultWeight(),
                 text = header.text,
                 style = TextStyle(fontSize = size, color = GlanceTheme.colors.onSurface),
-                maxLines = 1
+                maxLines = 1,
             )
         }
     }
@@ -85,10 +85,7 @@ internal fun AppWidgetTemplateHeader(
  */
 @Composable
 internal fun AppWidgetTemplateHeader(headerBlock: HeaderBlock) {
-    AppWidgetTemplateHeader(
-        headerBlock.icon,
-        headerBlock.text,
-    )
+    AppWidgetTemplateHeader(headerBlock.icon, headerBlock.text)
 }
 
 /**
@@ -107,7 +104,7 @@ internal fun AppWidgetTextSection(textList: List<TemplateText>) {
             Text(
                 item.text,
                 style = TextStyle(fontSize = size, color = GlanceTheme.colors.onSurface),
-                maxLines = maxLines(item.type)
+                maxLines = maxLines(item.type),
             )
             if (index < textList.size - 1) {
                 Spacer(modifier = GlanceModifier.height(8.dp))
@@ -125,7 +122,7 @@ internal fun AppWidgetTextSection(textList: List<TemplateText>) {
 @Composable
 internal fun AppWidgetTemplateButton(
     button: TemplateButton,
-    glanceModifier: GlanceModifier = GlanceModifier
+    glanceModifier: GlanceModifier = GlanceModifier,
 ) {
     when (button) {
         is TemplateImageButton -> {
@@ -134,7 +131,7 @@ internal fun AppWidgetTemplateButton(
             Image(
                 provider = image.image,
                 contentDescription = image.description,
-                modifier = glanceModifier.clickable(button.action)
+                modifier = glanceModifier.clickable(button.action),
             )
         }
         is TemplateTextButton -> {
@@ -142,7 +139,7 @@ internal fun AppWidgetTemplateButton(
                 text = button.text,
                 onClick = button.action,
                 style = TextStyle(color = GlanceTheme.colors.onPrimary),
-                modifier = glanceModifier
+                modifier = glanceModifier,
             )
         }
     }
@@ -157,7 +154,7 @@ internal fun AppWidgetTemplateButton(
 @Composable
 internal fun SingleImageBlockTemplate(
     imageBlock: ImageBlock,
-    modifier: GlanceModifier = GlanceModifier
+    modifier: GlanceModifier = GlanceModifier,
 ) {
     if (imageBlock.images.isNotEmpty()) {
         val mainImage = imageBlock.images[0]
@@ -174,7 +171,7 @@ internal fun SingleImageBlockTemplate(
             contentDescription = mainImage.description,
             modifier =
                 if (ImageSize.Undefined == imageBlock.size) modifier else modifier.size(imageSize),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
     }
 }
@@ -186,13 +183,7 @@ internal fun SingleImageBlockTemplate(
  */
 @Composable
 internal fun TextBlockTemplate(textBlock: TextBlock) {
-    AppWidgetTextSection(
-        listOfNotNull(
-            textBlock.text1,
-            textBlock.text2,
-            textBlock.text3,
-        )
-    )
+    AppWidgetTextSection(listOfNotNull(textBlock.text1, textBlock.text2, textBlock.text3))
 }
 
 /**
@@ -235,7 +226,7 @@ internal fun ActionBlockTemplate(actionBlock: ActionBlock?) {
 internal fun TextAndImageBlockTemplate(
     textBlock: TextBlock,
     imageBlock: ImageBlock? = null,
-    modifier: GlanceModifier = GlanceModifier
+    modifier: GlanceModifier = GlanceModifier,
 ) {
     if (imageBlock == null || imageBlock.images.isEmpty()) {
         TextBlockTemplate(textBlock)

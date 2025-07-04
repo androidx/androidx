@@ -19,7 +19,6 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
@@ -32,6 +31,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,8 +74,11 @@ public class GenericEntityTest {
     }
 
     static class Item<P, F> {
-        @NonNull
         @PrimaryKey
+        // This project is tested against a version of the room compiler that doesn't recognize
+        // JSpecify for primary keys
+        @SuppressWarnings("JSpecifyNullness")
+        @androidx.annotation.NonNull
         public final P id;
         private F mField;
 

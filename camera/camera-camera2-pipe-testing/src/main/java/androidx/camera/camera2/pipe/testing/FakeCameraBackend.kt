@@ -29,6 +29,8 @@ import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.graph.GraphListener
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /** The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s. */
 public class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) :
@@ -42,6 +44,8 @@ public class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMeta
 
     override val id: CameraBackendId
         get() = FAKE_CAMERA_BACKEND_ID
+
+    override val cameraIds: Flow<List<CameraId>> = MutableStateFlow(fakeCameraIds)
 
     override fun awaitCameraIds(): List<CameraId> = fakeCameraIds
 

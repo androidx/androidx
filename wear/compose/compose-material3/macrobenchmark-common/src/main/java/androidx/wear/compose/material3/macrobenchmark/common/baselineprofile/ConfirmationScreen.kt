@@ -43,7 +43,7 @@ import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.SuccessConfirmationDialog
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.confirmationCurvedText
+import androidx.wear.compose.material3.confirmationDialogCurvedText
 import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.R
@@ -72,7 +72,7 @@ val ConfirmationScreen =
                     retryIfStale {
                             device.wait(
                                 Until.findObject(By.desc(numberedContentDescription(i))),
-                                FIND_OBJECT_TIMEOUT_MS
+                                FIND_OBJECT_TIMEOUT_MS,
                             )
                         }
                         .click()
@@ -81,7 +81,7 @@ val ConfirmationScreen =
                 }
                 device.wait(
                     Until.findObject(By.desc(numberedContentDescription(0))),
-                    FIND_OBJECT_TIMEOUT_MS
+                    FIND_OBJECT_TIMEOUT_MS,
                 )
             }
     }
@@ -100,7 +100,7 @@ private fun ButtonsForSubmenu(
                         contentDescription = numberedContentDescription(index)
                     },
                 onClick = { showConfirmation.value = true },
-                label = { Text("Show Confirmation") }
+                label = { Text("Show Confirmation") },
             )
         }
         confirmation(showConfirmation)
@@ -113,8 +113,8 @@ private fun Confirmation(showConfirmation: MutableState<Boolean>) {
     ConfirmationDialog(
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
-        curvedText = { confirmationCurvedText("Confirmed", style) },
-        durationMillis = DurationMillis
+        curvedText = { confirmationDialogCurvedText("Confirmed", style) },
+        durationMillis = DurationMillis,
     ) {
         Icon(
             painterResource(R.drawable.ic_favorite_rounded),
@@ -130,7 +130,7 @@ fun LongTextConfirmation(showConfirmation: MutableState<Boolean>) {
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
         text = { Text(text = "Your message has been sent") },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     ) {
         Icon(
             painterResource(R.drawable.ic_favorite_rounded),
@@ -142,25 +142,25 @@ fun LongTextConfirmation(showConfirmation: MutableState<Boolean>) {
 
 @Composable
 fun SuccessConfirmation(showConfirmation: MutableState<Boolean>) {
-    val text = ConfirmationDialogDefaults.successText
+    val text = "Success"
     val style = ConfirmationDialogDefaults.curvedTextStyle
     SuccessConfirmationDialog(
-        curvedText = { confirmationCurvedText(text, style) },
+        curvedText = { confirmationDialogCurvedText(text, style) },
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     )
 }
 
 @Composable
 fun FailureConfirmation(showConfirmation: MutableState<Boolean>) {
-    val text = ConfirmationDialogDefaults.failureText
+    val text = "Failure"
     val style = ConfirmationDialogDefaults.curvedTextStyle
     FailureConfirmationDialog(
-        curvedText = { confirmationCurvedText(text, style) },
+        curvedText = { confirmationDialogCurvedText(text, style) },
         visible = showConfirmation.value,
         onDismissRequest = { showConfirmation.value = false },
-        durationMillis = DurationMillis
+        durationMillis = DurationMillis,
     )
 }
 

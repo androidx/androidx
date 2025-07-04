@@ -60,7 +60,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     val env: KspProcessingEnv,
     val field: KspFieldElement,
     val isSyntheticStatic: Boolean,
-    open val accessor: KSPropertyAccessor
+    open val accessor: KSPropertyAccessor,
 ) :
     XMethodElement,
     XEquality,
@@ -109,7 +109,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         KspSyntheticPropertyMethodType.create(
             env = env,
             element = this,
-            container = field.enclosingElement.type
+            container = field.enclosingElement.type,
         )
     }
 
@@ -128,7 +128,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                 env.wrap(
                     // Thrown exception types are never nullable
                     ksType = it.makeNotNullable(),
-                    allowPrimitives = false
+                    allowPrimitives = false,
                 )
             }
             .toList()
@@ -161,18 +161,18 @@ internal sealed class KspSyntheticPropertyMethodElement(
         env: KspProcessingEnv,
         field: KspFieldElement,
         override val accessor: KSPropertyGetter,
-        isSyntheticStatic: Boolean
+        isSyntheticStatic: Boolean,
     ) :
         KspSyntheticPropertyMethodElement(
             env = env,
             field = field,
             accessor = accessor,
-            isSyntheticStatic = isSyntheticStatic
+            isSyntheticStatic = isSyntheticStatic,
         ),
         XAnnotated by KspAnnotated.create(
             env = env,
             delegate = accessor,
-            filter = NO_USE_SITE_OR_GETTER
+            filter = NO_USE_SITE_OR_GETTER,
         ) {
 
         override fun isKotlinPropertySetter() = false
@@ -210,18 +210,18 @@ internal sealed class KspSyntheticPropertyMethodElement(
         env: KspProcessingEnv,
         field: KspFieldElement,
         override val accessor: KSPropertySetter,
-        isSyntheticStatic: Boolean
+        isSyntheticStatic: Boolean,
     ) :
         KspSyntheticPropertyMethodElement(
             env = env,
             field = field,
             accessor = accessor,
-            isSyntheticStatic = isSyntheticStatic
+            isSyntheticStatic = isSyntheticStatic,
         ),
         XAnnotated by KspAnnotated.create(
             env = env,
             delegate = field.declaration.setter,
-            filter = NO_USE_SITE_OR_SETTER
+            filter = NO_USE_SITE_OR_SETTER,
         ) {
 
         override fun isKotlinPropertySetter() = true
@@ -250,13 +250,13 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
         internal class SyntheticExecutableParameterElement(
             internal val env: KspProcessingEnv,
-            override val enclosingElement: Setter
+            override val enclosingElement: Setter,
         ) :
             XExecutableParameterElement,
             XAnnotated by KspAnnotated.create(
                 env = env,
                 delegate = enclosingElement.field.declaration.setter?.parameter,
-                filter = NO_USE_SITE_OR_SET_PARAM
+                filter = NO_USE_SITE_OR_SET_PARAM,
             ) {
             override fun isContinuationParam() = false
 
@@ -334,7 +334,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
         fun create(
             env: KspProcessingEnv,
             accessor: KSPropertyAccessor,
-            isSyntheticStatic: Boolean
+            isSyntheticStatic: Boolean,
         ): KspSyntheticPropertyMethodElement {
             val enclosingType = accessor.receiver.findEnclosingMemberContainer(env)
 
@@ -343,16 +343,12 @@ internal sealed class KspSyntheticPropertyMethodElement(
                     "properties with KSP. Cannot process $accessor."
             }
 
-            val field =
-                KspFieldElement(
-                    env = env,
-                    declaration = accessor.receiver,
-                )
+            val field = KspFieldElement(env = env, declaration = accessor.receiver)
             return create(
                 env = env,
                 field = field,
                 accessor = accessor,
-                isSyntheticStatic = isSyntheticStatic
+                isSyntheticStatic = isSyntheticStatic,
             )
         }
 
@@ -360,7 +356,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
             env: KspProcessingEnv,
             field: KspFieldElement,
             accessor: KSPropertyAccessor,
-            isSyntheticStatic: Boolean
+            isSyntheticStatic: Boolean,
         ): KspSyntheticPropertyMethodElement {
             return when (accessor) {
                 is KSPropertyGetter -> {
@@ -368,7 +364,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                         env = env,
                         field = field,
                         accessor = accessor,
-                        isSyntheticStatic = isSyntheticStatic
+                        isSyntheticStatic = isSyntheticStatic,
                     )
                 }
                 is KSPropertySetter -> {
@@ -376,7 +372,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
                         env = env,
                         field = field,
                         accessor = accessor,
-                        isSyntheticStatic = isSyntheticStatic
+                        isSyntheticStatic = isSyntheticStatic,
                     )
                 }
                 else -> error("Unsupported property accessor $accessor")

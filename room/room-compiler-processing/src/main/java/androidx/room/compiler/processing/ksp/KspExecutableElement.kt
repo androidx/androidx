@@ -28,7 +28,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
-    override val declaration: KSFunctionDeclaration
+    override val declaration: KSFunctionDeclaration,
 ) :
     KspElement(env, declaration),
     XExecutableElement,
@@ -56,7 +56,7 @@ internal abstract class KspExecutableElement(
                 env.wrap(
                     // Thrown exception types are never nullable
                     ksType = it.makeNotNullable(),
-                    allowPrimitives = false
+                    allowPrimitives = false,
                 )
             }
             .toList()
@@ -73,7 +73,7 @@ internal abstract class KspExecutableElement(
     companion object {
         fun create(
             env: KspProcessingEnv,
-            declaration: KSFunctionDeclaration
+            declaration: KSFunctionDeclaration,
         ): KspExecutableElement {
             val enclosingContainer = declaration.findEnclosingMemberContainer(env)
 

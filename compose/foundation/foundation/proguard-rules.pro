@@ -20,3 +20,4 @@
     # For methods returning Nothing
     static java.lang.Void throw*Exception(...);
 }
+

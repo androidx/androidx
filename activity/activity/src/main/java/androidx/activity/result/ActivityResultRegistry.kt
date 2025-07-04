@@ -63,7 +63,7 @@ abstract class ActivityResultRegistry {
         requestCode: Int,
         contract: ActivityResultContract<I, O>,
         input: I,
-        options: ActivityOptionsCompat?
+        options: ActivityOptionsCompat?,
     )
 
     /**
@@ -82,7 +82,7 @@ abstract class ActivityResultRegistry {
         key: String,
         lifecycleOwner: LifecycleOwner,
         contract: ActivityResultContract<I, O>,
-        callback: ActivityResultCallback<O>
+        callback: ActivityResultCallback<O>,
     ): ActivityResultLauncher<I> {
         val lifecycle = lifecycleOwner.lifecycle
         check(!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
@@ -161,7 +161,7 @@ abstract class ActivityResultRegistry {
     fun <I, O> register(
         key: String,
         contract: ActivityResultContract<I, O>,
-        callback: ActivityResultCallback<O>
+        callback: ActivityResultCallback<O>,
     ): ActivityResultLauncher<I> {
         registerKey(key)
         keyToCallback[key] = CallbackAndContract(callback, contract)
@@ -245,7 +245,7 @@ abstract class ActivityResultRegistry {
     fun onSaveInstanceState(outState: Bundle) {
         outState.putIntegerArrayList(
             KEY_COMPONENT_ACTIVITY_REGISTERED_RCS,
-            ArrayList(keyToRc.values)
+            ArrayList(keyToRc.values),
         )
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS, ArrayList(keyToRc.keys))
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_LAUNCHED_KEYS, ArrayList(launchedKeys))
@@ -342,7 +342,7 @@ abstract class ActivityResultRegistry {
         key: String,
         resultCode: Int,
         data: Intent?,
-        callbackAndContract: CallbackAndContract<O>?
+        callbackAndContract: CallbackAndContract<O>?,
     ) {
         if (callbackAndContract?.callback != null && launchedKeys.contains(key)) {
             val callback = callbackAndContract.callback
@@ -387,7 +387,7 @@ abstract class ActivityResultRegistry {
 
     private class CallbackAndContract<O>(
         val callback: ActivityResultCallback<O>,
-        val contract: ActivityResultContract<*, O>
+        val contract: ActivityResultContract<*, O>,
     )
 
     private class LifecycleContainer(val lifecycle: Lifecycle) {

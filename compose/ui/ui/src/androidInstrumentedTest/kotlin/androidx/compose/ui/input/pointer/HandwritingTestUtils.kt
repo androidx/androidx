@@ -24,7 +24,6 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TouchInjectionScope
-import androidx.compose.ui.test.invokeGlobalAssertions
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -82,7 +81,7 @@ internal class HandwritingTestStylusInjectScope(semanticsNode: SemanticsNode) :
     override fun moveWithHistoryMultiPointer(
         relativeHistoricalTimes: List<Long>,
         historicalCoordinates: List<List<Offset>>,
-        delayMillis: Long
+        delayMillis: Long,
     ) {
         // Not needed for this test because Android only supports one stylus pointer.
     }
@@ -155,7 +154,7 @@ internal class HandwritingTestStylusInjectScope(semanticsNode: SemanticsNode) :
                 /* deviceId = */ 0,
                 /* edgeFlags = */ 0,
                 /* source = */ InputDeviceCompat.SOURCE_STYLUS,
-                /* flags = */ 0
+                /* flags = */ 0,
             )
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
@@ -167,7 +166,6 @@ internal class HandwritingTestStylusInjectScope(semanticsNode: SemanticsNode) :
 internal fun SemanticsNodeInteraction.performStylusInput(
     block: HandwritingTestStylusInjectScope.() -> Unit
 ): SemanticsNodeInteraction {
-    @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     tryPerformAccessibilityChecks()
     val node = fetchSemanticsNode("Failed to inject stylus input.")
     val stylusInjectionScope = HandwritingTestStylusInjectScope(node)

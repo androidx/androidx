@@ -77,7 +77,7 @@ class PointerInputViewConfigurationTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalViewConfiguration provides
-                    TestViewConfiguration(touchSlop = viewConfigurationTouchSlop),
+                    TestViewConfiguration(touchSlop = viewConfigurationTouchSlop)
             ) {
                 Box(
                     pointerInput {

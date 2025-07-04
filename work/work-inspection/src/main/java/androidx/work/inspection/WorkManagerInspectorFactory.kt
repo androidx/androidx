@@ -24,7 +24,7 @@ class WorkManagerInspectorFactory :
     InspectorFactory<WorkManagerInspector>("androidx.work.inspection") {
     override fun createInspector(
         connection: Connection,
-        environment: InspectorEnvironment
+        environment: InspectorEnvironment,
     ): WorkManagerInspector {
         return WorkManagerInspector(connection, environment)
     }

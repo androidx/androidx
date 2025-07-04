@@ -70,7 +70,7 @@ class FrameImplTest {
             requestMetadata = fakeRequestMetadata,
             frameNumber = frameNumber,
             frameTimestamp = frameTimestamp,
-            imageStreams
+            imageStreams,
         )
 
     private val frameInfoResult = frameState.frameInfoOutput
@@ -306,7 +306,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameTimestamp.value,
-            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+            OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
         )
 
         assertThat(sharedOutputFrame.imageStatus(stream1Id))
@@ -331,7 +331,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameTimestamp.value,
-            OutputResult.from(stream1OutputImage)
+            OutputResult.from(stream1OutputImage),
         )
 
         // Complete streamResult2 with stream2Output3Image
@@ -340,7 +340,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameTimestamp.value,
-            OutputResult.from(stream2OutputImage)
+            OutputResult.from(stream2OutputImage),
         )
 
         // Complete frameInfoResult
@@ -349,7 +349,7 @@ class FrameImplTest {
             frameTimestamp,
             42,
             frameNumber.value,
-            OutputResult.from(fakeFrameInfo)
+            OutputResult.from(fakeFrameInfo),
         )
     }
 }

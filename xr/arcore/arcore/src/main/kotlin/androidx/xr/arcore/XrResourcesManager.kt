@@ -17,23 +17,93 @@
 package androidx.xr.arcore
 
 import android.annotation.SuppressLint
+import androidx.xr.runtime.internal.ArDevice as RuntimeArDevice
+import androidx.xr.runtime.internal.AugmentedObject as RuntimeObject
+import androidx.xr.runtime.internal.DepthMap as RuntimeDepthMap
+import androidx.xr.runtime.internal.Earth as RuntimeEarth
+import androidx.xr.runtime.internal.Face as RuntimeFace
+import androidx.xr.runtime.internal.Hand as RuntimeHand
+import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.internal.Plane as RuntimePlane
 import androidx.xr.runtime.internal.Trackable as RuntimeTrackable
+import androidx.xr.runtime.internal.ViewCamera as RuntimeViewCamera
+import java.util.Queue
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlinx.coroutines.flow.update
 
 /** Manages all XR resources that are used by the ARCore for XR API. */
 internal class XrResourcesManager {
 
+    internal lateinit var lifecycleManager: LifecycleManager
+
     /** List of [Updatable]s that are updated every frame. */
     private val _updatables = CopyOnWriteArrayList<Updatable>()
     val updatables: List<Updatable> = _updatables
+
+    /** Queue of [Anchor]s that will be detached on the next frame update. */
+    private val _anchorsToDetachQueue = ConcurrentLinkedQueue<Anchor>()
+    val anchorsToDetachQueue: Queue<Anchor> = _anchorsToDetachQueue
 
     /** Map of runtime trackable pointer to [Trackable]. */
     @SuppressLint("BanConcurrentHashMap")
     private val _trackablesMap =
         java.util.concurrent.ConcurrentHashMap<RuntimeTrackable, Trackable<Trackable.State>>()
     val trackablesMap: Map<RuntimeTrackable, Trackable<Trackable.State>> = _trackablesMap
+
+    /** The data of hands */
+    private var _leftRuntimeHand: RuntimeHand? = null
+    private var _rightRuntimeHand: RuntimeHand? = null
+    val leftHand: Hand? by lazy { _leftRuntimeHand?.let { Hand(it) } }
+    val rightHand: Hand? by lazy { _rightRuntimeHand?.let { Hand(it) } }
+
+    /** The ar device tracking data */
+    lateinit var arDevice: ArDevice
+        private set
+
+    /** The view camera data */
+    lateinit var viewCameras: List<ViewCamera>
+        private set
+
+    /** The data of the user's face */
+    private var _userFace: RuntimeFace? = null
+    val userFace: Face? by lazy { _userFace?.let { Face(it) } }
+
+    /** Geospatial data */
+    private var _earth: Earth? = null
+    val earth: Earth
+        get() = checkNotNull(_earth)
+
+    /** The depth map data */
+    lateinit var _depthMaps: List<DepthMap>
+        private set
+
+    val depthMaps: List<DepthMap>
+        get() = if (::_depthMaps.isInitialized) _depthMaps else emptyList()
+
+    internal fun initiateEarth(runtimeEarth: RuntimeEarth) {
+        _earth = Earth(runtimeEarth, this)
+    }
+
+    internal fun initiateHands(leftRuntimeHand: RuntimeHand?, rightRuntimeHand: RuntimeHand?) {
+        _leftRuntimeHand = leftRuntimeHand
+        _rightRuntimeHand = rightRuntimeHand
+    }
+
+    internal fun initiateArDeviceAndViewCameras(
+        runtimeArDevice: RuntimeArDevice,
+        runtimeViewCameras: List<RuntimeViewCamera>,
+    ) {
+        arDevice = ArDevice(runtimeArDevice)
+        viewCameras = runtimeViewCameras.map { ViewCamera(it, runtimeArDevice) }
+    }
+
+    internal fun initiateDepthMaps(runtimeDepthMaps: List<RuntimeDepthMap>) {
+        _depthMaps = runtimeDepthMaps.map { DepthMap(it) }
+    }
+
+    internal fun initiateFace(userFace: RuntimeFace?) {
+        _userFace = userFace
+    }
 
     internal fun addUpdatable(updatable: Updatable) {
         _updatables.add(updatable)
@@ -43,9 +113,28 @@ internal class XrResourcesManager {
         _updatables.remove(updatable)
     }
 
+    internal fun queueAnchorToDetach(anchor: Anchor) {
+        _anchorsToDetachQueue.add(anchor)
+    }
+
     internal suspend fun update() {
+        while (!_anchorsToDetachQueue.isEmpty()) {
+            _anchorsToDetachQueue.poll()?.runtimeAnchor?.detach()
+        }
+
         for (updatable in updatables) {
             updatable.update()
+        }
+
+        // Earth should always be initialized if a runtime is present. This check should only fail
+        // in
+        // unit tests.
+        if (_earth != null) {
+            earth.update()
+        }
+
+        for (depthMap in depthMaps) {
+            depthMap.update()
         }
     }
 
@@ -78,6 +167,7 @@ internal class XrResourcesManager {
         val trackable =
             when (runtimeTrackable) {
                 is RuntimePlane -> Plane(runtimeTrackable, this)
+                is RuntimeObject -> AugmentedObject(runtimeTrackable, this)
                 else ->
                     throw IllegalArgumentException(
                         "Unsupported trackable type: ${runtimeTrackable.javaClass}"

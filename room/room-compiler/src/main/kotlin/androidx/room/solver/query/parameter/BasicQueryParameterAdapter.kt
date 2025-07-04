@@ -26,7 +26,7 @@ class BasicQueryParameterAdapter(private val bindAdapter: StatementValueBinder) 
         inputVarName: String,
         stmtVarName: String,
         startIndexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             bindAdapter.bindToStmt(stmtVarName, startIndexVarName, inputVarName, scope)

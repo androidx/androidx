@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling.data
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import junit.framework.TestCase
+import kotlin.test.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -26,6 +27,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(UiToolingDataApi::class)
 class OffsetInformationTest : ToolingTest() {
+    @Ignore // b/422764248
     @Test
     fun testOffset() {
         val slotTableRecord = CompositionDataRecord.create()
@@ -57,9 +59,9 @@ class OffsetInformationTest : ToolingTest() {
                 "<get-shapes>" to 2070,
                 "Surface" to 2021,
                 "TextButton" to 2102,
-                "Row" to 2185
+                "Row" to 2185,
             ),
-            offsets
+            offsets,
         )
     }
 
@@ -94,9 +96,9 @@ class OffsetInformationTest : ToolingTest() {
                 "<get-shapes>" to false,
                 "Surface" to false,
                 "TextButton" to false,
-                "Row" to true
+                "Row" to true,
             ),
-            inlines
+            inlines,
         )
     }
 }
@@ -115,10 +117,10 @@ fun Group.all(): Iterable<Group> {
 fun <T> assertArrayEquals(
     expected: Collection<T>,
     actual: Collection<T>,
-    transform: (T) -> String = { "$it" }
+    transform: (T) -> String = { "$it" },
 ) {
     TestCase.assertEquals(
         expected.joinToString("\n", transform = transform),
-        actual.joinToString("\n", transform = transform)
+        actual.joinToString("\n", transform = transform),
     )
 }

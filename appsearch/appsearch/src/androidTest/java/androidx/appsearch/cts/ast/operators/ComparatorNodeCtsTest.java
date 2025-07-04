@@ -117,6 +117,24 @@ public class ComparatorNodeCtsTest {
     }
 
     @Test
+    public void testSetValue_setsValueCorrectly() {
+        List<PropertyPath.PathSegment> pathSegmentList = List.of(
+                PropertyPath.PathSegment.create("example"),
+                PropertyPath.PathSegment.create("property"),
+                PropertyPath.PathSegment.create("path"));
+        PropertyPath propertyPath = new PropertyPath(pathSegmentList);
+
+        int value = 5;
+
+        ComparatorNode lessThanNode = new ComparatorNode(ComparatorNode.LESS_THAN, propertyPath,
+                value);
+
+        long newValue = 10;
+        lessThanNode.setValue(newValue);
+        assertThat(lessThanNode.getValue()).isEqualTo(10);
+    }
+
+    @Test
     public void testSetComparator_throwsOnInvalidComparator() {
         List<PropertyPath.PathSegment> pathSegmentList = List.of(
                 PropertyPath.PathSegment.create("example"),

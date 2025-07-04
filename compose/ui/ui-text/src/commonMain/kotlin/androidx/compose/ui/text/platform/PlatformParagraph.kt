@@ -45,7 +45,7 @@ internal expect fun ActualParagraph(
     ellipsis: Boolean,
     width: Float,
     density: Density,
-    resourceLoader: Font.ResourceLoader
+    resourceLoader: Font.ResourceLoader,
 ): Paragraph
 
 internal expect fun ActualParagraph(
@@ -57,7 +57,7 @@ internal expect fun ActualParagraph(
     overflow: TextOverflow,
     constraints: Constraints,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): Paragraph
 
 // TODO(b/157854677): remove after fixing.
@@ -65,7 +65,7 @@ internal expect fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
     overflow: TextOverflow,
-    constraints: Constraints
+    constraints: Constraints,
 ): Paragraph
 
 // TODO(b/157854677): remove after fixing.
@@ -75,5 +75,5 @@ internal expect fun ActualParagraphIntrinsics(
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): ParagraphIntrinsics

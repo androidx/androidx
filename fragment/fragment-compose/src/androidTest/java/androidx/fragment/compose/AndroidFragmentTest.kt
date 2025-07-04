@@ -189,7 +189,7 @@ class AndroidFragmentTest {
             clazz = remember { mutableStateOf(FragmentForCompose::class.java) }
             AndroidFragment(
                 clazz = clazz.value,
-                arguments = bundleOf("name" to clazz.value.simpleName)
+                arguments = bundleOf("name" to clazz.value.simpleName),
             )
         }
 

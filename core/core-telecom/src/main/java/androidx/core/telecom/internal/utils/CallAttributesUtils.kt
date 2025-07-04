@@ -31,13 +31,13 @@ internal class CallAttributesUtils {
             displayName: CharSequence,
             address: Uri,
             callType: Int,
-            callCapabilities: Int
+            callCapabilities: Int,
         ): android.telecom.CallAttributes {
             return android.telecom.CallAttributes.Builder(
                     phoneAccountHandle,
                     direction,
                     displayName,
-                    address
+                    address,
                 )
                 .setCallType(remapCallType(callType))
                 .setCallCapabilities(remapCapabilities(callCapabilities))

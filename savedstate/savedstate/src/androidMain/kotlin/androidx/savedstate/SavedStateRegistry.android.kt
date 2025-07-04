@@ -20,9 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.savedstate.internal.SavedStateRegistryImpl
 
 public actual class SavedStateRegistry
-internal actual constructor(
-    private val impl: SavedStateRegistryImpl,
-) {
+internal actual constructor(private val impl: SavedStateRegistryImpl) {
 
     @get:MainThread
     public actual val isRestored: Boolean
@@ -90,7 +88,7 @@ internal actual constructor(
             throw IllegalArgumentException(
                 "Class ${clazz.simpleName} must have " +
                     "default constructor in order to be automatically recreated",
-                e
+                e,
             )
         }
         recreatorProvider?.add(clazz.name)

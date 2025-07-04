@@ -32,9 +32,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
-@Config(
-    sdk = [33],
-)
+@Config(sdk = [33])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class PrefetchNotHangingMainThreadTest {
 

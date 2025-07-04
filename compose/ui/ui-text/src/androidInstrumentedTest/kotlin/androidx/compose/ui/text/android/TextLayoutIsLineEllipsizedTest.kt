@@ -34,7 +34,7 @@ class TextLayoutIsLineEllipsizedTest {
     private val sampleTypeface =
         ResourcesCompat.getFont(
             InstrumentationRegistry.getInstrumentation().context,
-            R.font.sample_font
+            R.font.sample_font,
         )!!
     private val fontSize = 10f
     private val maxLines = 5
@@ -110,7 +110,7 @@ class TextLayoutIsLineEllipsizedTest {
     private fun EllipsizedTextLayout(
         text: CharSequence,
         truncateAt: TruncateAt?,
-        maxLines: Int = this.maxLines
+        maxLines: Int = this.maxLines,
     ): TextLayout {
         val textPaint =
             TextPaint().apply {
@@ -123,7 +123,7 @@ class TextLayoutIsLineEllipsizedTest {
             textPaint = textPaint,
             ellipsize = truncateAt,
             width = width,
-            maxLines = maxLines
+            maxLines = maxLines,
         )
     }
 }

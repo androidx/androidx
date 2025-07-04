@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.room.ColumnInfo.SQLiteTypeAffinity:
-    Acronyms should not be capitalized in class names: was `SQLiteTypeAffinity`, should this be `SqLiteTypeAffinity`?
-
-
 GetterSetterNames: androidx.room.ColumnInfo#index:
     Invalid name for boolean property `index`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.room.Database#exportSchema:

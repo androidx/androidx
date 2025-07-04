@@ -143,7 +143,7 @@ class ImagePipelineTest {
                 SIZE,
                 cameraCharacteristics,
                 /*cameraEffect=*/ null,
-                /*isVirtualCamera=*/ true
+                /*isVirtualCamera=*/ true,
             )
 
         // Act & assert: send and receive ImageProxy.
@@ -163,7 +163,7 @@ class ImagePipelineTest {
                         SIZE,
                         cameraCharacteristics,
                         GrayscaleImageEffect(),
-                        false
+                        false,
                     )
                     .processingNode
                     .mImageProcessor
@@ -221,7 +221,7 @@ class ImagePipelineTest {
         imageCaptureConfig =
             createImageCaptureConfig(
                 inputFormat = ImageFormat.RAW_SENSOR,
-                secondaryInputFormat = JPEG
+                secondaryInputFormat = JPEG,
             )
         imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
         val captureInput = imagePipeline.captureNode.inputEdge
@@ -297,7 +297,7 @@ class ImagePipelineTest {
                 cameraCharacteristics,
                 null,
                 false,
-                postviewSettings
+                postviewSettings,
             )
 
         // Act: create SessionConfig
@@ -322,7 +322,7 @@ class ImagePipelineTest {
                 cameraCharacteristics,
                 null,
                 false,
-                postviewSettings
+                postviewSettings,
             )
 
         // Act: create SessionConfig
@@ -347,7 +347,7 @@ class ImagePipelineTest {
                 cameraCharacteristics,
                 null,
                 false,
-                postviewSettings
+                postviewSettings,
             )
 
         // Act: create requests
@@ -379,7 +379,7 @@ class ImagePipelineTest {
                 JPEG_QUALITY,
                 captureMode,
                 false,
-                listOf()
+                listOf(),
             )
 
         // Act: create camera request.
@@ -466,7 +466,7 @@ class ImagePipelineTest {
         imageCaptureConfig =
             createImageCaptureConfig(
                 inputFormat = ImageFormat.RAW_SENSOR,
-                secondaryInputFormat = JPEG
+                secondaryInputFormat = JPEG,
             )
         imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
         val image = sendInMemoryRequest(imagePipeline)
@@ -486,7 +486,7 @@ class ImagePipelineTest {
         val imageInfo =
             createCameraCaptureResultImageInfo(
                 processingRequest.tagBundleKey,
-                processingRequest.stageIds.single()
+                processingRequest.stageIds.single(),
             )
         val image =
             when (format) {
@@ -570,7 +570,7 @@ class ImagePipelineTest {
         if (secondaryInputFormat != null) {
             builder.mutableConfig.insertOption(
                 ImageInputConfig.OPTION_SECONDARY_INPUT_FORMAT,
-                secondaryInputFormat
+                secondaryInputFormat,
             )
         }
         if (Build.VERSION.SDK_INT >= 34 && inputFormat == ImageFormat.JPEG_R) {
@@ -583,7 +583,7 @@ class ImagePipelineTest {
     private fun verifyCaptureRequest(
         captureInput: CaptureNode.In,
         result: Pair<CameraRequest, ProcessingRequest>,
-        isSimultaneousCaptureEnabled: Boolean = false
+        isSimultaneousCaptureEnabled: Boolean = false,
     ) {
         val cameraRequest = result.first!!
         val captureConfig = cameraRequest.captureConfigs.single()

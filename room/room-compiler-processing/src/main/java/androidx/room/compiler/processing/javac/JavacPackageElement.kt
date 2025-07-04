@@ -24,7 +24,7 @@ import javax.lang.model.element.PackageElement
 
 internal class JavacPackageElement(
     env: JavacProcessingEnv,
-    private val packageElement: PackageElement
+    private val packageElement: PackageElement,
 ) : JavacElement(env, packageElement), XPackageElement {
     override val qualifiedName: String by lazy { packageElement.qualifiedName.toString() }
     override val kotlinMetadata: KmVisibility?

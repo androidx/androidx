@@ -28,7 +28,7 @@ class JSpecifyNullnessMigrationTest :
     AbstractLintDetectorTest(
         useDetector = JSpecifyNullnessMigration(),
         useIssues = listOf(JSpecifyNullnessMigration.ISSUE),
-        stubs = annotationStubs
+        stubs = annotationStubs,
     ) {
     @Test
     fun `Nullness annotation on array parameter`() {
@@ -77,7 +77,7 @@ class JSpecifyNullnessMigrationTest :
                     public String[] foo() { return null; }
                 }
                 """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -227,7 +227,7 @@ class JSpecifyNullnessMigrationTest :
                     public void foo(@NonNull String... arr) {}
                 }
                 """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -301,7 +301,7 @@ class JSpecifyNullnessMigrationTest :
                     public String[] foo() { return null; }
                 }
                 """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -341,7 +341,7 @@ class JSpecifyNullnessMigrationTest :
                     public String[] foo() { return null; }
                 }
                 """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -856,7 +856,7 @@ class JSpecifyNullnessMigrationTest :
                         package androidx.annotation
                         annotation class Nullable
                     """
-                )
+                ),
             )
     }
 }

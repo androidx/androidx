@@ -53,7 +53,7 @@ class PathDivisionTest {
         val sourcePaths =
             listOf(
                 Path().apply { addRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), Path.Direction.Clockwise) },
-                Path().apply { addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise) }
+                Path().apply { addRect(Rect(20.0f, 20.0f, 50.0f, 50.0f), Path.Direction.Clockwise) },
             )
 
         val points1 = FloatArray(8)

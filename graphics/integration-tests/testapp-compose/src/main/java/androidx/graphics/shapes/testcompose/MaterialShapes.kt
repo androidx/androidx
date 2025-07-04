@@ -59,7 +59,7 @@ fun materialShapes() =
             sides = 4,
             roundness = 0.3f,
             rotation = 45f,
-            shapeId = ShapeParameters.ShapeId.Polygon
+            shapeId = ShapeParameters.ShapeId.Polygon,
         ),
         CustomShapeParameters("Slanted") {
             RoundedPolygon(4, rounding = CornerRounding(0.2f, 0.5f)).rotated(45f).transformed { x, y
@@ -71,7 +71,7 @@ fun materialShapes() =
             RoundedPolygon(
                     4,
                     perVertexRounding =
-                        listOf(cornerRound100, cornerRound100, cornerRound20, cornerRound20)
+                        listOf(cornerRound100, cornerRound100, cornerRound20, cornerRound20),
                 )
                 .rotated(-135f)
         },
@@ -79,7 +79,7 @@ fun materialShapes() =
             RoundedPolygon(
                     4,
                     perVertexRounding =
-                        listOf(cornerRound100, cornerRound20, cornerRound20, cornerRound20)
+                        listOf(cornerRound100, cornerRound20, cornerRound20, cornerRound20),
                 )
                 .rotated(-45f)
         },
@@ -87,7 +87,7 @@ fun materialShapes() =
             "Arrow",
             innerRadius = 0.1f,
             roundness = 0.22f,
-            shapeId = ShapeParameters.ShapeId.Triangle
+            shapeId = ShapeParameters.ShapeId.Triangle,
         ),
         CustomShapeParameters("Semicircle") {
             snapshotFlow {}
@@ -95,7 +95,7 @@ fun materialShapes() =
                 width = 1.8f,
                 height = 1f,
                 perVertexRounding =
-                    listOf(cornerRound20, cornerRound20, cornerRound100, cornerRound100)
+                    listOf(cornerRound20, cornerRound20, cornerRound100, cornerRound100),
             )
         },
 
@@ -124,7 +124,7 @@ fun materialShapes() =
             sides = 3,
             roundness = .2f,
             rotation = -90f,
-            shapeId = ShapeParameters.ShapeId.Polygon
+            shapeId = ShapeParameters.ShapeId.Polygon,
         ),
         CustomShapeParameters("Diamond") {
             RoundedPolygon(4, rounding = CornerRounding(0.3f))
@@ -203,14 +203,14 @@ fun materialShapes() =
             sides = 8,
             innerRadius = 0.65f,
             roundness = 0.15f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "Sunny",
             sides = 8,
             innerRadius = 0.83f,
             roundness = 0.15f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "4-Sided Cookie",
@@ -218,7 +218,7 @@ fun materialShapes() =
             innerRadius = 0.5f,
             roundness = 0.3f,
             rotation = -45f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "6-Sided Cookie",
@@ -226,7 +226,7 @@ fun materialShapes() =
             innerRadius = 0.75f,
             roundness = 0.5f,
             rotation = -90f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "7-Sided Cookie",
@@ -234,7 +234,7 @@ fun materialShapes() =
             innerRadius = 0.75f,
             roundness = 0.5f,
             rotation = -90f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "9-Sided Cookie",
@@ -242,7 +242,7 @@ fun materialShapes() =
             innerRadius = 0.75f,
             roundness = 0.5f,
             rotation = -90f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "12-Sided Cookie",
@@ -250,7 +250,7 @@ fun materialShapes() =
             innerRadius = 0.8f,
             roundness = 0.5f,
             rotation = -90f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
 
         /**
@@ -272,7 +272,7 @@ fun materialShapes() =
             roundness = 0.4f,
             innerRoundness = 0f,
             rotation = -45f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "8-Leaf clover",
@@ -281,26 +281,26 @@ fun materialShapes() =
             roundness = 0.3f,
             innerRoundness = 0f,
             rotation = 360f / 16,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "Burst",
             sides = 12,
             innerRadius = 0.7f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "Soft burst",
             sides = 12,
             innerRadius = 0.7f,
             roundness = 0.085f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         ShapeParameters(
             "Boom",
             sides = 15,
             innerRadius = 0.42f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         CustomShapeParameters("Soft Bloom") {
             val points =
@@ -310,7 +310,7 @@ fun materialShapes() =
                     Offset(0.500f, 0.100f),
                     Offset(0.540f, 0.170f),
                     Offset(0.544f, 0.224f),
-                    Offset(0.538f, 0.308f)
+                    Offset(0.538f, 0.308f),
                 )
             val actualPoints = doRepeat(points, 16, center = Offset(0.5f, 0.5f))
             val roundings =
@@ -320,14 +320,14 @@ fun materialShapes() =
                         CornerRounding(0.025f, 0.000f),
                         CornerRounding(0.143f, 0.000f),
                         CornerRounding(0.190f, 0.000f),
-                        CornerRounding(0.000f, 0.000f)
+                        CornerRounding(0.000f, 0.000f),
                     )
                     .let { l -> (0 until 16).flatMap { l } }
             RoundedPolygon(
                 actualPoints,
                 perVertexRounding = roundings,
                 centerX = 0.5f,
-                centerY = 0.5f
+                centerY = 0.5f,
             )
         },
 
@@ -343,7 +343,7 @@ fun materialShapes() =
             roundness = 0.13f,
             smooth = 0.95f,
             innerRoundness = 0f,
-            shapeId = ShapeParameters.ShapeId.Star
+            shapeId = ShapeParameters.ShapeId.Star,
         ),
         CustomShapeParameters("Puffy") {
             val pnr =
@@ -362,7 +362,7 @@ fun materialShapes() =
                 actualPoints.flatMap { listOf(it.o.x, it.o.y) }.toFloatArray(),
                 perVertexRounding = actualPoints.map { it.r },
                 centerX = 0.5f,
-                centerY = 0.5f
+                centerY = 0.5f,
             )
         },
         CustomShapeParameters("Puffy Diamond") {
@@ -372,7 +372,7 @@ fun materialShapes() =
                     Offset(0.390f, 0.130f),
                     Offset(0.610f, 0.130f),
                     Offset(0.610f, 0.260f),
-                    Offset(0.740f, 0.260f)
+                    Offset(0.740f, 0.260f),
                 )
             val actualPoints = doRepeat(points, 4, center = Offset(0.5f, 0.5f))
             val roundings =
@@ -381,14 +381,14 @@ fun materialShapes() =
                         CornerRounding(0.104f, 0.000f),
                         CornerRounding(0.104f, 0.000f),
                         CornerRounding(0.000f, 0.000f),
-                        CornerRounding(0.104f, 0.000f)
+                        CornerRounding(0.104f, 0.000f),
                     )
                     .let { l -> (0 until 4).flatMap { l } }
             RoundedPolygon(
                 actualPoints,
                 perVertexRounding = roundings,
                 centerX = 0.5f,
-                centerY = 0.5f
+                centerY = 0.5f,
             )
         },
         CustomShapeParameters("Pixel circle") {
@@ -461,7 +461,7 @@ fun materialShapes() =
                     5 * pixelSize,
                     -2 * pixelSize,
                     6 * pixelSize,
-                    -2 * pixelSize
+                    -2 * pixelSize,
                 )
             RoundedPolygon(points)
         },
@@ -529,7 +529,7 @@ fun materialShapes() =
                     inset,
                     0f,
                     1f,
-                    0f
+                    0f,
                 )
             val pvRounding =
                 listOf(
@@ -546,7 +546,7 @@ fun materialShapes() =
                     cornerRound100,
                     cornerRound100,
                     unrounded,
-                    cornerRound100
+                    cornerRound100,
                 )
             RoundedPolygon(sandwichPoints, perVertexRounding = pvRounding)
         },
@@ -569,7 +569,7 @@ fun materialShapes() =
                     -1f,
                     -1f,
                     -.4f,
-                    -.5f
+                    -.5f,
                 )
             val pvRounding =
                 listOf(
@@ -580,7 +580,7 @@ fun materialShapes() =
                     unrounded,
                     cornerRound100,
                     cornerRound100,
-                    unrounded
+                    unrounded,
                 )
             RoundedPolygon(points, perVertexRounding = pvRounding).transformed { x, y ->
                 TransformResult(-y, x)

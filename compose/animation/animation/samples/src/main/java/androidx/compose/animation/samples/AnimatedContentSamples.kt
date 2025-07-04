@@ -88,7 +88,7 @@ fun AnimateIncrementDecrementSample() {
                         // the size transform is still needed from number getting longer
                     }
                     .using(SizeTransform(clip = false)) // Using default spring for the size change.
-            }
+            },
         ) { targetCount ->
             // This establishes a mapping between the target state and the content in the form of a
             // Composable function. IMPORTANT: The parameter of this content lambda should
@@ -142,7 +142,7 @@ fun SimpleAnimatedContentSample() {
 private enum class ContentState {
     Foo,
     Bar,
-    Baz
+    Baz,
 }
 
 @Suppress("UNUSED_VARIABLE")
@@ -170,7 +170,7 @@ fun AnimatedContentTransitionSpecSample() {
                             // timeframe between 150ms and duration (i.e. 500ms)
                             IntSize(
                                 initialSize.width,
-                                (initialSize.height + targetSize.height) / 2
+                                (initialSize.height + targetSize.height) / 2,
                             ) at 150
                         }
                     }
@@ -205,7 +205,7 @@ fun TransitionExtensionAnimatedContentSample() {
                         tween(durationMillis = 433, delayMillis = 67)
                     else -> tween(durationMillis = 150)
                 }
-            }
+            },
         ) {
             if (it == CartState.Expanded) 0.dp else 24.dp
         }
@@ -240,7 +240,7 @@ fun TransitionExtensionAnimatedContentSample() {
                                     // timeframe between 150ms and duration (i.e. 500ms)
                                     IntSize(
                                         initialSize.width,
-                                        (initialSize.height + targetSize.height) / 2
+                                        (initialSize.height + targetSize.height) / 2,
                                     ) at 150
                                 }
                             }
@@ -308,11 +308,11 @@ fun SlideIntoContainerSample() {
 
 private enum class CartState {
     Expanded,
-    Collapsed
+    Collapsed,
 }
 
 private enum class NestedMenuState {
     Level1,
     Level2,
-    Level3
+    Level3,
 }

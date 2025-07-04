@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<appfunctions>
+    <appfunction>
+        <id>com.testdata.ParcelablePrimitiveFunctions#pendingIntentInput</id>
+        <enabledByDefault>true</enabledByDefault>
+        <parameters>
+            <dataTypeMetadata>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>13</type>
+            </dataTypeMetadata>
+            <id>unused</id>
+            <isRequired>true</isRequired>
+            <name>pendingIntent</name>
+        </parameters>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>0</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.ParcelablePrimitiveFunctions#pendingIntentInput</functionId>
+    </appfunction>
+    <appfunction>
+        <id>com.testdata.ParcelablePrimitiveFunctions#pendingIntentOutput</id>
+        <enabledByDefault>true</enabledByDefault>
+        <response>
+            <id>unused</id>
+            <valueType>
+                <id>unused</id>
+                <isNullable>false</isNullable>
+                <type>13</type>
+            </valueType>
+        </response>
+        <functionId>com.testdata.ParcelablePrimitiveFunctions#pendingIntentOutput</functionId>
+    </appfunction>
+    <AppFunctionComponentMetadataDocument>
+        <id>unused</id>
+    </AppFunctionComponentMetadataDocument>
+</appfunctions>

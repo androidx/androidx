@@ -49,11 +49,11 @@ import androidx.lifecycle.LifecycleOwner
  * @param onUpdate callback that provides the created fragment
  */
 @Composable
-inline fun <reified T : Fragment> AndroidFragment(
+public inline fun <reified T : Fragment> AndroidFragment(
     modifier: Modifier = Modifier,
     fragmentState: FragmentState = rememberFragmentState(),
     arguments: Bundle = Bundle.EMPTY,
-    noinline onUpdate: (T) -> Unit = {}
+    noinline onUpdate: (T) -> Unit = {},
 ) {
     AndroidFragment(clazz = T::class.java, modifier, fragmentState, arguments, onUpdate)
 }
@@ -74,15 +74,16 @@ inline fun <reified T : Fragment> AndroidFragment(
  */
 @Suppress("MissingJvmstatic")
 @Composable
-fun <T : Fragment> AndroidFragment(
+public fun <T : Fragment> AndroidFragment(
     clazz: Class<T>,
     modifier: Modifier = Modifier,
     fragmentState: FragmentState = rememberFragmentState(),
     arguments: Bundle = Bundle.EMPTY,
-    onUpdate: (T) -> Unit = {}
+    onUpdate: (T) -> Unit = {},
 ) {
     val updateCallback = rememberUpdatedState(onUpdate)
-    val hashKey = currentCompositeKeyHash
+    // TODO: After upgrading Compose Runtime, replace with `currentCompositeKeyHashCode.hashCode()`
+    val hashKey = @Suppress("Deprecation") currentCompositeKeyHash
     val view = LocalView.current
     val fragmentManager = remember(view) { FragmentManager.findFragmentManager(view) }
     val context = LocalContext.current

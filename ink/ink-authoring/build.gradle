@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary{
+        namespace = "androidx.ink.authoring"
+        compileSdk = 35
+        androidResources.enable = true
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -32,11 +35,11 @@ androidXMultiplatform {
         androidMain {
             dependencies {
                 implementation("androidx.collection:collection:1.4.3")
-                implementation("androidx.graphics:graphics-core:1.0.2")
-                implementation("androidx.fragment:fragment-ktx:1.3.0")
+                implementation("androidx.graphics:graphics-core:1.0.3")
+                implementation("androidx.fragment:fragment-ktx:1.5.7")
                 implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
-                implementation("androidx.core:core:1.1.0")
-                implementation("androidx.core:core-ktx:1.12.0")
+                implementation("androidx.core:core:1.16.0-rc01")
+                implementation("androidx.core:core-ktx:1.16.0-rc01")
                 implementation(project(":ink:ink-nativeloader"))
                 implementation(project(":ink:ink-geometry"))
                 implementation(project(":ink:ink-brush"))
@@ -63,14 +66,9 @@ androidXMultiplatform {
     }
 }
 
-android {
-    namespace = "androidx.ink.authoring"
-    compileSdk = 35
-}
-
 androidx {
     name = "Ink Authoring"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Author beautiful strokes"
     addGoldenImageAssets()

@@ -68,7 +68,7 @@ class DataClassIndexAdapter(
                         name = indexVar,
                         typeName = XTypeName.PRIMITIVE_INT,
                         assignExpr =
-                            XCodeBlock.of("%M(%L, %S)", packageMember, stmtVarName, it.columnName)
+                            XCodeBlock.of("%M(%L, %S)", packageMember, stmtVarName, it.columnName),
                     )
                 }
                 ColumnIndexVar(it.columnName, indexVar)

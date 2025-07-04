@@ -2,14 +2,14 @@
 set -e
 
 echo "Starting $0 at $(date)"
+source "$(dirname "$0")/setup_build_env_vars.sh"
+source "$(dirname "$0")/record_build_metrics.sh"
 
 cd "$(dirname $0)"
 
-CHECKOUT_DIR="$(cd ../../.. && pwd)"
-OUT_DIR="$CHECKOUT_DIR/out"
-if [ "$DIST_DIR" == "" ]; then
-  DIST_DIR="$OUT_DIR/dist"
-fi
+setup_build_env_vars
+start_time=$(initialize_start_time)
+
 if [ "$MANIFEST" == "" -a "$CHANGE_INFO" != "" ]; then
   export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
 fi
@@ -102,7 +102,7 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
     # Run Gradle
-    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs exportSboms \
+    if impl/build.sh $DIAGNOSE_ARG buildOnServer createAllArchives checkExternalLicenses listTaskOutputs exportSboms \
         "$@"; then
     echo build succeeded
     EXIT_VALUE=0
@@ -114,6 +114,8 @@ else
     # Parse performance profile reports (generated with the --profile option) and re-export the metrics in an easily machine-readable format for tracking
     impl/parse_profile_data.sh
 fi
+
+record_build_metrics "$start_time"
 
 echo "Completing $0 at $(date) with exit value $EXIT_VALUE"
 

@@ -99,7 +99,7 @@ fun ExpandableMultipleItems() {
             item(key = item.key + 1_000_000) {
                 Row(
                     verticalAlignment = CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     Button(onClick = { state.expanded = !state.expanded }) {
                         Text(
@@ -133,7 +133,7 @@ fun ExpandableText() {
                     "Our Customer Service team is available 24 hours a day, " +
                     "7 days a week to answer your account or product support question.",
                 maxLines = if (expanded) 20 else 3,
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(horizontal = 10.dp),
             )
         }
         expandButton(state, outline = false)
@@ -173,7 +173,7 @@ private fun ScalingLazyListScope.expandButton(state: ExpandableState, outline: B
                 DemoIcon(resourceId = R.drawable.ic_expand_more_24, contentDescription = "Expand")
             },
             onClick = { state.expanded = true },
-            border = if (outline) ChipDefaults.outlinedChipBorder() else ChipDefaults.chipBorder()
+            border = if (outline) ChipDefaults.outlinedChipBorder() else ChipDefaults.chipBorder(),
         )
     }
 }
@@ -194,5 +194,5 @@ private fun DemoItem(label: String, color: Color) =
         onClick = {},
         secondaryLabel = { Text("line 2 - Secondary") },
         icon = { DemoIcon(resourceId = R.drawable.ic_play) },
-        colors = ChipDefaults.primaryChipColors(backgroundColor = color)
+        colors = ChipDefaults.primaryChipColors(backgroundColor = color),
     )

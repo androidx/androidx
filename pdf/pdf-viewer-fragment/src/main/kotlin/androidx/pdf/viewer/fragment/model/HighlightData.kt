@@ -17,9 +17,9 @@
 package androidx.pdf.viewer.fragment.model
 
 import androidx.annotation.ColorInt
+import androidx.pdf.PdfRect
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.view.Highlight
-import androidx.pdf.view.PdfRect
 
 /**
  * A model class representing all the highlights to be added on PdfView.

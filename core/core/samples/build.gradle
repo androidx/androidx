@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+
+import androidx.build.SoftwareType
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
+
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
+
     implementation(project(":core:core"))
+    implementation(libs.kotlinCoroutinesCore)
 }
+
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.core.samples"
 }
+
 androidx {
     name = "AndroidX Core Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2024"
     description = "Samples for the AndroidX Core Libraries"

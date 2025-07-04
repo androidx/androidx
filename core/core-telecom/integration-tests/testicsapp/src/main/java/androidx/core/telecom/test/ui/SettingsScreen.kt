@@ -37,9 +37,9 @@ fun SettingsScreen() {
                 colors =
                     topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary
+                        titleContentColor = MaterialTheme.colorScheme.primary,
                     ),
-                title = { Text("Settings") }
+                title = { Text("Settings") },
             )
         }
     ) { scaffoldPadding ->

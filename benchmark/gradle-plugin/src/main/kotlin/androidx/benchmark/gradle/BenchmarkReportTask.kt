@@ -81,7 +81,7 @@ abstract class BenchmarkReportTask : DefaultTask() {
             getReportsForDevice(adb, outDir, dataDir, deviceId)
             logger.info(
                 "Benchmark",
-                "Benchmark report files generated at ${reportDir.absolutePath}"
+                "Benchmark report files generated at ${reportDir.absolutePath}",
             )
         }
     }
@@ -90,7 +90,7 @@ abstract class BenchmarkReportTask : DefaultTask() {
         adb: Adb,
         benchmarkReportDir: File,
         dataDir: String,
-        deviceId: String
+        deviceId: String,
     ) {
         adb.execSync("shell ls $dataDir", deviceId)
             .stdout

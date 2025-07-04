@@ -32,14 +32,14 @@ class CoroutineFlowResultBinderProvider(val context: Context) : QueryResultBinde
             listOf(
                 KotlinTypeNames.CHANNEL,
                 KotlinTypeNames.SEND_CHANNEL,
-                KotlinTypeNames.RECEIVE_CHANNEL
+                KotlinTypeNames.RECEIVE_CHANNEL,
             )
     }
 
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)

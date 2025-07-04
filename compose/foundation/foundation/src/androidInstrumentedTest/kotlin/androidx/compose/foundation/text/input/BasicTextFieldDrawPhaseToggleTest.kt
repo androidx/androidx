@@ -61,7 +61,7 @@ class BasicTextFieldDrawPhaseToggleTest {
             BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(color = color),
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier.background(Color.White),
             )
         }
 
@@ -95,7 +95,7 @@ class BasicTextFieldDrawPhaseToggleTest {
                 state = state,
                 textStyle = textStyle.copy(brush = brush),
                 // use brush also for background to get rid of weird antialiasing edges
-                modifier = Modifier.background(brush)
+                modifier = Modifier.background(brush),
             )
         }
 
@@ -121,7 +121,7 @@ class BasicTextFieldDrawPhaseToggleTest {
             BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(color = Color.White, shadow = shadow),
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier.background(Color.White),
             )
         }
 
@@ -149,7 +149,7 @@ class BasicTextFieldDrawPhaseToggleTest {
             BasicTextField(
                 state = state,
                 textStyle = textStyle.copy(textDecoration = textDecoration),
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier.background(Color.White),
             )
         }
 

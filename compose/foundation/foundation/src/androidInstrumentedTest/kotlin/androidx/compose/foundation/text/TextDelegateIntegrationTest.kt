@@ -56,7 +56,7 @@ class TextDelegateIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     density = this,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
 
             textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
@@ -78,7 +78,7 @@ class TextDelegateIntegrationTest {
                     text = annotatedString,
                     style = TextStyle.Default,
                     density = this,
-                    fontFamilyResolver = fontFamilyResolver
+                    fontFamilyResolver = fontFamilyResolver,
                 )
 
             textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
@@ -95,7 +95,7 @@ class TextDelegateIntegrationTest {
                 text = AnnotatedString(text = "Hello World!"),
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val width = 200
         val heightFirstLayout = 100
@@ -118,7 +118,7 @@ class TextDelegateIntegrationTest {
                 text = AnnotatedString(text = "Hello World!"),
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val width = 200
         val heightFirstLayout = 100
@@ -145,7 +145,7 @@ class TextDelegateIntegrationTest {
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
         // Makes width smaller than needed.
@@ -167,14 +167,14 @@ class TextDelegateIntegrationTest {
                 style = TextStyle(fontSize = fontSize.sp),
                 overflow = TextOverflow.Ellipsis,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         textDelegate.layoutIntrinsics(LayoutDirection.Ltr)
 
         val constraints =
             Constraints(
                 maxWidth = textDelegate.maxIntrinsicWidth / 4,
-                maxHeight = (fontSize * 2.7).roundToInt() // fully fits at most 2 lines
+                maxHeight = (fontSize * 2.7).roundToInt(), // fully fits at most 2 lines
             )
         val layoutResult = textDelegate.layout(constraints, LayoutDirection.Ltr)
 
@@ -192,7 +192,7 @@ class TextDelegateIntegrationTest {
                 style = TextStyle(fontSize = fontSize.sp, letterSpacing = 0.5.sp),
                 overflow = TextOverflow.Ellipsis,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val layoutResultLtr = textDelegate.layout(Constraints(), LayoutDirection.Ltr)
         val layoutResultRtl = textDelegate.layout(Constraints(), LayoutDirection.Rtl)
@@ -207,13 +207,13 @@ class TextDelegateIntegrationTest {
                 text = AnnotatedString(text = "a".repeat(2 shl 14)),
                 style = TextStyle.Default,
                 density = density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
         val subject =
             textDelegate.layout(
                 Constraints() /* unbounded */,
                 layoutDirection = LayoutDirection.Ltr,
-                null
+                null,
             )
         assertThat(subject.size.width).isGreaterThan(0)
         assertThat(subject.size.height).isGreaterThan(0)

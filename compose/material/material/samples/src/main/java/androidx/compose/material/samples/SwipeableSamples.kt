@@ -59,7 +59,7 @@ fun SwipeableSample() {
                     state = swipeableState,
                     anchors = anchors,
                     thresholds = { _, _ -> FractionalThreshold(0.5f) },
-                    orientation = Orientation.Horizontal
+                    orientation = Orientation.Horizontal,
                 )
                 .background(Color.Black)
     ) {
@@ -67,7 +67,7 @@ fun SwipeableSample() {
             Modifier.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
                 .size(squareSize)
                 .background(Color.Red),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(swipeableState.currentValue, color = Color.White, fontSize = 24.sp)
         }

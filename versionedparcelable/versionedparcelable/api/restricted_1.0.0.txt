@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.versionedparcelable {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
@@ -27,12 +27,12 @@ package androidx.versionedparcelable {
     method protected abstract androidx.versionedparcelable.VersionedParcel! createSubParcel();
     method protected static Throwable getRootCause(Throwable);
     method public boolean isStream();
-    method public <T> T![]! readArray(T![]!, int);
     method protected <T> T![]! readArray(T![]!);
+    method public <T> T![]! readArray(T![]!, int);
     method protected abstract boolean readBoolean();
     method public boolean readBoolean(boolean, int);
-    method public boolean[]! readBooleanArray(boolean[]!, int);
     method protected boolean[]! readBooleanArray();
+    method public boolean[]! readBooleanArray(boolean[]!, int);
     method protected abstract android.os.Bundle! readBundle();
     method public android.os.Bundle! readBundle(android.os.Bundle!, int);
     method public byte readByte(byte, int);
@@ -41,24 +41,24 @@ package androidx.versionedparcelable {
     method public char[]! readCharArray(char[]!, int);
     method protected abstract double readDouble();
     method public double readDouble(double, int);
-    method public double[]! readDoubleArray(double[]!, int);
     method protected double[]! readDoubleArray();
+    method public double[]! readDoubleArray(double[]!, int);
     method public Exception! readException(Exception!, int);
     method protected abstract boolean readField(int);
     method protected abstract float readFloat();
     method public float readFloat(float, int);
-    method public float[]! readFloatArray(float[]!, int);
     method protected float[]! readFloatArray();
+    method public float[]! readFloatArray(float[]!, int);
     method protected static <T extends androidx.versionedparcelable.VersionedParcelable> T! readFromParcel(String!, androidx.versionedparcelable.VersionedParcel!);
     method protected abstract int readInt();
     method public int readInt(int, int);
-    method public int[]! readIntArray(int[]!, int);
     method protected int[]! readIntArray();
+    method public int[]! readIntArray(int[]!, int);
     method public <T> java.util.List<T!>! readList(java.util.List<T!>!, int);
     method protected abstract long readLong();
     method public long readLong(long, int);
-    method public long[]! readLongArray(long[]!, int);
     method protected long[]! readLongArray();
+    method public long[]! readLongArray(long[]!, int);
     method protected abstract <T extends android.os.Parcelable> T! readParcelable();
     method public <T extends android.os.Parcelable> T! readParcelable(T!, int);
     method protected java.io.Serializable! readSerializable();
@@ -70,42 +70,42 @@ package androidx.versionedparcelable {
     method public String! readString(String!, int);
     method protected abstract android.os.IBinder! readStrongBinder();
     method public android.os.IBinder! readStrongBinder(android.os.IBinder!, int);
-    method public <T extends androidx.versionedparcelable.VersionedParcelable> T! readVersionedParcelable(T!, int);
     method protected <T extends androidx.versionedparcelable.VersionedParcelable> T! readVersionedParcelable();
+    method public <T extends androidx.versionedparcelable.VersionedParcelable> T! readVersionedParcelable(T!, int);
     method protected abstract void setOutputField(int);
     method public void setSerializationFlags(boolean, boolean);
-    method public <T> void writeArray(T![]!, int);
     method protected <T> void writeArray(T![]!);
+    method public <T> void writeArray(T![]!, int);
     method protected abstract void writeBoolean(boolean);
     method public void writeBoolean(boolean, int);
-    method public void writeBooleanArray(boolean[]!, int);
     method protected void writeBooleanArray(boolean[]!);
+    method public void writeBooleanArray(boolean[]!, int);
     method protected abstract void writeBundle(android.os.Bundle!);
     method public void writeBundle(android.os.Bundle!, int);
     method public void writeByte(byte, int);
     method protected abstract void writeByteArray(byte[]!);
-    method protected abstract void writeByteArray(byte[]!, int, int);
     method public void writeByteArray(byte[]!, int);
+    method protected abstract void writeByteArray(byte[]!, int, int);
     method public void writeByteArray(byte[]!, int, int, int);
     method public void writeCharArray(char[]!, int);
     method protected abstract void writeDouble(double);
     method public void writeDouble(double, int);
-    method public void writeDoubleArray(double[]!, int);
     method protected void writeDoubleArray(double[]!);
+    method public void writeDoubleArray(double[]!, int);
     method public void writeException(Exception!, int);
     method protected abstract void writeFloat(float);
     method public void writeFloat(float, int);
-    method public void writeFloatArray(float[]!, int);
     method protected void writeFloatArray(float[]!);
+    method public void writeFloatArray(float[]!, int);
     method protected abstract void writeInt(int);
     method public void writeInt(int, int);
-    method public void writeIntArray(int[]!, int);
     method protected void writeIntArray(int[]!);
+    method public void writeIntArray(int[]!, int);
     method public <T> void writeList(java.util.List<T!>!, int);
     method protected abstract void writeLong(long);
     method public void writeLong(long, int);
-    method public void writeLongArray(long[]!, int);
     method protected void writeLongArray(long[]!);
+    method public void writeLongArray(long[]!, int);
     method protected void writeNoException();
     method protected abstract void writeParcelable(android.os.Parcelable!);
     method public void writeParcelable(android.os.Parcelable!, int);
@@ -121,8 +121,8 @@ package androidx.versionedparcelable {
     method protected abstract void writeStrongInterface(android.os.IInterface!);
     method public void writeStrongInterface(android.os.IInterface!, int);
     method protected static <T extends androidx.versionedparcelable.VersionedParcelable> void writeToParcel(T!, androidx.versionedparcelable.VersionedParcel!);
-    method public void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!, int);
     method protected void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!);
+    method public void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!, int);
   }
 
   public static class VersionedParcel.ParcelException extends java.lang.RuntimeException {

@@ -18,7 +18,6 @@ package androidx.ink.brush
 
 import androidx.ink.nativeloader.UsedByNative
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,18 +27,12 @@ import org.junit.runners.JUnit4
 class BrushFamilyTest {
     @Test
     fun constructor_withValidArguments_returnsABrushFamily() {
-        assertThat(BrushFamily(customTip, customPaint, customUri)).isNotNull()
+        assertThat(BrushFamily(customTip, customPaint, customBrushFamilyId)).isNotNull()
     }
 
     @Test
     fun constructor_withDefaultArguments_returnsABrushFamily() {
-        assertThat(BrushFamily(BrushTip(), BrushPaint(), uri = null)).isNotNull()
-        assertThat(BrushFamily(BrushTip(), BrushPaint(), uri = "")).isNotNull()
-    }
-
-    @Test
-    fun constructor_withBadUri_throws() {
-        assertFailsWith<IllegalArgumentException> { BrushFamily(customTip, customPaint, "baduri") }
+        assertThat(BrushFamily(BrushTip(), BrushPaint(), clientBrushFamilyId = "")).isNotNull()
     }
 
     @Test
@@ -55,19 +48,22 @@ class BrushFamilyTest {
 
     @Test
     fun equals_comparesValues() {
-        val brushFamily = BrushFamily(customTip, customPaint, customUri, BrushFamily.SPRING_MODEL)
+        val brushFamily =
+            BrushFamily(customTip, customPaint, customBrushFamilyId, BrushFamily.SPRING_MODEL)
         val differentCoat = BrushCoat(BrushTip(), BrushPaint())
-        val differentUri = null
+        val differentId = "different"
 
         // same values are equal.
         assertThat(brushFamily)
-            .isEqualTo(BrushFamily(customTip, customPaint, customUri, BrushFamily.SPRING_MODEL))
+            .isEqualTo(
+                BrushFamily(customTip, customPaint, customBrushFamilyId, BrushFamily.SPRING_MODEL)
+            )
 
         // different values are not equal.
         assertThat(brushFamily).isNotEqualTo(null)
         assertThat(brushFamily).isNotEqualTo(Any())
         assertThat(brushFamily).isNotEqualTo(brushFamily.copy(coat = differentCoat))
-        assertThat(brushFamily).isNotEqualTo(brushFamily.copy(uri = differentUri))
+        assertThat(brushFamily).isNotEqualTo(brushFamily.copy(clientBrushFamilyId = differentId))
     }
 
     @Test
@@ -79,10 +75,10 @@ class BrushFamilyTest {
     fun toString_returnsExpectedValues() {
         assertThat(BrushFamily(inputModel = BrushFamily.SPRING_MODEL).toString())
             .isEqualTo(
-                "BrushFamily(coats=[BrushCoat(tips=[BrushTip(scale=(1.0, 1.0), " +
+                "BrushFamily(coats=[BrushCoat(tip=BrushTip(scale=(1.0, 1.0), " +
                     "cornerRounding=1.0, slant=0.0, pinch=0.0, rotation=0.0, opacityMultiplier=1.0, " +
                     "particleGapDistanceScale=0.0, particleGapDurationMillis=0, " +
-                    "behaviors=[])], paint=BrushPaint(textureLayers=[]))], uri=null, " +
+                    "behaviors=[]), paint=BrushPaint(textureLayers=[]))], clientBrushFamilyId=, " +
                     "inputModel=SpringModel)"
             )
     }
@@ -95,7 +91,7 @@ class BrushFamilyTest {
 
     @Test
     fun copy_whenSameContents_returnsSameInstance() {
-        val customFamily = BrushFamily(customTip, customPaint, customUri)
+        val customFamily = BrushFamily(customTip, customPaint, customBrushFamilyId)
 
         // A pure copy returns `this`.
         val copy = customFamily.copy()
@@ -104,20 +100,24 @@ class BrushFamilyTest {
 
     @Test
     fun copy_withArguments_createsCopyWithChanges() {
-        val brushFamily = BrushFamily(customTip, customPaint, customUri)
+        val brushFamily = BrushFamily(customTip, customPaint, customBrushFamilyId)
         val differentCoats = listOf(BrushCoat(BrushTip(), BrushPaint()))
-        val differentUri = null
+        val differentId = "different"
 
         assertThat(brushFamily.copy(coats = differentCoats))
-            .isEqualTo(BrushFamily(differentCoats, customUri))
-        assertThat(brushFamily.copy(uri = differentUri))
-            .isEqualTo(BrushFamily(customTip, customPaint, differentUri))
+            .isEqualTo(BrushFamily(differentCoats, customBrushFamilyId))
+        assertThat(brushFamily.copy(clientBrushFamilyId = differentId))
+            .isEqualTo(BrushFamily(customTip, customPaint, differentId))
     }
 
     @Test
     fun builder_createsExpectedBrushFamily() {
-        val family = BrushFamily.Builder().setCoat(customTip, customPaint).setUri(customUri).build()
-        assertThat(family).isEqualTo(BrushFamily(customTip, customPaint, customUri))
+        val family =
+            BrushFamily.Builder()
+                .setCoat(customTip, customPaint)
+                .setClientBrushFamilyId(customBrushFamilyId)
+                .build()
+        assertThat(family).isEqualTo(BrushFamily(customTip, customPaint, customBrushFamilyId))
     }
 
     /**
@@ -135,7 +135,7 @@ class BrushFamilyTest {
     @UsedByNative
     private external fun matchesMultiBehaviorTipFamily(brushFamilyNativePointer: Long): Boolean
 
-    private val customUri = "/brush-family:inkpen:1"
+    private val customBrushFamilyId = "inkpen"
 
     /** Brush behavior with every field different from default values. */
     private val customBehavior =
@@ -176,25 +176,31 @@ class BrushFamilyTest {
         BrushPaint(
             listOf(
                 BrushPaint.TextureLayer(
-                    colorTextureUri = "ink://ink/texture:test-one",
+                    clientTextureId = "test-one",
                     sizeX = 123.45F,
                     sizeY = 678.90F,
                     offsetX = 0.123f,
                     offsetY = 0.678f,
                     rotation = 0.1f,
                     opacity = 0.123f,
+                    animationFrames = 1,
+                    animationRows = 1,
+                    animationColumns = 1,
                     BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                     BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
                     BrushPaint.TextureMapping.TILING,
                 ),
                 BrushPaint.TextureLayer(
-                    colorTextureUri = "ink://ink/texture:test-two",
+                    clientTextureId = "test-two",
                     sizeX = 256F,
                     sizeY = 256F,
                     offsetX = 0.456f,
                     offsetY = 0.567f,
                     rotation = 0.2f,
                     opacity = 0.987f,
+                    animationFrames = 1,
+                    animationRows = 1,
+                    animationColumns = 1,
                     BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
                     BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
                     BrushPaint.TextureMapping.TILING,
@@ -203,5 +209,6 @@ class BrushFamilyTest {
         )
 
     /** Brush Family with every field different from default values. */
-    private fun newCustomBrushFamily(): BrushFamily = BrushFamily(customTip, customPaint, customUri)
+    private fun newCustomBrushFamily(): BrushFamily =
+        BrushFamily(customTip, customPaint, customBrushFamilyId)
 }

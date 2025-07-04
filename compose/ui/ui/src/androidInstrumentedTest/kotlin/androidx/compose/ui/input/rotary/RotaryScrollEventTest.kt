@@ -559,7 +559,7 @@ class RotaryScrollEventTest {
         get() =
             getScaledHorizontalScrollFactor(
                 ViewConfiguration.get(rootView.context),
-                rootView.context
+                rootView.context,
             )
 
     private val verticalScrollFactor: Float

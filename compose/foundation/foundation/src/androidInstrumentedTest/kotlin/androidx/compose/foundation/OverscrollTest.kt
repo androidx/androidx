@@ -266,12 +266,12 @@ class OverscrollTest {
             override fun applyToScroll(
                 delta: Offset,
                 source: NestedScrollSource,
-                performScroll: (Offset) -> Offset
+                performScroll: (Offset) -> Offset,
             ) = performScroll(delta)
 
             override suspend fun applyToFling(
                 velocity: Velocity,
-                performFling: suspend (Velocity) -> Velocity
+                performFling: suspend (Velocity) -> Velocity,
             ) {}
         }
         val customFactory =
@@ -286,7 +286,7 @@ class OverscrollTest {
             if (setCustomFactory) {
                 CompositionLocalProvider(
                     LocalOverscrollFactory provides customFactory,
-                    content = movableContent
+                    content = movableContent,
                 )
             } else {
                 movableContent()
@@ -325,7 +325,7 @@ class OverscrollTest {
         }
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
-            overscrollEffect = controller
+            overscrollEffect = controller,
         )
 
         rule.waitUntil { controller.drawCallsCount == 1 }
@@ -353,7 +353,7 @@ class OverscrollTest {
         val viewConfig =
             rule.setOverscrollContentAndReturnViewConfig(
                 scrollableState = scrollableState,
-                overscrollEffect = controller
+                overscrollEffect = controller,
             )
 
         rule.waitUntil { controller.drawCallsCount == 1 }
@@ -397,7 +397,7 @@ class OverscrollTest {
                         override val canScrollBackward: Boolean
                             get() = canScroll
                     },
-                overscrollEffect = controller
+                overscrollEffect = controller,
             )
 
         rule.onNodeWithTag(boxTag).performTouchInput {
@@ -450,7 +450,7 @@ class OverscrollTest {
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
             overscrollEffect = controller,
-            flingBehavior = flingBehavior
+            flingBehavior = flingBehavior,
         )
 
         rule.waitUntil { controller.drawCallsCount == 1 }
@@ -478,7 +478,7 @@ class OverscrollTest {
         val viewConfiguration =
             rule.setOverscrollContentAndReturnViewConfig(
                 scrollableState = scrollableState,
-                overscrollEffect = controller
+                overscrollEffect = controller,
             )
 
         rule.runOnIdle {
@@ -538,8 +538,8 @@ class OverscrollTest {
                                 size =
                                     Size(
                                         size.width + extraOffset * 2,
-                                        size.height + extraOffset * 2
-                                    )
+                                        size.height + extraOffset * 2,
+                                    ),
                             )
                         }
                     )
@@ -601,8 +601,8 @@ class OverscrollTest {
                                     size =
                                         Size(
                                             size.width + extraOffset * 2,
-                                            size.height + extraOffset * 2
-                                        )
+                                            size.height + extraOffset * 2,
+                                        ),
                                 )
                             }
                     )
@@ -687,8 +687,8 @@ class OverscrollTest {
                                     size =
                                         Size(
                                             size.width + extraOffset * 2,
-                                            size.height + extraOffset * 2
-                                        )
+                                            size.height + extraOffset * 2,
+                                        ),
                                 )
                             }
                     )
@@ -773,8 +773,8 @@ class OverscrollTest {
                                     size =
                                         Size(
                                             size.width + extraOffset * 2,
-                                            size.height + extraOffset * 2
-                                        )
+                                            size.height + extraOffset * 2,
+                                        ),
                                 )
                             }
                     )
@@ -1059,7 +1059,7 @@ class OverscrollTest {
         val scrollableState = ScrollableState { 0f }
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
-            overscrollEffect = controller
+            overscrollEffect = controller,
         )
 
         rule.waitUntil { controller.drawCallsCount == 1 }
@@ -1095,7 +1095,7 @@ class OverscrollTest {
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
             overscrollEffect = controller,
-            orientation = Orientation.Vertical
+            orientation = Orientation.Vertical,
         )
 
         rule.waitUntil { controller.drawCallsCount == 1 }
@@ -1132,7 +1132,7 @@ class OverscrollTest {
             scrollableState = ScrollableState { 0f },
             overscrollEffect = controller,
             orientation = Orientation.Vertical,
-            inspectableConnection = inspectableConnection
+            inspectableConnection = inspectableConnection,
         )
 
         rule.onNodeWithTag(boxTag).assertExists()
@@ -1154,7 +1154,7 @@ class OverscrollTest {
             scrollableState = ScrollableState { 0f },
             overscrollEffect = controller,
             orientation = Orientation.Vertical,
-            inspectableConnection = inspectableConnection
+            inspectableConnection = inspectableConnection,
         )
 
         rule.onNodeWithTag(boxTag).assertExists()
@@ -1174,7 +1174,7 @@ class OverscrollTest {
             scrollableState = ScrollableState { 0f },
             overscrollEffect = controller,
             orientation = Orientation.Horizontal,
-            inspectableConnection = inspectableConnection
+            inspectableConnection = inspectableConnection,
         )
 
         rule.onNodeWithTag(boxTag).assertExists()
@@ -1196,7 +1196,7 @@ class OverscrollTest {
             scrollableState = ScrollableState { 0f },
             overscrollEffect = controller,
             orientation = Orientation.Horizontal,
-            inspectableConnection = inspectableConnection
+            inspectableConnection = inspectableConnection,
         )
 
         rule.onNodeWithTag(boxTag).assertExists()
@@ -1222,7 +1222,7 @@ class OverscrollTest {
         val viewConfig =
             rule.setOverscrollContentAndReturnViewConfig(
                 scrollableState = scrollableState,
-                overscrollEffect = withoutVisualEffect
+                overscrollEffect = withoutVisualEffect,
             )
 
         rule.onNodeWithTag(boxTag).performTouchInput {
@@ -1263,7 +1263,7 @@ class OverscrollTest {
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
             overscrollEffect = withoutVisualEffect,
-            flingBehavior = flingBehavior
+            flingBehavior = flingBehavior,
         )
 
         rule.onNodeWithTag(boxTag).performTouchInput {
@@ -1291,7 +1291,7 @@ class OverscrollTest {
         val viewConfig =
             rule.setOverscrollContentAndReturnViewConfig(
                 scrollableState = scrollableState,
-                overscrollEffect = withoutEventHandling
+                overscrollEffect = withoutEventHandling,
             )
 
         // We should still be drawn
@@ -1332,7 +1332,7 @@ class OverscrollTest {
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
             overscrollEffect = withoutEventHandling,
-            flingBehavior = flingBehavior
+            flingBehavior = flingBehavior,
         )
 
         // We should still be drawn
@@ -1356,7 +1356,7 @@ class OverscrollTest {
 
     class TestOverscrollEffect(
         private val consumePreCycles: Boolean = false,
-        var animationRunning: Boolean = false
+        var animationRunning: Boolean = false,
     ) : OverscrollEffect {
         var drawCallsCount = 0
         var isInProgressCallCount = 0
@@ -1374,7 +1374,7 @@ class OverscrollTest {
         override fun applyToScroll(
             delta: Offset,
             source: NestedScrollSource,
-            performScroll: (Offset) -> Offset
+            performScroll: (Offset) -> Offset,
         ): Offset {
             lastPreScrollDelta = delta
             preScrollSource = source
@@ -1392,7 +1392,7 @@ class OverscrollTest {
 
         override suspend fun applyToFling(
             velocity: Velocity,
-            performFling: suspend (Velocity) -> Velocity
+            performFling: suspend (Velocity) -> Velocity,
         ) {
             preFlingVelocity = velocity
             val consumed = if (consumePreCycles) velocity / 10f else Velocity.Zero
@@ -1428,7 +1428,7 @@ class OverscrollTest {
         rule.setOverscrollContentAndReturnViewConfig(
             scrollableState = scrollableState,
             overscrollEffect = controller,
-            reverseDirection = reverseDirection
+            reverseDirection = reverseDirection,
         )
 
         rule.waitUntil { controller.drawCallsCount == 1 }
@@ -1488,7 +1488,7 @@ class OverscrollTest {
                             state = scrollableState,
                             orientation = Orientation.Vertical,
                             overscrollEffect = overscrollController,
-                            flingBehavior = ScrollableDefaults.flingBehavior()
+                            flingBehavior = ScrollableDefaults.flingBehavior(),
                         )
                 )
             }
@@ -1534,7 +1534,7 @@ class OverscrollTest {
                             state = scrollableState,
                             orientation = Orientation.Vertical,
                             overscrollEffect = overscrollController,
-                            flingBehavior = ScrollableDefaults.flingBehavior()
+                            flingBehavior = ScrollableDefaults.flingBehavior(),
                         )
                 )
             }
@@ -1635,7 +1635,7 @@ private fun ComposeContentTestRule.setOverscrollContentAndReturnViewConfig(
     flingBehavior: FlingBehavior? = null,
     reverseDirection: Boolean = false,
     orientation: Orientation = Orientation.Horizontal,
-    inspectableConnection: NestedScrollConnection = NoOpConnection
+    inspectableConnection: NestedScrollConnection = NoOpConnection,
 ): ViewConfiguration {
     var viewConfiguration: ViewConfiguration? = null
     setContent {
@@ -1650,7 +1650,7 @@ private fun ComposeContentTestRule.setOverscrollContentAndReturnViewConfig(
                         orientation = orientation,
                         overscrollEffect = overscrollEffect,
                         flingBehavior = flingBehavior ?: ScrollableDefaults.flingBehavior(),
-                        reverseDirection = reverseDirection
+                        reverseDirection = reverseDirection,
                     )
             )
         }
@@ -1698,7 +1698,7 @@ private class OffsetOverscrollEffectCounter : OverscrollEffect {
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
-        performScroll: (Offset) -> Offset
+        performScroll: (Offset) -> Offset,
     ): Offset {
         applyToScrollCount++
         return Offset.Zero
@@ -1706,7 +1706,7 @@ private class OffsetOverscrollEffectCounter : OverscrollEffect {
 
     override suspend fun applyToFling(
         velocity: Velocity,
-        performFling: suspend (Velocity) -> Velocity
+        performFling: suspend (Velocity) -> Velocity,
     ) {
         applyToFlingCount++
     }

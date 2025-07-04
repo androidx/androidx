@@ -64,7 +64,7 @@ public fun animateFloatAsState(
     animationSpec: AnimationSpec<Float> = defaultAnimation,
     visibilityThreshold: Float = 0.01f,
     label: String = "FloatAnimation",
-    finishedListener: ((Float) -> Unit)? = null
+    finishedListener: ((Float) -> Unit)? = null,
 ): State<Float> {
     val resolvedAnimSpec =
         if (animationSpec === defaultAnimation) {
@@ -78,7 +78,7 @@ public fun animateFloatAsState(
         resolvedAnimSpec,
         visibilityThreshold,
         label,
-        finishedListener
+        finishedListener,
     )
 }
 
@@ -108,14 +108,14 @@ public fun animateDpAsState(
     targetValue: Dp,
     animationSpec: AnimationSpec<Dp> = dpDefaultSpring,
     label: String = "DpAnimation",
-    finishedListener: ((Dp) -> Unit)? = null
+    finishedListener: ((Dp) -> Unit)? = null,
 ): State<Dp> {
     return animateValueAsState(
         targetValue,
         Dp.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -149,14 +149,14 @@ public fun animateSizeAsState(
     targetValue: Size,
     animationSpec: AnimationSpec<Size> = sizeDefaultSpring,
     label: String = "SizeAnimation",
-    finishedListener: ((Size) -> Unit)? = null
+    finishedListener: ((Size) -> Unit)? = null,
 ): State<Size> {
     return animateValueAsState(
         targetValue,
         Size.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -188,14 +188,14 @@ public fun animateOffsetAsState(
     targetValue: Offset,
     animationSpec: AnimationSpec<Offset> = offsetDefaultSpring,
     label: String = "OffsetAnimation",
-    finishedListener: ((Offset) -> Unit)? = null
+    finishedListener: ((Offset) -> Unit)? = null,
 ): State<Offset> {
     return animateValueAsState(
         targetValue,
         Offset.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -229,14 +229,14 @@ public fun animateRectAsState(
     targetValue: Rect,
     animationSpec: AnimationSpec<Rect> = rectDefaultSpring,
     label: String = "RectAnimation",
-    finishedListener: ((Rect) -> Unit)? = null
+    finishedListener: ((Rect) -> Unit)? = null,
 ): State<Rect> {
     return animateValueAsState(
         targetValue,
         Rect.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -267,14 +267,14 @@ public fun animateIntAsState(
     targetValue: Int,
     animationSpec: AnimationSpec<Int> = intDefaultSpring,
     label: String = "IntAnimation",
-    finishedListener: ((Int) -> Unit)? = null
+    finishedListener: ((Int) -> Unit)? = null,
 ): State<Int> {
     return animateValueAsState(
         targetValue,
         Int.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -306,14 +306,14 @@ public fun animateIntOffsetAsState(
     targetValue: IntOffset,
     animationSpec: AnimationSpec<IntOffset> = intOffsetDefaultSpring,
     label: String = "IntOffsetAnimation",
-    finishedListener: ((IntOffset) -> Unit)? = null
+    finishedListener: ((IntOffset) -> Unit)? = null,
 ): State<IntOffset> {
     return animateValueAsState(
         targetValue,
         IntOffset.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -344,14 +344,14 @@ public fun animateIntSizeAsState(
     targetValue: IntSize,
     animationSpec: AnimationSpec<IntSize> = intSizeDefaultSpring,
     label: String = "IntSizeAnimation",
-    finishedListener: ((IntSize) -> Unit)? = null
+    finishedListener: ((IntSize) -> Unit)? = null,
 ): State<IntSize> {
     return animateValueAsState(
         targetValue,
         IntSize.VectorConverter,
         animationSpec,
         label = label,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
@@ -392,7 +392,7 @@ public fun <T, V : AnimationVector> animateValueAsState(
     animationSpec: AnimationSpec<T> = remember { spring() },
     visibilityThreshold: T? = null,
     label: String = "ValueAnimation",
-    finishedListener: ((T) -> Unit)? = null
+    finishedListener: ((T) -> Unit)? = null,
 ): State<T> {
 
     val toolingOverride = remember { mutableStateOf<State<T>?>(null) }
@@ -435,151 +435,151 @@ public fun <T, V : AnimationVector> animateValueAsState(
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateFloatAsState(
     targetValue: Float,
     animationSpec: AnimationSpec<Float> = defaultAnimation,
     visibilityThreshold: Float = 0.01f,
-    finishedListener: ((Float) -> Unit)? = null
+    finishedListener: ((Float) -> Unit)? = null,
 ): State<Float> =
     animateFloatAsState(
         targetValue,
         animationSpec,
         visibilityThreshold,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateDpAsState(
     targetValue: Dp,
     animationSpec: AnimationSpec<Dp> = dpDefaultSpring,
-    finishedListener: ((Dp) -> Unit)? = null
+    finishedListener: ((Dp) -> Unit)? = null,
 ): State<Dp> {
     return animateValueAsState(
         targetValue,
         Dp.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateSizeAsState(
     targetValue: Size,
     animationSpec: AnimationSpec<Size> = sizeDefaultSpring,
-    finishedListener: ((Size) -> Unit)? = null
+    finishedListener: ((Size) -> Unit)? = null,
 ): State<Size> {
     return animateValueAsState(
         targetValue,
         Size.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateOffsetAsState(
     targetValue: Offset,
     animationSpec: AnimationSpec<Offset> = offsetDefaultSpring,
-    finishedListener: ((Offset) -> Unit)? = null
+    finishedListener: ((Offset) -> Unit)? = null,
 ): State<Offset> {
     return animateValueAsState(
         targetValue,
         Offset.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateRectAsState(
     targetValue: Rect,
     animationSpec: AnimationSpec<Rect> = rectDefaultSpring,
-    finishedListener: ((Rect) -> Unit)? = null
+    finishedListener: ((Rect) -> Unit)? = null,
 ): State<Rect> {
     return animateValueAsState(
         targetValue,
         Rect.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateIntAsState(
     targetValue: Int,
     animationSpec: AnimationSpec<Int> = intDefaultSpring,
-    finishedListener: ((Int) -> Unit)? = null
+    finishedListener: ((Int) -> Unit)? = null,
 ): State<Int> {
     return animateValueAsState(
         targetValue,
         Int.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateIntOffsetAsState(
     targetValue: IntOffset,
     animationSpec: AnimationSpec<IntOffset> = intOffsetDefaultSpring,
-    finishedListener: ((IntOffset) -> Unit)? = null
+    finishedListener: ((IntOffset) -> Unit)? = null,
 ): State<IntOffset> {
     return animateValueAsState(
         targetValue,
         IntOffset.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun animateIntSizeAsState(
     targetValue: IntSize,
     animationSpec: AnimationSpec<IntSize> = intSizeDefaultSpring,
-    finishedListener: ((IntSize) -> Unit)? = null
+    finishedListener: ((IntSize) -> Unit)? = null,
 ): State<IntSize> {
     return animateValueAsState(
         targetValue,
         IntSize.VectorConverter,
         animationSpec,
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )
 }
 
 @Deprecated(
     "animate*AsState APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun <T, V : AnimationVector> animateValueAsState(
@@ -587,7 +587,7 @@ public fun <T, V : AnimationVector> animateValueAsState(
     typeConverter: TwoWayConverter<T, V>,
     animationSpec: AnimationSpec<T> = remember { spring() },
     visibilityThreshold: T? = null,
-    finishedListener: ((T) -> Unit)? = null
+    finishedListener: ((T) -> Unit)? = null,
 ): State<T> =
     animateValueAsState(
         targetValue = targetValue,
@@ -595,5 +595,5 @@ public fun <T, V : AnimationVector> animateValueAsState(
         animationSpec = animationSpec,
         visibilityThreshold = visibilityThreshold,
         label = "ValueAnimation",
-        finishedListener = finishedListener
+        finishedListener = finishedListener,
     )

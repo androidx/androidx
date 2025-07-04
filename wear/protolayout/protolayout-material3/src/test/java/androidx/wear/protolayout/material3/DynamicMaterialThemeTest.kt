@@ -43,7 +43,7 @@ class DynamicMaterialThemeTest {
                     .resources
                     .getColor(
                         R.color.system_secondary_fixed,
-                        ApplicationProvider.getApplicationContext<Context>().theme
+                        ApplicationProvider.getApplicationContext<Context>().theme,
                     )
             )
     }

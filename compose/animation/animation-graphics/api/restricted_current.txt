@@ -10,10 +10,12 @@ package androidx.compose.animation.graphics.res {
 
   public final class AnimatedVectorPainterResources_androidKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.painter.Painter rememberAnimatedVectorPainter(androidx.compose.animation.graphics.vector.AnimatedImageVector animatedImageVector, boolean atEnd);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.painter.Painter rememberAnimatedVectorPainter(androidx.compose.animation.graphics.vector.AnimatedImageVector, boolean, androidx.compose.runtime.Composer?, int);
   }
 
   public final class AnimatedVectorResources_androidKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.animation.graphics.vector.AnimatedImageVector animatedVectorResource(androidx.compose.animation.graphics.vector.AnimatedImageVector.Companion, @DrawableRes int id);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.animation.graphics.vector.AnimatedImageVector animatedVectorResource(androidx.compose.animation.graphics.vector.AnimatedImageVector.Companion, @DrawableRes int, androidx.compose.runtime.Composer?, int);
   }
 
 }
@@ -23,8 +25,8 @@ package androidx.compose.animation.graphics.vector {
   @androidx.compose.runtime.Immutable public final class AnimatedImageVector {
     method public androidx.compose.ui.graphics.vector.ImageVector getImageVector();
     method public int getTotalDuration();
-    property public final androidx.compose.ui.graphics.vector.ImageVector imageVector;
-    property public final int totalDuration;
+    property public androidx.compose.ui.graphics.vector.ImageVector imageVector;
+    property public int totalDuration;
     field public static final androidx.compose.animation.graphics.vector.AnimatedImageVector.Companion Companion;
   }
 

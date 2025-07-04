@@ -134,8 +134,8 @@ class SliderScreenshotTest {
                             thumbColor = Color.Red,
                             activeTrackColor = Color.Blue,
                             activeTickColor = Color.Yellow,
-                            inactiveTickColor = Color.Magenta
-                        )
+                            inactiveTickColor = Color.Magenta,
+                        ),
                 )
             }
         }
@@ -160,8 +160,8 @@ class SliderScreenshotTest {
                             disabledActiveTrackColor = Color.Red,
                             disabledInactiveTrackColor = Color.Yellow,
                             disabledActiveTickColor = Color.Magenta,
-                            disabledInactiveTickColor = Color.Cyan
-                        )
+                            disabledInactiveTickColor = Color.Cyan,
+                        ),
                 )
             }
         }
@@ -240,8 +240,8 @@ class SliderScreenshotTest {
                             activeTrackColor = Color.Red,
                             inactiveTrackColor = Color.Yellow,
                             activeTickColor = Color.Magenta,
-                            inactiveTickColor = Color.Cyan
-                        )
+                            inactiveTickColor = Color.Cyan,
+                        ),
                 )
             }
         }

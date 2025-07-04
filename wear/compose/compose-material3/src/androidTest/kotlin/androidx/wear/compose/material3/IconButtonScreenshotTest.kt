@@ -157,9 +157,7 @@ class IconButtonScreenshotTest {
 
     @Test
     fun button_with_corner_animation() = verifyScreenshot {
-        sampleOutlinedIconButton(
-            shapes = IconButtonDefaults.animatedShapes(),
-        )
+        sampleOutlinedIconButton(shapes = IconButtonDefaults.animatedShapes())
     }
 
     @Test
@@ -182,8 +180,8 @@ class IconButtonScreenshotTest {
             shapes =
                 IconButtonDefaults.animatedShapes(
                     shape = CutCornerShape(15.dp),
-                    pressedShape = RoundedCornerShape(15.dp)
-                ),
+                    pressedShape = RoundedCornerShape(15.dp),
+                )
         )
     }
 
@@ -203,7 +201,7 @@ class IconButtonScreenshotTest {
             rememberAnimatedRoundedCornerShape(
                 IconButtonDefaults.shape,
                 MaterialTheme.shapes.small as RoundedCornerShape,
-                mutableStateOf(progress)
+                mutableStateOf(progress),
             )
 
         return progressShape
@@ -215,7 +213,7 @@ class IconButtonScreenshotTest {
             rememberAnimatedCornerBasedShape(
                 CutCornerShape(15.dp),
                 RoundedCornerShape(15.dp),
-                mutableStateOf(progress)
+                mutableStateOf(progress),
             )
 
         return progressShape
@@ -232,7 +230,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -242,7 +240,7 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
@@ -258,7 +256,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -268,7 +266,7 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
@@ -291,7 +289,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -301,7 +299,7 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
@@ -324,7 +322,7 @@ class IconButtonScreenshotTest {
                         if (isCompact)
                             Modifier.touchTargetAwareSize(IconButtonDefaults.ExtraSmallButtonSize)
                         else Modifier
-                    )
+                    ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Home,
@@ -334,14 +332,14 @@ class IconButtonScreenshotTest {
                         Modifier.size(
                             IconButtonDefaults.iconSizeFor(IconButtonDefaults.SmallIconSize)
                         )
-                    else Modifier
+                    else Modifier,
             )
         }
     }
 
     private fun verifyScreenshot(
         methodName: String = testName.methodName,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             Box(

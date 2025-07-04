@@ -31,16 +31,16 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
 
     private val deviceParametersStub =
         java(
-            """
+                """
                 package androidx.wear.protolayout;
                 public class DeviceParameters {}
             """
-                .trimIndent()
-        )
+            )
+            .indented()
 
     private val primaryLayoutStub =
         java(
-            """
+                """
                 package androidx.wear.protolayout.material.layouts;
 
                 import androidx.wear.protolayout.DeviceParameters;
@@ -60,8 +60,8 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-                .trimIndent()
-        )
+            )
+            .indented()
 
     @Test
     fun `primaryLayout with responsiveness doesn't report`() {
@@ -70,7 +70,7 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                 deviceParametersStub,
                 primaryLayoutStub,
                 kotlin(
-                    """
+                        """
                         package foo
                         import androidx.wear.protolayout.material.layouts.PrimaryLayout
 
@@ -99,8 +99,8 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                             }
                         }
                     """
-                        .trimIndent()
-                )
+                    )
+                    .indented(),
             )
             .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
@@ -157,7 +157,7 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                         }
                     """
                     )
-                    .indented()
+                    .indented(),
             )
             .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
@@ -244,7 +244,7 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                 deviceParametersStub,
                 primaryLayoutStub,
                 java(
-                    """
+                        """
                         package foo;
                         import androidx.wear.protolayout.material.layouts.PrimaryLayout;
 
@@ -269,8 +269,8 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                             }
                         }
                     """
-                        .trimIndent()
-                )
+                    )
+                    .indented(),
             )
             .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
@@ -284,7 +284,7 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                 deviceParametersStub,
                 primaryLayoutStub,
                 java(
-                    """
+                        """
                         package foo;
                         import androidx.wear.protolayout.material.layouts.PrimaryLayout;
 
@@ -322,8 +322,8 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                             }
                         }
                     """
-                        .trimIndent()
-                )
+                    )
+                    .indented(),
             )
             .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
@@ -401,7 +401,7 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                 deviceParametersStub,
                 primaryLayoutStub,
                 kotlin(
-                    """
+                        """
                         package foo
                         import androidx.wear.protolayout.material.layouts.PrimaryLayout
 
@@ -414,8 +414,8 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                             }
                         }
                     """
-                        .trimIndent()
-                )
+                    )
+                    .indented(),
             )
             .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()
@@ -448,7 +448,7 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                 deviceParametersStub,
                 primaryLayoutStub,
                 kotlin(
-                    """
+                        """
                         package foo
                         import androidx.wear.protolayout.material.layouts.PrimaryLayout
 
@@ -461,8 +461,8 @@ class PrimaryLayoutResponsiveDetectorTest : LintDetectorTest() {
                             }
                         }
                     """
-                        .trimIndent()
-                )
+                    )
+                    .indented(),
             )
             .issues(ResponsiveLayoutDetector.PRIMARY_LAYOUT_ISSUE)
             .run()

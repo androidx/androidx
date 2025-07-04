@@ -44,7 +44,7 @@ private fun XExecutableElement.getDeclarationForOverride(): KSDeclaration =
 
 internal fun Resolver.overrides(
     overriderElement: XMethodElement,
-    overrideeElement: XMethodElement
+    overrideeElement: XMethodElement,
 ): Boolean {
     // in addition to functions declared in kotlin, we also synthesize getter/setter functions for
     // properties which means we cannot simply send the declaration to KSP for override check

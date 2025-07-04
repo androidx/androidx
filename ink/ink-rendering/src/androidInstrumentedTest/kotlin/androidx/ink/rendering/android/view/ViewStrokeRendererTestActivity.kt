@@ -57,10 +57,10 @@ class ViewStrokeRendererTestActivity : Activity() {
 
         private val inputsTwist =
             MutableStrokeInputBatch()
-                .addOrThrow(InputToolType.UNKNOWN, x = 30F, y = 0F, elapsedTimeMillis = 100)
-                .addOrThrow(InputToolType.UNKNOWN, x = 0F, y = 40F, elapsedTimeMillis = 150)
-                .addOrThrow(InputToolType.UNKNOWN, x = 40F, y = 70F, elapsedTimeMillis = 200)
-                .addOrThrow(InputToolType.UNKNOWN, x = 5F, y = 90F, elapsedTimeMillis = 250)
+                .add(InputToolType.UNKNOWN, x = 30F, y = 0F, elapsedTimeMillis = 100)
+                .add(InputToolType.UNKNOWN, x = 0F, y = 40F, elapsedTimeMillis = 150)
+                .add(InputToolType.UNKNOWN, x = 40F, y = 70F, elapsedTimeMillis = 200)
+                .add(InputToolType.UNKNOWN, x = 5F, y = 90F, elapsedTimeMillis = 250)
                 .asImmutable()
 
         private val stroke =

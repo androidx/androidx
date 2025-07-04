@@ -276,7 +276,7 @@ class TakePictureManagerTest {
         val response2 =
             listOf(
                 CaptureConfig.defaultEmptyCaptureConfig(),
-                CaptureConfig.defaultEmptyCaptureConfig()
+                CaptureConfig.defaultEmptyCaptureConfig(),
             )
         imagePipeline.captureConfigMap[request1] = response1
         imagePipeline.captureConfigMap[request2] = response2
@@ -433,7 +433,7 @@ class TakePictureManagerTest {
             ImagePipeline(
                 Utils.createEmptyImageCaptureConfig(),
                 Size(640, 480),
-                cameraCharacteristics
+                cameraCharacteristics,
             )
         val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
@@ -459,7 +459,7 @@ class TakePictureManagerTest {
             ImagePipeline(
                 Utils.createEmptyImageCaptureConfig(),
                 Size(640, 480),
-                cameraCharacteristics
+                cameraCharacteristics,
             )
         val request1 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
         val request2 = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
@@ -480,7 +480,7 @@ class TakePictureManagerTest {
             ImagePipeline(
                 Utils.createEmptyImageCaptureConfig(),
                 Size(640, 480),
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         // Create a request and offer it to the manager.
@@ -519,7 +519,7 @@ class TakePictureManagerTest {
             ImagePipeline(
                 Utils.createEmptyImageCaptureConfig(),
                 Size(640, 480),
-                cameraCharacteristics
+                cameraCharacteristics,
             )
 
         // Create a request and offer it to the manager.

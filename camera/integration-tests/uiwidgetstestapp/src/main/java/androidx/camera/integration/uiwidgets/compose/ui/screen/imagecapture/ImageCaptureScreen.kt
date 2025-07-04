@@ -71,7 +71,7 @@ private const val TAG = "ImageCaptureScreen"
 fun ImageCaptureScreen(
     modifier: Modifier = Modifier,
     state: ImageCaptureScreenState = rememberImageCaptureScreenState(),
-    onStreamStateChange: (PreviewView.StreamState) -> Unit = {}
+    onStreamStateChange: (PreviewView.StreamState) -> Unit = {},
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val localContext = LocalContext.current
@@ -95,7 +95,7 @@ fun ImageCaptureScreen(
         onOutputTransformReady = state::setOutputTransform,
         onTouch = state::startTapToFocus,
         onStreamStateChange = onStreamStateChange,
-        onDispose = state::releaseResources
+        onDispose = state::releaseResources,
     ) {
         // Uses overlay to draw detected QRCode in the image stream
         QRCodeOverlay(qrCodeBoundingBox = state.qrCodeBoundingBox)
@@ -121,7 +121,7 @@ fun ImageCaptureScreen(
     onTouch: (MeteringPoint) -> Unit,
     onStreamStateChange: (PreviewView.StreamState) -> Unit = {},
     onDispose: () -> Unit = {},
-    content: @Composable () -> Unit = {} // overlay to display something above PreviewView
+    content: @Composable () -> Unit = {}, // overlay to display something above PreviewView
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val localContext = LocalContext.current
@@ -139,7 +139,7 @@ fun ImageCaptureScreen(
             layoutParams =
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
+                    ViewGroup.LayoutParams.MATCH_PARENT,
                 )
 
             // Uses TextureView. Required by MLKitAnalyzer to acquire the correct OutputTransform
@@ -190,14 +190,14 @@ fun ImageCaptureScreen(
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter),
-            verticalArrangement = Arrangement.Bottom
+            verticalArrangement = Arrangement.Bottom,
         ) {
 
             // Display Zoom Slider only when Camera is ready
             if (isCameraReady) {
                 Row(
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Row(modifier = Modifier.weight(1f)) {
                         Slider(value = linearZoom, onValueChange = onLinearZoomChange)
@@ -205,7 +205,7 @@ fun ImageCaptureScreen(
 
                     Text(
                         text = "%.2f x".format(zoomRatio),
-                        modifier = Modifier.padding(horizontal = 10.dp).background(Color.White)
+                        modifier = Modifier.padding(horizontal = 10.dp).background(Color.White),
                     )
                 }
             }
@@ -214,7 +214,7 @@ fun ImageCaptureScreen(
                 CameraControlButton(
                     imageVector = Icons.Sharp.FlipCameraAndroid,
                     contentDescription = "Toggle Camera Lens",
-                    onClick = onFlipCameraIconClicked
+                    onClick = onFlipCameraIconClicked,
                 )
 
                 CameraControlButton(
@@ -223,7 +223,7 @@ fun ImageCaptureScreen(
                     modifier =
                         Modifier.padding(1.dp)
                             .border(1.dp, MaterialTheme.colors.onSecondary, CircleShape),
-                    onClick = onImageCaptureIconClicked
+                    onClick = onImageCaptureIconClicked,
                 )
 
                 if (hasFlashUnit) {
@@ -233,7 +233,7 @@ fun ImageCaptureScreen(
                         modifier =
                             Modifier.padding(1.dp)
                                 .border(1.dp, MaterialTheme.colors.onSecondary, RectangleShape),
-                        onClick = onFlashModeIconClicked
+                        onClick = onFlashModeIconClicked,
                     )
                 } else {
                     CameraControlButtonPlaceholder()
@@ -254,7 +254,7 @@ fun QRCodeOverlay(qrCodeBoundingBox: Rect?) {
                 topLeft = Offset(qrCodeBoundingBox.left.toFloat(), qrCodeBoundingBox.top.toFloat()),
                 size =
                     Size(qrCodeBoundingBox.width().toFloat(), qrCodeBoundingBox.height().toFloat()),
-                style = Stroke(width = 5.0f)
+                style = Stroke(width = 5.0f),
             )
         }
     }

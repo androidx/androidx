@@ -66,8 +66,8 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
- * <a href="https://m3.material.io/components/bottom-sheets/overview" class="external"
- * target="_blank">Material Design standard bottom sheet scaffold</a>.
+ * [Material Design standard bottom sheet
+ * scaffold](https://m3.material.io/components/bottom-sheets/overview)
  *
  * Standard bottom sheets co-exist with the screen’s main UI region and allow for simultaneously
  * viewing and interacting with both regions. They are commonly used to keep a feature or secondary
@@ -133,7 +133,7 @@ fun BottomSheetScaffold(
     snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
     containerColor: Color = MaterialTheme.colorScheme.surface,
     contentColor: Color = contentColorFor(containerColor),
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Box(modifier.fillMaxSize().background(containerColor)) {
         // Using composition local provider instead of Surface as Surface implements .clip() which
@@ -157,9 +157,9 @@ fun BottomSheetScaffold(
                         tonalElevation = sheetTonalElevation,
                         shadowElevation = sheetShadowElevation,
                         dragHandle = sheetDragHandle,
-                        content = sheetContent
+                        content = sheetContent,
                     )
-                }
+                },
             )
         }
     }
@@ -175,7 +175,7 @@ fun BottomSheetScaffold(
 @Stable
 class BottomSheetScaffoldState(
     val bottomSheetState: SheetState,
-    val snackbarHostState: SnackbarHostState
+    val snackbarHostState: SnackbarHostState,
 )
 
 /**
@@ -189,12 +189,12 @@ class BottomSheetScaffoldState(
 @ExperimentalMaterial3Api
 fun rememberBottomSheetScaffoldState(
     bottomSheetState: SheetState = rememberStandardBottomSheetState(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ): BottomSheetScaffoldState {
     return remember(bottomSheetState, snackbarHostState) {
         BottomSheetScaffoldState(
             bottomSheetState = bottomSheetState,
-            snackbarHostState = snackbarHostState
+            snackbarHostState = snackbarHostState,
         )
     }
 }
@@ -233,7 +233,7 @@ private fun StandardBottomSheet(
     tonalElevation: Dp,
     shadowElevation: Dp,
     dragHandle: @Composable (() -> Unit)?,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     // TODO Load the motionScheme tokens from the component tokens file
     val anchoredDraggableMotion: FiniteAnimationSpec<Float> =
@@ -257,7 +257,7 @@ private fun StandardBottomSheet(
                     ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                         sheetState = state,
                         orientation = orientation,
-                        onFling = { scope.launch { state.settle(it) } }
+                        onFling = { scope.launch { state.settle(it) } },
                     )
                 }
             )
@@ -309,7 +309,7 @@ private fun StandardBottomSheet(
                 .anchoredDraggable(
                     state = state.anchoredDraggableState,
                     orientation = orientation,
-                    enabled = sheetSwipeEnabled
+                    enabled = sheetSwipeEnabled,
                 )
                 // Scale up the Surface vertically in case the sheet's offset overflows below the
                 // min anchor. This is done to avoid showing a gap when the sheet opens and bounces
@@ -387,7 +387,7 @@ private fun StandardBottomSheet(
                                         }
                                     }
                                 }
-                            },
+                            }
                 ) {
                     dragHandle()
                 }

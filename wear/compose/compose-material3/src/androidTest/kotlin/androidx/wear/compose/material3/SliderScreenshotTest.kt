@@ -70,7 +70,7 @@ class SliderScreenshotTest {
                 segmented = false,
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -85,7 +85,7 @@ class SliderScreenshotTest {
                 enabled = false,
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -99,7 +99,7 @@ class SliderScreenshotTest {
                 segmented = true,
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -114,7 +114,7 @@ class SliderScreenshotTest {
                 enabled = false,
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -128,7 +128,7 @@ class SliderScreenshotTest {
                     value = 2f,
                     onValueChange = {},
                     valueRange = 1f..4f,
-                    steps = 2
+                    steps = 2,
                 )
             }
         }
@@ -142,7 +142,7 @@ class SliderScreenshotTest {
                 valueRange = 0f..4f,
                 value = 4f,
                 steps = 3,
-                onValueChange = {}
+                onValueChange = {},
             )
         }
     }
@@ -155,7 +155,7 @@ class SliderScreenshotTest {
                 valueRange = 0f..4f,
                 value = 0f,
                 steps = 3,
-                onValueChange = {}
+                onValueChange = {},
             )
         }
     }
@@ -184,7 +184,7 @@ class SliderScreenshotTest {
                     ),
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -201,7 +201,7 @@ class SliderScreenshotTest {
                 increaseIcon = {
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -227,11 +227,11 @@ class SliderScreenshotTest {
                         disabledSelectedBarColor = Color.Red,
                         disabledUnselectedBarColor = Color.Blue,
                         disabledSelectedBarSeparatorColor = Color.Gray,
-                        disabledUnselectedBarSeparatorColor = Color.Gray
+                        disabledUnselectedBarSeparatorColor = Color.Gray,
                     ),
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
     }
@@ -249,7 +249,7 @@ class SliderScreenshotTest {
                 increaseIcon = {
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
-                steps = 2
+                steps = 2,
             )
         }
     }

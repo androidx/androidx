@@ -49,8 +49,8 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
         replaceWith =
             ReplaceWith(
                 expression = "asClassName().toJavaPoet()",
-                imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-            )
+                imports = ["androidx.room.compiler.codegen.toJavaPoet"],
+            ),
     )
     override val className: ClassName
 

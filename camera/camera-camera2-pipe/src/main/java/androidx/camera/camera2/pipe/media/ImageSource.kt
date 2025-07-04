@@ -70,7 +70,7 @@ public fun interface ImageSourceListener {
         streamId: StreamId,
         outputId: OutputId,
         outputTimestamp: Long,
-        image: ImageWrapper?
+        image: ImageWrapper?,
     )
 }
 

@@ -102,7 +102,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -119,7 +119,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                readOnly = true
+                readOnly = true,
             )
         }
 
@@ -137,7 +137,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                enabled = enabled
+                enabled = enabled,
             )
         }
 
@@ -163,7 +163,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                readOnly = readOnly
+                readOnly = readOnly,
             )
         }
 
@@ -188,7 +188,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             )
         }
 
@@ -203,7 +203,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             )
         }
 
@@ -218,7 +218,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             )
         }
 
@@ -235,7 +235,7 @@ internal class BasicTextFieldHandwritingTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             )
         }
 
@@ -246,7 +246,7 @@ internal class BasicTextFieldHandwritingTest {
 
     private fun testStylusHandwriting(
         stylusHandwritingStarted: Boolean,
-        interaction: SemanticsNodeInteraction.() -> Unit
+        interaction: SemanticsNodeInteraction.() -> Unit,
     ) {
         immRule.setFactory { imm }
         inputMethodInterceptor.setTextFieldTestContent {

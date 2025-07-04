@@ -19,11 +19,13 @@ package androidx.security.state
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringDef
-import androidx.security.state.SecurityStateManager.Companion.KEY_KERNEL_VERSION
-import androidx.security.state.SecurityStateManager.Companion.KEY_SYSTEM_SPL
-import androidx.security.state.SecurityStateManager.Companion.KEY_VENDOR_SPL
+import androidx.annotation.WorkerThread
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_KERNEL_VERSION
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_SYSTEM_SPL
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_VENDOR_SPL
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -48,27 +50,48 @@ import kotlinx.serialization.json.Json
  * The class uses a combination of local data storage and external data fetching to maintain and
  * update security states.
  *
+ * Recommended pattern of usage:
+ * - call [getVulnerabilityReportUrl] and make a request to download the JSON file containing
+ *   vulnerability report data
+ * - create SecurityPatchState object, passing in the downloaded JSON as a [String]
+ * - call [getPublishedSecurityPatchLevel] or other APIs
+ *
  * @param context Application context used for accessing shared preferences, resources, and other
  *   context-dependent features.
- * @param systemModules A list of system module package names, defaults to Google provided system
- *   modules if none are provided. The first module on the list must be the system modules metadata
- *   provider package.
- * @param customSecurityStateManager An optional custom manager for obtaining security state
+ * @param systemModulePackageNames A list of system module package names, defaults to Google
+ *   provided system modules if none are provided. The first module on the list must be the system
+ *   modules metadata provider package.
+ * @param customSecurityStateManagerCompat An optional custom manager for obtaining security state
  *   information. If null, a default manager is instantiated.
+ * @param vulnerabilityReportJsonString A JSON string containing vulnerability data to initialize a
+ *   [VulnerabilityReport] object.
+ *
+ *   If you only care about the Device SPL, this parameter is optional. If you need access to
+ *   Published SPL and Available SPL, you must provide this JSON string, either here in the
+ *   constructor, or later using [loadVulnerabilityReport].
+ *
  * @constructor Creates an instance of SecurityPatchState.
  */
 public open class SecurityPatchState
 @JvmOverloads
 constructor(
     private val context: Context,
-    private val systemModules: List<String> = listOf(),
-    private val customSecurityStateManager: SecurityStateManager? = null
+    private val systemModulePackageNames: List<String> = DEFAULT_SYSTEM_MODULES,
+    private val customSecurityStateManagerCompat: SecurityStateManagerCompat? = null,
+    vulnerabilityReportJsonString: String? = null,
 ) {
-    private val securityStateManager =
-        customSecurityStateManager ?: SecurityStateManager(context = context)
+    init {
+        if (vulnerabilityReportJsonString != null) {
+            loadVulnerabilityReport(vulnerabilityReportJsonString)
+        }
+    }
+
+    private val securityStateManagerCompat =
+        customSecurityStateManagerCompat ?: SecurityStateManagerCompat(context = context)
     private var vulnerabilityReport: VulnerabilityReport? = null
 
     public companion object {
+        /** Default list of Android Mainline system modules. */
         @JvmField
         public val DEFAULT_SYSTEM_MODULES: List<String> =
             listOf(
@@ -76,7 +99,7 @@ constructor(
                 "com.google.mainline.telemetry",
                 "com.google.mainline.adservices",
                 "com.google.mainline.go.primary",
-                "com.google.mainline.go.telemetry"
+                "com.google.mainline.go.telemetry",
             )
 
         /** URL for the Google-provided data of vulnerabilities from Android Security Bulletin. */
@@ -95,9 +118,6 @@ constructor(
         /** Kernel component providing kernel version as VersionedSpl. */
         public const val COMPONENT_KERNEL: String = "KERNEL"
 
-        /** WebView component providing default WebView provider version as VersionedSpl. */
-        internal const val COMPONENT_WEBVIEW: String = "WEBVIEW"
-
         /**
          * Vendor component providing ro.vendor.build.security_patch property value as DateBasedSpl.
          */
@@ -105,20 +125,70 @@ constructor(
 
         /** Disabled until Android provides sufficient guidelines for the usage of Vendor SPL. */
         internal var USE_VENDOR_SPL = false
+
+        /**
+         * Retrieves the specific security patch level for a given component based on a security
+         * patch level string. This method determines the type of [SecurityPatchLevel] to construct
+         * based on the component type, interpreting the string as a date for date-based components
+         * or as a version number for versioned components.
+         *
+         * @param component The component indicating which type of component's patch level is being
+         *   requested.
+         * @param securityPatchLevel The string representation of the security patch level, which
+         *   could be a date or a version number.
+         * @return A [SecurityPatchLevel] instance corresponding to the specified component and
+         *   patch level string.
+         * @throws IllegalArgumentException If the input string is not in a valid format for the
+         *   specified component type, or if the component requires a specific format that the
+         *   string does not meet.
+         */
+        @JvmStatic
+        public fun getComponentSecurityPatchLevel(
+            @Component component: String,
+            securityPatchLevel: String,
+        ): SecurityPatchLevel {
+            val exception = IllegalArgumentException("Unknown component: $component")
+            return when (component) {
+                COMPONENT_SYSTEM,
+                COMPONENT_SYSTEM_MODULES,
+                COMPONENT_VENDOR -> {
+                    if (component == COMPONENT_VENDOR && !USE_VENDOR_SPL) {
+                        throw exception
+                    }
+                    // These components are expected to use DateBasedSpl
+                    DateBasedSecurityPatchLevel.fromString(securityPatchLevel)
+                }
+                COMPONENT_KERNEL -> {
+                    // These components are expected to use VersionedSpl
+                    VersionedSecurityPatchLevel.fromString(securityPatchLevel)
+                }
+                else -> throw exception
+            }
+        }
+
+        /**
+         * Constructs a URL for fetching vulnerability reports based on the device's Android
+         * version.
+         *
+         * @param serverUrl The base URL of the server where vulnerability reports are stored.
+         * @return A fully constructed URL pointing to the specific vulnerability report for this
+         *   device.
+         */
+        @JvmStatic
+        @RequiresApi(26)
+        public fun getVulnerabilityReportUrl(
+            serverUrl: Uri = Uri.parse(DEFAULT_VULNERABILITY_REPORTS_URL)
+        ): Uri {
+            val newEndpoint = "v1/android_sdk_${Build.VERSION.SDK_INT}.json"
+            return serverUrl.buildUpon().appendEncodedPath(newEndpoint).build()
+        }
     }
 
     /** Annotation for defining the component to use. */
     @Retention(AnnotationRetention.SOURCE)
     @StringDef(
         open = true,
-        value =
-            [
-                COMPONENT_SYSTEM,
-                COMPONENT_SYSTEM_MODULES,
-                COMPONENT_KERNEL,
-                COMPONENT_VENDOR,
-                COMPONENT_WEBVIEW,
-            ]
+        value = [COMPONENT_SYSTEM, COMPONENT_SYSTEM_MODULES, COMPONENT_KERNEL, COMPONENT_VENDOR],
     )
     internal annotation class Component
 
@@ -131,7 +201,7 @@ constructor(
         /** Moderate severity issues from Android Security Bulletin. */
         MODERATE,
         /** Low severity issues from Android Security Bulletin. */
-        LOW
+        LOW,
     }
 
     /** Abstract base class representing a security patch level. */
@@ -160,12 +230,19 @@ constructor(
     public class DateBasedSecurityPatchLevel(
         private val year: Int,
         private val month: Int,
-        private val day: Int
+        private val day: Int,
     ) : SecurityPatchLevel() {
 
         public companion object {
             private val DATE_FORMATS = listOf("yyyy-MM", "yyyy-MM-dd")
 
+            /**
+             * Creates a new [DateBasedSecurityPatchLevel] from a string representation of the date.
+             *
+             * @param value The date string in the format of [DATE_FORMATS].
+             * @return A new [DateBasedSecurityPatchLevel] representing the date.
+             * @throws IllegalArgumentException if the date string is not in the correct format.
+             */
             @JvmStatic
             public fun fromString(value: String): DateBasedSecurityPatchLevel {
                 var date: Date? = null
@@ -191,7 +268,7 @@ constructor(
                     return DateBasedSecurityPatchLevel(year, month, day)
                 } else {
                     throw IllegalArgumentException(
-                        "Invalid date format. Expected formats: $DATE_FORMATS",
+                        "Invalid date format. Expected formats: $DATE_FORMATS"
                     )
                 }
             }
@@ -227,10 +304,18 @@ constructor(
         private val majorVersion: Int,
         private val minorVersion: Int,
         private val buildVersion: Int = 0,
-        private val patchVersion: Int = 0
+        private val patchVersion: Int = 0,
     ) : SecurityPatchLevel() {
 
         public companion object {
+            /**
+             * Creates a new [VersionedSecurityPatchLevel] from a string representation of the
+             * version.
+             *
+             * @param value The version string in the format of "major.minor.build.patch".
+             * @return A new [VersionedSecurityPatchLevel] representing the version.
+             * @throws IllegalArgumentException if the version string is not in the correct format.
+             */
             @JvmStatic
             public fun fromString(value: String): VersionedSecurityPatchLevel {
                 val parts = value.split(".")
@@ -273,7 +358,7 @@ constructor(
                         majorVersion,
                         minorVersion,
                         buildVersion,
-                        patchVersion
+                        patchVersion,
                     )
                 patchVersion > 0 ->
                     String.format("%d.%d.%d", majorVersion, minorVersion, patchVersion)
@@ -315,7 +400,7 @@ constructor(
         val vulnerabilities: Map<String, List<VulnerabilityGroup>>,
 
         /* Key is the SPL date yyyy-MM-dd, values are kernel versions */
-        @SerialName("kernel_lts_versions") val kernelLtsVersions: Map<String, List<String>>
+        @SerialName("kernel_lts_versions") val kernelLtsVersions: Map<String, List<String>>,
     )
 
     @Serializable
@@ -323,7 +408,7 @@ constructor(
         @SerialName("cve_identifiers") val cveIdentifiers: List<String>,
         @SerialName("asb_identifiers") val asbIdentifiers: List<String>,
         val severity: String,
-        val components: List<String>
+        val components: List<String>,
     )
 
     /**
@@ -333,8 +418,7 @@ constructor(
      * @return A list of strings representing system module identifiers.
      */
     internal fun getSystemModules(): List<String> {
-        // Use the provided systemModules if not empty; otherwise, use defaultSystemModules
-        return systemModules.ifEmpty { DEFAULT_SYSTEM_MODULES }
+        return systemModulePackageNames.ifEmpty { DEFAULT_SYSTEM_MODULES }
     }
 
     /**
@@ -342,16 +426,10 @@ constructor(
      * of the input JSON and constructs a [VulnerabilityReport] object, preparing the class to
      * provide published and available security state information.
      *
-     * The recommended pattern of usage:
-     * - create SecurityPatchState object
-     * - call getVulnerabilityReportUrl()
-     * - download JSON file containing vulnerability report data
-     * - call loadVulnerabilityReport()
-     * - call getPublishedSecurityPatchLevel() or other APIs
-     *
      * @param jsonString The JSON string containing the vulnerability data.
      * @throws IllegalArgumentException if the JSON input is malformed or contains invalid data.
      */
+    @WorkerThread
     public fun loadVulnerabilityReport(jsonString: String) {
         val result: VulnerabilityReport
 
@@ -430,27 +508,6 @@ constructor(
         vulnerabilityReport = result
     }
 
-    /**
-     * Constructs a URL for fetching vulnerability reports based on the device's Android version.
-     *
-     * @param serverUrl The base URL of the server where vulnerability reports are stored.
-     * @return A fully constructed URL pointing to the specific vulnerability report for this
-     *   device.
-     * @throws IllegalArgumentException if the Android SDK version is unsupported.
-     */
-    @RequiresApi(26)
-    public fun getVulnerabilityReportUrl(serverUrl: Uri): Uri {
-        val androidSdk = securityStateManager.getAndroidSdkInt()
-        if (androidSdk < 26) {
-            throw IllegalArgumentException(
-                "Unsupported SDK version (must be > 25), found $androidSdk."
-            )
-        }
-
-        val newEndpoint = "v1/android_sdk_$androidSdk.json"
-        return serverUrl.buildUpon().appendEncodedPath(newEndpoint).build()
-    }
-
     private fun getMaxComponentSecurityPatchLevel(
         @Component component: String
     ): DateBasedSecurityPatchLevel? {
@@ -492,7 +549,7 @@ constructor(
             try {
                 packageSpl =
                     DateBasedSecurityPatchLevel.fromString(
-                        securityStateManager.getPackageVersion(module)
+                        securityStateManagerCompat.getPackageVersion(module)
                     )
             } catch (e: Exception) {
                 // Prevent malformed package versions from interrupting the loop.
@@ -545,7 +602,8 @@ constructor(
      * @throws IllegalArgumentException if the component name is unrecognized.
      */
     public open fun getDeviceSecurityPatchLevel(@Component component: String): SecurityPatchLevel {
-        val globalSecurityState = securityStateManager.getGlobalSecurityState(getSystemModules()[0])
+        val globalSecurityState =
+            securityStateManagerCompat.getGlobalSecurityState(getSystemModules()[0])
 
         return when (component) {
             COMPONENT_SYSTEM_MODULES -> {
@@ -572,9 +630,6 @@ constructor(
 
                 DateBasedSecurityPatchLevel.fromString(vendorSpl)
             }
-
-            // TODO(musashi): Add support for webview package
-            COMPONENT_WEBVIEW -> TODO()
             else -> throw IllegalArgumentException("Unknown component: $component")
         }
     }
@@ -614,9 +669,6 @@ constructor(
                 )
             }
             COMPONENT_KERNEL -> getPublishedKernelVersions()
-
-            // TODO(musashi): Add support for webview package
-            COMPONENT_WEBVIEW -> TODO()
             else -> throw IllegalArgumentException("Unknown component: $component")
         }
     }
@@ -673,14 +725,14 @@ constructor(
      */
     public open fun getPatchedCves(
         @Component component: String,
-        spl: SecurityPatchLevel
+        spl: SecurityPatchLevel,
     ): Map<Severity, Set<String>> {
         // Check if the component is valid for this operation
         val validComponents =
             listOfNotNull(
                 COMPONENT_SYSTEM,
                 if (USE_VENDOR_SPL) COMPONENT_VENDOR else null,
-                COMPONENT_SYSTEM_MODULES
+                COMPONENT_SYSTEM_MODULES,
             )
         if (component !in validComponents) {
             throw IllegalArgumentException(
@@ -696,7 +748,13 @@ constructor(
             report.vulnerabilities.forEach { (patchLevel, groups) ->
                 if (spl.toString() >= patchLevel) {
                     groups
-                        .filter { it.components.contains(componentToString(component)) }
+                        .filter { group ->
+                            when (component) {
+                                COMPONENT_SYSTEM_MODULES ->
+                                    group.components.any { it in getSystemModules() }
+                                else -> group.components.contains(componentToString(component))
+                            }
+                        }
                         .forEach { group ->
                             val severity = Severity.valueOf(group.severity.uppercase(Locale.US))
                             relevantFixes
@@ -706,46 +764,6 @@ constructor(
                 }
             }
             return relevantFixes.mapValues { it.value.toSet() }.toMap()
-        }
-    }
-
-    /**
-     * Retrieves the specific security patch level for a given component based on a security patch
-     * level string. This method determines the type of [SecurityPatchLevel] to construct based on
-     * the component type, interpreting the string as a date for date-based components or as a
-     * version number for versioned components.
-     *
-     * @param component The component indicating which type of component's patch level is being
-     *   requested.
-     * @param securityPatchLevel The string representation of the security patch level, which could
-     *   be a date or a version number.
-     * @return A [SecurityPatchLevel] instance corresponding to the specified component and patch
-     *   level string.
-     * @throws IllegalArgumentException If the input string is not in a valid format for the
-     *   specified component type, or if the component requires a specific format that the string
-     *   does not meet.
-     */
-    public open fun getComponentSecurityPatchLevel(
-        @Component component: String,
-        securityPatchLevel: String
-    ): SecurityPatchLevel {
-        val exception = IllegalArgumentException("Unknown component: $component")
-        return when (component) {
-            COMPONENT_SYSTEM,
-            COMPONENT_SYSTEM_MODULES,
-            COMPONENT_VENDOR -> {
-                if (component == COMPONENT_VENDOR && !USE_VENDOR_SPL) {
-                    throw exception
-                }
-                // These components are expected to use DateBasedSpl
-                DateBasedSecurityPatchLevel.fromString(securityPatchLevel)
-            }
-            COMPONENT_KERNEL,
-            COMPONENT_WEBVIEW -> {
-                // These components are expected to use VersionedSpl
-                VersionedSecurityPatchLevel.fromString(securityPatchLevel)
-            }
-            else -> throw exception
         }
     }
 
@@ -762,25 +780,17 @@ constructor(
         checkVulnerabilityReport()
 
         val components =
-            listOf(
-                COMPONENT_SYSTEM,
-                COMPONENT_SYSTEM_MODULES,
-                COMPONENT_VENDOR,
-                COMPONENT_KERNEL,
-                COMPONENT_WEBVIEW
-            )
+            listOf(COMPONENT_SYSTEM, COMPONENT_SYSTEM_MODULES, COMPONENT_VENDOR, COMPONENT_KERNEL)
 
         components.forEach { component ->
             if (component == COMPONENT_VENDOR && !USE_VENDOR_SPL) return@forEach
-            // TODO(musashi): Unblock once support for WebView is present.
-            if (component == COMPONENT_WEBVIEW) return@forEach
             val deviceSpl =
                 try {
                     getDeviceSecurityPatchLevel(component)
                 } catch (e: Exception) {
                     throw IllegalStateException(
                         "Failed to retrieve device SPL for component: $component",
-                        e
+                        e,
                     )
                 }
 
@@ -806,7 +816,7 @@ constructor(
             } catch (e: Exception) {
                 throw IllegalStateException(
                     "Published SPL not available for component: $component",
-                    e
+                    e,
                 )
             }
         }
@@ -827,7 +837,7 @@ constructor(
             listOfNotNull(
                 COMPONENT_SYSTEM,
                 if (USE_VENDOR_SPL) COMPONENT_VENDOR else null,
-                COMPONENT_SYSTEM_MODULES
+                COMPONENT_SYSTEM_MODULES,
             )
         val allPatchedCves = mutableSetOf<String>()
 

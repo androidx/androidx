@@ -239,6 +239,17 @@ abstract class BaseBuilderTest {
 
     @Test
     fun setCustomBusyTimeout() = runTest {
+        val tempDatabase = getRoomDatabaseBuilder().build()
+        val defaultBusyTimeout =
+            tempDatabase.useReaderConnection { connection ->
+                connection.usePrepared("PRAGMA busy_timeout") {
+                    it.step()
+                    it.getLong(0)
+                }
+            }
+        assertThat(defaultBusyTimeout).isGreaterThan(0)
+        tempDatabase.close()
+
         val customBusyTimeout = 20000
         val actualDriver = BundledSQLiteDriver()
         val driverWrapper =

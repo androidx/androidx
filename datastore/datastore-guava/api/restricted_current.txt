@@ -2,8 +2,11 @@
 package androidx.datastore.guava {
 
   public final class GuavaDataStore<T> {
+    method public static <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore);
+    method public static <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, optional kotlin.coroutines.CoroutineContext coroutineContext);
     method public com.google.common.util.concurrent.ListenableFuture<T> getDataAsync();
     method public com.google.common.util.concurrent.ListenableFuture<T> updateDataAsync(kotlin.jvm.functions.Function1<? super T,? extends T> transform);
+    field public static final androidx.datastore.guava.GuavaDataStore.Companion Companion;
   }
 
   public static final class GuavaDataStore.Builder<T> {
@@ -11,8 +14,14 @@ package androidx.datastore.guava {
     ctor public GuavaDataStore.Builder(androidx.datastore.core.Serializer<T> serializer, java.util.concurrent.Callable<java.io.File> produceFile);
     method public androidx.datastore.guava.GuavaDataStore.Builder<T> addDataMigration(androidx.datastore.core.DataMigration<T> dataMigration);
     method public androidx.datastore.guava.GuavaDataStore<T> build();
+    method public androidx.datastore.guava.GuavaDataStore.Builder<T> enableMultiProcess();
     method public androidx.datastore.guava.GuavaDataStore.Builder<T> setCorruptionHandler(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T> corruptionHandler);
     method public androidx.datastore.guava.GuavaDataStore.Builder<T> setExecutor(java.util.concurrent.Executor executor);
+  }
+
+  public static final class GuavaDataStore.Companion {
+    method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore);
+    method public <T> androidx.datastore.guava.GuavaDataStore<T> from(androidx.datastore.core.DataStore<T> dataStore, optional kotlin.coroutines.CoroutineContext coroutineContext);
   }
 
 }

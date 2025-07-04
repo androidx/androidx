@@ -51,7 +51,7 @@ class Checks(private val logger: RLog) {
         element: XElement,
         annotation: KClass<out Annotation>,
         errorMsg: String,
-        vararg args: Any
+        vararg args: Any,
     ): Boolean {
         return if (!element.hasAnnotation(annotation)) {
             logger.e(element, errorMsg, args)

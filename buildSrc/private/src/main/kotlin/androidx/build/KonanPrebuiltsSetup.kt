@@ -50,7 +50,7 @@ object KonanPrebuiltsSetup {
             konanHome = konanHome.canonicalPath,
             onlyDefaultProfiles = false,
             propertyOverrides =
-                prebuiltsDirectory?.let { mapOf("dependenciesUrl" to "file://${it.canonicalPath}") }
+                prebuiltsDirectory?.let { mapOf("dependenciesUrl" to "file://${it.canonicalPath}") },
         )
 
     /** Returns `true` if the project's konan prebuilts is already configured. */
@@ -93,9 +93,8 @@ object KonanPrebuiltsSetup {
     }
 
     private fun Project.overrideKotlinNativeDistributionUrlToLocalDirectory() {
-        val relativePath =
-            getKonanPrebuiltsFolder().resolve("nativeCompilerPrebuilts").relativeTo(projectDir).path
-        val url = "file:$relativePath"
+        val url =
+            "file:${getKonanPrebuiltsFolder().resolve("nativeCompilerPrebuilts").absolutePath}"
         extensions.extraProperties["kotlin.native.distribution.baseDownloadUrl"] = url
     }
 }

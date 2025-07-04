@@ -29,10 +29,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-internal class TimeoutCancellationException(
-    override val message: String,
-    internal val block: Int,
-) : CancellationException(message) {
+internal class TimeoutCancellationException(override val message: String, internal val block: Int) :
+    CancellationException(message) {
     override fun toString() = "TimeoutCancellationException($message, $block)"
 
     override fun fillInStackTrace() = this
@@ -40,12 +38,12 @@ internal class TimeoutCancellationException(
 
 /** This interface is similar to [kotlin.time.TimeSource], which is still marked experimental. */
 @RestrictTo(LIBRARY_GROUP)
-fun interface TimeSource {
+public fun interface TimeSource {
     /** Current time in milliseconds. */
-    fun markNow(): Long
+    public fun markNow(): Long
 
-    companion object {
-        val Monotonic = TimeSource { System.currentTimeMillis() }
+    public companion object {
+        public val Monotonic: TimeSource = TimeSource { System.currentTimeMillis() }
     }
 }
 
@@ -108,7 +106,7 @@ internal suspend fun <T> withTimer(
                             timerScope.cancel(
                                 TimeoutCancellationException(
                                     "Timed out immediately",
-                                    block.hashCode()
+                                    block.hashCode(),
                                 )
                             )
                             return
@@ -126,7 +124,7 @@ internal suspend fun <T> withTimer(
                                     timerScope.cancel(
                                         TimeoutCancellationException(
                                             "Timed out of executing block.",
-                                            block.hashCode()
+                                            block.hashCode(),
                                         )
                                     )
                                 }
@@ -159,9 +157,7 @@ private fun <T> AtomicReference<T>.update(updater: (T) -> T) {
     }
 }
 
-internal suspend fun <T> noopTimer(
-    block: suspend TimerScope.() -> T,
-): T = coroutineScope {
+internal suspend fun <T> noopTimer(block: suspend TimerScope.() -> T): T = coroutineScope {
     val timerScope =
         object : TimerScope, CoroutineScope by this {
             override val timeLeft = Duration.INFINITE

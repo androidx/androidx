@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.KotlinTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -74,7 +73,7 @@ androidComponents {
 android {
     namespace = "androidx.privacysandbox.tools.integration.testsdk"
 
-    compileSdk = 35
+    compileSdk = 36
     compileSdkExtension = 14
 
     defaultConfig {
@@ -97,5 +96,4 @@ dependencies {
 }
 
 androidx {
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

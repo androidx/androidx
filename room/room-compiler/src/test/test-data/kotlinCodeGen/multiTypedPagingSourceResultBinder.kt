@@ -37,8 +37,7 @@ public class MyDao_Impl(
     val _sql: String = "SELECT pk FROM MyEntity"
     val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
     return object : LimitOffsetPagingSource<MyEntity>(_rawQuery, __db, "MyEntity") {
-      protected override suspend fun convertRows(limitOffsetQuery: RoomRawQuery, itemCount: Int):
-          List<MyEntity> = performSuspending(__db, true, false) { _connection ->
+      protected override suspend fun convertRows(limitOffsetQuery: RoomRawQuery, itemCount: Int): List<MyEntity> = performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(limitOffsetQuery.sql)
         limitOffsetQuery.getBindingFunction().invoke(_stmt)
         try {
@@ -66,8 +65,7 @@ public class MyDao_Impl(
       _stmt.bindLong(_argIndex, gt)
     }
     return object : LimitOffsetPagingSource<MyEntity>(_rawQuery, __db, "MyEntity") {
-      protected override suspend fun convertRows(limitOffsetQuery: RoomRawQuery, itemCount: Int):
-          List<MyEntity> = performSuspending(__db, true, false) { _connection ->
+      protected override suspend fun convertRows(limitOffsetQuery: RoomRawQuery, itemCount: Int): List<MyEntity> = performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(limitOffsetQuery.sql)
         limitOffsetQuery.getBindingFunction().invoke(_stmt)
         try {
@@ -129,8 +127,7 @@ public class MyDao_Impl(
   public override fun getAllIdsGuava(): ListenableFuturePagingSource<Int, MyEntity> {
     val _sql: String = "SELECT pk FROM MyEntity"
     val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    return object : LimitOffsetListenableFuturePagingSource<MyEntity>(_statement, __db, "MyEntity")
-        {
+    return object : LimitOffsetListenableFuturePagingSource<MyEntity>(_statement, __db, "MyEntity") {
       protected override fun convertRows(statement: SQLiteStatement): List<MyEntity> {
         val _columnIndexOfPk: Int = 0
         val _result: MutableList<MyEntity> = mutableListOf()

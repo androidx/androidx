@@ -64,5 +64,5 @@ expect class DialogProperties(
 expect fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties = DialogProperties(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 )

@@ -20,11 +20,15 @@ import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED;
+import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.processing.TargetUtils.isSuperset;
 import static androidx.core.util.Preconditions.checkArgument;
@@ -42,8 +46,13 @@ import android.view.Surface;
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.featuregroup.GroupableFeature;
+import androidx.camera.core.featuregroup.impl.feature.DynamicRangeFeature;
+import androidx.camera.core.featuregroup.impl.feature.FpsRangeFeature;
+import androidx.camera.core.featuregroup.impl.feature.VideoStabilizationFeature;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -56,6 +65,8 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
@@ -80,6 +91,7 @@ import java.util.Set;
  * the Camera.
  */
 public abstract class UseCase {
+    private static final String TAG = "UseCase";
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
@@ -108,6 +120,9 @@ public abstract class UseCase {
      * Store the app defined {@link UseCaseConfig} used to create the use case.
      */
     private @NonNull UseCaseConfig<?> mUseCaseConfig;
+
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
+    private @Nullable Set<@NonNull GroupableFeature> mFeatureGroup;
 
     /**
      * The currently used Config.
@@ -275,6 +290,8 @@ public abstract class UseCase {
                 != ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION) {
             mergedConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true);
         }
+
+        applyFeatureGroupToConfig(mergedConfig);
 
         return onMergeConfig(cameraInfo, getUseCaseConfigBuilder(mergedConfig));
     }
@@ -1112,6 +1129,149 @@ public abstract class UseCase {
                         aeFpsRangeQuirks.get(0).getTargetAeFpsRange());
             }
         }
+    }
+
+    /**
+     * Sets a set of explicit features denoting that the feature group mode is being used.
+     *
+     * <p> Since different values of features may be set through feature group API compared to
+     * the values directly settable to the use case for the same feature, we want to keep the
+     * feature values separate. This allows the direct values to be ignored when feature group
+     * API is used and used/re-used when feature group API is not being used.
+     *
+     * <p> For example, consider the scenario
+     * {@code useCase.setTargetFrameRate(45)} -> {@code bind(useCase, requiredFeatures = FPS_60)}.
+     * In this case, the final camera configuration will use 60 FPS.
+     *
+     * <p> If the Feature Group API is not used afterwards, i.e.
+     * {@code useCase.setTargetFrameRate(45)} -> {@code bind(useCase, requiredFeatures = FPS_60)}
+     * -> {@code bind(useCase)}, 45 FPS should be used again. So, user-defined values must not be
+     * overwritten due to the feature combination in order to ensure they are used as normal again
+     * when feature group API is no longer used.
+     *
+     * <p> During the bind flow, a null value should be set if feature group is not being used
+     * and proper non-null set of features should be set when feature group is being used.
+     *
+     * @param features The set of explicit features to use, a null value can be used to disable
+     *   the feature group mode.
+     * @see androidx.camera.core.SessionConfig#getRequiredFeatureGroup()
+     * @see androidx.camera.core.SessionConfig#getPreferredFeatureGroup()
+     */
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setFeatureGroup(@Nullable Set<@NonNull GroupableFeature> features) {
+        mFeatureGroup = features != null ? new HashSet<>(features) : null;
+    }
+
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @Nullable Set<@NonNull GroupableFeature> getFeatureGroup() {
+        return mFeatureGroup;
+    }
+
+    /**
+     * Applies {@link #mFeatureGroup} to a config.
+     *
+     * <p> When the feature group mode is enabled (i.e. not null), the default for all config
+     * options should use the same default as of feature group API.
+     *
+     * <p> Note that feature group mode may be enabled with zero or single feature (e.g.
+     * when the preferred features user set are not supported). In such case, it is still better to
+     * configure the camera with feature group mode and its defaults since
+     * <ul>
+     *   <li>this is more consistent with other feature group results</li>
+     *   <li>may give more accurate query result</li>
+     *   <li>may also support additional resolution group</li>
+     * </ul>
+     *
+     * @see #setFeatureGroup
+     */
+    private void applyFeatureGroupToConfig(MutableOptionsBundle config) {
+        Logger.d(TAG,
+                "applyFeaturesToConfig: mFeatureGroup = " + mFeatureGroup + ", this = " + this);
+
+        if (mFeatureGroup == null) {
+            return;
+        }
+
+        DynamicRange dynamicRange = DynamicRangeFeature.DEFAULT_DYNAMIC_RANGE;
+
+        // FpsRangeFeature.DEFAULT_FPS_RANGE is used only when using Camera2 FCQ API since max FPS
+        // is not always available and thus not always possible to be certain that a certain FPS is
+        // supported
+        Range<Integer> fpsRange = FRAME_RATE_RANGE_UNSPECIFIED;
+
+        VideoStabilizationFeature.StabilizationMode stabilizationMode =
+                VideoStabilizationFeature.DEFAULT_STABILIZATION_MODE;
+
+        // TODO: Use UNSPECIFIED default values for all features by default and switch to
+        //  FCQ-specific default values only when the Camera2 FCQ API is required. However,
+        //  this probably requires a good amount of refactoring (e.g. the values should be set in
+        //  SupportedSurfaceCombination based on CheckingMethod instead of here and stabilization
+        //  mode should become a part of StreamSpec so that the config doesn't have to be directly
+        //  overwritten, ImageFormat might have similar difficulties too)
+
+        for (GroupableFeature feature : mFeatureGroup) {
+            if (feature instanceof DynamicRangeFeature) {
+                dynamicRange = ((DynamicRangeFeature) feature).getDynamicRange();
+            } else if (feature instanceof FpsRangeFeature) {
+                FpsRangeFeature fpsFeature = ((FpsRangeFeature) feature);
+                fpsRange = new Range<>(fpsFeature.getMinFps(), fpsFeature.getMaxFps());
+            } else if (feature instanceof VideoStabilizationFeature) {
+                stabilizationMode = ((VideoStabilizationFeature) feature).getMode();
+            }
+        }
+
+        if (this instanceof Preview || CameraUseCaseAdapter.isVideoCapture(this)) {
+            config.insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
+        }
+
+        config.insertOption(OPTION_TARGET_FRAME_RATE, fpsRange);
+
+        // Setting the same preview stabilization mode to all use cases (instead of just Preview and
+        // VideoCapture who have related public APIs) lead to a simpler logic and makes code less
+        // error-prone (e.g. if the UseCases are specified and the stabilization mode is changed for
+        // some other UseCases in future, it may lead to those use cases not being handled properly
+        // and it might be hard to notice such an issue).
+        switch (stabilizationMode) {
+            case OFF:
+                config.insertOption(OPTION_PREVIEW_STABILIZATION_MODE, StabilizationMode.OFF);
+                config.insertOption(OPTION_VIDEO_STABILIZATION_MODE, StabilizationMode.OFF);
+                break;
+            case ON:
+                config.insertOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                        StabilizationMode.UNSPECIFIED);
+                config.insertOption(OPTION_VIDEO_STABILIZATION_MODE, StabilizationMode.ON);
+                // Will result to video stabilization overall as per the CameraX impl. and API docs
+                break;
+            case PREVIEW:
+                config.insertOption(OPTION_PREVIEW_STABILIZATION_MODE, StabilizationMode.ON);
+                config.insertOption(OPTION_VIDEO_STABILIZATION_MODE,
+                        StabilizationMode.UNSPECIFIED);
+                // Will result to preview stabilization overall as per the CameraX impl. and API
+                // docs
+                break;
+        }
+    }
+
+    /**
+     * Returns a set of supported dynamic ranges supported by this use case for the given camera.
+     *
+     * <p> A dynamic range not supported by the camera should never be supported by the use case.
+     * Furthermore, use cases may not support some dynamic ranges even if they are supported by the
+     * camera.
+     *
+     * <p> Returning a null value represents that this use case does not specify which dynamic
+     * ranges it supports and doesn't have any constraint for dynamic ranges.
+     *
+     * @param cameraInfo The {@link CameraInfoInternal} instance of a camera.
+     * @return A set of supported dynamic ranges, or {@code null} if this use case doesn't have any
+     * constraint about what dynamic ranges it can support.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @Nullable Set<@NonNull DynamicRange> getSupportedDynamicRanges(
+            @NonNull CameraInfoInternal cameraInfo) {
+        return null;
     }
 
     enum State {

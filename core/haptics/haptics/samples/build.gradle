@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -30,7 +30,7 @@ android {
 }
 androidx {
     name = "AndroidX Core Haptics Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2023"
     description = "Samples for the AndroidX Core Haptics Libraries"
 }

@@ -104,7 +104,7 @@ class MeasurementManagerTest {
     fun testDeleteRegistrationsOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -121,7 +121,7 @@ class MeasurementManagerTest {
             .deleteRegistrations(
                 any<android.adservices.measurement.DeletionRequest>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, java.lang.Exception>>()
+                any<OutcomeReceiver<Any, java.lang.Exception>>(),
             )
 
         // Actually invoke the compat code.
@@ -133,7 +133,7 @@ class MeasurementManagerTest {
                     Instant.now(),
                     Instant.now(),
                     listOf(uri1),
-                    listOf(uri1)
+                    listOf(uri1),
                 )
 
             managerCompat!!.deleteRegistrations(request)
@@ -146,7 +146,7 @@ class MeasurementManagerTest {
             .deleteRegistrations(
                 captor.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, java.lang.Exception>>()
+                any<OutcomeReceiver<Any, java.lang.Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -158,7 +158,7 @@ class MeasurementManagerTest {
     fun testRegisterSourceOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -176,7 +176,7 @@ class MeasurementManagerTest {
                 any<Uri>(),
                 any<InputEvent>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Actually invoke the compat code.
@@ -190,7 +190,7 @@ class MeasurementManagerTest {
                 captor1.capture(),
                 captor2.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -203,7 +203,7 @@ class MeasurementManagerTest {
     fun testRegisterTriggerOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -226,7 +226,7 @@ class MeasurementManagerTest {
             .registerTrigger(
                 captor1.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -238,7 +238,7 @@ class MeasurementManagerTest {
     fun testRegisterWebSourceOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -253,7 +253,7 @@ class MeasurementManagerTest {
             .registerWebSource(
                 any<android.adservices.measurement.WebSourceRegistrationRequest>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         val request =
@@ -273,7 +273,7 @@ class MeasurementManagerTest {
             .registerWebSource(
                 captor1.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -291,7 +291,7 @@ class MeasurementManagerTest {
     fun testRegisterSource_allSuccessOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -309,7 +309,7 @@ class MeasurementManagerTest {
                 any<Uri>(),
                 any<InputEvent>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         val request = SourceRegistrationRequest(listOf(uri1, uri2), mockInputEvent)
@@ -323,7 +323,7 @@ class MeasurementManagerTest {
                 any(),
                 eq(mockInputEvent),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
     }
 
@@ -333,7 +333,7 @@ class MeasurementManagerTest {
     fun testRegisterSource_15thOf20Fails_remaining5DoNotExecuteOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -363,7 +363,7 @@ class MeasurementManagerTest {
                                 eq(uri),
                                 any<InputEvent>(),
                                 any<Executor>(),
-                                any<OutcomeReceiver<Any, Exception>>()
+                                any<OutcomeReceiver<Any, Exception>>(),
                             )
                     } else {
                         doAnswer(successCallback)
@@ -372,7 +372,7 @@ class MeasurementManagerTest {
                                 eq(uri),
                                 any<InputEvent>(),
                                 any<Executor>(),
-                                any<OutcomeReceiver<Any, Exception>>()
+                                any<OutcomeReceiver<Any, Exception>>(),
                             )
                     }
                     uri
@@ -398,7 +398,7 @@ class MeasurementManagerTest {
                     eq(Uri.parse("www.uri$i.com")),
                     eq(mockInputEvent),
                     any<Executor>(),
-                    any<OutcomeReceiver<Any, Exception>>()
+                    any<OutcomeReceiver<Any, Exception>>(),
                 )
         }
         (16..20).forEach { i ->
@@ -407,7 +407,7 @@ class MeasurementManagerTest {
                     eq(Uri.parse("www.uri$i.com")),
                     eq(mockInputEvent),
                     any<Executor>(),
-                    any<OutcomeReceiver<Any, Exception>>()
+                    any<OutcomeReceiver<Any, Exception>>(),
                 )
         }
     }
@@ -417,7 +417,7 @@ class MeasurementManagerTest {
     fun testRegisterWebTriggerOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -432,7 +432,7 @@ class MeasurementManagerTest {
             .registerWebTrigger(
                 any<android.adservices.measurement.WebTriggerRegistrationRequest>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         val request = WebTriggerRegistrationRequest(listOf(WebTriggerParams(uri1, false)), uri2)
@@ -449,7 +449,7 @@ class MeasurementManagerTest {
             .registerWebTrigger(
                 captor1.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -465,14 +465,14 @@ class MeasurementManagerTest {
     fun testMeasurementApiStatusOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
         callAndVerifyGetMeasurementApiStatusOnSPlus(
             measurementManager,
             /* state= */ MeasurementManager.MEASUREMENT_API_STATE_ENABLED,
-            /* expectedResult= */ MeasurementManager.MEASUREMENT_API_STATE_ENABLED
+            /* expectedResult= */ MeasurementManager.MEASUREMENT_API_STATE_ENABLED,
         )
     }
 
@@ -481,7 +481,7 @@ class MeasurementManagerTest {
     fun testMeasurementApiStatusUnknownOnSPlus() {
         Assume.assumeTrue(
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS
+            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersionS,
         )
 
         val measurementManager = mockMeasurementManager(mContext, mValidAdExtServicesSdkExtVersionS)
@@ -491,7 +491,7 @@ class MeasurementManagerTest {
         callAndVerifyGetMeasurementApiStatusOnSPlus(
             measurementManager,
             /* state= */ 6,
-            /* expectedResult= */ 5
+            /* expectedResult= */ 5,
         )
     }
 
@@ -506,7 +506,7 @@ class MeasurementManagerTest {
 
         private fun mockMeasurementManager(
             spyContext: Context,
-            isExtServices: Boolean
+            isExtServices: Boolean,
         ): MeasurementManager {
             val measurementManager = mock(MeasurementManager::class.java)
             `when`(spyContext.getSystemService(MeasurementManager::class.java))
@@ -521,7 +521,7 @@ class MeasurementManagerTest {
         private fun callAndVerifyGetMeasurementApiStatusOnSPlus(
             measurementManager: android.adservices.measurement.MeasurementManager,
             state: Int,
-            expectedResult: Int
+            expectedResult: Int,
         ) {
             val managerCompat = obtain(mContext)
             val answer = { args: InvocationOnMock ->

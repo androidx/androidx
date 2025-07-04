@@ -24,14 +24,10 @@ import org.mockito.junit.MockitoRule;
 
 @RunWith(AndroidJUnit4.class)
 public class TouchDelegateCompositeTest {
-    @Rule
-    public final MockitoRule mocks = MockitoJUnit.rule();
-    @Mock
-    private TouchDelegate touchDelegate1;
-    @Mock
-    private TouchDelegate touchDelegate2;
-    @Mock
-    private TouchDelegate touchDelegate3;
+    @Rule public final MockitoRule mocks = MockitoJUnit.rule();
+    @Mock private TouchDelegate touchDelegate1;
+    @Mock private TouchDelegate touchDelegate2;
+    @Mock private TouchDelegate touchDelegate3;
 
     private TouchDelegateComposite underTest;
     private TouchDelegateComposite delegateComposite2;
@@ -114,7 +110,7 @@ public class TouchDelegateCompositeTest {
         underTest.mergeFrom(delegateComposite2);
 
         // Touch down event with point inside both extended bound, and closer to view 1's actual
-      // bound.
+        // bound.
         MotionEvent event1 = obtainMotionEvent(MotionEvent.ACTION_DOWN, 9.f, 1.f);
         underTest.onTouchEvent(event1);
 
@@ -122,7 +118,7 @@ public class TouchDelegateCompositeTest {
         verify(touchDelegate2, never()).onTouchEvent(event1);
 
         // Touch down event with point inside both extended bound, and closer to view 2's actual
-      // bound.
+        // bound.
         MotionEvent event2 = obtainMotionEvent(MotionEvent.ACTION_DOWN, 11.f, 11.f);
         underTest.onTouchEvent(event2);
 

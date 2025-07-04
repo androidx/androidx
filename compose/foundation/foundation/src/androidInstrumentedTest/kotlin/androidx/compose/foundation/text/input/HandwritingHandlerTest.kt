@@ -58,7 +58,7 @@ internal class HandwritingHandlerTest {
             val state = remember { TextFieldState() }
             BasicTextField(
                 state = state,
-                modifier = Modifier.fillMaxSize().handwritingHandler().testTag(tag)
+                modifier = Modifier.fillMaxSize().handwritingHandler().testTag(tag),
             )
         }
 

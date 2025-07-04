@@ -71,7 +71,7 @@ class ActionCallbackBroadcastReceiverTest {
             ActionCallbackBroadcastReceiver.createIntent(
                     translationContext = translationContext,
                     callbackClass = ActionCallback::class.java,
-                    parameters = parameters
+                    parameters = parameters,
                 )
                 .apply {
                     data =

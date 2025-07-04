@@ -50,7 +50,7 @@ gradlePlugin {
 
 androidx {
     name = "Benchmarks - Darwin Gradle Plugin"
-    type = LibraryType.INTERNAL_GRADLE_PLUGIN
+    type = SoftwareType.INTERNAL_GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Gradle Plugin"
 }

@@ -179,7 +179,7 @@ class MultiMeasureCompositionTest {
     @Composable
     inline fun MaxWrapContentWithMultiMeasure(
         modifier: Modifier = Modifier,
-        crossinline content: @Composable () -> Unit
+        crossinline content: @Composable () -> Unit,
     ) {
         val compTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
         val compSource = remember {
@@ -199,13 +199,13 @@ class MultiMeasureCompositionTest {
                     compSource.value = CompositionSource.Content
                 }
                 content()
-            }
+            },
         )
     }
 
     fun maxWidthPolicy(
         compTracker: State<Unit>,
-        compSource: Ref<CompositionSource>
+        compSource: Ref<CompositionSource>,
     ): MeasurePolicy = MeasurePolicy { measurables, constraints ->
         // This state read will force the MeasurePolicy to re-run whenever the content
         // recomposes, even if our Composable didn't
@@ -251,6 +251,6 @@ class MultiMeasureCompositionTest {
     enum class CompositionSource {
         Unknown,
         Caller,
-        Content
+        Content,
     }
 }

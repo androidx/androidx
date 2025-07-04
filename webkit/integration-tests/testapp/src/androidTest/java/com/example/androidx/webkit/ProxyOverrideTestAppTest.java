@@ -19,6 +19,7 @@ package com.example.androidx.webkit;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.webkit.WebViewFeature;
 
 import org.junit.Before;
@@ -41,6 +42,7 @@ public class ProxyOverrideTestAppTest {
         WebkitTestHelpers.assumeFeature(WebViewFeature.PROXY_OVERRIDE);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427267254
     @Test
     public void testProxyOverride() {
         WebkitTestHelpers.clickMenuListItemWithString(R.string.proxy_override_activity_title);
@@ -56,6 +58,7 @@ public class ProxyOverrideTestAppTest {
                                 R.string.proxy_override_requests_served, 1);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427267254
     @Test
     public void testReverseBypass() {
         WebkitTestHelpers.assumeFeature(WebViewFeature.PROXY_OVERRIDE_REVERSE_BYPASS);

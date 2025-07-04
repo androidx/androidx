@@ -26,7 +26,7 @@ import com.android.build.api.artifact.SingleArtifact
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 android {
     compileSdk = 35
@@ -65,8 +65,8 @@ dependencies {
 
     // These projects are not used directly but added to baseline-prof.txt to increase number of
     // methods, in order to have dex opt to run.
-    implementation(project(":core:core"))
-    implementation(project(":core:core-ktx"))
+    implementation("androidx.core:core:1.15.0")
+    implementation("androidx.core:core-ktx:1.15.0")
 }
 
 // Define a configuration that can be consumed, as this project is a provider of test apks for

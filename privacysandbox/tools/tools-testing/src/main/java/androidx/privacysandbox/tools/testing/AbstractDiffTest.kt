@@ -40,10 +40,7 @@ abstract class AbstractDiffTest {
      * @param inputSources List of input sources read from the test-data directory with
      *   [subdirectoryName].
      */
-    abstract fun generateSources(
-        inputSources: List<Source>,
-        outputDirectory: Path,
-    ): List<Source>
+    abstract fun generateSources(inputSources: List<Source>, outputDirectory: Path): List<Source>
 
     protected val generatedSources: List<Source> by lazy {
         val inputSources =
@@ -76,14 +73,18 @@ abstract class AbstractDiffTest {
                     expectedSourcesPath +
                     "/" +
                     expectedKotlinSource.relativePath
-            Truth.assertWithMessage(
-                    "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
-                        "match golden.\n" +
-                        "Approval command:\n" +
-                        "cp $outputFilePath $goldenPath"
-                )
-                .that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
-                .isEqualTo(expectedKotlinSource.contents)
+            if (System.getProperty("update_golden_files")?.toBoolean() == true) {
+                File(outputFilePath).copyTo(File(goldenPath), overwrite = true)
+            } else {
+                Truth.assertWithMessage(
+                        "Contents of generated file ${expectedKotlinSource.relativePath} don't " +
+                            "match golden.\n" +
+                            "Approval command:\n" +
+                            "cp $outputFilePath $goldenPath"
+                    )
+                    .that(actualRelativePathMap[expectedKotlinSource.relativePath]?.contents)
+                    .isEqualTo(expectedKotlinSource.contents)
+            }
         }
     }
 

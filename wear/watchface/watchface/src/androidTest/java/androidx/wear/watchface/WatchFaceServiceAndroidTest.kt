@@ -58,25 +58,25 @@ class WatchFaceServiceAndroidTest {
                                     UserStyleSetting.ListUserStyleSetting.ListOption.Builder(
                                             UserStyleSetting.Option.Id("red_style"),
                                             "Red",
-                                            "Red watchface style"
+                                            "Red watchface style",
                                         )
                                         .setIcon {
                                             Icon.createWithResource(
                                                 context,
                                                 androidx.wear.watchface.test.R.drawable
-                                                    .example_icon_24
+                                                    .example_icon_24,
                                             )
                                         }
                                         .build()
                                 ),
                                 listOf(WatchFaceLayer.BASE),
                                 "displayName",
-                                "description"
+                                "description",
                             )
                             .setIcon {
                                 Icon.createWithResource(
                                     context,
-                                    androidx.wear.watchface.test.R.drawable.example_icon_24
+                                    androidx.wear.watchface.test.R.drawable.example_icon_24,
                                 )
                             }
                             .build()

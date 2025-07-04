@@ -46,7 +46,7 @@ import androidx.compose.ui.input.key.type
  */
 internal actual fun Modifier.interceptDPadAndMoveFocus(
     state: LegacyTextFieldState,
-    focusManager: FocusManager
+    focusManager: FocusManager,
 ): Modifier {
     return this.onPreviewKeyEvent { keyEvent ->
         val device = keyEvent.nativeKeyEvent.device

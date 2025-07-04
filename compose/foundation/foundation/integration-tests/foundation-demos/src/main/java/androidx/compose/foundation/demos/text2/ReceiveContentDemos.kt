@@ -138,15 +138,15 @@ fun TextFieldReceiveContentDemo() {
                             dragging -> MaterialTheme.colors.primary.copy(alpha = 0.7f)
                             else -> MaterialTheme.colors.background
                         },
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
                 ),
-        verticalArrangement = Arrangement.Bottom
+        verticalArrangement = Arrangement.Bottom,
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
             Text(
                 if (dragging) "Drop it anywhere" else "Chat messages should appear here...",
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -157,7 +157,7 @@ fun TextFieldReceiveContentDemo() {
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
                         modifier =
-                            Modifier.fillMaxSize().padding(4.dp).clip(RoundedCornerShape(4.dp))
+                            Modifier.fillMaxSize().padding(4.dp).clip(RoundedCornerShape(4.dp)),
                     )
                     Icon(
                         Icons.Default.Clear,
@@ -167,7 +167,7 @@ fun TextFieldReceiveContentDemo() {
                                 .align(Alignment.TopEnd)
                                 .background(MaterialTheme.colors.background, CircleShape)
                                 .clip(CircleShape)
-                                .clickable { images = images.filterNot { it == imageBitmap } }
+                                .clickable { images = images.filterNot { it == imageBitmap } },
                     )
                 }
             }
@@ -175,7 +175,7 @@ fun TextFieldReceiveContentDemo() {
         BasicTextField(
             state = rememberTextFieldState(),
             modifier = demoTextFieldModifiers,
-            textStyle = LocalTextStyle.current
+            textStyle = LocalTextStyle.current,
         )
     }
 }
@@ -190,7 +190,7 @@ fun NestedReceiveContentDemo() {
         var descriptionToggle by remember { mutableStateOf(false) }
         Text(
             if (descriptionToggle) Description else "Click to see the description...",
-            Modifier.padding(8.dp).clickable { descriptionToggle = !descriptionToggle }
+            Modifier.padding(8.dp).clickable { descriptionToggle = !descriptionToggle },
         )
         Spacer(Modifier.height(8.dp))
         ReceiveContentShowcase(
@@ -199,7 +199,7 @@ fun NestedReceiveContentDemo() {
                 // consume everything here
                 null
             },
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            modifier = Modifier.verticalScroll(rememberScrollState()),
         ) {
             val coroutineScope = rememberCoroutineScope()
             var images by remember { mutableStateOf<List<ImageBitmap>>(emptyList()) }
@@ -227,7 +227,7 @@ fun NestedReceiveContentDemo() {
                             }
                     }
                 },
-                onClear = { images = emptyList() }
+                onClear = { images = emptyList() },
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     images.forEach { Image(it, contentDescription = null, Modifier.size(100.dp)) }
@@ -240,12 +240,12 @@ fun NestedReceiveContentDemo() {
                             // only consume if it has text in it.
                             !text.isNullOrBlank() && item.uri == null
                         }
-                    }
+                    },
                 ) {
                     BasicTextField(
                         state = state,
                         modifier = demoTextFieldModifiers,
-                        textStyle = LocalTextStyle.current
+                        textStyle = LocalTextStyle.current,
                     )
                 }
             }
@@ -263,7 +263,7 @@ private fun ReceiveContentShowcase(
     onReceive: (TransferableContent) -> TransferableContent?,
     modifier: Modifier = Modifier,
     onClear: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val transferableContentState = remember { mutableStateOf<TransferableContent?>(null) }
     val receiveContentState = remember {
@@ -284,28 +284,28 @@ private fun ReceiveContentShowcase(
                     MaterialTheme.colors.secondary
                 } else {
                     MaterialTheme.colors.surface
-                }
+                },
         ) {
             Column(
                 modifier = Modifier.padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 val transferableContent = transferableContentState.value
                 if (transferableContent == null) {
                     Text(
                         "$title - Hasn't received anything yet!",
-                        style = MaterialTheme.typography.h6
+                        style = MaterialTheme.typography.h6,
                     )
                 } else {
                     Text("$title - Summary", style = MaterialTheme.typography.h6)
                     KeyValueEntry(
                         "Item count",
-                        "${transferableContent.clipEntry.clipData.itemCount}"
+                        "${transferableContent.clipEntry.clipData.itemCount}",
                     )
                     KeyValueEntry("Source", "${transferableContent.source}")
                     KeyValueEntry(
                         "linkUri",
-                        "${transferableContent.platformTransferableContent?.linkUri}"
+                        "${transferableContent.platformTransferableContent?.linkUri}",
                     )
 
                     Text("Items", style = MaterialTheme.typography.h6)
@@ -399,7 +399,7 @@ fun Modifier.dropReceiveContent(state: ReceiveContentState) = composed {
                 } else {
                     MaterialTheme.colors.surface
                 },
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
         )
 }
 

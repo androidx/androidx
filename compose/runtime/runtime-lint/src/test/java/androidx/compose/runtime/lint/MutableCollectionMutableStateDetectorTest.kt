@@ -453,7 +453,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         2ofv7fFz/ECjSWvep3zdWYQvg7sZ3MvgA3xIU3yUwcf4ZBHMxBo+pY82Ex0m
         PrN/URPdJjpNLjxgS46Z6Ddx3J6ftZ9pE6MmLpq4Yr+Om5gwMWMi+y/NlFaM
         0g4AAA==
-        """
+        """,
         )
 
     /**
@@ -872,7 +872,7 @@ class MutableCollectionMutableStateDetectorTest : LintDetectorTest() {
         p00gnT5IJ+7hgc/URy6Y5gVzzGMqxmHWoTfXf8xDCXnWIXzrjp/hOxoXSccg
         Es1FhHKo5PBJDhZsmsLJoYpVUrDxKdYWIdvosfHQ/bXbOGCj10afjUOuZNDG
         CRvD7jxr4yJN/gX455r+Zw0AAA==
-        """
+        """,
         )
 
     private val GuavaImmutableCollectionStub =
@@ -900,7 +900,7 @@ IBD4fdd5J2ot/zYkSBmOg4ayvJK9Elq9DjMM0cI+EcxKZeSD72rZr38bu5Vq
 jXC+p3yVL2/LwNfCtHxVb2hxVpT/nZ2vl1mRldtUM4a0sr5v5J0apE623Hwz
 EKNzJOQUHUO2MXrkFsU9qs5CDUyu3sHeQntKMQ6fA2mfcIQDzAIe/gDETvg4
 fAEAAA==
-"""
+""",
         )
 
     private val GuavaImmutableSetStub =
@@ -929,7 +929,7 @@ yRlS8oHBXDa9GY4J2Wz0ktk1GQqWcANbhVPiXZudi7+wVn3QSUw0Sdsi7P3/
 qCSUxSfNYb0fz/FtoFsynDr8SkQPUVlu4TzSZ46wSvPBsEbDEkWaEdqrdNqn
 yChmT2dgz5QwrNOei4s5FLCBGl2JpMdIx1X9FdpdtTDDyvsvvYbN2GCL1jzb
 xk4cd78A40f24qoCAAA=
-"""
+""",
         )
 
     @Test
@@ -972,7 +972,7 @@ xk4cd78A40f24qoCAAA=
             """
                 ),
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1056,7 +1056,7 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
             """
                 ),
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1103,7 +1103,7 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
             """
                 ),
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1162,7 +1162,7 @@ src/test/test.kt:31: Warning: Creating a MutableState object with a mutable coll
             """
                 ),
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1274,7 +1274,7 @@ src/test/test.kt:43: Warning: Creating a MutableState object with a mutable coll
             """
                 ),
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1364,7 +1364,7 @@ src/test/test.kt:38: Warning: Creating a MutableState object with a mutable coll
                 ),
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                KotlinMutableCollectionExtensions.kotlin
+                KotlinMutableCollectionExtensions.kotlin,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1458,7 +1458,7 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
                 Stubs.Composable,
-                KotlinMutableCollectionExtensions.bytecode
+                KotlinMutableCollectionExtensions.bytecode,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1557,7 +1557,7 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
             """
                 ),
                 Stubs.SnapshotState,
-                Stubs.StateFactoryMarker
+                Stubs.StateFactoryMarker,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1598,7 +1598,7 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 ),
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
-                KotlinImmutableCollectionExtensions.kotlin
+                KotlinImmutableCollectionExtensions.kotlin,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1640,7 +1640,7 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 Stubs.SnapshotState,
                 Stubs.StateFactoryMarker,
                 Stubs.Composable,
-                KotlinImmutableCollectionExtensions.bytecode
+                KotlinImmutableCollectionExtensions.bytecode,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -1694,7 +1694,7 @@ src/test/test.kt:25: Warning: Creating a MutableState object with a mutable coll
                 Stubs.StateFactoryMarker,
                 Stubs.Composable,
                 GuavaImmutableCollectionStub,
-                GuavaImmutableSetStub
+                GuavaImmutableSetStub,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()

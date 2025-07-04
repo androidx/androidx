@@ -164,7 +164,7 @@ class WearCompositionTranslatorTest {
                                     start = 1.dp,
                                     top = 2.dp,
                                     end = 3.dp,
-                                    bottom = 4.dp
+                                    bottom = 4.dp,
                                 )
                         ) {}
                     }
@@ -191,14 +191,14 @@ class WearCompositionTranslatorTest {
                             modifier =
                                 GlanceModifier.border(
                                     width = 3.dp,
-                                    color = ColorProvider(color = Color.Blue)
+                                    color = ColorProvider(color = Color.Blue),
                                 )
                         ) {}
                         Box(
                             modifier =
                                 GlanceModifier.border(
                                     width = R.dimen.dimension1,
-                                    color = ColorProvider(color = Color.Red)
+                                    color = ColorProvider(color = Color.Red),
                                 )
                         ) {}
                     }
@@ -287,7 +287,7 @@ class WearCompositionTranslatorTest {
                                 curvedModifier =
                                     GlanceCurvedModifier.semantics({
                                         contentDescription = "test_description"
-                                    })
+                                    }),
                             )
                         }
                     }
@@ -348,7 +348,7 @@ class WearCompositionTranslatorTest {
                             modifier =
                                 GlanceModifier.fillMaxWidth()
                                     .height(100.dp)
-                                    .background(Color(0x11223344))
+                                    .background(Color(0x11223344)),
                         ) {}
                     }
                     .layout
@@ -428,7 +428,7 @@ class WearCompositionTranslatorTest {
                             modifier =
                                 GlanceModifier.fillMaxHeight()
                                     .width(100.dp)
-                                    .background(Color(0x11223344))
+                                    .background(Color(0x11223344)),
                         ) {}
                     }
                     .layout
@@ -476,7 +476,7 @@ class WearCompositionTranslatorTest {
                                 fontWeight = FontWeight.Bold,
                                 fontStyle = FontStyle.Italic,
                                 textDecoration = TextDecoration.Underline,
-                                textAlign = TextAlign.End
+                                textAlign = TextAlign.End,
                             )
                         Text("Hello World", modifier = GlanceModifier.padding(1.dp), style = style)
                     }
@@ -506,7 +506,7 @@ class WearCompositionTranslatorTest {
                         Text(
                             "Hello World",
                             modifier = GlanceModifier.size(100.dp).padding(10.dp),
-                            style = TextStyle(textAlign = TextAlign.End)
+                            style = TextStyle(textAlign = TextAlign.End),
                         )
                     }
                     .layout
@@ -544,7 +544,7 @@ class WearCompositionTranslatorTest {
                             anchorDegrees = 20f,
                             radialAlignment = RadialAlignment.Inner,
                             anchorType = AnchorType.End,
-                            modifier = GlanceModifier.padding(20.dp)
+                            modifier = GlanceModifier.padding(20.dp),
                         ) {}
                     }
                     .layout
@@ -573,7 +573,7 @@ class WearCompositionTranslatorTest {
                             anchorDegrees = 20f,
                             radialAlignment = RadialAlignment.Inner,
                             anchorType = AnchorType.End,
-                            modifier = GlanceModifier.padding(20.dp).size(10.dp)
+                            modifier = GlanceModifier.padding(20.dp).size(10.dp),
                         ) {}
                     }
                     .layout
@@ -640,7 +640,7 @@ class WearCompositionTranslatorTest {
                             curvedLine(
                                 color = ColorProvider(Color(0x11223344)),
                                 curvedModifier =
-                                    GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp)
+                                    GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp),
                             )
                         }
                     }
@@ -694,14 +694,14 @@ class WearCompositionTranslatorTest {
                                 curvedModifier =
                                     GlanceCurvedModifier.clickable(
                                         actionStartActivity(TestActivity::class.java)
-                                    )
+                                    ),
                             )
                             curvedLine(
                                 color = ColorProvider(Color(0x11223344)),
                                 curvedModifier =
                                     GlanceCurvedModifier.sweepAngleDegrees(60f)
                                         .thickness(10.dp)
-                                        .clickable(actionRunCallback<TestCallback>())
+                                        .clickable(actionRunCallback<TestCallback>()),
                             )
                         }
                     }
@@ -772,7 +772,7 @@ class WearCompositionTranslatorTest {
                                 GlanceModifier.clickable(
                                     actionStartActivity(TestActivity::class.java)
                                 ),
-                            text = "Hello World"
+                            text = "Hello World",
                         )
                     }
                     .layout
@@ -807,7 +807,7 @@ class WearCompositionTranslatorTest {
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontStyle = FontStyle.Italic,
-                                textDecoration = TextDecoration.Underline
+                                textDecoration = TextDecoration.Underline,
                             )
                         Button(
                             "Hello World",
@@ -816,9 +816,9 @@ class WearCompositionTranslatorTest {
                             colors =
                                 ButtonDefaults.buttonColors(
                                     backgroundColor = ColorProvider(Color.Black),
-                                    contentColor = ColorProvider(Color.Magenta)
+                                    contentColor = ColorProvider(Color.Magenta),
                                 ),
-                            style = style
+                            style = style,
                         )
                     }
                     .layout
@@ -889,13 +889,13 @@ class WearCompositionTranslatorTest {
                     provider = ImageProvider(R.drawable.oval),
                     contentDescription = "Oval",
                     modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.FillBounds,
                 )
                 Image(
                     provider = ImageProvider(bitmap),
                     contentDescription = "OvalBitmap",
                     modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
             }
             val content = compositionResult.layout
@@ -965,7 +965,7 @@ class WearCompositionTranslatorTest {
                     provider = ImageProvider(R.drawable.oval),
                     contentDescription = null,
                     modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
-                    colorFilter = ColorFilter.tint(ColorProvider(Color.Gray))
+                    colorFilter = ColorFilter.tint(ColorProvider(Color.Gray)),
                 )
             }
 
@@ -986,7 +986,7 @@ class WearCompositionTranslatorTest {
                     provider = ImageProvider(R.drawable.oval),
                     contentDescription = null,
                     modifier = GlanceModifier.width(R.dimen.dimension1).height(R.dimen.dimension2),
-                    colorFilter = ColorFilter.tint(ColorProvider(R.color.color1))
+                    colorFilter = ColorFilter.tint(ColorProvider(R.color.color1)),
                 )
             }
 

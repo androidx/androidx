@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.remote.core.operations.utilities;
+
+import org.jspecify.annotations.Nullable;
+
+/**
+ * interface to allow expressions to access collections TODO: define a convention for when access is
+ * unavailable
+ */
+public interface CollectionsAccess {
+
+    /**
+     * Get the float value in the array at the given index
+     *
+     * @param id the id of the float array
+     * @param index the index of the value
+     * @return float value
+     */
+    float getFloatValue(int id, int index);
+
+    /**
+     * Get the array of float if it is a float array
+     *
+     * @param id the id of the float array
+     * @return float array
+     */
+    float @Nullable [] getFloats(int id);
+
+    /**
+     * Get the number of entries in the list
+     *
+     * @param id the id of the list
+     * @return int value
+     */
+    int getListLength(int id);
+
+    /**
+     * get the id of an entry if the list is a list of id's
+     *
+     * @param listId the list id
+     * @param index the index into the list
+     * @return id of the entry
+     */
+    int getId(int listId, int index);
+
+    /**
+     * Get the value as an integer
+     *
+     * @param listId the list id to access
+     * @param index the index into the list
+     * @return value (as an integer)
+     */
+    default int getIntValue(int listId, int index) {
+        return (int) getFloatValue(listId, index);
+    }
+}

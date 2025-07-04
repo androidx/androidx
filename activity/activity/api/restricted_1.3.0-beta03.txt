@@ -16,8 +16,8 @@ package androidx.activity {
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
     method public android.content.Context? peekAvailableContext();
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
@@ -107,8 +107,8 @@ package androidx.activity.result {
     method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
     method public final void onRestoreInstanceState(android.os.Bundle?);
     method public final void onSaveInstanceState(android.os.Bundle);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
   }
 
   public interface ActivityResultRegistryOwner {
@@ -126,8 +126,8 @@ package androidx.activity.result {
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
     ctor public IntentSenderRequest.Builder(android.app.PendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender);
     method public androidx.activity.result.IntentSenderRequest build();
     method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent?);
     method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int, int);

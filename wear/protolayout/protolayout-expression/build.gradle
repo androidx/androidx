@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,7 +45,6 @@ dependencies {
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinTest)
     testImplementation(project(":wear:protolayout:protolayout-expression-pipeline"))
 }
@@ -63,7 +62,8 @@ android {
 
 androidx {
     name = "ProtoLayout Expression"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Create dynamic expressions (for late evaluation by a remote evaluator)."
+    enableRobolectric()
 }

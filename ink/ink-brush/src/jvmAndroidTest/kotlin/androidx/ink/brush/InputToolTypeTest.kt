@@ -33,7 +33,7 @@ class InputToolTypeTest {
                 InputToolType.UNKNOWN,
                 InputToolType.MOUSE,
                 InputToolType.STYLUS,
-                InputToolType.TOUCH
+                InputToolType.TOUCH,
             )
         assertThat(set).hasSize(4)
     }

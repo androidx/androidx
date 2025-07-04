@@ -78,26 +78,26 @@ fun CurvedWorldDemo() {
         curvedComposable {
             Column(
                 modifier = Modifier.background(Color.Gray).padding(3.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = "A",
                     color = Color.Black,
                     fontSize = 16.sp,
-                    modifier = Modifier.background(Color.Blue)
+                    modifier = Modifier.background(Color.Blue),
                 )
                 Row {
                     Text(
                         text = "B",
                         color = Color.Black,
                         fontSize = 16.sp,
-                        modifier = Modifier.background(Color.Green).padding(2.dp)
+                        modifier = Modifier.background(Color.Green).padding(2.dp),
                     )
                     Text(
                         text = "C",
                         color = Color.Black,
                         fontSize = 16.sp,
-                        modifier = Modifier.background(Color.Red)
+                        modifier = Modifier.background(Color.Red),
                     )
                 }
             }
@@ -107,28 +107,28 @@ fun CurvedWorldDemo() {
     CurvedLayout(
         anchor = 90F,
         anchorType = AnchorType.Start,
-        angularDirection = CurvedDirection.Angular.Reversed
+        angularDirection = CurvedDirection.Angular.Reversed,
     ) {
         curvedComposable {
             Text(
                 text = "Start",
                 color = Color.Black,
                 fontSize = 30.sp,
-                modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+                modifier = Modifier.background(Color.White).padding(horizontal = 10.dp),
             )
         }
     }
     CurvedLayout(
         anchor = 90F,
         anchorType = AnchorType.End,
-        angularDirection = CurvedDirection.Angular.Reversed
+        angularDirection = CurvedDirection.Angular.Reversed,
     ) {
         curvedComposable {
             Text(
                 text = "End",
                 color = Color.Black,
                 fontSize = 30.sp,
-                modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+                modifier = Modifier.background(Color.White).padding(horizontal = 10.dp),
             )
         }
     }
@@ -136,7 +136,7 @@ fun CurvedWorldDemo() {
         modifier = Modifier.padding(50.dp),
         anchor = 90f,
         anchorType = AnchorType.Center,
-        angularDirection = CurvedDirection.Angular.Reversed
+        angularDirection = CurvedDirection.Angular.Reversed,
     ) {
         listOf("A", "B", "C").forEach {
             curvedComposable {
@@ -144,7 +144,7 @@ fun CurvedWorldDemo() {
                     text = "$it",
                     color = Color.Black,
                     fontSize = 30.sp,
-                    modifier = Modifier.background(Color.White).padding(horizontal = 10.dp)
+                    modifier = Modifier.background(Color.White).padding(horizontal = 10.dp),
                 )
             }
         }
@@ -219,7 +219,7 @@ fun CurvedEllipsis() {
             curvedText(
                 "This text too long to actually fit in the provided space",
                 modifier = CurvedModifier.weight(1f),
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
             curvedText("10:00")
         }
@@ -236,7 +236,7 @@ fun CurvedLayoutDirection() {
                 Text("LayoutDirection: ")
                 ToggleButton(
                     checked = layoutDirection,
-                    onCheckedChange = { layoutDirection = !layoutDirection }
+                    onCheckedChange = { layoutDirection = !layoutDirection },
                 ) {
                     Text(if (layoutDirection) "Rtl" else "Ltr")
                 }
@@ -246,7 +246,7 @@ fun CurvedLayoutDirection() {
                     anchor = listOf(270f, 90f)[topDown],
                     angularDirection =
                         listOf(CurvedDirection.Angular.Normal, CurvedDirection.Angular.Reversed)[
-                            topDown]
+                            topDown],
                 ) {
                     curvedRow(CurvedModifier.background(Color.White)) {
                         basicCurvedText(
@@ -260,7 +260,7 @@ fun CurvedLayoutDirection() {
                                 Text(
                                     "after",
                                     modifier = Modifier.padding(4.dp),
-                                    color = Color.Black
+                                    color = Color.Black,
                                 )
                             }
                             basicCurvedText(
@@ -277,14 +277,11 @@ fun CurvedLayoutDirection() {
 
 @Composable
 fun CurvedBoxDemo() {
-    CurvedLayout(
-        modifier = Modifier.fillMaxSize(),
-        anchor = 90f,
-    ) {
+    CurvedLayout(modifier = Modifier.fillMaxSize(), anchor = 90f) {
         curvedBox(
             modifier = CurvedModifier.background(Color.Red),
             radialAlignment = CurvedAlignment.Radial.Inner,
-            angularAlignment = CurvedAlignment.Angular.End
+            angularAlignment = CurvedAlignment.Angular.End,
         ) {
             curvedComposable {
                 Box(modifier = Modifier.width(60.dp).height(40.dp).background(Color.Green))
@@ -292,10 +289,7 @@ fun CurvedBoxDemo() {
             curvedComposable { WhiteCircle() }
         }
     }
-    CurvedLayout(
-        modifier = Modifier.fillMaxSize(),
-        anchor = 180f,
-    ) {
+    CurvedLayout(modifier = Modifier.fillMaxSize(), anchor = 180f) {
         curvedBox(modifier = CurvedModifier.background(Color.Red)) {
             curvedComposable { Box(modifier = Modifier.size(60.dp).background(Color.Green)) }
             curvedComposable { WhiteCircle() }
@@ -305,7 +299,7 @@ fun CurvedBoxDemo() {
         curvedBox(
             modifier = CurvedModifier.background(Color.Red),
             radialAlignment = CurvedAlignment.Radial.Outer,
-            angularAlignment = CurvedAlignment.Angular.Start
+            angularAlignment = CurvedAlignment.Angular.Start,
         ) {
             curvedComposable {
                 Box(modifier = Modifier.width(40.dp).height(60.dp).background(Color.Green))
@@ -340,14 +334,14 @@ fun CurvedIconsDemo() {
         CurvedLayout(
             modifier = Modifier.fillMaxSize(),
             anchor = 90f,
-            angularDirection = CurvedDirection.Angular.CounterClockwise
+            angularDirection = CurvedDirection.Angular.CounterClockwise,
         ) {
             curvedComposable(rotationLocked = true) { Text("Foo", color = Color.White) }
             listOf(R.drawable.ic_skip_previous, R.drawable.ic_play, R.drawable.ic_skip_next)
                 .forEach {
                     curvedComposable(
                         modifier = CurvedModifier.angularSize(40f),
-                        rotationLocked = true
+                        rotationLocked = true,
                     ) {
                         SampleIcon(it)
                     }
@@ -379,9 +373,13 @@ fun CurvedSpacingEmDemo() {
                 }
                 basicCurvedText(
                     "| $spacing em |",
-                    style = style.copy(letterSpacing = spacing.em),
+                    style =
+                        style.copy(
+                            letterSpacing = spacing.em,
+                            letterSpacingCounterClockwise = spacing.em,
+                        ),
                     modifier =
-                        CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
+                        CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray),
                 )
             }
         }
@@ -405,9 +403,13 @@ fun CurvedSpacingSpDemo() {
                 }
                 basicCurvedText(
                     "| $spacing sp |",
-                    style = style.copy(letterSpacing = spacing.sp),
+                    style =
+                        style.copy(
+                            letterSpacing = spacing.sp,
+                            letterSpacingCounterClockwise = spacing.sp,
+                        ),
                     modifier =
-                        CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
+                        CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray),
                 )
             }
         }

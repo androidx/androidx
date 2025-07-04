@@ -9,12 +9,12 @@ package androidx.wear.watchface.complications {
     method public android.graphics.drawable.Icon getIcon();
     method public String getName();
     method public androidx.wear.watchface.complications.data.ComplicationType getType();
-    property public final String appName;
-    property public final android.content.ComponentName? componentName;
-    property public final androidx.wear.watchface.complications.data.ComplicationData fallbackPreviewData;
-    property public final android.graphics.drawable.Icon icon;
-    property public final String name;
-    property public final androidx.wear.watchface.complications.data.ComplicationType type;
+    property public String appName;
+    property public android.content.ComponentName? componentName;
+    property public androidx.wear.watchface.complications.data.ComplicationData fallbackPreviewData;
+    property public android.graphics.drawable.Icon icon;
+    property public String name;
+    property public androidx.wear.watchface.complications.data.ComplicationType type;
   }
 
   public final class ComplicationDataSourceInfoRetriever implements java.lang.AutoCloseable {
@@ -27,8 +27,8 @@ package androidx.wear.watchface.complications {
   public static final class ComplicationDataSourceInfoRetriever.Result {
     method public androidx.wear.watchface.complications.ComplicationDataSourceInfo? getInfo();
     method public int getSlotId();
-    property public final androidx.wear.watchface.complications.ComplicationDataSourceInfo? info;
-    property public final int slotId;
+    property public androidx.wear.watchface.complications.ComplicationDataSourceInfo? info;
+    property public int slotId;
   }
 
   public static final class ComplicationDataSourceInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {
@@ -42,8 +42,8 @@ package androidx.wear.watchface.complications {
     ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds, java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeMargins);
     method public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
     method public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeMargins();
-    property public final java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
-    property public final java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeMargins;
+    property public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
+    property public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeMargins;
     field public static final androidx.wear.watchface.complications.ComplicationSlotBounds.Companion Companion;
   }
 
@@ -65,12 +65,12 @@ package androidx.wear.watchface.complications {
     method public int getSystemDataSourceFallback();
     method public androidx.wear.watchface.complications.data.ComplicationType getSystemDataSourceFallbackDefaultType();
     method public boolean isEmpty();
-    property public final android.content.ComponentName? primaryDataSource;
-    property public final androidx.wear.watchface.complications.data.ComplicationType? primaryDataSourceDefaultType;
-    property public final android.content.ComponentName? secondaryDataSource;
-    property public final androidx.wear.watchface.complications.data.ComplicationType? secondaryDataSourceDefaultType;
-    property public final int systemDataSourceFallback;
-    property public final androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType;
+    property public android.content.ComponentName? primaryDataSource;
+    property public androidx.wear.watchface.complications.data.ComplicationType? primaryDataSourceDefaultType;
+    property public android.content.ComponentName? secondaryDataSource;
+    property public androidx.wear.watchface.complications.data.ComplicationType? secondaryDataSourceDefaultType;
+    property public int systemDataSourceFallback;
+    property public androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType;
     field public static final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.Companion Companion;
   }
 
@@ -96,20 +96,20 @@ package androidx.wear.watchface.complications {
   }
 
   public static final class SystemDataSources.Companion {
-    property public static final int DATA_SOURCE_APP_SHORTCUT;
-    property public static final int DATA_SOURCE_DATE;
-    property public static final int DATA_SOURCE_DAY_AND_DATE;
-    property public static final int DATA_SOURCE_DAY_OF_WEEK;
-    property public static final int DATA_SOURCE_FAVORITE_CONTACT;
-    property @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static final int DATA_SOURCE_HEART_RATE;
-    property public static final int DATA_SOURCE_NEXT_EVENT;
-    property public static final int DATA_SOURCE_STEP_COUNT;
-    property public static final int DATA_SOURCE_SUNRISE_SUNSET;
-    property public static final int DATA_SOURCE_TIME_AND_DATE;
-    property public static final int DATA_SOURCE_UNREAD_NOTIFICATION_COUNT;
-    property public static final int DATA_SOURCE_WATCH_BATTERY;
-    property public static final int DATA_SOURCE_WORLD_CLOCK;
-    property public static final int NO_DATA_SOURCE;
+    property public static int DATA_SOURCE_APP_SHORTCUT;
+    property public static int DATA_SOURCE_DATE;
+    property public static int DATA_SOURCE_DAY_AND_DATE;
+    property public static int DATA_SOURCE_DAY_OF_WEEK;
+    property public static int DATA_SOURCE_FAVORITE_CONTACT;
+    property @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static int DATA_SOURCE_HEART_RATE;
+    property public static int DATA_SOURCE_NEXT_EVENT;
+    property public static int DATA_SOURCE_STEP_COUNT;
+    property public static int DATA_SOURCE_SUNRISE_SUNSET;
+    property public static int DATA_SOURCE_TIME_AND_DATE;
+    property public static int DATA_SOURCE_UNREAD_NOTIFICATION_COUNT;
+    property public static int DATA_SOURCE_WATCH_BATTERY;
+    property public static int DATA_SOURCE_WORLD_CLOCK;
+    property public static int NO_DATA_SOURCE;
   }
 
 }

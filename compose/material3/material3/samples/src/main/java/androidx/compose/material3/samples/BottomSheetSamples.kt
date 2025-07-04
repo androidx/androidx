@@ -79,13 +79,13 @@ fun ModalBottomSheetSample() {
     // App content
     Column(
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Row(
             Modifier.toggleable(
                 value = skipPartiallyExpanded,
                 role = Role.Checkbox,
-                onValueChange = { checked -> skipPartiallyExpanded = checked }
+                onValueChange = { checked -> skipPartiallyExpanded = checked },
             )
         ) {
             Checkbox(checked = skipPartiallyExpanded, onCheckedChange = null)
@@ -94,7 +94,7 @@ fun ModalBottomSheetSample() {
         }
         Button(
             onClick = { openBottomSheet = !openBottomSheet },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         ) {
             Text(text = "Show Bottom Sheet")
         }
@@ -129,7 +129,7 @@ fun ModalBottomSheetSample() {
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.padding(horizontal = 16.dp),
-                label = { Text("Text field") }
+                label = { Text("Text field") },
             )
             LazyColumn {
                 items(25) {
@@ -138,7 +138,7 @@ fun ModalBottomSheetSample() {
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,
-                                contentDescription = "Localized description"
+                                contentDescription = "Localized description",
                             )
                         },
                         colors =
@@ -171,16 +171,16 @@ fun SimpleBottomSheetScaffoldSample() {
                 Text("Sheet content")
                 Button(
                     modifier = Modifier.padding(bottom = 64.dp),
-                    onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } }
+                    onClick = { scope.launch { scaffoldState.bottomSheetState.partialExpand() } },
                 ) {
                     Text("Click to collapse sheet")
                 }
             }
-        }
+        },
     ) { innerPadding ->
         Box(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text("Scaffold Content")
         }
@@ -197,7 +197,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
             Color(0xFFffe9d6.toInt()),
             Color(0xFFfffbd0.toInt()),
             Color(0xFFe3ffd9.toInt()),
-            Color(0xFFd0fff8.toInt())
+            Color(0xFFd0fff8.toInt()),
         )
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -213,7 +213,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
                         leadingContent = {
                             Icon(
                                 Icons.Default.Favorite,
-                                contentDescription = "Localized description"
+                                contentDescription = "Localized description",
                             )
                         },
                         colors =
@@ -234,7 +234,7 @@ fun BottomSheetScaffoldNestedScrollSample() {
                         Icon(Icons.Default.Menu, contentDescription = "Localized description")
                     }
                 },
-                scrollBehavior = scrollBehavior
+                scrollBehavior = scrollBehavior,
             )
         },
     ) { innerPadding ->

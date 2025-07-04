@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
+import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.gestures.util.FakeHapticFeedback
 import androidx.compose.foundation.text.selection.gestures.util.mouseDragNodeBy
@@ -60,7 +64,6 @@ import org.junit.Rule
 const val RtlChar = "\u05D1"
 
 internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
-
     @get:Rule val rule = createComposeRule()
 
     protected abstract val pointerAreaTag: String
@@ -76,26 +79,42 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
     protected val density = Density(1f)
 
     protected lateinit var textToolbar: TextToolbar
+    protected var spyTextActionModeCallback: SpyTextActionModeCallback? = null
 
     @Composable abstract fun Content()
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Before
     fun setup() {
         rule.setTextFieldTestContent {
-            textToolbar = LocalTextToolbar.current
-            CompositionLocalProvider(
-                LocalDensity provides density,
-                LocalViewConfiguration provides
-                    TestViewConfiguration(
-                        minimumTouchTargetSize = DpSize.Zero,
-                        touchSlop = 0.1f, // less than 1, not too close to 0
-                    ),
-                LocalHapticFeedback provides hapticFeedback,
-            ) {
-                Box(modifier = Modifier.padding(32.dp).fillMaxSize().wrapContentSize()) {
-                    Content()
+            if (ComposeFoundationFlags.isNewContextMenuEnabled) {
+                val spyTextActionModeCallback =
+                    SpyTextActionModeCallback().also { spyTextActionModeCallback = it }
+
+                ProvidePlatformTextContextMenuToolbar(
+                    callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
+                ) {
+                    InnerContent()
                 }
+            } else {
+                InnerContent()
             }
+        }
+    }
+
+    @Composable
+    private fun InnerContent() {
+        textToolbar = LocalTextToolbar.current
+        CompositionLocalProvider(
+            LocalDensity provides density,
+            LocalViewConfiguration provides
+                TestViewConfiguration(
+                    minimumTouchTargetSize = DpSize.Zero,
+                    touchSlop = 0.1f, // less than 1, not too close to 0
+                ),
+            LocalHapticFeedback provides hapticFeedback,
+        ) {
+            Box(modifier = Modifier.padding(32.dp).fillMaxSize().wrapContentSize()) { Content() }
         }
     }
 
@@ -144,13 +163,13 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
     protected enum class VerticalDirection {
         UP,
         DOWN,
-        CENTER
+        CENTER,
     }
 
     protected enum class HorizontalDirection {
         START,
         END,
-        CENTER
+        CENTER,
     }
 
     // nudge 2f since we start 1f inwards from the edges and want to ensure we move over them if
@@ -158,11 +177,7 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
     protected fun Offset.nudge(
         xDirection: HorizontalDirection = HorizontalDirection.CENTER,
         yDirection: VerticalDirection = VerticalDirection.CENTER,
-    ): Offset =
-        Offset(
-            x = x.adjustHorizontal(xDirection, 2f),
-            y = y.adjustVertical(yDirection, 2f),
-        )
+    ): Offset = Offset(x = x.adjustHorizontal(xDirection, 2f), y = y.adjustVertical(yDirection, 2f))
 
     private fun Float.adjustVertical(direction: VerticalDirection, diff: Float): Float =
         this +
@@ -186,7 +201,6 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
         when (this) {
             ResolvedTextDirection.Ltr -> ltr
             ResolvedTextDirection.Rtl -> rtl
-            else -> throw AssertionError("Unrecognized text direction $textDirection")
         }
 
     // TODO(b/281584353) When touch mode can be changed globally,
@@ -217,10 +231,7 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
         rule.waitForIdle()
     }
 
-    protected fun touchDragTo(
-        position: Offset,
-        durationMillis: Long = 200L,
-    ) {
+    protected fun touchDragTo(position: Offset, durationMillis: Long = 200L) {
         rule.onNodeWithTag(pointerAreaTag).touchDragNodeTo(position, durationMillis)
         rule.waitForIdle()
     }
@@ -230,10 +241,7 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
         rule.waitForIdle()
     }
 
-    protected fun mouseDragTo(
-        position: Offset,
-        durationMillis: Long = 200L,
-    ) {
+    protected fun mouseDragTo(position: Offset, durationMillis: Long = 200L) {
         rule.onNodeWithTag(pointerAreaTag).mouseDragNodeTo(position, durationMillis)
         rule.waitForIdle()
     }

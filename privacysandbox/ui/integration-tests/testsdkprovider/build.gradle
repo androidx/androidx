@@ -21,7 +21,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     compileSdkExtension = 14
     namespace = "androidx.privacysandbox.ui.integration.testsdkprovider"
 
@@ -34,13 +34,22 @@ android {
     privacySandbox {
         enable = true
     }
+
+    experimentalProperties["android.privacySandboxSdk.apiGenerator"] =
+            project.dependencies.create(project(":privacysandbox:tools:tools-apigenerator"))
+    experimentalProperties["android.privacySandboxSdk.apiGenerator.generatedRuntimeDependencies"] =
+            [libs.kotlinStdlib.get(),
+             libs.kotlinCoroutinesAndroid.get(),
+             libs.kotlinCoroutinesCore.get(),
+             project.dependencies.create(project(":privacysandbox:ui:ui-core")),
+             project.dependencies.create(project(":privacysandbox:ui:ui-client"))
+            ]
 }
 
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     implementation(project(":privacysandbox:sdkruntime:sdkruntime-provider"))
-    implementation(project(":privacysandbox:ui:integration-tests:testaidl"))
     implementation(project(":privacysandbox:ui:integration-tests:sdkproviderutils"))
     implementation(project(":privacysandbox:ui:ui-provider"))
     implementation(project(":webkit:webkit"))
@@ -48,8 +57,8 @@ dependencies {
 
     // Add library dependencies at head - to override the dependencies that will be added by
     // privacysandboxplugin.
-    implementation(project(':privacysandbox:tools:tools'))
     ksp(project(':privacysandbox:tools:tools-apicompiler'))
+    implementation(project(':privacysandbox:tools:tools'))
     implementation(project(":privacysandbox:ui:ui-core"))
     implementation(project(':privacysandbox:activity:activity-core'))
     implementation(project(':privacysandbox:activity:activity-provider'))

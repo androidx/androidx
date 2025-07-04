@@ -29,11 +29,11 @@ interface XProcessingStep {
     @Deprecated(
         message = "We're combining processOver() and this process() overload.",
         replaceWith = ReplaceWith("process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun process(
         env: XProcessingEnv,
-        elementsByAnnotation: Map<String, Set<XElement>>
+        elementsByAnnotation: Map<String, Set<XElement>>,
     ): Set<XElement> = emptySet()
 
     /**
@@ -48,7 +48,7 @@ interface XProcessingStep {
     fun process(
         env: XProcessingEnv,
         elementsByAnnotation: Map<String, Set<XElement>>,
-        isLastRound: Boolean
+        isLastRound: Boolean,
     ): Set<XElement> =
         if (isLastRound) {
             processOver(env, elementsByAnnotation)
@@ -68,7 +68,7 @@ interface XProcessingStep {
     @Deprecated(
         message = "We're combining processOver() and the original process().",
         replaceWith = ReplaceWith("process(XProcessingEnv, Map<String, Set<XElement>>, Boolean)"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun processOver(env: XProcessingEnv, elementsByAnnotation: Map<String, Set<XElement>>) {}
 

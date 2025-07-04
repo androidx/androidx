@@ -51,7 +51,7 @@ class RecordingInputConnectionUpdateTextFieldValueTest {
             RecordingInputConnection(
                 initState = TextFieldValue("", TextRange.Zero),
                 eventCallback = mCallback,
-                autoCorrect = true
+                autoCorrect = true,
             )
     }
 

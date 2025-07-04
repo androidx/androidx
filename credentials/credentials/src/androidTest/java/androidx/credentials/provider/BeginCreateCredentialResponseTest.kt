@@ -44,7 +44,7 @@ class BeginCreateCredentialResponseTest {
     fun constructor_success() {
         BeginCreateCredentialResponse(
             createEntries = listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
-            remoteEntry = constructRemoteEntryDefault()
+            remoteEntry = constructRemoteEntryDefault(),
         )
     }
 
@@ -71,7 +71,7 @@ class BeginCreateCredentialResponseTest {
                 listOf(
                     constructCreateEntryWithSimpleParams(expectedAccountName, expectedDescription)
                 ),
-                null
+                null,
             )
         val actualAccountName = beginCreateCredentialResponse.createEntries[0].accountName
         val actualDescription = beginCreateCredentialResponse.createEntries[0].description
@@ -87,7 +87,7 @@ class BeginCreateCredentialResponseTest {
         val beginCreateCredentialResponse =
             BeginCreateCredentialResponse(
                 listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
-                expectedRemoteEntry
+                expectedRemoteEntry,
             )
         val actualRemoteEntry = beginCreateCredentialResponse.remoteEntry
 
@@ -101,7 +101,7 @@ class BeginCreateCredentialResponseTest {
         val beginCreateCredentialResponse =
             BeginCreateCredentialResponse(
                 listOf(constructCreateEntryWithSimpleParams("AccountName", "Desc")),
-                expectedRemoteEntry
+                expectedRemoteEntry,
             )
         val actualRemoteEntry = beginCreateCredentialResponse.remoteEntry
 
@@ -114,7 +114,7 @@ class BeginCreateCredentialResponseTest {
         val expected =
             BeginCreateCredentialResponse(
                 createEntries = listOf(constructCreateEntryWithSimpleParams("AccountName", null)),
-                remoteEntry = constructRemoteEntryDefault()
+                remoteEntry = constructRemoteEntryDefault(),
             )
 
         val actual =
@@ -139,7 +139,7 @@ class BeginCreateCredentialResponseTest {
                                 context,
                                 0,
                                 Intent(),
-                                PendingIntent.FLAG_IMMUTABLE
+                                PendingIntent.FLAG_IMMUTABLE,
                             ),
                             "Desc",
                             if (Build.VERSION.SDK_INT >= 26) Instant.now() else null,
@@ -155,7 +155,7 @@ class BeginCreateCredentialResponseTest {
                                 context,
                                 0,
                                 Intent(),
-                                PendingIntent.FLAG_IMMUTABLE
+                                PendingIntent.FLAG_IMMUTABLE,
                             ),
                             "Desc...",
                             if (Build.VERSION.SDK_INT >= 26) Instant.now() else null,
@@ -163,9 +163,9 @@ class BeginCreateCredentialResponseTest {
                             10,
                             null,
                             null,
-                        )
+                        ),
                     ),
-                remoteEntry = null
+                remoteEntry = null,
             )
 
         val actual =

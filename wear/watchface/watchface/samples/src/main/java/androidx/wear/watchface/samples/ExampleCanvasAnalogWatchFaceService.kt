@@ -86,7 +86,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                             Option.Id(RED_STYLE),
                             resources,
                             R.string.colors_style_red,
-                            R.string.colors_style_red_screen_reader
+                            R.string.colors_style_red_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
                         .build(),
@@ -94,7 +94,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                             Option.Id(GREEN_STYLE),
                             resources,
                             R.string.colors_style_green,
-                            R.string.colors_style_green_screen_reader
+                            R.string.colors_style_green_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
                         .build(),
@@ -102,19 +102,19 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                             Option.Id(BLUE_STYLE),
                             resources,
                             R.string.colors_style_blue,
-                            R.string.colors_style_blue_screen_reader
+                            R.string.colors_style_blue_screen_reader,
                         )
                         .setIcon { Icon.createWithResource(this, R.drawable.blue_style) }
-                        .build()
+                        .build(),
                 ),
                 listOf(
                     WatchFaceLayer.BASE,
                     WatchFaceLayer.COMPLICATIONS,
-                    WatchFaceLayer.COMPLICATIONS_OVERLAY
+                    WatchFaceLayer.COMPLICATIONS_OVERLAY,
                 ),
                 resources,
                 R.string.colors_style_setting,
-                R.string.colors_style_setting_description
+                R.string.colors_style_setting_description,
             )
             .build()
     }
@@ -126,7 +126,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                 true,
                 resources,
                 R.string.watchface_pips_setting,
-                R.string.watchface_pips_setting_description
+                R.string.watchface_pips_setting_description,
             )
             .build()
     }
@@ -140,7 +140,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                 listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                 resources,
                 R.string.watchface_hand_length_setting,
-                R.string.watchface_hand_length_setting_description
+                R.string.watchface_hand_length_setting_description,
             )
             .build()
     }
@@ -158,7 +158,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                             listOf(),
                             resources,
                             R.string.watchface_complications_setting_both,
-                            R.string.watchface_complications_setting_both
+                            R.string.watchface_complications_setting_both,
                         )
                         .build(),
                     ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
@@ -173,11 +173,11 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                                         EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
                                     )
                                     .setEnabled(false)
-                                    .build()
+                                    .build(),
                             ),
                             resources,
                             R.string.watchface_complications_setting_none,
-                            R.string.watchface_complications_setting_none
+                            R.string.watchface_complications_setting_none,
                         )
                         .build(),
                     ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
@@ -191,7 +191,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                             ),
                             resources,
                             R.string.watchface_complications_setting_left,
-                            R.string.watchface_complications_setting_left
+                            R.string.watchface_complications_setting_left,
                         )
                         .build(),
                     ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
@@ -205,14 +205,14 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                             ),
                             resources,
                             R.string.watchface_complications_setting_right,
-                            R.string.watchface_complications_setting_right
+                            R.string.watchface_complications_setting_right,
                         )
-                        .build()
+                        .build(),
                 ),
                 listOf(WatchFaceLayer.COMPLICATIONS),
                 resources,
                 R.string.watchface_complications_setting,
-                R.string.watchface_complications_setting_description
+                R.string.watchface_complications_setting_description,
             )
             .build()
     }
@@ -226,7 +226,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                 listOf(WatchFaceLayer.BASE),
                 resources,
                 R.string.watchface_draw_hours_freq_setting,
-                R.string.watchface_draw_hours_freq_setting_description
+                R.string.watchface_draw_hours_freq_setting_description,
             )
             .build()
     }
@@ -238,7 +238,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                 drawHourPipsStyleSetting,
                 watchHandLengthStyleSetting,
                 complicationsStyleSetting,
-                hoursDrawFreqStyleSetting
+                hoursDrawFreqStyleSetting,
             )
         )
 
@@ -248,29 +248,29 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
             UserStyle(
                 mapOf(
                     colorStyleSetting to colorStyleSetting.getOptionForId(Option.Id(BLUE_STYLE)),
-                    watchHandLengthStyleSetting to DoubleRangeOption(1.0)
+                    watchHandLengthStyleSetting to DoubleRangeOption(1.0),
                 )
             ),
             mapOf(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                     DefaultComplicationDataSourcePolicy(
                         SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
-                        ComplicationType.SHORT_TEXT
+                        ComplicationType.SHORT_TEXT,
                     ),
                 EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
                     DefaultComplicationDataSourcePolicy(
                         ComponentName(CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE),
                         ComplicationType.SHORT_TEXT,
                         SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
-                        ComplicationType.SHORT_TEXT
-                    )
-            )
+                        ComplicationType.SHORT_TEXT,
+                    ),
+            ),
         )
     }
 
     public override fun createUserStyleFlavors(
         currentUserStyleRepository: CurrentUserStyleRepository,
-        complicationSlotsManager: ComplicationSlotsManager
+        complicationSlotsManager: ComplicationSlotsManager,
     ) = UserStyleFlavors(listOf(exampleFlavor))
 
     @OptIn(ComplicationExperimental::class)
@@ -281,7 +281,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
             CanvasComplicationDrawable(
                 watchFaceStyle.getDrawable(this@ExampleCanvasAnalogWatchFaceService)!!,
                 watchState,
-                listener
+                listener,
             )
         }
         val leftComplication =
@@ -295,7 +295,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                         ComplicationType.LONG_TEXT,
                         ComplicationType.SHORT_TEXT,
                         ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
+                        ComplicationType.SMALL_IMAGE,
                     ),
                     // try to use the configurable data source sample, then default to system data
                     // source
@@ -303,9 +303,9 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                         ComponentName(CONFIGURABLE_DATA_SOURCE_PKG, CONFIGURABLE_DATA_SOURCE),
                         ComplicationType.SHORT_TEXT,
                         SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
-                        ComplicationType.SHORT_TEXT
+                        ComplicationType.SHORT_TEXT,
                     ),
-                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
                 )
                 .setNameResourceId(R.string.left_complication_screen_name)
                 .setScreenReaderNameResourceId(R.string.left_complication_screen_reader_name)
@@ -322,13 +322,13 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                         ComplicationType.LONG_TEXT,
                         ComplicationType.SHORT_TEXT,
                         ComplicationType.MONOCHROMATIC_IMAGE,
-                        ComplicationType.SMALL_IMAGE
+                        ComplicationType.SMALL_IMAGE,
                     ),
                     DefaultComplicationDataSourcePolicy(
                         SystemDataSources.DATA_SOURCE_STEP_COUNT,
-                        ComplicationType.SHORT_TEXT
+                        ComplicationType.SHORT_TEXT,
                     ),
-                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+                    ComplicationSlotBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
                 )
                 .setNameResourceId(R.string.right_complication_screen_name)
                 .setScreenReaderNameResourceId(R.string.right_complication_screen_reader_name)
@@ -336,7 +336,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
 
         return ComplicationSlotsManager(
             listOf(leftComplication, rightComplication),
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
     }
 
@@ -344,7 +344,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
                 WatchFaceType.ANALOG,
@@ -358,8 +358,8 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     drawHourPipsStyleSetting,
                     watchHandLengthStyleSetting,
                     hoursDrawFreqStyleSetting,
-                    complicationSlotsManager
-                )
+                    complicationSlotsManager,
+                ),
             )
             .setComplicationDeniedDialogIntent(Intent(this, ComplicationDeniedActivity::class.java))
             .setComplicationRationaleDialogIntent(
@@ -379,7 +379,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
         private val drawPipsStyleSetting: BooleanUserStyleSetting,
         private val watchHandLengthStyleSettingDouble: DoubleRangeUserStyleSetting,
         private val hoursDrawFreqStyleSetting: LongRangeUserStyleSetting,
-        private val complicationSlotsManager: ComplicationSlotsManager
+        private val complicationSlotsManager: ComplicationSlotsManager,
     ) :
         Renderer.CanvasRenderer(
             surfaceHolder,
@@ -387,7 +387,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
             watchState,
             CanvasType.HARDWARE,
             FRAME_PERIOD_MS,
-            clearWithBackgroundTintBeforeRenderingHighlightLayer = true
+            clearWithBackgroundTintBeforeRenderingHighlightLayer = true,
         ) {
         private val clockHandPaint =
             Paint().apply {
@@ -422,7 +422,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(
                             context,
-                            userStyle[colorStyleSetting]!!.toString()
+                            userStyle[colorStyleSetting]!!.toString(),
                         )
 
                     // Apply the userStyle to the complicationSlots. ComplicationDrawables for each
@@ -441,12 +441,13 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     hoursDrawFreq =
                         (userStyle[hoursDrawFreqStyleSetting]!! as LongRangeOption).value.toInt()
 
-                    watchfaceColors =
+                    setWatchfaceColors(
                         WatchFaceColors(
                             Color.valueOf(watchFaceColorStyle.activeStyle.primaryColor),
                             Color.valueOf(watchFaceColorStyle.activeStyle.secondaryColor),
-                            Color.valueOf(Color.DKGRAY)
+                            Color.valueOf(Color.DKGRAY),
                         )
+                    )
                 }
             }
         }
@@ -485,7 +486,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
         override fun renderHighlightLayer(
             canvas: Canvas,
             bounds: Rect,
-            zonedDateTime: ZonedDateTime
+            zonedDateTime: ZonedDateTime,
         ) {
             for ((_, complication) in complicationSlotsManager.complicationSlots) {
                 if (complication.enabled) {
@@ -498,7 +499,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
             canvas: Canvas,
             bounds: Rect,
             zonedDateTime: ZonedDateTime,
-            style: ColorStyle
+            style: ColorStyle,
         ) {
             recalculateClockHands(bounds)
             val hours = (zonedDateTime.hour % 12).toFloat()
@@ -521,7 +522,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     watchHandScale,
                     watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
                 canvas.rotate(hourRot, bounds.exactCenterX(), bounds.exactCenterY())
                 canvas.drawPath(hourHandBorder, clockHandPaint)
@@ -530,7 +531,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     1.0f / watchHandScale,
                     1.0f / watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
 
                 clockHandPaint.color = style.secondaryColor
@@ -538,7 +539,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     watchHandScale,
                     watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
                 canvas.rotate(minuteRot, bounds.exactCenterX(), bounds.exactCenterY())
                 canvas.drawPath(minuteHandBorder, clockHandPaint)
@@ -547,7 +548,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     1.0f / watchHandScale,
                     1.0f / watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
             } else {
                 clockHandPaint.style = Paint.Style.FILL
@@ -556,7 +557,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     watchHandScale,
                     watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
                 canvas.rotate(hourRot, bounds.exactCenterX(), bounds.exactCenterY())
                 canvas.drawPath(hourHandFill, clockHandPaint)
@@ -565,7 +566,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     1.0f / watchHandScale,
                     1.0f / watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
 
                 clockHandPaint.color = style.secondaryColor
@@ -573,7 +574,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     watchHandScale,
                     watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
                 canvas.rotate(minuteRot, bounds.exactCenterX(), bounds.exactCenterY())
                 canvas.drawPath(minuteHandFill, clockHandPaint)
@@ -582,7 +583,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     1.0f / watchHandScale,
                     1.0f / watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
 
                 val secondsRot = seconds / 60.0f * 360.0f
@@ -592,7 +593,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     watchHandScale,
                     watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
                 canvas.rotate(secondsRot, bounds.exactCenterX(), bounds.exactCenterY())
                 canvas.drawPath(secondHand, clockHandPaint)
@@ -601,7 +602,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     1.0f / watchHandScale,
                     1.0f / watchHandScale,
                     bounds.exactCenterX(),
-                    bounds.exactCenterY()
+                    bounds.exactCenterY(),
                 )
             }
 
@@ -618,7 +619,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     HOUR_HAND_LENGTH_FRACTION,
                     HOUR_HAND_THICKNESS_FRACTION,
                     rx,
-                    ry
+                    ry,
                 )
 
             minuteHandBorder =
@@ -627,7 +628,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     MINUTE_HAND_LENGTH_FRACTION,
                     MINUTE_HAND_THICKNESS_FRACTION,
                     rx,
-                    ry
+                    ry,
                 )
 
             hourHandFill =
@@ -636,7 +637,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     HOUR_HAND_LENGTH_FRACTION,
                     HOUR_HAND_THICKNESS_FRACTION,
                     rx,
-                    ry
+                    ry,
                 )
 
             minuteHandFill =
@@ -645,7 +646,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     MINUTE_HAND_LENGTH_FRACTION,
                     MINUTE_HAND_THICKNESS_FRACTION,
                     rx,
-                    ry
+                    ry,
                 )
 
             secondHand =
@@ -654,7 +655,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     SECOND_HAND_LENGTH_FRACTION,
                     SECOND_HAND_THICKNESS_FRACTION,
                     0.0f,
-                    0.0f
+                    0.0f,
                 )
         }
 
@@ -673,7 +674,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
             length: Float,
             thickness: Float,
             rx: Float,
-            ry: Float
+            ry: Float,
         ): Path {
             val width = bounds.width()
             val cx = bounds.exactCenterX()
@@ -704,7 +705,7 @@ open class ExampleCanvasAnalogWatchFaceService : SampleWatchFaceService() {
                     mark,
                     bounds.exactCenterX() + dx - textBounds.width() / 2.0f,
                     bounds.exactCenterY() + dy + textBounds.height() / 2.0f,
-                    textPaint
+                    textPaint,
                 )
             }
 

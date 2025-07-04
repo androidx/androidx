@@ -134,7 +134,7 @@ internal class BasicTextFieldHandwritingBoundsTest {
                     .fillMaxWidth()
                     // make the size of TextFields equal to padding, so that touch bounds of editors
                     // in the same column/row are overlapping.
-                    .height(HandwritingBoundsVerticalOffset)
+                    .height(HandwritingBoundsVerticalOffset),
         )
     }
 }

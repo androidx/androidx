@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTes
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdateImpl
+import androidx.camera.camera2.pipe.integration.impl.TorchControl.TorchMode
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -69,11 +70,7 @@ class FlashControlTest {
         val dispatcher = executor.asCoroutineDispatcher()
         val cameraScope = CoroutineScope(Job() + dispatcher)
 
-        UseCaseThreads(
-            cameraScope,
-            executor,
-            dispatcher,
-        )
+        UseCaseThreads(cameraScope, executor, dispatcher)
     }
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
     private lateinit var state3AControl: State3AControl
@@ -114,11 +111,9 @@ class FlashControlTest {
         val cameraProperties = FakeCameraProperties(metadata)
 
         state3AControl =
-            State3AControl(
-                    cameraProperties,
-                    NoOpAutoFlashAEModeDisabler,
-                )
-                .apply { requestControl = fakeRequestControl }
+            State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                requestControl = fakeRequestControl
+            }
 
         torchControl =
             TorchControl(cameraProperties, state3AControl, fakeUseCaseThreads).apply {
@@ -149,14 +144,12 @@ class FlashControlTest {
         val flashControl =
             FlashControl(
                 fakeCameraProperties,
-                State3AControl(
-                        fakeCameraProperties,
-                        NoOpAutoFlashAEModeDisabler,
-                    )
-                    .apply { requestControl = fakeRequestControl },
+                State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+                    requestControl = fakeRequestControl
+                },
                 fakeUseCaseThreads,
                 TorchControl(fakeCameraProperties, state3AControl, fakeUseCaseThreads),
-                NotUseFlashModeTorchFor3aUpdate
+                NotUseFlashModeTorchFor3aUpdate,
             )
 
         assertThrows<CameraControl.OperationCanceledException> {
@@ -386,7 +379,7 @@ class FlashControlTest {
 
         flashControl.startScreenFlashCaptureTasks()
 
-        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
+        assertThat(torchControl.torchMode).isEqualTo(TorchMode.USED_AS_FLASH)
     }
 
     @Test
@@ -396,7 +389,7 @@ class FlashControlTest {
 
         flashControl.startScreenFlashCaptureTasks()
 
-        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
+        assertThat(torchControl.torchMode).isEqualTo(TorchMode.USED_AS_FLASH)
     }
 
     @Test

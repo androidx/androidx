@@ -58,6 +58,6 @@ fun <T> T.observeReads(block: () -> Unit) where T : Modifier.Node, T : ObserverM
         .observeReads(
             target = target,
             onChanged = ObserverNodeOwnerScope.OnObserveReadsChanged,
-            block = block
+            block = block,
         )
 }

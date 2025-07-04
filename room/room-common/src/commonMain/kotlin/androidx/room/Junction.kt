@@ -81,5 +81,5 @@ public annotation class Junction(
      *
      * If not specified it defaults to [Relation.entityColumn].
      */
-    val entityColumn: String = ""
+    val entityColumn: String = "",
 )

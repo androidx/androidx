@@ -32,7 +32,7 @@ import java.text.DateFormat
     /** LONG is longer, such as January 12, 1952 or 3:30:32pm. */
     DateFormat.LONG,
     /** FULL is pretty completely specified, such as Tuesday, April 12, 1952 AD or 3:30:42pm PST. */
-    DateFormat.FULL
+    DateFormat.FULL,
 )
 public annotation class DateTimeStyle
 
@@ -44,7 +44,7 @@ public annotation class DateTimeStyle
 public class DateTimeFormatterJdkStyleOptions
 private constructor(
     public val dateStyle: @DateTimeStyle Int,
-    public val timeStyle: @DateTimeStyle Int
+    public val timeStyle: @DateTimeStyle Int,
 ) {
     public companion object {
         /**
@@ -83,7 +83,7 @@ private constructor(
         @JvmStatic
         public fun createDateTimeInstance(
             dateStyle: @DateTimeStyle Int,
-            timeStyle: @DateTimeStyle Int
+            timeStyle: @DateTimeStyle Int,
         ): DateTimeFormatterJdkStyleOptions {
             return DateTimeFormatterJdkStyleOptions(dateStyle, timeStyle)
         }

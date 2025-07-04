@@ -138,10 +138,7 @@ internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWra
 
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun getPrimitivesDurations(
-            vibrator: Vibrator,
-            primitives: IntArray,
-        ): IntArray? {
+        fun getPrimitivesDurations(vibrator: Vibrator, primitives: IntArray): IntArray? {
             return vibrator.getPrimitiveDurations(*primitives)
         }
     }
@@ -170,10 +167,7 @@ internal class VibratorWrapperImpl(private val vibrator: Vibrator) : VibratorWra
 
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
-        fun arePrimitivesSupported(
-            vibrator: Vibrator,
-            primitives: IntArray,
-        ): BooleanArray {
+        fun arePrimitivesSupported(vibrator: Vibrator, primitives: IntArray): BooleanArray {
             return vibrator.arePrimitivesSupported(*primitives).toTypedArray().toBooleanArray()
         }
     }

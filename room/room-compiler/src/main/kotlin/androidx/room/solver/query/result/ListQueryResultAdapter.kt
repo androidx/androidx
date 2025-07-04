@@ -40,14 +40,14 @@ class ListQueryResultAdapter(private val typeArg: XType, private val rowAdapter:
                             assignExpr =
                                 XCodeBlock.ofNewInstance(
                                     ARRAY_LIST.parametrizedBy(typeArg.asTypeName())
-                                )
+                                ),
                         )
                     CodeLanguage.KOTLIN ->
                         addLocalVal(
                             outVarName,
                             listTypeName,
                             "%M()",
-                            KotlinCollectionMemberNames.MUTABLE_LIST_OF
+                            KotlinCollectionMemberNames.MUTABLE_LIST_OF,
                         )
                 }
             }

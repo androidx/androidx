@@ -23,7 +23,6 @@ import androidx.credentials.registry.provider.digitalcredentials.EntryDisplayPro
  * Mdoc entry, a mobile document entry whose format follows
  * [the ISO/IEC 18013-5:2021 specification](https://www.iso.org/standard/69084.html).
  *
- * @constructor
  * @property docType the DocType, e.g. "org.iso.18013.5.1.mDL" for a mobile driving license
  * @property entryDisplayPropertySet a set of entry display metadata, each serving a different UI
  *   style variant
@@ -31,12 +30,13 @@ import androidx.credentials.registry.provider.digitalcredentials.EntryDisplayPro
  *   exact credential that the user has chosen
  * @property fields the given mdoc's individual properties used both for filtering and display
  *   purposes
+ * @constructor
  */
 public class MdocEntry(
     public val docType: String,
     public val fields: List<MdocField>,
     entryDisplayPropertySet: Set<EntryDisplayProperties>,
-    id: String
+    id: String,
 ) : DigitalCredentialEntry(id = id, entryDisplayPropertySet = entryDisplayPropertySet) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

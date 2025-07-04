@@ -81,7 +81,7 @@ class OverlayControllerImplTest {
             initialOverlayAttrs,
             WindowMetrics(Rect(), density = 1f),
             Configuration(),
-            WindowLayoutInfo(emptyList())
+            WindowLayoutInfo(emptyList()),
         )
 
     companion object {
@@ -97,11 +97,11 @@ class OverlayControllerImplTest {
     }
 
     private class TestableOverlayControllerImpl(
-        mockExtension: ActivityEmbeddingComponent = mock<ActivityEmbeddingComponent>(),
+        mockExtension: ActivityEmbeddingComponent = mock<ActivityEmbeddingComponent>()
     ) :
         OverlayControllerImpl(
             mockExtension,
-            EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader()))
+            EmbeddingAdapter(PredicateAdapter(ClassLoader.getSystemClassLoader())),
         ) {
         val overlayTagToAttributesMap = HashMap<String, OverlayAttributes>()
 
@@ -110,7 +110,7 @@ class OverlayControllerImplTest {
 
         override fun updateOverlayAttributes(
             overlayTag: String,
-            overlayAttributes: OverlayAttributes
+            overlayAttributes: OverlayAttributes,
         ) {
             overlayTagToAttributesMap[overlayTag] = overlayAttributes
         }

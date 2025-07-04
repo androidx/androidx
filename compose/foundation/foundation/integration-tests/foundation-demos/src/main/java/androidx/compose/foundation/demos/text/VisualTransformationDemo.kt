@@ -130,7 +130,7 @@ private val emailFilter = VisualTransformation { text ->
     if (text.text.indexOf("@") == -1) {
         TransformedText(
             AnnotatedString(text = text.text + "@gmail.com"),
-            emailOffsetTranslator(text.text)
+            emailOffsetTranslator(text.text),
         )
     } else {
         TransformedText(text, identityTranslator)
@@ -161,7 +161,7 @@ fun VisualTransformationDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
                 onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
-                visualTransformation = CapitalizeTransformation()
+                visualTransformation = CapitalizeTransformation(),
             )
         }
         item {
@@ -169,7 +169,7 @@ fun VisualTransformationDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Ascii,
                 onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
-                visualTransformation = CapitalizeTransformation(LocaleList("tr"))
+                visualTransformation = CapitalizeTransformation(LocaleList("tr")),
             )
         }
         item {
@@ -177,7 +177,7 @@ fun VisualTransformationDemo() {
             VariousEditLine(
                 keyboardType = KeyboardType.Password,
                 onValueChange = { old, new -> if (new.any { !it.isLetterOrDigit() }) old else new },
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
             )
         }
         item {
@@ -187,7 +187,7 @@ fun VisualTransformationDemo() {
                 onValueChange = { old, new ->
                     if (new.length > 10 || new.any { !it.isDigit() }) old else new
                 },
-                visualTransformation = phoneNumberFilter
+                visualTransformation = phoneNumberFilter,
             )
         }
         item {
@@ -204,7 +204,7 @@ fun VisualTransformationDemo() {
                 Text(
                     text = "Hint Text",
                     color = Color(0xFF888888),
-                    style = TextStyle(fontSize = fontSize8)
+                    style = TextStyle(fontSize = fontSize8),
                 )
             }
         }
@@ -220,7 +220,7 @@ private fun VariousEditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Default,
     onValueChange: (String, String) -> String = { _, new -> new },
-    visualTransformation: VisualTransformation
+    visualTransformation: VisualTransformation,
 ) {
     val state = rememberSaveable { mutableStateOf("") }
     BasicTextField(
@@ -233,7 +233,7 @@ private fun VariousEditLine(
             val value = onValueChange(state.value, it)
             state.value = value
         },
-        textStyle = TextStyle(fontSize = fontSize8)
+        textStyle = TextStyle(fontSize = fontSize8),
     )
 }
 
@@ -246,7 +246,7 @@ private fun HintEditText(content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             value = state.value,
             onValueChange = { state.value = it },
-            textStyle = TextStyle(fontSize = fontSize8)
+            textStyle = TextStyle(fontSize = fontSize8),
         )
         if (state.value.isEmpty()) {
             content()
@@ -270,7 +270,7 @@ private fun InteractionSourceTextField() {
             singleLine = true,
             interactionSource = interactionSource,
             onValueChange = { state.value = it },
-            textStyle = TextStyle(fontSize = fontSize8)
+            textStyle = TextStyle(fontSize = fontSize8),
         )
     }
 }

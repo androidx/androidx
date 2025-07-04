@@ -60,7 +60,7 @@ public class StepperTest {
                 steps = 5,
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
 
@@ -74,7 +74,7 @@ public class StepperTest {
             steps = 4,
             initialValue = 4f,
             newValue = 20f,
-            expectedFinalValue = 10f
+            expectedFinalValue = 10f,
         )
 
     @Test
@@ -84,7 +84,7 @@ public class StepperTest {
             steps = 4,
             initialValue = 4f,
             newValue = -20f,
-            expectedFinalValue = 0f
+            expectedFinalValue = 0f,
         )
 
     @Test(expected = IllegalArgumentException::class)
@@ -95,7 +95,7 @@ public class StepperTest {
                 onValueChange = {},
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                steps = -1
+                steps = -1,
             ) {}
         }
     }
@@ -108,7 +108,7 @@ public class StepperTest {
             initialValue = 0f,
             // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
             newValue = 0.6f,
-            expectedFinalValue = 0.6f
+            expectedFinalValue = 0.6f,
         )
 
     @Test
@@ -119,7 +119,7 @@ public class StepperTest {
             initialValue = 0f,
             // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
             newValue = 0.65f,
-            expectedFinalValue = 0.6f
+            expectedFinalValue = 0.6f,
         )
 
     @Test
@@ -130,7 +130,7 @@ public class StepperTest {
             initialValue = 0f,
             // Allowed values are only 0, 0.2, 0.4, 0.6, 0.8, 1
             newValue = 0.55f,
-            expectedFinalValue = 0.6f
+            expectedFinalValue = 0.6f,
         )
 
     @Test
@@ -230,7 +230,7 @@ public class StepperTest {
                     Icon(
                         modifier = Modifier.testTag(iconTag),
                         imageVector = Icons.Default.Star,
-                        contentDescription = ""
+                        contentDescription = "",
                     )
                 },
             ) {}
@@ -260,7 +260,7 @@ public class StepperTest {
                     Icon(
                         modifier = Modifier.testTag(iconTag),
                         imageVector = Icons.Default.Star,
-                        contentDescription = ""
+                        contentDescription = "",
                     )
                 },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
@@ -393,7 +393,7 @@ public class StepperTest {
                 onValueChange = {},
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                enableRangeSemantics = false
+                enableRangeSemantics = false,
             ) {}
         }
         rule.waitForIdle()
@@ -432,7 +432,7 @@ public class StepperTest {
                         actualAlpha = LocalContentAlpha.current
                     }
                 },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
 
@@ -458,7 +458,7 @@ public class IntegerStepperTest {
                 valueProgression = 0..5,
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
 
@@ -474,7 +474,7 @@ public class IntegerStepperTest {
                 valueProgression = 0..10,
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
 
@@ -487,7 +487,7 @@ public class IntegerStepperTest {
             progression = 0..10,
             initialValue = 4,
             newValue = 20,
-            expectedFinalValue = 10
+            expectedFinalValue = 10,
         )
 
     @Test
@@ -496,7 +496,7 @@ public class IntegerStepperTest {
             progression = 0..10,
             initialValue = 4,
             newValue = -20,
-            expectedFinalValue = 0
+            expectedFinalValue = 0,
         )
 
     @Test
@@ -505,7 +505,7 @@ public class IntegerStepperTest {
             progression = IntProgression.fromClosedRange(0, 12, 3),
             initialValue = 0,
             newValue = 3,
-            expectedFinalValue = 3
+            expectedFinalValue = 3,
         )
 
     @Test
@@ -514,7 +514,7 @@ public class IntegerStepperTest {
             progression = IntProgression.fromClosedRange(0, 12, 3),
             initialValue = 0,
             newValue = 4,
-            expectedFinalValue = 3
+            expectedFinalValue = 3,
         )
 
     @Test
@@ -523,7 +523,7 @@ public class IntegerStepperTest {
             progression = IntProgression.fromClosedRange(0, 12, 3),
             initialValue = 0,
             newValue = 5,
-            expectedFinalValue = 6
+            expectedFinalValue = 6,
         )
 
     @Test
@@ -538,7 +538,7 @@ public class IntegerStepperTest {
                 valueProgression = valueProgression,
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {}
         }
         rule.waitForIdle()
@@ -550,7 +550,7 @@ public class IntegerStepperTest {
                 ProgressBarRangeInfo(
                     value.toFloat(),
                     valueProgression.first.toFloat()..valueProgression.last.toFloat(),
-                    valueProgression.stepsNumber()
+                    valueProgression.stepsNumber(),
                 )
             )
     }
@@ -568,7 +568,7 @@ public class IntegerStepperTest {
                 increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
                 modifier = Modifier.testTag(TEST_TAG),
-                enableRangeSemantics = false
+                enableRangeSemantics = false,
             ) {}
         }
         rule.waitForIdle()
@@ -580,7 +580,7 @@ public class IntegerStepperTest {
                 ProgressBarRangeInfo(
                     value.toFloat(),
                     valueProgression.first.toFloat()..valueProgression.last.toFloat(),
-                    valueProgression.stepsNumber()
+                    valueProgression.stepsNumber(),
                 )
             )
     }
@@ -591,7 +591,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     steps: Int,
     initialValue: Float,
     newValue: Float,
-    expectedFinalValue: Float
+    expectedFinalValue: Float,
 ) {
     val state = mutableStateOf(initialValue)
 
@@ -610,7 +610,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
 private fun ComposeContentTestRule.initDefaultStepper(
     state: MutableState<Float>,
     valueRange: ClosedFloatingPointRange<Float>,
-    steps: Int
+    steps: Int,
 ) {
     setContentWithTheme {
         Stepper(
@@ -620,7 +620,7 @@ private fun ComposeContentTestRule.initDefaultStepper(
             steps = steps,
             increaseIcon = { Icon(StepperDefaults.Increase, INCREASE) },
             decreaseIcon = { Icon(StepperDefaults.Decrease, DECREASE) },
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {}
     }
 }
@@ -629,7 +629,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
     progression: IntProgression,
     initialValue: Int,
     newValue: Int,
-    expectedFinalValue: Int
+    expectedFinalValue: Int,
 ) {
     val state = mutableStateOf(initialValue)
 
@@ -641,7 +641,7 @@ private fun ComposeContentTestRule.setNewValueAndCheck(
             ProgressBarRangeInfo(
                 expectedFinalValue.toFloat(),
                 progression.first.toFloat()..progression.last.toFloat(),
-                progression.stepsNumber()
+                progression.stepsNumber(),
             )
         )
 
@@ -662,7 +662,7 @@ private fun ComposeContentTestRule.initDefaultStepper(
             valueProgression = valueProgression,
             increaseIcon = { Icon(StepperDefaults.Increase, "Increase") },
             decreaseIcon = { Icon(StepperDefaults.Decrease, "Decrease") },
-            modifier = Modifier.testTag(TEST_TAG)
+            modifier = Modifier.testTag(TEST_TAG),
         ) {}
     }
 }

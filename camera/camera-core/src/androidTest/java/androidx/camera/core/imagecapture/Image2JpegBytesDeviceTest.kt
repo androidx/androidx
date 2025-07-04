@@ -62,7 +62,7 @@ class Image2JpegBytesDeviceTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 Matrix().also { it.setScale(-1F, 1F, 320F, 240F) },
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.

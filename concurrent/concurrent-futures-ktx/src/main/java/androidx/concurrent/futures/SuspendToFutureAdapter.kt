@@ -96,7 +96,7 @@ public object SuspendToFutureAdapter {
                 context = context,
                 start =
                     if (launchUndispatched) CoroutineStart.UNDISPATCHED else CoroutineStart.DEFAULT,
-                block = block
+                block = block,
             )
         return DeferredFuture(resultDeferred).also { future ->
             // Deferred.getCompleted is marked experimental, so external libraries can't rely on it.
@@ -148,7 +148,7 @@ public object SuspendToFutureAdapter {
                     } else {
                         delegateFuture.setException(it)
                     }
-                }
+                },
             )
         }
     }

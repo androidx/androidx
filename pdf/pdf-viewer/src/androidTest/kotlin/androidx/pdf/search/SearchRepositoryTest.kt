@@ -215,4 +215,19 @@ class SearchRepositoryTest {
             assertTrue(queryResults.value is NoQuery)
         }
     }
+
+    @Test
+    fun test_searchDocument_withRestoreToSelectedIndex() = runTest {
+        val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
+        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+
+        with(SearchRepository(fakePdfDocument)) {
+            produceSearchResults(query = "test", currentVisiblePage = 10, resultIndex = 2)
+
+            val results = queryResults.value as QueryResults.Matched
+            assertEquals(5, results.resultBounds.size())
+            assertEquals(10, results.queryResultsIndex.pageNum)
+            assertEquals(2, results.queryResultsIndex.resultBoundsIndex)
+        }
+    }
 }

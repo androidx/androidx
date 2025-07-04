@@ -1,0 +1,105 @@
+// Baseline format: 1.0
+ChangedType: androidx.wear.watchface.style.UserStyle#compute(androidx.wear.watchface.style.UserStyleSetting, java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.compute has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#computeIfAbsent(androidx.wear.watchface.style.UserStyleSetting, java.util.function.Function<? super androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.computeIfAbsent has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#computeIfPresent(androidx.wear.watchface.style.UserStyleSetting, java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.computeIfPresent has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#entrySet():
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.entrySet has changed return type from java.util.Set<java.util.Map.Entry<K,V>> to java.util.Set<java.util.Map.Entry<androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option>>
+ChangedType: androidx.wear.watchface.style.UserStyle#get(Object):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.get has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#keySet():
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.keySet has changed return type from java.util.Set<K> to java.util.Set<androidx.wear.watchface.style.UserStyleSetting>
+ChangedType: androidx.wear.watchface.style.UserStyle#merge(androidx.wear.watchface.style.UserStyleSetting, androidx.wear.watchface.style.UserStyleSetting.Option, java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting.Option,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.merge has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#put(androidx.wear.watchface.style.UserStyleSetting, androidx.wear.watchface.style.UserStyleSetting.Option):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.put has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#putIfAbsent(androidx.wear.watchface.style.UserStyleSetting, androidx.wear.watchface.style.UserStyleSetting.Option):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.putIfAbsent has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#remove(Object):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.remove has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#replace(androidx.wear.watchface.style.UserStyleSetting, androidx.wear.watchface.style.UserStyleSetting.Option):
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.replace has changed return type from V (extends java.lang.Object) to androidx.wear.watchface.style.UserStyleSetting.Option
+ChangedType: androidx.wear.watchface.style.UserStyle#values():
+    Binary breaking change: Method androidx.wear.watchface.style.UserStyle.values has changed return type from java.util.Collection<V> to java.util.Collection<androidx.wear.watchface.style.UserStyleSetting.Option>
+
+
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#clear():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.clear() can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#compute(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.compute(androidx.wear.watchface.style.UserStyleSetting,java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#computeIfAbsent(K, java.util.function.Function<? super K,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.computeIfAbsent(androidx.wear.watchface.style.UserStyleSetting,java.util.function.Function<? super androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#computeIfPresent(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.computeIfPresent(androidx.wear.watchface.style.UserStyleSetting,java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#containsKey(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.containsKey(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#containsValue(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.containsValue(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#entrySet():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.entrySet() can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#get(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.get(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#keySet():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.keySet() can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#merge(K, V, java.util.function.BiFunction<? super V,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.merge(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option,java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting.Option,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#put(K, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.put(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#putAll(java.util.Map<? extends K,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.putAll(java.util.Map<? extends androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#putIfAbsent(K, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.putIfAbsent(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#remove(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.remove(Object) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#replace(K, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.replace(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#replace(K, V, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.replace(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#replaceAll(java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.replaceAll(java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#size():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.size() can no longer be resolved from Java source
+RemovedFromJava: androidx.wear.watchface.style.UserStyle#values():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.values() can no longer be resolved from Java source
+
+
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#clear():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.clear() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#compute(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.compute(androidx.wear.watchface.style.UserStyleSetting,java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#computeIfAbsent(K, java.util.function.Function<? super K,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.computeIfAbsent(androidx.wear.watchface.style.UserStyleSetting,java.util.function.Function<? super androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#computeIfPresent(K, java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.computeIfPresent(androidx.wear.watchface.style.UserStyleSetting,java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#containsKey(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.containsKey(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#containsValue(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.containsValue(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#entrySet():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.entrySet() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#get(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.get(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#keySet():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.keySet() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#merge(K, V, java.util.function.BiFunction<? super V,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.merge(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option,java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting.Option,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#put(K, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.put(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#putAll(java.util.Map<? extends K,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.putAll(java.util.Map<? extends androidx.wear.watchface.style.UserStyleSetting,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#putIfAbsent(K, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.putIfAbsent(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#remove(Object):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.remove(Object) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#replace(K, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.replace(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#replace(K, V, V):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.replace(androidx.wear.watchface.style.UserStyleSetting,androidx.wear.watchface.style.UserStyleSetting.Option,androidx.wear.watchface.style.UserStyleSetting.Option) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#replaceAll(java.util.function.BiFunction<? super K,? super V,? extends V>):
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.replaceAll(java.util.function.BiFunction<? super androidx.wear.watchface.style.UserStyleSetting,? super androidx.wear.watchface.style.UserStyleSetting.Option,? extends androidx.wear.watchface.style.UserStyleSetting.Option>) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#size():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.size() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.wear.watchface.style.UserStyle#values():
+    Source breaking change: method androidx.wear.watchface.style.UserStyle.values() can no longer be resolved from Kotlin source

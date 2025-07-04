@@ -30,6 +30,7 @@ class OptionsMenuFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407500169
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.example_menu, menu)

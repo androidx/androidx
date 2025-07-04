@@ -99,7 +99,7 @@ class ScaffoldTest {
         rule
             .setMaterialContentForSizeAssertions(
                 parentMaxWidth = 100.dp,
-                parentMaxHeight = 100.dp
+                parentMaxHeight = 100.dp,
             ) {
                 Scaffold { Text("Scaffold body") }
             }
@@ -205,7 +205,7 @@ class ScaffoldTest {
                                 }
                         )
                     },
-                    drawerGesturesEnabled = drawerGesturedEnabledState.value
+                    drawerGesturesEnabled = drawerGesturedEnabledState.value,
                 ) {
                     Box(Modifier.fillMaxWidth().height(50.dp).background(color = Color.Blue))
                 }
@@ -244,7 +244,7 @@ class ScaffoldTest {
                                     drawerChildPosition = positioned.positionInParent()
                                 }
                         )
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxWidth().height(50.dp).background(color = Color.Blue))
                 }
@@ -271,7 +271,7 @@ class ScaffoldTest {
                                 fabSize = positioned.size
                                 fabPosition = positioned.positionInRoot()
                             },
-                        onClick = {}
+                        onClick = {},
                     ) {
                         Icon(Icons.Filled.Favorite, null)
                     }
@@ -284,7 +284,7 @@ class ScaffoldTest {
                             bottomBarPosition = positioned.positionInRoot()
                         }
                     ) {}
-                }
+                },
             ) {
                 Text("body")
             }
@@ -308,7 +308,7 @@ class ScaffoldTest {
                                 fabSize = positioned.size
                                 fabPosition = positioned.positionInRoot()
                             },
-                        onClick = {}
+                        onClick = {},
                     ) {
                         Icon(Icons.Filled.Favorite, null)
                     }
@@ -321,7 +321,7 @@ class ScaffoldTest {
                             bottomBarPosition = positioned.positionInRoot()
                         }
                     ) {}
-                }
+                },
             ) {
                 Text("body")
             }
@@ -349,7 +349,7 @@ class ScaffoldTest {
                                 fabSize = positioned.size
                                 fabPosition = positioned.positionInRoot()
                             },
-                        onClick = {}
+                        onClick = {},
                     ) {
                         Icon(Icons.Filled.Favorite, null)
                     }
@@ -362,7 +362,7 @@ class ScaffoldTest {
                             bottomBarPosition = positioned.positionInRoot()
                         }
                     ) {}
-                }
+                },
             ) {
                 Text("body")
             }
@@ -423,7 +423,7 @@ class ScaffoldTest {
                                 Modifier.onGloballyPositioned { positioned ->
                                     fabSize = positioned.size
                                 },
-                            onClick = {}
+                            onClick = {},
                         ) {
                             Icon(Icons.Filled.Favorite, null)
                         }
@@ -432,7 +432,7 @@ class ScaffoldTest {
             Scaffold(
                 floatingActionButton = fab,
                 floatingActionButtonPosition = FabPosition.End,
-                bottomBar = { fabPlacement = LocalFabPlacement.current }
+                bottomBar = { fabPlacement = LocalFabPlacement.current },
             ) {
                 Text("body")
             }
@@ -466,7 +466,7 @@ class ScaffoldTest {
                                         actualFabSize = positioned.size
                                     }
                                     .testTag(fabTestTag),
-                            onClick = {}
+                            onClick = {},
                         ) {
                             Icon(Icons.Filled.Favorite, null)
                         }
@@ -475,7 +475,7 @@ class ScaffoldTest {
             Scaffold(
                 floatingActionButton = animatedFab,
                 floatingActionButtonPosition = FabPosition.End,
-                bottomBar = { actualFabPlacement = LocalFabPlacement.current }
+                bottomBar = { actualFabPlacement = LocalFabPlacement.current },
             ) {
                 Text("body")
             }
@@ -529,7 +529,7 @@ class ScaffoldTest {
                                 bottomBarSize = positioned.size
                             }
                     )
-                }
+                },
             ) {
                 innerPadding = it
                 Text("body")
@@ -558,12 +558,12 @@ class ScaffoldTest {
                     assertDpIsWithinThreshold(
                         actual = paddingValues.calculateTopPadding(),
                         expected = 5.dp,
-                        threshold = roundingError
+                        threshold = roundingError,
                     )
                     assertDpIsWithinThreshold(
                         actual = paddingValues.calculateBottomPadding(),
                         expected = 5.dp,
-                        threshold = roundingError
+                        threshold = roundingError,
                     )
                     Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
@@ -578,19 +578,19 @@ class ScaffoldTest {
             Box(Modifier.requiredSize(10.dp, 40.dp)) {
                 Scaffold(
                     contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
-                    topBar = { Box(Modifier.requiredSize(0.dp)) }
+                    topBar = { Box(Modifier.requiredSize(0.dp)) },
                 ) { paddingValues ->
                     // top is like the collapsed top app bar (i.e. 0dp) + rounding error
                     assertDpIsWithinThreshold(
                         actual = paddingValues.calculateTopPadding(),
                         expected = 0.dp,
-                        threshold = roundingError
+                        threshold = roundingError,
                     )
                     // bottom is like the insets
                     assertDpIsWithinThreshold(
                         actual = paddingValues.calculateBottomPadding(),
                         expected = 3.dp,
-                        threshold = roundingError
+                        threshold = roundingError,
                     )
                     Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
@@ -605,19 +605,19 @@ class ScaffoldTest {
             Box(Modifier.requiredSize(10.dp, 40.dp)) {
                 Scaffold(
                     contentWindowInsets = WindowInsets(top = 5.dp, bottom = 3.dp),
-                    bottomBar = { Box(Modifier.requiredSize(10.dp)) }
+                    bottomBar = { Box(Modifier.requiredSize(10.dp)) },
                 ) { paddingValues ->
                     // bottom is like bottom app bar + rounding error
                     assertDpIsWithinThreshold(
                         actual = paddingValues.calculateBottomPadding(),
                         expected = 10.dp,
-                        threshold = roundingError
+                        threshold = roundingError,
                     )
                     // top is like the insets
                     assertDpIsWithinThreshold(
                         actual = paddingValues.calculateTopPadding(),
                         expected = 5.dp,
-                        threshold = roundingError
+                        threshold = roundingError,
                     )
                     Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
@@ -644,9 +644,9 @@ class ScaffoldTest {
                                 Modifier.onGloballyPositioned {
                                     snackbarSize = it.size
                                     snackbarPosition = it.positionInRoot()
-                                }
+                                },
                         )
-                    }
+                    },
                 ) {
                     Box(Modifier.requiredSize(10.dp).background(color = Color.White))
                 }
@@ -675,7 +675,7 @@ class ScaffoldTest {
                                 Modifier.onGloballyPositioned {
                                     fabSize = it.size
                                     fabPosition = it.positionInRoot()
-                                }
+                                },
                         ) {
                             Text("Fab")
                         }
@@ -777,7 +777,7 @@ private class TopBarHeightChangingScaffoldTestCase : LayeredComposeTestCase(), T
         Scaffold(
             topBar = {
                 TopAppBar(title = { Text("Title") }, modifier = Modifier.padding(paddingValues))
-            },
+            }
         ) { contentPadding ->
             tracker.compositions++
             Box(Modifier.padding(contentPadding).fillMaxSize())

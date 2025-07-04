@@ -93,7 +93,7 @@ object DataTransformations1D {
                         }
                         else -> nullOrInvalid(STATISTICS_FACES, keyData)
                     }
-                }
+                },
         )
 
     /**

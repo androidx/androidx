@@ -25,7 +25,6 @@ import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING
 import android.telecom.PhoneAccount.CAPABILITY_VIDEO_CALLING
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = VERSION_CODES.O /* api=26 */)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RequiresApi(VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class CallsManagerTest : BaseTelecomTest() {
     private val mTestClassName = "androidx.core.telecom.test"
@@ -121,7 +119,7 @@ class CallsManagerTest : BaseTelecomTest() {
                 assertTrue(
                     Utils.hasCapability(
                         CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS,
-                        account.capabilities
+                        account.capabilities,
                     )
                 )
             } else {
@@ -282,7 +280,7 @@ class CallsManagerTest : BaseTelecomTest() {
                         CallAttributesCompat.DIRECTION_OUTGOING,
                         CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
                         ALL_CALL_CAPABILITIES,
-                        earpieceEndpoint
+                        earpieceEndpoint,
                     ),
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
@@ -326,7 +324,7 @@ class CallsManagerTest : BaseTelecomTest() {
                 Log.i(
                     TAG,
                     "assertStartingCallEndpoint: " +
-                        "endpoints.size=[${initialEndpoints.size}], earpiece=[$earpieceEndpoint]"
+                        "endpoints.size=[${initialEndpoints.size}], earpiece=[$earpieceEndpoint]",
                 )
                 preCallEndpointsScope?.cancel()
             }
@@ -341,7 +339,7 @@ class CallsManagerTest : BaseTelecomTest() {
                 TestUtils.OUTGOING_NAME,
                 TestUtils.TEST_ADDRESS,
                 CallAttributesCompat.DIRECTION_OUTGOING,
-                CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
             )
         ) {
             launch {

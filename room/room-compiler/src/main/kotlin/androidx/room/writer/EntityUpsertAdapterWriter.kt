@@ -27,7 +27,7 @@ private constructor(val tableName: String, val dataClass: DataClass) {
         fun create(entity: ShortcutEntity): EntityUpsertAdapterWriter {
             return EntityUpsertAdapterWriter(
                 tableName = entity.tableName,
-                dataClass = entity.dataClass
+                dataClass = entity.dataClass,
             )
         }
     }
@@ -39,7 +39,7 @@ private constructor(val tableName: String, val dataClass: DataClass) {
         return XCodeBlock.ofNewInstance(
             typeName = upsertAdapter,
             argsFormat = "%L, %L",
-            args = arrayOf(insertHelper, updateHelper)
+            args = arrayOf(insertHelper, updateHelper),
         )
     }
 }

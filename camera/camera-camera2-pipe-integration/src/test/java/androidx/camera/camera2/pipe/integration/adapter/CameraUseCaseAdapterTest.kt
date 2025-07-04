@@ -55,7 +55,7 @@ class CameraUseCaseAdapterTest {
                         MutableOptionsBundle.create().apply {
                             insertOption(
                                 ImageOutputConfig.OPTION_TARGET_ROTATION,
-                                Surface.ROTATION_180
+                                Surface.ROTATION_180,
                             )
                         }
                     addCameraCaptureCallback(object : CameraCaptureCallback() {})
@@ -84,7 +84,7 @@ class CameraUseCaseAdapterTest {
                         MutableOptionsBundle.create().apply {
                             insertOption(
                                 ImageOutputConfig.OPTION_TARGET_ROTATION,
-                                Surface.ROTATION_180
+                                Surface.ROTATION_180,
                             )
                         }
                     )
@@ -129,7 +129,7 @@ class CameraUseCaseAdapterTest {
         CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(
             resolution,
             useCaseConfig,
-            builder
+            builder,
         )
 
         // Assert
@@ -178,7 +178,7 @@ class CameraUseCaseAdapterTest {
         CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(
             resolution,
             imageCaptureBuilder.useCaseConfig,
-            sessionBuilder
+            sessionBuilder,
         )
         val sessionConfig = sessionBuilder.build()
 
@@ -205,11 +205,11 @@ class CameraUseCaseAdapterTest {
         Camera2Interop.Extender<ImageCapture>(imageCaptureConfigBuilder)
             .setCaptureRequestOption<Int>(
                 CaptureRequest.CONTROL_AF_MODE,
-                CaptureRequest.CONTROL_AF_MODE_AUTO
+                CaptureRequest.CONTROL_AF_MODE_AUTO,
             )
             .setCaptureRequestOption<Int>(
                 CaptureRequest.FLASH_MODE,
-                CaptureRequest.FLASH_MODE_TORCH
+                CaptureRequest.FLASH_MODE_TORCH,
             )
             .apply {
                 if (Build.VERSION.SDK_INT >= 28) {
@@ -227,7 +227,7 @@ class CameraUseCaseAdapterTest {
         CameraUseCaseAdapter.DefaultSessionOptionsUnpacker.unpack(
             resolution,
             useCaseConfig,
-            sessionBuilder
+            sessionBuilder,
         )
         val sessionConfig = sessionBuilder.build()
 
@@ -236,14 +236,14 @@ class CameraUseCaseAdapterTest {
         assertThat(
                 config.getCaptureRequestOption<Int>(
                     CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_OFF
+                    CaptureRequest.CONTROL_AF_MODE_OFF,
                 )
             )
             .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
         assertThat(
                 config.getCaptureRequestOption<Int>(
                     CaptureRequest.FLASH_MODE,
-                    CaptureRequest.FLASH_MODE_OFF
+                    CaptureRequest.FLASH_MODE_OFF,
                 )
             )
             .isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
@@ -271,7 +271,7 @@ class CameraUseCaseAdapterTest {
         val captureBuilder = CaptureConfig.Builder()
         CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
             imageCaptureBuilder.useCaseConfig,
-            captureBuilder
+            captureBuilder,
         )
         val captureConfig = captureBuilder.build()
 
@@ -294,11 +294,11 @@ class CameraUseCaseAdapterTest {
         Camera2Interop.Extender<ImageCapture>(imageCaptureConfigBuilder)
             .setCaptureRequestOption<Int>(
                 CaptureRequest.CONTROL_AF_MODE,
-                CaptureRequest.CONTROL_AF_MODE_AUTO
+                CaptureRequest.CONTROL_AF_MODE_AUTO,
             )
             .setCaptureRequestOption<Int>(
                 CaptureRequest.FLASH_MODE,
-                CaptureRequest.FLASH_MODE_TORCH
+                CaptureRequest.FLASH_MODE_TORCH,
             )
         val useCaseConfig = imageCaptureConfigBuilder.useCaseConfig
         val priorityAfMode =
@@ -311,7 +311,7 @@ class CameraUseCaseAdapterTest {
         // Act
         CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE.unpack(
             useCaseConfig,
-            captureBuilder
+            captureBuilder,
         )
         val captureConfig = captureBuilder.build()
 
@@ -320,14 +320,14 @@ class CameraUseCaseAdapterTest {
         assertThat(
                 config.getCaptureRequestOption<Int>(
                     CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_OFF
+                    CaptureRequest.CONTROL_AF_MODE_OFF,
                 )
             )
             .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO)
         assertThat(
                 config.getCaptureRequestOption<Int>(
                     CaptureRequest.FLASH_MODE,
-                    CaptureRequest.FLASH_MODE_OFF
+                    CaptureRequest.FLASH_MODE_OFF,
                 )
             )
             .isEqualTo(CaptureRequest.FLASH_MODE_TORCH)

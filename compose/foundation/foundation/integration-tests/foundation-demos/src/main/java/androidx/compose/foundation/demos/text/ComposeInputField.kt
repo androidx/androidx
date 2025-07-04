@@ -76,7 +76,7 @@ internal fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Default,
     singleLine: Boolean = false,
-    text: String = ""
+    text: String = "",
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val state = rememberSaveable { mutableStateOf(text) }

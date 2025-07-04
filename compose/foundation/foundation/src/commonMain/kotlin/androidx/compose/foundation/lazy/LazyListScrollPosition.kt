@@ -44,7 +44,7 @@ internal class LazyListScrollPosition(initialIndex: Int = 0, initialScrollOffset
         LazyLayoutNearestRangeState(
             initialIndex,
             NearestItemsSlidingWindowSize,
-            NearestItemsExtraItemCount
+            NearestItemsExtraItemCount,
         )
 
     /** Updates the current scroll position based on the results of the last measurement. */
@@ -94,7 +94,7 @@ internal class LazyListScrollPosition(initialIndex: Int = 0, initialScrollOffset
     @OptIn(ExperimentalFoundationApi::class)
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyListItemProvider,
-        index: Int
+        index: Int,
     ): Int {
         val newIndex = itemProvider.findIndexByKey(lastKnownFirstItemKey, index)
         if (index != newIndex) {

@@ -50,8 +50,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @Suppress("DEPRECATION")
-@SdkSuppress(minSdkVersion = 23)
-@RequiresApi(23) // ViewCompat.getRootWindowInsets()
+@SdkSuppress(minSdkVersion = 23) // ViewCompat.getRootWindowInsets()
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 public class WindowInsetsControllerCompatActivityTest {
@@ -191,7 +190,7 @@ public class WindowInsetsControllerCompatActivityTest {
             val systemUiVisibility = scenario.withActivity { window.decorView }.systemUiVisibility
             assertThat(
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR,
-                equalTo(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR)
+                equalTo(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR),
             )
         }
         assertThat(windowInsetsController.isAppearanceLightStatusBars(), `is`(true))
@@ -226,7 +225,7 @@ public class WindowInsetsControllerCompatActivityTest {
             // The view's systemUiVisibility flags are not changed on API 31+
             assertThat(
                 systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR,
-                equalTo(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+                equalTo(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR),
             )
         }
         assertThat(windowInsetsController.isAppearanceLightNavigationBars(), `is`(true))
@@ -301,13 +300,13 @@ public class WindowInsetsControllerCompatActivityTest {
                 WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
             assertEquals(
                 WindowInsetsControllerCompat.BEHAVIOR_DEFAULT,
-                windowInsetsController.systemBarsBehavior
+                windowInsetsController.systemBarsBehavior,
             )
             windowInsetsController.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             assertEquals(
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE,
-                windowInsetsController.systemBarsBehavior
+                windowInsetsController.systemBarsBehavior,
             )
         }
     }
@@ -338,7 +337,7 @@ public class WindowInsetsControllerCompatActivityTest {
         val sysUiVis = decorView.systemUiVisibility
         assertEquals(
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY,
-            sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY,
         )
         assertEquals(0, sysUiVis and View.SYSTEM_UI_FLAG_IMMERSIVE)
     }
@@ -347,7 +346,7 @@ public class WindowInsetsControllerCompatActivityTest {
         // TODO: remove this if b/159103848 is resolved
         assumeFalse(
             "Unable to test: Cuttlefish devices default to the virtual keyboard being disabled.",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true)
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
         )
     }
 
@@ -380,7 +379,7 @@ public class WindowInsetsControllerCompatActivityTest {
             assertThat(
                 "isVisible() should be <$expectedVisibility> but is <$lastVisibility>",
                 lastVisibility,
-                `is`(expectedVisibility)
+                `is`(expectedVisibility),
             )
         }
     }

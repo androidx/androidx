@@ -53,7 +53,7 @@ public inline fun Context.withStyledAttributes(
     attrs: IntArray,
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0,
-    block: TypedArray.() -> Unit
+    block: TypedArray.() -> Unit,
 ) {
     obtainStyledAttributes(set, attrs, defStyleAttr, defStyleRes).apply(block).recycle()
 }
@@ -71,7 +71,7 @@ public inline fun Context.withStyledAttributes(
 public inline fun Context.withStyledAttributes(
     @StyleRes resourceId: Int,
     attrs: IntArray,
-    block: TypedArray.() -> Unit
+    block: TypedArray.() -> Unit,
 ) {
     obtainStyledAttributes(resourceId, attrs).apply(block).recycle()
 }

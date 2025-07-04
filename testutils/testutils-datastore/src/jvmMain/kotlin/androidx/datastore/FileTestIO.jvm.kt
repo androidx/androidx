@@ -31,7 +31,7 @@ class FileTestIO :
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> JavaIOFile
+        futureFile: () -> JavaIOFile,
     ): Storage<Byte> {
         return FileStorage(TestingSerializer(serializerConfig), { coordinatorProducer() }) {
             futureFile().file

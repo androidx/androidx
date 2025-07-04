@@ -53,7 +53,7 @@ fun PathEasingSample() {
         animateIntOffsetAsState(
             targetValue = if (toggled) IntOffset.Zero else IntOffset(300, 300),
             label = "offset",
-            animationSpec = tween(durationMillis = 1000, easing = PathEasing(pathForAnimation))
+            animationSpec = tween(durationMillis = 1000, easing = PathEasing(pathForAnimation)),
         )
     Box(modifier = Modifier.fillMaxSize().clickable { toggled = !toggled }) {
         Box(modifier = Modifier.offset { offset }.size(100.dp).background(Color.Blue))

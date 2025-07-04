@@ -189,7 +189,7 @@ public sealed class FloatList(initialCapacity: Int) {
      */
     public inline fun <R> foldIndexed(
         initial: R,
-        operation: (index: Int, acc: R, element: Float) -> R
+        operation: (index: Int, acc: R, element: Float) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -219,7 +219,7 @@ public sealed class FloatList(initialCapacity: Int) {
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
-        operation: (index: Int, element: Float, acc: R) -> R
+        operation: (index: Int, element: Float, acc: R) -> R,
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
@@ -315,7 +315,7 @@ public sealed class FloatList(initialCapacity: Int) {
      */
     public inline fun elementAtOrElse(
         @IntRange(from = 0) index: Int,
-        defaultValue: (index: Int) -> Float
+        defaultValue: (index: Int) -> Float,
     ): Float {
         if (index !in 0 until _size) {
             return defaultValue(index)
@@ -489,7 +489,7 @@ public sealed class FloatList(initialCapacity: Int) {
         postfix: CharSequence = "", // I know this should be suffix, but this is kotlin's name
         limit: Int = -1,
         truncated: CharSequence = "...",
-        crossinline transform: (Float) -> CharSequence
+        crossinline transform: (Float) -> CharSequence,
     ): String = buildString {
         append(prefix)
         this@FloatList.forEachIndexed { index, element ->
@@ -583,7 +583,7 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
                 destination = content,
                 destinationOffset = index + 1,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         content[index] = element
@@ -609,7 +609,7 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
                 destination = content,
                 destinationOffset = index + elements.size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.copyInto(content, index)
@@ -636,14 +636,14 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
                 destination = content,
                 destinationOffset = index + elements._size,
                 startIndex = index,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         elements.content.copyInto(
             destination = content,
             destinationOffset = index,
             startIndex = 0,
-            endIndex = elements._size
+            endIndex = elements._size,
         )
         _size += elements._size
         return true
@@ -784,7 +784,7 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
                 destination = content,
                 destinationOffset = index,
                 startIndex = index + 1,
-                endIndex = _size
+                endIndex = _size,
             )
         }
         _size--
@@ -810,7 +810,7 @@ public class MutableFloatList(initialCapacity: Int = 16) : FloatList(initialCapa
                     destination = content,
                     destinationOffset = start,
                     startIndex = end,
-                    endIndex = _size
+                    endIndex = _size,
                 )
             }
             _size -= (end - start)
@@ -950,9 +950,7 @@ public inline fun mutableFloatListOf(vararg elements: Float): MutableFloatList =
  *
  * @param builderAction Lambda in which the [MutableFloatList] can be populated.
  */
-public inline fun buildFloatList(
-    builderAction: MutableFloatList.() -> Unit,
-): FloatList {
+public inline fun buildFloatList(builderAction: MutableFloatList.() -> Unit): FloatList {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableFloatList().apply(builderAction)
 }

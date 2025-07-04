@@ -29,7 +29,7 @@ class ByteBufferColumnTypeAdapter constructor(out: XType) :
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addGetBlobStatement() {
@@ -38,7 +38,7 @@ class ByteBufferColumnTypeAdapter constructor(out: XType) :
                     outVarName,
                     CommonTypeNames.BYTE_BUFFER,
                     stmtVarName,
-                    indexVarName
+                    indexVarName,
                 )
             }
             if (out.nullability == XNullability.NONNULL) {
@@ -56,7 +56,7 @@ class ByteBufferColumnTypeAdapter constructor(out: XType) :
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addBindBlobStatement() {

@@ -57,6 +57,16 @@ class ObservedTableStatesTest {
     }
 
     @Test
+    fun addAndDeleteNetMoChange() = runTest {
+        tableStates.onObserverAdded(intArrayOf(1, 3))
+        tableStates.getTablesToSync()
+
+        tableStates.onObserverRemoved(intArrayOf(1, 3))
+        tableStates.onObserverAdded(intArrayOf(1, 3))
+        assertNull(tableStates.getTablesToSync())
+    }
+
+    @Test
     fun multipleAdditionsDeletions() = runTest {
         tableStates.onObserverAdded(intArrayOf(2, 4))
         tableStates.getTablesToSync()
@@ -82,7 +92,7 @@ class ObservedTableStatesTest {
                         1 to ObserveOp.ADD,
                         2 to ObserveOp.REMOVE,
                         3 to ObserveOp.ADD,
-                        4 to ObserveOp.REMOVE
+                        4 to ObserveOp.REMOVE,
                     )
                 )
             )

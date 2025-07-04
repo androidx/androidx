@@ -21,6 +21,7 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.platform.LocalResources
 
 /**
  * Load a string resource.
@@ -31,8 +32,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 @Composable
 @ReadOnlyComposable
 fun stringResource(@StringRes id: Int): String {
-    val resources = resources()
-    return resources.getString(id)
+    return LocalResources.current.getString(id)
 }
 
 /**
@@ -45,8 +45,7 @@ fun stringResource(@StringRes id: Int): String {
 @Composable
 @ReadOnlyComposable
 fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
-    val resources = resources()
-    return resources.getString(id, *formatArgs)
+    return LocalResources.current.getString(id, *formatArgs)
 }
 
 /**
@@ -58,8 +57,7 @@ fun stringResource(@StringRes id: Int, vararg formatArgs: Any): String {
 @Composable
 @ReadOnlyComposable
 fun stringArrayResource(@ArrayRes id: Int): Array<String> {
-    val resources = resources()
-    return resources.getStringArray(id)
+    return LocalResources.current.getStringArray(id)
 }
 
 /**
@@ -72,8 +70,7 @@ fun stringArrayResource(@ArrayRes id: Int): Array<String> {
 @Composable
 @ReadOnlyComposable
 fun pluralStringResource(@PluralsRes id: Int, count: Int): String {
-    val resources = resources()
-    return resources.getQuantityString(id, count)
+    return LocalResources.current.getQuantityString(id, count)
 }
 
 /**
@@ -87,6 +84,5 @@ fun pluralStringResource(@PluralsRes id: Int, count: Int): String {
 @Composable
 @ReadOnlyComposable
 fun pluralStringResource(@PluralsRes id: Int, count: Int, vararg formatArgs: Any): String {
-    val resources = resources()
-    return resources.getQuantityString(id, count, *formatArgs)
+    return LocalResources.current.getQuantityString(id, count, *formatArgs)
 }

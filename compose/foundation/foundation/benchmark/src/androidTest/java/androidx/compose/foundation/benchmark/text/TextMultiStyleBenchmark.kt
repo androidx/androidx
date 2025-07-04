@@ -65,7 +65,7 @@ class TextMultiStyleBenchmark(private val textLength: Int, private val styleCoun
                     textGenerator.nextAnnotatedString(
                         length = textLength,
                         styleCount = styleCount,
-                        hasMetricAffectingStyle = true
+                        hasMetricAffectingStyle = true,
                     )
                 }
             AnnotatedTextInColumnTestCase(texts = texts, width = width, fontSize = fontSize)

@@ -37,7 +37,7 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
         dbProperty: XPropertySpec,
         bindStatement: CodeGenScope.(String) -> Unit,
         returnTypeName: XTypeName,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val connectionVar = scope.getTmpVar("_connection")
         val performBlock =
@@ -52,7 +52,7 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
                             returnTypeName = returnTypeName.box(),
-                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                             val statementVar = scope.getTmpVar("_stmt")
@@ -61,7 +61,7 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
                                 SQLiteDriverTypeNames.STATEMENT,
                                 "%L.prepare(%L)",
                                 connectionVar,
-                                sqlQueryVar
+                                sqlQueryVar,
                             )
                             beginControlFlow("try")
                             bindStatement(scope, statementVar)
@@ -70,7 +70,7 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
                             addStatement("%L.close()", statementVar)
                             endControlFlow()
                         }
-                    }
+                    },
             )
         val returnPrefix =
             when (scope.language) {

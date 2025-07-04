@@ -77,7 +77,7 @@ internal class BackwardsCompatLocalMap(var element: ModifierLocalProvider<*>) : 
 
 internal class MultiLocalMap(
     entry1: Pair<ModifierLocal<*>, Any?>,
-    vararg entries: Pair<ModifierLocal<*>, Any?>
+    vararg entries: Pair<ModifierLocal<*>, Any?>,
 ) : ModifierLocalMap() {
     private val map = mutableStateMapOf<ModifierLocal<*>, Any?>()
 
@@ -91,7 +91,8 @@ internal class MultiLocalMap(
     }
 
     override operator fun <T> get(key: ModifierLocal<T>): T? {
-        @Suppress("UNCHECKED_CAST") return map[key] as? T?
+        @Suppress("UNCHECKED_CAST")
+        return map[key] as? T?
     }
 
     override operator fun contains(key: ModifierLocal<*>): Boolean = map.containsKey(key)
@@ -169,7 +170,8 @@ interface ModifierLocalModifierNode : ModifierLocalReadScope, DelegatableNode {
             val key = this
             visitAncestors(Nodes.Locals) {
                 if (it.providedValues.contains(key)) {
-                    @Suppress("UNCHECKED_CAST") return it.providedValues[key] as T
+                    @Suppress("UNCHECKED_CAST")
+                    return it.providedValues[key] as T
                 }
             }
             return key.defaultFactory()
@@ -193,7 +195,7 @@ fun <T> modifierLocalMapOf(entry: Pair<ModifierLocal<T>, T>): ModifierLocalMap =
 fun modifierLocalMapOf(
     key1: ModifierLocal<*>,
     key2: ModifierLocal<*>,
-    vararg keys: ModifierLocal<*>
+    vararg keys: ModifierLocal<*>,
 ): ModifierLocalMap =
     MultiLocalMap(key1 to null, key2 to null, *keys.map { it to null }.toTypedArray())
 
@@ -205,13 +207,13 @@ fun modifierLocalMapOf(
 fun modifierLocalMapOf(
     entry1: Pair<ModifierLocal<*>, Any>,
     entry2: Pair<ModifierLocal<*>, Any>,
-    vararg entries: Pair<ModifierLocal<*>, Any>
+    vararg entries: Pair<ModifierLocal<*>, Any>,
 ): ModifierLocalMap = MultiLocalMap(entry1, entry2, *entries)
 
 // b/280116113.
 @Deprecated(
     message = "Use a different overloaded version of this function",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 fun modifierLocalMapOf(vararg keys: ModifierLocal<*>): ModifierLocalMap =
     when (keys.size) {
@@ -224,7 +226,7 @@ fun modifierLocalMapOf(vararg keys: ModifierLocal<*>): ModifierLocalMap =
 // b/280116113.
 @Deprecated(
     message = "Use a different overloaded version of this function",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 fun modifierLocalMapOf(vararg entries: Pair<ModifierLocal<*>, Any>): ModifierLocalMap =
     when (entries.size) {

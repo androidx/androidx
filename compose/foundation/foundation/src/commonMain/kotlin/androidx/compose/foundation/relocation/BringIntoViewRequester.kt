@@ -19,6 +19,7 @@
 
 package androidx.compose.foundation.relocation
 
+import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -74,6 +75,7 @@ sealed interface BringIntoViewRequester {
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
 @JsName("funBringIntoViewRequester")
+@RememberInComposition
 fun BringIntoViewRequester(): BringIntoViewRequester {
     return BringIntoViewRequesterImpl()
 }

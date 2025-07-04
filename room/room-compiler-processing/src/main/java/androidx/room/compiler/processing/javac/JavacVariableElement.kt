@@ -24,7 +24,7 @@ import javax.lang.model.element.VariableElement
 
 internal abstract class JavacVariableElement(
     env: JavacProcessingEnv,
-    override val element: VariableElement
+    override val element: VariableElement,
 ) : JavacElement(env, element), XVariableElement {
 
     abstract val kotlinType: KmTypeContainer?
@@ -33,7 +33,7 @@ internal abstract class JavacVariableElement(
         env.wrap(
             typeMirror = element.asType(),
             kotlinType = kotlinType,
-            elementNullability = element.nullability
+            elementNullability = element.nullability,
         )
     }
 
@@ -46,7 +46,7 @@ internal abstract class JavacVariableElement(
             env.wrap(
                 typeMirror = asMember,
                 kotlinType = kotlinType,
-                elementNullability = element.nullability
+                elementNullability = element.nullability,
             )
         }
     }

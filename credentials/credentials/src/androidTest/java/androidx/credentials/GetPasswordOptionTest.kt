@@ -117,7 +117,7 @@ class GetPasswordOptionTest {
             GetPasswordOption(
                 expectedAllowedUserIds,
                 expectedIsAutoSelectAllowed,
-                expectedAllowedProviders
+                expectedAllowedProviders,
             )
         // Add additional data to the request data and candidate query data to make sure
         // they persist after the conversion
@@ -138,7 +138,7 @@ class GetPasswordOptionTest {
                 requestData,
                 candidateQueryData,
                 option.isSystemProviderRequired,
-                option.allowedProviders
+                option.allowedProviders,
             )
 
         assertThat(convertedOption).isInstanceOf(GetPasswordOption::class.java)
@@ -166,7 +166,7 @@ class GetPasswordOptionTest {
             GetPasswordOption(
                 expectedAllowedUserIds,
                 expectedIsAutoSelectAllowed,
-                expectedAllowedProviders
+                expectedAllowedProviders,
             )
         // Add additional data to the request data and candidate query data to make sure
         // they persist after the conversion
@@ -186,7 +186,7 @@ class GetPasswordOptionTest {
                 android.credentials.CredentialOption.Builder(
                         option.type,
                         requestData,
-                        candidateQueryData
+                        candidateQueryData,
                     )
                     .setAllowedProviders(option.allowedProviders)
                     .setIsSystemProviderRequired(option.isSystemProviderRequired)

@@ -83,7 +83,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                valueRange = 0f..1f
+                valueRange = 0f..1f,
             )
         }
         rule.runOnIdle { state.value = 2f }
@@ -105,7 +105,7 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -132,7 +132,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                steps = 4
+                steps = 4,
             )
         }
 
@@ -166,7 +166,7 @@ class SliderTest {
                 value = 0f,
                 onValueChange = {},
                 modifier = Modifier.testTag(tag),
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -183,7 +183,7 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -210,7 +210,7 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -238,7 +238,7 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -270,13 +270,13 @@ class SliderTest {
                                 rememberScrollableState { delta ->
                                     offset.value += delta
                                     delta
-                                }
+                                },
                         )
             ) {
                 Slider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -315,7 +315,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                valueRange = 0f..rangeEnd.value
+                valueRange = 0f..rangeEnd.value,
             )
         }
         // change to 1 since [calculateFraction] coerces between 0..1
@@ -343,7 +343,7 @@ class SliderTest {
                 Slider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -373,7 +373,7 @@ class SliderTest {
                 Slider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -404,7 +404,7 @@ class SliderTest {
                 Slider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -430,7 +430,7 @@ class SliderTest {
                 Slider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -462,7 +462,7 @@ class SliderTest {
         rule
             .setMaterialContentForSizeAssertions(
                 parentMaxWidth = 100.dp,
-                parentMaxHeight = 100.dp
+                parentMaxHeight = 100.dp,
             ) {
                 Slider(value = state.value, onValueChange = { state.value = it })
             }
@@ -493,7 +493,7 @@ class SliderTest {
             Slider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { callCount.value += 1 }
+                onValueChange = { callCount.value += 1 },
             )
         }
 
@@ -510,7 +510,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChangeFinished = { callCount.value += 1 },
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -535,7 +535,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChangeFinished = { callCount.value += 1 },
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -561,7 +561,7 @@ class SliderTest {
                         modifier = Modifier.testTag(tag),
                         value = 0.5f,
                         onValueChange = {},
-                        interactionSource = interactionSource
+                        interactionSource = interactionSource,
                     )
                 }
             }
@@ -606,7 +606,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -637,7 +637,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -672,7 +672,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -702,7 +702,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -732,7 +732,7 @@ class SliderTest {
                 modifier = Modifier.testTag(tag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                valueRange = 0f..rangeEnd.value
+                valueRange = 0f..rangeEnd.value,
             )
         }
         // change to 1 since [calculateFraction] coerces between 0..1
@@ -761,7 +761,7 @@ class SliderTest {
                 RangeSlider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -796,7 +796,7 @@ class SliderTest {
                 RangeSlider(
                     modifier = Modifier.testTag(tag),
                     value = state.value,
-                    onValueChange = { state.value = it }
+                    onValueChange = { state.value = it },
                 )
             }
         }
@@ -833,7 +833,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -866,7 +866,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -905,7 +905,7 @@ class SliderTest {
                         modifier =
                             Modifier.testTag(tag).weight(1f).onGloballyPositioned {
                                 sliderBounds = it.boundsInParent()
-                            }
+                            },
                     )
                     Spacer(Modifier.requiredSize(100.toDp()))
                 }
@@ -927,7 +927,7 @@ class SliderTest {
             RangeSlider(
                 modifier = Modifier.testTag(tag),
                 value = state.value,
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -995,13 +995,7 @@ class SliderTest {
 
         rule
             .onAllNodes(isFocusable(), true)[1]
-            .assertRangeInfoEquals(
-                ProgressBarRangeInfo(
-                    10f,
-                    5f..20f,
-                    2,
-                )
-            )
+            .assertRangeInfoEquals(ProgressBarRangeInfo(10f, 5f..20f, 2))
 
         rule.onAllNodes(isFocusable(), true)[0].performSemanticsAction(
             SemanticsActions.SetProgress

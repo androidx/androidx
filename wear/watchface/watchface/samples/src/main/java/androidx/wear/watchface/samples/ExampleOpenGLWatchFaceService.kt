@@ -76,7 +76,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                                 Option.Id("red_style"),
                                 resources,
                                 R.string.colors_style_red,
-                                R.string.colors_style_red_screen_reader
+                                R.string.colors_style_red_screen_reader,
                             )
                             .setIcon { Icon.createWithResource(this, R.drawable.red_style) }
                             .build(),
@@ -84,15 +84,15 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                                 Option.Id("green_style"),
                                 resources,
                                 R.string.colors_style_green,
-                                R.string.colors_style_green_screen_reader
+                                R.string.colors_style_green_screen_reader,
                             )
                             .setIcon { Icon.createWithResource(this, R.drawable.green_style) }
-                            .build()
+                            .build(),
                     ),
                 listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY),
                 resources,
                 R.string.colors_style_setting,
-                R.string.colors_style_setting_description
+                R.string.colors_style_setting_description,
             )
             .build()
     }
@@ -105,7 +105,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                     CanvasComplicationDrawable(
                         watchFaceStyle.getDrawable(this@ExampleOpenGLWatchFaceService)!!,
                         watchState,
-                        listener
+                        listener,
                     )
                 },
                 listOf(
@@ -115,13 +115,13 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                     ComplicationType.LONG_TEXT,
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
                 ),
                 DefaultComplicationDataSourcePolicy(
                     SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
-                    ComplicationType.SHORT_TEXT
+                    ComplicationType.SHORT_TEXT,
                 ),
-                ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f))
+                ComplicationSlotBounds(RectF(0.2f, 0.7f, 0.4f, 0.9f)),
             )
             .build()
 
@@ -135,7 +135,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
                 WatchFaceType.ANALOG,
@@ -144,8 +144,8 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                     currentUserStyleRepository,
                     watchState,
                     colorStyleSetting,
-                    complication
-                )
+                    complication,
+                ),
             )
             .setLegacyWatchFaceStyle(
                 WatchFace.LegacyWatchFaceOverlayStyle(0, Gravity.RIGHT or Gravity.TOP, true)
@@ -166,7 +166,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
         private val currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
         private val colorStyleSetting: ListUserStyleSetting,
-        private val complicationSlot: ComplicationSlot
+        private val complicationSlot: ComplicationSlot,
     ) :
         Renderer.GlesRenderer2<ExampleSharedAssets>(
             surfaceHolder,
@@ -189,7 +189,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                         8,
                         EGL14.EGL_SAMPLES, // 4x MSAA (anti-aliasing)
                         4,
-                        EGL14.EGL_NONE
+                        EGL14.EGL_NONE,
                     ),
                     intArrayOf(
                         EGL14.EGL_RENDERABLE_TYPE,
@@ -202,11 +202,11 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                         8,
                         EGL14.EGL_ALPHA_SIZE,
                         8,
-                        EGL14.EGL_NONE
-                    )
+                        EGL14.EGL_NONE,
+                    ),
                 ),
             eglSurfaceAttribList = intArrayOf(EGL14.EGL_NONE),
-            eglContextAttribList = intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE)
+            eglContextAttribList = intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE),
         ) {
 
         /** Projection transformation matrix. Converts from 3D to 2D. */
@@ -262,22 +262,23 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
         init {
             CoroutineScope(Dispatchers.Main.immediate).launch {
                 currentUserStyleRepository.userStyle.collect { userStyle ->
-                    watchfaceColors =
+                    setWatchfaceColors(
                         when (userStyle[colorStyleSetting]!!.toString()) {
                             "red_style" ->
                                 WatchFaceColors(
                                     Color.valueOf(0.5f, 0.2f, 0.2f, 1f),
                                     Color.valueOf(0.4f, 0.15f, 0.15f, 1f),
-                                    Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                                    Color.valueOf(0.1f, 0.1f, 0.1f, 1f),
                                 )
                             "green_style" ->
                                 WatchFaceColors(
                                     Color.valueOf(0.2f, 0.5f, 0.2f, 1f),
                                     Color.valueOf(0.15f, 0.4f, 0.15f, 1f),
-                                    Color.valueOf(0.1f, 0.1f, 0.1f, 1f)
+                                    Color.valueOf(0.1f, 0.1f, 0.1f, 1f),
                                 )
                             else -> null
                         }
+                    )
                 }
             }
         }
@@ -310,8 +311,8 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                                 1.0f /* red */,
                                 0.0f /* green */,
                                 0.0f /* blue */,
-                                1.0f /* alpha */
-                            )
+                                1.0f, /* alpha */
+                            ),
                         ),
                     "greenstyle" to
                         createHand(
@@ -322,9 +323,9 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                                 0.0f /* red */,
                                 1.0f /* green */,
                                 0.0f /* blue */,
-                                1.0f /* alpha */
-                            )
-                        )
+                                1.0f, /* alpha */
+                            ),
+                        ),
                 )
             minuteHandTriangle =
                 createHand(
@@ -335,8 +336,8 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                         0.7f /* red */,
                         0.7f /* green */,
                         0.7f /* blue */,
-                        1.0f /* alpha */
-                    )
+                        1.0f, /* alpha */
+                    ),
                 )
             hourHandTriangle =
                 createHand(
@@ -347,8 +348,8 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                         0.9f /* red */,
                         0.9f /* green */,
                         0.9f /* blue */,
-                        1.0f /* alpha */
-                    )
+                        1.0f, /* alpha */
+                    ),
                 )
 
             // Precompute the clock angles.
@@ -374,7 +375,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                     0f,
                     0f,
                     1f,
-                    0f
+                    0f,
                 ) // up vector
             }
             Matrix.setLookAtM(
@@ -388,7 +389,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                 0f,
                 0f,
                 1f,
-                0f
+                0f,
             ) // up vector
 
             complicationTexture =
@@ -406,7 +407,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                 -1f /* bottom */,
                 1f /* top */,
                 2f /* near */,
-                7f /* far */
+                7f, /* far */
             )
 
             // Precompute the products of Projection and View matrices for each camera angle.
@@ -428,12 +429,12 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             program: Gles2ColoredTriangleList.Program,
             width: Float,
             length: Float,
-            color: FloatArray
+            color: FloatArray,
         ) =
             Gles2ColoredTriangleList(
                 program,
                 floatArrayOf(0f, length, 0f, -width / 2, 0f, 0f, width / 2, 0f, 0f),
-                color
+                color,
             )
 
         /**
@@ -453,7 +454,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             return Gles2ColoredTriangleList(
                 program,
                 trianglesCoords,
-                floatArrayOf(1.0f /* red */, 1.0f /* green */, 1.0f /* blue */, 1.0f /* alpha */)
+                floatArrayOf(1.0f /* red */, 1.0f /* green */, 1.0f /* blue */, 1.0f /* alpha */),
             )
         }
 
@@ -480,7 +481,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             return Gles2ColoredTriangleList(
                 program,
                 trianglesCoords,
-                floatArrayOf(0.5f /* red */, 0.5f /* green */, 0.5f /* blue */, 1.0f /* alpha */)
+                floatArrayOf(0.5f /* red */, 0.5f /* green */, 0.5f /* blue */, 1.0f /* alpha */),
             )
         }
 
@@ -490,7 +491,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             left: Float,
             top: Float,
             width: Float,
-            height: Float
+            height: Float,
         ) =
             Gles2TexturedTriangleList(
                 program,
@@ -512,9 +513,9 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                     0.0f,
                     top + height,
                     left + width,
-                    0.0f
+                    0.0f,
                 ),
-                floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f)
+                floatArrayOf(1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
             )
 
         /** Creates a triangle list for the complication highlight quad. */
@@ -523,7 +524,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             left: Float,
             top: Float,
             width: Float,
-            height: Float
+            height: Float,
         ) =
             Gles2ColoredTriangleList(
                 program,
@@ -545,16 +546,16 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                     0.0f,
                     top + height,
                     left + width,
-                    0.0f
+                    0.0f,
                 ),
-                floatArrayOf(1.0f /* red */, 1.0f /* green */, 1.0f /* blue */, 0.0f /* alpha */)
+                floatArrayOf(1.0f /* red */, 1.0f /* green */, 1.0f /* blue */, 0.0f /* alpha */),
             )
 
         private fun getMajorTickTriangleCoords(index: Int): FloatArray {
             return getTickTriangleCoords(
                 0.03f /* width */,
                 0.09f /* length */,
-                index * 360 / 4 /* angleDegrees */
+                index * 360 / 4, /* angleDegrees */
             )
         }
 
@@ -562,14 +563,14 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
             return getTickTriangleCoords(
                 0.02f /* width */,
                 0.06f /* length */,
-                index * 360 / 12 /* angleDegrees */
+                index * 360 / 12, /* angleDegrees */
             )
         }
 
         private fun getTickTriangleCoords(
             width: Float,
             length: Float,
-            angleDegrees: Int
+            angleDegrees: Int,
         ): FloatArray {
             // Create the data for the VBO.
             val coords =
@@ -678,7 +679,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
 
         override fun renderHighlightLayer(
             zonedDateTime: ZonedDateTime,
-            sharedAssets: ExampleSharedAssets
+            sharedAssets: ExampleSharedAssets,
         ) {
             val cameraIndex =
                 (zonedDateTime.toInstant().toEpochMilli() / FRAME_PERIOD_MS % numCameraAngles)
@@ -690,7 +691,7 @@ open class ExampleOpenGLWatchFaceService : SampleWatchFaceService() {
                 Color.red(highlightLayer.backgroundTint).toFloat() / 256.0f,
                 Color.green(highlightLayer.backgroundTint).toFloat() / 256.0f,
                 Color.blue(highlightLayer.backgroundTint).toFloat() / 256.0f,
-                Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f
+                Color.alpha(highlightLayer.backgroundTint).toFloat() / 256.0f,
             )
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 

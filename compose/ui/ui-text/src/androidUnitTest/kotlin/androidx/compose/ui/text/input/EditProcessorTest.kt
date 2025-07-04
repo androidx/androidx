@@ -108,7 +108,7 @@ class EditProcessorTest {
         val newTextFieldValue =
             textFieldValue.copy(
                 buildAnnotatedString { withStyle(SpanStyle()) { append("abc") } },
-                composition = TextRange(0, 3)
+                composition = TextRange(0, 3),
             )
         processor.reset(newTextFieldValue, textInputSession)
 
@@ -202,7 +202,7 @@ class EditProcessorTest {
         processor.apply(
             listOf(
                 CommitTextCommand("ab", 0),
-                SetComposingRegionCommand(composition.start, composition.end)
+                SetComposingRegionCommand(composition.start, composition.end),
             )
         )
 
@@ -258,7 +258,7 @@ class EditProcessorTest {
             listOf(
                 CommitTextCommand("ab", 0),
                 SetComposingRegionCommand(composition.start, composition.end),
-                SetSelectionCommand(selection.start, selection.end)
+                SetSelectionCommand(selection.start, selection.end),
             )
         )
 
@@ -286,12 +286,7 @@ class EditProcessorTest {
                 mBuffer.setSelection(0, 5)
                 mBuffer.setComposition(5, 7)
             }
-        val batch =
-            listOf(
-                CommitTextCommand("ab", 0),
-                InvalidCommand(),
-                SetSelectionCommand(0, 2),
-            )
+        val batch = listOf(CommitTextCommand("ab", 0), InvalidCommand(), SetSelectionCommand(0, 2))
 
         val error = assertFailsWith<RuntimeException> { processor.apply(batch) }
 

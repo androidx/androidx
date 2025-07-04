@@ -51,7 +51,7 @@ public class AsWireComplicationTextTest {
         val text =
             TimeDifferenceComplicationText.Builder(
                     TimeDifferenceStyle.STOPWATCH,
-                    CountUpTimeReference(referenceInstant)
+                    CountUpTimeReference(referenceInstant),
                 )
                 .setText("^1 after lunch")
                 .setDisplayAsNow(false)
@@ -81,7 +81,7 @@ public class AsWireComplicationTextTest {
         val text =
             TimeDifferenceComplicationText.Builder(
                     TimeDifferenceStyle.STOPWATCH,
-                    CountDownTimeReference(referenceInstant)
+                    CountDownTimeReference(referenceInstant),
                 )
                 .setText("^1 before lunch")
                 .setDisplayAsNow(false)
@@ -197,14 +197,14 @@ public class FromWireComplicationTextTest {
         assertThat(
                 text.returnsSameText(
                     dateTime,
-                    Instant.ofEpochMilli(dateTime.toEpochMilli() + 20.seconds)
+                    Instant.ofEpochMilli(dateTime.toEpochMilli() + 20.seconds),
                 )
             )
             .isTrue()
         assertThat(
                 text.returnsSameText(
                     dateTime,
-                    Instant.ofEpochMilli(dateTime.toEpochMilli() + 60.seconds)
+                    Instant.ofEpochMilli(dateTime.toEpochMilli() + 60.seconds),
                 )
             )
             .isFalse()
@@ -232,7 +232,7 @@ public class FromWireComplicationTextTest {
         val text =
             TimeDifferenceComplicationText.Builder(
                     TimeDifferenceStyle.STOPWATCH,
-                    CountUpTimeReference(referenceInstant)
+                    CountUpTimeReference(referenceInstant),
                 )
                 .setMinimumTimeUnit(minimumTimeUnit)
                 .build()
@@ -246,7 +246,7 @@ public class FromWireComplicationTextTest {
         val text =
             TimeDifferenceComplicationText.Builder(
                     TimeDifferenceStyle.STOPWATCH,
-                    CountUpTimeReference(referenceInstant)
+                    CountUpTimeReference(referenceInstant),
                 )
                 .build()
 

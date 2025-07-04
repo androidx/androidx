@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.IntSize
 @Composable
 fun SubcomposeLayoutSample(
     mainContent: @Composable () -> Unit,
-    dependentContent: @Composable (IntSize) -> Unit
+    dependentContent: @Composable (IntSize) -> Unit,
 ) {
     // enum class SlotsEnum { Main, Dependent }
     SubcomposeLayout { constraints ->
@@ -34,7 +34,7 @@ fun SubcomposeLayoutSample(
             mainPlaceables.fold(IntSize.Zero) { currentMax, placeable ->
                 IntSize(
                     width = maxOf(currentMax.width, placeable.width),
-                    height = maxOf(currentMax.height, placeable.height)
+                    height = maxOf(currentMax.height, placeable.height),
                 )
             }
         layout(maxSize.width, maxSize.height) {
@@ -47,5 +47,5 @@ fun SubcomposeLayoutSample(
 
 enum class SlotsEnum {
     Main,
-    Dependent
+    Dependent,
 }

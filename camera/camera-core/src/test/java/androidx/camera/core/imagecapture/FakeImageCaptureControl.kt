@@ -74,6 +74,6 @@ class FakeImageCaptureControl : ImageCaptureControl {
     enum class Action {
         LOCK_FLASH,
         UNLOCK_FLASH,
-        SUBMIT_REQUESTS
+        SUBMIT_REQUESTS,
     }
 }

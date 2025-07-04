@@ -34,7 +34,7 @@ import com.google.common.util.concurrent.ListenableFuture
  */
 class FakeProcessCameraProviderWrapper(
     private val camera: Camera = FakeCamera(),
-    private val bindToLifecycleException: Throwable? = null
+    private val bindToLifecycleException: Throwable? = null,
 ) : ProcessCameraProviderWrapper {
 
     private var unbindInvoked = false
@@ -58,7 +58,7 @@ class FakeProcessCameraProviderWrapper(
     override fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
-        useCaseGroup: UseCaseGroup
+        useCaseGroup: UseCaseGroup,
     ): Camera {
         if (bindToLifecycleException != null) {
             throw bindToLifecycleException

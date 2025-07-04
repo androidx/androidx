@@ -24,14 +24,14 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-import static junit.framework.Assert.assertFalse;
-
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 import android.app.Instrumentation;
 import android.content.pm.PackageManager;
@@ -1307,5 +1307,38 @@ public class AppCompatTextViewTest
         final int textFontWeight = textView.getTypeface().getWeight();
 
         assertEquals(textFontWeight, 900);
+    }
+
+    @RequiresApi(26)
+    private void assertSystemHasVariableFont() {
+        AppCompatTextView textView = mActivity.findViewById(R.id.text_view_text_font_adjustment);
+
+        textView.setFontVariationSettings("'wght' 400");
+        Bitmap regular = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        textView.setFontVariationSettings("'wght' 700");
+        Bitmap bold = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        assumeFalse(regular.sameAs(bold));
+    }
+
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public void testFontAdjustment() {
+        // Skip if the system default font is not a variable font.
+        assertSystemHasVariableFont();
+
+        AppCompatTextView textView = mActivity.findViewById(R.id.text_view_text_font_adjustment);
+
+        textView.setFontVariationSettings("'wght' 400.0");
+        Bitmap before = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        textView.getFontVariationSettingsManager().setFontWeightAdjustmentForTesting(300);
+        textView.setFontVariationSettings("'wght' 400.0");
+        Bitmap after = drawToBitmap(textView, Bitmap.Config.ARGB_8888);
+
+        // The font weight adjustment should change the weight of the variation settings.
+        assertFalse(before.sameAs(after));
     }
 }

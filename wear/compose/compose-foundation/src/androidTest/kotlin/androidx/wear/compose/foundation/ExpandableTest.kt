@@ -38,6 +38,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -51,47 +52,51 @@ class ExpandableTest {
 
     private val restorationTester = StateRestorationTester(rule)
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun initially_collapsed() =
         verifyExpandable(
             setupState = { rememberExpandableState(initiallyExpanded = false) },
-            bitmapAssert = { assertDoesContainColor(COLLAPSED_COLOR) }
+            bitmapAssert = { assertDoesContainColor(COLLAPSED_COLOR) },
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun initially_expanded() =
         verifyExpandable(
             setupState = { rememberExpandableState(initiallyExpanded = true) },
-            bitmapAssert = { assertDoesContainColor(EXPANDED_COLOR) }
+            bitmapAssert = { assertDoesContainColor(EXPANDED_COLOR) },
         )
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun expand() =
         verifyExpandable(
             setupState = { rememberExpandableState(initiallyExpanded = false) },
-            bitmapAssert = { assertDoesContainColor(EXPANDED_COLOR) }
+            bitmapAssert = { assertDoesContainColor(EXPANDED_COLOR) },
         ) { state ->
             state.expanded = true
             waitForIdle()
         }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun collapse() =
         verifyExpandable(
             setupState = { rememberExpandableState(initiallyExpanded = true) },
-            bitmapAssert = { assertDoesContainColor(COLLAPSED_COLOR) }
+            bitmapAssert = { assertDoesContainColor(COLLAPSED_COLOR) },
         ) { state ->
             state.expanded = false
             waitForIdle()
         }
 
-    @RequiresApi(Build.VERSION_CODES.O) @Test fun collapsed_click() = verifyClick(false)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun collapsed_click() = verifyClick(false)
 
-    @RequiresApi(Build.VERSION_CODES.O) @Test fun expanded_click() = verifyClick(true)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun expanded_click() = verifyClick(true)
 
     @Test
     fun restoreState_after_recomposition() {
@@ -119,7 +124,7 @@ class ExpandableTest {
             bitmapAssert = { assertEquals(listOf(initiallyExpanded), clicked) },
             expandableContent = { expanded ->
                 Box(modifier = Modifier.fillMaxSize().clickable { clicked.add(expanded) })
-            }
+            },
         ) { _ ->
             onNodeWithTag(TEST_TAG).performClick()
             waitForIdle()
@@ -131,7 +136,7 @@ class ExpandableTest {
         setupState: @Composable () -> ExpandableState,
         bitmapAssert: ImageBitmap.() -> Unit,
         expandableContent: @Composable (Boolean) -> Unit = {},
-        act: ComposeTestRule.(ExpandableState) -> Unit = {}
+        act: ComposeTestRule.(ExpandableState) -> Unit = {},
     ) {
         // Arrange - set up the content for the test including expandable content
         var slcState: ScalingLazyListState? = null

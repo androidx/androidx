@@ -117,7 +117,7 @@ class BottomSheetBenchmark {
     fun bottomSheetScaffoldVisibilityTest() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = bottomSheetScaffoldTestCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -166,12 +166,7 @@ internal class ModalBottomSheetTestCase : LayeredComposeTestCase(), ToggleableTe
     override fun MeasuredContent() {
         state = rememberModalBottomSheetState()
         scope = rememberCoroutineScope()
-        Column {
-            ModalBottomSheet(
-                onDismissRequest = {},
-                sheetState = state,
-            ) {}
-        }
+        Column { ModalBottomSheet(onDismissRequest = {}, sheetState = state) {} }
     }
 
     @Composable

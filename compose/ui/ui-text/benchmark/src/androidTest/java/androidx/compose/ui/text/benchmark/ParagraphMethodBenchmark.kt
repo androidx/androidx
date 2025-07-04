@@ -58,7 +58,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
 
     private fun paragraphIntrinsics(
         textGenerator: RandomTextGenerator,
-        textLength: Int
+        textLength: Int,
     ): ParagraphIntrinsics {
         val text = textGenerator.nextParagraph(textLength)
         val spanStyles =
@@ -73,14 +73,14 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
             annotations = spanStyles,
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver,
-            placeholders = listOf()
+            placeholders = listOf(),
         )
     }
 
     private fun paragraph(
         textGenerator: RandomTextGenerator,
         textLength: Int = this.textLength,
-        preferredLineCount: Int = 4
+        preferredLineCount: Int = 4,
     ): Paragraph {
         val paragraphIntrinsics = paragraphIntrinsics(textGenerator, textLength)
         return Paragraph(
@@ -90,7 +90,7 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
                     maxWidth =
                         ceil(paragraphIntrinsics.maxIntrinsicWidth / preferredLineCount).toInt()
                 ),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 

@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Emoji recent sub category. -->
     <string name="emoji_category_recent">RECENTLY USED</string>
     <!-- Emoji keyboard's smileys and emotions sub category. -->
@@ -72,4 +72,7 @@
 
     <!-- The accessibility content description of the dark skintone in emoji variant selector. [CHAR_LIMIT=100]-->
     <string name="emoji_skin_tone_dark_content_desc">dark skin tone</string>
+
+    <!-- The accessibility content description of the emoji. [CHAR_LIMIT=50]-->
+    <string name="emoji_content_desc"><xliff:g example="😆" id="emoji">%1$s</xliff:g> emoji</string>
 </resources>

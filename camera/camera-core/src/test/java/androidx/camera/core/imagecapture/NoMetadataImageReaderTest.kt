@@ -55,7 +55,7 @@ class NoMetadataImageReaderTest {
         var image: ImageProxy? = null
         noMetadataImageReader.setOnImageAvailableListener(
             { imageReader -> image = getImageProxy(imageReader) },
-            directExecutor()
+            directExecutor(),
         )
         noMetadataImageReader.acceptProcessingRequest(createProcessingRequest())
         // Act: trigger the image available callback.

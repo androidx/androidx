@@ -18,7 +18,6 @@ package androidx.window.layout
 
 import android.app.Activity
 import android.content.Context
-import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.Display
@@ -70,11 +69,11 @@ interface WindowMetricsCalculator {
     /**
      * Computes the size and position of the area the window would occupy with
      * [MATCH_PARENT][android.view.WindowManager.LayoutParams.MATCH_PARENT] width and height and any
-     * combination of flags that would allow the window to extend behind display cutouts.
-     *
-     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
-     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
-     * created via the [Context.createWindowContext] APIs.
+     * combination of flags that would allow the window to extend behind display cutouts. The
+     * [Context] must either be a [UiContext] or an Application [Context]. We recommend using a
+     * [UiContext] as it will give the most accurate [WindowMetrics]. Using the Application
+     * [Context] may exclude some decorations or can provide some unexpected behaviors for multi
+     * instance apps in a desktop like environment.
      *
      * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
      *   is guaranteed to implement this method.
@@ -106,9 +105,10 @@ interface WindowMetricsCalculator {
      * The value returned from this method will always match [Display.getRealSize] on
      * [Android 10][Build.VERSION_CODES.Q] and below.
      *
-     * On [Build.VERSION_CODES.Q] and older, a [UiContext] is either an [Activity] or an
-     * [InputMethodService]. On [Build.VERSION_CODES.R] and newer, a [UiContext] can also be one
-     * created via the [Context.createWindowContext] APIs.
+     * The [Context] must either be a [UiContext] or an Application [Context]. We recommend using a
+     * [UiContext] as it will give the most accurate [WindowMetrics]. Using the Application
+     * [Context] may exclude some decorations or can provide some unexpected behaviors for multi
+     * instance apps in a desktop like environment.
      *
      * @throws NotImplementedError if not implemented. The default implementation from [getOrCreate]
      *   is guaranteed to implement this method.
@@ -149,7 +149,7 @@ interface WindowMetricsCalculator {
         @RequiresApi(Build.VERSION_CODES.R)
         internal fun translateWindowMetrics(
             windowMetrics: AndroidWindowMetrics,
-            density: Float
+            density: Float,
         ): WindowMetrics {
             return WindowMetricsCompatHelper.getInstance()
                 .translateWindowMetrics(windowMetrics, density)
@@ -158,7 +158,7 @@ interface WindowMetricsCalculator {
         internal fun fromDisplayMetrics(displayMetrics: DisplayMetrics): WindowMetrics {
             return WindowMetrics(
                 Bounds(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels),
-                displayMetrics.density
+                displayMetrics.density,
             )
         }
     }

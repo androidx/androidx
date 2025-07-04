@@ -58,7 +58,7 @@ class ViewParentFocusSearchTest {
             Column {
                 FocusableComponent(
                     composable1,
-                    Modifier.focusProperties { down = FocusRequester.Cancel }
+                    Modifier.focusProperties { down = FocusRequester.Cancel },
                 )
                 FocusableComponent(composable2)
             }

@@ -57,41 +57,22 @@ class RecycledViewPoolInstrumentedTest {
 
     @Test
     fun setAdapter_attachToWindow() {
-        doTest(
-            Step.SetAdapter to 0,
-            Step.AttachToWindow to 1,
-            Step.SetPool to 1,
-        )
+        doTest(Step.SetAdapter to 0, Step.AttachToWindow to 1, Step.SetPool to 1)
     }
 
     @Test
     fun setAdapter_setPool_attachToWindow() {
-        doTest(
-            Step.SetAdapter to 0,
-            Step.SetPool to 0,
-            Step.AttachToWindow to 1,
-            Step.SetPool to 1,
-        )
+        doTest(Step.SetAdapter to 0, Step.SetPool to 0, Step.AttachToWindow to 1, Step.SetPool to 1)
     }
 
     @Test
     fun setPool_attachToWindow_setAdapter() {
-        doTest(
-            Step.SetPool to 0,
-            Step.AttachToWindow to 0,
-            Step.SetAdapter to 1,
-            Step.SetPool to 1,
-        )
+        doTest(Step.SetPool to 0, Step.AttachToWindow to 0, Step.SetAdapter to 1, Step.SetPool to 1)
     }
 
     @Test
     fun setPool_setAdapter_attachToWindow() {
-        doTest(
-            Step.SetPool to 0,
-            Step.SetAdapter to 0,
-            Step.AttachToWindow to 1,
-            Step.SetPool to 1,
-        )
+        doTest(Step.SetPool to 0, Step.SetAdapter to 0, Step.AttachToWindow to 1, Step.SetPool to 1)
     }
 
     @Test
@@ -114,7 +95,7 @@ class RecycledViewPoolInstrumentedTest {
                 LinearLayout(activity).also {
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+                        ViewGroup.LayoutParams.MATCH_PARENT,
                     )
                 }
             activity.setContentView(parent)
@@ -162,7 +143,7 @@ class RecycledViewPoolInstrumentedTest {
                 LinearLayout(activity).also {
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+                        ViewGroup.LayoutParams.MATCH_PARENT,
                     )
                 }
             activity.setContentView(parent)

@@ -40,7 +40,7 @@ class KeyboardOptionsTest {
                 imeAction = ImeAction.Go,
                 capitalization = KeyboardCapitalization.Sentences,
                 autoCorrectEnabled = false,
-                platformImeOptions = platformImeOptions
+                platformImeOptions = platformImeOptions,
             )
 
         assertThat(keyboardOptions.toImeOptions(singleLine = true))
@@ -51,7 +51,7 @@ class KeyboardOptionsTest {
                     capitalization = KeyboardCapitalization.Sentences,
                     autoCorrect = false,
                     singleLine = true,
-                    platformImeOptions = platformImeOptions
+                    platformImeOptions = platformImeOptions,
                 )
             )
     }
@@ -67,7 +67,7 @@ class KeyboardOptionsTest {
                     autoCorrect = true,
                     singleLine = false,
                     platformImeOptions = null,
-                    hintLocales = LocaleList.Empty
+                    hintLocales = LocaleList.Empty,
                 )
             )
     }
@@ -111,7 +111,7 @@ class KeyboardOptionsTest {
                 imeAction = ImeAction.Search,
                 platformImeOptions = PlatformImeOptions("receiver"),
                 showKeyboardOnFocus = false,
-                hintLocales = LocaleList("fr")
+                hintLocales = LocaleList("fr"),
             )
         // All properties must be different.
         val other =
@@ -122,7 +122,7 @@ class KeyboardOptionsTest {
                 imeAction = ImeAction.Search,
                 platformImeOptions = PlatformImeOptions("other"),
                 showKeyboardOnFocus = true,
-                hintLocales = LocaleList("fr")
+                hintLocales = LocaleList("fr"),
             )
 
         assertThat(receiver.fillUnspecifiedValuesWith(other)).isEqualTo(receiver)

@@ -85,14 +85,14 @@ fun AsyncFontFamilyDemo() {
                 Font(
                     DeviceFontFamilyName("A font that is not installed, on any device"),
                     FontWeight.Normal,
-                    FontStyle.Normal
+                    FontStyle.Normal,
                 ),
                 // second font loads with a delay, is fallback for (Normal, Normal)
                 DemoAsyncFont(
                     FontWeight.Normal,
                     FontStyle.Normal,
                     delay = 2_000L,
-                    typeface = Typeface.create("cursive", Typeface.NORMAL)
+                    typeface = Typeface.create("cursive", Typeface.NORMAL),
                 ),
                 // third (Normal, Normal) font is never matched, as previous font correctly loads,
                 // if
@@ -106,7 +106,7 @@ fun AsyncFontFamilyDemo() {
                     FontWeight.W200,
                     FontStyle.Normal,
                     delay = 500L,
-                    Typeface.create("cursive", Typeface.NORMAL)
+                    Typeface.create("cursive", Typeface.NORMAL),
                 ),
 
                 // This font matches (W800, Normal), and will load on first use
@@ -114,14 +114,14 @@ fun AsyncFontFamilyDemo() {
                     FontWeight.W800,
                     FontStyle.Normal,
                     delay = 500L,
-                    typeface = Typeface.create("cursive", Typeface.BOLD)
+                    typeface = Typeface.create("cursive", Typeface.BOLD),
                 ),
                 // Fallback for (W800, Normal)
                 Font(
                     DeviceFontFamilyName("A font that is not installed, on any device"),
                     FontWeight.W800,
-                    FontStyle.Normal
-                )
+                    FontStyle.Normal,
+                ),
             )
         }
     Column {
@@ -129,18 +129,18 @@ fun AsyncFontFamilyDemo() {
             "This demo will load the fonts using fallback chains. Demo fonts descriptions" +
                 " are defined to not cache between loads of this screen, but typically will cache in" +
                 " production usage.",
-            color = Color.Gray
+            color = Color.Gray,
         )
         Spacer(Modifier.height(16.dp))
         Text(
             "(Normal, Normal) text with async loading with fallback (2000ms)",
             fontFamily = fontFamily,
-            modifier = Modifier.fillMaxWidth().height(100.dp)
+            modifier = Modifier.fillMaxWidth().height(100.dp),
         )
         Text(
             "(W200, Normal) text async loading, same FontFamily (500ms)",
             fontFamily = fontFamily,
-            fontWeight = FontWeight.W200
+            fontWeight = FontWeight.W200,
         )
         if (showW800) {
             // font for W800 won't load until it's displayed the first time
@@ -148,7 +148,7 @@ fun AsyncFontFamilyDemo() {
                 "(W800, Normal) text async loading with fallback, same FontFamily " +
                     "(500ms from first display)",
                 fontFamily = fontFamily,
-                fontWeight = FontWeight.W800
+                fontWeight = FontWeight.W800,
             )
         }
 
@@ -156,7 +156,7 @@ fun AsyncFontFamilyDemo() {
             value = "(W200, Normal) 500ms",
             onValueChange = {},
             textStyle =
-                TextStyle.Default.copy(fontFamily = fontFamily, fontWeight = FontWeight.W200)
+                TextStyle.Default.copy(fontFamily = fontFamily, fontWeight = FontWeight.W200),
         )
         Button(onClick = { showW800 = !showW800 }) { Text("Toggle W800 text") }
 
@@ -191,26 +191,23 @@ class DemoAsyncFont(
     override val weight: FontWeight,
     override val style: FontStyle,
     val delay: Long,
-    val typeface: Typeface = Typeface.MONOSPACE
+    val typeface: Typeface = Typeface.MONOSPACE,
 ) : AndroidFont(Async, ExampleAsyncFontTypefaceLoader, FontVariation.Settings(weight, style))
 
-class DemoOptionalFont(
-    override val weight: FontWeight,
-    override val style: FontStyle,
-) :
+class DemoOptionalFont(override val weight: FontWeight, override val style: FontStyle) :
     AndroidFont(
         OptionalLocal,
         ExampleAsyncFontTypefaceLoader,
-        FontVariation.Settings(weight, style)
+        FontVariation.Settings(weight, style),
     )
 
 class DemoBlockingFont(
     override val weight: FontWeight,
     override val style: FontStyle,
-    val typeface: Typeface
+    val typeface: Typeface,
 ) :
     AndroidFont(
         OptionalLocal,
         ExampleAsyncFontTypefaceLoader,
-        FontVariation.Settings(weight, style)
+        FontVariation.Settings(weight, style),
     )

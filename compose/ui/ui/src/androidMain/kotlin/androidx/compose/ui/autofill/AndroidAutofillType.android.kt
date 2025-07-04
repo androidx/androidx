@@ -57,6 +57,7 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
  * Gets the Android specific [AutofillHint][android.view.ViewStructure.setAutofillHints]
  * corresponding to the current [AutofillType].
  */
+@Suppress("Deprecation")
 internal val AutofillType.androidType: String
     get() {
         val androidAutofillType = androidAutofillTypes[this]
@@ -65,6 +66,7 @@ internal val AutofillType.androidType: String
     }
 
 /** Maps each [AutofillType] to one of the autofill hints in [androidx.autofill.HintConstants] */
+@Suppress("Deprecation")
 private val androidAutofillTypes: HashMap<AutofillType, String> =
     hashMapOf(
         AutofillType.EmailAddress to AUTOFILL_HINT_EMAIL_ADDRESS,
@@ -102,5 +104,5 @@ private val androidAutofillTypes: HashMap<AutofillType, String> =
         AutofillType.BirthDateDay to AUTOFILL_HINT_BIRTH_DATE_DAY,
         AutofillType.BirthDateMonth to AUTOFILL_HINT_BIRTH_DATE_MONTH,
         AutofillType.BirthDateYear to AUTOFILL_HINT_BIRTH_DATE_YEAR,
-        AutofillType.SmsOtpCode to AUTOFILL_HINT_SMS_OTP
+        AutofillType.SmsOtpCode to AUTOFILL_HINT_SMS_OTP,
     )

@@ -47,7 +47,7 @@ class GlanceNodeAssertionCollectionTest {
                         children.add(EmittableText().apply { text = "some text" })
                         children.add(EmittableSpacer())
                         children.add(EmittableText().apply { text = "another text" })
-                    }
+                    },
             )
 
         assertion.assertAll(hasText("substring"))
@@ -75,7 +75,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.assertAll(hasText("substring"))
@@ -102,7 +102,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         val assertionError =
@@ -136,7 +136,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         val assertionError =
@@ -160,7 +160,7 @@ class GlanceNodeAssertionCollectionTest {
                         children.add(EmittableText().apply { text = "some text" })
                         children.add(EmittableSpacer())
                         children.add(EmittableText().apply { text = "another text" })
-                    }
+                    },
             )
 
         val assertionError =
@@ -195,7 +195,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         val assertionError =
@@ -232,7 +232,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.assertAny(hasText("substring"))
@@ -265,7 +265,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.assertAny(hasText("substring"))
@@ -298,7 +298,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.filter(hasText("substring")).assertAll(hasText("text"))
@@ -331,7 +331,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.filter(hasText("word")).assertAll(hasText("text"))
@@ -364,7 +364,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.filter(hasText("substring")).assertAny(hasText("text"))
@@ -397,7 +397,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         val assertionError =
@@ -443,7 +443,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.filter(hasText("text")).assertCountEquals(3)
@@ -476,7 +476,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         val assertionError =
@@ -522,7 +522,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion
@@ -559,7 +559,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion
@@ -596,7 +596,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("3") {})
                             }
                         )
-                    }
+                    },
             )
 
         val assertionError =
@@ -640,7 +640,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.onChildren().assertCountEquals(2).assertAll(hasClickAction())
@@ -654,7 +654,7 @@ class GlanceNodeAssertionCollectionTest {
                 emittable =
                     EmittableColumn().apply {
                         modifier = GlanceModifier.semantics { testTag = "test-list" }
-                    }
+                    },
             )
 
         assertion.onChildren().assertCountEquals(0)
@@ -668,7 +668,7 @@ class GlanceNodeAssertionCollectionTest {
                 emittable =
                     EmittableColumn().apply {
                         modifier = GlanceModifier.semantics { testTag = "test-list" }
-                    }
+                    },
             )
 
         val assertionError =
@@ -703,7 +703,7 @@ class GlanceNodeAssertionCollectionTest {
                                 modifier = ActionModifier(LambdaAction("2") {})
                             }
                         )
-                    }
+                    },
             )
 
         assertion.onChildren().filter(hasText("substring")).assertCountEquals(1)
@@ -719,7 +719,7 @@ class GlanceNodeAssertionCollectionTest {
                         modifier = GlanceModifier.semantics { testTag = "test-list" }
                         children.add(EmittableText().apply { text = "text-1" })
                         children.add(EmittableText().apply { text = "text-2" })
-                    }
+                    },
             )
 
         assertion.onChildren().get(index = 0).assertHasText("text-1")

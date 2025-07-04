@@ -279,7 +279,7 @@ class AndroidCanvasTest {
             Paint().apply {
                 color = Color.Blue
                 pathEffect = PathEffect.cornerPathEffect(radius)
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -294,7 +294,7 @@ class AndroidCanvasTest {
                 isAntiAlias = true
                 color = android.graphics.Color.BLUE
                 pathEffect = android.graphics.CornerPathEffect(radius)
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -324,7 +324,7 @@ class AndroidCanvasTest {
             Paint().apply {
                 color = Color.Blue
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 8f)
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -339,7 +339,7 @@ class AndroidCanvasTest {
                 isAntiAlias = true
                 color = android.graphics.Color.BLUE
                 pathEffect = android.graphics.DashPathEffect(floatArrayOf(10f, 5f), 8f)
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -348,7 +348,7 @@ class AndroidCanvasTest {
                 assertEquals(
                     "invalid color at i: " + i + ", " + j,
                     composePixels[i, j].toArgb(),
-                    androidBitmap.getPixel(i, j)
+                    androidBitmap.getPixel(i, j),
                 )
             }
         }
@@ -371,9 +371,9 @@ class AndroidCanvasTest {
                 pathEffect =
                     PathEffect.chainPathEffect(
                         PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 8f),
-                        PathEffect.cornerPathEffect(20f)
+                        PathEffect.cornerPathEffect(20f),
                     )
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -390,9 +390,9 @@ class AndroidCanvasTest {
                 pathEffect =
                     android.graphics.ComposePathEffect(
                         android.graphics.DashPathEffect(floatArrayOf(10f, 5f), 8f),
-                        android.graphics.CornerPathEffect(20f)
+                        android.graphics.CornerPathEffect(20f),
                     )
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -401,7 +401,7 @@ class AndroidCanvasTest {
                 assertEquals(
                     "invalid color at i: " + i + ", " + j,
                     composePixels[i, j].toArgb(),
-                    androidBitmap.getPixel(i, j)
+                    androidBitmap.getPixel(i, j),
                 )
             }
         }
@@ -430,9 +430,9 @@ class AndroidCanvasTest {
                         },
                         5f,
                         2f,
-                        StampedPathEffectStyle.Rotate
+                        StampedPathEffectStyle.Rotate,
                     )
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -455,9 +455,9 @@ class AndroidCanvasTest {
                         },
                         5f,
                         2f,
-                        android.graphics.PathDashPathEffect.Style.ROTATE
+                        android.graphics.PathDashPathEffect.Style.ROTATE,
                     )
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -466,7 +466,7 @@ class AndroidCanvasTest {
                 assertEquals(
                     "invalid color at i: " + i + ", " + j,
                     composePixels[i, j].toArgb(),
-                    androidBitmap.getPixel(i, j)
+                    androidBitmap.getPixel(i, j),
                 )
             }
         }
@@ -487,7 +487,7 @@ class AndroidCanvasTest {
             Paint().apply {
                 color = Color.Blue
                 colorFilter = ColorFilter.tint(Color.Magenta, BlendMode.SrcIn)
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -502,7 +502,7 @@ class AndroidCanvasTest {
                 isAntiAlias = true
                 color = android.graphics.Color.BLUE
                 colorFilter = PorterDuffColorFilter(Color.Magenta.toArgb(), PorterDuff.Mode.SRC_IN)
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -511,7 +511,7 @@ class AndroidCanvasTest {
                 assertEquals(
                     "invalid color at i: " + i + ", " + j,
                     composePixels[i, j].toArgb(),
-                    androidBitmap.getPixel(i, j)
+                    androidBitmap.getPixel(i, j),
                 )
             }
         }
@@ -532,7 +532,7 @@ class AndroidCanvasTest {
             Paint().apply {
                 color = Color.Blue
                 colorFilter = ColorFilter.lighting(Color.Red, Color.Blue)
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -547,7 +547,7 @@ class AndroidCanvasTest {
                 isAntiAlias = true
                 color = android.graphics.Color.BLUE
                 colorFilter = LightingColorFilter(Color.Red.toArgb(), Color.Blue.toArgb())
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -556,7 +556,7 @@ class AndroidCanvasTest {
                 assertEquals(
                     "invalid color at i: " + i + ", " + j,
                     composePixels[i, j].toArgb(),
-                    androidBitmap.getPixel(i, j)
+                    androidBitmap.getPixel(i, j),
                 )
             }
         }
@@ -579,7 +579,7 @@ class AndroidCanvasTest {
             Paint().apply {
                 color = Color.Blue
                 colorFilter = ColorFilter.colorMatrix(colorMatrix)
-            }
+            },
         )
 
         val androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -594,7 +594,7 @@ class AndroidCanvasTest {
                 isAntiAlias = true
                 color = android.graphics.Color.BLUE
                 colorFilter = ColorMatrixColorFilter(colorMatrix.values)
-            }
+            },
         )
 
         val composePixels = imageBitmap.toPixelMap()
@@ -603,7 +603,7 @@ class AndroidCanvasTest {
                 assertEquals(
                     "invalid color at i: " + i + ", " + j,
                     composePixels[i, j].toArgb(),
-                    androidBitmap.getPixel(i, j)
+                    androidBitmap.getPixel(i, j),
                 )
             }
         }
@@ -622,7 +622,7 @@ class AndroidCanvasTest {
         val drawLatch: CountDownLatch,
         context: Context,
         attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+        defStyleAttr: Int = 0,
     ) : FrameLayout(context, attrs, defStyleAttr) {
         override fun dispatchDraw(canvas: Canvas) {
             val androidCanvas = Canvas(canvas)

@@ -32,7 +32,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
+    instrumentedPackages = arrayOf("androidx.camera.extensions.internal"),
 )
 class ExtensionVersionMaximumCompatibleTest(private val config: TestConfig) {
 
@@ -58,7 +58,7 @@ class ExtensionVersionMaximumCompatibleTest(private val config: TestConfig) {
     data class TestConfig(
         val targetVersion: String,
         val maximumCompatibleVersion: String,
-        val expectedResult: Boolean
+        val expectedResult: Boolean,
     )
 
     companion object {

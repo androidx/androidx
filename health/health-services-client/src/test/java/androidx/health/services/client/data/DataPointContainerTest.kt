@@ -41,7 +41,7 @@ class DataPointContainerTest {
             maxAbsoluteElevationMeters = 20.0,
             averageAbsoluteElevationMeters = 15.0,
             startTime = 10.instant(),
-            endTime = 20.instant()
+            endTime = 20.instant(),
         )
 
     @Test
@@ -88,13 +88,13 @@ class DataPointContainerTest {
             DeltaDataType(
                 "health_services.device_private.65537",
                 DataType.TimeType.INTERVAL,
-                ByteArray::class.java
+                ByteArray::class.java,
             )
         val customDataType2: DeltaDataType<ByteArray, IntervalDataPoint<ByteArray>> =
             DeltaDataType(
                 "health_services.device_private.65537",
                 DataType.TimeType.INTERVAL,
-                ByteArray::class.java
+                ByteArray::class.java,
             )
         val byteArray = ByteArray(1)
         byteArray[0] = 0x42
@@ -108,7 +108,7 @@ class DataPointContainerTest {
                         value = byteArray,
                         startDurationFromBoot = 2.duration(),
                         endDurationFromBoot = 10.duration(),
-                    )
+                    ),
                 )
             )
 
@@ -211,7 +211,7 @@ class DataPointContainerTest {
                 HEART_RATE_BPM,
                 FLOORS,
                 CALORIES_TOTAL,
-                ABSOLUTE_ELEVATION_STATS
+                ABSOLUTE_ELEVATION_STATS,
             )
     }
 }

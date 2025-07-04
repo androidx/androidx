@@ -54,7 +54,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 public class SplashscreenParametrizedTest(
     public val name: String,
-    public val activityClass: KClass<out SplashScreenTestControllerHolder>
+    public val activityClass: KClass<out SplashScreenTestControllerHolder>,
 ) {
 
     private lateinit var device: UiDevice
@@ -65,7 +65,7 @@ public class SplashscreenParametrizedTest(
         public fun data(): Iterable<Array<Any>> {
             return listOf(
                 arrayOf("Platform", SplashScreenWithIconBgTestActivity::class),
-                arrayOf("AppCompat", SplashScreenAppCompatTestActivity::class)
+                arrayOf("AppCompat", SplashScreenAppCompatTestActivity::class),
             )
         }
 
@@ -107,7 +107,7 @@ public class SplashscreenParametrizedTest(
         }
         assertTrue(
             "Waiting condition was never checked",
-            activity.waitedLatch.await(2, TimeUnit.SECONDS)
+            activity.waitedLatch.await(2, TimeUnit.SECONDS),
         )
         assertFalse("Activity should not have been drawn", activity.hasDrawn)
         activity.waitBarrier.set(false)
@@ -137,7 +137,7 @@ public class SplashscreenParametrizedTest(
         activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
         assertNull(
             "Splash screen view was not removed from its parent",
-            activity.splashScreenView!!.parent
+            activity.splashScreenView!!.parent,
         )
     }
 
@@ -269,7 +269,7 @@ public class SplashscreenParametrizedTest(
                     it.remove()
                     controller.exitAnimationListenerLatch.countDown()
                 },
-                100
+                100,
             )
             true
         }
@@ -320,14 +320,14 @@ public class SplashscreenParametrizedTest(
             "Content view height must be stable but was ${
                 contentViewHeights.joinToString(",")
             }",
-            contentViewHeights.all { it == contentViewHeights.first() }
+            contentViewHeights.all { it == contentViewHeights.first() },
         )
     }
 
     private fun compareBitmaps(
         beforeScreenshot: Bitmap,
         afterScreenshot: Bitmap,
-        threshold: Double = 0.99
+        threshold: Double = 0.99,
     ) {
         val beforeBuffer = IntArray(beforeScreenshot.width * beforeScreenshot.height)
         beforeScreenshot.getPixels(
@@ -337,7 +337,7 @@ public class SplashscreenParametrizedTest(
             0,
             0,
             beforeScreenshot.width,
-            beforeScreenshot.height
+            beforeScreenshot.height,
         )
 
         val afterBuffer = IntArray(afterScreenshot.width * afterScreenshot.height)
@@ -348,7 +348,7 @@ public class SplashscreenParametrizedTest(
             0,
             0,
             afterScreenshot.width,
-            afterScreenshot.height
+            afterScreenshot.height,
         )
 
         val matcher =
@@ -357,7 +357,7 @@ public class SplashscreenParametrizedTest(
                     beforeBuffer,
                     afterBuffer,
                     afterScreenshot.width,
-                    afterScreenshot.height
+                    afterScreenshot.height,
                 )
 
         if (!matcher.matches) {
@@ -372,11 +372,11 @@ public class SplashscreenParametrizedTest(
             bundle.putString("splashscreen_diff", diff?.absolutePath)
             bundle.putString(
                 "splashscreen_before",
-                beforeScreenshot.writeToDevice("before.png").absolutePath
+                beforeScreenshot.writeToDevice("before.png").absolutePath,
             )
             bundle.putString(
                 "splashscreen_after",
-                afterScreenshot.writeToDevice("after.png").absolutePath
+                afterScreenshot.writeToDevice("after.png").absolutePath,
             )
             val path = diff?.parentFile?.path
             InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
@@ -396,7 +396,7 @@ public class SplashscreenParametrizedTest(
         logger: (tag: String, msg: String) -> Int,
         tag: String,
         title: String,
-        msg: String
+        msg: String,
     ) {
         val chunks = msg.chunked(4000)
         logger(tag, "$title ${chunks.size}")
@@ -417,7 +417,7 @@ public class SplashscreenParametrizedTest(
                 // Reduce the size of the bitmap
                 width * 3 shr 2,
                 height * 3 shr 2,
-                false
+                false,
             )
         val outputStream = ByteArrayOutputStream()
         scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
@@ -426,7 +426,7 @@ public class SplashscreenParametrizedTest(
         val str =
             Base64.encodeToString(
                 bytes,
-                Base64.NO_WRAP // Not to wrap here as we are going to wrap on our own later
+                Base64.NO_WRAP, // Not to wrap here as we are going to wrap on our own later
             )
         return str
     }
@@ -434,7 +434,7 @@ public class SplashscreenParametrizedTest(
     private fun Bitmap.writeToDevice(name: String): File {
         return writeToDevice(
             { compress(Bitmap.CompressFormat.PNG, 0 /*ignored for png*/, it) },
-            name
+            name,
         )
     }
 
@@ -442,7 +442,7 @@ public class SplashscreenParametrizedTest(
         val deviceOutputDirectory =
             File(
                 InstrumentationRegistry.getInstrumentation().context.externalCacheDir,
-                "splashscreen_test"
+                "splashscreen_test",
             )
         if (!deviceOutputDirectory.exists() && !deviceOutputDirectory.mkdir()) {
             throw IOException("Could not create folder.")
@@ -474,7 +474,7 @@ public class SplashscreenParametrizedTest(
     private fun SplashScreenTestController.waitSplashScreenViewRemoved() {
         assertTrue(
             "Exit animation listener was not called",
-            exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
+            exitAnimationListenerLatch.await(2, TimeUnit.SECONDS),
         )
     }
 }

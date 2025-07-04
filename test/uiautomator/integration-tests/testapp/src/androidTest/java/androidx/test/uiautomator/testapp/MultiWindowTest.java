@@ -19,6 +19,8 @@ package androidx.test.uiautomator.testapp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Point;
+
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
@@ -59,8 +61,14 @@ public class MultiWindowTest extends BaseTest {
         // Operations (clicks) and coordinates are valid in both split screen windows.
         int width = mDevice.getDisplayWidth();
         int height = mDevice.getDisplayHeight();
-        mDevice.click(width / 2, height / 4);
-        mDevice.click(width / 2, 3 * height / 4);
+        Point first = new Point(width / 2, height / 4);
+        Point second = new Point(width / 2, 3 * height / 4);
+        if (width > height) {   // Split horizontally in landscape mode.
+            first = new Point(width / 4, height / 2);
+            second = new Point(3 * width / 4, height / 2);
+        }
+        mDevice.click(first.x, first.y);
+        mDevice.click(second.x, second.y);
         assertEquals("I've been clicked!", firstWindow.getText());
         assertEquals("I've been clicked!", secondWindow.getText());
     }

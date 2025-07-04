@@ -35,11 +35,11 @@ import android.os.Looper
 import android.support.wearable.watchface.SharedMemoryImage
 import android.view.Surface
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.DrawMode
@@ -130,7 +130,7 @@ public class ComplicationTapActivity : Activity() {
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 public class WatchFaceServiceImageTest {
 
     @get:Rule val mocks = MockitoJUnit.rule()
@@ -153,7 +153,7 @@ public class WatchFaceServiceImageTest {
             SystemDataSources.DATA_SOURCE_DAY_OF_WEEK to
                 ShortTextComplicationData.Builder(
                         PlainComplicationText.Builder("Mon").build(),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .setTitle(PlainComplicationText.Builder("23rd").build())
                     .setTapAction(
@@ -162,10 +162,10 @@ public class WatchFaceServiceImageTest {
                             123,
                             Intent(
                                     ApplicationProvider.getApplicationContext<Context>(),
-                                    ComplicationTapActivity::class.java
+                                    ComplicationTapActivity::class.java,
                                 )
                                 .apply {},
-                            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+                            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE,
                         )
                     )
                     .build()
@@ -173,11 +173,11 @@ public class WatchFaceServiceImageTest {
             SystemDataSources.DATA_SOURCE_STEP_COUNT to
                 ShortTextComplicationData.Builder(
                         PlainComplicationText.Builder("100").build(),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .setTitle(PlainComplicationText.Builder("Steps").build())
                     .build()
-                    .asWireComplicationData()
+                    .asWireComplicationData(),
         )
 
     @get:Rule
@@ -228,7 +228,7 @@ public class WatchFaceServiceImageTest {
                 surfaceHolder,
                 true, // Not direct boot.
                 null,
-                onInvalidateCountDownLatch
+                onInvalidateCountDownLatch,
             )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
@@ -254,7 +254,7 @@ public class WatchFaceServiceImageTest {
                 100000,
                 ZoneId.of("UTC"),
                 surfaceHolder,
-                null
+                null,
             )
 
         surfaceTexture.setDefaultBufferSize(BITMAP_WIDTH, BITMAP_HEIGHT)
@@ -281,7 +281,7 @@ public class WatchFaceServiceImageTest {
                             UserStyleWireFormat(emptyMap()),
                             null,
                             null,
-                            null
+                            null,
                         ),
                         object : IPendingInteractiveWatchFace.Stub() {
                             override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
@@ -298,7 +298,7 @@ public class WatchFaceServiceImageTest {
                             ) {
                                 fail("WatchFace crashed: $exception")
                             }
-                        }
+                        },
                     )
                 )
         assertThat(existingInstance).isNull()
@@ -309,7 +309,7 @@ public class WatchFaceServiceImageTest {
             interactiveWatchFaceInstance.complicationDetails.map {
                 IdAndComplicationDataWireFormat(
                     it.id,
-                    complicationDataSources[it.complicationState.fallbackSystemProvider]!!
+                    complicationDataSources[it.complicationState.fallbackSystemProvider]!!,
                 )
             }
         )
@@ -361,12 +361,12 @@ public class WatchFaceServiceImageTest {
                             RenderParameters(
                                     DrawMode.AMBIENT,
                                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                    null
+                                    null,
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -396,12 +396,12 @@ public class WatchFaceServiceImageTest {
                             RenderParameters(
                                     DrawMode.INTERACTIVE,
                                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                    null
+                                    null,
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -426,7 +426,7 @@ public class WatchFaceServiceImageTest {
         // Note this will clear complicationSlots.
         interactiveWatchFaceInstance.updateWatchfaceInstance(
             newId,
-            UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
+            UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())),
         )
         sendComplications()
 
@@ -447,7 +447,7 @@ public class WatchFaceServiceImageTest {
         // Note this will clear complicationSlots.
         interactiveWatchFaceInstance.updateWatchfaceInstance(
             "newId",
-            UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray()))
+            UserStyleWireFormat(mapOf(COLOR_STYLE_SETTING to GREEN_STYLE.encodeToByteArray())),
         )
 
         handler.post { engineWrapper.draw(engineWrapper.getWatchFaceImplOrNull()) }
@@ -498,13 +498,13 @@ public class WatchFaceServiceImageTest {
                     NoDataComplicationData(
                             LongTextComplicationData.Builder(
                                     ComplicationText.PLACEHOLDER,
-                                    ComplicationText.EMPTY
+                                    ComplicationText.EMPTY,
                                 )
                                 .setTitle(ComplicationText.PLACEHOLDER)
                                 .setSmallImage(SmallImage.PLACEHOLDER)
-                                .build(),
+                                .build()
                         )
-                        .asWireComplicationData()
+                        .asWireComplicationData(),
                 ),
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
@@ -513,14 +513,14 @@ public class WatchFaceServiceImageTest {
                                     RangedValueComplicationData.PLACEHOLDER,
                                     0f,
                                     100f,
-                                    ComplicationText.EMPTY
+                                    ComplicationText.EMPTY,
                                 )
                                 .setText(ComplicationText.PLACEHOLDER)
                                 .setMonochromaticImage(MonochromaticImage.PLACEHOLDER)
                                 .build()
                         )
-                        .asWireComplicationData()
-                )
+                        .asWireComplicationData(),
+                ),
             )
         )
 
@@ -535,12 +535,12 @@ public class WatchFaceServiceImageTest {
                             RenderParameters(
                                     DrawMode.AMBIENT,
                                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                    null
+                                    null,
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -566,9 +566,9 @@ public class WatchFaceServiceImageTest {
             SmallImage.Builder(
                     Icon.createWithResource(
                         ApplicationProvider.getApplicationContext<Context>(),
-                        R.drawable.color_icon
+                        R.drawable.color_icon,
                     ),
-                    SmallImageType.ICON
+                    SmallImageType.ICON,
                 )
                 .build()
 
@@ -579,19 +579,19 @@ public class WatchFaceServiceImageTest {
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
                             PlainComplicationText.Builder("Test").build(),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .setSmallImage(smallImage)
                         .build()
-                        .asWireComplicationData()
+                        .asWireComplicationData(),
                 ),
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                     RangedValueComplicationData.Builder(25f, 0f, 100f, ComplicationText.EMPTY)
                         .setSmallImage(smallImage)
                         .build()
-                        .asWireComplicationData()
-                )
+                        .asWireComplicationData(),
+                ),
             )
         )
 
@@ -606,12 +606,12 @@ public class WatchFaceServiceImageTest {
                             RenderParameters(
                                     DrawMode.INTERACTIVE,
                                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                    null
+                                    null,
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -643,13 +643,13 @@ public class WatchFaceServiceImageTest {
                                     RenderParameters.HighlightLayer(
                                         RenderParameters.HighlightedElement.AllComplicationSlots,
                                         Color.RED,
-                                        Color.argb(128, 0, 0, 0)
-                                    )
+                                        Color.argb(128, 0, 0, 0),
+                                    ),
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -682,12 +682,12 @@ public class WatchFaceServiceImageTest {
                                     mapOf(
                                         EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
                                             TapEvent(1, 1, Instant.ofEpochMilli(123456789))
-                                    )
+                                    ),
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -721,13 +721,13 @@ public class WatchFaceServiceImageTest {
                                             EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
                                         ),
                                         Color.RED,
-                                        Color.argb(128, 0, 0, 0)
-                                    )
+                                        Color.argb(128, 0, 0, 0),
+                                    ),
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            null
+                            null,
                         )
                     )
                 )
@@ -748,22 +748,22 @@ public class WatchFaceServiceImageTest {
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
                             PlainComplicationText.Builder("A").build(),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .setTitle(PlainComplicationText.Builder("Preview").build())
                         .build()
-                        .asWireComplicationData()
+                        .asWireComplicationData(),
                 ),
                 IdAndComplicationDataWireFormat(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
                     ShortTextComplicationData.Builder(
                             PlainComplicationText.Builder("B").build(),
-                            ComplicationText.EMPTY
+                            ComplicationText.EMPTY,
                         )
                         .setTitle(PlainComplicationText.Builder("Preview").build())
                         .build()
-                        .asWireComplicationData()
-                )
+                        .asWireComplicationData(),
+                ),
             )
 
         handler.post(this::initCanvasWatchFace)
@@ -779,12 +779,12 @@ public class WatchFaceServiceImageTest {
                             RenderParameters(
                                     DrawMode.INTERACTIVE,
                                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
-                                    null
+                                    null,
                                 )
                                 .toWireFormat(),
                             123456789,
                             null,
-                            previewComplicationData
+                            previewComplicationData,
                         )
                     )
                 )
@@ -827,9 +827,9 @@ public class WatchFaceServiceImageTest {
                     ),
                     null,
                     null,
-                    null
+                    null,
                 ),
-                null
+                null,
             )
 
         val engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper

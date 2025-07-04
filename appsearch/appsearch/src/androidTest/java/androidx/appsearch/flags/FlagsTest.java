@@ -186,4 +186,117 @@ public class FlagsTest {
                 .isEqualTo(
                         "com.android.appsearch.flags.enable_search_result_parent_types");
     }
+
+    @Test
+    public void testFlagValue_enableDeletePropagationType() {
+        assertThat(Flags.FLAG_ENABLE_DELETE_PROPAGATION_TYPE)
+                .isEqualTo("com.android.appsearch.flags.enable_delete_propagation_type");
+    }
+
+    @Test
+    public void testFlagValue_enableAppSearchManageBlobFiles() {
+        assertThat(Flags.FLAG_ENABLE_APP_SEARCH_MANAGE_BLOB_FILES)
+                .isEqualTo("com.android.appsearch.flags.enable_app_search_manage_blob_files");
+    }
+
+    @Test
+    public void testFlagValue_enableCalculateTimeSinceLastAttemptedOptimize() {
+        assertThat(Flags.FLAG_ENABLE_CALCULATE_TIME_SINCE_LAST_ATTEMPTED_OPTIMIZE)
+                .isEqualTo("com.android.appsearch.flags"
+                        + ".enable_calculate_time_since_last_attempted_optimize");
+    }
+
+    @Test
+    public void testFlagValue_enableQualifiedIdJoinIndexV3() {
+        assertThat(Flags.FLAG_ENABLE_QUALIFIED_ID_JOIN_INDEX_V3)
+                .isEqualTo("com.android.appsearch.flags.enable_qualified_id_join_index_v3");
+    }
+
+    @Test
+    public void testFlagValue_enableSoftIndexRestoration() {
+        assertThat(Flags.FLAG_ENABLE_SOFT_INDEX_RESTORATION)
+                .isEqualTo("com.android.appsearch.flags.enable_soft_index_restoration");
+    }
+
+    @Test
+    public void testFlagValue_enableMarkerFileForOptimize() {
+        assertThat(Flags.FLAG_ENABLE_MARKER_FILE_FOR_OPTIMIZE)
+                .isEqualTo("com.android.appsearch.flags.enable_marker_file_for_optimize");
+    }
+
+    @Test
+    public void testFlagValue_enableReleaseBackupSchemaFileIfOverlayPresent() {
+        assertThat(Flags.FLAG_ENABLE_RELEASE_BACKUP_SCHEMA_FILE_IF_OVERLAY_PRESENT)
+                .isEqualTo("com.android.appsearch.flags"
+                        + ".enable_release_backup_schema_file_if_overlay_present");
+    }
+
+    @Test
+    public void testFlagValue_enableEmbeddingMatchInfo() {
+        assertThat(Flags.FLAG_ENABLE_EMBEDDING_MATCH_INFO)
+                .isEqualTo("com.android.appsearch.flags.enable_embedding_match_info");
+    }
+
+    @Test
+    public void testFlagValue_enableQueryVisibilityDocuments() {
+        assertThat(Flags.FLAG_ENABLE_QUERY_VISIBILITY_DOCUMENTS)
+                .isEqualTo("com.android.appsearch.flags.enable_query_visibility_documents");
+    }
+
+
+    @Test
+    public void testFlagValue_enableStrictPageByteSizeLimit() {
+        assertThat(Flags.FLAG_ENABLE_STRICT_PAGE_BYTE_SIZE_LIMIT)
+                .isEqualTo("com.android.appsearch.flags.enable_strict_page_byte_size_limit");
+    }
+
+    @Test
+    public void testFlagValue_enableCompressionThreshold() {
+        assertThat(Flags.FLAG_ENABLE_COMPRESSION_THRESHOLD)
+                .isEqualTo("com.android.appsearch.flags.enable_compression_threshold");
+    }
+
+    @Test
+    public void testFlagValue_enableCompressionMemLevelOne() {
+        assertThat(Flags.FLAG_ENABLE_COMPRESSION_MEM_LEVEL_ONE)
+                .isEqualTo("com.android.appsearch.flags.enable_compression_mem_level_one");
+    }
+
+    @Test
+    public void testFlagValue_enableResultAborted() {
+        assertThat(Flags.FLAG_ENABLE_RESULT_ABORTED)
+                .isEqualTo("com.android.appsearch.flags.enable_result_aborted");
+    }
+
+    @Test
+    public void testFlagValue_enableThrowExceptionForNativeNotFoundPageToken() {
+        assertThat(Flags.FLAG_ENABLE_THROW_EXCEPTION_FOR_NATIVE_NOT_FOUND_PAGE_TOKEN)
+                .isEqualTo("com.android.appsearch.flags"
+                        + ".enable_throw_exception_for_native_not_found_page_token");
+    }
+
+    @Test
+    public void testFlagValue_enableDatabaseScopedSchemaOperations() {
+        assertThat(Flags.FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS)
+                .isEqualTo("com.android.appsearch.flags.enable_database_scoped_schema_operations");
+    }
+
+    @Test
+    public void testFlagValue_enableSmallerDecompressionBufferSize() {
+        assertThat(Flags.FLAG_ENABLE_SMALLER_DECOMPRESSION_BUFFER_SIZE)
+                .isEqualTo("com.android.appsearch.flags.enable_smaller_decompression_buffer_size");
+    }
+
+    @Test
+    public void testFlagValue_enableEigenEmbeddingScoring() {
+        assertThat(Flags.FLAG_ENABLE_EIGEN_EMBEDDING_SCORING)
+                .isEqualTo("com.android.appsearch.flags.enable_eigen_embedding_scoring");
+    }
+
+    @Test
+    public void testFlagValue_enableInitializationRetriesBeforeReset() {
+        assertThat(Flags.FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET)
+                .isEqualTo(
+                        "com.android.appsearch.flags.enable_initialization_retries_before_reset");
+    }
 }

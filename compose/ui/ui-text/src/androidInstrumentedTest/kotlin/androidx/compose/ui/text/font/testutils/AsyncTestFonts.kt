@@ -127,7 +127,7 @@ class AsyncFauxFont(
     typefaceLoader: AsyncTestTypefaceLoader,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
-    private val name: String = "AsyncFauxFont"
+    private val name: String = "AsyncFauxFont",
 ) : AndroidFont(Async, typefaceLoader, FontVariation.Settings(weight, style)) {
     override fun toString(): String {
         return "$name[$weight, $style]"
@@ -139,7 +139,7 @@ class OptionalFauxFont(
     internal val typeface: Typeface?,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
-    private val name: String = "OptionalFauxFont"
+    private val name: String = "OptionalFauxFont",
 ) : AndroidFont(OptionalLocal, typefaceLoader, FontVariation.Settings(weight, style)) {
     override fun toString(): String {
         return "$name[$weight, $style]"
@@ -151,7 +151,7 @@ class BlockingFauxFont(
     internal val typeface: Typeface,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
-    private val name: String = "BlockingFauxFont"
+    private val name: String = "BlockingFauxFont",
 ) : AndroidFont(Blocking, typefaceLoader, FontVariation.Settings(weight, style)) {
     override fun toString(): String {
         return "$name[$weight, $style]"
@@ -162,7 +162,7 @@ class ThrowingFauxFont(
     typefaceLoader: ThrowingTypefaceLoader,
     override val weight: FontWeight = FontWeight.Normal,
     override val style: FontStyle = FontStyle.Normal,
-    private val name: String = "ThrowingFauxFont"
+    private val name: String = "ThrowingFauxFont",
 ) : AndroidFont(Blocking, typefaceLoader, FontVariation.Settings(weight, style)) {
     override fun toString(): String {
         return "$name[$weight, $style]"

@@ -33,11 +33,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -91,8 +90,8 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
     }
 
     void setupByConfig(Config config, boolean waitForFirstLayout,
-        @Nullable RecyclerView.LayoutParams childLayoutParams,
-        @Nullable RecyclerView.LayoutParams parentLayoutParams) throws Throwable {
+            RecyclerView.@Nullable LayoutParams childLayoutParams,
+            RecyclerView.@Nullable LayoutParams parentLayoutParams) throws Throwable {
         mRecyclerView = inflateWrappedRV();
 
         mRecyclerView.setHasFixedSize(true);
@@ -223,7 +222,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         private final Map<Item, Rect> mBefore;
         private final Map<Item, Rect> mAfter;
         private boolean mStrictEquality;
-        @Nullable private String mPositionsLog;
+        private @Nullable String mPositionsLog;
 
         private LayoutEquality(String messagePrefix,
                 Map<Item, Rect> before,
@@ -234,8 +233,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             mStrictEquality = strictEquality;
         }
 
-        @Nullable
-        public Inequality findInequality() {
+        public @Nullable Inequality findInequality() {
             if (mBefore.size() != mAfter.size()) {
                 return new Inequality(this,
                         "item counts should be equal " + mBefore.size() + " vs " + mAfter.size());
@@ -273,8 +271,7 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
             }
             return null;
         }
-        @NonNull
-        private String getPositionsLog() {
+        private @NonNull String getPositionsLog() {
             if (mPositionsLog == null) {
                 mPositionsLog = buildPositionLog();
             }

@@ -20,5 +20,5 @@ import androidx.room.Relation
 
 class AlbumWithSongs(
     @field:Embedded val album: Album,
-    @field:Relation(parentColumn = "mAlbumName", entityColumn = "mAlbum") val songs: List<Song>
+    @field:Relation(parentColumn = "mAlbumName", entityColumn = "mAlbum") val songs: List<Song>,
 )

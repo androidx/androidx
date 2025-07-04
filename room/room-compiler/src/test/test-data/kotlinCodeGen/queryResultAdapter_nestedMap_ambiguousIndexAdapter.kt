@@ -28,16 +28,12 @@ public class MyDao_Impl(
   }
 
   public override fun getLeftJoinUserNestedMap(): Map<User, Map<Avatar, List<Comment>>> {
-    val _sql: String =
-        "SELECT * FROM User JOIN Avatar ON User.id = Avatar.userId JOIN Comment ON Avatar.userId = Comment.userId"
+    val _sql: String = "SELECT * FROM User JOIN Avatar ON User.id = Avatar.userId JOIN Comment ON Avatar.userId = Comment.userId"
     return performBlocking(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _statementIndices: Array<IntArray> =
-            AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"),
-            arrayOf("userId", "url", "data"), arrayOf("id", "userId", "text")))
-        val _result: MutableMap<User, MutableMap<Avatar, MutableList<Comment>>> =
-            LinkedHashMap<User, MutableMap<Avatar, MutableList<Comment>>>()
+        val _statementIndices: Array<IntArray> = AmbiguousColumnResolver.resolve(_stmt.getColumnNames(), arrayOf(arrayOf("id", "name"), arrayOf("userId", "url", "data"), arrayOf("id", "userId", "text")))
+        val _result: MutableMap<User, MutableMap<Avatar, MutableList<Comment>>> = LinkedHashMap<User, MutableMap<Avatar, MutableList<Comment>>>()
         while (_stmt.step()) {
           val _key: User
           val _tmpId: Int
@@ -52,8 +48,7 @@ public class MyDao_Impl(
             _values = LinkedHashMap<Avatar, MutableList<Comment>>()
             _result.put(_key, _values)
           }
-          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) &&
-              _stmt.isNull(_statementIndices[1][2])) {
+          if (_stmt.isNull(_statementIndices[1][0]) && _stmt.isNull(_statementIndices[1][1]) && _stmt.isNull(_statementIndices[1][2])) {
             continue
           }
           val _key_1: Avatar
@@ -71,8 +66,7 @@ public class MyDao_Impl(
             _values_1 = mutableListOf()
             _values.put(_key_1, _values_1)
           }
-          if (_stmt.isNull(_statementIndices[2][0]) && _stmt.isNull(_statementIndices[2][1]) &&
-              _stmt.isNull(_statementIndices[2][2])) {
+          if (_stmt.isNull(_statementIndices[2][0]) && _stmt.isNull(_statementIndices[2][1]) && _stmt.isNull(_statementIndices[2][2])) {
             continue
           }
           val _value: Comment

@@ -34,7 +34,7 @@ import androidx.wear.compose.material3.MaterialTheme
 fun LinearProgressIndicatorSample(progress: () -> Float, enabled: Boolean = true) {
     Box(
         modifier = Modifier.background(MaterialTheme.colorScheme.background).fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         LinearProgressIndicator(
             progress = progress,
@@ -42,7 +42,7 @@ fun LinearProgressIndicatorSample(progress: () -> Float, enabled: Boolean = true
             modifier =
                 Modifier.semantics(mergeDescendants = true) {
                     progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f)
-                }
+                },
         )
     }
 }

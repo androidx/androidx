@@ -177,7 +177,7 @@ class ProtoLayoutMinSchemaDetector : Detector(), Detector.UastScanner {
                 severity = Severity.ERROR,
                 androidSpecific = true,
                 implementation =
-                    Implementation(ProtoLayoutMinSchemaDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(ProtoLayoutMinSchemaDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         const val REQUIRES_SCHEMA_ANNOTATION =

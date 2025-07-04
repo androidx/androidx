@@ -28,70 +28,62 @@ import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
 import org.chromium.support_lib_boundary.TracingControllerBoundaryInterface;
+import org.chromium.support_lib_boundary.WebViewBuilderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Interface representing {@link android.webkit.WebViewFactoryProvider}.
- * On device with a compatible WebView APK this interface is implemented by a class defined in the
- * WebView APK itself.
- * On devices without a compatible WebView APK this interface is implemented by a stub class
- * {@link androidx.webkit.internal.IncompatibleApkWebViewProviderFactory}.
+ * Interface representing {@link android.webkit.WebViewFactoryProvider}. On device with a compatible
+ * WebView APK this interface is implemented by a class defined in the WebView APK itself. On
+ * devices without a compatible WebView APK this interface is implemented by a stub class {@link
+ * androidx.webkit.internal.IncompatibleApkWebViewProviderFactory}.
  */
 @SuppressWarnings("JavadocReference") // WebViewFactoryProvider and WebViewProvider are hidden.
 public interface WebViewProviderFactory {
-    /**
-     * Create a support library version of {@link android.webkit.WebViewProvider}.
-     */
+
+    /** Returns a builder that can configure and build a WebView instance. */
+    @NonNull WebViewBuilderBoundaryInterface getWebViewBuilder();
+
+    /** Create a support library version of {@link android.webkit.WebViewProvider}. */
     @NonNull WebViewProviderBoundaryInterface createWebView(@NonNull WebView webview);
 
     /**
-     * Create the boundary interface for {@link WebkitToCompatConverter}
-     * which converts android.webkit classes into their corresponding support library classes.
+     * Create the boundary interface for {@link WebkitToCompatConverter} which converts
+     * android.webkit classes into their corresponding support library classes.
      */
     @NonNull WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter();
 
     /**
-     * Fetch the boundary interface representing
-     * {@link android.webkit.WebViewFactoryProvider#Statics}.
+     * Fetch the boundary interface representing {@link
+     * android.webkit.WebViewFactoryProvider#Statics}.
      */
     @NonNull StaticsBoundaryInterface getStatics();
 
-    /**
-     * Fetch the features supported by the current WebView APK.
-     */
+    /** Fetch the features supported by the current WebView APK. */
     String @NonNull [] getWebViewFeatures();
 
-    /**
-     * Fetch the boundary interface representing {@link android.webkit.ServiceWorkerController}.
-     */
+    /** Fetch the boundary interface representing {@link android.webkit.ServiceWorkerController}. */
     @NonNull ServiceWorkerControllerBoundaryInterface getServiceWorkerController();
 
-    /**
-     * Fetch the boundary interface representing {@link TracingController}.
-     */
+    /** Fetch the boundary interface representing {@link TracingController}. */
     @NonNull TracingControllerBoundaryInterface getTracingController();
 
-    /**
-     * Fetch the boundary interface representing {@link android.webkit.ProxyController}.
-     */
+    /** Fetch the boundary interface representing {@link android.webkit.ProxyController}. */
     @NonNull ProxyControllerBoundaryInterface getProxyController();
 
-    /**
-     * Fetch the boundary interface representing image drag drop implementation.
-     */
+    /** Fetch the boundary interface representing image drag drop implementation. */
     @NonNull DropDataContentProviderBoundaryInterface getDropDataProvider();
 
-    /**
-     * Fetch the boundary interface representing profile store for Multi-Profile.
-     */
+    /** Fetch the boundary interface representing profile store for Multi-Profile. */
     @NonNull ProfileStoreBoundaryInterface getProfileStore();
 
     /**
-     * Fetch the boundary interface representing
-     * {@link WebViewCompat#startUpWebView(WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+     * Fetch the boundary interface representing {@link
+     * WebViewCompat#startUpWebView(WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
      */
-    void startUpWebView(@NonNull WebViewStartUpConfig config,
+    @WebViewCompat.ExperimentalAsyncStartUp
+    void startUpWebView(
+            @NonNull WebViewStartUpConfig config,
             WebViewCompat.@NonNull WebViewStartUpCallback callback);
 }

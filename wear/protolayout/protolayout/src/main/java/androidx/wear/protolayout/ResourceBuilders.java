@@ -520,6 +520,16 @@ public final class ResourceBuilders {
             }
         }
 
+        /** Gets the trigger to start the animation. */
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
+        public @Nullable Trigger getStartTrigger() {
+            if (mImpl.hasStartTrigger()) {
+                return TriggerBuilders.triggerFromProto(mImpl.getStartTrigger());
+            } else {
+                return null;
+            }
+        }
+
         /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public static @NonNull AndroidLottieResourceByResId fromProto(
@@ -540,6 +550,8 @@ public final class ResourceBuilders {
                     + getRawResourceId()
                     + ", progress="
                     + getProgress()
+                    + ", startTrigger="
+                    + getStartTrigger()
                     + "}";
         }
 
@@ -587,6 +599,13 @@ public final class ResourceBuilders {
             @RequiresSchemaVersion(major = 1, minor = 500)
             public @NonNull Builder setProgress(@NonNull DynamicFloat progress) {
                 mImpl.setProgress(progress.toDynamicFloatProto());
+                return this;
+            }
+
+            /** Sets the trigger to start the animation. */
+            @RequiresSchemaVersion(major = 1, minor = 500)
+            public @NonNull Builder setStartTrigger(@NonNull Trigger startTrigger) {
+                mImpl.setStartTrigger(startTrigger.toTriggerProto());
                 return this;
             }
 
@@ -737,8 +756,8 @@ public final class ResourceBuilders {
             @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             public @NonNull Builder setAndroidSeekableAnimatedResourceByResId(
-                                                @NonNull AndroidSeekableAnimatedImageResourceByResId
-                                    androidSeekableAnimatedResourceByResId) {
+                    @NonNull AndroidSeekableAnimatedImageResourceByResId
+                            androidSeekableAnimatedResourceByResId) {
                 mImpl.setAndroidSeekableAnimatedResourceByResId(
                         androidSeekableAnimatedResourceByResId.toProto());
                 return this;
@@ -843,8 +862,8 @@ public final class ResourceBuilders {
             /** Adds an entry into a map of resource_ids to images, which can be used by layouts. */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
-            public @NonNull Builder addIdToImageMapping(@NonNull String id,
-                    @NonNull ImageResource image) {
+            public @NonNull Builder addIdToImageMapping(
+                    @NonNull String id, @NonNull ImageResource image) {
                 mImpl.putIdToImage(id, image.toProto());
                 return this;
             }

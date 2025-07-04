@@ -49,7 +49,7 @@ public class CanvasComplicationDrawableTest {
         CanvasComplicationDrawable(
             complicationDrawable,
             watchState.asWatchState(),
-            invalidateCallback
+            invalidateCallback,
         )
     private val slotId = 100
 
@@ -63,9 +63,9 @@ public class CanvasComplicationDrawableTest {
                 DrawMode.AMBIENT,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
                 null,
-                emptyMap()
+                emptyMap(),
             ),
-            slotId
+            slotId,
         )
         assertThat(complicationDrawable.isInAmbientMode).isTrue()
 
@@ -77,9 +77,9 @@ public class CanvasComplicationDrawableTest {
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
                 null,
-                emptyMap()
+                emptyMap(),
             ),
-            slotId
+            slotId,
         )
         assertThat(complicationDrawable.isInAmbientMode).isFalse()
     }
@@ -94,9 +94,9 @@ public class CanvasComplicationDrawableTest {
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
                 null,
-                emptyMap()
+                emptyMap(),
             ),
-            slotId
+            slotId,
         )
         assertThat(complicationDrawable.bounds).isEqualTo(bounds)
     }
@@ -111,9 +111,9 @@ public class CanvasComplicationDrawableTest {
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
                 null,
-                emptyMap()
+                emptyMap(),
             ),
-            slotId
+            slotId,
         )
         assertThat(complicationDrawable.currentTime.toEpochMilli()).isEqualTo(1234)
     }
@@ -125,7 +125,7 @@ public class CanvasComplicationDrawableTest {
                 DrawMode.INTERACTIVE,
                 setOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
                 null,
-                mapOf(slotId to TapEvent(50, 50, Instant.ofEpochMilli(1100)))
+                mapOf(slotId to TapEvent(50, 50, Instant.ofEpochMilli(1100))),
             )
 
         val t1099 = ZonedDateTime.ofInstant(Instant.ofEpochMilli(1099), ZoneId.of("UTC"))
@@ -141,7 +141,7 @@ public class CanvasComplicationDrawableTest {
                 Instant.ofEpochMilli(
                     1099 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
                 ),
-                ZoneId.of("UTC")
+                ZoneId.of("UTC"),
             )
 
         canvasComplicationDrawable.render(canvas, bounds, t1099_plus, renderParameters, slotId)
@@ -152,7 +152,7 @@ public class CanvasComplicationDrawableTest {
                 Instant.ofEpochMilli(
                     1100 + CanvasComplicationDrawable.COMPLICATION_HIGHLIGHT_DURATION_MS
                 ),
-                ZoneId.of("UTC")
+                ZoneId.of("UTC"),
             )
         canvasComplicationDrawable.render(canvas, bounds, t1100_plus, renderParameters, slotId)
         assertThat(complicationDrawable.isHighlighted).isFalse()

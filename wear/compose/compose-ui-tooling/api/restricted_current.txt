@@ -8,12 +8,14 @@ package androidx.wear.compose.ui.tooling.preview {
   }
 
   @androidx.compose.ui.tooling.preview.Preview(device=androidx.wear.tooling.preview.devices.WearDevices.LARGE_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Large Round", showSystemUi=true) public @interface WearPreviewLargeRound {
+    ctor @KotlinOnly public WearPreviewLargeRound();
   }
 
   @androidx.compose.ui.tooling.preview.Preview(device=androidx.wear.tooling.preview.devices.WearDevices.SMALL_ROUND, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Round", showSystemUi=true) public @interface WearPreviewSmallRound {
   }
 
   @androidx.compose.ui.tooling.preview.Preview(device=androidx.wear.tooling.preview.devices.WearDevices.SQUARE, backgroundColor=4278190080L, showBackground=true, group="Devices - Small Square", showSystemUi=true) public @interface WearPreviewSquare {
+    ctor @KotlinOnly public WearPreviewSquare();
   }
 
 }

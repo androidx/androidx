@@ -44,7 +44,7 @@ public interface FloatDecayAnimationSpec {
     public fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float
 
     /**
@@ -66,7 +66,7 @@ public interface FloatDecayAnimationSpec {
     public fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float
 
     /**
@@ -95,7 +95,7 @@ private const val ExponentialDecayFriction = -4.2f
  */
 public class FloatExponentialDecaySpec(
     @FloatRange(from = 0.0, fromInclusive = false) frictionMultiplier: Float = 1f,
-    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f
+    @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f,
 ) : FloatDecayAnimationSpec {
 
     override val absVelocityThreshold: Float = max(0.0000001f, abs(absVelocityThreshold))
@@ -104,7 +104,7 @@ public class FloatExponentialDecaySpec(
     override fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         // TODO: Properly support nanos
         val playTimeMillis = playTimeNanos / MillisToNanos
@@ -115,7 +115,7 @@ public class FloatExponentialDecaySpec(
     override fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         // TODO: Properly support nanos
         val playTimeMillis = playTimeNanos / MillisToNanos
@@ -150,7 +150,7 @@ public class FloatExponentialDecaySpec(
  */
 internal fun FloatDecayAnimationSpec.createAnimation(
     startValue: Float,
-    startVelocity: Float = 0f
+    startVelocity: Float = 0f,
 ): Animation<Float, AnimationVector1D> {
     return DecayAnimation(this, startValue, startVelocity)
 }

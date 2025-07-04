@@ -19,7 +19,6 @@ package androidx.privacysandbox.sdkruntime.testsdk
 import android.content.Context
 import android.os.Binder
 import android.os.Bundle
-import android.view.View
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
@@ -46,10 +45,6 @@ class CompatProvider : SandboxedSdkProviderCompat() {
 
     override fun beforeUnloadSdk() {
         isBeforeUnloadSdkCalled = true
-    }
-
-    override fun getView(windowContext: Context, params: Bundle, width: Int, height: Int): View {
-        return View(windowContext)
     }
 
     internal class SdkImpl(

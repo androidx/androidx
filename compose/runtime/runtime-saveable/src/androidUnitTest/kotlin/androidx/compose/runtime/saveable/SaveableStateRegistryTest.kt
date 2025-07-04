@@ -192,6 +192,6 @@ class SaveableStateRegistryTest {
 
     private fun createRegistry(
         restored: Map<String, List<Any?>>? = null,
-        canBeSaved: (Any) -> Boolean = { true }
+        canBeSaved: (Any) -> Boolean = { true },
     ) = SaveableStateRegistry(restored, canBeSaved)
 }

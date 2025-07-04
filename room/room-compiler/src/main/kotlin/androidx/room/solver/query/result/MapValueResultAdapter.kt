@@ -40,8 +40,8 @@ import androidx.room.vo.ColumnIndexVar
  * of nested maps. Each level of nesting of a map is represented by a [NestedMapValueResultAdapter],
  * except the innermost level which is represented by an [EndMapValueResultAdapter].
  *
- * For example, if a DAO method returns a `Map<A, Map<B, Map<C, D>>>`, `Map<C, D>` is represented by
- * an [EndMapValueResultAdapter], and the outer 2 levels are represented by a
+ * For example, if a DAO function returns a `Map<A, Map<B, Map<C, D>>>`, `Map<C, D>` is represented
+ * by an [EndMapValueResultAdapter], and the outer 2 levels are represented by a
  * [NestedMapValueResultAdapter] each.
  *
  * A [NestedMapValueResultAdapter] can wrap either another [NestedMapValueResultAdapter] or an
@@ -64,13 +64,13 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
         valuesVarName: String,
         stmtVarName: String,
         dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
-        addPutValueCode: XCodeBlock.Builder.(String, Boolean) -> Unit = { _, _ -> }
+        addPutValueCode: XCodeBlock.Builder.(String, Boolean) -> Unit = { _, _ -> },
     )
 
     abstract fun generateContinueColumnCheck(
         scope: CodeGenScope,
         stmtVarName: String,
-        dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+        dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
     )
 
     /**
@@ -86,7 +86,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
         private val keyRowAdapter: RowAdapter,
         private val keyTypeArg: XType,
         private val mapType: MultimapQueryResultAdapter.MapType,
-        private val mapValueResultAdapter: MapValueResultAdapter
+        private val mapValueResultAdapter: MapValueResultAdapter,
     ) :
         MapValueResultAdapter(
             rowAdapters = listOf(keyRowAdapter) + mapValueResultAdapter.rowAdapters
@@ -102,7 +102,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                 MultimapQueryResultAdapter.MapType.ARRAY_MAP ->
                     typeOfMap.className.parametrizedBy(
                         keyTypeName,
-                        mapValueResultAdapter.getDeclarationTypeName()
+                        mapValueResultAdapter.getDeclarationTypeName(),
                     )
                 MultimapQueryResultAdapter.MapType.LONG_SPARSE,
                 MultimapQueryResultAdapter.MapType.INT_SPARSE ->
@@ -124,7 +124,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                     CodeLanguage.KOTLIN -> KotlinTypeNames.LINKED_HASH_MAP
                                 }.parametrizedBy(
                                     keyTypeName,
-                                    mapValueResultAdapter.getDeclarationTypeName()
+                                    mapValueResultAdapter.getDeclarationTypeName(),
                                 )
                             )
                         )
@@ -133,7 +133,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                     XCodeBlock.ofNewInstance(
                         typeOfMap.className.parametrizedBy(
                             keyTypeName,
-                            mapValueResultAdapter.getDeclarationTypeName()
+                            mapValueResultAdapter.getDeclarationTypeName(),
                         )
                     )
                 MultimapQueryResultAdapter.MapType.LONG_SPARSE,
@@ -150,7 +150,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
             valuesVarName: String,
             stmtVarName: String,
             dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
-            addPutValueCode: XCodeBlock.Builder.(String, Boolean) -> Unit
+            addPutValueCode: XCodeBlock.Builder.(String, Boolean) -> Unit,
         ) {
             scope.builder.apply {
                 // Read map key
@@ -166,19 +166,19 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                         scope.getTmpVar("_values").also { tmpValuesVarName ->
                             addLocalVariable(
                                 tmpValuesVarName,
-                                mapValueResultAdapter.getDeclarationTypeName()
+                                mapValueResultAdapter.getDeclarationTypeName(),
                             )
                             if (mapType.isSparseArray()) {
                                     beginControlFlow(
                                         "if (%L.get(%L) != null)",
                                         valuesVarName,
-                                        tmpKeyVarName
+                                        tmpKeyVarName,
                                     )
                                 } else {
                                     beginControlFlow(
                                         "if (%L.containsKey(%L))",
                                         valuesVarName,
-                                        tmpKeyVarName
+                                        tmpKeyVarName,
                                     )
                                 }
                                 .applyTo { language ->
@@ -193,7 +193,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                         tmpValuesVarName,
                                         valuesVarName,
                                         getFunction,
-                                        tmpKeyVarName
+                                        tmpKeyVarName,
                                     )
                                 }
                                 .nextControlFlow("else")
@@ -201,13 +201,13 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                     addStatement(
                                         "%L = %L",
                                         tmpValuesVarName,
-                                        mapValueResultAdapter.getInstantiationCodeBlock()
+                                        mapValueResultAdapter.getInstantiationCodeBlock(),
                                     )
                                     addStatement(
                                         "%L.put(%L, %L)",
                                         valuesVarName,
                                         tmpKeyVarName,
-                                        tmpValuesVarName
+                                        tmpValuesVarName,
                                     )
                                 }
                                 .endControlFlow()
@@ -217,7 +217,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                             mapValueResultAdapter.generateContinueColumnCheck(
                                 scope,
                                 stmtVarName,
-                                dupeColumnsIndexAdapter
+                                dupeColumnsIndexAdapter,
                             )
                         }
                     } else {
@@ -234,13 +234,13 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                     beginControlFlow(
                                         "if (%L.get(%L) == null)",
                                         valuesVarName,
-                                        tmpKeyVarName
+                                        tmpKeyVarName,
                                     )
                                 } else {
                                     beginControlFlow(
                                         "if (!%L.containsKey(%L))",
                                         valuesVarName,
-                                        tmpKeyVarName
+                                        tmpKeyVarName,
                                     )
                                 }
                                 .apply {
@@ -248,7 +248,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                         "%L.put(%L, %L)",
                                         valuesVarName,
                                         tmpKeyVarName,
-                                        tmpValueVarName
+                                        tmpValueVarName,
                                     )
                                 }
                                 .endControlFlow()
@@ -257,7 +257,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                 "%L.put(%L, %L)",
                                 valuesVarName,
                                 tmpKeyVarName,
-                                tmpValueVarName
+                                tmpValueVarName,
                             )
                         }
                     }
@@ -266,7 +266,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                     valuesVarName = valuesVarName,
                     stmtVarName = stmtVarName,
                     dupeColumnsIndexAdapter = dupeColumnsIndexAdapter,
-                    addPutValueCode = addPutValueCode
+                    addPutValueCode = addPutValueCode,
                 )
             }
         }
@@ -274,13 +274,13 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
         override fun generateContinueColumnCheck(
             scope: CodeGenScope,
             stmtVarName: String,
-            dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+            dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
         ) {
             scope.builder.add(
                 getContinueColumnNullCheck(
                     stmtVarName = stmtVarName,
                     rowAdapter = keyRowAdapter,
-                    dupeColumnsIndexAdapter = dupeColumnsIndexAdapter
+                    dupeColumnsIndexAdapter = dupeColumnsIndexAdapter,
                 )
             )
         }
@@ -296,7 +296,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
     class EndMapValueResultAdapter(
         private val valueRowAdapter: RowAdapter,
         private val valueTypeArg: XType,
-        private val valueCollectionType: MultimapQueryResultAdapter.CollectionValueType?
+        private val valueCollectionType: MultimapQueryResultAdapter.CollectionValueType?,
     ) : MapValueResultAdapter(rowAdapters = listOf(valueRowAdapter)) {
         override fun requiresContainsKeyCheck(): Boolean = valueCollectionType != null
 
@@ -319,7 +319,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                             CodeLanguage.JAVA ->
                                 add(
                                     "new %T()",
-                                    ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName())
+                                    ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName()),
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_LIST_OF)
@@ -343,7 +343,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
             valuesVarName: String,
             stmtVarName: String,
             dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
-            addPutValueCode: XCodeBlock.Builder.(String, Boolean) -> Unit
+            addPutValueCode: XCodeBlock.Builder.(String, Boolean) -> Unit,
         ) {
             scope.builder.apply {
                 val tmpValueVarName = scope.getTmpVar("_value")
@@ -362,7 +362,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                     val columnNullCheckCodeBlock =
                         getColumnNullCheckCode(
                             stmtVarName = stmtVarName,
-                            indexVars = valueIndexVars
+                            indexVars = valueIndexVars,
                         )
 
                     // Perform value columns null check, in a 1-to-1 mapping we still add the key
@@ -377,7 +377,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
                                     "error(%S)",
                                     "The column(s) of the map value object of type " +
                                         "'$valueTypeArg' are NULL but the map's value type " +
-                                        "argument expect it to be NON-NULL"
+                                        "argument expect it to be NON-NULL",
                                 )
                             } else {
                                 addPutValueCode("null", false)
@@ -396,26 +396,26 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
         override fun generateContinueColumnCheck(
             scope: CodeGenScope,
             stmtVarName: String,
-            dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+            dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
         ) {
             scope.builder.add(
                 getContinueColumnNullCheck(
                     stmtVarName = stmtVarName,
                     rowAdapter = valueRowAdapter,
-                    dupeColumnsIndexAdapter = dupeColumnsIndexAdapter
+                    dupeColumnsIndexAdapter = dupeColumnsIndexAdapter,
                 )
             )
         }
     }
 
     /**
-     * Utility method that returns a code block containing the code expression that verifies if all
-     * matched fields are null.
+     * Utility function that returns a code block containing the code expression that verifies if
+     * all matched properties are null.
      */
     protected fun getContinueColumnNullCheck(
         rowAdapter: RowAdapter,
         stmtVarName: String,
-        dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+        dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?,
     ) =
         XCodeBlock.builder()
             .apply {
@@ -431,7 +431,7 @@ sealed class MapValueResultAdapter(val rowAdapters: List<RowAdapter>) {
             }
             .build()
 
-    /** Generates a code expression that verifies if all matched fields are null. */
+    /** Generates a code expression that verifies if all matched properties are null. */
     protected fun getColumnNullCheckCode(stmtVarName: String, indexVars: List<ColumnIndexVar>) =
         buildCodeBlock { language ->
             val space =

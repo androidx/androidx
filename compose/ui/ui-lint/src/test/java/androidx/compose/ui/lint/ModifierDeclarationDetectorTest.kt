@@ -36,7 +36,7 @@ class ModifierDeclarationDetectorTest : LintDetectorTest() {
         mutableListOf(
             ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
             ModifierDeclarationDetector.ModifierFactoryReturnType,
-            ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver
+            ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,
         )
 
     // Simplified Density.kt stubs
@@ -63,7 +63,7 @@ class ModifierDeclarationDetectorTest : LintDetectorTest() {
         IvamBjoNgEBz3q9NowbMyiGht920E9EXiUiZPfe3m5EYUHMcES4m/z3FQeyb
         /KnLeWDx6OploW9NpQlnD7UNZqGfjDfTSl9b64IKxlnf4gzs4LcETn7wGKc8
         h2y5y93KEWWIM7QzdJAwxV6GfRzkII9DHOUQHqlH9xtDUhD7SQEAAA==
-        """
+        """,
         )
 
     // Simplified ParentDataModifier.kt / Measurable.kt merged stubs
@@ -133,7 +133,7 @@ class ModifierDeclarationDetectorTest : LintDetectorTest() {
         8XOUxH3xTgaCoXoq8eWCvE3bQZYGaKfLz9JPI0/ILkU2oQW69+iULQqKy/eR
         QhnUyF4noo0d3LELuEf+fVTxkHALD1Cn+4DYV5BDqYuMj7KPqz6uwSUXGz5l
         3+iCaWziZhe2xi2N2xqORkWjqrH1E3XfjsnaAwAA
-        """
+        """,
         )
 
     @Test
@@ -153,7 +153,7 @@ class ModifierDeclarationDetectorTest : LintDetectorTest() {
                 }
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -200,7 +200,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Change return type t
                 val Modifier.fooModifier3: Modifier.Element get() = TestModifier
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -259,7 +259,7 @@ Autofix for src/androidx/compose/ui/foo/TestModifier.kt line 16: Change return t
                 fun Modifier.fooModifier() = TestModifier
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -275,10 +275,10 @@ src/androidx/compose/ui/foo/TestModifier.kt:8: Error: Modifier factory functions
             )
             .expectFixDiffs(
                 """
-Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Add explicit Modifier return type:
+Autofix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Add explicit Modifier return type:
 @@ -8 +8
 -                 fun Modifier.fooModifier() = TestModifier
-+                 fun Modifier.fooModifier(): Modifier = TestModifier
++                 fun Modifier.fooModifier() : Modifier = TestModifier
             """
             )
     }
@@ -298,7 +298,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Add explicit Modifie
                 val Modifier.fooModifier get() = TestModifier
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -314,10 +314,10 @@ src/androidx/compose/ui/foo/TestModifier.kt:8: Error: Modifier factory functions
             )
             .expectFixDiffs(
                 """
-Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Add explicit Modifier return type:
+Autofix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Add explicit Modifier return type:
 @@ -8 +8
 -                 val Modifier.fooModifier get() = TestModifier
-+                 val Modifier.fooModifier get(): Modifier = TestModifier
++                 val Modifier.fooModifier get() : Modifier = TestModifier
             """
             )
     }
@@ -339,7 +339,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Add explicit Modifie
                 }
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -398,7 +398,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Change return type t
                 }
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -450,7 +450,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Change return type t
                 }
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -481,7 +481,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 8: Change return type t
                 val fooModifier3: Modifier get() = Modifier
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -550,7 +550,7 @@ Autofix for src/androidx/compose/ui/foo/test.kt line 18: Add Modifier receiver:
                 val TestModifier.fooModifier3: Modifier get() = this.then(TestModifier)
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expect(
@@ -636,7 +636,7 @@ Fix for src/androidx/compose/ui/foo/TestModifier.kt line 20: Change receiver to 
             """
                 ),
                 Stubs.Modifier,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -691,7 +691,7 @@ src/androidx/compose/ui/foo/TestModifier.kt:34: Error: Modifier factory function
                 ),
                 Stubs.Modifier,
                 DensityStub,
-                MeasurableAndParentDataModifierStub
+                MeasurableAndParentDataModifierStub,
             )
             .run()
             .expectClean()
@@ -828,7 +828,7 @@ src/androidx/compose/ui/foo/TestModifier.kt:34: Error: Modifier factory function
             aOyc4UpiHh/6DjN+fbH0ALH9HJHgCwQDJ3yHwLXp03TFUPDZjmFBlsjxtTRf
             hUG7TafHtD8h149WEcjj4zwW81jCUzrikzyW8ekqmIvPsLKKHheai2cuInKd
             c/HARchF2MWU1Ey6mHBxx8WIFDMuBl1cl+dOF7H/AVoTuh9WCAAA
-            """
+            """,
             )
 
         lint()
@@ -845,7 +845,7 @@ src/androidx/compose/ui/foo/TestModifier.kt:34: Error: Modifier factory function
             """
                 ),
                 Stubs.Modifier,
-                inlineAndValueClassStub
+                inlineAndValueClassStub,
             )
             .run()
             .expectClean()
@@ -860,6 +860,11 @@ src/androidx/compose/ui/foo/TestModifier.kt:34: Error: Modifier factory function
                 package androidx.compose.ui.foo
 
                 import androidx.compose.ui.Modifier
+
+                // Can't point out synthetic copy
+                data class TestDataElement(
+                    val onRemeasured: () -> Unit,
+                ) : Modifier.Element
 
                 object TestModifier : Modifier.Element
 
@@ -876,7 +881,7 @@ src/androidx/compose/ui/foo/TestModifier.kt:34: Error: Modifier factory function
                 }
             """
                 ),
-                Stubs.Modifier
+                Stubs.Modifier,
             )
             .run()
             .expectClean()
@@ -958,6 +963,52 @@ src/androidx/compose/ui/foo/TestModifier.kt:29: Error: Modifier factory function
                 fun Modifier.error_explicitReceiver(): Modifier = Modifier.composed {
                              ~~~~~~~~~~~~~~~~~~~~~~
 2 errors, 0 warnings
+"""
+            )
+    }
+
+    // Test for b/404027596
+    @Test
+    fun nullableReceivers() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package androidx.compose.ui.foo
+
+                import androidx.compose.ui.Modifier
+                import androidx.compose.ui.composed
+
+                object TestModifier : Modifier.Element
+
+                class NonModifierReceiver
+
+                fun Modifier?.fooModifier(): Modifier {
+                    return this?.then(TestModifier) ?: TestModifier
+                }
+
+                fun Modifier?.fooModifierUnreferencedReceiver(): Modifier {
+                    return TestModifier
+                }
+
+                fun NonModifierReceiver?.barModifier() : Modifier {
+                    return TestModifier
+                }
+            """
+                ),
+                Stubs.Modifier,
+                UiStubs.composed,
+            )
+            .run()
+            .expect(
+                """
+src/androidx/compose/ui/foo/TestModifier.kt:19: Warning: Modifier factory functions should be extensions on Modifier [ModifierFactoryExtensionFunction]
+                fun NonModifierReceiver?.barModifier() : Modifier {
+                                         ~~~~~~~~~~~
+src/androidx/compose/ui/foo/TestModifier.kt:15: Error: Modifier factory functions must use the receiver Modifier instance [ModifierFactoryUnreferencedReceiver]
+                fun Modifier?.fooModifierUnreferencedReceiver(): Modifier {
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 errors, 1 warnings
 """
             )
     }

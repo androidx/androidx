@@ -1,17 +1,7 @@
 // Baseline format: 1.0
-ChangedValue: androidx.room.AutoMigration#spec():
-    Method androidx.room.AutoMigration.spec has changed value from java.lang.Object to Any::class
-ChangedValue: androidx.room.Delete#entity():
-    Method androidx.room.Delete.entity has changed value from java.lang.Object to Any::class
-ChangedValue: androidx.room.Fts4#contentEntity():
-    Method androidx.room.Fts4.contentEntity has changed value from java.lang.Object to Any::class
-ChangedValue: androidx.room.Insert#entity():
-    Method androidx.room.Insert.entity has changed value from java.lang.Object to Any::class
-ChangedValue: androidx.room.Relation#associateBy():
-    Method androidx.room.Relation.associateBy has changed value from androidx.room.Junction(java.lang.Object) to androidx.room.Junction(Any::class)
-ChangedValue: androidx.room.Relation#entity():
-    Method androidx.room.Relation.entity has changed value from java.lang.Object to Any::class
-ChangedValue: androidx.room.Update#entity():
-    Method androidx.room.Update.entity has changed value from java.lang.Object to Any::class
-ChangedValue: androidx.room.Upsert#entity():
-    Method androidx.room.Upsert.entity has changed value from java.lang.Object to Any::class
+RemovedDeprecatedMethod: androidx.room.OnConflictStrategy.Companion#getFAIL():
+    Binary breaking change: Removed deprecated method androidx.room.OnConflictStrategy.Companion.getFAIL()
+RemovedDeprecatedMethod: androidx.room.OnConflictStrategy.Companion#getROLLBACK():
+    Binary breaking change: Removed deprecated method androidx.room.OnConflictStrategy.Companion.getROLLBACK()
+RemovedDeprecatedMethod: androidx.room.RoomWarnings.Companion#getCURSOR_MISMATCH():
+    Binary breaking change: Removed deprecated method androidx.room.RoomWarnings.Companion.getCURSOR_MISMATCH()

@@ -79,12 +79,6 @@ public class CustomTabsSessionTest {
     }
 
     @Test
-    public void testIsEphemeralBrowsingSupported() throws RemoteException {
-        when(mService.getMock().isEphemeralBrowsingSupported(any(Bundle.class))).thenReturn(true);
-        assertTrue(mSession.isEphemeralBrowsingSupported(Bundle.EMPTY));
-    }
-
-    @Test
     public void testSetEngagementSignalsCallback() throws RemoteException {
         when(mService.getMock().setEngagementSignalsCallback(any(ICustomTabsCallback.class),
                 any(IBinder.class), any(Bundle.class))).thenReturn(true);

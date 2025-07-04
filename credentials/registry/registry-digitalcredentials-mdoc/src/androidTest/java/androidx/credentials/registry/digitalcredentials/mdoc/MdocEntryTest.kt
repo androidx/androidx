@@ -33,7 +33,7 @@ class MdocEntryTest {
             VerificationEntryDisplayProperties(
                 title = "test-title",
                 subtitle = "test-subtitle",
-                icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)
+                icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8),
             )
     }
 
@@ -43,7 +43,7 @@ class MdocEntryTest {
             MdocField(
                 "fieldName1",
                 "fieldVal1",
-                setOf(VerificationFieldDisplayProperties("displayName1"))
+                setOf(VerificationFieldDisplayProperties("displayName1")),
             )
         val mdocField2 =
             MdocField("fieldName2", null, setOf(VerificationFieldDisplayProperties("displayName2")))
@@ -53,7 +53,7 @@ class MdocEntryTest {
                 docType = "org.iso.18013.5.1.mDL",
                 fields = listOf(mdocField1, mdocField2),
                 entryDisplayPropertySet = setOf(ENTRY_DISPLAY_DATA),
-                id = "id"
+                id = "id",
             )
 
         assertThat(entry.docType).isEqualTo("org.iso.18013.5.1.mDL")

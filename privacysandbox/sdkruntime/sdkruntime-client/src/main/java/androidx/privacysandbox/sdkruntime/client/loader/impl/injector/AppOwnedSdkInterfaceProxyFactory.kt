@@ -35,7 +35,7 @@ internal class AppOwnedSdkInterfaceProxyFactory(
         return appOwnedSdkSandboxInterfaceCompatConstructor.newInstance(
             /* parameter1 */ source.getName(),
             /* parameter2 */ source.getVersion(),
-            /* parameter3 */ source.getInterface()
+            /* parameter3 */ source.getInterface(),
         )
     }
 
@@ -45,13 +45,13 @@ internal class AppOwnedSdkInterfaceProxyFactory(
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val appOwnedSdkSandboxInterfaceCompatConstructor =
                 appOwnedSdkSandboxInterfaceCompatClass.getConstructor(
                     /* name      */ String::class.java,
                     /* version   */ Long::class.java,
-                    /* interface */ IBinder::class.java
+                    /* interface */ IBinder::class.java,
                 )
             return AppOwnedSdkInterfaceProxyFactory(appOwnedSdkSandboxInterfaceCompatConstructor)
         }

@@ -30,8 +30,9 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -92,9 +93,8 @@ public class ToolSourceKey {
         return mToolType == matcher.getToolType() && mSource == matcher.getSource();
     }
 
-    @NonNull
     @Override
-    public String toString() {
+    public @NonNull String toString() {
         return String.valueOf(mToolType) + "," + String.valueOf(mSource);
     }
 

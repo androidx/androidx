@@ -21,7 +21,7 @@ import androidx.privacysandbox.sdkruntime.client.loader.impl.SandboxControllerIn
 import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkProviderV1
 import androidx.privacysandbox.sdkruntime.client.loader.storage.CachedLocalSdkStorage
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerBackend
 import androidx.privacysandbox.sdkruntime.core.internal.ClientApiVersion
 
 /** Load SDK bundled with App. */
@@ -29,7 +29,7 @@ internal class SdkLoader
 internal constructor(
     private val classLoaderFactory: ClassLoaderFactory,
     private val appContext: Context,
-    private val controllerFactory: ControllerFactory
+    private val controllerFactory: ControllerFactory,
 ) {
 
     internal interface ClassLoaderFactory {
@@ -37,9 +37,7 @@ internal constructor(
     }
 
     internal interface ControllerFactory {
-        fun createControllerFor(
-            sdkConfig: LocalSdkConfig
-        ): SdkSandboxControllerCompat.SandboxControllerImpl
+        fun createControllerFor(sdkConfig: LocalSdkConfig): SdkSandboxControllerBackend
     }
 
     /**
@@ -55,7 +53,7 @@ internal constructor(
      */
     fun loadSdk(
         sdkConfig: LocalSdkConfig,
-        overrideVersionHandshake: VersionHandshake? = null
+        overrideVersionHandshake: VersionHandshake? = null,
     ): LocalSdkProvider {
         val classLoader = classLoaderFactory.createClassLoaderFor(sdkConfig, getParentClassLoader())
         val versionHandshake = overrideVersionHandshake ?: VersionHandshake.DEFAULT
@@ -67,14 +65,14 @@ internal constructor(
     private fun createLocalSdk(
         sdkClassLoader: ClassLoader,
         sdkConfig: LocalSdkConfig,
-        versionHandshake: VersionHandshake
+        versionHandshake: VersionHandshake,
     ): LocalSdkProvider {
         try {
             val sdkApiVersion = versionHandshake.perform(sdkClassLoader)
-            if (sdkApiVersion < ClientApiVersion.MIN_SUPPORTED.apiLevel) {
+            if (sdkApiVersion < ClientApiVersion.MIN_SUPPORTED_SDK_VERSION.apiLevel) {
                 throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
-                    "SDK built with unsupported version of sdkruntime-provider library"
+                    "SDK built with unsupported version of sdkruntime-provider library",
                 )
             }
             ResourceRemapping.apply(sdkClassLoader, sdkConfig.resourceRemapping)
@@ -88,7 +86,7 @@ internal constructor(
                 throw LoadSdkCompatException(
                     LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
                     "Failed to instantiate local SDK",
-                    ex
+                    ex,
                 )
             }
         }
@@ -114,7 +112,7 @@ internal constructor(
         fun create(
             context: Context,
             controllerFactory: ControllerFactory,
-            lowSpaceThreshold: Long = 100 * 1024 * 1024
+            lowSpaceThreshold: Long = 100 * 1024 * 1024,
         ): SdkLoader {
             val cachedLocalSdkStorage = CachedLocalSdkStorage.create(context, lowSpaceThreshold)
             val classLoaderFactory =
@@ -123,8 +121,8 @@ internal constructor(
                     codeClassLoaderFactory =
                         FileClassLoaderFactory(
                             cachedLocalSdkStorage,
-                            fallback = InMemorySdkClassLoaderFactory.create(context)
-                        )
+                            fallback = InMemorySdkClassLoaderFactory.create(context),
+                        ),
                 )
             return SdkLoader(classLoaderFactory, context, controllerFactory)
         }

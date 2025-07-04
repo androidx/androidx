@@ -183,7 +183,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
@@ -247,14 +247,14 @@ class AntelopeInstrumentedTests {
         // Set up capture
         prefEditor.putString(
             res.getString(R.string.settings_single_test_type_key),
-            "MULTI_PHOTO_CHAIN"
+            "MULTI_PHOTO_CHAIN",
         )
         prefEditor.putString(res.getString(R.string.settings_single_test_api_key), "Camera2")
         prefEditor.putString(res.getString(R.string.settings_single_test_imagesize_key), "Min")
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
@@ -289,7 +289,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "30")
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
@@ -328,7 +328,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
@@ -365,7 +365,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), false)
@@ -405,7 +405,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
@@ -442,7 +442,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(
             res.getString(R.string.settings_single_test_camera_key),
-            getFirstCamera()
+            getFirstCamera(),
         )
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
         prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
@@ -475,15 +475,15 @@ class AntelopeInstrumentedTests {
         // Set up maximum test coverage for Camera2
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_api_key),
-            hashSetOf("Camera2")
+            hashSetOf("Camera2"),
         )
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_imagesize_key),
-            res.getStringArray(R.array.array_settings_imagesize).toHashSet()
+            res.getStringArray(R.array.array_settings_imagesize).toHashSet(),
         )
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_focus_key),
-            res.getStringArray(R.array.array_settings_focus).toHashSet()
+            res.getStringArray(R.array.array_settings_focus).toHashSet(),
         )
 
         if (hasCameraZeroAndOne())
@@ -522,15 +522,15 @@ class AntelopeInstrumentedTests {
         // Set up maximum test coverage for CameraX
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_api_key),
-            hashSetOf("CameraX")
+            hashSetOf("CameraX"),
         )
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_imagesize_key),
-            res.getStringArray(R.array.array_settings_imagesize).toHashSet()
+            res.getStringArray(R.array.array_settings_imagesize).toHashSet(),
         )
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_focus_key),
-            res.getStringArray(R.array.array_settings_focus).toHashSet()
+            res.getStringArray(R.array.array_settings_focus).toHashSet(),
         )
 
         if (hasFrontAndBackCamera())
@@ -570,15 +570,15 @@ class AntelopeInstrumentedTests {
         // Set up maximum test coverage for Camera1
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_api_key),
-            hashSetOf("Camera1")
+            hashSetOf("Camera1"),
         )
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_imagesize_key),
-            res.getStringArray(R.array.array_settings_imagesize).toHashSet()
+            res.getStringArray(R.array.array_settings_imagesize).toHashSet(),
         )
         prefEditor.putStringSet(
             res.getString(R.string.settings_autotest_focus_key),
-            res.getStringArray(R.array.array_settings_focus).toHashSet()
+            res.getStringArray(R.array.array_settings_focus).toHashSet(),
         )
 
         if (hasCameraZeroAndOne())
@@ -606,7 +606,7 @@ class AntelopeInstrumentedTests {
         val csvDir =
             File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-                MainActivity.LOG_DIR
+                MainActivity.LOG_DIR,
             )
 
         return if (csvDir.exists()) {
@@ -622,7 +622,7 @@ class AntelopeInstrumentedTests {
         val photoDir =
             File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-                MainActivity.PHOTOS_DIR
+                MainActivity.PHOTOS_DIR,
             )
 
         return if (photoDir.exists()) {

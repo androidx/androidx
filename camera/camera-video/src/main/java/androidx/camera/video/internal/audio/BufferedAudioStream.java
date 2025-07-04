@@ -82,7 +82,7 @@ public class BufferedAudioStream implements AudioStream {
             @NonNull AudioSettings audioSettings) {
         mAudioStream = audioStream;
         mBytesPerFrame = audioSettings.getBytesPerFrame();
-        mSampleRate = audioSettings.getSampleRate();
+        mSampleRate = audioSettings.getCaptureSampleRate();
 
         checkArgument(mBytesPerFrame > 0L, "mBytesPerFrame must be greater than 0.");
         checkArgument(mSampleRate > 0L, "mSampleRate must be greater than 0.");

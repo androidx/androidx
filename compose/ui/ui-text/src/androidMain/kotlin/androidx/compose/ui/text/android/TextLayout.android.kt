@@ -135,7 +135,7 @@ constructor(
     leftIndents: IntArray? = null,
     rightIndents: IntArray? = null,
     val layoutIntrinsics: LayoutIntrinsics =
-        LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic)
+        LayoutIntrinsics(charSequence, textPaint, textDirectionHeuristic),
 ) {
     val maxIntrinsicWidth: Float
         get() = layoutIntrinsics.maxIntrinsicWidth
@@ -254,7 +254,7 @@ constructor(
                         includePadding = includePadding,
                         useFallbackLineSpacing = fallbackLineSpacing,
                         ellipsize = ellipsize,
-                        ellipsizedWidth = widthInt
+                        ellipsizedWidth = widthInt,
                     )
                 } else {
                     isBoringLayout = false
@@ -279,7 +279,7 @@ constructor(
                         lineBreakWordStyle = lineBreakWordStyle,
                         hyphenationFrequency = hyphenationFrequency,
                         leftIndents = leftIndents,
-                        rightIndents = rightIndents
+                        rightIndents = rightIndents,
                     )
                 }
         } finally {
@@ -523,7 +523,7 @@ constructor(
         return layoutHelper.getHorizontalPosition(
             offset,
             usePrimaryDirection = true,
-            upstream = upstream
+            upstream = upstream,
         ) + getHorizontalPadding(getLineForOffset(offset))
     }
 
@@ -560,7 +560,7 @@ constructor(
         return layoutHelper.getHorizontalPosition(
             offset,
             usePrimaryDirection = false,
-            upstream = upstream
+            upstream = upstream,
         ) + getHorizontalPadding(getLineForOffset(offset))
     }
 
@@ -580,7 +580,7 @@ constructor(
     fun getRangeForRect(
         rect: RectF,
         @TextGranularity granularity: Int,
-        inclusionStrategy: (RectF, RectF) -> Boolean
+        inclusionStrategy: (RectF, RectF) -> Boolean,
     ): IntArray? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             return AndroidLayoutApi34.getRangeForRect(this, rect, granularity, inclusionStrategy)
@@ -594,10 +594,7 @@ constructor(
      * given [array] where the left or right bounds i-th character in the line is stored as the (i *
      * 2)-th or (i * 2 + 1)-th element respectively.
      */
-    internal fun fillLineHorizontalBounds(
-        lineIndex: Int,
-        array: FloatArray,
-    ) {
+    internal fun fillLineHorizontalBounds(lineIndex: Int, array: FloatArray) {
         val lineStartOffset = getLineStart(lineIndex)
         val lineEndOffset = getLineEnd(lineIndex)
 
@@ -808,7 +805,7 @@ constructor(
         } else {
             StaticLayoutFactory.isFallbackLineSpacingEnabled(
                 layout as StaticLayout,
-                fallbackLineSpacing
+                fallbackLineSpacing,
             )
         }
     }
@@ -1041,7 +1038,7 @@ private fun Array<LineHeightStyleSpan>.getLineHeightPaddings(): VerticalPaddings
 private fun TextLayout.getLastLineMetrics(
     textPaint: TextPaint,
     frameworkTextDir: TextDirectionHeuristic,
-    lineHeightSpans: Array<LineHeightStyleSpan>?
+    lineHeightSpans: Array<LineHeightStyleSpan>?,
 ): FontMetricsInt? {
     val lastLine = lineCount - 1
     // did not check for "\n" since the last line might include zero width characters
@@ -1060,7 +1057,7 @@ private fun TextLayout.getLastLineMetrics(
                         false
                     } else {
                         lineHeightSpan.trimLastLineBottom
-                    }
+                    },
             )
 
         emptyText.setSpan(newLineHeightSpan, 0, emptyText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -1074,7 +1071,7 @@ private fun TextLayout.getLastLineMetrics(
                 end = emptyText.length,
                 textDir = frameworkTextDir,
                 includePadding = includePadding,
-                useFallbackLineSpacing = fallbackLineSpacing
+                useFallbackLineSpacing = fallbackLineSpacing,
             )
 
         val lastLineFontMetrics =
@@ -1111,7 +1108,7 @@ internal object AndroidLayoutApi34 {
         layout: TextLayout,
         rectF: RectF,
         @TextGranularity granularity: Int,
-        inclusionStrategy: (RectF, RectF) -> Boolean
+        inclusionStrategy: (RectF, RectF) -> Boolean,
     ): IntArray? {
 
         val segmentFinder =

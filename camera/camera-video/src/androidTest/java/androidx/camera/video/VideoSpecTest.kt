@@ -37,13 +37,13 @@ class VideoSpecTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val videoSpec = VideoSpec.builder().build()
 
         assertThat(videoSpec.qualitySelector).isEqualTo(VideoSpec.QUALITY_SELECTOR_AUTO)
         assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_RANGE_AUTO)
-        assertThat(videoSpec.frameRate).isEqualTo(VideoSpec.FRAME_RATE_RANGE_AUTO)
+        assertThat(videoSpec.encodeFrameRate).isEqualTo(VideoSpec.ENCODE_FRAME_RATE_AUTO)
         assertThat(videoSpec.aspectRatio).isEqualTo(RATIO_DEFAULT)
     }
 }

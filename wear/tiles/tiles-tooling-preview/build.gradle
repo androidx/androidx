@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,8 +30,10 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.jspecify)
     implementation(libs.kotlinStdlib)
 
+    api(project(':wear:protolayout:protolayout'))
     api(project(":wear:protolayout:protolayout-expression"))
     api(project(":wear:tiles:tiles"))
     api("androidx.wear:wear-tooling-preview:1.0.0")
@@ -47,7 +49,7 @@ android {
 
 androidx {
     name = "Android Wear Tiles Tooling"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Wear Tile tooling library. This library provides the API required to declare" +
             " @Preview on previewable methods in the IDE."

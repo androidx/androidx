@@ -1,0 +1,26 @@
+// Signature format: 4.0
+package androidx.ink.geometry.compose {
+
+  public final class ComposeConversionExtensionsKt {
+    method public static androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.BoxAccumulator, androidx.compose.ui.geometry.MutableRect rect);
+    method public static androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.BoxAccumulator, androidx.compose.ui.geometry.Rect rect);
+    method public static androidx.ink.geometry.ImmutableAffineTransform? from(androidx.ink.geometry.ImmutableAffineTransform.Companion, float[] matrix);
+    method public static androidx.ink.geometry.ImmutableBox? from(androidx.ink.geometry.ImmutableBox.Companion, androidx.compose.ui.geometry.MutableRect rect);
+    method public static androidx.ink.geometry.ImmutableBox? from(androidx.ink.geometry.ImmutableBox.Companion, androidx.compose.ui.geometry.Rect rect);
+    method public static androidx.ink.geometry.ImmutableVec from(androidx.ink.geometry.ImmutableVec.Companion, long offset);
+    method @BytecodeOnly public static androidx.ink.geometry.ImmutableAffineTransform? from-EL8BTi8(androidx.ink.geometry.ImmutableAffineTransform.Companion, float[]);
+    method @BytecodeOnly public static androidx.ink.geometry.ImmutableVec from-Uv8p0NA(androidx.ink.geometry.ImmutableVec.Companion, long);
+    method public static androidx.ink.geometry.MutableAffineTransform populateFrom(androidx.ink.geometry.MutableAffineTransform, float[] matrix);
+    method public static androidx.ink.geometry.MutableVec populateFrom(androidx.ink.geometry.MutableVec, long offset);
+    method @BytecodeOnly public static androidx.ink.geometry.MutableAffineTransform populateFrom-EL8BTi8(androidx.ink.geometry.MutableAffineTransform, float[]);
+    method @BytecodeOnly public static androidx.ink.geometry.MutableVec populateFrom-Uv8p0NA(androidx.ink.geometry.MutableVec, long);
+    method public static float[] populateMatrix(androidx.ink.geometry.AffineTransform, float[] out);
+    method @BytecodeOnly public static float[] populateMatrix-EL8BTi8(androidx.ink.geometry.AffineTransform, float[]);
+    method public static androidx.compose.ui.geometry.MutableRect populateMutableRect(androidx.ink.geometry.Box, androidx.compose.ui.geometry.MutableRect out);
+    method public static float[] toMatrix(androidx.ink.geometry.AffineTransform);
+    method public static long toOffset(androidx.ink.geometry.Vec);
+    method public static androidx.compose.ui.geometry.Rect toRect(androidx.ink.geometry.Box);
+  }
+
+}
+

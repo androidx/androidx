@@ -37,10 +37,7 @@ import org.jetbrains.annotations.VisibleForTesting
  */
 class AuthenticationError
 @JvmOverloads
-constructor(
-    val errorCode: @AuthenticationErrorTypes Int,
-    val errorMsg: CharSequence? = null,
-) {
+constructor(val errorCode: @AuthenticationErrorTypes Int, val errorMsg: CharSequence? = null) {
     internal companion object {
         internal val TAG = "AuthenticationError"
         @VisibleForTesting
@@ -88,7 +85,7 @@ constructor(
                 BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED to
                     androidx.biometric.BiometricPrompt.ERROR_USER_CANCELED,
                 BiometricPrompt.BIOMETRIC_ERROR_VENDOR to
-                    androidx.biometric.BiometricPrompt.ERROR_VENDOR
+                    androidx.biometric.BiometricPrompt.ERROR_VENDOR,
                 // TODO(b/340334264) : Add NEGATIVE_BUTTON from FW once avail, or wrap this in
                 // a credential manager specific error.
             )

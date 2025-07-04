@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Demo av meldingsmal"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Meldingen skal skrives her.\nMer tekst i den andre linjen."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo av mal for kort melding"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo av inndelt elementmal"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Del med alternativknapper"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Del for å slå av/på"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Del med mange rader"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Elementdel av rutenett"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo av panelmal"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo av mal for stedsliste"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Bla gjennom steder"</string>

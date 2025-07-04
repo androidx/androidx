@@ -72,6 +72,7 @@ public final class CarToast {
     /**
      * Creates and sets the text and duration for the toast view.
      *
+     * @param carContext the context used for string localization
      * @param textResId the resource id for the text to show. If the {@code textResId} is 0, the
      *                  text will be set to empty
      * @param duration  how long to display the message. Either {@link #LENGTH_SHORT} or {@link
@@ -89,6 +90,7 @@ public final class CarToast {
     /**
      * Creates and sets the text and duration for the toast view.
      *
+     * @param carContext the CarContext providing the service used to show the toast
      * @param text     the text to show
      * @param duration how long to display the message. Either {@link #LENGTH_SHORT} or {@link
      *                 #LENGTH_LONG}

@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_STREAM_USE_CASE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
@@ -76,6 +77,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.StreamUseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
@@ -230,10 +232,11 @@ public final class ImageAnalysis extends UseCase {
     private static final Boolean DEFAULT_ONE_PIXEL_SHIFT_ENABLED = null;
     // Default to disabled for rotation.
     private static final boolean DEFAULT_OUTPUT_IMAGE_ROTATION_ENABLED = false;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
     private final Object mAnalysisLock = new Object();
+
+    @GuardedBy("mAnalysisLock")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
@@ -241,7 +244,13 @@ public final class ImageAnalysis extends UseCase {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     @GuardedBy("mAnalysisLock")
+    private Executor mSubscribedAnalyzerExecutor;
+    @GuardedBy("mAnalysisLock")
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
+    @GuardedBy("mAnalysisLock")
+    private Rect mViewPortCropRect;
+    @GuardedBy("mAnalysisLock")
+    private Matrix mSensorToBufferTransformMatrix;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -261,20 +270,6 @@ public final class ImageAnalysis extends UseCase {
     @SuppressWarnings("WeakerAccess")
     ImageAnalysis(@NonNull ImageAnalysisConfig config) {
         super(config);
-
-        // Get the combined configuration with defaults
-        ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getCurrentConfig();
-
-        if (combinedConfig.getBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
-                == STRATEGY_BLOCK_PRODUCER) {
-            mImageAnalysisAbstractAnalyzer = new ImageAnalysisBlockingAnalyzer();
-        } else {
-            mImageAnalysisAbstractAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
-                    config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
-        }
-        mImageAnalysisAbstractAnalyzer.setOutputImageFormat(getOutputImageFormat());
-        mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(
-                isOutputImageRotationEnabled());
     }
 
     /**
@@ -284,18 +279,6 @@ public final class ImageAnalysis extends UseCase {
     @Override
     protected @NonNull UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
-
-        // Flag to enable or disable one pixel shift. It will override the flag set by device info.
-        // If enabled, the workaround will be applied for all devices.
-        // If disabled, the workaround will be disabled for all devices.
-        // If not configured, the workaround will be applied to the problem devices only.
-        Boolean isOnePixelShiftEnabled = getOnePixelShiftEnabled();
-        boolean isOnePixelShiftIssueDevice = cameraInfo.getCameraQuirks().contains(
-                OnePixelShiftQuirk.class) ? true : false;
-        mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
-                isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
-                        : isOnePixelShiftEnabled);
-
         // Override the target resolution with the value provided by the analyzer.
         Size analyzerResolution;
         synchronized (mAnalysisLock) {
@@ -397,6 +380,12 @@ public final class ImageAnalysis extends UseCase {
                             imageQueueDepth));
         }
 
+        ImageAnalysisAbstractAnalyzer imageAnalysisAbstractAnalyzer;
+        synchronized (mAnalysisLock) {
+            recreateImageAnalysisAbstractAnalyzer();
+            imageAnalysisAbstractAnalyzer = mImageAnalysisAbstractAnalyzer;
+        }
+
         boolean flipWH = getCamera() != null ? isFlipWH(getCamera()) : false;
         int width = flipWH ? resolution.getHeight() : resolution.getWidth();
         int height = flipWH ? resolution.getWidth() : resolution.getHeight();
@@ -423,12 +412,12 @@ public final class ImageAnalysis extends UseCase {
                                 format,
                                 imageReaderProxy.getMaxImages())) : null;
         if (processedImageReaderProxy != null) {
-            mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(processedImageReaderProxy);
+            imageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(processedImageReaderProxy);
         }
 
         tryUpdateRelativeRotation();
 
-        imageReaderProxy.setOnImageAvailableListener(mImageAnalysisAbstractAnalyzer,
+        imageReaderProxy.setOnImageAvailableListener(imageAnalysisAbstractAnalyzer,
                 backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config,
@@ -451,6 +440,7 @@ public final class ImageAnalysis extends UseCase {
                 },
                 CameraXExecutors.mainThreadExecutor());
 
+        sessionConfigBuilder.setSessionType(streamSpec.getSessionType());
         // Applies the AE fps range to the session config builder according to the stream spec and
         // quirk values.
         applyExpectedFrameRateRange(sessionConfigBuilder, streamSpec);
@@ -472,7 +462,7 @@ public final class ImageAnalysis extends UseCase {
 
                     clearPipeline();
                     // Clear cache so app won't get a outdated image.
-                    mImageAnalysisAbstractAnalyzer.clearCache();
+                    imageAnalysisAbstractAnalyzer.clearCache();
                     // Only reset the pipeline when the bound camera is the same.
                     mSessionConfigBuilder = createPipeline(getCameraId(),
                             (ImageAnalysisConfig) getCurrentConfig(),
@@ -484,6 +474,63 @@ public final class ImageAnalysis extends UseCase {
         sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
 
         return sessionConfigBuilder;
+    }
+
+    private void recreateImageAnalysisAbstractAnalyzer() {
+        synchronized (mAnalysisLock) {
+            ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
+
+            if (config.getBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
+                    == STRATEGY_BLOCK_PRODUCER) {
+                mImageAnalysisAbstractAnalyzer = new ImageAnalysisBlockingAnalyzer();
+            } else {
+                mImageAnalysisAbstractAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
+                        config.getBackgroundExecutor(CameraXExecutors.highPriorityExecutor()));
+            }
+            mImageAnalysisAbstractAnalyzer.setOutputImageFormat(getOutputImageFormat());
+            mImageAnalysisAbstractAnalyzer.setOutputImageRotationEnabled(
+                    isOutputImageRotationEnabled());
+
+            CameraInternal cameraInternal = getCamera();
+
+            // Flag to enable or disable one pixel shift. It will override the flag set by device
+            // info.
+            // If enabled, the workaround will be applied for all devices.
+            // If disabled, the workaround will be disabled for all devices.
+            // If not configured, the workaround will be applied to the problem devices only.
+            Boolean isOnePixelShiftEnabled = getOnePixelShiftEnabled();
+            boolean isOnePixelShiftIssueDevice = false;
+            if (cameraInternal != null) {
+                isOnePixelShiftIssueDevice =
+                        cameraInternal.getCameraInfoInternal().getCameraQuirks().contains(
+                                OnePixelShiftQuirk.class);
+            }
+            mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
+                    isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
+                            : isOnePixelShiftEnabled);
+
+            // Sets relative rotation
+            if (cameraInternal != null) {
+                mImageAnalysisAbstractAnalyzer.setRelativeRotation(
+                        getRelativeRotation(cameraInternal));
+            }
+
+            // Sets view port crop rect
+            if (mViewPortCropRect != null) {
+                mImageAnalysisAbstractAnalyzer.setViewPortCropRect(mViewPortCropRect);
+            }
+
+            // Sets sensor to buffer transform matrix
+            if (mSensorToBufferTransformMatrix != null) {
+                mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(
+                        mSensorToBufferTransformMatrix);
+            }
+
+            if (mSubscribedAnalyzerExecutor != null && mSubscribedAnalyzer != null) {
+                mImageAnalysisAbstractAnalyzer.setAnalyzer(mSubscribedAnalyzerExecutor,
+                        mSubscribedAnalyzer);
+            }
+        }
     }
 
     /**
@@ -512,10 +559,13 @@ public final class ImageAnalysis extends UseCase {
      */
     public void clearAnalyzer() {
         synchronized (mAnalysisLock) {
-            mImageAnalysisAbstractAnalyzer.setAnalyzer(null, null);
+            if (mImageAnalysisAbstractAnalyzer != null) {
+                mImageAnalysisAbstractAnalyzer.setAnalyzer(null, null);
+            }
             if (mSubscribedAnalyzer != null) {
                 notifyInactive();
             }
+            mSubscribedAnalyzerExecutor = null;
             mSubscribedAnalyzer = null;
         }
     }
@@ -601,10 +651,14 @@ public final class ImageAnalysis extends UseCase {
      */
     public void setAnalyzer(@NonNull Executor executor, @NonNull Analyzer analyzer) {
         synchronized (mAnalysisLock) {
-            mImageAnalysisAbstractAnalyzer.setAnalyzer(executor, image -> analyzer.analyze(image));
+            if (mImageAnalysisAbstractAnalyzer != null) {
+                mImageAnalysisAbstractAnalyzer.setAnalyzer(executor,
+                        image -> analyzer.analyze(image));
+            }
             if (mSubscribedAnalyzer == null) {
                 notifyActive();
             }
+            mSubscribedAnalyzerExecutor = executor;
             mSubscribedAnalyzer = analyzer;
         }
     }
@@ -616,7 +670,12 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void setViewPortCropRect(@NonNull Rect viewPortCropRect) {
         super.setViewPortCropRect(viewPortCropRect);
-        mImageAnalysisAbstractAnalyzer.setViewPortCropRect(viewPortCropRect);
+        synchronized (mAnalysisLock) {
+            if (mImageAnalysisAbstractAnalyzer != null) {
+                mImageAnalysisAbstractAnalyzer.setViewPortCropRect(viewPortCropRect);
+            }
+            mViewPortCropRect = viewPortCropRect;
+        }
     }
 
     /**
@@ -626,7 +685,12 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void setSensorToBufferTransformMatrix(@NonNull Matrix matrix) {
         super.setSensorToBufferTransformMatrix(matrix);
-        mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
+        synchronized (mAnalysisLock) {
+            if (mImageAnalysisAbstractAnalyzer != null) {
+                mImageAnalysisAbstractAnalyzer.setSensorToBufferTransformMatrix(matrix);
+            }
+            mSensorToBufferTransformMatrix = matrix;
+        }
     }
 
     private boolean isFlipWH(@NonNull CameraInternal cameraInternal) {
@@ -764,7 +828,10 @@ public final class ImageAnalysis extends UseCase {
     @Override
     public void onUnbind() {
         clearPipeline();
-        mImageAnalysisAbstractAnalyzer.detach();
+        synchronized (mAnalysisLock) {
+            mImageAnalysisAbstractAnalyzer.detach();
+            mImageAnalysisAbstractAnalyzer = null;
+        }
     }
 
     /**
@@ -789,15 +856,6 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@inheritDoc}
      */
-    @Override
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onBind() {
-        mImageAnalysisAbstractAnalyzer.attach();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public UseCaseConfig.@NonNull Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
@@ -812,6 +870,8 @@ public final class ImageAnalysis extends UseCase {
     protected @NonNull StreamSpec onSuggestedStreamSpecUpdated(
             @NonNull StreamSpec primaryStreamSpec,
             @Nullable StreamSpec secondaryStreamSpec) {
+        Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
+                + ", secondaryStreamSpec " + secondaryStreamSpec);
         final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
         mSessionConfigBuilder = createPipeline(getCameraId(), config,
@@ -837,9 +897,12 @@ public final class ImageAnalysis extends UseCase {
      * Updates relative rotation if attached to a camera. No-op otherwise.
      */
     private void tryUpdateRelativeRotation() {
-        CameraInternal cameraInternal = getCamera();
-        if (cameraInternal != null) {
-            mImageAnalysisAbstractAnalyzer.setRelativeRotation(getRelativeRotation(cameraInternal));
+        synchronized (mAnalysisLock) {
+            CameraInternal cameraInternal = getCamera();
+            if (cameraInternal != null) {
+                mImageAnalysisAbstractAnalyzer.setRelativeRotation(
+                        getRelativeRotation(cameraInternal));
+            }
         }
     }
 
@@ -1616,6 +1679,13 @@ public final class ImageAnalysis extends UseCase {
         public @NonNull Builder setCaptureType(
                 UseCaseConfigFactory.@NonNull CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public @NonNull Builder setStreamUseCase(@NonNull StreamUseCase streamUseCase) {
+            getMutableConfig().insertOption(OPTION_STREAM_USE_CASE, streamUseCase);
             return this;
         }
 

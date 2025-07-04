@@ -54,7 +54,7 @@ class BadgeScreenshotTest {
             MaterialTheme(darkColors()) {
                 Box(
                     Modifier.size(56.dp).semantics(mergeDescendants = true) {}.testTag(TestTag),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     BadgedBox(badge = { Badge { Text("8") } }) { Icon(Icons.Filled.Favorite, null) }
                 }
@@ -101,7 +101,7 @@ class BadgeScreenshotTest {
                             }
                         },
                         selected = false,
-                        onClick = {}
+                        onClick = {},
                     )
                 }
             }
@@ -128,7 +128,7 @@ class BadgeScreenshotTest {
                             }
                         },
                         selected = false,
-                        onClick = {}
+                        onClick = {},
                     )
                 }
             }
@@ -145,7 +145,7 @@ class BadgeScreenshotTest {
                     text = { BadgedBox(badge = { Badge() }) { Text("TAB") } },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag)
+                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag),
                 )
             }
         }
@@ -166,7 +166,7 @@ class BadgeScreenshotTest {
                     },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag)
+                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag),
                 )
             }
         }
@@ -187,7 +187,7 @@ class BadgeScreenshotTest {
                     },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag)
+                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag),
                 )
             }
         }
@@ -209,7 +209,7 @@ class BadgeScreenshotTest {
                     text = { Text("TAB") },
                     selected = true,
                     onClick = {},
-                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag)
+                    modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(TestTag),
                 )
             }
         }

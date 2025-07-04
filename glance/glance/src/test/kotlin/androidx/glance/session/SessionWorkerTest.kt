@@ -38,19 +38,21 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.time.Duration
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.yield
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SessionWorkerTest {
     private val sessionManager = TestSessionManager()
@@ -68,7 +70,7 @@ class SessionWorkerTest {
                         override fun createWorker(
                             appContext: Context,
                             workerClassName: String,
-                            workerParameters: WorkerParameters
+                            workerParameters: WorkerParameters,
                         ) = SessionWorker(appContext, workerParameters, sessionManager)
                     }
                 )
@@ -324,16 +326,16 @@ class SessionWorkerTest {
             runError.value = true
             resultFlow.first { it.isFailure }
             // Composition is now cancelled due to error. However, the worker should not be able to
-            // close the session channel until it has the lock. yield() here; the worker will run
-            // until it suspends to wait for the lock.
-            yield()
+            // close the session channel until it has the lock. advanceUntilIdle here; the worker
+            // will run until it suspends to wait for the lock.
+            advanceUntilIdle()
             val session = checkNotNull(getSession(SESSION_KEY))
             assertThat(session.isOpen).isTrue()
         }
 
-        // Now that we've let go of the lock, yield() again to make sure the worker can resume
-        // from waiting for the lock and close the session.
-        yield()
+        // Now that we've let go of the lock, advanceUntilIdle() again to make sure the worker can
+        // resume from waiting for the lock and close the session.
+        advanceUntilIdle()
         sessionManager.runWithLock {
             val session = checkNotNull(getSession(SESSION_KEY))
             assertThat(session.isOpen).isFalse()
@@ -355,7 +357,7 @@ class TestSessionManager : SessionManager {
 
         suspend fun startSession(
             context: Context,
-            content: @GlanceComposable @Composable () -> Unit = {}
+            content: @GlanceComposable @Composable () -> Unit = {},
         ) =
             MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
                 startSession(context, TestSession(resultFlow = flow, content = content))
@@ -363,7 +365,7 @@ class TestSessionManager : SessionManager {
 
         suspend fun startDelayedProcessingSession(
             context: Context,
-            content: @GlanceComposable @Composable () -> Unit = {}
+            content: @GlanceComposable @Composable () -> Unit = {},
         ) =
             MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
                 startSession(
@@ -372,7 +374,7 @@ class TestSessionManager : SessionManager {
                         resultFlow = flow,
                         content = content,
                         processEmittableTreeHasInfiniteDelay = true,
-                    )
+                    ),
                 )
             }
 
@@ -393,6 +395,8 @@ class TestSessionManager : SessionManager {
         }
 
         override fun getSession(key: String): Session? = sessions[key]
+
+        override suspend fun recreateOrClose(session: Session) = null
     }
 }
 
@@ -422,7 +426,7 @@ class TestSession(
 
     override suspend fun processEmittableTree(
         context: Context,
-        root: EmittableWithChildren
+        root: EmittableWithChildren,
     ): Boolean {
         resultFlow?.emit(kotlin.Result.success(root))
         try {
@@ -445,4 +449,9 @@ class TestSession(
     override suspend fun onCompositionError(context: Context, throwable: Throwable) {
         resultFlow?.emit(kotlin.Result.failure(throwable))
     }
+
+    override suspend fun recreateWithEvents(events: List<Any>) =
+        TestSession(key, resultFlow, content, processEmittableTreeHasInfiniteDelay).apply {
+            events.forEach { sendEvent(it) }
+        }
 }

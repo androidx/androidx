@@ -19,8 +19,8 @@ package androidx.room.solver
 import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.CustomConverterProcessor
-import androidx.room.runProcessorTestWithK1
 import androidx.room.solver.types.CompositeTypeConverter
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.TypeConverter
@@ -63,16 +63,16 @@ class TypeConverterStoreTest {
                 fun jump2_Type2_Sub(inp : JumpType_3): Type2_Sub = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
-        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
+        runProcessorTest(sources = listOf(source)) { invocation ->
             val convertersElm = invocation.processingEnv.requireTypeElement("MyConverters")
             val converters = CustomConverterProcessor(invocation.context, convertersElm).process()
             val store =
                 TypeAdapterStore.create(
                         invocation.context,
                         BuiltInConverterFlags.DEFAULT,
-                        converters.map(::CustomTypeConverterWrapper)
+                        converters.map(::CustomTypeConverterWrapper),
                     )
                     .typeConverterStore
 

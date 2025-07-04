@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
+import androidx.privacysandbox.ui.core.SandboxedUiAdapterSignalOptions
 import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.core.SessionObserverFactory
@@ -36,13 +37,19 @@ class ViewabilityHandler {
 
         fun addObserverFactoryToAdapter(
             adapter: AbstractSandboxedUiAdapter,
-            drawViewability: Boolean
+            drawViewability: Boolean,
         ) {
             adapter.addObserverFactory(SessionObserverFactoryImpl(drawViewability))
         }
 
         private class SessionObserverFactoryImpl(val drawViewability: Boolean) :
             SessionObserverFactory {
+
+            override val signalOptions: Set<String> =
+                setOf(
+                    SandboxedUiAdapterSignalOptions.GEOMETRY,
+                    SandboxedUiAdapterSignalOptions.OBSTRUCTIONS,
+                )
 
             override fun create(): SessionObserver {
                 return SessionObserverImpl()
@@ -68,7 +75,7 @@ class ViewabilityHandler {
                                         sandboxedSdkViewUiInfo.onScreenGeometry.left + scrollX,
                                         sandboxedSdkViewUiInfo.onScreenGeometry.top + scrollY,
                                         sandboxedSdkViewUiInfo.onScreenGeometry.right + scrollX,
-                                        sandboxedSdkViewUiInfo.onScreenGeometry.bottom + scrollY
+                                        sandboxedSdkViewUiInfo.onScreenGeometry.bottom + scrollY,
                                     )
                                 drawRedRectangle(rect)
                             }

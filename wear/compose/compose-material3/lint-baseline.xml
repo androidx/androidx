@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.12.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha02)" variant="all" version="8.12.0-alpha02">
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="        icon: @Composable () -> Unit,"
+        errorLine2="        ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="        icon: @Composable () -> Unit,"
+        errorLine2="        ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/SwipeToReveal.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun FilledButton(status: Status): Color {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun FilledTonalButton(status: Status): Color {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun FilledVariantButton(status: Status): Color {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun OutlinedButton(status: Status): Color {"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun ChildButton(status: Status): Color {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun ThreeSlotFilledButton(status: Status): ThreeSlotButtonColors {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun ThreeSlotFilledTonalButton(status: Status): ThreeSlotButtonColors {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun ThreeSlotOutlinedButton(status: Status): ThreeSlotButtonColors {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="private fun ThreeSlotChildButton(status: Status): ThreeSlotButtonColors {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ButtonTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleFilledIconButton(enabled: Boolean, isCompact: Boolean) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleFilledTonalIconButton(enabled: Boolean, isCompact: Boolean) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleOutlinedIconButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleIconButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleIconToggleButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun PickerGroupScope.addPickerColumns(count: Int, selectedColumn: Int) ="
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/PickerGroupTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun PickerGroupScope.addPickerColumnWithTag("
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/PickerGroupTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleRadioButton(enabled: Boolean = true, selected: Boolean = true) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleSplitRadioButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleFilledTextButton(enabled: Boolean) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleFilledTonalTextButton(enabled: Boolean) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleOutlinedTextButton(enabled: Boolean) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleTextButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleText() {"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleTextToggleButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleCheckboxButton(enabled: Boolean = true, checked: Boolean = true) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleSplitCheckboxButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleSwitchButton(enabled: Boolean = true, checked: Boolean = true) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleSplitSwitchButton("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="LocalContextConfigurationRead"
+        message="Reading Configuration using LocalContext.current.resources.configuration"
+        errorLine1="    originalContext.resources.configuration.updateFrom(fixedScreenSizeConfiguration)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/Material3Test.kt"/>
+    </issue>
+
+    <issue
+        id="LocalContextConfigurationRead"
+        message="Reading Configuration using LocalContext.current.resources.configuration"
+        errorLine1="                val screenSize = LocalContext.current.resources.configuration.smallestScreenWidthDp"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TimeTextScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/TextToggleButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="                mutableStateOf(progress),"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="UnrememberedMutableState"
+        message="Creating a state object during composition without using `remember`"
+        errorLine1="                mutableStateOf(progress),"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                &quot;0123456789\n&quot; + shortMonthNames.joinToString(&quot;\n&quot;),"
+        errorLine2="                                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/DatePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .map { it as ResponsiveTransformationSpecImpl }"
+        errorLine2="             ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/lazy/ResponsiveTransformationSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val sortedSpecs = specs.sortedBy { it.screenSize }"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/lazy/ResponsiveTransformationSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .find { it.key == key }"
+        errorLine2="             ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/Scaffold.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="                    { progress.value },"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/AnimatedStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            smoothProgress = rememberAnimatedStateOf({ progress.value }, snap())"
+        errorLine2="                                                                ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/AnimatedStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            LaunchedEffect(Unit) { progress.value = 1f }"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/AnimatedStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="                    { progress.value },"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/AnimatedStateTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="                    progress = { progress.value },"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/LinearProgressIndicatorScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="        rule.runOnIdle { progress.value = 1f }"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/LinearProgressIndicatorScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="                    progress = { progress.value },"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ProgressIndicatorScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="        rule.runOnIdle { progress.value = 1f }"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ProgressIndicatorScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="                    progress = { progress.value },"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ProgressIndicatorScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="        rule.runOnIdle { progress.value = 1f }"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/ProgressIndicatorScreenshotTest.kt"/>
+    </issue>
+
+</issues>

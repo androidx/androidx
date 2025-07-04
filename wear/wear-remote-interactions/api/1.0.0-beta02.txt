@@ -5,8 +5,8 @@ package androidx.wear.remote.interactions {
     ctor public RemoteActivityHelper(android.content.Context context, optional java.util.concurrent.Executor executor);
     method public static android.content.Intent? getTargetIntent(android.content.Intent intent);
     method public static String? getTargetNodeId(android.content.Intent intent);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent, optional String? targetNodeId);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startRemoteActivity(android.content.Intent targetIntent, optional String? targetNodeId);
     field public static final String ACTION_REMOTE_INTENT = "com.google.android.wearable.intent.action.REMOTE_INTENT";
     field public static final androidx.wear.remote.interactions.RemoteActivityHelper.Companion Companion;
     field public static final int RESULT_FAILED = 1; // 0x1

@@ -88,5 +88,5 @@ public annotation class Fts3(
      *
      * @return A list of tokenizer arguments strings.
      */
-    val tokenizerArgs: Array<String> = []
+    val tokenizerArgs: Array<String> = [],
 )

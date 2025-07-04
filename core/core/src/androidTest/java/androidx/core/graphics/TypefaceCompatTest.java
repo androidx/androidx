@@ -58,6 +58,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -146,7 +147,7 @@ public class TypefaceCompatTest {
         final FontRequest parsedRequest = entry.getRequest();
         final FontRequest request = new FontRequest(parsedRequest.getProviderAuthority(),
                 parsedRequest.getProviderPackage(), parsedRequest.getQuery(), SIGNATURE);
-        return new ProviderResourceEntry(request, null /* fallbackRequest */,
+        return new ProviderResourceEntry(Collections.singletonList(request),
                 entry.getFetchStrategy(), entry.getTimeout(), entry.getSystemFontFamilyName());
     }
 

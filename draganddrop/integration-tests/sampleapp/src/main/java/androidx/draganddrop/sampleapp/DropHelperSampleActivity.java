@@ -26,11 +26,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.OnReceiveContentListener;
 import androidx.draganddrop.DropHelper;
+
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;

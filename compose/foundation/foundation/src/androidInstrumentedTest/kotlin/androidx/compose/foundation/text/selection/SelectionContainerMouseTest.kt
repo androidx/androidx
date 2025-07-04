@@ -56,12 +56,12 @@ internal class SelectionContainerMouseTest : AbstractSelectionContainerTest() {
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag1),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag2),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
             }
         }
@@ -86,12 +86,12 @@ internal class SelectionContainerMouseTest : AbstractSelectionContainerTest() {
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag1),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
                 BasicText(
                     AnnotatedString(textContent),
                     Modifier.fillMaxWidth().testTag(tag2),
-                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize)
+                    style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 )
             }
         }
@@ -198,7 +198,7 @@ internal class SelectionContainerMouseTest : AbstractSelectionContainerTest() {
                     DisableSelection {
                         TestButton(
                             Modifier.size(50.dp).testTag(tag1),
-                            onClick = { clickCounter++ }
+                            onClick = { clickCounter++ },
                         ) {
                             TestText("Button")
                         }
@@ -228,13 +228,13 @@ internal class SelectionContainerMouseTest : AbstractSelectionContainerTest() {
                         Column {
                             TestButton(
                                 Modifier.size(50.dp).testTag(tag1),
-                                onClick = { clickCounter++ }
+                                onClick = { clickCounter++ },
                             ) {
                                 TestText("Button")
                             }
                             SelectionContainer(
                                 selection = selection.value,
-                                onSelectionChange = { selection.value = it }
+                                onSelectionChange = { selection.value = it },
                             ) {
                                 TestText(textContent, Modifier.fillMaxSize())
                             }

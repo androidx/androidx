@@ -25,6 +25,6 @@ internal actual class PlatformFontFamilyTypefaceAdapter actual constructor() :
         typefaceRequest: TypefaceRequest,
         platformFontLoader: PlatformFontLoader,
         onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,
-        createDefaultTypeface: (TypefaceRequest) -> Any
+        createDefaultTypeface: (TypefaceRequest) -> Any,
     ): TypefaceResult? = implementedInJetBrainsFork()
 }

@@ -155,7 +155,7 @@ internal class TestRule(rule: ComposeContentTestRule) : ComposeContentTestRule b
                                 start.linkTo(barrier)
                                 top.linkTo(box2.bottom)
                             }
-                        }
+                        },
                 ) {
                     Box(
                         Modifier.layoutId("box1")

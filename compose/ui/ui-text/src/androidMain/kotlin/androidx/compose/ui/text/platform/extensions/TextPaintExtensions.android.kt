@@ -63,7 +63,7 @@ internal fun AndroidTextPaint.applySpanStyle(
                 style.fontFamily,
                 style.fontWeight ?: FontWeight.Normal,
                 style.fontStyle ?: FontStyle.Normal,
-                style.fontSynthesis ?: FontSynthesis.All
+                style.fontSynthesis ?: FontSynthesis.All,
             )
     }
 
@@ -120,7 +120,7 @@ internal fun AndroidTextPaint.applySpanStyle(
         style.letterSpacing,
         requiresLetterSpacing,
         style.background,
-        style.baselineShift
+        style.baselineShift,
     )
 }
 
@@ -128,7 +128,7 @@ private fun generateFallbackSpanStyle(
     letterSpacing: TextUnit,
     requiresLetterSpacing: Boolean,
     background: Color,
-    baselineShift: BaselineShift?
+    baselineShift: BaselineShift?,
 ): SpanStyle? {
     // letterSpacing needs to be reset at every metricsEffectingSpan transition - so generate
     // a span for it only if there are other spans
@@ -162,7 +162,7 @@ private fun generateFallbackSpanStyle(
                     baselineShift
                 } else {
                     null
-                }
+                },
         )
     }
 }

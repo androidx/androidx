@@ -58,7 +58,7 @@ class ClickableWithDynamicConfigChangesTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable { ++counter }
+                    modifier = Modifier.testTag("myClickable").clickable { ++counter },
                 )
             }
         }

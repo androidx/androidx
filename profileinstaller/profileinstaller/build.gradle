@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -37,11 +37,12 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.testRunner)
 }
 
 androidx {
     name = "Profile Installer"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
             " ART"
@@ -49,4 +50,5 @@ androidx {
 
 android {
     namespace = "androidx.profileinstaller"
+    testOptions.unitTests.returnDefaultValues = true
 }

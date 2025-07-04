@@ -157,7 +157,7 @@ class PreferenceViewHolderStateTest {
                 repeatedlyUntil(
                     swipeUp(),
                     hasDescendant(withText("${disabledTitle}40")),
-                    maxAttempts
+                    maxAttempts,
                 )
             )
 

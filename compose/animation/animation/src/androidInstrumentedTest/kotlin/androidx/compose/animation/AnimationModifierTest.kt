@@ -136,13 +136,13 @@ class AnimationModifierTest {
             assertEquals(
                 density * (startWidth * (1 - fraction) + endWidth * fraction),
                 testModifier.width.toFloat(),
-                1f
+                1f,
             )
 
             assertEquals(
                 density * (startHeight * (1 - fraction) + endHeight * fraction),
                 testModifier.height.toFloat(),
-                1f
+                1f,
             )
 
             if (i == animDuration) {
@@ -213,7 +213,7 @@ class AnimationModifierTest {
                         assertThat(it.valueOverride, nullValue())
                         assertThat(
                             it.inspectableElements.map { it.name }.toList(),
-                            `is`(listOf("animationSpec", "alignment", "finishedListener"))
+                            `is`(listOf("animationSpec", "alignment", "finishedListener")),
                         )
                         true
                     } else {
@@ -338,7 +338,7 @@ class AnimationModifierTest {
             Box(
                 Modifier.animateContentSize(
                         animationSpec = tween(animDuration, easing = LinearOutSlowInEasing),
-                        alignment = alignment
+                        alignment = alignment,
                     )
                     .onPlaced { positionInRootByBoxIndex[index] = it.positionInRoot() }
                     .requiredSize(width.dp, height.dp)
@@ -393,7 +393,7 @@ internal class TestModifier : LayoutModifier {
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         if (isLookingAhead) lookaheadSize = IntSize(placeable.width, placeable.height)

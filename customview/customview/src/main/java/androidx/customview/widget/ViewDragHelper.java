@@ -148,6 +148,8 @@ public class ViewDragHelper {
 
     private final @NonNull ViewGroup mParentView;
 
+    private @NonNull Interpolator mInterpolator;
+
     /**
      * A Callback is used as a communication channel with the ViewDragHelper back to the
      * parent view using it. <code>on*</code>methods are invoked on siginficant events and several
@@ -403,7 +405,14 @@ public class ViewDragHelper {
         mTouchSlop = vc.getScaledTouchSlop();
         mMaxVelocity = vc.getScaledMaximumFlingVelocity();
         mMinVelocity = vc.getScaledMinimumFlingVelocity();
-        mScroller = new OverScroller(context, sInterpolator);
+        mInterpolator = sInterpolator;
+        Interpolator delegatingInterpolator = new Interpolator() {
+            @Override
+            public float getInterpolation(float input) {
+                return mInterpolator.getInterpolation(input);
+            }
+        };
+        mScroller = new OverScroller(context, delegatingInterpolator);
     }
 
     /**
@@ -561,6 +570,7 @@ public class ViewDragHelper {
             final int newY = mScroller.getCurrY();
             mCallback.onViewPositionChanged(mCapturedView, newX, newY, newX - oldX, newY - oldY);
         }
+        mInterpolator = sInterpolator;
         setDragState(STATE_IDLE);
     }
 
@@ -591,6 +601,39 @@ public class ViewDragHelper {
 
         return continueSliding;
     }
+
+    /**
+     * Animate the view <code>child</code> to the given (left, top) position.
+     * If this method returns true, the caller should invoke {@link #continueSettling(boolean)}
+     * on each subsequent frame to continue the motion until it returns false. If this method
+     * returns false there is no further work to do to complete the movement.
+     *
+     * <p>This operation does not count as a capture event, though {@link #getCapturedView()}
+     * will still report the sliding view while the slide is in progress.</p>
+     *
+     * @param child Child view to capture and animate
+     * @param finalLeft Final left position of child
+     * @param finalTop Final top position of child
+     * @param duration The time duration for the animation.
+     * @param interpolator The interpolator used for this animation.
+     * @return true if animation should continue through {@link #continueSettling(boolean)} calls
+     */
+    public boolean smoothSlideViewTo(@NonNull View child, int finalLeft, int finalTop, int duration,
+            @Nullable Interpolator interpolator) {
+        mCapturedView = child;
+        mActivePointerId = INVALID_POINTER;
+
+        boolean continueSliding =
+                forceSettleCapturedViewAt(finalLeft, finalTop, duration, interpolator);
+        if (!continueSliding && mDragState == STATE_IDLE && mCapturedView != null) {
+            // If we're in an IDLE state to begin with and aren't moving anywhere, we
+            // end up having a non-null capturedView with an IDLE dragState
+            mCapturedView = null;
+        }
+
+        return continueSliding;
+    }
+
 
     /**
      * Settle the captured view at the given (left, top) position.
@@ -637,6 +680,44 @@ public class ViewDragHelper {
         }
 
         final int duration = computeSettleDuration(mCapturedView, dx, dy, xvel, yvel);
+        // mScroller's interpolator delegates to mInterpolator. Set it to the default interpolator
+        // before we start animation.
+        mInterpolator = sInterpolator;
+        mScroller.startScroll(startLeft, startTop, dx, dy, duration);
+
+        setDragState(STATE_SETTLING);
+        return true;
+    }
+
+    /**
+     * Settle the captured view at the given (left, top).
+     *
+     * @param finalLeft Target left position for the captured view
+     * @param finalTop Target top position for the captured view
+     * @param duration The duration for the animation
+     * @param interpolator The interpolator used for the animation
+     * @return true if animation should continue through {@link #continueSettling(boolean)} calls
+     */
+    private boolean forceSettleCapturedViewAt(int finalLeft, int finalTop, int duration,
+            @Nullable Interpolator interpolator) {
+        final int startLeft = mCapturedView.getLeft();
+        final int startTop = mCapturedView.getTop();
+        final int dx = finalLeft - startLeft;
+        final int dy = finalTop - startTop;
+
+        if (dx == 0 && dy == 0) {
+            // Nothing to do. Send callbacks, be done.
+            mScroller.abortAnimation();
+            setDragState(STATE_IDLE);
+            return false;
+        }
+
+        // mScroller's interpolator delegates to mInterpolator, update it before start animation.
+        if (interpolator != null) {
+            mInterpolator = interpolator;
+        } else {
+            mInterpolator = sInterpolator;
+        }
         mScroller.startScroll(startLeft, startTop, dx, dy, duration);
 
         setDragState(STATE_SETTLING);
@@ -742,6 +823,9 @@ public class ViewDragHelper {
                     + "Callback#onViewReleased");
         }
 
+        // mScroller's interpolator delegates to mInterpolator,
+        // Set it to the default interpolator.
+        mInterpolator = sInterpolator;
         mScroller.fling(mCapturedView.getLeft(), mCapturedView.getTop(),
                 (int) mVelocityTracker.getXVelocity(mActivePointerId),
                 (int) mVelocityTracker.getYVelocity(mActivePointerId),
@@ -1458,9 +1542,10 @@ public class ViewDragHelper {
      * the specified ID. If there is no currently active gesture or if there is no pointer with
      * the given ID currently down this method will return false.
      *
-     * @param edges Edges to check for an initial edge touch. See {@link #EDGE_LEFT},
-     *              {@link #EDGE_TOP}, {@link #EDGE_RIGHT}, {@link #EDGE_BOTTOM} and
-     *              {@link #EDGE_ALL}
+     * @param edges     Edges to check for an initial edge touch. See {@link #EDGE_LEFT},
+     *                  {@link #EDGE_TOP}, {@link #EDGE_RIGHT}, {@link #EDGE_BOTTOM} and
+     *                  {@link #EDGE_ALL}
+     * @param pointerId The pointer that will be checked; returns false if there is no such pointer
      * @return true if any of the edges specified were initially touched in the current gesture
      */
     public boolean isEdgeTouched(int edges, int pointerId) {

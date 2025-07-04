@@ -90,7 +90,7 @@ class SheetState(
     positionalThreshold: () -> Float,
     velocityThreshold: () -> Float,
     initialValue: SheetValue = Hidden,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
+    internal val confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
 
@@ -167,19 +167,18 @@ class SheetState(
         get() = anchoredDraggableState.anchors.hasAnchorFor(PartiallyExpanded)
 
     /**
-     * Fully expand the bottom sheet with animation and suspend until it is fully expanded or
-     * animation has been cancelled.
-     * *
+     * If [confirmValueChange] returns true, fully expand the bottom sheet with animation and
+     * suspend until it is fully expanded or animation has been cancelled.
      *
      * @throws [CancellationException] if the animation is interrupted
      */
     suspend fun expand() {
-        anchoredDraggableState.animateTo(Expanded)
+        if (confirmValueChange(Expanded)) animateTo(Expanded, showMotionSpec)
     }
 
     /**
-     * Animate the bottom sheet and suspend until it is partially expanded or animation has been
-     * cancelled.
+     * If [confirmValueChange] returns true, animate the bottom sheet and suspend until it is
+     * partially expanded or animation has been cancelled.
      *
      * @throws [CancellationException] if the animation is interrupted
      * @throws [IllegalStateException] if [skipPartiallyExpanded] is set to true
@@ -189,12 +188,12 @@ class SheetState(
             "Attempted to animate to partial expanded when skipPartiallyExpanded was enabled. Set" +
                 " skipPartiallyExpanded to false to use this function."
         }
-        animateTo(PartiallyExpanded, showMotionSpec)
+        if (confirmValueChange(PartiallyExpanded)) animateTo(PartiallyExpanded, hideMotionSpec)
     }
 
     /**
-     * Expand the bottom sheet with animation and suspend until it is [PartiallyExpanded] if defined
-     * else [Expanded].
+     * If [confirmValueChange] returns true, expand the bottom sheet with animation and suspend
+     * until it is [PartiallyExpanded] if defined, else [Expanded].
      *
      * @throws [CancellationException] if the animation is interrupted
      */
@@ -204,12 +203,12 @@ class SheetState(
                 hasPartiallyExpandedState -> PartiallyExpanded
                 else -> Expanded
             }
-        animateTo(targetValue, showMotionSpec)
+        if (confirmValueChange(targetValue)) animateTo(targetValue, showMotionSpec)
     }
 
     /**
-     * Hide the bottom sheet with animation and suspend until it is fully hidden or animation has
-     * been cancelled.
+     * If [confirmValueChange] returns true, hide the bottom sheet with animation and suspend until
+     * it is fully hidden or animation has been cancelled.
      *
      * @throws [CancellationException] if the animation is interrupted
      */
@@ -218,7 +217,7 @@ class SheetState(
             "Attempted to animate to hidden when skipHiddenState was enabled. Set skipHiddenState" +
                 " to false to use this function."
         }
-        animateTo(Hidden, hideMotionSpec)
+        if (confirmValueChange(Hidden)) animateTo(Hidden, hideMotionSpec)
     }
 
     /**
@@ -235,7 +234,7 @@ class SheetState(
     internal suspend fun animateTo(
         targetValue: SheetValue,
         animationSpec: FiniteAnimationSpec<Float>,
-        velocity: Float = anchoredDraggableState.lastVelocity
+        velocity: Float = anchoredDraggableState.lastVelocity,
     ) {
         anchoredDraggableState.anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
             val targetOffset = anchors.positionOf(latestTarget)
@@ -310,12 +309,12 @@ class SheetState(
                         confirmValueChange,
                         skipHiddenState,
                     )
-                }
+                },
             )
 
         @Deprecated(
             level = DeprecationLevel.HIDDEN,
-            message = "Maintained for binary compatibility."
+            message = "Maintained for binary compatibility.",
         )
         fun Saver(
             skipPartiallyExpanded: Boolean,
@@ -332,7 +331,7 @@ class SheetState(
                 },
                 velocityThreshold = {
                     with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
-                }
+                },
             )
     }
 
@@ -397,7 +396,8 @@ object BottomSheetDefaults {
 
     /** Default insets to be used and consumed by the [ModalBottomSheet]'s content. */
     val windowInsets: WindowInsets
-        @Composable get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
+        @Composable
+        get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom + WindowInsetsSides.Top)
 
     internal val PositionalThreshold = 56.dp
 
@@ -419,7 +419,7 @@ object BottomSheetDefaults {
                     contentDescription = dragHandleDescription
                 },
             color = color,
-            shape = shape
+            shape = shape,
         ) {
             Box(Modifier.size(width = width, height = height))
         }
@@ -430,7 +430,7 @@ object BottomSheetDefaults {
 internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     sheetState: SheetState,
     orientation: Orientation,
-    onFling: (velocity: Float) -> Unit
+    onFling: (velocity: Float) -> Unit,
 ): NestedScrollConnection =
     object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -445,7 +445,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         override fun onPostScroll(
             consumed: Offset,
             available: Offset,
-            source: NestedScrollSource
+            source: NestedScrollSource,
         ): Offset {
             return if (source == NestedScrollSource.UserInput) {
                 sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
@@ -475,7 +475,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Float.toOffset(): Offset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) this else 0f,
-                y = if (orientation == Orientation.Vertical) this else 0f
+                y = if (orientation == Orientation.Vertical) this else 0f,
             )
 
         @JvmName("velocityToFloat")
@@ -509,7 +509,7 @@ internal fun rememberSheetState(
                 velocityThreshold = velocityThresholdToPx,
                 confirmValueChange = confirmValueChange,
                 skipHiddenState = skipHiddenState,
-            )
+            ),
     ) {
         SheetState(
             skipPartiallyExpanded,

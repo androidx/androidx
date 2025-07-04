@@ -52,7 +52,7 @@ class WrongStartDestinationTypeDetectorTest() : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -93,7 +93,7 @@ class WrongStartDestinationTypeDetectorTest() : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -128,7 +128,7 @@ class WrongStartDestinationTypeDetectorTest() : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()
@@ -168,7 +168,7 @@ class WrongStartDestinationTypeDetectorTest() : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(

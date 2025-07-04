@@ -23,7 +23,9 @@ import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_NV21;
 import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
 import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
 import static androidx.camera.core.ImageAnalysisAbstractAnalyzer.getAdditionalTransformMatrixAppliedByProcessor;
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
 import static androidx.camera.testing.impl.ImageProxyUtil.createYUV420ImagePlanes;
+import static androidx.camera.testing.impl.ImageProxyUtil.getDefaultYuvFormatPlaneDataType;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -65,8 +67,6 @@ public class ImageAnalysisAbstractAnalyzerTest {
     private static final int WIDTH = 8;
     private static final int HEIGHT = 4;
     private static final int MAX_IMAGES = 4;
-    private static final int PIXEL_STRIDE_Y = 1;
-    private static final int PIXEL_STRIDE_UV = 1;
 
     private FakeImageAnalysisAnalyzer mImageAnalysisAbstractAnalyzer;
     private FakeImageProxy mImageProxy;
@@ -80,6 +80,8 @@ public class ImageAnalysisAbstractAnalyzerTest {
 
     @Before
     public void setup() {
+        int yuvFormatPlaneDataType = getDefaultYuvFormatPlaneDataType(RESOLUTION_VGA.getWidth(),
+                RESOLUTION_VGA.getHeight());
         mImageProxy = new FakeImageProxy(new FakeImageInfo());
         mImageProxy.setWidth(WIDTH);
         mImageProxy.setHeight(HEIGHT);
@@ -87,9 +89,7 @@ public class ImageAnalysisAbstractAnalyzerTest {
         mImageProxy.setPlanes(createYUV420ImagePlanes(
                 WIDTH,
                 HEIGHT,
-                PIXEL_STRIDE_Y,
-                PIXEL_STRIDE_UV,
-                /*flipUV=*/true,
+                yuvFormatPlaneDataType,
                 /*incrementValue=*/true));
 
         mSecondImageProxy = new FakeImageProxy(new FakeImageInfo());
@@ -99,9 +99,7 @@ public class ImageAnalysisAbstractAnalyzerTest {
         mSecondImageProxy.setPlanes(createYUV420ImagePlanes(
                 WIDTH,
                 HEIGHT,
-                PIXEL_STRIDE_Y,
-                PIXEL_STRIDE_UV,
-                /*flipUV=*/true,
+                yuvFormatPlaneDataType,
                 /*incrementValue=*/true));
 
         mYUVImageReaderProxy = new SafeCloseImageReaderProxy(

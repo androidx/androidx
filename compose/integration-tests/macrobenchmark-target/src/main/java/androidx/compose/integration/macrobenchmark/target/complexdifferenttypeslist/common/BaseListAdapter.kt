@@ -75,7 +75,7 @@ T : Enum<T> {
     /** @return [CommonViewHolder] for [CommonAdapterItemType]. */
     private fun onCreateCommonViewHolder(
         parent: ViewGroup,
-        commonViewType: CommonAdapterItemType
+        commonViewType: CommonAdapterItemType,
     ): BaseViewHolder<*> {
         return CommonViewHolder(parent, commonViewType)
     }

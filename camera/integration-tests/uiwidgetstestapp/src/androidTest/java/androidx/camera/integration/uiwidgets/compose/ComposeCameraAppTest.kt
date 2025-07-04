@@ -60,7 +60,7 @@ class ComposeCameraAppTest {
         // Skip test for b/168175357
         Assume.assumeFalse(
             "Cuttlefish has MediaCodec dequeInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29,
         )
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(DEFAULT_LENS_FACING))
 
@@ -77,7 +77,7 @@ class ComposeCameraAppTest {
         assertStreamState(
             ComposeCameraScreen.ImageCapture,
             PreviewView.StreamState.STREAMING,
-            androidComposeTestRule.activityRule.scenario
+            androidComposeTestRule.activityRule.scenario,
         )
     }
 
@@ -92,14 +92,11 @@ class ComposeCameraAppTest {
         // Get VideoCapture Navigation Tab (Node)
         val node =
             androidComposeTestRule.onNode(
-                SemanticsMatcher.expectValue(
-                        SemanticsProperties.Role,
-                        Role.Tab,
-                    )
+                SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
                     .and(
                         SemanticsMatcher.expectValue(
                             SemanticsProperties.ContentDescription,
-                            listOf("VideoCapture")
+                            listOf("VideoCapture"),
                         )
                     )
             )
@@ -111,7 +108,7 @@ class ComposeCameraAppTest {
         assertStreamState(
             ComposeCameraScreen.VideoCapture,
             PreviewView.StreamState.STREAMING,
-            androidComposeTestRule.activityRule.scenario
+            androidComposeTestRule.activityRule.scenario,
         )
     }
 
@@ -130,7 +127,7 @@ class ComposeCameraAppTest {
                 result = async {
                     activity.waitForStreamState(
                         expectedScreen = expectedScreen,
-                        expectedState = expectedState
+                        expectedState = expectedState,
                     )
                 }
             }

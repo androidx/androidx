@@ -20,6 +20,7 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.jspecify)
     implementation(project(":room:room-runtime"))
     annotationProcessor(project(":room:room-compiler"))
     androidTestAnnotationProcessor(project(":room:room-compiler"))

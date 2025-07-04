@@ -62,19 +62,14 @@ interface XAnnotated {
      * @see [hasAnnotation]
      * @see [hasAnnotationWithPackage]
      */
-    fun <T : Annotation> getAnnotations(annotation: KClass<T>): List<XAnnotationBox<T>>
+    fun <T : Annotation> getAnnotations(annotation: KClass<T>): List<XAnnotation>
 
     /**
      * Returns all annotations on this element represented as [XAnnotation].
      *
      * As opposed to other functions like [getAnnotations] this does not require you to have a
      * reference to each annotation class, and thus it can represent annotations in the module
-     * sources being compiled. However, note that the returned [XAnnotation] cannot provide an
-     * instance of the annotation (like [XAnnotationBox.value] can) and instead all values must be
-     * accessed dynamically.
-     *
-     * The returned [XAnnotation]s can be converted to [XAnnotationBox] via
-     * [XAnnotation.asAnnotationBox] if the annotation class is on the class path.
+     * sources being compiled. For [XAnnotation] all values must be accessed dynamically.
      */
     fun getAllAnnotations(): List<XAnnotation>
 
@@ -144,22 +139,14 @@ interface XAnnotated {
     fun hasAllAnnotations(vararg annotations: XClassName): Boolean =
         annotations.all(this::hasAnnotation)
 
-    @Deprecated(
-        replaceWith = ReplaceWith("getAnnotation(annotation)"),
-        message = "Use getAnnotation(not repeatable) or getAnnotations (repeatable)"
-    )
-    fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? =
-        getAnnotation(annotation)
-
     /**
-     * If the current element has an annotation with the given [annotation] class, a boxed instance
-     * of it will be returned where fields can be read. Otherwise, `null` value is returned.
+     * If the current element has an annotation with the given [annotation] class.
      *
      * @see [hasAnnotation]
      * @see [getAnnotations]
      * @see [hasAnnotationWithPackage]
      */
-    fun <T : Annotation> getAnnotation(annotation: KClass<T>): XAnnotationBox<T>? {
+    fun <T : Annotation> getAnnotation(annotation: KClass<T>): XAnnotation? {
         return getAnnotations(annotation).firstOrNull()
     }
 
@@ -190,14 +177,14 @@ interface XAnnotated {
     /** Returns the [Annotation]s that are annotated with [annotationName] */
     fun getAnnotationsAnnotatedWith(annotationName: ClassName): Set<XAnnotation> {
         return getAllAnnotations()
-            .filter { it.type.typeElement?.hasAnnotation(annotationName) ?: false }
+            .filter { it.type.typeElement?.hasAnnotation(annotationName) == true }
             .toSet()
     }
 
     /** Returns the [Annotation]s that are annotated with [annotationName] */
     fun getAnnotationsAnnotatedWith(annotationName: XClassName): Set<XAnnotation> {
         return getAllAnnotations()
-            .filter { it.type.typeElement?.hasAnnotation(annotationName) ?: false }
+            .filter { it.type.typeElement?.hasAnnotation(annotationName) == true }
             .toSet()
     }
 
@@ -224,7 +211,7 @@ interface XAnnotated {
     }
 
     /**
-     * Returns a boxed instance of the given [annotation] class where fields can be read.
+     * Returns the [XAnnotation] that has the same qualified name as [annotation].
      *
      * @see [hasAnnotation]
      * @see [getAnnotations]

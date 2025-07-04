@@ -47,7 +47,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 @Deprecated(
     message = "PositionalDataSource is deprecated and has been replaced by PagingSource",
-    replaceWith = ReplaceWith("PagingSource<Int, T>", "androidx.paging.PagingSource")
+    replaceWith = ReplaceWith("PagingSource<Int, T>", "androidx.paging.PagingSource"),
 )
 public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
 
@@ -76,7 +76,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          * Defines whether placeholders are enabled, and whether the loaded total count will be
          * ignored.
          */
-        @JvmField public val placeholdersEnabled: Boolean
+        @JvmField public val placeholdersEnabled: Boolean,
     ) {
         init {
             check(requestedStartPosition >= 0) { "invalid start position: $requestedStartPosition" }
@@ -98,7 +98,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
          *
          * Returned data must be of this size, unless at end of the list.
          */
-        @JvmField public val loadSize: Int
+        @JvmField public val loadSize: Int,
     )
 
     /**
@@ -279,7 +279,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
         public fun computeInitialLoadSize(
             params: LoadInitialParams,
             initialLoadPosition: Int,
-            totalCount: Int
+            totalCount: Int,
         ): Int = minOf(totalCount - initialLoadPosition, params.requestedLoadSize)
     }
 
@@ -307,7 +307,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                     initialPosition,
                     initialLoadSize,
                     params.pageSize,
-                    params.placeholdersEnabled
+                    params.placeholdersEnabled,
                 )
             return loadInitial(initParams)
         } else {
@@ -351,8 +351,8 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                                     // skip passing nextKey if nothing else to load
                                     nextKey = if (nextKey == totalCount) null else nextKey,
                                     itemsBefore = position,
-                                    itemsAfter = totalCount - data.size - position
-                                )
+                                    itemsAfter = totalCount - data.size - position,
+                                ),
                             )
                         }
                     }
@@ -373,8 +373,8 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                                     // terminal
                                     nextKey = position + data.size,
                                     itemsBefore = position,
-                                    itemsAfter = COUNT_UNDEFINED
-                                )
+                                    itemsAfter = COUNT_UNDEFINED,
+                                ),
                             )
                         }
                     }
@@ -385,7 +385,7 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                         }
                         cont.resume(result)
                     }
-                }
+                },
             )
         }
 
@@ -416,12 +416,12 @@ public abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIO
                                     BaseResult(
                                         data = data,
                                         prevKey = prevKey,
-                                        nextKey = params.startPosition + data.size
+                                        nextKey = params.startPosition + data.size,
                                     )
                                 )
                         }
                     }
-                }
+                },
             )
         }
 

@@ -56,27 +56,24 @@ class FakeHealthConnectClientChangesTest {
     }
 
     @Test
-    fun insertAndDeleteAndGetChanges_returnsUpsertionAndDeletionChanges() = runTest {
+    fun insertDeleteAndGetChanges_returnsOnlyDeletionChanges() = runTest {
         val fake = FakeHealthConnectClient()
 
         val changesToken =
             fake.getChangesToken(ChangesTokenRequest(recordTypes = setOf(runRecord1::class)))
-        fake.insertRecords(listOf(runRecord1))
+        val recordId = fake.insertRecords(listOf(runRecord1)).recordIdsList.first()
         fake.deleteRecords(
             runRecord1::class,
             clientRecordIdsList = listOf(runRecord1.metadata.clientRecordId!!),
-            recordIdsList = emptyList()
+            recordIdsList = emptyList(),
         )
         val changesResponse = fake.getChanges(changesToken)
 
-        assertThat(changesResponse.changes).hasSize(2)
-        assertThat((changesResponse.changes[0] as UpsertionChange).record.metadata.clientRecordId)
-            .isEqualTo(runRecord1.metadata.clientRecordId)
-        assertThat(changesResponse.changes[1]).isInstanceOf(DeletionChange::class.java)
+        assertThat(changesResponse.changes).containsExactly(DeletionChange(recordId))
     }
 
     @Test
-    fun insertAndDeleteAndGetChangesByRecordIds_returnsOnlyDeletionChanges() = runTest {
+    fun insertDeleteReadAndGetChangesByRecordIds_returnsOnlyDeletionChanges() = runTest {
         val fake = FakeHealthConnectClient()
 
         val changesToken =
@@ -88,20 +85,22 @@ class FakeHealthConnectClientChangesTest {
                     timeRangeFilter =
                         TimeRangeFilter(
                             startTime = runRecord1.startTime.minusSeconds(1),
-                            endTime = runRecord1.endTime.plusSeconds(1)
+                            endTime = runRecord1.endTime.plusSeconds(1),
                         ),
-                    recordType = runRecord1::class
+                    recordType = runRecord1::class,
                 )
             )
+
+        val recordId = recordWithId.records.first().metadata.id
+
         fake.deleteRecords(
             runRecord1::class,
-            recordIdsList = listOf(recordWithId.records.first().metadata.id),
-            clientRecordIdsList = emptyList()
+            recordIdsList = listOf(recordId),
+            clientRecordIdsList = emptyList(),
         )
         val changesResponse = fake.getChanges(changesToken)
 
-        assertThat(changesResponse.changes).hasSize(1)
-        assertThat(changesResponse.changes[0]).isInstanceOf(DeletionChange::class.java)
+        assertThat(changesResponse.changes).containsExactly(DeletionChange(recordId))
     }
 
     @Test
@@ -214,7 +213,7 @@ class FakeHealthConnectClientChangesTest {
                 fake.getChangesToken(
                     ChangesTokenRequest(
                         recordTypes = setOf(Record::class),
-                        dataOriginFilters = setOf(DataOrigin("test"))
+                        dataOriginFilters = setOf(DataOrigin("test")),
                     )
                 )
             }

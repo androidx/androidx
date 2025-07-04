@@ -1,5 +1,29 @@
 // Baseline format: 1.0
-RemovedMethod: androidx.compose.animation.core.StartOffset#getOffsetMillis():
-    Removed method androidx.compose.animation.core.StartOffset.getOffsetMillis()
-RemovedMethod: androidx.compose.animation.core.StartOffset#getOffsetType():
-    Removed method androidx.compose.animation.core.StartOffset.getOffsetType()
+RemovedFromKotlin: androidx.compose.animation.core.VisibilityThresholdsKt#getVisibilityThreshold(androidx.compose.ui.geometry.Offset.Companion):
+    Source breaking change: method androidx.compose.animation.core.VisibilityThresholdsKt.getVisibilityThreshold(androidx.compose.ui.geometry.Offset.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.core.VisibilityThresholdsKt#getVisibilityThreshold(androidx.compose.ui.geometry.Size.Companion):
+    Source breaking change: method androidx.compose.animation.core.VisibilityThresholdsKt.getVisibilityThreshold(androidx.compose.ui.geometry.Size.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.core.VisibilityThresholdsKt#getVisibilityThreshold(androidx.compose.ui.unit.Dp.Companion):
+    Source breaking change: method androidx.compose.animation.core.VisibilityThresholdsKt.getVisibilityThreshold(androidx.compose.ui.unit.Dp.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.core.VisibilityThresholdsKt#getVisibilityThreshold(androidx.compose.ui.unit.DpOffset.Companion):
+    Source breaking change: method androidx.compose.animation.core.VisibilityThresholdsKt.getVisibilityThreshold(androidx.compose.ui.unit.DpOffset.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.core.VisibilityThresholdsKt#getVisibilityThreshold(androidx.compose.ui.unit.IntOffset.Companion):
+    Source breaking change: method androidx.compose.animation.core.VisibilityThresholdsKt.getVisibilityThreshold(androidx.compose.ui.unit.IntOffset.Companion) can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.compose.animation.core.VisibilityThresholdsKt#getVisibilityThreshold(androidx.compose.ui.unit.IntSize.Companion):
+    Source breaking change: method androidx.compose.animation.core.VisibilityThresholdsKt.getVisibilityThreshold(androidx.compose.ui.unit.IntSize.Companion) can no longer be resolved from Kotlin source
+
+
+RemovedMethod: androidx.compose.animation.core.ArcMode.Companion#getArcAbove():
+    Binary breaking change: Removed method androidx.compose.animation.core.ArcMode.Companion.getArcAbove()
+RemovedMethod: androidx.compose.animation.core.ArcMode.Companion#getArcBelow():
+    Binary breaking change: Removed method androidx.compose.animation.core.ArcMode.Companion.getArcBelow()
+RemovedMethod: androidx.compose.animation.core.ArcMode.Companion#getArcLinear():
+    Binary breaking change: Removed method androidx.compose.animation.core.ArcMode.Companion.getArcLinear()
+RemovedMethod: androidx.compose.animation.core.InfiniteRepeatableSpec#getInitialStartOffset():
+    Binary breaking change: Removed method androidx.compose.animation.core.InfiniteRepeatableSpec.getInitialStartOffset()
+RemovedMethod: androidx.compose.animation.core.RepeatableSpec#getInitialStartOffset():
+    Binary breaking change: Removed method androidx.compose.animation.core.RepeatableSpec.getInitialStartOffset()
+RemovedMethod: androidx.compose.animation.core.StartOffsetType.Companion#getDelay():
+    Binary breaking change: Removed method androidx.compose.animation.core.StartOffsetType.Companion.getDelay()
+RemovedMethod: androidx.compose.animation.core.StartOffsetType.Companion#getFastForward():
+    Binary breaking change: Removed method androidx.compose.animation.core.StartOffsetType.Companion.getFastForward()

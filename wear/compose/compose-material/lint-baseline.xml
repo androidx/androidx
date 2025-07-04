@@ -1,5 +1,338 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha06)" variant="all" version="8.8.0-alpha06">
+<issues format="6" by="lint 8.12.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha02)" variant="all" version="8.12.0-alpha02">
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="        icon: @Composable () -> Unit = { Icon(SwipeToRevealDefaults.MoreOptions, &quot;More Options&quot;) },"
+        errorLine2="        ~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="        label: @Composable () -> Unit = { Text(&quot;Undo&quot;) },"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="        toggleControl: @Composable () -> Unit = {"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ToggleChipScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="        icon: @Composable () -> Unit = { Icon(SwipeToRevealDefaults.MoreOptions, &quot;More Options&quot;) },"
+        errorLine2="        ~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="        label: @Composable () -> Unit = { Text(&quot;Undo&quot;) },"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleAppCard(enabled: Boolean = true) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/CardScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleTitleCard("
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/CardScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleChip("
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ChipScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleOutlinedChip("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ChipScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleCompactChip(enabled: Boolean = true) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ChipScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun samplePickerGroup(pickerCount: Int = 2, autoCenter: Boolean = false) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/PickerGroupScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun BoxScope.boxContent(isBackground: Boolean) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToDismissBoxScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun toggleScreen(saveableStateHolder: SaveableStateHolder) {"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToDismissBoxTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun counterScreen(saveableStateHolder: SaveableStateHolder) {"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToDismissBoxTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun messageContent() {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToDismissBoxTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun nestedScrollContent("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToDismissBoxTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun swipeToRevealCard("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun swipeToRevealChip("
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun swipeToRevealWithDefaults("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun getBoxContent(onClick: () -> Unit = {}, modifier: Modifier = Modifier) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun actionContent(modifier: Modifier = Modifier) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun getAction("
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun swipeToRevealChipDefault("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun swipeToRevealCardDefault("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleToggleChip("
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ToggleChipScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun sampleSplitToggleChip(enabled: Boolean = true) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ToggleChipScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealed) }"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="CoroutineCreationDuringComposition"
+        message="Calls to launch should happen inside a LaunchedEffect and not composition"
+        errorLine1="            coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealed) }"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    private fun testBackgroundModifier(): Modifier ="
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/ToggleControlScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="fun TestImage(iconLabel: String = &quot;TestIcon&quot;, modifier: Modifier = Modifier) {"
+        errorLine2="                                              ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/MaterialTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    private fun getBoxContent(onClick: () -> Unit = {}, modifier: Modifier = Modifier) {"
+        errorLine2="                                                        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="        modifier: Modifier = Modifier.size(screenSize),"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/VignetteScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
+        errorLine1="        frameMillis.value += timeToAdd"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/PlaceholderTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
+        errorLine1="        frameMillis.value += PLACEHOLDER_SHIMMER_DURATION_MS"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/PlaceholderTest.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
+        errorLine1="        frameMillis.value = currentTime"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material/PlaceholderTest.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInCollection"

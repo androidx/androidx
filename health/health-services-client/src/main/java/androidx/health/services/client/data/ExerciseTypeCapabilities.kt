@@ -91,7 +91,7 @@ constructor(
                                 .filter { it != ComparisonType.UNKNOWN }
                                 .toSet()
                     }
-                    .toMap()
+                    .toMap(),
     )
 
     internal val proto: DataProto.ExerciseTypeCapabilities =

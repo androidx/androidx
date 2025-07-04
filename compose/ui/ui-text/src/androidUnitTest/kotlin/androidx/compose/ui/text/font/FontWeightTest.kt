@@ -83,7 +83,7 @@ class FontWeightTest {
                 FontWeight.W600,
                 FontWeight.W700,
                 FontWeight.W800,
-                FontWeight.W900
+                FontWeight.W900,
             )
         assertThat(FontWeight.values).isEqualTo(expectedValues)
     }
@@ -100,7 +100,7 @@ class FontWeightTest {
                 FontWeight.W600 to 600,
                 FontWeight.W700 to 700,
                 FontWeight.W800 to 800,
-                FontWeight.W900 to 900
+                FontWeight.W900 to 900,
             )
 
         // TODO(b/130795950): IR compiler bug was here

@@ -76,15 +76,15 @@ public value class AnchorType private constructor(private val value: Int) {
  */
 @JvmInline
 public value class RadialAlignment private constructor(private val value: Int) {
-    companion object {
+    public companion object {
         /** Put the child closest to the center of the [CurvedRow], within the available space */
-        val Inner = RadialAlignment(0)
+        public val Inner: RadialAlignment = RadialAlignment(0)
 
         /** Put the child in the middle point of the available space. */
-        val Center = RadialAlignment(1)
+        public val Center: RadialAlignment = RadialAlignment(1)
 
         /** Put the child farthest from the center of the [CurvedRow], within the available space */
-        val Outer = RadialAlignment(2)
+        public val Outer: RadialAlignment = RadialAlignment(2)
     }
 }
 
@@ -94,7 +94,7 @@ public class CurvedTextStyle(
     public val color: ColorProvider? = null,
     public val fontSize: TextUnit? = null,
     public val fontWeight: FontWeight? = null,
-    public val fontStyle: FontStyle? = null
+    public val fontStyle: FontStyle? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -115,6 +115,6 @@ public class CurvedTextStyle(
         return result
     }
 
-    override fun toString() =
+    override fun toString(): String =
         "TextStyle(size=$fontSize, fontWeight=$fontWeight, fontStyle=$fontStyle)"
 }

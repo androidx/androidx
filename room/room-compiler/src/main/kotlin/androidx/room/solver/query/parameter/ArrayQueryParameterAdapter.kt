@@ -32,7 +32,7 @@ class ArrayQueryParameterAdapter(
         inputVarName: String,
         stmtVarName: String,
         startIndexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addForEachBindCode() {
@@ -40,7 +40,7 @@ class ArrayQueryParameterAdapter(
                 beginForEachControlFlow(
                         itemVarName = itrVar,
                         typeName = bindAdapter.typeMirror().asTypeName(),
-                        iteratorVarName = inputVarName
+                        iteratorVarName = inputVarName,
                     )
                     .apply {
                         bindAdapter.bindToStmt(stmtVarName, startIndexVarName, itrVar, scope)
@@ -69,13 +69,13 @@ class ArrayQueryParameterAdapter(
                 XCodeBlock.ofTernaryIf(
                     condition = XCodeBlock.of("%L == null", inputVarName),
                     leftExpr = XCodeBlock.of("1"),
-                    rightExpr = XCodeBlock.of("%L", sizeExpr)
+                    rightExpr = XCodeBlock.of("%L", sizeExpr),
                 )
             }
         scope.builder.addLocalVariable(
             name = outputVarName,
             typeName = XTypeName.PRIMITIVE_INT,
-            assignExpr = countAssignment
+            assignExpr = countAssignment,
         )
     }
 }

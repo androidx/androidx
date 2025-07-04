@@ -1,0 +1,3010 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.12.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha04)" variant="all" version="8.12.0-alpha04">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `new android.graphics.RenderNode`"
+        errorLine1="        mNode = new RenderNode(&quot;layer&quot;);"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setPosition`"
+        errorLine1="        mNode.setPosition(0, 0, w, h);"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#beginRecording`"
+        errorLine1="        mCanvas = mNode.beginRecording();"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setScaleX`"
+        errorLine1="                    mNode.setScaleX((Float) value);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setScaleY`"
+        errorLine1="                    mNode.setScaleY((Float) value);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setRotationX`"
+        errorLine1="                    mNode.setRotationX((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setRotationY`"
+        errorLine1="                    mNode.setRotationY((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setRotationZ`"
+        errorLine1="                    mNode.setRotationZ((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    mNode.setPivotX((Float) value * mNode.getWidth());"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setPivotX`"
+        errorLine1="                    mNode.setPivotX((Float) value * mNode.getWidth());"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    mNode.setPivotY((Float) value * mNode.getWidth());"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setPivotY`"
+        errorLine1="                    mNode.setPivotY((Float) value * mNode.getWidth());"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setTranslationX`"
+        errorLine1="                    mNode.setTranslationX((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setTranslationY`"
+        errorLine1="                    mNode.setTranslationY((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setTranslationZ`"
+        errorLine1="                    mNode.setTranslationZ((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setElevation`"
+        errorLine1="                    mNode.setElevation((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setAlpha`"
+        errorLine1="                    mNode.setAlpha((Float) value);"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setCameraDistance`"
+        errorLine1="                    mNode.setCameraDistance((Float) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setSpotShadowColor`"
+        errorLine1="                    mNode.setSpotShadowColor((Integer) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setAmbientShadowColor`"
+        errorLine1="                    mNode.setAmbientShadowColor((Integer) value);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                    outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                                new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                                new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                        outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                        outline.setRect(0, 0, mNode.getWidth(), mNode.getHeight());"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                    float radius = Math.min(mNode.getWidth(), mNode.getHeight()) / 2f;"
+        errorLine2="                                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                    float radius = Math.min(mNode.getWidth(), mNode.getHeight()) / 2f;"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getHeight`"
+        errorLine1="                            new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#getWidth`"
+        errorLine1="                            new Rect(0, 0, mNode.getWidth(), mNode.getHeight()), radius);"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#setOutline`"
+        errorLine1="            mNode.setOutline(outline);"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.RenderNode#endRecording`"
+        errorLine1="        mNode.endRecording();"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Canvas#enableZ`"
+        errorLine1="            mCanvas.enableZ();"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Canvas#drawRenderNode`"
+        errorLine1="            mCanvas.drawRenderNode(mNode);"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Canvas#disableZ`"
+        errorLine1="            mCanvas.disableZ();"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#obtain`"
+        errorLine1="                StaticLayout.Builder.obtain(str, start, end, textPaint, (int) maxWidth);"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setAlignment`"
+        errorLine1="                staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_OPPOSITE);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setAlignment`"
+        errorLine1="                staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_CENTER);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setAlignment`"
+        errorLine1="                staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_NORMAL);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setEllipsize`"
+        errorLine1="                staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.END);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setEllipsize`"
+        errorLine1="                staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.MIDDLE);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setEllipsize`"
+        errorLine1="                staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.START);"
+        errorLine2="                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setMaxLines`"
+        errorLine1="        staticLayoutBuilder.setMaxLines(maxLines);"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#setIncludePad`"
+        errorLine1="        staticLayoutBuilder.setIncludePad(false);"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.text.StaticLayout.Builder#build`"
+        errorLine1="        StaticLayout staticLayout = staticLayoutBuilder.build();"
+        errorLine2="                                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#CLEAR`"
+        errorLine1="                return BlendMode.CLEAR;"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SRC`"
+        errorLine1="                return BlendMode.SRC;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DST`"
+        errorLine1="                return BlendMode.DST;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SRC_OVER`"
+        errorLine1="                return BlendMode.SRC_OVER;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DST_OVER`"
+        errorLine1="                return BlendMode.DST_OVER;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SRC_IN`"
+        errorLine1="                return BlendMode.SRC_IN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DST_IN`"
+        errorLine1="                return BlendMode.DST_IN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SRC_OUT`"
+        errorLine1="                return BlendMode.SRC_OUT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DST_OUT`"
+        errorLine1="                return BlendMode.DST_OUT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SRC_ATOP`"
+        errorLine1="                return BlendMode.SRC_ATOP;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DST_ATOP`"
+        errorLine1="                return BlendMode.DST_ATOP;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#XOR`"
+        errorLine1="                return BlendMode.XOR;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#PLUS`"
+        errorLine1="                return BlendMode.PLUS;"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#MODULATE`"
+        errorLine1="                return BlendMode.MODULATE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SCREEN`"
+        errorLine1="                return BlendMode.SCREEN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#OVERLAY`"
+        errorLine1="                return BlendMode.OVERLAY;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DARKEN`"
+        errorLine1="                return BlendMode.DARKEN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#LIGHTEN`"
+        errorLine1="                return BlendMode.LIGHTEN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#COLOR_DODGE`"
+        errorLine1="                return BlendMode.COLOR_DODGE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#COLOR_BURN`"
+        errorLine1="                return BlendMode.COLOR_BURN;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#HARD_LIGHT`"
+        errorLine1="                return BlendMode.HARD_LIGHT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SOFT_LIGHT`"
+        errorLine1="                return BlendMode.SOFT_LIGHT;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#DIFFERENCE`"
+        errorLine1="                return BlendMode.DIFFERENCE;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#EXCLUSION`"
+        errorLine1="                return BlendMode.EXCLUSION;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#MULTIPLY`"
+        errorLine1="                return BlendMode.MULTIPLY;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#HUE`"
+        errorLine1="                return BlendMode.HUE;"
+        errorLine2="                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#SATURATION`"
+        errorLine1="                return BlendMode.SATURATION;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#COLOR`"
+        errorLine1="                return BlendMode.COLOR;"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.BlendMode#LUMINOSITY`"
+        errorLine1="                return BlendMode.LUMINOSITY;"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.graphics.Typeface#create`"
+        errorLine1="                                        Typeface.create(Typeface.DEFAULT, weight, italic));"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.graphics.Typeface#create`"
+        errorLine1="                                mPaint.setTypeface(Typeface.create(Typeface.SERIF, weight, italic));"
+        errorLine2="                                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.graphics.Typeface#create`"
+        errorLine1="                                        Typeface.create(Typeface.SANS_SERIF, weight, italic));"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.graphics.Typeface#create`"
+        errorLine1="                                        Typeface.create(Typeface.MONOSPACE, weight, italic));"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder`"
+        errorLine1="                            Font.Builder builder = (Font.Builder) fi.fontBuilder;"
+        errorLine2="                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `new android.graphics.fonts.Font.Builder`"
+        errorLine1="                    mFontBuilder = new Font.Builder(new File(path));"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder#setWeight`"
+        errorLine1="                    mFontBuilder.setWeight(weight);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder#setSlant`"
+        errorLine1="                    mFontBuilder.setSlant("
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `new android.graphics.fonts.Font.Builder`"
+        errorLine1="                    mFontBuilder = new Font.Builder(buffer);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder#setWeight`"
+        errorLine1="                    mFontBuilder.setWeight(weight);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder#setSlant`"
+        errorLine1="                    mFontBuilder.setSlant("
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder#setFontVariationSettings`"
+        errorLine1="                            mFontBuilder.setFontVariationSettings(axis);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.Font.Builder#build`"
+        errorLine1="                        font = mFontBuilder.build();"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `new android.graphics.fonts.FontFamily.Builder`"
+        errorLine1="                    FontFamily.Builder fontFamilyBuilder = new FontFamily.Builder(font);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.fonts.FontFamily.Builder#build`"
+        errorLine1="                    FontFamily fontFamily = fontFamilyBuilder.build();"
+        errorLine2="                                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `new android.graphics.Typeface.CustomFallbackBuilder`"
+        errorLine1="                            new Typeface.CustomFallbackBuilder(fontFamily)"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Typeface.CustomFallbackBuilder#setSystemFallback`"
+        errorLine1="                                    .setSystemFallback(&quot;sans-serif&quot;)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Typeface.CustomFallbackBuilder#build`"
+        errorLine1="                                    .build();"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `new android.graphics.fonts.FontVariationAxis`"
+        errorLine1="                        axes[i] = new FontVariationAxis(tags[i], values[i]);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Paint#setBlendMode`"
+        errorLine1="                    mPaint.setBlendMode(remoteToAndroidBlendMode(mode));"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Canvas#clipOutPath`"
+        errorLine1="            mCanvas.clipOutPath(path); // DIFFERENCE"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#filter`"
+        errorLine1="                .filter(op -> op.getComponentId() == virtualViewId)"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#findFirst`"
+        errorLine1="                .findFirst()"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Optional#orElse`"
+        errorLine1="                .orElse(null);"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Collection#stream`"
+        errorLine1="        return modifiers.stream()"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#filter`"
+        errorLine1="                .filter("
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#map`"
+        errorLine1="                .map(i -> (AccessibilitySemantics) i)"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Collectors#toList`"
+        errorLine1="                .collect(Collectors.toList());"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#collect`"
+        errorLine1="                .collect(Collectors.toList());"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#concat`"
+        errorLine1="        return Stream.concat("
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#of`"
+        errorLine1="                Stream.of(root),"
+        errorLine2="                       ~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Collection#stream`"
+        errorLine1="                root.mList.stream()"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#flatMap`"
+        errorLine1="                        .flatMap("
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#empty`"
+        errorLine1="                                        return Stream.empty();"
+        errorLine2="                                                      ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Collection#stream`"
+        errorLine1="        return component.mList.stream()"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#filter`"
+        errorLine1="                .filter(it -> it instanceof ComponentModifiers)"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Collection#stream`"
+        errorLine1="                .flatMap(it -> ((ComponentModifiers) it).getList().stream());"
+        errorLine2="                                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#flatMap`"
+        errorLine1="                .flatMap(it -> ((ComponentModifiers) it).getList().stream());"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#anyMatch`"
+        errorLine1="                        .anyMatch(CoreDocumentAccessibility::isModifierWithSemantics);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Collection#stream`"
+        errorLine1="                .getComponentModifiers().getList().stream()"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.stream.Stream#anyMatch`"
+        errorLine1="                        .anyMatch(CoreDocumentAccessibility::isModifierWithSemantics);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Clock#millis`"
+        errorLine1="        mLastFrameCall = clock.millis();"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Clock#millis`"
+        errorLine1="            mLastFrameCall = mClock.millis();"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Clock#millis`"
+        errorLine1="            mARContext.currentTime = mClock.millis();"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 21): `java.time.Clock#millis`"
+        errorLine1="            long frameDelay = mClock.millis() - mLastFrameCall;"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public String[] getStats() {"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public int hasSensorListeners(int[] ids) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public Clock getClock() {"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public boolean isUpdateDoc() {"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public void serialize(MapSerializer serializer) {"
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public boolean isDraggable() {"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public RemoteComposeDocument getDocument() {"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public void updateDocument(RemoteComposeDocument value) {"
+        errorLine2="                ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public void setDocument(RemoteComposeDocument value) {"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public int getOpsPerFrame() {"
+        errorLine2="               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public float getEvalTime() {"
+        errorLine2="                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="BanHideTag"
+        message="@hide is not allowed in documentation"
+        errorLine1="    public void setShaderControl(CoreDocument.ShaderControl ctl) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class SettingsRetriever {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/SettingsRetriever.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AndroidComputedTextLayout(StaticLayout staticLayout, float width, float height) {"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidComputedTextLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void set(StaticLayout layout) {"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidComputedTextLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public StaticLayout get() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidComputedTextLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AndroidPaintContext(RemoteContext context, Canvas canvas) {"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AndroidPaintContext(RemoteContext context, Canvas canvas) {"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Canvas getCanvas() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setCanvas(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPaintContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public byte[] imageToByteArray(@NonNull Object image) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidPlatformServices.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AndroidRemoteContext(Clock clock) {"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void useCanvas(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public float[] getPathData(int instanceId) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public DataMap getDataMap(int id) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void overrideText(int id, String text) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void overrideData(int id, Object value) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getText(int id) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Object getObject(int id) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/AndroidRemoteContext.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AndroidxRemoteComposeTouchHelper&lt;"
+        errorLine2="           ^">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            forRemoteComposePlayer(View player, @NonNull CoreDocument coreDocument) {"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document) {"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearAccessibilityDelegate(View remoteComposePlayer) {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            View host,"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeTouchHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteDocA11y,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeTouchHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            SemanticNodeApplier&lt;AccessibilityNodeInfoCompat> applier) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeTouchHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void getVisibleVirtualViews(List&lt;Integer> virtualViewIds) {"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeTouchHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;Integer> getVisibleChildVirtualViews() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxRemoteComposeTouchHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AndroidxSemanticNodeApplier(View player) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setClickable(AccessibilityNodeInfoCompat nodeInfo, boolean clickable) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setEnabled(AccessibilityNodeInfoCompat nodeInfo, boolean enabled) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected CharSequence getStateDescription(AccessibilityNodeInfoCompat nodeInfo) {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected CharSequence getStateDescription(AccessibilityNodeInfoCompat nodeInfo) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            AccessibilityNodeInfoCompat nodeInfo, CharSequence description) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            AccessibilityNodeInfoCompat nodeInfo, CharSequence description) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setRoleDescription(AccessibilityNodeInfoCompat nodeInfo, String description) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setRoleDescription(AccessibilityNodeInfoCompat nodeInfo, String description) {"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected CharSequence getText(AccessibilityNodeInfoCompat nodeInfo) {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected CharSequence getText(AccessibilityNodeInfoCompat nodeInfo) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setText(AccessibilityNodeInfoCompat nodeInfo, CharSequence text) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setText(AccessibilityNodeInfoCompat nodeInfo, CharSequence text) {"
+        errorLine2="                                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected CharSequence getContentDescription(AccessibilityNodeInfoCompat nodeInfo) {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected CharSequence getContentDescription(AccessibilityNodeInfoCompat nodeInfo) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            AccessibilityNodeInfoCompat nodeInfo, CharSequence description) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            AccessibilityNodeInfoCompat nodeInfo, CharSequence description) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setBoundsInScreen(AccessibilityNodeInfoCompat nodeInfo, Rect bounds) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setBoundsInScreen(AccessibilityNodeInfoCompat nodeInfo, Rect bounds) {"
+        errorLine2="                                                                           ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setUniqueId(AccessibilityNodeInfoCompat nodeInfo, String id) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void setUniqueId(AccessibilityNodeInfoCompat nodeInfo, String id) {"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            AccessibilityNodeInfoCompat nodeInfo,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            ScrollableComponent.ScrollAxisRange scrollAxis,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void applyListItem(AccessibilityNodeInfoCompat nodeInfo, int parentId) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addChildren(AccessibilityNodeInfoCompat nodeInfo, List&lt;Integer> childIds) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addChildren(AccessibilityNodeInfoCompat nodeInfo, List&lt;Integer> childIds) {"
+        errorLine2="                                                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/AndroidxSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Component component,"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            List&lt;AccessibilitySemantics> semantics) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            List&lt;AccessibilitySemantics> semantics) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CoreSemantics coreSemantics) {"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Integer stateDescriptionId,"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void applyRole(AccessibleComponent.Role role, N nodeInfo) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Integer textId,"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Integer contentDescriptionId,"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract CharSequence getStateDescription(N nodeInfo);"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract void setStateDescription(N nodeInfo, CharSequence charSequence);"
+        errorLine2="                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract void setRoleDescription(N nodeInfo, String description);"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract CharSequence getText(N nodeInfo);"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract void setText(N nodeInfo, CharSequence charSequence);"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract CharSequence getContentDescription(N nodeInfo);"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract void setContentDescription(N nodeInfo, CharSequence charSequence);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract void setBoundsInScreen(N nodeInfo, Rect bounds);"
+        errorLine2="                                                          ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected abstract void setUniqueId(N nodeInfo, String s);"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            N nodeInfo, ScrollAxisRange scrollAxis, int scrollDirection);"
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/BaseSemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CoreDocument document, RemoteContextActions mRemoteContextActions) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            CoreDocument document, RemoteContextActions mRemoteContextActions) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Integer getComponentIdAt(PointF point) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CoreSemantics.Mode mergeMode(Component component) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CoreSemantics.Mode mergeMode(Component component) {"
+        errorLine2="                                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean performAction(Component component, int action, Bundle arguments) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean performAction(Component component, int action, Bundle arguments) {"
+        errorLine2="                                                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean scrollDirection(@NonNull Component component, ScrollDirection direction) {"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;AccessibilitySemantics> semanticModifiersForComponent(Component component) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;AccessibilitySemantics> semanticModifiersForComponent(Component component) {"
+        errorLine2="                                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public List&lt;Integer> semanticallyRelevantChildComponents("
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Component component, boolean useUnmergedTree) {"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/CoreDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static void genPath(Path retPath, float[] floatPath, float start, float stop) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/FloatsToPath.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static void genPath(Path retPath, float[] floatPath, float start, float stop) {"
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/FloatsToPath.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setupHaptics(RemoteComposeView view) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/HapticSupport.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document);"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document);"
+        errorLine2="                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void clearAccessibilityDelegate(View remoteComposePlayer);"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeAccessibilityRegistrar.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument(byte[] inputStream) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument(InputStream inputStream) {"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument(InputStream inputStream, Clock clock) {"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument(InputStream inputStream, Clock clock) {"
+        errorLine2="                                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument(CoreDocument document) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CoreDocument getDocument() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDocument(CoreDocument document) {"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void initializeContext(RemoteContext context) {"
+        errorLine2="                                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void paint(RemoteContext context, int theme) {"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedColors() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedVariables(int type) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Component getComponent(int id) {"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getStats() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public int hasSensorListeners(int[] ids) {"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Clock getClock() {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void serialize(MapSerializer serializer) {"
+        errorLine2="                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposeDocument.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    boolean performAction(Component component, int action, Bundle arguments);"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    boolean performAction(Component component, int action, Bundle arguments);"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    List&lt;Integer> semanticallyRelevantChildComponents(Component component, boolean useUnmergedTree);"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    List&lt;Integer> semanticallyRelevantChildComponents(Component component, boolean useUnmergedTree);"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    List&lt;AccessibilitySemantics> semanticModifiersForComponent(Component component);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    List&lt;AccessibilitySemantics> semanticModifiersForComponent(Component component);"
+        errorLine2="                                                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    CoreSemantics.Mode mergeMode(Component component);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    CoreSemantics.Mode mergeMode(Component component);"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    @Nullable Integer getComponentIdAt(PointF point);"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/RemoteComposeDocumentAccessibility.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposePlayer(Context context) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposePlayer(Context context, AttributeSet attrs) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposePlayer(Context context, AttributeSet attrs) {"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposePlayer(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposePlayer(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument getDocument() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void updateDocument(RemoteComposeDocument value) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void updateDocument(byte[] buffer) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDocument(byte[] buffer) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDocument(InputStream inputStream) {"
+        errorLine2="                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setDocument(RemoteComposeDocument value) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalString(String domain, String name, String content) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalString(String domain, String name, String content) {"
+        errorLine2="                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalString(String domain, String name, String content) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalString(String domain, String name) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalString(String domain, String name) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalString(String name, String content) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalString(String name, String content) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalInt(String name, int value) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalColor(String name, int value) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalFloat(String name, float value) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalBitmap(String name, Bitmap value) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setUserLocalBitmap(String name, Bitmap value) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearUserLocalBitmap(String name) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearUserLocalString(String name) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearUserLocalInt(String name) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearUserLocalColor(String name) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearUserLocalFloat(String name) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setSystemLocalString(String name, String content) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setSystemLocalString(String name, String content) {"
+        errorLine2="                                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearSystemLocalString(String name) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void onAction(int id, String metadata);"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addIdActionListener(IdActionCallbacks callback) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedColors() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedFloats() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedStrings() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedImages() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setColor(String colorName, int colorValue) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLong(String name, long value) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setShaderControl(CoreDocument.ShaderControl ctl) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/RemoteComposePlayer.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr, Clock clock) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr, Clock clock) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr, Clock clock) {"
+        errorLine2="                                                                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onViewAttachedToWindow(View view) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setHapticEngine(CoreDocument.HapticEngine engine) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onViewDetachedFromWindow(View view) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedColors() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String[] getNamedVariables(int type) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setColor(String colorName, int colorValue) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLong(String name, long value) {"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteComposeDocument getDocument() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalString(String name, String content) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalString(String name, String content) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalString(String name) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalInt(String name, int content) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalInt(String name) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalColor(String name, int content) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalColor(String name) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalFloat(String name, Float content) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalFloat(String name, Float content) {"
+        errorLine2="                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalFloat(String name) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalBitmap(String name, Bitmap content) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void setLocalBitmap(String name, Bitmap content) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void clearLocalBitmap(String name) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void checkShaders(CoreDocument.ShaderControl shaderControl) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RemoteContext getRemoteContext() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void applyUpdate(RemoteComposeDocument document) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        void click(int id, String metadata);"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void addIdActionListener(ClickCallbacks callback) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void onDraw(Canvas canvas) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/RemoteComposeView.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            RemoteComposeDocumentAccessibility remoteComposeAccessibility,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/SemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            Component component,"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/SemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="            List&lt;AccessibilitySemantics> semantics);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/SemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    void addChildren(N nodeInfo, List&lt;Integer> childIds);"
+        errorLine2="                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/accessibility/SemanticNodeApplier.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Boolean animationsEnabled(Context context) {"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/SettingsRetriever.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static Boolean animationsEnabled(Context context) {"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/SettingsRetriever.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void mapColors(Context context, RemoteComposeView view) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/ThemeSupport.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void mapColors(Context context, RemoteComposeView view) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/player/view/platform/ThemeSupport.java"/>
+    </issue>
+
+</issues>

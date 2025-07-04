@@ -42,7 +42,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasTextEqualTo("test text")
@@ -61,7 +61,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasTextEqualTo(text = "TEST TEXT", ignoreCase = true)
@@ -80,7 +80,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -109,7 +109,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -138,7 +138,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasText(text = "text")
@@ -157,7 +157,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasText(text = "TEXT", ignoreCase = true)
@@ -176,7 +176,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -203,7 +203,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -232,7 +232,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasText("test text")
+                onNodeMatcher = hasText("test text"),
             )
 
         nodeAssertion.assertHasTestTag("test-tag")
@@ -252,7 +252,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasText("test text")
+                onNodeMatcher = hasText("test text"),
             )
 
         val assertionError =
@@ -282,7 +282,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasContentDescriptionEqualTo("test text description")
@@ -305,12 +305,12 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasContentDescriptionEqualTo(
             value = "TEST TEXT DESCRIPTION",
-            ignoreCase = true
+            ignoreCase = true,
         )
     }
 
@@ -327,7 +327,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -360,14 +360,14 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
             assertThrows(AssertionError::class.java) {
                 nodeAssertion.assertHasContentDescriptionEqualTo(
                     value = "TEST DESCRIPTION",
-                    ignoreCase = true
+                    ignoreCase = true,
                 )
             }
 
@@ -396,7 +396,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasContentDescription("text")
@@ -419,7 +419,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         nodeAssertion.assertHasContentDescription(value = "TEXT", ignoreCase = true)
@@ -438,7 +438,7 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
@@ -472,14 +472,14 @@ class UnitTestAssertionExtensionsTest {
                             }
                         )
                     },
-                onNodeMatcher = hasTestTag("test-tag")
+                onNodeMatcher = hasTestTag("test-tag"),
             )
 
         val assertionError =
             assertThrows(AssertionError::class.java) {
                 nodeAssertion.assertHasContentDescription(
                     value = "TEXT DESCRIPTION",
-                    ignoreCase = true
+                    ignoreCase = true,
                 )
             }
 

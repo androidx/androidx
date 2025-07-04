@@ -33,12 +33,12 @@ open class OkioTestIO(private val fileSystem: FileSystem = FileSystem.SYSTEM) :
     override fun getStorage(
         serializerConfig: TestingSerializerConfig,
         coordinatorProducer: () -> InterProcessCoordinator,
-        futureFile: () -> OkioPath
+        futureFile: () -> OkioPath,
     ): Storage<Byte> {
         return OkioStorage(
             fileSystem = fileSystem,
             serializer = TestingOkioSerializer(serializerConfig),
-            coordinatorProducer = { _, _ -> coordinatorProducer() }
+            coordinatorProducer = { _, _ -> coordinatorProducer() },
         ) {
             futureFile().path
         }

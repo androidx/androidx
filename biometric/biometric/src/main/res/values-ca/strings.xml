@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"No s\'ha definit cap PIN, patró o contrasenya."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Aquest dispositiu no admet utilitzar cap PIN, patró ni contrasenya."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Icona d\'empremta digital"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"S\'ha fet clic al botó Més opcions de la visualització de contingut."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Utilitza l\'empremta digital"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Utilitza la cara"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Utilitza la biometria"</string>

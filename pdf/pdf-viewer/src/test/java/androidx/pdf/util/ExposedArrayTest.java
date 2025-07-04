@@ -23,14 +23,12 @@ import static org.junit.Assert.fail;
 
 import androidx.pdf.util.ObservableArray.ArrayObserver;
 import androidx.pdf.util.Observables.ExposedArray;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class ExposedArrayTest {
 

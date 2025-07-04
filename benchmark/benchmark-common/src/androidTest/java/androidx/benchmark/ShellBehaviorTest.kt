@@ -29,20 +29,32 @@ import org.junit.runner.RunWith
 
 /**
  * This class collects tests of strange shell behavior, for the purpose of documenting and
- * validating how general the problems are.
+ * validating how general the problems are. For this reason, these tests call directly shell
+ * commands without referring to the actual implementations in [Shell]. To test the [Shell]
+ * implementations, please add to [ShellTest].
  */
 @MediumTest
 @SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4::class)
 class ShellBehaviorTest {
+
     /**
      * Test validates consistent behavior of pgrep, for usage in discovering processes without
      * needing to check stderr
      */
     @Test
-    fun pgrepLF() {
+    fun pgrepLFExecuteScript() {
+
+        val apiSpecificArgs =
+            setOfNotNull(
+                    // aosp/3507001 -> needed to print full command line (so full package name)
+                    if (Build.VERSION.SDK_INT >= 36) "-a" else null
+                )
+                .joinToString(" ")
+
         // Should only be one process - this one!
-        val pgrepOutput = Shell.executeScriptCaptureStdoutStderr("pgrep -l -f ${Packages.TEST}")
+        val pgrepOutput =
+            Shell.executeScriptCaptureStdoutStderr("pgrep -l -f $apiSpecificArgs ${Packages.TEST}")
 
         if (Build.VERSION.SDK_INT >= 23) {
             // API 23 has trailing whitespace after the package name for some reason :shrug:
@@ -50,7 +62,7 @@ class ShellBehaviorTest {
             assertTrue(
                 // For some reason, `stdout.contains(regex)` doesn't work :shrug:
                 pgrepOutput.stdout.lines().any { it.matches(regex) },
-                "expected $regex to be contained in output:\n${pgrepOutput.stdout}"
+                "expected $regex to be contained in output:\n${pgrepOutput.stdout}",
             )
         } else {
             // command doesn't exist
@@ -70,7 +82,7 @@ class ShellBehaviorTest {
                 // command doesn't exist
                 assertTrue(
                     output.stdout.isBlank() && output.stderr.isNotBlank(),
-                    "saw output $output"
+                    "saw output $output",
                 )
             }
             Build.VERSION.SDK_INT == 23 -> {

@@ -46,7 +46,7 @@ class FetchAndJoinCustomAudienceRequestTest {
                 name,
                 activationTime,
                 expirationTime,
-                userBiddingSignals
+                userBiddingSignals,
             )
         val result =
             "FetchAndJoinCustomAudienceRequest: fetchUri=$fetchUri, " +
@@ -63,7 +63,7 @@ class FetchAndJoinCustomAudienceRequestTest {
                 name,
                 activationTime,
                 expirationTime,
-                userBiddingSignals
+                userBiddingSignals,
             )
         var fetchAndJoinCustomAudienceRequest2 =
             FetchAndJoinCustomAudienceRequest(
@@ -71,7 +71,7 @@ class FetchAndJoinCustomAudienceRequestTest {
                 "abc",
                 Instant.ofEpochSecond(5),
                 Instant.ofEpochSecond(10),
-                AdSelectionSignals("signals")
+                AdSelectionSignals("signals"),
             )
         Truth.assertThat(fetchAndJoinCustomAudienceRequest1 == fetchAndJoinCustomAudienceRequest2)
             .isTrue()

@@ -34,7 +34,7 @@ val BigTestMaxHeight = 5000.dp
 fun ComposeContentTestRule.setContentForSizeAssertions(
     parentMaxWidth: Dp = BigTestMaxWidth,
     parentMaxHeight: Dp = BigTestMaxHeight,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): SemanticsNodeInteraction {
     setContent {
         Box {

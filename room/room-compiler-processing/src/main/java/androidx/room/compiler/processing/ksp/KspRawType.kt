@@ -29,7 +29,7 @@ internal class KspRawType constructor(private val original: KspType) : XRawType 
         XTypeName(
             original.asTypeName().java.rawTypeName(),
             original.asTypeName().kotlin.rawTypeName(),
-            original.nullability
+            original.nullability,
         )
     }
 

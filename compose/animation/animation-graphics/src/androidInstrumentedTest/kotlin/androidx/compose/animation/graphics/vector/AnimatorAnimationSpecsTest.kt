@@ -48,7 +48,7 @@ class AnimatorAnimationSpecsTest {
             val control =
                 transition.animateFloat(
                     label = "control",
-                    transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
+                    transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -57,7 +57,7 @@ class AnimatorAnimationSpecsTest {
                     label = "reversed",
                     transitionSpec = {
                         tween<Float>(durationMillis = 1000, easing = LinearEasing).reversed(1000)
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -86,7 +86,7 @@ class AnimatorAnimationSpecsTest {
                             100f at 100 using LinearEasing
                             1000f at 1000 using LinearEasing
                         }
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -101,7 +101,7 @@ class AnimatorAnimationSpecsTest {
                                 0f at 1000 using LinearEasing
                             }
                             .reversed(1000)
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -129,7 +129,7 @@ class AnimatorAnimationSpecsTest {
                             0f at 0 using LinearEasing
                             1000f at 500 using LinearEasing
                         }
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -144,7 +144,7 @@ class AnimatorAnimationSpecsTest {
                                 0f at 1000 using LinearEasing
                             }
                             .reversed(1000)
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -166,7 +166,7 @@ class AnimatorAnimationSpecsTest {
             val control =
                 transition.animateFloat(
                     label = "control",
-                    transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) }
+                    transitionSpec = { tween(durationMillis = 1000, easing = LinearEasing) },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -175,7 +175,7 @@ class AnimatorAnimationSpecsTest {
                     label = "combined",
                     transitionSpec = {
                         combined(listOf(0 to tween(durationMillis = 1000, easing = LinearEasing)))
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -203,7 +203,7 @@ class AnimatorAnimationSpecsTest {
                             0f at 0 using LinearEasing
                             1000f at 1000 using LinearEasing
                         }
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }
@@ -224,10 +224,10 @@ class AnimatorAnimationSpecsTest {
                                         durationMillis = 700
                                         300f at 0 using LinearEasing
                                         1000f at 700 using LinearEasing
-                                    }
+                                    },
                             )
                         )
-                    }
+                    },
                 ) {
                     if (it) 1000f else 0f
                 }

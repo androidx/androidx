@@ -26,6 +26,6 @@ class Interface2_LifecycleAdapter(base: Interface2) : GeneratedAdapter {
         source: LifecycleOwner,
         event: Lifecycle.Event,
         onAny: Boolean,
-        logger: MethodCallsLogger?
+        logger: MethodCallsLogger?,
     ) {}
 }

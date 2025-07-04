@@ -30,11 +30,10 @@ import org.gradle.api.Project
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 
-@Suppress("UnstableApiUsage") // ApkOutputProviders
 internal fun Project.registerCopyPrivacySandboxMainAppApksTask(
     variant: Variant,
     outputProviders: ApkOutputProviders,
-    excludeTestApk: Provider<RegularFile>
+    excludeTestApk: Provider<RegularFile>,
 ): Provider<CopyApksFromOutputProviderTask> =
     registerCopyApksFromOutputProviderTask(
         taskName = "CopyPrivacySandboxMainAppApks${variant.name}",
@@ -43,14 +42,13 @@ internal fun Project.registerCopyPrivacySandboxMainAppApksTask(
         excludeTestApk,
         outputFileNamePrefix = "${path.asFilenamePrefix()}-${variant.name}-sandbox-enabled",
         outputApkModelFileName = "PrivacySandboxMainAppApksModel${variant.name}.json",
-        deviceSpec = mainSandboxDeviceSpec(variant.minSdk.apiLevel)
+        deviceSpec = mainSandboxDeviceSpec(variant.minSdk.apiLevel),
     )
 
-@Suppress("UnstableApiUsage") // ApkOutputProviders
 internal fun Project.registerCopyPrivacySandboxCompatAppApksTask(
     variant: Variant,
     outputProviders: ApkOutputProviders,
-    excludeTestApk: Provider<RegularFile>
+    excludeTestApk: Provider<RegularFile>,
 ): Provider<CopyApksFromOutputProviderTask> =
     registerCopyApksFromOutputProviderTask(
         taskName = "CopyPrivacySandboxCompatAppApks${variant.name}",
@@ -59,12 +57,12 @@ internal fun Project.registerCopyPrivacySandboxCompatAppApksTask(
         excludeTestApk,
         outputFileNamePrefix = "${path.asFilenamePrefix()}-${variant.name}-sandbox-compat",
         outputApkModelFileName = "PrivacySandboxCompatAppApksModel${variant.name}.json",
-        deviceSpec = compatSandboxDeviceSpec(variant.minSdk.apiLevel)
+        deviceSpec = compatSandboxDeviceSpec(variant.minSdk.apiLevel),
     )
 
 internal fun Project.registerCopyAppApkFromArtifactsTask(
     variant: Variant,
-    configureAction: Consumer<CopyApkFromArtifactsTask> // For lazy task init
+    configureAction: Consumer<CopyApkFromArtifactsTask>, // For lazy task init
 ): Provider<CopyApkFromArtifactsTask> =
     tasks.register("CopyAppApk${variant.name}", CopyApkFromArtifactsTask::class.java) { task ->
         task.appLoader.set(variant.artifacts.getBuiltArtifactsLoader())
@@ -78,7 +76,7 @@ internal fun Project.registerCopyAppApkFromArtifactsTask(
         AffectedModuleDetector.configureTaskGuard(task)
     }
 
-@Suppress("UnstableApiUsage") // ApkOutputProviders
+@Suppress("UnstableApiUsage") // DeviceSpec b/397703661
 private fun Project.registerCopyApksFromOutputProviderTask(
     taskName: String,
     variant: Variant,
@@ -86,7 +84,7 @@ private fun Project.registerCopyApksFromOutputProviderTask(
     excludeTestApk: Provider<RegularFile>,
     outputFileNamePrefix: String,
     outputApkModelFileName: String,
-    deviceSpec: DeviceSpec
+    deviceSpec: DeviceSpec,
 ): Provider<CopyApksFromOutputProviderTask> {
     val copyApksTask =
         tasks.register(taskName, CopyApksFromOutputProviderTask::class.java) { task ->
@@ -107,13 +105,13 @@ private fun Project.registerCopyApksFromOutputProviderTask(
     outputProviders.provideApkOutputToTask(
         copyApksTask,
         CopyApksFromOutputProviderTask::apkOutput,
-        deviceSpec
+        deviceSpec,
     )
 
     return copyApksTask
 }
 
-@Suppress("UnstableApiUsage") // DeviceSpec
+@Suppress("UnstableApiUsage") // DeviceSpec b/397703661
 private fun mainSandboxDeviceSpec(minApiLevel: Int): DeviceSpec =
     DeviceSpec.Builder()
         .setApiLevel(max(minApiLevel, PRIVACY_SANDBOX_MIN_API_LEVEL))
@@ -121,7 +119,7 @@ private fun mainSandboxDeviceSpec(minApiLevel: Int): DeviceSpec =
         .setAbis(SUPPORTED_BUILD_ABIS) // To pass filters in defaultConfig.ndk.abiFilters
         .build()
 
-@Suppress("UnstableApiUsage") // DeviceSpec
+@Suppress("UnstableApiUsage") // DeviceSpec b/397703661
 private fun compatSandboxDeviceSpec(minApiLevel: Int): DeviceSpec =
     DeviceSpec.Builder()
         .setApiLevel(minApiLevel)

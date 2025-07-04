@@ -17,7 +17,6 @@
 package androidx.pdf.content
 
 import android.graphics.RectF
-import androidx.annotation.RestrictTo
 
 /**
  * Represents the bounds of a single search match on a page of the PDF document.
@@ -25,5 +24,4 @@ import androidx.annotation.RestrictTo
  * @param bounds: Bounds of the text match.
  * @param textStartIndex: starting index of the text match.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PageMatchBounds(public val bounds: List<RectF>, public val textStartIndex: Int)

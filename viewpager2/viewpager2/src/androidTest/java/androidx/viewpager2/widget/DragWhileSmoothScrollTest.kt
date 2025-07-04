@@ -55,7 +55,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         val targetPage: Int,
         val dragInOppositeDirection: Boolean,
         val distanceToTargetWhenStartDrag: Float,
-        val endInSnappedPosition: Boolean = false
+        val endInSnappedPosition: Boolean = false,
     )
 
     companion object {
@@ -85,13 +85,13 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 test.resetViewPagerTo(config.startPage)
                 test.viewPager.unregisterOnPageChangeCallback(recorder)
                 recorder = test.viewPager.addNewRecordingCallback()
-            }
+            },
         ) {
             // when we are close enough
             val waitTillCloseEnough =
                 test.viewPager.addWaitForDistanceToTarget(
                     config.targetPage,
-                    config.distanceToTargetWhenStartDrag
+                    config.distanceToTargetWhenStartDrag,
                 )
             test.runOnUiThreadSync { test.viewPager.setCurrentItem(config.targetPage, true) }
             waitTillCloseEnough.await(2, SECONDS)
@@ -125,10 +125,10 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                             SCROLL_STATE_SETTLING,
                             SCROLL_STATE_DRAGGING,
                             SCROLL_STATE_SETTLING,
-                            SCROLL_STATE_IDLE
+                            SCROLL_STATE_IDLE,
                         )
                     }
-                )
+                ),
             )
 
             val currentlyVisible = test.viewPager.currentCompletelyVisibleItem
@@ -138,40 +138,40 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 assertThat(
                     "viewPager.getCurrentItem() should be ${config.targetPage}",
                     test.viewPager.currentItem,
-                    equalTo(config.targetPage)
+                    equalTo(config.targetPage),
                 )
                 assertThat(
                     "Exactly 1 onPageSelected event should be fired",
                     selectEvents.size,
-                    equalTo(1)
+                    equalTo(1),
                 )
                 assertThat(
                     "onPageSelected event should have reported ${config.targetPage}",
                     selectEvents.first().position,
-                    equalTo(config.targetPage)
+                    equalTo(config.targetPage),
                 )
             } else {
                 assertThat(
                     "viewPager.getCurrentItem() should not be ${config.targetPage}",
                     test.viewPager.currentItem,
-                    not(equalTo(config.targetPage))
+                    not(equalTo(config.targetPage)),
                 )
                 assertThat(
                     "Exactly 2 onPageSelected events should be fired",
                     selectEvents.size,
-                    equalTo(2)
+                    equalTo(2),
                 )
                 assertThat(
                     "First onPageSelected event should have reported ${config.targetPage}",
                     selectEvents.first().position,
-                    equalTo(config.targetPage)
+                    equalTo(config.targetPage),
                 )
                 assertThat(
                     "Second onPageSelected event should have reported " +
                         "$currentlyVisible, or visible page should be " +
                         "${selectEvents.last().position}",
                     selectEvents.last().position,
-                    equalTo(currentlyVisible)
+                    equalTo(currentlyVisible),
                 )
             }
         }
@@ -234,7 +234,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -276,7 +276,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             addEvent(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
         }
@@ -321,7 +321,7 @@ private fun createTestSet(): List<TestConfig> {
                                 targetPage = 4,
                                 dragInOppositeDirection = dragInOppositeDirection,
                                 distanceToTargetWhenStartDrag = distanceToTarget,
-                                endInSnappedPosition = endInSnappedPosition
+                                endInSnappedPosition = endInSnappedPosition,
                             ),
                             TestConfig(
                                 title = "backward",
@@ -330,8 +330,8 @@ private fun createTestSet(): List<TestConfig> {
                                 targetPage = 4,
                                 dragInOppositeDirection = dragInOppositeDirection,
                                 distanceToTargetWhenStartDrag = distanceToTarget,
-                                endInSnappedPosition = endInSnappedPosition
-                            )
+                                endInSnappedPosition = endInSnappedPosition,
+                            ),
                         )
                     }
                 }
@@ -344,7 +344,7 @@ private fun createTestSet(): List<TestConfig> {
                         startPage = 0,
                         targetPage = 1,
                         dragInOppositeDirection = true,
-                        distanceToTargetWhenStartDrag = .7f
+                        distanceToTargetWhenStartDrag = .7f,
                     )
                 )
             )

@@ -137,7 +137,7 @@ class EncoderProfilesProviderFallbackTest {
             encoderProfilesProviderFallback.resolveProvider(
                 CAMERA_ID_EXTERNAL_0,
                 quirks,
-                cameraManager
+                cameraManager,
             )
 
         assertThat(result).isSameInstanceAs(profilesProviderExternal0)
@@ -153,7 +153,7 @@ class EncoderProfilesProviderFallbackTest {
             encoderProfilesProviderFallback.resolveProvider(
                 CAMERA_ID_EXTERNAL_1,
                 quirks,
-                cameraManager
+                cameraManager,
             )
 
         // Assert.
@@ -203,11 +203,7 @@ class EncoderProfilesProviderFallbackTest {
         )
     }
 
-    private fun initCamera(
-        cameraId: String,
-        lensFacing: Int,
-        supportedSizes: Array<Size>,
-    ) {
+    private fun initCamera(cameraId: String, lensFacing: Int, supportedSizes: Array<Size>) {
         val mockMap =
             Mockito.mock(StreamConfigurationMap::class.java).also { map ->
                 `when`(map.getOutputSizes(anyInt())).thenReturn(supportedSizes)
@@ -226,7 +222,7 @@ class EncoderProfilesProviderFallbackTest {
                 .getSystemService(Context.CAMERA_SERVICE) as CameraManager
         (Shadow.extract<Any>(cameraManager) as ShadowCameraManager).addCamera(
             cameraId,
-            characteristics
+            characteristics,
         )
     }
 }

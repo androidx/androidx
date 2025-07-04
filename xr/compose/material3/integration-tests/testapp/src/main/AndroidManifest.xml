@@ -21,7 +21,7 @@
     <uses-permission android:name="android.permission.SCENE_UNDERSTANDING" />
 
     <application
-        android:label="XR Compose Adaptive Test App"
+        android:label="Material XR Demo App"
         android:supportsRtl="true" tools:ignore="GoogleAppIndexingWarning"
         android:allowBackup="false"
         android:enableOnBackInvokedCallback="true">

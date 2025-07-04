@@ -280,7 +280,7 @@ fun GestureScope.percentOffset(
     /*@FloatRange(from = -1.0, to = 1.0)*/
     x: Float = 0f,
     /*@FloatRange(from = -1.0, to = 1.0)*/
-    y: Float = 0f
+    y: Float = 0f,
 ): Offset = delegateScope.percentOffset(x, y)
 
 /**
@@ -311,7 +311,7 @@ fun GestureScope.click(position: Offset = center) = delegateScope.touch { click(
 )
 fun GestureScope.longClick(
     position: Offset = center,
-    durationMillis: Long = LongPressTimeoutMillis + 100
+    durationMillis: Long = LongPressTimeoutMillis + 100,
 ) = delegateScope.touch { longClick(position, durationMillis) }
 
 /**
@@ -330,7 +330,7 @@ fun GestureScope.longClick(
 )
 fun GestureScope.doubleClick(
     position: Offset = center,
-    delayMillis: Long = doubleClickDelayMillis
+    delayMillis: Long = doubleClickDelayMillis,
 ) = delegateScope.touch { doubleClick(position, delayMillis) }
 
 /**
@@ -369,7 +369,7 @@ fun GestureScope.pinch(
     end0: Offset,
     start1: Offset,
     end1: Offset,
-    durationMillis: Long = 400
+    durationMillis: Long = 400,
 ) = delegateScope.touch { pinch(start0, end0, start1, end1, durationMillis) }
 
 /**
@@ -395,7 +395,7 @@ fun GestureScope.swipeWithVelocity(
     end: Offset,
     /*@FloatRange(from = 0.0)*/
     endVelocity: Float,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) = delegateScope.touch { swipeWithVelocity(start, end, endVelocity, durationMillis) }
 
 /**
@@ -424,7 +424,7 @@ fun GestureScope.swipeUp() = delegateScope.touch { swipeUp() }
 fun GestureScope.swipeUp(
     startY: Float = bottomFuzzed,
     endY: Float = top,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) = delegateScope.touch { swipeUp(startY, endY, durationMillis) }
 
 /**
@@ -453,7 +453,7 @@ fun GestureScope.swipeDown() = delegateScope.touch { swipeDown() }
 fun GestureScope.swipeDown(
     startY: Float = topFuzzed,
     endY: Float = bottom,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) = delegateScope.touch { swipeDown(startY, endY, durationMillis) }
 
 /**
@@ -482,7 +482,7 @@ fun GestureScope.swipeLeft() = delegateScope.touch { swipeLeft() }
 fun GestureScope.swipeLeft(
     startX: Float = rightFuzzed,
     endX: Float = left,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) = delegateScope.touch { swipeLeft(startX, endX, durationMillis) }
 
 /**
@@ -511,7 +511,7 @@ fun GestureScope.swipeRight() = delegateScope.touch { swipeRight() }
 fun GestureScope.swipeRight(
     startX: Float = leftFuzzed,
     endX: Float = right,
-    durationMillis: Long = 200
+    durationMillis: Long = 200,
 ) = delegateScope.touch { swipeRight(startX, endX, durationMillis) }
 
 private val Int.startFuzzed: Float
@@ -627,7 +627,7 @@ fun GestureScope.moveTo(position: Offset) = delegateScope.touch { moveTo(positio
 @Deprecated(
     message =
         "Replaced by TouchInjectionScope. Use `performTouchInput` instead of " + "`performGesture`",
-    replaceWith = ReplaceWith("updatePointerTo(pointerId, position)")
+    replaceWith = ReplaceWith("updatePointerTo(pointerId, position)"),
 )
 fun GestureScope.movePointerTo(pointerId: Int, position: Offset) =
     delegateScope.touch { updatePointerTo(pointerId, position) }
@@ -678,7 +678,7 @@ fun GestureScope.moveBy(delta: Offset) = delegateScope.touch { moveBy(delta) }
 @Deprecated(
     message =
         "Replaced by TouchInjectionScope. Use `performTouchInput` instead of " + "`performGesture`",
-    replaceWith = ReplaceWith("updatePointerBy(pointerId, delta)")
+    replaceWith = ReplaceWith("updatePointerBy(pointerId, delta)"),
 )
 fun GestureScope.movePointerBy(pointerId: Int, delta: Offset) =
     delegateScope.touch { updatePointerBy(pointerId, delta) }

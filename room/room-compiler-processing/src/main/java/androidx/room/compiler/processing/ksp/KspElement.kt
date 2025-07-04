@@ -28,7 +28,7 @@ import java.util.Locale
 
 internal abstract class KspElement(
     internal val env: KspProcessingEnv,
-    open val declaration: KSAnnotated
+    open val declaration: KSAnnotated,
 ) : XElement, XEquality {
     override fun kindName(): String {
         return when (declaration) {

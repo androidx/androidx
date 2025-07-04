@@ -29,5 +29,5 @@ class WindowDialogBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = WindowDialogBenchmark,
-        actionSuffix = "WINDOW_DIALOG_ACTIVITY"
+        actionSuffix = "WINDOW_DIALOG_ACTIVITY",
     )

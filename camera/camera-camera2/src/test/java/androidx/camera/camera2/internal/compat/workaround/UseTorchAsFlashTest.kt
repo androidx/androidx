@@ -86,7 +86,7 @@ class UseTorchAsFlashTest {
         val characteristicsCompat =
             CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
                 characteristics,
-                ANY_CAMERA_ID
+                ANY_CAMERA_ID,
             )
         val quirks = CameraQuirks.get(ANY_CAMERA_ID, characteristicsCompat)
 

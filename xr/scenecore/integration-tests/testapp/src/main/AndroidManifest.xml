@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2025 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.SCENE_UNDERSTANDING_COARSE" />
+    <uses-permission android:name="android.permission.HAND_TRACKING" />
+    <uses-permission android:name="android.permission.HEAD_TRACKING" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/Theme.IntegrationTestsApp">
+        <activity
+            android:name=".sceneviewer.SceneViewerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".environment.EnvironmentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".spatialuser.SpatialUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".fsmhsmtransition.FsmHsmTransitionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".visibility.VisibilityActivity"
+            android:exported="true" />
+        <activity
+            android:name=".spatialcapabilities.SpatialCapabilitiesActivity"
+            android:exported="true" />
+        <activity
+            android:name=".anchorentity.AnchorEntityActivity"
+            android:exported="true" />
+        <activity
+            android:name=".fieldofviewvisibility.FieldOfViewVisibilityActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activitypanel.ActivityPanel"
+            android:exported="true" />
+        <activity
+            android:name=".activitypanel.ActivityPanelActivity"
+            android:exported="true" />
+        <activity
+            android:name=".transformation.TransformationActivity"
+            android:exported="true" />
+        <activity
+            android:name=".standalone.StandaloneActivity"
+            android:exported="true" />
+        <activity
+            android:name=".panelroundedcorner.PanelRoundedCornerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".headlockedui.HeadLockedUiActivity"
+            android:exported="true" />
+        <activity
+            android:name=".movable.MovableActivity"
+            android:exported="true" />
+        <activity
+            android:name=".inputmoveresize.InputMoveResizeTestActivity"
+            android:exported="true" />
+        <activity
+            android:name=".spatialaudio.SpatialAudioActivity"
+            android:exported="true" />
+        <activity
+            android:name=".hittest.HitTestActivity"
+            android:exported="true" />
+        <property
+            android:name="android.window.PROPERTY_XR_ACTIVITY_START_MODE"
+            android:value="XR_ACTIVITY_START_MODE_FULL_SPACE_MANAGED" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

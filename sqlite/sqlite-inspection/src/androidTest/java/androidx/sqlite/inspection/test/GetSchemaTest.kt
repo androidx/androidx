@@ -51,41 +51,41 @@ class GetSchemaTest {
                         Column("nu", "NUMERIC"),
                         Column("i", "INTEGER"),
                         Column("r", "REAL"),
-                        Column("b", "BLOB")
+                        Column("b", "BLOB"),
                     ),
                     Table("table2", Column("id", "INTEGER"), Column("name", "TEXT")),
                     Table("table3a", Column("c1", "INT"), Column("c2", "INT", primaryKey = 1)),
                     Table(
                         "table3b", // compound-primary-key
                         Column("c1", "INT", primaryKey = 2),
-                        Column("c2", "INT", primaryKey = 1)
+                        Column("c2", "INT", primaryKey = 1),
                     ),
                     Table(
                         "table4", // compound-primary-key, two unique columns
                         Column("c1", "INT", primaryKey = 1),
                         Column("c2", "INT", primaryKey = 2, isUnique = true),
-                        Column("c3", "INT", isUnique = true)
+                        Column("c3", "INT", isUnique = true),
                     ),
                     Table(
                         "table5", // mix: unique, primary key, notNull
                         Column("c1", "INT", isNotNull = true),
                         Column("c2", "INT", primaryKey = 1, isUnique = true),
-                        Column("c3", "INT", isUnique = true, isNotNull = true)
+                        Column("c3", "INT", isUnique = true, isNotNull = true),
                     ),
                     Table(
                         "table6", // compound-unique-constraint-indices in [onDatabaseCreated]
                         Column("c1", "INT"),
                         Column("c2uuu", "INT", isUnique = true),
                         Column("c3", "INT"),
-                        Column("c4u", "INT", isUnique = true)
-                    )
+                        Column("c4u", "INT", isUnique = true),
+                    ),
                 )
             ),
             onDatabaseCreated = { db ->
                 // compound-unique-constraint-indices
                 listOf(
                         "create index index6_12 on 'table6' ('c1', 'c2uuu')",
-                        "create index index6_23 on 'table6' ('c2uuu', 'c3')"
+                        "create index index6_23 on 'table6' ('c2uuu', 'c3')",
                     )
                     .forEach { query -> db.execSQL(query, emptyArray()) }
 
@@ -99,7 +99,7 @@ class GetSchemaTest {
                     }
 
                 assertThat(indexCountTable6).isEqualTo("4")
-            }
+            },
         )
     }
 
@@ -109,7 +109,7 @@ class GetSchemaTest {
             listOf(
                 Database("db3", Table("t3", Column("c3", "BLOB"))),
                 Database("db2", Table("t2", Column("c2", "TEXT"))),
-                Database("db1", Table("t1", Column("c1", "TEXT")))
+                Database("db1", Table("t1", Column("c1", "TEXT"))),
             )
         )
     }
@@ -129,8 +129,8 @@ class GetSchemaTest {
                         "v1",
                         listOf(c1, c2),
                         isView = true,
-                        viewQuery = "select t1.c1, t2.c2 from t1 inner join t2 on t1.c1 = t2.c2"
-                    )
+                        viewQuery = "select t1.c1, t2.c2 from t1 inner join t2 on t1.c1 = t2.c2",
+                    ),
                 )
             )
         )
@@ -168,7 +168,7 @@ class GetSchemaTest {
 
     private fun test_get_schema(
         alreadyOpenDatabases: List<Database>,
-        onDatabaseCreated: (SQLiteDatabase) -> Unit = {}
+        onDatabaseCreated: (SQLiteDatabase) -> Unit = {},
     ) = runBlocking {
         assertThat(alreadyOpenDatabases).isNotEmpty() // sanity check
 
@@ -212,7 +212,7 @@ class GetSchemaTest {
                                     type = actualColumnProto.type,
                                     primaryKey = actualColumnProto.primaryKey,
                                     isNotNull = actualColumnProto.isNotNull,
-                                    isUnique = actualColumnProto.isUnique
+                                    isUnique = actualColumnProto.isUnique,
                                 )
                             assertThat(actualColumn).isEqualTo(expectedColumn)
                         }

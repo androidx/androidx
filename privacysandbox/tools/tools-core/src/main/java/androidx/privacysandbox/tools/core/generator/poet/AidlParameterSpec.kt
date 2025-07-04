@@ -19,7 +19,7 @@ package androidx.privacysandbox.tools.core.generator.poet
 internal data class AidlParameterSpec(
     val name: String,
     val type: AidlTypeSpec,
-    val isIn: Boolean = false
+    val isIn: Boolean = false,
 ) {
 
     override fun toString() = "${if (isIn) "in " else ""}$type $name"

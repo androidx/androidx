@@ -48,7 +48,7 @@ class XArrayTypeTest {
                 String[] param;
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
             val type =
@@ -116,7 +116,7 @@ class XArrayTypeTest {
                 val nullable:Array<String?> = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -190,13 +190,13 @@ class XArrayTypeTest {
                 val boxedDoubleArray : Array<Double> = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
             class Container(
                 val method: String,
                 val jTypeName: JTypeName,
-                val kTypeName: KTypeName
+                val kTypeName: KTypeName,
             ) {
                 override fun equals(other: Any?): Boolean {
                     if (this === other) return true
@@ -234,87 +234,87 @@ class XArrayTypeTest {
                     Container(
                         "primitiveBooleanArray",
                         JArrayTypeName.of(JTypeName.BOOLEAN),
-                        com.squareup.kotlinpoet.BOOLEAN_ARRAY
+                        com.squareup.kotlinpoet.BOOLEAN_ARRAY,
                     ),
                     Container(
                         "primitiveByteArray",
                         JArrayTypeName.of(JTypeName.BYTE),
-                        com.squareup.kotlinpoet.BYTE_ARRAY
+                        com.squareup.kotlinpoet.BYTE_ARRAY,
                     ),
                     Container(
                         "primitiveShortArray",
                         JArrayTypeName.of(JTypeName.SHORT),
-                        com.squareup.kotlinpoet.SHORT_ARRAY
+                        com.squareup.kotlinpoet.SHORT_ARRAY,
                     ),
                     Container(
                         "primitiveIntArray",
                         JArrayTypeName.of(JTypeName.INT),
-                        com.squareup.kotlinpoet.INT_ARRAY
+                        com.squareup.kotlinpoet.INT_ARRAY,
                     ),
                     Container(
                         "primitiveLongArray",
                         JArrayTypeName.of(JTypeName.LONG),
-                        com.squareup.kotlinpoet.LONG_ARRAY
+                        com.squareup.kotlinpoet.LONG_ARRAY,
                     ),
                     Container(
                         "primitiveCharArray",
                         JArrayTypeName.of(JTypeName.CHAR),
-                        com.squareup.kotlinpoet.CHAR_ARRAY
+                        com.squareup.kotlinpoet.CHAR_ARRAY,
                     ),
                     Container(
                         "primitiveFloatArray",
                         JArrayTypeName.of(JTypeName.FLOAT),
-                        com.squareup.kotlinpoet.FLOAT_ARRAY
+                        com.squareup.kotlinpoet.FLOAT_ARRAY,
                     ),
                     Container(
                         "primitiveDoubleArray",
                         JArrayTypeName.of(JTypeName.DOUBLE),
-                        com.squareup.kotlinpoet.DOUBLE_ARRAY
+                        com.squareup.kotlinpoet.DOUBLE_ARRAY,
                     ),
                     Container(
                         "boxedBooleanArray",
                         JArrayTypeName.of(JTypeName.BOOLEAN.box()),
                         com.squareup.kotlinpoet.ARRAY.parameterizedBy(
                             com.squareup.kotlinpoet.BOOLEAN
-                        )
+                        ),
                     ),
                     Container(
                         "boxedByteArray",
                         JArrayTypeName.of(JTypeName.BYTE.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.BYTE)
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.BYTE),
                     ),
                     Container(
                         "boxedShortArray",
                         JArrayTypeName.of(JTypeName.SHORT.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.SHORT)
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.SHORT),
                     ),
                     Container(
                         "boxedIntArray",
                         JArrayTypeName.of(JTypeName.INT.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.INT)
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.INT),
                     ),
                     Container(
                         "boxedLongArray",
                         JArrayTypeName.of(JTypeName.LONG.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.LONG)
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.LONG),
                     ),
                     Container(
                         "boxedCharArray",
                         JArrayTypeName.of(JTypeName.CHAR.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.CHAR)
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.CHAR),
                     ),
                     Container(
                         "boxedFloatArray",
                         JArrayTypeName.of(JTypeName.FLOAT.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.FLOAT)
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.FLOAT),
                     ),
                     Container(
                         "boxedDoubleArray",
                         JArrayTypeName.of(JTypeName.DOUBLE.box()),
                         com.squareup.kotlinpoet.ARRAY.parameterizedBy(
                             com.squareup.kotlinpoet.DOUBLE
-                        )
-                    )
+                        ),
+                    ),
                 )
         }
     }

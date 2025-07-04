@@ -50,7 +50,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return (sharedPref.getString(
                     activity.getString(R.string.settings_previewbuffer_key),
-                    "1500"
+                    "1500",
                 ) ?: "1500")
                 .toLong()
         }
@@ -64,7 +64,7 @@ class PrefHelper {
             val apiStrings: HashSet<String> =
                 sharedPref.getStringSet(
                     activity.getString(R.string.settings_autotest_api_key),
-                    defApis
+                    defApis,
                 ) as HashSet<String>
 
             val apis: ArrayList<CameraAPI> = ArrayList()
@@ -92,7 +92,7 @@ class PrefHelper {
             val sizeStrings: HashSet<String> =
                 sharedPref.getStringSet(
                     activity.getString(R.string.settings_autotest_imagesize_key),
-                    defSizes
+                    defSizes,
                 ) as HashSet<String>
 
             val sizes: ArrayList<ImageCaptureSize> = ArrayList()
@@ -117,7 +117,7 @@ class PrefHelper {
             val modeStrings: HashSet<String> =
                 sharedPref.getStringSet(
                     activity.getString(R.string.settings_autotest_focus_key),
-                    defModes
+                    defModes,
                 ) as HashSet<String>
 
             val modes: ArrayList<FocusMode> = ArrayList()
@@ -139,7 +139,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getBoolean(
                 activity.getString(R.string.settings_autotest_cameras_key),
-                true
+                true,
             )
         }
 
@@ -148,7 +148,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getBoolean(
                 activity.getString(R.string.settings_autotest_switchtest_key),
-                true
+                true,
             )
         }
 
@@ -157,7 +157,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getString(
                 activity.getString(R.string.settings_single_test_type_key),
-                "PHOTO"
+                "PHOTO",
             ) ?: "PHOTO"
         }
 
@@ -166,7 +166,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getString(
                 activity.getString(R.string.settings_single_test_focus_key),
-                "Auto"
+                "Auto",
             ) ?: "Auto"
         }
 
@@ -175,7 +175,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getString(
                 activity.getString(R.string.settings_single_test_imagesize_key),
-                "Max"
+                "Max",
             ) ?: "Max"
         }
 
@@ -184,7 +184,7 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getString(
                 activity.getString(R.string.settings_single_test_camera_key),
-                "0"
+                "0",
             ) ?: "0"
         }
 
@@ -193,13 +193,13 @@ class PrefHelper {
                 PreferenceManager.getDefaultSharedPreferences(activity)
             return sharedPref.getString(
                 activity.getString(R.string.settings_single_test_api_key),
-                "Camera2"
+                "Camera2",
             ) ?: "Camera2"
         }
 
         internal fun getCameraIds(
             activity: MainActivity,
-            cameraParams: HashMap<String, CameraParams>
+            cameraParams: HashMap<String, CameraParams>,
         ): ArrayList<String> {
 
             val cameraIds: ArrayList<String> = ArrayList()

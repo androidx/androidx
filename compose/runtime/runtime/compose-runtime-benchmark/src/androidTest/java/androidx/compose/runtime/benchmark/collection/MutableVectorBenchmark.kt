@@ -222,7 +222,7 @@ class MutableVectorBenchmark : ComposeBenchmarkBase() {
             list2.addAll(list)
             list2.addAll(list)
             list2.addAll(list)
-            runWithTimingDisabled { list2.clear() }
+            runWithMeasurementDisabled { list2.clear() }
         }
     }
 
@@ -259,7 +259,7 @@ class MutableVectorBenchmark : ComposeBenchmarkBase() {
             list2.addAll(list)
             list2.addAll(list)
             list2.addAll(list)
-            runWithTimingDisabled { list2.clear() }
+            runWithMeasurementDisabled { list2.clear() }
         }
     }
 
@@ -297,7 +297,7 @@ class MutableVectorBenchmark : ComposeBenchmarkBase() {
             list2.addAll(0, list)
             list2.addAll(0, list)
             list2.addAll(0, list)
-            runWithTimingDisabled { list2.clear() }
+            runWithMeasurementDisabled { list2.clear() }
         }
     }
 
@@ -310,7 +310,7 @@ class MutableVectorBenchmark : ComposeBenchmarkBase() {
             list2.addAll(0, list)
             list2.addAll(0, list)
             list2.addAll(0, list)
-            runWithTimingDisabled { list2.clear() }
+            runWithMeasurementDisabled { list2.clear() }
         }
     }
 

@@ -12,8 +12,8 @@ package androidx.privacysandbox.sdkruntime.core {
     ctor public LoadSdkCompatException(Throwable cause, android.os.Bundle extraInfo);
     method public android.os.Bundle getExtraInformation();
     method public int getLoadSdkErrorCode();
-    property public final android.os.Bundle extraInformation;
-    property public final int loadSdkErrorCode;
+    property public android.os.Bundle extraInformation;
+    property public int loadSdkErrorCode;
     field public static final androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion Companion;
     field public static final int LOAD_SDK_ALREADY_LOADED = 101; // 0x65
     field public static final int LOAD_SDK_INTERNAL_ERROR = 500; // 0x1f4
@@ -24,12 +24,12 @@ package androidx.privacysandbox.sdkruntime.core {
   }
 
   public static final class LoadSdkCompatException.Companion {
-    property public static final int LOAD_SDK_ALREADY_LOADED;
-    property public static final int LOAD_SDK_INTERNAL_ERROR;
-    property public static final int LOAD_SDK_NOT_FOUND;
-    property public static final int LOAD_SDK_SDK_DEFINED_ERROR;
-    property public static final int LOAD_SDK_SDK_SANDBOX_DISABLED;
-    property public static final int SDK_SANDBOX_PROCESS_NOT_AVAILABLE;
+    property public static int LOAD_SDK_ALREADY_LOADED;
+    property public static int LOAD_SDK_INTERNAL_ERROR;
+    property public static int LOAD_SDK_NOT_FOUND;
+    property public static int LOAD_SDK_SDK_DEFINED_ERROR;
+    property public static int LOAD_SDK_SDK_SANDBOX_DISABLED;
+    property public static int SDK_SANDBOX_PROCESS_NOT_AVAILABLE;
   }
 
   public final class SandboxedSdkCompat {
@@ -42,8 +42,8 @@ package androidx.privacysandbox.sdkruntime.core {
     ctor public SandboxedSdkInfo(String name, long version);
     method public String getName();
     method public long getVersion();
-    property public final String name;
-    property public final long version;
+    property public String name;
+    property public long version;
   }
 
   public abstract class SandboxedSdkProviderCompat {
@@ -51,7 +51,6 @@ package androidx.privacysandbox.sdkruntime.core {
     method public final void attachContext(android.content.Context context);
     method public void beforeUnloadSdk();
     method public final android.content.Context? getContext();
-    method public abstract android.view.View getView(android.content.Context windowContext, android.os.Bundle params, int width, int height);
     method @kotlin.jvm.Throws(exceptionClasses=LoadSdkCompatException::class) public abstract androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat onLoadSdk(android.os.Bundle params) throws androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException;
     property public final android.content.Context? context;
   }
@@ -77,21 +76,21 @@ package androidx.privacysandbox.sdkruntime.core.activity {
 
 package androidx.privacysandbox.sdkruntime.core.controller {
 
-  public final class SdkSandboxControllerCompat {
-    method public static androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat from(android.content.Context context);
-    method public java.util.List<androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat> getAppOwnedSdkSandboxInterfaces();
-    method public String getClientPackageName();
-    method public java.util.List<androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat> getSandboxedSdks();
-    method public suspend Object? loadSdk(String sdkName, android.os.Bundle params, kotlin.coroutines.Continuation<? super androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat>);
-    method public android.os.IBinder registerSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
-    method public void registerSdkSandboxClientImportanceListener(java.util.concurrent.Executor executor, androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat listenerCompat);
-    method public void unregisterSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
-    method public void unregisterSdkSandboxClientImportanceListener(androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat listenerCompat);
-    field public static final androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.Companion Companion;
+  @Deprecated public final class SdkSandboxControllerCompat {
+    method @Deprecated public static androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat from(android.content.Context context);
+    method @Deprecated public java.util.List<androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat> getAppOwnedSdkSandboxInterfaces();
+    method @Deprecated public String getClientPackageName();
+    method @Deprecated public java.util.List<androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat> getSandboxedSdks();
+    method @Deprecated public suspend Object? loadSdk(String sdkName, android.os.Bundle params, kotlin.coroutines.Continuation<? super androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat>);
+    method @Deprecated public android.os.IBinder registerSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
+    method @Deprecated public void registerSdkSandboxClientImportanceListener(java.util.concurrent.Executor executor, androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat listenerCompat);
+    method @Deprecated public void unregisterSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
+    method @Deprecated public void unregisterSdkSandboxClientImportanceListener(androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat listenerCompat);
+    field @Deprecated public static final androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.Companion Companion;
   }
 
-  public static final class SdkSandboxControllerCompat.Companion {
-    method public androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat from(android.content.Context context);
+  @Deprecated public static final class SdkSandboxControllerCompat.Companion {
+    method @Deprecated public androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat from(android.content.Context context);
   }
 
 }

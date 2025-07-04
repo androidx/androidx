@@ -22,7 +22,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "androidx.activity.integration.testapp"
     }

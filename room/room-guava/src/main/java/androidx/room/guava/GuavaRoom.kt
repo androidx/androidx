@@ -45,7 +45,7 @@ public fun <T> createListenableFuture(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> T
+    block: (SQLiteConnection) -> T,
 ): ListenableFuture<T> =
     db.getCoroutineScope().future { performSuspending(db, isReadOnly, inTransaction, block) }
 
@@ -58,14 +58,14 @@ public fun <T> createListenableFuture(
 public fun <T> createListenableFuture(
     callable: Callable<T>,
     query: RoomSQLiteQuery,
-    releaseQuery: Boolean
+    releaseQuery: Boolean,
 ): ListenableFuture<T> {
     return createListenableFuture(
         executor = ArchTaskExecutor.getIOThreadExecutor(),
         callable = callable,
         query = query,
         releaseQuery = releaseQuery,
-        cancellationSignal = null
+        cancellationSignal = null,
     )
 }
 
@@ -79,36 +79,14 @@ public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     callable: Callable<T>,
     query: RoomSQLiteQuery,
-    releaseQuery: Boolean
+    releaseQuery: Boolean,
 ): ListenableFuture<T> {
     return createListenableFuture(
         executor = roomDatabase.queryExecutor,
         callable = callable,
         query = query,
         releaseQuery = releaseQuery,
-        cancellationSignal = null
-    )
-}
-
-/**
- * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
- * [java.util.concurrent.Executor].
- */
-@SuppressLint("LambdaLast")
-@Deprecated("No longer used by generated code.")
-public fun <T> createListenableFuture(
-    roomDatabase: RoomDatabase,
-    inTransaction: Boolean,
-    callable: Callable<T>,
-    query: RoomSQLiteQuery,
-    releaseQuery: Boolean
-): ListenableFuture<T> {
-    return createListenableFuture(
-        executor = getExecutor(roomDatabase, inTransaction),
-        callable = callable,
-        query = query,
-        releaseQuery = releaseQuery,
-        cancellationSignal = null
+        cancellationSignal = null,
     )
 }
 
@@ -124,14 +102,36 @@ public fun <T> createListenableFuture(
     callable: Callable<T>,
     query: RoomSQLiteQuery,
     releaseQuery: Boolean,
-    cancellationSignal: CancellationSignal?
 ): ListenableFuture<T> {
     return createListenableFuture(
         executor = getExecutor(roomDatabase, inTransaction),
         callable = callable,
         query = query,
         releaseQuery = releaseQuery,
-        cancellationSignal = cancellationSignal
+        cancellationSignal = null,
+    )
+}
+
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+@SuppressLint("LambdaLast")
+@Deprecated("No longer used by generated code.")
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    inTransaction: Boolean,
+    callable: Callable<T>,
+    query: RoomSQLiteQuery,
+    releaseQuery: Boolean,
+    cancellationSignal: CancellationSignal?,
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = getExecutor(roomDatabase, inTransaction),
+        callable = callable,
+        query = query,
+        releaseQuery = releaseQuery,
+        cancellationSignal = cancellationSignal,
     )
 }
 
@@ -147,14 +147,14 @@ public fun <T> createListenableFuture(
     callable: Callable<T>,
     query: SupportSQLiteQuery,
     releaseQuery: Boolean,
-    cancellationSignal: CancellationSignal?
+    cancellationSignal: CancellationSignal?,
 ): ListenableFuture<T> {
     return createListenableFuture(
         executor = getExecutor(roomDatabase, inTransaction),
         callable = callable,
         query = query,
         releaseQuery = releaseQuery,
-        cancellationSignal = cancellationSignal
+        cancellationSignal = cancellationSignal,
     )
 }
 
@@ -163,7 +163,7 @@ private fun <T> createListenableFuture(
     callable: Callable<T>,
     query: SupportSQLiteQuery,
     releaseQuery: Boolean,
-    cancellationSignal: CancellationSignal?
+    cancellationSignal: CancellationSignal?,
 ): ListenableFuture<T> {
     val future = createListenableFuture(executor, callable)
     if (cancellationSignal != null) {
@@ -173,7 +173,7 @@ private fun <T> createListenableFuture(
                     cancellationSignal.cancel()
                 }
             },
-            directExecutor
+            directExecutor,
         )
     }
 
@@ -184,7 +184,7 @@ private fun <T> createListenableFuture(
                     query.release()
                 }
             },
-            directExecutor
+            directExecutor,
         )
     }
 
@@ -198,7 +198,7 @@ private fun <T> createListenableFuture(
 @Deprecated("No longer used by generated code.")
 public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
-    callable: Callable<T>
+    callable: Callable<T>,
 ): ListenableFuture<T> {
     return createListenableFuture(executor = getExecutor(roomDatabase, false), callable = callable)
 }
@@ -211,11 +211,11 @@ public fun <T> createListenableFuture(
 public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     inTransaction: Boolean,
-    callable: Callable<T>
+    callable: Callable<T>,
 ): ListenableFuture<T> {
     return createListenableFuture(
         executor = getExecutor(roomDatabase, inTransaction),
-        callable = callable
+        callable = callable,
     )
 }
 
@@ -225,7 +225,7 @@ public fun <T> createListenableFuture(
  */
 private fun <T> createListenableFuture(
     executor: Executor,
-    callable: Callable<T>
+    callable: Callable<T>,
 ): ListenableFuture<T> {
     val future = ResolvableFuture.create<T>()
     executor.execute {

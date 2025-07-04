@@ -182,7 +182,7 @@ class TextLayoutFillBoundingBoxesTest {
                     RectF(fontSize, 0f, fontSize, fontSize), // \n
                     RectF(0f, fontSize, fontSize, 2 * fontSize), // b
                     RectF(fontSize, fontSize, fontSize, 2 * fontSize), // \n
-                    RectF(0f, 2 * fontSize, fontSize, 3 * fontSize) // c
+                    RectF(0f, 2 * fontSize, fontSize, 3 * fontSize), // c
                 )
             )
     }
@@ -202,7 +202,7 @@ class TextLayoutFillBoundingBoxesTest {
                     RectF(2 * fontSize, 0f, 2 * fontSize, fontSize), // \n
                     RectF(fontSize, fontSize, 2 * fontSize, 2 * fontSize), // b
                     RectF(2 * fontSize, fontSize, 2 * fontSize, 2 * fontSize), // \n
-                    RectF(fontSize, 2 * fontSize, 2 * fontSize, 3 * fontSize) // c
+                    RectF(fontSize, 2 * fontSize, 2 * fontSize, 3 * fontSize), // c
                 )
             )
     }
@@ -221,7 +221,7 @@ class TextLayoutFillBoundingBoxesTest {
                     RectF(width - fontSize, 0f, width - fontSize, fontSize), // \n
                     RectF(width - fontSize, fontSize, width, 2 * fontSize), // \u05D1
                     RectF(width - fontSize, fontSize, width - fontSize, 2 * fontSize), // \n
-                    RectF(width - fontSize, 2 * fontSize, width, 3 * fontSize) // \u05D2
+                    RectF(width - fontSize, 2 * fontSize, width, 3 * fontSize), // \u05D2
                 )
             )
     }
@@ -241,7 +241,7 @@ class TextLayoutFillBoundingBoxesTest {
                     RectF(fontSize, 0f, fontSize, fontSize), // \n
                     RectF(fontSize, fontSize, 2 * fontSize, 2 * fontSize), // \u05D1
                     RectF(fontSize, fontSize, fontSize, 2 * fontSize), // \n
-                    RectF(fontSize, 2 * fontSize, fontSize * 2, 3 * fontSize) // \u05D2
+                    RectF(fontSize, 2 * fontSize, fontSize * 2, 3 * fontSize), // \u05D2
                 )
             )
     }
@@ -290,7 +290,7 @@ class TextLayoutFillBoundingBoxesTest {
                     // 2 width for b
                     RectF(fontSize, 0f, 3 * fontSize, doubleFontSize),
                     // 1 width for c
-                    RectF(3 * fontSize, 0f, 4 * fontSize, doubleFontSize)
+                    RectF(3 * fontSize, 0f, 4 * fontSize, doubleFontSize),
                 )
             )
     }
@@ -348,7 +348,7 @@ class TextLayoutFillBoundingBoxesTest {
             width = width,
             textPaint = textPaint,
             lineSpacingMultiplier = lineSpacingMultiplier,
-            alignment = alignment
+            alignment = alignment,
         )
     }
 }

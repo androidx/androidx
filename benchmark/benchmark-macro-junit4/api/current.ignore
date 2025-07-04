@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.benchmark.macro.junit4.BaselineProfileRule#configBuilder(String, String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
+    Removed method androidx.benchmark.macro.junit4.BaselineProfileRule.configBuilder(String,String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)
+RemovedMethod: androidx.benchmark.macro.junit4.BaselineProfileRule#configBuilder(String, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>):
+    Removed method androidx.benchmark.macro.junit4.BaselineProfileRule.configBuilder(String,kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit>)

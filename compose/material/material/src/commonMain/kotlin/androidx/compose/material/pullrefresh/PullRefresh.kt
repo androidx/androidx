@@ -65,13 +65,13 @@ fun Modifier.pullRefresh(state: PullRefreshState, enabled: Boolean = true) =
 fun Modifier.pullRefresh(
     onPull: (pullDelta: Float) -> Float,
     onRelease: suspend (flingVelocity: Float) -> Float,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) = nestedScroll(PullRefreshNestedScrollConnection(onPull, onRelease, enabled))
 
 private class PullRefreshNestedScrollConnection(
     private val onPull: (pullDelta: Float) -> Float,
     private val onRelease: suspend (flingVelocity: Float) -> Float,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) : NestedScrollConnection {
 
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset =
@@ -85,7 +85,7 @@ private class PullRefreshNestedScrollConnection(
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
-        source: NestedScrollSource
+        source: NestedScrollSource,
     ): Offset =
         when {
             !enabled -> Offset.Zero

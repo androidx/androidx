@@ -20,10 +20,15 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * The Selection library calls {@link #getItemDetails(MotionEvent)} when it needs
@@ -72,8 +77,20 @@ public abstract class ItemDetailsLookup<K> {
      * @return true if there is an item w/ a stable ID at the event coordinates.
      */
     @RestrictTo(LIBRARY)
+    @Deprecated
     protected boolean overItemWithSelectionKey(@NonNull MotionEvent e) {
         return overItem(e) && hasSelectionKey(getItemDetails(e));
+    }
+
+    /**
+     * @return the item (if it exists) with a stable ID at the event coordinates.
+     */
+    @RestrictTo(LIBRARY)
+    protected @Nullable ItemDetails<K> overItemWithSelectionKeyAsItem(@NonNull MotionEvent e) {
+        ItemDetails<K> item = getItemDetails(e);
+        return ((item != null)
+                && (item.getPosition() != RecyclerView.NO_POSITION)
+                && item.hasSelectionKey()) ? item : null;
     }
 
     /**
@@ -92,14 +109,16 @@ public abstract class ItemDetailsLookup<K> {
      * selection, even when there is no existing selection.
      */
     final boolean inItemSelectRegion(@NonNull MotionEvent e) {
-        return overItem(e) && getItemDetails(e).inSelectionHotspot(e);
+        return overItem(e)
+            && (getItemDetails(e).classifySelectionHotspot(e)
+                    != ItemDetails.SELECTION_HOTSPOT_OUTSIDE);
     }
 
     /**
      * @return the adapter position of the item at the event coordinates.
      */
     final int getItemPosition(@NonNull MotionEvent e) {
-        @Nullable ItemDetails<?> item = getItemDetails(e);
+        ItemDetails<?> item = getItemDetails(e);
         return item != null
                 ? item.getPosition()
                 : RecyclerView.NO_POSITION;
@@ -170,6 +189,40 @@ public abstract class ItemDetailsLookup<K> {
     public abstract static class ItemDetails<K> {
 
         /**
+         * Indicates that a UI event is outside the "selection hotspot" and leads to the default,
+         * fallback behavior of that touch tap, mouse click, etc.
+         */
+        public static final int SELECTION_HOTSPOT_OUTSIDE = 0;
+
+        /**
+         * Indicates that a UI event toggles the item's selectedness (unselected becomes selected
+         * and vice versa), like a checkbox UI element.
+         */
+        public static final int SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI = 1;
+
+        /**
+         * Indicates that a UI event clears any existing selections and then, unless the item was
+         * previously the sole selection, selects it.
+         */
+        public static final int SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO = 2;
+
+        /**
+         * Indicates that a UI event clears any existing selections and then selects the item, like
+         * a radio button UI element.
+         */
+        public static final int SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET = 3;
+
+        @RestrictTo(LIBRARY)
+        @IntDef({
+            SELECTION_HOTSPOT_OUTSIDE,
+            SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI,
+            SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO,
+            SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface SelectionHotspotResult {}
+
+        /**
          * Returns the adapter position of the item. See
          * {@link RecyclerView.ViewHolder#getAbsoluteAdapterPosition() ViewHolder
          * .getAbsoluteAdapterPosition}
@@ -191,19 +244,53 @@ public abstract class ItemDetailsLookup<K> {
         public abstract @Nullable K getSelectionKey();
 
         /**
-         * Areas are often included in a view that behave similar to checkboxes, such
-         * as the icon to the left of an email message. "selection
-         * hotspot" provides a mechanism to identify such regions, and for the
-         * library to directly translate taps in these regions into a change
-         * in selection state.
+         * Like classifySelectionHotspot but returns a boolean instead of an int.
          *
-         * @return true if the event is in an area of the item that should be
-         * directly interpreted as a user wishing to select the item. This
-         * is useful for checkboxes and other UI affordances focused on enabling
-         * selection.
+         * This method is provided for backwards compatibility and is only called when the
+         * ItemDetails subclass does not override classifySelectionHotspot. New code should
+         * override classifySelectionHotspot instead of this method.
+         *
+         * @return false for SELECTION_HOTSPOT_OUTSIDE,
+         *         true  for SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI.
+         * @deprecated override classifySelectionHotspot instead.
          */
+        @Deprecated
         public boolean inSelectionHotspot(@NonNull MotionEvent e) {
             return false;
+        }
+
+        /**
+         * Tapping (touch) or clicking (mouse) on an item usually leads to some default behavior:
+         * activating or opening the item, for touch, or deselecting the item (or deselecting
+         * everything), for mouse.
+         *
+         * This method allows identifying a "selection hotspot" - an inner region of an item's view
+         * where tapping or clicking on it will change the selection state (typically by selecting
+         * that item) instead of that default behavior.
+         *
+         * One example is icons to the left of an email message - hotspots that are like selection
+         * checkboxes. Having classifySelectionHotspot return SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI
+         * indicates to the library that some part of a view is checkbox-like.
+         *
+         * Similarly, having a MotionEvent trigger SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET is
+         * radio-button-like. Returning SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO is a third option.
+         *
+         * When returning a non-zero value (a value that's not SELECTION_HOTSPOT_OUTSIDE), the
+         * nuances in behavior is relevant for mouse clicks but less so for touch taps. For touch:
+         *
+         * - If nothing was previously selected, SELECTION_HOTSPOT_OUTSIDE activates that item.
+         * - If nothing was previously selected, any non-zero value just selects that item.
+         * - If something was previously selected, touch taps (but not mouse clicks) anywhere in
+         *   the item's view (not just in its "selection hotspot") is treated as toggling selection
+         *   (like a Ctrl-click), for historical reasons.
+         *
+         * @return a value that's not SELECTION_HOTSPOT_OUTSIDE if the event is in an area of the
+         * item that should be directly interpreted as a user wishing to select the item.
+         */
+        public @SelectionHotspotResult int classifySelectionHotspot(@NonNull MotionEvent e) {
+            return inSelectionHotspot(e)
+                    ? SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI
+                    : SELECTION_HOTSPOT_OUTSIDE;
         }
 
         /**

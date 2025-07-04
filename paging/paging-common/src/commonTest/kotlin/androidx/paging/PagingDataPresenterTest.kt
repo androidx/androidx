@@ -22,6 +22,8 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.internal.IgnoreWebTarget
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -55,6 +57,7 @@ import kotlinx.coroutines.test.runTest
  * run some tests with cached-in to ensure caching does not change behavior in the single consumer
  * cases.
  */
+@IgnoreWebTarget // b/395933428
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 class PagingDataPresenterTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
@@ -139,6 +142,36 @@ class PagingDataPresenterTest {
         }
 
     @Test
+    fun retrySentBeforeCollection() =
+        testScope.run {
+            val presenter = SimplePresenter()
+            val receiver = UiReceiverFake()
+
+            presenter.retry()
+
+            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+
+            assertEquals(1, receiver.retryEvents.size)
+
+            job.cancel()
+        }
+
+    @Test
+    fun refreshSentBeforeCollection() =
+        testScope.runTest {
+            val presenter = SimplePresenter()
+            val receiver = UiReceiverFake()
+
+            presenter.refresh()
+
+            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+
+            assertEquals(1, receiver.refreshEvents.size)
+
+            job.cancel()
+        }
+
+    @Test
     fun uiReceiverSetImmediately() =
         testScope.runTest {
             val presenter = SimplePresenter()
@@ -167,9 +200,7 @@ class PagingDataPresenterTest {
             // first generation, load something so next gen can access index to trigger hint
             val hintReceiver1 = HintReceiverFake()
             val flow =
-                flowOf(
-                    localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))),
-                )
+                flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
 
             val job1 = launch {
                 presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver1))
@@ -221,8 +252,8 @@ class PagingDataPresenterTest {
                 localRefresh(
                     pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
                     placeholdersBefore = 20,
-                    placeholdersAfter = 75
-                ),
+                    placeholdersAfter = 75,
+                )
             )
             assertThat(presenter.snapshot().items).containsExactlyElementsIn(20 until 25)
 
@@ -405,7 +436,7 @@ class PagingDataPresenterTest {
                     localRefresh(
                         pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4))),
                         placeholdersBefore = 0,
-                        placeholdersAfter = 95
+                        placeholdersAfter = 95,
                     )
                 )
 
@@ -438,7 +469,7 @@ class PagingDataPresenterTest {
                             presentedItemsAfter = -16,
                             originalPageOffsetFirst = 0,
                             originalPageOffsetLast = 0,
-                        ),
+                        )
                     )
                 )
 
@@ -467,7 +498,7 @@ class PagingDataPresenterTest {
                             presentedItemsAfter = -36,
                             originalPageOffsetFirst = 0,
                             originalPageOffsetLast = 0,
-                        ),
+                        )
                     )
                 )
             assertThat(hintReceiver2.hints).isEmpty()
@@ -477,8 +508,8 @@ class PagingDataPresenterTest {
                 localRefresh(
                     pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
                     placeholdersBefore = 20,
-                    placeholdersAfter = 75
-                ),
+                    placeholdersAfter = 75,
+                )
             )
             // access any item make sure hint is sent
             presenter[3]
@@ -508,7 +539,7 @@ class PagingDataPresenterTest {
                             presentedItemsAfter = -26,
                             originalPageOffsetFirst = 0,
                             originalPageOffsetLast = 0,
-                        ),
+                        )
                     )
                 )
 
@@ -564,8 +595,8 @@ class PagingDataPresenterTest {
                             presentedItemsBefore = -2,
                             presentedItemsAfter = 4,
                             originalPageOffsetFirst = -1,
-                            originalPageOffsetLast = 1
-                        ),
+                            originalPageOffsetLast = 1,
+                        )
                     )
                 )
 
@@ -588,7 +619,7 @@ class PagingDataPresenterTest {
                             presentedItemsBefore = -2,
                             presentedItemsAfter = 4,
                             originalPageOffsetFirst = -2,
-                            originalPageOffsetLast = 1
+                            originalPageOffsetLast = 1,
                         )
                     )
                 )
@@ -599,7 +630,7 @@ class PagingDataPresenterTest {
                 localPrepend(
                     pages = listOf(TransformablePage(-3, listOf(-3, -4))),
                     placeholdersBefore = 0,
-                    source = loadStates(prepend = NotLoading.Complete)
+                    source = loadStates(prepend = NotLoading.Complete),
                 )
             )
             assertThat(hintReceiver.hints).isEmpty()
@@ -614,7 +645,7 @@ class PagingDataPresenterTest {
                         presentedItemsBefore = 5,
                         presentedItemsAfter = -2,
                         originalPageOffsetFirst = -3,
-                        originalPageOffsetLast = 1
+                        originalPageOffsetLast = 1,
                     )
                 )
 
@@ -624,7 +655,7 @@ class PagingDataPresenterTest {
                 localAppend(
                     pages = listOf(TransformablePage(2, listOf())),
                     placeholdersAfter = 2,
-                    source = loadStates(prepend = NotLoading.Complete)
+                    source = loadStates(prepend = NotLoading.Complete),
                 )
             )
             assertThat(hintReceiver.hints)
@@ -636,7 +667,7 @@ class PagingDataPresenterTest {
                             presentedItemsBefore = 5,
                             presentedItemsAfter = -2,
                             originalPageOffsetFirst = -3,
-                            originalPageOffsetLast = 2
+                            originalPageOffsetLast = 2,
                         )
                     )
                 )
@@ -647,7 +678,7 @@ class PagingDataPresenterTest {
                 localAppend(
                     pages = listOf(TransformablePage(3, listOf(4, 5))),
                     placeholdersAfter = 0,
-                    source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
+                    source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                 )
             )
             assertThat(hintReceiver.hints).isEmpty()
@@ -702,7 +733,7 @@ class PagingDataPresenterTest {
                         presentedItemsBefore = -2,
                         presentedItemsAfter = 4,
                         originalPageOffsetFirst = -1,
-                        originalPageOffsetLast = 1
+                        originalPageOffsetLast = 1,
                     )
                 )
 
@@ -725,7 +756,7 @@ class PagingDataPresenterTest {
                             presentedItemsBefore = -2,
                             presentedItemsAfter = 4,
                             originalPageOffsetFirst = -2,
-                            originalPageOffsetLast = 1
+                            originalPageOffsetLast = 1,
                         )
                     )
                 )
@@ -737,7 +768,7 @@ class PagingDataPresenterTest {
                     loadType = PREPEND,
                     minPageOffset = -2,
                     maxPageOffset = -2,
-                    placeholdersRemaining = 2
+                    placeholdersRemaining = 2,
                 )
             )
 
@@ -979,9 +1010,9 @@ class PagingDataPresenterTest {
                             pageSize = 10,
                             enablePlaceholders = false,
                             initialLoadSize = 10,
-                            prefetchDistance = 1
+                            prefetchDistance = 1,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource()
                 }
@@ -1086,7 +1117,7 @@ class PagingDataPresenterTest {
                             )
                         ),
                     uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER
+                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
                 )
             )
             assertThat(combinedLoadStates.getAllAndClear())
@@ -1163,7 +1194,7 @@ class PagingDataPresenterTest {
                             )
                         ),
                     uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER
+                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
                 )
             )
             assertThat(combinedLoadStates.getAllAndClear())
@@ -1223,32 +1254,20 @@ class PagingDataPresenterTest {
                 PagingData(
                     flow =
                         flowOf(
-                            remoteLoadStateUpdate(
-                                prependLocal = Loading,
-                                appendLocal = Loading,
-                            ),
-                            remoteLoadStateUpdate(
-                                appendLocal = Loading,
-                            ),
+                            remoteLoadStateUpdate(prependLocal = Loading, appendLocal = Loading),
+                            remoteLoadStateUpdate(appendLocal = Loading),
                             // duplicate update
-                            remoteLoadStateUpdate(
-                                appendLocal = Loading,
-                            ),
+                            remoteLoadStateUpdate(appendLocal = Loading),
                         ),
                     uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER
+                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
                 )
             )
             advanceUntilIdle()
             assertThat(combinedLoadStates)
                 .containsExactly(
-                    remoteLoadStatesOf(
-                        prependLocal = Loading,
-                        appendLocal = Loading,
-                    ),
-                    remoteLoadStatesOf(
-                        appendLocal = Loading,
-                    )
+                    remoteLoadStatesOf(prependLocal = Loading, appendLocal = Loading),
+                    remoteLoadStatesOf(appendLocal = Loading),
                 )
         }
 
@@ -1264,32 +1283,20 @@ class PagingDataPresenterTest {
                 PagingData(
                     flow =
                         flowOf(
-                            remoteLoadStateUpdate(
-                                prependLocal = Loading,
-                                appendLocal = Loading,
-                            ),
-                            remoteLoadStateUpdate(
-                                appendLocal = Loading,
-                            ),
+                            remoteLoadStateUpdate(prependLocal = Loading, appendLocal = Loading),
+                            remoteLoadStateUpdate(appendLocal = Loading),
                             // duplicate update
-                            remoteLoadStateUpdate(
-                                appendLocal = Loading,
-                            ),
+                            remoteLoadStateUpdate(appendLocal = Loading),
                         ),
                     uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER
+                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
                 )
             )
             advanceUntilIdle()
             assertThat(combinedLoadStates)
                 .containsExactly(
-                    remoteLoadStatesOf(
-                        prependLocal = Loading,
-                        appendLocal = Loading,
-                    ),
-                    remoteLoadStatesOf(
-                        appendLocal = Loading,
-                    )
+                    remoteLoadStatesOf(prependLocal = Loading, appendLocal = Loading),
+                    remoteLoadStatesOf(appendLocal = Loading),
                 )
         }
 
@@ -1311,9 +1318,9 @@ class PagingDataPresenterTest {
                             pageSize = 10,
                             enablePlaceholders = false,
                             initialLoadSize = 10,
-                            prefetchDistance = 1
+                            prefetchDistance = 1,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource()
                 }
@@ -1349,17 +1356,14 @@ class PagingDataPresenterTest {
             val combinedLoadStateCapture = CombinedLoadStatesCapture()
 
             // Adding a new listener without a real value should not trigger it.
-            presenter.addLoadStateListener(combinedLoadStateCapture)
+            presenter.addLoadStateListener(combinedLoadStateCapture::invoke)
             assertThat(combinedLoadStateCapture.newEvents()).isEmpty()
 
             // Add a real value and now the listener should trigger.
             presenter.collectFrom(
                 PagingData.empty(
                     sourceLoadStates =
-                        loadStates(
-                            prepend = NotLoading.Complete,
-                            append = NotLoading.Complete,
-                        )
+                        loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
                 )
             )
             assertThat(combinedLoadStateCapture.newEvents())
@@ -1372,7 +1376,7 @@ class PagingDataPresenterTest {
 
             // Should emit real values to new listeners immediately
             val newCombinedLoadStateCapture = CombinedLoadStatesCapture()
-            presenter.addLoadStateListener(newCombinedLoadStateCapture)
+            presenter.addLoadStateListener(newCombinedLoadStateCapture::invoke)
             assertThat(newCombinedLoadStateCapture.newEvents())
                 .containsExactly(
                     localLoadStatesOf(
@@ -1387,9 +1391,7 @@ class PagingDataPresenterTest {
         testScope.runTest {
             val presenter = SimplePresenter()
             val pager =
-                Pager(
-                    PagingConfig(1),
-                ) {
+                Pager(PagingConfig(1)) {
                     object : PagingSource<Int, Int>() {
                         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
                             throw IllegalStateException()
@@ -1412,9 +1414,7 @@ class PagingDataPresenterTest {
             val presenter = SimplePresenter()
             var generation = 0
             val pager =
-                Pager(
-                    PagingConfig(1),
-                ) {
+                Pager(PagingConfig(1)) {
                     TestPagingSource().also {
                         if (generation == 0) {
                             it.nextLoadResult = LoadResult.Invalid()
@@ -1466,7 +1466,7 @@ class PagingDataPresenterTest {
                 .containsExactly(
                     PagingDataEvent.Refresh(
                         previousList = PageStore.initial<Int>(null) as PlaceholderPaddedList<Int>,
-                        newList = event
+                        newList = event,
                     )
                 )
 
@@ -1495,7 +1495,7 @@ class PagingDataPresenterTest {
                                 placeholdersBefore = 0,
                                 placeholdersAfter = 0,
                             )
-                                as PlaceholderPaddedList<Int>
+                                as PlaceholderPaddedList<Int>,
                     )
                 )
         }
@@ -1523,7 +1523,7 @@ class PagingDataPresenterTest {
                         startIndex = 9,
                         inserted = listOf(9, 10, 11),
                         newPlaceholdersAfter = 0,
-                        oldPlaceholdersAfter = 0
+                        oldPlaceholdersAfter = 0,
                     )
                 )
         }
@@ -1536,7 +1536,7 @@ class PagingDataPresenterTest {
         runTest(
             collectWithCachedIn,
             initialKey = 96,
-            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false)
+            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false),
         ) { presenter, _, _, _ ->
             // initial REFRESH
             advanceUntilIdle()
@@ -1554,7 +1554,7 @@ class PagingDataPresenterTest {
                         startIndex = 3,
                         inserted = listOf(99),
                         newPlaceholdersAfter = 0,
-                        oldPlaceholdersAfter = 0
+                        oldPlaceholdersAfter = 0,
                     )
                 )
             // trigger prepend and drop from append direction
@@ -1569,7 +1569,7 @@ class PagingDataPresenterTest {
                         startIndex = 3,
                         dropCount = 1,
                         newPlaceholdersAfter = 0,
-                        oldPlaceholdersAfter = 0
+                        oldPlaceholdersAfter = 0,
                     )
                 )
         }
@@ -1596,7 +1596,7 @@ class PagingDataPresenterTest {
                     PagingDataEvent.Prepend(
                         inserted = listOf(47, 48, 49),
                         newPlaceholdersBefore = 0,
-                        oldPlaceholdersBefore = 0
+                        oldPlaceholdersBefore = 0,
                     )
                 )
         }
@@ -1609,7 +1609,7 @@ class PagingDataPresenterTest {
         runTest(
             collectWithCachedIn,
             initialKey = 1,
-            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false)
+            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false),
         ) { presenter, _, _, _ ->
             // initial REFRESH
             advanceUntilIdle()
@@ -1626,7 +1626,7 @@ class PagingDataPresenterTest {
                     PagingDataEvent.Prepend(
                         inserted = listOf(0),
                         newPlaceholdersBefore = 0,
-                        oldPlaceholdersBefore = 0
+                        oldPlaceholdersBefore = 0,
                     )
                 )
 
@@ -1641,7 +1641,7 @@ class PagingDataPresenterTest {
                     PagingDataEvent.DropPrepend<Int>(
                         dropCount = 1,
                         newPlaceholdersBefore = 0,
-                        oldPlaceholdersBefore = 0
+                        oldPlaceholdersBefore = 0,
                     )
                 )
         }
@@ -1659,10 +1659,7 @@ class PagingDataPresenterTest {
 
             assertThat(presenter.snapshot()).containsExactlyElementsIn(50 until 59)
             assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(refreshLocal = Loading),
-                    localLoadStatesOf(),
-                )
+                .containsExactly(localLoadStatesOf(refreshLocal = Loading), localLoadStatesOf())
 
             presenter.refresh()
 
@@ -1675,7 +1672,7 @@ class PagingDataPresenterTest {
             assertThat(presenter.newCombinedLoadStates())
                 .containsExactly(
                     localLoadStatesOf(refreshLocal = Loading),
-                    localLoadStatesOf(prependLocal = NotLoading.Complete)
+                    localLoadStatesOf(prependLocal = NotLoading.Complete),
                 )
 
             collectLoadStates.cancel()
@@ -1701,8 +1698,8 @@ class PagingDataPresenterTest {
                     localLoadStatesOf(refreshLocal = Loading),
                     localLoadStatesOf(
                         refreshLocal = NotLoading(endOfPaginationReached = false),
-                        prependLocal = NotLoading(endOfPaginationReached = true)
-                    )
+                        prependLocal = NotLoading(endOfPaginationReached = true),
+                    ),
                 )
             loadStateCallbacks.clear()
             presenter.refresh()
@@ -1714,22 +1711,22 @@ class PagingDataPresenterTest {
                 .containsExactly(
                     localLoadStatesOf(
                         refreshLocal = Loading,
-                        prependLocal = NotLoading(endOfPaginationReached = false)
+                        prependLocal = NotLoading(endOfPaginationReached = false),
                     ),
                     localLoadStatesOf(
                         refreshLocal = NotLoading(endOfPaginationReached = false),
-                        prependLocal = NotLoading(endOfPaginationReached = true)
+                        prependLocal = NotLoading(endOfPaginationReached = true),
                     ),
                 )
             assertThat(loadStateCallbacks)
                 .containsExactly(
                     localLoadStatesOf(
                         refreshLocal = Loading,
-                        prependLocal = NotLoading(endOfPaginationReached = false)
+                        prependLocal = NotLoading(endOfPaginationReached = false),
                     ),
                     localLoadStatesOf(
                         refreshLocal = NotLoading(endOfPaginationReached = false),
-                        prependLocal = NotLoading(endOfPaginationReached = true)
+                        prependLocal = NotLoading(endOfPaginationReached = true),
                     ),
                 )
             collectLoadStates.cancel()
@@ -1766,7 +1763,7 @@ class PagingDataPresenterTest {
             assertThat(presenter.newCombinedLoadStates())
                 .containsExactly(
                     localLoadStatesOf(prependLocal = NotLoading.Complete, appendLocal = Loading),
-                    localLoadStatesOf(prependLocal = NotLoading.Complete)
+                    localLoadStatesOf(prependLocal = NotLoading.Complete),
                 )
 
             // do invalid append which will return LoadResult.Invalid
@@ -1788,19 +1785,14 @@ class PagingDataPresenterTest {
                     // LoadStateUpdate from refresh sends the full map of a local LoadStates which
                     // was
                     // initialized as IDLE upon new Snapshot.
-                    localLoadStatesOf(
-                        refreshLocal = Loading,
-                    ),
+                    localLoadStatesOf(refreshLocal = Loading),
                 )
 
             // the LoadResult.Invalid from failed APPEND triggers new pagingSource + initial REFRESH
             advanceUntilIdle()
 
             assertThat(presenter.snapshot()).containsExactlyElementsIn(11 until 20)
-            assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(),
-                )
+            assertThat(presenter.newCombinedLoadStates()).containsExactly(localLoadStatesOf())
 
             collectLoadStates.cancel()
         }
@@ -1813,7 +1805,7 @@ class PagingDataPresenterTest {
         runTest(
             collectWithCachedIn,
             initialKey = 96,
-            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false)
+            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false),
         ) { presenter, _, _, _ ->
             val collectLoadStates = launch { presenter.collectLoadStates() }
 
@@ -1913,9 +1905,7 @@ class PagingDataPresenterTest {
             // multi-generational
             assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 9)
             assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(prependLocal = NotLoading.Complete),
-                )
+                .containsExactly(localLoadStatesOf(prependLocal = NotLoading.Complete))
 
             collectLoadStates.cancel()
         }
@@ -1928,7 +1918,7 @@ class PagingDataPresenterTest {
         runTest(
             collectWithCachedIn,
             initialKey = 1,
-            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false)
+            config = PagingConfig(pageSize = 1, maxSize = 4, enablePlaceholders = false),
         ) { presenter, _, _, _ ->
             val collectLoadStates = launch { presenter.collectLoadStates() }
 
@@ -1988,7 +1978,7 @@ class PagingDataPresenterTest {
                     // invalid first refresh. The second refresh state update that follows is
                     // identical to
                     // this LoadStates so it gets de-duped
-                    localLoadStatesOf(refreshLocal = Loading),
+                    localLoadStatesOf(refreshLocal = Loading)
                 )
 
             // execute second REFRESH load
@@ -1999,11 +1989,7 @@ class PagingDataPresenterTest {
             assertThat(pagingSources.size).isEqualTo(2)
             assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 9)
             assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(
-                        prependLocal = NotLoading.Complete,
-                    )
-                )
+                .containsExactly(localLoadStatesOf(prependLocal = NotLoading.Complete))
 
             collectLoadStates.cancel()
         }
@@ -2038,7 +2024,7 @@ class PagingDataPresenterTest {
                     localLoadStatesOf(prependLocal = NotLoading.Complete, appendLocal = Loading),
                     localLoadStatesOf(
                         prependLocal = NotLoading.Complete,
-                        appendLocal = LoadState.Error(exception)
+                        appendLocal = LoadState.Error(exception),
                     ),
                 )
             assertThat(presenter.snapshot()).containsExactlyElementsIn(0 until 9)
@@ -2072,10 +2058,7 @@ class PagingDataPresenterTest {
             advanceUntilIdle()
 
             assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(refreshLocal = Loading),
-                    localLoadStatesOf(),
-                )
+                .containsExactly(localLoadStatesOf(refreshLocal = Loading), localLoadStatesOf())
 
             assertThat(presenter.snapshot()).containsExactlyElementsIn(50 until 59)
 
@@ -2101,10 +2084,7 @@ class PagingDataPresenterTest {
             // make sure prepend success
             assertThat(presenter.snapshot()).containsExactlyElementsIn(47 until 59)
             assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(prependLocal = Loading),
-                    localLoadStatesOf(),
-                )
+                .containsExactly(localLoadStatesOf(prependLocal = Loading), localLoadStatesOf())
 
             collectLoadStates.cancel()
         }
@@ -2161,10 +2141,7 @@ class PagingDataPresenterTest {
             advanceUntilIdle()
 
             assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    localLoadStatesOf(refreshLocal = Loading),
-                    localLoadStatesOf(),
-                )
+                .containsExactly(localLoadStatesOf(refreshLocal = Loading), localLoadStatesOf())
             assertThat(presenter.size).isEqualTo(9)
             assertThat(presenter.snapshot()).containsExactlyElementsIn(50 until 59)
 
@@ -2261,9 +2238,7 @@ class PagingDataPresenterTest {
             assertThat(presenter.newCombinedLoadStates())
                 .containsExactly(
                     // local starts loading
-                    remoteLoadStatesOf(
-                        refreshLocal = Loading,
-                    ),
+                    remoteLoadStatesOf(refreshLocal = Loading),
                     // remote starts loading
                     remoteLoadStatesOf(
                         refresh = Loading,
@@ -2316,7 +2291,7 @@ class PagingDataPresenterTest {
                         appendLocal = NotLoading.Complete,
                         prependRemote = Loading,
                         appendRemote = Loading,
-                    ),
+                    )
                 )
 
             // allow remote append and prepend to complete
@@ -2348,7 +2323,7 @@ class PagingDataPresenterTest {
                 Pager(
                         config = PagingConfig(pageSize = 3, enablePlaceholders = false),
                         initialKey = 50,
-                        pagingSourceFactory = { TestPagingSource() }
+                        pagingSourceFactory = { TestPagingSource() },
                     )
                     .flow
                     .cachedIn(this)
@@ -2402,7 +2377,7 @@ class PagingDataPresenterTest {
             createCachedPagingData(
                 data = data,
                 sourceLoadStates = localStates,
-                mediatorLoadStates = mediatorStates
+                mediatorLoadStates = mediatorStates,
             )
         val simplePresenter = SimplePresenter(cachedPagingData)
         val expected = simplePresenter.loadStateFlow.value
@@ -2421,7 +2396,7 @@ class PagingDataPresenterTest {
                     data = data,
                     sourceLoadStates = loadStates(refresh = Loading),
                     mediatorLoadStates = null,
-                    hintReceiver = hintReceiver
+                    hintReceiver = hintReceiver,
                 )
             val presenter = SimplePresenter(cachedPagingData)
 
@@ -2430,9 +2405,7 @@ class PagingDataPresenterTest {
             assertThat(hintReceiver.hints).hasSize(0)
 
             val flow =
-                flowOf(
-                    localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))),
-                )
+                flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
             val hintReceiver2 = HintReceiverFake()
 
             val job1 = launch {
@@ -2456,7 +2429,7 @@ class PagingDataPresenterTest {
                     data = data,
                     sourceLoadStates = loadStates(refresh = Loading),
                     mediatorLoadStates = null,
-                    uiReceiver = uiReceiver
+                    uiReceiver = uiReceiver,
                 )
             val presenter = SimplePresenter(cachedPagingData)
             presenter.refresh()
@@ -2464,14 +2437,11 @@ class PagingDataPresenterTest {
             assertThat(uiReceiver.refreshEvents).hasSize(0)
 
             val flow =
-                flowOf(
-                    localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))),
-                )
+                flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
             val uiReceiver2 = UiReceiverFake()
             val job1 = launch {
                 presenter.collectFrom(PagingData(flow, uiReceiver2, dummyHintReceiver))
             }
-            presenter.refresh()
             assertThat(uiReceiver.refreshEvents).hasSize(0)
             assertThat(uiReceiver2.refreshEvents).hasSize(1)
             job1.cancel()
@@ -2489,10 +2459,7 @@ class PagingDataPresenterTest {
                 )
             val presenter = SimplePresenter(cachedPagingData)
             val data2 = List(10) { it }
-            val flow =
-                flowOf(
-                    localRefresh(pages = listOf(TransformablePage(data2))),
-                )
+            val flow = flowOf(localRefresh(pages = listOf(TransformablePage(data2))))
             val job1 = launch {
                 presenter.collectFrom(PagingData(flow, dummyUiReceiver, dummyHintReceiver))
             }
@@ -2545,8 +2512,8 @@ class PagingDataPresenterTest {
                 presenter: SimplePresenter,
                 pagingSources: List<TestPagingSource>,
                 uiReceivers: List<TrackableUiReceiverWrapper>,
-                hintReceivers: List<TrackableHintReceiverWrapper>
-            ) -> Unit
+                hintReceivers: List<TrackableHintReceiverWrapper>,
+            ) -> Unit,
     ) =
         testScope.runTest {
             val pagingSources = mutableListOf<TestPagingSource>()
@@ -2555,11 +2522,8 @@ class PagingDataPresenterTest {
                     config = config,
                     initialKey = initialKey,
                     pagingSourceFactory = {
-                        TestPagingSource(
-                                loadDelay = 1000,
-                            )
-                            .also { pagingSources.add(it) }
-                    }
+                        TestPagingSource(loadDelay = 1000).also { pagingSources.add(it) }
+                    },
                 )
             val presenter = SimplePresenter()
             val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
@@ -2577,7 +2541,7 @@ class PagingDataPresenterTest {
                             hintReceiver =
                                 TrackableHintReceiverWrapper(pagingData.hintReceiver).also {
                                     hintReceivers.add(it)
-                                }
+                                },
                         )
                     }
                     .let {
@@ -2600,12 +2564,12 @@ class PagingDataPresenterTest {
 
 private fun infinitelySuspendingPagingData(
     uiReceiver: UiReceiver = dummyUiReceiver,
-    hintReceiver: HintReceiver = dummyHintReceiver
+    hintReceiver: HintReceiver = dummyHintReceiver,
 ) =
     PagingData(
         flow { emit(suspendCancellableCoroutine<PageEvent<Int>> {}) },
         uiReceiver,
-        hintReceiver
+        hintReceiver,
     )
 
 private fun createCachedPagingData(
@@ -2627,9 +2591,9 @@ private fun createCachedPagingData(
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
                 sourceLoadStates = sourceLoadStates,
-                mediatorLoadStates = mediatorLoadStates
+                mediatorLoadStates = mediatorLoadStates,
             )
-        }
+        },
     )
 
 private class UiReceiverFake : UiReceiver {
@@ -2650,7 +2614,7 @@ private class HintReceiverFake : HintReceiver {
     val hints: List<ViewportHint>
         get() {
             val result = _hints.toList()
-            @OptIn(ExperimentalStdlibApi::class) repeat(result.size) { _hints.removeFirst() }
+            @OptIn(ExperimentalStdlibApi::class) repeat(result.size) { _hints.removeFirstKt() }
             return result
         }
 
@@ -2659,9 +2623,7 @@ private class HintReceiverFake : HintReceiver {
     }
 }
 
-private class TrackableUiReceiverWrapper(
-    private val receiver: UiReceiver? = null,
-) : UiReceiver {
+private class TrackableUiReceiverWrapper(private val receiver: UiReceiver? = null) : UiReceiver {
     val retryEvents = mutableListOf<Unit>()
     val refreshEvents = mutableListOf<Unit>()
 
@@ -2676,14 +2638,13 @@ private class TrackableUiReceiverWrapper(
     }
 }
 
-private class TrackableHintReceiverWrapper(
-    private val receiver: HintReceiver? = null,
-) : HintReceiver {
+private class TrackableHintReceiverWrapper(private val receiver: HintReceiver? = null) :
+    HintReceiver {
     private val _hints = mutableListOf<ViewportHint>()
     val hints: List<ViewportHint>
         get() {
             val result = _hints.toList()
-            @OptIn(ExperimentalStdlibApi::class) repeat(result.size) { _hints.removeFirst() }
+            @OptIn(ExperimentalStdlibApi::class) repeat(result.size) { _hints.removeFirstKt() }
             return result
         }
 
@@ -2693,12 +2654,10 @@ private class TrackableHintReceiverWrapper(
     }
 }
 
-private class SimplePresenter(
-    cachedPagingData: PagingData<Int>? = null,
-) :
+private class SimplePresenter(cachedPagingData: PagingData<Int>? = null) :
     PagingDataPresenter<Int>(
         mainContext = EmptyCoroutineContext,
-        cachedPagingData = cachedPagingData
+        cachedPagingData = cachedPagingData,
     ) {
     private val _localLoadStates = mutableListOf<CombinedLoadStates>()
 

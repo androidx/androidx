@@ -43,11 +43,11 @@ internal class TestKspRegistrar(
     val kspWorkingDir: File,
     val baseOptions: KspOptions.Builder,
     val processorProviders: List<SymbolProcessorProvider>,
-    val messageCollector: MessageCollector
+    val messageCollector: MessageCollector,
 ) : @Suppress("DEPRECATION") org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
     override fun registerProjectComponents(
         project: MockProject,
-        configuration: CompilerConfiguration
+        configuration: CompilerConfiguration,
     ) {
         baseOptions.apply {
             projectBaseDir = project.basePath?.let { File(it) } ?: kspWorkingDir
@@ -76,7 +76,7 @@ internal class TestKspRegistrar(
             MessageCollectorBasedKSPLogger(
                 messageCollector = messageCollector,
                 wrappedMessageCollector = messageCollector,
-                allWarningsAsErrors = baseOptions.allWarningsAsErrors
+                allWarningsAsErrors = baseOptions.allWarningsAsErrors,
             )
         val options = baseOptions.build()
         @Suppress("UnstableApiUsage") // For K1.
@@ -85,26 +85,26 @@ internal class TestKspRegistrar(
             TestKspExtension(
                 options = options,
                 processorProviders = processorProviders,
-                logger = logger
-            )
+                logger = logger,
+            ),
         )
         // Placeholder extension point; Required by dropPsiCaches().
         CoreApplicationEnvironment.registerExtensionPoint(
             project.extensionArea,
             PsiTreeChangeListener.EP.name,
-            PsiTreeChangeAdapter::class.java
+            PsiTreeChangeAdapter::class.java,
         )
     }
 
     private class TestKspExtension(
         options: KspOptions,
         processorProviders: List<SymbolProcessorProvider>,
-        logger: KSPLogger
+        logger: KSPLogger,
     ) :
         AbstractKotlinSymbolProcessingExtension(
             options = options,
             logger = logger,
-            testMode = false
+            testMode = false,
         ) {
         private val loadedProviders = processorProviders
 

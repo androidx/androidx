@@ -38,7 +38,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /** Copy APKs (from ApkOutputProviders) needed for building androidTest.zip */
-@Suppress("UnstableApiUsage") // Working with ApkOutputProviders
 @DisableCachingByDefault(because = "Only filesystem operations")
 abstract class CopyApksFromOutputProviderTask
 @Inject
@@ -85,7 +84,7 @@ constructor(private val fileSystemOperations: FileSystemOperations) : DefaultTas
                 processApkInstallGroup(
                     installGroup,
                     testApkSha256,
-                    fileNamePrefix = "$fileNamePrefix-$groupIndex"
+                    fileNamePrefix = "$fileNamePrefix-$groupIndex",
                 )
             }
 
@@ -96,7 +95,7 @@ constructor(private val fileSystemOperations: FileSystemOperations) : DefaultTas
     private fun processApkInstallGroup(
         installGroup: ApkInstallGroup,
         excludeSha256: String,
-        fileNamePrefix: String
+        fileNamePrefix: String,
     ): ApkFileGroup? {
         val outputDir = outputDirectory.get()
         val resultApkFiles =

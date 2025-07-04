@@ -18,7 +18,7 @@ package androidx.work
 import androidx.annotation.RequiresApi
 
 /** An enumeration of various network types that can be used as [Constraints] for work. */
-enum class NetworkType {
+public enum class NetworkType {
     /** A network is not required for this work. */
     NOT_REQUIRED,
 
@@ -41,5 +41,5 @@ enum class NetworkType {
      * Note: This capability can be changed at any time. When it is removed, [ListenableWorker]s are
      * responsible for stopping any data transfer that should not occur on a metered network.
      */
-    @RequiresApi(30) TEMPORARILY_UNMETERED
+    @RequiresApi(30) TEMPORARILY_UNMETERED,
 }

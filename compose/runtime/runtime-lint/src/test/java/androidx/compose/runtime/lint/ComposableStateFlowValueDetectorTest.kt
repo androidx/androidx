@@ -93,7 +93,7 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
         1b6OGCwep7HVl+pEG92L1F4cJ0zUSWzYS4ES718uXOAf8FFh9IKRQBXOfeXg
         5V1u4BXnj3zjCbOmunBaeNrCdAszCLjEbAs1zHVBBvN41oVnsGDw3KBusGjg
         G1R+AgX9oFiBAgAA
-        """
+        """,
         )
 
     @Test
@@ -101,7 +101,7 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
         lint()
             .files(
                 kotlin(
-                    """
+                        """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -160,57 +160,146 @@ class ComposableStateFlowValueDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-                ),
+                    )
+                    .indented(),
                 Stubs.Composable,
-                stateFlowStub
+                stateFlowStub,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
             .expect(
                 """
-                    src/androidx/compose/runtime/foo/TestFlow.kt:19: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                    stateFlow.value
-                              ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:20: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                    testFlow.value
-                             ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:18: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+    stateFlow.value
+              ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:19: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+    testFlow.value
+             ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:23: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+    stateFlow.value
+              ~~~~~
 src/androidx/compose/runtime/foo/TestFlow.kt:24: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                    stateFlow.value
-                              ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:25: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                    testFlow.value
-                             ~~~~~
+    testFlow.value
+             ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:28: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+    stateFlow.value
+              ~~~~~
 src/androidx/compose/runtime/foo/TestFlow.kt:29: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                    stateFlow.value
-                              ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:30: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                    testFlow.value
-                             ~~~~~
+    testFlow.value
+             ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:38: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+        stateFlow.value
+                  ~~~~~
 src/androidx/compose/runtime/foo/TestFlow.kt:39: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        stateFlow.value
-                                  ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:40: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        testFlow.value
-                                 ~~~~~
+        testFlow.value
+                 ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:42: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+        stateFlow.value
+                  ~~~~~
 src/androidx/compose/runtime/foo/TestFlow.kt:43: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        stateFlow.value
-                                  ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:44: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        testFlow.value
-                                 ~~~~~
+        testFlow.value
+                 ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:49: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+        stateFlow.value
+                  ~~~~~
 src/androidx/compose/runtime/foo/TestFlow.kt:50: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        stateFlow.value
-                                  ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:51: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        testFlow.value
-                                 ~~~~~
+        testFlow.value
+                 ~~~~~
+src/androidx/compose/runtime/foo/TestFlow.kt:54: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
+        stateFlow.value
+                  ~~~~~
 src/androidx/compose/runtime/foo/TestFlow.kt:55: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        stateFlow.value
-                                  ~~~~~
-src/androidx/compose/runtime/foo/TestFlow.kt:56: Error: StateFlow.value should not be called within composition [StateFlowValueCalledInComposition]
-                        testFlow.value
-                                 ~~~~~
+        testFlow.value
+                 ~~~~~
 14 errors, 0 warnings
+            """
+            )
+            .expectFixDiffs(
+                """
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 18: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -18 +19
+-     stateFlow.value
++     stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 19: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -19 +20
+-     testFlow.value
++     testFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 23: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -23 +24
+-     stateFlow.value
++     stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 24: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -24 +25
+-     testFlow.value
++     testFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 28: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -28 +29
+-     stateFlow.value
++     stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 29: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -29 +30
+-     testFlow.value
++     testFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 38: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -38 +39
+-         stateFlow.value
++         stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 39: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -39 +40
+-         testFlow.value
++         testFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 42: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -42 +43
+-         stateFlow.value
++         stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 43: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -43 +44
+-         testFlow.value
++         testFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 49: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -49 +50
+-         stateFlow.value
++         stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 50: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -50 +51
+-         testFlow.value
++         testFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 54: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -54 +55
+-         stateFlow.value
++         stateFlow.collectAsState().value
+Fix for src/androidx/compose/runtime/foo/TestFlow.kt line 55: Replace with collectAsState().value:
+@@ -4 +4
++ import androidx.compose.runtime.collectAsState
+@@ -55 +56
+-         testFlow.value
++         testFlow.collectAsState().value
             """
             )
     }
@@ -220,7 +309,7 @@ src/androidx/compose/runtime/foo/TestFlow.kt:56: Error: StateFlow.value should n
         lint()
             .files(
                 kotlin(
-                    """
+                        """
                 package androidx.compose.runtime.foo
 
                 import androidx.compose.runtime.Composable
@@ -276,9 +365,10 @@ src/androidx/compose/runtime/foo/TestFlow.kt:56: Error: StateFlow.value should n
                     }
                 }
             """
-                ),
+                    )
+                    .indented(),
                 Stubs.Composable,
-                stateFlowStub
+                stateFlowStub,
             )
             .run()
             .expectClean()

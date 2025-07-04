@@ -45,7 +45,7 @@ open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<
 
     private suspend fun defaultLoadCallback(
         loadType: LoadType,
-        state: PagingState<Int, Int>
+        state: PagingState<Int, Int>,
     ): MediatorResult.Success {
         try {
             delay(loadDelay)
@@ -72,6 +72,6 @@ open class RemoteMediatorMock(private val loadDelay: Long = 0) : RemoteMediator<
 
     data class LoadEvent<Key : Any, Value : Any>(
         val loadType: LoadType,
-        val state: PagingState<Key, Value>?
+        val state: PagingState<Key, Value>?,
     )
 }

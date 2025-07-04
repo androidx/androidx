@@ -80,11 +80,18 @@ message LoadAction {
   State request_state = 1;
 }
 
+// An action used to perform the operation associated with a
+// {@link PendingIntent}, such as launching an activity. The
+// {@link PendingIntent} could be retrieved with the ID of the clickable to
+// which this action is attached.
+message PendingIntentAction {}
+
 // An action that can be used by a layout element.
 message Action {
   oneof value {
     LaunchAction launch_action = 1;
     LoadAction load_action = 2;
+    PendingIntentAction pending_intent_action = 3;
   }
 }
 

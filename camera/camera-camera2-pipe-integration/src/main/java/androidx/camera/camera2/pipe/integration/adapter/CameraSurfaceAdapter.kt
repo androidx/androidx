@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Pair
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
@@ -30,11 +29,14 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
 import androidx.camera.camera2.pipe.integration.config.CameraModule
+import androidx.camera.core.featuregroup.impl.FeatureCombinationQuery
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
-import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.StreamUseCase
 import androidx.camera.core.impl.SurfaceConfig
+import androidx.camera.core.impl.SurfaceStreamSpecQueryResult
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.core.util.Preconditions
 
 /**
  * Adapt the [CameraDeviceSurfaceManager] interface to [CameraPipe].
@@ -45,7 +47,7 @@ import androidx.camera.core.impl.UseCaseConfig
 public class CameraSurfaceAdapter(
     context: Context,
     cameraComponent: Any?,
-    availableCameraIds: Set<String>
+    availableCameraIds: Set<String>,
 ) : CameraDeviceSurfaceManager {
     private val component = cameraComponent as CameraAppComponent
     private val supportedSurfaceCombinationMap =
@@ -60,7 +62,7 @@ public class CameraSurfaceAdapter(
     /** Prepare supportedSurfaceCombinationMap for surface adapter. */
     private fun initSupportedSurfaceCombinationMap(
         context: Context,
-        availableCameraIds: Set<String>
+        availableCameraIds: Set<String>,
     ) {
         for (cameraId in availableCameraIds) {
             try {
@@ -73,16 +75,18 @@ public class CameraSurfaceAdapter(
                         cameraMetadata,
                         StreamConfigurationMapCompat(
                             streamConfigurationMap,
-                            OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
-                        )
+                            OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
+                        ),
                     )
                 supportedSurfaceCombinationMap[cameraId] =
                     SupportedSurfaceCombination(
                         context,
                         cameraMetadata,
-                        CameraModule.provideEncoderProfilesProvider(cameraId, cameraQuirks)
+                        CameraModule.provideEncoderProfilesProvider(cameraId, cameraQuirks),
+                        // TODO: Create and use a proper impl. of FeatureCombinationQuery
+                        FeatureCombinationQuery.NO_OP_FEATURE_COMBINATION_QUERY,
                     )
-            } catch (exception: DoNotDisturbException) {
+            } catch (_: DoNotDisturbException) {
                 Log.error {
                     "Failed to create supported surface combinations: " +
                         "Do Not Disturb mode is on"
@@ -98,20 +102,29 @@ public class CameraSurfaceAdapter(
      * @param cameraId the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size the size info for the surface configuration object
+     * @param streamUseCase the stream use case for the surface configuration object
      * @return new {@link SurfaceConfig} object
+     * @throws IllegalArgumentException if the {@code cameraId} is not found in the supported
+     *   combinations, or if there isn't a supported combination of surfaces available for the given
+     *   parameters.
      */
     override fun transformSurfaceConfig(
         cameraMode: Int,
         cameraId: String,
         imageFormat: Int,
-        size: Size
+        size: Size,
+        streamUseCase: StreamUseCase,
     ): SurfaceConfig {
-        checkIfSupportedCombinationExist(cameraId)
+        Preconditions.checkArgument(
+            checkIfSupportedCombinationExist(cameraId),
+            "No such camera id in supported combination list: $cameraId",
+        )
 
         return supportedSurfaceCombinationMap[cameraId]!!.transformSurfaceConfig(
             cameraMode,
             imageFormat,
-            size
+            size,
+            streamUseCase,
         )
     }
 
@@ -146,21 +159,24 @@ public class CameraSurfaceAdapter(
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
         isPreviewStabilizationOn: Boolean,
-        hasVideoCapture: Boolean
-    ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
+        hasVideoCapture: Boolean,
+        isFeatureComboInvocation: Boolean,
+        findMaxSupportedFrameRate: Boolean,
+    ): SurfaceStreamSpecQueryResult {
 
-        if (!checkIfSupportedCombinationExist(cameraId)) {
-            throw IllegalArgumentException(
-                "No such camera id in supported combination list: $cameraId"
-            )
-        }
+        Preconditions.checkArgument(
+            checkIfSupportedCombinationExist(cameraId),
+            "No such camera id in supported combination list: $cameraId",
+        )
 
         return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
             cameraMode,
             existingSurfaces,
             newUseCaseConfigsSupportedSizeMap,
             isPreviewStabilizationOn,
-            hasVideoCapture
+            hasVideoCapture,
+            isFeatureComboInvocation,
+            findMaxSupportedFrameRate,
         )
     }
 }

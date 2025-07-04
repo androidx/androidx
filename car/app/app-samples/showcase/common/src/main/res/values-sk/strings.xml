@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Šablóna správy – demo"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Tu patrí správa.\nViac textu v druhom riadku."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Demo šablóny krátkej správy"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Demo šablóny položky v sekcii"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sekcia s prepínačmi"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sekcia prepínača"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Sekcia s mnohými riadkami"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Sekcia položky mriežky"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Šablóna panela – demo"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Šablóna zoznamu miest – demo"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Prehliadanie miest"</string>

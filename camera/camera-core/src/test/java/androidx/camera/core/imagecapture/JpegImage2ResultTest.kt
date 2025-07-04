@@ -59,7 +59,7 @@ class JpegImage2ResultTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
         // Act.
         val output = operation.apply(input)

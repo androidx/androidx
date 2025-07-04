@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.core.database.sqlite.SQLiteCursorCompat:
-    Acronyms should not be capitalized in class names: was `SQLiteCursorCompat`, should this be `SqLiteCursorCompat`?
 AcronymName: androidx.core.graphics.ColorUtils#blendARGB(int, int, float):
     Acronyms should not be capitalized in method names: was `blendARGB`, should this be `blendArgb`?
 AcronymName: androidx.core.graphics.ColorUtils#blendHSL(float[], float[], float, float[]):

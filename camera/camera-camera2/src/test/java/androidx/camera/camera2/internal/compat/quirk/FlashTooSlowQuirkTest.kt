@@ -38,9 +38,10 @@ private const val CAMERA_ID_0 = "0"
 class FlashTooSlowQuirkTest(
     private val model: String,
     private val lensFacing: Int,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) {
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Model: {0}")
         fun data() =

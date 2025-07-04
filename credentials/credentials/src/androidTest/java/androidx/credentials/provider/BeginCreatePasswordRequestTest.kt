@@ -51,7 +51,7 @@ class BeginCreatePasswordRequestTest {
         val request =
             BeginCreatePasswordCredentialRequest(
                 expectedCallingAppInfo,
-                expectedCandidateQueryBundle
+                expectedCandidateQueryBundle,
             )
 
         equals(request.candidateQueryData, expectedCandidateQueryBundle)
@@ -60,18 +60,12 @@ class BeginCreatePasswordRequestTest {
 
     @Test
     fun constructor_createFrom_success() {
-        BeginCreatePasswordCredentialRequest.createFrom(
-            Bundle(),
-            getTestCallingAppInfo(mContext),
-        )
+        BeginCreatePasswordCredentialRequest.createFrom(Bundle(), getTestCallingAppInfo(mContext))
     }
 
     @Test
     fun constructor_createFrom_noCallingAppInfo_success() {
-        BeginCreatePasswordCredentialRequest.createFrom(
-            Bundle(),
-            null,
-        )
+        BeginCreatePasswordCredentialRequest.createFrom(Bundle(), null)
     }
 
     @Test
@@ -83,7 +77,7 @@ class BeginCreatePasswordRequestTest {
                     putBoolean("test1", true)
                     putBundle("test2", Bundle())
                     putString("test3", "test")
-                }
+                },
             )
 
         val actual =
@@ -102,7 +96,7 @@ class BeginCreatePasswordRequestTest {
                     putBoolean("test1", true)
                     putBundle("test2", Bundle())
                     putString("test3", "test")
-                }
+                },
             )
 
         val actual =

@@ -54,11 +54,11 @@ private constructor(
     /** The large, mostly round corner with `26dp` corner radius. */
     public val large: Corner,
 
-    /** The extra large, almost round corner with `32dp` corner radius. */
+    /** The extra large, almost round corner with `36dp` corner radius. */
     public val extraLarge: Corner,
 
     /** Full corner radius, i.e. round shape. */
-    public val full: Corner
+    public val full: Corner,
 ) {
     /** Default Shape theme. */
     public constructor() :

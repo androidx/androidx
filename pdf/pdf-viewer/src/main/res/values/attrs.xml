@@ -15,14 +15,29 @@
   -->
 
 <resources>
+    <declare-styleable name="PdfView">
+        <attr name="fastScrollVerticalThumbDrawable" format="reference" />
+        <attr name="fastScrollPageIndicatorBackgroundDrawable" format="reference" />
+        <!-- Relative end margin for page indicator pill from container bounds. -->
+        <attr name="fastScrollPageIndicatorMarginEnd" format="dimension" />
+        <!-- Relative end margin for FastScroll's vertical thumb from container bounds. -->
+        <attr name="fastScrollVerticalThumbMarginEnd" format="dimension" />
+        <!-- Flag dictating whether the form filling feature is enabled. -->
+        <attr name="isFormFillingEnabled" format="boolean"/>
+        <!-- Floating point value that represents the minimum scaling factor of the PDF content -->
+        <attr name="minZoom" format="float"/>
+        <!-- Floating point value that represents the maximum scaling factor of the PDF content -->
+        <attr name="maxZoom" format="float"/>
+    </declare-styleable>
+
     <declare-styleable name="FastScrollView">
         <attr name="scrollbarMarginTop" format="dimension" />
         <attr name="scrollbarMarginBottom" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="ZoomView">
-        <attr name="minZoom" format="float" />
-        <attr name="maxZoom" format="float" />
+        <attr name="minimumZoom" format="float" />
+        <attr name="maximumZoom" format="float" />
         <attr name="saveState" format="boolean" />
     </declare-styleable>
 

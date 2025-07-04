@@ -20,12 +20,12 @@ import static org.junit.Assert.assertTrue;
 
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,7 +119,7 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
             return false;
         }
 
-        @Nullable K removed = mItems.remove(position);
+        K removed = mItems.remove(position);
         notifyItemRemoved(position);
         return removed != null;
     }

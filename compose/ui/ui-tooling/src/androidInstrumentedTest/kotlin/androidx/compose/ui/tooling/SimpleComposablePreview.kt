@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Preview
@@ -88,7 +89,7 @@ fun DefaultParametersPreview4(a: String = "Hello", b: Color = Color.White) {
 @Preview
 @Composable
 private fun LifecyclePreview() {
-    val lifecycleState = LocalLifecycleOwner.current.lifecycle.currentState
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     if (lifecycleState != Lifecycle.State.RESUMED)
         throw IllegalArgumentException("Lifecycle state is not resumed. $lifecycleState")
     Text("Lifecycle is $lifecycleState")
@@ -122,13 +123,7 @@ private fun ActivityResultRegistryPreview() {
 @Composable
 fun ViewModelPreview(model: TestViewModel = viewModel()) {
     val count by model.counterLiveData.observeAsState(0)
-    Column {
-        Button(
-            onClick = { model.increaseCounter() },
-        ) {
-            Text("Clicks: $count")
-        }
-    }
+    Column { Button(onClick = { model.increaseCounter() }) { Text("Clicks: $count") } }
 }
 
 class TestGroup {

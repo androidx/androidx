@@ -104,7 +104,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TriStateCheckbox(
                     state = ToggleableState.Indeterminate,
                     modifier = wrap,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -139,7 +139,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     state = ToggleableState.Indeterminate,
                     enabled = false,
                     modifier = wrap,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -154,7 +154,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Checkbox(
                     modifier = wrap,
                     checked = isChecked.value,
-                    onCheckedChange = { isChecked.value = it }
+                    onCheckedChange = { isChecked.value = it },
                 )
             }
         }
@@ -178,7 +178,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Checkbox(
                     modifier = wrap,
                     checked = isChecked.value,
-                    onCheckedChange = { isChecked.value = it }
+                    onCheckedChange = { isChecked.value = it },
                 )
             }
         }
@@ -220,7 +220,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 Checkbox(
                     modifier = wrap.focusRequester(focusRequester),
                     checked = true,
-                    onCheckedChange = {}
+                    onCheckedChange = {},
                 )
             }
         }

@@ -99,9 +99,9 @@ class FragmentTransactionCallbackTest : BaseTest() {
                         "Lifecycle:onFragmentViewCreated(f1)",
                         "Lifecycle:onFragmentActivityCreated(f1)",
                         "Lifecycle:onFragmentStarted(f1)",
-                        "Adapter:onFragmentAdded(f1)"
+                        "Adapter:onFragmentAdded(f1)",
                     )
-                )
+                ),
             )
 
             // when 2: current item changed to next page
@@ -133,9 +133,9 @@ class FragmentTransactionCallbackTest : BaseTest() {
                         "Lifecycle:onFragmentResumed(f1)",
                         "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
                         "Adapter:onFragmentMaxLifecycleUpdated(f2 at STARTED)",
-                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"
+                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
                     )
-                )
+                ),
             )
 
             // when 3: the last page is removed from the collection
@@ -163,9 +163,9 @@ class FragmentTransactionCallbackTest : BaseTest() {
                         "Lifecycle:onFragmentViewDestroyed(f2)",
                         "Lifecycle:onFragmentDestroyed(f2)",
                         "Lifecycle:onFragmentDetached(f2)",
-                        "Adapter:onFragmentRemoved(<no-tag>)"
+                        "Adapter:onFragmentRemoved(<no-tag>)",
                     )
-                )
+                ),
             )
 
             // when 4: recreate activity
@@ -207,7 +207,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
                                 "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
                                 "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
                                 "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
-                                "Lifecycle:onFragmentResumed(f1)"
+                                "Lifecycle:onFragmentResumed(f1)",
                             )
                         // TODO(b/266975014): investigate change in behaviour on API 29+
                         else ->
@@ -233,10 +233,10 @@ class FragmentTransactionCallbackTest : BaseTest() {
                                 "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
                                 "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
                                 "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
-                                "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"
+                                "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
                             )
                     }
-                )
+                ),
             )
 
             // when 5: unregister listeners, remove all pages
@@ -329,7 +329,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
                         "Lifecycle:onFragmentDetached(f1)",
                         "Adapter:onFragmentRemoved(<no-tag>)",
                     )
-                )
+                ),
             )
         }
     }
@@ -345,7 +345,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
                 object : FragmentTransactionCallback() {
                     override fun onFragmentMaxLifecyclePreUpdated(
                         fragment: Fragment,
-                        maxLifecycleState: Lifecycle.State
+                        maxLifecycleState: Lifecycle.State,
                     ): OnPostEventListener {
                         adapter.unregisterFragmentTransactionCallback(this)
                         latch.countDown()
@@ -370,7 +370,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
                 fm: FragmentManager,
                 f: Fragment,
                 v: View,
-                savedInstanceState: Bundle?
+                savedInstanceState: Bundle?,
             ) {
                 log.append("Lifecycle:onFragmentViewCreated(${f.name})")
             }
@@ -382,7 +382,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
             override fun onFragmentCreated(
                 fm: FragmentManager,
                 f: Fragment,
-                savedInstanceState: Bundle?
+                savedInstanceState: Bundle?,
             ) {
                 log.append("Lifecycle:onFragmentCreated(${f.name})")
             }
@@ -394,7 +394,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
             override fun onFragmentAttached(
                 fm: FragmentManager,
                 f: Fragment,
-                context: android.content.Context
+                context: android.content.Context,
             ) {
                 log.append("Lifecycle:onFragmentAttached(${f.name})")
             }
@@ -402,7 +402,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
             override fun onFragmentPreAttached(
                 fm: FragmentManager,
                 f: Fragment,
-                context: android.content.Context
+                context: android.content.Context,
             ) {
                 log.append("Lifecycle:onFragmentPreAttached(${f.name})")
             }
@@ -414,7 +414,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
             override fun onFragmentSaveInstanceState(
                 fm: FragmentManager,
                 f: Fragment,
-                outState: Bundle
+                outState: Bundle,
             ) {
                 log.append("Lifecycle:onFragmentSaveInstanceState(${f.name})")
             }
@@ -430,7 +430,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
             override fun onFragmentPreCreated(
                 fm: FragmentManager,
                 f: Fragment,
-                savedInstanceState: Bundle?
+                savedInstanceState: Bundle?,
             ) {
                 log.append("Lifecycle:onFragmentPreCreated(${f.name})")
             }
@@ -446,7 +446,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
             override fun onFragmentActivityCreated(
                 fm: FragmentManager,
                 f: Fragment,
-                savedInstanceState: Bundle?
+                savedInstanceState: Bundle?,
             ) {
                 log.append("Lifecycle:onFragmentActivityCreated(${f.name})")
             }
@@ -488,7 +488,7 @@ class FragmentTransactionCallbackTest : BaseTest() {
 
             override fun onFragmentMaxLifecyclePreUpdated(
                 fragment: Fragment,
-                maxLifecycleState: Lifecycle.State
+                maxLifecycleState: Lifecycle.State,
             ): OnPostEventListener {
                 log.append(
                     "Adapter:onFragmentMaxLifecyclePreUpdated(${fragment.name} " +
@@ -552,7 +552,7 @@ private fun FragmentStateAdapter.registerMaxLifecycleUpdatedLatch(
         object : FragmentTransactionCallback() {
             override fun onFragmentMaxLifecyclePreUpdated(
                 fragment: Fragment,
-                maxLifecycleState: Lifecycle.State
+                maxLifecycleState: Lifecycle.State,
             ): OnPostEventListener {
                 return OnPostEventListener {
                     if (condition(fragment, maxLifecycleState)) {

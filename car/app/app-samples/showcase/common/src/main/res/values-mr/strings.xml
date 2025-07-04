@@ -80,7 +80,7 @@
     <string name="navigate" msgid="2713090390373996139">"नेव्हिगेट करा"</string>
     <string name="dial" msgid="3145707439707628311">"डायल करा"</string>
     <string name="address" msgid="9010635942573581302">"पत्ता"</string>
-    <string name="phone" msgid="2504766809811627577">"फोन"</string>
+    <string name="phone" msgid="2504766809811627577">"Phone"</string>
     <string name="fail_start_nav" msgid="6921321606009212189">"नेव्हिगेशन सुरू करता आले नाही"</string>
     <string name="fail_start_dialer" msgid="1471602619507306261">"डायलर सुरू करता आला नाही"</string>
     <string name="car_hardware_demo_title" msgid="3679106197233262689">"कारच्या हार्डवेअरचा डेमो"</string>
@@ -140,7 +140,7 @@
     <string name="send_notification_title" msgid="4731688444696028193">"सूचना पाठवा"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"सूचना सुरू करा"</string>
     <string name="stop_notifications_title" msgid="3703892710275206239">"सूचना थांबवा"</string>
-    <string name="notification_title" msgid="5507590705935298176">"सूचना"</string>
+    <string name="notification_title" msgid="5507590705935298176">"नोटिफिकेशन"</string>
     <string name="importance_title" msgid="9034862997821839831">"महत्त्व"</string>
     <string name="category_title" msgid="4783851267093259949">"वर्गवारी"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"सुरू असलेले"</string>
@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"मेसेजच्या टेंप्लेटचा डेमो"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"मेसेज येथे दिसतात.\nदुसऱ्या ओळीवर आणखी मजकूर आहे."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"छोटा मेसेज टेंप्लेट डेमो"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"आयटमच्या सेक्शन्ड टेंप्लेटचा डेमो"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"रेडिओ बटण विभाग"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"टॉगल विभाग"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"भरपूर पंक्तींचा विभाग"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ग्रिड आयटम विभाग"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनशी संबंधित टेंप्लेटचा डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठिकाणाच्या सूचीशी संबंधित टेंप्लेटचा डेमो"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ठिकाणे ब्राउझ करा"</string>

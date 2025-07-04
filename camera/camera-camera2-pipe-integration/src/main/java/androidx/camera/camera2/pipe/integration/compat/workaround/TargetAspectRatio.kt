@@ -36,7 +36,7 @@ public class TargetAspectRatio {
     @Ratio
     public operator fun get(
         cameraMetadata: CameraMetadata,
-        streamConfigurationMapCompat: StreamConfigurationMapCompat
+        streamConfigurationMapCompat: StreamConfigurationMapCompat,
     ): Int {
         val cameraQuirks = CameraQuirks(cameraMetadata, streamConfigurationMapCompat)
         val nexus4AndroidLTargetAspectRatioQuirk =

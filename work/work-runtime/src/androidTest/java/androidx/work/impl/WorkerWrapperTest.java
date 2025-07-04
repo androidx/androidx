@@ -1385,6 +1385,18 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
+    @Test
+    @SmallTest
+    public void testWorkRequest_truncatedTraceTag() {
+        char[] aLongTag = new char[256];
+        Arrays.fill(aLongTag, 'W');
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(TestWorker.class)
+                        .setTraceTag(new String(aLongTag))
+                        .build();
+        assertThat(work.getWorkSpec().getTraceTag().length(), is(127));
+    }
+
     private WorkerWrapper.Builder createBuilder(String workSpecId) {
         return new WorkerWrapper.Builder(
                 mContext,

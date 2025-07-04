@@ -46,7 +46,7 @@ class SplitAttributesCalculatorParamsTest {
                 parentWindowLayoutInfo,
                 defaultSplitAttributes,
                 areDefaultConstraintsSatisfied,
-                splitRuleTag
+                splitRuleTag,
             )
 
         assertEquals(parentWindowMetrics, params.parentWindowMetrics)
@@ -73,7 +73,7 @@ class SplitAttributesCalculatorParamsTest {
                     parentWindowLayoutInfo,
                     defaultSplitAttributes,
                     areDefaultConstraintsSatisfied,
-                    splitRuleTag
+                    splitRuleTag,
                 )
                 .toString()
 

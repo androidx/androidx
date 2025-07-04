@@ -32,7 +32,6 @@ import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
-import androidx.sqlite.use
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -246,11 +245,7 @@ abstract class BaseMigrationTest {
         suspend fun getSingleItem(pk: Long): MigrationEntity?
     }
 
-    @Database(
-        entities = [MigrationEntity::class],
-        version = 2,
-        exportSchema = true,
-    )
+    @Database(entities = [MigrationEntity::class], version = 2, exportSchema = true)
     @ConstructedBy(BaseMigrationTest_MigrationDatabaseConstructor::class)
     abstract class MigrationDatabase : RoomDatabase() {
         abstract fun dao(): MigrationDao

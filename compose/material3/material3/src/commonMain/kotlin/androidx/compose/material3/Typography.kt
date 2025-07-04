@@ -133,92 +133,62 @@ constructor(
     labelMediumEmphasized: TextStyle = TypographyTokens.LabelMediumEmphasized,
     labelSmallEmphasized: TextStyle = TypographyTokens.LabelSmallEmphasized,
 ) {
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [displayLarge]. */
     val displayLargeEmphasized = displayLargeEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [displayMedium]. */
     val displayMediumEmphasized = displayMediumEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [displaySmall]. */
     val displaySmallEmphasized = displaySmallEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [headlineLarge]. */
     val headlineLargeEmphasized = headlineLargeEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [headlineMedium]. */
     val headlineMediumEmphasized = headlineMediumEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [headlineSmall]. */
     val headlineSmallEmphasized = headlineSmallEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [titleLarge]. */
     val titleLargeEmphasized = titleLargeEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [titleMedium]. */
     val titleMediumEmphasized = titleMediumEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [titleSmall]. */
     val titleSmallEmphasized = titleSmallEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [bodyLarge]. */
     val bodyLargeEmphasized = bodyLargeEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [bodyMedium]. */
     val bodyMediumEmphasized = bodyMediumEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [bodySmall]. */
     val bodySmallEmphasized = bodySmallEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [labelLarge]. */
     val labelLargeEmphasized = labelLargeEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [labelMedium]. */
     val labelMediumEmphasized = labelMediumEmphasized
 
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** an emphasized version of [labelSmall]. */
     val labelSmallEmphasized = labelSmallEmphasized

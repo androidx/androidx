@@ -17,6 +17,7 @@
 package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.CarAppPermission.MEDIA_TEMPLATES;
 import static androidx.car.app.model.CarColor.DEFAULT;
 import static androidx.car.app.model.constraints.CarColorConstraints.UNCONSTRAINED;
 
@@ -30,12 +31,15 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.annotation.IntDef;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
+import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.media.model.MediaPlaybackTemplate;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -79,6 +83,7 @@ public final class Action {
                     TYPE_BACK,
                     TYPE_PAN,
                     TYPE_COMPOSE_MESSAGE,
+                    TYPE_MEDIA_PLAYBACK,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {
@@ -131,6 +136,26 @@ public final class Action {
     @ExperimentalCarApi
     @RequiresCarApi(7)
     public static final int TYPE_COMPOSE_MESSAGE = 5 | TYPE_STANDARD;
+
+    /**
+     * A standard action to show the media playback button.
+     *
+     * <p>Note: ONLY apps with {@link androidx.car.app.MEDIA_TEMPLATES} can use this action. There
+     * are 2 ways to use this action.
+     *
+     * <ol>
+     * <li>Used as a floating action button in a browse view, the action must provide an
+     * {@link OnClickListener} which pushes a {@link Screen} that provides a
+     * {@link MediaPlaybackTemplate}.
+     *
+     * <li>Used as a {@link Row#mActions} to indicate the currently playing song. An optional
+     * {@link OnClickListener} can be added.
+     * </ol>
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(8)
+    @RequiresPermission(MEDIA_TEMPLATES)
+    public static final int TYPE_MEDIA_PLAYBACK = 6 | TYPE_STANDARD;
 
     /**
      * Indicates that this action is the most important one, out of a set of other actions.
@@ -201,6 +226,27 @@ public final class Action {
      * }</pre>
      */
     public static final @NonNull Action PAN = new Action(TYPE_PAN);
+
+    /**
+     * A standard action to show the media playback button.
+     *
+     * <p>Note: ONLY apps with {@link androidx.car.app.MEDIA_TEMPLATES} can use this action. There
+     * are 2 ways to use this action.
+     *
+     * <ol>
+     * <li>Used as a floating action button in a browse view, the action must provide an
+     * {@link OnClickListener} which pushes a {@link Screen} that provides a
+     * {@link MediaPlaybackTemplate}.
+     *
+     * <li>Used as a {@link Row#mActions} to indicate the currently playing song. An optional
+     * {@link OnClickListener} can be added.
+     * </ol>
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(8)
+    @RequiresPermission(MEDIA_TEMPLATES)
+    // TODO: b/421995167 - Add FAB constraints to have an onClick vs Row actions not requiring it
+    public static final @NonNull Action MEDIA_PLAYBACK = new Action(TYPE_MEDIA_PLAYBACK);
 
     private final boolean mIsEnabled;
     private final @Nullable CarText mTitle;
@@ -296,6 +342,8 @@ public final class Action {
                 return "PAN";
             case TYPE_COMPOSE_MESSAGE:
                 return "COMPOSE_MESSAGE";
+            case TYPE_MEDIA_PLAYBACK:
+                return "MEDIA_PLAYBACK";
             default:
                 return "<unknown>";
         }
@@ -529,6 +577,13 @@ public final class Action {
                 if (mTitle != null && !TextUtils.isEmpty(mTitle.toString())) {
                     throw new IllegalStateException(
                             "A title can't be set on the standard compose action");
+                }
+            }
+
+            if (mType == TYPE_MEDIA_PLAYBACK) {
+                if (mIcon != null || (mTitle != null && !TextUtils.isEmpty(mTitle.toString()))) {
+                    throw new IllegalStateException(
+                            "MEDIA_PLAYBACK actions cannot have icons or titles");
                 }
             }
 

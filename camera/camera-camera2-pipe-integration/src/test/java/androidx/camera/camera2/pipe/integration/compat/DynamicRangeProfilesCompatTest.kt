@@ -204,7 +204,7 @@ class DynamicRangeProfilesCompatTest {
                     mutableMapOf(
                         CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
                             HLG10_CONSTRAINED
-                    )
+                    ),
             )
 
         val dynamicRangeProfilesCompat =

@@ -9,14 +9,13 @@
 /appcompat/        @alanv
 /biometric/        @jbolinger
 /collection/       @dlam
-/compose/compiler/ @jimgoog @lelandrichardson
-/compose/runtime/  @jimgoog @lelandrichardson
+/compose/compiler/ @lelandrichardson
+/compose/runtime/  @lelandrichardson
 /core/             @alanv
 /datastore/        @rohitsat13 @yigit
 /fragment/         @jbw0033 @ianhanniballake
 /lifecycle/        @jbw0033 @ianhanniballake
 /navigation/       @jbw0033 @ianhanniballake @claraf3
 /paging/           @claraf3 @ianhanniballake
-/room/             @droid-wan-kenobi @danysantiago @svasilinets
-/work/             @svasilinets @tikurahul
-
+/room/             @droid-wan-kenobi @danysantiago
+/work/             @danysantiago @tikurahul

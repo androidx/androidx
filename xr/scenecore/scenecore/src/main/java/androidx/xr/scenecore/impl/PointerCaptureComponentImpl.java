@@ -16,45 +16,46 @@
 
 package androidx.xr.scenecore.impl;
 
-import androidx.annotation.NonNull;
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity;
-import androidx.xr.scenecore.JxrPlatformAdapter.InputEventListener;
-import androidx.xr.scenecore.JxrPlatformAdapter.PointerCaptureComponent;
-import androidx.xr.scenecore.JxrPlatformAdapter.PointerCaptureComponent.StateListener;
+import androidx.xr.runtime.internal.Entity;
+import androidx.xr.runtime.internal.InputEventListener;
+import androidx.xr.runtime.internal.PointerCaptureComponent;
+import androidx.xr.runtime.internal.PointerCaptureComponent.StateListener;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.Executor;
 
 /** Implementation of PointerCaptureComponent. */
 final class PointerCaptureComponentImpl implements PointerCaptureComponent {
 
-    private final Executor executor;
-    private final StateListener stateListener;
-    private final InputEventListener inputListener;
+    private final Executor mExecutor;
+    private final StateListener mStateListener;
+    private final InputEventListener mInputListener;
 
-    private AndroidXrEntity attachedEntity;
+    private AndroidXrEntity mAttachedEntity;
 
-    public PointerCaptureComponentImpl(
+    PointerCaptureComponentImpl(
             @NonNull Executor executor,
             @NonNull StateListener stateListener,
             @NonNull InputEventListener inputListener) {
-        this.executor = executor;
-        this.stateListener = stateListener;
-        this.inputListener = inputListener;
+        mExecutor = executor;
+        mStateListener = stateListener;
+        mInputListener = inputListener;
     }
 
     @Override
-    public boolean onAttach(Entity entity) {
-        if (!(entity instanceof AndroidXrEntity) || attachedEntity != null) {
+    public boolean onAttach(@NonNull Entity entity) {
+        if (!(entity instanceof AndroidXrEntity) || mAttachedEntity != null) {
             return false;
         }
 
-        attachedEntity = (AndroidXrEntity) entity;
-        return attachedEntity.requestPointerCapture(executor, inputListener, stateListener);
+        mAttachedEntity = (AndroidXrEntity) entity;
+        return mAttachedEntity.requestPointerCapture(mExecutor, mInputListener, mStateListener);
     }
 
     @Override
-    public void onDetach(Entity entity) {
-        attachedEntity.stopPointerCapture();
-        attachedEntity = null;
+    public void onDetach(@NonNull Entity entity) {
+        mAttachedEntity.stopPointerCapture();
+        mAttachedEntity = null;
     }
 }

@@ -18,8 +18,10 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
 import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
@@ -28,6 +30,8 @@ import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runKspTest
 import com.squareup.javapoet.TypeName
+import java.io.File
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -35,48 +39,157 @@ import org.junit.Test
  * KAPT.
  */
 class KspTypeNamesGoldenTest {
+    lateinit var sources: List<Source>
+    lateinit var classpath: List<File>
+    lateinit var subjects: List<String>
+
+    @Before
+    fun setup() {
+        CompilationTestCapabilities.assumeKspIsEnabled()
+        val (mainSources, mainSubjects) = createSubjects(pkg = "main")
+        val (libSources, libSubjects) = createSubjects(pkg = "lib")
+        sources = mainSources
+        classpath = compileFiles(libSources)
+        subjects = mainSubjects + libSubjects
+    }
 
     @Test
-    fun kaptGoldenTest() {
-        CompilationTestCapabilities.assumeKspIsEnabled()
+    fun kaptSignatureTest() {
+        var kaptSignatures = listOf<MethodSignature>()
+        runKaptTest(sources = sources, classpath = classpath) { invocation ->
+            kaptSignatures = collectSignatures(invocation, subjects)
+        }
 
-        val (sources, sourceSubjects) = createSubjects(pkg = "main")
-        val (classpathSources, classpathSubjects) = createSubjects(pkg = "lib")
-        val classpath = compileFiles(classpathSources)
-        val subjects = sourceSubjects + classpathSubjects
-        fun collectSignaturesInto(
-            invocation: XTestInvocation,
-            output: MutableMap<String, List<TypeName>>
-        ) {
-            // collect all methods in the Object class to exclude them from matching
-            val objectMethodNames =
-                invocation.processingEnv
-                    .requireTypeElement(Any::class)
-                    .getAllMethods()
-                    .map { it.jvmName }
-                    .toSet()
+        // make sure we grabbed some values to ensure test is working
+        assertThat(kaptSignatures).isNotEmpty()
+        subjects.forEach { subject ->
+            assertWithMessage("there are no methods from $subject")
+                .that(kaptSignatures.any { it.name.startsWith(subject) })
+                .isTrue()
+        }
 
-            fun XExecutableElement.createNewUniqueKey(owner: String): String {
-                val prefix = this.closestMemberContainer.asClassName().canonicalName
-                val jvmName =
-                    if (this is XMethodElement) {
-                        jvmName
-                    } else {
-                        "<init>"
-                    }
-                val key = "$owner.$prefix.$jvmName"
-                check(!output.containsKey(key)) {
-                    "test expects unique method names. $key is here: ${output[key]}"
-                }
-                return key
+        // make sure none of the signatures contain duplicate names
+        assertThat(kaptSignatures.map { it.name }).containsNoDuplicates()
+    }
+
+    @Test
+    fun ksp1SignatureTest() {
+        var kaptSignatures = listOf<MethodSignature>()
+        runKaptTest(sources = sources, classpath = classpath) { invocation ->
+            kaptSignatures = collectSignatures(invocation, subjects)
+        }
+
+        var ksp1Signatures = listOf<MethodSignature>()
+        runKspTest(
+            sources = sources,
+            classpath = classpath,
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS,
+        ) { invocation ->
+            ksp1Signatures = collectSignatures(invocation, subjects)
+        }
+
+        // make sure none of the signatures contain duplicate names
+        assertThat(ksp1Signatures.map { it.name }).containsNoDuplicates()
+
+        // Check that the KSP1 signatures match KAPT
+        assertKspSignaturesMatchKapt(
+            kaptSignatures = kaptSignatures.associateBy { it.name },
+            kspSignatures = ksp1Signatures.associateBy { it.name },
+        )
+    }
+
+    @Test
+    fun ksp2SignatureTest() {
+        var kaptSignatures = listOf<MethodSignature>()
+        runKaptTest(sources = sources, classpath = classpath) { invocation ->
+            kaptSignatures = collectSignatures(invocation, subjects)
+        }
+
+        var ksp2Signatures = listOf<MethodSignature>()
+        runKspTest(sources = sources, classpath = classpath) { invocation ->
+            ksp2Signatures = collectSignatures(invocation, subjects)
+        }
+
+        // make sure none of the signatures contain duplicate names
+        assertThat(ksp2Signatures.map { it.name }).containsNoDuplicates()
+
+        // Check that the KSP2 signatures match KAPT
+        assertKspSignaturesMatchKapt(
+            kaptSignatures = kaptSignatures.associateBy { it.name },
+            kspSignatures = ksp2Signatures.associateBy { it.name },
+        )
+    }
+
+    private fun assertKspSignaturesMatchKapt(
+        kaptSignatures: Map<String, MethodSignature>,
+        kspSignatures: Map<String, MethodSignature>,
+    ) {
+        val failingKeys =
+            kspSignatures.keys
+                .filter { name -> kspSignatures[name] != kaptSignatures[name] }
+                .joinToString(prefix = "[\n\t", separator = "\n\t", postfix = "\n]")
+        assertWithMessage("Found incorrect KSP signatures: $failingKeys")
+            .that(kspSignatures.values)
+            .containsExactlyElementsIn(kaptSignatures.values)
+    }
+
+    private data class MethodSignature(
+        val name: String,
+        val returnType: TypeName,
+        val parameterTypes: List<TypeName>,
+    ) {
+        companion object {
+            operator fun invoke(method: XMethodElement, owner: XTypeElement): MethodSignature {
+                val methodType = method.asMemberOf(owner.type)
+                return MethodSignature(
+                    name = "${prefix(method, owner)}.${method.jvmName}",
+                    returnType = methodType.returnType.typeName,
+                    parameterTypes = methodType.parameterTypes.map { it.typeName },
+                )
             }
-            subjects.map {
-                val klass = invocation.processingEnv.requireTypeElement(it)
 
-                klass.getConstructors().singleOrNull()?.let { constructor ->
-                    val testKey = constructor.createNewUniqueKey(klass.qualifiedName)
-                    output[testKey] = constructor.parameters.map { it.type.typeName }
+            operator fun invoke(
+                constructor: XConstructorElement,
+                owner: XTypeElement,
+            ): MethodSignature {
+                val constructorType = constructor.asMemberOf(owner.type)
+                return MethodSignature(
+                    name = "${prefix(constructor, owner)}.<init>",
+                    returnType = TypeName.VOID,
+                    parameterTypes = constructorType.parameterTypes.map { it.typeName },
+                )
+            }
+
+            fun prefix(executable: XExecutableElement, owner: XTypeElement): String {
+                val enclosingElement = executable.closestMemberContainer
+                return if (owner == enclosingElement) {
+                    owner.qualifiedName
+                } else {
+                    "${owner.qualifiedName}.${enclosingElement.asClassName().canonicalName}"
                 }
+            }
+        }
+    }
+
+    private fun collectSignatures(
+        invocation: XTestInvocation,
+        subjects: List<String>,
+    ): List<MethodSignature> {
+        // collect all methods in the Object class to exclude them from matching
+        val objectMethodNames =
+            invocation.processingEnv
+                .requireTypeElement(Any::class)
+                .getAllMethods()
+                .map { it.jvmName }
+                .toSet()
+
+        return buildList<MethodSignature>() {
+            subjects.forEach {
+                val klass = invocation.processingEnv.requireTypeElement(it)
+                klass.getConstructors().singleOrNull()?.let { constructor ->
+                    add(MethodSignature(constructor, klass))
+                }
+
                 // KAPT might duplicate overridden methods. ignore them for test purposes
                 // see b/205911014
                 val declaredMethodNames = klass.getDeclaredMethods().map { it.jvmName }.toSet()
@@ -86,57 +199,13 @@ class KspTypeNamesGoldenTest {
 
                 methods
                     .filterNot {
-                        // remote these synthetics generated by kapt for property annotations
+                        // remove these synthetics generated by kapt for property annotations
                         it.jvmName.contains("\$annotations") ||
                             objectMethodNames.contains(it.jvmName)
                     }
-                    .forEach { method ->
-                        val testKey = method.createNewUniqueKey(klass.qualifiedName)
-                        val methodType = method.asMemberOf(klass.type)
-                        val types = listOf(methodType.returnType) + methodType.parameterTypes
-                        output[testKey] = types.map { it.typeName }
-                    }
+                    .forEach { method -> add(MethodSignature(method, klass)) }
             }
         }
-        // classQName.methodName -> returnType, ...paramTypes
-        val golden = mutableMapOf<String, List<TypeName>>()
-        runKaptTest(sources = sources, classpath = classpath) { invocation ->
-            collectSignaturesInto(invocation, golden)
-        }
-        val ksp = mutableMapOf<String, List<TypeName>>()
-        runKspTest(
-            sources = sources,
-            classpath = classpath,
-            // https://github.com/google/ksp/issues/1930
-            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
-        ) { invocation ->
-            collectSignaturesInto(invocation, ksp)
-        }
-
-        // make sure we grabbed some values to ensure test is working
-        assertThat(golden).isNotEmpty()
-        subjects.forEach { subject ->
-            assertWithMessage("there are no methods from $subject")
-                .that(golden.keys.any { it.startsWith(subject) })
-                .isTrue()
-            assertWithMessage("there are no methods from $subject")
-                .that(golden.keys.any { it.startsWith(subject) })
-                .isTrue()
-        }
-        // turn them into string, provides better failure reports
-        fun Map<String, List<TypeName>>.signatures(): List<Pair<String, String>> {
-            return this.entries
-                .map {
-                    it.key to
-                        it.value.joinToString(" ") {
-                            // javapoet doesn't always read enclosing class property from classpath
-                            // we don't care about it here.
-                            it.toString().replace('$', '.')
-                        }
-                }
-                .sortedBy { it.first }
-        }
-        assertThat(ksp.signatures()).containsExactlyElementsIn(golden.signatures()).inOrder()
     }
 
     private fun createSubjects(pkg: String): TestInput {
@@ -191,19 +260,19 @@ class KspTypeNamesGoldenTest {
                     }
                 }
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         return listOf(
                 createBasicSubject(pkg),
                 createVarianceSubject(
                     pkg = pkg,
                     className = "VarianceSubject",
-                    suppressWildcards = false
+                    suppressWildcards = false,
                 ),
                 createVarianceSubject(
                     pkg,
                     className = "VarianceSubjectSuppressed",
-                    suppressWildcards = true
+                    suppressWildcards = true,
                 ),
                 createOverrideSubjects(pkg),
                 createSelfReferencingType(pkg),
@@ -214,7 +283,7 @@ class KspTypeNamesGoldenTest {
                 createMultiLevelInheritanceSubjects(pkg),
                 createJavaOverridesKotlinSubjects(pkg),
                 createOverrideWithBoundsSubjects(pkg),
-                createOverrideWithMultipleBoundsSubjects(pkg)
+                createOverrideWithMultipleBoundsSubjects(pkg),
             )
             .fold(TestInput(declarations, emptyList())) { acc, next ->
                 acc +
@@ -387,9 +456,9 @@ class KspTypeNamesGoldenTest {
                         ): MyGenericOut<suspend (MyGenericOut<suspend () -> Unit>) -> MyGenericOut<suspend () -> Unit>> = TODO()
                     }
                 """
-                    .trimIndent()
+                    .trimIndent(),
             ),
-            listOf("Subject")
+            listOf("Subject"),
         )
     }
 
@@ -406,7 +475,7 @@ class KspTypeNamesGoldenTest {
                         void method2(SelfReferencingJava<?> sr);
                     }
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                     Source.java(
                         "$pkg.SubSelfReferencingJava",
@@ -414,7 +483,7 @@ class KspTypeNamesGoldenTest {
                     package $pkg;
                     public interface SubSelfReferencingJava extends SelfReferencingJava<SubSelfReferencingJava> {}
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                     Source.kotlin(
                         "SelfReferencing.kt",
@@ -425,7 +494,7 @@ class KspTypeNamesGoldenTest {
                     }
                     interface SubSelfReferencingKotlin : SelfReferencingKotlin<SubSelfReferencingKotlin>
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                 ),
             subjects =
@@ -433,8 +502,8 @@ class KspTypeNamesGoldenTest {
                     "SubSelfReferencingJava",
                     "SelfReferencingJava",
                     "SelfReferencingKotlin",
-                    "SubSelfReferencingKotlin"
-                )
+                    "SubSelfReferencingKotlin",
+                ),
         )
     }
 
@@ -442,7 +511,7 @@ class KspTypeNamesGoldenTest {
     private fun createVarianceSubject(
         pkg: String,
         className: String,
-        suppressWildcards: Boolean
+        suppressWildcards: Boolean,
     ): TestInput {
         val annotation =
             if (suppressWildcards) {
@@ -457,46 +526,50 @@ class KspTypeNamesGoldenTest {
                 package $pkg
                 $annotation
                 class $className<R>(
-                    starList: List<*>,
-                    typeArgList: List<R>,
-                    numberList: List<Number>,
-                    stringList: List<String>,
-                    enumList: List<MyEnum>,
-                    sealedListGrandParent: List<GrandParentSealed>,
-                    sealedListParent: List<GrandParentSealed.Parent1>,
-                    sealedListChild: List<GrandParentSealed.Parent2.Child1>,
-                    jvmWildcard: List<@JvmWildcard String>,
-                    suppressJvmWildcard: List<@JvmSuppressWildcards Number>,
-                    suppressJvmWildcardsGeneric1: @JvmSuppressWildcards List<MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
-                    suppressJvmWildcardsGeneric2: List<@JvmSuppressWildcards MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
-                    suppressJvmWildcardsGeneric3: List<MyGenericOut<@JvmSuppressWildcards MyGenericIn<MyGeneric<MyType>>>>,
-                    suppressJvmWildcardsGeneric4: List<MyGenericOut<MyGenericIn<@JvmSuppressWildcards MyGeneric<MyType>>>>,
-                    interfaceAlias: List<MyInterfaceAlias>,
-                    genericAlias: List<MyGenericAlias>,
-                    jvmWildcardTypeAlias: List<@JW String>,
-                    suppressJvmWildcardTypeAlias: List<@JSW Number>,
+                    val valStarList: List<*>,
+                    val valTypeArgList: List<R>,
+                    val valNumberList: List<Number>,
+                    val valStringList: List<String>,
+                    val valEnumList: List<MyEnum>,
+                    val valSealedListGrandParent: List<GrandParentSealed>,
+                    val valSealedListParent: List<GrandParentSealed.Parent1>,
+                    val valSealedListChild: List<GrandParentSealed.Parent2.Child1>,
+                    val valJvmWildcard: List<@JvmWildcard String>,
+                    val valSuppressJvmWildcard: List<@JvmSuppressWildcards Number>,
+                    val valSuppressJvmWildcardsGeneric1: @JvmSuppressWildcards List<MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
+                    val valSuppressJvmWildcardsGeneric2: List<@JvmSuppressWildcards MyGenericOut<MyGenericIn<MyGeneric<MyType>>>>,
+                    val valSuppressJvmWildcardsGeneric3: List<MyGenericOut<@JvmSuppressWildcards MyGenericIn<MyGeneric<MyType>>>>,
+                    val valSuppressJvmWildcardsGeneric4: List<MyGenericOut<MyGenericIn<@JvmSuppressWildcards MyGeneric<MyType>>>>,
+                    val valInterfaceAlias: List<MyInterfaceAlias>,
+                    val valGenericAlias: List<MyGenericAlias>,
+                    val valJvmWildcardTypeAlias: List<@JW String>,
+                    val valSuppressJvmWildcardTypeAlias: List<@JSW Number>,
+                    val valMyMapAliasR: MyMapAlias<R>,
+                    val valMyMapAliasMyInterface: MyMapAlias<MyInterface>,
                 ) {
-                    var propWithFinalType: String = ""
-                    var propWithOpenType: Number = 3
-                    var propWithFinalGeneric: List<String> = TODO()
-                    var propWithOpenGeneric: List<Number> = TODO()
-                    var propWithTypeArg: R = TODO()
-                    var propWithTypeArgGeneric: List<R> = TODO()
-                    var propSealedListGrandParent: List<GrandParentSealed> = TODO()
-                    var propSealedListParent: List<GrandParentSealed.Parent1> = TODO()
-                    var propSealedListChild: List<GrandParentSealed.Parent2.Child1> = TODO()
+                    var varPropWithFinalType: String = ""
+                    var varPropWithOpenType: Number = 3
+                    var varPropWithFinalGeneric: List<String> = TODO()
+                    var varPropWithOpenGeneric: List<Number> = TODO()
+                    var varPropWithTypeArg: R = TODO()
+                    var varPropWithTypeArgGeneric: List<R> = TODO()
+                    var varPropSealedListGrandParent: List<GrandParentSealed> = TODO()
+                    var varPropSealedListParent: List<GrandParentSealed.Parent1> = TODO()
+                    var varPropSealedListChild: List<GrandParentSealed.Parent2.Child1> = TODO()
                     @JvmSuppressWildcards
-                    var propWithOpenTypeButSuppressAnnotation: Number = 3
-                    var genericVar: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
-                    @JvmSuppressWildcards var suppressJvmWildcardsGenericVar1: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
-                    var suppressJvmWildcardsGenericVar2: @JvmSuppressWildcards List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
-                    var suppressJvmWildcardsGenericVar3: List<@JvmSuppressWildcards MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
-                    var suppressJvmWildcardsGenericVar4: List<MyGenericIn<@JvmSuppressWildcards MyGenericOut<MyGenericOut<MyType>>>> = TODO()
-                    var suppressJvmWildcardsGenericVar5: List<MyGenericIn<MyGenericOut<@JvmSuppressWildcards MyGenericOut<MyType>>>> = TODO()
-                    var interfaceAlias: List<MyInterfaceAlias> = TODO()
-                    var genericAlias: List<MyGenericAlias> = TODO()
-                    var jvmWildcardTypeAlias: List<@JW String> = TODO()
-                    var suppressJvmWildcardTypeAlias: List<@JSW Number> = TODO()
+                    var varPropWithOpenTypeButSuppressAnnotation: Number = 3
+                    var varGeneric: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    @JvmSuppressWildcards var varSuppressJvmWildcardsGeneric1: List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var varSuppressJvmWildcardsGeneric2: @JvmSuppressWildcards List<MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var varSuppressJvmWildcardsGeneric3: List<@JvmSuppressWildcards MyGenericIn<MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var varSuppressJvmWildcardsGeneric4: List<MyGenericIn<@JvmSuppressWildcards MyGenericOut<MyGenericOut<MyType>>>> = TODO()
+                    var varSuppressJvmWildcardsGeneric5: List<MyGenericIn<MyGenericOut<@JvmSuppressWildcards MyGenericOut<MyType>>>> = TODO()
+                    var varInterfaceAlias: List<MyInterfaceAlias> = TODO()
+                    var varGenericAlias: List<MyGenericAlias> = TODO()
+                    var varJvmWildcardTypeAlias: List<@JW String> = TODO()
+                    var varSuppressJvmWildcardTypeAlias: List<@JSW Number> = TODO()
+                    var varMyMapAliasR: MyMapAlias<R> = TODO()
+                    var varMyMapAliasMyInterface: MyMapAlias<MyInterface> = TODO()
                     fun list(list: List<*>): List<*> { TODO() }
                     fun listTypeArg(list: List<R>): List<R> { TODO() }
                     fun listTypeArgNumber(list: List<Number>): List<Number> { TODO() }
@@ -581,6 +654,13 @@ class KspTypeNamesGoldenTest {
                     fun lambda5(param: MyLambdaAlias5): MyLambdaAlias5 = TODO()
                     fun lambda6(param: MyLambdaAlias6): MyLambdaAlias6 = TODO()
                     fun lambda7(param: MyLambdaAlias7): MyLambdaAlias7 = TODO()
+                    fun listOfLambda1(param: List<MyLambdaAlias1>): List<MyLambdaAlias1> = TODO()
+                    fun listOfLambda2(param: List<MyLambdaAlias2>): List<MyLambdaAlias2> = TODO()
+                    fun listOfLambda3(param: List<MyLambdaAlias3>): List<MyLambdaAlias3> = TODO()
+                    fun listOfLambda4(param: List<MyLambdaAlias4>): List<MyLambdaAlias4> = TODO()
+                    fun listOfLambda5(param: List<MyLambdaAlias5>): List<MyLambdaAlias5> = TODO()
+                    fun listOfLambda6(param: List<MyLambdaAlias6>): List<MyLambdaAlias6> = TODO()
+                    fun listOfLambda7(param: List<MyLambdaAlias7>): List<MyLambdaAlias7> = TODO()
                     @JSW fun lambda1WithJSW(param: MyLambdaAlias1): MyLambdaAlias1 = TODO()
                     @JSW fun lambda2WithJSW(param: MyLambdaAlias2): MyLambdaAlias2 = TODO()
                     @JSW fun lambda3WithJSW(param: MyLambdaAlias3): MyLambdaAlias3 = TODO()
@@ -618,9 +698,9 @@ class KspTypeNamesGoldenTest {
                     fun mapTypeAlias12(param: MyGeneric<MyMapAliasWithJSW<MyGeneric<MyInterface>>>): MyGeneric<MyMapAliasWithJSW<MyGeneric<MyInterface>>> = TODO()
                 }
                 """
-                    .trimIndent()
+                    .trimIndent(),
             ),
-            listOf(className)
+            listOf(className),
         )
     }
 
@@ -665,7 +745,7 @@ class KspTypeNamesGoldenTest {
                 override fun receiveReturnListTWithWildcard(t : List<Number>): List<Number>
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         return TestInput(
             source,
@@ -676,8 +756,8 @@ class KspTypeNamesGoldenTest {
                 "SuppressInInterface",
                 "OverrideWithSuppress",
                 "OverrideWildcardMethod",
-                "OverrideWildcardMethodSuppressed"
-            )
+                "OverrideWildcardMethodSuppressed",
+            ),
         )
     }
 
@@ -809,7 +889,7 @@ class KspTypeNamesGoldenTest {
                 "SubInterfaceWithGenericPrimitive",
                 "SubInterfaceWithGenericPrimitiveNullable",
                 "SubInterfaceWithGenericArray",
-                "SubInterfaceWithGenericArrayPrimitive"
+                "SubInterfaceWithGenericArrayPrimitive",
             )
         return TestInput(Source.kotlin("OverridesWithGenerics.kt", code), classNames)
     }
@@ -828,7 +908,7 @@ class KspTypeNamesGoldenTest {
                 T receiveReturnTOverridden(T t);
                 List<T> receiveReturnTListOverridden(List<T> t);
             }
-            """
+            """,
             )
 
         fun buildInterface(name: String, typeArg: String) =
@@ -861,7 +941,7 @@ class KspTypeNamesGoldenTest {
                 "SubInterfaceOverridingJavaFinal",
                 "SubInterfaceOverridingJavaPrimitive",
                 "SubInterfaceOverridingJavaPrimitiveNullable",
-            )
+            ),
         )
     }
 
@@ -882,7 +962,7 @@ class KspTypeNamesGoldenTest {
                 void receiveTOverridden(T t);
                 void receiveTListOverridden(List<T> t);
             }
-            """
+            """,
             )
 
         fun buildInterface(name: String, typeArg: String) =
@@ -903,12 +983,12 @@ class KspTypeNamesGoldenTest {
                     buildInterface("SubInterfaceOverridingJavaWithGenericFinal", "List<String>"),
                     buildInterface(
                         "SubInterfaceOverridingJavaWithGenericPrimitive",
-                        "List<Number>"
+                        "List<Number>",
                     ),
                     buildInterface(
                         "SubInterfaceOverridingJavaWithGenericPrimitiveNullable",
-                        "List<Number?>"
-                    )
+                        "List<Number?>",
+                    ),
                 )
                 .joinToString("\n")
         val sources =
@@ -922,7 +1002,7 @@ class KspTypeNamesGoldenTest {
                 "SubInterfaceOverridingJavaWithGenericFinal",
                 "SubInterfaceOverridingJavaWithGenericPrimitive",
                 "SubInterfaceOverridingJavaWithGenericPrimitiveNullable",
-            )
+            ),
         )
     }
 
@@ -981,7 +1061,7 @@ class KspTypeNamesGoldenTest {
                 "MultiSubInterfaceFinal",
                 "MultiSubInterfacePrimitive",
                 "MultiSubInterfacePrimitiveNullable",
-            )
+            ),
         )
     }
 
@@ -996,7 +1076,7 @@ class KspTypeNamesGoldenTest {
                 fun receiveReturnTList(t: List<T>): List<T>
             }
         """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         fun buildInterface(name: String, typeArg: String) =
@@ -1008,7 +1088,7 @@ class KspTypeNamesGoldenTest {
             public interface $name extends BaseKotlinOverriddenByJava<$typeArg> {
             }
         """
-                    .trimIndent()
+                    .trimIndent(),
             )
         return TestInput(
             sources =
@@ -1017,7 +1097,7 @@ class KspTypeNamesGoldenTest {
                     buildInterface("JavaOverridesKotlinOpen", "Number"),
                     buildInterface("JavaOverridesKotlinFinal", "String"),
                 ),
-            subjects = listOf("JavaOverridesKotlinOpen", "JavaOverridesKotlinFinal")
+            subjects = listOf("JavaOverridesKotlinOpen", "JavaOverridesKotlinFinal"),
         )
     }
 
@@ -1148,7 +1228,7 @@ class KspTypeNamesGoldenTest {
                 "BaseInterfaceWithMultipleBounds",
                 "SubInterfaceMergedBounds",
                 "SubInterfaceOpenImpl",
-                "SubInterfaceFinalImpl"
+                "SubInterfaceFinalImpl",
             )
         return TestInput(Source.kotlin("MultipleBoundsOverrides.kt", code), classNames)
     }

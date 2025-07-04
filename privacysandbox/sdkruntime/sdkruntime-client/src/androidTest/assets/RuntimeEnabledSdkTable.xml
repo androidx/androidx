@@ -28,22 +28,13 @@
         <package-name>androidx.privacysandbox.sdkruntime.testsdk.invalidEntryPoint</package-name>
     </runtime-enabled-sdk>
     <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/v4.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v4</package-name>
-    </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/v5.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v5</package-name>
-        <version-major>5</version-major>
-    </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/v6.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v6</package-name>
-        <version-major>6</version-major>
-    </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
         <compat-config-path>RuntimeEnabledSdks/v7.xml</compat-config-path>
         <package-name>androidx.privacysandbox.sdkruntime.testsdk.v7</package-name>
         <version-major>7</version-major>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v8.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v8</package-name>
+        <version-major>8</version-major>
     </runtime-enabled-sdk>
 </runtime-enabled-sdk-table>

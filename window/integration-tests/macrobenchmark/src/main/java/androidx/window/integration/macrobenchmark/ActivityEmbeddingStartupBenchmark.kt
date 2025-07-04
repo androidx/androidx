@@ -41,7 +41,7 @@ class ActivityEmbeddingStartupBenchmark {
         benchmarkRule.measureStartup(
             compilationMode = CompilationMode.DEFAULT,
             startupMode = StartupMode.COLD,
-            packageName = "androidx.window.integration.macrobenchmark.target"
+            packageName = "androidx.window.integration.macrobenchmark.target",
         ) {
             action = "androidx.window.integration.macrobenchmark.target.ACTIVITY1"
         }

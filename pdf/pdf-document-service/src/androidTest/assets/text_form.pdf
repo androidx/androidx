@@ -1,0 +1,110 @@
+%PDF-1.7
+% ò¤ô
+1 0 obj
+<<
+  /Type /Catalog
+  /Pages 2 0 R
+  /AcroForm << /Fields [ 4 0 R 9 0 R 10 0 R 11 0 R ] /DR 5 0 R >>
+>>
+endobj
+2 0 obj
+<< /Count 1 /Kids [ 3 0 R ] /Type /Pages >>
+endobj
+3 0 obj
+<<
+  /Type /Page
+  /Parent 2 0 R
+  /Resources 5 0 R
+  /MediaBox [ 0 0 300 300 ]
+  /Contents 8 0 R
+  /Annots [ 4 0 R 9 0 R 10 0 R 11 0 R ]
+>>
+endobj
+4 0 obj
+<<
+  /Type /Annot
+  /FT /Tx
+  /T (Text Box)
+  /DA (0 0 0 rg /F1 12 Tf)
+  /Rect [ 100 100 200 130 ]
+  /Subtype /Widget
+>>
+endobj
+5 0 obj
+<< /Font 6 0 R >>
+endobj
+6 0 obj
+<< /F1 7 0 R >>
+endobj
+7 0 obj <<
+  /Type /Font
+  /Subtype /Type1
+  /BaseFont /Helvetica
+>>
+endobj
+8 0 obj
+<< /Length 51 >>
+stream
+BT
+0 0 0 rg
+/F1 12 Tf
+100 150 Td
+(Test Form) Tj
+ET
+endstream
+endobj
+9 0 obj
+<<
+  /Type /Annot
+  /FT /Tx
+  /Ff 1
+  /T (ReadOnly)
+  /DA (0 0 0 rg /F1 12 Tf)
+  /Rect [ 100 200 200 230 ]
+  /Subtype /Widget
+>>
+endobj
+10 0 obj
+<<
+  /Type /Annot
+  /FT /Tx
+  /T (CharLimit)
+  /MaxLen 10
+  /DA (0 0 0 rg /F1 12 Tf)
+  /V (Elephant)
+  /Rect [ 100 50 200 75 ]
+  /Subtype /Widget
+>>
+11 0 obj
+<<
+  /Type /Annot
+  /FT /Tx
+  /Ff 8192
+  /T (Password)
+  /DA (0 0 0 rg /F1 12 Tf)
+  /Rect [ 100 10 200 35 ]
+  /Subtype /Widget
+>>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000015 00000 n 
+0000000134 00000 n 
+0000000193 00000 n 
+0000000349 00000 n 
+0000000485 00000 n 
+0000000518 00000 n 
+0000000549 00000 n 
+0000000625 00000 n 
+0000000725 00000 n 
+0000000869 00000 n 
+0000001027 00000 n 
+trailer <<
+  /Root 1 0 R
+  /Size 12
+>>
+startxref
+1173
+%%EOF
+

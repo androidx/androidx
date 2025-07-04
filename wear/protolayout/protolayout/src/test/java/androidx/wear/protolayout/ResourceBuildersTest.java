@@ -74,9 +74,25 @@ public class ResourceBuildersTest {
                         .setProgress(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(stateKey)))
                         .build();
 
-        ResourceProto.AndroidLottieResourceByResId avdProto = lottieResource.toProto();
+        ResourceProto.AndroidLottieResourceByResId lottieProto = lottieResource.toProto();
 
-        assertThat(avdProto.getRawResourceId()).isEqualTo(RESOURCE_ID);
-        assertThat(avdProto.getProgress().getStateSource().getSourceKey()).isEqualTo(stateKey);
+        assertThat(lottieProto.getRawResourceId()).isEqualTo(RESOURCE_ID);
+        assertThat(lottieProto.getProgress().getStateSource().getSourceKey()).isEqualTo(stateKey);
+    }
+
+    @Test
+    public void lottieAnimation_hasTrigger() {
+        ResourceBuilders.AndroidLottieResourceByResId lottieResource =
+                new ResourceBuilders.AndroidLottieResourceByResId.Builder(RESOURCE_ID)
+                        .setStartTrigger(TriggerBuilders.createOnVisibleTrigger())
+                        .build();
+
+        ResourceProto.AndroidLottieResourceByResId lottieProto = lottieResource.toProto();
+
+        assertThat(lottieProto.getRawResourceId()).isEqualTo(RESOURCE_ID);
+        assertThat(lottieProto.hasStartTrigger()).isTrue();
+        assertThat(lottieProto.getStartTrigger().hasOnVisibleTrigger()).isTrue();
+        assertThat(lottieProto.getStartTrigger().hasOnVisibleOnceTrigger()).isFalse();
+        assertThat(lottieProto.getStartTrigger().hasOnLoadTrigger()).isFalse();
     }
 }

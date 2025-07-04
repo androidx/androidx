@@ -40,7 +40,7 @@ internal class ComposeDragShadowBuilder(
         with(density) {
             outShadowSize.set(
                 decorationSize.width.toDp().roundToPx(),
-                decorationSize.height.toDp().roundToPx()
+                decorationSize.height.toDp().roundToPx(),
             )
             outShadowTouchPoint.set(outShadowSize.x / 2, outShadowSize.y / 2)
         }

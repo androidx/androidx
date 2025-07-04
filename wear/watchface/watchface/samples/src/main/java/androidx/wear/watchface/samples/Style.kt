@@ -23,7 +23,7 @@ import androidx.wear.watchface.complications.rendering.ComplicationDrawable
 private fun Context.getStyleResourceId(
     styleResourceId: Int,
     attributeId: Int,
-    defaultResourceId: Int
+    defaultResourceId: Int,
 ): Int {
     val styleArray = obtainStyledAttributes(styleResourceId, intArrayOf(attributeId))
     return styleArray.getResourceId(0, defaultResourceId).also { styleArray.recycle() }
@@ -38,7 +38,7 @@ class ColorStyle(
     val primaryColor: Int,
     val secondaryColor: Int,
     val backgroundColor: Int,
-    val outerElementColor: Int
+    val outerElementColor: Int,
 ) {
     companion object {
         fun create(context: Context, styleName: String): ColorStyle {
@@ -48,7 +48,7 @@ class ColorStyle(
                 context.getStyleColor(styleResourceId, R.attr.primary_color, Color.WHITE),
                 context.getStyleColor(styleResourceId, R.attr.secondary_color, Color.WHITE),
                 context.getStyleColor(styleResourceId, R.attr.background_color, Color.BLACK),
-                context.getStyleColor(styleResourceId, R.attr.outer_element_color, Color.WHITE)
+                context.getStyleColor(styleResourceId, R.attr.outer_element_color, Color.WHITE),
             )
         }
     }
@@ -57,14 +57,14 @@ class ColorStyle(
 class WatchFaceColorStyle(
     val activeStyle: ColorStyle,
     val ambientStyle: ColorStyle,
-    private val complicationResourceId: Int
+    private val complicationResourceId: Int,
 ) {
     companion object {
         fun create(context: Context, baseStyleName: String) =
             WatchFaceColorStyle(
                 ColorStyle.create(context, baseStyleName + "_active"),
                 ColorStyle.create(context, baseStyleName + "_ambient"),
-                getComplicationResourceId(context, baseStyleName)
+                getComplicationResourceId(context, baseStyleName),
             )
 
         private fun getComplicationResourceId(context: Context, styleName: String): Int {
@@ -73,7 +73,7 @@ class WatchFaceColorStyle(
             return context.getStyleResourceId(
                 styleResourceId,
                 R.attr.complication,
-                R.drawable.complication_green_style
+                R.drawable.complication_green_style,
             )
         }
     }

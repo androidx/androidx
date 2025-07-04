@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.graphics.Color;
+
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
@@ -46,6 +48,10 @@ public final class DynamicDataValueTest {
 
         assertThat(boolDynamicDataValue.hasColorValue()).isFalse();
         assertThrows(IllegalStateException.class, boolDynamicDataValue::getColorValue);
+        assertThat(boolDynamicDataValue.hasValueOfType(Color.class)).isFalse();
+        assertThat(boolDynamicDataValue.hasValueOfType(boolean.class)).isTrue();
+        assertThat(boolDynamicDataValue.hasValueOfType(Boolean.class)).isTrue();
+        assertThat(boolDynamicDataValue.hasValueOfType(DynamicBool.class)).isTrue();
     }
 
     @Test
@@ -60,6 +66,9 @@ public final class DynamicDataValueTest {
 
         assertThat(colorDynamicDataValue.hasFloatValue()).isFalse();
         assertThrows(IllegalStateException.class, colorDynamicDataValue::getFloatValue);
+        assertThat(colorDynamicDataValue.hasValueOfType(Float.class)).isFalse();
+        assertThat(colorDynamicDataValue.hasValueOfType(Color.class)).isTrue();
+        assertThat(colorDynamicDataValue.hasValueOfType(DynamicColor.class)).isTrue();
     }
 
     @Test
@@ -75,6 +84,10 @@ public final class DynamicDataValueTest {
 
         assertThat(floatDynamicDataValue.hasIntValue()).isFalse();
         assertThrows(IllegalStateException.class, floatDynamicDataValue::getIntValue);
+        assertThat(floatDynamicDataValue.hasValueOfType(int.class)).isFalse();
+        assertThat(floatDynamicDataValue.hasValueOfType(Float.class)).isTrue();
+        assertThat(floatDynamicDataValue.hasValueOfType(float.class)).isTrue();
+        assertThat(floatDynamicDataValue.hasValueOfType(DynamicFloat.class)).isTrue();
     }
 
     @Test
@@ -89,6 +102,14 @@ public final class DynamicDataValueTest {
 
         assertThat(intDynamicDataValue.hasStringValue()).isFalse();
         assertThrows(IllegalStateException.class, intDynamicDataValue::getStringValue);
+        assertThat(intDynamicDataValue.hasValueOfType(String.class)).isFalse();
+        assertThat(intDynamicDataValue.hasValueOfType(int.class)).isTrue();
+        assertThat(intDynamicDataValue.hasValueOfType(Integer.class)).isTrue();
+        assertThat(intDynamicDataValue.hasValueOfType(DynamicInt32.class)).isTrue();
+        assertThat(
+                        intDynamicDataValue.hasValueOfType(
+                                PlatformHealthSources.DynamicHeartRateAccuracy.class))
+                .isTrue();
     }
 
     @Test
@@ -103,6 +124,9 @@ public final class DynamicDataValueTest {
 
         assertThat(stringDynamicDataValue.hasInstantValue()).isFalse();
         assertThrows(IllegalStateException.class, stringDynamicDataValue::getInstantValue);
+        assertThat(stringDynamicDataValue.hasValueOfType(Instant.class)).isFalse();
+        assertThat(stringDynamicDataValue.hasValueOfType(String.class)).isTrue();
+        assertThat(stringDynamicDataValue.hasValueOfType(DynamicString.class)).isTrue();
     }
 
     @Test
@@ -122,6 +146,10 @@ public final class DynamicDataValueTest {
 
         assertThat(instantDynamicDataValue.hasDurationValue()).isFalse();
         assertThrows(IllegalStateException.class, instantDynamicDataValue::getDurationValue);
+        assertThat(instantDynamicDataValue.hasValueOfType(Duration.class)).isFalse();
+        assertThat(instantDynamicDataValue.hasValueOfType(Instant.class)).isTrue();
+        assertThat(instantDynamicDataValue.hasValueOfType(DynamicBuilders.DynamicInstant.class))
+                .isTrue();
     }
 
     @Test
@@ -137,5 +165,9 @@ public final class DynamicDataValueTest {
 
         assertThat(durationDynamicDataValue.hasBoolValue()).isFalse();
         assertThrows(IllegalStateException.class, durationDynamicDataValue::getBoolValue);
+        assertThat(durationDynamicDataValue.hasValueOfType(Boolean.class)).isFalse();
+        assertThat(durationDynamicDataValue.hasValueOfType(Duration.class)).isTrue();
+        assertThat(durationDynamicDataValue.hasValueOfType(DynamicBuilders.DynamicDuration.class))
+                .isTrue();
     }
 }

@@ -65,7 +65,7 @@ class Rx2PagingSourceTest {
         db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    PagingDb::class.java
+                    PagingDb::class.java,
                 )
                 .setQueryCallback(
                     object : RoomDatabase.QueryCallback {
@@ -243,8 +243,7 @@ class Rx2PagingSourceTest {
     private class RxPagingSourceImpl(
         private val baseSource: RxPagingSource<Int, PagingEntity>,
         private val initialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
-        private val nonInitialLoadSingle:
-            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+        private val nonInitialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
     ) : RxPagingSource<Int, PagingEntity>() {
 
         val singles = mutableListOf<Single<LoadResult<Int, PagingEntity>>>()

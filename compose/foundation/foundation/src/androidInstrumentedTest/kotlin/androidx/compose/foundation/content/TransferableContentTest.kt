@@ -136,6 +136,6 @@ internal fun TransferableContent(clipData: ClipData): TransferableContent {
     return TransferableContent(
         clipEntry = clipData.toClipEntry(),
         clipMetadata = clipData.description.toClipMetadata(),
-        source = TransferableContent.Source.Clipboard
+        source = TransferableContent.Source.Clipboard,
     )
 }

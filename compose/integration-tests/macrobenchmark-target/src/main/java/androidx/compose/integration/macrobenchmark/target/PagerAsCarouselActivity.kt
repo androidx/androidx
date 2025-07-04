@@ -46,14 +46,14 @@ class PagerAsCarouselActivity : ComponentActivity() {
             val pagerState = rememberPagerState { itemCount }
             Box(
                 modifier = Modifier.fillMaxSize().background(Color.White),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 HorizontalPager(
                     modifier =
                         Modifier.semantics { contentDescription = "Carousel" }
                             .background(Color.White),
                     state = pagerState,
-                    pageSize = PageSize.Fixed(200.dp)
+                    pageSize = PageSize.Fixed(200.dp),
                 ) {
                     PagerItem(it)
                 }

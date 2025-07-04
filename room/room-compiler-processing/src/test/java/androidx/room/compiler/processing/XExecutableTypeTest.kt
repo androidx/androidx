@@ -49,7 +49,7 @@ class XExecutableTypeTest {
                         abstract fun foo(): KotlinClass<String>
                     }
                     """
-                            .trimIndent()
+                            .trimIndent(),
                     ),
                     Source.java(
                         "JavaClass",
@@ -59,9 +59,9 @@ class XExecutableTypeTest {
                         abstract JavaClass<String> foo();
                     }
                     """
-                            .trimIndent()
-                    )
-                ),
+                            .trimIndent(),
+                    ),
+                )
         ) { invocation ->
             fun checkConstructor(className: String) {
                 val typeElement = invocation.processingEnv.requireTypeElement(className)
@@ -96,7 +96,7 @@ class XExecutableTypeTest {
             }
             abstract class Subject : MyInterface<String>
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
@@ -106,7 +106,7 @@ class XExecutableTypeTest {
             fun checkMethods(
                 methodName: String,
                 vararg subjects: XTypeElement,
-                callback: (XMethodType) -> Unit
+                callback: (XMethodType) -> Unit,
             ) {
                 Truth.assertThat(subjects).isNotEmpty() // Kruth doesn't support arrays yet
                 subjects.forEach {
@@ -130,7 +130,7 @@ class XExecutableTypeTest {
                     .isEqualTo(
                         ParameterizedTypeName.get(
                             CONTINUATION_JCLASS_NAME,
-                            WildcardTypeName.supertypeOf(String::class.java)
+                            WildcardTypeName.supertypeOf(String::class.java),
                         )
                     )
                 assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)
@@ -141,7 +141,7 @@ class XExecutableTypeTest {
                     .isEqualTo(
                         ParameterizedTypeName.get(
                             CONTINUATION_JCLASS_NAME,
-                            WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME)
+                            WildcardTypeName.supertypeOf(UNIT_JCLASS_NAME),
                         )
                     )
                 assertThat(type.returnType.typeName).isEqualTo(TypeName.OBJECT)
@@ -177,7 +177,7 @@ class XExecutableTypeTest {
             class Foo
             class Bar
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
@@ -234,7 +234,7 @@ class XExecutableTypeTest {
             class Foo
             class Bar
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
@@ -247,12 +247,12 @@ class XExecutableTypeTest {
             assertIsNotSameType(myInterfaceMethodFooBar, myInterfaceMethod)
             assertIsSameType(
                 myInterfaceMethodFooBar.executableType,
-                myInterfaceMethod.asMemberOf(fooBar.type)
+                myInterfaceMethod.asMemberOf(fooBar.type),
             )
             assertIsNotSameType(myInterfaceMethodBarFoo, myInterfaceMethod)
             assertIsSameType(
                 myInterfaceMethodBarFoo.executableType,
-                myInterfaceMethod.asMemberOf(barFoo.type)
+                myInterfaceMethod.asMemberOf(barFoo.type),
             )
         }
     }
@@ -270,7 +270,7 @@ class XExecutableTypeTest {
             class Foo
             class Bar
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
@@ -284,15 +284,15 @@ class XExecutableTypeTest {
             assertThat(subClassBar.getConstructors()).hasSize(1)
             assertIsSameType(
                 classFoo.getConstructors().single(),
-                otherClassFoo.getConstructors().single()
+                otherClassFoo.getConstructors().single(),
             )
             assertIsSameType(
                 classBar.getConstructors().single(),
-                subClassBar.getConstructors().single()
+                subClassBar.getConstructors().single(),
             )
             assertIsNotSameType(
                 classFoo.getConstructors().single(),
-                classBar.getConstructors().single()
+                classBar.getConstructors().single(),
             )
         }
     }
@@ -308,7 +308,7 @@ class XExecutableTypeTest {
             }
             class Foo
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val classFoo = invocation.processingEnv.requireTypeElement("ClassFoo")
@@ -319,7 +319,7 @@ class XExecutableTypeTest {
             // types of "void" in Javac).
             assertIsSameType(
                 classFoo.getConstructors().single(),
-                classFoo.getMethodByJvmName("method")
+                classFoo.getMethodByJvmName("method"),
             )
         }
     }
@@ -335,7 +335,7 @@ class XExecutableTypeTest {
             abstract class ClassFoo constructor(foo: Foo)
             class Foo
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val genericClass = invocation.processingEnv.requireTypeElement("GenericClass")
@@ -347,15 +347,15 @@ class XExecutableTypeTest {
             assertThat(classFoo.getConstructors()).hasSize(1)
             assertIsNotSameType(
                 genericClass.getConstructors().single(),
-                genericClassFoo.getConstructors().single()
+                genericClassFoo.getConstructors().single(),
             )
             assertIsNotSameType(
                 genericClass.getConstructors().single(),
-                classFoo.getConstructors().single()
+                classFoo.getConstructors().single(),
             )
             assertIsSameType(
                 genericClassFoo.getConstructors().single(),
-                classFoo.getConstructors().single()
+                classFoo.getConstructors().single(),
             )
         }
     }
@@ -378,7 +378,7 @@ class XExecutableTypeTest {
             class Foo
             class Bar
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val myClass = invocation.processingEnv.requireTypeElement("MyClass")
@@ -439,7 +439,7 @@ class XExecutableTypeTest {
             abstract class Subject : MyInterface<String>
             abstract class NullableSubject: MyInterface<String?>
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val myInterface = invocation.processingEnv.requireTypeElement("MyInterface")
@@ -449,7 +449,7 @@ class XExecutableTypeTest {
             fun checkMethods(
                 methodName: String,
                 vararg subjects: XTypeElement,
-                callback: (XMethodType) -> Unit
+                callback: (XMethodType) -> Unit,
             ) {
                 Truth.assertThat(subjects).isNotEmpty() // Kruth doesn't support arrays yet
                 subjects.forEach {
@@ -569,7 +569,7 @@ class XExecutableTypeTest {
               fun <A, B> twoTypeVar(param: B): A = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val javaSrc =
             Source.java(
@@ -586,7 +586,7 @@ class XExecutableTypeTest {
               <A, B> A twoTypeVar(B param) { return null; }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         fun handler(invocation: XTestInvocation) {
@@ -613,7 +613,7 @@ class XExecutableTypeTest {
                                         List::class.asMutableClassName()
                                             .parametrizedBy(XTypeName.ANY_WILDCARD)
                                             .copy(nullable = true)
-                                    )
+                                    ),
                             )
                         )
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
@@ -621,7 +621,7 @@ class XExecutableTypeTest {
                             XTypeName.ANY_OBJECT.copy(nullable = true),
                             List::class.asMutableClassName()
                                 .parametrizedBy(XTypeName.ANY_WILDCARD)
-                                .copy(nullable = true)
+                                .copy(nullable = true),
                         )
                         .inOrder()
                     assertThat(typeVar.typeArguments).isEmpty()
@@ -638,7 +638,7 @@ class XExecutableTypeTest {
                                         List::class.asMutableClassName()
                                             .parametrizedBy(XTypeName.ANY_WILDCARD)
                                             .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
-                                    )
+                                    ),
                             )
                         )
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
@@ -646,7 +646,7 @@ class XExecutableTypeTest {
                             XTypeName.ANY_OBJECT.copy(nullable = true),
                             List::class.asMutableClassName()
                                 .parametrizedBy(XTypeName.ANY_WILDCARD)
-                                .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
+                                .copy(nullable = isKsp2 && subjectFqn == "JavaSubject"),
                         )
                         .inOrder()
                     assertThat(typeVar.typeArguments).isEmpty()
@@ -663,7 +663,7 @@ class XExecutableTypeTest {
                                         XTypeName.ANY_OBJECT.copy(
                                             nullable = isKsp2 && subjectFqn == "JavaSubject"
                                         )
-                                    )
+                                    ),
                             )
                         )
                     assertThat(typeVar.superTypes.map { it.asTypeName() })

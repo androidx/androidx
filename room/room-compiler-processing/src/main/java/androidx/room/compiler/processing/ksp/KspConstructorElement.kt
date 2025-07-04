@@ -25,13 +25,13 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 internal open class KspConstructorElement(
     env: KspProcessingEnv,
-    declaration: KSFunctionDeclaration
+    declaration: KSFunctionDeclaration,
 ) :
     KspExecutableElement(env, declaration),
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = declaration,
-        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_CONSTRUCTOR
+        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_CONSTRUCTOR,
     ),
     XConstructorElement {
 
@@ -51,7 +51,7 @@ internal open class KspConstructorElement(
                 env = env,
                 enclosingElement = this,
                 parameter = param,
-                parameterIndex = index
+                parameterIndex = index,
             )
         }
     }

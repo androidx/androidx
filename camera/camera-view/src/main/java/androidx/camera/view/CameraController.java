@@ -28,8 +28,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
@@ -37,6 +40,7 @@ import android.view.Window;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
@@ -73,6 +77,7 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.ContextUtil;
+import androidx.camera.core.impl.utils.LiveDataUtil;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -111,6 +116,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The abstract base camera controller class.
@@ -318,13 +324,14 @@ public abstract class CameraController {
 
     private boolean mPinchToZoomEnabled = true;
     private boolean mTapToFocusEnabled = true;
+    private FocusMeteringResultCallback mFocusMeteringResultCallback;
 
     private final ForwardingLiveData<ZoomState> mZoomState = new ForwardingLiveData<>();
     private final ForwardingLiveData<Integer> mTorchState = new ForwardingLiveData<>();
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    final MutableLiveData<Integer> mTapToFocusState = new MutableLiveData<>(
-            TAP_TO_FOCUS_NOT_STARTED);
+    final MutableLiveData<TapToFocusInfo> mTapToFocusInfoState = new MutableLiveData<>(
+            new TapToFocusInfo(TAP_TO_FOCUS_NOT_STARTED, /* tapPoint = */ null));
+    final LiveData<Integer> mTapToFocusState = LiveDataUtil.map(mTapToFocusInfoState,
+            TapToFocusInfo::getFocusState);
 
     private final @NonNull PendingValue<Boolean> mPendingEnableTorch = new PendingValue<>();
 
@@ -340,6 +347,9 @@ public abstract class CameraController {
 
     private final Map<ScreenFlashUiInfo.ProviderType, ScreenFlashUiInfo>
             mScreenFlashUiInfoMap = new HashMap<>();
+
+    private long mTapToFocusAutoCancelDurationNanos = TimeUnit.MILLISECONDS.toNanos(
+            FocusMeteringAction.DEFAULT_AUTO_CANCEL_DURATION_MILLIS);
 
     CameraController(@NonNull Context context) {
         this(context, transform(ProcessCameraProvider.getInstance(context),
@@ -585,8 +595,9 @@ public abstract class CameraController {
     }
 
     private void startListeningToRotationEvents() {
-        mRotationProvider.addListener(mainThreadExecutor(),
-                mDeviceRotationListener);
+        if (!mRotationProvider.addListener(mainThreadExecutor(), mDeviceRotationListener)) {
+            Logger.w(TAG, "The device cannot detect rotation changes.");
+        }
     }
 
     private void stopListeningToRotationEvents() {
@@ -2162,37 +2173,50 @@ public abstract class CameraController {
             Logger.d(TAG, "Tap to focus disabled. ");
             return;
         }
+
+        PointF tapPoint = new PointF(x, y);
+        FocusMeteringAction focusMeteringAction = createFocusMeteringAction(meteringPointFactory,
+                tapPoint);
+
         Logger.d(TAG, "Tap to focus started: " + x + ", " + y);
-        mTapToFocusState.postValue(TAP_TO_FOCUS_STARTED);
-        MeteringPoint afPoint = meteringPointFactory.createPoint(x, y, AF_SIZE);
-        MeteringPoint aePoint = meteringPointFactory.createPoint(x, y, AE_SIZE);
-        FocusMeteringAction focusMeteringAction = new FocusMeteringAction
-                .Builder(afPoint, FocusMeteringAction.FLAG_AF)
-                .addPoint(aePoint, FocusMeteringAction.FLAG_AE)
-                .build();
+
+        // Previous callback closed first so that TAP_TO_FOCUS_STARTED of this operation is not
+        // overwritten by any event from previous operations.
+        if (mFocusMeteringResultCallback != null) {
+            mFocusMeteringResultCallback.close();
+        }
+
+        mTapToFocusInfoState.postValue(new TapToFocusInfo(TAP_TO_FOCUS_STARTED, tapPoint));
+
+        FocusMeteringResultCallback focusMeteringResultCallback = new FocusMeteringResultCallback(
+                tapPoint, mTapToFocusInfoState);
+        mFocusMeteringResultCallback = focusMeteringResultCallback;
         Futures.addCallback(mCamera.getCameraControl().startFocusAndMetering(focusMeteringAction),
-                new FutureCallback<FocusMeteringResult>() {
+                focusMeteringResultCallback, directExecutor());
 
-                    @Override
-                    public void onSuccess(@Nullable FocusMeteringResult result) {
-                        if (result == null) {
-                            return;
-                        }
-                        Logger.d(TAG, "Tap to focus onSuccess: " + result.isFocusSuccessful());
-                        mTapToFocusState.postValue(result.isFocusSuccessful()
-                                ? TAP_TO_FOCUS_FOCUSED : TAP_TO_FOCUS_NOT_FOCUSED);
-                    }
+        long cancelDuration = TimeUnit.NANOSECONDS.toMillis(mTapToFocusAutoCancelDurationNanos);
+        Logger.d(TAG, "Tap to focus auto cancel duration: " + cancelDuration + " ms");
 
-                    @Override
-                    public void onFailure(@NonNull Throwable t) {
-                        if (t instanceof CameraControl.OperationCanceledException) {
-                            Logger.d(TAG, "Tap-to-focus is canceled by new action.");
-                            return;
-                        }
-                        Logger.d(TAG, "Tap to focus failed.", t);
-                        mTapToFocusState.postValue(TAP_TO_FOCUS_FAILED);
-                    }
-                }, directExecutor());
+        if (cancelDuration > 0L) {
+            new Handler(Looper.getMainLooper()).postDelayed(
+                    focusMeteringResultCallback::resetStateAndClose, cancelDuration);
+        }
+    }
+
+    private FocusMeteringAction createFocusMeteringAction(MeteringPointFactory meteringPointFactory,
+            PointF tapPoint) {
+        MeteringPoint afPoint = meteringPointFactory.createPoint(tapPoint.x, tapPoint.y, AF_SIZE);
+        MeteringPoint aePoint = meteringPointFactory.createPoint(tapPoint.x, tapPoint.y, AE_SIZE);
+        FocusMeteringAction.Builder focusMeteringActionBuilder = new FocusMeteringAction
+                .Builder(afPoint, FocusMeteringAction.FLAG_AF)
+                .addPoint(aePoint, FocusMeteringAction.FLAG_AE);
+        if (mTapToFocusAutoCancelDurationNanos > 0L) {
+            focusMeteringActionBuilder = focusMeteringActionBuilder.setAutoCancelDuration(
+                    mTapToFocusAutoCancelDurationNanos, TimeUnit.NANOSECONDS);
+        } else {
+            focusMeteringActionBuilder = focusMeteringActionBuilder.disableAutoCancel();
+        }
+        return focusMeteringActionBuilder.build();
     }
 
     /**
@@ -2242,12 +2266,12 @@ public abstract class CameraController {
      *     <td>TAP_TO_FOCUS_STARTED</td>
      * </tr>
      * <tr>
-     *     <td>TAP_TO_FOCUS_SUCCESSFUL</td>
+     *     <td>TAP_TO_FOCUS_FOCUSED</td>
      *     <td>User taps on {@link PreviewView}</td>
      *     <td>TAP_TO_FOCUS_STARTED</td>
      * </tr>
      * <tr>
-     *     <td>TAP_TO_FOCUS_UNSUCCESSFUL</td>
+     *     <td>TAP_TO_FOCUS_NOT_FOCUSED</td>
      *     <td>User taps on {@link PreviewView}</td>
      *     <td>TAP_TO_FOCUS_STARTED</td>
      * </tr>
@@ -2259,15 +2283,108 @@ public abstract class CameraController {
      * <tr>
      *     <td rowspan="3">TAP_TO_FOCUS_STARTED</td>
      *     <td>Focusing succeeded</td>
-     *     <td>TAP_TO_FOCUS_SUCCESSFUL</td>
+     *     <td>TAP_TO_FOCUS_FOCUSED</td>
      * </tr>
      * <tr>
      *     <td>Focusing failed due to lighting and/or camera distance</td>
-     *     <td>TAP_TO_FOCUS_UNSUCCESSFUL</td>
+     *     <td>TAP_TO_FOCUS_NOT_FOCUSED</td>
      * </tr>
      * <tr>
      *     <td>Focusing failed due to device constraints</td>
      *     <td>TAP_TO_FOCUS_FAILED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FOCUSED</td>
+     *     <td>Auto-cancel duration elapses</td>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_NOT_FOCUSED</td>
+     *     <td>Auto-cancel duration elapses</td>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FAILED</td>
+     *     <td>Auto-cancel duration elapses</td>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     * </tr>
+     * </table>
+     *
+     * @see #setTapToFocusEnabled(boolean)
+     * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
+     *
+     * @deprecated Use {@link #getTapToFocusInfoState()} instead.
+     */
+    @Deprecated
+    @MainThread
+    public @NonNull LiveData<Integer> getTapToFocusState() {
+        checkMainThread();
+        return mTapToFocusState;
+    }
+
+    /**
+     * Returns a {@link LiveData} with a {@link TapToFocusInfo} containing the latest focus state
+     * and corresponding tap position.
+     *
+     * <p>When tap-to-focus feature is enabled, the {@link LiveData} will receive updates of
+     * focusing states. This usually happens when the end user taps on {@link PreviewView}, and then
+     * again when focusing is finished either successfully or unsuccessfully. The following table
+     * displays the states the {@link LiveData} can be in, and the possible transitions between
+     * them.
+     *
+     * <table>
+     * <tr>
+     *     <th>State</th>
+     *     <th>Transition cause</th>
+     *     <th>New State</th>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FOCUSED</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_NOT_FOCUSED</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FAILED</td>
+     *     <td>User taps on {@link PreviewView}</td>
+     *     <td>TAP_TO_FOCUS_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td rowspan="3">TAP_TO_FOCUS_STARTED</td>
+     *     <td>Focusing succeeded</td>
+     *     <td>TAP_TO_FOCUS_FOCUSED</td>
+     * </tr>
+     * <tr>
+     *     <td>Focusing failed due to lighting and/or camera distance</td>
+     *     <td>TAP_TO_FOCUS_NOT_FOCUSED</td>
+     * </tr>
+     * <tr>
+     *     <td>Focusing failed due to device constraints</td>
+     *     <td>TAP_TO_FOCUS_FAILED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FOCUSED</td>
+     *     <td>Auto-cancel duration elapses</td>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_NOT_FOCUSED</td>
+     *     <td>Auto-cancel duration elapses</td>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
+     * </tr>
+     * <tr>
+     *     <td>TAP_TO_FOCUS_FAILED</td>
+     *     <td>Auto-cancel duration elapses</td>
+     *     <td>TAP_TO_FOCUS_NOT_STARTED</td>
      * </tr>
      * </table>
      *
@@ -2275,9 +2392,34 @@ public abstract class CameraController {
      * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
      */
     @MainThread
-    public @NonNull LiveData<Integer> getTapToFocusState() {
+    public @NonNull LiveData<TapToFocusInfo> getTapToFocusInfoState() {
         checkMainThread();
-        return mTapToFocusState;
+        return mTapToFocusInfoState;
+    }
+
+    /**
+     * Sets the auto-cancel duration for tap-to-focus events.
+     *
+     * <p> By default, CameraX uses a value of 5 seconds.
+     *
+     * @param duration The duration after which CameraX automatically cancels a tap-to-focus event.
+     *   A value of 0 will disable the auto-cancellation behavior.
+     * @param timeUnit The {@link TimeUnit} for the {@code duration} parameter.
+     *
+     * @see #getTapToFocusInfoState()
+     */
+    @MainThread
+    public void setTapToFocusAutoCancelDuration(
+            @IntRange(from = 0) long duration,
+            @NonNull TimeUnit timeUnit
+    ) {
+        Preconditions.checkArgument(
+                duration >= 0,
+                "Tap-to-focus auto-cancellation duration must be at least 0"
+        );
+        mTapToFocusAutoCancelDurationNanos = timeUnit.toNanos(duration);
+        Logger.d(TAG, "setTapToFocusAutoCancelDuration: " + mTapToFocusAutoCancelDurationNanos
+                + " ns set!");
     }
 
     /**
@@ -2637,6 +2779,83 @@ public abstract class CameraController {
         @Override
         public @NonNull String toString() {
             return "aspect ratio: " + mAspectRatio + " resolution: " + mResolution;
+        }
+    }
+
+    static class FocusMeteringResultCallback implements FutureCallback<FocusMeteringResult> {
+        private boolean mIsCanceled = false;
+        private final PointF mTapPoint;
+        private final MutableLiveData<TapToFocusInfo> mTapToFocusInfoState;
+
+        private final Object mLock = new Object();
+
+        FocusMeteringResultCallback(PointF tapPoint,
+                MutableLiveData<TapToFocusInfo> tapToFocusInfoState) {
+            mTapPoint = tapPoint;
+            mTapToFocusInfoState = tapToFocusInfoState;
+        }
+
+        @Override
+        public void onSuccess(@Nullable FocusMeteringResult result) {
+            synchronized (mLock) {
+                if (mIsCanceled) return;
+
+                if (result == null) {
+                    return;
+                }
+
+                Logger.d(TAG, "Tap-to-focus onSuccess: " + result.isFocusSuccessful());
+                mTapToFocusInfoState.postValue(new TapToFocusInfo(
+                        result.isFocusSuccessful() ? TAP_TO_FOCUS_FOCUSED
+                                : TAP_TO_FOCUS_NOT_FOCUSED, mTapPoint));
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Throwable t) {
+            synchronized (mLock) {
+                if (mIsCanceled) return;
+
+                if (t instanceof CameraControl.OperationCanceledException) {
+                    Logger.d(TAG, "Tap-to-focus canceled", t);
+
+                    // Resetting focus state, also closing earlier to avoid multiple reset updates.
+                    mTapToFocusInfoState.postValue(
+                            new TapToFocusInfo(TAP_TO_FOCUS_NOT_STARTED, null));
+                    close();
+
+                    return;
+                }
+
+                Logger.d(TAG, "Tap-to-focus failed.", t);
+                mTapToFocusInfoState.postValue(
+                        new TapToFocusInfo(TAP_TO_FOCUS_FAILED, mTapPoint));
+            }
+        }
+
+        /**
+         * Resets the tap-to-focus state and closes this callback class.
+         *
+         * <P> This method, like the other callback methods in this class, is no-op if the class has
+         * already been closed once.
+         *
+         * @see #close
+         */
+        void resetStateAndClose() {
+            synchronized (mLock) {
+                if (mIsCanceled) return;
+
+                Logger.d(TAG, "Tap-to-focus reset.");
+                mTapToFocusInfoState.postValue(new TapToFocusInfo(TAP_TO_FOCUS_NOT_STARTED, null));
+                mIsCanceled = true;
+            }
+        }
+
+        /** Closes the callback class to ignore all future callback invocations. */
+        void close() {
+            synchronized (mLock) {
+                mIsCanceled = true;
+            }
         }
     }
 }

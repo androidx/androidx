@@ -32,7 +32,7 @@ class BrushTest {
     private val size = 10F
     private val epsilon = 1F
     private val color = Color(red = 230, green = 115, blue = 140, alpha = 255)
-    private val family = BrushFamily(uri = "/brush-family:inkpen:1")
+    private val family = BrushFamily(clientBrushFamilyId = "/brush-family:inkpen:1")
 
     @Test
     fun constructor_withValidArguments_returnsABrush() {
@@ -139,7 +139,7 @@ class BrushTest {
         val brush = Brush(family, color, size, epsilon)
 
         val differentFamilyBrush =
-            Brush(BrushFamily(uri = "/brush-family:pencil:1"), color, size, epsilon)
+            Brush(BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"), color, size, epsilon)
         assertThat(brush == differentFamilyBrush).isFalse()
         assertThat(differentFamilyBrush == brush).isFalse()
         assertThat(brush != differentFamilyBrush).isTrue()
@@ -173,7 +173,7 @@ class BrushTest {
         val brush = Brush(family, color, size, epsilon)
 
         val differentFamilyBrush =
-            Brush(BrushFamily(uri = "/brush-family:pencil:1"), color, size, epsilon)
+            Brush(BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"), color, size, epsilon)
         assertThat(differentFamilyBrush.hashCode()).isNotEqualTo(brush.hashCode())
 
         val otherColor =
@@ -396,7 +396,7 @@ class BrushTest {
                         ),
                     ),
                 paint = BrushPaint(),
-                uri = "/brush-family:marker:1",
+                clientBrushFamilyId = "/brush-family:marker:1",
             ),
             color,
             13F,

@@ -28,7 +28,7 @@ import kotlin.math.sign
 fun SnapLayoutInfoProvider(
     scrollState: ScrollState,
     itemSize: () -> Float,
-    layoutSize: () -> Float
+    layoutSize: () -> Float,
 ) =
     object : SnapLayoutInfoProvider {
 

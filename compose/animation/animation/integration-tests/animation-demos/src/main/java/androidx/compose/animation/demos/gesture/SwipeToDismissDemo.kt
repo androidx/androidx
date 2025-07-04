@@ -69,11 +69,11 @@ fun SwipeToDismissDemo() {
         Text(
             "Swipe up to dismiss",
             fontSize = 30.sp,
-            modifier = Modifier.padding(40.dp).align(Alignment.CenterHorizontally)
+            modifier = Modifier.padding(40.dp).align(Alignment.CenterHorizontally),
         )
         Button(
             onClick = { index = (index + 1) % pastelColors.size },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         ) {
             Text("New Card")
         }
@@ -132,5 +132,5 @@ internal val pastelColors =
         Color(0xFFffe9d6),
         Color(0xFFfffbd0),
         Color(0xFFe3ffd9),
-        Color(0xFFd0fff8)
+        Color(0xFFd0fff8),
     )

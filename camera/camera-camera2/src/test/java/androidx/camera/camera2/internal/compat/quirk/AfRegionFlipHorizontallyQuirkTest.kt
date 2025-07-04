@@ -36,9 +36,10 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 class AfRegionFlipHorizontallyQuirkTest(
     private val brand: String,
     private val lensFacing: Int,
-    private val enabled: Boolean
+    private val enabled: Boolean,
 ) {
     companion object {
+        @Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Brand: {0} LensFacing = {1}")
         fun data() =

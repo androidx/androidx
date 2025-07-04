@@ -57,7 +57,7 @@ public object BodyTemperatureMeasurementLocation {
             TOE to MEASUREMENT_LOCATION_TOE,
             EAR to MEASUREMENT_LOCATION_EAR,
             WRIST to MEASUREMENT_LOCATION_WRIST,
-            VAGINA to MEASUREMENT_LOCATION_VAGINA
+            VAGINA to MEASUREMENT_LOCATION_VAGINA,
         )
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -81,7 +81,7 @@ public object BodyTemperatureMeasurementLocation {
             BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_TOE,
             BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_EAR,
             BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_WRIST,
-            BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_VAGINA
+            BodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_VAGINA,
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)

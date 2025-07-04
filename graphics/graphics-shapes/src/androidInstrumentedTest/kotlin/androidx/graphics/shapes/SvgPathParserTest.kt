@@ -159,7 +159,7 @@ class SVGParserTest {
             listOf(
                 Cubic(floatArrayOf(0f, 0f, 10f, 10f, 30f, 20f, 10f, 10f)),
                 Cubic(floatArrayOf(10f, 10f, 23f, 23f, 48f, 40f, 20f, 20f)),
-                Cubic.straightLine(20f, 20f, 0f, 0f)
+                Cubic.straightLine(20f, 20f, 0f, 0f),
             )
 
         parsingMatches(path, expected)
@@ -192,10 +192,7 @@ class SVGParserTest {
     @Test
     fun parsesSmoothCurveWithCurrentPositionIfNoPredecessor() {
         val path = "M 10,10 S 20,-10, 20,0"
-        val expected =
-            listOf(
-                Cubic(floatArrayOf(10f, 10f, 10f, 10f, 20f, -10f, 20f, 0f)),
-            )
+        val expected = listOf(Cubic(floatArrayOf(10f, 10f, 10f, 10f, 20f, -10f, 20f, 0f)))
         parsingMatches(path, expected)
     }
 
@@ -234,10 +231,7 @@ class SVGParserTest {
     @Test
     fun parsesSmoothQuadraticWithCurrentPositionIfNoPredecessor() {
         val path = "M 10,10 T 20,0"
-        val expected =
-            listOf(
-                Cubic(floatArrayOf(10f, 10f, 10f, 10f, 10f, 10f, 20f, 0f)),
-            )
+        val expected = listOf(Cubic(floatArrayOf(10f, 10f, 10f, 10f, 10f, 10f, 20f, 0f)))
         parsingMatches(path, expected)
     }
 
@@ -260,7 +254,7 @@ class SVGParserTest {
                         183.26047f,
                         102.198814f,
                         170.09619f,
-                        125f
+                        125f,
                     )
                 ),
                 Cubic(
@@ -272,10 +266,10 @@ class SVGParserTest {
                         150f,
                         173.67145f,
                         150f,
-                        200f
+                        200f,
                     )
                 ),
-                Cubic.straightLine(150f, 200f, 300f, 200f)
+                Cubic.straightLine(150f, 200f, 300f, 200f),
             )
 
         parsingMatches(path, expected)

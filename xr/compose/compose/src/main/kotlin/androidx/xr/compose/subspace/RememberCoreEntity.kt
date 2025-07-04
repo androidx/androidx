@@ -18,40 +18,114 @@ package androidx.xr.compose.subspace
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.subspace.layout.CoreContentlessEntity
+import androidx.xr.compose.platform.disposableValueOf
+import androidx.xr.compose.platform.getValue
+import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
-import androidx.xr.scenecore.BasePanelEntity
+import androidx.xr.compose.subspace.layout.CoreSphereSurfaceEntity
+import androidx.xr.compose.subspace.layout.CoreSurfaceEntity
+import androidx.xr.compose.subspace.layout.SpatialShape
+import androidx.xr.runtime.Config.HeadTrackingMode
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.Session
+import androidx.xr.scenecore.PanelEntity
+import androidx.xr.scenecore.SurfaceEntity
+import androidx.xr.scenecore.scene
 
-/**
- * Creates a [CoreContentlessEntity] that is automatically disposed of when it leaves the
- * composition.
- */
+/** Creates a [CoreGroupEntity] that is automatically disposed of when it leaves the composition. */
 @Composable
-internal inline fun rememberCoreContentlessEntity(
-    crossinline entityFactory: @DisallowComposableCalls Session.() -> Entity
-): CoreContentlessEntity {
+@PublishedApi
+internal fun rememberCoreGroupEntity(
+    entityFactory: @DisallowComposableCalls Session.() -> Entity
+): CoreGroupEntity {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val entity = remember { session.entityFactory() }
-
-    DisposableEffect(entity) { onDispose { entity.dispose() } }
-
-    return remember { CoreContentlessEntity(entity) }
+    val coreEntity by remember {
+        disposableValueOf(CoreGroupEntity(session.entityFactory())) { it.dispose() }
+    }
+    return coreEntity
 }
 
 /** Creates a [CorePanelEntity] that is automatically disposed of when it leaves the composition. */
 @Composable
 internal inline fun rememberCorePanelEntity(
-    crossinline entityFactory: @DisallowComposableCalls Session.() -> BasePanelEntity<*>
+    shape: SpatialShape = SpatialPanelDefaults.shape,
+    crossinline entityFactory: @DisallowComposableCalls Session.() -> PanelEntity,
 ): CorePanelEntity {
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val entity = remember { session.entityFactory() }
+    val density = LocalDensity.current
+    val coreEntity by remember {
+        disposableValueOf(
+            CorePanelEntity(session.entityFactory()).also { it.setShape(shape, density) }
+        ) {
+            it.dispose()
+        }
+    }
+    LaunchedEffect(shape, density) { coreEntity.setShape(shape, density) }
+    return coreEntity
+}
 
-    DisposableEffect(entity) { onDispose { entity.dispose() } }
+/**
+ * Creates a [CoreSurfaceEntity] that is automatically disposed of when it leaves the composition.
+ */
+@Composable
+internal inline fun rememberCoreSurfaceEntity(
+    key: Any? = null,
+    crossinline entityFactory: @DisallowComposableCalls Session.() -> SurfaceEntity,
+): CoreSurfaceEntity {
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val density = LocalDensity.current
+    val coreEntity by
+        remember(key) {
+            disposableValueOf(CoreSurfaceEntity(session.entityFactory(), density)) { it.dispose() }
+        }
+    return coreEntity
+}
 
-    return remember { CorePanelEntity(session, entity) }
+/**
+ * Creates a [CoreSphereSurfaceEntity] that is automatically disposed of when it leaves the
+ * composition.
+ */
+@Composable
+internal inline fun rememberCoreSphereSurfaceEntity(
+    key: Any? = null,
+    crossinline entityFactory: @DisallowComposableCalls Session.() -> SurfaceEntity,
+): CoreSphereSurfaceEntity {
+    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
+    val density = LocalDensity.current
+    val coreEntity by
+        remember(key) {
+            val headPose =
+                if (
+                    session.config.headTracking == HeadTrackingMode.LAST_KNOWN ||
+                        session.configure(
+                            config = session.config.copy(headTracking = HeadTrackingMode.LAST_KNOWN)
+                        ) is SessionConfigureSuccess
+                ) {
+                    session.scene.spatialUser.head?.activitySpacePose
+                } else {
+                    null
+                }
+            disposableValueOf(CoreSphereSurfaceEntity(session.entityFactory(), headPose, density)) {
+                it.dispose()
+            }
+        }
+
+    return coreEntity
+}
+
+private var entityNamePart: Int = 0
+
+/**
+ * Creates a unique debugging name for an [Entity].
+ *
+ * @param name A context-specific name for the [Entity].
+ */
+@PublishedApi
+internal fun entityName(name: String): String {
+    return "$name-${entityNamePart++}"
 }

@@ -54,7 +54,7 @@ class ViewModelConstructorInComposableDetectorTest : LintDetectorTest() {
                 """
                 ),
                 Stubs.Composable,
-                VIEWMODEL
+                VIEWMODEL,
             )
             .run()
             .expect(
@@ -97,7 +97,7 @@ src/com/example/MyViewModel.kt:12: Error: Constructing a view model in a composa
                 ),
                 Stubs.Composable,
                 VIEWMODEL,
-                VIEWMODEL_COMPOSE
+                VIEWMODEL_COMPOSE,
             )
             .run()
             .expectClean()

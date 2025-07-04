@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -36,6 +36,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-common:2.6.2")
     api("androidx.customview:customview-poolingcontainer:1.0.0")
     api(project(":privacysandbox:ui:ui-core"))
+    implementation(project(":tracing:tracing"))
 
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.junit)
@@ -61,8 +62,7 @@ android {
 
 androidx {
     name = "androidx.privacysandbox.ui:ui-client"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
-    description = "show UI from an SDKRuntime aware SDK"
-    legacyDisableKotlinStrictApiMode = true
+    description = "show UI from a Runtime-aware SDK"
 }

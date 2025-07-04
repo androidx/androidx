@@ -38,7 +38,7 @@ import androidx.core.text.HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
 public inline fun String.parseAsHtml(
     flags: Int = FROM_HTML_MODE_LEGACY,
     imageGetter: ImageGetter? = null,
-    tagHandler: TagHandler? = null
+    tagHandler: TagHandler? = null,
 ): Spanned = HtmlCompat.fromHtml(this, flags, imageGetter, tagHandler)
 
 /**

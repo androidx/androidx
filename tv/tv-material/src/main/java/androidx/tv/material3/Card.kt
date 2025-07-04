@@ -80,7 +80,7 @@ fun Card(
     border: CardBorder = CardDefaults.border(),
     glow: CardGlow = CardDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
         onClick = onClick,
@@ -152,7 +152,7 @@ fun ClassicCard(
     border: CardBorder = CardDefaults.border(),
     glow: CardGlow = CardDefaults.glow(),
     contentPadding: PaddingValues = PaddingValues(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     Card(
         onClick = onClick,
@@ -163,7 +163,7 @@ fun ClassicCard(
         colors = colors,
         scale = scale,
         border = border,
-        glow = glow
+        glow = glow,
     ) {
         Column(modifier = Modifier.padding(contentPadding)) {
             Box(contentAlignment = CardDefaults.ContentImageAlignment, content = image)
@@ -229,7 +229,7 @@ fun CompactCard(
     border: CardBorder = CardDefaults.border(),
     glow: CardGlow = CardDefaults.glow(),
     scrimBrush: Brush = CardDefaults.ScrimBrush,
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     Card(
         onClick = onClick,
@@ -240,7 +240,7 @@ fun CompactCard(
         colors = colors,
         scale = scale,
         border = border,
-        glow = glow
+        glow = glow,
     ) {
         Box(contentAlignment = Alignment.BottomStart) {
             Box(
@@ -252,7 +252,7 @@ fun CompactCard(
                         }
                     },
                 contentAlignment = CardDefaults.ContentImageAlignment,
-                content = image
+                content = image,
             )
             Column { CardContent(title = title, subtitle = subtitle, description = description) }
         }
@@ -314,7 +314,7 @@ fun WideClassicCard(
     border: CardBorder = CardDefaults.border(),
     glow: CardGlow = CardDefaults.glow(),
     contentPadding: PaddingValues = PaddingValues(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource? = null,
 ) {
     Card(
         onClick = onClick,
@@ -325,7 +325,7 @@ fun WideClassicCard(
         colors = colors,
         scale = scale,
         border = border,
-        glow = glow
+        glow = glow,
     ) {
         Row(modifier = Modifier.padding(contentPadding)) {
             Box(contentAlignment = CardDefaults.ContentImageAlignment, content = image)
@@ -338,7 +338,7 @@ fun WideClassicCard(
 internal fun CardContent(
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit = {},
-    description: @Composable () -> Unit = {}
+    description: @Composable () -> Unit = {},
 ) {
     ProvideTextStyle(MaterialTheme.typography.titleMedium) { title.invoke() }
     ProvideTextStyle(MaterialTheme.typography.bodySmall) {
@@ -382,7 +382,7 @@ object CardDefaults {
         Brush.verticalGradient(
             listOf(
                 Color(red = 28, green = 27, blue = 31, alpha = 0),
-                Color(red = 28, green = 27, blue = 31, alpha = 204)
+                Color(red = 28, green = 27, blue = 31, alpha = 204),
             )
         )
 
@@ -396,7 +396,7 @@ object CardDefaults {
     fun shape(
         shape: Shape = ContainerShape,
         focusedShape: Shape = shape,
-        pressedShape: Shape = shape
+        pressedShape: Shape = shape,
     ) = CardShape(shape = shape, focusedShape = focusedShape, pressedShape = pressedShape)
 
     /**
@@ -417,7 +417,7 @@ object CardDefaults {
         focusedContainerColor: Color = containerColor,
         focusedContentColor: Color = contentColorFor(focusedContainerColor),
         pressedContainerColor: Color = focusedContainerColor,
-        pressedContentColor: Color = contentColorFor(pressedContainerColor)
+        pressedContentColor: Color = contentColorFor(pressedContainerColor),
     ) =
         CardColors(
             containerColor = containerColor,
@@ -425,7 +425,7 @@ object CardDefaults {
             focusedContainerColor = focusedContainerColor,
             focusedContentColor = focusedContentColor,
             pressedContainerColor = pressedContainerColor,
-            pressedContentColor = pressedContentColor
+            pressedContentColor = pressedContentColor,
         )
 
     /**
@@ -446,7 +446,7 @@ object CardDefaults {
         focusedContainerColor: Color = containerColor,
         focusedContentColor: Color = contentColor,
         pressedContainerColor: Color = focusedContainerColor,
-        pressedContentColor: Color = focusedContentColor
+        pressedContentColor: Color = focusedContentColor,
     ) =
         CardColors(
             containerColor = containerColor,
@@ -454,7 +454,7 @@ object CardDefaults {
             focusedContainerColor = focusedContainerColor,
             focusedContentColor = focusedContentColor,
             pressedContainerColor = pressedContainerColor,
-            pressedContentColor = pressedContentColor
+            pressedContentColor = pressedContentColor,
         )
 
     /**
@@ -469,7 +469,7 @@ object CardDefaults {
     fun scale(
         @FloatRange(from = 0.0) scale: Float = 1f,
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
-        @FloatRange(from = 0.0) pressedScale: Float = scale
+        @FloatRange(from = 0.0) pressedScale: Float = scale,
     ) = CardScale(scale = scale, focusedScale = focusedScale, pressedScale = pressedScale)
 
     /**
@@ -487,9 +487,9 @@ object CardDefaults {
         focusedBorder: Border =
             Border(
                 border = BorderStroke(width = 3.dp, color = MaterialTheme.colorScheme.border),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
-        pressedBorder: Border = focusedBorder
+        pressedBorder: Border = focusedBorder,
     ) = CardBorder(border = border, focusedBorder = focusedBorder, pressedBorder = pressedBorder)
 
     /**
@@ -515,7 +515,7 @@ private fun CardColors.toClickableSurfaceColors() =
         pressedContainerColor = pressedContainerColor,
         pressedContentColor = pressedContentColor,
         disabledContainerColor = containerColor,
-        disabledContentColor = contentColor
+        disabledContentColor = contentColor,
     )
 
 private fun CardShape.toClickableSurfaceShape() =
@@ -524,7 +524,7 @@ private fun CardShape.toClickableSurfaceShape() =
         focusedShape = focusedShape,
         pressedShape = pressedShape,
         disabledShape = shape,
-        focusedDisabledShape = shape
+        focusedDisabledShape = shape,
     )
 
 private fun CardScale.toClickableSurfaceScale() =
@@ -533,7 +533,7 @@ private fun CardScale.toClickableSurfaceScale() =
         focusedScale = focusedScale,
         pressedScale = pressedScale,
         disabledScale = scale,
-        focusedDisabledScale = scale
+        focusedDisabledScale = scale,
     )
 
 private fun CardBorder.toClickableSurfaceBorder() =
@@ -542,7 +542,7 @@ private fun CardBorder.toClickableSurfaceBorder() =
         focusedBorder = focusedBorder,
         pressedBorder = pressedBorder,
         disabledBorder = border,
-        focusedDisabledBorder = border
+        focusedDisabledBorder = border,
     )
 
 private fun CardGlow.toClickableSurfaceGlow() =

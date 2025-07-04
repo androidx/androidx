@@ -67,7 +67,7 @@ class ConstructorInheritanceTest {
 
     abstract class ChildGroup(
         @Embedded val child1: Child1,
-        @Relation(entityColumn = "code", parentColumn = "code") val children2: List<Child2>
+        @Relation(entityColumn = "code", parentColumn = "code") val children2: List<Child2>,
     )
 
     class ChildGroup1(child1: Child1, children2: List<Child2>) : ChildGroup(child1, children2)

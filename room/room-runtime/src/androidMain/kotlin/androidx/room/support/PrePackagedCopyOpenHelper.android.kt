@@ -46,7 +46,7 @@ internal class PrePackagedCopyOpenHelper(
     private val copyFromFile: File?,
     private val copyFromInputStream: Callable<InputStream>?,
     private val databaseVersion: Int,
-    override val delegate: SupportSQLiteOpenHelper
+    override val delegate: SupportSQLiteOpenHelper,
 ) : SupportSQLiteOpenHelper, DelegatingOpenHelper {
     private lateinit var databaseConfiguration: DatabaseConfiguration
     private var verified = false
@@ -134,7 +134,7 @@ internal class PrePackagedCopyOpenHelper(
             } else {
                 Log.w(
                     LOG_TAG,
-                    "Failed to delete database file ($name) for " + "a copy destructive migration."
+                    "Failed to delete database file ($name) for " + "a copy destructive migration.",
                 )
             }
         } finally {
@@ -214,7 +214,7 @@ internal class PrePackagedCopyOpenHelper(
                         override fun onUpgrade(
                             db: SupportSQLiteDatabase,
                             oldVersion: Int,
-                            newVersion: Int
+                            newVersion: Int,
                         ) {}
 
                         override fun onOpen(db: SupportSQLiteDatabase) {

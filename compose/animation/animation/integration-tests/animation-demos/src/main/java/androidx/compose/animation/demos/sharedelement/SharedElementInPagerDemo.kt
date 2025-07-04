@@ -56,8 +56,8 @@ fun SharedElementInPagerDemo() {
                     flingBehavior =
                         PagerDefaults.flingBehavior(
                             state = pagerState,
-                            pagerSnapDistance = PagerSnapDistance.atMost(3)
-                        )
+                            pagerSnapDistance = PagerSnapDistance.atMost(3),
+                        ),
                 ) {
                     val cat = listCats[it]
                     CatItem(

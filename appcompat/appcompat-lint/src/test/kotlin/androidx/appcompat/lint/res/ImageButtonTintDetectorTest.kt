@@ -39,7 +39,7 @@ class ImageButtonTintDetectorTest {
         android:src="@android:drawable/ic_delete"
         android:tint="#FF0000" />
 </LinearLayout>
-        """
+        """,
                 )
                 .indented()
                 .within("res")

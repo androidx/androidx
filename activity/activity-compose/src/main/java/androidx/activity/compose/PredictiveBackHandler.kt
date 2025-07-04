@@ -73,7 +73,7 @@ public fun PredictiveBackHandler(
     enabled: Boolean = true,
     onBack:
         suspend (progress: @JvmSuppressWildcards Flow<BackEventCompat>) -> @JvmSuppressWildcards
-            Unit
+            Unit,
 ) {
     // ensure we don't re-register callbacks when onBack changes
     val currentOnBack by rememberUpdatedState(onBack)
@@ -111,7 +111,7 @@ private class OnBackInstance(
     scope: CoroutineScope,
     var isPredictiveBack: Boolean,
     onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
-    callback: OnBackPressedCallback
+    callback: OnBackPressedCallback,
 ) {
     val channel = Channel<BackEventCompat>(capacity = BUFFERED, onBufferOverflow = SUSPEND)
     val job =

@@ -98,7 +98,7 @@ internal fun split(feature: Feature, measurer: LengthMeasurer, splitLength: Floa
 internal fun splitInEvenSegments(
     cubicToSplit: Cubic,
     numberSegments: Int,
-    finishedSplits: Array<Cubic>
+    finishedSplits: Array<Cubic>,
 ): Array<Cubic> {
     if (numberSegments == 1) {
         finishedSplits[0] = cubicToSplit
@@ -123,6 +123,6 @@ internal fun Cubic.pointOnCurve(t: Float): Offset {
         anchor0Y * (u * u * u) +
             control0Y * (3 * t * u * u) +
             control1Y * (3 * t * t * u) +
-            anchor1Y * (t * t * t)
+            anchor1Y * (t * t * t),
     )
 }

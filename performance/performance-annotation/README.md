@@ -1,1 +1,1 @@
-This library is a **compile-time** only dependency.
+The annotation defined in this library only affects Android.

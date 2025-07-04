@@ -40,7 +40,7 @@ class InvalidatedTextView : TextView {
     constructor(
         context: Context?,
         attrs: AttributeSet?,
-        defStyleAttr: Int
+        defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
 
     override fun draw(canvas: Canvas) {

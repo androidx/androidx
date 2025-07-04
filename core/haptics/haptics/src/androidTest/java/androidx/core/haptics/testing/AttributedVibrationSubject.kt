@@ -28,10 +28,8 @@ import com.google.common.truth.Truth.assertAbout
 
 /** Truth extension for a single [AttributedVibration]. */
 internal class AttributedVibrationSubject
-private constructor(
-    metadata: FailureMetadata?,
-    private val actual: AttributedVibration,
-) : Subject(metadata, actual) {
+private constructor(metadata: FailureMetadata?, private val actual: AttributedVibration) :
+    Subject(metadata, actual) {
 
     companion object {
         private val SUBJECT_FACTORY: Factory<AttributedVibrationSubject?, AttributedVibration> =
@@ -51,21 +49,23 @@ private constructor(
 
     /** Returns a [Subject] for the requested [android.os.VibrationEffect]. */
     fun hasVibrationEffectThat(): Subject {
-        check("vibration()").that(actual.vibration is VibrationEffectWrapper)
+        check("vibration()").that(actual.vibration).isInstanceOf(VibrationEffectWrapper::class.java)
         val vibrationEffect = (actual.vibration as VibrationEffectWrapper).vibrationEffect
         return check("vibration()").that(vibrationEffect)
     }
 
     /** Returns a [Subject] for the requested [android.media.AudioAttributes] or fails. */
     fun hasAudioAttributesThat(): Subject {
-        check("attributes()").that(actual.attrs is AudioAttributesWrapper)
+        check("attributes()").that(actual.attrs).isInstanceOf(AudioAttributesWrapper::class.java)
         val audioAttributes = (actual.attrs as AudioAttributesWrapper).audioAttributes
         return check("attributes()").that(audioAttributes)
     }
 
     /** Returns a [Subject] for the requested [android.os.VibrationAttributes] or fails. */
     fun hasVibrationAttributesThat(): Subject {
-        check("attributes()").that(actual.attrs is VibrationAttributesWrapper)
+        check("attributes()")
+            .that(actual.attrs)
+            .isInstanceOf(VibrationAttributesWrapper::class.java)
         val vibrationAttributes = (actual.attrs as VibrationAttributesWrapper).vibrationAttributes
         return check("attributes()").that(vibrationAttributes)
     }

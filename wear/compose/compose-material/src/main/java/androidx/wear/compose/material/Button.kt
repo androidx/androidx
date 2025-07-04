@@ -79,7 +79,7 @@ import androidx.compose.ui.unit.dp
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
         "A newer overload is available with an additional shape parameter.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Button(
@@ -98,7 +98,7 @@ public fun Button(
         interactionSource = interactionSource,
         shape = CircleShape,
         border = ButtonDefaults.buttonBorder(),
-        content = content
+        content = content,
     )
 
 /**
@@ -172,8 +172,8 @@ public fun Button(
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
                 MaterialTheme.typography.button,
-                content
-            )
+                content,
+            ),
     )
 }
 
@@ -266,7 +266,7 @@ public fun OutlinedButton(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.0." +
         "A newer overload is available with an additional shape parameter.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun CompactButton(
@@ -287,7 +287,7 @@ public fun CompactButton(
         interactionSource,
         CircleShape,
         ButtonDefaults.buttonBorder(),
-        content
+        content,
     )
 
 /**
@@ -357,8 +357,8 @@ public fun CompactButton(
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
                 MaterialTheme.typography.button,
-                content
-            )
+                content,
+            ),
     )
 }
 
@@ -423,7 +423,7 @@ public fun OutlinedCompactButton(
         interactionSource = interactionSource,
         shape = shape,
         border = border,
-        content = content
+        content = content,
     )
 
 /**
@@ -476,7 +476,7 @@ public object ButtonDefaults {
     @Composable
     public fun primaryButtonColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
-        contentColor: Color = contentColorFor(backgroundColor)
+        contentColor: Color = contentColorFor(backgroundColor),
     ): ButtonColors {
         // For light background colors, the default disabled content colors do not provide
         // sufficient contrast. Instead, we default to using background for disabled content.
@@ -484,7 +484,7 @@ public object ButtonDefaults {
         return buttonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
-            disabledContentColor = MaterialTheme.colors.background
+            disabledContentColor = MaterialTheme.colors.background,
         )
     }
 
@@ -500,7 +500,7 @@ public object ButtonDefaults {
     @Composable
     public fun secondaryButtonColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
-        contentColor: Color = contentColorFor(backgroundColor)
+        contentColor: Color = contentColorFor(backgroundColor),
     ): ButtonColors {
         return buttonColors(backgroundColor = backgroundColor, contentColor = contentColor)
     }
@@ -514,12 +514,9 @@ public object ButtonDefaults {
      */
     @Composable
     public fun iconButtonColors(
-        contentColor: Color = MaterialTheme.colors.onSurface,
+        contentColor: Color = MaterialTheme.colors.onSurface
     ): ButtonColors {
-        return buttonColors(
-            backgroundColor = Color.Transparent,
-            contentColor = contentColor,
-        )
+        return buttonColors(backgroundColor = Color.Transparent, contentColor = contentColor)
     }
 
     /**
@@ -531,7 +528,7 @@ public object ButtonDefaults {
      */
     @Composable
     public fun outlinedButtonColors(
-        contentColor: Color = MaterialTheme.colors.primary,
+        contentColor: Color = MaterialTheme.colors.primary
     ): ButtonColors {
         return buttonColors(backgroundColor = Color.Transparent, contentColor = contentColor)
     }
@@ -545,11 +542,11 @@ public object ButtonDefaults {
     @Composable
     public fun buttonBorder(
         borderStroke: BorderStroke? = null,
-        disabledBorderStroke: BorderStroke? = borderStroke
+        disabledBorderStroke: BorderStroke? = borderStroke,
     ): ButtonBorder {
         return DefaultButtonBorder(
             borderStroke = borderStroke,
-            disabledBorderStroke = disabledBorderStroke
+            disabledBorderStroke = disabledBorderStroke,
         )
     }
 
@@ -565,11 +562,11 @@ public object ButtonDefaults {
     public fun outlinedButtonBorder(
         borderColor: Color = MaterialTheme.colors.primaryVariant.copy(alpha = 0.6f),
         disabledBorderColor: Color = borderColor.copy(alpha = ContentAlpha.disabled),
-        borderWidth: Dp = 1.dp
+        borderWidth: Dp = 1.dp,
     ): ButtonBorder {
         return DefaultButtonBorder(
             borderStroke = BorderStroke(borderWidth, borderColor),
-            disabledBorderStroke = BorderStroke(borderWidth, disabledBorderColor)
+            disabledBorderStroke = BorderStroke(borderWidth, disabledBorderColor),
         )
     }
 
@@ -623,13 +620,13 @@ public object ButtonDefaults {
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         disabledBackgroundColor: Color = backgroundColor.copy(alpha = ContentAlpha.disabled),
-        disabledContentColor: Color = contentColor.copy(alpha = ContentAlpha.disabled)
+        disabledContentColor: Color = contentColor.copy(alpha = ContentAlpha.disabled),
     ): ButtonColors =
         DefaultButtonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             disabledBackgroundColor = disabledBackgroundColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 }
 
@@ -639,7 +636,7 @@ private class DefaultButtonColors(
     private val backgroundColor: Color,
     private val contentColor: Color,
     private val disabledBackgroundColor: Color,
-    private val disabledContentColor: Color
+    private val disabledContentColor: Color,
 ) : ButtonColors {
     @Composable
     override fun backgroundColor(enabled: Boolean): State<Color> {
@@ -679,7 +676,7 @@ private class DefaultButtonColors(
 @Immutable
 private class DefaultButtonBorder(
     private val borderStroke: BorderStroke? = null,
-    private val disabledBorderStroke: BorderStroke? = null
+    private val disabledBorderStroke: BorderStroke? = null,
 ) : ButtonBorder {
     @Composable
     override fun borderStroke(enabled: Boolean): State<BorderStroke?> {

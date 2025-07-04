@@ -116,7 +116,7 @@ class InputMethodInterceptor(private val rule: ComposeContentTestRule) {
      */
     fun <T : PlatformTextInputMethodRequest> withCurrentRequest(
         asClass: KClass<T>,
-        block: T.() -> Unit
+        block: T.() -> Unit,
     ) {
         runOnIdle {
             val currentRequest =

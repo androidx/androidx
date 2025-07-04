@@ -30,7 +30,7 @@ private enum class DraggableAnchorsSampleValue {
     HalfStart,
     Center,
     HalfEnd,
-    End
+    End,
 }
 
 @RunWith(AndroidJUnit4::class)

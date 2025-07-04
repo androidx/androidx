@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.config;
 
 import android.util.Range;
+import android.util.Rational;
 
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy;
@@ -25,6 +26,7 @@ import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.core.util.Supplier;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link AudioSettings} supplier that resolves requested audio settings from an
@@ -36,6 +38,8 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
 
     private final AudioSpec mAudioSpec;
     private final AudioProfileProxy mAudioProfile;
+    @Nullable
+    private final Rational mCaptureToEncodeRatio;
 
     /**
      * Constructor for an AudioSettingsAudioProfileResolver.
@@ -44,11 +48,13 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
      *                      settings.
      * @param audioSpec     The {@link AudioSpec} which defines the settings that should be used
      *                      with the audio source.
+     * @param captureToEncodeRatio The capture to encode sample rate ratio.
      */
     public AudioSettingsAudioProfileResolver(@NonNull AudioSpec audioSpec,
-            @NonNull AudioProfileProxy audioProfile) {
+            @NonNull AudioProfileProxy audioProfile, @Nullable Rational captureToEncodeRatio) {
         mAudioSpec = audioSpec;
         mAudioProfile = audioProfile;
+        mCaptureToEncodeRatio = captureToEncodeRatio;
     }
 
     @Override
@@ -60,8 +66,6 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
         int resolvedSourceFormat = AudioConfigUtil.resolveAudioSourceFormat(mAudioSpec);
 
         int audioSpecChannelCount = mAudioSpec.getChannelCount();
-        Range<Integer> audioSpecSampleRate = mAudioSpec.getSampleRate();
-        int resolvedSampleRate;
         int resolvedChannelCount;
         int audioProfileChannelCount = mAudioProfile.getChannels();
         if (audioSpecChannelCount == AudioSpec.CHANNEL_COUNT_AUTO) {
@@ -75,19 +79,22 @@ public final class AudioSettingsAudioProfileResolver implements Supplier<AudioSe
                     + ", Resolved Channel Count: " + resolvedChannelCount + "]");
         }
 
+        Range<Integer> audioSpecSampleRate = mAudioSpec.getSampleRate();
         int audioProfileSampleRate = mAudioProfile.getSampleRate();
-        resolvedSampleRate = AudioConfigUtil.selectSampleRateOrNearestSupported(
-                audioSpecSampleRate, resolvedChannelCount, resolvedSourceFormat,
-                audioProfileSampleRate);
+        CaptureEncodeRates resolvedSampleRates = AudioConfigUtil.resolveSampleRates(
+                audioSpecSampleRate, audioProfileSampleRate, resolvedChannelCount,
+                resolvedSourceFormat, mCaptureToEncodeRatio);
         Logger.d(TAG, "Using resolved AUDIO sample rate or nearest supported from "
-                + "AudioProfile: " + resolvedSampleRate + "Hz. [AudioProfile sample rate: "
-                + audioProfileSampleRate + "Hz]");
+                + "AudioProfile: Capture sample rate: " + resolvedSampleRates.getCaptureRate()
+                + "Hz. Encode sample rate: " + resolvedSampleRates.getEncodeRate() + "Hz. "
+                + "[AudioProfile sample rate: " + audioProfileSampleRate + "Hz]");
 
         return AudioSettings.builder()
                 .setAudioSource(resolvedAudioSource)
                 .setAudioFormat(resolvedSourceFormat)
                 .setChannelCount(resolvedChannelCount)
-                .setSampleRate(resolvedSampleRate)
+                .setCaptureSampleRate(resolvedSampleRates.getCaptureRate())
+                .setEncodeSampleRate(resolvedSampleRates.getEncodeRate())
                 .build();
     }
 }

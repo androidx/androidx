@@ -29,11 +29,11 @@ import java.time.Instant
 suspend fun DeleteByUniqueIdentifier(
     healthConnectClient: HealthConnectClient,
     uid1: String,
-    uid2: String
+    uid2: String,
 ) {
     healthConnectClient.deleteRecords<StepsRecord>(
         recordIdsList = listOf(uid1, uid2),
-        clientRecordIdsList = emptyList()
+        clientRecordIdsList = emptyList(),
     )
 }
 
@@ -41,7 +41,7 @@ suspend fun DeleteByUniqueIdentifier(
 suspend fun DeleteByTimeRange(
     healthConnectClient: HealthConnectClient,
     startTime: Instant,
-    endTime: Instant
+    endTime: Instant,
 ) {
     healthConnectClient.deleteRecords<StepsRecord>(
         timeRangeFilter = TimeRangeFilter.between(startTime, endTime)

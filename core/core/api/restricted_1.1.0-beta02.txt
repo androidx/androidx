@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package android.support.v4.os {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ResultReceiver implements android.os.Parcelable {
@@ -118,15 +118,13 @@ package androidx.core.content {
 
 package androidx.core.content.pm {
 
-
-
   public class ShortcutInfoCompat {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.graphics.drawable.IconCompat! getIcon();
   }
 
   public static class ShortcutInfoCompat.Builder {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(androidx.core.content.pm.ShortcutInfoCompat);
     ctor @RequiresApi(25) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(android.content.Context, android.content.pm.ShortcutInfo);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(androidx.core.content.pm.ShortcutInfoCompat);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
@@ -136,7 +134,6 @@ package androidx.core.content.pm {
     method @AnyThread public abstract T! removeAllShortcuts();
     method @AnyThread public abstract T! removeShortcuts(java.util.List<java.lang.String!>!);
   }
-
 
 }
 
@@ -237,7 +234,7 @@ package androidx.core.graphics {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? findFromCache(android.content.res.Resources, int, int);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(26) public class TypefaceCompatApi26Impl {
+  @RequiresApi(26) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatApi26Impl {
     ctor public TypefaceCompatApi26Impl();
     method protected android.graphics.Typeface? createFromFamiliesWithDefault(Object!);
     method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
@@ -259,7 +256,7 @@ package androidx.core.graphics {
     field protected final java.lang.reflect.Method! mFreeze;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(28) public class TypefaceCompatApi28Impl extends androidx.core.graphics.TypefaceCompatApi26Impl {
+  @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatApi28Impl extends androidx.core.graphics.TypefaceCompatApi26Impl {
     ctor public TypefaceCompatApi28Impl();
     method public android.graphics.Typeface! createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface! createFromFontInfo(android.content.Context!, android.os.CancellationSignal!, androidx.core.provider.FontsContractCompat.FontInfo![], int);
@@ -269,8 +266,8 @@ package androidx.core.graphics {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatUtil {
     method public static void closeQuietly(java.io.Closeable!);
     method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context!, android.content.res.Resources!, int);
-    method public static boolean copyToFile(java.io.File!, java.io.InputStream!);
     method public static boolean copyToFile(java.io.File!, android.content.res.Resources!, int);
+    method public static boolean copyToFile(java.io.File!, java.io.InputStream!);
     method public static java.io.File? getTempFile(android.content.Context!);
     method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context!, android.os.CancellationSignal!, android.net.Uri!);
   }
@@ -287,7 +284,6 @@ package androidx.core.graphics.drawable {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap? getBitmap();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mType;
   }
-
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TintAwareDrawable {
     method public void setTint(@ColorInt int);
@@ -360,7 +356,7 @@ package androidx.core.provider {
   public class FontsContractCompat {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFontSync(android.content.Context!, androidx.core.provider.FontRequest!, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean, int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static android.content.pm.ProviderInfo? getProvider(android.content.pm.PackageManager, androidx.core.provider.FontRequest, android.content.res.Resources?) throws android.content.pm.PackageManager.NameNotFoundException;
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
+    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void resetCache();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String PARCEL_FONT_RESULTS = "font_results";
   }
@@ -435,18 +431,18 @@ package androidx.core.util {
     method public static void checkArgument(boolean);
     method public static void checkArgument(boolean, Object);
     method public static int checkArgumentInRange(int, int, int, String);
-    method @IntRange(from=0) public static int checkArgumentNonnegative(int, String?);
     method @IntRange(from=0) public static int checkArgumentNonnegative(int);
+    method @IntRange(from=0) public static int checkArgumentNonnegative(int, String?);
     method public static <T> T checkNotNull(T?);
     method public static <T> T checkNotNull(T?, Object);
-    method public static void checkState(boolean, String?);
     method public static void checkState(boolean);
+    method public static void checkState(boolean, String?);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TimeUtils {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, StringBuilder!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, java.io.PrintWriter!, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, java.io.PrintWriter!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, java.io.PrintWriter!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, StringBuilder!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, long, java.io.PrintWriter!);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int HUNDRED_DAY_FIELD_LEN = 19; // 0x13
   }

@@ -21,9 +21,11 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 
 @PrivacySandboxService
 interface IMediateeSdkApi {
-    suspend fun loadBannerAd(
+    suspend fun loadAd(
+        adFormat: Int,
         adType: Int,
         waitInsideOnDraw: Boolean,
-        drawViewability: Boolean
+        drawViewability: Boolean,
+        automatedTestCallbackBundle: Bundle,
     ): Bundle
 }

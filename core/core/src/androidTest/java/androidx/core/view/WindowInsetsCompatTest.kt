@@ -15,6 +15,7 @@
  */
 package androidx.core.view
 
+import android.graphics.Rect
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -146,6 +147,39 @@ class WindowInsetsCompatTest {
         assertEquals(systemOverlays, result.getInsets(Type.systemOverlays()))
         assertEquals(Insets.of(10, 50, 0, 100), result.getInsets(Type.systemBars()))
         assertEquals(Insets.of(10, 50, 0, 100), result.systemWindowInsets)
+    }
+
+    /** On API 31+ we can test the rounded corner. */
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public fun builder_min31_roundedCorner() {
+        val position = RoundedCornerCompat.POSITION_BOTTOM_RIGHT
+        val roundedCorner =
+            RoundedCornerCompat(position, 1 /* radius */, 2 /* centerX */, 3 /* centerY */)
+
+        val result = WindowInsetsCompat.Builder().setRoundedCorner(position, roundedCorner).build()
+
+        assertEquals(roundedCorner, result.getRoundedCorner(position))
+    }
+
+    /** On API 31+ we can test the privacy indicator bounds. */
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public fun builder_min31_privacyIndicatorBounds() {
+        val bounds = Rect(1, 2, 3, 4)
+        val boundsInput = Rect(bounds)
+        val result = WindowInsetsCompat.Builder().setPrivacyIndicatorBounds(boundsInput).build()
+        val boundsOutput = result.privacyIndicatorBounds
+
+        assertEquals(bounds, boundsOutput)
+
+        // Changing the output here must not affect result.privacyIndicatorBounds
+        boundsOutput?.set(5, 6, 7, 8)
+        assertEquals(bounds, result.privacyIndicatorBounds)
+
+        // Changing the input here must not affect result.privacyIndicatorBounds
+        boundsInput.set(9, 10, 11, 12)
+        assertEquals(bounds, result.privacyIndicatorBounds)
     }
 
     /** On API 29+ we can test more types. */

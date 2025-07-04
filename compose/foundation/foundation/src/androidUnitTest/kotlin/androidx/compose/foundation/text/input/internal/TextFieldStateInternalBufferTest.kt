@@ -318,7 +318,7 @@ class TextFieldStateInternalBufferTest {
             TextFieldCharSequence(
                 state.text,
                 selection = newSelection,
-                composition = state.composition
+                composition = state.composition,
             )
         state.syncMainBufferToTemporaryBuffer(newValue)
 
@@ -334,7 +334,7 @@ class TextFieldStateInternalBufferTest {
                 TextFieldCharSequence(
                     "abc",
                     selection = TextRange(3),
-                    composition = TextRange(0, 3)
+                    composition = TextRange(0, 3),
                 )
             )
 
@@ -355,7 +355,7 @@ class TextFieldStateInternalBufferTest {
                 TextFieldCharSequence(
                     "abc",
                     selection = TextRange(3),
-                    composition = TextRange(0, 3)
+                    composition = TextRange(0, 3),
                 )
             )
 
@@ -376,7 +376,7 @@ class TextFieldStateInternalBufferTest {
                 TextFieldCharSequence(
                     "abc",
                     selection = TextRange(3),
-                    composition = TextRange(0, 3)
+                    composition = TextRange(0, 3),
                 )
             )
 
@@ -545,7 +545,7 @@ class TextFieldStateInternalBufferTest {
 
 internal fun TextFieldState.withImeScope(
     inputTransformation: InputTransformation? = null,
-    block: ImeEditCommandScope.() -> Unit
+    block: ImeEditCommandScope.() -> Unit,
 ) {
     val transformedState = TransformedTextFieldState(this, inputTransformation)
     with(DefaultImeEditCommandScope(transformedState)) {

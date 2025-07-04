@@ -452,7 +452,7 @@ class AnimationSearchTest {
 
     private fun animationIsFound(
         search: AnimationSearch.Search<*>,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val hasAnimations = rule.hasAnimations(search) { content() }
         assertTrue(hasAnimations)

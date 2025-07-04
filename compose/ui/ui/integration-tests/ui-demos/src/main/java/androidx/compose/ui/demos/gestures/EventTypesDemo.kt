@@ -104,10 +104,7 @@ fun EventTypesDemo() {
     }
 }
 
-private fun addEvent(
-    event: PointerEvent,
-    events: MutableList<Pair<PointerEventType, Any>>,
-) {
+private fun addEvent(event: PointerEvent, events: MutableList<Pair<PointerEventType, Any>>) {
     event.changes.forEach { it.consume() }
     val scrollTotal = event.changes.foldRight(Offset.Zero) { c, acc -> acc + c.scrollDelta }
     if (events.lastOrNull()?.first == event.type) {

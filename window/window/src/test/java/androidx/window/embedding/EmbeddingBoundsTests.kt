@@ -58,7 +58,7 @@ class EmbeddingBoundsTests {
                 EmbeddingBounds.translateEmbeddingBounds(
                         EmbeddingBounds.BOUNDS_EXPANDED,
                         taskBounds,
-                        layoutInfoWithVerticalHinge
+                        layoutInfoWithVerticalHinge,
                     )
                     .isZero
             )
@@ -75,7 +75,7 @@ class EmbeddingBoundsTests {
                             height = EmbeddingBounds.Dimension.pixel(taskBounds.height),
                         ),
                         taskBounds,
-                        layoutInfoWithVerticalHinge
+                        layoutInfoWithVerticalHinge,
                     )
                     .isZero
             )
@@ -92,7 +92,7 @@ class EmbeddingBoundsTests {
                             height = EmbeddingBounds.Dimension.pixel(taskBounds.height + 1),
                         ),
                         taskBounds,
-                        layoutInfoWithVerticalHinge
+                        layoutInfoWithVerticalHinge,
                     )
                     .isZero
             )
@@ -153,7 +153,7 @@ class EmbeddingBoundsTests {
                 EmbeddingBounds.translateEmbeddingBounds(
                     EmbeddingBounds.BOUNDS_HINGE_TOP,
                     taskBounds,
-                    layoutInfoWithoutHinge
+                    layoutInfoWithoutHinge,
                 )
             )
             .isEqualTo(fallbackBoundsHingeTop)

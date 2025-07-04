@@ -30,7 +30,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.content.Context;
 import android.database.Cursor;
 
-import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
@@ -50,6 +49,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.common.truth.Truth;
 
 import org.hamcrest.MatcherAssert;
+import org.jspecify.annotations.NonNull;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

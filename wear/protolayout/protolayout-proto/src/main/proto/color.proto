@@ -80,10 +80,46 @@ message SweepGradient {
   DegreesProp end_angle = 3;
 }
 
+// A linear gradient with the provided colors based on defined start and end
+// coordinates.
+//
+// The colors are dispersed at the offsets defined in each color stop.
+message LinearGradient {
+  // The color stops defining how the colors are distributed from the start to
+  // the end coordinates.
+  //
+  // A color stop is a pair of a color and its offset in the gradient.
+  // The offset is the relative position of the color, beginning with 0 at the
+  // start coordinate and ending with 1.0 at the end coordinate.
+  //
+  // There must be at least 2 colors and at most 10 colors.
+  //
+  // If offset values are not set, the colors are evenly distributed in the
+  // gradient.
+  repeated ColorStop color_stops = 1;
+
+  // The starting x position of the linear gradient. Defaults to the left side
+  // of the element.
+  OffsetDimension start_x = 2;
+
+  // The starting y position of the linear gradient. Defaults to the top side of
+  // the element.
+  OffsetDimension start_y = 3;
+
+  // The ending y position of the linear gradient. Defaults to the right side of
+  // the element.
+  OffsetDimension end_x = 4;
+
+  // The ending y position of the linear gradient. Defaults to the top side of
+  // the element.
+  OffsetDimension end_y = 5;
+}
+
 // A Brush describes how something is drawn on screen.
 // It determines the color(s) that are drawn in the drawing area.
 message Brush {
   oneof inner {
     SweepGradient sweep_gradient = 1;
+    LinearGradient linear_gradient = 2;
   }
 }

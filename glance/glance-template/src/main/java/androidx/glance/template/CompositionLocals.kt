@@ -16,6 +16,8 @@
 
 package androidx.glance.template
 
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 
-val LocalTemplateMode = compositionLocalOf<TemplateMode> { error("No template mode provided") }
+public val LocalTemplateMode: ProvidableCompositionLocal<TemplateMode> =
+    compositionLocalOf<TemplateMode> { error("No template mode provided") }

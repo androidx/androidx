@@ -39,12 +39,12 @@ import androidx.navigation.NavController
  */
 public fun Toolbar.setupWithNavController(
     navController: NavController,
-    drawerLayout: DrawerLayout?
+    drawerLayout: DrawerLayout?,
 ) {
     NavigationUI.setupWithNavController(
         this,
         navController,
-        AppBarConfiguration(navController.graph, drawerLayout)
+        AppBarConfiguration(navController.graph, drawerLayout),
     )
 }
 
@@ -66,7 +66,7 @@ public fun Toolbar.setupWithNavController(
  */
 public fun Toolbar.setupWithNavController(
     navController: NavController,
-    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
+    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph),
 ) {
     NavigationUI.setupWithNavController(this, navController, configuration)
 }

@@ -101,7 +101,7 @@ class RecyclerViewSmoothScrollToPositionTest {
                 override fun smoothScrollToPosition(
                     recyclerView: RecyclerView,
                     state: RecyclerView.State,
-                    position: Int
+                    position: Int,
                 ) {
                     val linearSmoothScroller: LinearSmoothScroller =
                         object : LinearSmoothScroller(recyclerView.context) {
@@ -134,7 +134,7 @@ class RecyclerViewSmoothScrollToPositionTest {
                 500 to itemHeight * itemsPerScreen,
                 500 to itemHeight,
                 itemsPerScreen * totalScreens,
-                layoutManager = layoutManager
+                layoutManager = layoutManager,
             )
 
         // Act
@@ -147,11 +147,11 @@ class RecyclerViewSmoothScrollToPositionTest {
 
         Assert.assertTrue(
             "onStart should be called quickly ",
-            calledOnStart.await(2, TimeUnit.SECONDS)
+            calledOnStart.await(2, TimeUnit.SECONDS),
         )
         Assert.assertTrue(
             "onStop should be called eventually",
-            calledOnStop.await(30, TimeUnit.SECONDS)
+            calledOnStop.await(30, TimeUnit.SECONDS),
         )
 
         // This needs to be run on the UI thread 1) due to inspecting the results of operations
@@ -166,7 +166,7 @@ class RecyclerViewSmoothScrollToPositionTest {
                     ", last visible item: " +
                     layoutManager.findLastVisibleItemPosition() +
                     ")",
-                recyclerView.findViewHolderForLayoutPosition(targetPosition)
+                recyclerView.findViewHolderForLayoutPosition(targetPosition),
             )
         }
     }
@@ -176,7 +176,7 @@ class RecyclerViewSmoothScrollToPositionTest {
         itemDimensions: Pair<Int, Int>,
         numItems: Int,
         context: Context = mActivityTestRule.activity,
-        layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context)
+        layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(context),
     ): RecyclerView {
 
         val recyclerView = RecyclerView(context)

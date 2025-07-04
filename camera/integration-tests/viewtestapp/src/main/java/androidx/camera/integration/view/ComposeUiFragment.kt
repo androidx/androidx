@@ -63,14 +63,14 @@ class ComposeUiFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val bundle: Bundle? = requireActivity().intent.extras
         if (bundle != null) {
             val scaleTypeId =
                 bundle.getInt(
                     MainActivity.INTENT_EXTRA_SCALE_TYPE,
-                    MainActivity.DEFAULT_SCALE_TYPE_ID
+                    MainActivity.DEFAULT_SCALE_TYPE_ID,
                 )
             currentScaleType = PreviewView.ScaleType.values()[scaleTypeId]
 
@@ -140,30 +140,26 @@ class ComposeUiFragment : Fragment() {
         previewView.layoutParams =
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+                ViewGroup.LayoutParams.MATCH_PARENT,
             )
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(factory = { previewView })
             Column(
                 modifier = Modifier.fillMaxSize().padding(20.dp),
-                verticalArrangement = Arrangement.Bottom
+                verticalArrangement = Arrangement.Bottom,
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround,
                     // Distribute buttons with spacing
                 ) {
-                    Button(
-                        onClick = ::onToggleEffect,
-                    ) {
-                        Text("Effect")
-                    }
+                    Button(onClick = ::onToggleEffect) { Text("Effect") }
                     Button(onClick = ::onToggleCamera) { Text("Toggle") }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround,
                 ) {
                     Button(onClick = ::onTakePicture) { Text("Capture") }
                     Button(onClick = ::onRecord) { Text("Record") }

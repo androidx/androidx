@@ -61,7 +61,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         WZfkttr1sYuFITTudCoInZFU4qnKp6J449PMKsGrroqZuJduiF4qZWQuxrKU
         1r1RShtupFYlhmBooH4nQhO+7Yd2ilAXff5bRxadBRtmOHZf4wAntg+t2rKL
         WxN4CdoJggTb2Emwi70EHYQTUIku9idgJZolen+absHWdwEAAA==
-        """
+        """,
         )
 
     private val ExperimentalMaterialApiStub =
@@ -99,7 +99,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         oNI2WdqjNzriW6y3Mp4rpg/a6m5Eiwu0Ao1rLkzGf7C7bBG3uNVKPh4K2OHo
         4Qkkr285rzC3RriNO7j7C95DFesoYqODQoj7IR6EeIhNhngUooZ6B8JiC40O
         PIvHFtt4yoet8W7+0ihbrP4EIBEHSxkDAAA=
-        """
+        """,
         )
 
     private val Material3ButtonStub =
@@ -128,7 +128,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         yFnn5Lba9bGzuSE0bnUqCJ2RVOKxyqeieOXTzCrBi66KmbiTboieK2VkLsay
         lNa9VkobbqRWJYZgaKB+J0ITvu37dopQF33+WwcWnQUbZjh0X2MPR7YPrdqy
         ixsTeAnaCYIEm9hKsI2dBB2EE1CJLnYnYCWaJXp/zsaw43gBAAA=
-        """
+        """,
         )
 
     private val RippleStub =
@@ -157,7 +157,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         BaxbC/a7LuuTk4bkvhql2e3SECqPOrG2rZFU4nXtknzwmQviv+t1PhdP0g3h
         eK2MzMREFtKqD0ppw43UqsAADBWUcUJUUbN8YacQZdHXQbq06CTYY4Yrlxrn
         uLY8sNu6fTyawovRiOHHOMZJjFM0Y7QQTEEF2jibghWoFuj8AynVobWGAQAA
-        """
+        """,
         )
 
     private val IconsStub =
@@ -190,7 +190,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         9aqVnh0S+XukHPId8py+RqXWSfm2YfKNp5dwL6rtjXkxCHKfbPt3AVqEAlws
         /Dm8StV2LVyBH1+i/RmLF1WC40Fl72Kz+qdo+ARYPkEtwI0ANwPcwgqFWA3Q
         Re8ErMRtrNF+Ca/EnRLOL4cbczOQAgAA
-        """
+        """,
         )
 
     private val PullRefreshStub =
@@ -220,7 +220,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         xI20hz8oUi0TMZS5NO5VmirNtVRpjh4YSth08lFGxex9c/nYDL3/WgcGrQUT
         Zji01bGHI7N7Rq2ax60RnBC1EG6IOrZD7KARoglvBMrRwu4ILEc5R/sHIVOo
         LJIBAAA=
-        """
+        """,
         )
 
     @Test
@@ -246,7 +246,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
                 Material3ButtonStub,
                 RippleStub,
                 IconsStub,
-                PullRefreshStub
+                PullRefreshStub,
             )
             .run()
             .expect(
@@ -281,7 +281,7 @@ src/foo/test.kt:4: Warning: Using a material import while also using the materia
                 Material3ButtonStub,
                 RippleStub,
                 IconsStub,
-                PullRefreshStub
+                PullRefreshStub,
             )
             .run()
             .expect(

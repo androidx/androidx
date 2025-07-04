@@ -60,11 +60,7 @@ class CaptureConfigAdapterTest {
         val dispatcher = executor.asCoroutineDispatcher()
         val cameraScope = CoroutineScope(Job() + dispatcher)
 
-        UseCaseThreads(
-            cameraScope,
-            executor,
-            dispatcher,
-        )
+        UseCaseThreads(cameraScope, executor, dispatcher)
     }
     private val fakeCameraProperties = FakeCameraProperties()
     private val surface = FakeSurface()
@@ -86,7 +82,7 @@ class CaptureConfigAdapterTest {
             configAdapter.mapToRequest(
                 captureConfig,
                 RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionConfigOptions
+                sessionConfigOptions,
             )
         }
     }
@@ -103,7 +99,7 @@ class CaptureConfigAdapterTest {
             configAdapter.mapToRequest(
                 captureConfig,
                 RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionConfigOptions
+                sessionConfigOptions,
             )
         }
 
@@ -137,7 +133,7 @@ class CaptureConfigAdapterTest {
             configAdapter.mapToRequest(
                 captureConfig,
                 RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionConfigOptions
+                sessionConfigOptions,
             )
         request.listeners.forEach { listener -> listener.onAborted(request) }
 
@@ -164,7 +160,7 @@ class CaptureConfigAdapterTest {
                 .apply {
                     setCaptureRequestOption(
                         CaptureRequest.FLASH_MODE,
-                        CaptureRequest.FLASH_MODE_OFF
+                        CaptureRequest.FLASH_MODE_OFF,
                     )
                 }
                 .build()
@@ -174,7 +170,7 @@ class CaptureConfigAdapterTest {
             configAdapter.mapToRequest(
                 captureConfig,
                 RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionConfigOptions
+                sessionConfigOptions,
             )
 
         // Assert
@@ -205,7 +201,7 @@ class CaptureConfigAdapterTest {
             configAdapter.mapToRequest(
                 captureConfig,
                 RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionConfigOptions
+                sessionConfigOptions,
             )
 
         // Assert
@@ -236,7 +232,7 @@ class CaptureConfigAdapterTest {
             configAdapter.mapToRequest(
                 captureConfig,
                 RequestTemplate(CameraDevice.TEMPLATE_PREVIEW),
-                sessionConfigOptions
+                sessionConfigOptions,
             )
 
         // Assert, the options of the single capture should have higher priority.

@@ -86,7 +86,7 @@ fun MultiButtonsWithLoggingUsingPointerInput() {
                             }
                         }
                     },
-                text = "Button 1"
+                text = "Button 1",
             )
 
             Text(
@@ -100,7 +100,7 @@ fun MultiButtonsWithLoggingUsingPointerInput() {
                             }
                         }
                     },
-                text = "Button 2"
+                text = "Button 2",
             )
 
             Text(
@@ -113,7 +113,7 @@ fun MultiButtonsWithLoggingUsingPointerInput() {
                             }
                         }
                     },
-                text = "Clear output"
+                text = "Clear output",
             )
         }
 

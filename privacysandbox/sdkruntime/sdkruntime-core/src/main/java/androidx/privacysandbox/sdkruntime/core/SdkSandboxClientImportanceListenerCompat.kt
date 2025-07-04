@@ -24,7 +24,7 @@ package androidx.privacysandbox.sdkruntime.core
  * implementation of this interface by calling
  * [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.registerSdkSandboxClientImportanceListener].
  */
-interface SdkSandboxClientImportanceListenerCompat {
+public interface SdkSandboxClientImportanceListenerCompat {
     /**
      * Invoked every time the client transitions from a value <=
      * [android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND] to a higher value
@@ -34,5 +34,5 @@ interface SdkSandboxClientImportanceListenerCompat {
      *   [android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND] or lower and
      *   false when it is the other way round.
      */
-    fun onForegroundImportanceChanged(isForeground: Boolean)
+    public fun onForegroundImportanceChanged(isForeground: Boolean)
 }

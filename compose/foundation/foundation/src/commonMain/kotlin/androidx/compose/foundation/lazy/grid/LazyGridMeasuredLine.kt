@@ -65,7 +65,7 @@ constructor(
                     layoutWidth = layoutWidth,
                     layoutHeight = layoutHeight,
                     row = if (isVertical) index else startSlot,
-                    column = if (isVertical) startSlot else index
+                    column = if (isVertical) startSlot else index,
                 )
                 .also { usedSpan += span }
         }

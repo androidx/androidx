@@ -17,6 +17,7 @@
 package androidx.biometric
 
 import androidx.annotation.MainThread
+import androidx.annotation.RestrictTo
 
 /**
  * A launcher for a previously-[prepared call][registerForAuthenticationResult] to start the process
@@ -35,4 +36,11 @@ public interface AuthenticationResultLauncher {
      * callback, and any references captured within it.
      */
     public fun cancel()
+
+    /**
+     * Unregisters this launcher, releasing the underlying result callback, and any references
+     * captured within it, without cancelling the authentication. This is mainly for activity's
+     * recreation (e.g. configurations). It should be used only internally.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY) public fun unregister()
 }

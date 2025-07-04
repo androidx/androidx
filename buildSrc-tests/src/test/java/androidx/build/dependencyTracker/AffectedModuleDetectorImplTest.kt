@@ -172,6 +172,7 @@ class AffectedModuleDetectorImplTest {
         override fun get(): List<String> = list
         override fun getOrNull(): List<String> = list
         override fun isPresent(): Boolean = TODO("unused")
+        @Deprecated("Super method is deprecated")
         override fun forUseAtConfigurationTime(): Provider<List<String>> = TODO("unused")
         override fun <U : Any?, R : Any?> zip(
             right: Provider<U>,

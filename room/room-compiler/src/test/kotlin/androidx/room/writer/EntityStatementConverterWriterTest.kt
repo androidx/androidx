@@ -99,20 +99,17 @@ class EntityStatementConverterWriterTest : BaseEntityParserTest() {
                 |}
                 """
                     .trimMargin()
-            }
+            },
         )
     }
 
-    private fun generateAndMatch(
-        input: String,
-        output: (Boolean) -> String,
-    ) {
+    private fun generateAndMatch(input: String, output: (Boolean) -> String) {
         generate(input) {
             it.assertCompilationResult {
                 generatedSource(
                     Source.java(
                         qName = "foo.bar.MyContainerClass",
-                        code = listOf(OUT_PREFIX, output(it.isKsp), OUT_SUFFIX).joinToString("\n")
+                        code = listOf(OUT_PREFIX, output(it.isKsp), OUT_SUFFIX).joinToString("\n"),
                     )
                 )
             }

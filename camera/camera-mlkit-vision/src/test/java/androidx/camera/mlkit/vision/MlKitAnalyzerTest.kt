@@ -69,7 +69,7 @@ class MlKitAnalyzerTest {
             MlKitAnalyzer(
                 listOf(closedDetector, openDetector),
                 ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
-                directExecutor()
+                directExecutor(),
             ) {
                 result = it
             }
@@ -90,7 +90,7 @@ class MlKitAnalyzerTest {
             MlKitAnalyzer(
                 listOf(fakeDetector),
                 ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
-                directExecutor()
+                directExecutor(),
             ) {
                 result = it
             }
@@ -109,7 +109,7 @@ class MlKitAnalyzerTest {
             MlKitAnalyzer(
                 listOf(barcodeScanner, faceDetector),
                 ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
-                directExecutor()
+                directExecutor(),
             ) {}
 
         assertThat(mlKitAnalyzer.defaultTargetResolution).isEqualTo(Size(1280, 720))
@@ -126,7 +126,7 @@ class MlKitAnalyzerTest {
             MlKitAnalyzer(
                 listOf(failDetector, successDetector),
                 ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL,
-                directExecutor()
+                directExecutor(),
             ) {
                 result = it
             }
@@ -151,7 +151,7 @@ class MlKitAnalyzerTest {
         MlKitAnalyzer(
             listOf(FakeDetector(RETURN_VALUE, Detector.TYPE_SEGMENTATION)),
             COORDINATE_SYSTEM_VIEW_REFERENCED,
-            directExecutor()
+            directExecutor(),
         ) {}
     }
 

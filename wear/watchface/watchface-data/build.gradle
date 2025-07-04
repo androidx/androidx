@@ -21,12 +21,12 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -38,6 +38,14 @@ dependencies {
 
     implementation("androidx.core:core:1.1.0")
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions.suppressWarnings = true
+}
+
+tasks.withType(JavaCompile){
+    options.compilerArgs <<"-Xlint:-deprecation"
 }
 
 android {
@@ -57,8 +65,9 @@ android {
 
 androidx {
     name = "Android Wear Watchface Data"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Wear Watchface hidden AIDL implementaion details"
     legacyDisableKotlinStrictApiMode = true
+    failOnDeprecationWarnings = false
 }

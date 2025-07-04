@@ -54,6 +54,9 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * For more information, see
  * https://developer.android.com/jetpack/compose/tooling/previews#preview-limitations
  *
+ * The schema renderer version used to render the preview will match the version of the tiles
+ * library.
+ *
  * The annotation contains a number of parameters that allow to define the way the Tile will be
  * rendered within the preview. The passed parameters are only read by Studio when rendering the
  * preview.

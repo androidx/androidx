@@ -32,7 +32,7 @@ private constructor(
      * The value 0 indicates there is no alias for this issue. Non-zero alias values are unique
      * across all known issues.
      */
-    val alias: Int
+    val alias: Int,
 ) {
     // TODO b/381266031 - Make public
     // TODO b/381267367 - Add link to public list issues

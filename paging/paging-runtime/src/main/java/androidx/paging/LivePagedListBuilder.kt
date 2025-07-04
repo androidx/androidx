@@ -72,12 +72,12 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.Pager",
                 "androidx.paging.PagingConfig",
                 "androidx.paging.liveData",
-                "kotlinx.coroutines.Dispatchers"
-            )
+                "kotlinx.coroutines.Dispatchers",
+            ),
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
-        @Suppress("DEPRECATION") config: PagedList.Config
+        @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
         this.pagingSourceFactory = null
         this.dataSourceFactory = dataSourceFactory
@@ -109,12 +109,12 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
                 "androidx.paging.Pager",
                 "androidx.paging.PagingConfig",
                 "androidx.paging.liveData",
-                "kotlinx.coroutines.Dispatchers"
-            )
+                "kotlinx.coroutines.Dispatchers",
+            ),
     )
     constructor(
         dataSourceFactory: DataSource.Factory<Key, Value>,
-        pageSize: Int
+        pageSize: Int,
     ) : this(dataSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
 
     /**
@@ -149,12 +149,12 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             ).liveData""",
                 "androidx.paging.Pager",
                 "androidx.paging.PagingConfig",
-                "androidx.paging.liveData"
-            )
+                "androidx.paging.liveData",
+            ),
     )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
-        @Suppress("DEPRECATION") config: PagedList.Config
+        @Suppress("DEPRECATION") config: PagedList.Config,
     ) {
         this.pagingSourceFactory = pagingSourceFactory
         this.dataSourceFactory = null
@@ -194,12 +194,12 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             ).liveData""",
                 "androidx.paging.Pager",
                 "androidx.paging.PagingConfig",
-                "androidx.paging.liveData"
-            )
+                "androidx.paging.liveData",
+            ),
     )
     constructor(
         pagingSourceFactory: () -> PagingSource<Key, Value>,
-        pageSize: Int
+        pageSize: Int,
     ) : this(pagingSourceFactory, PagedList.Config.Builder().setPageSize(pageSize).build())
 
     /**
@@ -290,7 +290,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             boundaryCallback,
             pagingSourceFactory,
             ArchTaskExecutor.getMainThreadExecutor().asCoroutineDispatcher(),
-            fetchDispatcher
+            fetchDispatcher,
         )
     }
 }

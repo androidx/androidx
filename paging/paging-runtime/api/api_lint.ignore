@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ExecutorRegistration: androidx.paging.AsyncPagingDataDiffer#AsyncPagingDataDiffer(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>, androidx.recyclerview.widget.ListUpdateCallback):
+    Registration methods should have overload that accepts delivery Executor: `AsyncPagingDataDiffer`

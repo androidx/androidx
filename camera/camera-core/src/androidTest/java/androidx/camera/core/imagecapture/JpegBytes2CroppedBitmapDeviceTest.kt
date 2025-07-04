@@ -60,7 +60,7 @@ class JpegBytes2CroppedBitmapTest {
                 cropRect,
                 90,
                 transform,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.

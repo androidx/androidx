@@ -1,0 +1,33 @@
+// Signature format: 4.0
+package androidx.xr.projected {
+
+  public final class ProjectedContext {
+    method public static android.content.Intent addProjectedFlags(android.content.Intent intent);
+    method public static android.content.Context createHostDeviceContext(android.content.Context context);
+    method public static android.app.ActivityOptions createProjectedActivityOptions(android.content.Context context);
+    method public static android.content.Context createProjectedDeviceContext(android.content.Context context);
+    method public static String? getProjectedDeviceName(android.content.Context context);
+    method public static boolean isProjectedDeviceContext(android.content.Context context);
+    field public static final androidx.xr.projected.ProjectedContext INSTANCE;
+  }
+
+}
+
+package androidx.xr.projected.permissions {
+
+  public final class ProjectedPermissionsRequestParams {
+    ctor public ProjectedPermissionsRequestParams(java.util.List<java.lang.String> permissions, String? rationale);
+    method public java.util.List<java.lang.String> getPermissions();
+    method public String? getRationale();
+    property public java.util.List<java.lang.String> permissions;
+    property public String? rationale;
+  }
+
+  public final class ProjectedPermissionsResultContract extends androidx.activity.result.contract.ActivityResultContract<java.util.List<? extends androidx.xr.projected.permissions.ProjectedPermissionsRequestParams>,java.util.Map<java.lang.String,? extends java.lang.Boolean>> {
+    ctor public ProjectedPermissionsResultContract();
+    method public android.content.Intent createIntent(android.content.Context context, java.util.List<androidx.xr.projected.permissions.ProjectedPermissionsRequestParams> input);
+    method public java.util.Map<java.lang.String,java.lang.Boolean> parseResult(int resultCode, android.content.Intent? intent);
+  }
+
+}
+

@@ -28,12 +28,13 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -72,8 +73,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
     // keep one of these around so that we can return wrapper & position w/o allocation ¯\_(ツ)_/¯
     private WrapperAndLocalPosition mReusableHolder = new WrapperAndLocalPosition();
 
-    @NonNull
-    private final ConcatAdapter.Config.StableIdMode mStableIdMode;
+    private final ConcatAdapter.Config.@NonNull StableIdMode mStableIdMode;
 
     /**
      * This is where we keep stable ids, if supported
@@ -105,8 +105,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
         }
     }
 
-    @Nullable
-    private NestedAdapterWrapper findWrapperFor(Adapter<ViewHolder> adapter) {
+    private @Nullable NestedAdapterWrapper findWrapperFor(Adapter<ViewHolder> adapter) {
         final int index = indexOfWrapper(adapter);
         if (index == -1) {
             return null;
@@ -339,8 +338,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
      * Always call {@link #releaseWrapperAndLocalPosition(WrapperAndLocalPosition)} when you are
      * done with it
      */
-    @NonNull
-    private WrapperAndLocalPosition findWrapperAndLocalPosition(
+    private @NonNull WrapperAndLocalPosition findWrapperAndLocalPosition(
             int globalPosition
     ) {
         WrapperAndLocalPosition result;
@@ -419,8 +417,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
         return result;
     }
 
-    @NonNull
-    private NestedAdapterWrapper getWrapper(ViewHolder holder) {
+    private @NonNull NestedAdapterWrapper getWrapper(ViewHolder holder) {
         NestedAdapterWrapper wrapper = mBinderLookup.get(holder);
         if (wrapper == null) {
             throw new IllegalStateException("Cannot find wrapper for " + holder
@@ -491,8 +488,7 @@ class ConcatAdapterController implements NestedAdapterWrapper.Callback {
     }
 
 
-    @Nullable
-    public Adapter<? extends ViewHolder> getBoundAdapter(ViewHolder viewHolder) {
+    public @Nullable Adapter<? extends ViewHolder> getBoundAdapter(ViewHolder viewHolder) {
         NestedAdapterWrapper wrapper = mBinderLookup.get(viewHolder);
         if (wrapper == null) {
             return null;

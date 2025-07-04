@@ -49,15 +49,15 @@ import org.junit.runner.RunWith
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class PdfViewerScreenRotationTestSuite {
 
-    private lateinit var scenario: FragmentScenario<TestPdfViewerFragment>
+    private lateinit var scenario: FragmentScenario<TestPdfViewerFragmentV1>
 
     @Before
     fun setup() {
         scenario =
-            launchFragmentInContainer<TestPdfViewerFragment>(
+            launchFragmentInContainer<TestPdfViewerFragmentV1>(
                 themeResId =
                     com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
-                initialState = Lifecycle.State.INITIALIZED
+                initialState = Lifecycle.State.INITIALIZED,
             )
         scenario.onFragment { fragment ->
             // Register idling resource
@@ -79,8 +79,8 @@ class PdfViewerScreenRotationTestSuite {
     private fun scenarioLoadDocument(
         filename: String,
         nextState: Lifecycle.State,
-        orientation: Int
-    ): FragmentScenario<TestPdfViewerFragment> {
+        orientation: Int,
+    ): FragmentScenario<TestPdfViewerFragmentV1> {
         val context = InstrumentationRegistry.getInstrumentation().context
         val inputStream = context.assets.open(filename)
 
@@ -106,7 +106,7 @@ class PdfViewerScreenRotationTestSuite {
             scenarioLoadDocument(
                 TEST_DOCUMENT_FILE,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
 
         scenario.onFragment { it.isToolboxVisible = true }
@@ -132,14 +132,14 @@ class PdfViewerScreenRotationTestSuite {
             scenarioLoadDocument(
                 TEST_DOCUMENT_FILE,
                 Lifecycle.State.STARTED,
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
             )
         onView(withId(R.id.loadingView))
             .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
         scenario.onFragment {
             Preconditions.checkArgument(
                 it.documentLoaded,
-                "Unable to load document due to ${it.documentError?.message}"
+                "Unable to load document due to ${it.documentError?.message}",
             )
         }
 
@@ -157,8 +157,8 @@ class PdfViewerScreenRotationTestSuite {
     }
 
     private fun changeOrientation(
-        scenario: FragmentScenario<TestPdfViewerFragment>,
-        orientation: Int
+        scenario: FragmentScenario<TestPdfViewerFragmentV1>,
+        orientation: Int,
     ) {
         scenario.onFragment { it.requireActivity().requestedOrientation = orientation }
     }

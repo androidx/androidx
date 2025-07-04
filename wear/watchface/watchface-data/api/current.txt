@@ -1,24 +1,24 @@
 // Signature format: 4.0
 package androidx.wear.watchface.data {
 
-  @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArcWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public BoundingArcWireFormat(float, float, float);
-    method public int describeContents();
-    method public float getArcStartAngle();
-    method public float getArcThickness();
-    method public float getTotalArcAngle();
-    method public void writeToParcel(android.os.Parcel?, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.BoundingArcWireFormat!> CREATOR;
+  @Deprecated @SuppressCompatibility @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArcWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor @Deprecated public BoundingArcWireFormat(float, float, float);
+    method @Deprecated public int describeContents();
+    method @Deprecated public float getArcStartAngle();
+    method @Deprecated public float getArcThickness();
+    method @Deprecated public float getTotalArcAngle();
+    method @Deprecated public void writeToParcel(android.os.Parcel?, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.BoundingArcWireFormat!> CREATOR;
   }
 
-  public final class WatchFaceColorsWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public WatchFaceColorsWireFormat(int, int, int);
-    method public int describeContents();
-    method public int getPrimaryColor();
-    method public int getSecondaryColor();
-    method public int getTertiaryColor();
-    method public void writeToParcel(android.os.Parcel?, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.WatchFaceColorsWireFormat!> CREATOR;
+  @Deprecated public final class WatchFaceColorsWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
+    ctor @Deprecated public WatchFaceColorsWireFormat(int, int, int);
+    method @Deprecated public int describeContents();
+    method @Deprecated public int getPrimaryColor();
+    method @Deprecated public int getSecondaryColor();
+    method @Deprecated public int getTertiaryColor();
+    method @Deprecated public void writeToParcel(android.os.Parcel?, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<androidx.wear.watchface.data.WatchFaceColorsWireFormat!> CREATOR;
   }
 
 }

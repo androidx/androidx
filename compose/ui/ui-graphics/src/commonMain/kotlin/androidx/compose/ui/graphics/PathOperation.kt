@@ -99,21 +99,21 @@ value class PathOperation internal constructor(@Suppress("unused") private val v
 
 @Deprecated(
     message = "Use PathOperation.Difference instead",
-    ReplaceWith("PathOperation.Difference", "androidx.compose.ui.graphics.PathOperation.Difference")
+    ReplaceWith("PathOperation.Difference", "androidx.compose.ui.graphics.PathOperation.Difference"),
 )
 val PathOperation.Companion.difference: PathOperation
     get() = Difference
 
 @Deprecated(
     message = "Use PathOperation.Intersect instead",
-    ReplaceWith("PathOperation.Intersect", "androidx.compose.ui.graphics.PathOperation.Intersect")
+    ReplaceWith("PathOperation.Intersect", "androidx.compose.ui.graphics.PathOperation.Intersect"),
 )
 val PathOperation.Companion.intersect: PathOperation
     get() = Intersect
 
 @Deprecated(
     message = "Use PathOperation.Union instead",
-    ReplaceWith("PathOperation.Union", "androidx.compose.ui.graphics.PathOperation.Union")
+    ReplaceWith("PathOperation.Union", "androidx.compose.ui.graphics.PathOperation.Union"),
 )
 val PathOperation.Companion.union: PathOperation
     get() = Union
@@ -122,15 +122,15 @@ val PathOperation.Companion.union: PathOperation
     message = "Use PathOperation.ReverseDifference instead",
     ReplaceWith(
         "PathOperation.ReverseDifference",
-        "androidx.compose.ui.graphics.PathOperation.ReverseDifference"
-    )
+        "androidx.compose.ui.graphics.PathOperation.ReverseDifference",
+    ),
 )
 val PathOperation.Companion.reverseDifference: PathOperation
     get() = ReverseDifference
 
 @Deprecated(
     message = "Use PathOperation.Xor instead",
-    ReplaceWith("PathOperation.Xor", "androidx.compose.ui.graphics.PathOperation.Xor")
+    ReplaceWith("PathOperation.Xor", "androidx.compose.ui.graphics.PathOperation.Xor"),
 )
 val PathOperation.Companion.xor: PathOperation
     get() = Xor

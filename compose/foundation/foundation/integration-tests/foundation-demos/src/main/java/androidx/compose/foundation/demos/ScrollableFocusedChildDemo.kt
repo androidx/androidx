@@ -86,7 +86,7 @@ fun ScrollableFocusedChildDemo() {
             }
             Button(
                 onClick = { reverseScrolling = !reverseScrolling },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 Text("Scroll: ${if (reverseScrolling) "backward" else "forward"}")
             }
@@ -97,7 +97,7 @@ fun ScrollableFocusedChildDemo() {
         var maxViewportSize by remember { mutableStateOf(IntSize.Zero) }
         Resizable(
             resizableState,
-            Modifier.weight(1f).fillMaxWidth().onSizeChanged { maxViewportSize = it }
+            Modifier.weight(1f).fillMaxWidth().onSizeChanged { maxViewportSize = it },
         ) {
             Box(
                 Modifier.border(2.dp, Color.Black)
@@ -134,7 +134,7 @@ fun FocusGrabber(modifier: Modifier = Modifier) {
                 .focusable()
                 .border(3.dp, Color.Blue)
                 .then(if (hasFocus) Modifier.background(Color.Blue) else Modifier)
-                .padding(8.dp)
+                .padding(8.dp),
     )
 }
 
@@ -158,7 +158,7 @@ private class ResizableState {
 private fun Resizable(
     state: ResizableState,
     modifier: Modifier,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val handleThickness = 48.dp
 
@@ -167,14 +167,14 @@ private fun Resizable(
         content = {
             ResizeHandle(
                 orientation = Horizontal,
-                onDrag = { state.heightOverride += it.roundToInt() }
+                onDrag = { state.heightOverride += it.roundToInt() },
             )
             ResizeHandle(
                 orientation = Vertical,
-                onDrag = { state.widthOverride += it.roundToInt() }
+                onDrag = { state.widthOverride += it.roundToInt() },
             )
             Box(propagateMinConstraints = true, content = content)
-        }
+        },
     ) { measurables, constraints ->
         with(state) {
             val (horizontalHandleMeasurable, verticalHandleMeasurable, contentMeasurable) =
@@ -195,7 +195,7 @@ private fun Resizable(
             val contentConstraints =
                 Constraints.fixed(
                     width = widthOverride - handleThickness,
-                    height = heightOverride - handleThickness
+                    height = heightOverride - handleThickness,
                 )
 
             val contentPlaceable = contentMeasurable.measure(contentConstraints)

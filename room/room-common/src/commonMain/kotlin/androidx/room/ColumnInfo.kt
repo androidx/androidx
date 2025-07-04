@@ -20,15 +20,15 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 
 /**
- * Allows specific customization about the column associated with this field.
+ * Allows specific customization about the column associated with this property.
  *
- * For example, you can specify a column name for the field or change the column's type affinity.
+ * For example, you can specify a column name for the property or change the column's type affinity.
  */
 @Target(AnnotationTarget.FIELD, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class ColumnInfo(
     /**
-     * Name of the column in the database. Defaults to the field name if not set.
+     * Name of the column in the database. Defaults to the property name if not set.
      *
      * @return Name of the column in the database.
      */
@@ -38,7 +38,7 @@ public annotation class ColumnInfo(
      * The type affinity for the column, which will be used when constructing the database.
      *
      * If it is not specified, the value defaults to [UNDEFINED] and Room resolves it based on the
-     * field's type and available TypeConverters.
+     * property's type and available TypeConverters.
      *
      * See [SQLite types documentation](https://www.sqlite.org/datatype3.html) for details.
      *
@@ -48,11 +48,11 @@ public annotation class ColumnInfo(
     @Suppress("unused") @get:SQLiteTypeAffinity val typeAffinity: Int = UNDEFINED,
 
     /**
-     * Convenience method to index the field.
+     * Convenience method to index the property.
      *
      * If you would like to create a composite index instead, see: [Index].
      *
-     * @return True if this field should be indexed, false otherwise. Defaults to false.
+     * @return True if this property should be indexed, false otherwise. Defaults to false.
      */
     val index: Boolean = false,
 
@@ -118,8 +118,8 @@ public annotation class ColumnInfo(
 
     public companion object {
         /**
-         * Constant to let Room inherit the field name as the column name. If used, Room will use
-         * the field name as the column name.
+         * Constant to let Room inherit the property name as the column name. If used, Room will use
+         * the property name as the column name.
          */
         public const val INHERIT_FIELD_NAME: String = "[field-name]"
 

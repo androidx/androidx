@@ -147,7 +147,7 @@ class DefaultArtToolingTest {
             ArtTooling.ExitHook<Int> { result ->
                 doubleResult = result
                 result
-            }
+            },
         )
 
         val target = Target()
@@ -268,7 +268,7 @@ class DefaultArtToolingTest {
             ArtTooling.ExitHook<T> { result ->
                 lastResult = result
                 result
-            }
+            },
         )
     }
 }

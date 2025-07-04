@@ -28,11 +28,11 @@ fun RxJava3PagingSourceQueryResultBinderProvider(context: Context): QueryResultB
     return MultiTypedPagingSourceQueryResultBinderProvider(
             context = context,
             roomPagingClassName = rxjava3PagingSource,
-            pagingSourceTypeName = PagingTypeNames.RX3_PAGING_SOURCE
+            pagingSourceTypeName = PagingTypeNames.RX3_PAGING_SOURCE,
         )
         .requireArtifact(
             context = context,
             requiredType = rxjava3PagingSource,
-            missingArtifactErrorMsg = MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT
+            missingArtifactErrorMsg = MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT,
         )
 }

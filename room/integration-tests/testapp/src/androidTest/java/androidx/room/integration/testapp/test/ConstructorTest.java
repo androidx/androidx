@@ -19,8 +19,6 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Embedded;
@@ -34,6 +32,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -180,14 +180,15 @@ public class ConstructorTest {
     @Entity
     static class EntityWithAnnotations {
         @PrimaryKey
-        @NonNull
+        // This project is tested against a version of the room compiler that doesn't recognize
+        // JSpecify for primary keys
+        @SuppressWarnings("JSpecifyNullness")
+        @androidx.annotation.NonNull
         public final String id;
 
-        @NonNull
-        public final String username;
+        public final @NonNull String username;
 
-        @Nullable
-        public final String displayName;
+        public final @Nullable String displayName;
 
         EntityWithAnnotations(
                 @NonNull String id,

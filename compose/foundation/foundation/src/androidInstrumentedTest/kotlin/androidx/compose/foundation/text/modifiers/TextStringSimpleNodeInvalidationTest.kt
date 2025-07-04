@@ -31,7 +31,7 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
                 maxLines = params.maxLines,
                 softWrap = params.softWrap,
                 fontFamilyResolver = params.fontFamilyResolver,
-                overflow = params.overflow
+                overflow = params.overflow,
             )
     }
 
@@ -48,7 +48,7 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
             params.overflow,
             params.softWrap,
             params.maxLines,
-            params.minLines
+            params.minLines,
         )
     }
 
@@ -61,7 +61,7 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
             params.softWrap,
             params.maxLines,
             params.minLines,
-            drawParams.color
+            drawParams.color,
         )
     }
 }

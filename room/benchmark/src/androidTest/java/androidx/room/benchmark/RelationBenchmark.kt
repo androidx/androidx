@@ -18,23 +18,15 @@ package androidx.room.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.Relation
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.RoomWarnings
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.generateAllEnumerations
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,6 +51,7 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
     }
 
     @Test
+    @Ignore // b/410015038
     fun largeRelationQuery() {
         val db =
             Room.databaseBuilder(context, TestDatabase::class.java, DB_NAME)
@@ -87,30 +80,5 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
         fun data() = generateAllEnumerations(listOf(100, 500, 1000), listOf(10))
 
         private const val DB_NAME = "relation-benchmark-test"
-    }
-
-    @Database(entities = [User::class, Item::class], version = 1, exportSchema = false)
-    abstract class TestDatabase : RoomDatabase() {
-        abstract fun getUserDao(): UserDao
-    }
-
-    @Entity data class User(@PrimaryKey val id: Int, val name: String)
-
-    @Entity data class Item(@PrimaryKey val id: Int, val ownerId: Int)
-
-    data class UserWithItems(
-        @Embedded val user: User,
-        @Relation(parentColumn = "id", entityColumn = "ownerId") val items: List<Item>
-    )
-
-    @Dao
-    interface UserDao {
-        @Insert fun insertUsers(user: List<User>)
-
-        @Insert fun insertItems(item: List<Item>)
-
-        @SuppressWarnings(RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION)
-        @Query("SELECT * FROM User")
-        fun getUserWithItems(): List<UserWithItems>
     }
 }

@@ -42,9 +42,6 @@ internal sealed interface CompilationInputs {
     /** Source files to process */
     val sourcePaths: FileCollection
 
-    /** Source files from the KMP common module of this project */
-    val commonModuleSourcePaths: FileCollection
-
     /** Dependencies (compiled classes) of [sourcePaths]. */
     val dependencyClasspath: FileCollection
 
@@ -79,15 +76,16 @@ internal sealed interface CompilationInputs {
             }
 
             // Not a multiplatform project, set up standard inputs
+            @Suppress("UnstableApiUsage") // Usage of .kotlin
             val kotlinCollection = project.files(variant.sources.kotlin?.all)
             val javaCollection = project.files(variant.sources.java?.all)
             val sourceCollection = kotlinCollection + javaCollection
 
+            @Suppress("UnstableApiUsage") // Usage of compileClasspath
             return StandardCompilationInputs(
                 sourcePaths = sourceCollection,
-                commonModuleSourcePaths = project.files(),
                 dependencyClasspath = variant.compileClasspath,
-                bootClasspath = bootClasspath
+                bootClasspath = bootClasspath,
             )
         }
 
@@ -112,7 +110,7 @@ internal sealed interface CompilationInputs {
             return MultiplatformCompilationInputs.fromCompilation(
                 project = project,
                 compilationProvider = jvmCompilation,
-                bootClasspath = project.getAndroidJar()
+                bootClasspath = project.getAndroidJar(),
             )
         }
 
@@ -139,7 +137,7 @@ internal sealed interface CompilationInputs {
             return MultiplatformCompilationInputs.fromCompilation(
                 project = project,
                 compilationProvider = compilation,
-                bootClasspath = project.getAndroidJar()
+                bootClasspath = project.getAndroidJar(),
             )
         }
 
@@ -150,9 +148,8 @@ internal sealed interface CompilationInputs {
             val dependencyClasspath = sourceSet.compileClasspath
             return StandardCompilationInputs(
                 sourcePaths = sourcePaths,
-                commonModuleSourcePaths = project.files(),
                 dependencyClasspath = dependencyClasspath,
-                bootClasspath = project.getAndroidJar()
+                bootClasspath = project.getAndroidJar(),
             )
         }
 
@@ -171,7 +168,7 @@ internal sealed interface CompilationInputs {
                     checkNotNull(compilations.findByName(compilationName)) {
                         """
                     Cannot find $compilationName compilation configuration of $name in
-                    ${project.parent}.
+                    ${project.path}.
                     Available compilations: ${compilations.joinToString(", ") { it.name }}
                     """
                             .trimIndent()
@@ -209,7 +206,6 @@ internal data class StandardCompilationInputs(
     override val sourcePaths: FileCollection,
     override val dependencyClasspath: FileCollection,
     override val bootClasspath: FileCollection,
-    override val commonModuleSourcePaths: FileCollection,
 ) : CompilationInputs
 
 /** Compile inputs for a single source set from a multiplatform project. */
@@ -233,13 +229,21 @@ internal class MultiplatformCompilationInputs(
      */
     val sourceSets: Provider<List<SourceSetInputs>>,
     override val bootClasspath: FileCollection,
-    override val commonModuleSourcePaths: FileCollection,
 ) : CompilationInputs {
     // Aggregate sources and classpath from all source sets
     override val sourcePaths: ConfigurableFileCollection =
         project.files(sourceSets.map { it.map { sourceSet -> sourceSet.sourcePaths } })
     override val dependencyClasspath: ConfigurableFileCollection =
         project.files(sourceSets.map { it.map { sourceSet -> sourceSet.dependencyClasspath } })
+
+    /** Source files from the KMP common module of this project */
+    val commonModuleSourcePaths: FileCollection =
+        project.files(
+            sourceSets.map {
+                it.filter { sourceSet -> sourceSet.dependsOnSourceSets.isEmpty() }
+                    .map { sourceSet -> sourceSet.sourcePaths }
+            }
+        )
 
     companion object {
         /** Creates inputs based on one compilation of a multiplatform project. */
@@ -275,7 +279,7 @@ internal class MultiplatformCompilationInputs(
                                         }
                                     it.attributes.attribute(
                                         Attribute.of("artifactType", String::class.java),
-                                        artifactType
+                                        artifactType,
                                     )
                                 }
                                 .files
@@ -292,26 +296,7 @@ internal class MultiplatformCompilationInputs(
                         )
                     }
                 }
-            return MultiplatformCompilationInputs(
-                project,
-                sourceSets,
-                bootClasspath,
-                project.commonModuleSourcePaths(compilationProvider)
-            )
-        }
-
-        private fun Project.commonModuleSourcePaths(
-            kotlinCompilation: Provider<KotlinCompilation<*>>
-        ): ConfigurableFileCollection {
-            return project.files(
-                project.provider {
-                    kotlinCompilation
-                        .get()
-                        .allKotlinSourceSets
-                        .filter { it.dependsOn.isEmpty() }
-                        .flatMap { it.kotlin.sourceDirectories.files }
-                }
-            )
+            return MultiplatformCompilationInputs(project, sourceSets, bootClasspath)
         }
     }
 }

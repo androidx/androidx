@@ -61,6 +61,8 @@
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"पुछारको पाना कोल्याप्स गर्नुहोस्"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"पुछारको पाना हटाउनुहोस्"</string>
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"पुछारको पाना एक्स्पान्ड गर्नुहोस्"</string>
+    <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"टुलबार कोल्याप्स गर्नुहोस्"</string>
+    <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"टुलबार एक्स्पान्ड गर्नुहोस्"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"टुलटिप"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"टुलटिप देखाउनुहोस्"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -75,6 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"घण्टा"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"मिनेटका लागि"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"घण्टाका लागि"</string>
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"समय हाल्न टेक्स्ट इनपुट मोड प्रयोग गर्नुहोस्"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"समय हाल्न क्लक मोड प्रयोग गर्नुहोस्"</string>
+    <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"समय चयन गर्नुहोस्"</string>
+    <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"समय हाल्नुहोस्"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"रेल बन्द गर्नुहोस्"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"नेभिगेसन रेल"</string>
 </resources>

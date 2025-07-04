@@ -54,7 +54,7 @@ fun CatalogScaffold(
     licensesUrl: String = LicensesUrl,
     onThemeChange: (theme: Theme) -> Unit,
     onBackClick: () -> Unit = {},
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
@@ -68,12 +68,12 @@ fun CatalogScaffold(
                         sheetState.hide()
                         onThemeChange(theme)
                     }
-                }
+                },
             )
         },
         // Default scrim color is onSurface which is incorrect in dark theme
         // https://issuetracker.google.com/issues/183697056
-        scrimColor = SheetScrimColor
+        scrimColor = SheetScrimColor,
     ) {
         val context = LocalContext.current
         Scaffold(
@@ -90,10 +90,10 @@ fun CatalogScaffold(
                     onIssueClick = { context.openUrl(issueUrl) },
                     onTermsClick = { context.openUrl(termsUrl) },
                     onPrivacyClick = { context.openUrl(privacyUrl) },
-                    onLicensesClick = { context.openUrl(licensesUrl) }
+                    onLicensesClick = { context.openUrl(licensesUrl) },
                 )
             },
-            content = content
+            content = content,
         )
     }
 }

@@ -61,18 +61,18 @@ internal class KspValueClassArgumentType(
         ksType: KSType,
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
-        typeAlias: KSType?
+        typeAlias: KSType?,
     ) =
         KspValueClassArgumentType(
             env = env,
             typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
             originalKSAnnotations = originalKSAnnotations,
             scope = scope,
-            typeAlias = typeAlias
+            typeAlias = typeAlias,
         )
 
     private class DelegatingTypeArg(
         val original: KSTypeArgument,
-        override val type: KSTypeReference
+        override val type: KSTypeReference,
     ) : KSTypeArgument by original
 }

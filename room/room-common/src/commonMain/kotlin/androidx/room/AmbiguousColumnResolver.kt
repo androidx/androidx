@@ -60,7 +60,7 @@ public object AmbiguousColumnResolver {
     @JvmStatic
     public fun resolve(
         resultColumns: List<String>,
-        mappings: Array<Array<String>>
+        mappings: Array<Array<String>>,
     ): Array<IntArray> {
         return resolve(resultColumns.toTypedArray(), mappings)
     }
@@ -77,7 +77,7 @@ public object AmbiguousColumnResolver {
     @JvmStatic
     public fun resolve(
         resultColumns: Array<String>,
-        mappings: Array<Array<String>>
+        mappings: Array<Array<String>>,
     ): Array<IntArray> {
         // Step 1 - Transform all input columns to lowercase
         for (i in resultColumns.indices) {
@@ -128,7 +128,7 @@ public object AmbiguousColumnResolver {
                 mappingMatches[mappingIndex].add(
                     Match(
                         resultRange = IntRange(startIndex, endIndex - 1),
-                        resultIndices = resultIndices
+                        resultIndices = resultIndices,
                     )
                 )
             }
@@ -174,7 +174,7 @@ public object AmbiguousColumnResolver {
     private fun rabinKarpSearch(
         content: List<ResultColumn>,
         pattern: Array<String>,
-        onHashMatch: (Int, Int, List<ResultColumn>) -> Unit
+        onHashMatch: (Int, Int, List<ResultColumn>) -> Unit,
     ) {
         val mappingHash = pattern.sumOf { it.hashCode() } // Commutative hash
         var startIndex = 0 // inclusive
@@ -199,7 +199,7 @@ public object AmbiguousColumnResolver {
         content: List<List<T>>,
         current: MutableList<T> = mutableListOf(),
         depth: Int = 0,
-        block: (List<T>) -> Unit
+        block: (List<T>) -> Unit,
     ) {
         if (depth == content.size) {
             block(current.toList())
@@ -214,10 +214,7 @@ public object AmbiguousColumnResolver {
 
     private data class ResultColumn(val name: String, val index: Int)
 
-    private class Match(
-        val resultRange: IntRange,
-        val resultIndices: List<Int>,
-    )
+    private class Match(val resultRange: IntRange, val resultIndices: List<Int>)
 
     /**
      * A good solution is one that has no overlaps and whose coverage offset is zero, where coverage
@@ -264,7 +261,7 @@ public object AmbiguousColumnResolver {
                 return Solution(
                     matches = matches,
                     coverageOffset = coverageOffset,
-                    overlaps = overlaps
+                    overlaps = overlaps,
                 )
             }
         }

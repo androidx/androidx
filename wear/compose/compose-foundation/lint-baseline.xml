@@ -1,5 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun toggleScreen(saveableStateHolder: SaveableStateHolder) {"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/BasicSwipeToDismissBoxTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun counterScreen(saveableStateHolder: SaveableStateHolder) {"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/BasicSwipeToDismissBoxTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun swipeToRevealWithDefaults("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun getBoxContent(onClick: () -> Unit = {}, modifier: Modifier = Modifier) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun actionContent(modifier: Modifier = Modifier) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    private fun getAction("
+        errorLine2="                ~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    private fun getBoxContent(onClick: () -> Unit = {}, modifier: Modifier = Modifier) {"
+        errorLine2="                                                        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="        modifier: Modifier = Modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/foundation/SwipeToRevealTest.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                        .firstOrNull {"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/layout/LazyLayoutItemAnimator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                        .firstOrNull {"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/foundation/lazy/layout/LazyLayoutItemAnimator.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInCollection"
@@ -48,15 +147,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;RevealValue, Float> of createAnchors: replace with IntFloatMap"
-        errorLine1="): Map&lt;RevealValue, Float> {"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="constructor RevealState has parameter anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
         errorLine1="    internal val anchors: Map&lt;RevealValue, Float>,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
@@ -94,7 +184,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method rememberRevealState has parameter anchors with type Map&lt;RevealValue, Float>: replace with IntFloatMap"
-        errorLine1="    anchors: Map&lt;RevealValue, Float> = createAnchors(),"
+        errorLine1="    anchors: Map&lt;RevealValue, Float> = createRevealAnchors(),"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeToReveal.kt"/>
@@ -166,7 +256,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method onAnchorsChanged has parameter newAnchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="        newAnchors: Map&lt;T, Float>"
+        errorLine1="        newAnchors: Map&lt;T, Float>,"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>

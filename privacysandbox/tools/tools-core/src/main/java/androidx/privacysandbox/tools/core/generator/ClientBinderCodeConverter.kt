@@ -34,9 +34,9 @@ class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
 
     override fun convertToInterfaceModelCode(
         annotatedInterface: AnnotatedInterface,
-        expression: String
+        expression: String,
     ): CodeBlock {
-        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+        if (annotatedInterface.inheritsUiAdapter) {
             return CodeBlock.of(
                 "%T(%L.binder, %L.coreLibInfo)",
                 annotatedInterface.clientProxyNameSpec(),
@@ -49,9 +49,9 @@ class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
 
     override fun convertToInterfaceBinderCode(
         annotatedInterface: AnnotatedInterface,
-        expression: String
+        expression: String,
     ): CodeBlock {
-        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+        if (annotatedInterface.inheritsUiAdapter) {
             return CodeBlock.builder().build {
                 addNamed(
                     "%coreLibInfoConverter:T.%toParcelable:N(" +
@@ -61,25 +61,25 @@ class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
                         "coreLibInfoConverter" to
                             ClassName(
                                 annotatedInterface.type.packageName,
-                                annotatedInterface.coreLibInfoConverterName()
+                                annotatedInterface.coreLibInfoConverterName(),
                             ),
                         "toParcelable" to toParcelableMethodName,
                         "interface" to expression,
                         "context" to contextPropertyName,
-                        "clientProxy" to annotatedInterface.clientProxyNameSpec()
-                    )
+                        "clientProxy" to annotatedInterface.clientProxyNameSpec(),
+                    ),
                 )
             }
         }
         return CodeBlock.of(
             "(%L as %T).remote",
             expression,
-            annotatedInterface.clientProxyNameSpec()
+            annotatedInterface.clientProxyNameSpec(),
         )
     }
 
     override fun convertToInterfaceBinderType(annotatedInterface: AnnotatedInterface): TypeName {
-        if (annotatedInterface.inheritsSandboxedUiAdapter) {
+        if (annotatedInterface.inheritsUiAdapter) {
             return annotatedInterface.uiAdapterAidlWrapper().poetTypeName()
         }
         return annotatedInterface.aidlType().innerType.poetTypeName()
@@ -90,7 +90,7 @@ class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
             "%M(%L)",
             MemberName(
                 value.converterNameSpec(),
-                ValueConverterFileGenerator.toParcelableMethodName
+                ValueConverterFileGenerator.toParcelableMethodName,
             ),
             expression,
         )
@@ -100,17 +100,13 @@ class ClientBinderCodeConverter(api: ParsedApi) : BinderCodeConverter(api) {
             "%M(%L)",
             MemberName(
                 value.converterNameSpec(),
-                ValueConverterFileGenerator.fromParcelableMethodName
+                ValueConverterFileGenerator.fromParcelableMethodName,
             ),
             expression,
         )
 
     override fun convertToActivityLauncherBinderCode(expression: String): CodeBlock =
-        CodeBlock.of(
-            "%M(%L)",
-            MemberName(activityLauncherConverterClass, "toBinder"),
-            expression,
-        )
+        CodeBlock.of("%M(%L)", MemberName(activityLauncherConverterClass, "toBinder"), expression)
 
     override fun convertToActivityLauncherModelCode(expression: String): CodeBlock =
         CodeBlock.of(

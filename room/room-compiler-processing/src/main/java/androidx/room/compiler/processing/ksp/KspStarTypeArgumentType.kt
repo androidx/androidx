@@ -45,7 +45,7 @@ internal class KspStarTypeArgumentType(
                 env.resolver.builtIns.unitType
             } else {
                 typeArg.requireType()
-            }
+            },
     ) {
     override fun resolveJTypeName(): JTypeName {
         return JWildcardTypeName.subtypeOf(JTypeName.OBJECT)
@@ -60,13 +60,13 @@ internal class KspStarTypeArgumentType(
         ksType: KSType,
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
-        typeAlias: KSType?
+        typeAlias: KSType?,
     ) =
         KspStarTypeArgumentType(
             env = env,
             typeArg = DelegatingTypeArg(typeArg, type = ksType.createTypeReference()),
             originalKSAnnotations,
             scope = scope,
-            typeAlias = typeAlias
+            typeAlias = typeAlias,
         )
 }

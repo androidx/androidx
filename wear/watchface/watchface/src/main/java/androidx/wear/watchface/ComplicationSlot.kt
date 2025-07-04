@@ -62,7 +62,13 @@ import kotlinx.coroutines.flow.StateFlow
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
  * [CanvasComplicationFactory.create]. If state needs to be shared with the [Renderer] that should
  * be set up inside [onRendererCreated].
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 @JvmDefaultWithCompatibility
 public interface CanvasComplication {
 
@@ -98,7 +104,7 @@ public interface CanvasComplication {
         bounds: Rect,
         zonedDateTime: ZonedDateTime,
         renderParameters: RenderParameters,
-        slotId: Int
+        slotId: Int,
     )
 
     /**
@@ -118,7 +124,7 @@ public interface CanvasComplication {
         bounds: Rect,
         @ComplicationSlotBoundsTypeIntDef boundsType: Int,
         zonedDateTime: ZonedDateTime,
-        @ColorInt color: Int
+        @ColorInt color: Int,
     )
 
     /**
@@ -140,7 +146,7 @@ public interface CanvasComplication {
         @ComplicationSlotBoundsTypeIntDef boundsType: Int,
         zonedDateTime: ZonedDateTime,
         @ColorInt color: Int,
-        boundingArc: BoundingArc?
+        boundingArc: BoundingArc?,
     ) {
         drawHighlight(canvas, bounds, boundsType, zonedDateTime, color)
     }
@@ -160,7 +166,15 @@ public interface CanvasComplication {
     public fun loadData(complicationData: ComplicationData, loadDrawablesAsynchronous: Boolean)
 }
 
-/** Interface for determining whether a tap hits a complication. */
+/**
+ * Interface for determining whether a tap hits a complication.
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 @JvmDefaultWithCompatibility
 public interface ComplicationTapFilter {
     /**
@@ -179,7 +193,7 @@ public interface ComplicationTapFilter {
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int,
-        includeMargins: Boolean
+        includeMargins: Boolean,
     ): Boolean = hitTest(complicationSlot, screenBounds, x, y)
 
     /**
@@ -193,39 +207,51 @@ public interface ComplicationTapFilter {
      */
     @Deprecated(
         "hitTest without specifying includeMargins is deprecated",
-        replaceWith = ReplaceWith("hitTest(ComplicationSlot, Rect, Int, Int, Boolean)")
+        replaceWith = ReplaceWith("hitTest(ComplicationSlot, Rect, Int, Int, Boolean)"),
     )
     public fun hitTest(
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
-        @Px y: Int
+        @Px y: Int,
     ): Boolean = hitTest(complicationSlot, screenBounds, x, y, false)
 }
 
 /**
  * Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.ROUND_RECT] complicationSlots.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class RoundRectComplicationTapFilter : ComplicationTapFilter {
     override fun hitTest(
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int,
-        includeMargins: Boolean
+        includeMargins: Boolean,
     ): Boolean = complicationSlot.computeBounds(screenBounds, includeMargins).contains(x, y)
 }
 
 /**
  * Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.BACKGROUND] complicationSlots.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class BackgroundComplicationTapFilter : ComplicationTapFilter {
     override fun hitTest(
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int,
-        includeMargins: Boolean
+        includeMargins: Boolean,
     ): Boolean = false
 }
 
@@ -234,13 +260,21 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
         [
             ComplicationSlotBoundsType.ROUND_RECT,
             ComplicationSlotBoundsType.BACKGROUND,
-            ComplicationSlotBoundsType.EDGE
+            ComplicationSlotBoundsType.EDGE,
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class ComplicationSlotBoundsTypeIntDef
 
-/** The various types of [ComplicationSlot] bounds. */
+/**
+ * The various types of [ComplicationSlot] bounds.
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public object ComplicationSlotBoundsType {
     /** The default, most complication slots are either circular or rounded rectangles. */
     public const val ROUND_RECT: Int = 0
@@ -263,7 +297,12 @@ public object ComplicationSlotBoundsType {
  * @property totalAngle The total angle of the arc on degrees.
  * @property thickness The thickness of the arc as a fraction of min(boundingRect.width,
  *   boundingRect.height).
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 @ComplicationExperimental
 public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val thickness: Float) {
     /**
@@ -359,7 +398,12 @@ public class BoundingArc(val startAngle: Float, val totalAngle: Float, @Px val t
  *   complications.
  * @property tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  *   complication slot.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ComplicationSlot
 /**
  * Constructs a [ComplicationSlot].
@@ -398,7 +442,7 @@ internal constructor(
     screenReaderNameResourceId: Int?,
     // TODO(b/230364881): This should really be public but some metalava bug is preventing
     // @ComplicationExperimental from working on the getter so it's currently hidden.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val boundingArc: BoundingArc?,
 ) {
     /**
      * The [ComplicationSlotsManager] this is attached to. Only set after the
@@ -430,7 +474,7 @@ internal constructor(
                         invalidateListener.onInvalidate()
                     }
                 }
-            }
+            },
         )
     }
 
@@ -439,7 +483,7 @@ internal constructor(
     @VisibleForTesting
     internal class ComplicationDataHistoryEntry(
         val complicationData: ComplicationData,
-        val time: Instant
+        val time: Instant,
     )
 
     /**
@@ -522,7 +566,7 @@ internal constructor(
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
             defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-            bounds: ComplicationSlotBounds
+            bounds: ComplicationSlotBounds,
         ): Builder =
             Builder(
                 id,
@@ -532,7 +576,7 @@ internal constructor(
                 ComplicationSlotBoundsType.ROUND_RECT,
                 bounds,
                 RoundRectComplicationTapFilter(),
-                null
+                null,
             )
 
         /**
@@ -558,7 +602,7 @@ internal constructor(
             id: Int,
             canvasComplicationFactory: CanvasComplicationFactory,
             supportedTypes: List<ComplicationType>,
-            defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy
+            defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         ): Builder =
             Builder(
                 id,
@@ -568,7 +612,7 @@ internal constructor(
                 ComplicationSlotBoundsType.BACKGROUND,
                 ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
                 BackgroundComplicationTapFilter(),
-                null
+                null,
             )
 
         /**
@@ -607,7 +651,7 @@ internal constructor(
             supportedTypes: List<ComplicationType>,
             defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
             bounds: ComplicationSlotBounds,
-            complicationTapFilter: ComplicationTapFilter
+            complicationTapFilter: ComplicationTapFilter,
         ): Builder =
             Builder(
                 id,
@@ -617,7 +661,7 @@ internal constructor(
                 ComplicationSlotBoundsType.EDGE,
                 bounds,
                 complicationTapFilter,
-                null
+                null,
             )
 
         /**
@@ -659,14 +703,14 @@ internal constructor(
                         screenBounds: Rect,
                         x: Int,
                         y: Int,
-                        @Suppress("UNUSED_PARAMETER") includeMargins: Boolean
+                        @Suppress("UNUSED_PARAMETER") includeMargins: Boolean,
                     ) =
                         boundingArc.hitTest(
                             complicationSlot.computeBounds(screenBounds),
                             x.toFloat(),
-                            y.toFloat()
+                            y.toFloat(),
                         )
-                }
+                },
         ): Builder =
             Builder(
                 id,
@@ -676,7 +720,7 @@ internal constructor(
                 ComplicationSlotBoundsType.EDGE,
                 bounds,
                 complicationTapFilter,
-                boundingArc
+                boundingArc,
             )
     }
 
@@ -708,7 +752,7 @@ internal constructor(
         @ComplicationSlotBoundsTypeIntDef private val boundsType: Int,
         private val bounds: ComplicationSlotBounds,
         private val complicationTapFilter: ComplicationTapFilter,
-        private val boundingArc: BoundingArc?
+        private val boundingArc: BoundingArc?,
     ) {
         private var accessibilityTraversalIndex = id
         private var defaultDataSourceType = ComplicationType.NOT_CONFIGURED
@@ -757,7 +801,7 @@ internal constructor(
                             defaultDataSourcePolicy.secondaryDataSourceDefaultType
                                 ?: defaultDataSourceType,
                             defaultDataSourcePolicy.systemDataSourceFallback,
-                            defaultDataSourceType
+                            defaultDataSourceType,
                         )
                     defaultDataSourcePolicy.primaryDataSource != null ->
                         DefaultComplicationDataSourcePolicy(
@@ -765,12 +809,12 @@ internal constructor(
                             defaultDataSourcePolicy.primaryDataSourceDefaultType
                                 ?: defaultDataSourceType,
                             defaultDataSourcePolicy.systemDataSourceFallback,
-                            defaultDataSourceType
+                            defaultDataSourceType,
                         )
                     else ->
                         DefaultComplicationDataSourcePolicy(
                             defaultDataSourcePolicy.systemDataSourceFallback,
-                            defaultDataSourceType
+                            defaultDataSourceType,
                         )
                 }
             this.defaultDataSourceType = defaultDataSourceType
@@ -869,7 +913,7 @@ internal constructor(
                 complicationTapFilter,
                 nameResourceId,
                 screenReaderNameResourceId,
-                boundingArc
+                boundingArc,
             )
         }
     }
@@ -1042,7 +1086,7 @@ internal constructor(
     public class ApiTimelineEntry(
         val timelineStartEpochSecond: Long?,
         val timelineEndEpochSecond: Long?,
-        val complicationData: ComplicationData
+        val complicationData: ComplicationData,
     )
 
     /**
@@ -1069,7 +1113,7 @@ internal constructor(
      */
     internal fun setComplicationDataForScreenshot(
         complicationData: ComplicationData,
-        instant: Instant
+        instant: Instant,
     ): AutoCloseable {
         val originalComplicationData = timelineComplicationData
         val originalInstant = lastComplicationUpdate
@@ -1099,7 +1143,7 @@ internal constructor(
                 ApiTimelineEntry(
                     it.timelineStartEpochSecond,
                     it.timelineEndEpochSecond,
-                    it.toApiComplicationData()
+                    it.toApiComplicationData(),
                 )
             }
     }
@@ -1177,7 +1221,7 @@ internal constructor(
     public fun render(
         canvas: Canvas,
         zonedDateTime: ZonedDateTime,
-        renderParameters: RenderParameters
+        renderParameters: RenderParameters,
     ) {
         val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
         renderer.render(canvas, bounds, zonedDateTime, renderParameters, id)
@@ -1196,7 +1240,7 @@ internal constructor(
     public fun renderHighlightLayer(
         canvas: Canvas,
         zonedDateTime: ZonedDateTime,
-        renderParameters: RenderParameters
+        renderParameters: RenderParameters,
     ) {
         // It's only sensible to render a highlight for non-fixed ComplicationSlots because you
         // can't edit fixed complicationSlots.
@@ -1213,7 +1257,7 @@ internal constructor(
                     boundsType,
                     zonedDateTime,
                     renderParameters.highlightLayer.highlightTint,
-                    boundingArc
+                    boundingArc,
                 )
             }
             is HighlightedElement.ComplicationSlot -> {
@@ -1224,7 +1268,7 @@ internal constructor(
                         boundsType,
                         zonedDateTime,
                         renderParameters.highlightLayer.highlightTint,
-                        boundingArc
+                        boundingArc,
                     )
                 }
             }
@@ -1261,7 +1305,7 @@ internal constructor(
     public fun computeBounds(
         screen: Rect,
         complicationType: ComplicationType,
-        applyMargins: Boolean = false
+        applyMargins: Boolean = false,
     ): Rect {
         val unitSquareBounds =
             RectF(complicationSlotBounds.perComplicationTypeBounds[complicationType]!!)
@@ -1273,7 +1317,7 @@ internal constructor(
                 unitSquareBounds.left - unitSquareMargins.left,
                 unitSquareBounds.top - unitSquareMargins.top,
                 unitSquareBounds.right + unitSquareMargins.right,
-                unitSquareBounds.bottom + unitSquareMargins.bottom
+                unitSquareBounds.bottom + unitSquareMargins.bottom,
             )
         }
         unitSquareBounds.intersect(unitSquare)
@@ -1282,7 +1326,7 @@ internal constructor(
             (0.5f + unitSquareBounds.left * screen.width()).toInt(),
             (0.5f + unitSquareBounds.top * screen.height()).toInt(),
             (0.5f + unitSquareBounds.right * screen.width()).toInt(),
-            (0.5f + unitSquareBounds.bottom * screen.height()).toInt()
+            (0.5f + unitSquareBounds.bottom * screen.height()).toInt(),
         )
     }
 
@@ -1386,7 +1430,7 @@ internal constructor(
             fixedComplicationDataSource,
             nameResourceId,
             screenReaderNameResourceId,
-            boundingArc
+            boundingArc,
         )
     }
 }

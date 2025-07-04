@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.lifecycle.LegacySavedStateHandleController.TAG_SAVED_STATE_HANDLE_CONTROLLER
 import androidx.lifecycle.LegacySavedStateHandleController.attachHandleIfNeeded
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 
@@ -27,7 +28,19 @@ import androidx.savedstate.SavedStateRegistryOwner
  * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory that creates [SavedStateHandle] for
  * every requested [ViewModel]. The subclasses implement [create] to actually instantiate
  * `androidx.lifecycle.ViewModel`s.
+ *
+ * **Deprecated:** Use [viewModelFactory] or implement [ViewModelProvider.Factory] directly,
+ * combined with [CreationExtras.createSavedStateHandle]. This base class creates a
+ * [SavedStateHandle] for every [ViewModel], even when unnecessary, causing overhead.
+ *
+ * For example:
+ * ```
+ * viewModelFactory { initializer { MyViewModel(createSavedStateHandle()) } }
+ * ```
  */
+@Deprecated(
+    "Use `viewModelFactory` or implement `ViewModelProvider.Factory`, combined with `CreationExtras.createSavedStateHandle()`."
+)
 public abstract class AbstractSavedStateViewModelFactory :
     ViewModelProvider.OnRequeryFactory, ViewModelProvider.Factory {
 
@@ -87,7 +100,7 @@ public abstract class AbstractSavedStateViewModelFactory :
                 savedStateRegistry!!,
                 lifecycle!!,
                 key,
-                defaultArgs
+                defaultArgs,
             )
         val viewModel = create(key, modelClass, controller.handle)
         viewModel.addCloseable(TAG_SAVED_STATE_HANDLE_CONTROLLER, controller)
@@ -133,7 +146,7 @@ public abstract class AbstractSavedStateViewModelFactory :
     protected abstract fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,
-        handle: SavedStateHandle
+        handle: SavedStateHandle,
     ): T
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

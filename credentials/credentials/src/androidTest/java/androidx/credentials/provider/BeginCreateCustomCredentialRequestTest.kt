@@ -42,7 +42,7 @@ class BeginCreateCustomCredentialRequestTest {
     fun constructor_emptyType_throws() {
         Assert.assertThrows(
             "Expected empty type to throw IAE",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             BeginCreateCustomCredentialRequest(
                 "",

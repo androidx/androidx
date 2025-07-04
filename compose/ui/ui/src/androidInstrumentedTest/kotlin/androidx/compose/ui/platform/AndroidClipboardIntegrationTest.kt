@@ -64,7 +64,7 @@ class AndroidClipboardIntegrationTest {
         // nativeClipboard should be correct too
         assertEquals(
             rule.activity.getSystemService(Context.CLIPBOARD_SERVICE),
-            clipboard.nativeClipboard
+            clipboard.nativeClipboard,
         )
     }
 }

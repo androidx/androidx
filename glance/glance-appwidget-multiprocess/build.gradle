@@ -21,12 +21,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("AndroidXComposePlugin")
 }
 
 dependencies {
@@ -35,17 +36,42 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.9.1")
     implementation("androidx.work:work-multiprocess:2.9.1")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
-    // Add dependencies here
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+
+    androidTestImplementation(project(":glance:glance"))
+    androidTestImplementation("androidx.core:core-ktx:1.7.0")
+    androidTestImplementation("androidx.work:work-testing:2.7.1")
+    androidTestImplementation("androidx.room:room-runtime:2.4.3")
+    androidTestImplementation("androidx.datastore:datastore:1.1.2")
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testExtJunitKtx)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.truth)
 }
 
 android {
     namespace = "androidx.glance.appwidget.multiprocess"
     compileSdk = 35
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
 }
 
 androidx {
     name = "androidx.glance:glance-appwidget-multiprocess"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Use Glance with multiprocess setups"
+    enableRobolectric()
 }

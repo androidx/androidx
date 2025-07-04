@@ -21,11 +21,11 @@ import static androidx.core.util.Preconditions.checkArgument;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Provides a means of controlling when and where band selection can be initiated.
@@ -132,7 +132,7 @@ public abstract class BandPredicate {
                 return false;
             }
 
-            @Nullable ItemDetailsLookup.ItemDetails<?> details =
+            ItemDetailsLookup.ItemDetails<?> details =
                     mDetailsLookup.getItemDetails(e);
             return (details == null) || !details.inDragRegion(e);
         }

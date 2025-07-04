@@ -81,7 +81,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -99,7 +99,7 @@ class AnchoredDraggableGestureTest {
                                 .testTag(AnchoredDraggableTestTag)
                                 .anchoredDraggable(
                                     state = state,
-                                    orientation = Orientation.Horizontal
+                                    orientation = Orientation.Horizontal,
                                 )
                                 .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                                 .background(Color.Red)
@@ -150,7 +150,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -168,7 +168,7 @@ class AnchoredDraggableGestureTest {
                                 .testTag(AnchoredDraggableTestTag)
                                 .anchoredDraggable(
                                     state = state,
-                                    orientation = Orientation.Vertical
+                                    orientation = Orientation.Vertical,
                                 )
                                 .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                                 .background(Color.Red)
@@ -219,7 +219,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -238,7 +238,7 @@ class AnchoredDraggableGestureTest {
                                 .anchoredDraggable(
                                     state = state,
                                     orientation = Orientation.Horizontal,
-                                    enabled = false
+                                    enabled = false,
                                 )
                                 .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                                 .background(Color.Red)
@@ -266,7 +266,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         val anchors = DraggableAnchors {
             A at 0f
@@ -285,7 +285,7 @@ class AnchoredDraggableGestureTest {
                                 .anchoredDraggable(
                                     state = state,
                                     orientation = Orientation.Vertical,
-                                    enabled = false
+                                    enabled = false,
                                 )
                                 .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
                                 .background(Color.Red)
@@ -315,7 +315,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -386,7 +386,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -458,7 +458,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = { positionalThresholdPx },
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -533,7 +533,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = { positionalThresholdPx },
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -608,7 +608,7 @@ class AnchoredDraggableGestureTest {
                     initialValue = A,
                     positionalThreshold = DefaultPositionalThreshold,
                     velocityThreshold = { velocityPx / 2f },
-                    animationSpec = tween()
+                    animationSpec = tween(),
                 )
             state.updateAnchors(
                 DraggableAnchors {
@@ -633,7 +633,7 @@ class AnchoredDraggableGestureTest {
                     initialValue = A,
                     velocityThreshold = { velocityPx },
                     positionalThreshold = { Float.POSITIVE_INFINITY },
-                    animationSpec = tween()
+                    animationSpec = tween(),
                 )
             state.updateAnchors(
                 DraggableAnchors {
@@ -655,7 +655,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -681,7 +681,7 @@ class AnchoredDraggableGestureTest {
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(right / 2, 0f),
-                endVelocity = with(rule.density) { velocityThreshold.toPx() } * 1.1f
+                endVelocity = with(rule.density) { velocityThreshold.toPx() } * 1.1f,
             )
         }
 
@@ -697,7 +697,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
                 positionalThreshold = { Float.POSITIVE_INFINITY },
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -723,7 +723,7 @@ class AnchoredDraggableGestureTest {
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(right / 2, 0f),
-                endVelocity = with(rule.density) { velocityThreshold.toPx() } * 0.9f
+                endVelocity = with(rule.density) { velocityThreshold.toPx() } * 0.9f,
             )
         }
 
@@ -742,7 +742,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = { 0f },
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         state.updateAnchors(anchors)
         rule.setContent {
@@ -788,7 +788,7 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = { totalDistance -> totalDistance * 0.5f },
                 velocityThreshold = DefaultVelocityThreshold,
-                animationSpec = tween()
+                animationSpec = tween(),
             )
         state.updateAnchors(anchors)
         lateinit var scope: CoroutineScope
@@ -836,7 +836,7 @@ class AnchoredDraggableGestureTest {
                 positionalThreshold = { totalDistance -> totalDistance * 0.5f },
                 velocityThreshold = DefaultVelocityThreshold,
                 animationSpec = tween(),
-                anchors = anchors
+                anchors = anchors,
             )
         lateinit var scope: CoroutineScope
         rule.setContent {

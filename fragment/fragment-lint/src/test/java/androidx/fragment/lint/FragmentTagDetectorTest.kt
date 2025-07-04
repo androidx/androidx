@@ -46,7 +46,7 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """
+            """,
                 )
             )
             .run()
@@ -68,7 +68,7 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """
+            """,
                 )
             )
             .run()
@@ -97,7 +97,7 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """
+            """,
                 )
             )
             .run()
@@ -122,8 +122,8 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """
-                )
+            """,
+                ),
             )
     }
 }

@@ -25,12 +25,12 @@ package androidx.glance.template
  * @param mainActionBlock The head block for a list of action buttons for the main gallery object.
  * @param galleryImageBlock The gallery block for a list of gallery images.
  */
-class GalleryTemplateData(
-    val mainTextBlock: TextBlock,
-    val mainImageBlock: ImageBlock,
-    val galleryImageBlock: ImageBlock,
-    val header: HeaderBlock? = null,
-    val mainActionBlock: ActionBlock? = null,
+public class GalleryTemplateData(
+    public val mainTextBlock: TextBlock,
+    public val mainImageBlock: ImageBlock,
+    public val galleryImageBlock: ImageBlock,
+    public val header: HeaderBlock? = null,
+    public val mainActionBlock: ActionBlock? = null,
 ) {
     override fun hashCode(): Int {
         var result = mainTextBlock.hashCode()

@@ -20,6 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.datastore.core.DataStore;
+import androidx.datastore.core.DataStoreFactory;
+
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Rule;
@@ -118,5 +121,25 @@ public class GuavaDataStoreTest {
         assertThat(cause).hasMessageThat().contains(
                 "There are multiple DataStores active for the same file"
         );
+    }
+
+    @Test
+    public void testCreateFromDataStore() throws Exception {
+        File newFile = tempFolder.newFile();
+        TestingSerializer testingSerializer = new TestingSerializer();
+        DataStore<Byte> dataStore = DataStoreFactory.INSTANCE.create(
+                testingSerializer,
+                () -> newFile);
+        GuavaDataStore<Byte> byteStore = GuavaDataStore.from(dataStore);
+
+        ListenableFuture<Byte> firstByte = byteStore.getDataAsync();
+        assertThat(firstByte.get()).isEqualTo(0);
+
+        ListenableFuture<Byte> incrementByte = byteStore.updateDataAsync(
+                GuavaDataStoreTest::incrementByte);
+        assertThat(incrementByte.get()).isEqualTo(1);
+
+        ListenableFuture<Byte> secondByte = byteStore.getDataAsync();
+        assertThat(secondByte.get()).isEqualTo(1);
     }
 }

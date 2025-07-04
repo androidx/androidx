@@ -60,7 +60,7 @@ class JpegBytes2ImageDeviceTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 matrix,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.

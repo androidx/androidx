@@ -321,12 +321,12 @@ class RoutePatternTest {
                 override fun put(
                     bundle: Bundle,
                     key: String,
-                    value: CustomType<TypeParam<TypeParamNested>>
+                    value: CustomType<TypeParam<TypeParamNested>>,
                 ) {}
 
                 override fun get(
                     bundle: Bundle,
-                    key: String
+                    key: String,
                 ): CustomType<TypeParam<TypeParamNested>>? = null
 
                 override fun parseValue(value: String): CustomType<TypeParam<TypeParamNested>> =
@@ -491,7 +491,7 @@ class RoutePatternTest {
 
 private fun <T> assertThatRoutePatternFrom(
     serializer: KSerializer<T>,
-    map: Map<KType, NavType<*>> = emptyMap()
+    map: Map<KType, NavType<*>> = emptyMap(),
 ) = serializer.generateRoutePattern(map)
 
 private fun String.isEqualTo(other: String) {

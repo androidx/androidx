@@ -178,7 +178,7 @@ private constructor(
                 hasRemoteResultsDelegate,
                 hasAuthResultsDelegate,
                 hasCredentialResultsDelegate,
-                false
+                false,
             )
         }
     }
@@ -218,7 +218,7 @@ private constructor(
                 hasRemoteResultsDelegate,
                 hasAuthResultsDelegate,
                 hasCredentialResultsDelegate,
-                true
+                true,
             )
         }
     }

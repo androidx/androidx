@@ -61,7 +61,7 @@ class AbsoluteCutCornerShapeTest(val layoutDirection: LayoutDirection) {
                 lineTo(10f, 150f)
                 lineTo(0f, 140f)
                 close()
-            }
+            },
         )
     }
 
@@ -86,7 +86,7 @@ class AbsoluteCutCornerShapeTest(val layoutDirection: LayoutDirection) {
                 lineTo(size4, size.height)
                 lineTo(0f, size.height - size4)
                 close()
-            }
+            },
         )
     }
 
@@ -119,7 +119,7 @@ class AbsoluteCutCornerShapeTest(val layoutDirection: LayoutDirection) {
                     topLeft = CornerSize(10.0f),
                     topRight = CornerSize(3.dp),
                     bottomLeft = CornerSize(10.0f),
-                    bottomRight = CornerSize(50)
+                    bottomRight = CornerSize(50),
                 )
             )
     }
@@ -132,14 +132,14 @@ class AbsoluteCutCornerShapeTest(val layoutDirection: LayoutDirection) {
                         topLeft = CornerSize(4.0f),
                         topRight = CornerSize(3.0f),
                         bottomLeft = CornerSize(3.dp),
-                        bottomRight = CornerSize(50)
+                        bottomRight = CornerSize(50),
                     )
                     .equals(
                         AbsoluteCutCornerShape(
                             topLeft = CornerSize(4.0f),
                             topRight = CornerSize(3.0f),
                             bottomLeft = CornerSize(3.dp),
-                            bottomRight = CornerSize(50)
+                            bottomRight = CornerSize(50),
                         )
                     )
             )
@@ -154,14 +154,14 @@ class AbsoluteCutCornerShapeTest(val layoutDirection: LayoutDirection) {
                         topLeft = CornerSize(4.0f),
                         topRight = CornerSize(3.0f),
                         bottomLeft = CornerSize(3.dp),
-                        bottomRight = CornerSize(50)
+                        bottomRight = CornerSize(50),
                     )
                     .equals(
                         AbsoluteCutCornerShape(
                             topLeft = CornerSize(4.0f),
                             topRight = CornerSize(5.0f),
                             bottomLeft = CornerSize(3.dp),
-                            bottomRight = CornerSize(50)
+                            bottomRight = CornerSize(50),
                         )
                     )
             )
@@ -175,30 +175,30 @@ class AbsoluteCutCornerShapeTest(val layoutDirection: LayoutDirection) {
                 topLeft = 5.dp,
                 topRight = 6.dp,
                 bottomRight = 3.dp,
-                bottomLeft = 4.dp
+                bottomLeft = 4.dp,
             ),
             AbsoluteCutCornerShape(
                     topLeft = 1.dp,
                     topRight = 2.dp,
                     bottomRight = 3.dp,
-                    bottomLeft = 4.dp
+                    bottomLeft = 4.dp,
                 )
-                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
+                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp)),
         )
         assertEquals(
             AbsoluteCutCornerShape(
                 topLeft = 1.dp,
                 topRight = 2.dp,
                 bottomRight = 5.dp,
-                bottomLeft = 6.dp
+                bottomLeft = 6.dp,
             ),
             AbsoluteCutCornerShape(
                     topLeft = 1.dp,
                     topRight = 2.dp,
                     bottomRight = 3.dp,
-                    bottomLeft = 4.dp
+                    bottomLeft = 4.dp,
                 )
-                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
+                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp)),
         )
     }
 

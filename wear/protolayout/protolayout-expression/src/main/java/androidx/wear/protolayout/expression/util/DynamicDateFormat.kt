@@ -86,7 +86,7 @@ internal constructor(
     @JvmOverloads
     public constructor(
         pattern: String,
-        timeZone: ZoneId = ZoneId.systemDefault()
+        timeZone: ZoneId = ZoneId.systemDefault(),
     ) : this(pattern, locale = null, timeZone)
 
     init {
@@ -107,7 +107,7 @@ internal constructor(
     @RequiresSchemaVersion(major = 1, minor = 300)
     @JvmOverloads
     public fun format(
-        instant: DynamicInstant = DynamicInstant.platformTimeWithSecondsPrecision(),
+        instant: DynamicInstant = DynamicInstant.platformTimeWithSecondsPrecision()
     ): DynamicString =
         patternParts
             .map { it.format(instant) }

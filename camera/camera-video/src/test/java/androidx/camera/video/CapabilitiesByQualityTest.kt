@@ -19,11 +19,17 @@ package androidx.camera.video
 import android.media.CamcorderProfile.QUALITY_2160P
 import android.media.CamcorderProfile.QUALITY_720P
 import android.media.CamcorderProfile.QUALITY_HIGH
+import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_2160P
+import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_720P
+import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_HIGH
+import android.media.CamcorderProfile.QUALITY_HIGH_SPEED_LOW
 import android.media.CamcorderProfile.QUALITY_LOW
 import android.os.Build
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_HIGH_SPEED_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_HIGH_SPEED_720P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_480P
@@ -35,30 +41,54 @@ import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.HIGHEST
 import androidx.camera.video.Quality.LOWEST
+import androidx.camera.video.Quality.QUALITY_SOURCE_HIGH_SPEED
+import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-class CapabilitiesByQualityTest {
+class CapabilitiesByQualityTest(private val qualitySource: Int) {
+
+    companion object {
+        @JvmStatic
+        @ParameterizedRobolectricTestRunner.Parameters(name = "isHighSpeed={0}")
+        fun data() = listOf(arrayOf(QUALITY_SOURCE_REGULAR), arrayOf(QUALITY_SOURCE_HIGH_SPEED))
+    }
+
+    private val profile2160p =
+        if (qualitySource == QUALITY_SOURCE_HIGH_SPEED) PROFILES_HIGH_SPEED_2160P
+        else PROFILES_2160P
+    private val profile720p =
+        if (qualitySource == QUALITY_SOURCE_HIGH_SPEED) PROFILES_HIGH_SPEED_720P else PROFILES_720P
+
+    private val encoderProfilesProvider =
+        FakeEncoderProfilesProvider.Builder()
+            .apply {
+                if (qualitySource == QUALITY_SOURCE_HIGH_SPEED) {
+                    add(QUALITY_HIGH_SPEED_HIGH, profile2160p)
+                    add(QUALITY_HIGH_SPEED_2160P, profile2160p) // UHD
+                    add(QUALITY_HIGH_SPEED_720P, profile720p) // HD
+                    add(QUALITY_HIGH_SPEED_LOW, profile720p)
+                } else {
+                    add(QUALITY_HIGH, profile2160p)
+                    add(QUALITY_2160P, profile2160p) // UHD
+                    add(QUALITY_720P, profile720p) // HD
+                    add(QUALITY_LOW, profile720p)
+                }
+            }
+            .build()
 
     private val capabilitiesByQuality =
-        CapabilitiesByQuality(
-            FakeEncoderProfilesProvider.Builder()
-                .add(QUALITY_HIGH, PROFILES_2160P)
-                .add(QUALITY_2160P, PROFILES_2160P) // UHD
-                .add(QUALITY_720P, PROFILES_720P) // HD
-                .add(QUALITY_LOW, PROFILES_720P)
-                .build()
-        )
+        CapabilitiesByQuality(encoderProfilesProvider, qualitySource)
 
     @Test
     fun canGetSupportedQualities() {
@@ -87,8 +117,8 @@ class CapabilitiesByQualityTest {
 
     @Test
     fun canFindNearestHigherSupportedEncoderProfiles() {
-        val videoValidProfile2160P = VideoValidatedEncoderProfilesProxy.from(PROFILES_2160P)
-        val videoValidProfile720P = VideoValidatedEncoderProfilesProxy.from(PROFILES_720P)
+        val videoValidProfile2160P = VideoValidatedEncoderProfilesProxy.from(profile2160p)
+        val videoValidProfile720P = VideoValidatedEncoderProfilesProxy.from(profile720p)
 
         assertThat(
                 capabilitiesByQuality.findNearestHigherSupportedEncoderProfilesFor(RESOLUTION_4KDCI)
@@ -134,15 +164,20 @@ class CapabilitiesByQualityTest {
 
     @Test
     fun containsSupportedQuality() {
-        val provider =
-            FakeEncoderProfilesProvider.Builder()
-                .add(QUALITY_HIGH, PROFILES_720P)
-                .add(QUALITY_720P, PROFILES_720P)
-                .add(QUALITY_LOW, PROFILES_720P)
-                .build()
-        val emptyProvider = EncoderProfilesProvider.EMPTY
+        assertThat(
+                CapabilitiesByQuality.containsSupportedQuality(
+                    encoderProfilesProvider,
+                    qualitySource,
+                )
+            )
+            .isTrue()
 
-        assertThat(CapabilitiesByQuality.containsSupportedQuality(provider)).isTrue()
-        assertThat(CapabilitiesByQuality.containsSupportedQuality(emptyProvider)).isFalse()
+        assertThat(
+                CapabilitiesByQuality.containsSupportedQuality(
+                    EncoderProfilesProvider.EMPTY,
+                    qualitySource,
+                )
+            )
+            .isFalse()
     }
 }

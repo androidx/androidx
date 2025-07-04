@@ -109,5 +109,5 @@ public annotation class AutoMigration(
      *
      * @return The auto migration specification or none if the user has not implemented a spec
      */
-    val spec: KClass<*> = Any::class
+    val spec: KClass<*> = Any::class,
 )

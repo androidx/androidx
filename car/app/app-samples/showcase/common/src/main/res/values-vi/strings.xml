@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Bản demo biểu mẫu tin nhắn"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Tin nhắn vào đây.\nThêm văn bản ở dòng thứ hai."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Bản minh hoạ mẫu tin nhắn ngắn"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Bản minh hoạ mẫu mục theo phần"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Phần nút chọn"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Phần bật tắt"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Phần nhiều hàng"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Phần mục lưới"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bản demo ngăn mẫu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Bản demo mẫu danh sách địa điểm"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Duyệt xem các địa điểm"</string>

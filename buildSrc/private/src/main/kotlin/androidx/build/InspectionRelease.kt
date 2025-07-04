@@ -34,12 +34,12 @@ fun Project.publishInspectionArtifacts() {
             publishInspectionConfiguration(
                 "copyInspectionArtifacts",
                 createConsumeInspectionConfiguration(),
-                "inspection"
+                "inspection",
             )
             publishInspectionConfiguration(
                 "copyUndexedInspectionArtifacts",
                 createConsumeNonDexedInspectionConfiguration(),
-                "inspection-nondexed"
+                "inspection-nondexed",
             )
         }
     }
@@ -48,7 +48,7 @@ fun Project.publishInspectionArtifacts() {
 internal fun Project.publishInspectionConfiguration(
     name: String,
     configuration: Configuration,
-    dirName: String
+    dirName: String,
 ) {
     project.dependencies.add(configuration.name, project)
     val sync =

@@ -52,7 +52,7 @@ class TextUsingModifierMinMaxLinesTest {
                         text,
                         style = textStyle,
                         maxLines = i + 1,
-                        onTextLayout = { layouts[i] = it }
+                        onTextLayout = { layouts[i] = it },
                     )
                 }
             }
@@ -86,7 +86,7 @@ class TextUsingModifierMinMaxLinesTest {
                         text,
                         style = textStyle,
                         minLines = i + 1,
-                        onTextLayout = { layouts[i] = it }
+                        onTextLayout = { layouts[i] = it },
                     )
                 }
             }

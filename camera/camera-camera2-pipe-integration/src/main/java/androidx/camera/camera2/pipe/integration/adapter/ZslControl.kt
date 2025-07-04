@@ -52,6 +52,9 @@ public interface ZslControl {
      */
     public fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder)
 
+    /** This method cleans up all resources used for ZSL capture. */
+    public fun clearZslConfig()
+
     /**
      * Determines whether the provided [DeferrableSurface] belongs to ZSL.
      *
@@ -180,7 +183,7 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
                     Log.error { "Failed to acquire latest image" }
                 }
             },
-            CameraXExecutors.ioExecutor()
+            CameraXExecutors.ioExecutor(),
         )
 
         // Init the reprocessing image reader surface and add into the target surfaces of capture
@@ -188,12 +191,12 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
             ImmediateSurface(
                 checkNotNull(reprocImageReader.surface),
                 Size(reprocImageReader.width, reprocImageReader.height),
-                FORMAT
+                FORMAT,
             )
 
         reprocDeferrableSurface.terminationFuture.addListener(
             { reprocImageReader.safeClose() },
-            CameraXExecutors.mainThreadExecutor()
+            CameraXExecutors.mainThreadExecutor(),
         )
         sessionConfigBuilder.addSurface(reprocDeferrableSurface)
 
@@ -222,6 +225,9 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
     }
 
     override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
+        if (isZslDisabledByUseCaseConfig != disabled && disabled) {
+            clearRingBuffer()
+        }
         isZslDisabledByUseCaseConfig = disabled
     }
 
@@ -246,6 +252,10 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
         }
     }
 
+    override fun clearZslConfig() {
+        reset()
+    }
+
     private fun reset() {
         val reprocImageDeferrableSurface = reprocessingImageDeferrableSurface
         if (reprocImageDeferrableSurface != null) {
@@ -253,7 +263,7 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
             if (reprocImageReaderProxy != null) {
                 reprocImageDeferrableSurface.terminationFuture.addListener(
                     { reprocImageReaderProxy.safeClose() },
-                    CameraXExecutors.mainThreadExecutor()
+                    CameraXExecutors.mainThreadExecutor(),
                 )
                 // Clear the listener so that no more buffer is enqueued to |zslRingBuffer|.
                 reprocImageReaderProxy.clearOnImageAvailableListener()
@@ -263,6 +273,10 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
             reprocessingImageDeferrableSurface = null
         }
 
+        clearRingBuffer()
+    }
+
+    private fun clearRingBuffer() {
         val ringBuffer = zslRingBuffer
         while (!ringBuffer.isEmpty) {
             ringBuffer.dequeue().close()
@@ -283,6 +297,8 @@ public class ZslControlImpl @Inject constructor(private val cameraProperties: Ca
 /** No-Op implementation for [ZslControl]. */
 public class ZslControlNoOpImpl @Inject constructor() : ZslControl {
     override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {}
+
+    override fun clearZslConfig() {}
 
     override fun isZslSurface(surface: DeferrableSurface, sessionConfig: SessionConfig): Boolean =
         false

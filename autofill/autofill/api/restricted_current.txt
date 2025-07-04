@@ -173,11 +173,14 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.common.ViewStyle? getChipStyle();
     method public androidx.autofill.inline.common.ImageViewStyle? getEndIconStyle();
     method public int getLayoutDirection();
+    method public int getLayoutTruncationPreference();
     method public androidx.autofill.inline.common.ImageViewStyle? getSingleIconChipIconStyle();
     method public androidx.autofill.inline.common.ViewStyle? getSingleIconChipStyle();
     method public androidx.autofill.inline.common.ImageViewStyle? getStartIconStyle();
     method public androidx.autofill.inline.common.TextViewStyle? getSubtitleStyle();
     method public androidx.autofill.inline.common.TextViewStyle? getTitleStyle();
+    field public static final int LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE = 1; // 0x1
+    field public static final int LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE = 0; // 0x0
   }
 
   public static final class InlineSuggestionUi.Style.Builder {
@@ -185,6 +188,7 @@ package androidx.autofill.inline.v1 {
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setChipStyle(androidx.autofill.inline.common.ViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setEndIconStyle(androidx.autofill.inline.common.ImageViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setLayoutDirection(int);
+    method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setLayoutTruncationPreference(int);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipIconStyle(androidx.autofill.inline.common.ImageViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setSingleIconChipStyle(androidx.autofill.inline.common.ViewStyle);
     method public androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder setStartIconStyle(androidx.autofill.inline.common.ImageViewStyle);

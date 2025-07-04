@@ -89,10 +89,10 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
                     ApplicationProvider.getApplicationContext(),
                     CameraThreadConfig.create(
                         CameraXExecutors.mainThreadExecutor(),
-                        Handler(Looper.getMainLooper())
+                        Handler(Looper.getMainLooper()),
                     ),
                     null,
-                    -1L
+                    -1L,
                 )
             return camera2CameraFactory.availableCameraIds
         }

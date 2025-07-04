@@ -27,7 +27,7 @@ class ThreePaneScaffoldHorizontalOrder
 internal constructor(
     internal val firstPane: ThreePaneScaffoldRole,
     internal val secondPane: ThreePaneScaffoldRole,
-    internal val thirdPane: ThreePaneScaffoldRole
+    internal val thirdPane: ThreePaneScaffoldRole,
 ) : PaneScaffoldHorizontalOrder<ThreePaneScaffoldRole> {
     init {
         require(firstPane != secondPane && secondPane != thirdPane && firstPane != thirdPane) {
@@ -90,12 +90,12 @@ internal constructor(
 }
 
 /**
- * Converts a bidirectional order to a left-to-right order.
+ * Converts a bidirectional [ThreePaneScaffoldHorizontalOrder] to a left-to-right order.
  *
  * @param layoutDirection the current [LayoutDirection]
  */
 @ExperimentalMaterial3AdaptiveApi
-fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
+internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     layoutDirection: LayoutDirection
 ): ThreePaneScaffoldHorizontalOrder {
     return if (layoutDirection == LayoutDirection.Rtl) {
@@ -126,5 +126,5 @@ enum class ThreePaneScaffoldRole {
      * layout adaptation and usually contains the additional info which will only be shown under
      * user interaction.
      */
-    Tertiary
+    Tertiary,
 }

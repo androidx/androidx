@@ -56,7 +56,7 @@ data class ParsedQuery(
     val inputs: List<BindParameterNode>,
     val tables: Set<Table>, // pairs of table name and alias
     val hasTopStarProjection: Boolean?, // null means unknown
-    val syntaxErrors: List<String>
+    val syntaxErrors: List<String>,
 ) {
     companion object {
         val STARTS_WITH_NUMBER = "^\\?[0-9]".toRegex()
@@ -67,7 +67,7 @@ data class ParsedQuery(
                 inputs = emptyList(),
                 tables = emptySet(),
                 hasTopStarProjection = null,
-                syntaxErrors = emptyList()
+                syntaxErrors = emptyList(),
             )
     }
 

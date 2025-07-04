@@ -68,9 +68,9 @@ class BasicTextBrushTest {
                         TextStyle(
                             brush = colorState.value,
                             fontFamily = TEST_FONT_FAMILY,
-                            fontSize = 20.sp
+                            fontSize = 20.sp,
                         ),
-                    modifier = Modifier.background(Color.Black).testTag(TAG)
+                    modifier = Modifier.background(Color.Black).testTag(TAG),
                 )
             }
         }
@@ -102,9 +102,9 @@ class BasicTextBrushTest {
                         TextStyle(
                             brush = brushState.value,
                             fontFamily = TEST_FONT_FAMILY,
-                            fontSize = 20.sp
+                            fontSize = 20.sp,
                         ),
-                    modifier = Modifier.background(Color.Black).testTag(TAG)
+                    modifier = Modifier.background(Color.Black).testTag(TAG),
                 )
             }
         }
@@ -144,7 +144,7 @@ class BasicTextBrushTest {
                     text = "Hello",
                     style =
                         TextStyle(brush = brush, fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
-                    modifier = Modifier.background(Color.Black).testTag(TAG)
+                    modifier = Modifier.background(Color.Black).testTag(TAG),
                 )
             }
         }

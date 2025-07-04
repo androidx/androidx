@@ -27,14 +27,14 @@ data class PagingEntity(@PrimaryKey val id: Int, val value: String = "item_$id")
             object : DiffUtil.ItemCallback<PagingEntity>() {
                 override fun areItemsTheSame(
                     oldItem: PagingEntity,
-                    newItem: PagingEntity
+                    newItem: PagingEntity,
                 ): Boolean {
                     return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(
                     oldItem: PagingEntity,
-                    newItem: PagingEntity
+                    newItem: PagingEntity,
                 ): Boolean {
                     return oldItem == newItem
                 }

@@ -59,7 +59,7 @@ class TextSelectionBackgroundColorTest(
                     Color(0xFFFF5722),
                     Color(0xFF795548),
                     Color(0xFF9E9E9E),
-                    Color(0xFF607D8B)
+                    Color(0xFF607D8B),
                 )
                 .map {
                     // Need to pass `null` as Color is an inline class and the `null` is needed when
@@ -79,7 +79,7 @@ class TextSelectionBackgroundColorTest(
             selectionColor = color,
             textColor = Color.Black,
             textAlpha = 0.74f,
-            backgroundColor = Color.White
+            backgroundColor = Color.White,
         )
     }
 
@@ -93,7 +93,7 @@ class TextSelectionBackgroundColorTest(
             selectionColor = color,
             textColor = Color.White,
             textAlpha = 0.6f,
-            backgroundColor = Color(0xFF121212)
+            backgroundColor = Color(0xFF121212),
         )
     }
 
@@ -103,7 +103,7 @@ class TextSelectionBackgroundColorTest(
             selectionColor = color,
             textColor = Color.Black,
             textAlpha = 0.74f,
-            backgroundColor = color
+            backgroundColor = color,
         )
     }
 
@@ -113,7 +113,7 @@ class TextSelectionBackgroundColorTest(
             selectionColor = color,
             textColor = Color.White,
             textAlpha = 0.6f,
-            backgroundColor = color
+            backgroundColor = color,
         )
     }
 }
@@ -122,14 +122,14 @@ private fun assertContrastRatio(
     selectionColor: Color,
     textColor: Color,
     textAlpha: Float,
-    backgroundColor: Color
+    backgroundColor: Color,
 ) {
     val textColorWithAlpha = textColor.copy(alpha = textAlpha)
     val selectionBackgroundColor =
         calculateSelectionBackgroundColor(
             selectionColor = selectionColor,
             textColor = textColorWithAlpha,
-            backgroundColor = backgroundColor
+            backgroundColor = backgroundColor,
         )
 
     // If the minimum alpha we allow still does not provide enough contrast, then we fall back to
@@ -140,7 +140,7 @@ private fun assertContrastRatio(
     val minimumContrastRatio =
         calculateContrastRatio(
             foreground = minimumCompositeTextColor,
-            background = minimumCompositeBackground
+            background = minimumCompositeBackground,
         )
 
     if (minimumContrastRatio < RequiredContrastRatio) {

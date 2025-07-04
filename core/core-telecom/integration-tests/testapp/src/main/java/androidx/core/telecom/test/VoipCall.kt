@@ -17,6 +17,9 @@
 package androidx.core.telecom.test
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Build
 import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -30,13 +33,17 @@ import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @ExperimentalAppActions
-@RequiresApi(34)
-class VoipCall(val context: Context, val attributes: CallAttributesCompat) {
+class VoipCall(
+    val context: Context,
+    val attributes: CallAttributesCompat,
+    val notificationId: Int,
+) {
     private val TAG = VoipCall::class.simpleName
-    var mNotificationId: Int = -1
     var mAdapter: CallListAdapter? = null
     var mCallControl: CallControlScope? = null
     var mParticipantControl: ParticipantControl? = null
@@ -50,27 +57,64 @@ class VoipCall(val context: Context, val attributes: CallAttributesCompat) {
     var mLocalCallSilenceExtension: LocalCallSilenceExtension? = null
     var mCallJob: Job? = null
 
+    // Call Icon data
+    data class IconControl(val onUriChanged: suspend (Uri) -> Unit)
+
+    var mIconExtensionControl: IconControl? = null
+    private val _mIconUri = MutableStateFlow<Uri>(Uri.EMPTY)
+    val mIconUri = _mIconUri.asStateFlow()
+    var mIconBitmap: Bitmap
+
+    init {
+        mIconBitmap = CallIconGenerator.generateNextBitmap()
+        setIconUri(VoipAppFileProvider.writeCallIconBitMapToFile(context, this)!!)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
     val mOnSetActiveLambda: suspend () -> Unit = {
         Log.i(TAG, "onSetActive: completing")
         onCallStateChanged("Active")
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     val mOnSetInActiveLambda: suspend () -> Unit = {
         Log.i(TAG, "onSetInactive: completing")
         onCallStateChanged("Inactive")
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     val mOnAnswerLambda: suspend (type: Int) -> Unit = {
         Log.i(TAG, "onAnswer: callType=[$it]")
         onCallStateChanged("Answered")
         updateNotificationToOngoing()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     val mOnDisconnectLambda: suspend (cause: DisconnectCause) -> Unit = {
         Log.i(TAG, "onDisconnect: disconnectCause=[$it]")
-        NotificationsUtilities.clearNotification(context, mNotificationId)
+        NotificationsUtilities.clearNotification(context, notificationId)
         onCallStateChanged("Disconnected")
         mCallJob?.cancel("call disconnected")
+    }
+
+    fun getIconFileName(): String {
+        return "VoipCallIcon_${notificationId}"
+    }
+
+    fun getIconBitmap(): Bitmap {
+        return mIconBitmap
+    }
+
+    fun setIconBitmap(bitmap: Bitmap) {
+        mIconBitmap = bitmap
+    }
+
+    fun setIconUri(uri: Uri) {
+        _mIconUri.value = uri
+    }
+
+    fun getIconUri(): Uri? {
+        return mIconUri.value
     }
 
     fun setCallControl(callControl: CallControlScope) {
@@ -81,22 +125,20 @@ class VoipCall(val context: Context, val attributes: CallAttributesCompat) {
         mParticipantControl = participantControl
     }
 
-    fun setNotificationId(id: Int) {
-        mNotificationId = id
-    }
-
+    @RequiresApi(Build.VERSION_CODES.S)
     fun clearNotification() {
-        Log.i(TAG, "clearNotification with id=[$mNotificationId]")
-        NotificationsUtilities.clearNotification(context, mNotificationId)
+        Log.i(TAG, "clearNotification with id=[$notificationId]")
+        NotificationsUtilities.clearNotification(context, notificationId)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun updateNotificationToOngoing() {
         if (!hasUpdatedToOngoing) {
             NotificationsUtilities.updateNotificationToOngoing(
                 context = context,
-                notificationId = mNotificationId,
+                notificationId = notificationId,
                 channelId = NOTIFICATION_CHANNEL_ID,
-                callerName = attributes.displayName.toString()
+                callerName = attributes.displayName.toString(),
             )
         }
         hasUpdatedToOngoing = true
@@ -106,6 +148,7 @@ class VoipCall(val context: Context, val attributes: CallAttributesCompat) {
         mCallJob = job
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     @OptIn(ExperimentalAppActions::class)
     suspend fun toggleLocalCallSilence() {
         CoroutineScope(coroutineContext).launch {
@@ -118,6 +161,7 @@ class VoipCall(val context: Context, val attributes: CallAttributesCompat) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     suspend fun onLocalCallSilenceUpdate(isSilenced: Boolean) {
         // change the value for the app to match the ics
         mIsLocallySilence = isSilenced
@@ -139,16 +183,19 @@ class VoipCall(val context: Context, val attributes: CallAttributesCompat) {
         mTelecomCallId = callId
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun onParticipantsChanged(participants: List<ParticipantState>) {
         mAdapter?.updateParticipants(mTelecomCallId, participants)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun onCallStateChanged(callState: String) {
         Log.i(TAG, "onCallStateChanged: state=$callState")
         mCurrentState = callState
         mAdapter?.updateCallState(mTelecomCallId, callState)
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     fun onCallEndpointChanged(endpoint: CallEndpointCompat) {
         Log.i(TAG, "onCallEndpointChanged: endpoint=$endpoint")
         mCurrentEndpoint = endpoint

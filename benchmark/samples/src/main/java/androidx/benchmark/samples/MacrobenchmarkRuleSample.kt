@@ -41,7 +41,7 @@ fun macrobenchmarkRuleSample() {
                 metrics = listOf(StartupTimingMetric()),
                 iterations = 5,
                 startupMode = StartupMode.COLD,
-                setupBlock = { pressHome() }
+                setupBlock = { pressHome() },
             ) { // this = MacrobenchmarkScope
                 val intent = Intent()
                 intent.setPackage(packageName)

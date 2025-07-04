@@ -32,7 +32,7 @@ data class ConfigurationError(
     val summary: String,
 
     /** Multi-line, preformatted detailed description of the problem. */
-    val message: String
+    val message: String,
 ) {
     init {
         validateParams(id, summary)
@@ -56,7 +56,7 @@ data class ConfigurationError(
         val prefix: String,
 
         /** Warning message to present to the user. */
-        val warningMessage: String
+        val warningMessage: String,
     )
 }
 
@@ -65,7 +65,7 @@ fun conditionalError(
     hasError: Boolean,
     id: String,
     summary: String,
-    message: String
+    message: String,
 ): ConfigurationError? {
     // validation done here *and* in constructor to ensure it happens even when error doesn't fire
     ConfigurationError.validateParams(id, summary)
@@ -84,7 +84,7 @@ internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun List<ConfigurationError>.checkAndGetSuppressionState(
-    suppressedErrorIds: Set<String>,
+    suppressedErrorIds: Set<String>
 ): ConfigurationError.SuppressionState? {
     if (isEmpty()) {
         return null

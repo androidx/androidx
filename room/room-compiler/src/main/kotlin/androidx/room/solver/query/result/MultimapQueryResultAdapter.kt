@@ -96,8 +96,8 @@ abstract class MultimapQueryResultAdapter(
                         ProcessorErrors.ambiguousColumn(
                             columnName = ambiguousColumnName,
                             location = location,
-                            typeName = objectTypeName?.toString(context.codeLanguage)
-                        )
+                            typeName = objectTypeName?.toString(context.codeLanguage),
+                        ),
                     )
                 }
         }
@@ -116,7 +116,7 @@ abstract class MultimapQueryResultAdapter(
 
     enum class CollectionValueType(val className: XClassName) {
         LIST(CommonTypeNames.MUTABLE_LIST),
-        SET(CommonTypeNames.MUTABLE_SET)
+        SET(CommonTypeNames.MUTABLE_SET),
     }
 
     companion object {
@@ -136,7 +136,7 @@ abstract class MultimapQueryResultAdapter(
                     Warning.DOES_NOT_IMPLEMENT_EQUALS_HASHCODE,
                     ProcessorErrors.classMustImplementEqualsAndHashCode(
                         keyTypeArg.asTypeName().toString(context.codeLanguage)
-                    )
+                    ),
                 )
             }
 
@@ -177,9 +177,7 @@ abstract class MultimapQueryResultAdapter(
             val annotation = type.getAnnotation(MapColumn::class.asClassName()) ?: return null
 
             val mapColumnName = annotation.getAsString("columnName")
-            // TODO: Temporary workaround below due to XAnnotation bug
-            val mapColumnTableName =
-                (annotation.getAnnotationValue("tableName").value ?: "") as String
+            val mapColumnTableName = (annotation["tableName"]?.value ?: "") as String
 
             fun List<ColumnInfo>.contains(columnName: String, tableName: String?) =
                 any { resultColumn ->
@@ -204,7 +202,7 @@ abstract class MultimapQueryResultAdapter(
                         ProcessorErrors.cannotMapSpecifiedColumn(
                             errorColumn,
                             resultColumns.map { it.name },
-                            MapColumn::class.java.simpleName
+                            MapColumn::class.java.simpleName,
                         )
                     )
                 }
@@ -213,7 +211,7 @@ abstract class MultimapQueryResultAdapter(
         }
     }
 
-    /** Generates a code expression that verifies if all matched fields are null. */
+    /** Generates a code expression that verifies if all matched properties are null. */
     fun getColumnNullCheckCode(stmtVarName: String, indexVars: List<ColumnIndexVar>) =
         buildCodeBlock { language ->
             val space =

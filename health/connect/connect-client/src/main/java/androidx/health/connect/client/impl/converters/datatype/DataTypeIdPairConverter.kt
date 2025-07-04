@@ -25,13 +25,13 @@ import kotlin.reflect.KClass
 /** Converts public API object into internal proto for ipc. */
 fun toDataTypeIdPairProto(
     dataTypeKC: KClass<out Record>,
-    uid: String
+    uid: String,
 ): RequestProto.DataTypeIdPair =
     RequestProto.DataTypeIdPair.newBuilder().setDataType(dataTypeKC.toDataType()).setId(uid).build()
 
 fun toDataTypeIdPairProtoList(
     dataTypeKC: KClass<out Record>,
-    uidsList: List<String>
+    uidsList: List<String>,
 ): List<RequestProto.DataTypeIdPair> {
     val dataTypeIdPairList = mutableListOf<RequestProto.DataTypeIdPair>()
     for (uid in uidsList) {

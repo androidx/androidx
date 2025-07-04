@@ -29,13 +29,17 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.graphics.text.PositionedGlyphs;
+import android.graphics.text.TextRunShaper;
 import android.os.Build;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
@@ -50,6 +54,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -539,5 +544,51 @@ public class ResourcesCompatTest {
         ColorStateList csl3 = ResourcesCompat.getColorStateList(
                 mResources, R.color.color_state_list, theme);
         assertNotEquals(csl, csl3);
+    }
+
+    @RequiresApi(31)
+    private File getDrawingFont(String text, Typeface typeface) {
+        Paint paint = new Paint();
+        paint.setTypeface(typeface);
+        paint.setTextSize(10f);
+
+        PositionedGlyphs glyphs = TextRunShaper.shapeTextRun(
+                text, 0, text.length(), 0, text.length(), 0f, 0f, false, paint);
+        if (glyphs.glyphCount() < 1) {
+            return null;
+        } else {
+            return glyphs.getFont(0).getFile();
+        }
+    }
+
+    @Test
+    public void testGetSystemFontFamilyWithFallback() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback);
+        assertNotNull(typeface);  // synchronously fetched
+        // font/res/system_fallback.xml specify "serif" in the first fallback.
+        assertEquals(typeface, Typeface.create("serif", Typeface.NORMAL));
+    }
+
+    @Test
+    public void testGetSystemFontFamilyWithFallback_equivalentLegacy() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback);
+        Typeface legacy_typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback_legacy);
+        assertEquals(typeface, legacy_typeface);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    public void testGetSystemFontFamilyWithFallback_monospace() {
+        Typeface typeface = ResourcesCompat.getFont(mContext, R.font.system_fallback_multiple);
+        assertNotNull(typeface);  // synchronously fetched
+
+        // font/res/system_fallback_multiple.xml fallbacks from serif to monospace.
+        // serif -> monospace fallback Typeface is different from serif and monospace Typeface.
+        assertNotEquals(typeface, Typeface.create("serif", Typeface.NORMAL));
+        assertNotEquals(typeface, Typeface.create("monospace", Typeface.NORMAL));
+
+        // Verify serif is the top font.
+        File topFont = getDrawingFont(" ", typeface);
+        assertEquals(topFont, getDrawingFont(" ", Typeface.create("serif", Typeface.NORMAL)));
     }
 }

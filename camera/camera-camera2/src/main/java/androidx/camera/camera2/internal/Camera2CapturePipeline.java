@@ -326,7 +326,8 @@ class Camera2CapturePipeline {
                                 null) : Futures.immediateFuture(null);
 
                 preCapture = FutureChain.from(getResult).transformAsync(captureResult -> {
-                    if (isFlashRequired(flashMode, captureResult)) {
+                    if (!mCameraControl.isLowLightBoostOn() && isFlashRequired(flashMode,
+                            captureResult)) {
                         setTimeout3A(CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS);
                     }
                     return mPipelineSubTask.preCapture(captureResult);
@@ -438,6 +439,8 @@ class Camera2CapturePipeline {
             if (templateToModify != CaptureConfig.TEMPLATE_TYPE_NONE) {
                 configBuilder.setTemplateType(templateToModify);
             }
+
+            Logger.d(TAG, "applyStillCaptureTemplate: templateToModify = " + templateToModify);
         }
 
         @ExecutedBy("mExecutor")
@@ -625,14 +628,17 @@ class Camera2CapturePipeline {
             Logger.d(TAG, "TorchTask#preCapture: isFlashRequired = " + isFlashRequired);
 
             if (isFlashRequired(mFlashMode, captureResult)) {
-                if (mCameraControl.isTorchOn()) {
+                if (mCameraControl.isLowLightBoostOn()) {
+                    Logger.d(TAG, "Low-light boost already on, not turn on");
+                } else if (mCameraControl.isTorchOn()) {
                     Logger.d(TAG, "Torch already on, not turn on");
                 } else {
                     Logger.d(TAG, "Turn on torch");
                     mIsExecuted = true;
 
                     ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
-                        mCameraControl.getTorchControl().enableTorchInternal(completer, true);
+                        mCameraControl.getTorchControl().enableTorchInternal(completer,
+                                TorchControl.USED_AS_FLASH);
                         return "TorchOn";
                     });
                     return FutureChain.from(future).transformAsync(
@@ -664,7 +670,7 @@ class Camera2CapturePipeline {
         @Override
         public void postCapture() {
             if (mIsExecuted) {
-                mCameraControl.getTorchControl().enableTorchInternal(null, false);
+                mCameraControl.getTorchControl().enableTorchInternal(null, TorchControl.OFF);
                 Logger.d(TAG, "Turning off torch");
                 if (mTriggerAePrecapture) {
                     mCameraControl.getFocusMeteringControl().cancelAfAeTrigger(false, true);
@@ -694,7 +700,7 @@ class Camera2CapturePipeline {
         @Override
         public @NonNull ListenableFuture<Boolean> preCapture(
                 @Nullable TotalCaptureResult captureResult) {
-            if (isFlashRequired(mFlashMode, captureResult)) {
+            if (!mCameraControl.isLowLightBoostOn() && isFlashRequired(mFlashMode, captureResult)) {
                 Logger.d(TAG, "Trigger AE");
                 mIsExecuted = true;
 
@@ -792,7 +798,7 @@ class Camera2CapturePipeline {
                                     return "EnableTorchInternal";
                                 }
                                 Logger.d(TAG, "ScreenFlashTask#preCapture: enable torch");
-                                mCameraControl.enableTorchInternal(true);
+                                mCameraControl.enableTorchInternal(TorchControl.USED_AS_FLASH);
                                 completer.set(null);
                                 return "EnableTorchInternal";
                             }),
@@ -825,7 +831,7 @@ class Camera2CapturePipeline {
         public void postCapture() {
             Logger.d(TAG, "ScreenFlashTask#postCapture");
             if (mUseFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
-                mCameraControl.enableTorchInternal(false);
+                mCameraControl.enableTorchInternal(TorchControl.OFF);
             }
             mCameraControl.getFocusMeteringControl().enableExternalFlashAeMode(false).addListener(
                     () -> Log.d(TAG, "enableExternalFlashAeMode disabled"), mExecutor

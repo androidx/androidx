@@ -42,7 +42,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize).isEqualTo(targetMediumSize)
@@ -65,7 +65,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
@@ -88,7 +88,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
@@ -113,7 +113,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
@@ -139,7 +139,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
@@ -168,7 +168,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
@@ -195,7 +195,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(1),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(1)
+                largeCounts = intArrayOf(1),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt()).isEqualTo(targetMediumSize.roundToInt())
@@ -223,7 +223,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(2),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(2)
+                largeCounts = intArrayOf(2),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())
@@ -250,7 +250,7 @@ class ArrangementTest {
                 targetMediumSize = targetMediumSize,
                 mediumCounts = intArrayOf(2),
                 targetLargeSize = targetLargeSize,
-                largeCounts = intArrayOf(2)
+                largeCounts = intArrayOf(2),
             )
         assertThat(arrangement?.largeSize).isEqualTo(targetLargeSize)
         assertThat(arrangement?.mediumSize?.roundToInt())

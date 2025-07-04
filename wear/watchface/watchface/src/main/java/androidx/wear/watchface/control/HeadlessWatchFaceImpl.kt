@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 @RequiresApi(27)
 internal class HeadlessWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
-    internal var watchFaceService: WatchFaceService?
+    internal var watchFaceService: WatchFaceService?,
 ) : IHeadlessWatchFace.Stub() {
 
     internal companion object {
@@ -76,7 +76,7 @@ internal class HeadlessWatchFaceImpl(
         aidlMethod(TAG, "renderWatchFaceToBitmap") {
             WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "HeadlessWatchFaceImpl.renderWatchFaceToBitmap"
+                "HeadlessWatchFaceImpl.renderWatchFaceToBitmap",
             ) {
                 it.renderWatchFaceToBitmap(params)
             }
@@ -86,7 +86,7 @@ internal class HeadlessWatchFaceImpl(
         aidlMethod(TAG, "getPreviewReferenceTimeMillis") {
             WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis"
+                "HeadlessWatchFaceImpl.getPreviewReferenceTimeMillis",
             ) {
                 it.previewReferenceInstant.toEpochMilli()
             } ?: 0
@@ -98,7 +98,7 @@ internal class HeadlessWatchFaceImpl(
             WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engineCopy,
                 "HeadlessWatchFaceImpl.getComplicationState",
-                WatchFaceService.Companion.ExecutionThread.UI
+                WatchFaceService.Companion.ExecutionThread.UI,
             ) {
                 it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds)
             }
@@ -108,7 +108,7 @@ internal class HeadlessWatchFaceImpl(
         aidlMethod(TAG, "renderComplicationToBitmap") {
             WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "HeadlessWatchFaceImpl.renderComplicationToBitmap"
+                "HeadlessWatchFaceImpl.renderComplicationToBitmap",
             ) {
                 it.renderComplicationToBitmap(params)
             }
@@ -119,7 +119,7 @@ internal class HeadlessWatchFaceImpl(
             WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engine,
                 "HeadlessWatchFaceImpl.getUserStyleSchema",
-                WatchFaceService.Companion.ExecutionThread.CURRENT
+                WatchFaceService.Companion.ExecutionThread.CURRENT,
             ) {
                 it.userStyleRepository.schema.toWireFormat()
             }
@@ -130,7 +130,7 @@ internal class HeadlessWatchFaceImpl(
             WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engine,
                 "HeadlessWatchFaceImpl.computeUserStyleSchemaDigestHash",
-                WatchFaceService.Companion.ExecutionThread.CURRENT
+                WatchFaceService.Companion.ExecutionThread.CURRENT,
             ) {
                 it.userStyleRepository.schema.getDigestHash()
             }
@@ -141,7 +141,7 @@ internal class HeadlessWatchFaceImpl(
             WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engine,
                 "HeadlessWatchFaceImpl.getUserStyleFlavors",
-                WatchFaceService.Companion.ExecutionThread.CURRENT
+                WatchFaceService.Companion.ExecutionThread.CURRENT,
             ) {
                 it.userStyleFlavors.toWireFormat()
             }

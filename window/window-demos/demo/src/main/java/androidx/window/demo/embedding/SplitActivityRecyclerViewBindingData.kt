@@ -23,10 +23,7 @@ package androidx.window.demo.embedding
  * corresponding views in each item.
  */
 class SplitActivityRecyclerViewBindingData {
-    data class Item(
-        val type: Int,
-        val withDivider: Boolean = false,
-    ) {
+    class Item(val type: Int, val withDivider: Boolean = false) {
         companion object {
             const val TYPE_TEXT = 0
             const val TYPE_CHECKBOX = 1
@@ -92,12 +89,6 @@ class SplitActivityRecyclerViewBindingData {
         }
     }
 
-    @JvmField
-    val embeddedStatusTextView =
-        Item(Item.TYPE_TEXT).apply {
-            text = "Activity is embedded"
-            isVisible = false
-        }
     @JvmField
     val embeddedBoundsTextView =
         Item(Item.TYPE_TEXT).apply {
@@ -194,11 +185,13 @@ class SplitActivityRecyclerViewBindingData {
 
     fun getItems() =
         listOf(
-            embeddedStatusTextView,
             embeddedBoundsTextView,
             splitMainCheckBox,
             dividerCheckBox,
             draggableDividerCheckBox,
+            openAnimationJumpCutCheckBox,
+            closeAnimationJumpCutCheckBox,
+            changeAnimationJumpCutCheckBox,
             launchBButton,
             usePlaceholderCheckBox,
             useStickyPlaceholderCheckBox,

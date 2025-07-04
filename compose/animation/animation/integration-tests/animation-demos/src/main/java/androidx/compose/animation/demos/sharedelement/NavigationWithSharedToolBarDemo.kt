@@ -52,7 +52,7 @@ fun NavigationWithSharedToolBarDemo() {
             composable(
                 "first",
                 enterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
+                exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
             ) {
                 Column {
                     TopAppBar(
@@ -61,7 +61,7 @@ fun NavigationWithSharedToolBarDemo() {
                             Modifier.sharedElement(
                                 rememberSharedContentState(key = "appBar"),
                                 this@composable,
-                            )
+                            ),
                     )
                     Text(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent" +
@@ -69,7 +69,7 @@ fun NavigationWithSharedToolBarDemo() {
                             " suscipit efficitur eget mauris. Nullam eget aliquet ligula. Nunc" +
                             "id euismod elit. Morbi aliquam enim eros, eget consequat" +
                             " dolor consequat id. Quisque elementum faucibus congue. Curabitur" +
-                            " mollis aliquet turpis, ut pellentesque justo eleifend nec.\n",
+                            " mollis aliquet turpis, ut pellentesque justo eleifend nec.\n"
                     )
                     Button(onClick = { navController.navigate("second") }) {
                         Text("Navigate to Cat")
@@ -79,7 +79,7 @@ fun NavigationWithSharedToolBarDemo() {
             composable(
                 "second",
                 enterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
+                exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
             ) {
                 Column {
                     TopAppBar(
@@ -88,13 +88,13 @@ fun NavigationWithSharedToolBarDemo() {
                             Modifier.sharedElement(
                                 rememberSharedContentState(key = "appBar"),
                                 this@composable,
-                            )
+                            ),
                     )
                     Image(
                         painterResource(id = R.drawable.yt_profile),
                         contentDescription = "cute cat",
                         contentScale = ContentScale.FillHeight,
-                        modifier = Modifier.clip(shape = RoundedCornerShape(20.dp))
+                        modifier = Modifier.clip(shape = RoundedCornerShape(20.dp)),
                     )
                     Button(onClick = { navController.navigate("third") }) {
                         Text("Navigate to Empty Page")
@@ -104,7 +104,7 @@ fun NavigationWithSharedToolBarDemo() {
             composable(
                 "third",
                 enterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
-                exitTransition = { slideOutHorizontally(targetOffsetX = { it }) }
+                exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
             ) {
                 Column(Modifier.fillMaxWidth()) {
                     Text("Nothing to see here. Move on.")

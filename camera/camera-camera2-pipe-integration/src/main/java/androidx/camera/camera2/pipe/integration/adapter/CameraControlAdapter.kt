@@ -17,17 +17,16 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Rect
-import android.hardware.camera2.CameraCharacteristics
-import android.os.Build
-import androidx.arch.core.util.Function
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLowLightBoost
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.EvCompControl
 import androidx.camera.camera2.pipe.integration.impl.FlashControl
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
+import androidx.camera.camera2.pipe.integration.impl.LowLightBoostControl
 import androidx.camera.camera2.pipe.integration.impl.StillCaptureRequestControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -44,13 +43,14 @@ import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
+import androidx.camera.core.LowLightBoostState
+import androidx.camera.core.TorchState
 import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import javax.inject.Inject
@@ -76,6 +76,7 @@ constructor(
     private val focusMeteringControl: FocusMeteringControl,
     private val stillCaptureRequestControl: StillCaptureRequestControl,
     private val torchControl: TorchControl,
+    private val lowLightBoostControl: LowLightBoostControl,
     private val zoomControl: ZoomControl,
     private val zslControl: ZslControl,
     public val camera2cameraControl: Camera2CameraControl,
@@ -83,15 +84,6 @@ constructor(
     private val threads: UseCaseThreads,
     private val videoUsageControl: VideoUsageControl,
 ) : CameraControlInternal {
-    override fun getSensorRect(): Rect {
-        val sensorRect =
-            cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]
-        if ("robolectric" == Build.FINGERPRINT && sensorRect == null) {
-            return Rect(0, 0, 4000, 3000)
-        }
-        return sensorRect!!
-    }
-
     override fun addInteropConfig(config: Config) {
         camera2cameraControl.addCaptureRequestOptions(
             CaptureRequestOptions.Builder.from(config).build()
@@ -106,16 +98,53 @@ constructor(
         return camera2cameraControl.getCaptureRequestOptions()
     }
 
-    override fun enableTorch(torch: Boolean): ListenableFuture<Void> =
-        Futures.nonCancellationPropagating(
-            FutureChain.from(torchControl.setTorchAsync(torch).asListenableFuture())
-                .transform(
-                    Function {
-                        return@Function null
-                    },
-                    CameraXExecutors.directExecutor()
+    override fun enableTorch(torch: Boolean): ListenableFuture<Void> {
+        if (
+            cameraProperties.metadata.supportsLowLightBoost &&
+                lowLightBoostControl.lowLightBoostStateLiveData.value != LowLightBoostState.OFF
+        ) {
+            debug { "Unable to enable/disable torch when low-light boost is on." }
+            return Futures.immediateFailedFuture<Void>(
+                IllegalStateException(
+                    "Torch can not be enabled/disable when low-light boost is on!"
                 )
+            )
+        }
+
+        return Futures.nonCancellationPropagating(
+            torchControl.setTorchAsync(torch).asVoidListenableFuture()
         )
+    }
+
+    override fun setTorchStrengthLevel(torchStrengthLevel: Int): ListenableFuture<Void> =
+        Futures.nonCancellationPropagating(
+            torchControl.setTorchStrengthLevelAsync(torchStrengthLevel).asVoidListenableFuture()
+        )
+
+    override fun enableLowLightBoostAsync(lowLightBoost: Boolean): ListenableFuture<Void> {
+        if (!cameraProperties.metadata.supportsLowLightBoost) {
+            debug { "Unable to enable/disable low-light boost due to it is not supported." }
+            return Futures.immediateFailedFuture<Void>(
+                IllegalStateException("Low-light boost is not supported!")
+            )
+        }
+
+        return Futures.nonCancellationPropagating(
+            Futures.transformAsync(
+                if (torchControl.torchStateLiveData.value == TorchState.ON) {
+                    torchControl.setTorchAsync(false).asVoidListenableFuture()
+                } else {
+                    CompletableDeferred(Unit).apply { complete(Unit) }.asVoidListenableFuture()
+                },
+                {
+                    lowLightBoostControl
+                        .setLowLightBoostAsync(lowLightBoost)
+                        .asVoidListenableFuture()
+                },
+                CameraXExecutors.directExecutor(),
+            )
+        )
+    }
 
     override fun startFocusAndMetering(
         action: FocusMeteringAction
@@ -169,6 +198,14 @@ constructor(
         zslControl.addZslConfig(sessionConfigBuilder)
     }
 
+    override fun setLowLightBoostDisabledByUseCaseSessionConfig(disabled: Boolean) {
+        lowLightBoostControl.setLowLightBoostDisabledByUseCaseSessionConfig(disabled)
+    }
+
+    override fun clearZslConfig() {
+        zslControl.clearZslConfig()
+    }
+
     override fun submitStillCaptureRequests(
         captureConfigs: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
@@ -178,7 +215,7 @@ constructor(
 
     override fun getCameraCapturePipelineAsync(
         @ImageCapture.CaptureMode captureMode: Int,
-        @ImageCapture.FlashType flashType: Int
+        @ImageCapture.FlashType flashType: Int,
     ): ListenableFuture<CameraCapturePipeline> {
         val camera =
             useCaseManager.camera
@@ -189,7 +226,7 @@ constructor(
             camera.getCameraCapturePipeline(
                 captureMode,
                 flashControl.awaitFlashModeUpdate(),
-                flashType
+                flashType,
             )
         }
     }

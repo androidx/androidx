@@ -100,7 +100,7 @@ class UnrememberedGetBackStackEntryDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                NAV_CONTROLLER
+                NAV_CONTROLLER,
             )
             .skipTestModes(TestMode.TYPE_ALIAS)
             .run()
@@ -193,7 +193,7 @@ src/com/example/{.kt:54: Error: Calling getBackStackEntry during composition wit
                 Stubs.Composable,
                 Stubs.Remember,
                 NAV_CONTROLLER,
-                NAV_BACK_STACK_ENTRY
+                NAV_BACK_STACK_ENTRY,
             )
             .run()
             .expect(
@@ -290,7 +290,7 @@ src/com/example/test.kt:46: Error: Calling getBackStackEntry during composition 
                 Stubs.Composable,
                 Stubs.Remember,
                 NAV_BACK_STACK_ENTRY,
-                NAV_CONTROLLER
+                NAV_CONTROLLER,
             )
             .run()
             .expectClean()
@@ -371,7 +371,7 @@ src/com/example/test.kt:46: Error: Calling getBackStackEntry during composition 
                 Stubs.Composable,
                 Stubs.Remember,
                 NAV_CONTROLLER,
-                NAV_BACK_STACK_ENTRY
+                NAV_BACK_STACK_ENTRY,
             )
             .run()
             .expectClean()

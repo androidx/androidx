@@ -1,0 +1,61 @@
+// Signature format: 4.0
+package androidx.wear.protolayout.testing {
+
+  public final class Filters {
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher containsTag(String value);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasAllCorners(float radiusDp);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasBottomLeftCorner(float xRadiusDp, float yRadiusDp);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasBottomRightCorner(float xRadiusDp, float yRadiusDp);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasChild(androidx.wear.protolayout.testing.LayoutElementMatcher matcher);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable();
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minClickableWidth);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasClickable(optional androidx.wear.protolayout.ActionBuilders.Action action, optional String? id, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minClickableWidth, optional @Dimension(unit=androidx.annotation.Dimension.Companion.DP) float minClickableHeight);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasColor(@ColorInt int argb);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasContentDescription(String value);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasContentDescription(kotlin.text.Regex pattern);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasDescendant(androidx.wear.protolayout.testing.LayoutElementMatcher matcher);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasHeight(androidx.wear.protolayout.DimensionBuilders.ContainerDimension height);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasHeight(androidx.wear.protolayout.DimensionBuilders.ProportionalDimensionProp height);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasImage(String protolayoutResId);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasTag(String value);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasText(String value);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasText(String value, optional boolean subString);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasText(String value, optional boolean subString, optional boolean ignoreCase);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasTopLeftCorner(float xRadiusDp, float yRadiusDp);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasTopRightCorner(float xRadiusDp, float yRadiusDp);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasWidth(androidx.wear.protolayout.DimensionBuilders.ContainerDimension width);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher hasWidth(androidx.wear.protolayout.DimensionBuilders.ProportionalDimensionProp width);
+    method public static androidx.wear.protolayout.testing.LayoutElementMatcher isClickable();
+  }
+
+  public final class LayoutElementAssertion {
+    method public androidx.wear.protolayout.testing.LayoutElementAssertion assert(androidx.wear.protolayout.testing.LayoutElementMatcher matcher);
+    method public void assertDoesNotExist();
+    method public void assertExists();
+  }
+
+  public final class LayoutElementAssertionsProvider {
+    ctor public LayoutElementAssertionsProvider(androidx.wear.protolayout.LayoutElementBuilders.Layout layout);
+    ctor public LayoutElementAssertionsProvider(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement layoutRoot);
+    method public androidx.wear.protolayout.testing.LayoutElementAssertion onElement(androidx.wear.protolayout.testing.LayoutElementMatcher matcher);
+    method public androidx.wear.protolayout.testing.LayoutElementAssertion onRoot();
+    method public androidx.wear.protolayout.testing.LayoutElementAssertionsProvider withDynamicData(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object?>... dynamicDataPairs);
+  }
+
+  public final class LayoutElementMatcher {
+    ctor public LayoutElementMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.wear.protolayout.LayoutElementBuilders.LayoutElement,java.lang.Boolean> matcher);
+    ctor public LayoutElementMatcher(String description, kotlin.jvm.functions.Function2<? super androidx.wear.protolayout.LayoutElementBuilders.LayoutElement,? super androidx.wear.protolayout.testing.TestContext,java.lang.Boolean> matcher);
+    method public infix androidx.wear.protolayout.testing.LayoutElementMatcher and(androidx.wear.protolayout.testing.LayoutElementMatcher other);
+    method public operator androidx.wear.protolayout.testing.LayoutElementMatcher not();
+    method public infix androidx.wear.protolayout.testing.LayoutElementMatcher or(androidx.wear.protolayout.testing.LayoutElementMatcher other);
+  }
+
+  public final class TestContext {
+    method public androidx.wear.protolayout.expression.DynamicDataMap getDynamicData();
+    property public androidx.wear.protolayout.expression.DynamicDataMap dynamicData;
+  }
+
+}
+

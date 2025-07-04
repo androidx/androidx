@@ -27,7 +27,7 @@ import androidx.room.solver.CodeGenScope
  */
 class GuavaOptionalQueryResultAdapter(
     private val typeArg: XType,
-    private val resultAdapter: SingleItemQueryResultAdapter
+    private val resultAdapter: SingleItemQueryResultAdapter,
 ) : QueryResultAdapter(resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
@@ -40,8 +40,8 @@ class GuavaOptionalQueryResultAdapter(
                     XCodeBlock.of(
                         format = "%T.fromNullable(%L)",
                         GuavaTypeNames.OPTIONAL,
-                        valueVarName
-                    )
+                        valueVarName,
+                    ),
             )
         }
     }

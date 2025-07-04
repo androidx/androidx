@@ -45,7 +45,7 @@ class TraceKtTest {
     fun traceLazyTest() {
         assertFalse(
             "This test expects to be run without tracing enabled in this process",
-            Trace.isEnabled()
+            Trace.isEnabled(),
         )
 
         val x =
@@ -75,7 +75,7 @@ class TraceKtTest {
     fun asyncTraceLazyTest() {
         assertFalse(
             "This test expects to be run without tracing enabled in this process",
-            Trace.isEnabled()
+            Trace.isEnabled(),
         )
         runBlocking {
             val x =
@@ -89,7 +89,7 @@ class TraceKtTest {
                         throw IllegalStateException(
                             "tracing should be disabled, with message not used"
                         )
-                    }
+                    },
                 ) {
                     delay(1)
                     10

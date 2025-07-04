@@ -60,7 +60,7 @@ class AlertDialogScreenshotTest {
                 },
                 dismissButton = {
                     TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
-                }
+                },
             )
         }
 
@@ -84,7 +84,7 @@ class AlertDialogScreenshotTest {
                 },
                 dismissButton = {
                     TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
-                }
+                },
             )
         }
 
@@ -109,7 +109,7 @@ class AlertDialogScreenshotTest {
                 },
                 dismissButton = {
                     TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
-                }
+                },
             )
         }
 
@@ -134,7 +134,7 @@ class AlertDialogScreenshotTest {
                 },
                 dismissButton = {
                     TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
-                }
+                },
             )
         }
 
@@ -159,7 +159,7 @@ class AlertDialogScreenshotTest {
                     },
                     dismissButton = {
                         TextButton(onClick = { /* doSomething() */ }) { Text("Dismiss") }
-                    }
+                    },
                 )
             }
         }

@@ -60,13 +60,13 @@ class SdkTableConfigParserTest {
                 SdkTableEntry(
                     packageName = "sdk1",
                     versionMajor = null,
-                    compatConfigPath = "config1.xml"
+                    compatConfigPath = "config1.xml",
                 ),
                 SdkTableEntry(
                     packageName = "sdk2",
                     versionMajor = 42,
-                    compatConfigPath = "config2.xml"
-                )
+                    compatConfigPath = "config2.xml",
+                ),
             )
     }
 

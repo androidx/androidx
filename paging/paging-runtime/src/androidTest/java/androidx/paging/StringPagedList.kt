@@ -26,7 +26,7 @@ import kotlinx.coroutines.runBlocking
 private class FakeSource<Value : Any>(
     private val leadingNulls: Int,
     private val trailingNulls: Int,
-    private val data: List<Value>
+    private val data: List<Value>,
 ) : PagingSource<Any, Value>() {
     override suspend fun load(params: LoadParams<Any>): LoadResult<Any, Value> {
         if (params is LoadParams.Refresh) {
@@ -35,7 +35,7 @@ private class FakeSource<Value : Any>(
                 prevKey = null,
                 nextKey = null,
                 itemsBefore = leadingNulls,
-                itemsAfter = trailingNulls
+                itemsAfter = trailingNulls,
             )
         }
         // TODO: prevent null-key load start/end
@@ -50,7 +50,7 @@ private class FakeSource<Value : Any>(
 fun StringPagedList(
     leadingNulls: Int,
     trailingNulls: Int,
-    vararg items: String
+    vararg items: String,
 ): PagedList<String> = runBlocking {
     PagedList.create(
         initialPage =
@@ -59,7 +59,7 @@ fun StringPagedList(
                 prevKey = null,
                 nextKey = null,
                 itemsBefore = leadingNulls,
-                itemsAfter = trailingNulls
+                itemsAfter = trailingNulls,
             ),
         pagingSource = FakeSource(leadingNulls, trailingNulls, items.toList()),
         coroutineScope = GlobalScope,
@@ -67,6 +67,6 @@ fun StringPagedList(
         fetchDispatcher = DirectDispatcher,
         boundaryCallback = null,
         config = Config(1, prefetchDistance = 0),
-        key = null
+        key = null,
     )
 }

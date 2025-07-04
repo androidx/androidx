@@ -43,7 +43,7 @@ class WorkConstrainsDaoTest : DatabaseTest() {
                             NetworkRequest.Builder()
                                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                                 .build(),
-                            NetworkType.CONNECTED
+                            NetworkType.CONNECTED,
                         )
                         .build()
                 )
@@ -77,5 +77,32 @@ class WorkConstrainsDaoTest : DatabaseTest() {
         val newWorkSpec = checkNotNull(mDatabase.workSpecDao().getWorkSpec(workRequest.stringId))
         assertThat(workSpec.constraints.requiredNetworkRequest!!.capabilities)
             .isEqualTo(newWorkSpec.constraints.requiredNetworkRequest!!.capabilities)
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 31)
+    fun readWithNetworkRequestWithoutDefaultCapability() {
+        val workRequest =
+            OneTimeWorkRequest.Builder(TestWorker::class.java)
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkRequest(
+                            NetworkRequest.Builder()
+                                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                                .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                                .build(),
+                            NetworkType.CONNECTED,
+                        )
+                        .build()
+                )
+                .build()
+
+        val workSpec = workRequest.workSpec
+        mDatabase.workSpecDao().insertWorkSpec(workSpec)
+
+        val newWorkSpec = checkNotNull(mDatabase.workSpecDao().getWorkSpec(workRequest.stringId))
+        assertThat(newWorkSpec.constraints.requiredNetworkRequest!!.capabilities.toList())
+            .doesNotContain(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
     }
 }

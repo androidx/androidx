@@ -73,7 +73,7 @@ class ProfileInstallBroadcastTest {
     fun saveProfile_missing() {
         val errorString = ProfileInstallBroadcast.saveProfile(Packages.MISSING)
         assertNotNull(errorString)
-        assertContains(errorString!!, "The save profile broadcast event was not received")
+        assertContains(errorString!!, "The save profile broadcast was not received")
     }
 
     @Test
@@ -90,7 +90,7 @@ class ProfileInstallBroadcastTest {
         // validate extra instructions
         assertContains(
             errorString,
-            "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated"
+            "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated",
         )
     }
 
@@ -102,7 +102,7 @@ class ProfileInstallBroadcastTest {
 
         assertEquals(
             ProfileInstallBroadcast.SaveProfileResult(1, null),
-            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET)
+            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET),
         )
     }
 
@@ -120,7 +120,7 @@ class ProfileInstallBroadcastTest {
     fun saveProfilesForAllProcesses_missing() {
         assertEquals(
             ProfileInstallBroadcast.SaveProfileResult(0, null),
-            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.MISSING)
+            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.MISSING),
         )
     }
 
@@ -133,6 +133,6 @@ class ProfileInstallBroadcastTest {
         val result = ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TEST)
         assertEquals(1, result.processCount)
         assertNotNull(result.error)
-        assertContains(result.error!!, "The save profile broadcast event was not received.")
+        assertContains(result.error!!, "The save profile broadcast was not received.")
     }
 }

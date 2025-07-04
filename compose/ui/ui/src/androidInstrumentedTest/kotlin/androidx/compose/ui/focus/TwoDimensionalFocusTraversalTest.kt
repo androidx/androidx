@@ -442,7 +442,7 @@ private fun FocusableBox(
     width: Int = 10,
     height: Int = 10,
     deactivated: Boolean = false,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
     FocusableBox(isFocused, x, y, width, height, focusRequester, deactivated, Modifier, content)
 }

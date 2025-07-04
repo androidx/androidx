@@ -18,6 +18,7 @@ package androidx.camera.integration.core.stresstest
 
 import android.Manifest
 import android.content.Context
+import android.os.Build
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -53,6 +54,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.ClassRule
@@ -62,15 +64,13 @@ import org.junit.runners.Parameterized
 abstract class LifecycleStatusChangeStressTestBase(
     val implName: String,
     val cameraConfig: CameraXConfig,
-    val cameraId: String
+    val cameraId: String,
 ) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCamera =
@@ -82,7 +82,7 @@ abstract class LifecycleStatusChangeStressTestBase(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
         )
 
     @get:Rule val labTest: LabTestRule = LabTestRule()
@@ -105,6 +105,7 @@ abstract class LifecycleStatusChangeStressTestBase(
 
     @Before
     fun setup(): Unit = runBlocking {
+        assumeLifecycleStatusChangeTestCompatibleDevice()
         assumeTrue(CameraUtil.deviceHasCamera())
         CoreAppTestUtil.assumeCompatibleDevice()
         CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
@@ -158,11 +159,16 @@ abstract class LifecycleStatusChangeStressTestBase(
         cameraId: String,
         useCaseCombination: Int,
         verificationTarget: Int,
-        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT,
+        enableStreamSharing: Boolean = false,
     ) {
         // Launches CameraXActivity and wait for the preview ready.
         val activityScenario =
-            launchCameraXActivityAndWaitForPreviewReady(cameraId, useCaseCombination)
+            launchCameraXActivityAndWaitForPreviewReady(
+                cameraId,
+                useCaseCombination,
+                forceEnableStreamSharing = enableStreamSharing,
+            )
 
         // Pauses, resumes the activity, and then checks the test target use case can capture
         // images successfully.
@@ -205,11 +211,16 @@ abstract class LifecycleStatusChangeStressTestBase(
         cameraId: String,
         useCaseCombination: Int,
         verificationTarget: Int,
-        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT,
+        enableStreamSharing: Boolean = false,
     ) {
         // Launches CameraXActivity and wait for the preview ready.
         val activityScenario =
-            launchCameraXActivityAndWaitForPreviewReady(cameraId, useCaseCombination)
+            launchCameraXActivityAndWaitForPreviewReady(
+                cameraId,
+                useCaseCombination,
+                forceEnableStreamSharing = enableStreamSharing,
+            )
 
         // Pauses, resumes the activity repeatedly, and then checks the test target use case can
         // capture images successfully.
@@ -242,4 +253,17 @@ abstract class LifecycleStatusChangeStressTestBase(
             }
         }
     }
+
+    /**
+     * On some devices, after ProcessCameraProvider#shutdownAsync has been executed, the device
+     * WindowManager might still try to launch the CameraXActivity according to some unknown reason.
+     * This causes the CameraXActivity to invoke ProcessCameraProvider#getAvailableCameraInfos and
+     * then result in NPE problem. Therefore, the LifecycleStatusChange related tests will be
+     * skipped on those devices. See b/390272054 for the details.
+     */
+    private fun assumeLifecycleStatusChangeTestCompatibleDevice() =
+        assumeFalse(
+            "Samsung".equals(Build.BRAND, ignoreCase = true) &&
+                "SM-S921U".equals(Build.MODEL, ignoreCase = true)
+        )
 }

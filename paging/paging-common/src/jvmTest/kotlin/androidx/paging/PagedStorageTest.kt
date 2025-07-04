@@ -226,7 +226,7 @@ class PagedStorageTest {
                     prefetchDistance = 0,
                     enablePlaceholders = true,
                     initialLoadSizeHint = 3,
-                    maxSize = 3
+                    maxSize = 3,
                 )
             )
         assertNotNull(pagingState)
@@ -241,7 +241,7 @@ class PagedStorageTest {
                     prefetchDistance = 0,
                     enablePlaceholders = true,
                     initialLoadSizeHint = 3,
-                    maxSize = 3
+                    maxSize = 3,
                 )
             )
         assertNotNull(pagingState)
@@ -256,7 +256,7 @@ class PagedStorageTest {
                     prefetchDistance = 0,
                     enablePlaceholders = true,
                     initialLoadSizeHint = 3,
-                    maxSize = 3
+                    maxSize = 3,
                 )
             )
         assertNotNull(pagingState)
@@ -277,7 +277,7 @@ class PagedStorageTest {
                     prefetchDistance = 0,
                     enablePlaceholders = true,
                     initialLoadSizeHint = 3,
-                    maxSize = 3
+                    maxSize = 3,
                 )
             )
         assertNotNull(pagingState)
@@ -292,7 +292,7 @@ class PagedStorageTest {
                     prefetchDistance = 0,
                     enablePlaceholders = true,
                     initialLoadSizeHint = 3,
-                    maxSize = 3
+                    maxSize = 3,
                 )
             )
         assertNotNull(pagingState)
@@ -307,7 +307,7 @@ class PagedStorageTest {
                     prefetchDistance = 0,
                     enablePlaceholders = true,
                     initialLoadSizeHint = 3,
-                    maxSize = 3
+                    maxSize = 3,
                 )
             )
         assertNotNull(pagingState)
@@ -325,7 +325,7 @@ class PagedStorageTest {
                 trailingNulls = totalPageCount - pages[0].data.size,
                 positionOffset = 0,
                 callback = IGNORED_CALLBACK,
-                counted = true
+                counted = true,
             )
             pages.forEachIndexed { index, page ->
                 if (index != 0) {

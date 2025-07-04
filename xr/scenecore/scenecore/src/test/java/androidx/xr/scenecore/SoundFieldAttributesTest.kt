@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.xr.runtime.internal.SpatializerConstants as RtSpatializerConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,18 +31,18 @@ class SoundFieldAttributesTest {
             SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
         val firstOrderRtAttributes = firstOrderAttributes.rtSoundFieldAttributes
         assertThat(firstOrderRtAttributes.ambisonicsOrder)
-            .isEqualTo(JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
+            .isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
 
         val secondOrderAttributes =
             SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER)
         val secondOrderRtAttributes = secondOrderAttributes.rtSoundFieldAttributes
         assertThat(secondOrderRtAttributes.ambisonicsOrder)
-            .isEqualTo(JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER)
+            .isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER)
 
         val thirdOrderAttributes =
             SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
         val thirdOrderRtAttributes = thirdOrderAttributes.rtSoundFieldAttributes
         assertThat(thirdOrderRtAttributes.ambisonicsOrder)
-            .isEqualTo(JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
+            .isEqualTo(RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
     }
 }

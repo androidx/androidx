@@ -32,12 +32,20 @@ import kotlinx.cinterop.value
 import sqlite3.SQLITE_MISUSE
 import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
+import sqlite3.sqlite3_get_autocommit
 import sqlite3.sqlite3_prepare16_v2
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 public class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : SQLiteConnection {
 
     @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
+
+    override fun inTransaction(): Boolean {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "connection is closed")
+        }
+        return sqlite3_get_autocommit(dbPointer) == 0
+    }
 
     override fun prepare(sql: String): SQLiteStatement = memScoped {
         if (isClosed) {
@@ -52,7 +60,7 @@ public class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : 
                 zSql = sqlUtf16,
                 nByte = sqlUtf16.size,
                 ppStmt = stmtPointer.ptr,
-                pzTail = null
+                pzTail = null,
             )
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())

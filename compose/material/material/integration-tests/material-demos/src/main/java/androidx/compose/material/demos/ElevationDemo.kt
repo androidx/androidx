@@ -59,7 +59,7 @@ private fun ElevatedCard(elevation: Dp) {
         modifier = Modifier.padding(start = 10.dp, top = 20.dp, end = 10.dp, bottom = 20.dp),
         shape = RoundedCornerShape(4.dp),
         border = if (elevation == 0.dp) BorderStroke(1.dp, Color.Gray) else null,
-        elevation = elevation
+        elevation = elevation,
     ) {
         Box(Modifier.fillMaxWidth().height(150.dp), contentAlignment = Alignment.Center) {
             Text("$elevation", style = MaterialTheme.typography.h4)

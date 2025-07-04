@@ -17,6 +17,7 @@
 package androidx.privacysandbox.tools.core.generator
 
 import androidx.privacysandbox.tools.core.generator.SpecNames.bundleClass
+import androidx.privacysandbox.tools.core.generator.SpecNames.uiCoreLibInfoPropertyName
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -26,7 +27,7 @@ object CoreLibInfoAndBinderWrapperConverterGenerator {
     fun generate(annotatedInterface: AnnotatedInterface) =
         FileSpec.builder(
                 annotatedInterface.type.packageName,
-                annotatedInterface.coreLibInfoConverterName()
+                annotatedInterface.coreLibInfoConverterName(),
             )
             .build {
                 addCommonSettings()
@@ -37,17 +38,21 @@ object CoreLibInfoAndBinderWrapperConverterGenerator {
         TypeSpec.objectBuilder(annotatedInterface.coreLibInfoConverterName()).build {
             addFunction(
                 FunSpec.builder("toParcelable").build {
-                    addParameter("coreLibInfo", bundleClass)
+                    if (annotatedInterface.inheritsUiAdapter)
+                        addParameter(uiCoreLibInfoPropertyName, bundleClass)
                     addParameter(
                         "interface",
-                        annotatedInterface.aidlType().innerType.poetTypeName()
+                        annotatedInterface.aidlType().innerType.poetTypeName(),
                     )
                     returns(annotatedInterface.uiAdapterAidlWrapper().poetTypeName())
                     addStatement(
                         "val parcelable = %T()",
-                        annotatedInterface.uiAdapterAidlWrapper().poetTypeName()
+                        annotatedInterface.uiAdapterAidlWrapper().poetTypeName(),
                     )
-                    addStatement("parcelable.coreLibInfo = coreLibInfo")
+                    if (annotatedInterface.inheritsUiAdapter)
+                        addStatement(
+                            "parcelable.$uiCoreLibInfoPropertyName = $uiCoreLibInfoPropertyName"
+                        )
                     addStatement("parcelable.binder = %N", "interface")
                     addStatement("return parcelable")
                 }

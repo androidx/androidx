@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.leanback.preference.LeanbackSettingsFragmentCompat#decorateOnKeyListener(android.view.View.OnKeyListener):
+    Added method androidx.leanback.preference.LeanbackSettingsFragmentCompat.decorateOnKeyListener(android.view.View.OnKeyListener)

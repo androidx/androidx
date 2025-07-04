@@ -34,8 +34,8 @@ class ReadRecordsRequestTest {
         assertFailsWith<IllegalArgumentException> {
             ReadRecordsRequest(
                 recordType = StepsRecord::class,
-                timeRangeFilter = TimeRangeFilter.none(),
-                pageSize = -1
+                timeRangeFilter = TimeRangeFilter.after(Instant.EPOCH),
+                pageSize = -1,
             )
         }
     }
@@ -45,8 +45,8 @@ class ReadRecordsRequestTest {
         assertFailsWith<IllegalArgumentException> {
             ReadRecordsRequest(
                 recordType = StepsRecord::class,
-                timeRangeFilter = TimeRangeFilter.none(),
-                pageSize = 0
+                timeRangeFilter = TimeRangeFilter.after(Instant.EPOCH),
+                pageSize = 0,
             )
         }
     }
@@ -55,7 +55,7 @@ class ReadRecordsRequestTest {
     fun openEndedTimeRange_success() {
         ReadRecordsRequest(
             recordType = StepsRecord::class,
-            timeRangeFilter = TimeRangeFilter.none(),
+            timeRangeFilter = TimeRangeFilter.after(Instant.EPOCH),
         )
     }
 
@@ -70,7 +70,7 @@ class ReadRecordsRequestTest {
             recordType = StepsRecord::class,
             timeRangeFilter = closedTimeRange,
             pageSize = 10,
-            pageToken = "token"
+            pageToken = "token",
         )
     }
 }

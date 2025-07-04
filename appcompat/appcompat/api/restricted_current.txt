@@ -1200,6 +1200,7 @@ package androidx.appcompat.widget {
     method public void postShowOverflowMenu();
     method public void setContentHeight(int);
     method public void setCustomView(android.view.View!);
+    method public void setPaddingForInsets(int, int, int, int);
     method public void setSubtitle(CharSequence!);
     method public void setTitle(CharSequence!);
     method public void setTitleOptional(boolean);
@@ -1212,7 +1213,6 @@ package androidx.appcompat.widget {
     ctor public ActionBarOverlayLayout(android.content.Context, android.util.AttributeSet?);
     method public boolean canShowOverflowMenu();
     method public void dismissPopups();
-    method protected boolean fitSystemWindows(android.graphics.Rect!);
     method protected androidx.appcompat.widget.ActionBarOverlayLayout.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.ActionBarOverlayLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method public int getActionBarHideOffset();

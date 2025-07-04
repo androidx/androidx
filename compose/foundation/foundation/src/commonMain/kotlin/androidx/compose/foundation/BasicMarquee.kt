@@ -147,7 +147,7 @@ fun Modifier.basicMarquee(
     repeatDelayMillis: Int = RepeatDelayMillis,
     initialDelayMillis: Int = if (animationMode == Immediately) repeatDelayMillis else 0,
     spacing: MarqueeSpacing = Spacing,
-    velocity: Dp = Velocity
+    velocity: Dp = Velocity,
 ): Modifier =
     this then
         MarqueeModifierElement(
@@ -284,7 +284,7 @@ private class MarqueeModifierNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val childConstraints = constraints.copy(maxWidth = Constraints.Infinity)
         val placeable = measurable.measure(childConstraints)
@@ -302,24 +302,24 @@ private class MarqueeModifierNode(
     /** Always returns zero since the marquee has no minimum width. */
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = 0
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = measurable.maxIntrinsicWidth(height)
 
     /** Ignores width since marquee contents are always measured with infinite width. */
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = measurable.minIntrinsicHeight(Constraints.Infinity)
 
     /** Ignores width since marquee contents are always measured with infinite width. */
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = measurable.maxIntrinsicHeight(Constraints.Infinity)
 
     override fun ContentDrawScope.draw() {
@@ -410,7 +410,7 @@ private class MarqueeModifierNode(
                             initialDelayMillis,
                             delayMillis,
                             velocity,
-                            requireDensity()
+                            requireDensity(),
                         )
 
                     offset.snapTo(0f)
@@ -432,14 +432,14 @@ private fun createMarqueeAnimationSpec(
     initialDelayMillis: Int,
     delayMillis: Int,
     velocity: Dp,
-    density: Density
+    density: Density,
 ): AnimationSpec<Float> {
     val pxPerSec = with(density) { velocity.toPx() }
     val singleSpec =
         velocityBasedTween(
             velocity = pxPerSec.absoluteValue,
             targetValue = targetValue,
-            delayMillis = delayMillis
+            delayMillis = delayMillis,
         )
     // Need to cancel out the non-initial delay.
     val startOffset = StartOffset(-delayMillis + initialDelayMillis)
@@ -459,13 +459,13 @@ private fun createMarqueeAnimationSpec(
 private fun velocityBasedTween(
     velocity: Float,
     targetValue: Float,
-    delayMillis: Int
+    delayMillis: Int,
 ): TweenSpec<Float> {
     val pxPerMilli = velocity / 1000f
     return tween(
         durationMillis = ceil(targetValue / pxPerMilli).toInt(),
         easing = LinearEasing,
-        delayMillis = delayMillis
+        delayMillis = delayMillis,
     )
 }
 

@@ -64,7 +64,7 @@ class ComposeViewKeyEventInteropTest {
             activity.setContent {
                 BasicText(
                     text = "text",
-                    modifier = Modifier.focusRequester(focusRequester).focusable()
+                    modifier = Modifier.focusRequester(focusRequester).focusable(),
                 )
             }
         }
@@ -90,11 +90,11 @@ class ComposeViewKeyEventInteropTest {
                         modifier =
                             Modifier.focusRequester(item1)
                                 .focusProperties { right = item2 }
-                                .focusable()
+                                .focusable(),
                     )
                     BasicText(
                         text = "Item 2",
-                        modifier = Modifier.focusRequester(item2).focusable()
+                        modifier = Modifier.focusRequester(item2).focusable(),
                     )
                 }
             }
@@ -118,7 +118,7 @@ class ComposeViewKeyEventInteropTest {
                 BasicText(
                     text = "Item 1",
                     modifier =
-                        Modifier.focusRequester(item1).focusProperties { down = item2 }.focusable()
+                        Modifier.focusRequester(item1).focusProperties { down = item2 }.focusable(),
                 )
             }
         }
@@ -144,7 +144,7 @@ class ComposeViewKeyEventInteropTest {
                         modifier =
                             Modifier.focusRequester(item1)
                                 .focusProperties { down = item2 }
-                                .focusable()
+                                .focusable(),
                     )
                 }
             }

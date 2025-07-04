@@ -61,22 +61,13 @@ internal inline fun colorSetOf(element1: Color): ColorSet =
 /** Returns a new read-only [ColorSet] with only [element1] and [element2] in it. */
 @Suppress("UNCHECKED_CAST")
 internal fun colorSetOf(element1: Color, element2: Color): ColorSet =
-    ColorSet(
-        mutableLongSetOf(
-            element1.value.toLong(),
-            element2.value.toLong(),
-        )
-    )
+    ColorSet(mutableLongSetOf(element1.value.toLong(), element2.value.toLong()))
 
 /** Returns a new read-only [ColorSet] with only [element1], [element2], and [element3] in it. */
 @Suppress("UNCHECKED_CAST")
 internal fun colorSetOf(element1: Color, element2: Color, element3: Color): ColorSet =
     ColorSet(
-        mutableLongSetOf(
-            element1.value.toLong(),
-            element2.value.toLong(),
-            element3.value.toLong(),
-        )
+        mutableLongSetOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
     )
 
 /** Returns a new [MutableColorSet]. */
@@ -88,21 +79,12 @@ internal fun mutableColorSetOf(element1: Color): MutableColorSet =
 
 /** Returns a new [MutableColorSet] with only [element1] and [element2] in it. */
 internal fun mutableColorSetOf(element1: Color, element2: Color): MutableColorSet =
-    MutableColorSet(
-        mutableLongSetOf(
-            element1.value.toLong(),
-            element2.value.toLong(),
-        )
-    )
+    MutableColorSet(mutableLongSetOf(element1.value.toLong(), element2.value.toLong()))
 
 /** Returns a new [MutableColorSet] with only [element1], [element2], and [element3] in it. */
 internal fun mutableColorSetOf(element1: Color, element2: Color, element3: Color): MutableColorSet =
     MutableColorSet(
-        mutableLongSetOf(
-            element1.value.toLong(),
-            element2.value.toLong(),
-            element3.value.toLong(),
-        )
+        mutableLongSetOf(element1.value.toLong(), element2.value.toLong(), element3.value.toLong())
     )
 
 /**
@@ -111,9 +93,7 @@ internal fun mutableColorSetOf(element1: Color, element2: Color, element3: Color
  * The set passed as a receiver to the [builderAction] is valid only inside that function. Using it
  * outside of the function produces an unspecified behavior.
  */
-internal inline fun buildColorSet(
-    builderAction: MutableColorSet.() -> Unit,
-): ColorSet {
+internal inline fun buildColorSet(builderAction: MutableColorSet.() -> Unit): ColorSet {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
     return MutableColorSet().apply(builderAction).asColorSet()
 }

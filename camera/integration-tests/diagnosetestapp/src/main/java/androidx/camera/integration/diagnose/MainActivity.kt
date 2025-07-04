@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity() {
                 ImageCapture.OutputFileOptions.Builder(
                         contentResolver,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues
+                        contentValues,
                     )
                     .build()
 
@@ -179,7 +179,7 @@ class MainActivity : AppCompatActivity() {
                         val msg = "Photo capture succeeded: ${output.savedUri}"
                         showToast(msg)
                     }
-                }
+                },
             )
         }
 
@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity() {
                 val outputOptions =
                     MediaStoreOutputOptions.Builder(
                             contentResolver,
-                            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                         )
                         .setContentValues(contentValues)
                         .build()
@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                                 baseContext,
                                 taskList,
                                 cameraController,
-                                isAggregated
+                                isAggregated,
                             )
                         }
                     val msg: String =
@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
@@ -338,7 +338,7 @@ class MainActivity : AppCompatActivity() {
             MlKitAnalyzer(
                 listOf(barcodeScanner),
                 ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
-                calibrationExecutor
+                calibrationExecutor,
             ) { result ->
                 // validating thread
                 checkCalibrationThread()
@@ -366,7 +366,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkCalibrationThread() {
         Preconditions.checkState(
             calibrationThreadId == Thread.currentThread().id,
-            "Not working on Calibration Thread"
+            "Not working on Calibration Thread",
         )
     }
 

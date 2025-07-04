@@ -67,21 +67,21 @@ fun TextFieldsInScrollableDemo() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = scrollableType == ScrollableColumn,
-                onClick = { scrollableType = ScrollableColumn }
+                onClick = { scrollableType = ScrollableColumn },
             )
             Text("Scrollable column")
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = scrollableType == LazyColumn,
-                onClick = { scrollableType = LazyColumn }
+                onClick = { scrollableType = LazyColumn },
             )
             Text("LazyColumn")
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(
                 selected = scrollableType == EditTextsInScrollView,
-                onClick = { scrollableType = EditTextsInScrollView }
+                onClick = { scrollableType = EditTextsInScrollView },
             )
             Text("ScrollView")
         }
@@ -121,7 +121,7 @@ private fun DemoTextField(index: Int) {
         value = text,
         onValueChange = { text = it },
         leadingIcon = { Text(index.toString()) },
-        modifier = Modifier.padding(4.dp).border(1.dp, Color.Black).fillMaxWidth()
+        modifier = Modifier.padding(4.dp).border(1.dp, Color.Black).fillMaxWidth(),
     )
 }
 
@@ -133,8 +133,8 @@ private class EditTextsInScrollableView(context: Context) : ScrollView(context) 
             column,
             ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            ),
         )
 
         repeat(30) {
@@ -143,9 +143,9 @@ private class EditTextsInScrollableView(context: Context) : ScrollView(context) 
                 text,
                 LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
                     )
-                    .also { it.setMargins(20) }
+                    .also { it.setMargins(20) },
             )
         }
     }

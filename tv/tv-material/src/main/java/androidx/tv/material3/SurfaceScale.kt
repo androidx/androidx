@@ -44,7 +44,7 @@ internal fun Modifier.tvSurfaceScale(
         animateFloatAsState(
             targetValue = scale,
             animationSpec = animationSpec,
-            label = "tv-surface-scale"
+            label = "tv-surface-scale",
         )
 
     return this.graphicsLayer(scaleX = animatedScale, scaleY = animatedScale)
@@ -61,5 +61,5 @@ private fun defaultScaleAnimationSpec(interaction: Interaction): TweenSpec<Float
                 is PressInteraction.Cancel -> SurfaceScaleTokens.releaseDuration
                 else -> SurfaceScaleTokens.releaseDuration
             },
-        easing = SurfaceScaleTokens.enterEasing
+        easing = SurfaceScaleTokens.enterEasing,
     )

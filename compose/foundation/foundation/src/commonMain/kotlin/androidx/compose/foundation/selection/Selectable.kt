@@ -17,10 +17,13 @@
 package androidx.compose.foundation.selection
 
 import androidx.compose.foundation.ClickableNode
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickableWithIndicationIfNeeded
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -58,11 +61,16 @@ import androidx.compose.ui.semantics.selected
  *   the element or do customizations
  * @param onClick callback to invoke when this item is clicked
  */
+@Deprecated(
+    message =
+        "Replaced with new overload that only supports IndicationNodeFactory instances inside LocalIndication, and does not use composed",
+    level = DeprecationLevel.HIDDEN,
+)
 fun Modifier.selectable(
     selected: Boolean,
     enabled: Boolean = true,
     role: Role? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) =
     composed(
         inspectorInfo =
@@ -91,9 +99,97 @@ fun Modifier.selectable(
             indication = localIndication,
             enabled = enabled,
             role = role,
-            onClick = onClick
+            onClick = onClick,
         )
     }
+
+/**
+ * Configure component to be selectable, usually as a part of a mutually exclusive group, where only
+ * one item can be selected at any point in time. A typical example of mutually exclusive set is a
+ * RadioGroup or a row of Tabs. To ensure correct accessibility behavior, make sure to pass
+ * [Modifier.selectableGroup] modifier into the RadioGroup or the row.
+ *
+ * If you want to make an item support on/off capabilities without being part of a set, consider
+ * using [Modifier.toggleable]
+ *
+ * This overload will use the [Indication] from [LocalIndication]. Use the other overload to
+ * explicitly provide an [Indication] instance. Note that this overload only supports
+ * [IndicationNodeFactory] instances provided through [LocalIndication] - it is strongly recommended
+ * to migrate to [IndicationNodeFactory], but you can use the other overload if you still need to
+ * support [Indication] instances that are not [IndicationNodeFactory].
+ *
+ * If [interactionSource] is `null`, an internal [MutableInteractionSource] will be lazily created
+ * only when needed. This reduces the performance cost of selectable during composition, as creating
+ * the [indication] can be delayed until there is an incoming
+ * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
+ * [MutableInteractionSource] and you are never using it outside of selectable, it is recommended to
+ * instead provide `null` to enable lazy creation. If you need the [Indication] to be created
+ * eagerly, provide a remembered [MutableInteractionSource].
+ *
+ * @sample androidx.compose.foundation.samples.SelectableSample
+ * @param selected whether or not this item is selected in a mutually exclusion set
+ * @param enabled whether or not this [selectable] will handle input events and appear enabled from
+ *   a semantics perspective
+ * @param role the type of user interface element. Accessibility services might use this to describe
+ *   the element or do customizations
+ * @param interactionSource [MutableInteractionSource] that will be used to dispatch
+ *   PressInteraction.Press when this selectable is pressed. If `null`, an internal
+ *   [MutableInteractionSource] will be created if needed.
+ * @param onClick callback to invoke when this item is clicked
+ */
+fun Modifier.selectable(
+    selected: Boolean,
+    enabled: Boolean = true,
+    role: Role? = null,
+    interactionSource: MutableInteractionSource? = null,
+    onClick: () -> Unit,
+): Modifier {
+    @OptIn(ExperimentalFoundationApi::class)
+    return if (ComposeFoundationFlags.isNonComposedClickableEnabled) {
+        this.then(
+            SelectableElement(
+                selected = selected,
+                interactionSource = interactionSource,
+                indicationNodeFactory = null,
+                useLocalIndication = true,
+                enabled = enabled,
+                role = role,
+                onClick = onClick,
+            )
+        )
+    } else
+        composed(
+            inspectorInfo =
+                debugInspectorInfo {
+                    name = "selectable"
+                    properties["selected"] = selected
+                    properties["enabled"] = enabled
+                    properties["role"] = role
+                    properties["onClick"] = onClick
+                }
+        ) {
+            val localIndication = LocalIndication.current
+            val intSource =
+                interactionSource
+                    ?: if (localIndication is IndicationNodeFactory) {
+                        // We can fast path here as it will be created inside clickable lazily
+                        null
+                    } else {
+                        // We need an interaction source to pass between the indication modifier and
+                        // clickable, so
+                        // by creating here we avoid another composed down the line
+                        remember { MutableInteractionSource() }
+                    }
+            Modifier.selectable(
+                selected = selected,
+                interactionSource = intSource,
+                indication = localIndication,
+                enabled = enabled,
+                role = role,
+                onClick = onClick,
+            )
+        }
+}
 
 /**
  * Configure component to be selectable, usually as a part of a mutually exclusive group, where only
@@ -137,19 +233,20 @@ fun Modifier.selectable(
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) =
     clickableWithIndicationIfNeeded(
         interactionSource = interactionSource,
-        indication = indication
+        indication = indication,
     ) { intSource, indicationNodeFactory ->
         SelectableElement(
             selected = selected,
             interactionSource = intSource,
             indicationNodeFactory = indicationNodeFactory,
+            useLocalIndication = false,
             enabled = enabled,
             role = role,
-            onClick = onClick
+            onClick = onClick,
         )
     }
 
@@ -157,18 +254,20 @@ private class SelectableElement(
     private val selected: Boolean,
     private val interactionSource: MutableInteractionSource?,
     private val indicationNodeFactory: IndicationNodeFactory?,
+    private val useLocalIndication: Boolean,
     private val enabled: Boolean,
     private val role: Role?,
-    private val onClick: () -> Unit
+    private val onClick: () -> Unit,
 ) : ModifierNodeElement<SelectableNode>() {
     override fun create() =
         SelectableNode(
             selected = selected,
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
+            useLocalIndication = useLocalIndication,
             enabled = enabled,
             role = role,
-            onClick = onClick
+            onClick = onClick,
         )
 
     override fun update(node: SelectableNode) {
@@ -176,9 +275,10 @@ private class SelectableElement(
             selected = selected,
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
+            useLocalIndication = useLocalIndication,
             enabled = enabled,
             role = role,
-            onClick = onClick
+            onClick = onClick,
         )
     }
 
@@ -202,6 +302,7 @@ private class SelectableElement(
         if (selected != other.selected) return false
         if (interactionSource != other.interactionSource) return false
         if (indicationNodeFactory != other.indicationNodeFactory) return false
+        if (useLocalIndication != other.useLocalIndication) return false
         if (enabled != other.enabled) return false
         if (role != other.role) return false
         if (onClick !== other.onClick) return false
@@ -213,6 +314,7 @@ private class SelectableElement(
         var result = selected.hashCode()
         result = 31 * result + (interactionSource?.hashCode() ?: 0)
         result = 31 * result + (indicationNodeFactory?.hashCode() ?: 0)
+        result = 31 * result + useLocalIndication.hashCode()
         result = 31 * result + enabled.hashCode()
         result = 31 * result + (role?.hashCode() ?: 0)
         result = 31 * result + onClick.hashCode()
@@ -224,25 +326,28 @@ private class SelectableNode(
     private var selected: Boolean,
     interactionSource: MutableInteractionSource?,
     indicationNodeFactory: IndicationNodeFactory?,
+    useLocalIndication: Boolean,
     enabled: Boolean,
     role: Role?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) :
     ClickableNode(
         interactionSource = interactionSource,
         indicationNodeFactory = indicationNodeFactory,
+        useLocalIndication = useLocalIndication,
         enabled = enabled,
         onClickLabel = null,
         role = role,
-        onClick = onClick
+        onClick = onClick,
     ) {
     fun update(
         selected: Boolean,
         interactionSource: MutableInteractionSource?,
         indicationNodeFactory: IndicationNodeFactory?,
+        useLocalIndication: Boolean,
         enabled: Boolean,
         role: Role?,
-        onClick: () -> Unit
+        onClick: () -> Unit,
     ) {
         if (this.selected != selected) {
             this.selected = selected
@@ -251,10 +356,11 @@ private class SelectableNode(
         super.update(
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
+            useLocalIndication = useLocalIndication,
             enabled = enabled,
             onClickLabel = null,
             role = role,
-            onClick = onClick
+            onClick = onClick,
         )
     }
 

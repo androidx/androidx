@@ -90,22 +90,22 @@ private fun dump(typeName: Any, depth: Int): TypeNameNode? {
         is JParameterizedTypeName ->
             TypeNameNode(
                 text = typeName.toString(),
-                typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) }
+                typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) },
             )
         is KParameterizedTypeName ->
             TypeNameNode(
                 text = typeName.toString(),
-                typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) }
+                typeArgs = typeName.typeArguments.mapNotNull { dump(it, depth - 1) },
             )
         is JTypeVariableName ->
             TypeNameNode(
                 text = typeName.toString(),
-                bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) }
+                bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) },
             )
         is KTypeVariableName ->
             TypeNameNode(
                 text = typeName.toString(),
-                bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) }
+                bounds = typeName.bounds.mapNotNull { dump(it, depth - 1) },
             )
         else -> TypeNameNode(text = typeName.toString())
     }
@@ -114,7 +114,7 @@ private fun dump(typeName: Any, depth: Int): TypeNameNode? {
 private data class TypeNameNode(
     val text: String,
     val bounds: List<TypeNameNode> = emptyList(),
-    val typeArgs: List<TypeNameNode> = emptyList()
+    val typeArgs: List<TypeNameNode> = emptyList(),
 ) {
     override fun toString(): String {
         return buildString {

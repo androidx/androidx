@@ -32,7 +32,7 @@ internal object WindowAreaAdapter {
     internal fun translate(
         status: @WindowAreaComponent.WindowAreaStatus Int,
         sessionActive: Boolean = false,
-        vendorApiLevel: Int = ExtensionsUtil.safeVendorApiLevel
+        vendorApiLevel: Int = ExtensionsUtil.safeVendorApiLevel,
     ): WindowAreaCapability.Status {
         return if (vendorApiLevel <= 3) {
             WindowAreaAdapterApi3.translate(status, sessionActive)

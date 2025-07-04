@@ -68,7 +68,7 @@ class MultiParagraphGetRangeForRectTest {
             paragraph.getRangeForRect(
                 rect,
                 TextGranularity.Character,
-                TextInclusionStrategy.ContainsCenter
+                TextInclusionStrategy.ContainsCenter,
             )
         assertThat(range).isEqualTo(text.rangeOf('b', 'h'))
     }
@@ -97,7 +97,7 @@ class MultiParagraphGetRangeForRectTest {
             paragraph.getRangeForRect(
                 rect,
                 TextGranularity.Character,
-                TextInclusionStrategy.ContainsCenter
+                TextInclusionStrategy.ContainsCenter,
             )
         assertThat(range).isEqualTo(TextRange.Zero)
     }
@@ -112,7 +112,7 @@ class MultiParagraphGetRangeForRectTest {
             simpleMultiParagraph(
                 text = text,
                 style = TextStyle(fontSize = fontSize.sp),
-                width = charPerLine * fontSize
+                width = charPerLine * fontSize,
             )
 
         // The input text is rendered as following:
@@ -135,7 +135,7 @@ class MultiParagraphGetRangeForRectTest {
             paragraph.getRangeForRect(
                 rect,
                 TextGranularity.Character,
-                TextInclusionStrategy.ContainsCenter
+                TextInclusionStrategy.ContainsCenter,
             )
         assertThat(range).isEqualTo(text.rangeOf('f'))
     }
@@ -165,7 +165,7 @@ class MultiParagraphGetRangeForRectTest {
             paragraph.getRangeForRect(
                 rect,
                 TextGranularity.Word,
-                TextInclusionStrategy.ContainsCenter
+                TextInclusionStrategy.ContainsCenter,
             )
         assertThat(range).isEqualTo(text.rangeOf('c', 'j'))
     }
@@ -195,7 +195,7 @@ class MultiParagraphGetRangeForRectTest {
             paragraph.getRangeForRect(
                 rect,
                 TextGranularity.Word,
-                TextInclusionStrategy.ContainsCenter
+                TextInclusionStrategy.ContainsCenter,
             )
 
         assertThat(range).isEqualTo(TextRange.Zero)
@@ -207,7 +207,7 @@ class MultiParagraphGetRangeForRectTest {
         fontSize: TextUnit = TextUnit.Unspecified,
         maxLines: Int = Int.MAX_VALUE,
         width: Float = Float.MAX_VALUE,
-        localeList: LocaleList? = null
+        localeList: LocaleList? = null,
     ): MultiParagraph {
         return MultiParagraph(
             annotatedString = text,
@@ -215,14 +215,14 @@ class MultiParagraphGetRangeForRectTest {
                 TextStyle(
                         fontFamily = basicFontFamily,
                         fontSize = fontSize,
-                        localeList = localeList
+                        localeList = localeList,
                     )
                     .merge(style),
             maxLines = maxLines,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            overflow = TextOverflow.Clip
+            overflow = TextOverflow.Clip,
         )
     }
 

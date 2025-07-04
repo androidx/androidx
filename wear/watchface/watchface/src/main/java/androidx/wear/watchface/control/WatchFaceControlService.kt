@@ -118,7 +118,7 @@ public open class WatchFaceControlService : Service() {
 public open class IWatchFaceInstanceServiceStub(
     // We need to explicitly null this object in onDestroy to avoid a memory leak.
     private var service: WatchFaceControlService?,
-    private val uiThreadCoroutineScope: CoroutineScope
+    private val uiThreadCoroutineScope: CoroutineScope,
 ) : IWatchFaceControlService.Stub() {
     override fun getApiVersion(): Int =
         aidlMethod(TAG, "getApiVersion") { IWatchFaceControlService.API_VERSION }
@@ -153,7 +153,7 @@ public open class IWatchFaceInstanceServiceStub(
 
     private class ServiceAndEngine(
         val service: WatchFaceService,
-        val engine: WatchFaceService.EngineWrapper
+        val engine: WatchFaceService.EngineWrapper,
     ) {
         fun destroy() {
             engine.onDestroy()
@@ -180,14 +180,14 @@ public open class IWatchFaceInstanceServiceStub(
                         watchFaceService::class.qualifiedName,
                         null,
                         service!!.application,
-                        null
+                        null,
                     )
                 } catch (e: Exception) {
                     Log.w(
                         TAG,
                         "createServiceAndHeadlessEngine can't call attach by reflection, " +
                             "falling back to setContext",
-                        e
+                        e,
                     )
                     watchFaceService.setContext(watchFaceService)
                 }
@@ -203,7 +203,7 @@ public open class IWatchFaceInstanceServiceStub(
 
     override fun getOrCreateInteractiveWatchFace(
         params: WallpaperInteractiveWatchFaceInstanceParams,
-        callback: IPendingInteractiveWatchFace
+        callback: IPendingInteractiveWatchFace,
     ): IInteractiveWatchFace? =
         aidlMethod(TAG, "getOrCreateInteractiveWatchFace") {
             val asyncTraceEvent =
@@ -230,7 +230,7 @@ public open class IWatchFaceInstanceServiceStub(
                                     asyncTraceEvent.close()
                                     callback.onInteractiveWatchFaceCrashed(exception)
                                 }
-                        }
+                        },
                     )
                 )
         }
@@ -244,7 +244,7 @@ public open class IWatchFaceInstanceServiceStub(
         aidlMethod(TAG, "getDefaultProviderPolicies") {
             createServiceAndHeadlessEngineAndEvaluate(
                 params.watchFaceName,
-                "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies"
+                "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies",
             ) {
                 it.engine.getDefaultProviderPolicies()
             }
@@ -254,7 +254,7 @@ public open class IWatchFaceInstanceServiceStub(
         aidlMethod(TAG, "getUserStyleSchema") {
             createServiceAndHeadlessEngineAndEvaluate(
                 params.watchFaceName,
-                "IWatchFaceInstanceServiceStub.getUserStyleSchema"
+                "IWatchFaceInstanceServiceStub.getUserStyleSchema",
             ) {
                 it.engine.getUserStyleSchemaWireFormat()
             }
@@ -266,7 +266,7 @@ public open class IWatchFaceInstanceServiceStub(
         aidlMethod(TAG, "getComplicationSlotMetadata") {
             createServiceAndHeadlessEngineAndEvaluate(
                 params.watchFaceName,
-                "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata"
+                "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata",
             ) {
                 it.engine.getComplicationSlotMetadataWireFormats()
             }
@@ -280,7 +280,7 @@ public open class IWatchFaceInstanceServiceStub(
         aidlMethod(TAG, "getUserStyleFlavors") {
             createServiceAndHeadlessEngineAndEvaluate(
                 params.watchFaceName,
-                "IWatchFaceInstanceServiceStub.getUserStyleFlavors"
+                "IWatchFaceInstanceServiceStub.getUserStyleFlavors",
             ) {
                 it.engine.getUserStyleFlavorsWireFormat()
             }
@@ -289,7 +289,7 @@ public open class IWatchFaceInstanceServiceStub(
     private fun <T> createServiceAndHeadlessEngineAndEvaluate(
         watchFaceName: ComponentName,
         functionName: String,
-        function: (serviceAndEngine: ServiceAndEngine) -> T
+        function: (serviceAndEngine: ServiceAndEngine) -> T,
     ): T? =
         TraceEvent(functionName).use {
             createServiceAndHeadlessEngine(watchFaceName)?.let { serviceAndEngine ->

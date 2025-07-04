@@ -80,7 +80,7 @@ internal class ConcatAdapterSubject(metadata: FailureMetadata, private val adapt
     object Factory : Subject.Factory<ConcatAdapterSubject, ConcatAdapter> {
         override fun createSubject(
             metadata: FailureMetadata,
-            actual: ConcatAdapter
+            actual: ConcatAdapter,
         ): ConcatAdapterSubject {
             return ConcatAdapterSubject(metadata = metadata, adapter = actual)
         }
@@ -93,7 +93,7 @@ internal class ConcatAdapterSubject(metadata: FailureMetadata, private val adapt
     class BindingSubject(
         metadata: FailureMetadata,
         recyclerView: RecyclerView,
-        globalPosition: Int
+        globalPosition: Int,
     ) : Subject(metadata, globalPosition) {
         private val viewHolder by lazy {
             val view = recyclerView.mRecycler.getViewForPosition(globalPosition)
@@ -105,7 +105,7 @@ internal class ConcatAdapterSubject(metadata: FailureMetadata, private val adapt
 
         internal fun verifyBoundTo(
             adapter: ConcatAdapterTest.NestedTestAdapter,
-            localPosition: Int
+            localPosition: Int,
         ) {
             assertThat(viewHolder.boundItem()).isEqualTo(adapter.getItemAt(localPosition))
             assertThat(viewHolder.boundLocalPosition()).isEqualTo(localPosition)
@@ -116,12 +116,12 @@ internal class ConcatAdapterSubject(metadata: FailureMetadata, private val adapt
             Subject.Factory<BindingSubject, Int> {
             override fun createSubject(
                 metadata: FailureMetadata,
-                globalPosition: Int
+                globalPosition: Int,
             ): BindingSubject {
                 return BindingSubject(
                     metadata = metadata,
                     recyclerView = recyclerView,
-                    globalPosition = globalPosition
+                    globalPosition = globalPosition,
                 )
             }
         }

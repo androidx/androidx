@@ -377,7 +377,7 @@ class BasicTextLinkTest {
                     modifier =
                         Modifier.onFocusChanged {
                             color.value = if (it.hasFocus) Color.Green else Color.Red
-                        }
+                        },
                 )
             }
         }
@@ -447,8 +447,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         style = SpanStyle(background = Color.Red),
-                        hoveredStyle = SpanStyle(background = Color.Green)
-                    )
+                        hoveredStyle = SpanStyle(background = Color.Green),
+                    ),
                 )
             ) {
                 append("text")
@@ -474,8 +474,8 @@ class BasicTextLinkTest {
                         "link",
                         TextLinkStyles(
                             style = SpanStyle(background = Color.Red),
-                            hoveredStyle = SpanStyle(background = Color.Green)
-                        )
+                            hoveredStyle = SpanStyle(background = Color.Green),
+                        ),
                     )
                 ) {
                     append("text")
@@ -502,8 +502,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         style = SpanStyle(color = Color.Red),
-                        hoveredStyle = SpanStyle(background = Color.Green)
-                    )
+                        hoveredStyle = SpanStyle(background = Color.Green),
+                    ),
                 )
             ) {
                 append("text")
@@ -528,8 +528,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         style = SpanStyle(background = Color.Red),
-                        focusedStyle = SpanStyle(background = Color.Blue)
-                    )
+                        focusedStyle = SpanStyle(background = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -589,8 +589,8 @@ class BasicTextLinkTest {
                         "link",
                         TextLinkStyles(
                             style = SpanStyle(background = Color.Red),
-                            focusedStyle = SpanStyle(background = Color.Blue)
-                        )
+                            focusedStyle = SpanStyle(background = Color.Blue),
+                        ),
                     )
                 ) {
                     append("text")
@@ -617,8 +617,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         style = SpanStyle(color = Color.Red),
-                        focusedStyle = SpanStyle(background = Color.Blue)
-                    )
+                        focusedStyle = SpanStyle(background = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -643,8 +643,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         hoveredStyle = SpanStyle(background = Color.Green),
-                        focusedStyle = SpanStyle(background = Color.Blue)
-                    )
+                        focusedStyle = SpanStyle(background = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -670,8 +670,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         hoveredStyle = SpanStyle(background = Color.Green),
-                        focusedStyle = SpanStyle(background = Color.Blue)
-                    )
+                        focusedStyle = SpanStyle(background = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -697,8 +697,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         hoveredStyle = SpanStyle(color = Color.Green),
-                        focusedStyle = SpanStyle(background = Color.Blue)
-                    )
+                        focusedStyle = SpanStyle(background = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -764,8 +764,8 @@ class BasicTextLinkTest {
                     TextLinkStyles(
                         focusedStyle = SpanStyle(color = Color.Red),
                         hoveredStyle = SpanStyle(color = Color.Green),
-                        pressedStyle = SpanStyle(color = Color.Blue)
-                    )
+                        pressedStyle = SpanStyle(color = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -793,8 +793,8 @@ class BasicTextLinkTest {
                     "link",
                     TextLinkStyles(
                         focusedStyle = SpanStyle(background = Color.Green),
-                        pressedStyle = SpanStyle(color = Color.Blue)
-                    )
+                        pressedStyle = SpanStyle(color = Color.Blue),
+                    ),
                 )
             ) {
                 append("text")
@@ -902,7 +902,7 @@ class BasicTextLinkTest {
                     withLink(
                         LinkAnnotation.Clickable(
                             "tag",
-                            TextLinkStyles(SpanStyle(color = Color.Green))
+                            TextLinkStyles(SpanStyle(color = Color.Green)),
                         ) {}
                     ) {
                         append("Link")
@@ -917,7 +917,7 @@ class BasicTextLinkTest {
                     val colors = it.layoutInput.text.spanStyles.map { it.item.color }
                     assertThat(colors).isNotEmpty()
                     assertThat(colors.first()).isEqualTo(Color.Green)
-                }
+                },
             )
         }
 
@@ -955,7 +955,7 @@ class BasicTextLinkTest {
                     }
                 },
                 onTextLayout = { layoutResult = it },
-                maxLines = 2
+                maxLines = 2,
             )
         }
 
@@ -981,7 +981,7 @@ class BasicTextLinkTest {
                 },
                 onTextLayout = { layoutResult = it },
                 maxLines = 3,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
         }
 
@@ -1007,7 +1007,7 @@ class BasicTextLinkTest {
                 },
                 onTextLayout = { layoutResult = it },
                 maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -1033,7 +1033,7 @@ class BasicTextLinkTest {
                 },
                 onTextLayout = { layoutResult = it },
                 maxLines = 3,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
         }
 
@@ -1059,7 +1059,7 @@ class BasicTextLinkTest {
                 },
                 onTextLayout = { layoutResult = it },
                 maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -1091,7 +1091,7 @@ class BasicTextLinkTest {
                     text = text,
                     modifier = Modifier.width(widthDp),
                     onTextLayout = { layoutResult = it },
-                    style = style
+                    style = style,
                 )
 
                 BasicText(
@@ -1099,7 +1099,7 @@ class BasicTextLinkTest {
                         append("text ")
                         withLink(Url(Url3)) { append("link ") }
                     },
-                    style = style
+                    style = style,
                 )
 
                 // initial focus
@@ -1143,7 +1143,7 @@ class BasicTextLinkTest {
                 LocalUriHandler provides uriHandler,
                 LocalViewConfiguration provides viewConfiguration,
                 LocalInputModeManager provides keyboardMockManager,
-                content = content
+                content = content,
             )
         }
     }
@@ -1153,7 +1153,7 @@ class BasicTextLinkTest {
 
     private fun SemanticsNodeInteraction.performMouseInputOnFirstLink(
         predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
-        block: MouseInjectionScope.(offsetInLink: Offset) -> Unit
+        block: MouseInjectionScope.(offsetInLink: Offset) -> Unit,
     ): SemanticsNodeInteraction {
         val linkBounds = getFirstLinkBounds(predicate)
         return this.performMouseInput { block(linkBounds!!.center) }
@@ -1161,7 +1161,7 @@ class BasicTextLinkTest {
 
     private fun SemanticsNodeInteraction.performTouchInputOnFirstLink(
         predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
-        block: TouchInjectionScope.(offsetInLink: Offset) -> Unit
+        block: TouchInjectionScope.(offsetInLink: Offset) -> Unit,
     ): SemanticsNodeInteraction {
         val linkBounds = getFirstLinkBounds(predicate)
         return this.performTouchInput { block(linkBounds!!.center) }

@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.window.RequiresWindowSdkExtension#RequiresWindowSdkExtension(int):
+    Added constructor androidx.window.RequiresWindowSdkExtension(int)

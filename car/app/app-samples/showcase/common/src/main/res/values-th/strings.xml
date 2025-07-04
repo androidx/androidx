@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"การสาธิตเทมเพลตข้อความ"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"ข้อความจะแสดงที่นี่\nข้อความเพิ่มเติมจะอยู่ในบรรทัดที่ 2"</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"การสาธิตเทมเพลตข้อความสั้น"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"เดโมเทมเพลตรายการแบบแยกส่วน"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"ส่วนปุ่มตัวเลือก"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"สลับส่วน"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ส่วนแถวจำนวนมาก"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ส่วนรายการตารางกริด"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"การสาธิตเทมเพลตแผง"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"การสาธิตเทมเพลตรายการสถานที่"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"เรียกดูสถานที่"</string>

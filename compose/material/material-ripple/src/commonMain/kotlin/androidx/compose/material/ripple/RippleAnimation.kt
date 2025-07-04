@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 internal class RippleAnimation(
     private var origin: Offset?,
     private val radius: Float,
-    private val bounded: Boolean
+    private val bounded: Boolean,
 ) {
     private var startRadius: Float? = null
 
@@ -85,19 +85,19 @@ internal class RippleAnimation(
             launch {
                 animatedAlpha.animateTo(
                     1f,
-                    tween(durationMillis = FadeInDuration, easing = LinearEasing)
+                    tween(durationMillis = FadeInDuration, easing = LinearEasing),
                 )
             }
             launch {
                 animatedRadiusPercent.animateTo(
                     1f,
-                    tween(durationMillis = RadiusDuration, easing = FastOutSlowInEasing)
+                    tween(durationMillis = RadiusDuration, easing = FastOutSlowInEasing),
                 )
             }
             launch {
                 animatedCenterPercent.animateTo(
                     1f,
-                    tween(durationMillis = RadiusDuration, easing = LinearEasing)
+                    tween(durationMillis = RadiusDuration, easing = LinearEasing),
                 )
             }
         }
@@ -108,7 +108,7 @@ internal class RippleAnimation(
             launch {
                 animatedAlpha.animateTo(
                     0f,
-                    tween(durationMillis = FadeOutDuration, easing = LinearEasing)
+                    tween(durationMillis = FadeOutDuration, easing = LinearEasing),
                 )
             }
         }

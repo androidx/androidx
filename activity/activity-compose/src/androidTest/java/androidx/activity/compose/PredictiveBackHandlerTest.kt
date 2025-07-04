@@ -22,7 +22,6 @@ import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.addCallback
-import androidx.annotation.RequiresApi
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
@@ -432,7 +431,7 @@ class PredictiveBackHandlerTestApi {
             dispatcher.addCallback(lifecycleOwner) {}
             CompositionLocalProvider(
                 LocalOnBackPressedDispatcherOwner provides dispatcherOwner,
-                LocalLifecycleOwner provides lifecycleOwner
+                LocalLifecycleOwner provides lifecycleOwner,
             ) {
                 PredictiveBackHandler { progress ->
                     interceptedBack = true
@@ -452,7 +451,7 @@ class PredictiveBackHandlerTestApi {
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 34)
 class PredictiveBackHandlerTestApi34 {
     @get:Rule val rule = createComposeRule()
 

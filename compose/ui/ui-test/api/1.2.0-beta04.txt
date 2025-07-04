@@ -12,10 +12,10 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToIndex(androidx.compose.ui.test.SemanticsNodeInteraction, int index);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToKey(androidx.compose.ui.test.SemanticsNodeInteraction, Object key);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performScrollToNode(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.test.SemanticsMatcher matcher);
-    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
-    method @Deprecated public static <T extends kotlin.Function<? extends java.lang.Boolean>> void performSemanticsActionUnit(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit> invocation);
+    method public static <T extends kotlin.Function<? extends java.lang.Boolean>> androidx.compose.ui.test.SemanticsNodeInteraction performSemanticsAction(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> invocation);
     method @Deprecated public static void performSemanticsActionUnit(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<? extends java.lang.Boolean>>> key);
+    method @Deprecated public static <T extends kotlin.Function<? extends java.lang.Boolean>> void performSemanticsActionUnit(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<T>> key, kotlin.jvm.functions.Function1<? super T,? extends kotlin.Unit> invocation);
     method public static androidx.compose.ui.test.SemanticsNodeInteraction performTouchInput(androidx.compose.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TouchInjectionScope,kotlin.Unit> block);
   }
 
@@ -144,7 +144,7 @@ package androidx.compose.ui.test {
   @Deprecated public final class GestureScope {
     ctor @Deprecated public GestureScope(androidx.compose.ui.semantics.SemanticsNode node, androidx.compose.ui.test.TestContext testContext);
     method @Deprecated public long getVisibleSize();
-    property public final long visibleSize;
+    property @Deprecated public final long visibleSize;
   }
 
   public final class GestureScopeKt {
@@ -268,8 +268,8 @@ package androidx.compose.ui.test {
     method @androidx.compose.ui.test.ExperimentalTestApi public static boolean isShiftDown(androidx.compose.ui.test.KeyInjectionScope);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void keysDown(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, optional long pauseDuration);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void keysUp(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, optional long pauseDuration);
-    method @androidx.compose.ui.test.ExperimentalTestApi public static void pressKey(androidx.compose.ui.test.KeyInjectionScope, long key, optional long pressDuration);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void pressKey(androidx.compose.ui.test.KeyInjectionScope, long key, int times, optional long pressDuration, optional long pauseDuration);
+    method @androidx.compose.ui.test.ExperimentalTestApi public static void pressKey(androidx.compose.ui.test.KeyInjectionScope, long key, optional long pressDuration);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void pressKeys(androidx.compose.ui.test.KeyInjectionScope, java.util.List<androidx.compose.ui.input.key.Key> keys, optional long pressDuration, optional long pauseDuration);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void withKeyDown(androidx.compose.ui.test.KeyInjectionScope, long key, optional long pauseDuration, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void withKeyToggled(androidx.compose.ui.test.KeyInjectionScope, long key, optional long pauseDuration, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
@@ -409,16 +409,16 @@ package androidx.compose.ui.test {
   }
 
   public final class SemanticsNodeInteraction {
-    ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsMatcher matcher);
+    ctor public SemanticsNodeInteraction(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     method public void assertDoesNotExist();
     method public androidx.compose.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
     method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
   }
 
   public final class SemanticsNodeInteractionCollection {
-    ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsMatcher matcher);
+    ctor public SemanticsNodeInteractionCollection(androidx.compose.ui.test.TestContext testContext, boolean useUnmergedTree, androidx.compose.ui.test.SemanticsSelector selector);
     method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> fetchSemanticsNodes(optional boolean atLeastOneRootRequired, optional String? errorMessageOnFail);
     method public operator androidx.compose.ui.test.SemanticsNodeInteraction get(int index);
   }
@@ -499,8 +499,8 @@ package androidx.compose.ui.test {
     method public static void longClick(androidx.compose.ui.test.TouchInjectionScope, optional long position, optional long durationMillis);
     method @androidx.compose.ui.test.ExperimentalTestApi public static void multiTouchSwipe(androidx.compose.ui.test.TouchInjectionScope, java.util.List<? extends kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset>> curves, long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
     method public static void pinch(androidx.compose.ui.test.TouchInjectionScope, long start0, long end0, long start1, long end1, optional long durationMillis);
-    method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, long start, long end, optional long durationMillis);
     method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, kotlin.jvm.functions.Function1<? super java.lang.Long,androidx.compose.ui.geometry.Offset> curve, long durationMillis, optional java.util.List<java.lang.Long> keyTimes);
+    method public static void swipe(androidx.compose.ui.test.TouchInjectionScope, long start, long end, optional long durationMillis);
     method public static void swipeDown(androidx.compose.ui.test.TouchInjectionScope, optional float startY, optional float endY, optional long durationMillis);
     method public static void swipeLeft(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);
     method public static void swipeRight(androidx.compose.ui.test.TouchInjectionScope, optional float startX, optional float endX, optional long durationMillis);

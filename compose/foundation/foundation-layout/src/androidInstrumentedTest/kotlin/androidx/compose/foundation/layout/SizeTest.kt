@@ -308,8 +308,8 @@ class SizeTest : LayoutTest() {
                                     Modifier.saveLayoutInfo(
                                         size = childSize,
                                         position = childPosition,
-                                        positionedLatch = positionedLatch
-                                    )
+                                        positionedLatch = positionedLatch,
+                                    ),
                             ) {}
                         }
                     }
@@ -339,7 +339,7 @@ class SizeTest : LayoutTest() {
                                 width = sizeDp,
                                 height = sizeDp,
                                 modifier =
-                                    Modifier.saveLayoutInfo(size[0], position[0], positionedLatch)
+                                    Modifier.saveLayoutInfo(size[0], position[0], positionedLatch),
                             ) {}
                         }
                         Container(Modifier.heightIn(max = Dp.Infinity)) {
@@ -347,7 +347,7 @@ class SizeTest : LayoutTest() {
                                 width = sizeDp,
                                 height = sizeDp,
                                 modifier =
-                                    Modifier.saveLayoutInfo(size[1], position[1], positionedLatch)
+                                    Modifier.saveLayoutInfo(size[1], position[1], positionedLatch),
                             ) {}
                         }
                         Container(
@@ -364,7 +364,7 @@ class SizeTest : LayoutTest() {
                                 width = sizeDp,
                                 height = sizeDp,
                                 modifier =
-                                    Modifier.saveLayoutInfo(size[3], position[3], positionedLatch)
+                                    Modifier.saveLayoutInfo(size[3], position[3], positionedLatch),
                             ) {}
                         }
                     }
@@ -400,7 +400,7 @@ class SizeTest : LayoutTest() {
             assertEquals(IntSize(sizeIpx, sizeIpx), boxSize.value)
             assertEquals(
                 Offset((sizeIpx / 2).toFloat(), (sizeIpx / 2).toFloat()),
-                boxPosition.value
+                boxPosition.value,
             )
         }
 
@@ -416,7 +416,7 @@ class SizeTest : LayoutTest() {
             show {
                 Box(
                     Modifier.wrapContentSize(Alignment.TopStart).requiredSize(sizeDp * 2),
-                    propagateMinConstraints = true
+                    propagateMinConstraints = true,
                 ) {
                     Box(
                         Modifier.requiredSize(sizeDp).onGloballyPositioned {
@@ -432,7 +432,7 @@ class SizeTest : LayoutTest() {
             assertEquals(IntSize(sizeIpx, sizeIpx), boxSize.value)
             assertEquals(
                 Offset((sizeIpx / 2).toFloat(), (sizeIpx / 2).toFloat()),
-                boxPosition.value
+                boxPosition.value,
             )
         }
 
@@ -458,7 +458,7 @@ class SizeTest : LayoutTest() {
             assertEquals(IntSize(sizeIpx * 2, sizeIpx * 2), boxSize.value)
             assertEquals(
                 Offset((-sizeIpx / 2).toFloat(), (-sizeIpx / 2).toFloat()),
-                boxPosition.value
+                boxPosition.value,
             )
         }
 
@@ -468,32 +468,32 @@ class SizeTest : LayoutTest() {
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.width(20.toDp()),
-                Constraints(20, 20, 15, 35)
+                Constraints(20, 20, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.height(20.toDp()),
-                Constraints(10, 30, 20, 20)
+                Constraints(10, 30, 20, 20),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.size(20.toDp()),
-                Constraints(20, 20, 20, 20)
+                Constraints(20, 20, 20, 20),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.widthIn(20.toDp(), 25.toDp()),
-                Constraints(20, 25, 15, 35)
+                Constraints(20, 25, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.heightIn(20.toDp(), 25.toDp()),
-                Constraints(10, 30, 20, 25)
+                Constraints(10, 30, 20, 25),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.sizeIn(20.toDp(), 20.toDp(), 25.toDp(), 25.toDp()),
-                Constraints(20, 25, 20, 25)
+                Constraints(20, 25, 20, 25),
             )
         }
 
@@ -503,32 +503,32 @@ class SizeTest : LayoutTest() {
             assertConstraints(
                 Constraints(20, 40, 15, 35),
                 Modifier.width(15.toDp()),
-                Constraints(20, 20, 15, 35)
+                Constraints(20, 20, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.height(10.toDp()),
-                Constraints(10, 30, 15, 15)
+                Constraints(10, 30, 15, 15),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.size(40.toDp()),
-                Constraints(30, 30, 35, 35)
+                Constraints(30, 30, 35, 35),
             )
             assertConstraints(
                 Constraints(20, 30, 15, 35),
                 Modifier.widthIn(10.toDp(), 15.toDp()),
-                Constraints(20, 20, 15, 35)
+                Constraints(20, 20, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.heightIn(5.toDp(), 10.toDp()),
-                Constraints(10, 30, 15, 15)
+                Constraints(10, 30, 15, 15),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.sizeIn(40.toDp(), 50.toDp(), 45.toDp(), 55.toDp()),
-                Constraints(30, 30, 35, 35)
+                Constraints(30, 30, 35, 35),
             )
         }
 
@@ -538,32 +538,32 @@ class SizeTest : LayoutTest() {
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredWidth(20.toDp()),
-                Constraints(20, 20, 15, 35)
+                Constraints(20, 20, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredHeight(20.toDp()),
-                Constraints(10, 30, 20, 20)
+                Constraints(10, 30, 20, 20),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredSize(20.toDp()),
-                Constraints(20, 20, 20, 20)
+                Constraints(20, 20, 20, 20),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredWidthIn(20.toDp(), 25.toDp()),
-                Constraints(20, 25, 15, 35)
+                Constraints(20, 25, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredHeightIn(20.toDp(), 25.toDp()),
-                Constraints(10, 30, 20, 25)
+                Constraints(10, 30, 20, 25),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredSizeIn(20.toDp(), 20.toDp(), 25.toDp(), 25.toDp()),
-                Constraints(20, 25, 20, 25)
+                Constraints(20, 25, 20, 25),
             )
         }
 
@@ -573,43 +573,43 @@ class SizeTest : LayoutTest() {
             assertConstraints(
                 Constraints(20, 40, 15, 35),
                 Modifier.requiredWidth(15.toDp()),
-                Constraints(15, 15, 15, 35)
+                Constraints(15, 15, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredHeight(10.toDp()),
-                Constraints(10, 30, 10, 10)
+                Constraints(10, 30, 10, 10),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredSize(40.toDp()),
-                Constraints(40, 40, 40, 40)
+                Constraints(40, 40, 40, 40),
             )
             assertConstraints(
                 Constraints(20, 30, 15, 35),
                 Modifier.requiredWidthIn(10.toDp(), 15.toDp()),
-                Constraints(10, 15, 15, 35)
+                Constraints(10, 15, 15, 35),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredHeightIn(5.toDp(), 10.toDp()),
-                Constraints(10, 30, 5, 10)
+                Constraints(10, 30, 5, 10),
             )
             assertConstraints(
                 Constraints(10, 30, 15, 35),
                 Modifier.requiredSizeIn(40.toDp(), 50.toDp(), 45.toDp(), 55.toDp()),
-                Constraints(40, 45, 50, 55)
+                Constraints(40, 45, 50, 55),
             )
             // When one dimension is unspecified and the other contradicts the incoming constraint.
             assertConstraints(
                 Constraints(10, 10, 10, 10),
                 Modifier.requiredSizeIn(20.toDp(), 30.toDp(), Dp.Unspecified, Dp.Unspecified),
-                Constraints(20, 20, 30, 30)
+                Constraints(20, 20, 30, 30),
             )
             assertConstraints(
                 Constraints(40, 40, 40, 40),
                 Modifier.requiredSizeIn(Dp.Unspecified, Dp.Unspecified, 20.toDp(), 30.toDp()),
-                Constraints(20, 20, 30, 30)
+                Constraints(20, 20, 30, 30),
             )
         }
 
@@ -623,7 +623,7 @@ class SizeTest : LayoutTest() {
                     {},
                     Modifier.wrapContentSize()
                         .requiredSizeIn(maxWidth = 30.toDp(), maxHeight = 40.toDp())
-                        .defaultMinSize(minWidth = 10.toDp(), minHeight = 20.toDp())
+                        .defaultMinSize(minWidth = 10.toDp(), minHeight = 20.toDp()),
                 ) { _, constraints ->
                     assertEquals(10, constraints.minWidth)
                     assertEquals(20, constraints.minHeight)
@@ -639,9 +639,9 @@ class SizeTest : LayoutTest() {
                             minWidth = 10.toDp(),
                             minHeight = 20.toDp(),
                             maxWidth = 100.toDp(),
-                            maxHeight = 110.toDp()
+                            maxHeight = 110.toDp(),
                         )
-                        .defaultMinSize(minWidth = 50.toDp(), minHeight = 50.toDp())
+                        .defaultMinSize(minWidth = 50.toDp(), minHeight = 50.toDp()),
                 ) { _, constraints ->
                     assertEquals(10, constraints.minWidth)
                     assertEquals(20, constraints.minHeight)
@@ -657,9 +657,9 @@ class SizeTest : LayoutTest() {
                             minWidth = 10.toDp(),
                             minHeight = 20.toDp(),
                             maxWidth = 100.toDp(),
-                            maxHeight = 110.toDp()
+                            maxHeight = 110.toDp(),
                         )
-                        .defaultMinSize()
+                        .defaultMinSize(),
                 ) { _, constraints ->
                     assertEquals(10, constraints.minWidth)
                     assertEquals(20, constraints.minHeight)
@@ -681,7 +681,7 @@ class SizeTest : LayoutTest() {
                     {},
                     Modifier.wrapContentSize()
                         .requiredSizeIn(maxWidth = 30.toDp(), maxHeight = 40.toDp())
-                        .defaultMinSize(minWidth = 70.toDp(), minHeight = 80.toDp())
+                        .defaultMinSize(minWidth = 70.toDp(), minHeight = 80.toDp()),
                 ) { _, constraints ->
                     assertEquals(30, constraints.minWidth)
                     assertEquals(40, constraints.minHeight)
@@ -898,7 +898,7 @@ class SizeTest : LayoutTest() {
                             minWidth = 10.toDp(),
                             maxWidth = 20.toDp(),
                             minHeight = 30.toDp(),
-                            maxHeight = 40.toDp()
+                            maxHeight = 40.toDp(),
                         )
                     ) {
                         Container(Modifier.aspectRatio(1f)) {}
@@ -1039,19 +1039,19 @@ class SizeTest : LayoutTest() {
 
             assertEquals(
                 IntSize(childWidth, childHeight),
-                calculateSizeFor(parentModifier, childModifier)
+                calculateSizeFor(parentModifier, childModifier),
             )
             assertEquals(
                 IntSize(parentWidth, childHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxWidth().then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxWidth().then(childModifier)),
             )
             assertEquals(
                 IntSize(childWidth, parentHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxHeight().then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxHeight().then(childModifier)),
             )
             assertEquals(
                 IntSize(parentWidth, parentHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxSize().then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxSize().then(childModifier)),
             )
         }
 
@@ -1068,19 +1068,19 @@ class SizeTest : LayoutTest() {
 
             assertEquals(
                 IntSize(childWidth, childHeight),
-                calculateSizeFor(parentModifier, childModifier)
+                calculateSizeFor(parentModifier, childModifier),
             )
             assertEquals(
                 IntSize(parentWidth, childHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxWidth().then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxWidth().then(childModifier)),
             )
             assertEquals(
                 IntSize(childWidth, parentHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxHeight().then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxHeight().then(childModifier)),
             )
             assertEquals(
                 IntSize(parentWidth, parentHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxSize().then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxSize().then(childModifier)),
             )
         }
 
@@ -1096,19 +1096,19 @@ class SizeTest : LayoutTest() {
 
             assertEquals(
                 IntSize(childWidth, childHeight),
-                calculateSizeFor(parentModifier, childModifier)
+                calculateSizeFor(parentModifier, childModifier),
             )
             assertEquals(
                 IntSize(parentWidth / 2, childHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxWidth(0.5f).then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxWidth(0.5f).then(childModifier)),
             )
             assertEquals(
                 IntSize(childWidth, parentHeight / 2),
-                calculateSizeFor(parentModifier, Modifier.fillMaxHeight(0.5f).then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxHeight(0.5f).then(childModifier)),
             )
             assertEquals(
                 IntSize(parentWidth / 2, parentHeight / 2),
-                calculateSizeFor(parentModifier, Modifier.fillMaxSize(0.5f).then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxSize(0.5f).then(childModifier)),
             )
         }
 
@@ -1124,19 +1124,19 @@ class SizeTest : LayoutTest() {
 
             assertEquals(
                 IntSize(childWidth, childHeight),
-                calculateSizeFor(parentModifier, childModifier)
+                calculateSizeFor(parentModifier, childModifier),
             )
             assertEquals(
                 IntSize(parentWidth / 2, childHeight),
-                calculateSizeFor(parentModifier, Modifier.fillMaxWidth(0.5f).then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxWidth(0.5f).then(childModifier)),
             )
             assertEquals(
                 IntSize(childWidth, parentHeight / 2),
-                calculateSizeFor(parentModifier, Modifier.fillMaxHeight(0.5f).then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxHeight(0.5f).then(childModifier)),
             )
             assertEquals(
                 IntSize(parentWidth / 2, parentHeight / 2),
-                calculateSizeFor(parentModifier, Modifier.fillMaxSize(0.5f).then(childModifier))
+                calculateSizeFor(parentModifier, Modifier.fillMaxSize(0.5f).then(childModifier)),
             )
         }
 
@@ -1152,20 +1152,20 @@ class SizeTest : LayoutTest() {
                     childMinWidth.toDp(),
                     childMinHeight.toDp(),
                     childMaxWidth.toDp(),
-                    childMaxHeight.toDp()
+                    childMaxHeight.toDp(),
                 )
 
             assertEquals(
                 IntSize(childMinWidth, childMinHeight),
-                calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(-0.1f)))
+                calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(-0.1f))),
             )
             assertEquals(
                 IntSize(childMinWidth, childMinHeight),
-                calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(0.1f)))
+                calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(0.1f))),
             )
             assertEquals(
                 IntSize(childMaxWidth, childMaxHeight),
-                calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(1.2f)))
+                calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(1.2f))),
             )
         }
 
@@ -1219,19 +1219,19 @@ class SizeTest : LayoutTest() {
             Modifier.requiredSize(100.0.dp, 200.0.dp),
             "requiredSize",
             null,
-            listOf(ValueElement("width", 100.0.dp), ValueElement("height", 200.0.dp))
+            listOf(ValueElement("width", 100.0.dp), ValueElement("height", 200.0.dp)),
         )
         checkModifier(
             Modifier.requiredWidthIn(100.0.dp, 200.0.dp),
             "requiredWidthIn",
             null,
-            listOf(ValueElement("min", 100.0.dp), ValueElement("max", 200.0.dp))
+            listOf(ValueElement("min", 100.0.dp), ValueElement("max", 200.0.dp)),
         )
         checkModifier(
             Modifier.requiredHeightIn(10.0.dp, 200.0.dp),
             "requiredHeightIn",
             null,
-            listOf(ValueElement("min", 10.0.dp), ValueElement("max", 200.0.dp))
+            listOf(ValueElement("min", 10.0.dp), ValueElement("max", 200.0.dp)),
         )
         checkModifier(
             Modifier.requiredSizeIn(10.dp, 20.dp, 30.dp, 40.dp),
@@ -1241,8 +1241,8 @@ class SizeTest : LayoutTest() {
                 ValueElement("minWidth", 10.dp),
                 ValueElement("minHeight", 20.dp),
                 ValueElement("maxWidth", 30.dp),
-                ValueElement("maxHeight", 40.dp)
-            )
+                ValueElement("maxHeight", 40.dp),
+            ),
         )
         checkModifier(Modifier.width(200.0.dp), "width", 200.0.dp, listOf())
         checkModifier(Modifier.height(300.0.dp), "height", 300.0.dp, listOf())
@@ -1251,19 +1251,19 @@ class SizeTest : LayoutTest() {
             Modifier.size(100.0.dp, 200.0.dp),
             "size",
             null,
-            listOf(ValueElement("width", 100.0.dp), ValueElement("height", 200.0.dp))
+            listOf(ValueElement("width", 100.0.dp), ValueElement("height", 200.0.dp)),
         )
         checkModifier(
             Modifier.widthIn(100.0.dp, 200.0.dp),
             "widthIn",
             null,
-            listOf(ValueElement("min", 100.0.dp), ValueElement("max", 200.0.dp))
+            listOf(ValueElement("min", 100.0.dp), ValueElement("max", 200.0.dp)),
         )
         checkModifier(
             Modifier.heightIn(10.0.dp, 200.0.dp),
             "heightIn",
             null,
-            listOf(ValueElement("min", 10.0.dp), ValueElement("max", 200.0.dp))
+            listOf(ValueElement("min", 10.0.dp), ValueElement("max", 200.0.dp)),
         )
         checkModifier(
             Modifier.sizeIn(10.dp, 20.dp, 30.dp, 40.dp),
@@ -1273,45 +1273,45 @@ class SizeTest : LayoutTest() {
                 ValueElement("minWidth", 10.dp),
                 ValueElement("minHeight", 20.dp),
                 ValueElement("maxWidth", 30.dp),
-                ValueElement("maxHeight", 40.dp)
-            )
+                ValueElement("maxHeight", 40.dp),
+            ),
         )
 
         checkModifier(
             Modifier.fillMaxWidth(),
             "fillMaxWidth",
             null,
-            listOf(ValueElement("fraction", 1.0f))
+            listOf(ValueElement("fraction", 1.0f)),
         )
         checkModifier(
             Modifier.fillMaxWidth(0.7f),
             "fillMaxWidth",
             null,
-            listOf(ValueElement("fraction", 0.7f))
+            listOf(ValueElement("fraction", 0.7f)),
         )
         checkModifier(
             Modifier.fillMaxHeight(),
             "fillMaxHeight",
             null,
-            listOf(ValueElement("fraction", 1.0f))
+            listOf(ValueElement("fraction", 1.0f)),
         )
         checkModifier(
             Modifier.fillMaxHeight(0.15f),
             "fillMaxHeight",
             null,
-            listOf(ValueElement("fraction", 0.15f))
+            listOf(ValueElement("fraction", 0.15f)),
         )
         checkModifier(
             Modifier.fillMaxSize(),
             "fillMaxSize",
             null,
-            listOf(ValueElement("fraction", 1.0f))
+            listOf(ValueElement("fraction", 1.0f)),
         )
         checkModifier(
             Modifier.fillMaxSize(0.25f),
             "fillMaxSize",
             null,
-            listOf(ValueElement("fraction", 0.25f))
+            listOf(ValueElement("fraction", 0.25f)),
         )
 
         checkModifier(
@@ -1320,14 +1320,14 @@ class SizeTest : LayoutTest() {
             null,
             listOf(
                 ValueElement("align", Alignment.CenterHorizontally),
-                ValueElement("unbounded", false)
-            )
+                ValueElement("unbounded", false),
+            ),
         )
         checkModifier(
             Modifier.wrapContentWidth(Alignment.End, true),
             "wrapContentWidth",
             null,
-            listOf(ValueElement("align", Alignment.End), ValueElement("unbounded", true))
+            listOf(ValueElement("align", Alignment.End), ValueElement("unbounded", true)),
         )
         checkModifier(
             Modifier.wrapContentHeight(),
@@ -1335,33 +1335,33 @@ class SizeTest : LayoutTest() {
             null,
             listOf(
                 ValueElement("align", Alignment.CenterVertically),
-                ValueElement("unbounded", false)
-            )
+                ValueElement("unbounded", false),
+            ),
         )
         checkModifier(
             Modifier.wrapContentHeight(Alignment.Bottom, true),
             "wrapContentHeight",
             null,
-            listOf(ValueElement("align", Alignment.Bottom), ValueElement("unbounded", true))
+            listOf(ValueElement("align", Alignment.Bottom), ValueElement("unbounded", true)),
         )
         checkModifier(
             Modifier.wrapContentSize(),
             "wrapContentSize",
             null,
-            listOf(ValueElement("align", Alignment.Center), ValueElement("unbounded", false))
+            listOf(ValueElement("align", Alignment.Center), ValueElement("unbounded", false)),
         )
         checkModifier(
             Modifier.wrapContentSize(Alignment.BottomCenter, true),
             "wrapContentSize",
             null,
-            listOf(ValueElement("align", Alignment.BottomCenter), ValueElement("unbounded", true))
+            listOf(ValueElement("align", Alignment.BottomCenter), ValueElement("unbounded", true)),
         )
 
         checkModifier(
             Modifier.defaultMinSize(10.0.dp, 20.0.dp),
             "defaultMinSize",
             null,
-            listOf(ValueElement("minWidth", 10.dp), ValueElement("minHeight", 20.dp))
+            listOf(ValueElement("minWidth", 10.dp), ValueElement("minHeight", 20.dp)),
         )
     }
 
@@ -1369,7 +1369,7 @@ class SizeTest : LayoutTest() {
         modifier: Modifier,
         expectedName: String,
         expectedValue: Any?,
-        expectedElements: List<ValueElement>
+        expectedElements: List<ValueElement>,
     ) {
         assertThat(modifier).isInstanceOf(InspectableValue::class.java)
         val parameter = modifier as InspectableValue
@@ -1392,7 +1392,7 @@ class SizeTest : LayoutTest() {
     private fun assertConstraints(
         incomingConstraints: Constraints,
         modifier: Modifier,
-        expectedConstraints: Constraints
+        expectedConstraints: Constraints,
     ) {
         val latch = CountDownLatch(1)
         // Capture constraints and assert on test thread
@@ -1424,7 +1424,7 @@ class SizeTest : LayoutTest() {
                     Container(
                         expandedModifier.then(Modifier.aspectRatio(2f)),
                         width = 30.toDp(),
-                        height = 40.toDp()
+                        height = 40.toDp(),
                     ) {}
                 }
             ) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
@@ -1475,7 +1475,7 @@ class SizeTest : LayoutTest() {
             assertEquals(IntSize(size, size), childSize.value)
             assertEquals(
                 Offset(root.width - size.toFloat(), root.height - size.toFloat()),
-                childPosition.value
+                childPosition.value,
             )
         }
 
@@ -1495,7 +1495,7 @@ class SizeTest : LayoutTest() {
                     Modifier.saveLayoutInfo(
                         size = alignSize,
                         position = alignPosition,
-                        positionedLatch = positionedLatch
+                        positionedLatch = positionedLatch,
                     )
                 ) {
                     Container(
@@ -1561,7 +1561,7 @@ class SizeTest : LayoutTest() {
             assertEquals(Offset((root.width - size).toFloat(), 0f), childPosition[0].value)
             assertEquals(
                 Offset((root.width - size).toFloat(), ((root.height - size) / 2).toFloat()),
-                childPosition[1].value
+                childPosition[1].value,
             )
             assertEquals(Offset(0f, (root.height - size).toFloat()), childPosition[2].value)
         }
@@ -1613,7 +1613,7 @@ class SizeTest : LayoutTest() {
                         layout(constraints.maxWidth, constraints.maxHeight) {
                             placeable.placeRelative(0, 0)
                         }
-                    }
+                    },
                 )
             }
             assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
@@ -1660,14 +1660,14 @@ class SizeTest : LayoutTest() {
                                 incomingConstraints.constrain(
                                     Constraints(
                                         minWidth = doubleSizeDp.roundToPx(),
-                                        minHeight = doubleSizeDp.roundToPx()
+                                        minHeight = doubleSizeDp.roundToPx(),
                                     )
                                 )
                             val placeable = measurable.measure(constraints)
                             layout(placeable.width, placeable.height) {
                                 placeable.placeRelative(IntOffset.Zero)
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -1678,9 +1678,9 @@ class SizeTest : LayoutTest() {
             assertEquals(
                 Offset(
                     ((doubleSize - size) / 2f).roundToInt().toFloat(),
-                    ((doubleSize - size) / 2f).roundToInt().toFloat()
+                    ((doubleSize - size) / 2f).roundToInt().toFloat(),
                 ),
-                childPosition.value
+                childPosition.value,
             )
         }
 
@@ -1704,7 +1704,7 @@ class SizeTest : LayoutTest() {
                             .onGloballyPositioned {
                                 assertEquals(
                                     Offset(outerSize - innerSize, outerSize - innerSize),
-                                    it.positionInParent()
+                                    it.positionInParent(),
                                 )
                                 positionedLatch.countDown()
                             }
@@ -1747,7 +1747,7 @@ class SizeTest : LayoutTest() {
                 assertEquals(0, minIntrinsicWidth(0))
                 assertEquals(
                     (50.dp.roundToPx() / 2f).roundToInt(),
-                    minIntrinsicHeight(50.dp.roundToPx())
+                    minIntrinsicHeight(50.dp.roundToPx()),
                 )
                 assertEquals(0.dp.roundToPx(), minIntrinsicHeight(Constraints.Infinity))
 
@@ -1760,7 +1760,7 @@ class SizeTest : LayoutTest() {
                 assertEquals(0, minIntrinsicWidth(0))
                 assertEquals(
                     (50.dp.roundToPx() / 2f).roundToInt(),
-                    maxIntrinsicHeight(50.dp.roundToPx())
+                    maxIntrinsicHeight(50.dp.roundToPx()),
                 )
                 assertEquals(0.dp.roundToPx(), maxIntrinsicHeight(Constraints.Infinity))
             }
@@ -1782,7 +1782,7 @@ class SizeTest : LayoutTest() {
                 assertEquals(0, minIntrinsicWidth(0))
                 assertEquals(
                     (50.dp.roundToPx() / 2f).roundToInt(),
-                    minIntrinsicHeight(50.dp.roundToPx())
+                    minIntrinsicHeight(50.dp.roundToPx()),
                 )
                 assertEquals(0.dp.roundToPx(), minIntrinsicHeight(Constraints.Infinity))
 
@@ -1795,7 +1795,7 @@ class SizeTest : LayoutTest() {
                 assertEquals(0, minIntrinsicWidth(0))
                 assertEquals(
                     (50.dp.roundToPx() / 2f).roundToInt(),
-                    maxIntrinsicHeight(50.dp.roundToPx())
+                    maxIntrinsicHeight(50.dp.roundToPx()),
                 )
                 assertEquals(0.dp.roundToPx(), maxIntrinsicHeight(Constraints.Infinity))
             }
@@ -1842,7 +1842,7 @@ class SizeTest : LayoutTest() {
                         layout(constraints.maxWidth, constraints.maxHeight) {
                             placeable.placeRelative(0, 0)
                         }
-                    }
+                    },
                 )
             }
             positionedLatch.await(1, TimeUnit.SECONDS)
@@ -1854,9 +1854,9 @@ class SizeTest : LayoutTest() {
             assertEquals(
                 Offset(
                     (alignSize.value!!.width - childSizeIpx).toFloat(),
-                    (alignSize.value!!.height - childSizeIpx).toFloat()
+                    (alignSize.value!!.height - childSizeIpx).toFloat(),
                 ),
-                childPosition.value
+                childPosition.value,
             )
         }
 
@@ -1878,7 +1878,7 @@ class SizeTest : LayoutTest() {
                             ++totalMeasures
                             layout(0, 0) {}
                         }
-                    }
+                    },
             )
         }
         val drawLatchModifier = Modifier.drawBehind { drawLatch.countDown() }
@@ -1912,7 +1912,7 @@ class SizeTest : LayoutTest() {
         assertEquals(Modifier.requiredSize(10.dp, 20.dp), Modifier.requiredSize(10.dp, 20.dp))
         assertEquals(
             Modifier.wrapContentSize(Alignment.BottomEnd),
-            Modifier.wrapContentSize(Alignment.BottomEnd)
+            Modifier.wrapContentSize(Alignment.BottomEnd),
         )
         assertEquals(Modifier.fillMaxSize(0.8f), Modifier.fillMaxSize(0.8f))
         assertEquals(Modifier.defaultMinSize(10.dp, 20.dp), Modifier.defaultMinSize(10.dp, 20.dp))
@@ -1921,12 +1921,12 @@ class SizeTest : LayoutTest() {
         assertNotEquals(Modifier.requiredSize(10.dp, 20.dp), Modifier.requiredSize(20.dp, 10.dp))
         assertNotEquals(
             Modifier.wrapContentSize(Alignment.BottomEnd),
-            Modifier.wrapContentSize(Alignment.BottomCenter)
+            Modifier.wrapContentSize(Alignment.BottomCenter),
         )
         assertNotEquals(Modifier.fillMaxSize(0.8f), Modifier.fillMaxSize())
         assertNotEquals(
             Modifier.defaultMinSize(10.dp, 20.dp),
-            Modifier.defaultMinSize(20.dp, 10.dp)
+            Modifier.defaultMinSize(20.dp, 10.dp),
         )
     }
 
@@ -1940,31 +1940,31 @@ class SizeTest : LayoutTest() {
                 object : MeasurePolicy {
                     override fun MeasureScope.measure(
                         measurables: List<Measurable>,
-                        constraints: Constraints
+                        constraints: Constraints,
                     ): MeasureResult {
                         return layout(0, 0) {}
                     }
 
                     override fun IntrinsicMeasureScope.minIntrinsicWidth(
                         measurables: List<IntrinsicMeasurable>,
-                        height: Int
+                        height: Int,
                     ) = error("Error intrinsic")
 
                     override fun IntrinsicMeasureScope.minIntrinsicHeight(
                         measurables: List<IntrinsicMeasurable>,
-                        width: Int
+                        width: Int,
                     ) = error("Error intrinsic")
 
                     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                         measurables: List<IntrinsicMeasurable>,
-                        height: Int
+                        height: Int,
                     ) = error("Error intrinsic")
 
                     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                         measurables: List<IntrinsicMeasurable>,
-                        width: Int
+                        width: Int,
                     ) = error("Error intrinsic")
-                }
+                },
             )
         }
 
@@ -2019,7 +2019,7 @@ class SizeTest : LayoutTest() {
                     minWidth = Dp.Infinity,
                     maxWidth = Dp.Infinity,
                     minHeight = Dp.Infinity,
-                    maxHeight = Dp.Infinity
+                    maxHeight = Dp.Infinity,
                 )
             )
             Box(Modifier.defaultMinSize(minWidth = -1.dp, minHeight = -1.dp))
@@ -2043,7 +2043,7 @@ class SizeTest : LayoutTest() {
 
                                     override fun DrawScope.onDraw() {}
                                 },
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -2071,7 +2071,7 @@ class SizeTest : LayoutTest() {
 
                                     override fun DrawScope.onDraw() {}
                                 },
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -2099,7 +2099,7 @@ class SizeTest : LayoutTest() {
 
                                     override fun DrawScope.onDraw() {}
                                 },
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -2127,7 +2127,7 @@ class SizeTest : LayoutTest() {
 
                                     override fun DrawScope.onDraw() {}
                                 },
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }

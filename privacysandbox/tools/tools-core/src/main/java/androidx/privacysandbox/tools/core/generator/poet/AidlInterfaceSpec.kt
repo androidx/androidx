@@ -20,10 +20,8 @@ import androidx.privacysandbox.tools.core.model.Type
 import java.lang.IllegalStateException
 
 /** AIDL file with a single interface. */
-internal data class AidlInterfaceSpec(
-    override val type: Type,
-    val methods: List<AidlMethodSpec>,
-) : AidlFileSpec {
+internal data class AidlInterfaceSpec(override val type: Type, val methods: List<AidlMethodSpec>) :
+    AidlFileSpec {
     companion object {
         fun aidlInterface(type: Type, block: Builder.() -> Unit = {}): AidlInterfaceSpec {
             return Builder(type).also(block).build()

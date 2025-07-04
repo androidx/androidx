@@ -32,7 +32,7 @@ public class BasalMetabolicRateRecord(
     override val zoneOffset: ZoneOffset?,
     /** Basal metabolic rate, in [Power] unit. Required field. Valid range: 0-10000 kcal/day. */
     public val basalMetabolicRate: Power,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
 
     init {

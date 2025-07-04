@@ -165,10 +165,12 @@ public class TestTileClientTest {
             onTileRemoveFired = true
         }
 
+        @Suppress("OVERRIDE_DEPRECATION") // b/407502045
         override fun onTileEnterEvent(requestParams: EventBuilders.TileEnterEvent) {
             onTileEnterFired = true
         }
 
+        @Suppress("OVERRIDE_DEPRECATION") // b/407502045
         override fun onTileLeaveEvent(requestParams: EventBuilders.TileLeaveEvent) {
             onTileLeaveFired = true
         }

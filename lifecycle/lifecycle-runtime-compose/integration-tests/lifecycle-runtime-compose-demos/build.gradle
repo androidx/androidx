@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -36,7 +36,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle Runtime Compose Demos"
-    type = LibraryType.TEST_APPLICATION
+    type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2022"
     description = "This is a project for Lifecycle Runtime Compose demos."
 }

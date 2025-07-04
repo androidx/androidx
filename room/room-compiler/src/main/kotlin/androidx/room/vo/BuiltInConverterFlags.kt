@@ -21,7 +21,7 @@ import androidx.room.BuiltInTypeConverters
 data class BuiltInConverterFlags(
     val enums: BuiltInTypeConverters.State,
     val uuid: BuiltInTypeConverters.State,
-    val byteBuffer: BuiltInTypeConverters.State
+    val byteBuffer: BuiltInTypeConverters.State,
 ) {
 
     /**

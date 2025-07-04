@@ -74,14 +74,12 @@ class DragAndDropSourceTest {
                         }
                         .width(400.toDp())
                         .drawBehind {
-                            val halfWidth = 200f
-                            val halfWidthSize = Size(halfWidth, size.height)
-                            drawRect(Color.Blue, size = halfWidthSize)
-                            drawRect(
-                                Color.Red,
-                                topLeft = Offset(halfWidth, 0f),
-                                size = halfWidthSize
-                            )
+                            val halfWidth = size.width / 2f
+                            // Fill the full height, and half the width, since this will
+                            // be translated by the layout modifier above
+                            val rectSize = Size(halfWidth, size.height)
+                            drawRect(Color.Blue, size = rectSize)
+                            drawRect(Color.Red, topLeft = Offset(halfWidth, 0f), size = rectSize)
                         }
                 )
             }

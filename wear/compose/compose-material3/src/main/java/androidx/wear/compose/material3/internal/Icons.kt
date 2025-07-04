@@ -123,6 +123,47 @@ internal object Icons {
 
     private var _check: ImageVector? = null
 
+    internal val Close: ImageVector
+        get() {
+            if (_close != null) {
+                return _close!!
+            }
+            _close =
+                materialIcon(name = "Close") {
+                    materialPath {
+                        moveTo(480.0f, 416.35f)
+                        lineTo(287.83f, 224.17f)
+                        quadTo(275.15f, 211.5f, 256.0f, 211.5f)
+                        quadTo(236.85f, 211.5f, 224.17f, 224.17f)
+                        quadTo(211.5f, 236.85f, 211.5f, 256.0f)
+                        quadTo(211.5f, 275.15f, 224.17f, 287.83f)
+                        lineTo(416.35f, 480.0f)
+                        lineTo(224.17f, 672.17f)
+                        quadTo(211.5f, 684.85f, 211.5f, 704.0f)
+                        quadTo(211.5f, 723.15f, 224.17f, 735.83f)
+                        quadTo(236.85f, 748.5f, 256.0f, 748.5f)
+                        quadTo(275.15f, 748.5f, 287.83f, 735.83f)
+                        lineTo(480.0f, 543.65f)
+                        lineTo(672.17f, 735.83f)
+                        quadTo(684.85f, 748.5f, 704.0f, 748.5f)
+                        quadTo(723.15f, 748.5f, 735.83f, 735.83f)
+                        quadTo(748.5f, 723.15f, 748.5f, 704.0f)
+                        quadTo(748.5f, 684.85f, 735.83f, 672.17f)
+                        lineTo(543.65f, 480.0f)
+                        lineTo(735.83f, 287.83f)
+                        quadTo(748.5f, 275.15f, 748.5f, 256.0f)
+                        quadTo(748.5f, 236.85f, 735.83f, 224.17f)
+                        quadTo(723.15f, 211.5f, 704.0f, 211.5f)
+                        quadTo(684.85f, 211.5f, 672.17f, 224.17f)
+                        lineTo(480.0f, 416.35f)
+                        close()
+                    }
+                }
+            return _close!!
+        }
+
+    private var _close: ImageVector? = null
+
     internal object AutoMirrored {
         internal val KeyboardArrowRight: ImageVector
             get() {
@@ -130,10 +171,7 @@ internal object Icons {
                     return _keyboardArrowRight!!
                 }
                 _keyboardArrowRight =
-                    materialIcon(
-                        name = "AutoMirrored.KeyboardArrowRight",
-                        autoMirror = true,
-                    ) {
+                    materialIcon(name = "AutoMirrored.KeyboardArrowRight", autoMirror = true) {
                         materialPath {
                             moveTo(496.35f, 480f)
                             lineTo(344.17f, 327.83f)
@@ -165,7 +203,7 @@ internal object Icons {
 private inline fun materialIcon(
     name: String,
     autoMirror: Boolean = false,
-    block: ImageVector.Builder.() -> ImageVector.Builder
+    block: ImageVector.Builder.() -> ImageVector.Builder,
 ): ImageVector =
     ImageVector.Builder(
             name = name,
@@ -173,7 +211,7 @@ private inline fun materialIcon(
             defaultHeight = MaterialIconDimension,
             viewportWidth = MaterialIconViewPortDimension,
             viewportHeight = MaterialIconViewPortDimension,
-            autoMirror = autoMirror
+            autoMirror = autoMirror,
         )
         .block()
         .build()

@@ -33,7 +33,7 @@ open class BaselineProfileProducerExtension {
             }
             return project.extensions.create(
                 EXTENSION_NAME,
-                BaselineProfileProducerExtension::class.java
+                BaselineProfileProducerExtension::class.java,
             )
         }
     }

@@ -91,7 +91,7 @@ fun FocusedBoundsDemo() {
     ) {
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState()),
-            verticalArrangement = spacedBy(4.dp)
+            verticalArrangement = spacedBy(4.dp),
         ) {
             Text(
                 "Click in the various text fields below, or the eyeballs above, to see the focus " +
@@ -105,7 +105,7 @@ fun FocusedBoundsDemo() {
             Text("Android view (broken: b/220030968):")
             AndroidView(
                 ::FocusableAndroidViewDemo,
-                Modifier.padding(4.dp).border(2.dp, Color.Green)
+                Modifier.padding(4.dp).border(2.dp, Color.Green),
             ) {
                 it.setContent {
                     Column(Modifier.padding(4.dp).border(2.dp, Color.Blue)) {
@@ -127,7 +127,7 @@ private fun FocusableDemoContent() {
         Text("Lazy row:")
         LazyRow(
             modifier = Modifier.padding(horizontal = 32.dp).border(2.dp, Color.Black),
-            horizontalArrangement = spacedBy(8.dp)
+            horizontalArrangement = spacedBy(8.dp),
         ) {
             items(50) { index -> TextField(index.toString(), {}, Modifier.width(64.dp)) }
         }
@@ -191,7 +191,7 @@ private fun FocusedBoundsObserver(modifier: Modifier, content: @Composable () ->
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(8.dp).fillMaxWidth()
+            modifier = Modifier.padding(8.dp).fillMaxWidth(),
         ) {
             Eyeball(focalPoint, myBounds)
             Spacer(Modifier.width(36.dp))
@@ -242,7 +242,7 @@ private fun Eyeball(focalPoint: Offset, parentBounds: Rect) {
         drawCircle(
             Color.White,
             center = pupilCenter - (Offset(pupilRadius / 2, pupilRadius / 2)),
-            radius = pupilRadius / 3
+            radius = pupilRadius / 3,
         )
     }
 }
@@ -288,7 +288,7 @@ private fun calculateHighlightBounds(
 
 private fun Modifier.drawAnimatedFocusHighlight(
     primaryBounds: Rect,
-    secondaryBounds: Rect
+    secondaryBounds: Rect,
 ): Modifier = composed {
     val animatedPrimaryBounds by animateRectAsState(primaryBounds)
     val animatedSecondaryBounds by animateRectAsState(secondaryBounds)
@@ -312,8 +312,8 @@ private fun Modifier.drawAnimatedFocusHighlight(
                 style =
                     Stroke(
                         width = 3.dp.toPx(),
-                        pathEffect = dashPathEffect(strokeDashes, strokeDashPhase)
-                    )
+                        pathEffect = dashPathEffect(strokeDashes, strokeDashPhase),
+                    ),
             )
         }
 
@@ -328,8 +328,8 @@ private fun Modifier.drawAnimatedFocusHighlight(
                 style =
                     Stroke(
                         width = 3.dp.toPx(),
-                        pathEffect = dashPathEffect(strokeDashes, strokeDashPhase)
-                    )
+                        pathEffect = dashPathEffect(strokeDashes, strokeDashPhase),
+                    ),
             )
         }
     }

@@ -38,7 +38,7 @@ import java.util.Objects
 public class CallEndpointCompat(
     public val name: CharSequence,
     public val type: Int,
-    public val identifier: ParcelUuid
+    public val identifier: ParcelUuid,
 ) : Comparable<CallEndpointCompat> {
     internal var mMackAddress: String = UNKNOWN_MAC_ADDRESS
 
@@ -92,7 +92,7 @@ public class CallEndpointCompat(
             TYPE_BLUETOOTH,
             TYPE_WIRED_HEADSET,
             TYPE_SPEAKER,
-            TYPE_STREAMING
+            TYPE_STREAMING,
         )
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
         public annotation class EndpointType
@@ -124,7 +124,7 @@ public class CallEndpointCompat(
         name: String,
         @EndpointType type: Int,
         sessionId: Int,
-        mackAddress: String = "-1"
+        mackAddress: String = "-1",
     ) : this(name, type, CallEndpointUuidTracker.getUuid(sessionId, type, name)) {
         mMackAddress = mackAddress
     }

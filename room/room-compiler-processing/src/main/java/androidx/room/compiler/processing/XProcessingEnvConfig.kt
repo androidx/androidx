@@ -28,8 +28,7 @@ package androidx.room.compiler.processing
  * `XProcessingEnvironmentTestConfigProvider` via a service configuration to load your default
  * configuration in `runProcessorTest` calls.
  */
-@Suppress("SyntheticAccessor", "DataClassPrivateConstructor")
-data class XProcessingEnvConfig
+class XProcessingEnvConfig
 private constructor(
     /**
      * When set to `true`, XProcessingEnv will hide all methods that have invalid source names in
@@ -54,6 +53,45 @@ private constructor(
      */
     val disableAnnotatedElementValidation: Boolean = false,
 ) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is XProcessingEnvConfig) return false
+
+        if (
+            excludeMethodsWithInvalidJvmSourceNames != other.excludeMethodsWithInvalidJvmSourceNames
+        ) {
+            return false
+        }
+        if (disableAnnotatedElementValidation != other.disableAnnotatedElementValidation) {
+            return false
+        }
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = excludeMethodsWithInvalidJvmSourceNames.hashCode()
+        result = 31 * result + disableAnnotatedElementValidation.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "XProcessingEnvConfig(" +
+            "excludeMethodsWithInvalidJvmSourceNames=$excludeMethodsWithInvalidJvmSourceNames, " +
+            "disableAnnotatedElementValidation=$disableAnnotatedElementValidation" +
+            ")"
+    }
+
+    fun copy(
+        excludeMethodsWithInvalidJvmSourceNames: Boolean =
+            this.excludeMethodsWithInvalidJvmSourceNames,
+        disableAnnotatedElementValidation: Boolean = this.disableAnnotatedElementValidation,
+    ) =
+        XProcessingEnvConfig(
+            excludeMethodsWithInvalidJvmSourceNames = excludeMethodsWithInvalidJvmSourceNames,
+            disableAnnotatedElementValidation = disableAnnotatedElementValidation,
+        )
+
     fun toBuilder() = Builder(this)
 
     class Builder(baseline: XProcessingEnvConfig = XProcessingEnvConfig()) {

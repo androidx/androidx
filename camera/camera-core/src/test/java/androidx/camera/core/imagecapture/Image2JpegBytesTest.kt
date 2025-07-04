@@ -62,7 +62,7 @@ class Image2JpegBytesTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.
@@ -97,7 +97,7 @@ class Image2JpegBytesTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+                CAMERA_CAPTURE_RESULT,
             )
 
         // Act.

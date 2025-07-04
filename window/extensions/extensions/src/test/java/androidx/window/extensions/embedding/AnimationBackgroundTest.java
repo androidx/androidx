@@ -23,14 +23,11 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 /** Test for {@link AnimationBackground} */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class AnimationBackgroundTest {
 

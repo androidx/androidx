@@ -20,7 +20,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 /** Factory class for AutoClosingRoomOpenHelper */
 internal class AutoClosingRoomOpenHelperFactory(
     private val delegate: SupportSQLiteOpenHelper.Factory,
-    private val autoCloser: AutoCloser
+    private val autoCloser: AutoCloser,
 ) : SupportSQLiteOpenHelper.Factory {
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration

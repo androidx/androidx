@@ -19,14 +19,15 @@ package androidx.xr.scenecore.impl.perception;
 import android.app.Activity;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.xr.scenecore.impl.perception.exceptions.FailedToInitializeException;
 import androidx.xr.scenecore.impl.perception.exceptions.LibraryLoadingException;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -41,19 +42,19 @@ public class PerceptionLibrary {
     private static final String TAG = "PerceptionLibrary";
 
     private static final String NATIVE_LIBRARY_NAME = "androidx.xr.runtime.openxr";
-    private static final ConcurrentHashMap<Activity, Session> activitySessionMap =
+    private static final ConcurrentHashMap<Activity, Session> sActivitySessionMap =
             new ConcurrentHashMap<>();
 
     @SuppressWarnings("NonFinalStaticField")
-    private static volatile boolean libraryLoaded = false;
+    private static volatile boolean sLibraryLoaded = false;
 
-    private Session session = null;
+    private Session mSession = null;
 
     public PerceptionLibrary() {}
 
     @SuppressWarnings("VisiblySynchronized")
     protected static synchronized void loadLibraryAsync(@NonNull String nativeLibraryName) {
-        if (libraryLoaded) {
+        if (sLibraryLoaded) {
             return;
         }
         Log.i(TAG, "Loading native library: " + nativeLibraryName);
@@ -63,7 +64,7 @@ public class PerceptionLibrary {
             Log.e(TAG, "Unable to load " + nativeLibraryName);
             return;
         }
-        libraryLoaded = true;
+        sLibraryLoaded = true;
     }
 
     /**
@@ -84,8 +85,7 @@ public class PerceptionLibrary {
     // within AndroidX. We're in the process of migrating to AndroidX. Without suppressing this
     // warning, however, we get a build error - go/bugpattern/RestrictTo.
     @SuppressWarnings({"RestrictTo", "AsyncSuffixFuture"})
-    @Nullable
-    public ListenableFuture<Session> initSession(
+    public @Nullable ListenableFuture<Session> initSession(
             @NonNull Activity activity,
             @PerceptionLibraryConstants.OpenXrSpaceType int referenceSpaceType,
             @NonNull ExecutorService executor) {
@@ -95,21 +95,21 @@ public class PerceptionLibrary {
                 () -> {
                     // TODO: b/373922954 - Early out of some of these operations if the future is
                     // cancelled.
-                    if (!libraryLoaded) {
+                    if (!sLibraryLoaded) {
                         loadLibraryAsync(NATIVE_LIBRARY_NAME);
                     }
-                    if (!libraryLoaded) {
+                    if (!sLibraryLoaded) {
                         Log.i(TAG, "Cannot init session since the native library failed to load.");
                         future.setException(
                                 new LibraryLoadingException("Native library failed to load."));
                         return;
                     }
                     Log.i(TAG, stringFromJNI());
-                    if (this.session != null) {
+                    if (mSession != null) {
                         future.setException(new IllegalStateException("Session already exists."));
                         return;
                     }
-                    if (activitySessionMap.containsKey(activity)) {
+                    if (sActivitySessionMap.containsKey(activity)) {
                         future.setException(
                                 new IllegalStateException(
                                         "Session already exists for the provided activity."));
@@ -127,22 +127,26 @@ public class PerceptionLibrary {
                     // Do another check to make sure another session wasn't created for this
                     // activity
                     // while we were initializing it.
-                    if (activitySessionMap.putIfAbsent(activity, session) != null) {
+                    if (sActivitySessionMap.putIfAbsent(activity, session) != null) {
                         future.setException(
                                 new IllegalStateException(
                                         "Session already exists for the provided activity."));
                     }
-                    this.session = session;
-                    future.set(this.session);
+                    mSession = session;
+                    future.set(mSession);
                 });
         return future;
     }
 
     /** Returns the previously created session or null. */
     @SuppressWarnings("VisiblySynchronized")
-    @Nullable
-    public synchronized Session getSession() {
-        return session;
+    public synchronized @Nullable Session getSession() {
+        return mSession;
+    }
+
+    /** Returns the activity associated with the session. */
+    public @NonNull Activity getActivity() {
+        return mSession.mActivity;
     }
 
     /**

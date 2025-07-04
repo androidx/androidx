@@ -67,7 +67,7 @@ class SqlDelightInvalidationTest {
                             openedDb = db
                             super.onCreate(db)
                         }
-                    }
+                    },
             )
     }
 
@@ -85,8 +85,8 @@ class SqlDelightInvalidationTest {
                     environment =
                         DefaultTestInspectorEnvironment(
                             TestInspectorExecutors(job),
-                            TestArtTooling(sqliteDb, listOf(query))
-                        )
+                            TestArtTooling(sqliteDb, listOf(query)),
+                        ),
                 )
             val updates = query.asFlow().mapToList().take(2).produceIn(this)
 
@@ -140,7 +140,7 @@ class TestArtTooling(private val sqliteDb: SQLiteDatabase, private val queries: 
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: ArtTooling.EntryHook
+        entryHook: ArtTooling.EntryHook,
     ) {
         // no-op
     }
@@ -157,7 +157,7 @@ class TestArtTooling(private val sqliteDb: SQLiteDatabase, private val queries: 
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: ArtTooling.ExitHook<T>
+        exitHook: ArtTooling.ExitHook<T>,
     ) {
         // no-op
     }

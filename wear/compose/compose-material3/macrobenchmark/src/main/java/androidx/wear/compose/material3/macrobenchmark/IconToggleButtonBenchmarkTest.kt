@@ -28,5 +28,5 @@ class IconToggleButtonBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = IconToggleButtonBenchmark,
-        actionSuffix = "ICON_TOGGLE_BUTTON_ACTIVITY"
+        actionSuffix = "ICON_TOGGLE_BUTTON_ACTIVITY",
     )

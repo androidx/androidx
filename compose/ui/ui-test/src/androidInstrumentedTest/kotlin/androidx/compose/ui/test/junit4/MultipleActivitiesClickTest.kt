@@ -88,7 +88,7 @@ class MultipleActivitiesClickTest {
             setContent {
                 Button(
                     modifier = Modifier.testTag(tag).fillMaxSize(),
-                    onClick = { clickCounter++ }
+                    onClick = { clickCounter++ },
                 ) {}
             }
         }

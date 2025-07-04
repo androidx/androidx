@@ -34,7 +34,7 @@ public class ActiveCaloriesBurnedRecord(
     override val endZoneOffset: ZoneOffset?,
     /** Energy in [Energy] unit. Required field. Valid range: 0-1000000 kcal. */
     public val energy: Energy,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : IntervalRecord {
 
     init {

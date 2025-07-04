@@ -17,8 +17,15 @@
 package androidx.core.telecom.test.services
 
 import android.content.Intent
+import android.database.ContentObserver
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.CallEndpoint
@@ -27,6 +34,7 @@ import androidx.core.telecom.InCallServiceCompat
 import androidx.core.telecom.test.Compatibility
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.lifecycleScope
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -64,7 +72,7 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
             ::requestBluetoothAudio,
             onRequestEndpointChange = { ep, e, or ->
                 Compatibility.requestCallEndpointChange(this@InCallServiceImpl, ep, e, or)
-            }
+            },
         )
     override val isMuted: StateFlow<Boolean> = mMuteStateResolver.muteState
     override val currentAudioEndpoint: StateFlow<CallAudioEndpoint?> =
@@ -103,6 +111,45 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
         mCallAudioRouteResolver.onChangeAudioRoute(id)
     }
 
+    private fun readCallIconUriFromFile(uri: Uri): Bitmap? {
+        var parcelFileDescriptor: ParcelFileDescriptor? = null
+        return try {
+            parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r") // "r" for read mode
+            parcelFileDescriptor?.let {
+                val bitmap = BitmapFactory.decodeFileDescriptor(it.fileDescriptor)
+                bitmap // Return the bitmap (Kotlin's last expression is the return value)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        } finally {
+            try {
+                parcelFileDescriptor?.close() // ALWAYS close the ParcelFileDescriptor
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    inner class MyContentObserver(
+        handler: Handler,
+        private val mUri: Uri,
+        private val mCallIconDataEmitter: CallIconExtensionDataEmitter,
+    ) : ContentObserver(handler) {
+
+        override fun onChange(selfChange: Boolean) {
+            onChange(selfChange, null)
+        }
+
+        override fun onChange(selfChange: Boolean, uri: Uri?) {
+            Log.d(LOG_TAG, "Content changed for URI: $mUri")
+            if (uri != null) {
+                val bitMap = readCallIconUriFromFile(uri)
+                mCallIconDataEmitter.onVoipAppUpdate(bitMap!!)
+            }
+        }
+    }
+
     @OptIn(ExperimentalAppActions::class)
     override fun onCallAdded(call: Call?) {
         if (call == null) return
@@ -115,8 +162,14 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
                         addParticipantExtension(
                             onActiveParticipantChanged =
                                 participantsEmitter::onActiveParticipantChanged,
-                            onParticipantsUpdated = participantsEmitter::onParticipantsChanged
+                            onParticipantsUpdated = participantsEmitter::onParticipantsChanged,
                         )
+
+                    val meetingSummaryEmitter = MeetingSummaryExtensionDataEmitter()
+                    addMeetingSummaryExtension(
+                        onCurrentSpeakerChanged = meetingSummaryEmitter::onCurrentSpeakerChanged,
+                        onParticipantCountChanged = meetingSummaryEmitter::onParticipantCountChanged,
+                    )
 
                     val kickParticipantDataEmitter = KickParticipantDataEmitter()
                     val kickParticipantAction = participantExtension.addKickParticipantAction()
@@ -134,25 +187,63 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
                                 localCallSilenceDataEmitter::onVoipAppUpdate
                         )
 
+                    val callIconDataEmitter = CallIconExtensionDataEmitter()
+
+                    var contentObserver: MyContentObserver? = null
+                    var observedUri: Uri? = null
+                    addCallIconSupport { newUri ->
+                        // Check if the URI has changed.  No need to do anything if it's the same.
+                        if (newUri != observedUri) {
+                            // Unregister the previous observer if it exists.  Use safe call ?. and
+                            // let
+                            // the platform handle nulls gracefully. No need for !!.
+                            contentObserver?.let { contentResolver.unregisterContentObserver(it) }
+                            // Create a new observer.  Use a local variable for clarity.
+                            val newObserver =
+                                MyContentObserver(
+                                    Handler(Looper.getMainLooper()),
+                                    newUri,
+                                    callIconDataEmitter,
+                                )
+                            // Register the new observer.
+                            contentResolver.registerContentObserver(newUri, false, newObserver)
+                            // Update the tracked observer and URI.
+                            contentObserver = newObserver
+                            observedUri = newUri
+                            // Read the call icon and emit the update.  Use let for concise null
+                            // check.
+                            readCallIconUriFromFile(newUri)?.let { bitmap ->
+                                callIconDataEmitter.onVoipAppUpdate(bitmap)
+                            }
+                        }
+                    }
+
                     onConnected {
                         val callData = CallDataEmitter(IcsCall(currId.getAndAdd(1), call)).collect()
+
+                        val meetingSummaryData = meetingSummaryEmitter.collect()
 
                         val participantData =
                             participantsEmitter.collect(
                                 participantExtension.isSupported,
                                 raiseHandDataEmitter.collect(raiseHandAction),
-                                kickParticipantDataEmitter.collect(kickParticipantAction)
+                                kickParticipantDataEmitter.collect(kickParticipantAction),
                             )
 
                         val localCallSilenceData =
                             localCallSilenceDataEmitter.collect(localCallSilenceExtension)
 
+                        val callIconData = callIconDataEmitter.collect()
+
                         val fullData =
-                            combine(callData, participantData, localCallSilenceData) {
-                                cd,
-                                partData,
-                                silenceData ->
-                                CallData(cd, partData, silenceData)
+                            combine(
+                                callData,
+                                meetingSummaryData,
+                                participantData,
+                                localCallSilenceData,
+                                callIconData,
+                            ) { cd, summary, partData, silenceData, iconData ->
+                                CallData(cd, summary, partData, silenceData, iconData)
                             }
                         mCallDataAggregator.watch(this@launch, fullData)
                     }

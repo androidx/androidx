@@ -29,6 +29,8 @@ interface XTypeSpec {
 
     val name: XName?
 
+    fun toBuilder(): Builder
+
     interface Builder {
         fun superclass(typeName: XTypeName): Builder
 
@@ -102,7 +104,7 @@ interface XTypeSpec {
         fun classBuilder(className: XClassName, isOpen: Boolean = false) =
             classBuilder(
                 XName.of(java = className.java.simpleName(), kotlin = className.kotlin.simpleName),
-                isOpen
+                isOpen,
             )
 
         @JvmStatic
@@ -121,7 +123,7 @@ interface XTypeSpec {
                             addModifiers(KModifier.OPEN)
                         }
                     }
-                )
+                ),
             )
 
         @JvmStatic
@@ -136,7 +138,7 @@ interface XTypeSpec {
                             addSuperclassConstructorParameter(codeBlock.kotlin.actual)
                         }
                     }
-                )
+                ),
             )
         }
 
@@ -147,21 +149,21 @@ interface XTypeSpec {
                     JTypeSpec.classBuilder("Companion")
                         .addModifiers(JModifier.PUBLIC, JModifier.STATIC)
                 ),
-                KotlinTypeSpec.Builder(KTypeSpec.companionObjectBuilder())
+                KotlinTypeSpec.Builder(KTypeSpec.companionObjectBuilder()),
             )
 
         @JvmStatic
         fun objectBuilder(name: String): Builder =
             XTypeSpecImpl.Builder(
                 JavaTypeSpec.Builder(JTypeSpec.classBuilder(name)),
-                KotlinTypeSpec.Builder(KTypeSpec.objectBuilder(name))
+                KotlinTypeSpec.Builder(KTypeSpec.objectBuilder(name)),
             )
 
         @JvmStatic
         fun objectBuilder(className: XClassName): Builder =
             XTypeSpecImpl.Builder(
                 JavaTypeSpec.Builder(JTypeSpec.classBuilder(className.java)),
-                KotlinTypeSpec.Builder(KTypeSpec.objectBuilder(className.kotlin))
+                KotlinTypeSpec.Builder(KTypeSpec.objectBuilder(className.kotlin)),
             )
     }
 }

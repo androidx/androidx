@@ -48,7 +48,7 @@ class PrivacySandboxKspCompilerTest {
                     interface MySdk {
                         fun doStuff(x: Int, y: Int)
                     }
-                """
+                """,
             )
         val compilationResult = compileWithPrivacySandboxKspCompiler(listOf(source))
         assertThat(compilationResult).succeeds()
@@ -78,7 +78,7 @@ class PrivacySandboxKspCompilerTest {
                         fun doStuff(x: Int, y: Int): String
                         fun doMoreStuff()
                     }
-                """
+                """,
             )
         assertThat(compileWithPrivacySandboxKspCompiler(listOf(source))).fails()
     }

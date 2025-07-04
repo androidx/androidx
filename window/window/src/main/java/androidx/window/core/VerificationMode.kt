@@ -20,5 +20,5 @@ package androidx.window.core
 internal enum class VerificationMode {
     STRICT,
     LOG,
-    QUIET
+    QUIET,
 }

@@ -65,7 +65,7 @@ class CountActivity : ComponentActivity() {
             val countProtoState: CountState by
                 repo.countProtoStateFlow.collectAsState(
                     CountState(0),
-                    coroutineScope.coroutineContext
+                    coroutineScope.coroutineContext,
                 )
             MaterialTheme {
                 // A surface container using the 'background' color from the theme
@@ -75,14 +75,14 @@ class CountActivity : ComponentActivity() {
                             title = getString(R.string.preference_counter),
                             count = countState.count,
                             onIncrement = repo::incrementPreferenceCount,
-                            onDecrement = repo::decrementPreferenceCount
+                            onDecrement = repo::decrementPreferenceCount,
                         )
                         Divider()
                         Counters(
                             title = getString(R.string.proto_counter),
                             count = countProtoState.count,
                             onIncrement = repo::incrementProtoCount,
-                            onDecrement = repo::decrementProtoCount
+                            onDecrement = repo::decrementProtoCount,
                         )
                     }
                 }
@@ -95,10 +95,7 @@ class CountActivity : ComponentActivity() {
 fun Counters(title: String, count: Int, onIncrement: () -> Unit, onDecrement: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(title, fontWeight = FontWeight.Bold)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Button(onClick = onDecrement) { Text(stringResource(id = R.string.count_minus)) }
             Text(text = "${stringResource(R.string.count_colon)} $count")
             Button(onClick = onIncrement) { Text(stringResource(id = R.string.count_plus)) }

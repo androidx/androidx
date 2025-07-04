@@ -56,9 +56,13 @@ public class DimensionBuildersTest {
     @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void dpProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, new DimensionBuilders.DpProp.Builder()
-                .setDynamicValue(
-                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
+        assertThrows(
+                IllegalStateException.class,
+                new DimensionBuilders.DpProp.Builder()
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicFloat.from(
+                                                new AppDataKey<>(STATE_KEY)))
+                        ::build);
     }
 
     @Test
@@ -73,9 +77,13 @@ public class DimensionBuildersTest {
     @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void degreesProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, new DimensionBuilders.DegreesProp.Builder()
-                .setDynamicValue(
-                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
+        assertThrows(
+                IllegalStateException.class,
+                new DimensionBuilders.DegreesProp.Builder()
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicFloat.from(
+                                                new AppDataKey<>(STATE_KEY)))
+                        ::build);
     }
 
     @Test
@@ -118,43 +126,43 @@ public class DimensionBuildersTest {
                                 .setMinimumSize(minSizeDynamic));
     }
 
-   @Test
+    @Test
     public void pivotDimensionWithDpValue() {
-       DimensionBuilders.PivotDimension pivotDimension =
-               new DimensionBuilders.DpProp.Builder(42)
-                       .setDynamicValue(
-                               DynamicBuilders.DynamicFloat.from(new AppDataKey<>("some-state")))
-                       .build();
+        DimensionBuilders.PivotDimension pivotDimension =
+                new DimensionBuilders.DpProp.Builder(42)
+                        .setDynamicValue(
+                                DynamicBuilders.DynamicFloat.from(new AppDataKey<>("some-state")))
+                        .build();
 
-
-       DimensionProto.PivotDimension dimensionProto = pivotDimension.toPivotDimensionProto();
-       assertThat(dimensionProto.getInnerCase())
-               .isEqualTo(DimensionProto.PivotDimension.InnerCase.OFFSET_DP);
-       assertThat(dimensionProto.getOffsetDp().getValue())
-               .isEqualTo(42);
-       assertThat(dimensionProto.getOffsetDp().getDynamicValue().getStateSource().getSourceKey())
-               .isEqualTo("some-state");
-   }
+        DimensionProto.PivotDimension dimensionProto = pivotDimension.toPivotDimensionProto();
+        assertThat(dimensionProto.getInnerCase())
+                .isEqualTo(DimensionProto.PivotDimension.InnerCase.OFFSET_DP);
+        assertThat(dimensionProto.getOffsetDp().getValue()).isEqualTo(42);
+        assertThat(dimensionProto.getOffsetDp().getDynamicValue().getStateSource().getSourceKey())
+                .isEqualTo("some-state");
+    }
 
     @Test
     public void pivotDimensionWithBoundingBoxRatio() {
         DimensionBuilders.PivotDimension pivotDimension =
                 new DimensionBuilders.BoundingBoxRatio.Builder(
-                        new TypeBuilders.FloatProp.Builder(0.8f)
-                                .setDynamicValue(
-                                        DynamicBuilders.DynamicFloat.constant(0.2f))
-                                .build())
+                                new TypeBuilders.FloatProp.Builder(0.8f)
+                                        .setDynamicValue(
+                                                DynamicBuilders.DynamicFloat.constant(0.2f))
+                                        .build())
                         .build();
-
 
         DimensionProto.PivotDimension dimensionProto = pivotDimension.toPivotDimensionProto();
         assertThat(dimensionProto.getInnerCase())
                 .isEqualTo(DimensionProto.PivotDimension.InnerCase.LOCATION_RATIO);
-        assertThat(dimensionProto.getLocationRatio().getRatio().getValue())
-                .isEqualTo(0.8f);
-        assertThat(dimensionProto.getLocationRatio()
-                .getRatio().getDynamicValue().getFixed().getValue())
+        assertThat(dimensionProto.getLocationRatio().getRatio().getValue()).isEqualTo(0.8f);
+        assertThat(
+                        dimensionProto
+                                .getLocationRatio()
+                                .getRatio()
+                                .getDynamicValue()
+                                .getFixed()
+                                .getValue())
                 .isEqualTo(0.2f);
     }
-
 }

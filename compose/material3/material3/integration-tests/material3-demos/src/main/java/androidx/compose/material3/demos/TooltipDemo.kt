@@ -56,7 +56,7 @@ fun TooltipDemo() {
 
     Column(
         modifier = Modifier.padding(horizontal = 1.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text("Add items to the list")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -67,12 +67,12 @@ fun TooltipDemo() {
             TooltipBox(
                 positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                 tooltip = { PlainTooltip { Text(textFieldTooltipText) } },
-                state = textFieldTooltipState
+                state = textFieldTooltipState,
             ) {
                 OutlinedTextField(
                     value = textFieldValue,
                     placeholder = { Text("Item Name") },
-                    onValueChange = { newVal -> textFieldValue = newVal }
+                    onValueChange = { newVal -> textFieldValue = newVal },
                 )
             }
 
@@ -98,7 +98,7 @@ fun TooltipDemo() {
                 TooltipBox(
                     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text("${item.itemName} added to list") } },
-                    state = item.addedTooltipState
+                    state = item.addedTooltipState,
                 ) {
                     ListItemCard(itemName = item.itemName, onDelete = { listData.remove(item) })
                 }
@@ -118,16 +118,16 @@ fun ListItemCard(itemName: String, onDelete: () -> Unit) {
                     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
                     tooltip = { PlainTooltip { Text("Delete $itemName") } },
                     state = rememberTooltipState(),
-                    enableUserInput = true
+                    enableUserInput = true,
                 ) {
                     IconButton(onClick = onDelete) {
                         Icon(
                             imageVector = Icons.Filled.Delete,
-                            contentDescription = "Delete $itemName from list."
+                            contentDescription = "Delete $itemName from list.",
                         )
                     }
                 }
-            }
+            },
         )
     }
 }

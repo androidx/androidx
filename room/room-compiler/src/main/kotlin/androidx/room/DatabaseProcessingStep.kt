@@ -27,7 +27,7 @@ import androidx.room.processor.Context
 import androidx.room.processor.Context.BooleanProcessorOptions.GENERATE_KOTLIN
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.ProcessorErrors
-import androidx.room.vo.DaoMethod
+import androidx.room.vo.DaoFunction
 import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
@@ -45,7 +45,7 @@ class DatabaseProcessingStep : XProcessingStep {
     override fun process(
         env: XProcessingEnv,
         elementsByAnnotation: Map<String, Set<XElement>>,
-        isLastRound: Boolean
+        isLastRound: Boolean,
     ): Set<XTypeElement> {
         check(env.config == getEnvConfig(env.options)) {
             "Room Processor expected ${getEnvConfig(env.options)} " +
@@ -91,14 +91,14 @@ class DatabaseProcessingStep : XProcessingStep {
                     }
                 }
 
-        val daoMethodsMap = databases?.flatMap { db -> db.daoMethods.map { it to db } }?.toMap()
-        daoMethodsMap?.let {
+        val daoFunctionsMap = databases?.flatMap { db -> db.daoFunctions.map { it to db } }?.toMap()
+        daoFunctionsMap?.let {
             prepareDaosForWriting(databases, it.keys.toList())
-            it.forEach { (daoMethod, db) ->
+            it.forEach { (daoFunction, db) ->
                 DaoWriter(
-                        dao = daoMethod.dao,
+                        dao = daoFunction.dao,
                         dbElement = db.element,
-                        writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
+                        writerContext = TypeWriter.WriterContext.fromProcessingContext(context),
                     )
                     .write(context.processingEnv)
             }
@@ -107,7 +107,7 @@ class DatabaseProcessingStep : XProcessingStep {
         databases?.forEach { db ->
             DatabaseWriter(
                     database = db,
-                    writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
+                    writerContext = TypeWriter.WriterContext.fromProcessingContext(context),
                 )
                 .write(context.processingEnv)
             if (db.exportSchema) {
@@ -122,19 +122,19 @@ class DatabaseProcessingStep : XProcessingStep {
                     val schemaFileOutputStream =
                         env.filer.writeResource(
                             filePath = Path.of("schemas", qName, filename),
-                            originatingElements = listOf(db.element)
+                            originatingElements = listOf(db.element),
                         )
                     db.exportSchemaOnly(schemaFileOutputStream)
                 } else if (schemaInFolderPath != null && schemaOutFolderPath != null) {
                     db.exportSchema(
                         inputPath = Path.of(schemaInFolderPath, qName, filename),
-                        outputPath = Path.of(schemaOutFolderPath, qName, filename)
+                        outputPath = Path.of(schemaOutFolderPath, qName, filename),
                     )
                 } else {
                     context.logger.w(
                         warning = Warning.MISSING_SCHEMA_LOCATION,
                         element = db.element,
-                        msg = ProcessorErrors.MISSING_SCHEMA_EXPORT_DIRECTORY
+                        msg = ProcessorErrors.MISSING_SCHEMA_EXPORT_DIRECTORY,
                     )
                 }
             }
@@ -142,14 +142,14 @@ class DatabaseProcessingStep : XProcessingStep {
                 AutoMigrationWriter(
                         autoMigration = autoMigration,
                         dbElement = db.element,
-                        writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
+                        writerContext = TypeWriter.WriterContext.fromProcessingContext(context),
                     )
                     .write(context.processingEnv)
             }
             if (db.constructorObject != null) {
                 DatabaseObjectConstructorWriter(
                         database = db,
-                        constructorObject = db.constructorObject
+                        constructorObject = db.constructorObject,
                     )
                     .write(context.processingEnv)
             }
@@ -166,31 +166,33 @@ class DatabaseProcessingStep : XProcessingStep {
         }
     }
 
-    /** Traverses all dao methods and assigns them suffix if they are used in multiple databases. */
+    /**
+     * Traverses all dao functions and assigns them suffix if they are used in multiple databases.
+     */
     private fun prepareDaosForWriting(
         databases: List<androidx.room.vo.Database>,
-        daoMethods: List<DaoMethod>
+        daoFunctions: List<DaoFunction>,
     ) {
-        daoMethods
+        daoFunctions
             .groupBy { it.dao.typeName }
             // if used only in 1 database, nothing to do.
             .filter { entry -> entry.value.size > 1 }
             .forEach { entry ->
                 entry.value
-                    .groupBy { daoMethod ->
+                    .groupBy { daoFunction ->
                         // first suffix guess: Database's simple name
-                        val db = databases.first { db -> db.daoMethods.contains(daoMethod) }
+                        val db = databases.first { db -> db.daoFunctions.contains(daoFunction) }
                         db.typeName.simpleNames.last()
                     }
-                    .forEach { (dbName, methods) ->
-                        if (methods.size == 1) {
+                    .forEach { (dbName, functions) ->
+                        if (functions.size == 1) {
                             // good, db names do not clash, use db name as suffix
-                            methods.first().dao.setSuffix(dbName)
+                            functions.first().dao.setSuffix(dbName)
                         } else {
                             // ok looks like a dao is used in 2 different databases both of
                             // which have the same name. enumerate.
-                            methods.forEachIndexed { index, method ->
-                                method.dao.setSuffix("${dbName}_$index")
+                            functions.forEachIndexed { index, function ->
+                                function.dao.setSuffix("${dbName}_$index")
                             }
                         }
                     }

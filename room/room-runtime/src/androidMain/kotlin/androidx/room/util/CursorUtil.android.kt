@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @file:JvmName("CursorUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 
 package androidx.room.util
 
@@ -35,7 +35,7 @@ import androidx.annotation.VisibleForTesting
  * @param c the cursor to copy.
  * @return a new cursor containing the same data as the given cursor.
  */
-fun copyAndClose(c: Cursor): Cursor =
+public fun copyAndClose(c: Cursor): Cursor =
     c.useCursor { cursor ->
         val matrixCursor = MatrixCursor(cursor.columnNames, cursor.count)
         while (cursor.moveToNext()) {
@@ -63,7 +63,7 @@ fun copyAndClose(c: Cursor): Cursor =
  * @param name The name of the target column.
  * @return The index of the column, or -1 if not found.
  */
-fun getColumnIndex(c: Cursor, name: String): Int {
+public fun getColumnIndex(c: Cursor, name: String): Int {
     var index = c.getColumnIndex(name)
     if (index >= 0) {
         return index
@@ -85,7 +85,7 @@ fun getColumnIndex(c: Cursor, name: String): Int {
  * @return The index of the column.
  * @throws IllegalArgumentException if the column does not exist.
  */
-fun getColumnIndexOrThrow(c: Cursor, name: String): Int {
+public fun getColumnIndexOrThrow(c: Cursor, name: String): Int {
     val index: Int = getColumnIndex(c, name)
     if (index >= 0) {
         return index
@@ -122,7 +122,7 @@ private fun findColumnIndexBySuffix(cursor: Cursor, name: String): Int {
 }
 
 @VisibleForTesting
-fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
+public fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
     val dotSuffix = ".$name"
     val backtickSuffix = ".$name`"
     columnNames.forEachIndexed { index, columnName ->
@@ -142,7 +142,7 @@ fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
  * Backwards compatible function that executes the given block function on this Cursor and then
  * closes the Cursor.
  */
-inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
+public inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
     return this.use(block)
 }
 
@@ -161,7 +161,11 @@ inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
  * @param mapping the cursor column indices of the columns at `columnNames`.
  * @return the wrapped Cursor.
  */
-fun wrapMappedColumns(cursor: Cursor, columnNames: Array<String>, mapping: IntArray): Cursor {
+public fun wrapMappedColumns(
+    cursor: Cursor,
+    columnNames: Array<String>,
+    mapping: IntArray,
+): Cursor {
     check(columnNames.size == mapping.size) { "Expected columnNames.length == mapping.length" }
     return object : CursorWrapper(cursor) {
         override fun getColumnIndex(columnName: String): Int {

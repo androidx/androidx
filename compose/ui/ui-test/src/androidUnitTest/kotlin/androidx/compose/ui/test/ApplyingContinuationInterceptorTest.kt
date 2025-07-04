@@ -57,7 +57,7 @@ class ApplyingContinuationInterceptorTest {
 
         override fun scheduleResumeAfterDelay(
             timeMillis: Long,
-            continuation: CancellableContinuation<Unit>
+            continuation: CancellableContinuation<Unit>,
         ): Unit = TODO("Not yet implemented")
     }
 }

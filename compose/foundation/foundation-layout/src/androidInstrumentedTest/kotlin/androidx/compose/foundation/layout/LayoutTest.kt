@@ -154,7 +154,7 @@ open class LayoutTest {
     internal fun Modifier.saveLayoutInfo(
         size: Ref<IntSize>,
         position: Ref<Offset>,
-        positionedLatch: CountDownLatch
+        positionedLatch: CountDownLatch,
     ): Modifier =
         this.onGloballyPositioned { coordinates ->
             size.value = IntSize(coordinates.size.width, coordinates.size.height)
@@ -164,7 +164,7 @@ open class LayoutTest {
 
     internal fun testIntrinsics(
         vararg layouts: @Composable () -> Unit,
-        test: ((Int) -> Int, (Int) -> Int, (Int) -> Int, (Int) -> Int) -> Unit
+        test: ((Int) -> Int, (Int) -> Int, (Int) -> Int, (Int) -> Int) -> Unit,
     ) {
         layouts.forEach { layout ->
             val layoutLatch = CountDownLatch(1)
@@ -173,14 +173,14 @@ open class LayoutTest {
                     object : MeasurePolicy {
                         override fun MeasureScope.measure(
                             measurables: List<Measurable>,
-                            constraints: Constraints
+                            constraints: Constraints,
                         ): MeasureResult {
                             val measurable = measurables.first()
                             test(
                                 { h -> measurable.minIntrinsicWidth(h) },
                                 { w -> measurable.minIntrinsicHeight(w) },
                                 { h -> measurable.maxIntrinsicWidth(h) },
-                                { w -> measurable.maxIntrinsicHeight(w) }
+                                { w -> measurable.maxIntrinsicHeight(w) },
                             )
                             layoutLatch.countDown()
 
@@ -189,22 +189,22 @@ open class LayoutTest {
 
                         override fun IntrinsicMeasureScope.minIntrinsicWidth(
                             measurables: List<IntrinsicMeasurable>,
-                            height: Int
+                            height: Int,
                         ) = 0
 
                         override fun IntrinsicMeasureScope.minIntrinsicHeight(
                             measurables: List<IntrinsicMeasurable>,
-                            width: Int
+                            width: Int,
                         ) = 0
 
                         override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                             measurables: List<IntrinsicMeasurable>,
-                            height: Int
+                            height: Int,
                         ) = 0
 
                         override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                             measurables: List<IntrinsicMeasurable>,
-                            width: Int
+                            width: Int,
                         ) = 0
                     }
                 Layout(content = layout, measurePolicy = measurePolicy)
@@ -219,7 +219,7 @@ open class LayoutTest {
             layout(
                 constraints.constrainWidth(width),
                 constraints.constrainHeight(height),
-                alignmentLines
+                alignmentLines,
             ) {}
         }
     }
@@ -236,7 +236,7 @@ open class LayoutTest {
     internal fun ConstrainedBox(
         constraints: DpConstraints,
         modifier: Modifier = Modifier,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         with(LocalDensity.current) {
             val pxConstraints = Constraints(constraints)
@@ -245,7 +245,7 @@ open class LayoutTest {
                     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
                     override fun MeasureScope.measure(
                         measurables: List<Measurable>,
-                        incomingConstraints: Constraints
+                        incomingConstraints: Constraints,
                     ): MeasureResult {
                         val measurable = measurables.firstOrNull()
                         val childConstraints =
@@ -259,7 +259,7 @@ open class LayoutTest {
 
                     override fun IntrinsicMeasureScope.minIntrinsicWidth(
                         measurables: List<IntrinsicMeasurable>,
-                        height: Int
+                        height: Int,
                     ): Int {
                         val width = measurables.firstOrNull()?.minIntrinsicWidth(height) ?: 0
                         return pxConstraints.constrainWidth(width)
@@ -267,7 +267,7 @@ open class LayoutTest {
 
                     override fun IntrinsicMeasureScope.minIntrinsicHeight(
                         measurables: List<IntrinsicMeasurable>,
-                        width: Int
+                        width: Int,
                     ): Int {
                         val height = measurables.firstOrNull()?.minIntrinsicHeight(width) ?: 0
                         return pxConstraints.constrainHeight(height)
@@ -275,7 +275,7 @@ open class LayoutTest {
 
                     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                         measurables: List<IntrinsicMeasurable>,
-                        height: Int
+                        height: Int,
                     ): Int {
                         val width = measurables.firstOrNull()?.maxIntrinsicWidth(height) ?: 0
                         return pxConstraints.constrainWidth(width)
@@ -283,7 +283,7 @@ open class LayoutTest {
 
                     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                         measurables: List<IntrinsicMeasurable>,
-                        width: Int
+                        width: Int,
                     ): Int {
                         val height = measurables.firstOrNull()?.maxIntrinsicHeight(width) ?: 0
                         return pxConstraints.constrainHeight(height)
@@ -299,7 +299,7 @@ open class LayoutTest {
         @Stable val minWidth: Dp = 0.dp,
         @Stable val maxWidth: Dp = Dp.Infinity,
         @Stable val minHeight: Dp = 0.dp,
-        @Stable val maxHeight: Dp = Dp.Infinity
+        @Stable val maxHeight: Dp = Dp.Infinity,
     ) {
         init {
             require(minWidth.isFinite) { "Constraints#minWidth should be finite" }
@@ -333,7 +333,7 @@ open class LayoutTest {
             minWidth = dpConstraints.minWidth.roundToPx(),
             maxWidth = dpConstraints.maxWidth.roundToPx(),
             minHeight = dpConstraints.minHeight.roundToPx(),
-            maxHeight = dpConstraints.maxHeight.roundToPx()
+            maxHeight = dpConstraints.maxHeight.roundToPx(),
         )
 
     internal fun assertEquals(expected: Size?, actual: Size?) {
@@ -346,13 +346,13 @@ open class LayoutTest {
             "Expected width ${expected.width} but obtained ${actual.width}",
             expected.width,
             actual.width,
-            0f
+            0f,
         )
         assertEquals(
             "Expected height ${expected.height} but obtained ${actual.height}",
             expected.height,
             actual.height,
-            0f
+            0f,
         )
         if (actual.width != actual.width.toInt().toFloat()) {
             fail("Expected integer width")
@@ -383,7 +383,7 @@ open class LayoutTest {
             "Expected $expected but obtained $actual",
             expected.toFloat(),
             actual.toFloat(),
-            0f
+            0f,
         )
     }
 
@@ -396,7 +396,7 @@ open class LayoutTest {
         constraints: DpConstraints = DpConstraints(),
         width: Dp? = null,
         height: Dp? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         Layout(content, modifier) { measurables, incomingConstraints ->
             val containerConstraints =
@@ -406,7 +406,7 @@ open class LayoutTest {
                             width?.roundToPx() ?: constraints.minWidth.roundToPx(),
                             width?.roundToPx() ?: constraints.maxWidth.roundToPx(),
                             height?.roundToPx() ?: constraints.minHeight.roundToPx(),
-                            height?.roundToPx() ?: constraints.maxHeight.roundToPx()
+                            height?.roundToPx() ?: constraints.maxHeight.roundToPx(),
                         )
                 )
             val totalHorizontal =
@@ -449,11 +449,11 @@ open class LayoutTest {
                         alignment.align(
                             IntSize(it.width + totalHorizontal, it.height + totalVertical),
                             IntSize(containerWidth, containerHeight),
-                            layoutDirection
+                            layoutDirection,
                         )
                     it.place(
                         padding.calculateLeftPadding(layoutDirection).roundToPx() + position.x,
-                        padding.calculateTopPadding().roundToPx() + position.y
+                        padding.calculateTopPadding().roundToPx() + position.y,
                     )
                 }
             }

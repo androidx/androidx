@@ -14,6 +14,7 @@ package androidx.work.testing {
 
   public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
     method public W build();
+    method public W build(Class<? extends androidx.work.ListenableWorker!>);
     method public static androidx.work.testing.TestListenableWorkerBuilder<? extends androidx.work.ListenableWorker!> from(android.content.Context, androidx.work.WorkRequest);
     method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
     method public androidx.work.testing.TestListenableWorkerBuilder<W!> setForegroundUpdater(androidx.work.ForegroundUpdater);

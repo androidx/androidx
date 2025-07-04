@@ -21,7 +21,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
@@ -33,6 +32,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -140,7 +140,7 @@ public class ViewModelTest {
                             TestViewModel(
                                 MutableCreationExtras(this).apply { set(extrasKey, "value") }
                             )
-                        }
+                        },
                     )
             }
         }
@@ -246,7 +246,8 @@ private class FakeViewModelProviderFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         require(modelClass == TestViewModel::class.java)
         createCalled = true
-        @Suppress("UNCHECKED_CAST") return TestViewModel() as T
+        @Suppress("UNCHECKED_CAST")
+        return TestViewModel() as T
     }
 
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {

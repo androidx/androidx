@@ -334,7 +334,7 @@ class WindowContentChangeTest {
                         actual.parcelableData == expected.parcelableData &&
                         actual.recordCount == expected.recordCount
                 },
-                "has same properties as"
+                "has same properties as",
             )
     }
 

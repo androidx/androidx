@@ -111,14 +111,14 @@ public fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTim
 public fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     initialValue: V,
     targetValue: V,
-    initialVelocity: V
+    initialVelocity: V,
 ): TargetBasedAnimation<V, V> =
     TargetBasedAnimation(
         animationSpec = this,
         initialValue = initialValue,
         targetValue = targetValue,
         initialVelocityVector = initialVelocity,
-        typeConverter = TwoWayConverter({ it }, { it })
+        typeConverter = TwoWayConverter({ it }, { it }),
     )
 
 /**
@@ -147,14 +147,14 @@ public fun <T, V : AnimationVector> TargetBasedAnimation(
     typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
     targetValue: T,
-    initialVelocity: T
+    initialVelocity: T,
 ): TargetBasedAnimation<T, V> =
     TargetBasedAnimation(
         animationSpec,
         typeConverter,
         initialValue,
         targetValue,
-        typeConverter.convertToVector(initialVelocity)
+        typeConverter.convertToVector(initialVelocity),
     )
 
 /**
@@ -187,7 +187,7 @@ internal constructor(
     override val typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
     targetValue: T,
-    initialVelocityVector: V? = null
+    initialVelocityVector: V? = null,
 ) : Animation<T, V> {
     internal var mutableTargetValue: T = targetValue
         set(value) {
@@ -242,13 +242,13 @@ internal constructor(
         typeConverter: TwoWayConverter<T, V>,
         initialValue: T,
         targetValue: T,
-        initialVelocityVector: V? = null
+        initialVelocityVector: V? = null,
     ) : this(
         animationSpec.vectorize(typeConverter),
         typeConverter,
         initialValue,
         targetValue,
-        initialVelocityVector
+        initialVelocityVector,
     )
 
     private var initialValueVector = typeConverter.convertToVector(initialValue)
@@ -266,7 +266,7 @@ internal constructor(
                     playTimeNanos,
                     initialValueVector,
                     targetValueVector,
-                    initialVelocityVector
+                    initialVelocityVector,
                 )
                 .let {
                     // TODO: Remove after b/232030217
@@ -293,7 +293,7 @@ internal constructor(
                     animationSpec.getDurationNanos(
                         initialValue = initialValueVector,
                         targetValue = targetValueVector,
-                        initialVelocity = this.initialVelocityVector
+                        initialVelocity = this.initialVelocityVector,
                     )
             }
             return _durationNanos
@@ -308,7 +308,7 @@ internal constructor(
                     .getEndVelocity(
                         initialValueVector,
                         targetValueVector,
-                        this.initialVelocityVector
+                        this.initialVelocityVector,
                     )
                     .also { _endVelocity = it }
 
@@ -318,7 +318,7 @@ internal constructor(
                 playTimeNanos,
                 initialValueVector,
                 targetValueVector,
-                initialVelocityVector
+                initialVelocityVector,
             )
         } else {
             endVelocity
@@ -351,7 +351,7 @@ constructor(
     private val animationSpec: VectorizedDecayAnimationSpec<V>,
     override val typeConverter: TwoWayConverter<T, V>,
     public val initialValue: T,
-    initialVelocityVector: V
+    initialVelocityVector: V,
 ) : Animation<T, V> {
     private val initialValueVector: V = typeConverter.convertToVector(initialValue)
     public val initialVelocityVector: V = initialVelocityVector.copy()
@@ -388,12 +388,12 @@ constructor(
         animationSpec: DecayAnimationSpec<T>,
         typeConverter: TwoWayConverter<T, V>,
         initialValue: T,
-        initialVelocityVector: V
+        initialVelocityVector: V,
     ) : this(
         animationSpec.vectorize(typeConverter),
         typeConverter,
         initialValue,
-        initialVelocityVector
+        initialVelocityVector,
     )
 
     /**
@@ -418,12 +418,12 @@ constructor(
         animationSpec: DecayAnimationSpec<T>,
         typeConverter: TwoWayConverter<T, V>,
         initialValue: T,
-        initialVelocity: T
+        initialVelocity: T,
     ) : this(
         animationSpec.vectorize(typeConverter),
         typeConverter,
         initialValue,
-        typeConverter.convertToVector(initialVelocity)
+        typeConverter.convertToVector(initialVelocity),
     )
 
     init {
@@ -436,7 +436,7 @@ constructor(
             endVelocity[i] =
                 endVelocity[i].coerceIn(
                     -animationSpec.absVelocityThreshold,
-                    animationSpec.absVelocityThreshold
+                    animationSpec.absVelocityThreshold,
                 )
         }
     }
@@ -447,7 +447,7 @@ constructor(
                 animationSpec.getValueFromNanos(
                     playTimeNanos,
                     initialValueVector,
-                    initialVelocityVector
+                    initialVelocityVector,
                 )
             )
         } else {
@@ -460,7 +460,7 @@ constructor(
             return animationSpec.getVelocityFromNanos(
                 playTimeNanos,
                 initialValueVector,
-                initialVelocityVector
+                initialVelocityVector,
             )
         } else {
             return endVelocity
@@ -486,11 +486,11 @@ constructor(
 public fun DecayAnimation(
     animationSpec: FloatDecayAnimationSpec,
     initialValue: Float,
-    initialVelocity: Float = 0f
+    initialVelocity: Float = 0f,
 ): DecayAnimation<Float, AnimationVector1D> =
     DecayAnimation(
         animationSpec.generateDecayAnimationSpec(),
         Float.VectorConverter,
         initialValue,
-        AnimationVector(initialVelocity)
+        AnimationVector(initialVelocity),
     )

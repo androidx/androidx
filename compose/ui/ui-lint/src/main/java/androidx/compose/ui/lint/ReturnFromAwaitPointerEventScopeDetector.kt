@@ -31,7 +31,7 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.types.KtFunctionalType
+import org.jetbrains.kotlin.analysis.api.types.KaFunctionType
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
@@ -62,7 +62,7 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
                 ExitAwaitPointerEventScope,
                 node,
                 context.getNameLocation(node),
-                ErrorMessage
+                ErrorMessage,
             )
         }
     }
@@ -110,10 +110,9 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
     // Helper function for lambda type check
     private fun isSuspendPointerInputLambda(ktLambdaExpression: KtLambdaExpression): Boolean {
         return analyze(ktLambdaExpression) {
-            val type = ktLambdaExpression.getExpectedType() as? KtFunctionalType ?: return false
+            val type = ktLambdaExpression.expectedType as? KaFunctionType ?: return false
             type.isSuspendFunctionType &&
-                type.receiverType?.expandedClassSymbol?.classIdIfNonLocal?.asFqNameString() ==
-                    POINTER_INPUT_SCOPE
+                type.receiverType?.expandedSymbol?.classId?.asFqNameString() == POINTER_INPUT_SCOPE
         }
     }
 
@@ -141,8 +140,8 @@ class ReturnFromAwaitPointerEventScopeDetector : Detector(), SourceCodeScanner {
                 Severity.WARNING,
                 Implementation(
                     ReturnFromAwaitPointerEventScopeDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

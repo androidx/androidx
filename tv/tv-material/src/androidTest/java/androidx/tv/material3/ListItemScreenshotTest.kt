@@ -68,10 +68,10 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
                     },
-                    colors = ListItemDefaults.colors(containerColor = Color.Red)
+                    colors = ListItemDefaults.colors(containerColor = Color.Red),
                 )
             }
         }
@@ -86,7 +86,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 ListItem(
                     selected = false,
                     onClick = {},
-                    headlineContent = { Text("One line list item") }
+                    headlineContent = { Text("One line list item") },
                 )
             }
         }
@@ -106,9 +106,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -124,13 +124,13 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     selected = false,
                     onClick = {},
                     headlineContent = { Text("Two line list item") },
-                    supportingContent = { Text("Secondary text") }
+                    supportingContent = { Text("Secondary text") },
                 )
                 ListItem(
                     selected = false,
                     onClick = {},
                     headlineContent = { Text("Two line list item") },
-                    overlineContent = { Text("OVERLINE") }
+                    overlineContent = { Text("OVERLINE") },
                 )
             }
         }
@@ -151,9 +151,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
                 ListItem(
                     selected = false,
@@ -164,9 +164,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -183,7 +183,7 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     onClick = {},
                     headlineContent = { Text("Three line list item") },
                     overlineContent = { Text("OVERLINE") },
-                    supportingContent = { Text("Secondary text") }
+                    supportingContent = { Text("Secondary text") },
                 )
             }
         }
@@ -205,9 +205,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -229,9 +229,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -257,9 +257,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -282,9 +282,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -309,9 +309,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -333,9 +333,9 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -360,16 +360,16 @@ class ListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
                     },
                     trailingContent = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSize)
+                            modifier = Modifier.size(ListItemDefaults.IconSize),
                         )
-                    }
+                    },
                 )
             }
         }

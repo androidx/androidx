@@ -482,7 +482,7 @@ class NavDestinationAndroidTest {
                 NavDeepLinkRequest(
                     Uri.parse("https://www.example.com/users/result"),
                     null,
-                    "image/jpg"
+                    "image/jpg",
                 )
             )
 
@@ -655,7 +655,7 @@ class NavDestinationAndroidTest {
             NavDestinationBuilder(
                     NoOpNavigator(),
                     TestClass::class,
-                    mapOf(typeOf<TestArg>() to testArg)
+                    mapOf(typeOf<TestArg>() to testArg),
                 )
                 .build()
         assertThat(destination.hasRoute<TestClass>()).isTrue()

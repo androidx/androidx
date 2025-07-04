@@ -45,7 +45,7 @@ internal class HealthEventTest {
                             DataPoints.heartRate(43.0, 10.duration()),
                             DataPoints.distance(180.0, 20.duration(), 40.duration()),
                         )
-                    )
+                    ),
                 )
                 .proto
 

@@ -43,7 +43,7 @@ import kotlinx.coroutines.tasks.await
 internal open class UwbClientSessionScopeImpl(
     private val uwbClient: UwbClient,
     override val rangingCapabilities: RangingCapabilities,
-    override val localAddress: UwbAddress
+    override val localAddress: UwbAddress,
 ) : UwbClientSessionScope {
     companion object {
         private const val TAG = "UwbClientSessionScope"
@@ -154,8 +154,8 @@ internal open class UwbClientSessionScopeImpl(
                                 RangingMeasurement(position.distance.value),
                                 position.azimuth?.let { RangingMeasurement(it.value) },
                                 position.elevation?.let { RangingMeasurement(it.value) },
-                                position.elapsedRealtimeNanos
-                            )
+                                position.elapsedRealtimeNanos,
+                            ),
                         )
                     )
                 }
@@ -190,7 +190,7 @@ internal open class UwbClientSessionScopeImpl(
     override suspend fun reconfigureRangeDataNtf(
         configType: Int,
         proximityNear: Int,
-        proximityFar: Int
+        proximityFar: Int,
     ) {
         try {
             uwbClient.reconfigureRangeDataNtf(configType, proximityNear, proximityFar).await()

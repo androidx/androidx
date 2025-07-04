@@ -44,7 +44,7 @@ class WorkDatabasePathHelperTest {
             InstrumentationRegistry.getInstrumentation(),
             WorkDatabase::class.java,
             emptyList(),
-            FrameworkSQLiteOpenHelperFactory()
+            FrameworkSQLiteOpenHelperFactory(),
         )
 
     private lateinit var context: Context
@@ -60,7 +60,7 @@ class WorkDatabasePathHelperTest {
         // Create a database
         migrationTestHelper.createDatabase(
             WorkDatabasePathHelper.getDefaultDatabasePath(context).path,
-            VERSION_9
+            VERSION_9,
         )
         val paths = WorkDatabasePathHelper.migrationPaths(context)
 

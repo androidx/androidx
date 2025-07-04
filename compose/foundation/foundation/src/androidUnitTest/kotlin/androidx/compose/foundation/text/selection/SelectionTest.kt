@@ -45,13 +45,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
-                selectableId = 1L
+                selectableId = 1L,
             )
         val endAnchor =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
-                selectableId = 1L
+                selectableId = 1L,
             )
         val handleCrossed = false
 
@@ -72,13 +72,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset1,
-                selectableId = selectableKey1
+                selectableId = selectableKey1,
             )
         val endAnchor1 =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset1,
-                selectableId = selectableKey1
+                selectableId = selectableKey1,
             )
         val selection1 = Selection(start = startAnchor1, end = endAnchor1, handlesCrossed = false)
         val startOffset2 = 0
@@ -88,13 +88,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset2,
-                selectableId = selectableKey2
+                selectableId = selectableKey2,
             )
         val endAnchor2 =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset2,
-                selectableId = selectableKey2
+                selectableId = selectableKey2,
             )
         val selection2 = Selection(start = startAnchor2, end = endAnchor2, handlesCrossed = false)
 
@@ -116,13 +116,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset1,
-                selectableId = selectableKey1
+                selectableId = selectableKey1,
             )
         val endAnchor1 =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset1,
-                selectableId = selectableKey1
+                selectableId = selectableKey1,
             )
         val selection1 = Selection(start = startAnchor1, end = endAnchor1, handlesCrossed = true)
         val startOffset2 = 30
@@ -132,13 +132,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset2,
-                selectableId = selectableKey2
+                selectableId = selectableKey2,
             )
         val endAnchor2 =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset2,
-                selectableId = selectableKey2
+                selectableId = selectableKey2,
             )
         val selection2 = Selection(start = startAnchor2, end = endAnchor2, handlesCrossed = true)
 
@@ -159,13 +159,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
-                selectableId = 1L
+                selectableId = 1L,
             )
         val endAnchor =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
-                selectableId = 1L
+                selectableId = 1L,
             )
         val selection = Selection(start = startAnchor, end = endAnchor, handlesCrossed = false)
 
@@ -182,13 +182,13 @@ class SelectionTest {
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = startOffset,
-                selectableId = 1L
+                selectableId = 1L,
             )
         val endAnchor =
             Selection.AnchorInfo(
                 direction = ResolvedTextDirection.Ltr,
                 offset = endOffset,
-                selectableId = 1L
+                selectableId = 1L,
             )
         val selection = Selection(start = startAnchor, end = endAnchor, handlesCrossed = false)
 

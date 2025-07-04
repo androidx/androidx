@@ -35,7 +35,7 @@ open class TextLineBreaker {
     private fun paragraph(
         text: String,
         textStyle: TextStyle,
-        maxWidth: Int = Constraints.Infinity
+        maxWidth: Int = Constraints.Infinity,
     ): Paragraph {
         return AndroidParagraph(
             text = text,
@@ -47,7 +47,7 @@ open class TextLineBreaker {
             constraints =
                 Constraints(maxWidth = maxWidth, maxHeight = Float.POSITIVE_INFINITY.ceilToInt()),
             density = density,
-            fontFamilyResolver = fontFamilyResolver
+            fontFamilyResolver = fontFamilyResolver,
         )
     }
 
@@ -55,13 +55,13 @@ open class TextLineBreaker {
         text: String,
         hyphens: Hyphens = defaultHyphens,
         lineBreak: LineBreak = defaultLineBreak,
-        maxWidth: Int
+        maxWidth: Int,
     ): List<String> {
         val layoutResult =
             paragraph(
                 text = text,
                 textStyle = TextStyle(hyphens = hyphens, lineBreak = lineBreak),
-                maxWidth = maxWidth
+                maxWidth = maxWidth,
             )
 
         return (0 until layoutResult.lineCount).map { lineIndex ->

@@ -21,7 +21,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
-import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
+import androidx.camera.camera2.pipe.integration.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -91,7 +91,7 @@ class CaptureConfigAdapterDeviceTest {
         camera =
             CameraUtil.createCameraUseCaseAdapter(
                     context,
-                    CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING_SELECTOR).build()
+                    CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING_SELECTOR).build(),
                 )
                 .apply { withContext(Dispatchers.Main) { addUseCases(listOf(fakeUseCase)) } }
 
@@ -123,14 +123,14 @@ class CaptureConfigAdapterDeviceTest {
                         object : CameraCaptureCallback() {
                             override fun onCaptureCompleted(
                                 captureConfigId: Int,
-                                cameraCaptureResult: CameraCaptureResult
+                                cameraCaptureResult: CameraCaptureResult,
                             ) {
                                 deferred.complete(cameraCaptureResult)
                             }
 
                             override fun onCaptureFailed(
                                 captureConfigId: Int,
-                                failure: CameraCaptureFailure
+                                failure: CameraCaptureFailure,
                             ) {
                                 deferred.completeExceptionally(Throwable(failure.reason.toString()))
                             }
@@ -173,7 +173,7 @@ class CaptureConfigAdapterDeviceTest {
                         object : CameraCaptureCallback() {
                             override fun onCaptureCompleted(
                                 captureConfigId: Int,
-                                cameraCaptureResult: CameraCaptureResult
+                                cameraCaptureResult: CameraCaptureResult,
                             ) {
                                 deferredCompleted.complete(captureConfigId)
                             }
@@ -200,9 +200,7 @@ class CaptureConfigAdapterDeviceTest {
             .isEqualTo(expectedCaptureConfigId)
     }
 
-    private class FakeTestUseCase(
-        config: FakeUseCaseConfig,
-    ) : FakeUseCase(config) {
+    private class FakeTestUseCase(config: FakeUseCaseConfig) : FakeUseCase(config) {
 
         fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
             updateSessionConfig(listOf(sessionConfigBuilder.build()))

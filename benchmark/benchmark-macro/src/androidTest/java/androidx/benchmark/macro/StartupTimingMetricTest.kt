@@ -101,7 +101,7 @@ class StartupTimingMetricTest {
         val launchIntent =
             ConfigurableActivity.createIntent(
                 text = "ORIGINAL TEXT",
-                reportFullyDrawnDelayMs = delayMs
+                reportFullyDrawnDelayMs = delayMs,
             )
         // setup initial Activity if needed
         if (useInAppNav) {
@@ -148,7 +148,7 @@ class StartupTimingMetricTest {
         // validate
         assertEquals(
             setOf("timeToInitialDisplayMs", "timeToFullDisplayMs"),
-            measurements.map { it.name }.toSet()
+            measurements.map { it.name }.toSet(),
         )
 
         val timeToInitialDisplayMs =
@@ -165,7 +165,7 @@ class StartupTimingMetricTest {
             assertTrue(
                 timeToFullDisplayMs > timeToInitialDisplayMs,
                 "Didn't see full draw delayed after initial display: " +
-                    "ttid $timeToInitialDisplayMs, ttfd $timeToFullDisplayMs"
+                    "ttid $timeToInitialDisplayMs, ttfd $timeToFullDisplayMs",
             )
         }
     }
@@ -208,7 +208,7 @@ class StartupTimingMetricTest {
                 targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
                 testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
                 startupMode = StartupMode.WARM,
-                apiLevel = 32
+                apiLevel = 32,
             )
 
         metric.configure(captureInfo)
@@ -224,7 +224,7 @@ class StartupTimingMetricTest {
         val traceFile =
             createTempFileFromAsset(
                 prefix = "api24_startup_sameproc_immediatefullydrawn",
-                suffix = ".perfetto-trace"
+                suffix = ".perfetto-trace",
             )
         val metric = StartupTimingMetric()
         val captureInfo =
@@ -232,7 +232,7 @@ class StartupTimingMetricTest {
                 targetPackageName = Packages.TEST,
                 testPackageName = Packages.TEST,
                 startupMode = StartupMode.WARM,
-                apiLevel = 24
+                apiLevel = 24,
             )
         metric.configure(captureInfo)
 
@@ -245,10 +245,10 @@ class StartupTimingMetricTest {
             expected =
                 listOf(
                     Metric.Measurement("timeToInitialDisplayMs", 178.58525),
-                    Metric.Measurement("timeToFullDisplayMs", 178.58525)
+                    Metric.Measurement("timeToFullDisplayMs", 178.58525),
                 ),
             observed = measurements,
-            threshold = 0.0001
+            threshold = 0.0001,
         )
     }
 
@@ -261,10 +261,10 @@ class StartupTimingMetricTest {
             expected =
                 listOf(
                     Metric.Measurement("timeToInitialDisplayMs", 154.629883),
-                    Metric.Measurement("timeToFullDisplayMs", 659.641358)
+                    Metric.Measurement("timeToFullDisplayMs", 659.641358),
                 ),
             observed = measurements,
-            threshold = 0.0001
+            threshold = 0.0001,
         )
     }
 
@@ -278,10 +278,10 @@ class StartupTimingMetricTest {
             expected =
                 listOf(
                     Metric.Measurement("startupMs", 156.515747),
-                    Metric.Measurement("fullyDrawnMs", 644.613729)
+                    Metric.Measurement("fullyDrawnMs", 644.613729),
                 ),
             observed = measurements,
-            threshold = 0.0001
+            threshold = 0.0001,
         )
     }
 }
@@ -290,13 +290,13 @@ class StartupTimingMetricTest {
 internal fun measureStartup(
     packageName: String,
     startupMode: StartupMode,
-    measureBlock: () -> Unit
+    measureBlock: () -> Unit,
 ): List<Metric.Measurement> {
     val metric = StartupTimingMetric()
     val captureInfo =
         Metric.CaptureInfo.forLocalCapture(
             targetPackageName = packageName,
-            startupMode = startupMode
+            startupMode = startupMode,
         )
     metric.configure(captureInfo)
     val tracePath =
@@ -315,10 +315,10 @@ internal fun measureStartup(
                             } else {
                                 listOf(packageName)
                             },
-                        useStackSamplingConfig = false
+                        useStackSamplingConfig = false,
                     ),
                 perfettoSdkConfig = PerfettoSdkConfig(packageName, InitialProcessState.Unknown),
-                block = measureBlock
+                block = measureBlock,
             )!!
 
     return TraceProcessor.runSingleSessionServer(tracePath) {

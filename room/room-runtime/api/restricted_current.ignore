@@ -1,9 +1,11 @@
 // Baseline format: 1.0
-InvalidNullConversion: androidx.room.DatabaseConfiguration#sqliteOpenHelperFactory:
-    Attempted to change nullability of androidx.sqlite.db.SupportSQLiteOpenHelper.Factory (from NONNULL to NULLABLE) in field androidx.room.DatabaseConfiguration.sqliteOpenHelperFactory
-
-
-RemovedMethod: androidx.room.util.FtsTableInfo#parseOptions(String):
-    Removed method androidx.room.util.FtsTableInfo.parseOptions(String)
-RemovedMethod: androidx.room.util.FtsTableInfo.Companion#parseOptions(String):
-    Removed method androidx.room.util.FtsTableInfo.Companion.parseOptions(String)
+RemovedDeprecatedMethod: androidx.room.RoomDatabase#getMCallbacks():
+    Binary breaking change: Removed deprecated method androidx.room.RoomDatabase.getMCallbacks()
+RemovedDeprecatedMethod: androidx.room.RoomDatabase#getMDatabase():
+    Binary breaking change: Removed deprecated method androidx.room.RoomDatabase.getMDatabase()
+RemovedDeprecatedMethod: androidx.room.RoomDatabase#setMCallbacks(java.util.List<androidx.room.RoomDatabase.Callback>):
+    Binary breaking change: Removed deprecated method androidx.room.RoomDatabase.setMCallbacks(java.util.List<androidx.room.RoomDatabase.Callback>)
+RemovedDeprecatedMethod: androidx.room.RoomDatabase#setMDatabase(androidx.sqlite.db.SupportSQLiteDatabase):
+    Binary breaking change: Removed deprecated method androidx.room.RoomDatabase.setMDatabase(androidx.sqlite.db.SupportSQLiteDatabase)
+RemovedDeprecatedMethod: androidx.room.util.StringUtil#getEMPTY_STRING_ARRAY():
+    Binary breaking change: Removed deprecated method androidx.room.util.StringUtil.getEMPTY_STRING_ARRAY()

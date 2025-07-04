@@ -63,7 +63,7 @@ class ValueClassListTest {
             mutableTestValueClassListOf(
                 TestValueClass(1UL),
                 TestValueClass(2UL),
-                TestValueClass(3UL)
+                TestValueClass(3UL),
             )
         assertEquals(3, l.size)
         assertEquals(TestValueClass(1UL), l[0])
@@ -176,21 +176,21 @@ class ValueClassListTest {
             list.elementAtOrElse(0) {
                 assertEquals(0, it)
                 TestValueClass(0UL)
-            }
+            },
         )
         assertEquals(
             TestValueClass(0UL),
             list.elementAtOrElse(-1) {
                 assertEquals(-1, it)
                 TestValueClass(0UL)
-            }
+            },
         )
         assertEquals(
             TestValueClass(0UL),
             list.elementAtOrElse(5) {
                 assertEquals(5, it)
                 TestValueClass(0UL)
-            }
+            },
         )
     }
 
@@ -257,7 +257,7 @@ class ValueClassListTest {
         )
         assertEquals(
             reversedSublist,
-            mutableTestValueClassListOf(TestValueClass(5UL), TestValueClass(4UL))
+            mutableTestValueClassListOf(TestValueClass(5UL), TestValueClass(4UL)),
         )
     }
 
@@ -280,7 +280,7 @@ class ValueClassListTest {
                 it += TestValueClass(3UL)
                 it += TestValueClass(2UL)
                 it += TestValueClass(1UL)
-            }
+            },
         )
     }
 
@@ -301,7 +301,7 @@ class ValueClassListTest {
                 it += TestValueClass(2UL)
                 it += TestValueClass(3UL)
                 it += TestValueClass(4UL)
-            }
+            },
         )
     }
 
@@ -321,7 +321,7 @@ class ValueClassListTest {
                 it += TestValueClass(3UL)
                 it += TestValueClass(2UL)
                 it += TestValueClass(1UL)
-            }
+            },
         )
         assertEquals(
             indices,
@@ -331,7 +331,7 @@ class ValueClassListTest {
                 it += TestValueClass(2UL)
                 it += TestValueClass(1UL)
                 it += TestValueClass(0UL)
-            }
+            },
         )
     }
 
@@ -344,7 +344,7 @@ class ValueClassListTest {
             0,
             mutableTestValueClassListOf(TestValueClass(8UL), TestValueClass(8UL)).indexOfFirst {
                 it == TestValueClass(8UL)
-            }
+            },
         )
     }
 
@@ -357,7 +357,7 @@ class ValueClassListTest {
             1,
             mutableTestValueClassListOf(TestValueClass(8UL), TestValueClass(8UL)).indexOfLast {
                 it == TestValueClass(8UL)
-            }
+            },
         )
     }
 
@@ -375,7 +375,7 @@ class ValueClassListTest {
                 mutableTestValueClassListOf(
                     TestValueClass(2UL),
                     TestValueClass(3UL),
-                    TestValueClass(1UL)
+                    TestValueClass(1UL),
                 )
             )
         )
@@ -384,7 +384,7 @@ class ValueClassListTest {
                 mutableTestValueClassListOf(
                     TestValueClass(2UL),
                     TestValueClass(3UL),
-                    TestValueClass(6UL)
+                    TestValueClass(6UL),
                 )
             )
         )
@@ -417,7 +417,7 @@ class ValueClassListTest {
             TestValueClass(1UL),
             mutableTestValueClassListOf(TestValueClass(1UL), TestValueClass(5UL)).first {
                 it != TestValueClass(0UL)
-            }
+            },
         )
     }
 
@@ -445,7 +445,7 @@ class ValueClassListTest {
             TestValueClass(5UL),
             mutableTestValueClassListOf(TestValueClass(1UL), TestValueClass(5UL)).last {
                 it != TestValueClass(0UL)
-            }
+            },
         )
     }
 
@@ -465,7 +465,7 @@ class ValueClassListTest {
     fun foldIndexed() {
         assertEquals(
             "01-12-23-34-45-",
-            list.foldIndexed("") { index, acc, i -> "$acc$index${i.value}-" }
+            list.foldIndexed("") { index, acc, i -> "$acc$index${i.value}-" },
         )
     }
 
@@ -478,7 +478,7 @@ class ValueClassListTest {
     fun foldRightIndexed() {
         assertEquals(
             "45-34-23-12-01-",
-            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.value}-" }
+            list.foldRightIndexed("") { index, i, acc -> "$acc$index${i.value}-" },
         )
     }
 
@@ -488,7 +488,7 @@ class ValueClassListTest {
             mutableTestValueClassListOf(
                 TestValueClass(1UL),
                 TestValueClass(2UL),
-                TestValueClass(3UL)
+                TestValueClass(3UL),
             )
         l += TestValueClass(4UL)
         l.add(TestValueClass(5UL))
@@ -601,7 +601,7 @@ class ValueClassListTest {
                 it += TestValueClass(4UL)
                 it += TestValueClass(5UL)
             },
-            l
+            l,
         )
     }
 
@@ -617,7 +617,7 @@ class ValueClassListTest {
                 it += TestValueClass(4UL)
                 it += TestValueClass(5UL)
             },
-            l
+            l,
         )
         assertFailsWith(IndexOutOfBoundsException::class) { l.removeAt(6) }
         assertFailsWith(IndexOutOfBoundsException::class) { l.removeAt(-1) }
@@ -653,7 +653,7 @@ class ValueClassListTest {
                 mutableTestValueClassListOf(
                     TestValueClass(0UL),
                     TestValueClass(10UL),
-                    TestValueClass(15UL)
+                    TestValueClass(15UL),
                 )
             )
         )
@@ -690,7 +690,7 @@ class ValueClassListTest {
             mutableTestValueClassListOf(
                 TestValueClass(0UL),
                 TestValueClass(10UL),
-                TestValueClass(15UL)
+                TestValueClass(15UL),
             )
         assertEquals(list, l)
         val l2 = mutableTestValueClassListOf()
@@ -833,7 +833,7 @@ class ValueClassListTest {
             mutableTestValueClassListOf(
                 TestValueClass(2UL),
                 TestValueClass(10UL),
-                TestValueClass(1UL)
+                TestValueClass(1UL),
             )
         assertEquals(3, l.size)
         assertEquals(3, l.capacity)

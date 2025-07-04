@@ -30,15 +30,15 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
-import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
-import androidx.room.vo.KotlinDefaultMethodDelegate
+import androidx.room.vo.KotlinBoxedPrimitiveFunctionDelegate
+import androidx.room.vo.KotlinDefaultFunctionDelegate
 import androidx.room.vo.Warning
 
 class DaoProcessor(
     baseContext: Context,
     val element: XTypeElement,
     val dbType: XType,
-    val dbVerifier: DatabaseVerifier?
+    val dbVerifier: DatabaseVerifier?,
 ) {
     val context = baseContext.fork(element)
 
@@ -50,7 +50,7 @@ class DaoProcessor(
                 Query::class,
                 Update::class,
                 Upsert::class,
-                RawQuery::class
+                RawQuery::class,
             )
     }
 
@@ -60,67 +60,67 @@ class DaoProcessor(
             return Dao(
                 element = element,
                 type = element.type,
-                queryMethods = emptyList(),
-                rawQueryMethods = emptyList(),
-                insertMethods = emptyList(),
-                upsertMethods = emptyList(),
-                deleteMethods = emptyList(),
-                updateMethods = emptyList(),
-                transactionMethods = emptyList(),
-                kotlinBoxedPrimitiveMethodDelegates = emptyList(),
-                kotlinDefaultMethodDelegates = emptyList(),
-                constructorParamType = null
+                queryFunctions = emptyList(),
+                rawQueryFunctions = emptyList(),
+                insertFunctions = emptyList(),
+                upsertFunctions = emptyList(),
+                deleteFunctions = emptyList(),
+                updateFunctions = emptyList(),
+                transactionFunctions = emptyList(),
+                kotlinBoxedPrimitiveFunctionDelegates = emptyList(),
+                kotlinDefaultFunctionDelegates = emptyList(),
+                constructorParamType = null,
             )
         }
         context.checker.hasAnnotation(
             element,
             androidx.room.Dao::class,
-            ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO
+            ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO,
         )
         context.checker.check(
             element.isAbstract() || element.isInterface(),
             element,
-            ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE
+            ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE,
         )
 
         val declaredType = element.type
-        val allMethods = element.getAllMethods()
-        val methods =
-            allMethods
+        val allFunctions = element.getAllMethods()
+        val functions =
+            allFunctions
                 .filter { it.isAbstract() && !it.hasKotlinDefaultImpl() }
-                .groupBy { method ->
-                    if (method.isKotlinPropertyMethod()) {
+                .groupBy { function ->
+                    if (function.isKotlinPropertyMethod()) {
                         context.checker.check(
-                            predicate = method.hasAnnotation(Query::class),
-                            element = method,
-                            errorMsg = ProcessorErrors.INVALID_ANNOTATION_IN_DAO_PROPERTY
+                            predicate = function.hasAnnotation(Query::class),
+                            element = function,
+                            errorMsg = ProcessorErrors.INVALID_ANNOTATION_IN_DAO_PROPERTY,
                         )
                     } else {
                         context.checker.check(
                             predicate =
-                                PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1,
-                            element = method,
-                            errorMsg = ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
+                                PROCESSED_ANNOTATIONS.count { function.hasAnnotation(it) } <= 1,
+                            element = function,
+                            errorMsg = ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_FUNCTION,
                         )
                     }
-                    if (method.hasAnnotation(JvmName::class)) {
+                    if (function.hasAnnotation(JvmName::class)) {
                         context.logger.w(
-                            Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
-                            method,
-                            ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                            Warning.JVM_NAME_ON_OVERRIDDEN_FUNCTION,
+                            function,
+                            ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_FUNCTION,
                         )
                     }
-                    if (method.hasAnnotation(Query::class)) {
+                    if (function.hasAnnotation(Query::class)) {
                         Query::class
-                    } else if (method.hasAnnotation(Insert::class)) {
+                    } else if (function.hasAnnotation(Insert::class)) {
                         Insert::class
-                    } else if (method.hasAnnotation(Delete::class)) {
+                    } else if (function.hasAnnotation(Delete::class)) {
                         Delete::class
-                    } else if (method.hasAnnotation(Update::class)) {
+                    } else if (function.hasAnnotation(Update::class)) {
                         Update::class
-                    } else if (method.hasAnnotation(RawQuery::class)) {
+                    } else if (function.hasAnnotation(RawQuery::class)) {
                         RawQuery::class
-                    } else if (method.hasAnnotation(Upsert::class)) {
+                    } else if (function.hasAnnotation(Upsert::class)) {
                         Upsert::class
                     } else {
                         Any::class
@@ -137,106 +137,106 @@ class DaoProcessor(
                 dbVerifier
             }
 
-        val queryMethods =
-            methods[Query::class]?.map {
-                QueryMethodProcessor(
+        val queryFunctions =
+            functions[Query::class]?.map {
+                QueryFunctionProcessor(
                         baseContext = context,
                         containing = declaredType,
                         executableElement = it,
-                        dbVerifier = processorVerifier
+                        dbVerifier = processorVerifier,
                     )
                     .process()
             } ?: emptyList()
 
-        val rawQueryMethods =
-            methods[RawQuery::class]?.map {
-                RawQueryMethodProcessor(
+        val rawQueryFunctions =
+            functions[RawQuery::class]?.map {
+                RawQueryFunctionProcessor(
                         baseContext = context,
                         containing = declaredType,
-                        executableElement = it
+                        executableElement = it,
                     )
                     .process()
             } ?: emptyList()
 
-        val insertMethods =
-            methods[Insert::class]?.map {
-                InsertMethodProcessor(
+        val insertFunctions =
+            functions[Insert::class]?.map {
+                InsertFunctionProcessor(
                         baseContext = context,
                         containing = declaredType,
-                        executableElement = it
+                        executableElement = it,
                     )
                     .process()
             } ?: emptyList()
 
-        val deleteMethods =
-            methods[Delete::class]?.map {
-                DeleteMethodProcessor(
+        val deleteFunctions =
+            functions[Delete::class]?.map {
+                DeleteFunctionProcessor(
                         baseContext = context,
                         containing = declaredType,
-                        executableElement = it
+                        executableElement = it,
                     )
                     .process()
             } ?: emptyList()
 
-        val updateMethods =
-            methods[Update::class]?.map {
-                UpdateMethodProcessor(
+        val updateFunctions =
+            functions[Update::class]?.map {
+                UpdateFunctionProcessor(
                         baseContext = context,
                         containing = declaredType,
-                        executableElement = it
+                        executableElement = it,
                     )
                     .process()
             } ?: emptyList()
 
-        val upsertMethods =
-            methods[Upsert::class]?.map {
-                UpsertMethodProcessor(
+        val upsertFunctions =
+            functions[Upsert::class]?.map {
+                UpsertFunctionProcessor(
                         baseContext = context,
                         containing = declaredType,
-                        executableElement = it
+                        executableElement = it,
                     )
                     .process()
             } ?: emptyList()
 
-        val transactionMethods =
-            allMethods
+        val transactionFunctions =
+            allFunctions
                 .filter { member ->
                     member.hasAnnotation(Transaction::class) &&
                         PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
                 }
                 .map {
-                    TransactionMethodProcessor(
+                    TransactionFunctionProcessor(
                             baseContext = context,
                             containingElement = element,
                             containingType = declaredType,
-                            executableElement = it
+                            executableElement = it,
                         )
                         .process()
                 }
 
-        // Only try to find Kotlin boxed bridge methods when the dao extends a class or
-        // implements an interface since otherwise there are no bridge method generated by
+        // Only try to find Kotlin boxed bridge functions when the dao extends a class or
+        // implements an interface since otherwise there are no bridge function generated by
         // Kotlin.
-        val unannotatedMethods = methods[Any::class] ?: emptyList()
-        val kotlinBoxedPrimitiveBridgeMethods =
+        val unannotatedFunctions = functions[Any::class] ?: emptyList()
+        val kotlinBoxedPrimitiveBridgeFunctions =
             if (element.superClass != null || element.getSuperInterfaceElements().isNotEmpty()) {
-                matchKotlinBoxedPrimitiveMethods(
-                    unannotatedMethods,
-                    methods.values.flatten() - unannotatedMethods
+                matchKotlinBoxedPrimitiveFunctions(
+                    unannotatedFunctions,
+                    functions.values.flatten() - unannotatedFunctions,
                 )
             } else {
                 emptyList()
             }
 
-        val kotlinDefaultMethodDelegates =
+        val kotlinDefaultFunctionDelegates =
             if (element.isInterface()) {
-                val allProcessedMethods =
-                    methods.values.flatten() + transactionMethods.map { it.element }
-                allMethods
-                    .filterNot { allProcessedMethods.contains(it) }
-                    .mapNotNull { method ->
-                        if (method.hasKotlinDefaultImpl()) {
-                            KotlinDefaultMethodDelegate(element = method)
+                val allProcessedFunctions =
+                    functions.values.flatten() + transactionFunctions.map { it.element }
+                allFunctions
+                    .filterNot { allProcessedFunctions.contains(it) }
+                    .mapNotNull { function ->
+                        if (function.hasKotlinDefaultImpl()) {
+                            KotlinDefaultFunctionDelegate(element = function)
                         } else {
                             null
                         }
@@ -261,28 +261,28 @@ class DaoProcessor(
         context.checker.notUnbound(
             declaredType,
             element,
-            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES,
         )
 
-        val invalidAnnotatedMethods =
-            unannotatedMethods - kotlinBoxedPrimitiveBridgeMethods.map { it.element }
-        invalidAnnotatedMethods.forEach {
-            context.logger.e(it, ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD)
+        val invalidAnnotatedFunctions =
+            unannotatedFunctions - kotlinBoxedPrimitiveBridgeFunctions.map { it.element }
+        invalidAnnotatedFunctions.forEach {
+            context.logger.e(it, ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_FUNCTION)
         }
 
         return Dao(
             element = element,
             type = declaredType,
-            queryMethods = queryMethods,
-            rawQueryMethods = rawQueryMethods,
-            insertMethods = insertMethods,
-            deleteMethods = deleteMethods,
-            updateMethods = updateMethods,
-            upsertMethods = upsertMethods,
-            transactionMethods = transactionMethods.toList(),
-            kotlinBoxedPrimitiveMethodDelegates = kotlinBoxedPrimitiveBridgeMethods,
-            kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates.toList(),
-            constructorParamType = constructorParamType
+            queryFunctions = queryFunctions,
+            rawQueryFunctions = rawQueryFunctions,
+            insertFunctions = insertFunctions,
+            deleteFunctions = deleteFunctions,
+            updateFunctions = updateFunctions,
+            upsertFunctions = upsertFunctions,
+            transactionFunctions = transactionFunctions.toList(),
+            kotlinBoxedPrimitiveFunctionDelegates = kotlinBoxedPrimitiveBridgeFunctions,
+            kotlinDefaultFunctionDelegates = kotlinDefaultFunctionDelegates.toList(),
+            constructorParamType = constructorParamType,
         )
     }
 
@@ -292,24 +292,24 @@ class DaoProcessor(
                 element,
                 ProcessorErrors.daoMustHaveMatchingConstructor(
                     element.qualifiedName,
-                    dbType.asTypeName().toString(context.codeLanguage)
-                )
+                    dbType.asTypeName().toString(context.codeLanguage),
+                ),
             )
         }
     }
 
     /**
-     * Find Kotlin bridge methods generated for overrides of primitives, see KT-46650. When
-     * generating the Java implementation of the DAO, Room needs to also override the bridge method
-     * generated by Kotlin for the boxed version, it will contain the same name, return type and
-     * parameter, but the generic primitive params will be boxed.
+     * Find Kotlin bridge functions generated for overrides of primitives, see KT-46650. When
+     * generating the Java implementation of the DAO, Room needs to also override the bridge
+     * function generated by Kotlin for the boxed version, it will contain the same name, return
+     * type and parameter, but the generic primitive params will be boxed.
      */
-    private fun matchKotlinBoxedPrimitiveMethods(
-        unannotatedMethods: List<XMethodElement>,
-        annotatedMethods: List<XMethodElement>
+    private fun matchKotlinBoxedPrimitiveFunctions(
+        unannotatedFunctions: List<XMethodElement>,
+        annotatedFunctions: List<XMethodElement>,
     ) =
-        unannotatedMethods.mapNotNull { unannotated ->
-            annotatedMethods
+        unannotatedFunctions.mapNotNull { unannotated ->
+            annotatedFunctions
                 .firstOrNull {
                     if (it.jvmName != unannotated.jvmName) {
                         return@firstOrNull false
@@ -341,8 +341,8 @@ class DaoProcessor(
                     }
                     return@firstOrNull true
                 }
-                ?.let { matchingMethod ->
-                    KotlinBoxedPrimitiveMethodDelegate(unannotated, matchingMethod)
+                ?.let { matchingFunction ->
+                    KotlinBoxedPrimitiveFunctionDelegate(unannotated, matchingFunction)
                 }
         }
 }

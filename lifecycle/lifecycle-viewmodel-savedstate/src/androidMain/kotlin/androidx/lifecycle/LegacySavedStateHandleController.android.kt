@@ -28,7 +28,7 @@ internal object LegacySavedStateHandleController {
         registry: SavedStateRegistry,
         lifecycle: Lifecycle,
         key: String?,
-        defaultArgs: Bundle?
+        defaultArgs: Bundle?,
     ): SavedStateHandleController {
         val restoredState = registry.consumeRestoredStateForKey(key!!)
         val handle = createHandle(restoredState, defaultArgs)
@@ -42,7 +42,7 @@ internal object LegacySavedStateHandleController {
     fun attachHandleIfNeeded(
         viewModel: ViewModel,
         registry: SavedStateRegistry,
-        lifecycle: Lifecycle
+        lifecycle: Lifecycle,
     ) {
         val controller =
             viewModel.getCloseable<SavedStateHandleController>(TAG_SAVED_STATE_HANDLE_CONTROLLER)

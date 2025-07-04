@@ -31,7 +31,7 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         val transactionWrapper =
             if (inTransaction) {
@@ -47,7 +47,7 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
                 AndroidTypeNames.CURSOR,
                 "%N.query(%L)",
                 dbProperty,
-                sqlQueryVar
+                sqlQueryVar,
             )
             transactionWrapper?.commitTransaction()
             addStatement("return %L", resultName)
@@ -61,7 +61,7 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
                 override fun convert(
                     outVarName: String,
                     stmtVarName: String,
-                    scope: CodeGenScope
+                    scope: CodeGenScope,
                 ) {}
             }
     }

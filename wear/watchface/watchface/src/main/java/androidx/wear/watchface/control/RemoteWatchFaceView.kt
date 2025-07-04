@@ -34,7 +34,7 @@ internal class RemoteWatchFaceView(
     view: SurfaceView,
     private val host: SurfaceControlViewHost,
     private val uiThreadCoroutineScope: CoroutineScope,
-    private val renderCallback: (SurfaceHolder, WatchFaceRenderParams) -> Unit
+    private val renderCallback: (SurfaceHolder, WatchFaceRenderParams) -> Unit,
 ) : IRemoteWatchFaceView.Stub() {
     val deferredSurfaceHolder = CompletableDeferred<SurfaceHolder>()
 
@@ -54,7 +54,7 @@ internal class RemoteWatchFaceView(
                     surfaceHolder: SurfaceHolder,
                     format: Int,
                     width: Int,
-                    height: Int
+                    height: Int,
                 ) {
                     Log.d(TAG, "surfaceChanged")
                 }

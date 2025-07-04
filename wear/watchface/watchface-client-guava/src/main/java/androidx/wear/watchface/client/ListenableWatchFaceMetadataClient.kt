@@ -24,7 +24,15 @@ import androidx.wear.watchface.client.WatchFaceMetadataClient.ServiceStartFailur
 import androidx.wear.watchface.control.WatchFaceControlService
 import com.google.common.util.concurrent.ListenableFuture
 
-/** [ListenableFuture]-based compatibility wrapper around [WatchFaceMetadataClient.create]. */
+/**
+ * [ListenableFuture]-based compatibility wrapper around [WatchFaceMetadataClient.create].
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ListenableWatchFaceMetadataClient private constructor() {
     public companion object {
         /**
@@ -42,7 +50,7 @@ public class ListenableWatchFaceMetadataClient private constructor() {
         @JvmStatic
         public fun create(
             context: Context,
-            watchFaceName: ComponentName
+            watchFaceName: ComponentName,
         ): ListenableFuture<WatchFaceMetadataClient> =
             createImpl(
                 context,
@@ -50,7 +58,7 @@ public class ListenableWatchFaceMetadataClient private constructor() {
                     setPackage(watchFaceName.packageName)
                 },
                 watchFaceName,
-                WatchFaceMetadataClient.Companion.ParserProvider()
+                WatchFaceMetadataClient.Companion.ParserProvider(),
             )
 
         /**
@@ -73,7 +81,7 @@ public class ListenableWatchFaceMetadataClient private constructor() {
         public fun createForRuntime(
             context: Context,
             watchFaceName: ComponentName,
-            resourceOnlyWatchFacePackageName: String
+            resourceOnlyWatchFacePackageName: String,
         ) =
             ListenableWatchFaceControlClient.launchFutureCoroutine(
                 "ListenableWatchFaceMetadataClient.create"
@@ -81,7 +89,7 @@ public class ListenableWatchFaceMetadataClient private constructor() {
                 WatchFaceMetadataClient.createForRuntime(
                     context,
                     watchFaceName,
-                    resourceOnlyWatchFacePackageName
+                    resourceOnlyWatchFacePackageName,
                 )
             }
 
@@ -89,7 +97,7 @@ public class ListenableWatchFaceMetadataClient private constructor() {
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName,
-            parserProvider: WatchFaceMetadataClient.Companion.ParserProvider
+            parserProvider: WatchFaceMetadataClient.Companion.ParserProvider,
         ) =
             ListenableWatchFaceControlClient.launchFutureCoroutine(
                 "ListenableWatchFaceMetadataClient.listenableCreateWatchFaceMetadataClient"

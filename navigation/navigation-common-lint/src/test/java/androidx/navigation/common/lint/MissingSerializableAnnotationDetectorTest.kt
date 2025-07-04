@@ -65,7 +65,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -102,7 +102,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
@@ -183,7 +183,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -220,7 +220,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
@@ -305,7 +305,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -346,7 +346,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
@@ -430,7 +430,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -470,7 +470,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
@@ -603,7 +603,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expectClean()
@@ -629,7 +629,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expect(
@@ -663,7 +663,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expectClean()
@@ -689,7 +689,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expect(
@@ -727,7 +727,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS
+                CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS,
             )
             .run()
             .expectClean()
@@ -767,7 +767,7 @@ inline fun <reified T : Any> NavGraphBuilder.navigation() { }
                 lLHKiqTYh4E8sjnLNSygQPEDip6QN/QO9iqlz1jKNT/pFcAmW6DeTRSxTXiN
                 OJPiMpbJkhwVrJB/mKmLdHYytIU6+UPS3KQiqwPkXKy5uOWiipqLddx2sYE7
                 A7AUm7g7wEKqv3sp7md25Se3iEt3PgMAAA==
-                """
+                """,
             )
             .toTestBytecodeStub()
 

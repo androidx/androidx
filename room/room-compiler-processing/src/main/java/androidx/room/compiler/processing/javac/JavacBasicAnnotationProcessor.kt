@@ -57,7 +57,7 @@ constructor(
 
     final override fun process(
         annotations: MutableSet<out TypeElement>,
-        roundEnv: RoundEnvironment
+        roundEnv: RoundEnvironment,
     ): Boolean {
         val xRoundEnv = JavacRoundEnv(xEnv, roundEnv)
         if (roundEnv.processingOver()) {

@@ -23,7 +23,7 @@ package androidx.compose.ui.autofill
  * associated with this type. If the [ContentType] is not specified, the autofill services have to
  * use heuristics to determine the right value to use while autofilling the corresponding field.
  */
-expect class ContentType private constructor(contentHint: String) {
+expect sealed interface ContentType {
     companion object {
         /** Indicates that the associated component can be autofilled with an email address. */
         val EmailAddress: ContentType
@@ -198,4 +198,6 @@ expect class ContentType private constructor(contentHint: String) {
          */
         val SmsOtpCode: ContentType
     }
+
+    operator fun plus(other: ContentType): ContentType
 }

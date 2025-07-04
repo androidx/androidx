@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.TemperatureDelta
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,7 +37,8 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1234L),
                 endZoneOffset = null,
-                deltas = emptyList()
+                metadata = Metadata.manualEntry(),
+                deltas = emptyList(),
             )
         }
     }
@@ -49,8 +51,9 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
                 baseline = Temperature.celsius(-0.1),
-                deltas = emptyList()
+                deltas = emptyList(),
             )
         }
     }
@@ -63,8 +66,9 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
+                metadata = Metadata.manualEntry(),
                 baseline = Temperature.celsius(100.1),
-                deltas = emptyList()
+                deltas = emptyList(),
             )
         }
     }
@@ -74,7 +78,7 @@ class SkinTemperatureRecordTest {
         val delta =
             SkinTemperatureRecord.Delta(
                 time = Instant.ofEpochMilli(1231L),
-                delta = TemperatureDelta.celsius(2.0)
+                delta = TemperatureDelta.celsius(2.0),
             )
 
         assertFailsWith<IllegalArgumentException> {
@@ -83,7 +87,8 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
-                deltas = listOf(delta)
+                metadata = Metadata.manualEntry(),
+                deltas = listOf(delta),
             )
         }
     }
@@ -93,7 +98,7 @@ class SkinTemperatureRecordTest {
         val delta =
             SkinTemperatureRecord.Delta(
                 time = Instant.ofEpochMilli(1237L),
-                delta = TemperatureDelta.celsius(2.0)
+                delta = TemperatureDelta.celsius(2.0),
             )
 
         assertFailsWith<IllegalArgumentException> {
@@ -102,7 +107,8 @@ class SkinTemperatureRecordTest {
                 startZoneOffset = null,
                 endTime = Instant.ofEpochMilli(1236L),
                 endZoneOffset = null,
-                deltas = listOf(delta)
+                metadata = Metadata.manualEntry(),
+                deltas = listOf(delta),
             )
         }
     }
@@ -112,7 +118,7 @@ class SkinTemperatureRecordTest {
         assertFailsWith<IllegalArgumentException> {
             SkinTemperatureRecord.Delta(
                 time = Instant.ofEpochMilli(1237L),
-                delta = TemperatureDelta.celsius(-30.1)
+                delta = TemperatureDelta.celsius(-30.1),
             )
         }
     }
@@ -122,7 +128,7 @@ class SkinTemperatureRecordTest {
         assertFailsWith<IllegalArgumentException> {
             SkinTemperatureRecord.Delta(
                 time = Instant.ofEpochMilli(1237L),
-                delta = TemperatureDelta.celsius(30.1)
+                delta = TemperatureDelta.celsius(30.1),
             )
         }
     }
@@ -135,13 +141,14 @@ class SkinTemperatureRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                     deltas =
                         listOf(
                             SkinTemperatureRecord.Delta(
                                 time = Instant.ofEpochMilli(1234L),
-                                delta = TemperatureDelta.celsius(2.0)
+                                delta = TemperatureDelta.celsius(2.0),
                             )
-                        )
+                        ),
                 )
             )
             .isEqualTo(
@@ -150,13 +157,14 @@ class SkinTemperatureRecordTest {
                     startZoneOffset = null,
                     endTime = Instant.ofEpochMilli(1236L),
                     endZoneOffset = null,
+                    metadata = Metadata.manualEntry(),
                     deltas =
                         listOf(
                             SkinTemperatureRecord.Delta(
                                 time = Instant.ofEpochMilli(1234L),
-                                delta = TemperatureDelta.celsius(2.0)
+                                delta = TemperatureDelta.celsius(2.0),
                             )
-                        )
+                        ),
                 )
             )
     }
@@ -169,13 +177,14 @@ class SkinTemperatureRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata.manualEntry(),
                         deltas =
                             listOf(
                                 SkinTemperatureRecord.Delta(
                                     time = Instant.ofEpochMilli(1234L),
-                                    delta = TemperatureDelta.celsius(2.0)
+                                    delta = TemperatureDelta.celsius(2.0),
                                 )
-                            )
+                            ),
                     )
                     .hashCode()
             )
@@ -185,13 +194,14 @@ class SkinTemperatureRecordTest {
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(1236L),
                         endZoneOffset = null,
+                        metadata = Metadata.manualEntry(),
                         deltas =
                             listOf(
                                 SkinTemperatureRecord.Delta(
                                     time = Instant.ofEpochMilli(1234L),
-                                    delta = TemperatureDelta.celsius(2.0)
+                                    delta = TemperatureDelta.celsius(2.0),
                                 )
-                            )
+                            ),
                     )
                     .hashCode()
             )

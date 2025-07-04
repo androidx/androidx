@@ -56,7 +56,7 @@ public class SilentAudioStream implements AudioStream {
      */
     public SilentAudioStream(@NonNull AudioSettings audioSettings) {
         mBytesPerFrame = audioSettings.getBytesPerFrame();
-        mSampleRate = audioSettings.getSampleRate();
+        mSampleRate = audioSettings.getCaptureSampleRate();
     }
 
     @Override

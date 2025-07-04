@@ -62,7 +62,7 @@ class ConfigurableActivity : ComponentActivity() {
             startActivity(
                 createIntent(
                         text = INNER_ACTIVITY_TEXT,
-                        reportFullyDrawnDelayMs = reportFullyDrawnDelayMs
+                        reportFullyDrawnDelayMs = reportFullyDrawnDelayMs,
                     )
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             )
@@ -82,7 +82,7 @@ class ConfigurableActivity : ComponentActivity() {
         fun createIntent(
             text: String,
             sleepDurMs: Long = 0,
-            reportFullyDrawnDelayMs: Long? = null
+            reportFullyDrawnDelayMs: Long? = null,
         ): Intent {
             return Intent().apply {
                 action = ACTION

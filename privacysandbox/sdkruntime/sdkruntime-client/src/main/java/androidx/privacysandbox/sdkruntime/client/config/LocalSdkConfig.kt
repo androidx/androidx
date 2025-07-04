@@ -22,7 +22,7 @@ internal data class LocalSdkConfig(
     val dexPaths: List<String>,
     val entryPoint: String,
     val javaResourcesRoot: String? = null,
-    val resourceRemapping: ResourceRemappingConfig? = null
+    val resourceRemapping: ResourceRemappingConfig? = null,
 )
 
 internal data class ResourceRemappingConfig(val rPackageClassName: String, val packageId: Int)

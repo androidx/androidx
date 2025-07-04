@@ -37,7 +37,7 @@ class WindowSizeClassTest {
             listOf(
                 WindowWidthSizeClass.COMPACT,
                 WindowWidthSizeClass.MEDIUM,
-                WindowWidthSizeClass.EXPANDED
+                WindowWidthSizeClass.EXPANDED,
             )
 
         val actual =
@@ -57,14 +57,14 @@ class WindowSizeClassTest {
             setOf(
                 WindowWidthSizeClass.COMPACT,
                 WindowWidthSizeClass.MEDIUM,
-                WindowWidthSizeClass.EXPANDED
+                WindowWidthSizeClass.EXPANDED,
             )
 
         val expectedHeightBreakpoints =
             setOf(
                 WindowHeightSizeClass.COMPACT,
                 WindowHeightSizeClass.MEDIUM,
-                WindowHeightSizeClass.EXPANDED
+                WindowHeightSizeClass.EXPANDED,
             )
 
         val actualWidthBreakpoints =
@@ -93,7 +93,7 @@ class WindowSizeClassTest {
             listOf(
                 WindowHeightSizeClass.COMPACT,
                 WindowHeightSizeClass.MEDIUM,
-                WindowHeightSizeClass.EXPANDED
+                WindowHeightSizeClass.EXPANDED,
             )
 
         val actual =
@@ -181,8 +181,9 @@ class WindowSizeClassTest {
      * WIDTH_DP_MEDIUM_LOWER_BOUND = 600 WIDTH_DP_EXPANDED_LOWER_BOUND = 840
      *
      * fun process(sizeClass: WindowSizeClass) { when {
-     * sizeClass.isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND) -> doExpanded()
-     * sizeClass.isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) -> doMedium() else -> doCompact() } }
+     * sizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) -> doExpanded()
+     * sizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) -> doMedium() else ->
+     * doCompact() } }
      *
      * val belowMediumBreakpoint = WindowSizeClass(minWidthDp = 300, minHeightDp = 0) val
      * equalMediumBreakpoint = WindowSizeClass(minWidthDp = 600, minHeightDp = 0) val
@@ -193,14 +194,17 @@ class WindowSizeClassTest {
      *
      * So the following must be true
      *
-     * expandedBreakpoint WindowSizeClass(840, 0).isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND) ==
-     * true WindowSizeClass(840, 0).isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
+     * expandedBreakpoint WindowSizeClass(840, 0)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) == true WindowSizeClass(840,
+     * 0).isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
      *
-     * equalMediumBreakpoint WindowSizeClass(600, 0).isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND)
-     * == false WindowSizeClass(600, 0).isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
+     * equalMediumBreakpoint WindowSizeClass(600, 0)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) == false WindowSizeClass(600,
+     * 0).isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
      *
-     * belowBreakpoint WindowSizeClass(0, 0).isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND) == false
-     * WindowSizeClass(0, 0).isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) == false
+     * belowBreakpoint WindowSizeClass(0, 0)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) == false WindowSizeClass(0,
+     * 0).isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) == false
      */
     @Test
     fun is_width_at_least_bounds_checks() {
@@ -236,8 +240,9 @@ class WindowSizeClassTest {
      * HEIGHT_DP_MEDIUM_LOWER_BOUND = 480 HEIGHT_DP_EXPANDED_LOWER_BOUND = 900
      *
      * fun process(sizeClass: WindowSizeClass) { when {
-     * sizeClass.isHeightAtLeast(HEIGHT_DP_EXPANDED_LOWER_BOUND) -> doExpanded()
-     * sizeClass.isHeightAtLeast(HEIGHT_DP_MEDIUM_LOWER_BOUND) -> doMedium() else -> doCompact() } }
+     * sizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND) -> doExpanded()
+     * sizeClass.isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND) -> doMedium() else ->
+     * doCompact() } }
      *
      * val belowMediumBreakpoint = WindowSizeClass(minWidthDp = 0, minHeightDp = 0) val
      * equalMediumBreakpoint = WindowSizeClass(minWidthDp = 0, minHeightDp = 480) val
@@ -248,14 +253,17 @@ class WindowSizeClassTest {
      *
      * So the following must be true
      *
-     * expandedBreakpoint WindowSizeClass(0, 900).isWidthAtLeast(HEIGHT_DP_EXPANDED_LOWER_BOUND) ==
-     * true WindowSizeClass(0, 900).isWidthAtLeast(HEIGHT_DP_MEDIUM_LOWER_BOUND) == true
+     * expandedBreakpoint WindowSizeClass(0, 900)
+     * .isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND) == true WindowSizeClass(0,
+     * 900).isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND) == true
      *
-     * equalMediumBreakpoint WindowSizeClass(0, 480).isWidthAtLeast(HEIGHT_DP_EXPANDED_LOWER_BOUND)
-     * == false WindowSizeClass(0, 480).isWidthAtLeast(HEIGHT_DP_MEDIUM_LOWER_BOUND) == true
+     * equalMediumBreakpoint WindowSizeClass(0, 480)
+     * .isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND) == false WindowSizeClass(0, 480)
+     * .isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND) == true
      *
-     * belowBreakpoint WindowSizeClass(0, 0).isWidthAtLeast(HEIGHT_DP_EXPANDED_LOWER_BOUND) == false
-     * WindowSizeClass(0, 0).isWidthAtLeast(HEIGHT_DP_MEDIUM_LOWER_BOUND) == false
+     * belowBreakpoint WindowSizeClass(0, 0)
+     * .isHeightAtLeastBreakpoint(HEIGHT_DP_EXPANDED_LOWER_BOUND) == false WindowSizeClass(0,
+     * 0).isHeightAtLeastBreakpoint(HEIGHT_DP_MEDIUM_LOWER_BOUND) == false
      */
     @Test
     fun is_height_at_least_bounds_checks() {
@@ -303,14 +311,17 @@ class WindowSizeClassTest {
      *
      * So the following must be true
      *
-     * expandedBreakpoint WindowSizeClass(900, 900).isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND) ==
-     * true WindowSizeClass(900, 900).isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
+     * expandedBreakpoint WindowSizeClass(900, 900)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) == true WindowSizeClass(900,
+     * 900).isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
      *
-     * equalMediumBreakpoint WindowSizeClass(600, 600).isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND)
-     * == false WindowSizeClass(600, 600).isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
+     * equalMediumBreakpoint WindowSizeClass(600, 600)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) == false WindowSizeClass(600, 600)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) == true
      *
-     * belowBreakpoint WindowSizeClass(0, 0).isWidthAtLeast(WIDTH_DP_EXPANDED_LOWER_BOUND) == false
-     * WindowSizeClass(0, 0).isWidthAtLeast(WIDTH_DP_MEDIUM_LOWER_BOUND) == false
+     * belowBreakpoint WindowSizeClass(0, 0)
+     * .isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND) == false WindowSizeClass(0,
+     * 0).isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND) == false
      */
     @Test
     fun is_area_at_least_bounds_checks() {

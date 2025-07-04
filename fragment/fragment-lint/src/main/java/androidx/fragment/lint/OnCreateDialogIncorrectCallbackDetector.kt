@@ -62,9 +62,9 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         OnCreateDialogIncorrectCallbackDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
+                        Scope.JAVA_FILE_SCOPE,
                     ),
-                androidSpecific = true
+                androidSpecific = true,
             )
     }
 
@@ -112,7 +112,7 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
      */
     private class UastMethodsVisitor(
         private val context: JavaContext,
-        private val containingMethodName: String
+        private val containingMethodName: String,
     ) : AbstractUastVisitor() {
         private val visitedMethods = mutableSetOf<UCallExpression>()
 
@@ -130,7 +130,7 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
                         node = node,
                         message =
                             "Use onCancel() instead of calling setOnCancelListener() " +
-                                "from onCreateDialog()"
+                                "from onCreateDialog()",
                     )
                     visitedMethods.add(node)
                 }
@@ -140,7 +140,7 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
                         node = node,
                         message =
                             "Use onDismiss() instead of calling setOnDismissListener() " +
-                                "from onCreateDialog()"
+                                "from onCreateDialog()",
                     )
                     visitedMethods.add(node)
                 }
@@ -153,7 +153,7 @@ class OnCreateDialogIncorrectCallbackDetector : Detector(), SourceCodeScanner {
                 issue = ISSUE,
                 location = context.getLocation(node),
                 message = message,
-                quickfixData = null
+                quickfixData = null,
             )
         }
     }

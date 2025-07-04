@@ -17,19 +17,21 @@
 package androidx.wear.protolayout.material3
 
 import android.content.Context
-import androidx.wear.protolayout.ColorBuilders.argb
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
-import androidx.wear.protolayout.DimensionBuilders.ContainerDimension
 import androidx.wear.protolayout.DimensionBuilders.ImageDimension
 import androidx.wear.protolayout.DimensionBuilders.expand
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.ContentScaleMode
+import androidx.wear.protolayout.LayoutElementBuilders.Layout
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement
 import androidx.wear.protolayout.LayoutElementBuilders.TEXT_ALIGN_CENTER
 import androidx.wear.protolayout.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE
 import androidx.wear.protolayout.LayoutElementBuilders.TextAlignment
 import androidx.wear.protolayout.LayoutElementBuilders.TextOverflow
 import androidx.wear.protolayout.ModifiersBuilders.Corner
+import androidx.wear.protolayout.ModifiersBuilders.Padding
 import androidx.wear.protolayout.material3.Typography.TypographyToken
 import androidx.wear.protolayout.material3.tokens.ColorTokens
 import androidx.wear.protolayout.material3.tokens.ShapeTokens
@@ -47,25 +49,24 @@ import androidx.wear.protolayout.types.argb
  */
 // TODO: b/352308384 - Add helper to read the exported Json or XML file from the Material Theme
 //    Builder tool.
-// TODO: b/350927030 - Customization setters of shape and typography, which are not fully
-// TODO: b/352308384 - Add helper to read the exported Json or XML file from the Material Theme
-//    Builder tool.
-// TODO: b/350927030 - Customization setters of shape and typography, which are not fully
-// customizable.
-// TODO: b/369116159 - Add samples on usage.
 @MaterialScopeMarker
 public open class MaterialScope
 /**
  * @param context The Android Context for the Tile service
  * @param deviceConfiguration The device parameters for where the components will be rendered
- * @param allowDynamicTheme If dynamic colors theme should be used on components, meaning that
+ * @param allowDynamicTheme Whether dynamic colors theme should be used on components, meaning that
+ *   the colors following the current system theme
  * @param theme The theme to be used. If not set, default Material theme will be applied
  * @param defaultTextElementStyle The opinionated text style that text component can use as defaults
  * @param defaultIconStyle The opinionated icon style that icon component can use as defaults
+ * @param defaultBackgroundImageStyle The opinionated background image style that background image
+ *   component can use as defaults
+ * @param defaultAvatarImageStyle The opinionated avatar image style that avatar image component can
+ *   use as defaults
+ * @property deviceConfiguration The device parameters for where the components will be rendered
  */
 internal constructor(
-    internal val context: Context,
-    /** The device parameters for where the components will be rendered. */
+    public val context: Context,
     public val deviceConfiguration: DeviceParameters,
     internal val allowDynamicTheme: Boolean,
     internal val theme: MaterialTheme,
@@ -73,6 +74,8 @@ internal constructor(
     internal val defaultIconStyle: IconStyle,
     internal val defaultBackgroundImageStyle: BackgroundImageStyle,
     internal val defaultAvatarImageStyle: AvatarImageStyle,
+    internal val layoutSlotsPresence: LayoutSlotsPresence,
+    internal val defaultProgressIndicatorStyle: ProgressIndicatorStyle,
 ) {
     /** Color Scheme used within this scope and its components. */
     public val colorScheme: ColorScheme = theme.colorScheme
@@ -84,27 +87,61 @@ internal constructor(
         defaultTextElementStyle: TextElementStyle = this.defaultTextElementStyle,
         defaultIconStyle: IconStyle = this.defaultIconStyle,
         defaultBackgroundImageStyle: BackgroundImageStyle = this.defaultBackgroundImageStyle,
-        defaultAvatarImageStyle: AvatarImageStyle = this.defaultAvatarImageStyle
-    ): MaterialScope =
+        defaultAvatarImageStyle: AvatarImageStyle = this.defaultAvatarImageStyle,
+        layoutSlotsPresence: LayoutSlotsPresence = this.layoutSlotsPresence,
+        defaultProgressIndicatorStyle: ProgressIndicatorStyle = this.defaultProgressIndicatorStyle,
+        layout: MaterialScope.() -> LayoutElement,
+    ): LayoutElement =
         MaterialScope(
-            context = context,
-            deviceConfiguration = deviceConfiguration,
-            theme = theme,
-            allowDynamicTheme = allowDynamicTheme,
-            defaultTextElementStyle = defaultTextElementStyle,
-            defaultIconStyle = defaultIconStyle,
-            defaultBackgroundImageStyle = defaultBackgroundImageStyle,
-            defaultAvatarImageStyle = defaultAvatarImageStyle
-        )
+                context = context,
+                deviceConfiguration = deviceConfiguration,
+                theme = theme,
+                allowDynamicTheme = allowDynamicTheme,
+                defaultTextElementStyle = defaultTextElementStyle,
+                defaultIconStyle = defaultIconStyle,
+                defaultBackgroundImageStyle = defaultBackgroundImageStyle,
+                defaultAvatarImageStyle = defaultAvatarImageStyle,
+                layoutSlotsPresence = layoutSlotsPresence,
+                defaultProgressIndicatorStyle = defaultProgressIndicatorStyle,
+            )
+            .layout()
+
+    internal fun withStyleOnPadding(
+        defaultTextElementStyle: TextElementStyle = this.defaultTextElementStyle,
+        defaultIconStyle: IconStyle = this.defaultIconStyle,
+        defaultBackgroundImageStyle: BackgroundImageStyle = this.defaultBackgroundImageStyle,
+        defaultAvatarImageStyle: AvatarImageStyle = this.defaultAvatarImageStyle,
+        layoutSlotsPresence: LayoutSlotsPresence = this.layoutSlotsPresence,
+        defaultProgressIndicatorStyle: ProgressIndicatorStyle = this.defaultProgressIndicatorStyle,
+        margins: MaterialScope.() -> Padding,
+    ): Padding =
+        MaterialScope(
+                context = context,
+                deviceConfiguration = deviceConfiguration,
+                theme = theme,
+                allowDynamicTheme = allowDynamicTheme,
+                defaultTextElementStyle = defaultTextElementStyle,
+                defaultIconStyle = defaultIconStyle,
+                defaultBackgroundImageStyle = defaultBackgroundImageStyle,
+                defaultAvatarImageStyle = defaultAvatarImageStyle,
+                layoutSlotsPresence = layoutSlotsPresence,
+                defaultProgressIndicatorStyle = defaultProgressIndicatorStyle,
+            )
+            .margins()
 }
 
 /**
  * Creates a top-level receiver scope [MaterialScope] that calls the given [layout] to support for
- * opinionated defaults and building Material3 components and layout, with default dynamic theme.
+ * opinionated defaults and building Material3 components and layout, with default dynamic theme
+ * colors defined in [dynamicColorScheme].
+ *
+ * The colors of elements in this receiver scope will automatically follow colors from the system
+ * theme, including whenever user changes the theme. If dynamic color scheme is switched off by user
+ * or unavailable on device, defaults to static, default [ColorScheme].
  *
  * @param context The Android Context for the Tile service
  * @param deviceConfiguration The device parameters for where the components will be rendered
- * @param allowDynamicTheme If dynamic colors theme should be used on components, meaning that
+ * @param allowDynamicTheme Whether dynamic colors theme should be used on components, meaning that
  *   colors will follow the system theme if enabled on the device. If not set, defaults to using the
  *   system theme
  * @param defaultColorScheme Color Scheme with static colors. The color theme to be used, when
@@ -119,7 +156,7 @@ public fun materialScope(
     deviceConfiguration: DeviceParameters,
     allowDynamicTheme: Boolean = true,
     defaultColorScheme: ColorScheme = ColorScheme(),
-    layout: MaterialScope.() -> LayoutElement
+    layout: MaterialScope.() -> LayoutElement,
 ): LayoutElement =
     MaterialScope(
             context = context,
@@ -131,7 +168,7 @@ public fun materialScope(
                         if (allowDynamicTheme) {
                             dynamicColorScheme(
                                 context = context,
-                                defaultColorScheme = defaultColorScheme
+                                defaultColorScheme = defaultColorScheme,
                             )
                         } else {
                             defaultColorScheme
@@ -140,10 +177,48 @@ public fun materialScope(
             defaultTextElementStyle = TextElementStyle(),
             defaultIconStyle = IconStyle(),
             defaultBackgroundImageStyle = BackgroundImageStyle(),
-            defaultAvatarImageStyle = AvatarImageStyle()
+            defaultAvatarImageStyle = AvatarImageStyle(),
+            layoutSlotsPresence = LayoutSlotsPresence(),
+            defaultProgressIndicatorStyle = ProgressIndicatorStyle(),
         )
         .layout()
 
+/** See [materialScope]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@VisibleForTesting
+public fun materialScopeFromLayout(
+    context: Context,
+    deviceConfiguration: DeviceParameters,
+    allowDynamicTheme: Boolean = true,
+    defaultColorScheme: ColorScheme = ColorScheme(),
+    layout: MaterialScope.() -> Layout,
+): Layout =
+    MaterialScope(
+            context = context,
+            deviceConfiguration = deviceConfiguration,
+            allowDynamicTheme = allowDynamicTheme,
+            theme =
+                MaterialTheme(
+                    colorScheme =
+                        if (allowDynamicTheme) {
+                            dynamicColorScheme(
+                                context = context,
+                                defaultColorScheme = defaultColorScheme,
+                            )
+                        } else {
+                            defaultColorScheme
+                        }
+                ),
+            defaultTextElementStyle = TextElementStyle(),
+            defaultIconStyle = IconStyle(),
+            defaultBackgroundImageStyle = BackgroundImageStyle(),
+            defaultAvatarImageStyle = AvatarImageStyle(),
+            layoutSlotsPresence = LayoutSlotsPresence(),
+            defaultProgressIndicatorStyle = ProgressIndicatorStyle(),
+        )
+        .layout()
+
+/** DSL marker used to distinguish between [MaterialScope] and other item scopes. */
 @DslMarker public annotation class MaterialScopeMarker
 
 internal class TextElementStyle(
@@ -151,26 +226,34 @@ internal class TextElementStyle(
     val color: LayoutColor = ColorTokens.PRIMARY.argb,
     val italic: Boolean = false,
     val underline: Boolean = false,
-    val scalable: Boolean = TypographyFontSelection.getFontScalability(typography),
+    // Don't set the default here, but in text, as it's typography dependent. We need this for
+    // components like edgeButton that override the default.
+    val scalable: Boolean? = null,
     val maxLines: Int = 1,
-    @TextAlignment val multilineAlignment: Int = TEXT_ALIGN_CENTER,
+    @TextAlignment val alignment: Int = TEXT_ALIGN_CENTER,
     @TextOverflow val overflow: Int = TEXT_OVERFLOW_ELLIPSIZE,
+    // By default text is not important for accessibility in ProtoLayout. By setting this to true,
+    // the text will have its string content added as default content description into the modifier,
+    // which makes the text important for accessibility.
+    val importantForAccessibility: Boolean = false,
+    // By default text is not marked as heading. By setting this to true, this text will be marked
+    // as heading for accessibility purpose.
+    val isAccessibilityHeading: Boolean = false,
 )
 
 internal class IconStyle(
-    val size: ImageDimension = 24.toDp(),
+    val width: ImageDimension = 24.toDp(),
+    val height: ImageDimension = 24.toDp(),
     val tintColor: LayoutColor = ColorTokens.PRIMARY.argb,
 )
 
 internal class BackgroundImageStyle(
     val width: ImageDimension = expand(),
     val height: ImageDimension = expand(),
-    val overlayColor: LayoutColor = ColorTokens.BACKGROUND.argb.withOpacity(/* ratio= */ 0.6f),
-    val overlayWidth: ContainerDimension = expand(),
-    val overlayHeight: ContainerDimension = expand(),
+    val overlayColor: LayoutColor? = ColorTokens.BACKGROUND.argb.withOpacity(ratio = 0.6f),
     val shape: Corner = ShapeTokens.CORNER_LARGE,
     @ContentScaleMode
-    val contentScaleMode: Int = LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
+    val contentScaleMode: Int = LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS,
 )
 
 internal class AvatarImageStyle(
@@ -178,5 +261,13 @@ internal class AvatarImageStyle(
     val height: ImageDimension = 24.toDp(),
     val shape: Corner = ShapeTokens.CORNER_FULL,
     @ContentScaleMode
-    val contentScaleMode: Int = LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS
+    val contentScaleMode: Int = LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS,
 )
+
+internal class LayoutSlotsPresence(
+    val isTitleSlotPresent: Boolean = false,
+    val isBottomSlotEdgeButton: Boolean = false,
+    val isBottomSlotPresent: Boolean = isBottomSlotEdgeButton,
+)
+
+internal class ProgressIndicatorStyle(val color: ProgressIndicatorColors? = null)

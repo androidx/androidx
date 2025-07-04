@@ -81,7 +81,7 @@ internal object SingleLineCodepointTransformation : CodepointTransformation {
 
 internal fun TextFieldCharSequence.toVisualText(
     codepointTransformation: CodepointTransformation,
-    offsetMappingCalculator: OffsetMappingCalculator
+    offsetMappingCalculator: OffsetMappingCalculator,
 ): CharSequence {
     val text = this
     var changed = false
@@ -98,7 +98,7 @@ internal fun TextFieldCharSequence.toVisualText(
                 offsetMappingCalculator.recordEditOperation(
                     sourceStart = length,
                     sourceEnd = length + charCount,
-                    newLength = newCharCount
+                    newLength = newCharCount,
                 )
             }
             appendCodePointX(newCodePoint)

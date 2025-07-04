@@ -96,8 +96,8 @@ object InMemoryTracing {
                             uuid = uuid,
                             parent_uuid = UUID,
                             name = name,
-                            counter = CounterDescriptor()
-                        )
+                            counter = CounterDescriptor(),
+                        ),
                 )
             }
 
@@ -115,8 +115,8 @@ object InMemoryTracing {
                             // currently separate for clarity, to allow InMemoryTrace events to have
                             // a visible
                             // track name, but not override the thread name
-                            disallow_merging_with_system_tracks = true
-                        )
+                            disallow_merging_with_system_tracks = true,
+                        ),
                 )
             ) + capturedCounterDescriptors + capturedEvents
         )
@@ -126,7 +126,7 @@ object InMemoryTracing {
         label: String,
         nanoTime: Long = System.nanoTime(),
         counterNames: List<String> = emptyList(),
-        counterValues: List<Double> = emptyList()
+        counterValues: List<Double> = emptyList(),
     ) {
         require(counterNames.size == counterValues.size)
         events.add(
@@ -143,7 +143,7 @@ object InMemoryTracing {
                         extra_double_counter_values = counterValues,
                         extra_double_counter_track_uuids =
                             counterNames.map { counterNameToTrackUuid(it) },
-                    )
+                    ),
             )
         )
     }
@@ -154,11 +154,7 @@ object InMemoryTracing {
                 timestamp = nanoTime,
                 timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
-                track_event =
-                    TrackEvent(
-                        type = TrackEvent.Type.TYPE_SLICE_END,
-                        track_uuid = UUID,
-                    )
+                track_event = TrackEvent(type = TrackEvent.Type.TYPE_SLICE_END, track_uuid = UUID),
             )
         )
     }
@@ -175,7 +171,7 @@ object InMemoryTracing {
                         double_counter_value = value,
                         track_uuid = counterNameToTrackUuid(name),
                         // track_uuid = UUID
-                    )
+                    ),
             )
         )
     }

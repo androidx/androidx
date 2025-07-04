@@ -30,7 +30,7 @@ class TestingOkioSerializer(private val config: TestingSerializerConfig) : OkioS
         if (config.failReadWithCorruptionException) {
             throw CorruptionException(
                 "CorruptionException",
-                IOException("I was asked to fail with corruption on reads")
+                IOException("I was asked to fail with corruption on reads"),
             )
         }
 

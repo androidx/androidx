@@ -75,7 +75,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
                         B at 250f
                     },
                 orientation = Orientation.Horizontal,
-                overscrollEffect = overscrollEffect
+                overscrollEffect = overscrollEffect,
             )
         rule.setContent {
             WithTouchSlop(0f) {
@@ -129,7 +129,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
                         B at 250f
                     },
                 orientation = orientation,
-                overscrollEffect = overscrollEffect
+                overscrollEffect = overscrollEffect,
             )
         rule.setContent {
             WithTouchSlop(0f) {
@@ -203,7 +203,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
                 orientation = orientation,
                 overscrollEffect = overscrollEffect,
                 decayAnimationSpec =
-                    SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
+                    SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec(),
             )
 
         rule.setContent {
@@ -233,7 +233,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
             swipeWithVelocity(
                 start = Offset(left, 0f),
                 end = Offset(endPointX, endPointY),
-                endVelocity = endVelocity
+                endVelocity = endVelocity,
             )
         }
 
@@ -282,7 +282,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
                         C at 500f
                     },
                 orientation = Orientation.Horizontal,
-                overscrollEffect = overscrollEffect
+                overscrollEffect = overscrollEffect,
             )
 
         rule.setContent {
@@ -340,7 +340,7 @@ class AnchoredDraggableOverscrollTest(testNewBehavior: Boolean) :
                         B at 250f
                     },
                 orientation = Orientation.Horizontal,
-                overscrollEffect = overscrollEffect
+                overscrollEffect = overscrollEffect,
             )
 
         rule.setContent {
@@ -403,7 +403,7 @@ private class TestOverscrollEffect : OverscrollEffect {
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,
-        performScroll: (Offset) -> Offset
+        performScroll: (Offset) -> Offset,
     ): Offset {
         applyToScrollCalledCount++
         val consumed = performScroll(delta)
@@ -413,7 +413,7 @@ private class TestOverscrollEffect : OverscrollEffect {
 
     override suspend fun applyToFling(
         velocity: Velocity,
-        performFling: suspend (Velocity) -> Velocity
+        performFling: suspend (Velocity) -> Velocity,
     ) {
         applyToFlingCalledCount++
         val consumed = performFling(velocity)

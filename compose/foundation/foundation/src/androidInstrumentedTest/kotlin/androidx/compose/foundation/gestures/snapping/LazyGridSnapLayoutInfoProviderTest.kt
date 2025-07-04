@@ -117,7 +117,7 @@ class LazyGridSnapLayoutInfoProviderTest(orientation: Orientation) :
                 layoutInfoProvider
                     .calculateSnapOffset(2 * minVelocityThreshold.toFloat())
                     .roundToInt(),
-                expectedResult
+                expectedResult,
             )
         }
     }
@@ -156,7 +156,7 @@ class LazyGridSnapLayoutInfoProviderTest(orientation: Orientation) :
                 layoutInfoProvider
                     .calculateSnapOffset(-2 * minVelocityThreshold.toFloat())
                     .roundToInt(),
-                expectedResult
+                expectedResult,
             )
         }
     }
@@ -166,7 +166,7 @@ class LazyGridSnapLayoutInfoProviderTest(orientation: Orientation) :
         LazyGrid(
             cells = GridCells.Fixed(3),
             state = state,
-            flingBehavior = rememberSnapFlingBehavior(layoutInfoProvider)
+            flingBehavior = rememberSnapFlingBehavior(layoutInfoProvider),
         ) {
             items(200) { Box(modifier = Modifier.size(itemSizeDp)) }
         }

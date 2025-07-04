@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @file:JvmName("UUIDUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 
 package androidx.room.util
 
@@ -30,7 +30,7 @@ import java.util.UUID
  * @param bytes byte array stored in database as BLOB
  * @return a UUID object created based on the provided byte array
  */
-fun convertByteToUUID(bytes: ByteArray): UUID {
+public fun convertByteToUUID(bytes: ByteArray): UUID {
     val buffer = ByteBuffer.wrap(bytes)
     val firstLong = buffer.long
     val secondLong = buffer.long
@@ -43,7 +43,7 @@ fun convertByteToUUID(bytes: ByteArray): UUID {
  * @param uuid the UUID pojo
  * @return a byte array to store into database
  */
-fun convertUUIDToByte(uuid: UUID): ByteArray {
+public fun convertUUIDToByte(uuid: UUID): ByteArray {
     val bytes = ByteArray(16)
     val buffer = ByteBuffer.wrap(bytes)
     buffer.putLong(uuid.mostSignificantBits)

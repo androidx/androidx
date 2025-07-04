@@ -35,7 +35,7 @@ class InstrumentationResultsRunListener : InstrumentationRunListener() {
     override fun instrumentationRunFinished(
         streamResult: PrintStream?,
         resultBundle: Bundle,
-        junitResults: Result?
+        junitResults: Result?,
     ) {
         Log.d("Benchmark", "InstrumentationResultsRunListener#instrumentationRunFinished")
         resultBundle.putAll(InstrumentationResults.runEndResultBundle)

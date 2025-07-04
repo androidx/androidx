@@ -25,12 +25,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.SplitCheckboxButton
 import androidx.wear.compose.material3.Text
 
 @Sampled
+@Preview
 @Composable
 fun CheckboxButtonSample() {
     var checked by remember { mutableStateOf(true) }
@@ -47,6 +49,7 @@ fun CheckboxButtonSample() {
 }
 
 @Sampled
+@Preview
 @Composable
 fun SplitCheckboxButtonSample() {
     var checked by remember { mutableStateOf(true) }

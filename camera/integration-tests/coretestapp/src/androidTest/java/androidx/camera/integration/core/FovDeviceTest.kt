@@ -18,7 +18,6 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
@@ -51,13 +50,11 @@ private val DEFAULT_CAMERA_ID_GROUP = Collections.unmodifiableSet(setOf("0", "1"
 class FovDeviceTest(
     private val cameraId: String,
     private val implName: String,
-    private val cameraXConfig: CameraXConfig
+    private val cameraXConfig: CameraXConfig,
 ) {
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -75,14 +72,14 @@ class FovDeviceTest(
                     arrayOf(
                         cameraId,
                         Camera2Config::class.simpleName,
-                        Camera2Config.defaultConfig()
+                        Camera2Config.defaultConfig(),
                     )
                 )
                 paramList.add(
                     arrayOf(
                         cameraId,
                         CameraPipeConfig::class.simpleName,
-                        CameraPipeConfig.defaultConfig()
+                        CameraPipeConfig.defaultConfig(),
                     )
                 )
             }
@@ -117,7 +114,7 @@ class FovDeviceTest(
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun intrinsicZoomRatio_greaterThanZero() {
         Truth.assertThat(cameraUseCaseAdapter.cameraInfo.intrinsicZoomRatio).isGreaterThan(0)

@@ -94,7 +94,7 @@ class PagedListTest {
                 Dispatchers.IO,
                 null,
                 Config(10),
-                0
+                0,
             )
         }
     }
@@ -123,7 +123,7 @@ class PagedListTest {
                 Dispatchers.IO,
                 null,
                 Config(10),
-                0
+                0,
             )
         }
     }
@@ -152,7 +152,7 @@ class PagedListTest {
                     Dispatchers.IO,
                     boundaryCallback = null,
                     Config(10),
-                    key = 0
+                    key = 0,
                 )
             }
         assertThat(expectedException.message)
@@ -218,7 +218,7 @@ class PagedListTest {
                     testCoroutineScope,
                     notifyDispatcher,
                     PagedStorage(),
-                    config
+                    config,
                 ) {
                 override val lastKey: Any? = null
 

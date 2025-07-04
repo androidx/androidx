@@ -52,14 +52,14 @@ fun Example(
         onThemeChange = onThemeChange,
         onBackClick = onBackClick,
         favorite = favorite,
-        onFavoriteClick = onFavoriteClick
+        onFavoriteClick = onFavoriteClick,
     ) { paddingValues ->
         Box(
             modifier =
                 Modifier.fillMaxSize()
                     .consumeWindowInsets(WindowInsets.safeDrawing)
                     .padding(paddingValues),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             example.content()
         }

@@ -66,7 +66,7 @@ fun LookaheadWithSubcompose() {
                                         this@LookaheadScope,
                                         shouldAnimate,
                                         Modifier.width(if (isWide) 150.dp else 70.dp)
-                                            .requiredHeight(400.dp)
+                                            .requiredHeight(400.dp),
                                     )
                                     .background(colors[0])
                             )
@@ -80,7 +80,7 @@ fun LookaheadWithSubcompose() {
                                         this@LookaheadScope,
                                         shouldAnimate,
                                         Modifier.width(if (isWide) 150.dp else 70.dp)
-                                            .requiredHeight(400.dp)
+                                            .requiredHeight(400.dp),
                                     )
                                     .background(colors[1])
                             )
@@ -96,7 +96,7 @@ fun LookaheadWithSubcompose() {
                                         .conditionallyAnimateBounds(
                                             this@LookaheadScope,
                                             shouldAnimate,
-                                            Modifier.height(if (isWide) 150.dp else 70.dp)
+                                            Modifier.height(if (isWide) 150.dp else 70.dp),
                                         )
                                         .background(colors[2])
                                 )
@@ -116,7 +116,7 @@ fun LookaheadWithSubcompose() {
 private fun Modifier.conditionallyAnimateBounds(
     lookaheadScope: LookaheadScope,
     shouldAnimate: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) = if (shouldAnimate) this.animateBounds(lookaheadScope, modifier) else this.then(modifier)
 
 private val colors =

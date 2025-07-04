@@ -20,5 +20,5 @@ import androidx.compose.ui.node.RootForTest
 
 internal actual fun createInputDispatcher(
     testContext: TestContext,
-    root: RootForTest
+    root: RootForTest,
 ): InputDispatcher = implementedInJetBrainsFork()

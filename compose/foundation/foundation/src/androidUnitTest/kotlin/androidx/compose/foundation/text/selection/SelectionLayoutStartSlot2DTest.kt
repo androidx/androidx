@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.selection.Direction.ON
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.TextRange
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -57,7 +56,7 @@ open class SelectionLayout2DTest {
         MIDDLE_LEFT,
         MIDDLE,
         MIDDLE_RIGHT,
-        RIGHT
+        RIGHT,
     }
 
     enum class TestVertical {
@@ -65,7 +64,7 @@ open class SelectionLayout2DTest {
         MIDDLE_TOP,
         MIDDLE,
         MIDDLE_BOTTOM,
-        BOTTOM
+        BOTTOM,
     }
 
     internal fun getDirectionsForX(horizontal: TestHorizontal): List<Direction> =
@@ -142,12 +141,11 @@ open class SelectionLayout2DTest {
             endXHandleDirection = endXHandleDirection,
             endYHandleDirection = endYHandleDirection,
             rawPreviousHandleOffset = rawPreviousHandleOffset,
-            textLayoutResult = layoutResult
+            textLayoutResult = layoutResult,
         )
     }
 }
 
-@SmallTest
 @RunWith(Parameterized::class)
 class SelectionLayoutStartSlot2DTest(
     private val vertical: TestVertical,
@@ -227,7 +225,6 @@ class SelectionLayoutStartSlot2DTest(
     }
 }
 
-@SmallTest
 @RunWith(Parameterized::class)
 class SelectionLayoutEndSlot2DTest(
     private val vertical: TestVertical,

@@ -34,7 +34,7 @@ import org.robolectric.util.ReflectionHelpers
 @DoNotInstrument
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
+    instrumentedPackages = arrayOf("androidx.camera.extensions.internal"),
 )
 class ExtensionDisabledValidatorTest(private val config: TestConfig) {
 
@@ -65,7 +65,7 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         val version: String,
         val isAdvancedInterface: Boolean,
         val cameraId: String,
-        val shouldDisableExtension: Boolean
+        val shouldDisableExtension: Boolean,
     )
 
     companion object {

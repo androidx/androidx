@@ -36,6 +36,7 @@ import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 import androidx.wear.protolayout.proto.ResourceProto;
+import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
 import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutThemeImpl;
 import androidx.wear.tiles.TileService;
@@ -211,7 +212,6 @@ public final class TileRenderer {
                 new ProtoLayoutViewInstance.Config.Builder(
                                 uiContext, mUiExecutor, mUiExecutor, TileService.EXTRA_CLICKABLE_ID)
                         .setAnimationEnabled(true)
-                        .setIsViewFullyVisible(true)
                         .setStateStore(mStateStore)
                         .setLoadActionListener(instanceListener);
         if (tilesTheme != 0) {
@@ -225,6 +225,8 @@ public final class TileRenderer {
             }
         }
         this.mInstance = new ProtoLayoutViewInstance(config.build());
+        this.mInstance.setLayoutVisibility(
+                ProtoLayoutVisibilityState.VISIBILITY_STATE_FULLY_VISIBLE);
     }
 
     @SuppressWarnings("deprecation") // For backward compatibility

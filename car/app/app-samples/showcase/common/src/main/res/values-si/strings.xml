@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"පණිවිඩ අච්චු ආදර්ශනය"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"පණිවිඩය මෙතැනට යයි.\nදෙවන පේළියේ තවත් පෙළ."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"කෙටි පණිවිඩ අච්චු ආදර්ශනය"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"කොටස් කළ අයිතම අච්චු ආදර්ශනය"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"රේඩියෝ බොත්තම් කොටස"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"කොටස ටොගල් කරන්න"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"පේළි ගණනාවක් ඇති කොටස"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ජාලක අයිතම කොටස"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"කවුළු අච්චු ආදර්ශනය"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ස්ථාන ලැයිස්තු අච්චු ආදර්ශනය"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ස්ථාන බ්‍රවුස් කරන්න"</string>

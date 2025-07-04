@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeCaptureSessionFactory
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -59,7 +60,7 @@ class CaptureSessionStateTest {
         object : Camera2CaptureSequenceProcessorFactory {
             override fun create(
                 session: CameraCaptureSessionWrapper,
-                surfaceMap: Map<StreamId, Surface>
+                surfaceMap: Map<StreamId, Surface>,
             ): CaptureSequenceProcessor<Request, FakeCaptureSequence> = fakeCaptureSequenceProcessor
         }
     private val timeSource = SystemTimeSource()
@@ -78,7 +79,7 @@ class CaptureSessionStateTest {
     private val captureSessionFactory =
         FakeCaptureSessionFactory(
             requiredStreams = setOf(stream1, stream2),
-            deferrableStreams = setOf(stream3Deferred)
+            deferrableStreams = setOf(stream3Deferred),
         )
 
     private val fakeCameraDevice: CameraDeviceWrapper = mock()
@@ -101,8 +102,8 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
-                fakeThreads.backgroundDispatcher,
-                this
+                fakeThreads,
+                this,
             )
         // When disconnect is called first
         state.shutdown()
@@ -126,8 +127,8 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
-                fakeThreads.backgroundDispatcher,
-                this
+                fakeThreads,
+                this,
             )
 
         // When surfaces are configured
@@ -156,8 +157,8 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
-                fakeThreads.backgroundDispatcher,
-                this
+                fakeThreads,
+                this,
             )
 
         // When surfaces are configured
@@ -192,8 +193,8 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
-                fakeThreads.backgroundDispatcher,
-                this
+                fakeThreads,
+                this,
             )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -218,8 +219,8 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
-                fakeThreads.backgroundDispatcher,
-                this
+                fakeThreads,
+                this,
             )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -244,8 +245,8 @@ class CaptureSessionStateTest {
                 cameraSurfaceManager,
                 timeSource,
                 cameraGraphFlags,
-                fakeThreads.backgroundDispatcher,
-                this
+                fakeThreads,
+                this,
             )
         // When surfaces are configured
         state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
@@ -261,7 +262,7 @@ class CaptureSessionStateTest {
 
     @Test
     fun captureSessionStateClosesCaptureSessionWhenQuirkIsEnabled() = runTest {
-        val fakeThreads = FakeThreads.fromTestScope(this)
+        val fakeThreads = FakeThreads.fromTestScope(this, Dispatchers.IO)
         val state =
             CaptureSessionState(
                 fakeGraphListener,
@@ -269,11 +270,9 @@ class CaptureSessionStateTest {
                 captureSequenceProcessorFactory,
                 cameraSurfaceManager,
                 timeSource,
-                CameraGraph.Flags(
-                    closeCaptureSessionOnDisconnect = true,
-                ),
-                fakeThreads.backgroundDispatcher,
-                this
+                CameraGraph.Flags(closeCaptureSessionOnDisconnect = true),
+                fakeThreads,
+                this,
             )
 
         // When surfaces are configured

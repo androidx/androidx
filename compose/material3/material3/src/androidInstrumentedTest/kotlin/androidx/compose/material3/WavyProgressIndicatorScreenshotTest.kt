@@ -151,7 +151,7 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(wrap.testTag(wrapperTestTag)) {
                 LinearWavyProgressIndicator(
                     progress = { 0.5f },
-                    stroke = Stroke(width = strokeWidth, cap = StrokeCap.Square)
+                    stroke = Stroke(width = strokeWidth, cap = StrokeCap.Square),
                 )
             }
         }
@@ -170,7 +170,7 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
                     progress = { 0.5f },
                     modifier = Modifier.height(14.dp),
                     stroke = thickStroke,
-                    trackStroke = thickStroke
+                    trackStroke = thickStroke,
                 )
             }
         }
@@ -233,7 +233,7 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
                     progress = { 0.7f },
                     modifier = Modifier.size(52.dp),
                     stroke = thickStroke,
-                    trackStroke = thickStroke
+                    trackStroke = thickStroke,
                 )
             }
         }
@@ -283,7 +283,7 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
                 CircularWavyProgressIndicator(
                     progress = { 0.4f },
                     trackColor = Color.Gray,
-                    stroke = Stroke(width = 6f, cap = StrokeCap.Butt)
+                    stroke = Stroke(width = 6f, cap = StrokeCap.Butt),
                 )
             }
         }

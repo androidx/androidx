@@ -30,68 +30,90 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
     // for simplicity and to make equals comparisons robust.
     @Immutable object Close : PathNode()
 
-    @Immutable data class RelativeMoveTo(val dx: Float, val dy: Float) : PathNode()
-
-    @Immutable data class MoveTo(val x: Float, val y: Float) : PathNode()
-
-    @Immutable data class RelativeLineTo(val dx: Float, val dy: Float) : PathNode()
-
-    @Immutable data class LineTo(val x: Float, val y: Float) : PathNode()
-
-    @Immutable data class RelativeHorizontalTo(val dx: Float) : PathNode()
-
-    @Immutable data class HorizontalTo(val x: Float) : PathNode()
-
-    @Immutable data class RelativeVerticalTo(val dy: Float) : PathNode()
-
-    @Immutable data class VerticalTo(val y: Float) : PathNode()
+    @Immutable
+    @Suppress("DataClassDefinition")
+    data class RelativeMoveTo(val dx: Float, val dy: Float) : PathNode()
 
     @Immutable
+    @Suppress("DataClassDefinition")
+    data class MoveTo(val x: Float, val y: Float) : PathNode()
+
+    @Immutable
+    @Suppress("DataClassDefinition")
+    data class RelativeLineTo(val dx: Float, val dy: Float) : PathNode()
+
+    @Immutable
+    @Suppress("DataClassDefinition")
+    data class LineTo(val x: Float, val y: Float) : PathNode()
+
+    @Immutable
+    @Suppress("DataClassDefinition")
+    data class RelativeHorizontalTo(val dx: Float) : PathNode()
+
+    @Immutable @Suppress("DataClassDefinition") data class HorizontalTo(val x: Float) : PathNode()
+
+    @Immutable
+    @Suppress("DataClassDefinition")
+    data class RelativeVerticalTo(val dy: Float) : PathNode()
+
+    @Immutable @Suppress("DataClassDefinition") data class VerticalTo(val y: Float) : PathNode()
+
+    @Immutable
+    @Suppress("DataClassDefinition")
     data class RelativeCurveTo(
         val dx1: Float,
         val dy1: Float,
         val dx2: Float,
         val dy2: Float,
         val dx3: Float,
-        val dy3: Float
+        val dy3: Float,
     ) : PathNode(isCurve = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class CurveTo(
         val x1: Float,
         val y1: Float,
         val x2: Float,
         val y2: Float,
         val x3: Float,
-        val y3: Float
+        val y3: Float,
     ) : PathNode(isCurve = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class RelativeReflectiveCurveTo(
         val dx1: Float,
         val dy1: Float,
         val dx2: Float,
-        val dy2: Float
+        val dy2: Float,
     ) : PathNode(isCurve = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class ReflectiveCurveTo(val x1: Float, val y1: Float, val x2: Float, val y2: Float) :
         PathNode(isCurve = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class RelativeQuadTo(val dx1: Float, val dy1: Float, val dx2: Float, val dy2: Float) :
         PathNode(isQuad = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class QuadTo(val x1: Float, val y1: Float, val x2: Float, val y2: Float) :
         PathNode(isQuad = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class RelativeReflectiveQuadTo(val dx: Float, val dy: Float) : PathNode(isQuad = true)
 
-    @Immutable data class ReflectiveQuadTo(val x: Float, val y: Float) : PathNode(isQuad = true)
+    @Immutable
+    @Suppress("DataClassDefinition")
+    data class ReflectiveQuadTo(val x: Float, val y: Float) : PathNode(isQuad = true)
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class RelativeArcTo(
         val horizontalEllipseRadius: Float,
         val verticalEllipseRadius: Float,
@@ -99,10 +121,11 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val isMoreThanHalf: Boolean,
         val isPositiveArc: Boolean,
         val arcStartDx: Float,
-        val arcStartDy: Float
+        val arcStartDy: Float,
     ) : PathNode()
 
     @Immutable
+    @Suppress("DataClassDefinition")
     data class ArcTo(
         val horizontalEllipseRadius: Float,
         val verticalEllipseRadius: Float,
@@ -110,7 +133,7 @@ sealed class PathNode(val isCurve: Boolean = false, val isQuad: Boolean = false)
         val isMoreThanHalf: Boolean,
         val isPositiveArc: Boolean,
         val arcStartX: Float,
-        val arcStartY: Float
+        val arcStartY: Float,
     ) : PathNode()
 }
 
@@ -158,7 +181,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     dx2 = array[start + 2],
                     dy2 = array[start + 3],
                     dx3 = array[start + 4],
-                    dy3 = array[start + 5]
+                    dy3 = array[start + 5],
                 )
             }
         CurveToKey ->
@@ -169,7 +192,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     x2 = array[start + 2],
                     y2 = array[start + 3],
                     x3 = array[start + 4],
-                    y3 = array[start + 5]
+                    y3 = array[start + 5],
                 )
             }
         RelativeReflectiveCurveToKey ->
@@ -178,7 +201,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     dx1 = array[start],
                     dy1 = array[start + 1],
                     dx2 = array[start + 2],
-                    dy2 = array[start + 3]
+                    dy2 = array[start + 3],
                 )
             }
         ReflectiveCurveToKey ->
@@ -187,7 +210,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     x1 = array[start],
                     y1 = array[start + 1],
                     x2 = array[start + 2],
-                    y2 = array[start + 3]
+                    y2 = array[start + 3],
                 )
             }
         RelativeQuadToKey ->
@@ -196,7 +219,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     dx1 = array[start],
                     dy1 = array[start + 1],
                     dx2 = array[start + 2],
-                    dy2 = array[start + 3]
+                    dy2 = array[start + 3],
                 )
             }
         QuadToKey ->
@@ -205,7 +228,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     x1 = array[start],
                     y1 = array[start + 1],
                     x2 = array[start + 2],
-                    y2 = array[start + 3]
+                    y2 = array[start + 3],
                 )
             }
         RelativeReflectiveQuadToKey ->
@@ -225,7 +248,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     isMoreThanHalf = array[start + 3].compareTo(0.0f) != 0,
                     isPositiveArc = array[start + 4].compareTo(0.0f) != 0,
                     arcStartDx = array[start + 5],
-                    arcStartDy = array[start + 6]
+                    arcStartDy = array[start + 6],
                 )
             }
         ArcToKey ->
@@ -237,7 +260,7 @@ internal fun Char.addPathNodes(nodes: ArrayList<PathNode>, args: FloatArray, cou
                     isMoreThanHalf = array[start + 3].compareTo(0.0f) != 0,
                     isPositiveArc = array[start + 4].compareTo(0.0f) != 0,
                     arcStartX = array[start + 5],
-                    arcStartY = array[start + 6]
+                    arcStartY = array[start + 6],
                 )
             }
         else -> throw IllegalArgumentException("Unknown command for: $this")
@@ -249,7 +272,7 @@ private inline fun pathNodesFromArgs(
     args: FloatArray,
     count: Int,
     numArgs: Int,
-    crossinline nodeFor: (subArray: FloatArray, start: Int) -> PathNode
+    crossinline nodeFor: (subArray: FloatArray, start: Int) -> PathNode,
 ) {
     val end = count - numArgs
     var index = 0
@@ -278,7 +301,7 @@ private fun pathMoveNodeFromArgs(nodes: MutableList<PathNode>, args: FloatArray,
 private fun pathRelativeMoveNodeFromArgs(
     nodes: MutableList<PathNode>,
     args: FloatArray,
-    count: Int
+    count: Int,
 ) {
     val end = count - NUM_MOVE_TO_ARGS
     if (end >= 0) {

@@ -103,9 +103,9 @@ package androidx.emoji2.text {
   }
 
   @AnyThread @RequiresApi(19) public final class MetadataRepo {
+    method public static androidx.emoji2.text.MetadataRepo create(android.content.res.AssetManager, String) throws java.io.IOException;
     method public static androidx.emoji2.text.MetadataRepo create(android.graphics.Typeface, java.io.InputStream) throws java.io.IOException;
     method public static androidx.emoji2.text.MetadataRepo create(android.graphics.Typeface, java.nio.ByteBuffer) throws java.io.IOException;
-    method public static androidx.emoji2.text.MetadataRepo create(android.content.res.AssetManager, String) throws java.io.IOException;
   }
 
 }

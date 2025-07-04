@@ -42,7 +42,7 @@ public class ParcelableDataTest {
         val parcelled: ParcelableData =
             ParcelConverters.unmarshall(
                 ParcelConverters.marshall(parcelableData),
-                ParcelableData.CREATOR
+                ParcelableData.CREATOR,
             )
         assertEquals(data, parcelled.data)
     }

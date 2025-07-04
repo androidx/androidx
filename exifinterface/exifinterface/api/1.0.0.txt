@@ -1,17 +1,17 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.exifinterface.media {
 
   public class ExifInterface {
-    ctor public ExifInterface(String) throws java.io.IOException;
     ctor public ExifInterface(java.io.InputStream) throws java.io.IOException;
+    ctor public ExifInterface(String) throws java.io.IOException;
     method public void flipHorizontally();
     method public void flipVertically();
     method public double getAltitude(double);
     method public String? getAttribute(String);
     method public double getAttributeDouble(String, double);
     method public int getAttributeInt(String, int);
-    method @Deprecated public boolean getLatLong(float[]!);
     method public double[]? getLatLong();
+    method @Deprecated public boolean getLatLong(float[]!);
     method public int getRotationDegrees();
     method public byte[]? getThumbnail();
     method public android.graphics.Bitmap? getThumbnailBitmap();

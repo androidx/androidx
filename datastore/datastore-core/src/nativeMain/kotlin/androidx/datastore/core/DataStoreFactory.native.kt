@@ -44,7 +44,6 @@ public actual object DataStoreFactory {
      * @param scope The scope in which IO operations and transform functions will execute.
      * @return a new DataStore instance with the provided configuration
      */
-    @kotlin.jvm.JvmOverloads // annotation has to match common
     public actual fun <T> create(
         storage: Storage<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,
@@ -55,6 +54,6 @@ public actual object DataStoreFactory {
             storage = storage,
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-            scope = scope
+            scope = scope,
         )
 }

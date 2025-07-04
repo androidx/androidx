@@ -54,7 +54,7 @@ fun MagnifierSample() {
                         onDrag = { _, delta -> magnifierCenter += delta },
                         // Hide the magnifier when the finger lifts.
                         onDragEnd = { magnifierCenter = Offset.Unspecified },
-                        onDragCancel = { magnifierCenter = Offset.Unspecified }
+                        onDragCancel = { magnifierCenter = Offset.Unspecified },
                     )
                 }
                 .drawBehind {

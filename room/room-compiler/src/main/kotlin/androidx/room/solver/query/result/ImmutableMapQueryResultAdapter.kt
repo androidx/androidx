@@ -28,7 +28,7 @@ class ImmutableMapQueryResultAdapter(
     parsedQuery: ParsedQuery,
     private val keyTypeArg: XType,
     private val valueTypeArg: XType,
-    private val resultAdapter: QueryResultAdapter
+    private val resultAdapter: QueryResultAdapter,
 ) : MultimapQueryResultAdapter(context, parsedQuery, resultAdapter.rowAdapters) {
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
@@ -39,13 +39,13 @@ class ImmutableMapQueryResultAdapter(
                 typeName =
                     GuavaTypeNames.IMMUTABLE_MAP.parametrizedBy(
                         keyTypeArg.asTypeName(),
-                        valueTypeArg.asTypeName()
+                        valueTypeArg.asTypeName(),
                     ),
                 assignExpr =
                     XCodeBlock.of(
                         format = "%T.copyOf(%L)",
                         GuavaTypeNames.IMMUTABLE_MAP,
-                        mapVarName
+                        mapVarName,
                     ),
             )
         }

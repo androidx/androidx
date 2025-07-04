@@ -46,14 +46,14 @@ val Context.rxdsWithMigration by
                     override suspend fun cleanUp() {}
                 }
             )
-        }
+        },
     )
 
 val Context.rxdsWithCorruptionHandler by
     rxDataStore(
         "file3",
         TestingSerializer(failReadWithCorruptionException = true),
-        corruptionHandler = ReplaceFileCorruptionHandler { 123 }
+        corruptionHandler = ReplaceFileCorruptionHandler { 123 },
     )
 
 val Context.rxDataStoreForFileNameCheck by rxDataStore("file4", TestingSerializer())
@@ -102,7 +102,7 @@ class RxDataStoreDelegateTest {
         assertThat(
                 RxDataStoreBuilder(
                         { File(context.filesDir, "datastore/file4") },
-                        TestingSerializer()
+                        TestingSerializer(),
                     )
                     .build()
                     .data()

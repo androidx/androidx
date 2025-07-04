@@ -41,8 +41,7 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 
 /**
- * <a href="https://material.io/components/snackbars" class="external" target="_blank">Material
- * Design snackbar</a>.
+ * [Material Design snackbar](https://material.io/components/snackbars)
  *
  * Snackbars provide brief messages about app processes at the bottom of the screen.
  *
@@ -91,14 +90,14 @@ fun Snackbar(
     backgroundColor: Color = SnackbarDefaults.backgroundColor,
     contentColor: Color = MaterialTheme.colors.surface,
     elevation: Dp = 6.dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Surface(
         modifier = modifier,
         shape = shape,
         elevation = elevation,
         color = backgroundColor,
-        contentColor = contentColor
+        contentColor = contentColor,
     ) {
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
             val textStyle = MaterialTheme.typography.body2
@@ -114,8 +113,7 @@ fun Snackbar(
 }
 
 /**
- * <a href="https://material.io/components/snackbars" class="external" target="_blank">Material
- * Design snackbar</a>.
+ * [Material Design snackbar](https://material.io/components/snackbars)
  *
  * Snackbars provide brief messages about app processes at the bottom of the screen.
  *
@@ -164,7 +162,7 @@ fun Snackbar(
     backgroundColor: Color = SnackbarDefaults.backgroundColor,
     contentColor: Color = MaterialTheme.colors.surface,
     actionColor: Color = SnackbarDefaults.primaryActionColor,
-    elevation: Dp = 6.dp
+    elevation: Dp = 6.dp,
 ) {
     val actionLabel = snackbarData.actionLabel
     val actionComposable: (@Composable () -> Unit)? =
@@ -173,7 +171,7 @@ fun Snackbar(
                 TextButton(
                     colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
                     onClick = { snackbarData.performAction() },
-                    content = { Text(actionLabel) }
+                    content = { Text(actionLabel) },
                 )
             }
         } else {
@@ -187,7 +185,7 @@ fun Snackbar(
         shape = shape,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
-        elevation = elevation
+        elevation = elevation,
     )
 }
 
@@ -296,7 +294,7 @@ private fun NewLineButtonSnackbar(text: @Composable () -> Unit, action: @Composa
                 .padding(
                     start = HorizontalSpacing,
                     end = HorizontalSpacingButtonSide,
-                    bottom = SeparateButtonExtraY
+                    bottom = SeparateButtonExtraY,
                 )
     ) {
         Box(
@@ -318,7 +316,7 @@ private fun OneRowSnackbar(text: @Composable () -> Unit, action: @Composable () 
             Box(Modifier.layoutId(textTag).padding(vertical = SnackbarVerticalPadding)) { text() }
             Box(Modifier.layoutId(actionTag)) { action() }
         },
-        modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide)
+        modifier = Modifier.padding(start = HorizontalSpacing, end = HorizontalSpacingButtonSide),
     ) { measurables, constraints ->
         val buttonPlaceable =
             measurables.fastFirst { it.layoutId == actionTag }.measure(constraints)

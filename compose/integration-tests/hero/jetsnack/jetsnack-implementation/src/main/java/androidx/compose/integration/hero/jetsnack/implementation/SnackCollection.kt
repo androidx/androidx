@@ -23,12 +23,12 @@ data class SnackCollection(
     val id: Long,
     val name: String,
     val snacks: List<Snack>,
-    val type: CollectionType = CollectionType.Normal
+    val type: CollectionType = CollectionType.Normal,
 )
 
 enum class CollectionType {
     Normal,
-    Highlight
+    Highlight,
 }
 
 /** A fake repo */
@@ -50,7 +50,7 @@ private val tastyTreats =
         id = 1L,
         name = "Android's picks",
         type = CollectionType.Highlight,
-        snacks = snacks.subList(0, 13)
+        snacks = snacks.subList(0, 13),
     )
 
 private val popular =

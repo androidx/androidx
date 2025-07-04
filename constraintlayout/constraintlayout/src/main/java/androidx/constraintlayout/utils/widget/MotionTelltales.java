@@ -24,9 +24,10 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.ViewParent;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.constraintlayout.widget.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * A view that is useful for prototyping Views that will move in MotionLayout. <b>Added in 2.0</b>

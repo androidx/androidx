@@ -7,8 +7,8 @@ package androidx.navigation.dynamicfeatures.fragment {
   }
 
   public static final class DynamicFragmentNavigator.Destination extends androidx.navigation.fragment.FragmentNavigator.Destination {
-    ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     ctor public DynamicFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
+    ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     method public String? getModuleName();
     method public void setModuleName(String? moduleName);
     property public final String? moduleName;
@@ -24,25 +24,25 @@ package androidx.navigation.dynamicfeatures.fragment {
   }
 
   public final class DynamicFragmentNavigatorDestinationBuilderKt {
-    method @Deprecated public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
-    method public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id);
+    method @Deprecated public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route);
+    method public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
   }
 
   public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
     ctor public DynamicNavHostFragment();
-    method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
+    method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method protected com.google.android.play.core.splitinstall.SplitInstallManager createSplitInstallManager();
     field public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment.Companion Companion;
   }
 
   public static final class DynamicNavHostFragment.Companion {
-    method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
     method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
   }
 
 }

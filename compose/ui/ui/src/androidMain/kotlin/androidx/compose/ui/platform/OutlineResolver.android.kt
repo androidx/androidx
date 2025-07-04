@@ -195,7 +195,7 @@ internal class OutlineResolver {
                             top = rectTopLeft.y,
                             right = rectTopLeft.x + rectSize.width,
                             bottom = rectTopLeft.y + rectSize.height,
-                            cornerRadius = CornerRadius(roundedCornerRadius)
+                            cornerRadius = CornerRadius(roundedCornerRadius),
                         )
                     if (roundRectClipPath == null) {
                         roundRectClipPath = Path()
@@ -252,7 +252,7 @@ internal class OutlineResolver {
             rect.left.fastRoundToInt(),
             rect.top.fastRoundToInt(),
             rect.right.fastRoundToInt(),
-            rect.bottom.fastRoundToInt()
+            rect.bottom.fastRoundToInt(),
         )
     }
 
@@ -266,7 +266,7 @@ internal class OutlineResolver {
                 roundRect.top.fastRoundToInt(),
                 roundRect.right.fastRoundToInt(),
                 roundRect.bottom.fastRoundToInt(),
-                radius
+                radius,
             )
             roundedCornerRadius = radius
         } else {

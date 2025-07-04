@@ -45,7 +45,7 @@ internal fun interface SelectionAdjustment {
             Selection(
                 start = layout.startInfo.anchorForOffset(layout.startInfo.rawStartHandleOffset),
                 end = layout.endInfo.anchorForOffset(layout.endInfo.rawEndHandleOffset),
-                handlesCrossed = layout.crossStatus == CrossStatus.CROSSED
+                handlesCrossed = layout.crossStatus == CrossStatus.CROSSED,
             )
         }
 
@@ -138,7 +138,7 @@ internal fun interface SelectionAdjustment {
 /** @receiver The selection layout. It is expected that its previousSelection is non-null */
 private fun SelectionLayout.updateSelectionBoundary(
     info: SelectableInfo,
-    previousSelectionAnchor: Selection.AnchorInfo
+    previousSelectionAnchor: Selection.AnchorInfo,
 ): Selection.AnchorInfo {
     val currentRawOffset = if (isStartHandle) info.rawStartHandleOffset else info.rawEndHandleOffset
 
@@ -160,7 +160,7 @@ private fun SelectionLayout.updateSelectionBoundary(
                 currentOffset = currentRawOffset,
                 otherOffset = otherRawOffset,
                 isStart = isStartHandle,
-                crossed = crossStatus == CrossStatus.CROSSED
+                crossed = crossStatus == CrossStatus.CROSSED,
             )
         }
 
@@ -312,7 +312,7 @@ private fun adjustToBoundaries(
                 slot = layout.endSlot,
                 boundaryFunction = boundaryFunction,
             ),
-        handlesCrossed = crossed
+        handlesCrossed = crossed,
     )
 }
 

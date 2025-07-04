@@ -94,7 +94,8 @@ class CreateLibraryBuildInfoFileTaskTest {
         assertThat(buildInfo.shouldPublishDocs).isFalse()
         assertThat(buildInfo.isKmp).isFalse()
         assertThat(buildInfo.target).isEqualTo("androidx")
-        assertThat(buildInfo.kmpChildren).isEqualTo(setOf("android", "jvm"))
+        assertThat(buildInfo.kmpChildren)
+            .isEqualTo(setOf("android", "jvm", "jvmstubs", "linuxx64stubs", "wasm-js"))
     }
 
     @Test
@@ -197,7 +198,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                             false,
                             false,
                             "androidx",
-                            ["android", "jvm"].toSet(),
+                            ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
                             project.provider { ["test.xml"] },
                         )
                     }

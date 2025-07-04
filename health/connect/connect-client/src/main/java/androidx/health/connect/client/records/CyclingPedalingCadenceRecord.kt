@@ -34,7 +34,7 @@ public class CyclingPedalingCadenceRecord(
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     override val samples: List<Sample>,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : SeriesRecord<CyclingPedalingCadenceRecord.Sample> {
 
     init {

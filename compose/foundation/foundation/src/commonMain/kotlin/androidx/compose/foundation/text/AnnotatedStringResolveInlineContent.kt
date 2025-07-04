@@ -50,7 +50,7 @@ internal fun AnnotatedString.resolveInlineContent(
                 AnnotatedString.Range(
                     inlineTextContent.placeholder,
                     annotation.start,
-                    annotation.end
+                    annotation.end,
                 )
             )
             inlineComposables.add(

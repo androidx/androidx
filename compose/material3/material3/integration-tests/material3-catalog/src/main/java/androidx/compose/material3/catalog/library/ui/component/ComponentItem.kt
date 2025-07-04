@@ -26,39 +26,54 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.catalog.library.R
 import androidx.compose.material3.catalog.library.model.Component
+import androidx.compose.material3.catalog.library.ui.common.ItemBanner
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ComponentItem(component: Component, onClick: (component: Component) -> Unit) {
+fun ComponentItem(
+    component: Component,
+    markExpressiveComponents: Boolean,
+    onClick: (component: Component) -> Unit,
+) {
     OutlinedCard(
         onClick = { onClick(component) },
-        modifier = Modifier.height(ComponentItemHeight).padding(ComponentItemOuterPadding)
+        modifier = Modifier.height(ComponentItemHeight).padding(ComponentItemOuterPadding),
     ) {
-        Box(modifier = Modifier.fillMaxSize().padding(ComponentItemInnerPadding)) {
-            Image(
-                painter = painterResource(id = component.icon),
-                contentDescription = null,
-                modifier = Modifier.size(ComponentItemIconSize).align(Alignment.Center),
-                colorFilter =
-                    if (component.tintIcon) {
-                        ColorFilter.tint(LocalContentColor.current)
-                    } else {
-                        null
-                    },
-                contentScale = ContentScale.Inside
-            )
-            Text(
-                text = component.name,
-                modifier = Modifier.align(Alignment.BottomStart),
-                style = MaterialTheme.typography.bodySmall
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().padding(ComponentItemInnerPadding)) {
+                Image(
+                    painter = painterResource(id = component.icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(ComponentItemIconSize).align(Alignment.Center),
+                    colorFilter =
+                        if (component.tintIcon) {
+                            ColorFilter.tint(LocalContentColor.current)
+                        } else {
+                            null
+                        },
+                    contentScale = ContentScale.Inside,
+                )
+                Text(
+                    text = component.name,
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            if (markExpressiveComponents && component.hasExpressiveExamples) {
+                ItemBanner(
+                    text = stringResource(R.string.expressive_banner),
+                    bannerSize = ComponentItemBannerSize,
+                )
+            }
         }
     }
 }
@@ -67,3 +82,4 @@ private val ComponentItemHeight = 180.dp
 private val ComponentItemOuterPadding = 4.dp
 private val ComponentItemInnerPadding = 16.dp
 private val ComponentItemIconSize = 80.dp
+private val ComponentItemBannerSize = 80.dp

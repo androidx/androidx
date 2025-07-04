@@ -64,7 +64,7 @@ class ProcessingInput2PacketTest {
             createYuvFakeImageProxy(
                 CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
                 WIDTH,
-                HEIGHT
+                HEIGHT,
             )
         val processingRequest = createProcessingRequest()
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
@@ -144,10 +144,10 @@ class ProcessingInput2PacketTest {
                     CROP_RECT,
                     SENSOR_TO_BUFFER,
                     /*rotationDegrees=*/ 90,
-                    /*jpegQuality=*/ 100
+                    /*jpegQuality=*/ 100,
                 ),
                 FakeTakePictureCallback(),
-                Futures.immediateFuture(null)
+                Futures.immediateFuture(null),
             )
         val input = ProcessingNode.InputPacket.of(processingRequest, image)
 

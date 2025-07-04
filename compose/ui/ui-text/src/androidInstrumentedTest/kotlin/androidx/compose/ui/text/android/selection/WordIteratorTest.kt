@@ -624,7 +624,7 @@ class WordIteratorTest {
         wordIterator: WordIterator,
         beginning: Int,
         end: Int,
-        surrogateIndex: Int
+        surrogateIndex: Int,
     ) {
         for (i in beginning..end) {
             if (i == surrogateIndex) continue

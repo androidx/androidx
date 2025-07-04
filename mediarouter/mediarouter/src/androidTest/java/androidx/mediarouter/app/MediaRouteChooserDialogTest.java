@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.app;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -91,7 +92,7 @@ public class MediaRouteChooserDialogTest {
         RouteInfo routeInfo1 = TestUtils.createRouteInfo("ROUTE_ID_1", "ROUTE_NAME_1");
         RouteInfo routeInfo2 = TestUtils.createRouteInfo("ROUTE_ID_2", "ROUTE_NAME_1");
         int result = mComparator.compare(routeInfo1, routeInfo2);
-        assertTrue(result == 0);
+        assertEquals(0, result);
     }
 
     @Test

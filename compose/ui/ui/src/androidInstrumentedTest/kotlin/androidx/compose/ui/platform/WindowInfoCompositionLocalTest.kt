@@ -88,7 +88,7 @@ class WindowInfoCompositionLocalTest {
             if (showPopup.value) {
                 Popup(
                     properties = PopupProperties(focusable = true),
-                    onDismissRequest = { showPopup.value = false }
+                    onDismissRequest = { showPopup.value = false },
                 ) {
                     BasicText("Popup Window")
                     popupWindowInfo = LocalWindowInfo.current
@@ -122,7 +122,7 @@ class WindowInfoCompositionLocalTest {
             if (showPopup.value) {
                 Popup(
                     properties = PopupProperties(focusable = true),
-                    onDismissRequest = { showPopup.value = false }
+                    onDismissRequest = { showPopup.value = false },
                 ) {
                     BasicText(text = "Popup Window")
                     WindowFocusObserver { if (it) popupFocusGain.countDown() }
@@ -229,7 +229,7 @@ class WindowInfoCompositionLocalTest {
                     KeyEvent.ACTION_DOWN,
                     KeyEvent.KEYCODE_CTRL_LEFT,
                     0,
-                    KeyEvent.META_CTRL_ON
+                    KeyEvent.META_CTRL_ON,
                 )
             ownerView.dispatchKeyEvent(ctrlPressed)
         }
@@ -245,7 +245,7 @@ class WindowInfoCompositionLocalTest {
                     KeyEvent.ACTION_DOWN,
                     KeyEvent.KEYCODE_ALT_LEFT,
                     0,
-                    KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON
+                    KeyEvent.META_CTRL_ON or KeyEvent.META_ALT_ON,
                 )
             ownerView.dispatchKeyEvent(altAndCtrlPressed)
         }
@@ -262,7 +262,7 @@ class WindowInfoCompositionLocalTest {
                     KeyEvent.ACTION_UP,
                     KeyEvent.KEYCODE_ALT_LEFT,
                     0,
-                    KeyEvent.META_CTRL_ON
+                    KeyEvent.META_CTRL_ON,
                 )
             ownerView.dispatchKeyEvent(altUnpressed)
         }
@@ -346,12 +346,12 @@ class WindowInfoCompositionLocalTest {
         val widthRange =
             Range.closed(
                 (expectedWindowSize.width * 0.8).roundToInt(),
-                (expectedWindowSize.width * 1.2).roundToInt()
+                (expectedWindowSize.width * 1.2).roundToInt(),
             )
         val heightRange =
             Range.closed(
                 (expectedWindowSize.height * 0.8).roundToInt(),
-                (expectedWindowSize.height * 1.2).roundToInt()
+                (expectedWindowSize.height * 1.2).roundToInt(),
             )
 
         // Assert.

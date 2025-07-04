@@ -43,9 +43,7 @@ actual class DragAndDropTransferData(
 )
 
 /** Android [DragAndDropEvent] which delegates to a [DragEvent] */
-actual class DragAndDropEvent(
-    internal val dragEvent: DragEvent,
-)
+actual class DragAndDropEvent(internal val dragEvent: DragEvent)
 
 /** Returns the backing [DragEvent] to read platform specific data */
 fun DragAndDropEvent.toAndroidDragEvent(): DragEvent = this.dragEvent

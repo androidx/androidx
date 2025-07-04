@@ -45,7 +45,7 @@ internal fun ViewStructure.populate(
     semanticsInfo: SemanticsInfo,
     rootAutofillId: AutofillId,
     packageName: String?,
-    rectManager: RectManager
+    rectManager: RectManager,
 ) {
     val autofillApi = AutofillApi26Helper
     val properties = SemanticsProperties
@@ -116,7 +116,7 @@ internal fun ViewStructure.populate(
     autofillType?.let { autofillApi.setAutofillType(this, it) }
 
     // Autofill Hints.
-    contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it.toTypedArray()) }
+    contentTypeProp?.contentHints?.let { autofillApi.setAutofillHints(this, it) }
 
     // Dimensions.
     rectManager.rects.withRect(semanticsInfo.semanticsId) { left, top, right, bottom ->
@@ -184,7 +184,7 @@ internal fun ViewStructure.populate(
         if (isPassword) {
             autofillApi.setInputType(
                 this,
-                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD,
             )
         }
     }

@@ -32,7 +32,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.onFocusChanged
@@ -55,7 +54,11 @@ import kotlin.collections.set
 @Composable
 fun MixedOldNewAutofillDemo() {
     Column(modifier = Modifier.background(color = Color.Black)) {
-        Text(text = "Enter your username and password below.", color = Color.White)
+        Text(
+            text =
+                "This demo mixes the new (username) and old (password) autofill systems. Enter your username and password below.",
+            color = Color.White,
+        )
 
         // Text field using new autofill API.
         BasicTextField(
@@ -65,14 +68,15 @@ fun MixedOldNewAutofillDemo() {
                     contentType = ContentType.Username
                 },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
-            cursorBrush = SolidColor(Color.White)
+            cursorBrush = SolidColor(Color.White),
         )
 
         // Text field using old autofill API.
-        val autofill = @OptIn(ExperimentalComposeUiApi::class) LocalAutofill.current
-        val autofillTree = LocalAutofillTree.current
+        val autofill = @Suppress("DEPRECATION") LocalAutofill.current
+        val autofillTree = @Suppress("DEPRECATION") LocalAutofillTree.current
         val textState = rememberTextFieldState()
         val autofillNode = remember {
+            @Suppress("DEPRECATION")
             androidx.compose.ui.autofill.AutofillNode(
                 onFill = { textState.edit { replace(0, length, it) } },
                 autofillTypes = listOf(androidx.compose.ui.autofill.AutofillType.Password),
@@ -92,14 +96,14 @@ fun MixedOldNewAutofillDemo() {
                         }
                     },
             textStyle = MaterialTheme.typography.body1.copy(color = Color.LightGray),
-            cursorBrush = SolidColor(Color.White)
+            cursorBrush = SolidColor(Color.White),
         )
         DisposableEffect(autofillNode) {
             autofillTree.children[autofillNode.id] = autofillNode
             onDispose { autofillTree.children.remove(autofillNode.id) }
         }
 
-        // Submit button (Only available using the new autofill APIs.
+        // Submit button (only available using the new autofill APIs).
         val autofillManager = LocalAutofillManager.current
         Button(onClick = { autofillManager?.commit() }) { Text("Submit credentials") }
     }

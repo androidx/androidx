@@ -49,7 +49,7 @@ class PagerFlowSnapshotTest {
     private fun createFactory(dataFlow: Flow<List<Int>>, loadDelay: Long) =
         WrappedPagingSourceFactory(
             dataFlow.asPagingSourceFactory(testScope.backgroundScope),
-            loadDelay
+            loadDelay,
         )
 
     private fun createSingleGenFactory(data: List<Int>, loadDelay: Long) =
@@ -187,8 +187,8 @@ class PagerFlowSnapshotTest {
                     LoadStates(
                         refresh = LoadState.NotLoading(true),
                         prepend = LoadState.NotLoading(true),
-                        append = LoadState.NotLoading(true)
-                    )
+                        append = LoadState.NotLoading(true),
+                    ),
                 )
             )
         testScope.runTest {
@@ -252,10 +252,7 @@ class PagerFlowSnapshotTest {
         val pager = createPagerNoPrefetch(dataFlow, loadDelay).cachedIn(testScope.backgroundScope)
         testScope.runTest {
             val snapshot = pager.asSnapshot { refresh() }
-            assertThat(snapshot)
-                .containsExactlyElementsIn(
-                    listOf(0, 1, 2, 3, 4),
-                )
+            assertThat(snapshot).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4))
         }
     }
 
@@ -268,10 +265,7 @@ class PagerFlowSnapshotTest {
         val pager = createPager(data, loadDelay)
         testScope.runTest {
             val snapshot = pager.asSnapshot { refresh() }
-            assertThat(snapshot)
-                .containsExactlyElementsIn(
-                    listOf(0, 1, 2, 3, 4, 5, 6, 7),
-                )
+            assertThat(snapshot).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4, 5, 6, 7))
         }
     }
 
@@ -313,8 +307,8 @@ class PagerFlowSnapshotTest {
                     LoadStates(
                         refresh = LoadState.NotLoading(true),
                         prepend = LoadState.NotLoading(true),
-                        append = LoadState.NotLoading(true)
-                    )
+                        append = LoadState.NotLoading(true),
+                    ),
                 )
             )
         testScope.runTest {
@@ -417,7 +411,7 @@ class PagerFlowSnapshotTest {
                         16,
                         17,
                         18,
-                        19
+                        19,
                     )
                 )
         }
@@ -537,7 +531,7 @@ class PagerFlowSnapshotTest {
                         24,
                         25,
                         26,
-                        27
+                        27,
                     )
                 )
         }
@@ -597,7 +591,7 @@ class PagerFlowSnapshotTest {
                         34,
                         35,
                         36,
-                        37
+                        37,
                     )
                 )
         }
@@ -948,7 +942,7 @@ class PagerFlowSnapshotTest {
                             LoadStates(
                                 refresh = LoadState.NotLoading(true),
                                 prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true)
+                                append = LoadState.NotLoading(true),
                             )
                         )
                     )
@@ -960,8 +954,8 @@ class PagerFlowSnapshotTest {
                             LoadStates(
                                 refresh = LoadState.NotLoading(true),
                                 prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true)
-                            )
+                                append = LoadState.NotLoading(true),
+                            ),
                         )
                     )
                     delay(500 + loadDelay)
@@ -972,8 +966,8 @@ class PagerFlowSnapshotTest {
                             LoadStates(
                                 refresh = LoadState.NotLoading(true),
                                 prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true)
-                            )
+                                append = LoadState.NotLoading(true),
+                            ),
                         )
                     )
                 }
@@ -1142,7 +1136,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1205,7 +1199,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1253,7 +1247,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1298,7 +1292,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
 
@@ -1329,7 +1323,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1460,7 +1454,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1543,7 +1537,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1611,7 +1605,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -1636,7 +1630,7 @@ class PagerFlowSnapshotTest {
                             enablePlaceholders = false,
                             // a small prefetchDistance to prevent prefetch until we scroll to
                             // boundary
-                            prefetchDistance = 1
+                            prefetchDistance = 1,
                         ),
                     initialKey = 50,
                     pagingSourceFactory = createFactory(dataFlow, loadDelay),
@@ -1758,7 +1752,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -1814,7 +1808,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -2003,7 +1997,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -2063,7 +2057,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -2137,7 +2131,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2200,7 +2194,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2248,7 +2242,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2293,7 +2287,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
 
@@ -2324,7 +2318,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2509,7 +2503,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2592,7 +2586,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2660,7 +2654,7 @@ class PagerFlowSnapshotTest {
                         54,
                         55,
                         56,
-                        57
+                        57,
                     )
                 )
         }
@@ -2684,7 +2678,7 @@ class PagerFlowSnapshotTest {
                         pageSize = 1,
                         initialLoadSize = 1,
                         enablePlaceholders = false,
-                        prefetchDistance = 1
+                        prefetchDistance = 1,
                     ),
                 initialKey = 50,
                 pagingSourceFactory = createFactory(dataFlow, loadDelay),
@@ -2804,7 +2798,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -2860,7 +2854,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -3100,7 +3094,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -3160,7 +3154,7 @@ class PagerFlowSnapshotTest {
                         19,
                         20,
                         21,
-                        22
+                        22,
                     )
                 )
         }
@@ -3184,7 +3178,7 @@ class PagerFlowSnapshotTest {
                         pageSize = 1,
                         initialLoadSize = 1,
                         enablePlaceholders = false,
-                        prefetchDistance = 1
+                        prefetchDistance = 1,
                     ),
                 pagingSourceFactory = createFactory(dataFlow, loadDelay),
             )
@@ -3216,7 +3210,7 @@ class PagerFlowSnapshotTest {
                 dataFlow,
                 PagingConfig(pageSize = 1, initialLoadSize = 1, prefetchDistance = 1),
                 loadDelay,
-                50
+                50,
             )
         val pagerWithSeparator =
             pager.map { pagingData ->
@@ -3387,7 +3381,7 @@ class PagerFlowSnapshotTest {
             dataFlow,
             PagingConfig(pageSize = 3, initialLoadSize = 5),
             loadDelay,
-            initialKey
+            initialKey,
         )
 
     private fun createPager(data: List<Int>, loadDelay: Long, initialKey: Int = 0) =
@@ -3401,7 +3395,7 @@ class PagerFlowSnapshotTest {
     private fun createPagerNoPlaceholders(
         dataFlow: Flow<List<Int>>,
         loadDelay: Long,
-        initialKey: Int = 0
+        initialKey: Int = 0,
     ) =
         createPager(
             dataFlow,
@@ -3409,46 +3403,46 @@ class PagerFlowSnapshotTest {
                 pageSize = 3,
                 initialLoadSize = 5,
                 enablePlaceholders = false,
-                prefetchDistance = 3
+                prefetchDistance = 3,
             ),
             loadDelay,
-            initialKey
+            initialKey,
         )
 
     private fun createPagerNoPrefetch(
         dataFlow: Flow<List<Int>>,
         loadDelay: Long,
-        initialKey: Int = 0
+        initialKey: Int = 0,
     ) =
         createPager(
             dataFlow,
             PagingConfig(pageSize = 3, initialLoadSize = 5, prefetchDistance = 0),
             loadDelay,
-            initialKey
+            initialKey,
         )
 
     private fun createPagerWithJump(
         dataFlow: Flow<List<Int>>,
         loadDelay: Long,
-        initialKey: Int = 0
+        initialKey: Int = 0,
     ) =
         createPager(
             dataFlow,
             PagingConfig(pageSize = 3, initialLoadSize = 5, jumpThreshold = 5),
             loadDelay,
-            initialKey
+            initialKey,
         )
 
     private fun createPagerWithDrops(
         dataFlow: Flow<List<Int>>,
         loadDelay: Long,
-        initialKey: Int = 0
+        initialKey: Int = 0,
     ) =
         createPager(
             dataFlow,
             PagingConfig(pageSize = 3, initialLoadSize = 5, maxSize = 9),
             loadDelay,
-            initialKey
+            initialKey,
         )
 
     private fun createPager(

@@ -19,10 +19,10 @@ package androidx.wear.watchface.complications
 import android.content.Context
 import android.graphics.RectF
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.test.R
 import com.google.common.truth.Truth.assertThat
@@ -30,7 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.xmlpull.v1.XmlPullParser
 
-@RequiresApi(Build.VERSION_CODES.P)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class ComplicationSlotBoundsTest {
@@ -62,7 +62,7 @@ class ComplicationSlotBoundsTest {
                     96f * context.resources.displayMetrics.density / widthPixels,
                     96f * context.resources.displayMetrics.density / widthPixels,
                     192f * context.resources.displayMetrics.density / widthPixels,
-                    192f * context.resources.displayMetrics.density / widthPixels
+                    192f * context.resources.displayMetrics.density / widthPixels,
                 )
             )
         assertThat(bounds.perComplicationTypeMargins[ComplicationType.LONG_TEXT]).isEqualTo(RectF())

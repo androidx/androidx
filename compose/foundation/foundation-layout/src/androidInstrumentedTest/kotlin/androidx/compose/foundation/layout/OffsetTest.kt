@@ -374,7 +374,7 @@ class OffsetTest {
                         onPlaced = { coordinates ->
                             positionX = coordinates.positionInRoot().x.roundToInt()
                             placeCount++
-                        }
+                        },
                     )
                     .drawBehind { drawCount++ }
             var offset by mutableStateOf(10.dp)
@@ -418,7 +418,7 @@ class OffsetTest {
                     onPlaced = { coordinates ->
                         positionX = coordinates.positionInRoot().x.roundToInt()
                         placeCount++
-                    }
+                    },
                 )
                 .drawBehind { drawCount++ }
         var offset by mutableStateOf<Density.() -> IntOffset>({ IntOffset(10, 0) })
@@ -457,7 +457,7 @@ fun Modifier.onLayout(onRemeasured: () -> Unit, onPlaced: (LayoutCoordinates) ->
 
 data class OnLayoutNodeElement(
     val onRemeasured: () -> Unit,
-    val onPlaced: (LayoutCoordinates) -> Unit
+    val onPlaced: (LayoutCoordinates) -> Unit,
 ) : ModifierNodeElement<OnLayoutNode>() {
     override fun create() = OnLayoutNode(onRemeasured, onPlaced)
 
@@ -466,7 +466,7 @@ data class OnLayoutNodeElement(
 
 class OnLayoutNode(
     val onRemeasuredCallback: () -> Unit,
-    val onPlacedCallback: (LayoutCoordinates) -> Unit
+    val onPlacedCallback: (LayoutCoordinates) -> Unit,
 ) : LayoutAwareModifierNode, Modifier.Node() {
     override fun onRemeasured(size: IntSize) {
         onRemeasuredCallback()

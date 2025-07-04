@@ -24,5 +24,5 @@ internal class ConversionContext(
     val stringTable: StringTable,
     val windowPos: IntOffset,
     val recompositionHandler: RecompositionHandler,
-    val reduceChildNesting: Boolean
+    val reduceChildNesting: Boolean,
 )

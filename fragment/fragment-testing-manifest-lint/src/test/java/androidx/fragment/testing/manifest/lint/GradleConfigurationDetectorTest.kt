@@ -39,7 +39,7 @@ class GradleConfigurationDetectorTest : LintDetectorTest() {
                 dependencies {
                     debugImplementation("androidx.fragment:fragment-testing-manifest:1.2.0-beta02")
                 }
-            """
+            """,
                     )
                     .indented()
             )
@@ -57,7 +57,7 @@ class GradleConfigurationDetectorTest : LintDetectorTest() {
                 dependencies {
                     androidTestImplementation("androidx.fragment:fragment-testing-manifest:1.2.0-beta02")
                 }
-            """
+            """,
                     )
                     .indented()
             )
@@ -80,7 +80,7 @@ class GradleConfigurationDetectorTest : LintDetectorTest() {
                 }
             """
                     )
-                    .indented()
+                    .indented(),
             )
     }
 }

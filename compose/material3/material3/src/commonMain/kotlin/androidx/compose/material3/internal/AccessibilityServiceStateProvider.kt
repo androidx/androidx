@@ -25,9 +25,11 @@ import androidx.compose.runtime.State
  * @param listenToTouchExplorationState whether to track the enabled/disabled state of touch
  *   exploration (i.e. TalkBack)
  * @param listenToSwitchAccessState whether to track the enabled/disabled state of Switch Access
+ * @param listenToVoiceAccessState whether to track the enabled/disabled state of Voice Access
  */
 @Composable
 internal expect fun rememberAccessibilityServiceState(
     listenToTouchExplorationState: Boolean = true,
     listenToSwitchAccessState: Boolean = true,
+    listenToVoiceAccessState: Boolean = true,
 ): State<Boolean>

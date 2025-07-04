@@ -37,7 +37,7 @@ class ObsoleteBuildCompatUsageDetector : Detector(), Detector.UastScanner {
             "isAtLeastO" to 26,
             "isAtLeastOMR1" to 27,
             "isAtLeastP" to 28,
-            "isAtLeastQ" to 29
+            "isAtLeastQ" to 29,
         )
 
     override fun getApplicableMethodNames() = methodsToApiLevels.keys.toList()
@@ -79,7 +79,7 @@ class ObsoleteBuildCompatUsageDetector : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(ObsoleteBuildCompatUsageDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(ObsoleteBuildCompatUsageDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

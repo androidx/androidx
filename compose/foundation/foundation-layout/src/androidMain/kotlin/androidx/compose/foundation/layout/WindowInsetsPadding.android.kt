@@ -235,7 +235,7 @@ actual fun Modifier.mandatorySystemGesturesPadding() =
 @Stable
 private inline fun Modifier.windowInsetsPadding(
     noinline inspectorInfo: InspectorInfo.() -> Unit,
-    crossinline insetsCalculation: WindowInsetsHolder.() -> WindowInsets
+    crossinline insetsCalculation: WindowInsetsHolder.() -> WindowInsets,
 ): Modifier =
     composed(inspectorInfo) {
         val composeInsets = WindowInsetsHolder.current()

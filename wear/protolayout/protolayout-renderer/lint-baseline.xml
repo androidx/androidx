@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.10.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.0-alpha07)" variant="all" version="8.10.0-alpha07">
+
+    <issue
+        id="WrongThread"
+        message="Constructor FrameLayout must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        inflateParent = new FrameLayout(uiContext);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/impl/ProtoLayoutViewInstance.java"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method getChildCount must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="        if (inflateParent.getChildCount() > 0) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/impl/ProtoLayoutViewInstance.java"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method getChildAt must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="            View firstChild = inflateParent.getChildAt(0);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/impl/ProtoLayoutViewInstance.java"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method getLayoutParams must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="                    (FrameLayout.LayoutParams) firstChild.getLayoutParams();"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/impl/ProtoLayoutViewInstance.java"/>
+    </issue>
+
+    <issue
+        id="WrongThread"
+        message="Method setLayoutParams must be called from the UI thread, currently inferred thread is worker thread"
+        errorLine1="            firstChild.setLayoutParams(childLp);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/protolayout/renderer/impl/ProtoLayoutViewInstance.java"/>
+    </issue>
+
+</issues>

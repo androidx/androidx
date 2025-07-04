@@ -27,7 +27,7 @@
         android:text="Switch Area"
         android:visibility="invisible"/>
 
-    <androidx.camera.viewfinder.CameraViewfinder
+    <androidx.camera.viewfinder.view.ViewfinderView
         android:id="@+id/view_finder"
         app:scaleType="fitCenter"
         app:implementationMode="performance"

@@ -29,12 +29,10 @@ public class MyMainPackageInterfaceStubDelegate internal constructor(
     transactionCallback.onCancellable(cancellationSignal)
   }
 
-  public override fun useDataClass(x: ParcelableMyOtherPackageDataClass,
-      transactionCallback: IMyOtherPackageDataClassTransactionCallback) {
+  public override fun useDataClass(x: ParcelableMyOtherPackageDataClass, transactionCallback: IMyOtherPackageDataClassTransactionCallback) {
     val job = coroutineScope.launch {
       try {
-        val result =
-            delegate.useDataClass(MyOtherPackageDataClassConverter(context).fromParcelable(x))
+        val result = delegate.useDataClass(MyOtherPackageDataClassConverter(context).fromParcelable(x))
         transactionCallback.onSuccess(MyOtherPackageDataClassConverter(context).toParcelable(result))
       }
       catch (t: Throwable) {

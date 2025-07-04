@@ -21,5 +21,5 @@ import androidx.compose.ui.Modifier
 internal fun Modifier.ifElse(
     condition: Boolean,
     ifTrueModifier: Modifier,
-    ifFalseModifier: Modifier = Modifier
+    ifFalseModifier: Modifier = Modifier,
 ): Modifier = then(if (condition) ifTrueModifier else ifFalseModifier)

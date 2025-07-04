@@ -21,7 +21,7 @@ import androidx.room.DatabaseProcessingStep
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -87,17 +87,17 @@ class RemoveUnusedColumnsTest {
             dao(
                 annotateDao = annotateDao,
                 annotateDb = annotateDb,
-                annotateMethod = annotateMethod
+                annotateMethod = annotateMethod,
             ) + COMMON.USER
 
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = sources,
             createProcessingSteps = { listOf(DatabaseProcessingStep()) },
             options =
                 mapOf(
                     "room.expandProjection" to enableExpandProjection.toString(),
                     "room.generateKotlin" to "false",
-                )
+                ),
         ) { result ->
             validate(result)
             result.generatedSourceFileWithPath("foo/bar/MyDao_Impl.java")
@@ -109,7 +109,7 @@ class RemoveUnusedColumnsTest {
         private fun dao(
             annotateDb: Boolean,
             annotateDao: Boolean,
-            annotateMethod: Boolean
+            annotateMethod: Boolean,
         ): List<Source> {
             fun annotationText(enabled: Boolean) =
                 if (enabled) {
@@ -128,7 +128,7 @@ class RemoveUnusedColumnsTest {
                         public String lastName;
                     }
                 """
-                        .trimIndent()
+                        .trimIndent(),
                 )
             val dao =
                 Source.java(
@@ -144,7 +144,7 @@ class RemoveUnusedColumnsTest {
                         public java.util.List<Pojo> loadAll();
                     }
                 """
-                        .trimIndent()
+                        .trimIndent(),
                 )
             val db =
                 Source.java(
@@ -162,7 +162,7 @@ class RemoveUnusedColumnsTest {
                         abstract public MyDao getDao();
                     }
                 """
-                        .trimIndent()
+                        .trimIndent(),
                 )
             return listOf(pojo, dao, db)
         }

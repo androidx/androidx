@@ -18,7 +18,7 @@ package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -54,7 +54,7 @@ private val colorStyleSetting =
             colorStyleList,
             listOf(WatchFaceLayer.BASE),
             "Colors",
-            "Watchface colorization"
+            "Watchface colorization",
         )
         .build()
 
@@ -76,7 +76,7 @@ private val watchHandStyleSetting =
             watchHandStyleList,
             listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
             "Hand Style",
-            "Hand visual look"
+            "Hand visual look",
         )
         .build()
 
@@ -88,7 +88,7 @@ private val watchHandLengthStyleSetting =
             0.75,
             listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
             "Hand length",
-            "Scale of watch hands"
+            "Scale of watch hands",
         )
         .build()
 
@@ -98,7 +98,7 @@ private val booleanSetting =
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             true,
             "setting",
-            "setting description"
+            "setting description",
         )
         .build()
 
@@ -108,7 +108,7 @@ private val booleanSettingCopy =
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             true,
             "setting",
-            "setting description"
+            "setting description",
         )
         .build()
 private val booleanSettingModifiedInfo =
@@ -117,7 +117,7 @@ private val booleanSettingModifiedInfo =
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             false,
             "setting modified",
-            "setting description modified"
+            "setting description modified",
         )
         .build()
 
@@ -127,7 +127,7 @@ private val booleanSettingModifiedId =
             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             true,
             "setting",
-            "setting description"
+            "setting description",
         )
         .build()
 
@@ -151,7 +151,7 @@ class CurrentUserStyleRepositoryTest {
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to greenStyleOption,
-                    watchHandStyleSetting to gothicStyleOption
+                    watchHandStyleSetting to gothicStyleOption,
                 )
             )
 
@@ -171,7 +171,7 @@ class CurrentUserStyleRepositoryTest {
                     colorStyleList,
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
         val watchHandStyleSetting2 =
@@ -180,7 +180,7 @@ class CurrentUserStyleRepositoryTest {
                     watchHandStyleList,
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     "Hand Style",
-                    "Hand visual look"
+                    "Hand visual look",
                 )
                 .build()
 
@@ -188,7 +188,7 @@ class CurrentUserStyleRepositoryTest {
             UserStyle(
                 hashMapOf(
                     colorStyleSetting2 to greenStyleOption,
-                    watchHandStyleSetting2 to gothicStyleOption
+                    watchHandStyleSetting2 to gothicStyleOption,
                 )
             )
 
@@ -215,10 +215,10 @@ class CurrentUserStyleRepositoryTest {
                 UserStyleData(
                     mapOf(
                         "color_style_setting" to "blue_style".encodeToByteArray(),
-                        "hand_style_setting" to "gothic_style".encodeToByteArray()
+                        "hand_style_setting" to "gothic_style".encodeToByteArray(),
                     )
                 ),
-                userStyleRepository.schema
+                userStyleRepository.schema,
             )
 
         assertThat(userStyle[colorStyleSetting]!!.id.value.decodeToString()).isEqualTo("blue_style")
@@ -233,10 +233,10 @@ class CurrentUserStyleRepositoryTest {
                 UserStyleData(
                     mapOf(
                         "color_style_setting" to "I DO NOT EXIST".encodeToByteArray(),
-                        "hand_style_setting" to "gothic_style".encodeToByteArray()
+                        "hand_style_setting" to "gothic_style".encodeToByteArray(),
                     )
                 ),
-                userStyleRepository.schema
+                userStyleRepository.schema,
             )
 
         assertThat(userStyle[colorStyleSetting]!!.id.value.decodeToString()).isEqualTo("red_style")
@@ -249,7 +249,7 @@ class CurrentUserStyleRepositoryTest {
         val userStyle =
             UserStyle(
                 UserStyleData(mapOf("hand_style_setting" to "gothic_style".encodeToByteArray())),
-                userStyleRepository.schema
+                userStyleRepository.schema,
             )
 
         assertThat(userStyle[colorStyleSetting]!!.id.value.decodeToString()).isEqualTo("red_style")
@@ -273,7 +273,7 @@ class CurrentUserStyleRepositoryTest {
                             "TEST 123".encodeToByteArray()
                     )
                 ),
-                userStyleRepository.schema
+                userStyleRepository.schema,
             )
 
         val customValue = userStyle[customStyleSetting]!! as CustomValueOption
@@ -322,7 +322,7 @@ class CurrentUserStyleRepositoryTest {
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to greenStyleOption,
-                    watchHandStyleSetting to gothicStyleOption
+                    watchHandStyleSetting to gothicStyleOption,
                 )
             )
 
@@ -336,7 +336,7 @@ class CurrentUserStyleRepositoryTest {
             UserStyle(
                 hashMapOf(
                     colorStyleSetting to greenStyleOption,
-                    watchHandStyleSetting to gothicStyleOption
+                    watchHandStyleSetting to gothicStyleOption,
                 )
             )
 
@@ -362,7 +362,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(option0, option1),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "setting",
-                    "setting description"
+                    "setting description",
                 )
                 .build()
 
@@ -618,7 +618,7 @@ class CurrentUserStyleRepositoryTest {
                     colorStyleSetting to blueStyleOption,
                     watchHandStyleSetting to modernStyleOption,
                     watchHandLengthStyleSetting to
-                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2)
+                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2),
                 )
             )
         val userStyleA2 =
@@ -627,7 +627,7 @@ class CurrentUserStyleRepositoryTest {
                     colorStyleSetting to blueStyleOption,
                     watchHandStyleSetting to modernStyleOption,
                     watchHandLengthStyleSetting to
-                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2)
+                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2),
                 )
             )
 
@@ -637,7 +637,7 @@ class CurrentUserStyleRepositoryTest {
                     colorStyleSetting to blueStyleOption,
                     watchHandStyleSetting to modernStyleOption,
                     watchHandLengthStyleSetting to
-                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.75)
+                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.75),
                 )
             )
         val userStyleC =
@@ -646,7 +646,7 @@ class CurrentUserStyleRepositoryTest {
                     colorStyleSetting to blueStyleOption,
                     watchHandStyleSetting to gothicStyleOption,
                     watchHandLengthStyleSetting to
-                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2)
+                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2),
                 )
             )
         val userStyleD =
@@ -655,7 +655,7 @@ class CurrentUserStyleRepositoryTest {
                     colorStyleSetting to redStyleOption,
                     watchHandStyleSetting to modernStyleOption,
                     watchHandLengthStyleSetting to
-                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2)
+                        DoubleRangeUserStyleSetting.DoubleRangeOption(0.2),
                 )
             )
 
@@ -681,7 +681,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(twelveHourClockOption, twentyFourHourClockOption),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "Clock style",
-                    "Clock style setting"
+                    "Clock style setting",
                 )
                 .build()
 
@@ -701,7 +701,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(digitalWatchFaceType, analogWatchFaceType),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "Watch face type",
-                    "Analog or digital"
+                    "Analog or digital",
                 )
                 .build()
 
@@ -712,7 +712,7 @@ class CurrentUserStyleRepositoryTest {
                     digitalClockStyleSetting,
                     colorStyleSetting,
                     watchHandLengthStyleSetting,
-                    watchHandStyleSetting
+                    watchHandStyleSetting,
                 )
             )
 
@@ -732,7 +732,7 @@ class CurrentUserStyleRepositoryTest {
                     Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     emptyList(),
                     "Both",
-                    "Both complications"
+                    "Both complications",
                 )
                 .build()
         val complicationSetting1 =
@@ -741,7 +741,7 @@ class CurrentUserStyleRepositoryTest {
                     complicationConfig = listOf(leftAndRightComplications),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
         val complicationSetting2 =
@@ -750,7 +750,7 @@ class CurrentUserStyleRepositoryTest {
                     complicationConfig = listOf(leftAndRightComplications),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
         val optionA1 =
@@ -770,11 +770,11 @@ class CurrentUserStyleRepositoryTest {
                             listOf(optionA1, optionA2),
                             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                             "A123",
-                            "A123"
+                            "A123",
                         )
                         .build(),
                     complicationSetting1,
-                    complicationSetting2
+                    complicationSetting2,
                 )
             )
         }
@@ -787,7 +787,7 @@ class CurrentUserStyleRepositoryTest {
                     Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     emptyList(),
                     "Both",
-                    "Both complications"
+                    "Both complications",
                 )
                 .build()
         val complicationSetting1 =
@@ -796,7 +796,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(leftAndRightComplications),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
         val complicationSetting2 =
@@ -805,7 +805,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(leftAndRightComplications),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
         val optionA1 =
@@ -823,11 +823,11 @@ class CurrentUserStyleRepositoryTest {
                             listOf(optionA1, optionA2),
                             WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                             "A123",
-                            "A123"
+                            "A123",
                         )
                         .build(),
                     complicationSetting1,
-                    complicationSetting2
+                    complicationSetting2,
                 )
             )
         }
@@ -854,7 +854,7 @@ class CurrentUserStyleRepositoryTest {
                     Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                     emptyList(),
                     "Both",
-                    "Both complications"
+                    "Both complications",
                 )
                 .build()
         val noComplications =
@@ -869,7 +869,7 @@ class CurrentUserStyleRepositoryTest {
                             .build(),
                     ),
                     "None",
-                    "No complications"
+                    "No complications",
                 )
                 .build()
         val complicationSetting1 =
@@ -878,7 +878,7 @@ class CurrentUserStyleRepositoryTest {
                     complicationConfig = listOf(leftAndRightComplications, noComplications),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
 
@@ -891,7 +891,7 @@ class CurrentUserStyleRepositoryTest {
                             .build()
                     ),
                     "Left",
-                    "Left complication"
+                    "Left complication",
                 )
                 .build()
         val rightComplication =
@@ -903,7 +903,7 @@ class CurrentUserStyleRepositoryTest {
                             .build()
                     ),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
         val complicationSetting2 =
@@ -912,7 +912,7 @@ class CurrentUserStyleRepositoryTest {
                     complicationConfig = listOf(leftComplication, rightComplication),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
 
@@ -928,10 +928,10 @@ class CurrentUserStyleRepositoryTest {
                             .build(),
                         ComplicationSlotOverlay.Builder(rightComplicationID)
                             .setAccessibilityTraversalIndex(2)
-                            .build()
+                            .build(),
                     ),
                     "Traversal",
-                    "Traversal"
+                    "Traversal",
                 )
                 .build()
         val complicationSetting3 =
@@ -940,7 +940,7 @@ class CurrentUserStyleRepositoryTest {
                     complicationConfig = listOf(normal, traversal),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Traversal Order",
-                    "Traversal Order"
+                    "Traversal Order",
                 )
                 .build()
 
@@ -961,7 +961,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(optionA1, optionA2, optionA3),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "A123",
-                    "A123"
+                    "A123",
                 )
                 .build()
 
@@ -978,7 +978,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(optionB1, optionB2),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "B12",
-                    "B12"
+                    "B12",
                 )
                 .build()
 
@@ -997,7 +997,7 @@ class CurrentUserStyleRepositoryTest {
                     listOf(rootOptionA, rootOptionB),
                     WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
                     "AB",
-                    "AB"
+                    "AB",
                 )
                 .build()
 
@@ -1009,7 +1009,7 @@ class CurrentUserStyleRepositoryTest {
                     b12Choice,
                     complicationSetting1,
                     complicationSetting2,
-                    complicationSetting3
+                    complicationSetting3,
                 )
             )
 
@@ -1020,7 +1020,7 @@ class CurrentUserStyleRepositoryTest {
                 b12Choice to optionB1,
                 complicationSetting1 to leftAndRightComplications,
                 complicationSetting2 to rightComplication,
-                complicationSetting3 to traversal
+                complicationSetting3 to traversal,
             )
 
         // Test various userStyleMap permutations to ensure the correct ComplicationSlotsOption is
@@ -1090,7 +1090,7 @@ public class MutableUserStyleTest {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.P)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(StyleTestRunner::class)
 class DigestHashTest {
     @Test
@@ -1119,19 +1119,16 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
         val colorStyleSetting2 =
             ListUserStyleSetting.Builder(
                     UserStyleSetting.Id("color_style_setting"),
-                    listOf(
-                        redStyleOption,
-                        greenStyleOption,
-                    ),
+                    listOf(redStyleOption, greenStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
         val colorStyleSetting3 =
@@ -1140,7 +1137,7 @@ class DigestHashTest {
                     listOf(redStyleOption, greenStyleOption, blueStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
 
@@ -1165,7 +1162,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
         val colorStyleSetting2 =
@@ -1174,7 +1171,7 @@ class DigestHashTest {
                     listOf(redStyleOption, greenStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors2",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
 
@@ -1195,7 +1192,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
         val colorStyleSetting2 =
@@ -1204,7 +1201,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization2"
+                    "Watchface colorization2",
                 )
                 .build()
 
@@ -1226,7 +1223,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .setIcon(Icon.createWithContentUri("/path1"))
                 .build()
@@ -1236,7 +1233,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .setIcon(Icon.createWithContentUri("/path2"))
                 .build()
@@ -1258,7 +1255,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
         val colorStyleSetting2 =
@@ -1267,7 +1264,7 @@ class DigestHashTest {
                     listOf(redStyleOption),
                     listOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.BASE),
                     "Colors",
-                    "Watchface colorization"
+                    "Watchface colorization",
                 )
                 .build()
 

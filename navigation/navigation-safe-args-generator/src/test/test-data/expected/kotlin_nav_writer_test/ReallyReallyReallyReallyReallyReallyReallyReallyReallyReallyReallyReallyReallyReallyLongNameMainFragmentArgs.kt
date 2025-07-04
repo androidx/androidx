@@ -7,8 +7,7 @@ import java.lang.IllegalArgumentException
 import kotlin.String
 import kotlin.jvm.JvmStatic
 
-public data class
-    ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs(
+public data class ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs(
   public val main: String,
 ) : NavArgs {
   public fun toBundle(): Bundle {
@@ -25,8 +24,7 @@ public data class
 
   public companion object {
     @JvmStatic
-    public fun fromBundle(bundle: Bundle):
-        ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs {
+    public fun fromBundle(bundle: Bundle): ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs {
       bundle.setClassLoader(ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs::class.java.classLoader)
       val __main : String?
       if (bundle.containsKey("main")) {
@@ -41,8 +39,7 @@ public data class
     }
 
     @JvmStatic
-    public fun fromSavedStateHandle(savedStateHandle: SavedStateHandle):
-        ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs {
+    public fun fromSavedStateHandle(savedStateHandle: SavedStateHandle): ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameFragmentArgs {
       val __main : String?
       if (savedStateHandle.contains("main")) {
         __main = savedStateHandle["main"]

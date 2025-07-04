@@ -55,7 +55,7 @@ class RecyclerViewPrefetchTest : BaseRecyclerViewInstrumentationTest() {
             dx: Int,
             dy: Int,
             state: RecyclerView.State,
-            layoutPrefetchRegistry: LayoutPrefetchRegistry
+            layoutPrefetchRegistry: LayoutPrefetchRegistry,
         ) {
             if (dy > 0) {
                 // only a valid prefetch if it gets direction correct, since that's what drives

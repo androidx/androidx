@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.watchface.ComplicationSlotBoundsType
@@ -62,7 +63,7 @@ abstract class HeadlessWatchFaceClientTestBase {
             Intent(context, WatchFaceControlTestService::class.java).apply {
                 action = WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE
             },
-            resourceOnlyWatchFacePackageName = null
+            resourceOnlyWatchFacePackageName = null,
         )
     }
 
@@ -83,13 +84,13 @@ abstract class HeadlessWatchFaceClientTestBase {
             hasLowBitAmbient = false,
             hasBurnInProtection = false,
             analogPreviewReferenceTimeMillis = 0,
-            digitalPreviewReferenceTimeMillis = 0
+            digitalPreviewReferenceTimeMillis = 0,
         )
 }
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
     @Suppress("DEPRECATION", "NewApi") // defaultDataSourceType
     @Test
@@ -115,7 +116,7 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
                 ComplicationType.LONG_TEXT,
                 ComplicationType.SHORT_TEXT,
                 ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
+                ComplicationType.SMALL_IMAGE,
             )
         Assert.assertTrue(leftComplicationDetails.isEnabled)
 
@@ -137,7 +138,7 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
                 ComplicationType.LONG_TEXT,
                 ComplicationType.SHORT_TEXT,
                 ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
+                ComplicationType.SMALL_IMAGE,
             )
 
         Truth.assertThat(rightComplicationDetails.isEnabled).isTrue()
@@ -172,14 +173,12 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
         Truth.assertThat(headlessInstance.getUserStyleFlavors().flavors.size).isEqualTo(1)
         val flavorA = headlessInstance.getUserStyleFlavors().flavors[0]
         Truth.assertThat(flavorA.id).isEqualTo("exampleFlavor")
-        Truth.assertThat(flavorA.style.userStyleMap.containsKey("color_style_setting"))
-        Truth.assertThat(flavorA.style.userStyleMap.containsKey("watch_hand_length_style_setting"))
-        Truth.assertThat(
-            flavorA.complications.containsKey(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
-        )
-        Truth.assertThat(
-            flavorA.complications.containsKey(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
-        )
+        Truth.assertThat(flavorA.style.userStyleMap).containsKey("color_style_setting")
+        Truth.assertThat(flavorA.style.userStyleMap).containsKey("watch_hand_length_style_setting")
+        Truth.assertThat(flavorA.complications)
+            .containsKey(EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID)
+        Truth.assertThat(flavorA.complications)
+            .containsKey(EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID)
 
         headlessInstance.close()
     }
@@ -195,7 +194,7 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
                         exampleCanvasAnalogWatchFaceComponentName,
                         deviceConfig,
                         400,
-                        400
+                        400,
                     )!!
                     .toBundle()
             )
@@ -228,14 +227,14 @@ class HeadlessWatchFaceClientTest : HeadlessWatchFaceClientTestBase() {
                 "WatchFaceService.onCreate",
                 "Renderer.constructed",
                 "Renderer.onDestroy",
-                "WatchFaceService.onDestroy"
+                "WatchFaceService.onDestroy",
             )
     }
 }
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 class HeadlessWatchFaceClientScreenshotTest : HeadlessWatchFaceClientTestBase() {
     @get:Rule
     val screenshotRule: AndroidXScreenshotTestRule =
@@ -253,7 +252,7 @@ class HeadlessWatchFaceClientScreenshotTest : HeadlessWatchFaceClientTestBase() 
                 RenderParameters(DrawMode.INTERACTIVE, WatchFaceLayer.ALL_WATCH_FACE_LAYERS, null),
                 Instant.ofEpochMilli(1234567),
                 null,
-                complications
+                complications,
             )
 
         bitmap.assertAgainstGolden(screenshotRule, "headlessScreenshot")
@@ -274,12 +273,12 @@ class HeadlessWatchFaceClientScreenshotTest : HeadlessWatchFaceClientTestBase() 
                     RenderParameters.HighlightLayer(
                         RenderParameters.HighlightedElement.AllComplicationSlots,
                         Color.YELLOW,
-                        Color.argb(128, 0, 0, 0) // Darken everything else.
-                    )
+                        Color.argb(128, 0, 0, 0), // Darken everything else.
+                    ),
                 ),
                 Instant.ofEpochMilli(1234567),
                 null,
-                complications
+                complications,
             )
 
         bitmap.assertAgainstGolden(screenshotRule, "yellowComplicationHighlights")
@@ -300,12 +299,12 @@ class HeadlessWatchFaceClientScreenshotTest : HeadlessWatchFaceClientTestBase() 
                     RenderParameters.HighlightLayer(
                         RenderParameters.HighlightedElement.AllComplicationSlots,
                         Color.YELLOW,
-                        Color.argb(128, 0, 0, 0) // Darken everything else.
-                    )
+                        Color.argb(128, 0, 0, 0), // Darken everything else.
+                    ),
                 ),
                 Instant.ofEpochMilli(1234567),
                 null,
-                complications
+                complications,
             )
 
         bitmap.assertAgainstGolden(screenshotRule, "highlightOnlyLayer")

@@ -173,7 +173,7 @@ class RippleContainerTest {
                 bounded = true,
                 radius = Dp.Unspecified,
                 color = { Color.Red },
-                rippleAlpha = { RippleAlpha(0.2f, 0.2f, 0.2f, 0.2f) }
+                rippleAlpha = { RippleAlpha(0.2f, 0.2f, 0.2f, 0.2f) },
             )
         }
 
@@ -204,7 +204,7 @@ class RippleContainerTest {
                             .size(40.dp)
                             .indication(
                                 interactionSource = interactionSource1,
-                                indication = TestRipple
+                                indication = TestRipple,
                             )
                     )
                     Box(
@@ -212,7 +212,7 @@ class RippleContainerTest {
                             .size(40.dp)
                             .indication(
                                 interactionSource = interactionSource2,
-                                indication = TestRipple
+                                indication = TestRipple,
                             )
                     )
                 }

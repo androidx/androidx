@@ -79,7 +79,7 @@ fun SimpleCarousel() {
         listOf(
             Color.Red.copy(alpha = 0.3f),
             Color.Yellow.copy(alpha = 0.3f),
-            Color.Green.copy(alpha = 0.3f)
+            Color.Green.copy(alpha = 0.3f),
         )
 
     var carouselFocused by remember { mutableStateOf(false) }
@@ -90,7 +90,7 @@ fun SimpleCarousel() {
                 carouselFocused = it.isFocused
             },
         contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
-        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
     ) { itemIndex ->
         Box(
             modifier =
@@ -115,16 +115,16 @@ fun SimpleCarousel() {
                         .border(
                             width = 2.dp,
                             color = if (buttonFocused) Color.Red else Color.Transparent,
-                            shape = RoundedCornerShape(50)
+                            shape = RoundedCornerShape(50),
                         )
                         // Duration of animation here should be less than or equal to carousel's
                         // contentTransform duration to ensure the item below does not disappear
                         // abruptly.
                         .animateEnterExit(
                             enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
-                            exit = slideOutHorizontally(animationSpec = tween(1000))
+                            exit = slideOutHorizontally(animationSpec = tween(1000)),
                         )
-                        .padding(vertical = 2.dp, horizontal = 5.dp)
+                        .padding(vertical = 2.dp, horizontal = 5.dp),
             ) {
                 Text(text = "Play")
             }
@@ -140,7 +140,7 @@ fun CarouselIndicatorWithRectangleShape() {
         listOf(
             Color.Red.copy(alpha = 0.3f),
             Color.Yellow.copy(alpha = 0.3f),
-            Color.Green.copy(alpha = 0.3f)
+            Color.Green.copy(alpha = 0.3f),
         )
     val carouselState = rememberCarouselState()
 
@@ -162,13 +162,13 @@ fun CarouselIndicatorWithRectangleShape() {
                                 .background(
                                     color = if (isActive) activeColor else inactiveColor,
                                     shape = RectangleShape,
-                                ),
+                                )
                     )
-                }
+                },
             )
         },
         contentTransformEndToStart = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
-        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000)))
+        contentTransformStartToEnd = fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
     ) { itemIndex ->
         Box(
             modifier =
@@ -186,15 +186,15 @@ fun CarouselIndicatorWithRectangleShape() {
                         // abruptly.
                         .animateEnterExit(
                             enter = slideInHorizontally(animationSpec = tween(1000)) { it / 2 },
-                            exit = slideOutHorizontally(animationSpec = tween(1000))
+                            exit = slideOutHorizontally(animationSpec = tween(1000)),
                         )
                         .padding(40.dp)
                         .border(
                             width = 2.dp,
                             color = if (isFocused) Color.Red else Color.Transparent,
-                            shape = RoundedCornerShape(50)
+                            shape = RoundedCornerShape(50),
                         )
-                        .padding(vertical = 2.dp, horizontal = 5.dp)
+                        .padding(vertical = 2.dp, horizontal = 5.dp),
             ) {
                 Text(text = "Play")
             }

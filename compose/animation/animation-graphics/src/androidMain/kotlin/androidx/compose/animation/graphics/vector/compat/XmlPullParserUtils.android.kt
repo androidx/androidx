@@ -58,7 +58,7 @@ internal inline fun <T> AttributeSet.attrs(
     res: Resources,
     theme: Resources.Theme?,
     styleable: IntArray,
-    body: (a: TypedArray) -> T
+    body: (a: TypedArray) -> T,
 ): T {
     val a =
         theme?.obtainStyledAttributes(this, styleable, 0, 0)

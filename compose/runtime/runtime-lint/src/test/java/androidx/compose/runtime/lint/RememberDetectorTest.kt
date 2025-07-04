@@ -132,7 +132,7 @@ class RememberDetectorTest : LintDetectorTest() {
             """
                 ),
                 Stubs.Composable,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .run()
             .expect(
@@ -229,7 +229,7 @@ src/androidx/compose/runtime/foo/FooState.kt:88: Error: remember calls must not 
                 """
                 ),
                 Stubs.Composable,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .run()
             .expectClean()
@@ -317,7 +317,7 @@ src/androidx/compose/runtime/foo/FooState.kt:88: Error: remember calls must not 
             """
                 ),
                 Stubs.Composable,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .run()
             .expect(
@@ -429,7 +429,7 @@ src/androidx/compose/runtime/foo/FooState.kt:69: Error: remember calls must not 
             """
                 ),
                 Stubs.Composable,
-                Stubs.Remember
+                Stubs.Remember,
             )
             .run()
             .expectClean()

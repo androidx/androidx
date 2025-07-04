@@ -27,36 +27,40 @@ import static org.mockito.Mockito.when;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
-import android.os.Binder;
 import android.os.SystemClock;
 import android.view.Display;
-import android.view.SurfaceControlViewHost;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
-import androidx.xr.extensions.node.Node;
+import androidx.xr.runtime.internal.ActivityPanelEntity;
+import androidx.xr.runtime.internal.ActivitySpace;
+import androidx.xr.runtime.internal.AnchorEntity;
+import androidx.xr.runtime.internal.CameraViewActivityPose;
+import androidx.xr.runtime.internal.Dimensions;
+import androidx.xr.runtime.internal.Entity;
+import androidx.xr.runtime.internal.GltfEntity;
+import androidx.xr.runtime.internal.HeadActivityPose;
+import androidx.xr.runtime.internal.PanelEntity;
+import androidx.xr.runtime.internal.PerceptionSpaceActivityPose;
+import androidx.xr.runtime.internal.PixelDimensions;
+import androidx.xr.runtime.internal.PlaneSemantic;
+import androidx.xr.runtime.internal.PlaneType;
 import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
-import androidx.xr.scenecore.JxrPlatformAdapter.ActivityPanelEntity;
-import androidx.xr.scenecore.JxrPlatformAdapter.AnchorEntity;
-import androidx.xr.scenecore.JxrPlatformAdapter.Dimensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.Entity;
-import androidx.xr.scenecore.JxrPlatformAdapter.GltfEntity;
-import androidx.xr.scenecore.JxrPlatformAdapter.GltfModelResource;
-import androidx.xr.scenecore.JxrPlatformAdapter.PanelEntity;
-import androidx.xr.scenecore.JxrPlatformAdapter.PixelDimensions;
-import androidx.xr.scenecore.JxrPlatformAdapter.PlaneSemantic;
-import androidx.xr.scenecore.JxrPlatformAdapter.PlaneType;
+import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider;
 import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
 import androidx.xr.scenecore.impl.perception.Session;
-import androidx.xr.scenecore.testing.FakeImpressApi;
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService;
-import androidx.xr.scenecore.testing.FakeXrExtensions;
+
+import com.android.extensions.xr.XrExtensions;
+import com.android.extensions.xr.node.Node;
 
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager;
+import com.google.ar.imp.apibindings.FakeImpressApiImpl;
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,263 +69,297 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
-import java.util.Objects;
-
 @RunWith(RobolectricTestRunner.class)
 public class EntityManagerTest {
 
     private static final int VGA_WIDTH = 640;
     private static final int VGA_HEIGHT = 480;
-    private final FakeXrExtensions fakeExtensions = new FakeXrExtensions();
-    private final FakeImpressApi fakeImpressApi = new FakeImpressApi();
-    private final FakeScheduledExecutorService fakeExecutor = new FakeScheduledExecutorService();
-    private final PerceptionLibrary perceptionLibrary = mock(PerceptionLibrary.class);
-    private final Session session = mock(Session.class);
-    private final AndroidXrEntity activitySpaceRoot = mock(AndroidXrEntity.class);
-    private final FakeScheduledExecutorService executor = new FakeScheduledExecutorService();
-    private final Node panelEntityNode = fakeExtensions.createNode();
-    private final Node anchorEntityNode = fakeExtensions.createNode();
-    private final EntityManager entityManager = new EntityManager();
-    private final SplitEngineSubspaceManager splitEngineSubspaceManager =
+    private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
+    private final FakeImpressApiImpl mFakeImpressApi = new FakeImpressApiImpl();
+    private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
+    private final PerceptionLibrary mPerceptionLibrary = mock(PerceptionLibrary.class);
+    private final Session mSession = mock(Session.class);
+    private final AndroidXrEntity mActivitySpaceRoot = mock(AndroidXrEntity.class);
+    private final FakeScheduledExecutorService mExecutor = new FakeScheduledExecutorService();
+    private final Node mPanelEntityNode = mXrExtensions.createNode();
+    private final Node mAnchorEntityNode = mXrExtensions.createNode();
+    private final EntityManager mEntityManager = new EntityManager();
+    private final SplitEngineSubspaceManager mSplitEngineSubspaceManager =
             Mockito.mock(SplitEngineSubspaceManager.class);
-    private final ImpSplitEngineRenderer splitEngineRenderer =
+    private final ImpSplitEngineRenderer mSplitEngineRenderer =
             Mockito.mock(ImpSplitEngineRenderer.class);
-    private Node contentLessEntityNode;
-    private Node gltfEntityNode;
-    private Activity activity;
-    private JxrPlatformAdapterAxr runtime;
-    private ActivitySpaceImpl activitySpace;
+    private Node mGroupEntityNode;
+    private Node mGltfEntityNode;
+    private Activity mActivity;
+    private JxrPlatformAdapterAxr mPlatformAdapterAxr;
+    private ActivitySpaceImpl mActivitySpace;
 
     @Before
     public void setUp() {
         try (ActivityController<Activity> activityController =
                 Robolectric.buildActivity(Activity.class)) {
-            activity = activityController.create().start().get();
+            mActivity = activityController.create().start().get();
         }
-        when(perceptionLibrary.initSession(eq(activity), anyInt(), eq(fakeExecutor)))
-                .thenReturn(immediateFuture(session));
-        runtime =
+        when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
+                .thenReturn(immediateFuture(mSession));
+        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
+        mPlatformAdapterAxr =
                 JxrPlatformAdapterAxr.create(
-                        activity,
-                        fakeExecutor,
-                        fakeExtensions,
-                        fakeImpressApi,
-                        entityManager,
-                        perceptionLibrary,
-                        splitEngineSubspaceManager,
-                        splitEngineRenderer,
-                        /* useSplitEngine= */ false);
-        Node taskNode = fakeExtensions.createNode();
-        this.activitySpace =
+                        mActivity,
+                        mFakeExecutor,
+                        mXrExtensions,
+                        mFakeImpressApi,
+                        mEntityManager,
+                        mPerceptionLibrary,
+                        mSplitEngineSubspaceManager,
+                        mSplitEngineRenderer,
+                        /* useSplitEngine= */ true,
+                        /* unscaledGravityAlignedActivitySpace= */ false);
+        Node taskNode = mXrExtensions.createNode();
+        mActivitySpace =
                 new ActivitySpaceImpl(
                         taskNode,
-                        fakeExtensions,
-                        entityManager,
-                        () -> fakeExtensions.fakeSpatialState,
-                        executor);
+                        mActivity,
+                        mXrExtensions,
+                        mEntityManager,
+                        () -> mXrExtensions.getSpatialState(mActivity),
+                        /* unscaledGravityAlignedActivitySpace= */ false,
+                        mExecutor);
         long currentTimeMillis = 1000000000L;
         SystemClock.setCurrentTimeMillis(currentTimeMillis);
 
         // By default, set the activity space to the root of the underlying OpenXR reference space.
-        this.activitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
+        mActivitySpace.setOpenXrReferenceSpacePose(Matrix4.Identity);
+    }
+
+    @After
+    public void tearDown() {
+        // Dispose the runtime between test cases to clean up lingering references.
+        mPlatformAdapterAxr.dispose();
     }
 
     @Test
-    public void creatingEntity_addsEntityToEntityManager() throws Exception {
+    public void creatingEntity_addsEntityToEntityManager() {
         GltfEntity gltfEntity = createGltfEntity();
         PanelEntity panelEntity = createPanelEntity();
-        Entity contentlessEntity = createContentlessEntity();
+        Entity groupEntity = createGroupEntity();
         AnchorEntity anchorEntity = createAnchorEntity();
         ActivityPanelEntity activityPanelEntity = createActivityPanelEntity();
 
         // Entity manager also contains the main panel entity and activity space, which are created
         // when
         // the runtime is created.
-        assertThat(entityManager.getAllEntities().size()).isAtLeast(5);
-        assertThat(entityManager.getAllEntities())
+        assertThat(mEntityManager.getAllEntities().size()).isAtLeast(5);
+        assertThat(mEntityManager.getAllEntities())
                 .containsAtLeast(
-                        gltfEntity,
-                        panelEntity,
-                        contentlessEntity,
-                        anchorEntity,
-                        activityPanelEntity);
+                        gltfEntity, panelEntity, groupEntity, anchorEntity, activityPanelEntity);
     }
 
     @Test
-    public void getEntityForNode_returnsEntity() throws Exception {
+    public void getEntityForNode_returnsEntity() {
         GltfEntity gltfEntity = createGltfEntity();
         PanelEntity panelEntity = createPanelEntity();
-        Entity contentlessEntity = createContentlessEntity();
+        Entity groupEntity = createGroupEntity();
         AnchorEntity anchorEntity = createAnchorEntity();
-        Node testNode = fakeExtensions.createNode();
+        Node testNode = mXrExtensions.createNode();
 
-        assertThat(entityManager.getEntityForNode(gltfEntityNode)).isEqualTo(gltfEntity);
-        assertThat(entityManager.getEntityForNode(panelEntityNode)).isEqualTo(panelEntity);
-        assertThat(entityManager.getEntityForNode(contentLessEntityNode))
-                .isEqualTo(contentlessEntity);
-        assertThat(entityManager.getEntityForNode(anchorEntityNode)).isEqualTo(anchorEntity);
-        assertThat(entityManager.getEntityForNode(testNode)).isNull();
+        assertThat(mEntityManager.getEntityForNode(mGltfEntityNode)).isEqualTo(gltfEntity);
+        assertThat(mEntityManager.getEntityForNode(mPanelEntityNode)).isEqualTo(panelEntity);
+        assertThat(mEntityManager.getEntityForNode(mGroupEntityNode)).isEqualTo(groupEntity);
+        assertThat(mEntityManager.getEntityForNode(mAnchorEntityNode)).isEqualTo(anchorEntity);
+        assertThat(mEntityManager.getEntityForNode(testNode)).isNull();
     }
 
     @Test
-    public void getEntityByType_returnsEntityOfType() throws Exception {
+    public void getEntityByType_returnsEntityOfType() {
         GltfEntity gltfEntity = createGltfEntity();
         PanelEntity panelEntity = createPanelEntity();
-        Entity contentlessEntity = createContentlessEntity();
+        Entity groupEntity = createGroupEntity();
         AnchorEntity anchorEntity = createAnchorEntity();
         ActivityPanelEntity activityPanelEntity = createActivityPanelEntity();
 
-        assertThat(entityManager.getEntitiesOfType(GltfEntity.class)).containsExactly(gltfEntity);
+        assertThat(mEntityManager.getEntitiesOfType(GltfEntity.class)).containsExactly(gltfEntity);
         // MainPanel is also a PanelEntity.
-        assertThat(entityManager.getEntitiesOfType(PanelEntity.class)).contains(panelEntity);
+        assertThat(mEntityManager.getEntitiesOfType(PanelEntity.class)).contains(panelEntity);
         // Base class of all entities.
-        assertThat(entityManager.getEntitiesOfType(Entity.class)).contains(contentlessEntity);
-        assertThat(entityManager.getEntitiesOfType(AnchorEntity.class))
+        assertThat(mEntityManager.getEntitiesOfType(Entity.class)).contains(groupEntity);
+        assertThat(mEntityManager.getEntitiesOfType(AnchorEntity.class))
                 .containsExactly(anchorEntity);
-        assertThat(entityManager.getEntitiesOfType(ActivityPanelEntity.class))
+        assertThat(mEntityManager.getEntitiesOfType(ActivityPanelEntity.class))
                 .containsExactly(activityPanelEntity);
     }
 
     @Test
-    public void removeEntity_removesFromEntityManager() throws Exception {
+    public void removeEntity_removesFromEntityManager() {
         GltfEntity gltfEntity = createGltfEntity();
         PanelEntity panelEntity = createPanelEntity();
-        Entity contentlessEntity = createContentlessEntity();
+        Entity groupEntity = createGroupEntity();
         AnchorEntity anchorEntity = createAnchorEntity();
         ActivityPanelEntity activityPanelEntity = createActivityPanelEntity();
 
-        assertThat(entityManager.getAllEntities().size()).isAtLeast(5);
-        assertThat(entityManager.getAllEntities())
+        assertThat(mEntityManager.getAllEntities().size()).isAtLeast(5);
+        assertThat(mEntityManager.getAllEntities())
                 .containsAtLeast(
-                        gltfEntity,
-                        panelEntity,
-                        contentlessEntity,
-                        anchorEntity,
-                        activityPanelEntity);
+                        gltfEntity, panelEntity, groupEntity, anchorEntity, activityPanelEntity);
 
-        entityManager.removeEntityForNode(contentLessEntityNode);
+        mEntityManager.removeEntityForNode(mGroupEntityNode);
 
-        assertThat(entityManager.getAllEntities().size()).isAtLeast(4);
-        assertThat(entityManager.getAllEntities()).doesNotContain(contentlessEntity);
+        assertThat(mEntityManager.getAllEntities().size()).isAtLeast(4);
+        assertThat(mEntityManager.getAllEntities()).doesNotContain(groupEntity);
     }
 
     @Test
-    public void disposeEntity_removesFromEntityManager() throws Exception {
+    public void disposeEntity_removesFromEntityManager() {
         GltfEntity gltfEntity = createGltfEntity();
         PanelEntity panelEntity = createPanelEntity();
-        Entity contentlessEntity = createContentlessEntity();
+        Entity groupEntity = createGroupEntity();
         AnchorEntity anchorEntity = createAnchorEntity();
         ActivityPanelEntity activityPanelEntity = createActivityPanelEntity();
 
-        assertThat(entityManager.getAllEntities().size()).isAtLeast(5);
-        assertThat(entityManager.getAllEntities())
+        assertThat(mEntityManager.getAllEntities().size()).isAtLeast(5);
+        assertThat(mEntityManager.getAllEntities())
                 .containsAtLeast(
-                        gltfEntity,
-                        panelEntity,
-                        contentlessEntity,
-                        anchorEntity,
-                        activityPanelEntity);
+                        gltfEntity, panelEntity, groupEntity, anchorEntity, activityPanelEntity);
 
-        contentlessEntity.dispose();
+        groupEntity.dispose();
 
-        assertThat(entityManager.getAllEntities().size()).isAtLeast(4);
-        assertThat(entityManager.getAllEntities()).doesNotContain(contentlessEntity);
+        assertThat(mEntityManager.getAllEntities().size()).isAtLeast(4);
+        assertThat(mEntityManager.getAllEntities()).doesNotContain(groupEntity);
     }
 
     @Test
-    public void clearEntityManager_removesAllEntityFromEntityManager() throws Exception {
+    public void getAllSystemSpaceActivityPoses_returnsAllSystemSpaceActivityPoses()
+            throws Exception {
+        assertThat(mEntityManager.getAllSystemSpaceActivityPoses().size()).isAtLeast(4);
+        assertThat(mEntityManager.getAllSystemSpaceActivityPoses())
+                .containsAtLeast(
+                        mPlatformAdapterAxr.getActivitySpace(),
+                        mPlatformAdapterAxr.getPerceptionSpaceActivityPose());
+    }
+
+    @Test
+    public void getSystemSpaceActivityPoseOfType_returnsSystemSpaceActivityPoseOfType()
+            throws Exception {
+        assertThat(mEntityManager.getSystemSpaceActivityPoseOfType(ActivitySpace.class).get(0))
+                .isInstanceOf(ActivitySpaceImpl.class);
+        assertThat(
+                        mEntityManager
+                                .getSystemSpaceActivityPoseOfType(PerceptionSpaceActivityPose.class)
+                                .get(0))
+                .isInstanceOf(PerceptionSpaceActivityPoseImpl.class);
+        assertThat(mEntityManager.getSystemSpaceActivityPoseOfType(HeadActivityPose.class).get(0))
+                .isInstanceOf(HeadActivityPoseImpl.class);
+        assertThat(
+                        mEntityManager
+                                .getSystemSpaceActivityPoseOfType(CameraViewActivityPose.class)
+                                .get(0))
+                .isInstanceOf(CameraViewActivityPoseImpl.class);
+    }
+
+    @Test
+    public void clearEntityManager_removesAllEntityFromEntityManager() {
         GltfEntity gltfEntity = createGltfEntity();
         PanelEntity panelEntity = createPanelEntity();
-        Entity contentlessEntity = createContentlessEntity();
+        Entity groupEntity = createGroupEntity();
         AnchorEntity anchorEntity = createAnchorEntity();
         ActivityPanelEntity activityPanelEntity = createActivityPanelEntity();
 
-        assertThat(entityManager.getAllEntities().size()).isAtLeast(5);
-        assertThat(entityManager.getAllEntities())
+        assertThat(mEntityManager.getAllEntities().size()).isAtLeast(5);
+        assertThat(mEntityManager.getAllEntities())
                 .containsAtLeast(
-                        gltfEntity,
-                        panelEntity,
-                        contentlessEntity,
-                        anchorEntity,
-                        activityPanelEntity);
+                        gltfEntity, panelEntity, groupEntity, anchorEntity, activityPanelEntity);
 
-        entityManager.clear();
+        mEntityManager.clear();
 
-        assertThat(entityManager.getAllEntities()).isEmpty();
+        assertThat(mEntityManager.getAllEntities()).isEmpty();
+        assertThat(mEntityManager.getAllSystemSpaceActivityPoses()).isEmpty();
     }
 
-    private GltfEntity createGltfEntity() throws Exception {
-        ListenableFuture<GltfModelResource> modelFuture =
-                runtime.loadGltfByAssetName("FakeAsset.glb");
-        assertThat(modelFuture).isNotNull();
-        GltfModelResource model = modelFuture.get();
+    /** Creates a generic glTF entity. */
+    private GltfEntity createGltfEntity() {
+        long modelToken = -1;
+        try {
+            ListenableFuture<Long> modelTokenFuture =
+                    mFakeImpressApi.loadGltfAsset("FakeGltfAsset.glb");
+            assertThat(modelTokenFuture).isNotNull();
+            // This resolves the transformation of the Future from a SplitEngine token to the JXR
+            // GltfModelResource.  This is a hidden detail from the API surface's perspective.
+            mExecutor.runAll();
+            modelToken = modelTokenFuture.get();
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        GltfModelResourceImpl model = new GltfModelResourceImpl(modelToken);
         GltfEntityImpl gltfEntity =
                 new GltfEntityImpl(
-                        (GltfModelResourceImpl) model,
-                        activitySpaceRoot,
-                        fakeExtensions,
-                        entityManager,
-                        executor);
-        gltfEntityNode = gltfEntity.getNode();
-        entityManager.setEntityForNode(gltfEntityNode, gltfEntity);
+                        mActivity,
+                        model,
+                        mActivitySpaceRoot,
+                        mFakeImpressApi,
+                        mSplitEngineSubspaceManager,
+                        mXrExtensions,
+                        mEntityManager,
+                        mExecutor);
+        mGltfEntityNode = gltfEntity.getNode();
+        mEntityManager.setEntityForNode(mGltfEntityNode, gltfEntity);
         return gltfEntity;
     }
 
     private PanelEntity createPanelEntity() {
-        Display display = activity.getSystemService(DisplayManager.class).getDisplays()[0];
-        Context displayContext = activity.createDisplayContext(display);
+        Display display = mActivity.getSystemService(DisplayManager.class).getDisplays()[0];
+        Context displayContext = mActivity.createDisplayContext(display);
         View view = new View(displayContext);
         view.setLayoutParams(new LayoutParams(VGA_WIDTH, VGA_HEIGHT));
-        SurfaceControlViewHost surfaceControlViewHost =
-                new SurfaceControlViewHost(
-                        displayContext,
-                        Objects.requireNonNull(displayContext.getDisplay()),
-                        new Binder());
-        surfaceControlViewHost.setView(view, VGA_WIDTH, VGA_HEIGHT);
         PanelEntityImpl panelEntity =
                 new PanelEntityImpl(
-                        panelEntityNode,
-                        fakeExtensions,
-                        entityManager,
-                        surfaceControlViewHost,
+                        displayContext,
+                        mPanelEntityNode,
+                        view,
+                        mXrExtensions,
+                        mEntityManager,
                         new PixelDimensions(VGA_WIDTH, VGA_HEIGHT),
-                        executor);
-        entityManager.setEntityForNode(panelEntityNode, panelEntity);
+                        "panel",
+                        mExecutor);
+        mEntityManager.setEntityForNode(mPanelEntityNode, panelEntity);
         return panelEntity;
     }
 
-    private Entity createContentlessEntity() {
-        Entity contentlessEntity =
-                runtime.createEntity(new Pose(), "testContentLess", runtime.getActivitySpace());
-        contentLessEntityNode = ((AndroidXrEntity) contentlessEntity).getNode();
-        entityManager.setEntityForNode(contentLessEntityNode, contentlessEntity);
-        return contentlessEntity;
+    private Entity createGroupEntity() {
+        Entity groupEntity =
+                mPlatformAdapterAxr.createGroupEntity(
+                        new Pose(), "testGroup", mPlatformAdapterAxr.getActivitySpace());
+        mGroupEntityNode = ((AndroidXrEntity) groupEntity).getNode();
+        mEntityManager.setEntityForNode(mGroupEntityNode, groupEntity);
+        return groupEntity;
     }
 
     private AnchorEntity createAnchorEntity() {
         AnchorEntityImpl anchorEntity =
                 AnchorEntityImpl.createSemanticAnchor(
-                        anchorEntityNode,
+                        mActivity,
+                        mAnchorEntityNode,
                         new Dimensions(1f, 1f, 1f),
                         PlaneType.VERTICAL,
                         PlaneSemantic.WALL,
                         null,
-                        activitySpace,
-                        activitySpaceRoot,
-                        fakeExtensions,
-                        entityManager,
-                        executor,
-                        perceptionLibrary);
-        entityManager.setEntityForNode(anchorEntityNode, anchorEntity);
+                        mActivitySpace,
+                        mActivitySpaceRoot,
+                        mXrExtensions,
+                        mEntityManager,
+                        mExecutor,
+                        mPerceptionLibrary);
+        mEntityManager.setEntityForNode(mAnchorEntityNode, anchorEntity);
         return anchorEntity;
     }
 
     private ActivityPanelEntity createActivityPanelEntity() {
-        return runtime.createActivityPanelEntity(
+        return mPlatformAdapterAxr.createActivityPanelEntity(
                 new Pose(),
                 new PixelDimensions(VGA_WIDTH, VGA_HEIGHT),
                 "test",
-                activity,
-                activitySpace);
+                mActivity,
+                mActivitySpace);
     }
 }

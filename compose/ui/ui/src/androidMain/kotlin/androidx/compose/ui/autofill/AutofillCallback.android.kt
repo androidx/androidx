@@ -52,7 +52,7 @@ internal object AutofillCallback : AutofillManager.AutofillCallback() {
                         """
                         .trimMargin()
                 else -> "Unknown status event."
-            }
+            },
         )
     }
 

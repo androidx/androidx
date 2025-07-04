@@ -28,7 +28,7 @@ public abstract class RangingResult internal constructor() {
      */
     public class RangingResultPosition(
         override val device: UwbDevice,
-        public val position: RangingPosition
+        public val position: RangingPosition,
     ) : RangingResult()
 
     /** A ranging result with peer disconnected status update. */

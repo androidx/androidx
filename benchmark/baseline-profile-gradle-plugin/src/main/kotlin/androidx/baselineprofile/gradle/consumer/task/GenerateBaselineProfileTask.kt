@@ -46,7 +46,7 @@ internal abstract class GenerateBaselineProfileTask : DefaultTask() {
             project.tasks.maybeRegister<GenerateBaselineProfileTask>(
                 GENERATE_TASK_NAME,
                 variantName,
-                TASK_NAME_SUFFIX
+                TASK_NAME_SUFFIX,
             ) {
                 if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
             }
@@ -72,12 +72,12 @@ internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTas
             project: Project,
             variantName: String,
             lastTaskProvider: TaskProvider<*>? = null,
-            warnings: Warnings
+            warnings: Warnings,
         ) =
             project.tasks.maybeRegister<MainGenerateBaselineProfileTaskForAgp80Only>(
                 GENERATE_TASK_NAME,
                 variantName,
-                TASK_NAME_SUFFIX
+                TASK_NAME_SUFFIX,
             ) {
                 if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
                 it.printWarningMultipleBuildTypesWithAgp80.set(warnings.multipleBuildTypesWithAgp80)
@@ -112,7 +112,7 @@ internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTas
 
         Details on https://issuetracker.google.com/issue?id=270433400.
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
     }
 }

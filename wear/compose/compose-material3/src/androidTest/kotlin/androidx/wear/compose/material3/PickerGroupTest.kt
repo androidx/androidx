@@ -18,6 +18,7 @@ package androidx.wear.compose.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -44,12 +45,8 @@ class PickerGroupTest {
     @Test
     fun supports_test_tag() {
         rule.setContentWithTheme {
-            PickerGroup(
-                selectedPickerIndex = 0,
-                onPickerSelected = {},
-                modifier = Modifier.testTag(TEST_TAG_1),
-            ) {
-                addPickerColumns(1)
+            PickerGroup(modifier = Modifier.testTag(TEST_TAG_1)) {
+                addPickerColumns(count = 1, selectedColumn = 0)
             }
         }
 
@@ -61,12 +58,7 @@ class PickerGroupTest {
         val initiallySelectedColumn = 1
         var selectedIndex = initiallySelectedColumn
         rule.setContentWithTheme {
-            PickerGroup(
-                selectedPickerIndex = selectedIndex,
-                onPickerSelected = { selectedIndex = it },
-            ) {
-                addPickerColumns(2)
-            }
+            PickerGroup { addPickerColumns(count = 2, selectedColumn = selectedIndex) }
         }
 
         rule.waitForIdle()
@@ -77,9 +69,9 @@ class PickerGroupTest {
     @Test
     fun pickers_are_added_to_picker_group() {
         rule.setContentWithTheme {
-            PickerGroup(selectedPickerIndex = 0, onPickerSelected = {}) {
-                addPickerColumnWithTag(TEST_TAG_1)
-                addPickerColumnWithTag(TEST_TAG_2)
+            PickerGroup {
+                addPickerColumnWithTag(TEST_TAG_1, isSelected = true)
+                addPickerColumnWithTag(TEST_TAG_2, isSelected = false)
             }
         }
 
@@ -95,12 +87,17 @@ class PickerGroupTest {
         rule.setContentWithTheme {
             selectedIndex = remember { mutableStateOf(0) }
             CompositionLocalProvider(LocalTouchExplorationStateProvider provides talkBackOff) {
-                PickerGroup(
-                    selectedPickerIndex = selectedIndex.value,
-                    onPickerSelected = { selectedIndex.value = it },
-                ) {
-                    addPickerColumnWithTag(TEST_TAG_1)
-                    addPickerColumnWithTag(TEST_TAG_2)
+                PickerGroup {
+                    addPickerColumnWithTag(
+                        TEST_TAG_1,
+                        isSelected = selectedIndex.value == 0,
+                        onSelected = { selectedIndex.value = 0 },
+                    )
+                    addPickerColumnWithTag(
+                        TEST_TAG_2,
+                        isSelected = selectedIndex.value == 1,
+                        onSelected = { selectedIndex.value = 1 },
+                    )
                 }
             }
         }
@@ -111,18 +108,29 @@ class PickerGroupTest {
         assertThat(selectedIndex.value).isEqualTo(1)
     }
 
-    private fun PickerGroupScope.addPickerColumns(count: Int) =
+    @Composable
+    private fun PickerGroupScope.addPickerColumns(count: Int, selectedColumn: Int) =
         repeat(count) {
-            pickerGroupItem(pickerState = PickerState(10)) { index: Int, _: Boolean ->
+            PickerGroupItem(
+                pickerState = PickerState(10),
+                selected = selectedColumn == it,
+                onSelected = {},
+            ) { index: Int, _: Boolean ->
                 Box(modifier = Modifier.size(100.dp)) { Text(text = "$index") }
             }
         }
 
-    private fun PickerGroupScope.addPickerColumnWithTag(tag: String, onSelected: () -> Unit = {}) =
-        pickerGroupItem(
+    @Composable
+    private fun PickerGroupScope.addPickerColumnWithTag(
+        tag: String,
+        isSelected: Boolean,
+        onSelected: () -> Unit = {},
+    ) =
+        PickerGroupItem(
+            selected = isSelected,
             pickerState = PickerState(10),
             modifier = Modifier.testTag(tag),
-            onSelected = onSelected
+            onSelected = onSelected,
         ) { _: Int, _: Boolean ->
             Box(modifier = Modifier.size(20.dp))
         }

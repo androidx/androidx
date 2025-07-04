@@ -50,7 +50,7 @@ class PageCountTest(val config: ParamConfig) : BasePagerTest(config) {
         createPager(
             pageCount = { Int.MAX_VALUE },
             modifier = Modifier.size(500.dp),
-            pageSize = { PageSize.Fixed(200.dp) }
+            pageSize = { PageSize.Fixed(200.dp) },
         )
         val initialPage = pagerState.currentPage
         onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(2000f) }
@@ -75,7 +75,7 @@ class PageCountTest(val config: ParamConfig) : BasePagerTest(config) {
         createPager(
             pageCount = { Int.MAX_VALUE },
             pageSize = { PageSize.Fixed(100.dp) },
-            modifier = Modifier.size(500.dp)
+            modifier = Modifier.size(500.dp),
         )
         rule.runOnIdle { runBlocking { pagerState.scrollToPage(Int.MAX_VALUE) } }
 

@@ -75,7 +75,7 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
                 Log.w(
                     TAG,
                     "Waiting for buffer to become available, current allocation " +
-                        "count: ${mPool.size}"
+                        "count: ${mPool.size}",
                 )
                 mCondition.await()
             }
@@ -176,7 +176,7 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
     private data class Entry<T : BufferProvider>(
         val bufferProvider: T,
         var releaseFence: SyncFenceCompat? = null,
-        var isAvailable: Boolean = true
+        var isAvailable: Boolean = true,
     ) {
         val hardwareBuffer: HardwareBuffer
             get() = bufferProvider.hardwareBuffer
@@ -209,7 +209,7 @@ internal class BufferPool<T : BufferPool.BufferProvider>(val maxPoolSize: Int) {
          */
         internal fun <T> ArrayList<T>.findEntryWith(
             primaryCondition: ((T) -> Boolean),
-            secondaryCondition: ((T) -> Boolean)
+            secondaryCondition: ((T) -> Boolean),
         ): T? {
             var fallback: T? = null
             for (entry in this) {

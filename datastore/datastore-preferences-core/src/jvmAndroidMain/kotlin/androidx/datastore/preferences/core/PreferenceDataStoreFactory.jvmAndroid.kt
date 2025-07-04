@@ -20,16 +20,14 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.FileStorage
 import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.core.okio.OkioStorage
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toOkioPath
 
 /** Public factory for creating PreferenceDataStore instances. */
 public actual object PreferenceDataStoreFactory {
@@ -56,22 +54,22 @@ public actual object PreferenceDataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile: () -> File
+        produceFile: () -> File,
     ): DataStore<Preferences> {
         val delegate =
             create(
                 storage =
-                    OkioStorage(FileSystem.SYSTEM, PreferencesSerializer) {
+                    FileStorage(PreferencesFileSerializer) {
                         val file = produceFile()
                         check(file.extension == PreferencesSerializer.fileExtension) {
                             "File extension for file: $file does not match required extension for" +
                                 " Preferences file: ${PreferencesSerializer.fileExtension}"
                         }
-                        file.absoluteFile.toOkioPath()
+                        file.absoluteFile
                     },
                 corruptionHandler = corruptionHandler,
                 migrations = migrations,
-                scope = scope
+                scope = scope,
             )
         return PreferenceDataStore(delegate)
     }
@@ -103,7 +101,7 @@ public actual object PreferenceDataStoreFactory {
                 storage = storage,
                 corruptionHandler = corruptionHandler,
                 migrations = migrations,
-                scope = scope
+                scope = scope,
             )
         )
     }
@@ -131,13 +129,13 @@ public actual object PreferenceDataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
         migrations: List<DataMigration<Preferences>>,
         scope: CoroutineScope,
-        produceFile: () -> Path
+        produceFile: () -> Path,
     ): DataStore<Preferences> {
         return create(
             corruptionHandler,
             migrations,
             scope,
-            produceFile = { produceFile().toFile() }
+            produceFile = { produceFile().toFile() },
         )
     }
 }

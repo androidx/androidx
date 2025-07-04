@@ -344,10 +344,10 @@
             android:taskAffinity="androidx.window.demo.overlay_activity_affinity" />
         <!-- endregion Overlay features -->
 
-        <!-- region Display configuration callbacks -->
-        <!-- The demo app to show display configuration from different system callbacks. -->
+        <!-- region WindowLayoutInfo and display configuration callbacks -->
+        <!-- The demo app shows how to get WindowLayoutInfo and display configuration update from different system callbacks. -->
         <activity
-            android:name=".coresdk.WindowStateCallbackActivity"
+            android:name=".layout.WindowStateCallbackActivity"
             android:exported="true"
             android:label="Window State Callbacks"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
@@ -357,7 +357,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- endregion Display configuration callbacks -->
+        <!-- The demo app shows how to get WindowLayoutInfo with the Java-supported API. -->
+        <activity
+            android:name=".layout.WindowInfoJavaApiDemoActivity"
+            android:exported="true"
+            android:label="Window Info Java Api Demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- endregion WindowLayoutInfo and display configuration callbacks -->
 
         <!-- region Activity embedding initializer -->
         <provider android:name="androidx.startup.InitializationProvider"

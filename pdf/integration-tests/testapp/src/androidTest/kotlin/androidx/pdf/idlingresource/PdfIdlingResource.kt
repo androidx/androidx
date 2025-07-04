@@ -17,6 +17,7 @@
 package androidx.pdf.idlingresource
 
 import androidx.test.espresso.idling.CountingIdlingResource
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * A wrapper around Espresso's [CountingIdlingResource] that will help to define idling resource for
@@ -25,15 +26,22 @@ import androidx.test.espresso.idling.CountingIdlingResource
 internal class PdfIdlingResource(private val resourceName: String) {
 
     val countingIdlingResource: CountingIdlingResource = CountingIdlingResource(resourceName)
+    val decrementCounter: AtomicInteger = AtomicInteger()
 
     fun increment() {
         countingIdlingResource.increment()
+        if (decrementCounter.get() > 0) {
+            decrementCounter.andDecrement
+            decrement()
+        }
     }
 
     fun decrement() {
         // Check if idling resource is not already idle
         if (!countingIdlingResource.isIdleNow) {
             countingIdlingResource.decrement()
+        } else {
+            decrementCounter.andIncrement
         }
     }
 }

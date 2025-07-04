@@ -103,7 +103,6 @@ internal abstract class PersistentHashMapBaseIterator<K, V, T>(
 ) : Iterator<T> {
 
     protected var pathLastIndex = 0
-    @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
     @kotlin.js.JsName("_hasNext")
     private var hasNext = true
 

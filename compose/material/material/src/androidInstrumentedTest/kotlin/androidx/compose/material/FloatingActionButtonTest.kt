@@ -118,7 +118,7 @@ class FloatingActionButtonTest {
                 modifier = Modifier.testTag("FAB"),
                 text = { Text("Extended FAB Text") },
                 icon = { Icon(Icons.Filled.Favorite, null) },
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -131,7 +131,7 @@ class FloatingActionButtonTest {
             ExtendedFloatingActionButton(
                 modifier = Modifier.testTag("FAB"),
                 text = { Text(".") },
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -155,7 +155,7 @@ class FloatingActionButtonTest {
                     modifier =
                         Modifier.weight(1f).onGloballyPositioned {
                             buttonBounds = it.boundsInRoot()
-                        }
+                        },
                 ) {
                     Text("Button")
                 }
@@ -184,7 +184,7 @@ class FloatingActionButtonTest {
                     FloatingActionButton(
                         modifier = Modifier.testTag("myButton"),
                         onClick = {},
-                        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp)
+                        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp),
                     ) {
                         Box(Modifier.size(10.dp, 10.dp))
                     }
@@ -200,7 +200,7 @@ class FloatingActionButtonTest {
                 shape = realShape,
                 shapeColor = fabColor,
                 backgroundColor = surface,
-                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
     }
 
@@ -221,7 +221,7 @@ class FloatingActionButtonTest {
                         modifier = Modifier.testTag("myButton"),
                         onClick = {},
                         elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 0.dp),
-                        text = { Box(Modifier.size(10.dp, 50.dp)) }
+                        text = { Box(Modifier.size(10.dp, 50.dp)) },
                     )
                 }
             }
@@ -235,7 +235,7 @@ class FloatingActionButtonTest {
                 shape = realShape,
                 shapeColor = fabColor,
                 backgroundColor = surface,
-                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
     }
 
@@ -275,7 +275,7 @@ class FloatingActionButtonTest {
                         Box(Modifier.size(2.dp).onGloballyPositioned { contentCoordinates = it })
                     },
                     onClick = {},
-                    modifier = Modifier.onGloballyPositioned { buttonCoordinates = it }
+                    modifier = Modifier.onGloballyPositioned { buttonCoordinates = it },
                 )
             }
         }
@@ -308,7 +308,7 @@ class FloatingActionButtonTest {
                         Box(Modifier.size(10.dp).onGloballyPositioned { iconCoordinates = it })
                     },
                     onClick = {},
-                    modifier = Modifier.onGloballyPositioned { buttonCoordinates = it }
+                    modifier = Modifier.onGloballyPositioned { buttonCoordinates = it },
                 )
             }
         }
@@ -328,7 +328,7 @@ class FloatingActionButtonTest {
                 val halfPadding = 6.dp.roundToPx().toFloat()
                 assertWithinOnePixel(
                     iconBounds.center.x + iconBounds.width / 2 + halfPadding,
-                    textBounds.center.x - textBounds.width / 2 - halfPadding
+                    textBounds.center.x - textBounds.width / 2 - halfPadding,
                 )
             }
         }
@@ -349,7 +349,7 @@ class FloatingActionButtonTest {
                     defaultElevation = defaultElevation,
                     pressedElevation = pressedElevation,
                     hoveredElevation = hoveredElevation,
-                    focusedElevation = focusedElevation
+                    focusedElevation = focusedElevation,
                 )
 
             elevation = fabElevation.elevation(interactionSource)
@@ -377,7 +377,7 @@ class FloatingActionButtonTest {
                     defaultElevation = defaultElevation,
                     pressedElevation = pressedElevation,
                     hoveredElevation = hoveredElevation,
-                    focusedElevation = focusedElevation
+                    focusedElevation = focusedElevation,
                 )
 
             elevation = fabElevation.elevation(interactionSource)
@@ -405,7 +405,7 @@ class FloatingActionButtonTest {
                     defaultElevation = defaultElevation,
                     pressedElevation = pressedElevation,
                     hoveredElevation = hoveredElevation,
-                    focusedElevation = focusedElevation
+                    focusedElevation = focusedElevation,
                 )
 
             elevation = fabElevation.elevation(interactionSource)

@@ -49,7 +49,7 @@ class AuthenticatorAssertionResponseTest {
                 true,
                 false,
                 true,
-                rawUserHandle
+                rawUserHandle,
             )
         var json = response.json()
         var authData = response.defaultAuthenticatorData()

@@ -12,8 +12,6 @@ package androidx.annotation {
   }
 
   public enum RequiresOptIn.Level {
-    method public static androidx.annotation.RequiresOptIn.Level valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.annotation.RequiresOptIn.Level[] values();
     enum_constant public static final androidx.annotation.RequiresOptIn.Level ERROR;
     enum_constant public static final androidx.annotation.RequiresOptIn.Level WARNING;
   }
@@ -28,8 +26,6 @@ package androidx.annotation.experimental {
   }
 
   @Deprecated public enum Experimental.Level {
-    method @Deprecated public static androidx.annotation.experimental.Experimental.Level valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.annotation.experimental.Experimental.Level[] values();
     enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level ERROR;
     enum_constant @Deprecated public static final androidx.annotation.experimental.Experimental.Level WARNING;
   }

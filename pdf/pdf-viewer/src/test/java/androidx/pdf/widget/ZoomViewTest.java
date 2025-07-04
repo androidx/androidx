@@ -40,7 +40,6 @@ import androidx.pdf.widget.ZoomView.FitMode;
 import androidx.pdf.widget.ZoomView.RotateMode;
 import androidx.pdf.widget.ZoomView.ZoomScroll;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +53,6 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 /** Unit tests for {@link ZoomView}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class ZoomViewTest {
 

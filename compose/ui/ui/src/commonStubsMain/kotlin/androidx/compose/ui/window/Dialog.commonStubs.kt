@@ -25,12 +25,12 @@ actual class DialogProperties
 actual constructor(
     actual val dismissOnBackPress: Boolean,
     actual val dismissOnClickOutside: Boolean,
-    actual val usePlatformDefaultWidth: Boolean
+    actual val usePlatformDefaultWidth: Boolean,
 )
 
 @Composable
 actual fun Dialog(
     onDismissRequest: () -> Unit,
     properties: DialogProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()

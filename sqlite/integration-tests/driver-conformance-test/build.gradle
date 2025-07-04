@@ -22,6 +22,7 @@
  * modifying its settings.
  */
 
+
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -31,14 +32,6 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.sqlite.driver.test"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
     ios()
     jvm()

@@ -54,7 +54,7 @@ fun NumberedScreen(navController: NavController, number: Int) {
             Button(
                 onClick = { navController.navigate(NumberedDestination(next)) },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = "Navigate to Screen $next")
             }
@@ -69,7 +69,7 @@ fun NumberedScreen(navController: NavController, number: Int) {
                     }
                 },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = "PopUpTo Screen 1")
             }

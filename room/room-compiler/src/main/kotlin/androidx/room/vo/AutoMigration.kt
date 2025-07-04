@@ -35,7 +35,7 @@ data class AutoMigration(
     fun getImplTypeName(databaseClassName: XClassName): XClassName {
         return XClassName.get(
             databaseClassName.packageName,
-            "${databaseClassName.simpleNames.joinToString("_")}_AutoMigration_${from}_${to}_Impl"
+            "${databaseClassName.simpleNames.joinToString("_")}_AutoMigration_${from}_${to}_Impl",
         )
     }
 
@@ -52,7 +52,7 @@ data class AutoMigration(
     data class RenamedColumn(
         val tableName: String,
         val originalColumnName: String,
-        val newColumnName: String
+        val newColumnName: String,
     )
 
     /** Stores the table name and the column name of a column that was deleted from the database. */
@@ -77,7 +77,7 @@ data class AutoMigration(
         val tableNameWithNewPrefix: String,
         val oldVersionEntityBundle: BaseEntityBundle,
         val newVersionEntityBundle: BaseEntityBundle,
-        val renamedColumnsMap: MutableMap<String, String>
+        val renamedColumnsMap: MutableMap<String, String>,
     )
 
     /**

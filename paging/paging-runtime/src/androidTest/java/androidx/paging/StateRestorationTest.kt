@@ -275,21 +275,17 @@ class StateRestorationTest {
         pageSize: Int,
         enablePlaceholders: Boolean,
         itemCount: Int = 100,
-        initialKey: Int? = null
+        initialKey: Int? = null,
     ): Pager<Int, Item> {
         return Pager(
-            config =
-                PagingConfig(
-                    pageSize = pageSize,
-                    enablePlaceholders = enablePlaceholders,
-                ),
+            config = PagingConfig(pageSize = pageSize, enablePlaceholders = enablePlaceholders),
             initialKey = initialKey,
             pagingSourceFactory = {
                 ItemPagingSource(
                     context = backgroundDispatcher,
-                    items = (0 until itemCount).map { Item(it) }
+                    items = (0 until itemCount).map { Item(it) },
                 )
-            }
+            },
         )
     }
 
@@ -350,7 +346,7 @@ class StateRestorationTest {
         PagingDataAdapter<Item, ItemViewHolder>(
             diffCallback = Item.DIFF_CALLBACK,
             mainDispatcher = mainDispatcher,
-            workerDispatcher = backgroundDispatcher
+            workerDispatcher = backgroundDispatcher,
         ) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             return ItemViewHolder(parent.context)
@@ -377,7 +373,7 @@ class StateRestorationTest {
                     prevKey = if (start > 0) start - 1 else null,
                     nextKey = if (end < items.size) end else null,
                     itemsBefore = maxOf(0, start),
-                    itemsAfter = maxOf(0, items.size - end)
+                    itemsAfter = maxOf(0, items.size - end),
                 )
             }
         }

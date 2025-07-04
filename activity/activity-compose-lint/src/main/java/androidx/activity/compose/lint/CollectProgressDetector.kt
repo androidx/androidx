@@ -64,7 +64,7 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
                     NoCollectCallFound,
                     node,
                     location,
-                    "You must call collect() on Flow $name"
+                    "You must call collect() on Flow $name",
                 )
             } else {
                 // If the parameter is referenced, we need to make sure it calls collect()
@@ -94,7 +94,7 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
                         NoCollectCallFound,
                         node,
                         location,
-                        "You must call collect() on Flow $name"
+                        "You must call collect() on Flow $name",
                     )
                 }
             }
@@ -115,8 +115,8 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     CollectProgressDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

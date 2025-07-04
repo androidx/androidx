@@ -57,7 +57,7 @@ class PreKmpJavaCodeGenTest {
         MigrationTestHelper(
             instrumentation = InstrumentationRegistry.getInstrumentation(),
             databaseClass = PreKmpDatabase::class.java,
-            specs = listOf(PreKmpDatabase.MigrationSpec1To2())
+            specs = listOf(PreKmpDatabase.MigrationSpec1To2()),
         )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -80,7 +80,7 @@ class PreKmpJavaCodeGenTest {
                 PreKmpDatabase.TheEntity(
                     id = 2,
                     text = "ok",
-                    custom = PreKmpDatabase.CustomData(byteArrayOf())
+                    custom = PreKmpDatabase.CustomData(byteArrayOf()),
                 )
             )
         assertThat(db.getTheDao().query().size).isEqualTo(1)
@@ -121,7 +121,7 @@ abstract class PreKmpDatabase : RoomDatabase() {
     data class TheEntity(
         @PrimaryKey val id: Long,
         val text: String,
-        @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val custom: CustomData
+        @ColumnInfo(typeAffinity = ColumnInfo.BLOB) val custom: CustomData,
     )
 
     class CustomData(val blob: ByteArray)

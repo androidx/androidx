@@ -50,10 +50,10 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
 
         private val inputs =
             MutableStrokeInputBatch()
-                .addOrThrow(InputToolType.UNKNOWN, x = 0F, y = 0F, elapsedTimeMillis = 100)
-                .addOrThrow(InputToolType.UNKNOWN, x = 80F, y = 100F, elapsedTimeMillis = 150)
-                .addOrThrow(InputToolType.UNKNOWN, x = 0F, y = 100F, elapsedTimeMillis = 200)
-                .addOrThrow(InputToolType.UNKNOWN, x = 80F, y = 0F, elapsedTimeMillis = 250)
+                .add(InputToolType.UNKNOWN, x = 0F, y = 0F, elapsedTimeMillis = 100)
+                .add(InputToolType.UNKNOWN, x = 80F, y = 100F, elapsedTimeMillis = 150)
+                .add(InputToolType.UNKNOWN, x = 0F, y = 100F, elapsedTimeMillis = 200)
+                .add(InputToolType.UNKNOWN, x = 80F, y = 0F, elapsedTimeMillis = 250)
                 .asImmutable()
 
         // Pink twist stroke.

@@ -26,7 +26,7 @@ internal class EmojiPickerPopupSquareDesign(
     override val targetEmojiView: View,
     override val variants: List<String>,
     override val popupView: LinearLayout,
-    override val emojiViewOnClickListener: View.OnClickListener
+    override val emojiViewOnClickListener: View.OnClickListener,
 ) : EmojiPickerPopupDesign() {
     init {
         template = SQUARE_LAYOUT_TEMPLATE
@@ -51,7 +51,7 @@ internal class EmojiPickerPopupSquareDesign(
                 intArrayOf(0, 7, 8, 9, 10, 11),
                 intArrayOf(0, 12, 13, 14, 15, 16),
                 intArrayOf(0, 17, 18, 19, 20, 21),
-                intArrayOf(1, 22, 23, 24, 25, 26)
+                intArrayOf(1, 22, 23, 24, 25, 26),
             )
     }
 }

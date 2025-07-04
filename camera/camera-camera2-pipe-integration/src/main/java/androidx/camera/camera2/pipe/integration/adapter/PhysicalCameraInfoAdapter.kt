@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
@@ -67,7 +68,7 @@ public class PhysicalCameraInfoAdapter(private val cameraProperties: CameraPrope
         return CameraOrientationUtil.getRelativeImageRotation(
             relativeRotationDegrees,
             sensorOrientation,
-            isOppositeFacingScreen
+            isOppositeFacingScreen,
         )
     }
 
@@ -135,6 +136,10 @@ public class PhysicalCameraInfoAdapter(private val cameraProperties: CameraPrope
     }
 
     override fun getPhysicalCameraInfos(): Set<CameraInfo> {
+        throw UnsupportedOperationException("Physical camera doesn't support this function")
+    }
+
+    override fun getCameraIdentifier(): CameraIdentifier {
         throw UnsupportedOperationException("Physical camera doesn't support this function")
     }
 

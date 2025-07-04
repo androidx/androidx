@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -30,6 +30,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.jspecify)
     api("androidx.annotation:annotation:1.8.1")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testCore)
@@ -41,13 +42,11 @@ dependencies {
 
 androidx {
     name = "Inspection"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
     legacyDisableKotlinStrictApiMode = true
     doNotDocumentReason = "Not shipped externally"
-    // TODO: b/326456246
-    optOutJSpecify = true
 }
 
 android {

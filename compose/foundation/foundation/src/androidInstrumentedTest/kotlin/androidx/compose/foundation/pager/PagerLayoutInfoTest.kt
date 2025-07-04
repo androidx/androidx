@@ -61,7 +61,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         createPager(
             modifier = Modifier.requiredSize(pageSizeDp * 3.5f),
             pageCount = { 5 },
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         ) {
             Box(Modifier.requiredSize(pageSizeDp))
         }
@@ -73,7 +73,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         createPager(
             modifier = Modifier.requiredSize(pageSizeDp * 3.5f),
             pageCount = { 5 },
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         ) {
             Box(Modifier.requiredSize(pageSizeDp))
         }
@@ -96,7 +96,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
             modifier = Modifier.requiredSize(pageSizeDp * 3.5f),
             pageCount = { 5 },
             pageSpacing = pageSizeDp,
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         ) {
             Box(Modifier.requiredSize(pageSizeDp))
         }
@@ -115,7 +115,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
                 LaunchedEffect(key1 = pagerState) {
                     snapshotFlow { pagerState.layoutInfo }.collect { currentInfo.value = it }
                 }
-            }
+            },
         ) {
             Box(Modifier.requiredSize(pageSizeDp))
         }
@@ -145,7 +145,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         createPager(
             pageCount = { 1 },
             pageSize = { pageSize },
-            additionalContent = { observingFun() }
+            additionalContent = { observingFun() },
         ) {
             Box(Modifier.requiredSize(pageSizeDp * 2))
         }
@@ -154,7 +154,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
             assertThat(currentInfo).isNotNull()
             currentInfo!!.assertVisiblePages(
                 count = 1,
-                pageSize = with(rule.density) { pageSizeDp.roundToPx() * 2 }
+                pageSize = with(rule.density) { pageSizeDp.roundToPx() * 2 },
             )
             currentInfo = null
             pageSize = PageSize.Fixed(pageSizeDp)
@@ -173,7 +173,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         createPager(
             modifier = Modifier.mainAxisSize(sizeDp).crossAxisSize(sizeDp * 2),
             pageCount = { 3 },
-            pageSize = { PageSize.Fixed(sizeDp) }
+            pageSize = { PageSize.Fixed(sizeDp) },
         ) {
             Box(Modifier.requiredSize(sizeDp))
         }
@@ -213,8 +213,8 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
                     beforeContent = beforeContentPaddingDp,
                     afterContent = afterContentPaddingDp,
                     beforeContentCrossAxis = 2.dp,
-                    afterContentCrossAxis = 2.dp
-                )
+                    afterContentCrossAxis = 2.dp,
+                ),
         ) {
             Box(Modifier.requiredSize(sizeDp))
         }
@@ -266,8 +266,8 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
                     beforeContent = beforeContentPaddingDp,
                     afterContent = afterContentPaddingDp,
                     beforeContentCrossAxis = 2.dp,
-                    afterContentCrossAxis = 2.dp
-                )
+                    afterContentCrossAxis = 2.dp,
+                ),
         ) {}
 
         rule.runOnIdle {
@@ -307,8 +307,8 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
                     beforeContent = beforeContentPaddingDp,
                     afterContent = afterContentPaddingDp,
                     beforeContentCrossAxis = 2.dp,
-                    afterContentCrossAxis = 2.dp
-                )
+                    afterContentCrossAxis = 2.dp,
+                ),
         ) {
             Box(Modifier.size(sizeDp / 2))
         }
@@ -330,7 +330,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         createPager(
             modifier = Modifier.requiredSize(pageSizeDp * 3.5f),
             pageCount = { 5 },
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         ) {
             Box(Modifier.requiredSize(pageSizeDp))
         }
@@ -345,7 +345,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         createPager(
             modifier = Modifier.requiredSize(pageSizeDp * 3.5f),
             pageCount = { 5 },
-            pageSize = { PageSize.Fixed(pageSizeDp) }
+            pageSize = { PageSize.Fixed(pageSizeDp) },
         ) {
             Box(Modifier.requiredSize(pageSizeDp))
         }
@@ -361,7 +361,7 @@ class PagerLayoutInfoTest(private val param: ParamConfig) : BasePagerTest(param)
         startIndex: Int = 0,
         startOffset: Int = 0,
         spacing: Int = 0,
-        pageSize: Int = pageSizePx
+        pageSize: Int = pageSizePx,
     ) {
         assertThat(this.pageSize).isEqualTo(pageSize)
         assertThat(visiblePagesInfo.size).isEqualTo(count)

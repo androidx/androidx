@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
  */
 public fun Modifier.scrollAway(
     scrollInfoProvider: ScrollInfoProvider,
-    screenStage: () -> ScreenStage
+    screenStage: () -> ScreenStage,
 ): Modifier = this then ScrollAwayModifierElement(scrollInfoProvider, screenStage)
 
 /**
@@ -96,9 +96,9 @@ public value class ScreenStage internal constructor(internal val value: Int) {
         }
 }
 
-private data class ScrollAwayModifierElement(
+private class ScrollAwayModifierElement(
     val scrollInfoProvider: ScrollInfoProvider,
-    val screenStage: () -> ScreenStage
+    val screenStage: () -> ScreenStage,
 ) : ModifierNodeElement<ScrollAwayModifierNode>() {
     override fun create(): ScrollAwayModifierNode =
         ScrollAwayModifierNode(scrollInfoProvider, screenStage)
@@ -112,6 +112,24 @@ private data class ScrollAwayModifierElement(
         name = "scrollAway"
         properties["scrollInfoProvider"] = scrollInfoProvider
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as ScrollAwayModifierElement
+
+        if (scrollInfoProvider != other.scrollInfoProvider) return false
+        if (screenStage !== other.screenStage) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = scrollInfoProvider.hashCode()
+        result = 31 * result + screenStage.hashCode()
+        return result
+    }
 }
 
 private class ScrollAwayModifierNode(
@@ -123,7 +141,7 @@ private class ScrollAwayModifierNode(
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
@@ -195,7 +213,7 @@ private class ScrollAwayModifierNode(
     private fun animateProgress(
         targetValue: Float,
         coroutineScope: CoroutineScope,
-        animatable: Animatable<Float, AnimationVector1D>
+        animatable: Animatable<Float, AnimationVector1D>,
     ) {
         coroutineScope.launch {
             animatable.animateTo(
@@ -203,8 +221,8 @@ private class ScrollAwayModifierNode(
                 animationSpec =
                     tween(
                         durationMillis = MotionTokens.DurationShort4,
-                        easing = MotionTokens.EasingStandard
-                    )
+                        easing = MotionTokens.EasingStandard,
+                    ),
             )
         }
     }
@@ -228,7 +246,7 @@ private class ScrollAwayModifierNode(
                                 // Animation spec for hidding the TimeText
                                 MotionTokens.EasingStandardDecelerate
                             },
-                    )
+                    ),
             )
         }
     }

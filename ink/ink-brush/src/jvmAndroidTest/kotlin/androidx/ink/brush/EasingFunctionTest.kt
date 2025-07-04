@@ -219,7 +219,7 @@ class EasingFunctionTest {
                     listOf(
                         ImmutableVec(0.25f, 0.1f),
                         ImmutableVec(0.75f, 0.9f),
-                        ImmutableVec(0.9f, 0.5f)
+                        ImmutableVec(0.9f, 0.5f),
                     )
                 )
             ) // Longer list of points.

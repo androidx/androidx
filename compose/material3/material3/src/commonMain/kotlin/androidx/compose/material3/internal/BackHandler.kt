@@ -41,7 +41,7 @@ internal expect class BackEventCompat {
 @Composable
 internal expect fun PredictiveBackHandler(
     enabled: Boolean = true,
-    onBack: suspend (progress: Flow<BackEventCompat>) -> Unit
+    onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
 )
 
 private val PredictiveBackEasing: Easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f)

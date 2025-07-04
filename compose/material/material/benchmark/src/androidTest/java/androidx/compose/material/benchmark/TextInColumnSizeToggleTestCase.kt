@@ -45,7 +45,7 @@ class TextInColumnSizeToggleTestCase(private val numberOfTexts: Int) :
                 // 32-character text to match dashboards
                 Text(
                     "Hello World Hello World Hello W",
-                    style = TextStyle(fontSize = fontSize.value)
+                    style = TextStyle(fontSize = fontSize.value),
                 )
             }
         }

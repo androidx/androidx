@@ -36,7 +36,7 @@ import kotlin.reflect.KType
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your DynamicFragmentDestination instead",
-    ReplaceWith("fragment(route = id.toString())")
+    ReplaceWith("fragment(route = id.toString())"),
 )
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(@IdRes id: Int): Unit =
     fragment<F>(id) {}
@@ -49,11 +49,11 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(@IdRes 
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your DynamicFragmentDestination instead",
-    ReplaceWith("fragment(route = id.toString()) { builder.invoke() }")
+    ReplaceWith("fragment(route = id.toString()) { builder.invoke() }"),
 )
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
-    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit = fragment(id, F::class.java.name, builder)
 
 /**
@@ -65,18 +65,18 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to create your DynamicFragmentDestination instead",
-    ReplaceWith("fragment(route = id.toString(), fragmentClassName) { builder.invoke() }")
+    ReplaceWith("fragment(route = id.toString(), fragmentClassName) { builder.invoke() }"),
 )
 public inline fun DynamicNavGraphBuilder.fragment(
     @IdRes id: Int,
     fragmentClassName: String,
-    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicFragmentNavigatorDestinationBuilder(
                 provider[DynamicFragmentNavigator::class],
                 id,
-                fragmentClassName
+                fragmentClassName,
             )
             .apply(builder)
     )
@@ -97,7 +97,7 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(route: 
  */
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     route: String,
-    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit = fragment(route, F::class.java.name, builder)
 
 /**
@@ -110,13 +110,13 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
 public inline fun DynamicNavGraphBuilder.fragment(
     route: String,
     fragmentClassName: String,
-    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicFragmentNavigatorDestinationBuilder(
                 provider[DynamicFragmentNavigator::class],
                 route,
-                fragmentClassName
+                fragmentClassName,
             )
             .apply(builder)
     )
@@ -129,7 +129,7 @@ public inline fun DynamicNavGraphBuilder.fragment(
  *   [NavType]. May be empty if [T] does not use custom NavTypes.
  */
 public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap()
 ): Unit = fragment<F, T>(typeMap) {}
 
 /**
@@ -142,7 +142,7 @@ public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder
  */
 public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit = fragment<T>(F::class.java.name, typeMap, builder)
 
 /**
@@ -157,14 +157,14 @@ public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder
 public inline fun <reified T : Any> DynamicNavGraphBuilder.fragment(
     fragmentClassName: String,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicFragmentNavigatorDestinationBuilder(
                 provider[DynamicFragmentNavigator::class],
                 T::class,
                 typeMap,
-                fragmentClassName
+                fragmentClassName,
             )
             .apply(builder)
     )
@@ -182,12 +182,12 @@ public class DynamicFragmentNavigatorDestinationBuilder :
         ReplaceWith(
             "DynamicFragmentNavigatorDestinationBuilder(navigator, route = id.toString(), " +
                 "fragmentClassName)"
-        )
+        ),
     )
     public constructor(
         navigator: DynamicFragmentNavigator,
         @IdRes id: Int,
-        fragmentClassName: String
+        fragmentClassName: String,
     ) : super(navigator, id) {
         this.fragmentClassName = fragmentClassName
     }
@@ -195,7 +195,7 @@ public class DynamicFragmentNavigatorDestinationBuilder :
     public constructor(
         navigator: DynamicFragmentNavigator,
         route: String,
-        fragmentClassName: String
+        fragmentClassName: String,
     ) : super(navigator, route) {
         this.fragmentClassName = fragmentClassName
     }
@@ -213,7 +213,7 @@ public class DynamicFragmentNavigatorDestinationBuilder :
         navigator: DynamicFragmentNavigator,
         route: KClass<*>,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
-        fragmentClassName: String
+        fragmentClassName: String,
     ) : super(navigator, route, typeMap) {
         this.fragmentClassName = fragmentClassName
     }

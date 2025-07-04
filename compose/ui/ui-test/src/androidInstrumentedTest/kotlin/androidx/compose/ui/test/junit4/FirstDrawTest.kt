@@ -70,7 +70,7 @@ class FirstDrawTest {
                                 l: Int,
                                 t: Int,
                                 r: Int,
-                                b: Int
+                                b: Int,
                             ) {
                                 // Place our child out of bounds
                                 getChildAt(0).layout(-200, 0, -100, 100)

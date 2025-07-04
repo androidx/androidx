@@ -153,7 +153,7 @@ class CaptureNodeTest {
                 JPEG,
                 listOf(JPEG),
                 /* isVirtualCamera */ true,
-                { _, _, _, _, _ -> imageReaderProxy }
+                { _, _, _, _, _ -> imageReaderProxy },
             )
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
@@ -214,7 +214,7 @@ class CaptureNodeTest {
                 JPEG,
                 listOf(JPEG),
                 /* isVirtualCamera */ true,
-                { _, _, _, _, _ -> imageReaderProxy }
+                { _, _, _, _, _ -> imageReaderProxy },
             )
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
@@ -246,7 +246,7 @@ class CaptureNodeTest {
                 JPEG,
                 listOf(JPEG),
                 /* isVirtualCamera */ true,
-                { _, _, _, _, _ -> imageReaderProxy }
+                { _, _, _, _, _ -> imageReaderProxy },
             )
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
@@ -283,7 +283,7 @@ class CaptureNodeTest {
                 JPEG,
                 listOf(JPEG),
                 /* isVirtualCamera */ true,
-                { _, _, _, _, _ -> imageReaderProxy }
+                { _, _, _, _, _ -> imageReaderProxy },
             )
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
@@ -307,7 +307,7 @@ class CaptureNodeTest {
     }
 
     private fun FakeImageReaderProxy.triggerImageAvailableSync(
-        tagBundle: TagBundle,
+        tagBundle: TagBundle
     ): FakeImageProxy {
         val image = triggerImageAvailable(tagBundle, 100L)
         shadowOf(getMainLooper()).idle()

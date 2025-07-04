@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.IntOffset
@@ -39,7 +40,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -129,7 +129,6 @@ class BringIntoViewRequesterViewIntegrationTest {
         }
     }
 
-    @Ignore("This use case can't be supported until BringIntoView is in ui: b/216652644")
     @Test
     fun bringIntoView_propagatesThroughIntermediateView() {
         val requesterOffset = IntOffset(1, 2)
@@ -159,14 +158,32 @@ class BringIntoViewRequesterViewIntegrationTest {
                         )
                     }
                     return@AndroidView parent
-                }
+                },
             )
         }
 
         rule.waitForIdle()
         scope.launch { bringIntoViewRequester.bringIntoView(rectangleToRequest) }
 
-        rule.runOnIdle { assertThat(requests.single()).isEqualTo(expectedRectangle) }
+        rule.runOnIdle {
+            assertThat(requests.single()).isEqualTo(expectedRectangle.toComposeRect())
+        }
+    }
+
+    @Test
+    fun requestRectangleOnScreen_propagatesToBringIntoView() {
+        val rectangleToRequest = AndroidRect(11, 22, 41, 62)
+        lateinit var view: View
+        var requestedRect: Rect? = null
+        rule.setContent {
+            Box(Modifier.fakeScrollable { requestedRect = it() }) {
+                AndroidView({ View(it).also { view = it } })
+            }
+        }
+
+        rule.runOnIdle { view.requestRectangleOnScreen(rectangleToRequest, false) }
+
+        rule.runOnIdle { assertThat(requestedRect).isEqualTo(rectangleToRequest.toComposeRect()) }
     }
 
     /** A view that records calls to [requestChildRectangleOnScreen] for testing. */
@@ -178,7 +195,7 @@ class BringIntoViewRequesterViewIntegrationTest {
         override fun requestChildRectangleOnScreen(
             child: View,
             rectangle: AndroidRect,
-            immediate: Boolean
+            immediate: Boolean,
         ): Boolean {
             requests += RectangleRequest(rectangle, immediate)
             return false

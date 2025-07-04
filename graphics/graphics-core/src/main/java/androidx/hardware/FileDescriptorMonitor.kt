@@ -30,7 +30,7 @@ import kotlin.collections.removeLast as removeLastKt
 internal class FileDescriptorMonitor(
     executor: HandlerThreadExecutor? = null,
     private val scheduleMillis: Long = MONITOR_DELAY,
-    manageExecutor: Boolean = executor != null
+    manageExecutor: Boolean = executor != null,
 ) {
 
     private val mIsMonitoring = AtomicBoolean(false)

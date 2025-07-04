@@ -18,5 +18,5 @@ package androidx.room.compiler.codegen
 
 enum class CodeLanguage {
     JAVA,
-    KOTLIN
+    KOTLIN,
 }

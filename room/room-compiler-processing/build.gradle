@@ -22,68 +22,27 @@
  * modifying its settings.
  */
 
+
 import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
-    id("com.gradleup.shadow")
-}
-
-configurations {
-    // For shadowed / jarjared deps
-    shadowed
-    // shadowed deps are compile only deps
-    compileOnly.extendsFrom(shadowed)
-    // compiler tests don't use shadowed, so include them
-    testCompile.extendsFrom(shadowed)
-    // for downstream tests
-    shadowAndImplementation.extendsFrom(shadow)
-    shadowAndImplementation.extendsFrom(implementation)
-}
-
-shadowJar {
-    archiveClassifier = ""
-    configurations = [project.configurations.shadowed]
-    relocate("kotlin.metadata", "androidx.room.jarjarred.kotlin.metadata")
-    mergeServiceFiles() // kotlin-metadata-jvm has a service descriptor that needs transformation
-    // Exclude Kotlin metadata files from kotlin-metadata-jvm
-    exclude 'META-INF/kotlin-metadata-jvm.kotlin_module'
-    exclude 'META-INF/kotlin-metadata.kotlin_module'
-    exclude 'META-INF/metadata.jvm.kotlin_module'
-    exclude 'META-INF/metadata.kotlin_module'
-}
-
-jar {
-    archiveClassifier = "before-jarjar"
-}
-
-configurations {
-    // replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
-    apiElements.outgoing.artifacts.clear()
-    apiElements.outgoing.artifact(shadowJar) {
-        builtBy shadowJar
-    }
-    runtimeElements.outgoing.artifacts.clear()
-    runtimeElements.outgoing.artifact(shadowJar) {
-        builtBy shadowJar
-    }
 }
 
 dependencies {
-    api(libs.kotlinStdlibJdk8)
+    api(libs.jspecify)
+    api(libs.kotlinStdlib)
+    api(libs.kspApi)
     api(libs.javapoet)
-    api(libs.kotlinPoet)
-    api(libs.kotlinPoetJavaPoet)
+    api("com.squareup:kotlinpoet:2.0.0")
+    api("com.squareup:kotlinpoet-javapoet:2.0.0")
     implementation(libs.guava)
     implementation(libs.autoCommon)
     implementation(libs.autoValueAnnotations)
-    shadowed(libs.kotlinMetadataJvm) {
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
-    }
-    implementation(libs.kspApi)
+    implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:2.0.21")
 
     testImplementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.googleCompileTesting)
@@ -116,8 +75,8 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "Room XProcessor"
-    type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    type = SoftwareType.ANNOTATION_PROCESSOR_UTILS
     inceptionYear = "2020"
     description = "Processing Environment Abstraction for AndroidX Room"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
 }

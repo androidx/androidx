@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string name="movable_panel_text" description="String which appears in a movable TestPanel. [CHAR_LIMIT=30]">Movable Panel</string>
+  <string name="stationary_panel_text" description="String which appears in a stationary TestPanel. [CHAR_LIMIT=30]">Stationary Panel</string>
+  <string name="system_move_switch_text" description="String indicating panel will be moved by system [CHAR_LIMIT=30]">System Moveable</string>
+  <string name="scale_z_switch_text" description="String indicating panel will be scale in Z. [CHAR_LIMIT=30]">Scale In Z</string>
+  <string name="anchorable_switch_text" description="String indicating panel will be anchorable. [CHAR_LIMIT=30]">Anchorable</string>
+  <string name="parent_switch_text" description="String indicating the if the panel is a child of a panel. [CHAR_LIMIT=30]">Child of Panel</string>
+  <string name="plane_semantic" description="text label indicating plane semantic options. [CHAR_LIMIT=30]">Plane Semantic</string>
+  <string name="plane_type" description="text label indicating plane type options. [CHAR_LIMIT=30]">Plane Type</string>
+  <string name="any" description="Checkbox label for the Any plane semantic and type options. [CHAR_LIMIT=30]">Any</string>
+  <string name="wall" description="Checkbox label for the Wall plane semantic option. [CHAR_LIMIT=30]">Wall</string>
+  <string name="floor" description="Checkbox label for the Floor plane semantic option. [CHAR_LIMIT=30]">Floor</string>
+  <string name="ceiling" description="Checkbox label for the Ceiling plane semantic option. [CHAR_LIMIT=30]">Ceiling</string>
+  <string name="table" description="Checkbox label for the Table plane semantic option. [CHAR_LIMIT=30]">Table</string>
+  <string name="horizontal" description="Checkbox label for the Horizontal plane Type option. [CHAR_LIMIT=30]">Horizontal</string>
+  <string name="vertical" description="Checkbox label for the Vertical plane Type option. [CHAR_LIMIT=30]">Vertical</string>
+</resources>

@@ -51,9 +51,8 @@ private data class LayoutIdElement(private val layoutId: Any) :
  * will act as parent data, and can be used for example by parent layouts to associate composable
  * children to [Measurable]s when doing layout, as shown below.
  */
-internal class LayoutIdModifier(
-    layoutId: Any,
-) : ParentDataModifierNode, LayoutIdParentData, Modifier.Node() {
+internal class LayoutIdModifier(layoutId: Any) :
+    ParentDataModifierNode, LayoutIdParentData, Modifier.Node() {
 
     override var layoutId: Any = layoutId
         internal set

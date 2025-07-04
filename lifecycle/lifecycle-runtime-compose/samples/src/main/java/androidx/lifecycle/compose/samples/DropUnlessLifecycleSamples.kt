@@ -31,7 +31,7 @@ fun DropUnlessStarted() {
             dropUnlessStarted {
                 // Run on clicks only when the lifecycle is at least STARTED.
                 // Example: navController.navigate("next_screen")
-            },
+            }
     ) {
         Text(text = "Navigate to next screen")
     }
@@ -45,7 +45,7 @@ fun DropUnlessResumed() {
             dropUnlessResumed {
                 // Run on clicks only when the lifecycle is at least RESUMED.
                 // Example: navController.navigate("next_screen")
-            },
+            }
     ) {
         Text(text = "Navigate to next screen")
     }

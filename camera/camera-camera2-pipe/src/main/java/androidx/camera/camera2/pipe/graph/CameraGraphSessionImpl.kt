@@ -39,7 +39,7 @@ internal class CameraGraphSessionImpl(
     private val graphProcessor: GraphProcessor,
     private val controller3A: Controller3A,
     private val frameCaptureQueue: FrameCaptureQueue,
-    private val parameters: CameraGraphParametersImpl
+    private val parameters: CameraGraphParametersImpl,
 ) : CameraGraph.Session {
     private val debugId = cameraGraphSessionIds.incrementAndGet()
 
@@ -84,7 +84,7 @@ internal class CameraGraphSessionImpl(
     override fun close() {
         val unappliedParameters = parameters.fetchUpdatedParameters()
         if (unappliedParameters != null) {
-            graphProcessor.updateParameters(unappliedParameters)
+            graphProcessor.updateGraphParameters(unappliedParameters)
         }
         token.release()
     }
@@ -95,7 +95,7 @@ internal class CameraGraphSessionImpl(
         awbMode: AwbMode?,
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
+        awbRegions: List<MeteringRectangle>?,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call update3A on $this after close." }
         return controller3A.update3A(
@@ -104,7 +104,7 @@ internal class CameraGraphSessionImpl(
             awbMode = awbMode,
             aeRegions = aeRegions,
             afRegions = afRegions,
-            awbRegions = awbRegions
+            awbRegions = awbRegions,
         )
     }
 
@@ -114,7 +114,7 @@ internal class CameraGraphSessionImpl(
         awbMode: AwbMode?,
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
-        awbRegions: List<MeteringRectangle>?
+        awbRegions: List<MeteringRectangle>?,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call submit3A on $this after close." }
         return controller3A.submit3A(aeMode, afMode, awbMode, aeRegions, afRegions, awbRegions)
@@ -147,7 +147,7 @@ internal class CameraGraphSessionImpl(
         lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
         convergedTimeLimitNs: Long,
-        lockedTimeLimitNs: Long
+        lockedTimeLimitNs: Long,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call lock3A on $this after close." }
         // TODO(sushilnath): check if the device or the current mode supports lock for each of
@@ -165,7 +165,7 @@ internal class CameraGraphSessionImpl(
             lockedCondition,
             frameLimit,
             convergedTimeLimitNs,
-            lockedTimeLimitNs
+            lockedTimeLimitNs,
         )
     }
 
@@ -175,7 +175,7 @@ internal class CameraGraphSessionImpl(
         awb: Boolean?,
         unlockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
-        timeLimitNs: Long
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call unlock3A on $this after close." }
         return controller3A.unlock3A(ae, af, awb, unlockedCondition, frameLimit, timeLimitNs)
@@ -184,7 +184,7 @@ internal class CameraGraphSessionImpl(
     override suspend fun lock3AForCapture(
         lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
-        timeLimitNs: Long
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call lock3AForCapture on $this after close." }
         return controller3A.lock3AForCapture(lockedCondition, frameLimit, timeLimitNs)
@@ -194,7 +194,7 @@ internal class CameraGraphSessionImpl(
         triggerAf: Boolean,
         waitForAwb: Boolean,
         frameLimit: Int,
-        timeLimitNs: Long
+        timeLimitNs: Long,
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call lock3AForCapture on $this after close." }
         return controller3A.lock3AForCapture(triggerAf, waitForAwb, frameLimit, timeLimitNs)

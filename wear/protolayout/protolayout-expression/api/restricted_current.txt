@@ -61,8 +61,18 @@ package androidx.wear.protolayout.expression {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable.Builder setReverseRepeatOverride(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
   }
 
-  public final class AppDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T!> {
-    ctor public AppDataKey(String);
+  public final class AppDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T> {
+    ctor public AppDataKey(String key);
+  }
+
+  public final class AppDataKeyUtil {
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool> boolAppDataKey(String key);
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor> colorAppDataKey(String key);
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration> durationAppDataKey(String key);
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat> floatAppDataKey(String key);
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant> instantAppDataKey(String key);
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32> intAppDataKey(String key);
+    method public static androidx.wear.protolayout.expression.AppDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString> stringAppDataKey(String key);
   }
 
   public class ConditionScopes {
@@ -322,17 +332,78 @@ package androidx.wear.protolayout.expression {
     method public default boolean hasInstantValue();
     method public default boolean hasIntValue();
     method public default boolean hasStringValue();
+    method public default boolean hasValueOfType(Class<? extends java.lang.Object!>);
     method public default byte[] toDynamicDataValueByteArray();
     method public default int toDynamicDataValueByteArray(byte[]);
     method public default int toDynamicDataValueByteArray(byte[], int, int);
   }
 
   public abstract class DynamicDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> {
-    method public String getKey();
-    method public String getNamespace();
+    method public final String getKey();
+    method public final String getNamespace();
+    property public final String key;
+    property public final String namespace;
+  }
+
+  public class DynamicDataMap {
+    method public final inline operator <reified T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> boolean contains(androidx.wear.protolayout.expression.DynamicDataKey<T> key);
+    method public final <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> boolean contains(androidx.wear.protolayout.expression.DynamicDataKey<T> key, Class<T> type);
+    method public final operator Boolean? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool> key);
+    method public final operator android.graphics.Color? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor> key);
+    method public final operator java.time.Duration? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration> key);
+    method public final operator Float? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat> key);
+    method public final operator java.time.Instant? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant> key);
+    method public final operator Integer? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32> key);
+    method public final operator String? get(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString> key);
+    method public final java.util.Set<java.util.Map.Entry<androidx.wear.protolayout.expression.DynamicDataKey<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>>> getEntries();
+    method public final java.util.Set<androidx.wear.protolayout.expression.DynamicDataKey<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>> getKeys();
+    method public final int getSize();
+    method public final java.util.Collection<androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>> getValues();
+    method public final operator androidx.wear.protolayout.expression.DynamicDataMap plus(androidx.wear.protolayout.expression.DynamicDataMap rhs);
+    property public final java.util.Set<java.util.Map.Entry<androidx.wear.protolayout.expression.DynamicDataKey<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>>> entries;
+    property public final java.util.Set<androidx.wear.protolayout.expression.DynamicDataKey<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>> keys;
+    property public final int size;
+    property public final java.util.Collection<androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType>> values;
+  }
+
+  public final class DynamicDataMapUtil {
+    method public static androidx.wear.protolayout.expression.DynamicDataMap dynamicDataMapOf(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object?>... pairs);
+    method public static androidx.wear.protolayout.expression.MutableDynamicDataMap mutableDynamicDataMapOf(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object?>... pairs);
+  }
+
+  public final class DynamicDataPair<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> {
+    ctor public DynamicDataPair(androidx.wear.protolayout.expression.DynamicDataKey<T> key, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T> value);
+    method public kotlin.Pair<androidx.wear.protolayout.expression.DynamicDataKey<T>,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T>> asPair();
+    method public androidx.wear.protolayout.expression.DynamicDataKey<T> getKey();
+    method public androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T> getValue();
+    property public androidx.wear.protolayout.expression.DynamicDataKey<T> key;
+    property public androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T> value;
+  }
+
+  public final class DynamicDataPairUtil {
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool>, boolean value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor>, android.graphics.Color value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration>, java.time.Duration value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat>, float value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant>, java.time.Instant value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32>, int value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static infix androidx.wear.protolayout.expression.DynamicDataPair<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString> dynamicDataPairOf(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString>, String value);
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface ExperimentalProtoLayoutExtensionApi {
+  }
+
+  public final class MutableDynamicDataMap extends androidx.wear.protolayout.expression.DynamicDataMap {
+    ctor public MutableDynamicDataMap(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object?>... pairs);
+    method public void putAll(androidx.wear.protolayout.expression.DynamicDataMap other);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool> key, boolean value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor> key, android.graphics.Color value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration> key, java.time.Duration value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat> key, float value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant> key, java.time.Instant value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32> key, int value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public operator void set(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString> key, String value);
+    method public operator <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> void set(androidx.wear.protolayout.expression.DynamicDataKey<T> key, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T> value);
   }
 
   public final class PlatformDataKey<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> extends androidx.wear.protolayout.expression.DynamicDataKey<T!> {
@@ -348,7 +419,39 @@ package androidx.wear.protolayout.expression {
     ctor public PlatformDataValues.Builder();
     method public androidx.wear.protolayout.expression.PlatformDataValues build();
     method public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.expression.PlatformDataValues.Builder put(androidx.wear.protolayout.expression.PlatformDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
+    method public androidx.wear.protolayout.expression.PlatformDataValues.Builder putAll(androidx.wear.protolayout.expression.DynamicDataMap);
     method public androidx.wear.protolayout.expression.PlatformDataValues.Builder putAll(androidx.wear.protolayout.expression.PlatformDataValues);
+  }
+
+  public final class PlatformEventSources {
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=500) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool isLayoutVisible();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=600) public static androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus layoutUpdateStatus();
+    property public static int LAYOUT_UPDATE_IDLE;
+    property public static int LAYOUT_UPDATE_IDLE_ERROR;
+    property public static int LAYOUT_UPDATE_WAITING;
+    field public static final androidx.wear.protolayout.expression.PlatformEventSources INSTANCE;
+    field public static final int LAYOUT_UPDATE_IDLE = 0; // 0x0
+    field public static final int LAYOUT_UPDATE_IDLE_ERROR = 2; // 0x2
+    field public static final int LAYOUT_UPDATE_WAITING = 1; // 0x1
+  }
+
+  public static final class PlatformEventSources.DynamicLayoutUpdateStatus implements androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 {
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=600) public static androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus constant(int value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=600) public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus> dynamicDataValueOf(int value);
+    field public static final androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus.Companion Companion;
+  }
+
+  public static final class PlatformEventSources.DynamicLayoutUpdateStatus.Companion {
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=600) public androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus constant(int value);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=600) public androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus> dynamicDataValueOf(int value);
+  }
+
+  public static final class PlatformEventSources.Keys {
+    property public androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus> LAYOUT_UPDATE_STATUS;
+    property public androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool> LAYOUT_VISIBILITY;
+    field public static final androidx.wear.protolayout.expression.PlatformEventSources.Keys INSTANCE;
+    field public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.PlatformEventSources.DynamicLayoutUpdateStatus> LAYOUT_UPDATE_STATUS;
+    field public static final androidx.wear.protolayout.expression.PlatformDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool> LAYOUT_VISIBILITY;
   }
 
   public class PlatformHealthSources {
@@ -395,6 +498,7 @@ package androidx.wear.protolayout.expression {
     method public int compareTo(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo);
     method public int getMajor();
     method public int getMinor();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.wear.protolayout.expression.VersionBuilders.VersionInfo CURRENT;
   }
 
   public static final class VersionBuilders.VersionInfo.Builder {
@@ -415,7 +519,7 @@ package androidx.wear.protolayout.expression.util {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(optional androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant instant);
     method public java.time.ZoneId getTimeZone();
     method public void setTimeZone(java.time.ZoneId);
-    property public final java.time.ZoneId timeZone;
+    property public java.time.ZoneId timeZone;
   }
 
   public final class DynamicFormatter {

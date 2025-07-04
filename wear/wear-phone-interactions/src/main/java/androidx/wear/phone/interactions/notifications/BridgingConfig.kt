@@ -38,7 +38,7 @@ internal constructor(
      * The set of excluded tags in the configuration. The bridging mode for these tags is the
      * opposite of the default mode (returned by [isBridgingEnabled]).
      */
-    public val excludedTags: MutableSet<String>?
+    public val excludedTags: MutableSet<String>?,
 ) {
     internal companion object {
         private const val TAG = "BridgingConfig"
@@ -55,7 +55,7 @@ internal constructor(
             BridgingConfig(
                 bundle.getString(EXTRA_ORIGINAL_PACKAGE),
                 bundle.getBoolean(EXTRA_BRIDGING_ENABLED),
-                bundle.getStringArrayList(EXTRA_EXCLUDED_TAGS)?.toMutableSet()
+                bundle.getStringArrayList(EXTRA_EXCLUDED_TAGS)?.toMutableSet(),
             )
     }
 
@@ -65,7 +65,7 @@ internal constructor(
             putBoolean(EXTRA_BRIDGING_ENABLED, isBridgingEnabled)
             putStringArrayList(
                 EXTRA_EXCLUDED_TAGS,
-                excludedTags?.let { ArrayList(it) } ?: ArrayList()
+                excludedTags?.let { ArrayList(it) } ?: ArrayList(),
             )
         }
 

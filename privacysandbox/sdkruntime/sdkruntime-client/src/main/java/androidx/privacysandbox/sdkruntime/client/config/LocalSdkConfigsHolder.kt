@@ -31,7 +31,7 @@ private constructor(private val configs: Map<String, LocalSdkConfig>) {
 
         fun load(
             context: Context,
-            sdkTableAssetName: String = SDK_TABLE_ASSET_NAME
+            sdkTableAssetName: String = SDK_TABLE_ASSET_NAME,
         ): LocalSdkConfigsHolder {
             val sdkTable = loadSdkTable(context, sdkTableAssetName)
 
@@ -50,7 +50,7 @@ private constructor(private val configs: Map<String, LocalSdkConfig>) {
 
         private fun loadSdkTable(
             context: Context,
-            sdkTableAssetName: String
+            sdkTableAssetName: String,
         ): Set<SdkTableConfigParser.SdkTableEntry> {
             try {
                 context.assets.open(sdkTableAssetName).use { sdkTableAsset ->

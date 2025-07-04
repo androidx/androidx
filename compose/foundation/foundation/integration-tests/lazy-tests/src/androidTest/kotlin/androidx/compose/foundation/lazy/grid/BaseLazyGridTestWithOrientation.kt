@@ -63,7 +63,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
         overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         crossAxisSpacedBy: Dp = 0.dp,
         mainAxisSpacedBy: Dp = 0.dp,
-        content: LazyGridScope.() -> Unit
+        content: LazyGridScope.() -> Unit,
     ) =
         LazyGrid(
             GridCells.Fixed(cells),
@@ -77,7 +77,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
             overscrollEffect,
             crossAxisSpacedBy,
             mainAxisSpacedBy,
-            content
+            content,
         )
 
     @Composable
@@ -93,7 +93,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
         overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         crossAxisSpacedBy: Dp = 0.dp,
         mainAxisSpacedBy: Dp = 0.dp,
-        content: LazyGridScope.() -> Unit
+        content: LazyGridScope.() -> Unit,
     ) {
         if (vertical) {
             val verticalArrangement =
@@ -118,7 +118,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
                 overscrollEffect = overscrollEffect,
                 verticalArrangement = verticalArrangement,
                 horizontalArrangement = horizontalArrangement,
-                content = content
+                content = content,
             )
         } else {
             val horizontalArrangement =
@@ -143,7 +143,7 @@ open class BaseLazyGridTestWithOrientation(orientation: Orientation) :
                 overscrollEffect = overscrollEffect,
                 horizontalArrangement = horizontalArrangement,
                 verticalArrangement = verticalArrangement,
-                content = content
+                content = content,
             )
         }
     }

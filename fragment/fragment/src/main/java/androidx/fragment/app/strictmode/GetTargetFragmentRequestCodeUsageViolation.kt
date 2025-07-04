@@ -18,8 +18,8 @@ package androidx.fragment.app.strictmode
 import androidx.fragment.app.Fragment
 
 /** See [FragmentStrictMode.Policy.Builder.detectTargetFragmentUsage]. */
-class GetTargetFragmentRequestCodeUsageViolation internal constructor(fragment: Fragment) :
+public class GetTargetFragmentRequestCodeUsageViolation internal constructor(fragment: Fragment) :
     TargetFragmentUsageViolation(
         fragment,
-        "Attempting to get target request code from fragment $fragment"
+        "Attempting to get target request code from fragment $fragment",
     )

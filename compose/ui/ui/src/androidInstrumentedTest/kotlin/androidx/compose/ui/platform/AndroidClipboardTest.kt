@@ -180,7 +180,7 @@ class AndroidClipboardTest {
                 textGeometricTransform = TextGeometricTransform(scaleX = 1.1f, skewX = 0.1f),
                 background = Color.Yellow,
                 textDecoration = TextDecoration.LineThrough,
-                shadow = Shadow(color = Color.Cyan, offset = Offset(1f, 2f), blurRadius = 3f)
+                shadow = Shadow(color = Color.Cyan, offset = Offset(1f, 2f), blurRadius = 3f),
             )
         assertEncodeAndDecode(spanStyle)
     }

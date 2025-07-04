@@ -19,9 +19,9 @@
     <string name="mr_system_route_name" msgid="7449553026175453403">"システム"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"デバイス"</string>
     <string name="mr_button_content_description" msgid="2939063992730535343">"キャスト"</string>
-    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"キャスト。未接続"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"キャスト未接続"</string>
     <string name="mr_cast_button_connecting" msgid="6629927151350192407">"キャスト。接続中"</string>
-    <string name="mr_cast_button_connected" msgid="6073720094880410356">"キャスト。接続済み"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"キャスト接続済み"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"キャスト先"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"デバイスを検出しています"</string>
     <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"デバイスの検出中..."</string>

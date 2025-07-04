@@ -40,7 +40,7 @@ internal enum class CameraState {
     PREVIEW_RUNNING,
     WAITING_FOCUS_LOCK,
     WAITING_EXPOSURE_LOCK,
-    IMAGE_REQUESTED
+    IMAGE_REQUESTED,
 }
 
 /**
@@ -89,7 +89,7 @@ fun camera2OpenCamera(activity: MainActivity, params: CameraParams?, testConfig:
 fun createCameraPreviewSession(
     activity: MainActivity,
     params: CameraParams,
-    testConfig: TestConfig
+    testConfig: TestConfig,
 ) {
 
     logd("In createCameraPreviewSession.")
@@ -115,7 +115,7 @@ fun createCameraPreviewSession(
         params.device?.createCaptureSession(
             Arrays.asList(surface, imageSurface),
             Camera2PreviewSessionStateCallback(activity, params, testConfig),
-            null
+            null,
         )
     } catch (e: CameraAccessException) {
         MainActivity.logd("createCameraPreviewSession CameraAccessException: " + e.message)
@@ -175,25 +175,25 @@ fun lockFocus(activity: MainActivity, params: CameraParams, testConfig: TestConf
 
                 params.captureRequestBuilder?.set(
                     CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_AUTO
+                    CaptureRequest.CONTROL_AF_MODE_AUTO,
                 )
                 params.captureRequestBuilder?.set(
                     CaptureRequest.CONTROL_AF_TRIGGER,
-                    CameraMetadata.CONTROL_AF_TRIGGER_CANCEL
+                    CameraMetadata.CONTROL_AF_TRIGGER_CANCEL,
                 )
                 params.camera2CaptureSession?.capture(
                     params.captureRequestBuilder?.build()!!,
                     params.camera2CaptureSessionCallback,
-                    params.backgroundHandler
+                    params.backgroundHandler,
                 )
 
                 params.captureRequestBuilder?.set(
                     CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_AUTO
+                    CaptureRequest.CONTROL_AF_MODE_AUTO,
                 )
                 params.captureRequestBuilder?.set(
                     CaptureRequest.CONTROL_AF_TRIGGER,
-                    CameraMetadata.CONTROL_AF_TRIGGER_START
+                    CameraMetadata.CONTROL_AF_TRIGGER_START,
                 )
 
                 params.state = CameraState.WAITING_FOCUS_LOCK
@@ -202,7 +202,7 @@ fun lockFocus(activity: MainActivity, params: CameraParams, testConfig: TestConf
                 params.camera2CaptureSession?.capture(
                     params.captureRequestBuilder?.build()!!,
                     params.camera2CaptureSessionCallback,
-                    params.backgroundHandler
+                    params.backgroundHandler,
                 )
             } else {
                 // If no auto-focus requested, go ahead to the still capture routine
@@ -227,14 +227,14 @@ fun runPrecaptureSequence(params: CameraParams) {
             setAutoFlash(params, params.captureRequestBuilder)
             params.captureRequestBuilder?.set(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START,
             )
 
             params.state = CameraState.WAITING_EXPOSURE_LOCK
             params.camera2CaptureSession?.capture(
                 params.captureRequestBuilder?.build()!!,
                 params.camera2CaptureSessionCallback,
-                params.backgroundHandler
+                params.backgroundHandler,
             )
         }
     } catch (e: CameraAccessException) {
@@ -265,13 +265,13 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
                 FocusMode.CONTINUOUS -> {
                     params.captureRequestBuilder?.set(
                         CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+                        CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
                     )
                 }
                 FocusMode.AUTO -> {
                     params.captureRequestBuilder?.set(
                         CaptureRequest.CONTROL_AF_TRIGGER,
-                        CameraMetadata.CONTROL_AF_TRIGGER_IDLE
+                        CameraMetadata.CONTROL_AF_TRIGGER_IDLE,
                     )
                 }
                 FocusMode.FIXED -> {}
@@ -290,7 +290,7 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
             val capturedImageRotation = getOrientation(params, rotation)
             params.captureRequestBuilder?.set(
                 CaptureRequest.JPEG_ORIENTATION,
-                capturedImageRotation
+                capturedImageRotation,
             )
 
             // Flash
@@ -300,7 +300,7 @@ fun captureStillPicture(activity: MainActivity, params: CameraParams, testConfig
             params.camera2CaptureSession?.capture(
                 params.captureRequestBuilder?.build()!!,
                 captureCallback,
-                params.backgroundHandler
+                params.backgroundHandler,
             )
         }
     } catch (e: CameraAccessException) {

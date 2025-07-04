@@ -55,7 +55,7 @@ fun DialogDemo() {
     if (openDialog) {
         Dialog(
             onDismissRequest = { openDialog = false },
-            properties = DialogProperties(usePlatformDefaultWidth = usePlatformDefaultWidth)
+            properties = DialogProperties(usePlatformDefaultWidth = usePlatformDefaultWidth),
         ) {
             val width =
                 if (expandedWidth) {
@@ -72,11 +72,11 @@ fun DialogDemo() {
             Card(
                 modifier = Modifier.size(width, height).padding(10.dp),
                 elevation = elevation,
-                shape = shape
+                shape = shape,
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
+                    verticalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     Text("Dialog")
                     TextButton(

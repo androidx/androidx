@@ -49,7 +49,7 @@ public class CachedPageEventFlowLeakTest {
                                     Item(generation = generation, pagePos = it)
                                 },
                             prevKey = (params.key ?: 0) - 1,
-                            nextKey = (params.key ?: 0) + 1
+                            nextKey = (params.key ?: 0) + 1,
                         )
                     }
 
@@ -57,7 +57,7 @@ public class CachedPageEventFlowLeakTest {
                         return null
                     }
                 }
-            }
+            },
         )
 
     private val tracker =
@@ -82,7 +82,7 @@ public class CachedPageEventFlowLeakTest {
          * If true, this method will stop collecting once it reached the desired generation number.
          * Otherwise, it will never return and keep collecting forever.
          */
-        finishCollecting: Boolean
+        finishCollecting: Boolean,
     ) {
         // collect expected generations to generate garbage
         var remaining = generationCount
@@ -128,7 +128,7 @@ public class CachedPageEventFlowLeakTest {
             flow = flow,
             generationCount = 20,
             doneInvalidating = null,
-            finishCollecting = true
+            finishCollecting = true,
         )
         gcHelper.assertLiveObjects(
             // see b/204125064
@@ -136,7 +136,7 @@ public class CachedPageEventFlowLeakTest {
             // to be able to find anchor for the new position but we don't clear it yet. It can
             // only be cleared after the new generation loads a page.
             Item::class to 20,
-            CachedPageEventFlow::class to 1
+            CachedPageEventFlow::class to 1,
         )
         scope.cancel()
     }
@@ -148,7 +148,7 @@ public class CachedPageEventFlowLeakTest {
             flow = pager.flow,
             generationCount = 10,
             doneInvalidating = null,
-            finishCollecting = true
+            finishCollecting = true,
         )
         gcHelper.assertEverythingIsCollected()
     }
@@ -163,7 +163,7 @@ public class CachedPageEventFlowLeakTest {
                 flow = pager.flow,
                 generationCount = 10,
                 doneInvalidating = doneInvalidating,
-                finishCollecting = false
+                finishCollecting = false,
             )
         }
         // make sure we collected enough generations
@@ -191,7 +191,7 @@ public class CachedPageEventFlowLeakTest {
                 flow = flow,
                 generationCount = 10,
                 doneInvalidating = doneInvalidating,
-                finishCollecting = false
+                finishCollecting = false,
             )
         }
         // make sure we collected enough generations
@@ -202,7 +202,7 @@ public class CachedPageEventFlowLeakTest {
             // to be able to find anchor for the new position but we don't clear it yet. It can
             // only be cleared after the new generation loads a page.
             Item::class to 20,
-            CachedPageEventFlow::class to 1
+            CachedPageEventFlow::class to 1,
         )
         collection.cancelAndJoin()
     }

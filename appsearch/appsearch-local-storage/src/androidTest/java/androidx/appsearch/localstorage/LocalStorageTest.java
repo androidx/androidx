@@ -20,7 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
+
+import com.google.android.icing.proto.PersistType;
 
 import org.junit.Test;
 
@@ -30,11 +33,15 @@ import java.util.concurrent.Executors;
 public class LocalStorageTest {
     @Test
     public void testSameInstance() throws Exception {
+        LocalStorage.resetInstance();
+
         Executor executor = Executors.newCachedThreadPool();
         LocalStorage b1 = LocalStorage.getOrCreateInstance(
-                ApplicationProvider.getApplicationContext(), executor, /*logger=*/ null);
+                ApplicationProvider.getApplicationContext(), executor, /*logger=*/ null,
+                /* persistToDiskRecoveryProof=*/false);
         LocalStorage b2 = LocalStorage.getOrCreateInstance(
-                ApplicationProvider.getApplicationContext(), executor, /*logger=*/ null);
+                ApplicationProvider.getApplicationContext(), executor, /*logger=*/ null,
+                /* persistToDiskRecoveryProof=*/false);
         assertThat(b1).isSameInstanceAs(b2);
     }
 
@@ -87,5 +94,32 @@ public class LocalStorageTest {
                         ApplicationProvider.getApplicationContext(),
                         "/testDatabaseNameStartWith").build());
         assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
+    }
+
+    @Test
+    public void testLocalStorage_persistToDiskRecoveryProofTrue() throws AppSearchException {
+        LocalStorage.resetInstance();
+
+        LocalStorage.SearchContext searchContext =
+                new LocalStorage.SearchContext.Builder(
+                        ApplicationProvider.getApplicationContext(),
+                        /*databaseName=*/"dbName").setPersistToDiskRecoveryProof(true).build();
+
+        AppSearchConfig config = LocalStorage.getConfig(searchContext);
+        assertThat(config.getLightweightPersistType()).isEqualTo(PersistType.Code.RECOVERY_PROOF);
+    }
+
+    @Test
+    public void testLocalStorage_persistToDiskRecoveryProofFalse() throws AppSearchException {
+        LocalStorage.resetInstance();
+
+        // persistToDiskRecoveryProof is false by default.
+        LocalStorage.SearchContext searchContext =
+                new LocalStorage.SearchContext.Builder(
+                        ApplicationProvider.getApplicationContext(),
+                        /*databaseName=*/"dbName").build();
+
+        AppSearchConfig config = LocalStorage.getConfig(searchContext);
+        assertThat(config.getLightweightPersistType()).isEqualTo(PersistType.Code.LITE);
     }
 }

@@ -20,11 +20,11 @@ import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.text.AnnotatedString
 
-internal actual fun ClipEntry.readText(): String? {
+internal actual suspend fun ClipEntry.readText(): String? {
     implementedInJetBrainsFork()
 }
 
-internal actual fun ClipEntry.readAnnotatedString(): AnnotatedString? {
+internal actual suspend fun ClipEntry.readAnnotatedString(): AnnotatedString? {
     implementedInJetBrainsFork()
 }
 

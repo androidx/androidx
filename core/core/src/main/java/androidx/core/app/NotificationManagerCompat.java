@@ -831,6 +831,22 @@ public final class NotificationManagerCompat {
         return Api34Impl.canUseFullScreenIntent(mNotificationManager);
     }
 
+     /**
+     * Returns whether the calling app's properly formatted notifications can appear in a promoted
+     * format, which may result in higher ranking, appearances on additional surfaces, and richer
+     * presentation.
+     *
+     * Apps can request this permission by sending the user to the activity that matches the system
+     * intent action {@link android.provider.Settings#ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS}.
+     */
+    public boolean canPostPromotedNotifications() {
+        if (Build.VERSION.SDK_INT >= 36) {
+            return Api36Impl.canPostPromotedNotifications(mNotificationManager);
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Returns true if this notification should use the side channel for delivery.
      */
@@ -1377,6 +1393,20 @@ public final class NotificationManagerCompat {
 
         static boolean canUseFullScreenIntent(NotificationManager notificationManager) {
             return notificationManager.canUseFullScreenIntent();
+        }
+    }
+    /**
+     * A class for wrapping calls to {@link Notification.Builder} methods which
+     * were added in API 36; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(36)
+    static class Api36Impl {
+        private Api36Impl() { }
+
+        static boolean canPostPromotedNotifications(
+            @NonNull NotificationManager notificationManager) {
+            return notificationManager.canPostPromotedNotifications();
         }
     }
 }

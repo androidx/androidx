@@ -32,13 +32,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.test.filters.LargeTest;
 import androidx.testutils.ActivityScenarioResetRule;
 import androidx.testutils.ResettableActivityScenarioRule;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -281,14 +281,14 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
         }
 
         @Override
-        public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed,
-                int type) {
+        public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+                int @NonNull [] consumed, int type) {
 
         }
 
         @Override
         public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
-                int dxUnconsumed, int dyUnconsumed, int type, @Nullable int[] consumed) {
+                int dxUnconsumed, int dyUnconsumed, int type, int @Nullable [] consumed) {
         }
 
         @Override
@@ -362,7 +362,7 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
 
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-                @NonNull int[] consumed) {
+                int @NonNull [] consumed) {
 
         }
 
@@ -397,9 +397,8 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
             mVertical = vertical;
         }
 
-        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+        public RecyclerView.@NonNull ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             View view = new View(mContext);
 
@@ -420,7 +419,7 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.@NonNull ViewHolder holder, int position) {
 
         }
 

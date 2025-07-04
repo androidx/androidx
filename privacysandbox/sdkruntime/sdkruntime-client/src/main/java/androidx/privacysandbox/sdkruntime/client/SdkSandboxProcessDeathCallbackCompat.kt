@@ -24,7 +24,7 @@ package androidx.privacysandbox.sdkruntime.client
  *
  * @see [android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback]
  */
-interface SdkSandboxProcessDeathCallbackCompat {
+public interface SdkSandboxProcessDeathCallbackCompat {
     /**
      * Notifies the client application that the SDK sandbox has died. The sandbox could die for
      * various reasons, for example, due to memory pressure on the system, or a crash in the
@@ -37,5 +37,5 @@ interface SdkSandboxProcessDeathCallbackCompat {
      * @see
      *   [android.app.sdksandbox.SdkSandboxManager.SdkSandboxProcessDeathCallback.onSdkSandboxDied]
      */
-    fun onSdkSandboxDied()
+    public fun onSdkSandboxDied()
 }

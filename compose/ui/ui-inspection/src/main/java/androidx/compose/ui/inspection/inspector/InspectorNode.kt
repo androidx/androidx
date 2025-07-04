@@ -23,6 +23,14 @@ internal const val UNDEFINED_ID = 0L
 
 internal val emptyBox = IntRect(0, 0, 0, 0)
 
+// Flags see accessors for description
+private const val FLAGS_NONE = 0b0000
+private const val FLAGS_INLINED = 0b0001
+private const val FLAGS_DRAW_MODIFIER = 0b0010
+private const val FLAGS_CHILD_DRAW_MODIFIER = 0b0100
+private const val FLAGS_UNKNOWN_LOCATION = 0b1000
+private const val FLAGS_OVERRIDDEN_BOX_SIZE = 0b10000
+
 /** Node representing a Composable for the Layout Inspector. */
 class InspectorNode
 internal constructor(
@@ -72,8 +80,8 @@ internal constructor(
     /** The 4 corners of the polygon after transformations of the original rectangle. */
     val bounds: QuadBounds? = null,
 
-    /** True if the code for the Composable was inlined */
-    val inlined: Boolean = false,
+    /** Flags for: inlined, hasDrawModifier,, hasChildDrawModifier */
+    val flags: Int = FLAGS_NONE,
 
     /** The parameters of this Composable. */
     val parameters: List<RawParameter>,
@@ -88,7 +96,7 @@ internal constructor(
     val unmergedSemantics: List<RawParameter>,
 
     /** The children nodes of this Composable. */
-    val children: List<InspectorNode>
+    val children: List<InspectorNode>,
 ) {
     /** Left side of the Composable in pixels. */
     val left: Int
@@ -105,6 +113,18 @@ internal constructor(
     /** Width of the Composable in pixels. */
     val height: Int
         get() = box.height
+
+    /** This node (or a non-reported child) has a LayoutInfo.modifier with a DrawModifierNode */
+    val hasDrawModifier: Boolean
+        get() = (flags and FLAGS_DRAW_MODIFIER) != 0
+
+    /** This node is the first non system parent of a child that has draw modifier */
+    val hasChildDrawModifier: Boolean
+        get() = (flags and FLAGS_CHILD_DRAW_MODIFIER) != 0
+
+    /** True if the code for the Composable was inlined */
+    val inlined: Boolean
+        get() = (flags and FLAGS_INLINED) != 0
 
     fun parametersByKind(kind: ParameterKind): List<RawParameter> =
         when (kind) {
@@ -143,10 +163,41 @@ internal class MutableInspectorNode {
     var offset = 0
     var box: IntRect = emptyBox
     var bounds: QuadBounds? = null
-    var inlined = false
     val parameters = mutableListOf<RawParameter>()
     var viewId = UNDEFINED_ID
     val children = mutableListOf<InspectorNode>()
+    var flags = FLAGS_NONE
+        private set
+
+    var unknownLocation: Boolean
+        get() = (flags and FLAGS_UNKNOWN_LOCATION) != 0
+        set(value) {
+            setFlag(FLAGS_UNKNOWN_LOCATION, value)
+        }
+
+    var inlined: Boolean
+        get() = (flags and FLAGS_INLINED) != 0
+        set(value) {
+            setFlag(FLAGS_INLINED, value)
+        }
+
+    var hasDrawModifier: Boolean
+        get() = (flags and FLAGS_DRAW_MODIFIER) != 0
+        set(value) {
+            setFlag(FLAGS_DRAW_MODIFIER, value)
+        }
+
+    var hasChildDrawModifier: Boolean
+        get() = (flags and FLAGS_CHILD_DRAW_MODIFIER) != 0
+        set(value) {
+            setFlag(FLAGS_CHILD_DRAW_MODIFIER, value)
+        }
+
+    var boxSizeOverridden: Boolean
+        get() = (flags and FLAGS_OVERRIDDEN_BOX_SIZE) != 0
+        set(value) {
+            setFlag(FLAGS_OVERRIDDEN_BOX_SIZE, value)
+        }
 
     fun reset() {
         markUnwanted()
@@ -159,7 +210,7 @@ internal class MutableInspectorNode {
         unmergedSemantics.clear()
         box = emptyBox
         bounds = null
-        inlined = false
+        flags = FLAGS_NONE
         children.clear()
     }
 
@@ -189,7 +240,26 @@ internal class MutableInspectorNode {
         inlined = node.inlined
         parameters.addAll(node.parameters)
         viewId = node.viewId
-        children.addAll(node.children)
+        flags = node.flags
+    }
+
+    fun shallowCopy(node: InspectorNode): MutableInspectorNode = apply {
+        id = node.id
+        key = node.key
+        anchorId = node.anchorId
+        mergedSemantics.addAll(node.mergedSemantics)
+        unmergedSemantics.addAll(node.unmergedSemantics)
+        name = node.name
+        fileName = node.fileName
+        packageHash = node.packageHash
+        lineNumber = node.lineNumber
+        offset = node.offset
+        box = node.box
+        bounds = node.bounds
+        inlined = node.inlined
+        parameters.addAll(node.parameters)
+        viewId = node.viewId
+        flags = node.flags
     }
 
     val isUnwanted: Boolean
@@ -204,6 +274,15 @@ internal class MutableInspectorNode {
     val hasAssignedId: Boolean
         get() = id != UNDEFINED_ID
 
+    private fun setFlag(flag: Int, value: Boolean) {
+        flags =
+            if (value) {
+                flags or flag
+            } else {
+                flags and flag.inv()
+            }
+    }
+
     fun build(withSemantics: Boolean = true): InspectorNode =
         InspectorNode(
             id,
@@ -216,11 +295,11 @@ internal class MutableInspectorNode {
             offset,
             box,
             bounds,
-            inlined,
+            flags,
             parameters.toList(),
             viewId,
             if (withSemantics) mergedSemantics.toList() else emptyList(),
             if (withSemantics) unmergedSemantics.toList() else emptyList(),
-            children.toList()
+            children.toList(),
         )
 }

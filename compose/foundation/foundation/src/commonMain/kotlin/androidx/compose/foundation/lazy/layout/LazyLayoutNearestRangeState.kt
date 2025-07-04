@@ -25,13 +25,13 @@ import androidx.compose.runtime.structuralEqualityPolicy
 internal class LazyLayoutNearestRangeState(
     firstVisibleItem: Int,
     private val slidingWindowSize: Int,
-    private val extraItemCount: Int
+    private val extraItemCount: Int,
 ) : State<IntRange> {
 
     override var value: IntRange by
         mutableStateOf(
             calculateNearestItemsRange(firstVisibleItem, slidingWindowSize, extraItemCount),
-            structuralEqualityPolicy()
+            structuralEqualityPolicy(),
         )
         private set
 
@@ -53,7 +53,7 @@ internal class LazyLayoutNearestRangeState(
         private fun calculateNearestItemsRange(
             firstVisibleItem: Int,
             slidingWindowSize: Int,
-            extraItemCount: Int
+            extraItemCount: Int,
         ): IntRange {
             val slidingWindowStart = slidingWindowSize * (firstVisibleItem / slidingWindowSize)
 

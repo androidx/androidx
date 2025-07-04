@@ -237,7 +237,7 @@ public class RemoteViewsCompatTest {
             mRemoteViews,
             mAppWidgetId,
             R.id.list_view,
-            items
+            items,
         )
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
 
@@ -263,7 +263,7 @@ public class RemoteViewsCompatTest {
             mRemoteViews,
             mAppWidgetId,
             R.id.list_view,
-            items
+            items,
         )
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
 
@@ -292,7 +292,7 @@ public class RemoteViewsCompatTest {
                 mContext,
                 0,
                 Intent(action).setPackage(mPackageName),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
             )
         mRemoteViews.setPendingIntentTemplate(R.id.list_view, pendingIntent)
 
@@ -313,7 +313,7 @@ public class RemoteViewsCompatTest {
             mRemoteViews,
             mAppWidgetId,
             R.id.list_view,
-            items
+            items,
         )
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
         observeDrawUntil { mListView.adapter != null && mListView.childCount == 4 }
@@ -355,7 +355,7 @@ public class RemoteViewsCompatTest {
             mRemoteViews,
             mAppWidgetId,
             R.id.list_view,
-            items
+            items,
         )
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
         observeDrawUntil { mListView.adapter != null && mListView.childCount == 2 }
@@ -372,7 +372,7 @@ public class RemoteViewsCompatTest {
             mRemoteViews,
             mAppWidgetId,
             R.id.list_view,
-            items
+            items,
         )
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
         observeDrawUntil { mListView.childCount == 3 }

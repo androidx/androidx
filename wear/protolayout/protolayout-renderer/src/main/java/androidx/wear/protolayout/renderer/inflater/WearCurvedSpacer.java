@@ -83,8 +83,8 @@ public class WearCurvedSpacer extends View implements ArcLayout.Widget {
             return;
         }
 
-        int size = min(MeasureSpec.getSize(widthMeasureSpec),
-                MeasureSpec.getSize(heightMeasureSpec));
+        int size =
+                min(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
         if (size == 0) {
             return;
         }
@@ -112,8 +112,8 @@ public class WearCurvedSpacer extends View implements ArcLayout.Widget {
     }
 
     /**
-     * Sets the length this spacer, in pixels. If dp length is set, it overrides the degrees
-     * value set by {@link #setSweepAngleDegrees(float)}
+     * Sets the length this spacer, in pixels. If dp length is set, it overrides the degrees value
+     * set by {@link #setSweepAngleDegrees(float)}
      */
     public void setLengthPx(float lengthPx) {
         this.mLengthPx = lengthPx;

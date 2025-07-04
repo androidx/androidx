@@ -96,21 +96,19 @@ fun LookaheadWithScaffold() {
                 .background(Color.Gray)
                 .animateBounds(
                     this@LookaheadScope,
-                    if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier
+                    if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier,
                 )
         ) {
             var state by remember { mutableIntStateOf(0) }
             val titles =
                 listOf("SimpleScaffold", "W/Cutout", "SimpleSnackbar", "CustomSnackbar", "Backdrop")
             Column {
-                ScrollableTabRow(
-                    selectedTabIndex = state,
-                ) {
+                ScrollableTabRow(selectedTabIndex = state) {
                     titles.forEachIndexed { index, title ->
                         Tab(
                             selected = state == index,
                             onClick = { state = index },
-                            text = { Text(title) }
+                            text = { Text(title) },
                         )
                     }
                 }
@@ -140,14 +138,14 @@ fun SimpleScaffoldWithTopBar() {
                     IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } }) {
                         Icon(Icons.Filled.Menu, contentDescription = "Localized description")
                     }
-                }
+                },
             )
         },
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Inc") },
-                onClick = { /* fab click handler */ }
+                onClick = { /* fab click handler */ },
             )
         },
         content = { innerPadding ->
@@ -157,7 +155,7 @@ fun SimpleScaffoldWithTopBar() {
                     Box(Modifier.fillMaxWidth().height(150.dp).background(colors[it % colors.size]))
                 }
             }
-        }
+        },
     )
 }
 
@@ -192,7 +190,7 @@ fun ScaffoldWithBottomBarAndCutout() {
         coroutineScope.launch {
             animatedProgress.animateTo(
                 targetValue = nextTarget,
-                animationSpec = TweenSpec(durationMillis = 600)
+                animationSpec = TweenSpec(durationMillis = 600),
             )
         }
     }
@@ -214,7 +212,7 @@ fun ScaffoldWithBottomBarAndCutout() {
             ExtendedFloatingActionButton(
                 text = { Text("Change shape") },
                 onClick = changeShape,
-                shape = fabShape
+                shape = fabShape,
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
@@ -225,7 +223,7 @@ fun ScaffoldWithBottomBarAndCutout() {
                     Box(Modifier.fillMaxWidth().height(50.dp).background(colors[it % colors.size]))
                 }
             }
-        }
+        },
     )
 }
 
@@ -244,15 +242,15 @@ fun ScaffoldWithSimpleSnackbar() {
                     scope.launch {
                         scaffoldState.snackbarHostState.showSnackbar("Snackbar # ${++clickCount}")
                     }
-                }
+                },
             )
         },
         content = { innerPadding ->
             Text(
                 text = "Body content",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -268,7 +266,7 @@ fun ScaffoldWithCustomSnackbar() {
                 // custom snackbar with the custom border
                 Snackbar(
                     modifier = Modifier.border(2.dp, MaterialTheme.colors.secondary),
-                    snackbarData = data
+                    snackbarData = data,
                 )
             }
         },
@@ -280,15 +278,15 @@ fun ScaffoldWithCustomSnackbar() {
                     scope.launch {
                         scaffoldState.snackbarHostState.showSnackbar("Snackbar # ${++clickCount}")
                     }
-                }
+                },
             )
         },
         content = { innerPadding ->
             Text(
                 text = "Custom Snackbar Demo",
-                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize(),
             )
-        }
+        },
     )
 }
 
@@ -332,7 +330,7 @@ fun BackdropScaffoldSample() {
                     }
                 },
                 elevation = 0.dp,
-                backgroundColor = Color.Transparent
+                backgroundColor = Color.Transparent,
             )
         },
         backLayerContent = {
@@ -343,7 +341,7 @@ fun BackdropScaffoldSample() {
                             selection = it
                             scope.launch { scaffoldState.conceal() }
                         },
-                        text = { Text("Select $it") }
+                        text = { Text("Select $it") },
                     )
                 }
             }
@@ -357,12 +355,12 @@ fun BackdropScaffoldSample() {
                         icon = {
                             Icon(
                                 Icons.Default.Favorite,
-                                contentDescription = "Localized description"
+                                contentDescription = "Localized description",
                             )
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     )
 }

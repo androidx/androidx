@@ -33,10 +33,8 @@ public interface CameraProperties {
 @CameraScope
 public class CameraPipeCameraProperties
 @Inject
-constructor(
-    private val cameraConfig: CameraConfig,
-    private val cameraMetadata: CameraMetadata?,
-) : CameraProperties {
+constructor(private val cameraConfig: CameraConfig, private val cameraMetadata: CameraMetadata?) :
+    CameraProperties {
     override val cameraId: CameraId
         get() = cameraConfig.cameraId
 

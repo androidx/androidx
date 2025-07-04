@@ -69,7 +69,7 @@ class SharePointerInputWithSiblingTest {
                             box2Clicked = true
                         }
                     )
-                }
+                },
             )
         }
 
@@ -189,12 +189,12 @@ class SharePointerInputWithSiblingTest {
 
 private fun Modifier.testPointerInput(
     sharePointerInputWithSibling: Boolean = false,
-    onPointerEvent: () -> Unit = {}
+    onPointerEvent: () -> Unit = {},
 ): Modifier = this.then(TestPointerInputElement(sharePointerInputWithSibling, onPointerEvent))
 
 private data class TestPointerInputElement(
     val sharePointerInputWithSibling: Boolean,
-    val onPointerEvent: () -> Unit
+    val onPointerEvent: () -> Unit,
 ) : ModifierNodeElement<TestPointerInputNode>() {
     override fun create(): TestPointerInputNode {
         return TestPointerInputNode(sharePointerInputWithSibling, onPointerEvent)
@@ -208,12 +208,12 @@ private data class TestPointerInputElement(
 
 private class TestPointerInputNode(
     var sharePointerInputWithSibling: Boolean,
-    var onPointerEvent: () -> Unit
+    var onPointerEvent: () -> Unit,
 ) : Modifier.Node(), PointerInputModifierNode {
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         onPointerEvent.invoke()
     }

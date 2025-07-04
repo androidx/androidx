@@ -72,7 +72,7 @@ fun TextFieldsDemo() {
     LazyColumn(
         modifier = Modifier.wrapContentSize(Alignment.Center).width(280.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp)
+        contentPadding = PaddingValues(vertical = 16.dp),
     ) {
         item {
             Text("Password text field")
@@ -124,7 +124,7 @@ fun VerticalAlignmentsInTextField() {
         OptionRow(
             title = "Single line",
             checked = singleLine.value,
-            onCheckedChange = { singleLine.value = it }
+            onCheckedChange = { singleLine.value = it },
         )
         OptionRow(title = "Label", checked = label.value, onCheckedChange = { label.value = it })
 
@@ -142,7 +142,7 @@ fun VerticalAlignmentsInTextField() {
                     @Composable { Text("Label") }
                 } else null,
             singleLine = singleLine.value,
-            modifier = textFieldModifier
+            modifier = textFieldModifier,
         )
         Spacer(Modifier.requiredHeight(10.dp))
         OutlinedTextField(
@@ -153,7 +153,7 @@ fun VerticalAlignmentsInTextField() {
                     @Composable { Text("Label") }
                 } else null,
             singleLine = singleLine.value,
-            modifier = textFieldModifier
+            modifier = textFieldModifier,
         )
     }
 }
@@ -199,7 +199,7 @@ fun MaterialTextFieldDemo() {
                                     null
                                 },
                             isError = selectedOption == Option.Error,
-                            modifier = Modifier.requiredWidth(300.dp)
+                            modifier = Modifier.requiredWidth(300.dp),
                         )
                     TextFieldType.Outlined ->
                         OutlinedTextField(
@@ -226,7 +226,7 @@ fun MaterialTextFieldDemo() {
                                     null
                                 },
                             isError = selectedOption == Option.Error,
-                            modifier = Modifier.requiredWidth(300.dp)
+                            modifier = Modifier.requiredWidth(300.dp),
                         )
                 }
             }
@@ -248,7 +248,7 @@ fun MaterialTextFieldDemo() {
                         Modifier.fillMaxWidth()
                             .selectable(
                                 selected = (textType == selectedTextField.name),
-                                onClick = { selectedTextField = TextFieldType.valueOf(textType) }
+                                onClick = { selectedTextField = TextFieldType.valueOf(textType) },
                             )
                             .padding(horizontal = 16.dp)
                     ) {
@@ -256,7 +256,7 @@ fun MaterialTextFieldDemo() {
                         Text(
                             text = textType,
                             style = MaterialTheme.typography.body1.merge(),
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
                         )
                     }
                 }
@@ -265,23 +265,23 @@ fun MaterialTextFieldDemo() {
             OptionRow(
                 title = "Leading icon",
                 checked = leadingChecked,
-                onCheckedChange = { leadingChecked = it }
+                onCheckedChange = { leadingChecked = it },
             )
             OptionRow(
                 title = "Trailing icon",
                 checked = trailingChecked,
-                onCheckedChange = { trailingChecked = it }
+                onCheckedChange = { trailingChecked = it },
             )
             OptionRow(
                 title = "Single line",
                 checked = singleLineChecked,
-                onCheckedChange = { singleLineChecked = it }
+                onCheckedChange = { singleLineChecked = it },
             )
             OptionRow(
                 title = "Character counter (TODO)",
                 checked = characterCounterChecked,
                 enabled = false,
-                onCheckedChange = { /* TODO */ }
+                onCheckedChange = { /* TODO */ },
             )
 
             Spacer(Modifier.height(20.dp))
@@ -294,7 +294,7 @@ fun MaterialTextFieldDemo() {
                         Modifier.fillMaxWidth()
                             .selectable(
                                 selected = (text == selectedOption.name),
-                                onClick = { selectedOption = Option.valueOf(text) }
+                                onClick = { selectedOption = Option.valueOf(text) },
                             )
                             .padding(horizontal = 16.dp)
                     ) {
@@ -302,7 +302,7 @@ fun MaterialTextFieldDemo() {
                         Text(
                             text = text,
                             style = MaterialTheme.typography.body1.merge(),
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier.padding(start = 16.dp),
                         )
                     }
                 }
@@ -322,7 +322,7 @@ fun CustomShapeOutlinedTextFieldSample() {
         value = text,
         onValueChange = { text = it },
         label = { Text("Label") },
-        shape = CutCornerShape(5.dp)
+        shape = CutCornerShape(5.dp),
     )
 }
 
@@ -345,7 +345,7 @@ private fun TextFieldWithMessage(helperMessageOption: Option, content: @Composab
             text = "Helper message",
             color = color,
             style = typography,
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp),
         )
     }
 }
@@ -355,7 +355,7 @@ private fun ColumnScope.Title(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.body1,
-        modifier = Modifier.align(Alignment.CenterHorizontally)
+        modifier = Modifier.align(Alignment.CenterHorizontally),
     )
     Spacer(Modifier.height(10.dp))
 }
@@ -365,7 +365,7 @@ private fun OptionRow(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     Row(
         Modifier.padding(start = 10.dp, top = 10.dp)
@@ -382,10 +382,10 @@ private fun OptionRow(
 private enum class Option {
     None,
     Helper,
-    Error
+    Error,
 }
 
 private enum class TextFieldType {
     Filled,
-    Outlined
+    Outlined,
 }

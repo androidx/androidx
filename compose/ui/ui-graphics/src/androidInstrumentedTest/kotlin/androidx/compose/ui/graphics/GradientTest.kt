@@ -37,7 +37,7 @@ class GradientTest {
         assertEquals(1, countTransparentColors(listOf(Color.Red, Color.Transparent, Color.Blue)))
         assertEquals(
             1,
-            countTransparentColors(listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue))
+            countTransparentColors(listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue)),
         )
         assertEquals(0, countTransparentColors(listOf(Color.Transparent, Color.Green, Color.Blue)))
         assertEquals(0, countTransparentColors(listOf(Color.Red, Color.Green, Color.Transparent)))
@@ -50,7 +50,7 @@ class GradientTest {
         assertEquals(0, countTransparentColors(listOf(Color.Red, Color.Transparent, Color.Blue)))
         assertEquals(
             0,
-            countTransparentColors(listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue))
+            countTransparentColors(listOf(Color.Red, Color.Blue.copy(alpha = 0f), Color.Blue)),
         )
         assertEquals(0, countTransparentColors(listOf(Color.Transparent, Color.Green, Color.Blue)))
         assertEquals(0, countTransparentColors(listOf(Color.Red, Color.Green, Color.Transparent)))
@@ -74,7 +74,7 @@ class GradientTest {
             makeTransparentStops(
                 stops,
                 listOf(Color.Red, Color.Green, Color.Blue, Color.Magenta),
-                0
+                0,
             )
         assertSameStops(stops, result!!)
     }
@@ -87,7 +87,7 @@ class GradientTest {
             makeTransparentStops(
                 null,
                 listOf(Color.Transparent, Color.Green, Color.Blue, Color.Transparent),
-                0
+                0,
             )
         assertNull(result)
     }
@@ -101,7 +101,7 @@ class GradientTest {
             makeTransparentStops(
                 stops,
                 listOf(Color.Transparent, Color.Green, Color.Blue, Color.Transparent),
-                0
+                0,
             )
         assertSameStops(stops, result!!)
     }
@@ -119,9 +119,9 @@ class GradientTest {
                     Color.Green,
                     Color.Transparent,
                     Color.Blue,
-                    Color.Magenta
+                    Color.Magenta,
                 ),
-                0 // O always counts 0
+                0, // O always counts 0
             )
         assertNull(result)
     }
@@ -139,9 +139,9 @@ class GradientTest {
                     Color.Green,
                     Color.Transparent,
                     Color.Blue,
-                    Color.Magenta
+                    Color.Magenta,
                 ),
-                0 // O always counts 0
+                0, // O always counts 0
             )
         assertSameStops(stops, result!!)
     }
@@ -158,9 +158,9 @@ class GradientTest {
                     Color.Green,
                     Color.Transparent,
                     Color.Blue,
-                    Color.Magenta
+                    Color.Magenta,
                 ),
-                2
+                2,
             )
         assertNotNull(result)
         assertSameStops(listOf(0f, 0.2f, 0.2f, 0.4f, 0.6f, 0.6f, 0.8f, 1f), result!!)
@@ -178,9 +178,9 @@ class GradientTest {
                     Color.Green,
                     Color.Transparent,
                     Color.Blue,
-                    Color.Magenta
+                    Color.Magenta,
                 ),
-                2
+                2,
             )
         assertNotNull(result)
         assertSameStops(listOf(0.05f, 0.1f, 0.1f, 0.2f, 0.5f, 0.5f, 0.7f, 1f), result!!)
@@ -213,7 +213,7 @@ class GradientTest {
         val result =
             makeTransparentColors(
                 listOf(Color.Transparent, Color.Green, Color.Transparent, Color.Magenta),
-                1
+                1,
             )
         assertSameColors(
             listOf(
@@ -221,9 +221,9 @@ class GradientTest {
                 Color.Green,
                 Color.Green.copy(alpha = 0f),
                 Color.Magenta.copy(alpha = 0f),
-                Color.Magenta
+                Color.Magenta,
             ),
-            result
+            result,
         )
     }
 
@@ -233,7 +233,7 @@ class GradientTest {
         val result =
             makeTransparentColors(
                 listOf(Color.Red, Color.Green, Color.Transparent, Color.Transparent),
-                1
+                1,
             )
         assertSameColors(
             listOf(
@@ -241,9 +241,9 @@ class GradientTest {
                 Color.Green,
                 Color.Green.copy(alpha = 0.0f),
                 Color.Transparent,
-                Color.Transparent
+                Color.Transparent,
             ),
-            result
+            result,
         )
     }
 
@@ -253,7 +253,7 @@ class GradientTest {
         val result =
             makeTransparentColors(
                 listOf(Color.Transparent, Color.Transparent, Color.Blue, Color.Magenta),
-                1
+                1,
             )
         assertSameColors(
             listOf(
@@ -261,9 +261,9 @@ class GradientTest {
                 Color.Transparent,
                 Color.Blue.copy(alpha = 0f),
                 Color.Blue,
-                Color.Magenta
+                Color.Magenta,
             ),
-            result
+            result,
         )
     }
 
@@ -277,9 +277,9 @@ class GradientTest {
                     Color.Red,
                     Color.Transparent,
                     Color.Blue,
-                    Color.Transparent
+                    Color.Transparent,
                 ),
-                1
+                1,
             )
         assertSameColors(
             listOf(
@@ -288,9 +288,9 @@ class GradientTest {
                 Color.Red.copy(alpha = 0f),
                 Color.Blue.copy(alpha = 0f),
                 Color.Blue,
-                Color.Blue.copy(alpha = 0f)
+                Color.Blue.copy(alpha = 0f),
             ),
-            result
+            result,
         )
     }
 
@@ -300,11 +300,11 @@ class GradientTest {
         val result =
             makeTransparentColors(
                 listOf(Color.Transparent, Color.Transparent, Color.Transparent),
-                1
+                1,
             )
         assertSameColors(
             listOf(Color.Transparent, Color.Transparent, Color.Transparent, Color.Transparent),
-            result
+            result,
         )
     }
 
@@ -314,7 +314,7 @@ class GradientTest {
         val result =
             makeTransparentColors(
                 listOf(Color.Transparent, Color.Transparent, Color.Transparent),
-                0 // Always 0 on O+
+                0, // Always 0 on O+
             )
         assertSameColors(listOf(Color.Transparent, Color.Transparent, Color.Transparent), result)
     }
@@ -325,7 +325,7 @@ class GradientTest {
             assertEquals(
                 "Stop[$index] expected to be $value, but was ${actual[index]}",
                 value,
-                actual[index]
+                actual[index],
             )
         }
     }
@@ -336,7 +336,7 @@ class GradientTest {
             assertEquals(
                 "Color[$index] expected to be $color, but was ${Color(actual[index])}",
                 color.toArgb(),
-                actual[index]
+                actual[index],
             )
         }
     }

@@ -17,18 +17,14 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.InternalXAnnotation
-import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XAnnotationValue
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.javac.kotlin.KmAnnotationContainer
 
 internal class JavacKmAnnotation(
     private val env: JavacProcessingEnv,
-    private val kmAnnotation: KmAnnotationContainer
+    private val kmAnnotation: KmAnnotationContainer,
 ) : InternalXAnnotation() {
-    override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {
-        throw UnsupportedOperationException("No plan to support XAnnotationBox.")
-    }
 
     override val name: String
         get() = typeElement.name

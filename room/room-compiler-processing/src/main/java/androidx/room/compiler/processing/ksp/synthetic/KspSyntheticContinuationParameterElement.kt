@@ -38,14 +38,14 @@ import com.google.devtools.ksp.symbol.Variance
  */
 internal class KspSyntheticContinuationParameterElement(
     val env: KspProcessingEnv,
-    override val enclosingElement: KspMethodElement
+    override val enclosingElement: KspMethodElement,
 ) :
     XExecutableParameterElement,
     XEquality,
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = null, // does not matter, this is synthetic and has no annotations.
-        filter = NO_USE_SITE
+        filter = NO_USE_SITE,
     ) {
     override fun isContinuationParam() = true
 
@@ -109,7 +109,7 @@ internal class KspSyntheticContinuationParameterElement(
                 // even though this will be CONTRAVARIANT when resolved to the JVM type, in Kotlin,
                 // it
                 // is still INVARIANT. (see [KSTypeVarianceResolver]
-                Variance.INVARIANT
+                Variance.INVARIANT,
             )
         val contType = continuation.asType(listOf(returnTypeAsTypeArgument))
         return env.wrap(ksType = contType, allowPrimitives = false)
@@ -119,7 +119,7 @@ internal class KspSyntheticContinuationParameterElement(
                     parameterIndex = enclosingElement.parameters.size - 1,
                     annotated = enclosingElement.declaration,
                     container = container?.ksType?.declaration,
-                    asMemberOf = container
+                    asMemberOf = container,
                 )
             )
     }

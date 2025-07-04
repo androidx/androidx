@@ -37,7 +37,7 @@ class RLogTest {
                     msg: String,
                     element: XElement?,
                     annotation: XAnnotation?,
-                    annotationValue: XAnnotationValue?
+                    annotationValue: XAnnotationValue?,
                 ) {}
             }
         val logger = RLog(messager, emptySet(), null)

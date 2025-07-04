@@ -51,7 +51,7 @@ internal constructor(
         parcel.readParcelable(IntentSender::class.java.classLoader)!!,
         parcel.readParcelable(Intent::class.java.classLoader),
         parcel.readInt(),
-        parcel.readInt()
+        parcel.readInt(),
     )
 
     override fun describeContents(): Int {
@@ -110,8 +110,8 @@ internal constructor(
                     Intent.FLAG_ACTIVITY_CLEAR_TASK,
                     Intent.FLAG_ACTIVITY_TASK_ON_HOME,
                     Intent.FLAG_ACTIVITY_RETAIN_IN_RECENTS,
-                    Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT
-                ]
+                    Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT,
+                ],
         )
         @Retention(AnnotationRetention.SOURCE)
         private annotation class Flag

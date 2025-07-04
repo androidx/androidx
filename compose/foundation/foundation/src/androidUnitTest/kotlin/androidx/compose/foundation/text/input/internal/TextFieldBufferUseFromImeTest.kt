@@ -131,7 +131,7 @@ class TextFieldBufferUseFromImeTest {
                 TextFieldCharSequence(
                     text = "ABCDE",
                     selection = TextRange(1, 4),
-                    composition = TextRange(0, 5)
+                    composition = TextRange(0, 5),
                 )
             )
 
@@ -598,5 +598,5 @@ class TextFieldBufferUseFromImeTest {
 
 internal fun TextFieldBuffer(
     initialValue: String = "",
-    initialSelection: TextRange = TextRange.Zero
+    initialSelection: TextRange = TextRange.Zero,
 ) = TextFieldBuffer(TextFieldCharSequence(initialValue, initialSelection))

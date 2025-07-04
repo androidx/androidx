@@ -22,7 +22,6 @@ import static android.media.CamcorderProfile.QUALITY_LOW;
 import android.media.CamcorderProfile;
 import android.media.EncoderProfiles;
 import android.os.Build;
-import android.util.Size;
 
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.CamcorderProfileResolutionQuirk;
@@ -184,7 +183,7 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
         // need to check the first video profile.
         VideoProfileProxy videoProfile = videoProfiles.get(0);
         return camcorderProfileResolutionQuirk.getSupportedResolutions()
-                .contains(new Size(videoProfile.getWidth(), videoProfile.getHeight()));
+                .contains(videoProfile.getResolution());
     }
 
     @RequiresApi(31)

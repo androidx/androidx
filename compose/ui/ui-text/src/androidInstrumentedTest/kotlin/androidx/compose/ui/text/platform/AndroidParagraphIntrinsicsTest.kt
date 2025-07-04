@@ -67,7 +67,7 @@ class AndroidParagraphIntrinsicsTest {
                 listOf(),
                 listOf(),
                 Density(1f),
-                createFontFamilyResolver(context)
+                createFontFamilyResolver(context),
             )
 
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -94,7 +94,7 @@ class AndroidParagraphIntrinsicsTest {
                 listOf(),
                 listOf(),
                 Density(1f),
-                createFontFamilyResolver(context)
+                createFontFamilyResolver(context),
             )
         fontState.value = true
         assertThat(subject.hasStaleResolvedFonts).isFalse()
@@ -124,7 +124,7 @@ class AndroidParagraphIntrinsicsTest {
             listOf(),
             listOf(),
             Density(1f),
-            createFontFamilyResolver(context)
+            createFontFamilyResolver(context),
         )
 
         verify(mock)
@@ -133,7 +133,7 @@ class AndroidParagraphIntrinsicsTest {
                 eq(0),
                 eq("text".length),
                 eq(Int.MAX_VALUE),
-                eq(EmojiCompat.REPLACE_STRATEGY_ALL)
+                eq(EmojiCompat.REPLACE_STRATEGY_ALL),
             )
     }
 
@@ -163,7 +163,7 @@ class AndroidParagraphIntrinsicsTest {
             listOf(),
             listOf(),
             Density(1f),
-            createFontFamilyResolver(context)
+            createFontFamilyResolver(context),
         )
 
         verify(mock)
@@ -172,7 +172,7 @@ class AndroidParagraphIntrinsicsTest {
                 eq(0),
                 eq("text".length),
                 eq(Int.MAX_VALUE),
-                eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT)
+                eq(EmojiCompat.REPLACE_STRATEGY_DEFAULT),
             )
     }
 }

@@ -140,7 +140,7 @@ class TogglePlacementInLookaheadScope {
                                     painter = ColorPainter(Color.Blue),
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
                                 )
 
                                 ReusableContent(reusableContentKey) {
@@ -152,7 +152,7 @@ class TogglePlacementInLookaheadScope {
                                                     start = 12.dp,
                                                     top = 8.dp,
                                                     end = 12.dp,
-                                                    bottom = 12.dp
+                                                    bottom = 12.dp,
                                                 )
                                                 .fillMaxWidth()
                                                 .layout { measurable, constraints ->
@@ -168,7 +168,7 @@ class TogglePlacementInLookaheadScope {
                                                             place(0, 0)
                                                         }
                                                     }
-                                                }
+                                                },
                                     ) {
                                         Text(
                                             text = "Static text",
@@ -176,38 +176,35 @@ class TogglePlacementInLookaheadScope {
                                             modifier =
                                                 Modifier.background(
                                                         Color.Gray,
-                                                        RoundedCornerShape(2.dp)
+                                                        RoundedCornerShape(2.dp),
                                                     )
                                                     .padding(
                                                         start = 3.dp,
                                                         end = 3.dp,
                                                         top = 0.5.dp,
-                                                        bottom = 1.dp
-                                                    )
+                                                        bottom = 1.dp,
+                                                    ),
                                         )
 
                                         val badgeModifier =
                                             Modifier.border(
                                                     0.5f.dp,
                                                     Color.Black,
-                                                    RoundedCornerShape(2.dp)
+                                                    RoundedCornerShape(2.dp),
                                                 )
                                                 .padding(
                                                     start = 3.dp,
                                                     end = 3.dp,
                                                     top = 0.5.dp,
-                                                    bottom = 1.dp
+                                                    bottom = 1.dp,
                                                 )
 
-                                        Text(
-                                            text = "Updated",
-                                            modifier = badgeModifier,
-                                        )
+                                        Text(text = "Updated", modifier = badgeModifier)
                                     }
                                 }
                             }
                         }
-                    }
+                    },
                 )
             }
         }
@@ -232,7 +229,7 @@ class TogglePlacementInLookaheadScope {
     private fun TestItem(
         showNewText: Boolean,
         modifier: Modifier = Modifier,
-        placed: MutableList<Boolean> = mutableListOf(false, false)
+        placed: MutableList<Boolean> = mutableListOf(false, false),
     ) {
         Card(modifier) {
             Column {
@@ -240,7 +237,7 @@ class TogglePlacementInLookaheadScope {
                     painter = ColorPainter(Color.Blue),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f)
+                    modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f),
                 )
 
                 Row(
@@ -248,14 +245,14 @@ class TogglePlacementInLookaheadScope {
                     verticalAlignment = Alignment.CenterVertically,
                     modifier =
                         Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 12.dp)
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
                 ) {
                     Text(
                         text = "Static text",
                         color = Color.White,
                         modifier =
                             Modifier.background(Color.Gray, RoundedCornerShape(2.dp))
-                                .padding(start = 3.dp, end = 3.dp, top = 0.5.dp, bottom = 1.dp)
+                                .padding(start = 3.dp, end = 3.dp, top = 0.5.dp, bottom = 1.dp),
                     )
 
                     val badgeModifier =
@@ -281,10 +278,7 @@ class TogglePlacementInLookaheadScope {
                         )
                     }
 
-                    Text(
-                        text = "Updated",
-                        modifier = badgeModifier,
-                    )
+                    Text(text = "Updated", modifier = badgeModifier)
                 }
             }
         }

@@ -43,10 +43,7 @@ class PrivacySandboxApiPackager {
      *   Non-class files will be safely ignored.
      * @param sdkInterfaceDescriptorsOutput output path for SDK Interface descriptors file.
      */
-    fun packageSdkDescriptors(
-        sdkClasspath: Path,
-        sdkInterfaceDescriptorsOutput: Path,
-    ) {
+    fun packageSdkDescriptors(sdkClasspath: Path, sdkInterfaceDescriptorsOutput: Path) {
         require(sdkClasspath.exists() && sdkClasspath.isDirectory()) {
             "$sdkClasspath is not a valid classpath."
         }
@@ -98,7 +95,7 @@ class PrivacySandboxApiPackager {
     private fun shouldKeepFile(
         sdkClasspath: Path,
         filePath: Path,
-        companionNames: List<String> = listOf()
+        companionNames: List<String> = listOf(),
     ): Boolean {
         if (sdkClasspath.relativize(filePath) == Metadata.filePath) {
             return true

@@ -63,7 +63,7 @@ public inline fun <S> Transition<S>.animateColor(
         spring()
     },
     label: String = "ColorAnimation",
-    targetValueByState: @Composable() (state: S) -> Color
+    targetValueByState: @Composable() (state: S) -> Color,
 ): State<Color> {
     val colorSpace = targetValueByState(targetState).colorSpace
     val typeConverter = remember(colorSpace) { Color.VectorConverter(colorSpace) }
@@ -94,7 +94,7 @@ public fun InfiniteTransition.animateColor(
     initialValue: Color,
     targetValue: Color,
     animationSpec: InfiniteRepeatableSpec<Color>,
-    label: String = "ColorAnimation"
+    label: String = "ColorAnimation",
 ): State<Color> {
     val converter = remember { (Color.VectorConverter)(targetValue.colorSpace) }
     return animateValue(initialValue, targetValue, converter, animationSpec, label)
@@ -102,17 +102,17 @@ public fun InfiniteTransition.animateColor(
 
 @Deprecated(
     "animateColor APIs now have a new label parameter added.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun InfiniteTransition.animateColor(
     initialValue: Color,
     targetValue: Color,
-    animationSpec: InfiniteRepeatableSpec<Color>
+    animationSpec: InfiniteRepeatableSpec<Color>,
 ): State<Color> =
     this.animateColor(
         initialValue = initialValue,
         targetValue = targetValue,
         animationSpec = animationSpec,
-        label = "ColorAnimation"
+        label = "ColorAnimation",
     )

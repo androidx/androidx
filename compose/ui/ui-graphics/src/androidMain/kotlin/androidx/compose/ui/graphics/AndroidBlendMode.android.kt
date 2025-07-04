@@ -141,6 +141,4 @@ internal fun android.graphics.BlendMode.toComposeBlendMode(): BlendMode =
         android.graphics.BlendMode.SATURATION -> BlendMode.Saturation
         android.graphics.BlendMode.COLOR -> BlendMode.Color
         android.graphics.BlendMode.LUMINOSITY -> BlendMode.Luminosity
-        // Always return SrcOver as the default if there is no valid alternative
-        else -> BlendMode.SrcOver
     }

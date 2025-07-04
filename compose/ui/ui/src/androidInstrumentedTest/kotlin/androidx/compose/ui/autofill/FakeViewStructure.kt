@@ -105,7 +105,7 @@ internal data class FakeViewStructure(
         virtualId: Int,
         packageName: String?,
         typeName: String?,
-        entryName: String?
+        entryName: String?,
     ) {
         this.virtualId = virtualId
         this.packageName = packageName

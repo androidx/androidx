@@ -97,7 +97,7 @@ fun ScrollableDemos() {
                             .background(
                                 Brush.linearGradient(
                                     colors = RainbowColors,
-                                    tileMode = TileMode.Mirror
+                                    tileMode = TileMode.Mirror,
                                 )
                             )
                 ) {
@@ -141,7 +141,7 @@ fun SingleLineHorizontalScrollableTextField() {
         lineLimits = SingleLine,
         textStyle = TextStyle(fontSize = 24.sp),
         modifier = Modifier.padding(horizontal = 32.dp),
-        decorator = simpleDecoration()
+        decorator = simpleDecoration(),
     )
 }
 
@@ -157,7 +157,7 @@ fun SingleLineHorizontalScrollableTextFieldWithNewlines() {
         state = state,
         lineLimits = SingleLine,
         textStyle = TextStyle(fontSize = 24.sp),
-        decorator = simpleDecoration()
+        decorator = simpleDecoration(),
     )
 }
 
@@ -172,7 +172,7 @@ fun MultiLineVerticalScrollableTextField() {
         textStyle = TextStyle(fontSize = 24.sp),
         modifier = Modifier.heightIn(max = 200.dp),
         lineLimits = MultiLine(),
-        decorator = simpleDecoration()
+        decorator = simpleDecoration(),
     )
 }
 
@@ -188,7 +188,7 @@ fun HoistedHorizontalScroll() {
         Slider(
             value = scrollState.value.toFloat(),
             onValueChange = { coroutineScope.launch { scrollState.scrollTo(it.roundToInt()) } },
-            valueRange = 0f..scrollState.maxValue.toFloat()
+            valueRange = 0f..scrollState.maxValue.toFloat(),
         )
         BasicTextField(
             state = state,
@@ -196,7 +196,7 @@ fun HoistedHorizontalScroll() {
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.height(200.dp),
             lineLimits = SingleLine,
-            decorator = simpleDecoration()
+            decorator = simpleDecoration(),
         )
     }
 }
@@ -215,7 +215,7 @@ fun SharedHoistedScroll() {
         Slider(
             value = scrollState.value.toFloat(),
             onValueChange = { coroutineScope.launch { scrollState.scrollTo(it.roundToInt()) } },
-            valueRange = 0f..scrollState.maxValue.toFloat()
+            valueRange = 0f..scrollState.maxValue.toFloat(),
         )
         BasicTextField(
             state = state1,
@@ -223,7 +223,7 @@ fun SharedHoistedScroll() {
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.fillMaxWidth(),
             lineLimits = SingleLine,
-            decorator = simpleDecoration()
+            decorator = simpleDecoration(),
         )
         BasicTextField(
             state = state2,
@@ -231,7 +231,7 @@ fun SharedHoistedScroll() {
             textStyle = TextStyle(fontSize = 24.sp),
             modifier = Modifier.fillMaxWidth(),
             lineLimits = SingleLine,
-            decorator = simpleDecoration()
+            decorator = simpleDecoration(),
         )
     }
 }

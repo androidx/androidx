@@ -52,7 +52,7 @@ class NavDestinationTest {
             NavDestination.parseClassFromNameInternal(
                 context,
                 "definitely.not.found",
-                Any::class.java
+                Any::class.java,
             )
             fail("Invalid type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {
@@ -67,7 +67,7 @@ class NavDestinationTest {
             NavDestination.parseClassFromNameInternal(
                 context,
                 "java.lang.String",
-                String::class.java
+                String::class.java,
             )
         assertThat(clazz).isNotNull()
         assertThat(clazz.name).isEqualTo(String::class.java.name)
@@ -101,7 +101,7 @@ class NavDestinationTest {
             NavDestination.parseClassFromNameInternal(
                 context,
                 ".definitely.not.found",
-                Any::class.java
+                Any::class.java,
             )
             fail("Invalid type should cause an IllegalArgumentException")
         } catch (e: IllegalArgumentException) {

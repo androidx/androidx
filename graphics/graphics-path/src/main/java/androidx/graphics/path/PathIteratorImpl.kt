@@ -31,7 +31,7 @@ import dalvik.annotation.optimization.FastNative
 internal abstract class PathIteratorImpl(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
-    val tolerance: Float = 0.25f
+    val tolerance: Float = 0.25f,
 ) {
     /**
      * pointsData is used internally when the no-arg variant of next() is called, to avoid
@@ -86,7 +86,7 @@ internal abstract class PathIteratorImpl(
                 PathSegment.Type.Line -> {
                     arrayOf(
                         PointF(pointsData[0], pointsData[1]),
-                        PointF(pointsData[2], pointsData[3])
+                        PointF(pointsData[2], pointsData[3]),
                     )
                 }
                 PathSegment.Type.Quadratic,
@@ -94,7 +94,7 @@ internal abstract class PathIteratorImpl(
                     arrayOf(
                         PointF(pointsData[0], pointsData[1]),
                         PointF(pointsData[2], pointsData[3]),
-                        PointF(pointsData[4], pointsData[5])
+                        PointF(pointsData[4], pointsData[5]),
                     )
                 }
                 PathSegment.Type.Cubic -> {
@@ -102,7 +102,7 @@ internal abstract class PathIteratorImpl(
                         PointF(pointsData[0], pointsData[1]),
                         PointF(pointsData[2], pointsData[3]),
                         PointF(pointsData[4], pointsData[5]),
-                        PointF(pointsData[6], pointsData[7])
+                        PointF(pointsData[6], pointsData[7]),
                     )
                 }
                 // This should not happen because of the early returns above
@@ -121,7 +121,7 @@ internal abstract class PathIteratorImpl(
 internal class PathIteratorApi34Impl(
     path: Path,
     conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
-    tolerance: Float = 0.25f
+    tolerance: Float = 0.25f,
 ) : PathIteratorImpl(path, conicEvaluation, tolerance) {
     /**
      * The platform iterator handles most of what we need for iterating. We hold an instance of that
@@ -217,14 +217,14 @@ private fun platformToAndroidXSegmentType(platformType: Int): PathSegment.Type {
 internal class PathIteratorPreApi34Impl(
     path: Path,
     conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
-    tolerance: Float = 0.25f
+    tolerance: Float = 0.25f,
 ) : PathIteratorImpl(path, conicEvaluation, tolerance) {
 
     @Suppress("KotlinJniMissingFunction")
     private external fun createInternalPathIterator(
         path: Path,
         conicEvaluation: Int,
-        tolerance: Float
+        tolerance: Float,
     ): Long
 
     @Suppress("KotlinJniMissingFunction")
@@ -239,7 +239,7 @@ internal class PathIteratorPreApi34Impl(
     private external fun internalPathIteratorNext(
         internalPathIterator: Long,
         points: FloatArray,
-        offset: Int
+        offset: Int,
     ): Int
 
     @Suppress("KotlinJniMissingFunction")

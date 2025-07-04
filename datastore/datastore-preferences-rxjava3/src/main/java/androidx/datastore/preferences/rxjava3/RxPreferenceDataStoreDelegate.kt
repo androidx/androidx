@@ -62,7 +62,7 @@ public fun rxPreferencesDataStore(
     name: String,
     corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
     produceMigrations: (Context) -> List<DataMigration<Preferences>> = { listOf() },
-    scheduler: Scheduler = Schedulers.io()
+    scheduler: Scheduler = Schedulers.io(),
 ): ReadOnlyProperty<Context, RxDataStore<Preferences>> {
     return RxDataStoreSingletonDelegate(name, corruptionHandler, produceMigrations, scheduler)
 }
@@ -73,7 +73,7 @@ internal constructor(
     private val fileName: String,
     private val corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
     private val produceMigrations: (Context) -> List<DataMigration<Preferences>>,
-    private val scheduler: Scheduler
+    private val scheduler: Scheduler,
 ) : ReadOnlyProperty<Context, RxDataStore<Preferences>> {
 
     private val lock = Any()

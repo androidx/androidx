@@ -17,10 +17,9 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
-import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
@@ -28,12 +27,17 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.maxTorchStrengthLevel
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsHighSpeedVideo
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLowLightBoost
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPreviewStabilization
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsTorchStrength
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
@@ -54,14 +58,9 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
-import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
-import androidx.camera.core.DynamicRange.HDR10_10_BIT
-import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
-import androidx.camera.core.DynamicRange.HLG_10_BIT
-import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.UseCase
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
@@ -70,7 +69,9 @@ import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.CameraOrientationUtil
+import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
 import kotlin.reflect.KClass
@@ -93,6 +94,7 @@ constructor(
     private val encoderProfilesProvider: EncoderProfilesProvider,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
     private val cameraFovInfo: CameraFovInfo,
+    private val streamSpecsCalculator: StreamSpecsCalculator,
 ) : CameraInfoInternal, UnsafeWrapper {
     init {
         DeviceInfoLogger.logDeviceInfo(cameraProperties)
@@ -104,7 +106,7 @@ constructor(
             val cameraProperties =
                 CameraPipeCameraProperties(
                     CameraConfig(physicalCameraId),
-                    cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId)
+                    cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId),
                 )
             PhysicalCameraInfoAdapter(cameraProperties)
         }
@@ -170,13 +172,30 @@ constructor(
         return CameraOrientationUtil.getRelativeImageRotation(
             relativeRotationDegrees,
             sensorOrientation,
-            isOppositeFacingScreen
+            isOppositeFacingScreen,
         )
     }
 
     override fun getZoomState(): LiveData<ZoomState> = cameraControlStateAdapter.zoomStateLiveData
 
     override fun getTorchState(): LiveData<Int> = cameraControlStateAdapter.torchStateLiveData
+
+    override fun isTorchStrengthSupported(): Boolean =
+        cameraProperties.metadata.supportsTorchStrength
+
+    override fun getMaxTorchStrengthLevel(): Int =
+        if (isTorchStrengthSupported) cameraProperties.metadata.maxTorchStrengthLevel
+        else CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED
+
+    override fun getTorchStrengthLevel(): LiveData<Int> =
+        if (isTorchStrengthSupported) cameraControlStateAdapter.torchStrengthLiveData
+        else MutableLiveData(CameraInfo.TORCH_STRENGTH_LEVEL_UNSUPPORTED)
+
+    override fun isLowLightBoostSupported(): Boolean =
+        cameraProperties.metadata.supportsLowLightBoost
+
+    override fun getLowLightBoostState(): LiveData<Int> =
+        cameraControlStateAdapter.lowLightBoostState
 
     @SuppressLint("UnsafeOptInUsageError")
     override fun getExposureState(): ExposureState = cameraControlStateAdapter.exposureState
@@ -185,7 +204,7 @@ constructor(
 
     override fun addSessionCaptureCallback(
         executor: Executor,
-        callback: CameraCaptureCallback
+        callback: CameraCaptureCallback,
     ): Unit = cameraCallbackMap.addCaptureCallback(callback, executor)
 
     override fun removeSessionCaptureCallback(callback: CameraCaptureCallback): Unit =
@@ -285,6 +304,15 @@ constructor(
             .getOrNull() ?: emptyList()
     }
 
+    override fun getSensorRect(): Rect {
+        val sensorRect =
+            cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]
+        if ("robolectric" == Build.FINGERPRINT && sensorRect == null) {
+            return Rect(0, 0, 4000, 3000)
+        }
+        return sensorRect!!
+    }
+
     override fun querySupportedDynamicRanges(
         candidateDynamicRanges: Set<DynamicRange>
     ): Set<DynamicRange> {
@@ -292,13 +320,7 @@ constructor(
     }
 
     override fun isPreviewStabilizationSupported(): Boolean {
-        val availableVideoStabilizationModes =
-            cameraProperties.metadata[
-                    CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
-        return availableVideoStabilizationModes != null &&
-            availableVideoStabilizationModes.contains(
-                CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-            )
+        return cameraProperties.metadata.supportsPreviewStabilization
     }
 
     override fun isVideoStabilizationSupported(): Boolean {
@@ -322,33 +344,32 @@ constructor(
         return intrinsicZoomRatio
     }
 
-    private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
-        return profileSet.map { profileToDynamicRange(it) }.toSet()
-    }
-
-    private fun profileToDynamicRange(profile: Long): DynamicRange {
-        return checkNotNull(PROFILE_TO_DR_MAP[profile]) {
-            "Dynamic range profile cannot be converted to a DynamicRange object: $profile"
+    override fun isUseCaseCombinationSupported(
+        useCases: List<UseCase>,
+        cameraMode: Int,
+        isFeatureComboInvocation: Boolean,
+        cameraConfig: androidx.camera.core.impl.CameraConfig,
+    ): Boolean {
+        // If the UseCases exceed the resolutions then it will throw an exception
+        try {
+            streamSpecsCalculator.calculateSuggestedStreamSpecs(
+                cameraMode = cameraMode,
+                cameraInfoInternal = this,
+                newUseCases = useCases,
+                cameraConfig = cameraConfig,
+                isFeatureComboInvocation = isFeatureComboInvocation,
+            )
+        } catch (e: IllegalArgumentException) {
+            debug(e) {
+                "CameraInfoAdapter#isUseCaseCombinationSupported:" +
+                    " calculateSuggestedStreamSpecs failed"
+            }
+            return false
         }
+        return true
     }
 
     public companion object {
-        private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> =
-            mapOf(
-                DynamicRangeProfiles.STANDARD to SDR,
-                DynamicRangeProfiles.HLG10 to HLG_10_BIT,
-                DynamicRangeProfiles.HDR10 to HDR10_10_BIT,
-                DynamicRangeProfiles.HDR10_PLUS to HDR10_PLUS_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DOLBY_VISION_10_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DOLBY_VISION_8_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DOLBY_VISION_8_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DOLBY_VISION_8_BIT,
-                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DOLBY_VISION_8_BIT,
-            )
-
         public fun <T : Any> CameraInfo.unwrapAs(type: KClass<T>): T? =
             when (this) {
                 is UnsafeWrapper -> this.unwrapAs(type)

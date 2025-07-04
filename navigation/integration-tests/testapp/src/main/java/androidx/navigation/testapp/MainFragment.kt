@@ -36,7 +36,7 @@ class MainFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         enterTransition = Slide(Gravity.RIGHT)
         exitTransition = Slide(Gravity.LEFT)

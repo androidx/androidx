@@ -31,7 +31,7 @@ class DigitalCredentialEntryTest {
             VerificationEntryDisplayProperties(
                 title = "test-title",
                 subtitle = null,
-                icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)
+                icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8),
             )
     }
 

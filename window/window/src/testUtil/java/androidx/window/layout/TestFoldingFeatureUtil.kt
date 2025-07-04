@@ -68,7 +68,7 @@ internal object TestFoldingFeatureUtil {
             invalidZeroBound(),
             invalidBoundShortWidth(windowBounds),
             invalidBoundShortHeight(windowBounds),
-            windowBounds
+            windowBounds,
         )
     }
 
@@ -92,7 +92,7 @@ internal object TestFoldingFeatureUtil {
     fun allFoldStates(bounds: Bounds, type: HardwareFoldingFeature.Type): List<FoldingFeature> {
         return listOf(
             HardwareFoldingFeature(bounds, type, FLAT),
-            HardwareFoldingFeature(bounds, type, HALF_OPENED)
+            HardwareFoldingFeature(bounds, type, HALF_OPENED),
         )
     }
 

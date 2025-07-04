@@ -90,11 +90,11 @@ internal class RenderBufferTexture(@Px private val width: Int, @Px private val h
                 0.5f,
                 1.0f,
                 1.0f,
-                0.5f
+                0.5f,
             ),
 
             // List of (u, v) texture coordinates.
-            floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
+            floatArrayOf(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f),
         )
 
     init {
@@ -105,12 +105,12 @@ internal class RenderBufferTexture(@Px private val width: Int, @Px private val h
         GLES20.glTexParameteri(
             GLES20.GL_TEXTURE_2D,
             GLES20.GL_TEXTURE_WRAP_S,
-            GLES20.GL_CLAMP_TO_EDGE
+            GLES20.GL_CLAMP_TO_EDGE,
         )
         GLES20.glTexParameteri(
             GLES20.GL_TEXTURE_2D,
             GLES20.GL_TEXTURE_WRAP_T,
-            GLES20.GL_CLAMP_TO_EDGE
+            GLES20.GL_CLAMP_TO_EDGE,
         )
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR)
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR)
@@ -124,7 +124,7 @@ internal class RenderBufferTexture(@Px private val width: Int, @Px private val h
             0,
             GLES20.GL_RGBA,
             GLES20.GL_UNSIGNED_BYTE,
-            null
+            null,
         )
         if (CHECK_GL_ERRORS) {
             checkGlError("glTexImage2D")
@@ -144,7 +144,7 @@ internal class RenderBufferTexture(@Px private val width: Int, @Px private val h
             GLES20.GL_COLOR_ATTACHMENT0,
             GLES20.GL_TEXTURE_2D,
             textureId[0],
-            0
+            0,
         )
         if (CHECK_GL_ERRORS) {
             checkGlError("glFramebufferTexture2D")
@@ -187,7 +187,7 @@ internal class RenderBufferTexture(@Px private val width: Int, @Px private val h
 internal class Gles2TexturedTriangleList(
     internal val program: Program,
     triangleCoords: FloatArray,
-    private val textureCoords: FloatArray
+    private val textureCoords: FloatArray,
 ) {
     init {
         require(triangleCoords.size % (VERTICES_PER_TRIANGLE * COORDS_PER_VERTEX) == 0) {
@@ -310,7 +310,7 @@ internal class Gles2TexturedTriangleList(
                 GLES20.GL_FLOAT,
                 false /* normalized */,
                 VERTEX_STRIDE,
-                vertexBuffer
+                vertexBuffer,
             )
             if (CHECK_GL_ERRORS) {
                 checkGlError("glVertexAttribPointer")
@@ -323,7 +323,7 @@ internal class Gles2TexturedTriangleList(
                 GLES20.GL_FLOAT,
                 false /* normalized */,
                 TEXTURE_COORDS_VERTEX_STRIDE,
-                textureCoordinatesBuffer
+                textureCoordinatesBuffer,
             )
             if (CHECK_GL_ERRORS) {
                 checkGlError("glVertexAttribPointer")

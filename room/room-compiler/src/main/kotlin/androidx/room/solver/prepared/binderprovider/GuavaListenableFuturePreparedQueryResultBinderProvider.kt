@@ -51,7 +51,7 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
         return LambdaPreparedQueryResultBinder(
             returnType = typeArg,
             functionName = GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
-            adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
+            adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query),
         )
     }
 }

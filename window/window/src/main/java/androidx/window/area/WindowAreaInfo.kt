@@ -46,7 +46,7 @@ internal constructor(
 
     /** [Binder] token to identify the specific WindowArea */
     val token: Binder,
-    private val windowAreaComponent: WindowAreaComponent
+    private val windowAreaComponent: WindowAreaComponent,
 ) {
 
     internal val capabilityMap = HashMap<WindowAreaCapability.Operation, WindowAreaCapability>()
@@ -88,7 +88,7 @@ internal constructor(
                 RearDisplayPresentationSessionPresenterImpl(
                     windowAreaComponent,
                     windowAreaComponent.rearDisplayPresentation!!,
-                    ExtensionsUtil.safeVendorApiLevel
+                    ExtensionsUtil.safeVendorApiLevel,
                 )
             else -> {
                 throw IllegalArgumentException("Invalid operation provided")

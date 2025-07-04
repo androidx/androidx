@@ -66,7 +66,7 @@ object CompilationTestCapabilities {
                 }
                 return Config(
                     kotlinVersion = props.getProperty("kotlinVersion") as String,
-                    kspVersion = props.getProperty("kspVersion") as String
+                    kspVersion = props.getProperty("kspVersion") as String,
                 )
             }
         }

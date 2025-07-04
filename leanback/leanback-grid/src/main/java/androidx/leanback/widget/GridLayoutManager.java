@@ -2101,28 +2101,19 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     // and scroll to the view if framework focus on it.
     private void focusToViewInLayout(boolean hadFocus, boolean alignToView, int extraDelta,
             int extraDeltaSecondary) {
-        View focusView = findViewByPosition(mFocusPosition);
-        if (focusView != null && alignToView) {
-            scrollToView(focusView, false, extraDelta, extraDeltaSecondary);
+        View bestFocusableView = findBestViewToFocus();
+        if (bestFocusableView ==  null) {
+            return;
         }
-        if (focusView != null && hadFocus && !focusView.hasFocus()) {
-            focusView.requestFocus();
-        } else if (!hadFocus && !mBaseGridView.hasFocus()) {
-            if (focusView != null && focusView.hasFocusable()) {
-                mBaseGridView.focusableViewAvailable(focusView);
-            } else {
-                for (int i = 0, count = getChildCount(); i < count; i++) {
-                    focusView = getChildAt(i);
-                    if (focusView != null && focusView.hasFocusable()) {
-                        mBaseGridView.focusableViewAvailable(focusView);
-                        break;
-                    }
-                }
-            }
-            // focusViewAvailable() might focus to the view, scroll to it if that is the case.
-            if (alignToView && focusView != null && focusView.hasFocus()) {
-                scrollToView(focusView, false, extraDelta, extraDeltaSecondary);
-            }
+        if (alignToView) {
+            scrollToView(bestFocusableView, false, extraDelta, extraDeltaSecondary);
+        }
+        if (hadFocus && !bestFocusableView.hasFocus()) {
+            bestFocusableView.requestFocus();
+        }
+        // When the grid view had no focus, we just inform that there is a focusable child instead.
+        if (!hadFocus && !mBaseGridView.hasFocus()) {
+            mBaseGridView.focusableViewAvailable(bestFocusableView);
         }
     }
 
@@ -3042,8 +3033,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         if (!view.hasFocus() && mBaseGridView.hasFocus()) {
-            // transfer focus to the child if it does not have focus yet (e.g. triggered
-            // by setSelection())
             view.requestFocus();
         }
         if ((mFlag & PF_SCROLL_ENABLED) == 0 && smooth) {
@@ -3053,6 +3042,38 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                 || extraDelta != 0 || extraDeltaSecondary != 0) {
             scrollGrid(sTwoInts[0] + extraDelta, sTwoInts[1] + extraDeltaSecondary, smooth);
         }
+    }
+
+    private @Nullable View findBestViewToFocus() {
+        View initiallyFocusedView = null;
+        if (mFocusPosition != NO_POSITION) {
+            initiallyFocusedView = findViewByPosition(mFocusPosition);
+            if (initiallyFocusedView != null
+                    && (initiallyFocusedView.hasFocus() || initiallyFocusedView.hasFocusable())) {
+                return initiallyFocusedView;
+            }
+        }
+        // NO_POSITION == -1, so it is safe to start the search from mFocusPosition + 1
+        for (int nextIdx = mFocusPosition + 1; nextIdx < getItemCount(); nextIdx++) {
+            View candidate = findViewByPosition(nextIdx);
+            if (candidate == null) {
+                break;
+            }
+            if (candidate.hasFocus() || candidate.hasFocusable()) {
+                return candidate;
+            }
+        }
+        for (int prevIdx = mFocusPosition - 1; prevIdx >= 0; prevIdx--) {
+            View candidate = findViewByPosition(prevIdx);
+            if (candidate == null) {
+                break;
+            }
+            if (candidate.hasFocusable()) {
+                return candidate;
+            }
+        }
+        // If nothing is focusable, we still want to scroll to mFocusPosition
+        return initiallyFocusedView;
     }
 
     boolean getScrollPosition(View view, View childView, int[] deltas) {

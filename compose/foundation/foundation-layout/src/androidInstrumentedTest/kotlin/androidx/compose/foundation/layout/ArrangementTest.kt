@@ -39,7 +39,7 @@ class ArrangementTest(private val testParam: TestParam) {
                     actualTotalSize,
                     actualSizes,
                     actualLayoutDirection,
-                    actualOutPositions
+                    actualOutPositions,
                 )
 
                 assertThat(actualOutPositions).isEqualTo(expectedOutPositions)

@@ -20,13 +20,14 @@ import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.LoadStateUpdate
+import kotlin.collections.removeFirst as removeFirstKt
 
 private fun <T : Any> localInsert(
     loadType: LoadType,
     pages: List<TransformablePage<T>>,
     placeholdersBefore: Int,
     placeholdersAfter: Int,
-    source: LoadStates
+    source: LoadStates,
 ) =
     when (loadType) {
         REFRESH ->
@@ -35,7 +36,7 @@ private fun <T : Any> localInsert(
                 placeholdersBefore = placeholdersBefore,
                 placeholdersAfter = placeholdersAfter,
                 sourceLoadStates = source,
-                mediatorLoadStates = null
+                mediatorLoadStates = null,
             )
         PREPEND ->
             PageEvent.Insert.Prepend(
@@ -49,7 +50,7 @@ private fun <T : Any> localInsert(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
                 sourceLoadStates = source,
-                mediatorLoadStates = null
+                mediatorLoadStates = null,
             )
     }
 
@@ -57,40 +58,40 @@ internal fun <T : Any> localRefresh(
     pages: List<TransformablePage<T>> = listOf(emptyPage()),
     placeholdersBefore: Int = 0,
     placeholdersAfter: Int = 0,
-    source: LoadStates = loadStates()
+    source: LoadStates = loadStates(),
 ) =
     localInsert(
         loadType = REFRESH,
         pages = pages,
         placeholdersBefore = placeholdersBefore,
         placeholdersAfter = placeholdersAfter,
-        source = source
+        source = source,
     )
 
 internal fun <T : Any> localPrepend(
     pages: List<TransformablePage<T>> = listOf(emptyPage()),
     placeholdersBefore: Int = 0,
-    source: LoadStates = loadStates()
+    source: LoadStates = loadStates(),
 ) =
     localInsert(
         loadType = PREPEND,
         pages = pages,
         placeholdersBefore = placeholdersBefore,
         placeholdersAfter = -1,
-        source = source
+        source = source,
     )
 
 internal fun <T : Any> localAppend(
     pages: List<TransformablePage<T>> = listOf(emptyPage()),
     placeholdersAfter: Int = 0,
-    source: LoadStates = loadStates()
+    source: LoadStates = loadStates(),
 ) =
     localInsert(
         loadType = APPEND,
         pages = pages,
         placeholdersBefore = -1,
         placeholdersAfter = placeholdersAfter,
-        source = source
+        source = source,
     )
 
 private fun <T : Any> remoteInsert(
@@ -122,7 +123,7 @@ private fun <T : Any> remoteInsert(
                 pages = pages,
                 placeholdersAfter = placeholdersAfter,
                 sourceLoadStates = source,
-                mediatorLoadStates = mediator
+                mediatorLoadStates = mediator,
             )
     }
 
@@ -179,7 +180,7 @@ internal fun <T : Any> localLoadStateUpdate(
 ) =
     LoadStateUpdate<T>(
         source = loadStates(refreshLocal, prependLocal, appendLocal),
-        mediator = null
+        mediator = null,
     )
 
 internal fun <T : Any> localLoadStateUpdate(source: LoadStates = LoadStates.IDLE) =
@@ -207,6 +208,6 @@ private fun <T : Any> emptyPage() = TransformablePage<T>(0, emptyList())
 
 public fun <E> MutableList<E>.getAllAndClear(): List<E> {
     val data = toList()
-    repeat(data.size) { removeFirst() }
+    repeat(data.size) { removeFirstKt() }
     return data
 }

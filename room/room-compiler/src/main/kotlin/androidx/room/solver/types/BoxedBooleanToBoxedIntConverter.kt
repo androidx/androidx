@@ -50,7 +50,7 @@ object BoxedBooleanToBoxedIntConverter {
                         }
                     }
                 }
-            }
+            },
         )
     }
 }

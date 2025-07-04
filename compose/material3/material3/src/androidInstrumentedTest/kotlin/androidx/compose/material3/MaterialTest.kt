@@ -63,7 +63,7 @@ import kotlin.math.min
 fun ComposeContentTestRule.setMaterialContent(
     colorScheme: ColorScheme,
     modifier: Modifier = Modifier,
-    composable: @Composable () -> Unit
+    composable: @Composable () -> Unit,
 ) {
     setContent {
         MaterialTheme(colorScheme = colorScheme) {
@@ -102,7 +102,7 @@ fun ComposeContentTestRule.setMaterialContentForSizeAssertions(
     parentMaxWidth: Dp = BigTestMaxWidth,
     parentMaxHeight: Dp = BigTestMaxHeight,
     // TODO : figure out better way to make it flexible
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): SemanticsNodeInteraction {
     setContent {
         MaterialTheme {
@@ -129,7 +129,7 @@ fun ComposeContentTestRule.assertContentShape(
     expectedColor: @Composable () -> Color,
     interaction: SemanticsNodeInteraction.() -> Unit = {},
     matcher: SemanticsNodeInteractionsProvider.() -> SemanticsNodeInteraction = { onRoot() },
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     var expectedShapeValue: Shape? = null
     var expectedSizeValue: Size? = null
@@ -150,7 +150,7 @@ fun ComposeContentTestRule.assertContentShape(
             backgroundColor = null,
             shape = expectedShapeValue!!,
             shapeSize = expectedSizeValue!!,
-            shapeColor = expectedColorValue!!
+            shapeColor = expectedColorValue!!,
         )
 }
 

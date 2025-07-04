@@ -35,11 +35,13 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.Usage
 import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 sealed class ApiTaskConfig
 
@@ -131,7 +133,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             androidManifest,
             baselinesApiLocation,
             builtApiLocation,
-            outputApiLocations
+            outputApiLocations,
         )
 
         project.setupWithStableAidlPlugin()
@@ -141,7 +143,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                 project,
                 config.variant.artifacts.get(SingleArtifact.PUBLIC_ANDROID_RESOURCES_LIST),
                 builtApiLocation,
-                outputApiLocations
+                outputApiLocations,
             )
         } else if (config is AndroidMultiplatformApiTaskConfig) {
             // Android Multiplatform does not currently support resources, so we generate a blank
@@ -150,7 +152,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
                 project,
                 project.provider { BlankApiRegularFile(project) },
                 builtApiLocation,
-                outputApiLocations
+                outputApiLocations,
             )
         }
         multiplatformExtension?.let { multiplatformExtension ->
@@ -193,16 +195,33 @@ internal fun Project.createReleaseApiConfiguration(): Configuration {
                 it.isTransitive = false
                 it.attributes.attribute(
                     BuildTypeAttr.ATTRIBUTE,
-                    project.objects.named(BuildTypeAttr::class.java, "release")
+                    project.objects.named(BuildTypeAttr::class.java, "release"),
                 )
                 it.attributes.attribute(
                     Usage.USAGE_ATTRIBUTE,
-                    objects.named(Usage::class.java, Usage.JAVA_API)
+                    objects.named(Usage::class.java, Usage.JAVA_API),
                 )
                 it.attributes.attribute(
                     ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE,
-                    ArtifactTypeDefinition.JAR_TYPE
+                    ArtifactTypeDefinition.JAR_TYPE,
                 )
+                // If this is a KMP project targeting android, make sure to select the android
+                // compilation and not a different jvm target compilation
+                multiplatformExtension?.let { extension ->
+                    if (
+                        extension.targets.any { target ->
+                            target.platformType == KotlinPlatformType.androidJvm
+                        }
+                    ) {
+                        it.attributes.attribute(
+                            Attribute.of(
+                                "org.jetbrains.kotlin.platform.type",
+                                KotlinPlatformType::class.java,
+                            ),
+                            KotlinPlatformType.androidJvm,
+                        )
+                    }
+                }
             }
             .apply { project.dependencies.add(name, project.project(path)) }
 }

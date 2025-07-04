@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class StartupBenchmark(
     private val startupMode: StartupMode,
-    private val compilationMode: CompilationMode
+    private val compilationMode: CompilationMode,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
@@ -52,7 +52,7 @@ class StartupBenchmark(
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = PACKAGE_NAME
+            packageName = PACKAGE_NAME,
         ) {
             action = WEAR_STARTUP_ACTIVITY
         }

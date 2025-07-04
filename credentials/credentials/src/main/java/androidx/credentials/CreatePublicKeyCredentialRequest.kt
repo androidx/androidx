@@ -40,6 +40,13 @@ import org.json.JSONObject
  *   [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
  * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
  *   clientDataJSON during the signature request; only meaningful when [origin] is set
+ * @property isConditional whether the public key should be created opportunistically based on the
+ *   user's credential provider already possessing a password for the same account and/or other
+ *   provider specific conditions, and also based on internal system conditions. When set to true,
+ *   it is important to note that no dialog like system UI is shown to the user, and instead the
+ *   credential provider is to show a notification to the user when passkey creation is successful.
+ *   Ideal scenarios to set this to true are when making a request immediately after a successful,
+ *   non-passkey sign-in (e.g. sign-in using a password), or an independent sign-up process
  */
 class CreatePublicKeyCredentialRequest
 private constructor(
@@ -51,6 +58,7 @@ private constructor(
     origin: String? = null,
     credentialData: Bundle = toCredentialDataBundle(requestJson, clientDataHash),
     candidateQueryData: Bundle = toCandidateDataBundle(requestJson, clientDataHash),
+    val isConditional: Boolean = false,
 ) :
     CreateCredentialRequest(
         type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
@@ -61,7 +69,7 @@ private constructor(
         isAutoSelectAllowed = isAutoSelectAllowed,
         displayInfo,
         origin,
-        preferImmediatelyAvailableCredentials
+        preferImmediatelyAvailableCredentials,
     ) {
 
     /**
@@ -81,6 +89,12 @@ private constructor(
      * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is the
      *   only one available to the user (note that there is a chance that the crendeiatl provider
      *   does not support auto-select even if you turn this bit on)
+     * @param isConditional whether the public key credential should be created opportunistically
+     *   based on the user's credential provider already possessing a password for the same account,
+     *   and also based on internal system conditions, as well as conditions from the user's
+     *   preferred credential provider, keeping in mind that this should be ideally set to true when
+     *   making a request immediately after a successful, non-public-key sign-in or sign-up process
+     *   (e.g. sign-in using a password)
      * @throws NullPointerException If [requestJson] is null
      * @throws IllegalArgumentException If [requestJson] is empty, or if it is not a valid JSON, or
      *   if it doesn't have a valid `user.name` defined according to the [webauthn spec]
@@ -93,6 +107,7 @@ private constructor(
         preferImmediatelyAvailableCredentials: Boolean = false,
         origin: String? = null,
         isAutoSelectAllowed: Boolean = false,
+        isConditional: Boolean = false,
     ) : this(
         requestJson = requestJson,
         clientDataHash = clientDataHash,
@@ -100,6 +115,7 @@ private constructor(
         displayInfo = getRequestDisplayInfo(requestJson),
         origin = origin,
         isAutoSelectAllowed = isAutoSelectAllowed,
+        isConditional = isConditional,
     )
 
     /**
@@ -149,6 +165,9 @@ private constructor(
         require(RequestValidationHelper.isValidJSON(requestJson)) {
             "requestJson must not be empty, and must be a valid JSON"
         }
+        if (isConditional) {
+            candidateQueryData.putBoolean(BUNDLE_KEY_CONDITIONAL_CREATE, true)
+        }
     }
 
     internal companion object {
@@ -157,6 +176,8 @@ private constructor(
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
         internal const val BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST =
             "androidx.credentials.BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST"
+        internal const val BUNDLE_KEY_CONDITIONAL_CREATE =
+            "androidx.credentials.BUNDLE_KEY_IS_CONDITIONAL_REQUEST"
 
         @JvmStatic
         internal fun getRequestDisplayInfo(
@@ -188,7 +209,7 @@ private constructor(
             val bundle = Bundle()
             bundle.putString(
                 BUNDLE_KEY_SUBTYPE,
-                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
+                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST,
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
@@ -203,7 +224,7 @@ private constructor(
             val bundle = Bundle()
             bundle.putString(
                 BUNDLE_KEY_SUBTYPE,
-                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST
+                BUNDLE_VALUE_SUBTYPE_CREATE_PUBLIC_KEY_CREDENTIAL_REQUEST,
             )
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
             bundle.putByteArray(BUNDLE_KEY_CLIENT_DATA_HASH, clientDataHash)
@@ -215,7 +236,7 @@ private constructor(
         internal fun createFrom(
             data: Bundle,
             origin: String?,
-            candidateQueryData: Bundle
+            candidateQueryData: Bundle,
         ): CreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)!!
@@ -229,6 +250,7 @@ private constructor(
                         getRequestDisplayInfo(requestJson)
                     }
                 val isAutoSelectAllowed = data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                val isConditionalCreateRequest = data.getBoolean(BUNDLE_KEY_CONDITIONAL_CREATE)
                 return CreatePublicKeyCredentialRequest(
                     requestJson = requestJson,
                     clientDataHash = clientDataHash,
@@ -238,6 +260,7 @@ private constructor(
                     isAutoSelectAllowed = isAutoSelectAllowed,
                     credentialData = data,
                     candidateQueryData = candidateQueryData,
+                    isConditional = isConditionalCreateRequest,
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

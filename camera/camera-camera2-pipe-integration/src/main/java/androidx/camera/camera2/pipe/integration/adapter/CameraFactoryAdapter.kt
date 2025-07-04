@@ -36,23 +36,22 @@ import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.internal.StreamSpecsCalculator
 
 /**
  * The [CameraFactoryAdapter] is responsible for creating the root dagger component that is used to
  * share resources across Camera instances.
  */
 internal class CameraFactoryAdapter(
-    lazyCameraPipe: Lazy<CameraPipe>,
+    private val lazyCameraPipe: Lazy<CameraPipe>,
     context: Context,
     threadConfig: CameraThreadConfig,
     camera2InteropCallbacks: CameraInteropStateCallbackRepository,
     availableCamerasSelector: CameraSelector?,
+    private val streamSpecsCalculator: StreamSpecsCalculator,
 ) : CameraFactory {
     private val cameraCoordinator: CameraCoordinatorAdapter =
-        CameraCoordinatorAdapter(
-            lazyCameraPipe.value,
-            lazyCameraPipe.value.cameras(),
-        )
+        CameraCoordinatorAdapter(lazyCameraPipe.value, lazyCameraPipe.value.cameras())
     private val appComponent: CameraAppComponent by lazy {
         Debug.traceStart { "CameraFactoryAdapter#appComponent" }
         val timeSource = SystemTimeSource()
@@ -65,7 +64,7 @@ internal class CameraFactoryAdapter(
                         threadConfig,
                         lazyCameraPipe.value,
                         camera2InteropCallbacks,
-                        cameraCoordinator
+                        cameraCoordinator,
                     )
                 )
                 .build()
@@ -77,14 +76,18 @@ internal class CameraFactoryAdapter(
 
     init {
         val optimizedCameraIds =
-            CameraSelectionOptimizer.getSelectedAvailableCameraIds(this, availableCamerasSelector)
+            CameraSelectionOptimizer.getSelectedAvailableCameraIds(
+                this,
+                availableCamerasSelector,
+                streamSpecsCalculator,
+            )
 
         // Use a LinkedHashSet to preserve order
         availableCameraIds =
             LinkedHashSet(
                 CameraCompatibilityFilter.getBackwardCompatibleCameraIds(
                     appComponent.getCameraDevices(),
-                    optimizedCameraIds
+                    optimizedCameraIds,
                 )
             )
     }
@@ -98,9 +101,9 @@ internal class CameraFactoryAdapter(
             appComponent
                 .cameraBuilder()
                 .config(CameraConfig(CameraId(cameraId)))
+                .streamSpecsCalculator(streamSpecsCalculator)
                 .build()
                 .getCameraInternal()
-        cameraCoordinator.registerCamera(cameraId, cameraInternal)
         return cameraInternal
     }
 
@@ -112,4 +115,11 @@ internal class CameraFactoryAdapter(
 
     /** This is an implementation specific object that is specific to the integration package */
     override fun getCameraManager(): Any = appComponent
+
+    override fun shutdown() {
+        cameraCoordinator.shutdown()
+        if (lazyCameraPipe.isInitialized()) {
+            lazyCameraPipe.value.shutdown()
+        }
+    }
 }

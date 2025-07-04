@@ -49,14 +49,26 @@ fun Home(
         theme = theme,
         onThemeChange = onThemeChange,
         favorite = favorite,
-        onFavoriteClick = onFavoriteClick
+        onFavoriteClick = onFavoriteClick,
     ) { paddingValues ->
         LazyVerticalGrid(
             modifier = Modifier.consumeWindowInsets(paddingValues),
             columns = GridCells.Adaptive(HomeCellMinSize),
             content = {
-                items(components) { component ->
-                    ComponentItem(component = component, onClick = onComponentClick)
+                // In case the theme has a showOnlyExpressiveComponents setting, filter the
+                // components list to include only those that have expressive examples.
+                val filteredComponents =
+                    if (theme.showOnlyExpressiveComponents) {
+                        components.filter { it.hasExpressiveExamples }
+                    } else {
+                        components
+                    }
+                items(filteredComponents) { component ->
+                    ComponentItem(
+                        component = component,
+                        markExpressiveComponents = theme.markExpressiveComponents,
+                        onClick = onComponentClick,
+                    )
                 }
             },
             contentPadding =
@@ -64,8 +76,8 @@ fun Home(
                     start = paddingValues.calculateStartPadding(ltr) + HomePadding,
                     top = paddingValues.calculateTopPadding() + HomePadding,
                     end = paddingValues.calculateEndPadding(ltr) + HomePadding,
-                    bottom = paddingValues.calculateBottomPadding() + HomePadding
-                )
+                    bottom = paddingValues.calculateBottomPadding() + HomePadding,
+                ),
         )
     }
 }

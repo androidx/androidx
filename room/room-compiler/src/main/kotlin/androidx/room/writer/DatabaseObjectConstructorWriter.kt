@@ -30,7 +30,7 @@ import com.squareup.kotlinpoet.TypeSpec
 
 class DatabaseObjectConstructorWriter(
     private val database: Database,
-    private val constructorObject: DatabaseConstructor
+    private val constructorObject: DatabaseConstructor,
 ) {
     fun write(processingEnv: XProcessingEnv) {
         val databaseClassName = database.typeName.toKotlinPoet()

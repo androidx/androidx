@@ -24,8 +24,8 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.OnScaleGestureListener
 import android.view.ViewConfiguration
+import android.view.ViewParent
 import androidx.pdf.view.GestureTracker.Gesture
-import androidx.pdf.view.GestureTracker.GestureHandler
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -36,6 +36,11 @@ import kotlin.math.sqrt
  * and end signals for all detected [Gesture]s.
  */
 internal class GestureTracker(context: Context) {
+    /**
+     * Used for requestDisallowInterceptTouchEvent() so that the fling and scroll gestures can be
+     * managed.
+     */
+    private var parent: ViewParent? = null
 
     /** Minimal identifier for a [MotionEvent]. */
     internal class EventId(event: MotionEvent) {
@@ -148,9 +153,16 @@ internal class GestureTracker(context: Context) {
      * Feed an event into this tracker. To be plugged in a [android.view.View.onTouchEvent]
      *
      * @param event The event.
+     * @param viewParent [ViewParent] of the [PdfView]
+     * @param contentAtEdge Represents if the content in the viewport is currently at edge or not.
      * @return true if the event was recorded, false if it was discarded as a duplicate
      */
-    fun feed(event: MotionEvent): Boolean {
+    fun feed(
+        event: MotionEvent,
+        viewParent: ViewParent? = null,
+        contentAtEdge: Boolean = false,
+    ): Boolean {
+        parent = if (contentAtEdge) viewParent else null
         if (lastEvent?.matches(event) == true) {
             // We have already processed this event in this way (handling or non-handling).
             return false
@@ -187,6 +199,7 @@ internal class GestureTracker(context: Context) {
     }
 
     private fun endGesture() {
+        parent?.requestDisallowInterceptTouchEvent(false)
         tracking = false
         if (delegate != null) {
             delegate?.onGestureEnd(detectedGesture)
@@ -320,6 +333,12 @@ internal class GestureTracker(context: Context) {
         ): Boolean {
             val dx = getDistance(e2, MotionEvent.AXIS_X)
             val dy = getDistance(e2, MotionEvent.AXIS_Y)
+
+            // Release the gesture if the detected gesture is a horizontal scroll
+            if (detectedGesture == Gesture.DRAG_X) {
+                parent?.requestDisallowInterceptTouchEvent(false)
+            }
+
             if (dx > moveSlop && dx > DRAG_X_MULTIPLIER * dy) {
                 detected(Gesture.DRAG_X)
             } else if (dy > moveSlop && dy > DRAG_Y_MULTIPLIER * dx) {
@@ -330,6 +349,7 @@ internal class GestureTracker(context: Context) {
             if (delegate != null) {
                 delegate?.onScroll(e1, e2, distanceX, distanceY)
             }
+
             return false
         }
 

@@ -65,7 +65,7 @@ class LoadFullListTest(private val reverse: Boolean) {
                     }
                 },
             updateCallback = ListUpdateCallbackFake(),
-            workerDispatcher = Dispatchers.Main
+            workerDispatcher = Dispatchers.Main,
         )
 
     @Test fun noFilter() = loadAll { true }
@@ -106,7 +106,7 @@ class LoadFullListTest(private val reverse: Boolean) {
                             sourceSize - 1
                         } else {
                             0
-                        }
+                        },
                 ) {
                     TestPagingSource(items = List(sourceSize) { it })
                 }
@@ -146,7 +146,7 @@ class LoadFullListTest(private val reverse: Boolean) {
                 pageSize = 5,
                 prefetchDistance = 5,
                 enablePlaceholders = false,
-                initialLoadSize = 5
+                initialLoadSize = 5,
             )
     }
 }

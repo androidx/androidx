@@ -66,7 +66,7 @@ internal fun PreparedStatement.columnInfo(): List<ColumnInfo> {
         ColumnInfo(
             name = data.getColumnName(index),
             type = tryGetAffinity(index),
-            originTable = data.getTableName(index)?.ifEmpty { null }
+            originTable = data.getTableName(index)?.ifEmpty { null },
         )
     }
 }

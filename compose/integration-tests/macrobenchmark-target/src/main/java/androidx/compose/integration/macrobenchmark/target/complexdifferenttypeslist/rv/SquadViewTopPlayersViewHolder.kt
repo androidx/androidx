@@ -22,9 +22,7 @@ import androidx.compose.integration.macrobenchmark.target.complexdifferenttypesl
 import androidx.compose.integration.macrobenchmark.target.complexdifferenttypeslist.model.ui.SquadViewTopPlayersUiModel
 import androidx.compose.integration.macrobenchmark.target.databinding.ItemSquadViewTopPlayersBinding
 
-class SquadViewTopPlayersViewHolder(
-    parent: ViewGroup,
-) :
+class SquadViewTopPlayersViewHolder(parent: ViewGroup) :
     BaseViewBindingHolder<ItemSquadViewTopPlayersBinding, SquadViewTopPlayersUiModel>(
         parent.inflateBinding(ItemSquadViewTopPlayersBinding::inflate)
     ) {

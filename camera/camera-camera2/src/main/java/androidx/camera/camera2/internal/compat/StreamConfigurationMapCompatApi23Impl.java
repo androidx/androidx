@@ -35,4 +35,9 @@ class StreamConfigurationMapCompatApi23Impl extends StreamConfigurationMapCompat
     public Size @Nullable [] getOutputSizes(int format) {
         return mStreamConfigurationMap.getOutputSizes(format);
     }
+
+    @Override
+    public long getOutputMinFrameDuration(int format, @NonNull Size size) {
+        return mStreamConfigurationMap.getOutputMinFrameDuration(format, size);
+    }
 }

@@ -63,11 +63,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -139,7 +138,11 @@ public class UiDevice implements Searchable {
     @Override
     public boolean hasObject(@NonNull BySelector selector) {
         Log.d(TAG, String.format("Searching for node with selector: %s.", selector));
-        AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
+        AccessibilityNodeInfo node = ByMatcher.findMatch(
+                this,
+                selector,
+                getWindowRoots().toArray(new AccessibilityNodeInfo[0])
+        );
         if (node != null) {
             node.recycle();
             return true;
@@ -155,7 +158,11 @@ public class UiDevice implements Searchable {
     @SuppressLint("UnknownNullness") // Avoid unnecessary null checks from nullable testing APIs.
     public UiObject2 findObject(@NonNull BySelector selector) {
         Log.d(TAG, String.format("Retrieving node with selector: %s.", selector));
-        AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots());
+        AccessibilityNodeInfo node = ByMatcher.findMatch(
+                this,
+                selector,
+                getWindowRoots().toArray(new AccessibilityNodeInfo[0])
+        );
         if (node == null) {
             Log.d(TAG, String.format("Node not found with selector: %s.", selector));
             return null;
@@ -168,7 +175,11 @@ public class UiDevice implements Searchable {
     public @NonNull List<UiObject2> findObjects(@NonNull BySelector selector) {
         Log.d(TAG, String.format("Retrieving nodes with selector: %s.", selector));
         List<UiObject2> ret = new ArrayList<>();
-        for (AccessibilityNodeInfo node : ByMatcher.findMatches(this, selector, getWindowRoots())) {
+        for (AccessibilityNodeInfo node : ByMatcher.findMatches(
+                this,
+                selector,
+                getWindowRoots().toArray(new AccessibilityNodeInfo[0]))
+        ) {
             UiObject2 object = UiObject2.create(this, selector, node);
             if (object != null) {
                 ret.add(object);
@@ -1400,11 +1411,16 @@ public class UiDevice implements Searchable {
         return uiAutomation.getWindows();
     }
 
-    /** Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window */
-    AccessibilityNodeInfo[] getWindowRoots() {
+    /**
+     * Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window.
+     * For convenience the returned list is sorted in descending window order, ensuring the root of
+     * the topmost visible window is reported first.
+     */
+    @NonNull
+    public List<AccessibilityNodeInfo> getWindowRoots() {
         waitForIdle();
 
-        Set<AccessibilityNodeInfo> roots = new HashSet<>();
+        LinkedHashSet<AccessibilityNodeInfo> roots = new LinkedHashSet<>();
         UiAutomation uiAutomation = getUiAutomation();
 
         // Ensure the active window root is included.
@@ -1423,7 +1439,7 @@ public class UiDevice implements Searchable {
             }
             roots.add(root);
         }
-        return roots.toArray(new AccessibilityNodeInfo[0]);
+        return new ArrayList<AccessibilityNodeInfo>(roots);
     }
 
     Instrumentation getInstrumentation() {

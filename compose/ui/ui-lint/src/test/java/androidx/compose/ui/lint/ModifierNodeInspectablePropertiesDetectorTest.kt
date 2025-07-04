@@ -47,15 +47,15 @@ class ModifierNodeInspectablePropertiesDetectorTest : LintDetectorTest() {
                 ),
                 ModifierStub,
                 InspectableValueStub,
-                ModifierNodeElementStub
+                ModifierNodeElementStub,
             )
             .run()
             .expect(
                 """
-src/test/Element.kt:8: Information: Element does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read Element's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
+src/test/Element.kt:8: Hint: Element does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read Element's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
                 class Element : ModifierNodeElement<Modifier.Node>() {
                       ~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
                 """
                     .trimIndent()
             )
@@ -104,18 +104,18 @@ src/test/Element.kt:8: Information: Element does not override inspectablePropert
                 ),
                 ModifierStub,
                 InspectableValueStub,
-                ModifierNodeElementStub
+                ModifierNodeElementStub,
             )
             .run()
             .expect(
                 """
-src/test/ElementWithExtraParam.kt:9: Information: ElementWithExtraParam does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithExtraParam's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
+src/test/ElementWithExtraParam.kt:9: Hint: ElementWithExtraParam does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithExtraParam's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
                 class ElementWithExtraParam : ModifierNodeElement<Modifier.Node>() {
                       ~~~~~~~~~~~~~~~~~~~~~
-src/test/ElementWithoutReceiver.kt:9: Information: ElementWithoutReceiver does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithoutReceiver's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
+src/test/ElementWithoutReceiver.kt:9: Hint: ElementWithoutReceiver does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementWithoutReceiver's properties reflectively. Override inspectableProperties() if you'd like to customize this modifier's presentation in the layout inspector. [ModifierNodeInspectableProperties]
                 class ElementWithoutReceiver : ModifierNodeElement<Modifier.Node>() {
                       ~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 2 hints
                 """
                     .trimIndent()
             )
@@ -146,7 +146,7 @@ src/test/ElementWithoutReceiver.kt:9: Information: ElementWithoutReceiver does n
                 ),
                 ModifierStub,
                 InspectableValueStub,
-                ModifierNodeElementStub
+                ModifierNodeElementStub,
             )
             .run()
             .expectClean()
@@ -182,7 +182,7 @@ src/test/ElementWithoutReceiver.kt:9: Information: ElementWithoutReceiver does n
                 ),
                 ModifierStub,
                 InspectableValueStub,
-                ModifierNodeElementStub
+                ModifierNodeElementStub,
             )
             .run()
             .expectClean()

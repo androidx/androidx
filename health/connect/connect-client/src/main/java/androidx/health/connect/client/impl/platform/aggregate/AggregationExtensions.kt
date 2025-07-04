@@ -22,16 +22,37 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.health.connect.client.aggregate.AggregateMetric
-import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
+import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 
 internal fun AggregateRequest.withFilteredMetrics(predicate: (AggregateMetric<*>) -> Boolean) =
     AggregateRequest(metrics.filter(predicate).toSet(), timeRangeFilter, dataOriginFilter)
+
+internal fun AggregateGroupByPeriodRequest.withFilteredMetrics(
+    predicate: (AggregateMetric<*>) -> Boolean
+) =
+    AggregateGroupByPeriodRequest(
+        metrics.filter(predicate).toSet(),
+        timeRangeFilter,
+        timeRangeSlicer,
+        dataOriginFilter,
+    )
+
+internal fun AggregateGroupByDurationRequest.withFilteredMetrics(
+    predicate: (AggregateMetric<*>) -> Boolean
+) =
+    AggregateGroupByDurationRequest(
+        metrics.filter(predicate).toSet(),
+        timeRangeFilter,
+        timeRangeSlicer,
+        dataOriginFilter,
+    )
 
 // Only check against aggregate metrics added in sdk extension 10, to address b/326414908
 // Metrics added later on will be present dependent on feature availability
@@ -41,14 +62,6 @@ internal fun AggregateMetric<*>.isPlatformSupportedMetric(): Boolean {
     } else {
         this !in AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10
     }
-}
-
-internal operator fun AggregationResult.plus(other: AggregationResult): AggregationResult {
-    return AggregationResult(
-        longValues + other.longValues,
-        doubleValues + other.doubleValues,
-        dataOrigins + other.dataOrigins
-    )
 }
 
 internal val AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10: Set<AggregateMetric<*>> =
@@ -68,5 +81,5 @@ internal val AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10: Set<AggregateMetric<*>> =
         SpeedRecord.SPEED_MIN,
         StepsCadenceRecord.RATE_AVG,
         StepsCadenceRecord.RATE_MAX,
-        StepsCadenceRecord.RATE_MIN
+        StepsCadenceRecord.RATE_MIN,
     )

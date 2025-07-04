@@ -18,27 +18,26 @@ package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /** A data class that holds the information about an FTS table. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-expect class FtsTableInfo {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public expect class FtsTableInfo {
     /** The table name */
-    @JvmField val name: String
+    public val name: String
 
     /** The column names */
-    @JvmField val columns: Set<String>
+    public val columns: Set<String>
 
     /**
      * The set of options. Each value in the set contains the option in the following format: <key,
      * value>.
      */
-    @JvmField val options: Set<String>
+    public val options: Set<String>
 
-    constructor(name: String, columns: Set<String>, createSql: String)
+    public constructor(name: String, columns: Set<String>, createSql: String)
 
-    companion object {
+    public companion object {
         /**
          * Reads the table information from the given database.
          *
@@ -46,7 +45,7 @@ expect class FtsTableInfo {
          * @param tableName The table name.
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
-        @JvmStatic fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo
+        @JvmStatic public fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo
     }
 }
 

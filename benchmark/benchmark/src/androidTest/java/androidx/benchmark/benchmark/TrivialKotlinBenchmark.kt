@@ -30,13 +30,15 @@ import org.junit.runner.RunWith
 class TrivialKotlinBenchmark {
     @get:Rule val benchmarkRule = BenchmarkRule()
 
-    @SuppressLint("BanThreadSleep") // intentional bad behavior / regression
-    @Test
-    fun nothing() = benchmarkRule.measureRepeated { Thread.sleep(1) }
+    @Test fun nothing() = benchmarkRule.measureRepeated {}
 
+    @SuppressLint("BanThreadSleep") // intentional bad behavior / regression
     @Test
     fun increment() {
         var i = 0
-        benchmarkRule.measureRepeated { i++ }
+        benchmarkRule.measureRepeated {
+            Thread.sleep(1)
+            i++
+        }
     }
 }

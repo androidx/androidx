@@ -29,7 +29,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.core.util.Preconditions;
 
@@ -410,8 +409,7 @@ public final class QualitySelector {
 
     private static @NonNull Size getProfileVideoSize(
             @NonNull VideoValidatedEncoderProfilesProxy profiles) {
-        VideoProfileProxy videoProfile = profiles.getDefaultVideoProfile();
-        return new Size(videoProfile.getWidth(), videoProfile.getHeight());
+        return profiles.getDefaultVideoProfile().getResolution();
     }
 
     private static void checkQualityConstantsOrThrow(@NonNull List<Quality> qualities) {

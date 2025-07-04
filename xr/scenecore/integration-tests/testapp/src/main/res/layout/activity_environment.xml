@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2025 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".environment.EnvironmentActivity">
+
+    <!-- Top App Bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/environment_topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:navigationIcon="@drawable/arrow_back"
+        app:navigationIconTint="@color/white"
+        android:background="@color/google_blue"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:titleCentered="true"
+        app:title="Spatial Environment Test" />
+
+    <!-- Center Button (Row 1) in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRow1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/environment_topAppBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/environment_toggle_hsm_fsm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/test_button"
+            android:textSize="18sp"
+            android:textFontWeight="400"
+            android:text="Toggle HSM/FSM" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Three Buttons (Row 2) - Evenly Spaced in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRow2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/environment_barrier1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="left"
+                app:constraint_referenced_ids="environment_button2_1,environment_button2_2,environment_button2_3" />
+
+            <Button
+                android:id="@+id/environment_button2_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Set Skybox Bar"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/environment_button2_2"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+            <Button
+                android:id="@+id/environment_button2_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Set Skybox Blue"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/environment_button2_1"
+                app:layout_constraintEnd_toStartOf="@+id/environment_button2_3"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+            <Button
+                android:id="@+id/environment_button2_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Unset Skybox"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/environment_button2_2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Three Buttons (Row 3) - Evenly Spaced in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRow3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/environment_barrier2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="left"
+                app:constraint_referenced_ids="environment_button3_1,environment_button3_2,environment_button3_3" />
+
+            <Button
+                android:id="@+id/environment_button3_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Set Geometry Ground"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/environment_button3_2"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+            <Button
+                android:id="@+id/environment_button3_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Set Geometry Rocks"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/environment_button3_1"
+                app:layout_constraintEnd_toStartOf="@+id/environment_button3_3"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+            <Button
+                android:id="@+id/environment_button3_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Unset Geometry"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/environment_button3_2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Two Buttons (Row 4) - 60/40 Split in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRow4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/environment_button4_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Set Geometry and Skybox (Ground, Blue)"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/environment_button4_2"
+                app:layout_constraintHorizontal_weight="5" />
+
+            <Button
+                android:id="@+id/environment_button4_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Unset Geometry and Skybox"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="@+id/environment_button4_1"
+                app:layout_constraintStart_toEndOf="@+id/environment_button4_1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="5" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Center Button (Row 5) in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRow5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+        <Button
+            android:id="@+id/environment_toggle_passthrough"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/test_button"
+            android:textSize="18sp"
+            android:textFontWeight="400"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="Toggle Passthrough"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/environment_log_spatial_capabilities"
+            app:layout_constraintHorizontal_weight="5"/>
+
+        <Button
+            android:id="@+id/environment_log_spatial_capabilities"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/test_button"
+            android:textSize="18sp"
+            android:textFontWeight="400"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="Log Current Spatial Capabilities"
+            app:layout_constraintTop_toTopOf="@+id/environment_toggle_passthrough"
+            app:layout_constraintStart_toEndOf="@+id/environment_toggle_passthrough"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="5"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Slider (60%) and Button (40%) (Row 6) in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRow6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/sliderValueTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20.sp"
+                android:textFontWeight="800"
+                android:text="Passthrough Opacity Preference:"
+                android:gravity="start"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/environment_mySlider"
+                app:layout_constraintHorizontal_weight="3"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/environment_mySlider"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/sliderValueTextView"
+                app:layout_constraintEnd_toStartOf="@+id/environment_sliderButton"
+                app:layout_constraintHorizontal_weight="4" />
+
+            <Button
+                android:id="@+id/environment_sliderButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Unset Passthrough Preference"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="@+id/environment_mySlider"
+                app:layout_constraintStart_toEndOf="@+id/environment_mySlider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="3" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- RecyclerView at the Bottom in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/environment_event_log_table_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bottomCenterFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:scaleX="1.25"
+        android:scaleY="1.25"
+        android:backgroundTint="@color/google_blue"
+        android:src="@drawable/recreate"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

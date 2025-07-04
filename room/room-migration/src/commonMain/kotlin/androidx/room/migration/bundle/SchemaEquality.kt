@@ -23,6 +23,6 @@ import androidx.annotation.RestrictTo
  * in an entity does not have to match)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface SchemaEquality<T> {
-    fun isSchemaEqual(other: T): Boolean
+public interface SchemaEquality<T> {
+    public fun isSchemaEqual(other: T): Boolean
 }

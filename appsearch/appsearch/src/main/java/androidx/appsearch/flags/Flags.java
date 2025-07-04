@@ -109,10 +109,12 @@ public final class Flags {
             FLAG_PREFIX + "enable_enterprise_global_search_session";
 
     /**
-     * Enables {@link android.app.appsearch.functions.AppFunctionManager} and app functions related
-     * stuff.
+     * Enable {@link androidx.appsearch.app.AppSearchSchema#getDescription} and
+     * {@link androidx.appsearch.app.AppSearchSchema.PropertyConfig#getDescription} and the related
+     * builders.
      */
-    public static final String FLAG_ENABLE_APP_FUNCTIONS = FLAG_PREFIX + "enable_app_functions";
+    public static final String FLAG_ENABLE_SCHEMA_DESCRIPTION =
+            FLAG_PREFIX + "enable_schema_description";
 
     /**
      * Enable {@link androidx.appsearch.app.AppSearchResult#RESULT_DENIED} and
@@ -142,15 +144,15 @@ public final class Flags {
     public static final String FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS =
             FLAG_PREFIX + "enable_informational_ranking_expressions";
 
-    /** Enable {@link androidx.appsearch.app.AppSearchResult#RESULT_ALREADY_EXISTS}.     */
+    /** Enable {@link androidx.appsearch.app.AppSearchResult#RESULT_ALREADY_EXISTS}. */
     public static final String FLAG_ENABLE_RESULT_ALREADY_EXISTS =
             FLAG_PREFIX + "enable_result_already_exists";
 
-    /**  Enable {@link androidx.appsearch.app.AppSearchBlobHandle}.  */
+    /** Enable {@link androidx.appsearch.app.AppSearchBlobHandle}. */
     public static final String FLAG_ENABLE_BLOB_STORE =
             FLAG_PREFIX + "enable_blob_store";
 
-    /**  Enable {@link androidx.appsearch.app.GenericDocument#writeToParcel}.  */
+    /** Enable {@link androidx.appsearch.app.GenericDocument#writeToParcel}. */
     public static final String FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC =
             FLAG_PREFIX + "enable_generic_document_over_ipc";
 
@@ -193,6 +195,97 @@ public final class Flags {
     /** Enables delete propagation type related APIs. */
     public static final String FLAG_ENABLE_DELETE_PROPAGATION_TYPE =
             FLAG_PREFIX + "enable_delete_propagation_type";
+
+    /** Enables AppSearch to manage blob files. */
+    public static final String FLAG_ENABLE_APP_SEARCH_MANAGE_BLOB_FILES =
+            FLAG_PREFIX + "enable_app_search_manage_blob_files";
+
+    /**
+     * Enables time since last optimize to be calculated by last attempted optimize run time instead
+     * of last successful optimize run time.
+     */
+    public static final String FLAG_ENABLE_CALCULATE_TIME_SINCE_LAST_ATTEMPTED_OPTIMIZE =
+            FLAG_PREFIX + "enable_calculate_time_since_last_attempted_optimize";
+
+    /** Enables qualified id join index v3. */
+    public static final String FLAG_ENABLE_QUALIFIED_ID_JOIN_INDEX_V3 =
+            FLAG_PREFIX + "enable_qualified_id_join_index_v3";
+
+    /** Enables soft index restoration. */
+    public static final String FLAG_ENABLE_SOFT_INDEX_RESTORATION =
+            FLAG_PREFIX + "enable_soft_index_restoration";
+
+    /** Enables marker file creation for Optimize API. */
+    public static final String FLAG_ENABLE_MARKER_FILE_FOR_OPTIMIZE =
+            FLAG_PREFIX + "enable_marker_file_for_optimize";
+
+    /**
+     * Enables releasing the backup schema file instance in the schema store if the overlay schema
+     * instance exists.
+     */
+    public static final String FLAG_ENABLE_RELEASE_BACKUP_SCHEMA_FILE_IF_OVERLAY_PRESENT =
+            FLAG_PREFIX + "enable_release_backup_schema_file_if_overlay_present";
+
+    /** Enables retrieving embedding match snippet information. This affects */
+    public static final String FLAG_ENABLE_EMBEDDING_MATCH_INFO =
+            FLAG_PREFIX + "enable_embedding_match_info";
+
+    /** Enables to query visibility documents rather than get. */
+    public static final String FLAG_ENABLE_QUERY_VISIBILITY_DOCUMENTS =
+            FLAG_PREFIX + "enable_query_visibility_documents";
+
+    /** Enables strict byte size enforcement on a result page. */
+    public static final String FLAG_ENABLE_STRICT_PAGE_BYTE_SIZE_LIMIT =
+            FLAG_PREFIX + "enable_strict_page_byte_size_limit";
+
+    /** Enables compression threshold. */
+    public static final String FLAG_ENABLE_COMPRESSION_THRESHOLD =
+            FLAG_PREFIX + "enable_compression_threshold";
+
+    /** Enables setting the gzip compression memlevel to 1. */
+    public static final String FLAG_ENABLE_COMPRESSION_MEM_LEVEL_ONE =
+            FLAG_PREFIX + "enable_compression_mem_level_one";
+
+    /** Enables gzip decompression buffer size memory optimization. */
+    public static final String FLAG_ENABLE_SMALLER_DECOMPRESSION_BUFFER_SIZE =
+            FLAG_PREFIX + "enable_smaller_decompression_buffer_size";
+
+    /** Enables {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED}. */
+    public static final String FLAG_ENABLE_RESULT_ABORTED =
+            FLAG_PREFIX + "enable_result_aborted";
+
+    /** Enables {@link androidx.appsearch.app.AppSearchResult#RESULT_UNAVAILABLE}. */
+    public static final String FLAG_ENABLE_RESULT_UNAVAILABLE =
+            FLAG_PREFIX + "enable_result_unavailable";
+
+    /**
+     * Enables throwing {@link androidx.appsearch.exceptions.AppSearchException} with code
+     * {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED} if the search result page token
+     * is not found in native.
+     */
+    public static final String FLAG_ENABLE_THROW_EXCEPTION_FOR_NATIVE_NOT_FOUND_PAGE_TOKEN =
+            FLAG_PREFIX + "enable_throw_exception_for_native_not_found_page_token";
+
+    /**
+     * Enable database-scoped set and get schema operations for AppSearch internal impl. This
+     * allows AppSearchImpl to set and get the schema for a single package-database combo at a time.
+     */
+    public static final String FLAG_ENABLE_DATABASE_SCOPED_SCHEMA_OPERATIONS =
+            FLAG_PREFIX + "enable_database_scoped_schema_operations";
+
+    /** Enables the Eigen library for embedding scoring, if Eigen is compiled in. */
+    public static final String FLAG_ENABLE_EIGEN_EMBEDDING_SCORING =
+            FLAG_PREFIX + "enable_eigen_embedding_scoring";
+
+    /**
+     * Enable retrying the critical section of initialization before resetting as a last resort.
+     */
+    public static final String FLAG_ENABLE_INITIALIZATION_RETRIES_BEFORE_RESET =
+            FLAG_PREFIX + "enable_initialization_retries_before_reset";
+
+    /** Enable reset visibility store during initialization. */
+    public static final String FLAG_ENABLE_RESET_VISIBILITY_STORE =
+            FLAG_PREFIX + "enable_reset_visibility_store";
 
     // Whether the features should be enabled.
     //
@@ -324,8 +417,13 @@ public final class Flags {
         return true;
     }
 
-    /**  Whether {@link androidx.appsearch.app.AppSearchBlobHandle} should be enabled. */
+    /** Whether {@link androidx.appsearch.app.AppSearchBlobHandle} should be enabled. */
     public static boolean enableBlobStore() {
+        return true;
+    }
+
+    /** Whether AppSearch manages blob files. */
+    public static boolean enableAppSearchManageBlobFiles() {
         return true;
     }
 
@@ -355,7 +453,9 @@ public final class Flags {
      * limit or should call into Icing to get the current active document count when the limit is
      * reached.
      */
-    public static boolean enableDocumentLimiterReplaceTracking() { return true; }
+    public static boolean enableDocumentLimiterReplaceTracking() {
+        return true;
+    }
 
     /**
      * Whether the {@link androidx.appsearch.app.SearchSpec.Builder#addFilterDocumentIds} should be
@@ -379,8 +479,148 @@ public final class Flags {
         return true;
     }
 
-    /** Whether delete propagation related APIs should be enabled. */
+    /**
+     * Whether delete propagation related APIs should be enabled.
+     *
+     * <p>Note: delete propagation depends on qualified id join index v3, so
+     * {@link #enableQualifiedIdJoinIndexV3()} should also be true.
+     */
     public static boolean enableDeletePropagationType() {
+        // TODO(b/384947619): enable this flag once expiry propagation and dependency check are
+        //   implemented.
+        return false;
+    }
+
+    /**
+     * Whether to calculate time since last optimize using last attempted optimize run time instead
+     * of last successful optimize run time.
+     */
+    public static boolean enableCalculateTimeSinceLastAttemptedOptimize() {
+        return true;
+    }
+
+    /** Whether qualified id join index v3 should be enabled. */
+    public static boolean enableQualifiedIdJoinIndexV3() {
+        return true;
+    }
+
+    /** Whether soft index restoration should be enabled. */
+    public static boolean enableSoftIndexRestoration() {
+        return true;
+    }
+
+    /** Whether marker file creation for Optimize API should be enabled. */
+    public static boolean enableMarkerFileForOptimize() {
+        return true;
+    }
+
+    /**
+     * Whether to release the backup schema file instance in the schema store if the overlay schema
+     * instance exists.
+     */
+    public static boolean enableReleaseBackupSchemaFileIfOverlayPresent() {
+        return true;
+    }
+
+    /**
+     * Whether to enable retrieving embedding match info during snippetting.
+     */
+    public static boolean enableEmbeddingMatchInfo() {
+        return true;
+    }
+
+    /**
+     * Whether to query visibility documents rather than get.
+     */
+    public static boolean enableQueryVisibilityDocuments() {
+        return true;
+    }
+
+    /** Whether to enforce page byte size limit in a stricter way. */
+    public static boolean enableStrictPageByteSizeLimit() {
+        return true;
+    }
+
+    /**
+     * Whether to enable compression threshold.
+     */
+    public static boolean enableCompressionThreshold() {
+        return true;
+    }
+
+    /**
+     * Whether to use a compression memlevel of 1.
+     */
+    public static boolean enableCompressionMemLevelOne() {
+        return true;
+    }
+
+    /**
+     * Whether {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED} should be
+     * enabled.
+     */
+    public static boolean enableResultAborted() {
+        return true;
+    }
+
+    /**
+     * Whether {@link androidx.appsearch.app.AppSearchResult#RESULT_UNAVAILABLE} should be
+     * enabled.
+     */
+    public static boolean enableResultUnavailable() {
+        return true;
+    }
+
+    /**
+     * Whether {@link androidx.appsearch.exceptions.AppSearchException} with code
+     * {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED} should be thrown if the search
+     * result page token is not found in native.
+     */
+    public static boolean enableThrowExceptionForNativeNotFoundPageToken() {
+        return true;
+    }
+
+    /**
+     * Whether to batch put visibility documents.
+     */
+    public static boolean enableBatchPutVisibilityDocuments() {
+        return true;
+    }
+
+    /**
+     * Whether to enable database-scoped set and get schema operations for AppSearch internal impl.
+     */
+    public static boolean enableDatabaseScopedSchemaOperations() {
+        return true;
+    }
+
+    /**
+     * Whether to enable gzip decompression buffer memory optimization that uses a smaller buffer
+     * size.
+     */
+    public static boolean enableSmallerDecompressionBufferSize() {
+        return true;
+    }
+
+    /** Whether to enable the Eigen library for embedding scoring */
+    public static boolean enableEigenEmbeddingScoring() {
+        // The return value does not matter, since Jetpack does not have Eigen compiled in.
+        // Set it to false for clarity.
+        return false;
+    }
+
+    /**
+     * Whether to enable retrying the critical section of initialization before resetting as a
+     * last resort.
+     */
+    public static boolean enableInitializationRetriesBeforeReset() {
+        return true;
+    }
+
+    /**
+     * Whether to enable reset visibility store during initialization.
+     */
+    public static boolean enableResetVisibilityStore() {
         return true;
     }
 }

@@ -105,7 +105,7 @@ public class CardBehaviourTest {
             Card(
                 onClick = { clicked = true },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -124,7 +124,7 @@ public class CardBehaviourTest {
             Card(
                 onClick = { clicked = true },
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -142,7 +142,7 @@ public class CardBehaviourTest {
                 onClick = {},
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG),
-                role = Role.Button
+                role = Role.Button,
             ) {
                 TestImage()
             }
@@ -168,7 +168,7 @@ public class AppCardTest {
                 appName = {},
                 time = {},
                 title = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -190,7 +190,7 @@ public class AppCardTest {
                 time = {},
                 title = {},
                 enabled = false,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -215,7 +215,7 @@ public class TitleCardTest {
                 enabled = true,
                 time = {},
                 title = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -236,7 +236,7 @@ public class TitleCardTest {
                 enabled = false,
                 time = {},
                 title = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 TestImage()
             }
@@ -258,16 +258,12 @@ public class CardSizeTest {
                 100.dp +
                     CardDefaults.ContentPadding.calculateBottomPadding() +
                     CardDefaults.ContentPadding.calculateTopPadding(),
-            imageModifier = Modifier.requiredHeight(100.dp)
+            imageModifier = Modifier.requiredHeight(100.dp),
         )
 
     private fun verifyHeight(expectedHeight: Dp, imageModifier: Modifier = Modifier) {
         rule.verifyHeight(expectedHeight) {
-            Card(
-                onClick = {},
-            ) {
-                TestIcon(modifier = imageModifier)
-            }
+            Card(onClick = {}) { TestIcon(modifier = imageModifier) }
         }
     }
 }
@@ -277,19 +273,11 @@ public class CardColorTest {
 
     @Test
     public fun gives_enabled_default_colors(): Unit =
-        verifyColors(
-            CardStatus.Enabled,
-        ) {
-            MaterialTheme.colors.onSurfaceVariant
-        }
+        verifyColors(CardStatus.Enabled) { MaterialTheme.colors.onSurfaceVariant }
 
     @Test
     public fun gives_disabled_default_colors(): Unit =
-        verifyColors(
-            CardStatus.Disabled,
-        ) {
-            MaterialTheme.colors.onSurfaceVariant
-        }
+        verifyColors(CardStatus.Disabled) { MaterialTheme.colors.onSurfaceVariant }
 
     @Test
     public fun app_card_gives_default_colors() {
@@ -314,7 +302,7 @@ public class CardColorTest {
                     appName = { actualAppColor = LocalContentColor.current },
                     time = { actualTimeColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {
                     actualContentColor = LocalContentColor.current
                 }
@@ -346,7 +334,7 @@ public class CardColorTest {
                     onClick = {},
                     time = { actualTimeColor = LocalContentColor.current },
                     title = { actualTitleColor = LocalContentColor.current },
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 ) {
                     actualContentColor = LocalContentColor.current
                 }
@@ -370,7 +358,7 @@ public class CardColorTest {
                     onClick = {},
                     content = { actualContent = LocalContentColor.current },
                     enabled = status.enabled(),
-                    modifier = Modifier.testTag(TEST_TAG)
+                    modifier = Modifier.testTag(TEST_TAG),
                 )
             }
         }
@@ -392,7 +380,7 @@ public class CardFontTest {
                 onClick = {},
                 content = { actualTextStyle = LocalTextStyle.current },
                 enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
         assertEquals(expectedTextStyle, actualTextStyle)
@@ -420,7 +408,7 @@ public class CardFontTest {
                 appName = { actualAppTextStyle = LocalTextStyle.current },
                 time = { actualTimeTextStyle = LocalTextStyle.current },
                 title = { actualTitleTextStyle = LocalTextStyle.current },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actuaContentTextStyle = LocalTextStyle.current
             }
@@ -449,7 +437,7 @@ public class CardFontTest {
                 onClick = {},
                 time = { actualTimeTextStyle = LocalTextStyle.current },
                 title = { actualTitleTextStyle = LocalTextStyle.current },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             ) {
                 actuaContentTextStyle = LocalTextStyle.current
             }

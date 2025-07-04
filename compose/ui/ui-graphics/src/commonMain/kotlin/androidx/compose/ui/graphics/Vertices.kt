@@ -25,7 +25,7 @@ class Vertices(
     positions: List<Offset>,
     textureCoordinates: List<Offset>,
     colors: List<Color>,
-    indices: List<Int>
+    indices: List<Int>,
 ) /*extends NativeFieldWrapperClass2*/ {
 
     val positions: FloatArray

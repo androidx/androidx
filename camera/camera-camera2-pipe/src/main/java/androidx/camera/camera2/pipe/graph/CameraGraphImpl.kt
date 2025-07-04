@@ -67,7 +67,7 @@ constructor(
     private val audioRestrictionController: AudioRestrictionController,
     override val id: CameraGraphId,
     override val parameters: CameraGraphParametersImpl,
-    private val sessionLock: SessionLock
+    private val sessionLock: SessionLock,
 ) : CameraGraph {
     private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
     private val closed = atomic(false)
@@ -169,7 +169,7 @@ constructor(
 
     override fun <T> useSessionIn(
         scope: CoroutineScope,
-        action: suspend CoroutineScope.(CameraGraph.Session) -> T
+        action: suspend CoroutineScope.(CameraGraph.Session) -> T,
     ): Deferred<T> {
         return sessionLock.withTokenIn(scope) { token ->
             // Create and use the session
@@ -227,7 +227,7 @@ internal class SessionLock @Inject constructor() {
 
     internal fun <T> withTokenIn(
         scope: CoroutineScope,
-        action: suspend (token: Token) -> T
+        action: suspend (token: Token) -> T,
     ): Deferred<T> {
         // https://github.com/Kotlin/kotlinx.coroutines/issues/1578
         // To handle `runBlocking` we need to use `job.complete()` in `result.invokeOnCompletion`.

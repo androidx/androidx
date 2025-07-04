@@ -43,7 +43,7 @@ import testCodeGenScope
 class BasicColumnTypeAdaptersTest(
     val input: XTypeName,
     val bindCode: String,
-    val readCode: String
+    val readCode: String,
 ) {
     companion object {
 
@@ -54,44 +54,44 @@ class BasicColumnTypeAdaptersTest(
                 arrayOf(
                     XTypeName.PRIMITIVE_INT,
                     "st.bindLong(6, inp);",
-                    "out = (int) (readSt.getLong(9));"
+                    "out = (int) (readSt.getLong(9));",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_BYTE,
                     "st.bindLong(6, inp);",
-                    "out = (byte) (readSt.getLong(9));"
+                    "out = (byte) (readSt.getLong(9));",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_SHORT,
                     "st.bindLong(6, inp);",
-                    "out = (short) (readSt.getLong(9));"
+                    "out = (short) (readSt.getLong(9));",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_LONG,
                     "st.bindLong(6, inp);",
-                    "out = readSt.getLong(9);"
+                    "out = readSt.getLong(9);",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_CHAR,
                     "st.bindLong(6, inp);",
-                    "out = (char) (readSt.getLong(9));"
+                    "out = (char) (readSt.getLong(9));",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_FLOAT,
                     "st.bindDouble(6, inp);",
-                    "out = (float) (readSt.getDouble(9));"
+                    "out = (float) (readSt.getDouble(9));",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_DOUBLE,
                     "st.bindDouble(6, inp);",
-                    "out = readSt.getDouble(9);"
+                    "out = readSt.getDouble(9);",
                 ),
                 arrayOf(CommonTypeNames.STRING, "st.bindText(6, inp);", "out = readSt.getText(9);"),
                 arrayOf(
                     XTypeName.getArrayName(XTypeName.PRIMITIVE_BYTE),
                     "st.bindBlob(6, inp);",
-                    "out = readSt.getBlob(9);"
-                )
+                    "out = readSt.getBlob(9);",
+                ),
             )
         }
     }
@@ -104,12 +104,12 @@ class BasicColumnTypeAdaptersTest(
             val adapter =
                 TypeAdapterStore.create(
                         Context(invocation.processingEnv),
-                        BuiltInConverterFlags.DEFAULT
+                        BuiltInConverterFlags.DEFAULT,
                     )
                     .findColumnTypeAdapter(
                         out = type,
                         affinity = null,
-                        skipDefaultConverter = false
+                        skipDefaultConverter = false,
                     )!!
             val expected =
                 if (invocation.isKsp || input.isPrimitive) {
@@ -138,12 +138,12 @@ class BasicColumnTypeAdaptersTest(
             val adapter =
                 TypeAdapterStore.create(
                         Context(invocation.processingEnv),
-                        BuiltInConverterFlags.DEFAULT
+                        BuiltInConverterFlags.DEFAULT,
                     )
                     .findColumnTypeAdapter(
                         out = boxedType,
                         affinity = null,
-                        skipDefaultConverter = false
+                        skipDefaultConverter = false,
                     )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             val expected =
@@ -172,12 +172,12 @@ class BasicColumnTypeAdaptersTest(
             val adapter =
                 TypeAdapterStore.create(
                         Context(invocation.processingEnv),
-                        BuiltInConverterFlags.DEFAULT
+                        BuiltInConverterFlags.DEFAULT,
                     )
                     .findColumnTypeAdapter(
                         out = nullableType,
                         affinity = null,
-                        skipDefaultConverter = false
+                        skipDefaultConverter = false,
                     )!!
             adapter.bindToStmt("st", "6", "inp", scope)
             assertThat(
@@ -191,7 +191,7 @@ class BasicColumnTypeAdaptersTest(
                     }
                     """
                         .trimIndent()
-                )
+                ),
             )
             generateCode(invocation, scope, nullableType)
         }
@@ -210,7 +210,7 @@ class BasicColumnTypeAdaptersTest(
                             name = "st",
                             typeName = SQLiteDriverTypeNames.STATEMENT,
                             visibility = VisibilityModifier.PUBLIC,
-                            isMutable = true
+                            isMutable = true,
                         )
                         .build()
                 )
@@ -219,7 +219,7 @@ class BasicColumnTypeAdaptersTest(
                             name = "readSt",
                             typeName = SQLiteDriverTypeNames.STATEMENT,
                             visibility = VisibilityModifier.PUBLIC,
-                            isMutable = true
+                            isMutable = true,
                         )
                         .build()
                 )
@@ -228,7 +228,7 @@ class BasicColumnTypeAdaptersTest(
                             name = "out",
                             typeName = type.asTypeName(),
                             visibility = VisibilityModifier.PUBLIC,
-                            isMutable = true
+                            isMutable = true,
                         )
                         .build()
                 )
@@ -237,7 +237,7 @@ class BasicColumnTypeAdaptersTest(
                             name = "inp",
                             typeName = type.asTypeName(),
                             visibility = VisibilityModifier.PUBLIC,
-                            isMutable = true
+                            isMutable = true,
                         )
                         .build()
                 )
@@ -259,12 +259,12 @@ class BasicColumnTypeAdaptersTest(
             val adapter =
                 TypeAdapterStore.create(
                         Context(invocation.processingEnv),
-                        BuiltInConverterFlags.DEFAULT
+                        BuiltInConverterFlags.DEFAULT,
                     )
                     .findColumnTypeAdapter(
                         out = type,
                         affinity = null,
-                        skipDefaultConverter = false
+                        skipDefaultConverter = false,
                     )!!
             val expected =
                 if (invocation.isKsp || input.isPrimitive) {
@@ -293,12 +293,12 @@ class BasicColumnTypeAdaptersTest(
             val adapter =
                 TypeAdapterStore.create(
                         Context(invocation.processingEnv),
-                        BuiltInConverterFlags.DEFAULT
+                        BuiltInConverterFlags.DEFAULT,
                     )
                     .findColumnTypeAdapter(
                         out = boxedType,
                         affinity = null,
-                        skipDefaultConverter = false
+                        skipDefaultConverter = false,
                     )!!
             adapter.readFromStatement("out", "readSt", "9", scope)
             val expected =
@@ -327,7 +327,7 @@ class BasicColumnTypeAdaptersTest(
             val adapter =
                 TypeAdapterStore.create(
                         Context(invocation.processingEnv),
-                        BuiltInConverterFlags.DEFAULT
+                        BuiltInConverterFlags.DEFAULT,
                     )
                     .findColumnTypeAdapter(nullableType, null, false)!!
             adapter.readFromStatement("out", "readSt", "9", scope)
@@ -342,7 +342,7 @@ class BasicColumnTypeAdaptersTest(
                     }
                     """
                         .trimIndent()
-                )
+                ),
             )
             generateCode(invocation, scope, nullableType)
         }

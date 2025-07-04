@@ -24,9 +24,10 @@ import java.time.Instant
  * @param start The start time of the time interval
  * @param end The end time of the time interval
  */
+@Suppress("DataClassDefinition")
 public data class TimeInterval(
     val start: Instant = Instant.ofEpochMilli(0),
-    val end: Instant = Instant.ofEpochMilli(Long.MAX_VALUE)
+    val end: Instant = Instant.ofEpochMilli(Long.MAX_VALUE),
 ) {
     init {
         require(end > start) { "End time shall come after start time to form a valid interval" }
@@ -47,7 +48,7 @@ public sealed interface TimelineMode {
      *
      * @param timeIntervals Used to build the list of time intervals, the list must not be empty.
      */
-    public class TimeBoundEntries(val timeIntervals: Set<TimeInterval>) : TimelineMode {
+    public class TimeBoundEntries(public val timeIntervals: Set<TimeInterval>) : TimelineMode {
         init {
             require(timeIntervals.isNotEmpty()) { "The set of time intervals cannot be empty" }
         }

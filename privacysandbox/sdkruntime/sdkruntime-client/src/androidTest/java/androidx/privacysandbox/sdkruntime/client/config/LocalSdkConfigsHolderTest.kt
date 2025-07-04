@@ -32,7 +32,7 @@ class LocalSdkConfigsHolderTest {
         val configHolder =
             LocalSdkConfigsHolder.load(
                 ApplicationProvider.getApplicationContext(),
-                sdkTableAssetName = "not-exists"
+                sdkTableAssetName = "not-exists",
             )
         val result = configHolder.getSdkConfig("sdk")
         assertThat(result).isNull()

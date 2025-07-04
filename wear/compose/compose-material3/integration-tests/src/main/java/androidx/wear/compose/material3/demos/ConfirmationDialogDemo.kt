@@ -35,7 +35,7 @@ import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.confirmationCurvedText
+import androidx.wear.compose.material3.confirmationDialogCurvedText
 import androidx.wear.compose.material3.samples.ConfirmationDialogSample
 import androidx.wear.compose.material3.samples.FailureConfirmationDialogSample
 import androidx.wear.compose.material3.samples.LongTextConfirmationDialogSample
@@ -59,20 +59,20 @@ fun ConfirmationWithoutText() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Show Confirmation") }
+            label = { Text("Show Confirmation") },
         )
     }
 
     ConfirmationDialog(
         visible = showConfirmation,
         onDismissRequest = { showConfirmation = false },
-        curvedText = null
+        curvedText = null,
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
             contentDescription = null,
             modifier = Modifier.size(ConfirmationDialogDefaults.IconSize),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -85,7 +85,7 @@ fun ConfirmationWithCustomColors() {
         FilledTonalButton(
             modifier = Modifier.align(Alignment.Center),
             onClick = { showConfirmation = true },
-            label = { Text("Show Confirmation") }
+            label = { Text("Show Confirmation") },
         )
     }
 
@@ -97,9 +97,9 @@ fun ConfirmationWithCustomColors() {
             ConfirmationDialogDefaults.colors(
                 iconColor = MaterialTheme.colorScheme.tertiary,
                 iconContainerColor = MaterialTheme.colorScheme.onTertiary,
-                textColor = MaterialTheme.colorScheme.onSurfaceVariant
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
-        curvedText = { confirmationCurvedText("Custom confirmation", curvedTextStyle) }
+        curvedText = { confirmationDialogCurvedText("Custom confirmation", curvedTextStyle) },
     ) {
         Icon(
             imageVector = Icons.Filled.Add,

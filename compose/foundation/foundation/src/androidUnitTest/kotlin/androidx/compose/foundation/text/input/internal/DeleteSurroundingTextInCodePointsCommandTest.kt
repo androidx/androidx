@@ -247,7 +247,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
             assertFailsWith<IllegalArgumentException> {
                 imeScope.deleteSurroundingTextInCodePoints(
                     lengthBeforeCursor = 0,
-                    lengthAfterCursor = -42
+                    lengthAfterCursor = -42,
                 )
             }
         assertThat(error).hasMessageThat().contains("-42")
@@ -260,7 +260,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
             assertFailsWith<IllegalArgumentException> {
                 imeScope.deleteSurroundingTextInCodePoints(
                     lengthBeforeCursor = -42,
-                    lengthAfterCursor = 0
+                    lengthAfterCursor = 0,
                 )
             }
         assertThat(error).hasMessageThat().contains("-42")
@@ -275,7 +275,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
 
         imeScope.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = 0,
-            lengthAfterCursor = Int.MAX_VALUE
+            lengthAfterCursor = Int.MAX_VALUE,
         )
 
         assertThat(state.text.toString()).isEqualTo(textAfterDelete)
@@ -291,7 +291,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
 
         imeScope.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE,
-            lengthAfterCursor = 0
+            lengthAfterCursor = 0,
         )
 
         assertThat(state.text.toString()).isEqualTo("bcde")
@@ -307,7 +307,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
 
         imeScope.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE,
-            lengthAfterCursor = Int.MAX_VALUE
+            lengthAfterCursor = Int.MAX_VALUE,
         )
 
         assertThat(state.text.toString()).isEqualTo("")
@@ -323,7 +323,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
 
         imeScope.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE,
-            lengthAfterCursor = Int.MAX_VALUE
+            lengthAfterCursor = Int.MAX_VALUE,
         )
 
         assertThat(state.text.toString()).isEqualTo("")
@@ -340,7 +340,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
 
         imeScope.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = 0,
-            lengthAfterCursor = Int.MAX_VALUE - 1
+            lengthAfterCursor = Int.MAX_VALUE - 1,
         )
 
         assertThat(state.text.toString()).isEqualTo(textAfterDelete)
@@ -356,7 +356,7 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
 
         imeScope.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE - 1,
-            lengthAfterCursor = 0
+            lengthAfterCursor = 0,
         )
 
         assertThat(state.text.toString()).isEqualTo("bcde")

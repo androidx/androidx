@@ -260,7 +260,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlag.SubGridByColRow
+                gridFlags = GridFlag.SubGridByColRow,
             )
         }
         var leftX = 0.dp
@@ -556,7 +556,7 @@ class GridDslTest {
                         gridColumnWeights = floatArrayOf(),
                         boxesCount = 1,
                         isHorizontalArrangement = true,
-                        gridFlags = GridFlag.None
+                        gridFlags = GridFlag.None,
                     )
                 }
             }
@@ -580,7 +580,7 @@ class GridDslTest {
                         gridColumnWeights = FloatArray(columnCount + 1) { it.toFloat() },
                         boxesCount = 1,
                         isHorizontalArrangement = true,
-                        gridFlags = GridFlag.None
+                        gridFlags = GridFlag.None,
                     )
                 }
             }
@@ -652,7 +652,7 @@ class GridDslTest {
                     height = Dimension.matchParent
                 }
             },
-            modifier = modifier
+            modifier = modifier,
         ) {
             val ids = (0 until boxesCount).map { "box$it" }.toTypedArray()
             ids.forEach { id -> Box(Modifier.layoutTestId(id).background(Color.Red).size(10.dp)) }
@@ -660,11 +660,7 @@ class GridDslTest {
     }
 
     @Composable
-    private fun gridComposableGapTest(
-        modifier: Modifier = Modifier,
-        vGap: Int,
-        hGap: Int,
-    ) {
+    private fun gridComposableGapTest(modifier: Modifier = Modifier, vGap: Int, hGap: Int) {
         ConstraintLayout(
             ConstraintSet {
                 val a = createRefFor("box0")

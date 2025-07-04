@@ -73,18 +73,18 @@ fun PerfettoTrace.Companion.record(
      */
     traceCallback: ((PerfettoTrace) -> Unit)? = null,
     /** Block to be traced. */
-    block: () -> Unit
+    block: () -> Unit,
 ) =
     record(
         fileLabel = fileLabel,
         config =
             PerfettoConfig.Benchmark(
                 appTagPackages = appTagPackages,
-                useStackSamplingConfig = true
+                useStackSamplingConfig = true,
             ),
         userspaceTracingPackage = userspaceTracingPackage,
         traceCallback = traceCallback,
-        block = block
+        block = block,
     )
 
 /**
@@ -140,7 +140,7 @@ fun PerfettoTrace.Companion.record(
      */
     traceCallback: ((PerfettoTrace) -> Unit)? = null,
     /** Block to be traced. */
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     PerfettoCaptureWrapper()
         .record(
@@ -156,11 +156,11 @@ fun PerfettoTrace.Companion.record(
                         UiState(
                             timelineStart = null,
                             timelineEnd = null,
-                            highlightPackage = highlightPackage
+                            highlightPackage = highlightPackage,
                         )
                     )
                 traceCallback?.invoke(PerfettoTrace(path))
             },
-            block = block
+            block = block,
         )
 }

@@ -82,7 +82,7 @@ internal class TextDelegate(
     val overflow: TextOverflow = TextOverflow.Clip,
     val density: Density,
     val fontFamilyResolver: FontFamily.Resolver,
-    val placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList()
+    val placeholders: List<AnnotatedString.Range<Placeholder>> = emptyList(),
 ) {
     /*@VisibleForTesting*/
     // NOTE(text-perf-review): it seems like TextDelegate essentially guarantees that we use
@@ -132,7 +132,7 @@ internal class TextDelegate(
                     style = resolveDefaults(style, layoutDirection),
                     density = density,
                     fontFamilyResolver = fontFamilyResolver,
-                    placeholders = placeholders
+                    placeholders = placeholders,
                 )
             } else {
                 localIntrinsics
@@ -149,7 +149,7 @@ internal class TextDelegate(
      */
     private fun layoutText(
         constraints: Constraints,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ): MultiParagraph {
         layoutIntrinsics(layoutDirection)
 
@@ -202,18 +202,18 @@ internal class TextDelegate(
                     minWidth = 0,
                     maxWidth = width,
                     minHeight = 0,
-                    maxHeight = constraints.maxHeight
+                    maxHeight = constraints.maxHeight,
                 ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines,
-            overflow = overflow
+            overflow = overflow,
         )
     }
 
     fun layout(
         constraints: Constraints,
         layoutDirection: LayoutDirection,
-        prevResult: TextLayoutResult? = null
+        prevResult: TextLayoutResult? = null,
     ): TextLayoutResult {
         if (
             prevResult != null &&
@@ -227,7 +227,7 @@ internal class TextDelegate(
                     density,
                     layoutDirection,
                     fontFamilyResolver,
-                    constraints
+                    constraints,
                 )
         ) {
             // NOTE(text-perf-review): seems like there's a nontrivial chance for us to be able
@@ -245,15 +245,15 @@ internal class TextDelegate(
                             layoutInput.density,
                             layoutInput.layoutDirection,
                             layoutInput.fontFamilyResolver,
-                            constraints
+                            constraints,
                         ),
                     size =
                         constraints.constrain(
                             IntSize(
                                 multiParagraph.width.ceilToIntPx(),
-                                multiParagraph.height.ceilToIntPx()
+                                multiParagraph.height.ceilToIntPx(),
                             )
-                        )
+                        ),
                 )
             }
         }
@@ -280,10 +280,10 @@ internal class TextDelegate(
                 density,
                 layoutDirection,
                 fontFamilyResolver,
-                constraints
+                constraints,
             ),
             multiParagraph,
-            size
+            size,
         )
     }
 
@@ -323,7 +323,7 @@ internal fun updateTextDelegate(
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     minLines: Int = DefaultMinLines,
-    placeholders: List<AnnotatedString.Range<Placeholder>>
+    placeholders: List<AnnotatedString.Range<Placeholder>>,
 ): TextDelegate {
     // NOTE(text-perf-review): whenever we have remember intrinsic implemented, this might be a
     // lot slower than the equivalent `remember(a, b, c, ...) { ... }` call.

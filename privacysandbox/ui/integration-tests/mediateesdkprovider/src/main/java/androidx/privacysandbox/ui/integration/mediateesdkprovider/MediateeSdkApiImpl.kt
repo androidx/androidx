@@ -18,15 +18,25 @@ package androidx.privacysandbox.ui.integration.mediateesdkprovider
 
 import android.content.Context
 import android.os.Bundle
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdFormat
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 
 class MediateeSdkApiImpl(private val sdkContext: Context) : IMediateeSdkApi {
-    override suspend fun loadBannerAd(
+    override suspend fun loadAd(
+        @AdFormat adFormat: Int,
         @AdType adType: Int,
         waitInsideOnDraw: Boolean,
-        drawViewability: Boolean
+        drawViewability: Boolean,
+        automatedTestCallbackBundle: Bundle,
     ): Bundle {
         return androidx.privacysandbox.ui.integration.sdkproviderutils.MediateeSdkApiImpl
-            .loadBannerAdUtil(adType, waitInsideOnDraw, drawViewability, sdkContext)
+            .loadAdUtil(
+                adFormat,
+                adType,
+                waitInsideOnDraw,
+                drawViewability,
+                sdkContext,
+                automatedTestCallbackBundle,
+            )
     }
 }

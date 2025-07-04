@@ -53,7 +53,7 @@ internal class JavacConstructorElement(env: JavacProcessingEnv, element: Executa
                 enclosingElement = this,
                 element = variable,
                 kotlinMetadataFactory = { kotlinMetadata?.parameters?.getOrNull(index) },
-                argIndex = index
+                argIndex = index,
             )
         }
     }
@@ -62,7 +62,7 @@ internal class JavacConstructorElement(env: JavacProcessingEnv, element: Executa
         JavacConstructorType(
             env = env,
             element = this,
-            executableType = MoreTypes.asExecutable(element.asType())
+            executableType = MoreTypes.asExecutable(element.asType()),
         )
     }
 
@@ -74,7 +74,7 @@ internal class JavacConstructorElement(env: JavacProcessingEnv, element: Executa
             JavacConstructorType(
                 env = env,
                 element = this,
-                executableType = MoreTypes.asExecutable(asMemberOf)
+                executableType = MoreTypes.asExecutable(asMemberOf),
             )
         }
     }

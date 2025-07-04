@@ -60,7 +60,7 @@ fun ExplicitEnterExitWithCustomFocusEnterExitDemo() {
                 }
                 row.requestFocus()
             },
-            modifier = Modifier.focusRequester(top)
+            modifier = Modifier.focusRequester(top),
         ) {
             Text("Top Button")
         }

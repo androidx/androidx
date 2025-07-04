@@ -29,7 +29,7 @@ fun UiState(timelineStart: Long? = null, timelineEnd: Long? = null, highlightPac
         timeline_start_ts = timelineStart,
         timeline_end_ts = timelineEnd,
         highlight_process =
-            highlightPackage?.run { UiState.HighlightProcess(cmdline = highlightPackage) }
+            highlightPackage?.run { UiState.HighlightProcess(cmdline = highlightPackage) },
     )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

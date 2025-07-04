@@ -32,7 +32,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class RoomIncrementalAnnotationProcessingTest(
     private val withIncrementalRoom: Boolean,
-    private val useKsp: Boolean
+    private val useKsp: Boolean,
 ) {
 
     companion object {
@@ -318,7 +318,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 classGenDatabase1,
                 classGenDao1,
                 classGenDatabase2,
-                classGenDao2
+                classGenDao2,
             )
 
         val map = mutableMapOf<File, Long>()
@@ -390,7 +390,7 @@ class RoomIncrementalAnnotationProcessingTest(
             classGenDatabase1,
             classGenDao1,
             classGenDatabase2,
-            classGenDao2
+            classGenDao2,
         )
     }
 
@@ -414,7 +414,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 mName = name;
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
 
         val result = runIncrementalBuild()
@@ -448,7 +448,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 classSrcDao2,
                 classSrcEntity2,
                 classGenDatabase2,
-                classGenDao2
+                classGenDao2,
             )
         } else {
             assertChangedFiles(
@@ -461,7 +461,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 classSrcDao2,
                 classSrcEntity2,
                 classGenDatabase2,
-                classGenDao2
+                classGenDao2,
             )
         }
     }
@@ -494,7 +494,7 @@ class RoomIncrementalAnnotationProcessingTest(
                 genSchema1,
                 genDatabase2,
                 genDao2,
-                genSchema2
+                genSchema2,
             )
         } else {
             assertDeletedFiles(genDatabase1, genDao1)
@@ -515,14 +515,14 @@ class RoomIncrementalAnnotationProcessingTest(
                 classSrcDao1,
                 classSrcEntity1,
                 classGenDatabase1,
-                classGenDao1
+                classGenDao1,
             )
             assertUnchangedFiles(
                 classSrcDatabase2,
                 classSrcDao2,
                 classSrcEntity2,
                 classGenDatabase2,
-                classGenDao2
+                classGenDao2,
             )
         } else {
             assertDeletedFiles(
@@ -530,14 +530,14 @@ class RoomIncrementalAnnotationProcessingTest(
                 classSrcDao1,
                 classSrcEntity1,
                 classGenDatabase1,
-                classGenDao1
+                classGenDao1,
             )
             assertChangedFiles(
                 classSrcDatabase2,
                 classSrcDao2,
                 classSrcEntity2,
                 classGenDatabase2,
-                classGenDao2
+                classGenDao2,
             )
         }
     }

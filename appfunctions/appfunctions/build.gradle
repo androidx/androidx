@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    // Public dependencies
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation("androidx.appsearch:appsearch:1.1.0-rc01")
+    implementation("androidx.appsearch:appsearch-platform-storage:1.1.0-rc01")
+    implementation(libs.kotlinCoroutinesGuava) {
+        exclude group: "com.google.guava", module: "guava"
+    }
+    // Manually specify the dependency on kotlinMetadataJvm due to missing prebuilt for appsearch
+    // compiler.
+    kapt(libs.kotlinMetadataJvm)
+    kapt("androidx.appsearch:appsearch-compiler:1.1.0-rc01")
+
+    // Compiler dependencies
+    // TODO(b/413622177): Enable KSP on appfunctions module to generate proxy factory.
+    // ksp(project(":appfunctions:appfunctions-compiler"))
+
+    // Internal dependencies
+    implementation("androidx.annotation:annotation:1.8.1")
+
+    // Compile only dependencies
+    compileOnly(project(":appfunctions:appfunctions-stubs"))
+
+    // Test dependencies
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.testMonitor)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.testRunner)
+    testImplementation(project(":appfunctions:appfunctions-stubs"))
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.testCore)
+    testImplementation(libs.kotlinTest)
+
+    // Test dependencies
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testParameterInjector)
+    androidTestCompileOnly(project(":appfunctions:appfunctions-stubs"))
+    androidTestImplementation(libs.kotlinTest)
+}
+
+// Restricts AppSearch generated code to library to avoid it surfacing in public API.
+kapt {
+    arguments {
+        arg("AppSearchCompiler.RestrictGeneratedCodeToLib", "true")
+    }
+}
+
+android {
+    compileSdk = 36
+    buildTypes.configureEach {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+    namespace = "androidx.appfunctions"
+}
+
+androidx {
+    name = "androidx.appfunctions:appfunctions"
+    type = SoftwareType.PUBLISHED_LIBRARY
+    inceptionYear = "2024"
+    description = "Provides the core functionality to use AppFunctions."
+    enableRobolectric()
+}

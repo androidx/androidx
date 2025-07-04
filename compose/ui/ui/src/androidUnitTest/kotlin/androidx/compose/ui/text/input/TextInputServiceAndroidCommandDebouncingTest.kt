@@ -48,7 +48,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
             view,
             mock(),
             inputMethodManager,
-            inputCommandProcessorExecutor = executor
+            inputCommandProcessorExecutor = executor,
         )
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher + Job())
@@ -296,7 +296,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
             TextFieldValue(),
             ImeOptions.Default,
             onEditCommand = {},
-            onImeActionPerformed = {}
+            onImeActionPerformed = {},
         )
     }
 
@@ -325,7 +325,7 @@ class TextInputServiceAndroidCommandDebouncingTest {
             selectionStart: Int,
             selectionEnd: Int,
             compositionStart: Int,
-            compositionEnd: Int
+            compositionEnd: Int,
         ) {}
 
         override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}

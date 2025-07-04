@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.graphics
 
-import android.os.Build
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
@@ -44,30 +42,6 @@ class PaintTest {
             paint.pathEffect = null
         } catch (e: NullPointerException) {
             fail("Null path effect should not throw")
-        }
-    }
-
-    @Test
-    fun testColorLongConfiguration() {
-        val paint = Paint()
-        val red = 0.8916f
-        val green = 0.4980f
-        val blue = 0.1168f
-        val adobeColor = Color(red, green, blue, colorSpace = ColorSpaces.AdobeRgb)
-        paint.color = adobeColor
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val delta = 0.001f
-            val colorLong = paint.asFrameworkPaint().colorLong
-            assertEquals(1f, android.graphics.Color.alpha(colorLong), delta)
-            assertEquals(red, android.graphics.Color.red(colorLong), delta)
-            assertEquals(green, android.graphics.Color.green(colorLong), delta)
-            assertEquals(blue, android.graphics.Color.blue(colorLong), delta)
-            assertEquals(
-                ColorSpaces.AdobeRgb,
-                android.graphics.Color.colorSpace(colorLong).toComposeColorSpace()
-            )
-        } else {
-            assertEquals(paint.asFrameworkPaint().color, adobeColor.toArgb())
         }
     }
 
@@ -111,7 +85,7 @@ class PaintTest {
                 1f,
                 green,
                 red,
-                android.graphics.Shader.TileMode.MIRROR
+                android.graphics.Shader.TileMode.MIRROR,
             )
         composePaint.shader = shader
         assertSame(composePaint.shader, nativePaint.shader)

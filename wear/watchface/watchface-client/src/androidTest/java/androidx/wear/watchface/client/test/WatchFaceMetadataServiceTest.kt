@@ -24,10 +24,10 @@ import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import android.os.Build
 import android.support.wearable.watchface.Constants
-import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.BoundingArc
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.client.WatchFaceMetadataClient
@@ -49,17 +49,17 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 public class WatchFaceMetadataServiceTest {
     private val exampleWatchFaceComponentName =
         ComponentName(
             "androidx.wear.watchface.client.test",
-            "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService"
+            "androidx.wear.watchface.samples.ExampleCanvasAnalogWatchFaceService",
         )
     private val nopCanvasWatchFaceServiceComponentName =
         ComponentName(
             "androidx.wear.watchface.client.test",
-            "androidx.wear.watchface.client.test.TestNopCanvasWatchFaceService"
+            "androidx.wear.watchface.client.test.TestNopCanvasWatchFaceService",
         )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -74,9 +74,9 @@ public class WatchFaceMetadataServiceTest {
             object : WatchFaceMetadataClient.Companion.ParserProvider() {
                 override fun getParser(
                     context: Context,
-                    watchFaceName: ComponentName
+                    watchFaceName: ComponentName,
                 ): XmlResourceParser? = null
-            }
+            },
         )
     }
 
@@ -156,7 +156,7 @@ public class WatchFaceMetadataServiceTest {
                 ComplicationType.LONG_TEXT,
                 ComplicationType.SHORT_TEXT,
                 ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
+                ComplicationType.SMALL_IMAGE,
             )
 
         val rightComplicationMetadata =
@@ -183,7 +183,7 @@ public class WatchFaceMetadataServiceTest {
                 ComplicationType.LONG_TEXT,
                 ComplicationType.SHORT_TEXT,
                 ComplicationType.MONOCHROMATIC_IMAGE,
-                ComplicationType.SMALL_IMAGE
+                ComplicationType.SMALL_IMAGE,
             )
     }
 
@@ -207,7 +207,7 @@ public class WatchFaceMetadataServiceTest {
                     object : WatchFaceMetadataClient.Companion.ParserProvider() {
                         override fun getParser(context: Context, watchFaceName: ComponentName) =
                             context.resources.getXml(R.xml.xml_watchface)
-                    }
+                    },
                 )
             val schema = client.getUserStyleSchema()
 
@@ -232,7 +232,7 @@ public class WatchFaceMetadataServiceTest {
                     object : WatchFaceMetadataClient.Companion.ParserProvider() {
                         override fun getParser(context: Context, watchFaceName: ComponentName) =
                             context.resources.getXml(R.xml.xml_watchface)
-                    }
+                    },
                 )
             val complications = client.getComplicationSlotMetadataMap()
 
@@ -245,7 +245,7 @@ public class WatchFaceMetadataServiceTest {
                 .containsExactly(
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.RANGED_VALUE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
                 )
 
             Truth.assertThat(complications[10]!!.defaultDataSourcePolicy.primaryDataSource)
@@ -384,7 +384,7 @@ public class WatchFaceMetadataServiceTest {
         Truth.assertThat(complications.keys)
             .containsExactly(
                 EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
+                EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
             )
 
         val left = complications[EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID]!!
@@ -413,7 +413,7 @@ public class WatchFaceMetadataServiceTest {
                 WatchFaceMetadataClient.isXmlVersionCompatible(
                     context,
                     context.resources,
-                    context.packageName
+                    context.packageName,
                 )
             )
             .isTrue()
@@ -422,7 +422,7 @@ public class WatchFaceMetadataServiceTest {
                     context,
                     context.resources,
                     context.packageName,
-                    OutdatedWatchFaceControlTestService::class.java.name
+                    OutdatedWatchFaceControlTestService::class.java.name,
                 )
             )
             .isFalse()
@@ -431,7 +431,7 @@ public class WatchFaceMetadataServiceTest {
                     context,
                     context.resources,
                     "non.existing.package",
-                    "non.existing.package.Service"
+                    "non.existing.package.Service",
                 )
             )
             .isFalse()

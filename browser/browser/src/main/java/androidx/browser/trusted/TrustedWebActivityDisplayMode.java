@@ -33,6 +33,10 @@ public interface TrustedWebActivityDisplayMode {
         switch (bundle.getInt(KEY_ID)) {
             case ImmersiveMode.ID:
                 return ImmersiveMode.fromBundle(bundle);
+            case BrowserMode.ID:
+                return new BrowserMode();
+            case MinimalUiMode.ID:
+                return new MinimalUiMode();
             case DefaultMode.ID: // fallthrough
             default:
                 return new DefaultMode();
@@ -119,6 +123,43 @@ public interface TrustedWebActivityDisplayMode {
         /** Returns the cutout mode. */
         public int layoutInDisplayCutoutMode() {
             return mLayoutInDisplayCutoutMode;
+        }
+    }
+
+
+    /**
+     * Browser Mode: Lets the browser determine the display mode - this may be a Trusted Web
+     * Activity or a browser tab.
+     *
+     * {@see https://www.w3.org/TR/appmanifest/#dfn-browser}
+     */
+    class BrowserMode implements TrustedWebActivityDisplayMode {
+
+        private static final int ID = 2;
+
+        @Override
+        public @NonNull Bundle toBundle() {
+            Bundle bundle = new Bundle();
+            bundle.putInt(KEY_ID, ID);
+            return bundle;
+        }
+    }
+
+    /**
+     * Minimal UI Mode: Hides away most controls that aren't essential for navigation like Back
+     * or Reload, and hides the toolbar if possible.
+     *
+     * {@see https://www.w3.org/TR/appmanifest/#dfn-minimal-ui}
+     */
+    class MinimalUiMode implements TrustedWebActivityDisplayMode {
+
+        private static final int ID = 3;
+
+        @Override
+        public @NonNull Bundle toBundle() {
+            Bundle bundle = new Bundle();
+            bundle.putInt(KEY_ID, ID);
+            return bundle;
         }
     }
 }

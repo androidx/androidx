@@ -25,7 +25,7 @@ sealed class OnPageChangeCallbackEvent {
     data class OnPageScrolledEvent(
         val position: Int,
         val positionOffset: Float,
-        val positionOffsetPixels: Int
+        val positionOffsetPixels: Int,
     ) : OnPageChangeCallbackEvent()
 
     data class OnPageSelectedEvent(val position: Int) : OnPageChangeCallbackEvent()

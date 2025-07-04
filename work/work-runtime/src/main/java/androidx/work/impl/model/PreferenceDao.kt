@@ -23,13 +23,14 @@ import androidx.room.Query
 
 /** A Data Access Object for accessing [Preference]s. */
 @Dao
-interface PreferenceDao {
+public interface PreferenceDao {
     /**
      * Inserts a [Preference] into the database.
      *
      * @param preference The [Preference] entity to be inserted into the database
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertPreference(preference: Preference)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public fun insertPreference(preference: Preference)
 
     /**
      * Fetches the value for the given [String] key.
@@ -38,7 +39,7 @@ interface PreferenceDao {
      * @return The value if present for the given [String] key
      */
     @Query("SELECT long_value FROM Preference where `key`=:key")
-    fun getLongValue(key: String): Long?
+    public fun getLongValue(key: String): Long?
 
     /**
      * Fetches a [LiveData] of [Long] for the given [String] key.
@@ -47,5 +48,5 @@ interface PreferenceDao {
      * @return The [LiveData] of [Long] if present for the given [String] key
      */
     @Query("SELECT long_value FROM Preference where `key`=:key")
-    fun getObservableLongValue(key: String): LiveData<Long?>
+    public fun getObservableLongValue(key: String): LiveData<Long?>
 }

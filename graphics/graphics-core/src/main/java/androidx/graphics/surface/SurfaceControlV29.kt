@@ -59,7 +59,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
     fun getPreviousReleaseFd(transactionStats: Long) =
         JniBindings.nGetPreviousReleaseFenceFd(
             surfaceControl.mNativeSurfaceControl,
-            transactionStats
+            transactionStats,
         )
 
     /** See [SurfaceControlWrapper.isValid] */
@@ -109,7 +109,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         private class BufferData(
             val width: Int,
             val height: Int,
-            val releaseCallback: ReleaseCallback?
+            val releaseCallback: ReleaseCallback?,
         )
 
         /** See [SurfaceControlWrapper.Transaction.commit] */
@@ -125,7 +125,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
             // store prev committed callbacks so we only need 1 onComplete callback
             data class CallbackEntry(
                 val surfaceControl: SurfaceControlV29,
-                val callback: ReleaseCallback?
+                val callback: ReleaseCallback?,
             )
             val callbackInvokeList = mutableListOf<CallbackEntry>()
 
@@ -186,7 +186,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
                             it.height,
                             dstWidth,
                             dstHeight,
-                            transformation
+                            transformation,
                         )
                     }
                 }
@@ -196,7 +196,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.setVisibility] */
         override fun setVisibility(
             surfaceControl: SurfaceControlImpl,
-            visible: Boolean
+            visible: Boolean,
         ): SurfaceControlImpl.Transaction {
             transaction.setVisibility(surfaceControl.asWrapperSurfaceControl(), visible)
             return this
@@ -205,11 +205,11 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.reparent] */
         override fun reparent(
             surfaceControl: SurfaceControlImpl,
-            newParent: SurfaceControlImpl?
+            newParent: SurfaceControlImpl?,
         ): SurfaceControlImpl.Transaction {
             transaction.reparent(
                 surfaceControl.asWrapperSurfaceControl(),
-                newParent?.asWrapperSurfaceControl()
+                newParent?.asWrapperSurfaceControl(),
             )
             return this
         }
@@ -219,7 +219,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
-            releaseCallback: ReleaseCallback?
+            releaseCallback: ReleaseCallback?,
         ): SurfaceControlImpl.Transaction {
             val previousEntry: BufferData? =
                 if (buffer != null) {
@@ -228,8 +228,8 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
                         BufferData(
                             width = buffer.width,
                             height = buffer.height,
-                            releaseCallback = releaseCallback
-                        )
+                            releaseCallback = releaseCallback,
+                        ),
                     )
                 } else {
                     uncommittedBufferCallbackMap.remove(surfaceControl)
@@ -246,7 +246,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
                 transaction.setBuffer(
                     surfaceControl.asWrapperSurfaceControl(),
                     targetBuffer,
-                    fence.asSyncFenceCompat()
+                    fence.asSyncFenceCompat(),
                 )
             }
 
@@ -256,7 +256,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.setLayer] */
         override fun setLayer(
             surfaceControl: SurfaceControlImpl,
-            z: Int
+            z: Int,
         ): SurfaceControlImpl.Transaction {
             transaction.setLayer(surfaceControl.asWrapperSurfaceControl(), z)
             return this
@@ -266,7 +266,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         @RequiresApi(Build.VERSION_CODES.S)
         override fun addTransactionCommittedListener(
             executor: Executor,
-            listener: SurfaceControlCompat.TransactionCommittedListener
+            listener: SurfaceControlCompat.TransactionCommittedListener,
         ): SurfaceControlImpl.Transaction {
             transaction.addTransactionCommittedListener(executor, listener)
             return this
@@ -283,7 +283,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.setDamageRegion] */
         override fun setDamageRegion(
             surfaceControl: SurfaceControlImpl,
-            region: Region?
+            region: Region?,
         ): SurfaceControlImpl.Transaction {
             transaction.setDamageRegion(surfaceControl.asWrapperSurfaceControl(), region)
             return this
@@ -292,7 +292,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.setOpaque] */
         override fun setOpaque(
             surfaceControl: SurfaceControlImpl,
-            isOpaque: Boolean
+            isOpaque: Boolean,
         ): SurfaceControlImpl.Transaction {
             transaction.setOpaque(surfaceControl.asWrapperSurfaceControl(), isOpaque)
             return this
@@ -301,7 +301,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.setAlpha] */
         override fun setAlpha(
             surfaceControl: SurfaceControlImpl,
-            alpha: Float
+            alpha: Float,
         ): SurfaceControlImpl.Transaction {
             transaction.setAlpha(surfaceControl.asWrapperSurfaceControl(), alpha)
             return this
@@ -311,7 +311,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         @RequiresApi(Build.VERSION_CODES.S)
         override fun setCrop(
             surfaceControl: SurfaceControlImpl,
-            crop: Rect?
+            crop: Rect?,
         ): SurfaceControlImpl.Transaction {
             transaction.setCrop(surfaceControl.asWrapperSurfaceControl(), crop)
             return this
@@ -322,7 +322,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         override fun setPosition(
             surfaceControl: SurfaceControlImpl,
             x: Float,
-            y: Float
+            y: Float,
         ): SurfaceControlImpl.Transaction {
             transaction.setPosition(surfaceControl.asWrapperSurfaceControl(), x, y)
             return this
@@ -333,7 +333,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         override fun setScale(
             surfaceControl: SurfaceControlImpl,
             scaleX: Float,
-            scaleY: Float
+            scaleY: Float,
         ): SurfaceControlImpl.Transaction {
             transaction.setScale(surfaceControl.asWrapperSurfaceControl(), scaleX, scaleY)
             return this
@@ -342,12 +342,12 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         /** See [SurfaceControlWrapper.Transaction.setBufferTransform] */
         override fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
-            @SurfaceControlCompat.Companion.BufferTransform transformation: Int
+            @SurfaceControlCompat.Companion.BufferTransform transformation: Int,
         ): Transaction {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 transaction.setBufferTransform(
                     surfaceControl.asWrapperSurfaceControl(),
-                    transformation
+                    transformation,
                 )
             } else {
                 pendingSetTransformCalls[surfaceControl] = transformation
@@ -360,7 +360,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         override fun setExtendedRangeBrightness(
             surfaceControl: SurfaceControlImpl,
             currentBufferRatio: Float,
-            desiredRatio: Float
+            desiredRatio: Float,
         ): SurfaceControlImpl.Transaction {
             throw UnsupportedOperationException(
                 "Configuring the extended range brightness is only available on Android U+"
@@ -371,7 +371,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun setDataSpace(
             surfaceControl: SurfaceControlImpl,
-            dataSpace: Int
+            dataSpace: Int,
         ): SurfaceControlImpl.Transaction {
             transaction.setDataSpace(surfaceControl.asWrapperSurfaceControl(), dataSpace)
             return this
@@ -382,13 +382,13 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
             scImpl: SurfaceControlImpl,
             frameRate: Float,
             compatibility: Int,
-            changeFrameRateStrategy: Int
+            changeFrameRateStrategy: Int,
         ): Transaction {
             transaction.setFrameRate(
                 scImpl.asWrapperSurfaceControl(),
                 frameRate,
                 compatibility,
-                changeFrameRateStrategy
+                changeFrameRateStrategy,
             )
             return this
         }
@@ -399,7 +399,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
                 scImpl,
                 0f,
                 FRAME_RATE_COMPATIBILITY_DEFAULT,
-                CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS,
             )
             return this
         }
@@ -411,7 +411,7 @@ internal constructor(internal val surfaceControl: SurfaceControlWrapper) : Surfa
 
         override fun reparent(
             surfaceControl: SurfaceControlImpl,
-            attachedSurfaceControl: AttachedSurfaceControl
+            attachedSurfaceControl: AttachedSurfaceControl,
         ): SurfaceControlImpl.Transaction {
             throw UnsupportedOperationException(
                 "Reparenting to an AttachedSurfaceControl is only available on Android T+."

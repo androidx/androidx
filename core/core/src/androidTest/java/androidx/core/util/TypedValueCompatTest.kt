@@ -56,7 +56,7 @@ class TypedValueCompatTest {
                 TypedValue.COMPLEX_UNIT_SP,
                 TypedValue.COMPLEX_UNIT_PT,
                 TypedValue.COMPLEX_UNIT_IN,
-                TypedValue.COMPLEX_UNIT_MM
+                TypedValue.COMPLEX_UNIT_MM,
             )
             .forEach { dimenType ->
                 assertThat(TypedValueCompat.deriveDimension(dimenType, 23f, metrics)).isEqualTo(0)
@@ -88,7 +88,7 @@ class TypedValueCompatTest {
                 TypedValue.COMPLEX_UNIT_SP,
                 TypedValue.COMPLEX_UNIT_PT,
                 TypedValue.COMPLEX_UNIT_IN,
-                TypedValue.COMPLEX_UNIT_MM
+                TypedValue.COMPLEX_UNIT_MM,
             )
             .forEach { dimenType ->
                 for (i: Int in -1000 until 1000) {
@@ -112,7 +112,7 @@ class TypedValueCompatTest {
                 TypedValue.COMPLEX_UNIT_SP,
                 TypedValue.COMPLEX_UNIT_PT,
                 TypedValue.COMPLEX_UNIT_IN,
-                TypedValue.COMPLEX_UNIT_MM
+                TypedValue.COMPLEX_UNIT_MM,
             )
             .forEach { dimenType ->
                 for (i: Int in -10000 until 10000) {
@@ -157,7 +157,7 @@ class TypedValueCompatTest {
                 dimenType,
                 dimenValueToTest,
                 actualPx,
-                actualDimenValue
+                actualDimenValue,
             )
             .that(dimenValueToTest)
             .isWithin(0.05f)

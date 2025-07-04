@@ -104,7 +104,7 @@ internal fun createCharSequence(
         spannableString.setLineHeight(
             lineHeight = contextTextStyle.lineHeight,
             contextFontSize = contextFontSize,
-            density = density
+            density = density,
         )
     } else {
         val lineHeightStyle = contextTextStyle.lineHeightStyle ?: LineHeightStyle.Default
@@ -126,7 +126,7 @@ internal fun createCharSequence(
         annotations,
         contextFontSize,
         density,
-        contextTextStyle.textIndent
+        contextTextStyle.textIndent,
     )
 
     spannableString.setPlaceholders(placeholders, density)

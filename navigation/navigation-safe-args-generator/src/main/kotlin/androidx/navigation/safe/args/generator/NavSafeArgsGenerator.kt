@@ -27,7 +27,7 @@ fun SafeArgsGenerator(
     navigationXml: File,
     outputDir: File,
     useAndroidX: Boolean = true,
-    generateKotlin: Boolean
+    generateKotlin: Boolean,
 ) =
     NavSafeArgsGenerator(
         rFilePackage,
@@ -38,7 +38,7 @@ fun SafeArgsGenerator(
             KotlinNavWriter(useAndroidX)
         } else {
             JavaNavWriter(useAndroidX)
-        }
+        },
     )
 
 class NavSafeArgsGenerator<T : CodeFile>
@@ -47,7 +47,7 @@ internal constructor(
     private val applicationId: String,
     private val navigationXml: File,
     private val outputDir: File,
-    private val writer: NavWriter<T>
+    private val writer: NavWriter<T>,
 ) {
     fun generate(): GeneratorOutput {
         val context = Context()
@@ -71,7 +71,7 @@ internal constructor(
                     destination = nestedDestination,
                     parentDirectionsFileList =
                         newParentDirectionFile?.let { listOf(it) + parentDirectionsFileList }
-                            ?: parentDirectionsFileList
+                            ?: parentDirectionsFileList,
                 )
             }
         }

@@ -34,6 +34,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptions
+import androidx.navigation.internal.NavContext
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -88,7 +89,7 @@ public object NavigationUI {
             builder.setPopUpTo(
                 navController.graph.findStartDestination().id,
                 inclusive = false,
-                saveState = true
+                saveState = true,
             )
         }
         val options = builder.build()
@@ -98,12 +99,12 @@ public object NavigationUI {
             // Return true only if the destination we've navigated to matches the MenuItem
             navController.currentDestination?.matchDestination(item.itemId) == true
         } catch (e: IllegalArgumentException) {
-            val name = NavDestination.getDisplayName(navController.context, item.itemId)
+            val name = NavDestination.getDisplayName(NavContext(navController.context), item.itemId)
             Log.i(
                 TAG,
                 "Ignoring onNavDestinationSelected for MenuItem $name as it cannot be found " +
                     "from the current destination ${navController.currentDestination}",
-                e
+                e,
             )
             false
         }
@@ -133,7 +134,7 @@ public object NavigationUI {
     public fun onNavDestinationSelected(
         item: MenuItem,
         navController: NavController,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean {
         check(!saveState) {
             "Leave the saveState parameter out entirely to use the non-experimental version of " +
@@ -166,12 +167,12 @@ public object NavigationUI {
             // Return true only if the destination we've navigated to matches the MenuItem
             navController.currentDestination?.matchDestination(item.itemId) == true
         } catch (e: IllegalArgumentException) {
-            val name = NavDestination.getDisplayName(navController.context, item.itemId)
+            val name = NavDestination.getDisplayName(NavContext(navController.context), item.itemId)
             Log.i(
                 TAG,
                 "Ignoring onNavDestinationSelected for MenuItem $name as it cannot be found " +
                     "from the current destination ${navController.currentDestination}",
-                e
+                e,
             )
             false
         }
@@ -194,7 +195,7 @@ public object NavigationUI {
             navController,
             AppBarConfiguration.Builder(navController.graph)
                 .setOpenableLayout(openableLayout)
-                .build()
+                .build(),
         )
 
     /**
@@ -214,7 +215,7 @@ public object NavigationUI {
     @JvmStatic
     public fun navigateUp(
         navController: NavController,
-        configuration: AppBarConfiguration
+        configuration: AppBarConfiguration,
     ): Boolean {
         val openableLayout = configuration.openableLayout
         val currentDestination = navController.currentDestination
@@ -257,14 +258,14 @@ public object NavigationUI {
     public fun setupActionBarWithNavController(
         activity: AppCompatActivity,
         navController: NavController,
-        openableLayout: Openable?
+        openableLayout: Openable?,
     ): Unit =
         setupActionBarWithNavController(
             activity,
             navController,
             AppBarConfiguration.Builder(navController.graph)
                 .setOpenableLayout(openableLayout)
-                .build()
+                .build(),
         )
 
     /**
@@ -292,7 +293,7 @@ public object NavigationUI {
         activity: AppCompatActivity,
         navController: NavController,
         configuration: AppBarConfiguration =
-            AppBarConfiguration.Builder(navController.graph).build()
+            AppBarConfiguration.Builder(navController.graph).build(),
     ): Unit =
         navController.addOnDestinationChangedListener(
             ActionBarOnDestinationChangedListener(activity, configuration)
@@ -321,14 +322,14 @@ public object NavigationUI {
     public fun setupWithNavController(
         toolbar: Toolbar,
         navController: NavController,
-        openableLayout: Openable?
+        openableLayout: Openable?,
     ): Unit =
         setupWithNavController(
             toolbar,
             navController,
             AppBarConfiguration.Builder(navController.graph)
                 .setOpenableLayout(openableLayout)
-                .build()
+                .build(),
         )
 
     /**
@@ -355,7 +356,7 @@ public object NavigationUI {
         toolbar: Toolbar,
         navController: NavController,
         configuration: AppBarConfiguration =
-            AppBarConfiguration.Builder(navController.graph).build()
+            AppBarConfiguration.Builder(navController.graph).build(),
     ) {
         navController.addOnDestinationChangedListener(
             ToolbarOnDestinationChangedListener(toolbar, configuration)
@@ -389,7 +390,7 @@ public object NavigationUI {
         collapsingToolbarLayout: CollapsingToolbarLayout,
         toolbar: Toolbar,
         navController: NavController,
-        openableLayout: Openable?
+        openableLayout: Openable?,
     ): Unit =
         setupWithNavController(
             collapsingToolbarLayout,
@@ -397,7 +398,7 @@ public object NavigationUI {
             navController,
             AppBarConfiguration.Builder(navController.graph)
                 .setOpenableLayout(openableLayout)
-                .build()
+                .build(),
         )
 
     /**
@@ -428,13 +429,13 @@ public object NavigationUI {
         toolbar: Toolbar,
         navController: NavController,
         configuration: AppBarConfiguration =
-            AppBarConfiguration.Builder(navController.graph).build()
+            AppBarConfiguration.Builder(navController.graph).build(),
     ) {
         navController.addOnDestinationChangedListener(
             CollapsingToolbarOnDestinationChangedListener(
                 collapsingToolbarLayout,
                 toolbar,
-                configuration
+                configuration,
             )
         )
         toolbar.setNavigationOnClickListener { navigateUp(navController, configuration) }
@@ -463,7 +464,7 @@ public object NavigationUI {
     @JvmStatic
     public fun setupWithNavController(
         navigationView: NavigationView,
-        navController: NavController
+        navController: NavController,
     ) {
         navigationView.setNavigationItemSelectedListener { item ->
             val handled = onNavDestinationSelected(item, navController)
@@ -486,7 +487,7 @@ public object NavigationUI {
                 override fun onDestinationChanged(
                     controller: NavController,
                     destination: NavDestination,
-                    arguments: Bundle?
+                    arguments: Bundle?,
                 ) {
                     val view = weakReference.get()
                     if (view == null) {
@@ -533,7 +534,7 @@ public object NavigationUI {
     public fun setupWithNavController(
         navigationView: NavigationView,
         navController: NavController,
-        saveState: Boolean
+        saveState: Boolean,
     ) {
         check(!saveState) {
             "Leave the saveState parameter out entirely to use the non-experimental version of " +
@@ -560,7 +561,7 @@ public object NavigationUI {
                 override fun onDestinationChanged(
                     controller: NavController,
                     destination: NavDestination,
-                    arguments: Bundle?
+                    arguments: Bundle?,
                 ) {
                     val view = weakReference.get()
                     if (view == null) {
@@ -614,7 +615,7 @@ public object NavigationUI {
     @JvmStatic
     public fun setupWithNavController(
         navigationBarView: NavigationBarView,
-        navController: NavController
+        navController: NavController,
     ) {
         navigationBarView.setOnItemSelectedListener { item ->
             onNavDestinationSelected(item, navController)
@@ -625,7 +626,7 @@ public object NavigationUI {
                 override fun onDestinationChanged(
                     controller: NavController,
                     destination: NavDestination,
-                    arguments: Bundle?
+                    arguments: Bundle?,
                 ) {
                     val view = weakReference.get()
                     if (view == null) {
@@ -667,7 +668,7 @@ public object NavigationUI {
     public fun setupWithNavController(
         navigationBarView: NavigationBarView,
         navController: NavController,
-        saveState: Boolean
+        saveState: Boolean,
     ) {
         check(!saveState) {
             "Leave the saveState parameter out entirely to use the non-experimental version of " +
@@ -682,7 +683,7 @@ public object NavigationUI {
                 override fun onDestinationChanged(
                     controller: NavController,
                     destination: NavDestination,
-                    arguments: Bundle?
+                    arguments: Bundle?,
                 ) {
                     val view = weakReference.get()
                     if (view == null) {

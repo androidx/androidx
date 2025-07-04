@@ -19,9 +19,9 @@ public final class $$__AppSearch__DocumentClassMap_fc605c65514dc62366bce05ca8e3a
   protected Map<String, List<String>> getMap() {
     Map<String, List<String>> result = new HashMap<>();
     result.put("Gift", Arrays.asList("com.example.appsearch.Gift"));
-    result.put("Root", Arrays.asList("com.example.appsearch.Root"));
-    result.put("Parent2", Arrays.asList("com.example.appsearch.Parent2"));
     result.put("Parent1", Arrays.asList("com.example.appsearch.Parent1"));
+    result.put("Parent2", Arrays.asList("com.example.appsearch.Parent2"));
+    result.put("Root", Arrays.asList("com.example.appsearch.Root"));
     return result;
   }
 }

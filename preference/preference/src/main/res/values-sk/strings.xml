@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="v7_preference_on" msgid="89551595707643515">"Zapnuté"</string>
-    <string name="v7_preference_off" msgid="3140233346420563315">"Vypnuté"</string>
-    <string name="expand_button_title" msgid="2427401033573778270">"Rozšírené"</string>
-    <string name="summary_collapsed_preference_list" msgid="9167775378838880170">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
-    <string name="copy" msgid="6083905920877235314">"Skopírovať"</string>
-    <string name="preference_copied" msgid="6685851473431805375">"Položka <xliff:g id="SUMMARY">%1$s</xliff:g> bola skopírovaná do schránky."</string>
-    <string name="not_set" msgid="6573031135582639649">"Nenastavené"</string>
+    <string name="v7_preference_on" msgid="5048321755000716519">"ZAPNUTÉ"</string>
+    <string name="v7_preference_off" msgid="3516781442212499478">"VYPNUTÉ"</string>
+    <string name="expand_button_title" msgid="4538737816656609903">"Pokročilé"</string>
+    <string name="summary_collapsed_preference_list" msgid="4958113070631599540">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>, <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
+    <string name="copy" msgid="8016979983985242980">"Skopírovať"</string>
+    <string name="preference_copied" msgid="811987176883013580">"Položka <xliff:g id="SUMMARY">%1$s</xliff:g> bola skopírovaná do schránky."</string>
+    <string name="not_set" msgid="5322289270060224450">"Nenastavené"</string>
 </resources>

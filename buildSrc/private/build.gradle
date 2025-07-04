@@ -2,6 +2,9 @@ apply plugin: "kotlin"
 apply plugin: "java-gradle-plugin"
 
 dependencies {
+    // Remove once b/407096518 is fixed
+    implementation(libs.androidGradlePlugin)
+
     implementation(project(":public"))
     implementation(project(":imports:benchmark-gradle-plugin"))
     implementation(project(":imports:inspection-gradle-plugin"))

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.performance.annotation"
+    }
     jvm()
     mac()
     linux()
@@ -55,14 +55,9 @@ androidXMultiplatform {
     }
 }
 
-android {
-    namespace = "androidx.performance.annotation"
-}
-
 androidx {
     name = "Performance - Annotation"
-    type = LibraryType.UNSET
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Provides source annotations for performance optimizations."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

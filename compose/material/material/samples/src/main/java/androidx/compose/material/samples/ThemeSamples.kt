@@ -47,14 +47,14 @@ fun MaterialThemeSample() {
     val typography =
         Typography(
             h1 = TextStyle(fontWeight = FontWeight.W100, fontSize = 96.sp),
-            button = TextStyle(fontWeight = FontWeight.W600, fontSize = 14.sp)
+            button = TextStyle(fontWeight = FontWeight.W600, fontSize = 14.sp),
         )
 
     MaterialTheme(colors = colors, typography = typography) {
         val currentTheme = if (MaterialTheme.colors.isLight) "light" else "dark"
         ExtendedFloatingActionButton(
             text = { Text("FAB with text style and color from $currentTheme theme") },
-            onClick = {}
+            onClick = {},
         )
     }
 }

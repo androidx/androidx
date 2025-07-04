@@ -21,7 +21,7 @@ import androidx.compose.ui.semantics.SemanticsNode
 internal actual inline fun <R> wrapAssertionErrorsWithNodeInfo(
     selector: SemanticsSelector,
     node: SemanticsNode,
-    block: () -> R
+    block: () -> R,
 ): R {
     try {
         return block()
@@ -34,13 +34,10 @@ internal class ProxyAssertionError(
     message: String,
     selector: SemanticsSelector,
     node: SemanticsNode,
-    cause: Throwable
+    cause: Throwable,
 ) : AssertionError(buildGeneralErrorMessage(message, selector, node), cause) {
     init {
         // Duplicate the stack trace to make troubleshooting easier.
         stackTrace = cause.stackTrace
     }
 }
-
-internal actual inline fun assertOnJvm(value: Boolean, lazyMessage: () -> Any) =
-    assert(value, lazyMessage)

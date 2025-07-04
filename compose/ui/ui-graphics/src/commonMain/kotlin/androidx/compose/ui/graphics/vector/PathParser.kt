@@ -82,7 +82,7 @@ class PathParser {
     @Suppress("ConcreteCollection")
     fun pathStringToNodes(
         pathData: String,
-        @Suppress("ConcreteCollection") nodes: ArrayList<PathNode> = ArrayList()
+        @Suppress("ConcreteCollection") nodes: ArrayList<PathNode> = ArrayList(),
     ): ArrayList<PathNode> {
         var start = 0
         var end = pathData.length
@@ -281,7 +281,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     node.dx1,
                     node.dy1,
                     node.dx2,
-                    node.dy2
+                    node.dy2,
                 )
                 ctrlX = currentX + node.dx1
                 ctrlY = currentY + node.dy1
@@ -357,7 +357,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     node.verticalEllipseRadius.toDouble(),
                     node.theta.toDouble(),
                     node.isMoreThanHalf,
-                    node.isPositiveArc
+                    node.isPositiveArc,
                 )
                 currentX = arcStartX
                 currentY = arcStartY
@@ -375,7 +375,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     node.verticalEllipseRadius.toDouble(),
                     node.theta.toDouble(),
                     node.isMoreThanHalf,
-                    node.isPositiveArc
+                    node.isPositiveArc,
                 )
                 currentX = node.arcStartX
                 currentY = node.arcStartY
@@ -398,7 +398,7 @@ private fun drawArc(
     b: Double,
     theta: Double,
     isMoreThanHalf: Boolean,
-    isPositiveArc: Boolean
+    isPositiveArc: Boolean,
 ) {
 
     /* Convert rotation angle from degrees to radians */
@@ -488,7 +488,7 @@ private fun arcToBezier(
     e1y: Double,
     theta: Double,
     start: Double,
-    sweep: Double
+    sweep: Double,
 ) {
     var eta1x = e1x
     var eta1y = e1y
@@ -532,7 +532,7 @@ private fun arcToBezier(
             q2x.toFloat(),
             q2y.toFloat(),
             e2x.toFloat(),
-            e2y.toFloat()
+            e2y.toFloat(),
         )
         eta1 = eta2
         eta1x = e2x

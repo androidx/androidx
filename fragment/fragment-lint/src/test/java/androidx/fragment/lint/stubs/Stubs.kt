@@ -184,7 +184,7 @@ private val LIFECYCLE =
                 return true
             }
         }
-    """
+    """,
         )
         .indented()
         .within("src")
@@ -205,7 +205,7 @@ private val LIVEDATA_OBSERVE_EXTENSION =
 
         }
     }
-"""
+""",
         )
         .indented()
         .within("src")
@@ -253,7 +253,7 @@ private val COROUTINES =
             fun launch(block: suspend () -> Unit) {}
         }
 
-    """
+    """,
         )
         .indented()
         .within("src")
@@ -268,7 +268,7 @@ private val REPEAT_ON_LIFECYCLE =
             state: Lifecycle.State,
             block: suspend CoroutineScope.() -> Unit
         ) { }
-    """
+    """,
         )
         .indented()
         .within("src")
@@ -283,7 +283,7 @@ internal val FRAGMENT_TRANSACTION_STUBS =
         LIFECYCLE,
         LIFECYCLE_OWNER,
         MENU_HOST,
-        MENU_PROVIDER
+        MENU_PROVIDER,
     )
 
 // stubs for testing calls to LiveData.observe calls
@@ -299,7 +299,7 @@ internal val LIVEDATA_STUBS =
         OBSERVER,
         LIVEDATA_OBSERVE_EXTENSION,
         MENU_HOST,
-        MENU_PROVIDER
+        MENU_PROVIDER,
     )
 
 // stubs for testing calls to OnBackPressedDispatcher.addCallback calls
@@ -312,7 +312,7 @@ internal val BACK_CALLBACK_STUBS =
         LIFECYCLE,
         LIFECYCLE_OWNER,
         MENU_HOST,
-        MENU_PROVIDER
+        MENU_PROVIDER,
     )
 
 // stubs for testing calls to LifecycleOwner.repeatOnLifecycle
@@ -326,7 +326,7 @@ internal val REPEAT_ON_LIFECYCLE_STUBS =
         LIFECYCLE,
         LIFECYCLE_OWNER,
         MENU_HOST,
-        MENU_PROVIDER
+        MENU_PROVIDER,
     )
 
 // stubs for testing calls to MenuHost.addMenuProvider calls

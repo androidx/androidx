@@ -20,9 +20,10 @@ import static org.junit.Assert.assertEquals;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.OnItemActivatedListener;
+
+import org.jspecify.annotations.NonNull;
 
 public final class TestOnItemActivatedListener<K> implements OnItemActivatedListener<K> {
 

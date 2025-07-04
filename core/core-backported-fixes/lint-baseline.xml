@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.9.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.9.0-alpha01)" variant="all" version="8.9.0-alpha01">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="BanUncheckedReflection"
         message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
-        errorLine1="            return get.invoke(c, ALIAS_BITSET_PROP_NAME) as String"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            return get.invoke(c, ALIAS_BITSET_PROP_NAME, &quot;&quot;) as String"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/backported/fixes/SystemPropertyResolver.kt"/>
     </issue>

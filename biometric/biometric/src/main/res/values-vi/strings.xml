@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Chưa đặt mã PIN, hình mở khóa hoặc mật khẩu."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Thiết bị này không hỗ trợ mã PIN, hình mở khóa hoặc mật khẩu."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Biểu tượng vân tay"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Đã nhấp vào nút Tuỳ chọn khác trong chế độ xem nội dung."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Dùng vân tay"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Dùng khuôn mặt"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Dùng dữ liệu sinh trắc học"</string>

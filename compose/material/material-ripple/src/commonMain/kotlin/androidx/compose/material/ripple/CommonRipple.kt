@@ -53,7 +53,7 @@ internal class CommonRipple(bounded: Boolean, radius: Dp, color: State<Color>) :
         bounded: Boolean,
         radius: Dp,
         color: State<Color>,
-        rippleAlpha: State<RippleAlpha>
+        rippleAlpha: State<RippleAlpha>,
     ): RippleIndicationInstance {
         return remember(interactionSource, this) {
             CommonRippleIndicationInstance(bounded, radius, color, rippleAlpha)
@@ -66,7 +66,7 @@ internal class CommonRippleNode(
     bounded: Boolean,
     radius: Dp,
     color: ColorProducer,
-    rippleAlpha: () -> RippleAlpha
+    rippleAlpha: () -> RippleAlpha,
 ) : RippleNode(interactionSource, bounded, radius, color, rippleAlpha) {
     private val ripples = MutableScatterMap<PressInteraction.Press, RippleAnimation>()
 
@@ -110,7 +110,7 @@ private class CommonRippleIndicationInstance(
     private val bounded: Boolean,
     private val radius: Dp,
     private val color: State<Color>,
-    private val rippleAlpha: State<RippleAlpha>
+    private val rippleAlpha: State<RippleAlpha>,
 ) : RippleIndicationInstance(bounded, rippleAlpha), RememberObserver {
     private val ripples = mutableStateMapOf<PressInteraction.Press, RippleAnimation>()
 

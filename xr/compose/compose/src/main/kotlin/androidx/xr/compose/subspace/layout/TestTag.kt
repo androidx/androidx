@@ -16,10 +16,9 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.testTag
-import androidx.xr.compose.subspace.node.SubspaceModifierElement
+import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
 
 /**
@@ -27,10 +26,9 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsModifierNode
  *
  * This is a convenience method for a [semantics] that sets [SemanticsPropertyReceiver.testTag].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SubspaceModifier.testTag(tag: String): SubspaceModifier = this then TestTagElement(tag)
 
-private class TestTagElement(private val tag: String) : SubspaceModifierElement<TestTagNode>() {
+private class TestTagElement(private val tag: String) : SubspaceModifierNodeElement<TestTagNode>() {
     override fun create(): TestTagNode {
         return TestTagNode(tag)
     }
@@ -50,8 +48,7 @@ private class TestTagElement(private val tag: String) : SubspaceModifierElement<
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class TestTagNode(public var tag: String) :
+private class TestTagNode(public var tag: String) :
     SubspaceModifier.Node(), SubspaceSemanticsModifierNode {
     override fun SemanticsPropertyReceiver.applySemantics() {
         testTag = tag

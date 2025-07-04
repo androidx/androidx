@@ -46,7 +46,7 @@ class JvmNameInDaoTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    JvmNameDb::class.java
+                    JvmNameDb::class.java,
                 )
                 .build()
         try {
@@ -73,7 +73,7 @@ class JvmNameInDaoTest {
     data class JvmNameEntity(
         @PrimaryKey(autoGenerate = true) val id: Int,
         val name: String,
-        val convertedClass: MyConvertedClass
+        val convertedClass: MyConvertedClass,
     )
 
     @Dao

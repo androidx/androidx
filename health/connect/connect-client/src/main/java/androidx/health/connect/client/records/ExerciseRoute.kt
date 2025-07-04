@@ -68,7 +68,7 @@ class ExerciseRoute constructor(val route: List<Location>) {
         val longitude: Double,
         val horizontalAccuracy: Length? = null,
         val verticalAccuracy: Length? = null,
-        val altitude: Length? = null
+        val altitude: Length? = null,
     ) {
 
         companion object {
@@ -85,11 +85,11 @@ class ExerciseRoute constructor(val route: List<Location>) {
             longitude.requireNotMore(other = MAX_LONGITUDE, name = "longitude")
             horizontalAccuracy?.requireNotLess(
                 other = horizontalAccuracy.zero(),
-                name = "horizontalAccuracy"
+                name = "horizontalAccuracy",
             )
             verticalAccuracy?.requireNotLess(
                 other = verticalAccuracy.zero(),
-                name = "verticalAccuracy"
+                name = "verticalAccuracy",
             )
         }
 

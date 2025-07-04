@@ -52,7 +52,7 @@ private val Context.dsWithSpMigration by
                     t.plus(sharedPreferencesView.getInt("integer_key", -1)).toByte()
                 }
             )
-        }
+        },
     )
 
 @MediumTest
@@ -79,7 +79,7 @@ class SharedPreferencesMigrationTest {
             SharedPreferencesMigration<Byte>(
                 context = context,
                 sharedPreferencesName = sharedPrefsName,
-                shouldRunMigration = { false }
+                shouldRunMigration = { false },
             ) { _: SharedPreferencesView, _: Byte ->
                 throw IllegalStateException("Migration should've been skipped.")
             }
@@ -109,7 +109,7 @@ class SharedPreferencesMigrationTest {
             SharedPreferencesMigration(
                 context = context,
                 sharedPreferencesName = sharedPrefsName,
-                keysToMigrate = setOf(includedKey)
+                keysToMigrate = setOf(includedKey),
             ) { prefs: SharedPreferencesView, _: Byte ->
                 assertThat(prefs.getInt(includedKey, -1)).isEqualTo(includedVal)
                 assertThrows<IllegalStateException> { prefs.getInt(notMigratedKey, -1) }
@@ -137,7 +137,7 @@ class SharedPreferencesMigrationTest {
         val sharedPrefsMigration =
             SharedPreferencesMigration(
                 context = context,
-                sharedPreferencesName = sharedPrefsName
+                sharedPreferencesName = sharedPrefsName,
             ) { prefs: SharedPreferencesView, _: Byte ->
                 assertThat(prefs.getInt(key1, -1)).isEqualTo(val1)
                 assertThat(prefs.getInt(key2, -1)).isEqualTo(val2)
@@ -159,9 +159,9 @@ class SharedPreferencesMigrationTest {
         assertThat(sharedPrefs.edit().putInt("unrelated_key", -123).commit()).isTrue()
 
         val migration =
-            SharedPreferencesMigration(
-                produceSharedPreferences = { sharedPrefs },
-            ) { prefs: SharedPreferencesView, _: Byte ->
+            SharedPreferencesMigration(produceSharedPreferences = { sharedPrefs }) {
+                prefs: SharedPreferencesView,
+                _: Byte ->
                 prefs.getInt("this_key_doesnt_exist_yet", 123).toByte()
             }
 
@@ -199,7 +199,7 @@ class SharedPreferencesMigrationTest {
         return DataStoreFactory.create(
             serializer = TestingSerializer(),
             migrations = migrations,
-            scope = TestScope(UnconfinedTestDispatcher())
+            scope = TestScope(UnconfinedTestDispatcher()),
         ) {
             datastoreFile
         }

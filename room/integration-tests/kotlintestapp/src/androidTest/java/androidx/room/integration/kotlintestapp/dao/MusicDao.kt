@@ -377,7 +377,7 @@ interface MusicDao {
         Map<
             @MapColumn(columnName = "mArtistName")
             String,
-            List<@MapColumn(columnName = "mReleasedYear") Int>
+            List<@MapColumn(columnName = "mReleasedYear") Int>,
         >
 
     @Query(
@@ -393,7 +393,7 @@ interface MusicDao {
         Map<
             @MapColumn(columnName = "mImageYear")
             Long,
-            Map<Artist, Map<@MapColumn(columnName = "mAlbumName") String, List<Song>>>
+            Map<Artist, Map<@MapColumn(columnName = "mAlbumName") String, List<Song>>>,
         >
 
     @Query(
@@ -413,9 +413,9 @@ interface MusicDao {
                 Map<
                     @MapColumn(columnName = "mAlbumName")
                     String,
-                    List<@MapColumn(columnName = "mReleasedYear") Int>
-                >
-            >
+                    List<@MapColumn(columnName = "mReleasedYear") Int>,
+                >,
+            >,
         >
 
     @RawQuery
@@ -429,8 +429,8 @@ interface MusicDao {
             Map<
                 @MapColumn(columnName = "mAlbumName")
                 String,
-                List<@MapColumn(columnName = "mReleasedYear") Int>
-            >
-        >
+                List<@MapColumn(columnName = "mReleasedYear") Int>,
+            >,
+        >,
     >
 }

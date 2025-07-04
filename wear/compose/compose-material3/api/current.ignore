@@ -1,0 +1,719 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.wear.compose.material3.AngularDirection.Companion#getClockwise():
+    Binary breaking change: Removed method androidx.wear.compose.material3.AngularDirection.Companion.getClockwise()
+RemovedMethod: androidx.wear.compose.material3.AngularDirection.Companion#getCounterClockwise():
+    Binary breaking change: Removed method androidx.wear.compose.material3.AngularDirection.Companion.getCounterClockwise()
+RemovedMethod: androidx.wear.compose.material3.ArcProgressIndicatorDefaults#getIndeterminateStrokeWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ArcProgressIndicatorDefaults.getIndeterminateStrokeWidth()
+RemovedMethod: androidx.wear.compose.material3.ArcProgressIndicatorDefaults#getRecommendedIndeterminateDiameter():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ArcProgressIndicatorDefaults.getRecommendedIndeterminateDiameter()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getContainerColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getContentColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getDisabledContainerColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getDisabledContentColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getDisabledIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getDisabledIconColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getDisabledSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getDisabledSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getIconColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonColors#getSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonColors.getSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getButtonExtraLargeIconStartPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getButtonExtraLargeIconStartPadding()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getButtonHorizontalPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getButtonHorizontalPadding()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getButtonLargeIconStartPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getButtonLargeIconStartPadding()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getButtonVerticalPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getButtonVerticalPadding()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getCompactButtonHeight():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getCompactButtonHeight()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getCompactButtonHorizontalPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getCompactButtonHorizontalPadding()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getCompactButtonVerticalPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getCompactButtonVerticalPadding()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getExtraLargeIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getExtraLargeIconSize()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getExtraSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getExtraSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getHeight():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getHeight()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getIconSize()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getIconSpacing():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getIconSpacing()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getScrimGradientEndColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getScrimGradientEndColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getScrimGradientStartColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getScrimGradientStartColor()
+RemovedMethod: androidx.wear.compose.material3.ButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.ButtonGroupDefaults#getExpansionWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonGroupDefaults.getExpansionWidth()
+RemovedMethod: androidx.wear.compose.material3.ButtonGroupDefaults#getMinWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonGroupDefaults.getMinWidth()
+RemovedMethod: androidx.wear.compose.material3.ButtonGroupDefaults#getSpacing():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ButtonGroupDefaults.getSpacing()
+RemovedMethod: androidx.wear.compose.material3.CardColors#getAppNameColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardColors.getAppNameColor()
+RemovedMethod: androidx.wear.compose.material3.CardColors#getContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardColors.getContainerColor()
+RemovedMethod: androidx.wear.compose.material3.CardColors#getContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardColors.getContentColor()
+RemovedMethod: androidx.wear.compose.material3.CardColors#getSubtitleColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardColors.getSubtitleColor()
+RemovedMethod: androidx.wear.compose.material3.CardColors#getTimeColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardColors.getTimeColor()
+RemovedMethod: androidx.wear.compose.material3.CardColors#getTitleColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardColors.getTitleColor()
+RemovedMethod: androidx.wear.compose.material3.CardDefaults#getAppImageSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardDefaults.getAppImageSize()
+RemovedMethod: androidx.wear.compose.material3.CardDefaults#getHeight():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardDefaults.getHeight()
+RemovedMethod: androidx.wear.compose.material3.CardDefaults#getImageBottomPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardDefaults.getImageBottomPadding()
+RemovedMethod: androidx.wear.compose.material3.CardDefaults#getScrimColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CardDefaults.getScrimColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getCheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getCheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getCheckedCheckmarkColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getCheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getCheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledCheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledCheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledCheckedCheckmarkColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledCheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledCheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledUncheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledUncheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledUncheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getDisabledUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getDisabledUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getUncheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getUncheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getUncheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.CheckboxButtonColors#getUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CheckboxButtonColors.getUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.CircularProgressIndicatorDefaults#getFullScreenPadding():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CircularProgressIndicatorDefaults.getFullScreenPadding()
+RemovedMethod: androidx.wear.compose.material3.CircularProgressIndicatorDefaults#getIndeterminateStrokeWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CircularProgressIndicatorDefaults.getIndeterminateStrokeWidth()
+RemovedMethod: androidx.wear.compose.material3.CircularProgressIndicatorDefaults#getLargeStrokeWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CircularProgressIndicatorDefaults.getLargeStrokeWidth()
+RemovedMethod: androidx.wear.compose.material3.CircularProgressIndicatorDefaults#getSmallStrokeWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.CircularProgressIndicatorDefaults.getSmallStrokeWidth()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getBackground():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getBackground()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getError():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getError()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getErrorContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getErrorContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getErrorDim():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getErrorDim()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnBackground():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnBackground()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnError():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnError()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnErrorContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnErrorContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnPrimary():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnPrimary()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnPrimaryContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnPrimaryContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnSecondary():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnSecondary()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnSecondaryContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnSecondaryContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnSurface():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnSurface()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnSurfaceVariant():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnSurfaceVariant()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnTertiary():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnTertiary()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOnTertiaryContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOnTertiaryContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOutline():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOutline()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getOutlineVariant():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getOutlineVariant()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getPrimary():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getPrimary()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getPrimaryContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getPrimaryContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getPrimaryDim():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getPrimaryDim()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getSecondary():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getSecondary()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getSecondaryContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getSecondaryContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getSecondaryDim():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getSecondaryDim()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getSurfaceContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getSurfaceContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getSurfaceContainerHigh():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getSurfaceContainerHigh()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getSurfaceContainerLow():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getSurfaceContainerLow()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getTertiary():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getTertiary()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getTertiaryContainer():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getTertiaryContainer()
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#getTertiaryDim():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.getTertiaryDim()
+RemovedMethod: androidx.wear.compose.material3.ConfirmationDialogColors#getIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ConfirmationDialogColors.getIconColor()
+RemovedMethod: androidx.wear.compose.material3.ConfirmationDialogColors#getIconContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ConfirmationDialogColors.getIconContainerColor()
+RemovedMethod: androidx.wear.compose.material3.ConfirmationDialogColors#getTextColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ConfirmationDialogColors.getTextColor()
+RemovedMethod: androidx.wear.compose.material3.ConfirmationDialogDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ConfirmationDialogDefaults.getIconSize()
+RemovedMethod: androidx.wear.compose.material3.ConfirmationDialogDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ConfirmationDialogDefaults.getSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getActivePickerContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getActivePickerContentColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getConfirmButtonContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getConfirmButtonContainerColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getConfirmButtonContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getConfirmButtonContentColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getInactivePickerContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getInactivePickerContentColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getInvalidPickerContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getInvalidPickerContentColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getNextButtonContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getNextButtonContainerColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getNextButtonContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getNextButtonContentColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerColors#getPickerLabelColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerColors.getPickerLabelColor()
+RemovedMethod: androidx.wear.compose.material3.DatePickerDefaults#getDatePickerType():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerDefaults.getDatePickerType()
+RemovedMethod: androidx.wear.compose.material3.DatePickerType.Companion#getDayMonthYear():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerType.Companion.getDayMonthYear()
+RemovedMethod: androidx.wear.compose.material3.DatePickerType.Companion#getMonthDayYear():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerType.Companion.getMonthDayYear()
+RemovedMethod: androidx.wear.compose.material3.DatePickerType.Companion#getYearMonthDay():
+    Binary breaking change: Removed method androidx.wear.compose.material3.DatePickerType.Companion.getYearMonthDay()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonDefaults#getExtraSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonDefaults.getExtraSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonDefaults#getMediumIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonDefaults.getMediumIconSize()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonSize.Companion#getExtraSmall():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonSize.Companion.getExtraSmall()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonSize.Companion#getLarge():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonSize.Companion.getLarge()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonSize.Companion#getMedium():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonSize.Companion.getMedium()
+RemovedMethod: androidx.wear.compose.material3.EdgeButtonSize.Companion#getSmall():
+    Binary breaking change: Removed method androidx.wear.compose.material3.EdgeButtonSize.Companion.getSmall()
+RemovedMethod: androidx.wear.compose.material3.IconButtonColors#getContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonColors.getContainerColor()
+RemovedMethod: androidx.wear.compose.material3.IconButtonColors#getContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonColors.getContentColor()
+RemovedMethod: androidx.wear.compose.material3.IconButtonColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonColors.getDisabledContainerColor()
+RemovedMethod: androidx.wear.compose.material3.IconButtonColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonColors.getDisabledContentColor()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getDefaultButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getDefaultButtonSize()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getDefaultIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getDefaultIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getExtraSmallButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getExtraSmallButtonSize()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getLargeButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getLargeButtonSize()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getSmallButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getSmallButtonSize()
+RemovedMethod: androidx.wear.compose.material3.IconButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getDisabledCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getDisabledCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getDisabledCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getDisabledCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getDisabledUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getDisabledUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getDisabledUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getDisabledUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonColors#getUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonColors.getUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getDefaultIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getDefaultIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getExtraLargeIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getExtraLargeIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getExtraLargeSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getExtraLargeSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getLargeIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getLargeIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getLargeSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getLargeSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getSmallIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getSmallIconSize()
+RemovedMethod: androidx.wear.compose.material3.IconToggleButtonDefaults#getSmallSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.IconToggleButtonDefaults.getSmallSize()
+RemovedMethod: androidx.wear.compose.material3.LevelIndicatorColors#getDisabledIndicatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LevelIndicatorColors.getDisabledIndicatorColor()
+RemovedMethod: androidx.wear.compose.material3.LevelIndicatorColors#getDisabledTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LevelIndicatorColors.getDisabledTrackColor()
+RemovedMethod: androidx.wear.compose.material3.LevelIndicatorColors#getIndicatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LevelIndicatorColors.getIndicatorColor()
+RemovedMethod: androidx.wear.compose.material3.LevelIndicatorColors#getTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LevelIndicatorColors.getTrackColor()
+RemovedMethod: androidx.wear.compose.material3.LevelIndicatorDefaults#getStrokeWidth():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LevelIndicatorDefaults.getStrokeWidth()
+RemovedMethod: androidx.wear.compose.material3.LinearProgressIndicatorDefaults#getStrokeWidthLarge():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LinearProgressIndicatorDefaults.getStrokeWidthLarge()
+RemovedMethod: androidx.wear.compose.material3.LinearProgressIndicatorDefaults#getStrokeWidthSmall():
+    Binary breaking change: Removed method androidx.wear.compose.material3.LinearProgressIndicatorDefaults.getStrokeWidthSmall()
+RemovedMethod: androidx.wear.compose.material3.ListHeaderDefaults#getContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ListHeaderDefaults.getContentColor()
+RemovedMethod: androidx.wear.compose.material3.ListHeaderDefaults#getSubHeaderContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ListHeaderDefaults.getSubHeaderContentColor()
+RemovedMethod: androidx.wear.compose.material3.OpenOnPhoneDialogColors#getIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.OpenOnPhoneDialogColors.getIconColor()
+RemovedMethod: androidx.wear.compose.material3.OpenOnPhoneDialogColors#getIconContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.OpenOnPhoneDialogColors.getIconContainerColor()
+RemovedMethod: androidx.wear.compose.material3.OpenOnPhoneDialogColors#getProgressIndicatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.OpenOnPhoneDialogColors.getProgressIndicatorColor()
+RemovedMethod: androidx.wear.compose.material3.OpenOnPhoneDialogColors#getProgressTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.OpenOnPhoneDialogColors.getProgressTrackColor()
+RemovedMethod: androidx.wear.compose.material3.OpenOnPhoneDialogColors#getTextColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.OpenOnPhoneDialogColors.getTextColor()
+RemovedMethod: androidx.wear.compose.material3.PageIndicatorDefaults#getBackgroundColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.PageIndicatorDefaults.getBackgroundColor()
+RemovedMethod: androidx.wear.compose.material3.PageIndicatorDefaults#getSelectedColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.PageIndicatorDefaults.getSelectedColor()
+RemovedMethod: androidx.wear.compose.material3.PageIndicatorDefaults#getUnselectedColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.PageIndicatorDefaults.getUnselectedColor()
+RemovedMethod: androidx.wear.compose.material3.PlaceholderDefaults#getColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.PlaceholderDefaults.getColor()
+RemovedMethod: androidx.wear.compose.material3.PlaceholderDefaults#getShimmerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.PlaceholderDefaults.getShimmerColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledSelectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledSelectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledSelectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledSelectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledSelectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledSelectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledSelectedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledSelectedIconColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledSelectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledSelectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledUnselectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledUnselectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledUnselectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledUnselectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledUnselectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledUnselectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledUnselectedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledUnselectedIconColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getDisabledUnselectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getDisabledUnselectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getSelectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getSelectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getSelectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getSelectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getSelectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getSelectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getSelectedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getSelectedIconColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getSelectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getSelectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getUnselectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getUnselectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getUnselectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getUnselectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getUnselectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getUnselectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getUnselectedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getUnselectedIconColor()
+RemovedMethod: androidx.wear.compose.material3.RadioButtonColors#getUnselectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RadioButtonColors.getUnselectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.RevealDirection.Companion#getBidirectional():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealDirection.Companion.getBidirectional()
+RemovedMethod: androidx.wear.compose.material3.RevealDirection.Companion#getRightToLeft():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealDirection.Companion.getRightToLeft()
+RemovedMethod: androidx.wear.compose.material3.RevealState#getCurrentValue():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealState.getCurrentValue()
+RemovedMethod: androidx.wear.compose.material3.RevealState#getTargetValue():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealState.getTargetValue()
+RemovedMethod: androidx.wear.compose.material3.RevealValue.Companion#getCovered():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealValue.Companion.getCovered()
+RemovedMethod: androidx.wear.compose.material3.RevealValue.Companion#getLeftRevealed():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealValue.Companion.getLeftRevealed()
+RemovedMethod: androidx.wear.compose.material3.RevealValue.Companion#getLeftRevealing():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealValue.Companion.getLeftRevealing()
+RemovedMethod: androidx.wear.compose.material3.RevealValue.Companion#getRightRevealed():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealValue.Companion.getRightRevealed()
+RemovedMethod: androidx.wear.compose.material3.RevealValue.Companion#getRightRevealing():
+    Binary breaking change: Removed method androidx.wear.compose.material3.RevealValue.Companion.getRightRevealing()
+RemovedMethod: androidx.wear.compose.material3.ScreenScaffoldDefaults#getEdgeButtonMinSpacing():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScreenScaffoldDefaults.getEdgeButtonMinSpacing()
+RemovedMethod: androidx.wear.compose.material3.ScreenScaffoldDefaults#getEdgeButtonSpacing():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScreenScaffoldDefaults.getEdgeButtonSpacing()
+RemovedMethod: androidx.wear.compose.material3.ScreenStage.Companion#getIdle():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScreenStage.Companion.getIdle()
+RemovedMethod: androidx.wear.compose.material3.ScreenStage.Companion#getNew():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScreenStage.Companion.getNew()
+RemovedMethod: androidx.wear.compose.material3.ScreenStage.Companion#getScrolling():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScreenStage.Companion.getScrolling()
+RemovedMethod: androidx.wear.compose.material3.ScrollIndicatorColors#getIndicatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScrollIndicatorColors.getIndicatorColor()
+RemovedMethod: androidx.wear.compose.material3.ScrollIndicatorColors#getTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.ScrollIndicatorColors.getTrackColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getButtonIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getButtonIconColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getDisabledButtonIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getDisabledButtonIconColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getDisabledContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getDisabledSelectedBarColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getDisabledSelectedBarColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getDisabledSelectedBarSeparatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getDisabledSelectedBarSeparatorColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getDisabledUnselectedBarColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getDisabledUnselectedBarColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getDisabledUnselectedBarSeparatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getDisabledUnselectedBarSeparatorColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getSelectedBarColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getSelectedBarColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getSelectedBarSeparatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getSelectedBarSeparatorColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getUnselectedBarColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getUnselectedBarColor()
+RemovedMethod: androidx.wear.compose.material3.SliderColors#getUnselectedBarSeparatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderColors.getUnselectedBarSeparatorColor()
+RemovedMethod: androidx.wear.compose.material3.SliderDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SliderDefaults.getIconSize()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getCheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getCheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getCheckedCheckmarkColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getCheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getCheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledCheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledCheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledCheckedCheckmarkColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledCheckedCheckmarkColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledCheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledCheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledUncheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getDisabledUncheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getDisabledUncheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getUncheckedBoxColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getUncheckedBoxColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitCheckboxButtonColors#getUncheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitCheckboxButtonColors.getUncheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledSelectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledSelectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledSelectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledSelectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledSelectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledSelectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledSelectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledSelectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledSelectedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledSelectedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledUnselectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledUnselectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledUnselectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledUnselectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledUnselectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledUnselectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledUnselectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledUnselectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getDisabledUnselectedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getDisabledUnselectedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getSelectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getSelectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getSelectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getSelectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getSelectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getSelectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getSelectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getSelectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getSelectedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getSelectedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getUnselectedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getUnselectedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getUnselectedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getUnselectedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getUnselectedControlColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getUnselectedControlColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getUnselectedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getUnselectedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitRadioButtonColors#getUnselectedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitRadioButtonColors.getUnselectedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedThumbIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedThumbIconColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getCheckedTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getCheckedTrackColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedThumbIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedThumbIconColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledCheckedTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledCheckedTrackColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledUncheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledUncheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledUncheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getDisabledUncheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getDisabledUncheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedSplitContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedSplitContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SplitSwitchButtonColors#getUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SplitSwitchButtonColors.getUncheckedTrackColor()
+RemovedMethod: androidx.wear.compose.material3.StepperColors#getButtonContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperColors.getButtonContainerColor()
+RemovedMethod: androidx.wear.compose.material3.StepperColors#getButtonIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperColors.getButtonIconColor()
+RemovedMethod: androidx.wear.compose.material3.StepperColors#getContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperColors.getContentColor()
+RemovedMethod: androidx.wear.compose.material3.StepperColors#getDisabledButtonContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperColors.getDisabledButtonContainerColor()
+RemovedMethod: androidx.wear.compose.material3.StepperColors#getDisabledButtonIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperColors.getDisabledButtonIconColor()
+RemovedMethod: androidx.wear.compose.material3.StepperColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperColors.getDisabledContentColor()
+RemovedMethod: androidx.wear.compose.material3.StepperDefaults#getIconSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.StepperDefaults.getIconSize()
+RemovedMethod: androidx.wear.compose.material3.SwipeToRevealDefaults#getLargeActionButtonHeight():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwipeToRevealDefaults.getLargeActionButtonHeight()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedThumbIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedThumbIconColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getCheckedTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getCheckedTrackColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedThumbIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedThumbIconColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledCheckedTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledCheckedTrackColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledUncheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledUncheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledUncheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getDisabledUncheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getDisabledUncheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedIconColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedIconColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedSecondaryContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedSecondaryContentColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedThumbColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedThumbColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedTrackBorderColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedTrackBorderColor()
+RemovedMethod: androidx.wear.compose.material3.SwitchButtonColors#getUncheckedTrackColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.SwitchButtonColors.getUncheckedTrackColor()
+RemovedMethod: androidx.wear.compose.material3.TextButtonColors#getContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonColors.getContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TextButtonColors#getContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonColors.getContentColor()
+RemovedMethod: androidx.wear.compose.material3.TextButtonColors#getDisabledContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonColors.getDisabledContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TextButtonColors#getDisabledContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonColors.getDisabledContentColor()
+RemovedMethod: androidx.wear.compose.material3.TextButtonDefaults#getDefaultButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonDefaults.getDefaultButtonSize()
+RemovedMethod: androidx.wear.compose.material3.TextButtonDefaults#getLargeButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonDefaults.getLargeButtonSize()
+RemovedMethod: androidx.wear.compose.material3.TextButtonDefaults#getSmallButtonSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextButtonDefaults.getSmallButtonSize()
+RemovedMethod: androidx.wear.compose.material3.TextConfiguration#getOverflow():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextConfiguration.getOverflow()
+RemovedMethod: androidx.wear.compose.material3.TextConfiguration#getTextAlign():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextConfiguration.getTextAlign()
+RemovedMethod: androidx.wear.compose.material3.TextConfigurationDefaults#getOverflow():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextConfigurationDefaults.getOverflow()
+RemovedMethod: androidx.wear.compose.material3.TextConfigurationDefaults#getTextAlign():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextConfigurationDefaults.getTextAlign()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getDisabledCheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getDisabledCheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getDisabledCheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getDisabledCheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getDisabledUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getDisabledUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getDisabledUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getDisabledUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getUncheckedContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getUncheckedContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonColors#getUncheckedContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonColors.getUncheckedContentColor()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonDefaults#getExtraLargeSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonDefaults.getExtraLargeSize()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonDefaults#getLargeSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonDefaults.getLargeSize()
+RemovedMethod: androidx.wear.compose.material3.TextToggleButtonDefaults#getSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TextToggleButtonDefaults.getSize()
+RemovedMethod: androidx.wear.compose.material3.TimePickerColors#getConfirmButtonContainerColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerColors.getConfirmButtonContainerColor()
+RemovedMethod: androidx.wear.compose.material3.TimePickerColors#getConfirmButtonContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerColors.getConfirmButtonContentColor()
+RemovedMethod: androidx.wear.compose.material3.TimePickerColors#getPickerLabelColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerColors.getPickerLabelColor()
+RemovedMethod: androidx.wear.compose.material3.TimePickerColors#getSelectedPickerContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerColors.getSelectedPickerContentColor()
+RemovedMethod: androidx.wear.compose.material3.TimePickerColors#getSeparatorColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerColors.getSeparatorColor()
+RemovedMethod: androidx.wear.compose.material3.TimePickerColors#getUnselectedPickerContentColor():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerColors.getUnselectedPickerContentColor()
+RemovedMethod: androidx.wear.compose.material3.TimePickerDefaults#getTimePickerType():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerDefaults.getTimePickerType()
+RemovedMethod: androidx.wear.compose.material3.TimePickerType.Companion#getHoursMinutes24H():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerType.Companion.getHoursMinutes24H()
+RemovedMethod: androidx.wear.compose.material3.TimePickerType.Companion#getHoursMinutesAmPm12H():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerType.Companion.getHoursMinutesAmPm12H()
+RemovedMethod: androidx.wear.compose.material3.TimePickerType.Companion#getHoursMinutesSeconds24H():
+    Binary breaking change: Removed method androidx.wear.compose.material3.TimePickerType.Companion.getHoursMinutesSeconds24H()
+RemovedMethod: androidx.wear.compose.material3.lazy.ResponsiveTransformationSpecDefaults#getLargeScreenSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.lazy.ResponsiveTransformationSpecDefaults.getLargeScreenSize()
+RemovedMethod: androidx.wear.compose.material3.lazy.ResponsiveTransformationSpecDefaults#getSmallScreenSize():
+    Binary breaking change: Removed method androidx.wear.compose.material3.lazy.ResponsiveTransformationSpecDefaults.getSmallScreenSize()
+RemovedMethod: androidx.wear.compose.material3.lazy.TransformedContainerPainterScope#getScrollProgress():
+    Binary breaking change: Removed method androidx.wear.compose.material3.lazy.TransformedContainerPainterScope.getScrollProgress()

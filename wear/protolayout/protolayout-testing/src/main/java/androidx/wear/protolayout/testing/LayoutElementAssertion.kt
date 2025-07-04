@@ -17,7 +17,7 @@
 package androidx.wear.protolayout.testing
 
 import androidx.wear.protolayout.LayoutElementBuilders
-import java.lang.AssertionError
+import androidx.wear.protolayout.testing.TestContext.Companion.EMPTY_CONTEXT
 
 /**
  * Represents a layout element that can be asserted on.
@@ -29,6 +29,7 @@ public class LayoutElementAssertion
 internal constructor(
     private val elementDescription: String,
     internal val element: LayoutElementBuilders.LayoutElement?,
+    internal val context: TestContext = EMPTY_CONTEXT,
 ) {
     /** Asserts that the element was found in the element tree. */
     public fun assertExists() {
@@ -47,7 +48,7 @@ internal constructor(
     /** Asserts that the provided [LayoutElementMatcher] is satisfied for this element. */
     public fun assert(matcher: LayoutElementMatcher): LayoutElementAssertion {
         assertExists()
-        if (!matcher.matches(element!!)) {
+        if (!matcher.matches(element!!, context)) {
             throw AssertionError(
                 "Expected $elementDescription to match '${matcher.description}'," +
                     " but it does not."

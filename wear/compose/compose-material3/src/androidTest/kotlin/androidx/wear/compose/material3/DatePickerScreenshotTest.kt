@@ -64,7 +64,7 @@ class DatePickerScreenshotTest {
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Ltr,
             screenSize = screenSize,
-            content = { DatePickerDayMonthYear() }
+            content = { DatePickerDayMonthYear() },
         )
     }
 
@@ -74,7 +74,7 @@ class DatePickerScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Rtl,
-            content = { DatePickerDayMonthYear() }
+            content = { DatePickerDayMonthYear() },
         )
     }
 
@@ -86,7 +86,7 @@ class DatePickerScreenshotTest {
             layoutDirection = LayoutDirection.Ltr,
             screenSize = screenSize,
             action = { rule.nextButton().performClick() },
-            content = { DatePickerDayMonthYear() }
+            content = { DatePickerDayMonthYear() },
         )
     }
 
@@ -97,7 +97,7 @@ class DatePickerScreenshotTest {
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Rtl,
             action = { rule.nextButton().performClick() },
-            content = { DatePickerDayMonthYear() }
+            content = { DatePickerDayMonthYear() },
         )
 
     @Test
@@ -111,7 +111,7 @@ class DatePickerScreenshotTest {
                 rule.nextButton().performClick()
                 rule.nextButton().performClick()
             },
-            content = { DatePickerDayMonthYear() }
+            content = { DatePickerDayMonthYear() },
         )
     }
 
@@ -125,7 +125,7 @@ class DatePickerScreenshotTest {
                 rule.nextButton().performClick()
                 rule.nextButton().performClick()
             },
-            content = { DatePickerDayMonthYear() }
+            content = { DatePickerDayMonthYear() },
         )
     }
 
@@ -136,7 +136,7 @@ class DatePickerScreenshotTest {
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Ltr,
             screenSize = screenSize,
-            content = { DatePickerMonthDayYear() }
+            content = { DatePickerMonthDayYear() },
         )
     }
 
@@ -146,7 +146,7 @@ class DatePickerScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Rtl,
-            content = { DatePickerMonthDayYear() }
+            content = { DatePickerMonthDayYear() },
         )
 
     @Test
@@ -156,7 +156,7 @@ class DatePickerScreenshotTest {
             screenshotRule = screenshotRule,
             screenSize = screenSize,
             layoutDirection = LayoutDirection.Ltr,
-            content = { DatePickerYearMonthDay() }
+            content = { DatePickerYearMonthDay() },
         )
     }
 
@@ -166,7 +166,7 @@ class DatePickerScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             layoutDirection = LayoutDirection.Rtl,
-            content = { DatePickerYearMonthDay() }
+            content = { DatePickerYearMonthDay() },
         )
     }
 
@@ -185,7 +185,7 @@ class DatePickerScreenshotTest {
                     maxValidDate =
                         LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15),
                 )
-            }
+            },
         )
     }
 
@@ -204,7 +204,7 @@ class DatePickerScreenshotTest {
                     minValidDate =
                         LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15),
                 )
-            }
+            },
         )
 
     @Test
@@ -224,7 +224,7 @@ class DatePickerScreenshotTest {
                     maxValidDate =
                         LocalDate.of(/* year= */ 2024, /* month= */ 10, /* dayOfMonth= */ 15),
                 )
-            }
+            },
         )
 
     @Test
@@ -244,7 +244,7 @@ class DatePickerScreenshotTest {
                     maxValidDate =
                         LocalDate.of(/* year= */ 2024, /* month= */ 1, /* dayOfMonth= */ 15),
                 )
-            }
+            },
         )
     }
 
@@ -265,7 +265,7 @@ class DatePickerScreenshotTest {
                     maxValidDate =
                         LocalDate.of(/* year= */ 2024, /* month= */ 1, /* dayOfMonth= */ 15),
                 )
-            }
+            },
         )
     }
 
@@ -275,7 +275,7 @@ class DatePickerScreenshotTest {
             onDatePicked = {},
             modifier = Modifier.testTag(TEST_TAG),
             datePickerType = DatePickerType.DayMonthYear,
-            initialDate = LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15)
+            initialDate = LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15),
         )
     }
 
@@ -285,7 +285,7 @@ class DatePickerScreenshotTest {
             onDatePicked = {},
             modifier = Modifier.testTag(TEST_TAG),
             datePickerType = DatePickerType.MonthDayYear,
-            initialDate = LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15)
+            initialDate = LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15),
         )
     }
 
@@ -295,7 +295,7 @@ class DatePickerScreenshotTest {
             onDatePicked = {},
             modifier = Modifier.testTag(TEST_TAG),
             datePickerType = DatePickerType.YearMonthDay,
-            initialDate = LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15)
+            initialDate = LocalDate.of(/* year= */ 2024, /* month= */ 8, /* dayOfMonth= */ 15),
         )
     }
 
@@ -316,7 +316,7 @@ class DatePickerScreenshotTest {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         screenSize: ScreenSize = ScreenSize.SMALL,
         action: (() -> Unit)? = null,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         setContentWithTheme {
             ScreenConfiguration(screenSize.size) {

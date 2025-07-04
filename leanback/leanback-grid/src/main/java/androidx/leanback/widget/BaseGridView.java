@@ -1420,7 +1420,7 @@ public abstract class BaseGridView extends RecyclerView {
         }
         super.removeView(view);
         if (retainFocusForChild) {
-            mPrivateFlag ^= ~PFLAG_RETAIN_FOCUS_FOR_CHILD;
+            mPrivateFlag &= ~PFLAG_RETAIN_FOCUS_FOR_CHILD;
         }
     }
 
@@ -1435,7 +1435,7 @@ public abstract class BaseGridView extends RecyclerView {
         }
         super.removeViewAt(index);
         if (retainFocusForChild) {
-            mPrivateFlag ^= ~PFLAG_RETAIN_FOCUS_FOR_CHILD;
+            mPrivateFlag &= ~PFLAG_RETAIN_FOCUS_FOR_CHILD;
         }
     }
 }

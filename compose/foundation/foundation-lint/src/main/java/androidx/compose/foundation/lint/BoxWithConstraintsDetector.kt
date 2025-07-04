@@ -31,11 +31,17 @@ import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiWildcardType
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.util.EnumSet
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.resolution.KaSimpleVariableAccessCall
+import org.jetbrains.kotlin.analysis.api.resolution.singleVariableAccessCall
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaPropertySymbol
+import org.jetbrains.kotlin.analysis.api.symbols.receiverType
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.UThisExpression
-import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
 class BoxWithConstraintsDetector : Detector(), SourceCodeScanner {
@@ -59,26 +65,35 @@ class BoxWithConstraintsDetector : Detector(), SourceCodeScanner {
                     override fun visitSimpleNameReferenceExpression(
                         node: USimpleNameReferenceExpression
                     ): Boolean {
-                        val reference =
-                            (node.tryResolve() as? PsiMethod)
-                                ?: return foundValidReference // No need to continue if already
-                        // found
-                        if (
-                            reference.isInPackageName(FoundationNames.Layout.PackageName) &&
-                                reference.containingClass?.name ==
-                                    FoundationNames.Layout.BoxWithConstraintsScope.shortName
-                        ) {
-                            foundValidReference = true
-                        }
-
-                        // Check if reference is an extension property on BoxWithConstraintsScope
-                        if (
-                            reference.hierarchicalMethodSignature.parameterTypes
-                                .firstOrNull()
-                                ?.inheritsFrom(FoundationNames.Layout.BoxWithConstraintsScope) ==
-                                true
-                        ) {
-                            foundValidReference = true
+                        val source = node.sourcePsi as? KtElement ?: return foundValidReference
+                        analyze(source) {
+                            (source.resolveToCall()?.singleVariableAccessCall()
+                                    as? KaSimpleVariableAccessCall)
+                                ?.let { variableAccessCall ->
+                                    val propertySymbol =
+                                        variableAccessCall.symbol as? KaPropertySymbol
+                                    // Check if the property is inside BoxWithConstraintsScope
+                                    val containingClassFqn =
+                                        propertySymbol?.callableId?.classId?.asFqNameString()
+                                    // Check if the property is an extension on
+                                    // BoxWithConstraintsScope
+                                    val receiverFqn =
+                                        propertySymbol
+                                            ?.receiverType
+                                            ?.expandedSymbol
+                                            ?.classId
+                                            ?.asFqNameString()
+                                    if (
+                                        containingClassFqn ==
+                                            FoundationNames.Layout.BoxWithConstraintsScope
+                                                .javaFqn ||
+                                            receiverFqn ==
+                                                FoundationNames.Layout.BoxWithConstraintsScope
+                                                    .javaFqn
+                                    ) {
+                                        foundValidReference = true
+                                    }
+                                }
                         }
                         return foundValidReference
                     }
@@ -132,7 +147,7 @@ class BoxWithConstraintsDetector : Detector(), SourceCodeScanner {
                     UnusedConstraintsParameter,
                     node,
                     context.getLocation(contentArgument),
-                    "BoxWithConstraints scope is not used"
+                    "BoxWithConstraints scope is not used",
                 )
             }
         }
@@ -153,8 +168,8 @@ class BoxWithConstraintsDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     BoxWithConstraintsDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

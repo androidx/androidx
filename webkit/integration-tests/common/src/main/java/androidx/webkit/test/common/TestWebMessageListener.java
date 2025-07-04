@@ -16,7 +16,6 @@
 
 package androidx.webkit.test.common;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.webkit.WebView;
 
@@ -24,11 +23,11 @@ import androidx.webkit.JavaScriptReplyProxy;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebViewCompat;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class TestWebMessageListener implements WebViewCompat.WebMessageListener {
     private final BlockingQueue<Data> mQueue = new LinkedBlockingQueue<>();
@@ -38,6 +37,7 @@ public class TestWebMessageListener implements WebViewCompat.WebMessageListener 
         Uri mSourceOrigin;
         boolean mIsMainFrame;
         public @Nullable JavaScriptReplyProxy mReplyProxy;
+
         Data(WebMessageCompat message, Uri sourceOrigin, boolean isMainFrame,
                 JavaScriptReplyProxy replyProxy) {
             mMessage = message;
@@ -55,14 +55,14 @@ public class TestWebMessageListener implements WebViewCompat.WebMessageListener 
     }
 
     /**
-     *  Blocks and waits for onPostMessage to queue up data from JavaScript.
+     * Blocks and waits for onPostMessage to queue up data from JavaScript.
      */
     public @NonNull Data waitForOnPostMessage() throws Exception {
         return WebkitUtils.waitForNextQueueElement(mQueue);
     }
 
     /**
-     *  Indicates whether the queue has any elements enqueued.
+     * Indicates whether the queue has any elements enqueued.
      */
     public boolean hasNoMoreOnPostMessage() {
         return mQueue.isEmpty();

@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,12 +49,10 @@ dependencies {
 
 androidx {
     name = "Compose LiveData integration"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose integration with LiveData"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

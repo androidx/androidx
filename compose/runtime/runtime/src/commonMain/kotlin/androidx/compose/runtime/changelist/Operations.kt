@@ -24,6 +24,7 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
+import androidx.compose.runtime.collection.fastCopyInto
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts
@@ -137,7 +138,7 @@ internal class Operations : OperationsDebugStringFormattable() {
         val resizeAmount = opCodesSize.coerceAtMost(OperationsMaxResizeAmount)
         @Suppress("UNCHECKED_CAST")
         val newOpCodes = arrayOfNulls<Operation>(opCodesSize + resizeAmount) as Array<Operation>
-        opCodes = opCodes.copyInto(newOpCodes, 0, 0, opCodesSize)
+        opCodes = opCodes.fastCopyInto(newOpCodes, 0, 0, opCodesSize)
     }
 
     private inline fun ensureIntArgsSizeAtLeast(requiredSize: Int) {
@@ -162,7 +163,7 @@ internal class Operations : OperationsDebugStringFormattable() {
 
     private fun resizeObjectArgs(currentSize: Int, requiredSize: Int) {
         val newObjectArgs = arrayOfNulls<Any>(determineNewSize(currentSize, requiredSize))
-        objectArgs.copyInto(newObjectArgs, 0, 0, currentSize)
+        objectArgs.fastCopyInto(newObjectArgs, 0, 0, currentSize)
         objectArgs = newObjectArgs
     }
 
@@ -291,11 +292,11 @@ internal class Operations : OperationsDebugStringFormattable() {
         other.pushOp(op)
 
         // Move the objects then null out our contents
-        objectArgs.copyInto(
+        objectArgs.fastCopyInto(
             destination = other.objectArgs,
             destinationOffset = other.objectArgsSize - op.objects,
             startIndex = objectArgsSize - op.objects,
-            endIndex = objectArgsSize
+            endIndex = objectArgsSize,
         )
         objectArgs.fill(null, objectArgsSize - op.objects, objectArgsSize)
 
@@ -304,7 +305,7 @@ internal class Operations : OperationsDebugStringFormattable() {
             destination = other.intArgs,
             destinationOffset = other.intArgsSize - op.ints,
             startIndex = intArgsSize - op.ints,
-            endIndex = intArgsSize
+            endIndex = intArgsSize,
         )
 
         objectArgsSize -= op.objects
@@ -341,11 +342,12 @@ internal class Operations : OperationsDebugStringFormattable() {
     fun executeAndFlushAllPendingOperations(
         applier: Applier<*>,
         slots: SlotWriter,
-        rememberManager: RememberManager
+        rememberManager: RememberManager,
+        errorContext: OperationErrorContext?,
     ) {
         drain {
             with(operation) {
-                execute(applier = applier, slots = slots, rememberManager = rememberManager)
+                executeWithComposeStackTrace(applier, slots, rememberManager, errorContext)
             }
         }
     }
@@ -381,7 +383,7 @@ internal class Operations : OperationsDebugStringFormattable() {
             parameter1: IntParameter,
             value1: Int,
             parameter2: IntParameter,
-            value2: Int
+            value2: Int,
         ) =
             with(stack) {
                 if (EnableDebugRuntimeChecks) {
@@ -404,7 +406,7 @@ internal class Operations : OperationsDebugStringFormattable() {
             parameter2: IntParameter,
             value2: Int,
             parameter3: IntParameter,
-            value3: Int
+            value3: Int,
         ) =
             with(stack) {
                 if (EnableDebugRuntimeChecks) {
@@ -439,16 +441,16 @@ internal class Operations : OperationsDebugStringFormattable() {
             parameter1: ObjectParameter<T>,
             value1: T,
             parameter2: ObjectParameter<U>,
-            value2: U
+            value2: U,
         ) =
             with(stack) {
                 if (EnableDebugRuntimeChecks) {
                     val mask = (0b1 shl parameter1.offset) or (0b1 shl parameter2.offset)
-                    debugRuntimeCheck(pushedIntMask and mask == 0) {
+                    debugRuntimeCheck(pushedObjectMask and mask == 0) {
                         "Already pushed argument(s) ${operation.objectParamName(parameter1)}" +
                             ", ${operation.objectParamName(parameter2)}"
                     }
-                    pushedIntMask = pushedIntMask or mask
+                    pushedObjectMask = pushedObjectMask or mask
                 }
                 val base = objectArgsSize - peekOperation().objects
                 val objectArgs = objectArgs
@@ -462,7 +464,7 @@ internal class Operations : OperationsDebugStringFormattable() {
             parameter2: ObjectParameter<U>,
             value2: U,
             parameter3: ObjectParameter<V>,
-            value3: V
+            value3: V,
         ) =
             with(stack) {
                 if (EnableDebugRuntimeChecks) {
@@ -470,12 +472,12 @@ internal class Operations : OperationsDebugStringFormattable() {
                         (0b1 shl parameter1.offset) or
                             (0b1 shl parameter2.offset) or
                             (0b1 shl parameter3.offset)
-                    debugRuntimeCheck(pushedIntMask and mask == 0) {
+                    debugRuntimeCheck(pushedObjectMask and mask == 0) {
                         "Already pushed argument(s) ${operation.objectParamName(parameter1)}" +
                             ", ${operation.objectParamName(parameter2)}" +
                             ", ${operation.objectParamName(parameter3)}"
                     }
-                    pushedIntMask = pushedIntMask or mask
+                    pushedObjectMask = pushedObjectMask or mask
                 }
                 val base = objectArgsSize - peekOperation().objects
                 val objectArgs = objectArgs
@@ -492,7 +494,7 @@ internal class Operations : OperationsDebugStringFormattable() {
             parameter3: ObjectParameter<V>,
             value3: V,
             parameter4: ObjectParameter<W>,
-            value4: W
+            value4: W,
         ) =
             with(stack) {
                 if (EnableDebugRuntimeChecks) {
@@ -501,13 +503,13 @@ internal class Operations : OperationsDebugStringFormattable() {
                             (0b1 shl parameter2.offset) or
                             (0b1 shl parameter3.offset) or
                             (0b1 shl parameter4.offset)
-                    debugRuntimeCheck(pushedIntMask and mask == 0) {
+                    debugRuntimeCheck(pushedObjectMask and mask == 0) {
                         "Already pushed argument(s) ${operation.objectParamName(parameter1)}" +
                             ", ${operation.objectParamName(parameter2)}" +
                             ", ${operation.objectParamName(parameter3)}" +
                             ", ${operation.objectParamName(parameter4)}"
                     }
-                    pushedIntMask = pushedIntMask or mask
+                    pushedObjectMask = pushedObjectMask or mask
                 }
                 val base = objectArgsSize - peekOperation().objects
                 val objectArgs = objectArgs
@@ -560,10 +562,11 @@ internal class Operations : OperationsDebugStringFormattable() {
         }
     }
 
+    @Suppress("POTENTIALLY_NON_REPORTED_ANNOTATION")
     @Deprecated(
         "toString() will return the default implementation from Any. " +
             "Did you mean to use toDebugString()?",
-        ReplaceWith("toDebugString()")
+        ReplaceWith("toDebugString()"),
     )
     override fun toString(): String {
         return super.toString()

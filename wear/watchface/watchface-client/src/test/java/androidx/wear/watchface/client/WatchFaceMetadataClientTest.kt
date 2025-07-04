@@ -56,7 +56,7 @@ class WatchFaceMetadataClientTest {
                         id,
                         intArrayOf(
                             ComplicationType.SHORT_TEXT.toWireComplicationType(),
-                            ComplicationType.LONG_TEXT.toWireComplicationType()
+                            ComplicationType.LONG_TEXT.toWireComplicationType(),
                         ),
                         arrayOf(shortTextBounds, longTextBounds),
                         ComplicationSlotBoundsType.ROUND_RECT,
@@ -68,7 +68,7 @@ class WatchFaceMetadataClientTest {
                         ComplicationType.SHORT_TEXT.toWireComplicationType(),
                         false,
                         false,
-                        Bundle()
+                        Bundle(),
                     )
                 )
             )
@@ -78,7 +78,7 @@ class WatchFaceMetadataClientTest {
                 ApplicationProvider.getApplicationContext<Context>(),
                 mockService,
                 mockServiceConnection,
-                watchFaceName
+                watchFaceName,
             )
 
         // This should not crash.

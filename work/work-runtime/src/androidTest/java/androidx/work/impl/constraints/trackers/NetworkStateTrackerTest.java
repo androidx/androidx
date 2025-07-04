@@ -16,6 +16,7 @@
 package androidx.work.impl.constraints.trackers;
 
 import static androidx.work.impl.constraints.trackers.NetworkStateTrackerKt.NetworkStateTracker;
+import static androidx.work.impl.constraints.trackers.NetworkStateTrackerKt.getActiveNetworkState;
 import static androidx.work.impl.constraints.trackers.NetworkStateTrackerKt.isActiveNetworkValidated;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -118,5 +119,15 @@ public class NetworkStateTrackerTest {
         when(mMockConnectivityManager.getNetworkCapabilities(activeNetwork))
                 .thenThrow(new SecurityException("Exception"));
         assertThat(isActiveNetworkValidated(mMockConnectivityManager), is(false));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 24)
+    public void handleSecurityExceptions_whenGettingActiveNetworkState() {
+        when(mMockConnectivityManager.getActiveNetworkInfo())
+                .thenThrow(new SecurityException("Exception"));
+        assertThat(getActiveNetworkState(mMockConnectivityManager), is(
+                new NetworkState(false, false, false, true)));
     }
 }

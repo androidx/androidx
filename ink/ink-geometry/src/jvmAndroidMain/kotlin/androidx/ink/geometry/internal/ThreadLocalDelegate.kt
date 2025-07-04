@@ -31,7 +31,7 @@ import kotlin.reflect.KProperty
 internal fun <T> threadLocal(initialValueProvider: () -> T): ThreadLocalDelegate<T> =
     ThreadLocalDelegate(initialValueProvider)
 
-internal class ThreadLocalDelegate<T> constructor(private val initialValueProvider: () -> T) :
+internal class ThreadLocalDelegate<T>(private val initialValueProvider: () -> T) :
     ThreadLocal<T>() {
     override fun initialValue(): T = initialValueProvider()
 

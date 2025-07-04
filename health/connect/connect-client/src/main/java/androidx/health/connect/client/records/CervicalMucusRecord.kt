@@ -31,11 +31,11 @@ import java.time.ZoneOffset
 public class CervicalMucusRecord(
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
+    override val metadata: Metadata,
     /** The consistency of the user's cervical mucus. */
     @property:Appearances public val appearance: Int = APPEARANCE_UNKNOWN,
     /** The feel of the user's cervical mucus. */
     @property:Sensations public val sensation: Int = SENSATION_UNKNOWN,
-    override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
 
     companion object {
@@ -66,7 +66,7 @@ public class CervicalMucusRecord(
                 Appearance.DRY to APPEARANCE_DRY,
                 Appearance.STICKY to APPEARANCE_STICKY,
                 Appearance.WATERY to APPEARANCE_WATERY,
-                Appearance.UNUSUAL to APPEARANCE_UNUSUAL
+                Appearance.UNUSUAL to APPEARANCE_UNUSUAL,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -79,7 +79,7 @@ public class CervicalMucusRecord(
             mapOf(
                 Sensation.LIGHT to SENSATION_LIGHT,
                 Sensation.MEDIUM to SENSATION_MEDIUM,
-                Sensation.HEAVY to SENSATION_HEAVY
+                Sensation.HEAVY to SENSATION_HEAVY,
             )
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -121,7 +121,7 @@ public class CervicalMucusRecord(
                 APPEARANCE_CREAMY,
                 APPEARANCE_WATERY,
                 APPEARANCE_EGG_WHITE,
-                APPEARANCE_UNUSUAL
+                APPEARANCE_UNUSUAL,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)

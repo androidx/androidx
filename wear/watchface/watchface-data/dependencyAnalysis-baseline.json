@@ -1,0 +1,13 @@
+{
+  "projectPath": ":wear:watchface:watchface-data",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.7.0"
+      },
+      "fromConfiguration": "implementation"
+    }
+  ]
+}

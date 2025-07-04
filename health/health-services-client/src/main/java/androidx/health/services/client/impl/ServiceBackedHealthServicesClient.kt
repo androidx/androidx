@@ -34,7 +34,7 @@ internal class ServiceBackedHealthServicesClient(context: Context) :
         CLIENT_CONFIGURATION,
         HsConnectionManager.getInstance(context),
         { binder -> IHealthServicesApiService.Stub.asInterface(binder) },
-        { service -> service.apiVersion }
+        { service -> service.apiVersion },
     ) {
 
     private val applicationContext = context.applicationContext

@@ -35,8 +35,7 @@ public class MyDao_Impl(
   init {
     this.__db = __db
     this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
-      protected override fun createQuery(): String =
-          "INSERT OR ABORT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
+      protected override fun createQuery(): String = "INSERT OR ABORT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
       protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
@@ -51,8 +50,7 @@ public class MyDao_Impl(
       }
     }
     this.__updateAdapterOfMyEntity = object : EntityDeleteOrUpdateAdapter<MyEntity>() {
-      protected override fun createQuery(): String =
-          "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
+      protected override fun createQuery(): String = "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
       protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
@@ -60,18 +58,15 @@ public class MyDao_Impl(
         statement.bindLong(3, entity.pk.toLong())
       }
     }
-    this.__upsertAdapterOfMyEntity = EntityUpsertAdapter<MyEntity>(object :
-        EntityInsertAdapter<MyEntity>() {
-      protected override fun createQuery(): String =
-          "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
+    this.__upsertAdapterOfMyEntity = EntityUpsertAdapter<MyEntity>(object : EntityInsertAdapter<MyEntity>() {
+      protected override fun createQuery(): String = "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
       protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
         statement.bindText(2, entity.other)
       }
     }, object : EntityDeleteOrUpdateAdapter<MyEntity>() {
-      protected override fun createQuery(): String =
-          "UPDATE `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
+      protected override fun createQuery(): String = "UPDATE `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
       protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
@@ -81,31 +76,25 @@ public class MyDao_Impl(
     })
   }
 
-  public override fun insertListenableFuture(vararg entities: MyEntity):
-      ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
-    val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection,
-        entities)
+  public override fun insertListenableFuture(vararg entities: MyEntity): ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
+    val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection, entities)
     _result
   }
 
-  public override fun deleteListenableFuture(entity: MyEntity): ListenableFuture<Int> =
-      createListenableFuture(__db, false, true) { _connection ->
+  public override fun deleteListenableFuture(entity: MyEntity): ListenableFuture<Int> = createListenableFuture(__db, false, true) { _connection ->
     var _result: Int = 0
     _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
     _result
   }
 
-  public override fun updateListenableFuture(entity: MyEntity): ListenableFuture<Int> =
-      createListenableFuture(__db, false, true) { _connection ->
+  public override fun updateListenableFuture(entity: MyEntity): ListenableFuture<Int> = createListenableFuture(__db, false, true) { _connection ->
     var _result: Int = 0
     _result += __updateAdapterOfMyEntity.handle(_connection, entity)
     _result
   }
 
-  public override fun upsertListenableFuture(vararg entities: MyEntity):
-      ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
-    val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection,
-        entities)
+  public override fun upsertListenableFuture(vararg entities: MyEntity): ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
+    val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection, entities)
     _result
   }
 
@@ -138,7 +127,7 @@ public class MyDao_Impl(
           _tmpOther = _stmt.getText(_columnIndexOfOther)
           _result = MyEntity(_tmpPk,_tmpOther)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
         }
         _result
       } finally {
@@ -147,8 +136,7 @@ public class MyDao_Impl(
     }
   }
 
-  public override fun getListenableFutureNullable(vararg arg: String?):
-      ListenableFuture<MyEntity?> {
+  public override fun getListenableFutureNullable(vararg arg: String?): ListenableFuture<MyEntity?> {
     val _stringBuilder: StringBuilder = StringBuilder()
     _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
     val _inputSize: Int = arg.size

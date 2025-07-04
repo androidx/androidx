@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.room.DatabaseConfiguration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.test.filters.SdkSuppress
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -118,7 +119,7 @@ class PrePackagedCopyOpenHelperTest {
         assertEquals(1, getAndIncrementAccessCount(copyFile))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Ignore("b/166632825 test is flaky")
     @Test
     fun singleCopy_multiProcess() {

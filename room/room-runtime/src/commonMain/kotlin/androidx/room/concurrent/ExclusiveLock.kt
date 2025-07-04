@@ -16,11 +16,6 @@
 
 package androidx.room.concurrent
 
-import kotlinx.atomicfu.locks.ReentrantLock
-import kotlinx.atomicfu.locks.SynchronizedObject
-import kotlinx.atomicfu.locks.reentrantLock
-import kotlinx.atomicfu.locks.synchronized
-
 /**
  * An exclusive lock for in-process and multi-process synchronization.
  *
@@ -40,14 +35,28 @@ internal class ExclusiveLock(filename: String, useFileLock: Boolean) {
     private val threadLock: ReentrantLock = getThreadLock(filename)
     private val fileLock: FileLock? = if (useFileLock) getFileLock(filename) else null
 
-    fun <T> withLock(block: () -> T): T {
+    /**
+     * Attempts to acquire a lock, blocking if it is not available. Once a lock is acquired
+     * [onLocked] will be invoked. If an error occurs during locking, then [onLockError] will be
+     * invoked to give a chance for the caller make sense of the error.
+     */
+    fun <T> withLock(onLocked: () -> T, onLockError: (Throwable) -> Nothing): T {
+        var locked = false
         threadLock.lock()
         try {
             fileLock?.lock()
             try {
-                return block()
+                locked = true
+                return onLocked()
             } finally {
                 fileLock?.unlock()
+            }
+        } catch (t: Throwable) {
+            if (locked) {
+                // Lock was acquired so error comes from critical region, simply re-throw.
+                throw t
+            } else {
+                onLockError(t)
             }
         } finally {
             threadLock.unlock()
@@ -59,7 +68,7 @@ internal class ExclusiveLock(filename: String, useFileLock: Boolean) {
 
         private fun getThreadLock(key: String): ReentrantLock =
             synchronized(this) {
-                return threadLocksMap.getOrPut(key) { reentrantLock() }
+                return threadLocksMap.getOrPut(key) { ReentrantLock() }
             }
 
         private fun getFileLock(key: String) = FileLock(key)

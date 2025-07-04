@@ -63,7 +63,7 @@ class EasingTestAndroid {
                 EaseOutQuad,
                 EaseOutQuart,
                 EaseOutQuint,
-                EaseOutSine
+                EaseOutSine,
             )
 
         for (curve in curves) {
@@ -72,7 +72,7 @@ class EasingTestAndroid {
                 val t = curve.transform(fraction)
                 assertTrue(
                     t in -ZeroEpsilon..OneEpsilon,
-                    "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}"
+                    "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}",
                 )
             }
 
@@ -81,7 +81,7 @@ class EasingTestAndroid {
                 val t = curve.transform(fraction)
                 assertTrue(
                     t in -ZeroEpsilon..OneEpsilon,
-                    "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}"
+                    "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}",
                 )
             }
 
@@ -90,7 +90,7 @@ class EasingTestAndroid {
             val t = curve.transform(fraction)
             assertTrue(
                 t in -ZeroEpsilon..OneEpsilon,
-                "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}"
+                "f($fraction) = $t out of range for $curve | ${-ZeroEpsilon}..${OneEpsilon}",
             )
         }
     }

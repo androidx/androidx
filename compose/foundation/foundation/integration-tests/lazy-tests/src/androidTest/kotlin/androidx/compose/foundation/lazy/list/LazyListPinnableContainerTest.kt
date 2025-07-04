@@ -650,7 +650,7 @@ class LazyListPinnableContainerTest(val useLookaheadScope: Boolean) {
                         Modifier.size(itemSize * 2)
                             .focusRestorer(focusRequester)
                             .focusRequester(parentRequester)
-                            .focusable()
+                            .focusable(),
                 ) {
                     items(values) { value ->
                         val fallback =

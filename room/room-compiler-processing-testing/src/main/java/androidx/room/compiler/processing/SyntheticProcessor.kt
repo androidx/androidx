@@ -60,13 +60,13 @@ internal class SyntheticProcessorImpl(handlers: List<(XTestInvocation) -> Unit>)
                 override fun process(
                     env: XProcessingEnv,
                     elementsByAnnotation: Map<String, Set<XElement>>,
-                    isLastRound: Boolean
+                    isLastRound: Boolean,
                 ): Set<XTypeElement> = emptySet()
             }
         )
 
     internal fun postRound(env: XProcessingEnv, round: XRoundEnv) {
-        if (canRunAnotherRound()) {
+        if (canRunAnotherRound(round)) {
             runNextRound(XTestInvocation(env, round))
         }
     }
@@ -79,9 +79,12 @@ internal class SyntheticProcessorImpl(handlers: List<(XTestInvocation) -> Unit>)
      * Returns true if this can run another round, which means previous round didn't throw an
      * exception and there is another handler in the queue.
      */
-    fun canRunAnotherRound(): Boolean {
+    fun canRunAnotherRound(round: XRoundEnv): Boolean {
         if (result?.exceptionOrNull() != null) {
             // if there is an existing failure from a previous run, stop
+            return false
+        }
+        if (round.isProcessingOver) {
             return false
         }
         return expectsAnotherRound()

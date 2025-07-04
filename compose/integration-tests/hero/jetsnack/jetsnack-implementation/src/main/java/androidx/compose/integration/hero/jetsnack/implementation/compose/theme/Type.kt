@@ -34,7 +34,7 @@ val Typography =
                 fontSize = 96.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 117.sp,
-                letterSpacing = (-1.5).sp
+                letterSpacing = (-1.5).sp,
             ),
         h2 =
             TextStyle(
@@ -42,35 +42,35 @@ val Typography =
                 fontSize = 60.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 73.sp,
-                letterSpacing = (-0.5).sp
+                letterSpacing = (-0.5).sp,
             ),
         h3 =
             TextStyle(
                 fontFamily = Karla,
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Normal,
-                lineHeight = 59.sp
+                lineHeight = 59.sp,
             ),
         h4 =
             TextStyle(
                 fontFamily = Karla,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Normal,
-                lineHeight = 37.sp
+                lineHeight = 37.sp,
             ),
         h5 =
             TextStyle(
                 fontFamily = Karla,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Normal,
-                lineHeight = 29.sp
+                lineHeight = 29.sp,
             ),
         h6 =
             TextStyle(
                 fontFamily = Karla,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Normal,
-                lineHeight = 24.sp
+                lineHeight = 24.sp,
             ),
         subtitle1 =
             TextStyle(
@@ -78,7 +78,7 @@ val Typography =
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 24.sp,
-                letterSpacing = 0.15.sp
+                letterSpacing = 0.15.sp,
             ),
         subtitle2 =
             TextStyle(
@@ -86,7 +86,7 @@ val Typography =
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 24.sp,
-                letterSpacing = 0.1.sp
+                letterSpacing = 0.1.sp,
             ),
         body1 =
             TextStyle(
@@ -94,7 +94,7 @@ val Typography =
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 28.sp,
-                letterSpacing = 0.15.sp
+                letterSpacing = 0.15.sp,
             ),
         body2 =
             TextStyle(
@@ -102,7 +102,7 @@ val Typography =
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 20.sp,
-                letterSpacing = 0.25.sp
+                letterSpacing = 0.25.sp,
             ),
         button =
             TextStyle(
@@ -110,7 +110,7 @@ val Typography =
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 16.sp,
-                letterSpacing = 1.25.sp
+                letterSpacing = 1.25.sp,
             ),
         caption =
             TextStyle(
@@ -118,7 +118,7 @@ val Typography =
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 16.sp,
-                letterSpacing = 0.4.sp
+                letterSpacing = 0.4.sp,
             ),
         overline =
             TextStyle(
@@ -126,6 +126,6 @@ val Typography =
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Normal,
                 lineHeight = 16.sp,
-                letterSpacing = 1.sp
-            )
+                letterSpacing = 1.sp,
+            ),
     )

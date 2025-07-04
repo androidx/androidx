@@ -32,5 +32,6 @@
         <activity android:name="androidx.compose.runtime.saveable.SaveableStateHolderTest$Activity" />
         <activity android:name="androidx.compose.runtime.saveable.PopupsRecreationTestActivity" />
         <activity android:name="androidx.compose.runtime.saveable.DialogsRecreationTestActivity" />
+        <activity android:name="androidx.compose.runtime.saveable.MovableContentRecreationActivity" />
     </application>
 </manifest>

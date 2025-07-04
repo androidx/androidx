@@ -62,7 +62,7 @@ class FontFamilyResolverImplCancellationTest {
                 fontLoader,
                 fontResolveInterceptor,
                 typefaceRequestCache,
-                FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext)
+                FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext),
             )
         typefaceLoader = AsyncTestTypefaceLoader()
     }
@@ -89,7 +89,7 @@ class FontFamilyResolverImplCancellationTest {
                     FontWeight.Normal,
                     FontStyle.Normal,
                     FontSynthesis.All,
-                    fontLoader.cacheKey
+                    fontLoader.cacheKey,
                 )
             )!!
 

@@ -16,10 +16,12 @@
 
 package androidx.xr.arcore
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.Config.PlaneTrackingMode
 import androidx.xr.runtime.CoreState
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -32,10 +34,10 @@ import androidx.xr.runtime.testing.FakePerceptionManager
 import androidx.xr.runtime.testing.FakeRuntime
 import androidx.xr.runtime.testing.FakeRuntimePlane
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,58 +46,67 @@ import org.junit.runner.RunWith
 class InteractionTest {
 
     private lateinit var session: Session
-    private lateinit var activity: Activity
     private lateinit var timeSource: TestTimeSource
     private lateinit var perceptionStateExtender: PerceptionStateExtender
     private lateinit var perceptionManager: FakePerceptionManager
 
     @get:Rule
-    val grantPermissionRule = GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING")
+    val grantPermissionRule =
+        GrantPermissionRule.grant(
+            "android.permission.SCENE_UNDERSTANDING_COARSE",
+            "android.permission.HAND_TRACKING",
+        )
 
-    @Before
-    fun setUp() {
-        session = createTestSession()
-        timeSource = (session.runtime as FakeRuntime).lifecycleManager.timeSource
-        perceptionStateExtender =
-            session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
-        perceptionManager = perceptionStateExtender.perceptionManager as FakePerceptionManager
+    @Test
+    fun hitTest_successWithOneHitResult() = createTestSessionAndRunTest {
+        runTest {
+            timeSource = (session.runtime as FakeRuntime).lifecycleManager.timeSource
+            perceptionStateExtender =
+                session.stateExtenders.filterIsInstance<PerceptionStateExtender>().first()
+            perceptionManager = perceptionStateExtender.perceptionManager as FakePerceptionManager
+            val runtimePlane = FakeRuntimePlane()
+            perceptionManager.addTrackable(runtimePlane)
+            // Mock the behavior of session update.
+            val timeMark = timeSource.markNow()
+            val state = CoreState(timeMark)
+            perceptionStateExtender.extend(state)
+            check(state.perceptionState?.trackables?.size == 1)
+            val expectedTrackable = state.perceptionState?.trackables?.first()
+            val runtimeHitResult: RuntimeHitResult =
+                RuntimeHitResult(
+                    distance = 1f,
+                    hitPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f)),
+                    trackable = runtimePlane,
+                )
+            perceptionManager.addHitResult(runtimeHitResult)
+
+            val hitResults = hitTest(session, Ray(Vector3(0f, 0f, 0f), Vector3(0f, 0f, 1f)))
+
+            assertThat(hitResults.size).isEqualTo(1)
+            assertThat(hitResults[0].distance).isEqualTo(runtimeHitResult.distance)
+            assertThat(hitResults[0].hitPose).isEqualTo(runtimeHitResult.hitPose)
+            assertThat(hitResults[0].trackable).isEqualTo(expectedTrackable)
+        }
     }
 
     @Test
-    fun hitTest_successWithOneHitResult() = runTest {
-        val runtimePlane = FakeRuntimePlane()
-        perceptionManager.addTrackable(runtimePlane)
-        // Mock the behavior of session update.
-        val timeMark = timeSource.markNow()
-        val state = CoreState(timeMark)
-        perceptionStateExtender.extend(state)
-        check(state.perceptionState?.trackables?.size == 1)
-        val expectedTrackable = state.perceptionState?.trackables?.first()
-        val runtimeHitResult: RuntimeHitResult =
-            RuntimeHitResult(
-                distance = 1f,
-                hitPose = Pose(Vector3(1f, 2f, 3f), Quaternion(4f, 5f, 6f, 7f)),
-                trackable = runtimePlane,
-            )
-        perceptionManager.addHitResult(runtimeHitResult)
+    fun hitTest_planeTrackingDisabled_throwsIllegalStateException() = createTestSessionAndRunTest {
+        runTest {
+            session.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
 
-        val hitResults = hitTest(session, Ray(Vector3(0f, 0f, 0f), Vector3(0f, 0f, 1f)))
-
-        assertThat(hitResults.size).isEqualTo(1)
-        assertThat(hitResults[0].distance).isEqualTo(runtimeHitResult.distance)
-        assertThat(hitResults[0].hitPose).isEqualTo(runtimeHitResult.hitPose)
-        assertThat(hitResults[0].trackable).isEqualTo(expectedTrackable)
+            assertFailsWith<IllegalStateException> { hitTest(session, Ray()) }
+        }
     }
 
-    private fun createTestSession(): Session {
-        var session: Session? = null
-        ActivityScenario.launch(Activity::class.java).use {
+    private fun createTestSessionAndRunTest(testBody: () -> Unit) {
+        ActivityScenario.launch(ComponentActivity::class.java).use {
             it.onActivity { activity ->
                 session =
                     (Session.create(activity, StandardTestDispatcher()) as SessionCreateSuccess)
                         .session
+
+                testBody()
             }
         }
-        return checkNotNull(session) { "Session must not be null." }
     }
 }

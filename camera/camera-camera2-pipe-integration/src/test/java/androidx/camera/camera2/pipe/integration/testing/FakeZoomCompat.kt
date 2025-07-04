@@ -33,7 +33,7 @@ constructor(
 
     override fun applyAsync(
         zoomRatio: Float,
-        requestControl: UseCaseCameraRequestControl
+        requestControl: UseCaseCameraRequestControl,
     ): Deferred<Unit> {
         return applyAsyncResult.also { result ->
             result.invokeOnCompletion { this.zoomRatio = zoomRatio }

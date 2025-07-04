@@ -189,7 +189,7 @@ internal constructor(
      *   do not match the equation defined in [TransferParameters]
      */
     public val transferParameters: TransferParameters?,
-    id: Int
+    id: Int,
 ) : ColorSpace(name, ColorModel.Rgb, id) {
 
     internal val primaries: FloatArray
@@ -337,7 +337,7 @@ internal constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
         oetf: (Double) -> Double,
-        eotf: (Double) -> Double
+        eotf: (Double) -> Double,
     ) : this(
         name,
         computePrimaries(toXYZ),
@@ -348,7 +348,7 @@ internal constructor(
         0.0f,
         1.0f,
         null,
-        MinId
+        MinId,
     )
 
     /**
@@ -387,7 +387,7 @@ internal constructor(
         oetf: (Double) -> Double,
         eotf: (Double) -> Double,
         min: Float,
-        max: Float
+        max: Float,
     ) : this(
         name,
         primaries,
@@ -398,7 +398,7 @@ internal constructor(
         min,
         max,
         null,
-        MinId
+        MinId,
     )
 
     /**
@@ -418,7 +418,7 @@ internal constructor(
     public constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
-        function: TransferParameters
+        function: TransferParameters,
     ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), function, MinId)
 
     /**
@@ -450,7 +450,7 @@ internal constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
-        function: TransferParameters
+        function: TransferParameters,
     ) : this(name, primaries, whitePoint, function, MinId)
 
     /**
@@ -488,7 +488,7 @@ internal constructor(
         primaries: FloatArray,
         whitePoint: WhitePoint,
         function: TransferParameters,
-        id: Int
+        id: Int,
     ) : this(
         name,
         primaries,
@@ -499,7 +499,7 @@ internal constructor(
         0.0f,
         1.0f,
         function,
-        id
+        id,
     )
 
     /**
@@ -521,7 +521,7 @@ internal constructor(
     public constructor(
         @Size(min = 1) name: String,
         @Size(9) toXYZ: FloatArray,
-        gamma: Double
+        gamma: Double,
     ) : this(name, computePrimaries(toXYZ), computeWhitePoint(toXYZ), gamma, 0.0f, 1.0f, MinId)
 
     /**
@@ -555,7 +555,7 @@ internal constructor(
         @Size(min = 1) name: String,
         @Size(min = 6, max = 9) primaries: FloatArray,
         whitePoint: WhitePoint,
-        gamma: Double
+        gamma: Double,
     ) : this(name, primaries, whitePoint, gamma, 0.0f, 1.0f, MinId)
 
     /**
@@ -598,7 +598,7 @@ internal constructor(
         gamma: Double,
         min: Float,
         max: Float,
-        id: Int
+        id: Int,
     ) : this(
         name,
         primaries,
@@ -611,7 +611,7 @@ internal constructor(
         min,
         max,
         TransferParameters(gamma, 1.0, 0.0, 0.0, 0.0),
-        id
+        id,
     )
 
     /**
@@ -622,7 +622,7 @@ internal constructor(
     internal constructor(
         colorSpace: Rgb,
         transform: FloatArray,
-        whitePoint: WhitePoint
+        whitePoint: WhitePoint,
     ) : this(
         colorSpace.name,
         colorSpace.primaries,
@@ -633,7 +633,7 @@ internal constructor(
         colorSpace.min,
         colorSpace.max,
         colorSpace.transferParameters,
-        MinId
+        MinId,
     )
 
     /**
@@ -812,7 +812,7 @@ internal constructor(
         y: Float,
         z: Float,
         a: Float,
-        colorSpace: ColorSpace
+        colorSpace: ColorSpace,
     ): Color {
         var v0 = mul3x3Float3_0(inverseTransform, x, y, z)
         var v1 = mul3x3Float3_1(inverseTransform, x, y, z)
@@ -895,7 +895,7 @@ internal constructor(
             EOTF: DoubleFunction,
             min: Float,
             max: Float,
-            id: Int
+            id: Int,
         ): Boolean {
             if (id == 0) return true
             if (!compare(primaries, ColorSpaces.SrgbPrimaries)) {
@@ -1050,7 +1050,7 @@ internal constructor(
                     p1[2] - p2[2],
                     p1[3] - p2[3],
                     p1[4] - p2[4],
-                    p1[5] - p2[5]
+                    p1[5] - p2[5],
                 )
             // Check the first vertex of p1
             if (
@@ -1093,7 +1093,7 @@ internal constructor(
                 g[0] / gSum,
                 g[1] / gSum,
                 b[0] / bSum,
-                b[1] / bSum
+                b[1] / bSum,
             )
         }
 
@@ -1191,7 +1191,7 @@ internal constructor(
                 gYGy * (1f - gx - gy),
                 bYBy * bx,
                 bY,
-                bYBy * (1f - bx - by)
+                bYBy * (1f - bx - by),
             )
         }
 
@@ -1209,7 +1209,7 @@ internal constructor(
                             function.b,
                             function.c,
                             function.d,
-                            function.gamma
+                            function.gamma,
                         )
                     }
                 else
@@ -1222,7 +1222,7 @@ internal constructor(
                             function.d,
                             function.e,
                             function.f,
-                            function.gamma
+                            function.gamma,
                         )
                     }
             }
@@ -1248,7 +1248,7 @@ internal constructor(
                             function.d,
                             function.e,
                             function.f,
-                            function.gamma
+                            function.gamma,
                         )
                     }
             }

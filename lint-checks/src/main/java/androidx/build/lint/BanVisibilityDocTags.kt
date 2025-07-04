@@ -30,11 +30,7 @@ import org.jetbrains.uast.UDeclaration
 @Suppress("unused")
 class BanVisibilityDocTags : Detector(), Detector.UastScanner {
     private val tagToIssue =
-        mapOf(
-            "@hide" to HIDE_ISSUE,
-            "@suppress" to SUPPRESS_ISSUE,
-            "@removed" to REMOVED_ISSUE,
-        )
+        mapOf("@hide" to HIDE_ISSUE, "@suppress" to SUPPRESS_ISSUE, "@removed" to REMOVED_ISSUE)
 
     override fun getApplicableUastTypes() = listOf(UDeclaration::class.java)
 
@@ -68,7 +64,7 @@ class BanVisibilityDocTags : Detector(), Detector.UastScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE),
             )
         val SUPPRESS_ISSUE =
             Issue.create(
@@ -81,7 +77,7 @@ class BanVisibilityDocTags : Detector(), Detector.UastScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE),
             )
         val REMOVED_ISSUE =
             Issue.create(
@@ -94,7 +90,7 @@ class BanVisibilityDocTags : Detector(), Detector.UastScanner {
                 priority = 5,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(BanVisibilityDocTags::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

@@ -108,7 +108,7 @@ class PresentationActivity : EdgeToEdgeActivity() {
                         .window
                         ?.attributes
                         ?.flags
-                        ?.or(android.R.attr.showWhenLocked or android.R.attr.turnScreenOn)
+                        ?.or(android.R.attr.showWhenLocked or android.R.attr.turnScreenOn)!!
             }
             presentation!!.show()
             break

@@ -54,7 +54,7 @@ internal interface InputEventCallback2 {
         includeInsertionMarker: Boolean,
         includeCharacterBounds: Boolean,
         includeEditorBounds: Boolean,
-        includeLineBounds: Boolean
+        includeLineBounds: Boolean,
     )
 
     /**

@@ -282,7 +282,7 @@ public class AssetHelperTest {
     private byte[] readFully(InputStream stream) throws IOException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         byte[] buf = new byte[4096];
-        for (;;) {
+        for (; ; ) {
             int len = stream.read(buf);
             if (len < 1) break;
             data.write(buf, 0, len);

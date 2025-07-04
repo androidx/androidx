@@ -48,7 +48,7 @@ class TextAnnotatedStringContentCaptureInvalidationTest {
             text,
             TextStyle.Default,
             createFontFamilyResolver(context),
-            null
+            null,
         )
     }
 

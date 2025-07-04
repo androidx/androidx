@@ -42,7 +42,7 @@ internal class LookaheadPassDelegate(
     private enum class PlacedState {
         IsPlacedInLookahead,
         IsPlacedInApproach,
-        IsNotPlaced
+        IsNotPlaced,
     }
 
     /**
@@ -316,7 +316,7 @@ internal class LookaheadPassDelegate(
         forEachChildDelegate { it.markNodeAndSubtreeAsNotPlaced(true) }
     }
 
-    override fun calculateAlignmentLines(): Map<out AlignmentLine, Int> {
+    override fun calculateAlignmentLines(): Map<AlignmentLine, Int> {
         if (!duringAlignmentLinesQuery) {
             if (layoutState == LayoutState.LookaheadMeasuring) {
                 // Mark alignments used by modifier
@@ -452,52 +452,56 @@ internal class LookaheadPassDelegate(
 
     // Lookahead remeasurement with the given constraints.
     fun remeasure(constraints: Constraints): Boolean {
-        requirePrecondition(!layoutNode.isDeactivated) { "measure is called on a deactivated node" }
-        val parent = layoutNode.parent
-        @Suppress("Deprecation")
-        layoutNode.canMultiMeasure =
-            layoutNode.canMultiMeasure || (parent != null && parent.canMultiMeasure)
-        if (layoutNode.lookaheadMeasurePending || lookaheadConstraints != constraints) {
-            lookaheadConstraints = constraints
-            measurementConstraints = constraints
-            alignmentLines.usedByModifierMeasurement = false
-            forEachChildAlignmentLinesOwner {
-                it.alignmentLines.usedDuringParentMeasurement = false
+        withComposeStackTrace(layoutNode) {
+            requirePrecondition(!layoutNode.isDeactivated) {
+                "measure is called on a deactivated node"
             }
-            // Copy out the previous size before performing lookahead measure. If never
-            // measured, set the last size to negative instead of Zero in anticipation for zero
-            // being a valid lookahead size.
-            val lastLookaheadSize =
-                if (measuredOnce) measuredSize else IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
-            measuredOnce = true
-            val lookaheadDelegate = outerCoordinator.lookaheadDelegate
-            checkPrecondition(lookaheadDelegate != null) {
-                "Lookahead result from lookaheadRemeasure cannot be null"
+            val parent = layoutNode.parent
+            @Suppress("Deprecation")
+            layoutNode.canMultiMeasure =
+                layoutNode.canMultiMeasure || (parent != null && parent.canMultiMeasure)
+            if (layoutNode.lookaheadMeasurePending || lookaheadConstraints != constraints) {
+                lookaheadConstraints = constraints
+                measurementConstraints = constraints
+                alignmentLines.usedByModifierMeasurement = false
+                forEachChildAlignmentLinesOwner {
+                    it.alignmentLines.usedDuringParentMeasurement = false
+                }
+                // Copy out the previous size before performing lookahead measure. If never
+                // measured, set the last size to negative instead of Zero in anticipation for zero
+                // being a valid lookahead size.
+                val lastLookaheadSize =
+                    if (measuredOnce) measuredSize else IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
+                measuredOnce = true
+                val lookaheadDelegate = outerCoordinator.lookaheadDelegate
+                checkPrecondition(lookaheadDelegate != null) {
+                    "Lookahead result from lookaheadRemeasure cannot be null"
+                }
+
+                layoutNodeLayoutDelegate.performLookaheadMeasure(constraints)
+                measuredSize = IntSize(lookaheadDelegate.width, lookaheadDelegate.height)
+                val sizeChanged =
+                    lastLookaheadSize.width != lookaheadDelegate.width ||
+                        lastLookaheadSize.height != lookaheadDelegate.height
+                return sizeChanged
+            } else {
+                // this node doesn't require being remeasured. however in order to make sure we have
+                // the final size we need to also make sure the whole subtree is remeasured as it
+                // can trigger extra remeasure request on our node. we do it now in order to report
+                // the final measured size to our parent without doing extra pass later.
+                layoutNode.owner?.forceMeasureTheSubtree(layoutNode, affectsLookahead = true)
+
+                // Restore the intrinsics usage for the sub-tree
+                layoutNode.resetSubtreeIntrinsicsUsage()
             }
-
-            layoutNodeLayoutDelegate.performLookaheadMeasure(constraints)
-            measuredSize = IntSize(lookaheadDelegate.width, lookaheadDelegate.height)
-            val sizeChanged =
-                lastLookaheadSize.width != lookaheadDelegate.width ||
-                    lastLookaheadSize.height != lookaheadDelegate.height
-            return sizeChanged
-        } else {
-            // this node doesn't require being remeasured. however in order to make sure we have
-            // the final size we need to also make sure the whole subtree is remeasured as it
-            // can trigger extra remeasure request on our node. we do it now in order to report
-            // the final measured size to our parent without doing extra pass later.
-            layoutNode.owner?.forceMeasureTheSubtree(layoutNode, affectsLookahead = true)
-
-            // Restore the intrinsics usage for the sub-tree
-            layoutNode.resetSubtreeIntrinsicsUsage()
+            return false
         }
-        return false
     }
 
     override fun placeAt(
         position: IntOffset,
         zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
     ) {
         placeSelf(position, zIndex, layerBlock, null)
     }
@@ -521,57 +525,61 @@ internal class LookaheadPassDelegate(
         position: IntOffset,
         zIndex: Float,
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
-        layer: GraphicsLayer?
+        layer: GraphicsLayer?,
     ) {
-        if (layoutNode.parent?.layoutState == LayoutState.LookaheadLayingOut) {
-            // This placement call comes from parent
-            layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement = false
-        }
-        requirePrecondition(!layoutNode.isDeactivated) { "place is called on a deactivated node" }
-        layoutState = LayoutState.LookaheadLayingOut
-        placedOnce = true
-        onNodePlacedCalled = false
-        if (position != lastPosition) {
-            if (
-                layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement ||
-                    layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringPlacement
-            ) {
-                layoutPending = true
+        withComposeStackTrace(layoutNode) {
+            if (layoutNode.parent?.layoutState == LayoutState.LookaheadLayingOut) {
+                // This placement call comes from parent
+                layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement = false
             }
-            notifyChildrenUsingLookaheadCoordinatesWhilePlacing()
-        }
-        val owner = layoutNode.requireOwner()
-
-        if (!layoutPending && isPlaced) {
-            outerCoordinator.lookaheadDelegate!!.placeSelfApparentToRealOffset(position)
-            onNodePlaced()
-        } else {
-            layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement = false
-            alignmentLines.usedByModifierLayout = false
-            owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
-                val expectsLookaheadPlacementFromParent =
-                    !layoutNode.isOutMostLookaheadRoot &&
-                        !layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement
-
-                val scope =
-                    if (expectsLookaheadPlacementFromParent) {
-                        outerCoordinator.wrappedBy?.lookaheadDelegate?.placementScope
-                    } else {
-                        // Uses the approach pass placement scope intentionally here when
-                        // the
-                        // lookahead placement is detached from parent. This way we will
-                        // be able to pick up the correct `withMotionFrameOfReference` flag
-                        // from the placement scope.
-                        outerCoordinator.wrappedBy?.placementScope
-                    } ?: owner.placementScope
-                with(scope) { outerCoordinator.lookaheadDelegate!!.place(position) }
+            requirePrecondition(!layoutNode.isDeactivated) {
+                "place is called on a deactivated node"
             }
+            layoutState = LayoutState.LookaheadLayingOut
+            placedOnce = true
+            onNodePlacedCalled = false
+            if (position != lastPosition) {
+                if (
+                    layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement ||
+                        layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringPlacement
+                ) {
+                    layoutPending = true
+                }
+                notifyChildrenUsingLookaheadCoordinatesWhilePlacing()
+            }
+            val owner = layoutNode.requireOwner()
+
+            if (!layoutPending && isPlaced) {
+                outerCoordinator.lookaheadDelegate!!.placeSelfApparentToRealOffset(position)
+                onNodePlaced()
+            } else {
+                layoutNodeLayoutDelegate.lookaheadCoordinatesAccessedDuringModifierPlacement = false
+                alignmentLines.usedByModifierLayout = false
+                owner.snapshotObserver.observeLayoutModifierSnapshotReads(layoutNode) {
+                    val expectsLookaheadPlacementFromParent =
+                        !layoutNode.isOutMostLookaheadRoot &&
+                            !layoutNodeLayoutDelegate.detachedFromParentLookaheadPlacement
+
+                    val scope =
+                        if (expectsLookaheadPlacementFromParent) {
+                            outerCoordinator.wrappedBy?.lookaheadDelegate?.placementScope
+                        } else {
+                            // Uses the approach pass placement scope intentionally here when
+                            // the
+                            // lookahead placement is detached from parent. This way we will
+                            // be able to pick up the correct `withMotionFrameOfReference` flag
+                            // from the placement scope.
+                            outerCoordinator.wrappedBy?.placementScope
+                        } ?: owner.placementScope
+                    with(scope) { outerCoordinator.lookaheadDelegate!!.place(position) }
+                }
+            }
+            lastPosition = position
+            lastZIndex = zIndex
+            lastLayerBlock = layerBlock
+            lastExplicitLayer = layer
+            layoutState = LayoutState.Idle
         }
-        lastPosition = position
-        lastZIndex = zIndex
-        lastLayerBlock = layerBlock
-        lastExplicitLayer = layer
-        layoutState = LayoutState.Idle
     }
 
     // We are setting our measuredSize to match the coerced outerCoordinator size, to prevent

@@ -20,4 +20,39 @@ import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteStatement
 
 // Restricted instead of internal due to KT-37316
-@RestrictTo(RestrictTo.Scope.LIBRARY) public expect class BundledSQLiteStatement : SQLiteStatement
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public expect class BundledSQLiteStatement : SQLiteStatement {
+    override fun bindBlob(index: Int, value: ByteArray)
+
+    override fun bindDouble(index: Int, value: Double)
+
+    override fun bindLong(index: Int, value: Long)
+
+    override fun bindText(index: Int, value: String)
+
+    override fun bindNull(index: Int)
+
+    override fun getBlob(index: Int): ByteArray
+
+    override fun getDouble(index: Int): Double
+
+    override fun getLong(index: Int): Long
+
+    override fun getText(index: Int): String
+
+    override fun isNull(index: Int): Boolean
+
+    override fun getColumnCount(): Int
+
+    override fun getColumnName(index: Int): String
+
+    override fun getColumnType(index: Int): Int
+
+    override fun step(): Boolean
+
+    override fun reset()
+
+    override fun clearBindings()
+
+    override fun close()
+}

@@ -71,7 +71,7 @@ fun KeyboardActionsDemos() {
                     Text("Execute default actions")
                     Checkbox(
                         checked = executeDefaultActions,
-                        onCheckedChange = { executeDefaultActions = it }
+                        onCheckedChange = { executeDefaultActions = it },
                     )
                 }
             }
@@ -80,7 +80,7 @@ fun KeyboardActionsDemos() {
                     KeyboardActionDemoItem(
                         imeAction = it,
                         onKeyboardAction = onKeyboardAction,
-                        singleLine = true
+                        singleLine = true,
                     )
                 }
 
@@ -88,7 +88,7 @@ fun KeyboardActionsDemos() {
                     KeyboardActionDemoItem(
                         imeAction = it,
                         onKeyboardAction = onKeyboardAction,
-                        singleLine = false
+                        singleLine = false,
                     )
                 }
             }
@@ -109,14 +109,14 @@ private val imeActions =
         ImeAction.Send,
         ImeAction.Previous,
         ImeAction.Next,
-        ImeAction.Done
+        ImeAction.Done,
     )
 
 @Composable
 private fun KeyboardActionDemoItem(
     imeAction: ImeAction,
     onKeyboardAction: KeyboardActionHandler,
-    singleLine: Boolean
+    singleLine: Boolean,
 ) {
     TagLine(tag = "Ime Action: $imeAction, singleLine: $singleLine")
     val state = remember { TextFieldState() }

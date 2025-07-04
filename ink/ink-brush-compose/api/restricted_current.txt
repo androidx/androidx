@@ -1,0 +1,16 @@
+// Signature format: 4.0
+package androidx.ink.brush.compose {
+
+  public final class BrushExtensions_androidKt {
+    method @CheckResult public static androidx.ink.brush.Brush copyWithComposeColor(androidx.ink.brush.Brush, long color, optional androidx.ink.brush.BrushFamily family, optional float size, optional float epsilon);
+    method @BytecodeOnly @CheckResult public static androidx.ink.brush.Brush copyWithComposeColor-iJQMabo(androidx.ink.brush.Brush, long, androidx.ink.brush.BrushFamily, float, float);
+    method @CheckResult public static androidx.ink.brush.Brush createWithComposeColor(androidx.ink.brush.Brush.Companion, androidx.ink.brush.BrushFamily family, long color, float size, float epsilon);
+    method @BytecodeOnly @CheckResult public static androidx.ink.brush.Brush createWithComposeColor-XO-JAsU(androidx.ink.brush.Brush.Companion, androidx.ink.brush.BrushFamily, long, float, float);
+    method @BytecodeOnly public static long getComposeColor(androidx.ink.brush.Brush);
+    method public static androidx.ink.brush.Brush.Builder setComposeColor(androidx.ink.brush.Brush.Builder, long color);
+    method @BytecodeOnly public static androidx.ink.brush.Brush.Builder setComposeColor-4WTKRHQ(androidx.ink.brush.Brush.Builder, long);
+    property public static androidx.compose.ui.graphics.Color androidx.ink.brush.Brush.composeColor;
+  }
+
+}
+

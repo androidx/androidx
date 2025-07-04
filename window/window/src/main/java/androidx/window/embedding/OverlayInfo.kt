@@ -34,7 +34,7 @@ internal constructor(
      * The overlay [ActivityStack] associated with [overlayTag], or `null` if there's no such a
      * [ActivityStack].
      */
-    val activityStack: ActivityStack?
+    val activityStack: ActivityStack?,
 ) {
     operator fun contains(activity: Activity): Boolean = activityStack?.contains(activity) ?: false
 

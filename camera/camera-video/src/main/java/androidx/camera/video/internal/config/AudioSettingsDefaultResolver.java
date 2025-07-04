@@ -17,6 +17,7 @@
 package androidx.camera.video.internal.config;
 
 import android.util.Range;
+import android.util.Rational;
 
 import androidx.camera.core.Logger;
 import androidx.camera.video.AudioSpec;
@@ -24,6 +25,7 @@ import androidx.camera.video.internal.audio.AudioSettings;
 import androidx.core.util.Supplier;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An {@link AudioSettings} supplier that resolves requested source settings from an
@@ -34,15 +36,20 @@ public final class AudioSettingsDefaultResolver implements Supplier<AudioSetting
     private static final String TAG = "DefAudioResolver";
 
     private final AudioSpec mAudioSpec;
+    @Nullable
+    private final Rational mCaptureToEncodeRatio;
 
     /**
      * Constructor for an AudioSettingsDefaultResolver.
      *
      * @param audioSpec The {@link AudioSpec} which defines the settings that should be used with
      *                  the audio source.
+     * @param captureToEncodeRatio The capture to encode sample rate ratio.
      */
-    public AudioSettingsDefaultResolver(@NonNull AudioSpec audioSpec) {
+    public AudioSettingsDefaultResolver(@NonNull AudioSpec audioSpec,
+            @Nullable Rational captureToEncodeRatio) {
         mAudioSpec = audioSpec;
+        mCaptureToEncodeRatio = captureToEncodeRatio;
     }
 
     @Override
@@ -66,24 +73,25 @@ public final class AudioSettingsDefaultResolver implements Supplier<AudioSetting
 
         // Resolve sample rate
         Range<Integer> audioSpecSampleRateRange = mAudioSpec.getSampleRate();
-        int resolvedSampleRate;
+        int targetSampleRate;
         if (AudioSpec.SAMPLE_RATE_RANGE_AUTO.equals(audioSpecSampleRateRange)) {
-            resolvedSampleRate = AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT;
-            Logger.d(TAG, "Using fallback AUDIO sample rate: " + resolvedSampleRate + "Hz");
+            targetSampleRate = AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT;
         } else {
-            resolvedSampleRate = AudioConfigUtil.selectSampleRateOrNearestSupported(
-                    audioSpecSampleRateRange,
-                    resolvedChannelCount, resolvedSourceFormat,
-                    audioSpecSampleRateRange.getUpper());
-            Logger.d(TAG, "Using AUDIO sample rate resolved from AudioSpec: " + resolvedSampleRate
-                    + "Hz");
+            targetSampleRate = audioSpecSampleRateRange.getUpper();
         }
+        CaptureEncodeRates resolvedSampleRates = AudioConfigUtil.resolveSampleRates(
+                audioSpecSampleRateRange, targetSampleRate, resolvedChannelCount,
+                resolvedAudioSource, mCaptureToEncodeRatio);
+        Logger.d(TAG, "Using AUDIO sample rate resolved from AudioSpec: "
+                + "Capture sample rate: " + resolvedSampleRates.getCaptureRate() + "Hz. "
+                + "Encode sample rate: " + resolvedSampleRates.getEncodeRate() + "Hz.");
 
         return AudioSettings.builder()
                 .setAudioSource(resolvedAudioSource)
                 .setAudioFormat(resolvedSourceFormat)
                 .setChannelCount(resolvedChannelCount)
-                .setSampleRate(resolvedSampleRate)
+                .setCaptureSampleRate(resolvedSampleRates.getCaptureRate())
+                .setEncodeSampleRate(resolvedSampleRates.getEncodeRate())
                 .build();
     }
 

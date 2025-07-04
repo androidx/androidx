@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.drawerlayout.widget {
 
   public class DrawerLayout extends android.view.ViewGroup implements androidx.customview.widget.Openable {
@@ -13,8 +13,8 @@ package androidx.drawerlayout.widget {
     method public void closeDrawer(int, boolean);
     method public void closeDrawers();
     method public float getDrawerElevation();
-    method public int getDrawerLockMode(int);
     method public int getDrawerLockMode(android.view.View);
+    method public int getDrawerLockMode(int);
     method public CharSequence? getDrawerTitle(int);
     method public android.graphics.drawable.Drawable? getStatusBarBackgroundDrawable();
     method public boolean isDrawerOpen(android.view.View);
@@ -32,8 +32,8 @@ package androidx.drawerlayout.widget {
     method public void setDrawerElevation(float);
     method @Deprecated public void setDrawerListener(androidx.drawerlayout.widget.DrawerLayout.DrawerListener!);
     method public void setDrawerLockMode(int);
-    method public void setDrawerLockMode(int, int);
     method public void setDrawerLockMode(int, android.view.View);
+    method public void setDrawerLockMode(int, int);
     method public void setDrawerShadow(android.graphics.drawable.Drawable!, int);
     method public void setDrawerShadow(@DrawableRes int, int);
     method public void setDrawerTitle(int, CharSequence?);
@@ -59,11 +59,11 @@ package androidx.drawerlayout.widget {
 
   public static class DrawerLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public DrawerLayout.LayoutParams(android.content.Context, android.util.AttributeSet?);
-    ctor public DrawerLayout.LayoutParams(int, int);
-    ctor public DrawerLayout.LayoutParams(int, int, int);
-    ctor public DrawerLayout.LayoutParams(androidx.drawerlayout.widget.DrawerLayout.LayoutParams);
     ctor public DrawerLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     ctor public DrawerLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams);
+    ctor public DrawerLayout.LayoutParams(androidx.drawerlayout.widget.DrawerLayout.LayoutParams);
+    ctor public DrawerLayout.LayoutParams(int, int);
+    ctor public DrawerLayout.LayoutParams(int, int, int);
     field public int gravity;
   }
 

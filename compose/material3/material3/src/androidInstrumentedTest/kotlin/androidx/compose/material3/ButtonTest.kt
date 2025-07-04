@@ -15,6 +15,7 @@
  */
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
@@ -35,8 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -48,15 +50,18 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -132,7 +137,7 @@ class ButtonTest {
                 Button(
                     modifier = Modifier.testTag(ButtonTestTag),
                     onClick = onClick,
-                    enabled = enabled
+                    enabled = enabled,
                 ) {
                     Text("Hello")
                 }
@@ -193,7 +198,7 @@ class ButtonTest {
             Button(onClick = { /* Do something! */ }, modifier = Modifier.testTag(ButtonTestTag)) {
                 Text(
                     "Button",
-                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                 )
             }
         }
@@ -203,12 +208,12 @@ class ButtonTest {
 
         (textBounds.left - buttonBounds.left).assertIsEqualTo(
             24.dp,
-            "padding between the start of the button and the start of the text."
+            "padding between the start of the button and the start of the text.",
         )
 
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             24.dp,
-            "padding between the end of the text and the end of the button."
+            "padding between the end of the text and the end of the button.",
         )
         buttonBounds.height.assertIsEqualTo(ButtonDefaults.MinHeight, "height of button.")
     }
@@ -219,7 +224,7 @@ class ButtonTest {
             Button(
                 onClick = { /* Do something! */ },
                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                modifier = Modifier.testTag(ButtonTestTag)
+                modifier = Modifier.testTag(ButtonTestTag),
             ) {
                 Icon(
                     Icons.Filled.Favorite,
@@ -227,12 +232,12 @@ class ButtonTest {
                     modifier =
                         Modifier.size(ButtonDefaults.IconSize).testTag(IconTestTag).semantics(
                             mergeDescendants = true
-                        ) {}
+                        ) {},
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
                     "Like",
-                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                 )
             }
         }
@@ -243,17 +248,17 @@ class ButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             16.dp,
-            "Padding between start of button and start of icon."
+            "Padding between start of button and start of icon.",
         )
 
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             ButtonDefaults.IconSpacing,
-            "Padding between end of icon and start of text."
+            "Padding between end of icon and start of text.",
         )
 
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             24.dp,
-            "padding between end of text and end of button."
+            "padding between end of text and end of button.",
         )
     }
 
@@ -263,7 +268,7 @@ class ButtonTest {
             TextButton(
                 onClick = { /* Do something! */ },
                 contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
-                modifier = Modifier.testTag(ButtonTestTag)
+                modifier = Modifier.testTag(ButtonTestTag),
             ) {
                 Icon(
                     Icons.Filled.Favorite,
@@ -271,12 +276,12 @@ class ButtonTest {
                     modifier =
                         Modifier.size(ButtonDefaults.IconSize).testTag(IconTestTag).semantics(
                             mergeDescendants = true
-                        ) {}
+                        ) {},
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
                     "Like",
-                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                 )
             }
         }
@@ -287,17 +292,17 @@ class ButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             12.dp,
-            "Padding between start of text button and start of icon."
+            "Padding between start of text button and start of icon.",
         )
 
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             ButtonDefaults.IconSpacing,
-            "Padding between end of icon and start of text."
+            "Padding between end of icon and start of text.",
         )
 
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             16.dp,
-            "padding between end of text and end of text button."
+            "padding between end of text and end of text button.",
         )
     }
 
@@ -442,33 +447,32 @@ class ButtonTest {
     fun button_xSmall_positioning() {
         var expectedStartPadding: Dp = 0.dp
         var expectedEndPadding: Dp = 0.dp
+        val size = ButtonDefaults.ExtraSmallContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             val layoutDirection = LocalLayoutDirection.current
             expectedStartPadding =
-                ButtonDefaults.XSmallContentPadding.calculateStartPadding(layoutDirection)
+                ButtonDefaults.ExtraSmallContentPadding.calculateStartPadding(layoutDirection)
             expectedEndPadding =
-                ButtonDefaults.XSmallContentPadding.calculateEndPadding(layoutDirection)
+                ButtonDefaults.ExtraSmallContentPadding.calculateEndPadding(layoutDirection)
             Box {
                 Button(
                     onClick = { /* Do something! */ },
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.XSmallContainerHeight)
-                            .testTag(ButtonTestTag),
-                    contentPadding = ButtonDefaults.XSmallContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Filled.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.XSmallIconSize)
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
                                 .testTag(IconTestTag)
-                                .semantics(mergeDescendants = true) {}
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.XSmallIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
                         modifier =
-                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -480,19 +484,19 @@ class ButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             expectedStartPadding,
-            "padding between start of button and start of icon"
+            "padding between start of button and start of icon",
         )
         (textBounds.left - iconBounds.right).assertIsEqualTo(
-            ButtonDefaults.XSmallIconSpacing,
-            "spacing between icon and label"
+            ButtonDefaults.ExtraSmallIconSpacing,
+            "spacing between icon and label",
         )
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             expectedEndPadding,
-            "padding between end of label and end of button"
+            "padding between end of label and end of button",
         )
         buttonBounds.height.assertIsEqualTo(
-            ButtonDefaults.XSmallContainerHeight,
-            "height of button"
+            ButtonDefaults.ExtraSmallContainerHeight,
+            "height of button",
         )
     }
 
@@ -501,6 +505,7 @@ class ButtonTest {
     fun button_medium_positioning() {
         var expectedStartPadding: Dp = 0.dp
         var expectedEndPadding: Dp = 0.dp
+        val size = ButtonDefaults.MediumContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             val layoutDirection = LocalLayoutDirection.current
             expectedStartPadding =
@@ -510,24 +515,22 @@ class ButtonTest {
             Box {
                 Button(
                     onClick = { /* Do something! */ },
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.MediumContainerHeight)
-                            .testTag(ButtonTestTag),
-                    contentPadding = ButtonDefaults.MediumContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Filled.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.MediumIconSize)
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
                                 .testTag(IconTestTag)
-                                .semantics(mergeDescendants = true) {}
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.MediumIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
                         modifier =
-                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -539,19 +542,19 @@ class ButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             expectedStartPadding,
-            "padding between start of button and start of icon"
+            "padding between start of button and start of icon",
         )
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             ButtonDefaults.MediumIconSpacing,
-            "spacing between icon and label"
+            "spacing between icon and label",
         )
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             expectedEndPadding,
-            "padding between end of label and end of button"
+            "padding between end of label and end of button",
         )
         buttonBounds.height.assertIsEqualTo(
             ButtonDefaults.MediumContainerHeight,
-            "height of button"
+            "height of button",
         )
     }
 
@@ -560,6 +563,7 @@ class ButtonTest {
     fun button_large_positioning() {
         var expectedStartPadding: Dp = 0.dp
         var expectedEndPadding: Dp = 0.dp
+        val size = ButtonDefaults.LargeContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             val layoutDirection = LocalLayoutDirection.current
             expectedStartPadding =
@@ -569,24 +573,22 @@ class ButtonTest {
             Box {
                 Button(
                     onClick = { /* Do something! */ },
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.LargeContainerHeight)
-                            .testTag(ButtonTestTag),
-                    contentPadding = ButtonDefaults.LargeContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Filled.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.LargeIconSize)
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
                                 .testTag(IconTestTag)
-                                .semantics(mergeDescendants = true) {}
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.LargeIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
                         modifier =
-                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -598,15 +600,15 @@ class ButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             expectedStartPadding,
-            "padding between start of button and start of icon"
+            "padding between start of button and start of icon",
         )
         (textBounds.left - iconBounds.right).assertIsEqualTo(
             ButtonDefaults.LargeIconSpacing,
-            "spacing between icon and label"
+            "spacing between icon and label",
         )
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             expectedEndPadding,
-            "padding between end of label and end of button"
+            "padding between end of label and end of button",
         )
         buttonBounds.height.assertIsEqualTo(ButtonDefaults.LargeContainerHeight, "height of button")
     }
@@ -616,33 +618,32 @@ class ButtonTest {
     fun button_xLarge_positioning() {
         var expectedStartPadding: Dp = 0.dp
         var expectedEndPadding: Dp = 0.dp
+        val size = ButtonDefaults.ExtraLargeContainerHeight
         rule.setMaterialContent(lightColorScheme()) {
             val layoutDirection = LocalLayoutDirection.current
             expectedStartPadding =
-                ButtonDefaults.XLargeContentPadding.calculateStartPadding(layoutDirection)
+                ButtonDefaults.ExtraLargeContentPadding.calculateStartPadding(layoutDirection)
             expectedEndPadding =
-                ButtonDefaults.XLargeContentPadding.calculateEndPadding(layoutDirection)
+                ButtonDefaults.ExtraLargeContentPadding.calculateEndPadding(layoutDirection)
             Box {
                 Button(
                     onClick = { /* Do something! */ },
-                    modifier =
-                        Modifier.heightIn(ButtonDefaults.XLargeContainerHeight)
-                            .testTag(ButtonTestTag),
-                    contentPadding = ButtonDefaults.XLargeContentPadding
+                    modifier = Modifier.heightIn(size).testTag(ButtonTestTag),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size),
                 ) {
                     Icon(
                         Icons.Filled.Edit,
                         contentDescription = "Localized description",
                         modifier =
-                            Modifier.size(ButtonDefaults.XLargeIconSize)
+                            Modifier.size(ButtonDefaults.iconSizeFor(size))
                                 .testTag(IconTestTag)
-                                .semantics(mergeDescendants = true) {}
+                                .semantics(mergeDescendants = true) {},
                     )
-                    Spacer(Modifier.size(ButtonDefaults.XLargeIconSpacing))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         "Label",
                         modifier =
-                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {}
+                            Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                     )
                 }
             }
@@ -654,20 +655,94 @@ class ButtonTest {
 
         (iconBounds.left - buttonBounds.left).assertIsEqualTo(
             expectedStartPadding,
-            "padding between start of button and start of icon"
+            "padding between start of button and start of icon",
         )
         (textBounds.left - iconBounds.right).assertIsEqualTo(
-            ButtonDefaults.XLargeIconSpacing,
-            "spacing between icon and label"
+            ButtonDefaults.ExtraLargeIconSpacing,
+            "spacing between icon and label",
         )
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
             expectedEndPadding,
-            "padding between end of label and end of button"
+            "padding between end of label and end of button",
         )
         buttonBounds.height.assertIsEqualTo(
-            ButtonDefaults.XLargeContainerHeight,
-            "height of button"
+            ButtonDefaults.ExtraLargeContainerHeight,
+            "height of button",
         )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_withAnimatedShape_defaultShape() {
+        lateinit var shape: Shape
+        val backgroundColor = Color.Yellow
+        val shapeColor = Color.Blue
+        rule.setMaterialContent(lightColorScheme()) {
+            shape = ButtonDefaults.shape
+            Surface(color = backgroundColor) {
+                Button(
+                    onClick = {},
+                    shapes = ButtonDefaults.shapes(),
+                    modifier = Modifier.testTag(ButtonTestTag),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = shapeColor,
+                            contentColor = shapeColor,
+                        ),
+                ) {
+                    Text("Button")
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(ButtonTestTag)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shapeColor = shapeColor,
+                backgroundColor = backgroundColor,
+                shape = shape,
+            )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_withAnimatedShape_pressedShape() {
+        lateinit var shape: Shape
+        val backgroundColor = Color.Yellow
+        val shapeColor = Color.Blue
+        rule.setMaterialContent(lightColorScheme()) {
+            shape = ButtonDefaults.pressedShape
+            Surface(color = backgroundColor) {
+                Button(
+                    onClick = {},
+                    shapes = ButtonDefaults.shapes(),
+                    modifier = Modifier.testTag(ButtonTestTag),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = shapeColor,
+                            contentColor = shapeColor,
+                        ),
+                ) {
+                    Text("Button")
+                }
+            }
+        }
+
+        rule.onNodeWithTag(ButtonTestTag).performTouchInput { down(center) }
+
+        rule
+            .onNodeWithTag(ButtonTestTag)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shapeColor = shapeColor,
+                backgroundColor = backgroundColor,
+                shape = shape,
+            )
     }
 }
 

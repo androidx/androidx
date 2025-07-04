@@ -213,7 +213,7 @@ internal fun StringSubject.commonMatches(regex: Regex?) {
         failWithoutActualInternal(
             fact("expected to match", regex),
             fact("but was", actual),
-            simpleFact("Did you mean to call containsMatch() instead of match()?")
+            simpleFact("Did you mean to call containsMatch() instead of match()?"),
         )
     } else {
         failWithActualInternal("expected to match", regex)
@@ -268,19 +268,19 @@ internal fun StringSubject.commonCaseInsensitiveStringComparisonIsEqualTo(expect
         failWithoutActualInternal(
             fact("expected a string that is equal to", expected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     } else if ((expected == null) && (actual != null)) {
         failWithoutActualInternal(
             fact("expected", "null (null reference)"),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     } else if (!actual.equals(expected, ignoreCase = true)) {
         failWithoutActualInternal(
             fact("expected", expected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     }
 }
@@ -289,13 +289,13 @@ internal fun StringSubject.commonCaseInsensitiveStringComparisonIsNotEqualTo(une
     if ((actual == null) && (unexpected == null)) {
         failWithoutActualInternal(
             fact("expected a string that is not equal to", "null (null reference)"),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     } else if (actual.equals(unexpected, ignoreCase = true)) {
         failWithoutActualInternal(
             fact("expected not to be", unexpected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     }
 }
@@ -308,13 +308,13 @@ internal fun StringSubject.commonCaseInsensitiveStringComparisonContains(expecte
         failWithoutActualInternal(
             fact("expected a string that contains", expected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     } else if (!actual.contains(expected, ignoreCase = true)) {
         failWithoutActualInternal(
             fact("expected to contain", expected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     }
 }
@@ -328,21 +328,18 @@ internal fun StringSubject.commonCaseInsensitiveStringComparisonDoesNotContain(
         failWithoutActualInternal(
             fact("expected a string that does not contain", expected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     } else if (actual.contains(expected, ignoreCase = true)) {
         failWithoutActualInternal(
             fact("expected not to contain", expected),
             fact("but was", actual),
-            simpleFact("(case is ignored)")
+            simpleFact("(case is ignored)"),
         )
     }
 }
 
-internal inline fun Subject<String>.matchesImpl(
-    regex: Regex,
-    equalToStringErrorMsg: () -> String,
-) {
+internal inline fun Subject<String>.matchesImpl(regex: Regex, equalToStringErrorMsg: () -> String) {
     if (actual == null) {
         failWithActualInternal("expected a string that matches", regex)
     } else if (actual.matches(regex)) {
@@ -387,7 +384,7 @@ internal fun Subject<String>.doesNotContainMatchImpl(regex: Regex) {
         failWithoutActualInternal(
             fact("expected not to contain a match for", regex),
             fact("but contained", result.value),
-            fact("full string", actual)
+            fact("full string", actual),
         )
     }
 }

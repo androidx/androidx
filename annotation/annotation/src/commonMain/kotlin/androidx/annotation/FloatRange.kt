@@ -35,7 +35,7 @@ package androidx.annotation
     AnnotationTarget.VALUE_PARAMETER,
     AnnotationTarget.FIELD,
     AnnotationTarget.LOCAL_VARIABLE,
-    AnnotationTarget.ANNOTATION_CLASS
+    AnnotationTarget.ANNOTATION_CLASS,
 )
 public annotation class FloatRange(
     /** Smallest value. Whether it is inclusive or not is determined by [.fromInclusive] */
@@ -45,5 +45,5 @@ public annotation class FloatRange(
     /** Whether the from value is included in the range */
     val fromInclusive: Boolean = true,
     /** Whether the to value is included in the range */
-    val toInclusive: Boolean = true
+    val toInclusive: Boolean = true,
 )

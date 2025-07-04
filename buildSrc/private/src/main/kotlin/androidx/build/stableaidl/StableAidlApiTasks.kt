@@ -51,6 +51,9 @@ fun Project.setupWithStableAidlPlugin() =
         // Don't show tasks added by the Stable AIDL plugin.
         ext.taskGroup = null
 
-        // Use a single top-level directory for shadow framework definitions.
-        ext.addStaticImportDirs(File(project.getSupportRootFolder(), "buildSrc/stableAidlImports"))
+        // The framework supports Stable AIDL definitions starting in SDK 36. Prior to that, we'll
+        // need to use manually-defined stubs.
+        ext.shadowFrameworkDir.set(
+            File(project.getSupportRootFolder(), "buildSrc/stableAidlImports")
+        )
     }

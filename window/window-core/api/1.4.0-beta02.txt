@@ -1,0 +1,82 @@
+// Signature format: 4.0
+package androidx.window.core {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowCoreApi {
+  }
+
+}
+
+package androidx.window.core.layout {
+
+  @Deprecated public final class WindowHeightSizeClass {
+    field @Deprecated public static final androidx.window.core.layout.WindowHeightSizeClass COMPACT;
+    field @Deprecated public static final androidx.window.core.layout.WindowHeightSizeClass.Companion Companion;
+    field @Deprecated public static final androidx.window.core.layout.WindowHeightSizeClass EXPANDED;
+    field @Deprecated public static final androidx.window.core.layout.WindowHeightSizeClass MEDIUM;
+  }
+
+  @Deprecated public static final class WindowHeightSizeClass.Companion {
+    method @Deprecated public androidx.window.core.layout.WindowHeightSizeClass getCOMPACT();
+    method @Deprecated public androidx.window.core.layout.WindowHeightSizeClass getEXPANDED();
+    method @Deprecated public androidx.window.core.layout.WindowHeightSizeClass getMEDIUM();
+    property @Deprecated public androidx.window.core.layout.WindowHeightSizeClass COMPACT;
+    property @Deprecated public androidx.window.core.layout.WindowHeightSizeClass EXPANDED;
+    property @Deprecated public androidx.window.core.layout.WindowHeightSizeClass MEDIUM;
+  }
+
+  public final class WindowSizeClass {
+    ctor public WindowSizeClass(float widthDp, float heightDp);
+    ctor public WindowSizeClass(int minWidthDp, int minHeightDp);
+    method @Deprecated public static androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    method public int getMinHeightDp();
+    method public int getMinWidthDp();
+    method @Deprecated public androidx.window.core.layout.WindowHeightSizeClass getWindowHeightSizeClass();
+    method @Deprecated public androidx.window.core.layout.WindowWidthSizeClass getWindowWidthSizeClass();
+    method public boolean isAtLeastBreakpoint(int widthDpBreakpoint, int heightDpBreakpoint);
+    method public boolean isHeightAtLeastBreakpoint(int heightDpBreakpoint);
+    method public boolean isWidthAtLeastBreakpoint(int widthDpBreakpoint);
+    property public int minHeightDp;
+    property public int minWidthDp;
+    property @Deprecated public androidx.window.core.layout.WindowHeightSizeClass windowHeightSizeClass;
+    property @Deprecated public androidx.window.core.layout.WindowWidthSizeClass windowWidthSizeClass;
+    field public static final java.util.Set<androidx.window.core.layout.WindowSizeClass> BREAKPOINTS_V1;
+    field public static final androidx.window.core.layout.WindowSizeClass.Companion Companion;
+    field public static final int HEIGHT_DP_EXPANDED_LOWER_BOUND = 900; // 0x384
+    field public static final int HEIGHT_DP_MEDIUM_LOWER_BOUND = 480; // 0x1e0
+    field public static final int WIDTH_DP_EXPANDED_LOWER_BOUND = 840; // 0x348
+    field public static final int WIDTH_DP_MEDIUM_LOWER_BOUND = 600; // 0x258
+  }
+
+  public static final class WindowSizeClass.Companion {
+    method @Deprecated public androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    property public java.util.Set<? extends androidx.window.core.layout.WindowSizeClass> BREAKPOINTS_V1;
+    property public static int HEIGHT_DP_EXPANDED_LOWER_BOUND;
+    property public static int HEIGHT_DP_MEDIUM_LOWER_BOUND;
+    property public static int WIDTH_DP_EXPANDED_LOWER_BOUND;
+    property public static int WIDTH_DP_MEDIUM_LOWER_BOUND;
+  }
+
+  public final class WindowSizeClassSelectors {
+    method public static androidx.window.core.layout.WindowSizeClass computeWindowSizeClass(java.util.Set<androidx.window.core.layout.WindowSizeClass>, float widthDp, float heightDp);
+    method public static androidx.window.core.layout.WindowSizeClass computeWindowSizeClass(java.util.Set<androidx.window.core.layout.WindowSizeClass>, int widthDp, int heightDp);
+    method public static androidx.window.core.layout.WindowSizeClass computeWindowSizeClassPreferHeight(java.util.Set<androidx.window.core.layout.WindowSizeClass>, int widthDp, int heightDp);
+  }
+
+  @Deprecated public final class WindowWidthSizeClass {
+    field @Deprecated public static final androidx.window.core.layout.WindowWidthSizeClass COMPACT;
+    field @Deprecated public static final androidx.window.core.layout.WindowWidthSizeClass.Companion Companion;
+    field @Deprecated public static final androidx.window.core.layout.WindowWidthSizeClass EXPANDED;
+    field @Deprecated public static final androidx.window.core.layout.WindowWidthSizeClass MEDIUM;
+  }
+
+  @Deprecated public static final class WindowWidthSizeClass.Companion {
+    method @Deprecated public androidx.window.core.layout.WindowWidthSizeClass getCOMPACT();
+    method @Deprecated public androidx.window.core.layout.WindowWidthSizeClass getEXPANDED();
+    method @Deprecated public androidx.window.core.layout.WindowWidthSizeClass getMEDIUM();
+    property @Deprecated public androidx.window.core.layout.WindowWidthSizeClass COMPACT;
+    property @Deprecated public androidx.window.core.layout.WindowWidthSizeClass EXPANDED;
+    property @Deprecated public androidx.window.core.layout.WindowWidthSizeClass MEDIUM;
+  }
+
+}
+

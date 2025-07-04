@@ -21,30 +21,34 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 
 @ExperimentalCoroutinesApi
 class LatchTest {
     @Test
-    fun openDoesntSuspend() = runTest {
-        val latch = Latch()
-        assertTrue(latch.isOpen, "latch open after construction")
+    fun openDoesntSuspend() =
+        runTest(UnconfinedTestDispatcher()) {
+            val latch = Latch()
+            assertTrue(latch.isOpen, "latch open after construction")
 
-        val awaiter = launch(start = CoroutineStart.UNDISPATCHED) { latch.await() }
-        assertTrue(awaiter.isCompleted, "await did not suspend")
-    }
+            val awaiter = launch(start = CoroutineStart.UNDISPATCHED) { latch.await() }
+            assertTrue(awaiter.isCompleted, "await did not suspend")
+        }
 
     @Test
-    fun closedSuspendsReleasesAll() = runTest {
-        val latch = Latch()
-        latch.closeLatch()
-        assertTrue(!latch.isOpen, "latch.isOpen after close")
+    fun closedSuspendsReleasesAll() =
+        runTest(UnconfinedTestDispatcher()) {
+            val latch = Latch()
+            latch.closeLatch()
+            assertTrue(!latch.isOpen, "latch.isOpen after close")
 
-        val awaiters = (1..5).map { launch(start = CoroutineStart.UNDISPATCHED) { latch.await() } }
-        assertTrue("all awaiters still active") { awaiters.all { it.isActive } }
+            val awaiters =
+                (1..5).map { launch(start = CoroutineStart.UNDISPATCHED) { latch.await() } }
+            assertTrue("all awaiters still active") { awaiters.all { it.isActive } }
 
-        latch.openLatch()
-        withTimeout(500) { awaiters.map { it.join() } }
-    }
+            latch.openLatch()
+            withTimeout(500) { awaiters.map { it.join() } }
+        }
 }

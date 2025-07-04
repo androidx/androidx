@@ -17,17 +17,10 @@
 package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.window.PopupPositionProvider
 
-@Composable
-@ExperimentalFoundationApi
-actual fun BasicTooltipBox(
-    positionProvider: PopupPositionProvider,
-    tooltip: @Composable () -> Unit,
-    state: BasicTooltipState,
-    modifier: Modifier,
-    focusable: Boolean,
-    enableUserInput: Boolean,
-    content: @Composable () -> Unit
-): Unit = implementedInJetBrainsFork()
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+internal actual object BasicTooltipStrings {
+    @Composable actual fun label(): String = implementedInJetBrainsFork()
+
+    @Composable actual fun description(): String = implementedInJetBrainsFork()
+}

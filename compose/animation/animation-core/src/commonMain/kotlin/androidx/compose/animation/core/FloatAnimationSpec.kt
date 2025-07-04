@@ -50,7 +50,7 @@ public interface FloatAnimationSpec : AnimationSpec<Float> {
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float
 
     /**
@@ -66,7 +66,7 @@ public interface FloatAnimationSpec : AnimationSpec<Float> {
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float
 
     /**
@@ -82,13 +82,13 @@ public interface FloatAnimationSpec : AnimationSpec<Float> {
     public fun getEndVelocity(
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float =
         getVelocityFromNanos(
             getDurationNanos(initialValue, targetValue, initialVelocity),
             initialValue,
             targetValue,
-            initialVelocity
+            initialVelocity,
         )
 
     /**
@@ -108,7 +108,7 @@ public interface FloatAnimationSpec : AnimationSpec<Float> {
     public fun getDurationNanos(
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Long
 
     /**
@@ -133,7 +133,7 @@ public interface FloatAnimationSpec : AnimationSpec<Float> {
 public class FloatSpringSpec(
     public val dampingRatio: Float = Spring.DampingRatioNoBouncy,
     public val stiffness: Float = Spring.StiffnessMedium,
-    private val visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
+    private val visibilityThreshold: Float = Spring.DefaultDisplacementThreshold,
 ) : FloatAnimationSpec {
 
     private val spring =
@@ -146,7 +146,7 @@ public class FloatSpringSpec(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         // TODO: Properly support Nanos in the spring impl
         val playTimeMillis = playTimeNanos / MillisToNanos
@@ -158,7 +158,7 @@ public class FloatSpringSpec(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         // TODO: Properly support Nanos in the spring impl
         val playTimeMillis = playTimeNanos / MillisToNanos
@@ -169,21 +169,21 @@ public class FloatSpringSpec(
     override fun getEndVelocity(
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float = 0f
 
     @Suppress("MethodNameUnits")
     override fun getDurationNanos(
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Long =
         estimateAnimationDurationMillis(
             stiffness = spring.stiffness,
             dampingRatio = spring.dampingRatio,
             initialDisplacement = (initialValue - targetValue) / visibilityThreshold,
             initialVelocity = initialVelocity / visibilityThreshold,
-            delta = 1f
+            delta = 1f,
         ) * MillisToNanos
 }
 
@@ -201,7 +201,7 @@ public class FloatSpringSpec(
 public class FloatTweenSpec(
     public val duration: Int = DefaultDurationMillis,
     public val delay: Int = 0,
-    private val easing: Easing = FastOutSlowInEasing
+    private val easing: Easing = FastOutSlowInEasing,
 ) : FloatAnimationSpec {
     private val durationNanos: Long = duration * MillisToNanos
 
@@ -211,7 +211,7 @@ public class FloatTweenSpec(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         val clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos)
         val rawFraction = if (duration == 0) 1f else clampedPlayTimeNanos / durationNanos.toFloat()
@@ -227,7 +227,7 @@ public class FloatTweenSpec(
     override fun getDurationNanos(
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Long {
         return delayNanos + durationNanos
     }
@@ -239,7 +239,7 @@ public class FloatTweenSpec(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
-        initialVelocity: Float
+        initialVelocity: Float,
     ): Float {
         val clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos)
         if (clampedPlayTimeNanos == 0L) {
@@ -250,7 +250,7 @@ public class FloatTweenSpec(
                 clampedPlayTimeNanos - MillisToNanos,
                 initialValue,
                 targetValue,
-                initialVelocity
+                initialVelocity,
             )
         val endNum =
             getValueFromNanos(clampedPlayTimeNanos, initialValue, targetValue, initialVelocity)

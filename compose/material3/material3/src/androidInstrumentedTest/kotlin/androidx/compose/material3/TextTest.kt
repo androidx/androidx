@@ -18,9 +18,12 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -28,6 +31,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -38,8 +42,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -59,7 +66,7 @@ class TextTest {
             textAlign = TextAlign.End,
             fontSize = 32.sp,
             fontStyle = FontStyle.Italic,
-            letterSpacing = 0.3.em
+            letterSpacing = 0.3.em,
         )
 
     private val TestText = "TestText"
@@ -100,7 +107,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -128,7 +135,7 @@ class TextTest {
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 fontStyle = FontStyle.Normal,
-                letterSpacing = 0.6.em
+                letterSpacing = 0.6.em,
             )
         rule.setContent {
             ProvideTextStyle(ExpectedTextStyle) {
@@ -142,7 +149,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -186,7 +193,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -233,7 +240,7 @@ class TextTest {
                             fontSize = it.layoutInput.style.fontSize
                             fontStyle = it.layoutInput.style.fontStyle
                             letterSpacing = it.layoutInput.style.letterSpacing
-                        }
+                        },
                     )
                 }
             }
@@ -341,5 +348,25 @@ class TextTest {
                     color == expectedColor
                 }
             )
+    }
+
+    @Test
+    fun testAutoSize_changesTextSize() {
+        rule.setContent {
+            Box(Modifier.size(200.dp)) {
+                Text(
+                    text = "a b c d e",
+                    modifier = Modifier.testTag("TEXT"),
+                    autoSize = TextAutoSize.StepBased(),
+                )
+            }
+        }
+
+        val bounds = rule.onNodeWithTag("TEXT").getBoundsInRoot()
+
+        // Text tries to fill entire size of parent
+        // (Not exact due to discrete allowed text sizes)
+        bounds.height.assertIsEqualTo(200.dp, tolerance = 20.dp)
+        bounds.width.assertIsEqualTo(200.dp, tolerance = 20.dp)
     }
 }

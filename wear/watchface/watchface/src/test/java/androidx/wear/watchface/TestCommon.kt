@@ -67,7 +67,7 @@ internal class TestWatchFaceService(
         },
     private val complicationCache: MutableMap<String, ByteArray>? = null,
     private val forceIsVisible: Boolean = false,
-    private val requestUpdateScreenshotOnConfigurationChange: Boolean = false
+    private val requestUpdateScreenshotOnConfigurationChange: Boolean = false,
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
@@ -76,6 +76,7 @@ internal class TestWatchFaceService(
     var complicationSelected: Int? = null
     var mockZoneId: ZoneId = ZoneId.of("UTC")
     var renderer: Renderer? = null
+    var writeComplicationDataCacheCount = 0
 
     /** A mutable list of the ids of the complicationSlots that have been tapped. */
     private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
@@ -129,7 +130,7 @@ internal class TestWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
         renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
         val watchFace = WatchFace(watchFaceType, renderer!!)
@@ -155,19 +156,20 @@ internal class TestWatchFaceService(
     override fun writeDirectBootPrefs(
         context: Context,
         fileName: String,
-        prefs: WallpaperInteractiveWatchFaceInstanceParams
+        prefs: WallpaperInteractiveWatchFaceInstanceParams,
     ) {}
 
     override fun readComplicationDataCacheByteArray(
         context: Context,
-        fileName: String
+        fileName: String,
     ): ByteArray? = complicationCache?.get(fileName)
 
     override fun writeComplicationDataCacheByteArray(
         context: Context,
         fileName: String,
-        byteArray: ByteArray
+        byteArray: ByteArray,
     ) {
+        writeComplicationDataCacheCount++
         complicationCache?.set(fileName, byteArray)
     }
 
@@ -198,7 +200,7 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
     override fun setDefaultComplicationProvider(
         watchFaceComplicationId: Int,
         provider: ComponentName,
-        type: Int
+        type: Int,
     ) {
         iWatchFaceService.setDefaultComplicationProvider(watchFaceComplicationId, provider, type)
     }
@@ -206,12 +208,12 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
     override fun setDefaultSystemComplicationProvider(
         watchFaceComplicationId: Int,
         systemProvider: Int,
-        type: Int
+        type: Int,
     ) {
         iWatchFaceService.setDefaultSystemComplicationProvider(
             watchFaceComplicationId,
             systemProvider,
-            type
+            type,
         )
     }
 
@@ -227,13 +229,13 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
         watchFaceComplicationId: Int,
         providers: List<ComponentName>,
         fallbackSystemProvider: Int,
-        type: Int
+        type: Int,
     ) {
         iWatchFaceService.setDefaultComplicationProviderWithFallbacks(
             watchFaceComplicationId,
             providers,
             fallbackSystemProvider,
-            type
+            type,
         )
     }
 
@@ -247,14 +249,14 @@ public open class TestRenderer(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
-    interactiveFrameRateMs: Long
+    interactiveFrameRateMs: Long,
 ) :
     Renderer.CanvasRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
         CanvasType.HARDWARE,
-        interactiveFrameRateMs
+        interactiveFrameRateMs,
     ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null
     public var lastRenderWasForScreenshot: Boolean? = null
@@ -278,7 +280,7 @@ public open class TestRendererWithShouldAnimate(
     currentUserStyleRepository: CurrentUserStyleRepository,
     watchState: WatchState,
     interactiveFrameRateMs: Long,
-    public var animate: Boolean = true
+    public var animate: Boolean = true,
 ) : TestRenderer(surfaceHolder, currentUserStyleRepository, watchState, interactiveFrameRateMs) {
     override fun shouldAnimate(): Boolean = animate
 }
@@ -291,7 +293,7 @@ public fun createComplicationData(): androidx.wear.watchface.complications.data.
                 ApplicationProvider.getApplicationContext(),
                 0,
                 Intent("Fake intent"),
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_IMMUTABLE,
             )
         )
         .build()

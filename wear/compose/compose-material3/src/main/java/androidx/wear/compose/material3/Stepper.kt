@@ -40,7 +40,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -59,12 +61,12 @@ import kotlin.math.roundToInt
  * increase and decrease buttons. Buttons can have custom icons - [decreaseIcon] and [increaseIcon].
  * Step value is calculated as the difference between min and max values divided by [steps]+1.
  * Stepper itself doesn't show the current value but can be displayed via the content slot or
- * [LevelIndicator] if required. If [value] is not equal to any step value, then it will be coerced
- * to the closest step value. However, the [value] itself will not be changed and [onValueChange] in
- * this case will not be triggered. To add range semantics on Stepper, use
+ * [StepperLevelIndicator] if required. If [value] is not equal to any step value, then it will be
+ * coerced to the closest step value. However, the [value] itself will not be changed and
+ * [onValueChange] in this case will not be triggered. To add range semantics on Stepper, use
  * [Modifier.rangeSemantics].
  *
- * Example of a simple [Stepper] with [LevelIndicator]:
+ * Example of a simple [Stepper] with [StepperLevelIndicator]:
  *
  * @sample androidx.wear.compose.material3.samples.StepperSample
  *
@@ -102,7 +104,7 @@ public fun Stepper(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..(steps + 1).toFloat(),
     colors: StepperColors = StepperDefaults.colors(),
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     StepperImpl(
         value = value,
@@ -114,7 +116,7 @@ public fun Stepper(
         modifier = modifier,
         colors = colors,
         enabled = enabled,
-        content = provideScopeContent(colors.contentColor(enabled = enabled), content)
+        content = provideScopeContent(colors.contentColor(enabled = enabled), content),
     )
 }
 
@@ -124,7 +126,8 @@ public fun Stepper(
  * either [Text] or [Button]) in the middle. Value can be increased and decreased by clicking on the
  * increase and decrease buttons. Buttons can have custom icons - [decreaseIcon] and [increaseIcon].
  * Stepper itself doesn't show the current value but can be displayed via the content slot or
- * [LevelIndicator] if required. To add range semantics on Stepper, use [Modifier.rangeSemantics].
+ * [StepperLevelIndicator] if required. To add range semantics on Stepper, use
+ * [Modifier.rangeSemantics].
  *
  * Example of a [Stepper] with integer values:
  *
@@ -166,7 +169,7 @@ public fun Stepper(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     colors: StepperColors = StepperDefaults.colors(),
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Stepper(
         value = value.toFloat(),
@@ -178,7 +181,7 @@ public fun Stepper(
         increaseIcon = increaseIcon,
         colors = colors,
         enabled = enabled,
-        content = content
+        content = content,
     )
 }
 
@@ -336,23 +339,31 @@ private fun StepperImpl(
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float>,
     colors: StepperColors,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     require(steps >= 0) { "Number of steps should be non-negative." }
     val currentStep =
         remember(value, valueRange, steps) {
             RangeDefaults.snapValueToStep(value, valueRange, steps)
         }
+    val hapticFeedback = LocalHapticFeedback.current
 
     val updateValue: (Int) -> Unit = { stepDiff ->
         val newValue =
             RangeDefaults.calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
-        if (newValue != value) onValueChange(newValue)
+        if (newValue != value) {
+            onValueChange(newValue)
+            if (newValue > valueRange.start && newValue < valueRange.endInclusive) {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            } else {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.GestureEnd)
+            }
+        }
     }
 
     Column(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(VerticalSpacing)
+        verticalArrangement = Arrangement.spacedBy(VerticalSpacing),
     ) {
         val increaseButtonEnabled = enabled && (currentStep < steps + 1)
         val decreaseButtonEnabled = enabled && (currentStep > 0)
@@ -369,7 +380,7 @@ private fun StepperImpl(
         Box(
             modifier = Modifier.fillMaxWidth().weight(ContentWeight),
             contentAlignment = Alignment.Center,
-            content = content
+            content = content,
         )
 
         StepperButton(
@@ -392,25 +403,23 @@ private fun ColumnScope.StepperButton(
     colors: StepperColors,
     shape: Shape = StepperButtonShape,
     pressedShape: Shape = StepperButtonPressedShape,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val iconProviderValues = arrayOf(LocalContentColor provides colors.buttonIconColor(enabled))
 
     val (finalShape, finalInteractionSource) =
         animateButtonShape(
-            defaultShape = shape,
+            shape = shape,
             pressedShape = pressedShape,
             onPressAnimationSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>().faster(200f),
             onReleaseAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec(),
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
         )
 
     Box(
         modifier =
-            Modifier.align(Alignment.CenterHorizontally)
-                .weight(ButtonWeight)
-                .padding(paddingValues),
+            Modifier.align(Alignment.CenterHorizontally).weight(ButtonWeight).padding(paddingValues)
     ) {
         Box(
             modifier =
@@ -421,12 +430,12 @@ private fun ColumnScope.StepperButton(
                         enabled = enabled,
                         onClick = onClick,
                         interactionSource = finalInteractionSource,
-                        indication = null
+                        indication = null,
                     )
                     .size(width = ButtonWidth, height = ButtonHeight)
                     .background(color = colors.buttonContainerColor(enabled), shape = finalShape)
                     .indication(interactionSource, ripple()),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             CompositionLocalProvider(values = iconProviderValues, content = content)
         }

@@ -85,6 +85,10 @@ expect class GraphicsLayer {
      * layer are overlapping. Similarly leveraging [CompositingStrategy.Offscreen] is useful in
      * situations where creating an offscreen buffer is preferred usually in conjunction with
      * [BlendMode] usage.
+     *
+     * When [blendMode] is anything other than [BlendMode.SrcOver] or [colorFilter] is non-null,
+     * [compositingStrategy]'s value will be overridden and is forced to
+     * [CompositingStrategy.Offscreen].
      */
     var compositingStrategy: CompositingStrategy
 
@@ -357,7 +361,7 @@ expect class GraphicsLayer {
         density: Density,
         layoutDirection: LayoutDirection,
         size: IntSize,
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     )
 
     /**
@@ -387,7 +391,7 @@ fun GraphicsLayer.setOutline(outline: Outline) {
         is Outline.Rectangle ->
             setRectOutline(
                 Offset(outline.rect.left, outline.rect.top),
-                Size(outline.rect.width, outline.rect.height)
+                Size(outline.rect.width, outline.rect.height),
             )
         is Outline.Generic -> setPathOutline(outline.path)
         is Outline.Rounded -> {
@@ -402,7 +406,7 @@ fun GraphicsLayer.setOutline(outline: Outline) {
                 setRoundRectOutline(
                     Offset(rr.left, rr.top),
                     Size(rr.width, rr.height),
-                    rr.bottomLeftCornerRadius.x
+                    rr.bottomLeftCornerRadius.x,
                 )
             }
         }

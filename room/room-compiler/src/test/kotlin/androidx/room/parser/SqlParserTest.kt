@@ -46,7 +46,7 @@ class SqlParserTest {
     fun badDeleteQuery() {
         assertErrors(
             "delete from user where mAge >= :min && mAge <= :max",
-            "no viable alternative at input 'delete from user where mAge >= :min &&'"
+            "no viable alternative at input 'delete from user where mAge >= :min &&'",
         )
     }
 
@@ -81,7 +81,7 @@ class SqlParserTest {
     fun explain() {
         assertErrors(
             "EXPLAIN QUERY PLAN SELECT * FROM users",
-            ParserErrors.invalidQueryType(QueryType.EXPLAIN)
+            ParserErrors.invalidQueryType(QueryType.EXPLAIN),
         )
     }
 
@@ -105,7 +105,7 @@ class SqlParserTest {
                 "dsa$",
                 "\$fsa",
                 "-bar",
-                "şoöğüı"
+                "şoöğüı",
             )
             .forEach { assertThat("name: $it", SqlParser.isValidIdentifier(it), `is`(true)) }
     }
@@ -121,19 +121,19 @@ class SqlParserTest {
     fun extractTableNames() {
         assertThat(
             SqlParser.parse("select * from users").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
         assertThat(
             SqlParser.parse("select * from users as ux").tables,
-            `is`(setOf(Table("users", "ux")))
+            `is`(setOf(Table("users", "ux"))),
         )
         assertThat(
             SqlParser.parse("select * from (select * from books)").tables,
-            `is`(setOf(Table("books", "books")))
+            `is`(setOf(Table("books", "books"))),
         )
         assertThat(
             SqlParser.parse("select x.id from (select * from books) as x").tables,
-            `is`(setOf(Table("books", "books")))
+            `is`(setOf(Table("books", "books"))),
         )
     }
 
@@ -141,15 +141,15 @@ class SqlParserTest {
     fun unescapeTableNames() {
         assertThat(
             SqlParser.parse("select * from `users`").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
         assertThat(
             SqlParser.parse("select * from \"users\"").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
         assertThat(
             SqlParser.parse("select * from 'users'").tables,
-            `is`(setOf(Table("users", "users")))
+            `is`(setOf(Table("users", "users"))),
         )
     }
 
@@ -212,11 +212,11 @@ class SqlParserTest {
         assertErrors("select * from users where name like ?", ParserErrors.ANONYMOUS_BIND_ARGUMENT)
         assertErrors(
             "select * from users where name like ? or last_name like ?",
-            ParserErrors.ANONYMOUS_BIND_ARGUMENT
+            ParserErrors.ANONYMOUS_BIND_ARGUMENT,
         )
         assertErrors(
             "select * from users where name like ?1",
-            ParserErrors.cannotUseVariableIndices("?1", 36)
+            ParserErrors.cannotUseVariableIndices("?1", 36),
         )
     }
 
@@ -298,14 +298,14 @@ class SqlParserTest {
         assertSections(
             "select * from users where name like ?",
             Section.text("select * from users where name like "),
-            Section.bindVar("?", false)
+            Section.bindVar("?", false),
         )
         assertSections(
             "select * from users where name like :name AND last_name like :lastName",
             Section.text("select * from users where name like "),
             Section.bindVar(":name", false),
             Section.text(" AND last_name like "),
-            Section.bindVar(":lastName", false)
+            Section.bindVar(":lastName", false),
         )
         assertSections(
             "select * from users where name \nlike :name AND last_name like :lastName",
@@ -314,7 +314,7 @@ class SqlParserTest {
             Section.text("like "),
             Section.bindVar(":name", false),
             Section.text(" AND last_name like "),
-            Section.bindVar(":lastName", false)
+            Section.bindVar(":lastName", false),
         )
         assertSections(
             "select * from users where name like :name \nAND last_name like :lastName",
@@ -323,7 +323,7 @@ class SqlParserTest {
             Section.text(" "),
             Section.newline(),
             Section.text("AND last_name like "),
-            Section.bindVar(":lastName", false)
+            Section.bindVar(":lastName", false),
         )
         assertSections(
             "select * from users where name like :name \nAND last_name like \n:lastName",
@@ -333,19 +333,19 @@ class SqlParserTest {
             Section.newline(),
             Section.text("AND last_name like "),
             Section.newline(),
-            Section.bindVar(":lastName", false)
+            Section.bindVar(":lastName", false),
         )
         assertSections(
             "select * from users where name in (?)",
             Section.text("select * from users where name in ("),
             Section.bindVar("?", true),
-            Section.text(")")
+            Section.text(")"),
         )
         assertSections(
             "select * from users where name in (:names)",
             Section.text("select * from users where name in ("),
             Section.bindVar(":names", true),
-            Section.text(")")
+            Section.text(")"),
         )
     }
 

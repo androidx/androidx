@@ -18,13 +18,21 @@ package androidx.webkit.internal;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.UiThread;
+import androidx.webkit.PrerenderException;
+import androidx.webkit.PrerenderOperationCallback;
 import androidx.webkit.Profile;
+import androidx.webkit.SpeculativeLoadingParameters;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
+import androidx.webkit.WebNavigationClient;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderProcess;
 import androidx.webkit.WebViewRenderProcessClient;
@@ -187,5 +195,102 @@ public class WebViewProviderAdapter {
      */
     public void setAudioMuted(boolean mute) {
         mImpl.setAudioMuted(mute);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#prerenderUrlAsync(WebView, String, CancellationSignal, Executor,
+     * PrerenderOperationCallback)}.
+     */
+    @WebViewCompat.ExperimentalUrlPrerender
+    public void prerenderUrlAsync(
+            @NonNull String url,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull Executor callbackExecutor,
+            @NonNull PrerenderOperationCallback callback) {
+
+        ValueCallback<Void> activationCallback = (value) -> {
+            // value will always be null.
+            callback.onPrerenderActivated();
+        };
+        ValueCallback<Throwable> errorCallback = (throwable) -> {
+            callback.onError(new PrerenderException("Prerender operation failed", throwable));
+        };
+        mImpl.prerenderUrl(
+                url,
+                cancellationSignal,
+                callbackExecutor,
+                activationCallback,
+                errorCallback);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#prerenderUrl(WebView, String, CancellationSignal, Executor,
+     * SpeculativeLoadingParameters, PrerenderOperationCallback)}.
+     */
+    @WebViewCompat.ExperimentalUrlPrerender
+    @Profile.ExperimentalUrlPrefetch
+    public void prerenderUrlAsync(
+            @NonNull String url,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull Executor callbackExecutor,
+            @NonNull SpeculativeLoadingParameters params,
+            @NonNull PrerenderOperationCallback callback) {
+
+        InvocationHandler paramsBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new SpeculativeLoadingParametersAdapter(params));
+        ValueCallback<Void> activationCallback = (value) -> {
+            // value will always be null.
+            callback.onPrerenderActivated();
+        };
+        ValueCallback<Throwable> errorCallback = (throwable) -> {
+            callback.onError(new PrerenderException("Prerender operation failed", throwable));
+        };
+        mImpl.prerenderUrl(
+                url,
+                cancellationSignal,
+                callbackExecutor,
+                paramsBoundaryInterface,
+                activationCallback,
+                errorCallback);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#saveState(WebView, Bundle, int, boolean)}.
+     */
+    @UiThread
+    public void saveState(
+            @NonNull Bundle outState,
+            int maxSizeBytes,
+            boolean includeForwardState) {
+        mImpl.saveState(outState, maxSizeBytes, includeForwardState);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#saveState(WebView, Bundle, int, boolean)}.
+     */
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public void setWebNavigationClient(
+            @NonNull WebNavigationClient client) {
+        InvocationHandler clientBoundaryInterface =
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebNavigationClientAdapter(client));
+        mImpl.setWebViewNavigationClient(clientBoundaryInterface);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#getWebN(WebView, Bundle, int, boolean)}.
+     */
+    @UiThread
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public @NonNull WebNavigationClient getWebNavigationClient() {
+        InvocationHandler client = mImpl.getWebViewNavigationClient();
+        if (client == null) return null;
+        return ((WebNavigationClientAdapter)
+                BoundaryInterfaceReflectionUtil.getDelegateFromInvocationHandler(
+                        client)).getWebNavigationClient();
     }
 }

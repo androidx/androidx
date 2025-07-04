@@ -30,17 +30,19 @@ import androidx.wear.protolayout.types.LayoutColor
  *
  * @param protoLayoutResourceId The protolayout resource id of the icon. Node that, this is not an
  *   Android resource id.
- * @param size The side of an icon that will be used for width and height.
+ * @param width The width of the icon.
+ * @param height The height of the icon.
  * @param tintColor The color used to tint the icon.
  */
 public fun MaterialScope.icon(
     protoLayoutResourceId: String,
-    size: ImageDimension = defaultIconStyle.size,
+    width: ImageDimension = defaultIconStyle.width,
+    height: ImageDimension = defaultIconStyle.height,
     tintColor: LayoutColor = defaultIconStyle.tintColor,
 ): LayoutElement =
     Image.Builder()
         .setResourceId(protoLayoutResourceId)
-        .setWidth(size)
-        .setHeight(size)
+        .setWidth(width)
+        .setHeight(height)
         .setColorFilter(ColorFilter.Builder().setTint(tintColor.prop).build())
         .build()

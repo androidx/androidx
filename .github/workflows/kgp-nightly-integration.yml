@@ -1,0 +1,76 @@
+# This workflow builds :collection:collection with the latest dev build of KGP.
+# It applies the patch file .github/integration-patches/kgp-nightly.patch if it exists.
+name: KGP Nightly Integration Test
+
+on:
+  # Run workflow daily.
+  schedule:
+    - cron: "0 3 * * *"
+  # Allows running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  find-kgp-version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      kgpVersion: ${{ steps.version.outputs.kgpVersion }}
+
+    steps:
+      - name: "Find the latest KGP version"
+        id: version
+        run: |
+          kgpMetadata=$(curl 'https://packages.jetbrains.team/maven/p/kt/dev/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml')
+          # Find the line with the latest version.
+          versionLine=$(grep '<latest>' <<< $kgpMetadata)
+          # Strip the "<latest>" and "</latest>".
+          kgpVersion=$(sed 's/.*<latest>//' <<< $versionLine | sed 's/<\/latest>.*//')
+          # Set the version as the step output.
+          echo "kgpVersion=$kgpVersion" >> "$GITHUB_OUTPUT"
+          # Add a notice to make it easy to see which version is used for the build.
+          echo "::notice title=KGP version::Using KGP version $kgpVersion"
+
+  build:
+    needs: find-kgp-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v4
+
+      # Optionally apply a patch file needed to use the latest version of KGP.
+      - name: "Apply patch"
+        # If the file exists, hashFiles will return a non-empty string.
+        if: ${{ hashFiles('.github/integration-patches/kgp-nightly.patch') != '' }}
+        run: git apply .github/integration-patches/kgp-nightly.patch
+
+      - name: "Set KGP version"
+        env:
+          KGP_VERSION: ${{ needs.find-kgp-version.outputs.kgpVersion }}
+        run: |
+          # Replace the kotlin version reference with $KGP_VERSION.
+          sed -i "s/\(kotlin = \"\).*\"/\1${KGP_VERSION}\"/" gradle/libs.versions.toml
+          # Also replace kotlin22 line for now, since the stable version doesn't exist
+          sed -i "s/\(kotlin22 = \"\).*\"/\1${KGP_VERSION}\"/" gradle/libs.versions.toml
+          # Output updated version line for debugging.
+          cat gradle/libs.versions.toml | grep "kotlin = "
+
+      - name: "Run build"
+        uses: ./.github/actions/build-single-project
+        with:
+          project: collection
+          project-root: playground-projects/collection-playground
+          gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          # Gradle flags match those used in presubmit.yml, plus disabling validating integration
+          # patches as a patch file may already be applied.
+          gradle-flags: >
+            -Dorg.gradle.internal.http.connectionTimeout=60000
+            -Dorg.gradle.internal.http.socketTimeout=60000
+            -Dorg.gradle.internal.repository.max.retries=20
+            -Dorg.gradle.internal.repository.initial.backoff=500
+            --stacktrace
+            -x validateIntegrationPatches
+          # Disable the cache since this is the only build using the latest KGP.
+          gradle-cache-disabled: true

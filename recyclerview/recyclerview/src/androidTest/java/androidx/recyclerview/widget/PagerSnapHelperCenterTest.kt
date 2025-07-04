@@ -32,7 +32,7 @@ class PagerSnapHelperCenterTest(
     vertical: Boolean,
     startPadded: Boolean,
     endPadded: Boolean,
-    clipToPadding: Boolean
+    clipToPadding: Boolean,
 ) : BaseSnapHelperCenterTest(vertical, startPadded, endPadded, clipToPadding) {
     override val snapHelper = PagerSnapHelper()
 }

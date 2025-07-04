@@ -49,6 +49,5 @@ interface ICustomTabsService {
   boolean receiveFile(in android.support.customtabs.ICustomTabsCallback callback, in android.net.Uri uri, int purpose, in android.os.Bundle extras) = 11;
   boolean isEngagementSignalsApiAvailable(in android.support.customtabs.ICustomTabsCallback customTabsCallback, in android.os.Bundle extras) = 12;
   boolean setEngagementSignalsCallback(in android.support.customtabs.ICustomTabsCallback customTabsCallback, in IBinder callback, in android.os.Bundle extras) = 13;
-  boolean isEphemeralBrowsingSupported(in android.os.Bundle extras) = 16;
   boolean newAuthTabSession(in android.support.customtabs.IAuthTabCallback callback, in android.os.Bundle extras) = 17;
 }

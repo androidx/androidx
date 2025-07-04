@@ -77,4 +77,11 @@ public interface LimitConfig {
      * open for read and write blob from AppSearch.
      */
     int getMaxOpenBlobCount();
+
+    /**
+     * Returns the max number of bytes we will batch and send to IcingSearchEngine during
+     * AppSearchImpl.batchPutDocuments. By default, we just use the same value as
+     * #getMaxDocumentSizeBytes().
+     */
+    int getMaxByteLimitForBatchPut();
 }

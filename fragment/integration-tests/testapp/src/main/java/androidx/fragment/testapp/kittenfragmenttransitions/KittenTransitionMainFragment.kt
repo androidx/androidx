@@ -28,7 +28,7 @@ class KittenTransitionMainFragment : Fragment(R.layout.kitten_activity_main) {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         if (savedInstanceState == null) {
             parentFragmentManager.beginTransaction().setPrimaryNavigationFragment(this).commit()

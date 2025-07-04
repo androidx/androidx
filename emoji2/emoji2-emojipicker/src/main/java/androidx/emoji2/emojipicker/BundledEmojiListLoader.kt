@@ -80,7 +80,7 @@ internal object BundledEmojiListLoader {
         @DrawableRes categoryHeaderIconIds: IntArray,
         categoryNames: Array<String>,
         emojiFileCache: FileCache,
-        context: Context
+        context: Context,
     ): List<EmojiDataCategory> = coroutineScope {
         (0 until ta.length())
             .map {
@@ -97,10 +97,7 @@ internal object BundledEmojiListLoader {
             .awaitAll()
     }
 
-    private fun loadSingleCategory(
-        context: Context,
-        resId: Int,
-    ): List<EmojiViewItem> =
+    private fun loadSingleCategory(context: Context, resId: Int): List<EmojiViewItem> =
         context.resources
             .openRawResource(resId)
             .bufferedReader()
@@ -129,6 +126,6 @@ internal object BundledEmojiListLoader {
     internal data class EmojiDataCategory(
         @DrawableRes val headerIconId: Int,
         val categoryName: String,
-        val emojiDataList: List<EmojiViewItem>
+        val emojiDataList: List<EmojiViewItem>,
     )
 }

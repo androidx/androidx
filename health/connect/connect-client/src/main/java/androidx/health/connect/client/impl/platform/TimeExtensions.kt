@@ -16,8 +16,10 @@
 
 package androidx.health.connect.client.impl.platform
 
+import androidx.health.connect.client.impl.platform.aggregate.InstantTimeRange
+import androidx.health.connect.client.impl.platform.aggregate.LocalTimeRange
+import androidx.health.connect.client.impl.platform.aggregate.TimeRange
 import androidx.health.connect.client.records.IntervalRecord
-import androidx.health.connect.client.time.TimeRangeFilter
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
@@ -25,9 +27,9 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 internal operator fun Duration.div(divisor: Duration): Double {
-    if (divisor.isZero) {
-        return 0.0
-    }
+    // We don't expect division by zero to occur. If it does, there is a mistake in the business
+    // logic and the best way to surface it is to let this return the default Infinity value kotlin
+    // returns on floating point division
     return toMillis().toDouble() / divisor.toMillis()
 }
 
@@ -35,13 +37,24 @@ internal operator fun Instant.minus(other: Instant): Duration {
     return Duration.between(other, this)
 }
 
-internal fun TimeRangeFilter.useLocalTime(): Boolean {
-    return localStartTime != null || localEndTime != null
+internal fun LocalDateTime.toInstantWithDefaultZoneFallback(
+    zoneOffset: ZoneOffset? = null
+): Instant {
+    return atZone(zoneOffset ?: ZoneId.systemDefault()).toInstant()
 }
 
-internal fun LocalDateTime.toInstantWithDefaultZoneFallback(zoneOffset: ZoneOffset?): Instant {
-    return atZone(zoneOffset ?: ZoneId.systemDefault()).toInstant()
+internal fun Instant.toLocalTimeWithDefaultZoneFallback(zoneOffset: ZoneId? = null): LocalDateTime {
+    return LocalDateTime.ofInstant(this, zoneOffset ?: ZoneId.systemDefault())
 }
 
 internal val IntervalRecord.duration: Duration
     get() = endTime - startTime
+
+internal fun Instant.isWithin(timeRange: TimeRange<*>, zoneOffset: ZoneOffset? = null): Boolean {
+    return when (timeRange) {
+        is InstantTimeRange -> !isBefore(timeRange.startTime) && isBefore(timeRange.endTime)
+        is LocalTimeRange ->
+            !isBefore(timeRange.startTime.toInstantWithDefaultZoneFallback(zoneOffset)) &&
+                isBefore(timeRange.endTime.toInstantWithDefaultZoneFallback(zoneOffset))
+    }
+}

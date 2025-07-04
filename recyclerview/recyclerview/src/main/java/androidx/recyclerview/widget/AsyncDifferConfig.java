@@ -16,9 +16,10 @@
 
 package androidx.recyclerview.widget;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -33,18 +34,15 @@ import java.util.concurrent.Executors;
  * @param <T> Type of items in the lists, and being compared.
  */
 public final class AsyncDifferConfig<T> {
-    @Nullable
-    private final Executor mMainThreadExecutor;
-    @NonNull
-    private final Executor mBackgroundThreadExecutor;
-    @NonNull
-    private final DiffUtil.ItemCallback<T> mDiffCallback;
+    private final @Nullable Executor mMainThreadExecutor;
+    private final @NonNull Executor mBackgroundThreadExecutor;
+    private final DiffUtil.@NonNull ItemCallback<T> mDiffCallback;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     AsyncDifferConfig(
             @Nullable Executor mainThreadExecutor,
             @NonNull Executor backgroundThreadExecutor,
-            @NonNull DiffUtil.ItemCallback<T> diffCallback) {
+            DiffUtil.@NonNull ItemCallback<T> diffCallback) {
         mMainThreadExecutor = mainThreadExecutor;
         mBackgroundThreadExecutor = backgroundThreadExecutor;
         mDiffCallback = diffCallback;
@@ -52,20 +50,17 @@ public final class AsyncDifferConfig<T> {
 
     @SuppressWarnings("WeakerAccess")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    public Executor getMainThreadExecutor() {
+    public @Nullable Executor getMainThreadExecutor() {
         return mMainThreadExecutor;
     }
 
     @SuppressWarnings("WeakerAccess")
-    @NonNull
-    public Executor getBackgroundThreadExecutor() {
+    public @NonNull Executor getBackgroundThreadExecutor() {
         return mBackgroundThreadExecutor;
     }
 
     @SuppressWarnings("WeakerAccess")
-    @NonNull
-    public DiffUtil.ItemCallback<T> getDiffCallback() {
+    public DiffUtil.@NonNull ItemCallback<T> getDiffCallback() {
         return mDiffCallback;
     }
 
@@ -75,12 +70,11 @@ public final class AsyncDifferConfig<T> {
      * @param <T>
      */
     public static final class Builder<T> {
-        @Nullable
-        private Executor mMainThreadExecutor;
+        private @Nullable Executor mMainThreadExecutor;
         private Executor mBackgroundThreadExecutor;
         private final DiffUtil.ItemCallback<T> mDiffCallback;
 
-        public Builder(@NonNull DiffUtil.ItemCallback<T> diffCallback) {
+        public Builder(DiffUtil.@NonNull ItemCallback<T> diffCallback) {
             mDiffCallback = diffCallback;
         }
 
@@ -95,8 +89,7 @@ public final class AsyncDifferConfig<T> {
          *
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @NonNull
-        public Builder<T> setMainThreadExecutor(@Nullable Executor executor) {
+        public @NonNull Builder<T> setMainThreadExecutor(@Nullable Executor executor) {
             mMainThreadExecutor = executor;
             return this;
         }
@@ -112,8 +105,7 @@ public final class AsyncDifferConfig<T> {
          * @return this
          */
         @SuppressWarnings({"unused", "WeakerAccess"})
-        @NonNull
-        public Builder<T> setBackgroundThreadExecutor(@Nullable Executor executor) {
+        public @NonNull Builder<T> setBackgroundThreadExecutor(@Nullable Executor executor) {
             mBackgroundThreadExecutor = executor;
             return this;
         }
@@ -123,8 +115,7 @@ public final class AsyncDifferConfig<T> {
          *
          * @return A new AsyncDifferConfig.
          */
-        @NonNull
-        public AsyncDifferConfig<T> build() {
+        public @NonNull AsyncDifferConfig<T> build() {
             if (mBackgroundThreadExecutor == null) {
                 synchronized (sExecutorLock) {
                     if (sDiffExecutor == null) {

@@ -17,10 +17,10 @@
 package androidx.camera.core.impl;
 
 import android.content.Context;
-import android.util.Pair;
 import android.util.Size;
 
 import androidx.camera.core.InitializationException;
+import androidx.camera.core.SessionConfig;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -56,45 +56,62 @@ public interface CameraDeviceSurfaceManager {
     /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
-     * @param cameraMode  the working camera mode.
-     * @param cameraId    the camera id of the camera device to transform the object
-     * @param imageFormat the image format info for the surface configuration object
-     * @param size        the size info for the surface configuration object
+     * @param cameraMode    the working camera mode.
+     * @param cameraId      the camera id of the camera device to transform the object
+     * @param imageFormat   the image format info for the surface configuration object
+     * @param size          the size info for the surface configuration object
+     * @param streamUseCase the stream use case for the surface configuration object
      * @return new {@link SurfaceConfig} object
+     * @throws IllegalArgumentException if the {@code cameraId} is not found in the supported
+     *                                  combinations, or if there isn't a supported combination of
+     *                                  surfaces available for the given parameters.
      */
-    @Nullable SurfaceConfig transformSurfaceConfig(
+    @NonNull SurfaceConfig transformSurfaceConfig(
             @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             int imageFormat,
-            @NonNull Size size);
+            @NonNull Size size,
+            @NonNull StreamUseCase streamUseCase);
 
     /**
      * Retrieves a map of suggested stream specifications for the given list of use cases.
      *
-     * @param cameraMode                        the working camera mode.
-     * @param cameraId                          the camera id of the camera device used by the
-     *                                          use cases
-     * @param existingSurfaces                  list of surfaces already configured and used by
-     *                                          the camera. The stream specifications for these
-     *                                          surface can not change.
-     * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
-     *                                          supported output sizes list that will be given a
-     *                                          suggested stream specification
-     * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
-     * @param hasVideoCapture                   whether the use cases has video capture.
-     * @return map of suggested stream specifications for given use cases
+     * @param cameraMode                         the working camera mode.
+     * @param cameraId                           the camera id of the camera device used by the
+     *                                           use cases
+     * @param existingSurfaces                   list of surfaces already configured and used by
+     *                                           the camera. The stream specifications for these
+     *                                           surface can not change.
+     * @param newUseCaseConfigsSupportedSizeMap  map of configurations of the use cases to the
+     *                                           supported output sizes list that will be given a
+     *                                           suggested stream specification
+     * @param isPreviewStabilizationOn           whether the preview stabilization is enabled.
+     * @param hasVideoCapture                    whether the use cases has video capture.
+     * @param isFeatureComboInvocation           whether a code flow invoked through feature combo
+     *                                           APIs (e.g. {@link
+     *                                           SessionConfig#requiredFeatureGroup}).
+     * @param findMaxSupportedFrameRate          if {@code true}, the maximum supported frame
+     *                                           rate will be calculated and returned in
+     *                              {@link SurfaceStreamSpecQueryResult#getMaxSupportedFrameRate()}
+     *                                           and the target frame rate settings in use cases
+     *                                           will be ignored while calculating the stream spec.
+     *                                           If {@code false}, the value of
+     *                               {@link SurfaceStreamSpecQueryResult#getMaxSupportedFrameRate()}
+     *                                           is undetermined.
+     * @return a {@link SurfaceStreamSpecQueryResult}.
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
      *                                  available, or if the {@code cameraId}
      *                                  is not a valid id.
      */
-    @NonNull Pair<Map<UseCaseConfig<?>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>>
-            getSuggestedStreamSpecs(
+    @NonNull SurfaceStreamSpecQueryResult getSuggestedStreamSpecs(
             @CameraMode.Mode int cameraMode,
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
             boolean isPreviewStabilizationOn,
-            boolean hasVideoCapture);
+            boolean hasVideoCapture,
+            boolean isFeatureComboInvocation,
+            boolean findMaxSupportedFrameRate);
 }

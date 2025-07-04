@@ -46,7 +46,6 @@
         <TextView android:id="@+id/match_status_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/query_box"
             android:paddingStart="8dp"
             android:paddingEnd="10dp"
             android:textColor="?attr/colorOnSurfaceVariant"

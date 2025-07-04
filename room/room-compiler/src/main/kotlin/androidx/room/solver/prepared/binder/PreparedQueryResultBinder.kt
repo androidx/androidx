@@ -39,6 +39,6 @@ abstract class PreparedQueryResultBinder(val adapter: PreparedQueryResultAdapter
         dbProperty: XPropertySpec,
         bindStatement: CodeGenScope.(String) -> Unit,
         returnTypeName: XTypeName,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     )
 }

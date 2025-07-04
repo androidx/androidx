@@ -54,7 +54,13 @@ import kotlinx.coroutines.CompletableDeferred
 /**
  * Interface for fetching watch face metadata. E.g. the [UserStyleSchema] and
  * [ComplicationSlotMetadata]. This must be [close]d after use to release resources.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public interface WatchFaceMetadataClient : AutoCloseable {
 
     public companion object {
@@ -75,12 +81,12 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         @Throws(
             ServiceNotBoundException::class,
             ServiceStartFailureException::class,
-            PackageManager.NameNotFoundException::class
+            PackageManager.NameNotFoundException::class,
         )
         @SuppressWarnings("MissingJvmstatic") // Can't really call a suspend fun from java.
         public suspend fun create(
             context: Context,
-            watchFaceName: ComponentName
+            watchFaceName: ComponentName,
         ): WatchFaceMetadataClient {
             // Fallback to binding the service (slow).
             return createImpl(
@@ -89,7 +95,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                     setPackage(watchFaceName.packageName)
                 },
                 watchFaceName,
-                ParserProvider()
+                ParserProvider(),
             )
         }
 
@@ -112,13 +118,13 @@ public interface WatchFaceMetadataClient : AutoCloseable {
         @Throws(
             ServiceNotBoundException::class,
             ServiceStartFailureException::class,
-            PackageManager.NameNotFoundException::class
+            PackageManager.NameNotFoundException::class,
         )
         @SuppressWarnings("MissingJvmstatic") // Can't really call a suspend fun from java.
         public suspend fun createForRuntime(
             context: Context,
             watchFaceName: ComponentName,
-            runtimePackage: String
+            runtimePackage: String,
         ): WatchFaceMetadataClient {
             return createImpl(
                 context,
@@ -126,7 +132,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                     setPackage(runtimePackage)
                 },
                 watchFaceName,
-                parserProvider = null
+                parserProvider = null,
             )
         }
 
@@ -135,7 +141,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             context: Context,
             resources: Resources,
             controlServicePackage: String,
-            controlServiceName: String = ANDROIDX_WATCHFACE_CONTROL_SERVICE
+            controlServiceName: String = ANDROIDX_WATCHFACE_CONTROL_SERVICE,
         ): Boolean {
             val controlServiceComponentName =
                 ComponentName(controlServicePackage, controlServiceName)
@@ -144,7 +150,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                     context.packageManager
                         .getServiceInfo(
                             controlServiceComponentName,
-                            PackageManager.GET_META_DATA or PackageManager.MATCH_DISABLED_COMPONENTS
+                            PackageManager.GET_META_DATA or PackageManager.MATCH_DISABLED_COMPONENTS,
                         )
                         .metaData
                         .getInt(ANDROIDX_WATCHFACE_XML_VERSION, 0)
@@ -161,7 +167,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                 Log.w(
                     TAG,
                     "WatchFaceControlService version ($version) " +
-                        "of $controlServiceComponentName is higher than $ourVersion"
+                        "of $controlServiceComponentName is higher than $ourVersion",
                 )
                 return false
             }
@@ -181,7 +187,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                     .getServiceInfo(watchFaceName, PackageManager.GET_META_DATA)
                     .loadXmlMetaData(
                         context.packageManager,
-                        WatchFaceService.XML_WATCH_FACE_METADATA
+                        WatchFaceService.XML_WATCH_FACE_METADATA,
                     )
             }
         }
@@ -193,7 +199,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
             context: Context,
             intent: Intent,
             watchFaceName: ComponentName,
-            parserProvider: ParserProvider?
+            parserProvider: ParserProvider?,
         ): WatchFaceMetadataClient {
             // Check if there's static metadata we can read (fast).
             parserProvider?.getParser(context, watchFaceName)?.let {
@@ -202,7 +208,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                         context.packageManager.getResourcesForApplication(
                             watchFaceName.packageName
                         ),
-                        it
+                        it,
                     )
                 )
             }
@@ -231,7 +237,7 @@ public interface WatchFaceMetadataClient : AutoCloseable {
                 context,
                 deferredService.await(),
                 serviceConnection,
-                watchFaceName
+                watchFaceName,
             )
         }
     }
@@ -299,7 +305,12 @@ private const val ANDROIDX_WATCHFACE_CONTROL_SERVICE =
  *   around specific complication complication data sources.
  * @property complicationConfigExtras Extras to be merged into the Intent sent when invoking the
  *   complication data source chooser activity.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ComplicationSlotMetadata
 @ComplicationExperimental
 constructor(
@@ -310,7 +321,7 @@ constructor(
     @get:JvmName("isInitiallyEnabled") public val isInitiallyEnabled: Boolean,
     public val fixedComplicationDataSource: Boolean,
     public val complicationConfigExtras: Bundle,
-    private val boundingArc: BoundingArc?
+    private val boundingArc: BoundingArc?,
 ) {
     /** The optional [BoundingArc] for an edge complication if specified, or `null` otherwise. */
     // TODO(b/230364881): Make this a normal primary constructor property when BoundingArc is no
@@ -346,7 +357,7 @@ constructor(
         defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         isInitiallyEnabled: Boolean,
         fixedComplicationDataSource: Boolean,
-        complicationConfigExtras: Bundle
+        complicationConfigExtras: Bundle,
     ) : this(
         bounds,
         boundsType,
@@ -355,7 +366,7 @@ constructor(
         isInitiallyEnabled,
         fixedComplicationDataSource,
         complicationConfigExtras,
-        null
+        null,
     )
 }
 
@@ -364,7 +375,7 @@ internal constructor(
     private val context: Context,
     private val service: IWatchFaceControlService,
     private val serviceConnection: ServiceConnection,
-    private val watchFaceName: ComponentName
+    private val watchFaceName: ComponentName,
 ) : WatchFaceMetadataClient {
     private var closed = false
     private val headlessClientDelegate = lazy {
@@ -387,7 +398,7 @@ internal constructor(
                         androidx.wear.watchface.data.DeviceConfig(false, false, 0, 0),
                         1,
                         1,
-                        null
+                        null,
                     )
                 )
                 ?.let { HeadlessWatchFaceClientImpl(it) }
@@ -430,7 +441,7 @@ internal constructor(
                         ComplicationSlotMetadata(
                             ComplicationSlotBounds.createFromPartialMap(
                                 perSlotBounds,
-                                perSlotMargins
+                                perSlotMargins,
                             ),
                             it.boundsType,
                             it.supportedTypes.map { ComplicationType.fromWireType(it) },
@@ -439,16 +450,16 @@ internal constructor(
                                 it.fallbackSystemDataSource,
                                 ComplicationType.fromWireType(it.primaryDataSourceDefaultType),
                                 ComplicationType.fromWireType(it.secondaryDataSourceDefaultType),
-                                ComplicationType.fromWireType(it.defaultDataSourceType)
+                                ComplicationType.fromWireType(it.defaultDataSourceType),
                             ),
                             it.isInitiallyEnabled,
                             it.isFixedComplicationDataSource,
                             it.complicationConfigExtras,
                             it.boundingArc?.let { arc ->
                                 BoundingArc(arc.arcStartAngle, arc.totalArcAngle, arc.arcThickness)
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             } else {
                 headlessClient.complicationSlotsState.mapValues {
@@ -460,7 +471,7 @@ internal constructor(
                         it.value.isInitiallyEnabled,
                         it.value.fixedComplicationDataSource,
                         it.value.complicationConfigExtras,
-                        null
+                        null,
                     )
                 }
             }
@@ -507,9 +518,9 @@ internal class XmlWatchFaceMetadataClientImpl(
                     it.initiallyEnabled,
                     it.fixedComplicationDataSource,
                     Bundle(),
-                    it.boundingArc
+                    it.boundingArc,
                 )
-            }
+            },
         )
 
     override fun getUserStyleFlavors() =

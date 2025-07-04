@@ -117,7 +117,9 @@ public fun CurvedScope.curvedText(
                 fontStyle = fontStyle,
                 fontSynthesis = fontSynthesis,
                 background = background,
-                letterSpacing = 0.em // keep backward compatibility.
+                // keep backward compatibility, add no letter spacing .
+                letterSpacing = 0.em,
+                letterSpacingCounterClockwise = 0.em,
             )
         )
     }
@@ -166,7 +168,7 @@ public fun CurvedScope.curvedText(
 @Deprecated(
     "This overload is provided for backwards compatibility with Compose for " +
         "Wear OS 1.0. A newer overload is available with additional font parameters.",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 public fun CurvedScope.curvedText(
     text: String,

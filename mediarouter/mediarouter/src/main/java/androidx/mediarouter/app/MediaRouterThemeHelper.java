@@ -154,7 +154,7 @@ final class MediaRouterThemeHelper {
         // 4) Apply the custom Media Router theme
         int theme = getThemeResource(context, R.attr.mediaRouteTheme);
         if (theme == 0) {
-            // 3) No custom MediaRouther theme was provided so apply the base theme instead
+            // 3) No custom MediaRouter theme was provided so apply the base theme instead
             theme = getRouterThemeId(context);
         }
 

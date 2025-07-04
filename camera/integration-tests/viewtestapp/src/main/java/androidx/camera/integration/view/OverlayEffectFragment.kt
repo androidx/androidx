@@ -49,7 +49,7 @@ class OverlayEffectFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         // Inflate the layout for this fragment.
         val view = inflater.inflate(R.layout.overlay_effect_view, container, false)
@@ -60,7 +60,7 @@ class OverlayEffectFragment : Fragment() {
             BouncyLogoEffect(
                 PREVIEW or OverlayEffect.IMAGE_CAPTURE or OverlayEffect.VIDEO_CAPTURE,
                 "CameraX",
-                previewView
+                previewView,
             )
 
         // Set up the camera controller.
@@ -95,7 +95,7 @@ class OverlayEffectFragment : Fragment() {
                 requireContext(),
                 executorService,
                 ::toast,
-                onDiskCheckBox::isChecked
+                onDiskCheckBox::isChecked,
             )
         }
 

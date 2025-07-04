@@ -22,14 +22,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 /** Tests for {@link ZoomUtils}. */
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class ZoomUtilsTest {
 

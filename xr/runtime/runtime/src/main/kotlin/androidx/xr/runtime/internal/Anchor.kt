@@ -17,6 +17,7 @@
 package androidx.xr.runtime.internal
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 
@@ -28,13 +29,13 @@ public interface Anchor {
     public class PersistenceState private constructor(private val value: Int) {
         public companion object {
             /** The anchor has not been requested to be persisted. */
-            @JvmField public val NotPersisted: PersistenceState = PersistenceState(0)
+            @JvmField public val NOT_PERSISTED: PersistenceState = PersistenceState(0)
 
             /** The anchor has been requested to be persisted but the operation is still pending. */
-            @JvmField public val Pending: PersistenceState = PersistenceState(1)
+            @JvmField public val PENDING: PersistenceState = PersistenceState(1)
 
             /** The anchor has been persisted. */
-            @JvmField public val Persisted: PersistenceState = PersistenceState(2)
+            @JvmField public val PERSISTED: PersistenceState = PersistenceState(2)
         }
     }
 

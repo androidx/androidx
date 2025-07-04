@@ -49,7 +49,7 @@ class OnBackPressedDispatcherTest : LintDetectorTest() {
                 }
             """
                 ),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expectClean()
@@ -79,7 +79,7 @@ class OnBackPressedDispatcherTest : LintDetectorTest() {
                 }
             """
                 ),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expect(

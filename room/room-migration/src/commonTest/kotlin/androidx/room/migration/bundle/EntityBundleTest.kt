@@ -29,7 +29,7 @@ class EntityBundleTest {
                 fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = listOf(createIndexBundle("foo")),
-                foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
+                foreignKeys = listOf(createForeignKeyBundle("bar", "foo")),
             )
 
         val other =
@@ -39,7 +39,7 @@ class EntityBundleTest {
                 fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = listOf(createIndexBundle("foo")),
-                foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
+                foreignKeys = listOf(createForeignKeyBundle("bar", "foo")),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
@@ -54,7 +54,7 @@ class EntityBundleTest {
                 fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         val other =
@@ -64,7 +64,7 @@ class EntityBundleTest {
                 fields = listOf(createFieldBundle("bar"), createFieldBundle("foo")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
@@ -79,7 +79,7 @@ class EntityBundleTest {
                 fields = listOf(createFieldBundle("foo"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         val other =
@@ -89,7 +89,7 @@ class EntityBundleTest {
                 fields = listOf(createFieldBundle("foo2"), createFieldBundle("bar")),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isFalse()
@@ -105,7 +105,7 @@ class EntityBundleTest {
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
                 foreignKeys =
-                    listOf(createForeignKeyBundle("x", "y"), createForeignKeyBundle("bar", "foo"))
+                    listOf(createForeignKeyBundle("x", "y"), createForeignKeyBundle("bar", "foo")),
             )
 
         val other =
@@ -116,7 +116,7 @@ class EntityBundleTest {
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
                 foreignKeys =
-                    listOf(createForeignKeyBundle("bar", "foo"), createForeignKeyBundle("x", "y"))
+                    listOf(createForeignKeyBundle("bar", "foo"), createForeignKeyBundle("x", "y")),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
@@ -131,7 +131,7 @@ class EntityBundleTest {
                 fields = emptyList(),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = listOf(createForeignKeyBundle("bar", "foo"))
+                foreignKeys = listOf(createForeignKeyBundle("bar", "foo")),
             )
 
         val other =
@@ -141,7 +141,7 @@ class EntityBundleTest {
                 fields = emptyList(),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = emptyList(),
-                foreignKeys = listOf(createForeignKeyBundle("bar2", "foo"))
+                foreignKeys = listOf(createForeignKeyBundle("bar2", "foo")),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isFalse()
@@ -156,7 +156,7 @@ class EntityBundleTest {
                 fields = emptyList(),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = listOf(createIndexBundle("foo"), createIndexBundle("baz")),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         val other =
@@ -166,7 +166,7 @@ class EntityBundleTest {
                 fields = emptyList(),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = listOf(createIndexBundle("baz"), createIndexBundle("foo")),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isTrue()
@@ -181,7 +181,7 @@ class EntityBundleTest {
                 fields = emptyList(),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = listOf(createIndexBundle("foo")),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         val other =
@@ -191,7 +191,7 @@ class EntityBundleTest {
                 fields = emptyList(),
                 primaryKey = PrimaryKeyBundle(false, listOf("foo")),
                 indices = listOf(createIndexBundle("foo2")),
-                foreignKeys = emptyList()
+                foreignKeys = emptyList(),
             )
 
         assertThat(bundle.isSchemaEqual(other)).isFalse()
@@ -203,7 +203,7 @@ class EntityBundleTest {
             columnName = name,
             affinity = "text",
             isNonNull = false,
-            defaultValue = null
+            defaultValue = null,
         )
     }
 
@@ -213,7 +213,7 @@ class EntityBundleTest {
             isUnique = false,
             columnNames = listOf(colName),
             orders = emptyList(),
-            createSql = "create"
+            createSql = "create",
         )
     }
 
@@ -223,7 +223,7 @@ class EntityBundleTest {
             onDelete = "CASCADE",
             onUpdate = "CASCADE",
             columns = listOf(column),
-            referencedColumns = listOf(column)
+            referencedColumns = listOf(column),
         )
     }
 }

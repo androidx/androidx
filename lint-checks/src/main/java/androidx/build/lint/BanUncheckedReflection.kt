@@ -56,13 +56,13 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
                 context,
                 node,
                 ApiConstraint.get(HIGHEST_KNOWN_API),
-                false
+                false,
             ) &&
                 !isWithinVersionCheckConditional(context, node, ApiConstraint.get(1), true) &&
                 !isPrecededByVersionCheckExit(
                     context,
                     node,
-                    ApiConstraint.get(HIGHEST_KNOWN_API)
+                    ApiConstraint.get(HIGHEST_KNOWN_API),
                 ) &&
                 !isPrecededByVersionCheckExit(context, node, ApiConstraint.get(1)) &&
                 !isWithinDeprecatedSinceApiMethod(node) &&
@@ -116,7 +116,7 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanUncheckedReflection::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanUncheckedReflection::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         const val METHOD_REFLECTION_CLASS = "java.lang.reflect.Method"

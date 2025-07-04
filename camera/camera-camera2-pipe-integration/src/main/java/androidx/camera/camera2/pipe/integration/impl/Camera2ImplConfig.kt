@@ -36,27 +36,27 @@ internal val TEMPLATE_TYPE_OPTION: Config.Option<Int> =
 internal val DEVICE_STATE_CALLBACK_OPTION: Config.Option<CameraDevice.StateCallback> =
     Config.Option.create(
         "camera2.cameraDevice.stateCallback",
-        CameraDevice.StateCallback::class.java
+        CameraDevice.StateCallback::class.java,
     )
 internal val SESSION_STATE_CALLBACK_OPTION: Config.Option<CameraCaptureSession.StateCallback> =
     Config.Option.create(
         "camera2.cameraCaptureSession.stateCallback",
-        CameraCaptureSession.StateCallback::class.java
+        CameraCaptureSession.StateCallback::class.java,
     )
 internal val SESSION_CAPTURE_CALLBACK_OPTION: Config.Option<CaptureCallback> =
     Config.Option.create(
         "camera2.cameraCaptureSession.captureCallback",
-        CaptureCallback::class.java
+        CaptureCallback::class.java,
     )
 internal val STREAM_USE_CASE_OPTION: Config.Option<Long> =
     Config.Option.create(
         "camera2.cameraCaptureSession.streamUseCase",
-        Long::class.javaPrimitiveType!!
+        Long::class.javaPrimitiveType!!,
     )
 internal val STREAM_USE_HINT_OPTION: Config.Option<Long> =
     Config.Option.create(
         "camera2.cameraCaptureSession.streamUseHint",
-        Long::class.javaPrimitiveType!!
+        Long::class.javaPrimitiveType!!,
     )
 internal val CAPTURE_REQUEST_TAG_OPTION: Config.Option<Any> =
     Config.Option.create("camera2.captureRequest.tag", Any::class.java)
@@ -66,8 +66,8 @@ internal val SESSION_PHYSICAL_CAMERA_ID_OPTION: Config.Option<String> =
 /**
  * Internal shared implementation details for camera 2 interop.
  *
- * @constructor Creates a Camera2ImplConfig for reading Camera2 options from the given config.
  * @property config The config that potentially contains Camera2 options.
+ * @constructor Creates a Camera2ImplConfig for reading Camera2 options from the given config.
  */
 @OptIn(ExperimentalCamera2Interop::class)
 public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
@@ -202,7 +202,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         /** Inserts new capture request option with specific [CaptureRequest.Key] setting. */
         public fun <ValueT> setCaptureRequestOption(
             key: CaptureRequest.Key<ValueT>,
-            value: ValueT
+            value: ValueT,
         ): Builder {
             val opt = key.createCaptureRequestOption()
             mutableOptionsBundle.insertOption(opt, value)
@@ -216,7 +216,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         public fun <ValueT> setCaptureRequestOptionWithPriority(
             key: CaptureRequest.Key<ValueT>,
             value: ValueT,
-            priority: Config.OptionPriority
+            priority: Config.OptionPriority,
         ): Builder {
             val opt = key.createCaptureRequestOption()
             mutableOptionsBundle.insertOption(opt, priority, value)
@@ -229,7 +229,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
          */
         public fun addAllCaptureRequestOptionsWithPriority(
             values: Map<CaptureRequest.Key<*>, Any>,
-            priority: Config.OptionPriority
+            priority: Config.OptionPriority,
         ): Builder {
             values.forEach { (key, value) ->
                 val opt = key.createCaptureRequestOption()
@@ -246,7 +246,7 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
                 mutableOptionsBundle.insertOption(
                     objectOpt,
                     config.getOptionPriority(option),
-                    config.retrieveOption(objectOpt)
+                    config.retrieveOption(objectOpt),
                 )
             }
             return this

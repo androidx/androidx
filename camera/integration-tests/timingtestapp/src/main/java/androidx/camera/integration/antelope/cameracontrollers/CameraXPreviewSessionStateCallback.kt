@@ -27,7 +27,7 @@ import androidx.camera.integration.antelope.TestType
 class CameraXPreviewSessionStateCallback(
     internal var activity: MainActivity,
     internal var params: CameraParams,
-    internal var testConfig: TestConfig
+    internal var testConfig: TestConfig,
 ) : CameraCaptureSession.StateCallback() {
 
     /**

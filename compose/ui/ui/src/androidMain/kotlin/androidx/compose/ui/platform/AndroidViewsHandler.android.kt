@@ -52,7 +52,7 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
         }
         setMeasuredDimension(
             MeasureSpec.getSize(widthMeasureSpec),
-            MeasureSpec.getSize(heightMeasureSpec)
+            MeasureSpec.getSize(heightMeasureSpec),
         )
         // Remeasure children, such that, if ViewRootImpl did forceLayout(), the holders
         // will be set PFLAG_LAYOUT_REQUIRED and they will be relaid out during the next layout.
@@ -72,6 +72,7 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
     @SuppressLint("MissingSuperCall")
     override fun onDescendantInvalidated(child: View, target: View) {}
 
+    @Suppress("OVERRIDE_DEPRECATION") // b/407491706
     override fun invalidateChildInParent(location: IntArray?, dirty: Rect?) = null
 
     fun drawView(view: AndroidViewHolder, canvas: Canvas) {

@@ -169,7 +169,7 @@ class Camera2CameraImplForceOpenCameraTest {
                 cameraExecutor,
                 cameraHandler,
                 DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
-                -1L
+                -1L,
             )
 
         // Open the camera

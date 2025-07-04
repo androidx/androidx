@@ -65,7 +65,7 @@ class CoreTextFieldSoftWrapTest {
                     modifier =
                         Modifier.requiredWidth(composableWidth).onGloballyPositioned {
                             width = it.size.width
-                        }
+                        },
                 )
             }
         }
@@ -102,7 +102,7 @@ class CoreTextFieldSoftWrapTest {
                     modifier =
                         Modifier.requiredWidth(composableWidth).onGloballyPositioned {
                             width = it.size.width
-                        }
+                        },
                 )
             }
         }

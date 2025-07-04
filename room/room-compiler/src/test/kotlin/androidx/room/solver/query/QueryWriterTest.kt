@@ -23,10 +23,10 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.compat.XConverters.toString
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.STRING_UTIL
-import androidx.room.processor.QueryMethodProcessor
-import androidx.room.runProcessorTestWithK1
+import androidx.room.processor.QueryFunctionProcessor
 import androidx.room.testing.context
 import androidx.room.writer.QueryWriter
 import org.junit.Test
@@ -362,7 +362,7 @@ class QueryWriterTest {
     fun singleQueryMethod(vararg input: String, handler: (Boolean, QueryWriter) -> Unit) {
         val source =
             Source.java("foo.bar.MyClass", DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX)
-        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
+        runProcessorTest(sources = listOf(source)) { invocation ->
             val (owner, methods) =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
@@ -370,15 +370,15 @@ class QueryWriterTest {
                     .map {
                         Pair(
                             it,
-                            it.getAllMethods().filter { it.hasAnnotation(Query::class) }.toList()
+                            it.getAllMethods().filter { it.hasAnnotation(Query::class) }.toList(),
                         )
                     }
                     .first { it.second.isNotEmpty() }
             val parser =
-                QueryMethodProcessor(
+                QueryFunctionProcessor(
                     baseContext = invocation.context,
                     containing = owner.type,
-                    executableElement = methods.first()
+                    executableElement = methods.first(),
                 )
             val method = parser.process()
             handler(invocation.isKsp, QueryWriter(method))

@@ -52,7 +52,7 @@ class InfiniteTransitionTest {
                 tween(1000),
                 Color.VectorConverter(Color.Red.colorSpace),
                 Color.Red,
-                Color.Green
+                Color.Green,
             )
 
         // Animate from 0f to 0f for 1000ms
@@ -74,7 +74,7 @@ class InfiniteTransitionTest {
                     transition.animateFloat(
                         0f,
                         0f,
-                        infiniteRepeatable(keyframes, repeatMode = RepeatMode.Reverse)
+                        infiniteRepeatable(keyframes, repeatMode = RepeatMode.Reverse),
                     )
 
                 val animColor =

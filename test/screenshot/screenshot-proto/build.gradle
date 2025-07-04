@@ -34,9 +34,9 @@ dependencies {
 
 afterEvaluate {
     lint {
-        lintOptions {
+        lint {
             // protobuf generates unannotated methods
-            disable("UnknownNullness")
+            disable.add("UnknownNullness")
         }
     }
 }

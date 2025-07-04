@@ -68,11 +68,11 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class WideNavigationRailTest {
@@ -104,7 +104,7 @@ class WideNavigationRailTest {
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -113,6 +113,7 @@ class WideNavigationRailTest {
             .onNodeWithTag("item")
             .onParent()
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.IsTraversalGroup))
     }
 
     @Test
@@ -125,7 +126,7 @@ class WideNavigationRailTest {
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
-                            onClick = {}
+                            onClick = {},
                         )
                     }
                 }
@@ -147,7 +148,7 @@ class WideNavigationRailTest {
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
-                            onClick = {}
+                            onClick = {},
                         )
                     }
                 }
@@ -162,7 +163,7 @@ class WideNavigationRailTest {
             .setMaterialContentForSizeAssertions {
                 WideNavigationRail(
                     state = rememberWideNavigationRailState(WideNavigationRailValue.Expanded),
-                    header = { Spacer(Modifier.width(400.dp)) }
+                    header = { Spacer(Modifier.width(400.dp)) },
                 ) {
                     repeat(3) { index ->
                         WideNavigationRailItem(
@@ -170,7 +171,7 @@ class WideNavigationRailTest {
                             icon = { Icon(Icons.Filled.Favorite, null) },
                             label = { Text("Item $index") },
                             selected = index == 0,
-                            onClick = {}
+                            onClick = {},
                         )
                     }
                 }
@@ -190,9 +191,9 @@ class WideNavigationRailTest {
                 header = {
                     Button(
                         modifier = Modifier.testTag("header"),
-                        onClick = { scope.launch { state.toggle() } }
+                        onClick = { scope.launch { state.toggle() } },
                     ) {}
-                }
+                },
             ) {}
         }
 
@@ -215,9 +216,9 @@ class WideNavigationRailTest {
                 header = {
                     Button(
                         modifier = Modifier.testTag("header"),
-                        onClick = { scope.launch { state.toggle() } }
+                        onClick = { scope.launch { state.toggle() } },
                     ) {}
-                }
+                },
             ) {}
         }
 
@@ -262,14 +263,14 @@ class WideNavigationRailTest {
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Red) },
                     label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Blue) },
-                    onClick = {}
+                    onClick = {},
                 )
                 WideNavigationRailItem(
                     selected = false,
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
                     label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.White) },
-                    onClick = {}
+                    onClick = {},
                 )
                 WideNavigationRailItem(
                     enabled = false,
@@ -277,7 +278,7 @@ class WideNavigationRailTest {
                     colors = customItemColors,
                     icon = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Gray) },
                     label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Black) },
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -293,7 +294,7 @@ class WideNavigationRailTest {
                         icon = { Icon(Icons.Filled.Favorite, null) },
                         label = { Text("Item $index") },
                         selected = selectedItem == index,
-                        onClick = { selectedItem = index }
+                        onClick = { selectedItem = index },
                     )
                 }
             }
@@ -326,7 +327,7 @@ class WideNavigationRailTest {
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
                 selected = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -347,7 +348,7 @@ class WideNavigationRailTest {
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
                 selected = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -367,7 +368,7 @@ class WideNavigationRailTest {
                 icon = { Icon(Icons.Filled.Favorite, "Favorite") },
                 label = null,
                 selected = false,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -387,7 +388,7 @@ class WideNavigationRailTest {
                 icon = { Icon(Icons.Filled.Favorite, null) },
                 label = { Text("ItemText") },
                 selected = true,
-                onClick = { clicks++ }
+                onClick = { clicks++ },
             )
         }
 
@@ -446,7 +447,7 @@ class WideNavigationRailTest {
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
                 label = null,
                 selected = true,
-                onClick = {}
+                onClick = {},
             )
         }
 
@@ -486,7 +487,7 @@ class WideNavigationRailTest {
                             .isEqualTo(NavigationRailColorTokens.ItemActiveLabelText.value)
                     },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
                 WideNavigationRailItem(
                     colors = customColors,
@@ -496,7 +497,7 @@ class WideNavigationRailTest {
                     },
                     label = { Truth.assertThat(LocalContentColor.current).isEqualTo(Color.Green) },
                     selected = false,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -511,7 +512,7 @@ class WideNavigationRailTest {
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -535,19 +536,20 @@ class WideNavigationRailTest {
     }
 
     @Test
+    @Ignore("b/422746273")
     fun header_position_centeredArrangement() {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRail(
                 modifier = Modifier.testTag("rail"),
                 arrangement = Arrangement.Center,
-                header = { Box(Modifier.testTag("header").size(10.dp)) }
+                header = { Box(Modifier.testTag("header").size(10.dp)) },
             ) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }
@@ -567,19 +569,20 @@ class WideNavigationRailTest {
     }
 
     @Test
+    @Ignore("b/422746273")
     fun header_position_bottomArrangement() {
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRail(
                 modifier = Modifier.testTag("rail"),
                 arrangement = Arrangement.Bottom,
-                header = { Box(Modifier.testTag("header").size(10.dp)) }
+                header = { Box(Modifier.testTag("header").size(10.dp)) },
             ) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     icon = { Icon(Icons.Filled.Favorite, null) },
                     label = { Text("ItemText") },
                     selected = true,
-                    onClick = {}
+                    onClick = {},
                 )
             }
         }

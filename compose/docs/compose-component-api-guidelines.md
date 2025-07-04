@@ -534,7 +534,7 @@ Every component that emits UI should have a modifier parameter. Make sure that m
 *   Has a no-op default value `Modifier`.
     *   No-op default value ensures that no functionality will be lost when users provide their own modifiers for the component.
 *   Is the only parameter of type Modifier in the parameter list.
-    *   Since modifiers intend to modify the external behaviors and appearance of the component, one modifier parameter should be sufficient. Consider asking for specific parameters or reconsidering the layering of the component (e.g. braking component into two) instead.
+    *   Since modifiers intend to modify the external behaviors and appearance of the component, one modifier parameter should be sufficient. Consider asking for specific parameters or reconsidering the layering of the component (e.g. breaking component into two) instead.
 *   Is applied once as a first modifier in the chain to the root-most layout in the component implementation.
     *   Since modifiers intend to modify the external behaviors and appearance of the component, they must be applied to the outer-most layout and be the first modifiers in the chain. It is ok to chain other modifiers to the modifier that is passed as a parameter.
 

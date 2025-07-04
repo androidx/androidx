@@ -41,7 +41,7 @@ class FallbackLocationInformationTest {
                 suspend fun suspendFun(arg1:Int): String = ""
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         val javaSource =
@@ -58,7 +58,7 @@ class FallbackLocationInformationTest {
                 void method1(int p0) {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         // add a placeholder to not run tests w/ javac since we depend on compiled kotlin
         // sources and javac fails to resolve metadata

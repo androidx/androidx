@@ -1,0 +1,29 @@
+// Signature format: 4.0
+package androidx.privacysandbox.ondevicepersonalization.client {
+
+  public final class ExecuteInIsolatedServiceRequest {
+    ctor public ExecuteInIsolatedServiceRequest(android.content.ComponentName service, optional android.os.PersistableBundle appParams);
+    method public android.os.PersistableBundle getAppParams();
+    method public android.content.ComponentName getService();
+    property public android.os.PersistableBundle appParams;
+    property public android.content.ComponentName service;
+  }
+
+  public final class ExecuteInIsolatedServiceResponse {
+    method public android.adservices.ondevicepersonalization.SurfacePackageToken? getSurfacePackageToken();
+    property public android.adservices.ondevicepersonalization.SurfacePackageToken? surfacePackageToken;
+  }
+
+  public abstract class OnDevicePersonalizationManager {
+    method public abstract suspend Object? executeInIsolatedService(androidx.privacysandbox.ondevicepersonalization.client.ExecuteInIsolatedServiceRequest executeInIsolatedServiceRequest, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ondevicepersonalization.client.ExecuteInIsolatedServiceResponse>);
+    method public static final androidx.privacysandbox.ondevicepersonalization.client.OnDevicePersonalizationManager? obtain(android.content.Context context);
+    method public abstract suspend Object? requestSurfacePackage(android.adservices.ondevicepersonalization.SurfacePackageToken surfacePackageToken, android.os.IBinder surfaceViewHostToken, int displayId, int width, int height, kotlin.coroutines.Continuation<? super android.view.SurfaceControlViewHost.SurfacePackage>);
+    field public static final androidx.privacysandbox.ondevicepersonalization.client.OnDevicePersonalizationManager.Companion Companion;
+  }
+
+  public static final class OnDevicePersonalizationManager.Companion {
+    method public androidx.privacysandbox.ondevicepersonalization.client.OnDevicePersonalizationManager? obtain(android.content.Context context);
+  }
+
+}
+

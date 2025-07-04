@@ -58,9 +58,13 @@ public class TypeBuildersTest {
     @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void stringProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, new TypeBuilders.StringProp.Builder()
-                .setDynamicValue(
-                        DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)))::build);
+        assertThrows(
+                IllegalStateException.class,
+                new TypeBuilders.StringProp.Builder()
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicString.from(
+                                                new AppDataKey<>(STATE_KEY)))
+                        ::build);
     }
 
     @Test
@@ -89,9 +93,13 @@ public class TypeBuildersTest {
     @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void floatProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, new TypeBuilders.FloatProp.Builder()
-                .setDynamicValue(
-                        DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))::build);
+        assertThrows(
+                IllegalStateException.class,
+                new TypeBuilders.FloatProp.Builder()
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicFloat.from(
+                                                new AppDataKey<>(STATE_KEY)))
+                        ::build);
     }
 
     @Test
@@ -106,8 +114,12 @@ public class TypeBuildersTest {
     @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void boolProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, new TypeBuilders.BoolProp.Builder()
-                .setDynamicValue(
-                        DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))::build);
+        assertThrows(
+                IllegalStateException.class,
+                new TypeBuilders.BoolProp.Builder()
+                                .setDynamicValue(
+                                        DynamicBuilders.DynamicBool.from(
+                                                new AppDataKey<>(STATE_KEY)))
+                        ::build);
     }
 }

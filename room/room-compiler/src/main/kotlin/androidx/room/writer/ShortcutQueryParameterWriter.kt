@@ -36,7 +36,7 @@ object ShortcutQueryParameterWriter {
                 scope.builder.addStatement(
                     "if (%L == null) throw %L",
                     it.name,
-                    XCodeBlock.ofNewInstance(NullPointerException::class.asClassName())
+                    XCodeBlock.ofNewInstance(NullPointerException::class.asClassName()),
                 )
             }
     }

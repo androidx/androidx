@@ -54,7 +54,7 @@ class SlideUsingKeysTest {
                 value = state.value,
                 onValueChange = { state.value = it },
                 valueRange = 0f..1f,
-                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused }
+                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
             )
         }
 
@@ -69,7 +69,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.50f + (1 + it) / 100f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -80,7 +80,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.53f - (1 + it) / 100f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -91,7 +91,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.50f + (1 + it) / 10f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -102,7 +102,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.80f - (1 + it) / 10f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -113,7 +113,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.50f + (1 + it) / 100f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -124,7 +124,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.53f - (1 + it) / 100f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -148,7 +148,7 @@ class SlideUsingKeysTest {
                     value = state.value,
                     onValueChange = { state.value = it },
                     valueRange = 0f..1f,
-                    modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused }
+                    modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
                 )
             }
         }
@@ -164,7 +164,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.50f - (1 + it) / 100f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -175,7 +175,7 @@ class SlideUsingKeysTest {
             runOnIdle {
                 assertEquals(
                     (0.47f + (1 + it) / 100f).round2decPlaces(),
-                    (state.value).round2decPlaces()
+                    (state.value).round2decPlaces(),
                 )
             }
         }
@@ -191,7 +191,7 @@ class SlideUsingKeysTest {
                 steps = 29,
                 onValueChange = { state.value = it },
                 valueRange = 0f..30f,
-                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused }
+                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
             )
         }
 

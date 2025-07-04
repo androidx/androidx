@@ -181,7 +181,7 @@ fun Modifier.touchDetector(touchBoundsExpansion: Dp): Modifier =
     this then
         TouchDetectorWithExpandedBoundsElement(
             interceptOutOfBoundsChildEvents = false,
-            touchBoundsExpansionDp = touchBoundsExpansion
+            touchBoundsExpansionDp = touchBoundsExpansion,
         )
 
 fun Modifier.touchDetector(interceptOutOfBoundsChildEvents: Boolean = false): Modifier =
@@ -189,13 +189,13 @@ fun Modifier.touchDetector(interceptOutOfBoundsChildEvents: Boolean = false): Mo
 
 internal data class TouchDetectorWithExpandedBoundsElement(
     val interceptOutOfBoundsChildEvents: Boolean,
-    val touchBoundsExpansionDp: Dp
+    val touchBoundsExpansionDp: Dp,
 ) : ModifierNodeElement<TouchDetectorWithExpandedBoundsNode>() {
     override fun create(): TouchDetectorWithExpandedBoundsNode {
         return TouchDetectorWithExpandedBoundsNode(
             nextColor(),
             interceptOutOfBoundsChildEvents,
-            touchBoundsExpansionDp
+            touchBoundsExpansionDp,
         )
     }
 
@@ -214,7 +214,7 @@ internal data class TouchDetectorWithExpandedBoundsElement(
 internal class TouchDetectorWithExpandedBoundsNode(
     val background: Color = Color.Cyan,
     var interceptOutOfBoundsChildEvents: Boolean = false,
-    var touchBoundsExpansionDp: Dp = 0.dp
+    var touchBoundsExpansionDp: Dp = 0.dp,
 ) :
     DelegatingNode(),
     PointerInputModifierNode,
@@ -233,7 +233,7 @@ internal class TouchDetectorWithExpandedBoundsNode(
                     touchBoundsExpansionPx,
                     touchBoundsExpansionPx,
                     touchBoundsExpansionPx,
-                    touchBoundsExpansionPx
+                    touchBoundsExpansionPx,
                 )
             }
 
@@ -266,7 +266,7 @@ internal class TouchDetectorWithExpandedBoundsNode(
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
-        bounds: IntSize
+        bounds: IntSize,
     ) {
         pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
     }
@@ -286,9 +286,9 @@ internal class TouchDetectorWithExpandedBoundsNode(
                 size =
                     Size(
                         width = size.width + touchBoundsExpansionPx * 2,
-                        height = size.height + touchBoundsExpansionPx * 2
+                        height = size.height + touchBoundsExpansionPx * 2,
                     ),
-                style = Stroke(width = 2f)
+                style = Stroke(width = 2f),
             )
         }
 
@@ -302,11 +302,11 @@ internal class TouchDetectorWithExpandedBoundsNode(
                 topLeft =
                     Offset(
                         (size.width - minTouchTargetWidth) / 2,
-                        (size.height - minTouchTargetHeight) / 2
+                        (size.height - minTouchTargetHeight) / 2,
                     ),
                 size = Size(width = minTouchTargetWidth, height = minTouchTargetHeight),
                 style =
-                    Stroke(width = 2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f)))
+                    Stroke(width = 2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))),
             )
         }
         drawContent()

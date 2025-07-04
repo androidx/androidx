@@ -44,7 +44,7 @@ class InternalsTest {
     internal class InternalEntity(
         @PrimaryKey internal val id: Long,
         internal val internalField: String,
-        val publicField: String
+        val publicField: String,
     ) {
         // these are added to have setters
         internal var internalFieldProp: String = ""
@@ -95,7 +95,7 @@ class InternalsTest {
         db =
             Room.inMemoryDatabaseBuilder(
                     InstrumentationRegistry.getInstrumentation().targetContext,
-                    InternalDb::class.java
+                    InternalDb::class.java,
                 )
                 .build()
     }

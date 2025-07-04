@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"შეტყობინების შაბლონის დემო"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"შეტყობინება.\nმეტი ტექსტი მეორე ხაზზეა."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"მოკლე შეტყობინების შაბლონის დემო"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"სექციებად დაყოფილი ერთეულის შაბლონის დემო"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"არჩევანის ღილაკის სექცია"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"სექციის გადართვა"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"ბევრი მწკრივის სექცია"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"ბადის ერთეულის სექცია"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"პანელის შაბლონის დემო"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ადგილების სიის შაბლონის დემო"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ადგილების დათვალიერება"</string>

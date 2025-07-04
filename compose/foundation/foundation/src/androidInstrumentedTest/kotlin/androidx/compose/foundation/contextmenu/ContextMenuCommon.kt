@@ -16,7 +16,12 @@
 
 package androidx.compose.foundation.contextmenu
 
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
+import android.os.Build
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
+import androidx.compose.foundation.text.contextmenu.ProcessTextApi23Impl
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -46,6 +51,9 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 internal fun ContextMenuState.open(offset: Offset = Offset.Zero) {
     status = Status.Open(offset)
@@ -112,10 +120,8 @@ internal fun colorCorrespondence(tolerance: Double = 0.02): Correspondence<Color
 internal fun assertThatColor(actual: Color): ColorSubject =
     assertAbout(ColorSubject.INSTANCE).that(actual)
 
-internal class ColorSubject(
-    failureMetadata: FailureMetadata?,
-    private val subject: Color,
-) : Subject(failureMetadata, subject) {
+internal class ColorSubject(failureMetadata: FailureMetadata?, private val subject: Color) :
+    Subject(failureMetadata, subject) {
     companion object {
         val INSTANCE =
             Factory<ColorSubject, Color> { failureMetadata, subject ->
@@ -162,16 +168,17 @@ internal object ContextMenuItemLabels {
     internal const val PASTE = "Paste"
     internal const val SELECT_ALL = "Select all"
     internal const val AUTOFILL = "Autofill"
+    internal const val PROCESS_TEXT_1 = "ProcessText1"
+    internal const val PROCESS_TEXT_2 = "ProcessText2"
 }
 
-internal fun ComposeTestRule.contextMenuItemInteraction(
-    label: String,
-): SemanticsNodeInteraction = onNode(matcher = hasAnyAncestor(isPopup()) and hasText(label))
+internal fun ComposeTestRule.contextMenuItemInteraction(label: String): SemanticsNodeInteraction =
+    onNode(matcher = hasAnyAncestor(isPopup()) and hasText(label))
 
 internal enum class ContextMenuItemState {
     ENABLED,
     DISABLED,
-    DOES_NOT_EXIST
+    DOES_NOT_EXIST,
 }
 
 /**
@@ -196,7 +203,7 @@ internal fun ComposeTestRule.assertContextMenuItems(
     assertContextMenuItem(label = ContextMenuItemLabels.AUTOFILL, state = autofillState)
 }
 
-private fun ComposeTestRule.assertContextMenuItem(label: String, state: ContextMenuItemState) {
+internal fun ComposeTestRule.assertContextMenuItem(label: String, state: ContextMenuItemState) {
     // Note: this test assumes the text and the row have been merged in the semantics tree.
     contextMenuItemInteraction(label).run {
         if (state == ContextMenuItemState.DOES_NOT_EXIST) {
@@ -206,6 +213,42 @@ private fun ComposeTestRule.assertContextMenuItem(label: String, state: ContextM
             assertIsDisplayed()
             assertHasClickAction()
             if (state == ContextMenuItemState.ENABLED) assertIsEnabled() else assertIsNotEnabled()
+        }
+    }
+}
+
+/**
+ * The test rule that overrides the process text items in context menu.
+ *
+ * @param itemLabels the labels of the each process text item.
+ */
+class ProcessTextItemOverrideRule(private vararg val itemLabels: String) : TestRule {
+    override fun apply(base: Statement?, description: Description?): Statement? {
+
+        return if (Build.VERSION.SDK_INT >= 23) {
+            object : Statement() {
+                @SuppressLint("VisibleForTests")
+                override fun evaluate() {
+                    val oldQueryLambda = ProcessTextApi23Impl.processTextActivitiesQuery
+
+                    ProcessTextApi23Impl.processTextActivitiesQuery = {
+                        itemLabels.map { label -> createTestResolveInfo(label) }
+                    }
+                    base?.evaluate()
+
+                    ProcessTextApi23Impl.processTextActivitiesQuery = oldQueryLambda
+                }
+            }
+        } else {
+            base
+        }
+    }
+
+    private fun createTestResolveInfo(label: String): ResolveInfo {
+        return object : ResolveInfo() {
+            override fun loadLabel(pm: PackageManager): CharSequence {
+                return label
+            }
         }
     }
 }

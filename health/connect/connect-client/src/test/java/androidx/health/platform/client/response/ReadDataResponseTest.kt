@@ -39,7 +39,7 @@ class ReadDataResponseTest {
                                     .setInstantTimeMillis(1245L)
                                     .putValues(
                                         "bpm",
-                                        DataProto.Value.newBuilder().setLongVal(120).build()
+                                        DataProto.Value.newBuilder().setLongVal(120).build(),
                                     )
                                     .build()
                             )
@@ -48,7 +48,7 @@ class ReadDataResponseTest {
                                     .setInstantTimeMillis(1247L)
                                     .putValues(
                                         "bpm",
-                                        DataProto.Value.newBuilder().setLongVal(140).build()
+                                        DataProto.Value.newBuilder().setLongVal(140).build(),
                                     )
                                     .build()
                             )

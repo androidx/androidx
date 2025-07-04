@@ -78,7 +78,7 @@ class ComposeActivity : ComponentActivity() {
                 }
                 view
             },
-            update = { view -> mainLayout = view }
+            update = { view -> mainLayout = view },
         )
     }
 

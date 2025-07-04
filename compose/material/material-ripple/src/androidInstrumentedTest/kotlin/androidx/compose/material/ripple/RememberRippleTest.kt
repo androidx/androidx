@@ -76,7 +76,7 @@ import org.junit.runner.RunWith
     // On S and above, the press ripple is patterned and has inconsistent behaviour in terms of
     // alpha, so it doesn't behave according to our expectations - we can't explicitly assert on the
     // color.
-    maxSdkVersion = Build.VERSION_CODES.R
+    maxSdkVersion = Build.VERSION_CODES.R,
 )
 @Suppress("DEPRECATION_ERROR")
 class RememberRippleTest {
@@ -90,7 +90,7 @@ class RememberRippleTest {
             draggedAlpha = 0.1f,
             focusedAlpha = 0.2f,
             hoveredAlpha = 0.3f,
-            pressedAlpha = 0.4f
+            pressedAlpha = 0.4f,
         )
 
     private val TestRippleTheme =
@@ -122,14 +122,14 @@ class RememberRippleTest {
         val expectedColor =
             calculateResultingRippleColor(
                 TestRippleColor,
-                rippleOpacity = TestRippleAlpha.pressedAlpha
+                rippleOpacity = TestRippleAlpha.pressedAlpha,
             )
 
         assertRippleMatches(
             scope!!,
             interactionSource,
             PressInteraction.Press(Offset(10f, 10f)),
-            expectedColor
+            expectedColor,
         )
     }
 
@@ -151,7 +151,7 @@ class RememberRippleTest {
         val expectedColor =
             calculateResultingRippleColor(
                 TestRippleColor,
-                rippleOpacity = TestRippleAlpha.hoveredAlpha
+                rippleOpacity = TestRippleAlpha.hoveredAlpha,
             )
 
         assertRippleMatches(scope!!, interactionSource, HoverInteraction.Enter(), expectedColor)
@@ -175,7 +175,7 @@ class RememberRippleTest {
         val expectedColor =
             calculateResultingRippleColor(
                 TestRippleColor,
-                rippleOpacity = TestRippleAlpha.focusedAlpha
+                rippleOpacity = TestRippleAlpha.focusedAlpha,
             )
 
         assertRippleMatches(scope!!, interactionSource, FocusInteraction.Focus(), expectedColor)
@@ -199,7 +199,7 @@ class RememberRippleTest {
         val expectedColor =
             calculateResultingRippleColor(
                 TestRippleColor,
-                rippleOpacity = TestRippleAlpha.draggedAlpha
+                rippleOpacity = TestRippleAlpha.draggedAlpha,
             )
 
         assertRippleMatches(scope!!, interactionSource, DragInteraction.Start(), expectedColor)
@@ -311,7 +311,7 @@ class RememberRippleTest {
             scope = rememberCoroutineScope()
             CompositionLocalProvider(
                 LocalRippleTheme provides rippleTheme,
-                localThemeColor provides themeColor
+                localThemeColor provides themeColor,
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     RippleBoxWithBackground(interactionSource, rememberRipple(), bounded = true)
@@ -378,7 +378,7 @@ class RememberRippleTest {
             scope = rememberCoroutineScope()
             CompositionLocalProvider(
                 LocalRippleTheme provides rippleTheme,
-                localThemeColor provides Color.Black
+                localThemeColor provides Color.Black,
             ) {
                 // Create ripple where localThemeColor is black
                 val ripple = rememberRipple()
@@ -424,7 +424,7 @@ class RememberRippleTest {
         scope: CoroutineScope,
         interactionSource: MutableInteractionSource,
         interaction: Interaction,
-        expectedCenterPixelColor: Color
+        expectedCenterPixelColor: Color,
     ) {
         // Pause the clock if we are drawing a state layer
         if (interaction !is PressInteraction) {
@@ -468,7 +468,7 @@ class RememberRippleTest {
 private fun RippleBoxWithBackground(
     interactionSource: MutableInteractionSource,
     ripple: Indication,
-    bounded: Boolean
+    bounded: Boolean,
 ) {
     Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
         Box(Modifier.padding(25.dp).background(RippleBoxBackgroundColor)) {

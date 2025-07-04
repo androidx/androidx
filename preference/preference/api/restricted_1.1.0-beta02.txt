@@ -1,11 +1,10 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.preference {
-
 
   public class Preference implements java.lang.Comparable<androidx.preference.Preference> {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void onAttachedToHierarchy(androidx.preference.PreferenceManager!, long);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void performClick(android.view.View!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void performClick();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void performClick(android.view.View!);
   }
 
   @Deprecated public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
@@ -36,8 +35,8 @@ package androidx.preference {
     ctor public PreferenceGroupAdapter(androidx.preference.PreferenceGroup!);
     method public androidx.preference.Preference! getItem(int);
     method public int getItemCount();
-    method public int getPreferenceAdapterPosition(String!);
     method public int getPreferenceAdapterPosition(androidx.preference.Preference!);
+    method public int getPreferenceAdapterPosition(String!);
     method public void onBindViewHolder(androidx.preference.PreferenceViewHolder, int);
     method public androidx.preference.PreferenceViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public void onPreferenceChange(androidx.preference.Preference!);
@@ -71,5 +70,4 @@ package androidx.preference {
   }
 
 }
-
 

@@ -63,7 +63,7 @@ class PagerContentTest {
                 contentPadding = PaddingValues(horizontal = 32.dp),
                 pageSpacing = 4.dp,
                 modifier = Modifier.fillMaxSize().testTag("pager"),
-                pageSize = PageSize.Fill
+                pageSize = PageSize.Fill,
             ) { page ->
                 Box(
                     modifier =
@@ -88,7 +88,7 @@ class PagerContentTest {
             HorizontalPager(
                 state = rememberPagerState { colors.size },
                 modifier = Modifier.width(6.dp).testTag(PagerTestTag),
-                pageSize = PageSize.Fixed(2.dp)
+                pageSize = PageSize.Fixed(2.dp),
             ) { page ->
                 val color = colors[page]
                 Box(
@@ -101,7 +101,7 @@ class PagerContentTest {
                                 drawRect(
                                     color,
                                     topLeft = Offset(-10.dp.toPx(), -10.dp.toPx()),
-                                    size = Size(20.dp.toPx(), 20.dp.toPx())
+                                    size = Size(20.dp.toPx(), 20.dp.toPx()),
                                 )
                             }
                 )
@@ -119,7 +119,7 @@ class PagerContentTest {
         rule.setContent {
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.testTag("pager").fillMaxSize()
+                modifier = Modifier.testTag("pager").fillMaxSize(),
             ) { page ->
                 Column(
                     modifier =

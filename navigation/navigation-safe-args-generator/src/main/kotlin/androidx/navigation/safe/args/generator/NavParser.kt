@@ -52,7 +52,7 @@ internal class NavParser(
     private val parser: XmlPositionParser,
     private val context: Context,
     private val rFilePackage: String,
-    private val applicationId: String
+    private val applicationId: String,
 ) {
 
     companion object {
@@ -60,7 +60,7 @@ internal class NavParser(
             navigationXml: File,
             rFilePackage: String,
             applicationId: String,
-            context: Context
+            context: Context,
         ): Destination {
             FileReader(navigationXml).use { reader ->
                 val parser = XmlPositionParser(navigationXml.path, reader, context.logger)
@@ -173,7 +173,7 @@ internal class NavParser(
                         VALUE_NULL -> {
                             context.logger.error(
                                 NavParserErrors.nullDefaultValueReference(name),
-                                xmlPosition
+                                xmlPosition,
                             )
                             return context.createStubArg()
                         }
@@ -201,7 +201,7 @@ internal class NavParser(
                     } else {
                         context.logger.error(
                             NavParserErrors.defaultValueObjectType(typeString),
-                            xmlPosition
+                            xmlPosition,
                         )
                         return context.createStubArg()
                     }
@@ -266,7 +266,7 @@ internal class NavParser(
     private fun parseId(
         xmlId: String,
         rFilePackage: String,
-        xmlPosition: XmlPosition
+        xmlPosition: XmlPosition,
     ): ResReference {
         val ref = parseReference(xmlId, rFilePackage)
         if (ref?.isId() == true) {

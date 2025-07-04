@@ -41,7 +41,7 @@ class LayoutGetHorizontalTest {
     private val sampleTypeface =
         ResourcesCompat.getFont(
             InstrumentationRegistry.getInstrumentation().targetContext,
-            R.font.sample_font
+            R.font.sample_font,
         )
 
     private val LTR = TextDirectionHeuristics.LTR
@@ -63,7 +63,7 @@ class LayoutGetHorizontalTest {
         text: String,
         fontSize: Int,
         width: Int,
-        dir: TextDirectionHeuristic
+        dir: TextDirectionHeuristic,
     ): LayoutHelper {
         val paint =
             TextPaint().apply {
@@ -90,7 +90,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 0 // Before L1
@@ -115,7 +115,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 5 // before L6
@@ -144,7 +144,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = layout.layout.text.length // after LC
@@ -169,7 +169,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 7 // before L8
@@ -194,7 +194,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 0 // before L1
@@ -219,7 +219,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 5 // before L6 == after L5
@@ -248,7 +248,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = layout.layout.text.length // after LC
@@ -273,7 +273,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 7 // before L8
@@ -298,7 +298,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 0 // before R1
@@ -323,7 +323,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 5 // before R6 == after R5
@@ -352,7 +352,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = layout.layout.text.length // after RC
@@ -377,7 +377,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 7 // before R8
@@ -402,7 +402,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 0 // before R1
@@ -427,7 +427,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 5 // befroe R6 == after R5
@@ -456,7 +456,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = layout.layout.text.length // after RB
@@ -481,7 +481,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05D9\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 7 // before R8
@@ -506,7 +506,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u05D1\u05D2\u05D3\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 1 // before R1
@@ -535,7 +535,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u05D1\u05D2\u05D3\u0065\u0066\u0067\u0068\u0069\u006A\u006B\u006C",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 1 // before R1
@@ -564,7 +564,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D0\u0061\u0062\u0063\u05D4\u05D5\u05D6\u05D7\u05D8\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 1 // before L1
@@ -593,7 +593,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D0\u0061\u0062\u0063\u05D4\u05D5\u05D6\u05D7\u05D8\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 1 // before L1
@@ -622,7 +622,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u05D5\u05D6\u05D7\u05D8\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 5 // before R1 == after L5
@@ -651,7 +651,7 @@ class LayoutGetHorizontalTest {
                 text = "\u0061\u0062\u0063\u0064\u0065\u05D5\u05D6\u05D7\u05D8\u05DA\u05DB\u05DC",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 5 // before R1 == after L5
@@ -680,7 +680,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D0\u05D1\u05D2\u05D3\u05D4\u0061\u0062\u0063\u0064\u0065\u0066\u0067",
                 fontSize = 10,
                 width = 50,
-                dir = RTL
+                dir = RTL,
             )
 
         val offset = 5 // before L1 == after R5
@@ -709,7 +709,7 @@ class LayoutGetHorizontalTest {
                 text = "\u05D0\u05D1\u05D2\u05D3\u05D4\u0061\u0062\u0063\u0064\u0065\u0066\u0067",
                 fontSize = 10,
                 width = 50,
-                dir = LTR
+                dir = LTR,
             )
 
         val offset = 5 // before L1 == after R5
@@ -738,7 +738,7 @@ class LayoutGetHorizontalTest {
                 "\u0061\u0062\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05DA\u05DB",
                 10,
                 50,
-                LTR
+                LTR,
             )
 
         val offset = 5 // before R4 == after R3
@@ -767,7 +767,7 @@ class LayoutGetHorizontalTest {
                 "\u0061\u0062\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u05D7\u05D8\u05DA",
                 10,
                 50,
-                RTL
+                RTL,
             )
 
         val offset = 5 // before R4 == after R3
@@ -796,7 +796,7 @@ class LayoutGetHorizontalTest {
                 "\u05D0\u05D1\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A",
                 10,
                 50,
-                LTR
+                LTR,
             )
 
         val offset = 5 // before L4 == after L3
@@ -825,7 +825,7 @@ class LayoutGetHorizontalTest {
                 "\u05D0\u05D1\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u006A",
                 10,
                 50,
-                RTL
+                RTL,
             )
 
         val offset = 5 // before L4 == after L3
@@ -854,7 +854,7 @@ class LayoutGetHorizontalTest {
                 "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u05D0\u05D1\u05D2\u05D3\u05D4",
                 10,
                 50,
-                LTR
+                LTR,
             )
 
         val offset = 5 // before L6 == after L5
@@ -883,7 +883,7 @@ class LayoutGetHorizontalTest {
                 "\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u05D0\u05D1\u05D2\u05D3\u05D4",
                 10,
                 50,
-                RTL
+                RTL,
             )
 
         val offset = 5 // before L6 == after L5
@@ -912,7 +912,7 @@ class LayoutGetHorizontalTest {
                 "\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u0061\u0062\u0063\u0064\u0065",
                 10,
                 50,
-                LTR
+                LTR,
             )
 
         val offset = 5 // before R6 == after R5
@@ -941,7 +941,7 @@ class LayoutGetHorizontalTest {
                 "\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5\u05D6\u0061\u0062\u0063\u0064\u0065",
                 10,
                 50,
-                RTL
+                RTL,
             )
 
         val offset = 5 // before R6 == after R5
@@ -969,7 +969,7 @@ class LayoutGetHorizontalTest {
                 "\u05D0\u05D1 \u05D2\u05D3 \u0061\u0062 \u0063\u0064 \u0065\u0066",
                 10,
                 50,
-                LTR
+                LTR,
             )
 
         val offset = 6 // before L1 == after SP
@@ -997,7 +997,7 @@ class LayoutGetHorizontalTest {
                 "\u05D0\u05D1 \u0061\u0062 \u0063\u0064 \u05D3\u05D4 \u0065\u0066",
                 10,
                 50,
-                LTR
+                LTR,
             )
 
         val offset = 6 // before L3 == after SP

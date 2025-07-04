@@ -27,7 +27,7 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.VALUE_PARAMETER,
     AnnotationTarget.FIELD,
-    AnnotationTarget.LOCAL_VARIABLE
+    AnnotationTarget.LOCAL_VARIABLE,
 )
 @Dimension(unit = Dimension.PX)
 public annotation class Px

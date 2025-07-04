@@ -17,6 +17,7 @@
 package androidx.core.telecom.test.ui.calling
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
@@ -28,9 +29,11 @@ import androidx.core.telecom.CallException
 import androidx.core.telecom.test.services.AudioRoute
 import androidx.core.telecom.test.services.CallAudioEndpoint
 import androidx.core.telecom.test.services.CallData
+import androidx.core.telecom.test.services.CallIconData
 import androidx.core.telecom.test.services.CallState
 import androidx.core.telecom.test.services.Capability
 import androidx.core.telecom.test.services.LocalCallSilenceData
+import androidx.core.telecom.test.services.MeetingSummaryData
 import androidx.core.telecom.test.services.ParticipantExtensionData
 import androidx.core.telecom.test.services.RemoteCallProvider
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -127,7 +130,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
                 formatPhoneNumber(
                     context,
                     fullCallData.callData.phoneAccountHandle,
-                    fullCallData.callData.number
+                    fullCallData.callData.number,
                 ),
             state = fullCallData.callData.state,
             validTransition =
@@ -135,9 +138,38 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
             direction = fullCallData.callData.direction,
             callType = fullCallData.callData.callType,
             onStateChanged = { fullCallData.callData.onStateChanged(it) },
+            meetingSummaryUiState = mapToUiMeetingSummaryExtension(fullCallData.meetingSummaryData),
             participantUiState = mapToUiParticipantExtension(fullCallData.participantExtensionData),
-            localCallSilenceUiState = mapToUiLocalSilenceExtension(fullCallData.localSilenceData)
+            localCallSilenceUiState = mapToUiLocalSilenceExtension(fullCallData.localSilenceData),
+            callIconUiState = mapToUiCallIconExtension(fullCallData.callIconData),
         )
+    }
+
+    /** map [CallIconData] to [MeetingSummaryUiState] */
+    @OptIn(ExperimentalAppActions::class)
+    private fun mapToUiMeetingSummaryExtension(
+        meetingSummaryData: MeetingSummaryData?
+    ): MeetingSummaryUiState {
+        return if (meetingSummaryData == null) {
+            MeetingSummaryUiState("", 0)
+        } else {
+            MeetingSummaryUiState(
+                meetingSummaryData.activeSpeaker,
+                meetingSummaryData.participantCount,
+            )
+        }
+    }
+
+    /** map [CallIconData] to [CallIconExtensionUiState] */
+    @OptIn(ExperimentalAppActions::class)
+    private fun mapToUiCallIconExtension(
+        callIconExtensionData: CallIconData?
+    ): CallIconExtensionUiState {
+        return if (callIconExtensionData == null) {
+            CallIconExtensionUiState(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+        } else {
+            CallIconExtensionUiState(callIconExtensionData.callIconUri)
+        }
     }
 
     @OptIn(ExperimentalAppActions::class)
@@ -150,7 +182,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
         return LocalCallSilenceExtensionUiState(
             localCallSilenceExtensionData.isLocallySilenced,
             localCallSilenceExtensionData.onInCallServiceUiUpdate,
-            localCallSilenceExtensionData.extension
+            localCallSilenceExtensionData.extension,
         )
     }
 
@@ -171,7 +203,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
                     ?.raiseHandAction
                     ?.requestRaisedHandStateChange(it)
             },
-            participants = mapUiParticipants(participantExtensionData)
+            participants = mapUiParticipants(participantExtensionData),
         )
     }
 
@@ -192,7 +224,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
                         ?.kickParticipantAction
                         ?.requestKickParticipant(p)
                         ?: CallControlResult.Error(CallException.ERROR_CALL_IS_NOT_BEING_TRACKED)
-                }
+                },
             )
         }
     }
@@ -201,7 +233,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
     private fun formatPhoneNumber(
         context: Context,
         phoneAccountHandle: PhoneAccountHandle,
-        number: Uri
+        number: Uri,
     ): String {
         val isTel = PhoneAccount.SCHEME_TEL == number.scheme
         if (!isTel) return number.schemeSpecificPart
@@ -216,7 +248,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
     /** Determine the valid [CallStateTransition] based on [CallState] and call [Capability] */
     private fun getValidTransition(
         state: CallState,
-        capabilities: List<Capability>
+        capabilities: List<Capability>,
     ): CallStateTransition {
         return when (state) {
             CallState.INCOMING -> CallStateTransition.ANSWER
@@ -240,7 +272,7 @@ class OngoingCallsViewModel(private val callProvider: RemoteCallProvider = Remot
         return AudioEndpointUiState(
             id = endpoint.id,
             name = endpoint.frameworkName ?: getAudioEndpointRouteName(endpoint.audioRoute),
-            audioRoute = endpoint.audioRoute
+            audioRoute = endpoint.audioRoute,
         )
     }
 

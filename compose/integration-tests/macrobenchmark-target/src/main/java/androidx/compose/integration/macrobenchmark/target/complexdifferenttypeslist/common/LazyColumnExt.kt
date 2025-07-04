@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 
 fun <T> LazyListScope.populate(
     listData: List<AdapterItemWrapper>,
-    factory: @Composable LazyItemScope.(viewType: T, data: Any?, id: Any?) -> Unit
+    factory: @Composable LazyItemScope.(viewType: T, data: Any?, id: Any?) -> Unit,
 ) where T : BaseAdapterItemType, T : Enum<T> {
     items(
         items = listData,
@@ -35,6 +35,6 @@ fun <T> LazyListScope.populate(
                 is CommonAdapterItemType -> item.type.composableLayout.invoke()
                 else -> factory(item.type as T, item.data, item.id)
             }
-        }
+        },
     )
 }

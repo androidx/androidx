@@ -1,0 +1,16 @@
+// Signature format: 4.0
+package androidx.tracing.driver.wire {
+
+  public final class WireTraceSink extends androidx.tracing.driver.TraceSink {
+    ctor public WireTraceSink(int sequenceId, okio.BufferedSink bufferedSink, optional kotlin.coroutines.CoroutineContext coroutineContext);
+    method public void close();
+    method public void enqueue(androidx.tracing.driver.PooledTracePacketArray pooledPacketArray);
+    method public void flush();
+  }
+
+  public final class WireTraceSink_androidKt {
+    method public static androidx.tracing.driver.wire.WireTraceSink WireTraceSink(android.content.Context context, int sequenceId, optional kotlin.coroutines.CoroutineContext coroutineContext);
+  }
+
+}
+

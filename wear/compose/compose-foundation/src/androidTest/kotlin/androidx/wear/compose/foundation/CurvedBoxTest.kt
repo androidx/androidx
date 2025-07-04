@@ -17,7 +17,6 @@
 package androidx.wear.compose.foundation
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -31,6 +30,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -38,7 +38,7 @@ import org.junit.Test
 class CurvedBoxTest {
     @get:Rule val rule = createComposeRule()
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun first_item_covered_by_second() {
         rule.setContent {
@@ -60,17 +60,17 @@ class CurvedBoxTest {
     fun box_with_center_alignment() {
         radial_alignment_test(
             radialAlignment = CurvedAlignment.Radial.Center,
-            angularAlignment = CurvedAlignment.Angular.Center
+            angularAlignment = CurvedAlignment.Angular.Center,
         ) { bigBoxDimension, smallBoxDimension ->
             Assert.assertEquals(
                 bigBoxDimension.centerRadius,
                 smallBoxDimension.centerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
             Assert.assertEquals(
                 bigBoxDimension.middleAngle,
                 smallBoxDimension.middleAngle,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
     }
@@ -79,17 +79,17 @@ class CurvedBoxTest {
     fun box_with_radial_center_angular_start_alignment() {
         radial_alignment_test(
             radialAlignment = CurvedAlignment.Radial.Center,
-            angularAlignment = CurvedAlignment.Angular.Start
+            angularAlignment = CurvedAlignment.Angular.Start,
         ) { bigBoxDimension, smallBoxDimension ->
             Assert.assertEquals(
                 bigBoxDimension.centerRadius,
                 smallBoxDimension.centerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
             Assert.assertEquals(
                 bigBoxDimension.startAngle,
                 smallBoxDimension.startAngle,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
     }
@@ -98,17 +98,17 @@ class CurvedBoxTest {
     fun box_with_radial_center_angular_end_alignment() {
         radial_alignment_test(
             radialAlignment = CurvedAlignment.Radial.Center,
-            angularAlignment = CurvedAlignment.Angular.End
+            angularAlignment = CurvedAlignment.Angular.End,
         ) { bigBoxDimension, smallBoxDimension ->
             Assert.assertEquals(
                 bigBoxDimension.centerRadius,
                 smallBoxDimension.centerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
             Assert.assertEquals(
                 bigBoxDimension.endAngle,
                 smallBoxDimension.endAngle,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
     }
@@ -117,17 +117,17 @@ class CurvedBoxTest {
     fun box_with_radial_inner_angular_start_alignment() {
         radial_alignment_test(
             radialAlignment = CurvedAlignment.Radial.Inner,
-            angularAlignment = CurvedAlignment.Angular.Start
+            angularAlignment = CurvedAlignment.Angular.Start,
         ) { bigBoxDimension, smallBoxDimension ->
             Assert.assertEquals(
                 bigBoxDimension.innerRadius,
                 smallBoxDimension.innerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
             Assert.assertEquals(
                 bigBoxDimension.startAngle,
                 smallBoxDimension.startAngle,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
     }
@@ -136,17 +136,17 @@ class CurvedBoxTest {
     fun box_with_radial_outer_angular_center_alignment() {
         radial_alignment_test(
             radialAlignment = CurvedAlignment.Radial.Outer,
-            angularAlignment = CurvedAlignment.Angular.Center
+            angularAlignment = CurvedAlignment.Angular.Center,
         ) { bigBoxDimension, smallBoxDimension ->
             Assert.assertEquals(
                 bigBoxDimension.outerRadius,
                 smallBoxDimension.outerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
             Assert.assertEquals(
                 bigBoxDimension.middleAngle,
                 smallBoxDimension.middleAngle,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
     }
@@ -155,17 +155,17 @@ class CurvedBoxTest {
     fun box_with_radial_outer_angular_start_alignment() {
         radial_alignment_test(
             radialAlignment = CurvedAlignment.Radial.Outer,
-            angularAlignment = CurvedAlignment.Angular.Start
+            angularAlignment = CurvedAlignment.Angular.Start,
         ) { bigBoxDimension, smallBoxDimension ->
             Assert.assertEquals(
                 bigBoxDimension.outerRadius,
                 smallBoxDimension.outerRadius,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
             Assert.assertEquals(
                 bigBoxDimension.startAngle,
                 smallBoxDimension.startAngle,
-                FLOAT_TOLERANCE
+                FLOAT_TOLERANCE,
             )
         }
     }
@@ -173,7 +173,7 @@ class CurvedBoxTest {
     private fun radial_alignment_test(
         radialAlignment: CurvedAlignment.Radial? = null,
         angularAlignment: CurvedAlignment.Angular? = null,
-        checker: (bigBoxDimensions: RadialDimensions, smallBoxDimensions: RadialDimensions) -> Unit
+        checker: (bigBoxDimensions: RadialDimensions, smallBoxDimensions: RadialDimensions) -> Unit,
     ) {
         var rowCoords: LayoutCoordinates? = null
         var smallBoxCoords: LayoutCoordinates? = null
@@ -184,18 +184,14 @@ class CurvedBoxTest {
         rule.setContent {
             CurvedLayout(modifier = Modifier.onGloballyPositioned { rowCoords = it }) {
                 curvedBox(radialAlignment = radialAlignment, angularAlignment = angularAlignment) {
-                    curvedComposable(
-                        modifier = CurvedModifier.spy(bigSpy),
-                    ) {
+                    curvedComposable(modifier = CurvedModifier.spy(bigSpy)) {
                         Box(
                             modifier =
                                 Modifier.size(45.dp).onGloballyPositioned { bigBoxCoords = it }
                         )
                     }
 
-                    curvedComposable(
-                        modifier = CurvedModifier.spy(smallSpy),
-                    ) {
+                    curvedComposable(modifier = CurvedModifier.spy(smallSpy)) {
                         Box(
                             modifier =
                                 Modifier.size(30.dp).onGloballyPositioned { smallBoxCoords = it }

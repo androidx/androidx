@@ -21,13 +21,12 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -39,7 +38,7 @@ dependencies {
     api(libs.kotlinCoroutinesCore)
     api("androidx.annotation:annotation:1.1.0")
 
-    api(project(":concurrent:concurrent-futures"))
+    api("androidx.concurrent:concurrent-futures:1.2.0")
     api(project(":datastore:datastore"))
 
     implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
@@ -58,8 +57,7 @@ dependencies {
 
 androidx {
     name = "DataStore Guava"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Android DataStore Guava - contains wrappers for using DataStore using ListenableFuture"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

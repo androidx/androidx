@@ -56,7 +56,7 @@ internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewStream
         withActivity { streamState = currentStreamState }
         Log.d(
             "CameraExtensionsActivity",
-            "waitForPreviewIdle end in StreamState: ${streamState?.name}"
+            "waitForPreviewIdle end in StreamState: ${streamState?.name}",
         )
     }
 }
@@ -74,7 +74,7 @@ internal fun ActivityScenario<CameraExtensionsActivity>.waitForPreviewViewIdle()
         withActivity { streamState = currentStreamState }
         Log.d(
             "CameraExtensionsActivity",
-            "waitForPreviewViewIdle end in StreamState: ${streamState?.name}"
+            "waitForPreviewViewIdle end in StreamState: ${streamState?.name}",
         )
     }
 }
@@ -98,7 +98,7 @@ internal fun ActivityScenario<CameraExtensionsActivity>.takePictureAndWaitForIma
                 "Failed to wait the takePictureIdlingResource or postviewIdlingResource to" +
                     " become idle. postviewIdlingResource.isIdleNow =" +
                     " ${postviewIdlingResource.isIdleNow}, takePictureIdlingResource.isIdleNow =" +
-                    " ${takePictureIdlingResource.isIdleNow}"
+                    " ${takePictureIdlingResource.isIdleNow}",
             )
         }
         IdlingRegistry.getInstance().unregister(takePictureIdlingResource, postviewIdlingResource)

@@ -38,7 +38,7 @@ open class SimpleWatchFaceTestService : WatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) = throw NotImplementedError("Should not reach this step")
 
     // Set this to `true` so that the whole setup is skipped for this test

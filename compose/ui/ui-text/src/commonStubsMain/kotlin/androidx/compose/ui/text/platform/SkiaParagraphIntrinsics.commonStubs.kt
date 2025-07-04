@@ -30,5 +30,5 @@ internal actual fun ActualParagraphIntrinsics(
     annotations: List<Range<out AnnotatedString.Annotation>>,
     placeholders: List<Range<Placeholder>>,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): ParagraphIntrinsics = implementedInJetBrainsFork()

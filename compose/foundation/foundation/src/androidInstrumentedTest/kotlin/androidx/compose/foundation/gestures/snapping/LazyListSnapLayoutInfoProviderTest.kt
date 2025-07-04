@@ -75,7 +75,7 @@ class LazyListSnapLayoutInfoProviderTest(val config: Config) :
         rule.runOnIdle {
             assertEquals(
                 layoutInfoProvider.calculateSnapOffset(0f).roundToInt(),
-                state.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 100 }?.offset ?: 0
+                state.layoutInfo.visibleItemsInfo.firstOrNull { it.index == 100 }?.offset ?: 0,
             )
         }
     }
@@ -108,7 +108,7 @@ class LazyListSnapLayoutInfoProviderTest(val config: Config) :
                 layoutInfoProvider
                     .calculateSnapOffset(2 * minVelocityThreshold.toFloat())
                     .roundToInt(),
-                offset ?: 0
+                offset ?: 0,
             )
         }
     }
@@ -141,7 +141,7 @@ class LazyListSnapLayoutInfoProviderTest(val config: Config) :
                 layoutInfoProvider
                     .calculateSnapOffset(-2 * minVelocityThreshold.toFloat())
                     .roundToInt(),
-                offset ?: 0
+                offset ?: 0,
             )
         }
     }
@@ -151,7 +151,7 @@ class LazyListSnapLayoutInfoProviderTest(val config: Config) :
     private fun MainLayout(includeHeader: Boolean = false) {
         LazyColumnOrRow(
             state = state,
-            flingBehavior = rememberSnapFlingBehavior(layoutInfoProvider)
+            flingBehavior = rememberSnapFlingBehavior(layoutInfoProvider),
         ) {
             if (includeHeader) {
                 stickyHeader { Box(modifier = Modifier.size(2 * itemSizeDp)) }
@@ -174,7 +174,7 @@ class LazyListSnapLayoutInfoProviderTest(val config: Config) :
                 Config(Orientation.Vertical, true),
                 Config(Orientation.Vertical, false),
                 Config(Orientation.Horizontal, true),
-                Config(Orientation.Horizontal, false)
+                Config(Orientation.Horizontal, false),
             )
     }
 }

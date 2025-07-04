@@ -106,7 +106,7 @@ class ResolutionCorrectorTest {
         val result =
             resolutionCorrector.insertOrPrioritize(
                 SurfaceConfig.ConfigType.PRIV,
-                SUPPORTED_RESOLUTIONS
+                SUPPORTED_RESOLUTIONS,
             )
         Truth.assertThat(result).containsExactlyElementsIn(SUPPORTED_RESOLUTIONS)
     }

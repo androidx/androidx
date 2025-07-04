@@ -16,18 +16,23 @@
 
 package androidx.wear.protolayout.material3
 
+import android.content.ComponentName
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.wear.protolayout.ActionBuilders.LaunchAction
+import androidx.wear.protolayout.ActionBuilders.launchAction
 import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.LayoutElementBuilders.Image
-import androidx.wear.protolayout.ModifiersBuilders.Clickable
 import androidx.wear.protolayout.expression.AppDataKey
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32
-import androidx.wear.protolayout.material3.EdgeButtonDefaults.BOTTOM_MARGIN_DP
+import androidx.wear.protolayout.expression.VersionBuilders.VersionInfo
+import androidx.wear.protolayout.expression.mapTo
+import androidx.wear.protolayout.material3.EdgeButtonDefaults.CONTAINER_HEIGHT_DP
 import androidx.wear.protolayout.material3.EdgeButtonDefaults.EDGE_BUTTON_HEIGHT_DP
+import androidx.wear.protolayout.material3.EdgeButtonFallbackDefaults.EDGE_BUTTON_HEIGHT_FALLBACK_DP
+import androidx.wear.protolayout.material3.EdgeButtonFallbackDefaults.ICON_SIZE_FALLBACK_DP
 import androidx.wear.protolayout.modifiers.LayoutModifier
+import androidx.wear.protolayout.modifiers.clickable
 import androidx.wear.protolayout.modifiers.contentDescription
 import androidx.wear.protolayout.testing.LayoutElementAssertionsProvider
 import androidx.wear.protolayout.testing.LayoutElementMatcher
@@ -40,6 +45,7 @@ import androidx.wear.protolayout.testing.hasWidth
 import androidx.wear.protolayout.testing.isClickable
 import androidx.wear.protolayout.types.LayoutString
 import androidx.wear.protolayout.types.asLayoutConstraint
+import androidx.wear.protolayout.types.dp
 import androidx.wear.protolayout.types.layoutString
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,14 +59,14 @@ class EdgeButtonTest {
         LayoutElementAssertionsProvider(ICON_EDGE_BUTTON)
             .onRoot()
             .assert(hasWidth(DEVICE_CONFIGURATION.screenWidthDp.toDp()))
-            .assert(hasHeight((EDGE_BUTTON_HEIGHT_DP + BOTTOM_MARGIN_DP).toDp()))
+            .assert(hasHeight(CONTAINER_HEIGHT_DP.dp))
     }
 
     @Test
     fun visibleHeight() {
         LayoutElementAssertionsProvider(ICON_EDGE_BUTTON)
             .onElement(isClickable())
-            .assert(hasHeight(EDGE_BUTTON_HEIGHT_DP.toDp()))
+            .assert(hasHeight(EDGE_BUTTON_HEIGHT_DP.dp))
     }
 
     @Test
@@ -99,8 +105,8 @@ class EdgeButtonTest {
                         modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION),
                         colors =
                             ButtonColors(
-                                container = COLOR_SCHEME.tertiaryContainer,
-                                icon = COLOR_SCHEME.onTertiary
+                                containerColor = COLOR_SCHEME.tertiaryContainer,
+                                iconColor = COLOR_SCHEME.onTertiary,
                             ),
                     ) {
                         icon(RES_ID)
@@ -112,7 +118,9 @@ class EdgeButtonTest {
             .onElement(isClickable())
             .assert(hasColor(COLOR_SCHEME.tertiaryContainer.staticArgb))
         queryProvider
-            .onElement(LayoutElementMatcher("Element type is Image") { it is Image })
+            .onElement(
+                LayoutElementMatcher("Element type is Image") { element -> element is Image }
+            )
             .assert(hasColor(COLOR_SCHEME.onTertiary.staticArgb))
     }
 
@@ -121,45 +129,82 @@ class EdgeButtonTest {
         val label = "static text"
         val textEdgeButton =
             materialScope(CONTEXT, DEVICE_CONFIGURATION, allowDynamicTheme = false) {
+                textEdgeButton(onClick = CLICKABLE) { text(label.layoutString) }
+            }
+
+        val queryProvider = LayoutElementAssertionsProvider(textEdgeButton)
+        queryProvider.onElement(hasText(label)).assert(hasColor(COLOR_SCHEME.onPrimary.staticArgb))
+
+        queryProvider.onElement(isClickable()).assert(hasContentDescription(label))
+    }
+
+    @Test
+    fun staticText_withCustomContentDescription() {
+        val label = "static text"
+        val textEdgeButton =
+            materialScope(CONTEXT, DEVICE_CONFIGURATION, allowDynamicTheme = false) {
                 textEdgeButton(
                     onClick = CLICKABLE,
-                    modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION)
+                    modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION),
                 ) {
-                    text(label.layoutString)
+                    text(text = label.layoutString)
                 }
             }
 
-        LayoutElementAssertionsProvider(textEdgeButton)
-            .onElement(hasText(label))
-            .assert(hasColor(COLOR_SCHEME.onPrimary.staticArgb))
+        val queryProvider = LayoutElementAssertionsProvider(textEdgeButton)
+        queryProvider.onElement(isClickable()).assert(hasContentDescription(CONTENT_DESCRIPTION))
     }
 
     @Test
     fun dynamicText() {
         val label = "test text"
         val stateKey = AppDataKey<DynamicInt32>("testKey")
+        val testValue = 12
+        val testTimes = 2
         val dynamicLabel =
             LayoutString(
                 label,
-                DynamicInt32.from(stateKey).times(2).format(),
-                label.asLayoutConstraint()
+                DynamicInt32.from(stateKey).times(testTimes).format(),
+                label.asLayoutConstraint(),
             )
 
         val queryProvider =
             LayoutElementAssertionsProvider(
-                materialScope(CONTEXT, DEVICE_CONFIGURATION, allowDynamicTheme = false) {
-                    textEdgeButton(
-                        onClick = CLICKABLE,
-                        modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION)
-                    ) {
-                        this.text(dynamicLabel)
+                    materialScope(CONTEXT, DEVICE_CONFIGURATION, allowDynamicTheme = false) {
+                        textEdgeButton(onClick = CLICKABLE) { this.text(dynamicLabel) }
                     }
-                }
-            )
+                )
+                .withDynamicData(stateKey mapTo testValue)
 
+        val expectedText = (testValue * testTimes).toString()
         queryProvider
-            .onElement(hasText(dynamicLabel))
+            .onElement(hasText(expectedText))
             .assert(hasColor(COLOR_SCHEME.onPrimary.staticArgb))
+
+        queryProvider.onElement(isClickable()).assert(hasContentDescription(expectedText))
+    }
+
+    @Test
+    fun containerFallbackSize() {
+        LayoutElementAssertionsProvider(ICON_EDGE_BUTTON_FALLBACK)
+            .onRoot()
+            .assert(hasWidth(DEVICE_CONFIGURATION.screenWidthDp.toDp()))
+            .assert(hasHeight(CONTAINER_HEIGHT_DP.dp))
+    }
+
+    @Test
+    fun visibleFallbackHeight() {
+        LayoutElementAssertionsProvider(ICON_EDGE_BUTTON_FALLBACK)
+            .onElement(isClickable())
+            .assert(hasHeight(EDGE_BUTTON_HEIGHT_FALLBACK_DP.dp))
+    }
+
+    @Test
+    fun iconFallbackSize() {
+        LayoutElementAssertionsProvider(ICON_EDGE_BUTTON_FALLBACK)
+            .onElement(hasImage(RES_ID))
+            .assert(hasWidth(ICON_SIZE_FALLBACK_DP.dp))
+            .assert(hasHeight(ICON_SIZE_FALLBACK_DP.dp))
     }
 
     companion object {
@@ -170,13 +215,18 @@ class EdgeButtonTest {
             DeviceParametersBuilders.DeviceParameters.Builder()
                 .setScreenWidthDp(192)
                 .setScreenHeightDp(192)
+                .setRendererSchemaVersion(VersionInfo.Builder().setMajor(99).setMinor(999).build())
+                .build()
+
+        private val DEVICE_CONFIGURATION_WITH_OLD_RENDERER =
+            DeviceParametersBuilders.DeviceParameters.Builder()
+                .setScreenWidthDp(192)
+                .setScreenHeightDp(192)
+                .setRendererSchemaVersion(VersionInfo.Builder().setMajor(1).setMinor(302).build())
                 .build()
 
         private val CLICKABLE =
-            Clickable.Builder()
-                .setOnClick(LaunchAction.Builder().build())
-                .setId("action_id")
-                .build()
+            clickable(action = launchAction(ComponentName("pkg", "cls")), id = "action_id")
 
         private const val CONTENT_DESCRIPTION = "it is an edge button"
 
@@ -185,7 +235,20 @@ class EdgeButtonTest {
             materialScope(CONTEXT, DEVICE_CONFIGURATION, allowDynamicTheme = false) {
                 iconEdgeButton(
                     onClick = CLICKABLE,
-                    modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION)
+                    modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION),
+                ) {
+                    icon(RES_ID)
+                }
+            }
+        private val ICON_EDGE_BUTTON_FALLBACK =
+            materialScope(
+                CONTEXT,
+                DEVICE_CONFIGURATION_WITH_OLD_RENDERER,
+                allowDynamicTheme = false,
+            ) {
+                iconEdgeButton(
+                    onClick = CLICKABLE,
+                    modifier = LayoutModifier.contentDescription(CONTENT_DESCRIPTION),
                 ) {
                     icon(RES_ID)
                 }

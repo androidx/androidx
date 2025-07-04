@@ -19,14 +19,21 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -115,5 +122,44 @@ class AwaitEachGestureTest {
         }
         assertThat(events).hasSize(2)
         assertThat(events).containsExactly(PointerEventType.Press, PointerEventType.Press)
+    }
+
+    @Test
+    fun undelegateSuspendingPointerInputModifierNodeDuringEventStream() {
+        var enabled by mutableStateOf(true)
+        rule.setContent { Box(Modifier.fillMaxSize().then(ParentElement(enabled))) }
+
+        rule.onRoot().performTouchInput { down(center) }
+
+        enabled = false
+        rule.waitForIdle()
+
+        rule.onRoot().performTouchInput { up() }
+    }
+
+    private data class ParentElement(private val enabled: Boolean) :
+        ModifierNodeElement<ParentNode>() {
+        override fun create(): ParentNode = ParentNode(enabled)
+
+        override fun update(node: ParentNode) {
+            node.update(enabled)
+        }
+    }
+
+    private class ParentNode(enabled: Boolean) : DelegatingNode() {
+        private var child: SuspendingPointerInputModifierNode? = if (enabled) childNode() else null
+
+        fun update(enabled: Boolean) {
+            if (!enabled) {
+                child?.onCancelPointerInput()
+                child?.let { undelegate(it) }
+                child = null
+            } else {
+                check(child == null)
+                child = childNode()
+            }
+        }
+
+        private fun childNode() = delegate(SuspendingPointerInputModifierNode {})
     }
 }

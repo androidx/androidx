@@ -32,7 +32,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 private const val INVALID_FILE_PATH = "/invalid/file/path"
 private val TEST_OUTPUT_OPTION = FileOutputOptions.Builder(File(INVALID_FILE_PATH)).build()
 private val TEST_RECORDING_STATE =
-    RecordingStats.of(0, 0, AudioStats.of(AudioStats.AUDIO_STATE_ACTIVE, null, 0.0))
+    RecordingStats.of(0, 0, AudioStats.of(AudioStats.AUDIO_STATE_ACTIVE, null, 0.0, 0L))
 private val TEST_OUTPUT_RESULT = OutputResults.of(Uri.EMPTY)
 
 @RunWith(RobolectricTestRunner::class)
@@ -73,7 +73,7 @@ class VideoRecordEventTest {
                 TEST_RECORDING_STATE,
                 TEST_OUTPUT_RESULT,
                 error,
-                cause
+                cause,
             )
 
         assertThat(event).isInstanceOf(VideoRecordEvent.Finalize::class.java)
@@ -93,7 +93,7 @@ class VideoRecordEventTest {
                 TEST_RECORDING_STATE,
                 TEST_OUTPUT_RESULT,
                 ERROR_NONE,
-                RuntimeException()
+                RuntimeException(),
             )
         }
     }

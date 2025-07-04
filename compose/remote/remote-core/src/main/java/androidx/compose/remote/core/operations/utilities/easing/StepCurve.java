@@ -1,0 +1,77 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.compose.remote.core.operations.utilities.easing;
+
+import org.jspecify.annotations.NonNull;
+
+/**
+ * This class translates a series of floating point values into a continuous curve for use in an
+ * easing function including quantize functions it is used with the "spline(0,0.3,0.3,0.5,...0.9,1)"
+ * it should start at 0 and end at one 1
+ */
+public class StepCurve extends Easing {
+    //    private static final boolean DEBUG = false;
+    @NonNull private final MonotonicCurveFit mCurveFit;
+
+    /**
+     * Create a step curve from a series of values
+     *
+     * @param params the series of values to ease over
+     * @param offset the offset into the array
+     * @param len the length of the array to use
+     */
+    public StepCurve(float @NonNull [] params, int offset, int len) {
+        mCurveFit = genSpline(params, offset, len);
+    }
+
+    @NonNull
+    private static MonotonicCurveFit genSpline(float @NonNull [] values, int off, int arrayLen) {
+        int length = arrayLen * 3 - 2;
+        int len = arrayLen - 1;
+        double gap = 1.0 / len;
+        double[][] points = new double[length][1];
+        double[] time = new double[length];
+        for (int i = 0; i < arrayLen; i++) {
+            double v = values[i + off];
+            points[i + len][0] = v;
+            time[i + len] = i * gap;
+            if (i > 0) {
+                points[i + len * 2][0] = v + 1;
+                time[i + len * 2] = i * gap + 1;
+
+                points[i - 1][0] = v - 1 - gap;
+                time[i - 1] = i * gap + -1 - gap;
+            }
+        }
+
+        return new MonotonicCurveFit(time, points);
+    }
+
+    @Override
+    public float getDiff(float x) {
+        if (x < 0f) return 0;
+        if (x > 1f) return 0;
+        return (float) mCurveFit.getSlope(x, 0);
+    }
+
+    @Override
+    public float get(float x) {
+        if (x < 0f) return 0;
+        if (x > 1f) return 1;
+
+        return (float) mCurveFit.getPos(x, 0);
+    }
+}

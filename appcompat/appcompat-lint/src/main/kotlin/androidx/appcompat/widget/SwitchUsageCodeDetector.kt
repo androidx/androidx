@@ -43,7 +43,7 @@ class SwitchUsageCodeDetector : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.WARNING,
-                Implementation(SwitchUsageCodeDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(SwitchUsageCodeDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 
@@ -64,7 +64,7 @@ class SwitchUsageCodeDetector : Detector(), Detector.UastScanner {
                     USING_CORE_SWITCH_CODE,
                     node,
                     context.getLocation(node),
-                    USING_CORE_SWITCH_DESCRIPTION
+                    USING_CORE_SWITCH_DESCRIPTION,
                 )
             }
         }

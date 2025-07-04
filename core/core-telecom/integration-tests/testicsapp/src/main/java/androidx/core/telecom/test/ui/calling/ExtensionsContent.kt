@@ -16,7 +16,9 @@
 
 package androidx.core.telecom.test.ui.calling
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +47,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -57,8 +61,10 @@ import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.launch
 
 data class ExtensionUiState(
+    val meetingSummaryUiState: MeetingSummaryUiState,
     val localCallSilenceUiState: LocalCallSilenceExtensionUiState?,
-    val participantUiState: ParticipantExtensionUiState?
+    val participantUiState: ParticipantExtensionUiState?,
+    val callIconUiState: CallIconExtensionUiState?,
 )
 
 @OptIn(ExperimentalAppActions::class)
@@ -66,6 +72,7 @@ class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
     override val values =
         sequenceOf(
             ExtensionUiState(
+                MeetingSummaryUiState("John Smith", 1),
                 LocalCallSilenceExtensionUiState(true, {}, null),
                 ParticipantExtensionUiState(
                     isRaiseHandSupported = true,
@@ -77,17 +84,18 @@ class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
                             false,
                             isHandRaised = false,
                             isSelf = true,
-                            onKickParticipant = { CallControlResult.Success() }
+                            onKickParticipant = { CallControlResult.Success() },
                         ),
                         ParticipantUiState(
                             "Betty Lapone",
                             true,
                             isHandRaised = true,
                             isSelf = false,
-                            onKickParticipant = { CallControlResult.Success() }
-                        )
-                    )
-                )
+                            onKickParticipant = { CallControlResult.Success() },
+                        ),
+                    ),
+                ),
+                CallIconExtensionUiState(null),
             )
         )
 }
@@ -96,88 +104,136 @@ class ExtensionProvider : PreviewParameterProvider<ExtensionUiState> {
 @Preview(showBackground = true, wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
 @Composable
 fun ExtensionsContent(
-    @PreviewParameter(ExtensionProvider::class) extensionUiState: ExtensionUiState,
+    @PreviewParameter(ExtensionProvider::class) extensionUiState: ExtensionUiState
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(6.dp)) {
-        Text("Local Call Silence")
-        if (extensionUiState.localCallSilenceUiState == null) {
-            Text(
-                modifier = Modifier.fillMaxWidth().padding(6.dp),
-                text = "<Local Call Silence is NOT supported>"
-            )
-        } else {
-            val scope = rememberCoroutineScope()
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedIconButton(
-                    onClick = {
-                        scope.launch {
-                            val lcsData = extensionUiState.localCallSilenceUiState
-                            val isSilenced = !lcsData.isLocallySilenced
-                            val res = lcsData.extension?.requestLocalCallSilenceUpdate(isSilenced)
-                            if (res == CallControlResult.Success()) {
-                                // update the InCallService UI
-                                lcsData.onInCallServiceUiUpdate(isSilenced)
+
+        // Call Icon + Local Call Silence
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.weight(1f).padding(6.dp)) {
+                Text("Call Icon")
+                if (extensionUiState.callIconUiState == null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.android),
+                            contentDescription = "Default Image",
+                            contentScale = ContentScale.Fit,
+                        )
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Image(
+                            bitmap =
+                                extensionUiState.callIconUiState.bitmap?.asImageBitmap()
+                                    ?: Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+                                        .asImageBitmap(),
+                            contentDescription = "Bitmap Image",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(48.dp),
+                        )
+                    }
+                }
+            }
+            Column(modifier = Modifier.weight(1f).padding(6.dp)) {
+                Text("Local Call Silence")
+                if (extensionUiState.localCallSilenceUiState == null) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        text = "<Local Call Silence is NOT supported>",
+                    )
+                } else {
+                    val scope = rememberCoroutineScope()
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        OutlinedIconButton(
+                            onClick = {
+                                scope.launch {
+                                    val lcsData = extensionUiState.localCallSilenceUiState
+                                    val isSilenced = !lcsData.isLocallySilenced
+                                    val res =
+                                        lcsData.extension?.requestLocalCallSilenceUpdate(isSilenced)
+                                    if (res == CallControlResult.Success()) {
+                                        // update the InCallService UI
+                                        lcsData.onInCallServiceUiUpdate(isSilenced)
+                                    }
+                                }
+                            }
+                        ) {
+                            if (extensionUiState.localCallSilenceUiState.isLocallySilenced) {
+                                Icon(
+                                    modifier = Modifier.size(48.dp),
+                                    painter = painterResource(R.drawable.mic_off_24px),
+                                    contentDescription = "call is locally silenced",
+                                )
+                            } else {
+                                Icon(
+                                    modifier = Modifier.size(48.dp),
+                                    painter = painterResource(R.drawable.mic),
+                                    contentDescription = "call mic is hot",
+                                )
                             }
                         }
-                    }
-                ) {
-                    if (extensionUiState.localCallSilenceUiState.isLocallySilenced) {
-                        Icon(
-                            modifier = Modifier.size(48.dp),
-                            painter = painterResource(R.drawable.mic_off_24px),
-                            contentDescription = "call is locally silenced"
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier.size(48.dp),
-                            painter = painterResource(R.drawable.mic),
-                            contentDescription = "call mic is hot"
-                        )
                     }
                 }
             }
         }
 
         HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp))
-
-        Text("Participants")
-        if (extensionUiState.participantUiState == null) {
-            Text(
-                modifier = Modifier.fillMaxWidth().padding(6.dp),
-                text = "<Participants is NOT supported>"
-            )
-        } else if (extensionUiState.participantUiState.participants.isEmpty()) {
-            Text(modifier = Modifier.padding(horizontal = 6.dp), text = "<No Participants>")
-        } else {
-            Column(
-                modifier =
-                    Modifier.height(150.dp)
-                        .fillMaxWidth()
-                        .padding(6.dp)
-                        .verticalScroll(rememberScrollState())
+        Column(modifier = Modifier.weight(1f).padding(6.dp)) {
+            Text("Participants")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                extensionUiState.participantUiState.participants.forEach {
-                    if (it.isActive) {
-                        ActiveParticipantContent(
-                            extensionUiState.participantUiState.isKickParticipantSupported,
-                            extensionUiState.participantUiState.isRaiseHandSupported,
-                            onRaiseHandStateChanged =
-                                extensionUiState.participantUiState.onRaiseHandStateChanged,
-                            it
-                        )
-                    } else {
-                        NonActiveParticipantContent(
-                            extensionUiState.participantUiState.isKickParticipantSupported,
-                            extensionUiState.participantUiState.isRaiseHandSupported,
-                            onRaiseHandStateChanged =
-                                extensionUiState.participantUiState.onRaiseHandStateChanged,
-                            it
-                        )
+                Text(
+                    "Participant Count: ${extensionUiState.meetingSummaryUiState.participantCount}"
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text("Active Speaker: ${extensionUiState.meetingSummaryUiState.activeSpeaker}")
+            }
+            if (extensionUiState.participantUiState == null) {
+                Text(
+                    modifier = Modifier.fillMaxWidth().padding(6.dp),
+                    text = "<Participants is NOT supported>",
+                )
+            } else if (extensionUiState.participantUiState.participants.isEmpty()) {
+                Text(modifier = Modifier.padding(horizontal = 6.dp), text = "<No Participants>")
+            } else {
+                Column(
+                    modifier =
+                        Modifier.height(150.dp)
+                            .fillMaxWidth()
+                            .padding(6.dp)
+                            .verticalScroll(rememberScrollState())
+                ) {
+                    extensionUiState.participantUiState.participants.forEach {
+                        if (it.isActive) {
+                            ActiveParticipantContent(
+                                extensionUiState.participantUiState.isKickParticipantSupported,
+                                extensionUiState.participantUiState.isRaiseHandSupported,
+                                onRaiseHandStateChanged =
+                                    extensionUiState.participantUiState.onRaiseHandStateChanged,
+                                it,
+                            )
+                        } else {
+                            NonActiveParticipantContent(
+                                extensionUiState.participantUiState.isKickParticipantSupported,
+                                extensionUiState.participantUiState.isRaiseHandSupported,
+                                onRaiseHandStateChanged =
+                                    extensionUiState.participantUiState.onRaiseHandStateChanged,
+                                it,
+                            )
+                        }
+                        Spacer(Modifier.padding(vertical = 6.dp))
                     }
-                    Spacer(Modifier.padding(vertical = 6.dp))
                 }
             }
         }
@@ -189,14 +245,14 @@ fun NonActiveParticipantContent(
     isKickSupported: Boolean,
     isRaiseHandSupported: Boolean,
     onRaiseHandStateChanged: suspend (Boolean) -> Unit,
-    participant: ParticipantUiState
+    participant: ParticipantUiState,
 ) {
     ElevatedCard {
         ParticipantContent(
             isKickSupported,
             isRaiseHandSupported,
             onRaiseHandStateChanged,
-            participant
+            participant,
         )
     }
 }
@@ -206,16 +262,14 @@ fun ActiveParticipantContent(
     isKickSupported: Boolean,
     isRaiseHandSupported: Boolean,
     onRaiseHandStateChanged: suspend (Boolean) -> Unit,
-    participant: ParticipantUiState
+    participant: ParticipantUiState,
 ) {
-    OutlinedCard(
-        border = BorderStroke(3.dp, Color.Black),
-    ) {
+    OutlinedCard(border = BorderStroke(3.dp, Color.Black)) {
         ParticipantContent(
             isKickSupported,
             isRaiseHandSupported,
             onRaiseHandStateChanged,
-            participant
+            participant,
         )
     }
 }
@@ -225,17 +279,17 @@ fun ParticipantContent(
     isKickSupported: Boolean,
     isRaiseHandSupported: Boolean,
     onRaiseHandStateChanged: suspend (Boolean) -> Unit,
-    participant: ParticipantUiState
+    participant: ParticipantUiState,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val scope = rememberCoroutineScope()
         Icon(
             Icons.Rounded.Face,
             modifier = Modifier.size(48.dp),
-            contentDescription = "Caller Icon"
+            contentDescription = "Caller Icon",
         )
         Spacer(modifier = Modifier.padding(horizontal = 6.dp))
         Text(participant.name)
@@ -244,7 +298,7 @@ fun ParticipantContent(
             if (participant.isHandRaised) {
                 Icon(
                     painter = painterResource(R.drawable.waving_hand_24px),
-                    contentDescription = "hand raised"
+                    contentDescription = "hand raised",
                 )
             }
         }
@@ -260,11 +314,11 @@ fun ParticipantContent(
                             onRaiseHandStateChanged(false)
                             isRaiseHandEnabled = true
                         }
-                    }
+                    },
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.waving_hand_24px),
-                        contentDescription = "lower hand request"
+                        contentDescription = "lower hand request",
                     )
                 }
             } else {
@@ -276,11 +330,11 @@ fun ParticipantContent(
                             onRaiseHandStateChanged(true)
                             isRaiseHandEnabled = true
                         }
-                    }
+                    },
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.waving_hand_24px),
-                        contentDescription = "raise hand request"
+                        contentDescription = "raise hand request",
                     )
                 }
             }
@@ -297,7 +351,7 @@ fun ParticipantContent(
                         participant.onKickParticipant()
                         isKickEnabled = true
                     }
-                }
+                },
             ) {
                 Text("Kick")
             }

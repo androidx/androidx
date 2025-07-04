@@ -74,7 +74,7 @@ class BundleTest {
                 "stringArray" to arrayOf("hey"),
                 "charSequenceArray" to arrayOf<CharSequence>("hey"),
                 "serializableArray" to arrayOf(serializableValue),
-                "serializable" to serializableValue
+                "serializable" to serializableValue,
             )
 
         assertEquals(26, bundle.size())

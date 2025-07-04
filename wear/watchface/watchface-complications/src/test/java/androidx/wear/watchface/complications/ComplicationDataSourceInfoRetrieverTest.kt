@@ -62,7 +62,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
             val testData: ComplicationData =
                 LongTextComplicationData.Builder(
                         PlainComplicationText.Builder("Test Text").build(),
-                        ComplicationText.Companion.EMPTY
+                        ComplicationText.Companion.EMPTY,
                     )
                     .build()
 
@@ -75,13 +75,13 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 .requestPreviewComplicationData(
                     eq(component),
                     eq(type.toWireComplicationType()),
-                    any()
+                    any(),
                 )
 
             val previewData =
                 complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                     component,
-                    type
+                    type,
                 )!!
             assertThat(previewData.type).isEqualTo(type)
             assertThat(
@@ -89,7 +89,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                         .text
                         .getTextAt(
                             ApplicationProvider.getApplicationContext<Context>().resources,
-                            java.time.Instant.EPOCH
+                            java.time.Instant.EPOCH,
                         )
                 )
                 .isEqualTo("Test Text")
@@ -114,13 +114,13 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 .requestPreviewComplicationData(
                     eq(component),
                     eq(type.toWireComplicationType()),
-                    any()
+                    any(),
                 )
 
             assertThat(
                     complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                         component,
-                        type
+                        type,
                     )
                 )
                 .isNull()
@@ -139,7 +139,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
             assertThat(
                     complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                         component,
-                        type
+                        type,
                     )
                 )
                 .isNull()
@@ -159,13 +159,13 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 .requestPreviewComplicationData(
                     eq(component),
                     eq(type.toWireComplicationType()),
-                    any()
+                    any(),
                 )
 
             assertThat(
                     complicationDataSourceInfoRetriever.retrievePreviewComplicationData(
                         component,
-                        type
+                        type,
                     )
                 )
                 .isNull()
@@ -181,7 +181,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 "name",
                 android.graphics.drawable.Icon.createWithContentUri("icon"),
                 ComplicationType.SHORT_TEXT,
-                componentName = null
+                componentName = null,
             )
         assertThat(complicationDataSourceInfo.componentName).isNull()
         assertThat(complicationDataSourceInfo.toString())
@@ -201,7 +201,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     "complicationName",
                     icon,
                     ComplicationType.SHORT_TEXT,
-                    componentName = null
+                    componentName = null,
                 )
                 .fallbackPreviewData as ShortTextComplicationData
         assertThat(shortTextPreviewData.text.getTextAt(resources, java.time.Instant.EPOCH))
@@ -209,7 +209,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         assertThat(
                 shortTextPreviewData.contentDescription!!.getTextAt(
                     resources,
-                    java.time.Instant.EPOCH
+                    java.time.Instant.EPOCH,
                 )
             )
             .isEqualTo("complicationName")
@@ -226,7 +226,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     "complicationName",
                     icon,
                     ComplicationType.LONG_TEXT,
-                    componentName = null
+                    componentName = null,
                 )
                 .fallbackPreviewData as LongTextComplicationData
         assertThat(longTextPreviewData.text.getTextAt(resources, java.time.Instant.EPOCH))
@@ -234,7 +234,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         assertThat(
                 longTextPreviewData.contentDescription!!.getTextAt(
                     resources,
-                    java.time.Instant.EPOCH
+                    java.time.Instant.EPOCH,
                 )
             )
             .isEqualTo("complicationName")
@@ -251,14 +251,14 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     "complicationName",
                     icon,
                     ComplicationType.SMALL_IMAGE,
-                    componentName = null
+                    componentName = null,
                 )
                 .fallbackPreviewData as SmallImageComplicationData
         assertThat(smallImagePreviewData.smallImage.image).isEqualTo(icon)
         assertThat(
                 smallImagePreviewData.contentDescription!!.getTextAt(
                     resources,
-                    java.time.Instant.EPOCH
+                    java.time.Instant.EPOCH,
                 )
             )
             .isEqualTo("complicationName")
@@ -274,14 +274,14 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     "complicationName",
                     icon,
                     ComplicationType.PHOTO_IMAGE,
-                    componentName = null
+                    componentName = null,
                 )
                 .fallbackPreviewData as PhotoImageComplicationData
         assertThat(photoImagePreviewData.photoImage).isEqualTo(icon)
         assertThat(
                 photoImagePreviewData.contentDescription!!.getTextAt(
                     resources,
-                    java.time.Instant.EPOCH
+                    java.time.Instant.EPOCH,
                 )
             )
             .isEqualTo("complicationName")
@@ -297,14 +297,14 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     "complicationName",
                     icon,
                     ComplicationType.MONOCHROMATIC_IMAGE,
-                    componentName = null
+                    componentName = null,
                 )
                 .fallbackPreviewData as MonochromaticImageComplicationData
         assertThat(monochromaticImagePreviewData.monochromaticImage.image).isEqualTo(icon)
         assertThat(
                 monochromaticImagePreviewData.contentDescription!!.getTextAt(
                     resources,
-                    java.time.Instant.EPOCH
+                    java.time.Instant.EPOCH,
                 )
             )
             .isEqualTo("complicationName")
@@ -320,7 +320,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                     "complicationName",
                     icon,
                     ComplicationType.RANGED_VALUE,
-                    componentName = null
+                    componentName = null,
                 )
                 .fallbackPreviewData as RangedValueComplicationData
         assertThat(rangedValuePreviewData.min).isEqualTo(0.0f)
@@ -332,7 +332,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         assertThat(
                 rangedValuePreviewData.contentDescription!!.getTextAt(
                     resources,
-                    java.time.Instant.EPOCH
+                    java.time.Instant.EPOCH,
                 )
             )
             .isEqualTo("complicationName")
@@ -349,7 +349,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 "complicationName",
                 icon,
                 ComplicationType.RANGED_VALUE,
-                componentName = null
+                componentName = null,
             )
         val b =
             ComplicationDataSourceInfo(
@@ -357,7 +357,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 "complicationName",
                 icon2,
                 ComplicationType.RANGED_VALUE,
-                componentName = null
+                componentName = null,
             )
         val c =
             ComplicationDataSourceInfo(
@@ -365,7 +365,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 "complicationName2",
                 icon,
                 ComplicationType.RANGED_VALUE,
-                componentName = null
+                componentName = null,
             )
 
         // Test two identical ComplicationDataSourceInfo with different references.

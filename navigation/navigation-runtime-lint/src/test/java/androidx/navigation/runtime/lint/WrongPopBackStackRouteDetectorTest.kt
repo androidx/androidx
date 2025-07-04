@@ -51,7 +51,7 @@ class WrongPopBackStackRouteDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -93,7 +93,7 @@ class WrongPopBackStackRouteDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -132,7 +132,7 @@ class WrongPopBackStackRouteDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()

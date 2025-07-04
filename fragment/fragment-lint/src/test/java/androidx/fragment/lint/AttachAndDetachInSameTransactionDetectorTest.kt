@@ -109,7 +109,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expectClean()
     }

@@ -43,7 +43,7 @@ public class AnimationState<T, V : AnimationVector>(
     initialVelocityVector: V? = null,
     lastFrameTimeNanos: Long = AnimationConstants.UnspecifiedTime,
     finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
-    isRunning: Boolean = false
+    isRunning: Boolean = false,
 ) : State<T> {
     /** Current value of the [AnimationState]. */
     override var value: T by mutableStateOf(initialValue)
@@ -122,7 +122,7 @@ internal constructor(
     /** Start time of the animation in the [System.nanoTime] timebase. */
     @get:Suppress("MethodNameUnits") public val startTimeNanos: Long,
     isRunning: Boolean,
-    private val onCancel: () -> Unit
+    private val onCancel: () -> Unit,
 ) {
     // Externally immutable fields
     /** Current value of the [AnimationScope]. */
@@ -185,7 +185,7 @@ internal constructor(
             velocityVector,
             lastFrameTimeNanos,
             finishedTimeNanos,
-            isRunning
+            isRunning,
         )
 }
 
@@ -212,7 +212,7 @@ public fun <T, V : AnimationVector> AnimationState<T, V>.copy(
     velocityVector: V? = this.velocityVector.copy(),
     lastFrameTimeNanos: Long = this.lastFrameTimeNanos,
     finishedTimeNanos: Long = this.finishedTimeNanos,
-    isRunning: Boolean = this.isRunning
+    isRunning: Boolean = this.isRunning,
 ): AnimationState<T, V> =
     AnimationState(
         this.typeConverter,
@@ -220,7 +220,7 @@ public fun <T, V : AnimationVector> AnimationState<T, V>.copy(
         velocityVector,
         lastFrameTimeNanos,
         finishedTimeNanos,
-        isRunning
+        isRunning,
     )
 
 /**
@@ -245,7 +245,7 @@ public fun AnimationState<Float, AnimationVector1D>.copy(
     velocity: Float = this.velocityVector.value,
     lastFrameTimeNanos: Long = this.lastFrameTimeNanos,
     finishedTimeNanos: Long = this.finishedTimeNanos,
-    isRunning: Boolean = this.isRunning
+    isRunning: Boolean = this.isRunning,
 ): AnimationState<Float, AnimationVector1D> =
     AnimationState(
         this.typeConverter,
@@ -253,7 +253,7 @@ public fun AnimationState<Float, AnimationVector1D>.copy(
         AnimationVector(velocity),
         lastFrameTimeNanos,
         finishedTimeNanos,
-        isRunning
+        isRunning,
     )
 
 /**
@@ -274,7 +274,7 @@ public fun AnimationState(
     initialVelocity: Float = 0f,
     lastFrameTimeNanos: Long = AnimationConstants.UnspecifiedTime,
     finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
-    isRunning: Boolean = false
+    isRunning: Boolean = false,
 ): AnimationState<Float, AnimationVector1D> {
     return AnimationState(
         Float.VectorConverter,
@@ -282,7 +282,7 @@ public fun AnimationState(
         AnimationVector(initialVelocity),
         lastFrameTimeNanos,
         finishedTimeNanos,
-        isRunning
+        isRunning,
     )
 }
 
@@ -306,7 +306,7 @@ public fun <T, V : AnimationVector> AnimationState(
     initialVelocity: T,
     lastFrameTimeNanos: Long = AnimationConstants.UnspecifiedTime,
     finishedTimeNanos: Long = AnimationConstants.UnspecifiedTime,
-    isRunning: Boolean = false
+    isRunning: Boolean = false,
 ): AnimationState<T, V> {
     return AnimationState(
         typeConverter,
@@ -314,7 +314,7 @@ public fun <T, V : AnimationVector> AnimationState(
         typeConverter.convertToVector(initialVelocity),
         lastFrameTimeNanos,
         finishedTimeNanos,
-        isRunning
+        isRunning,
     )
 }
 

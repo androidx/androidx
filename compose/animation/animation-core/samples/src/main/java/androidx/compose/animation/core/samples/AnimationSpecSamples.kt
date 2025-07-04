@@ -60,7 +60,7 @@ fun InfiniteProgressIndicator() {
             0.2f,
             1f,
             // No offset for the 1st animation
-            infiniteRepeatable(tween(600), RepeatMode.Reverse)
+            infiniteRepeatable(tween(600), RepeatMode.Reverse),
         )
     val scale2 =
         infiniteTransition.animateFloat(
@@ -71,8 +71,8 @@ fun InfiniteProgressIndicator() {
                 RepeatMode.Reverse,
                 // Offsets the 2nd animation by starting from 150ms of the animation
                 // This offset will not be repeated.
-                initialStartOffset = StartOffset(offsetMillis = 150, StartOffsetType.FastForward)
-            )
+                initialStartOffset = StartOffset(offsetMillis = 150, StartOffsetType.FastForward),
+            ),
         )
     val scale3 =
         infiniteTransition.animateFloat(
@@ -83,8 +83,8 @@ fun InfiniteProgressIndicator() {
                 RepeatMode.Reverse,
                 // Offsets the 3rd animation by starting from 300ms of the animation. This
                 // offset will be not repeated.
-                initialStartOffset = StartOffset(offsetMillis = 300, StartOffsetType.FastForward)
-            )
+                initialStartOffset = StartOffset(offsetMillis = 300, StartOffsetType.FastForward),
+            ),
         )
     Row {
         Dot(scale1)

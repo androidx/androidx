@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.glance.unit.ColorProvider
 
 /**
- * Description of a text style for the [androidx.glance.text.Text] composable.
+ * Description of a text style for the [Text] composable.
  *
  * @param color optionally specifies the color to use for the text, defaults to
  *   [TextDefaults.defaultTextColor].
@@ -38,16 +38,16 @@ import androidx.glance.unit.ColorProvider
  *   when null.
  */
 @Immutable
-class TextStyle(
-    val color: ColorProvider = TextDefaults.defaultTextColor,
-    val fontSize: TextUnit? = null,
-    val fontWeight: FontWeight? = null,
-    val fontStyle: FontStyle? = null,
-    val textAlign: TextAlign? = null,
-    val textDecoration: TextDecoration? = null,
-    val fontFamily: FontFamily? = null,
+public class TextStyle(
+    public val color: ColorProvider = TextDefaults.defaultTextColor,
+    public val fontSize: TextUnit? = null,
+    public val fontWeight: FontWeight? = null,
+    public val fontStyle: FontStyle? = null,
+    public val textAlign: TextAlign? = null,
+    public val textDecoration: TextDecoration? = null,
+    public val fontFamily: FontFamily? = null,
 ) {
-    fun copy(
+    public fun copy(
         color: ColorProvider = this.color,
         fontSize: TextUnit? = this.fontSize,
         fontWeight: FontWeight? = this.fontWeight,
@@ -55,7 +55,7 @@ class TextStyle(
         textAlign: TextAlign? = this.textAlign,
         textDecoration: TextDecoration? = this.textDecoration,
         fontFamily: FontFamily? = this.fontFamily,
-    ) =
+    ): TextStyle =
         TextStyle(
             color = color,
             fontSize = fontSize,
@@ -90,7 +90,7 @@ class TextStyle(
         return result
     }
 
-    override fun toString() =
+    override fun toString(): String =
         "TextStyle(color=$color, fontSize=$fontSize, fontWeight=$fontWeight, " +
             "fontStyle=$fontStyle, textDecoration=$textDecoration, textAlign=$textAlign, " +
             "fontFamily=$fontFamily)"

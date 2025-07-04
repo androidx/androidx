@@ -27,4 +27,8 @@
 # Ensure our sanitizing of EditorSession.usr_style doesn't break due to renames.
 -keep public class kotlinx.coroutines.flow.MutableStateFlow { *; }
 
-
+# Ensure that the class members of serialized form of complication data retained
+-keepclassmembers class android.support.wearable.complications.ComplicationData$SerializedForm {
+  <fields>;
+  <methods>;
+}

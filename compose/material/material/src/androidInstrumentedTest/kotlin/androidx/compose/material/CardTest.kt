@@ -78,7 +78,7 @@ class CardTest {
                         Card(
                             modifier =
                                 Modifier.semantics(mergeDescendants = true) {}.testTag("card"),
-                            elevation = 0.dp
+                            elevation = 0.dp,
                         ) {
                             Box(Modifier.size(50.dp, 50.dp))
                         }
@@ -95,7 +95,7 @@ class CardTest {
                 shape = shape,
                 shapeColor = cardColor,
                 backgroundColor = background,
-                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
     }
 
@@ -145,7 +145,7 @@ class CardTest {
             Card(
                 modifier = Modifier.testTag("card"),
                 enabled = enabled.value,
-                onClick = { count.value += 1 }
+                onClick = { count.value += 1 },
             ) {
                 Spacer(Modifier.size(30.dp))
             }
@@ -171,7 +171,7 @@ class CardTest {
             Card(
                 modifier = Modifier.testTag("card"),
                 onClick = {},
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             ) {
                 Spacer(Modifier.size(30.dp))
             }
@@ -208,7 +208,7 @@ class CardTest {
             Box(Modifier.fillMaxSize()) {
                 Button(
                     modifier = Modifier.fillMaxSize().testTag("clickable"),
-                    onClick = { state.value += 1 }
+                    onClick = { state.value += 1 },
                 ) {
                     Text("button fullscreen")
                 }

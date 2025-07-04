@@ -22,13 +22,17 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Simple disk bound task.")
 abstract class RoomSimpleCopyTask : DefaultTask() {
-    @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
+    @get:InputDirectory
+    @get:SkipWhenEmpty
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val inputDirectory: DirectoryProperty
+
     @get:OutputDirectory abstract val outputDirectory: DirectoryProperty
 
     @TaskAction

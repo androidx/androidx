@@ -64,16 +64,14 @@ fun MotionCollapseToolbarPreview() {
 }
 
 @Composable
-fun MotionCollapseToolbar(
-    modifier: Modifier = Modifier,
-) {
+fun MotionCollapseToolbar(modifier: Modifier = Modifier) {
     val collapsibleToolbarState = rememberCollapsibleToolbarState()
     Box(modifier.nestedScroll(collapsibleToolbarState)) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth().testTag("LazyColumn"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(top = collapsibleToolbarState.currentHeight)
+            contentPadding = PaddingValues(top = collapsibleToolbarState.currentHeight),
         ) {
             items(count = 20) {
                 CardSample(
@@ -87,7 +85,7 @@ fun MotionCollapseToolbar(
         }
         CollapsibleToolbar(
             modifier = Modifier.fillMaxWidth().height(210.dp),
-            toolbarState = collapsibleToolbarState
+            toolbarState = collapsibleToolbarState,
         )
     }
 }
@@ -212,14 +210,14 @@ fun CollapsibleToolbar(modifier: Modifier = Modifier, toolbarState: CollapsibleT
         modifier = modifier,
         start = expandedCSet,
         end = collapsedCSet,
-        progress = toolbarState.progress
+        progress = toolbarState.progress,
     ) {
         Box(Modifier.layoutId("container").background(Color.White))
         Text(
             modifier = Modifier.layoutId("title"),
             text = "MotionLayout",
             maxLines = 1,
-            fontSize = 18.sp
+            fontSize = 18.sp,
         )
         OutlinedSearchBar(modifier = Modifier.layoutId("toolbar"))
     }

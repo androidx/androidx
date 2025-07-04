@@ -40,7 +40,7 @@ class AndroidColorFilterTest {
     fun testBlendModeColorFilterEquals() {
         assertEquals(
             BlendModeColorFilter(Color.Yellow, BlendMode.Softlight),
-            BlendModeColorFilter(Color.Yellow, BlendMode.Softlight)
+            BlendModeColorFilter(Color.Yellow, BlendMode.Softlight),
         )
     }
 
@@ -48,7 +48,7 @@ class AndroidColorFilterTest {
     fun testColorMatrixColorFilterEquals() {
         assertEquals(
             ColorMatrixColorFilter(ColorMatrix(FloatArray(20) { i -> i.toFloat() })),
-            ColorMatrixColorFilter(ColorMatrix(FloatArray(20) { i -> i.toFloat() }))
+            ColorMatrixColorFilter(ColorMatrix(FloatArray(20) { i -> i.toFloat() })),
         )
     }
 
@@ -56,7 +56,7 @@ class AndroidColorFilterTest {
     fun testLightingColorFilterEquals() {
         assertEquals(
             LightingColorFilter(Color.Blue, Color.Yellow),
-            LightingColorFilter(Color.Blue, Color.Yellow)
+            LightingColorFilter(Color.Blue, Color.Yellow),
         )
     }
 
@@ -66,7 +66,7 @@ class AndroidColorFilterTest {
         val androidFilter =
             AndroidBlendModeColorFilter(
                 android.graphics.Color.RED,
-                android.graphics.BlendMode.COLOR_DODGE
+                android.graphics.BlendMode.COLOR_DODGE,
             )
 
         val composeFilter = androidFilter.asComposeColorFilter()
@@ -132,7 +132,7 @@ class AndroidColorFilterTest {
             android.graphics.ColorMatrixColorFilter(FloatArray(20) { i -> i.toFloat() })
         assertEquals(
             ColorMatrixColorFilter(ColorMatrix(FloatArray(20) { i -> i.toFloat() })),
-            androidColorMatrixFilter.asComposeColorFilter()
+            androidColorMatrixFilter.asComposeColorFilter(),
         )
     }
 

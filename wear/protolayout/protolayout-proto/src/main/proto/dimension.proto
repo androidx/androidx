@@ -190,10 +190,11 @@ message ExtensionDimension {
 
 // Provide a position representation proportional to the bounding box width/height.
 message BoundingBoxRatio {
-  // The ratio proportional to the bounding box width/height. value 0 represents the location at the
-  // top / left of the bounding box and value 1 represents the location at the bottom / end of the
-  // bounding box. Its default value 0.5 represents the middle of the bounding box. Values
-  // outside [0, 1] are also valid. Dynamic value is supported.
+  // The ratio proportional to the bounding box width/height. Value 0 represents
+  // the location at the top / start of the bounding box, value 1 represents
+  // the location at the bottom / end of the bounding box, and value 0.5
+  // represents the middle of the bounding box. Values outside [0, 1] are also
+  // valid. Dynamic value is supported.
   FloatProp ratio = 1;
 }
 
@@ -204,6 +205,18 @@ message PivotDimension {
     DpProp offset_dp = 1;
     // Location proportion to bounding box, with the bounding box top / start as
     // 0 and bottom / end as 1. Values outside [0, 1] are also valid.
+    BoundingBoxRatio location_ratio = 2;
+  }
+}
+
+// A dimension that represents an offset relative to an elements position.
+message OffsetDimension {
+  oneof inner {
+    // Location in dp, with the default being the point at the top left of the
+    // element.
+    DpProp offset_dp = 1;
+    // Location proportional to the bounding box, with the bounding box's
+    // top/left as 0 and bottom/right as 1.
     BoundingBoxRatio location_ratio = 2;
   }
 }

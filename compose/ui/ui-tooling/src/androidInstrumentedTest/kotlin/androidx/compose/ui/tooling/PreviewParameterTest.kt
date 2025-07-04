@@ -51,7 +51,7 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "OneStringParameter",
                 parameterProvider = LoremIpsum::class.java,
-                debugViewInfos = true
+                debugViewInfos = true,
             )
         }
     }
@@ -65,7 +65,7 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "OneIntParameter",
                 parameterProvider = MyListProvider::class.java,
-                debugViewInfos = true
+                debugViewInfos = true,
             )
         }
     }
@@ -80,7 +80,7 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "ColorsParameter",
                 parameterProvider = MyColorsProvider::class.java,
-                debugViewInfos = true
+                debugViewInfos = true,
             )
         }
     }
@@ -95,7 +95,7 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "BooleanParameter",
                 parameterProvider = MyBooleanProvider::class.java,
-                debugViewInfos = true
+                debugViewInfos = true,
             )
         }
     }
@@ -112,7 +112,7 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "CornerRadiusParameter",
                 parameterProvider = MyCornerRadiusProvider::class.java,
-                debugViewInfos = true
+                debugViewInfos = true,
             )
         }
     }
@@ -126,7 +126,7 @@ class PreviewParameterTest {
                 "androidx.compose.ui.tooling.ParameterProviderComposableKt",
                 "OneStringParameter",
                 parameterProvider = LoremIpsum5WordsProvider::class.java,
-                debugViewInfos = true
+                debugViewInfos = true,
             )
         }
     }

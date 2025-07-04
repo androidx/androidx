@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ez da ezarri PIN koderik, eredurik edo pasahitzik."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Gailuak ez du onartzen PIN, eredu edo pasahitzik."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Hatz-markaren ikonoa"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Eduki-ikuspegiko \"Aukera gehiago\" botoia sakatu da."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Erabili hatz-marka"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Erabili aurpegia"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Erabili sistema biometrikoak"</string>

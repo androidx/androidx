@@ -20,8 +20,10 @@ import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.util.Size
 import android.util.SparseArray
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
@@ -29,9 +31,13 @@ import androidx.pdf.content.PdfPageGotoLinkContent
 import androidx.pdf.content.PdfPageImageContent
 import androidx.pdf.content.PdfPageLinkContent
 import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.models.FormEditRecord
+import androidx.pdf.models.FormWidgetInfo
 import java.io.Closeable
+import java.io.IOException
+import kotlin.jvm.Throws
+import kotlinx.coroutines.CancellationException
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 /** Represents a PDF document and provides methods to interact with its content. */
 public interface PdfDocument : Closeable {
 
@@ -45,7 +51,7 @@ public interface PdfDocument : Closeable {
     public val isLinearized: Boolean
 
     /** The type of form present in the document. */
-    public val formType: Int
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val formType: Int
 
     /**
      * Asynchronously retrieves information about the specified page.
@@ -56,12 +62,38 @@ public interface PdfDocument : Closeable {
     public suspend fun getPageInfo(pageNumber: Int): PageInfo
 
     /**
+     * Asynchronously retrieves information about the specified page.
+     *
+     * @param pageNumber The page number (0-based).
+     * @param pageInfoFlags The flags for retrieving additional page information.
+     * @return A [PageInfo] object containing information about the page.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getPageInfo(
+        pageNumber: Int,
+        pageInfoFlags: PageInfoFlags = PageInfoFlags.of(0),
+    ): PageInfo
+
+    /**
      * Asynchronously retrieves information about a range of pages.
      *
      * @param pageRange The range of page numbers (0-based, inclusive).
      * @return A list of [PageInfo] objects, one for each page in the range.
      */
     public suspend fun getPageInfos(pageRange: IntRange): List<PageInfo>
+
+    /**
+     * Asynchronously retrieves information about a range of pages.
+     *
+     * @param pageRange The range of page numbers (0-based, inclusive).
+     * @param pageInfoFlags The flags for retrieving additional page information.
+     * @return A list of [PageInfo] objects, one for each page in the range.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getPageInfos(
+        pageRange: IntRange,
+        pageInfoFlags: PageInfoFlags,
+    ): List<PageInfo>
 
     /**
      * Asynchronously searches the document for the specified query within a range of pages.
@@ -73,7 +105,7 @@ public interface PdfDocument : Closeable {
      */
     public suspend fun searchDocument(
         query: String,
-        pageRange: IntRange
+        pageRange: IntRange,
     ): SparseArray<List<PageMatchBounds>>
 
     /**
@@ -88,8 +120,18 @@ public interface PdfDocument : Closeable {
     public suspend fun getSelectionBounds(
         pageNumber: Int,
         start: PointF,
-        stop: PointF
+        stop: PointF,
     ): PageSelection?
+
+    /**
+     * Asynchronously retrieves the selection bounds (in PDF coordinates) for the complete text on
+     * the page.
+     *
+     * @param pageNumber The page on which text to be selected.
+     * @return A [PageSelection] object representing the selection bounds on the page.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getSelectAllSelectionBounds(pageNumber: Int): PageSelection?
 
     /**
      * Asynchronously retrieves the content (text and images) of the specified page.
@@ -116,13 +158,80 @@ public interface PdfDocument : Closeable {
     public fun getPageBitmapSource(pageNumber: Int): BitmapSource
 
     /**
+     * Returns the list of [FormWidgetInfo] on [pageNum]
+     *
+     * @property pageNum The page number (0-based).
+     * @return A list of [FormWidgetInfo] objects representing the form widgets on the given page.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo>
+
+    /**
+     * Returns the list of [FormWidgetInfo] on [pageNum], optionally filtered by widget type.
+     *
+     * @property pageNum The page number (0-based).
+     * @property types The [FormWidgetInfo.WidgetType] of form widgets to return, or an empty array
+     *   to return all widgets.
+     * @return A list of [FormWidgetInfo] objects representing the form widgets of the specified
+     *   types on the specified page.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getFormWidgetInfos(
+        pageNum: Int,
+        types: IntArray = intArrayOf(),
+    ): List<FormWidgetInfo>
+
+    /**
+     * Applies the changes specified by [record] to the form, and returns a list of [Rect]
+     * indicating regions of the PDF content that were affected by the mutation. It reflects the
+     * regions of the PDF which need to be re-rendered to reflect the changes.
+     *
+     * It is recommended that UI classes maintain a list of [FormEditRecord] they've applied to the
+     * document so they can be saved and restored across destructive events like low memory kills or
+     * configuration changes.
+     *
+     * @property pageNum The page number (0-based).
+     * @property record The [FormEditRecord] to apply to the form.
+     * @return A list of [Rect] indicating regions of the PDF content that were affected by the
+     *   mutation.
+     * @throws IllegalArgumentException if the provided [record] cannot be applied to the widget
+     *   indicated by the index, or if the index does not correspond to a widget on the page.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun applyEdit(pageNum: Int, record: FormEditRecord): List<Rect>
+
+    /**
+     * Writes the contents of this [PdfDocument] to [destination] and closes the
+     * [ParcelFileDescriptor]
+     *
+     * @property destination The [ParcelFileDescriptor] to write to.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Throws(IOException::class)
+    public suspend fun write(destination: ParcelFileDescriptor)
+
+    /**
      * Represents information about a single page in the PDF document.
      *
      * @property pageNum The page number (0-based).
      * @property height The height of the page in points.
      * @property width The width of the page in points.
      */
-    public class PageInfo(public val pageNum: Int, public val height: Int, public val width: Int)
+    public class PageInfo
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public constructor(
+        public val pageNum: Int,
+        public val height: Int,
+        public val width: Int,
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+        public val formWidgetInfos: List<FormWidgetInfo>? = null,
+    ) {
+        public constructor(
+            pageNum: Int,
+            height: Int,
+            width: Int,
+        ) : this(pageNum, height, width, formWidgetInfos = null)
+    }
 
     /** A source for retrieving bitmap representations of PDF pages. */
     public interface BitmapSource : Closeable {
@@ -152,7 +261,7 @@ public interface PdfDocument : Closeable {
      */
     public class PdfPageContent(
         public val textContents: List<PdfPageTextContent>,
-        public val imageContents: List<PdfPageImageContent>
+        public val imageContents: List<PdfPageImageContent>,
     )
 
     /**
@@ -165,14 +274,73 @@ public interface PdfDocument : Closeable {
      */
     public class PdfPageLinks(
         public val gotoLinks: List<PdfPageGotoLinkContent>,
-        public val externalLinks: List<PdfPageLinkContent>
+        public val externalLinks: List<PdfPageLinkContent>,
     )
 
     /**
-     * Represents a point within a specific page of a PDF document.
+     * A [CancellationException] indicating that a document has been closed.
      *
-     * @property pageNumber The page number (0-based) where the point is located.
-     * @property pagePoint The coordinates (x, y) of the point relative to the page's origin.
+     * @property message: the detail message
+     * @property cause: the cause of the exception, if available. This will be present if an
+     *   exception occurred while executing operation that needs to be cancelled.
      */
-    public class PdfPoint(public val pageNumber: Int, public val pagePoint: PointF)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public class DocumentClosedException(
+        public override val message: String = "Document already closed",
+        public override val cause: Throwable? = null,
+    ) : CancellationException()
+
+    /**
+     * A [CancellationException] indicating that an attempt to start a background service was
+     * cancelled, typically due to Android's restrictions on starting services when the application
+     * is in the background.
+     *
+     * This exception is thrown to proactively manage scenarios where the system would otherwise
+     * throw a [android.app.BackgroundServiceStartNotAllowedException], allowing for more graceful
+     * handling within coroutines.
+     *
+     * @property message The detail message string.
+     * @property cause The original exception that have been caught.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class BackgroundServiceStartCancellationException(
+        public override val message: String = "Background service start cancelled",
+        public override val cause: Throwable? = null,
+    ) : CancellationException()
+
+    /** Specifies the flags for loading pageInfo. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public class PageInfoFlags private constructor(public val value: Long) {
+        public companion object {
+            @JvmStatic public fun of(value: Long): PageInfoFlags = PageInfoFlags(value)
+        }
+    }
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        PDF_FORM_TYPE_NONE,
+        PDF_FORM_TYPE_ACRO_FORM,
+        PDF_FORM_TYPE_XFA_FULL,
+        PDF_FORM_TYPE_XFA_FOREGROUND,
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public annotation class FormType
+
+    public companion object {
+        /** Flag used with [getPageInfo] to include form widget metadata in the [PageInfo] */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public const val INCLUDE_FORM_WIDGET_INFO: Long = 1 shl 0
+
+        /** Represents a PDF with no form fields */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_NONE: Int = 0
+
+        /** Represents a PDF with form fields specified using the AcroForm spec */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_ACRO_FORM: Int = 1
+
+        /** Represents a PDF with form fields specified using the entire XFA spec */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_XFA_FULL: Int = 2
+
+        /** Represents a PDF with form fields specified using the XFAF subset of the XFA spec */
+        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_XFA_FOREGROUND: Int = 3
+    }
 }

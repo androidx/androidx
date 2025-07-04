@@ -13,73 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.scenecore
 
 import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
-
-/**
- * Dimensions of a 3D object.
- *
- * @param width Width.
- * @param height Height.
- * @param depth Depth.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public data class Dimensions(
-    public val width: Float = 0f,
-    public val height: Float = 0f,
-    public val depth: Float = 0f,
-) {
-    override fun toString(): String {
-        return super.toString() + ": w $width x h $height x d $depth"
-    }
-}
-
-/**
- * Dimensions of a 2D surface in Pixels.
- *
- * @param width Integer Width.
- * @param height Integer Height.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public data class PixelDimensions(public val width: Int = 0, public val height: Int = 0) {
-    override fun toString(): String {
-        return super.toString() + ": w $width x h $height"
-    }
-}
-
-/**
- * The angles (in radians) representing the sides of the view frustum. These are not expected to
- * change over the lifetime of the session but in rare cases may change due to updated camera
- * settings.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public data class Fov(
-    public val angleLeft: Float,
-    public val angleRight: Float,
-    public val angleUp: Float,
-    public val angleDown: Float,
-)
 
 /** Type of plane based on orientation i.e. Horizontal or Vertical. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object PlaneType {
+// TODO - b/419544472 Align on a common implementation for this type in SceneCore & ARCore.
+public object PlaneOrientation {
     public const val HORIZONTAL: Int = 0
     public const val VERTICAL: Int = 1
     public const val ANY: Int = 2
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)
-@IntDef(PlaneType.HORIZONTAL, PlaneType.VERTICAL, PlaneType.ANY)
+@IntDef(PlaneOrientation.HORIZONTAL, PlaneOrientation.VERTICAL, PlaneOrientation.ANY)
 @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-internal annotation class PlaneTypeValue
+internal annotation class PlaneOrientationValue
 
 /** Semantic plane types. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object PlaneSemantic {
+// TODO - b/419544472 Align on a common implementation for this type in SceneCore & ARCore.
+public object PlaneSemanticType {
+
     public const val WALL: Int = 0
     public const val FLOOR: Int = 1
     public const val CEILING: Int = 2
@@ -87,14 +41,13 @@ public object PlaneSemantic {
     public const val ANY: Int = 4
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(AnnotationRetention.SOURCE)
 @IntDef(
-    PlaneSemantic.WALL,
-    PlaneSemantic.FLOOR,
-    PlaneSemantic.CEILING,
-    PlaneSemantic.TABLE,
-    PlaneSemantic.ANY,
+    PlaneSemanticType.WALL,
+    PlaneSemanticType.FLOOR,
+    PlaneSemanticType.CEILING,
+    PlaneSemanticType.TABLE,
+    PlaneSemanticType.ANY,
 )
 @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-internal annotation class PlaneSemanticValue
+internal annotation class PlaneSemanticTypeValue

@@ -19,9 +19,7 @@ import androidx.annotation.MainThread
 import androidx.savedstate.internal.SavedStateRegistryImpl
 
 public actual class SavedStateRegistry
-internal actual constructor(
-    private val impl: SavedStateRegistryImpl,
-) {
+internal actual constructor(private val impl: SavedStateRegistryImpl) {
 
     @get:MainThread
     public actual val isRestored: Boolean

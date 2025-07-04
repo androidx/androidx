@@ -22,7 +22,7 @@ internal actual fun CharSequence.toCharArray(
     destination: CharArray,
     destinationOffset: Int,
     startIndex: Int,
-    endIndex: Int
+    endIndex: Int,
 ) {
     if (this is TextFieldCharSequence) {
         toCharArray(destination, destinationOffset, startIndex, endIndex)

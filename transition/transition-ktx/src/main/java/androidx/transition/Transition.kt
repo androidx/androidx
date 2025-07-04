@@ -50,7 +50,7 @@ public inline fun Transition.addListener(
     crossinline onStart: (transition: Transition) -> Unit = {},
     crossinline onCancel: (transition: Transition) -> Unit = {},
     crossinline onResume: (transition: Transition) -> Unit = {},
-    crossinline onPause: (transition: Transition) -> Unit = {}
+    crossinline onPause: (transition: Transition) -> Unit = {},
 ): Transition.TransitionListener {
     val listener =
         object : Transition.TransitionListener {

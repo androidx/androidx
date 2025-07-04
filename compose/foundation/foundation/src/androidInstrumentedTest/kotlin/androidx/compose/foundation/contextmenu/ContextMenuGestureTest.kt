@@ -16,34 +16,25 @@
 
 package androidx.compose.foundation.contextmenu
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.assertThatOffset
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.MouseButton
-import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -58,7 +49,6 @@ class ContextMenuGestureTest {
 
     private val tag = "testTag"
 
-    // region Modifier.contextMenuGestures Tests
     @Test
     fun whenContextMenuGestures_thenRightClick_isOpenAtOffset() {
         val state = ContextMenuState()
@@ -119,115 +109,4 @@ class ContextMenuGestureTest {
         assertThatContextMenuState(state).statusIsOpen()
         assertThat(pressCount).isEqualTo(2)
     }
-
-    // endregion Modifier.contextMenuGestures Tests
-
-    // region PointerInputScope.onRightClickDown Tests
-    @Composable
-    private fun TestRightClickBox(
-        onClick: (Offset) -> Unit,
-    ) {
-        Box(
-            modifier =
-                Modifier.background(Color.LightGray).size(100.dp).testTag(tag).pointerInput(Unit) {
-                    onRightClickDown(onClick)
-                }
-        )
-    }
-
-    @Test
-    fun whenOnRightClickDown_rightClick_doesTriggerWithCorrectOffset() {
-        var clickCount = 0
-        val expectedOffset = Offset(10f, 10f)
-        rule.setContent {
-            TestRightClickBox {
-                assertThatOffset(it).equalsWithTolerance(expectedOffset)
-                clickCount++
-            }
-        }
-        rule.onNodeWithTag(tag).performMouseInput { rightClick(expectedOffset) }
-        assertThat(clickCount).isEqualTo(1)
-    }
-
-    @Test
-    fun whenOnRightClickDown_leftClick_doesNotTrigger() {
-        var clickCount = 0
-        rule.setContent { TestRightClickBox { clickCount++ } }
-        rule.onNodeWithTag(tag).performMouseInput { click() }
-        assertThat(clickCount).isEqualTo(0)
-    }
-
-    @Test
-    fun whenOnRightClickDown_triggersOnPressAndNotOnRelease() {
-        var clickCount = 0
-        rule.setContent { TestRightClickBox { clickCount++ } }
-        val interaction = rule.onNodeWithTag(tag)
-
-        interaction.performMouseInput {
-            updatePointerTo(center)
-            press(MouseButton.Secondary)
-        }
-        assertThat(clickCount).isEqualTo(1)
-
-        interaction.performMouseInput { release(MouseButton.Secondary) }
-        assertThat(clickCount).isEqualTo(1)
-    }
-
-    @Test
-    fun whenOnRightClickDown_alreadyConsumed_doesNotTrigger() {
-        var clickCount = 0
-        rule.setContent {
-            Box(modifier = Modifier.pointerInput(Unit) { onRightClickDown { clickCount++ } }) {
-                Box(
-                    modifier =
-                        Modifier.background(Color.LightGray).size(100.dp).testTag(tag).pointerInput(
-                            Unit
-                        ) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    awaitPointerEvent().changes.fastForEach { it.consume() }
-                                }
-                            }
-                        }
-                )
-            }
-        }
-
-        rule.onNodeWithTag(tag).performMouseInput { rightClick() }
-        assertThat(clickCount).isEqualTo(0)
-    }
-
-    @Test
-    fun whenOnRightClickDown_consumesRightClickPressAndRelease() {
-        suspend fun PointerInputScope.assertCorrectlyConsumed() {
-            awaitPointerEventScope {
-                while (true) {
-                    val event = awaitPointerEvent()
-                    assertThat(event.changes.fastMap { it.isConsumed }.toSet()).run {
-                        when (event.type) {
-                            PointerEventType.Press,
-                            PointerEventType.Release -> containsExactly(true)
-                            else -> containsExactly(false)
-                        }
-                    }
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(modifier = Modifier.pointerInput(Unit) { assertCorrectlyConsumed() }) {
-                Box(
-                    modifier =
-                        Modifier.background(Color.LightGray).size(100.dp).testTag(tag).pointerInput(
-                            Unit
-                        ) {
-                            onRightClickDown { /* Nothing */ }
-                        }
-                )
-            }
-        }
-
-        rule.onNodeWithTag(tag).performMouseInput { rightClick() }
-    }
-    // endregion PointerInputScope.onRightClickDown Tests
 }

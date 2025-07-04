@@ -85,7 +85,7 @@ internal class ModifierLocalManager(val owner: Owner) {
     private fun invalidateConsumersOfNodeForKey(
         node: Modifier.Node,
         key: ModifierLocal<*>,
-        set: MutableSet<BackwardsCompatNode>
+        set: MutableSet<BackwardsCompatNode>,
     ) {
         node.visitSubtreeIf(Nodes.Locals) {
             if (it is BackwardsCompatNode && it.element is ModifierLocalConsumer) {

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<androidx.privacysandbox.ui.client.view.SharedUiContainer xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/native_ad_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="6"
+        android:orientation="vertical">
+        <!-- Ad Title, Ad Body and SandboxedSdkView overlay -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/native_ad_headline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Headline not loaded"/>
+                <TextView
+                    android:id="@+id/native_ad_body"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Body not loaded"/>
+            </LinearLayout>
+            <androidx.privacysandbox.ui.client.view.SandboxedSdkView
+                android:id="@+id/native_ad_remote_overlay_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"/>
+        </FrameLayout>
+        <!-- MediaView #1 (SandboxedSdkView) and app-owned overlay icon -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_weight="2"
+            android:layout_height="0dp">
+            <androidx.privacysandbox.ui.client.view.SandboxedSdkView
+                android:id="@+id/native_ad_media_view_1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <ImageView
+                android:id="@+id/native_ad_overlay_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:adjustViewBounds="true"/>
+        </FrameLayout>
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/native_ad_media_view_2"
+            android:layout_width="match_parent"
+            android:layout_weight="2"
+            android:layout_height="0dp"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+            <Button
+                android:id="@+id/native_ad_call_to_action"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Call to action button not loaded"/>
+        </FrameLayout>
+    </LinearLayout>
+</androidx.privacysandbox.ui.client.view.SharedUiContainer>

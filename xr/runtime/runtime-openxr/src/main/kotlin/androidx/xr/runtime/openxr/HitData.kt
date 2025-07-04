@@ -26,4 +26,5 @@ import androidx.xr.runtime.math.Pose
  * @property id The id of the trackable that was hit. It is the address of the native object.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Suppress("DataClassDefinition")
 public data class HitData(val pose: Pose, val id: Long) {}

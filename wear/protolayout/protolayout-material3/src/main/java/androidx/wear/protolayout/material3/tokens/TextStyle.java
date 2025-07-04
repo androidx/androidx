@@ -35,41 +35,41 @@ import java.util.List;
 /** Text styling configuration. */
 @RestrictTo(Scope.LIBRARY)
 public class TextStyle {
-  /** Font family, such as "Roboto". */
-  public final @NonNull String fontFamily;
+    /** Font family, such as "Roboto". */
+    public final @NonNull String fontFamily;
 
-  /** The size of the font, in scaled pixels. */
-  public final @NonNull SpProp size;
+    /** The size of the font, in scaled pixels. */
+    public final @NonNull SpProp size;
 
-  /** The explicit height between lines of text. */
-  public final @NonNull SpProp lineHeight;
+    /** The explicit height between lines of text. */
+    public final @NonNull SpProp lineHeight;
 
-  /**
-   * The text letter spacing. Positive numbers increase the space between letters while negative
-   * numbers tighten the space.
-   */
-  public final @NonNull EmProp letterSpacing;
+    /**
+     * The text letter spacing. Positive numbers increase the space between letters while negative
+     * numbers tighten the space.
+     */
+    public final @NonNull EmProp letterSpacing;
 
-  /** List of {@link FontSetting} option for font, such as weight, width. */
-  public final @NonNull List<FontSetting> fontSettings;
+    /** List of {@link FontSetting} option for font, such as weight, width. */
+    public final @NonNull List<FontSetting> fontSettings;
 
-  public TextStyle(
-      @NonNull String fontFamily,
-      @Dimension(unit = SP) float size,
-      @Dimension(unit = SP) float lineHeight,
-      @Dimension(unit = SP) float letterSpacing,
-      @NonNull List<FontSetting> fontSettings) {
-    this.fontFamily = fontFamily;
-    this.size = sp(size);
-    this.lineHeight = sp(lineHeight);
-    this.letterSpacing = letterSpacingSpToEm(letterSpacing, size);
-    this.fontSettings = new ArrayList<>(fontSettings);
-  }
+    public TextStyle(
+            @NonNull String fontFamily,
+            @Dimension(unit = SP) float size,
+            @Dimension(unit = SP) float lineHeight,
+            @Dimension(unit = SP) float letterSpacing,
+            @NonNull List<FontSetting> fontSettings) {
+        this.fontFamily = fontFamily;
+        this.size = sp(size);
+        this.lineHeight = sp(lineHeight);
+        this.letterSpacing = letterSpacingSpToEm(letterSpacing, size);
+        this.fontSettings = new ArrayList<>(fontSettings);
+    }
 
-  private static EmProp letterSpacingSpToEm(
-      @Dimension(unit = SP) float letterSpacing, @Dimension(unit = SP) float fontSize) {
-    // When the font size and the font tracking are specified in same unit,
-    // letter spacing in em = tracking value / font size
-    return em(letterSpacing / fontSize);
-  }
+    private static EmProp letterSpacingSpToEm(
+            @Dimension(unit = SP) float letterSpacing, @Dimension(unit = SP) float fontSize) {
+        // When the font size and the font tracking are specified in same unit,
+        // letter spacing in em = tracking value / font size
+        return em(letterSpacing / fontSize);
+    }
 }

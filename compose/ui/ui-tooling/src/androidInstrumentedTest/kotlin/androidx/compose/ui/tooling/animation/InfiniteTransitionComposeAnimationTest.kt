@@ -44,7 +44,7 @@ class InfiniteTransitionComposeAnimationTest {
             val composeAnimation =
                 AnimationSearch.InfiniteTransitionSearchInfo(
                         rememberInfiniteTransition(),
-                        ToolingState(0L)
+                        ToolingState(0L),
                     )
                     .parse()
             assertNotNull(composeAnimation)
@@ -64,7 +64,7 @@ class InfiniteTransitionComposeAnimationTest {
             val composeAnimation =
                 AnimationSearch.InfiniteTransitionSearchInfo(
                         rememberInfiniteTransition(),
-                        ToolingState(0L)
+                        ToolingState(0L),
                     )
                     .parse()
             assertNull(composeAnimation)

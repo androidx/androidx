@@ -39,4 +39,5 @@
     <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"keskmine nahatoon"</string>
     <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"keskmiselt tume nahatoon"</string>
     <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"tume nahatoon"</string>
+    <string name="emoji_content_desc" msgid="655318124835479020">"Emotikon: <xliff:g id="EMOJI">%1$s</xliff:g>"</string>
 </resources>

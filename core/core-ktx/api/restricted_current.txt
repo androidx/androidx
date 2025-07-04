@@ -142,6 +142,19 @@ package androidx.core.graphics {
     method @ColorInt public static inline int toColorInt(String);
     method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorLong @RequiresApi(26) public static inline long toColorLong(@ColorInt int);
+    property public static inline int int.alpha;
+    property @RequiresApi(26) public static inline float long.alpha;
+    property public static inline int int.blue;
+    property @RequiresApi(26) public static inline float long.blue;
+    property @RequiresApi(26) public static inline android.graphics.ColorSpace long.colorSpace;
+    property public static inline int int.green;
+    property @RequiresApi(26) public static inline float long.green;
+    property @RequiresApi(26) public static inline boolean long.isSrgb;
+    property @RequiresApi(26) public static inline boolean long.isWideGamut;
+    property @RequiresApi(26) public static inline float int.luminance;
+    property @RequiresApi(26) public static inline float long.luminance;
+    property public static inline int int.red;
+    property @RequiresApi(26) public static inline float long.red;
   }
 
   public final class ImageDecoderKt {
@@ -326,6 +339,10 @@ package androidx.core.os {
     method @RequiresApi(31) public static <R, E extends java.lang.Throwable> android.os.OutcomeReceiver<R,E> asOutcomeReceiver(kotlin.coroutines.Continuation<? super R>);
   }
 
+  public final class ParcelKt {
+    method public static inline <T> T use(android.os.Parcel, kotlin.jvm.functions.Function1<? super android.os.Parcel,? extends T> block);
+  }
+
   public final class PersistableBundleKt {
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf();
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
@@ -352,6 +369,7 @@ package androidx.core.text {
 
   public final class LocaleKt {
     method public static inline int getLayoutDirection(java.util.Locale);
+    property public static inline int java.util.Locale.layoutDirection;
   }
 
   public final class SpannableStringBuilderKt {
@@ -441,6 +459,7 @@ package androidx.core.util {
     method public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T value);
     method public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(android.util.LongSparseArray<T>);
+    property public static inline <T> int android.util.LongSparseArray<T>.size;
   }
 
   public final class LruCacheKt {
@@ -496,6 +515,7 @@ package androidx.core.util {
     method public static <T> boolean remove(android.util.SparseArray<T>, int key, T value);
     method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(android.util.SparseArray<T>);
+    property public static inline <T> int android.util.SparseArray<T>.size;
   }
 
   public final class SparseBooleanArrayKt {
@@ -514,6 +534,7 @@ package androidx.core.util {
     method public static boolean remove(android.util.SparseBooleanArray, int key, boolean value);
     method public static inline operator void set(android.util.SparseBooleanArray, int key, boolean value);
     method public static kotlin.collections.BooleanIterator valueIterator(android.util.SparseBooleanArray);
+    property public static inline int android.util.SparseBooleanArray.size;
   }
 
   public final class SparseIntArrayKt {
@@ -532,6 +553,7 @@ package androidx.core.util {
     method public static boolean remove(android.util.SparseIntArray, int key, int value);
     method public static inline operator void set(android.util.SparseIntArray, int key, int value);
     method public static kotlin.collections.IntIterator valueIterator(android.util.SparseIntArray);
+    property public static inline int android.util.SparseIntArray.size;
   }
 
   public final class SparseLongArrayKt {
@@ -550,6 +572,7 @@ package androidx.core.util {
     method public static boolean remove(android.util.SparseLongArray, int key, long value);
     method public static inline operator void set(android.util.SparseLongArray, int key, long value);
     method public static kotlin.collections.LongIterator valueIterator(android.util.SparseLongArray);
+    property public static inline int android.util.SparseLongArray.size;
   }
 
 }
@@ -568,6 +591,8 @@ package androidx.core.view {
     method public static operator java.util.Iterator<android.view.MenuItem> iterator(android.view.Menu);
     method public static inline operator void minusAssign(android.view.Menu, android.view.MenuItem item);
     method public static inline void removeItemAt(android.view.Menu, int index);
+    property public static kotlin.sequences.Sequence<android.view.MenuItem> android.view.Menu.children;
+    property public static inline int android.view.Menu.size;
   }
 
   public final class ViewGroupKt {
@@ -587,6 +612,10 @@ package androidx.core.view {
     method public static inline void setMargins(android.view.ViewGroup.MarginLayoutParams, @Px int size);
     method public static inline void updateMargins(android.view.ViewGroup.MarginLayoutParams, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
     method public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    property public static kotlin.sequences.Sequence<android.view.View> android.view.ViewGroup.children;
+    property public static kotlin.sequences.Sequence<android.view.View> android.view.ViewGroup.descendants;
+    property public static inline kotlin.ranges.IntRange android.view.ViewGroup.indices;
+    property public static inline int android.view.ViewGroup.size;
   }
 
   public final class ViewKt {
@@ -617,6 +646,17 @@ package androidx.core.view {
     method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public static inline void updatePadding(android.view.View, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
     method public static inline void updatePaddingRelative(android.view.View, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    property public static kotlin.sequences.Sequence<android.view.View> android.view.View.allViews;
+    property public static kotlin.sequences.Sequence<android.view.ViewParent> android.view.View.ancestors;
+    property public static inline boolean android.view.View.isGone;
+    property public static inline boolean android.view.View.isInvisible;
+    property public static inline boolean android.view.View.isVisible;
+    property public static inline int android.view.View.marginBottom;
+    property public static inline int android.view.View.marginEnd;
+    property public static inline int android.view.View.marginLeft;
+    property public static inline int android.view.View.marginRight;
+    property public static inline int android.view.View.marginStart;
+    property public static inline int android.view.View.marginTop;
   }
 
 }

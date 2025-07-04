@@ -23,7 +23,7 @@ import androidx.room.solver.CodeGenScope
 
 class ImmutableListQueryResultAdapter(
     private val typeArg: XType,
-    private val rowAdapter: RowAdapter
+    private val rowAdapter: RowAdapter,
 ) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
@@ -35,7 +35,7 @@ class ImmutableListQueryResultAdapter(
             addLocalVariable(
                 name = immutableListBuilderName,
                 typeName = immutableListBuilderType,
-                assignExpr = XCodeBlock.of("%T.builder()", GuavaTypeNames.IMMUTABLE_LIST)
+                assignExpr = XCodeBlock.of("%T.builder()", GuavaTypeNames.IMMUTABLE_LIST),
             )
 
             val tmpVarName = scope.getTmpVar("_item")
@@ -50,7 +50,7 @@ class ImmutableListQueryResultAdapter(
                 name = outVarName,
                 typeName = collectionType,
                 assignExprFormat = "%L.build()",
-                immutableListBuilderName
+                immutableListBuilderName,
             )
         }
     }

@@ -36,6 +36,7 @@ import androidx.annotation.RestrictTo;
 import androidx.core.graphics.Insets;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
+import androidx.core.view.RoundedCornerCompat.Position;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
 import org.jspecify.annotations.NonNull;
@@ -90,6 +91,8 @@ public class WindowInsetsCompat {
     private WindowInsetsCompat(@NonNull WindowInsets insets) {
         if (SDK_INT >= 34) {
             mImpl = new Impl34(this, insets);
+        } else if (SDK_INT >= 31) {
+            mImpl = new Impl31(this, insets);
         } else if (SDK_INT >= 30) {
             mImpl = new Impl30(this, insets);
         } else if (SDK_INT >= 29) {
@@ -116,6 +119,8 @@ public class WindowInsetsCompat {
             final Impl srcImpl = src.mImpl;
             if (SDK_INT >= 34 && srcImpl instanceof Impl34) {
                 mImpl = new Impl34(this, (Impl34) srcImpl);
+            } else if (SDK_INT >= 31 && srcImpl instanceof Impl31) {
+                mImpl = new Impl31(this, (Impl31) srcImpl);
             } else if (SDK_INT >= 30 && srcImpl instanceof Impl30) {
                 mImpl = new Impl30(this, (Impl30) srcImpl);
             } else if (SDK_INT >= 29 && srcImpl instanceof Impl29) {
@@ -706,6 +711,31 @@ public class WindowInsetsCompat {
         return mImpl.isVisible(typeMask);
     }
 
+    /**
+     * Returns the {@link RoundedCornerCompat} of the given position if there is one.
+     *
+     * @param position the position of the rounded corner on the display. The value should be one of
+     *                 the following:
+     *                 {@link RoundedCornerCompat#POSITION_TOP_LEFT},
+     *                 {@link RoundedCornerCompat#POSITION_TOP_RIGHT},
+     *                 {@link RoundedCornerCompat#POSITION_BOTTOM_RIGHT},
+     *                 {@link RoundedCornerCompat#POSITION_BOTTOM_LEFT}.
+     * @return the rounded corner of the given position. Returns {@code null} if there is none or
+     *         the rounded corner area is not inside the bounds of the window.
+     */
+    public @Nullable RoundedCornerCompat getRoundedCorner(@Position int position) {
+        return mImpl.getRoundedCorner(position);
+    }
+
+    /**
+     * Returns a {@link Rect} representing the bounds of the system privacy indicator, for the
+     * current orientation, in the window space coordinates. This method returns null if the system
+     * component doesn't have such indicators or the bounds have been consumed.
+     */
+    public @Nullable Rect getPrivacyIndicatorBounds() {
+        return mImpl.getPrivacyIndicatorBounds();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -811,6 +841,14 @@ public class WindowInsetsCompat {
 
         boolean isVisible(@InsetsType int typeMask) {
             return true;
+        }
+
+        @Nullable RoundedCornerCompat getRoundedCorner(@Position int position) {
+            return null;
+        }
+
+        @Nullable Rect getPrivacyIndicatorBounds() {
+            return null;
         }
 
         @Override
@@ -1370,8 +1408,33 @@ public class WindowInsetsCompat {
         }
     }
 
+    @RequiresApi(31)
+    private static class Impl31 extends Impl30 {
+
+        Impl31(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
+            super(host, insets);
+        }
+
+        Impl31(@NonNull WindowInsetsCompat host, @NonNull Impl31 other) {
+            super(host, other);
+        }
+
+        @Override
+        @Nullable RoundedCornerCompat getRoundedCorner(@Position int position) {
+            return RoundedCornerCompat.toRoundedCornerCompat(
+                    mPlatformInsets.getRoundedCorner(position));
+        }
+
+        @Override
+        @Nullable Rect getPrivacyIndicatorBounds() {
+            final Rect bounds = mPlatformInsets.getPrivacyIndicatorBounds();
+            // Prevent the caller from modifying the bounds in the WindowInsets.
+            return bounds != null ? new Rect(bounds) : null;
+        }
+    }
+
     @RequiresApi(34)
-    private static class Impl34 extends Impl30 {
+    private static class Impl34 extends Impl31 {
         static final @NonNull WindowInsetsCompat CONSUMED =
                 toWindowInsetsCompat(WindowInsets.CONSUMED);
 
@@ -1415,6 +1478,8 @@ public class WindowInsetsCompat {
         public Builder() {
             if (SDK_INT >= 34) {
                 mImpl = new BuilderImpl34();
+            } else if (SDK_INT >= 31) {
+                mImpl = new BuilderImpl31();
             } else if (SDK_INT >= 30) {
                 mImpl = new BuilderImpl30();
             } else if (SDK_INT >= 29) {
@@ -1434,6 +1499,8 @@ public class WindowInsetsCompat {
         public Builder(@NonNull WindowInsetsCompat insets) {
             if (SDK_INT >= 34) {
                 mImpl = new BuilderImpl34(insets);
+            } else if (SDK_INT >= 31) {
+                mImpl = new BuilderImpl31(insets);
             } else if (SDK_INT >= 30) {
                 mImpl = new BuilderImpl30(insets);
             } else if (SDK_INT >= 29) {
@@ -1615,6 +1682,31 @@ public class WindowInsetsCompat {
         }
 
         /**
+         * Sets the rounded corner of given position.
+         *
+         * @see #getRoundedCorner(int)
+         * @param position the position of this rounded corner
+         * @param roundedCorner the rounded corner or null if there is none
+         * @return itself
+         */
+        public @NonNull Builder setRoundedCorner(
+                @Position int position, @Nullable RoundedCornerCompat roundedCorner) {
+            mImpl.setRoundedCorner(position, roundedCorner);
+            return this;
+        }
+
+        /**
+         * Sets the bounds of the system privacy indicator.
+         *
+         * @param bounds The bounds of the system privacy indicator, or null if they don't exist or
+         *               the bounds have been consumed.
+         */
+        public @NonNull Builder setPrivacyIndicatorBounds(@Nullable Rect bounds) {
+            mImpl.setPrivacyIndicatorBounds(bounds);
+            return this;
+        }
+
+        /**
          * Builds a {@link WindowInsetsCompat} instance.
          *
          * @return the {@link WindowInsetsCompat} instance.
@@ -1672,6 +1764,12 @@ public class WindowInsetsCompat {
         }
 
         void setVisible(int typeMask, boolean visible) {}
+
+        void setRoundedCorner(@Position int position, @Nullable RoundedCornerCompat roundedCorner) {
+        }
+
+        void setPrivacyIndicatorBounds(@Nullable Rect bounds) {
+        }
 
         /**
          * This method tries to apply any insets set via {@link #setInsets(int, Insets)} to
@@ -1900,8 +1998,33 @@ public class WindowInsetsCompat {
         }
     }
 
+    @RequiresApi(31)
+    private static class BuilderImpl31 extends BuilderImpl30 {
+        BuilderImpl31() {
+            super();
+        }
+
+        BuilderImpl31(@NonNull WindowInsetsCompat insets) {
+            super(insets);
+        }
+
+        @Override
+        void setRoundedCorner(@Position int position, RoundedCornerCompat roundedCorner) {
+            mPlatBuilder.setRoundedCorner(
+                    RoundedCornerCompat.toPlatformPosition(position),
+                    RoundedCornerCompat.toPlatformRoundedCorner(roundedCorner));
+        }
+
+        @Override
+        void setPrivacyIndicatorBounds(@Nullable Rect bounds) {
+            // The platform builder would not copy the bounds, which is dangerous. Here copies the
+            // bounds for it.
+            mPlatBuilder.setPrivacyIndicatorBounds(bounds != null ? new Rect(bounds) : null);
+        }
+    }
+
     @RequiresApi(34)
-    private static class BuilderImpl34 extends BuilderImpl30 {
+    private static class BuilderImpl34 extends BuilderImpl31 {
         BuilderImpl34() {
             super();
         }

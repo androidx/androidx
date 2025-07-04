@@ -58,7 +58,7 @@ public class BoxAccumulator {
         MutableBox()
             .populateFromTwoPoints(
                 ImmutableVec(box.xMin, box.yMin),
-                ImmutableVec(box.xMax, box.yMax)
+                ImmutableVec(box.xMax, box.yMax),
             ),
     )
 
@@ -72,13 +72,32 @@ public class BoxAccumulator {
      */
     public fun isEmpty(): Boolean = !hasBounds
 
-    /** Populates this [BoxAccumulator] with the same values contained in [input]. */
-    public fun populateFrom(input: BoxAccumulator): BoxAccumulator {
-        reset().add(input)
+    /**
+     * Resets the [BoxAccumulator] instance to contain just [input]. If [input] is null, the
+     * instance will be reset to empty.
+     *
+     * Returns the modified instance to allow chaining function calls.
+     *
+     * A [BoxAccumulator] can be efficiently set to the same values as another [BoxAccumulator] with
+     * `populateFrom(other.box)`.
+     *
+     * @return `this`
+     */
+    public fun populateFrom(input: Box?): BoxAccumulator {
+        reset()
+        if (input != null) {
+            add(input)
+        }
         return this
     }
 
-    /** Reset this object to have no bounds. Returns the same instance to chain function calls. */
+    /**
+     * Reset this object to have no bounds.
+     *
+     * Returns the modified instance to allow chaining function calls.
+     *
+     * @return `this`
+     */
     @UsedByNative
     public fun reset(): BoxAccumulator {
         hasBounds = false
@@ -90,10 +109,12 @@ public class BoxAccumulator {
      * Expands the accumulated bounding box (if necessary) such that it also contains [other]. If
      * [other] is null, this is a no-op.
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     public fun add(other: BoxAccumulator?): BoxAccumulator {
-        BoxAccumulatorNative.nativeAddOptionalBox(
+        BoxAccumulatorNative.addOptionalBox(
             envelopeHasBounds = hasBounds,
             envelopeBoundsXMin = _bounds.xMin,
             envelopeBoundsYMin = _bounds.yMin,
@@ -112,10 +133,12 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [point].
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     public fun add(point: Vec): BoxAccumulator {
-        BoxAccumulatorNative.nativeAddPoint(
+        BoxAccumulatorNative.addPoint(
             envelopeHasBounds = hasBounds,
             envelopeBoundsXMin = _bounds.xMin,
             envelopeBoundsYMin = _bounds.yMin,
@@ -131,10 +154,12 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [segment].
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     public fun add(segment: Segment): BoxAccumulator {
-        BoxAccumulatorNative.nativeAddSegment(
+        BoxAccumulatorNative.addSegment(
             envelopeHasBounds = hasBounds,
             envelopeBoundsXMin = _bounds.xMin,
             envelopeBoundsYMin = _bounds.yMin,
@@ -152,10 +177,12 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [triangle].
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     public fun add(triangle: Triangle): BoxAccumulator {
-        BoxAccumulatorNative.nativeAddTriangle(
+        BoxAccumulatorNative.addTriangle(
             envelopeHasBounds = hasBounds,
             envelopeBoundsXMin = _bounds.xMin,
             envelopeBoundsYMin = _bounds.yMin,
@@ -176,10 +203,12 @@ public class BoxAccumulator {
      * Expands the accumulated bounding box (if necessary) such that it also contains [box]. If
      * [box] is null, this is a no-op.
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     public fun add(box: Box?): BoxAccumulator {
-        BoxAccumulatorNative.nativeAddOptionalBox(
+        BoxAccumulatorNative.addOptionalBox(
             envelopeHasBounds = hasBounds,
             envelopeBoundsXMin = _bounds.xMin,
             envelopeBoundsYMin = _bounds.yMin,
@@ -199,10 +228,12 @@ public class BoxAccumulator {
      * Expands the accumulated bounding box (if necessary) such that it also contains
      * [parallelogram].
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     public fun add(parallelogram: Parallelogram): BoxAccumulator {
-        BoxAccumulatorNative.nativeAddParallelogram(
+        BoxAccumulatorNative.addParallelogram(
             envelopeHasBounds = hasBounds,
             envelopeBoundsXMin = _bounds.xMin,
             envelopeBoundsYMin = _bounds.yMin,
@@ -222,6 +253,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [mesh]. If
      * [mesh] is empty, this is a no-op.
+     *
+     * Returns the modified instance to allow chaining function calls.
      *
      * @return `this`
      */
@@ -243,11 +276,13 @@ public class BoxAccumulator {
      * Overwrite the entries of this object with new values. This is useful for recycling an
      * instance.
      *
+     * Returns the modified instance to allow chaining function calls.
+     *
      * @return `this`
      */
     @UsedByNative
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun overwriteFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
+    public fun populateFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
         hasBounds = true
         _bounds.setXBounds(x1, x2).setYBounds(y1, y2)
         return this
@@ -266,7 +301,7 @@ public class BoxAccumulator {
          * Returns true if [first] and [second] have the same values for all properties of
          * [BoxAccumulator].
          */
-        internal fun areEquivalent(first: BoxAccumulator, second: BoxAccumulator): Boolean {
+        fun areEquivalent(first: BoxAccumulator, second: BoxAccumulator): Boolean {
             if (first.isEmpty() && second.isEmpty()) return true // both empty
             return first.box != null &&
                 second.box != null &&
@@ -276,6 +311,7 @@ public class BoxAccumulator {
 }
 
 /** Helper object to contain native JNI calls */
+@UsedByNative
 private object BoxAccumulatorNative {
 
     init {
@@ -287,7 +323,7 @@ private object BoxAccumulatorNative {
      * the native [Envelope], and update [output] using the result.
      */
     @UsedByNative
-    external fun nativeAddSegment(
+    external fun addSegment(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
         envelopeBoundsYMin: Float,
@@ -305,7 +341,7 @@ private object BoxAccumulatorNative {
      * to the native [Envelope], and update [output] using the result.
      */
     @UsedByNative
-    external fun nativeAddTriangle(
+    external fun addTriangle(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
         envelopeBoundsYMin: Float,
@@ -325,7 +361,7 @@ private object BoxAccumulatorNative {
      * [Parallelogram] to the native [Envelope], and update [output] using the result.
      */
     @UsedByNative
-    external fun nativeAddParallelogram(
+    external fun addParallelogram(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
         envelopeBoundsYMin: Float,
@@ -345,7 +381,7 @@ private object BoxAccumulatorNative {
      * native [Envelope], and update [output] using the result.
      */
     @UsedByNative
-    external fun nativeAddPoint(
+    external fun addPoint(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
         envelopeBoundsYMin: Float,
@@ -361,7 +397,7 @@ private object BoxAccumulatorNative {
      * native [Envelope], and update [output] using the result.
      */
     @UsedByNative
-    external fun nativeAddOptionalBox(
+    external fun addOptionalBox(
         envelopeHasBounds: Boolean,
         envelopeBoundsXMin: Float,
         envelopeBoundsYMin: Float,

@@ -24,10 +24,8 @@ import androidx.kruth.Subject
 import androidx.kruth.assertAbout
 import androidx.kruth.requireNonNull
 
-class EmployeeSubject(
-    metadata: FailureMetadata = FailureMetadata(),
-    actual: Employee?,
-) : Subject<Employee>(actual = actual, metadata = metadata) {
+class EmployeeSubject(metadata: FailureMetadata = FailureMetadata(), actual: Employee?) :
+    Subject<Employee>(actual = actual, metadata = metadata) {
 
     companion object {
         // User-defined entry point

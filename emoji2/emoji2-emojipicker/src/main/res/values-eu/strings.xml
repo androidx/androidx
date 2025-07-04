@@ -39,4 +39,5 @@
     <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"azalaren tarteko tonua"</string>
     <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"azalaren tonu ilunxkoa"</string>
     <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"azalaren tonu iluna"</string>
+    <string name="emoji_content_desc" msgid="655318124835479020">"\"<xliff:g id="EMOJI">%1$s</xliff:g>\" motako emojiak"</string>
 </resources>

@@ -357,7 +357,7 @@ class TestMonotonicFrameClockTest {
                     val clock =
                         TestMonotonicFrameClock(
                             coroutineScope = this,
-                            onPerformTraversals = { throw traversalFailure }
+                            onPerformTraversals = { throw traversalFailure },
                         )
 
                     withTestClockContext(clock) { launch { withFrameNanos { throw frameFailure } } }
@@ -382,7 +382,7 @@ class TestMonotonicFrameClockTest {
                     val clock =
                         TestMonotonicFrameClock(
                             coroutineScope = this,
-                            onPerformTraversals = { throw traversalFailure }
+                            onPerformTraversals = { throw traversalFailure },
                         )
 
                     withTestClockContext(clock) { launch { withFrameNanos { throw frameFailure } } }
@@ -426,7 +426,7 @@ class TestMonotonicFrameClockTest {
             val clock =
                 TestMonotonicFrameClock(
                     coroutineScope = clockScope,
-                    onPerformTraversals = { throw traversalFailure }
+                    onPerformTraversals = { throw traversalFailure },
                 )
 
             withTestClockContext(clock) {
@@ -478,7 +478,7 @@ class TestMonotonicFrameClockTest {
             val clock =
                 TestMonotonicFrameClock(
                     coroutineScope = clockScope,
-                    onPerformTraversals = { throw traversalFailure }
+                    onPerformTraversals = { throw traversalFailure },
                 )
 
             withTestClockContext(clock) {
@@ -520,7 +520,7 @@ class TestMonotonicFrameClockTest {
                     val clock =
                         TestMonotonicFrameClock(
                             coroutineScope = this,
-                            onPerformTraversals = { throw traversalFailure }
+                            onPerformTraversals = { throw traversalFailure },
                         )
 
                     withTestClockContext(clock) { launch { withFrameNanos {} } }
@@ -548,7 +548,7 @@ class TestMonotonicFrameClockTest {
             val clock =
                 TestMonotonicFrameClock(
                     coroutineScope = clockScope,
-                    onPerformTraversals = { throw RuntimeException("traversal failed") }
+                    onPerformTraversals = { throw RuntimeException("traversal failed") },
                 )
 
             // Run these with a separate job so they don't get cancelled by their parent.
@@ -570,7 +570,7 @@ class TestMonotonicFrameClockTest {
 
     private suspend fun CoroutineScope.withTestClockContext(
         onPerformTraversals: (Long) -> Unit = {},
-        block: suspend CoroutineScope.() -> Unit
+        block: suspend CoroutineScope.() -> Unit,
     ) {
         val testClock = TestMonotonicFrameClock(this, FrameDelayNanos, onPerformTraversals)
         withTestClockContext(testClock, block)
@@ -579,7 +579,7 @@ class TestMonotonicFrameClockTest {
     @OptIn(ExperimentalTestApi::class)
     private suspend fun withTestClockContext(
         testClock: TestMonotonicFrameClock,
-        block: suspend CoroutineScope.() -> Unit
+        block: suspend CoroutineScope.() -> Unit,
     ) {
         withContext(testClock + testClock.continuationInterceptor, block)
     }

@@ -24,13 +24,14 @@ import static androidx.recyclerview.selection.Shared.DEBUG;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.recyclerview.selection.Range.RangeType;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -557,7 +558,7 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
             return;
         }
 
-        @Nullable Bundle selectionState = state.getBundle(getInstanceStateKey());
+        Bundle selectionState = state.getBundle(getInstanceStateKey());
         if (selectionState == null) {
             return;
         }

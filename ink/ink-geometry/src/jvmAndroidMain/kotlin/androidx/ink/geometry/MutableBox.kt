@@ -17,6 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
+import androidx.annotation.RestrictTo
 import kotlin.math.max
 import kotlin.math.min
 
@@ -103,6 +104,10 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
         yMax = input.yMax
         return this
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun asImmutable(): ImmutableBox =
+        ImmutableBox(x1 = xMin, y1 = yMin, x2 = xMax, y2 = yMax)
 
     override fun equals(other: Any?): Boolean =
         other === this || (other is Box && Box.areEquivalent(this, other))

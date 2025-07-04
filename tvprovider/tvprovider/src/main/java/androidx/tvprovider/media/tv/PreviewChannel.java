@@ -29,11 +29,12 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
@@ -87,9 +88,15 @@ public class PreviewChannel {
      * beforehand.
      *
      * @param cursor a cursor row from the TvProvider
-     * @return a PreviewChannel whose values come from the cursor row
+     * @return a PreviewChannel whose values come from the cursor row or {@code null} if the cursor
+     * is not pointing at a preview channel.
      */
+    @Nullable
     public static PreviewChannel fromCursor(Cursor cursor) {
+        String type = cursor.getString(Columns.COL_TYPE);
+        if (!type.equals(Channels.TYPE_PREVIEW)) {
+            return null;
+        }
         Builder builder = new Builder();
         builder.setId(cursor.getInt(Columns.COL_ID));
         builder.setPackageName(cursor.getString(Columns.COL_PACKAGE_NAME));
@@ -391,8 +398,7 @@ public class PreviewChannel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @see TvContractCompat.Channels#COLUMN_DESCRIPTION
          */
-        @NonNull
-        public Builder setDescription(@Nullable CharSequence description) {
+        public @NonNull Builder setDescription(@Nullable CharSequence description) {
             if (description == null) {
                 mValues.remove(Channels.COLUMN_DESCRIPTION);
             } else {

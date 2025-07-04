@@ -40,7 +40,7 @@ internal class TestCanvasAnalogWatchFaceService(
     var surfaceHolderOverride: SurfaceHolder,
     var preRInitFlow: Boolean,
     var directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
-    val onInvalidateCountDownLatch: CountDownLatch?
+    val onInvalidateCountDownLatch: CountDownLatch?,
 ) : WatchFaceService() {
 
     private val mutableWatchState = MutableWatchState()
@@ -68,7 +68,7 @@ internal class TestCanvasAnalogWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
         mutableWatchState.isVisible.value = true
@@ -76,7 +76,7 @@ internal class TestCanvasAnalogWatchFaceService(
             surfaceHolder,
             watchState,
             complicationSlotsManager,
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
     }
 
@@ -100,18 +100,18 @@ internal class TestCanvasAnalogWatchFaceService(
     override fun writeDirectBootPrefs(
         context: Context,
         fileName: String,
-        prefs: WallpaperInteractiveWatchFaceInstanceParams
+        prefs: WallpaperInteractiveWatchFaceInstanceParams,
     ) {}
 
     override fun readComplicationDataCacheByteArray(
         context: Context,
-        fileName: String
+        fileName: String,
     ): ByteArray? = null
 
     override fun writeComplicationDataCacheByteArray(
         context: Context,
         fileName: String,
-        byteArray: ByteArray
+        byteArray: ByteArray,
     ) {}
 
     override fun onInvalidate() {

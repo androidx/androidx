@@ -3,24 +3,45 @@ package androidx.xr.compose.testing {
 
   public final class SubspaceAssertionsKt {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertDepthIsAtLeast(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedMinDepth);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertDepthIsAtLeast-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertDepthIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedDepth);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertDepthIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsAtLeast(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedMinHeight);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsAtLeast-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedHeight);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsNotEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedHeight);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertHeightIsNotEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void assertIsEqualTo(float, float expected, String subject, optional float tolerance);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static void assertIsEqualTo-cWfXhoU(float, float, String, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertLeftPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedLeft);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertLeftPositionInRootIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX, float expectedY, float expectedZ);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertPositionInRootIsEqualTo-qQh39rQ(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float, float, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX, float expectedY, float expectedZ);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertPositionIsEqualTo-qQh39rQ(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float, float, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertRotationInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, androidx.xr.runtime.math.Quaternion expected);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertRotationIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, androidx.xr.runtime.math.Quaternion expected);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertTopPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedTop);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertTopPositionInRootIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsAtLeast(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedMinWidth);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsAtLeast-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedWidth);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsNotEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedWidth);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertWidthIsNotEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertXPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertXPositionInRootIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertXPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedX);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertXPositionIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertYPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedY);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertYPositionInRootIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertYPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedY);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertYPositionIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertZPositionInRootIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedZ);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertZPositionInRootIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertZPositionIsEqualTo(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float expectedZ);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @com.google.errorprone.annotations.CanIgnoreReturnValue public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertZPositionIsEqualTo-3ABfNKs(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction, float);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.math.Vector3 getPosition(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.math.Vector3 getPositionInRoot(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.math.Quaternion getRotation(androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction);
@@ -46,14 +67,14 @@ package androidx.xr.compose.testing {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceSemanticsMatcher {
-    ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsNode,java.lang.Boolean> matcher);
+    ctor public SubspaceSemanticsMatcher(String description, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.node.SubspaceSemanticsInfo,java.lang.Boolean> matcher);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceSemanticsNodeInteraction {
     ctor public SubspaceSemanticsNodeInteraction(androidx.xr.compose.testing.SubspaceTestContext testContext, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
     method public void assertDoesNotExist();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
-    method public androidx.xr.compose.subspace.node.SubspaceSemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
+    method public androidx.xr.compose.subspace.node.SubspaceSemanticsInfo fetchSemanticsNode(optional String? errorMessageOnFail);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceSemanticsNodeInteractionCollection {
@@ -66,25 +87,241 @@ package androidx.xr.compose.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceTestingActivity extends androidx.activity.ComponentActivity {
     ctor public SubspaceTestingActivity();
-    method public androidx.xr.scenecore.testing.FakeXrExtensions getExtensions();
-    method public androidx.xr.scenecore.Session getSession();
-    property public final androidx.xr.scenecore.testing.FakeXrExtensions extensions;
-    property public final androidx.xr.scenecore.Session session;
+    method public com.android.extensions.xr.XrExtensions getExtensions();
+    method public androidx.xr.runtime.Session? getSession();
+    method public void setSession(androidx.xr.runtime.Session?);
+    property public com.android.extensions.xr.XrExtensions extensions;
+    property public androidx.xr.runtime.Session? session;
   }
 
   public final class SubspaceTestingActivityKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.scenecore.JxrPlatformAdapter createFakeRuntime(androidx.xr.compose.testing.SubspaceTestingActivity activity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.scenecore.Session createFakeSession(androidx.xr.compose.testing.SubspaceTestingActivity activity, optional androidx.xr.scenecore.JxrPlatformAdapter runtime);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.internal.JxrPlatformAdapter createFakeRuntime(android.app.Activity activity);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.Session createFakeSession(androidx.xr.compose.testing.SubspaceTestingActivity activity, optional androidx.xr.runtime.internal.JxrPlatformAdapter runtime);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteractionCollection onAllSubspaceNodes(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteractionCollection onAllSubspaceNodesWithTag(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, String testTag);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction onSubspaceNode(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, androidx.xr.compose.testing.SubspaceSemanticsMatcher matcher);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction onSubspaceNodeWithTag(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, String testTag);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void setSubspaceContent(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void setSubspaceContent(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object?,androidx.xr.compose.testing.SubspaceTestingActivity>, kotlin.jvm.functions.Function0<kotlin.Unit> uiContent, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static void setSubspaceContent(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object!,androidx.xr.compose.testing.SubspaceTestingActivity!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public static void setSubspaceContent(androidx.compose.ui.test.junit4.AndroidComposeTestRule<? extends java.lang.Object!,androidx.xr.compose.testing.SubspaceTestingActivity!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TestActivitySpace implements androidx.xr.runtime.internal.ActivitySpace {
+    ctor public TestActivitySpace(androidx.xr.runtime.internal.ActivitySpace fakeRuntimeActivitySpaceBase, optional androidx.xr.runtime.math.Pose activitySpacePose, optional androidx.xr.runtime.math.Vector3 activitySpaceScale);
+    method @BytecodeOnly public void addChild(androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public void addChildren(java.util.List<? extends androidx.xr.runtime.internal.Entity!>);
+    method @BytecodeOnly public boolean addComponent(androidx.xr.runtime.internal.Component);
+    method @BytecodeOnly public void addInputEventListener(java.util.concurrent.Executor, androidx.xr.runtime.internal.InputEventListener);
+    method @BytecodeOnly public void addOnBoundsChangedListener(androidx.xr.runtime.internal.ActivitySpace.OnBoundsChangedListener);
+    method @BytecodeOnly public void dispose();
+    method public androidx.xr.runtime.math.Pose getActivitySpacePose();
+    method public androidx.xr.runtime.math.Vector3 getActivitySpaceScale();
+    method @BytecodeOnly public float getAlpha(int);
+    method @BytecodeOnly public androidx.xr.runtime.internal.Dimensions getBounds();
+    method @BytecodeOnly public java.util.List<androidx.xr.runtime.internal.Entity!> getChildren();
+    method @BytecodeOnly public java.util.List<androidx.xr.runtime.internal.Component!> getComponents();
+    method @BytecodeOnly public <T extends androidx.xr.runtime.internal.Component> java.util.List<T!> getComponentsOfType(Class<? extends T!>);
+    method @BytecodeOnly public String getContentDescription();
+    method @BytecodeOnly public androidx.xr.runtime.internal.Entity? getParent();
+    method @BytecodeOnly public androidx.xr.runtime.math.Pose getPose(int);
+    method @BytecodeOnly public androidx.xr.runtime.math.BoundingBox getRecommendedContentBoxInFullSpace();
+    method public androidx.xr.runtime.math.Vector3 getScale(int relativeTo);
+    method @BytecodeOnly public androidx.xr.runtime.math.Vector3 getWorldSpaceScale();
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.HitTestResult!> hitTest(androidx.xr.runtime.math.Vector3, androidx.xr.runtime.math.Vector3, int);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.HitTestResult!> hitTestRelativeToActivityPose(androidx.xr.runtime.math.Vector3, androidx.xr.runtime.math.Vector3, int, androidx.xr.runtime.internal.ActivityPose);
+    method @BytecodeOnly public boolean isHidden(boolean);
+    method @BytecodeOnly public void removeAllComponents();
+    method @BytecodeOnly public void removeComponent(androidx.xr.runtime.internal.Component);
+    method @BytecodeOnly public void removeInputEventListener(androidx.xr.runtime.internal.InputEventListener);
+    method @BytecodeOnly public void removeOnBoundsChangedListener(androidx.xr.runtime.internal.ActivitySpace.OnBoundsChangedListener);
+    method public void setActivitySpacePose(androidx.xr.runtime.math.Pose);
+    method public void setActivitySpaceScale(androidx.xr.runtime.math.Vector3);
+    method @BytecodeOnly public void setAlpha(float, int);
+    method @BytecodeOnly public void setContentDescription(String);
+    method @BytecodeOnly public void setHidden(boolean);
+    method public void setOnSpaceUpdatedListener(Runnable? listener, java.util.concurrent.Executor? executor);
+    method @BytecodeOnly public void setParent(androidx.xr.runtime.internal.Entity?);
+    method @BytecodeOnly public void setPose(androidx.xr.runtime.math.Pose, int);
+    method @BytecodeOnly public void setScale(androidx.xr.runtime.math.Vector3, int);
+    method @BytecodeOnly public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose, androidx.xr.runtime.internal.ActivityPose);
+    method public void triggerOnSpaceUpdatedListener();
+    property public androidx.xr.runtime.math.Pose activitySpacePose;
+    property public androidx.xr.runtime.math.Vector3 activitySpaceScale;
+    property public androidx.xr.runtime.internal.Dimensions bounds;
+    property public java.util.List<androidx.xr.runtime.internal.Entity> children;
+    property public String contentDescription;
+    property public androidx.xr.runtime.internal.Entity? parent;
+    property public androidx.xr.runtime.math.BoundingBox recommendedContentBoxInFullSpace;
+    property public androidx.xr.runtime.math.Vector3 worldSpaceScale;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TestCameraViewActivityPose implements androidx.xr.runtime.internal.CameraViewActivityPose {
+    ctor public TestCameraViewActivityPose(int cameraType, optional androidx.xr.runtime.internal.CameraViewActivityPose.Fov fov, optional androidx.xr.runtime.math.Pose activitySpacePose, optional androidx.xr.runtime.math.Vector3 activitySpaceScale, optional androidx.xr.runtime.math.Vector3 worldSpaceScale, optional androidx.xr.runtime.internal.PixelDimensions displayResolutionInPixels);
+    method public androidx.xr.runtime.math.Pose getActivitySpacePose();
+    method public androidx.xr.runtime.math.Vector3 getActivitySpaceScale();
+    method public int getCameraType();
+    method public androidx.xr.runtime.internal.PixelDimensions getDisplayResolutionInPixels();
+    method public androidx.xr.runtime.internal.CameraViewActivityPose.Fov getFov();
+    method public androidx.xr.runtime.math.Vector3 getWorldSpaceScale();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.HitTestResult> hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, int hitTestFilter);
+    method public void setActivitySpacePose(androidx.xr.runtime.math.Pose);
+    method public void setActivitySpaceScale(androidx.xr.runtime.math.Vector3);
+    method public void setFov(androidx.xr.runtime.internal.CameraViewActivityPose.Fov);
+    method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.internal.ActivityPose destination);
+    property public androidx.xr.runtime.math.Pose activitySpacePose;
+    property public androidx.xr.runtime.math.Vector3 activitySpaceScale;
+    property public int cameraType;
+    property public androidx.xr.runtime.internal.PixelDimensions displayResolutionInPixels;
+    property public androidx.xr.runtime.internal.CameraViewActivityPose.Fov fov;
+    property public androidx.xr.runtime.math.Vector3 worldSpaceScale;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TestHeadActivityPose implements androidx.xr.runtime.internal.HeadActivityPose {
+    ctor public TestHeadActivityPose();
+    ctor public TestHeadActivityPose(optional androidx.xr.runtime.math.Pose activitySpacePose, optional androidx.xr.runtime.math.Vector3 worldSpaceScale, optional androidx.xr.runtime.math.Vector3 activitySpaceScale);
+    method public androidx.xr.runtime.math.Pose getActivitySpacePose();
+    method public androidx.xr.runtime.math.Vector3 getActivitySpaceScale();
+    method public androidx.xr.runtime.math.Vector3 getWorldSpaceScale();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.HitTestResult> hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, int hitTestFilter);
+    method public void setActivitySpacePose(androidx.xr.runtime.math.Pose);
+    method public void setActivitySpaceScale(androidx.xr.runtime.math.Vector3);
+    method public void setWorldSpaceScale(androidx.xr.runtime.math.Vector3);
+    method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose pose, androidx.xr.runtime.internal.ActivityPose destination);
+    property public androidx.xr.runtime.math.Pose activitySpacePose;
+    property public androidx.xr.runtime.math.Vector3 activitySpaceScale;
+    property public androidx.xr.runtime.math.Vector3 worldSpaceScale;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TestJxrPlatformAdapter implements androidx.xr.runtime.internal.JxrPlatformAdapter {
+    method @BytecodeOnly public void addPerceivedResolutionChangedListener(java.util.concurrent.Executor, java.util.function.Consumer<androidx.xr.runtime.internal.PixelDimensions!>);
+    method @BytecodeOnly public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor, java.util.function.Consumer<androidx.xr.runtime.internal.SpatialCapabilities!>);
+    method @BytecodeOnly public androidx.xr.runtime.internal.TextureResource? borrowReflectionTexture();
+    method @BytecodeOnly public void clearSpatialVisibilityChangedListener();
+    method @BytecodeOnly public androidx.xr.runtime.internal.ActivityPanelEntity createActivityPanelEntity(androidx.xr.runtime.math.Pose, androidx.xr.runtime.internal.PixelDimensions, String, android.app.Activity, androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public androidx.xr.runtime.internal.AnchorEntity createAnchorEntity(androidx.xr.runtime.internal.Anchor);
+    method @BytecodeOnly public androidx.xr.runtime.internal.AnchorEntity createAnchorEntity(androidx.xr.runtime.internal.Dimensions, androidx.xr.runtime.internal.PlaneType, androidx.xr.runtime.internal.PlaneSemantic, java.time.Duration);
+    method @BytecodeOnly public androidx.xr.runtime.internal.AnchorPlacement createAnchorPlacementForPlanes(java.util.Set<androidx.xr.runtime.internal.PlaneType!>, java.util.Set<androidx.xr.runtime.internal.PlaneSemantic!>);
+    method @BytecodeOnly public androidx.xr.runtime.internal.GltfEntity createGltfEntity(androidx.xr.runtime.math.Pose, androidx.xr.runtime.internal.GltfModelResource, androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public androidx.xr.runtime.internal.Entity createGroupEntity(androidx.xr.runtime.math.Pose, String, androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public androidx.xr.runtime.internal.InteractableComponent createInteractableComponent(java.util.concurrent.Executor, androidx.xr.runtime.internal.InputEventListener);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.MaterialResource!>? createKhronosPbrMaterial(androidx.xr.runtime.internal.KhronosPbrMaterialSpec);
+    method @BytecodeOnly public androidx.xr.runtime.internal.LoggingEntity createLoggingEntity(androidx.xr.runtime.math.Pose);
+    method @BytecodeOnly public androidx.xr.runtime.internal.MovableComponent createMovableComponent(boolean, boolean, java.util.Set<androidx.xr.runtime.internal.AnchorPlacement!>, boolean);
+    method @BytecodeOnly public androidx.xr.runtime.internal.PanelEntity createPanelEntity(android.content.Context, androidx.xr.runtime.math.Pose, android.view.View, androidx.xr.runtime.internal.Dimensions, String, androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public androidx.xr.runtime.internal.PanelEntity createPanelEntity(android.content.Context, androidx.xr.runtime.math.Pose, android.view.View, androidx.xr.runtime.internal.PixelDimensions, String, androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public androidx.xr.runtime.internal.AnchorEntity createPersistedAnchorEntity(java.util.UUID, java.time.Duration);
+    method @BytecodeOnly public androidx.xr.runtime.internal.PointerCaptureComponent createPointerCaptureComponent(java.util.concurrent.Executor, androidx.xr.runtime.internal.PointerCaptureComponent.StateListener, androidx.xr.runtime.internal.InputEventListener);
+    method @BytecodeOnly public androidx.xr.runtime.internal.ResizableComponent createResizableComponent(androidx.xr.runtime.internal.Dimensions, androidx.xr.runtime.internal.Dimensions);
+    method @BytecodeOnly public androidx.xr.runtime.internal.SpatialPointerComponent createSpatialPointerComponent();
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public androidx.xr.runtime.internal.SubspaceNodeEntity createSubspaceNodeEntity(androidx.xr.runtime.SubspaceNodeHolder<? extends java.lang.Object!>, androidx.xr.runtime.internal.Dimensions);
+    method @BytecodeOnly public androidx.xr.runtime.internal.SurfaceEntity createSurfaceEntity(int, androidx.xr.runtime.math.Pose, androidx.xr.runtime.internal.SurfaceEntity.CanvasShape, @androidx.xr.runtime.internal.SurfaceEntity.ContentSecurityLevel int, int, androidx.xr.runtime.internal.Entity);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.MaterialResource!>? createWaterMaterial(boolean);
+    method @BytecodeOnly public void destroyKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource);
+    method @BytecodeOnly public void destroyTexture(androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void destroyWaterMaterial(androidx.xr.runtime.internal.MaterialResource);
+    method @BytecodeOnly public void dispose();
+    method @BytecodeOnly public void enablePanelDepthTest(boolean);
+    method public androidx.xr.runtime.internal.ActivitySpace getActivitySpace();
+    method public androidx.xr.runtime.internal.Entity getActivitySpaceRootImpl();
+    method @BytecodeOnly public androidx.xr.runtime.internal.AudioTrackExtensionsWrapper getAudioTrackExtensionsWrapper();
+    method public androidx.xr.runtime.internal.CameraViewActivityPose? getCameraViewActivityPose(@androidx.xr.runtime.internal.CameraViewActivityPose.CameraType int cameraType);
+    method public androidx.xr.compose.testing.TestHeadActivityPose? getHeadActivityPose();
+    method public androidx.xr.compose.testing.TestCameraViewActivityPose? getLeftCameraViewPose();
+    method public androidx.xr.runtime.internal.PanelEntity getMainPanelEntity();
+    method @BytecodeOnly public androidx.xr.runtime.internal.MediaPlayerExtensionsWrapper getMediaPlayerExtensionsWrapper();
+    method @BytecodeOnly public androidx.xr.runtime.internal.PerceptionSpaceActivityPose getPerceptionSpaceActivityPose();
+    method @BytecodeOnly public androidx.xr.runtime.internal.TextureResource? getReflectionTextureFromIbl(androidx.xr.runtime.internal.ExrImageResource);
+    method public androidx.xr.compose.testing.TestCameraViewActivityPose? getRightCameraViewPose();
+    method @BytecodeOnly public androidx.xr.runtime.internal.SoundPoolExtensionsWrapper getSoundPoolExtensionsWrapper();
+    method @BytecodeOnly public androidx.xr.runtime.internal.SpatialCapabilities getSpatialCapabilities();
+    method @BytecodeOnly public androidx.xr.runtime.internal.SpatialEnvironment getSpatialEnvironment();
+    method @BytecodeOnly public androidx.xr.runtime.internal.SpatialModeChangeListener getSpatialModeChangeListener();
+    method public androidx.xr.compose.testing.TestCameraViewActivityPose? getUnknownCameraViewPose();
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.ExrImageResource!> loadExrImageByAssetName(String);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.ExrImageResource!> loadExrImageByByteArray(byte[], String);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.GltfModelResource!> loadGltfByAssetName(String);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.GltfModelResource!> loadGltfByByteArray(byte[], String);
+    method @BytecodeOnly public com.google.common.util.concurrent.ListenableFuture<androidx.xr.runtime.internal.TextureResource!>? loadTexture(String, androidx.xr.runtime.internal.TextureSampler);
+    method @BytecodeOnly public void removePerceivedResolutionChangedListener(java.util.function.Consumer<androidx.xr.runtime.internal.PixelDimensions!>);
+    method @BytecodeOnly public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<androidx.xr.runtime.internal.SpatialCapabilities!>);
+    method @BytecodeOnly public void requestFullSpaceMode();
+    method @BytecodeOnly public void requestHomeSpaceMode();
+    method public void setActivitySpace(androidx.xr.runtime.internal.ActivitySpace);
+    method @BytecodeOnly public void setAlphaCutoffOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setAlphaMapOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setAlphaStepMultiplierOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setAmbientOcclusionFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setAmbientOcclusionTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setAmbientOcclusionUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Matrix3);
+    method @BytecodeOnly public void setBaseColorFactorsOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Vector4);
+    method @BytecodeOnly public void setBaseColorTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setBaseColorUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Matrix3);
+    method @BytecodeOnly public void setClearcoatFactorsOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float, float, float);
+    method @BytecodeOnly public void setClearcoatNormalTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setClearcoatRoughnessTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setClearcoatTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setEmissiveFactorsOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Vector3);
+    method @BytecodeOnly public void setEmissiveTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setEmissiveUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Matrix3);
+    method @BytecodeOnly public android.os.Bundle setFullSpaceMode(android.os.Bundle);
+    method @BytecodeOnly public android.os.Bundle setFullSpaceModeWithEnvironmentInherited(android.os.Bundle);
+    method public void setHeadActivityPose(androidx.xr.compose.testing.TestHeadActivityPose?);
+    method @BytecodeOnly public void setIndexOfRefractionOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method public void setLeftCameraViewPose(androidx.xr.compose.testing.TestCameraViewActivityPose?);
+    method public void setMainPanelEntity(androidx.xr.runtime.internal.PanelEntity);
+    method @BytecodeOnly public void setMetallicFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setMetallicRoughnessTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setMetallicRoughnessUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Matrix3);
+    method @BytecodeOnly public void setNormalBoundaryOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setNormalFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setNormalMapOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setNormalSpeedOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setNormalTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setNormalTilingOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setNormalUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Matrix3);
+    method @BytecodeOnly public void setNormalZOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setPreferredAspectRatio(android.app.Activity, float);
+    method @BytecodeOnly public void setReflectionMapOnWaterMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method public void setRightCameraViewPose(androidx.xr.compose.testing.TestCameraViewActivityPose?);
+    method @BytecodeOnly public void setRoughnessFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setSheenColorFactorsOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Vector3);
+    method @BytecodeOnly public void setSheenColorTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setSheenRoughnessFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setSheenRoughnessTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setSpatialModeChangeListener(androidx.xr.runtime.internal.SpatialModeChangeListener);
+    method @BytecodeOnly public void setSpatialVisibilityChangedListener(java.util.concurrent.Executor, java.util.function.Consumer<androidx.xr.runtime.internal.SpatialVisibility!>);
+    method @BytecodeOnly public void setTransmissionFactorOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, float);
+    method @BytecodeOnly public void setTransmissionTextureOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.internal.TextureResource);
+    method @BytecodeOnly public void setTransmissionUvTransformOnKhronosPbrMaterial(androidx.xr.runtime.internal.MaterialResource, androidx.xr.runtime.math.Matrix3);
+    method public void setUnknownCameraViewPose(androidx.xr.compose.testing.TestCameraViewActivityPose?);
+    method @BytecodeOnly public void startRenderer();
+    method @BytecodeOnly public void stopRenderer();
+    property public androidx.xr.runtime.internal.ActivitySpace activitySpace;
+    property public androidx.xr.runtime.internal.Entity activitySpaceRootImpl;
+    property public androidx.xr.runtime.internal.AudioTrackExtensionsWrapper audioTrackExtensionsWrapper;
+    property public androidx.xr.compose.testing.TestHeadActivityPose? headActivityPose;
+    property public androidx.xr.compose.testing.TestCameraViewActivityPose? leftCameraViewPose;
+    property public androidx.xr.runtime.internal.PanelEntity mainPanelEntity;
+    property public androidx.xr.runtime.internal.MediaPlayerExtensionsWrapper mediaPlayerExtensionsWrapper;
+    property public androidx.xr.runtime.internal.PerceptionSpaceActivityPose perceptionSpaceActivityPose;
+    property public androidx.xr.compose.testing.TestCameraViewActivityPose? rightCameraViewPose;
+    property public androidx.xr.runtime.internal.SoundPoolExtensionsWrapper soundPoolExtensionsWrapper;
+    property public androidx.xr.runtime.internal.SpatialCapabilities spatialCapabilities;
+    property public androidx.xr.runtime.internal.SpatialEnvironment spatialEnvironment;
+    property public androidx.xr.runtime.internal.SpatialModeChangeListener spatialModeChangeListener;
+    property public androidx.xr.compose.testing.TestCameraViewActivityPose? unknownCameraViewPose;
+    field public static final androidx.xr.compose.testing.TestJxrPlatformAdapter.Companion Companion;
+  }
+
+  public static final class TestJxrPlatformAdapter.Companion {
+    method public androidx.xr.compose.testing.TestJxrPlatformAdapter create(android.app.Activity activity);
+    method public androidx.xr.compose.testing.TestJxrPlatformAdapter create(androidx.xr.runtime.internal.JxrPlatformAdapter fakeRuntimeBase);
   }
 
   public final class TestSetupKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.compose.runtime.Composable public static void TestSetup(optional boolean isXrEnabled, optional boolean isFullSpace, optional androidx.xr.scenecore.JxrPlatformAdapter runtime, kotlin.jvm.functions.Function1<? super androidx.xr.scenecore.Session,kotlin.Unit> content);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.compose.runtime.Composable public static void TestSetup(optional boolean isXrEnabled, optional androidx.xr.runtime.internal.JxrPlatformAdapter? runtime, optional kotlin.jvm.functions.Function1<? super androidx.xr.runtime.Session,kotlin.Unit> onSessionCreated, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) @androidx.compose.runtime.Composable public static void TestSetup(boolean, androidx.xr.runtime.internal.JxrPlatformAdapter?, kotlin.jvm.functions.Function1<? super androidx.xr.runtime.Session!,kotlin.Unit!>?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

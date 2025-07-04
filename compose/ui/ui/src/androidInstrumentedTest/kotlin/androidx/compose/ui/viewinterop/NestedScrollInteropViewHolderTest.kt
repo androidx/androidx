@@ -16,17 +16,33 @@
 
 package androidx.compose.ui.viewinterop
 
+import android.graphics.Color
 import android.os.Build
+import android.view.Gravity
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.swipeUp
@@ -63,7 +79,7 @@ class NestedScrollInteropViewHolderTest {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
                 enabled = false,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
 
@@ -82,7 +98,7 @@ class NestedScrollInteropViewHolderTest {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
                 enabled = true,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
 
@@ -100,7 +116,7 @@ class NestedScrollInteropViewHolderTest {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
                 enabled = true,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
 
@@ -121,7 +137,7 @@ class NestedScrollInteropViewHolderTest {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
                 enabled = true,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
 
@@ -139,6 +155,10 @@ class NestedScrollInteropViewHolderTest {
     @Test
     fun nestedScrollInteropIsOn_consumedUpChain_checkDeltasCorrectlyPropagatePostScroll() {
         // arrange
+        // Hierarchy is:
+        // Vertical Compose Scrollable
+        // >>> AndroidView
+        // >>>>>> Vertical Recycler View.
         rule.setContent {
             val controller = rememberScrollableState { it }
 
@@ -146,7 +166,7 @@ class NestedScrollInteropViewHolderTest {
                 NestedScrollInteropWithView(
                     modifier = Modifier.nestedScroll(connection),
                     enabled = true,
-                    recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                    recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
                 )
             }
         }
@@ -156,9 +176,77 @@ class NestedScrollInteropViewHolderTest {
 
         // assert
         rule.runOnIdle {
-            assertThat(recyclerViewConsumptionTracker.deltaConsumed).isEqualTo(Offset.Zero)
-            assertThat(connection.notConsumedByChild).isEqualTo(Offset.Zero)
+            // Recycler View Consumed
+            assertThat(recyclerViewConsumptionTracker.deltaConsumed)
+                .isEqualTo(connection.consumedDownChain)
         }
+    }
+
+    @Test
+    fun nestedScrollInteropOn_viewRequestsDisallow_shouldNotScrollCompose() {
+        val state = ScrollState(0)
+        val scrollViewId = Int.MAX_VALUE
+        rule.setContent {
+            val densiy = LocalDensity.current
+            Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
+                AndroidView(
+                    modifier =
+                        Modifier.height(100.dp)
+                            .fillMaxWidth()
+                            .background(ComposeColor.Green)
+                            .testTag("androidView"),
+                    factory = { context ->
+                        ScrollView(context).also { scrollView ->
+                            scrollView.id = scrollViewId
+                            LinearLayout(context).also { linearLayout ->
+                                scrollView.addView(linearLayout)
+                                linearLayout.orientation = LinearLayout.VERTICAL
+                                linearLayout.gravity = Gravity.CENTER
+                                repeat(10) {
+                                    FrameLayout(context).also { iv ->
+                                        linearLayout.addView(iv)
+                                        iv.setBackgroundColor(Color.BLACK)
+                                        iv.layoutParams =
+                                            LinearLayout.LayoutParams(
+                                                with(densiy) { 400.dp.roundToPx() },
+                                                with(densiy) { 100.dp.roundToPx() },
+                                            )
+                                        val params = iv.layoutParams
+                                        (params as LinearLayout.LayoutParams).setMargins(
+                                            20,
+                                            20,
+                                            20,
+                                            20,
+                                        )
+                                        iv.layoutParams = params
+                                    }
+                                }
+                            }
+                        }
+                    },
+                )
+
+                repeat(10) {
+                    Box(
+                        Modifier.height(200.dp)
+                            .fillMaxWidth()
+                            .background(color = ComposeColor.Yellow)
+                    )
+                    Box(
+                        Modifier.height(200.dp)
+                            .fillMaxWidth()
+                            .background(color = ComposeColor.White)
+                    )
+                    Box(
+                        Modifier.height(200.dp).fillMaxWidth().background(color = ComposeColor.Blue)
+                    )
+                }
+            }
+        }
+
+        onView(withId(scrollViewId)).perform(swipeUp())
+
+        rule.runOnIdle { assertThat(state.value).isEqualTo(0) }
     }
 
     @Test
@@ -168,7 +256,7 @@ class NestedScrollInteropViewHolderTest {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
                 enabled = true,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
 
@@ -189,7 +277,7 @@ class NestedScrollInteropViewHolderTest {
             NestedScrollInteropWithView(
                 modifier = Modifier.nestedScroll(connection),
                 enabled = true,
-                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker
+                recyclerViewConsumptionTracker = recyclerViewConsumptionTracker,
             )
         }
 

@@ -45,7 +45,7 @@ class TextLinkStyles(
     val style: SpanStyle? = null,
     val focusedStyle: SpanStyle? = null,
     val hoveredStyle: SpanStyle? = null,
-    val pressedStyle: SpanStyle? = null
+    val pressedStyle: SpanStyle? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

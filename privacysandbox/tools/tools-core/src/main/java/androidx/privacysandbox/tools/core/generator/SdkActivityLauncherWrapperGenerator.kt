@@ -39,22 +39,15 @@ class SdkActivityLauncherWrapperGenerator(private val basePackageName: String) {
             TypeSpec.classBuilder(className).build {
                 addSuperinterface(
                     Types.sdkActivityLauncher.poetClassName(),
-                    CodeBlock.of("delegate")
+                    CodeBlock.of("delegate"),
                 )
                 addModifiers(KModifier.PUBLIC)
                 primaryConstructor(
                     listOf(
-                        PropertySpec.builder(
-                                "delegate",
-                                Types.sdkActivityLauncher.poetTypeName(),
-                            )
+                        PropertySpec.builder("delegate", Types.sdkActivityLauncher.poetTypeName())
                             .addModifiers(KModifier.PRIVATE)
                             .build(),
-                        PropertySpec.builder(
-                                "launcherInfo",
-                                SpecNames.bundleClass,
-                            )
-                            .build(),
+                        PropertySpec.builder("launcherInfo", SpecNames.bundleClass).build(),
                     ),
                     KModifier.PRIVATE,
                 )
@@ -77,7 +70,7 @@ class SdkActivityLauncherWrapperGenerator(private val basePackageName: String) {
                     "%T.fromLauncherInfo(launcherInfo)",
                     ClassName(
                         "androidx.privacysandbox.activity.provider",
-                        "SdkActivityLauncherFactory"
+                        "SdkActivityLauncherFactory",
                     ),
                 ),
                 CodeBlock.of("launcherInfo"),
@@ -97,7 +90,7 @@ class SdkActivityLauncherWrapperGenerator(private val basePackageName: String) {
                         addStatement(
                             "throw·IllegalStateException(%S)",
                             "Invalid SdkActivityLauncher instance cannot be bundled. " +
-                                "SdkActivityLaunchers may only be created by apps."
+                                "SdkActivityLaunchers may only be created by apps.",
                         )
                     }
                 }

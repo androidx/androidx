@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -41,7 +41,6 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testExtJunitKtx)
@@ -53,7 +52,6 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
@@ -61,6 +59,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.mockitoKotlin4)
     androidTestImplementation(libs.espressoIntents)
+    androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 
 android {
@@ -68,8 +67,7 @@ android {
 
     defaultConfig {
         minSdk = 31
-        compileSdk = 35
-        targetSdk = 31
+        compileSdk = 36
     }
 
     buildFeatures {
@@ -96,7 +94,9 @@ android {
 
 androidx {
     name = "androidx.pdf:pdf-viewer"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "add pdf viewing to their apps."
+    addGoldenImageAssets()
+    enableRobolectric()
 }

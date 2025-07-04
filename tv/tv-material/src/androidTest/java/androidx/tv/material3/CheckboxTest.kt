@@ -119,7 +119,7 @@ class CheckboxTest {
                         checked,
                         {},
                         enabled = false,
-                        modifier = Modifier.testTag(defaultTag).semantics { focused = true }
+                        modifier = Modifier.testTag(defaultTag).semantics { focused = true },
                     )
                 }
             }

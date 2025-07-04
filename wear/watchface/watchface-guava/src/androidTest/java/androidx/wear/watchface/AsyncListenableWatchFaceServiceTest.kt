@@ -21,9 +21,9 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
 import android.view.SurfaceHolder
-import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.client.DeviceConfig
 import androidx.wear.watchface.client.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
@@ -48,14 +48,14 @@ private val REFERENCE_PREVIEW_TIME = Instant.ofEpochMilli(123456L)
 internal class FakeRenderer(
     surfaceHolder: SurfaceHolder,
     watchState: WatchState,
-    currentUserStyleRepository: CurrentUserStyleRepository
+    currentUserStyleRepository: CurrentUserStyleRepository,
 ) :
     Renderer.CanvasRenderer(
         surfaceHolder,
         currentUserStyleRepository,
         watchState,
         CanvasType.SOFTWARE,
-        16
+        16,
     ) {
     override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
@@ -67,7 +67,7 @@ private class TestAsyncListenableWatchFaceService : ListenableWatchFaceService()
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): ListenableFuture<WatchFace> {
         val future = SettableFuture.create<WatchFace>()
         // Post a task to resolve the future.
@@ -75,7 +75,7 @@ private class TestAsyncListenableWatchFaceService : ListenableWatchFaceService()
             future.set(
                 WatchFace(
                         WatchFaceType.DIGITAL,
-                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
+                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository),
                     )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
@@ -87,13 +87,13 @@ private class TestAsyncListenableWatchFaceService : ListenableWatchFaceService()
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         createWatchFaceFuture(
             surfaceHolder,
             watchState,
             complicationSlotsManager,
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
 }
 
@@ -115,7 +115,7 @@ private class TestAsyncListenableWatchFaceRuntimeService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        resourceOnlyWatchFacePackageName: String
+        resourceOnlyWatchFacePackageName: String,
     ): ListenableFuture<WatchFace> {
         lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
         lastResourceOnlyWatchFacePackageNameLatch.countDown()
@@ -126,7 +126,7 @@ private class TestAsyncListenableWatchFaceRuntimeService(
             future.set(
                 WatchFace(
                         WatchFaceType.DIGITAL,
-                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
+                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository),
                     )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
@@ -139,13 +139,13 @@ private class TestAsyncListenableWatchFaceRuntimeService(
 
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository,
-        resourceOnlyWatchFacePackageName: String
+        resourceOnlyWatchFacePackageName: String,
     ) = ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
 
     override fun createUserStyleFlavors(
         currentUserStyleRepository: CurrentUserStyleRepository,
         complicationSlotsManager: ComplicationSlotsManager,
-        resourceOnlyWatchFacePackageName: String
+        resourceOnlyWatchFacePackageName: String,
     ) = UserStyleFlavors()
 }
 
@@ -172,7 +172,7 @@ private class TestAsyncListenableStatefulWatchFaceRuntimeService(
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
         resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
+        extra: MyExtra,
     ): ListenableFuture<WatchFace> {
         require(extra.data == 123)
         lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
@@ -184,7 +184,7 @@ private class TestAsyncListenableStatefulWatchFaceRuntimeService(
             future.set(
                 WatchFace(
                         WatchFaceType.DIGITAL,
-                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
+                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository),
                     )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
@@ -194,7 +194,7 @@ private class TestAsyncListenableStatefulWatchFaceRuntimeService(
 
     override fun createUserStyleSchema(
         resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
+        extra: MyExtra,
     ): UserStyleSchema {
         require(extra.data == 123)
         return UserStyleSchema(emptyList())
@@ -203,7 +203,7 @@ private class TestAsyncListenableStatefulWatchFaceRuntimeService(
     override fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository,
         resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
+        extra: MyExtra,
     ): ComplicationSlotsManager {
         require(extra.data == 123)
         return ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
@@ -213,7 +213,7 @@ private class TestAsyncListenableStatefulWatchFaceRuntimeService(
         currentUserStyleRepository: CurrentUserStyleRepository,
         complicationSlotsManager: ComplicationSlotsManager,
         resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
+        extra: MyExtra,
     ): UserStyleFlavors {
         require(extra.data == 123)
         return UserStyleFlavors()
@@ -242,7 +242,7 @@ public class AsyncListenableWatchFaceServiceTest {
                 mockSurfaceHolder,
                 MutableWatchState().asWatchState(),
                 complicationSlotsManager,
-                currentUserStyleRepository
+                currentUserStyleRepository,
             )
 
         val latch = CountDownLatch(1)
@@ -258,7 +258,7 @@ public class AsyncListenableWatchFaceServiceTest {
 }
 
 @RunWith(AndroidJUnit4::class)
-@RequiresApi(Build.VERSION_CODES.O_MR1)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O_MR1)
 @MediumTest
 public class AsyncListenableWatchFaceRuntimeServiceTest : WatchFaceControlClientServiceTest() {
 
@@ -275,7 +275,7 @@ public class AsyncListenableWatchFaceRuntimeServiceTest : WatchFaceControlClient
                     DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
                     null,
-                    emptyMap()
+                    emptyMap(),
                 )
             }
 
@@ -286,7 +286,7 @@ public class AsyncListenableWatchFaceRuntimeServiceTest : WatchFaceControlClient
         Assert.assertTrue(
             service.lastResourceOnlyWatchFacePackageNameLatch.await(
                 TIME_OUT_MILLIS,
-                TimeUnit.MILLISECONDS
+                TimeUnit.MILLISECONDS,
             )
         )
 

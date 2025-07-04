@@ -20,19 +20,22 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 dependencies {
+    api 'androidx.fragment:fragment:1.2.5'
+
     compileOnly(project(":annotation:annotation-sampled"))
+
     implementation(project(":biometric:biometric"))
 }
 androidx {
     name = "Biometric Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code for the AndroidX Biometric library"
 }

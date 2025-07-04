@@ -45,7 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 private enum class LikedStates {
     Initial,
     Liked,
-    Disappeared
+    Disappeared,
 }
 
 @Preview
@@ -125,7 +125,7 @@ fun DoubleTapToLikeDemo() {
             "Like",
             Modifier.align(Alignment.Center)
                 .graphicsLayer(alpha = alpha, scaleX = scale, scaleY = scale),
-            tint = Color.Red
+            tint = Color.Red,
         )
     }
 }

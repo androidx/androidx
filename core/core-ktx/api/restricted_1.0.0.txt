@@ -1,10 +1,10 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.core.animation {
 
   public final class AnimatorKt {
     ctor public AnimatorKt();
-    method public static inline android.animation.Animator.AnimatorListener addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onEnd = {}, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onStart = {}, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onCancel = {}, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onRepeat = {});
-    method @RequiresApi(19) public static inline android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onResume = {}, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onPause = {});
+    method public static inline android.animation.Animator.AnimatorListener addListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onEnd, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onStart, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onCancel, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onRepeat);
+    method @RequiresApi(19) public static inline android.animation.Animator.AnimatorPauseListener addPauseListener(android.animation.Animator, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onResume, optional kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> onPause);
     method public static inline android.animation.Animator.AnimatorListener doOnCancel(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method public static inline android.animation.Animator.AnimatorListener doOnEnd(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
     method @RequiresApi(19) public static inline android.animation.Animator.AnimatorPauseListener doOnPause(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit> action);
@@ -25,13 +25,13 @@ package androidx.core.content {
   public final class ContextKt {
     ctor public ContextKt();
     method public static inline <reified T> T! getSystemService(android.content.Context);
-    method public static inline void withStyledAttributes(android.content.Context, android.util.AttributeSet? set = null, int[] attrs, @AttrRes int defStyleAttr = 0, @StyleRes int defStyleRes = 0, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
+    method public static inline void withStyledAttributes(android.content.Context, optional android.util.AttributeSet? set, int[] attrs, optional @AttrRes int defStyleAttr, optional @StyleRes int defStyleRes, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
     method public static inline void withStyledAttributes(android.content.Context, @StyleRes int resourceId, int[] attrs, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,kotlin.Unit> block);
   }
 
   public final class SharedPreferencesKt {
     ctor public SharedPreferencesKt();
-    method public static inline void edit(android.content.SharedPreferences, boolean commit = false, kotlin.jvm.functions.Function1<? super android.content.SharedPreferences.Editor,kotlin.Unit> action);
+    method public static inline void edit(android.content.SharedPreferences, optional boolean commit, kotlin.jvm.functions.Function1<? super android.content.SharedPreferences.Editor,kotlin.Unit> action);
   }
 
 }
@@ -79,7 +79,7 @@ package androidx.core.database.sqlite {
 
   public final class SQLiteDatabaseKt {
     ctor public SQLiteDatabaseKt();
-    method public static inline <T> T! transaction(android.database.sqlite.SQLiteDatabase, boolean exclusive = true, kotlin.jvm.functions.Function1<? super android.database.sqlite.SQLiteDatabase,? extends T> body);
+    method public static inline <T> T! transaction(android.database.sqlite.SQLiteDatabase, optional boolean exclusive, kotlin.jvm.functions.Function1<? super android.database.sqlite.SQLiteDatabase,? extends T> body);
   }
 
 }
@@ -89,21 +89,21 @@ package androidx.core.graphics {
   public final class BitmapKt {
     ctor public BitmapKt();
     method public static inline android.graphics.Bitmap applyCanvas(android.graphics.Bitmap, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline android.graphics.Bitmap createBitmap(int width, int height, android.graphics.Bitmap.Config config = android.graphics.Bitmap.Config.ARGB_8888);
-    method @RequiresApi(26) public static inline android.graphics.Bitmap createBitmap(int width, int height, android.graphics.Bitmap.Config config = android.graphics.Bitmap.Config.ARGB_8888, boolean hasAlpha = true, android.graphics.ColorSpace colorSpace = ColorSpace.get(ColorSpace.Named.SRGB));
+    method public static inline android.graphics.Bitmap createBitmap(int width, int height, optional android.graphics.Bitmap.Config config);
+    method @RequiresApi(26) public static inline android.graphics.Bitmap createBitmap(int width, int height, optional android.graphics.Bitmap.Config config, optional boolean hasAlpha, optional android.graphics.ColorSpace colorSpace);
     method public static inline operator int get(android.graphics.Bitmap, int x, int y);
-    method public static inline android.graphics.Bitmap scale(android.graphics.Bitmap, int width, int height, boolean filter = true);
+    method public static inline android.graphics.Bitmap scale(android.graphics.Bitmap, int width, int height, optional boolean filter);
     method public static inline operator void set(android.graphics.Bitmap, int x, int y, @ColorInt int color);
   }
 
   public final class CanvasKt {
     ctor public CanvasKt();
-    method public static inline void withMatrix(android.graphics.Canvas, android.graphics.Matrix matrix = android.graphics.Matrix(), kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline void withRotation(android.graphics.Canvas, float degrees = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withMatrix(android.graphics.Canvas, optional android.graphics.Matrix matrix, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withRotation(android.graphics.Canvas, optional float degrees, optional float pivotX, optional float pivotY, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
     method public static inline void withSave(android.graphics.Canvas, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline void withScale(android.graphics.Canvas, float x = 1.0f, float y = 1.0f, float pivotX = 0.0f, float pivotY = 0.0f, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline void withSkew(android.graphics.Canvas, float x = 0.0f, float y = 0.0f, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
-    method public static inline void withTranslation(android.graphics.Canvas, float x = 0.0f, float y = 0.0f, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withScale(android.graphics.Canvas, optional float x, optional float y, optional float pivotX, optional float pivotY, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withSkew(android.graphics.Canvas, optional float x, optional float y, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
+    method public static inline void withTranslation(android.graphics.Canvas, optional float x, optional float y, kotlin.jvm.functions.Function1<? super android.graphics.Canvas,kotlin.Unit> block);
   }
 
   public final class ColorKt {
@@ -136,8 +136,8 @@ package androidx.core.graphics {
     method @RequiresApi(26) public static operator android.graphics.Color plus(android.graphics.Color, android.graphics.Color c);
     method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorInt int);
     method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorLong long);
-    method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorInt public static inline int toColorInt(String);
+    method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorLong @RequiresApi(26) public static inline long toColorLong(@ColorInt int);
   }
 
@@ -149,17 +149,17 @@ package androidx.core.graphics {
 
   public final class MatrixKt {
     ctor public MatrixKt();
-    method public static android.graphics.Matrix rotationMatrix(float degrees, float px = 0.0f, float py = 0.0f);
-    method public static android.graphics.Matrix scaleMatrix(float sx = 1.0f, float sy = 1.0f);
+    method public static android.graphics.Matrix rotationMatrix(float degrees, optional float px, optional float py);
+    method public static android.graphics.Matrix scaleMatrix(optional float sx, optional float sy);
     method public static inline operator android.graphics.Matrix times(android.graphics.Matrix, android.graphics.Matrix m);
-    method public static android.graphics.Matrix translationMatrix(float tx = 0.0f, float ty = 0.0f);
+    method public static android.graphics.Matrix translationMatrix(optional float tx, optional float ty);
     method public static inline float[] values(android.graphics.Matrix);
   }
 
   public final class PathKt {
     ctor public PathKt();
     method @RequiresApi(19) public static inline infix android.graphics.Path and(android.graphics.Path, android.graphics.Path p);
-    method @RequiresApi(26) public static Iterable<androidx.core.graphics.PathSegment> flatten(android.graphics.Path, float error = 0.5f);
+    method @RequiresApi(26) public static Iterable<androidx.core.graphics.PathSegment> flatten(android.graphics.Path, optional float error);
     method @RequiresApi(19) public static inline operator android.graphics.Path minus(android.graphics.Path, android.graphics.Path p);
     method @RequiresApi(19) public static inline infix android.graphics.Path or(android.graphics.Path, android.graphics.Path p);
     method @RequiresApi(19) public static inline operator android.graphics.Path plus(android.graphics.Path, android.graphics.Path p);
@@ -178,12 +178,12 @@ package androidx.core.graphics {
     method public static inline operator int component2(android.graphics.Point);
     method public static inline operator float component2(android.graphics.PointF);
     method public static inline operator android.graphics.Point minus(android.graphics.Point, android.graphics.Point p);
-    method public static inline operator android.graphics.PointF minus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.Point minus(android.graphics.Point, int xy);
+    method public static inline operator android.graphics.PointF minus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.PointF minus(android.graphics.PointF, float xy);
     method public static inline operator android.graphics.Point plus(android.graphics.Point, android.graphics.Point p);
-    method public static inline operator android.graphics.PointF plus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.Point plus(android.graphics.Point, int xy);
+    method public static inline operator android.graphics.PointF plus(android.graphics.PointF, android.graphics.PointF p);
     method public static inline operator android.graphics.PointF plus(android.graphics.PointF, float xy);
     method public static inline android.graphics.Point toPoint(android.graphics.PointF);
     method public static inline android.graphics.PointF toPointF(android.graphics.Point);
@@ -211,20 +211,20 @@ package androidx.core.graphics {
     method public static inline operator float component4(android.graphics.RectF);
     method public static inline operator boolean contains(android.graphics.Rect, android.graphics.Point p);
     method public static inline operator boolean contains(android.graphics.RectF, android.graphics.PointF p);
-    method public static inline operator android.graphics.Region minus(android.graphics.Rect, android.graphics.Rect r);
-    method public static inline operator android.graphics.Region minus(android.graphics.RectF, android.graphics.RectF r);
-    method public static inline operator android.graphics.Rect minus(android.graphics.Rect, int xy);
-    method public static inline operator android.graphics.RectF minus(android.graphics.RectF, float xy);
     method public static inline operator android.graphics.Rect minus(android.graphics.Rect, android.graphics.Point xy);
+    method public static inline operator android.graphics.Region minus(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline operator android.graphics.Rect minus(android.graphics.Rect, int xy);
     method public static inline operator android.graphics.RectF minus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.Region minus(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.RectF minus(android.graphics.RectF, float xy);
     method public static inline infix android.graphics.Rect or(android.graphics.Rect, android.graphics.Rect r);
     method public static inline infix android.graphics.RectF or(android.graphics.RectF, android.graphics.RectF r);
-    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Rect r);
-    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.RectF r);
-    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, int xy);
-    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, float xy);
     method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Point xy);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Rect r);
+    method public static inline operator android.graphics.Rect plus(android.graphics.Rect, int xy);
     method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.RectF r);
+    method public static inline operator android.graphics.RectF plus(android.graphics.RectF, float xy);
     method public static inline android.graphics.Rect toRect(android.graphics.RectF);
     method public static inline android.graphics.RectF toRectF(android.graphics.Rect);
     method public static inline android.graphics.Region toRegion(android.graphics.Rect);
@@ -269,14 +269,14 @@ package androidx.core.graphics.drawable {
 
   public final class ColorDrawableKt {
     ctor public ColorDrawableKt();
-    method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
     method @RequiresApi(26) public static inline android.graphics.drawable.ColorDrawable toDrawable(android.graphics.Color);
+    method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
   }
 
   public final class DrawableKt {
     ctor public DrawableKt();
-    method public static android.graphics.Bitmap toBitmap(android.graphics.drawable.Drawable, @Px int width = intrinsicWidth, @Px int height = intrinsicHeight, android.graphics.Bitmap.Config? config = null);
-    method public static void updateBounds(android.graphics.drawable.Drawable, @Px int left = android.graphics.Rect.left, @Px int top = android.graphics.Rect.top, @Px int right = android.graphics.Rect.right, @Px int bottom = android.graphics.Rect.bottom);
+    method public static android.graphics.Bitmap toBitmap(android.graphics.drawable.Drawable, optional @Px int width, optional @Px int height, optional android.graphics.Bitmap.Config? config);
+    method public static void updateBounds(android.graphics.drawable.Drawable, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
   }
 
   public final class IconKt {
@@ -304,8 +304,8 @@ package androidx.core.net {
   public final class UriKt {
     ctor public UriKt();
     method public static java.io.File toFile(android.net.Uri);
-    method public static inline android.net.Uri toUri(String);
     method public static inline android.net.Uri toUri(java.io.File);
+    method public static inline android.net.Uri toUri(String);
   }
 
 }
@@ -319,8 +319,8 @@ package androidx.core.os {
 
   public final class HandlerKt {
     ctor public HandlerKt();
-    method public static inline Runnable postAtTime(android.os.Handler, long uptimeMillis, Object? token = null, kotlin.jvm.functions.Function0<kotlin.Unit> action);
-    method public static inline Runnable postDelayed(android.os.Handler, long delayInMillis, Object? token = null, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public static inline Runnable postAtTime(android.os.Handler, long uptimeMillis, optional Object? token, kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public static inline Runnable postDelayed(android.os.Handler, long delayInMillis, optional Object? token, kotlin.jvm.functions.Function0<kotlin.Unit> action);
   }
 
   public final class PersistableBundleKt {
@@ -345,8 +345,8 @@ package androidx.core.text {
 
   public final class HtmlKt {
     ctor public HtmlKt();
-    method public static inline android.text.Spanned parseAsHtml(String, int flags = 0, android.text.Html.ImageGetter? imageGetter = null, android.text.Html.TagHandler? tagHandler = null);
-    method public static inline String toHtml(android.text.Spanned, int option = 0);
+    method public static inline android.text.Spanned parseAsHtml(String, optional int flags, optional android.text.Html.ImageGetter? imageGetter, optional android.text.Html.TagHandler? tagHandler);
+    method public static inline String toHtml(android.text.Spanned, optional int option);
   }
 
   public final class LocaleKt {
@@ -360,8 +360,8 @@ package androidx.core.text {
     method public static inline android.text.SpannableStringBuilder bold(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannedString buildSpannedString(kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder color(android.text.SpannableStringBuilder, @ColorInt int color, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
-    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object![] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object span, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object![] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder italic(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder scale(android.text.SpannableStringBuilder, float proportion, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder strikeThrough(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
@@ -380,7 +380,7 @@ package androidx.core.text {
 
   public final class SpannedStringKt {
     ctor public SpannedStringKt();
-    method public static inline <reified T> T![] getSpans(android.text.Spanned, int start = 0, int end = length);
+    method public static inline <reified T> T![] getSpans(android.text.Spanned, optional int start, optional int end);
     method public static inline android.text.Spanned toSpanned(CharSequence);
   }
 
@@ -395,7 +395,7 @@ package androidx.core.transition {
 
   public final class TransitionKt {
     ctor public TransitionKt();
-    method @RequiresApi(19) public static inline android.transition.Transition.TransitionListener addListener(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onEnd = {}, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onStart = {}, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onCancel = {}, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onResume = {}, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onPause = {});
+    method @RequiresApi(19) public static inline android.transition.Transition.TransitionListener addListener(android.transition.Transition, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onEnd, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onStart, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onCancel, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onResume, optional kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> onPause);
     method @RequiresApi(19) public static inline android.transition.Transition.TransitionListener doOnCancel(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
     method @RequiresApi(19) public static inline android.transition.Transition.TransitionListener doOnEnd(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
     method @RequiresApi(19) public static inline android.transition.Transition.TransitionListener doOnPause(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit> action);
@@ -410,18 +410,18 @@ package androidx.core.util {
   public final class AtomicFileKt {
     ctor public AtomicFileKt();
     method @RequiresApi(17) public static inline byte[] readBytes(android.util.AtomicFile);
-    method @RequiresApi(17) public static String readText(android.util.AtomicFile, java.nio.charset.Charset charset = Charsets.UTF_8);
+    method @RequiresApi(17) public static String readText(android.util.AtomicFile, optional java.nio.charset.Charset charset);
     method @RequiresApi(17) public static inline void tryWrite(android.util.AtomicFile, kotlin.jvm.functions.Function1<? super java.io.FileOutputStream,kotlin.Unit> block);
     method @RequiresApi(17) public static void writeBytes(android.util.AtomicFile, byte[] array);
-    method @RequiresApi(17) public static void writeText(android.util.AtomicFile, String text, java.nio.charset.Charset charset = Charsets.UTF_8);
+    method @RequiresApi(17) public static void writeText(android.util.AtomicFile, String text, optional java.nio.charset.Charset charset);
   }
 
   public final class HalfKt {
     ctor public HalfKt();
-    method @RequiresApi(26) public static inline android.util.Half toHalf(@HalfFloat short);
-    method @RequiresApi(26) public static inline android.util.Half toHalf(float);
     method @RequiresApi(26) public static inline android.util.Half toHalf(double);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(float);
     method @RequiresApi(26) public static inline android.util.Half toHalf(String);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(@HalfFloat short);
   }
 
   public final class LongSparseArrayKt {
@@ -445,7 +445,7 @@ package androidx.core.util {
 
   public final class LruCacheKt {
     ctor public LruCacheKt();
-    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (V)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
+    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
   }
 
   public final class PairKt {
@@ -459,8 +459,8 @@ package androidx.core.util {
   public final class RangeKt {
     ctor public RangeKt();
     method @RequiresApi(21) public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> and(android.util.Range<T>, android.util.Range<T> other);
-    method @RequiresApi(21) public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, T value);
     method @RequiresApi(21) public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, android.util.Range<T> other);
+    method @RequiresApi(21) public static inline operator <T extends java.lang.Comparable<? super T>> android.util.Range<T> plus(android.util.Range<T>, T value);
     method @RequiresApi(21) public static inline infix <T extends java.lang.Comparable<? super T>> android.util.Range<T> rangeTo(T, T that);
     method @RequiresApi(21) public static <T extends java.lang.Comparable<? super T>> kotlin.ranges.ClosedRange<T> toClosedRange(android.util.Range<T>);
     method @RequiresApi(21) public static <T extends java.lang.Comparable<? super T>> android.util.Range<T> toRange(kotlin.ranges.ClosedRange<T>);
@@ -582,8 +582,8 @@ package androidx.core.view {
     method public static inline operator void minusAssign(android.view.ViewGroup, android.view.View view);
     method public static inline operator void plusAssign(android.view.ViewGroup, android.view.View view);
     method public static inline void setMargins(android.view.ViewGroup.MarginLayoutParams, @Px int size);
-    method public static inline void updateMargins(android.view.ViewGroup.MarginLayoutParams, @Px int left = android.view.ViewGroup.MarginLayoutParams.leftMargin, @Px int top = android.view.ViewGroup.MarginLayoutParams.topMargin, @Px int right = android.view.ViewGroup.MarginLayoutParams.rightMargin, @Px int bottom = android.view.ViewGroup.MarginLayoutParams.bottomMargin);
-    method @RequiresApi(17) public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, @Px int start = marginStart, @Px int top = android.view.ViewGroup.MarginLayoutParams.topMargin, @Px int end = marginEnd, @Px int bottom = android.view.ViewGroup.MarginLayoutParams.bottomMargin);
+    method public static inline void updateMargins(android.view.ViewGroup.MarginLayoutParams, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
+    method @RequiresApi(17) public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
   }
 
   public final class ViewKt {
@@ -591,7 +591,7 @@ package androidx.core.view {
     method public static inline void doOnLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static inline void doOnNextLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static inline void doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
-    method public static android.graphics.Bitmap drawToBitmap(android.view.View, android.graphics.Bitmap.Config config = android.graphics.Bitmap.Config.ARGB_8888);
+    method public static android.graphics.Bitmap drawToBitmap(android.view.View, optional android.graphics.Bitmap.Config config);
     method public static inline int getMarginBottom(android.view.View);
     method public static inline int getMarginEnd(android.view.View);
     method public static inline int getMarginLeft(android.view.View);
@@ -609,8 +609,8 @@ package androidx.core.view {
     method public static inline void setVisible(android.view.View, boolean value);
     method public static inline void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
     method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
-    method public static inline void updatePadding(android.view.View, @Px int left = paddingLeft, @Px int top = paddingTop, @Px int right = paddingRight, @Px int bottom = paddingBottom);
-    method @RequiresApi(17) public static inline void updatePaddingRelative(android.view.View, @Px int start = paddingStart, @Px int top = paddingTop, @Px int end = paddingEnd, @Px int bottom = paddingBottom);
+    method public static inline void updatePadding(android.view.View, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
+    method @RequiresApi(17) public static inline void updatePaddingRelative(android.view.View, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
   }
 
 }

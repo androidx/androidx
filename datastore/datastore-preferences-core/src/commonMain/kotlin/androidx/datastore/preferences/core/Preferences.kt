@@ -125,7 +125,7 @@ public abstract class Preferences internal constructor() {
 public class MutablePreferences
 internal constructor(
     internal val preferencesMap: MutableMap<Key<*>, Any> = mutableMapOf(),
-    startFrozen: Boolean = true
+    startFrozen: Boolean = true,
 ) : Preferences() {
 
     /** If frozen, mutating methods will throw. */

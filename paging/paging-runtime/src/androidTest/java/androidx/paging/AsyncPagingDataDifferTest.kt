@@ -93,7 +93,7 @@ class AsyncPagingDataDifferTest {
                     }
                 },
             updateCallback = listUpdateCapture,
-            workerDispatcher = Dispatchers.Main
+            workerDispatcher = Dispatchers.Main,
         )
 
     @SdkSuppress(minSdkVersion = 21) // b/189492631
@@ -110,9 +110,9 @@ class AsyncPagingDataDifferTest {
                             pageSize = 2,
                             prefetchDistance = 1,
                             enablePlaceholders = true,
-                            initialLoadSize = 2
+                            initialLoadSize = 2,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource()
                 }
@@ -128,7 +128,7 @@ class AsyncPagingDataDifferTest {
                     localLoadStatesOf(refreshLocal = Loading),
                     localLoadStatesOf(refreshLocal = NotLoading(endOfPaginationReached = false)),
                 ),
-                loadEvents
+                loadEvents,
             )
             loadEvents.clear()
 
@@ -143,7 +143,7 @@ class AsyncPagingDataDifferTest {
                             prepend = NotLoading(endOfPaginationReached = true),
                             append = NotLoading(endOfPaginationReached = true),
                         )
-                )
+                ),
             )
             advanceUntilIdle()
 
@@ -156,9 +156,9 @@ class AsyncPagingDataDifferTest {
                             refreshLocal = NotLoading(endOfPaginationReached = false),
                             prependLocal = NotLoading(endOfPaginationReached = true),
                             appendLocal = NotLoading(endOfPaginationReached = true),
-                        ),
+                        )
                     ),
-                actual = loadEvents
+                actual = loadEvents,
             )
         }
 
@@ -176,9 +176,9 @@ class AsyncPagingDataDifferTest {
                             pageSize = 2,
                             prefetchDistance = 1,
                             enablePlaceholders = true,
-                            initialLoadSize = 2
+                            initialLoadSize = 2,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource()
                 }
@@ -194,7 +194,7 @@ class AsyncPagingDataDifferTest {
                     localLoadStatesOf(refreshLocal = Loading),
                     localLoadStatesOf(refreshLocal = NotLoading(endOfPaginationReached = false)),
                 ),
-                loadEvents
+                loadEvents,
             )
             loadEvents.clear()
 
@@ -209,7 +209,7 @@ class AsyncPagingDataDifferTest {
                             prepend = NotLoading(endOfPaginationReached = true),
                             append = NotLoading(endOfPaginationReached = true),
                         )
-                )
+                ),
             )
             advanceUntilIdle()
 
@@ -222,9 +222,9 @@ class AsyncPagingDataDifferTest {
                             refreshLocal = NotLoading(endOfPaginationReached = false),
                             prependLocal = NotLoading(endOfPaginationReached = true),
                             appendLocal = NotLoading(endOfPaginationReached = true),
-                        ),
+                        )
                     ),
-                actual = loadEvents
+                actual = loadEvents,
             )
 
             loadEventJob.cancel()
@@ -242,9 +242,9 @@ class AsyncPagingDataDifferTest {
                                 pageSize = 1,
                                 prefetchDistance = 1,
                                 enablePlaceholders = true,
-                                initialLoadSize = 2
+                                initialLoadSize = 2,
                             ),
-                        initialKey = 50
+                        initialKey = 50,
                     ) {
                         currentPagedSource = TestPagingSource()
                         currentPagedSource!!
@@ -257,9 +257,9 @@ class AsyncPagingDataDifferTest {
 
                 assertEvents(
                     listOf(
-                        Inserted(0, 100), // [(50 placeholders), 50, 51, (48 placeholders)]
+                        Inserted(0, 100) // [(50 placeholders), 50, 51, (48 placeholders)]
                     ),
-                    listUpdateCapture.newEvents()
+                    listUpdateCapture.newEvents(),
                 )
 
                 // Load APPEND [52] to fulfill prefetch distance
@@ -269,9 +269,9 @@ class AsyncPagingDataDifferTest {
                 assertEvents(
                     // TODO(b/182510751): Every change event here should have payload.
                     listOf(
-                        Changed(52, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
+                        Changed(52, 1, null) // [(50 placeholders), 50, 51, 52, (47 placeholders)]
                     ),
-                    listUpdateCapture.newEvents()
+                    listUpdateCapture.newEvents(),
                 )
 
                 // Load REFRESH [51, 52]
@@ -286,7 +286,7 @@ class AsyncPagingDataDifferTest {
                         // fix prefetch, 50 got reloaded
                         Changed(50, 1, null), // [(50 placeholders), 50, 51, 52, (47 placeholders)]
                     ),
-                    listUpdateCapture.newEvents()
+                    listUpdateCapture.newEvents(),
                 )
 
                 job.cancel()
@@ -450,9 +450,9 @@ class AsyncPagingDataDifferTest {
                             pageSize = 5,
                             enablePlaceholders = false,
                             prefetchDistance = 1,
-                            initialLoadSize = 17
+                            initialLoadSize = 17,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource().also { source1 = it }
                 }
@@ -463,9 +463,9 @@ class AsyncPagingDataDifferTest {
                             pageSize = 7,
                             enablePlaceholders = false,
                             prefetchDistance = 1,
-                            initialLoadSize = 19
+                            initialLoadSize = 19,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource().also { source2 = it }
                 }
@@ -519,11 +519,7 @@ class AsyncPagingDataDifferTest {
         val pager =
             Pager(
                 config =
-                    PagingConfig(
-                        pageSize = 1,
-                        prefetchDistance = 1,
-                        enablePlaceholders = false,
-                    ),
+                    PagingConfig(pageSize = 1, prefetchDistance = 1, enablePlaceholders = false)
             ) {
                 TestPagingSource(loadDelay = 500)
             }
@@ -540,7 +536,7 @@ class AsyncPagingDataDifferTest {
                         }
                     },
                 updateCallback = listUpdateCapture,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
         val job = launch { pager.flow.collect { differ.submitData(it) } }
 
@@ -589,7 +585,7 @@ class AsyncPagingDataDifferTest {
                         PagingConfig(
                             pageSize = 10,
                             enablePlaceholders = false,
-                            initialLoadSize = 30
+                            initialLoadSize = 30,
                         )
                 ) {
                     TestPagingSource()
@@ -604,12 +600,12 @@ class AsyncPagingDataDifferTest {
                 .containsExactly(
                     localLoadStatesOf(
                         prependLocal = NotLoading(endOfPaginationReached = false),
-                        refreshLocal = Loading
+                        refreshLocal = Loading,
                     ),
                     localLoadStatesOf(
                         prependLocal = NotLoading(endOfPaginationReached = true),
-                        refreshLocal = NotLoading(endOfPaginationReached = false)
-                    )
+                        refreshLocal = NotLoading(endOfPaginationReached = false),
+                    ),
                 )
             job.cancelAndJoin()
         }
@@ -634,9 +630,9 @@ class AsyncPagingDataDifferTest {
                             pageSize = 10,
                             enablePlaceholders = false,
                             initialLoadSize = 10,
-                            prefetchDistance = 1
+                            prefetchDistance = 1,
                         ),
-                    initialKey = 50
+                    initialKey = 50,
                 ) {
                     TestPagingSource()
                 }
@@ -684,9 +680,9 @@ class AsyncPagingDataDifferTest {
                                 pageSize = 10,
                                 enablePlaceholders = false,
                                 initialLoadSize = 10,
-                                prefetchDistance = 1
+                                prefetchDistance = 1,
                             ),
-                        initialKey = 50
+                        initialKey = 50,
                     ) {
                         TestPagingSource()
                     }
@@ -754,14 +750,14 @@ class AsyncPagingDataDifferTest {
                                 object : DiffUtil.ItemCallback<Int>() {
                                     override fun areContentsTheSame(
                                         oldItem: Int,
-                                        newItem: Int
+                                        newItem: Int,
                                     ): Boolean {
                                         return oldItem == newItem
                                     }
 
                                     override fun areItemsTheSame(
                                         oldItem: Int,
-                                        newItem: Int
+                                        newItem: Int,
                                     ): Boolean {
                                         return oldItem == newItem
                                     }
@@ -816,7 +812,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -843,7 +839,7 @@ class AsyncPagingDataDifferTest {
             assertThat(events)
                 .containsExactly(
                     localLoadStatesOf(refreshLocal = Loading).toString(),
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
             events.clear()
@@ -869,7 +865,7 @@ class AsyncPagingDataDifferTest {
                     "end dispatchLayout",
                     localLoadStatesOf(appendLocal = Loading, prependLocal = NotLoading(true))
                         .toString(),
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -901,7 +897,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -933,7 +929,7 @@ class AsyncPagingDataDifferTest {
             assertThat(events)
                 .containsExactly(
                     localLoadStatesOf(refreshLocal = Loading).toString(),
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -960,7 +956,7 @@ class AsyncPagingDataDifferTest {
                     "end dispatchLayout",
                     localLoadStatesOf(appendLocal = Loading, prependLocal = NotLoading(true))
                         .toString(),
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -993,7 +989,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -1041,7 +1037,7 @@ class AsyncPagingDataDifferTest {
                     "internal flow collected",
                     localLoadStatesOf(refreshLocal = Loading).toString(),
                     "internal flow collected",
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -1081,7 +1077,7 @@ class AsyncPagingDataDifferTest {
                     localLoadStatesOf(appendLocal = Loading, prependLocal = NotLoading(true))
                         .toString(),
                     "internal flow collected",
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -1117,7 +1113,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -1129,7 +1125,7 @@ class AsyncPagingDataDifferTest {
                             prefetchDistance = 3,
                             initialLoadSize = 10,
                         ),
-                    initialKey = 30
+                    initialKey = 30,
                 ) {
                     TestPagingSource(loadDelay = 0)
                 }
@@ -1161,7 +1157,7 @@ class AsyncPagingDataDifferTest {
                 .containsExactly(
                     "start dispatchLayout",
                     "end dispatchLayout",
-                    "Inserted(position=0, count=5)"
+                    "Inserted(position=0, count=5)",
                 )
                 .inOrder()
             collectPager.cancel()
@@ -1193,7 +1189,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -1204,7 +1200,7 @@ class AsyncPagingDataDifferTest {
                             enablePlaceholders = false,
                             prefetchDistance = 3,
                             initialLoadSize = 10,
-                        ),
+                        )
                 ) {
                     TestPagingSource(loadDelay = 0)
                 }
@@ -1236,7 +1232,7 @@ class AsyncPagingDataDifferTest {
                 .containsExactly(
                     "start dispatchLayout",
                     "end dispatchLayout",
-                    "Inserted(position=10, count=5)"
+                    "Inserted(position=10, count=5)",
                 )
                 .inOrder()
             collectPager.cancel()
@@ -1268,7 +1264,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -1279,7 +1275,7 @@ class AsyncPagingDataDifferTest {
                             enablePlaceholders = false,
                             prefetchDistance = 3,
                             initialLoadSize = 10,
-                            maxSize = 16
+                            maxSize = 16,
                         ),
                     initialKey = 30,
                 ) {
@@ -1322,7 +1318,7 @@ class AsyncPagingDataDifferTest {
                     "start dispatchLayout",
                     "end dispatchLayout",
                     "Removed(position=0, count=5)", // drop prepend
-                    "Inserted(position=10, count=5)" // append
+                    "Inserted(position=10, count=5)", // append
                 )
                 .inOrder()
             collectPager.cancel()
@@ -1354,7 +1350,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -1365,7 +1361,7 @@ class AsyncPagingDataDifferTest {
                             enablePlaceholders = false,
                             prefetchDistance = 3,
                             initialLoadSize = 10,
-                            maxSize = 16
+                            maxSize = 16,
                         ),
                     initialKey = 30,
                 ) {
@@ -1408,7 +1404,7 @@ class AsyncPagingDataDifferTest {
                     "start dispatchLayout",
                     "end dispatchLayout",
                     "Removed(position=10, count=5)", // drop append
-                    "Inserted(position=0, count=5)" // prepend
+                    "Inserted(position=0, count=5)", // prepend
                 )
                 .inOrder()
             collectPager.cancel()
@@ -1439,7 +1435,7 @@ class AsyncPagingDataDifferTest {
                     // events
                     mainDispatcher = mainDispatcher,
                     updateCallback = listUpdateCapture,
-                    workerDispatcher = backgroundScope.coroutineContext
+                    workerDispatcher = backgroundScope.coroutineContext,
                 )
 
             val pager =
@@ -1481,7 +1477,7 @@ class AsyncPagingDataDifferTest {
                     "internal listener invoked",
                     localLoadStatesOf(refreshLocal = Loading).toString(),
                     "internal listener invoked",
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -1521,7 +1517,7 @@ class AsyncPagingDataDifferTest {
                     localLoadStatesOf(appendLocal = Loading, prependLocal = NotLoading(true))
                         .toString(),
                     "internal listener invoked",
-                    localLoadStatesOf(prependLocal = NotLoading(true)).toString()
+                    localLoadStatesOf(prependLocal = NotLoading(true)).toString(),
                 )
                 .inOrder()
 
@@ -1536,8 +1532,7 @@ class AsyncPagingDataDifferTest {
             val pagingSources = mutableListOf<TestPagingSource>()
             val pager =
                 Pager(
-                    config =
-                        PagingConfig(pageSize = 10, prefetchDistance = 3, initialLoadSize = 10),
+                    config = PagingConfig(pageSize = 10, prefetchDistance = 3, initialLoadSize = 10)
                 ) {
                     TestPagingSource().also {
                         it.getRefreshKeyResult = 0
@@ -1569,9 +1564,7 @@ class AsyncPagingDataDifferTest {
     fun useTempPresenterOnDiffCalculation() = runTest {
         val workerDispatcher = TestDispatcher()
         val pager =
-            Pager(
-                config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5),
-            ) {
+            Pager(config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5)) {
                 TestPagingSource(loadDelay = 500)
             }
 
@@ -1588,7 +1581,7 @@ class AsyncPagingDataDifferTest {
                         }
                     },
                 updateCallback = listUpdateCapture,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
         val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
 
@@ -1625,9 +1618,7 @@ class AsyncPagingDataDifferTest {
     fun resetTempPresenterOnMainThread() = runTest {
         val workerDispatcher = TestDispatcher()
         val pager =
-            Pager(
-                config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5),
-            ) {
+            Pager(config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5)) {
                 TestPagingSource(loadDelay = 500)
             }
 
@@ -1644,7 +1635,7 @@ class AsyncPagingDataDifferTest {
                         }
                     },
                 updateCallback = listUpdateCapture,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
         val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
 
@@ -1687,9 +1678,9 @@ class AsyncPagingDataDifferTest {
                         pageSize = 3,
                         prefetchDistance = 1,
                         initialLoadSize = 5,
-                        enablePlaceholders = true
+                        enablePlaceholders = true,
                     ),
-                initialKey = 20
+                initialKey = 20,
             ) {
                 TestPagingSource(loadDelay = 0)
             }
@@ -1707,7 +1698,7 @@ class AsyncPagingDataDifferTest {
                         }
                     },
                 updateCallback = listUpdateCapture,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
         val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
 
@@ -1748,9 +1739,7 @@ class AsyncPagingDataDifferTest {
     fun tempPresenterGetOutOfBounds() = runTest {
         val workerDispatcher = TestDispatcher()
         val pager =
-            Pager(
-                config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5),
-            ) {
+            Pager(config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5)) {
                 TestPagingSource(loadDelay = 0)
             }
 
@@ -1767,7 +1756,7 @@ class AsyncPagingDataDifferTest {
                         }
                     },
                 updateCallback = listUpdateCapture,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
         val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
 
@@ -1809,8 +1798,8 @@ class AsyncPagingDataDifferTest {
                         pageSize = 3,
                         prefetchDistance = 1,
                         initialLoadSize = 5,
-                        enablePlaceholders = true
-                    ),
+                        enablePlaceholders = true,
+                    )
             ) {
                 TestPagingSource(loadDelay = 0)
             }
@@ -1828,7 +1817,7 @@ class AsyncPagingDataDifferTest {
                         }
                     },
                 updateCallback = listUpdateCapture,
-                workerDispatcher = workerDispatcher
+                workerDispatcher = workerDispatcher,
             )
         val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
 
@@ -1863,7 +1852,7 @@ class AsyncPagingDataDifferTest {
             newItems = 0,
             newNulls = 0,
             prependEvents = emptyList(),
-            appendEvents = emptyList()
+            appendEvents = emptyList(),
         )
 
     @Test
@@ -1874,7 +1863,7 @@ class AsyncPagingDataDifferTest {
             newItems = 2,
             newNulls = 0,
             prependEvents = listOf(Inserted(0, 2)),
-            appendEvents = listOf(Inserted(2, 2))
+            appendEvents = listOf(Inserted(2, 2)),
         )
 
     @Test
@@ -1885,7 +1874,7 @@ class AsyncPagingDataDifferTest {
             newItems = 2,
             newNulls = 2,
             prependEvents = listOf(Changed(2, 2, null)),
-            appendEvents = listOf(Changed(2, 2, null))
+            appendEvents = listOf(Changed(2, 2, null)),
         )
 
     @Test
@@ -1900,8 +1889,8 @@ class AsyncPagingDataDifferTest {
                 listOf(
                     // NOTE: theoretically these could be combined
                     Inserted(2, 2),
-                    Inserted(4, 3)
-                )
+                    Inserted(4, 3),
+                ),
         )
 
     @Test
@@ -1912,7 +1901,7 @@ class AsyncPagingDataDifferTest {
             newItems = 0,
             newNulls = 3,
             prependEvents = listOf(Inserted(0, 3)),
-            appendEvents = listOf(Inserted(2, 3))
+            appendEvents = listOf(Inserted(2, 3)),
         )
 
     @Test
@@ -1923,7 +1912,7 @@ class AsyncPagingDataDifferTest {
             newItems = 2,
             newNulls = 2,
             prependEvents = listOf(Changed(1, 2, null), Inserted(0, 1)),
-            appendEvents = listOf(Changed(2, 2, null), Inserted(5, 1))
+            appendEvents = listOf(Changed(2, 2, null), Inserted(5, 1)),
         )
 
     @Test
@@ -1934,7 +1923,7 @@ class AsyncPagingDataDifferTest {
             newItems = 2,
             newNulls = 0,
             prependEvents = listOf(Changed(5, 2, null), Removed(0, 5)),
-            appendEvents = listOf(Changed(2, 2, null), Removed(4, 5))
+            appendEvents = listOf(Changed(2, 2, null), Removed(4, 5)),
         )
 
     @Test
@@ -1945,7 +1934,7 @@ class AsyncPagingDataDifferTest {
             newItems = 3,
             newNulls = 4,
             prependEvents = listOf(Changed(7, 3, null), Removed(0, 3)),
-            appendEvents = listOf(Changed(2, 3, null), Removed(9, 3))
+            appendEvents = listOf(Changed(2, 3, null), Removed(9, 3)),
         )
 
     @Test
@@ -1956,7 +1945,7 @@ class AsyncPagingDataDifferTest {
             newNulls = 0,
             pagesToDrop = 2,
             startEvents = listOf(Removed(0, 3)),
-            endEvents = listOf(Removed(2, 3))
+            endEvents = listOf(Removed(2, 3)),
         )
 
     @Test
@@ -1967,7 +1956,7 @@ class AsyncPagingDataDifferTest {
             newNulls = 4,
             pagesToDrop = 2,
             startEvents = listOf(Changed(1, 3, null)),
-            endEvents = listOf(Changed(2, 3, null))
+            endEvents = listOf(Changed(2, 3, null)),
         )
 
     @Test
@@ -1986,7 +1975,7 @@ class AsyncPagingDataDifferTest {
                 listOf(
                     // ['a', 'b', null, null, null]
                     Changed(2, 3, null)
-                )
+                ),
         )
 
     @Test
@@ -2001,15 +1990,15 @@ class AsyncPagingDataDifferTest {
                     // [null, 'e', 'c', 'd', 'a', 'b']
                     Removed(0, 1),
                     // [null, null, null, null, 'a', 'b']
-                    Changed(1, 3, null)
+                    Changed(1, 3, null),
                 ),
             endEvents =
                 listOf(
                     // ['a', 'b', 'c', 'd', 'e', null]
                     Removed(6, 1),
                     // ['a', 'b', null, null, null, null]
-                    Changed(2, 3, null)
-                )
+                    Changed(2, 3, null),
+                ),
         )
 
     @Test
@@ -2024,15 +2013,15 @@ class AsyncPagingDataDifferTest {
                     // ['d', 'a', 'b']
                     Removed(0, 2),
                     // [null, 'a', 'b']
-                    Changed(0, 1, null)
+                    Changed(0, 1, null),
                 ),
             endEvents =
                 listOf(
                     // ['a', 'b', 'c']
                     Removed(3, 2),
                     // ['a', 'b', null]
-                    Changed(2, 1, null)
-                )
+                    Changed(2, 1, null),
+                ),
         )
 
     @Test
@@ -2047,15 +2036,15 @@ class AsyncPagingDataDifferTest {
                     // ['d', 'a', 'b']
                     Removed(0, 5),
                     // [null, 'a', 'b']
-                    Changed(0, 1, null)
+                    Changed(0, 1, null),
                 ),
             endEvents =
                 listOf(
                     // ['a', 'b', 'c']
                     Removed(3, 5),
                     // ['a', 'b', null]
-                    Changed(2, 1, null)
-                )
+                    Changed(2, 1, null),
+                ),
         )
 
     private fun verifyPrependAppendCallback(
@@ -2064,7 +2053,7 @@ class AsyncPagingDataDifferTest {
         newItems: Int,
         newNulls: Int,
         prependEvents: List<ListUpdateEvent>,
-        appendEvents: List<ListUpdateEvent>
+        appendEvents: List<ListUpdateEvent>,
     ) {
         runTest {
             verifyPrepend(initialItems, initialNulls, newItems, newNulls, prependEvents)
@@ -2077,14 +2066,14 @@ class AsyncPagingDataDifferTest {
         initialNulls: Int,
         newItems: Int,
         newNulls: Int,
-        events: List<ListUpdateEvent>
+        events: List<ListUpdateEvent>,
     ) {
         // send event to UI
         differ.presenter.presentPagingDataEvent(
             PagingDataEvent.Prepend(
                 inserted = List(newItems) { it + initialItems },
                 newPlaceholdersBefore = newNulls,
-                oldPlaceholdersBefore = initialNulls
+                oldPlaceholdersBefore = initialNulls,
             )
         )
 
@@ -2097,7 +2086,7 @@ class AsyncPagingDataDifferTest {
         initialNulls: Int,
         newItems: Int,
         newNulls: Int = PagingSource.LoadResult.Page.COUNT_UNDEFINED,
-        events: List<ListUpdateEvent>
+        events: List<ListUpdateEvent>,
     ) {
         // send event to UI
         differ.presenter.presentPagingDataEvent(
@@ -2105,7 +2094,7 @@ class AsyncPagingDataDifferTest {
                 inserted = List(newItems) { it + initialItems },
                 startIndex = initialItems,
                 newPlaceholdersAfter = newNulls,
-                oldPlaceholdersAfter = initialNulls
+                oldPlaceholdersAfter = initialNulls,
             )
         )
 
@@ -2119,7 +2108,7 @@ class AsyncPagingDataDifferTest {
         newNulls: Int,
         pagesToDrop: Int,
         startEvents: List<ListUpdateEvent>,
-        endEvents: List<ListUpdateEvent>
+        endEvents: List<ListUpdateEvent>,
     ) {
         runTest {
             val dropCount = initialPages.reversed().take(pagesToDrop).flatten().size
@@ -2133,7 +2122,7 @@ class AsyncPagingDataDifferTest {
         initialNulls: Int = 0,
         newNulls: Int,
         dropCount: Int,
-        events: List<ListUpdateEvent>
+        events: List<ListUpdateEvent>,
     ) {
         if (initialPages.size < 2) {
             fail("require at least 2 pages")
@@ -2155,7 +2144,7 @@ class AsyncPagingDataDifferTest {
         initialNulls: Int = 0,
         newNulls: Int,
         dropCount: Int,
-        events: List<ListUpdateEvent>
+        events: List<ListUpdateEvent>,
     ) {
         if (initialPages.size < 2) {
             fail("require at least 2 pages")

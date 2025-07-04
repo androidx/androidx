@@ -39,6 +39,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.autofill.R;
@@ -52,6 +54,8 @@ import androidx.autofill.inline.common.ViewStyle;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
 
@@ -254,8 +258,12 @@ public final class InlineSuggestionUi {
             @NonNull Style style) {
         context = getDefaultContextThemeWrapper(context);
         final LayoutInflater inflater = LayoutInflater.from(context);
-        final ViewGroup suggestionView =
-                (ViewGroup) inflater.inflate(R.layout.autofill_inline_suggestion, null);
+        @LayoutRes final int layoutResId =
+                style.isValid() && style.getLayoutTruncationPreference()
+                        == Style.LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE
+                        ? R.layout.autofill_inline_suggestion_balancing
+                        : R.layout.autofill_inline_suggestion;
+        final ViewGroup suggestionView = (ViewGroup) inflater.inflate(layoutResId, null);
 
         final ImageView startIconView =
                 suggestionView.findViewById(R.id.autofill_inline_suggestion_start_icon);
@@ -334,6 +342,8 @@ public final class InlineSuggestionUi {
         private static final String KEY_SINGLE_ICON_CHIP_STYLE = "single_icon_chip_style";
         private static final String KEY_SINGLE_ICON_CHIP_ICON_STYLE = "single_icon_chip_icon_style";
         private static final String KEY_LAYOUT_DIRECTION = "layout_direction";
+        private static final String KEY_LAYOUT_TRUNCATION_PREFERENCE =
+                "layout_truncation_preference";
 
         /**
          * Use {@link InlineSuggestionUi#fromBundle(Bundle)} or {@link Builder#build()} to
@@ -452,6 +462,14 @@ public final class InlineSuggestionUi {
         }
 
         /**
+         * @see Builder#setLayoutTruncationPreference(int)
+         */
+        public @LayoutTruncationPreference int getLayoutTruncationPreference() {
+            return mBundle.getInt(KEY_LAYOUT_TRUNCATION_PREFERENCE,
+                    LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE);
+        }
+
+        /**
          * @see Builder#setChipStyle(ViewStyle)
          */
         public @Nullable ViewStyle getChipStyle() {
@@ -508,6 +526,34 @@ public final class InlineSuggestionUi {
         }
 
         /**
+         * Prioritizes displaying the full title. The title is laid out first from left to right,
+         * and the subtitle is only shown in the remaining space. If the title occupies the
+         * entire width, the subtitle will be completely hidden or truncated.
+         * This is the default value.
+         */
+        public static final int LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE = 0;
+
+        /**
+         * Balances the truncation between the title and subtitle. Both elements may be truncated
+         * to ensure that parts of each remain visible.
+         */
+        public static final int LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE = 1;
+
+        /**
+         * Describes the preferred behavior for truncating content in UI layout.
+         *
+         * @exportToFramework:hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @IntDef({
+                LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE,
+                LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE,
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface LayoutTruncationPreference {
+        }
+
+        /**
          * Builder for the {@link Style}.
          */
         @SuppressWarnings("HiddenSuperclass")
@@ -534,6 +580,20 @@ public final class InlineSuggestionUi {
              */
             public @NonNull Builder setLayoutDirection(int layoutDirection) {
                 mBundle.putInt(KEY_LAYOUT_DIRECTION, layoutDirection);
+                return this;
+            }
+
+            /**
+             * Sets the layout truncation preference.
+             *
+             * <p>The default value is {@link #LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE}.
+             *
+             * @see #LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE
+             * @see #LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE
+             */
+            public @NonNull Builder setLayoutTruncationPreference(
+                    @LayoutTruncationPreference int layoutTruncationPreference) {
+                mBundle.putInt(KEY_LAYOUT_TRUNCATION_PREFERENCE, layoutTruncationPreference);
                 return this;
             }
 

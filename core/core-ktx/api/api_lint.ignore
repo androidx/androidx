@@ -1,8 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.core.database.sqlite.SQLiteDatabaseKt:
-    Acronyms should not be capitalized in class names: was `SQLiteDatabaseKt`, should this be `SqLiteDatabaseKt`?
-
-
 AutoBoxing: androidx.core.database.CursorKt#getDoubleOrNull(android.database.Cursor, int):
     Must avoid boxed primitives (`java.lang.Double`)
 AutoBoxing: androidx.core.database.CursorKt#getFloatOrNull(android.database.Cursor, int):

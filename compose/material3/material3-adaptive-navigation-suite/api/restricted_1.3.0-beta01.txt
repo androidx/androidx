@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.compose.material3.adaptive.navigationsuite {
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive-navigation-suite API is experimental and is likely to" + "change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveNavigationSuiteApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive-navigation-suite API is experimental and is likely tochange or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveNavigationSuiteApi {
   }
 
   public final class NavigationSuiteColors {

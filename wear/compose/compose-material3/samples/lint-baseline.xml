@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `rememberAnimatedTextFontRegistry-QPTIfYA`"
+        errorLine1="        rememberAnimatedTextFontRegistry("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `AnimatedText`"
+        errorLine1="    AnimatedText("
+        errorLine2="    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `rememberAnimatedTextFontRegistry-QPTIfYA`"
+        errorLine1="        rememberAnimatedTextFontRegistry("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `AnimatedText`"
+        errorLine1="        AnimatedText("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `rememberAnimatedTextFontRegistry-QPTIfYA`"
+        errorLine1="        rememberAnimatedTextFontRegistry("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `AnimatedText`"
+        errorLine1="        AnimatedText("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 25): `AnimatedText`"
+        errorLine1="        AnimatedText("
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#now`"
+        errorLine1="    var datePickerDate by remember { mutableStateOf(LocalDate.now()) }"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#ofLocalizedDate`"
+        errorLine1="        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 25): `java.time.format.FormatStyle#MEDIUM`"
+        errorLine1="        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#withLocale`"
+        errorLine1="            .withLocale(LocalConfiguration.current.locales[0])"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `DatePicker-zlYVwes`"
+        errorLine1="        DatePicker("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#format`"
+        errorLine1="                secondaryLabel = { Text(datePickerDate.format(formatter)) },"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#now`"
+        errorLine1="    var datePickerDate by remember { mutableStateOf(LocalDate.now()) }"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    val formatter = DateTimeFormatter.ofPattern(&quot;yyyy MMM d&quot;)"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `DatePicker-zlYVwes`"
+        errorLine1="        DatePicker("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#format`"
+        errorLine1="                secondaryLabel = { Text(datePickerDate.format(formatter)) },"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#now`"
+        errorLine1="    val currentDate = LocalDate.now()"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#now`"
+        errorLine1="    var datePickerDate by remember { mutableStateOf(LocalDate.now()) }"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#ofLocalizedDate`"
+        errorLine1="        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 25): `java.time.format.FormatStyle#MEDIUM`"
+        errorLine1="        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#withLocale`"
+        errorLine1="            .withLocale(LocalConfiguration.current.locales[0])"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `DatePicker-zlYVwes`"
+        errorLine1="        DatePicker("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalDate#format`"
+        errorLine1="                secondaryLabel = { Text(datePickerDate.format(formatter)) },"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/DatePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalTime#now`"
+        errorLine1="    var timePickerTime by remember { mutableStateOf(LocalTime.now()) }"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#ofLocalizedTime`"
+        errorLine1="        DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 26, or core library desugaring (current min is 25): `java.time.format.FormatStyle#SHORT`"
+        errorLine1="        DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#withLocale`"
+        errorLine1="            .withLocale(LocalConfiguration.current.locales[0])"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `TimePicker-0NXZJ5M`"
+        errorLine1="        TimePicker("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalTime#format`"
+        errorLine1="                secondaryLabel = { Text(timePickerTime.format(formatter)) },"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalTime#now`"
+        errorLine1="    var timePickerTime by remember { mutableStateOf(LocalTime.now()) }"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    val formatter = DateTimeFormatter.ofPattern(&quot;HH:mm:ss&quot;)"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `TimePicker-0NXZJ5M`"
+        errorLine1="        TimePicker("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalTime#format`"
+        errorLine1="                secondaryLabel = { Text(timePickerTime.format(formatter)) },"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalTime#now`"
+        errorLine1="    var timePickerTime by remember { mutableStateOf(LocalTime.now()) }"
+        errorLine2="                                                              ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.format.DateTimeFormatter#ofPattern`"
+        errorLine1="    val formatter = DateTimeFormatter.ofPattern(&quot;hh:mm a&quot;)"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 25): `TimePicker-0NXZJ5M`"
+        errorLine1="        TimePicker("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26, or core library desugaring (current min is 25): `java.time.LocalTime#format`"
+        errorLine1="                secondaryLabel = { Text(timePickerTime.format(formatter)) },"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/TimePickerSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="    modifier: Modifier = Modifier.fillMaxWidth(),"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun ButtonWithImageSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {"
+        errorLine2="                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun SimpleFilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun FilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun SimpleFilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun FilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun SimpleOutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun SimpleChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun ChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {"
+        errorLine2="                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Optional Modifier parameter should have a default value of `Modifier`"
+        errorLine1="fun CheckIcon(modifier: Modifier = Modifier.size(ButtonDefaults.IconSize)) {"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/icons/SampleIcons.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="        var selectedButton by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/RadioButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="        var selectedButton by remember { mutableStateOf(0) }"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/RadioButtonSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(4.5f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(initialValue) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(2f) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var value by remember { mutableStateOf(4) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/SliderSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                number.value -= 1"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            text = &quot;${number.value}&quot;,"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                number.value += 1"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/AnimatedTextSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            onClick = { progress.value = if (progress.value == 0f) 1f else 0f },"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ProgressIndicatorSample.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            onClick = { progress.value = if (progress.value == 0f) 1f else 0f },"
+        errorLine2="                                                      ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/samples/ProgressIndicatorSample.kt"/>
+    </issue>
+
+</issues>

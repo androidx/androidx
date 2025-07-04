@@ -32,7 +32,7 @@ class TrackingRemoteWorkerFactory : WorkerFactory() {
             override fun createWorker(
                 appContext: Context,
                 workerClassName: String,
-                workerParameters: WorkerParameters
+                workerParameters: WorkerParameters,
             ): ListenableWorker? = null
         }
     val createdWorkers = MutableStateFlow<Map<UUID, Workers>>(emptyMap())
@@ -40,7 +40,7 @@ class TrackingRemoteWorkerFactory : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ): ListenableWorker {
         return factory
             .createWorkerWithDefaultFallback(appContext, workerClassName, workerParameters)

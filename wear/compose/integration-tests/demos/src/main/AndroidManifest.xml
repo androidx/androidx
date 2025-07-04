@@ -33,6 +33,35 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".DeepLinkActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:exported="true"
+            android:label="DeepLinkActivity">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="app"
+                    android:host="androidx.wear.compose.navigation.demos" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SimpleNavHostActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="SimpleNavHostActivity">
+        </activity>
+
+        <activity
+            android:name=".NavHostWithNamedArgumentActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="NavHostWithNamedArgumentActivity">
+        </activity>
     </application>
 
     <uses-feature android:name="android.hardware.type.watch"/>

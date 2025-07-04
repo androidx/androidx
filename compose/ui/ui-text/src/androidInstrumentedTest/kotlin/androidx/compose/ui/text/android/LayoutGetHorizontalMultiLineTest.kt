@@ -34,7 +34,7 @@ class LayoutGetHorizontalMultiLineTest {
     private val sampleTypeface =
         ResourcesCompat.getFont(
             InstrumentationRegistry.getInstrumentation().targetContext,
-            R.font.sample_font
+            R.font.sample_font,
         )
 
     private val fontSize = 10f
@@ -51,7 +51,7 @@ class LayoutGetHorizontalMultiLineTest {
             charSequence = text,
             textPaint = paint,
             textDirectionHeuristic = textDirectionHeuristic,
-            width = width
+            width = width,
         )
 
     @Test
@@ -83,7 +83,7 @@ class LayoutGetHorizontalMultiLineTest {
                         primaryUpstream = lineEnd,
                         primaryDownstream = lineStart,
                         secondaryUpstream = lineEnd,
-                        secondaryDownstream = lineStart
+                        secondaryDownstream = lineStart,
                     ),
                     // remaining is the repetition
                     Pos(lineEnd),
@@ -124,14 +124,14 @@ class LayoutGetHorizontalMultiLineTest {
                         primaryUpstream = lineEnd,
                         primaryDownstream = lineStart,
                         secondaryUpstream = lineEnd,
-                        secondaryDownstream = lineStart
+                        secondaryDownstream = lineStart,
                     ),
                     // remaining is the repetition
                     Pos(lineEnd),
                     Pos(lineEnd, lineStart, lineEnd, lineStart),
                     Pos(lineEnd),
                     Pos(lineEnd, lineStart, lineEnd, lineStart),
-                    Pos(lineEnd)
+                    Pos(lineEnd),
                 )
             )
     }
@@ -169,7 +169,7 @@ class LayoutGetHorizontalMultiLineTest {
                         primaryDownstream = 0f,
                         // secondary starts writing from 1 char right which is the line end
                         secondaryUpstream = fontSize,
-                        secondaryDownstream = fontSize
+                        secondaryDownstream = fontSize,
                     ),
                     // new line
                     Pos(
@@ -178,7 +178,7 @@ class LayoutGetHorizontalMultiLineTest {
                         primaryDownstream = fontSize,
                         // new line for rtl continues on 0 on new line
                         secondaryUpstream = 0f,
-                        secondaryDownstream = 0f
+                        secondaryDownstream = 0f,
                     ),
                     // second line first char
                     Pos(
@@ -190,7 +190,7 @@ class LayoutGetHorizontalMultiLineTest {
                         secondaryUpstream = 0f,
                         // downstream is where character is rendered, from right to left starting
                         // from the 1 char width
-                        secondaryDownstream = fontSize
+                        secondaryDownstream = fontSize,
                     ),
                     // remaining is the repetition
                     Pos(fontSize, fontSize, 0f, 0f),
@@ -229,26 +229,26 @@ class LayoutGetHorizontalMultiLineTest {
                         primaryDownstream = width,
                         // ltr direction char, *** I did not understand this part ***
                         secondaryUpstream = lineEnd,
-                        secondaryDownstream = lineEnd
+                        secondaryDownstream = lineEnd,
                     ),
                     Pos(
                         primaryUpstream = lineEnd,
                         primaryDownstream = lineEnd,
                         secondaryUpstream = width,
-                        secondaryDownstream = width
+                        secondaryDownstream = width,
                     ),
                     Pos(
                         primaryUpstream = lineEnd,
                         primaryDownstream = width,
                         secondaryUpstream = width,
-                        secondaryDownstream = lineEnd
+                        secondaryDownstream = lineEnd,
                     ),
                     // remaining is the repetition
                     Pos(lineEnd, lineEnd, width, lineStart),
                     Pos(lineEnd, width, width, lineEnd),
                     Pos(lineEnd, lineEnd, width, width),
                     Pos(lineEnd, width, width, lineEnd),
-                    Pos(lineEnd, lineEnd, width, width)
+                    Pos(lineEnd, lineEnd, width, width),
                 )
             )
     }
@@ -263,7 +263,7 @@ class LayoutGetHorizontalMultiLineTest {
                     secondaryUpstream =
                         layout.getSecondaryHorizontal(offset = index, upstream = true),
                     secondaryDownstream =
-                        layout.getSecondaryHorizontal(offset = index, upstream = false)
+                        layout.getSecondaryHorizontal(offset = index, upstream = false),
                 )
             }
             .toTypedArray()
@@ -281,7 +281,7 @@ class LayoutGetHorizontalMultiLineTest {
             primaryUpstream = value,
             primaryDownstream = value,
             secondaryUpstream = value,
-            secondaryDownstream = value
+            secondaryDownstream = value,
         )
     }
 }

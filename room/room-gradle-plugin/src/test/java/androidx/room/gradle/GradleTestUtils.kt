@@ -25,7 +25,7 @@ import org.gradle.testkit.runner.TaskOutcome
 internal fun runGradle(
     vararg args: String,
     projectDir: File,
-    expectFailure: Boolean = false
+    expectFailure: Boolean = false,
 ): BuildResult {
     val runner =
         GradleRunner.create()

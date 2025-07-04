@@ -8,7 +8,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -42,12 +42,12 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }
-    lintOptions {
-        disable "WrongThread"
+    lint {
+        disable.add("WrongThread")
     }
     namespace = "com.example.androidx"
 }

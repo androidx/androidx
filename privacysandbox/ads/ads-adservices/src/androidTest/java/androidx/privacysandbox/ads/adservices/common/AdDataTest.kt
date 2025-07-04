@@ -43,8 +43,8 @@ class AdDataTest {
                 listOf(
                     KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
                     KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
-                )
+                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)),
+                ),
             )
         )
     private val adRenderId: String = "ad-render-id"
@@ -74,11 +74,11 @@ class AdDataTest {
                         listOf(
                             KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
                             KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))
-                        )
+                            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)),
+                        ),
                     )
                 ),
-                "ad-render-id"
+                "ad-render-id",
             )
         Truth.assertThat(adData1 == adData2).isTrue()
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="UnspecifiedRegisterReceiverFlag"
@@ -58,8 +58,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    @Nullable private final LayoutElementProto.Layout mLayout;"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    private final LayoutElementProto.@Nullable Layout mLayout;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -67,8 +67,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    @Nullable private final ResourceProto.Resources mResources;"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    private final ResourceProto.@Nullable Resources mResources;"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -76,8 +76,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="            @Nullable LayoutElementProto.Layout layout,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            LayoutElementProto.@Nullable Layout layout,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -85,8 +85,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="            @Nullable ResourceProto.Resources resources,"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            ResourceProto.@Nullable Resources resources,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -105,15 +105,6 @@
         message="Builder.setAnimationEnabled can only be called from within the same library (androidx.wear.protolayout:protolayout-renderer)"
         errorLine1="                        .setAnimationEnabled(true)"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Builder.setIsViewFullyVisible can only be called from within the same library (androidx.wear.protolayout:protolayout-renderer)"
-        errorLine1="                        .setIsViewFullyVisible(true)"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -157,8 +148,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Layout can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="            @NonNull LayoutElementProto.Layout layout,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            LayoutElementProto.@NonNull Layout layout,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -166,8 +157,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Resources can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="            @NonNull ResourceProto.Resources resources,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            ResourceProto.@NonNull Resources resources,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/renderer/TileRenderer.java"/>
     </issue>
@@ -265,8 +256,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="TimelineEntry can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public TimelineEntry findTimelineEntryForTime(long timeMillis) {"
-        errorLine2="           ~~~~~~~~~~~~~">
+        errorLine1="    public @Nullable TimelineEntry findTimelineEntryForTime(long timeMillis) {"
+        errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/timeline/internal/TilesTimelineCacheInternal.java"/>
     </issue>
@@ -355,8 +346,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="TimelineEntry can only be accessed from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="    public TimelineEntry findClosestTimelineEntry(long timeMillis) {"
-        errorLine2="           ~~~~~~~~~~~~~">
+        errorLine1="    public @Nullable TimelineEntry findClosestTimelineEntry(long timeMillis) {"
+        errorLine2="                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/timeline/internal/TilesTimelineCacheInternal.java"/>
     </issue>

@@ -62,13 +62,13 @@ class TextInputServiceAndroidOnStateUpdateTest {
                 view,
                 mock(),
                 inputMethodManager,
-                inputCommandProcessorExecutor = neverExecutor
+                inputCommandProcessorExecutor = neverExecutor,
             )
         textInputService.startInput(
             value = TextFieldValue(""),
             imeOptions = ImeOptions.Default,
             onEditCommand = {},
-            onImeActionPerformed = {}
+            onImeActionPerformed = {},
         )
         inputConnection =
             textInputService.createInputConnection(EditorInfo()) as RecordingInputConnection
@@ -91,7 +91,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         val newValue = TextFieldValue("a", TextRange.Zero, null)
         textInputService.updateState(
             oldValue = TextFieldValue("a", TextRange.Zero, TextRange.Zero),
-            newValue = newValue
+            newValue = newValue,
         )
 
         verify(inputMethodManager, times(1)).restartInput()
@@ -106,7 +106,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         val newValue = TextFieldValue("a", TextRange(1), null)
         textInputService.updateState(
             oldValue = TextFieldValue("a", TextRange.Zero, null),
-            newValue = newValue
+            newValue = newValue,
         )
 
         verify(inputMethodManager, never()).restartInput()
@@ -158,7 +158,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         val newValue = TextFieldValue("a", TextRange(1), null)
         textInputService.updateState(
             oldValue = TextFieldValue("a", TextRange.Zero, TextRange.Zero),
-            newValue = newValue
+            newValue = newValue,
         )
 
         verify(inputMethodManager, never()).restartInput()

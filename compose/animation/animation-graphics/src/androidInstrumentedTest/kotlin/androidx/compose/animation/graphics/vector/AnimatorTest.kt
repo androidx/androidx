@@ -56,7 +56,7 @@ class AnimatorTest {
             startDelay,
             repeatCount,
             repeatMode,
-            listOf(PropertyValuesHolderFloat(propertyName, keyframes))
+            listOf(PropertyValuesHolderFloat(propertyName, keyframes)),
         )
     }
 
@@ -84,10 +84,10 @@ class AnimatorTest {
                     ),
                     startDelay,
                     repeatCount,
-                    repeatMode
+                    repeatMode,
                 )
             },
-            Ordering.Sequentially
+            Ordering.Sequentially,
         )
     }
 
@@ -97,7 +97,7 @@ class AnimatorTest {
             objectAnimator(
                 "translateX",
                 1000,
-                listOf(Keyframe(0f, 0f, LinearEasing), Keyframe(1f, 1000f, LinearEasing))
+                listOf(Keyframe(0f, 0f, LinearEasing), Keyframe(1f, 1000f, LinearEasing)),
             )
         )
     }
@@ -113,8 +113,8 @@ class AnimatorTest {
                     Keyframe(0.2f, 200f, LinearEasing),
                     Keyframe(0.5f, 500f, LinearEasing),
                     Keyframe(0.7f, 700f, LinearEasing),
-                    Keyframe(1f, 1000f, LinearEasing)
-                )
+                    Keyframe(1f, 1000f, LinearEasing),
+                ),
             )
         )
     }
@@ -126,7 +126,7 @@ class AnimatorTest {
                 "translateX",
                 0f,
                 listOf(200, 300, 200, 300),
-                listOf(200f, 500f, 700f, 1000f)
+                listOf(200f, 500f, 700f, 1000f),
             )
         )
     }
@@ -144,7 +144,7 @@ class AnimatorTest {
                                 listOf(
                                     Keyframe(0f, 0f, LinearEasing),
                                     Keyframe(1f, 500f, LinearEasing),
-                                )
+                                ),
                         ),
                         objectAnimator(
                             propertyName = "translateX",
@@ -154,10 +154,10 @@ class AnimatorTest {
                                 listOf(
                                     Keyframe(0f, 500f, LinearEasing),
                                     Keyframe(1f, 1000f, LinearEasing),
-                                )
-                        )
+                                ),
+                        ),
                     ),
-                ordering = Ordering.Together
+                ordering = Ordering.Together,
             )
         )
     }
@@ -210,16 +210,16 @@ class AnimatorTest {
                             Keyframe(
                                 fraction = 0f,
                                 value = addPathNodes("M 0 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                                interpolator = LinearEasing
+                                interpolator = LinearEasing,
                             ),
                             Keyframe(
                                 fraction = 1f,
                                 value = addPathNodes("M 1000 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                                interpolator = LinearEasing
-                            )
-                        )
+                                interpolator = LinearEasing,
+                            ),
+                        ),
                     )
-                )
+                ),
             )
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
@@ -264,16 +264,16 @@ class AnimatorTest {
                             Keyframe(
                                 fraction = 0f,
                                 value = addPathNodes("M 0 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                                interpolator = LinearEasing
+                                interpolator = LinearEasing,
                             ),
                             Keyframe(
                                 fraction = 1f,
                                 value = addPathNodes("M 1000 0 L 1000 0 L 1000 1000 L 0 1000 Z"),
-                                interpolator = LinearEasing
-                            )
-                        )
+                                interpolator = LinearEasing,
+                            ),
+                        ),
                     )
-                )
+                ),
             )
         assertThat(a.totalDuration).isEqualTo(3000)
         val isAtEnd = mutableStateOf(false)
@@ -322,7 +322,7 @@ class AnimatorTest {
                         Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
                         Keyframe(fraction = 1f, value = 1f, interpolator = LinearEasing),
                     ),
-                startDelay = 100
+                startDelay = 100,
             )
         val isAtEnd = mutableStateOf(false)
         val config = StateVectorConfig()
@@ -337,7 +337,7 @@ class AnimatorTest {
                         } else {
                             tween(durationMillis = 400, easing = LinearEasing)
                         }
-                    }
+                    },
                 ) {
                     if (it) 1f else 0f
                 }
@@ -367,7 +367,7 @@ class AnimatorTest {
                         Keyframe(fraction = 0f, value = 0f, interpolator = LinearEasing),
                         Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
                     ),
-                repeatCount = 3
+                repeatCount = 3,
             )
         assertThat(a.totalDuration).isEqualTo(2000)
         val isAtEnd = mutableStateOf(false)
@@ -380,9 +380,9 @@ class AnimatorTest {
                     transitionSpec = {
                         repeatable(
                             iterations = 4,
-                            tween(durationMillis = 500, easing = LinearEasing)
+                            tween(durationMillis = 500, easing = LinearEasing),
                         )
-                    }
+                    },
                 ) {
                     if (it) 500f else 0f
                 }
@@ -410,7 +410,7 @@ class AnimatorTest {
                         Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
                     ),
                 repeatCount = 3,
-                repeatMode = RepeatMode.Reverse
+                repeatMode = RepeatMode.Reverse,
             )
         assertThat(a.totalDuration).isEqualTo(2000)
         val isAtEnd = mutableStateOf(false)
@@ -424,9 +424,9 @@ class AnimatorTest {
                         repeatable(
                             iterations = 4,
                             animation = tween(durationMillis = 500, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
+                            repeatMode = RepeatMode.Reverse,
                         )
-                    }
+                    },
                 ) {
                     if (it) 500f else 0f
                 }
@@ -454,7 +454,7 @@ class AnimatorTest {
                         Keyframe(fraction = 1f, value = 500f, interpolator = LinearEasing),
                     ),
                 repeatCount = RepeatCountInfinite,
-                repeatMode = RepeatMode.Reverse
+                repeatMode = RepeatMode.Reverse,
             )
         assertThat(a.totalDuration).isEqualTo(Int.MAX_VALUE)
         val isAtEnd = mutableStateOf(false)
@@ -468,9 +468,9 @@ class AnimatorTest {
                         repeatable(
                             iterations = Int.MAX_VALUE,
                             animation = tween(durationMillis = 500, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
+                            repeatMode = RepeatMode.Reverse,
                         )
-                    }
+                    },
                 ) {
                     if (it) 500f else 0f
                 }

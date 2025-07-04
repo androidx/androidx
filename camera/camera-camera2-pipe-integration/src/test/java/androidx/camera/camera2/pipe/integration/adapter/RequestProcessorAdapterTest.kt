@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.os.Looper
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
@@ -32,16 +33,20 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.testing.CameraGraphSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.MoreExecutors
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -52,6 +57,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -85,19 +91,18 @@ class RequestProcessorAdapterTest {
     private val imageCaptureProcessorSurface =
         SessionProcessorSurface(imageCaptureSurface, imageCaptureOutputConfigId)
 
+    private val cameraCaptureCallback: CameraCaptureCallback = mock()
     private val fakeSessionConfig =
         SessionConfig.Builder()
             .apply {
                 addSurface(previewProcessorSurface)
                 addSurface(imageCaptureProcessorSurface)
+                addCameraCaptureCallback(cameraCaptureCallback)
             }
             .build()
 
     private val sessionProcessorSurfaces =
-        listOf(
-            previewProcessorSurface,
-            imageCaptureProcessorSurface,
-        )
+        listOf(previewProcessorSurface, imageCaptureProcessorSurface)
 
     private var cameraGraphSimulator: CameraGraphSimulator? = null
     private var requestProcessorAdapter: RequestProcessorAdapter? = null
@@ -128,22 +133,21 @@ class RequestProcessorAdapterTest {
             buildMap<DeferrableSurface, StreamId> {
                 put(
                     previewProcessorSurface,
-                    checkNotNull(simulator.streams[previewStreamConfig]).id
+                    checkNotNull(simulator.streams[previewStreamConfig]).id,
                 )
                 put(
                     imageCaptureProcessorSurface,
-                    checkNotNull(simulator.streams[imageCaptureStreamConfig]).id
+                    checkNotNull(simulator.streams[imageCaptureStreamConfig]).id,
                 )
             }
         val useCaseGraphConfig =
             UseCaseGraphConfig(simulator, surfaceToStreamMap, CameraStateAdapter())
 
+        val executor = MoreExecutors.directExecutor()
+        val dispatcher = executor.asCoroutineDispatcher()
+        val useCaseThreads = UseCaseThreads(scope, executor, dispatcher)
         requestProcessorAdapter =
-            RequestProcessorAdapter(
-                    useCaseGraphConfig,
-                    sessionProcessorSurfaces,
-                    scope,
-                )
+            RequestProcessorAdapter(useCaseGraphConfig, sessionProcessorSurfaces, useCaseThreads)
                 .apply { sessionConfig = fakeSessionConfig }
         scope.advanceUntilIdle()
     }
@@ -168,6 +172,7 @@ class RequestProcessorAdapterTest {
         val callback: RequestProcessor.Callback = mock()
 
         requestProcessorAdapter!!.setRepeating(requestToSet, callback)
+        shadowOf(Looper.getMainLooper()).idle()
         advanceUntilIdle()
 
         val frame = cameraGraphSimulator!!.simulateNextFrame()
@@ -177,9 +182,11 @@ class RequestProcessorAdapterTest {
             .isEqualTo(checkNotNull(cameraGraphSimulator!!.streams[previewStreamConfig]).id)
 
         verify(callback, times(1)).onCaptureStarted(eq(requestToSet), any(), any())
+        verify(cameraCaptureCallback, times(1)).onCaptureStarted(any())
 
         frame.simulateComplete(emptyMap())
         verify(callback, times(1)).onCaptureCompleted(eq(requestToSet), any())
+        verify(cameraCaptureCallback, times(1)).onCaptureCompleted(any(), any())
         advanceUntilIdle()
     }
 
@@ -196,7 +203,7 @@ class RequestProcessorAdapterTest {
                         .apply {
                             setCaptureRequestOption(
                                 CaptureRequest.CONTROL_AE_MODE,
-                                CONTROL_AE_MODE_OFF
+                                CONTROL_AE_MODE_OFF,
                             )
                         }
                         .build()

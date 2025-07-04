@@ -16,6 +16,7 @@
 
 package androidx.ink.authoring
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
@@ -33,6 +34,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableIntObjectMap
 import androidx.core.graphics.withMatrix
+import androidx.core.view.ViewCompat
 import androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV21
 import androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV29
 import androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV33
@@ -43,7 +45,7 @@ import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.LatencyDataCallback
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
-import androidx.ink.rendering.android.TextureBitmapStore
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
@@ -109,16 +111,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * something that does load and store texture images, it must be set before the first call to
      * [startStroke] or [eagerInit].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-
-    // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
-    // like it on the getter so suppress its complaint.
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalInkCustomBrushApi
-    @get:ExperimentalInkCustomBrushApi
-    @set:ExperimentalInkCustomBrushApi
     public var textureBitmapStore: TextureBitmapStore = TextureBitmapStore { null }
         set(value) {
             check(!isInitialized()) { "Cannot set textureBitmapStore after initialization." }
@@ -132,19 +124,21 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * the first call to [startStroke] or [eagerInit].
      */
     public var rendererFactory: () -> CanvasStrokeRenderer = {
-        @OptIn(ExperimentalInkCustomBrushApi::class) CanvasStrokeRenderer.create(textureBitmapStore)
+        CanvasStrokeRenderer.create(textureBitmapStore)
     }
         set(value) {
             check(!isInitialized()) { "Cannot set rendererFactory after initialization." }
             field = value
+            finishedStrokesView.rendererFactory = value
         }
 
     /**
-     * Denote an area of this [InProgressStrokesView] where no ink should be visible. This is useful
-     * for UI elements that float on top of (in Z order) the drawing surface - without this, a user
-     * would be able to draw in-progress ("wet") strokes on top of those UI elements, but then when
-     * the stroke is finished, it will appear as a dry stroke underneath of the UI element. If this
-     * mask is set to the shape and position of the floating UI element, then the ink will never be
+     * Denote an area of this [InProgressStrokesView] where no ink should be visible. A value of
+     * `null` indicates that strokes will be visible anywhere they are drawn. This is useful for UI
+     * elements that float on top of (in Z order) the drawing surface - without this, a user would
+     * be able to draw in-progress ("wet") strokes on top of those UI elements, but then when the
+     * stroke is finished, it will appear as a dry stroke underneath of the UI element. If this mask
+     * is set to the shape and position of the floating UI element, then the ink will never be
      * rendered in that area, making it appear as if it's being drawn underneath the UI element.
      *
      * This technique is most convincing when the UI element is opaque. Often there are parts of the
@@ -152,6 +146,11 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * result will look a little different between wet and dry strokes for those cases, but it can
      * be a worthwhile tradeoff compared to the alternative of drawing wet strokes on top of that UI
      * element.
+     *
+     * Note that this parameter does not affect the contents of the strokes at all, nor how they
+     * appear when drawn in a separate composable after
+     * [InProgressStrokesFinishedListener.onStrokesFinished] is called - just how the strokes appear
+     * when they are still in progress in this view.
      */
     public var maskPath: Path? = null
         set(value) {
@@ -195,6 +194,10 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
             }
         }
 
+    // Note: public experimental properties are not allowed because the accessors will not appear
+    // experimental to Java clients. There are public accessors for this property below.
+    @ExperimentalLatencyDataApi private var latencyDataCallback: LatencyDataCallback? = null
+
     /**
      * An optional callback for reporting latency of the processing of input events for in-progress
      * strokes. Clients may implement the [LatencyDataCallback] interface and set this field to
@@ -207,16 +210,22 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * allocation may trigger the garbage collector).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-
-    // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
-    // like it on the getter so suppress its complaint.
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @ExperimentalLatencyDataApi
-    @get:ExperimentalLatencyDataApi
-    @set:ExperimentalLatencyDataApi
-    public var latencyDataCallback: LatencyDataCallback? = null
+    public fun getLatencyDataCallback(): LatencyDataCallback? {
+        return latencyDataCallback
+    }
+
+    /**
+     * Sets the callback for reporting latency of the processing of input events for in-progress
+     * strokes.
+     *
+     * See [getLatencyDataCallback]
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @ExperimentalLatencyDataApi
+    public fun setLatencyDataCallback(value: LatencyDataCallback?) {
+        latencyDataCallback = value
+    }
 
     private val renderHelperCallback =
         object : InProgressStrokesRenderHelper.Callback {
@@ -291,7 +300,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
     private var renderHelper: InProgressStrokesRenderHelper? = null
 
-    private val finishedStrokesView = FinishedStrokesView(context, createRenderer = rendererFactory)
+    private val finishedStrokesView =
+        FinishedStrokesView(context, rendererFactory = rendererFactory)
 
     // The simplified version of the API assumes that there is only one stroke in progress with a
     // given pointer ID at a time (i.e. that each stroke in a gesture is finished or cancelled
@@ -340,6 +350,12 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     /** Removes a listener that had previously been added with [addFinishedStrokesListener]. */
     public fun removeFinishedStrokesListener(listener: InProgressStrokesFinishedListener) {
         finishedStrokesListeners.remove(listener)
+    }
+
+    /** Removes all listeners that had previously been added with [addFinishedStrokesListener]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    public fun clearFinishedStrokesListeners() {
+        finishedStrokesListeners.clear()
     }
 
     /**
@@ -401,10 +417,68 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *   is not invertible.
      */
     @JvmOverloads
+    @OptIn(androidx.ink.brush.ExperimentalInkCustomBrushApi::class)
     public fun startStroke(
         event: MotionEvent,
         pointerId: Int,
         brush: Brush,
+        motionEventToWorldTransform: Matrix = IDENTITY_MATRIX,
+        strokeToWorldTransform: Matrix = IDENTITY_MATRIX,
+    ): InProgressStrokeId =
+        startStroke(
+            event,
+            pointerId,
+            brush,
+            { 0f },
+            motionEventToWorldTransform,
+            strokeToWorldTransform,
+        )
+
+    /**
+     * Same as [startStroke], but for a stroke whose [Brush] includes a texture animation driven by
+     * a [ValueAnimator].
+     *
+     * @param textureAnimationProgress An animator for the progress (from 0 to 1) of this stroke's
+     *   texture animation. Values outside [0, 1] are wrapped. Non-finite values are not allowed. A
+     *   null animator is treated as always 0.
+     */
+    @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @ExperimentalInkCustomBrushApi
+    public fun startStroke(
+        event: MotionEvent,
+        pointerId: Int,
+        brush: Brush,
+        textureAnimationProgress: ValueAnimator?,
+        motionEventToWorldTransform: Matrix = IDENTITY_MATRIX,
+        strokeToWorldTransform: Matrix = IDENTITY_MATRIX,
+    ): InProgressStrokeId =
+        startStroke(
+            event,
+            pointerId,
+            brush,
+            { textureAnimationProgress?.animatedValue as Float? ?: 0f },
+            motionEventToWorldTransform,
+            strokeToWorldTransform,
+        )
+
+    /**
+     * Same as [startStroke], but for a stroke whose [Brush] includes a texture animation.
+     *
+     * @param textureAnimationProgress A lambda that, at any given time, will return the current
+     *   progress (from 0 to 1) of this stroke's texture animation. Values outside [0, 1] are
+     *   wrapped. Non-finite values are not allowed. This lambda will be called on the UI thread,
+     *   potentially multiple times per frame, so it should be fast, stateless, and side-effect
+     *   free.
+     */
+    @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @ExperimentalInkCustomBrushApi
+    public fun startStroke(
+        event: MotionEvent,
+        pointerId: Int,
+        brush: Brush,
+        textureAnimationProgress: () -> Float,
         motionEventToWorldTransform: Matrix = IDENTITY_MATRIX,
         strokeToWorldTransform: Matrix = IDENTITY_MATRIX,
     ): InProgressStrokeId =
@@ -415,6 +489,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                 motionEventToWorldTransform,
                 strokeToWorldTransform,
                 brush,
+                textureAnimationProgress,
                 strokeUnitLengthCm =
                     strokeUnitLengthCm(motionEventToWorldTransform, strokeToWorldTransform),
             )
@@ -432,9 +507,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                 }
                 // Compute (stroke -> MotionEvent) = (world -> MotionEvent) * (stroke -> world)
                 it.preConcat(strokeToWorldTransform)
-                // Compute (stroke -> cm) = (MotionEvent -> cm) * (stroke -> MotionEvent)
-                // This assumes that MotionEvent's coordinate space is hardware pixels.
-                // TODO: b/380927473 - Take into account ancestor transforms.
+                // Compute (stroke -> screen) = (MotionEvent -> screen) * (stroke -> MotionEvent)
+                ViewCompat.transformMatrixToGlobal(this, it)
+                // Compute (stroke -> cm) = (screen -> cm) * (stroke -> screen)
                 val metrics = context.resources.displayMetrics
                 it.postScale(CM_PER_INCH / metrics.xdpi, CM_PER_INCH / metrics.ydpi)
             }
@@ -590,6 +665,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * resulting [Stroke] object will be passed to the [InProgressStrokesFinishedListener] instances
      * registered with this [InProgressStrokesView] using [addFinishedStrokesListener].
      *
+     * Does nothing if a stroke with the given [strokeId] is not in progress.
+     *
      * @param event The last [MotionEvent] as part of a stroke's input data, typically one with
      *   [MotionEvent.getActionMasked] of [MotionEvent.ACTION_UP] or
      *   [MotionEvent.ACTION_POINTER_UP], but can also be other actions.
@@ -659,6 +736,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *    start inking when the first pointer goes down, but when the second pointer goes down it
      *    may want to cancel the stroke from the first pointer rather than leave the small ink marks
      *    on the screen.
+     *
+     * Does nothing if a stroke with the given [strokeId] is not in progress.
      *
      * @param strokeId The [InProgressStrokeId] of the stroke to be canceled.
      * @param event The [MotionEvent] that led to this cancellation, if applicable.
@@ -754,10 +833,11 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * In some ways this is similar to [flush], which is intended for production use in certain
      * circumstances.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @VisibleForTesting
-    internal fun sync(timeout: Long, timeoutUnit: TimeUnit) {
+    public fun sync(timeout: Long, timeoutUnit: TimeUnit) {
+        // Nothing to sync if it's not initialized.
         if (isInitialized()) {
-            // Nothing to sync if it's not initialized.
             inProgressStrokesManager.sync(timeout, timeoutUnit)
         }
     }
@@ -781,6 +861,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * either a visual gap where the stroke is not drawn during a frame, or a double draw where the
      * stroke is drawn twice and translucent strokes appear more opaque than they should.
      */
+    @UiThread
     public fun removeFinishedStrokes(strokeIds: Set<InProgressStrokeId>) {
         for (id in strokeIds) finishedStrokes.remove(id)
         finishedStrokesView.removeStrokes(strokeIds)
@@ -805,12 +886,13 @@ private class FinishedStrokesView(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
-    // Lazy, since many clients will call removeFinishedStrokes immediately with the callback and
-    // never need to render strokes within this holding view.
-    createRenderer: () -> CanvasStrokeRenderer,
+    // Since many clients will call removeFinishedStrokes immediately with the callback, this
+    // holding
+    // view may never need to render strokes within this holding view.
+    var rendererFactory: () -> CanvasStrokeRenderer,
 ) : View(context, attrs, defStyleAttr) {
 
-    private val renderer by lazy(createRenderer)
+    private lateinit var renderer: CanvasStrokeRenderer
 
     private val finishedStrokes = mutableMapOf<InProgressStrokeId, FinishedStroke>()
 
@@ -825,6 +907,12 @@ private class FinishedStrokesView(
     }
 
     override fun onDraw(canvas: Canvas) {
+        // Only initialize the renderer if there are strokes to draw, to avoid unnecessary
+        // initialization if the client never adds any strokes.
+        // NOMUTANTS -- only initialize the renderer once to optimize performance.
+        if (!::renderer.isInitialized && finishedStrokes.isNotEmpty()) {
+            renderer = rendererFactory()
+        }
         for ((_, finishedStroke) in finishedStrokes) {
             canvas.withMatrix(finishedStroke.strokeToViewTransform) {
                 renderer.draw(canvas, finishedStroke.stroke, finishedStroke.strokeToViewTransform)

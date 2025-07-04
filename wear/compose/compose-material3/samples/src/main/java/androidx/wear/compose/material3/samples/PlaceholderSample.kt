@@ -20,8 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -39,10 +37,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.PlaceholderDefaults
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.placeholder
 import androidx.wear.compose.material3.placeholderShimmer
@@ -51,28 +48,27 @@ import kotlinx.coroutines.delay
 
 /**
  * This sample applies placeholders directly over the content that is waiting to be loaded. This
- * approach is suitable for situations where the developer is confident that the stadium shaped
- * placeholder will cover the content in the period between when it is loaded and when the
- * placeholder visual effects will have finished.
+ * approach is suitable for situations where the developer has an approximate knowledge of how big
+ * the content is going to be and it doesn't have cached data that can be shown.
  */
 @Sampled
 @Composable
 fun ButtonWithIconAndLabelAndPlaceholders() {
     var labelText by remember { mutableStateOf("") }
     var imageVector: ImageVector? by remember { mutableStateOf(null) }
-    val buttonPlaceholderState = rememberPlaceholderState {
-        labelText.isNotEmpty() && imageVector != null
-    }
+    val buttonPlaceholderState =
+        rememberPlaceholderState(isVisible = labelText.isEmpty() || imageVector == null)
 
-    Button(
+    FilledTonalButton(
         onClick = { /* Do something */ },
         enabled = true,
+        modifier = Modifier.fillMaxWidth().placeholderShimmer(buttonPlaceholderState),
         label = {
             Text(
                 text = labelText,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.fillMaxWidth().placeholder(buttonPlaceholderState)
+                modifier = Modifier.fillMaxWidth().placeholder(buttonPlaceholderState),
             )
         },
         icon = {
@@ -92,12 +88,6 @@ fun ButtonWithIconAndLabelAndPlaceholders() {
                 }
             }
         },
-        colors =
-            PlaceholderDefaults.placeholderButtonColors(
-                originalButtonColors = ButtonDefaults.buttonColors(),
-                placeholderState = buttonPlaceholderState
-            ),
-        modifier = Modifier.fillMaxWidth().placeholderShimmer(buttonPlaceholderState)
     )
     // Simulate content loading completing in stages
     LaunchedEffect(Unit) {
@@ -106,120 +96,58 @@ fun ButtonWithIconAndLabelAndPlaceholders() {
         delay(1000)
         labelText = "A label"
     }
-    if (!buttonPlaceholderState.isHidden) {
-        LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
-    }
 }
 
 /**
- * This sample places a [Button] with placeholder effects applied to it on top of the [Button] that
- * contains the actual content.
- *
- * This approach is needed in situations where the developer wants a higher degree of control over
- * what is shown as a placeholder before the loaded content is revealed. This approach can be used
- * when there would otherwise be content becoming visible as it is loaded and before the
- * placeholders have been wiped-off to reveal the content underneath, e.g. If the content contains
- * left|top aligned Text that would be visible in the part of the content slot not covered by the
- * stadium placeholder shape.
+ * This sample doesn't use placeholders for the label as there is some cached data that can be shown
+ * while loading.
  */
 @Sampled
 @Composable
-fun ButtonWithIconAndLabelsAndOverlaidPlaceholder() {
-    var labelText by remember { mutableStateOf("") }
-    var secondaryLabelText by remember { mutableStateOf("") }
+fun ButtonWithIconAndLabelCachedData() {
+    var labelText by remember { mutableStateOf("Cached Data") }
     var imageVector: ImageVector? by remember { mutableStateOf(null) }
+    val buttonPlaceholderState =
+        rememberPlaceholderState(isVisible = labelText.isEmpty() || imageVector == null)
 
-    val buttonPlaceholderState = rememberPlaceholderState {
-        labelText.isNotEmpty() && secondaryLabelText.isNotEmpty() && imageVector != null
-    }
-    Box {
-        if (buttonPlaceholderState.isHidden || buttonPlaceholderState.isWipingOff) {
-            Button(
-                onClick = { /* Do something */ },
-                enabled = true,
-                label = {
-                    Text(
-                        text = labelText,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                secondaryLabel = {
-                    Text(
-                        text = secondaryLabelText,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                icon = {
-                    if (imageVector != null) {
-                        Icon(
-                            imageVector = imageVector!!,
-                            contentDescription = "Heart",
-                            modifier =
-                                Modifier.wrapContentSize(align = Alignment.Center)
-                                    .size(ButtonDefaults.IconSize)
-                                    .fillMaxSize(),
-                        )
-                    }
-                },
-                colors = ButtonDefaults.filledTonalButtonColors(),
-                modifier = Modifier.fillMaxWidth()
+    // Put placeholderShimmer in the container and placeholder in the elements of the content that
+    // have no cached data.
+    FilledTonalButton(
+        onClick = { /* Do something */ },
+        enabled = true,
+        modifier = Modifier.fillMaxWidth().placeholderShimmer(buttonPlaceholderState),
+        label = {
+            Text(
+                text = labelText,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth(),
             )
-        }
-        if (!buttonPlaceholderState.isHidden) {
-            Button(
-                onClick = { /* Do something */ },
-                enabled = true,
-                label = {
-                    Box(
+        },
+        icon = {
+            Box(
+                modifier =
+                    Modifier.size(ButtonDefaults.IconSize).placeholder(buttonPlaceholderState)
+            ) {
+                if (imageVector != null) {
+                    Icon(
+                        imageVector = imageVector!!,
+                        contentDescription = "Heart",
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .height(16.dp)
-                                .padding(top = 1.dp, bottom = 1.dp)
-                                .placeholder(placeholderState = buttonPlaceholderState)
+                            Modifier.wrapContentSize(align = Alignment.Center)
+                                .size(ButtonDefaults.IconSize)
+                                .fillMaxSize(),
                     )
-                },
-                secondaryLabel = {
-                    Box(
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .height(16.dp)
-                                .padding(top = 1.dp, bottom = 1.dp)
-                                .placeholder(placeholderState = buttonPlaceholderState)
-                    )
-                },
-                icon = {
-                    Box(
-                        modifier =
-                            Modifier.size(ButtonDefaults.IconSize)
-                                .placeholder(buttonPlaceholderState)
-                    )
-                    // Simulate the icon becoming ready after a period of time
-                    LaunchedEffect(Unit) {
-                        delay(2000)
-                        imageVector = Icons.Filled.Favorite
-                    }
-                },
-                colors =
-                    PlaceholderDefaults.placeholderButtonColors(
-                        placeholderState = buttonPlaceholderState
-                    ),
-                modifier = Modifier.fillMaxWidth().placeholderShimmer(buttonPlaceholderState)
-            )
-        }
-    }
-    // Simulate data being loaded after a delay
+                }
+            }
+        },
+    )
+    // Simulate content loading completing in stages
     LaunchedEffect(Unit) {
-        delay(2500)
-        secondaryLabelText = "A secondary label"
-        delay(500)
+        delay(2000)
+        imageVector = Icons.Filled.Favorite
+        delay(1000)
         labelText = "A label"
-    }
-    if (!buttonPlaceholderState.isHidden) {
-        LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
     }
 }
 
@@ -234,24 +162,19 @@ fun ButtonWithIconAndLabelsAndOverlaidPlaceholder() {
 @Composable
 fun TextPlaceholder() {
     var labelText by remember { mutableStateOf("") }
-    val buttonPlaceholderState = rememberPlaceholderState { labelText.isNotEmpty() }
+    val placeholderState = rememberPlaceholderState(isVisible = labelText.isEmpty())
 
     Text(
         text = labelText,
         overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
         modifier =
-            Modifier.width(90.dp)
-                .placeholderShimmer(buttonPlaceholderState)
-                .placeholder(buttonPlaceholderState)
+            Modifier.width(90.dp).placeholderShimmer(placeholderState).placeholder(placeholderState),
     )
 
     // Simulate content loading
     LaunchedEffect(Unit) {
         delay(3000)
         labelText = "A label"
-    }
-    if (!buttonPlaceholderState.isHidden) {
-        LaunchedEffect(buttonPlaceholderState) { buttonPlaceholderState.animatePlaceholder() }
     }
 }

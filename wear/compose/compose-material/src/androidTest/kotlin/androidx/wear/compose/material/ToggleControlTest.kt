@@ -17,7 +17,6 @@
 package androidx.wear.compose.material
 
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +45,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 
@@ -96,7 +96,7 @@ class ToggleControlTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -110,7 +110,7 @@ class ToggleControlTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -134,7 +134,7 @@ class ToggleControlTest {
                 checked = true,
                 enabled = false,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -169,7 +169,7 @@ class ToggleControlTest {
             Checkbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -184,14 +184,14 @@ class ToggleControlTest {
             Checkbox(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_checked_colors_are_customisable() {
         val boxColor = Color.Green
@@ -202,9 +202,9 @@ class ToggleControlTest {
                 colors =
                     CheckboxDefaults.colors(
                         checkedBoxColor = boxColor,
-                        checkedCheckmarkColor = checkmarkColor
+                        checkedCheckmarkColor = checkmarkColor,
                     ),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -213,7 +213,7 @@ class ToggleControlTest {
         checkboxImage.assertContainsColor(checkmarkColor, minPercent = 1f)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun checkbox_unchecked_colors_are_customisable() {
         // NB checkmark is erased during animation, so we don't test uncheckedCheckmarkColor
@@ -222,11 +222,8 @@ class ToggleControlTest {
         rule.setContentWithTheme {
             Checkbox(
                 checked = false,
-                colors =
-                    CheckboxDefaults.colors(
-                        uncheckedBoxColor = boxColor,
-                    ),
-                modifier = Modifier.testTag(TEST_TAG)
+                colors = CheckboxDefaults.colors(uncheckedBoxColor = boxColor),
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -278,7 +275,7 @@ class ToggleControlTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -292,7 +289,7 @@ class ToggleControlTest {
                 checked = true,
                 enabled = true,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -315,7 +312,7 @@ class ToggleControlTest {
                 checked = true,
                 enabled = false,
                 onCheckedChange = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -350,7 +347,7 @@ class ToggleControlTest {
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -365,14 +362,14 @@ class ToggleControlTest {
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsOn().performClick().assertIsOff()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switch_checked_colors_are_customisable() {
         val thumbColor = Color.Green
@@ -383,9 +380,9 @@ class ToggleControlTest {
                 colors =
                     SwitchDefaults.colors(
                         checkedThumbColor = thumbColor,
-                        checkedTrackColor = trackColor
+                        checkedTrackColor = trackColor,
                     ),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -394,7 +391,7 @@ class ToggleControlTest {
         image.assertContainsColor(trackColor, minPercent = 1f)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun switch_unchecked_colors_are_customisable() {
         val thumbColor = Color.Green
@@ -405,9 +402,9 @@ class ToggleControlTest {
                 colors =
                     SwitchDefaults.colors(
                         uncheckedThumbColor = thumbColor,
-                        uncheckedTrackColor = trackColor
+                        uncheckedTrackColor = trackColor,
                     ),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -462,7 +459,7 @@ class ToggleControlTest {
                 selected = true,
                 enabled = true,
                 onClick = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -476,7 +473,7 @@ class ToggleControlTest {
                 selected = true,
                 enabled = true,
                 onClick = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -500,7 +497,7 @@ class ToggleControlTest {
                 selected = true,
                 enabled = false,
                 onClick = {},
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -535,7 +532,7 @@ class ToggleControlTest {
             RadioButton(
                 selected = selected,
                 onClick = { selected = !selected },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -550,14 +547,14 @@ class ToggleControlTest {
             RadioButton(
                 selected = selected,
                 onClick = { selected = !selected },
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsSelected().performClick().assertIsNotSelected()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radiobutton_selected_colors_are_customisable() {
         val ringColor = Color.Green
@@ -568,9 +565,9 @@ class ToggleControlTest {
                 colors =
                     RadioButtonDefaults.colors(
                         selectedRingColor = ringColor,
-                        selectedDotColor = dotColor
+                        selectedDotColor = dotColor,
                     ),
-                modifier = Modifier.testTag(TEST_TAG)
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 
@@ -579,7 +576,7 @@ class ToggleControlTest {
         image.assertContainsColor(dotColor, minPercent = 1f)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun radiobutton_unselected_colors_are_customisable() {
         // NB Dot is erased during animation, so we don't test uncheckedDotColor
@@ -588,11 +585,8 @@ class ToggleControlTest {
         rule.setContentWithTheme {
             RadioButton(
                 selected = false,
-                colors =
-                    RadioButtonDefaults.colors(
-                        unselectedRingColor = ringColor,
-                    ),
-                modifier = Modifier.testTag(TEST_TAG)
+                colors = RadioButtonDefaults.colors(unselectedRingColor = ringColor),
+                modifier = Modifier.testTag(TEST_TAG),
             )
         }
 

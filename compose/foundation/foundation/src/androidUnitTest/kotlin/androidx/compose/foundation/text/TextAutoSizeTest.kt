@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import org.junit.runner.RunWith
@@ -41,7 +40,6 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
-@SmallTest
 class TextAutoSizeTest {
 
     @Test
@@ -260,7 +258,7 @@ class TextAutoSizeTest {
     private class TestAutoSize(private val testParam: Int) : TextAutoSize {
         override fun TextAutoSizeLayoutScope.getFontSize(
             constraints: Constraints,
-            text: AnnotatedString
+            text: AnnotatedString,
         ): TextUnit {
             val textLayoutResult = performLayout(constraints, text, testParam.toSp())
             val didOverflow =
@@ -289,13 +287,13 @@ class TextAutoSizeTest {
         private val textOverflow: TextOverflow = TextOverflow.Clip,
         private val maxLines: Int = Int.MAX_VALUE,
         private val style: TextStyle = TextStyle.Default,
-        densityDelegate: Density = Density(1f, 1f)
+        densityDelegate: Density = Density(1f, 1f),
     ) : SimpleTextAutoSizeLayoutScope(), Density by densityDelegate {
 
         override fun performLayout(
             constraints: Constraints,
             text: AnnotatedString,
-            fontSize: TextUnit
+            fontSize: TextUnit,
         ): TextLayoutResult {
             val size =
                 if (fontSize < this.fontSize) {
@@ -325,7 +323,7 @@ class TextAutoSizeTest {
                         layoutDirection = layoutDirection,
                     ),
                 multiParagraph = mockMultiParagraph,
-                size = IntSize(constraints.maxWidth, constraints.maxHeight)
+                size = IntSize(constraints.maxWidth, constraints.maxHeight),
             )
         }
     }

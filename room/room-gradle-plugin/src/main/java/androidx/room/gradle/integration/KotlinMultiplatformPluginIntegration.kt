@@ -41,7 +41,7 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
         listOf(
             "org.jetbrains.kotlin.jvm",
             "org.jetbrains.kotlin.android",
-            "org.jetbrains.kotlin.multiplatform"
+            "org.jetbrains.kotlin.multiplatform",
         )
 
     // Map of variant name to schema configuration
@@ -66,10 +66,13 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
     private fun configureRoomForKotlin(
         project: Project,
         roomExtension: RoomExtension,
-        target: KotlinTarget
+        target: KotlinTarget,
     ) {
         // Android KSP tasks are configured through the Android Gradle Plugin variant APIs.
         if (target.platformType == KotlinPlatformType.androidJvm) return
+
+        // Android KSP tasks can also be applied via the Android KMP Plugin
+        if (target.platformType == KotlinPlatformType.jvm && target.name == "android") return
 
         forSchemaConfiguration(roomExtension, target) { newConfig ->
             val oldConfig = configuredTargets.put(target.name, newConfig)
@@ -78,7 +81,7 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
                 common.configureSchemaCopyTask(
                     kotlinCompilationTaskNames.taskNames,
                     oldConfig,
-                    newConfig
+                    newConfig,
                 )
             }
         }
@@ -95,7 +98,7 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
                 common.createArgumentProvider(
                     schemaConfiguration = config,
                     roomOptions = roomExtension.toOptions(),
-                    task = apTask
+                    task = apTask,
                 )
             }
             configureKspTasks(project, kotlinCompilationTaskNames, argProviderFactory)
@@ -110,7 +113,7 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
     private fun forSchemaConfiguration(
         roomExtension: RoomExtension,
         target: KotlinTarget,
-        block: (SchemaConfiguration) -> Unit
+        block: (SchemaConfiguration) -> Unit,
     ) {
         var currentPriority = Int.MAX_VALUE
         roomExtension.schemaConfigurations.configureEach { config ->
@@ -132,12 +135,12 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
     private fun configureKspTasks(
         project: Project,
         kotlinCompilationTaskNames: KotlinCompilationTaskNames,
-        argumentProviderFactory: (Task) -> RoomArgumentProvider
+        argumentProviderFactory: (Task) -> RoomArgumentProvider,
     ) =
         project.plugins.withId("com.google.devtools.ksp") {
             fun <T : Task> configureEach(
                 kclass: KClass<T>,
-                block: T.(RoomArgumentProvider) -> Unit
+                block: T.(RoomArgumentProvider) -> Unit,
             ) {
                 project.tasks.withType(kclass.java).configureEach { task ->
                     if (kotlinCompilationTaskNames.isKspTask(task.name)) {

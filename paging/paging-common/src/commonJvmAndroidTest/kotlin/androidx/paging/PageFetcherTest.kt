@@ -48,7 +48,6 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -63,7 +62,7 @@ class PageFetcherTest {
             prefetchDistance = 1,
             enablePlaceholders = true,
             initialLoadSize = 2,
-            maxSize = 3
+            maxSize = 3,
         )
 
     @Test
@@ -137,7 +136,7 @@ class PageFetcherTest {
                     pagingSourceFactory = { TestPagingSource(items = emptyList()) },
                     initialKey = 0,
                     config = config,
-                    remoteMediator = remoteMediator
+                    remoteMediator = remoteMediator,
                 )
             val fetcherState = collectFetcherState(pageFetcher)
 
@@ -242,7 +241,7 @@ class PageFetcherTest {
             assertThat(fetcherState.pageEventLists[1])
                 .containsExactly(
                     localLoadStateUpdate<Int>(refreshLocal = Loading),
-                    createRefresh(30..31)
+                    createRefresh(30..31),
                 )
 
             assertThat(pagingSources[0]).isNotEqualTo(pagingSources[1])
@@ -279,7 +278,7 @@ class PageFetcherTest {
                         presentedItemsBefore = 1,
                         presentedItemsAfter = 0,
                         originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0
+                        originalPageOffsetLast = 0,
                     )
                 )
             // now return LoadResult.Invalid
@@ -289,9 +288,7 @@ class PageFetcherTest {
 
             // make sure the append load never completes
             assertThat(fetcherState.pageEventLists[0].last())
-                .isEqualTo(
-                    localLoadStateUpdate<Int>(appendLocal = Loading),
-                )
+                .isEqualTo(localLoadStateUpdate<Int>(appendLocal = Loading))
 
             // the invalid result handler should exit the append load loop gracefully and allow
             // fetcher to generate a new paging source
@@ -302,7 +299,7 @@ class PageFetcherTest {
             assertThat(fetcherState.newEvents())
                 .containsExactly(
                     localLoadStateUpdate<Int>(refreshLocal = Loading),
-                    createRefresh(51..52)
+                    createRefresh(51..52),
                 )
 
             fetcherState.job.cancel()
@@ -337,7 +334,7 @@ class PageFetcherTest {
                         presentedItemsBefore = 0,
                         presentedItemsAfter = 1,
                         originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0
+                        originalPageOffsetLast = 0,
                     )
                 )
             // now return LoadResult.Invalid
@@ -347,9 +344,7 @@ class PageFetcherTest {
 
             // make sure the prepend load never completes
             assertThat(fetcherState.pageEventLists[0].last())
-                .isEqualTo(
-                    localLoadStateUpdate<Int>(prependLocal = Loading),
-                )
+                .isEqualTo(localLoadStateUpdate<Int>(prependLocal = Loading))
 
             // the invalid result should exit the prepend load loop gracefully and allow fetcher to
             // generate a new paging source
@@ -360,7 +355,7 @@ class PageFetcherTest {
             assertThat(fetcherState.newEvents())
                 .containsExactly(
                     localLoadStateUpdate<Int>(refreshLocal = Loading),
-                    createRefresh(49..50)
+                    createRefresh(49..50),
                 )
 
             fetcherState.job.cancel()
@@ -456,7 +451,7 @@ class PageFetcherTest {
                         }
                     },
                     initialKey = 50,
-                    config = config
+                    config = config,
                 )
 
             val state = collectFetcherState(pageFetcher)
@@ -564,7 +559,7 @@ class PageFetcherTest {
                         presentedItemsBefore = 0,
                         presentedItemsAfter = 0,
                         originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0
+                        originalPageOffsetLast = 0,
                     )
                 )
 
@@ -592,7 +587,7 @@ class PageFetcherTest {
                         enablePlaceholders = true,
                         initialLoadSize = 2,
                         maxSize = 3,
-                        jumpThreshold = 10
+                        jumpThreshold = 10,
                     )
                 val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
                 val fetcherState = collectFetcherState(pageFetcher)
@@ -602,7 +597,7 @@ class PageFetcherTest {
                     .isEqualTo(
                         listOf(
                             localLoadStateUpdate(refreshLocal = Loading),
-                            createRefresh(range = 50..51)
+                            createRefresh(range = 50..51),
                         )
                     )
 
@@ -618,7 +613,7 @@ class PageFetcherTest {
                             presentedItemsBefore = -20,
                             presentedItemsAfter = 0,
                             originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0
+                            originalPageOffsetLast = 0,
                         )
                     )
                 advanceUntilIdle()
@@ -629,7 +624,7 @@ class PageFetcherTest {
                     .isEqualTo(
                         listOf(
                             localLoadStateUpdate(refreshLocal = Loading),
-                            createRefresh(range = 50..51)
+                            createRefresh(range = 50..51),
                         )
                     )
 
@@ -645,7 +640,7 @@ class PageFetcherTest {
                             presentedItemsBefore = 0,
                             presentedItemsAfter = -20,
                             originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0
+                            originalPageOffsetLast = 0,
                         )
                     )
                 advanceUntilIdle()
@@ -656,7 +651,7 @@ class PageFetcherTest {
                     .isEqualTo(
                         listOf(
                             localLoadStateUpdate(refreshLocal = Loading),
-                            createRefresh(range = 50..51)
+                            createRefresh(range = 50..51),
                         )
                     )
 
@@ -674,7 +669,7 @@ class PageFetcherTest {
                     PageFetcher(
                         pagingSourceFactory = suspend { pagingSource },
                         initialKey = 50,
-                        config = config
+                        config = config,
                     )
                 val job =
                     testScope.launch {
@@ -1026,7 +1021,7 @@ class PageFetcherTest {
                                 return null
                             }
                         }
-                    }
+                    },
                 )
 
             val job = launch { pageFetcher.flow.collectLatest { it.flow.collect {} } }
@@ -1190,9 +1185,7 @@ class PageFetcherTest {
             assertEquals(1, fetcherState.pagingDataList.size)
             assertThat(fetcherState.newEvents())
                 .containsExactly(
-                    localLoadStateUpdate<Int>(
-                        refreshLocal = Loading,
-                    ),
+                    localLoadStateUpdate<Int>(refreshLocal = Loading),
                     EMPTY_SOURCE_REFRESH,
                 )
 
@@ -1202,9 +1195,7 @@ class PageFetcherTest {
             assertEquals(2, fetcherState.pagingDataList.size)
             assertThat(fetcherState.newEvents())
                 .containsExactly(
-                    localLoadStateUpdate<Int>(
-                        refreshLocal = Loading,
-                    ),
+                    localLoadStateUpdate<Int>(refreshLocal = Loading),
                     EMPTY_SOURCE_REFRESH,
                 )
             fetcherState.job.cancel()
@@ -1227,7 +1218,7 @@ class PageFetcherTest {
                     pagingSourceFactory = { TestPagingSource(items = emptyList()) },
                     initialKey = 0,
                     config = config,
-                    remoteMediator = remoteMediator
+                    remoteMediator = remoteMediator,
                 )
             val fetcherState = collectFetcherState(pageFetcher)
 
@@ -1235,13 +1226,8 @@ class PageFetcherTest {
 
             assertThat(fetcherState.newEvents())
                 .containsExactly(
-                    remoteLoadStateUpdate<Int>(
-                        refreshLocal = Loading,
-                    ),
-                    remoteLoadStateUpdate<Int>(
-                        refreshLocal = Loading,
-                        refreshRemote = Loading,
-                    ),
+                    remoteLoadStateUpdate<Int>(refreshLocal = Loading),
+                    remoteLoadStateUpdate<Int>(refreshLocal = Loading, refreshRemote = Loading),
                     // all remote States should be updated within single LoadStateUpdate
                     remoteLoadStateUpdate<Int>(
                         refreshLocal = Loading,
@@ -1298,7 +1284,7 @@ class PageFetcherTest {
                     pagingSourceFactory = { TestPagingSource(items = emptyList()) },
                     initialKey = 0,
                     config = config,
-                    remoteMediator = remoteMediator
+                    remoteMediator = remoteMediator,
                 )
             val fetcherState = collectFetcherState(pageFetcher)
 
@@ -1310,10 +1296,7 @@ class PageFetcherTest {
                         refreshLocal = Loading,
                         refreshRemote = NotLoading.Incomplete,
                     ),
-                    remoteLoadStateUpdate<Int>(
-                        refreshLocal = Loading,
-                        refreshRemote = Loading,
-                    ),
+                    remoteLoadStateUpdate<Int>(refreshLocal = Loading, refreshRemote = Loading),
                     remoteLoadStateUpdate<Int>(
                         refreshLocal = Loading,
                         refreshRemote = NotLoading.Incomplete,
@@ -1322,10 +1305,7 @@ class PageFetcherTest {
                     ),
                     remoteRefresh<Int>(
                         source =
-                            loadStates(
-                                append = NotLoading.Complete,
-                                prepend = NotLoading.Complete,
-                            ),
+                            loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
                         mediator =
                             loadStates(
                                 refresh = NotLoading.Incomplete,
@@ -1337,10 +1317,8 @@ class PageFetcherTest {
             fetcherState.job.cancel()
         }
 
-    @Suppress("DEPRECATION")
-    // b/220884819
     @Test
-    fun injectRemoteEvents_remoteLoadAcrossGenerations() = runBlockingTest {
+    fun injectRemoteEvents_remoteLoadAcrossGenerations() = runTest {
         val neverEmitCh = Channel<Int>()
         var generation = 0
 
@@ -1351,7 +1329,7 @@ class PageFetcherTest {
                     object : PagingSource<Int, Int>() {
                         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
                             // Wait for advanceUntilIdle()
-                            delay(1)
+                            delay(2)
 
                             return when (generation) {
                                 1 -> Page(data = listOf(), prevKey = null, nextKey = null)
@@ -1370,7 +1348,7 @@ class PageFetcherTest {
 
                         override suspend fun load(
                             loadType: LoadType,
-                            state: PagingState<Int, Int>
+                            state: PagingState<Int, Int>,
                         ): MediatorResult {
                             // Wait for advanceUntilIdle()
                             delay(1)
@@ -1382,19 +1360,25 @@ class PageFetcherTest {
                             neverEmitCh.receiveCatching()
                             return MediatorResult.Error(Exception("Unexpected"))
                         }
-                    }
+                    },
             )
-        val fetcherState = collectFetcherState(pageFetcher)
+
+        val pagingDataList: ArrayList<PagingData<Int>> = ArrayList()
+        val pageEventLists: ArrayList<ArrayList<PageEvent<Int>>> = ArrayList()
+
+        val job =
+            launch(UnconfinedTestDispatcher(testScheduler)) {
+                pageFetcher.flow.collectIndexed { index, pagingData ->
+                    pagingDataList.add(index, pagingData)
+                    pageEventLists.add(index, ArrayList())
+                    launch { pagingData.flow.toList(pageEventLists[index]) }
+                }
+            }
+
+        val fetcherState = FetcherState(pagingDataList, pageEventLists, job)
 
         assertThat(fetcherState.newEvents())
-            .containsExactly(
-                remoteLoadStateUpdate<Int>(
-                    source =
-                        loadStates(
-                            refresh = Loading,
-                        ),
-                ),
-            )
+            .containsExactly(remoteLoadStateUpdate<Int>(source = loadStates(refresh = Loading)))
 
         // Let initial source refresh complete and kick off remote prepend / append.
         advanceUntilIdle()
@@ -1404,34 +1388,17 @@ class PageFetcherTest {
             .containsExactly(
                 remoteRefresh(
                     pages = listOf(TransformablePage(data = listOf())),
-                    source =
-                        loadStates(
-                            prepend = NotLoading.Complete,
-                            append = NotLoading.Complete,
-                        ),
+                    source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                 ),
                 remoteLoadStateUpdate<Int>(
                     source =
-                        loadStates(
-                            prepend = NotLoading.Complete,
-                            append = NotLoading.Complete,
-                        ),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                        ),
+                        loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                    mediator = loadStates(prepend = Loading),
                 ),
                 remoteLoadStateUpdate<Int>(
                     source =
-                        loadStates(
-                            prepend = NotLoading.Complete,
-                            append = NotLoading.Complete,
-                        ),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        ),
+                        loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
+                    mediator = loadStates(prepend = Loading, append = Loading),
                 ),
             )
 
@@ -1442,11 +1409,11 @@ class PageFetcherTest {
             .containsExactly(
                 remoteLoadStateUpdate<Int>(
                     source = loadStates(refresh = Loading),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        ),
+                    mediator = loadStates(prepend = Loading, append = Loading),
+                ),
+                remoteLoadStateUpdate<Int>(
+                    source = loadStates(refresh = Loading),
+                    mediator = loadStates(refresh = Loading, prepend = Loading, append = Loading),
                 ),
             )
 
@@ -1458,28 +1425,11 @@ class PageFetcherTest {
             .containsExactly(
                 remoteLoadStateUpdate<Int>(
                     source = loadStates(refresh = Loading),
-                    mediator =
-                        loadStates(
-                            refresh = Loading,
-                            prepend = Loading,
-                            append = Loading,
-                        ),
-                ),
-                remoteLoadStateUpdate<Int>(
-                    source = loadStates(refresh = Loading),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        )
+                    mediator = loadStates(prepend = Loading, append = Loading),
                 ),
                 remoteRefresh(
                     pages = listOf(TransformablePage(data = listOf(3, 4, 5))),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        ),
+                    mediator = loadStates(prepend = Loading, append = Loading),
                 ),
             )
 
@@ -1492,11 +1442,11 @@ class PageFetcherTest {
             .containsExactly(
                 remoteLoadStateUpdate<Int>(
                     source = loadStates(refresh = Loading),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        ),
+                    mediator = loadStates(prepend = Loading, append = Loading),
+                ),
+                remoteLoadStateUpdate<Int>(
+                    source = loadStates(refresh = Loading),
+                    mediator = loadStates(refresh = Loading, prepend = Loading, append = Loading),
                 ),
             )
 
@@ -1507,28 +1457,11 @@ class PageFetcherTest {
             .containsExactly(
                 remoteLoadStateUpdate<Int>(
                     source = loadStates(refresh = Loading),
-                    mediator =
-                        loadStates(
-                            refresh = Loading,
-                            prepend = Loading,
-                            append = Loading,
-                        ),
-                ),
-                remoteLoadStateUpdate<Int>(
-                    source = loadStates(refresh = Loading),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        )
+                    mediator = loadStates(prepend = Loading, append = Loading),
                 ),
                 remoteRefresh(
                     pages = listOf(TransformablePage(data = listOf(3, 4, 5))),
-                    mediator =
-                        loadStates(
-                            prepend = Loading,
-                            append = Loading,
-                        ),
+                    mediator = loadStates(prepend = Loading, append = Loading),
                 ),
             )
 
@@ -1551,7 +1484,7 @@ class PageFetcherTest {
                     pagingSourceFactory = { TestPagingSource(items = emptyList()) },
                     initialKey = 0,
                     config = config,
-                    remoteMediator = remoteMediator
+                    remoteMediator = remoteMediator,
                 )
             val fetcherState = collectFetcherState(pageFetcher)
             advanceUntilIdle()
@@ -1589,7 +1522,7 @@ class PageFetcherTest {
                     },
                     initialKey = 0,
                     config = config,
-                    remoteMediator = remoteMediator
+                    remoteMediator = remoteMediator,
                 )
 
             val fetcherState = collectFetcherState(pageFetcher)
@@ -1602,20 +1535,12 @@ class PageFetcherTest {
     companion object {
         internal val EMPTY_SOURCE_REFRESH =
             localRefresh<Int>(
-                source =
-                    loadStates(
-                        prepend = NotLoading.Complete,
-                        append = NotLoading.Complete,
-                    )
+                source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
             )
 
         internal val EMPTY_REMOTE_REFRESH =
             remoteRefresh<Int>(
-                source =
-                    loadStates(
-                        append = NotLoading.Complete,
-                        prepend = NotLoading.Complete,
-                    ),
+                source = loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
                 mediator =
                     loadStates(
                         refresh = NotLoading.Incomplete,
@@ -1629,7 +1554,7 @@ class PageFetcherTest {
 internal class FetcherState<T : Any>(
     val pagingDataList: ArrayList<PagingData<T>>,
     val pageEventLists: ArrayList<ArrayList<PageEvent<T>>>,
-    val job: Job
+    val job: Job,
 ) {
     private var lastPageEventListIndex = -1
     var lastIndex = -1

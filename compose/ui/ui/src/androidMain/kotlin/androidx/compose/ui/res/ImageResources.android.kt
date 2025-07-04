@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalResources
 
 /**
  * Load an ImageBitmap from an image resource.
@@ -50,7 +51,7 @@ fun ImageBitmap.Companion.imageResource(res: Resources, @DrawableRes id: Int): I
  */
 @Composable
 fun ImageBitmap.Companion.imageResource(@DrawableRes id: Int): ImageBitmap {
-    val resources = resources()
+    val resources = LocalResources.current
     val value = remember { TypedValue() }
     resources.getValue(id, value, true)
     val key = value.string!!.toString() // image resource must have resource path.

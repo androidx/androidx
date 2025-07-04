@@ -27,7 +27,6 @@ import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
@@ -39,7 +38,6 @@ import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -682,7 +680,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
 
         val pif2 =
@@ -691,7 +689,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
 
         val pif3 =
@@ -700,7 +698,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
 
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
@@ -762,7 +760,7 @@ class HitPathTrackerTest {
                         if (it.positionChange() != Offset.Zero) it.consume()
                     }
                     pointerEvent.changes
-                }
+                },
             )
         val pif2 =
             PointerInputNodeMock(
@@ -772,7 +770,7 @@ class HitPathTrackerTest {
                         if (it.positionChange() != Offset.Zero) it.consume()
                     }
                     pointerEvent.changes
-                }
+                },
             )
         val pif3 =
             PointerInputNodeMock(
@@ -780,7 +778,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
         val pif4 =
             PointerInputNodeMock(
@@ -788,7 +786,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
         hitPathTracker.addHitPath(PointerId(5), listOf(pif3, pif4))
@@ -871,7 +869,7 @@ class HitPathTrackerTest {
                         if (it.positionChange() != Offset.Zero) it.consume()
                     }
                     pointerEvent.changes
-                }
+                },
             )
 
         val child1 =
@@ -882,7 +880,7 @@ class HitPathTrackerTest {
                         if (it.positionChange() != Offset.Zero) it.consume()
                     }
                     pointerEvent.changes
-                }
+                },
             )
 
         val child2 =
@@ -893,7 +891,7 @@ class HitPathTrackerTest {
                         if (it.positionChange() != Offset.Zero) it.consume()
                     }
                     pointerEvent.changes
-                }
+                },
             )
 
         hitPathTracker.addHitPath(PointerId(3), listOf(parent, child1))
@@ -961,7 +959,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
         val child2 =
             PointerInputNodeMock(
@@ -969,7 +967,7 @@ class HitPathTrackerTest {
                 pointerEventHandler = { pointerEvent, _, _ ->
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
-                }
+                },
             )
 
         hitPathTracker.addHitPath(PointerId(3), listOf(child1, child2))
@@ -2631,7 +2629,7 @@ class HitPathTrackerTest {
     private enum class DispatchingPif {
         Parent,
         Middle,
-        Child
+        Child,
     }
 
     // Tests related to reporting whether or not a pointer input filter was dispatched to.
@@ -2699,7 +2697,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
-                coordinator = layoutCoordinates
+                coordinator = layoutCoordinates,
             )
         pifRef = pif
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
@@ -2753,7 +2751,7 @@ class HitPathTrackerTest {
                         childPif.remove()
                     }
                     pointerEvent.changes
-                }
+                },
             )
         hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
 
@@ -2810,7 +2808,7 @@ class HitPathTrackerTest {
                         parentPif.remove()
                     }
                     pointerEvent.changes
-                }
+                },
             )
         hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
 
@@ -2869,7 +2867,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
-                coordinator = layoutCoordinates
+                coordinator = layoutCoordinates,
             )
         val parent = PointerInputNodeMock(log)
         val child = PointerInputNodeMock(log)
@@ -2949,7 +2947,7 @@ class HitPathTrackerTest {
 
     private fun assertHoverEvent(
         log: List<LogEntry>,
-        vararg filterAndTypes: Pair<PointerInputModifierNode, PointerEventType>
+        vararg filterAndTypes: Pair<PointerInputModifierNode, PointerEventType>,
     ) {
         assertThat(log).hasSize(filterAndTypes.size * 3)
         log.forEachIndexed { index, logEntry ->
@@ -2977,7 +2975,7 @@ class HitPathTrackerTest {
         message: String,
         pass: PointerEventPass,
         pointerEventType: PointerEventType,
-        pointerInputFilter: PointerInputModifierNode
+        pointerInputFilter: PointerInputModifierNode,
     ) {
         assertThat(logEntry).isInstanceOf(OnPointerEventEntry::class.java)
         logEntry as OnPointerEventEntry
@@ -3026,63 +3024,63 @@ class HitPathTrackerTest {
             "LogEntry[0]",
             PointerEventPass.Initial,
             PointerEventType.Move,
-            pif1
+            pif1,
         )
         assertOnPointerEventEntry(
             log[1],
             "LogEntry[1]",
             PointerEventPass.Initial,
             PointerEventType.Exit,
-            pif2
+            pif2,
         )
         assertOnPointerEventEntry(
             log[2],
             "LogEntry[2]",
             PointerEventPass.Main,
             PointerEventType.Exit,
-            pif2
+            pif2,
         )
         assertOnPointerEventEntry(
             log[3],
             "LogEntry[3]",
             PointerEventPass.Initial,
             PointerEventType.Enter,
-            pif3
+            pif3,
         )
         assertOnPointerEventEntry(
             log[4],
             "LogEntry[3]",
             PointerEventPass.Main,
             PointerEventType.Enter,
-            pif3
+            pif3,
         )
         assertOnPointerEventEntry(
             log[5],
             "LogEntry[5]",
             PointerEventPass.Main,
             PointerEventType.Move,
-            pif1
+            pif1,
         )
         assertOnPointerEventEntry(
             log[6],
             "LogEntry[6]",
             PointerEventPass.Final,
             PointerEventType.Move,
-            pif1
+            pif1,
         )
         assertOnPointerEventEntry(
             log[7],
             "LogEntry[7]",
             PointerEventPass.Final,
             PointerEventType.Exit,
-            pif2
+            pif2,
         )
         assertOnPointerEventEntry(
             log[8],
             "LogEntry[8]",
             PointerEventPass.Final,
             PointerEventType.Enter,
-            pif3
+            pif3,
         )
 
         val expectedAfterDispatch =
@@ -3223,7 +3221,7 @@ class HitPathTrackerTest {
                 down(
                     id = 5,
                     historicalData =
-                        listOf(HistoricalChange(uptimeMillis = 1L, position = Offset.Unspecified))
+                        listOf(HistoricalChange(uptimeMillis = 1L, position = Offset.Unspecified)),
                 )
             )
 
@@ -3331,7 +3329,7 @@ internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
 
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
-        relativeToSource: Offset
+        relativeToSource: Offset,
     ): Offset {
         // In normal NodeCoordinator, an invalid Offset will crash the app farther down in the code.
         // (Specifically, in the Offset class when you try to create a new Offset.)
@@ -3341,7 +3339,7 @@ internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
 
     override fun localBoundingBoxOf(
         sourceCoordinates: LayoutCoordinates,
-        clipBounds: Boolean
+        clipBounds: Boolean,
     ): Rect {
         TODO("Not yet implemented")
     }
@@ -3352,7 +3350,7 @@ private class MockOwner(
     val position: IntOffset = IntOffset.Zero,
     override val root: LayoutNode = LayoutNode(),
     override val coroutineContext: CoroutineContext =
-        Executors.newFixedThreadPool(3).asCoroutineDispatcher()
+        Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
 ) : Owner {
     val onRequestMeasureParams = mutableListOf<LayoutNode>()
     val onAttachParams = mutableListOf<LayoutNode>()
@@ -3434,7 +3432,7 @@ private class MockOwner(
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
-        replaceWith = ReplaceWith("fontFamilyResolver")
+        replaceWith = ReplaceWith("fontFamilyResolver"),
     )
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
     override val fontLoader: Font.ResourceLoader
@@ -3468,7 +3466,7 @@ private class MockOwner(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
         forceRequest: Boolean,
-        scheduleMeasureAndLayout: Boolean
+        scheduleMeasureAndLayout: Boolean,
     ) {
         onRequestMeasureParams += layoutNode
         if (affectsLookahead) {
@@ -3480,7 +3478,7 @@ private class MockOwner(
     override fun onRequestRelayout(
         layoutNode: LayoutNode,
         affectsLookahead: Boolean,
-        forceRequest: Boolean
+        forceRequest: Boolean,
     ) {
         if (affectsLookahead) {
             layoutNode.markLookaheadLayoutPending()
@@ -3508,7 +3506,9 @@ private class MockOwner(
     override fun calculateLocalPosition(positionInWindow: Offset): Offset =
         positionInWindow - position.toOffset()
 
-    override fun requestFocus(): Boolean = false
+    override fun requestAutofill(node: LayoutNode) {
+        TODO("Not yet implemented")
+    }
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {}
 
@@ -3520,7 +3520,6 @@ private class MockOwner(
         drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?,
-        forceUseOldLayers: Boolean
     ): OwnedLayer {
         return object : OwnedLayer {
             override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {}
@@ -3545,13 +3544,17 @@ private class MockOwner(
 
             override fun reuseLayer(
                 drawBlock: (Canvas, GraphicsLayer?) -> Unit,
-                invalidateParentLayer: () -> Unit
+                invalidateParentLayer: () -> Unit,
             ) {}
 
             override fun transform(matrix: Matrix) {}
 
             override val underlyingMatrix: Matrix
                 get() = Matrix()
+
+            override var frameRate: Float = 0f
+
+            override var isFrameRateFromParent = false
 
             override fun inverseTransform(matrix: Matrix) {}
 
@@ -3569,11 +3572,8 @@ private class MockOwner(
 
     override fun onInteropViewLayoutChange(view: InteropView) {}
 
-    override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
-        TODO("Not yet implemented")
-    }
-
     override var measureIteration: Long = 0
+
     override val viewConfiguration: ViewConfiguration
         get() = TODO("Not yet implemented")
 

@@ -31,13 +31,13 @@ import com.squareup.kotlinpoet.javapoet.toKClassName
 /** [XMemberContainer] implementation for KSFiles. */
 internal class KspFileMemberContainer(
     internal val env: KspProcessingEnv,
-    internal val ksFile: KSFile
+    internal val ksFile: KSFile,
 ) :
     KspMemberContainer,
     XAnnotated by KspAnnotated.create(
         env = env,
         delegate = ksFile,
-        filter = KspAnnotated.UseSiteFilter.FILE
+        filter = KspAnnotated.UseSiteFilter.FILE,
     ) {
     override val type: KspType?
         get() = null
@@ -48,7 +48,7 @@ internal class KspFileMemberContainer(
     @Deprecated(
         "Use asClassName().toJavaPoet() to be clear the name is for JavaPoet.",
         replaceWith =
-            ReplaceWith("asClassName().toJavaPoet()", "androidx.room.compiler.codegen.toJavaPoet")
+            ReplaceWith("asClassName().toJavaPoet()", "androidx.room.compiler.codegen.toJavaPoet"),
     )
     override val className: ClassName by lazy { xClassName.java }
 

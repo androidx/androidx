@@ -195,7 +195,7 @@ class GlRendererDeviceTest {
         val deferredOnFrameAvailable = CompletableDeferred<Unit>()
         inputTexture.setOnFrameAvailableListener(
             { deferredOnFrameAvailable.complete(Unit) },
-            Handler(Looper.getMainLooper())
+            Handler(Looper.getMainLooper()),
         )
 
         // Draw bitmap to inputSurface.
@@ -213,7 +213,7 @@ class GlRendererDeviceTest {
         val deferredOnFrameAvailable = CompletableDeferred<Unit>()
         overlayTexture.setOnFrameAvailableListener(
             { deferredOnFrameAvailable.complete(Unit) },
-            Handler(Looper.getMainLooper())
+            Handler(Looper.getMainLooper()),
         )
 
         val canvas = lockCanvas(overlaySurface)
@@ -237,7 +237,7 @@ class GlRendererDeviceTest {
         val deferredOnFrameAvailable = CompletableDeferred<Unit>()
         overlayTexture.setOnFrameAvailableListener(
             { deferredOnFrameAvailable.complete(Unit) },
-            Handler(Looper.getMainLooper())
+            Handler(Looper.getMainLooper()),
         )
         val canvas = lockCanvas(overlaySurface)
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)

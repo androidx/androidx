@@ -70,7 +70,7 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                     CornerRadius(radius1),
                     CornerRadius(radius2),
                     CornerRadius(radius3),
-                    CornerRadius(radius4)
+                    CornerRadius(radius4),
                 )
             )
     }
@@ -112,7 +112,7 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                     topLeft = CornerSize(3.dp),
                     topRight = CornerSize(10.0f),
                     bottomRight = CornerSize(50),
-                    bottomLeft = CornerSize(10.0f)
+                    bottomLeft = CornerSize(10.0f),
                 )
             )
     }
@@ -125,14 +125,14 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                         topLeft = CornerSize(4.0f),
                         topRight = CornerSize(3.0f),
                         bottomRight = CornerSize(3.dp),
-                        bottomLeft = CornerSize(50)
+                        bottomLeft = CornerSize(50),
                     )
                     .equals(
                         AbsoluteRoundedCornerShape(
                             topLeft = CornerSize(4.0f),
                             topRight = CornerSize(3.0f),
                             bottomRight = CornerSize(3.dp),
-                            bottomLeft = CornerSize(50)
+                            bottomLeft = CornerSize(50),
                         )
                     )
             )
@@ -147,14 +147,14 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                         topLeft = CornerSize(4.0f),
                         topRight = CornerSize(3.0f),
                         bottomRight = CornerSize(3.dp),
-                        bottomLeft = CornerSize(50)
+                        bottomLeft = CornerSize(50),
                     )
                     .equals(
                         AbsoluteRoundedCornerShape(
                             topLeft = CornerSize(4.0f),
                             topRight = CornerSize(5.0f),
                             bottomRight = CornerSize(3.dp),
-                            bottomLeft = CornerSize(50)
+                            bottomLeft = CornerSize(50),
                         )
                     )
             )
@@ -169,14 +169,14 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                         topLeft = CornerSize(4.0f),
                         topRight = CornerSize(3.0f),
                         bottomRight = CornerSize(3.dp),
-                        bottomLeft = CornerSize(50)
+                        bottomLeft = CornerSize(50),
                     )
                     .equals(
                         AbsoluteCutCornerShape(
                             topLeft = CornerSize(4.0f),
                             topRight = CornerSize(3.0f),
                             bottomRight = CornerSize(3.dp),
-                            bottomLeft = CornerSize(50)
+                            bottomLeft = CornerSize(50),
                         )
                     )
             )
@@ -190,30 +190,30 @@ class AbsoluteRoundedCornerShapeTest(val layoutDirection: LayoutDirection) {
                 topLeft = 5.dp,
                 topRight = 6.dp,
                 bottomRight = 3.dp,
-                bottomLeft = 4.dp
+                bottomLeft = 4.dp,
             ),
             AbsoluteRoundedCornerShape(
                     topLeft = 1.dp,
                     topRight = 2.dp,
                     bottomRight = 3.dp,
-                    bottomLeft = 4.dp
+                    bottomLeft = 4.dp,
                 )
-                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp))
+                .copy(topStart = CornerSize(5.dp), topEnd = CornerSize(6.dp)),
         )
         assertEquals(
             AbsoluteRoundedCornerShape(
                 topLeft = 1.dp,
                 topRight = 2.dp,
                 bottomRight = 5.dp,
-                bottomLeft = 6.dp
+                bottomLeft = 6.dp,
             ),
             AbsoluteRoundedCornerShape(
                     topLeft = 1.dp,
                     topRight = 2.dp,
                     bottomRight = 3.dp,
-                    bottomLeft = 4.dp
+                    bottomLeft = 4.dp,
                 )
-                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp))
+                .copy(bottomEnd = CornerSize(5.dp), bottomStart = CornerSize(6.dp)),
         )
     }
 

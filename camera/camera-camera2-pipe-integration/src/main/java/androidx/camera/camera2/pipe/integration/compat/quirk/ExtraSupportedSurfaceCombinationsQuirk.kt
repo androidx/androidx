@@ -130,7 +130,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
                     SurfaceConfig.ConfigType.PRIV,
-                    SurfaceConfig.ConfigSize.PREVIEW
+                    SurfaceConfig.ConfigSize.PREVIEW,
                 )
             )
             surfaceCombination.addSurfaceConfig(
@@ -167,7 +167,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
                     SurfaceConfig.ConfigType.PRIV,
-                    SurfaceConfig.ConfigSize.PREVIEW
+                    SurfaceConfig.ConfigSize.PREVIEW,
                 )
             )
             surfaceCombination.addSurfaceConfig(

@@ -81,7 +81,7 @@ class BasicTextIntrinsicWidthWrappingRegressionTest(spanStartIndex: Int) {
                     style = style,
                     softWrap = softWrap,
                     maxLines = maxLines,
-                    onTextLayout = { textLayout = it }
+                    onTextLayout = { textLayout = it },
                 )
             }
         }

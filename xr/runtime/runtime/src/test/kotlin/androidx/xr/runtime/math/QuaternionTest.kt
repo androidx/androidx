@@ -294,7 +294,7 @@ class QuaternionTest {
             expected.y,
             expected.z,
             expected.w,
-            tolerance = 1.0e-5f
+            tolerance = 1.0e-5f,
         )
     }
 

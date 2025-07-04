@@ -18,7 +18,6 @@ package androidx.room.util
 import androidx.annotation.RestrictTo
 import androidx.room.ColumnInfo.SQLiteTypeAffinity
 import androidx.sqlite.SQLiteConnection
-import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
@@ -30,18 +29,18 @@ import kotlin.jvm.JvmStatic
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-expect class TableInfo(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public expect class TableInfo(
     name: String,
     columns: Map<String, Column>,
     foreignKeys: Set<ForeignKey>,
-    indices: Set<Index>? = null
+    indices: Set<Index>? = null,
 ) {
     /** The table name. */
-    @JvmField val name: String
-    @JvmField val columns: Map<String, Column>
-    @JvmField val foreignKeys: Set<ForeignKey>
-    @JvmField val indices: Set<Index>?
+    public val name: String
+    public val columns: Map<String, Column>
+    public val foreignKeys: Set<ForeignKey>
+    public val indices: Set<Index>?
 
     override fun equals(other: Any?): Boolean
 
@@ -49,21 +48,21 @@ expect class TableInfo(
 
     override fun toString(): String
 
-    companion object {
+    public companion object {
         /** Identifier for when the info is created from an unknown source. */
-        val CREATED_FROM_UNKNOWN: Int
+        public val CREATED_FROM_UNKNOWN: Int
 
         /**
          * Identifier for when the info is created from an entity definition, such as generated code
          * by the compiler or at runtime from a schema bundle, parsed from a schema JSON file.
          */
-        val CREATED_FROM_ENTITY: Int
+        public val CREATED_FROM_ENTITY: Int
 
         /**
          * Identifier for when the info is created from the database itself, reading information
          * from a PRAGMA, such as table_info.
          */
-        val CREATED_FROM_DATABASE: Int
+        public val CREATED_FROM_DATABASE: Int
 
         /**
          * Reads the table information from the given database.
@@ -72,28 +71,28 @@ expect class TableInfo(
          * @param tableName The table name.
          * @return A TableInfo containing the schema information for the provided table name.
          */
-        @JvmStatic fun read(connection: SQLiteConnection, tableName: String): TableInfo
+        @JvmStatic public fun read(connection: SQLiteConnection, tableName: String): TableInfo
     }
 
     /** Holds the information about a database column. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    class Column(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    public class Column(
         name: String,
         type: String,
         notNull: Boolean,
         primaryKeyPosition: Int,
         defaultValue: String?,
-        createdFrom: Int
+        createdFrom: Int,
     ) {
         /** The column name. */
-        @JvmField val name: String
+        public val name: String
         /** The column type affinity. */
-        @JvmField val type: String
+        public val type: String
         /** Whether or not the column can be NULL. */
-        @JvmField val notNull: Boolean
-        @JvmField val primaryKeyPosition: Int
-        @JvmField val defaultValue: String?
-        @JvmField val createdFrom: Int
+        public val notNull: Boolean
+        public val primaryKeyPosition: Int
+        public val defaultValue: String?
+        public val createdFrom: Int
 
         /**
          * The column type after it is normalized to one of the basic types according to
@@ -101,14 +100,14 @@ expect class TableInfo(
          *
          * This is the value Room uses for equality check.
          */
-        @SQLiteTypeAffinity @JvmField val affinity: Int
+        @SQLiteTypeAffinity public val affinity: Int
 
         /**
          * Returns whether this column is part of the primary key or not.
          *
          * @return True if this column is part of the primary key, false otherwise.
          */
-        val isPrimaryKey: Boolean
+        public val isPrimaryKey: Boolean
 
         override fun equals(other: Any?): Boolean
 
@@ -118,19 +117,19 @@ expect class TableInfo(
     }
 
     /** Holds the information about an SQLite foreign key */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    class ForeignKey(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    public class ForeignKey(
         referenceTable: String,
         onDelete: String,
         onUpdate: String,
         columnNames: List<String>,
-        referenceColumnNames: List<String>
+        referenceColumnNames: List<String>,
     ) {
-        @JvmField val referenceTable: String
-        @JvmField val onDelete: String
-        @JvmField val onUpdate: String
-        @JvmField val columnNames: List<String>
-        @JvmField val referenceColumnNames: List<String>
+        public val referenceTable: String
+        public val onDelete: String
+        public val onUpdate: String
+        public val columnNames: List<String>
+        public val referenceColumnNames: List<String>
 
         override fun equals(other: Any?): Boolean
 
@@ -140,24 +139,24 @@ expect class TableInfo(
     }
 
     /** Holds the information about an SQLite index */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    class Index(name: String, unique: Boolean, columns: List<String>, orders: List<String>) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+    public class Index(name: String, unique: Boolean, columns: List<String>, orders: List<String>) {
 
-        @JvmField val name: String
-        @JvmField val unique: Boolean
-        @JvmField val columns: List<String>
-        @JvmField var orders: List<String>
+        public val name: String
+        public val unique: Boolean
+        public val columns: List<String>
+        public var orders: List<String>
 
-        companion object {
+        public companion object {
             // should match the value in Index.kt
-            val DEFAULT_PREFIX: String
+            public val DEFAULT_PREFIX: String
         }
 
         override fun equals(other: Any?): Boolean
 
         override fun hashCode(): Int
 
-        override fun toString(): String
+        public override fun toString(): String
     }
 }
 
@@ -206,6 +205,8 @@ internal fun TableInfo.Column.equalsCommon(other: Any?): Boolean {
     if (notNull != other.notNull) return false
     // Only validate default value if it was defined in an entity, i.e. if the info
     // from the compiler itself has it. b/136019383
+    val defaultValue = this.defaultValue
+    val otherDefaultValue = other.defaultValue
     if (
         createdFrom == TableInfo.CREATED_FROM_ENTITY &&
             other.createdFrom == TableInfo.CREATED_FROM_DATABASE &&
@@ -216,15 +217,15 @@ internal fun TableInfo.Column.equalsCommon(other: Any?): Boolean {
     } else if (
         createdFrom == TableInfo.CREATED_FROM_DATABASE &&
             other.createdFrom == TableInfo.CREATED_FROM_ENTITY &&
-            other.defaultValue != null &&
-            !defaultValueEqualsCommon(other.defaultValue, defaultValue)
+            otherDefaultValue != null &&
+            !defaultValueEqualsCommon(otherDefaultValue, defaultValue)
     ) {
         return false
     } else if (
         createdFrom != TableInfo.CREATED_FROM_UNKNOWN &&
             createdFrom == other.createdFrom &&
-            (if (defaultValue != null) !defaultValueEqualsCommon(defaultValue, other.defaultValue)
-            else other.defaultValue != null)
+            (if (defaultValue != null) !defaultValueEqualsCommon(defaultValue, otherDefaultValue)
+            else otherDefaultValue != null)
     ) {
         return false
     }

@@ -37,7 +37,7 @@ class ImageBitmapTest {
                 height = 20,
                 config = ImageBitmapConfig.Argb8888,
                 hasAlpha = false,
-                colorSpace = cs
+                colorSpace = cs,
             )
 
         assertEquals(10, image.width)

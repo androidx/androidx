@@ -122,7 +122,7 @@ class NightModeUiModeConfigChangesTestCase(private val setMode: NightSetMode) {
         // Assert that the Activity resources configuration was updated
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_YES,
-            scenario.withActivity { this }
+            scenario.withActivity { this },
         )
 
         // Set local night mode back to NO
@@ -131,7 +131,7 @@ class NightModeUiModeConfigChangesTestCase(private val setMode: NightSetMode) {
         // Assert that the Activity resources configuration was updated
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_NO,
-            scenario.withActivity { this }
+            scenario.withActivity { this },
         )
     }
 

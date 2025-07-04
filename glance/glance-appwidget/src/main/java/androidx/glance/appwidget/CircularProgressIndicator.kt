@@ -30,7 +30,7 @@ import androidx.glance.unit.ColorProvider
  * @param color The color of the progress indicator.
  */
 @Composable
-fun CircularProgressIndicator(
+public fun CircularProgressIndicator(
     modifier: GlanceModifier = GlanceModifier,
     color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider,
 ) {
@@ -39,14 +39,14 @@ fun CircularProgressIndicator(
         update = {
             this.set(modifier) { this.modifier = it }
             this.set(color) { this.color = it }
-        }
+        },
     )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class EmittableCircularProgressIndicator : Emittable {
+public class EmittableCircularProgressIndicator : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
+    public var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
 
     override fun copy(): Emittable =
         EmittableCircularProgressIndicator().also {

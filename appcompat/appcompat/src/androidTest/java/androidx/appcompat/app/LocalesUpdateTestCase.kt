@@ -82,7 +82,7 @@ class LocalesUpdateTestCase() {
         // Now assert that the context still has applied locales.
         assertEquals(
             expectedLocales,
-            LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
+            LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration),
         )
     }
 

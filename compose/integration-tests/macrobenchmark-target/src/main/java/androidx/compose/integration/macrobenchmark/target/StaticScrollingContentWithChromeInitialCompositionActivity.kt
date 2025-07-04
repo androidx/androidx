@@ -129,17 +129,17 @@ private fun TopBar(modifier: Modifier = Modifier) {
                 Text(
                     "Initial Composition Macrobench",
                     style = MaterialTheme.typography.subtitle1,
-                    maxLines = 1
+                    maxLines = 1,
                 )
                 Text(
                     "Static Scrolling Content w/ Chrome",
                     style = MaterialTheme.typography.caption,
-                    maxLines = 1
+                    maxLines = 1,
                 )
             }
         },
         navigationIcon = { Button(onClick = {}) { Icon(Icons.Default.Close, "Dismiss") } },
-        actions = { Button(onClick = {}) { Icon(Icons.Default.MoreVert, "Actions") } }
+        actions = { Button(onClick = {}) { Icon(Icons.Default.MoreVert, "Actions") } },
     )
 }
 
@@ -149,12 +149,12 @@ private fun BottomBar(modifier: Modifier = Modifier) {
         BottomNavigationItem(
             selected = true,
             onClick = {},
-            icon = { Icon(Icons.Default.Home, "Home") }
+            icon = { Icon(Icons.Default.Home, "Home") },
         )
         BottomNavigationItem(
             selected = false,
             onClick = {},
-            icon = { Icon(Icons.Default.Add, "Add") }
+            icon = { Icon(Icons.Default.Add, "Add") },
         )
     }
 }
@@ -169,32 +169,32 @@ private fun ScrollingContent(modifier: Modifier = Modifier) {
                 Modifier.padding(horizontal = 16.dp)
                     .aspectRatio(16f / 9f)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp)),
         )
 
         repeat(5) { iteration ->
             CardGroup(
                 title = "Group ${4 * iteration}",
                 groupIcon = Icons.Filled.Person,
-                groupColor = Color(0xFF1967D2)
+                groupColor = Color(0xFF1967D2),
             )
 
             CardGroup(
                 title = "Group ${4 * iteration + 1}",
                 groupIcon = Icons.Filled.Favorite,
-                groupColor = Color(0xFFC5221F)
+                groupColor = Color(0xFFC5221F),
             )
 
             CardGroup(
                 title = "Group ${4 * iteration + 2}",
                 groupIcon = Icons.Filled.Star,
-                groupColor = Color(0xFFF29900)
+                groupColor = Color(0xFFF29900),
             )
 
             CardGroup(
                 title = "Group ${4 * iteration + 3}",
                 groupIcon = Icons.Filled.Place,
-                groupColor = Color(0xFF188038)
+                groupColor = Color(0xFF188038),
             )
         }
     }
@@ -206,7 +206,7 @@ private fun CardGroup(
     groupIcon: ImageVector,
     groupColor: Color,
     modifier: Modifier = Modifier,
-    count: Int = 10
+    count: Int = 10,
 ) {
     Column(modifier = modifier) {
         Text(title, style = MaterialTheme.typography.h6, modifier = Modifier.padding(16.dp))
@@ -221,7 +221,7 @@ private fun CardGroup(
                     modifier =
                         Modifier.padding(horizontal = 4.dp)
                             .size(64.dp)
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(4.dp)),
                 )
             }
         }

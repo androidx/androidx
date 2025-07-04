@@ -116,7 +116,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  */
 @Deprecated(
     message = "AsyncPagedListDiffer is deprecated and has been replaced by AsyncPagingDataDiffer",
-    replaceWith = ReplaceWith("AsyncPagingDataDiffer<T>", "androidx.paging.AsyncPagingDataDiffer")
+    replaceWith = ReplaceWith("AsyncPagingDataDiffer<T>", "androidx.paging.AsyncPagingDataDiffer"),
 )
 open class AsyncPagedListDiffer<T : Any> {
     /**
@@ -208,7 +208,7 @@ open class AsyncPagedListDiffer<T : Any> {
          */
         fun onCurrentListChanged(
             @Suppress("DEPRECATION") previousList: PagedList<T>?,
-            @Suppress("DEPRECATION") currentList: PagedList<T>?
+            @Suppress("DEPRECATION") currentList: PagedList<T>?,
         )
     }
 
@@ -250,8 +250,8 @@ open class AsyncPagedListDiffer<T : Any> {
                 listUpdateCallback
             )""",
                 "androidx.paging.AsyncPagingDataDiffer",
-                "kotlinx.coroutines.Dispatchers"
-            )
+                "kotlinx.coroutines.Dispatchers",
+            ),
     )
     constructor(adapter: RecyclerView.Adapter<*>, diffCallback: DiffUtil.ItemCallback<T>) {
         updateCallback = AdapterListUpdateCallback(adapter)
@@ -269,12 +269,12 @@ open class AsyncPagedListDiffer<T : Any> {
                 listUpdateCallback
             )""",
                 "androidx.paging.AsyncPagingDataDiffer",
-                "kotlinx.coroutines.Dispatchers"
-            )
+                "kotlinx.coroutines.Dispatchers",
+            ),
     )
     constructor(
         listUpdateCallback: ListUpdateCallback,
-        @Suppress("ListenerLast") config: AsyncDifferConfig<T>
+        @Suppress("ListenerLast") config: AsyncDifferConfig<T>,
     ) {
         updateCallback = listUpdateCallback
         this.config = config
@@ -334,7 +334,7 @@ open class AsyncPagedListDiffer<T : Any> {
      */
     open fun submitList(
         @Suppress("DEPRECATION") pagedList: PagedList<T>?,
-        commitCallback: Runnable?
+        commitCallback: Runnable?,
     ) {
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration
@@ -427,7 +427,7 @@ open class AsyncPagedListDiffer<T : Any> {
                         diffResult = result,
                         recordingCallback = recordingCallback,
                         lastAccessIndex = oldSnapshot.lastLoad(),
-                        commitCallback = commitCallback
+                        commitCallback = commitCallback,
                     )
                 }
             }
@@ -441,7 +441,7 @@ open class AsyncPagedListDiffer<T : Any> {
         diffResult: PlaceholderPaddedDiffResult,
         recordingCallback: RecordingCallback,
         lastAccessIndex: Int,
-        commitCallback: Runnable?
+        commitCallback: Runnable?,
     ) {
         val previousSnapshot = snapshot
         if (previousSnapshot == null || pagedList != null) {
@@ -458,7 +458,7 @@ open class AsyncPagedListDiffer<T : Any> {
             .dispatchDiff(
                 callback = updateCallback,
                 newList = diffSnapshot.getPlaceholderPaddedList(),
-                diffResult = diffResult
+                diffResult = diffResult,
             )
 
         // dispatch updates to UI from newSnapshot -> currentList
@@ -481,7 +481,7 @@ open class AsyncPagedListDiffer<T : Any> {
                     .transformAnchorIndex(
                         diffResult,
                         diffSnapshot.getPlaceholderPaddedList(),
-                        lastAccessIndex
+                        lastAccessIndex,
                     )
 
             // Trigger load in new list at this position, clamped to list bounds.
@@ -497,7 +497,7 @@ open class AsyncPagedListDiffer<T : Any> {
     private fun onCurrentListChanged(
         @Suppress("DEPRECATION") previousList: PagedList<T>?,
         @Suppress("DEPRECATION") currentList: PagedList<T>?,
-        commitCallback: Runnable?
+        commitCallback: Runnable?,
     ) {
         listeners.forEach { it.onCurrentListChanged(previousList, currentList) }
         commitCallback?.run()

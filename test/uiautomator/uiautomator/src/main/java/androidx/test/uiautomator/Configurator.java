@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator;
 
+import static android.view.Display.INVALID_DISPLAY;
+
 import android.view.MotionEvent;
 
 import org.jspecify.annotations.NonNull;
@@ -47,6 +49,9 @@ public final class Configurator {
     // Default flags to use when calling Instrumentation.getUiAutomation(int)
     static final int DEFAULT_UIAUTOMATION_FLAGS = 0;
     private int mUiAutomationFlags = DEFAULT_UIAUTOMATION_FLAGS;
+
+    // Default display ID when obtaining a BySelector instance
+    private int mDefaultDisplayId = INVALID_DISPLAY;
 
     // Singleton instance.
     private static Configurator sConfigurator;
@@ -241,5 +246,40 @@ public final class Configurator {
      */
     public int getUiAutomationFlags() {
         return mUiAutomationFlags;
+    }
+
+    /**
+     * Sets the default display ID to use when obtaining a
+     * {@link androidx.test.uiautomator.BySelector} instance. To avoid interfering with other tests,
+     * the caller must call {@link #resetDefaultDisplayId} when the test is finished.
+     *
+     * @param defaultDisplayId the default display ID to use
+     * @return self
+     */
+    public @NonNull Configurator setDefaultDisplayId(int defaultDisplayId) {
+        mDefaultDisplayId = defaultDisplayId;
+        return this;
+    }
+
+    /**
+     * Resets the default display ID to use when obtaining a
+     * {@link androidx.test.uiautomator.BySelector} instance.
+     *
+     * @return self
+     */
+    public @NonNull Configurator resetDefaultDisplayId() {
+        mDefaultDisplayId = INVALID_DISPLAY;
+        return this;
+    }
+
+    /**
+     * Gets the default display ID to use when obtaining a
+     * {@link androidx.test.uiautomator.BySelector} instance, or returns
+     * {@link android.view.Display#INVALID_DISPLAY} if the default display ID is not set yet.
+     *
+     * @return the default display ID
+     */
+    public int getDefaultDisplayId() {
+        return mDefaultDisplayId;
     }
 }

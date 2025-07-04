@@ -44,7 +44,7 @@ class SingleItemQueryResultAdapter(private val rowAdapter: RowAdapter) :
                         "error(%S)",
                         "The query result was empty, but expected a single row to " +
                             "return a NON-NULL object of " +
-                            "type <${type.asTypeName().toString(language)}>."
+                            "type '${type.asTypeName().toString(language)}'.",
                     )
                 } else {
                     addStatement("%L = %L", outVarName, rowAdapter.out.defaultValue())

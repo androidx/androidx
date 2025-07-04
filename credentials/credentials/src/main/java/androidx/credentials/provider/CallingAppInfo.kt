@@ -75,12 +75,12 @@ private constructor(
     constructor(
         packageName: String,
         signingInfo: SigningInfo,
-        origin: String? = null
+        origin: String? = null,
     ) : this(
         packageName = packageName,
         signingInfo = signingInfo,
         origin = origin,
-        signingInfoCompat = SigningInfoCompat.fromSigningInfo(signingInfo)
+        signingInfoCompat = SigningInfoCompat.fromSigningInfo(signingInfo),
     )
 
     /**
@@ -102,7 +102,7 @@ private constructor(
     constructor(
         packageName: String,
         signatures: List<Signature>,
-        origin: String? = null
+        origin: String? = null,
     ) : this(packageName, origin, SigningInfoCompat.fromSignatures(signatures), null)
 
     companion object {
@@ -158,12 +158,13 @@ private constructor(
             } else {
                 this.putParcelableArray(
                     EXTRA_CREDENTIAL_REQUEST_SIGNATURES,
-                    info.signingInfoCompat.signingCertificateHistory.toTypedArray()
+                    info.signingInfoCompat.signingCertificateHistory.toTypedArray(),
                 )
             }
         }
 
-        internal fun extractCallingAppInfo(bundle: Bundle): CallingAppInfo? {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun extractCallingAppInfo(bundle: Bundle): CallingAppInfo? {
             val origin = bundle.getString(EXTRA_CREDENTIAL_REQUEST_ORIGIN)
             val packageName = bundle.getString(EXTRA_CREDENTIAL_REQUEST_PACKAGE_NAME) ?: return null
             return if (Build.VERSION.SDK_INT >= 28) {

@@ -34,7 +34,7 @@ import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 
 internal fun RemoteViews.translateEmittableSwitch(
     translationContext: TranslationContext,
-    element: EmittableSwitch
+    element: EmittableSwitch,
 ) {
 
     val layoutType =

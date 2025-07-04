@@ -71,11 +71,7 @@ fun SwipeToDismissBoxWithState(quit: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Button(
-                            onClick = { ++counter },
-                        ) {
-                            Text(text = "" + counter)
-                        }
+                        Button(onClick = { ++counter }) { Text(text = "" + counter) }
                         Button(onClick = quit) { Text(text = "Quit") }
                     }
                 }
@@ -95,6 +91,6 @@ fun SwipeToDismissBoxWithState(quit: () -> Unit) {
                         Button(onClick = quit) { Text(text = "Quit") }
                     }
                 }
-        }
+        },
     )
 }

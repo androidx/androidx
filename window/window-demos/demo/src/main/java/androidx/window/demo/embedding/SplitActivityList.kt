@@ -18,6 +18,7 @@ package androidx.window.demo.embedding
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -37,10 +38,14 @@ private lateinit var viewBinding: ActivitySplitActivityListLayoutBinding
 open class SplitActivityList : EdgeToEdgeActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val color = Color.parseColor("#e0f7fa")
         viewBinding = ActivitySplitActivityListLayoutBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
-        viewBinding.root.setBackgroundColor(Color.parseColor("#e0f7fa"))
+        viewBinding.root.setBackgroundColor(color)
         val splitController = SplitController.getInstance(this)
+
+        window.setBackgroundDrawable(ColorDrawable(color))
 
         lifecycleScope.launch {
             // The block passed to repeatOnLifecycle is executed when the lifecycle

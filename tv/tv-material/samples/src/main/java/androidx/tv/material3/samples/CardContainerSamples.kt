@@ -42,7 +42,7 @@ fun StandardCardContainerSample() {
                 Box(modifier = Modifier.fillMaxWidth().height(80.dp).background(Color.Blue))
             }
         },
-        title = { Text("Standard Card") }
+        title = { Text("Standard Card") },
     )
 }
 

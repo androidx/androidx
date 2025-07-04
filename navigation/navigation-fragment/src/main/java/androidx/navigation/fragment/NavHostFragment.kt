@@ -223,7 +223,7 @@ public open class NavHostFragment : Fragment(), NavHost {
     public override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val containerView = FragmentContainerView(inflater.context)
         // When added via XML, this has no effect (since this FragmentContainerView is given the ID
@@ -269,7 +269,7 @@ public open class NavHostFragment : Fragment(), NavHost {
     public override fun onInflate(
         context: Context,
         attrs: AttributeSet,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ) {
         super.onInflate(context, attrs, savedInstanceState)
         context.obtainStyledAttributes(attrs, androidx.navigation.R.styleable.NavHost).use { navHost
@@ -371,7 +371,7 @@ public open class NavHostFragment : Fragment(), NavHost {
         @JvmStatic
         public fun create(
             @NavigationRes graphResId: Int,
-            startDestinationArgs: Bundle? = null
+            startDestinationArgs: Bundle? = null,
         ): NavHostFragment {
             var b: Bundle? = null
             if (graphResId != 0) {

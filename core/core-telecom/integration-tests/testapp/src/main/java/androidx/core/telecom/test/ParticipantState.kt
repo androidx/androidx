@@ -25,13 +25,13 @@ data class ParticipantState(
     val name: String,
     val isActive: Boolean,
     val isHandRaised: Boolean,
-    val isSelf: Boolean
+    val isSelf: Boolean,
 )
 
 /** Control callback handler for adding/removing new participants in the Call via UI */
 data class ParticipantControl(
     val onParticipantAdded: () -> Unit,
-    val onParticipantRemoved: () -> Unit
+    val onParticipantRemoved: () -> Unit,
 )
 
 @OptIn(ExperimentalAppActions::class)

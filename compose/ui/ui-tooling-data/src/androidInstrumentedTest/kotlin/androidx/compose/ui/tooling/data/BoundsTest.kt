@@ -36,6 +36,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.Ignore
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,7 +78,7 @@ class BoundsTest : ToolingTest() {
                 arrayOf(
                         0.dp.roundToPx(), // Root
                         10.dp.roundToPx(), // Column
-                        15.dp.roundToPx() // Text
+                        15.dp.roundToPx(), // Text
                     )
                     .forEachIndexed { index, value ->
                         Assert.assertTrue(boundingBoxes[index] in value - 1..value + 1)
@@ -86,6 +87,7 @@ class BoundsTest : ToolingTest() {
         }
     }
 
+    @Ignore // b/422764248
     @Test
     fun testBoundsWithoutParsingParameters() {
         val lefts = mutableMapOf<String, Dp>()
@@ -152,6 +154,7 @@ class BoundsTest : ToolingTest() {
         }
     }
 
+    @Ignore // b/422764248
     @Test
     @LargeTest
     fun testDisposeWithComposeTables() {

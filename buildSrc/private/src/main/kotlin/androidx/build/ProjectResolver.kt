@@ -34,7 +34,7 @@ fun Project.resolveProject(projectSpecification: String): Project {
             }
         throw UnknownProjectException(
             "Project $projectSpecification not found$subsetDescription",
-            e
+            e,
         )
     }
 }

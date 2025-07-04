@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -40,6 +39,9 @@ android {
         }
     }
     namespace = "androidx.datastore.core"
+    buildTypes.configureEach {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }
 
 androidXMultiplatform {
@@ -49,7 +51,7 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
-    android()
+    androidTarget()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -66,16 +68,16 @@ androidXMultiplatform {
             }
         }
 
-        commonJvmMain {
+        jvmAndroidMain {
             dependsOn(commonMain)
         }
 
         androidMain {
-            dependsOn(commonJvmMain)
+            dependsOn(jvmAndroidMain)
         }
 
         jvmMain {
-            dependsOn(commonJvmMain)
+            dependsOn(jvmAndroidMain)
         }
 
         commonTest {
@@ -90,7 +92,7 @@ androidXMultiplatform {
             }
         }
 
-        commonJvmTest {
+        jvmAndroidTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
@@ -102,26 +104,38 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestJunit)
             }
         }
+        // tests that are run on AndroidUnit and instrumented targets.
+        // similar to jvmAndroidTest, except, they don't run on JVM outside Robolectric.
+        androidUnitAndInstrumentedTest {
+            dependsOn(jvmAndroidTest)
+        }
 
         jvmTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmAndroidTest)
         }
 
         androidUnitTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmAndroidTest)
+            dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.protobufLite)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.robolectric)
+                implementation(libs.testExtJunit)
             }
         }
 
         androidInstrumentedTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmAndroidTest)
+            dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
                 implementation("androidx.lifecycle:lifecycle-service:2.6.1")
+                implementation(libs.testExtJunit)
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
@@ -153,10 +167,8 @@ androidXMultiplatform {
 
 androidx {
     name = "DataStore Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

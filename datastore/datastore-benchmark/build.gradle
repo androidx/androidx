@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +35,7 @@ dependencies {
     androidTestImplementation(project(":datastore:datastore-guava"))
     androidTestImplementation(project(":internal-testutils-datastore"))
     androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -50,5 +50,5 @@ android {
 }
 
 androidx {
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
 }

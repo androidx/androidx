@@ -50,7 +50,7 @@ public fun isLeftyModeEnabled(): Boolean {
         Settings.System.getInt(
             context.contentResolver,
             Settings.System.USER_ROTATION,
-            android.view.Surface.ROTATION_0
+            android.view.Surface.ROTATION_0,
         ) == android.view.Surface.ROTATION_180
     }
 }
@@ -78,6 +78,11 @@ public fun screenWidthDp(): Int = LocalConfiguration.current.screenWidthDp
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 public fun isSmallScreen(): Boolean =
-    LocalContext.current.resources.configuration.screenWidthDp <= SMALL_SCREEN_WIDTH_DP
+    LocalConfiguration.current.screenWidthDp < LARGE_SCREEN_WIDTH_DP
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val SMALL_SCREEN_WIDTH_DP: Int = 225
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+public fun isLargeScreen(): Boolean =
+    LocalConfiguration.current.screenWidthDp >= LARGE_SCREEN_WIDTH_DP
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val LARGE_SCREEN_WIDTH_DP: Int = 225

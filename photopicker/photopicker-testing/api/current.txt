@@ -1,0 +1,22 @@
+// Signature format: 4.0
+package androidx.photopicker.testing {
+
+  @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public final class TestEmbeddedPhotoPickerProvider implements android.widget.photopicker.EmbeddedPhotoPickerProvider {
+    ctor public TestEmbeddedPhotoPickerProvider(android.content.Context context);
+    method public static androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider get();
+    method public java.util.Set<android.widget.photopicker.EmbeddedPhotoPickerSession> getSessions();
+    method public void notifyDeselectedUris(android.widget.photopicker.EmbeddedPhotoPickerSession session, java.util.List<? extends android.net.Uri> uris);
+    method public void notifySelectedUris(android.widget.photopicker.EmbeddedPhotoPickerSession session, java.util.List<? extends android.net.Uri> uris);
+    method public void notifySelectionComplete(android.widget.photopicker.EmbeddedPhotoPickerSession session);
+    method public void notifySessionError(android.widget.photopicker.EmbeddedPhotoPickerSession session, Throwable throwable);
+    method public void openSession(android.os.IBinder hostToken, int displayId, int width, int height, android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo featureInfo, java.util.concurrent.Executor clientExecutor, android.widget.photopicker.EmbeddedPhotoPickerClient callback);
+    property public java.util.Set<android.widget.photopicker.EmbeddedPhotoPickerSession> sessions;
+    field public static final androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider.Companion Companion;
+  }
+
+  public static final class TestEmbeddedPhotoPickerProvider.Companion {
+    method public androidx.photopicker.testing.TestEmbeddedPhotoPickerProvider get();
+  }
+
+}
+

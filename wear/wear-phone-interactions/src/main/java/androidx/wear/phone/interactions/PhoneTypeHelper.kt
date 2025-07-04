@@ -34,9 +34,14 @@ public class PhoneTypeHelper private constructor() {
                 .path(BLUETOOTH_MODE)
                 .build()
 
+        /**
+         * These values follow the values of platform constants defined in
+         * [Settings.Global.Wearable.PAIRED_DEVICE_OS_TYPE].
+         */
         internal const val UNKNOWN_MODE = 0
         internal const val ANDROID_MODE = 1
         internal const val IOS_MODE = 2
+        internal const val NONE_PAIRED_MODE = 3
 
         /** Indicates an error returned retrieving the type of phone we are paired to. */
         public const val DEVICE_TYPE_ERROR: Int = 0
@@ -50,18 +55,22 @@ public class PhoneTypeHelper private constructor() {
         /** Indicates unknown type of phone we are paired to. */
         public const val DEVICE_TYPE_UNKNOWN: Int = 3
 
+        /** Indicates that device is not paired to phone. */
+        public const val DEVICE_TYPE_NONE: Int = 4
+
         /**
          * Returns the type of phone handset this Wear OS device has been paired with.
          *
-         * @return one of `DEVICE_TYPE_ERROR`, `DEVICE_TYPE_ANDROID`, `DEVICE_TYPE_IOS` or
-         *   `DEVICE_TYPE_UNKNOWN` indicating we had an error while determining the phone type, we
-         *   are paired to an Android phone, we are paired to an iOS phone or we could not determine
-         *   the phone type respectively.
+         * @return one of `DEVICE_TYPE_ERROR`, `DEVICE_TYPE_ANDROID`, `DEVICE_TYPE_IOS`,
+         *   `DEVICE_TYPE_UNKNOWN` or `DEVICE_TYPE_NONE` indicating we had an error while
+         *   determining the phone type, we are paired to an Android phone, we are paired to an iOS
+         *   phone, we could not determine the phone type respectively, or no phone is paired
+         *   respectively.
          */
         @DeviceFamily
         @JvmStatic
         public fun getPhoneDeviceType(context: Context): Int {
-            var bluetoothMode = UNKNOWN_MODE
+            var pairedDeviceType = UNKNOWN_MODE
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                 val cursor =
                     context.contentResolver.query(BLUETOOTH_MODE_URI, null, null, null, null)
@@ -69,34 +78,41 @@ public class PhoneTypeHelper private constructor() {
                 cursor.use {
                     while (it.moveToNext()) {
                         if (BLUETOOTH_MODE == it.getString(0)) {
-                            bluetoothMode = it.getInt(1)
+                            pairedDeviceType = it.getInt(1)
                             break
                         }
                     }
+                }
+                return when (pairedDeviceType) {
+                    ANDROID_MODE -> DEVICE_TYPE_ANDROID
+                    IOS_MODE -> DEVICE_TYPE_IOS
+                    else -> DEVICE_TYPE_UNKNOWN
                 }
             } else if (
                 Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                     context.applicationInfo.targetSdkVersion > Build.VERSION_CODES.UPSIDE_DOWN_CAKE
             ) {
                 return DEVICE_TYPE_ANDROID
-            } else {
-                bluetoothMode =
-                    Settings.Global.getInt(
-                        context.contentResolver,
-                        PAIRED_DEVICE_OS_TYPE,
-                        UNKNOWN_MODE
-                    )
             }
-            return when (bluetoothMode) {
+            pairedDeviceType =
+                Settings.Global.getInt(context.contentResolver, PAIRED_DEVICE_OS_TYPE, UNKNOWN_MODE)
+            return when (pairedDeviceType) {
                 ANDROID_MODE -> DEVICE_TYPE_ANDROID
                 IOS_MODE -> DEVICE_TYPE_IOS
+                NONE_PAIRED_MODE -> DEVICE_TYPE_NONE
                 else -> DEVICE_TYPE_UNKNOWN
             }
         }
 
         /** Annotates a value of DeviceType. */
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(DEVICE_TYPE_ERROR, DEVICE_TYPE_ANDROID, DEVICE_TYPE_IOS, DEVICE_TYPE_UNKNOWN)
+        @IntDef(
+            DEVICE_TYPE_ERROR,
+            DEVICE_TYPE_ANDROID,
+            DEVICE_TYPE_IOS,
+            DEVICE_TYPE_UNKNOWN,
+            DEVICE_TYPE_NONE,
+        )
         internal annotation class DeviceFamily
     }
 }

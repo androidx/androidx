@@ -18,7 +18,6 @@ package androidx.camera.video.internal.workaround
 
 import android.media.CamcorderProfile.QUALITY_480P
 import android.os.Build
-import androidx.arch.core.util.Function
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
@@ -33,7 +32,6 @@ import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeVideoProfilePr
 import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedQualityQuirk
-import androidx.camera.video.internal.encoder.VideoEncoderConfig
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -56,7 +54,7 @@ class QualityAddedEncoderProfilesProviderTest {
                 DEFAULT_DURATION,
                 DEFAULT_OUTPUT_FORMAT,
                 listOf(createFakeAudioProfileProxy()),
-                listOf(createFakeVideoProfileProxy(RESOLUTION_480P.width, RESOLUTION_480P.height)),
+                listOf(createFakeVideoProfileProxy(RESOLUTION_480P)),
             )
         val quirks = Quirks(listOf(FakeQuirk(mapOf(QUALITY_480P to encoderProfiles))))
         val cameraInfo = FakeCameraInfoInternal()
@@ -76,7 +74,7 @@ class QualityAddedEncoderProfilesProviderTest {
         override fun getExtraEncoderProfiles(
             cameraInfo: CameraInfoInternal,
             encoderProfilesProvider: EncoderProfilesProvider,
-            videoEncoderInfoFinder: Function<VideoEncoderConfig, VideoEncoderInfo>
+            videoEncoderInfoFinder: VideoEncoderInfo.Finder,
         ) = qualityToEncoderProfiles
     }
 }

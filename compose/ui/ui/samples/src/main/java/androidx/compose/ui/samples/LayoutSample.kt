@@ -64,7 +64,7 @@ fun LayoutUsage(content: @Composable () -> Unit) {
                         constraints.maxHeight / 2
                     } else {
                         Constraints.Infinity
-                    }
+                    },
             )
         // We measure the children with half our constraints, to ensure we can be double
         // the size of the children.
@@ -90,7 +90,7 @@ fun LayoutWithProvidedIntrinsicsUsage(content: @Composable () -> Unit) {
         object : MeasurePolicy {
             override fun MeasureScope.measure(
                 measurables: List<Measurable>,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 // measurables contains one element corresponding to each of our layout children.
                 // constraints are the constraints that our parent is currently measuring us with.
@@ -109,7 +109,7 @@ fun LayoutWithProvidedIntrinsicsUsage(content: @Composable () -> Unit) {
                                 constraints.maxHeight / 2
                             } else {
                                 Constraints.Infinity
-                            }
+                            },
                     )
                 // We measure the children with half our constraints, to ensure we can be double
                 // the size of the children.
@@ -131,22 +131,22 @@ fun LayoutWithProvidedIntrinsicsUsage(content: @Composable () -> Unit) {
             // since we should be double the size of the children.
             override fun IntrinsicMeasureScope.minIntrinsicWidth(
                 measurables: List<IntrinsicMeasurable>,
-                height: Int
+                height: Int,
             ) = (measurables.map { it.minIntrinsicWidth(height / 2) }.maxByOrNull { it } ?: 0) * 2
 
             override fun IntrinsicMeasureScope.minIntrinsicHeight(
                 measurables: List<IntrinsicMeasurable>,
-                width: Int
+                width: Int,
             ) = (measurables.map { it.minIntrinsicHeight(width / 2) }.maxByOrNull { it } ?: 0) * 2
 
             override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                 measurables: List<IntrinsicMeasurable>,
-                height: Int
-            ) = (measurables.map { it.maxIntrinsicHeight(height / 2) }.maxByOrNull { it } ?: 0) * 2
+                height: Int,
+            ) = (measurables.map { it.maxIntrinsicWidth(height / 2) }.maxByOrNull { it } ?: 0) * 2
 
             override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                 measurables: List<IntrinsicMeasurable>,
-                width: Int
+                width: Int,
             ) = (measurables.map { it.maxIntrinsicHeight(width / 2) }.maxByOrNull { it } ?: 0) * 2
         }
 
@@ -184,7 +184,7 @@ fun LayoutModifierSample() {
         object : LayoutModifier {
             override fun MeasureScope.measure(
                 measurable: Measurable,
-                constraints: Constraints
+                constraints: Constraints,
             ): MeasureResult {
                 // an example modifier that adds 50 pixels of vertical padding.
                 val padding = 50
@@ -205,7 +205,7 @@ fun LayoutModifierNodeSample() {
     class VerticalPadding(var padding: Dp) : LayoutModifierNode, Modifier.Node() {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val paddingPx = padding.roundToPx()
             val placeable = measurable.measure(constraints.offset(vertical = -paddingPx))

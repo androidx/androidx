@@ -145,7 +145,7 @@ class TextLinkScopeTest {
                 constructInteractionSource(
                     FocusInteraction.Focus(),
                     PressInteraction.Press(Offset.Zero),
-                    HoverInteraction.Enter()
+                    HoverInteraction.Enter(),
                 )
             )
 
@@ -171,7 +171,7 @@ class TextLinkScopeTest {
                     hoverInt,
                     HoverInteraction.Exit(hoverInt),
                     PressInteraction.Release(pressInt),
-                    FocusInteraction.Unfocus(focusInt)
+                    FocusInteraction.Unfocus(focusInt),
                 )
             )
 

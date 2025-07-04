@@ -35,7 +35,7 @@ class SelectionManagerGetSelectedRegionRectTest {
             left = Float.POSITIVE_INFINITY,
             top = Float.POSITIVE_INFINITY,
             right = Float.NEGATIVE_INFINITY,
-            bottom = Float.NEGATIVE_INFINITY
+            bottom = Float.NEGATIVE_INFINITY,
         )
 
     @Test
@@ -43,7 +43,7 @@ class SelectionManagerGetSelectedRegionRectTest {
         val result =
             getSelectedRegionRect(
                 selectableSubSelectionPairs = listOf(),
-                containerCoordinates = FakeCoordinates()
+                containerCoordinates = FakeCoordinates(),
             )
         assertThat(result).isEqualTo(emptyResultRect)
     }
@@ -58,9 +58,9 @@ class SelectionManagerGetSelectedRegionRectTest {
                             boundingBoxes = boundingBoxesInLine(size = 10),
                             selection = getSelection(startOffset = 0, endOffset = 10),
                             rootOffset = null,
-                        ),
+                        )
                     ),
-                containerCoordinates = FakeCoordinates()
+                containerCoordinates = FakeCoordinates(),
             )
         assertThat(result).isEqualTo(emptyResultRect)
     }
@@ -74,9 +74,9 @@ class SelectionManagerGetSelectedRegionRectTest {
                         getPair(
                             boundingBoxes = boundingBoxesInLine(size = 10),
                             selection = getSelection(startOffset = 5, endOffset = 5),
-                        ),
+                        )
                     ),
-                containerCoordinates = FakeCoordinates()
+                containerCoordinates = FakeCoordinates(),
             )
         assertThat(result).isEqualTo(emptyResultRect)
     }
@@ -90,9 +90,9 @@ class SelectionManagerGetSelectedRegionRectTest {
                         getPair(
                             boundingBoxes = boundingBoxesInLine(size = 10),
                             selection = getSelection(startOffset = 0, endOffset = 10),
-                        ),
+                        )
                     ),
-                containerCoordinates = FakeCoordinates()
+                containerCoordinates = FakeCoordinates(),
             )
         val expected = rectInUnits(left = 0, top = 0, right = 10, bottom = 1)
         assertThat(result).isEqualTo(expected)
@@ -107,7 +107,7 @@ class SelectionManagerGetSelectedRegionRectTest {
                         getPair(
                             boundingBoxes = boundingBoxesWrapped(size = 10, lineLength = 5),
                             selection = getSelection(startOffset = 0, endOffset = 10),
-                        ),
+                        )
                     ),
                 containerCoordinates = FakeCoordinates(),
             )
@@ -125,7 +125,7 @@ class SelectionManagerGetSelectedRegionRectTest {
                             boundingBoxes = boundingBoxesWrapped(size = 10, lineLength = 5),
                             selection = getSelection(startOffset = 0, endOffset = 10),
                             rootOffset = offsetInUnits(x = 1, y = 1),
-                        ),
+                        )
                     ),
                 containerCoordinates = FakeCoordinates(rootOffset = offsetInUnits(x = 1, y = 1)),
             )
@@ -143,7 +143,7 @@ class SelectionManagerGetSelectedRegionRectTest {
                             boundingBoxes = boundingBoxesWrapped(size = 10, lineLength = 5),
                             selection = getSelection(startOffset = 0, endOffset = 10),
                             rootOffset = offsetInUnits(x = 2, y = 2),
-                        ),
+                        )
                     ),
                 containerCoordinates = FakeCoordinates(rootOffset = offsetInUnits(x = 1, y = 1)),
             )
@@ -216,7 +216,7 @@ class SelectionManagerGetSelectedRegionRectTest {
                 left = 2, // offset 2 from the 5th pair
                 top = 1, // 2nd pair has first selected char
                 right = 8, // 2nd pair has 4 unit indent and 4th char selected
-                bottom = 4 // 5th pair has final selected char
+                bottom = 4, // 5th pair has final selected char
             )
         assertThat(result).isEqualTo(expected)
     }
@@ -246,10 +246,7 @@ class SelectionManagerGetSelectedRegionRectTest {
         )
 
     private fun offsetInUnits(x: Int, y: Int): Offset =
-        Offset(
-            x = rectSideLength * x,
-            y = rectSideLength * y,
-        )
+        Offset(x = rectSideLength * x, y = rectSideLength * y)
 
     private fun fakeSelectable(
         boundingBoxes: Map<Int, Rect>,
@@ -266,7 +263,7 @@ class SelectionManagerGetSelectedRegionRectTest {
 
         override fun localPositionOf(
             sourceCoordinates: LayoutCoordinates,
-            relativeToSource: Offset
+            relativeToSource: Offset,
         ): Offset {
             val rootCoordinates = sourceCoordinates.localToRoot(relativeToSource)
             return rootCoordinates - rootOffset
@@ -294,7 +291,7 @@ class SelectionManagerGetSelectedRegionRectTest {
 
         override fun localBoundingBoxOf(
             sourceCoordinates: LayoutCoordinates,
-            clipBounds: Boolean
+            clipBounds: Boolean,
         ): Rect = fake()
 
         override fun get(alignmentLine: AlignmentLine): Int = fake()

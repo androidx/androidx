@@ -30,20 +30,19 @@ import androidx.emoji2.bundled.util.TestString;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.PollingCheck;
 
 import org.hamcrest.core.IsNot;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@Suppress
 public class EmojiKeyboardTest {
 
     @SuppressWarnings("deprecation")
@@ -63,6 +62,7 @@ public class EmojiKeyboardTest {
     }
 
     @Test
+    @Ignore
     public void testAppendWithSoftKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -80,6 +80,7 @@ public class EmojiKeyboardTest {
     }
 
     @Test
+    @Ignore
     public void testBackDeleteWithSoftKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -102,6 +103,7 @@ public class EmojiKeyboardTest {
     }
 
     @Test
+    @Ignore
     public void testForwardDeleteWithSoftKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -125,6 +127,7 @@ public class EmojiKeyboardTest {
     }
 
     @Test
+    @Ignore
     public void testBackDeleteWithHardwareKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -154,6 +157,7 @@ public class EmojiKeyboardTest {
     }
 
     @Test
+    @Ignore
     public void testForwardDeleteWithHardwareKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);

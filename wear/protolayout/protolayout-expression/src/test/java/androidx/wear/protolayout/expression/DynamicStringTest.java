@@ -80,7 +80,7 @@ public final class DynamicStringTest {
         assertThat(DynamicString.constant("a").concat(DynamicString.constant("b")).toString())
                 .isEqualTo(
                         "ConcatStringOp{inputLhs=FixedString{value=a},"
-                            + " inputRhs=FixedString{value=b}}");
+                                + " inputRhs=FixedString{value=b}}");
     }
 
     @Test

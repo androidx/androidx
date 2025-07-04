@@ -64,8 +64,8 @@ fun StepsSliderSample() {
             colors =
                 SliderDefaults.colors(
                     thumbColor = MaterialTheme.colors.secondary,
-                    activeTrackColor = MaterialTheme.colors.secondary
-                )
+                    activeTrackColor = MaterialTheme.colors.secondary,
+                ),
         )
     }
 }
@@ -114,8 +114,8 @@ fun StepRangeSliderSample() {
             colors =
                 SliderDefaults.colors(
                     thumbColor = MaterialTheme.colors.secondary,
-                    activeTrackColor = MaterialTheme.colors.secondary
-                )
+                    activeTrackColor = MaterialTheme.colors.secondary,
+                ),
         )
     }
 }

@@ -33,7 +33,7 @@ import androidx.room.solver.CodeGenScope
 class MultiTypedPagingSourceQueryResultBinder(
     private val listAdapter: ListQueryResultAdapter?,
     private val tableNames: Set<String>,
-    className: XClassName
+    className: XClassName,
 ) : QueryResultBinder(listAdapter) {
 
     private val itemTypeName: XTypeName =
@@ -48,7 +48,7 @@ class MultiTypedPagingSourceQueryResultBinder(
         bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             val tableNamesList = tableNames.joinToString(", ") { "\"$it\"" }
@@ -57,7 +57,7 @@ class MultiTypedPagingSourceQueryResultBinder(
                         argsFormat = "%L, %N, %L",
                         sqlQueryVar,
                         dbProperty,
-                        tableNamesList
+                        tableNamesList,
                     )
                     .apply {
                         superclass(pagingSourceTypeName)
@@ -65,7 +65,7 @@ class MultiTypedPagingSourceQueryResultBinder(
                             XFunSpec.builder(
                                     name = "convertRows",
                                     visibility = VisibilityModifier.PROTECTED,
-                                    isOverride = true
+                                    isOverride = true,
                                 )
                                 .apply {
                                     val rowsScope = scope.fork()
@@ -74,13 +74,13 @@ class MultiTypedPagingSourceQueryResultBinder(
                                     returns(CommonTypeNames.LIST.parametrizedBy(itemTypeName))
                                     addParameter(
                                         typeName = SQLiteDriverTypeNames.STATEMENT,
-                                        name = cursorParamName
+                                        name = cursorParamName,
                                     )
                                     listAdapter?.convert(resultVar, cursorParamName, rowsScope)
                                     addCode(rowsScope.generate())
                                     addStatement("return %L", resultVar)
                                 }
-                                .build(),
+                                .build()
                         )
                     }
                     .build()

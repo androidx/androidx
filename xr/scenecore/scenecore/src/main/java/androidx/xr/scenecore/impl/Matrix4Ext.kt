@@ -26,8 +26,8 @@ import androidx.xr.runtime.math.Vector3
 /** Returns the unscaled version of this matrix. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun Matrix4.getUnscaled(): Matrix4 {
-    // TODO: b/367780918 - Investigate why this.scale has negative values when inputs were positive.
-    // and allow negative scale values once this.scale reliably returns signed values.
+    // Matrix4.scale returns either a positive or negative scale based on the
+    // determinant of the rotation matrix.
     val positiveScale = Vector3.abs(this.scale)
     val scaleX = positiveScale.x
     val scaleY = positiveScale.y

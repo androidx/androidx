@@ -30,7 +30,4 @@ data class DiagnosticMessage(
  * stubs or may not exactly match the kotlin source file (KAPT's stub to source mapping is not very
  * fine grained)
  */
-data class DiagnosticLocation(
-    val source: Source?,
-    val line: Int,
-)
+data class DiagnosticLocation(val source: Source?, val line: Int)

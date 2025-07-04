@@ -79,19 +79,12 @@ class ImmutableParallelogramTest {
                 padding = 2f,
             )
         val other =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(0f, 0f),
                 width = 14f,
                 height = 4f,
                 rotation = Angle.ZERO,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        0f,
-                    )
-                },
+                shearFactor = 0f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }
@@ -104,19 +97,12 @@ class ImmutableParallelogramTest {
                 padding = 2f,
             )
         val other =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(3f, 3f),
                 width = 12.485281f,
                 height = 4f,
                 rotation = Angle.HALF_TURN_RADIANS / 4.0f,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutableVec(3f, 3f),
-                        w,
-                        h,
-                        r,
-                        0f,
-                    )
-                },
+                shearFactor = 0f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }

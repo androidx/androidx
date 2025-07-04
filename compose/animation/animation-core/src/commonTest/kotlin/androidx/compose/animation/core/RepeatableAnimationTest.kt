@@ -26,7 +26,7 @@ class RepeatableAnimationTest {
     private val DelayedAnimation =
         VectorizedTweenSpec<AnimationVector1D>(
             delayMillis = DelayDuration,
-            durationMillis = Duration
+            durationMillis = Duration,
         )
 
     @Test
@@ -34,7 +34,7 @@ class RepeatableAnimationTest {
         val repeat =
             VectorizedRepeatableSpec(
                 iterations = 2,
-                animation = VectorizedTweenSpec<AnimationVector1D>(durationMillis = Duration)
+                animation = VectorizedTweenSpec<AnimationVector1D>(durationMillis = Duration),
             )
 
         val animationWrapper = TargetBasedAnimation(repeat, Float.VectorConverter, 0f, 0f)
@@ -54,14 +54,14 @@ class RepeatableAnimationTest {
         val repeat =
             VectorizedRepeatableSpec<AnimationVector1D>(
                 iterations = iters,
-                animation = DelayedAnimation
+                animation = DelayedAnimation,
             )
 
         val duration =
             repeat.getDurationNanos(
                 AnimationVector1D(0f),
                 AnimationVector1D(0f),
-                AnimationVector1D(0f)
+                AnimationVector1D(0f),
             )
 
         assertEquals((DelayDuration + Duration) * iters * MillisToNanos, duration)
@@ -73,7 +73,7 @@ class RepeatableAnimationTest {
             repeatable(
                 iterations = 9,
                 animation = TweenSpec<Float>(durationMillis = 100, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
+                repeatMode = RepeatMode.Reverse,
             )
 
         val repeatAnim = TargetBasedAnimation(repeat, Float.VectorConverter, 0f, 100f)
@@ -98,7 +98,7 @@ class RepeatableAnimationTest {
         val repeatShortAnimation =
             infiniteRepeatable(
                 animation = TweenSpec<Float>(durationMillis = 100, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse
+                repeatMode = RepeatMode.Reverse,
             )
 
         val extraLongDurationNanos = 1000000000
@@ -107,9 +107,9 @@ class RepeatableAnimationTest {
                 animation =
                     TweenSpec<Float>(
                         durationMillis = extraLongDurationNanos,
-                        easing = LinearEasing
+                        easing = LinearEasing,
                     ),
-                repeatMode = RepeatMode.Restart
+                repeatMode = RepeatMode.Restart,
             )
         val vectorizedInfiniteRepeatingShort = repeatShortAnimation.vectorize(Float.VectorConverter)
         val vectorizedInfiniteRepeatingLong = repeatLongAnimation.vectorize(Float.VectorConverter)
@@ -119,8 +119,8 @@ class RepeatableAnimationTest {
             vectorizedInfiniteRepeatingShort.getDurationNanos(
                 AnimationVector(0f),
                 AnimationVector(100f),
-                AnimationVector(0f)
-            )
+                AnimationVector(0f),
+            ),
         )
 
         assertEquals(
@@ -128,8 +128,8 @@ class RepeatableAnimationTest {
             vectorizedInfiniteRepeatingLong.getDurationNanos(
                 AnimationVector(0f),
                 AnimationVector(100f),
-                AnimationVector(0f)
-            )
+                AnimationVector(0f),
+            ),
         )
 
         val repeatShort =
@@ -139,7 +139,7 @@ class RepeatableAnimationTest {
                 repeatLongAnimation,
                 Float.VectorConverter,
                 0f,
-                extraLongDurationNanos.toFloat()
+                extraLongDurationNanos.toFloat(),
             )
 
         assertEquals(repeatShort.durationNanos, Long.MAX_VALUE)
@@ -156,7 +156,7 @@ class RepeatableAnimationTest {
         assertEquals(
             31f,
             repeatLong.getValueFromNanos((extraLongDurationNanos + 31) * MillisToNanos),
-            0.1f
+            0.1f,
         )
     }
 
@@ -170,7 +170,7 @@ class RepeatableAnimationTest {
                 repeatable<Float>(5, tween(duration, easing = LinearEasing), RepeatMode.Restart),
                 Float.VectorConverter,
                 0f,
-                1000f
+                1000f,
             )
         val delayedRepeatable =
             TargetBasedAnimation(
@@ -178,11 +178,11 @@ class RepeatableAnimationTest {
                     5,
                     tween(duration, easing = LinearEasing),
                     RepeatMode.Restart,
-                    StartOffset(offset)
+                    StartOffset(offset),
                 ),
                 Float.VectorConverter,
                 0f,
-                1000f
+                1000f,
             )
         val fastForwardedRepeatable =
             TargetBasedAnimation(
@@ -190,26 +190,26 @@ class RepeatableAnimationTest {
                     5,
                     tween(duration, easing = LinearEasing),
                     RepeatMode.Restart,
-                    StartOffset(offset, StartOffsetType.FastForward)
+                    StartOffset(offset, StartOffsetType.FastForward),
                 ),
                 Float.VectorConverter,
                 0f,
-                1000f
+                1000f,
             )
 
         assertEquals(
             repeatable.durationNanos,
-            delayedRepeatable.durationNanos - offset * 1_000_000L
+            delayedRepeatable.durationNanos - offset * 1_000_000L,
         )
         assertEquals(
             repeatable.durationNanos,
-            fastForwardedRepeatable.durationNanos + offset * 1_000_000L
+            fastForwardedRepeatable.durationNanos + offset * 1_000_000L,
         )
 
         for (playtimeMillis in 0..duration * 3 step 17) {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
-                delayedRepeatable.getValueFromNanos((playtimeMillis + offset) * MillisToNanos)
+                delayedRepeatable.getValueFromNanos((playtimeMillis + offset) * MillisToNanos),
             )
         }
 
@@ -217,14 +217,14 @@ class RepeatableAnimationTest {
         for (playTimeMillis in 0..offset step 10) {
             assertEquals(
                 repeatable.getValueFromNanos(0),
-                delayedRepeatable.getValueFromNanos(playTimeMillis * MillisToNanos)
+                delayedRepeatable.getValueFromNanos(playTimeMillis * MillisToNanos),
             )
         }
 
         for (playtimeMillis in 0..duration * 3 step 17) {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
-                fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos)
+                fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos),
             )
         }
     }
@@ -239,25 +239,25 @@ class RepeatableAnimationTest {
                 infiniteRepeatable(tween(duration), RepeatMode.Restart),
                 Float.VectorConverter,
                 0f,
-                1000f
+                1000f,
             )
         val delayedRepeatable =
             TargetBasedAnimation(
                 infiniteRepeatable(tween(duration), RepeatMode.Restart, StartOffset(offset)),
                 Float.VectorConverter,
                 0f,
-                1000f
+                1000f,
             )
         val fastForwardedRepeatable =
             TargetBasedAnimation(
                 infiniteRepeatable(
                     tween(duration),
                     RepeatMode.Restart,
-                    StartOffset(offset, StartOffsetType.FastForward)
+                    StartOffset(offset, StartOffsetType.FastForward),
                 ),
                 Float.VectorConverter,
                 0f,
-                1000f
+                1000f,
             )
 
         // Duration should be infinite for delay or fast forward
@@ -267,7 +267,7 @@ class RepeatableAnimationTest {
         for (playtimeMillis in 0..duration * 3 step 17) {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
-                delayedRepeatable.getValueFromNanos((playtimeMillis + offset) * MillisToNanos)
+                delayedRepeatable.getValueFromNanos((playtimeMillis + offset) * MillisToNanos),
             )
         }
 
@@ -275,14 +275,14 @@ class RepeatableAnimationTest {
         for (playTimeMillis in 0..offset step 10) {
             assertEquals(
                 repeatable.getValueFromNanos(0),
-                delayedRepeatable.getValueFromNanos(playTimeMillis * MillisToNanos)
+                delayedRepeatable.getValueFromNanos(playTimeMillis * MillisToNanos),
             )
         }
 
         for (playtimeMillis in 0..duration * 3 step 17) {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
-                fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos)
+                fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos),
             )
         }
     }

@@ -40,8 +40,8 @@ class PdfViewRenderingTest {
 
     @Test
     fun testPageRendering() = runTest {
-        // Layout at 500x1000, and expect to render pages [0, 4] at 100x200
-        val pdfDocument = FakePdfDocument(List(10) { Point(100, 200) })
+        // Layout at 500x1000, and expect to render pages [0, 4] at 500x200
+        val pdfDocument = FakePdfDocument(List(10) { Point(500, 200) })
         setupPdfView(500, 1000, pdfDocument)
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
@@ -51,7 +51,7 @@ class PdfViewRenderingTest {
             assertThat(requestedBitmaps.size).isEqualTo(5)
             for (i in 0..4) {
                 assertThat((requestedBitmaps[i] as? FullBitmap)?.scaledPageSizePx?.width)
-                    .isEqualTo(100)
+                    .isEqualTo(500)
                 assertThat((requestedBitmaps[i] as? FullBitmap)?.scaledPageSizePx?.height)
                     .isEqualTo(200)
             }
@@ -62,8 +62,8 @@ class PdfViewRenderingTest {
 
     @Test
     fun testPageRendering_renderNewPagesOnScroll() = runTest {
-        // Layout at 500x1000, and expect to render pages [0, 4] at 100x200
-        val pdfDocument = FakePdfDocument(List(10) { Point(100, 200) })
+        // Layout at 500x1000, and expect to render pages [0, 4] at 500x200
+        val pdfDocument = FakePdfDocument(List(10) { Point(500, 200) })
         setupPdfView(500, 1000, pdfDocument)
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
@@ -78,7 +78,7 @@ class PdfViewRenderingTest {
             assertThat(requestedBitmaps.size).isEqualTo(10)
             for (i in 0..9) {
                 assertThat((requestedBitmaps[i] as? FullBitmap)?.scaledPageSizePx?.width)
-                    .isEqualTo(100)
+                    .isEqualTo(500)
                 assertThat((requestedBitmaps[i] as? FullBitmap)?.scaledPageSizePx?.height)
                     .isEqualTo(200)
             }
@@ -89,8 +89,8 @@ class PdfViewRenderingTest {
 
     @Test
     fun testPageRendering_renderNewBitmapsOnZoom() = runTest {
-        // Layout at 500x1000, and expect to render pages [0, 4] at 100x200
-        val pdfDocument = FakePdfDocument(List(10) { Point(100, 200) })
+        // Layout at 500x1000, and expect to render pages [0, 4] at 500x200
+        val pdfDocument = FakePdfDocument(List(10) { Point(500, 200) })
         setupPdfView(500, 1000, pdfDocument)
 
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
@@ -107,7 +107,7 @@ class PdfViewRenderingTest {
             assertThat(requestedBitmaps.size).isEqualTo(3)
             for (i in 0..2) {
                 assertThat((requestedBitmaps[i] as? FullBitmap)?.scaledPageSizePx?.width)
-                    .isEqualTo(200)
+                    .isEqualTo(1000)
                 assertThat((requestedBitmaps[i] as? FullBitmap)?.scaledPageSizePx?.height)
                     .isEqualTo(400)
             }
@@ -126,7 +126,7 @@ private fun setupPdfView(width: Int, height: Int, fakePdfDocument: FakePdfDocume
                 pdfDocument = fakePdfDocument
                 id = PDF_VIEW_ID
             },
-            ViewGroup.LayoutParams(width, height)
+            ViewGroup.LayoutParams(width, height),
         )
         activity.setContentView(container)
     }

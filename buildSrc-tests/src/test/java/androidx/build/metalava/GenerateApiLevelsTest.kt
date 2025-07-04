@@ -32,44 +32,33 @@ class GenerateApiLevelsTest {
         val current = File("/api/current.txt")
         val currentVersion = Version("1.2.0-alpha03")
 
-        val actualFiles = getFilesForApiLevels(
-            listOf(v100beta01, v110beta01, current),
-            currentVersion
-        )
+        val actualFiles =
+            getFilesForApiLevels(listOf(v100beta01, v110beta01, current), currentVersion)
         val expectedFiles = listOf(v100beta01, v110beta01)
         assertEquals(actualFiles, expectedFiles)
-
-        val actualVersions = getVersionsForApiLevels(expectedFiles)
-        val expectedVersions = listOf(Version("1.0.0"), Version("1.1.0"))
-        assertEquals(actualVersions, expectedVersions)
     }
 
     @Test
     fun testResourceApiFilesNotUsed() {
         val v100beta01 = File("/api/1.0.0-beta01.txt")
-        val inputFiles = setOf(
-            v100beta01,
-            File("/api/res-1.0.0-beta01.txt"),
-            File("/api/res-1.1.0-beta01.txt"),
-            File("/api/res-current.txt"),
-        )
+        val inputFiles =
+            setOf(
+                v100beta01,
+                File("/api/res-1.0.0-beta01.txt"),
+                File("/api/res-1.1.0-beta01.txt"),
+                File("/api/res-current.txt"),
+            )
         val currentVersion = Version("1.2.0-alpha03")
 
         val actualFiles = getFilesForApiLevels(inputFiles, currentVersion)
         val expectedFiles = listOf(v100beta01)
         assertEquals(actualFiles, expectedFiles)
-
-        val actualVersions = getVersionsForApiLevels(expectedFiles)
-        val expectedVersions = listOf(Version("1.0.0"))
-        assertEquals(actualVersions, expectedVersions)
     }
 
     @Test
     fun testOnlyCurrentVersion() {
-        val actualFiles = getFilesForApiLevels(
-            setOf(File("/api/current.txt")),
-            Version("1.0.0-alpha05")
-        )
+        val actualFiles =
+            getFilesForApiLevels(setOf(File("/api/current.txt")), Version("1.0.0-alpha05"))
         assertEquals(actualFiles, emptyList<File>())
     }
 
@@ -78,39 +67,33 @@ class GenerateApiLevelsTest {
         val v100beta03 = File("/api/1.0.0-beta03.txt")
         val v110beta02 = File("/api/1.1.0-beta02.txt")
         val v120beta01 = File("/api/1.2.0-beta01.txt")
-        val inputFiles = setOf(
-            File("/api/1.0.0-beta01.txt"),
-            File("/api/1.0.0-beta02.txt"),
-            v100beta03,
-            File("/api/1.1.0-beta01.txt"),
-            v110beta02,
-            v120beta01,
-            File("/api/1.3.0-beta01.txt"),
-            File("/api/1.3.0-beta02.txt"),
-            File("/api/current.txt")
-        )
+        val inputFiles =
+            setOf(
+                File("/api/1.0.0-beta01.txt"),
+                File("/api/1.0.0-beta02.txt"),
+                v100beta03,
+                File("/api/1.1.0-beta01.txt"),
+                v110beta02,
+                v120beta01,
+                File("/api/1.3.0-beta01.txt"),
+                File("/api/1.3.0-beta02.txt"),
+                File("/api/current.txt")
+            )
         val currentVersion = Version("1.3.0-beta02")
 
         val actualFiles = getFilesForApiLevels(inputFiles, currentVersion)
         val expectedFiles = listOf(v100beta03, v110beta02, v120beta01)
         assertEquals(actualFiles, expectedFiles)
-
-        val actualVersions = getVersionsForApiLevels(expectedFiles)
-        val expectedVersions = listOf(
-            Version("1.0.0"),
-            Version("1.1.0"),
-            Version("1.2.0")
-        )
-        assertEquals(actualVersions, expectedVersions)
     }
 
     @Test
     fun testArtifactClassifierIsSet() {
         val project = ProjectBuilder.builder().build()
 
-        val generateApiTask = project.tasks.register("generateApi", GenerateApiTask::class.java) {
-            it.apiLocation.set(project.getBuiltApiLocation())
-        }
+        val generateApiTask =
+            project.tasks.register("generateApi", GenerateApiTask::class.java) {
+                it.apiLocation.set(project.getBuiltApiLocation())
+            }
         project.registerVersionMetadataComponent(generateApiTask)
 
         val config = project.configurations["libraryVersionMetadata"]

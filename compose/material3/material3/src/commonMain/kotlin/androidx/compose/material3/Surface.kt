@@ -101,12 +101,12 @@ fun Surface(
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
-        LocalAbsoluteTonalElevation provides absoluteElevation
+        LocalAbsoluteTonalElevation provides absoluteElevation,
     ) {
         Box(
             modifier =
@@ -116,7 +116,7 @@ fun Surface(
                         backgroundColor =
                             surfaceColorAtElevation(color = color, elevation = absoluteElevation),
                         border = border,
-                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() }
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
                     )
                     .semantics(mergeDescendants = false) {
                         // TODO(b/347038246): replace `isContainer` with `isTraversalGroup` with new
@@ -125,7 +125,7 @@ fun Surface(
                         isContainer = true
                     }
                     .pointerInput(Unit) {},
-            propagateMinConstraints = true
+            propagateMinConstraints = true,
         ) {
             content()
         }
@@ -204,14 +204,14 @@ fun Surface(
     shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
-        LocalAbsoluteTonalElevation provides absoluteElevation
+        LocalAbsoluteTonalElevation provides absoluteElevation,
     ) {
         Box(
             modifier =
@@ -222,17 +222,16 @@ fun Surface(
                         backgroundColor =
                             surfaceColorAtElevation(color = color, elevation = absoluteElevation),
                         border = border,
-                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() }
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
                     )
                     .clickable(
                         interactionSource = interactionSource,
                         indication = ripple(),
                         enabled = enabled,
-                        onClick = onClick
+                        onClick = onClick,
                     )
-                    .childSemantics()
-                    .interactionSourceData(interactionSource),
-            propagateMinConstraints = true
+                    .childSemantics(),
+            propagateMinConstraints = true,
         ) {
             content()
         }
@@ -311,14 +310,14 @@ fun Surface(
     shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
-        LocalAbsoluteTonalElevation provides absoluteElevation
+        LocalAbsoluteTonalElevation provides absoluteElevation,
     ) {
         Box(
             modifier =
@@ -329,18 +328,17 @@ fun Surface(
                         backgroundColor =
                             surfaceColorAtElevation(color = color, elevation = absoluteElevation),
                         border = border,
-                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() }
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
                     )
                     .selectable(
                         selected = selected,
                         interactionSource = interactionSource,
                         indication = ripple(),
                         enabled = enabled,
-                        onClick = onClick
+                        onClick = onClick,
                     )
-                    .childSemantics()
-                    .interactionSourceData(interactionSource),
-            propagateMinConstraints = true
+                    .childSemantics(),
+            propagateMinConstraints = true,
         ) {
             content()
         }
@@ -419,14 +417,14 @@ fun Surface(
     shadowElevation: Dp = 0.dp,
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
-        LocalAbsoluteTonalElevation provides absoluteElevation
+        LocalAbsoluteTonalElevation provides absoluteElevation,
     ) {
         Box(
             modifier =
@@ -437,18 +435,17 @@ fun Surface(
                         backgroundColor =
                             surfaceColorAtElevation(color = color, elevation = absoluteElevation),
                         border = border,
-                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() }
+                        shadowElevation = with(LocalDensity.current) { shadowElevation.toPx() },
                     )
                     .toggleable(
                         value = checked,
                         interactionSource = interactionSource,
                         indication = ripple(),
                         enabled = enabled,
-                        onValueChange = onCheckedChange
+                        onValueChange = onCheckedChange,
                     )
-                    .childSemantics()
-                    .interactionSourceData(interactionSource),
-            propagateMinConstraints = true
+                    .childSemantics(),
+            propagateMinConstraints = true,
         ) {
             content()
         }
@@ -467,7 +464,7 @@ private fun Modifier.surface(
                 Modifier.graphicsLayer(
                     shadowElevation = shadowElevation,
                     shape = shape,
-                    clip = false
+                    clip = false,
                 )
             } else {
                 Modifier

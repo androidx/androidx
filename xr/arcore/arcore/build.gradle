@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,7 +39,7 @@ dependencies {
 
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
+    testImplementation(libs.mockitoKotlin)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
@@ -51,17 +50,16 @@ dependencies {
 }
 
 android {
+    defaultConfig {
+        minSdk = 23
+    }
     namespace = "androidx.xr.arcore"
-    sourceSets.main.resources.srcDirs += "src/main/resources"
-    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
     name = "ARCore"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Provides augmented reality (AR) functionality."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

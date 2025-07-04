@@ -186,6 +186,12 @@ internal class SpatialComposeElement(
         spatialComposeScene = scene
     }
 
+    public var rootVolumeConstraints
+        get() = compositionOwner.rootVolumeConstraints
+        set(value) {
+            compositionOwner.rootVolumeConstraints = value
+        }
+
     private val content = mutableStateOf<(@Composable @SubspaceComposable () -> Unit)?>(null)
 
     @get:Suppress("GetterSetterNames")

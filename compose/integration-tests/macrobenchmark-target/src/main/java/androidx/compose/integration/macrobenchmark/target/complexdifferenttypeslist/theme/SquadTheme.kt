@@ -64,11 +64,7 @@ fun SquadTheme(content: @Composable () -> Unit) {
         LocalSquadColors provides squadColors,
         LocalSquadDrawables provides squadDrawables,
     ) {
-        MaterialTheme(
-            colors = materialColors,
-            shapes = Shapes(),
-            content = content,
-        )
+        MaterialTheme(colors = materialColors, shapes = Shapes(), content = content)
     }
 }
 
@@ -83,7 +79,7 @@ private val lightPalette =
         onPrimary = SquadColors.white,
         onSecondary = SquadColors.black,
         onBackground = SquadColors.greyishBrownTwo,
-        onSurface = SquadColors.brownGreyTwo
+        onSurface = SquadColors.brownGreyTwo,
     )
 
 private val darkPalette =
@@ -97,7 +93,7 @@ private val darkPalette =
         onPrimary = SquadColors.white,
         onSecondary = SquadColors.white,
         onBackground = SquadColors.white,
-        onSurface = SquadColors.lightPeriwinkle
+        onSurface = SquadColors.lightPeriwinkle,
     )
 
 private val LocalSquadColors = compositionLocalOf<SquadColorPalette> { SquadLightColorPalette() }

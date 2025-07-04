@@ -64,6 +64,16 @@ class Parameterized
             """
             )
 
+        val TestParameterInjector =
+            TestFiles.kotlin(
+                    """
+                    package com.google.testing.junit.testparameterinjector
+
+                    class TestParameterInjector
+                    """
+                )
+                .indented()
+
         val AndroidJUnit4Runner =
             TestFiles.kotlin(
                 """
@@ -456,5 +466,95 @@ public class BuildCompat {
         """
                     .trimIndent()
             )
+
+        val FlaggedApi: TestFile =
+            TestFiles.java(
+                    """
+package android.annotation; // HIDE-FROM-DOCUMENTATION
+
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target({TYPE, METHOD, CONSTRUCTOR, FIELD, ANNOTATION_TYPE})
+@Retention(RetentionPolicy.CLASS)
+public @interface FlaggedApi {
+    String value();
+}
+      """
+                )
+                .indented()
+
+        val ChecksAconfigFlag: TestFile =
+            TestFiles.kotlin(
+                    """
+package androidx.annotation
+
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.FIELD
+)
+public annotation class ChecksAconfigFlag (
+    val flag: String
+)
+        """
+                )
+                .indented()
+
+        val RequiresAconfigFlag: TestFile =
+            TestFiles.kotlin(
+                    """
+package androidx.annotation
+
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FILE,
+)
+public annotation class RequiresAconfigFlag (
+    val value: String
+)
+        """
+                )
+                .indented()
+
+        val Flags: TestFile =
+            TestFiles.kotlin(
+                    """
+package androidx.core.flagging
+
+public class Flags {
+    public companion object {
+        @JvmOverloads
+        @JvmStatic
+        public fun getBooleanFlagValue(
+            packageName: String,
+            flagName: String,
+            defaultValue: Boolean = false,
+        ): Boolean {
+            return defaultValue
+        }
+    }
+}
+        """
+                )
+                .indented()
     }
 }

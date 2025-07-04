@@ -35,7 +35,7 @@ import kotlinx.atomicfu.atomic
 public class AndroidImageWriter
 private constructor(
     private val imageWriter: ImageWriter,
-    private val inputStreamId: InputStreamId
+    private val inputStreamId: InputStreamId,
 ) : ImageWriterWrapper, ImageWriter.OnImageReleasedListener {
     private val onImageReleasedListener = atomic<ImageWriterWrapper.OnImageReleasedListener?>(null)
     override val maxImages: Int = imageWriter.maxImages
@@ -100,7 +100,7 @@ private constructor(
             inputStreamId: InputStreamId,
             maxImages: Int,
             format: StreamFormat?,
-            handler: Handler
+            handler: Handler,
         ): ImageWriterWrapper {
             require(maxImages > 0) { "Max images ($maxImages) must be > 0" }
             require(maxImages <= IMAGEREADER_MAX_CAPACITY) {

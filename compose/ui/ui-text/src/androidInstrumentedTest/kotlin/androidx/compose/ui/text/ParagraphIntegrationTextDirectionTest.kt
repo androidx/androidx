@@ -66,7 +66,7 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -83,7 +83,7 @@ class ParagraphIntegrationTextDirectionTest {
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
@@ -97,12 +97,12 @@ class ParagraphIntegrationTextDirectionTest {
                 style =
                     TextStyle(
                         textDirection = TextDirection.Unspecified,
-                        localeList = ltrLocaleList
+                        localeList = ltrLocaleList,
                     ),
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -116,12 +116,12 @@ class ParagraphIntegrationTextDirectionTest {
                 style =
                     TextStyle(
                         textDirection = TextDirection.Unspecified,
-                        localeList = rtlLocaleList
+                        localeList = rtlLocaleList,
                     ),
                 constraints = Constraints(),
                 density = defaultDensity,
                 fontFamilyResolver = resourceLoader,
-                overflow = TextOverflow.Clip
+                overflow = TextOverflow.Clip,
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)

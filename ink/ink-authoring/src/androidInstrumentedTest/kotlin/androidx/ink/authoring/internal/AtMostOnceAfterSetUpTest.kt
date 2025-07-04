@@ -65,7 +65,7 @@ class AtMostOnceAfterSetUpTest {
             listOf(
                 callbackAtMostOnce.setUp(),
                 callbackAtMostOnce.setUp(),
-                callbackAtMostOnce.setUp()
+                callbackAtMostOnce.setUp(),
             )
         assertThat(callbackCounter).isEqualTo(0)
         runnables.forEach(Runnable::run)

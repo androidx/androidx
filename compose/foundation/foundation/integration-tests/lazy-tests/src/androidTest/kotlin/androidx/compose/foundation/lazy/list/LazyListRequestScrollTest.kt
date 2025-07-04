@@ -110,7 +110,7 @@ class LazyListRequestScrollTest(private val orientation: Orientation) :
                         Orientation.Vertical -> topCenter
                         Orientation.Horizontal -> centerLeft
                     },
-                endVelocity = 5_000F
+                endVelocity = 5_000F,
             )
         }
 
@@ -147,7 +147,7 @@ class LazyListRequestScrollTest(private val orientation: Orientation) :
                 LazyColumnOrRow(
                     Modifier.width(listSize).height(listSize),
                     state,
-                    reverseLayout = true
+                    reverseLayout = true,
                 ) {
                     items(list, key = { it }) { Item(remember { "$it" }) }
                 }
@@ -158,7 +158,7 @@ class LazyListRequestScrollTest(private val orientation: Orientation) :
                         // This scrolls to the start of the first item.
                         state.requestScrollToItem(
                             index = 1,
-                            scrollOffset = with(rule.density) { -listSize.roundToPx() }
+                            scrollOffset = with(rule.density) { -listSize.roundToPx() },
                         )
                     }
                 }

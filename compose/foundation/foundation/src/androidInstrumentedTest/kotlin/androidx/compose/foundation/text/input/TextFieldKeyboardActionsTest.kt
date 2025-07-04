@@ -72,7 +72,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                onKeyboardAction = { called = true }
+                onKeyboardAction = { called = true },
             )
         }
 
@@ -88,7 +88,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                onKeyboardAction = { called = true }
+                onKeyboardAction = { called = true },
             )
         }
 
@@ -107,7 +107,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                onKeyboardAction = { called = true }
+                onKeyboardAction = { called = true },
             )
         }
 
@@ -126,7 +126,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 )
                 Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
@@ -144,7 +144,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 Box(Modifier.size(1.dp).focusable().testTag("box1"))
                 BasicTextField(
                     state = TextFieldState(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Previous)
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Previous),
                 )
                 Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
@@ -165,7 +165,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             ) {
                 BasicTextField(
                     state = TextFieldState(),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 )
             }
         }
@@ -186,7 +186,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     onKeyboardAction = {
                         // don't call default action
-                    }
+                    },
                 )
                 Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
@@ -206,7 +206,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    onKeyboardAction = { it() }
+                    onKeyboardAction = { it() },
                 )
                 Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
@@ -227,7 +227,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                onKeyboardAction = onKeyboardAction
+                onKeyboardAction = onKeyboardAction,
             )
         }
 
@@ -250,7 +250,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                 onKeyboardAction = { called = true },
-                lineLimits = SingleLine
+                lineLimits = SingleLine,
             )
         }
 
@@ -270,7 +270,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                 onKeyboardAction = { called = true },
-                lineLimits = MultiLine(maxHeightInLines = 1)
+                lineLimits = MultiLine(maxHeightInLines = 1),
             )
         }
 
@@ -290,7 +290,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
                 BasicTextField(
                     state = TextFieldState(),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    lineLimits = SingleLine
+                    lineLimits = SingleLine,
                 )
                 Box(Modifier.size(1.dp).focusable().testTag("box2"))
             }
@@ -311,7 +311,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.None),
-                onKeyboardAction = { called = true }
+                onKeyboardAction = { called = true },
             )
         }
 
@@ -327,7 +327,7 @@ class TextFieldKeyboardActionsTest : FocusedWindowTest {
             BasicTextField(
                 state = TextFieldState(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default),
-                onKeyboardAction = { called = true }
+                onKeyboardAction = { called = true },
             )
         }
 

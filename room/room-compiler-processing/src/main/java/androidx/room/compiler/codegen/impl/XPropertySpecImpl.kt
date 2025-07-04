@@ -27,15 +27,16 @@ import androidx.room.compiler.codegen.kotlin.KotlinPropertySpec
 internal class XPropertySpecImpl(
     override val name: String,
     override val type: XTypeName,
-    internal val java: JavaPropertySpec,
-    internal val kotlin: KotlinPropertySpec,
-) : XSpec(), XPropertySpec {
+    override val java: JavaPropertySpec,
+    override val kotlin: KotlinPropertySpec,
+) : ImplSpec<JavaPropertySpec, KotlinPropertySpec>(), XPropertySpec {
+    override fun toBuilder() = Builder(name, type, java.toBuilder(), kotlin.toBuilder())
 
     internal class Builder(
         private val name: String,
         private val type: XTypeName,
         internal val java: JavaPropertySpec.Builder,
-        internal val kotlin: KotlinPropertySpec.Builder
+        internal val kotlin: KotlinPropertySpec.Builder,
     ) : XSpec.Builder(), XPropertySpec.Builder {
         private val delegates: List<XPropertySpec.Builder> = listOf(java, kotlin)
 

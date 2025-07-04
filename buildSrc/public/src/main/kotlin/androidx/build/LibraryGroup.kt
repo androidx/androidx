@@ -20,10 +20,8 @@ package androidx.build
  * This object contains the library group, as well as whether libraries in this group are all
  * required to have the same development version.
  */
-data class LibraryGroup(
-    val group: String = "unspecified",
-    val atomicGroupVersion: Version?,
-) : java.io.Serializable {
+data class LibraryGroup(val group: String = "unspecified", val atomicGroupVersion: Version?) :
+    java.io.Serializable {
 
     // Denotes if the LibraryGroup is atomic
     val requireSameVersion = (atomicGroupVersion != null)

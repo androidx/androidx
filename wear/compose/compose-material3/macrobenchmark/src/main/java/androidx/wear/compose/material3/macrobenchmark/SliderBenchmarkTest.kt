@@ -28,5 +28,5 @@ class SliderBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = SliderBenchmark,
-        actionSuffix = "SLIDER_ACTIVITY"
+        actionSuffix = "SLIDER_ACTIVITY",
     )

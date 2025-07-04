@@ -38,7 +38,7 @@ private fun updateWorkImpl(
     configuration: Configuration,
     schedulers: List<Scheduler>,
     newWorkSpec: WorkSpec,
-    tags: Set<String>
+    tags: Set<String>,
 ): UpdateResult {
     val workSpecId = newWorkSpec.id
     val oldWorkSpec =
@@ -70,7 +70,7 @@ private fun updateWorkImpl(
                     periodCount = oldWorkSpec.periodCount,
                     nextScheduleTimeOverride = oldWorkSpec.nextScheduleTimeOverride,
                     nextScheduleTimeOverrideGeneration =
-                        oldWorkSpec.nextScheduleTimeOverrideGeneration
+                        oldWorkSpec.nextScheduleTimeOverrideGeneration,
                 )
                 .apply {
                     if (newWorkSpec.nextScheduleTimeOverrideGeneration == 1) {
@@ -103,21 +103,21 @@ internal fun WorkManagerImpl.updateWorkImpl(
             configuration,
             schedulers,
             workRequest.workSpec,
-            workRequest.tags
+            workRequest.tags,
         )
     }
 }
 
 /** Enqueue or update the work. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(
+public fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(
     name: String,
     workRequest: WorkRequest,
 ): Operation =
     launchOperation(
         configuration.tracer,
         "enqueueUniquePeriodic_$name",
-        workTaskExecutor.serialTaskExecutor
+        workTaskExecutor.serialTaskExecutor,
     ) {
         val enqueueNew = {
             val requests = listOf(workRequest)
@@ -159,6 +159,6 @@ fun WorkManagerImpl.enqueueUniquelyNamedPeriodic(
             configuration,
             schedulers,
             newWorkSpec,
-            workRequest.tags
+            workRequest.tags,
         )
     }

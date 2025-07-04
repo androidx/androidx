@@ -40,8 +40,8 @@ interface XMemberContainer : XElement {
         replaceWith =
             ReplaceWith(
                 expression = "asClassName().toJavaPoet()",
-                imports = ["androidx.room.compiler.codegen.toJavaPoet"]
-            )
+                imports = ["androidx.room.compiler.codegen.toJavaPoet"],
+            ),
     )
     val className: ClassName
 

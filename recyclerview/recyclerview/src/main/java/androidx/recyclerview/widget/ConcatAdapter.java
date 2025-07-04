@@ -21,9 +21,10 @@ import static androidx.recyclerview.widget.ConcatAdapter.Config.StableIdMode.NO_
 import android.util.Pair;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -86,7 +87,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      * @param adapters The list of adapters to add
      */
     @SafeVarargs
-    public ConcatAdapter(@NonNull Adapter<? extends ViewHolder>... adapters) {
+    public ConcatAdapter(Adapter<? extends ViewHolder> @NonNull ... adapters) {
         this(Config.DEFAULT, adapters);
     }
 
@@ -100,7 +101,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
     @SafeVarargs
     public ConcatAdapter(
             @NonNull Config config,
-            @NonNull Adapter<? extends ViewHolder>... adapters) {
+            Adapter<? extends ViewHolder> @NonNull ... adapters) {
         this(config, Arrays.asList(adapters));
     }
 
@@ -178,9 +179,8 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
         return mController.getItemViewType(position);
     }
 
-    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public @NonNull ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return mController.onCreateViewHolder(parent, viewType);
     }
 
@@ -276,8 +276,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      *
      * @return A copy of the list of adapters in this ConcatAdapter.
      */
-    @NonNull
-    public List<? extends Adapter<? extends ViewHolder>> getAdapters() {
+    public @NonNull List<? extends Adapter<? extends ViewHolder>> getAdapters() {
         return Collections.unmodifiableList(mController.getCopyOfAdapters());
     }
 
@@ -319,8 +318,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
      * correspond to a valid element of this adapter.  That is, if {@code globalPosition} is less
      * than 0 or greater than the total number of items in the {@code ConcatAdapter}
      */
-    @NonNull
-    public Pair<Adapter<? extends ViewHolder>, Integer> getWrappedAdapterAndPosition(int
+    public @NonNull Pair<Adapter<? extends ViewHolder>, Integer> getWrappedAdapterAndPosition(int
             globalPosition) {
         return mController.getWrappedAdapterAndPosition(globalPosition);
     }
@@ -372,8 +370,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
          *
          * Default value is {@link StableIdMode#NO_STABLE_IDS}.
          */
-        @NonNull
-        public final StableIdMode stableIdMode;
+        public final @NonNull StableIdMode stableIdMode;
 
 
         /**
@@ -381,8 +378,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
          * is set to {@code true} and {@link Config#stableIdMode} is set to
          * {@link StableIdMode#NO_STABLE_IDS}.
          */
-        @NonNull
-        public static final Config DEFAULT = new Config(true, NO_STABLE_IDS);
+        public static final @NonNull Config DEFAULT = new Config(true, NO_STABLE_IDS);
 
         Config(boolean isolateViewTypes, @NonNull StableIdMode stableIdMode) {
             this.isolateViewTypes = isolateViewTypes;
@@ -446,8 +442,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
              * @return this
              * @see Config#isolateViewTypes
              */
-            @NonNull
-            public Builder setIsolateViewTypes(boolean isolateViewTypes) {
+            public @NonNull Builder setIsolateViewTypes(boolean isolateViewTypes) {
                 mIsolateViewTypes = isolateViewTypes;
                 return this;
             }
@@ -463,8 +458,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
              * @return this
              * @see Config#stableIdMode
              */
-            @NonNull
-            public Builder setStableIdMode(@NonNull StableIdMode stableIdMode) {
+            public @NonNull Builder setStableIdMode(@NonNull StableIdMode stableIdMode) {
                 mStableIdMode = stableIdMode;
                 return this;
             }
@@ -472,8 +466,7 @@ public final class ConcatAdapter extends Adapter<ViewHolder> {
             /**
              * @return A new instance of {@link Config} with the given parameters.
              */
-            @NonNull
-            public Config build() {
+            public @NonNull Config build() {
                 return new Config(mIsolateViewTypes, mStableIdMode);
             }
         }

@@ -143,7 +143,7 @@ class LayoutNodeLayoutDirectionTest {
                 override fun createOutline(
                     size: Size,
                     layoutDirection: LayoutDirection,
-                    density: Density
+                    density: Density,
                 ): Outline {
                     lastLayoutDirection = layoutDirection
                     return Outline.Rectangle(size.toRect())

@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -39,28 +39,20 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
 }
 
 android {
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
     defaultConfig {
         minSdk = 23
     }
-
     namespace = "androidx.glance.testing"
 }
 
 androidx {
     name = "Glance Testing"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "This library provides base APIs to enable testing Glance"
-    legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -42,9 +42,13 @@ dependencies {
 
 android {
     compileSdk = 35
+    defaultConfig {
+        // Using blocked private API b/425739542
+        targetSdk = 34
+    }
     namespace = "androidx.compose.ui.text.benchmark"
 }
 
 androidx {
-    type = LibraryType.BENCHMARK
+    type = SoftwareType.BENCHMARK
 }

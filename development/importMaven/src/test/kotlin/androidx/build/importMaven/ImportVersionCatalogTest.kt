@@ -17,7 +17,6 @@
 package androidx.build.importMaven
 
 import com.google.common.truth.Truth.assertThat
-import okio.FileSystem
 import org.junit.Test
 
 class ImportVersionCatalogTest {
@@ -29,7 +28,6 @@ class ImportVersionCatalogTest {
     fun load() {
         val path = EnvironmentConfig.supportRoot.resolve("gradle/libs.versions.toml")
         val versions = ImportVersionCatalog.load(
-            FileSystem.SYSTEM,
             path
         )
         assertThat(

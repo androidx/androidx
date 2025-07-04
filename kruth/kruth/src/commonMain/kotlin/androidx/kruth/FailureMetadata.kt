@@ -43,7 +43,7 @@ internal constructor(
     private val failureStrategy: FailureStrategy = FailureStrategy { failure -> throw failure },
     // TODO(dustinlam): In Google Truth, messages are lazily evaluated.
     private val messagesToPrepend: List<String> = emptyList(),
-    private val steps: List<Step> = emptyList()
+    private val steps: List<Step> = emptyList(),
 ) {
 
     /**
@@ -56,7 +56,7 @@ internal constructor(
         return FailureMetadata(
             failureStrategy = failureStrategy,
             messagesToPrepend = messagesToPrepend,
-            steps = steps + SubjectStep(subject)
+            steps = steps + SubjectStep(subject),
         )
     }
 
@@ -64,18 +64,18 @@ internal constructor(
         return FailureMetadata(
             failureStrategy = failureStrategy,
             messagesToPrepend = messagesToPrepend,
-            steps = steps + CheckStep(null, null)
+            steps = steps + CheckStep(null, null),
         )
     }
 
     internal fun updateForCheckCall(
         valuesAreSimilar: OldAndNewValuesAreSimilar,
-        descriptionUpdate: (String?) -> String
+        descriptionUpdate: (String?) -> String,
     ): FailureMetadata {
         return FailureMetadata(
             failureStrategy = failureStrategy,
             messagesToPrepend = messagesToPrepend,
-            steps = steps + CheckStep(valuesAreSimilar, descriptionUpdate)
+            steps = steps + CheckStep(valuesAreSimilar, descriptionUpdate),
         )
     }
 
@@ -94,7 +94,7 @@ internal constructor(
                     // has
                     //  different formatting for ComparisonFailures.
                     facts = description() + facts + rootUnlessThrowable(),
-                    cause = rootCause()
+                    cause = rootCause(),
                 )
                 .also(AssertionErrorWithFacts::cleanStackTrace)
         )
@@ -108,7 +108,7 @@ internal constructor(
         FailureMetadata(
             failureStrategy = failureStrategy,
             messagesToPrepend = messagesToPrepend + (message ?: "null"),
-            steps = steps
+            steps = steps,
         )
 
     /**
@@ -227,7 +227,7 @@ internal constructor(
                 fact(
                     // TODO(dustinlam): Value should be .actualCustomStringRepresentation()
                     "${rootSubject.subject.typeDescription()} was",
-                    rootSubject.subject.actual
+                    rootSubject.subject.actual,
                 )
             )
         } else {
@@ -266,11 +266,7 @@ internal constructor(
      *
      * @param message the message to report if the assertion fails.
      */
-    internal inline fun assertEquals(
-        expected: Any?,
-        actual: Any?,
-        message: () -> String,
-    ) {
+    internal inline fun assertEquals(expected: Any?, actual: Any?, message: () -> String) {
         assertTrue(expected == actual, message)
     }
 
@@ -325,7 +321,7 @@ internal constructor(
  */
 internal enum class OldAndNewValuesAreSimilar {
     SIMILAR,
-    DIFFERENT
+    DIFFERENT,
 }
 
 /** The data from a call to either (a) a [Subject] constructor or (b) [Subject.check]. */
@@ -345,6 +341,6 @@ internal sealed class Step {
 
     internal class CheckStep(
         val valuesAreSimilar: OldAndNewValuesAreSimilar?,
-        val descriptionUpdate: ((String?) -> String)?
+        val descriptionUpdate: ((String?) -> String)?,
     ) : Step()
 }

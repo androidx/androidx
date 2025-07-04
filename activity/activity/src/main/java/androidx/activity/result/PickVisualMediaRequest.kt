@@ -16,11 +16,14 @@
 
 package androidx.activity.result
 
+import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.MediaCapabilities
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType
 import androidx.annotation.IntRange
+import androidx.annotation.RequiresApi
 
 /**
  * Creates a request for a
@@ -32,7 +35,7 @@ import androidx.annotation.IntRange
  */
 @Deprecated(
     "Superseded by PickVisualMediaRequest that takes an optional maxItems",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 fun PickVisualMediaRequest(mediaType: VisualMediaType = ImageAndVideo) =
     PickVisualMediaRequest.Builder().setMediaType(mediaType).build()
@@ -48,12 +51,12 @@ fun PickVisualMediaRequest(mediaType: VisualMediaType = ImageAndVideo) =
  */
 @Deprecated(
     "Superseded by PickVisualMediaRequest that take optional isOrderedSelection and defaultTab",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 @Suppress("MissingJvmstatic")
 fun PickVisualMediaRequest(
     mediaType: VisualMediaType = ImageAndVideo,
-    @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems()
+    @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
 ) = PickVisualMediaRequest.Builder().setMediaType(mediaType).setMaxItems(maxItems).build()
 
 /**
@@ -65,7 +68,10 @@ fun PickVisualMediaRequest(
  * @param maxItems limit the number of selectable items when using [PickMultipleVisualMedia]
  * @param isOrderedSelection whether the user can control the order of selected media when using
  *   [PickMultipleVisualMedia] (defaults to false)
- * @param defaultTab the tab to initially open in the picker (defaults to [DefaultTab.PhotosTab])
+ * @param defaultTab the tab to initially open the picker in (defaults to [DefaultTab.PhotosTab]).
+ *   Note that the support for this parameter was added in API level 35 / R ext 12 and applies the
+ *   default behavior for older versions. Also see
+ *   [android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB]
  * @return a PickVisualMediaRequest that contains the given input
  */
 @Suppress("MissingJvmstatic")
@@ -73,7 +79,7 @@ fun PickVisualMediaRequest(
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
     isOrderedSelection: Boolean = false,
-    defaultTab: DefaultTab = DefaultTab.PhotosTab
+    defaultTab: DefaultTab = DefaultTab.PhotosTab,
 ) =
     PickVisualMediaRequest.Builder()
         .setMediaType(mediaType)
@@ -87,6 +93,71 @@ fun PickVisualMediaRequest(
  * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
+ * @param accentColor color long to customize picker accent color. Note that the support for this
+ *   parameter was added in API level 35 / R ext 12 and applies the default behavior for older
+ *   versions. Also see [android.provider.MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR]
+ * @param mediaType type to go into the PickVisualMediaRequest
+ * @param maxItems limit the number of selectable items when using [PickMultipleVisualMedia]
+ * @param isOrderedSelection whether the user can control the order of selected media when using
+ *   [PickMultipleVisualMedia] (defaults to false)
+ * @param defaultTab the tab to initially open the picker in (defaults to [DefaultTab.PhotosTab]).
+ *   Note that the support for this parameter was added in API level 35 / R ext 12 and applies the
+ *   default behavior for older versions. Also see
+ *   [android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB]
+ * @return a PickVisualMediaRequest that contains the given input
+ */
+@Suppress("MissingJvmstatic")
+fun PickVisualMediaRequest(
+    accentColor: Long,
+    mediaType: VisualMediaType = ImageAndVideo,
+    @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
+    isOrderedSelection: Boolean = false,
+    defaultTab: DefaultTab = DefaultTab.PhotosTab,
+) =
+    PickVisualMediaRequest.Builder()
+        .setMediaType(mediaType)
+        .setMaxItems(maxItems)
+        .setOrderedSelection(isOrderedSelection)
+        .setDefaultTab(defaultTab)
+        .setAccentColor(accentColor)
+        .build()
+
+/**
+ * Creates a request for a
+ * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
+ *
+ * @param mediaCapabilitiesForTranscoding the [MediaCapabilities] that the application can handle.
+ * @param mediaType type to go into the PickVisualMediaRequest
+ * @param maxItems limit the number of selectable items when using [PickMultipleVisualMedia]
+ * @param isOrderedSelection whether the user can control the order of selected media when using
+ *   [PickMultipleVisualMedia] (defaults to false)
+ * @param defaultTab the tab to initially open in the picker (defaults to [DefaultTab.PhotosTab])
+ * @return a PickVisualMediaRequest that contains the given input
+ */
+@Suppress("MissingJvmstatic")
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+fun PickVisualMediaRequest(
+    mediaCapabilitiesForTranscoding: MediaCapabilities?,
+    mediaType: VisualMediaType = ImageAndVideo,
+    @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
+    isOrderedSelection: Boolean = false,
+    defaultTab: DefaultTab = DefaultTab.PhotosTab,
+) =
+    PickVisualMediaRequest.Builder()
+        .setMediaType(mediaType)
+        .setMaxItems(maxItems)
+        .setOrderedSelection(isOrderedSelection)
+        .setDefaultTab(defaultTab)
+        .setMediaCapabilitiesForTranscoding(mediaCapabilitiesForTranscoding)
+        .build()
+
+/**
+ * Creates a request for a
+ * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
+ *
+ * @param mediaCapabilitiesForTranscoding the [MediaCapabilities] that the application can handle.
  * @param accentColor color long to customize picker accent color
  * @param mediaType type to go into the PickVisualMediaRequest
  * @param maxItems limit the number of selectable items when using [PickMultipleVisualMedia]
@@ -96,12 +167,14 @@ fun PickVisualMediaRequest(
  * @return a PickVisualMediaRequest that contains the given input
  */
 @Suppress("MissingJvmstatic")
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun PickVisualMediaRequest(
+    mediaCapabilitiesForTranscoding: MediaCapabilities?,
     accentColor: Long,
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
     isOrderedSelection: Boolean = false,
-    defaultTab: DefaultTab = DefaultTab.PhotosTab
+    defaultTab: DefaultTab = DefaultTab.PhotosTab,
 ) =
     PickVisualMediaRequest.Builder()
         .setMediaType(mediaType)
@@ -109,6 +182,7 @@ fun PickVisualMediaRequest(
         .setOrderedSelection(isOrderedSelection)
         .setDefaultTab(defaultTab)
         .setAccentColor(accentColor)
+        .setMediaCapabilitiesForTranscoding(mediaCapabilitiesForTranscoding)
         .build()
 
 /**
@@ -136,6 +210,9 @@ class PickVisualMediaRequest internal constructor() {
     var accentColor: Long = 0
         internal set
 
+    var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
+        internal set
+
     /** A builder for constructing [PickVisualMediaRequest] instances. */
     class Builder {
 
@@ -145,6 +222,7 @@ class PickVisualMediaRequest internal constructor() {
         private var defaultTab: DefaultTab = DefaultTab.PhotosTab
         private var isCustomAccentColorApplied: Boolean = false
         private var accentColor: Long = 0
+        private var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
 
         /**
          * Set the media type for the [PickVisualMediaRequest].
@@ -190,11 +268,12 @@ class PickVisualMediaRequest internal constructor() {
          * Set the default tab for the [PickVisualMediaRequest].
          *
          * The default tab is used to open the preferred view inside the photo picker at first such
-         * as, e.g. [DefaultTab.PhotosTab], [DefaultTab.AlbumsTab]. This parameter might be not
-         * supported by the underlying photo picker implementation.
+         * as, e.g. [DefaultTab.PhotosTab], [DefaultTab.AlbumsTab]. This feature was added in API
+         * level 35 / R ext 12 and applies the default behavior for older versions.
          *
-         * @param defaultTab the tab to launch the picker in
+         * @param defaultTab the tab to launch the picker in (defaults to [DefaultTab.PhotosTab])
          * @return This builder.
+         * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB
          */
         fun setDefaultTab(defaultTab: DefaultTab): Builder {
             this.defaultTab = defaultTab
@@ -204,15 +283,37 @@ class PickVisualMediaRequest internal constructor() {
         /**
          * Set the accent color for the [PickVisualMediaRequest].
          *
-         * The accent color is used to change the main color in the photo picker. This parameter
-         * might be not supported by the underlying photo picker implementation.
+         * The accent color is used to change the main color in the photo picker. This feature was
+         * added in API level 35 / R ext 12 and applies the default behavior for older versions.
          *
          * @param accentColor color long to apply as accent to the main color in the picker
          * @return This builder.
+         * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR
          */
         fun setAccentColor(accentColor: Long): Builder {
             this.accentColor = accentColor
             this.isCustomAccentColorApplied = true
+            return this
+        }
+
+        /**
+         * Set the media capabilities for the [PickVisualMediaRequest].
+         *
+         * This parameter allows you to specify the media capabilities that your application can
+         * handle, such as the HDR type of the media. This parameter might be not supported by the
+         * underlying photo picker implementation.
+         *
+         * When the requested video format does not match the capabilities specified by the calling
+         * app and the video duration is within the range that photo picker can handle, photo picker
+         * will transcode the video into a default supported format, otherwise, the calling app will
+         * receive the original file.
+         *
+         * @param mediaCapabilities the [MediaCapabilities] to apply to the media selection.
+         * @return This builder.
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun setMediaCapabilitiesForTranscoding(mediaCapabilities: MediaCapabilities?): Builder {
+            this.mediaCapabilitiesForTranscoding = mediaCapabilities
             return this
         }
 
@@ -229,6 +330,7 @@ class PickVisualMediaRequest internal constructor() {
                 this.defaultTab = this@Builder.defaultTab
                 this.isCustomAccentColorApplied = this@Builder.isCustomAccentColorApplied
                 this.accentColor = this@Builder.accentColor
+                this.mediaCapabilitiesForTranscoding = this@Builder.mediaCapabilitiesForTranscoding
             }
     }
 }

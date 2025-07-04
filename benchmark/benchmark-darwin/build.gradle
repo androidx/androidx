@@ -6,7 +6,7 @@
  * modifying its settings.
  */
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -87,5 +87,5 @@ androidx {
     name = "Benchmarks - Darwin"
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin"
-    type = LibraryType.SNAPSHOT_ONLY_LIBRARY
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
 }

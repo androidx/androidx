@@ -74,7 +74,7 @@ internal class ActivityWithFlagSecure : TestActivity() {
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
+            WindowManager.LayoutParams.FLAG_SECURE,
         )
     }
 }
@@ -85,7 +85,7 @@ internal fun SimpleContainer(
     modifier: Modifier = Modifier,
     width: Dp? = null,
     height: Dp? = null,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Layout(content, modifier) { measurables, incomingConstraints ->
         val containerConstraints =
@@ -95,7 +95,7 @@ internal fun SimpleContainer(
                         width?.roundToPx() ?: 0,
                         width?.roundToPx() ?: Constraints.Infinity,
                         height?.roundToPx() ?: 0,
-                        height?.roundToPx() ?: Constraints.Infinity
+                        height?.roundToPx() ?: Constraints.Infinity,
                     )
             )
         val childConstraints = containerConstraints.copyMaxDimensions()
@@ -123,7 +123,7 @@ internal fun SimpleContainer(
                     Alignment.Center.align(
                         IntSize(it.width, it.height),
                         IntSize(containerWidth, containerHeight),
-                        layoutDirection
+                        layoutDirection,
                     )
                 it.placeRelative(position.x, position.y)
             }

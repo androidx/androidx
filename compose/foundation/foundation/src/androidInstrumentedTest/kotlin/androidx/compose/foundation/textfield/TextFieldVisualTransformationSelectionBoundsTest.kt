@@ -56,9 +56,9 @@ internal class TextFieldVisualTransformationSelectionBoundsTest : FocusedWindowT
                                         override fun originalToTransformed(offset: Int) = offset + 1
 
                                         override fun transformedToOriginal(offset: Int) = offset - 1
-                                    }
+                                    },
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -83,9 +83,9 @@ internal class TextFieldVisualTransformationSelectionBoundsTest : FocusedWindowT
                                         override fun originalToTransformed(offset: Int) = offset + 1
 
                                         override fun transformedToOriginal(offset: Int) = offset - 1
-                                    }
+                                    },
                             )
-                        }
+                        },
                     )
                 }
             }

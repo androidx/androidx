@@ -64,7 +64,7 @@ internal object ThreadPriority {
                                 // incorrectly.
                                 "ERROR READING THREAD NAME"
                             }
-                        }
+                        },
                     )
             if (tidsToNames.isNullOrEmpty()) {
                 Log.d(TAG, "NOTE: Couldn't find threads in this process for priority pinning.")
@@ -115,7 +115,7 @@ internal object ThreadPriority {
         if (newPriority != previousPriority) {
             Log.d(
                 TAG,
-                "Set $tid ($label) to priority $priority. Was $previousPriority, now $newPriority"
+                "Set $tid ($label) to priority $priority. Was $previousPriority, now $newPriority",
             )
             return true
         }

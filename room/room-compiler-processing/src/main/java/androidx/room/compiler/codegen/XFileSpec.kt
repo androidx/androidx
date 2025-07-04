@@ -28,8 +28,10 @@ interface XFileSpec {
     fun writeTo(
         language: CodeLanguage,
         generator: XFiler,
-        mode: XFiler.Mode = XFiler.Mode.Isolating
+        mode: XFiler.Mode = XFiler.Mode.Isolating,
     )
+
+    fun toBuilder(): Builder
 
     companion object {
         @JvmStatic
@@ -46,7 +48,7 @@ interface XFileSpec {
                 KotlinFileSpec.Builder(
                     FileSpec.builder(packageName, typeSpec.name!!.kotlin)
                         .addType(typeSpec.kotlin.actual)
-                )
+                ),
             )
         }
     }

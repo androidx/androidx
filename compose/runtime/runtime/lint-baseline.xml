@@ -1,22 +1,508 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 8.12.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha08)" variant="all" version="8.12.0-alpha08">
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @InternalComposeApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
+        id="NullAnnotationGroup"
+        message="Could not find associated group for annotation androidx.compose.runtime.InternalComposeApi, which is used in androidx.compose.runtime."
         errorLine1="@InternalComposeApi"
         errorLine2="~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/internal/LiveLiteral.kt"/>
+            file="src/desktopMain/kotlin/androidx/compose/runtime/OldIdentityHashCode.desktop.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(0)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTestsJvm.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    val content = movableContentOf {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/MovableContentTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="inline fun InlineWrapper(block: @Composable () -> Unit) {"
+        errorLine2="                         ~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/tooling/ErrorTraceComposables.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="private fun Stack(isHorizontal: Boolean, block: @Composable () -> Unit) {"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/MovableContentTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    content: @Composable () -> Unit,"
+        errorLine2="    ~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/GroupSizeValidationTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="@Composable private fun composableFunction() {}"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="@Composable private fun overloadedComposable() {}"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="@Suppress(&quot;UNUSED_PARAMETER&quot;) @Composable private fun overloadedComposable(s: String) {}"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="private fun overloadedComposable("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="private fun overloadedComposable("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="private fun overloadedComposable("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="private fun differentParametersTypes("
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    @Composable fun composableMethod() {}"
+        errorLine2="                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    @Composable fun overloadedComposableMethod() {}"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    @Suppress(&quot;UNUSED_PARAMETER&quot;) @Composable fun overloadedComposableMethod(s: String) {}"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun overloadedComposableMethod("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun overloadedComposableMethod("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun overloadedComposableMethod("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    fun differentParametersTypesMethod("
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/reflect/ComposableMethodTest.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="fun test_CM1_RetFun(condition: Boolean) {"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="fun test_CM1_CCM1_RetFun(condition: Boolean) {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="fun updateInstance(newInstance: () -> Int) {"
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="private inline fun simulatedIf(condition: Boolean, block: () -> Unit) {"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="inline fun explicitStartReplaceGroup("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="fun LiveEditTestScope.Subcompose(content: @Composable () -> Unit): Composition {"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorJvmTest/kotlin/androidx/compose/runtime/LiveEditTests.kt"/>
+    </issue>
+
+    <issue
+        id="CompositionLocalNaming"
+        message="CompositionLocal properties should be prefixed with `Local`"
+        errorLine1="val cacheLocal = staticCompositionLocalOf { &quot;Unset&quot; }"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionLocalTests.kt"/>
+    </issue>
+
+    <issue
+        id="MutableCollectionMutableState"
+        message="Creating a MutableState object with a mutable collection type"
+        errorLine1="        var a by mutableStateOf(mutableListOf(32), referentialEqualityPolicy())"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionAndDerivedStateTests.kt"/>
+    </issue>
+
+    <issue
+        id="MutableCollectionMutableState"
+        message="Creating a MutableState object with a mutable collection type"
+        errorLine1="        var b by mutableStateOf(mutableListOf(10), referentialEqualityPolicy())"
+        errorLine2="                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionAndDerivedStateTests.kt"/>
+    </issue>
+
+    <issue
+        id="MutableCollectionMutableState"
+        message="Creating a MutableState object with a mutable collection type"
+        errorLine1="            val state = mutableStateOf(mutableListOf(42), referentialEqualityPolicy())"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotStateObserverTestsCommon.kt"/>
+    </issue>
+
+    <issue
+        id="MutableCollectionMutableState"
+        message="Creating a MutableState object with a mutable collection type"
+        errorLine1="            val state = mutableStateOf(mutableListOf(1), referentialEqualityPolicy())"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotStateObserverTestsCommon.kt"/>
+    </issue>
+
+    <issue
+        id="MutableCollectionMutableState"
+        message="Creating a MutableState object with a mutable collection type"
+        errorLine1="            val state = mutableStateOf(mutableListOf(1), referentialEqualityPolicy())"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotStateObserverTestsCommon.kt"/>
+    </issue>
+
+    <issue
+        id="RememberReturnType"
+        message="`remember` calls must not return `Unit`"
+        errorLine1="            remember {"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="RememberReturnType"
+        message="`remember` calls must not return `Unit`"
+        errorLine1="            remember {"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/CompositionTests.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    if (suppressedExceptions.none { it is DiagnosticComposeException }) {"
+        errorLine2="                             ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/tooling/ComposeStackTrace.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    getCurrentCompositionErrors().mapNotNull { (cause, recoverable) ->"
+        errorLine2="                                  ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/HotReloader.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                    val tail = it.drop(1)"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            knownCompositionsLocked().forEach { composition ->"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Recomposer.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                                    pairs.map { pair ->"
+        errorLine2="                                          ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Recomposer.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            snapshot.enter { state.value = 12 }"
+        errorLine2="                                   ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            nestedSnapshot.enter { state.value = 12 }"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                val result = snapshot.enter { state.value }"
+        errorLine2="                                                    ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                val result = snapshot.enter { state.value }"
+        errorLine2="                                                    ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                        state.value = 20"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                        state.value"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                        state1.value"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                        state2.value"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                    ms1.enter { state1.value = 11 }"
+        errorLine2="                                       ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/tooling/SnapshotObserverTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            { it.value },"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="                it.value = 2"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
+        errorLine1="            { it.value },"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
+        errorLine1="                it.value = 2L"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            { it.value },"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="                it.value = 2f"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Reading `value` will cause an autoboxing operation. Use `doubleValue` to avoid unnecessary allocations."
+        errorLine1="            { it.value },"
+        errorLine2="                 ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `doubleValue` to avoid unnecessary allocations."
+        errorLine1="                it.value = 2.0"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/nonEmulatorCommonTest/kotlin/androidx/compose/runtime/snapshots/SnapshotTests.kt"/>
     </issue>
 
     <issue
@@ -26,24 +512,6 @@
         errorLine2="                ^">
         <location
             file="src/jvmMain/kotlin/androidx/compose/runtime/reflect/ComposableMethod.jvm.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field intParams with type List&lt;IntParameter>: replace with IntList"
-        errorLine1="        val intParams = List(ints) { index -> IntParameter(index) }"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;IntParameter> of getIntParams: replace with IntList"
-        errorLine1="        val intParams = List(ints) { index -> IntParameter(index) }"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
     </issue>
 
     <issue
@@ -188,33 +656,6 @@
         errorLine2="                     ~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor PrioritySet has parameter list with type List&lt;Integer>: replace with IntList"
-        errorLine1="internal class PrioritySet(private val list: MutableList&lt;Int> = mutableListOf()) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field list with type List&lt;Integer>: replace with IntList"
-        errorLine1="internal class PrioritySet(private val list: MutableList&lt;Int> = mutableListOf()) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable newBelowBound with type List&lt;Integer>: replace with IntList"
-        errorLine1="                var newBelowBound: MutableList&lt;Int>? = null"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/snapshots/SnapshotIdSet.kt"/>
     </issue>
 
     <issue

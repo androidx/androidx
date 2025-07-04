@@ -22,8 +22,6 @@ import androidx.health.services.client.proto.DataProto
 /**
  * Defines configuration for a passive monitoring listener request using Health Services.
  *
- * @constructor Creates a new [PassiveListenerConfig] which defines a request for passive monitoring
- *   using Health Services
  * @property dataTypes set of [DataType]s which should be tracked. Requested data will be returned
  *   by [PassiveListenerCallback.onNewDataPointsReceived].
  * @property shouldUserActivityInfoBeRequested whether to request [UserActivityInfo] updates. Data
@@ -33,6 +31,8 @@ import androidx.health.services.client.proto.DataProto
  *   returned by [PassiveListenerCallback.onGoalCompleted].
  * @property healthEventTypes set of [HealthEvent.Type] which should be tracked. Detected health
  *   events will be returned by [PassiveListenerCallback.onHealthEventReceived].
+ * @constructor Creates a new [PassiveListenerConfig] which defines a request for passive monitoring
+ *   using Health Services
  */
 @Suppress("ParcelCreator")
 public class PassiveListenerConfig(
@@ -40,7 +40,7 @@ public class PassiveListenerConfig(
     @get:JvmName("shouldUserActivityInfoBeRequested")
     public val shouldUserActivityInfoBeRequested: Boolean,
     public val dailyGoals: Set<PassiveGoal>,
-    public val healthEventTypes: Set<HealthEvent.Type>
+    public val healthEventTypes: Set<HealthEvent.Type>,
 ) {
 
     internal constructor(
@@ -49,7 +49,7 @@ public class PassiveListenerConfig(
         proto.dataTypesList.map { DataType.deltaFromProto(it) }.toSet(),
         proto.includeUserActivityState,
         proto.passiveGoalsList.map { PassiveGoal(it) }.toSet(),
-        proto.healthEventTypesList.map { HealthEvent.Type.fromProto(it) }.toSet()
+        proto.healthEventTypesList.map { HealthEvent.Type.fromProto(it) }.toSet(),
     )
 
     internal fun isValidPassiveGoal(): Boolean {
@@ -114,7 +114,7 @@ public class PassiveListenerConfig(
                 dataTypes,
                 requestUserActivityState,
                 dailyGoals,
-                healthEventTypes
+                healthEventTypes,
             )
         }
     }

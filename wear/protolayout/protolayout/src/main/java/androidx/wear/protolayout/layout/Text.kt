@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import androidx.annotation.Dimension
 import androidx.annotation.Dimension.Companion.SP
 import androidx.annotation.OptIn
+import androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_BOLD
+import androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
 import androidx.wear.protolayout.LayoutElementBuilders.FONT_WEIGHT_UNDEFINED
 import androidx.wear.protolayout.LayoutElementBuilders.FontSetting
 import androidx.wear.protolayout.LayoutElementBuilders.FontStyle
@@ -49,11 +51,11 @@ import java.util.stream.Stream
  * @param modifier Modifiers to set to this element..
  * @param maxLines The maximum number of lines that can be represented by the [Text] element. If not
  *   defined, the [Text] element will be treated as a single-line element.
- * @param multilineAlignment Alignment of the text within its bounds. Note that a [Text] element
- *   will size itself to wrap its contents, so this option is meaningless for single-line text (for
- *   that, use alignment of the outer container). For multi-line text, however, this will set the
- *   alignment of lines relative to the [Text] element bounds. If not defined, defaults to
- *   TEXT_ALIGN_CENTER.
+ * @param alignment Alignment of the text within its bounds. Note that a [Text] element will size
+ *   itself to wrap its contents, so this option is meaningless for single-line text (for that, use
+ *   alignment of the outer container), unless this text overflows. For multi-line text, however,
+ *   this will set the alignment of lines relative to the [Text] element bounds. If not defined,
+ *   defaults to TEXT_ALIGN_CENTER.
  * @param overflow How to handle text which overflows the bound of the [Text] element. A [Text]
  *   element will grow as large as possible inside its parent container (while still respecting
  *   max_lines); if it cannot grow large enough to render all of its text, the text which cannot fit
@@ -69,7 +71,7 @@ fun basicText(
     fontStyle: FontStyle? = null,
     modifier: LayoutModifier? = null,
     maxLines: Int = 0,
-    @TextAlignment multilineAlignment: Int = TEXT_ALIGN_UNDEFINED,
+    @TextAlignment alignment: Int = TEXT_ALIGN_UNDEFINED,
     @TextOverflow overflow: Int = TEXT_OVERFLOW_UNDEFINED,
     @Dimension(SP) lineHeight: Float = Float.NaN,
 ) =
@@ -82,8 +84,8 @@ fun basicText(
             if (maxLines != 0) {
                 setMaxLines(maxLines)
             }
-            if (multilineAlignment != TEXT_ALIGN_UNDEFINED) {
-                setMultilineAlignment(multilineAlignment)
+            if (alignment != TEXT_ALIGN_UNDEFINED) {
+                setMultilineAlignment(alignment)
             }
             if (overflow != TEXT_OVERFLOW_UNDEFINED) {
                 setOverflow(overflow)
@@ -113,7 +115,9 @@ fun basicText(
  *   can fit the most text within the parent bounds will be used.
  * @param settings The collection of font settings to be applied. If more than one Setting with the
  *   same axis tag is specified, the first one will be used. Supported settings depend on the font
- *   used and renderer version.
+ *   used by the system and the renderer version. However, if using [FontSetting.weight] axis with a
+ *   value higher than `500`, consider adding a fallback [weight] parameter as [FONT_WEIGHT_MEDIUM]
+ *   or [FONT_WEIGHT_BOLD] to avoid text looking too thin on fonts that don't support weight axis.
  * @param preferredFontFamilies is the ordered list of font families to pick from for this
  *   [FontStyle]. If the given font family is not available on a device, the fallback values will be
  *   attempted to use, in order in which they are given. Note that support for font family
@@ -129,9 +133,9 @@ fun fontStyle(
     color: LayoutColor? = null,
     @FontWeight weight: Int = FONT_WEIGHT_UNDEFINED,
     letterSpacingEm: Float = Float.NaN,
-    @RequiresSchemaVersion(major = 1, minor = 300) additionalSizesSp: List<Float> = listOf(),
-    @RequiresSchemaVersion(major = 1, minor = 400) settings: List<FontSetting> = listOf(),
-    @RequiresSchemaVersion(major = 1, minor = 400) preferredFontFamilies: List<String> = listOf()
+    @RequiresSchemaVersion(major = 1, minor = 300) additionalSizesSp: List<Float> = emptyList(),
+    @RequiresSchemaVersion(major = 1, minor = 400) settings: List<FontSetting> = emptyList(),
+    @RequiresSchemaVersion(major = 1, minor = 400) preferredFontFamilies: List<String> = emptyList(),
 ): FontStyle =
     FontStyle.Builder()
         .apply {
@@ -153,14 +157,14 @@ fun fontStyle(
             if (preferredFontFamilies.isNotEmpty()) {
                 setPreferredFontFamilies(
                     preferredFontFamilies.first(),
-                    *preferredFontFamilies.subList(1, preferredFontFamilies.size).toTypedArray()
+                    *preferredFontFamilies.subList(1, preferredFontFamilies.size).toTypedArray(),
                 )
             }
             if (additionalSizesSp.isNotEmpty()) {
                 setSizes(
                     *Stream.concat(
                             if (size != 0f) Stream.of(size.toInt()) else Stream.empty(),
-                            additionalSizesSp.stream().map { it.toInt() }
+                            additionalSizesSp.stream().map { it.toInt() },
                         )
                         .collect(toList())
                         .toIntArray()

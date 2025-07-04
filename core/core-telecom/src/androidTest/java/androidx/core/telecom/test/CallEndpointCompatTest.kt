@@ -19,7 +19,6 @@ package androidx.core.telecom.test
 import android.media.AudioDeviceInfo
 import android.os.Build.VERSION_CODES
 import android.telecom.CallAudioState
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_BLUETOOTH
 import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_EARPIECE
@@ -36,7 +35,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-@RequiresApi(VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = VERSION_CODES.O)
 class CallEndpointCompatTest {
     val mSessionId: Int = 222
 
@@ -84,7 +83,7 @@ class CallEndpointCompatTest {
         assertEquals(TYPE_SPEAKER, EndpointUtils.mapRouteToType(CallAudioState.ROUTE_SPEAKER))
         assertEquals(
             TYPE_WIRED_HEADSET,
-            EndpointUtils.mapRouteToType(CallAudioState.ROUTE_WIRED_HEADSET)
+            EndpointUtils.mapRouteToType(CallAudioState.ROUTE_WIRED_HEADSET),
         )
         assertEquals(TYPE_BLUETOOTH, EndpointUtils.mapRouteToType(CallAudioState.ROUTE_BLUETOOTH))
         assertEquals(TYPE_STREAMING, EndpointUtils.mapRouteToType(CallAudioState.ROUTE_STREAMING))
@@ -99,7 +98,7 @@ class CallEndpointCompatTest {
         assertEquals(CallAudioState.ROUTE_BLUETOOTH, EndpointUtils.mapTypeToRoute(TYPE_BLUETOOTH))
         assertEquals(
             CallAudioState.ROUTE_WIRED_HEADSET,
-            EndpointUtils.mapTypeToRoute(TYPE_WIRED_HEADSET)
+            EndpointUtils.mapTypeToRoute(TYPE_WIRED_HEADSET),
         )
         assertEquals(CallAudioState.ROUTE_STREAMING, EndpointUtils.mapTypeToRoute(TYPE_STREAMING))
         assertEquals(CallAudioState.ROUTE_EARPIECE, EndpointUtils.mapTypeToRoute(-1))
@@ -110,53 +109,53 @@ class CallEndpointCompatTest {
     fun testAudioDeviceInfoTypeToCallEndpointTypeRemapping() {
         assertEquals(
             TYPE_EARPIECE,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BUILTIN_EARPIECE)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BUILTIN_EARPIECE),
         )
         assertEquals(
             TYPE_SPEAKER,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER),
         )
         // Wired Headset Devices
         assertEquals(
             TYPE_WIRED_HEADSET,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_WIRED_HEADSET)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_WIRED_HEADSET),
         )
         assertEquals(
             TYPE_WIRED_HEADSET,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_WIRED_HEADPHONES)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_WIRED_HEADPHONES),
         )
         assertEquals(
             TYPE_WIRED_HEADSET,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_USB_DEVICE)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_USB_DEVICE),
         )
         assertEquals(
             TYPE_WIRED_HEADSET,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_USB_ACCESSORY)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_USB_ACCESSORY),
         )
         assertEquals(
             TYPE_WIRED_HEADSET,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_USB_HEADSET)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_USB_HEADSET),
         )
         // Bluetooth Devices
         assertEquals(
             TYPE_BLUETOOTH,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLUETOOTH_SCO)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLUETOOTH_SCO),
         )
         assertEquals(
             TYPE_BLUETOOTH,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_HEARING_AID)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_HEARING_AID),
         )
         assertEquals(
             TYPE_BLUETOOTH,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_HEADSET)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_HEADSET),
         )
         assertEquals(
             TYPE_BLUETOOTH,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_SPEAKER)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_SPEAKER),
         )
         assertEquals(
             TYPE_BLUETOOTH,
-            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_BROADCAST)
+            remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_BROADCAST),
         )
     }
 
@@ -177,7 +176,7 @@ class CallEndpointCompatTest {
                 second,
                 fifth,
                 third,
-                highestPriorityEndpoint
+                highestPriorityEndpoint,
             )
 
         endpoints.sort()
@@ -207,7 +206,7 @@ class CallEndpointCompatTest {
                 second,
                 fifth,
                 third,
-                highestPriorityEndpoint
+                highestPriorityEndpoint,
             )
 
         endpoints.sort()

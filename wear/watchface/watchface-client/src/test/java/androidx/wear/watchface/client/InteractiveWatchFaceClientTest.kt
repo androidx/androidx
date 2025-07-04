@@ -42,7 +42,7 @@ class InteractiveWatchFaceClientTest {
             InteractiveWatchFaceClientImpl(
                 iInteractiveWatchFace,
                 previewImageUpdateRequestedExecutor = null,
-                previewImageUpdateRequestedListener = null
+                previewImageUpdateRequestedListener = null,
             )
 
         val listener = mock<InteractiveWatchFaceClient.ClientDisconnectListener>()
@@ -63,7 +63,7 @@ class InteractiveWatchFaceClientTest {
             InteractiveWatchFaceClientImpl(
                 iInteractiveWatchFace,
                 previewImageUpdateRequestedExecutor = null,
-                previewImageUpdateRequestedListener = null
+                previewImageUpdateRequestedListener = null,
             )
 
         Assert.assertFalse(client.isRemoteWatchFaceViewHostSupported)
@@ -76,7 +76,7 @@ class InteractiveWatchFaceClientTest {
             InteractiveWatchFaceClientImpl(
                 iInteractiveWatchFace,
                 previewImageUpdateRequestedExecutor = null,
-                previewImageUpdateRequestedListener = null
+                previewImageUpdateRequestedListener = null,
             )
 
         Assert.assertTrue(client.isRemoteWatchFaceViewHostSupported)

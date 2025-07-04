@@ -16,28 +16,22 @@
 
 package androidx.xr.runtime.internal
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
-/**
- * Describes a well-known coordinate system that is available for [anchors][Anchor] to be attached
- * to.
- */
+@IntDef(Space.PARENT, Space.ACTIVITY, Space.REAL_WORLD)
+@Retention(AnnotationRetention.SOURCE)
+@Suppress("PublicTypedef")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface Space : Trackable {
-    /** Describes the origin and extents of the well-known coordinate system. */
-    public class Type private constructor(private val name: Int) {
-        public companion object {
-            /**
-             * A world-locked origin useful when an application needs to render seated-scale content
-             * that is not positioned relative to the physical floor.
-             */
-            @JvmField public val Local: Type = Type(0)
+public annotation class SpaceValue
 
-            /**
-             * Similar to [LOCAL] but with a different height/Y coordinate. Matches [STAGE] but with
-             * potentially reduced bounds.
-             */
-            @JvmField public val LocalFloor: Type = Type(1)
-        }
-    }
+/** Coordinate spaces in which to apply the transformation values. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public object Space {
+    /** The local coordinate space of an [Entity], relative to its parent. */
+    public const val PARENT: Int = 0
+    /** The global coordinate space, at the root of the scene graph for the activity. */
+    public const val ACTIVITY: Int = 1
+    /** The global coordinate space, unscaled, at the root of the scene graph of the activity. */
+    public const val REAL_WORLD: Int = 2
 }

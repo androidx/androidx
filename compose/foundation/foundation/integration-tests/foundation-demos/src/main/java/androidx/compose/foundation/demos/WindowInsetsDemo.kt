@@ -59,29 +59,29 @@ fun WindowInsetsDemo() {
             value = "Click to show keyboard",
             onValueChange = {},
             modifier = Modifier.fillMaxWidth().wrapContentSize(),
-            textStyle = TextStyle(color = Color.Black.copy(alpha = 0.5f))
+            textStyle = TextStyle(color = Color.Black.copy(alpha = 0.5f)),
         ) { field ->
             with(density) {
                 Column(horizontalAlignment = CenterHorizontally) {
                     Text(
                         insets.getTop(density).toDp().toString(),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.caption,
                     )
                     Row(verticalAlignment = CenterVertically) {
                         val layoutDirection = LocalLayoutDirection.current
                         Text(
                             insets.getLeft(density, layoutDirection).toDp().toString(),
-                            style = MaterialTheme.typography.caption
+                            style = MaterialTheme.typography.caption,
                         )
                         Box(Modifier.padding(2.dp).border(1.dp, Color.Black)) { field() }
                         Text(
                             insets.getRight(density, layoutDirection).toDp().toString(),
-                            style = MaterialTheme.typography.caption
+                            style = MaterialTheme.typography.caption,
                         )
                     }
                     Text(
                         insets.getBottom(density).toDp().toString(),
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.caption,
                     )
                 }
             }

@@ -67,7 +67,7 @@ fun PullToRefreshDemo() {
                     IconButton(onClick = onRefresh) {
                         Icon(Icons.Filled.Refresh, "Trigger Refresh")
                     }
-                }
+                },
             )
         }
     ) {

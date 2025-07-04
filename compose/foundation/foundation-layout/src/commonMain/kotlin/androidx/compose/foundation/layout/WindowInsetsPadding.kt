@@ -373,7 +373,7 @@ internal class InsetsPaddingModifier(private val insets: WindowInsets) :
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val left = unconsumedInsets.getLeft(this, layoutDirection)
         val top = unconsumedInsets.getTop(this)
@@ -542,7 +542,7 @@ private class RecalculateWindowInsetsModifierNode :
 
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         return if (!constraints.hasFixedWidth || !constraints.hasFixedHeight) {
             // We can't provide the modifier local value.
@@ -593,22 +593,22 @@ private class RecalculateWindowInsetsModifierNode :
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = measurable.minIntrinsicHeight(width)
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = measurable.minIntrinsicWidth(height)
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurable: IntrinsicMeasurable,
-        width: Int
+        width: Int,
     ): Int = measurable.maxIntrinsicHeight(width)
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurable: IntrinsicMeasurable,
-        height: Int
+        height: Int,
     ): Int = measurable.maxIntrinsicWidth(height)
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {

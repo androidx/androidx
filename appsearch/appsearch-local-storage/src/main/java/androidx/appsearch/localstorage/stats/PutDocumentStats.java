@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.stats;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.stats.BaseStats;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -30,7 +31,7 @@ import org.jspecify.annotations.NonNull;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class PutDocumentStats {
+public final class PutDocumentStats extends BaseStats {
     private final @NonNull String mPackageName;
     private final @NonNull String mDatabase;
     /**
@@ -80,8 +81,17 @@ public final class PutDocumentStats {
     /** Time used to sort and merge the lite index's hit buffer. */
     private final int mNativeLiteIndexSortLatencyMillis;
 
+    /**
+     * Time used to index all metadata terms in the document, which can only be
+     * added by PropertyExistenceIndexingHandler currently.
+     */
+    private final int mMetadataTermIndexLatencyMillis;
+
+    /**Time used to index all embeddings in the document.*/
+    private final int mEmbeddingIndexLatencyMillis;
+
     PutDocumentStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mPackageName = builder.mPackageName;
         mDatabase = builder.mDatabase;
         mStatusCode = builder.mStatusCode;
@@ -98,6 +108,8 @@ public final class PutDocumentStats {
         mNativeIntegerIndexLatencyMillis = builder.mNativeIntegerIndexLatencyMillis;
         mNativeQualifiedIdJoinIndexLatencyMillis = builder.mNativeQualifiedIdJoinIndexLatencyMillis;
         mNativeLiteIndexSortLatencyMillis = builder.mNativeLiteIndexSortLatencyMillis;
+        mMetadataTermIndexLatencyMillis = builder.mMetadataTermIndexLatencyMillis;
+        mEmbeddingIndexLatencyMillis = builder.mEmbeddingIndexLatencyMillis;
     }
 
     /** Returns calling package name. */
@@ -181,8 +193,21 @@ public final class PutDocumentStats {
         return mNativeLiteIndexSortLatencyMillis;
     }
 
+    /**
+     * Returns time used to index all metadata terms in the document, which can only be
+     * added by PropertyExistenceIndexingHandler currently, in milliseconds.
+     */
+    public int getMetadataTermIndexLatencyMillis() {
+        return mMetadataTermIndexLatencyMillis;
+    }
+
+    /** Returns time used to index all embeddings in the document, in milliseconds. */
+    public int getEmbeddingIndexLatencyMillis() {
+        return mEmbeddingIndexLatencyMillis;
+    }
+
     /** Builder for {@link PutDocumentStats}. */
-    public static class Builder {
+    public static class Builder extends BaseStats.Builder<PutDocumentStats.Builder> {
         final @NonNull String mPackageName;
         final @NonNull String mDatabase;
         @AppSearchResult.ResultCode
@@ -200,6 +225,8 @@ public final class PutDocumentStats {
         int mNativeIntegerIndexLatencyMillis;
         int mNativeQualifiedIdJoinIndexLatencyMillis;
         int mNativeLiteIndexSortLatencyMillis;
+        int mMetadataTermIndexLatencyMillis;
+        int mEmbeddingIndexLatencyMillis;
 
         /** Builder for {@link PutDocumentStats} */
         public Builder(@NonNull String packageName, @NonNull String database) {
@@ -315,10 +342,27 @@ public final class PutDocumentStats {
             return this;
         }
 
+        /** Sets the native metadata term index latency, in millis. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setMetadataTermIndexLatencyMillis(
+                int metadataTermIndexLatencyMillis) {
+            mMetadataTermIndexLatencyMillis = metadataTermIndexLatencyMillis;
+            return this;
+        }
+
+        /** Sets the native embedding index latency, in millis. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setEmbeddingIndexLatencyMillis(
+                int embeddingIndexLatencyMillis) {
+            mEmbeddingIndexLatencyMillis = embeddingIndexLatencyMillis;
+            return this;
+        }
+
         /**
          * Creates a new {@link PutDocumentStats} object from the contents of this
          * {@link Builder} instance.
          */
+        @Override
         public @NonNull PutDocumentStats build() {
             return new PutDocumentStats(/* builder= */ this);
         }

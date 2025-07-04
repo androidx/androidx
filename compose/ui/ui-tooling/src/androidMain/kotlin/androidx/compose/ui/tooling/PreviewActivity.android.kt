@@ -87,13 +87,13 @@ class PreviewActivity : ComponentActivity() {
     private fun setParameterizedContent(
         className: String,
         methodName: String,
-        parameterProvider: String
+        parameterProvider: String,
     ) {
         Log.d(TAG, "Previewing '$methodName' with parameter provider: '$parameterProvider'")
         val previewParameters =
             getPreviewProviderParameters(
                 parameterProvider.asPreviewProviderClass(),
-                intent.getIntExtra("parameterProviderIndex", -1)
+                intent.getIntExtra("parameterProviderIndex", -1),
             )
 
         // Handle the case where parameterProviderIndex is not provided. In this case, instead of
@@ -110,7 +110,7 @@ class PreviewActivity : ComponentActivity() {
                                 className,
                                 methodName,
                                 currentComposer,
-                                previewParameters[index.intValue]
+                                previewParameters[index.intValue],
                             )
                         }
                     },
@@ -119,9 +119,9 @@ class PreviewActivity : ComponentActivity() {
                             text = { Text("Next") },
                             onClick = {
                                 index.intValue = (index.intValue + 1) % previewParameters.size
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         } else {
@@ -130,7 +130,7 @@ class PreviewActivity : ComponentActivity() {
                     className,
                     methodName,
                     currentComposer,
-                    *previewParameters
+                    *previewParameters,
                 )
             }
         }

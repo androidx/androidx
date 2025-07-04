@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Onyesho la Kiolezo cha Ujumbe"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Ujumbe unaandikwa hapa.\nMaandishi ya ziada kwenye mstari wa pili."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Onyesho la Kiolezo cha Ujumbe Mfupi"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Jaribio la Kiolezo la Kipengee kilicho kwenye Sehemu"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Sehemu ya Kitufe cha Mviringo"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Sehemu ya Kugeuza"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Sehemu ya Safu Mlalo Nyingi"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Sehemu ya Kupanga Vipengee"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Onyesho la Kiolezo cha Kijisehemu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Onyesho la Kiolezo cha Orodha ya Mahali"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Vinjari Maeneo"</string>

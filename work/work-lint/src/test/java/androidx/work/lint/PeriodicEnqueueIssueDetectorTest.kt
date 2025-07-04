@@ -45,7 +45,7 @@ class PeriodicEnqueueIssueDetectorTest {
                     workManager.enqueue(request)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -57,7 +57,7 @@ class PeriodicEnqueueIssueDetectorTest {
                 ONE_TIME_WORK_REQUEST,
                 PERIODIC_WORK_REQUEST,
                 LISTENABLE_WORKER,
-                snippet
+                snippet,
             )
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -90,7 +90,7 @@ class PeriodicEnqueueIssueDetectorTest {
                     workManager.enqueue(requests)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -102,7 +102,7 @@ class PeriodicEnqueueIssueDetectorTest {
                 ONE_TIME_WORK_REQUEST,
                 PERIODIC_WORK_REQUEST,
                 LISTENABLE_WORKER,
-                snippet
+                snippet,
             )
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -137,7 +137,7 @@ class PeriodicEnqueueIssueDetectorTest {
                     workManager.enqueue(requests)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -149,7 +149,7 @@ class PeriodicEnqueueIssueDetectorTest {
                 ONE_TIME_WORK_REQUEST,
                 PERIODIC_WORK_REQUEST,
                 LISTENABLE_WORKER,
-                snippet
+                snippet,
             )
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -183,7 +183,7 @@ class PeriodicEnqueueIssueDetectorTest {
                     workManager.enqueue(request)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -195,7 +195,7 @@ class PeriodicEnqueueIssueDetectorTest {
                 ONE_TIME_WORK_REQUEST,
                 PERIODIC_WORK_REQUEST,
                 LISTENABLE_WORKER,
-                snippet
+                snippet,
             )
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()
@@ -221,7 +221,7 @@ class PeriodicEnqueueIssueDetectorTest {
                     workManager.enqueue(requests)
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -233,7 +233,7 @@ class PeriodicEnqueueIssueDetectorTest {
                 ONE_TIME_WORK_REQUEST,
                 PERIODIC_WORK_REQUEST,
                 LISTENABLE_WORKER,
-                snippet
+                snippet,
             )
             .issues(PeriodicEnqueueIssueDetector.ISSUE)
             .run()

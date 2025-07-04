@@ -74,32 +74,32 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                             Option.Id(RED_STYLE),
                                             resources,
                                             R.string.colors_style_red,
-                                            R.string.colors_style_red_screen_reader
+                                            R.string.colors_style_red_screen_reader,
                                         )
                                         .build(),
                                     ListUserStyleSetting.ListOption.Builder(
                                             Option.Id(GREEN_STYLE),
                                             resources,
                                             R.string.colors_style_green,
-                                            R.string.colors_style_green_screen_reader
+                                            R.string.colors_style_green_screen_reader,
                                         )
                                         .build(),
                                     ListUserStyleSetting.ListOption.Builder(
                                             Option.Id(BLUE_STYLE),
                                             resources,
                                             R.string.colors_style_blue,
-                                            R.string.colors_style_blue_screen_reader
+                                            R.string.colors_style_blue_screen_reader,
                                         )
-                                        .build()
+                                        .build(),
                                 ),
                             listOf(
                                 WatchFaceLayer.BASE,
                                 WatchFaceLayer.COMPLICATIONS,
-                                WatchFaceLayer.COMPLICATIONS_OVERLAY
+                                WatchFaceLayer.COMPLICATIONS_OVERLAY,
                             ),
                             resources,
                             R.string.colors_style_setting,
-                            R.string.colors_style_setting_description
+                            R.string.colors_style_setting_description,
                         )
                         .build(),
                     ListUserStyleSetting.Builder(
@@ -110,30 +110,30 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                             Option.Id(CLASSIC_STYLE),
                                             resources,
                                             R.string.hand_style_classic,
-                                            R.string.hand_style_classic_screen_reader
+                                            R.string.hand_style_classic_screen_reader,
                                         )
                                         .build(),
                                     ListUserStyleSetting.ListOption.Builder(
                                             Option.Id(MODERN_STYLE),
                                             resources,
                                             R.string.hand_style_modern,
-                                            R.string.hand_style_modern_screen_reader
+                                            R.string.hand_style_modern_screen_reader,
                                         )
                                         .build(),
                                     ListUserStyleSetting.ListOption.Builder(
                                             Option.Id(GOTHIC_STYLE),
                                             resources,
                                             R.string.hand_style_gothic,
-                                            R.string.hand_style_gothic_screen_reader
+                                            R.string.hand_style_gothic_screen_reader,
                                         )
-                                        .build()
+                                        .build(),
                                 ),
                             listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                             resources,
                             R.string.hand_style_setting,
-                            R.string.hand_style_setting_description
+                            R.string.hand_style_setting_description,
                         )
-                        .build()
+                        .build(),
                 )
             )
 
@@ -154,13 +154,13 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 ComplicationType.LONG_TEXT,
                                 ComplicationType.SHORT_TEXT,
                                 ComplicationType.MONOCHROMATIC_IMAGE,
-                                ComplicationType.SMALL_IMAGE
+                                ComplicationType.SMALL_IMAGE,
                             ),
                             DefaultComplicationDataSourcePolicy(
                                 SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
-                                ComplicationType.SHORT_TEXT
+                                ComplicationType.SHORT_TEXT,
                             ),
-                            ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
+                            ComplicationSlotBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)),
                         )
                         .build(),
                     ComplicationSlot.createRoundRectComplicationSlotBuilder(
@@ -171,17 +171,17 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 ComplicationType.LONG_TEXT,
                                 ComplicationType.SHORT_TEXT,
                                 ComplicationType.MONOCHROMATIC_IMAGE,
-                                ComplicationType.SMALL_IMAGE
+                                ComplicationType.SMALL_IMAGE,
                             ),
                             DefaultComplicationDataSourcePolicy(
                                 SystemDataSources.DATA_SOURCE_STEP_COUNT,
-                                ComplicationType.SHORT_TEXT
+                                ComplicationType.SHORT_TEXT,
                             ),
-                            ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
+                            ComplicationSlotBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f)),
                         )
-                        .build()
+                        .build(),
                 ),
-                currentUserStyleRepository
+                currentUserStyleRepository,
             )
         }
 
@@ -193,7 +193,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             surfaceHolder: SurfaceHolder,
             watchState: WatchState,
             complicationSlotsManager: ComplicationSlotsManager,
-            currentUserStyleRepository: CurrentUserStyleRepository
+            currentUserStyleRepository: CurrentUserStyleRepository,
         ) =
             WatchFace(
                 WatchFaceType.ANALOG,
@@ -204,7 +204,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         watchState,
                         CanvasType.HARDWARE,
                         interactiveDrawModeUpdateDelayMillis = 16,
-                        clearWithBackgroundTintBeforeRenderingHighlightLayer = true
+                        clearWithBackgroundTintBeforeRenderingHighlightLayer = true,
                     ) {
                     init {
                         // Listen for user style changes.
@@ -220,7 +220,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         canvas: Canvas,
                         bounds: Rect,
                         zonedDateTime: ZonedDateTime,
-                        sharedAssets: MySharedAssets
+                        sharedAssets: MySharedAssets,
                     ) {
                         // ...
                     }
@@ -229,7 +229,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         canvas: Canvas,
                         bounds: Rect,
                         zonedDateTime: ZonedDateTime,
-                        sharedAssets: MySharedAssets
+                        sharedAssets: MySharedAssets,
                     ) {
                         canvas.drawColor(renderParameters.highlightLayer!!.backgroundTint)
 
@@ -240,7 +240,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                         // Insert resource loading here.
                         return MySharedAssets()
                     }
-                }
+                },
             )
     }
 

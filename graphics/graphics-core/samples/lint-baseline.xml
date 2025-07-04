@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.11.0-alpha03" type="baseline" client="gradle" dependencies="true" name="AGP (8.11.0-alpha03)" variant="all" version="8.11.0-alpha03">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `Builder`"
+        errorLine1="        GLFrameBufferRenderer.Builder("
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/GLFrameBufferRendererSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `build`"
+        errorLine1="            .build()"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/GLFrameBufferRendererSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `render`"
+        errorLine1="    renderer.render()"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/GLFrameBufferRendererSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `LowLatencyCanvasView`"
+        errorLine1="    LowLatencyCanvasView(context).apply {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/LowLatencyCanvasViewSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `setRenderCallback`"
+        errorLine1="        setRenderCallback("
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/LowLatencyCanvasViewSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `renderFrontBufferedLayer`"
+        errorLine1="                            renderFrontBufferedLayer()"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/LowLatencyCanvasViewSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `cancel`"
+        errorLine1="                            cancel()"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/LowLatencyCanvasViewSample.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `commit`"
+        errorLine1="                            commit()"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/graphics/core/samples/LowLatencyCanvasViewSample.kt"/>
+    </issue>
+
+</issues>

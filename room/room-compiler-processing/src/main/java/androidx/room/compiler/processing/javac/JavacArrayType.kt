@@ -30,43 +30,43 @@ private constructor(
     override val typeMirror: ArrayType,
     nullability: XNullability?,
     private val knownComponentNullability: XNullability?,
-    override val kotlinType: KmTypeContainer?
+    override val kotlinType: KmTypeContainer?,
 ) : JavacType(env, typeMirror, nullability), XArrayType {
 
     constructor(
         env: JavacProcessingEnv,
-        typeMirror: ArrayType
+        typeMirror: ArrayType,
     ) : this(
         env = env,
         typeMirror = typeMirror,
         kotlinType = null,
         nullability = null,
-        knownComponentNullability = null
+        knownComponentNullability = null,
     )
 
     constructor(
         env: JavacProcessingEnv,
         typeMirror: ArrayType,
-        kotlinType: KmTypeContainer
+        kotlinType: KmTypeContainer,
     ) : this(
         env = env,
         typeMirror = typeMirror,
         nullability = kotlinType.nullability,
         knownComponentNullability = kotlinType.typeArguments.firstOrNull()?.nullability,
-        kotlinType = kotlinType
+        kotlinType = kotlinType,
     )
 
     constructor(
         env: JavacProcessingEnv,
         typeMirror: ArrayType,
         nullability: XNullability,
-        knownComponentNullability: XNullability?
+        knownComponentNullability: XNullability?,
     ) : this(
         env = env,
         typeMirror = typeMirror,
         nullability = nullability,
         knownComponentNullability = knownComponentNullability,
-        kotlinType = null
+        kotlinType = null,
     )
 
     override val equalityItems: Array<out Any?> by lazy { arrayOf(typeMirror) }
@@ -96,7 +96,7 @@ private constructor(
         env.wrap<JavacType>(
             typeMirror = componentType,
             kotlinType = kotlinType?.typeArguments?.firstOrNull(),
-            elementNullability = componentTypeNullability
+            elementNullability = componentTypeNullability,
         )
     }
 
@@ -106,7 +106,7 @@ private constructor(
             typeMirror = typeMirror,
             nullability = nullability,
             knownComponentNullability = knownComponentNullability,
-            kotlinType = kotlinType
+            kotlinType = kotlinType,
         )
     }
 }

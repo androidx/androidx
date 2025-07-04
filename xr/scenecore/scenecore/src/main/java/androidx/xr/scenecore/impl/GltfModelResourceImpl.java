@@ -16,22 +16,23 @@
 
 package androidx.xr.scenecore.impl;
 
-import androidx.xr.scenecore.JxrPlatformAdapter.GltfModelResource;
+import androidx.xr.runtime.internal.GltfModelResource;
 
 /**
- * Implementation of a RealityCore GltfModelResource.
+ * Implementation of a SceneCore GltfModelResource.
  *
  * <p>This is used to create to load a glTF that can later be used when creating a GltfEntity.
  */
-@SuppressWarnings({"deprecation", "UnnecessarilyFullyQualified"}) // TODO(b/373435470): Remove
+// TODO: b/417750821 - Add an interface which returns an integer animation IDX given a string
+//                     animation name for a loaded GLTF.
 final class GltfModelResourceImpl implements GltfModelResource {
-    private final androidx.xr.extensions.asset.GltfModelToken token;
+    private final long mToken;
 
-    public GltfModelResourceImpl(androidx.xr.extensions.asset.GltfModelToken token) {
-        this.token = token;
+    GltfModelResourceImpl(long token) {
+        mToken = token;
     }
 
-    public androidx.xr.extensions.asset.GltfModelToken getExtensionModelToken() {
-        return token;
+    public long getExtensionModelToken() {
+        return mToken;
     }
 }

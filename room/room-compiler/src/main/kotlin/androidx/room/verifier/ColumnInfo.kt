@@ -19,8 +19,4 @@ package androidx.room.verifier
 import androidx.room.parser.SQLTypeAffinity
 
 /** Represents a column in a query response */
-data class ColumnInfo(
-    val name: String,
-    val type: SQLTypeAffinity,
-    val originTable: String?,
-)
+data class ColumnInfo(val name: String, val type: SQLTypeAffinity, val originTable: String?)

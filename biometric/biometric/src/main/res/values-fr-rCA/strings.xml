@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Aucun NIP, schéma ni mot de passe défini"</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Cet appareil ne prend pas en charge les NIP, les schémas ni les mots de passe."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Icône d\'empreinte digitale"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Le bouton Plus d\'options dans la vue de contenu est cliqué."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Utiliser l\'empreinte digitale"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Utiliser le visage"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Utiliser les données biométriques"</string>

@@ -47,7 +47,7 @@ private constructor(
     // Values between lowerBound and lowerBound+127 are recorded in lowerSet and upperSet
     private val lowerBound: SnapshotId,
     // A sorted array of the index of bits set below lowerBound
-    private val belowBound: SnapshotIdArray?
+    private val belowBound: SnapshotIdArray?,
 ) : Iterable<SnapshotId> {
 
     /** The value of the bit at index [id] */
@@ -72,7 +72,7 @@ private constructor(
                     upperSet = upperSet,
                     lowerSet = lowerSet or mask,
                     lowerBound = lowerBound,
-                    belowBound = belowBound
+                    belowBound = belowBound,
                 )
             }
         } else if (offset >= Long.SIZE_BITS && offset < Long.SIZE_BITS * 2) {
@@ -82,7 +82,7 @@ private constructor(
                     upperSet = upperSet or mask,
                     lowerSet = lowerSet,
                     lowerBound = lowerBound,
-                    belowBound = belowBound
+                    belowBound = belowBound,
                 )
             }
         } else if (offset >= Long.SIZE_BITS * 2) {
@@ -121,7 +121,7 @@ private constructor(
                         newUpperSet,
                         newLowerSet,
                         newLowerBound,
-                        newBelowBound?.toArray() ?: belowBound
+                        newBelowBound?.toArray() ?: belowBound,
                     )
                     .set(id)
             }
@@ -152,7 +152,7 @@ private constructor(
                     upperSet = upperSet,
                     lowerSet = lowerSet and mask.inv(),
                     lowerBound = lowerBound,
-                    belowBound = belowBound
+                    belowBound = belowBound,
                 )
             }
         } else if (offset >= Long.SIZE_BITS && offset < Long.SIZE_BITS * 2) {
@@ -162,7 +162,7 @@ private constructor(
                     upperSet = upperSet and mask.inv(),
                     lowerSet = lowerSet,
                     lowerBound = lowerBound,
-                    belowBound = belowBound
+                    belowBound = belowBound,
                 )
             }
         } else if (offset < 0) {
@@ -174,7 +174,7 @@ private constructor(
                         upperSet,
                         lowerSet,
                         lowerBound,
-                        array.withIdRemovedAt(location)
+                        array.withIdRemovedAt(location),
                     )
                 }
             }
@@ -192,7 +192,7 @@ private constructor(
                 this.upperSet and ids.upperSet.inv(),
                 this.lowerSet and ids.lowerSet.inv(),
                 this.lowerBound,
-                this.belowBound
+                this.belowBound,
             )
         } else {
             ids.fastFold(this) { previous, index -> previous.clear(index) }
@@ -211,7 +211,7 @@ private constructor(
                     this.upperSet and ids.upperSet,
                     this.lowerSet and ids.lowerSet,
                     this.lowerBound,
-                    this.belowBound
+                    this.belowBound,
                 )
         } else {
             if (this.belowBound == null)
@@ -234,7 +234,7 @@ private constructor(
                 this.upperSet or bits.upperSet,
                 this.lowerSet or bits.lowerSet,
                 this.lowerBound,
-                this.belowBound
+                this.belowBound,
             )
         } else {
             if (this.belowBound == null) {
@@ -269,7 +269,7 @@ private constructor(
 
     private inline fun fastFold(
         initial: SnapshotIdSet,
-        operation: (acc: SnapshotIdSet, SnapshotId) -> SnapshotIdSet
+        operation: (acc: SnapshotIdSet, SnapshotId) -> SnapshotIdSet,
     ): SnapshotIdSet {
         var accumulator = initial
         fastForEach { element -> accumulator = operation(accumulator, element) }

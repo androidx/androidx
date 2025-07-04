@@ -33,16 +33,17 @@
       <item quantity="one">%d sekund</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Periode"</string>
+    <string name="wear_m3c_time_picker_heading" msgid="1741225633698384262">"Rull for å angi klokkeslett"</string>
     <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Dag"</string>
     <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Måned"</string>
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"År"</string>
+    <string name="wear_m3c_date_picker_heading" msgid="1824308273028674826">"Rull for å angi dato"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Bekreft"</string>
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Neste"</string>
     <string name="wear_m3c_slider_decrease_content_description" msgid="8242572466064289486">"Reduser"</string>
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"Øk"</string>
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"Bekreft"</string>
     <string name="wear_m3c_alert_dialog_content_description_dismiss_button" msgid="3572467833850785688">"Lukk"</string>
-    <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Mislyktes"</string>
-    <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Vellykket"</string>
-    <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Åpne på tlf."</string>
+    <string name="wear_m3c_open_on_phone" msgid="3200727397161392122">"Se telefonen"</string>
+    <string name="wear_m3c_open_on_phone_icon_content_description" msgid="5953380527505012363">"Sjekk telefonen-ikon"</string>
 </resources>

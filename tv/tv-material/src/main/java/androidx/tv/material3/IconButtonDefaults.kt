@@ -61,14 +61,14 @@ object IconButtonDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -123,14 +123,14 @@ object IconButtonDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -156,17 +156,17 @@ object IconButtonDefaults {
                 border =
                     BorderStroke(
                         width = 2.dp,
-                        color = MaterialTheme.colorScheme.border.copy(alpha = 0.2f)
+                        color = MaterialTheme.colorScheme.border.copy(alpha = 0.2f),
                     ),
-                shape = ContainerShape
-            )
+                shape = ContainerShape,
+            ),
     ) =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**
@@ -211,14 +211,14 @@ object OutlinedIconButtonDefaults {
         focusedShape: Shape = shape,
         pressedShape: Shape = shape,
         disabledShape: Shape = shape,
-        focusedDisabledShape: Shape = disabledShape
+        focusedDisabledShape: Shape = disabledShape,
     ) =
         ButtonShape(
             shape = shape,
             focusedShape = focusedShape,
             pressedShape = pressedShape,
             disabledShape = disabledShape,
-            focusedDisabledShape = focusedDisabledShape
+            focusedDisabledShape = focusedDisabledShape,
         )
 
     /**
@@ -273,14 +273,14 @@ object OutlinedIconButtonDefaults {
         @FloatRange(from = 0.0) focusedScale: Float = 1.1f,
         @FloatRange(from = 0.0) pressedScale: Float = scale,
         @FloatRange(from = 0.0) disabledScale: Float = scale,
-        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale
+        @FloatRange(from = 0.0) focusedDisabledScale: Float = disabledScale,
     ) =
         ButtonScale(
             scale = scale,
             focusedScale = focusedScale,
             pressedScale = pressedScale,
             disabledScale = disabledScale,
-            focusedDisabledScale = focusedDisabledScale
+            focusedDisabledScale = focusedDisabledScale,
         )
 
     /**
@@ -302,37 +302,37 @@ object OutlinedIconButtonDefaults {
                 border =
                     BorderStroke(
                         width = 2.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         focusedBorder: Border =
             Border(
                 border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.onSurface),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         pressedBorder: Border =
             Border(
                 border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.onSurface),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
         disabledBorder: Border =
             Border(
                 border =
                     BorderStroke(
                         width = 2.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
                     ),
-                shape = ContainerShape
+                shape = ContainerShape,
             ),
-        focusedDisabledBorder: Border = disabledBorder
+        focusedDisabledBorder: Border = disabledBorder,
     ) =
         ButtonBorder(
             border = border,
             focusedBorder = focusedBorder,
             pressedBorder = pressedBorder,
             disabledBorder = disabledBorder,
-            focusedDisabledBorder = focusedDisabledBorder
+            focusedDisabledBorder = focusedDisabledBorder,
         )
 
     /**

@@ -18,45 +18,64 @@ package androidx.savedstate.serialization
 
 import androidx.savedstate.SavedState
 import androidx.savedstate.read
+import kotlin.jvm.JvmOverloads
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.AbstractDecoder
 import kotlinx.serialization.encoding.CompositeDecoder
-import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 
 /**
- * Decode a serializable object from a [SavedState] with an explicit deserializer, which can be a
- * custom or third-party one.
- *
- * @sample androidx.savedstate.decode
- * @param deserializer The deserializer to use.
- * @param savedState The [SavedState] to decode from.
- * @return The deserialized object.
- * @throws SerializationException for any deserialization error.
- * @throws IllegalArgumentException if [savedState] is not valid.
- */
-public fun <T : Any> decodeFromSavedState(
-    deserializer: DeserializationStrategy<T>,
-    savedState: SavedState
-): T {
-    return SavedStateDecoder(savedState).decodeSerializableValue(deserializer)
-}
-
-/**
  * Decode a serializable object from a [SavedState] with the default deserializer.
  *
- * @sample androidx.savedstate.decodeWithExplicitSerializer
+ * **Format not stable:** The internal structure of the given [SavedState] is subject to change in
+ * future releases for optimization. While it is guaranteed to be compatible with
+ * [encodeToSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.decode
  * @param savedState The [SavedState] to decode from.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
  * @return The decoded object.
- * @throws SerializationException for any deserialization error.
- * @throws IllegalArgumentException if [savedState] is not valid.
+ * @throws SerializationException in case of any decoding-specific error.
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T].
+ * @see encodeToSavedState
  */
-public inline fun <reified T : Any> decodeFromSavedState(savedState: SavedState): T =
-    decodeFromSavedState(serializer<T>(), savedState)
+public inline fun <reified T : Any> decodeFromSavedState(
+    savedState: SavedState,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): T = decodeFromSavedState(configuration.serializersModule.serializer(), savedState, configuration)
+
+/**
+ * Decodes and deserializes the given [SavedState] to the value of type [T] using the given
+ * [deserializer].
+ *
+ * **Format not stable:** The internal structure of the given [SavedState] is subject to change in
+ * future releases for optimization. While it is guaranteed to be compatible with
+ * [decodeFromSavedState], direct manipulation of its encoded format using keys is not recommended.
+ *
+ * @sample androidx.savedstate.decodeWithExplicitSerializerAndConfig
+ * @param deserializer The deserializer to use.
+ * @param savedState The [SavedState] to decode from.
+ * @param configuration The [SavedStateConfiguration] to use. Defaults to
+ *   [SavedStateConfiguration.DEFAULT].
+ * @return The deserialized object.
+ * @throws SerializationException in case of any decoding-specific error.
+ * @throws IllegalArgumentException if the decoded input is not a valid instance of [T].
+ * @see encodeToSavedState
+ */
+@JvmOverloads
+public fun <T : Any> decodeFromSavedState(
+    deserializer: DeserializationStrategy<T>,
+    savedState: SavedState,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): T {
+    return SavedStateDecoder(savedState, configuration).decodeSerializableValue(deserializer)
+}
 
 /**
  * A [kotlinx.serialization.encoding.Decoder] that can decode a serializable object from a
@@ -65,17 +84,43 @@ public inline fun <reified T : Any> decodeFromSavedState(savedState: SavedState)
  * @property savedState The [SavedState] to decode from.
  */
 @OptIn(ExperimentalSerializationApi::class)
-internal class SavedStateDecoder(internal val savedState: SavedState) : AbstractDecoder() {
-    override val serializersModule: SerializersModule = EmptySerializersModule()
+internal class SavedStateDecoder(
+    internal val savedState: SavedState,
+    private val configuration: SavedStateConfiguration,
+) : AbstractDecoder() {
     internal var key: String = ""
         private set
 
     private var index = 0
 
+    override val serializersModule: SerializersModule = configuration.serializersModule
+
     override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
-        if (index == savedState.read { size() }) return CompositeDecoder.DECODE_DONE
-        key = descriptor.getElementName(index)
-        return index++
+        val size =
+            if (descriptor.kind == StructureKind.LIST || descriptor.kind == StructureKind.MAP) {
+                // Use the number of elements encoded for collections.
+                savedState.read { size() }
+            } else {
+                // We may skip elements when encoding so if we used `size()`
+                // here we may miss some fields.
+                descriptor.elementsCount
+            }
+        fun hasDefaultValueDefined(index: Int) = descriptor.isElementOptional(index)
+        fun presentInEncoding(index: Int) =
+            savedState.read {
+                val key = descriptor.getElementName(index)
+                contains(key)
+            }
+        // Skip elements omitted from encoding (those assigned with its default values).
+        while (index < size && hasDefaultValueDefined(index) && !presentInEncoding(index)) {
+            index++
+        }
+        if (index < size) {
+            key = descriptor.getElementName(index)
+            return index++
+        } else {
+            return CompositeDecoder.DECODE_DONE
+        }
     }
 
     override fun decodeBoolean(): Boolean = savedState.read { getBoolean(key) }
@@ -138,27 +183,42 @@ internal class SavedStateDecoder(internal val savedState: SavedState) : Abstract
         if (key == "") {
             this
         } else {
-            SavedStateDecoder(savedState = savedState.read { getSavedState(key) })
+            SavedStateDecoder(
+                savedState = savedState.read { getSavedState(key) },
+                configuration = configuration,
+            )
         }
 
     // We don't encode NotNullMark so this will actually read either a `null` from
     // `encodeNull()` or a value from other encode functions.
     override fun decodeNotNullMark(): Boolean = savedState.read { !isNull(key) }
 
-    @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
     override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
-        return when (deserializer.descriptor) {
-            intListDescriptor -> decodeIntList()
-            stringListDescriptor -> decodeStringList()
-            booleanArrayDescriptor -> decodeBooleanArray()
-            charArrayDescriptor -> decodeCharArray()
-            doubleArrayDescriptor -> decodeDoubleArray()
-            floatArrayDescriptor -> decodeFloatArray()
-            intArrayDescriptor -> decodeIntArray()
-            longArrayDescriptor -> decodeLongArray()
-            stringArrayDescriptor -> decodeStringArray()
-            else -> super.decodeSerializableValue(deserializer)
-        }
-            as T
+        return decodeFormatSpecificTypes(deserializer)
+            ?: super.decodeSerializableValue(deserializer)
+    }
+
+    /** @return `T` if `T` has a special representation in `SavedState`, `null` otherwise. */
+    @Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
+    private fun <T> decodeFormatSpecificTypes(deserializer: DeserializationStrategy<T>): T? {
+        return decodeFormatSpecificTypesOnPlatform(deserializer)
+            ?: when (deserializer.descriptor) {
+                intListDescriptor -> decodeIntList()
+                stringListDescriptor -> decodeStringList()
+                booleanArrayDescriptor -> decodeBooleanArray()
+                charArrayDescriptor -> decodeCharArray()
+                doubleArrayDescriptor -> decodeDoubleArray()
+                floatArrayDescriptor -> decodeFloatArray()
+                intArrayDescriptor -> decodeIntArray()
+                longArrayDescriptor -> decodeLongArray()
+                stringArrayDescriptor -> decodeStringArray()
+                else -> null
+            }
+                as T?
     }
 }
+
+/** @return `T` if `T` has an internal representation in `SavedState`, `null` otherwise. */
+internal expect fun <T> SavedStateDecoder.decodeFormatSpecificTypesOnPlatform(
+    strategy: DeserializationStrategy<T>
+): T?

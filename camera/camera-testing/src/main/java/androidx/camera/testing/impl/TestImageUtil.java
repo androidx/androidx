@@ -22,8 +22,11 @@ import static android.graphics.ImageFormat.JPEG_R;
 import static android.graphics.ImageFormat.RAW_SENSOR;
 import static android.graphics.ImageFormat.YUV_420_888;
 
+import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
+import static androidx.camera.testing.impl.ImageProxyUtil.YUV_FORMAT_PLANE_DATA_TYPE_I420;
 import static androidx.camera.testing.impl.ImageProxyUtil.createRawImagePlanes;
 import static androidx.camera.testing.impl.ImageProxyUtil.createYUV420ImagePlanes;
+import static androidx.camera.testing.impl.ImageProxyUtil.getDefaultYuvFormatPlaneDataType;
 import static androidx.core.util.Preconditions.checkState;
 
 import android.graphics.Bitmap;
@@ -38,6 +41,7 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageInfo;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.impl.fakes.FakeImageProxy;
@@ -96,19 +100,43 @@ public class TestImageUtil {
      */
     public static @NonNull FakeImageProxy createYuvFakeImageProxy(@NonNull ImageInfo imageInfo,
             int width, int height) {
-        return createYuvFakeImageProxy(imageInfo, width, height, false, false);
+        return createYuvFakeImageProxy(imageInfo, width, height, getDefaultYuvFormatPlaneDataType(
+                RESOLUTION_VGA.getWidth(), RESOLUTION_VGA.getHeight()), false);
     }
 
     /**
      * Creates a [FakeImageProxy] with YUV format with the content of the image to match the
      * value of {@link #createBitmap}.
      */
-    @NonNull
-    public static FakeImageProxy createYuvFakeImageProxy(@NonNull ImageInfo imageInfo,
-            int width, int height, boolean flipUV, boolean insertRgbTestData) {
+    public static @NonNull FakeImageProxy createYuvFakeImageProxy(@NonNull ImageInfo imageInfo,
+            int width, int height,
+            @ImageProxyUtil.YuvFormatPlaneDataType int yuvFormatPlaneDataType,
+            boolean insertRgbTestData) {
+        return createYuvFakeImageProxy(
+                createYUV420ImagePlanes(width, height, yuvFormatPlaneDataType, false),
+                imageInfo, width, height, 1,
+                yuvFormatPlaneDataType == YUV_FORMAT_PLANE_DATA_TYPE_I420 ? 1 : 2,
+                insertRgbTestData);
+    }
+
+    /**
+     * Creates a [FakeImageProxy] with YUV format with the content of the image to match the
+     * value of {@link #createBitmap}.
+     */
+    public static @NonNull FakeImageProxy createYuvFakeImageProxy(@NonNull ImageInfo imageInfo,
+            int width, int height, int pixelStrideY, int pixelStrideUV, boolean flipUV,
+            boolean insertRgbTestData) {
+        return createYuvFakeImageProxy(
+                createYUV420ImagePlanes(width, height, pixelStrideY, pixelStrideUV, flipUV, false),
+                imageInfo, width, height, pixelStrideY, pixelStrideUV, insertRgbTestData);
+    }
+
+    private static @NonNull FakeImageProxy createYuvFakeImageProxy(
+            ImageProxy.@NonNull PlaneProxy[] planeProxies, @NonNull ImageInfo imageInfo, int width,
+            int height, int pixelStrideY, int pixelStrideUV, boolean insertRgbTestData) {
         FakeImageProxy image = new FakeImageProxy(imageInfo);
         image.setFormat(YUV_420_888);
-        image.setPlanes(createYUV420ImagePlanes(width, height, 1, 1, flipUV, false));
+        image.setPlanes(planeProxies);
         image.setWidth(width);
         image.setHeight(height);
 
@@ -121,7 +149,8 @@ public class TestImageUtil {
         writeBitmapToYuvByteBuffers(rgbBitmap,
                 image.getPlanes()[0].getBuffer(),
                 image.getPlanes()[1].getBuffer(),
-                image.getPlanes()[2].getBuffer());
+                image.getPlanes()[2].getBuffer(),
+                pixelStrideY, pixelStrideUV);
 
         return image;
     }
@@ -130,7 +159,9 @@ public class TestImageUtil {
             @NonNull Bitmap bitmap,
             @NonNull ByteBuffer yByteBuffer,
             @NonNull ByteBuffer uByteBuffer,
-            @NonNull ByteBuffer vByteBuffer) {
+            @NonNull ByteBuffer vByteBuffer,
+            int pixelStrideY,
+            int pixelStrideUV) {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int[] argb = new int[width * height];
@@ -150,10 +181,11 @@ public class TestImageUtil {
                 int u = (int) (-0.169 * r - 0.331 * g + 0.5 * b + 128);
                 int v = (int) (0.5 * r - 0.419 * g - 0.081 * b + 128);
 
-                yByteBuffer.put(yIndex++, (byte) y);
+                yByteBuffer.put(yIndex, (byte) y);
+                yIndex += pixelStrideY;
                 if (j % 2 == 0 && i % 2 == 0) {
-                    uByteBuffer.put(uvIndex, (byte) u);
-                    vByteBuffer.put(uvIndex, (byte) v);
+                    uByteBuffer.put(uvIndex * pixelStrideUV, (byte) u);
+                    vByteBuffer.put(uvIndex * pixelStrideUV, (byte) v);
                     uvIndex++;
                 }
             }

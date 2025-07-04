@@ -22,24 +22,31 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     alias(libs.plugins.kotlinSerialization)
 }
 
 androidXMultiplatform {
-    android()
-    desktop()
-    mac()
-    linux()
-    ios()
+    androidLibrary {
+        namespace = "androidx.navigation.common"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+        androidResources.enable = true
+    }
+    jvmStubs()
+    linuxX64Stubs()
+//    desktop()
+//    mac()
+//    linux()
+//    ios()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -51,11 +58,11 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
-                api("androidx.lifecycle:lifecycle-common:2.9.0-alpha07")
-                api("androidx.lifecycle:lifecycle-runtime:2.9.0-alpha07")
-                api("androidx.lifecycle:lifecycle-viewmodel:2.9.0-alpha07")
-                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.0-alpha07")
-                api("androidx.savedstate:savedstate:1.3.0-alpha05")
+                api("androidx.lifecycle:lifecycle-common:2.9.1")
+                api("androidx.lifecycle:lifecycle-runtime:2.9.1")
+                api("androidx.lifecycle:lifecycle-viewmodel:2.9.1")
+                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1")
+                api("androidx.savedstate:savedstate:1.3.0")
                 api(libs.kotlinStdlib)
                 implementation("androidx.collection:collection:1.4.2")
                 implementation(libs.kotlinSerializationCore)
@@ -64,6 +71,7 @@ androidXMultiplatform {
         commonTest {
             dependencies {
                 implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
 
@@ -79,20 +87,28 @@ androidXMultiplatform {
         jvmCommonTest {
             dependsOn(commonTest)
         }
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmCommonMain)
             dependsOn(nonAndroidMain)
         }
-        desktopTest {
+        jvmStubsTest {
             dependsOn(jvmCommonTest)
             dependsOn(nonAndroidTest)
         }
+//        desktopMain {
+//            dependsOn(jvmCommonMain)
+//            dependsOn(nonAndroidMain)
+//        }
+//        desktopTest {
+//            dependsOn(jvmCommonTest)
+//            dependsOn(nonAndroidTest)
+//        }
         androidMain {
             dependsOn(jvmCommonMain)
             dependencies {
-                api("androidx.lifecycle:lifecycle-runtime-ktx:2.9.0-alpha07")
-                api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.0-alpha07")
-                api("androidx.savedstate:savedstate-ktx:1.3.0-alpha05")
+                api(project(":lifecycle:lifecycle-runtime"))
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(project(":savedstate:savedstate-ktx"))
                 implementation("androidx.core:core-ktx:1.1.0")
                 implementation("androidx.profileinstaller:profileinstaller:1.4.0")
             }
@@ -108,6 +124,8 @@ androidXMultiplatform {
                 implementation(libs.truth)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(libs.kotlinCoroutinesTest)
+                runtimeOnly(libs.kotlinTestJunit)
+                runtimeOnly(libs.testCore)
             }
         }
 
@@ -123,58 +141,42 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmCommonMain {
-            dependsOn(nonAndroidMain)
-        }
+        nonJvmCommonMain { dependsOn(nonAndroidMain) }
 
-        nonJvmCommonTest {
-            dependsOn(nonAndroidTest)
-        }
+        nonJvmCommonTest { dependsOn(nonAndroidTest) }
 
-        nativeMain {
-            dependsOn(nonJvmCommonMain)
-        }
-        linuxMain.dependsOn(nativeMain)
-        darwinMain.dependsOn(nativeMain)
-
-        nativeTest {
-            dependsOn(nonJvmCommonTest)
-        }
-        linuxTest.dependsOn(nativeTest)
-        darwinTest.dependsOn(nativeTest)
-
+        nativeMain { dependsOn(nonJvmCommonMain) }
+        linuxMain { dependsOn(nativeMain) }
+//        darwinMain { dependsOn(nativeMain) }
+//
+        nativeTest { dependsOn(nonJvmCommonTest) }
+        linuxTest { dependsOn(nativeTest) }
+//        darwinTest { dependsOn(nativeTest) }
+//
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+//                if (target.konanTarget.family.appleFamily) {
+//                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
+//                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
+//                } else
+                if (target.konanTarget.family == org.jetbrains.kotlin.konan.target.Family.LINUX) {
                     target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
                     target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
                 }
             }
         }
+        linuxx64StubsMain.dependsOn(linuxMain)
+        linuxx64StubsTest.dependsOn(linuxTest)
     }
-}
-
-android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-    namespace = "androidx.navigation.common"
 }
 
 dependencies {
-    androidTestRuntimeOnly(libs.kotlinTestJunit)
-    androidTestRuntimeOnly(libs.testCore)
-
     lintPublish(project(":navigation:navigation-common-lint"))
 }
 
 androidx {
     name = "Navigation Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Navigation-Common"
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -122,7 +122,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
                 ISSUE_RETENTION,
                 annotated,
                 context.getNameLocation(annotated),
-                "Experimental annotation has $actual retention, should use $expected"
+                "Experimental annotation has $actual retention, should use $expected",
             )
         }
 
@@ -135,7 +135,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
                 ISSUE_KOTLIN_USAGE,
                 annotated,
                 context.getNameLocation(annotated),
-                "Experimental annotation should use kotlin.RequiresOptIn"
+                "Experimental annotation should use kotlin.RequiresOptIn",
             )
         }
     }
@@ -153,7 +153,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 4,
                 Severity.ERROR,
-                Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         val ISSUE_RETENTION =
@@ -166,7 +166,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(AnnotationRetentionDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
 
         val ISSUES = listOf(ISSUE_RETENTION, ISSUE_KOTLIN_USAGE)

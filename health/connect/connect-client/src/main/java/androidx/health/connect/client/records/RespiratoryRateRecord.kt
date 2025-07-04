@@ -15,6 +15,8 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -27,11 +29,19 @@ public class RespiratoryRateRecord(
     override val zoneOffset: ZoneOffset?,
     /** Respiratory rate in breaths per minute. Required field. Valid range: 0-1000. */
     public val rate: Double,
-    override val metadata: Metadata = Metadata.EMPTY,
+    override val metadata: Metadata,
 ) : InstantaneousRecord {
+    /*
+     * Android U devices and later use the platform's validation instead of Jetpack validation.
+     * See b/400965398 for more context.
+     */
     init {
-        requireNonNegative(value = rate, name = "rate")
-        rate.requireNotMore(other = 1000.0, name = "rate")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            requireNonNegative(value = rate, name = "rate")
+            rate.requireNotMore(other = 1000.0, name = "rate")
+        }
     }
 
     override fun equals(other: Any?): Boolean {

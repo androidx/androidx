@@ -41,13 +41,13 @@ inline fun <reified T : Any> NavGraphBuilder.test(typeMap: Map<KType, NavType<*>
 @Suppress("DEPRECATION")
 inline fun NavGraphBuilder.test(
     @IdRes id: Int,
-    builder: TestNavigatorDestinationBuilder.() -> Unit
+    builder: TestNavigatorDestinationBuilder.() -> Unit,
 ) = destination(TestNavigatorDestinationBuilder(provider[TestNavigator::class], id).apply(builder))
 
 /** Construct a new [TestNavigator.Destination] */
 inline fun NavGraphBuilder.test(
     route: String,
-    builder: TestNavigatorDestinationBuilder.() -> Unit
+    builder: TestNavigatorDestinationBuilder.() -> Unit,
 ) =
     destination(
         TestNavigatorDestinationBuilder(provider[TestNavigator::class], route).apply(builder)
@@ -56,7 +56,7 @@ inline fun NavGraphBuilder.test(
 /** Construct a new [TestNavigator.Destination] */
 inline fun <reified T : Any> NavGraphBuilder.test(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
-    builder: TestNavigatorDestinationBuilder.() -> Unit
+    builder: TestNavigatorDestinationBuilder.() -> Unit,
 ) =
     destination(
         TestNavigatorDestinationBuilder(provider[TestNavigator::class], T::class, typeMap)
@@ -74,6 +74,6 @@ class TestNavigatorDestinationBuilder : NavDestinationBuilder<TestNavigator.Dest
     constructor(
         navigator: TestNavigator,
         route: KClass<*>,
-        typeMap: Map<KType, NavType<*>>
+        typeMap: Map<KType, NavType<*>>,
     ) : super(navigator, route, typeMap)
 }

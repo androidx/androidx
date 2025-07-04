@@ -31,6 +31,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.workers.TestListenableWorker
 import androidx.work.testing.workers.TestWorker
+import java.lang.IllegalStateException
 import java.util.UUID
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
@@ -41,6 +42,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.notNullValue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -172,7 +174,7 @@ class TestWorkerBuilderTest {
                 override fun createWorker(
                     appContext: Context,
                     workerClassName: String,
-                    workerParameters: WorkerParameters
+                    workerParameters: WorkerParameters,
                 ): ListenableWorker? {
                     callCounter++
                     return null
@@ -185,6 +187,53 @@ class TestWorkerBuilderTest {
             val result = worker.startWork().await()
             assertThat(callCounter, `is`(1))
             assertThat(result, `is`(Result.success()))
+        }
+    }
+
+    @Test
+    @MediumTest
+    fun testWorkerBuilder_workerFactoryCreatesCorrectTypeFromEnqueuedWorkerClass_succeeds() {
+        var callCounter = 0
+        val workerFactory =
+            object : WorkerFactory() {
+                override fun createWorker(
+                    appContext: Context,
+                    workerClassName: String,
+                    workerParameters: WorkerParameters,
+                ): ListenableWorker? {
+                    callCounter++
+                    return TestWorker(appContext, workerParameters)
+                }
+            }
+        val worker =
+            TestListenableWorkerBuilder<TestWorker>(context)
+                .setWorkerFactory(workerFactory)
+                .build(TestListenableWorker::class.java)
+
+        runBlocking {
+            val result = worker.startWork().await()
+            assertThat(callCounter, `is`(1))
+            assertThat(result, `is`(Result.success()))
+        }
+    }
+
+    @Test
+    @SmallTest
+    fun testWorkerBuilder_workerFactoryCreatesWrongTypeFromEnqueuedWorkerClass_throws() {
+        val workerBuilder = TestListenableWorkerBuilder<TestWorker>(context)
+
+        try {
+            workerBuilder.build(TestListenableWorker::class.java)
+            fail("Expected exception thrown from worker being wrong type")
+        } catch (e: IllegalStateException) {
+            assertThat(
+                e.message,
+                `is`(
+                    "Unexpected worker type class " +
+                        "androidx.work.testing.workers.TestListenableWorker " +
+                        "(expected class androidx.work.testing.workers.TestWorker )"
+                ),
+            )
         }
     }
 }

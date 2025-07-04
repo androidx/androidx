@@ -73,9 +73,7 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
 
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = config.implName == CameraPipeConfig::class.simpleName,
-        )
+        CameraPipeConfigTestRule(active = config.implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -120,7 +118,7 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
                 // Specify the intent action string for launching the ReleaseTestActivity.
                 putExtra(
                     RequestResultTestActivity.INTENT_EXTRA_INTENT_ACTION,
-                    "androidx.camera.integration.extensions.release_test"
+                    "androidx.camera.integration.extensions.release_test",
                 )
                 // Specifies the target impl mode, running mode, camera id and extension mode info.
                 putExtra(
@@ -132,12 +130,12 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
                                 CAMERA_PIPE_IMPLEMENTATION_OPTION
                             } else {
                                 CAMERA2_IMPLEMENTATION_OPTION
-                            }
+                            },
                         )
                         putString(INTENT_EXTRA_RUNNING_MODE_CHECK, "release")
                         putString(INTENT_EXTRA_KEY_CAMERA_ID, config.cameraId)
                         putInt(INTENT_EXTRA_KEY_EXTENSION_MODE, config.extensionMode)
-                    }
+                    },
                 )
             }
         val activityRef =
@@ -208,17 +206,17 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
                                 config.first!!,
                                 config.second,
                                 cameraId,
-                                extensionMode
+                                extensionMode,
                             )
                         }
                     }
-                }
+                },
             )
 
         @JvmStatic
         private fun filterOutUnavailableMode(
             context: Context,
-            list: List<CameraXExtensionTestParams>
+            list: List<CameraXExtensionTestParams>,
         ): List<CameraXExtensionTestParams> {
             var extensionsManager: ExtensionsManager? = null
             var cameraProvider: ProcessCameraProvider? = null
@@ -242,7 +240,7 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
                             isExtensionAvailableInOemImpl(
                                 extensionsManager,
                                 cameraSelector,
-                                item.extensionMode
+                                item.extensionMode,
                             )
                     ) {
                         result.add(item)
@@ -263,13 +261,13 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
         private fun isExtensionAvailableInOemImpl(
             extensionsManager: ExtensionsManager,
             cameraSelector: CameraSelector,
-            extensionMode: Int
+            extensionMode: Int,
         ) =
             ExtensionsTestlibControl.getInstance().implementationType == OEM_IMPL &&
                 ExtensionsTestUtil.isExtensionAvailable(
                     extensionsManager,
                     cameraSelector,
-                    extensionMode
+                    extensionMode,
                 )
 
         @JvmStatic
@@ -293,7 +291,7 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
         private fun isCamera2ExtensionsSupported(
             context: Context,
             cameraId: String,
-            cameraXExtensionMode: Int
+            cameraXExtensionMode: Int,
         ): Boolean {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
                 return false
@@ -333,7 +331,7 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
         private val CAMERAX_CONFIGS =
             listOf(
                 Pair(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                Pair(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+                Pair(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
             )
     }
 }

@@ -193,7 +193,7 @@ private fun FocusableBox(
     isFocused: MutableState<Boolean> = mutableStateOf(false),
     focusRequester: FocusRequester? = null,
     deactivated: Boolean = false,
-    content: @Composable () -> Unit = {}
+    content: @Composable () -> Unit = {},
 ) {
     FocusableBox(isFocused, 0, 0, 10, 10, focusRequester, deactivated, Modifier, content)
 }

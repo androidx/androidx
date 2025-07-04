@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.lifecycle {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GeneratedAdapter {
@@ -55,7 +55,7 @@ package androidx.lifecycle {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
-    method public abstract androidx.lifecycle.Lifecycle.Event! value();
+    method public abstract androidx.lifecycle.Lifecycle.Event value();
   }
 
 }

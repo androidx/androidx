@@ -56,7 +56,7 @@ class ToneMappingImageEffect :
                 imageIn.cropRect,
                 imageIn.imageInfo.rotationDegrees,
                 imageIn.imageInfo.sensorToBufferTransformMatrix,
-                imageIn.imageInfo.timestamp
+                imageIn.imageInfo.timestamp,
             )
         }
 

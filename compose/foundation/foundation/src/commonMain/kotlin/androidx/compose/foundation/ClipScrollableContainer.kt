@@ -61,11 +61,11 @@ fun Modifier.clipScrollableContainer(orientation: Orientation) =
  */
 internal val MaxSupportedElevation = 30.dp
 
-internal object HorizontalScrollableClipShape : Shape {
+private object HorizontalScrollableClipShape : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         val inflateSize = with(density) { MaxSupportedElevation.roundToPx().toFloat() }
         return Outline.Rectangle(
@@ -73,17 +73,17 @@ internal object HorizontalScrollableClipShape : Shape {
                 left = 0f,
                 top = -inflateSize,
                 right = size.width,
-                bottom = size.height + inflateSize
+                bottom = size.height + inflateSize,
             )
         )
     }
 }
 
-internal object VerticalScrollableClipShape : Shape {
+private object VerticalScrollableClipShape : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         val inflateSize = with(density) { MaxSupportedElevation.roundToPx().toFloat() }
         return Outline.Rectangle(
@@ -91,7 +91,7 @@ internal object VerticalScrollableClipShape : Shape {
                 left = -inflateSize,
                 top = 0f,
                 right = size.width + inflateSize,
-                bottom = size.height
+                bottom = size.height,
             )
         )
     }

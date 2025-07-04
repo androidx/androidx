@@ -88,7 +88,7 @@ class SignalGeneratorViewModelTest {
     val grantPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.RECORD_AUDIO
+            android.Manifest.permission.RECORD_AUDIO,
         )
 
     @Before
@@ -97,7 +97,7 @@ class SignalGeneratorViewModelTest {
         Assume.assumeFalse(
             "Skip tests for Cuttlefish MediaCodec issues",
             Build.MODEL.contains("Cuttlefish") &&
-                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
+                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33),
         )
 
         val viewModelProvider = ViewModelProvider(fakeViewModelStoreOwner)

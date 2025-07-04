@@ -2,9 +2,7 @@
 
 # UI Team
 mount@google.com
-njawad@google.com
 ralu@google.com
-ryanmentley@google.com
 tianliu@google.com
 jewalker@google.com
 mnuzen@google.com
@@ -12,7 +10,9 @@ mnuzen@google.com
 # For Material related files
 andreykulikov@google.com
 soboleva@google.com
-malkov@google.com
+
+# SubcomposeLayout + exception handling related
+ashikov@google.com
 
 # For text related files
 include /TEXT_OWNERS

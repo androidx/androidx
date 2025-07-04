@@ -39,6 +39,7 @@
     <uses-permission android:name="android.permission.health.READ_WHEELCHAIR_PUSHES"/>
     <uses-permission android:name="android.permission.health.READ_POWER"/>
     <uses-permission android:name="android.permission.health.READ_SPEED"/>
+    <uses-permission android:name="android.permission.health.READ_ACTIVITY_INTENSITY"/>
 
     <!-- Read permissions for BODY_MEASUREMENTS. -->
     <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE"/>
@@ -75,6 +76,26 @@
     <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE"/>
     <uses-permission android:name="android.permission.health.READ_SKIN_TEMPERATURE"/>
 
+    <!-- Read permissions for WELLBEING. -->
+    <uses-permission android:name="android.permission.health.READ_MINDFULNESS"/>
+
+    <!-- Read permissions for PERSONAL HEALTH RECORD. -->
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_ALLERGIES_INTOLERANCES"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_CONDITIONS"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_LABORATORY_RESULTS"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_MEDICATIONS"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_PERSONAL_DETAILS"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_PRACTITIONER_DETAILS"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_PREGNANCY"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_PROCEDURES"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_SOCIAL_HISTORY"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_VACCINES"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_VISITS"/>
+    <uses-permission android:name="android.permission.health.READ_MEDICAL_DATA_VITAL_SIGNS"/>
+
+    <!-- Write permissions for PERSONAL HEALTH RECORD. -->
+    <uses-permission android:name="android.permission.health.WRITE_MEDICAL_DATA"/>
+
     <!-- Write permissions for ACTIVITY. -->
     <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED"/>
     <uses-permission android:name="android.permission.health.WRITE_DISTANCE"/>
@@ -88,6 +109,7 @@
     <uses-permission android:name="android.permission.health.WRITE_WHEELCHAIR_PUSHES"/>
     <uses-permission android:name="android.permission.health.WRITE_POWER"/>
     <uses-permission android:name="android.permission.health.WRITE_SPEED"/>
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVITY_INTENSITY"/>
 
     <!-- Write permissions for BODY_MEASUREMENTS. -->
     <uses-permission android:name="android.permission.health.WRITE_BASAL_METABOLIC_RATE"/>
@@ -123,4 +145,8 @@
     <uses-permission android:name="android.permission.health.WRITE_RESPIRATORY_RATE"/>
     <uses-permission android:name="android.permission.health.WRITE_RESTING_HEART_RATE"/>
     <uses-permission android:name="android.permission.health.WRITE_SKIN_TEMPERATURE"/>
+
+    <!-- Write permissions for WELLBEING. -->
+    <uses-permission android:name="android.permission.health.WRITE_MINDFULNESS"/>
+
 </manifest>

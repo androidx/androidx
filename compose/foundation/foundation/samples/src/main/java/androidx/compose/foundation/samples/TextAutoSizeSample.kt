@@ -17,15 +17,29 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.text.modifiers.TextAutoSizeLayoutScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+/** Sample of using [TextAutoSize.StepBased] to auto-size text. */
+@Sampled
+@Composable
+fun TextAutoSizeBasicTextSample() {
+    Box(modifier = Modifier.size(200.dp)) {
+        // The text will find the biggest available font size that fits in the box.
+        BasicText(text = "Hello World", autoSize = TextAutoSize.StepBased())
+    }
+}
 
 /**
  * Example of a custom [TextAutoSize] implementation that uses a list of [TextUnit] presets to find
@@ -36,7 +50,7 @@ fun CustomTextAutoSizeSample() {
     data class PresetsTextAutoSize(private val presets: Array<TextUnit>) : TextAutoSize {
         override fun TextAutoSizeLayoutScope.getFontSize(
             constraints: Constraints,
-            text: AnnotatedString
+            text: AnnotatedString,
         ): TextUnit {
             var lastTextSize: TextUnit = TextUnit.Unspecified
             for (presetSize in presets) {

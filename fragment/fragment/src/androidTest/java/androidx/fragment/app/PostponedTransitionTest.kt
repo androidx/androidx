@@ -197,7 +197,7 @@ class PostponedTransitionTest() {
             startBlueBounds,
             startGreen,
             beginningFragment,
-            fragment1
+            fragment1,
         )
 
         val endBlue = activityRule.findBlue()
@@ -233,7 +233,7 @@ class PostponedTransitionTest() {
             startBlueBounds2,
             startGreen2,
             beginningFragment,
-            fragment2
+            fragment2,
         )
 
         val endBlue2 = activityRule.findBlue()
@@ -303,7 +303,7 @@ class PostponedTransitionTest() {
             startBlueBounds,
             startGreen,
             beginningFragment,
-            fragment3
+            fragment3,
         )
 
         val startBlue3 = fragment3.requireView().findViewById<View>(R.id.blueSquare)
@@ -325,7 +325,7 @@ class PostponedTransitionTest() {
             startBlueBounds3,
             startGreen3,
             fragment3,
-            beginningFragment
+            beginningFragment,
         )
     }
 
@@ -381,7 +381,7 @@ class PostponedTransitionTest() {
             startBlueBounds,
             startGreen,
             beginningFragment,
-            fragment3
+            fragment3,
         )
 
         val startBlue3 = fragment3.requireView().findViewById<View>(R.id.blueSquare)
@@ -411,7 +411,7 @@ class PostponedTransitionTest() {
             startBlueBounds3,
             startGreen3,
             fragment3,
-            beginningFragment
+            beginningFragment,
         )
         verifyNoOtherTransitions(fragment2)
     }
@@ -454,7 +454,7 @@ class PostponedTransitionTest() {
             startBlueBounds,
             startGreen,
             beginningFragment,
-            fragment2
+            fragment2,
         )
 
         val startBlue2 = activityRule.findBlue()
@@ -475,7 +475,7 @@ class PostponedTransitionTest() {
             startBlueBounds2,
             startGreen2,
             fragment2,
-            beginningFragment
+            beginningFragment,
         )
     }
 
@@ -825,7 +825,7 @@ class PostponedTransitionTest() {
             startBlueBounds,
             startGreen,
             beginningFragment,
-            fragment3
+            fragment3,
         )
     }
 
@@ -1268,7 +1268,7 @@ class PostponedTransitionTest() {
         fromFragment: TransitionFragment,
         toFragment: TransitionFragment,
         removedFragment: TransitionFragment? = null,
-        toFragmentVisible: Boolean = true
+        toFragmentVisible: Boolean = true,
     ) {
         if (removedFragment != null) {
             assertThat(removedFragment.view).isNull()
@@ -1308,7 +1308,7 @@ class PostponedTransitionTest() {
         sharedElementBounds: Rect,
         transitioningView: View,
         start: TransitionFragment,
-        end: TransitionFragment
+        end: TransitionFragment,
     ) {
         start.waitForTransition()
         end.waitForTransition()
@@ -1353,7 +1353,7 @@ class PostponedTransitionTest() {
         sharedElementBounds: Rect,
         transitionView: View,
         start: TransitionFragment,
-        end: TransitionFragment
+        end: TransitionFragment,
     ) {
         start.waitForTransition()
         end.waitForTransition()
@@ -1406,7 +1406,7 @@ class PostponedTransitionTest() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState).also {
                 postponeEnterTransition()
@@ -1417,7 +1417,7 @@ class PostponedTransitionTest() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState).also {
                 postponeEnterTransition()
@@ -1431,7 +1431,7 @@ class PostponedTransitionTest() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState).also {
                 postponeEnterTransition(duration, TimeUnit.MILLISECONDS)
@@ -1469,7 +1469,7 @@ class PostponedTransitionTest() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState).also {
                 postponeEnterTransition(duration, TimeUnit.MILLISECONDS)

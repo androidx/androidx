@@ -75,7 +75,7 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
         int resolvedBitrate = AudioConfigUtil.scaleAndClampBitrate(
                 AUDIO_BITRATE_BASE,
                 mAudioSettings.getChannelCount(), AUDIO_CHANNEL_COUNT_BASE,
-                mAudioSettings.getSampleRate(), AUDIO_SAMPLE_RATE_BASE,
+                mAudioSettings.getEncodeSampleRate(), AUDIO_SAMPLE_RATE_BASE,
                 audioSpecBitrateRange);
 
         return AudioEncoderConfig.builder()
@@ -83,7 +83,8 @@ public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEn
                 .setProfile(mAudioProfile)
                 .setInputTimebase(mInputTimeBase)
                 .setChannelCount(mAudioSettings.getChannelCount())
-                .setSampleRate(mAudioSettings.getSampleRate())
+                .setCaptureSampleRate(mAudioSettings.getCaptureSampleRate())
+                .setEncodeSampleRate(mAudioSettings.getEncodeSampleRate())
                 .setBitrate(resolvedBitrate)
                 .build();
     }

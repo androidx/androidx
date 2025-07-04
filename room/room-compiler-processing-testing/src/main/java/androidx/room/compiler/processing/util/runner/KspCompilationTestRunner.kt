@@ -23,8 +23,6 @@ import androidx.room.compiler.processing.util.KotlinCompilationResult
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import androidx.room.compiler.processing.util.compiler.withAtLeastOneKotlinSource
-import com.google.devtools.ksp.processing.SymbolProcessor
-import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
 
@@ -34,26 +32,8 @@ internal class KspCompilationTestRunner(
 ) : CompilationTestRunner {
     override val name: String = "ksp"
 
-    override fun canRun(params: TestCompilationParameters): Boolean {
-        return true
-    }
-
     override fun compile(workingDir: File, params: TestCompilationParameters): CompilationResult {
-        val processorProvider =
-            object : SymbolProcessorProvider {
-                lateinit var processor: SyntheticKspProcessor
-
-                override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-                    return SyntheticKspProcessor(
-                            symbolProcessorEnvironment = environment,
-                            handlers = params.handlers,
-                            config = params.config
-                        )
-                        .also { processor = it }
-                }
-
-                fun isProcessorInitialized() = this::processor.isInitialized
-            }
+        val processorProvider = SyntheticKspProcessor.Provider(params.config, params.handlers)
         val args =
             TestCompilationArguments(
                     sources = params.sources,
@@ -65,9 +45,9 @@ internal class KspCompilationTestRunner(
                 )
                 .withAtLeastOneKotlinSource()
         val result = compile(workingDir = workingDir, arguments = args)
-        if (!processorProvider.isProcessorInitialized()) {
+        check(processorProvider.isProcessorInitialized()) {
             // KSP did not completely run, report diagnostic messages those with an exception.
-            val exceptionMsg = buildString {
+            buildString {
                 append("KSP did not completely run!")
                 if (result.diagnostics.isNotEmpty()) {
                     appendLine()
@@ -80,12 +60,11 @@ internal class KspCompilationTestRunner(
                     append(" No diagnostic messages...")
                 }
             }
-            error(exceptionMsg)
         }
         return KotlinCompilationResult(
             testRunner = this,
             processor = processorProvider.processor,
-            delegate = result
+            delegate = result,
         )
     }
 }

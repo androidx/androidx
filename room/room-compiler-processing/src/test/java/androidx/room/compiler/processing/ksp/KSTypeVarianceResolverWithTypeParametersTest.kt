@@ -93,7 +93,7 @@ class KSTypeVarianceResolverWithTypeParametersTest(
                 interface FooOut<out T>
                 interface Bar
                 """
-                            .trimIndent()
+                            .trimIndent(),
                     )
             val kaptSignaturesMap =
                 buildMap(sourcesMap.size) {
@@ -127,7 +127,7 @@ class KSTypeVarianceResolverWithTypeParametersTest(
                     fun baseMethod(param: $type): $type = TODO()
                 }
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         }
 

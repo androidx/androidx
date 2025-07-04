@@ -75,7 +75,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                 Param(Send),
                 Param(Previous),
                 Param(Next),
-                Param(Done)
+                Param(Done),
             )
     }
 
@@ -98,7 +98,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                         modifier =
                             Modifier.focusRequester(textField1).onFocusChanged {
                                 focusState1 = it.isFocused
-                            }
+                            },
                     )
                     CoreTextField(
                         value = value2,
@@ -111,7 +111,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                                     next = textField3
                                 }
                                 .onFocusChanged { focusState2 = it.isFocused },
-                        imeOptions = ImeOptions(imeAction = imeAction)
+                        imeOptions = ImeOptions(imeAction = imeAction),
                     )
                     CoreTextField(
                         value = value3,
@@ -119,7 +119,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                         modifier =
                             Modifier.focusRequester(textField3).onFocusChanged {
                                 focusState3 = it.isFocused
-                            }
+                            },
                     )
                 }
             }
@@ -184,7 +184,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                         modifier =
                             Modifier.focusRequester(textField1).onFocusChanged {
                                 focusState1 = it.isFocused
-                            }
+                            },
                     )
                     CoreTextField(
                         value = value2,
@@ -206,7 +206,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                                 onPrevious = { defaultKeyboardAction(Previous) },
                                 onSearch = { defaultKeyboardAction(Search) },
                                 onSend = { defaultKeyboardAction(Send) },
-                            )
+                            ),
                     )
                     CoreTextField(
                         value = value3,
@@ -214,7 +214,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                         modifier =
                             Modifier.focusRequester(textField3).onFocusChanged {
                                 focusState3 = it.isFocused
-                            }
+                            },
                     )
                 }
             }
@@ -288,7 +288,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                             onPrevious = { defaultKeyboardAction(Next) },
                             onSearch = { defaultKeyboardAction(Next) },
                             onSend = { defaultKeyboardAction(Next) },
-                        )
+                        ),
                 )
                 CoreTextField(
                     value = value2,
@@ -296,7 +296,7 @@ class DefaultKeyboardActionsTest(param: Param) {
                     modifier =
                         Modifier.focusRequester(textField2).onFocusChanged {
                             focusState2 = it.isFocused
-                        }
+                        },
                 )
             }
         }

@@ -30,7 +30,6 @@ import androidx.room.RoomRawQuery
 import androidx.room.paging.util.getClippedRefreshKey
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performSuspending
-import androidx.sqlite.use
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -111,7 +110,7 @@ class LimitOffsetPagingSourceTest {
                     PagingSource.LoadParams.Refresh(
                         key = null,
                         loadSize = 1,
-                        placeholdersEnabled = true
+                        placeholdersEnabled = true,
                     )
                 )
         }
@@ -248,8 +247,9 @@ class LimitOffsetPagingSourceTest {
             dao.addAllItems(ITEMS_LIST)
             val result = pager.refresh(initialKey = 40) as LoadResult.Page
 
-            // initial loadSize = 15, but limited by id < 50, should only load items 40 - 50
-            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(40, 50))
+            // initial loadSize = 15, but limited by id < 50, should treat 50 as end and
+            // load items 35 - 50
+            assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(35, 50))
             // should have 50 items fulfilling condition of id < 50 (TestItem id 0 - 49)
             assertThat(pagingSource.itemCount).isEqualTo(50)
         }
@@ -576,6 +576,36 @@ class LimitOffsetPagingSourceTest {
         assertThat(result.nextKey).isEqualTo(null)
     }
 
+    @Test
+    fun load_refreshKeyOnLastPage() = runPagingSourceTest { pager, _ ->
+        dao.addAllItems(ITEMS_LIST)
+        pager.refresh(initialKey = 70)
+        dao.deleteTestItems(80, 100)
+
+        // assume user was viewing last item of the refresh load with anchorPosition = 85,
+        // initialLoadSize = 15. This mimics how getRefreshKey() calculates refresh key.
+        val refreshKey = 85 - (15 / 2)
+
+        val pagingSource2 = LimitOffsetPagingSourceImpl(database)
+        val pager2 = TestPager(CONFIG, pagingSource2)
+        val result = pager2.refresh(initialKey = refreshKey) as LoadResult.Page
+
+        // database should only have 80 items left. Refresh key should be moved back at this point
+        // to ensure a full load. (greater than item count - loadSize after deletion)
+        assertThat(pagingSource2.itemCount).isEqualTo(80)
+        // ensure that paging source can handle invalid refresh key properly
+        // should load last page with items 65 - 80
+        assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(65, 80))
+
+        // should account for updated item count to return correct itemsBefore, itemsAfter,
+        // prevKey, nextKey
+        assertThat(result.itemsBefore).isEqualTo(65)
+        assertThat(result.itemsAfter).isEqualTo(0)
+        // no append can be triggered
+        assertThat(result.prevKey).isEqualTo(65)
+        assertThat(result.nextKey).isEqualTo(null)
+    }
+
     /**
      * Tests the behavior if user was viewing items in the top of the database and those items were
      * deleted.
@@ -654,8 +684,8 @@ class LimitOffsetPagingSourceTest {
         config: PagingConfig = CONFIG,
         block:
             suspend (
-                pager: TestPager<Int, TestItem>, pagingSource: LimitOffsetPagingSourceImpl
-            ) -> Unit
+                pager: TestPager<Int, TestItem>, pagingSource: LimitOffsetPagingSourceImpl,
+            ) -> Unit,
     ) {
         runBlocking { block(TestPager(config, pagingSource), pagingSource) }
     }
@@ -682,7 +712,7 @@ class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
         db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java
+                    LimitOffsetTestDb::class.java,
                 )
                 .setQueryCallback(
                     object : RoomDatabase.QueryCallback {
@@ -774,11 +804,11 @@ class LimitOffsetPagingSourceImpl(
     LimitOffsetPagingSource<TestItem>(
         sourceQuery = RoomRawQuery(sql = queryString),
         db = db,
-        tables = arrayOf(tableName)
+        tables = arrayOf(tableName),
     ) {
     override suspend fun convertRows(
         limitOffsetQuery: RoomRawQuery,
-        itemCount: Int
+        itemCount: Int,
     ): List<TestItem> {
         return performSuspending(db, isReadOnly = true, inTransaction = false) { connection ->
             connection.prepare(limitOffsetQuery.sql).use { statement ->
@@ -816,9 +846,5 @@ private val CONFIG = PagingConfig(pageSize = 5, enablePlaceholders = true, initi
 private val ITEMS_LIST = createItemsForDb(0, 100)
 
 private fun createItemsForDb(startId: Int, count: Int): List<TestItem> {
-    return List(count) {
-        TestItem(
-            id = it + startId,
-        )
-    }
+    return List(count) { TestItem(id = it + startId) }
 }

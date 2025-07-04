@@ -241,12 +241,12 @@ class FragmentContainerViewTest {
             object : OnApplyWindowInsetsListener {
                 override fun onApplyWindowInsets(
                     v: View,
-                    insets: WindowInsetsCompat
+                    insets: WindowInsetsCompat,
                 ): WindowInsetsCompat {
                     calledListener = true
                     return insets
                 }
-            }
+            },
         )
 
         fragmentContainerView.onApplyWindowInsets(sentInsets)
@@ -439,7 +439,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
@@ -452,7 +452,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .addToBackStack(null)
@@ -502,7 +502,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
@@ -515,7 +515,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
@@ -543,7 +543,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
@@ -575,7 +575,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
@@ -589,7 +589,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
@@ -618,7 +618,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
@@ -650,7 +650,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
@@ -664,7 +664,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
@@ -693,7 +693,7 @@ class FragmentContainerViewTest {
                 android.R.anim.slide_in_left,
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
+                android.R.anim.slide_out_right,
             )
             .add(R.id.fragment_container_view, ChildViewFragment(), "1")
             .commit()
@@ -718,7 +718,7 @@ class FragmentContainerViewTest {
         val fragmentContainerView =
             ActivityCompat.requireViewById<FragmentContainerView>(
                 activityRule.activity,
-                R.id.fragment_container_view
+                R.id.fragment_container_view,
             )
 
         assertThat(fragmentContainerView.getFragment<StrictViewFragment?>()).isNull()
@@ -729,7 +729,7 @@ class FragmentContainerViewTest {
         val fragmentContainerView =
             ActivityCompat.requireViewById<FragmentContainerView>(
                 activityRule.activity,
-                R.id.fragment_container_view
+                R.id.fragment_container_view,
             )
         val fm = activityRule.activity.supportFragmentManager
 
@@ -751,7 +751,7 @@ class FragmentContainerViewTest {
         val fragmentContainerView =
             ActivityCompat.requireViewById<FragmentContainerView>(
                 activityRule.activity,
-                R.id.fragment_container_view
+                R.id.fragment_container_view,
             )
         val fm = activityRule.activity.supportFragmentManager
 
@@ -772,7 +772,7 @@ class FragmentContainerViewTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) = ChildView(context).apply { this.tag = viewTag }
     }
 

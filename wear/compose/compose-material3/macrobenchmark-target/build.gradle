@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
@@ -25,6 +26,7 @@ android {
     compileSdk = 35
 
     namespace = "androidx.wear.compose.material3.macrobenchmark.target"
+    defaultConfig.minSdk = 25
     buildTypes {
         release {
             minifyEnabled = true
@@ -40,10 +42,11 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:ui:ui"))
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-material3-macrobenchmark-common"))
 }
 
-android.defaultConfig.minSdk = 25
+androidx {
+}

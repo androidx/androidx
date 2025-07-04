@@ -37,10 +37,7 @@ abstract class BenchmarkTestBase(
     private val actionSuffix: String,
     private val compilationMode: CompilationMode,
     private val metrics: List<Metric> =
-        listOf(
-            FrameTimingGfxInfoMetric(),
-            MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-        ),
+        listOf(FrameTimingGfxInfoMetric(), MemoryUsageMetric(MemoryUsageMetric.Mode.Last)),
     private val iterations: Int = 10,
 ) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
@@ -48,6 +45,7 @@ abstract class BenchmarkTestBase(
     @Before
     fun setUp() {
         disableChargingExperience()
+        pressHome()
     }
 
     @After
@@ -56,7 +54,7 @@ abstract class BenchmarkTestBase(
     }
 
     @Test
-    fun start() {
+    open fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = metrics,
@@ -66,7 +64,7 @@ abstract class BenchmarkTestBase(
                 val intent = Intent()
                 intent.action = "$PACKAGE_NAME.$actionSuffix"
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             macrobenchmarkScreen.exercise.invoke(this)
         }

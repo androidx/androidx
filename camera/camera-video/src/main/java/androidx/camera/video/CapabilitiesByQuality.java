@@ -25,6 +25,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
+import androidx.camera.video.Quality.QualitySource;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.core.util.Preconditions;
 
@@ -57,10 +58,11 @@ public class CapabilitiesByQuality {
     private final VideoValidatedEncoderProfilesProxy mHighestProfiles;
     private final VideoValidatedEncoderProfilesProxy mLowestProfiles;
 
-    public CapabilitiesByQuality(@NonNull EncoderProfilesProvider provider) {
+    public CapabilitiesByQuality(@NonNull EncoderProfilesProvider provider,
+            @QualitySource int qualitySource) {
         // Construct supported profile map.
         for (Quality quality : Quality.getSortedQualities()) {
-            EncoderProfilesProxy profiles = getEncoderProfiles(quality, provider);
+            EncoderProfilesProxy profiles = getEncoderProfiles(quality, provider, qualitySource);
             if (profiles == null) {
                 continue;
             }
@@ -77,8 +79,7 @@ public class CapabilitiesByQuality {
 
             EncoderProfilesProxy.VideoProfileProxy videoProfile =
                     validatedProfiles.getDefaultVideoProfile();
-            Size size = new Size(videoProfile.getWidth(), videoProfile.getHeight());
-            mAreaSortedSizeToQualityMap.put(size, quality);
+            mAreaSortedSizeToQualityMap.put(videoProfile.getResolution(), quality);
 
             // SortedQualities is from size large to small.
             mSupportedProfilesMap.put(quality, validatedProfiles);
@@ -160,10 +161,11 @@ public class CapabilitiesByQuality {
     }
 
     private @Nullable EncoderProfilesProxy getEncoderProfiles(@NonNull Quality quality,
-            @NonNull EncoderProfilesProvider provider) {
+            @NonNull EncoderProfilesProvider provider, @QualitySource int qualitySource) {
         Preconditions.checkState(quality instanceof Quality.ConstantQuality,
                 "Currently only support ConstantQuality");
-        int qualityValue = ((Quality.ConstantQuality) quality).getValue();
+        Quality.ConstantQuality constantQuality = (Quality.ConstantQuality) quality;
+        int qualityValue = constantQuality.getQualityValue(qualitySource);
 
         return provider.getAll(qualityValue);
     }
@@ -183,8 +185,10 @@ public class CapabilitiesByQuality {
     /**
      * Checks if the {@link EncoderProfilesProvider} contains at least one supported quality.
      */
-    public static boolean containsSupportedQuality(@NonNull EncoderProfilesProvider provider) {
-        return !new CapabilitiesByQuality(provider).getSupportedQualities().isEmpty();
+    public static boolean containsSupportedQuality(@NonNull EncoderProfilesProvider provider,
+            @QualitySource int qualitySource) {
+        return !new CapabilitiesByQuality(provider, qualitySource)
+                .getSupportedQualities().isEmpty();
     }
 
     private static void checkQualityConstantsOrThrow(@NonNull Quality quality) {

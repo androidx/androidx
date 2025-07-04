@@ -31,7 +31,7 @@ import kotlin.math.abs
 fun assertEqualMeasurements(
     expected: List<Metric.Measurement>,
     observed: List<Metric.Measurement>,
-    threshold: Double
+    threshold: Double,
 ) {
     val expectedSorted = expected.sortedBy { it.name }
     val observedSorted = observed.sortedBy { it.name }
@@ -114,7 +114,7 @@ internal fun List<List<Metric.Measurement>>.mergeMultiIterResults() =
                     it.filter { measurement -> !measurement.requireSingleValue }
                         .associate { singleResult -> singleResult.name to singleResult.data }
                 }
-                .mergeToSampledMetricResults()
+                .mergeToSampledMetricResults(),
     )
 
 /** Merge the Map<String, Long> results from each iteration into one List<MetricResult> */
@@ -129,7 +129,7 @@ internal fun List<Map<String, Double>>.mergeToSingleMetricResults(): List<Metric
                     // TODO: assert that metrics are always captured (b/193827052)
                     Log.d(
                         TAG,
-                        "Skipping results from iter $iteration, it didn't capture all metrics"
+                        "Skipping results from iter $iteration, it didn't capture all metrics",
                     )
                     null
                 } else {

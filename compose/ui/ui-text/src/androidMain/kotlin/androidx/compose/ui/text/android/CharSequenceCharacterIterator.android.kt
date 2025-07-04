@@ -33,7 +33,7 @@ import java.text.CharacterIterator
 internal class CharSequenceCharacterIterator(
     private val charSequence: CharSequence,
     private val start: Int,
-    private val end: Int
+    private val end: Int,
 ) : Object() /* see b/204328129 */, CharacterIterator {
     private var index: Int = start
 

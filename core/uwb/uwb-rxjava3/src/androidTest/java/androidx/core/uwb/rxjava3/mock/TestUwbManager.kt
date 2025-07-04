@@ -66,7 +66,7 @@ class TestUwbManager : UwbManager {
                 zzpt.zzn(1, 2, 3),
                 zzpt.zzl(2),
                 zzpt.zzl(1),
-                false
+                false,
             )
         val uwbClient = TestUwbClient(complexChannel, localAddress, rangingCapabilities, true)
         return if (isController) {
@@ -83,13 +83,13 @@ class TestUwbManager : UwbManager {
                     rangingCapabilities.supportedSlotDurations.toSet(),
                     rangingCapabilities.supportedRangingUpdateRates.toSet(),
                     rangingCapabilities.supportsRangingIntervalReconfigure(),
-                    rangingCapabilities.hasBackgroundRangingSupport()
+                    rangingCapabilities.hasBackgroundRangingSupport(),
                 ),
                 UwbAddress(localAddress.address),
                 androidx.core.uwb.UwbComplexChannel(
                     complexChannel.channel,
-                    complexChannel.preambleIndex
-                )
+                    complexChannel.preambleIndex,
+                ),
             )
         } else {
             TestUwbControleeSessionScope(
@@ -105,16 +105,16 @@ class TestUwbManager : UwbManager {
                     rangingCapabilities.supportedSlotDurations.toSet(),
                     rangingCapabilities.supportedRangingUpdateRates.toSet(),
                     rangingCapabilities.supportsRangingIntervalReconfigure(),
-                    rangingCapabilities.hasBackgroundRangingSupport()
+                    rangingCapabilities.hasBackgroundRangingSupport(),
                 ),
-                UwbAddress(localAddress.address)
+                UwbAddress(localAddress.address),
             )
         }
     }
 
     override fun setUwbAvailabilityCallback(
         executor: Executor,
-        observer: UwbAvailabilityCallback
+        observer: UwbAvailabilityCallback,
     ) {}
 
     override fun clearUwbAvailabilityCallback() {}

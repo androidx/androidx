@@ -26,12 +26,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
 
 class SnapshotStateExtensionsTests {
 
@@ -57,7 +56,7 @@ class SnapshotStateExtensionsTests {
                 "asIntState() returned a State that dispatched unexpected values when its " +
                     "corresponding state had been initialized and not modified.",
             expected = listOf(512),
-            actual = intSnapshotHistory.value
+            actual = intSnapshotHistory.value,
         )
 
         state.intValue = 1024
@@ -68,7 +67,7 @@ class SnapshotStateExtensionsTests {
                 "asIntState() returned a State that dispatched unexpected values when its " +
                     "corresponding state was reassigned and changed.",
             expected = listOf(512, 1024),
-            actual = intSnapshotHistory.value
+            actual = intSnapshotHistory.value,
         )
 
         state.intValue = 2048
@@ -79,7 +78,7 @@ class SnapshotStateExtensionsTests {
                 "asIntState() returned a State that dispatched unexpected values when its " +
                     "corresponding state was reassigned and changed.",
             expected = listOf(512, 1024, 2048),
-            actual = intSnapshotHistory.value
+            actual = intSnapshotHistory.value,
         )
         snapshotObservationJob.cancel()
     }
@@ -98,7 +97,7 @@ class SnapshotStateExtensionsTests {
                 "asLongState() returned a State that dispatched unexpected values when its " +
                     "corresponding state had been initialized and not modified.",
             expected = listOf(1000L),
-            actual = longSnapshotHistory.value
+            actual = longSnapshotHistory.value,
         )
 
         state.longValue = 2000L
@@ -109,7 +108,7 @@ class SnapshotStateExtensionsTests {
                 "asLongState() returned a State that dispatched unexpected values when its " +
                     "corresponding state was reassigned and changed.",
             expected = listOf(1000L, 2000L),
-            actual = longSnapshotHistory.value
+            actual = longSnapshotHistory.value,
         )
 
         state.longValue = 3000L
@@ -120,7 +119,7 @@ class SnapshotStateExtensionsTests {
                 "asLongState() returned a State that dispatched unexpected values when its " +
                     "corresponding state was reassigned and changed.",
             expected = listOf(1000L, 2000L, 3000L),
-            actual = longSnapshotHistory.value
+            actual = longSnapshotHistory.value,
         )
         snapshotObservationJob.cancel()
     }
@@ -140,7 +139,7 @@ class SnapshotStateExtensionsTests {
                 "asFloatState() returned a State that dispatched unexpected values when " +
                     "its corresponding state had been initialized and not modified.",
             expected = listOf(0f),
-            actual = floatSnapshotHistory.value
+            actual = floatSnapshotHistory.value,
         )
 
         state.floatValue = 1f
@@ -151,7 +150,7 @@ class SnapshotStateExtensionsTests {
                 "asFloatState() returned a State that dispatched unexpected values when " +
                     "its corresponding state was reassigned and changed.",
             expected = listOf(0f, 1f),
-            actual = floatSnapshotHistory.value
+            actual = floatSnapshotHistory.value,
         )
 
         state.floatValue = 2f
@@ -162,7 +161,7 @@ class SnapshotStateExtensionsTests {
                 "asFloatState() returned a State that dispatched unexpected values when " +
                     "its corresponding state was reassigned and changed.",
             expected = listOf(0f, 1f, 2f),
-            actual = floatSnapshotHistory.value
+            actual = floatSnapshotHistory.value,
         )
         snapshotObservationJob.cancel()
     }
@@ -182,7 +181,7 @@ class SnapshotStateExtensionsTests {
                 "asDoubleState() returned a State that dispatched unexpected values when " +
                     "its corresponding state had been initialized and not modified.",
             expected = listOf(1.0),
-            actual = doubleSnapshotHistory.value
+            actual = doubleSnapshotHistory.value,
         )
 
         state.doubleValue = 2.5
@@ -193,7 +192,7 @@ class SnapshotStateExtensionsTests {
                 "asDoubleState() returned a State that dispatched unexpected values when " +
                     "its corresponding state was reassigned and changed.",
             expected = listOf(1.0, 2.5),
-            actual = doubleSnapshotHistory.value
+            actual = doubleSnapshotHistory.value,
         )
 
         state.doubleValue = 5.0
@@ -204,7 +203,7 @@ class SnapshotStateExtensionsTests {
                 "asDoubleState() returned a State that dispatched unexpected values when " +
                     "its corresponding state was reassigned and changed.",
             expected = listOf(1.0, 2.5, 5.0),
-            actual = doubleSnapshotHistory.value
+            actual = doubleSnapshotHistory.value,
         )
         snapshotObservationJob.cancel()
     }
@@ -217,7 +216,7 @@ class SnapshotStateExtensionsTests {
 
     private suspend fun <T> getSnapshotHistory(
         coroutineContext: CoroutineContext = EmptyCoroutineContext,
-        block: () -> T
+        block: () -> T,
     ): StateFlow<List<T>> {
         // Build manually rather than use `snapshotFlow {}`, because snapshotFlow implicitly
         // has the behavior of `distinctUntilChanged()`, which hides behavior we want to test.
@@ -226,8 +225,8 @@ class SnapshotStateExtensionsTests {
                 val readSet = mutableSetOf<Any>()
                 val readObserver: (Any) -> Unit = { readSet.add(it) }
 
-                fun emitLatestValue() =
-                    channel.trySendBlocking(
+                fun emitLatestValue() {
+                    val value =
                         with(Snapshot.takeSnapshot(readObserver)) {
                             try {
                                 enter { block() }
@@ -235,15 +234,14 @@ class SnapshotStateExtensionsTests {
                                 dispose()
                             }
                         }
-                    )
+                    trySend(value)
+                }
 
                 emitLatestValue()
                 val handle =
                     Snapshot.registerApplyObserver { changed, _ ->
-                        for (changedObjects in changed) {
-                            if (readSet.any { it in changed }) {
-                                emitLatestValue()
-                            }
+                        if (changed.any { it in readSet }) {
+                            emitLatestValue()
                         }
                     }
 

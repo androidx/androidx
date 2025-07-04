@@ -16,14 +16,21 @@
 
 package androidx.xr.runtime.openxr
 
-import android.app.Activity
+// import android.content.Context
+// import androidx.test.core.app.ApplicationProvider
+// import androidx.xr.runtime.FEATURE_XR_API_OPENXR
+// import org.robolectric.Shadows.shadowOf
+// import org.robolectric.shadows.ShadowBuild
+
+import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.xr.runtime.internal.RuntimeFactory
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import com.google.common.truth.Truth.assertThat
-import java.util.ServiceLoader
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,20 +49,19 @@ class OpenXrRuntimeFactoryTest {
         }
     }
 
-    @get:Rule val activityRule = ActivityScenarioRule(Activity::class.java)
+    @get:Rule val activityRule = ActivityScenarioRule(ComponentActivity::class.java)
 
-    @Test
-    fun class_isDiscoverableViaServiceLoader() {
-        assertThat(ServiceLoader.load(RuntimeFactory::class.java).iterator().next())
-            .isInstanceOf(OpenXrRuntimeFactory::class.java)
-    }
-
+    @Ignore("Source utilizes robolectric which does not work with androidTests.")
     @Test
     fun createRuntime_createsOpenXrRuntime() {
-        activityRule.scenario.onActivity {
-            val underTest = OpenXrRuntimeFactory()
+        // ShadowBuild.setFingerprint("a_fake_openxr_device")
+        // val context: Context = ApplicationProvider.getApplicationContext()
+        // shadowOf(context.packageManager).setSystemFeature(FEATURE_XR_API_OPENXR, /* supported= */
+        // true)
 
-            assertThat(underTest.createRuntime(it)).isInstanceOf(OpenXrRuntime::class.java)
+        activityRule.scenario.onActivity {
+            assertThat((Session.create(it) as SessionCreateSuccess).session.runtime)
+                .isInstanceOf(OpenXrRuntime::class.java)
         }
     }
 }

@@ -18,12 +18,20 @@ package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
 
-/** Implementation of possible TextMotion configurations on Android. */
+// TODO: b/350954962 the sample link is needed here as our KMP structure makes expect classes
+//  invisible to lint, so the lint check doesn't find the sample on the corresponding expect. Once
+//  this is resolved, the sample can be removed from here (since the actual isn't used to generate
+//  documentation)
+/**
+ * Implementation of possible TextMotion configurations on Android.
+ *
+ * @sample androidx.compose.ui.text.samples.TextMotionSample
+ */
 @Immutable
 actual class TextMotion
 internal constructor(
     internal val linearity: Linearity,
-    internal val subpixelTextPositioning: Boolean
+    internal val subpixelTextPositioning: Boolean,
 ) {
     actual companion object {
         actual val Static: TextMotion = TextMotion(Linearity.FontHinting, false)
@@ -32,7 +40,7 @@ internal constructor(
 
     internal fun copy(
         linearity: Linearity = this.linearity,
-        subpixelTextPositioning: Boolean = this.subpixelTextPositioning
+        subpixelTextPositioning: Boolean = this.subpixelTextPositioning,
     ): TextMotion =
         TextMotion(linearity = linearity, subpixelTextPositioning = subpixelTextPositioning)
 

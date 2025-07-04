@@ -17,6 +17,7 @@ package androidx.lifecycle
 
 import android.app.Service
 import android.os.Handler
+import android.os.Looper
 
 /**
  * Helper class to dispatch lifecycle events for a Service. Use it only if it is impossible to use
@@ -26,20 +27,16 @@ import android.os.Handler
  */
 public open class ServiceLifecycleDispatcher(provider: LifecycleOwner) {
 
-    private val registry: LifecycleRegistry
-    private val handler: Handler
+    private val registry: LifecycleRegistry = LifecycleRegistry(provider)
+    private val handler: Handler = Handler(Looper.getMainLooper())
     private var lastDispatchRunnable: DispatchRunnable? = null
-
-    init {
-        registry = LifecycleRegistry(provider)
-        @Suppress("DEPRECATION")
-        handler = Handler()
-    }
 
     private fun postDispatchRunnable(event: Lifecycle.Event) {
         lastDispatchRunnable?.run()
-        lastDispatchRunnable = DispatchRunnable(registry, event)
-        handler.postAtFrontOfQueue(lastDispatchRunnable!!)
+        DispatchRunnable(registry, event).also {
+            lastDispatchRunnable = it
+            handler.postAtFrontOfQueue(it)
+        }
     }
 
     /** Must be a first call in [Service.onCreate] method, even before super.onCreate call. */
@@ -72,7 +69,7 @@ public open class ServiceLifecycleDispatcher(provider: LifecycleOwner) {
 
     internal class DispatchRunnable(
         private val registry: LifecycleRegistry,
-        val event: Lifecycle.Event
+        val event: Lifecycle.Event,
     ) : Runnable {
         private var wasExecuted = false
 

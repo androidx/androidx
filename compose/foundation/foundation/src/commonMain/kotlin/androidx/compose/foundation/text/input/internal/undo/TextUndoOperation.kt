@@ -44,7 +44,7 @@ internal class TextUndoOperation(
     val preSelection: TextRange,
     val postSelection: TextRange,
     val timeInMillis: Long = timeNowMillis(),
-    val canMerge: Boolean = true
+    val canMerge: Boolean = true,
 ) {
 
     /**
@@ -90,7 +90,7 @@ internal class TextUndoOperation(
                         value.preSelection.end,
                         value.postSelection.start,
                         value.postSelection.end,
-                        value.timeInMillis
+                        value.timeInMillis,
                     )
 
                 override fun restore(value: Any): TextUndoOperation {
@@ -134,7 +134,7 @@ internal fun TextFieldState.redo(op: TextUndoOperation) {
 internal enum class TextEditType {
     Insert,
     Delete,
-    Replace
+    Replace,
 }
 
 /**
@@ -153,7 +153,7 @@ internal enum class TextDeleteType {
     Start,
     End,
     Inner,
-    NotByUser
+    NotByUser,
 }
 
 /**
@@ -166,5 +166,5 @@ internal enum class TextDeleteType {
 internal enum class TextFieldEditUndoBehavior {
     MergeIfPossible,
     ClearHistory,
-    NeverMerge
+    NeverMerge,
 }

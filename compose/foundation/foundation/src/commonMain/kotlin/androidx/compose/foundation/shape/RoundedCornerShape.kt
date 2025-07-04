@@ -43,13 +43,13 @@ class RoundedCornerShape(
     topStart: CornerSize,
     topEnd: CornerSize,
     bottomEnd: CornerSize,
-    bottomStart: CornerSize
+    bottomStart: CornerSize,
 ) :
     CornerBasedShape(
         topStart = topStart,
         topEnd = topEnd,
         bottomEnd = bottomEnd,
-        bottomStart = bottomStart
+        bottomStart = bottomStart,
     ) {
 
     override fun createOutline(
@@ -58,7 +58,7 @@ class RoundedCornerShape(
         topEnd: Float,
         bottomEnd: Float,
         bottomStart: Float,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ) =
         if (topStart + topEnd + bottomEnd + bottomStart == 0.0f) {
             Outline.Rectangle(size.toRect())
@@ -71,7 +71,7 @@ class RoundedCornerShape(
                     bottomRight =
                         CornerRadius(if (layoutDirection == Ltr) bottomEnd else bottomStart),
                     bottomLeft =
-                        CornerRadius(if (layoutDirection == Ltr) bottomStart else bottomEnd)
+                        CornerRadius(if (layoutDirection == Ltr) bottomStart else bottomEnd),
                 )
             )
         }
@@ -80,13 +80,13 @@ class RoundedCornerShape(
         topStart: CornerSize,
         topEnd: CornerSize,
         bottomEnd: CornerSize,
-        bottomStart: CornerSize
+        bottomStart: CornerSize,
     ) =
         RoundedCornerShape(
             topStart = topStart,
             topEnd = topEnd,
             bottomEnd = bottomEnd,
-            bottomStart = bottomStart
+            bottomStart = bottomStart,
         )
 
     override fun toString(): String {
@@ -151,13 +151,13 @@ fun RoundedCornerShape(
     topStart: Dp = 0.dp,
     topEnd: Dp = 0.dp,
     bottomEnd: Dp = 0.dp,
-    bottomStart: Dp = 0.dp
+    bottomStart: Dp = 0.dp,
 ) =
     RoundedCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
         bottomEnd = CornerSize(bottomEnd),
-        bottomStart = CornerSize(bottomStart)
+        bottomStart = CornerSize(bottomStart),
     )
 
 /** Creates [RoundedCornerShape] with sizes defined in pixels. */
@@ -165,13 +165,13 @@ fun RoundedCornerShape(
     topStart: Float = 0.0f,
     topEnd: Float = 0.0f,
     bottomEnd: Float = 0.0f,
-    bottomStart: Float = 0.0f
+    bottomStart: Float = 0.0f,
 ) =
     RoundedCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
         bottomEnd = CornerSize(bottomEnd),
-        bottomStart = CornerSize(bottomStart)
+        bottomStart = CornerSize(bottomStart),
     )
 
 /**
@@ -190,11 +190,11 @@ fun RoundedCornerShape(
     @IntRange(from = 0, to = 100) topStartPercent: Int = 0,
     @IntRange(from = 0, to = 100) topEndPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomEndPercent: Int = 0,
-    @IntRange(from = 0, to = 100) bottomStartPercent: Int = 0
+    @IntRange(from = 0, to = 100) bottomStartPercent: Int = 0,
 ) =
     RoundedCornerShape(
         topStart = CornerSize(topStartPercent),
         topEnd = CornerSize(topEndPercent),
         bottomEnd = CornerSize(bottomEndPercent),
-        bottomStart = CornerSize(bottomStartPercent)
+        bottomStart = CornerSize(bottomStartPercent),
     )

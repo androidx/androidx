@@ -5,34 +5,35 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    implementation(project(':wear:protolayout:protolayout'))
+    implementation(project(':wear:protolayout:protolayout-expression'))
     implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-renderer"))
     implementation(project(":wear:tiles:tiles-tooling-preview"))
-
-    implementation(libs.kotlinStdlib)
-    implementation(libs.kotlinCoroutinesGuava)
-
     implementation("androidx.core:core:1.1.0")
+    implementation(libs.androidx.annotation)
+    implementation(libs.jspecify)
+    implementation(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
 
+    androidTestImplementation(libs.guava)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.guava)
     androidTestImplementation(project(":wear:protolayout:protolayout-material"))
 }
 
@@ -46,7 +47,7 @@ android {
 
 androidx {
     name = "Android Wear Tiles Tooling"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "A set of tools that are used to preview Tile components in Android Studio"
     legacyDisableKotlinStrictApiMode = true

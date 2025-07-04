@@ -22,16 +22,20 @@ import static androidx.appcompat.widget.ViewUtils.SDK_LEVEL_SUPPORTS_AUTOSIZE;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.fonts.FontStyle;
+import android.graphics.fonts.FontVariationAxis;
 import android.os.Build;
 import android.os.LocaleList;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -40,10 +44,11 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.collection.LruCache;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.util.Pair;
+import androidx.core.util.Consumer;
 import androidx.core.util.TypedValueCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
@@ -779,11 +784,36 @@ class AppCompatTextHelper {
 
     @RequiresApi(26)
     static class Api26Impl {
+
         /**
          * Cache for variation instances created based on an existing Typeface
          */
-        private static final LruCache<Pair<Typeface, String>, Typeface> sVariationsCache =
-                new LruCache<>(30);
+        private static class VarCacheKey {
+            private final Typeface mTypeface;
+            private final String mFontVariationSettings;
+            private final int mWeightAdjustment;
+
+            VarCacheKey(Typeface typeface, String fontVariationSettings, int weightAdjustment) {
+                this.mTypeface = typeface;
+                this.mFontVariationSettings = fontVariationSettings;
+                this.mWeightAdjustment = weightAdjustment;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (!(o instanceof VarCacheKey)) return false;
+                VarCacheKey cacheKey = (VarCacheKey) o;
+                return mWeightAdjustment == cacheKey.mWeightAdjustment && Objects.equals(mTypeface,
+                        cacheKey.mTypeface) && Objects.equals(mFontVariationSettings,
+                        cacheKey.mFontVariationSettings);
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(mTypeface, mFontVariationSettings, mWeightAdjustment);
+            }
+        }
+        private static final LruCache<VarCacheKey, Typeface> sVariationsCache = new LruCache<>(30);
 
         /**
          * Used to create variation instances; initialized lazily
@@ -804,6 +834,52 @@ class AppCompatTextHelper {
                 textView.setFontVariationSettings("");
             }
             return textView.setFontVariationSettings(fontVariationSettings);
+        }
+
+        private static float clampWeight(float value) {
+            if (value < FontStyle.FONT_WEIGHT_MIN) {
+                return FontStyle.FONT_WEIGHT_MIN;
+            }
+            return Math.min(value, FontStyle.FONT_WEIGHT_MAX);
+        }
+
+        @VisibleForTesting
+        static String adjustFontVariationSettings(String fontVariationSettings,
+                int fontWeightAdjustment) {
+            if (fontWeightAdjustment == 0) {
+                return fontVariationSettings;
+            }
+
+            FontVariationAxis[] axes;
+            if (TextUtils.isEmpty(fontVariationSettings)) {
+                // fromFontVariationSettings returns null if the given text is empty. This should
+                // not be treated as error.
+                axes = new FontVariationAxis[0];
+            } else {
+                axes = FontVariationAxis.fromFontVariationSettings(fontVariationSettings);
+                if (axes == null) {
+                    // invalid format of the font variation settings. Let caller to handle this.
+                    return fontVariationSettings;
+                }
+            }
+
+            boolean wghtAdjusted = false;
+            for (int i = 0; i < axes.length; ++i) {
+                FontVariationAxis axis = axes[i];
+                if ("wght".equals(axis.getTag())) {
+                    axes[i] = new FontVariationAxis("wght",
+                            clampWeight(axis.getStyleValue() + fontWeightAdjustment));
+                    wghtAdjusted = true;
+                }
+            }
+            if (!wghtAdjusted) {
+                FontVariationAxis[] newAxes = new FontVariationAxis[axes.length + 1];
+                System.arraycopy(axes, 0, newAxes, 0, axes.length);
+                newAxes[axes.length] = new FontVariationAxis("wght",
+                        clampWeight(400 + fontWeightAdjustment));
+                axes = newAxes;
+            }
+            return FontVariationAxis.toFontVariationSettings(axes);
         }
 
         /**
@@ -827,14 +903,18 @@ class AppCompatTextHelper {
          */
         @UiThread
         static @Nullable Typeface createVariationInstance(@Nullable Typeface baseTypeface,
-                @Nullable String fontVariationSettings) {
-            Pair<Typeface, String> cacheKey = new Pair<>(baseTypeface, fontVariationSettings);
+                @Nullable String fontVariationSettings, int fontAdjustment) {
+            VarCacheKey cacheKey = new VarCacheKey(baseTypeface, fontVariationSettings,
+                    fontAdjustment);
 
             Typeface result = sVariationsCache.get(cacheKey);
             if (result != null) {
                 return result;
             }
             Paint paint = sPaint != null ? sPaint : (sPaint = new Paint());
+
+            fontVariationSettings = adjustFontVariationSettings(fontVariationSettings,
+                    fontAdjustment);
 
             // Work around b/353609778
             if (Objects.equals(paint.getFontVariationSettings(), fontVariationSettings)) {
@@ -907,5 +987,129 @@ class AppCompatTextHelper {
             return Typeface.create(family, weight, italic);
         }
 
+    }
+
+    @RequiresApi(26)
+    static class FontVariationSettingsManager {
+        private static final String TAG = "FontVarSettings";
+
+        private final TextView mTextView;
+        private final Consumer<Typeface> mTypefaceSetter;
+
+        /**
+         * Equivalent to Typeface.mOriginalTypeface.
+         * Used to correctly emulate the behavior of getTypeface(), because we need to call
+         * TextView#setTypeface directly in order to implement caching of variation instances of
+         * typefaces.
+         */
+        private Typeface mOriginalTypeface;
+
+        /**
+         * The last Typeface we are aware of being set on TextView.
+         * Used to detect if it has been changed out from under us via directly calling
+         * {@link android.graphics.Paint#setTypeface(Typeface)} or
+         * {@link android.graphics.Paint#setFontVariationSettings(String)}
+         * (which is not supported, so this is a best-effort workaround).
+         *
+         * @see #setTypefaceInternal(Typeface)
+         */
+        private Typeface mLastKnownTypefaceSetOnPaint;
+
+        /**
+         * The currently applied font variation settings.
+         * Used to make getFontVariationSettings somewhat more accurate with Typeface instance
+         * caching, as we don't call super.setFontVariationSettings.
+         */
+        private String mFontVariationSettings;
+
+        FontVariationSettingsManager(TextView textView, Consumer<Typeface> typefaceSetter) {
+            mTextView = textView;
+            mTypefaceSetter = typefaceSetter;
+        }
+
+        public boolean setFontVariationSettings(@Nullable String fontVariationSettings) {
+            Typeface baseTypeface = mOriginalTypeface;
+            // Try to work around apps mutating the result of getPaint()
+            // See setTypefaceInternal doc comment for details.
+            Paint paint = mTextView.getPaint();
+            if (mLastKnownTypefaceSetOnPaint != paint.getTypeface()) {
+                Log.w(TAG, "getPaint().getTypeface() changed unexpectedly."
+                        + " App code should not modify the result of getPaint().");
+                // Best effort: use that new Typeface instead.
+                baseTypeface = paint.getTypeface();
+            }
+            int fontAdjustment = getFontWeightAdjustment();
+            if (fontAdjustment == Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED) {
+                fontAdjustment = 0;
+            }
+            Typeface variationTypefaceInstance =
+                    AppCompatTextHelper.Api26Impl.createVariationInstance(
+                            baseTypeface, fontVariationSettings, fontAdjustment);
+            if (variationTypefaceInstance != null) {
+                setTypefaceInternal(variationTypefaceInstance);
+                mFontVariationSettings = fontVariationSettings;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public String getFontVariationSettings() {
+            return mFontVariationSettings;
+        }
+
+        private int mFontWeightAdjustmentForTesting = -1;
+
+        @VisibleForTesting
+        int getFontWeightAdjustment() {
+            if (mFontWeightAdjustmentForTesting != -1) {
+                return mFontWeightAdjustmentForTesting;
+            }
+            if (Build.VERSION.SDK_INT >= 31) {
+                Resources res = mTextView.getContext().getResources();
+                int adjustment = res.getConfiguration().fontWeightAdjustment;
+                if (adjustment == Configuration.FONT_WEIGHT_ADJUSTMENT_UNDEFINED) {
+                    return 0;
+                } else {
+                    return adjustment;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        @VisibleForTesting
+        void setFontWeightAdjustmentForTesting(int fontWeightAdjustmentForTesting) {
+            mFontWeightAdjustmentForTesting = fontWeightAdjustmentForTesting;
+        }
+
+        // Never call super.setTypeface directly, always use this or setTypefaceInternal
+        // See docs on setTypefaceInternal for the differences
+        public void setTypeface(@Nullable Typeface tf) {
+            mOriginalTypeface = tf;
+            setTypefaceInternal(tf);
+        }
+
+        public Typeface getTypeface() {
+            return mOriginalTypeface;
+        }
+
+        /**
+         * Call this when setting the typeface in any way that the user didn't directly ask for
+         * (that is, any case where TextView itself does not call through to setTypeface or
+         * otherwise set its mOriginalTypeface).  Otherwise, use {@link #setTypeface(Typeface)}
+         * (or something that calls it).
+         * <p>
+         * Calls the superclass setTypeface, but does not set mOriginalTypeface.
+         * Also tracks what we set it to, in order to detect when it's been changed out from under
+         * us via modifying the Paint object directly.
+         * This isn't officially supported ({@link TextView#getPaint()} specifically says not to
+         * modify it), but at least one app is known to have done this, so we're providing
+         * best-effort support.
+         */
+        private void setTypefaceInternal(@Nullable Typeface tf) {
+            mLastKnownTypefaceSetOnPaint = tf;
+            mTypefaceSetter.accept(tf);
+        }
     }
 }

@@ -89,7 +89,7 @@ class TextSpanParagraphStyleTest {
                 // these are for boxing optimizations
                 "hyphensOrDefault",
                 "lineBreakOrDefault",
-                "textAlignOrDefault"
+                "textAlignOrDefault",
             )
     }
 
@@ -152,7 +152,7 @@ class TextSpanParagraphStyleTest {
         val type: KType,
         val optional: Boolean,
         val isVarArg: Boolean,
-        val kind: KParameter.Kind
+        val kind: KParameter.Kind,
     ) {
         constructor(
             parameter: KParameter
@@ -161,7 +161,7 @@ class TextSpanParagraphStyleTest {
             parameter.type,
             parameter.isOptional,
             parameter.isVararg,
-            parameter.kind
+            parameter.kind,
         )
     }
 

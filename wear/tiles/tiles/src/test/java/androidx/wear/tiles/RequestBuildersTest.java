@@ -36,9 +36,32 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.time.Instant;
+
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public final class RequestBuildersTest {
+
+    @Test
+    public void buildTileRequest_ifSetLastVisibleInstant_setsLastVisibleMillis() {
+        long timestamp = 1000L;
+        Instant instant = Instant.ofEpochMilli(timestamp);
+        TileRequest tileRequest = new TileRequest.Builder().setLastVisibleTime(instant).build();
+
+        RequestProto.TileRequest protoRequest = tileRequest.toProto();
+
+        assertThat(protoRequest.getLastVisibleMillis()).isEqualTo(timestamp);
+    }
+
+    @Test
+    public void buildTileRequest_ifNotSetLastVisibleInstant_setsLastVisibleMillisToZero() {
+        TileRequest tileRequest = new TileRequest.Builder().build();
+
+        RequestProto.TileRequest protoRequest = tileRequest.toProto();
+
+        assertThat(protoRequest.getLastVisibleMillis()).isEqualTo(0L);
+    }
+
     @Test
     public void canBuildBasicTileRequest() {
         // Build the tile request using the RequestBuilders wrapper library.

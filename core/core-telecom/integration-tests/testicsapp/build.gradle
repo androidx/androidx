@@ -49,6 +49,7 @@ dependencies {
     implementation(project(":core:core-telecom"))
     // Compose
     implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.compose.runtime:runtime:1.7.8")
     // Themes and Dynamic coloring
     implementation("androidx.compose.material3:material3:1.2.1")
     // Icons

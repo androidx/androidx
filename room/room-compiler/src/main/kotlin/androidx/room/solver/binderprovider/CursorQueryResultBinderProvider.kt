@@ -29,7 +29,7 @@ class CursorQueryResultBinderProvider(val context: Context) : QueryResultBinderP
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         return CursorQueryResultBinder()
     }

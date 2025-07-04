@@ -115,7 +115,7 @@ class SurfaceTextureRendererTest {
                             texture!!.updateTexImage()
                             renderLatch.countDown()
                         }
-                    }
+                    },
                 )
             val renderer =
                 createSurfaceTextureRenderer(renderNode = node, handler = handler) { surfaceTexture
@@ -177,7 +177,7 @@ class SurfaceTextureRendererTest {
                 width: Int = TEST_WIDTH,
                 height: Int = TEST_WIDTH,
                 handler: Handler = Handler(Looper.getMainLooper()),
-                block: (SurfaceTexture) -> Unit = {}
+                block: (SurfaceTexture) -> Unit = {},
             ) = SurfaceTextureRenderer(renderNode, width, height, handler, block)
         }
     }

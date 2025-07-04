@@ -35,14 +35,14 @@ internal class LazyStaggeredGridIntervalContent(content: LazyStaggeredGridScope.
         key: Any?,
         contentType: Any?,
         span: StaggeredGridItemSpan?,
-        content: @Composable LazyStaggeredGridItemScope.() -> Unit
+        content: @Composable LazyStaggeredGridItemScope.() -> Unit,
     ) {
         items(
             count = 1,
             key = key?.let { { key } },
             contentType = { contentType },
             span = span?.let { { span } },
-            itemContent = { content() }
+            itemContent = { content() },
         )
     }
 
@@ -51,7 +51,7 @@ internal class LazyStaggeredGridIntervalContent(content: LazyStaggeredGridScope.
         key: ((index: Int) -> Any)?,
         contentType: (index: Int) -> Any?,
         span: ((index: Int) -> StaggeredGridItemSpan)?,
-        itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit
+        itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit,
     ) {
         intervals.addInterval(count, LazyStaggeredGridInterval(key, contentType, span, itemContent))
     }
@@ -61,5 +61,5 @@ internal class LazyStaggeredGridInterval(
     override val key: ((index: Int) -> Any)?,
     override val type: ((index: Int) -> Any?),
     val span: ((index: Int) -> StaggeredGridItemSpan)?,
-    val item: @Composable LazyStaggeredGridItemScope.(Int) -> Unit
+    val item: @Composable LazyStaggeredGridItemScope.(Int) -> Unit,
 ) : LazyLayoutIntervalContent.Interval

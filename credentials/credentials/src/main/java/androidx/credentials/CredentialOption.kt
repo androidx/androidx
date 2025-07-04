@@ -91,7 +91,7 @@ internal constructor(
                 PRIORITY_PASSKEY_OR_SIMILAR,
                 PRIORITY_OIDC_OR_SIMILAR,
                 PRIORITY_PASSWORD_OR_SIMILAR,
-                PRIORITY_DEFAULT
+                PRIORITY_DEFAULT,
             ]
     )
     annotation class PriorityHints
@@ -134,7 +134,7 @@ internal constructor(
                 option.credentialRetrievalData,
                 option.candidateQueryData,
                 option.isSystemProviderRequired,
-                option.allowedProviders
+                option.allowedProviders,
             )
         }
 
@@ -171,7 +171,7 @@ internal constructor(
                         GetPasswordOption.createFrom(
                             requestData,
                             allowedProviders,
-                            candidateQueryData
+                            candidateQueryData,
                         )
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         when (requestData.getString(PublicKeyCredential.BUNDLE_KEY_SUBTYPE)) {
@@ -180,7 +180,7 @@ internal constructor(
                                 GetPublicKeyCredentialOption.createFrom(
                                     requestData,
                                     allowedProviders,
-                                    candidateQueryData
+                                    candidateQueryData,
                                 )
                             else -> throw FrameworkClassParsingException()
                         }

@@ -23,11 +23,8 @@ package androidx.health.connect.client.units
  * - joules - see [Energy.joules], [Double.joules]
  * - kilojoules - see [Energy.kilojoules], [Double.kilojoules]
  */
-class Energy
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<Energy> {
+class Energy private constructor(private val value: Double, private val type: Type) :
+    Comparable<Energy> {
 
     /** Returns the energy in calories. */
     @get:JvmName("getCalories")

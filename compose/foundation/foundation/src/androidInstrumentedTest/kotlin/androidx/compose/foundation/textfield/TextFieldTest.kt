@@ -47,6 +47,11 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.computeSizeForDefaultText
+import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
+import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
+import androidx.compose.foundation.text.contextmenu.test.assertShown
 import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.isSelectionHandle
@@ -73,6 +78,10 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
@@ -117,6 +126,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -156,7 +166,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -164,6 +173,7 @@ import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -174,7 +184,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.mock
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 class TextFieldTest : FocusedWindowTest {
     @get:Rule val rule = createComposeRule()
 
@@ -197,7 +207,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = state.value,
                 modifier = Modifier.fillMaxSize().onFocusChanged { isFocused = it.isFocused },
-                onValueChange = { state.value = it }
+                onValueChange = { state.value = it },
             )
         }
 
@@ -213,7 +223,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = state,
                 modifier = Modifier.fillMaxSize(),
-                onValueChange = { state = it }
+                onValueChange = { state = it },
             )
         }
         rule.onNode(hasSetTextAction()).performClick()
@@ -240,7 +250,7 @@ class TextFieldTest : FocusedWindowTest {
                     if (value.all { it.isDigit() }) {
                         state = value
                     }
-                }
+                },
             )
         }
 
@@ -267,7 +277,7 @@ class TextFieldTest : FocusedWindowTest {
                 value = state,
                 modifier = Modifier.fillMaxSize(),
                 onValueChange = { state = it },
-                onTextLayout = onTextLayout
+                onTextLayout = onTextLayout,
             )
         }
 
@@ -294,7 +304,7 @@ class TextFieldTest : FocusedWindowTest {
                     BasicTextField(
                         value = "",
                         onValueChange = {},
-                        modifier = Modifier.weight(1f).onGloballyPositioned { size = it.size.width }
+                        modifier = Modifier.weight(1f).onGloballyPositioned { size = it.size.width },
                     )
                     Box(Modifier.size(boxSize))
                 }
@@ -357,7 +367,7 @@ class TextFieldTest : FocusedWindowTest {
                         LocaleList(Locale("sr-Latn-SR"), Locale("sr-Cyrl-SR"), Locale.current),
                     background = Color.Blue,
                     textDecoration = TextDecoration.LineThrough,
-                    shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f)
+                    shadow = Shadow(color = Color.Red, offset = Offset(2f, 2f), blurRadius = 4f),
                 )
             ) {
                 append("7")
@@ -367,7 +377,7 @@ class TextFieldTest : FocusedWindowTest {
                     textAlign = TextAlign.Justify,
                     textDirection = TextDirection.Rtl,
                     lineHeight = 10.sp,
-                    textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp)
+                    textIndent = TextIndent(firstLine = 2.sp, restLine = 3.sp),
                 )
             ) {
                 append("8")
@@ -400,7 +410,7 @@ class TextFieldTest : FocusedWindowTest {
                 onValueChange = {},
                 textStyle = TextStyle(color = Color.White),
                 modifier = Modifier.size(10.dp, 20.dp).background(color = Color.White),
-                cursorBrush = SolidColor(Color.Blue)
+                cursorBrush = SolidColor(Color.Blue),
             )
         }
 
@@ -412,7 +422,7 @@ class TextFieldTest : FocusedWindowTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                antiAliasingGap = 0.0f
+                antiAliasingGap = 0.0f,
             )
     }
 
@@ -428,7 +438,7 @@ class TextFieldTest : FocusedWindowTest {
                         BasicText("label")
                         it()
                     }
-                }
+                },
             )
         }
 
@@ -462,7 +472,7 @@ class TextFieldTest : FocusedWindowTest {
                 modifier = Modifier.testTag(Tag),
                 value = value,
                 onValueChange = { value = it },
-                readOnly = true
+                readOnly = true,
             )
         }
 
@@ -480,7 +490,7 @@ class TextFieldTest : FocusedWindowTest {
                 modifier = Modifier.testTag(Tag),
                 value = value,
                 onValueChange = { value = it },
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -495,7 +505,7 @@ class TextFieldTest : FocusedWindowTest {
                 modifier = Modifier.testTag(Tag),
                 value = value,
                 onValueChange = { value = it },
-                readOnly = true
+                readOnly = true,
             )
         }
 
@@ -514,7 +524,7 @@ class TextFieldTest : FocusedWindowTest {
                 modifier = Modifier.testTag(Tag),
                 value = value,
                 onValueChange = { value = it },
-                enabled = false
+                enabled = false,
             )
         }
 
@@ -528,7 +538,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -549,7 +559,7 @@ class TextFieldTest : FocusedWindowTest {
                 value = value,
                 onValueChange = { value = it },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = { done = true })
+                keyboardActions = KeyboardActions(onDone = { done = true }),
             )
         }
 
@@ -570,7 +580,7 @@ class TextFieldTest : FocusedWindowTest {
                 modifier = Modifier.testTag(Tag),
                 value = value,
                 onValueChange = { value = it },
-                keyboardActions = KeyboardActions()
+                keyboardActions = KeyboardActions(),
             )
         }
 
@@ -593,7 +603,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -606,7 +616,7 @@ class TextFieldTest : FocusedWindowTest {
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.TextSelectionRange,
-                    TextRange(hello.length)
+                    TextRange(hello.length),
                 )
             )
 
@@ -616,7 +626,7 @@ class TextFieldTest : FocusedWindowTest {
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.TextSelectionRange,
-                    TextRange(1, 3)
+                    TextRange(1, 3),
                 )
             )
     }
@@ -628,7 +638,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -639,7 +649,7 @@ class TextFieldTest : FocusedWindowTest {
                 // invalid selection should be ignored.
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.TextSelectionRange,
-                    TextRange(0, 0)
+                    TextRange(0, 0),
                 )
             )
     }
@@ -651,7 +661,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -662,7 +672,7 @@ class TextFieldTest : FocusedWindowTest {
                 // invalid selection should be ignored.
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.TextSelectionRange,
-                    TextRange(0, 0)
+                    TextRange(0, 0),
                 )
             )
     }
@@ -673,7 +683,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = "",
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                onValueChange = {}
+                onValueChange = {},
             )
         }
 
@@ -689,7 +699,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -707,7 +717,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -732,7 +742,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -751,7 +761,7 @@ class TextFieldTest : FocusedWindowTest {
                 modifier = Modifier.testTag(Tag),
                 value = TextFieldValue("Hello", TextRange(0, 3)),
                 onValueChange = {},
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
             )
         }
 
@@ -770,13 +780,14 @@ class TextFieldTest : FocusedWindowTest {
                 onValueChange = {},
                 visualTransformation = { text ->
                     TransformedText(text.toUpperCase(LocaleList("en_US")), OffsetMapping.Identity)
-                }
+                },
             )
         }
 
         rule.onNodeWithTag(Tag).assertTextEquals("HELLO")
     }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @LargeTest
     @Test
     fun semantics_longClick() {
@@ -789,7 +800,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 modifier = Modifier.testTag(Tag),
                 value = value,
-                onValueChange = { value = it }
+                onValueChange = { value = it },
             )
         }
 
@@ -798,6 +809,34 @@ class TextFieldTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.OnLongClick) { it() }
 
         rule.runOnIdle { assertThat(toolbar?.status).isEqualTo(TextToolbarStatus.Shown) }
+    }
+
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @LargeTest
+    @Test
+    fun semantics_longClick_newContextMenu() {
+        val text = "Hello World"
+        var value by mutableStateOf(TextFieldValue(text, TextRange(text.length)))
+        val spyTextActionModeCallback = SpyTextActionModeCallback()
+
+        rule.setTextFieldTestContent {
+            ProvidePlatformTextContextMenuToolbar(
+                callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
+            ) {
+                BasicTextField(
+                    modifier = Modifier.testTag(Tag),
+                    value = value,
+                    onValueChange = { value = it },
+                )
+            }
+        }
+
+        spyTextActionModeCallback.assertShown(false)
+
+        rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.OnLongClick) { it() }
+        rule.waitForIdle()
+
+        spyTextActionModeCallback.assertShown(true)
     }
 
     @Test
@@ -811,7 +850,7 @@ class TextFieldTest : FocusedWindowTest {
                     text = it
                     lastSeenText = it
                 },
-                modifier = Modifier.testTag(Tag)
+                modifier = Modifier.testTag(Tag),
             )
         }
 
@@ -846,7 +885,7 @@ class TextFieldTest : FocusedWindowTest {
                             it()
                         }
                     },
-                    interactionSource = interactionSource
+                    interactionSource = interactionSource,
                 )
             }
         }
@@ -878,18 +917,16 @@ class TextFieldTest : FocusedWindowTest {
                 onValueChange = {
                     onValueChangeCalled = true
                     state.value = it
-                }
+                },
             )
         }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performClick().performTextInputSelection(TextRange(0, 0))
 
         // reset
         rule.runOnIdle { onValueChangeCalled = false }
 
         // change selection
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(1, 1))
 
         rule.runOnIdle { assertThat(onValueChangeCalled).isFalse() }
@@ -915,17 +952,15 @@ class TextFieldTest : FocusedWindowTest {
                     onValueChangeCalled = true
                     lastSeenTextFieldValue = it
                     state.value = it
-                }
+                },
             )
         }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performClick().performTextInputSelection(TextRange(0, 0))
 
         // reset flag since click might change selection
         rule.runOnIdle { onValueChangeCalled = false }
 
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(1, 1))
 
         // selection changed
@@ -937,7 +972,6 @@ class TextFieldTest : FocusedWindowTest {
         rule.waitUntil { onValueChangeCalled == false }
 
         // set selection to same value, no change should occur
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(1, 1))
 
         rule.runOnIdle {
@@ -968,7 +1002,7 @@ class TextFieldTest : FocusedWindowTest {
                     // causes TextFieldValue's composition clearing
                     focusManager.clearFocus(true)
                 },
-                modifier = Modifier.testTag("tag")
+                modifier = Modifier.testTag("tag"),
             )
         }
 
@@ -980,7 +1014,6 @@ class TextFieldTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(callbackCounter).isEqualTo(1) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun textField_stringOverload_doesNotCallOnValueChange_ifSelectionInherentlyChanges() {
         var callbackCounter = 0
@@ -993,7 +1026,7 @@ class TextFieldTest : FocusedWindowTest {
                     callbackCounter += 1
                     text.value = it
                 },
-                modifier = Modifier.testTag("tag")
+                modifier = Modifier.testTag("tag"),
             )
         }
 
@@ -1025,7 +1058,7 @@ class TextFieldTest : FocusedWindowTest {
                     // causes TextFieldValue's composition clearing
                     focusManager.clearFocus(true)
                 },
-                modifier = Modifier.testTag("tag")
+                modifier = Modifier.testTag("tag"),
             )
         }
 
@@ -1049,7 +1082,7 @@ class TextFieldTest : FocusedWindowTest {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 fontFamily = measureFontFamily,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
             )
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides density) {
@@ -1058,7 +1091,7 @@ class TextFieldTest : FocusedWindowTest {
                     value = "H",
                     onValueChange = {},
                     textStyle = textStyle,
-                    singleLine = true
+                    singleLine = true,
                 )
             }
         }
@@ -1077,7 +1110,7 @@ class TextFieldTest : FocusedWindowTest {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 fontFamily = measureFontFamily,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
             )
         rule.setContent {
             val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -1086,7 +1119,7 @@ class TextFieldTest : FocusedWindowTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                     .width
 
@@ -1096,7 +1129,7 @@ class TextFieldTest : FocusedWindowTest {
                     value = "H",
                     onValueChange = {},
                     textStyle = textStyle,
-                    singleLine = true
+                    singleLine = true,
                 )
             }
         }
@@ -1115,7 +1148,7 @@ class TextFieldTest : FocusedWindowTest {
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 fontFamily = measureFontFamily,
-                fontSize = fontSize.sp
+                fontSize = fontSize.sp,
             )
         rule.setContent {
             val fontFamilyResolver = LocalFontFamilyResolver.current
@@ -1124,7 +1157,7 @@ class TextFieldTest : FocusedWindowTest {
                         style = textStyle,
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                     .width
 
@@ -1134,7 +1167,7 @@ class TextFieldTest : FocusedWindowTest {
                     value = "H",
                     onValueChange = {},
                     textStyle = textStyle,
-                    singleLine = true
+                    singleLine = true,
                 )
             }
         }
@@ -1166,7 +1199,6 @@ class TextFieldTest : FocusedWindowTest {
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsRemoved_SelectionCoerces() {
         val textFieldValue = mutableStateOf("Hello")
@@ -1174,7 +1206,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier.testTag(Tag).wrapContentSize(),
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -1188,7 +1220,6 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenPartiallySelectedTextIsRemoved_SelectionCoercesToEdges() {
         val textFieldValue = mutableStateOf("Hello World!")
@@ -1196,7 +1227,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier.testTag(Tag).wrapContentSize(),
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -1211,7 +1242,6 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsRemoved_addedLater_SelectionDoesNotRemain() {
         val textFieldValue = mutableStateOf("Hello")
@@ -1219,7 +1249,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier.testTag(Tag).wrapContentSize(),
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -1240,7 +1270,6 @@ class TextFieldTest : FocusedWindowTest {
         assertThat(actual).isEqualTo(expected)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenSelectedTextIsPartiallyRemoved_addedLater_SelectionRemainsPartially() {
         val textFieldValue = mutableStateOf("Hello")
@@ -1248,7 +1277,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier.testTag(Tag).wrapContentSize(),
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -1279,7 +1308,7 @@ class TextFieldTest : FocusedWindowTest {
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },
-                modifier = Modifier.testTag(Tag).wrapContentSize()
+                modifier = Modifier.testTag(Tag).wrapContentSize(),
             )
         }
         val textNode = rule.onNodeWithTag(Tag)
@@ -1326,7 +1355,7 @@ class TextFieldTest : FocusedWindowTest {
                 BasicTextField(
                     value = tfv,
                     onValueChange = { tfv = it },
-                    modifier = Modifier.testTag(Tag)
+                    modifier = Modifier.testTag(Tag),
                 )
             }
         }
@@ -1365,11 +1394,11 @@ class TextFieldTest : FocusedWindowTest {
                         decorationBox = { content ->
                             Box(
                                 modifier = Modifier.border(1.dp, Color.Magenta).padding(4.dp),
-                                propagateMinConstraints = true
+                                propagateMinConstraints = true,
                             ) {
                                 content()
                             }
-                        }
+                        },
                     )
                 }
             }
@@ -1399,7 +1428,7 @@ class TextFieldTest : FocusedWindowTest {
                         } else {
                             it()
                         }
-                    }
+                    },
                 )
             }
         }
@@ -1517,7 +1546,7 @@ class TextFieldTest : FocusedWindowTest {
                         value = LocalLayoutDirection provides innerDirection.value,
                         content = innerTextField,
                     )
-                }
+                },
             )
         }
 
@@ -1568,6 +1597,41 @@ class TextFieldTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).requestFocus()
         rule.runOnIdle { windowFocus = false }
         inputMethodInterceptor.assertSessionActive()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun singleLineTextField_enterIsNotConsumed_withDefaultKeyboardAction() {
+        var keyDownReceived = false
+        var keyUpReceived = false
+        rule.setTextFieldTestContent {
+            var value by remember { mutableStateOf("") }
+            Box(
+                Modifier.onKeyEvent {
+                    if (it.key == Key.Enter) {
+                        when (it.type) {
+                            KeyEventType.KeyDown -> keyDownReceived = true
+                            KeyEventType.KeyUp -> keyUpReceived = true
+                        }
+                    }
+                    false
+                }
+            ) {
+                BasicTextField(
+                    value = value,
+                    onValueChange = { value = it },
+                    singleLine = true,
+                    modifier = Modifier.testTag(Tag),
+                )
+            }
+        }
+        rule.onNodeWithTag(Tag).apply {
+            requestFocus()
+            performKeyInput { pressKey(Key.Enter) }
+        }
+
+        assertTrue(keyDownReceived)
+        assertTrue(keyUpReceived)
     }
 }
 

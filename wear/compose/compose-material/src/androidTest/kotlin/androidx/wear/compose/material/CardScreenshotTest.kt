@@ -107,7 +107,7 @@ class CardScreenshotTest {
     @Composable
     private fun sampleTitleCard(
         enabled: Boolean = true,
-        backgroundPainter: Painter = CardDefaults.cardBackgroundPainter()
+        backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     ) {
         TitleCard(
             enabled = enabled,
@@ -124,7 +124,7 @@ class CardScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }

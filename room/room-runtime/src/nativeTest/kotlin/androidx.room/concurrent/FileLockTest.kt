@@ -131,7 +131,7 @@ class FileLockTest {
             TimeStamps(
                 before = stamps[0].toLong(),
                 during = stamps[1].toLong(),
-                after = stamps[2].toLong()
+                after = stamps[2].toLong(),
             )
         }
     }

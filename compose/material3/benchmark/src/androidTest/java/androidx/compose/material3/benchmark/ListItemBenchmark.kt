@@ -85,7 +85,7 @@ internal class ListItemTestCase : LayeredComposeTestCase() {
             overlineContent = { Text(text = "Overline Content") },
             supportingContent = { Text(text = "Supporting Content") },
             leadingContent = { Box(modifier = Modifier.size(24.dp)) },
-            trailingContent = { Box(modifier = Modifier.size(24.dp)) }
+            trailingContent = { Box(modifier = Modifier.size(24.dp)) },
         )
     }
 

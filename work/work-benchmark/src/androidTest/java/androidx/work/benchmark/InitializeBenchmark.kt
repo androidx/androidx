@@ -85,7 +85,7 @@ class InitializeBenchmark {
             val database =
                 WorkDatabase.create(context, configuration.taskExecutor, configuration.clock, false)
             WorkManagerImpl(context, configuration, taskExecutor, database)
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 executor.runAllCommands()
                 database.close()
                 context.deleteDatabase(databasePath)
@@ -99,7 +99,7 @@ class InitializeBenchmark {
         benchmarkRule.measureRepeated {
             val database =
                 WorkDatabase.create(context, configuration.taskExecutor, configuration.clock, false)
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 for (i in 0 until count) {
                     val request = OneTimeWorkRequestBuilder<NoOpWorker>()
                     val state =
@@ -111,7 +111,7 @@ class InitializeBenchmark {
             // Runs ForceStopRunnable
             WorkManagerImpl(context, configuration, taskExecutor, database)
             // Prune records for the next run.
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 executor.runAllCommands()
                 with(database) {
                     workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()

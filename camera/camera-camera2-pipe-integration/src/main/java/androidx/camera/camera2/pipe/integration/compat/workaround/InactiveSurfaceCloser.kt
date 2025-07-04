@@ -37,7 +37,7 @@ public interface InactiveSurfaceCloser {
     public fun configure(
         streamId: StreamId,
         deferrableSurface: DeferrableSurface,
-        graph: CameraGraph
+        graph: CameraGraph,
     )
 
     public fun onSurfaceInactive(deferrableSurface: DeferrableSurface)
@@ -71,7 +71,7 @@ public class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
     override fun configure(
         streamId: StreamId,
         deferrableSurface: DeferrableSurface,
-        graph: CameraGraph
+        graph: CameraGraph,
     ) {
         synchronized(lock) {
             configuredOutputs.add(ConfiguredOutput(streamId, deferrableSurface, graph))
@@ -92,7 +92,7 @@ public class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
     public data class ConfiguredOutput(
         val streamId: StreamId,
         val deferrableSurface: DeferrableSurface,
-        val graph: CameraGraph
+        val graph: CameraGraph,
     ) {
         public fun close() {
             graph.setSurface(streamId, null)
@@ -116,7 +116,7 @@ public object NoOpInactiveSurfaceCloser : InactiveSurfaceCloser {
     override fun configure(
         streamId: StreamId,
         deferrableSurface: DeferrableSurface,
-        graph: CameraGraph
+        graph: CameraGraph,
     ) {
         // Nothing to do.
     }

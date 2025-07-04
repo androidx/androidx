@@ -53,7 +53,7 @@ fun AnimatableColor() {
     fun animate(
         targetValue: Color,
         animationSpec: AnimationSpec<Color>,
-        onFinished: (Color) -> Unit
+        onFinished: (Color) -> Unit,
     ): Color {
         // Creates an Animatable of Color, and remembers it.
         val color = remember { Animatable(targetValue) }

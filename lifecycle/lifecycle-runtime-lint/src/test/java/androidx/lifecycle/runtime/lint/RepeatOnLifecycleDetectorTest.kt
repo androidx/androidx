@@ -34,7 +34,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
         val lifecycleMethod: String,
         val apiMethod: String,
         val methodBody: String,
-        val helperMethodBody: String
+        val helperMethodBody: String,
     )
 
     companion object {
@@ -43,7 +43,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 listOf(
                         activity to (if (activity) "onCreate" else "onCreateView"),
                         activity to "onStart",
-                        activity to "onResume"
+                        activity to "onResume",
                     )
                     .flatMap { (activity, lifecycleMethod) ->
                         listOf(
@@ -65,7 +65,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                                 }
                             """
                                         .trimIndent(),
-                                helperMethodBody = ""
+                                helperMethodBody = "",
                             ),
                             // apiMethod is called from another function called from the
                             // lifecycleMethod
@@ -86,8 +86,8 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                                         "lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { }"
                                     } else {
                                         "repeatOnLifecycle(Lifecycle.State.STARTED) { }"
-                                    }
-                            )
+                                    },
+                            ),
                         )
                     }
             }
@@ -132,7 +132,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                     error = "${config.helperMethodBody} // config.helperMethodBody",
                     curlyCharacters = config.helperMethodBody.length,
                     indent = 8,
-                    wrongLine = "18"
+                    wrongLine = "18",
                 )
             } else {
                 val error = "${config.apiMethod}(Lifecycle.State.STARTED) { }"
@@ -158,13 +158,13 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
     private fun fragmentTemplate(
         lifecycleMethod: String,
         methodBody: String,
-        helperMethodBody: String
+        helperMethodBody: String,
     ) = FRAGMENT_TEMPLATE.format(lifecycleMethod, methodBody, helperMethodBody)
 
     private fun activityTemplate(
         lifecycleMethod: String,
         methodBody: String,
-        helperMethodBody: String
+        helperMethodBody: String,
     ) = ACTIVITY_TEMPLATE.format(lifecycleMethod, methodBody, helperMethodBody)
 
     private val FRAGMENT_TEMPLATE =
@@ -218,5 +218,5 @@ private data class Error(
     val error: String,
     val curlyCharacters: Int,
     val indent: Int,
-    val wrongLine: String
+    val wrongLine: String,
 )

@@ -23,6 +23,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
@@ -82,7 +83,7 @@ class EdgeToEdgeTest {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.auto(Color.CYAN, Color.DKGRAY) { _ -> false },
                     navigationBarStyle =
-                        SystemBarStyle.auto(Color.CYAN, Color.DKGRAY) { _ -> false }
+                        SystemBarStyle.auto(Color.CYAN, Color.DKGRAY) { _ -> false },
                 )
                 val view = window.decorView
                 if (Build.VERSION.SDK_INT >= 29) {
@@ -119,6 +120,7 @@ class EdgeToEdgeTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246798
     @Suppress("DEPRECATION")
     @Test
     fun enableDark() {
@@ -126,10 +128,17 @@ class EdgeToEdgeTest {
             withActivity {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.dark(Color.DKGRAY),
-                    navigationBarStyle = SystemBarStyle.dark(Color.DKGRAY)
+                    navigationBarStyle = SystemBarStyle.dark(Color.DKGRAY),
                 )
                 val view = window.decorView
-                if (Build.VERSION.SDK_INT >= 26) {
+                if (Build.VERSION.SDK_INT >= 35) {
+                    assertThat(window.statusBarColor).isEqualTo(Color.TRANSPARENT)
+                    assertThat(window.navigationBarColor).isEqualTo(Color.TRANSPARENT)
+                    WindowInsetsControllerCompat(window, view).run {
+                        assertThat(isAppearanceLightStatusBars).isFalse()
+                        assertThat(isAppearanceLightNavigationBars).isFalse()
+                    }
+                } else if (Build.VERSION.SDK_INT >= 26) {
                     assertThat(window.statusBarColor).isEqualTo(Color.DKGRAY)
                     assertThat(window.navigationBarColor).isEqualTo(Color.DKGRAY)
                     WindowInsetsControllerCompat(window, view).run {
@@ -156,6 +165,7 @@ class EdgeToEdgeTest {
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427246798
     @Suppress("DEPRECATION")
     @Test
     fun enableLight() {
@@ -166,7 +176,14 @@ class EdgeToEdgeTest {
                     navigationBarStyle = SystemBarStyle.light(Color.CYAN, Color.DKGRAY),
                 )
                 val view = window.decorView
-                if (Build.VERSION.SDK_INT >= 26) {
+                if (Build.VERSION.SDK_INT >= 35) {
+                    assertThat(window.statusBarColor).isEqualTo(Color.TRANSPARENT)
+                    assertThat(window.navigationBarColor).isEqualTo(Color.TRANSPARENT)
+                    WindowInsetsControllerCompat(window, view).run {
+                        assertThat(isAppearanceLightStatusBars).isTrue()
+                        assertThat(isAppearanceLightNavigationBars).isTrue()
+                    }
+                } else if (Build.VERSION.SDK_INT >= 26) {
                     assertThat(window.statusBarColor).isEqualTo(Color.CYAN)
                     assertThat(window.navigationBarColor).isEqualTo(Color.CYAN)
                     WindowInsetsControllerCompat(window, view).run {

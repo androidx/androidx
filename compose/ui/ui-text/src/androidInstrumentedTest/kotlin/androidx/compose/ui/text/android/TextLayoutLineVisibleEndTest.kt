@@ -58,7 +58,7 @@ class TextLayoutLineVisibleEndTest {
                 textSize = textSize,
                 layoutWidth = textSize * 4,
                 maxLines = 1,
-                ellipsize = TextUtils.TruncateAt.START
+                ellipsize = TextUtils.TruncateAt.START,
             )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             assertThat(layout.getLineVisibleEnd(0)).isEqualTo(10)
@@ -78,7 +78,7 @@ class TextLayoutLineVisibleEndTest {
                 textSize = textSize,
                 layoutWidth = textSize * 4,
                 maxLines = 1,
-                ellipsize = TextUtils.TruncateAt.MIDDLE
+                ellipsize = TextUtils.TruncateAt.MIDDLE,
             )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -98,7 +98,7 @@ class TextLayoutLineVisibleEndTest {
                 text = text,
                 textSize = textSize,
                 layoutWidth = textSize * 10,
-                maxLines = 1
+                maxLines = 1,
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
@@ -115,7 +115,7 @@ class TextLayoutLineVisibleEndTest {
                 textSize = textSize,
                 layoutWidth = textSize * 10,
                 maxLines = 1,
-                ellipsize = TextUtils.TruncateAt.END
+                ellipsize = TextUtils.TruncateAt.END,
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
@@ -133,7 +133,7 @@ class TextLayoutLineVisibleEndTest {
                 textSize = textSize,
                 layoutWidth = textSize * 10,
                 maxLines = 1,
-                ellipsize = TextUtils.TruncateAt.START
+                ellipsize = TextUtils.TruncateAt.START,
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
@@ -151,7 +151,7 @@ class TextLayoutLineVisibleEndTest {
                 textSize = textSize,
                 layoutWidth = textSize * 10,
                 maxLines = 1,
-                ellipsize = TextUtils.TruncateAt.MIDDLE
+                ellipsize = TextUtils.TruncateAt.MIDDLE,
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(3)
@@ -168,7 +168,7 @@ class TextLayoutLineVisibleEndTest {
                 text = text,
                 textSize = textSize,
                 layoutWidth = layoutWidth,
-                ellipsize = TextUtils.TruncateAt.END
+                ellipsize = TextUtils.TruncateAt.END,
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(7)
@@ -202,7 +202,7 @@ class TextLayoutLineVisibleEndTest {
                 text = text,
                 textSize = textSize,
                 layoutWidth = layoutWidth,
-                ellipsize = TextUtils.TruncateAt.END
+                ellipsize = TextUtils.TruncateAt.END,
             )
 
         // the way overflown text layout is calculated with ellipsis is vastly different before and
@@ -239,7 +239,7 @@ class TextLayoutLineVisibleEndTest {
                 textSize = textSize,
                 layoutWidth = layoutWidth,
                 maxLines = 2,
-                ellipsize = TextUtils.TruncateAt.END
+                ellipsize = TextUtils.TruncateAt.END,
             )
 
         assertThat(layout.getLineVisibleEnd(0)).isEqualTo(0)
@@ -251,7 +251,7 @@ class TextLayoutLineVisibleEndTest {
         textSize: Float = Float.NaN,
         layoutWidth: Float = textSize * text.length,
         ellipsize: TextUtils.TruncateAt? = null,
-        maxLines: Int = Int.MAX_VALUE
+        maxLines: Int = Int.MAX_VALUE,
     ): TextLayout {
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
@@ -262,7 +262,7 @@ class TextLayoutLineVisibleEndTest {
             width = layoutWidth,
             textPaint = textPaint,
             maxLines = maxLines,
-            ellipsize = ellipsize
+            ellipsize = ellipsize,
         )
     }
 }

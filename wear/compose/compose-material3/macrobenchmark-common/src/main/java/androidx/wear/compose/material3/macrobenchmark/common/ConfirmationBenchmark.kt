@@ -35,7 +35,7 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ConfirmationDialog
 import androidx.wear.compose.material3.ConfirmationDialogDefaults
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.confirmationCurvedText
+import androidx.wear.compose.material3.confirmationDialogCurvedText
 
 object ConfirmationBenchmark : MacrobenchmarkScreen {
     override val content: @Composable (BoxScope.() -> Unit)
@@ -44,11 +44,11 @@ object ConfirmationBenchmark : MacrobenchmarkScreen {
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = SHOW_CONFIRMATION }
+                    modifier = Modifier.semantics { contentDescription = SHOW_CONFIRMATION },
                 ) {
                     Text("Open")
                 }
@@ -58,8 +58,8 @@ object ConfirmationBenchmark : MacrobenchmarkScreen {
                 visible = showDialog.value,
                 onDismissRequest = { showDialog.value = false },
                 durationMillis = 2000,
-                curvedText = { confirmationCurvedText("Text", style) },
-                content = { ConfirmationDialogDefaults.SuccessIcon() }
+                curvedText = { confirmationDialogCurvedText("Text", style) },
+                content = { ConfirmationDialogDefaults.SuccessIcon() },
             )
         }
 

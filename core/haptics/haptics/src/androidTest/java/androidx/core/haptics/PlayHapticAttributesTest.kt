@@ -75,7 +75,7 @@ class PlayHapticAttributesTest {
 
     @SdkSuppress(
         minSdkVersion = Build.VERSION_CODES.LOLLIPOP,
-        maxSdkVersion = Build.VERSION_CODES.P
+        maxSdkVersion = Build.VERSION_CODES.P,
     )
     @Test
     fun play_api21To28_vibratesWithPatternAndAudioAttributes() {

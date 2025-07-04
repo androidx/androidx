@@ -118,7 +118,7 @@ internal constructor(
             threshold,
             comparisonType,
             initialDelaySeconds,
-            durationAtThresholdSeconds
+            durationAtThresholdSeconds,
         )
     }
 
@@ -142,20 +142,20 @@ internal constructor(
         @JvmStatic
         fun <
             T : Number,
-            D : DeltaDataType<T, out SampleDataPoint<T>>
+            D : DeltaDataType<T, out SampleDataPoint<T>>,
         > createDebouncedDataTypeCondition(
             dataType: D,
             threshold: T,
             comparisonType: ComparisonType,
             initialDelaySeconds: Int,
-            durationAtThresholdSeconds: Int
+            durationAtThresholdSeconds: Int,
         ): DebouncedDataTypeCondition<T, D> =
             DebouncedDataTypeCondition(
                 dataType,
                 threshold,
                 comparisonType,
                 initialDelaySeconds,
-                durationAtThresholdSeconds
+                durationAtThresholdSeconds,
             )
 
         /**
@@ -177,20 +177,20 @@ internal constructor(
         @JvmStatic
         fun <
             T : Number,
-            D : AggregateDataType<T, out StatisticalDataPoint<T>>
+            D : AggregateDataType<T, out StatisticalDataPoint<T>>,
         > createDebouncedDataTypeCondition(
             dataType: D,
             threshold: T,
             comparisonType: ComparisonType,
             initialDelaySeconds: Int,
-            durationAtThresholdSeconds: Int
+            durationAtThresholdSeconds: Int,
         ): DebouncedDataTypeCondition<T, D> =
             DebouncedDataTypeCondition(
                 dataType,
                 threshold,
                 comparisonType,
                 initialDelaySeconds,
-                durationAtThresholdSeconds
+                durationAtThresholdSeconds,
             )
 
         @Suppress("UNCHECKED_CAST")

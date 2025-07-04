@@ -25,9 +25,9 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -102,7 +102,7 @@ public class GridLayoutManagerCustomSizeInScrollDirectionTest extends BaseGridLa
             rv.addItemDecoration(new RecyclerView.ItemDecoration() {
                 @Override
                 public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
-                        @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                        @NonNull RecyclerView parent, RecyclerView.@NonNull State state) {
                     if (mConfig.mOrientation == HORIZONTAL) {
                         outRect.set(decorOffset, 0, decorOffset, 0);
                     } else {

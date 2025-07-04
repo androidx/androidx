@@ -22,7 +22,6 @@ import static androidx.constraintlayout.core.motion.utils.TypedValues.MotionType
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.HORIZONTAL;
 import static androidx.constraintlayout.core.widgets.ConstraintWidget.VERTICAL;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.constraintlayout.core.motion.utils.TypedBundle;
 import androidx.constraintlayout.core.motion.utils.TypedValues;
@@ -41,6 +40,8 @@ import androidx.constraintlayout.core.state.helpers.GridReference;
 import androidx.constraintlayout.core.state.helpers.GuidelineReference;
 import androidx.constraintlayout.core.widgets.ConstraintWidget;
 import androidx.constraintlayout.core.widgets.Flow;
+
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;

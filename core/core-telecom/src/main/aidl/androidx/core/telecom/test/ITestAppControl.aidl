@@ -14,4 +14,5 @@ oneway interface ITestAppControl {
   void updateActiveParticipant(in ParticipantParcelable participant);
   void updateRaisedHands(in List<ParticipantParcelable> raisedHandsParticipants);
   void updateIsLocallySilenced(boolean isLocallySilenced);
+  void updateCallIcon(in Uri uri);
 }

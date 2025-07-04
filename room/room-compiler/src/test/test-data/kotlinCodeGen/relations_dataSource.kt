@@ -40,8 +40,7 @@ public class MyDao_Impl(
     return object : DataSource.Factory<Int, SongWithArtist>() {
       public override fun create(): LimitOffsetDataSource<SongWithArtist> {
         val _connection: SQLiteConnection = toSQLiteConnection(__db.openHelper.writableDatabase)
-        return object : LimitOffsetDataSource<SongWithArtist>(__db, _statement, false, true,
-            "Artist", "Song") {
+        return object : LimitOffsetDataSource<SongWithArtist>(__db, _statement, false, true, "Artist", "Song") {
           protected override fun convertRows(statement: SQLiteStatement): List<SongWithArtist> {
             val _columnIndexOfSongId: Int = getColumnIndexOrThrow(statement, "songId")
             val _columnIndexOfArtistKey: Int = getColumnIndexOrThrow(statement, "artistKey")
@@ -85,8 +84,7 @@ public class MyDao_Impl(
     return object : DataSource.Factory<Int, ArtistAndSongs>() {
       public override fun create(): LimitOffsetDataSource<ArtistAndSongs> {
         val _connection: SQLiteConnection = toSQLiteConnection(__db.openHelper.writableDatabase)
-        return object : LimitOffsetDataSource<ArtistAndSongs>(__db, _statement, false, true, "Song",
-            "Artist") {
+        return object : LimitOffsetDataSource<ArtistAndSongs>(__db, _statement, false, true, "Song", "Artist") {
           protected override fun convertRows(statement: SQLiteStatement): List<ArtistAndSongs> {
             val _columnIndexOfArtistId: Int = getColumnIndexOrThrow(statement, "artistId")
             val _collectionSongs: MutableMap<Long, MutableList<Song>> = mutableMapOf()
@@ -126,8 +124,7 @@ public class MyDao_Impl(
     return object : DataSource.Factory<Int, PlaylistAndSongs>() {
       public override fun create(): LimitOffsetDataSource<PlaylistAndSongs> {
         val _connection: SQLiteConnection = toSQLiteConnection(__db.openHelper.writableDatabase)
-        return object : LimitOffsetDataSource<PlaylistAndSongs>(__db, _statement, false, true,
-            "PlaylistSongXRef", "Song", "Playlist") {
+        return object : LimitOffsetDataSource<PlaylistAndSongs>(__db, _statement, false, true, "PlaylistSongXRef", "Song", "Playlist") {
           protected override fun convertRows(statement: SQLiteStatement): List<PlaylistAndSongs> {
             val _columnIndexOfPlaylistId: Int = getColumnIndexOrThrow(statement, "playlistId")
             val _collectionSongs: MutableMap<Long, MutableList<Song>> = mutableMapOf()
@@ -161,8 +158,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection,
-      _map: MutableMap<Long, Artist?>) {
+  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: MutableMap<Long, Artist?>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
@@ -207,8 +203,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection,
-      _map: MutableMap<Long, MutableList<Song>>) {
+  private fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
@@ -257,8 +252,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection,
-      _map: MutableMap<Long, MutableList<Song>>) {
+  private fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return

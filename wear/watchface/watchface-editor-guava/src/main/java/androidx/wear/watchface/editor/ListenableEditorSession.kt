@@ -42,7 +42,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/** [ListenableFuture]-based compatibility wrapper around [EditorSession]'s suspending methods. */
+/**
+ * [ListenableFuture]-based compatibility wrapper around [EditorSession]'s suspending methods.
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ListenableEditorSession(private val wrappedEditorSession: EditorSession) :
     EditorSession {
     public companion object {
@@ -98,13 +106,13 @@ public class ListenableEditorSession(private val wrappedEditorSession: EditorSes
         public fun createHeadlessEditorSession(
             activity: ComponentActivity,
             editIntent: Intent,
-            headlessWatchFaceClient: HeadlessWatchFaceClient
+            headlessWatchFaceClient: HeadlessWatchFaceClient,
         ): ListenableEditorSession =
             ListenableEditorSession(
                 EditorSession.createHeadlessEditorSession(
                     activity,
                     editIntent,
-                    headlessWatchFaceClient
+                    headlessWatchFaceClient,
                 )
             )
     }
@@ -148,12 +156,12 @@ public class ListenableEditorSession(private val wrappedEditorSession: EditorSes
     override fun renderWatchFaceToBitmap(
         renderParameters: RenderParameters,
         instant: Instant,
-        slotIdToComplicationData: Map<Int, ComplicationData>?
+        slotIdToComplicationData: Map<Int, ComplicationData>?,
     ): Bitmap =
         wrappedEditorSession.renderWatchFaceToBitmap(
             renderParameters,
             instant,
-            slotIdToComplicationData
+            slotIdToComplicationData,
         )
 
     override fun setOverrideComplications(slotIdToComplicationData: Map<Int, ComplicationData>) {

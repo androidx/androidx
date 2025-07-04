@@ -23,7 +23,7 @@ internal class ShadowSpan(
     val color: Int,
     val offsetX: Float,
     val offsetY: Float,
-    val radius: Float
+    val radius: Float,
 ) : CharacterStyle() {
     override fun updateDrawState(tp: TextPaint) {
         tp.setShadowLayer(radius, offsetX, offsetY, color)

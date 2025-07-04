@@ -29,12 +29,13 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import org.jetbrains.kotlin.analysis.api.KaSession
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.calls.singleFunctionCallOrNull
 import org.jetbrains.kotlin.analysis.api.resolution.KaSimpleFunctionCall
 import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
 import org.jetbrains.kotlin.analysis.api.types.KaFunctionType
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
@@ -140,6 +141,18 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                     ?.sourcePsi
                     .toUElement()
 
+            (resolvedLambdaSource?.sourcePsi as? KtParameter)?.let { parameter ->
+                val isFunctionInline =
+                    parameter.ownerFunction?.hasModifier(KtTokens.INLINE_KEYWORD) == true
+                val isParameterNoInline = parameter.hasModifier(KtTokens.NOINLINE_KEYWORD)
+                if (isFunctionInline && !isParameterNoInline) {
+                    // For inline functions with inlined lambdas, passing a reference is not
+                    // allowed. The lambda body will be copied by the compiler without allocating
+                    // a lambda anyway, so there is no issue.
+                    return
+                }
+            }
+
             val isComposable =
                 when (resolvedLambdaSource) {
                     is UVariable -> resolvedLambdaSource.isComposable
@@ -168,7 +181,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 ISSUE,
                 node,
                 context.getNameLocation(expression as UElement),
-                "Creating an unnecessary lambda to emit a captured lambda"
+                "Creating an unnecessary lambda to emit a captured lambda",
             )
         }
     }
@@ -188,7 +201,7 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 Category.PERFORMANCE,
                 5,
                 Severity.ERROR,
-                Implementation(UnnecessaryLambdaCreationDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(UnnecessaryLambdaCreationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

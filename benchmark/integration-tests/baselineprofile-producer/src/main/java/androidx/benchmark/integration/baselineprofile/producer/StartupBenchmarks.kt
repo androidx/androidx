@@ -46,7 +46,7 @@ class StartupBenchmarks {
             startupMode = StartupMode.COLD,
             iterations = 10,
             setupBlock = { pressHome() },
-            measureBlock = { startActivityAndWait(Intent(ACTION)) }
+            measureBlock = { startActivityAndWait(Intent(ACTION)) },
         )
 
     companion object {

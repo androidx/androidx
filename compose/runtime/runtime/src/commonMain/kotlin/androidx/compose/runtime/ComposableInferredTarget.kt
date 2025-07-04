@@ -32,8 +32,5 @@ package androidx.compose.runtime
  */
 @InternalComposeApi
 @Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-)
-annotation class ComposableInferredTarget(val scheme: String)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
+public annotation class ComposableInferredTarget(val scheme: String)

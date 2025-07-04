@@ -18,7 +18,7 @@ package androidx.xr.compose.testing
 
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
+import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 /**
  * Wrapper for semantics matcher lambdas that allows to build string explaining to the developer
@@ -27,7 +27,7 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsNode
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsMatcher(
     internal val description: String,
-    private val matcher: (SubspaceSemanticsNode) -> Boolean,
+    private val matcher: (SubspaceSemanticsInfo) -> Boolean,
 ) {
 
     internal companion object {
@@ -56,12 +56,12 @@ public class SubspaceSemanticsMatcher(
     }
 
     /** Returns whether the given node is matched by this matcher. */
-    internal fun matches(node: SubspaceSemanticsNode): Boolean {
+    internal fun matches(node: SubspaceSemanticsInfo): Boolean {
         return matcher(node)
     }
 
     /** Returns whether at least one of the given nodes is matched by this matcher. */
-    internal fun matchesAny(nodes: Iterable<SubspaceSemanticsNode>): Boolean {
+    internal fun matchesAny(nodes: Iterable<SubspaceSemanticsInfo>): Boolean {
         return nodes.any(matcher)
     }
 

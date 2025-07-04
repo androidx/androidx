@@ -57,18 +57,18 @@ fun LookaheadWithMovableContentDemo() {
 
         Column(
             Modifier.padding(100.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
                 modifier = Modifier.clickable { isSingleColumn = true },
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(isSingleColumn, { isSingleColumn = true })
                 Text("Single Column")
             }
             Row(
                 modifier = Modifier.clickable { isSingleColumn = false },
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(!isSingleColumn, { isSingleColumn = false })
                 Text("Double Column")
@@ -84,7 +84,7 @@ fun LookaheadWithMovableContentDemo() {
                             .fillMaxWidth(weight)
                             .animateBounds(lookaheadScope = this@movableContentWithReceiverOf)
                             .background(color, RoundedCornerShape(20)),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         when (id) {
                             0 -> CircularProgressIndicator(color = Color.White)
@@ -118,7 +118,7 @@ fun LookaheadWithMovableContentDemo() {
                 if (isSingleColumn) {
                     Column(
                         Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         items.forEach { it(0.8f) }
                     }

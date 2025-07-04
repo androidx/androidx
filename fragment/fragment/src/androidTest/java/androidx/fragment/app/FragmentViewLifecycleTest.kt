@@ -157,7 +157,7 @@ class FragmentViewLifecycleTest {
                             .isTrue()
                         countDownLatch.countDown()
                     }
-                }
+                },
             )
             fm.beginTransaction().add(R.id.content, fragment).commitNow()
             // Now remove the Fragment to trigger the destruction of the view
@@ -182,7 +182,7 @@ class FragmentViewLifecycleTest {
                         viewLifecycleOwner = lifecycleOwner
                         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
                     }
-                }
+                },
             )
             fragment.lifecycle.addObserver(lifecycleObserver)
             fm.beginTransaction().add(R.id.content, fragment).commitNow()
@@ -206,7 +206,7 @@ class FragmentViewLifecycleTest {
                 viewLifecycleOwner to Lifecycle.Event.ON_STOP,
                 fragment to Lifecycle.Event.ON_STOP,
                 viewLifecycleOwner to Lifecycle.Event.ON_DESTROY,
-                fragment to Lifecycle.Event.ON_DESTROY
+                fragment to Lifecycle.Event.ON_DESTROY,
             )
             .inOrder()
     }
@@ -415,7 +415,7 @@ class FragmentViewLifecycleTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? = FrameLayout(inflater.context)
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -432,7 +432,7 @@ class FragmentViewLifecycleTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ): View? {
             liveData.observe(viewLifecycleOwner, onCreateViewObserver)
             assertWithMessage("LiveData should have observers after onCreateView observe")
@@ -452,7 +452,7 @@ class FragmentViewLifecycleTest {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
-            savedInstanceState: Bundle?
+            savedInstanceState: Bundle?,
         ) =
             super.onCreateView(inflater, container, savedInstanceState).also {
                 liveData.observe(viewLifecycleOwner, onCreateViewObserver)

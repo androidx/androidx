@@ -39,6 +39,6 @@ object Wallpapers {
     Wallpapers.RED_DOMINATED_EXAMPLE,
     Wallpapers.GREEN_DOMINATED_EXAMPLE,
     Wallpapers.BLUE_DOMINATED_EXAMPLE,
-    Wallpapers.YELLOW_DOMINATED_EXAMPLE
+    Wallpapers.YELLOW_DOMINATED_EXAMPLE,
 )
 internal annotation class Wallpaper

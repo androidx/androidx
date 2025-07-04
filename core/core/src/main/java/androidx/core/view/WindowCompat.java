@@ -17,15 +17,19 @@
 package androidx.core.view;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
+
+import java.util.Objects;
 
 /**
  * Helper for accessing features in {@link Window}.
@@ -135,6 +139,39 @@ public final class WindowCompat {
     public static @NonNull WindowInsetsControllerCompat getInsetsController(@NonNull Window window,
             @NonNull View view) {
         return new WindowInsetsControllerCompat(window, view);
+    }
+
+    /**
+     * Enables the content of the given {@link Window window} to reach the edges of the window
+     * without getting inset by system insets, and prevents the framework from placing color views
+     * behind system bars.
+     *
+     * @param window the given window.
+     */
+    public static void enableEdgeToEdge(@NonNull Window window) {
+        Objects.requireNonNull(window);
+
+        // This triggers the initialization of the decor view here to prevent the attributes set by
+        // this method from getting overwritten by the initialization later.
+        window.getDecorView();
+
+        setDecorFitsSystemWindows(window, false);
+        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setNavigationBarColor(Color.TRANSPARENT);
+        if (Build.VERSION.SDK_INT >= 28) {
+            final int newMode = Build.VERSION.SDK_INT >= 30
+                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            final WindowManager.LayoutParams attrs = window.getAttributes();
+            if (attrs.layoutInDisplayCutoutMode != newMode) {
+                attrs.layoutInDisplayCutoutMode = newMode;
+                window.setAttributes(attrs);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 29) {
+            window.setStatusBarContrastEnforced(false);
+            window.setNavigationBarContrastEnforced(false);
+        }
     }
 
     static class Api16Impl {

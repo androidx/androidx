@@ -41,7 +41,7 @@ import org.robolectric.util.ReflectionHelpers
 @DoNotInstrument
 @Config(
     minSdk = Build.VERSION_CODES.LOLLIPOP,
-    instrumentedPackages = ["androidx.camera.camera2.internal"]
+    instrumentedPackages = ["androidx.camera.camera2.internal"],
 )
 class Camera2CameraFactoryTest {
     @Test
@@ -57,10 +57,10 @@ class Camera2CameraFactoryTest {
                 ApplicationProvider.getApplicationContext(),
                 CameraThreadConfig.create(
                     CameraXExecutors.mainThreadExecutor(),
-                    Handler(Looper.getMainLooper())
+                    Handler(Looper.getMainLooper()),
                 ),
                 null,
-                -1L
+                -1L,
             )
 
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2")
@@ -79,10 +79,10 @@ class Camera2CameraFactoryTest {
                 ApplicationProvider.getApplicationContext(),
                 CameraThreadConfig.create(
                     CameraXExecutors.mainThreadExecutor(),
-                    Handler(Looper.getMainLooper())
+                    Handler(Looper.getMainLooper()),
                 ),
                 CameraSelector.DEFAULT_BACK_CAMERA,
-                -1L
+                -1L,
             )
 
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "2")
@@ -97,10 +97,10 @@ class Camera2CameraFactoryTest {
                 ApplicationProvider.getApplicationContext(),
                 CameraThreadConfig.create(
                     CameraXExecutors.mainThreadExecutor(),
-                    Handler(Looper.getMainLooper())
+                    Handler(Looper.getMainLooper()),
                 ),
                 null,
-                -1L
+                -1L,
             )
 
         assertThat(camera2CameraFactory.availableCameraIds).containsExactly("0", "1", "2", "3")
@@ -126,7 +126,7 @@ class Camera2CameraFactoryTest {
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
         shadowCharacteristics.set(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
         )
 
         // Add a lens facing to the camera
@@ -135,7 +135,7 @@ class Camera2CameraFactoryTest {
         capabilities?.let {
             shadowCharacteristics.set(
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
-                capabilities
+                capabilities,
             )
         }
 

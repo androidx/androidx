@@ -36,7 +36,7 @@ class DeadKeyCombinerTest {
                 NativeKeyEvent.ACTION_DOWN,
                 NativeKeyEvent.KEYCODE_U,
                 0,
-                NativeKeyEvent.META_ALT_ON
+                NativeKeyEvent.META_ALT_ON,
             )
         )
 
@@ -51,10 +51,7 @@ class DeadKeyCombinerTest {
 
     @Test
     fun testHappyPath() {
-        test(
-            keyEventUmlaut to null,
-            keyEventO to 'ö',
-        )
+        test(keyEventUmlaut to null, keyEventO to 'ö')
     }
 
     @Test
@@ -86,26 +83,17 @@ class DeadKeyCombinerTest {
 
     @Test
     fun testNonExistingCombinationFallsBackToCurrentKey() {
-        test(
-            keyEventUmlaut to null,
-            keyEventJ to 'j',
-        )
+        test(keyEventUmlaut to null, keyEventJ to 'j')
     }
 
     @Test
     fun testSameDeadKey() {
-        test(
-            keyEventUmlaut to null,
-            keyEventUmlaut to null,
-        )
+        test(keyEventUmlaut to null, keyEventUmlaut to null)
     }
 
     @Test
     fun testDeadKeyThenSpaceOutputsTheAccent() {
-        test(
-            keyEventUmlaut to null,
-            keyEventSpace to '¨',
-        )
+        test(keyEventUmlaut to null, keyEventSpace to '¨')
     }
 
     private fun test(vararg pairs: Pair<KeyEvent, Char?>) {

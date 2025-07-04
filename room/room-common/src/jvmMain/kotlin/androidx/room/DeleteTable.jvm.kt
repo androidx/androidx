@@ -25,6 +25,10 @@ package androidx.room
 @JvmRepeatable(DeleteTable.Entries::class)
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
+@Suppress(
+    // Due to @JvmRepeatable in this actual while expect has @Repeatable
+    "ACTUAL_ANNOTATIONS_NOT_MATCH_EXPECT"
+)
 public actual annotation class DeleteTable(
     /**
      * Name of the table in the [AutoMigration.from] version of the database to be deleted.

@@ -21,10 +21,10 @@ import kotlin.coroutines.CoroutineContext
 
 /** Container of thread-local data. */
 @RestrictTo(RestrictTo.Scope.LIBRARY) // Public + lib restricted so we can typealias in JVM.
-expect class ThreadLocal<T>() {
-    fun get(): T?
+public expect class ThreadLocal<T>() {
+    public fun get(): T?
 
-    fun set(value: T?)
+    public fun set(value: T?)
 }
 
 /**

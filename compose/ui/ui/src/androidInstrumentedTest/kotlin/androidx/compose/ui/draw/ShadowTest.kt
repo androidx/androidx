@@ -78,7 +78,7 @@ class ShadowTest {
             override fun createOutline(
                 size: Size,
                 layoutDirection: LayoutDirection,
-                density: Density
+                density: Density,
             ) = Outline.Rectangle(size.toRect())
         }
 
@@ -159,8 +159,8 @@ class ShadowTest {
                             Modifier.graphicsLayer(
                                 shadowElevation = elevation,
                                 shape = rectShape,
-                                alpha = 0.5f
-                            )
+                                alpha = 0.5f,
+                            ),
                     ) {}
                 }
             }
@@ -192,7 +192,7 @@ class ShadowTest {
                                 shape = rectShape,
                                 ambientShadowColor = Color(0xFFFF00FF),
                                 spotShadowColor = Color(0xFFFF00FF),
-                            )
+                            ),
                     ) {}
                 }
             }
@@ -246,7 +246,7 @@ class ShadowTest {
                     ValueElement("shape", RectangleShape),
                     ValueElement("clip", true),
                     ValueElement("ambientColor", DefaultShadowColor),
-                    ValueElement("spotColor", DefaultShadowColor)
+                    ValueElement("spotColor", DefaultShadowColor),
                 )
         }
     }
@@ -311,12 +311,12 @@ class ShadowTest {
     @Composable
     private fun ShadowContainer(
         modifier: Modifier = Modifier,
-        elevation: State<Dp> = mutableStateOf(8.dp)
+        elevation: State<Dp> = mutableStateOf(8.dp),
     ) {
         AtLeastSize(size = 12, modifier = modifier.background(Color.White)) {
             AtLeastSize(
                 size = 10,
-                modifier = Modifier.shadow(elevation = elevation.value, shape = rectShape)
+                modifier = Modifier.shadow(elevation = elevation.value, shape = rectShape),
             ) {}
         }
     }

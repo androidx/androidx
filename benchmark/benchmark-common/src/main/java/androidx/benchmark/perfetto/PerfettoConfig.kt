@@ -96,7 +96,7 @@ sealed class PerfettoConfig(internal val isTextProto: Boolean) {
                             } else {
                                 listOf("*")
                             },
-                        stackSamplingConfig = stackSamplingConfig
+                        stackSamplingConfig = stackSamplingConfig,
                     )
                     .validateAndEncode()
             )
@@ -132,8 +132,8 @@ private fun minimalAtraceDataSource(atraceApps: List<String>) =
                         ftrace_events = emptyList(),
                         atrace_categories = emptyList(),
                         atrace_apps = atraceApps,
-                        compact_sched = null
-                    )
+                        compact_sched = null,
+                    ),
             )
     )
 
@@ -189,7 +189,7 @@ private fun ftraceDataSource(atraceApps: List<String>) =
                                     AtraceTag.Scheduling,
                                     AtraceTag.Synchronization,
                                     AtraceTag.View,
-                                    AtraceTag.WindowManager
+                                    AtraceTag.WindowManager,
                                     // "webview" not included to workaround b/190743595
                                     // "memory" not included as some Q devices requiring
                                     // ftrace_event
@@ -202,8 +202,8 @@ private fun ftraceDataSource(atraceApps: List<String>) =
                                 }
                                 .map { it.tag },
                         atrace_apps = atraceApps,
-                        compact_sched = FtraceConfig.CompactSchedConfig(enabled = true)
-                    )
+                        compact_sched = FtraceConfig.CompactSchedConfig(enabled = true),
+                    ),
             )
     )
 
@@ -223,19 +223,15 @@ private fun processStatsDataSource(
                         // frequent proc stats polling to name processes correctly, we currently use
                         // unbundled
                         // perfetto on API 29, even though the bundled version exists. (b/218668335)
-                        scan_all_processes_on_start = true
-                    )
+                        scan_all_processes_on_start = true,
+                    ),
             )
     )
 }
 
 private val PACKAGE_LIST_DATASOURCE =
     TraceConfig.DataSource(
-        config =
-            DataSourceConfig(
-                name = "android.packages_list",
-                target_buffer = 1,
-            )
+        config = DataSourceConfig(name = "android.packages_list", target_buffer = 1)
     )
 
 private val LINUX_SYS_STATS_DATASOURCE =
@@ -269,8 +265,8 @@ private val LINUX_SYS_STATS_DATASOURCE =
                                 MeminfoCounters.MEMINFO_ANON_PAGES,
                                 MeminfoCounters.MEMINFO_MAPPED,
                                 MeminfoCounters.MEMINFO_SHMEM,
-                            )
-                    )
+                            ),
+                    ),
             )
     )
 
@@ -286,17 +282,15 @@ private val ANDROID_POWER_DATASOURCE =
                             listOf(
                                 AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CAPACITY_PERCENT,
                                 AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CHARGE,
-                                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CURRENT
+                                AndroidPowerConfig.BatteryCounters.BATTERY_COUNTER_CURRENT,
                             ),
-                        collect_power_rails = true
-                    )
+                        collect_power_rails = true,
+                    ),
             )
     )
 
 /** A Perfetto data source to enable stack sampling. */
-private fun stackSamplingSource(
-    config: StackSamplingConfig,
-): List<TraceConfig.DataSource> {
+private fun stackSamplingSource(config: StackSamplingConfig): List<TraceConfig.DataSource> {
     val sources = mutableListOf<TraceConfig.DataSource>()
     sources +=
         TraceConfig.DataSource(
@@ -310,15 +304,15 @@ private fun stackSamplingSource(
                                 PerfEvents.Timebase(
                                     counter = PerfEvents.Counter.SW_CPU_CLOCK,
                                     frequency = config.frequency,
-                                    timestamp_clock = PerfEvents.PerfClock.PERF_CLOCK_MONOTONIC
+                                    timestamp_clock = PerfEvents.PerfClock.PERF_CLOCK_MONOTONIC,
                                 ),
                             callstack_sampling =
                                 PerfEventConfig.CallstackSampling(
                                     scope =
                                         PerfEventConfig.Scope(target_cmdline = config.packageNames)
                                 ),
-                            kernel_frames = false
-                        )
+                            kernel_frames = false,
+                        ),
                 )
         )
     sources +=
@@ -332,15 +326,15 @@ private fun stackSamplingSource(
                             timebase =
                                 PerfEvents.Timebase(
                                     tracepoint = PerfEvents.Tracepoint(name = "sched_switch"),
-                                    period = 1
+                                    period = 1,
                                 ),
                             callstack_sampling =
                                 PerfEventConfig.CallstackSampling(
                                     scope =
                                         PerfEventConfig.Scope(target_cmdline = config.packageNames)
                                 ),
-                            kernel_frames = false
-                        )
+                            kernel_frames = false,
+                        ),
                 )
         )
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -363,9 +357,9 @@ private fun stackSamplingSource(
                                 continuous_dump_config =
                                     HeapprofdConfig.ContinuousDumpConfig(
                                         dump_phase_ms = 0,
-                                        dump_interval_ms = 500 // ms
-                                    )
-                            )
+                                        dump_interval_ms = 500, // ms
+                                    ),
+                            ),
                     )
             )
     }
@@ -381,7 +375,7 @@ private fun configOf(dataSources: List<TraceConfig.DataSource>) =
         buffers =
             listOf(
                 BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
-                BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
+                BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER),
             ),
         data_sources = dataSources,
         // periodically dump to file, so we don't overrun our ring buffer
@@ -402,7 +396,7 @@ private fun configOf(dataSources: List<TraceConfig.DataSource>) =
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun perfettoConfig(
     atraceApps: List<String>,
-    stackSamplingConfig: StackSamplingConfig?
+    stackSamplingConfig: StackSamplingConfig?,
 ): TraceConfig {
     val dataSources =
         mutableListOf(
@@ -419,10 +413,14 @@ internal fun perfettoConfig(
                     "track_event",
                     track_event_config =
                         TrackEventConfig(
-                            enabled_categories = listOf("*") // required by tracing-perfetto
-                        )
+                            // currently `tracing:tracing-perfetto` records all events as part of
+                            // the "rendering" category. In the future we should consider only
+                            // setting this if sdk tracing is requested.
+                            enabled_categories = listOf("rendering"),
+                            disabled_categories = listOf("*"),
+                        ),
                 )
-            )
+            ),
         )
     if (stackSamplingConfig != null) {
         dataSources += stackSamplingSource(config = stackSamplingConfig)

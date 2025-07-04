@@ -351,7 +351,7 @@ enum class TestEnum { ONE, TWO }
                 *NAVIGATION_STUBS,
                 COMPOSE_NAVIGATOR_DESTINATION_BUILDER,
                 DIALOG_NAVIGATOR_DESTINATION_BUILDER,
-                KEEP_ANNOTATION
+                KEEP_ANNOTATION,
             )
             .map { it.toTestBytecodeStub() }
             .toTypedArray()

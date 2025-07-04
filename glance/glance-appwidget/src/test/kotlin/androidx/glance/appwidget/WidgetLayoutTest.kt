@@ -69,14 +69,14 @@ class WidgetLayoutTest {
                     CheckBox(
                         checked = false,
                         onCheckedChange = null,
-                        modifier = GlanceModifier.fillMaxSize()
+                        modifier = GlanceModifier.fillMaxSize(),
                     )
                     Button(text = "test", onClick = actionStartActivity<Activity>())
                     Image(
                         ImageProvider(R.drawable.oval),
                         "description",
                         modifier = GlanceModifier.width(12.dp).defaultWeight(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
                 }
             }
@@ -129,7 +129,7 @@ class WidgetLayoutTest {
                     CheckBox(
                         checked = true,
                         onCheckedChange = null,
-                        modifier = GlanceModifier.fillMaxSize()
+                        modifier = GlanceModifier.fillMaxSize(),
                     )
                     Button(text = "test", onClick = actionStartActivity<Activity>())
                 }
@@ -139,7 +139,7 @@ class WidgetLayoutTest {
                     CheckBox(
                         checked = true,
                         onCheckedChange = null,
-                        modifier = GlanceModifier.wrapContentWidth().fillMaxHeight()
+                        modifier = GlanceModifier.wrapContentWidth().fillMaxHeight(),
                     )
                     Button(text = "test", onClick = actionStartActivity<Activity>())
                 }
@@ -224,7 +224,7 @@ class WidgetLayoutTest {
                     Image(
                         ImageProvider(R.drawable.oval),
                         colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }
@@ -233,7 +233,7 @@ class WidgetLayoutTest {
                     Image(
                         ImageProvider(R.drawable.oval),
                         colorFilter = null,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
             }
@@ -373,7 +373,7 @@ class WidgetLayoutTest {
                         Image(
                             ImageProvider(R.drawable.oval),
                             "test",
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
                         )
                     }
                 }
@@ -384,7 +384,7 @@ class WidgetLayoutTest {
                         Image(
                             ImageProvider(R.drawable.oval),
                             "test",
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
                         )
                     }
                 }
@@ -405,7 +405,7 @@ class WidgetLayoutTest {
                         Image(
                             ImageProvider(R.drawable.oval),
                             "test",
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
                         )
                     }
                 }
@@ -416,7 +416,7 @@ class WidgetLayoutTest {
                         Image(
                             ImageProvider(R.drawable.oval),
                             "test",
-                            contentScale = ContentScale.Fit
+                            contentScale = ContentScale.Fit,
                         )
                     }
                 }
@@ -436,7 +436,7 @@ class WidgetLayoutTest {
                     CheckBox(
                         checked = true,
                         onCheckedChange = null,
-                        modifier = GlanceModifier.fillMaxSize()
+                        modifier = GlanceModifier.fillMaxSize(),
                     )
                     Button(text = "test", onClick = actionStartActivity<Activity>())
                 }
@@ -446,7 +446,7 @@ class WidgetLayoutTest {
                     CheckBox(
                         checked = false,
                         onCheckedChange = null,
-                        modifier = GlanceModifier.fillMaxSize()
+                        modifier = GlanceModifier.fillMaxSize(),
                     )
                     Button(text = "testtesttest", onClick = actionStartActivity<Activity>())
                 }
@@ -477,7 +477,7 @@ class WidgetLayoutTest {
                     context,
                     appWidgetId = appId,
                     nextIndex = TopLevelLayoutsCount - 1,
-                    existingLayoutIds = listOf(0, 1, 2)
+                    existingLayoutIds = listOf(0, 1, 2),
                 )
             assertThat(layoutConfig.addLayout(root)).isEqualTo(TopLevelLayoutsCount - 1)
             assertThat(layoutConfig.addLayout(root2)).isEqualTo(3)

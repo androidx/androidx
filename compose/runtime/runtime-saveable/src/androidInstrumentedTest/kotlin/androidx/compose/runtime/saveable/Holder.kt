@@ -16,6 +16,31 @@
 
 package androidx.compose.runtime.saveable
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+
 internal data class Holder(var value: Int)
 
 internal val HolderSaver = Saver<Holder, Int>(save = { it.value }, restore = { Holder(it) })
+
+internal object HolderSerializer : KSerializer<Holder> {
+
+    private val valueSerializer = Int.serializer()
+
+    override val descriptor =
+        buildClassSerialDescriptor(Holder::class.qualifiedName!!) {
+            element("value", PrimitiveSerialDescriptor("value", PrimitiveKind.INT))
+        }
+
+    override fun serialize(encoder: Encoder, value: Holder) {
+        encoder.encodeSerializableValue(valueSerializer, value.value)
+    }
+
+    override fun deserialize(decoder: Decoder): Holder =
+        Holder(decoder.decodeSerializableValue(valueSerializer))
+}

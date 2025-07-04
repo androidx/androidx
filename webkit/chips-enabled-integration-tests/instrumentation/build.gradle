@@ -22,14 +22,14 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
 android {
-    namespace "androidx.webkit.instrumentation"
+    namespace = "androidx.webkit.instrumentation"
 }
 
 dependencies {
@@ -52,6 +52,6 @@ dependencies {
 }
 
 androidx {
-    type = type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = type = SoftwareType.INTERNAL_TEST_LIBRARY
     additionalDeviceTestApkKeys.add("chrome")
 }

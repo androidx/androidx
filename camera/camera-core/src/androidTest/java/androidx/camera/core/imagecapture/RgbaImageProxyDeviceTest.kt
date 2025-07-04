@@ -54,7 +54,7 @@ class RgbaImageProxyDeviceTest {
                     CROP_RECT,
                     ROTATION_DEGREES,
                     SENSOR_TO_BUFFER,
-                    CAMERA_CAPTURE_RESULT
+                    CAMERA_CAPTURE_RESULT,
                 )
             )
         // Assert.
@@ -87,7 +87,7 @@ class RgbaImageProxyDeviceTest {
                 CROP_RECT,
                 ROTATION_DEGREES,
                 SENSOR_TO_BUFFER,
-                TIMESTAMP
+                TIMESTAMP,
             )
         // Assert.
         val restoredBitmap = image.createBitmap()
@@ -112,7 +112,7 @@ class RgbaImageProxyDeviceTest {
                     CROP_RECT,
                     ROTATION_DEGREES,
                     SENSOR_TO_BUFFER,
-                    CAMERA_CAPTURE_RESULT
+                    CAMERA_CAPTURE_RESULT,
                 )
             )
         // Act.

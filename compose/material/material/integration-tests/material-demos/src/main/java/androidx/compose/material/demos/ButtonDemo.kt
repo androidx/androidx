@@ -63,7 +63,7 @@ private val DefaultSpace = 20.dp
 fun ButtonDemo() {
     LazyColumn(
         contentPadding = PaddingValues(10.dp),
-        verticalArrangement = Arrangement.spacedBy(DefaultSpace)
+        verticalArrangement = Arrangement.spacedBy(DefaultSpace),
     ) {
         item { Buttons() }
         item { Fabs() }
@@ -87,7 +87,7 @@ private fun Buttons() {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
         Button(
             onClick = {},
-            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary),
         ) {
             Text("Secondary Color")
         }
@@ -138,7 +138,7 @@ private fun CustomShapeButton() {
         modifier = Modifier.size(110.dp),
         shape = TriangleShape,
         colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Yellow),
-        border = BorderStroke(width = 2.dp, color = Color.Black)
+        border = BorderStroke(width = 2.dp, color = Color.Black),
     ) {
         Column {
             Text("Click")

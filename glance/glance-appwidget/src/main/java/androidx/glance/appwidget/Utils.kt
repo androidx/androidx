@@ -52,7 +52,7 @@ internal fun RemoteViews.inflateViewStub(
     translationContext: TranslationContext,
     @IdRes viewStubId: Int,
     @LayoutRes layoutId: Int = 0,
-    @IdRes inflatedId: Int? = null
+    @IdRes inflatedId: Int? = null,
 ): Int {
     require(viewStubId != View.NO_ID) { "viewStubId must not be View.NO_ID" }
     val viewId = inflatedId ?: translationContext.nextViewId()

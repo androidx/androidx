@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.room.support {
+
+  public final class RoomSupportSQLite {
+    method public static androidx.sqlite.db.SupportSQLiteDatabase getSupportWrapper(androidx.room.RoomDatabase);
+  }
+
+}
+

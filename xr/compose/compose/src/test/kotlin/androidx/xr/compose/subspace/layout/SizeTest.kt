@@ -20,14 +20,15 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
 import androidx.xr.compose.testing.SubspaceTestingActivity
+import androidx.xr.compose.testing.TestSetup
 import androidx.xr.compose.testing.assertDepthIsEqualTo
 import androidx.xr.compose.testing.assertHeightIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
-import androidx.xr.compose.testing.setSubspaceContent
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,11 +40,15 @@ class SizeTest {
 
     @Test
     fun size_individualModifiers_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(
-                SubspaceModifier.testTag("panel").width(20.dp).height(20.dp).depth(20.dp)
-            ) {
-                Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel").width(20.dp).height(20.dp).depth(20.dp)
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
             }
         }
 
@@ -56,8 +61,14 @@ class SizeTest {
 
     @Test
     fun size_combinedModifier_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(SubspaceModifier.testTag("panel").size(20.dp)) { Text(text = "Panel") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("panel").size(20.dp)) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
         }
 
         composeTestRule
@@ -69,9 +80,15 @@ class SizeTest {
 
     @Test
     fun size_combinedModifier_panelsRespectParentSizeConstraints() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.size(10.dp)) {
-                SpatialPanel(SubspaceModifier.testTag("panel").size(20.dp)) { Text(text = "Panel") }
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.size(10.dp)) {
+                        SpatialPanel(SubspaceModifier.testTag("panel").size(20.dp)) {
+                            Text(text = "Panel")
+                        }
+                    }
+                }
             }
         }
 
@@ -84,14 +101,18 @@ class SizeTest {
 
     @Test
     fun size_individualRequiredModifiers_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(
-                SubspaceModifier.testTag("panel")
-                    .requiredWidth(20.dp)
-                    .requiredHeight(20.dp)
-                    .requiredDepth(20.dp)
-            ) {
-                Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .requiredWidth(20.dp)
+                            .requiredHeight(20.dp)
+                            .requiredDepth(20.dp)
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
             }
         }
 
@@ -104,9 +125,13 @@ class SizeTest {
 
     @Test
     fun size_combinedRequiredModifier_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialPanel(SubspaceModifier.testTag("panel").requiredSize(20.dp)) {
-                Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialPanel(SubspaceModifier.testTag("panel").requiredSize(20.dp)) {
+                        Text(text = "Panel")
+                    }
+                }
             }
         }
 
@@ -119,10 +144,14 @@ class SizeTest {
 
     @Test
     fun size_combinedRequiredModifier_panelsOverrideParentSizeConstraints() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.size(10.dp)) {
-                SpatialPanel(SubspaceModifier.testTag("panel").requiredSize(20.dp)) {
-                    Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.size(10.dp)) {
+                        SpatialPanel(SubspaceModifier.testTag("panel").requiredSize(20.dp)) {
+                            Text(text = "Panel")
+                        }
+                    }
                 }
             }
         }
@@ -136,12 +165,19 @@ class SizeTest {
 
     @Test
     fun size_individualFillModifiers_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.size(20.dp)) {
-                SpatialPanel(
-                    SubspaceModifier.testTag("panel").fillMaxWidth().fillMaxHeight().fillMaxDepth()
-                ) {
-                    Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.size(20.dp)) {
+                        SpatialPanel(
+                            SubspaceModifier.testTag("panel")
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .fillMaxDepth()
+                        ) {
+                            Text(text = "Panel")
+                        }
+                    }
                 }
             }
         }
@@ -155,15 +191,19 @@ class SizeTest {
 
     @Test
     fun size_individualFillModifiersWithFraction_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.size(20.dp)) {
-                SpatialPanel(
-                    SubspaceModifier.testTag("panel")
-                        .fillMaxWidth(0.5f)
-                        .fillMaxHeight(0.5f)
-                        .fillMaxDepth(0.5f)
-                ) {
-                    Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.size(20.dp)) {
+                        SpatialPanel(
+                            SubspaceModifier.testTag("panel")
+                                .fillMaxWidth(0.5f)
+                                .fillMaxHeight(0.5f)
+                                .fillMaxDepth(0.5f)
+                        ) {
+                            Text(text = "Panel")
+                        }
+                    }
                 }
             }
         }
@@ -177,10 +217,14 @@ class SizeTest {
 
     @Test
     fun size_combinedFillModifier_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.size(20.dp)) {
-                SpatialPanel(SubspaceModifier.testTag("panel").fillMaxSize()) {
-                    Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.size(20.dp)) {
+                        SpatialPanel(SubspaceModifier.testTag("panel").fillMaxSize()) {
+                            Text(text = "Panel")
+                        }
+                    }
                 }
             }
         }
@@ -194,10 +238,14 @@ class SizeTest {
 
     @Test
     fun size_combinedFillModifierWithFraction_panelsAreSizedCorrectly() {
-        composeTestRule.setSubspaceContent {
-            SpatialRow(SubspaceModifier.size(20.dp)) {
-                SpatialPanel(SubspaceModifier.testTag("panel").fillMaxSize(0.5f)) {
-                    Text(text = "Panel")
+        composeTestRule.setContent {
+            TestSetup {
+                Subspace {
+                    SpatialRow(SubspaceModifier.size(20.dp)) {
+                        SpatialPanel(SubspaceModifier.testTag("panel").fillMaxSize(0.5f)) {
+                            Text(text = "Panel")
+                        }
+                    }
                 }
             }
         }

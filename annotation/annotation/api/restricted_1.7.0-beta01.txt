@@ -163,8 +163,6 @@ package androidx.annotation {
   }
 
   @Deprecated public enum InspectableProperty.ValueType {
-    method @Deprecated public static androidx.annotation.InspectableProperty.ValueType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method @Deprecated public static androidx.annotation.InspectableProperty.ValueType[] values();
     enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType COLOR;
     enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType GRAVITY;
     enum_constant @Deprecated public static final androidx.annotation.InspectableProperty.ValueType INFERRED;
@@ -293,8 +291,6 @@ package androidx.annotation {
   }
 
   public enum RestrictTo.Scope {
-    method public static androidx.annotation.RestrictTo.Scope valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.annotation.RestrictTo.Scope[] values();
     enum_constant @Deprecated public static final androidx.annotation.RestrictTo.Scope GROUP_ID;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY_GROUP;

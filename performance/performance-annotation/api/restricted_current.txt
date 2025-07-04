@@ -1,0 +1,8 @@
+// Signature format: 4.0
+package dalvik.annotation.optimization {
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface NeverInline {
+  }
+
+}
+

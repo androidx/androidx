@@ -80,7 +80,7 @@ internal class Lab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, id)
         y: Float,
         z: Float,
         a: Float,
-        colorSpace: ColorSpace
+        colorSpace: ColorSpace,
     ): Color {
         val x1 = x / Illuminant.D50Xyz[0]
         val y1 = y / Illuminant.D50Xyz[1]
@@ -99,7 +99,7 @@ internal class Lab(name: String, id: Int) : ColorSpace(name, ColorModel.Lab, id)
             a1.fastCoerceIn(-128.0f, 128.0f),
             b.fastCoerceIn(-128.0f, 128.0f),
             a,
-            colorSpace
+            colorSpace,
         )
     }
 

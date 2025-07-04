@@ -41,13 +41,13 @@ class AbsoluteCutCornerShape(
     topLeft: CornerSize,
     topRight: CornerSize,
     bottomRight: CornerSize,
-    bottomLeft: CornerSize
+    bottomLeft: CornerSize,
 ) :
     CornerBasedShape(
         topStart = topLeft,
         topEnd = topRight,
         bottomEnd = bottomRight,
-        bottomStart = bottomLeft
+        bottomStart = bottomLeft,
     ) {
 
     override fun createOutline(
@@ -56,7 +56,7 @@ class AbsoluteCutCornerShape(
         topEnd: Float,
         bottomEnd: Float,
         bottomStart: Float,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ) =
         if (topStart + topEnd + bottomStart + bottomEnd == 0.0f) {
             Outline.Rectangle(size.toRect())
@@ -83,13 +83,13 @@ class AbsoluteCutCornerShape(
         topStart: CornerSize,
         topEnd: CornerSize,
         bottomEnd: CornerSize,
-        bottomStart: CornerSize
+        bottomStart: CornerSize,
     ) =
         AbsoluteCutCornerShape(
             topLeft = topStart,
             topRight = topEnd,
             bottomRight = bottomEnd,
-            bottomLeft = bottomStart
+            bottomLeft = bottomStart,
         )
 
     override fun toString(): String {
@@ -152,13 +152,13 @@ fun AbsoluteCutCornerShape(
     topLeft: Dp = 0.dp,
     topRight: Dp = 0.dp,
     bottomRight: Dp = 0.dp,
-    bottomLeft: Dp = 0.dp
+    bottomLeft: Dp = 0.dp,
 ) =
     AbsoluteCutCornerShape(
         topLeft = CornerSize(topLeft),
         topRight = CornerSize(topRight),
         bottomRight = CornerSize(bottomRight),
-        bottomLeft = CornerSize(bottomLeft)
+        bottomLeft = CornerSize(bottomLeft),
     )
 
 /** Creates [AbsoluteCutCornerShape] with sizes defined in float. */
@@ -166,13 +166,13 @@ fun AbsoluteCutCornerShape(
     topLeft: Float = 0.0f,
     topRight: Float = 0.0f,
     bottomRight: Float = 0.0f,
-    bottomLeft: Float = 0.0f
+    bottomLeft: Float = 0.0f,
 ) =
     AbsoluteCutCornerShape(
         topLeft = CornerSize(topLeft),
         topRight = CornerSize(topRight),
         bottomRight = CornerSize(bottomRight),
-        bottomLeft = CornerSize(bottomLeft)
+        bottomLeft = CornerSize(bottomLeft),
     )
 
 /**
@@ -191,11 +191,11 @@ fun AbsoluteCutCornerShape(
     @IntRange(from = 0, to = 100) topLeftPercent: Int = 0,
     @IntRange(from = 0, to = 100) topRightPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomRightPercent: Int = 0,
-    @IntRange(from = 0, to = 100) bottomLeftPercent: Int = 0
+    @IntRange(from = 0, to = 100) bottomLeftPercent: Int = 0,
 ) =
     AbsoluteCutCornerShape(
         topLeft = CornerSize(topLeftPercent),
         topRight = CornerSize(topRightPercent),
         bottomRight = CornerSize(bottomRightPercent),
-        bottomLeft = CornerSize(bottomLeftPercent)
+        bottomLeft = CornerSize(bottomLeftPercent),
     )

@@ -87,9 +87,8 @@ object TextFieldDefaults {
     val FocusedIndicatorThickness = 2.dp
 
     /**
-     * A decorator used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design filled text field</a>.
+     * A decorator used to create custom text fields based on
+     * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [TextField], such as
      * the indicator line thickness, consider using this decorator to achieve the desired design.
@@ -141,7 +140,6 @@ object TextFieldDefaults {
      *   [Container]. Default colors for the container come from the [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun decorator(
         state: TextFieldState,
         enabled: Boolean,
@@ -174,7 +172,7 @@ object TextFieldDefaults {
                 focusedIndicatorLineThickness = FocusedIndicatorThickness,
                 unfocusedIndicatorLineThickness = UnfocusedIndicatorThickness,
             )
-        }
+        },
     ): TextFieldDecorator = TextFieldDecorator { innerTextField ->
         val visualText =
             if (outputTransformation == null) state.text
@@ -212,9 +210,9 @@ object TextFieldDefaults {
 
     /**
      * Composable that draws a default container for a [TextField] with an indicator line at the
-     * bottom. You can apply it to a [BasicTextField] using [DecorationBox] to create a custom text
-     * field based on the styling of a Material filled text field. The [TextField] component applies
-     * it automatically.
+     * bottom. You can apply it to a [BasicTextField] using [decorator] or [DecorationBox] to create
+     * a custom text field based on the styling of a Material filled text field. The [TextField]
+     * component applies it automatically.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
@@ -228,7 +226,6 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun Container(
         enabled: Boolean,
@@ -264,8 +261,8 @@ object TextFieldDefaults {
 
     /**
      * A modifier to draw a default bottom indicator line for [TextField]. You can apply it to a
-     * [BasicTextField] or to [DecorationBox] to create a custom text field based on the styling of
-     * a Material filled text field.
+     * [BasicTextField] to create a custom text field based on the styling of a Material filled text
+     * field.
      *
      * Consider using [Container], which automatically applies this modifier as well as other text
      * field container styling.
@@ -283,7 +280,6 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
-    @ExperimentalMaterial3Api
     fun Modifier.indicatorLine(
         enabled: Boolean,
         isError: Boolean,
@@ -291,7 +287,7 @@ object TextFieldDefaults {
         colors: TextFieldColors? = null,
         textFieldShape: Shape? = null,
         focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
-        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness
+        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) =
         this then
             IndicatorLineElement(
@@ -305,9 +301,8 @@ object TextFieldDefaults {
             )
 
     /**
-     * A decoration box used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design filled text field</a>.
+     * A decoration box used to create custom text fields based on
+     * [Material Design filled text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [TextField], consider
      * using this decoration box to achieve the desired design.
@@ -323,9 +318,9 @@ object TextFieldDefaults {
      *
      * @sample androidx.compose.material3.samples.CustomTextFieldBasedOnDecorationBox
      * @param value the input [String] shown by the text field
-     * @param innerTextField input text field that this decoration box wraps. You will pass here a
-     *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
-     *   the [BasicTextField]
+     * @param innerTextField input text field that this decoration box wraps. Pass the
+     *   framework-controlled composable parameter `innerTextField` from the `decorationBox` lambda
+     *   of the [BasicTextField]
      * @param enabled the enabled state of the text field. When `false`, this decoration box will
      *   appear visually disabled. This must be the same value that is passed to [BasicTextField].
      * @param singleLine indicates if this is a single line or multi line text field. This must be
@@ -363,7 +358,6 @@ object TextFieldDefaults {
      *   [Container]. Default colors for the container come from the [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun DecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
@@ -398,7 +392,7 @@ object TextFieldDefaults {
                 focusedIndicatorLineThickness = FocusedIndicatorThickness,
                 unfocusedIndicatorLineThickness = UnfocusedIndicatorThickness,
             )
-        }
+        },
     ) {
         val visualText =
             remember(value, visualTransformation) {
@@ -441,7 +435,7 @@ object TextFieldDefaults {
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
-        bottom: Dp = TextFieldWithLabelVerticalPadding
+        bottom: Dp = TextFieldWithLabelVerticalPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
@@ -455,7 +449,7 @@ object TextFieldDefaults {
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
@@ -724,7 +718,7 @@ object TextFieldDefaults {
         interactionSource: InteractionSource,
         colors: TextFieldColors,
         focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
-        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness
+        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) =
         indicatorLine(
             enabled = enabled,
@@ -748,7 +742,7 @@ object TextFieldDefaults {
                     "    shape = shape,\n" +
                     ")"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     @ExperimentalMaterial3Api
     @Composable
@@ -775,9 +769,9 @@ object TextFieldDefaults {
         replaceWith =
             ReplaceWith(
                 "OutlinedTextFieldDefaults.shape",
-                "androidx.compose.material.OutlinedTextFieldDefaults"
+                "androidx.compose.material.OutlinedTextFieldDefaults",
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     val outlinedShape: Shape
         @Composable get() = OutlinedTextFieldDefaults.shape
@@ -785,7 +779,7 @@ object TextFieldDefaults {
     @Deprecated(
         message = "Renamed to `TextFieldDefaults.shape`",
         replaceWith = ReplaceWith("TextFieldDefaults.shape"),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     val filledShape: Shape
         @Composable get() = shape
@@ -819,20 +813,14 @@ object TextFieldDefaults {
                     "        bottom = bottom,\n" +
                     "    )"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun textFieldWithLabelPadding(
         start: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
         top: Dp = TextFieldWithLabelVerticalPadding,
-        bottom: Dp = TextFieldWithLabelVerticalPadding
-    ): PaddingValues =
-        contentPaddingWithLabel(
-            start = start,
-            top = top,
-            end = end,
-            bottom = bottom,
-        )
+        bottom: Dp = TextFieldWithLabelVerticalPadding,
+    ): PaddingValues = contentPaddingWithLabel(start = start, top = top, end = end, bottom = bottom)
 
     @Deprecated(
         message = "Renamed to `TextFieldDefaults.contentPaddingWithoutLabel`",
@@ -845,20 +833,15 @@ object TextFieldDefaults {
                     "        bottom = bottom,\n" +
                     "    )"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun textFieldWithoutLabelPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues =
-        contentPaddingWithoutLabel(
-            start = start,
-            top = top,
-            end = end,
-            bottom = bottom,
-        )
+        contentPaddingWithoutLabel(start = start, top = top, end = end, bottom = bottom)
 
     @Deprecated(
         message = "Renamed to `OutlinedTextFieldDefaults.contentPadding`",
@@ -870,15 +853,15 @@ object TextFieldDefaults {
                     "        end = end,\n" +
                     "        bottom = bottom,\n" +
                     "    )",
-                "androidx.compose.material.OutlinedTextFieldDefaults"
+                "androidx.compose.material.OutlinedTextFieldDefaults",
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     fun outlinedTextFieldPadding(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues =
         OutlinedTextFieldDefaults.contentPadding(
             start = start,
@@ -917,9 +900,8 @@ object OutlinedTextFieldDefaults {
     val FocusedBorderThickness = 2.dp
 
     /**
-     * A decorator used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design outlined text field</a>.
+     * A decorator used to create custom text fields based on
+     * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
      * such as the border thickness, consider using this decorator to achieve the desired design.
@@ -972,7 +954,6 @@ object OutlinedTextFieldDefaults {
      *   [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun decorator(
         state: TextFieldState,
         enabled: Boolean,
@@ -1000,7 +981,7 @@ object OutlinedTextFieldDefaults {
                 focusedBorderThickness = FocusedBorderThickness,
                 unfocusedBorderThickness = UnfocusedBorderThickness,
             )
-        }
+        },
     ): TextFieldDecorator = TextFieldDecorator { innerTextField ->
         val visualText =
             if (outputTransformation == null) state.text
@@ -1038,9 +1019,9 @@ object OutlinedTextFieldDefaults {
 
     /**
      * Composable that draws a default container for an [OutlinedTextField] with a border stroke.
-     * You can apply it to a [BasicTextField] using [DecorationBox] to create a custom text field
-     * based on the styling of a Material outlined text field. The [OutlinedTextField] component
-     * applies it automatically.
+     * You can apply it to a [BasicTextField] using [decorator] or [DecorationBox] to create a
+     * custom text field based on the styling of a Material outlined text field. The
+     * [OutlinedTextField] component applies it automatically.
      *
      * @param enabled whether the text field is enabled
      * @param isError whether the text field's current value is in error
@@ -1052,7 +1033,6 @@ object OutlinedTextFieldDefaults {
      * @param focusedBorderThickness thickness of the border when the text field is focused
      * @param unfocusedBorderThickness thickness of the border when the text field is not focused
      */
-    @ExperimentalMaterial3Api
     @Composable
     fun Container(
         enabled: Boolean,
@@ -1088,9 +1068,8 @@ object OutlinedTextFieldDefaults {
     }
 
     /**
-     * A decoration box used to create custom text fields based on <a
-     * href="https://m3.material.io/components/text-fields/overview" class="external"
-     * target="_blank">Material Design outlined text field</a>.
+     * A decoration box used to create custom text fields based on
+     * [Material Design outlined text field](https://m3.material.io/components/text-fields/overview).
      *
      * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
      * consider using this decoration box to achieve the desired design.
@@ -1106,9 +1085,9 @@ object OutlinedTextFieldDefaults {
      *
      * @sample androidx.compose.material3.samples.CustomOutlinedTextFieldBasedOnDecorationBox
      * @param value the input [String] shown by the text field
-     * @param innerTextField input text field that this decoration box wraps. You will pass here a
-     *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
-     *   the [BasicTextField]
+     * @param innerTextField input text field that this decoration box wraps. Pass the
+     *   framework-controlled composable parameter `innerTextField` from the `decorationBox` lambda
+     *   of the [BasicTextField]
      * @param enabled the enabled state of the text field. When `false`, this decoration box will
      *   appear visually disabled. This must be the same value that is passed to [BasicTextField].
      * @param singleLine indicates if this is a single line or multi line text field. This must be
@@ -1146,7 +1125,6 @@ object OutlinedTextFieldDefaults {
      *   [colors].
      */
     @Composable
-    @ExperimentalMaterial3Api
     fun DecorationBox(
         value: String,
         innerTextField: @Composable () -> Unit,
@@ -1175,7 +1153,7 @@ object OutlinedTextFieldDefaults {
                 focusedBorderThickness = FocusedBorderThickness,
                 unfocusedBorderThickness = UnfocusedBorderThickness,
             )
-        }
+        },
     ) {
         val visualText =
             remember(value, visualTransformation) {
@@ -1216,7 +1194,7 @@ object OutlinedTextFieldDefaults {
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
         end: Dp = TextFieldPadding,
-        bottom: Dp = TextFieldPadding
+        bottom: Dp = TextFieldPadding,
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
@@ -1458,7 +1436,7 @@ object OutlinedTextFieldDefaults {
                         disabledSuffixColor =
                             fromToken(OutlinedTextFieldTokens.InputSuffixColor)
                                 .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-                        errorSuffixColor = fromToken(OutlinedTextFieldTokens.InputSuffixColor)
+                        errorSuffixColor = fromToken(OutlinedTextFieldTokens.InputSuffixColor),
                     )
                     .also { defaultOutlinedTextFieldColorsCached = it }
         }
@@ -1477,7 +1455,7 @@ object OutlinedTextFieldDefaults {
                     "    unfocusedBorderThickness = unfocusedBorderThickness,\n" +
                     ")"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     @ExperimentalMaterial3Api
     @Composable
@@ -1709,11 +1687,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun leadingIconColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun leadingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledLeadingIconColor
             isError -> errorLeadingIconColor
@@ -1729,11 +1703,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun trailingIconColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun trailingIconColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledTrailingIconColor
             isError -> errorTrailingIconColor
@@ -1749,11 +1719,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun indicatorColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun indicatorColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledIndicatorColor
             isError -> errorIndicatorColor
@@ -1769,11 +1735,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun containerColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun containerColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledContainerColor
             isError -> errorContainerColor
@@ -1789,11 +1751,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun placeholderColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun placeholderColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledPlaceholderColor
             isError -> errorPlaceholderColor
@@ -1809,11 +1767,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun labelColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun labelColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledLabelColor
             isError -> errorLabelColor
@@ -1829,11 +1783,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun textColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun textColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledTextColor
             isError -> errorTextColor
@@ -1849,11 +1799,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun supportingTextColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun supportingTextColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledSupportingTextColor
             isError -> errorSupportingTextColor
@@ -1869,11 +1815,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun prefixColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun prefixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledPrefixColor
             isError -> errorPrefixColor
@@ -1889,11 +1831,7 @@ constructor(
      * @param focused whether the text field is in focus
      */
     @Stable
-    internal fun suffixColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color =
+    internal fun suffixColor(enabled: Boolean, isError: Boolean, focused: Boolean): Color =
         when {
             !enabled -> disabledSuffixColor
             isError -> errorSuffixColor

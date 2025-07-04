@@ -138,7 +138,7 @@ private const val INITIALIZE_PERIOD_COUNTER =
  * Removes the `alarmInfo` table and substitutes it for a more general `SystemIdInfo` table. Adds
  * implicit work tags for all work (a tag with the worker class name).
  */
-object Migration_1_2 : Migration(VERSION_1, VERSION_2) {
+public object Migration_1_2 : Migration(VERSION_1, VERSION_2) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_SYSTEM_ID_INFO)
         db.execSQL(MIGRATE_ALARM_INFO_TO_SYSTEM_ID_INFO)
@@ -153,7 +153,7 @@ object Migration_1_2 : Migration(VERSION_1, VERSION_2) {
 }
 
 /** Marks `SCHEDULE_REQUESTED_AT` to something other than `SCHEDULE_NOT_REQUESTED_AT`. */
-object Migration_3_4 : Migration(VERSION_3, VERSION_4) {
+public object Migration_3_4 : Migration(VERSION_3, VERSION_4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             db.execSQL(PERIODIC_WORK_SET_SCHEDULE_REQUESTED_AT)
@@ -162,7 +162,7 @@ object Migration_3_4 : Migration(VERSION_3, VERSION_4) {
 }
 
 /** Adds the `ContentUri` delays to the WorkSpec table. */
-object Migration_4_5 : Migration(VERSION_4, VERSION_5) {
+public object Migration_4_5 : Migration(VERSION_4, VERSION_5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(WORKSPEC_ADD_TRIGGER_UPDATE_DELAY)
         db.execSQL(WORKSPEC_ADD_TRIGGER_MAX_CONTENT_DELAY)
@@ -170,34 +170,34 @@ object Migration_4_5 : Migration(VERSION_4, VERSION_5) {
 }
 
 /** Adds [androidx.work.impl.model.WorkProgress]. */
-object Migration_6_7 : Migration(VERSION_6, VERSION_7) {
+public object Migration_6_7 : Migration(VERSION_6, VERSION_7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_WORK_PROGRESS)
     }
 }
 
 /** Adds an index on period_start_time in [WorkSpec]. */
-object Migration_7_8 : Migration(VERSION_7, VERSION_8) {
+public object Migration_7_8 : Migration(VERSION_7, VERSION_8) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_INDEX_PERIOD_START_TIME)
     }
 }
 
 /** Adds a notification_provider to the [WorkSpec]. */
-object Migration_8_9 : Migration(VERSION_8, VERSION_9) {
+public object Migration_8_9 : Migration(VERSION_8, VERSION_9) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_RUN_IN_FOREGROUND)
     }
 }
 
 /** Adds a notification_provider to the [WorkSpec]. */
-object Migration_11_12 : Migration(VERSION_11, VERSION_12) {
+public object Migration_11_12 : Migration(VERSION_11, VERSION_12) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(CREATE_OUT_OF_QUOTA_POLICY)
     }
 }
 
-object Migration_12_13 : Migration(VERSION_12, VERSION_13) {
+public object Migration_12_13 : Migration(VERSION_12, VERSION_13) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(SET_DEFAULT_NETWORK_TYPE)
         db.execSQL(SET_DEFAULT_CONTENT_URI_TRIGGERS)
@@ -207,9 +207,9 @@ object Migration_12_13 : Migration(VERSION_12, VERSION_13) {
 @RenameColumn(
     tableName = "WorkSpec",
     fromColumnName = "period_start_time",
-    toColumnName = "last_enqueue_time"
+    toColumnName = "last_enqueue_time",
 )
-class AutoMigration_14_15 : AutoMigrationSpec {
+public class AutoMigration_14_15 : AutoMigrationSpec {
     override fun onPostMigrate(db: SupportSQLiteDatabase) {
         db.execSQL(INITIALIZE_PERIOD_COUNTER)
         val values = ContentValues(1)
@@ -219,25 +219,25 @@ class AutoMigration_14_15 : AutoMigrationSpec {
             OnConflictStrategy.ABORT,
             values,
             "last_enqueue_time = 0 AND interval_duration <> 0 ",
-            emptyArray()
+            emptyArray(),
         )
     }
 }
 
 /** A [WorkDatabase] migration that reschedules all eligible Workers. */
-class RescheduleMigration(val mContext: Context, startVersion: Int, endVersion: Int) :
+public class RescheduleMigration(public val mContext: Context, startVersion: Int, endVersion: Int) :
     Migration(startVersion, endVersion) {
     override fun migrate(db: SupportSQLiteDatabase) {
         if (endVersion >= VERSION_10) {
             db.execSQL(
                 PreferenceUtils.INSERT_PREFERENCE,
-                arrayOf(PreferenceUtils.KEY_RESCHEDULE_NEEDED, 1)
+                arrayOf<Any>(PreferenceUtils.KEY_RESCHEDULE_NEEDED, 1),
             )
         } else {
             val preferences =
                 mContext.getSharedPreferences(
                     PreferenceUtils.PREFERENCES_FILE_NAME,
-                    Context.MODE_PRIVATE
+                    Context.MODE_PRIVATE,
                 )
 
             // Mutate the shared preferences directly, and eventually they will get
@@ -256,7 +256,7 @@ internal class WorkMigration9To10(private val context: Context) : Migration(VERS
     }
 }
 
-object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
+public object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // b/239543214: unclear how data got corrupted,
         // but foreign key check on SystemIdInfo fails,
@@ -288,7 +288,7 @@ object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
     }
 }
 
-object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
+public object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // b/261721822: unclear how the content of input_merger_class_name could have been,
         // null such that it fails to migrate to a table with a NOT NULL constrain, therefore
@@ -406,7 +406,7 @@ object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
     }
 }
 
-class AutoMigration_19_20 : AutoMigrationSpec {
+public class AutoMigration_19_20 : AutoMigrationSpec {
     override fun onPostMigrate(db: SupportSQLiteDatabase) {
         db.execSQL("UPDATE WorkSpec SET `last_enqueue_time` = -1 WHERE `last_enqueue_time` = 0")
     }

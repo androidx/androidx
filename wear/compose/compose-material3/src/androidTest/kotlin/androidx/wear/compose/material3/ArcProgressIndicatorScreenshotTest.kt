@@ -60,7 +60,7 @@ class ArcProgressIndicatorScreenshotTest {
                 modifier =
                     Modifier.testTag(TEST_TAG)
                         .align(Alignment.Center)
-                        .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter),
+                        .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter)
             )
         }
     }
@@ -72,7 +72,7 @@ class ArcProgressIndicatorScreenshotTest {
                 modifier =
                     Modifier.testTag(TEST_TAG)
                         .align(Alignment.Center)
-                        .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter),
+                        .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter)
             )
         }
     }
@@ -85,7 +85,7 @@ class ArcProgressIndicatorScreenshotTest {
                     Modifier.testTag(TEST_TAG)
                         .align(Alignment.Center)
                         .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter),
-                angularDirection = AngularDirection.Clockwise
+                angularDirection = AngularDirection.Clockwise,
             )
         }
     }
@@ -109,7 +109,7 @@ class ArcProgressIndicatorScreenshotTest {
         verifyScreenshot(screenSize, 500L) {
             ArcProgressIndicator(
                 modifier =
-                    Modifier.testTag(TEST_TAG).align(Alignment.Center).size(screenSize.size.dp),
+                    Modifier.testTag(TEST_TAG).align(Alignment.Center).size(screenSize.size.dp)
             )
         }
     }
@@ -122,7 +122,7 @@ class ArcProgressIndicatorScreenshotTest {
                     Modifier.testTag(TEST_TAG)
                         .align(Alignment.Center)
                         .size(ArcProgressIndicatorDefaults.recommendedIndeterminateDiameter),
-                strokeWidth = ArcProgressIndicatorDefaults.IndeterminateStrokeWidth * 2
+                strokeWidth = ArcProgressIndicatorDefaults.IndeterminateStrokeWidth * 2,
             )
         }
     }
@@ -130,7 +130,7 @@ class ArcProgressIndicatorScreenshotTest {
     private fun verifyScreenshot(
         screenSize: ScreenSize,
         milliseconds: Long,
-        content: @Composable (BoxScope.() -> Unit)
+        content: @Composable (BoxScope.() -> Unit),
     ) {
         rule.mainClock.autoAdvance = false
 

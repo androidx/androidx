@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.PlatformSelectionBehaviorsRule
 import androidx.compose.foundation.text.selection.gestures.RtlChar
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
@@ -66,6 +67,7 @@ import org.junit.Test
 internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     @get:Rule val rule = createComposeRule()
+    @get:Rule val platformSelectionBehaviorsRule = PlatformSelectionBehaviorsRule()
 
     protected val defaultMagnifierSize = IntSize.Zero
     protected val tag = "tag"
@@ -76,7 +78,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         modifier: Modifier,
         style: TextStyle,
         onTextLayout: (TextLayoutResult) -> Unit,
-        maxLines: Int
+        maxLines: Int,
     )
 
     @Test
@@ -92,7 +94,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         manager.selection =
             Selection(
                 start = Selection.AnchorInfo(ResolvedTextDirection.Ltr, 0, 0),
-                end = Selection.AnchorInfo(ResolvedTextDirection.Ltr, 1, 0)
+                end = Selection.AnchorInfo(ResolvedTextDirection.Ltr, 1, 0),
             )
         val center = calculateSelectionMagnifierCenterAndroid(manager, defaultMagnifierSize)
         assertThat(center).isEqualTo(Offset.Unspecified)
@@ -122,7 +124,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                         .fillMaxSize()
                         .wrapContentHeight()
                         .testTag(tag),
-                onTextLayout = { textLayout = it }
+                onTextLayout = { textLayout = it },
             )
         }
 
@@ -180,7 +182,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     .fillMaxSize()
                     .wrapContentSize()
                     .testTag(tag),
-                onTextLayout = { textLayout = it }
+                onTextLayout = { textLayout = it },
             )
         }
 
@@ -213,8 +215,8 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     lerp(
                         start = textLayout.getLineTop(lineIndex = line),
                         stop = textLayout.getLineBottom(lineIndex = line),
-                        fraction = 0.5f
-                    )
+                        fraction = 0.5f,
+                    ),
             )
 
         val secondOffset = getOffsetAtLine(1)
@@ -262,7 +264,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_appears_duringInitialLongPressDrag_expandingForwards_rtl() {
         checkMagnifierShowsDuringInitialLongPressDrag(
             expandForwards = true,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -270,7 +272,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_appears_duringInitialLongPressDrag_expandingBackwards_rtl() {
         checkMagnifierShowsDuringInitialLongPressDrag(
             expandForwards = false,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -318,7 +320,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_followsStartHandleHorizontally_whenDragged_rtl() {
         checkMagnifierFollowsHandleHorizontally(
             Handle.SelectionStart,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -326,7 +328,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_followsEndHandleHorizontally_whenDragged_rtl() {
         checkMagnifierFollowsHandleHorizontally(
             Handle.SelectionEnd,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -334,7 +336,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_staysAtLineStart_whenDraggedPastStart_rtl() {
         checkMagnifierConstrainedToLineHorizontalBounds(
             Handle.SelectionStart,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -342,7 +344,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_staysAtLineEnd_whenDraggedPastEnd_rtl() {
         checkMagnifierConstrainedToLineHorizontalBounds(
             Handle.SelectionEnd,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -350,7 +352,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_hidden_whenDraggedFarPastStartOfLine_rtl() {
         checkMagnifierHiddenWhenDraggedTooFar(
             Handle.SelectionStart,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -358,7 +360,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     fun magnifier_hidden_whenDraggedFarPastEndOfLine_rtl() {
         checkMagnifierHiddenWhenDraggedTooFar(
             Handle.SelectionEnd,
-            layoutDirection = LayoutDirection.Rtl
+            layoutDirection = LayoutDirection.Rtl,
         )
     }
 
@@ -389,7 +391,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         modifier: Modifier,
         style: TextStyle = TextStyle.Default,
         onTextLayout: (TextLayoutResult) -> Unit = {},
-        maxLines: Int = Int.MAX_VALUE
+        maxLines: Int = Int.MAX_VALUE,
     ) = TestContent(text, modifier, style, onTextLayout, maxLines)
 
     protected fun checkMagnifierAppears_whileHandleTouched(handle: Handle) {
@@ -433,7 +435,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     protected open fun checkMagnifierShowsDuringInitialLongPressDrag(
         expandForwards: Boolean,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         val dragDistance = Offset(10f, 0f)
         val dragDirection = if (expandForwards) 1f else -1f
@@ -449,7 +451,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                         // Center the text to give the magnifier lots of room to move.
                         .fillMaxSize()
                         .wrapContentSize()
-                        .testTag(tag)
+                        .testTag(tag),
             )
         }
 
@@ -482,7 +484,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     protected fun checkMagnifierFollowsHandleHorizontally(
         handle: Handle,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         val dragDistance = Offset(1f, 0f)
         val char = if (layoutDirection == LayoutDirection.Ltr) "a" else RtlChar
@@ -495,7 +497,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                         // Center the text to give the magnifier lots of room to move.
                         .fillMaxSize()
                         .wrapContentSize()
-                        .testTag(tag)
+                        .testTag(tag),
             )
         }
 
@@ -518,7 +520,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     protected fun checkMagnifierConstrainedToLineHorizontalBounds(
         handle: Handle,
         checkStart: Boolean = handle == Handle.SelectionStart,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         val dragDistance = Offset(1f, 0f)
         val dragDirection = if (checkStart xor (layoutDirection == LayoutDirection.Rtl)) -1f else 1f
@@ -537,7 +539,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     .fillMaxSize()
                     .wrapContentSize()
                     .testTag(tag),
-                style = TextStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center),
             )
         }
 
@@ -561,7 +563,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     protected fun checkMagnifierHiddenWhenDraggedTooFar(
         handle: Handle,
         checkStart: Boolean = handle == Handle.SelectionStart,
-        layoutDirection: LayoutDirection = LayoutDirection.Ltr
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         var screenWidth = 0
         val dragDirection = if (checkStart) -1f else 1f
@@ -576,7 +578,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                         // Center the text to give the magnifier lots of room to move.
                         .fillMaxSize()
                         .wrapContentSize()
-                        .testTag(tag)
+                        .testTag(tag),
             )
         }
 
@@ -605,7 +607,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     .fillMaxSize()
                     .wrapContentSize()
                     .testTag(tag),
-                onTextLayout = { lineHeight = it.getLineBottom(2) - it.getLineBottom(1) }
+                onTextLayout = { lineHeight = it.getLineBottom(2) - it.getLineBottom(1) },
             )
         }
 
@@ -634,7 +636,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     .wrapContentSize()
                     .testTag(tag),
                 onTextLayout = { lineHeight = it.getLineBottom(0) - it.getLineTop(0) },
-                maxLines = 1
+                maxLines = 1,
             )
         }
 
@@ -659,7 +661,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
-                    .testTag(tag)
+                    .testTag(tag),
             )
         }
 
@@ -701,7 +703,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         val slop =
             Offset(
                 x = viewConfiguration.touchSlop * delta.x.sign,
-                y = viewConfiguration.touchSlop * delta.y.sign
+                y = viewConfiguration.touchSlop * delta.y.sign,
             )
         moveBy(delta + slop)
     }
@@ -710,10 +712,8 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 internal fun assertThatOffset(actual: Offset): OffsetSubject =
     Truth.assertAbout(OffsetSubject.INSTANCE).that(actual)
 
-internal class OffsetSubject(
-    failureMetadata: FailureMetadata?,
-    private val subject: Offset,
-) : Subject(failureMetadata, subject) {
+internal class OffsetSubject(failureMetadata: FailureMetadata?, private val subject: Offset) :
+    Subject(failureMetadata, subject) {
 
     companion object {
         val INSTANCE: Factory<OffsetSubject, Offset> = Factory { failureMetadata, subject ->

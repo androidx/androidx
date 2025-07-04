@@ -63,6 +63,9 @@ class IntersectionTest {
         assertThat(segment.intersects(startPoint)).isTrue()
         assertThat(segment.intersects(endPoint)).isTrue()
         assertThat(segment.intersects(midPoint)).isTrue()
+        assertThat(segment.intersects(startPoint.x, startPoint.y)).isTrue()
+        assertThat(segment.intersects(endPoint.x, endPoint.y)).isTrue()
+        assertThat(segment.intersects(midPoint.x, midPoint.y)).isTrue()
     }
 
     @Test
@@ -78,6 +81,9 @@ class IntersectionTest {
         assertThat(segment.intersects(lowerPoint)).isFalse()
         assertThat(segment.intersects(higherPoint)).isFalse()
         assertThat(segment.intersects(nearPoint)).isFalse()
+        assertThat(segment.intersects(lowerPoint.x, lowerPoint.y)).isFalse()
+        assertThat(segment.intersects(higherPoint.x, higherPoint.y)).isFalse()
+        assertThat(segment.intersects(nearPoint.x, nearPoint.y)).isFalse()
     }
 
     @Test
@@ -104,6 +110,9 @@ class IntersectionTest {
         assertThat(triangle.intersects(p0)).isTrue()
         assertThat(triangle.intersects(p1)).isTrue()
         assertThat(triangle.intersects(p2)).isTrue()
+        assertThat(triangle.intersects(p0.x, p0.y)).isTrue()
+        assertThat(triangle.intersects(p1.x, p1.y)).isTrue()
+        assertThat(triangle.intersects(p2.x, p2.y)).isTrue()
         // A triangle intersects with points on its edges
         assertThat(p0p1midpoint.intersects(triangle)).isTrue()
         assertThat(p1p2midpoint.intersects(triangle)).isTrue()
@@ -111,11 +120,16 @@ class IntersectionTest {
         assertThat(triangle.intersects(p0p1midpoint)).isTrue()
         assertThat(triangle.intersects(p1p2midpoint)).isTrue()
         assertThat(triangle.intersects(p2p0midpoint)).isTrue()
+        assertThat(triangle.intersects(p0p1midpoint.x, p0p1midpoint.y)).isTrue()
+        assertThat(triangle.intersects(p1p2midpoint.x, p1p2midpoint.y)).isTrue()
+        assertThat(triangle.intersects(p2p0midpoint.x, p2p0midpoint.y)).isTrue()
         // A triangle intersects with interior points
         assertThat(interiorPoint1.intersects(triangle)).isTrue()
         assertThat(interiorPoint2.intersects(triangle)).isTrue()
         assertThat(triangle.intersects(interiorPoint1)).isTrue()
         assertThat(triangle.intersects(interiorPoint2)).isTrue()
+        assertThat(triangle.intersects(interiorPoint1.x, interiorPoint1.y)).isTrue()
+        assertThat(triangle.intersects(interiorPoint2.x, interiorPoint2.y)).isTrue()
     }
 
     @Test
@@ -142,6 +156,10 @@ class IntersectionTest {
         assertThat(triangle.intersects(bottomPoint)).isFalse()
         assertThat(triangle.intersects(farPoint1)).isFalse()
         assertThat(triangle.intersects(farPoint2)).isFalse()
+        assertThat(triangle.intersects(leftPoint.x, leftPoint.y)).isFalse()
+        assertThat(triangle.intersects(bottomPoint.x, bottomPoint.y)).isFalse()
+        assertThat(triangle.intersects(farPoint1.x, farPoint1.y)).isFalse()
+        assertThat(triangle.intersects(farPoint2.x, farPoint2.y)).isFalse()
     }
 
     /**
@@ -197,6 +215,15 @@ class IntersectionTest {
         assertThat(parallelogram.intersects(midPoint2)).isTrue()
         assertThat(parallelogram.intersects(midPoint3)).isTrue()
         assertThat(parallelogram.intersects(interiorPoint)).isTrue()
+        assertThat(parallelogram.intersects(vertex0.x, vertex0.y)).isTrue()
+        assertThat(parallelogram.intersects(vertex1.x, vertex1.y)).isTrue()
+        assertThat(parallelogram.intersects(vertex2.x, vertex2.y)).isTrue()
+        assertThat(parallelogram.intersects(vertex3.x, vertex3.y)).isTrue()
+        assertThat(parallelogram.intersects(midPoint0.x, midPoint0.y)).isTrue()
+        assertThat(parallelogram.intersects(midPoint1.x, midPoint1.y)).isTrue()
+        assertThat(parallelogram.intersects(midPoint2.x, midPoint2.y)).isTrue()
+        assertThat(parallelogram.intersects(midPoint3.x, midPoint3.y)).isTrue()
+        assertThat(parallelogram.intersects(interiorPoint)).isTrue()
     }
 
     /**
@@ -236,6 +263,11 @@ class IntersectionTest {
         assertThat(parallelogram.intersects(vertex2)).isFalse()
         assertThat(parallelogram.intersects(vertex3)).isFalse()
         assertThat(parallelogram.intersects(farPoint)).isFalse()
+        assertThat(parallelogram.intersects(vertex0.x, vertex0.y)).isFalse()
+        assertThat(parallelogram.intersects(vertex1.x, vertex1.y)).isFalse()
+        assertThat(parallelogram.intersects(vertex2.x, vertex2.y)).isFalse()
+        assertThat(parallelogram.intersects(vertex3.x, vertex3.y)).isFalse()
+        assertThat(parallelogram.intersects(farPoint.x, farPoint.y)).isFalse()
     }
 
     @Test
@@ -269,6 +301,15 @@ class IntersectionTest {
         assertThat(rect.intersects(midPoint2)).isTrue()
         assertThat(rect.intersects(midPoint3)).isTrue()
         assertThat(rect.intersects(interiorPoint)).isTrue()
+        assertThat(rect.intersects(vertex0.x, vertex0.y)).isTrue()
+        assertThat(rect.intersects(vertex1.x, vertex1.y)).isTrue()
+        assertThat(rect.intersects(vertex2.x, vertex2.y)).isTrue()
+        assertThat(rect.intersects(vertex3.x, vertex3.y)).isTrue()
+        assertThat(rect.intersects(midPoint0.x, midPoint0.y)).isTrue()
+        assertThat(rect.intersects(midPoint1.x, midPoint1.y)).isTrue()
+        assertThat(rect.intersects(midPoint2.x, midPoint2.y)).isTrue()
+        assertThat(rect.intersects(midPoint3.x, midPoint3.y)).isTrue()
+        assertThat(rect.intersects(interiorPoint.x, interiorPoint.y)).isTrue()
     }
 
     /**
@@ -287,6 +328,10 @@ class IntersectionTest {
 
         assertThat(mesh.intersects(intersectingPoint, SCALE_TRANSFORM)).isTrue()
         assertThat(mesh.intersects(nonIntersectingPoint, SCALE_TRANSFORM)).isFalse()
+        assertThat(mesh.intersects(intersectingPoint.x, intersectingPoint.y, SCALE_TRANSFORM))
+            .isTrue()
+        assertThat(mesh.intersects(nonIntersectingPoint.x, nonIntersectingPoint.y, SCALE_TRANSFORM))
+            .isFalse()
         assertThat(intersectingPoint.intersects(mesh, AffineTransform.IDENTITY)).isTrue()
         assertThat(nonIntersectingPoint.intersects(mesh, AffineTransform.IDENTITY)).isFalse()
     }
@@ -301,6 +346,8 @@ class IntersectionTest {
         assertThat(farExteriorPoint.intersects(rect)).isFalse()
         assertThat(rect.intersects(closeExteriorPoint)).isFalse()
         assertThat(rect.intersects(farExteriorPoint)).isFalse()
+        assertThat(rect.intersects(closeExteriorPoint.x, closeExteriorPoint.y)).isFalse()
+        assertThat(rect.intersects(farExteriorPoint.x, farExteriorPoint.y)).isFalse()
     }
 
     @Test
@@ -1015,7 +1062,7 @@ class IntersectionTest {
                 mesh.intersects(
                     intersectingShape,
                     AffineTransform.IDENTITY,
-                    AffineTransform.IDENTITY
+                    AffineTransform.IDENTITY,
                 )
             )
             .isTrue()
@@ -1023,7 +1070,7 @@ class IntersectionTest {
                 mesh.intersects(
                     nonIntersectingShape,
                     AffineTransform.IDENTITY,
-                    AffineTransform.IDENTITY
+                    AffineTransform.IDENTITY,
                 )
             )
             .isFalse()
@@ -1031,7 +1078,7 @@ class IntersectionTest {
                 intersectingShape.intersects(
                     mesh,
                     AffineTransform.IDENTITY,
-                    AffineTransform.IDENTITY
+                    AffineTransform.IDENTITY,
                 )
             )
             .isTrue()
@@ -1039,7 +1086,7 @@ class IntersectionTest {
                 nonIntersectingShape.intersects(
                     mesh,
                     AffineTransform.IDENTITY,
-                    AffineTransform.IDENTITY
+                    AffineTransform.IDENTITY,
                 )
             )
             .isFalse()

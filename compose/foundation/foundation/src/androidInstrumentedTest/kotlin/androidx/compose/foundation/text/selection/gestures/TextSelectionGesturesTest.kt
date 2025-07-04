@@ -57,7 +57,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         SelectionContainer(
             selection = selection.value,
             onSelectionChange = { selection.value = it },
-            modifier = Modifier.testTag(pointerAreaTag)
+            modifier = Modifier.testTag(pointerAreaTag),
         ) {
             TextContent()
         }
@@ -181,6 +181,8 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 7 to 6
             hapticsCount++
         }
+
+        performTouchGesture { up() }
     }
 
     @Test
@@ -237,6 +239,8 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 6 to 29
             hapticsCount++
         }
+
+        performTouchGesture { up() }
     }
 
     @Test
@@ -346,32 +350,20 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     @Test
     fun whenTouch_withLongPressThenDragToUpperEndPaddingAndBack_selectsWordsThenChars() {
-        touchLongPressThenDragToEndPaddingTest(
-            endOffset = topEnd,
-            endSelection = 17 to 0,
-        )
+        touchLongPressThenDragToEndPaddingTest(endOffset = topEnd, endSelection = 17 to 0)
     }
 
     @Test
     fun whenTouch_withLongPressThenDragToMiddleEndPaddingAndBack_selectsWordsThenChars() {
-        touchLongPressThenDragToEndPaddingTest(
-            endOffset = centerEnd,
-            endSelection = 12 to 23,
-        )
+        touchLongPressThenDragToEndPaddingTest(endOffset = centerEnd, endSelection = 12 to 23)
     }
 
     @Test
     fun whenTouch_withLongPressThenDragToLowerEndPaddingAndBack_selectsWordsThenChars() {
-        touchLongPressThenDragToEndPaddingTest(
-            endOffset = bottomEnd,
-            endSelection = 12 to 29,
-        )
+        touchLongPressThenDragToEndPaddingTest(endOffset = bottomEnd, endSelection = 12 to 29)
     }
 
-    private fun touchLongPressThenDragToEndPaddingTest(
-        endOffset: Offset,
-        endSelection: TextRange,
-    ) {
+    private fun touchLongPressThenDragToEndPaddingTest(endOffset: Offset, endSelection: TextRange) {
         performTouchGesture { longPress(characterPosition(13)) }
 
         asserter.applyAndAssert {
@@ -597,34 +589,22 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     @Test
     fun whenMouse_withSingleClickThenDragLeft_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(8),
-            endSelection = 13 to 8,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(8), endSelection = 13 to 8)
     }
 
     @Test
     fun whenMouse_withSingleClickThenDragUp_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(2),
-            endSelection = 13 to 2,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(2), endSelection = 13 to 2)
     }
 
     @Test
     fun whenMouse_withSingleClickThenDragRight_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(20),
-            endSelection = 13 to 20,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(20), endSelection = 13 to 20)
     }
 
     @Test
     fun whenMouse_withSingleClickThenDragDown_selectsCharacters() {
-        mouseSingleClickThenDragTest(
-            endOffset = characterPosition(26),
-            endSelection = 13 to 26,
-        )
+        mouseSingleClickThenDragTest(endOffset = characterPosition(26), endSelection = 13 to 26)
     }
 
     private fun mouseSingleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
@@ -646,34 +626,22 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     @Test
     fun whenMouse_withDoubleClickThenDragLeft_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(8),
-            endSelection = 17 to 6,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(8), endSelection = 17 to 6)
     }
 
     @Test
     fun whenMouse_withDoubleClickThenDragUp_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(2),
-            endSelection = 17 to 0,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(2), endSelection = 17 to 0)
     }
 
     @Test
     fun whenMouse_withDoubleClickThenDragRight_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(20),
-            endSelection = 12 to 23,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(20), endSelection = 12 to 23)
     }
 
     @Test
     fun whenMouse_withDoubleClickThenDragDown_selectsWords() {
-        mouseDoubleClickThenDragTest(
-            endOffset = characterPosition(26),
-            endSelection = 12 to 29,
-        )
+        mouseDoubleClickThenDragTest(endOffset = characterPosition(26), endSelection = 12 to 29)
     }
 
     private fun mouseDoubleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
@@ -695,34 +663,22 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     @Test
     fun whenMouse_withTripleClickThenDragLeft_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(8),
-            endSelection = 6 to 23,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(8), endSelection = 6 to 23)
     }
 
     @Test
     fun whenMouse_withTripleClickThenDragUp_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(2),
-            endSelection = 23 to 0,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(2), endSelection = 23 to 0)
     }
 
     @Test
     fun whenMouse_withTripleClickThenDragRight_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(20),
-            endSelection = 6 to 23,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(20), endSelection = 6 to 23)
     }
 
     @Test
     fun whenMouse_withTripleClickThenDragDown_selectsParagraphs() {
-        mouseTripleClickThenDragTest(
-            endOffset = characterPosition(26),
-            endSelection = 6 to 29,
-        )
+        mouseTripleClickThenDragTest(endOffset = characterPosition(26), endSelection = 6 to 29)
     }
 
     private fun mouseTripleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
@@ -740,7 +696,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         startOffset: Offset,
         endOffset: Offset,
         startSelection: TextRange?,
-        endSelection: TextRange?
+        endSelection: TextRange?,
     ) {
         check(numClicks > 0) { "Must be at least one click" }
         performMouseGesture {
@@ -767,26 +723,17 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
     @Test
     fun whenMouse_thenSingleClickAndDragUpToEndPadding_selectsCharacters() {
-        mouseClickThenDragUpToPaddingTest(
-            numClicks = 1,
-            endSelection = 13 to 5,
-        )
+        mouseClickThenDragUpToPaddingTest(numClicks = 1, endSelection = 13 to 5)
     }
 
     @Test
     fun whenMouse_thenDoubleClickAndDragUpToEndPadding_selectsWords() {
-        mouseClickThenDragUpToPaddingTest(
-            numClicks = 2,
-            endSelection = 17 to 0,
-        )
+        mouseClickThenDragUpToPaddingTest(numClicks = 2, endSelection = 17 to 0)
     }
 
     @Test
     fun whenMouse_thenTripleClickAndDragUpToEndPadding_selectsParagraph() {
-        mouseClickThenDragUpToPaddingTest(
-            numClicks = 3,
-            endSelection = 23 to 0,
-        )
+        mouseClickThenDragUpToPaddingTest(numClicks = 3, endSelection = 23 to 0)
     }
 
     private fun mouseClickThenDragUpToPaddingTest(numClicks: Int, endSelection: TextRange?) {

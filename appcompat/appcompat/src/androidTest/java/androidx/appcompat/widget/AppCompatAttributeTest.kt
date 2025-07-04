@@ -72,15 +72,15 @@ class AppCompatAttributeTest {
         assertTrue(imageView.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            imageView.attributeSourceResourceMap[R.attr.srcCompat]
+            imageView.attributeSourceResourceMap[R.attr.srcCompat],
         )
         assertEquals(
             R.layout.view_attribute_layout,
-            imageView.attributeSourceResourceMap[R.attr.backgroundTint]
+            imageView.attributeSourceResourceMap[R.attr.backgroundTint],
         )
         assertEquals(
             R.layout.view_attribute_layout,
-            imageView.attributeSourceResourceMap[R.attr.backgroundTintMode]
+            imageView.attributeSourceResourceMap[R.attr.backgroundTintMode],
         )
     }
 
@@ -93,7 +93,7 @@ class AppCompatAttributeTest {
         assertTrue(checkBox.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            checkBox.attributeSourceResourceMap[R.attr.buttonTint]
+            checkBox.attributeSourceResourceMap[R.attr.buttonTint],
         )
     }
 
@@ -106,7 +106,7 @@ class AppCompatAttributeTest {
         assertTrue(seekBar.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            seekBar.attributeSourceResourceMap[R.attr.tickMarkTint]
+            seekBar.attributeSourceResourceMap[R.attr.tickMarkTint],
         )
     }
 
@@ -119,7 +119,7 @@ class AppCompatAttributeTest {
         assertTrue(textView.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            textView.attributeSourceResourceMap[R.attr.autoSizeTextType]
+            textView.attributeSourceResourceMap[R.attr.autoSizeTextType],
         )
     }
 
@@ -132,7 +132,7 @@ class AppCompatAttributeTest {
         assertTrue(switchCompat.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            switchCompat.attributeSourceResourceMap[R.attr.thumbTint]
+            switchCompat.attributeSourceResourceMap[R.attr.thumbTint],
         )
     }
 
@@ -145,7 +145,7 @@ class AppCompatAttributeTest {
         assertTrue(toolbar.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            toolbar.attributeSourceResourceMap[R.attr.titleMargin]
+            toolbar.attributeSourceResourceMap[R.attr.titleMargin],
         )
     }
 
@@ -157,7 +157,7 @@ class AppCompatAttributeTest {
         assertTrue(root.attributeSourceResourceMap.isNotEmpty())
         assertEquals(
             R.layout.view_attribute_layout,
-            root.attributeSourceResourceMap[R.attr.showDividers]
+            root.attributeSourceResourceMap[R.attr.showDividers],
         )
     }
 
@@ -186,7 +186,7 @@ class AppCompatAttributeTest {
                 "Assumed $DEBUG_VIEW_ATTRIBUTES would be $expected within $timeout seconds",
                 busyWait(SETTINGS_TIMEOUT) {
                     Settings.Global.getString(contentResolver, DEBUG_VIEW_ATTRIBUTES) == expected
-                }
+                },
             )
         }
     }

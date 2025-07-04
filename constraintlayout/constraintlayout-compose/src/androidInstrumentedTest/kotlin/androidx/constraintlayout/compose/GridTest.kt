@@ -75,7 +75,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var leftX = 0.dp
@@ -117,7 +117,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var leftX = 0.dp
@@ -159,7 +159,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var expectedX = 0.dp
@@ -201,7 +201,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var expectedX = 0.dp
@@ -243,7 +243,7 @@ class GridTest {
                 skips = "'0:1x1'",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var leftX = 0.dp
@@ -284,7 +284,7 @@ class GridTest {
                 skips = "'0:2x1'",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "'SubGridByColRow'"
+                flags = "'SubGridByColRow'",
             )
         }
         var leftX = 0.dp
@@ -324,7 +324,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var leftX = 0.dp
@@ -366,7 +366,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "'SpansRespectWidgetOrder'"
+                flags = "'SpansRespectWidgetOrder'",
             )
         }
         var topY = 0.dp
@@ -403,7 +403,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "'SpansRespectWidgetOrder'"
+                flags = "'SpansRespectWidgetOrder'",
             )
         }
         var leftX = 0.dp
@@ -445,7 +445,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "''",
-                flags = "'SubGridByColRow'"
+                flags = "'SubGridByColRow'",
             )
         }
         var leftX = 0.dp
@@ -487,7 +487,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "'1,3'",
                 columnWeights = "''",
-                flags = "''"
+                flags = "''",
             )
         }
         var expectedLeft = (rootSize - 10.dp) / 2f
@@ -526,7 +526,7 @@ class GridTest {
                 skips = "''",
                 rowWeights = "''",
                 columnWeights = "'1,3'",
-                flags = "''"
+                flags = "''",
             )
         }
         var expectedLeft = 0.dp
@@ -618,7 +618,7 @@ class GridTest {
         }
         """
                         .trimIndent()
-                )
+                ),
         ) {
             ids.forEach { id ->
                 Box(Modifier.layoutId(id).size(10.dp).background(Color.Red).testTag(id))
@@ -672,7 +672,7 @@ class GridTest {
         }
         """
                         .trimIndent()
-                )
+                ),
         ) {
             ids.forEach { id -> Box(Modifier.layoutId(id).background(Color.Red).testTag(id)) }
         }

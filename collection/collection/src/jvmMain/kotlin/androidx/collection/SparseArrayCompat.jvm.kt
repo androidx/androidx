@@ -101,10 +101,7 @@ public actual constructor(initialCapacity: Int) : Cloneable {
      */
     public actual open fun get(key: Int, defaultValue: E): E = commonGet(key, defaultValue)
 
-    @Deprecated(
-        message = "Alias for remove(int).",
-        replaceWith = ReplaceWith("remove(key)"),
-    )
+    @Deprecated(message = "Alias for remove(int).", replaceWith = ReplaceWith("remove(key)"))
     public open fun delete(key: Int) {
         remove(key)
     }

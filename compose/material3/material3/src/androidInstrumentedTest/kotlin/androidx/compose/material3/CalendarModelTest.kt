@@ -35,7 +35,6 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalMaterial3Api::class)
 internal class CalendarModelTest(private val model: CalendarModel) {
 
     private lateinit var defaultLocale: Locale
@@ -160,7 +159,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis,
                 DatePickerDefaults.YearMonthWeekdayDaySkeleton,
                 Locale.US,
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         assertThat(formatted).isEqualTo("Saturday, January 1, 2022")
 
@@ -169,7 +168,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis - 1000000000,
                 DatePickerDefaults.YearMonthWeekdayDaySkeleton,
                 Locale.US,
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         assertThat(formatted).isEqualTo("Monday, December 20, 2021")
     }
@@ -184,7 +183,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis,
                 skeleton = "YY",
                 Locale.US,
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         assertThat(formatted).isEqualTo("22")
 
@@ -193,7 +192,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis - 1000000000,
                 "YY",
                 Locale.US,
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         assertThat(formatted).isEqualTo("21")
     }
@@ -207,7 +206,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis,
                 skeleton = "yMMMM",
                 Locale.US,
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         // Spanish
         val esFormatted =
@@ -215,7 +214,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis,
                 skeleton = "yMMMM",
                 Locale("ES"),
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         // Danish
         val daFormatted =
@@ -223,7 +222,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 January2022Millis,
                 skeleton = "yMMMM",
                 Locale("DA"),
-                cache = mutableMapOf()
+                cache = mutableMapOf(),
             )
         // Note: Expecting the month names to be capitalized in English and Spanish, but lowercase
         // in Danish.
@@ -332,7 +331,7 @@ internal class CalendarModelTest(private val model: CalendarModel) {
                 // Using the JVM Locale.getDefault() for testing purposes only.
                 arrayOf(
                     CalendarModelImpl(Locale.getDefault()),
-                    LegacyCalendarModelImpl(Locale.getDefault())
+                    LegacyCalendarModelImpl(Locale.getDefault()),
                 )
             } else {
                 arrayOf(LegacyCalendarModelImpl(Locale.getDefault()))

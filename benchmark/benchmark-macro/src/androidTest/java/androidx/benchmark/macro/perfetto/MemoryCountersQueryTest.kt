@@ -38,7 +38,7 @@ class MemoryCountersQueryTest {
             TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
                 MemoryCountersQuery.getMemoryCounters(
                     this,
-                    "androidx.benchmark.integration.macrobenchmark.target"
+                    "androidx.benchmark.integration.macrobenchmark.target",
                 )
             }
         val expectedMetrics =
@@ -48,7 +48,7 @@ class MemoryCountersQueryTest {
                 pageFaultsBackedBySwapCache = 0.0,
                 pageFaultsBackedByReadIO = 8.0,
                 memoryCompactionEvents = 0.0,
-                memoryReclaimEvents = 0.0
+                memoryReclaimEvents = 0.0,
             )
         assertEquals(expectedMetrics, metrics)
     }

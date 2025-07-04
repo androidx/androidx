@@ -79,7 +79,7 @@ internal class EmojiPickerBodyAdapter(
                                 notifyItemChanged(index)
                             }
                         }
-                    }
+                    },
                 )
             }
         }
@@ -94,7 +94,7 @@ internal class EmojiPickerBodyAdapter(
             ItemType.PLACEHOLDER_TEXT ->
                 ViewCompat.requireViewById<TextView>(
                         viewHolder.itemView,
-                        R.id.emoji_picker_empty_category_view
+                        R.id.emoji_picker_empty_category_view,
                     )
                     .text = (item as PlaceholderText).text
             ItemType.EMOJI -> {

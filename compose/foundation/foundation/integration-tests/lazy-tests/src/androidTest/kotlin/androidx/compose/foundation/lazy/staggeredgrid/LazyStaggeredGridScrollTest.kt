@@ -47,11 +47,7 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initParameters(): Array<Any> =
-            arrayOf(
-                Orientation.Vertical,
-                Orientation.Horizontal,
-            )
+        fun initParameters(): Array<Any> = arrayOf(Orientation.Vertical, Orientation.Horizontal)
     }
 
     internal lateinit var state: LazyStaggeredGridState
@@ -68,7 +64,7 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
     fun setContent(
         containerSizePx: Int = itemSizePx * 5,
         beforeContentPaddingPx: Int = 0,
-        afterContentPaddingPx: Int = 0
+        afterContentPaddingPx: Int = 0,
     ) {
         rule.setContent {
             state = rememberLazyStaggeredGridState()
@@ -76,7 +72,7 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
                 TestContent(
                     containerSizePx.toDp(),
                     beforeContentPaddingPx.toDp(),
-                    afterContentPaddingPx.toDp()
+                    afterContentPaddingPx.toDp(),
                 )
             }
         }
@@ -309,10 +305,7 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
 
     @Test
     fun canScrollForwardAndBackward_afterSmallScrollFromEnd_withContentPadding() {
-        setContent(
-            containerSizePx = (itemSizePx * 2.5f).roundToInt(),
-            afterContentPaddingPx = 2,
-        )
+        setContent(containerSizePx = (itemSizePx * 2.5f).roundToInt(), afterContentPaddingPx = 2)
         val delta = -(itemSizePx / 3f).roundToInt()
         rule.runOnIdle {
             runBlocking {
@@ -400,7 +393,7 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
     private fun TestContent(
         containerSizeDp: Dp,
         beforeContentPaddingDp: Dp,
-        afterContentPaddingDp: Dp
+        afterContentPaddingDp: Dp,
     ) {
         // |-|-|
         // |0|1|
@@ -430,11 +423,11 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
                     } else {
                         StaggeredGridItemSpan.SingleLane
                     }
-                }
+                },
             ) {
                 BasicText(
                     "$it",
-                    Modifier.mainAxisSize(itemSizeDp * ((it % 2) + 1)).testTag("$it").debugBorder()
+                    Modifier.mainAxisSize(itemSizeDp * ((it % 2) + 1)).testTag("$it").debugBorder(),
                 )
             }
         }

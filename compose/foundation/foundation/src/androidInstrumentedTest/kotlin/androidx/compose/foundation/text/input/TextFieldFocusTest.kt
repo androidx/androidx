@@ -18,14 +18,16 @@ package androidx.compose.foundation.text.input
 
 import android.os.SystemClock
 import android.view.InputDevice
+import android.view.InputDevice.SOURCE_DPAD
 import android.view.InputDevice.SOURCE_KEYBOARD
 import android.view.KeyEvent
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -55,7 +58,6 @@ import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -78,11 +80,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldFocusTest {
@@ -100,7 +103,7 @@ internal class TextFieldFocusTest {
                 modifier =
                     Modifier.focusRequester(data.focusRequester)
                         .onFocusChanged { data.focused = it.isFocused }
-                        .requiredWidth(10.dp)
+                        .requiredWidth(10.dp),
             )
         }
     }
@@ -116,7 +119,7 @@ internal class TextFieldFocusTest {
                 listOf(
                     FocusTestData(FocusRequester()),
                     FocusTestData(FocusRequester()),
-                    FocusTestData(FocusRequester())
+                    FocusTestData(FocusRequester()),
                 )
 
             TextFieldApp(testDataList)
@@ -158,7 +161,7 @@ internal class TextFieldFocusTest {
             BasicTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(tag),
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
             Box(modifier = Modifier.size(10.dp).focusable())
         }
@@ -169,15 +172,131 @@ internal class TextFieldFocusTest {
 
         rule.onNodeWithTag(tag).requestFocus()
 
-        rule.runOnIdle {
-            assertThat(interactions.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
+        rule.waitForIdle()
+        assertThat(interactions.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
+        val focusEvent = interactions.filterIsInstance<FocusInteraction.Focus>().first()
+
+        rule.runOnUiThread { focusManager.moveFocus(FocusDirection.Next) }
+
+        rule.waitForIdle()
+        assertThat(interactions.filterIsInstance<FocusInteraction.Unfocus>()).hasSize(1)
+        assertThat(interactions.filterIsInstance<FocusInteraction.Unfocus>().first().focus)
+            .isSameInstanceAs(focusEvent)
+    }
+
+    @Test
+    fun interactionSource_emitsUnfocusEvent_whenDisabled() {
+        val interactionSource = MutableInteractionSource()
+        val tag = "TextField"
+        var enabled by mutableStateOf(true)
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(tag),
+                interactionSource = interactionSource,
+                enabled = enabled,
+            )
         }
 
-        focusManager.moveFocus(FocusDirection.Next)
+        val interactions = mutableListOf<Interaction>()
 
-        rule.runOnIdle {
-            assertThat(interactions.filterIsInstance<FocusInteraction.Unfocus>()).isNotEmpty()
+        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+        rule.onNodeWithTag(tag).requestFocus()
+
+        rule.waitForIdle()
+        assertThat(interactions.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
+        val focusEvent = interactions.filterIsInstance<FocusInteraction.Focus>().first()
+
+        enabled = false
+
+        rule.waitForIdle()
+        assertThat(interactions.filterIsInstance<FocusInteraction.Unfocus>()).hasSize(1)
+        assertThat(interactions.filterIsInstance<FocusInteraction.Unfocus>().first().focus)
+            .isSameInstanceAs(focusEvent)
+    }
+
+    @Test
+    fun interactionSource_focusEventsAreSentTo_newInteractionSource() {
+        val interactionSource1 = MutableInteractionSource()
+        val interactionSource2 = MutableInteractionSource()
+        val interactionSourceState = mutableStateOf(interactionSource1)
+        val tag = "TextField"
+        lateinit var scope: CoroutineScope
+        lateinit var focusManager: FocusManager
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            focusManager = LocalFocusManager.current
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(tag),
+                interactionSource = interactionSourceState.value,
+            )
         }
+
+        val interactions1 = mutableListOf<Interaction>()
+        val interactions2 = mutableListOf<Interaction>()
+
+        scope.launch { interactionSource1.interactions.collect { interactions1.add(it) } }
+        scope.launch { interactionSource2.interactions.collect { interactions2.add(it) } }
+
+        rule.onNodeWithTag(tag).requestFocus()
+
+        rule.waitForIdle()
+        assertThat(interactions1.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
+        assertThat(interactions2.filterIsInstance<FocusInteraction.Focus>()).isEmpty()
+        val focusEvent = interactions1.filterIsInstance<FocusInteraction.Focus>().first()
+
+        interactionSourceState.value = interactionSource2
+
+        rule.runOnIdle { focusManager.clearFocus() }
+
+        rule.onNodeWithTag(tag).requestFocus()
+
+        assertThat(interactions1.filterIsInstance<FocusInteraction.Unfocus>()).hasSize(1)
+        assertThat(interactions1.filterIsInstance<FocusInteraction.Unfocus>().first().focus)
+            .isSameInstanceAs(focusEvent)
+
+        assertThat(interactions2.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
+    }
+
+    @Test
+    fun interactionSourceChanges_whenFieldDisabled_eventsAreSentToNewInteractionSource() {
+        val interactionSource1 = MutableInteractionSource()
+        val interactionSource2 = MutableInteractionSource()
+        val interactionSourceState = mutableStateOf(interactionSource1)
+        val tag = "TextField"
+        lateinit var scope: CoroutineScope
+        var enabled by mutableStateOf(false)
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(tag),
+                enabled = enabled,
+                interactionSource = interactionSourceState.value,
+            )
+        }
+
+        val interactions1 = mutableListOf<Interaction>()
+        val interactions2 = mutableListOf<Interaction>()
+
+        scope.launch { interactionSource1.interactions.collect { interactions1.add(it) } }
+        scope.launch { interactionSource2.interactions.collect { interactions2.add(it) } }
+
+        rule.runOnIdle { interactionSourceState.value = interactionSource2 }
+
+        rule.runOnIdle { enabled = true }
+
+        rule.onNodeWithTag(tag).requestFocus()
+
+        assertThat(interactions1.filterIsInstance<FocusInteraction.Focus>()).isEmpty()
+        assertThat(interactions2.filterIsInstance<FocusInteraction.Focus>()).isNotEmpty()
     }
 
     @Test
@@ -193,7 +312,7 @@ internal class TextFieldFocusTest {
                 modifier =
                     Modifier.testTag(tag)
                         .onFocusChanged { focused = it.isFocused }
-                        .requiredWidth(10.dp)
+                        .requiredWidth(10.dp),
             )
         }
         // bring enabled text field into focus
@@ -242,7 +361,7 @@ internal class TextFieldFocusTest {
                     // Need to explicitly install the interceptor in the dialog as well.
                     inputMethodInterceptor.Content(it)
                 }
-            }
+            },
         )
     }
 
@@ -263,13 +382,13 @@ internal class TextFieldFocusTest {
                     // Need to explicitly install the interceptor in the dialog as well.
                     inputMethodInterceptor.Content(it)
                 }
-            }
+            },
         )
     }
 
     private fun textInputStarted_whenFocusRequestedImmediately_fromEffect(
         runEffect: @Composable (body: () -> Unit) -> Unit,
-        wrapContent: @Composable (@Composable () -> Unit) -> Unit = { it() }
+        wrapContent: @Composable (@Composable () -> Unit) -> Unit = { it() },
     ) {
         val focusRequester = FocusRequester()
         val state = TextFieldState()
@@ -287,7 +406,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -303,7 +423,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -319,7 +440,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
 
@@ -335,7 +457,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice() {
+    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
 
@@ -350,7 +473,8 @@ internal class TextFieldFocusTest {
     }
 
     @Test
-    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice() {
+    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -365,7 +489,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -386,7 +511,8 @@ internal class TextFieldFocusTest {
     @FlakyTest(bugId = 348380475)
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
         // Carry the cursor to the start after typing -> "|abc"
@@ -408,7 +534,8 @@ internal class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
 
@@ -429,7 +556,8 @@ internal class TextFieldFocusTest {
     @FlakyTest(bugId = 348380475)
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard() {
+    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_beforeFix() {
+        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
         setupAndEnableBasicTextField()
         inputMultilineTextInBasicTextField()
         // Carry the cursor to the start after typing -> "|a\nb\nc"
@@ -447,6 +575,202 @@ internal class TextFieldFocusTest {
 
         // Check if the cursor has actually moved down -> "a\n|b\nc"
         rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
+    }
+
+    @Test
+    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        setupAndEnableBasicTextField()
+        inputSingleLineTextInBasicTextField()
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+        testKeyboardController.assertHidden()
+
+        // Check if keyboard is enabled on Dpad center key press
+        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)) return
+        testKeyboardController.assertShown()
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationLeft(SOURCE_DPAD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationRight(SOURCE_DPAD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationUp(SOURCE_DPAD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationDown(SOURCE_DPAD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationLeft(SOURCE_KEYBOARD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationRight(SOURCE_KEYBOARD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationUp(SOURCE_KEYBOARD)
+    }
+
+    @SdkSuppress(minSdkVersion = 22) // b/266742195
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationDown(SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationLeft(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadRight_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationRight(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadUp_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationUp(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    @Test
+    fun basicTextField_checkFocusNavigation_onDPadDown_DpadHardwareKeyboard_afterFix() {
+        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+        checkFocusNavigationDown(SOURCE_DPAD or SOURCE_KEYBOARD)
+    }
+
+    fun checkFocusNavigationLeft(source: Int) {
+        fun pressLeft() =
+            keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT, source, 1)
+        setupAndEnableBasicTextField()
+        inputSingleLineTextInBasicTextField()
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        if (!pressLeft()) return
+
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+        // first move to the left
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
+
+        // Move the cursor to the left twice first. Then left arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-left").assertIsNotFocused()
+            if (!pressLeft()) return
+        }
+
+        // Check if the element to the left of text field gains focus
+        rule.onNodeWithTag("test-button-left").assertIsFocused()
+    }
+
+    fun checkFocusNavigationRight(source: Int) {
+        fun pressRight() =
+            keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT, source, 1)
+        setupAndEnableBasicTextField()
+        inputSingleLineTextInBasicTextField()
+        // move the selection to the beginning
+        rule.onNodeWithTag("test-text-field-1").performTextInputSelection(TextRange(0))
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        if (!pressRight()) return
+
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+        // first move to the right
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(1))
+
+        // Move the cursor to the right twice first. Then right arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-right").assertIsNotFocused()
+            if (!pressRight()) return
+        }
+
+        // Check if the element to the right of text field gains focus
+        rule.onNodeWithTag("test-button-right").assertIsFocused()
+    }
+
+    fun checkFocusNavigationUp(source: Int) {
+        fun pressUp() = keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP, source, 1)
+        setupAndEnableBasicTextField()
+        inputMultilineTextInBasicTextField()
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        // Move focus to the focusable element on top
+        if (!pressUp()) return
+
+        // Check if the element on the top of text field does not gain focus
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+
+        // Check if the cursor has actually moved up -> "a\nb|\nc"
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(3))
+
+        // Move the cursor up twice first. Then up arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-top").assertIsNotFocused()
+            if (!pressUp()) return
+        }
+
+        rule.onNodeWithTag("test-button-top").assertIsFocused()
+    }
+
+    fun checkFocusNavigationDown(source: Int) {
+        fun pressDown() =
+            keyPressOnPhysicalDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN, source, 1)
+        setupAndEnableBasicTextField()
+        inputMultilineTextInBasicTextField()
+        // move the selection to the beginning
+        rule.onNodeWithTag("test-text-field-1").performTextInputSelection(TextRange(0))
+
+        // Dismiss keyboard on back press
+        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
+
+        if (!pressDown()) return
+
+        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
+        // first move down
+        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
+
+        // Move the cursor down twice first. Then down arrow should move focus.
+        repeat(3) {
+            rule.onNodeWithTag("test-button-bottom").assertIsNotFocused()
+            if (!pressDown()) return
+        }
+
+        // Check if the element to the bottom of text field gains focus
+        rule.onNodeWithTag("test-button-bottom").assertIsFocused()
     }
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
@@ -486,7 +810,7 @@ internal class TextFieldFocusTest {
                 keyPressOnKeyboardInputDevice(
                     rule,
                     NativeKeyEvent.KEYCODE_TAB,
-                    metaState = KeyEvent.META_SHIFT_ON
+                    metaState = KeyEvent.META_SHIFT_ON,
                 )
             )
             .isTrue()
@@ -513,7 +837,7 @@ internal class TextFieldFocusTest {
                 0,
                 0,
                 invalidDeviceId,
-                0
+                0,
             )
         assertThat(keyEventDown.device).isNull()
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventDown))
@@ -527,15 +851,13 @@ internal class TextFieldFocusTest {
                 0,
                 0,
                 invalidDeviceId,
-                0
+                0,
             )
         rule.onRoot().performKeyPress(androidx.compose.ui.input.key.KeyEvent(keyEventUp))
         rule.waitForIdle()
     }
 
-    private fun setupAndEnableBasicTextField(
-        singleLine: Boolean = false,
-    ) {
+    private fun setupAndEnableBasicTextField(singleLine: Boolean = false) {
         setupContent(singleLine)
 
         rule.onNodeWithTag("test-text-field-1").assertIsFocused()
@@ -557,25 +879,19 @@ internal class TextFieldFocusTest {
         keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_C)
     }
 
-    private fun setupContent(
-        singleLine: Boolean = false,
-    ) {
+    private fun setupContent(singleLine: Boolean = false) {
         rule.setContent {
             CompositionLocalProvider(
                 LocalSoftwareKeyboardController provides testKeyboardController
             ) {
-                Column {
-                    Row(horizontalArrangement = Arrangement.Center) {
-                        TestFocusableElement(id = "top")
-                    }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    TestFocusableElement(id = "top")
                     Row {
                         TestFocusableElement(id = "left")
                         TestBasicTextField(id = "1", singleLine = singleLine, requestFocus = true)
                         TestFocusableElement(id = "right")
                     }
-                    Row(horizontalArrangement = Arrangement.Center) {
-                        TestFocusableElement(id = "bottom")
-                    }
+                    TestFocusableElement(id = "bottom")
                 }
             }
         }
@@ -592,7 +908,7 @@ internal class TextFieldFocusTest {
                     .padding(10.dp)
                     .onFocusChanged { isFocused = it.hasFocus }
                     .focusable()
-                    .border(2.dp, if (isFocused) Color.Green else Color.Cyan)
+                    .border(2.dp, if (isFocused) Color.Green else Color.Cyan),
         )
     }
 
@@ -617,7 +933,7 @@ internal class TextFieldFocusTest {
                     .testTag("test-text-field-$id")
                     .padding(10.dp)
                     .onFocusChanged { isFocused = it.isFocused || it.hasFocus }
-                    .border(2.dp, if (isFocused) Color.Red else Color.Transparent)
+                    .border(2.dp, if (isFocused) Color.Red else Color.Transparent),
         )
 
         LaunchedEffect(requestFocus, focusRequester) {
@@ -629,7 +945,7 @@ internal class TextFieldFocusTest {
     private fun keyPressOnDpadInputDevice(
         rule: ComposeContentTestRule,
         keyCode: Int,
-        count: Int = 1
+        count: Int = 1,
     ) = keyPressOnPhysicalDevice(rule, keyCode, InputDevice.SOURCE_DPAD, count)
 
     /** Triggers a key press on the root node from a non-virtual keyboard device (if supported). */
@@ -663,7 +979,7 @@ internal class TextFieldFocusTest {
                 deviceId,
                 0,
                 0,
-                source
+                source,
             )
         val keyEventUp =
             KeyEvent(
@@ -676,7 +992,7 @@ internal class TextFieldFocusTest {
                 deviceId,
                 0,
                 0,
-                source
+                source,
             )
 
         repeat(count) {

@@ -102,7 +102,7 @@ fun touchInputMultiTouchWithHistory() {
                     listOf(Offset(325f, 500f), Offset(350f, 500f), Offset(375f, 500f)),
                 ),
             // The actual move event will be sent 16ms after the previous event
-            delayMillis = 16
+            delayMillis = 16,
         )
         // And finish the gesture by lifting both fingers. Can be done in any order
         up(1)

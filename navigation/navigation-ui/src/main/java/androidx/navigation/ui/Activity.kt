@@ -42,12 +42,12 @@ import androidx.navigation.NavController
  */
 public fun AppCompatActivity.setupActionBarWithNavController(
     navController: NavController,
-    drawerLayout: DrawerLayout?
+    drawerLayout: DrawerLayout?,
 ) {
     NavigationUI.setupActionBarWithNavController(
         this,
         navController,
-        AppBarConfiguration(navController.graph, drawerLayout)
+        AppBarConfiguration(navController.graph, drawerLayout),
     )
 }
 
@@ -71,7 +71,7 @@ public fun AppCompatActivity.setupActionBarWithNavController(
  */
 public fun AppCompatActivity.setupActionBarWithNavController(
     navController: NavController,
-    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
+    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph),
 ) {
     NavigationUI.setupActionBarWithNavController(this, navController, configuration)
 }

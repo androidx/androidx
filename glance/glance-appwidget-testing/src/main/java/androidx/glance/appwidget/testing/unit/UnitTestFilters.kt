@@ -49,7 +49,7 @@ import androidx.glance.testing.unit.MappedNode
  * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
  * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isChecked(): GlanceNodeMatcher<MappedNode> =
+public fun isChecked(): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(description = "is checked") { node ->
         val emittable = node.value.emittable
         emittable is EmittableCheckable && emittable.checked
@@ -63,7 +63,7 @@ fun isChecked(): GlanceNodeMatcher<MappedNode> =
  * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
  * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isNotChecked(): GlanceNodeMatcher<MappedNode> =
+public fun isNotChecked(): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(description = "is not checked") { node ->
         val emittable = node.value.emittable
         emittable is EmittableCheckable && !emittable.checked
@@ -84,7 +84,7 @@ fun isNotChecked(): GlanceNodeMatcher<MappedNode> =
 @PublishedApi // See b/316353540; a reified version of this is available in the public api.
 internal fun <T : ActionCallback> hasRunCallbackClickAction(
     callbackClass: Class<T>,
-    parameters: ActionParameters = actionParametersOf()
+    parameters: ActionParameters = actionParametersOf(),
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
         "has run callback click action with callback class: ${callbackClass.name} and " +
@@ -114,7 +114,7 @@ internal fun <T : ActionCallback> hasRunCallbackClickAction(
  * @param parameters the parameters associated with the action that are expected to have been passed
  *   in the `actionRunCallback` method call
  */
-inline fun <reified T : ActionCallback> hasRunCallbackClickAction(
+public inline fun <reified T : ActionCallback> hasRunCallbackClickAction(
     parameters: ActionParameters = actionParametersOf()
 ): GlanceNodeMatcher<MappedNode> =
     hasRunCallbackClickAction(callbackClass = T::class.java, parameters = parameters)
@@ -134,10 +134,10 @@ inline fun <reified T : ActionCallback> hasRunCallbackClickAction(
  *   an activity start.
  */
 // Other variants in the base layer (glance-testing).
-fun hasStartActivityClickAction(
+public fun hasStartActivityClickAction(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf(),
-    activityOptions: Bundle? = null
+    activityOptions: Bundle? = null,
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
         if (activityOptions != null) {
@@ -178,7 +178,7 @@ fun hasStartActivityClickAction(
 @PublishedApi // See b/316353540; a reified version of this is available in the public api.
 internal fun hasStartServiceAction(
     serviceClass: Class<out Service>,
-    isForegroundService: Boolean = false
+    isForegroundService: Boolean = false,
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
         description =
@@ -212,7 +212,7 @@ internal fun hasStartServiceAction(
  * @param isForegroundService if the service to launch is expected to have been set as foreground
  *   service in the `actionStartService` method call.
  */
-inline fun <reified T : Service> hasStartServiceAction(
+public inline fun <reified T : Service> hasStartServiceAction(
     isForegroundService: Boolean = false
 ): GlanceNodeMatcher<MappedNode> =
     hasStartServiceAction(serviceClass = T::class.java, isForegroundService = isForegroundService)
@@ -231,7 +231,7 @@ inline fun <reified T : Service> hasStartServiceAction(
  */
 internal fun hasStartServiceAction(
     componentName: ComponentName,
-    isForegroundService: Boolean = false
+    isForegroundService: Boolean = false,
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
         description =
@@ -265,9 +265,9 @@ internal fun hasStartServiceAction(
  * @param isForegroundService if the service to launch is expected to have been set as foreground
  *   service in the `actionStartService` method call.
  */
-fun hasStartServiceAction(
+public fun hasStartServiceAction(
     intent: Intent,
-    isForegroundService: Boolean = false
+    isForegroundService: Boolean = false,
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
         description =
@@ -327,8 +327,8 @@ internal fun hasSendBroadcastAction(
  * @param T class of the broadcast receiver that is expected to have been passed in the
  *   actionSendBroadcast` method call.
  */
-inline fun <reified T : BroadcastReceiver> hasSendBroadcastAction(): GlanceNodeMatcher<MappedNode> =
-    hasSendBroadcastAction(T::class.java)
+public inline fun <reified T : BroadcastReceiver> hasSendBroadcastAction():
+    GlanceNodeMatcher<MappedNode> = hasSendBroadcastAction(T::class.java)
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
@@ -342,9 +342,9 @@ inline fun <reified T : BroadcastReceiver> hasSendBroadcastAction(): GlanceNodeM
  * @param componentName optional [ComponentName] of the target broadcast receiver that is expected
  *   to have been passed in the actionSendBroadcast` method call.
  */
-fun hasSendBroadcastAction(
+public fun hasSendBroadcastAction(
     intentAction: String,
-    componentName: ComponentName? = null
+    componentName: ComponentName? = null,
 ): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(
         description =
@@ -379,7 +379,7 @@ fun hasSendBroadcastAction(
  * @param componentName [ComponentName] of the target broadcast receiver that is expected to have
  *   been passed in the actionSendBroadcast` method call.
  */
-fun hasSendBroadcastAction(componentName: ComponentName): GlanceNodeMatcher<MappedNode> =
+public fun hasSendBroadcastAction(componentName: ComponentName): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(description = "has send broadcast action with component: $componentName") {
         node ->
         node.value.emittable.modifier.any {
@@ -403,7 +403,7 @@ fun hasSendBroadcastAction(componentName: ComponentName): GlanceNodeMatcher<Mapp
  * @param intent the intent for sending broadcast that is expected to have been passed in the
  *   `actionSendBroadcast` method call. Note: intent is only matched using filterEquals.
  */
-fun hasSendBroadcastAction(intent: Intent): GlanceNodeMatcher<MappedNode> =
+public fun hasSendBroadcastAction(intent: Intent): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(description = "has send broadcast action with intent: $intent") { node ->
         node.value.emittable.modifier.any {
             if (it is ActionModifier) {
@@ -426,7 +426,7 @@ fun hasSendBroadcastAction(intent: Intent): GlanceNodeMatcher<MappedNode> =
  *
  * @param progress the expected value of the current progress
  */
-fun isLinearProgressIndicator(
+public fun isLinearProgressIndicator(
     /*@FloatRange(from = 0.0, to = 1.0)*/
     progress: Float
 ): GlanceNodeMatcher<MappedNode> =
@@ -446,7 +446,7 @@ fun isLinearProgressIndicator(
  * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
  * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> =
+public fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(description = "is an indeterminate linear progress indicator") { node ->
         val emittable = node.value.emittable
         emittable is EmittableLinearProgressIndicator && emittable.indeterminate
@@ -459,7 +459,7 @@ fun isIndeterminateLinearProgressIndicator(): GlanceNodeMatcher<MappedNode> =
  * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out matching
  * node(s) or in assertions to validate that node(s) satisfy the condition.
  */
-fun isIndeterminateCircularProgressIndicator(): GlanceNodeMatcher<MappedNode> =
+public fun isIndeterminateCircularProgressIndicator(): GlanceNodeMatcher<MappedNode> =
     GlanceNodeMatcher(description = "is an indeterminate circular progress indicator") { node ->
         node.value.emittable is EmittableCircularProgressIndicator
     }

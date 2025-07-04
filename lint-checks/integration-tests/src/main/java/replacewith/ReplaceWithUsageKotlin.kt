@@ -29,14 +29,14 @@ class ReplaceWithUsageKotlin {
 
     @Deprecated(
         message = "Use [otherBooleanProperty] instead",
-        replaceWith = ReplaceWith("otherBooleanProperty")
+        replaceWith = ReplaceWith("otherBooleanProperty"),
     )
     var someBooleanProperty: Boolean = false
 
     @get:Deprecated(message = "Use [getMethod] instead", replaceWith = ReplaceWith("getMethod"))
     @set:Deprecated(
         message = "Use [setMethod(String)] instead",
-        replaceWith = ReplaceWith("setMethod(value)")
+        replaceWith = ReplaceWith("setMethod(value)"),
     )
     var deprecatedSetGetProperty: String = "value"
 
@@ -47,7 +47,7 @@ class ReplaceWithUsageKotlin {
         }
         @Deprecated(
             message = "Use [setMethod(String)] instead",
-            replaceWith = ReplaceWith("setMethod(value)")
+            replaceWith = ReplaceWith("setMethod(value)"),
         )
         set(value) {
             otherProperty = value
@@ -55,7 +55,7 @@ class ReplaceWithUsageKotlin {
 
     @Deprecated(
         message = "Use [otherProperty] instead",
-        replaceWith = ReplaceWith("otherProperty = arg")
+        replaceWith = ReplaceWith("otherProperty = arg"),
     )
     fun setMethodDeprecated(arg: String) {
         otherProperty = arg
@@ -81,7 +81,7 @@ class ReplaceWithUsageKotlin {
      */
     @Deprecated(
         message = "Use [java.lang.StringBuffer#StringBuffer(String)] instead.",
-        replaceWith = ReplaceWith("StringBuffer(param)", "java.lang.StringBuffer")
+        replaceWith = ReplaceWith("StringBuffer(param)", "java.lang.StringBuffer"),
     )
     constructor(param: String) {
         // Stub.
@@ -94,7 +94,7 @@ class ReplaceWithUsageKotlin {
      */
     @Deprecated(
         message = "Use [ReplaceWithUsageKotlin#obtain(Int)] instead.",
-        replaceWith = ReplaceWith("ReplaceWithUsageKotlin.obtain(param)")
+        replaceWith = ReplaceWith("ReplaceWithUsageKotlin.obtain(param)"),
     )
     constructor(param: Int) {
         // Stub.
@@ -143,7 +143,7 @@ class ReplaceWithUsageKotlin {
         /** String constant. */
         @Deprecated(
             message = "Use {@link View#AUTOFILL_HINT_NAME} directly.",
-            ReplaceWith(expression = "View.AUTOFILL_HINT_NAME")
+            ReplaceWith(expression = "View.AUTOFILL_HINT_NAME"),
         )
         @JvmStatic
         val AUTOFILL_HINT_NAME = View.AUTOFILL_HINT_NAME

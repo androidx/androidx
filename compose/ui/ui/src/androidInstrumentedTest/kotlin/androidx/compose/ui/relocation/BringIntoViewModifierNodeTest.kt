@@ -435,6 +435,6 @@ private class FakeBringIntoViewModifierNode(
 ) : Modifier.Node(), BringIntoViewModifierNode {
     override suspend fun bringIntoView(
         childCoordinates: LayoutCoordinates,
-        boundsProvider: () -> Rect?
+        boundsProvider: () -> Rect?,
     ) = onBringIntoView(childCoordinates, boundsProvider)
 }

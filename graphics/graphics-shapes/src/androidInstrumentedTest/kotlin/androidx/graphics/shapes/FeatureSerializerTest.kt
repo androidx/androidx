@@ -183,9 +183,9 @@ class FeatureSerializerTest {
             Feature.Corner(
                 listOf(
                     Cubic(1f, 1f, 2f, 2f, 3f, 3f, 4f, 4f),
-                    Cubic(4f, 4f, 5f, 5f, 6f, 6f, 7f, 7f)
+                    Cubic(4f, 4f, 5f, 5f, 6f, 6f, 7f, 7f),
                 ),
-                true
+                true,
             )
 
         val actual = FeatureSerializer.parse(serialized)
@@ -200,9 +200,9 @@ class FeatureSerializerTest {
             Feature.Corner(
                 listOf(
                     Cubic(1f, 1f, 2f, 2f, 3f, 3f, 4f, 4f),
-                    Cubic(4f, 4f, 5f, 5f, 6f, 6f, 7f, 7f)
+                    Cubic(4f, 4f, 5f, 5f, 6f, 6f, 7f, 7f),
                 ),
-                false
+                false,
             )
 
         val actual = FeatureSerializer.parse(serialized)
@@ -221,9 +221,9 @@ class FeatureSerializerTest {
                     Cubic(4f, 4f, 5f, 5f, 6f, 6f, 7f, 7f),
                     Cubic(7f, 7f, 8f, 8f, 9f, 9f, 10f, 10f),
                     Cubic(10f, 10f, 11f, 11f, 12f, 12f, 13f, 13f),
-                    Cubic(13f, 13f, 14f, 14f, 15f, 15f, 16f, 16f)
+                    Cubic(13f, 13f, 14f, 14f, 15f, 15f, 16f, 16f),
                 ),
-                true
+                true,
             )
 
         val actual = FeatureSerializer.parse(serialized)
@@ -238,7 +238,7 @@ class FeatureSerializerTest {
             listOf(
                 Feature.Edge(listOf(Cubic(1f, 1f, 2f, 2f, 3f, 3f, 4f, 4f))),
                 Feature.Corner(listOf(Cubic(4f, 4f, 5f, 5f, 6f, 6f, 7f, 7f)), true),
-                Feature.Corner(listOf(Cubic(7f, 7f, 8f, 8f, 9f, 9f, 10f, 10f)), false)
+                Feature.Corner(listOf(Cubic(7f, 7f, 8f, 8f, 9f, 9f, 10f, 10f)), false),
             )
 
         val actual = FeatureSerializer.parse(serialized)

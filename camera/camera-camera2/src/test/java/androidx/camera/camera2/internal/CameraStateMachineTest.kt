@@ -79,11 +79,11 @@ internal class CameraStateMachineTest {
         runTest { stateMachine, stateObserver ->
             stateMachine.updateState(
                 CameraInternal.State.OPENING,
-                StateError.create(ERROR_CAMERA_IN_USE)
+                StateError.create(ERROR_CAMERA_IN_USE),
             )
             stateMachine.updateState(
                 CameraInternal.State.OPENING,
-                StateError.create(ERROR_CAMERA_IN_USE)
+                StateError.create(ERROR_CAMERA_IN_USE),
             )
 
             stateObserver
@@ -123,11 +123,11 @@ internal class CameraStateMachineTest {
     fun shouldEmitNewState_whenErrorChanges() = runTest { stateMachine, stateObserver ->
         stateMachine.updateState(
             CameraInternal.State.OPENING,
-            StateError.create(ERROR_CAMERA_IN_USE)
+            StateError.create(ERROR_CAMERA_IN_USE),
         )
         stateMachine.updateState(
             CameraInternal.State.OPENING,
-            StateError.create(ERROR_MAX_CAMERAS_IN_USE)
+            StateError.create(ERROR_MAX_CAMERAS_IN_USE),
         )
 
         stateObserver

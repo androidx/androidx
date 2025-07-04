@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -44,7 +44,6 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
@@ -60,8 +59,9 @@ android {
 
 androidx {
     name = "androidx.security:security-state"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.SECURITY_STATE
     inceptionYear = "2024"
     description = "obtain security state of updateable components."
+    enableRobolectric()
 }

@@ -38,6 +38,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Ignore
 import org.junit.Rule
@@ -73,7 +74,7 @@ class PdfDocumentViewSearchScenarioTest {
         pdfDocumentViewModel =
             PdfDocumentViewModel(
                 savedStateHandle,
-                FakePdfLoader(FakePdfDocument(searchResults = searchResults))
+                FakePdfLoader(FakePdfDocument(searchResults = searchResults)),
             )
     }
 
@@ -333,7 +334,7 @@ class PdfDocumentViewSearchScenarioTest {
             val updatedHighlightData = highlights.last()
             assertEquals(
                 6,
-                updatedHighlightData.currentIndex
+                updatedHighlightData.currentIndex,
             ) // it will be a 7th match, so index will be 6(0-indexed).
             val totalSearchMatches =
                 (pdfDocumentViewModel.searchViewUiState.value as SearchViewUiState.Active)
@@ -393,6 +394,59 @@ class PdfDocumentViewSearchScenarioTest {
         pdfDocumentViewModel.loadDocument(uri = Uri.parse("content://test1.pdf"), password = null)
         // Assert search is reset.
         assertTrue(pdfDocumentViewModel.searchViewUiState.value is SearchViewUiState.Closed)
+    }
+
+    @Test
+    fun test_pdfDocumentViewModel_searchRestoreFromState() = runTest {
+        val queryInState = "test"
+        val state =
+            SavedStateHandle().apply {
+                this["documentUri"] = documentUri
+                this["textSearchState"] = true
+                this["searchQuery"] = queryInState
+                this["queryResultIndex"] = 2
+                this["queryResultPageNum"] = 10
+            }
+        val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
+        val pdfDocumentViewModel =
+            PdfDocumentViewModel(state, FakePdfLoader(FakePdfDocument(searchResults = fakeResults)))
+
+        val searchStates = pdfDocumentViewModel.searchViewUiState.take(3).toList()
+        // assert initially search view is closed
+        assertTrue(searchStates.first() is SearchViewUiState.Closed)
+
+        // assert onRecreate it will first move to Init state
+        assertTrue(searchStates[1] is SearchViewUiState.Init)
+
+        // assert on complete of search operation, state is restored as per state.
+        val endState = searchStates.last() as SearchViewUiState.Active
+        assertEquals(queryInState, endState.query)
+        assertEquals(9, endState.currentMatch)
+        assertEquals(10, endState.totalMatches)
+    }
+
+    @Test
+    fun test_pdfDocumentViewModel_stateCleared_onSettingSearchInactive() = runTest {
+        val state =
+            SavedStateHandle().apply {
+                this["documentUri"] = documentUri
+                this["textSearchState"] = true
+                this["searchQuery"] = "test"
+                this["queryResultIndex"] = 2
+                this["queryResultPageNum"] = 10
+            }
+
+        val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
+        val pdfDocumentViewModel =
+            PdfDocumentViewModel(state, FakePdfLoader(FakePdfDocument(searchResults = fakeResults)))
+        // wait for document load to complete after init.
+        advanceUntilIdle()
+
+        pdfDocumentViewModel.updateSearchState(false)
+        // assert search params are cleared upon disabling search
+        assertFalse(state.contains("searchQuery"))
+        assertFalse(state.contains("queryResultIndex"))
+        assertFalse(state.contains("queryResultPageNum"))
     }
 
     companion object {

@@ -28,7 +28,7 @@ class InstantQueryResultBinderProvider(val context: Context) : QueryResultBinder
     override fun provide(
         declared: XType,
         query: ParsedQuery,
-        extras: TypeAdapterExtras
+        extras: TypeAdapterExtras,
     ): QueryResultBinder {
         return InstantQueryResultBinder(
             context.typeAdapterStore.findQueryResultAdapter(declared, query, extras)

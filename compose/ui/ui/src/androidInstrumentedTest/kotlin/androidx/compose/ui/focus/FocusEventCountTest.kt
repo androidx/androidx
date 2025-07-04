@@ -17,14 +17,19 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -438,6 +443,88 @@ class FocusEventCountTest(private val focusEventType: String) {
     }
 
     @Test
+    fun addingFocusEventsToDelegatingNodes_focusedChild_sendsCorrectFocusEvents() {
+        // Arrange
+        var addFocusEvent by mutableStateOf(false)
+        val parentFocusTargetModifierNode = FocusTargetModifierNode()
+        val parentFocusEvents = mutableListOf<FocusState>()
+        val childFocusTargetModifierNode = FocusTargetModifierNode()
+        val childFocusEvents = mutableListOf<FocusState>()
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            FocusTargetModifierNodeBox(
+                parentFocusTargetModifierNode,
+                Modifier.then(
+                    if (addFocusEvent) Modifier.onFocusEvent({ parentFocusEvents.add(it) })
+                    else Modifier
+                ),
+            ) {
+                FocusTargetModifierNodeBox(
+                    childFocusTargetModifierNode,
+                    Modifier.focusRequester(focusRequester)
+                        .then(
+                            if (addFocusEvent) Modifier.onFocusEvent({ childFocusEvents.add(it) })
+                            else Modifier
+                        ),
+                )
+            }
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Act
+        rule.runOnIdle { addFocusEvent = true }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(parentFocusTargetModifierNode.focusState).isEqualTo(ActiveParent)
+            assertThat(parentFocusEvents).containsExactly(ActiveParent)
+            assertThat(childFocusTargetModifierNode.focusState).isEqualTo(Active)
+            assertThat(childFocusEvents).containsExactly(Active)
+        }
+    }
+
+    @Test
+    fun addingFocusEventsToDelegatingNodes_focusedParent_sendsCorrectFocusEvents() {
+        // Arrange
+        var addFocusEvent by mutableStateOf(false)
+        val parentFocusTargetModifierNode = FocusTargetModifierNode()
+        val parentFocusEvents = mutableListOf<FocusState>()
+        val childFocusTargetModifierNode = FocusTargetModifierNode()
+        val childFocusEvents = mutableListOf<FocusState>()
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent {
+            FocusTargetModifierNodeBox(
+                parentFocusTargetModifierNode,
+                Modifier.focusRequester(focusRequester)
+                    .then(
+                        if (addFocusEvent) Modifier.onFocusEvent({ parentFocusEvents.add(it) })
+                        else Modifier
+                    ),
+            ) {
+                FocusTargetModifierNodeBox(
+                    childFocusTargetModifierNode,
+                    Modifier.then(
+                        if (addFocusEvent) Modifier.onFocusEvent({ childFocusEvents.add(it) })
+                        else Modifier
+                    ),
+                )
+            }
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        // Act
+        rule.runOnIdle { addFocusEvent = true }
+
+        // Assert
+        rule.runOnIdle {
+            assertThat(parentFocusTargetModifierNode.focusState).isEqualTo(Active)
+            assertThat(parentFocusEvents).containsExactly(Active)
+            assertThat(childFocusTargetModifierNode.focusState).isEqualTo(Inactive)
+            assertThat(childFocusEvents).containsExactly(Inactive)
+        }
+    }
+
+    @Test
     fun addingEmptyFocusProperties_onFocusEventIsTriggered() {
         // Arrange.
         val focusStates = mutableListOf<FocusState>()
@@ -657,4 +744,20 @@ class FocusEventCountTest(private val focusEventType: String) {
         // Assert.
         rule.runOnIdle { assertThat(focusStates).isEmpty() }
     }
+}
+
+@Composable
+private fun FocusTargetModifierNodeBox(
+    focusTargetModifierNode: FocusTargetModifierNode,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit = {},
+) {
+    val node = remember {
+        object : DelegatingNode() {
+            init {
+                delegate(focusTargetModifierNode)
+            }
+        }
+    }
+    Box(modifier.elementFor(node), content = content)
 }

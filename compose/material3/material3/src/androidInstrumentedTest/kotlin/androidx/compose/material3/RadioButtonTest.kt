@@ -71,7 +71,7 @@ class RadioButtonTest {
                     RadioButton(
                         modifier = Modifier.testTag(item),
                         selected = (selected.value == item),
-                        onClick = { selected.value = item }
+                        onClick = { selected.value = item },
                     )
                 }
             }
@@ -101,7 +101,7 @@ class RadioButtonTest {
                     RadioButton(
                         modifier = Modifier.testTag(item),
                         selected = (selected.value == item),
-                        onClick = { selected.value = item }
+                        onClick = { selected.value = item },
                     )
                 }
             }
@@ -127,7 +127,7 @@ class RadioButtonTest {
                     RadioButton(
                         modifier = Modifier.testTag(item),
                         selected = (selected.value == item),
-                        onClick = { selected.value = item }
+                        onClick = { selected.value = item },
                     )
                 }
             }
@@ -151,7 +151,7 @@ class RadioButtonTest {
                 RadioButton(
                     selected = true,
                     onClick = null,
-                    modifier = Modifier.semantics { focused = true }
+                    modifier = Modifier.semantics { focused = true },
                 )
             }
         }
@@ -173,7 +173,7 @@ class RadioButtonTest {
                     RadioButton(
                         modifier = Modifier.testTag(item),
                         selected = (selected.value == item),
-                        onClick = { selected.value = item }
+                        onClick = { selected.value = item },
                     )
                 }
             }
@@ -242,7 +242,7 @@ class RadioButtonTest {
     private fun materialSizesTestForValue(
         selected: Boolean,
         clickable: Boolean,
-        minimumTouchTarget: Boolean
+        minimumTouchTarget: Boolean,
     ) {
         rule
             .setMaterialContentForSizeAssertions {
@@ -255,7 +255,7 @@ class RadioButtonTest {
                         onClick =
                             if (clickable) {
                                 {}
-                            } else null
+                            } else null,
                     )
                 }
             }

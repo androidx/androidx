@@ -83,7 +83,7 @@ fun SettingsScreen(isLoading: Boolean, switchesOn: Boolean) {
         SettingsScreenContent(
             isLoading = isLoading,
             switchesOn = switchesOn,
-            openWebsiteLink = { url -> Log.d("IO", "Open $url") }
+            openWebsiteLink = { url -> Log.d("IO", "Open $url") },
         )
     }
 }
@@ -92,7 +92,7 @@ fun SettingsScreen(isLoading: Boolean, switchesOn: Boolean) {
 private fun SettingsScreenContent(
     isLoading: Boolean,
     switchesOn: Boolean,
-    openWebsiteLink: (String) -> Unit
+    openWebsiteLink: (String) -> Unit,
 ) {
     if (isLoading) {
         Box(Modifier.fillMaxWidth()) {}
@@ -117,19 +117,19 @@ private fun ColumnScope.SettingsSection(switchesOn: Boolean) {
         text = stringResource(R.string.io_settings_time_zone_label),
         checked = switchesOn,
         onCheck = { Log.d("IO", "timezoneCheck") },
-        modifier = switchModifier
+        modifier = switchModifier,
     )
     SwitchSetting(
         text = stringResource(R.string.io_settings_enable_notifications),
         checked = switchesOn,
         onCheck = { Log.d("IO", "notifCheck") },
-        modifier = switchModifier
+        modifier = switchModifier,
     )
     SwitchSetting(
         text = stringResource(R.string.io_settings_send_anonymous_usage_statistics),
         checked = switchesOn,
         onCheck = { Log.d("IO", "usageCheck") },
-        modifier = switchModifier
+        modifier = switchModifier,
     )
 }
 
@@ -142,7 +142,7 @@ private fun AboutSection(openWebsiteLink: (String) -> Unit) {
         style = MaterialTheme.typography.body2,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
-        modifier = Modifier.padding(marginNormal)
+        modifier = Modifier.padding(marginNormal),
     )
 
     val tosUrl = stringResource(R.string.io_tos_url)
@@ -153,7 +153,7 @@ private fun AboutSection(openWebsiteLink: (String) -> Unit) {
     val privacyPolicyUrl = stringResource(R.string.io_privacy_policy_url)
     TextButton(
         modifier = Modifier.padding(marginSmall),
-        onClick = { openWebsiteLink(privacyPolicyUrl) }
+        onClick = { openWebsiteLink(privacyPolicyUrl) },
     ) {
         LinkText(stringResource(R.string.io_settings_privacy_policy))
     }
@@ -179,18 +179,18 @@ private fun SwitchSetting(
     text: String,
     checked: Boolean,
     onCheck: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(modifier) {
         Text(
             text = text,
             modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.body2,
         )
         Switch(
             checked = checked,
             onCheckedChange = onCheck,
-            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.primary)
+            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colors.primary),
         )
     }
 }

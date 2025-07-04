@@ -62,9 +62,7 @@ public fun ApproachLayoutSample0() {
                 .animateBounds(this@LookaheadScope)
                 .clickable { fullWidth = !fullWidth }
         ) {
-            Box(
-                Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)),
-            )
+            Box(Modifier.weight(1f).fillMaxHeight().background(Color(0xffff6f69)))
             Box(Modifier.weight(2f).fillMaxHeight().background(Color(0xffffcc5c)))
         }
     }

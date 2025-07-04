@@ -95,9 +95,9 @@ class ParagraphIntrinsicIntegrationTest {
                             Range(
                                 item = SpanStyle(fontSize = styledFontSize),
                                 start = "a ".length,
-                                end = "a bb ".length
+                                end = "a bb ".length,
                             )
-                        )
+                        ),
                 )
 
             // since "bb " is double font size, the whole width should be the text size, and the
@@ -171,9 +171,9 @@ class ParagraphIntrinsicIntegrationTest {
                             Range(
                                 item = SpanStyle(fontSize = styledFontSize),
                                 start = "a".length,
-                                end = "a bb ".length
+                                end = "a bb ".length,
                             )
-                        )
+                        ),
                 )
 
             val expectedWidth = "bb ".length * styledFontSize.toPx()
@@ -185,7 +185,7 @@ class ParagraphIntrinsicIntegrationTest {
         text: String = "",
         style: TextStyle? = null,
         fontSize: TextUnit = 14.sp,
-        spanStyles: List<Range<SpanStyle>> = listOf()
+        spanStyles: List<Range<SpanStyle>> = listOf(),
     ): ParagraphIntrinsics {
         return ParagraphIntrinsics(
             text = text,
@@ -193,7 +193,7 @@ class ParagraphIntrinsicIntegrationTest {
             annotations = spanStyles,
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
-            placeholders = listOf()
+            placeholders = listOf(),
         )
     }
 }

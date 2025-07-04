@@ -67,12 +67,12 @@ object MathUtils {
         rangeMax: Float,
         valueMin: Float,
         valueMax: Float,
-        value: Float
+        value: Float,
     ): Float {
         return lerp(
             rangeMin,
             rangeMax,
-            Math.max(0f, Math.min(1f, lerpInv(valueMin, valueMax, value)))
+            Math.max(0f, Math.min(1f, lerpInv(valueMin, valueMax, value))),
         )
     }
 }

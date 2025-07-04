@@ -61,45 +61,63 @@ import androidx.health.connect.client.units.Mass
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
+private const val BUCKET_DATA_ORIGINS_EXTENSION_VERSION = 10
+
 fun AggregateRecordsResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
-    buildAggregationResult(
-        metrics,
-        ::get,
-        ::getDataOrigins,
-    )
+    buildAggregationResult(metrics, ::get, ::getDataOrigins)
 
 fun AggregateRecordsGroupedByDurationResponse<Any>.toSdkResponse(
     metrics: Set<AggregateMetric<Any>>
-) =
-    AggregationResultGroupedByDuration(
-        buildAggregationResult(metrics, ::get),
+): AggregationResultGroupedByDuration {
+    val platformDataOriginsGetter: (AggregationType<Any>) -> Set<PlatformDataOrigin> =
+        if (
+            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
+                BUCKET_DATA_ORIGINS_EXTENSION_VERSION
+        ) {
+            ::getDataOrigins
+        } else {
+            { emptySet() }
+        }
+    return AggregationResultGroupedByDuration(
+        buildAggregationResult(metrics, ::get, platformDataOriginsGetter),
         startTime,
         endTime,
-        getZoneOffset(metrics.first().toAggregationType())
-            ?: ZoneOffset.systemDefault().rules.getOffset(startTime)
+        metrics.firstNotNullOfOrNull { getZoneOffset(it.toAggregationType()) }
+            ?: ZoneOffset.systemDefault().rules.getOffset(startTime),
+        shouldSkipValidation = true,
     )
+}
 
 fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(metrics: Set<AggregateMetric<Any>>) =
-    AggregationResultGroupedByPeriod(buildAggregationResult(metrics, ::get), startTime, endTime)
+    toSdkResponse(metrics, startTime, endTime)
 
 fun AggregateRecordsGroupedByPeriodResponse<Any>.toSdkResponse(
     metrics: Set<AggregateMetric<Any>>,
     bucketStartTime: LocalDateTime,
-    bucketEndTime: LocalDateTime
-) =
-    AggregationResultGroupedByPeriod(
-        buildAggregationResult(metrics, ::get),
+    bucketEndTime: LocalDateTime,
+): AggregationResultGroupedByPeriod {
+    val platformDataOriginsGetter: (AggregationType<Any>) -> Set<PlatformDataOrigin> =
+        if (
+            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
+                BUCKET_DATA_ORIGINS_EXTENSION_VERSION
+        ) {
+            ::getDataOrigins
+        } else {
+            { emptySet() }
+        }
+    return AggregationResultGroupedByPeriod(
+        buildAggregationResult(metrics, ::get, platformDataOriginsGetter),
         bucketStartTime,
-        bucketEndTime
+        bucketEndTime,
+        shouldSkipValidation = true,
     )
+}
 
 @VisibleForTesting
 internal fun buildAggregationResult(
     metrics: Set<AggregateMetric<Any>>,
     aggregationValueGetter: (AggregationType<Any>) -> Any?,
-    platformDataOriginsGetter: (AggregationType<Any>) -> Set<PlatformDataOrigin> = { _ ->
-        emptySet()
-    }
+    platformDataOriginsGetter: (AggregationType<Any>) -> Set<PlatformDataOrigin>,
 ): AggregationResult {
     val metricValueMap = buildMap {
         metrics.forEach { metric ->
@@ -111,7 +129,7 @@ internal fun buildAggregationResult(
         getDoubleMetricValues(metricValueMap),
         metrics.flatMapTo(hashSetOf()) { metric ->
             platformDataOriginsGetter(metric.toAggregationType()).map { it.toSdkDataOrigin() }
-        }
+        },
     )
 }
 

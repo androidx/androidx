@@ -21,9 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.xr.compose.unit.Meter
-import androidx.xr.compose.unit.Meter.Companion.meters
+import androidx.xr.compose.unit.toMeter
 import androidx.xr.runtime.math.Pose
 
 /** Calculate a [Pose] in 3D space based on the relative offset within the 2D space of a Panel. */
@@ -32,15 +34,25 @@ internal fun rememberCalculatePose(
     contentOffset: Offset,
     parentViewSize: IntSize,
     contentSize: IntSize,
-    zDepth: Float = 0f,
+    zDepth: Dp = 0.dp,
 ): Pose {
     val density = LocalDensity.current
     return remember(contentOffset, parentViewSize, contentSize, zDepth) {
-        val meterPosition =
-            contentOffset.toMeterPosition(parentViewSize, contentSize, density) +
-                MeterPosition(z = zDepth.meters)
-        Pose(translation = meterPosition.toVector3())
+        calculatePose(contentOffset, parentViewSize, contentSize, density, zDepth)
     }
+}
+
+internal fun calculatePose(
+    contentOffset: Offset,
+    parentViewSize: IntSize,
+    contentSize: IntSize,
+    density: Density,
+    zDepth: Dp = 0.dp,
+): Pose {
+    val meterPosition =
+        contentOffset.toMeterPosition(parentViewSize, contentSize, density) +
+            MeterPosition(z = zDepth.toMeter())
+    return Pose(translation = meterPosition.toVector3())
 }
 
 /**

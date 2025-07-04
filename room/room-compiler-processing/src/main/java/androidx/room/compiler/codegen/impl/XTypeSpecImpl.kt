@@ -28,10 +28,8 @@ import androidx.room.compiler.codegen.java.JavaTypeSpec
 import androidx.room.compiler.codegen.kotlin.KotlinTypeSpec
 import androidx.room.compiler.processing.XElement
 
-internal class XTypeSpecImpl(
-    val java: JavaTypeSpec,
-    val kotlin: KotlinTypeSpec,
-) : XSpec(), XTypeSpec {
+internal class XTypeSpecImpl(override val java: JavaTypeSpec, override val kotlin: KotlinTypeSpec) :
+    ImplSpec<JavaTypeSpec, KotlinTypeSpec>(), XTypeSpec {
     override val name by lazy {
         if (java.name == null || kotlin.name == null) {
             check(java.name == null && kotlin.name == null) {
@@ -42,10 +40,10 @@ internal class XTypeSpecImpl(
         XName(java.name.java, kotlin.name.kotlin)
     }
 
-    internal class Builder(
-        val java: JavaTypeSpec.Builder,
-        val kotlin: KotlinTypeSpec.Builder,
-    ) : XSpec.Builder(), XTypeSpec.Builder {
+    override fun toBuilder() = Builder(java.toBuilder(), kotlin.toBuilder())
+
+    internal class Builder(val java: JavaTypeSpec.Builder, val kotlin: KotlinTypeSpec.Builder) :
+        XSpec.Builder(), XTypeSpec.Builder {
         private val delegates: List<XTypeSpec.Builder> = listOf(java, kotlin)
 
         override fun superclass(typeName: XTypeName) = apply {

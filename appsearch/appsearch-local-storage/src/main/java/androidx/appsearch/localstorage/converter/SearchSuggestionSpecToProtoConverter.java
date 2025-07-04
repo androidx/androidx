@@ -17,6 +17,7 @@
 package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.FeatureConstants;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.localstorage.NamespaceCache;
 import androidx.appsearch.localstorage.SchemaCache;
@@ -30,6 +31,7 @@ import com.google.android.icing.proto.TypePropertyMask;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,8 +108,21 @@ public final class SearchSuggestionSpecToProtoConverter {
                 .setPrefix(mSuggestionQueryExpression)
                 .addAllNamespaceFilters(mTargetPrefixedNamespaceFilters)
                 .addAllSchemaTypeFilters(mTargetPrefixedSchemaFilters)
-                .setNumToReturn(mSearchSuggestionSpec.getMaximumResultCount())
-                .addAllQueryParameterStrings(mSearchSuggestionSpec.getSearchStringParameters());
+                .setNumToReturn(mSearchSuggestionSpec.getMaximumResultCount());
+
+        if (!mSearchSuggestionSpec.getSearchStringParameters().isEmpty()) {
+            protoBuilder.addAllQueryParameterStrings(
+                    mSearchSuggestionSpec.getSearchStringParameters());
+            // When the SearchSuggestions api first launched, it did not include the various "set
+            // feature enabled" apis that {@link SearchSpec} has.
+            //
+            // Search string parameters necessarily invokes the LIST_FILTER_QUERY_LANGUAGE feature
+            // because they are referenced in the query expression through a function call.
+            // To avoid errors about using un-enabled query features, we add it here. This is safe
+            // to do because search string parameters were added after the
+            // LIST_FILTER_QUERY_LANGUAGE.
+            protoBuilder.addEnabledFeatures(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE);
+        }
 
         // Convert type property filter map into type property mask proto.
         for (Map.Entry<String, List<String>> entry :

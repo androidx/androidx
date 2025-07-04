@@ -17,22 +17,17 @@
 package androidx.compose.ui.inspection
 
 import android.view.inspector.WindowInspector
-import androidx.compose.ui.inspection.inspector.InspectorNode
-import androidx.compose.ui.inspection.inspector.MutableInspectorNode
 import androidx.compose.ui.inspection.rules.JvmtiRule
 import androidx.compose.ui.inspection.rules.sendCommand
 import androidx.compose.ui.inspection.testdata.BoxWithConstraintsDialogTestActivity
 import androidx.compose.ui.inspection.util.GetComposablesCommand
 import androidx.compose.ui.inspection.util.GetUpdateSettingsCommand
-import androidx.compose.ui.inspection.util.toMap
+import androidx.compose.ui.inspection.util.roots
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.unit.IntRect
 import androidx.inspection.testing.InspectorTester
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesResponse
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -87,25 +82,5 @@ class BoxWithConstraintsDialogTest {
         assertThat(button.name).isEqualTo("Button")
         val buttonText = button.children.single()
         assertThat(buttonText.name).isEqualTo("Text")
-    }
-
-    private fun GetComposablesResponse.roots(): List<InspectorNode> {
-        val strings = stringsList.toMap()
-        return rootsList.flatMap { it.nodesList.convert(strings) }
-    }
-
-    private fun List<ComposableNode>.convert(strings: Map<Int, String>): List<InspectorNode> = map {
-        val node = MutableInspectorNode()
-        node.name = strings[it.name] ?: ""
-        node.box =
-            IntRect(
-                it.bounds.layout.x,
-                it.bounds.layout.y,
-                it.bounds.layout.x + it.bounds.layout.w,
-                it.bounds.layout.y + it.bounds.layout.h
-            )
-        node.children.addAll(it.childrenList.convert(strings))
-        node.inlined = (it.flags and ComposableNode.Flags.INLINED_VALUE) != 0
-        node.build()
     }
 }

@@ -92,7 +92,7 @@ internal object EmptyCanvas : Canvas {
         bottom: Float,
         radiusX: Float,
         radiusY: Float,
-        paint: Paint
+        paint: Paint,
     ) {
         throw UnsupportedOperationException()
     }
@@ -113,7 +113,7 @@ internal object EmptyCanvas : Canvas {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        paint: Paint
+        paint: Paint,
     ) {
         throw UnsupportedOperationException()
     }
@@ -132,7 +132,7 @@ internal object EmptyCanvas : Canvas {
         srcSize: IntSize,
         dstOffset: IntOffset,
         dstSize: IntSize,
-        paint: Paint
+        paint: Paint,
     ) {
         throw UnsupportedOperationException()
     }

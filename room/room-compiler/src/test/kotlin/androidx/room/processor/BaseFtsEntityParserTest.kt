@@ -18,7 +18,7 @@ package androidx.room.processor
 
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.testing.context
 import androidx.room.vo.FtsEntity
 import java.io.File
@@ -45,7 +45,7 @@ abstract class BaseFtsEntityParserTest {
         baseClass: String = "",
         sources: List<Source> = emptyList(),
         classpath: List<File> = emptyList(),
-        handler: (FtsEntity, XTestInvocation) -> Unit
+        handler: (FtsEntity, XTestInvocation) -> Unit,
     ) {
         val ftsVersion = getFtsVersion().toString()
         val entityAttributesReplacement =
@@ -73,11 +73,10 @@ abstract class BaseFtsEntityParserTest {
                     entityAttributesReplacement,
                     ftsVersion,
                     ftsAttributesReplacement,
-                    baseClassReplacement
-                ) + input + ENTITY_SUFFIX
+                    baseClassReplacement,
+                ) + input + ENTITY_SUFFIX,
             )
-        runProcessorTestWithK1(sources = sources + entitySource, classpath = classpath) { invocation
-            ->
+        runProcessorTest(sources = sources + entitySource, classpath = classpath) { invocation ->
             val entity = invocation.processingEnv.requireTypeElement("foo.bar.MyEntity")
             val processor = FtsTableEntityProcessor(invocation.context, entity)
             val processedEntity = processor.process()

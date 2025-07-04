@@ -68,7 +68,7 @@ fun AnimateBoundsModifierDemo() {
                     Modifier.background(Color.Gray)
                         .animateBounds(
                             this@LookaheadScope,
-                            Modifier.padding(left.dp, top.dp, right.dp, bottom.dp)
+                            Modifier.padding(left.dp, top.dp, right.dp, bottom.dp),
                         )
                         .background(Color.Red)
                         .fillMaxSize()
@@ -78,14 +78,14 @@ fun AnimateBoundsModifierDemo() {
                 Box(
                     Modifier.animateBounds(
                             this@LookaheadScope,
-                            Modifier.weight(weight).height(height.dp)
+                            Modifier.weight(weight).height(height.dp),
                         )
                         .background(Color(0xffa2d2ff), RoundedCornerShape(5.dp))
                 )
                 Box(
                     Modifier.animateBounds(
                             this@LookaheadScope,
-                            Modifier.weight(1f).height(height.dp)
+                            Modifier.weight(1f).height(height.dp),
                         )
                         .background(Color(0xfffff3b0))
                 )

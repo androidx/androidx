@@ -60,7 +60,7 @@ private class IconTestCase(private val type: IconType) : LayeredComposeTestCase(
                 Icon(
                     rememberVectorPainter(image = Icons.Filled.Lock),
                     contentDescription = null,
-                    tint = { Color.Blue }
+                    tint = { Color.Blue },
                 )
         }
     }
@@ -73,5 +73,5 @@ private class IconTestCase(private val type: IconType) : LayeredComposeTestCase(
 
 enum class IconType {
     FilledIcon,
-    FilledTintedIcon
+    FilledTintedIcon,
 }

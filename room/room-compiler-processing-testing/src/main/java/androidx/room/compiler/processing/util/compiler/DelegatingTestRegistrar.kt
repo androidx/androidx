@@ -50,7 +50,7 @@ object DelegatingTestRegistrar {
         @Suppress("DEPRECATION") org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar {
         override fun registerProjectComponents(
             project: MockProject,
-            configuration: CompilerConfiguration
+            configuration: CompilerConfiguration,
         ) {
             k1Delegates.get()?.forEach { it.registerProjectComponents(project, configuration) }
         }
@@ -115,7 +115,7 @@ object DelegatingTestRegistrar {
                 .find { resourcesPath ->
                     ServiceLoaderLite.findImplementations(
                             registrarClassToLoad.java,
-                            listOf(resourcesPath.toFile())
+                            listOf(resourcesPath.toFile()),
                         )
                         .any { implementation ->
                             implementation == expectedRegistrarClass.java.name
@@ -137,7 +137,7 @@ object DelegatingTestRegistrar {
         compiler: K2JVMCompiler,
         messageCollector: MessageCollector,
         arguments: K2JVMCompilerArguments,
-        registrars: PluginRegistrarArguments
+        registrars: PluginRegistrarArguments,
     ): ExitCode {
         try {
             k1Delegates.set(registrars.k1Registrars)
@@ -146,7 +146,7 @@ object DelegatingTestRegistrar {
             return compiler.exec(
                 messageCollector = messageCollector,
                 services = Services.EMPTY,
-                arguments = arguments
+                arguments = arguments,
             )
         } finally {
             k1Delegates.remove()

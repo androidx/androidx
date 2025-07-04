@@ -53,17 +53,17 @@ fun NestedMenuDemo() {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
             Modifier.padding(20.dp).fillMaxWidth(0.6f),
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.SpaceAround,
         ) {
             Button(
                 onClick = { nestedMenuState = nestedMenuState.previous() },
-                enabled = nestedMenuState != NestedMenuState.Level1
+                enabled = nestedMenuState != NestedMenuState.Level1,
             ) {
                 Text("Previous")
             }
             Button(
                 onClick = { nestedMenuState = nestedMenuState.next() },
-                enabled = nestedMenuState != NestedMenuState.Level3
+                enabled = nestedMenuState != NestedMenuState.Level3,
             ) {
                 Text("Next")
             }
@@ -80,7 +80,7 @@ fun NestedMenuDemo() {
                         // Going from child menu to parent menu, slide towards right
                         slideIntoContainer(
                             towards = SlideDirection.Right,
-                            initialOffset = { offsetForFullSlide -> offsetForFullSlide / 2 }
+                            initialOffset = { offsetForFullSlide -> offsetForFullSlide / 2 },
                         ) togetherWith slideOutOfContainer(towards = SlideDirection.Right)
                     }
                     .apply {
@@ -91,7 +91,7 @@ fun NestedMenuDemo() {
                                 NestedMenuState.Level3 -> 3f
                             }
                     }
-            }
+            },
         ) {
             when (it) {
                 NestedMenuState.Level1 -> MenuLevel1()
@@ -105,7 +105,7 @@ fun NestedMenuDemo() {
 private enum class NestedMenuState {
     Level1,
     Level2,
-    Level3
+    Level3,
 }
 
 private fun NestedMenuState.next(): NestedMenuState =

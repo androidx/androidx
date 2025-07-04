@@ -10,14 +10,10 @@ import androidx.health.services.client.proto.DataProto
 public class BatchingMode
 internal constructor(
     /** Unique identifier for the [BatchingMode], as an `int`. */
-    internal val id: Int,
+    internal val id: Int
 ) {
 
-    internal constructor(
-        proto: DataProto.BatchingMode
-    ) : this(
-        proto.number,
-    )
+    internal constructor(proto: DataProto.BatchingMode) : this(proto.number)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -40,7 +40,10 @@ import androidx.compose.runtime.internal.identityHashCode
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck
 import androidx.compose.runtime.snapshots.fastForEachIndexed
-import androidx.compose.runtime.withAfterAnchorInfo
+import androidx.compose.runtime.tooling.ComposeStackTraceFrame
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.attachComposeStackTrace
+import androidx.compose.runtime.tooling.buildTrace
 import kotlin.jvm.JvmInline
 
 internal typealias IntParameter = Int
@@ -49,10 +52,24 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
     val name: String
         get() = this::class.simpleName.orEmpty()
 
-    abstract fun OperationArgContainer.execute(
+    fun OperationArgContainer.executeWithComposeStackTrace(
         applier: Applier<*>,
         slots: SlotWriter,
-        rememberManager: RememberManager
+        rememberManager: RememberManager,
+        errorContext: OperationErrorContext?,
+    ) {
+        withCurrentStackTrace(errorContext, slots, getGroupAnchor(slots)) {
+            execute(applier, slots, rememberManager, errorContext)
+        }
+    }
+
+    protected open fun OperationArgContainer.getGroupAnchor(slots: SlotWriter): Anchor? = null
+
+    protected abstract fun OperationArgContainer.execute(
+        applier: Applier<*>,
+        slots: SlotWriter,
+        rememberManager: RememberManager,
+        errorContext: OperationErrorContext?,
     )
 
     open fun intParamName(parameter: IntParameter): String = "IntParameter(${parameter})"
@@ -78,7 +95,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             repeat(getInt(Count)) { applier.up() }
         }
@@ -97,7 +115,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             @Suppress("UNCHECKED_CAST") val nodeApplier = applier as Applier<Any?>
             val nodes = getObject(Nodes)
@@ -120,7 +139,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.advanceBy(getInt(Distance))
         }
@@ -142,7 +162,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             rememberManager.sideEffect(getObject(Effect))
         }
@@ -161,7 +182,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             rememberManager.remembering(getObject(Value))
         }
@@ -180,7 +202,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val scope = getObject(Scope)
             rememberManager.rememberPausingScope(scope)
@@ -200,7 +223,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val scope = getObject(Scope)
             rememberManager.startResumingScope(scope)
@@ -220,7 +244,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val scope = getObject(Scope)
             rememberManager.endResumingScope(scope)
@@ -244,7 +269,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val anchor = getObject(Anchor)
             val value = getObject(Value)
@@ -268,24 +294,14 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val count = getInt(Count)
-            val slotsSize = slots.slotsSize
             slots.forEachTailSlot(slots.parent, count) { slotIndex, value ->
                 when (value) {
                     is RememberObserverHolder -> {
-                        // Values are always updated in the composition order (not slot table order)
-                        // so there is no need to reorder these.
-                        val endRelativeOrder = slotsSize - slotIndex
-                        slots.withAfterAnchorInfo(value.after) { priority, endRelativeAfter ->
-                            rememberManager.forgetting(
-                                instance = value,
-                                endRelativeOrder = endRelativeOrder,
-                                priority = priority,
-                                endRelativeAfter = endRelativeAfter
-                            )
-                        }
+                        rememberManager.forgetting(instance = value)
                     }
                     is RecomposeScopeImpl -> value.release()
                 }
@@ -316,7 +332,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val value = getObject(Value)
             val groupSlotIndex = getInt(GroupSlotIndex)
@@ -325,12 +342,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             }
             when (val previous = slots.set(groupSlotIndex, value)) {
                 is RememberObserverHolder -> {
-                    val endRelativeOrder =
-                        slots.slotsSize -
-                            slots.slotIndexOfGroupSlotIndex(slots.currentGroup, groupSlotIndex)
-                    // Values are always updated in the composition order (not slot table order)
-                    // so there is no need to reorder these.
-                    rememberManager.forgetting(previous, endRelativeOrder, -1, -1)
+                    rememberManager.forgetting(previous)
                 }
                 is RecomposeScopeImpl -> previous.release()
             }
@@ -363,7 +375,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val value = getObject(Value)
             val anchor = getObject(Anchor)
@@ -374,17 +387,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             val groupIndex = slots.anchorIndex(anchor)
             when (val previous = slots.set(groupIndex, groupSlotIndex, value)) {
                 is RememberObserverHolder -> {
-                    val endRelativeSlotOrder =
-                        slots.slotsSize -
-                            slots.slotIndexOfGroupSlotIndex(groupIndex, groupSlotIndex)
-                    slots.withAfterAnchorInfo(previous.after) { priority, endRelativeAfter ->
-                        rememberManager.forgetting(
-                            previous,
-                            endRelativeSlotOrder,
-                            priority,
-                            endRelativeAfter
-                        )
-                    }
+                    rememberManager.forgetting(previous)
                 }
                 is RecomposeScopeImpl -> previous.release()
             }
@@ -407,7 +410,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.updateAux(getObject(Data))
         }
@@ -417,7 +421,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.ensureStarted(0)
         }
@@ -436,7 +441,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.ensureStarted(getObject(Anchor))
         }
@@ -446,7 +452,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.removeCurrentGroup(rememberManager)
         }
@@ -465,7 +472,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.moveGroup(getInt(Offset))
         }
@@ -475,7 +483,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.endGroup()
         }
@@ -485,7 +494,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.skipToGroupEnd()
         }
@@ -508,7 +518,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val action = getObject(Action)
             val composition = getObject(Composition)
@@ -521,7 +532,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             applier.reuse()
         }
@@ -544,7 +556,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val value = getObject(Value)
             val block = getObject(Block)
@@ -569,7 +582,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             applier.remove(index = getInt(RemoveIndex), count = getInt(Count))
         }
@@ -596,7 +610,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             applier.move(from = getInt(From), to = getInt(To), count = getInt(Count))
         }
@@ -619,7 +634,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val insertTable = getObject(FromSlotTable)
             val anchor = getObject(Anchor)
@@ -628,7 +644,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             slots.moveFrom(
                 table = insertTable,
                 index = anchor.toIndexFor(insertTable),
-                removeSourceGroup = false
+                removeSourceGroup = false,
             )
             slots.endInsert()
         }
@@ -655,20 +671,26 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val insertTable = getObject(FromSlotTable)
             val anchor = getObject(Anchor)
             val fixups = getObject(Fixups)
 
             insertTable.write { writer ->
-                fixups.executeAndFlushAllPendingFixups(applier, writer, rememberManager)
+                fixups.executeAndFlushAllPendingFixups(
+                    applier,
+                    writer,
+                    rememberManager,
+                    errorContext?.withCurrentStackTrace(slots),
+                )
             }
             slots.beginInsert()
             slots.moveFrom(
                 table = insertTable,
                 index = anchor.toIndexFor(insertTable),
-                removeSourceGroup = false
+                removeSourceGroup = false,
             )
             slots.endInsert()
         }
@@ -697,10 +719,14 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
                 else -> super.objectParamName(parameter)
             }
 
+        override fun OperationArgContainer.getGroupAnchor(slots: SlotWriter): Anchor? =
+            getObject(GroupAnchor)
+
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val node = getObject(Factory).invoke()
             val groupAnchor = getObject(GroupAnchor)
@@ -732,10 +758,14 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
                 else -> super.objectParamName(parameter)
             }
 
+        override fun OperationArgContainer.getGroupAnchor(slots: SlotWriter): Anchor? =
+            getObject(GroupAnchor)
+
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val groupAnchor = getObject(GroupAnchor)
             val insertIndex = getInt(InsertIndex)
@@ -751,7 +781,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.deactivateCurrentGroup(rememberManager)
         }
@@ -764,7 +795,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             slots.reset()
         }
@@ -787,7 +819,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val effectiveNodeIndexOut = getObject(EffectiveNodeIndexOut)
 
@@ -795,7 +828,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
                 positionToInsert(
                     slots = slots,
                     anchor = getObject(Anchor),
-                    applier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>)
+                    applier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>),
                 )
         }
     }
@@ -819,7 +852,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val effectiveNodeIndex = getObject(EffectiveNodeIndex).element
             val nodesToInsert = getObject(Nodes)
@@ -858,7 +892,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val from = getObject(From)
             val to = getObject(To)
@@ -881,7 +916,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             RecomposeScopeImpl.adoptAnchoredScopes(
                 slots = slots,
                 anchors = anchors,
-                newOwner = to.composition as RecomposeScopeOwner
+                newOwner = to.composition as RecomposeScopeOwner,
             )
         }
     }
@@ -890,12 +925,13 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             positionToParentOf(
                 slots = slots,
                 applier = @Suppress("UNCHECKED_CAST") (applier as Applier<Any?>),
-                index = 0
+                index = 0,
             )
             slots.endGroup()
         }
@@ -923,7 +959,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val composition = getObject(Composition)
             val reference = getObject(Reference)
@@ -956,7 +993,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ) {
             val effectiveNodeIndex = getObject(EffectiveNodeIndex)?.element ?: 0
 
@@ -969,7 +1007,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
                             applier
                         },
                     slots = slots,
-                    rememberManager = rememberManager
+                    rememberManager = rememberManager,
+                    errorContext = errorContext?.withCurrentStackTrace(slots),
                 )
         }
     }
@@ -986,7 +1025,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
     constructor(
         ints: Int = 0,
         objects: Int = 0,
-        val block: (Applier<*>, SlotWriter, RememberManager) -> Unit = { _, _, _ -> }
+        val block: (Applier<*>, SlotWriter, RememberManager) -> Unit = { _, _, _ -> },
     ) : Operation(ints, objects) {
         @Suppress("PrimitiveInCollection") val intParams = List(ints) { it }
         val objParams = List(objects) { index -> ObjectParameter<Any?>(index) }
@@ -994,7 +1033,8 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         override fun OperationArgContainer.execute(
             applier: Applier<*>,
             slots: SlotWriter,
-            rememberManager: RememberManager
+            rememberManager: RememberManager,
+            errorContext: OperationErrorContext?,
         ): Unit = block(applier, slots, rememberManager)
 
         override fun toString() =
@@ -1053,4 +1093,58 @@ private fun positionToInsert(slots: SlotWriter, anchor: Anchor, applier: Applier
 
     runtimeCheck(slots.currentGroup == destination)
     return nodeIndex
+}
+
+private inline fun withCurrentStackTrace(
+    errorContext: OperationErrorContext?,
+    writer: SlotWriter,
+    location: Anchor?,
+    block: () -> Unit,
+) {
+    try {
+        block()
+    } catch (e: Throwable) {
+        throw e.attachComposeStackTrace(errorContext, writer, location)
+    }
+}
+
+@OptIn(ComposeToolingApi::class)
+private fun Throwable.attachComposeStackTrace(
+    errorContext: OperationErrorContext?,
+    writer: SlotWriter,
+    anchor: Anchor?,
+): Throwable {
+    if (errorContext == null) return this
+    return attachComposeStackTrace {
+        if (anchor != null) {
+            writer.seek(anchor)
+        }
+        val trace = writer.buildTrace()
+        val offset = trace.lastOrNull()?.groupOffset
+        val parentTrace =
+            errorContext.buildStackTrace(offset).let {
+                if (offset == null || it.isEmpty()) {
+                    it
+                } else {
+                    val head = it.first()
+                    val tail = it.drop(1)
+                    listOf(head.copy(groupOffset = offset)) + tail
+                }
+            }
+        trace + parentTrace
+    }
+}
+
+private fun OperationErrorContext.withCurrentStackTrace(slots: SlotWriter): OperationErrorContext {
+    val parent = this
+    return object : OperationErrorContext {
+        override fun buildStackTrace(currentOffset: Int?): List<ComposeStackTraceFrame> {
+            val parentTrace = parent.buildStackTrace(null)
+            // Slots are positioned at the start of the next group when insertion happens
+            val currentGroup = slots.parent
+            if (currentGroup < 0) return parentTrace
+            return slots.buildTrace(currentOffset, currentGroup, slots.parent(currentGroup)) +
+                parentTrace
+        }
+    }
 }

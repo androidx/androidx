@@ -47,7 +47,8 @@ public class SessionInfo {
     @DisplayType
     public static final int DISPLAY_TYPE_MAIN = 0;
 
-    /** The cluster display, usually located behind the steering wheel. */
+    /** The cluster display, usually located behind the steering wheel. Note: There can be more than
+     *  one cluster session running in case of multi display cars. */
     @DisplayType
     public static final int DISPLAY_TYPE_CLUSTER = 1;
 

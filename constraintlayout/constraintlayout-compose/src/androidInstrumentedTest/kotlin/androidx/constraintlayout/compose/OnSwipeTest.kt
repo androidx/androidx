@@ -77,7 +77,7 @@ class OnSwipeTest {
             .performSwipe(
                 from = { Offset(right * 0.25f, centerY) },
                 to = { Offset(right * 0.5f, centerY) },
-                endWithUp = false
+                endWithUp = false,
             )
         rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(51.6.dp, 128.3.dp)
         motionSemantic.performTouchInput { up() }
@@ -132,7 +132,7 @@ private fun OnSwipeTestJson() {
         """
                         .trimIndent()
             ),
-        progress = 0.0f
+        progress = 0.0f,
     ) {
         Box(modifier = Modifier.background(Color.Red).layoutId("box").testTag("box"))
     }
@@ -172,7 +172,7 @@ private fun OnSwipeTestDsl() {
                         )
                 }
             },
-        progress = 0.0f
+        progress = 0.0f,
     ) {
         Box(modifier = Modifier.background(Color.Red).layoutId("box").testTag("box"))
     }

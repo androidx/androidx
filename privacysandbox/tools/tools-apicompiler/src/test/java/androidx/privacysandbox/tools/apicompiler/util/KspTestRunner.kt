@@ -41,11 +41,11 @@ fun parseSources(vararg sources: Source): ParsedApi {
                 TestCompilationArguments(
                     sources = sources.toList(),
                     symbolProcessorProviders = listOf(provider),
-                    kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
-                )
+                    kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS,
+                ),
             )
         )
-        .succeeds()
+        .succeedsExcludingOptInWarnings()
     assert(provider.processor.capture != null) { "KSP run didn't produce any output." }
     return provider.processor.capture!!
 }
@@ -58,7 +58,7 @@ fun checkSourceFails(vararg sources: Source): CompilationResultSubject {
             TestCompilationArguments(
                 sources = sources.asList(),
                 symbolProcessorProviders = listOf(provider),
-                kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+                kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS,
             ),
         )
     return assertThat(result).also { it.fails() }

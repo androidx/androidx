@@ -25,7 +25,7 @@ import androidx.camera.core.impl.RequestProcessor
 internal class RequestProcessorRequest(
     private val targetOutputConfigIds: List<Int>,
     private val parameters: Config,
-    private val templateId: Int
+    private val templateId: Int,
 ) : RequestProcessor.Request {
     override fun getTargetOutputConfigIds(): List<Int> {
         return targetOutputConfigIds
@@ -63,7 +63,7 @@ internal class RequestProcessorRequest(
             return RequestProcessorRequest(
                 targetOutputConfigIds.toList(),
                 OptionsBundle.from(parameters),
-                templateId
+                templateId,
             )
         }
     }

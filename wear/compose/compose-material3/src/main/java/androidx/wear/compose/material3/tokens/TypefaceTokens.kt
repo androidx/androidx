@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-// VERSION: v0_103
+// VERSION: v0_108
 // GENERATED CODE - DO NOT MODIFY BY HAND
-
 package androidx.wear.compose.material3.tokens
 
 import androidx.compose.ui.text.font.DeviceFontFamilyName

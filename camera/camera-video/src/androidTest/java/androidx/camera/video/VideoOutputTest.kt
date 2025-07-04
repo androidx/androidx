@@ -39,7 +39,7 @@ class VideoOutputTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         // Create an anonymous subclass of VideoOutput. Don't override
         // VideoOutput#getStreamState() so the default implementation is used.
@@ -54,7 +54,7 @@ class VideoOutputTest {
         // Skip for b/264902324
         assumeFalse(
             "Emulator API 30 crashes running this test.",
-            Build.VERSION.SDK_INT == 30 && isEmulator()
+            Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
 
         // Create an anonymous subclass of VideoOutput. Don't override

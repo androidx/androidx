@@ -83,7 +83,7 @@ internal class TransitionClock<T>(override val animation: TransitionBasedAnimati
         animation.animationObject.setPlaytimeAfterInitialAndTargetStateEstablished(
             state.initial,
             state.target,
-            animationTimeNanos
+            animationTimeNanos,
         )
     }
 }

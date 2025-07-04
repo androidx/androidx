@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.camera.compose.CameraXViewfinderKt#CameraXViewfinder(androidx.camera.core.SurfaceRequest, androidx.compose.ui.Modifier, androidx.camera.viewfinder.core.ImplementationMode, androidx.camera.viewfinder.compose.MutableCoordinateTransformer, androidx.compose.ui.Alignment, androidx.compose.ui.layout.ContentScale, androidx.compose.runtime.Composer, int, int):
+    Added method androidx.camera.compose.CameraXViewfinderKt.CameraXViewfinder(androidx.camera.core.SurfaceRequest,androidx.compose.ui.Modifier,androidx.camera.viewfinder.core.ImplementationMode,androidx.camera.viewfinder.compose.MutableCoordinateTransformer,androidx.compose.ui.Alignment,androidx.compose.ui.layout.ContentScale,androidx.compose.runtime.Composer,int,int)

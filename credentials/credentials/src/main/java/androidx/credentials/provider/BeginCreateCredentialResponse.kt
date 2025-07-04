@@ -111,7 +111,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
         fun asBundle(bundle: Bundle, response: BeginCreateCredentialResponse) {
             bundle.putParcelable(
                 REQUEST_KEY,
-                BeginCreateCredentialUtil.convertToFrameworkResponse(response)
+                BeginCreateCredentialUtil.convertToFrameworkResponse(response),
             )
         }
 
@@ -120,7 +120,7 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
             val frameworkResponse =
                 bundle.getParcelable(
                     REQUEST_KEY,
-                    android.service.credentials.BeginCreateCredentialResponse::class.java
+                    android.service.credentials.BeginCreateCredentialResponse::class.java,
                 )
             if (frameworkResponse != null) {
                 return BeginCreateCredentialUtil.convertToJetpackResponse(frameworkResponse)

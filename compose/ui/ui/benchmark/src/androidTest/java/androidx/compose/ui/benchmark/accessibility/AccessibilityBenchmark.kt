@@ -108,7 +108,7 @@ class AccessibilityBenchmark {
                                     contentDescription = "ContentDescription 1"
                                     traversalIndex = 2f
                                     testTag = tag
-                                }
+                                },
                         ) {
                             BasicText("BasicText 1")
                         }
@@ -119,7 +119,7 @@ class AccessibilityBenchmark {
                                     contentDescription = "ContentDescription 2"
                                     traversalIndex = 1f
                                     testTag = tag
-                                }
+                                },
                         ) {
                             BasicText("BasicText 2")
                         }
@@ -130,7 +130,7 @@ class AccessibilityBenchmark {
                                     contentDescription = "ContentDescription 3"
                                     traversalIndex = 3f
                                     testTag = tag
-                                }
+                                },
                         ) {
                             BasicText("BasicText 3")
                         }

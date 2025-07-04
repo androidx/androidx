@@ -153,7 +153,6 @@ private abstract class BaseAndroidExternalSurfaceState(val scope: CoroutineScope
     fun dispatchSurfaceDestroyed(surface: Surface) {
         onSurfaceDestroyed?.invoke(surface)
         job?.cancel()
-        job = null
     }
 }
 
@@ -272,7 +271,7 @@ fun AndroidExternalSurface(
     surfaceSize: IntSize = IntSize.Zero,
     zOrder: AndroidExternalSurfaceZOrder = AndroidExternalSurfaceZOrder.Behind,
     isSecure: Boolean = false,
-    onInit: AndroidExternalSurfaceScope.() -> Unit
+    onInit: AndroidExternalSurfaceScope.() -> Unit,
 ) {
     val state = rememberAndroidExternalSurfaceState()
 
@@ -307,7 +306,7 @@ fun AndroidExternalSurface(
             }
 
             view.setSecure(isSecure)
-        }
+        },
     )
 }
 
@@ -322,7 +321,7 @@ private class AndroidEmbeddedExternalSurfaceState(scope: CoroutineScope) :
     override fun onSurfaceTextureAvailable(
         surfaceTexture: SurfaceTexture,
         width: Int,
-        height: Int
+        height: Int,
     ) {
         var w = width
         var h = height
@@ -342,7 +341,7 @@ private class AndroidEmbeddedExternalSurfaceState(scope: CoroutineScope) :
     override fun onSurfaceTextureSizeChanged(
         surfaceTexture: SurfaceTexture,
         width: Int,
-        height: Int
+        height: Int,
     ) {
         var w = width
         var h = height
@@ -430,7 +429,7 @@ fun AndroidEmbeddedExternalSurface(
     isOpaque: Boolean = true,
     surfaceSize: IntSize = IntSize.Zero,
     transform: Matrix? = null,
-    onInit: AndroidExternalSurfaceScope.() -> Unit
+    onInit: AndroidExternalSurfaceScope.() -> Unit,
 ) {
     val state = rememberAndroidEmbeddedExternalSurfaceState()
 
@@ -451,6 +450,6 @@ fun AndroidEmbeddedExternalSurface(
             // If transform is null, we'll call setTransform(null) which sets the
             // identity transform on the TextureView
             view.setTransform(transform?.let { state.matrix.apply { setFrom(transform) } })
-        }
+        },
     )
 }

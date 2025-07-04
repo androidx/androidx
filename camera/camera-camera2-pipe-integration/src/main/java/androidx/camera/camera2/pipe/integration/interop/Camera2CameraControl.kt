@@ -171,7 +171,7 @@ private constructor(
             var cameraControlImpl = (cameraControl as CameraControlInternal).implementation
             Preconditions.checkArgument(
                 cameraControlImpl is CameraControlAdapter,
-                "CameraControl doesn't contain Camera2 implementation."
+                "CameraControl doesn't contain Camera2 implementation.",
             )
             return (cameraControlImpl as CameraControlAdapter).camera2cameraControl
         }

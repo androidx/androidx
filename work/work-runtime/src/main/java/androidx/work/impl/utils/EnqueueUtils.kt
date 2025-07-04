@@ -35,7 +35,7 @@ import kotlin.collections.removeLast as removeLastKt
 internal fun checkContentUriTriggerWorkerLimits(
     workDatabase: WorkDatabase,
     configuration: Configuration,
-    continuation: WorkContinuationImpl
+    continuation: WorkContinuationImpl,
 ) {
     if (Build.VERSION.SDK_INT < WorkManagerImpl.CONTENT_URI_TRIGGER_API_LEVEL) return
     val continuations = mutableListOf(continuation)
@@ -64,7 +64,7 @@ internal fun checkContentUriTriggerWorkerLimits(
 }
 
 @VisibleForTesting
-fun tryDelegateRemoteListenableWorker(workSpec: WorkSpec): WorkSpec {
+public fun tryDelegateRemoteListenableWorker(workSpec: WorkSpec): WorkSpec {
     // Check for the arguments in the input data over checking for the workerClassName
     // directly. This is because, the workerClassName might get overridden given it could get
     // replaced by a ConstraintTrackingWorker.
@@ -81,7 +81,7 @@ fun tryDelegateRemoteListenableWorker(workSpec: WorkSpec): WorkSpec {
 
         return workSpec.copy(
             input = newInputData,
-            workerClassName = REMOTE_DELEGATING_LISTENABLE_WORKER_CLASS_NAME
+            workerClassName = REMOTE_DELEGATING_LISTENABLE_WORKER_CLASS_NAME,
         )
     }
     return workSpec
@@ -111,16 +111,13 @@ internal fun tryDelegateConstrainedWorkSpec(workSpec: WorkSpec): WorkSpec {
                 .build()
         return workSpec.copy(
             input = newInputData,
-            workerClassName = ConstraintTrackingWorker::class.java.name
+            workerClassName = ConstraintTrackingWorker::class.java.name,
         )
     }
     return workSpec
 }
 
-internal fun wrapWorkSpecIfNeeded(
-    schedulers: List<Scheduler>,
-    workSpec: WorkSpec,
-): WorkSpec {
+internal fun wrapWorkSpecIfNeeded(schedulers: List<Scheduler>, workSpec: WorkSpec): WorkSpec {
     // Use RemoteListenableWorker delegate if necessary.
     val delegated = tryDelegateRemoteListenableWorker(workSpec)
     // Use a ConstraintTrackingWorker when necessary.

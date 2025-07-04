@@ -16,15 +16,17 @@
 
 package androidx.compose.foundation.text.selection
 
-import android.view.View
-import android.view.ViewGroup
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.contextmenu.internal.ProvidePlatformTextContextMenuToolbar
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagFlipperRunner
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
+import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
+import androidx.compose.foundation.text.contextmenu.test.assertShown
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +36,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalTextToolbar
@@ -42,22 +43,18 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,11 +63,9 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(ContextMenuFlagFlipperRunner::class)
 class SelectionContainerFocusTest {
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
-
-    private lateinit var view: View
+    @get:Rule val rule = createComposeRule()
 
     private val textContent = "Text Demo Text"
     private val fontFamily = TEST_FONT_FAMILY
@@ -88,14 +83,14 @@ class SelectionContainerFocusTest {
         createSelectionContainer()
         // Touch position. In this test, each character's width and height equal to fontSize.
         // Position is computed so that (position, position) is the center of the first character.
-        val positionInText = with(Density(view.context)) { fontSize.toPx() / 2 }
-        rule.onNode(hasTestTag("selectionContainer1")).performTouchInput {
+        val positionInText = with(rule.density) { fontSize.toPx() / 2 }
+        rule.onNodeWithTag("selectionContainer1").performTouchInput {
             longClick(Offset(x = positionInText, y = positionInText))
         }
         rule.runOnIdle { assertThat(selection1.value).isNotNull() }
 
         // Act.
-        rule.onNode(hasTestTag("box")).performTouchInput { click(center) }
+        rule.onNodeWithTag("box").performTouchInput { click() }
 
         // Assert.
         rule.runOnIdle {
@@ -112,14 +107,14 @@ class SelectionContainerFocusTest {
         createSelectionContainer()
         // Touch position. In this test, each character's width and height equal to fontSize.
         // Position is computed so that (position, position) is the center of the first character.
-        val positionInText = with(Density(view.context)) { fontSize.toPx() / 2 }
-        rule.onNode(hasTestTag("selectionContainer1")).performTouchInput {
+        val positionInText = with(rule.density) { fontSize.toPx() / 2 }
+        rule.onNodeWithTag("selectionContainer1").performTouchInput {
             longClick(Offset(x = positionInText, y = positionInText))
         }
         rule.runOnIdle { assertThat(selection1.value).isNotNull() }
 
         // Act.
-        rule.onNode(hasTestTag("selectionContainer2")).performTouchInput {
+        rule.onNodeWithTag("selectionContainer2").performTouchInput {
             longClick(Offset(x = positionInText, y = positionInText))
         }
 
@@ -134,6 +129,7 @@ class SelectionContainerFocusTest {
         }
     }
 
+    @ContextMenuFlagSuppress(suppressedFlagValue = true)
     @Test
     fun leavingComposition_hidesTextToolbar() {
         // null -> nothing got called, true -> show, false -> hide
@@ -141,7 +137,7 @@ class SelectionContainerFocusTest {
         val fakeTextToolbar =
             FakeTextToolbar(
                 onShowMenu = { _, _, _, _, _, _ -> lastShowCalled = true },
-                onHideMenu = { lastShowCalled = false }
+                onHideMenu = { lastShowCalled = false },
             )
 
         val tag = "SelectionContainer"
@@ -160,7 +156,7 @@ class SelectionContainerFocusTest {
                             overflow = TextOverflow.Clip,
                             maxLines = Int.MAX_VALUE,
                             inlineContent = mapOf(),
-                            onTextLayout = {}
+                            onTextLayout = {},
                         )
                     }
                 }
@@ -175,46 +171,20 @@ class SelectionContainerFocusTest {
         rule.runOnIdle { assertThat(lastShowCalled).isFalse() }
     }
 
-    private fun createSelectionContainer(isRtl: Boolean = false) {
-        val measureLatch = CountDownLatch(1)
+    @ContextMenuFlagSuppress(suppressedFlagValue = false)
+    @Test
+    fun leavingComposition_hidesTextToolbar_newContextMenu() {
+        val tag = "SelectionContainer"
+        val spyTextActionModeCallback = SpyTextActionModeCallback()
 
-        val layoutDirection = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+        var inComposition by mutableStateOf(true)
+
         rule.setContent {
-            CompositionLocalProvider(
-                LocalHapticFeedback provides hapticFeedback,
-                LocalLayoutDirection provides layoutDirection,
-                LocalTextToolbar provides mock()
+            ProvidePlatformTextContextMenuToolbar(
+                callbackInjector = { spyTextActionModeCallback.apply { delegate = it } }
             ) {
-                Column {
-                    SelectionContainer(
-                        modifier =
-                            Modifier.onGloballyPositioned { measureLatch.countDown() }
-                                .testTag("selectionContainer1"),
-                        selection = selection1.value,
-                        onSelectionChange = { selection1.value = it }
-                    ) {
-                        Column {
-                            BasicText(
-                                AnnotatedString(textContent),
-                                Modifier.fillMaxWidth(),
-                                style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                                softWrap = true,
-                                overflow = TextOverflow.Clip,
-                                maxLines = Int.MAX_VALUE,
-                                inlineContent = mapOf(),
-                                onTextLayout = {}
-                            )
-                            Box(Modifier.size(boxSize, boxSize).testTag("box"))
-                        }
-                    }
-
-                    SelectionContainer(
-                        modifier =
-                            Modifier.onGloballyPositioned { measureLatch.countDown() }
-                                .testTag("selectionContainer2"),
-                        selection = selection2.value,
-                        onSelectionChange = { selection2.value = it }
-                    ) {
+                if (inComposition) {
+                    SelectionContainer(modifier = Modifier.testTag("SelectionContainer")) {
                         BasicText(
                             AnnotatedString(textContent),
                             Modifier.fillMaxWidth(),
@@ -223,14 +193,60 @@ class SelectionContainerFocusTest {
                             overflow = TextOverflow.Clip,
                             maxLines = Int.MAX_VALUE,
                             inlineContent = mapOf(),
-                            onTextLayout = {}
+                            onTextLayout = {},
                         )
                     }
                 }
             }
         }
-        rule.activityRule.scenario.onActivity {
-            view = it.findViewById<ViewGroup>(android.R.id.content)
+
+        rule.onNodeWithTag(tag).performTouchInput { longClick() }
+        rule.waitForIdle()
+        spyTextActionModeCallback.assertShown(shown = true)
+
+        inComposition = false
+
+        rule.waitForIdle()
+        spyTextActionModeCallback.assertShown(shown = false)
+    }
+
+    private fun createSelectionContainer(isRtl: Boolean = false) {
+        val layoutDirection = if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalHapticFeedback provides hapticFeedback,
+                LocalLayoutDirection provides layoutDirection,
+                LocalTextToolbar provides mock(),
+            ) {
+                Column {
+                    SelectionContainer(
+                        modifier = Modifier.testTag("selectionContainer1"),
+                        selection = selection1.value,
+                        onSelectionChange = { selection1.value = it },
+                    ) {
+                        Column {
+                            BasicText(
+                                text = AnnotatedString(textContent),
+                                modifier = Modifier.fillMaxWidth(),
+                                style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                            )
+                            Box(Modifier.size(boxSize, boxSize).testTag("box"))
+                        }
+                    }
+
+                    SelectionContainer(
+                        modifier = Modifier.testTag("selectionContainer2"),
+                        selection = selection2.value,
+                        onSelectionChange = { selection2.value = it },
+                    ) {
+                        BasicText(
+                            text = AnnotatedString(textContent),
+                            modifier = Modifier.fillMaxWidth(),
+                            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -243,9 +259,9 @@ internal fun FakeTextToolbar(
             onPasteRequested: (() -> Unit)?,
             onCutRequested: (() -> Unit)?,
             onSelectAllRequested: (() -> Unit)?,
-            onAutofillRequested: (() -> Unit)?
+            onAutofillRequested: (() -> Unit)?,
         ) -> Unit,
-    onHideMenu: () -> Unit
+    onHideMenu: () -> Unit,
 ): TextToolbar {
     return object : TextToolbar {
         private var _status: TextToolbarStatus = TextToolbarStatus.Hidden
@@ -256,7 +272,7 @@ internal fun FakeTextToolbar(
             onPasteRequested: (() -> Unit)?,
             onCutRequested: (() -> Unit)?,
             onSelectAllRequested: (() -> Unit)?,
-            onAutofillRequested: (() -> Unit)?
+            onAutofillRequested: (() -> Unit)?,
         ) {
             onShowMenu(
                 rect,
@@ -264,7 +280,7 @@ internal fun FakeTextToolbar(
                 onPasteRequested,
                 onCutRequested,
                 onSelectAllRequested,
-                onAutofillRequested
+                onAutofillRequested,
             )
             _status = TextToolbarStatus.Shown
         }
@@ -274,7 +290,7 @@ internal fun FakeTextToolbar(
             onCopyRequested: (() -> Unit)?,
             onPasteRequested: (() -> Unit)?,
             onCutRequested: (() -> Unit)?,
-            onSelectAllRequested: (() -> Unit)?
+            onSelectAllRequested: (() -> Unit)?,
         ) {
             _status = TextToolbarStatus.Shown
         }

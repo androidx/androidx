@@ -39,7 +39,7 @@ private constructor(
             ReplaceWith(
                 expression = "SplitInfo.token",
                 imports = arrayOf("androidx.window.embedding.SplitInfo"),
-            )
+            ),
     )
     private val binder: IBinder?,
     /** A token uniquely identifying this `SplitInfo`. */
@@ -60,13 +60,7 @@ private constructor(
         secondaryActivityStack: ActivityStack,
         splitAttributes: SplitAttributes,
         binder: IBinder,
-    ) : this(
-        primaryActivityStack,
-        secondaryActivityStack,
-        splitAttributes,
-        binder,
-        token = null,
-    ) {
+    ) : this(primaryActivityStack, secondaryActivityStack, splitAttributes, binder, token = null) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3..4)
     }
 

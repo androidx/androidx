@@ -71,7 +71,7 @@ class XNullabilityTest {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         // TODO run with KSP once https://github.com/google/ksp/issues/167 is fixed
         runProcessorTestWithoutKsp(sources = listOf(source)) {
@@ -172,7 +172,7 @@ class XNullabilityTest {
                 val nullableLambda: ((String) -> Int)? = null
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
@@ -244,7 +244,7 @@ class XNullabilityTest {
                                 Triple(
                                     first = it.name,
                                     second = it.type.nullability,
-                                    third = it.type.typeArguments.single().nullability
+                                    third = it.type.typeArguments.single().nullability,
                                 )
                             }
                     )
@@ -252,7 +252,7 @@ class XNullabilityTest {
                         Triple("nullableGenericWithNonNullType", NULLABLE, NONNULL),
                         Triple("nullableGenericWithNullableType", NULLABLE, NULLABLE),
                         Triple("nonNullGenericWithNonNullType", NONNULL, NONNULL),
-                        Triple("nonNullGenericWithNullableType", NONNULL, NULLABLE)
+                        Triple("nonNullGenericWithNullableType", NONNULL, NULLABLE),
                     )
             }
             element.getField("nullableLambda").let { field ->
@@ -301,7 +301,7 @@ class XNullabilityTest {
                 """
                 class KotlinClass(val subject: List<Int?>)
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val javaSrc =
             Source.java(
@@ -311,7 +311,7 @@ class XNullabilityTest {
                     java.util.List<Integer> subject;
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             listOf("KotlinClass", "JavaClass").forEach {
@@ -389,7 +389,7 @@ class XNullabilityTest {
                 void subject() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val voidType =
@@ -432,7 +432,7 @@ class XNullabilityTest {
                         public void hasNullableParam(@Nullable String param) {}
                     }
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val nonNullSrc =
             Source.java(
@@ -444,7 +444,7 @@ class XNullabilityTest {
                     @Target(ElementType.TYPE_USE)
                     public @interface NonNull {}
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val nullableSrc =
             Source.java(
@@ -456,7 +456,7 @@ class XNullabilityTest {
                     @Target(ElementType.TYPE_USE)
                     public @interface Nullable {}
                 """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runProcessorTestWithoutKsp(sources = listOf(src, nonNullSrc, nullableSrc)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.Foo")

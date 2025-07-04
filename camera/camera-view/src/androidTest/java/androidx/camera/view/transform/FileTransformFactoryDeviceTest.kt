@@ -98,7 +98,7 @@ class FileTransformFactoryDeviceTest {
         normalizedX: Float,
         normalizedY: Float,
         imageX: Int,
-        imageY: Int
+        imageY: Int,
     ) {
         val point = floatArrayOf(normalizedX, normalizedY)
         matrix.mapPoints(point)

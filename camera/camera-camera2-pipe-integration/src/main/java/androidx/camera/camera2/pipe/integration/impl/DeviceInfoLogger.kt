@@ -33,7 +33,7 @@ public object DeviceInfoLogger {
         val deviceLevel =
             cameraProperties.metadata.getOrDefault(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
-                -1
+                -1,
             )
 
         levelString =

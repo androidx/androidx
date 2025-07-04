@@ -150,7 +150,7 @@ internal class CommonProcessorDelegate(
                     step = step,
                     typeElementNames =
                         deferredElementNames +
-                            elementsDeferredBySteps.getOrElse(step) { emptySet() }
+                            elementsDeferredBySteps.getOrElse(step) { emptySet() },
                 )
             val elementsByAnnotation =
                 step
@@ -193,7 +193,7 @@ internal class CommonProcessorDelegate(
      */
     private fun getStepElementsByAnnotation(
         step: XProcessingStep,
-        typeElementNames: Set<String>
+        typeElementNames: Set<String>,
     ): Map<String, Set<XElement>> {
         if (typeElementNames.isEmpty()) {
             return emptyMap()

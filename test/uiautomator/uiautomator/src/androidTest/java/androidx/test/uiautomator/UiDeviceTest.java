@@ -110,6 +110,8 @@ public class UiDeviceTest {
             assertEquals(expectedSizeDp, mDevice.getDisplaySizeDp());
         } finally {
             mDevice.executeShellCommand("wm size reset");
+            // b/417796596: Ensure display size setting is deleted, rather than just reset to "".
+            mDevice.executeShellCommand("settings delete global display_size_forced");
         }
     }
 

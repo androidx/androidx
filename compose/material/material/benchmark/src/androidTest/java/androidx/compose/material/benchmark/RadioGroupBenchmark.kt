@@ -76,7 +76,7 @@ class RadioGroupBenchmark {
     fun toggleRadio_recompose() {
         benchmarkRule.toggleStateBenchmarkRecompose(
             radioCaseFactory,
-            assertOneRecomposition = false
+            assertOneRecomposition = false,
         )
     }
 
@@ -114,14 +114,14 @@ internal class RadioGroupTestCase : LayeredComposeTestCase(), ToggleableTestCase
                     modifier =
                         Modifier.selectable(
                             selected = (select.value == item),
-                            onClick = { select.value = item }
+                            onClick = { select.value = item },
                         ),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(item.toString())
                     RadioButton(
                         selected = (select.value == item),
-                        onClick = { select.value = item }
+                        onClick = { select.value = item },
                     )
                 }
             }

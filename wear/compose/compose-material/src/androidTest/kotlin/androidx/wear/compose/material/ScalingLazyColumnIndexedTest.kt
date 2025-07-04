@@ -58,8 +58,8 @@ class ScalingLazyColumnIndexedTest {
                     ScalingLazyColumnDefaults.scalingParams(
                         edgeScale = 1.0f,
                         // Create some extra composables to check that extraPadding works.
-                        viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() }
-                    )
+                        viewportVerticalOffsetResolver = { (it.maxHeight / 10f).toInt() },
+                    ),
             ) {
                 itemsIndexed(items) { index, item ->
                     Spacer(Modifier.height(itemHeight).width(itemWidth).testTag("$index-$item"))
@@ -93,7 +93,7 @@ class ScalingLazyColumnIndexedTest {
                     rememberScalingLazyListState(initialCenterItemIndex = 0).also { state = it },
                 modifier = Modifier.height(200.dp),
                 autoCentering = null,
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText("${index}x$item", Modifier.requiredHeight(100.dp))
@@ -123,7 +123,7 @@ class ScalingLazyColumnIndexedTest {
                 autoCentering = AutoCenteringParams(itemIndex = 0),
                 verticalArrangement = Arrangement.spacedBy(gapBetweenItems),
                 // No scaling as we are doing maths with expected item sizes
-                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f)
+                scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
             ) {
                 itemsIndexed(items) { index, item ->
                     BasicText("${index}x$item", Modifier.requiredHeight(itemHeight))

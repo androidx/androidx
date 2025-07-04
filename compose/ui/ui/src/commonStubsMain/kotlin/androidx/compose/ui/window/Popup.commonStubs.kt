@@ -37,7 +37,7 @@ actual fun Popup(
     offset: IntOffset,
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()
 
 @Composable
@@ -45,5 +45,5 @@ actual fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)?,
     properties: PopupProperties,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Unit = implementedInJetBrainsFork()

@@ -38,14 +38,15 @@ public abstract class AudioSettings {
 
     // Common sample rate options to choose from in descending order.
     public static final List<Integer> COMMON_SAMPLE_RATES = Collections.unmodifiableList(
-            Arrays.asList(48000, 44100, 22050, 11025, 8000, 4800));
+            Arrays.asList(192000, 48000, 44100, 24000, 22050, 16000, 12000, 11025, 8000, 4800));
 
     /** Creates a builder for these settings. */
     @SuppressLint("Range") // Need to initialize as invalid values
     public static @NonNull Builder builder() {
         return new AutoValue_AudioSettings.Builder()
                 .setAudioSource(-1)
-                .setSampleRate(-1)
+                .setCaptureSampleRate(-1)
+                .setEncodeSampleRate(-1)
                 .setChannelCount(-1)
                 .setAudioFormat(-1);
     }
@@ -62,10 +63,16 @@ public abstract class AudioSettings {
     public abstract int getAudioSource();
 
     /**
-     * Gets the audio sample rate.
+     * Gets the audio capture sample rate.
      */
     @IntRange(from = 1)
-    public abstract int getSampleRate();
+    public abstract int getCaptureSampleRate();
+
+    /**
+     * Gets the audio encode sample rate.
+     */
+    @IntRange(from = 1)
+    public abstract int getEncodeSampleRate();
 
     /**
      * Gets the channel count.
@@ -103,9 +110,14 @@ public abstract class AudioSettings {
         public abstract @NonNull Builder setAudioSource(int audioSource);
 
         /**
-         * Sets the audio sample rate in Hertz.
+         * Sets the audio capture sample rate in Hertz.
          */
-        public abstract @NonNull Builder setSampleRate(@IntRange(from = 1) int sampleRate);
+        public abstract @NonNull Builder setCaptureSampleRate(@IntRange(from = 1) int sampleRate);
+
+        /**
+         * Sets the audio encode sample rate in Hertz.
+         */
+        public abstract @NonNull Builder setEncodeSampleRate(@IntRange(from = 1) int sampleRate);
 
         /**
          * Sets the channel count.
@@ -132,8 +144,11 @@ public abstract class AudioSettings {
             if (settings.getAudioSource() == -1) {
                 missingOrInvalid += " audioSource";
             }
-            if (settings.getSampleRate() <= 0) {
-                missingOrInvalid += " sampleRate";
+            if (settings.getCaptureSampleRate() <= 0) {
+                missingOrInvalid += " captureSampleRate";
+            }
+            if (settings.getEncodeSampleRate() <= 0) {
+                missingOrInvalid += " encodeSampleRate";
             }
             if (settings.getChannelCount() <= 0) {
                 missingOrInvalid += " channelCount";

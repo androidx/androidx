@@ -140,7 +140,7 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
             if (Build.VERSION.SDK_INT < 33) {
                 ThemeUtils.Api31.applyThemesSystemBarAppearance(
                     activity.theme,
-                    activity.window.decorView
+                    activity.window.decorView,
                 )
             }
         }

@@ -62,13 +62,13 @@ internal fun Modifier.paneMargins(vararg windowInsets: WindowInsetsRulers) =
 @Composable
 internal fun Modifier.paneMargins(
     fixedMargins: PaddingValues,
-    vararg windowInsets: WindowInsetsRulers
+    vararg windowInsets: WindowInsetsRulers,
 ) = paneMargins(fixedMargins, windowInsets.toList())
 
 @Composable
 private fun Modifier.paneMargins(
     fixedMargins: PaddingValues,
-    windowInsets: List<WindowInsetsRulers>
+    windowInsets: List<WindowInsetsRulers>,
 ) =
     this.then(
         PaneMarginsElement(
@@ -76,7 +76,7 @@ private fun Modifier.paneMargins(
                 fixedMargins,
                 windowInsets,
                 LocalDensity.current,
-                LocalLayoutDirection.current
+                LocalLayoutDirection.current,
             )
         )
     )
@@ -130,7 +130,7 @@ internal class PaneMarginsImpl(
     fixedMargins: PaddingValues = PaddingValues(),
     windowInsets: List<WindowInsetsRulers>,
     density: Density,
-    layoutDirection: LayoutDirection
+    layoutDirection: LayoutDirection,
 ) : PaneMargins {
     private val fixedMarginLeft =
         with(density) { fixedMargins.calculateLeftPadding(layoutDirection).roundToPx() }
@@ -145,31 +145,31 @@ internal class PaneMarginsImpl(
         maxOf(
             measuredLeft,
             fixedMarginLeft,
-            rulers.maxOfOrNull { it.left.current(0f).roundToInt() } ?: 0
+            rulers.maxOfOrNull { it.left.current(0f).roundToInt() } ?: 0,
         )
 
     override fun Placeable.PlacementScope.getPaneTop(measuredTop: Int): Int =
         maxOf(
             measuredTop,
             fixedMarginTop,
-            rulers.maxOfOrNull { it.top.current(0f).roundToInt() } ?: 0
+            rulers.maxOfOrNull { it.top.current(0f).roundToInt() } ?: 0,
         )
 
     override fun Placeable.PlacementScope.getPaneRight(measuredRight: Int, parentRight: Int): Int =
         minOf(
             measuredRight,
             parentRight - fixedMarginRight,
-            rulers.minOfOrNull { it.right.current(Float.MAX_VALUE).roundToInt() } ?: parentRight
+            rulers.minOfOrNull { it.right.current(Float.MAX_VALUE).roundToInt() } ?: parentRight,
         )
 
     override fun Placeable.PlacementScope.getPaneBottom(
         measuredBottom: Int,
-        parentBottom: Int
+        parentBottom: Int,
     ): Int =
         minOf(
             measuredBottom,
             parentBottom - fixedMarginBottom,
-            rulers.minOfOrNull { it.bottom.current(Float.MAX_VALUE).roundToInt() } ?: parentBottom
+            rulers.minOfOrNull { it.bottom.current(Float.MAX_VALUE).roundToInt() } ?: parentBottom,
         )
 }
 

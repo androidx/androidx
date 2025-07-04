@@ -28,12 +28,17 @@ import androidx.wear.watchface.data.DeviceConfig as WireDeviceConfig
  *   in milliseconds since the epoch.
  * @param digitalPreviewReferenceTimeMillis UTC reference time for screenshots of digital watch
  *   faces in milliseconds since the epoch.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class DeviceConfig(
     @get:JvmName("hasLowBitAmbient") public val hasLowBitAmbient: Boolean,
     @get:JvmName("hasBurnInProtection") public val hasBurnInProtection: Boolean,
     public val analogPreviewReferenceTimeMillis: Long,
-    public val digitalPreviewReferenceTimeMillis: Long
+    public val digitalPreviewReferenceTimeMillis: Long,
 ) {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun asWireDeviceConfig(): WireDeviceConfig =
@@ -41,7 +46,7 @@ public class DeviceConfig(
             hasLowBitAmbient,
             hasBurnInProtection,
             analogPreviewReferenceTimeMillis,
-            digitalPreviewReferenceTimeMillis
+            digitalPreviewReferenceTimeMillis,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -87,5 +92,5 @@ public fun WireDeviceConfig.asApiDeviceConfig(): DeviceConfig =
         hasLowBitAmbient,
         hasBurnInProtection,
         analogPreviewReferenceTimeMillis,
-        digitalPreviewReferenceTimeMillis
+        digitalPreviewReferenceTimeMillis,
     )

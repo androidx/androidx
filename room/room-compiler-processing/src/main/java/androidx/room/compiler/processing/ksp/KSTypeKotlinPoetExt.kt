@@ -47,7 +47,7 @@ internal fun KSTypeReference?.asKTypeName(resolver: Resolver): KTypeName =
 
 private fun KSTypeReference?.asKTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: KTypeArgumentTypeLookup
+    typeArgumentTypeLookup: KTypeArgumentTypeLookup,
 ): KTypeName {
     return if (this == null) {
         ERROR_KTYPE_NAME
@@ -61,7 +61,7 @@ internal fun KSDeclaration.asKTypeName(resolver: Resolver): KTypeName =
 
 private fun KSDeclaration.asKTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: KTypeArgumentTypeLookup
+    typeArgumentTypeLookup: KTypeArgumentTypeLookup,
 ): KTypeName {
     if (this is KSTypeAlias) {
         return this.type.asKTypeName(resolver, typeArgumentTypeLookup)
@@ -69,21 +69,34 @@ private fun KSDeclaration.asKTypeName(
     if (this is KSTypeParameter) {
         return this.asKTypeName(resolver, typeArgumentTypeLookup)
     }
-    val qualified = qualifiedName?.asString() ?: return ERROR_KTYPE_NAME
     val pkg = getNormalizedPackageName()
-    val shortNames =
-        if (pkg == "") {
-                qualified
-            } else {
-                qualified.substring(pkg.length + 1)
-            }
-            .split('.')
-    return KClassName(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
+    val qualified = qualifiedName?.asString()
+    if (qualified != null) {
+        val simpleNames =
+            if (pkg.isNotEmpty()) {
+                    check(qualified.startsWith(pkg))
+                    qualified.substring(pkg.length + 1, qualified.length)
+                } else {
+                    qualified
+                }
+                .split('.')
+        return KClassName(pkg, simpleNames)
+    } else {
+        val errorTypeName =
+            ERROR_TYPE_PATTERN.find(simpleName.asString())?.groupValues?.get(1)
+                // If we don't match the ERROR_TYPE_PATTERN just return the default error type name.
+                ?: return ERROR_KTYPE_NAME
+        // Although we don't get an actual package for an error type, the error type found in the
+        // simple name's pattern match may contain a package if the type it references is fully
+        // qualified. Since we only get this as a string, use bestGuess to get a class name.
+        check(pkg.isEmpty())
+        return KClassName.bestGuess(errorTypeName)
+    }
 }
 
 private fun KSTypeParameter.asKTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: KTypeArgumentTypeLookup
+    typeArgumentTypeLookup: KTypeArgumentTypeLookup,
 ): KTypeName {
     typeArgumentTypeLookup[name]?.let {
         return it
@@ -105,7 +118,7 @@ internal fun KSTypeArgument.asKTypeName(resolver: Resolver): KTypeName =
 
 private fun KSTypeArgument.asKTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: KTypeArgumentTypeLookup
+    typeArgumentTypeLookup: KTypeArgumentTypeLookup,
 ): KTypeName {
     fun resolveTypeName() = type.asKTypeName(resolver, typeArgumentTypeLookup)
     return when (variance) {
@@ -128,7 +141,7 @@ internal fun KSType.asKTypeName(resolver: Resolver): KTypeName =
 @OptIn(KspExperimental::class)
 private fun KSType.asKTypeName(
     resolver: Resolver,
-    typeArgumentTypeLookup: KTypeArgumentTypeLookup
+    typeArgumentTypeLookup: KTypeArgumentTypeLookup,
 ): KTypeName {
     if (declaration is KSTypeAlias) {
         return replaceTypeAliases(resolver).asKTypeName(resolver, typeArgumentTypeLookup)
@@ -141,7 +154,7 @@ private fun KSType.asKTypeName(
                 this.innerArguments.map { typeArg ->
                     typeArg.asKTypeName(
                         resolver = resolver,
-                        typeArgumentTypeLookup = typeArgumentTypeLookup
+                        typeArgumentTypeLookup = typeArgumentTypeLookup,
                     )
                 }
             val outerType = this.outerType
@@ -179,7 +192,7 @@ private val typeVarNameCompanionInstance by lazy {
             Please file a bug at $ISSUE_TRACKER_LINK.
             """
                 .trimIndent(),
-            ex
+            ex,
         )
     }
 }
@@ -207,7 +220,7 @@ private val typeVarNameFactoryMethod by lazy {
             Room couldn't find the method it is looking for in KotlinPoet.
             Please file a bug at $ISSUE_TRACKER_LINK.
             """
-                .trimIndent(),
+                .trimIndent()
         )
     }
 }
@@ -218,7 +231,7 @@ private val typeVarNameFactoryMethod by lazy {
  */
 private fun createModifiableTypeVariableName(
     name: String,
-    bounds: List<KTypeName>
+    bounds: List<KTypeName>,
 ): KTypeVariableName =
     try {
         KTypeVariableNameFactory.newInstance(name, bounds)

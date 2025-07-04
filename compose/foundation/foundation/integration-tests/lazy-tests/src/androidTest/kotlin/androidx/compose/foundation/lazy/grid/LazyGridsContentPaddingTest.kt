@@ -99,8 +99,8 @@ class LazyGridsContentPaddingTest {
                         start = smallPaddingSize,
                         top = largePaddingSize,
                         end = smallPaddingSize,
-                        bottom = largePaddingSize
-                    )
+                        bottom = largePaddingSize,
+                    ),
             ) {
                 items(listOf(1)) { Spacer(Modifier.height(itemSize).testTag(ItemTag)) }
             }
@@ -141,7 +141,7 @@ class LazyGridsContentPaddingTest {
                 columns = GridCells.Adaptive(180.dp),
                 modifier = Modifier.fillMaxSize().testTag(LazyListTag),
                 state = rememberLazyGridState().also { state = it },
-                contentPadding = padding
+                contentPadding = padding,
             ) {
                 items(10) { index ->
                     Box(Modifier.padding(8.dp).fillMaxSize().aspectRatio(1f).testTag("$index"))
@@ -170,7 +170,7 @@ class LazyGridsContentPaddingTest {
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(itemSize * 2).testTag(LazyListTag),
                 state = rememberLazyGridState().also { state = it },
-                contentPadding = PaddingValues(top = itemSize, bottom = itemSize)
+                contentPadding = PaddingValues(top = itemSize, bottom = itemSize),
             ) {
                 items(listOf(1)) { Spacer(Modifier.height(itemSize).testTag(ItemTag)) }
             }
@@ -192,7 +192,7 @@ class LazyGridsContentPaddingTest {
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(padding * 2 + itemSize).testTag(LazyListTag),
                 state = rememberLazyGridState().also { state = it },
-                contentPadding = PaddingValues(top = padding, bottom = padding)
+                contentPadding = PaddingValues(top = padding, bottom = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -223,7 +223,7 @@ class LazyGridsContentPaddingTest {
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(itemSize + padding * 2).testTag(LazyListTag),
                 state = rememberLazyGridState().also { state = it },
-                contentPadding = PaddingValues(top = padding, bottom = padding)
+                contentPadding = PaddingValues(top = padding, bottom = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -251,7 +251,7 @@ class LazyGridsContentPaddingTest {
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(padding * 2 + itemSize).testTag(LazyListTag),
                 state = rememberLazyGridState().also { state = it },
-                contentPadding = PaddingValues(top = padding, bottom = padding)
+                contentPadding = PaddingValues(top = padding, bottom = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -286,7 +286,7 @@ class LazyGridsContentPaddingTest {
                 columns = GridCells.Fixed(1),
                 modifier = Modifier.requiredSize(padding * 2 + itemSize).testTag(LazyListTag),
                 state = rememberLazyGridState().also { state = it },
-                contentPadding = PaddingValues(top = padding, bottom = padding)
+                contentPadding = PaddingValues(top = padding, bottom = padding),
             ) {
                 items((0..3).toList()) {
                     Spacer(Modifier.requiredSize(itemSize).testTag(it.toString()))
@@ -311,7 +311,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),
                     contentPadding =
-                        PaddingValues(start = 2.dp, top = 4.dp, end = 6.dp, bottom = 8.dp)
+                        PaddingValues(start = 2.dp, top = 4.dp, end = 6.dp, bottom = 8.dp),
                 ) {
                     items(listOf(1)) { Spacer(Modifier.size(itemSize).testTag(ItemTag)) }
                 }
@@ -340,7 +340,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),
                     contentPadding =
-                        PaddingValues(start = 2.dp, top = 4.dp, end = 6.dp, bottom = 8.dp)
+                        PaddingValues(start = 2.dp, top = 4.dp, end = 6.dp, bottom = 8.dp),
                 ) {}
             }
         }
@@ -360,7 +360,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),
                     contentPadding =
-                        PaddingValues(start = 2.dp, top = 4.dp, end = 6.dp, bottom = 8.dp)
+                        PaddingValues(start = 2.dp, top = 4.dp, end = 6.dp, bottom = 8.dp),
                 ) {
                     items(0) {}
                 }
@@ -451,7 +451,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = smallPaddingSize)
+                    contentPadding = PaddingValues(vertical = smallPaddingSize),
                 ) {
                     items(2) { Box(Modifier.testTag("$it").height(itemSize)) }
                 }
@@ -497,7 +497,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize)
+                    contentPadding = PaddingValues(vertical = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -524,7 +524,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize)
+                    contentPadding = PaddingValues(vertical = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -554,7 +554,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize)
+                    contentPadding = PaddingValues(vertical = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -584,7 +584,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize)
+                    contentPadding = PaddingValues(vertical = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -615,7 +615,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize)
+                    contentPadding = PaddingValues(vertical = itemSize),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -643,7 +643,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize * 2)
+                    contentPadding = PaddingValues(vertical = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -668,7 +668,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize * 2)
+                    contentPadding = PaddingValues(vertical = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -698,7 +698,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize * 2)
+                    contentPadding = PaddingValues(vertical = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -730,7 +730,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize * 2)
+                    contentPadding = PaddingValues(vertical = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -763,7 +763,7 @@ class LazyGridsContentPaddingTest {
                 LazyVerticalGrid(
                     GridCells.Fixed(1),
                     state = state,
-                    contentPadding = PaddingValues(vertical = itemSize * 2)
+                    contentPadding = PaddingValues(vertical = itemSize * 2),
                 ) {
                     items(4) { Box(Modifier.testTag("$it").size(itemSize)) }
                 }
@@ -795,7 +795,7 @@ class LazyGridsContentPaddingTest {
                     columns = GridCells.Fixed(1),
                     modifier = Modifier.testTag("list").requiredHeight(itemSize * 2),
                     state = state,
-                    contentPadding = padding
+                    contentPadding = padding,
                 ) {
                     items(4) {
                         Box(Modifier.testTag("$it").background(Color.Red).size(itemSize)) {

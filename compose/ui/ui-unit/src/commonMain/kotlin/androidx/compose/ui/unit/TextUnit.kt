@@ -28,14 +28,19 @@ import androidx.compose.ui.util.lerp
  * 32bit represents the metadata of this value and lower 32bit represents the bit representation of
  * the float value. Currently lower 8bits in the metadata bits are used for unit information.
  *
- * Bits |-------|-------|-------|-------|-------|-------|-------|-------|
- * FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF: Float Value UUUUUUUU : Unit Information
- * XXXXXXXXXXXXXXXXXXXXXXXX : Unused bits
+ * Bits
+ *
+ * ```
+ * |-------|-------|-------|-------|-------|-------|-------|-------|
+ *                                  FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF: Float Value
+ *                          UUUUUUUU                                : Unit Information
+ *  XXXXXXXXXXXXXXXXXXXXXXXX                                        : Unused bits
+ * ```
  */
 private const val UNIT_MASK = 0xFFL shl 32 // 0xFF_0000_0000
 private const val UNIT_TYPE_UNSPECIFIED = 0x00L shl 32 // 0x00_0000_0000
 private const val UNIT_TYPE_SP = 0x01L shl 32 // 0x01_0000_0000
-private const val UNIT_TYPE_EM = 0x02L shl 32 // 0x2_0000_0000
+private const val UNIT_TYPE_EM = 0x02L shl 32 // 0x02_0000_0000
 
 /** An enum class defining for type of [TextUnit]. */
 @kotlin.jvm.JvmInline

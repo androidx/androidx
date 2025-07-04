@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY;
+
 import static androidx.camera.core.ImageCapture.FLASH_MODE_AUTO;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
@@ -32,6 +34,7 @@ import android.util.ArrayMap;
 import android.util.Rational;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
@@ -61,7 +64,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -124,6 +126,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final FocusMeteringControl mFocusMeteringControl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
+    private final LowLightBoostControl mLowLightBoostControl;
     private final ExposureControl mExposureControl;
     @VisibleForTesting
     ZslControl mZslControl;
@@ -136,12 +139,17 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private ImageCapture.ScreenFlash mScreenFlash;
 
     // use volatile modifier to make these variables in sync in all threads.
-    private volatile boolean mIsTorchOn = false;
+    @TorchControl.TorchStateInternal
+    private volatile int mTorchState = TorchControl.OFF;
+    @IntRange(from = 1)
+    private volatile int mTorchStrength;
+    private volatile boolean mIsLowLightBoostOn = false;
     @ImageCapture.FlashMode
     private volatile int mFlashMode = FLASH_MODE_OFF;
 
     // Workarounds
     private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler;
+    private boolean mIsRepeatingRequestAvailable = true;
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
     private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
@@ -201,6 +209,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                 this, scheduler, mExecutor, cameraQuirks);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
+        mTorchStrength = mCameraCharacteristics.getDefaultTorchStrengthLevel();
+        mLowLightBoostControl = new LowLightBoostControl(this, mCameraCharacteristics, mExecutor);
         if (Build.VERSION.SDK_INT >= 23) {
             mZslControl = new ZslControlImpl(mCameraCharacteristics, mExecutor);
         } else {
@@ -262,6 +272,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         return mTorchControl;
     }
 
+    public @NonNull LowLightBoostControl getLowLightBoostControl() {
+        return mLowLightBoostControl;
+    }
+
     public @NonNull ExposureControl getExposureControl() {
         return mExposureControl;
     }
@@ -307,6 +321,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         Logger.d(TAG, "setActive: isActive = " + isActive);
         mFocusMeteringControl.setActive(isActive);
         mZoomControl.setActive(isActive);
+        mLowLightBoostControl.setActive(isActive);
         mTorchControl.setActive(isActive);
         mExposureControl.setActive(isActive);
         mCamera2CameraControl.setActive(isActive);
@@ -331,6 +346,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
+        if (!mIsRepeatingRequestAvailable) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException(
+                            "Repeating request is not available possibly because it's disable for"
+                                    + " the ImageCapture."));
+        }
         return Futures.nonCancellationPropagating(
                 mFocusMeteringControl.startFocusAndMetering(action));
     }
@@ -340,6 +361,12 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         if (!isControlInUse()) {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
+        }
+        if (!mIsRepeatingRequestAvailable) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException(
+                            "Repeating request is not available possibly because it's disable for"
+                                    + " the ImageCapture."));
         }
         return Futures.nonCancellationPropagating(mFocusMeteringControl.cancelFocusAndMetering());
     }
@@ -405,6 +432,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @Override
+    public void clearZslConfig() {
+        mZslControl.clearZslConfig();
+    }
+
+    @Override
     public void setZslDisabledByUserCaseConfig(boolean disabled) {
         mZslControl.setZslDisabledByUserCaseConfig(disabled);
     }
@@ -422,6 +454,23 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     new OperationCanceledException("Camera is not active."));
         }
         return Futures.nonCancellationPropagating(mTorchControl.enableTorch(torch));
+    }
+
+    @Override
+    @ExecutedBy("mExecutor")
+    public void setLowLightBoostDisabledByUseCaseSessionConfig(boolean disabled) {
+        mLowLightBoostControl.setLowLightBoostDisabledByUseCaseSessionConfig(disabled);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public @NonNull ListenableFuture<Void> enableLowLightBoostAsync(final boolean lowLightBoost) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
+        return Futures.nonCancellationPropagating(
+                mLowLightBoostControl.enableLowLightBoost(lowLightBoost));
     }
 
     @ExecutedBy("mExecutor")
@@ -470,6 +519,39 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
                     new OperationCanceledException("Camera is not active."));
         }
         return mExposureControl.setExposureCompensationIndex(exposure);
+    }
+
+    @Override
+    public @NonNull ListenableFuture<Void> setTorchStrengthLevel(
+            @IntRange(from = 1) int torchStrengthLevel) {
+        if (!isControlInUse()) {
+            return Futures.immediateFailedFuture(
+                    new OperationCanceledException("Camera is not active."));
+        }
+        if (!mCameraCharacteristics.isTorchStrengthLevelSupported()) {
+            return Futures.immediateFailedFuture(new UnsupportedOperationException(
+                    "The device doesn't support configuring torch strength level."));
+        }
+        if (torchStrengthLevel < 1
+                || torchStrengthLevel > mCameraCharacteristics.getMaxTorchStrengthLevel()) {
+            return Futures.immediateFailedFuture(new IllegalArgumentException(
+                    "The specified torch strength is not within the valid range."));
+        }
+        return Futures.nonCancellationPropagating(mTorchControl.setTorchStrengthLevel(
+                Math.min(torchStrengthLevel, mCameraCharacteristics.getMaxTorchStrengthLevel())));
+    }
+
+    @ExecutedBy("mExecutor")
+    void setTorchStrengthLevelInternal(@IntRange(from = 1) int torchStrengthLevel) {
+        mTorchStrength = torchStrengthLevel;
+        if (isTorchOn()) {
+            updateSessionConfigSynchronous();
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    void setIsRepeatingRequestAvailable(boolean isRepeatingRequestAvailable) {
+        mIsRepeatingRequestAvailable = isRepeatingRequestAvailable;
     }
 
     /** {@inheritDoc} */
@@ -584,17 +666,6 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         return mZoomControl.getCropSensorRegion();
     }
 
-    @Override
-    @ExecutedBy("mExecutor")
-    public @NonNull Rect getSensorRect() {
-        Rect sensorRect =
-                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
-        if ("robolectric".equals(Build.FINGERPRINT) && sensorRect == null) {
-            return new Rect(0, 0, 4000, 3000);
-        }
-        return Preconditions.checkNotNull(sensorRect);
-    }
-
     @ExecutedBy("mExecutor")
     void removeCaptureResultListener(@NonNull CaptureResultListener listener) {
         mSessionCallback.removeListener(listener);
@@ -622,28 +693,64 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @ExecutedBy("mExecutor")
-    void enableTorchInternal(boolean torch) {
-        mIsTorchOn = torch;
-        if (!torch) {
-            // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
-            CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
-            singleRequestBuilder.setTemplateType(mTemplate);
-            singleRequestBuilder.setUseRepeatingSurface(true);
-            Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
-            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
-                    getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
-            configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
-                    CaptureRequest.FLASH_MODE_OFF);
-            singleRequestBuilder.addImplementationOptions(configBuilder.build());
-            submitCaptureRequestsInternal(
-                    Collections.singletonList(singleRequestBuilder.build()));
+    void enableTorchInternal(@TorchControl.TorchStateInternal int torchState) {
+        // When low-light boost is on, any torch related operations will be ignored.
+        if (mIsLowLightBoostOn) {
+            return;
+        }
+
+        mTorchState = torchState;
+        if (torchState == TorchControl.OFF) {
+            // On some devices, needs to reset the AE/flash state to ensure that the torch can be
+            // turned off.
+            resetAeFlashState();
         }
         updateSessionConfigSynchronous();
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @ExecutedBy("mExecutor")
+    void enableLowLightBoostInternal(boolean lowLightBoost) {
+        if (mIsLowLightBoostOn == lowLightBoost) {
+            return;
+        }
+
+        // Forces turn off torch before enabling low-light boost.
+        if (lowLightBoost && isTorchOn()) {
+            // On some devices, needs to reset the AE/flash state to ensure that the torch can be
+            // turned off.
+            resetAeFlashState();
+            mTorchState = TorchControl.OFF;
+            mTorchControl.forceUpdateTorchStateToOff();
+        }
+
+        mIsLowLightBoostOn = lowLightBoost;
+        updateSessionConfigSynchronous();
+    }
+
+    private void resetAeFlashState() {
+        // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to reset the AE/flash state.
+        CaptureConfig.Builder singleRequestBuilder = new CaptureConfig.Builder();
+        singleRequestBuilder.setTemplateType(mTemplate);
+        singleRequestBuilder.setUseRepeatingSurface(true);
+        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
+        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+        configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
+                CaptureRequest.FLASH_MODE_OFF);
+        singleRequestBuilder.addImplementationOptions(configBuilder.build());
+        submitCaptureRequestsInternal(
+                Collections.singletonList(singleRequestBuilder.build()));
+    }
+
     @ExecutedBy("mExecutor")
     boolean isTorchOn() {
-        return mIsTorchOn;
+        return mTorchState != TorchControl.OFF;
+    }
+
+    @ExecutedBy("mExecutor")
+    boolean isLowLightBoostOn() {
+        return mIsLowLightBoostOn;
     }
 
     @ExecutedBy("mExecutor")
@@ -676,9 +783,22 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
             aeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
         }
 
-        if (mIsTorchOn) {
+        if (mIsLowLightBoostOn) {
+            aeMode = CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY;
+        } else if (isTorchOn()) {
             builder.setCaptureRequestOptionWithPriority(CaptureRequest.FLASH_MODE,
                     CaptureRequest.FLASH_MODE_TORCH, Config.OptionPriority.REQUIRED);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                if (mTorchState == TorchControl.ON) {
+                    builder.setCaptureRequestOptionWithPriority(CaptureRequest.FLASH_STRENGTH_LEVEL,
+                            mTorchStrength, Config.OptionPriority.REQUIRED);
+                } else if (mTorchState == TorchControl.USED_AS_FLASH) {
+                    // If torch is used as flash, use the default torch strength instead.
+                    builder.setCaptureRequestOptionWithPriority(CaptureRequest.FLASH_STRENGTH_LEVEL,
+                            mCameraCharacteristics.getDefaultTorchStrengthLevel(),
+                            Config.OptionPriority.REQUIRED);
+                }
+            }
         } else {
             switch (mFlashMode) {
                 case FLASH_MODE_OFF:

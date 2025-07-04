@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -37,14 +37,13 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(project(":core:core"))
 }
 
 androidx {
     name = "Core Internationalization"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_I18N
     inceptionYear = "2022"
     description = "This library provides functionality for good internationalization (messages, plurals, date / time formatting)."

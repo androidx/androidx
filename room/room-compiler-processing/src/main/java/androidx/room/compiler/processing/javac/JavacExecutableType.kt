@@ -23,7 +23,7 @@ import javax.lang.model.type.ExecutableType
 internal abstract class JavacExecutableType(
     val env: JavacProcessingEnv,
     open val element: JavacExecutableElement,
-    val executableType: ExecutableType
+    val executableType: ExecutableType,
 ) : XExecutableType {
 
     override val parameterTypes: List<JavacType> by lazy {
@@ -31,7 +31,7 @@ internal abstract class JavacExecutableType(
             env.wrap(
                 typeMirror = typeMirror,
                 kotlinType = element.parameters[index].kotlinType,
-                elementNullability = element.parameters[index].element.nullability
+                elementNullability = element.parameters[index].element.nullability,
             )
         }
     }

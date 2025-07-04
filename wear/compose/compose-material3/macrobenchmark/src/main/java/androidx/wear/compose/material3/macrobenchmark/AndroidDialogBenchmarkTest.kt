@@ -29,5 +29,5 @@ class AndroidDialogBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = AndroidDialogBenchmark,
-        actionSuffix = "ANDROID_DIALOG_ACTIVITY"
+        actionSuffix = "ANDROID_DIALOG_ACTIVITY",
     )

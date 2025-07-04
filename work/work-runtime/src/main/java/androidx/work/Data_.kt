@@ -39,11 +39,11 @@ import java.util.Objects
  * an enforced [.MAX_DATA_BYTES] limit on the serialized (byte array) size of the payloads. This
  * class will throw [IllegalStateException]s if you try to serialize or deserialize past this limit.
  */
-class Data {
+public class Data {
     private val values: Map<String, Any?>
 
     /** Copy constructor */
-    constructor(other: Data) {
+    public constructor(other: Data) {
         values = HashMap(other.values)
     }
 
@@ -58,7 +58,7 @@ class Data {
 
     private inline fun <reified T : Any, TArray> getTypedArray(
         key: String,
-        constructor: (size: Int, init: (index: Int) -> T) -> TArray
+        constructor: (size: Int, init: (index: Int) -> T) -> TArray,
     ): TArray? {
         val value = values[key]
         return if (value is Array<*> && value.isArrayOf<T>())
@@ -73,7 +73,8 @@ class Data {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    fun getBoolean(key: String, defaultValue: Boolean): Boolean = getOrDefault(key, defaultValue)
+    public fun getBoolean(key: String, defaultValue: Boolean): Boolean =
+        getOrDefault(key, defaultValue)
 
     /**
      * Gets the boolean array value for the given key.
@@ -81,7 +82,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getBooleanArray(key: String): BooleanArray? = getTypedArray(key, ::BooleanArray)
+    public fun getBooleanArray(key: String): BooleanArray? = getTypedArray(key, ::BooleanArray)
 
     /**
      * Gets the byte value for the given key.
@@ -90,7 +91,7 @@ class Data {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    fun getByte(key: String, defaultValue: Byte): Byte = getOrDefault(key, defaultValue)
+    public fun getByte(key: String, defaultValue: Byte): Byte = getOrDefault(key, defaultValue)
 
     /**
      * Gets the byte array value for the given key.
@@ -98,7 +99,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getByteArray(key: String): ByteArray? = getTypedArray(key, ::ByteArray)
+    public fun getByteArray(key: String): ByteArray? = getTypedArray(key, ::ByteArray)
 
     /**
      * Gets the integer value for the given key.
@@ -107,7 +108,7 @@ class Data {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    fun getInt(key: String, defaultValue: Int): Int = getOrDefault(key, defaultValue)
+    public fun getInt(key: String, defaultValue: Int): Int = getOrDefault(key, defaultValue)
 
     /**
      * Gets the integer array value for the given key.
@@ -115,7 +116,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getIntArray(key: String): IntArray? = getTypedArray(key, ::IntArray)
+    public fun getIntArray(key: String): IntArray? = getTypedArray(key, ::IntArray)
 
     /**
      * Gets the long value for the given key.
@@ -124,7 +125,7 @@ class Data {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    fun getLong(key: String, defaultValue: Long): Long = getOrDefault(key, defaultValue)
+    public fun getLong(key: String, defaultValue: Long): Long = getOrDefault(key, defaultValue)
 
     /**
      * Gets the long array value for the given key.
@@ -132,7 +133,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getLongArray(key: String): LongArray? = getTypedArray(key, ::LongArray)
+    public fun getLongArray(key: String): LongArray? = getTypedArray(key, ::LongArray)
 
     /**
      * Gets the float value for the given key.
@@ -141,7 +142,7 @@ class Data {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    fun getFloat(key: String, defaultValue: Float): Float = getOrDefault(key, defaultValue)
+    public fun getFloat(key: String, defaultValue: Float): Float = getOrDefault(key, defaultValue)
 
     /**
      * Gets the float array value for the given key.
@@ -149,7 +150,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getFloatArray(key: String): FloatArray? = getTypedArray(key, ::FloatArray)
+    public fun getFloatArray(key: String): FloatArray? = getTypedArray(key, ::FloatArray)
 
     /**
      * Gets the double value for the given key.
@@ -158,7 +159,8 @@ class Data {
      * @param defaultValue The default value to return if the key is not found
      * @return The value specified by the key if it exists; the default value otherwise
      */
-    fun getDouble(key: String, defaultValue: Double): Double = getOrDefault(key, defaultValue)
+    public fun getDouble(key: String, defaultValue: Double): Double =
+        getOrDefault(key, defaultValue)
 
     /**
      * Gets the double array value for the given key.
@@ -166,7 +168,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getDoubleArray(key: String): DoubleArray? = getTypedArray(key, ::DoubleArray)
+    public fun getDoubleArray(key: String): DoubleArray? = getTypedArray(key, ::DoubleArray)
 
     /**
      * Gets the String value for the given key.
@@ -174,7 +176,7 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getString(key: String): String? = values[key] as? String
+    public fun getString(key: String): String? = values[key] as? String
 
     /**
      * Gets the String array value for the given key.
@@ -182,9 +184,9 @@ class Data {
      * @param key The key for the argument
      * @return The value specified by the key if it exists; `null` otherwise
      */
-    fun getStringArray(key: String): Array<String>? = getTypedArray(key, ::Array)
+    public fun getStringArray(key: String): Array<String>? = getTypedArray(key, ::Array)
 
-    val keyValueMap: Map<String, Any?>
+    public val keyValueMap: Map<String, Any?>
         /**
          * Gets all the values in this Data object.
          *
@@ -201,7 +203,7 @@ class Data {
      * @return The byte array representation of the input
      * @throws IllegalStateException if the serialized payload is bigger than [.MAX_DATA_BYTES]
      */
-    fun toByteArray(): ByteArray = toByteArrayInternalV1(this)
+    public fun toByteArray(): ByteArray = toByteArrayInternalV1(this)
 
     /**
      * Returns `true` if the instance of [Data] has a non-null value corresponding to the given
@@ -212,7 +214,7 @@ class Data {
      * @return `true` If the instance of [Data] has a value for the given [String] key with the
      *   expected type.
      */
-    fun <T> hasKeyWithValueOfType(key: String, klass: Class<T>): Boolean {
+    public fun <T> hasKeyWithValueOfType(key: String, klass: Class<T>): Boolean {
         val value = values[key]
         return value != null && klass.isAssignableFrom(value.javaClass)
     }
@@ -230,7 +232,9 @@ class Data {
     }
 
     /** @return The number of elements in this Data object. */
-    @VisibleForTesting @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun size(): Int = values.size
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun size(): Int = values.size
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -290,7 +294,7 @@ class Data {
     }
 
     /** A builder for [Data] objects. */
-    class Builder {
+    public class Builder {
         private val values: MutableMap<String, Any?> = mutableMapOf()
 
         private fun putDirect(key: String, value: Any?): Builder {
@@ -305,7 +309,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putBoolean(key: String, value: Boolean): Builder = putDirect(key, value)
+        public fun putBoolean(key: String, value: Boolean): Builder = putDirect(key, value)
 
         /**
          * Puts a boolean array into the arguments.
@@ -314,7 +318,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putBooleanArray(key: String, value: BooleanArray): Builder {
+        public fun putBooleanArray(key: String, value: BooleanArray): Builder {
             values[key] = convertPrimitiveArray(value)
             return this
         }
@@ -326,7 +330,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putByte(key: String, value: Byte): Builder = putDirect(key, value)
+        public fun putByte(key: String, value: Byte): Builder = putDirect(key, value)
 
         /**
          * Puts an integer array into the arguments.
@@ -335,7 +339,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putByteArray(key: String, value: ByteArray): Builder {
+        public fun putByteArray(key: String, value: ByteArray): Builder {
             values[key] = convertPrimitiveArray(value)
             return this
         }
@@ -347,7 +351,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putInt(key: String, value: Int): Builder = putDirect(key, value)
+        public fun putInt(key: String, value: Int): Builder = putDirect(key, value)
 
         /**
          * Puts an integer array into the arguments.
@@ -356,7 +360,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putIntArray(key: String, value: IntArray): Builder {
+        public fun putIntArray(key: String, value: IntArray): Builder {
             values[key] = convertPrimitiveArray(value)
             return this
         }
@@ -368,7 +372,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putLong(key: String, value: Long): Builder = putDirect(key, value)
+        public fun putLong(key: String, value: Long): Builder = putDirect(key, value)
 
         /**
          * Puts a long array into the arguments.
@@ -377,7 +381,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putLongArray(key: String, value: LongArray): Builder {
+        public fun putLongArray(key: String, value: LongArray): Builder {
             values[key] = convertPrimitiveArray(value)
             return this
         }
@@ -389,7 +393,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putFloat(key: String, value: Float): Builder = putDirect(key, value)
+        public fun putFloat(key: String, value: Float): Builder = putDirect(key, value)
 
         /**
          * Puts a float array into the arguments.
@@ -398,7 +402,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putFloatArray(key: String, value: FloatArray): Builder {
+        public fun putFloatArray(key: String, value: FloatArray): Builder {
             values[key] = convertPrimitiveArray(value)
             return this
         }
@@ -410,7 +414,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putDouble(key: String, value: Double): Builder = putDirect(key, value)
+        public fun putDouble(key: String, value: Double): Builder = putDirect(key, value)
 
         /**
          * Puts a double array into the arguments.
@@ -419,7 +423,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putDoubleArray(key: String, value: DoubleArray): Builder {
+        public fun putDoubleArray(key: String, value: DoubleArray): Builder {
             values[key] = convertPrimitiveArray(value)
             return this
         }
@@ -431,7 +435,7 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putString(key: String, value: String?): Builder = putDirect(key, value)
+        public fun putString(key: String, value: String?): Builder = putDirect(key, value)
 
         /**
          * Puts a String array into the arguments.
@@ -440,7 +444,8 @@ class Data {
          * @param value The value for this argument
          * @return The [Builder]
          */
-        fun putStringArray(key: String, value: Array<String?>): Builder = putDirect(key, value)
+        public fun putStringArray(key: String, value: Array<String?>): Builder =
+            putDirect(key, value)
 
         /**
          * Puts all input key-value pairs from a [Data] into the Builder.
@@ -451,7 +456,7 @@ class Data {
          * @param data [Data] containing key-value pairs to add
          * @return The [Builder]
          */
-        fun putAll(data: Data): Builder {
+        public fun putAll(data: Data): Builder {
             putAll(data.values)
             return this
         }
@@ -465,7 +470,7 @@ class Data {
          * @param values A [Map] of key-value pairs to add
          * @return The [Builder]
          */
-        fun putAll(values: Map<String, Any?>): Builder {
+        public fun putAll(values: Map<String, Any?>): Builder {
             values.forEach { (key, value) -> put(key, value) }
             return this
         }
@@ -480,7 +485,7 @@ class Data {
          * @return The [Builder]
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun put(key: String, value: Any?): Builder {
+        public fun put(key: String, value: Any?): Builder {
             values[key] =
                 if (value == null) {
                     null
@@ -518,7 +523,7 @@ class Data {
          *
          * @return The [Data] object containing all key-value pairs specified by this [Builder].
          */
-        fun build(): Data {
+        public fun build(): Data {
             val data = Data(values)
             // Make sure we catch Data objects that are too large at build() instead of later.  This
             // method will throw an exception if data is too big.
@@ -527,15 +532,15 @@ class Data {
         }
     }
 
-    companion object {
+    public companion object {
         /** An empty Data object with no elements. */
-        @JvmField val EMPTY = Builder().build()
+        @JvmField public val EMPTY: Data = Builder().build()
 
         /**
          * The maximum number of bytes for Data when it is serialized (converted to a byte array).
          * Please see the class-level Javadoc for more information.
          */
-        @SuppressLint("MinMaxConstant") const val MAX_DATA_BYTES = 10 * 1024 // 10KB
+        @SuppressLint("MinMaxConstant") public const val MAX_DATA_BYTES: Int = 10 * 1024 // 10KB
 
         /** The list of supported types. */
         private const val TYPE_NULL: Byte = 0
@@ -574,9 +579,9 @@ class Data {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Deprecated(
             message = "This is kept for testing migration",
-            replaceWith = ReplaceWith("toByteArrayInternalV1")
+            replaceWith = ReplaceWith("toByteArrayInternalV1"),
         )
-        fun toByteArrayInternalV0(data: Data): ByteArray {
+        public fun toByteArrayInternalV0(data: Data): ByteArray {
             return try {
                 val stream =
                     ByteArrayOutputStream().use { outputStream ->
@@ -604,7 +609,7 @@ class Data {
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @TypeConverter
-        fun toByteArrayInternalV1(data: Data): ByteArray {
+        public fun toByteArrayInternalV1(data: Data): ByteArray {
             fun DataOutputStream.writeHeader() {
                 // We use our own magic and it's different from the
                 // `ObjectStreamConstants.STREAM_MAGIC` used in V0.
@@ -721,7 +726,7 @@ class Data {
          */
         @JvmStatic
         @TypeConverter
-        fun fromByteArray(bytes: ByteArray): Data {
+        public fun fromByteArray(bytes: ByteArray): Data {
             fun ByteArrayInputStream.isObjectStream(): Boolean {
                 val header = ByteArray(2)
                 read(header)

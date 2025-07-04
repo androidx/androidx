@@ -33,7 +33,7 @@ private constructor(
     override val capacity: Int,
     override val surface: Surface,
     public val streamId: StreamId,
-    private val outputs: Map<OutputId, Size>
+    private val outputs: Map<OutputId, Size>,
 ) : ImageReaderWrapper {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
@@ -122,7 +122,7 @@ private constructor(
             outputId: OutputId,
             size: Size,
             capacity: Int,
-            fakeSurfaces: FakeSurfaces? = null
+            fakeSurfaces: FakeSurfaces? = null,
         ): FakeImageReader =
             create(format, streamId, mapOf(outputId to size), capacity, fakeSurfaces)
 
@@ -132,7 +132,7 @@ private constructor(
             streamId: StreamId,
             outputIdMap: Map<OutputId, Size>,
             capacity: Int,
-            fakeSurfaces: FakeSurfaces? = null
+            fakeSurfaces: FakeSurfaces? = null,
         ): FakeImageReader {
 
             // Find smallest by areas to pick the default surface size. This matches the behavior of
@@ -156,6 +156,6 @@ public class FakeOnImageListener : ImageReaderWrapper.OnImageListener {
     public data class OnImageEvent(
         val streamId: StreamId,
         val outputId: OutputId,
-        val image: ImageWrapper
+        val image: ImageWrapper,
     )
 }

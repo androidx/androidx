@@ -125,7 +125,7 @@ import kotlinx.coroutines.launch
  */
 @Deprecated(
     "Please use the new overload with additional rotaryBehavior parameter",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Picker(
@@ -141,7 +141,7 @@ public fun Picker(
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     userScrollEnabled: Boolean = true,
-    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit,
 ) {
     Picker(
         state = state,
@@ -158,7 +158,7 @@ public fun Picker(
         userScrollEnabled = userScrollEnabled,
         rotaryScrollableBehavior =
             RotaryScrollableDefaults.snapBehavior(state, state.toRotarySnapLayoutInfoProvider()),
-        option = option
+        option = option,
     )
 }
 
@@ -238,7 +238,7 @@ public fun Picker(
     userScrollEnabled: Boolean = true,
     rotaryScrollableBehavior: RotaryScrollableBehavior? =
         RotaryScrollableDefaults.snapBehavior(state, state.toRotarySnapLayoutInfoProvider()),
-    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit,
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
     val pickerScope = remember(state) { PickerScopeImpl(state) }
@@ -321,7 +321,7 @@ public fun Picker(
             verticalArrangement = Arrangement.spacedBy(space = separation),
             flingBehavior = flingBehavior,
             autoCentering = AutoCenteringParams(itemIndex = 0),
-            userScrollEnabled = userScrollEnabled
+            userScrollEnabled = userScrollEnabled,
         )
         if (readOnly && readOnlyLabel != null) {
             readOnlyLabel()
@@ -348,7 +348,7 @@ public fun Picker(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available which uses ScalingParams from " +
         "androidx.wear.compose.foundation.lazy package",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Picker(
@@ -364,7 +364,7 @@ public fun Picker(
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     userScrollEnabled: Boolean = true,
-    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit,
 ): Unit =
     Picker(
         state = state,
@@ -379,7 +379,7 @@ public fun Picker(
         gradientColor = gradientColor,
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
-        option = option
+        option = option,
     )
 
 /**
@@ -429,7 +429,7 @@ public fun Picker(
     "This overload is provided for backwards compatibility with Compose for Wear OS 1.1." +
         "A newer overload is available with additional userScrollEnabled parameter which improves " +
         "accessibility of [Picker].",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @Composable
 public fun Picker(
@@ -444,7 +444,7 @@ public fun Picker(
     @FloatRange(from = 0.0, to = 0.5) gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
-    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit,
 ): Unit =
     Picker(
         state = state,
@@ -459,7 +459,7 @@ public fun Picker(
         gradientColor = gradientColor,
         flingBehavior = flingBehavior,
         userScrollEnabled = true,
-        option = option
+        option = option,
     )
 
 /**
@@ -514,7 +514,7 @@ public fun Picker(
     @FloatRange(from = 0.0, to = 0.5) gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
-    option: @Composable PickerScope.(optionIndex: Int) -> Unit
+    option: @Composable PickerScope.(optionIndex: Int) -> Unit,
 ): Unit =
     Picker(
         state = state,
@@ -528,7 +528,7 @@ public fun Picker(
         gradientColor = gradientColor,
         flingBehavior = flingBehavior,
         userScrollEnabled = true,
-        option = option
+        option = option,
     )
 
 // Apply a shim on the top and bottom of the Picker to hide all but the selected option.
@@ -537,7 +537,7 @@ private fun ContentDrawScope.drawShim(gradientColor: Color, height: Float) {
     drawRect(
         color = gradientColor,
         topLeft = Offset(0f, size.height - height),
-        size = Size(size.width, height)
+        size = Size(size.width, height),
     )
 }
 
@@ -547,14 +547,14 @@ private fun ContentDrawScope.drawGradient(gradientColor: Color, gradientRatio: F
         Brush.linearGradient(
             colors = listOf(gradientColor, Color.Transparent),
             start = Offset(size.width / 2, 0f),
-            end = Offset(size.width / 2, size.height * gradientRatio)
+            end = Offset(size.width / 2, size.height * gradientRatio),
         )
     )
     drawRect(
         Brush.linearGradient(
             colors = listOf(Color.Transparent, gradientColor),
             start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
-            end = Offset(size.width / 2, size.height)
+            end = Offset(size.width / 2, size.height),
         )
     )
 }
@@ -570,13 +570,13 @@ private fun ContentDrawScope.drawGradient(gradientColor: Color, gradientRatio: F
 public fun rememberPickerState(
     initialNumberOfOptions: Int,
     initiallySelectedOption: Int = 0,
-    repeatItems: Boolean = true
+    repeatItems: Boolean = true,
 ): PickerState =
     rememberSaveable(
         initialNumberOfOptions,
         initiallySelectedOption,
         repeatItems,
-        saver = PickerState.Saver
+        saver = PickerState.Saver,
     ) {
         PickerState(initialNumberOfOptions, initiallySelectedOption, repeatItems)
     }
@@ -596,7 +596,7 @@ constructor(
     /*@IntRange(from = 1)*/
     initialNumberOfOptions: Int,
     initiallySelectedOption: Int = 0,
-    public val repeatItems: Boolean = true
+    public val repeatItems: Boolean = true,
 ) : ScrollableState {
     init {
         verifyNumberOfOptions(initialNumberOfOptions)
@@ -614,7 +614,7 @@ constructor(
                 positiveModulo(
                     selectedOption.coerceAtMost(newNumberOfOptions - 1) -
                         scalingLazyListState.centerItemIndex,
-                    newNumberOfOptions
+                    newNumberOfOptions,
                 )
             _numberOfOptions = newNumberOfOptions
         }
@@ -678,15 +678,15 @@ constructor(
                     PickerState(
                         initialNumberOfOptions = saved[0] as Int,
                         initiallySelectedOption = saved[1] as Int,
-                        repeatItems = saved[2] as Boolean
+                        repeatItems = saved[2] as Boolean,
                     )
-                }
+                },
             )
     }
 
     public override suspend fun scroll(
         scrollPriority: MutatePriority,
-        block: suspend ScrollScope.() -> Unit
+        block: suspend ScrollScope.() -> Unit,
     ) {
         scalingLazyListState.scroll(scrollPriority, block)
     }
@@ -743,7 +743,7 @@ public object PickerDefaults {
                     " edgeAlpha, minElementHeight, maxElementHeight, minTransitionArea, " +
                     "maxTransitionArea, scaleInterpolator, viewportVerticalOffsetResolver)"
             ),
-        level = DeprecationLevel.WARNING
+        level = DeprecationLevel.WARNING,
     )
     public fun scalingParams(
         edgeScale: Float = 0.45f,
@@ -753,7 +753,7 @@ public object PickerDefaults {
         minTransitionArea: Float = 0.45f,
         maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
-        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
+        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() },
     ): androidx.wear.compose.material.ScalingParams =
         androidx.wear.compose.material.ScalingLazyColumnDefaults.scalingParams(
             edgeScale = edgeScale,
@@ -763,7 +763,7 @@ public object PickerDefaults {
             minTransitionArea = minTransitionArea,
             maxTransitionArea = maxTransitionArea,
             scaleInterpolator = scaleInterpolator,
-            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver,
         )
 
     /**
@@ -778,7 +778,7 @@ public object PickerDefaults {
         minTransitionArea: Float = 0.45f,
         maxTransitionArea: Float = 0.45f,
         scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
-        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() }
+        viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 5f).toInt() },
     ): ScalingParams =
         ScalingLazyColumnDefaults.scalingParams(
             edgeScale = edgeScale,
@@ -788,7 +788,7 @@ public object PickerDefaults {
             minTransitionArea = minTransitionArea,
             maxTransitionArea = maxTransitionArea,
             scaleInterpolator = scaleInterpolator,
-            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
+            viewportVerticalOffsetResolver = viewportVerticalOffsetResolver,
         )
 
     /**
@@ -801,12 +801,12 @@ public object PickerDefaults {
     @Composable
     public fun flingBehavior(
         state: PickerState,
-        decay: DecayAnimationSpec<Float> = exponentialDecay()
+        decay: DecayAnimationSpec<Float> = exponentialDecay(),
     ): FlingBehavior {
         return ScalingLazyColumnDefaults.snapFlingBehavior(
             state = state.scalingLazyListState,
             snapOffset = 0.dp,
-            decay = decay
+            decay = decay,
         )
     }
 
@@ -838,7 +838,7 @@ private fun convertToDefaultFoundationScalingParams(
         scaleInterpolator = scalingParams.scaleInterpolator,
         viewportVerticalOffsetResolver = { viewportConstraints ->
             scalingParams.resolveViewportVerticalOffset(viewportConstraints)
-        }
+        },
     )
 
 /** An extension function for creating [RotarySnapLayoutInfoProvider] from [Picker] */

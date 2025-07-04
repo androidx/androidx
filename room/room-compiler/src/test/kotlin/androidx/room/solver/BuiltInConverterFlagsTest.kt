@@ -23,10 +23,10 @@ import androidx.room.Database
 import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_STMT_READER
-import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -66,7 +66,7 @@ class BuiltInConverterFlagsTest {
         compile(
             dbAnnotation = createTypeConvertersCode(enums = DISABLED, uuid = DISABLED),
             daoAnnotation = createTypeConvertersCode(enums = ENABLED, uuid = ENABLED),
-            entityAnnotation = createTypeConvertersCode(enums = ENABLED, uuid = ENABLED)
+            entityAnnotation = createTypeConvertersCode(enums = ENABLED, uuid = ENABLED),
         ) {
             // success
         }
@@ -98,7 +98,7 @@ class BuiltInConverterFlagsTest {
             daoAnnotation =
                 createTypeConvertersCode(enums = DISABLED, uuid = DISABLED, byteBuffer = DISABLED),
             entityAnnotation =
-                createTypeConvertersCode(enums = ENABLED, uuid = ENABLED, byteBuffer = ENABLED)
+                createTypeConvertersCode(enums = ENABLED, uuid = ENABLED, byteBuffer = ENABLED),
         ) {
             // success since we only fetch full objects.
         }
@@ -130,15 +130,15 @@ class BuiltInConverterFlagsTest {
         entityAnnotation: String = "",
         daoAnnotation: String = "",
         dbAnnotation: String = "",
-        assertion: XTestInvocation.() -> Unit
+        assertion: XTestInvocation.() -> Unit,
     ) {
         val source =
             buildSource(
                 entityAnnotation = entityAnnotation,
                 daoAnnotation = daoAnnotation,
-                dbAnnotation = dbAnnotation
+                dbAnnotation = dbAnnotation,
             )
-        runProcessorTestWithK1(
+        runProcessorTest(
             sources = listOf(source),
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
@@ -147,7 +147,7 @@ class BuiltInConverterFlagsTest {
                 .process(
                     env = invocation.processingEnv,
                     elementsByAnnotation = mapOf(Database::class.qualifiedName!! to setOf(subject)),
-                    false
+                    false,
                 )
             invocation.assertCompilationResult {
                 generatedSourceFileWithPath("MyDatabase_Impl.java")
@@ -195,14 +195,14 @@ class BuiltInConverterFlagsTest {
                 abstract val myDao: MyDao
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
     }
 
     private fun createTypeConvertersCode(
         enums: BuiltInTypeConverters.State? = null,
         uuid: BuiltInTypeConverters.State? = null,
-        byteBuffer: BuiltInTypeConverters.State? = null
+        byteBuffer: BuiltInTypeConverters.State? = null,
     ): String {
         val builtIns =
             listOfNotNull(

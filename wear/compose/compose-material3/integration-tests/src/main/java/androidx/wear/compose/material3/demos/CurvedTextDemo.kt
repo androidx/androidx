@@ -55,7 +55,7 @@ fun LargerFont() {
     CurvedLayout(modifier = Modifier.background(Color.DarkGray)) {
         curvedRow(
             CurvedModifier.background(backgroundColor, StrokeCap.Round),
-            radialAlignment = CurvedAlignment.Radial.Center
+            radialAlignment = CurvedAlignment.Radial.Center,
         ) {
             curvedText("Larger", fontSize = 24.sp)
             curvedBox(CurvedModifier.angularSizeDp(5.dp)) {}
@@ -85,7 +85,7 @@ fun SmallArcDemo() {
         curvedText(
             "Long text that will be cut for sure.",
             CurvedModifier.background(backgroundColor, StrokeCap.Round),
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -99,7 +99,7 @@ fun LargeArcDemo() {
             "Long text that will be cut for sure.",
             CurvedModifier.background(backgroundColor, StrokeCap.Round),
             maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

@@ -31,11 +31,16 @@ package androidx.recyclerview.selection {
 
   public abstract static class ItemDetailsLookup.ItemDetails<K> {
     ctor public ItemDetailsLookup.ItemDetails();
+    method public int classifySelectionHotspot(android.view.MotionEvent);
     method public abstract int getPosition();
     method public abstract K? getSelectionKey();
     method public boolean hasSelectionKey();
     method public boolean inDragRegion(android.view.MotionEvent);
-    method public boolean inSelectionHotspot(android.view.MotionEvent);
+    method @Deprecated public boolean inSelectionHotspot(android.view.MotionEvent);
+    field public static final int SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET = 3; // 0x3
+    field public static final int SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI = 1; // 0x1
+    field public static final int SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO = 2; // 0x2
+    field public static final int SELECTION_HOTSPOT_OUTSIDE = 0; // 0x0
   }
 
   public abstract class ItemKeyProvider<K> {

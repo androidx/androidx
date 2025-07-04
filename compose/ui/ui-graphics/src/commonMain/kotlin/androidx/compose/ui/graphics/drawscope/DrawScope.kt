@@ -63,7 +63,7 @@ inline fun DrawScope.inset(
     top: Float,
     right: Float,
     bottom: Float,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) {
     drawContext.transform.inset(left, top, right, bottom)
     try {
@@ -104,7 +104,7 @@ inline fun DrawScope.inset(inset: Float, block: DrawScope.() -> Unit) {
 inline fun DrawScope.inset(
     horizontal: Float = 0.0f,
     vertical: Float = 0.0f,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) = inset(horizontal, vertical, horizontal, vertical, block)
 
 /**
@@ -148,7 +148,7 @@ inline fun DrawScope.rotate(degrees: Float, pivot: Offset = center, block: DrawS
 inline fun DrawScope.rotateRad(
     radians: Float,
     pivot: Offset = center,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) {
     withTransform({ rotate(degrees(radians), pivot) }, block)
 }
@@ -168,7 +168,7 @@ inline fun DrawScope.scale(
     scaleX: Float,
     scaleY: Float,
     pivot: Offset = center,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) = withTransform({ scale(scaleX, scaleY, pivot) }, block)
 
 /**
@@ -205,7 +205,7 @@ inline fun DrawScope.clipRect(
     right: Float = size.width,
     bottom: Float = size.height,
     clipOp: ClipOp = ClipOp.Intersect,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
 
 /**
@@ -221,7 +221,7 @@ inline fun DrawScope.clipRect(
 inline fun DrawScope.clipPath(
     path: Path,
     clipOp: ClipOp = ClipOp.Intersect,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) = withTransform({ clipPath(path, clipOp) }, block)
 
 /**
@@ -244,7 +244,7 @@ inline fun DrawScope.drawIntoCanvas(block: (Canvas) -> Unit) = block(drawContext
  */
 inline fun DrawScope.withTransform(
     transformBlock: DrawTransform.() -> Unit,
-    drawBlock: DrawScope.() -> Unit
+    drawBlock: DrawScope.() -> Unit,
 ) =
     with(drawContext) {
         // Transformation can include inset calls which change the drawing area
@@ -263,14 +263,14 @@ inline fun DrawScope.withTransform(
 
 @Deprecated(
     message = "Please use a new overload accepting nullable GraphicsLayer",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 inline fun DrawScope.draw(
     density: Density,
     layoutDirection: LayoutDirection,
     canvas: Canvas,
     size: Size,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) {
     draw(density, layoutDirection, canvas, size, null, block)
 }
@@ -296,7 +296,7 @@ inline fun DrawScope.draw(
     canvas: Canvas,
     size: Size,
     graphicsLayer: GraphicsLayer? = null,
-    block: DrawScope.() -> Unit
+    block: DrawScope.() -> Unit,
 ) {
     // Remember the previous drawing parameters in case we are temporarily re-directing our
     // drawing to a separate Layer/RenderNode only to draw that content back into the original
@@ -384,7 +384,7 @@ interface DrawScope : Density {
         pathEffect: PathEffect? = null,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -410,7 +410,7 @@ interface DrawScope : Density {
         pathEffect: PathEffect? = null,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -434,7 +434,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -458,7 +458,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -479,7 +479,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -512,8 +512,8 @@ interface DrawScope : Density {
                 "drawImage(image, srcOffset, srcSize, dstOffset, dstSize, alpha, style, " +
                     "colorFilter, blendMode, FilterQuality.Low)",
                 "androidx.compose.ui.graphics.drawscope",
-                "androidx.compose.ui.graphics.FilterQuality"
-            )
+                "androidx.compose.ui.graphics.FilterQuality",
+            ),
     ) // Binary API compatibility.
     fun drawImage(
         image: ImageBitmap,
@@ -524,7 +524,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -562,7 +562,7 @@ interface DrawScope : Density {
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode,
-        filterQuality: FilterQuality = DefaultFilterQuality
+        filterQuality: FilterQuality = DefaultFilterQuality,
     ) {
         drawImage(
             image = image,
@@ -573,7 +573,7 @@ interface DrawScope : Density {
             alpha = alpha,
             style = style,
             colorFilter = colorFilter,
-            blendMode = blendMode
+            blendMode = blendMode,
         )
     }
 
@@ -601,7 +601,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -627,7 +627,7 @@ interface DrawScope : Density {
         style: DrawStyle = Fill,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -650,7 +650,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -673,7 +673,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -698,7 +698,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -723,7 +723,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -756,7 +756,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -789,7 +789,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -811,7 +811,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -833,7 +833,7 @@ interface DrawScope : Density {
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -861,7 +861,7 @@ interface DrawScope : Density {
         pathEffect: PathEffect? = null,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -889,7 +889,7 @@ interface DrawScope : Density {
         pathEffect: PathEffect? = null,
         @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
         colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode
+        blendMode: BlendMode = DefaultBlendMode,
     )
 
     /**
@@ -900,7 +900,7 @@ interface DrawScope : Density {
      */
     fun GraphicsLayer.record(
         size: IntSize = this@DrawScope.size.toIntSize(),
-        block: DrawScope.() -> Unit
+        block: DrawScope.() -> Unit,
     ) =
         record(this@DrawScope, this@DrawScope.layoutDirection, size) {
             this@DrawScope.draw(
@@ -911,7 +911,7 @@ interface DrawScope : Density {
                 drawContext.canvas,
                 drawContext.size,
                 drawContext.graphicsLayer,
-                block
+                block,
             )
         }
 
@@ -962,7 +962,7 @@ class Stroke(
     val miter: Float = DefaultMiter,
     val cap: StrokeCap = DefaultCap,
     val join: StrokeJoin = DefaultJoin,
-    val pathEffect: PathEffect? = null
+    val pathEffect: PathEffect? = null,
 ) : DrawStyle() {
     companion object {
 

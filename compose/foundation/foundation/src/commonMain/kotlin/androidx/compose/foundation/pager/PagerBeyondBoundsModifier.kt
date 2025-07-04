@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
 @Composable
 internal fun rememberPagerBeyondBoundsState(
     state: PagerState,
-    beyondViewportPageCount: Int
+    beyondViewportPageCount: Int,
 ): LazyLayoutBeyondBoundsState {
     return remember(state, beyondViewportPageCount) {
         PagerBeyondBoundsState(state, beyondViewportPageCount)
@@ -31,7 +31,7 @@ internal fun rememberPagerBeyondBoundsState(
 
 internal class PagerBeyondBoundsState(
     private val state: PagerState,
-    private val beyondViewportPageCount: Int
+    private val beyondViewportPageCount: Int,
 ) : LazyLayoutBeyondBoundsState {
 
     override val itemCount: Int
@@ -47,7 +47,7 @@ internal class PagerBeyondBoundsState(
         get() =
             minOf(
                 itemCount - 1,
-                state.layoutInfo.visiblePagesInfo.last().index + beyondViewportPageCount
+                state.layoutInfo.visiblePagesInfo.last().index + beyondViewportPageCount,
             )
 
     override fun itemsPerViewport(): Int {
@@ -55,6 +55,7 @@ internal class PagerBeyondBoundsState(
         if (visibleItemCount == 0) return 0
         val viewportSize = state.layoutInfo.mainAxisViewportSize
         val averageItemSize = state.layoutInfo.pageSize + state.layoutInfo.pageSpacing
+        if (averageItemSize == 0) return 1
         return (viewportSize / averageItemSize).coerceAtLeast(1)
     }
 }

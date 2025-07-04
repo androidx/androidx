@@ -52,7 +52,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         request: GetCredentialRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>
+        callback: CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>,
     ) {
         if (
             isCredmanDisabled {
@@ -68,7 +68,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             object :
                 OutcomeReceiver<
                     android.credentials.PrepareGetCredentialResponse,
-                    android.credentials.GetCredentialException
+                    android.credentials.GetCredentialException,
                 > {
                 override fun onResult(response: android.credentials.PrepareGetCredentialResponse) {
                     callback.onResult(convertPrepareGetResponseToJetpackClass(response))
@@ -83,7 +83,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             convertGetRequestToFrameworkClass(request),
             cancellationSignal,
             executor,
-            outcome
+            outcome,
         )
     }
 
@@ -92,7 +92,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         pendingGetCredentialHandle: PrepareGetCredentialResponse.PendingGetCredentialHandle,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
         if (
             isCredmanDisabled {
@@ -108,7 +108,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             object :
                 OutcomeReceiver<
                     android.credentials.GetCredentialResponse,
-                    android.credentials.GetCredentialException
+                    android.credentials.GetCredentialException,
                 > {
                 override fun onResult(response: android.credentials.GetCredentialResponse) {
                     callback.onResult(convertGetResponseToJetpackClass(response))
@@ -124,7 +124,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             pendingGetCredentialHandle.frameworkHandle!!,
             cancellationSignal,
             executor,
-            outcome
+            outcome,
         )
     }
 
@@ -133,7 +133,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         request: GetCredentialRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>
+        callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
         if (
             isCredmanDisabled {
@@ -150,7 +150,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             object :
                 OutcomeReceiver<
                     android.credentials.GetCredentialResponse,
-                    android.credentials.GetCredentialException
+                    android.credentials.GetCredentialException,
                 > {
                 override fun onResult(response: android.credentials.GetCredentialResponse) {
                     Log.i(TAG, "GetCredentialResponse returned from framework")
@@ -168,7 +168,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             convertGetRequestToFrameworkClass(request),
             cancellationSignal,
             executor,
-            outcome
+            outcome,
         )
     }
 
@@ -185,7 +185,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         request: CreateCredentialRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>
+        callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
         if (
             isCredmanDisabled {
@@ -201,7 +201,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             object :
                 OutcomeReceiver<
                     android.credentials.CreateCredentialResponse,
-                    android.credentials.CreateCredentialException
+                    android.credentials.CreateCredentialException,
                 > {
                 override fun onResult(response: android.credentials.CreateCredentialResponse) {
                     Log.i(TAG, "Create Result returned from framework: ")
@@ -221,19 +221,19 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             convertCreateRequestToFrameworkClass(request, context),
             cancellationSignal,
             executor,
-            outcome
+            outcome,
         )
     }
 
     private fun convertCreateRequestToFrameworkClass(
         request: CreateCredentialRequest,
-        context: Context
+        context: Context,
     ): android.credentials.CreateCredentialRequest {
         val createCredentialRequestBuilder: android.credentials.CreateCredentialRequest.Builder =
             android.credentials.CreateCredentialRequest.Builder(
                     request.type,
                     getFinalCreateCredentialData(request, context),
-                    request.candidateQueryData
+                    request.candidateQueryData,
                 )
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
                 .setAlwaysSendAppInfoToProvider(true)
@@ -244,7 +244,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     @SuppressLint("MissingPermission")
     private fun setOriginForCreateRequest(
         request: CreateCredentialRequest,
-        builder: android.credentials.CreateCredentialRequest.Builder
+        builder: android.credentials.CreateCredentialRequest.Builder,
     ) {
         if (request.origin != null) {
             builder.setOrigin(request.origin)
@@ -263,7 +263,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
                 android.credentials.CredentialOption.Builder(
                         it.type,
                         it.requestData,
-                        it.candidateQueryData
+                        it.candidateQueryData,
                     )
                     .setIsSystemProviderRequired(it.isSystemProviderRequired)
                     .setAllowedProviders(it.allowedProviders)
@@ -277,7 +277,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     @SuppressLint("MissingPermission")
     private fun setOriginForGetRequest(
         request: GetCredentialRequest,
-        builder: android.credentials.GetCredentialRequest.Builder
+        builder: android.credentials.GetCredentialRequest.Builder,
     ) {
         if (request.origin != null) {
             builder.setOrigin(request.origin)
@@ -313,7 +313,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     ): PrepareGetCredentialResponse {
         val handle =
             PrepareGetCredentialResponse.PendingGetCredentialHandle(
-                response.pendingGetCredentialHandle,
+                response.pendingGetCredentialHandle
             )
 
         return PrepareGetCredentialResponse.Builder()
@@ -330,7 +330,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         request: ClearCredentialStateRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,
-        callback: CredentialManagerCallback<Void?, ClearCredentialException>
+        callback: CredentialManagerCallback<Void?, ClearCredentialException>,
     ) {
         Log.i(TAG, "In CredentialProviderFrameworkImpl onClearCredential")
 
@@ -362,7 +362,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
             createFrameworkClearCredentialRequest(),
             cancellationSignal,
             executor,
-            outcome
+            outcome,
         )
     }
 

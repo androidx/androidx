@@ -839,7 +839,7 @@ class LineHeightStyleSpanTest {
                 trimFirstLineTop = false,
                 trimLastLineBottom = false,
                 fontMetrics = fontMetrics,
-                preserveMinimumHeight = preserve
+                preserveMinimumHeight = preserve,
             )
 
         val halfLeading = fontMetrics.lineHeight() / 2
@@ -1382,7 +1382,7 @@ private fun FontMetricsInt.copy(): FontMetricsInt =
         ascent = this.ascent,
         descent = this.descent,
         bottom = this.bottom,
-        leading = this.leading
+        leading = this.leading,
     )
 
 /** Returns 2 * fontMetrics.lineHeight. */
@@ -1394,7 +1394,7 @@ private fun FontMetricsInt(
     descent: Int,
     bottom: Int = descent,
     top: Int = ascent,
-    leading: Int = 0
+    leading: Int = 0,
 ): FontMetricsInt =
     FontMetricsInt().apply {
         this.top = top
@@ -1438,14 +1438,14 @@ private fun LineHeightStyleSpan.runLastLine(fontMetrics: FontMetricsInt): FontMe
 @OptIn(InternalPlatformTextApi::class)
 private fun LineHeightStyleSpan.runMultiLine(
     line: Int,
-    fontMetrics: FontMetricsInt
+    fontMetrics: FontMetricsInt,
 ): FontMetricsInt {
     val newFontMetrics = fontMetrics.copy()
 
     this.chooseHeight(
         start = MultiLineStartIndex + line,
         end = MultiLineStartIndex + line + 1,
-        fontMetricsInt = newFontMetrics
+        fontMetricsInt = newFontMetrics,
     )
 
     return newFontMetrics
@@ -1463,6 +1463,6 @@ private fun LineHeightStyleSpan.chooseHeight(start: Int, end: Int, fontMetricsIn
         end = end,
         spanStartVertical = 0,
         lineHeight = 0,
-        fontMetricsInt = fontMetricsInt
+        fontMetricsInt = fontMetricsInt,
     )
 }

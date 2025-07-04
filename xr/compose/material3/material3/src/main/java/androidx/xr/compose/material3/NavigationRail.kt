@@ -22,25 +22,29 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.ExperimentalMaterial3ComponentOverrideApi
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.NavigationRailComponentOverride
-import androidx.compose.material3.NavigationRailComponentOverrideContext
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailOverride
+import androidx.compose.material3.NavigationRailOverrideScope
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.spatial.EdgeOffset
+import androidx.xr.compose.material3.XrNavigationRailOverride.NavigationRail
+import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterEdge
+import androidx.xr.compose.spatial.OrbiterOffsetType
+import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 
 /**
  * <a href="https://m3.material.io/components/navigation-rail/overview" class="external"
@@ -81,17 +85,9 @@ public fun NavigationRail(
     header: @Composable (ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Orbiter(
-        position = OrbiterEdge.Start,
-        alignment = Alignment.CenterVertically,
-        offset = XrNavigationRailTokens.OrbiterEdgeOffset,
-    ) {
-        Surface(
-            shape = CircleShape,
-            color = containerColor,
-            contentColor = contentColor,
-            modifier = modifier,
-        ) {
+    val orbiterProperties = LocalNavigationRailOrbiterProperties.current
+    VerticalOrbiter(orbiterProperties) {
+        Surface(color = containerColor, contentColor = contentColor, modifier = modifier) {
             Column(
                 // XR-changed: Original NavigationRail uses fillMaxHeight() and windowInsets,
                 // which do not produce the desired result in XR.
@@ -104,14 +100,10 @@ public fun NavigationRail(
             )
         }
     }
-    // Header goes inside a separate Orbiter without an outline shape, as this is generally
-    // a FAB.
+    // Header goes inside a separate top-aligned Orbiter without an outline shape, as this is
+    // generally a FAB.
     if (header != null) {
-        Orbiter(
-            position = OrbiterEdge.Start,
-            alignment = Alignment.Top,
-            offset = XrNavigationRailTokens.OrbiterEdgeOffset,
-        ) {
+        VerticalOrbiter(orbiterProperties.copy(alignment = Alignment.Top)) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(XrNavigationRailTokens.VerticalPadding),
@@ -122,9 +114,8 @@ public fun NavigationRail(
 }
 
 private object XrNavigationRailTokens {
-    /** The [EdgeOffset] for NavigationRail Orbiters in Full Space Mode (FSM). */
-    val OrbiterEdgeOffset
-        @Composable get() = EdgeOffset.inner(24.dp)
+    /** The [OrbiterOffset] for NavigationRail Orbiters in Full Space Mode (FSM). */
+    val OrbiterOffset = 24.dp
 
     /**
      * Vertical padding between the contents of the [NavigationRail] and its top/bottom, and
@@ -137,12 +128,12 @@ private object XrNavigationRailTokens {
     val ContainerWidth = 96.0.dp
 }
 
-/** [NavigationRailComponentOverride] that uses the XR-specific [NavigationRail]. */
+/** [NavigationRailOverride] that uses the XR-specific [NavigationRail]. */
 @ExperimentalMaterial3XrApi
 @OptIn(ExperimentalMaterial3ComponentOverrideApi::class)
-internal object XrNavigationRailComponentOverride : NavigationRailComponentOverride {
+internal object XrNavigationRailOverride : NavigationRailOverride {
     @Composable
-    override fun NavigationRailComponentOverrideContext.NavigationRail() {
+    override fun NavigationRailOverrideScope.NavigationRail() {
         NavigationRail(
             modifier = modifier,
             containerColor = containerColor,
@@ -152,3 +143,25 @@ internal object XrNavigationRailComponentOverride : NavigationRailComponentOverr
         )
     }
 }
+
+/**
+ * The default [VerticalOrbiterProperties] used by [NavigationRail] if none is specified in
+ * [LocalNavigationRailOrbiterProperties].
+ */
+@ExperimentalMaterial3XrApi
+public val DefaultNavigationRailOrbiterProperties: VerticalOrbiterProperties =
+    VerticalOrbiterProperties(
+        position = ContentEdge.Vertical.Start,
+        offset = XrNavigationRailTokens.OrbiterOffset,
+        offsetType = OrbiterOffsetType.InnerEdge,
+        alignment = Alignment.CenterVertically,
+        shape = SpatialRoundedCornerShape(CornerSize(50)),
+    )
+
+/** The [VerticalOrbiterProperties] used by [NavigationRail]. */
+@ExperimentalMaterial3XrApi
+public val LocalNavigationRailOrbiterProperties:
+    ProvidableCompositionLocal<VerticalOrbiterProperties> =
+    compositionLocalOf {
+        DefaultNavigationRailOrbiterProperties
+    }

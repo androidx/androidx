@@ -234,7 +234,7 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     private fun setupLoadSdkAnswer(
         sdkSandboxManager: SdkSandboxManager,
-        sandboxedSdk: SandboxedSdk
+        sandboxedSdk: SandboxedSdk,
     ) {
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<SandboxedSdk, LoadSdkException>>(3)
@@ -246,7 +246,7 @@ class SdkSandboxManagerCompatSandboxedTest {
 
     private fun setupLoadSdkAnswer(
         sdkSandboxManager: SdkSandboxManager,
-        loadSdkException: LoadSdkException
+        loadSdkException: LoadSdkException,
     ) {
         val answer = { args: InvocationOnMock ->
             val receiver = args.getArgument<OutcomeReceiver<SandboxedSdk, LoadSdkException>>(3)

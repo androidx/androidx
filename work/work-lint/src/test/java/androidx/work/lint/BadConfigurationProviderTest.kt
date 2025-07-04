@@ -38,7 +38,7 @@ class BadConfigurationProviderTest {
 
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -65,7 +65,7 @@ class BadConfigurationProviderTest {
 
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -81,7 +81,7 @@ class BadConfigurationProviderTest {
             class Provider: Configuration.Provider {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -91,7 +91,7 @@ class BadConfigurationProviderTest {
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
                 customApplication,
-                invalidProvider
+                invalidProvider,
             )
             .issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()
@@ -122,7 +122,7 @@ class BadConfigurationProviderTest {
 
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -148,7 +148,7 @@ class BadConfigurationProviderTest {
             class Provider: Configuration.Provider {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -176,7 +176,7 @@ class BadConfigurationProviderTest {
 
                 }
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -192,7 +192,7 @@ class BadConfigurationProviderTest {
             class Provider: Configuration.Provider {
                 override fun getWorkManagerConfiguration(): Configuration = TODO()
             }
-            """
+            """,
                 )
                 .indented()
                 .within("src")
@@ -202,7 +202,7 @@ class BadConfigurationProviderTest {
                 ANDROID_APPLICATION,
                 WORK_MANAGER_CONFIGURATION_PROVIDER,
                 customApplication,
-                invalidProvider
+                invalidProvider,
             )
             .issues(BadConfigurationProviderIssueDetector.ISSUE)
             .run()

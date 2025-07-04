@@ -57,12 +57,20 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
                 listOf(
                     TraceSectionMetric(
                         sectionName = CREATE_ANI_TRACE,
-                        mode = TraceSectionMetric.Mode.Sum
+                        mode = TraceSectionMetric.Mode.Sum,
                     ),
                     TraceSectionMetric(
                         sectionName = ACCESSIBILITY_EVENT_TRACE,
-                        mode = TraceSectionMetric.Mode.Sum
-                    )
+                        mode = TraceSectionMetric.Mode.Sum,
+                    ),
+                    TraceSectionMetric(
+                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
+                        mode = TraceSectionMetric.Mode.Sum,
+                    ),
+                    TraceSectionMetric(
+                        sectionName = COMPOSE_APPLY_CHANGES,
+                        mode = TraceSectionMetric.Mode.Sum,
+                    ),
                 ),
             iterations = 10,
             setupBlock = {
@@ -86,7 +94,7 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
                 // to be sent, for talkback to assign focus, and finally for talkback to trigger
                 // createAccessibilityNodeInfo calls which is the thing we want to measure.
                 performScrollAndWait(millis = 10_000)
-            }
+            },
         )
     }
 
@@ -94,7 +102,19 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
     fun frameInfo() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE,
-            metrics = listOf(FrameTimingMetric()),
+            metrics =
+                @OptIn(ExperimentalMetricApi::class)
+                listOf(
+                    FrameTimingMetric(),
+                    TraceSectionMetric(
+                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
+                        mode = TraceSectionMetric.Mode.Sum,
+                    ),
+                    TraceSectionMetric(
+                        sectionName = COMPOSE_APPLY_CHANGES,
+                        mode = TraceSectionMetric.Mode.Sum,
+                    ),
+                ),
             iterations = 10,
             setupBlock = {
                 if (iteration == 0) {
@@ -118,7 +138,7 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
                 // every frame deadline of 20ms.
                 repeat(100) { performScrollAndWait(millis = 20) }
                 Thread.sleep(10_000)
-            }
+            },
         )
     }
 
@@ -168,6 +188,8 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
         const val FRAME_MEASUREMENT_MODE = 2
         const val CREATE_ANI_TRACE = "createAccessibilityNodeInfo"
         const val ACCESSIBILITY_EVENT_TRACE = "sendAccessibilityEvent"
+        const val CONTENT_CAPTURE_CHANGE_CHECKER = "ContentCapture:changeChecker"
+        const val COMPOSE_APPLY_CHANGES = "Compose:applyChanges"
 
         // Manually set up LastPass on the device and use these parameters when running locally.
         // @Parameterized.Parameters(name = "LastPassEnabled=true, type={1}")

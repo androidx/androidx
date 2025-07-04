@@ -34,43 +34,43 @@ import java.io.Closeable
 
 @Deprecated(
     "Superseded by launchFragment that takes an initialState",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-    factory: FragmentFactory? = null
+    factory: FragmentFactory? = null,
 ): FragmentScenario<F> = launchFragment(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
 @Deprecated(
     "Superseded by launchFragment that takes an initialState",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-    crossinline instantiate: () -> F
+    crossinline instantiate: () -> F,
 ): FragmentScenario<F> = launchFragment(fragmentArgs, themeResId) { instantiate() }
 
 @Deprecated(
     "Superseded by launchFragmentInContainer that takes an initialState",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-    factory: FragmentFactory? = null
+    factory: FragmentFactory? = null,
 ): FragmentScenario<F> =
     launchFragmentInContainer(fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
 @Deprecated(
     "Superseded by launchFragmentInContainer that takes an initialState",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
-    crossinline instantiate: () -> F
+    crossinline instantiate: () -> F,
 ): FragmentScenario<F> = launchFragmentInContainer(fragmentArgs, themeResId) { instantiate() }
 
 /**
@@ -89,7 +89,7 @@ public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
-    factory: FragmentFactory? = null
+    factory: FragmentFactory? = null,
 ): FragmentScenario<F> = launch(F::class.java, fragmentArgs, themeResId, initialState, factory)
 
 /**
@@ -108,7 +108,7 @@ public inline fun <reified F : Fragment> launchFragment(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
-    crossinline instantiate: () -> F
+    crossinline instantiate: () -> F,
 ): FragmentScenario<F> =
     launch(
         F::class.java,
@@ -121,7 +121,7 @@ public inline fun <reified F : Fragment> launchFragment(
                     F::class.java.name -> instantiate()
                     else -> super.instantiate(classLoader, className)
                 }
-        }
+        },
     )
 
 /**
@@ -140,14 +140,14 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
-    factory: FragmentFactory? = null
+    factory: FragmentFactory? = null,
 ): FragmentScenario<F> =
     FragmentScenario.launchInContainer(
         F::class.java,
         fragmentArgs,
         themeResId,
         initialState,
-        factory
+        factory,
     )
 
 /**
@@ -169,7 +169,7 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
     initialState: Lifecycle.State = Lifecycle.State.RESUMED,
-    crossinline instantiate: () -> F
+    crossinline instantiate: () -> F,
 ): FragmentScenario<F> =
     FragmentScenario.launchInContainer(
         F::class.java,
@@ -182,7 +182,7 @@ public inline fun <reified F : Fragment> launchFragmentInContainer(
                     F::class.java.name -> instantiate()
                     else -> super.instantiate(classLoader, className)
                 }
-        }
+        },
     )
 
 /**
@@ -226,7 +226,7 @@ public class FragmentScenario<F : Fragment>
 private constructor(
     @Suppress("MemberVisibilityCanBePrivate") /* synthetic access */
     internal val fragmentClass: Class<F>,
-    private val activityScenario: ActivityScenario<EmptyFragmentActivity>
+    private val activityScenario: ActivityScenario<EmptyFragmentActivity>,
 ) : Closeable {
 
     /**
@@ -339,14 +339,14 @@ private constructor(
         public fun <F : Fragment> launch(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,
-            factory: FragmentFactory?
+            factory: FragmentFactory?,
         ): FragmentScenario<F> =
             launch(
                 fragmentClass,
                 fragmentArgs,
                 R.style.FragmentScenarioEmptyFragmentActivityTheme,
                 Lifecycle.State.RESUMED,
-                factory
+                factory,
             )
 
         /**
@@ -366,7 +366,7 @@ private constructor(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,
             @StyleRes themeResId: Int,
-            factory: FragmentFactory?
+            factory: FragmentFactory?,
         ): FragmentScenario<F> =
             launch(fragmentClass, fragmentArgs, themeResId, Lifecycle.State.RESUMED, factory)
 
@@ -390,7 +390,7 @@ private constructor(
             fragmentArgs: Bundle? = null,
             @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
             initialState: Lifecycle.State = Lifecycle.State.RESUMED,
-            factory: FragmentFactory? = null
+            factory: FragmentFactory? = null,
         ): FragmentScenario<F> =
             internalLaunch(
                 fragmentClass,
@@ -398,7 +398,7 @@ private constructor(
                 themeResId,
                 initialState,
                 factory,
-                0
+                0,
             /* containerViewId= */ )
 
         /**
@@ -416,14 +416,14 @@ private constructor(
         public fun <F : Fragment> launchInContainer(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,
-            factory: FragmentFactory?
+            factory: FragmentFactory?,
         ): FragmentScenario<F> =
             launchInContainer(
                 fragmentClass,
                 fragmentArgs,
                 R.style.FragmentScenarioEmptyFragmentActivityTheme,
                 Lifecycle.State.RESUMED,
-                factory
+                factory,
             )
 
         /**
@@ -443,14 +443,14 @@ private constructor(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,
             @StyleRes themeResId: Int,
-            factory: FragmentFactory?
+            factory: FragmentFactory?,
         ): FragmentScenario<F> =
             launchInContainer(
                 fragmentClass,
                 fragmentArgs,
                 themeResId,
                 Lifecycle.State.RESUMED,
-                factory
+                factory,
             )
 
         /**
@@ -474,7 +474,7 @@ private constructor(
             fragmentArgs: Bundle? = null,
             @StyleRes themeResId: Int = R.style.FragmentScenarioEmptyFragmentActivityTheme,
             initialState: Lifecycle.State = Lifecycle.State.RESUMED,
-            factory: FragmentFactory? = null
+            factory: FragmentFactory? = null,
         ): FragmentScenario<F> =
             internalLaunch(
                 fragmentClass,
@@ -482,7 +482,7 @@ private constructor(
                 themeResId,
                 initialState,
                 factory,
-                android.R.id.content
+                android.R.id.content,
             )
 
         internal fun <F : Fragment> internalLaunch(
@@ -491,7 +491,7 @@ private constructor(
             @StyleRes themeResId: Int,
             initialState: Lifecycle.State,
             factory: FragmentFactory?,
-            @IdRes containerViewId: Int
+            @IdRes containerViewId: Int,
         ): FragmentScenario<F> {
             require(initialState != Lifecycle.State.DESTROYED) {
                 "Cannot set initial Lifecycle state to $initialState for FragmentScenario"
@@ -499,7 +499,7 @@ private constructor(
             val componentName =
                 ComponentName(
                     ApplicationProvider.getApplicationContext(),
-                    EmptyFragmentActivity::class.java
+                    EmptyFragmentActivity::class.java,
                 )
             val startActivityIntent =
                 Intent.makeMainActivity(componentName)
@@ -514,7 +514,7 @@ private constructor(
                 val fragment =
                     activity.supportFragmentManager.fragmentFactory.instantiate(
                         requireNotNull(fragmentClass.classLoader),
-                        fragmentClass.name
+                        fragmentClass.name,
                     )
                 fragment.arguments = fragmentArgs
                 activity.supportFragmentManager.commitNow {

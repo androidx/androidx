@@ -67,7 +67,7 @@ class ProtectedSignalsManagerFuturesTest {
     fun testUpdateSignals() {
         Assume.assumeTrue(
             "minSdkVersion = API 34 ext 12",
-            VersionCompatUtil.isTPlusWithMinAdServicesVersion(12)
+            VersionCompatUtil.isTPlusWithMinAdServicesVersion(12),
         )
         val protectedSignalsManager = mockProtectedSignalsManager(mContext)
         setupResponse(protectedSignalsManager)

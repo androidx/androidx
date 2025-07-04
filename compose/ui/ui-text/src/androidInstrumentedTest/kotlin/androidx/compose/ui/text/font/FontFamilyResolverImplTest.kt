@@ -82,7 +82,7 @@ class FontFamilyResolverImplTest {
                 platformResolveInterceptor = platformResolveInterceptor,
                 typefaceRequestCache = typefaceCache,
                 fontListFontFamilyTypefaceAdapter =
-                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext)
+                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache, injectedContext),
             )
     }
 
@@ -140,7 +140,7 @@ class FontFamilyResolverImplTest {
                 FontWeight.W200,
                 FontWeight.W300,
                 FontWeight.W400,
-                FontWeight.W500
+                FontWeight.W500,
             )
 
         for (fontWeight in fontWeights) {
@@ -176,7 +176,7 @@ class FontFamilyResolverImplTest {
                 FontWeight.W200,
                 FontWeight.W300,
                 FontWeight.W400,
-                FontWeight.W500
+                FontWeight.W500,
             )
 
         for (fontWeight in fontWeights) {
@@ -238,7 +238,7 @@ class FontFamilyResolverImplTest {
             resolveAsTypeface(
                 fontFamily = fontFamily,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.Bold, FontStyle.Italic)
@@ -267,7 +267,7 @@ class FontFamilyResolverImplTest {
                 FontTestData.FONT_800_REGULAR,
                 FontTestData.FONT_800_ITALIC,
                 FontTestData.FONT_900_REGULAR,
-                FontTestData.FONT_900_ITALIC
+                FontTestData.FONT_900_ITALIC,
             )
 
         for (fontWeight in FontWeight.values) {
@@ -276,7 +276,7 @@ class FontFamilyResolverImplTest {
                     resolveAsTypeface(
                         fontWeight = fontWeight,
                         fontStyle = fontStyle,
-                        fontFamily = fontFamily
+                        fontFamily = fontFamily,
                     )
 
                 assertThat(typeface).isNotNull()
@@ -368,7 +368,7 @@ class FontFamilyResolverImplTest {
                         FontWeight.W100,
                         FontStyle.Normal,
                         FontSynthesis.All,
-                        fontLoader.cacheKey
+                        fontLoader.cacheKey,
                     )
                 )
             )
@@ -393,7 +393,7 @@ class FontFamilyResolverImplTest {
                         FontWeight.W100,
                         FontStyle.Normal,
                         FontSynthesis.All,
-                        fontLoader.cacheKey
+                        fontLoader.cacheKey,
                     )
                 )
             )
@@ -445,7 +445,7 @@ class FontFamilyResolverImplTest {
                     AndroidFont(
                         FontLoadingStrategy.Blocking,
                         unstableLoader,
-                        FontVariation.Settings()
+                        FontVariation.Settings(),
                     ) {
                     override val weight: FontWeight = FontWeight.Normal
                     override val style: FontStyle = FontStyle.Normal
@@ -458,7 +458,7 @@ class FontFamilyResolverImplTest {
                     fontLoader,
                     androidResolveInterceptor,
                     typefaceCache,
-                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache)
+                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache),
                 )
                 .resolve(fontFamily)
                 .value as Typeface
@@ -468,7 +468,7 @@ class FontFamilyResolverImplTest {
                     fontLoader,
                     androidResolveInterceptor,
                     typefaceCache,
-                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache)
+                    FontListFontFamilyTypefaceAdapter(asyncTypefaceCache),
                 )
                 .resolve(fontFamily)
                 .value as Typeface
@@ -501,7 +501,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.All
+                fontSynthesis = FontSynthesis.All,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.Bold, FontStyle.Italic)
@@ -516,7 +516,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.Style
+                fontSynthesis = FontSynthesis.Style,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.W100, FontStyle.Italic)
@@ -531,7 +531,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.Weight
+                fontSynthesis = FontSynthesis.Weight,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.Bold, FontStyle.Normal)
@@ -546,7 +546,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.W700,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.Style
+                fontSynthesis = FontSynthesis.Style,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.W100, FontStyle.Normal)
@@ -561,7 +561,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.W700,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.All
+                fontSynthesis = FontSynthesis.All,
             )
         val expectedWeight =
             if (Build.VERSION.SDK_INT < 23) {
@@ -582,7 +582,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.None
+                fontSynthesis = FontSynthesis.None,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.W100, FontStyle.Normal)
@@ -597,14 +597,14 @@ class FontFamilyResolverImplTest {
             resolveAsTypeface(
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.W500,
-                fontSynthesis = FontSynthesis.Weight
+                fontSynthesis = FontSynthesis.Weight,
             )
         // 600 or more is synthesized
         val typeface600 =
             resolveAsTypeface(
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.W600,
-                fontSynthesis = FontSynthesis.Weight
+                fontSynthesis = FontSynthesis.Weight,
             )
 
         assertThat(typeface500).hasWeightAndStyle(FontWeight.W100, FontStyle.Normal)
@@ -673,7 +673,7 @@ class FontFamilyResolverImplTest {
                 fontFamily = fontFamily,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                fontSynthesis = FontSynthesis.None
+                fontSynthesis = FontSynthesis.None,
             )
 
         assertThat(typeface).hasWeightAndStyle(FontWeight.Bold, FontStyle.Italic)

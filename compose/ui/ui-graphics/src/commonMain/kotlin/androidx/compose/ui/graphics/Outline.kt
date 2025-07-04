@@ -138,7 +138,7 @@ fun DrawScope.drawOutline(
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = DrawScope.DefaultBlendMode
+    blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) =
     drawOutlineHelper(
         outline,
@@ -155,10 +155,10 @@ fun DrawScope.drawOutline(
                 alpha = alpha,
                 style = style,
                 colorFilter = colorFilter,
-                blendMode = blendMode
+                blendMode = blendMode,
             )
         },
-        { path -> drawPath(path, color, alpha, style, colorFilter, blendMode) }
+        { path -> drawPath(path, color, alpha, style, colorFilter, blendMode) },
     )
 
 /**
@@ -178,7 +178,7 @@ fun DrawScope.drawOutline(
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = DrawScope.DefaultBlendMode
+    blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) =
     drawOutlineHelper(
         outline,
@@ -195,10 +195,10 @@ fun DrawScope.drawOutline(
                 alpha = alpha,
                 style = style,
                 colorFilter = colorFilter,
-                blendMode = blendMode
+                blendMode = blendMode,
             )
         },
-        { path -> drawPath(path, brush, alpha, style, colorFilter, blendMode) }
+        { path -> drawPath(path, brush, alpha, style, colorFilter, blendMode) },
     )
 
 /** Convenience method to obtain an Offset from the Rect's top and left parameters */
@@ -221,7 +221,7 @@ private inline fun DrawScope.drawOutlineHelper(
     outline: Outline,
     drawRectBlock: DrawScope.(rect: Rect) -> Unit,
     drawRoundedRectBlock: DrawScope.(rrect: RoundRect) -> Unit,
-    drawPathBlock: DrawScope.(path: Path) -> Unit
+    drawPathBlock: DrawScope.(path: Path) -> Unit,
 ) =
     when (outline) {
         is Outline.Rectangle -> drawRectBlock(outline.rect)
@@ -265,7 +265,7 @@ fun Canvas.drawOutline(outline: Outline, paint: Paint) =
                     bottom = outline.roundRect.bottom,
                     radiusX = outline.roundRect.bottomLeftCornerRadius.x,
                     radiusY = outline.roundRect.bottomLeftCornerRadius.y,
-                    paint = paint
+                    paint = paint,
                 )
             }
         }

@@ -38,7 +38,7 @@ import kotlin.jvm.JvmStatic
  *    value, or "off" by outputting a null value.
  * 3. Operator nodes take in one or more input values and generate an output. For example, by
  *    mapping input to output with an easing function.
- * 4. Target nodes apply an input value to chosen properties of the brush tip.
+ * 4. Terminal nodes apply one or more input values to chosen properties of the brush tip.
  *
  * For each input in a stroke, [BrushTip.behaviors] are applied as follows:
  * 1. The actual target modifier (as calculated above) for each tip property is accumulated from
@@ -58,18 +58,24 @@ import kotlin.jvm.JvmStatic
  * before being applied: The rates of change of shape properties may be constrained to keep them
  * from changing too rapidly with respect to distance traveled from one input to the next.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 @ExperimentalInkCustomBrushApi
 // NotCloseable: Finalize is only used to free the native peer.
 @Suppress("NotCloseable")
-public class BrushBehavior(
-    // The [targetNodes] val below is a defensive copy of this parameter.
-    targetNodes: List<TargetNode>
-) {
-    public val targetNodes: List<TargetNode> = unmodifiableList(targetNodes.toList())
-
+public class BrushBehavior
+private constructor(
     /** A handle to the underlying native [BrushBehavior] object. */
-    internal val nativePointer: Long = createNativeBrushBehavior(targetNodes)
+    internal val nativePointer: Long,
+    // The [terminalNodes] val below is a defensive copy of this parameter.
+    terminalNodes: List<TerminalNode>,
+) {
+    public val terminalNodes: List<TerminalNode> = unmodifiableList(terminalNodes.toList())
+
+    /** Constructs a [BrushBehavior] from a list of [TerminalNode]s. */
+    public constructor(
+        // The [terminalNodes] val above is a defensive copy of this parameter.
+        terminalNodes: List<TerminalNode>
+    ) : this(BrushBehaviorNative.createFromTerminalNodes(terminalNodes), terminalNodes)
 
     /**
      * Constructs a simple [BrushBehavior] using whatever [Node]s are necessary for the specified
@@ -88,13 +94,13 @@ public class BrushBehavior(
         enabledToolTypes: Set<InputToolType> = ALL_TOOL_TYPES,
         isFallbackFor: OptionalInputProperty? = null,
     ) : this(
-        run<List<TargetNode>> {
+        run<List<TerminalNode>> {
             var node: ValueNode =
                 SourceNode(
                     source,
                     sourceValueRangeStart,
                     sourceValueRangeEnd,
-                    sourceOutOfRangeBehavior
+                    sourceOutOfRangeBehavior,
                 )
             if (enabledToolTypes != ALL_TOOL_TYPES) {
                 node = ToolTypeFilterNode(enabledToolTypes, node)
@@ -112,7 +118,7 @@ public class BrushBehavior(
                     DampingNode(
                         DampingSource.TIME_IN_SECONDS,
                         responseTimeMillis.toFloat() / 1000.0f,
-                        node
+                        node,
                     )
             }
             listOf(TargetNode(target, targetModifierRangeStart, targetModifierRangeEnd, node))
@@ -207,59 +213,25 @@ public class BrushBehavior(
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is BrushBehavior) return false
         if (other === this) return true
-        return targetNodes == other.targetNodes
+        return terminalNodes == other.terminalNodes
     }
 
     override fun hashCode(): Int {
-        return targetNodes.hashCode()
+        return terminalNodes.hashCode()
     }
 
-    override fun toString(): String = "BrushBehavior($targetNodes)"
+    override fun toString(): String = "BrushBehavior($terminalNodes)"
 
     /** Delete native BrushBehavior memory. */
+    // NOMUTANTS -- Not tested post garbage collection.
     protected fun finalize() {
-        // NOMUTANTS -- Not tested post garbage collection.
-        nativeFreeBrushBehavior(nativePointer)
-    }
-
-    private fun createNativeBrushBehavior(targetNodes: List<TargetNode>): Long {
-        val orderedNodes = ArrayDeque<Node>()
-        val stack = ArrayDeque<Node>(targetNodes)
-        while (!stack.isEmpty()) {
-            stack.removeLast().let { node ->
-                orderedNodes.addFirst(node)
-                stack.addAll(node.inputs)
-            }
+        // TODO: b/423019041 - Investigate why this is failing in native code with nativePointer=0
+        if (nativePointer != 0L) {
+            BrushBehaviorNative.free(nativePointer)
         }
-
-        val nativePointer = nativeCreateEmptyBrushBehavior()
-        for (node in orderedNodes) {
-            node.appendToNativeBrushBehavior(nativePointer)
-        }
-        return nativeValidateOrDeleteAndThrow(nativePointer)
     }
-
-    /** Creates an underlying native brush behavior with no nodes and returns its memory address. */
-    @UsedByNative private external fun nativeCreateEmptyBrushBehavior(): Long
-
-    /**
-     * Validates a native `BrushBehavior` and returns the pointer back, or deletes the native
-     * `BrushBehavior` and throws an exception if it's not valid.
-     */
-    @UsedByNative private external fun nativeValidateOrDeleteAndThrow(nativePointer: Long): Long
-
-    /**
-     * Release the underlying memory allocated in [nativeCreateBrushBehaviorLinear],
-     * [nativeCreateBrushBehaviorPredefined], [nativeCreateBrushBehaviorSteps], or
-     * [nativeCreateBrushBehaviorCubicBezier].
-     */
-    @UsedByNative private external fun nativeFreeBrushBehavior(nativePointer: Long)
 
     public companion object {
-        init {
-            NativeLoader.load()
-        }
-
         /** Returns a new [BrushBehavior.Builder]. */
         @JvmStatic public fun builder(): Builder = Builder()
 
@@ -269,15 +241,45 @@ public class BrushBehavior(
                 InputToolType.STYLUS,
                 InputToolType.UNKNOWN,
                 InputToolType.MOUSE,
-                InputToolType.TOUCH
+                InputToolType.TOUCH,
             )
+
+        /**
+         * Construct a [BrushBehavior] from an unowned heap-allocated native pointer to a C++
+         * `BrushBehavior`. Kotlin wrapper objects nested under the [BrushBehavior] are initialized
+         * similarly using their own [wrapNative] methods, passing those pointers to newly
+         * copy-constructed heap-allocated objects. That avoids the need to call Kotlin constructors
+         * for those objects from C++.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun wrapNative(unownedNativePointer: Long): BrushBehavior {
+            val terminalNodes = mutableListOf<TerminalNode>()
+            val inputStack = ArrayDeque<ValueNode>()
+            for (i in 0 until BrushBehaviorNative.getNodeCount(unownedNativePointer)) {
+                when (
+                    val node =
+                        Node.wrapNative(
+                            BrushBehaviorNative.newCopyOfNode(unownedNativePointer, i),
+                            inputStack,
+                        )
+                ) {
+                    is TerminalNode -> terminalNodes.add(node)
+                    is ValueNode -> inputStack.addLast(node)
+                    else ->
+                        throw IllegalArgumentException(
+                            "Node must either be a TerminalNode or ValueNode: $node"
+                        )
+                }
+            }
+            return BrushBehavior(unownedNativePointer, terminalNodes)
+        }
     }
 
     /**
      * List of input properties along with their units that can act as sources for a
      * [BrushBehavior].
      */
-    public class Source private constructor(@JvmField internal val value: Int) {
+    public class Source internal constructor(@JvmField internal val value: Int) {
         internal fun toSimpleString(): String =
             when (this) {
                 NORMALIZED_PRESSURE -> "NORMALIZED_PRESSURE"
@@ -336,6 +338,8 @@ public class BrushBehavior(
                     "INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED"
                 INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED ->
                     "INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED"
+                DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH ->
+                    "DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH"
                 else -> "INVALID"
             }
 
@@ -577,12 +581,19 @@ public class BrushBehavior(
             @JvmField
             public val INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
                 Source(36)
+            /**
+             * The distance left to be traveled from a given input to the current last input of the
+             * stroke, as a fraction of the current total length of the stroke. This value changes
+             * for each input as the stroke is drawn.
+             */
+            @JvmField
+            public val DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH: Source = Source(37)
             private const val PREFIX = "BrushBehavior.Source."
         }
     }
 
-    /** List of tip properties that can be modified by a [BrushBehavior]. */
-    public class Target private constructor(@JvmField internal val value: Int) {
+    /** List of scalar tip properties that can be modified by a [BrushBehavior]. */
+    public class Target internal constructor(@JvmField internal val value: Int) {
 
         internal fun toSimpleString(): String =
             when (this) {
@@ -601,6 +612,7 @@ public class BrushBehavior(
                     "POSITION_OFFSET_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE"
                 POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE ->
                     "POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE"
+                TEXTURE_ANIMATION_PROGRESS_OFFSET -> "TEXTURE_ANIMATION_PROGRESS_OFFSET"
                 HUE_OFFSET_IN_RADIANS -> "HUE_OFFSET_IN_RADIANS"
                 SATURATION_MULTIPLIER -> "SATURATION_MULTIPLIER"
                 LUMINOSITY -> "LUMINOSITY"
@@ -684,6 +696,13 @@ public class BrushBehavior(
              */
             @JvmField
             public val POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE: Target = Target(10)
+            /**
+             * Adds the target modifier to the initial texture animation progress value of the
+             * current particle (which is relevant only for strokes with an animated texture). The
+             * final progress offset is not clamped, but is effectively normalized (mod 1). If
+             * multiple behaviors have this target, they stack additively.
+             */
+            @JvmField public val TEXTURE_ANIMATION_PROGRESS_OFFSET: Target = Target(11)
 
             // The following are targets for tip color adjustments, including opacity. Renderers can
             // apply
@@ -696,26 +715,80 @@ public class BrushBehavior(
              * towards violet. The final hue offset is not clamped, but is effectively normalized
              * (mod 2π). If multiple behaviors have this target, they stack additively.
              */
-            @JvmField public val HUE_OFFSET_IN_RADIANS: Target = Target(11)
+            @JvmField public val HUE_OFFSET_IN_RADIANS: Target = Target(12)
             /**
              * Scales the saturation of the base brush color. If multiple behaviors have one of
              * these targets, they stack multiplicatively. The final saturation multiplier is
              * clamped to [0, 2].
              */
-            @JvmField public val SATURATION_MULTIPLIER: Target = Target(12)
+            @JvmField public val SATURATION_MULTIPLIER: Target = Target(13)
             /**
              * Target the luminosity of the color. An offset of +/-100% corresponds to changing the
              * luminosity by up to +/-100%.
              */
-            @JvmField public val LUMINOSITY: Target = Target(13)
+            @JvmField public val LUMINOSITY: Target = Target(14)
             /**
              * Scales the opacity of the base brush color. If multiple behaviors have one of these
              * targets, they stack multiplicatively. The final opacity multiplier is clamped to
              * [0, 2].
              */
-            @JvmField public val OPACITY_MULTIPLIER: Target = Target(14)
+            @JvmField public val OPACITY_MULTIPLIER: Target = Target(15)
 
             private const val PREFIX = "BrushBehavior.Target."
+        }
+    }
+
+    /** List of vector tip properties that can be modified by a [BrushBehavior]. */
+    public class PolarTarget internal constructor(@JvmField internal val value: Int) {
+
+        internal fun toSimpleString(): String =
+            when (this) {
+                POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE ->
+                    "POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE"
+                POSITION_OFFSET_RELATIVE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE ->
+                    "POSITION_OFFSET_RELATIVE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE"
+                else -> "INVALID"
+            }
+
+        override fun toString(): String = PREFIX + this.toSimpleString()
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is PolarTarget) return false
+            return value == other.value
+        }
+
+        override fun hashCode(): Int = value.hashCode()
+
+        public companion object {
+
+            /**
+             * Adds the vector to the brush tip's absolute x/y position in stroke space, where the
+             * angle input is measured in radians and the magnitude input is measured in units equal
+             * to the brush size. An angle of zero indicates an offset in the direction of the
+             * positive X-axis in stroke space; an angle of π/2 indicates the direction of the
+             * positive Y-axis in stroke space.
+             */
+            @JvmField
+            public val POSITION_OFFSET_ABSOLUTE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE:
+                PolarTarget =
+                PolarTarget(0)
+
+            /**
+             * Adds the vector to the brush tip's forward/lateral position relative to the current
+             * direction of input travel, where the angle input is measured in radians and the
+             * magnitude input is measured in units equal to the brush size. An angle of zero
+             * indicates a forward offset in the current direction of input travel, while an angle
+             * of π indicates a backwards offset. Meanwhile, if the X- and Y-axes of stroke space
+             * were rotated so that the positive X-axis points in the direction of stroke travel,
+             * then an angle of π/2 would indicate a lateral offset towards the positive Y-axis, and
+             * an angle of -π/2 would indicate a lateral offset towards the negative Y-axis.
+             */
+            @JvmField
+            public val POSITION_OFFSET_RELATIVE_IN_RADIANS_AND_MULTIPLES_OF_BRUSH_SIZE:
+                PolarTarget =
+                PolarTarget(1)
+
+            private const val PREFIX = "BrushBehavior.PolarTarget."
         }
     }
 
@@ -723,7 +796,7 @@ public class BrushBehavior(
      * The desired behavior when an input value is outside the range defined by
      * [sourceValueRangeStart] and [sourceValueRangeEnd].
      */
-    public class OutOfRange private constructor(@JvmField internal val value: Int) {
+    public class OutOfRange internal constructor(@JvmField internal val value: Int) {
         internal fun toSimpleString(): String =
             when (this) {
                 CLAMP -> "CLAMP"
@@ -742,31 +815,29 @@ public class BrushBehavior(
         override fun hashCode(): Int = value.hashCode()
 
         public companion object {
-
-            // Values outside the range will be clamped to not exceed the bounds.
+            /** Values outside the range will be clamped to not exceed the bounds. */
             @JvmField public val CLAMP: OutOfRange = OutOfRange(0)
-            // Values will be shifted by an integer multiple of the range size so that they fall
-            // within
-            // the bounds.
-            //
-            // In this case, the range will be treated as a half-open interval, with a value exactly
-            // at
-            // [sourceValueRangeEnd] being treated as though it was [sourceValueRangeStart].
+            /**
+             * Values will be shifted by an integer multiple of the range size so that they fall
+             * within the bounds.
+             *
+             * In this case, the range will be treated as a half-open interval, with a value exactly
+             * at [sourceValueRangeEnd] being treated as though it was [sourceValueRangeStart].
+             */
             @JvmField public val REPEAT: OutOfRange = OutOfRange(1)
-            // Similar to [Repeat], but every other repetition of the bounds will be mirrored, as
-            // though
-            // the
-            // two elements [sourceValueRangeStart] and [sourceValueRangeEnd] were swapped.
-            // This means the range does not need to be treated as a half-open interval like in the
-            // case
-            // of [Repeat].
+            /**
+             * Similar to [Repeat], but every other repetition of the bounds will be mirrored, as
+             * though the two elements [sourceValueRangeStart] and [sourceValueRangeEnd] were
+             * swapped. This means the range does not need to be treated as a half-open interval
+             * like in the case of [Repeat].
+             */
             @JvmField public val MIRROR: OutOfRange = OutOfRange(2)
             private const val PREFIX = "BrushBehavior.OutOfRange."
         }
     }
 
     /** List of input properties that might not be reported by inputs. */
-    public class OptionalInputProperty private constructor(@JvmField internal val value: Int) {
+    public class OptionalInputProperty internal constructor(@JvmField internal val value: Int) {
 
         internal fun toSimpleString(): String =
             when (this) {
@@ -798,7 +869,7 @@ public class BrushBehavior(
     }
 
     /** A binary operation for combining two values in a [BinaryOpNode]. */
-    public class BinaryOp private constructor(@JvmField internal val value: Int) {
+    public class BinaryOp internal constructor(@JvmField internal val value: Int) {
 
         internal fun toSimpleString(): String =
             when (this) {
@@ -827,7 +898,7 @@ public class BrushBehavior(
     }
 
     /** Dimensions/units for measuring the [dampingGap] field of a [DampingNode] */
-    public class DampingSource private constructor(@JvmField internal val value: Int) {
+    public class DampingSource internal constructor(@JvmField internal val value: Int) {
 
         internal fun toSimpleString(): String =
             when (this) {
@@ -869,7 +940,7 @@ public class BrushBehavior(
     }
 
     /** Interpolation functions for use in an [InterpolationNode]. */
-    public class Interpolation private constructor(@JvmField internal val value: Int) {
+    public class Interpolation internal constructor(@JvmField internal val value: Int) {
 
         internal fun toSimpleString(): String =
             when (this) {
@@ -913,49 +984,96 @@ public class BrushBehavior(
      */
     public abstract class Node
     internal constructor(
+        internal val nativePointer: Long,
         /** The ordered list of inputs that this node directly depends on. */
-        public val inputs: List<ValueNode>
+        public val inputs: List<ValueNode>,
     ) {
-        /** Appends a native version of this [Node] to a native [BrushBehavior]. */
-        internal abstract fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long)
+
+        // NOMUTANTS -- Not tested post garbage collection.
+        protected fun finalize() {
+            // TODO: b/423019041 - Investigate why this is failing in native code with
+            // nativePointer=0
+            if (nativePointer != 0L) {
+                BrushBehaviorNodeNative.free(nativePointer)
+            }
+        }
+
+        public companion object {
+            public fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): Node =
+                when (BrushBehaviorNodeNative.getNodeType(unownedNativePointer)) {
+                    0 -> SourceNode.wrapNative(unownedNativePointer)
+                    1 -> ConstantNode.wrapNative(unownedNativePointer)
+                    2 -> NoiseNode.wrapNative(unownedNativePointer)
+                    3 -> FallbackFilterNode.wrapNative(unownedNativePointer, inputStack)
+                    4 -> ToolTypeFilterNode.wrapNative(unownedNativePointer, inputStack)
+                    5 -> DampingNode.wrapNative(unownedNativePointer, inputStack)
+                    6 -> ResponseNode.wrapNative(unownedNativePointer, inputStack)
+                    7 -> BinaryOpNode.wrapNative(unownedNativePointer, inputStack)
+                    8 -> InterpolationNode.wrapNative(unownedNativePointer, inputStack)
+                    9 -> TargetNode.wrapNative(unownedNativePointer, inputStack)
+                    10 -> PolarTargetNode.wrapNative(unownedNativePointer, inputStack)
+                    else ->
+                        throw IllegalArgumentException(
+                            "Unknown node type: ${BrushBehaviorNodeNative.getNodeType(unownedNativePointer)}"
+                        )
+                }
+        }
     }
 
     /**
      * A [ValueNode] is a non-terminal node in the graph; it produces a value to be consumed as an
      * input by other [Node]s, and may itself depend on zero or more inputs.
      */
-    public abstract class ValueNode internal constructor(inputs: List<ValueNode>) : Node(inputs) {}
+    public abstract class ValueNode
+    internal constructor(nativePointer: Long, inputs: List<ValueNode>) :
+        Node(nativePointer, inputs)
 
     /** A [ValueNode] that gets data from the stroke input batch. */
-    public class SourceNode
-    @JvmOverloads
-    constructor(
-        public val source: Source,
-        public val sourceValueRangeStart: Float,
-        public val sourceValueRangeEnd: Float,
-        public val sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
-    ) : ValueNode(emptyList()) {
-        init {
-            require(sourceValueRangeStart.isFinite()) {
-                "sourceValueRangeStart must be finite, was $sourceValueRangeStart"
-            }
-            require(sourceValueRangeEnd.isFinite()) {
-                "sourceValueRangeEnd must be finite, was $sourceValueRangeEnd"
-            }
-            require(sourceValueRangeStart != sourceValueRangeEnd) {
-                "sourceValueRangeStart and sourceValueRangeEnd must be distinct, both were $sourceValueRangeStart"
-            }
-        }
+    public class SourceNode private constructor(nativePointer: Long) :
+        ValueNode(nativePointer, emptyList()) {
 
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendSourceNode(
-                nativeBehaviorPointer,
+        /**
+         * Creates a [SourceNode] that gets data from the stroke inputs.
+         *
+         * @param source the property of the data to get values from
+         * @param sourceValueRangeStart the start of the range of values that the source can produce
+         * @param sourceValueRangeEnd the end of the range of values that the source can produce
+         * @param sourceOutOfRangeBehavior the behavior to use if the source produces a value
+         *   outside the specified range
+         */
+        @JvmOverloads
+        public constructor(
+            source: Source,
+            sourceValueRangeStart: Float,
+            sourceValueRangeEnd: Float,
+            sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
+        ) : this(
+            BrushBehaviorNodeNative.createSource(
                 source.value,
                 sourceValueRangeStart,
                 sourceValueRangeEnd,
                 sourceOutOfRangeBehavior.value,
             )
+        )
+
+        internal companion object {
+            internal fun wrapNative(unownedNativePointer: Long): SourceNode =
+                SourceNode(unownedNativePointer)
         }
+
+        public val source: Source = BrushBehaviorNodeNative.getSource(nativePointer)
+
+        public val sourceValueRangeStart: Float
+            get() = BrushBehaviorNodeNative.getSourceValueRangeStart(nativePointer)
+
+        public val sourceValueRangeEnd: Float
+            get() = BrushBehaviorNodeNative.getSourceValueRangeEnd(nativePointer)
+
+        public val sourceOutOfRangeBehavior: OutOfRange =
+            BrushBehaviorNodeNative.getSourceOutOfRangeBehavior(nativePointer)
 
         override fun toString(): String =
             "SourceNode(${source.toSimpleString()}, $sourceValueRangeStart, $sourceValueRangeEnd, ${sourceOutOfRangeBehavior.toSimpleString()})"
@@ -975,27 +1093,22 @@ public class BrushBehavior(
             result = 31 * result + sourceOutOfRangeBehavior.hashCode()
             return result
         }
-
-        /** Appends a native `BrushBehavior::SourceNode` to a native brush behavior struct. */
-        @UsedByNative
-        private external fun nativeAppendSourceNode(
-            nativeBehaviorPointer: Long,
-            source: Int,
-            sourceValueRangeStart: Float,
-            sourceValueRangeEnd: Float,
-            sourceOutOfRangeBehavior: Int,
-        )
     }
 
     /** A [ValueNode] that produces a constant output value. */
-    public class ConstantNode constructor(public val value: Float) : ValueNode(emptyList()) {
-        init {
-            require(value.isFinite()) { "value must be finite, was $value" }
+    public class ConstantNode private constructor(nativePointer: Long) :
+        ValueNode(nativePointer, emptyList()) {
+
+        /** Creates a [ConstantNode] that produces a constant output value. */
+        public constructor(value: Float) : this(BrushBehaviorNodeNative.createConstant(value))
+
+        internal companion object {
+            internal fun wrapNative(unownedNativePointer: Long): ConstantNode =
+                ConstantNode(unownedNativePointer)
         }
 
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendConstantNode(nativeBehaviorPointer, value)
-        }
+        public val value: Float
+            get() = BrushBehaviorNodeNative.getConstantValue(nativePointer)
 
         override fun toString(): String = "ConstantNode($value)"
 
@@ -1005,10 +1118,54 @@ public class BrushBehavior(
         }
 
         override fun hashCode(): Int = value.hashCode()
+    }
 
-        /** Appends a native `BrushBehavior::ConstantNode` to a native brush behavior struct. */
-        @UsedByNative
-        private external fun nativeAppendConstantNode(nativeBehaviorPointer: Long, value: Float)
+    /** A [ValueNode] that produces a smooth random function. */
+    public class NoiseNode private constructor(nativePointer: Long) :
+        ValueNode(nativePointer, emptyList()) {
+
+        /**
+         * Creates a [NoiseNode] that produces a random variation.
+         *
+         * @param seed the seed for the random number generator
+         * @param varyOver the source of the varying over which the random function is evaluated
+         * @param basePeriod the base period of the random function
+         */
+        public constructor(
+            seed: Int,
+            varyOver: DampingSource,
+            basePeriod: Float,
+        ) : this(BrushBehaviorNodeNative.createNoise(seed, varyOver.value, basePeriod))
+
+        internal companion object {
+            internal fun wrapNative(unownedNativePointer: Long): NoiseNode =
+                NoiseNode(unownedNativePointer)
+        }
+
+        public val seed: Int
+            get() = BrushBehaviorNodeNative.getNoiseSeed(nativePointer)
+
+        public val varyOver: DampingSource = BrushBehaviorNodeNative.getNoiseVaryOver(nativePointer)
+
+        public val basePeriod: Float
+            get() = BrushBehaviorNodeNative.getNoiseBasePeriod(nativePointer)
+
+        override fun toString(): String =
+            "NoiseNode($seed, ${varyOver.toSimpleString()}, $basePeriod)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is NoiseNode) return false
+            return seed == other.seed &&
+                varyOver == other.varyOver &&
+                basePeriod == other.basePeriod
+        }
+
+        override fun hashCode(): Int {
+            var result = seed.hashCode()
+            result = 31 * result + varyOver.hashCode()
+            result = 31 * result + basePeriod.hashCode()
+            return result
+        }
     }
 
     /**
@@ -1016,11 +1173,32 @@ public class BrushBehavior(
      * property is missing.
      */
     public class FallbackFilterNode
-    constructor(public val isFallbackFor: OptionalInputProperty, public val input: ValueNode) :
-        ValueNode(listOf(input)) {
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendFallbackFilterNode(nativeBehaviorPointer, isFallbackFor.value)
+    private constructor(nativePointer: Long, public val input: ValueNode) :
+        ValueNode(nativePointer, listOf(input)) {
+
+        /**
+         * Creates a [FallbackFilterNode] that filters out a branch of a behavior graph unless a
+         * particular stroke input property is missing.
+         *
+         * @param isFallbackFor the input property that must be missing for this node to not be
+         *   filtered
+         * @param input input node whose value is filtered if the input proerty is present
+         */
+        public constructor(
+            isFallbackFor: OptionalInputProperty,
+            input: ValueNode,
+        ) : this(BrushBehaviorNodeNative.createFallbackFilter(isFallbackFor.value), input)
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): FallbackFilterNode =
+                FallbackFilterNode(unownedNativePointer, inputStack.removeLast())
         }
+
+        public val isFallbackFor: OptionalInputProperty =
+            BrushBehaviorNodeNative.getFallbackFilterIsFallbackFor(nativePointer)
 
         override fun toString(): String =
             "FallbackFilterNode(${isFallbackFor.toSimpleString()}, $input)"
@@ -1036,15 +1214,6 @@ public class BrushBehavior(
             result = 31 * result + input.hashCode()
             return result
         }
-
-        /**
-         * Appends a native `BrushBehavior::FallbackFilterNode` to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendFallbackFilterNode(
-            nativeBehaviorPointer: Long,
-            isFallbackFor: Int,
-        )
     }
 
     /**
@@ -1052,26 +1221,55 @@ public class BrushBehavior(
      * is in the specified set.
      */
     public class ToolTypeFilterNode
-    constructor(
-        // The [enabledToolTypes] val below is a defensive copy of this parameter.
-        enabledToolTypes: Set<InputToolType>,
-        public val input: ValueNode,
-    ) : ValueNode(listOf(input)) {
-        public val enabledToolTypes: Set<InputToolType> = unmodifiableSet(enabledToolTypes.toSet())
+    private constructor(nativePointer: Long, public val input: ValueNode) :
+        ValueNode(nativePointer, listOf(input)) {
 
-        init {
-            require(!enabledToolTypes.isEmpty()) { "enabledToolTypes must be non-empty" }
-        }
-
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendToolTypeFilterNode(
-                nativeBehaviorPointer = nativeBehaviorPointer,
+        /**
+         * Creates a [ToolTypeFilterNode] that filters out a branch of a behavior graph unless this
+         * stroke's tool type is in the specified set.
+         *
+         * @param enabledToolTypes the set of tool types that should be enabled
+         * @param input input node that produces the value filtered if the tool type is not enabled
+         */
+        public constructor(
+            // The [enabledToolTypes] val below is a defensive copy of this parameter.
+            enabledToolTypes: Set<InputToolType>,
+            input: ValueNode,
+        ) : this(
+            BrushBehaviorNodeNative.createToolTypeFilter(
                 mouseEnabled = enabledToolTypes.contains(InputToolType.MOUSE),
                 touchEnabled = enabledToolTypes.contains(InputToolType.TOUCH),
                 stylusEnabled = enabledToolTypes.contains(InputToolType.STYLUS),
                 unknownEnabled = enabledToolTypes.contains(InputToolType.UNKNOWN),
-            )
+            ),
+            input,
+        )
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): ToolTypeFilterNode =
+                ToolTypeFilterNode(unownedNativePointer, input = inputStack.removeLast())
         }
+
+        public val enabledToolTypes: Set<InputToolType> =
+            unmodifiableSet(
+                mutableSetOf<InputToolType>().apply {
+                    if (BrushBehaviorNodeNative.getToolTypeFilterMouseEnabled(nativePointer)) {
+                        add(InputToolType.MOUSE)
+                    }
+                    if (BrushBehaviorNodeNative.getToolTypeFilterTouchEnabled(nativePointer)) {
+                        add(InputToolType.TOUCH)
+                    }
+                    if (BrushBehaviorNodeNative.getToolTypeFilterStylusEnabled(nativePointer)) {
+                        add(InputToolType.STYLUS)
+                    }
+                    if (BrushBehaviorNodeNative.getToolTypeFilterUnknownEnabled(nativePointer)) {
+                        add(InputToolType.UNKNOWN)
+                    }
+                }
+            )
 
         override fun toString(): String = "ToolTypeFilterNode($enabledToolTypes, $input)"
 
@@ -1086,39 +1284,41 @@ public class BrushBehavior(
             result = 31 * result + input.hashCode()
             return result
         }
-
-        /**
-         * Appends a native `BrushBehavior::ToolTypeFilterNode` to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendToolTypeFilterNode(
-            nativeBehaviorPointer: Long,
-            mouseEnabled: Boolean,
-            touchEnabled: Boolean,
-            stylusEnabled: Boolean,
-            unknownEnabled: Boolean,
-        )
     }
 
     /**
      * A [ValueNode] that damps changes in an input value, causing the output value to slowly follow
      * changes in the input value over a specified time or distance.
      */
-    public class DampingNode
-    constructor(
-        public val dampingSource: DampingSource,
-        public val dampingGap: Float,
-        public val input: ValueNode,
-    ) : ValueNode(listOf(input)) {
-        init {
-            require(dampingGap.isFinite() && dampingGap >= 0.0f) {
-                "dampingGap must be finite and non-negative, was $dampingGap"
-            }
+    public class DampingNode private constructor(nativePointer: Long, public val input: ValueNode) :
+        ValueNode(nativePointer, listOf(input)) {
+
+        /**
+         * Creates a [DampingNode] that damps changes in an input value, causing the output value to
+         * slowly follow changes in the input value over a specified time or distance.
+         *
+         * @param dampingSource the source of the damping
+         * @param dampingGap the amount of damping to apply
+         * @param input input node that produces the value to be modified by the damping
+         */
+        public constructor(
+            dampingSource: DampingSource,
+            dampingGap: Float,
+            input: ValueNode,
+        ) : this(BrushBehaviorNodeNative.createDamping(dampingSource.value, dampingGap), input)
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): DampingNode = DampingNode(unownedNativePointer, input = inputStack.removeLast())
         }
 
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendDampingNode(nativeBehaviorPointer, dampingSource.value, dampingGap)
-        }
+        public val dampingSource: DampingSource =
+            BrushBehaviorNodeNative.getDampingSource(nativePointer)
+
+        public val dampingGap: Float
+            get() = BrushBehaviorNodeNative.getDampingGap(nativePointer)
 
         override fun toString(): String =
             "DampingNode(${dampingSource.toSimpleString()}, $dampingGap, $input)"
@@ -1137,52 +1337,45 @@ public class BrushBehavior(
             result = 31 * result + input.hashCode()
             return result
         }
-
-        /** Appends a native `BrushBehavior::DampingNode` to a native brush behavior struct. */
-        @UsedByNative
-        private external fun nativeAppendDampingNode(
-            nativeBehaviorPointer: Long,
-            dampingSource: Int,
-            dampingGap: Float,
-        )
     }
 
     /** A [ValueNode] that maps an input value through a response curve. */
     public class ResponseNode
-    constructor(public val responseCurve: EasingFunction, public val input: ValueNode) :
-        ValueNode(listOf(input)) {
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            when (responseCurve) {
-                is EasingFunction.Predefined ->
-                    nativeAppendResponseNodePredefined(nativeBehaviorPointer, responseCurve.value)
-                is EasingFunction.CubicBezier ->
-                    nativeAppendResponseNodeCubicBezier(
-                        nativeBehaviorPointer,
-                        responseCurve.x1,
-                        responseCurve.y1,
-                        responseCurve.x2,
-                        responseCurve.y2,
-                    )
-                is EasingFunction.Steps ->
-                    nativeAppendResponseNodeSteps(
-                        nativeBehaviorPointer,
-                        responseCurve.stepCount,
-                        responseCurve.stepPosition.value,
-                    )
-                is EasingFunction.Linear ->
-                    nativeAppendResponseNodeLinear(
-                        nativeBehaviorPointer,
-                        FloatArray(responseCurve.points.size * 2).apply {
-                            var index = 0
-                            for (point in responseCurve.points) {
-                                set(index, point.x)
-                                ++index
-                                set(index, point.y)
-                                ++index
-                            }
-                        },
-                    )
-            }
+    private constructor(
+        nativePointer: Long,
+        public val responseCurve: EasingFunction,
+        public val input: ValueNode,
+    ) : ValueNode(nativePointer, listOf(input)) {
+
+        /**
+         * Creates a [ResponseNode] that maps an input value through a response curve.
+         *
+         * @param responseCurve the response curve to apply to the input value
+         * @param input input node that produces the value used to map through the response curve
+         */
+        public constructor(
+            responseCurve: EasingFunction,
+            input: ValueNode,
+        ) : this(
+            BrushBehaviorNodeNative.createResponse(responseCurve.nativePointer),
+            responseCurve,
+            input,
+        )
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): ResponseNode =
+                ResponseNode(
+                    unownedNativePointer,
+                    EasingFunction.wrapNative(
+                        BrushBehaviorNodeNative.newCopyOfResponseEasingFunction(
+                            unownedNativePointer
+                        )
+                    ),
+                    inputStack.removeLast(),
+                )
         }
 
         override fun toString(): String = "ResponseNode($responseCurve, $input)"
@@ -1198,62 +1391,42 @@ public class BrushBehavior(
             result = 31 * result + input.hashCode()
             return result
         }
-
-        /**
-         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
-         * [EasingFunction.Predefined] to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendResponseNodePredefined(
-            nativeBehaviorPointer: Long,
-            predefinedResponseCurve: Int,
-        )
-
-        /**
-         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
-         * [EasingFunction.CubicBezier] to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendResponseNodeCubicBezier(
-            nativeBehaviorPointer: Long,
-            cubicBezierX1: Float,
-            cubicBezierX2: Float,
-            cubicBezierY1: Float,
-            cubicBezierY2: Float,
-        )
-
-        /**
-         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
-         * [EasingFunction.Steps] to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendResponseNodeSteps(
-            nativeBehaviorPointer: Long,
-            stepsCount: Int,
-            stepsPosition: Int,
-        )
-
-        /**
-         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
-         * [EasingFunction.Linear] to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendResponseNodeLinear(
-            nativeBehaviorPointer: Long,
-            points: FloatArray,
-        )
     }
 
     /** A [ValueNode] that combines two other values with a binary operation. */
     public class BinaryOpNode
-    constructor(
-        public val operation: BinaryOp,
+    private constructor(
+        nativePointer: Long,
         public val firstInput: ValueNode,
         public val secondInput: ValueNode,
-    ) : ValueNode(listOf(firstInput, secondInput)) {
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendBinaryOpNode(nativeBehaviorPointer, operation.value)
+    ) : ValueNode(nativePointer, listOf(firstInput, secondInput)) {
+
+        /**
+         * Creates a [BinaryOpNode] that combines two other values with a binary operation.
+         *
+         * @param operation the binary operation to perform
+         * @param firstInput input node that produces the first value used in the binary operation
+         * @param secondInput input node that produces the second value used in the binary operation
+         */
+        public constructor(
+            operation: BinaryOp,
+            firstInput: ValueNode,
+            secondInput: ValueNode,
+        ) : this(BrushBehaviorNodeNative.createBinaryOp(operation.value), firstInput, secondInput)
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): BinaryOpNode {
+                // Inputs are in reverse order at the end of the stack.
+                val secondInput = inputStack.removeLast()
+                val firstInput = inputStack.removeLast()
+                return BinaryOpNode(unownedNativePointer, firstInput, secondInput)
+            }
         }
+
+        public val operation: BinaryOp = BrushBehaviorNodeNative.getBinaryOperation(nativePointer)
 
         override fun toString(): String =
             "BinaryOpNode(${operation.toSimpleString()}, $firstInput, $secondInput)"
@@ -1272,10 +1445,6 @@ public class BrushBehavior(
             result = 31 * result + secondInput.hashCode()
             return result
         }
-
-        /** Appends a native `BrushBehavior::BinaryOpNode` to a native brush behavior struct. */
-        @UsedByNative
-        private external fun nativeAppendBinaryOpNode(nativeBehaviorPointer: Long, operation: Int)
     }
 
     /**
@@ -1283,19 +1452,56 @@ public class BrushBehavior(
      * kind of interpolation performed depends on the [Interpolation] parameter.
      */
     public class InterpolationNode
-    constructor(
-        /** What kind of interpolation to perform. */
-        public val interpolation: Interpolation,
-        /** The input whose value is used as the parameter within the interpolation range. */
+    private constructor(
+        nativePointer: Long,
         public val paramInput: ValueNode,
-        /** The input whose value forms the start of the interpolation range. */
         public val startInput: ValueNode,
-        /** The input whose value forms the end of the interpolation range. */
         public val endInput: ValueNode,
-    ) : ValueNode(listOf(paramInput, startInput, endInput)) {
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendInterpolationNode(nativeBehaviorPointer, interpolation.value)
+    ) : ValueNode(nativePointer, listOf(paramInput, startInput, endInput)) {
+
+        /**
+         * Creates an [InterpolationNode] that interpolates between two inputs based on a parameter
+         * input. The specific kind of interpolation performed depends on the [Interpolation]
+         * parameter.
+         *
+         * @param interpolation the kind of interpolation to perform
+         * @param paramInput input node that produces the parameter value used to interpolate
+         *   between the start and end inputs
+         * @param startInput input node that produces the starting value for the interpolation
+         * @param endInput input node that produces the ending value for the interpolation
+         */
+        public constructor(
+            interpolation: Interpolation,
+            paramInput: ValueNode,
+            startInput: ValueNode,
+            endInput: ValueNode,
+        ) : this(
+            BrushBehaviorNodeNative.createInterpolation(interpolation.value),
+            paramInput,
+            startInput,
+            endInput,
+        )
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): InterpolationNode {
+                // Inputs are in reverse order at the end of the stack.
+                val endInput = inputStack.removeLast()
+                val startInput = inputStack.removeLast()
+                val paramInput = inputStack.removeLast()
+                return InterpolationNode(
+                    unownedNativePointer,
+                    paramInput = paramInput,
+                    startInput = startInput,
+                    endInput = endInput,
+                )
+            }
         }
+
+        public val interpolation: Interpolation =
+            BrushBehaviorNodeNative.getInterpolation(nativePointer)
 
         override fun toString(): String =
             "InterpolationNode(${interpolation.toSimpleString()}, $paramInput, $startInput, $endInput)"
@@ -1316,53 +1522,65 @@ public class BrushBehavior(
             result = 31 * result + endInput.hashCode()
             return result
         }
-
-        /**
-         * Appends a native `BrushBehavior::InterpolationNode` to a native brush behavior struct.
-         */
-        @UsedByNative
-        private external fun nativeAppendInterpolationNode(
-            nativeBehaviorPointer: Long,
-            interpolation: Int,
-        )
     }
 
     /**
-     * A [TargetNode] is a terminal node in the graph; it does not produce a value and cannot be
+     * A [TerminalNode] is a terminal node in the graph; it does not produce a value and cannot be
      * used as an input to other [Node]s, but instead applies a modification to the brush tip state.
-     * A [BrushBehavior] consists of a list of [TargetNode]s and the various [ValueNode]s that they
-     * transitively depend on.
+     * A [BrushBehavior] consists of a list of [TerminalNode]s and the various [ValueNode]s that
+     * they transitively depend on.
      */
-    public class TargetNode
-    constructor(
-        public val target: Target,
-        public val targetModifierRangeStart: Float,
-        public val targetModifierRangeEnd: Float,
-        public val input: ValueNode,
-    ) : Node(listOf(input)) {
-        init {
-            require(targetModifierRangeStart.isFinite()) {
-                "targetModifierRangeStart must be finite, was $targetModifierRangeStart"
-            }
-            require(targetModifierRangeEnd.isFinite()) {
-                "targetModifierRangeEnd must be finite, was $targetModifierRangeEnd"
-            }
-            require(targetModifierRangeStart != targetModifierRangeEnd) {
-                "targetModifierRangeStart and targetModifierRangeEnd must be distinct, both were $targetModifierRangeStart"
-            }
-        }
+    public abstract class TerminalNode
+    internal constructor(nativePointer: Long, inputs: List<ValueNode>) :
+        Node(nativePointer, inputs) {}
 
-        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
-            nativeAppendTargetNode(
-                nativeBehaviorPointer,
+    /** A [TerminalNode] that consumes a single input to affect a scalar brush tip property. */
+    public class TargetNode private constructor(nativePointer: Long, public val input: ValueNode) :
+        TerminalNode(nativePointer, listOf(input)) {
+
+        /**
+         * Creates a [TargetNode] that consumes a single input to affect a scalar brush tip
+         * property.
+         *
+         * @param target the brush tip property to affect
+         * @param targetModifierRangeStart start of the range of the input value that should affect
+         *   the target property
+         * @param targetModifierRangeEnd end of the range of the input value that should affect the
+         *   target property
+         * @param input input node that produces the value used to affect the target
+         */
+        public constructor(
+            target: Target,
+            targetModifierRangeStart: Float,
+            targetModifierRangeEnd: Float,
+            input: ValueNode,
+        ) : this(
+            BrushBehaviorNodeNative.createTarget(
                 target.value,
                 targetModifierRangeStart,
                 targetModifierRangeEnd,
-            )
+            ),
+            input,
+        )
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): TargetNode = TargetNode(unownedNativePointer, input = inputStack.removeLast())
         }
 
+        public val target: Target = BrushBehaviorNodeNative.getTarget(nativePointer)
+
+        public val targetModifierRangeStart: Float
+            get() = BrushBehaviorNodeNative.getTargetModifierRangeStart(nativePointer)
+
+        public val targetModifierRangeEnd: Float
+            get() = BrushBehaviorNodeNative.getTargetModifierRangeEnd(nativePointer)
+
         override fun toString(): String =
-            "TargetNode(${target.toSimpleString()}, $targetModifierRangeStart, $targetModifierRangeEnd, $input)"
+            "TargetNode(${target.toSimpleString()}, $targetModifierRangeStart, " +
+                "$targetModifierRangeEnd, $input)"
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is TargetNode) return false
@@ -1380,14 +1598,306 @@ public class BrushBehavior(
             result = 31 * result + input.hashCode()
             return result
         }
-
-        /** Appends a native `BrushBehavior::TargetNode` to a native brush behavior struct. */
-        @UsedByNative
-        private external fun nativeAppendTargetNode(
-            nativeBehaviorPointer: Long,
-            target: Int,
-            targetModifierRangeStart: Float,
-            targetModifierRangeEnd: Float,
-        )
     }
+
+    /**
+     * A [TerminalNode] that consumes two inputs, an angle and a magnitude, to affect a vector brush
+     * tip property.
+     */
+    public class PolarTargetNode
+    private constructor(
+        nativePointer: Long,
+        public val angleInput: ValueNode,
+        public val magnitudeInput: ValueNode,
+    ) : TerminalNode(nativePointer, listOf(angleInput, magnitudeInput)) {
+
+        /**
+         * Creates a [PolarTargetNode] that consumes two inputs, an angle and a magnitude, to affect
+         * a vector brush tip property.
+         *
+         * @param target vector brush tip property to affect
+         * @param angleRangeStart start of the angle range for the target property
+         * @param angleRangeEnd end of the angle range for the target property
+         * @param angleInput input node that produces the value used to affect the angle of the
+         *   target vector property
+         * @param magnitudeRangeStart start of the magnitude range for the target property
+         * @param magnitudeRangeEnd end of the magnitude range for the target property
+         * @param magnitudeInput input node that produces the value used to affect the magnitude of
+         *   the target vector property
+         */
+        public constructor(
+            target: PolarTarget,
+            angleRangeStart: Float,
+            angleRangeEnd: Float,
+            angleInput: ValueNode,
+            magnitudeRangeStart: Float,
+            magnitudeRangeEnd: Float,
+            magnitudeInput: ValueNode,
+        ) : this(
+            BrushBehaviorNodeNative.createPolarTarget(
+                target.value,
+                angleRangeStart,
+                angleRangeEnd,
+                magnitudeRangeStart,
+                magnitudeRangeEnd,
+            ),
+            angleInput,
+            magnitudeInput,
+        )
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): PolarTargetNode {
+                // Inputs are in reverse order at the end of the stack.
+                val magnitudeInput = inputStack.removeLast()
+                val angleInput = inputStack.removeLast()
+                return PolarTargetNode(unownedNativePointer, angleInput, magnitudeInput)
+            }
+        }
+
+        public val target: PolarTarget = BrushBehaviorNodeNative.getPolarTarget(nativePointer)
+
+        public val angleRangeStart: Float
+            get() = BrushBehaviorNodeNative.getPolarTargetAngleRangeStart(nativePointer)
+
+        public val angleRangeEnd: Float
+            get() = BrushBehaviorNodeNative.getPolarTargetAngleRangeEnd(nativePointer)
+
+        public val magnitudeRangeStart: Float
+            get() = BrushBehaviorNodeNative.getPolarTargetMagnitudeRangeStart(nativePointer)
+
+        public val magnitudeRangeEnd: Float
+            get() = BrushBehaviorNodeNative.getPolarTargetMagnitudeRangeEnd(nativePointer)
+
+        override fun toString(): String =
+            "PolarTargetNode(${target.toSimpleString()}, $angleRangeStart, $angleRangeEnd, " +
+                "$angleInput, $magnitudeRangeStart, $magnitudeRangeEnd, $magnitudeInput)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is PolarTargetNode) return false
+            if (other === this) return true
+            return target == other.target &&
+                angleRangeStart == other.angleRangeStart &&
+                angleRangeEnd == other.angleRangeEnd &&
+                angleInput == other.angleInput &&
+                magnitudeRangeStart == other.magnitudeRangeStart &&
+                magnitudeRangeEnd == other.magnitudeRangeEnd &&
+                magnitudeInput == other.magnitudeInput
+        }
+
+        override fun hashCode(): Int {
+            var result = target.hashCode()
+            result = 31 * result + angleRangeStart.hashCode()
+            result = 31 * result + angleRangeEnd.hashCode()
+            result = 31 * result + angleInput.hashCode()
+            result = 31 * result + magnitudeRangeStart.hashCode()
+            result = 31 * result + magnitudeRangeEnd.hashCode()
+            result = 31 * result + magnitudeInput.hashCode()
+            return result
+        }
+    }
+}
+
+/** Singleton wrapper for `BrushBehavior` native methods. */
+@OptIn(ExperimentalInkCustomBrushApi::class)
+@UsedByNative
+private object BrushBehaviorNative {
+    init {
+        NativeLoader.load()
+    }
+
+    fun createFromTerminalNodes(terminalNodes: List<BrushBehavior.TerminalNode>): Long {
+        val orderedNodes = ArrayDeque<BrushBehavior.Node>()
+        val stack = ArrayDeque<BrushBehavior.Node>(terminalNodes)
+        while (!stack.isEmpty()) {
+            stack.removeLast().let { node ->
+                orderedNodes.addFirst(node)
+                stack.addAll(node.inputs)
+            }
+        }
+        return createFromOrderedNodes(orderedNodes.map { it.nativePointer }.toLongArray())
+    }
+
+    /** Creates a new native `BrushBehavior` with the given ordered nodes. */
+    @UsedByNative external fun createFromOrderedNodes(orderdNodeNativePointers: LongArray): Long
+
+    /** Release the underlying memory allocated in [createFromOrderedNodes]. */
+    @UsedByNative external fun free(nativePointer: Long)
+
+    /** Returns the number of `BrushBehavior::Node`s in the native `BrushBehavior`. */
+    @UsedByNative external fun getNodeCount(nativePointer: Long): Int
+
+    /**
+     * Returns an unowned native pointer to a new, stack-allocated copy of the native
+     * `BrushBehavior::Node` at the given index in the pointed-at `BrushBehavior`.
+     */
+    @UsedByNative external fun newCopyOfNode(nativePointer: Long, index: Int): Long
+}
+
+/**
+ * Singleton wrapper for `BrushBehavior::Node` native methods.
+ *
+ * Note that even though Kotlin [BrushBehavior.Node] is an abstract class with several subtypes,
+ * [BrushBehavior.Node.nativePointer] all wrap the _same_ native type (a specialization of
+ * `std::variant`).
+ */
+@OptIn(ExperimentalInkCustomBrushApi::class)
+@UsedByNative
+private object BrushBehaviorNodeNative {
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative
+    external fun createSource(
+        source: Int,
+        sourceValueRangeStart: Float,
+        sourceValueRangeEnd: Float,
+        sourceOutOfRangeBehavior: Int,
+    ): Long
+
+    @UsedByNative external fun createConstant(value: Float): Long
+
+    @UsedByNative external fun createNoise(seed: Int, varyOver: Int, basePeriod: Float): Long
+
+    @UsedByNative external fun createFallbackFilter(isFallbackFor: Int): Long
+
+    @UsedByNative
+    external fun createToolTypeFilter(
+        mouseEnabled: Boolean,
+        touchEnabled: Boolean,
+        stylusEnabled: Boolean,
+        unknownEnabled: Boolean,
+    ): Long
+
+    @UsedByNative external fun createDamping(dampingSource: Int, dampingGap: Float): Long
+
+    @UsedByNative external fun createResponse(easingFunctionNativePointer: Long): Long
+
+    @UsedByNative external fun createBinaryOp(operation: Int): Long
+
+    @UsedByNative external fun createInterpolation(interpolation: Int): Long
+
+    @UsedByNative
+    external fun createTarget(
+        target: Int,
+        targetModifierRangeStart: Float,
+        targetModifierRangeEnd: Float,
+    ): Long
+
+    @UsedByNative
+    external fun createPolarTarget(
+        polarTarget: Int,
+        angleRangeStart: Float,
+        angleRangeEnd: Float,
+        magnitudeRangeStart: Float,
+        magnitudeRangeEnd: Float,
+    ): Long
+
+    @UsedByNative external fun free(nodeNativePointer: Long)
+
+    @UsedByNative external fun getNodeType(nodeNativePointer: Long): Int
+
+    // SourceNode accessors:
+
+    fun getSource(nativePointer: Long): BrushBehavior.Source =
+        BrushBehavior.Source(getSourceInt(nativePointer))
+
+    @UsedByNative private external fun getSourceInt(nativePointer: Long): Int
+
+    @UsedByNative external fun getSourceValueRangeStart(nativePointer: Long): Float
+
+    @UsedByNative external fun getSourceValueRangeEnd(nativePointer: Long): Float
+
+    fun getSourceOutOfRangeBehavior(nativePointer: Long): BrushBehavior.OutOfRange =
+        BrushBehavior.OutOfRange(getSourceOutOfRangeBehaviorInt(nativePointer))
+
+    @UsedByNative private external fun getSourceOutOfRangeBehaviorInt(nativePointer: Long): Int
+
+    // ConstantNode accessors:
+
+    @UsedByNative external fun getConstantValue(nativePointer: Long): Float
+
+    // NoiseNode accessors:
+
+    @UsedByNative external fun getNoiseSeed(nativePointer: Long): Int
+
+    fun getNoiseVaryOver(nativePointer: Long): BrushBehavior.DampingSource =
+        BrushBehavior.DampingSource(getNoiseVaryOverInt(nativePointer))
+
+    @UsedByNative private external fun getNoiseVaryOverInt(nativePointer: Long): Int
+
+    @UsedByNative external fun getNoiseBasePeriod(nativePointer: Long): Float
+
+    // FallbackFilterNode accessors:
+
+    fun getFallbackFilterIsFallbackFor(nativePointer: Long): BrushBehavior.OptionalInputProperty =
+        BrushBehavior.OptionalInputProperty(getFallbackFilterIsFallbackForInt(nativePointer))
+
+    @UsedByNative private external fun getFallbackFilterIsFallbackForInt(nativePointer: Long): Int
+
+    // ToolTypeFilterNode accessors:
+
+    @UsedByNative external fun getToolTypeFilterMouseEnabled(nativePointer: Long): Boolean
+
+    @UsedByNative external fun getToolTypeFilterTouchEnabled(nativePointer: Long): Boolean
+
+    @UsedByNative external fun getToolTypeFilterStylusEnabled(nativePointer: Long): Boolean
+
+    @UsedByNative external fun getToolTypeFilterUnknownEnabled(nativePointer: Long): Boolean
+
+    // DampingNode accessors:
+
+    fun getDampingSource(nativePointer: Long): BrushBehavior.DampingSource =
+        BrushBehavior.DampingSource(getDampingSourceInt(nativePointer))
+
+    @UsedByNative private external fun getDampingSourceInt(nativePointer: Long): Int
+
+    @UsedByNative external fun getDampingGap(nativePointer: Long): Float
+
+    // Getters for ResponseNode:
+
+    @UsedByNative external fun newCopyOfResponseEasingFunction(nativePointer: Long): Long
+
+    // BinaryOpNode accessors:
+
+    fun getBinaryOperation(nativePointer: Long): BrushBehavior.BinaryOp =
+        BrushBehavior.BinaryOp(getBinaryOperationInt(nativePointer))
+
+    @UsedByNative private external fun getBinaryOperationInt(nativePointer: Long): Int
+
+    // InterpolationNode accessors:
+
+    fun getInterpolation(nativePointer: Long): BrushBehavior.Interpolation =
+        BrushBehavior.Interpolation(getInterpolationInt(nativePointer))
+
+    @UsedByNative private external fun getInterpolationInt(nativePointer: Long): Int
+
+    // TargetNode accessors:
+
+    fun getTarget(nativePointer: Long): BrushBehavior.Target =
+        BrushBehavior.Target(getTargetInt(nativePointer))
+
+    @UsedByNative private external fun getTargetInt(nativePointer: Long): Int
+
+    @UsedByNative external fun getTargetModifierRangeStart(nativePointer: Long): Float
+
+    @UsedByNative external fun getTargetModifierRangeEnd(nativePointer: Long): Float
+
+    // PolarTargetNode accessors:
+
+    fun getPolarTarget(nativePointer: Long): BrushBehavior.PolarTarget =
+        BrushBehavior.PolarTarget(getPolarTargetInt(nativePointer))
+
+    @UsedByNative private external fun getPolarTargetInt(nativePointer: Long): Int
+
+    @UsedByNative external fun getPolarTargetAngleRangeStart(nativePointer: Long): Float
+
+    @UsedByNative external fun getPolarTargetAngleRangeEnd(nativePointer: Long): Float
+
+    @UsedByNative external fun getPolarTargetMagnitudeRangeStart(nativePointer: Long): Float
+
+    @UsedByNative external fun getPolarTargetMagnitudeRangeEnd(nativePointer: Long): Float
 }

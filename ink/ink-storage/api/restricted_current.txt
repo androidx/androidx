@@ -1,0 +1,42 @@
+// Signature format: 4.0
+package androidx.ink.storage {
+
+  public final class AndroidBrushFamilyExtensions {
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore);
+  }
+
+  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public final class AndroidBrushFamilySerialization {
+    method public static androidx.ink.brush.BrushFamily decode(java.io.InputStream input, androidx.ink.storage.BrushFamilyDecodeCallback getClientTextureId);
+    method public static void encode(androidx.ink.brush.BrushFamily brushFamily, java.io.OutputStream output, androidx.ink.brush.TextureBitmapStore textureBitmapStore);
+    field public static final androidx.ink.storage.AndroidBrushFamilySerialization INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public fun interface BrushFamilyDecodeCallback {
+    method public String onDecodeTexture(String clientTextureId, android.graphics.Bitmap? bitmap);
+  }
+
+  public final class BrushFamilyExtensions {
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static androidx.ink.brush.BrushFamily decode(androidx.ink.brush.BrushFamily.Companion, java.io.InputStream input);
+    method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public static void encode(androidx.ink.brush.BrushFamily, java.io.OutputStream output);
+  }
+
+  @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public final class BrushFamilySerialization {
+    method public static androidx.ink.brush.BrushFamily decode(java.io.InputStream input);
+    method public static void encode(androidx.ink.brush.BrushFamily brushFamily, java.io.OutputStream output);
+    field public static final androidx.ink.storage.BrushFamilySerialization INSTANCE;
+  }
+
+  public final class StrokeInputBatchExtensions {
+    method public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(androidx.ink.strokes.StrokeInputBatch.Companion, java.io.InputStream input);
+    method public static void encode(androidx.ink.strokes.StrokeInputBatch, java.io.OutputStream output);
+  }
+
+  public final class StrokeInputBatchSerialization {
+    method public static androidx.ink.strokes.ImmutableStrokeInputBatch decode(java.io.InputStream input);
+    method public static void encode(androidx.ink.strokes.StrokeInputBatch strokeInputBatch, java.io.OutputStream output);
+    field public static final androidx.ink.storage.StrokeInputBatchSerialization INSTANCE;
+  }
+
+}
+

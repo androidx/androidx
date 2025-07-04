@@ -77,7 +77,7 @@ fun OverscrollSample() {
         override fun applyToScroll(
             delta: Offset,
             source: NestedScrollSource,
-            performScroll: (Offset) -> Offset
+            performScroll: (Offset) -> Offset,
         ): Offset {
             // in pre scroll we relax the overscroll if needed
             // relaxation: when we are in progress of the overscroll and user scrolls in the
@@ -113,7 +113,7 @@ fun OverscrollSample() {
 
         override suspend fun applyToFling(
             velocity: Velocity,
-            performFling: suspend (Velocity) -> Velocity
+            performFling: suspend (Velocity) -> Velocity,
         ) {
             val consumed = performFling(velocity)
             // when the fling happens - we just gradually animate our overscroll to 0
@@ -121,7 +121,7 @@ fun OverscrollSample() {
             overscrollOffset.animateTo(
                 targetValue = 0f,
                 initialVelocity = remaining.y,
-                animationSpec = spring()
+                animationSpec = spring(),
             )
         }
 
@@ -133,7 +133,7 @@ fun OverscrollSample() {
             object : Modifier.Node(), LayoutModifierNode {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     val placeable = measurable.measure(constraints)
                     return layout(placeable.width, placeable.height) {
@@ -164,10 +164,10 @@ fun OverscrollSample() {
                         offset.value - oldValue // indicate that we consumed what's needed
                     },
                 // pass the overscroll to the scrollable so the data is updated
-                overscrollEffect = overscroll
+                overscrollEffect = overscroll,
             )
             .background(Color.LightGray),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             offset.value.roundToInt().toString(),
@@ -175,7 +175,7 @@ fun OverscrollSample() {
             modifier =
                 Modifier
                     // show the overscroll only on the text, not the containers (just for fun)
-                    .overscroll(overscroll)
+                    .overscroll(overscroll),
         )
     }
 }
@@ -194,7 +194,7 @@ fun OverscrollWithDraggable_Before() {
 
     Box(
         Modifier.size(100.dp).draggable(draggableState, orientation = Orientation.Horizontal),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text("Drag position $dragPosition")
     }
@@ -252,9 +252,9 @@ fun OverscrollWithDraggable_After() {
                             velocity
                         }
                     }
-                }
+                },
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text("Drag position $dragPosition")
     }
@@ -287,12 +287,12 @@ fun OverscrollRenderedOnTopOfLazyListDecorations() {
                         drawLine(
                             color = Color.Red,
                             start = Offset(0f, verticalOffset),
-                            end = Offset(size.width, verticalOffset)
+                            end = Offset(size.width, verticalOffset),
                         )
                     }
                 },
         // Pass the overscroll effect that does not apply a visual effect inside the LazyList to
         // receive overscroll events
-        overscrollEffect = overscrollWithoutVisualEffect
+        overscrollEffect = overscrollWithoutVisualEffect,
     )
 }

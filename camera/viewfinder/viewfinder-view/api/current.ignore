@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+AddedMethod: androidx.camera.viewfinder.view.ViewfinderViewExtKt#requestSurfaceSession(androidx.camera.viewfinder.view.ViewfinderView, androidx.camera.viewfinder.core.ViewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super androidx.camera.viewfinder.core.ViewfinderSurfaceSession>):
+    Added method androidx.camera.viewfinder.view.ViewfinderViewExtKt.requestSurfaceSession(androidx.camera.viewfinder.view.ViewfinderView,androidx.camera.viewfinder.core.ViewfinderSurfaceRequest,kotlin.coroutines.Continuation<? super androidx.camera.viewfinder.core.ViewfinderSurfaceSession>)
+
+
+RemovedMethod: androidx.camera.viewfinder.view.ViewfinderView#requestSurfaceSessionAsync(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest, androidx.camera.viewfinder.core.TransformationInfo):
+    Removed method androidx.camera.viewfinder.view.ViewfinderView.requestSurfaceSessionAsync(androidx.camera.viewfinder.core.ViewfinderSurfaceRequest,androidx.camera.viewfinder.core.TransformationInfo)
+RemovedMethod: androidx.camera.viewfinder.view.ViewfinderViewExtKt#requestSurfaceSession(androidx.camera.viewfinder.view.ViewfinderView, androidx.camera.viewfinder.core.ViewfinderSurfaceRequest, androidx.camera.viewfinder.core.TransformationInfo, kotlin.coroutines.Continuation<? super androidx.camera.viewfinder.core.ViewfinderSurfaceSession>):
+    Removed method androidx.camera.viewfinder.view.ViewfinderViewExtKt.requestSurfaceSession(androidx.camera.viewfinder.view.ViewfinderView,androidx.camera.viewfinder.core.ViewfinderSurfaceRequest,androidx.camera.viewfinder.core.TransformationInfo,kotlin.coroutines.Continuation<? super androidx.camera.viewfinder.core.ViewfinderSurfaceSession>)

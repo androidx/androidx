@@ -16,16 +16,15 @@
 
 package androidx.xr.compose.subspace
 
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.xr.compose.subspace.LayoutOrientation.Horizontal
-import androidx.xr.compose.subspace.LayoutOrientation.Vertical
-import androidx.xr.compose.subspace.layout.Measurable
-import androidx.xr.compose.subspace.layout.MeasurePolicy
-import androidx.xr.compose.subspace.layout.MeasureResult
-import androidx.xr.compose.subspace.layout.MeasureScope
-import androidx.xr.compose.subspace.layout.Placeable
 import androidx.xr.compose.subspace.layout.SpatialAlignment
+import androidx.xr.compose.subspace.layout.SubspaceMeasurable
+import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
+import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
+import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
+import androidx.xr.compose.subspace.layout.SubspacePlaceable
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.constrainDepth
@@ -38,45 +37,90 @@ import kotlin.math.cos
 import kotlin.math.sign
 import kotlin.math.sin
 
-/** Shared [MeasurePolicy] between [Row] and [Column]. */
+/** Shared [SubspaceMeasurePolicy] between [Row] and [Column]. */
 internal class RowColumnMeasurePolicy(
     private val orientation: LayoutOrientation,
     private val alignment: SpatialAlignment,
     private val curveRadius: Dp,
-) : MeasurePolicy {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
+) : SubspaceMeasurePolicy {
+    override fun SubspaceMeasureScope.measure(
+        measurables: List<SubspaceMeasurable>,
         constraints: VolumeConstraints,
-    ): MeasureResult {
-        // Space taken up on the main axis by children with no weight modifier
-        var fixedSpace = 0
-
-        // The total amount of weight declared across all children
-        var totalWeight = 0f
-
+    ): SubspaceMeasureResult {
         val resolvedMeasurables = measurables.map { ResolvedMeasurable(it) }
+
+        measureRowColumnChildren(resolvedMeasurables, constraints)
+
+        // contentSize() also sets the mainAxisPosition of each child.
+        val contentSize = resolvedMeasurables.contentSize()
+        val containerSize =
+            IntVolumeSize(
+                width = constraints.constrainWidth(contentSize.width),
+                height = constraints.constrainHeight(contentSize.height),
+                depth = constraints.constrainDepth(contentSize.depth),
+            )
+
+        // Each child will have its main-axis offset adjusted, based on extra space available and
+        // the
+        // provided alignment.
+        val mainAxisOffset =
+            if (isHorizontal) {
+                // `mainAxisOffset` represents the left edge of the content in the container space.
+                alignment.horizontalOffset(contentSize.width, containerSize.width) -
+                    contentSize.width / 2
+            } else {
+                // `mainAxisOffset` represents the top edge of the content in the container space.
+                alignment.verticalOffset(contentSize.height, containerSize.height) +
+                    contentSize.height / 2
+            }
+
+        return layout(containerSize.width, containerSize.height, containerSize.depth) {
+            resolvedMeasurables.forEach { resolvedMeasurable ->
+                val placeable = resolvedMeasurable.placeable!!
+                placeable.place(getPose(resolvedMeasurable, containerSize, mainAxisOffset))
+            }
+        }
+    }
+
+    /**
+     * Measures the children of a Row or Column.
+     *
+     * This method will measure the children of a Row or Column in two passes. In the first pass,
+     * children with no weight modifier will be measured. In the second pass, children with weight
+     * modifiers will be measured.
+     *
+     * After measuring, the placeable of each child will be set.
+     */
+    private fun measureRowColumnChildren(
+        resolvedMeasurables: List<ResolvedMeasurable>,
+        constraints: VolumeConstraints,
+    ) {
+        // Space taken up on the main axis by children with no weight modifier.
+        var fixedSpace = 0
+        // The total amount of weight declared across all children.
+        var totalWeight = 0f
 
         // We will measure non-weighted children in this pass.
         resolvedMeasurables.forEach { resolvedMeasurable ->
             if (resolvedMeasurable.weightInfo.weight > 0f) {
-                // Children with weight will be measured after all others
+                // Children with weight will be measured after all others.
                 totalWeight += resolvedMeasurable.weightInfo.weight
             } else {
-                // Children without weight will be measured now
+                // Children without weight will be measured now.
                 resolvedMeasurable.placeable =
                     resolvedMeasurable.measurable
                         .measure(constraints.plusMainAxis(-fixedSpace))
-                        .also { fixedSpace += it.mainAxisSize() }
+                        .also { fixedSpace += it.mainAxisSize }
             }
         }
 
         // Now we can measure the weighted children (if any).
         if (totalWeight > 0f) {
-            // Amount of space this Row/Column wants to fill up
-            val targetSpace = constraints.mainAxisTargetSpace()
-            // Amount of space left (after the non-weighted children were measured)
+            // Amount of space this Row/Column wants to fill up.
+            val targetSpace = constraints.mainAxisTargetSpace
+            // Amount of space left (after the non-weighted children were measured).
             val remainingToTarget = (targetSpace - fixedSpace).coerceAtLeast(0)
-            // Amount of space that would be given to a weighted child with `.weight(1f)`
+            // Amount of space that would be given to a weighted child with `.weight(1f)`.
             val weightUnitSpace = remainingToTarget / totalWeight
 
             // First pass through the weighted children, we just want to see what the remaining
@@ -110,8 +154,8 @@ internal class RowColumnMeasurePolicy(
                         mainAxisMin =
                             if (resolvedMeasurable.weightInfo.fill) childMainAxisSize else 0,
                         mainAxisMax = childMainAxisSize,
-                        crossAxisMin = constraints.crossAxisMin(),
-                        crossAxisMax = constraints.crossAxisMax(),
+                        crossAxisMin = constraints.crossAxisMin,
+                        crossAxisMax = constraints.crossAxisMax,
                         minDepth = constraints.minDepth,
                         maxDepth = constraints.maxDepth,
                     )
@@ -119,109 +163,22 @@ internal class RowColumnMeasurePolicy(
                     resolvedMeasurable.measurable.measure(childConstraints)
             }
         }
-
-        val contentSize = resolvedMeasurables.contentSize()
-
-        val containerSize =
-            IntVolumeSize(
-                width = constraints.constrainWidth(contentSize.width),
-                height = constraints.constrainHeight(contentSize.height),
-                depth = constraints.constrainDepth(contentSize.depth),
-            )
-
-        // Each child will have its main-axis offset adjusted, based on extra space available and
-        // the
-        // provided alignment.
-        val mainAxisOffset =
-            if (isHorizontal()) {
-                // `mainAxisOffset` represents the left edge of the content in the container space.
-                alignment.horizontalOffset(contentSize.width, containerSize.width) -
-                    contentSize.width / 2
-            } else {
-                // `mainAxisOffset` represents the top edge of the content in the container space.
-                alignment.verticalOffset(contentSize.height, containerSize.height) +
-                    contentSize.height / 2
-            }
-        resolvedMeasurables.forEach { resolvedMeasurable ->
-            // Adjust main-axis offset appropriately.
-            resolvedMeasurable.mainAxisPosition =
-                resolvedMeasurable.mainAxisPosition!! + mainAxisOffset
-
-            // Set child's cross-axis position based on its desired size + the container's
-            // size/alignment.
-            val crossAxisSize = resolvedMeasurable.placeable!!.crossAxisSize()
-            resolvedMeasurable.crossAxisPosition =
-                if (isHorizontal()) {
-                    resolvedMeasurable.verticalOffset(
-                        crossAxisSize,
-                        containerSize.height,
-                        alignment
-                    )
-                } else {
-                    resolvedMeasurable.horizontalOffset(
-                        crossAxisSize,
-                        containerSize.width,
-                        alignment
-                    )
-                }
-        }
-
-        return layout(containerSize.width, containerSize.height, containerSize.depth) {
-            resolvedMeasurables.forEach { resolvedMeasurable ->
-                val placeable = resolvedMeasurable.placeable!!
-                val mainAxisPosition = resolvedMeasurable.mainAxisPosition!!
-                val crossAxisPosition = resolvedMeasurable.crossAxisPosition!!
-                val depthPosition =
-                    resolvedMeasurable.depthOffset(
-                        placeable.measuredDepth,
-                        containerSize.depth,
-                        alignment
-                    )
-                var position =
-                    Vector3(
-                        x =
-                            if (isHorizontal()) mainAxisPosition.toFloat()
-                            else crossAxisPosition.toFloat(),
-                        y =
-                            if (isHorizontal()) crossAxisPosition.toFloat()
-                            else mainAxisPosition.toFloat(),
-                        z = depthPosition.toFloat(),
-                    )
-                var orientation = Quaternion.Identity
-
-                if (curveRadius != Dp.Infinity) {
-                    val pixelsCurveRadius = curveRadius.toPx()
-
-                    // NOTE: Orientation needs to be computed first, otherwise position
-                    // gets overwritten with the new position which will lead to an
-                    // incorrect orientation calculation.
-                    orientation = getOrientationTangentToCircle(position, pixelsCurveRadius)
-                    position = getPositionOnCircle(position, pixelsCurveRadius)
-                }
-
-                placeable.place(Pose(position, orientation))
-            }
-        }
     }
 
-    private fun isHorizontal() = orientation == LayoutOrientation.Horizontal
+    private val isHorizontal = orientation == LayoutOrientation.Horizontal
 
-    private fun Placeable.mainAxisSize() = if (isHorizontal()) measuredWidth else measuredHeight
+    private val SubspacePlaceable.mainAxisSize
+        get() = if (isHorizontal) measuredWidth else measuredHeight
 
-    private fun Placeable.crossAxisSize() = if (isHorizontal()) measuredHeight else measuredWidth
+    private val SubspacePlaceable.crossAxisSize
+        get() = if (isHorizontal) measuredHeight else measuredWidth
 
     private fun VolumeConstraints.plusMainAxis(addToMainAxis: Int): VolumeConstraints {
-        val newMainAxisValue =
-            if (isHorizontal()) {
-                maxWidth + addToMainAxis
-            } else {
-                maxHeight + addToMainAxis
-            }
         return VolumeConstraints(
             minWidth = 0,
-            maxWidth = if (isHorizontal()) newMainAxisValue else maxWidth,
+            maxWidth = if (isHorizontal) maxWidth + addToMainAxis else maxWidth,
             minHeight = 0,
-            maxHeight = if (isHorizontal()) maxHeight else newMainAxisValue,
+            maxHeight = if (isHorizontal) maxHeight else maxHeight + addToMainAxis,
             minDepth = 0,
             maxDepth = maxDepth,
         )
@@ -235,7 +192,6 @@ internal class RowColumnMeasurePolicy(
         minDepth: Int,
         maxDepth: Int,
     ): VolumeConstraints {
-        val isHorizontal = isHorizontal()
         return VolumeConstraints(
             minWidth = if (isHorizontal) mainAxisMin else crossAxisMin,
             maxWidth = if (isHorizontal) mainAxisMax else crossAxisMax,
@@ -246,41 +202,109 @@ internal class RowColumnMeasurePolicy(
         )
     }
 
+    /**
+     * Returns the total size of the content.
+     *
+     * The main axis size is the sum of all children's main-axis sizes. The cross axis size is the
+     * max measured value of all children's cross-axis sizes. The depth size is the max measured
+     * value of all children's depth sizes.
+     *
+     * This method will also set the mainAxisPosition of each child.
+     */
     private fun List<ResolvedMeasurable>.contentSize(): IntVolumeSize {
         // Content's main-axis size is the sum of all children's main-axis sizes
         var mainAxisSize = 0
-        val mainAxisMultiplier = if (isHorizontal()) 1 else -1
+        val mainAxisMultiplier = if (isHorizontal) 1 else -1
         // Content's cross-axis and depth size are the max measured value of all children
         var crossAxisSize = 0
         var depthSize = 0
         this.forEach { resolvedMeasurable ->
             val placeable = resolvedMeasurable.placeable!!
             resolvedMeasurable.mainAxisPosition =
-                ((mainAxisSize + placeable.mainAxisSize() / 2.0f) * mainAxisMultiplier)
+                ((mainAxisSize + placeable.mainAxisSize / 2.0f) * mainAxisMultiplier)
                     .fastRoundToInt()
-            mainAxisSize += placeable.mainAxisSize()
-            crossAxisSize = maxOf(crossAxisSize, placeable.crossAxisSize())
+            mainAxisSize += placeable.mainAxisSize
+            crossAxisSize = maxOf(crossAxisSize, placeable.crossAxisSize)
             depthSize = maxOf(depthSize, placeable.measuredDepth)
         }
         return IntVolumeSize(
-            width = if (isHorizontal()) mainAxisSize else crossAxisSize,
-            height = if (isHorizontal()) crossAxisSize else mainAxisSize,
+            width = if (isHorizontal) mainAxisSize else crossAxisSize,
+            height = if (isHorizontal) crossAxisSize else mainAxisSize,
             depth = depthSize,
         )
     }
 
-    private fun VolumeConstraints.mainAxisTargetSpace(): Int {
-        val mainAxisMax = if (isHorizontal()) maxWidth else maxHeight
-        return if (mainAxisMax != VolumeConstraints.INFINITY) {
-            mainAxisMax
-        } else {
-            if (isHorizontal()) minWidth else minHeight
+    /**
+     * Returns the pose of the child in the container space.
+     *
+     * The pose is based on the child's main-axis position, cross-axis position, and depth offset,
+     * taking into account the alignment of the child. The pose is also adjusted for the curve
+     * radius, if it is not infinite.
+     */
+    private fun Density.getPose(
+        resolvedMeasurable: ResolvedMeasurable,
+        containerSize: IntVolumeSize,
+        mainAxisOffset: Int,
+    ): Pose {
+        val mainAxisPosition = resolvedMeasurable.mainAxisPosition!! + mainAxisOffset
+
+        // Set child's cross-axis position based on its desired size + the container's
+        // size/alignment.
+        val crossAxisSize = resolvedMeasurable.placeable!!.crossAxisSize
+        val crossAxisPosition =
+            if (isHorizontal) {
+                resolvedMeasurable.verticalOffset(crossAxisSize, containerSize.height, alignment)
+            } else {
+                resolvedMeasurable.horizontalOffset(crossAxisSize, containerSize.width, alignment)
+            }
+
+        val depthPosition =
+            resolvedMeasurable.depthOffset(
+                resolvedMeasurable.placeable!!.measuredDepth,
+                containerSize.depth,
+                alignment,
+            )
+
+        var position =
+            Vector3(
+                x = if (isHorizontal) mainAxisPosition.toFloat() else crossAxisPosition.toFloat(),
+                y = if (isHorizontal) crossAxisPosition.toFloat() else mainAxisPosition.toFloat(),
+                z = depthPosition.toFloat(),
+            )
+        var orientation = Quaternion.Identity
+
+        if (curveRadius != Dp.Infinity) {
+            val pixelsCurveRadius = curveRadius.toPx()
+
+            // NOTE: Orientation needs to be computed first, otherwise position
+            // gets overwritten with the new position which will lead to an
+            // incorrect orientation calculation.
+            orientation = getOrientationTangentToCircle(position, pixelsCurveRadius)
+            position = getPositionOnCircle(position, pixelsCurveRadius)
         }
+
+        return Pose(position, orientation)
     }
 
-    private fun VolumeConstraints.crossAxisMin(): Int = if (isHorizontal()) minHeight else minWidth
+    /**
+     * The target space is the amount of space that the content should take up on the main axis.
+     * This is based on the constraints of the container.
+     */
+    private val VolumeConstraints.mainAxisTargetSpace: Int
+        get() {
+            val mainAxisMax = if (isHorizontal) maxWidth else maxHeight
+            return if (mainAxisMax != VolumeConstraints.INFINITY) {
+                mainAxisMax
+            } else {
+                if (isHorizontal) minWidth else minHeight
+            }
+        }
 
-    private fun VolumeConstraints.crossAxisMax(): Int = if (isHorizontal()) maxHeight else maxWidth
+    private val VolumeConstraints.crossAxisMin: Int
+        get() = if (isHorizontal) minHeight else minWidth
+
+    private val VolumeConstraints.crossAxisMax: Int
+        get() = if (isHorizontal) maxHeight else maxWidth
 }
 
 // [radius], like [position], should be in pixels.
@@ -311,8 +335,11 @@ private fun getOrientationTangentToCircle(position: Vector3, radius: Float): Qua
     return Quaternion(qX, qY, qZ, qW)
 }
 
-/** A [Measurable] and all associated information computed in [RowColumnMeasurePolicy.measure]. */
-private class ResolvedMeasurable(val measurable: Measurable) {
+/**
+ * A [SubspaceMeasurable] and all associated information computed in
+ * [RowColumnMeasurePolicy.measure].
+ */
+private class ResolvedMeasurable(val measurable: SubspaceMeasurable) {
     /** Parameters set by the [RowScope.weight] and [ColumnScope.weight] modifiers. */
     val weightInfo: RowColumnParentData = RowColumnParentData().also { measurable.adjustParams(it) }
 
@@ -320,14 +347,14 @@ private class ResolvedMeasurable(val measurable: Measurable) {
     val alignment: RowColumnSpatialAlignmentParentData =
         RowColumnSpatialAlignmentParentData().also { measurable.adjustParams(it) }
 
-    /** A measured placeable, only present once [Measurable.measure] is called on [measurable]. */
-    var placeable: Placeable? = null
+    /**
+     * A measured placeable, only present once [SubspaceMeasurable.measure] is called on
+     * [measurable].
+     */
+    var placeable: SubspacePlaceable? = null
 
     /** The main-axis position of this child in its parent; set after all children are measured. */
     var mainAxisPosition: Int? = null
-
-    /** The cross-axis position of this child in its parent; set after all children are measured. */
-    var crossAxisPosition: Int? = null
 
     fun horizontalOffset(width: Int, space: Int, parentSpatialAlignment: SpatialAlignment): Int =
         alignment.horizontalSpatialAlignment?.offset(width, space)

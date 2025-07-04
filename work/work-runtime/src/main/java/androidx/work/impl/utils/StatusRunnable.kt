@@ -34,17 +34,14 @@ internal fun WorkDatabase.forStringIds(
         WORK_INFO_MAPPER.apply(db.workSpecDao().getWorkStatusPojoForIds(ids))
     }
 
-internal fun WorkDatabase.forUUID(
-    executor: TaskExecutor,
-    id: UUID,
-): ListenableFuture<WorkInfo?> =
+internal fun WorkDatabase.forUUID(executor: TaskExecutor, id: UUID): ListenableFuture<WorkInfo?> =
     loadStatusFuture(executor) { db ->
         db.workSpecDao().getWorkStatusPojoForId(id.toString())?.toWorkInfo()
     }
 
 internal fun WorkDatabase.forTag(
     executor: TaskExecutor,
-    tag: String
+    tag: String,
 ): ListenableFuture<List<WorkInfo>> =
     loadStatusFuture(executor) { db ->
         WORK_INFO_MAPPER.apply(db.workSpecDao().getWorkStatusPojoForTag(tag))
@@ -60,7 +57,7 @@ internal fun WorkDatabase.forUniqueWork(
 
 internal fun WorkDatabase.forWorkQuerySpec(
     executor: TaskExecutor,
-    querySpec: WorkQuery
+    querySpec: WorkQuery,
 ): ListenableFuture<List<WorkInfo>> =
     loadStatusFuture(executor) { db ->
         WORK_INFO_MAPPER.apply(db.rawWorkInfoDao().getWorkInfoPojos(querySpec.toRawQuery()))
@@ -69,6 +66,6 @@ internal fun WorkDatabase.forWorkQuerySpec(
 // it should be rewritten via SuspendToFutureAdapter.launchFuture once it is stable.
 private fun <T> WorkDatabase.loadStatusFuture(
     executor: TaskExecutor,
-    block: (WorkDatabase) -> T
+    block: (WorkDatabase) -> T,
 ): ListenableFuture<T> =
     executor.serialTaskExecutor.executeAsync("loadStatusFuture") { block(this@loadStatusFuture) }

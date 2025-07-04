@@ -30,15 +30,15 @@ package androidx.compose.ui.unit {
     method public float getFontScale();
     method @androidx.compose.runtime.Stable public default int roundToPx(float);
     method @androidx.compose.runtime.Stable public default int roundToPx(long);
-    method @androidx.compose.runtime.Stable public default float toDp(long);
-    method @androidx.compose.runtime.Stable public default float toDp(int);
     method @androidx.compose.runtime.Stable public default float toDp(float);
+    method @androidx.compose.runtime.Stable public default float toDp(int);
+    method @androidx.compose.runtime.Stable public default float toDp(long);
     method @androidx.compose.runtime.Stable public default float toPx(float);
     method @androidx.compose.runtime.Stable public default float toPx(long);
     method @androidx.compose.runtime.Stable public default androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.DpRect);
     method @androidx.compose.runtime.Stable public default long toSp(float);
-    method @androidx.compose.runtime.Stable public default long toSp(int);
     method @androidx.compose.runtime.Stable public default long toSp(float);
+    method @androidx.compose.runtime.Stable public default long toSp(int);
     property public abstract float density;
     property public abstract float fontScale;
   }
@@ -68,9 +68,9 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static inline float coerceAtLeast(float, float minimumValue);
     method @androidx.compose.runtime.Stable public static inline float coerceAtMost(float, float maximumValue);
     method @androidx.compose.runtime.Stable public static inline float coerceIn(float, float minimumValue, float maximumValue);
-    method public static inline float getDp(int);
     method public static inline float getDp(double);
     method public static inline float getDp(float);
+    method public static inline float getDp(int);
     method public static inline float getHeight(androidx.compose.ui.unit.DpRect);
     method public static inline float getWidth(androidx.compose.ui.unit.DpRect);
     method public static inline boolean isFinite(float);
@@ -81,8 +81,8 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static inline float max(float a, float b);
     method @androidx.compose.runtime.Stable public static inline float min(float a, float b);
     method public static inline float takeOrElse(float, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.Dp> block);
-    method @androidx.compose.runtime.Stable public static inline operator float times(float, float other);
     method @androidx.compose.runtime.Stable public static inline operator float times(double, float other);
+    method @androidx.compose.runtime.Stable public static inline operator float times(float, float other);
     method @androidx.compose.runtime.Stable public static inline operator float times(int, float other);
   }
 
@@ -170,8 +170,8 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect intersect(androidx.compose.ui.unit.IntRect other);
     method public boolean isEmpty();
     method public boolean overlaps(androidx.compose.ui.unit.IntRect other);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate(long offset);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate(int translateX, int translateY);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.IntRect translate(long offset);
     property public final int bottom;
     property public final long bottomCenter;
     property public final long bottomLeft;
@@ -200,9 +200,9 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntRectKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long center, int radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long offset, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long topLeft, long bottomRight);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect IntRect(long center, int radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntRect lerp(androidx.compose.ui.unit.IntRect start, androidx.compose.ui.unit.IntRect stop, float fraction);
   }
 
@@ -239,18 +239,18 @@ package androidx.compose.ui.unit {
 
   public final class TextUnitKt {
     method @androidx.compose.ui.unit.ExperimentalUnitApi public static long TextUnit(float value, long type);
-    method public static long getEm(float);
     method public static long getEm(double);
+    method public static long getEm(float);
     method public static long getEm(int);
-    method public static long getSp(float);
     method public static long getSp(double);
+    method public static long getSp(float);
     method public static long getSp(int);
     method public static inline boolean isSpecified(long);
     method public static boolean isUnspecified(long);
     method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
     method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit> block);
-    method @androidx.compose.runtime.Stable public static inline operator long times(float, long other);
     method @androidx.compose.runtime.Stable public static inline operator long times(double, long other);
+    method @androidx.compose.runtime.Stable public static inline operator long times(float, long other);
     method @androidx.compose.runtime.Stable public static inline operator long times(int, long other);
   }
 

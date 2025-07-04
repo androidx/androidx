@@ -45,14 +45,14 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                                 add(
                                     "new %T(%L)",
                                     CommonTypeNames.HASH_SET.parametrizedBy(CommonTypeNames.STRING),
-                                    entity.fields.size
+                                    entity.properties.size,
                                 )
                             CodeLanguage.KOTLIN ->
                                 add("%M()", KotlinCollectionMemberNames.MUTABLE_SET_OF)
                         }
-                    }
+                    },
             )
-            entity.nonHiddenFields.forEach {
+            entity.nonHiddenProperties.forEach {
                 addStatement("%L.add(%S)", columnSetVar, it.columnName)
             }
 
@@ -65,8 +65,8 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                         "%S, %L, %S",
                         entity.tableName,
                         columnSetVar,
-                        entity.createTableQuery
-                    )
+                        entity.createTableQuery,
+                    ),
             )
 
             val existingVar = scope.getTmpVar("_existing$suffix")
@@ -76,7 +76,7 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                 "%M(%L, %S)",
                 RoomMemberNames.FTS_TABLE_INFO_READ,
                 connectionParamName,
-                entity.tableName
+                entity.tableName,
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -88,8 +88,8 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
                         "${entity.tableName}(${entity.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,
                         "\n Found:\n",
-                        existingVar
-                    )
+                        existingVar,
+                    ),
                 )
             }
             endControlFlow()

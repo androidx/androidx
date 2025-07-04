@@ -43,7 +43,7 @@ internal val EGL_CONFIG_ATTRIB_LIST =
         8,
         EGL14.EGL_ALPHA_SIZE,
         8,
-        EGL14.EGL_NONE
+        EGL14.EGL_NONE,
     )
 
 internal val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
@@ -63,7 +63,7 @@ constructor(
     watchState: WatchState,
     @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
     eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-    eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+    eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
 ) :
     Renderer.GlesRenderer(
         surfaceHolder,
@@ -71,7 +71,7 @@ constructor(
         watchState,
         interactiveDrawModeUpdateDelayMillis,
         eglConfigAttribList,
-        eglSurfaceAttribList
+        eglSurfaceAttribList,
     ) {
     /**
      * Inside of a [Mutex] this function sets the GL context associated with the
@@ -145,7 +145,7 @@ constructor(
     @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
     protected open fun onUiThreadGlSurfaceCreatedFuture(
         @Px width: Int,
-        @Px height: Int
+        @Px height: Int,
     ): ListenableFuture<Unit> {
         return SettableFuture.create<Unit>().apply { set(Unit) }
     }
@@ -160,7 +160,13 @@ constructor(
 /**
  * [ListenableFuture]-based compatibility wrapper around [Renderer.GlesRenderer]'s suspending
  * methods.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public abstract class ListenableGlesRenderer2<SharedAssetsT>
 @Throws(GlesException::class)
 @JvmOverloads
@@ -170,7 +176,7 @@ constructor(
     watchState: WatchState,
     @IntRange(from = 0, to = 60000) interactiveDrawModeUpdateDelayMillis: Long,
     eglConfigAttribList: IntArray = EGL_CONFIG_ATTRIB_LIST,
-    eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST
+    eglSurfaceAttribList: IntArray = EGL_SURFACE_ATTRIB_LIST,
 ) :
     Renderer.GlesRenderer2<SharedAssetsT>(
         surfaceHolder,
@@ -178,7 +184,7 @@ constructor(
         watchState,
         interactiveDrawModeUpdateDelayMillis,
         eglConfigAttribList,
-        eglSurfaceAttribList
+        eglSurfaceAttribList,
     ) where SharedAssetsT : SharedAssets {
     /**
      * Inside of a [Mutex] this function sets the GL context associated with the
@@ -253,7 +259,7 @@ constructor(
     @Suppress("AsyncSuffixFuture") // This is the guava wrapper for a suspend function
     protected open fun onUiThreadGlSurfaceCreatedFuture(
         @Px width: Int,
-        @Px height: Int
+        @Px height: Int,
     ): ListenableFuture<Unit> {
         return SettableFuture.create<Unit>().apply { set(Unit) }
     }

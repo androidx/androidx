@@ -225,7 +225,8 @@ public interface Features {
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
      * {@link
-     * AppSearchSchema.DocumentPropertyConfig.Builder#addIndexableNestedProperties(String...)}
+     * AppSearchSchema.DocumentPropertyConfig.Builder#addIndexableNestedProperties(String...)} and
+     * {@link AppSearchSchema.DocumentPropertyConfig#getIndexableNestedProperties()}.
      */
     String SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES = "SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES";
 
@@ -317,9 +318,55 @@ public interface Features {
      * {@link AppSearchSchema.StringPropertyConfig#DELETE_PROPAGATION_TYPE_PROPAGATE_FROM} and
      * {@link AppSearchSchema.StringPropertyConfig.Builder#setDeletePropagationType}.
      */
+    // TODO(b/384947619) unhide the API once it is ready.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @ExperimentalAppSearchApi
     String SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM =
             "SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers whether to use isolated
+     * storage for user data.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    String ISOLATED_STORAGE = "ISOLATED_STORAGE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers the use of the
+     * "minOrDefault" and "maxOrDefault" functions in ranking expressions.
+     *
+     * <p>For details on the functions in the ranking language, see
+     * {@link SearchSpec.Builder#setRankingStrategy(String)}.
+     */
+    @ExperimentalAppSearchApi
+    String SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT =
+            "SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers the use of the
+     * "filterByRange" function in ranking expressions.
+     *
+     * <p>For details on the function in the ranking language, see
+     * {@link SearchSpec.Builder#setRankingStrategy(String)}.
+     */
+    @ExperimentalAppSearchApi
+    String SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE =
+            "SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#setRetrieveEmbeddingMatchInfos(boolean)}.
+     */
+    @ExperimentalAppSearchApi
+    String SEARCH_EMBEDDING_MATCH_INFO = "SEARCH_EMBEDDING_MATCH_INFO";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers {@link
+     * androidx.appsearch.usagereporting.ActionAccumulator#create}.
+     */
+    // Due to lint checks, we cannot include the word "ACTION" in this value
+    @ExperimentalAppSearchApi
+    String SEARCH_AND_CLICK_ACCUMULATOR = "SEARCH_AND_CLICK_ACCUMULATOR";
 
     /**
      * Returns whether a feature is supported at run-time. Feature support depends on the

@@ -136,7 +136,7 @@ class AdvancedSessionProcessorTest {
 
     private fun getCameraSelectorWithSessionProcessor(
         cameraSelector: CameraSelector,
-        sessionProcessor: SessionProcessor
+        sessionProcessor: SessionProcessor,
     ): CameraSelector {
         val identifier = Identifier.create("idStr")
         ExtendedCameraConfigProviderStore.addConfig(identifier) { _, _ ->
@@ -206,7 +206,7 @@ class AdvancedSessionProcessorTest {
                     analysisConfigBlock = { outputSurfaceImpl ->
                         Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
                             .build()
-                    }
+                    },
                 )
 
             val preview = Preview.Builder().build()
@@ -224,7 +224,7 @@ class AdvancedSessionProcessorTest {
                         // return a non-empty list to ensure onCaptureCompleted is invoked.
                         listOf(CaptureResult.JPEG_QUALITY as CaptureResult.Key<Any>)
                         else emptyList()
-                }
+                },
             )
         }
 
@@ -237,13 +237,13 @@ class AdvancedSessionProcessorTest {
                 fakeSessionProcessImpl,
                 emptyList(),
                 object : VendorExtender {},
-                context
+                context,
             )
 
         val parametersMap: MutableMap<CaptureRequest.Key<*>, Any> =
             mutableMapOf(
                 CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO,
-                CaptureRequest.JPEG_QUALITY to 0
+                CaptureRequest.JPEG_QUALITY to 0,
             )
 
         val config =
@@ -265,11 +265,11 @@ class AdvancedSessionProcessorTest {
                 override fun onCaptureCompleted(
                     timestamp: Long,
                     captureSequenceId: Int,
-                    captureResult: CameraCaptureResult
+                    captureResult: CameraCaptureResult,
                 ) {
                     captureResultDeferred.complete(captureResult)
                 }
-            }
+            },
         )
 
         fakeSessionProcessImpl.assertStartTriggerIsCalledWithParameters(parametersMap)
@@ -292,7 +292,7 @@ class AdvancedSessionProcessorTest {
                     fakeSessionProcessImpl,
                     emptyList(),
                     object : VendorExtender {},
-                    context
+                    context,
                 )
 
             val realtimeCaptureLatencyEstimate = advancedSessionProcessor.realtimeCaptureLatency
@@ -314,7 +314,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(),
                 emptyList(),
                 advancedVendorExtender,
-                context
+                context,
             )
 
         assertThat(advancedSessionProcessor.isCurrentExtensionModeAvailable).isFalse()
@@ -342,7 +342,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(),
                 emptyList(),
                 advancedVendorExtender,
-                context
+                context,
             )
 
         assertThat(advancedSessionProcessor.isCurrentExtensionModeAvailable).isTrue()
@@ -361,7 +361,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(),
                 emptyList(),
                 advancedVendorExtender,
-                context
+                context,
             )
 
         assertThat(advancedSessionProcessor.isExtensionStrengthAvailable).isFalse()
@@ -387,7 +387,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(),
                 emptyList(),
                 advancedVendorExtender,
-                context
+                context,
             )
 
         assertThat(advancedSessionProcessor.isExtensionStrengthAvailable).isTrue()
@@ -407,9 +407,9 @@ class AdvancedSessionProcessorTest {
             listOf(
                 Pair(
                     CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES,
-                    availableStabilizationModes
+                    availableStabilizationModes,
                 ),
-                Pair(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE, zoomRatioRange)
+                Pair(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE, zoomRatioRange),
             )
 
         val advancedVendorExtender =
@@ -424,7 +424,7 @@ class AdvancedSessionProcessorTest {
                 FakeSessionProcessImpl(),
                 emptyList(),
                 advancedVendorExtender,
-                context
+                context,
             )
 
         assertThat(advancedSessionProcessor.availableCharacteristicsKeyValues)
@@ -438,22 +438,22 @@ class AdvancedSessionProcessorTest {
         val testCaptureRequestKeys: MutableList<CaptureRequest.Key<Any>> = mutableListOf(),
         val testCaptureResultKeys: MutableList<CaptureResult.Key<Any>> = mutableListOf(),
         val testAvailableCharacteristics: List<Pair<CameraCharacteristics.Key<*>?, in Any>?> =
-            emptyList()
+            emptyList(),
     ) : AdvancedExtenderImpl {
         override fun isExtensionAvailable(
             cameraId: String,
-            characteristicsMap: MutableMap<String, CameraCharacteristics>
+            characteristicsMap: MutableMap<String, CameraCharacteristics>,
         ): Boolean = true
 
         override fun init(
             cameraId: String,
-            characteristicsMap: MutableMap<String, CameraCharacteristics>
+            characteristicsMap: MutableMap<String, CameraCharacteristics>,
         ) {}
 
         override fun getEstimatedCaptureLatencyRange(
             cameraId: String,
             captureOutputSize: Size?,
-            imageFormat: Int
+            imageFormat: Int,
         ): Range<Long>? = null
 
         override fun getSupportedPreviewOutputResolutions(
@@ -507,7 +507,7 @@ class AdvancedSessionProcessorTest {
                         repeatingCallback!!.onCaptureCompleted(
                             0,
                             0,
-                            mapOf(CaptureResult.EXTENSION_CURRENT_TYPE to extensionType)
+                            mapOf(CaptureResult.EXTENSION_CURRENT_TYPE to extensionType),
                         )
                     }
                 }
@@ -521,14 +521,14 @@ class AdvancedSessionProcessorTest {
                         }
                     },
                     context,
-                    ExtensionMode.AUTO
+                    ExtensionMode.AUTO,
                 )
 
             // Starts repeating first to let fakeSessionProcessImpl obtain the
             // AdvancedSessionProcessor's SessionProcessorImplCaptureCallbackAdapter instance
             advancedSessionProcessor.startRepeating(
                 TagBundle.emptyBundle(),
-                object : SessionProcessor.CaptureCallback {}
+                object : SessionProcessor.CaptureCallback {},
             )
             val receivedTypeList = mutableListOf<Int>()
             // Sets the count as 2 for receiving the initial extension type and the updated
@@ -586,7 +586,7 @@ class AdvancedSessionProcessorTest {
                 fakeSessionProcessImpl,
                 emptyList(),
                 object : VendorExtender {},
-                context
+                context,
             )
 
         var tagBundle = MutableTagBundle.create()
@@ -599,11 +599,11 @@ class AdvancedSessionProcessorTest {
                 override fun onCaptureCompleted(
                     timestamp: Long,
                     captureSequenceId: Int,
-                    captureResult: CameraCaptureResult
+                    captureResult: CameraCaptureResult,
                 ) {
                     deferredCameraCaptureResult.complete(captureResult)
                 }
-            }
+            },
         )
         val captureResult = deferredCameraCaptureResult.awaitWithTimeout(2000)
         assertThat(captureResult.tagBundle).isSameInstanceAs(tagBundle)
@@ -636,7 +636,7 @@ class AdvancedSessionProcessorTest {
                         callback.onCaptureCompleted(
                             0,
                             0,
-                            mapOf(CaptureResult.EXTENSION_STRENGTH to strength)
+                            mapOf(CaptureResult.EXTENSION_STRENGTH to strength),
                         )
                     }
                     startRepeatingLatch.countDown()
@@ -652,14 +652,14 @@ class AdvancedSessionProcessorTest {
                         return true
                     }
                 },
-                context
+                context,
             )
 
         // Starts repeating first to verify that setExtensionStrength function will directly
         // invoke the SessionProcessImpl#startRepeating function.
         advancedSessionProcessor.startRepeating(
             TagBundle.emptyBundle(),
-            object : SessionProcessor.CaptureCallback {}
+            object : SessionProcessor.CaptureCallback {},
         )
         val newExtensionStrength = 50
         advancedSessionProcessor.setExtensionStrength(newExtensionStrength)
@@ -727,7 +727,7 @@ class AdvancedSessionProcessorTest {
                         Camera2OutputConfigImplBuilder.newImageReaderConfig(
                                 outputSurfaceImpl.size,
                                 outputSurfaceImpl.imageFormat,
-                                2
+                                2,
                             )
                             .build()
                     sharedConfigId = sharedConfig.id
@@ -741,7 +741,7 @@ class AdvancedSessionProcessorTest {
                         imageReference.decrement()
                         latchSharedSurfaceOutput.countDown()
                     }
-                }
+                },
             )
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -797,7 +797,7 @@ class AdvancedSessionProcessorTest {
                         Camera2OutputConfigImplBuilder.newImageReaderConfig(
                                 outputSurfaceImpl.size,
                                 outputSurfaceImpl.imageFormat,
-                                2
+                                2,
                             )
                             .setPhysicalCameraId(physicalCameraId)
                             .build()
@@ -806,7 +806,7 @@ class AdvancedSessionProcessorTest {
                     Camera2OutputConfigImplBuilder.newImageReaderConfig(
                             outputSurfaceImpl.size,
                             ImageFormat.YUV_420_888,
-                            2
+                            2,
                         )
                         .setPhysicalCameraId(physicalCameraId)
                         .addSurfaceSharingOutputConfig(sharedConfig)
@@ -833,7 +833,7 @@ class AdvancedSessionProcessorTest {
                         imageReference.decrement()
                         deferredSharedImagePhysicalCameraId.complete(physicalCameraIdOfImage)
                     }
-                }
+                },
             )
 
         val preview = Preview.Builder().build()
@@ -865,7 +865,7 @@ class AdvancedSessionProcessorTest {
                 fakeSessionProcessImpl,
                 emptyList(),
                 object : VendorExtender {},
-                context
+                context,
             )
         val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
@@ -879,8 +879,8 @@ class AdvancedSessionProcessorTest {
                     previewOutputSurface,
                     imageCaptureSurface,
                     null,
-                    null
-                )
+                    null,
+                ),
             )
 
         // 3. Assert.
@@ -897,7 +897,7 @@ class AdvancedSessionProcessorTest {
                 fakeSessionProcessImpl,
                 emptyList(),
                 object : VendorExtender {},
-                context
+                context,
             )
         val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
@@ -911,8 +911,8 @@ class AdvancedSessionProcessorTest {
                     previewOutputSurface,
                     imageCaptureSurface,
                     null,
-                    null
-                )
+                    null,
+                ),
             )
 
         // 3. Assert.
@@ -951,14 +951,14 @@ class AdvancedSessionProcessorTest {
         preview: Preview,
         imageCapture: ImageCapture,
         imageAnalysis: ImageAnalysis? = null,
-        vendorExtender: VendorExtender? = null
+        vendorExtender: VendorExtender? = null,
     ) {
         val advancedSessionProcessor =
             AdvancedSessionProcessor(
                 fakeSessionProcessImpl,
                 emptyList(),
                 vendorExtender ?: object : VendorExtender {},
-                context
+                context,
             )
         val latchPreviewFrame = CountDownLatch(1)
         val latchAnalysis = CountDownLatch(1)
@@ -970,7 +970,7 @@ class AdvancedSessionProcessorTest {
                     object : SurfaceTextureCallback {
                         override fun onSurfaceTextureReady(
                             surfaceTexture: SurfaceTexture,
-                            resolution: Size
+                            resolution: Size,
                         ) {
                             surfaceTexture.setOnFrameAvailableListener {
                                 latchPreviewFrame.countDown()
@@ -998,7 +998,7 @@ class AdvancedSessionProcessorTest {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 cameraSelector,
-                useCaseGroupBuilder.build()
+                useCaseGroupBuilder.build(),
             )
         }
 
@@ -1008,7 +1008,7 @@ class AdvancedSessionProcessorTest {
                 override fun onCaptureSuccess(image: ImageProxy) {
                     deferCapturedImage.complete(image)
                 }
-            }
+            },
         )
 
         assertThat(latchPreviewFrame.await(3, TimeUnit.SECONDS)).isTrue()
@@ -1037,7 +1037,7 @@ class FakeSessionProcessImpl(
     },
     var analysisConfigBlock: ((OutputSurfaceImpl) -> Camera2OutputConfigImpl)? = null,
     var onCaptureSessionStarted: ((RequestProcessorImpl) -> Unit)? = null,
-    val invokeOnCaptureCompleted: Boolean = true
+    val invokeOnCaptureCompleted: Boolean = true,
 ) : SessionProcessorImpl {
     private var requestProcessor: RequestProcessorImpl? = null
     private var nextSequenceId = 0
@@ -1057,7 +1057,7 @@ class FakeSessionProcessImpl(
         context: Context,
         previewSurfaceConfig: OutputSurfaceImpl,
         captureSurfaceConfig: OutputSurfaceImpl,
-        analysisSurfaceConfig: OutputSurfaceImpl?
+        analysisSurfaceConfig: OutputSurfaceImpl?,
     ): Camera2SessionConfigImpl {
         captureOutputConfig = captureConfigBlock.invoke(captureSurfaceConfig)
         previewOutputConfig = previewConfigBlock.invoke(previewSurfaceConfig)
@@ -1084,7 +1084,7 @@ class FakeSessionProcessImpl(
         cameraId: String,
         cameraCharacteristicsMap: MutableMap<String, CameraCharacteristics>,
         context: Context,
-        surfaceConfigs: OutputSurfaceConfigurationImpl
+        surfaceConfigs: OutputSurfaceConfigurationImpl,
     ): Camera2SessionConfigImpl {
         return initSession(
             cameraId,
@@ -1092,7 +1092,7 @@ class FakeSessionProcessImpl(
             context,
             surfaceConfigs.previewOutputSurface,
             surfaceConfigs.imageCaptureOutputSurface,
-            surfaceConfigs.imageAnalysisOutputSurface
+            surfaceConfigs.imageAnalysisOutputSurface,
         )
     }
 
@@ -1102,7 +1102,7 @@ class FakeSessionProcessImpl(
 
     override fun startTrigger(
         triggers: MutableMap<CaptureRequest.Key<*>, Any>,
-        callback: SessionProcessorImpl.CaptureCallback
+        callback: SessionProcessorImpl.CaptureCallback,
     ): Int {
         startTriggerParametersDeferred.complete(triggers)
         val timestamp = nextTimestamp++
@@ -1144,26 +1144,26 @@ class FakeSessionProcessImpl(
                 override fun onCaptureStarted(
                     request: RequestProcessorImpl.Request,
                     frameNumber: Long,
-                    timestamp: Long
+                    timestamp: Long,
                 ) {
                     callback.onCaptureStarted(currentSequenceId, timestamp)
                 }
 
                 override fun onCaptureProgressed(
                     request: RequestProcessorImpl.Request,
-                    partialResult: CaptureResult
+                    partialResult: CaptureResult,
                 ) {}
 
                 override fun onCaptureCompleted(
                     request: RequestProcessorImpl.Request,
-                    totalCaptureResult: TotalCaptureResult
+                    totalCaptureResult: TotalCaptureResult,
                 ) {
                     callback.onCaptureProcessStarted(currentSequenceId)
                     if (invokeOnCaptureCompleted) {
                         callback.onCaptureCompleted(
                             totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!,
                             currentSequenceId,
-                            mapOf()
+                            mapOf(),
                         )
                     }
                     callback.onCaptureSequenceCompleted(currentSequenceId)
@@ -1171,7 +1171,7 @@ class FakeSessionProcessImpl(
 
                 override fun onCaptureFailed(
                     request: RequestProcessorImpl.Request,
-                    captureFailure: CaptureFailure
+                    captureFailure: CaptureFailure,
                 ) {
                     callback.onCaptureFailed(currentSequenceId)
                     callback.onCaptureSequenceAborted(currentSequenceId)
@@ -1180,13 +1180,13 @@ class FakeSessionProcessImpl(
                 override fun onCaptureBufferLost(
                     request: RequestProcessorImpl.Request,
                     frameNumber: Long,
-                    outputStreamId: Int
+                    outputStreamId: Int,
                 ) {}
 
                 override fun onCaptureSequenceCompleted(sequenceId: Int, frameNumber: Long) {}
 
                 override fun onCaptureSequenceAborted(sequenceId: Int) {}
-            }
+            },
         )
         return currentSequenceId
     }
@@ -1207,32 +1207,32 @@ class FakeSessionProcessImpl(
                 override fun onCaptureStarted(
                     request: RequestProcessorImpl.Request,
                     frameNumber: Long,
-                    timestamp: Long
+                    timestamp: Long,
                 ) {
                     callback.onCaptureStarted(currentSequenceId, timestamp)
                 }
 
                 override fun onCaptureProgressed(
                     request: RequestProcessorImpl.Request,
-                    partialResult: CaptureResult
+                    partialResult: CaptureResult,
                 ) {}
 
                 override fun onCaptureCompleted(
                     request: RequestProcessorImpl.Request,
-                    totalCaptureResult: TotalCaptureResult
+                    totalCaptureResult: TotalCaptureResult,
                 ) {
                     if (invokeOnCaptureCompleted) {
                         callback.onCaptureCompleted(
                             totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!,
                             currentSequenceId,
-                            mapOf()
+                            mapOf(),
                         )
                     }
                 }
 
                 override fun onCaptureFailed(
                     request: RequestProcessorImpl.Request,
-                    captureFailure: CaptureFailure
+                    captureFailure: CaptureFailure,
                 ) {
                     callback.onCaptureFailed(currentSequenceId)
                 }
@@ -1240,7 +1240,7 @@ class FakeSessionProcessImpl(
                 override fun onCaptureBufferLost(
                     request: RequestProcessorImpl.Request,
                     frameNumber: Long,
-                    outputStreamId: Int
+                    outputStreamId: Int,
                 ) {}
 
                 override fun onCaptureSequenceCompleted(sequenceId: Int, frameNumber: Long) {
@@ -1250,7 +1250,7 @@ class FakeSessionProcessImpl(
                 override fun onCaptureSequenceAborted(sequenceId: Int) {
                     callback.onCaptureSequenceAborted(currentSequenceId)
                 }
-            }
+            },
         )
         return currentSequenceId
     }
@@ -1271,7 +1271,7 @@ class FakeSessionProcessImpl(
 class RequestProcessorRequest(
     private val targetOutputConfigIds: List<Int>,
     private val parameters: Map<CaptureRequest.Key<*>, Any>,
-    private val templateId: Int
+    private val templateId: Int,
 ) : RequestProcessorImpl.Request {
     override fun getTargetOutputConfigIds(): List<Int> {
         return targetOutputConfigIds

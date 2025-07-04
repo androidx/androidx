@@ -27,13 +27,13 @@ class CompositeAdapter(
     out: XType,
     val columnTypeAdapter: ColumnTypeAdapter,
     val intoStatementConverter: TypeConverter?,
-    val fromCursorConverter: TypeConverter?
+    val fromCursorConverter: TypeConverter?,
 ) : ColumnTypeAdapter(out, columnTypeAdapter.typeAffinity) {
     override fun readFromStatement(
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         if (fromCursorConverter == null) {
             return
@@ -48,7 +48,7 @@ class CompositeAdapter(
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         if (intoStatementConverter == null) {
             return

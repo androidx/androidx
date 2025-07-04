@@ -18,10 +18,10 @@ package androidx.health.connect.client.feature
 
 internal data class HealthConnectVersionInfo(
     val apkVersionCode: Long? = null,
-    val platformVersion: HealthConnectPlatformVersion
+    val platformVersion: HealthConnectPlatformVersion,
 )
 
 internal data class HealthConnectPlatformVersion(
     val buildVersionCode: Int,
-    val sdkExtensionVersion: Int? = null
+    val sdkExtensionVersion: Int? = null,
 )

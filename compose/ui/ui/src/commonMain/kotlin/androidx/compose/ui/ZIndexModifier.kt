@@ -55,7 +55,7 @@ internal data class ZIndexElement(val zIndex: Float) : ModifierNodeElement<ZInde
 internal class ZIndexNode(var zIndex: Float) : LayoutModifierNode, Modifier.Node() {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) { placeable.place(0, 0, zIndex = zIndex) }

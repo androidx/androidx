@@ -29,8 +29,7 @@ public class MyDao_Impl(
     val _sql: String = "SELECT * from MyEntity"
     val _statement: RoomSQLiteQuery = acquire(_sql, 0)
     return object : DataSource.Factory<Int, MyEntity>() {
-      public override fun create(): LimitOffsetDataSource<MyEntity> = object :
-          LimitOffsetDataSource<MyEntity>(__db, _statement, false, true, "MyEntity") {
+      public override fun create(): LimitOffsetDataSource<MyEntity> = object : LimitOffsetDataSource<MyEntity>(__db, _statement, false, true, "MyEntity") {
         protected override fun convertRows(statement: SQLiteStatement): List<MyEntity> {
           val _columnIndexOfPk: Int = getColumnIndexOrThrow(statement, "pk")
           val _columnIndexOfOther: Int = getColumnIndexOrThrow(statement, "other")
@@ -56,8 +55,7 @@ public class MyDao_Impl(
     var _argIndex: Int = 1
     _statement.bindLong(_argIndex, gt)
     return object : DataSource.Factory<Int, MyEntity>() {
-      public override fun create(): LimitOffsetDataSource<MyEntity> = object :
-          LimitOffsetDataSource<MyEntity>(__db, _statement, false, true, "MyEntity") {
+      public override fun create(): LimitOffsetDataSource<MyEntity> = object : LimitOffsetDataSource<MyEntity>(__db, _statement, false, true, "MyEntity") {
         protected override fun convertRows(statement: SQLiteStatement): List<MyEntity> {
           val _columnIndexOfPk: Int = getColumnIndexOrThrow(statement, "pk")
           val _columnIndexOfOther: Int = getColumnIndexOrThrow(statement, "other")

@@ -166,5 +166,5 @@ class ComposeIdlingResourceTest {
 
 private enum class AnimationStates {
     From,
-    To
+    To,
 }

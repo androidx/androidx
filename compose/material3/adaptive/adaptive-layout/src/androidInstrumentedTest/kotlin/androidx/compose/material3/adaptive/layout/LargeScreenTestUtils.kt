@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.toSize
 internal fun ComposeContentTestRule.setContentWithSimulatedSize(
     simulatedWidth: Dp,
     simulatedHeight: Dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     setContent {
         val currentDensity = LocalDensity.current
@@ -40,11 +40,7 @@ internal fun ComposeContentTestRule.setContentWithSimulatedSize(
 
         val simulatedDensity = Density(currentDensity.density * (windowSize.width / simulatedWidth))
         CompositionLocalProvider(LocalDensity provides simulatedDensity) {
-            Box(
-                Modifier.fillMaxWidth().height(simulatedHeight),
-            ) {
-                content()
-            }
+            Box(Modifier.fillMaxWidth().height(simulatedHeight)) { content() }
         }
     }
 }

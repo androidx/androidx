@@ -21,14 +21,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("androidx.stableaidl")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-android")
 }
 
 dependencies {
@@ -54,7 +53,7 @@ android {
 
     defaultConfig {
         minSdk = 31
-        compileSdk = 35
+        compileSdk = 36
     }
 
     buildFeatures.aidl = true
@@ -64,14 +63,11 @@ android {
             version = 1
         }
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
 }
 
 androidx {
     name = "androidx.pdf:pdf-document-service"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Parse and process PDF documents providing the implementations of PdfDocument and PdfLoader sandboxing the underlying android PdfRenderer class."
 }

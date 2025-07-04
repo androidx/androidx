@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -43,8 +43,8 @@ dependencies {
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
     testRuntimeOnly(libs.kotlinReflect)
-    testImplementation(libs.kotlinStdlibJdk8)
-    testImplementation(libs.androidLintApiPrevAnalysis)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
@@ -52,7 +52,7 @@ dependencies {
 
 androidx {
     name = "Activity Compose Lint"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2021"
     description = "Lint checks for Activity Compose"
 }

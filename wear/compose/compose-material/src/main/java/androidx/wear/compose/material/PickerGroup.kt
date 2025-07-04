@@ -29,7 +29,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
@@ -43,8 +42,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrNull
-import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
-import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.hierarchicalFocusGroup
+import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 
@@ -93,7 +92,7 @@ public fun PickerGroup(
     propagateMinConstraints: Boolean = false,
     touchExplorationStateProvider: TouchExplorationStateProvider =
         DefaultTouchExplorationStateProvider(),
-    separator: (@Composable (Int) -> Unit)? = null
+    separator: (@Composable (Int) -> Unit)? = null,
 ) {
     val touchExplorationServicesEnabled by touchExplorationStateProvider.touchExplorationState()
 
@@ -111,64 +110,61 @@ public fun PickerGroup(
                     Modifier
                 }
             ),
-        propagateMinConstraints = propagateMinConstraints
+        propagateMinConstraints = propagateMinConstraints,
     ) {
-        // When no Picker is selected, provide an empty composable as a placeholder
-        // and tell the HierarchicalFocusCoordinator to clear the focus.
-        HierarchicalFocusCoordinator(
-            requiresFocus = { !pickers.indices.contains(pickerGroupState.selectedIndex) }
-        ) {}
         pickers.forEachIndexed { index, pickerData ->
             val pickerSelected = index == pickerGroupState.selectedIndex
             val flingBehavior = PickerDefaults.flingBehavior(state = pickerData.pickerState)
-            HierarchicalFocusCoordinator(requiresFocus = { pickerSelected }) {
-                val focusRequester = pickerData.focusRequester ?: rememberActiveFocusRequester()
-                Picker(
-                    state = pickerData.pickerState,
-                    contentDescription = pickerData.contentDescription,
-                    readOnly = !pickerSelected,
-                    modifier =
-                        pickerData.modifier
-                            .then(
-                                // If auto center is enabled, apply auto centering modifier on
-                                // selected
-                                // picker to center it
-                                if (pickerSelected && autoCenter) Modifier.autoCenteringTarget()
-                                else Modifier
-                            )
-                            // Do not need focusable as it's already set in ScalingLazyColumn
-                            .focusRequester(focusRequester),
-                    readOnlyLabel = pickerData.readOnlyLabel,
-                    flingBehavior = flingBehavior,
-                    onSelected = pickerData.onSelected,
-                    userScrollEnabled = !touchExplorationServicesEnabled || pickerSelected,
-                    option = { optionIndex ->
-                        with(pickerData) {
-                            Box(
-                                if (touchExplorationServicesEnabled || pickerSelected) {
-                                    Modifier
-                                } else
-                                    Modifier.pointerInput(Unit) {
-                                        coroutineScope {
-                                            // Keep looking for touch events on the picker if it is
-                                            // not
-                                            // selected
-                                            while (true) {
-                                                awaitEachGesture {
-                                                    awaitFirstDown(requireUnconsumed = false)
-                                                    pickerGroupState.selectedIndex = index
-                                                    onSelected(index)
-                                                }
+            Picker(
+                state = pickerData.pickerState,
+                contentDescription = pickerData.contentDescription,
+                readOnly = !pickerSelected,
+                modifier =
+                    pickerData.modifier
+                        .then(
+                            // If auto center is enabled, apply auto centering modifier on
+                            // selected picker to center it
+                            if (pickerSelected && autoCenter) Modifier.autoCenteringTarget()
+                            else Modifier
+                        )
+                        .hierarchicalFocusGroup(pickerSelected)
+                        .then(
+                            // If the user provided a focus requester, we add it here, otherwise,
+                            // we take care of focus using the HFC.
+                            pickerData.focusRequester?.let { Modifier.focusRequester(it) }
+                                ?: Modifier.requestFocusOnHierarchyActive()
+                        ),
+                // Do not need focusable as it's already set in ScalingLazyColumn
+                readOnlyLabel = pickerData.readOnlyLabel,
+                flingBehavior = flingBehavior,
+                onSelected = pickerData.onSelected,
+                userScrollEnabled = !touchExplorationServicesEnabled || pickerSelected,
+                option = { optionIndex ->
+                    with(pickerData) {
+                        Box(
+                            if (touchExplorationServicesEnabled || pickerSelected) {
+                                Modifier
+                            } else
+                                Modifier.pointerInput(Unit) {
+                                    coroutineScope {
+                                        // Keep looking for touch events on the picker if it is
+                                        // not selected
+                                        while (true) {
+                                            awaitEachGesture {
+                                                awaitFirstDown(requireUnconsumed = false)
+                                                pickerGroupState.selectedIndex = index
+                                                onSelected(index)
                                             }
                                         }
                                     }
-                            ) {
-                                option(optionIndex, pickerSelected)
-                            }
+                                }
+                        ) {
+                            option(optionIndex, pickerSelected)
                         }
                     }
-                )
-            }
+                },
+            )
+
             if (index < pickers.size - 1) {
                 separator?.invoke(index)
             }
@@ -192,10 +188,7 @@ public fun rememberPickerGroupState(initiallySelectedIndex: Int = 0): PickerGrou
  *
  * @param initiallySelectedIndex the picker index that will be initially selected
  */
-public class PickerGroupState
-constructor(
-    initiallySelectedIndex: Int = 0,
-) {
+public class PickerGroupState constructor(initiallySelectedIndex: Int = 0) {
 
     /** The current selected [Picker] index. */
     public var selectedIndex: Int by mutableIntStateOf(initiallySelectedIndex)
@@ -204,7 +197,7 @@ constructor(
         public val Saver: Saver<PickerGroupState, Any> =
             listSaver<PickerGroupState, Any?>(
                 save = { listOf(it.selectedIndex) },
-                restore = { saved -> PickerGroupState(initiallySelectedIndex = saved[0] as Int) }
+                restore = { saved -> PickerGroupState(initiallySelectedIndex = saved[0] as Int) },
             )
     }
 }
@@ -235,7 +228,7 @@ public class PickerGroupItem(
     public val focusRequester: FocusRequester? = null,
     public val onSelected: () -> Unit = {},
     public val readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
-    public val option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit
+    public val option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit,
 )
 
 /*
@@ -248,7 +241,7 @@ public class PickerGroupItem(
 private fun AutoCenteringRow(
     modifier: Modifier = Modifier,
     propagateMinConstraints: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Layout(modifier = modifier, content = content) { measurables, parentConstraints ->
         // Reset the min width and height of the constraints used to measure child composables
@@ -283,7 +276,7 @@ private fun Modifier.scrollablePicker(pickerState: PickerState) = composed {
         state = pickerState,
         orientation = Orientation.Vertical,
         flingBehavior = PickerDefaults.flingBehavior(state = pickerState),
-        reverseDirection = true
+        reverseDirection = true,
     )
 }
 

@@ -54,7 +54,7 @@ class MissingMasterTableTest {
             return Room.databaseBuilder(
                     InstrumentationRegistry.getInstrumentation().targetContext,
                     klass = TestDatabase::class.java,
-                    name = "existingDb.db"
+                    name = "existingDb.db",
                 )
                 .openHelperFactory(factory)
                 .build()
@@ -96,7 +96,7 @@ class MissingMasterTableTest {
                     name = configuration.name,
                     callback = MyCallback(allowVersionUpdates, configuration.callback),
                     useNoBackupDirectory = configuration.useNoBackupDirectory,
-                    allowDataLossOnRecovery = configuration.allowDataLossOnRecovery
+                    allowDataLossOnRecovery = configuration.allowDataLossOnRecovery,
                 )
             return MyOpenHelper(allowVersionUpdates, delegate.create(newConfig))
         }
@@ -127,7 +127,7 @@ class MissingMasterTableTest {
 
     private class MySupportSQLiteDatabase(
         private val allowVersionUpdates: AtomicBoolean,
-        private val delegate: SupportSQLiteDatabase
+        private val delegate: SupportSQLiteDatabase,
     ) : SupportSQLiteDatabase by delegate {
         override fun compileStatement(sql: String): SupportSQLiteStatement {
             // The "insert" SQL should not go through if version updates are disabled.
@@ -144,7 +144,7 @@ class MissingMasterTableTest {
 
     private class MyCallback(
         private val allowVersionUpdates: AtomicBoolean,
-        private val delegate: SupportSQLiteOpenHelper.Callback
+        private val delegate: SupportSQLiteOpenHelper.Callback,
     ) : SupportSQLiteOpenHelper.Callback(delegate.version) {
         private val wrappers = IdentityHashMap<SupportSQLiteDatabase, MySupportSQLiteDatabase>()
 

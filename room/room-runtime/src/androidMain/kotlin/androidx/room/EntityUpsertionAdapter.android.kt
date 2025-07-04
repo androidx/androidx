@@ -42,11 +42,11 @@ private const val ErrorMsg = "unique"
  *   using the given insertionAdapter to perform insertion and updateAdapter to perform update when
  *   the insertion fails
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 @Deprecated("No longer used by generated code.", ReplaceWith("EntityUpsertAdapter"))
-class EntityUpsertionAdapter<T>(
+public class EntityUpsertionAdapter<T>(
     @Suppress("DEPRECATION") private val insertionAdapter: EntityInsertionAdapter<T>,
-    @Suppress("DEPRECATION") private val updateAdapter: EntityDeletionOrUpdateAdapter<T>
+    @Suppress("DEPRECATION") private val updateAdapter: EntityDeletionOrUpdateAdapter<T>,
 ) {
     /**
      * Inserts the entity into the database. If a constraint exception is thrown i.e. a primary key
@@ -54,7 +54,7 @@ class EntityUpsertionAdapter<T>(
      *
      * @param entity The entity to insert
      */
-    fun upsert(entity: T) {
+    public fun upsert(entity: T) {
         try {
             insertionAdapter.insert(entity)
         } catch (ex: SQLiteConstraintException) {
@@ -69,7 +69,7 @@ class EntityUpsertionAdapter<T>(
      *
      * @param entities array of entities to upsert
      */
-    fun upsert(entities: Array<out T>) {
+    public fun upsert(entities: Array<out T>) {
         entities.forEach { entity ->
             try {
                 insertionAdapter.insert(entity)
@@ -80,7 +80,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsert(entities: Iterable<T>) {
+    public fun upsert(entities: Iterable<T>) {
         entities.forEach { entity ->
             try {
                 insertionAdapter.insert(entity)
@@ -98,7 +98,7 @@ class EntityUpsertionAdapter<T>(
      * @param entity The entity to upsert
      * @return The SQLite row id or -1 if the insertion failed and update is performed
      */
-    fun upsertAndReturnId(entity: T): Long {
+    public fun upsertAndReturnId(entity: T): Long {
         return try {
             insertionAdapter.insertAndReturnId(entity)
         } catch (ex: SQLiteConstraintException) {
@@ -114,7 +114,7 @@ class EntityUpsertionAdapter<T>(
      * @param entities Entities to upsert
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
-    fun upsertAndReturnIdsArray(entities: Array<out T>): LongArray {
+    public fun upsertAndReturnIdsArray(entities: Array<out T>): LongArray {
         return LongArray(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
@@ -126,7 +126,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArray(entities: Collection<T>): LongArray {
+    public fun upsertAndReturnIdsArray(entities: Collection<T>): LongArray {
         val iterator = entities.iterator()
         return LongArray(entities.size) {
             val entity = iterator.next()
@@ -140,7 +140,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsList(entities: Array<out T>): List<Long> {
+    public fun upsertAndReturnIdsList(entities: Array<out T>): List<Long> {
         return buildList {
             entities.forEach { entity ->
                 try {
@@ -154,7 +154,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsList(entities: Collection<T>): List<Long> {
+    public fun upsertAndReturnIdsList(entities: Collection<T>): List<Long> {
         return buildList {
             entities.forEach { entity ->
                 try {
@@ -168,7 +168,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Array<out T>): Array<out Long> {
+    public fun upsertAndReturnIdsArrayBox(entities: Array<out T>): Array<out Long> {
         return Array(entities.size) { index ->
             try {
                 insertionAdapter.insertAndReturnId(entities[index])
@@ -180,7 +180,7 @@ class EntityUpsertionAdapter<T>(
         }
     }
 
-    fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<out Long> {
+    public fun upsertAndReturnIdsArrayBox(entities: Collection<T>): Array<out Long> {
         val iterator = entities.iterator()
         return Array(entities.size) {
             val entity = iterator.next()

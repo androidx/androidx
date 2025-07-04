@@ -72,6 +72,8 @@ public final class WearApiVersionHelper {
                     WEAR_TIRAMISU_3,
                     WEAR_TIRAMISU_4,
                     WEAR_UDC_1,
+                    WEAR_VIC_1,
+                    WEAR_BAKLAVA_0,
             })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -106,6 +108,17 @@ public final class WearApiVersionHelper {
 
     /** The first Wear API version released on the Android U platform version (API level 34). */
     public static final String WEAR_UDC_1 = "WEAR_UDC_1";
+
+    /*
+     * Note that there will be no WEAR_VIC_0 as Wear does not have a release that corresponds
+     * with the initial platform release of Android API level 35, Vanilla_Ice_Cream.
+     */
+
+    /** The first Wear API version released on the Android VIC platform version (API level 35). */
+    public static final String WEAR_VIC_1 = "WEAR_VIC_1";
+
+    /** The first Wear API version released on Android BAKLAVA (API level 36.0). */
+    public static final String WEAR_BAKLAVA_0 = "WEAR_BAKLAVA_0";
 
     private static final String RELEASE_PROP = "ro.cw_build.platform_qpr.version";
     private static final int UNKNOWN_INCREMENTAL_RELEASE = -1;
@@ -190,6 +203,8 @@ public final class WearApiVersionHelper {
 
         private static final String TIRAMISU = "TIRAMISU";
         private static final String UDC = "UDC";
+        private static final String VIC = "VIC";
+        private static final String BAKLAVA = "BAKLAVA";
 
 
         private int mPlatformApiLevel = Integer.MAX_VALUE;
@@ -212,6 +227,12 @@ public final class WearApiVersionHelper {
                     break;
                 case UDC:
                     mPlatformApiLevel = Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+                    break;
+                case VIC:
+                    mPlatformApiLevel = 35; // TODO: Build.VERSION_CODES.VANILLA_ICE_CREAM;
+                    break;
+                case BAKLAVA:
+                    mPlatformApiLevel = 36; // TODO: need new fullsdk Build.VERSION_CODES.BAKLAVA;
                     break;
             }
 
@@ -269,6 +290,12 @@ public final class WearApiVersionHelper {
                     break;
                 case WEAR_UDC_1:
                     apiVersion = com.google.wear.Sdk.VERSION_CODES.WEAR_UDC_1;
+                    break;
+                case WEAR_VIC_1:
+                    apiVersion = com.google.wear.Sdk.VERSION_CODES.WEAR_VIC_1;
+                    break;
+                case WEAR_BAKLAVA_0:
+                    apiVersion = com.google.wear.Sdk.VERSION_CODES.WEAR_BAKLAVA_0;
                     break;
                 default:
                     throw new IllegalArgumentException("Unrecognized version " + requiredVersion);

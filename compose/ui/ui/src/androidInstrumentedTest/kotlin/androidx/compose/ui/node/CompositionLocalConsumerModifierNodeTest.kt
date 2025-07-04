@@ -78,7 +78,7 @@ class CompositionLocalConsumerModifierNodeTest(layoutComposableParam: LayoutComp
 
     class LayoutComposableParam(
         val name: String,
-        val layout: @Composable (modifier: Modifier) -> Unit
+        val layout: @Composable (modifier: Modifier) -> Unit,
     ) {
         override fun toString() = name
     }

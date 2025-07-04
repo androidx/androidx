@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +35,7 @@ dependencies {
     implementation(project(":appsearch:appsearch"))
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.core:core:1.0.0")
+    implementation("androidx.core:core:1.10.0")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
@@ -45,13 +45,13 @@ dependencies {
 
 androidx {
     name = "AppSearch Platform Storage"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "androidx.appsearch.platformstorage"
 }

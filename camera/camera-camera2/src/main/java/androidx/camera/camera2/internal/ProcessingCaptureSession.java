@@ -616,9 +616,18 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
 
         if (mProcessorState == ProcessorState.ON_CAPTURE_SESSION_STARTED) {
-            mSessionOptions =
-                    CaptureRequestOptions.Builder.from(sessionConfig.getImplementationOptions())
-                            .build();
+            CaptureRequestOptions.Builder requestOptionsbuilder =
+                    CaptureRequestOptions.Builder.from(sessionConfig.getImplementationOptions());
+
+            // Applying stabilization mode
+            Integer stabilizationMode =
+                    Camera2CaptureRequestBuilder.getVideoStabilizationModeFromCaptureConfig(
+                            sessionConfig.getRepeatingCaptureConfig());
+            if (stabilizationMode != null) {
+                requestOptionsbuilder.setCaptureRequestOption(
+                        CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, stabilizationMode);
+            }
+            mSessionOptions = requestOptionsbuilder.build();
             updateParameters(mSessionOptions, mStillCaptureOptions);
 
             // We can't disable only preview stream but enable ImageAnalysis in Extensions.

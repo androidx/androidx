@@ -25,6 +25,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.forEach
@@ -53,6 +54,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -68,13 +70,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 private enum class AnchoredDraggableSampleValue {
     Start,
     HalfStart,
     Center,
     HalfEnd,
-    End
+    End,
 }
 
 @Composable
@@ -108,8 +111,8 @@ fun AnchoredDraggableAnchorsFromCompositionSample() {
                     flingBehavior =
                         AnchoredDraggableDefaults.flingBehavior(
                             state,
-                            positionalThreshold = { distance -> distance * 0.25f }
-                        )
+                            positionalThreshold = { distance -> distance * 0.25f },
+                        ),
                 )
                 .background(Color.Red)
         )
@@ -171,7 +174,7 @@ fun AnchoredDraggableCustomAnchoredSample() {
                     initialValue = offset,
                     initialVelocity = velocity,
                     targetValue = targetOffset,
-                    animationSpec = snapAnimationSpec
+                    animationSpec = snapAnimationSpec,
                 ) { value, velocity ->
                     dragTo(value, velocity)
                 }
@@ -210,7 +213,7 @@ fun AnchoredDraggableWithOverscrollSample() {
                 .anchoredDraggable(
                     state,
                     Orientation.Horizontal,
-                    overscrollEffect = overscrollEffect
+                    overscrollEffect = overscrollEffect,
                 )
                 .overscroll(overscrollEffect)
                 .background(Color.Red)
@@ -291,14 +294,14 @@ fun DraggableAnchorsSample() {
                             offset =
                                 (offset + delta).coerceIn(
                                     anchors.minPosition(),
-                                    anchors.maxPosition()
+                                    anchors.maxPosition(),
                                 )
                         },
                     orientation = Orientation.Horizontal,
                     onDragStopped = { velocity ->
                         val closestAnchor = anchors.positionOf(anchors.closestAnchor(offset)!!)
                         animate(offset, closestAnchor, velocity) { value, _ -> offset = value }
-                    }
+                    },
                 )
                 .background(Color.Red)
         )
@@ -317,7 +320,7 @@ fun AnchoredDraggableDynamicAnchorsSample() {
         activePositions: List<String> = listOf(open, closed),
         modifier: Modifier = Modifier,
         drawerContent: @Composable () -> Unit,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         Box(modifier) {
             Box(Modifier.anchoredDraggable(state, Orientation.Horizontal)) { content() }
@@ -374,6 +377,67 @@ fun AnchoredDraggableDynamicAnchorsSample() {
 }
 
 /**
+ * Showcases how to perform a programmatic fling through [AnchoredDraggableState] and
+ * [AnchoredDraggableDefaults.flingBehavior]. Note that this is an advanced use case.
+ */
+@Composable
+fun AnchoredDraggableProgrammaticFlingSample() {
+    val state =
+        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
+            AnchoredDraggableState(initialValue = Center)
+        }
+    val flingBehavior = AnchoredDraggableDefaults.flingBehavior(state)
+    Column(
+        Modifier.fillMaxWidth()
+            .onSizeChanged { layoutSize ->
+                state.updateAnchors(
+                    DraggableAnchors {
+                        Start at 0f
+                        Center at layoutSize.width * .5f
+                        End at layoutSize.width.toFloat()
+                    }
+                )
+            }
+            .visualizeDraggableAnchors(state, Orientation.Horizontal)
+    ) {
+        Box(
+            Modifier.size(60.dp)
+                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
+                .anchoredDraggable(
+                    state = state,
+                    orientation = Orientation.Horizontal,
+                    flingBehavior = flingBehavior,
+                )
+                .background(Color.Red)
+        )
+        val scope = rememberCoroutineScope()
+        Button(
+            onClick = {
+                scope.launch {
+                    // We first obtain the lock on the state
+                    state.anchoredDrag {
+                        // The ScrollScope's lifecycle is tied to the AnchoredDragScope we receive
+                        //  from anchoredDrag. It is used to bridge AnchoredDraggable and
+                        //  FlingBehavior.
+                        val scrollFlingScope =
+                            object : ScrollScope {
+                                override fun scrollBy(pixels: Float): Float {
+                                    dragTo(state.offset + pixels)
+                                    return pixels
+                                }
+                            }
+                        // Perform a fling with the fling behavior and scroll scope
+                        with(flingBehavior) { scrollFlingScope.performFling(100f) }
+                    }
+                }
+            }
+        ) {
+            Text("Click to call performFling")
+        }
+    }
+}
+
+/**
  * A [Modifier] that visualizes the anchors attached to an [AnchoredDraggableState] as lines along
  * the cross axis of the layout (start to end for [Orientation.Vertical], top to end for
  * [Orientation.Horizontal]). This is useful to debug components with a complex set of anchors, or
@@ -390,26 +454,26 @@ private fun Modifier.visualizeDraggableAnchors(
     orientation: Orientation,
     lineColor: Color = Color.Black,
     lineStrokeWidth: Float = 10f,
-    linePathEffect: PathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 30f))
+    linePathEffect: PathEffect = PathEffect.dashPathEffect(floatArrayOf(20f, 30f)),
 ) = drawWithContent {
     drawContent()
     state.anchors.forEach { _, position ->
         val startOffset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) position else 0f,
-                y = if (orientation == Orientation.Vertical) position else 0f
+                y = if (orientation == Orientation.Vertical) position else 0f,
             )
         val endOffset =
             Offset(
                 x = if (orientation == Orientation.Horizontal) startOffset.x else size.height,
-                y = if (orientation == Orientation.Vertical) startOffset.y else size.width
+                y = if (orientation == Orientation.Vertical) startOffset.y else size.width,
             )
         drawLine(
             color = lineColor,
             start = startOffset,
             end = endOffset,
             strokeWidth = lineStrokeWidth,
-            pathEffect = linePathEffect
+            pathEffect = linePathEffect,
         )
     }
 }

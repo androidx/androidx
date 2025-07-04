@@ -113,7 +113,7 @@ public fun Card(
                 )
                 .then(border?.let { Modifier.border(border = border, shape = shape) } ?: Modifier)
                 .padding(contentPadding),
-        content = content
+        content = content,
     )
 }
 
@@ -195,12 +195,12 @@ public fun AppCard(
         interactionSource = interactionSource,
         role = null,
         shape = shape,
-        ripple = ripple
+        ripple = ripple,
     ) {
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 appImage?.let {
                     appImage()
@@ -215,7 +215,7 @@ public fun AppCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                content = title
+                content = title,
             )
             content()
         }

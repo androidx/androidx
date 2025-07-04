@@ -5,6 +5,28 @@ package androidx.benchmark.macro {
     ctor public ArtMetric();
   }
 
+  public final class BaselineProfileConfig {
+    method public kotlin.jvm.functions.Function1<java.lang.String,java.lang.Boolean> getFilterPredicate();
+    method public int getMaxIterations();
+    method public String? getOutputFilePrefix();
+    method public String getPackageName();
+    method public kotlin.jvm.functions.Function1<androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> getProfileBlock();
+    method public int getStableIterations();
+    method public boolean isIncludeInStartupProfile();
+    method public boolean isStrictStability();
+  }
+
+  public static final class BaselineProfileConfig.Builder {
+    ctor public BaselineProfileConfig.Builder(String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
+    method public androidx.benchmark.macro.BaselineProfileConfig build();
+    method public androidx.benchmark.macro.BaselineProfileConfig.Builder setFilterPredicate(kotlin.jvm.functions.Function1<? super java.lang.String,java.lang.Boolean> filterPredicate);
+    method public androidx.benchmark.macro.BaselineProfileConfig.Builder setIncludeInStartupProfile(boolean includeInStartupProfile);
+    method public androidx.benchmark.macro.BaselineProfileConfig.Builder setMaxIterations(int maxIterations);
+    method public androidx.benchmark.macro.BaselineProfileConfig.Builder setOutputFilePrefix(String outputFilePrefix);
+    method public androidx.benchmark.macro.BaselineProfileConfig.Builder setStableIterations(int stableIterations);
+    method public androidx.benchmark.macro.BaselineProfileConfig.Builder setStrictStability(boolean strictStability);
+  }
+
   public enum BaselineProfileMode {
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Disable;
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Require;
@@ -16,8 +38,8 @@ package androidx.benchmark.macro {
     ctor public BaselineProfileResult(optional java.util.List<java.lang.String> baselineProfiles, optional java.util.List<java.lang.String> startupProfiles);
     method public java.util.List<java.lang.String> getBaselineProfiles();
     method public java.util.List<java.lang.String> getStartupProfiles();
-    property public final java.util.List<java.lang.String> baselineProfiles;
-    property public final java.util.List<java.lang.String> startupProfiles;
+    property public java.util.List<java.lang.String> baselineProfiles;
+    property public java.util.List<java.lang.String> startupProfiles;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class BatteryCharge {
@@ -31,7 +53,7 @@ package androidx.benchmark.macro {
   }
 
   public static final class CompilationMode.Companion {
-    property public final androidx.benchmark.macro.CompilationMode DEFAULT;
+    property public androidx.benchmark.macro.CompilationMode DEFAULT;
   }
 
   public static final class CompilationMode.Full extends androidx.benchmark.macro.CompilationMode {
@@ -56,8 +78,8 @@ package androidx.benchmark.macro {
     ctor public CompilationMode.Partial(optional androidx.benchmark.macro.BaselineProfileMode baselineProfileMode, optional @IntRange(from=0L) int warmupIterations);
     method public androidx.benchmark.macro.BaselineProfileMode getBaselineProfileMode();
     method public int getWarmupIterations();
-    property public final androidx.benchmark.macro.BaselineProfileMode baselineProfileMode;
-    property @IntRange(from=0L) public final int warmupIterations;
+    property public androidx.benchmark.macro.BaselineProfileMode baselineProfileMode;
+    property @IntRange(from=0L) public int warmupIterations;
   }
 
   public final class CompilationModeKt {
@@ -67,7 +89,7 @@ package androidx.benchmark.macro {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This Macrobenchmark API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMacrobenchmarkApi {
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Metric API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalMetricApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Metric API is experimental.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface ExperimentalMetricApi {
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class FrameTimingGfxInfoMetric extends androidx.benchmark.macro.Metric {
@@ -76,6 +98,8 @@ package androidx.benchmark.macro {
 
   public final class FrameTimingMetric extends androidx.benchmark.macro.Metric {
     ctor public FrameTimingMetric();
+    ctor @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public FrameTimingMetric(String processNameSuffix);
+    ctor @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public FrameTimingMetric(String processNameSuffix, optional String metricNameSuffix);
   }
 
   public final class MacrobenchmarkScope {
@@ -92,9 +116,9 @@ package androidx.benchmark.macro {
     method public void startActivityAndWait();
     method public void startActivityAndWait(android.content.Intent intent);
     method public void startActivityAndWait(optional kotlin.jvm.functions.Function1<? super android.content.Intent,kotlin.Unit> block);
-    property public final androidx.test.uiautomator.UiDevice device;
-    property public final Integer? iteration;
-    property public final String packageName;
+    property public androidx.test.uiautomator.UiDevice device;
+    property public Integer? iteration;
+    property public String packageName;
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class MemoryCountersMetric extends androidx.benchmark.macro.TraceMetric {
@@ -131,11 +155,11 @@ package androidx.benchmark.macro {
     method public androidx.benchmark.macro.StartupMode? getStartupMode();
     method public String getTargetPackageName();
     method public String getTestPackageName();
-    property public final int apiLevel;
-    property public final Long? artMainlineVersion;
-    property public final androidx.benchmark.macro.StartupMode? startupMode;
-    property public final String targetPackageName;
-    property public final String testPackageName;
+    property public int apiLevel;
+    property public Long? artMainlineVersion;
+    property public androidx.benchmark.macro.StartupMode? startupMode;
+    property public String targetPackageName;
+    property public String testPackageName;
     field public static final androidx.benchmark.macro.Metric.CaptureInfo.Companion Companion;
   }
 
@@ -143,19 +167,18 @@ package androidx.benchmark.macro {
     method public androidx.benchmark.macro.Metric.CaptureInfo forLocalCapture(String targetPackageName, androidx.benchmark.macro.StartupMode? startupMode);
   }
 
-  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public static final class Metric.Measurement {
+  @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi @kotlin.ConsistentCopyVisibility public static final class Metric.Measurement {
     ctor public Metric.Measurement(String name, double data);
     ctor public Metric.Measurement(String name, java.util.List<java.lang.Double> dataSamples);
     method public String component1();
     method public java.util.List<java.lang.Double> component2();
     method public boolean component3();
-    method public androidx.benchmark.macro.Metric.Measurement copy(String name, java.util.List<java.lang.Double> data, boolean requireSingleValue);
     method public java.util.List<java.lang.Double> getData();
     method public String getName();
     method public boolean getRequireSingleValue();
-    property public final java.util.List<java.lang.Double> data;
-    property public final String name;
-    property public final boolean requireSingleValue;
+    property public java.util.List<java.lang.Double> data;
+    property public String name;
+    property public boolean requireSingleValue;
   }
 
   public final class MetricResultExtensionsKt {
@@ -241,8 +264,10 @@ package androidx.benchmark.macro {
   }
 
   public final class TraceProcessorExtensionsKt {
-    method public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
-    method public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, long timeout, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @SuppressCompatibility @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static <T> T runServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs, kotlin.jvm.functions.Function1<? super androidx.benchmark.traceprocessor.TraceProcessor,? extends T> block);
+    method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion);
+    method @SuppressCompatibility @CheckResult @androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi public static androidx.benchmark.traceprocessor.TraceProcessor.Handle startServer(androidx.benchmark.traceprocessor.TraceProcessor.Companion, optional long timeoutMs);
   }
 
   @SuppressCompatibility @androidx.benchmark.macro.ExperimentalMetricApi public final class TraceSectionMetric extends androidx.benchmark.macro.Metric {

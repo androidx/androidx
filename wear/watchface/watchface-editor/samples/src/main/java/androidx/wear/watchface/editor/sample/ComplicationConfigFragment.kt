@@ -44,7 +44,7 @@ internal class ComplicationConfigFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         return ConfigView(requireContext(), activity as WatchFaceConfigActivity).apply {
             isSwipeable = true
@@ -63,11 +63,11 @@ internal class ComplicationConfigFragment : Fragment() {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings(
     "ViewConstructor", // Internal view, not intended for use by tools.
-    "ClickableViewAccessibility" // performClick would be ambiguous.
+    "ClickableViewAccessibility", // performClick would be ambiguous.
 )
 internal class ConfigView(
     context: Context,
-    private val watchFaceConfigActivity: WatchFaceConfigActivity
+    private val watchFaceConfigActivity: WatchFaceConfigActivity,
 ) : SwipeDismissFrameLayout(context) {
 
     private lateinit var previewComplicationData: StateFlow<Map<Int, ComplicationData>?>
@@ -94,7 +94,7 @@ internal class ConfigView(
                                 context.theme.resolveAttribute(
                                     android.R.attr.selectableItemBackground,
                                     this,
-                                    true
+                                    true,
                                 )
                             }
                             .resourceId
@@ -165,11 +165,11 @@ internal class ConfigView(
                     HighlightLayer(
                         RenderParameters.HighlightedElement.AllComplicationSlots,
                         Color.RED, // Red complication highlight.
-                        Color.argb(128, 0, 0, 0) // Darken everything else.
-                    )
+                        Color.argb(128, 0, 0, 0), // Darken everything else.
+                    ),
                 ),
                 editingSession.previewReferenceInstant,
-                previewComplicationData.value
+                previewComplicationData.value,
             )
         canvas.drawBitmap(bitmap, drawRect, drawRect, null)
     }

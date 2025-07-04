@@ -19,9 +19,8 @@ package androidx.ink.rendering.android.canvas.internal
 import android.graphics.Canvas
 import android.graphics.Matrix
 import android.os.Build
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
-import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
@@ -30,14 +29,13 @@ import androidx.ink.strokes.Stroke
  * Renders Ink objects using [CanvasMeshRenderer], but falls back to using [CanvasPathRenderer] when
  * mesh rendering is not possible.
  */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 internal class CanvasStrokeUnifiedRenderer(
     private val textureStore: TextureBitmapStore = TextureBitmapStore { null }
 ) : CanvasStrokeRenderer {
 
     private val meshRenderer by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            @OptIn(ExperimentalInkCustomBrushApi::class) CanvasMeshRenderer(textureStore)
+            CanvasMeshRenderer(textureStore)
         } else {
             null
         }
@@ -63,39 +61,49 @@ internal class CanvasStrokeUnifiedRenderer(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         getDelegateRendererOrThrow(stroke)
-            .draw(canvas, stroke, strokeToScreenTransform, animationProgress)
+            .draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         getDelegateRendererOrThrow(stroke)
-            .draw(canvas, stroke, strokeToScreenTransform, animationProgress)
+            .draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         val delegateRenderer = meshRenderer ?: pathRenderer
-        delegateRenderer.draw(canvas, inProgressStroke, strokeToScreenTransform, animationProgress)
+        delegateRenderer.draw(
+            canvas,
+            inProgressStroke,
+            strokeToScreenTransform,
+            textureAnimationProgress,
+        )
     }
 
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-        animationProgress: Float,
+        textureAnimationProgress: Float,
     ) {
         val delegateRenderer = meshRenderer ?: pathRenderer
-        delegateRenderer.draw(canvas, inProgressStroke, strokeToScreenTransform, animationProgress)
+        delegateRenderer.draw(
+            canvas,
+            inProgressStroke,
+            strokeToScreenTransform,
+            textureAnimationProgress,
+        )
     }
 }

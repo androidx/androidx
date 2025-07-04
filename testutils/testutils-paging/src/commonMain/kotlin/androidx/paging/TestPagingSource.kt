@@ -86,7 +86,7 @@ class TestPagingSource(
                 if (start > 0) start - 1 else null,
                 if (end < items.size) end else null,
                 if (placeholdersEnabled) start else Int.MIN_VALUE,
-                if (placeholdersEnabled) (items.size - end) else Int.MIN_VALUE
+                if (placeholdersEnabled) (items.size - end) else Int.MIN_VALUE,
             )
             .also { loadedPages.add(it) }
     }

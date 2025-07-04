@@ -24,7 +24,7 @@ internal actual fun Modifier.textFieldScroll(
     scrollerPosition: TextFieldScrollerPosition,
     textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation,
-    textLayoutResultProvider: () -> TextLayoutResultProxy?
+    textLayoutResultProvider: () -> TextLayoutResultProxy?,
 ): Modifier =
     defaultTextFieldScroll(
         scrollerPosition,

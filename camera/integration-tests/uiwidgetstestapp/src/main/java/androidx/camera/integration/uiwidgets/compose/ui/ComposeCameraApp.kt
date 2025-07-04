@@ -40,7 +40,7 @@ fun ComposeCameraApp(
         val currentScreen =
             ComposeCameraScreen.fromRoute(
                 route = backstackEntry.value?.destination?.route,
-                defaultRoute = ComposeCameraScreen.ImageCapture
+                defaultRoute = ComposeCameraScreen.ImageCapture,
             )
 
         Scaffold(
@@ -48,14 +48,14 @@ fun ComposeCameraApp(
                 ComposeCameraScreenTabRow(
                     allScreens = allScreens,
                     onTabSelected = { screen -> navController.navigate(screen.name) },
-                    currentScreen = currentScreen
+                    currentScreen = currentScreen,
                 )
             }
         ) { innerPadding ->
             ComposeCameraNavHost(
                 navController = navController,
                 modifier = Modifier.padding(innerPadding),
-                onStreamStateChange = onStreamStateChange
+                onStreamStateChange = onStreamStateChange,
             )
         }
     }

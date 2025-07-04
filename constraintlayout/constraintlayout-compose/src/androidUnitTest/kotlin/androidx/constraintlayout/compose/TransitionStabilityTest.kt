@@ -43,7 +43,7 @@ class TransitionStabilityTest {
                         frame(20) { alpha = 0.2f }
                         frame(80) { alpha = 0.8f }
                     }
-                }
+                },
         )
 
         // Given transition is different
@@ -56,7 +56,7 @@ class TransitionStabilityTest {
                         frame(20) { alpha = 0.2f }
                         frame(80) { alpha = 0.85f }
                     }
-                }
+                },
         )
     }
 
@@ -101,7 +101,7 @@ class TransitionStabilityTest {
             }
             """
                     .trimIndent()
-            )
+            ),
         )
     }
 }

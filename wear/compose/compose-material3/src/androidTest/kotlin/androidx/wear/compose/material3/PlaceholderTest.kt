@@ -17,50 +17,45 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.Dp
-import androidx.wear.compose.materialcore.screenHeightDp
-import androidx.wear.compose.materialcore.screenWidthDp
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlin.math.max
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@RequiresApi(Build.VERSION_CODES.O)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class PlaceholderTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
-    fun placeholder_initially_shows_content_when_content_ready_true() {
-        lateinit var contentReady: MutableState<Boolean>
+    fun placeholder_initially_shows_when_lambda_true() {
+        lateinit var visible: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(true) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
+            visible = remember { mutableStateOf(false) }
+            placeholderState = rememberPlaceholderState(isVisible = visible.value)
         }
 
         // For testing we need to manually manage the frame clock for the placeholder animation
         placeholderState.initializeTestFrameMillis(PlaceholderStage.HidePlaceholder)
 
         // Advance placeholder clock without changing the content ready and confirm still in
-        // ShowPlaceholder
+        // HidePlaceholder
         placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
             PlaceholderStage.HidePlaceholder
         )
@@ -68,11 +63,12 @@ class PlaceholderTest {
 
     @Test
     fun placeholder_initially_shows_placeholder_transitions_correctly() {
-        lateinit var contentReady: MutableState<Boolean>
+        lateinit var visible: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(false) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
+            visible = remember { mutableStateOf(true) }
+            placeholderState = rememberPlaceholderState(isVisible = visible.value)
+            Box(Modifier.placeholderShimmer(placeholderState))
         }
 
         // For testing we need to manually manage the frame clock for the placeholder animation
@@ -82,32 +78,32 @@ class PlaceholderTest {
         // ShowPlaceholder
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS,
-            PlaceholderStage.ShowPlaceholder
+            PlaceholderStage.ShowPlaceholder,
         )
 
-        // Change contentReady and confirm that state is now WipeOff
-        contentReady.value = true
+        // Change visible and confirm that state is now WipeOff
+        visible.value = false
         placeholderState.advanceFrameMillisAndCheckState(1L, PlaceholderStage.WipeOff)
 
         // Advance the clock by one cycle and check we have moved to ShowContent
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.HidePlaceholder
+            PlaceholderStage.HidePlaceholder,
         )
     }
 
     @Test
     fun placeholder_resets_content_after_show_content_when_content_ready_false() {
-        lateinit var contentReady: MutableState<Boolean>
+        lateinit var visible: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(true) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
+            visible = remember { mutableStateOf(false) }
+            placeholderState = rememberPlaceholderState(isVisible = visible.value)
             Button(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().placeholderShimmer(placeholderState),
                 content = {},
                 onClick = {},
-                colors = ButtonDefaults.filledTonalButtonColors()
+                colors = ButtonDefaults.filledTonalButtonColors(),
             )
         }
 
@@ -120,12 +116,12 @@ class PlaceholderTest {
             PlaceholderStage.HidePlaceholder
         )
 
-        contentReady.value = false
+        visible.value = true
 
         // Check that the state is set to ResetContent
         placeholderState.advanceFrameMillisAndCheckState(
             (PLACEHOLDER_RESET_ANIMATION_DURATION_MS * 0.5f).toLong(),
-            PlaceholderStage.ResetContent
+            PlaceholderStage.ResetContent,
         )
     }
 
@@ -142,25 +138,19 @@ class PlaceholderTest {
     private fun placeholder_sets_correct_colors(placeholderColor: Color?) {
         var expectedPlaceholderColor = Color.Transparent
         var expectedBackgroundColor = Color.Transparent
-        lateinit var contentReady: MutableState<Boolean>
-        lateinit var placeholderState: PlaceholderState
+        val placeholderState = PlaceholderState(isVisible = true)
         rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(false) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
-            expectedPlaceholderColor =
-                placeholderColor
-                    ?: MaterialTheme.colorScheme.onSurface
-                        .copy(alpha = 0.1f)
-                        .compositeOver(MaterialTheme.colorScheme.surfaceContainer)
+            expectedPlaceholderColor = placeholderColor ?: PlaceholderDefaults.color
             expectedBackgroundColor = MaterialTheme.colorScheme.primary
             Button(
                 modifier =
                     Modifier.testTag(TEST_TAG)
+                        .placeholderShimmer(placeholderState)
                         .then(
                             if (placeholderColor != null)
                                 Modifier.placeholder(
                                     placeholderState = placeholderState,
-                                    color = placeholderColor
+                                    color = placeholderColor,
                                 )
                             else Modifier.placeholder(placeholderState = placeholderState)
                         ),
@@ -170,19 +160,21 @@ class PlaceholderTest {
             )
         }
 
+        rule.waitForIdle()
+
         // For testing we need to manually manage the frame clock for the placeholder animation
         placeholderState.initializeTestFrameMillis()
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedPlaceholderColor)
 
-        // Change contentReady and confirm that state is now WipeOff
-        contentReady.value = true
+        // Change placeholderState.visible and confirm that state is now WipeOff
+        placeholderState.isVisible = false
         placeholderState.advanceFrameMillisAndCheckState(1L, PlaceholderStage.WipeOff)
 
-        // Advance the clock by one cycle and check we have moved to ShowContent
+        // Advance the clock by one cycle and check we have moved to HidePlaceholder
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.HidePlaceholder
+            PlaceholderStage.HidePlaceholder,
         )
 
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedBackgroundColor)
@@ -191,13 +183,12 @@ class PlaceholderTest {
     @Test
     fun placeholder_shimmer_visible_during_show_placeholder_only() {
         var expectedBackgroundColor = Color.Transparent
-        lateinit var contentReady: MutableState<Boolean>
+        lateinit var visible: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(false) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
+            visible = remember { mutableStateOf(true) }
+            placeholderState = rememberPlaceholderState(isVisible = visible.value)
             expectedBackgroundColor = MaterialTheme.colorScheme.surfaceContainer
-
             Button(
                 modifier =
                     Modifier.testTag(TEST_TAG)
@@ -220,7 +211,7 @@ class PlaceholderTest {
         // clock to show the shimmer.
         placeholderState.advanceFrameMillisAndCheckState(
             (PLACEHOLDER_SHIMMER_DURATION_MS * 0.5f).toLong(),
-            PlaceholderStage.ShowPlaceholder
+            PlaceholderStage.ShowPlaceholder,
         )
 
         // The placeholder shimmer effect is faint and largely transparent gradiant, but it should
@@ -230,8 +221,8 @@ class PlaceholderTest {
             .captureToImage()
             .assertDoesNotContainColor(expectedBackgroundColor)
 
-        // Change contentReady and confirm that state is now WipeOff
-        contentReady.value = true
+        // Change visible and confirm that state is now WipeOff
+        visible.value = false
         placeholderState.advanceFrameMillisAndCheckState(1L, PlaceholderStage.WipeOff)
 
         // Check the background color is correct
@@ -240,114 +231,29 @@ class PlaceholderTest {
         // Advance the clock by one cycle and check we have moved to ShowContent
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.HidePlaceholder
+            PlaceholderStage.HidePlaceholder,
         )
 
         // Check that the shimmer is no longer visible
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedBackgroundColor)
     }
 
-    @Test
-    fun wipeoff_takes_background_offset_into_account() {
-        lateinit var contentReady: MutableState<Boolean>
-        lateinit var placeholderState: PlaceholderState
-        var expectedBackgroundColor = Color.Transparent
-        var expectedBackgroundPlaceholderColor: Color = Color.Transparent
-        rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(false) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
-            val maxScreenDimensionPx =
-                with(LocalDensity.current) {
-                    Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
-                }
-            // Set the offset to be 50% of the screen
-            placeholderState.backgroundOffset =
-                Offset(maxScreenDimensionPx / 2f, maxScreenDimensionPx / 2f)
-            expectedBackgroundColor = MaterialTheme.colorScheme.primary
-            expectedBackgroundPlaceholderColor = MaterialTheme.colorScheme.surfaceContainer
-
-            Button(
-                modifier = Modifier.testTag(TEST_TAG).fillMaxWidth(),
-                content = {},
-                onClick = {},
-                colors =
-                    PlaceholderDefaults.placeholderButtonColors(
-                        originalButtonColors = ButtonDefaults.buttonColors(),
-                        placeholderState = placeholderState,
-                    ),
-            )
-        }
-
-        placeholderState.initializeTestFrameMillis()
-
-        // Check the background color is correct
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedBackgroundPlaceholderColor)
-        // Check that there is primary color showing
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertDoesNotContainColor(expectedBackgroundColor)
-
-        // Change contentReady and confirm that state is now WipeOff
-        contentReady.value = true
-        placeholderState.advanceFrameMillisAndCheckState(1L, PlaceholderStage.WipeOff)
-
-        // Check that placeholder background is still visible
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedBackgroundPlaceholderColor)
-
-        // Move forward by 25% of the wipe-off and confirm that no wipe-off has happened yet due
-        // to our offset
-        placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS / 4,
-            PlaceholderStage.WipeOff
-        )
-
-        // Check that placeholder background is still visible
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertContainsColor(expectedBackgroundPlaceholderColor)
-
-        // Now move the end of the wipe-off and confirm that the proper button background is visible
-        placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.HidePlaceholder
-        )
-
-        // Check that normal button background is now visible
-        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(expectedBackgroundColor)
-    }
-
     @Composable
     fun TestPlaceholderButton(contents: String?, currentState: StableRef<PlaceholderState?>) {
         val placeholderState =
-            rememberPlaceholderState { contents != null }.also { currentState.value = it }
+            rememberPlaceholderState(isVisible = contents == null).also { currentState.value = it }
         Button(
             modifier = Modifier.testTag(TEST_TAG).placeholderShimmer(placeholderState),
             content = {},
             onClick = {},
-            colors =
-                PlaceholderDefaults.placeholderButtonColors(
-                    originalButtonColors = ButtonDefaults.buttonColors(),
-                    placeholderState = placeholderState,
-                ),
         )
-        LaunchedEffect(placeholderState) { placeholderState.animatePlaceholder() }
     }
 
     @Test
     fun placeholder_lambda_updates_correctly() {
         val placeholderState = StableRef<PlaceholderState?>(null)
-        val contentsHolder = StableRef<MutableState<String?>>(mutableStateOf(null))
+        val contents = mutableStateOf<String?>(null)
         rule.setContentWithTheme {
-            val contents: MutableState<String?> = remember { mutableStateOf(null) }
-            contentsHolder.value = contents
             TestPlaceholderButton(contents = contents.value, placeholderState)
         }
 
@@ -359,26 +265,50 @@ class PlaceholderTest {
         assertThat(placeholderState.value?.placeholderStage)
             .isEqualTo(PlaceholderStage.ShowPlaceholder)
 
-        contentsHolder.value.value = "Test"
+        contents.value = "Test"
 
         // Trigger move to WipeOff stage
         placeholderState.value?.advanceFrameMillisAndCheckState(1, PlaceholderStage.WipeOff)
 
         placeholderState.value?.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.HidePlaceholder
+            PlaceholderStage.HidePlaceholder,
         )
     }
 
     @Test
+    fun placeholder_state_with_no_modifier_does_not_animate() {
+        val visible = mutableStateOf(true)
+        lateinit var placeholderState: PlaceholderState
+        rule.setContentWithTheme {
+            // Make sure the AnimationCoordinator is running, to ensure it doesn't interfere.
+            DisposableEffect(Unit) {
+                AnimationCoordinator.register()
+                onDispose { AnimationCoordinator.unregister() }
+            }
+            placeholderState = rememberPlaceholderState(isVisible = visible.value)
+        }
+
+        placeholderState.initializeTestFrameMillis()
+
+        rule.runOnIdle { visible.value = false }
+
+        rule.waitForIdle()
+
+        // No Modifiers using the state, transition in instant.
+        assertThat(placeholderState.placeholderStage).isEqualTo(PlaceholderStage.HidePlaceholder)
+    }
+
+    @Ignore("New implementation for Material3") // TODO (b/399615860)
+    @Test
     fun placeholder_background_has_correct_color() {
         var expectedPlaceholderBackgroundColor = Color.Transparent
         var expectedBackgroundColor = Color.Transparent
-        lateinit var contentReady: MutableState<Boolean>
+        lateinit var visible: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
-            contentReady = remember { mutableStateOf(false) }
-            placeholderState = rememberPlaceholderState { contentReady.value }
+            visible = remember { mutableStateOf(true) }
+            placeholderState = rememberPlaceholderState(isVisible = visible.value)
             expectedPlaceholderBackgroundColor = MaterialTheme.colorScheme.surfaceContainer
             expectedBackgroundColor = MaterialTheme.colorScheme.primary
             Button(
@@ -386,13 +316,7 @@ class PlaceholderTest {
                     Modifier.testTag(TEST_TAG).fillMaxWidth().placeholderShimmer(placeholderState),
                 content = {},
                 onClick = {},
-                colors =
-                    PlaceholderDefaults.placeholderButtonColors(
-                        originalButtonColors = ButtonDefaults.buttonColors(),
-                        placeholderState = placeholderState,
-                    ),
             )
-            LaunchedEffect(placeholderState) { placeholderState.animatePlaceholder() }
         }
 
         placeholderState.initializeTestFrameMillis()
@@ -402,13 +326,13 @@ class PlaceholderTest {
             .captureToImage()
             .assertContainsColor(expectedPlaceholderBackgroundColor)
 
-        // Change contentReady and confirm that state is now WipeOff
-        contentReady.value = true
+        // Change visible and confirm that state is now WipeOff
+        visible.value = false
         placeholderState.advanceFrameMillisAndCheckState(1L, PlaceholderStage.WipeOff)
 
         placeholderState.advanceFrameMillisAndCheckState(
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.HidePlaceholder
+            PlaceholderStage.HidePlaceholder,
         )
 
         // Check the placeholder background has gone and that we can see the buttons background
@@ -417,18 +341,18 @@ class PlaceholderTest {
 
     private fun PlaceholderState.advanceFrameMillisAndCheckState(
         timeToAdd: Long,
-        expectedStage: PlaceholderStage
+        expectedStage: PlaceholderStage,
     ) {
-        frameMillis.value += timeToAdd
-        rule.waitForIdle()
+        updateFrameMillis(AnimationCoordinator.frameMillis.longValue + timeToAdd)
         assertThat(placeholderStage).isEqualTo(expectedStage)
     }
 
     private fun PlaceholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
         expectedStage: PlaceholderStage
     ) {
-        frameMillis.value += PLACEHOLDER_SHIMMER_DURATION_MS
-        rule.waitForIdle()
+        updateFrameMillis(
+            AnimationCoordinator.frameMillis.longValue + PLACEHOLDER_SHIMMER_DURATION_MS
+        )
         assertThat(placeholderStage).isEqualTo(expectedStage)
     }
 
@@ -436,8 +360,7 @@ class PlaceholderTest {
         initialPlaceholderStage: PlaceholderStage = PlaceholderStage.ShowPlaceholder
     ): Long {
         val currentTime = rule.mainClock.currentTime
-        frameMillis.value = currentTime
-        rule.waitForIdle()
+        updateFrameMillis(currentTime)
         assertThat(placeholderStage).isEqualTo(initialPlaceholderStage)
         return currentTime
     }
@@ -446,10 +369,67 @@ class PlaceholderTest {
         expectedPlaceholderStage: PlaceholderStage = PlaceholderStage.ShowPlaceholder
     ) {
         val animationLoopStart =
-            (frameMillis.longValue.div(PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS) + 1) *
+            (AnimationCoordinator.frameMillis.longValue.div(
                 PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS
-        frameMillis.longValue = animationLoopStart
-        rule.waitForIdle()
+            ) + 1) * PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS
+        updateFrameMillis(animationLoopStart)
         assertThat(placeholderStage).isEqualTo(expectedPlaceholderStage)
+    }
+
+    private fun PlaceholderState.updateFrameMillis(time: Long) {
+        // We manually update the frame clock for testing, since withInfiniteAnimationFrameMillis
+        // doesn't work in tests.
+        AnimationCoordinator.frameMillis.longValue = time
+        rule.waitForIdle()
+    }
+
+    // These were part of Placeholder, they are not needed anymore but we leave it here to keep the
+    // tests and verify we don't break anything.
+    private val PlaceholderState.placeholderStage: PlaceholderStage
+        get() =
+            if (isVisible) {
+                if (isAnimationRunning) PlaceholderStage.ResetContent
+                else PlaceholderStage.ShowPlaceholder
+            } else {
+                if (isAnimationRunning) PlaceholderStage.WipeOff
+                else PlaceholderStage.HidePlaceholder
+            }
+
+    @JvmInline
+    /** Enumerate the possible stages (states) that a placeholder can be in. */
+    internal value class PlaceholderStage internal constructor(internal val type: Int) {
+        companion object {
+            /** Show placeholders and placeholder effects. Use when waiting for content to load. */
+            val ShowPlaceholder: PlaceholderStage = PlaceholderStage(0)
+
+            /**
+             * Wipe off placeholder effects. Used to animate the wiping away of placeholders and
+             * revealing the content underneath. Enter this stage from [ShowPlaceholder] when the
+             * next animation loop is started and the content is ready.
+             */
+            val WipeOff: PlaceholderStage = PlaceholderStage(1)
+
+            /**
+             * Indicates that placeholders no longer to be shown. Enter this stage from [WipeOff] in
+             * the loop after the wipe-off animation.
+             */
+            val HidePlaceholder: PlaceholderStage = PlaceholderStage(2)
+
+            /**
+             * Resets the component to remove the content and reinstate the placeholders so that new
+             * content can be loaded. Enter this stage from [HidePlaceholder] and exit to
+             * [ShowPlaceholder].
+             */
+            val ResetContent: PlaceholderStage = PlaceholderStage(3)
+        }
+
+        override fun toString(): String {
+            return when (this) {
+                ShowPlaceholder -> "PlaceholderStage.ShowPlaceholder"
+                WipeOff -> "PlaceholderStage.WipeOff"
+                ResetContent -> "PlaceholderStage.ResetContent"
+                else -> "PlaceholderStage.HidePlaceholder"
+            }
+        }
     }
 }

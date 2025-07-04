@@ -36,7 +36,7 @@ class AsynchronousDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         executor.execute {
             listener.onComplicationData(
@@ -44,7 +44,7 @@ class AsynchronousDataSourceService : ComplicationDataSourceService() {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
                                 plainText("# ${request.complicationInstanceId}"),
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .build()
                     ComplicationType.LONG_TEXT ->
@@ -56,11 +56,11 @@ class AsynchronousDataSourceService : ComplicationDataSourceService() {
                                                 ForegroundColorSpan(Color.RED),
                                                 0,
                                                 5,
-                                                Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                                Spanned.SPAN_INCLUSIVE_INCLUSIVE,
                                             )
                                         }
                                 ),
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .build()
                     else -> null
@@ -82,11 +82,11 @@ class AsynchronousDataSourceService : ComplicationDataSourceService() {
                                     ForegroundColorSpan(Color.RED),
                                     0,
                                     5,
-                                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                                    Spanned.SPAN_INCLUSIVE_INCLUSIVE,
                                 )
                             }
                         ),
-                        ComplicationText.EMPTY
+                        ComplicationText.EMPTY,
                     )
                     .build()
             else -> null

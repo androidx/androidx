@@ -28,7 +28,7 @@ import androidx.core.os.BuildCompat
 @RequiresApi(34)
 internal class ClientPackageNameProvider(
     private val controller: SdkSandboxController,
-    private val sdkContext: Context
+    private val sdkContext: Context,
 ) {
     /**
      * When supported (Api 34 Extension 8) returns result from SdkSandboxController. Otherwise

@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.Release
 import androidx.build.metalava.MetalavaRunnerKt
 import androidx.build.uptodatedness.EnableCachingKt
@@ -41,7 +41,7 @@ buildscript {
         // This dependency means that tasks in this project might become out-of-date whenever
         // certain classes in buildSrc change, and should generally be avoided.
         // See b/140265324 for more information
-        classpath(project.files("${project.rootProject.ext["outDir"]}/buildSrc/private/build/libs/private.jar"))
+        classpath(project.files("${project.ext["outDir"]}/buildSrc/private/build/libs/private.jar"))
     }
 }
 
@@ -70,15 +70,12 @@ dependencies {
 
     annotationProcessor(libs.nullaway)
 
-    // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
-    // it is ever upgraded.
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(project(":car:app:app-testing"))
 }
@@ -101,17 +98,16 @@ android {
             version = 1
         }
     }
-
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.car.app"
 }
 
 androidx {
     name = "Android for Cars App"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
     legacyDisableKotlinStrictApiMode = true
+    enableRobolectric()
 }
 
 // Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc

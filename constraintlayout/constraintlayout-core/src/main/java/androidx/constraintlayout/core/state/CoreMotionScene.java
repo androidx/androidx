@@ -25,6 +25,7 @@ public interface CoreMotionScene {
      * set the Transitions string onto the MotionScene
      *
      * @param elementName the name of the element
+     * @param toJSON the json string of the transitioncontent
      */
     void setTransitionContent(String elementName, String toJSON);
 

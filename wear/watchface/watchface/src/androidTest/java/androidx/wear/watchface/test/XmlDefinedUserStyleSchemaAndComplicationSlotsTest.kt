@@ -83,7 +83,7 @@ private const val INTERACTIVE_INSTANCE_ID = "InteractiveTestInstance"
 
 class TestXmlWatchFaceService(
     testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
+    private var surfaceHolderOverride: SurfaceHolder,
 ) : WatchFaceService() {
     init {
         attachBaseContext(testContext)
@@ -105,7 +105,7 @@ class TestXmlWatchFaceService(
                             bounds: Rect,
                             zonedDateTime: ZonedDateTime,
                             renderParameters: RenderParameters,
-                            slotId: Int
+                            slotId: Int,
                         ) {}
 
                         override fun drawHighlight(
@@ -113,14 +113,14 @@ class TestXmlWatchFaceService(
                             bounds: Rect,
                             boundsType: Int,
                             zonedDateTime: ZonedDateTime,
-                            color: Int
+                            color: Int,
                         ) {}
 
                         override fun getData() = NoDataComplicationData()
 
                         override fun loadData(
                             complicationData: ComplicationData,
-                            loadDrawablesAsynchronous: Boolean
+                            loadDrawablesAsynchronous: Boolean,
                         ) {}
                     }
                 }
@@ -131,7 +131,7 @@ class TestXmlWatchFaceService(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         WatchFace(
             WatchFaceType.DIGITAL,
@@ -142,16 +142,16 @@ class TestXmlWatchFaceService(
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16L
+                    16L,
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
                 ) {}
-            }
+            },
         )
 }
 
@@ -159,7 +159,7 @@ class TestState(val value: Int)
 
 class TestStatefulXmlWatchFaceService(
     testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
+    private var surfaceHolderOverride: SurfaceHolder,
 ) : StatefulWatchFaceService<TestState>() {
     init {
         attachBaseContext(testContext)
@@ -174,7 +174,7 @@ class TestStatefulXmlWatchFaceService(
     class TestCanvasComplicationFactory(val extra: TestState) : CanvasComplicationFactory {
         override fun create(
             watchState: WatchState,
-            invalidateCallback: CanvasComplication.InvalidateCallback
+            invalidateCallback: CanvasComplication.InvalidateCallback,
         ): CanvasComplication =
             object : CanvasComplication {
                 override fun render(
@@ -182,7 +182,7 @@ class TestStatefulXmlWatchFaceService(
                     bounds: Rect,
                     zonedDateTime: ZonedDateTime,
                     renderParameters: RenderParameters,
-                    slotId: Int
+                    slotId: Int,
                 ) {}
 
                 override fun drawHighlight(
@@ -190,21 +190,21 @@ class TestStatefulXmlWatchFaceService(
                     bounds: Rect,
                     boundsType: Int,
                     zonedDateTime: ZonedDateTime,
-                    color: Int
+                    color: Int,
                 ) {}
 
                 override fun getData() = NoDataComplicationData()
 
                 override fun loadData(
                     complicationData: ComplicationData,
-                    loadDrawablesAsynchronous: Boolean
+                    loadDrawablesAsynchronous: Boolean,
                 ) {}
             }
     }
 
     override fun getComplicationSlotInflationFactory(
         currentUserStyleRepository: CurrentUserStyleRepository,
-        extra: TestState
+        extra: TestState,
     ) =
         object : ComplicationSlotInflationFactory() {
             override fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory {
@@ -217,7 +217,7 @@ class TestStatefulXmlWatchFaceService(
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        extra: TestState
+        extra: TestState,
     ) =
         WatchFace(
             WatchFaceType.DIGITAL,
@@ -228,16 +228,16 @@ class TestStatefulXmlWatchFaceService(
                     currentUserStyleRepository,
                     watchState,
                     CanvasType.HARDWARE,
-                    16L
+                    16L,
                 ) {
                 override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
                 override fun renderHighlightLayer(
                     canvas: Canvas,
                     bounds: Rect,
-                    zonedDateTime: ZonedDateTime
+                    zonedDateTime: ZonedDateTime,
                 ) {}
-            }
+            },
         )
 }
 
@@ -280,7 +280,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                             UserStyleWireFormat(emptyMap()),
                             null,
                             null,
-                            null
+                            null,
                         ),
                         object : IPendingInteractiveWatchFace.Stub() {
                             override fun getApiVersion() = IPendingInteractiveWatchFace.API_VERSION
@@ -297,7 +297,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                             ) {
                                 Assert.fail("WatchFace crashed: $exception")
                             }
-                        }
+                        },
                     )
                 )
         assertThat(existingInstance).isNull()
@@ -309,7 +309,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         val service =
             TestXmlWatchFaceService(
                 ApplicationProvider.getApplicationContext<Context>(),
-                surfaceHolder
+                surfaceHolder,
             )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)
@@ -337,7 +337,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                 .containsExactly(
                     ComplicationType.RANGED_VALUE,
                     ComplicationType.SHORT_TEXT,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
                 )
                 .inOrder()
             assertThat(slotA.defaultDataSourcePolicy.primaryDataSource).isNull()
@@ -396,7 +396,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                 .containsExactly(
                     ComplicationType.SHORT_TEXT,
                     ComplicationType.RANGED_VALUE,
-                    ComplicationType.SMALL_IMAGE
+                    ComplicationType.SMALL_IMAGE,
                 )
                 .inOrder()
             assertThat(slotD.defaultDataSourcePolicy.primaryDataSource)
@@ -487,7 +487,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         val service =
             TestStatefulXmlWatchFaceService(
                 ApplicationProvider.getApplicationContext<Context>(),
-                surfaceHolder
+                surfaceHolder,
             )
 
         Mockito.`when`(surfaceHolder.surfaceFrame)

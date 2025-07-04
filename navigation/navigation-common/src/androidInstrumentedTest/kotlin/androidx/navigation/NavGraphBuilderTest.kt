@@ -129,7 +129,7 @@ class NavGraphBuilderTest {
                     NavDestinationBuilder(
                         provider[NoOpNavigator::class],
                         TestClass::class,
-                        emptyMap()
+                        emptyMap(),
                     )
                 addDestination(builder.build())
             }
@@ -153,7 +153,7 @@ class NavGraphBuilderTest {
                     NavDestinationBuilder(
                         provider[NoOpNavigator::class],
                         TestClass::class,
-                        emptyMap()
+                        emptyMap(),
                     )
                 addDestination(builder.build())
             }
@@ -486,7 +486,7 @@ private const val SECOND_DESTINATION_ROUTE = "second"
 @Suppress("DEPRECATION")
 fun NavGraphBuilder.navDestination(
     @IdRes id: Int,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(builder))
 
 /**
@@ -495,7 +495,7 @@ fun NavGraphBuilder.navDestination(
  */
 fun NavGraphBuilder.navDestination(
     route: String,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))
 
 /**
@@ -504,7 +504,7 @@ fun NavGraphBuilder.navDestination(
  */
 fun NavGraphBuilder.navDestination(
     route: KClass<*>,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ) =
     destination(
         NavDestinationBuilder(provider[NoOpNavigator::class], route, emptyMap()).apply(builder)

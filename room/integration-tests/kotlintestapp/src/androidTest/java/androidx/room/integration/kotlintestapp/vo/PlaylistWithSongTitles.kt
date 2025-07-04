@@ -26,7 +26,7 @@ data class PlaylistWithSongTitles(
         entity = Song::class,
         entityColumn = "mSongId",
         associateBy = Junction(PlaylistSongXRef::class),
-        projection = ["mTitle"]
+        projection = ["mTitle"],
     )
-    var titles: List<String>
+    var titles: List<String>,
 )

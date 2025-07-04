@@ -45,7 +45,7 @@ class ModalBottomSheetStateTest {
                 rememberModalBottomSheetState(
                     initialValue = initialValue,
                     skipHalfExpanded = skipHalfExpanded,
-                    animationSpec = animationSpec
+                    animationSpec = animationSpec,
                 )
         }
 
@@ -66,7 +66,7 @@ class ModalBottomSheetStateTest {
             ModalBottomSheetState(
                 initialValue = ModalBottomSheetValue.HalfExpanded,
                 isSkipHalfExpanded = true,
-                density = rule.density
+                density = rule.density,
             )
             fail("ModalBottomSheetState didn't throw an exception")
         } catch (exception: IllegalArgumentException) {
@@ -79,7 +79,7 @@ class ModalBottomSheetStateTest {
         ModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
             isSkipHalfExpanded = true,
-            density = rule.density
+            density = rule.density,
         )
     }
 
@@ -88,7 +88,7 @@ class ModalBottomSheetStateTest {
         ModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Expanded,
             isSkipHalfExpanded = true,
-            density = rule.density
+            density = rule.density,
         )
     }
 }

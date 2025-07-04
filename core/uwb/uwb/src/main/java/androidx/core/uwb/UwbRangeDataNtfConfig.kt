@@ -26,7 +26,7 @@ package androidx.core.uwb
 public class UwbRangeDataNtfConfig(
     public val configType: Int,
     public val ntfProximityNearCm: Int,
-    public val ntfProximityFarCm: Int
+    public val ntfProximityFarCm: Int,
 ) {
     override fun hashCode(): Int {
         var result = configType

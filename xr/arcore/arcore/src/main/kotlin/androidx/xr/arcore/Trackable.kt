@@ -16,12 +16,11 @@
 
 package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.StateFlow
 
-/** An object that ARCore for Jetpack XR can track and that [Anchors] can be attached to. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+/** An object that ARCore for Jetpack XR can track and that an [Anchor] can be attached to. */
 public interface Trackable<out State> {
 
     /** The subset of data that is common to the state of all [Trackable] instances. */
@@ -37,5 +36,5 @@ public interface Trackable<out State> {
      * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
      * world coordinate space.
      */
-    public fun createAnchor(pose: Pose): Anchor
+    public fun createAnchor(pose: Pose): AnchorCreateResult
 }

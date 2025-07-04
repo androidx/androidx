@@ -53,7 +53,7 @@ fun TextFieldCursorNotBlinkingInUnfocusedWindowDemo() {
         var showDialog by remember { mutableStateOf(false) }
         Button(
             onClick = { showDialog = true },
-            modifier = Modifier.focusProperties { canFocus = false }
+            modifier = Modifier.focusProperties { canFocus = false },
         ) {
             Text("Open Dialog")
         }
@@ -65,7 +65,7 @@ fun TextFieldCursorNotBlinkingInUnfocusedWindowDemo() {
                         "Hello! This is a dialog.",
                         Modifier.padding(20.dp)
                             .focusRequester(dialogFocusRequester)
-                            .background(Color.DarkGray)
+                            .background(Color.DarkGray),
                     )
                     LaunchedEffect(Unit) { dialogFocusRequester.requestFocus() }
                 }

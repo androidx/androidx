@@ -41,7 +41,7 @@ internal class SampleDataPointTest {
                         putInt("int", 5)
                         putString("string", "value")
                     },
-                    HeartRateAccuracy(ACCURACY_HIGH)
+                    HeartRateAccuracy(ACCURACY_HIGH),
                 )
                 .proto
 
@@ -63,7 +63,7 @@ internal class SampleDataPointTest {
                     130.0,
                     20.duration(),
                     accuracy = null,
-                    metadata = Bundle()
+                    metadata = Bundle(),
                 )
                 .proto
 
@@ -86,14 +86,14 @@ internal class SampleDataPointTest {
                             latitude = 41.2,
                             longitude = 82.3,
                             altitude = 93.4,
-                            bearing = 274.5
+                            bearing = 274.5,
                         ),
                     timeDurationFromBoot = 20.duration(),
                     accuracy =
                         LocationAccuracy(
                             horizontalPositionErrorMeters = 3.5,
-                            verticalPositionErrorMeters = 4.7
-                        )
+                            verticalPositionErrorMeters = 4.7,
+                        ),
                 )
                 .proto
 
@@ -116,16 +116,9 @@ internal class SampleDataPointTest {
         val proto =
             SampleDataPoint(
                     dataType = LOCATION,
-                    value =
-                        LocationData(
-                            latitude = 41.2,
-                            longitude = 82.3,
-                        ),
+                    value = LocationData(latitude = 41.2, longitude = 82.3),
                     timeDurationFromBoot = 20.duration(),
-                    accuracy =
-                        LocationAccuracy(
-                            horizontalPositionErrorMeters = 3.5,
-                        )
+                    accuracy = LocationAccuracy(horizontalPositionErrorMeters = 3.5),
                 )
                 .proto
 

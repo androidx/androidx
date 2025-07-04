@@ -43,4 +43,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.privacysandbox.ui.client.view.SharedUiContainer
+        android:id="@+id/sharedUiContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="120dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+        <TextView
+            android:id="@+id/appOwnedTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Text from app"/>
+        <androidx.privacysandbox.ui.client.view.SandboxedSdkView
+            android:id="@+id/remoteUiView"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"/>
+    </androidx.privacysandbox.ui.client.view.SharedUiContainer>
 </androidx.constraintlayout.widget.ConstraintLayout>

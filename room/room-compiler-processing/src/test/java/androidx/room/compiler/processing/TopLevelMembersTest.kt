@@ -46,7 +46,7 @@ class TopLevelMembersTest {
                 val topLevelVal: String = ""
                 var topLevelVar: String = ""
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val classpath = compileFiles(listOf(libSrc))
         val appSrc =
@@ -59,7 +59,7 @@ class TopLevelMembersTest {
                 val topLevelVal: String = ""
                 var topLevelVar: String = ""
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runKspTest(sources = listOf(appSrc), classpath = classpath) { invocation ->
             listOf("lib", "app").forEach { pkg ->
@@ -70,7 +70,7 @@ class TopLevelMembersTest {
                         val element =
                             KspExecutableElement.create(
                                 env = invocation.kspProcessingEnv,
-                                declaration = method
+                                declaration = method,
                             )
                         assertWithMessage(pkg)
                             .that(element.enclosingElement.isTypeElement())
@@ -84,7 +84,7 @@ class TopLevelMembersTest {
                         val element =
                             KspFieldElement.create(
                                 env = invocation.kspProcessingEnv,
-                                declaration = it
+                                declaration = it,
                             )
                         assertWithMessage(pkg)
                             .that(element.enclosingElement.isTypeElement())

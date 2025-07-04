@@ -18,22 +18,27 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedBottomLayout
+import androidx.wear.compose.foundation.samples.CurvedClearSemanticsSample
 import androidx.wear.compose.foundation.samples.CurvedFixedSize
 import androidx.wear.compose.foundation.samples.CurvedFontHeight
 import androidx.wear.compose.foundation.samples.CurvedFontWeight
 import androidx.wear.compose.foundation.samples.CurvedFonts
+import androidx.wear.compose.foundation.samples.CurvedLetterSpacingSample
+import androidx.wear.compose.foundation.samples.CurvedLineHeight
 import androidx.wear.compose.foundation.samples.CurvedRowAndColumn
+import androidx.wear.compose.foundation.samples.CurvedSemanticsSample
 import androidx.wear.compose.foundation.samples.CurvedWeight
 import androidx.wear.compose.foundation.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.foundation.samples.ExpandableTextSample
 import androidx.wear.compose.foundation.samples.ExpandableWithItemsSample
-import androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
+import androidx.wear.compose.foundation.samples.HierarchicalFocus2Levels
+import androidx.wear.compose.foundation.samples.HierarchicalFocusSample
 import androidx.wear.compose.foundation.samples.OversizeComposable
 import androidx.wear.compose.foundation.samples.RotaryScrollSample
+import androidx.wear.compose.foundation.samples.RotaryScrollWithOverscrollSample
 import androidx.wear.compose.foundation.samples.RotarySnapSample
 import androidx.wear.compose.foundation.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.foundation.samples.SimpleCurvedWorld
@@ -44,13 +49,14 @@ import androidx.wear.compose.foundation.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.foundation.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.foundation.samples.SimpleVerticalPagerSample
 import androidx.wear.compose.foundation.samples.StatefulSwipeToDismissBox
+import androidx.wear.compose.foundation.samples.SwipeToRevealSample
+import androidx.wear.compose.foundation.samples.SwipeToRevealWithDelayedText
+import androidx.wear.compose.foundation.samples.SwipeToRevealWithExpandables
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnAnimateItemSample
 import androidx.wear.compose.foundation.samples.TransformingLazyColumnLettersSample
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
-import androidx.wear.compose.material.samples.SwipeToRevealCardSample
-import androidx.wear.compose.material.samples.SwipeToRevealChipSample
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
@@ -68,7 +74,7 @@ internal val SwipeToDismissDemos =
                     ComposableDemo("Edge swipe") { params ->
                         EdgeSwipeForSwipeToDismiss(params.navigateBack)
                     },
-                )
+                ),
             ),
             DemoCategory(
                 "Demos",
@@ -83,10 +89,10 @@ internal val SwipeToDismissDemos =
                     ComposableDemo("EdgeSwipeToDismiss modifier") { params ->
                         EdgeSwipeDemo(params.swipeToDismissBoxState)
                     },
-                    ComposableDemo("Nested SwipeToDismissBox") { NestedSwipeToDismissDemo() }
-                )
-            )
-        )
+                    ComposableDemo("Nested SwipeToDismissBox") { NestedSwipeToDismissDemo() },
+                ),
+            ),
+        ),
     )
 
 val WearFoundationDemos =
@@ -101,7 +107,7 @@ val WearFoundationDemos =
                     ComposableDemo("Expandable Text") { ExpandableText() },
                     ComposableDemo("Items Sample") { ExpandableWithItemsSample() },
                     ComposableDemo("Text Sample") { ExpandableTextSample() },
-                )
+                ),
             ),
             DemoCategory(
                 "CurvedLayout",
@@ -126,14 +132,18 @@ val WearFoundationDemos =
                     ComposableDemo("Curved Icons") { CurvedIconsDemo() },
                     ComposableDemo("Letter Spacing (em)") { CurvedSpacingEmDemo() },
                     ComposableDemo("Letter Spacing (sp)") { CurvedSpacingSpDemo() },
-                )
+                    ComposableDemo("Letter Spacing top & down") { CurvedLetterSpacingSample() },
+                    ComposableDemo("Line Height") { CurvedLineHeight() },
+                    ComposableDemo("Semantics") { CurvedSemanticsSample() },
+                    ComposableDemo("Clear Semantics") { CurvedClearSemanticsSample() },
+                ),
             ),
             DemoCategory(
                 "Pagers",
                 listOf(
                     ComposableDemo("Horizontal Pager") { SimpleHorizontalPagerSample() },
                     ComposableDemo("Vertical Pager") { SimpleVerticalPagerSample() },
-                )
+                ),
             ),
             ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
             ComposableDemo("Scrollable Row") { ScrollableRowDemo() },
@@ -145,14 +155,32 @@ val WearFoundationDemos =
                         listOf(
                             ComposableDemo(".rotary with scroll") { RotaryScrollSample() },
                             ComposableDemo(".rotary with snap") { RotarySnapSample() },
+                            ComposableDemo(".rotary with overscroll") {
+                                RotaryScrollWithOverscrollSample()
+                            },
                             ComposableDemo("RotaryEvent") { ScrollUsingRotatingCrownDemo() },
-                            ComposableDemo("PreRotaryEvent") { InterceptScrollDemo() }
-                        )
+                            ComposableDemo("PreRotaryEvent") { InterceptScrollDemo() },
+                        ),
                     ),
-                    DemoCategory("Demos", listOf())
-                )
+                    DemoCategory(
+                        "Demos",
+                        listOf(
+                            ComposableDemo("Nested scroll with Pager") { NestedScrollPagerDemo() },
+                            ComposableDemo("Nested scroll with Lazy Column") {
+                                NestedScrollLazyColumnDemo(false)
+                            },
+                            ComposableDemo("Nested scroll with Reversed Lazy Column") {
+                                NestedScrollLazyColumnDemo(true)
+                            },
+                            ComposableDemo("Nested scroll with TLC") { NestedScrollTLCDemo() },
+                            ComposableDemo("Nested scroll with SLC") { NestedScrollSLCDemo() },
+                        ),
+                    ),
+                ),
             ),
-            ComposableDemo("Focus Sample") { HierarchicalFocusCoordinatorSample() },
+            ComposableDemo("Focus Sample") { HierarchicalFocusSample() },
+            ComposableDemo("Nested Focus Sample") { HierarchicalFocus2Levels() },
+            ComposableDemo("Hierarchical Focus Demo") { HierarchicalFocusDemo() },
             DemoCategory(
                 "Scaling Lazy Column",
                 listOf(
@@ -162,13 +190,13 @@ val WearFoundationDemos =
                     ComposableDemo(
                         "With Content Padding",
                         "Basic ScalingLazyColumn with autoCentering disabled and explicit " +
-                            "content padding of top = 20.dp, bottom = 20.dp"
+                            "content padding of top = 20.dp, bottom = 20.dp",
                     ) {
                         SimpleScalingLazyColumnWithContentPadding()
                     },
                     ComposableDemo(
                         "With Snap",
-                        "Basic ScalingLazyColumn, center aligned with snap enabled"
+                        "Basic ScalingLazyColumn, center aligned with snap enabled",
                     ) {
                         SimpleScalingLazyColumnWithSnap()
                     },
@@ -176,7 +204,7 @@ val WearFoundationDemos =
                         "Edge Anchor",
                         "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
                             "If you click on an item there will be an animated scroll of the " +
-                            "items edge to the center"
+                            "items edge to the center",
                     ) {
                         ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
                     },
@@ -186,69 +214,25 @@ val WearFoundationDemos =
             DemoCategory(
                 "Swipe To Reveal",
                 listOf(
-                    DemoCategory(
-                        "Samples",
-                        listOf(
-                            ComposableDemo("Material S2R Chip") { params ->
-                                Centralize {
-                                    SwipeToRevealChipSample(params.swipeToDismissBoxState)
-                                }
-                            },
-                            ComposableDemo("Material S2R Card") { params ->
-                                Centralize {
-                                    SwipeToRevealCardSample(params.swipeToDismissBoxState)
-                                }
-                            },
-                            ComposableDemo("Material S2R Cards Inside SLC") { params ->
-                                Centralize {
-                                    ScalingLazyColumn {
-                                        item {
-                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
-                                        }
-                                        item {
-                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
-                                        }
-                                        item {
-                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
-                                        }
-                                        item {
-                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
-                                        }
-                                    }
-                                }
-                            },
-                        )
-                    ),
-                    DemoCategory(
-                        "Demos",
-                        listOf(
-                            ComposableDemo("S2R Chip, 2 actions") { params ->
-                                SwipeToRevealChips(
-                                    params.swipeToDismissBoxState,
-                                    includeSecondaryAction = true
-                                )
-                            },
-                            ComposableDemo("S2R Chip, 1 action") { params ->
-                                SwipeToRevealChips(
-                                    params.swipeToDismissBoxState,
-                                    includeSecondaryAction = false
-                                )
-                            },
-                            ComposableDemo("S2R Card") { params ->
-                                SwipeToRevealCards(params.swipeToDismissBoxState)
-                            },
-                        )
-                    )
-                )
+                    ComposableDemo("One Action") { Centralize { SwipeToRevealSample() } },
+                    ComposableDemo("Two Actions") { Centralize { SwipeToRevealDemoTwoActions() } },
+                    ComposableDemo("With Delayed Text") {
+                        Centralize { SwipeToRevealWithDelayedText() }
+                    },
+                    ComposableDemo("With Expandables") {
+                        Centralize { SwipeToRevealWithExpandables() }
+                    },
+                    ComposableDemo("Bi-directional") {
+                        Centralize { SwipeToRevealDemoBothDirections() }
+                    },
+                ),
             ),
             DemoCategory(
                 "TransformingLazyColumn",
                 listOf(
                     ComposableDemo("Letter Sample") { TransformingLazyColumnLettersSample() },
-                    ComposableDemo("Animation Sample") {
-                        TransformingLazyColumnAnimateItemSample()
-                    },
-                )
-            )
+                    ComposableDemo("Animation Sample") { TransformingLazyColumnAnimateItemSample() },
+                ),
+            ),
         ),
     )

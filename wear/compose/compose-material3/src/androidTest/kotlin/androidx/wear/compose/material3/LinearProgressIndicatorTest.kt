@@ -57,7 +57,7 @@ class LinearProgressIndicatorTest {
                     Modifier.testTag(TEST_TAG).semantics {
                         progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
                     },
-                progress = { progress.value }
+                progress = { progress.value },
             )
         }
 
@@ -83,7 +83,7 @@ class LinearProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -104,7 +104,7 @@ class LinearProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }
@@ -129,7 +129,7 @@ class LinearProgressIndicatorTest {
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
+                        trackColor = Color.Red,
                     ),
             )
         }

@@ -23,7 +23,20 @@ import java.nio.file.StandardCopyOption
 /** Native code loader for JVM. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 actual public object NativeLoader {
+    private var loaded = false
+
     actual public fun load() {
+        // Fast bail-out before grabbing a lock if we don't need to.
+        if (loaded) return
+        loadSynchronous()
+    }
+
+    // JVM synchronized to avoid an extra dependency for Kotlin concurrency.
+    @Synchronized
+    @SuppressWarnings("BanSynchronizedMethods")
+    private fun loadSynchronous() {
+        // Double-check in the synchronized block in case something got there after first check.
+        if (loaded) return
         // On the JVM we need to find the correct libink library file in the JAR resources, copy it
         // out to a tempfile, and load it directly.
         //
@@ -41,5 +54,6 @@ actual public object NativeLoader {
                 Files.copy(resourceStream, tempFile, StandardCopyOption.REPLACE_EXISTING)
             }
         System.load(tempFile.toFile().canonicalPath)
+        loaded = true
     }
 }

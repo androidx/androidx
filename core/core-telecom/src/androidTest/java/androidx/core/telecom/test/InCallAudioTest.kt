@@ -20,7 +20,6 @@ import android.media.AudioManager.MODE_IN_COMMUNICATION
 import android.os.Build
 import android.telecom.DisconnectCause
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -50,7 +49,6 @@ import org.junit.runner.RunWith
  * currentCallEndpoint.counter.getFirst() // The flow may never be collected } }
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class InCallAudioTest : BaseTelecomTest() {
     val LOG_TAG = "InCallAudioTest"
@@ -125,7 +123,7 @@ class InCallAudioTest : BaseTelecomTest() {
                     Log.i(
                         LOG_TAG,
                         "runBlocking_addCall_assertAudioModeInCommunication: " +
-                            "initial AudioManager mode = ${getAudioModeName(mAudioManager.mode)}"
+                            "initial AudioManager mode = ${getAudioModeName(mAudioManager.mode)}",
                     )
                     while (
                         isActive /* aka  within timeout window */ &&
@@ -134,14 +132,14 @@ class InCallAudioTest : BaseTelecomTest() {
                         Log.d(
                             LOG_TAG,
                             "runBlocking_addCall_assertAudioModeInCommunication: " +
-                                "current AudioManager mode = ${getAudioModeName(mAudioManager.mode)}"
+                                "current AudioManager mode = ${getAudioModeName(mAudioManager.mode)}",
                         )
                         yield() // mechanism to stop the while loop if the coroutine is dead
                         delay(1) // sleep x millisecond(s) instead of spamming check
                     }
                     Assert.assertEquals(
                         CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL)),
                     )
                 }
             }

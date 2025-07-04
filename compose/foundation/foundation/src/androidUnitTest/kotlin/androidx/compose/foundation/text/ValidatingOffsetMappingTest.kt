@@ -41,7 +41,7 @@ class ValidatingOffsetMappingTest {
                     override fun originalToTransformed(offset: Int): Int = 0
 
                     override fun transformedToOriginal(offset: Int): Int = 0
-                }
+                },
             )
         }
 
@@ -59,7 +59,7 @@ class ValidatingOffsetMappingTest {
                     override fun originalToTransformed(offset: Int): Int = 0
 
                     override fun transformedToOriginal(offset: Int): Int = 0
-                }
+                },
             )
         }
 
@@ -78,7 +78,7 @@ class ValidatingOffsetMappingTest {
                     override fun originalToTransformed(offset: Int): Int = text.length * 2
 
                     override fun transformedToOriginal(offset: Int): Int = 0
-                }
+                },
             )
         }
 
@@ -97,7 +97,7 @@ class ValidatingOffsetMappingTest {
                     override fun originalToTransformed(offset: Int): Int = 0
 
                     override fun transformedToOriginal(offset: Int): Int = text.length
-                }
+                },
             )
         }
 
@@ -117,7 +117,7 @@ class ValidatingOffsetMappingTest {
                     override fun originalToTransformed(offset: Int): Int = offset
 
                     override fun transformedToOriginal(offset: Int): Int = offset
-                }
+                },
             )
         }
 
@@ -145,7 +145,7 @@ class ValidatingOffsetMappingTest {
                         }
 
                     override fun transformedToOriginal(offset: Int): Int = 0
-                }
+                },
             )
         }
 
@@ -180,7 +180,7 @@ class ValidatingOffsetMappingTest {
                         } else {
                             0
                         }
-                }
+                },
             )
         }
 

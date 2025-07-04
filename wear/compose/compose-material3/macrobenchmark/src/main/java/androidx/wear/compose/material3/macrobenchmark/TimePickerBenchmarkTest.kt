@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.CompilationMode
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material3.macrobenchmark.common.TimePickerBenchmark
+import androidx.wear.compose.material3.macrobenchmark.common.TimePickerScrollMinutesBenchmark
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -31,5 +32,15 @@ class TimePickerBenchmarkTest(compilationMode: CompilationMode) :
     BenchmarkTestBase(
         compilationMode = compilationMode,
         macrobenchmarkScreen = TimePickerBenchmark,
-        actionSuffix = "TIME_PICKER_ACTIVITY"
+        actionSuffix = "TIME_PICKER_ACTIVITY",
+    )
+
+@RequiresApi(Build.VERSION_CODES.O)
+@LargeTest
+@RunWith(Parameterized::class)
+class TimePickerScrollMinutesBenchmarkTest(compilationMode: CompilationMode) :
+    BenchmarkTestBase(
+        compilationMode = compilationMode,
+        macrobenchmarkScreen = TimePickerScrollMinutesBenchmark,
+        actionSuffix = "TIME_PICKER_SCROLL_MINUTES_ACTIVITY",
     )

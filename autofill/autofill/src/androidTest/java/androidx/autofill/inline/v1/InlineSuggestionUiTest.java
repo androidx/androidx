@@ -16,11 +16,16 @@
 
 package androidx.autofill.inline.v1;
 
+import static androidx.autofill.inline.v1.InlineSuggestionUi.Style.LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE;
+import static androidx.autofill.inline.v1.InlineSuggestionUi.Style.LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import static java.util.Arrays.asList;
 
 import android.app.Instrumentation;
 import android.app.PendingIntent;
@@ -46,7 +51,7 @@ import androidx.autofill.inline.common.ImageViewStyle;
 import androidx.autofill.inline.common.TestUtils;
 import androidx.autofill.inline.common.TextViewStyle;
 import androidx.autofill.inline.common.ViewStyle;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.autofill.inline.v1.InlineSuggestionUi.Style.LayoutTruncationPreference;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -57,13 +62,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = 30) // Needed only on 30 and above
 public class InlineSuggestionUiTest {
 
@@ -74,6 +81,19 @@ public class InlineSuggestionUiTest {
     @Rule
     public final androidx.test.rule.@NonNull ActivityTestRule<InlineUiActivity> mActivityTestRule =
             new androidx.test.rule.ActivityTestRule<>(InlineUiActivity.class);
+
+    @Parameterized.Parameters(name = "layoutTruncationPreference={0}")
+    public static List<Integer> layoutTruncationPreference() {
+        return asList(LAYOUT_TRUNCATION_PREFERENCE_PRIORITIZE_TITLE,
+                LAYOUT_TRUNCATION_PREFERENCE_BALANCING_TITLE_SUBTITLE);
+    }
+
+    public InlineSuggestionUiTest(@LayoutTruncationPreference int layoutTruncationPreference) {
+        mStyleBuilder = new InlineSuggestionUi.Style.Builder()
+                .setLayoutTruncationPreference(layoutTruncationPreference);
+    }
+
+    private final InlineSuggestionUi.Style.Builder mStyleBuilder;
 
     private Instrumentation mInstrumentation;
     private Context mContext;
@@ -94,7 +114,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_titleOnly_defaultStyle() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().build();
+        InlineSuggestionUi.Style style = mStyleBuilder.build();
         InlineSuggestionUi.Content content =
                 InlineSuggestionUi.newContentBuilder(
                         mAttributionIntent).setTitle(TITLE).setContentDescription(
@@ -113,7 +133,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_titleOnly_customStyle() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().setTitleStyle(
+        InlineSuggestionUi.Style style = mStyleBuilder.setTitleStyle(
                 new TextViewStyle.Builder().setTextColor(Color.GREEN)
                         .setTextSize(30).build()).build();
         InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
@@ -132,7 +152,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_singleIcon_defaultStyle() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().build();
+        InlineSuggestionUi.Style style = mStyleBuilder.build();
         InlineSuggestionUi.Content content = InlineSuggestionUi.newContentBuilder(
                 mAttributionIntent).setStartIcon(
                 Icon.createWithResource(mContext,
@@ -146,7 +166,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_singleIcon_customStyle() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().setChipStyle(
+        InlineSuggestionUi.Style style = mStyleBuilder.setChipStyle(
                 new ViewStyle.Builder().setBackgroundColor(
                         Color.GREEN).setPadding(2, 3, 4, 5).build())
                 .setSingleIconChipStyle(new ViewStyle.Builder().setBackground(
@@ -173,7 +193,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_singleIcon_customStyleFallback() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder().setChipStyle(
+        InlineSuggestionUi.Style style = mStyleBuilder.setChipStyle(
                 new ViewStyle.Builder().setBackgroundColor(
                         Color.GREEN).setPadding(2, 3, 4, 5).build())
                 .setStartIconStyle(new ImageViewStyle.Builder().setTintList(
@@ -196,7 +216,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_allWidgets() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder()
+        InlineSuggestionUi.Style style = mStyleBuilder
                 .setChipStyle(new ViewStyle.Builder().setPadding(31, 32, 33, 34).build())
                 .setTitleStyle(new TextViewStyle.Builder().setTextColor(Color.BLUE).build())
                 .setSubtitleStyle(
@@ -240,7 +260,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_allWidgets_rtl() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder()
+        InlineSuggestionUi.Style style = mStyleBuilder
                 .setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
                 .setChipStyle(new ViewStyle.Builder().setPadding(11, 12, 13, 14).build())
                 .setStartIconStyle(new ImageViewStyle.Builder()
@@ -275,7 +295,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testRender_singleIcon_rtl() {
-        InlineSuggestionUi.Style style = new InlineSuggestionUi.Style.Builder()
+        InlineSuggestionUi.Style style = mStyleBuilder
                 .setLayoutDirection(View.LAYOUT_DIRECTION_RTL)
                 .setChipStyle(new ViewStyle.Builder().setPadding(11, 12, 13, 14).build())
                 .setStartIconStyle(new ImageViewStyle.Builder()
@@ -409,8 +429,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testStyleWithNothing() {
-        InlineSuggestionUi.Style.Builder builder = new InlineSuggestionUi.Style.Builder();
-        InlineSuggestionUi.Style style = builder.build();
+        InlineSuggestionUi.Style style = mStyleBuilder.build();
         style.applyStyle(new FrameLayout(mContext), new ImageView(mContext));
         style.applyStyle(new FrameLayout(mContext), new ImageView(mContext),
                 new TextView(mContext), new TextView(mContext), new ImageView(mContext));
@@ -418,7 +437,6 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testStyleWithEverything() {
-        InlineSuggestionUi.Style.Builder builder = new InlineSuggestionUi.Style.Builder();
         ViewStyle chipStyle = new ViewStyle.Builder()
                 .setBackgroundColor(Color.BLUE).build();
         ImageViewStyle startIconStyle = new ImageViewStyle.Builder().setScaleType(
@@ -431,7 +449,7 @@ public class InlineSuggestionUiTest {
                         Color.WHITE).build();
         ImageViewStyle endIconStyle = new ImageViewStyle.Builder().setScaleType(
                 ImageView.ScaleType.CENTER).setBackgroundColor(Color.RED).build();
-        InlineSuggestionUi.Style style = builder
+        InlineSuggestionUi.Style style = mStyleBuilder
                 .setChipStyle(chipStyle)
                 .setStartIconStyle(startIconStyle)
                 .setEndIconStyle(endIconStyle)
@@ -464,8 +482,7 @@ public class InlineSuggestionUiTest {
 
     @Test
     public void testStyleWithRtl() {
-        InlineSuggestionUi.Style.Builder builder = new InlineSuggestionUi.Style.Builder();
-        InlineSuggestionUi.Style style = builder.setLayoutDirection(
+        InlineSuggestionUi.Style style = mStyleBuilder.setLayoutDirection(
                 View.LAYOUT_DIRECTION_RTL).build();
 
         View suggestionView = LayoutInflater.from(mContext).inflate(

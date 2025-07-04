@@ -134,14 +134,14 @@ class MenuScreenshotTest {
                     text = { Text("Edit") },
                     onClick = {},
                     enabled = enabledItems,
-                    leadingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) }
+                    leadingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) },
                 )
                 DropdownMenuItem(
                     text = { Text("Settings") },
                     onClick = {},
                     enabled = enabledItems,
                     leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                    trailingIcon = { Text("F11", textAlign = TextAlign.Center) }
+                    trailingIcon = { Text("F11", textAlign = TextAlign.Center) },
                 )
                 HorizontalDivider()
                 DropdownMenuItem(
@@ -149,7 +149,7 @@ class MenuScreenshotTest {
                     onClick = {},
                     enabled = enabledItems,
                     leadingIcon = { Icon(Icons.Outlined.Email, contentDescription = null) },
-                    trailingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) }
+                    trailingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
                 )
             }
         }

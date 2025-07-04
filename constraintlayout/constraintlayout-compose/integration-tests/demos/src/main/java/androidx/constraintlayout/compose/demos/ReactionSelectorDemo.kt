@@ -56,7 +56,7 @@ fun ReactionSelectorDemo() {
             "Face with Raised Eyebrow",
             "Neutral Face",
             "Unamused Face",
-            "Grimacing Face"
+            "Grimacing Face",
         )
     }
 
@@ -105,7 +105,7 @@ fun ReactionSelectorDemo() {
             modifier = Modifier.background(Color(0xff334433)).fillMaxWidth(),
             motionScene = scene,
             transitionName = transitionName.value,
-            progress = progress.value
+            progress = progress.value,
         ) {
             emojis.forEachIndexed { index, icon ->
                 Text(text = icon, modifier = Modifier.layoutId(icon).clickable { selected = index })

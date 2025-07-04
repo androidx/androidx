@@ -209,8 +209,6 @@ package androidx.compose.ui.autofill {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public enum AutofillType {
-    method public static androidx.compose.ui.autofill.AutofillType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.autofill.AutofillType[] values();
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressAuxiliaryDetails;
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressCountry;
     enum_constant public static final androidx.compose.ui.autofill.AutofillType AddressLocality;
@@ -1762,8 +1760,6 @@ package androidx.compose.ui.input.pointer {
   }
 
   public enum PointerEventPass {
-    method public static androidx.compose.ui.input.pointer.PointerEventPass valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.input.pointer.PointerEventPass[] values();
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Final;
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Initial;
     enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Main;
@@ -2699,8 +2695,6 @@ package androidx.compose.ui.node {
   }
 
   public enum TraversableNode.Companion.TraverseDescendantsAction {
-    method public static androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction[] values();
     enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction CancelTraversal;
     enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction ContinueTraversal;
     enum_constant public static final androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction SkipSubtreeAndContinueTraversal;
@@ -2964,8 +2958,6 @@ package androidx.compose.ui.platform {
   }
 
   public enum TextToolbarStatus {
-    method public static androidx.compose.ui.platform.TextToolbarStatus valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.platform.TextToolbarStatus[] values();
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Hidden;
     enum_constant public static final androidx.compose.ui.platform.TextToolbarStatus Shown;
   }
@@ -3548,8 +3540,6 @@ package androidx.compose.ui.semantics {
 package androidx.compose.ui.state {
 
   public enum ToggleableState {
-    method public static androidx.compose.ui.state.ToggleableState valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.state.ToggleableState[] values();
     enum_constant public static final androidx.compose.ui.state.ToggleableState Indeterminate;
     enum_constant public static final androidx.compose.ui.state.ToggleableState Off;
     enum_constant public static final androidx.compose.ui.state.ToggleableState On;
@@ -3636,8 +3626,6 @@ package androidx.compose.ui.window {
   }
 
   public enum SecureFlagPolicy {
-    method public static androidx.compose.ui.window.SecureFlagPolicy valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.compose.ui.window.SecureFlagPolicy[] values();
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy Inherit;
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy SecureOff;
     enum_constant public static final androidx.compose.ui.window.SecureFlagPolicy SecureOn;

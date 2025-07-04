@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -39,6 +39,10 @@ dependencies {
     implementation("androidx.compose.runtime:runtime:1.6.8")
     implementation("androidx.compose.ui:ui:1.6.8")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.4")
+    implementation("androidx.compose.ui:ui-geometry:1.7.8")
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(project(":camera:viewfinder:viewfinder-compose"))
+    implementation(project(":camera:viewfinder:viewfinder-core"))
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
@@ -49,7 +53,7 @@ android {
 
 androidx {
     name = "Camera Compose Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2024"
     description = "Contains sample code for the Androidx Camera Compose library"
 }

@@ -39,6 +39,7 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.CloseableErrorListener
 import androidx.camera.core.impl.StreamSpec
+import androidx.camera.core.impl.StreamUseCase
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
@@ -58,7 +59,7 @@ private val DEFAULT_PREVIEW_SIZE = Size(0, 0)
 public class MeteringRepeating(
     private val cameraProperties: CameraProperties,
     config: MeteringRepeatingConfig,
-    private val displayInfoManager: DisplayInfoManager
+    private val displayInfoManager: DisplayInfoManager,
 ) : UseCase(config) {
 
     private val meteringSurfaceSize = getProperPreviewSize()
@@ -71,7 +72,7 @@ public class MeteringRepeating(
 
     override fun getDefaultConfig(
         applyDefaultConfig: Boolean,
-        factory: UseCaseConfigFactory
+        factory: UseCaseConfigFactory,
     ): MeteringRepeatingConfig = Builder(cameraProperties, displayInfoManager).useCaseConfig
 
     override fun getUseCaseConfigBuilder(config: Config): Builder =
@@ -117,7 +118,7 @@ public class MeteringRepeating(
                         surface.release()
                         surfaceTexture.release()
                     },
-                    CameraXExecutors.directExecutor()
+                    CameraXExecutors.directExecutor(),
                 )
         }
 
@@ -204,7 +205,7 @@ public class MeteringRepeating(
             MutableOptionsBundle.create().apply {
                 insertOption(
                     OPTION_SESSION_CONFIG_UNPACKER,
-                    CameraUseCaseAdapter.DefaultSessionOptionsUnpacker
+                    CameraUseCaseAdapter.DefaultSessionOptionsUnpacker,
                 )
                 insertOption(OPTION_TARGET_NAME, "MeteringRepeating")
                 insertOption(OPTION_CAPTURE_TYPE, CaptureType.METERING_REPEATING)
@@ -221,7 +222,7 @@ public class MeteringRepeating(
 
     public class Builder(
         private val cameraProperties: CameraProperties,
-        private val displayInfoManager: DisplayInfoManager
+        private val displayInfoManager: DisplayInfoManager,
     ) : UseCaseConfig.Builder<MeteringRepeating, MeteringRepeatingConfig, Builder> {
 
         override fun getMutableConfig(): MutableOptionsBundle = MutableOptionsBundle.create()
@@ -251,6 +252,8 @@ public class MeteringRepeating(
         override fun setHighResolutionDisabled(disabled: Boolean): Builder = this
 
         override fun setCaptureType(captureType: UseCaseConfigFactory.CaptureType): Builder = this
+
+        override fun setStreamUseCase(streamUseCase: StreamUseCase): Builder = this
 
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig, displayInfoManager)

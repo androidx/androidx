@@ -96,17 +96,17 @@ class RobolectricGraphicsLayerTest {
                             drawRect(
                                 Color.Blue,
                                 topLeft = Offset(size.width / 2f, 0f),
-                                size = size / 2f
+                                size = size / 2f,
                             )
                             drawRect(
                                 Color.Green,
                                 topLeft = Offset(0f, size.height / 2f),
-                                size = size / 2f
+                                size = size / 2f,
                             )
                             drawRect(
                                 Color.Black,
                                 topLeft = Offset(size.width / 2f, size.height / 2f),
-                                size = size / 2f
+                                size = size / 2f,
                             )
                         }
                     }
@@ -116,7 +116,7 @@ class RobolectricGraphicsLayerTest {
                 assertNotNull(bitmap)
                 assertEquals(TEST_SIZE, IntSize(bitmap.width, bitmap.height))
                 bitmap.toPixelMap().verifyQuadrants(Color.Red, Color.Blue, Color.Green, Color.Black)
-            }
+            },
         )
     }
 
@@ -136,7 +136,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(TEST_SIZE, layer!!.size)
                 assertEquals(IntOffset.Zero, layer!!.topLeft)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            }
+            },
         )
     }
 
@@ -157,7 +157,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(TEST_SIZE, layer!!.size)
                 assertEquals(IntOffset.Zero, layer!!.topLeft)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            }
+            },
         )
     }
 
@@ -188,7 +188,7 @@ class RobolectricGraphicsLayerTest {
                     }
                 drawLayer(layer)
             },
-            verify = { it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black) }
+            verify = { it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black) },
         )
     }
 
@@ -210,7 +210,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Black, Color.Red)
-            }
+            },
         )
     }
 
@@ -235,7 +235,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(Color.Black, it[topLeft.x + 1, topLeft.y - 1])
                 assertEquals(Color.Black, it[topLeft.x - 1, topLeft.y + 1])
                 assertEquals(Color.Red, it[size.width - 2, size.height - 2])
-            }
+            },
         )
     }
 
@@ -261,9 +261,9 @@ class RobolectricGraphicsLayerTest {
                     compositedColor,
                     compositedColor,
                     compositedColor,
-                    compositedColor
+                    compositedColor,
                 )
-            }
+            },
         )
     }
 
@@ -279,7 +279,7 @@ class RobolectricGraphicsLayerTest {
                         record {
                             drawRect(
                                 Color.Red,
-                                size = Size(this.size.width / 2, this.size.height / 2)
+                                size = Size(this.size.width / 2, this.size.height / 2),
                             )
                         }
                         scaleX = 2f
@@ -291,7 +291,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Black, Color.Black)
-            }
+            },
         )
     }
 
@@ -307,7 +307,7 @@ class RobolectricGraphicsLayerTest {
                         record {
                             drawRect(
                                 Color.Red,
-                                size = Size(this.size.width / 2, this.size.height / 2)
+                                size = Size(this.size.width / 2, this.size.height / 2),
                             )
                         }
                         scaleY = 2f
@@ -319,7 +319,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Red, Color.Black, Color.Red, Color.Black)
-            }
+            },
         )
     }
 
@@ -344,7 +344,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            }
+            },
         )
     }
 
@@ -368,7 +368,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Black, Color.Red)
-            }
+            },
         )
     }
 
@@ -390,7 +390,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Red, Color.Black, Color.Black)
-            }
+            },
         )
     }
 
@@ -445,7 +445,7 @@ class RobolectricGraphicsLayerTest {
                 layer.record { drawRect(Color.Blue) }
                 drawLayer(layer)
             },
-            verify = { it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue) }
+            verify = { it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue) },
         )
     }
 
@@ -467,7 +467,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(topLeft, layer!!.topLeft)
                 assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Black, Color.Red, Color.Black)
-            }
+            },
         )
     }
 
@@ -495,7 +495,7 @@ class RobolectricGraphicsLayerTest {
 
                 assertEquals(Color.Black, it[4, size.height / 4])
                 assertEquals(Color.Black, it[size.width - 4, size.height / 4])
-            }
+            },
         )
     }
 
@@ -522,7 +522,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(Color.Black, it[size.width / 2, size.height / 2])
                 assertEquals(Color.Black, it[size.width / 4, 4])
                 assertEquals(Color.Black, it[size.width / 4, size.height - 4])
-            }
+            },
         )
     }
 
@@ -542,9 +542,9 @@ class RobolectricGraphicsLayerTest {
                                 topLeft =
                                     Offset(
                                         this.size.width / 2f - rectSize / 2f,
-                                        this.size.height / 2 - rectSize / 2f
+                                        this.size.height / 2 - rectSize / 2f,
                                     ),
-                                Size(rectSize.toFloat(), rectSize.toFloat())
+                                Size(rectSize.toFloat(), rectSize.toFloat()),
                             )
                         }
                         rotationZ = 45f
@@ -562,21 +562,21 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(Color.Red, it[size.width / 2 + rectSize / 2, size.height / 2])
                 assertEquals(
                     Color.Black,
-                    it[size.width / 2 - rectSize / 3, size.height / 2 - rectSize / 2 + 4]
+                    it[size.width / 2 - rectSize / 3, size.height / 2 - rectSize / 2 + 4],
                 )
                 assertEquals(
                     Color.Black,
-                    it[size.width / 2 - rectSize / 3, size.height / 2 + rectSize / 2 - 4]
+                    it[size.width / 2 - rectSize / 3, size.height / 2 + rectSize / 2 - 4],
                 )
                 assertEquals(
                     Color.Black,
-                    it[size.width / 2 + rectSize / 3, size.height / 2 - rectSize / 2 + 4]
+                    it[size.width / 2 + rectSize / 3, size.height / 2 - rectSize / 2 + 4],
                 )
                 assertEquals(
                     Color.Black,
-                    it[size.width / 2 + rectSize / 3, size.height / 2 + rectSize / 2 - 4]
+                    it[size.width / 2 + rectSize / 3, size.height / 2 + rectSize / 2 - 4],
                 )
-            }
+            },
         )
     }
 
@@ -599,7 +599,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(Color.Red, it[it.width - 1, it.height - 1])
                 assertEquals(Color.Red, it[it.width / 2, it.height / 2])
             },
-            entireScene = true
+            entireScene = true,
         )
     }
 
@@ -629,7 +629,7 @@ class RobolectricGraphicsLayerTest {
                 assertEquals(Color.White, it[TEST_WIDTH + 1, TEST_HEIGHT])
                 assertEquals(Color.White, it[it.width - 1, TEST_HEIGHT - 2])
             },
-            entireScene = true
+            entireScene = true,
         )
     }
 
@@ -668,7 +668,7 @@ class RobolectricGraphicsLayerTest {
                     assertPixelColor(Color.Black, 0, height - 1)
                     assertPixelColor(expectedCenter, width / 2, height / 2)
                 }
-            }
+            },
         )
     }
 
@@ -701,7 +701,7 @@ class RobolectricGraphicsLayerTest {
                     assertPixelColor(bgColor, 0, height - 1)
                     assertPixelColor(bgColor, width / 2, height / 2)
                 }
-            }
+            },
         )
     }
 
@@ -729,7 +729,7 @@ class RobolectricGraphicsLayerTest {
                     assertPixelColor(Color.Gray, width - 1, 0)
                     assertPixelColor(Color.Gray, width - 1, height - 1)
                 }
-            }
+            },
         )
     }
 
@@ -753,7 +753,7 @@ class RobolectricGraphicsLayerTest {
                     assertPixelColor(Color.Blue, width - 1, height - 1)
                     assertPixelColor(Color.Blue, width / 2, height / 2)
                 }
-            }
+            },
         )
     }
 
@@ -768,12 +768,12 @@ class RobolectricGraphicsLayerTest {
                         val topLeft =
                             IntOffset(
                                 (drawScopeSize.width / 4).toInt(),
-                                (drawScopeSize.height / 4).toInt()
+                                (drawScopeSize.height / 4).toInt(),
                             )
                         val layerSize =
                             IntSize(
                                 (drawScopeSize.width / 2).toInt(),
-                                (drawScopeSize.height / 2).toInt()
+                                (drawScopeSize.height / 2).toInt(),
                             )
                         record(layerSize) { drawRect(Color.Red) }
                         this.topLeft = topLeft
@@ -804,7 +804,7 @@ class RobolectricGraphicsLayerTest {
                     assertPixelColor(Color.Blue, insetRight, insetBottom)
                     assertPixelColor(Color.Blue, width / 2, height / 2)
                 }
-            }
+            },
         )
     }
 
@@ -848,7 +848,7 @@ class RobolectricGraphicsLayerTest {
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -873,7 +873,7 @@ class RobolectricGraphicsLayerTest {
                                         size.center.x.toFloat(),
                                         size.center.y.toFloat(),
                                         size.center.x + size.width.toFloat(),
-                                        size.center.y + size.height.toFloat()
+                                        size.center.y + size.height.toFloat(),
                                     )
                                 )
                             }
@@ -903,7 +903,7 @@ class RobolectricGraphicsLayerTest {
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -925,7 +925,7 @@ class RobolectricGraphicsLayerTest {
                         setRoundRectOutline(
                             this.size.center.toOffset(),
                             (this.size / 2).toSize(),
-                            radius.toFloat()
+                            radius.toFloat(),
                         )
                         clip = true
                     }
@@ -957,7 +957,7 @@ class RobolectricGraphicsLayerTest {
                     Assert.assertEquals(bgColor, this[offset, height - offset])
                     Assert.assertEquals(bgColor, this[width - offset, height - offset])
                 }
-            }
+            },
         )
     }
 
@@ -995,7 +995,7 @@ class RobolectricGraphicsLayerTest {
                 val layerSize =
                     Size(
                             fullSize.width.roundToInt() - inset * 2,
-                            fullSize.height.roundToInt() - inset * 2
+                            fullSize.height.roundToInt() - inset * 2,
                         )
                         .toIntSize()
 
@@ -1020,7 +1020,7 @@ class RobolectricGraphicsLayerTest {
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -1090,7 +1090,7 @@ class RobolectricGraphicsLayerTest {
                 it.assertPixelColor(bg, row4centerX, row3centerY)
 
                 it.assertPixelColor(layerColor4, layerSize.width / 2, layerSize.height / 2)
-            }
+            },
         )
     }
 
@@ -1098,7 +1098,7 @@ class RobolectricGraphicsLayerTest {
         topLeft: Color,
         topRight: Color,
         bottomLeft: Color,
-        bottomRight: Color
+        bottomRight: Color,
     ) {
         val left = this.width / 4
         val right = this.width / 4 + this.width / 2
@@ -1113,7 +1113,7 @@ class RobolectricGraphicsLayerTest {
     private fun graphicsLayerTest(
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: (suspend (PixelMap) -> Unit)? = null,
-        entireScene: Boolean = false
+        entireScene: Boolean = false,
     ) {
         var scenario: ActivityScenario<ComponentActivity>? = null
         try {
@@ -1140,7 +1140,7 @@ class RobolectricGraphicsLayerTest {
                         contentView = content
                         it.setContentView(
                             container,
-                            ViewGroup.LayoutParams(TEST_WIDTH * 2, TEST_HEIGHT * 2)
+                            ViewGroup.LayoutParams(TEST_WIDTH * 2, TEST_HEIGHT * 2),
                         )
                     }
             val resumed = CountDownLatch(1)
@@ -1182,7 +1182,7 @@ class RobolectricGraphicsLayerTest {
 
     private class GraphicsContextHostDrawable(
         val graphicsContext: GraphicsContext,
-        val block: DrawScope.(GraphicsContext) -> Unit
+        val block: DrawScope.(GraphicsContext) -> Unit,
     ) : Drawable() {
 
         var rootGraphicsLayer: GraphicsLayer? = null

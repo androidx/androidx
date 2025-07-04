@@ -115,7 +115,7 @@ internal class Camera2CameraImplStateTest {
         // Try to open camera. This should be prevented since fakeCamera is already open.
         assertCameraStateAfterAction(
             action = { camera.open() },
-            expectedState = create(CameraState.Type.PENDING_OPEN)
+            expectedState = create(CameraState.Type.PENDING_OPEN),
         )
     }
 
@@ -126,7 +126,7 @@ internal class Camera2CameraImplStateTest {
 
         assertCameraStateAfterAction(
             action = { camera.open() },
-            expectedState = create(CameraState.Type.OPENING)
+            expectedState = create(CameraState.Type.OPENING),
         )
     }
 
@@ -140,7 +140,7 @@ internal class Camera2CameraImplStateTest {
                 camera.open()
                 camera.awaitCameraOpen()
             },
-            expectedState = create(CameraState.Type.OPEN)
+            expectedState = create(CameraState.Type.OPEN),
         )
     }
 
@@ -159,7 +159,7 @@ internal class Camera2CameraImplStateTest {
             expectedStatePredicate = { state ->
                 state.type == CameraState.Type.CLOSED &&
                     state.error?.code == ERROR_DO_NOT_DISTURB_MODE_ENABLED
-            }
+            },
         )
     }
 
@@ -170,7 +170,7 @@ internal class Camera2CameraImplStateTest {
 
         assertCameraStateAfterAction(
             action = { camera.open() },
-            expectedState = create(CameraState.Type.OPENING)
+            expectedState = create(CameraState.Type.OPENING),
         )
     }
 
@@ -186,7 +186,7 @@ internal class Camera2CameraImplStateTest {
             },
             expectedStatePredicate = { state ->
                 state.type == CameraState.Type.OPENING && state.error != null
-            }
+            },
         )
 
         // Clean up
@@ -206,7 +206,7 @@ internal class Camera2CameraImplStateTest {
             },
             expectedStatePredicate = { state ->
                 state.type == CameraState.Type.CLOSING && state.error != null
-            }
+            },
         )
 
         // Clean up
@@ -231,7 +231,7 @@ internal class Camera2CameraImplStateTest {
                 camera.open()
                 awaitMaxReopenAttemptsReached(semaphore)
             },
-            expectedState = create(CameraState.Type.PENDING_OPEN)
+            expectedState = create(CameraState.Type.PENDING_OPEN),
         )
     }
 
@@ -246,7 +246,7 @@ internal class Camera2CameraImplStateTest {
         assertCameraStateAfterAction(
             action = { cameraManager.triggerDisconnect() },
             expectedState =
-                create(CameraState.Type.OPENING, CameraState.StateError.create(ERROR_CAMERA_IN_USE))
+                create(CameraState.Type.OPENING, CameraState.StateError.create(ERROR_CAMERA_IN_USE)),
         )
 
         // Clean up
@@ -266,7 +266,7 @@ internal class Camera2CameraImplStateTest {
             action = { cameraManager.triggerCriticalError() },
             expectedStatePredicate = { state ->
                 state.type == CameraState.Type.CLOSING && state.error != null
-            }
+            },
         )
 
         // Clean up
@@ -284,7 +284,7 @@ internal class Camera2CameraImplStateTest {
 
         assertCameraStateAfterAction(
             action = { camera.close() },
-            expectedState = create(CameraState.Type.CLOSING)
+            expectedState = create(CameraState.Type.CLOSING),
         )
     }
 
@@ -301,7 +301,7 @@ internal class Camera2CameraImplStateTest {
                 camera.close()
                 camera.awaitCameraClosed()
             },
-            expectedState = create(CameraState.Type.CLOSED)
+            expectedState = create(CameraState.Type.CLOSED),
         )
     }
 
@@ -319,7 +319,7 @@ internal class Camera2CameraImplStateTest {
         // Try to open camera. This should be prevented since fakeCamera is already open.
         assertCameraStateAfterAction(
             action = { camera.open() },
-            expectedState = create(CameraState.Type.PENDING_OPEN)
+            expectedState = create(CameraState.Type.PENDING_OPEN),
         )
 
         // The camera should start opening when fakeCamera is closed
@@ -329,7 +329,7 @@ internal class Camera2CameraImplStateTest {
                 fakeCamera.close()
                 cameraStateRegistry.markCameraState(fakeCamera, CameraInternal.State.CLOSED)
             },
-            expectedState = create(CameraState.Type.OPENING)
+            expectedState = create(CameraState.Type.OPENING),
         )
     }
 
@@ -357,7 +357,7 @@ internal class Camera2CameraImplStateTest {
                 CameraXExecutors.directExecutor(),
                 cameraHandler,
                 DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
-                -1L
+                -1L,
             )
     }
 
@@ -408,7 +408,7 @@ internal class Camera2CameraImplStateTest {
 
     private fun assertCameraStateAfterAction(
         action: () -> Unit,
-        expectedStatePredicate: ((CameraState) -> Boolean)
+        expectedStatePredicate: ((CameraState) -> Boolean),
     ) = runBlocking {
         val nextStateReceived = CompletableDeferred<Unit>()
         val stateObserver =
@@ -439,7 +439,7 @@ internal class Camera2CameraImplStateTest {
         private val forwardCameraManager =
             CameraManagerCompat.CameraManagerCompatImpl.from(
                 ApplicationProvider.getApplicationContext(),
-                MainThreadAsyncHandler.getInstance()
+                MainThreadAsyncHandler.getInstance(),
             )
         private var stateCallback: CameraDevice.StateCallback? = null
 
@@ -453,7 +453,7 @@ internal class Camera2CameraImplStateTest {
 
         override fun registerAvailabilityCallback(
             executor: Executor,
-            callback: CameraManager.AvailabilityCallback
+            callback: CameraManager.AvailabilityCallback,
         ) {
             // No-op
         }
@@ -469,7 +469,7 @@ internal class Camera2CameraImplStateTest {
         override fun openCamera(
             cameraId: String,
             executor: Executor,
-            callback: CameraDevice.StateCallback
+            callback: CameraDevice.StateCallback,
         ) {
             stateCallback = callback
             if (onOpenCamera == null) {
@@ -486,14 +486,14 @@ internal class Camera2CameraImplStateTest {
         fun triggerRecoverableError() {
             stateCallback?.onError(
                 Mockito.mock(CameraDevice::class.java),
-                CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE
+                CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE,
             )
         }
 
         fun triggerCriticalError() {
             stateCallback?.onError(
                 Mockito.mock(CameraDevice::class.java),
-                CameraDevice.StateCallback.ERROR_CAMERA_DISABLED
+                CameraDevice.StateCallback.ERROR_CAMERA_DISABLED,
             )
         }
 

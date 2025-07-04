@@ -19,10 +19,10 @@ package androidx.room
 import androidx.room.util.findDatabaseConstructorAndInitDatabaseImpl
 
 /** Entry point for building and initializing a [RoomDatabase]. */
-actual object Room {
+public actual object Room {
 
     /** The master table name where Room keeps its metadata information. */
-    actual const val MASTER_TABLE_NAME = RoomMasterTable.TABLE_NAME
+    public actual const val MASTER_TABLE_NAME: String = RoomMasterTable.TABLE_NAME
 
     /**
      * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
@@ -36,7 +36,7 @@ actual object Room {
      *   instantiate the database implementation class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
-    inline fun <reified T : RoomDatabase> inMemoryDatabaseBuilder(
+    public inline fun <reified T : RoomDatabase> inMemoryDatabaseBuilder(
         noinline factory: () -> T = { findDatabaseConstructorAndInitDatabaseImpl(T::class) }
     ): RoomDatabase.Builder<T> {
         return RoomDatabase.Builder(T::class, null, factory)
@@ -54,9 +54,9 @@ actual object Room {
      *   instantiate the database implementation class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
-    inline fun <reified T : RoomDatabase> databaseBuilder(
+    public inline fun <reified T : RoomDatabase> databaseBuilder(
         name: String,
-        noinline factory: () -> T = { findDatabaseConstructorAndInitDatabaseImpl(T::class) }
+        noinline factory: () -> T = { findDatabaseConstructorAndInitDatabaseImpl(T::class) },
     ): RoomDatabase.Builder<T> {
         require(name.isNotBlank()) {
             "Cannot build a database with empty name." +

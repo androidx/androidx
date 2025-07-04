@@ -59,7 +59,7 @@ public fun Fragment.clearFragmentResult(requestKey: String) {
  */
 public fun Fragment.setFragmentResultListener(
     requestKey: String,
-    listener: ((requestKey: String, bundle: Bundle) -> Unit)
+    listener: ((requestKey: String, bundle: Bundle) -> Unit),
 ) {
     parentFragmentManager.setFragmentResultListener(requestKey, this, listener)
 }

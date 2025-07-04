@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel
 
 internal enum class Status {
     ACTIVE,
-    AMBIENT
+    AMBIENT,
 }
 
 internal class MainViewModel : ViewModel() {

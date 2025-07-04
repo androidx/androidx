@@ -30,7 +30,7 @@ class PagingStateTest {
                 pages = listOf(List(10) { it }).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 0
+                leadingPlaceholderCount = 0,
             )
 
         assertEquals(0, pagingState.closestItemToPosition(-1))
@@ -45,7 +45,7 @@ class PagingStateTest {
                 pages = listOf(List(10) { it }).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(0, pagingState.closestItemToPosition(5))
@@ -60,7 +60,7 @@ class PagingStateTest {
                 pages = listOf(listOf(), List(10) { it }, listOf()).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(0, pagingState.closestItemToPosition(5))
@@ -75,7 +75,7 @@ class PagingStateTest {
                 pages = listOf<List<Int>>(listOf(), listOf()).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(null, pagingState.closestItemToPosition(5))
@@ -90,7 +90,7 @@ class PagingStateTest {
                 pages = pages,
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 0
+                leadingPlaceholderCount = 0,
             )
 
         assertEquals(pages.first(), pagingState.closestPageToPosition(-1))
@@ -106,7 +106,7 @@ class PagingStateTest {
                 pages = pages,
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(pages.first(), pagingState.closestPageToPosition(5))
@@ -129,7 +129,7 @@ class PagingStateTest {
                 pages = pages,
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(pages.first(), pagingState.closestPageToPosition(5))
@@ -144,7 +144,7 @@ class PagingStateTest {
                 pages = listOf<List<Int>>(listOf(), listOf()).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(null, pagingState.closestPageToPosition(5))
@@ -158,7 +158,7 @@ class PagingStateTest {
                 pages = listOf<Page<Int, Int>>(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(null, pagingState.firstItemOrNull())
@@ -172,7 +172,7 @@ class PagingStateTest {
                 pages = List(10) { listOf<Int>() }.asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(null, pagingState.firstItemOrNull())
@@ -186,7 +186,7 @@ class PagingStateTest {
                 pages = (listOf<List<Int>>() + List(10) { listOf(it) } + listOf()).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertEquals(0, pagingState.firstItemOrNull())
@@ -200,7 +200,7 @@ class PagingStateTest {
                 pages = listOf<Page<Int, Int>>(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertTrue { pagingState.isEmpty() }
@@ -213,7 +213,7 @@ class PagingStateTest {
                 pages = List(10) { listOf<Int>() }.asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertTrue { pagingState.isEmpty() }
@@ -226,7 +226,7 @@ class PagingStateTest {
                 pages = (listOf<List<Int>>() + List(10) { listOf(it) } + listOf()).asPages(),
                 anchorPosition = 10,
                 config = PagingConfig(pageSize = 10),
-                leadingPlaceholderCount = 10
+                leadingPlaceholderCount = 10,
             )
 
         assertFalse { pagingState.isEmpty() }
@@ -237,6 +237,6 @@ private fun <T : Any> List<List<T>>.asPages() = mapIndexed { index, page: List<T
     Page(
         data = page,
         prevKey = if (index > 0) index - 1 else null,
-        nextKey = if (index < 9) index else null
+        nextKey = if (index < 9) index else null,
     )
 }

@@ -44,7 +44,7 @@ interface XFiler {
         fileNameWithoutExtension: String,
         extension: String,
         originatingElements: List<XElement>,
-        mode: Mode = Mode.Isolating
+        mode: Mode = Mode.Isolating,
     ): OutputStream
 
     /**
@@ -58,7 +58,7 @@ interface XFiler {
     fun writeResource(
         filePath: Path,
         originatingElements: List<XElement>,
-        mode: Mode = Mode.Isolating
+        mode: Mode = Mode.Isolating,
     ): OutputStream
 
     /**
@@ -69,7 +69,7 @@ interface XFiler {
      */
     enum class Mode {
         Aggregating,
-        Isolating
+        Isolating,
     }
 }
 
@@ -85,5 +85,5 @@ fun XTypeSpec.writeTo(
     language: CodeLanguage,
     packageName: String,
     generator: XFiler,
-    mode: XFiler.Mode = XFiler.Mode.Isolating
+    mode: XFiler.Mode = XFiler.Mode.Isolating,
 ) = XFileSpec.of(packageName, this).writeTo(language, generator, mode)

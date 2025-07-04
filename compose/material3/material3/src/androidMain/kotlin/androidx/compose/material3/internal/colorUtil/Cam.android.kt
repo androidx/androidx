@@ -71,7 +71,7 @@ internal class Cam(
     /** a* coordinate in CAM16-UCS */
     val astar: Float,
     /** b* coordinate in CAM16-UCS */
-    val bstar: Float
+    val bstar: Float,
 ) {
 
     /**

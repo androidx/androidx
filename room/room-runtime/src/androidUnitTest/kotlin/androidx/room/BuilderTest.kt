@@ -28,6 +28,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import instantiateImpl
 import java.io.File
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert
@@ -59,7 +60,7 @@ class BuilderTest {
             databaseBuilder(
                     context = mock(),
                     name = "TestDatabase",
-                    factory = { TestDatabase::class.instantiateImpl() }
+                    factory = { TestDatabase::class.instantiateImpl() },
                 )
                 .build()
         // Assert that the db is built successfully.
@@ -552,6 +553,45 @@ class BuilderTest {
                         "SupportOpenHelper.Factory."
                 )
         }
+    }
+
+    @OptIn(ExperimentalRoomApi::class)
+    @Test
+    fun driverProvidedAutoClose() {
+        assertThrows<IllegalArgumentException> {
+                inMemoryDatabaseBuilder(mock(), TestDatabase::class.java)
+                    .setAutoCloseTimeout(3, TimeUnit.SECONDS)
+                    .setDriver(mock())
+                    .build()
+            }
+            .hasMessageThat()
+            .isEqualTo("Auto Closing Database is not supported when an SQLiteDriver is configured.")
+    }
+
+    @OptIn(ExperimentalRoomApi::class)
+    @Test
+    fun driverProvidedPrePackaged() {
+        assertThrows<IllegalArgumentException> {
+                inMemoryDatabaseBuilder(mock(), TestDatabase::class.java)
+                    .createFromAsset("asset.db")
+                    .setDriver(mock())
+                    .build()
+            }
+            .hasMessageThat()
+            .isEqualTo("Pre-Package Database is not supported when an SQLiteDriver is configured.")
+    }
+
+    @OptIn(ExperimentalRoomApi::class)
+    @Test
+    fun driverProvidedQueryCallback() {
+        assertThrows<IllegalArgumentException> {
+                inMemoryDatabaseBuilder(mock(), TestDatabase::class.java)
+                    .setQueryCallback(Dispatchers.IO) { _, _ -> }
+                    .setDriver(mock())
+                    .build()
+            }
+            .hasMessageThat()
+            .isEqualTo("Query Callback is not supported when an SQLiteDriver is configured.")
     }
 
     internal abstract class TestDatabase : RoomDatabase() {

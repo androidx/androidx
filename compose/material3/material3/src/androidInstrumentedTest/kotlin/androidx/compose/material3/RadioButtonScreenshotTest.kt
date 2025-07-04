@@ -172,7 +172,7 @@ class RadioButtonScreenshotTest {
                 RadioButton(
                     selected = false,
                     onClick = {},
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 )
             }
         }
@@ -196,7 +196,7 @@ class RadioButtonScreenshotTest {
                 RadioButton(
                     selected = false,
                     onClick = {},
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 )
             }
         }
@@ -256,7 +256,7 @@ class RadioButtonScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(
                     selected = isSelected.value,
-                    onClick = { isSelected.value = !isSelected.value }
+                    onClick = { isSelected.value = !isSelected.value },
                 )
             }
         }
@@ -290,7 +290,7 @@ class RadioButtonScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(
                     selected = isSelected.value,
-                    onClick = { isSelected.value = !isSelected.value }
+                    onClick = { isSelected.value = !isSelected.value },
                 )
             }
         }
@@ -324,7 +324,7 @@ class RadioButtonScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(
                     selected = isSelected.value,
-                    onClick = { isSelected.value = !isSelected.value }
+                    onClick = { isSelected.value = !isSelected.value },
                 )
             }
         }
@@ -358,7 +358,7 @@ class RadioButtonScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 RadioButton(
                     selected = isSelected.value,
-                    onClick = { isSelected.value = !isSelected.value }
+                    onClick = { isSelected.value = !isSelected.value },
                 )
             }
         }

@@ -110,7 +110,7 @@ class LayoutCoordinatesHelperTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
             Offset.Zero,
-            parentCoordinates!!.localPositionOf(childCoordinates!!, Offset.Zero)
+            parentCoordinates!!.localPositionOf(childCoordinates!!, Offset.Zero),
         )
     }
 
@@ -145,7 +145,7 @@ class LayoutCoordinatesHelperTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(
             Offset(5f, 0f),
-            parentCoordinates!!.localPositionOf(childCoordinates!!, Offset.Zero)
+            parentCoordinates!!.localPositionOf(childCoordinates!!, Offset.Zero),
         )
     }
 
@@ -267,7 +267,7 @@ class LayoutCoordinatesHelperTest {
 
     private fun Modifier.animatePlacement(
         targetOffset: MutableState<Offset>,
-        alignment: () -> Alignment
+        alignment: () -> Alignment,
     ): Modifier = composed {
         val scope = rememberCoroutineScope()
         var animatable by remember { mutableStateOf<Animatable<Offset, AnimationVector2D>?>(null) }
@@ -288,7 +288,7 @@ class LayoutCoordinatesHelperTest {
                     scope.launch {
                         anim.animateTo(
                             targetOffset.value,
-                            spring(stiffness = Spring.StiffnessMediumLow)
+                            spring(stiffness = Spring.StiffnessMediumLow),
                         )
                     }
                 }
@@ -315,7 +315,7 @@ class LayoutCoordinatesHelperTest {
             object : OnPlacedModifier, LayoutModifier {
                 override fun MeasureScope.measure(
                     measurable: Measurable,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     val p = measurable.measure(Constraints.fixed(50, 50))
                     return layout(50, 50) {
@@ -375,14 +375,14 @@ class LayoutCoordinatesHelperTest {
 
                 override fun localPositionOf(
                     sourceCoordinates: LayoutCoordinates,
-                    relativeToSource: Offset
+                    relativeToSource: Offset,
                 ): Offset {
                     TODO("Not yet implemented")
                 }
 
                 override fun localBoundingBoxOf(
                     sourceCoordinates: LayoutCoordinates,
-                    clipBounds: Boolean
+                    clipBounds: Boolean,
                 ): Rect {
                     TODO("Not yet implemented")
                 }

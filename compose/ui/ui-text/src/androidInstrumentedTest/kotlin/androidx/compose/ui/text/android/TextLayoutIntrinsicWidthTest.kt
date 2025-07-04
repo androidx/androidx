@@ -148,7 +148,7 @@ class TextLayoutIntrinsicWidthTest {
                 TextLayout(
                         charSequence = text,
                         width = intrinsics.maxIntrinsicWidth,
-                        textPaint = paint
+                        textPaint = paint,
                     )
                     .lineCount
             )

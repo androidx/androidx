@@ -51,7 +51,7 @@ class SleepyBenchmark {
         benchmarkRule.measureRepeated {
             theyDidTheMatrixMath()
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 Thread.sleep(10)
                 theyDidTheMatrixMath() // reheat the cache
             }

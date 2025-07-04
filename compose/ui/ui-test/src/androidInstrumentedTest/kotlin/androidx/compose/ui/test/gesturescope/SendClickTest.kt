@@ -68,7 +68,7 @@ class SendClickTest(private val config: TestConfig) {
 
     private class ClickRecorder(
         private val componentIndex: Int,
-        private val recordedClicks: MutableList<ClickData>
+        private val recordedClicks: MutableList<ClickData>,
     ) : PointerInputModifier {
         override val pointerInputFilter: PointerInputFilter = RecordingFilter { event ->
             event.changes.forEach {
@@ -132,7 +132,7 @@ class SendClickTest(private val config: TestConfig) {
                     width = squareSize,
                     height = squareSize,
                     color = colors[i],
-                    tag = "square$i"
+                    tag = "square$i",
                 )
             }
         }

@@ -44,7 +44,7 @@ class BasicTextLayoutTest {
             BasicText(
                 text = "a".repeat(2 shl 14),
                 style = TextStyle(fontSize = 48.sp),
-                onTextLayout = { textLayoutResult = it }
+                onTextLayout = { textLayoutResult = it },
             )
         }
         rule.waitForIdle()
@@ -60,7 +60,7 @@ class BasicTextLayoutTest {
             BasicText(
                 text = AnnotatedString("a".repeat(2 shl 14)),
                 style = TextStyle(fontSize = 48.sp),
-                onTextLayout = { textLayoutResult = it }
+                onTextLayout = { textLayoutResult = it },
             )
         }
         rule.waitForIdle()

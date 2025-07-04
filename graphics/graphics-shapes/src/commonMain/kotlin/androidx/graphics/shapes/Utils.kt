@@ -86,7 +86,7 @@ internal fun collinearIsh(
     bY: Float,
     cX: Float,
     cY: Float,
-    tolerance: Float = DistanceEpsilon
+    tolerance: Float = DistanceEpsilon,
 ): Boolean {
     // The dot product of a perpendicular angle is 0. By rotating one of the vectors,
     // we save the calculations to convert the dot product to degrees afterwards.
@@ -118,7 +118,7 @@ internal fun findMinimum(
     v0: Float,
     v1: Float,
     tolerance: Float = 1e-3f,
-    f: FindMinimumFunction
+    f: FindMinimumFunction,
 ): Float {
     var a = v0
     var b = v1

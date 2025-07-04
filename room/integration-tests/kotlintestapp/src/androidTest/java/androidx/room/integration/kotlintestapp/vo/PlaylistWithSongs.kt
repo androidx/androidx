@@ -25,7 +25,7 @@ data class PlaylistWithSongs(
         parentColumn = "mPlaylistId",
         entity = Song::class,
         entityColumn = "mSongId",
-        associateBy = Junction(PlaylistSongXRef::class)
+        associateBy = Junction(PlaylistSongXRef::class),
     )
-    var songs: List<Song>
+    var songs: List<Song>,
 )

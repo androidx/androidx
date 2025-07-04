@@ -23,8 +23,6 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 
 @Composable
-fun SquadSectionHeader(
-    uiModel: SectionHeaderUiModel,
-) {
+fun SquadSectionHeader(uiModel: SectionHeaderUiModel) {
     Surface(color = MaterialTheme.colors.background) { SectionHeader(uiModel = uiModel) }
 }

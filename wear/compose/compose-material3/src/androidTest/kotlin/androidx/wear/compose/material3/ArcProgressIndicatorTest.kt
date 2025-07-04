@@ -50,9 +50,7 @@ class ArcProgressIndicatorTest {
         var expectedColor = Color.Unspecified
 
         setContentWithTheme {
-            ArcProgressIndicator(
-                modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-            )
+            ArcProgressIndicator(modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG))
             expectedColor = MaterialTheme.colorScheme.primary
         }
 
@@ -70,7 +68,7 @@ class ArcProgressIndicatorTest {
         setContentWithTheme {
             ArcProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                colors = ProgressIndicatorDefaults.colors(indicatorColor = customColor)
+                colors = ProgressIndicatorDefaults.colors(indicatorColor = customColor),
             )
         }
 
@@ -86,9 +84,7 @@ class ArcProgressIndicatorTest {
         var expectedColor = Color.Unspecified
 
         setContentWithTheme {
-            ArcProgressIndicator(
-                modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-            )
+            ArcProgressIndicator(modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG))
             expectedColor = MaterialTheme.colorScheme.surfaceContainer
         }
 
@@ -106,7 +102,7 @@ class ArcProgressIndicatorTest {
         setContentWithTheme {
             ArcProgressIndicator(
                 modifier = Modifier.size(COMPONENT_SIZE).testTag(TEST_TAG),
-                colors = ProgressIndicatorDefaults.colors(trackColor = customColor)
+                colors = ProgressIndicatorDefaults.colors(trackColor = customColor),
             )
         }
 

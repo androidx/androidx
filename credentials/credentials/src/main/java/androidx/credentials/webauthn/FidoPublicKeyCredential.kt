@@ -23,7 +23,7 @@ import org.json.JSONObject
 class FidoPublicKeyCredential(
     val rawId: ByteArray,
     val response: AuthenticatorResponse,
-    val authenticatorAttachment: String
+    val authenticatorAttachment: String,
 ) {
 
     fun json(): String {

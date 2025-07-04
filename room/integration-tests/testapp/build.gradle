@@ -55,9 +55,6 @@ android {
                 }
             }
         }
-        withPreKmpCompiler {
-            dimension "processorConfiguration"
-        }
     }
     compileOptions {
         // For testing Java records
@@ -69,6 +66,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.jspecify)
     coreLibraryDesugaring(libs.desugarJdkLibs)
     implementation(project(":room:room-common"))
     implementation(project(":room:room-runtime"))
@@ -77,8 +75,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata:2.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
 
-    // Workaround for b/191286558.
-    implementation(project(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
 
     // libs.findbugs dependency resolves an app/testapp version conflict.
     implementation(libs.findbugs)
@@ -88,12 +85,9 @@ dependencies {
     // Annotation processor / compiler dependencies:
     withoutExpandProjectionAnnotationProcessor(project(":room:room-compiler"))
     withNullAwareTypeConverterAnnotationProcessor(project(":room:room-compiler"))
-    withPreKmpCompilerAnnotationProcessor("androidx.room:room-compiler:2.6.1")
     androidTestWithoutExpandProjectionAnnotationProcessor(project(":room:room-compiler"))
     androidTestWithNullAwareTypeConverterAnnotationProcessor(project(":room:room-compiler"))
-    androidTestWithPreKmpCompilerAnnotationProcessor("androidx.room:room-compiler:2.6.1")
 
-    androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
     androidTestImplementation("androidx.arch.core:core-common:2.2.0")
     androidTestImplementation(project(":room:room-testing"))
@@ -134,9 +128,4 @@ room {
 // See b/198431380
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters"
-}
-
-androidx {
-    // TODO: b/326456246
-    optOutJSpecify = true
 }

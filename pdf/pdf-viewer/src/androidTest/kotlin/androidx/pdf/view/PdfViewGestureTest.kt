@@ -17,7 +17,6 @@
 package androidx.pdf.view
 
 import android.graphics.Point
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.test.core.app.ActivityScenario
@@ -27,6 +26,7 @@ import androidx.test.espresso.action.CoordinatesProvider
 import androidx.test.espresso.action.GeneralLocation
 import androidx.test.espresso.action.GeneralSwipeAction
 import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -53,8 +53,8 @@ class PdfViewGestureTest {
                 },
                 ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                ),
             )
             activity.setContentView(container)
         }
@@ -71,26 +71,29 @@ class PdfViewGestureTest {
         var scrollAfter = Point(Int.MIN_VALUE, Int.MIN_VALUE)
         var swipeStart = FloatArray(2) { Float.MIN_VALUE }
         var swipeEnd = FloatArray(2) { Float.MAX_VALUE }
-        var gestureEnded = false
-        var continuedScrollingAfterGesture = false
+        var gestureStateCounter = 1
+        val gestureStates = IntArray(4)
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
-            val onScrollListener =
-                View.OnScrollChangeListener { _, _, _, _, _ ->
-                    continuedScrollingAfterGesture = gestureEnded
+            val userGestureListener =
+                object : PdfView.OnGestureStateChangedListener {
+                    override fun onGestureStateChanged(newState: Int) {
+                        gestureStates[gestureStateCounter] = newState
+                        gestureStateCounter++
+                    }
                 }
             val startLoc = GeneralLocation.CENTER
             val endLoc = GeneralLocation.TOP_CENTER
             Espresso.onView(withId(PDF_VIEW_ID))
                 .check { view, noViewFoundException ->
                     view ?: throw noViewFoundException
-                    view.setOnScrollChangeListener(onScrollListener)
+                    gestureStates[0] = (view as PdfView).gestureState
+                    view.addOnGestureStateChangedListener(userGestureListener)
                     scrollBefore = Point(view.scrollX, view.scrollY)
                     swipeStart = startLoc.calculateCoordinates(view)
                     swipeEnd = endLoc.calculateCoordinates(view)
                 }
                 .perform(scroll(startLoc, endLoc))
                 .check { view, noViewFoundException ->
-                    gestureEnded = true
                     view ?: throw noViewFoundException
                     scrollAfter = Point(view.scrollX, view.scrollY)
                 }
@@ -105,8 +108,12 @@ class PdfViewGestureTest {
         // Empirically there is typically a single digit pixel difference between the two values
         assertThat(abs(distanceScrolled.toFloat() - distanceSwiped))
             .isLessThan(0.02F * distanceSwiped)
-        // Scrolling should stop when the scrolling gesture ends
-        assertThat(continuedScrollingAfterGesture).isFalse()
+        // Before interaction = idle
+        assertThat(gestureStates[0]).isEqualTo(PdfView.GESTURE_STATE_IDLE)
+        // During interaction = interacting
+        assertThat(gestureStates[1]).isEqualTo(PdfView.GESTURE_STATE_INTERACTING)
+        // After interaction = idle, because this was an unanimated / "normal" scroll
+        assertThat(gestureStates[2]).isEqualTo(PdfView.GESTURE_STATE_IDLE)
     }
 
     @Test
@@ -115,26 +122,29 @@ class PdfViewGestureTest {
         var scrollAfter = Point(Int.MIN_VALUE, Int.MIN_VALUE)
         var swipeStart = FloatArray(2) { Float.MIN_VALUE }
         var swipeEnd = FloatArray(2) { Float.MAX_VALUE }
-        var gestureEnded = false
-        var continuedScrollingAfterGesture = false
+        var gestureStateCounter = 1
+        val gestureStates = IntArray(4)
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
-            val onScrollListener =
-                View.OnScrollChangeListener { _, _, _, _, _ ->
-                    continuedScrollingAfterGesture = gestureEnded
+            val userGestureListener =
+                object : PdfView.OnGestureStateChangedListener {
+                    override fun onGestureStateChanged(newState: Int) {
+                        gestureStates[gestureStateCounter] = newState
+                        gestureStateCounter++
+                    }
                 }
             val startLoc = GeneralLocation.CENTER
             val endLoc = GeneralLocation.TOP_CENTER
             Espresso.onView(withId(PDF_VIEW_ID))
                 .check { view, noViewFoundException ->
                     view ?: throw noViewFoundException
-                    view.setOnScrollChangeListener(onScrollListener)
+                    gestureStates[0] = (view as PdfView).gestureState
+                    view.addOnGestureStateChangedListener(userGestureListener)
                     scrollBefore = Point(view.scrollX, view.scrollY)
                     swipeStart = startLoc.calculateCoordinates(view)
                     swipeEnd = endLoc.calculateCoordinates(view)
                 }
                 .perform(fling(startLoc, endLoc))
                 .check { view, noViewFoundException ->
-                    gestureEnded = true
                     view ?: throw noViewFoundException
                     scrollAfter = Point(view.scrollX, view.scrollY)
                 }
@@ -148,11 +158,52 @@ class PdfViewGestureTest {
         // Distance flung should be >> distance swiped, but the exact relationship is dictated by
         // Overscroller, an external class. We only *require* the difference to be > 10%
         assertThat(distanceFlung).isGreaterThan((distanceSwiped * 1.1F).roundToInt())
-        // Scrolling should continue after the fling gesture ends
-        assertThat(continuedScrollingAfterGesture).isTrue()
+        // Before interaction = idle
+        assertThat(gestureStates[0]).isEqualTo(PdfView.GESTURE_STATE_IDLE)
+        // During interaction = interacting
+        assertThat(gestureStates[1]).isEqualTo(PdfView.GESTURE_STATE_INTERACTING)
+        // After interaction = settling, because fling triggers animated scroll
+        assertThat(gestureStates[2]).isEqualTo(PdfView.GESTURE_STATE_SETTLING)
     }
 
-    @Test fun testZoomGesture() {}
+    @Test
+    fun testDoubleTapToZoomGesture() {
+        var zoomBefore = Float.MIN_VALUE
+        var zoomAfter = Float.MIN_VALUE
+        var gestureStateCounter = 1
+        val gestureStates = IntArray(4)
+        with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
+            val userGestureListener =
+                object : PdfView.OnGestureStateChangedListener {
+                    override fun onGestureStateChanged(newState: Int) {
+                        gestureStates[gestureStateCounter] = newState
+                        gestureStateCounter++
+                    }
+                }
+            Espresso.onView(withId(PDF_VIEW_ID))
+                .check { view, noViewFoundException ->
+                    view ?: throw noViewFoundException
+                    gestureStates[0] = (view as PdfView).gestureState
+                    view.addOnGestureStateChangedListener(userGestureListener)
+                    zoomBefore = view.zoom
+                }
+                .perform(ViewActions.doubleClick())
+                .check { view, noViewFoundException ->
+                    view ?: throw noViewFoundException
+                    zoomAfter = (view as PdfView).zoom
+                }
+            close()
+        }
+
+        // Double tap = zoom in
+        assertThat(zoomAfter).isGreaterThan(zoomBefore)
+        // Before interaction = idle
+        assertThat(gestureStates[0]).isEqualTo(PdfView.GESTURE_STATE_IDLE)
+        // During interaction = interacting
+        assertThat(gestureStates[1]).isEqualTo(PdfView.GESTURE_STATE_INTERACTING)
+        // After interaction = settling, because double tap triggers an animated zoom in
+        assertThat(gestureStates[2]).isEqualTo(PdfView.GESTURE_STATE_SETTLING)
+    }
 }
 
 private fun scroll(from: CoordinatesProvider, to: CoordinatesProvider): ViewAction {

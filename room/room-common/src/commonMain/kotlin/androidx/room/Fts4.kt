@@ -172,5 +172,5 @@ public annotation class Fts4(
      *
      * @return The preferred order, either [Order.ASC] or [Order.DESC].
      */
-    val order: FtsOptions.Order = FtsOptions.Order.ASC
+    val order: FtsOptions.Order = FtsOptions.Order.ASC,
 )

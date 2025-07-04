@@ -49,7 +49,7 @@ internal class MaskedDrawable(private val drawable: Drawable, private val maskDi
         drawable.colorFilter = colorFilter
     }
 
-    @Suppress("DEPRECATION") override fun getOpacity() = drawable.opacity
+    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION") override fun getOpacity() = drawable.opacity
 
     override fun onBoundsChange(bounds: Rect) {
         super.onBoundsChange(bounds)

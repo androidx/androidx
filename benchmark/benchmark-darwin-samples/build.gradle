@@ -24,7 +24,7 @@ androidXMultiplatform {
             baseName = "AndroidXDarwinBenchmarks"
             // https://youtrack.jetbrains.com/issue/KT-48552
             embedBitcode = BitcodeEmbeddingMode.DISABLE
-            export(project(":benchmark:benchmark-darwin"))
+            export(project.project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
     }
@@ -58,9 +58,8 @@ androidXMultiplatform {
 }
 
 darwinBenchmark {
-    xcodeGenConfigFile = project.rootProject.file(
-            "benchmark/benchmark-darwin-xcode/projects/benchmark-darwin-samples-xcode.yml"
-    )
+    xcodeGenConfigFile = new File(rootDir,
+            "benchmark/benchmark-darwin-xcode/projects/benchmark-darwin-samples-xcode.yml")
     xcodeProjectName = "benchmark-darwin-samples-xcode"
     scheme = "testapp-ios"
     // To run locally switch to iOS 17.0 simulators

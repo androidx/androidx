@@ -98,7 +98,7 @@ class JvmDescriptorUtilsTest {
                         "field1:I",
                         "field2:Ljava/lang/String;",
                         "field3:Ljava/lang/Object;",
-                        "field4:Ljava/util/List;"
+                        "field4:Ljava/util/List;",
                     )
                 )
         }
@@ -157,7 +157,7 @@ class JvmDescriptorUtilsTest {
                         "method6(Ljava/lang/Object;)Ljava/lang/Object;",
                         "method7(Ljava/lang/Object;)Ljava/lang/String;",
                         "method8()Ljava/util/Collection;",
-                        "method9()Ljava/lang/String;"
+                        "method9()Ljava/lang/String;",
                     )
                 )
         }
@@ -222,7 +222,7 @@ class JvmDescriptorUtilsTest {
                         "method1(Ljava/lang/Object;)V",
                         "method2()Ljava/lang/Object;",
                         "method3(Ljava/util/ArrayList;)Ljava/util/List;",
-                        "method4()Ljava/util/Map;"
+                        "method4()Ljava/util/Map;",
                     )
                 )
         }
@@ -251,13 +251,13 @@ class JvmDescriptorUtilsTest {
             }
             """
                 .toJFO("androidx.room.test.DummyClass"),
-            extraJfo
+            extraJfo,
         ) { descriptors ->
             assertThat(descriptors)
                 .isEqualTo(
                     setOf(
                         "method1(Landroidx/room/test/DataClass;)V",
-                        "method2()Landroidx/room/test/DataClass;"
+                        "method2()Landroidx/room/test/DataClass;",
                     )
                 )
         }
@@ -301,7 +301,7 @@ class JvmDescriptorUtilsTest {
             }
             """
                 .toJFO("androidx.room.test.DummyClass"),
-            extraJfo
+            extraJfo,
         ) { descriptors ->
             assertThat(descriptors)
                 .isEqualTo(
@@ -309,7 +309,7 @@ class JvmDescriptorUtilsTest {
                         "method1(Landroidx/room/test/DataClass\$MemberInnerData;)V",
                         "method2(Landroidx/room/test/DataClass\$StaticInnerData;)V",
                         "method3(Landroidx/room/test/DataClass\$EnumData;)V",
-                        "method4()Landroidx/room/test/DataClass\$StaticInnerData;"
+                        "method4()Landroidx/room/test/DataClass\$StaticInnerData;",
                     )
                 )
         }
@@ -344,7 +344,7 @@ class JvmDescriptorUtilsTest {
             }
             """
                 .toJFO("androidx.room.test.DummyClass"),
-            extraJfo
+            extraJfo,
         ) { descriptors ->
             assertThat(descriptors)
                 .isEqualTo(
@@ -352,7 +352,7 @@ class JvmDescriptorUtilsTest {
                         "method1([Landroidx/room/test/DataClass;)V",
                         "method2()[Landroidx/room/test/DataClass;",
                         "method3([I)V",
-                        "method4([I)V"
+                        "method4([I)V",
                     )
                 )
         }
@@ -399,7 +399,7 @@ class JvmDescriptorUtilsTest {
             }
             """
                 .toJFO("androidx.room.test.Foo"),
-            extraJfo
+            extraJfo,
         ) {
             assertThat(
                     it.map {
@@ -431,7 +431,7 @@ class JvmDescriptorUtilsTest {
                 object : AbstractProcessor() {
                     override fun process(
                         annotations: Set<TypeElement>,
-                        roundEnv: RoundEnvironment
+                        roundEnv: RoundEnvironment,
                     ): Boolean {
                         if (annotations.isNotEmpty()) {
                             roundEnv

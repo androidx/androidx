@@ -64,7 +64,7 @@ class AlertDialogScreenshotTest {
             scrollToBottom = false,
             screenSize = screenSize,
             titleText = "Network error",
-            messageText = null
+            messageText = null,
         )
 
     @Test
@@ -78,7 +78,7 @@ class AlertDialogScreenshotTest {
             scrollToBottom = false,
             screenSize = screenSize,
             titleText = "Network error",
-            messageText = null
+            messageText = null,
         )
 
     @Test
@@ -92,7 +92,7 @@ class AlertDialogScreenshotTest {
             scrollToBottom = false,
             screenSize = screenSize,
             titleText = "Network error",
-            messageText = null
+            messageText = null,
         )
 
     @Test
@@ -106,7 +106,7 @@ class AlertDialogScreenshotTest {
             scrollToBottom = false,
             screenSize = screenSize,
             titleText = "Network error",
-            messageText = null
+            messageText = null,
         )
 
     @Test
@@ -132,7 +132,7 @@ class AlertDialogScreenshotTest {
             showTwoButtons = true,
             scrollToBottom = false,
             screenSize = screenSize,
-            messageText = null
+            messageText = null,
         )
 
     @Test
@@ -145,7 +145,7 @@ class AlertDialogScreenshotTest {
             showTwoButtons = false,
             scrollToBottom = false,
             screenSize = screenSize,
-            messageText = null
+            messageText = null,
         )
     }
 
@@ -159,7 +159,7 @@ class AlertDialogScreenshotTest {
             showTwoButtons = true,
             scrollToBottom = false,
             screenSize = screenSize,
-            messageText = null
+            messageText = null,
         )
     }
 
@@ -172,7 +172,7 @@ class AlertDialogScreenshotTest {
             showContent = false,
             showTwoButtons = false,
             scrollToBottom = false,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -187,7 +187,7 @@ class AlertDialogScreenshotTest {
             showContent = true,
             showTwoButtons = false,
             scrollToBottom = false,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -202,7 +202,7 @@ class AlertDialogScreenshotTest {
             showContent = true,
             showTwoButtons = false,
             scrollToBottom = true,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -217,7 +217,7 @@ class AlertDialogScreenshotTest {
             showContent = true,
             showTwoButtons = false,
             scrollToBottom = true,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -232,7 +232,7 @@ class AlertDialogScreenshotTest {
             showContent = true,
             showTwoButtons = true,
             scrollToBottom = true,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -247,7 +247,7 @@ class AlertDialogScreenshotTest {
             showContent = true,
             showTwoButtons = true,
             scrollToBottom = true,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -261,7 +261,7 @@ class AlertDialogScreenshotTest {
             showTwoButtons = false,
             scrollToBottom = false,
             screenSize = screenSize,
-            messageText = longMessageText
+            messageText = longMessageText,
         )
     }
 
@@ -277,7 +277,7 @@ class AlertDialogScreenshotTest {
             showTwoButtons = true,
             scrollToBottom = false,
             screenSize = screenSize,
-            messageText = longMessageText
+            messageText = longMessageText,
         )
     }
 
@@ -290,7 +290,7 @@ class AlertDialogScreenshotTest {
         scrollToBottom: Boolean,
         screenSize: ScreenSize,
         messageText: String? = MessageText,
-        titleText: String = TitleText
+        titleText: String = TitleText,
     ) {
         setContentWithTheme {
             ScreenConfiguration(screenSize.size, isRound = true) {
@@ -309,7 +309,7 @@ class AlertDialogScreenshotTest {
                     content =
                         if (showContent) {
                             { dialogContent() }
-                        } else null
+                        } else null,
                 )
             }
         }
@@ -330,7 +330,7 @@ class AlertDialogScreenshotTest {
         scrollToBottom: Boolean,
         screenSize: ScreenSize,
         messageText: String? = MessageText,
-        titleText: String = TitleText
+        titleText: String = TitleText,
     ) {
         setContentWithTheme {
             ScreenConfiguration(screenSize.size, isRound = true) {
@@ -349,7 +349,7 @@ class AlertDialogScreenshotTest {
                     content =
                         if (showContent) {
                             { dialogContent() }
-                        } else null
+                        } else null,
                 )
             }
         }
@@ -368,7 +368,7 @@ class AlertDialogScreenshotTest {
         icon: @Composable (() -> Unit)?,
         text: @Composable (() -> Unit)?,
         showTwoButtons: Boolean,
-        content: (ScalingLazyListScope.() -> Unit)?
+        content: (ScalingLazyListScope.() -> Unit)?,
     ) {
         if (showTwoButtons) {
             AlertDialog(
@@ -380,7 +380,7 @@ class AlertDialogScreenshotTest {
                 text = text,
                 confirmButton = { AlertDialogDefaults.ConfirmButton({}) },
                 dismissButton = { AlertDialogDefaults.DismissButton({}) },
-                content = content
+                content = content,
             )
         } else {
             AlertDialog(
@@ -391,7 +391,7 @@ class AlertDialogScreenshotTest {
                 icon = icon,
                 text = text,
                 edgeButton = { AlertDialogDefaults.EdgeButton({}) },
-                content = content
+                content = content,
             )
         }
     }
@@ -403,7 +403,7 @@ class AlertDialogScreenshotTest {
         icon: @Composable (() -> Unit)?,
         text: @Composable (() -> Unit)?,
         showTwoButtons: Boolean,
-        content: (ScalingLazyListScope.() -> Unit)?
+        content: (ScalingLazyListScope.() -> Unit)?,
     ) {
         if (showTwoButtons) {
             AlertDialogContent(
@@ -413,7 +413,7 @@ class AlertDialogScreenshotTest {
                 text = text,
                 confirmButton = { AlertDialogDefaults.ConfirmButton({}) },
                 dismissButton = { AlertDialogDefaults.DismissButton({}) },
-                content = content
+                content = content,
             )
         } else {
             AlertDialogContent(
@@ -422,7 +422,7 @@ class AlertDialogScreenshotTest {
                 icon = icon,
                 text = text,
                 edgeButton = { AlertDialogDefaults.EdgeButton({}) },
-                content = content
+                content = content,
             )
         }
     }

@@ -34,7 +34,7 @@ class AlwaysTransition(private val keyPrefix: String) : Transition() {
     override fun createAnimator(
         sceneRoot: ViewGroup,
         startValues: TransitionValues?,
-        endValues: TransitionValues?
+        endValues: TransitionValues?,
     ): Animator = ValueAnimator.ofFloat(0f, 100f)
 
     companion object {

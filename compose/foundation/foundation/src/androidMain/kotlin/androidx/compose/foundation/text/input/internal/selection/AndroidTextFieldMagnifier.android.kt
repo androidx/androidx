@@ -46,7 +46,7 @@ internal class TextFieldMagnifierNodeImpl28(
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
     private var textLayoutState: TextLayoutState,
-    private var visible: Boolean
+    private var visible: Boolean,
 ) : TextFieldMagnifierNode(), CompositionLocalConsumerModifierNode {
 
     private var magnifierSize: IntSize by mutableStateOf(IntSize.Zero)
@@ -59,10 +59,10 @@ internal class TextFieldMagnifierNodeImpl28(
                     textFieldState = textFieldState,
                     selectionState = textFieldSelectionState,
                     textLayoutState = textLayoutState,
-                    magnifierSize = magnifierSize
+                    magnifierSize = magnifierSize,
                 ),
             typeConverter = UnspecifiedSafeOffsetVectorConverter,
-            visibilityThreshold = OffsetDisplacementThreshold
+            visibilityThreshold = OffsetDisplacementThreshold,
         )
 
     private val magnifierNode =
@@ -75,7 +75,7 @@ internal class TextFieldMagnifierNodeImpl28(
                             IntSize(size.width.roundToPx(), size.height.roundToPx())
                         }
                 },
-                useTextDefault = true
+                useTextDefault = true,
             )
         )
 
@@ -89,7 +89,7 @@ internal class TextFieldMagnifierNodeImpl28(
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
-        visible: Boolean
+        visible: Boolean,
     ) {
         val previousTextFieldState = this.textFieldState
         val previousSelectionState = this.textFieldSelectionState
@@ -138,7 +138,7 @@ internal class TextFieldMagnifierNodeImpl28(
                             textFieldState,
                             textFieldSelectionState,
                             textLayoutState,
-                            magnifierSize
+                            magnifierSize,
                         )
                     }
                     .collect { targetValue ->
@@ -192,14 +192,14 @@ internal actual fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    visible: Boolean
+    visible: Boolean,
 ): TextFieldMagnifierNode {
     return if (isPlatformMagnifierSupported()) {
         TextFieldMagnifierNodeImpl28(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            visible = visible
+            visible = visible,
         )
     } else {
         object : TextFieldMagnifierNode() {
@@ -207,7 +207,7 @@ internal actual fun textFieldMagnifierNode(
                 textFieldState: TransformedTextFieldState,
                 textFieldSelectionState: TextFieldSelectionState,
                 textLayoutState: TextLayoutState,
-                visible: Boolean
+                visible: Boolean,
             ) {}
         }
     }

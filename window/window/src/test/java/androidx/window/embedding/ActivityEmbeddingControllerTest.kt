@@ -100,7 +100,7 @@ class ActivityEmbeddingControllerTest {
                 EmbeddedActivityWindowInfo(
                     isEmbedded = true,
                     parentHostBounds = Rect(0, 0, 1000, 2000),
-                    boundsInParentHost = Rect(0, 0, 500, 2000)
+                    boundsInParentHost = Rect(0, 0, 500, 2000),
                 )
             doAnswer { invocationOnMock ->
                     @Suppress("UNCHECKED_CAST")

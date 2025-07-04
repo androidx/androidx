@@ -84,13 +84,13 @@ class WindowSizeClassTest {
             WindowWidthSizeClass.Compact,
             700.dp,
             supportedSizeClasses =
-                setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Expanded)
+                setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Expanded),
         )
 
         assertWidthClass(
             WindowWidthSizeClass.Medium,
             1000.dp,
-            supportedSizeClasses = setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium)
+            supportedSizeClasses = setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium),
         )
     }
 
@@ -100,14 +100,14 @@ class WindowSizeClassTest {
             WindowHeightSizeClass.Compact,
             700.dp,
             supportedSizeClasses =
-                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Expanded)
+                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Expanded),
         )
 
         assertHeightClass(
             WindowHeightSizeClass.Medium,
             1000.dp,
             supportedSizeClasses =
-                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Medium)
+                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Medium),
         )
     }
 
@@ -116,7 +116,7 @@ class WindowSizeClassTest {
         assertWidthClass(
             WindowWidthSizeClass.Medium,
             200.dp,
-            supportedSizeClasses = setOf(WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded)
+            supportedSizeClasses = setOf(WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded),
         )
     }
 
@@ -126,7 +126,7 @@ class WindowSizeClassTest {
             WindowHeightSizeClass.Medium,
             200.dp,
             supportedSizeClasses =
-                setOf(WindowHeightSizeClass.Medium, WindowHeightSizeClass.Expanded)
+                setOf(WindowHeightSizeClass.Medium, WindowHeightSizeClass.Expanded),
         )
     }
 
@@ -258,7 +258,7 @@ class WindowSizeClassTest {
     private fun assertWidthClass(
         expectedSizeClass: WindowWidthSizeClass,
         width: Dp,
-        supportedSizeClasses: Set<WindowWidthSizeClass> = WindowWidthSizeClass.DefaultSizeClasses
+        supportedSizeClasses: Set<WindowWidthSizeClass> = WindowWidthSizeClass.DefaultSizeClasses,
     ) {
         assertThat(WindowWidthSizeClass.fromWidth(width, supportedSizeClasses))
             .isEqualTo(expectedSizeClass)
@@ -267,7 +267,7 @@ class WindowSizeClassTest {
     private fun assertHeightClass(
         expectedSizeClass: WindowHeightSizeClass,
         height: Dp,
-        supportedSizeClasses: Set<WindowHeightSizeClass> = WindowHeightSizeClass.DefaultSizeClasses
+        supportedSizeClasses: Set<WindowHeightSizeClass> = WindowHeightSizeClass.DefaultSizeClasses,
     ) {
         assertThat(WindowHeightSizeClass.fromHeight(height, supportedSizeClasses))
             .isEqualTo(expectedSizeClass)

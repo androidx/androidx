@@ -63,11 +63,11 @@ internal fun TranslationBoxDemo(animatedFloat: Float) {
                     topLeft =
                         Offset(
                             this.size.width / 2f - sizePx / 2f,
-                            animatedFloat * (this.size.height - sizePx - strokeThickness)
+                            animatedFloat * (this.size.height - sizePx - strokeThickness),
                         ),
-                    size = size
+                    size = size,
                 )
-            }
+            },
         )
     }
 }
@@ -91,11 +91,11 @@ internal fun Rect(modifier: Modifier = Modifier, color: Color = androidGreen) {
                     topLeft =
                         Offset(
                             this.size.width / 2f - sizePx / 2f,
-                            this.size.height / 2f - sizePx / 2f
+                            this.size.height / 2f - sizePx / 2f,
                         ),
-                    size = size
+                    size = size,
                 )
-            }
+            },
         )
     }
 }

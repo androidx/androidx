@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+AddedField: androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo#INSTANCE:
+    Added field androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo.INSTANCE
+
+
+RemovedClass: androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo.Companion:
+    Removed class androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo.Companion
+
+
+RemovedField: androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo#Companion:
+    Removed field androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo.Companion

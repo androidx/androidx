@@ -29,38 +29,33 @@ import android.widget.GridLayout
 import android.widget.TextView
 import androidx.core.graphics.withMatrix
 import androidx.core.graphics.withTranslation
-import androidx.ink.brush.ExperimentalInkCustomBrushApi
+import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.geometry.ImmutableAffineTransform
 import androidx.ink.geometry.ImmutableBox
 import androidx.ink.geometry.ImmutableVec
-import androidx.ink.rendering.android.TextureBitmapStore
 import androidx.ink.rendering.test.R
 import androidx.ink.strokes.InProgressStroke
 
 /** An [Activity] to support [CanvasStrokeRendererTest]. */
-@OptIn(ExperimentalInkCustomBrushApi::class)
 class CanvasStrokeRendererTestActivity : Activity() {
-    @OptIn(ExperimentalInkCustomBrushApi::class)
-    private val textureStore = TextureBitmapStore { uri ->
-        when (uri) {
-            TEXTURE_URI_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
-            TEXTURE_URI_CHECKERBOARD -> R.drawable.checkerboard_black_and_transparent
-            TEXTURE_URI_CIRCLE -> R.drawable.circle
-            TEXTURE_URI_POOP_EMOJI -> R.drawable.poop_emoji
+    private val textureStore = TextureBitmapStore { id ->
+        when (id) {
+            TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
+            TEXTURE_ID_CHECKERBOARD -> R.drawable.checkerboard_black_and_transparent
+            TEXTURE_ID_CIRCLE -> R.drawable.circle
+            TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
             else -> null
         }?.let { BitmapFactory.decodeResource(resources, it) }
     }
     private val meshRenderer =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            @OptIn(ExperimentalInkCustomBrushApi::class) CanvasStrokeRenderer.create(textureStore)
+            CanvasStrokeRenderer.create(textureStore)
         } else {
             null
         }
-    private val pathRenderer =
-        @OptIn(ExperimentalInkCustomBrushApi::class)
-        CanvasStrokeRenderer.create(textureStore, forcePathRendering = true)
+    private val pathRenderer = CanvasStrokeRenderer.create(forcePathRendering = true, textureStore)
     private val defaultRenderer = CanvasStrokeRenderer.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +71,7 @@ class CanvasStrokeRendererTestActivity : Activity() {
             grid.addView(
                 TextView(this).apply {
                     text = label
-                    setTextSize(10.0F)
+                    textSize = 10.0F
                 },
                 gridLayoutParams(row, col = 0, Gravity.CENTER_VERTICAL),
             )
@@ -170,9 +165,9 @@ class CanvasStrokeRendererTestActivity : Activity() {
     }
 
     companion object {
-        const val TEXTURE_URI_AIRPLANE_EMOJI = "ink://ink/texture:airplane-emoji"
-        const val TEXTURE_URI_CHECKERBOARD = "ink://ink/texture:checkerboard-overlay-pen"
-        const val TEXTURE_URI_CIRCLE = "ink://ink/texture:circle"
-        const val TEXTURE_URI_POOP_EMOJI = "ink://ink/texture:poop-emoji"
+        const val TEXTURE_ID_AIRPLANE_EMOJI = "airplane-emoji"
+        const val TEXTURE_ID_CHECKERBOARD = "checkerboard-overlay-pen"
+        const val TEXTURE_ID_CIRCLE = "circle"
+        const val TEXTURE_ID_POOP_EMOJI = "poop-emoji"
     }
 }

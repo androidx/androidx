@@ -22,6 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -168,32 +169,33 @@ class SnapshotStateSetTests {
         }
     }
 
-    @Test(timeout = 30_000)
+    @Test
     @IgnoreJsTarget // Not relevant in a single threaded environment
-    fun concurrentMixingWriteApply_add(): Unit = runTest {
-        repeat(10) {
-            val sets = Array(100) { mutableStateSetOf<Int>() }.toList()
-            val channel = Channel<Unit>(Channel.CONFLATED)
-            coroutineScope {
-                // Launch mutator
-                launch(Dispatchers.Default) {
-                    repeat(100) { index ->
-                        sets.fastForEach { set -> set.add(index) }
+    fun concurrentMixingWriteApply_add() =
+        runTest(timeout = 30.seconds) {
+            repeat(10) {
+                val sets = Array(100) { mutableStateSetOf<Int>() }.toList()
+                val channel = Channel<Unit>(Channel.CONFLATED)
+                coroutineScope {
+                    // Launch mutator
+                    launch(Dispatchers.Default) {
+                        repeat(100) { index ->
+                            sets.fastForEach { set -> set.add(index) }
 
-                        // Simulate the write observer
-                        channel.trySend(Unit)
+                            // Simulate the write observer
+                            channel.trySend(Unit)
+                        }
+                        channel.close()
                     }
-                    channel.close()
-                }
 
-                // Simulate the global snapshot manager
-                launch(Dispatchers.Default) {
-                    channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    // Simulate the global snapshot manager
+                    launch(Dispatchers.Default) {
+                        channel.consumeEach { Snapshot.notifyObjectsInitialized() }
+                    }
                 }
             }
+            // Should only get here if the above doesn't deadlock.
         }
-        // Should only get here if the above doesn't deadlock.
-    }
 
     @Test
     fun testWritingANewValueDoesObserveChange() {

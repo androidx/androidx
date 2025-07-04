@@ -59,7 +59,7 @@ abstract class VersionFileWriterTask : DefaultTask() {
  */
 fun Project.configureVersionFileWriter(
     libraryAndroidComponentsExtension: LibraryAndroidComponentsExtension,
-    androidXExtension: AndroidXExtension
+    androidXExtension: AndroidXExtension,
 ) {
     val writeVersionFile =
         tasks.register(VersionFileWriterTask.TASK_NAME, VersionFileWriterTask::class.java)
@@ -68,14 +68,14 @@ fun Project.configureVersionFileWriter(
     libraryAndroidComponentsExtension.onVariants {
         it.sources.resources!!.addGeneratedSourceDirectory(
             writeVersionFile,
-            VersionFileWriterTask::outputDir
+            VersionFileWriterTask::outputDir,
         )
     }
 }
 
 fun Project.configureVersionFileWriter(
     kmpExtension: KotlinMultiplatformExtension,
-    androidXExtension: AndroidXExtension
+    androidXExtension: AndroidXExtension,
 ) {
     val writeVersionFile =
         tasks.register(VersionFileWriterTask.TASK_NAME, VersionFileWriterTask::class.java)
@@ -95,7 +95,7 @@ fun Project.configureVersionFileWriter(
 
 private fun Project.configureVersionFile(
     writeVersionFile: TaskProvider<VersionFileWriterTask>,
-    androidXExtension: AndroidXExtension
+    androidXExtension: AndroidXExtension,
 ) {
     writeVersionFile.configure {
         val group = project.getGroup() as String

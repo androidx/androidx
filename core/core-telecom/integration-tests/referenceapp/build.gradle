@@ -1,0 +1,68 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("kotlin-android")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace = "androidx.core.telecom.reference"
+
+    defaultConfig {
+        applicationId = "androidx.core.telecom.reference"
+        minSdk = 26
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+}
+
+dependencies {
+    // This is the target test package
+    implementation(project(":core:core-telecom"))
+    // Kotlin essentials
+    implementation(libs.kotlinStdlib)
+    // -- @Serialize
+    implementation(libs.kotlinSerializationCore)
+    // Compose
+    implementation("androidx.activity:activity-compose:1.9.1")
+    // Themes and Dynamic coloring
+    implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    // Icons
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
+    // @Preview
+    implementation("androidx.compose.ui:ui-tooling-preview:1.6.8")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.8")
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    // collectAsStateWithLifecycle
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-service:2.8.7")
+    // test
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+}
+

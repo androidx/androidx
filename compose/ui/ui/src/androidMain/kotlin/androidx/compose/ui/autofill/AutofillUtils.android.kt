@@ -22,7 +22,6 @@ import android.view.autofill.AutofillId
 import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
-import androidx.collection.MutableIntSet
 
 /**
  * This class is here to ensure that the classes that use this API will get verified and can be AOT
@@ -47,7 +46,7 @@ internal object AutofillApi27Helper {
         view: View,
         autofillManager: AutofillManager,
         semanticsId: Int,
-        isVisible: Boolean
+        isVisible: Boolean,
     ) {
         autofillManager.notifyViewVisibilityChanged(view, semanticsId, isVisible)
     }
@@ -72,7 +71,7 @@ internal object AutofillApi26Helper {
         id: Int,
         packageName: String?,
         typeName: String?,
-        entryName: String?
+        entryName: String?,
     ) = structure.setId(id, packageName, typeName, entryName)
 
     @RequiresApi(26)
@@ -83,7 +82,7 @@ internal object AutofillApi26Helper {
         scrollX: Int,
         scrollY: Int,
         width: Int,
-        height: Int
+        height: Int,
     ) = structure.setDimens(left, top, scrollX, scrollY, width, height)
 
     @RequiresApi(26) fun getAutofillId(structure: ViewStructure) = structure.autofillId
@@ -182,14 +181,4 @@ internal object AutofillApi26Helper {
     fun getAutofillTextValue(value: String): AutofillValue {
         return AutofillValue.forText(value)
     }
-}
-
-// Copy all elements from `other` to `this`.
-internal fun MutableIntSet.copyFrom(other: MutableIntSet) {
-    this.clear()
-    this.addAll(other)
-}
-
-internal fun MutableIntSet.containsAll(other: MutableIntSet): Boolean {
-    return other.all { this.contains(it) }
 }

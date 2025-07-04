@@ -148,7 +148,7 @@ internal class MotionLayoutTest {
                                         customFontSize("fontSize", 20.sp)
                                         customInt("int", 30)
                                     }
-                                }
+                                },
                         ) {
                             keyAttributes(element) {
                                 frame(50) {
@@ -162,7 +162,7 @@ internal class MotionLayoutTest {
                         }
                     },
                 progress = progress.value,
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(200.dp),
             ) {
                 val props = customProperties(id = "element")
                 Column(Modifier.layoutId("element")) {
@@ -255,7 +255,7 @@ internal class MotionLayoutTest {
                             Modifier.fillMaxWidth()
                                 .wrapContentHeight()
                                 .background(Color.Yellow)
-                                .onGloballyPositioned { mlSize = it.size }
+                                .onGloballyPositioned { mlSize = it.size },
                     ) {
                         Box(
                             Modifier.size(box1Size.toDp())
@@ -327,7 +327,7 @@ internal class MotionLayoutTest {
                         if (progress.value < 0.5) progress.value * 2 else progress.value * 2 - 1,
                     transitionName = if (progress.value < 0.5f) "part1" else "part2",
                     modifier =
-                        Modifier.size(width = rootWidthPx.toDp(), height = rootHeightPx.toDp())
+                        Modifier.size(width = rootWidthPx.toDp(), height = rootHeightPx.toDp()),
                 ) {
                     Box(
                         modifier =
@@ -341,7 +341,7 @@ internal class MotionLayoutTest {
             rule.runOnIdle {
                 assertEquals(
                     expected = IntRect(IntOffset(0, 0), IntSize(rootHeightPx, rootHeightPx)),
-                    actual = bounds
+                    actual = bounds,
                 )
             }
 
@@ -354,9 +354,9 @@ internal class MotionLayoutTest {
                     expected =
                         IntRect(
                             offset = IntOffset(0, 0),
-                            size = IntSize(rootWidthPx / 2 + offset, rootHeightPx)
+                            size = IntSize(rootWidthPx / 2 + offset, rootHeightPx),
                         ),
-                    actual = bounds
+                    actual = bounds,
                 )
             }
 
@@ -366,9 +366,9 @@ internal class MotionLayoutTest {
                     expected =
                         IntRect(
                             offset = IntOffset(rootWidthPx / 2 - offset, 0),
-                            size = IntSize(rootWidthPx / 2 + offset, rootHeightPx)
+                            size = IntSize(rootWidthPx / 2 + offset, rootHeightPx),
                         ),
-                    actual = bounds
+                    actual = bounds,
                 )
             }
         }
@@ -416,11 +416,11 @@ internal class MotionLayoutTest {
                                             centerHorizontallyTo(parent)
                                             bottom.linkTo(parent.bottom)
                                         }
-                                    }
+                                    },
                             )
                         },
                     progress = progress.value,
-                    modifier = Modifier.size(rootSizePx.toDp())
+                    modifier = Modifier.size(rootSizePx.toDp()),
                 ) {
                     Box(
                         modifier =
@@ -446,9 +446,9 @@ internal class MotionLayoutTest {
                     expected =
                         IntRect(
                             offset = IntOffset((rootSizePx - boxWidthStartPx) / 2, 0),
-                            size = IntSize(boxWidthStartPx, boxHeight)
+                            size = IntSize(boxWidthStartPx, boxHeight),
                         ),
-                    actual = globallyPositionedBounds
+                    actual = globallyPositionedBounds,
                 )
                 assertEquals(globallyPositionedBounds, startBoundsOfBox.roundToIntRect())
             }
@@ -463,9 +463,9 @@ internal class MotionLayoutTest {
                         IntRect(
                             offset =
                                 IntOffset((rootSizePx - boxWidthEndPx) / 2, rootSizePx - boxHeight),
-                            size = IntSize(boxWidthEndPx, boxHeight)
+                            size = IntSize(boxWidthEndPx, boxHeight),
                         ),
-                    actual = globallyPositionedBounds
+                    actual = globallyPositionedBounds,
                 )
                 assertEquals(globallyPositionedBounds, endBoundsOfBox.roundToIntRect())
             }
@@ -495,7 +495,7 @@ internal class MotionLayoutTest {
                                                 constraintSet {
                                                     createVerticalChain(
                                                         *refs,
-                                                        chainStyle = ChainStyle.Packed(0.0f)
+                                                        chainStyle = ChainStyle.Packed(0.0f),
                                                     )
                                                     refs.forEachIndexed { index, ref ->
                                                         constrain(ref) {
@@ -507,10 +507,10 @@ internal class MotionLayoutTest {
                                                 constraintSet {
                                                     createVerticalChain(
                                                         *refs,
-                                                        chainStyle = ChainStyle.Packed(0.0f)
+                                                        chainStyle = ChainStyle.Packed(0.0f),
                                                     )
                                                     constrain(*refs) { end.linkTo(parent.end) }
-                                                }
+                                                },
                                         ) {
                                             maxStaggerDelay = staggeredValue.value
                                         }
@@ -519,7 +519,7 @@ internal class MotionLayoutTest {
                             }
                             .value,
                     progress = progress.value,
-                    modifier = Modifier.size(rootSizePx.toDp())
+                    modifier = Modifier.size(rootSizePx.toDp()),
                 ) {
                     for (id in ids) {
                         Box(
@@ -600,15 +600,15 @@ internal class MotionLayoutTest {
                                             centerHorizontallyTo(parent)
                                             centerVerticallyTo(parent, 1f)
                                         }
-                                    }
+                                    },
                             )
                         },
-                    progress = progress.value
+                    progress = progress.value,
                 ) {
                     Text(
                         text = textContent.value,
                         fontSize = 10.sp,
-                        modifier = Modifier.layoutTestId("text")
+                        modifier = Modifier.layoutTestId("text"),
                     )
                 }
             }
@@ -651,12 +651,12 @@ internal class MotionLayoutTest {
                                         anchor = boxRef,
                                         side = SwipeSide.End,
                                         direction = SwipeDirection.End,
-                                        limitBoundsTo = boxRef
+                                        limitBoundsTo = boxRef,
                                     )
                             }
                         },
                     progress = 0f,
-                    modifier = Modifier.layoutTestId("MyMotion").size(rootSizePx.toDp())
+                    modifier = Modifier.layoutTestId("MyMotion").size(rootSizePx.toDp()),
                 ) {
                     Box(
                         Modifier.background(Color.Red).layoutTestId(boxId).onGloballyPositioned {
@@ -672,7 +672,7 @@ internal class MotionLayoutTest {
                 // The first swipe will completely miss the Box, so it shouldn't move
                 .performSwipe(
                     from = { Offset(left + boxSizePx / 2, centerY) },
-                    to = { Offset(right * 0.9f, centerY) }
+                    to = { Offset(right * 0.9f, centerY) },
                 )
             // Wait a frame for the Touch Up animation to start
             rule.mainClock.advanceTimeByFrame()
@@ -686,7 +686,7 @@ internal class MotionLayoutTest {
                 // The second swipe will start within the Box
                 .performSwipe(
                     from = { Offset(left + boxSizePx / 2, top + boxSizePx / 2) },
-                    to = { Offset(right * 0.9f, centerY) }
+                    to = { Offset(right * 0.9f, centerY) },
                 )
             // Wait a frame for the Touch Up animation to start
             rule.mainClock.advanceTimeByFrame()
@@ -721,7 +721,7 @@ internal class MotionLayoutTest {
                                         to =
                                             constraintSet {
                                                 constrain(textRef) { centerTo(parent) }
-                                            }
+                                            },
                                     )
                                 }
                             },
@@ -736,12 +736,12 @@ internal class MotionLayoutTest {
                                         // Do not invalidate on recomposition
                                     }
                                 }
-                            }
+                            },
                     ) {
                         Text(
                             text = textContent.value,
                             fontSize = 10.sp,
-                            modifier = Modifier.layoutTestId(textId)
+                            modifier = Modifier.layoutTestId(textId),
                         )
                     }
                 }
@@ -802,12 +802,12 @@ internal class MotionLayoutTest {
                                         side = SwipeSide.Middle,
                                         direction = SwipeDirection.Down,
                                         onTouchUp = SwipeTouchUp.ToStart,
-                                        dragScale = dragScale
+                                        dragScale = dragScale,
                                     )
                             }
                         },
                     progress = 0f,
-                    modifier = Modifier.layoutTestId("MyMotion").size(rootSizePx.toDp())
+                    modifier = Modifier.layoutTestId("MyMotion").size(rootSizePx.toDp()),
                 ) {
                     Box(
                         Modifier.background(Color.Red).layoutTestId(boxId).onGloballyPositioned {
@@ -828,7 +828,7 @@ internal class MotionLayoutTest {
                         // return to the start position
                         val off = ((bottom - (boxSizePx / 2f)) - (top + (boxSizePx / 2f))) * 0.5f
                         Offset(center.x, (top + (boxSizePx / 2f)) + off)
-                    }
+                    },
                 )
             // Wait a frame for the Touch Up animation to start
             rule.mainClock.advanceTimeByFrame()
@@ -856,7 +856,7 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
                             .decodeToString()
                 ),
             progress = progress,
-            modifier = modifier
+            modifier = modifier,
         ) {
             val profilePicProperties = customProperties(id = "profile_pic")
             Box(modifier = Modifier.layoutTestId("box").background(Color.DarkGray))
@@ -868,15 +868,15 @@ private fun CustomTextSize(modifier: Modifier, progress: Float) {
                         .border(
                             width = 2.dp,
                             color = profilePicProperties.color("background"),
-                            shape = CircleShape
+                            shape = CircleShape,
                         )
-                        .layoutTestId("profile_pic")
+                        .layoutTestId("profile_pic"),
             )
             Text(
                 text = "Hello",
                 fontSize = customFontSize("username", "textSize"),
                 modifier = Modifier.layoutTestId("username"),
-                color = profilePicProperties.color("background")
+                color = profilePicProperties.color("background"),
             )
         }
     }
@@ -897,9 +897,9 @@ private fun WithConsistentTextStyle(content: @Composable () -> Unit) {
             TextStyle(
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Normal,
-                platformStyle = PlatformTextStyle(includeFontPadding = true)
+                platformStyle = PlatformTextStyle(includeFontPadding = true),
             ),
-        content = content
+        content = content,
     )
 }
 
@@ -907,7 +907,7 @@ private fun WithConsistentTextStyle(content: @Composable () -> Unit) {
 private fun Density.createCornerToCornerMotionScene(
     boxId: String,
     boxSizePx: Int,
-    transitionContent: TransitionScope.(boxRef: ConstrainedLayoutReference) -> Unit
+    transitionContent: TransitionScope.(boxRef: ConstrainedLayoutReference) -> Unit,
 ) = MotionScene {
     val boxRef = createRefFor(boxId)
 
@@ -931,7 +931,7 @@ private fun Density.createCornerToCornerMotionScene(
                     bottom.linkTo(parent.bottom)
                     end.linkTo(parent.end)
                 }
-            }
+            },
     ) {
         transitionContent(boxRef)
     }

@@ -18,10 +18,13 @@ package androidx.pdf.service
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.pdf.content.PdfPageGotoLinkContent
 import android.graphics.pdf.content.PdfPageImageContent
 import android.graphics.pdf.content.PdfPageLinkContent
 import android.graphics.pdf.content.PdfPageTextContent
+import android.graphics.pdf.models.FormEditRecord
+import android.graphics.pdf.models.FormWidgetInfo
 import android.graphics.pdf.models.PageMatchBounds
 import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
@@ -33,6 +36,8 @@ import androidx.pdf.adapter.PdfDocumentRenderer
 import androidx.pdf.adapter.PdfDocumentRendererFactory
 import androidx.pdf.adapter.PdfDocumentRendererFactoryImpl
 import androidx.pdf.adapter.PdfPage
+import androidx.pdf.annotation.models.AnnotationResult
+import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.models.Dimensions
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -59,7 +64,7 @@ internal class PdfDocumentRemoteImpl(
         return rendererAdapter.pageCount
     }
 
-    override fun getPageDimensions(pageNum: Int): Dimensions {
+    override fun getPageDimensions(pageNum: Int): Dimensions? {
         return withPage(pageNum) { page -> Dimensions(page.width, page.height) }
     }
 
@@ -79,7 +84,7 @@ internal class PdfDocumentRemoteImpl(
         pageWidth: Int,
         pageHeight: Int,
         offsetX: Int,
-        offsetY: Int
+        offsetY: Int,
     ): Bitmap {
         val output = Bitmap.createBitmap(tileWidth, tileHeight, Bitmap.Config.ARGB_8888)
         // Create a bitmap with a white background. PdfRenderer doesn't
@@ -94,32 +99,62 @@ internal class PdfDocumentRemoteImpl(
         return output
     }
 
-    override fun getPageText(pageNum: Int): List<PdfPageTextContent> {
+    override fun getPageText(pageNum: Int): List<PdfPageTextContent>? {
         return withPage(pageNum) { page -> page.getPageTextContents() }
     }
 
-    override fun searchPageText(pageNum: Int, query: String): List<PageMatchBounds> {
+    override fun searchPageText(pageNum: Int, query: String): List<PageMatchBounds>? {
         return withPage(pageNum) { page -> page.searchPageText(query) }
     }
 
     override fun selectPageText(
         pageNum: Int,
         start: SelectionBoundary,
-        stop: SelectionBoundary
+        stop: SelectionBoundary,
     ): PageSelection? {
         return withPage(pageNum) { page -> page.selectPageText(start, stop) }
     }
 
-    override fun getPageExternalLinks(pageNum: Int): List<PdfPageLinkContent> {
+    override fun getPageExternalLinks(pageNum: Int): List<PdfPageLinkContent>? {
         return withPage(pageNum) { page -> page.getPageLinks() }
     }
 
-    override fun getPageGotoLinks(pageNum: Int): List<PdfPageGotoLinkContent> {
+    override fun getPageGotoLinks(pageNum: Int): List<PdfPageGotoLinkContent>? {
         return withPage(pageNum) { page -> page.getPageGotoLinks() }
     }
 
-    override fun getPageImageContent(pageNum: Int): List<PdfPageImageContent> {
+    override fun getPageImageContent(pageNum: Int): List<PdfPageImageContent>? {
         return withPage(pageNum) { page -> page.getPageImageContents() }
+    }
+
+    override fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo>? {
+        return withPage(pageNum) { page -> page.getFormWidgetInfos() }
+    }
+
+    override fun getFormWidgetInfosOfType(pageNum: Int, types: IntArray): List<FormWidgetInfo>? {
+        return withPage(pageNum) { page -> page.getFormWidgetInfos(types) }
+    }
+
+    override fun applyEdit(pageNum: Int, editRecord: FormEditRecord): List<Rect>? {
+        return withPage(pageNum) { page -> page.applyEdit(editRecord) }
+    }
+
+    override fun write(destination: ParcelFileDescriptor, removePasswordProtection: Boolean) {
+        try {
+            rendererAdapter.write(destination, removePasswordProtection)
+        } catch (exception: Exception) {
+            throw RuntimeException(exception)
+        }
+    }
+
+    override fun addAnnotations(pfd: ParcelFileDescriptor): AnnotationResult? {
+        // TODO: addAnnotations to be implemented in subsequent CL
+        return AnnotationResult(listOf(), listOf())
+    }
+
+    override fun getPageAnnotations(pageNum: Int): List<PdfAnnotation> {
+        // TODO:  getPageAnnotations to be implemented in subsequent CL
+        return mutableListOf()
     }
 
     override fun isPdfLinearized(): Boolean {
@@ -138,10 +173,17 @@ internal class PdfDocumentRemoteImpl(
         rendererAdapter.close()
     }
 
-    private fun <T> withPage(pageNum: Int, block: (PdfPage) -> T): T {
-        val page = rendererAdapter.openPage(pageNum, useCache = false)
-        val results = block(page)
-        page.close()
+    private fun <T> withPage(pageNum: Int, block: (PdfPage) -> T): T? {
+        var page: PdfPage? = null
+        var results: T?
+
+        try {
+            page = rendererAdapter.openPage(pageNum, useCache = false)
+            results = block(page)
+        } finally {
+            rendererAdapter.releasePage(page, pageNum)
+        }
+
         return results
     }
 }

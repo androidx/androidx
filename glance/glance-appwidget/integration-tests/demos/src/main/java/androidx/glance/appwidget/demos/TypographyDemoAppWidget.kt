@@ -68,8 +68,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                         TextStyle(
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
-                            textAlign = TextAlign.Center
-                        )
+                            textAlign = TextAlign.Center,
+                        ),
                 )
                 Spacer(GlanceModifier.size(16.dp))
                 Text("Glance text styles:", style = TextStyle(fontSize = 18.sp))
@@ -84,8 +84,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 57.sp,
                                 fontWeight = FontWeight.Normal,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
                 item {
@@ -95,8 +95,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.Normal,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
                 item {
@@ -106,8 +106,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Normal,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
                 item {
@@ -117,8 +117,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
                 item {
@@ -128,8 +128,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Normal,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
                 item {
@@ -139,8 +139,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
                 item {
@@ -150,8 +150,8 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                             TextStyle(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = FontFamily.SansSerif
-                            )
+                                fontFamily = FontFamily.SansSerif,
+                            ),
                     )
                 }
             }

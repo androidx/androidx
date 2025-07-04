@@ -23,10 +23,8 @@ import androidx.room.compiler.codegen.java.JavaFileSpec
 import androidx.room.compiler.codegen.kotlin.KotlinFileSpec
 import androidx.room.compiler.processing.XFiler
 
-internal class XFileSpecImpl(
-    internal val java: JavaFileSpec,
-    internal val kotlin: KotlinFileSpec,
-) : XFileSpec {
+internal class XFileSpecImpl(override val java: JavaFileSpec, override val kotlin: KotlinFileSpec) :
+    ImplSpec<JavaFileSpec, KotlinFileSpec>(), XFileSpec {
 
     override fun writeTo(language: CodeLanguage, generator: XFiler, mode: XFiler.Mode) {
         when (language) {
@@ -35,10 +33,10 @@ internal class XFileSpecImpl(
         }
     }
 
-    internal class Builder(
-        val java: JavaFileSpec.Builder,
-        val kotlin: KotlinFileSpec.Builder,
-    ) : XFileSpec.Builder {
+    override fun toBuilder() = Builder(java.toBuilder(), kotlin.toBuilder())
+
+    internal class Builder(val java: JavaFileSpec.Builder, val kotlin: KotlinFileSpec.Builder) :
+        XFileSpec.Builder {
         private val delegates: List<XFileSpec.Builder> = listOf(java, kotlin)
 
         override fun addFileComment(code: XCodeBlock) = apply {

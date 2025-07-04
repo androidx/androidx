@@ -37,7 +37,7 @@ class AutoMigrationTest {
     var helper: MigrationTestHelper =
         MigrationTestHelper(
             InstrumentationRegistry.getInstrumentation(),
-            AutoMigrationDb::class.java
+            AutoMigrationDb::class.java,
         )
 
     // Run this to create the very 1st version of the db.
@@ -93,14 +93,14 @@ class AutoMigrationTest {
         val embeddedHelper =
             MigrationTestHelper(
                 InstrumentationRegistry.getInstrumentation(),
-                EmbeddedAutoMigrationDb::class.java
+                EmbeddedAutoMigrationDb::class.java,
             )
         val db = embeddedHelper.createDatabase("embedded-auto-migration-test", 1)
         db.execSQL("INSERT INTO Entity1 (id, name) VALUES (1, 'row1')")
         val info =
             read(
                 embeddedHelper.runMigrationsAndValidate("embedded-auto-migration-test", 2, true),
-                EmbeddedAutoMigrationDb.EmbeddedEntity1.TABLE_NAME
+                EmbeddedAutoMigrationDb.EmbeddedEntity1.TABLE_NAME,
             )
         assertThat(info.columns.size).isEqualTo(3)
     }

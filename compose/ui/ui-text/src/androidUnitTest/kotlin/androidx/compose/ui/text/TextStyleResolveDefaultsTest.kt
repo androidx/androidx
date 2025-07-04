@@ -116,7 +116,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(fontSize = DefaultFontSize * 2),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .fontSize
             )
@@ -128,7 +128,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(fontWeight = FontWeight.W900),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .fontWeight
             )
@@ -140,7 +140,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(fontStyle = FontStyle.Italic),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .fontStyle
             )
@@ -152,7 +152,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(fontSynthesis = FontSynthesis.Weight),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .fontSynthesis
             )
@@ -164,7 +164,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(fontFamily = FontFamily.Cursive),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .fontFamily
             )
@@ -176,7 +176,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(fontFeatureSettings = "'liga': off"),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .fontFeatureSettings
             )
@@ -197,7 +197,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(baselineShift = BaselineShift.Superscript),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .baselineShift
             )
@@ -209,7 +209,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textGeometricTransform = TextGeometricTransform(scaleX = 10.0f)),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textGeometricTransform
             )
@@ -221,7 +221,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(localeList = LocaleList("fr-FR")),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .localeList
             )
@@ -242,7 +242,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDecoration = TextDecoration.LineThrough),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textDecoration
             )
@@ -254,7 +254,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(shadow = Shadow(color = Color.Yellow)),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .shadow
             )
@@ -266,7 +266,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textAlign = TextAlign.Right),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textAlign
             )
@@ -287,7 +287,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textIndent = TextIndent(12.sp, 13.sp)),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textIndent
             )
@@ -299,7 +299,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(lineBreak = LineBreak.Heading),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .lineBreak
             )
@@ -311,7 +311,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.Content),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textDirection
             )
@@ -320,7 +320,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.Ltr),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textDirection
             )
@@ -329,7 +329,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.Rtl),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textDirection
             )
@@ -338,7 +338,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.ContentOrLtr),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textDirection
             )
@@ -347,7 +347,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.ContentOrRtl),
-                        direction = LayoutDirection.Ltr
+                        direction = LayoutDirection.Ltr,
                     )
                     .textDirection
             )
@@ -359,7 +359,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.Content),
-                        direction = LayoutDirection.Rtl
+                        direction = LayoutDirection.Rtl,
                     )
                     .textDirection
             )
@@ -368,7 +368,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.Ltr),
-                        direction = LayoutDirection.Rtl
+                        direction = LayoutDirection.Rtl,
                     )
                     .textDirection
             )
@@ -377,7 +377,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.Rtl),
-                        direction = LayoutDirection.Rtl
+                        direction = LayoutDirection.Rtl,
                     )
                     .textDirection
             )
@@ -386,7 +386,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.ContentOrLtr),
-                        direction = LayoutDirection.Rtl
+                        direction = LayoutDirection.Rtl,
                     )
                     .textDirection
             )
@@ -395,7 +395,7 @@ class TextStyleResolveDefaultsTest {
         assertThat(
                 resolveDefaults(
                         TextStyle(textDirection = TextDirection.ContentOrRtl),
-                        direction = LayoutDirection.Rtl
+                        direction = LayoutDirection.Rtl,
                     )
                     .textDirection
             )

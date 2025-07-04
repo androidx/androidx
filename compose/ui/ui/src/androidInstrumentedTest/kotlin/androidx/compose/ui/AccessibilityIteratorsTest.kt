@@ -118,6 +118,7 @@ class AccessibilityIteratorsTest {
     @Test
     fun characterIterator_following_rtl() { // Hebrew -- אבג"
         val text = "\u05d0\u05d1\u05d2"
+        @Suppress("DEPRECATION")
         val characterIterator =
             AccessibilityIterators.CharacterTextSegmentIterator.getInstance(Locale("he", "IL"))
         characterIterator.initialize(text)
@@ -136,6 +137,7 @@ class AccessibilityIteratorsTest {
     @Test
     fun characterIterator_preceding_rtl() { // Hebrew -- אבג"
         val text = "\u05d0\u05d1\u05d2"
+        @Suppress("DEPRECATION")
         val characterIterator =
             AccessibilityIterators.CharacterTextSegmentIterator.getInstance(Locale("he", "IL"))
         characterIterator.initialize(text)
@@ -223,6 +225,7 @@ class AccessibilityIteratorsTest {
     @Test
     fun wordIterator_following_rtl() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
+        @Suppress("DEPRECATION")
         val wordIterator =
             AccessibilityIterators.WordTextSegmentIterator.getInstance(Locale("he", "IL"))
         wordIterator.initialize(text)
@@ -247,6 +250,7 @@ class AccessibilityIteratorsTest {
     @Test
     fun wordIterator_preceding_rtl() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
+        @Suppress("DEPRECATION")
         val wordIterator =
             AccessibilityIterators.WordTextSegmentIterator.getInstance(Locale("he", "IL"))
         wordIterator.initialize(text)
@@ -388,7 +392,7 @@ class AccessibilityIteratorsTest {
             textLayoutResult.getLineBottom(endLine) - textLayoutResult.getLineTop(endLine)
         val iteratorStep = endLineTop - startLineTop
         val nodeHeight = textFieldNode.boundsInWindow.bottom - textFieldNode.boundsInWindow.top
-        Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight)
+        Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight).isTrue()
         currentOffset = InputText.length
         range = pageIterator.following(currentOffset)
         Truth.assertThat(range).isNull()
@@ -411,7 +415,7 @@ class AccessibilityIteratorsTest {
             textLayoutResult.getLineBottom(endLine) - textLayoutResult.getLineTop(endLine)
         val iteratorStep = endLineTop - startLineTop
         val nodeHeight = textFieldNode.boundsInWindow.bottom - textFieldNode.boundsInWindow.top
-        Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight)
+        Truth.assertThat(abs(iteratorStep - nodeHeight) < lineHeight).isTrue()
         currentOffset = 0
         range = pageIterator.preceding(currentOffset)
         Truth.assertThat(range).isNull()
@@ -420,7 +424,7 @@ class AccessibilityIteratorsTest {
     private fun multiLineText(
         text: String,
         fontSize: TextUnit = 20.sp,
-        width: TextUnit = 40.sp
+        width: TextUnit = 40.sp,
     ): TextLayoutResult {
         var textLayoutResult: TextLayoutResult? = null
         rule.setContent {
@@ -434,13 +438,13 @@ class AccessibilityIteratorsTest {
                                 Font(
                                         resId = androidx.testutils.fonts.R.font.sample_font,
                                         weight = FontWeight.Normal,
-                                        style = FontStyle.Normal
+                                        style = FontStyle.Normal,
                                     )
-                                    .toFontFamily()
+                                    .toFontFamily(),
                         ),
                     text = AnnotatedString(text),
                     modifier = Modifier.requiredWidth(width.toDp()),
-                    onTextLayout = { textLayoutResult = it }
+                    onTextLayout = { textLayoutResult = it },
                 )
             }
         }
@@ -456,7 +460,7 @@ class AccessibilityIteratorsTest {
                     value = state.value,
                     onValueChange = { state.value = it },
                     modifier = Modifier.testTag(TextFieldTag),
-                    onTextLayout = { textLayoutResult = it }
+                    onTextLayout = { textLayoutResult = it },
                 )
             }
         }

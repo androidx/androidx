@@ -24,5 +24,5 @@ internal actual fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    visible: Boolean
+    visible: Boolean,
 ): TextFieldMagnifierNode = implementedInJetBrainsFork()

@@ -33,7 +33,7 @@ class SynchronousDataSourceService : ComplicationDataSourceService() {
 
     override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         val time = ZonedDateTime.now()
         listener.onComplicationData(
@@ -43,13 +43,13 @@ class SynchronousDataSourceService : ComplicationDataSourceService() {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
                                 plainText("S ${time.second}"),
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .build()
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
                                 plainText("Secs ${time.second}"),
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .build()
                     else -> null
@@ -59,13 +59,13 @@ class SynchronousDataSourceService : ComplicationDataSourceService() {
                     ComplicationType.SHORT_TEXT ->
                         ShortTextComplicationData.Builder(
                                 plainText("M ${time.minute}"),
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .build()
                     ComplicationType.LONG_TEXT ->
                         LongTextComplicationData.Builder(
                                 plainText("Mins ${time.minute}"),
-                                ComplicationText.EMPTY
+                                ComplicationText.EMPTY,
                             )
                             .build()
                     else -> null

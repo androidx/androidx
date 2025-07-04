@@ -58,7 +58,7 @@ fun CatalogScaffold(
     onBackClick: () -> Unit = {},
     favorite: Boolean,
     onFavoriteClick: () -> Unit,
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -81,23 +81,18 @@ fun CatalogScaffold(
                 onIssueClick = { context.openUrl(issueUrl) },
                 onTermsClick = { context.openUrl(termsUrl) },
                 onPrivacyClick = { context.openUrl(privacyUrl) },
-                onLicensesClick = { context.openUrl(licensesUrl) }
+                onLicensesClick = { context.openUrl(licensesUrl) },
             )
         },
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        content = content
+        content = content,
     )
 
     if (openThemePicker) {
         ModalBottomSheet(
             onDismissRequest = { openThemePicker = false },
             sheetState = sheetState,
-            content = {
-                ThemePicker(
-                    theme = theme,
-                    onThemeChange = onThemeChange,
-                )
-            },
+            content = { ThemePicker(theme = theme, onThemeChange = onThemeChange) },
         )
     }
 }

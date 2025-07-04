@@ -200,7 +200,7 @@ package androidx.wear.compose.foundation {
     property public final boolean expanded;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Foundation API is experimental and is likely to change or to be removed in" + " the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearFoundationApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This Wear Foundation API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWearFoundationApi {
   }
 
   public final class HierarchicalFocusCoordinatorKt {

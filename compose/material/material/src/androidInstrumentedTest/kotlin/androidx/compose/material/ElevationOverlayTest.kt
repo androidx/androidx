@@ -62,7 +62,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
                 arrayOf(8.dp, 0.12f, null),
                 arrayOf(12.dp, 0.14f, null),
                 arrayOf(16.dp, 0.15f, null),
-                arrayOf(24.dp, 0.16f, null)
+                arrayOf(24.dp, 0.16f, null),
             )
     }
 
@@ -77,7 +77,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
         val expectedSurfaceColor =
             calculateTestSurfaceColor(
                 surfaceColor = colors.surface,
-                foregroundColor = colors.onSurface
+                foregroundColor = colors.onSurface,
             )
 
         rule
@@ -87,7 +87,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             .assertPixelColor(
                 expected = expectedSurfaceColor,
                 x = SurfaceSize.width / 2,
-                y = SurfaceSize.height / 2
+                y = SurfaceSize.height / 2,
             )
     }
 
@@ -112,7 +112,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             .assertPixelColor(
                 expected = expectedSurfaceColor,
                 x = SurfaceSize.width / 2,
-                y = SurfaceSize.height / 2
+                y = SurfaceSize.height / 2,
             )
     }
 
@@ -128,7 +128,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
         val expectedSurfaceColor =
             calculateTestSurfaceColor(
                 surfaceColor = customColors.surface,
-                foregroundColor = customContentColor
+                foregroundColor = customContentColor,
             )
 
         rule
@@ -138,7 +138,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             .assertPixelColor(
                 expected = expectedSurfaceColor,
                 x = SurfaceSize.width / 2,
-                y = SurfaceSize.height / 2
+                y = SurfaceSize.height / 2,
             )
     }
 
@@ -158,7 +158,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             .assertPixelColor(
                 expected = expectedSurfaceColor,
                 x = SurfaceSize.width / 2,
-                y = SurfaceSize.height / 2
+                y = SurfaceSize.height / 2,
             )
     }
 
@@ -183,7 +183,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             .assertPixelColor(
                 expected = expectedSurfaceColor,
                 x = SurfaceSize.width / 2,
-                y = SurfaceSize.height / 2
+                y = SurfaceSize.height / 2,
             )
     }
 
@@ -210,7 +210,7 @@ class ElevationOverlayTest(private val elevation: Dp?, overlayAlpha: Float?) {
             .assertPixelColor(
                 expected = customOverlayColor,
                 x = SurfaceSize.width / 2,
-                y = SurfaceSize.height / 2
+                y = SurfaceSize.height / 2,
             )
     }
 

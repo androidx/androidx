@@ -38,6 +38,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -299,5 +301,46 @@ class MeasureOnlyTest {
         }
         rule.waitForIdle()
         assertThat(exception).isNotNull()
+    }
+
+    @Test
+    fun invalidateLookaheadOnlyWhenLookaheadMeasurementRequested() {
+        val child1 = node()
+        val child2 = node()
+        val root = root {
+            modifier =
+                Modifier.approachLayout({ true }) { m, c ->
+                    m.measure(c).run { layout(width, height) { place(0, 0) } }
+                }
+            add(
+                node {
+                    add(
+                        node {
+                            add(child1)
+                            add(child2)
+                        }
+                    )
+                    add(node())
+                }
+            )
+        }
+
+        val delegate = createDelegate(root)
+        delegate.measureAndLayout()
+        assertTrue(root.lookaheadRoot != null)
+
+        assertFalse(child1.measurePending)
+
+        child1.requestRemeasure()
+        assertTrue(child1.measurePending)
+        // Mark the lookahead measure pending but not add the node to the queue.
+        // The expectation is that lookahead pass on root should be skipped
+        // since there is no lookahead invalidations in the invalidation queue.
+        root.markLookaheadMeasurePending()
+
+        delegate.measureOnly()
+        assertFalse(child1.measurePending)
+        // Check that root indeed skipped the lookahead pass in `measureOnly`.
+        assertTrue(root.lookaheadMeasurePending)
     }
 }

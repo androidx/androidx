@@ -26,15 +26,15 @@ import androidx.room.processor.DataClassProcessor.Companion.TARGET_METHOD_ANNOTA
 import androidx.room.processor.ProcessorErrors
 import androidx.room.vo.Constructor
 import androidx.room.vo.DataClass
-import androidx.room.vo.EmbeddedField
-import androidx.room.vo.Field
+import androidx.room.vo.EmbeddedProperty
+import androidx.room.vo.Property
 import androidx.room.vo.Warning
 import com.google.auto.value.AutoValue.CopyAnnotations
 
 /** Delegate to process generated AutoValue class as a data class. */
 class AutoValueDataClassProcessorDelegate(
     private val context: Context,
-    private val autoValueElement: XTypeElement
+    private val autoValueElement: XTypeElement,
 ) : DataClassProcessor.Delegate {
 
     private val autoValueDeclaredType: XType by lazy { autoValueElement.type }
@@ -51,7 +51,7 @@ class AutoValueDataClassProcessorDelegate(
                 context.logger.w(
                     Warning.MISSING_COPY_ANNOTATIONS,
                     it,
-                    ProcessorErrors.MISSING_COPY_ANNOTATIONS
+                    ProcessorErrors.MISSING_COPY_ANNOTATIONS,
                 )
             }
         }
@@ -65,7 +65,7 @@ class AutoValueDataClassProcessorDelegate(
                     TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }.java.simpleName
                 context.logger.e(
                     method,
-                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName())
+                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName()),
                 )
             }
     }
@@ -82,18 +82,18 @@ class AutoValueDataClassProcessorDelegate(
     override fun createDataClass(
         element: XTypeElement,
         declaredType: XType,
-        fields: List<Field>,
-        embeddedFields: List<EmbeddedField>,
+        properties: List<Property>,
+        embeddedProperties: List<EmbeddedProperty>,
         relations: List<androidx.room.vo.Relation>,
-        constructor: Constructor?
+        constructor: Constructor?,
     ): DataClass {
         return DataClass(
             element = element,
             type = autoValueDeclaredType,
-            fields = fields,
-            embeddedFields = embeddedFields,
+            properties = properties,
+            embeddedProperties = embeddedProperties,
             relations = relations,
-            constructor = constructor
+            constructor = constructor,
         )
     }
 

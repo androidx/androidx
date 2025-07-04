@@ -46,7 +46,7 @@ private val Context.preferencesDataStore by preferencesDataStore(name = COUNT_ST
 class CountRepository
 private constructor(
     private val dataStore: DataStore<Preferences>,
-    private val protoDataStore: DataStore<CountPreferences>
+    private val protoDataStore: DataStore<CountPreferences>,
 ) {
 
     companion object {

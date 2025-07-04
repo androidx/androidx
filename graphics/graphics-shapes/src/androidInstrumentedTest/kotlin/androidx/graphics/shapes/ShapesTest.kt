@@ -44,7 +44,7 @@ class ShapesTest {
         point: Point,
         radius1: Float,
         radius2: Float = radius1,
-        center: Point = Zero
+        center: Point = Zero,
     ) {
         val dist = distance(center, point)
         try {
@@ -58,7 +58,7 @@ class ShapesTest {
         cubic: Cubic,
         radius1: Float,
         radius2: Float = radius1,
-        center: Point = Zero
+        center: Point = Zero,
     ) {
         assertPointOnRadii(Point(cubic.anchor0X, cubic.anchor0Y), radius1, radius2, center)
         assertPointOnRadii(Point(cubic.anchor1X, cubic.anchor1Y), radius1, radius2, center)
@@ -127,7 +127,7 @@ class ShapesTest {
                 4,
                 innerRadius = innerRadius,
                 centerX = center.x,
-                centerY = center.y
+                centerY = center.y,
             )
         shape = star.cubics
         for (cubic in shape) {
@@ -156,7 +156,7 @@ class ShapesTest {
                 rounding,
                 innerRounding,
                 rounding,
-                innerRounding
+                innerRounding,
             )
 
         var star = RoundedPolygon.star(4, innerRadius = .5f, rounding = rounding)
@@ -172,7 +172,7 @@ class ShapesTest {
                 4,
                 innerRadius = .5f,
                 rounding = rounding,
-                innerRounding = innerRounding
+                innerRounding = innerRounding,
             )
         assertInBounds(star.cubics, min, max)
 

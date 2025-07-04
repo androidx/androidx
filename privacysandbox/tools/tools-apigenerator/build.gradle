@@ -21,8 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
 
@@ -39,11 +38,11 @@ def compileSdk = AndroidXConfig.getDefaultAndroidConfig(project).getCompileSdk()
 
 configurations {
     // Configuration of shadowed / jarjared dependencies
-    shadowed
+    shadowed { }
     // Shadowed dependencies are compile only
-    compileOnly.extendsFrom(shadowed)
+    compileOnly { extendsFrom(shadowed) }
     // Include shadowed dependencies for test compilation
-    testCompile.extendsFrom(shadowed)
+    testCompile { extendsFrom(shadowed) }
 
     // Replace the standard jar with the one built by 'shadowJar' in both api and runtime variants
     apiElements.outgoing.artifacts.clear()
@@ -73,15 +72,15 @@ jar {
 }
 
 dependencies {
+    api(project(":privacysandbox:tools:tools"))
+    api(project(":privacysandbox:tools:tools-core"))
     api(libs.kotlinStdlib)
     implementation(libs.asm)
     implementation(libs.asmCommons)
     shadowed(libs.kotlinMetadataJvm) {
         exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
-    implementation(libs.kotlinPoet)
-    implementation(project(":privacysandbox:tools:tools"))
-    implementation(project(":privacysandbox:tools:tools-core"))
+    implementation("com.squareup:kotlinpoet:2.0.0")
 
     testImplementation(project(":internal-testutils-truth"))
     testImplementation(project(":privacysandbox:tools:tools-apipackager"))
@@ -123,8 +122,7 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-apigenerator"
-    type = LibraryType.OTHER_CODE_PROCESSOR
+    type = SoftwareType.OTHER_CODE_PROCESSOR
     inceptionYear = "2022"
     description = "Generate sources for communication with SDKs in the Privacy Sandbox."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

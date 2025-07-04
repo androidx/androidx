@@ -62,11 +62,11 @@ private fun WearLayout(data: SingleEntityTemplateData) {
         Image(
             ImageProvider(R.drawable.glance_single_entity_bg),
             contentDescription = null,
-            modifier = GlanceModifier.fillMaxSize()
+            modifier = GlanceModifier.fillMaxSize(),
         )
         Column(
             modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             data.headerBlock?.icon?.let { TemplateHeader(it) }
             Spacer(modifier = GlanceModifier.height(4.dp))
@@ -82,7 +82,7 @@ private fun WearLayout(data: SingleEntityTemplateData) {
                         GlanceModifier.height(48.dp)
                             .fillMaxWidth()
                             .padding(horizontal = 32.dp, vertical = 8.dp),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
                 )
             }
         }
@@ -102,7 +102,7 @@ private fun TemplateHeader(headerIcon: TemplateImageWithDescription?) {
             Image(
                 provider = it.image,
                 contentDescription = it.description,
-                modifier = GlanceModifier.height(24.dp).width(24.dp)
+                modifier = GlanceModifier.height(24.dp).width(24.dp),
             )
         }
     }
@@ -120,8 +120,8 @@ private fun TextSection(textList: List<TemplateText>) {
                     TextStyle(
                         color = ColorProvider(Color.White),
                         fontSize = if (item.type == TextType.Title) 24.sp else 16.sp,
-                        textAlign = TextAlign.Center
-                    )
+                        textAlign = TextAlign.Center,
+                    ),
             )
         }
     }
@@ -130,7 +130,7 @@ private fun TextSection(textList: List<TemplateText>) {
 private fun textList(
     title: TemplateText? = null,
     subtitle: TemplateText? = null,
-    body: TemplateText? = null
+    body: TemplateText? = null,
 ): List<TemplateText> {
     val result = mutableListOf<TemplateText>()
     title?.let { result.add(TemplateText(it.text, TextType.Title)) }

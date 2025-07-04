@@ -78,7 +78,7 @@ class RadioButtonBackportTranslatorTest {
                             RadioButtonDefaults.colors(
                                 checkedColor = ColorProvider(Color.Blue),
                                 uncheckedColor = ColorProvider(Color.Red),
-                            )
+                            ),
                     )
                 }
 
@@ -99,7 +99,7 @@ class RadioButtonBackportTranslatorTest {
                             RadioButtonDefaults.colors(
                                 checkedColor = ColorProvider(Color.Blue),
                                 uncheckedColor = ColorProvider(Color.Red),
-                            )
+                            ),
                     )
                 }
 
@@ -121,7 +121,7 @@ class RadioButtonBackportTranslatorTest {
                                 checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                                 uncheckedColor =
                                     ColorProvider(day = Color.Green, night = Color.Yellow),
-                            )
+                            ),
                     )
                 }
 
@@ -143,7 +143,7 @@ class RadioButtonBackportTranslatorTest {
                                 checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                                 uncheckedColor =
                                     ColorProvider(day = Color.Green, night = Color.Yellow),
-                            )
+                            ),
                     )
                 }
 
@@ -165,7 +165,7 @@ class RadioButtonBackportTranslatorTest {
                                 checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                                 uncheckedColor =
                                     ColorProvider(day = Color.Green, night = Color.Yellow),
-                            )
+                            ),
                     )
                 }
 
@@ -187,7 +187,7 @@ class RadioButtonBackportTranslatorTest {
                                 checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                                 uncheckedColor =
                                     ColorProvider(day = Color.Green, night = Color.Yellow),
-                            )
+                            ),
                     )
                 }
 
@@ -209,7 +209,7 @@ class RadioButtonBackportTranslatorTest {
                                 checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                                 uncheckedColor =
                                     ColorProvider(day = Color.Green, night = Color.Yellow),
-                            )
+                            ),
                     )
                 }
 
@@ -231,7 +231,7 @@ class RadioButtonBackportTranslatorTest {
                                 checkedColor = ColorProvider(day = Color.Blue, night = Color.Red),
                                 uncheckedColor =
                                     ColorProvider(day = Color.Green, night = Color.Yellow),
-                            )
+                            ),
                     )
                 }
 
@@ -244,11 +244,7 @@ class RadioButtonBackportTranslatorTest {
         fakeCoroutineScope.runTest {
             val rv =
                 context.runAndTranslate {
-                    RadioButton(
-                        checked = true,
-                        onClick = null,
-                        text = "RadioButton",
-                    )
+                    RadioButton(checked = true, onClick = null, text = "RadioButton")
                 }
 
             val radioButtonRoot = assertIs<ViewGroup>(context.applyRemoteViews(rv))

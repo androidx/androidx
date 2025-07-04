@@ -63,7 +63,7 @@ class SetTextWithInlineContent(private val text: AnnotatedString) :
                         ) {
                             Box(Modifier.size(12.dp, 12.dp))
                         }
-                )
+                ),
         )
     }
 

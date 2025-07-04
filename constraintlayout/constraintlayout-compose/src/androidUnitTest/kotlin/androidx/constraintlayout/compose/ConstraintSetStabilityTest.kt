@@ -48,7 +48,7 @@ class ConstraintSetStabilityTest {
             createHorizontalChain(
                 box0,
                 box1.withHorizontalChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                box2
+                box2,
             )
         }
 
@@ -80,9 +80,9 @@ class ConstraintSetStabilityTest {
                     createHorizontalChain(
                         box0,
                         box1.withChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                        box2
+                        box2,
                     )
-                }
+                },
         )
 
         // Different order in chain, should not be equal
@@ -113,9 +113,9 @@ class ConstraintSetStabilityTest {
                     createHorizontalChain(
                         box2,
                         box1.withChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                        box0
+                        box0,
                     )
-                }
+                },
         )
     }
 
@@ -206,9 +206,9 @@ class ConstraintSetStabilityTest {
                     createHorizontalChain(
                         box0,
                         box1.withChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                        box2
+                        box2,
                     )
-                }
+                },
         )
     }
 }

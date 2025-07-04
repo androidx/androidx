@@ -137,7 +137,7 @@ internal val VIEWMODEL =
                 q7ZONKdHxkRWWh2ZBDsQfIPfsulJGGusvEwDhc1XjL0wEVhkdDIzjyXG8s8A
                 SnCzfDnDBaxkP0YY56x8jVwDEw1MNlBBlSmmGpjGzDUowSzmOE/gJphP4HwD
                 iZB0Wu4BAAA=
-                """
+                """,
     )
 
 internal val VIEWMODEL_COMPOSE =
@@ -211,5 +211,5 @@ internal val VIEWMODEL_COMPOSE =
                 qe8s7iBNo+7Z1FfwMcn/R6mBSlBXicJ1onNjFY4E3khgPoGbuJVAHG8msIAE
                 GZh4C4urUEw4TSRNpExIJi6auGRiyUTMxG0TgyaWTYRNDJi4bHJjl70MumiC
                 d+jN2I7e/Rt/dMvZYg8AAA==
-                """
+                """,
     )

@@ -18,12 +18,16 @@ package androidx.compose.material3
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.internal.VerticalSemanticsBoundsPadding
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -44,6 +48,8 @@ import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.junit.Assert.assertEquals
 import org.junit.Ignore
 import org.junit.Rule
@@ -79,7 +85,7 @@ class WavyProgressIndicatorTest {
         rule.setMaterialContent(lightColorScheme()) {
             LinearWavyProgressIndicator(
                 modifier = Modifier.testTag(tag),
-                progress = { progress.value }
+                progress = { progress.value },
             )
         }
 
@@ -97,6 +103,20 @@ class WavyProgressIndicatorTest {
     }
 
     @Test
+    fun determinateLinearWavyProgressIndicator_NaNProgress() {
+        val tag = "linear"
+        rule.setMaterialContent(lightColorScheme()) {
+            LinearWavyProgressIndicator(modifier = Modifier.testTag(tag), progress = { Float.NaN })
+        }
+
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
+    }
+
+    @Test
     fun determinateLinearWavyProgressIndicator_ProgressIsCoercedInBounds() {
         val tag = "linear"
         val progress = mutableStateOf(-1f)
@@ -104,7 +124,7 @@ class WavyProgressIndicatorTest {
         rule.setMaterialContent(lightColorScheme()) {
             LinearWavyProgressIndicator(
                 modifier = Modifier.testTag(tag),
-                progress = { progress.value }
+                progress = { progress.value },
             )
         }
 
@@ -166,7 +186,7 @@ class WavyProgressIndicatorTest {
             rule.setMaterialContentForSizeAssertions {
                 LinearWavyProgressIndicator(
                     modifier = Modifier.size(expectedWidth, expectedHeight).testTag(tag),
-                    progress = { 0.5f }
+                    progress = { 0.5f },
                 )
             }
 
@@ -202,7 +222,7 @@ class WavyProgressIndicatorTest {
         val contentToTest =
             rule.setMaterialContentForSizeAssertions {
                 LinearWavyProgressIndicator(
-                    modifier = Modifier.size(expectedWidth, expectedHeight).testTag(tag),
+                    modifier = Modifier.size(expectedWidth, expectedHeight).testTag(tag)
                 )
             }
 
@@ -385,6 +405,37 @@ class WavyProgressIndicatorTest {
         assertEquals(paddingSize.height.toFloat(), semanticsBound.height)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun indeterminateLinearWavyProgressIndicator_lambdaUpdate() {
+        rule.mainClock.autoAdvance = false
+        data class Data(val progress: Float)
+        data class Data2(val data: Data)
+        val tag = "linear"
+        var indicatorColor: Color? = null
+        lateinit var flow: MutableStateFlow<Data2>
+        rule.setContent {
+            // Have a flow that updates the progress by creating a new Data object each time.
+            flow = remember { MutableStateFlow(Data2(Data(0f))) }
+            val state = flow.collectAsState()
+            // Extract the data here and read the progress in the progress lambda we pass to the
+            // indicator. The test ensures that the indicator is properly invalidating its cache
+            // to re-read from the progress lambda when the lambda reference is changing here.
+            val data = state.value.data
+            LinearWavyProgressIndicator(
+                progress = { data.progress },
+                // Disable the stop indicator for this test as we check for just indicator colors.
+                stopSize = 0.dp,
+                modifier = Modifier.testTag(tag),
+            )
+            indicatorColor = WavyProgressIndicatorDefaults.indicatorColor
+        }
+        rule.onNodeWithTag(tag).captureToImage().assertDoesNotContainColor(indicatorColor!!)
+        rule.runOnIdle { flow.update { Data2(Data(progress = flow.value.data.progress + 0.1f)) } }
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithTag(tag).captureToImage().assertContainsColor(indicatorColor)
+    }
+
     @Test
     fun determinateCircularWavyProgressIndicator_Progress() {
         val tag = "circular"
@@ -408,6 +459,23 @@ class WavyProgressIndicatorTest {
             .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
+    }
+
+    @Test
+    fun determinateCircularWavyProgressIndicator_NaNProgress() {
+        val tag = "circular"
+        rule.setMaterialContent(lightColorScheme()) {
+            CircularWavyProgressIndicator(
+                modifier = Modifier.testTag(tag),
+                progress = { Float.NaN },
+            )
+        }
+
+        // The ProgressBarRangeInfo should indicate a current value of zero.
+        rule
+            .onNodeWithTag(tag)
+            .assertIsDisplayed()
+            .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
     }
 
     @Test
@@ -468,5 +536,50 @@ class WavyProgressIndicatorTest {
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
 
         contentToTest.assertIsSquareWithSize(WavyProgressIndicatorDefaults.CircularContainerSize)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun indeterminateCircularWavyProgressIndicator_lambdaUpdate() {
+        rule.mainClock.autoAdvance = false
+        data class Data(val progress: Float)
+        data class Data2(val data: Data)
+        val tag = "circular"
+        var indicatorColor: Color? = null
+        lateinit var flow: MutableStateFlow<Data2>
+        rule.setContent {
+            // Have a flow that updates the progress by creating a new Data object each time.
+            flow = remember { MutableStateFlow(Data2(Data(0f))) }
+            val state = flow.collectAsState()
+            // Extract the data here and read the progress in the progress lambda we pass to the
+            // indicator. The test ensures that the indicator is properly invalidating its cache
+            // to re-read from the progress lambda when the lambda reference is changing here.
+            val data = state.value.data
+            CircularWavyProgressIndicator(
+                progress = { data.progress },
+                modifier = Modifier.testTag(tag),
+            )
+            indicatorColor = WavyProgressIndicatorDefaults.indicatorColor
+        }
+        rule.onNodeWithTag(tag).captureToImage().assertDoesNotContainColor(indicatorColor!!)
+        rule.runOnIdle { flow.update { Data2(Data(progress = flow.value.data.progress + 0.1f)) } }
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithTag(tag).captureToImage().assertContainsColor(indicatorColor)
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_ZeroSize() {
+        val tag = "circular"
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContentForSizeAssertions {
+            Box(modifier = Modifier.size(50.dp)) {
+                CircularWavyProgressIndicator(modifier = Modifier.requiredSize(0.dp).testTag(tag))
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        // Test that we allow zero sizing without any exception.
+        rule.onNodeWithTag(tag).assertIsSquareWithSize(0.dp)
     }
 }

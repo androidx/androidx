@@ -36,14 +36,7 @@ class EmbeddingCompatTest {
     private val component = mock<ActivityEmbeddingComponent>()
     private val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
     private val embeddingCompat =
-        EmbeddingCompat(
-            component,
-            EMBEDDING_ADAPTER,
-            CONSUMER_ADAPTER,
-            mock(),
-            mock(),
-            mock(),
-        )
+        EmbeddingCompat(component, EMBEDDING_ADAPTER, CONSUMER_ADAPTER, mock(), mock(), mock())
 
     @Suppress("Deprecation")
     @Test
@@ -64,7 +57,7 @@ class EmbeddingCompatTest {
                 verify(component)
                     .registerActivityStackCallback(
                         any<Executor>(),
-                        any<Consumer<List<OEMActivityStack>>>()
+                        any<Consumer<List<OEMActivityStack>>>(),
                     )
             }
         }

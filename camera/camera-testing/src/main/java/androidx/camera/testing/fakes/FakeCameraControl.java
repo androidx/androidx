@@ -20,14 +20,17 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.testing.imagecapture.CaptureResult.CAPTURE_STATUS_CANCELLED;
 import static androidx.camera.testing.imagecapture.CaptureResult.CAPTURE_STATUS_FAILED;
 import static androidx.camera.testing.imagecapture.CaptureResult.CAPTURE_STATUS_SUCCESSFUL;
-import static androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Rect;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Process;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -47,8 +50,8 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.imagecapture.CaptureResult;
 import androidx.camera.testing.impl.FakeCameraCapturePipeline;
-import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.core.os.HandlerCompat;
 import androidx.core.util.Pair;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -58,8 +61,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,6 +75,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
+    static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;
+
     private static final ControlUpdateCallback NO_OP_CALLBACK = new ControlUpdateCallback() {
         @Override
         public void onCameraControlUpdateSessionConfig() {
@@ -107,6 +113,16 @@ public final class FakeCameraControl implements CameraControlInternal {
             new ArrayDeque<>();
     @GuardedBy("mLock")
     private final ArrayDeque<CaptureResult> mCaptureResults = new ArrayDeque<>();
+
+    private boolean mIsFocusMeteringAutoCompleted = true;
+    @GuardedBy("mLock")
+    private final ArrayDeque<FocusMeteringAction> mRequestedFocusMeteringActions =
+            new ArrayDeque<>();
+    @GuardedBy("mLock")
+    private final Map<FocusMeteringAction, CallbackToFutureAdapter.Completer<FocusMeteringResult>>
+            mFocusMeteringActionToResultMap = new HashMap<>();
+    @GuardedBy("mLock")
+    private final ArrayDeque<FocusMeteringResult> mFocusMeteringResults = new ArrayDeque<>();
 
     private final List<CaptureSuccessListener> mCaptureSuccessListeners =
             new CopyOnWriteArrayList<>();
@@ -255,7 +271,7 @@ public final class FakeCameraControl implements CameraControlInternal {
                 switch (captureStatus) {
                     case CAPTURE_STATUS_SUCCESSFUL:
                         cameraCaptureCallback.onCaptureCompleted(captureConfig.getId(),
-                                Objects.requireNonNull(captureResult));
+                                requireNonNull(captureResult));
                         break;
                     case CAPTURE_STATUS_FAILED:
                         cameraCaptureCallback.onCaptureFailed(captureConfig.getId(),
@@ -329,6 +345,12 @@ public final class FakeCameraControl implements CameraControlInternal {
         mIsZslConfigAdded = true;
     }
 
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void clearZslConfig() {
+        mIsZslConfigAdded = false;
+    }
+
     /**
      * Checks if {@link FakeCameraControl#addZslConfig(SessionConfig.Builder)} has been triggered.
      */
@@ -392,7 +414,7 @@ public final class FakeCameraControl implements CameraControlInternal {
                     completerRef.set(completer);
                     return "fakeFuture";
                 }));
-                mSubmittedCompleterList.add(Objects.requireNonNull(completerRef.get()));
+                mSubmittedCompleterList.add(requireNonNull(completerRef.get()));
             }
         }
 
@@ -425,16 +447,13 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     /**
-     * Returns a {@link Rect} corresponding to
-     * {@link FakeCameraDeviceSurfaceManager#MAX_OUTPUT_SIZE}.
-     */
-    @Override
-    public @NonNull Rect getSensorRect() {
-        return new Rect(0, 0, MAX_OUTPUT_SIZE.getWidth(), MAX_OUTPUT_SIZE.getHeight());
-    }
-
-    /**
-     * Stores the last submitted {@link FocusMeteringAction}.
+     * Stores the last submitted {@link FocusMeteringAction} and returns a result that may still be
+     * incomplete based on {@link #disableFocusMeteringAutoComplete(boolean)}.
+     *
+     * <p> The focus-metering operation is automatically canceled in a background thread after the
+     * duration of {@link FocusMeteringAction#getAutoCancelDurationInMillis()} is elapsed. After 5
+     * seconds, any ongoing focus-metering operation is timed out with unsuccessful
+     * {@link FocusMeteringResult}.
      *
      * @param action The {@link FocusMeteringAction} to be used.
      * @return Returns a {@link Futures#immediateFuture} which immediately contains a empty
@@ -444,7 +463,64 @@ public final class FakeCameraControl implements CameraControlInternal {
     public @NonNull ListenableFuture<FocusMeteringResult> startFocusAndMetering(
             @NonNull FocusMeteringAction action) {
         mLastSubmittedFocusMeteringAction = action;
+
+        if (!mIsFocusMeteringAutoCompleted) {
+            synchronized (mLock) {
+                mRequestedFocusMeteringActions.add(action);
+
+                AtomicReference<CallbackToFutureAdapter.Completer<FocusMeteringResult>>
+                        resultCompleter = new AtomicReference<>();
+
+                ListenableFuture<FocusMeteringResult> future = CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            resultCompleter.set(completer);
+                            return "focusMeteringResultFuture";
+                        });
+
+                // CallbackToFutureAdapter.getFuture provides completer synchronously, so it should
+                // already be available
+                mFocusMeteringActionToResultMap.put(action, resultCompleter.get());
+
+                scheduleFocusTimeoutAndAutoCancellation(action, resultCompleter.get());
+
+                return future;
+            }
+        }
+
         return Futures.immediateFuture(FocusMeteringResult.emptyInstance());
+    }
+
+    private void scheduleFocusTimeoutAndAutoCancellation(
+            @NonNull FocusMeteringAction action,
+            CallbackToFutureAdapter.Completer<FocusMeteringResult> focusMeteringResultCompleter) {
+        HandlerThread handlerThread = new HandlerThread(CameraXThreads.TAG + TAG,
+                Process.THREAD_PRIORITY_BACKGROUND);
+        handlerThread.start();
+        Handler handler = HandlerCompat.createAsync(handlerThread.getLooper());
+
+        // Sets auto focus timeout runnable first so that action will be completed with
+        // unsuccessful focusing when auto cancel is enabled with the same duration as focus
+        // timeout.
+        handler.postDelayed(() -> {
+            Logger.d(TAG, "Completing focus result as unsuccessful after timeout!");
+            focusMeteringResultCompleter.set(FocusMeteringResult.create(false));
+        }, AUTO_FOCUS_TIMEOUT_DURATION);
+
+        long cancelDurationMillis = action.getAutoCancelDurationInMillis();
+        Logger.d(TAG, "Focus action auto cancel duration: " + cancelDurationMillis + " ms");
+
+        if (cancelDurationMillis > 0L) {
+            handler.postDelayed(() -> {
+                Logger.d(TAG, "Cancelling focus operation after " + cancelDurationMillis + " ms");
+                focusMeteringResultCompleter.setException(new OperationCanceledException(
+                        "Auto-cancelled after " + cancelDurationMillis + " ms"));
+            }, cancelDurationMillis);
+        }
+
+        // Note that quitSafely isn't immediate and doesn't block, the thread will be closed after
+        // all already submitted tasks are done.
+        handler.postDelayed(handlerThread::quitSafely,
+                Math.max(AUTO_FOCUS_TIMEOUT_DURATION, cancelDurationMillis));
     }
 
     /** Returns a {@link Futures#immediateFuture} which immediately contains a result. */
@@ -587,6 +663,104 @@ public final class FakeCameraControl implements CameraControlInternal {
                 }
             }
         }
+    }
+
+    /**
+     * Disables the auto-completion behavior of {@link #startFocusAndMetering(FocusMeteringAction)}.
+     *
+     * <p> Currently, {@link #startFocusAndMetering(FocusMeteringAction)} immediately provides a
+     * completed result by default and no request result is ever pending. This will allow to disable
+     * that behavior so that focus metering status of started but not completed can be tested.
+     *
+     * @param disable Whether to disable or enable.
+     *
+     * @see #submitFocusMeteringResult(FocusMeteringResult)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void disableFocusMeteringAutoComplete(boolean disable) {
+        mIsFocusMeteringAutoCompleted = !disable;
+    }
+
+    /**
+     * Submits a {@link FocusMeteringResult} to be used for the first pending focus-metering
+     * request.
+     *
+     * <p> This method will complete a corresponding focus-metering request according to the
+     * provided result. If there are no pending requests, the `FocusMeteringResult` is kept in a
+     * queue to be used in future requests.
+     *
+     * <p> For applying a focus metering result to all already submitted requests, use the
+     * {@link #completeAllFocusMeteringRequests} method instead.
+     *
+     * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
+     * @see #disableFocusMeteringAutoComplete(boolean)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void submitFocusMeteringResult(@NonNull FocusMeteringResult focusMeteringResult) {
+        synchronized (mLock) {
+            mFocusMeteringResults.add(focusMeteringResult);
+        }
+        applyFocusMeteringResults();
+    }
+
+    /**
+     * Completes all the incomplete focus-metering requests with the provided
+     * {@link FocusMeteringResult}.
+     *
+     * @see CameraControl#startFocusAndMetering(FocusMeteringAction)
+     * @see #disableFocusMeteringAutoComplete(boolean)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void completeAllFocusMeteringRequests(@NonNull FocusMeteringResult focusMeteringResult) {
+        synchronized (mLock) {
+            // Add FocusMeteringResult instances for all pending requests first.
+            for (int i = 0; i < mRequestedFocusMeteringActions.size(); i++) {
+                mFocusMeteringResults.add(focusMeteringResult);
+            }
+        }
+
+        applyFocusMeteringResults();
+    }
+
+    private void applyFocusMeteringResults() {
+        synchronized (mLock) {
+            while (!mFocusMeteringResults.isEmpty()) {
+                FocusMeteringResult focusMeteringResult = mFocusMeteringResults.getFirst();
+
+                if (completeFirstPendingFocusMeteringRequest(focusMeteringResult)) {
+                    mFocusMeteringResults.removeFirst();
+                } else {
+                    Logger.d(TAG, "applyFocusMeteringResults: failed to notify");
+                    break;
+                }
+            }
+        }
+    }
+
+    private boolean completeFirstPendingFocusMeteringRequest(
+            @NonNull FocusMeteringResult focusMeteringResult) {
+        FocusMeteringAction focusMeteringAction;
+        CallbackToFutureAdapter.Completer<FocusMeteringResult> completer;
+
+        synchronized (mLock) {
+            if (mRequestedFocusMeteringActions.isEmpty()) {
+                Logger.d(TAG,
+                        "completeFirstPendingFocusMeteringRequest: returning early since "
+                                + "mRequestedFocusMeteringActions is empty!");
+                return false;
+            }
+
+            focusMeteringAction = mRequestedFocusMeteringActions.removeFirst();
+            completer = mFocusMeteringActionToResultMap.get(focusMeteringAction);
+        }
+
+        if (completer == null) {
+            Logger.e(TAG, "completeFirstPendingFocusMeteringRequest: completer is null!");
+            return false;
+        }
+
+        completer.set(focusMeteringResult);
+        return true;
     }
 
     /**

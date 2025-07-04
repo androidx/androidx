@@ -65,6 +65,6 @@ fun PainterResourceSample() {
     Image(
         painterResource(R.drawable.ic_vector_or_png),
         contentDescription = null,
-        modifier = Modifier.requiredSize(50.dp)
+        modifier = Modifier.requiredSize(50.dp),
     )
 }

@@ -25,7 +25,15 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.SmallImageType
 
-/** Defines attributes to customize appearance of rendered [ ]. */
+/**
+ * Defines attributes to customize appearance of rendered [ ].
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ComplicationStyle {
     /** Constants used to define border styles for complicationSlots. */
     @Retention(AnnotationRetention.SOURCE)
@@ -357,7 +365,7 @@ public class ComplicationStyle {
                 Color.alpha(color).toFloat() / 255.0f,
                 Color.red(tint) * luminance / 255.0f,
                 Color.green(tint) * luminance / 255.0f,
-                Color.blue(tint) * luminance / 255.0f
+                Color.blue(tint) * luminance / 255.0f,
             )
         }
     }

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.widget.TextView;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.UiObject;
 import androidx.test.uiautomator.UiScrollable;
 import androidx.test.uiautomator.UiSelector;
@@ -69,6 +70,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is non-existent"));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testGetChildByDescription_withoutScrollSearch() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -86,6 +88,7 @@ public class UiScrollableTest extends BaseTest {
                         false));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testGetChildByInstance() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -118,6 +121,7 @@ public class UiScrollableTest extends BaseTest {
                         "This is non-existent"));
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testGetChildByText_withoutScrollSearch() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -276,6 +280,7 @@ public class UiScrollableTest extends BaseTest {
         assertEquals("swipe_right", scrollRegion.getText());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testScrollToBeginning_withSteps() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
@@ -306,6 +311,7 @@ public class UiScrollableTest extends BaseTest {
         assertFalse(topText.exists());
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264336
     @Test
     public void testScrollToBeginning() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);

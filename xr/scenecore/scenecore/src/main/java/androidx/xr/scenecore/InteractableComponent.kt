@@ -17,14 +17,16 @@
 package androidx.xr.scenecore
 
 import android.util.Log
-import androidx.annotation.RestrictTo
+import androidx.core.content.ContextCompat
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.internal.InputEventListener as RtInputEventListener
+import androidx.xr.runtime.internal.JxrPlatformAdapter
 import java.util.concurrent.Executor
 
 /**
- * Provides access to raw input events for given Entity, so a client can implement their own
+ * Provides access to raw [InputEvent]s for given [Entity], so a client can implement their own
  * interaction logic.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class InteractableComponent
 private constructor(
     private val runtime: JxrPlatformAdapter,
@@ -32,19 +34,18 @@ private constructor(
     private val executor: Executor,
     private val inputEventListener: InputEventListener,
 ) : Component {
-    private val rtInputEventListener =
-        JxrPlatformAdapter.InputEventListener { rtEvent ->
-            inputEventListener.onInputEvent(rtEvent.toInputEvent(entityManager))
-        }
+    private val rtInputEventListener = RtInputEventListener { rtEvent ->
+        inputEventListener.onInputEvent(rtEvent.toInputEvent(entityManager))
+    }
     private val rtInteractableComponent by lazy {
         runtime.createInteractableComponent(executor, rtInputEventListener)
     }
     private var entity: Entity? = null
 
     /**
-     * Attaches this component to the given entity.
+     * Attaches this component to the given [Entity].
      *
-     * @param entity The entity to attach this component to.
+     * @param entity The [Entity] to attach this component to.
      * @return `true` if the component was successfully attached, `false` otherwise.
      */
     override fun onAttach(entity: Entity): Boolean {
@@ -57,16 +58,16 @@ private constructor(
     }
 
     /**
-     * Detaches this component from the given entity.
+     * Detaches this component from the given [Entity].
      *
-     * @param entity The entity to detach this component from.
+     * @param entity The [Entity] to detach this component from.
      */
     override fun onDetach(entity: Entity) {
         (entity as BaseEntity<*>).rtEntity.removeComponent(rtInteractableComponent)
         this.entity = null
     }
 
-    internal companion object {
+    public companion object {
         /** Factory for Interactable component. */
         internal fun create(
             runtime: JxrPlatformAdapter,
@@ -76,5 +77,41 @@ private constructor(
         ): InteractableComponent {
             return InteractableComponent(runtime, entityManager, executor, inputEventListener)
         }
+
+        /**
+         * Public factory for creating an InteractableComponent. It enables access to raw input
+         * events.
+         *
+         * @param session [Session] to create the InteractableComponent in.
+         * @param executor Executor for invoking [InputEventListener].
+         * @param inputEventListener [InputEventListener] that accepts [InputEvent]s.
+         */
+        @JvmStatic
+        public fun create(
+            session: Session,
+            executor: Executor,
+            inputEventListener: InputEventListener,
+        ): InteractableComponent =
+            create(
+                session.platformAdapter,
+                session.scene.entityManager,
+                executor,
+                inputEventListener,
+            )
+
+        /**
+         * Public factory for creating an InteractableComponent. It enables access to raw input
+         * events.
+         *
+         * @param session [Session] to create the InteractableComponent in.
+         * @param inputEventListener [InputEventListener] that accepts [InputEvent]s. The listener
+         *   callbacks will be invoked on the main thread.
+         */
+        @JvmStatic
+        public fun create(
+            session: Session,
+            inputEventListener: InputEventListener,
+        ): InteractableComponent =
+            create(session, ContextCompat.getMainExecutor(session.activity), inputEventListener)
     }
 }

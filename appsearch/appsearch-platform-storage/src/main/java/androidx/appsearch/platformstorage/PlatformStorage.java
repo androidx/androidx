@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.EnterpriseGlobalSearchSession;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
@@ -112,6 +113,7 @@ public final class PlatformStorage {
              * using {@link
              * androidx.appsearch.app.SetSchemaRequest.Builder#setSchemaTypeVisibilityForPackage}).
              *
+             * @param context The context used as the parent of the created SearchContext
              * @param databaseName The name of the database.
              * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
              */
@@ -314,6 +316,15 @@ public final class PlatformStorage {
                     }
                 });
         return future;
+    }
+
+    /**
+     * Returns the {@link Features} to check for the availability of certain features for this
+     * AppSearch storage.
+     */
+    @ExperimentalAppSearchApi
+    public static @NonNull Features getFeatures(@NonNull Context context) {
+        return new FeaturesImpl(context);
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)

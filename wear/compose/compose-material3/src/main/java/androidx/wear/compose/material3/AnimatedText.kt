@@ -23,7 +23,10 @@ import android.graphics.fonts.FontVariationAxis
 import android.graphics.fonts.FontVariationAxis.toFontVariationSettings
 import android.graphics.text.PositionedGlyphs
 import android.graphics.text.TextRunShaper
+import android.text.TextDirectionHeuristic
+import android.text.TextDirectionHeuristics
 import android.text.TextPaint
+import android.text.TextShaper
 import android.util.LruCache
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
@@ -52,12 +55,14 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.resolveAsTypeface
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.LocalReduceMotion
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -106,10 +111,12 @@ public fun AnimatedText(
 ) {
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
+    val isReduceMotionEnabled = LocalReduceMotion.current
     val animatedTextState =
         remember(fontRegistry, layoutDirection, density) {
             AnimatedTextState(fontRegistry, layoutDirection, density)
         }
+
     // Update before composing Canvas to make sure size gets updated
     animatedTextState.updateText(text)
     Canvas(
@@ -117,11 +124,15 @@ public fun AnimatedText(
             apply { this.text = AnnotatedString(text) }
         }
     ) {
-        animatedTextState.draw(
-            drawContext.canvas.nativeCanvas,
-            contentAlignment,
-            progressFraction()
-        )
+        // Update text if ReduceMotion is enabled to make sure the new text value is used
+        if (isReduceMotionEnabled) {
+            animatedTextState.updateText(text)
+        }
+
+        // If ReduceMotion is enabled, show static text with the end font configuration.
+        val fraction = if (isReduceMotionEnabled) 1f else progressFraction()
+
+        animatedTextState.draw(drawContext.canvas.nativeCanvas, contentAlignment, fraction)
     }
 }
 
@@ -211,6 +222,9 @@ public class AnimatedTextFontRegistry(
     private val startFontSizePx = with(density) { startFontSize.toPx() }
     private val endFontSizePx = with(density) { endFontSize.toPx() }
 
+    /** The text direction specified in [textStyle]. */
+    internal val textDirection = textStyle.textDirection
+
     /**
      * Returns the font at a certain [fraction] of the animation. [text] parameter is required to
      * extract the initial font to draw the text animation.
@@ -229,7 +243,7 @@ public class AnimatedTextFontRegistry(
                                 lerpFontVariationSettings(
                                     startFontVariationSettings,
                                     endFontVariationSettings,
-                                    snappedFraction
+                                    snappedFraction,
                                 )
                             )
                             .build()
@@ -308,7 +322,7 @@ public class AnimatedTextFontRegistry(
     private fun lerpFontVariationSettings(
         startFontVariationSettings: FontVariation.Settings,
         endFontVariationSettings: FontVariation.Settings,
-        fraction: Float
+        fraction: Float,
     ): Array<FontVariationAxis> {
         startFontVariationSettings.settings.indices.forEach { startIndex ->
             // Find the corresponding FontVariation.Setting in endFontVariationSettings
@@ -328,8 +342,8 @@ public class AnimatedTextFontRegistry(
                     lerp(
                         startFontVariationSettings.settings[startIndex].toVariationValue(density),
                         endSetting.toVariationValue(density),
-                        fraction
-                    )
+                        fraction,
+                    ),
                 )
         }
         return currentAxes
@@ -345,7 +359,7 @@ public class AnimatedTextFontRegistry(
                     lerpFontVariationSettings(
                         startFontVariationSettings,
                         endFontVariationSettings,
-                        1f
+                        1f,
                     )
                 )
                 .build()
@@ -368,7 +382,7 @@ public class AnimatedTextFontRegistry(
                 0f,
                 0f,
                 false, // Correct layout direction isn't needed for generating the font
-                startWorkingPaint
+                startWorkingPaint,
             )
         startFont =
             Font.Builder(glyphs.getFont(0))
@@ -376,7 +390,7 @@ public class AnimatedTextFontRegistry(
                     lerpFontVariationSettings(
                         startFontVariationSettings,
                         endFontVariationSettings,
-                        0f
+                        0f,
                     )
                 )
                 .build()
@@ -388,7 +402,7 @@ public class AnimatedTextFontRegistry(
 @RequiresApi(31)
 public object AnimatedTextDefaults {
     /** Default font cache size to be used in AnimatedTextFontRegistry. */
-    public const val CacheSize: Int = 5
+    public val CacheSize: Int = 5
 
     /**
      * Default step size used to snap progress fractions. Progress fractions will be rounded down to
@@ -396,7 +410,7 @@ public object AnimatedTextDefaults {
      *
      * 0.016f is chosen to divide a 1 second animation into 60 animation steps.
      */
-    internal const val FractionStep = 0.016f
+    internal val FractionStep = 0.016f
 }
 
 /**
@@ -442,37 +456,42 @@ internal constructor(
             contentAlignment.align(
                 IntSize(widthPx.roundToInt(), heightPx.roundToInt()),
                 intSize,
-                layoutDirection
+                if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr,
             )
         canvas.translate(
-            offset.x.toFloat(),
+            if (isRtl) widthPx + offset.x.toFloat() else offset.x.toFloat(),
             offset.y.toFloat() +
                 heightPx / 2 +
                 lerp(startBaselineOffset, endBaselineOffset, fraction) / 2 +
-                lerp(startAscentPx, endAscentPx, fraction) / 4
+                lerp(startAscentPx, endAscentPx, fraction) / 4,
         )
         val currentFont = animatedFontRegistry.getFont(currentText, fraction)
         animatedFontRegistry.startWorkingPaint.textSize = animatedFontRegistry.getFontSize(fraction)
-        val startGlyphs = startPositionedGlyphs!!
-        val endGlyphs = endPositionedGlyphs!!
-        for (i in 0 until startGlyphs.glyphCount()) {
-            val glyphFont = startGlyphs.getFont(i)
-            canvas.drawGlyphs(
-                intArrayOf(startGlyphs.getGlyphId(i)),
-                0,
-                floatArrayOf(
-                    lerp(startGlyphs.getGlyphX(i), endGlyphs.getGlyphX(i), fraction),
-                    lerp(startGlyphs.getGlyphY(i), endGlyphs.getGlyphY(i), fraction)
-                ),
-                0,
-                1,
-                if (currentFont.file?.name != glyphFont.file?.name) {
-                    glyphFont
-                } else {
-                    currentFont
-                },
-                animatedFontRegistry.startWorkingPaint,
-            )
+
+        val numGlyphs = minOf(startPositionedGlyphs.size, endPositionedGlyphs.size)
+        for (i in 0 until numGlyphs) {
+            val startGlyphs = startPositionedGlyphs[i]
+            val endGlyphs = endPositionedGlyphs[i]
+
+            for (j in 0 until startGlyphs.glyphCount()) {
+                val glyphFont = startGlyphs.getFont(j)
+                canvas.drawGlyphs(
+                    intArrayOf(startGlyphs.getGlyphId(j)),
+                    0,
+                    floatArrayOf(
+                        lerp(startGlyphs.getGlyphX(j), endGlyphs.getGlyphX(j), fraction),
+                        lerp(startGlyphs.getGlyphY(j), endGlyphs.getGlyphY(j), fraction),
+                    ),
+                    0,
+                    1,
+                    if (currentFont.file?.name != glyphFont.file?.name) {
+                        glyphFont
+                    } else {
+                        currentFont
+                    },
+                    animatedFontRegistry.startWorkingPaint,
+                )
+            }
         }
     }
 
@@ -503,6 +522,9 @@ internal constructor(
     /** Current text. */
     private var currentText: String = ""
 
+    /** If text direction is right-to-left or left-to-right. */
+    private var isRtl = false
+
     /** Content width at the start of the animation, in px */
     private var startWidthPx = 0f
 
@@ -510,10 +532,10 @@ internal constructor(
     private var endWidthPx = 0f
 
     /** Positions of the glyphs at the start, used to calculate lerped glyph positions */
-    private var startPositionedGlyphs: PositionedGlyphs? = null
+    private val startPositionedGlyphs = mutableListOf<PositionedGlyphs>()
 
     /** Positions of the glyphs at the end, used to calculate lerped glyph positions */
-    private var endPositionedGlyphs: PositionedGlyphs? = null
+    private val endPositionedGlyphs = mutableListOf<PositionedGlyphs>()
 
     /**
      * Calculates required canvas size to draw the text, font ascent and baseline offset for the
@@ -527,43 +549,63 @@ internal constructor(
     }
 
     private fun calculateMaxWidth(): Float {
+        startWidthPx = 0f
+        startPositionedGlyphs.clear()
+        endWidthPx = 0f
+        endPositionedGlyphs.clear()
         if (currentText.isEmpty()) {
-            startWidthPx = 0f
-            startPositionedGlyphs = null
-            endWidthPx = 0f
-            endPositionedGlyphs = null
             return 0f
         }
-        startWidthPx = 0f
-        endWidthPx = 0f
-        startPositionedGlyphs =
-            TextRunShaper.shapeTextRun(
-                currentText,
-                0,
-                currentText.length,
-                0,
-                currentText.length,
-                0f,
-                0f,
-                layoutDirection == LayoutDirection.Rtl,
-                animatedFontRegistry.startWorkingPaint
-            )
-        startWidthPx = startPositionedGlyphs!!.advance
-        endPositionedGlyphs =
-            TextRunShaper.shapeTextRun(
-                currentText,
-                0,
-                currentText.length,
-                0,
-                currentText.length,
-                0f,
-                0f,
-                layoutDirection == LayoutDirection.Rtl,
-                animatedFontRegistry.endWorkingPaint
-            )
-        endWidthPx = endPositionedGlyphs!!.advance
+
+        val textDirHeuristic = getTextDirHeuristic()
+        isRtl = textDirHeuristic.isRtl(currentText, 0, currentText.length)
+
+        TextShaper.shapeText(
+            currentText,
+            0,
+            currentText.length,
+            textDirHeuristic,
+            animatedFontRegistry.startWorkingPaint,
+        ) { _, _, glyphs, _ ->
+            startPositionedGlyphs.add(glyphs)
+            startWidthPx += glyphs.advance
+        }
+        TextShaper.shapeText(
+            currentText,
+            0,
+            currentText.length,
+            textDirHeuristic,
+            animatedFontRegistry.endWorkingPaint,
+        ) { _, _, glyphs, _ ->
+            endPositionedGlyphs.add(glyphs)
+            endWidthPx += glyphs.advance
+        }
+
         return max(startWidthPx, endWidthPx)
     }
+
+    /**
+     * Resolves the text direction heuristic based on [AnimatedTextFontRegistry] text style. If the
+     * text direction is not specified, fall back on layout direction.
+     */
+    private fun getTextDirHeuristic(): TextDirectionHeuristic =
+        when (animatedFontRegistry.textDirection) {
+            TextDirection.Rtl -> TextDirectionHeuristics.RTL
+            TextDirection.Ltr -> TextDirectionHeuristics.LTR
+            TextDirection.ContentOrRtl -> {
+                TextDirectionHeuristics.FIRSTSTRONG_RTL
+            }
+            TextDirection.ContentOrLtr -> {
+                TextDirectionHeuristics.FIRSTSTRONG_LTR
+            }
+            else -> {
+                if (layoutDirection == LayoutDirection.Rtl) {
+                    TextDirectionHeuristics.FIRSTSTRONG_RTL
+                } else {
+                    TextDirectionHeuristics.FIRSTSTRONG_LTR
+                }
+            }
+        }
 
     private fun calculateMaxHeight(): Float {
         if (currentText.isEmpty()) {

@@ -65,12 +65,12 @@ class ActivityEmbeddingControllerCallbackAdapter(
     fun addEmbeddedActivityWindowInfoListener(
         activity: Activity,
         executor: Executor,
-        listener: Consumer<EmbeddedActivityWindowInfo>
+        listener: Consumer<EmbeddedActivityWindowInfo>,
     ) {
         callbackToFlowAdapter.connect(
             executor,
             listener,
-            controller.embeddedActivityWindowInfo(activity)
+            controller.embeddedActivityWindowInfo(activity),
         )
     }
 

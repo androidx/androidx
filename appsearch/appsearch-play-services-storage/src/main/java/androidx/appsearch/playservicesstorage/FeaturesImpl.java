@@ -31,6 +31,12 @@ final class FeaturesImpl implements Features {
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
+            // Aliases for other features
+            case Features.SEARCH_AND_CLICK_ACCUMULATOR:
+                // Requires JoinSpec to create the Click schema. TakenAction API is optional as we
+                // can index search and click as regular documents if TakenActions aren't available.
+                return isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID);
+
             case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
                 // fall through
             case Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA:
@@ -72,6 +78,10 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
                 // fall through
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE:
                 return true; // AppSearch features present in GMSCore AppSearch.
 
             // RegisterObserver and UnregisterObserver are not yet supported by GMSCore AppSearch.
@@ -101,6 +111,10 @@ final class FeaturesImpl implements Features {
             case Features.INDEXER_MOBILE_APPLICATIONS:
                 // TODO(b/275592563) : Update once this features is supported.
                 // fall through
+            case Features.SEARCH_EMBEDDING_MATCH_INFO:
+                // TODO(b/395128139) : Update once this features is supported.
+                // fall through
+
             default:
                 return false; // AppSearch features absent in GMSCore AppSearch.
         }

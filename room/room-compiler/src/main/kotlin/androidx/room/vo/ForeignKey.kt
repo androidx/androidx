@@ -22,22 +22,22 @@ import androidx.room.migration.bundle.ForeignKeyBundle
 data class ForeignKey(
     val parentTable: String,
     val parentColumns: List<String>,
-    val childFields: List<Field>,
+    val childProperties: List<Property>,
     val onDelete: ForeignKeyAction,
     val onUpdate: ForeignKeyAction,
-    val deferred: Boolean
+    val deferred: Boolean,
 ) : HasSchemaIdentity {
     override fun getIdKey(): String {
         return parentTable +
             "-${parentColumns.joinToString(",")}" +
-            "-${childFields.joinToString(",") {it.columnName}}" +
+            "-${childProperties.joinToString(",") {it.columnName}}" +
             "-${onDelete.sqlName}" +
             "-${onUpdate.sqlName}" +
             "-$deferred"
     }
 
     fun databaseDefinition(): String {
-        return "FOREIGN KEY(${joinEscaped(childFields.map { it.columnName })})" +
+        return "FOREIGN KEY(${joinEscaped(childProperties.map { it.columnName })})" +
             " REFERENCES `$parentTable`(${joinEscaped(parentColumns)})" +
             " ON UPDATE ${onUpdate.sqlName}" +
             " ON DELETE ${onDelete.sqlName}" +
@@ -59,7 +59,7 @@ data class ForeignKey(
             parentTable,
             onDelete.sqlName,
             onUpdate.sqlName,
-            childFields.map { it.columnName },
-            parentColumns
+            childProperties.map { it.columnName },
+            parentColumns,
         )
 }

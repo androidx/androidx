@@ -144,7 +144,7 @@ public class LocationData(
                 latitude = latitude,
                 longitude = longitude,
                 altitude = altitude,
-                bearing = bearing
+                bearing = bearing,
             )
         }
     }

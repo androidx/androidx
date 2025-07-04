@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,9 +32,9 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.compose.runtime:runtime:1.2.1")
-    api("androidx.compose.ui:ui-graphics:1.1.1")
-    api("androidx.compose.ui:ui-unit:1.1.1")
+    api("androidx.compose.runtime:runtime:1.6.0")
+    api("androidx.compose.ui:ui-graphics:1.6.0")
+    api("androidx.compose.ui:ui-unit:1.6.0")
     api("androidx.datastore:datastore-core:1.0.0")
     api("androidx.datastore:datastore-preferences-core:1.0.0")
     api("androidx.datastore:datastore-preferences:1.0.0")
@@ -48,7 +48,6 @@ dependencies {
     // Force upgrade since 1.2.0 is not compatible with latest lint.
     implementation("androidx.annotation:annotation-experimental:1.4.1")
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
@@ -84,20 +83,15 @@ dependencies {
 }
 
 android {
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
     resourcePrefix "glance_"
     namespace = "androidx.glance"
-    // TODO(b/313699418): need to update compose.runtime version to 1.6.0+
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
     name = "Glance"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
-    legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
+    enableRobolectric()
 }

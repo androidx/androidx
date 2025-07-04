@@ -148,7 +148,7 @@ class ClipPointerInputTest {
                 Offset(0f, 3f),
                 Offset(4f, 3f),
                 Offset(1f, 4f),
-                Offset(3f, 4f)
+                Offset(3f, 4f),
             )
 
         val downEvents = mutableListOf<MotionEvent>()
@@ -161,7 +161,7 @@ class ClipPointerInputTest {
                     0,
                     arrayOf(PointerProperties(0)),
                     arrayOf(PointerCoords(value.x, value.y)),
-                    view
+                    view,
                 )
             )
         }
@@ -252,7 +252,7 @@ class ClipPointerInputTest {
                 Offset(0f, 3f),
                 Offset(4f, 3f),
                 Offset(1f, 4f),
-                Offset(3f, 4f)
+                Offset(3f, 4f),
             )
 
         val downEvents = mutableListOf<MotionEvent>()
@@ -265,7 +265,7 @@ class ClipPointerInputTest {
                     0,
                     arrayOf(PointerProperties(0)),
                     arrayOf(PointerCoords(value.x, value.y)),
-                    view
+                    view,
                 )
             )
         }
@@ -380,7 +380,7 @@ class ClipPointerInputTest {
                     0,
                     arrayOf(PointerProperties(0)),
                     arrayOf(PointerCoords(value.x, value.y)),
-                    view
+                    view,
                 )
             )
         }
@@ -404,7 +404,7 @@ class ClipPointerInputTest {
                 override fun createOutline(
                     size: Size,
                     layoutDirection: LayoutDirection,
-                    density: Density
+                    density: Density,
                 ) =
                     Outline.Rectangle(
                         Rect(
@@ -477,7 +477,7 @@ class ClipPointerInputTest {
                     0,
                     arrayOf(PointerProperties(0)),
                     arrayOf(PointerCoords(value.x, value.y)),
-                    view
+                    view,
                 )
             )
         }
@@ -502,7 +502,7 @@ class ClipPointerInputTest {
                 override fun onPointerEvent(
                     pointerEvent: PointerEvent,
                     pass: PointerEventPass,
-                    bounds: IntSize
+                    bounds: IntSize,
                 ) {
                     if (pass == PointerEventPass.Initial) {
                         pointerEvent.changes.forEach {

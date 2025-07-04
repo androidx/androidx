@@ -119,13 +119,13 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                 "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
                 "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
                 "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-                "--add-exports=jdk.internal.opt/jdk.internal.opt=ALL-UNNAMED"
+                "--add-exports=jdk.internal.opt/jdk.internal.opt=ALL-UNNAMED",
             )
             it.environment("KYTHE_CORPUS", ANDROIDX_CORPUS)
             it.environment("KYTHE_KZIP_ENCODING", "proto")
             it.environment(
                 "KYTHE_OUTPUT_FILE",
-                kzipOutputFile.get().asFile.relativeTo(checkoutRoot).path
+                kzipOutputFile.get().asFile.relativeTo(checkoutRoot).path,
             )
             it.environment("KYTHE_ROOT_DIRECTORY", checkoutRoot.path)
             it.environment("KYTHE_VNAMES", vnamesJson.get().asFile.path)
@@ -159,7 +159,7 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
                         javaExtractorJar.set(
                             File(
                                 project.getPrebuiltsRoot(),
-                                "build-tools/common/javac_extractor.jar"
+                                "build-tools/common/javac_extractor.jar",
                             )
                         )
                         sourcePaths.setFrom(compilationInputs.sourcePaths)

@@ -77,7 +77,7 @@ class PolygonMeasureTest {
                         CornerRounding(0.2f, 0.5f),
                         CornerRounding(0.4f, 0f),
                         CornerRounding(0.2f, 0.5f),
-                    )
+                    ),
             )
         )
 
@@ -92,7 +92,7 @@ class PolygonMeasureTest {
                         CornerRounding.Unrounded,
                         CornerRounding(0.5f, 0.5f),
                         CornerRounding.Unrounded,
-                    )
+                    ),
             )
         )
 
@@ -134,7 +134,7 @@ class PolygonMeasureTest {
                 diagonal / total,
                 horizontal / total,
                 diagonal / total,
-            )
+            ),
         )
     }
 
@@ -156,7 +156,7 @@ class PolygonMeasureTest {
 
     private fun regularPolygonMeasure(
         sides: Int,
-        rounding: CornerRounding = CornerRounding.Unrounded
+        rounding: CornerRounding = CornerRounding.Unrounded,
     ) {
         irregularPolygonMeasure(RoundedPolygon(sides, rounding = rounding)) { measuredPolygon ->
             assertEquals(sides, measuredPolygon.size)
@@ -174,14 +174,14 @@ class PolygonMeasureTest {
             measuredPolygon.forEachIndexed { index, measuredCubic ->
                 assertEqualish(
                     progresses[index],
-                    measuredCubic.endOutlineProgress - measuredCubic.startOutlineProgress
+                    measuredCubic.endOutlineProgress - measuredCubic.startOutlineProgress,
                 )
             }
         }
 
     private fun irregularPolygonMeasure(
         polygon: RoundedPolygon,
-        extraChecks: (MeasuredPolygon) -> Unit = {}
+        extraChecks: (MeasuredPolygon) -> Unit = {},
     ) {
         val measuredPolygon = MeasuredPolygon.measurePolygon(measurer, polygon)
 
@@ -192,7 +192,7 @@ class PolygonMeasureTest {
             if (index > 0) {
                 assertEquals(
                     measuredPolygon[index - 1].endOutlineProgress,
-                    measuredCubic.startOutlineProgress
+                    measuredCubic.startOutlineProgress,
                 )
             }
             assertTrue(measuredCubic.endOutlineProgress >= measuredCubic.startOutlineProgress)

@@ -18,9 +18,13 @@
 
 package androidx.compose.foundation.text.selection.gestures.util
 
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MagnifierPositionInRoot
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.contextmenu.test.SpyTextActionModeCallback
+import androidx.compose.foundation.text.contextmenu.test.assertShown
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.getSelectionHandleInfo
 import androidx.compose.foundation.text.selection.isSelectionHandle
@@ -121,6 +125,7 @@ internal abstract class SelectionAsserter<S>(
     var textContent: String,
     private val rule: ComposeTestRule,
     private val textToolbar: TextToolbar,
+    private val spyTextActionModeCallback: SpyTextActionModeCallback?,
     private val hapticFeedback: FakeHapticFeedback,
     protected val getActual: () -> S,
 ) {
@@ -150,13 +155,24 @@ internal abstract class SelectionAsserter<S>(
     var startLayoutDirection = ResolvedTextDirection.Ltr
     var endLayoutDirection = ResolvedTextDirection.Ltr
 
+    @OptIn(ExperimentalFoundationApi::class)
     open fun assert() {
         subAssert()
         rule.assertSelectionHandlesShown(
             startShown = startSelectionHandleShown ?: selectionHandlesShown,
-            endShown = endSelectionHandleShown ?: selectionHandlesShown
+            endShown = endSelectionHandleShown ?: selectionHandlesShown,
         )
-        textToolbar.assertShown(textToolbarShown)
+
+        if (ComposeFoundationFlags.isNewContextMenuEnabled) {
+            val spyCallback =
+                checkNotNull(spyTextActionModeCallback) {
+                    "spyTextActionModeCallback was never initialized."
+                }
+            spyCallback.assertShown(textToolbarShown)
+        } else {
+            textToolbar.assertShown(textToolbarShown)
+        }
+
         rule.assertMagnifierShown(magnifierShown)
         // reset haptics every assert.
         // with gestures, we could get multiple haptics per tested move
@@ -170,9 +186,18 @@ internal abstract class TextSelectionAsserter(
     textContent: String,
     rule: ComposeTestRule,
     textToolbar: TextToolbar,
+    spyTextActionModeCallback: SpyTextActionModeCallback?,
     hapticFeedback: FakeHapticFeedback,
     getActual: () -> Selection?,
-) : SelectionAsserter<Selection?>(textContent, rule, textToolbar, hapticFeedback, getActual) {
+) :
+    SelectionAsserter<Selection?>(
+        textContent,
+        rule,
+        textToolbar,
+        spyTextActionModeCallback,
+        hapticFeedback,
+        getActual,
+    ) {
     var selection: TextRange? = null
 }
 

@@ -34,7 +34,7 @@ internal class BackPressedDispatcherProxyFactory(
     private val onBackPressedDispatcherConstructor: Constructor<out Any>,
     private val consumerClass: Class<*>,
     private val dispatcherOnBackPressedMethod: Method,
-    private val sdkClassLoader: ClassLoader
+    private val sdkClassLoader: ClassLoader,
 ) {
     fun setupOnBackPressedDispatcherProxy(sourceDispatcher: OnBackPressedDispatcher): Any {
         val enabledChangedHandler = OnHasEnabledCallbacksChangedHandler()
@@ -44,7 +44,7 @@ internal class BackPressedDispatcherProxyFactory(
         val dispatcherProxy =
             onBackPressedDispatcherConstructor.newInstance(
                 /* parameter1 */ null,
-                /* parameter2 */ onHasEnabledCallbacksChangedCallback
+                /* parameter2 */ onHasEnabledCallbacksChangedCallback,
             )
 
         val sourceDispatcherCallback =
@@ -93,7 +93,7 @@ internal class BackPressedDispatcherProxyFactory(
                 Class.forName(
                     "androidx.activity.OnBackPressedDispatcher",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
 
             val consumerClass =
@@ -102,7 +102,7 @@ internal class BackPressedDispatcherProxyFactory(
             val onBackPressedDispatcherConstructor =
                 onBackPressedDispatcherClass.getConstructor(
                     /* parameter1 */ Runnable::class.java,
-                    /* parameter2 */ consumerClass
+                    /* parameter2 */ consumerClass,
                 )
 
             val dispatcherOnBackPressedMethod =
@@ -112,7 +112,7 @@ internal class BackPressedDispatcherProxyFactory(
                 onBackPressedDispatcherConstructor,
                 consumerClass,
                 dispatcherOnBackPressedMethod,
-                classLoader
+                classLoader,
             )
         }
     }

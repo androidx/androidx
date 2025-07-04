@@ -55,17 +55,12 @@ public class InvalidVideoProfilesQuirk : Quirk {
                 "pixel 6a",
                 "pixel 6 pro",
                 "pixel 7",
-                "pixel 7 pro"
+                "pixel 7 pro",
             )
 
         private val AFFECTED_ONE_PLUS_MODELS: List<String> = listOf("cph2417", "cph2451")
 
-        private val AFFECTED_OPPO_MODELS: List<String> =
-            listOf(
-                "cph2437",
-                "cph2525",
-                "pht110",
-            )
+        private val AFFECTED_OPPO_MODELS: List<String> = listOf("cph2437", "cph2525", "pht110")
 
         public fun isEnabled(): Boolean {
             return isAffectedSamsungDevices() ||

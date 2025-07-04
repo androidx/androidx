@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE") // b/407927787
 
 package androidx.compose.foundation.lazy.list
 
@@ -39,6 +39,8 @@ import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.layout.PinnableContainer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -46,9 +48,13 @@ import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import kotlin.test.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -94,6 +100,48 @@ class LazyListHeadersTest {
     }
 
     @Test
+    fun lazyColumnShowsHeader_withPinnedItem() {
+        val items = (1..2).map { it.toString() }
+        val firstHeaderTag = "firstHeaderTag"
+        val secondHeaderTag = "secondHeaderTag"
+        var pinnableItem: PinnableContainer? = null
+        rule.setContent {
+            LazyColumn(Modifier.height(300.dp), beyondBoundsItemCount = 0) {
+                stickyHeader {
+                    Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(firstHeaderTag))
+                }
+
+                items(items) {
+                    if (it == "1") {
+                        pinnableItem = LocalPinnableContainer.current
+                    }
+                    Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(it))
+                }
+
+                stickyHeader {
+                    Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(secondHeaderTag))
+                }
+
+                items(items) { Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(it)) }
+
+                items(items) { Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(it)) }
+            }
+        }
+
+        rule.runOnIdle { pinnableItem?.pin() }
+
+        rule.onNodeWithTag(firstHeaderTag).assertIsDisplayed()
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        rule.onNodeWithTag("2").assertIsDisplayed()
+        rule.onNodeWithTag(secondHeaderTag).assertDoesNotExist()
+
+        rule.onRoot().performTouchInput { swipeUp() }
+
+        rule.onNodeWithTag(firstHeaderTag).assertIsNotDisplayed()
+        rule.onNodeWithTag(secondHeaderTag).assertIsDisplayed()
+    }
+
+    @Test
     fun lazyColumnPlaceSecondHeader_ifBeyondBoundsItemCountIsUsed() {
         val items = (1..2).map { it.toString() }
         val firstHeaderTag = "firstHeaderTag"
@@ -132,7 +180,7 @@ class LazyListHeadersTest {
         rule.setContentWithTestViewConfiguration {
             LazyColumn(
                 Modifier.height(300.dp).testTag(LazyListTag),
-                rememberLazyListState().also { state = it }
+                rememberLazyListState().also { state = it },
             ) {
                 stickyHeader {
                     Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(firstHeaderTag))
@@ -262,7 +310,7 @@ class LazyListHeadersTest {
         rule.setContentWithTestViewConfiguration {
             LazyRow(
                 Modifier.width(300.dp).testTag(LazyListTag),
-                rememberLazyListState().also { state = it }
+                rememberLazyListState().also { state = it },
             ) {
                 stickyHeader {
                     Spacer(Modifier.width(101.dp).fillParentMaxHeight().testTag(firstHeaderTag))
@@ -335,7 +383,7 @@ class LazyListHeadersTest {
             LazyColumn(
                 Modifier.requiredSize(itemIndexDp * 4),
                 state = rememberLazyListState().also { state = it },
-                contentPadding = PaddingValues(top = itemIndexDp * 2)
+                contentPadding = PaddingValues(top = itemIndexDp * 2),
             ) {
                 stickyHeader { Spacer(Modifier.requiredSize(itemIndexDp).testTag(headerTag)) }
 
@@ -351,7 +399,7 @@ class LazyListHeadersTest {
             assertEquals(0, state.layoutInfo.visibleItemsInfo.first().index)
             assertEquals(
                 itemIndexPx / 2 - /* content padding size */ itemIndexPx * 2,
-                state.layoutInfo.visibleItemsInfo.first().offset
+                state.layoutInfo.visibleItemsInfo.first().offset,
             )
         }
 
@@ -392,6 +440,24 @@ class LazyListHeadersTest {
             .assertTopPositionInRootIsEqualTo(itemSizeDp - scrollDistanceDp)
         rule.onNodeWithTag("0").assertTopPositionInRootIsEqualTo(itemSizeDp * 2 - scrollDistanceDp)
     }
+
+    @Test
+    fun lazyColumn_withEmptyHeader_shouldNotCrash() {
+        val items = (1..2).map { it.toString() }
+        val error = runCatching {
+            rule.setContent {
+                LazyColumn(Modifier.height(300.dp)) {
+                    stickyHeader {}
+
+                    items(items) {
+                        Spacer(Modifier.height(101.dp).fillParentMaxWidth().testTag(it))
+                    }
+                }
+            }
+        }
+
+        assertTrue { error.isSuccess }
+    }
 }
 
 @Composable
@@ -406,7 +472,7 @@ private fun LazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     beyondBoundsItemCount: Int,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyList(
         modifier = modifier,
@@ -420,7 +486,7 @@ private fun LazyColumn(
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = rememberOverscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
-        content = content
+        content = content,
     )
 }
 
@@ -436,7 +502,7 @@ private fun LazyRow(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     beyondBoundsItemCount: Int,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     LazyList(
         modifier = modifier,
@@ -450,6 +516,6 @@ private fun LazyRow(
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = rememberOverscrollEffect(),
         beyondBoundsItemCount = beyondBoundsItemCount,
-        content = content
+        content = content,
     )
 }

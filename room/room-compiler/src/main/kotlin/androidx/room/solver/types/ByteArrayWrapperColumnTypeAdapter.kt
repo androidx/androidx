@@ -30,7 +30,7 @@ class ByteArrayWrapperColumnTypeAdapter(out: XType) :
         outVarName: String,
         stmtVarName: String,
         indexVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addGetBlobStatement() {
@@ -41,8 +41,8 @@ class ByteArrayWrapperColumnTypeAdapter(out: XType) :
                         BYTE_ARRAY_WRAPPER,
                         argsFormat = "%L.getBlob(%L)",
                         stmtVarName,
-                        indexVarName
-                    )
+                        indexVarName,
+                    ),
                 )
             }
             if (out.nullability == XNullability.NONNULL) {
@@ -60,7 +60,7 @@ class ByteArrayWrapperColumnTypeAdapter(out: XType) :
         stmtName: String,
         indexVarName: String,
         valueVarName: String,
-        scope: CodeGenScope
+        scope: CodeGenScope,
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addBindBlobStatement() {
@@ -83,7 +83,7 @@ class ByteArrayWrapperColumnTypeAdapter(out: XType) :
             return if (env.backend == XProcessingEnv.Backend.KSP) {
                 listOf(
                     ByteArrayWrapperColumnTypeAdapter(type.makeNullable()),
-                    ByteArrayWrapperColumnTypeAdapter(type.makeNonNullable())
+                    ByteArrayWrapperColumnTypeAdapter(type.makeNonNullable()),
                 )
             } else {
                 listOf(ByteArrayWrapperColumnTypeAdapter(out = type))

@@ -29,7 +29,7 @@ class UseCompatDetectorTest {
             arrayOf(
                 javaSample("com.example.android.appcompat.AppCompatLintDemo"),
                 javaSample("com.example.android.appcompat.AppCompatLintDemoExt"),
-                javaSample("com.example.android.appcompat.CoreActivityExt")
+                javaSample("com.example.android.appcompat.CoreActivityExt"),
             )
 
         val expected =

@@ -70,11 +70,27 @@ public class Dimension {
         mInitialValue = type;
     }
 
+    /**
+     * @deprecated Use {@link #createSuggested(int)} instead
+     */
+    @Deprecated
+    public static Dimension Suggested(int value) {
+        return createSuggested(value);
+    }
+
     // @TODO: add description
     public static Dimension createSuggested(int value) {
         Dimension dimension = new Dimension();
         dimension.suggested(value);
         return dimension;
+    }
+
+    /**
+     * @deprecated Use {@link #createSuggested(Object)} instead
+     */
+    @Deprecated
+    public static Dimension Suggested(Object startValue) {
+        return createSuggested(startValue);
     }
 
     // @TODO: add description
@@ -84,8 +100,26 @@ public class Dimension {
         return dimension;
     }
 
+    /**
+     * @deprecated Use {@link #createFixed(int)} instead
+     */
+    @Deprecated
+    public static Dimension Fixed(int value) {
+        return createFixed(value);
+    }
+
     // @TODO: add description
     public static Dimension createFixed(int value) {
+        Dimension dimension = new Dimension(FIXED_DIMENSION);
+        dimension.fixed(value);
+        return dimension;
+    }
+
+    /**
+     * @deprecated Use {@link #createFixed(Object)} instead
+     */
+    @Deprecated
+    public static Dimension Fixed(Object value) {
         Dimension dimension = new Dimension(FIXED_DIMENSION);
         dimension.fixed(value);
         return dimension;
@@ -98,6 +132,14 @@ public class Dimension {
         return dimension;
     }
 
+    /**
+     * @deprecated Use {@link #createPercent(Object, float)} instead
+     */
+    @Deprecated
+    public static Dimension Percent(Object key, float value) {
+        return createPercent(key, value);
+    }
+
     // @TODO: add description
     public static Dimension createPercent(Object key, float value) {
         Dimension dimension = new Dimension(PERCENT_DIMENSION);
@@ -105,9 +147,25 @@ public class Dimension {
         return dimension;
     }
 
+    /**
+     * @deprecated Use {@link #createParent(int)} instead
+     */
+    @Deprecated
+    public static Dimension Parent() {
+        return createParent();
+    }
+
     // @TODO: add description
     public static Dimension createParent() {
         return new Dimension(PARENT_DIMENSION);
+    }
+
+    /**
+     * @deprecated Use {@link #createWrap()} instead
+     */
+    @Deprecated
+    public static Dimension Wrap() {
+        return createWrap();
     }
 
     // @TODO: add description
@@ -115,9 +173,25 @@ public class Dimension {
         return new Dimension(WRAP_DIMENSION);
     }
 
+    /**
+     * @deprecated Use {@link #createSpread()} instead
+     */
+    @Deprecated
+    public static Dimension Spread() {
+        return createSpread();
+    }
+
     // @TODO: add description
     public static Dimension createSpread() {
         return new Dimension(SPREAD_DIMENSION);
+    }
+
+    /**
+     * @deprecated Use {@link #createRatio(String)} instead
+     */
+    @Deprecated
+    public static Dimension Ratio(String ratio) {
+        return createRatio(ratio);
     }
 
     // @TODO: add description

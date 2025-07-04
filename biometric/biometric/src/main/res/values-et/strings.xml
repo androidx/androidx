@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Puudutage sõrmejäljeandurit"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Puudutage sõrmejäljeandurit."</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Ei tuvastatud"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Sõrmejälje riistvara pole saadaval."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Ühtegi sõrmejälge pole registreeritud."</string>
@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN-koodi, mustrit ega parooli pole määratud."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"See seade ei toeta PIN-koodi, mustrit ega parooli."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Sõrmejälje ikoon"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Sisuvaates klõpsatakse nupul Rohkem valikuid."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Kasuta sõrmejälge"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Kasuta nägu"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Kasuta biomeetrilisi andmeid"</string>

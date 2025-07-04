@@ -124,9 +124,9 @@ class AutoFlashAEModeDisablerTest {
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
                         FakeCameraMetadata(),
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
+                        StreamConfigurationMapBuilder.newBuilder().build(),
+                    ),
+                ),
             )
         )
     }

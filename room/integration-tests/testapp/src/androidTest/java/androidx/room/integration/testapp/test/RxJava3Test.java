@@ -40,19 +40,7 @@ import androidx.test.filters.SmallTest;
 
 import com.google.common.collect.Lists;
 
-import org.jetbrains.annotations.NotNull;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Observable;
@@ -65,7 +53,21 @@ import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.TestScheduler;
 import io.reactivex.rxjava3.subscribers.TestSubscriber;
 
+import kotlin.Unit;
 
+import org.jspecify.annotations.NonNull;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.LockSupport;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -79,12 +81,12 @@ public class RxJava3Test extends TestDatabaseTest {
         mTestScheduler.start();
         ArchTaskExecutor.getInstance().setDelegate(new TaskExecutor() {
             @Override
-            public void executeOnDiskIO(@NotNull Runnable runnable) {
+            public void executeOnDiskIO(@NonNull Runnable runnable) {
                 mTestScheduler.scheduleDirect(runnable);
             }
 
             @Override
-            public void postToMainThread(@NotNull Runnable runnable) {
+            public void postToMainThread(@NonNull Runnable runnable) {
                 Assert.fail("no main thread in this test");
             }
 
@@ -685,5 +687,47 @@ public class RxJava3Test extends TestDatabaseTest {
 
         testObserver.assertNoValues();
         testObserver.assertNotComplete();
+    }
+
+    @Test
+    public void createCompletable_cancellable() {
+        TestObserver<Void> testObserver = new TestObserver<>();
+        Completable completable = RxRoom.createCompletable(mDatabase, false, false,
+                sqLiteConnection -> {
+                    LockSupport.parkNanos(Long.MAX_VALUE);
+                    return Unit.INSTANCE;
+                });
+        completable.subscribe(testObserver);
+        testObserver.assertNotComplete();
+        testObserver.dispose();
+        testObserver.assertNoErrors();
+    }
+
+    @Test
+    public void createSingle_cancellable() {
+        TestObserver<String> testObserver = new TestObserver<>();
+        Single<String> single = RxRoom.createSingle(mDatabase, false, false,
+                sqLiteConnection -> {
+                    LockSupport.parkNanos(Long.MAX_VALUE);
+                    return "";
+                });
+        single.subscribe(testObserver);
+        testObserver.assertNotComplete();
+        testObserver.dispose();
+        testObserver.assertNoErrors();
+    }
+
+    @Test
+    public void createMaybe_cancellable() {
+        TestObserver<String> testObserver = new TestObserver<>();
+        Maybe<String> maybe = RxRoom.createMaybe(mDatabase, false, false,
+                sqLiteConnection -> {
+                    LockSupport.parkNanos(Long.MAX_VALUE);
+                    return "";
+                });
+        maybe.subscribe(testObserver);
+        testObserver.assertNotComplete();
+        testObserver.dispose();
+        testObserver.assertNoErrors();
     }
 }

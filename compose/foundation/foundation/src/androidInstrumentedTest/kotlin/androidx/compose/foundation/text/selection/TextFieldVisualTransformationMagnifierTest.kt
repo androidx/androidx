@@ -65,7 +65,7 @@ internal class TextFieldVisualTransformationMagnifierTest(
             text,
             onValueChange = {},
             modifier = modifier,
-            visualTransformation = config.visualTransformation
+            visualTransformation = config.visualTransformation,
         )
     }
 
@@ -109,7 +109,7 @@ internal class TextFieldVisualTransformationMagnifierTest(
                         // Center the text to give the magnifier lots of room to move.
                         .fillMaxSize()
                         .wrapContentSize()
-                        .testTag(tag)
+                        .testTag(tag),
             )
         }
 
@@ -161,7 +161,7 @@ internal class TextFieldVisualTransformationMagnifierTest(
         val slop =
             Offset(
                 x = viewConfiguration.touchSlop * delta.x.sign,
-                y = viewConfiguration.touchSlop * delta.y.sign
+                y = viewConfiguration.touchSlop * delta.y.sign,
             )
         moveBy(delta + slop)
     }
@@ -187,7 +187,7 @@ internal class TextFieldVisualTransformationMagnifierTest(
 internal class VisualTransformationMagnifierTestConfig(
     val visualTransformation: VisualTransformation,
     val layoutDirection: LayoutDirection,
-    val handle: Handle
+    val handle: Handle,
 ) {
     override fun toString(): String {
         return "visualTransformation=$visualTransformation " +
@@ -205,7 +205,7 @@ internal class IncreasedVisualTransformation(private val char: Char = 'a') : Vis
                 override fun originalToTransformed(offset: Int) = 2 * offset
 
                 override fun transformedToOriginal(offset: Int) = offset / 2
-            }
+            },
         )
     }
 
@@ -229,7 +229,7 @@ internal class ReducedVisualTransformation : VisualTransformation {
                 // that specific index
                 override fun transformedToOriginal(offset: Int) =
                     (offset * 2).let { if (it == text.length + 1) it - 1 else it }
-            }
+            },
         )
     }
 

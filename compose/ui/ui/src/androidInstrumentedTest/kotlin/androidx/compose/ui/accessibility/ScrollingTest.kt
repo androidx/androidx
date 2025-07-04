@@ -47,9 +47,9 @@ import androidx.compose.ui.semantics.getScrollViewportLength
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.verticalScrollAxisRange
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -113,7 +113,7 @@ class ScrollingTest {
             }
         }
         rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
 
         // Act.
@@ -123,7 +123,7 @@ class ScrollingTest {
                 androidComposeView.accessibilityNodeProvider.performAction(
                     virtualViewId,
                     ACTION_ACCESSIBILITY_FOCUS,
-                    null
+                    null,
                 )
                 Snapshot.notifyObjectsInitialized()
                 scrollValue = 2f
@@ -242,7 +242,7 @@ class ScrollingTest {
                         ScrollAxisRange(
                             value = { 0.5f },
                             maxValue = { 1f },
-                            reverseScrolling = false
+                            reverseScrolling = false,
                         )
                 }
             )
@@ -271,7 +271,7 @@ class ScrollingTest {
                         ScrollAxisRange(
                             value = { 0.5f },
                             maxValue = { 1f },
-                            reverseScrolling = false
+                            reverseScrolling = false,
                         )
                 }
             )
@@ -420,7 +420,7 @@ class ScrollingTest {
                         ScrollAxisRange(
                             value = { 0.5f },
                             maxValue = { 1f },
-                            reverseScrolling = true
+                            reverseScrolling = true,
                         )
                 }
             )
@@ -450,7 +450,7 @@ class ScrollingTest {
                         ScrollAxisRange(
                             value = { 0.5f },
                             maxValue = { 1f },
-                            reverseScrolling = true
+                            reverseScrolling = true,
                         )
 
                     scrollBy { x, _ ->
@@ -461,12 +461,12 @@ class ScrollingTest {
             )
         }
 
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         rule.runOnIdle {
             androidComposeView.accessibilityNodeProvider.performAction(
                 virtualViewId,
                 ACTION_SCROLL_BACKWARD,
-                null
+                null,
             )
         }
         assertThat(actualScrolledAmount).isEqualTo(viewPortSize)
@@ -486,7 +486,7 @@ class ScrollingTest {
                         ScrollAxisRange(
                             value = { 0.5f },
                             maxValue = { 1f },
-                            reverseScrolling = true
+                            reverseScrolling = true,
                         )
 
                     scrollBy { x, _ ->
@@ -499,12 +499,12 @@ class ScrollingTest {
             )
         }
 
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
         rule.runOnIdle {
             androidComposeView.accessibilityNodeProvider.performAction(
                 virtualViewId,
                 ACTION_SCROLL_BACKWARD,
-                null
+                null,
             )
         }
         assertThat(actualScrolledAmount).isEqualTo(viewPortSize - contentPadding)
@@ -521,7 +521,7 @@ class ScrollingTest {
                         ScrollAxisRange(
                             value = { 0.5f },
                             maxValue = { 1f },
-                            reverseScrolling = true
+                            reverseScrolling = true,
                         )
                 }
             )
@@ -599,7 +599,7 @@ class ScrollingTest {
                         actual.parcelableData == expected.parcelableData &&
                         actual.recordCount == expected.recordCount
                 },
-                "has same properties as"
+                "has same properties as",
             )
     }
 
@@ -607,10 +607,6 @@ class ScrollingTest {
         get() =
             ViewCompat.getAccessibilityDelegate(this)
                 as AndroidComposeViewAccessibilityDelegateCompat
-
-    // TODO(b/272068594): Add api to fetch the semantics id from SemanticsNodeInteraction directly.
-    private val SemanticsNodeInteraction.semanticsId: Int
-        get() = fetchSemanticsNode().id
 
     // TODO(b/304359126): Move this to AccessibilityEventCompat and use it wherever we use obtain().
     private fun AccessibilityEvent(): AccessibilityEvent =

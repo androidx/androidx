@@ -33,7 +33,7 @@ fun drawSquares(
     topLeft: Int,
     topRight: Int,
     bottomLeft: Int,
-    bottomRight: Int
+    bottomRight: Int,
 ) {
     val paint = Paint()
     val widthF = width.toFloat()

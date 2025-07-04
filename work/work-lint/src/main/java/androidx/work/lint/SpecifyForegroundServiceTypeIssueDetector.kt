@@ -60,8 +60,8 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
                 implementation =
                     Implementation(
                         SpecifyForegroundServiceTypeIssueDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.MANIFEST),
+                    ),
             )
 
         private val SERVICE_TYPE_MAPPING =
@@ -71,7 +71,7 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
                 4 to "phoneCall",
                 8 to "location",
                 16 to "connectedDevice",
-                32 to "mediaProjection"
+                32 to "mediaProjection",
             )
     }
 
@@ -92,7 +92,7 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
     override fun visitConstructor(
         context: JavaContext,
         node: UCallExpression,
-        constructor: PsiMethod
+        constructor: PsiMethod,
     ) {
         if (node.valueArgumentCount > 2) {
             val type = node.valueArguments[2].evaluate()
@@ -105,7 +105,7 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
                                 location = context.getLocation(node),
                                 message =
                                     "Missing $name foregroundServiceType in " +
-                                        "the AndroidManifest.xml"
+                                        "the AndroidManifest.xml",
                             )
                         }
                     }

@@ -18,8 +18,9 @@ package androidx.palette.graphics;
 
 import android.graphics.Color;
 
-import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
+
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,7 +53,7 @@ final class ColorCutQuantizer {
     final int[] mColors;
     final int[] mHistogram;
     final List<Palette.Swatch> mQuantizedColors;
-    @Nullable final Palette.Filter[] mFilters;
+    final Palette.Filter @Nullable [] mFilters;
 
     private final float[] mTempHsl = new float[3];
 
@@ -63,7 +64,7 @@ final class ColorCutQuantizer {
      * @param maxColors The maximum number of colors that should be in the result palette.
      * @param filters Set of filters to use in the quantization stage
      */
-    ColorCutQuantizer(int[] pixels, int maxColors, @Nullable Palette.Filter[] filters) {
+    ColorCutQuantizer(int[] pixels, int maxColors, Palette.Filter @Nullable [] filters) {
         mFilters = filters;
 
         final int[] hist = mHistogram = new int[1 << (QUANTIZE_WORD_WIDTH * 3)];

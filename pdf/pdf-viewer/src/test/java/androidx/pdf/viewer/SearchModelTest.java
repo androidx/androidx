@@ -25,7 +25,6 @@ import android.graphics.Rect;
 import androidx.pdf.find.MatchCount;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.viewer.loader.PdfLoader;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,6 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @SuppressWarnings("deprecation")
 public class SearchModelTest {

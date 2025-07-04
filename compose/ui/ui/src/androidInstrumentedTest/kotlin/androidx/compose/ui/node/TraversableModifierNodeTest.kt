@@ -85,7 +85,7 @@ class TraversableModifierNodeTest {
                     "Parent"
                 ) {
                     parentNode = this
-                },
+                }
         ) {
             // Child A
             Row(
@@ -1310,12 +1310,12 @@ private const val OTHER_TRAVERSAL_NODE_KEY = "OTHER_TRAVERSAL_NODE_KEY"
 // *********** Class One code (uses shared key in tests and contains funs for testing). ***********
 private fun Modifier.testTraversalNodeClassOneWithSharedKey(
     label: String,
-    block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)? = null
+    block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)? = null,
 ) = this then TestTraversalModifierElementClassOneWithSharedKey(label = label, block = block)
 
 private data class TestTraversalModifierElementClassOneWithSharedKey(
     val label: String,
-    val block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)?
+    val block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)?,
 ) : ModifierNodeElement<ClassOneWithSharedKeyTraversalNode>() {
     override fun create() = ClassOneWithSharedKeyTraversalNode(label = label, block = block)
 
@@ -1342,7 +1342,7 @@ private data class TestTraversalModifierElementClassOneWithSharedKey(
  */
 private class ClassOneWithSharedKeyTraversalNode(
     var label: String,
-    var block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)?
+    var block: (ClassOneWithSharedKeyTraversalNode.() -> Unit)?,
 ) : Modifier.Node(), TraversableNode {
     override val traverseKey = SHARED_TRAVERSAL_NODE_KEY
 
@@ -1357,12 +1357,12 @@ private class ClassOneWithSharedKeyTraversalNode(
 // *********** Test Class Two code (uses shared key in tests, simple test class). ***********
 private fun Modifier.testTraversalNodeClassTwoWithSharedKey(
     label: String,
-    block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)? = null
+    block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)? = null,
 ) = this then TestTraversalModifierElementClassTwoWithSharedKey(label = label, block = block)
 
 private data class TestTraversalModifierElementClassTwoWithSharedKey(
     val label: String,
-    val block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)?
+    val block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)?,
 ) : ModifierNodeElement<ClassTwoWithSharedKeyTraversalNode>() {
     override fun create() = ClassTwoWithSharedKeyTraversalNode(label = label, block = block)
 
@@ -1380,7 +1380,7 @@ private data class TestTraversalModifierElementClassTwoWithSharedKey(
 
 private class ClassTwoWithSharedKeyTraversalNode(
     var label: String,
-    var block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)?
+    var block: (ClassTwoWithSharedKeyTraversalNode.() -> Unit)?,
 ) : Modifier.Node(), TraversableNode {
 
     override val traverseKey = SHARED_TRAVERSAL_NODE_KEY
@@ -1396,12 +1396,12 @@ private class ClassTwoWithSharedKeyTraversalNode(
 // *********** Test Class Three code (uses other key in tests, simple test class). ***********
 private fun Modifier.testTraversalNodeClassThreeWithOtherKey(
     label: String,
-    block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)? = null
+    block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)? = null,
 ) = this then TestTraversalModifierElementClassThreeWithOtherKey(label = label, block)
 
 private data class TestTraversalModifierElementClassThreeWithOtherKey(
     val label: String,
-    val block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)?
+    val block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)?,
 ) : ModifierNodeElement<ClassThreeWithOtherKeyTraversalNode>() {
 
     override fun create() = ClassThreeWithOtherKeyTraversalNode(label = label, block = block)
@@ -1420,7 +1420,7 @@ private data class TestTraversalModifierElementClassThreeWithOtherKey(
 
 private class ClassThreeWithOtherKeyTraversalNode(
     var label: String,
-    var block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)?
+    var block: (ClassThreeWithOtherKeyTraversalNode.() -> Unit)?,
 ) : Modifier.Node(), TraversableNode {
     override val traverseKey = OTHER_TRAVERSAL_NODE_KEY
 

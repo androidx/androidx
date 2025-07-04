@@ -88,11 +88,11 @@ class AlignmentLineTest {
                 val obtainedVLinePosition = placeable[vLine]
                 assertEquals(
                     hLinePosition - (actualSize - constrainedSize) / 2,
-                    obtainedHLinePosition
+                    obtainedHLinePosition,
                 )
                 assertEquals(
                     vLinePosition - (actualSize - constrainedSize) / 2,
-                    obtainedVLinePosition
+                    obtainedVLinePosition,
                 )
                 layout(0, 0) {}
             }
@@ -115,7 +115,7 @@ class AlignmentLineTest {
                         layout(
                             actualSize,
                             actualSize,
-                            mapOf(hLine to hLinePosition, vLine to vLinePosition)
+                            mapOf(hLine to hLinePosition, vLine to vLinePosition),
                         ) {}
                     }
                 }
@@ -130,11 +130,11 @@ class AlignmentLineTest {
                 val obtainedVLinePosition = placeable[vLine]
                 assertEquals(
                     hLinePosition - (actualSize - constrainedSize) / 2,
-                    obtainedHLinePosition
+                    obtainedHLinePosition,
                 )
                 assertEquals(
                     vLinePosition - (actualSize - constrainedSize) / 2,
-                    obtainedVLinePosition
+                    obtainedVLinePosition,
                 )
                 layout(0, 0) {}
             }
@@ -323,7 +323,7 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutBeforePlacing = true
+                    readDuringLayoutBeforePlacing = true,
                 ) {
                     Parent { Provider() }
                 }
@@ -353,7 +353,7 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutAfterPlacing = true
+                    readDuringLayoutAfterPlacing = true,
                 ) {
                     Parent { Provider() }
                 }
@@ -383,12 +383,12 @@ class AlignmentLineTest {
             Parent(
                 onMeasure = { ++parentMeasures },
                 onLayout = { ++parentLayouts },
-                readDuringMeasure = true
+                readDuringMeasure = true,
             ) {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutBeforePlacing = true
+                    readDuringLayoutBeforePlacing = true,
                 ) {
                     Parent { Provider() }
                 }
@@ -420,12 +420,12 @@ class AlignmentLineTest {
             Parent(
                 onMeasure = { ++parentMeasures },
                 onLayout = { ++parentLayouts },
-                readDuringMeasure = true
+                readDuringMeasure = true,
             ) {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutAfterPlacing = true
+                    readDuringLayoutAfterPlacing = true,
                 ) {
                     Parent { Provider() }
                 }
@@ -457,12 +457,12 @@ class AlignmentLineTest {
             Parent(
                 onMeasure = { ++parentMeasures },
                 onLayout = { ++parentLayouts },
-                readDuringLayoutAfterPlacing = true
+                readDuringLayoutAfterPlacing = true,
             ) {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringMeasure = true
+                    readDuringMeasure = true,
                 ) {
                     Parent { Provider() }
                 }
@@ -495,7 +495,7 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringMeasure = true
+                    readDuringMeasure = true,
                 ) {
                     Parent(modifier = Modifier.provider(), onMeasure = { ++childMeasures }) {
                         Parent()
@@ -530,7 +530,7 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutBeforePlacing = true
+                    readDuringLayoutBeforePlacing = true,
                 ) {
                     Parent(modifier = Modifier.provider(), onMeasure = { ++childMeasures }) {
                         Parent()
@@ -565,7 +565,7 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutAfterPlacing = true
+                    readDuringLayoutAfterPlacing = true,
                 ) {
                     Parent(modifier = Modifier.provider(), onMeasure = { ++childMeasures }) {
                         Parent()
@@ -600,7 +600,7 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutAfterPlacing = true
+                    readDuringLayoutAfterPlacing = true,
                 ) {
                     Parent(modifier = Modifier.provider(), onMeasure = { ++childMeasures }) {
                         Parent()
@@ -634,11 +634,11 @@ class AlignmentLineTest {
                 Parent(
                     onMeasure = { ++measures },
                     onLayout = { ++layouts },
-                    readDuringLayoutAfterPlacing = true
+                    readDuringLayoutAfterPlacing = true,
                 ) {
                     Parent(
                         modifier = Modifier.reader(readDuringMeasure = true),
-                        onMeasure = { ++childMeasures }
+                        onMeasure = { ++childMeasures },
                     ) {
                         Provider()
                     }
@@ -666,7 +666,7 @@ class AlignmentLineTest {
             Parent {
                 Provider(
                     modifier = Modifier.reader(readDuringMeasure = true),
-                    onMeasure = { ++childMeasures }
+                    onMeasure = { ++childMeasures },
                 )
             }
         }
@@ -688,7 +688,7 @@ class AlignmentLineTest {
                 Provider(
                     modifier = Modifier.reader(readDuringLayoutBeforePlacing = true),
                     onMeasure = { ++childMeasures },
-                    onLayout = { ++childLayouts }
+                    onLayout = { ++childLayouts },
                 )
             }
         }
@@ -716,7 +716,7 @@ class AlignmentLineTest {
                 Provider(
                     modifier = Modifier.reader(readDuringLayoutAfterPlacing = true),
                     onMeasure = { ++childMeasures },
-                    onLayout = { ++childLayouts }
+                    onLayout = { ++childLayouts },
                 )
             }
         }
@@ -743,7 +743,7 @@ class AlignmentLineTest {
             Parent(onMeasure = { ++parentMeasures }) {
                 Parent(
                     modifier = Modifier.reader(readDuringMeasure = true).provider(),
-                    onMeasure = { ++measures }
+                    onMeasure = { ++measures },
                 ) {
                     Parent(onMeasure = { ++childMeasures })
                 }
@@ -772,7 +772,7 @@ class AlignmentLineTest {
             Parent(onMeasure = { ++parentMeasures }, readDuringMeasure = true) {
                 Parent(
                     modifier = Modifier.reader(readDuringMeasure = true).provider(),
-                    onMeasure = { ++measures }
+                    onMeasure = { ++measures },
                 ) {
                     Parent(onMeasure = { ++childMeasures })
                 }
@@ -838,7 +838,7 @@ class AlignmentLineTest {
             Parent(
                 onMeasure = { ++parentMeasures },
                 onLayout = { ++parentLayouts },
-                readDuringLayoutAfterPlacing = true
+                readDuringLayoutAfterPlacing = true,
             ) {
                 ChangingParent(onMeasure = { ++measures }, readDuringMeasure = { read }) {
                     Parent(onMeasure = { ++childMeasures }) { Provider() }
@@ -926,7 +926,7 @@ class AlignmentLineTest {
         rule.setContent {
             ChangingParent(
                 readDuringLayoutBeforePlacing = { read },
-                onLayout = { ++parentLayouts }
+                onLayout = { ++parentLayouts },
             ) {
                 Parent { Provider() }
             }
@@ -1009,7 +1009,7 @@ class AlignmentLineTest {
                         readDuringMeasure = true,
                         readDuringLayoutBeforePlacing = true,
                         onMeasure = { ++measures },
-                        onLayout = { ++layouts }
+                        onLayout = { ++layouts },
                     )
             ) {
                 Parent { Provider() }
@@ -1037,7 +1037,7 @@ class AlignmentLineTest {
                     Modifier.reader(
                         readDuringLayoutBeforePlacing = true,
                         onMeasure = { ++measures },
-                        onLayout = { ++layouts }
+                        onLayout = { ++layouts },
                     )
             ) {
                 Parent { Provider() }
@@ -1065,7 +1065,7 @@ class AlignmentLineTest {
                     Modifier.reader(
                         readDuringLayoutAfterPlacing = true,
                         onMeasure = { ++measures },
-                        onLayout = { ++layouts }
+                        onLayout = { ++layouts },
                     )
             ) {
                 Parent { Provider() }
@@ -1130,7 +1130,7 @@ class AlignmentLineTest {
         readDuringMeasure: Boolean = false,
         readDuringLayoutBeforePlacing: Boolean = false,
         readDuringLayoutAfterPlacing: Boolean = false,
-        content: @Composable () -> Unit = {}
+        content: @Composable () -> Unit = {},
     ) {
         ChangingParent(
             modifier,
@@ -1139,7 +1139,7 @@ class AlignmentLineTest {
             { readDuringMeasure },
             { readDuringLayoutBeforePlacing },
             { readDuringLayoutAfterPlacing },
-            content
+            content,
         )
     }
 
@@ -1151,7 +1151,7 @@ class AlignmentLineTest {
         readDuringMeasure: () -> Boolean = { false },
         readDuringLayoutBeforePlacing: () -> Boolean = { false },
         readDuringLayoutAfterPlacing: () -> Boolean = { false },
-        content: @Composable () -> Unit = {}
+        content: @Composable () -> Unit = {},
     ) {
         Layout(content, modifier) { measurables, constraints ->
             onMeasure()
@@ -1183,14 +1183,14 @@ class AlignmentLineTest {
         modifier: Modifier = Modifier,
         onMeasure: () -> Unit = {},
         onLayout: () -> Unit = {},
-        content: @Composable () -> Unit = {}
+        content: @Composable () -> Unit = {},
     ) {
         Layout(content, modifier) { _, constraints ->
             onMeasure()
             layout(
                 constraints.maxWidth,
                 constraints.maxHeight,
-                mapOf(TestLine to linePositionState)
+                mapOf(TestLine to linePositionState),
             ) {
                 onLayout()
             }
@@ -1202,7 +1202,7 @@ class AlignmentLineTest {
         onLayout: () -> Unit = {},
         readDuringMeasure: Boolean = false,
         readDuringLayoutBeforePlacing: Boolean = false,
-        readDuringLayoutAfterPlacing: Boolean = false
+        readDuringLayoutAfterPlacing: Boolean = false,
     ) =
         this.then(
             ReaderModifier(
@@ -1210,7 +1210,7 @@ class AlignmentLineTest {
                 onLayout,
                 readDuringMeasure,
                 readDuringLayoutBeforePlacing,
-                readDuringLayoutAfterPlacing
+                readDuringLayoutAfterPlacing,
             )
         )
 
@@ -1219,11 +1219,11 @@ class AlignmentLineTest {
         val onLayout: () -> Unit,
         val readDuringMeasure: Boolean,
         val readDuringLayoutBeforePlacing: Boolean,
-        val readDuringLayoutAfterPlacing: Boolean
+        val readDuringLayoutAfterPlacing: Boolean,
     ) : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             onMeasure()
             val placeable = measurable.measure(constraints)
@@ -1242,13 +1242,13 @@ class AlignmentLineTest {
     private inner class ProviderModifier : LayoutModifier {
         override fun MeasureScope.measure(
             measurable: Measurable,
-            constraints: Constraints
+            constraints: Constraints,
         ): MeasureResult {
             val placeable = measurable.measure(constraints)
             return layout(
                 constraints.maxWidth,
                 constraints.maxHeight,
-                mapOf(TestLine to linePositionState)
+                mapOf(TestLine to linePositionState),
             ) {
                 placeable.place(0, 0)
             }

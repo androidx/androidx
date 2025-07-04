@@ -23,6 +23,8 @@ import static androidx.recyclerview.selection.testing.TestEvents.Touch.UP;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.view.MotionEvent;
+
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
@@ -84,6 +86,90 @@ public final class TouchInputHandlerTest {
                 mLongPressCallback::run);
     }
 
+    private boolean singleTap(MotionEvent e) {
+        MotionEvent downEvent = e;
+        // Strictly speaking, it would be more realistic if the upEvent's getAction() was
+        // MotionEvent.ACTION_UP, in contrast to e.getAction(), which is MotionEvent.ACTION_DOWN.
+        // But the code under test doesn't care about the action. It's simpler to just re-use e.
+        MotionEvent upEvent = e;
+
+        return mInputDelegate.onDown(downEvent)
+                || mInputDelegate.onSingleTapUp(upEvent)
+                || mInputDelegate.onSingleTapConfirmed(downEvent);
+    }
+
+    @Test
+    public void testTapOnSelectionHotspot_Outside() {
+        doTestTapOnSelectionHotspot(
+                ItemDetails.SELECTION_HOTSPOT_OUTSIDE);
+    }
+
+    @Test
+    public void testTapOnSelectionHotspot_InsideToggleMulti() {
+        doTestTapOnSelectionHotspot(
+                ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI);
+    }
+
+    @Test
+    public void testTapOnSelectionHotspot_InsideToggleSolo() {
+        doTestTapOnSelectionHotspot(
+                ItemDetails.SELECTION_HOTSPOT_INSIDE_TOGGLE_SOLO);
+    }
+
+    @Test
+    public void testTapOnSelectionHotspot_InsideClearAndThenSet() {
+        doTestTapOnSelectionHotspot(
+                ItemDetails.SELECTION_HOTSPOT_INSIDE_CLEAR_AND_THEN_SET);
+    }
+
+    private void doTestTapOnSelectionHotspot(
+            @ItemDetails.SelectionHotspotResult int classifySelectionHotspot) {
+        mSelection.assertNoSelection();
+
+        // When nothing is selected...
+        if (classifySelectionHotspot == ItemDetails.SELECTION_HOTSPOT_OUTSIDE) {
+            // ...tapping outside the hotspot does nothing.
+
+            mDetailsLookup.initAt(5).setClassifySelectionHotspot(classifySelectionHotspot);
+            assertTrue(singleTap(UP));
+            mSelection.assertNoSelection();
+
+        } else {
+            // ...tapping inside the hotspot selects it (and a second tap deselects).
+
+            mDetailsLookup.initAt(5).setClassifySelectionHotspot(classifySelectionHotspot);
+            assertTrue(singleTap(UP));
+            mSelection.assertSelection(5);
+
+            mDetailsLookup.initAt(5).setClassifySelectionHotspot(classifySelectionHotspot);
+            assertTrue(singleTap(UP));
+            mSelection.assertNoSelection();
+        }
+
+        // When something is selected, we're in "selection mode" for taps (but not clicks),
+        // regardless of what classifySelectionHotspot is. Tapping (inside or outside the hotspot)
+        // toggles selection, with multiple items selectable.
+
+        mSelectionMgr.clearSelection();
+        mSelectionMgr.select("8");
+        mSelectionMgr.select("9");
+        mSelectionMgr.select("10");
+        mSelectionMgr.select("11");
+        mSelection.assertSelection(8, 9, 10, 11);
+
+        mDetailsLookup.initAt(9).setClassifySelectionHotspot(classifySelectionHotspot);
+        assertTrue(singleTap(UP));
+        mSelection.assertSelection(8, 10, 11);
+
+        mDetailsLookup.initAt(9).setClassifySelectionHotspot(classifySelectionHotspot);
+        assertTrue(singleTap(UP));
+        mSelection.assertSelection(8, 9, 10, 11);
+
+        mDetailsLookup.initAt(20).setClassifySelectionHotspot(classifySelectionHotspot);
+        assertTrue(singleTap(UP));
+        mSelection.assertSelection(8, 9, 10, 11, 20);
+    }
+
     @Test
     public void testTap_ActivatesWhenNoExistingSelection() {
         ItemDetails<String> doc = mDetailsLookup.initAt(11);
@@ -109,7 +195,6 @@ public final class TouchInputHandlerTest {
 
         mSelection.assertSelection(7);
     }
-
 
     @Test
     public void testLongPress_NotifiesLongPressCallback() {

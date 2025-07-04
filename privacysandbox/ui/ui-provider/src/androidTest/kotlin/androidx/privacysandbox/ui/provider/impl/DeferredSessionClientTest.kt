@@ -114,12 +114,12 @@ class DeferredSessionClientTest {
         stubClient: StubClient,
         errorHandler: Consumer<Throwable> = Consumer {
             Assert.fail("Unexpected fail " + it.message)
-        }
+        },
     ): DeferredSessionClient {
         return DeferredSessionClient.create(
             clientFactory = { stubClient },
             clientInit = StubClient::initialize,
-            errorHandler = errorHandler
+            errorHandler = errorHandler,
         )
     }
 
@@ -164,6 +164,8 @@ class DeferredSessionClientTest {
         override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {}
 
         override fun notifyConfigurationChanged(configuration: Configuration) {}
+
+        override fun notifySessionRendered(supportedSignalOptions: Set<String>) {}
 
         override fun notifyUiChanged(uiContainerInfo: Bundle) {}
 

@@ -17,7 +17,6 @@ package androidx.wear.protolayout.material3
 
 import android.graphics.Color
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.material3.tokens.ColorTokens
 import androidx.wear.protolayout.material3.tokens.ShapeTokens
@@ -34,7 +33,9 @@ class MaterialThemeTest {
     fun defaultMaterialTheme_returnsTokenDefaults() {
         val defaultTheme = MaterialTheme()
 
-        for (i in 0 until Typography.TOKEN_COUNT) {
+        // Starts from 2 as that is the first value of Typography tokens
+        // (Typography.BODY_EXTRA_SMALL).
+        for (i in 2 until Typography.TOKEN_COUNT) {
             val fontStyle: LayoutElementBuilders.FontStyle =
                 defaultTheme.getFontStyleBuilder(i).build()
             val textStyle = Typography.fromToken(i)

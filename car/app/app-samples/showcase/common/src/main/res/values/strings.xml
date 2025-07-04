@@ -293,6 +293,13 @@
   <string name="msg_template_demo_text">Message goes here.\nMore text on second line.</string>
   <string name="short_msg_template_demo_title">Short Message Template Demo</string>
 
+  <!-- SectionedItemTemplateDemo -->
+  <string name="sectioned_item_template_demo_title">Sectioned Item Template Demo</string>
+  <string name="sectioned_item_template_radio_button_section_title">Radio Button Section</string>
+  <string name="sectioned_item_template_toggle_section_title">Toggle Section</string>
+  <string name="sectioned_item_template_lots_of_rows_section_title">Lots of Rows Section</string>
+  <string name="sectioned_item_template_grid_item_section_title">Grid Item Section</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 

@@ -655,7 +655,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void tileService_onTileEnter_callsProcessRecentInteractionEvents() throws Exception {
+    public void tileService_onTileEnter_callsOnRecentInteractionEvents() throws Exception {
         EventProto.TileEnterEvent enterRequest =
                 EventProto.TileEnterEvent.newBuilder().setTileId(TILE_ID).build();
 
@@ -687,7 +687,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void tileService_onTileLeave_callsProcessRecentInteractionEvents() throws Exception {
+    public void tileService_onTileLeave_callsOnRecentInteractionEvents() throws Exception {
         EventProto.TileLeaveEvent leaveRequest =
                 EventProto.TileLeaveEvent.newBuilder().setTileId(TILE_ID).build();
 
@@ -705,7 +705,7 @@ public class TileServiceTest {
     }
 
     @Test
-    public void tileService_processRecentInteractionEvents() throws Exception {
+    public void tileService_onRecentInteractionEventsAsync() throws Exception {
         long fakeTimestamp = 112233L;
         ImmutableList<EventProto.TileInteractionEvent> eventProtos =
                 ImmutableList.of(
@@ -719,15 +719,17 @@ public class TileServiceTest {
                                 .setTimestampEpochMillis(fakeTimestamp)
                                 .setLeave(EventProto.TileLeave.getDefaultInstance())
                                 .build());
+        InteractionEventsCallback callback = mock(InteractionEventsCallback.class);
 
-        mTileProviderServiceStub.processRecentInteractionEvents(
+        mTileProviderServiceStub.onRecentInteractionEvents(
                 eventProtos.stream()
                         .map(
                                 e ->
                                         new TileInteractionEventData(
                                                 e.toByteArray(),
                                                 TileInteractionEventData.VERSION_PROTOBUF))
-                        .collect(toImmutableList()));
+                        .collect(toImmutableList()),
+                callback);
         shadowOf(Looper.getMainLooper()).idle();
 
         List<TileInteractionEvent> receivedEvents =
@@ -743,6 +745,8 @@ public class TileServiceTest {
         expect.that(receivedEvents.get(1).getTimestamp())
                 .isEqualTo(Instant.ofEpochMilli(fakeTimestamp));
         expect.that(receivedEvents.get(1).getEventType()).isEqualTo(TileInteractionEvent.LEAVE);
+
+        verify(callback).finish();
     }
 
     @Test
@@ -995,8 +999,10 @@ public class TileServiceTest {
         }
 
         @Override
-        protected void processRecentInteractionEvents(@NonNull List<TileInteractionEvent> events) {
+        protected @NonNull ListenableFuture<Void> onRecentInteractionEventsAsync(
+                @NonNull List<TileInteractionEvent> events) {
             mLastEventBatch = events;
+            return Futures.immediateVoidFuture();
         }
 
         @Override

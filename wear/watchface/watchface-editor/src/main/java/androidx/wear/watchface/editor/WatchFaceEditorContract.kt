@@ -54,10 +54,15 @@ internal const val USER_STYLE_VALUES: String = "USER_STYLE_VALUES"
  *
  * @param renderParameters The [RenderParameters] to use when rendering the screen shot
  * @param instant The [Instant] to render with.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class PreviewScreenshotParams(
     public val renderParameters: RenderParameters,
-    public val instant: Instant
+    public val instant: Instant,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -96,7 +101,12 @@ public class PreviewScreenshotParams(
  * @param previewScreenshotParams If `non-null` then [EditorSession] upon closing will render a
  *   screenshot with [PreviewScreenshotParams] using the existing interactive or headless instance
  *   which will be sent in [EditorState] to any registered clients.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class EditorRequest
 @RequiresApi(Build.VERSION_CODES.R)
 constructor(
@@ -107,7 +117,7 @@ constructor(
     @RequiresApi(Build.VERSION_CODES.R)
     public val watchFaceId: WatchFaceId,
     public val headlessDeviceConfig: DeviceConfig?,
-    public val previewScreenshotParams: PreviewScreenshotParams?
+    public val previewScreenshotParams: PreviewScreenshotParams?,
 ) {
     /**
      * Constructs an [EditorRequest] without a [WatchFaceId]. This is for use pre-android R.
@@ -121,14 +131,14 @@ constructor(
     public constructor(
         watchFaceComponentName: ComponentName,
         editorPackageName: String,
-        initialUserStyle: UserStyleData?
+        initialUserStyle: UserStyleData?,
     ) : this(
         watchFaceComponentName,
         editorPackageName,
         initialUserStyle,
         WatchFaceId(""),
         null,
-        null
+        null,
     )
 
     public companion object {
@@ -170,9 +180,9 @@ constructor(
                         ?.let {
                             PreviewScreenshotParams(
                                 RenderParameters(it),
-                                Instant.ofEpochMilli(intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0))
+                                Instant.ofEpochMilli(intent.getLongExtra(RENDER_TIME_MILLIS_KEY, 0)),
                             )
-                        }
+                        },
             )
 
         internal const val ANDROIDX_WATCHFACE_API_VERSION = "androidx.wear.watchface.api_version"
@@ -194,13 +204,13 @@ constructor(
         @Throws(PackageManager.NameNotFoundException::class)
         public fun supportsWatchFaceHeadlessEditing(
             packageManager: PackageManager,
-            watchfacePackageName: String
+            watchfacePackageName: String,
         ): Boolean {
             val metaData =
                 packageManager
                     .getServiceInfo(
                         ComponentName(watchfacePackageName, WATCHFACE_CONTROL_SERVICE),
-                        PackageManager.GET_META_DATA
+                        PackageManager.GET_META_DATA,
                     )
                     .metaData ?: return false
             return metaData.getInt(ANDROIDX_WATCHFACE_API_VERSION) >= 4
@@ -214,7 +224,13 @@ constructor(
  * [Activity.onStop] isn't guaranteed to be called when SysUI UX needs it to. Instead [EditorState]
  * is broadcast by the editor using[EditorSession.close], to observe these broadcasts use
  * [WatchFaceControlClient.getEditorServiceClient] and [EditorServiceClient.addListener].
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public open class WatchFaceEditorContract : ActivityResultContract<EditorRequest, Unit>() {
 
     public companion object {

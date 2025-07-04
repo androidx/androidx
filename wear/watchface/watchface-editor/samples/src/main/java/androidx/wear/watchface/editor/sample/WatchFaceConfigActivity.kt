@@ -45,7 +45,7 @@ internal interface FragmentController {
     fun showStyleConfigFragment(
         settingId: String,
         styleSchema: UserStyleSchema,
-        userStyle: UserStyle
+        userStyle: UserStyle,
     )
 
     /** Lets the user configure the complication data source for a single complication slot. */
@@ -99,7 +99,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                     override fun showStyleConfigFragment(
                         settingId: String,
                         styleSchema: UserStyleSchema,
-                        userStyle: UserStyle
+                        userStyle: UserStyle,
                     ) {
                         showFragment(
                             StyleConfigFragment.newInstance(settingId, styleSchema, userStyle)
@@ -113,7 +113,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                     @SuppressWarnings("deprecation")
                     override suspend fun showComplicationConfig(complicationSlotId: Int) =
                         editorSession.openComplicationDataSourceChooser(complicationSlotId)
-                }
+                },
             )
         }
     }
@@ -191,7 +191,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 fragmentController.showStyleConfigFragment(
                     onlyStyleSetting.id.value,
                     editorSession.userStyleSchema,
-                    editorSession.userStyle.value
+                    editorSession.userStyle.value,
                 )
             }
         }

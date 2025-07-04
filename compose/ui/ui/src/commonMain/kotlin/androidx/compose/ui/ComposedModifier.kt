@@ -46,7 +46,7 @@ import kotlin.jvm.JvmName
  */
 fun Modifier.composed(
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ): Modifier = this.then(ComposedModifier(inspectorInfo, factory))
 
 /**
@@ -75,7 +75,7 @@ fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ): Modifier = this.then(KeyedComposedModifier1(fullyQualifiedName, key1, inspectorInfo, factory))
 
 /**
@@ -105,7 +105,7 @@ fun Modifier.composed(
     key1: Any?,
     key2: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ): Modifier =
     this.then(KeyedComposedModifier2(fullyQualifiedName, key1, key2, inspectorInfo, factory))
 
@@ -137,7 +137,7 @@ fun Modifier.composed(
     key2: Any?,
     key3: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ): Modifier =
     this.then(KeyedComposedModifier3(fullyQualifiedName, key1, key2, key3, inspectorInfo, factory))
 
@@ -167,12 +167,12 @@ fun Modifier.composed(
     fullyQualifiedName: String,
     vararg keys: Any?,
     inspectorInfo: InspectorInfo.() -> Unit = NoInspectorInfo,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ): Modifier = this.then(KeyedComposedModifierN(fullyQualifiedName, keys, inspectorInfo, factory))
 
 private open class ComposedModifier(
     inspectorInfo: InspectorInfo.() -> Unit,
-    val factory: @Composable Modifier.() -> Modifier
+    val factory: @Composable Modifier.() -> Modifier,
 ) : Modifier.Element, InspectorValueInfo(inspectorInfo)
 
 @Stable
@@ -180,7 +180,7 @@ private class KeyedComposedModifier1(
     val fqName: String,
     val key1: Any?,
     inspectorInfo: InspectorInfo.() -> Unit,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ) : ComposedModifier(inspectorInfo, factory) {
     override fun equals(other: Any?) =
         other is KeyedComposedModifier1 && fqName == other.fqName && key1 == other.key1
@@ -194,7 +194,7 @@ private class KeyedComposedModifier2(
     val key1: Any?,
     val key2: Any?,
     inspectorInfo: InspectorInfo.() -> Unit,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ) : ComposedModifier(inspectorInfo, factory) {
     override fun equals(other: Any?) =
         other is KeyedComposedModifier2 &&
@@ -217,7 +217,7 @@ private class KeyedComposedModifier3(
     val key2: Any?,
     val key3: Any?,
     inspectorInfo: InspectorInfo.() -> Unit,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ) : ComposedModifier(inspectorInfo, factory) {
     override fun equals(other: Any?) =
         other is KeyedComposedModifier3 &&
@@ -240,7 +240,7 @@ private class KeyedComposedModifierN(
     val fqName: String,
     val keys: Array<out Any?>,
     inspectorInfo: InspectorInfo.() -> Unit,
-    factory: @Composable Modifier.() -> Modifier
+    factory: @Composable Modifier.() -> Modifier,
 ) : ComposedModifier(inspectorInfo, factory) {
     override fun equals(other: Any?) =
         other is KeyedComposedModifierN && fqName == other.fqName && keys.contentEquals(other.keys)
@@ -348,7 +348,7 @@ internal class CompositionLocalMapInjectionElement(val map: CompositionLocalMap)
 @Deprecated(
     "Kept for backwards compatibility only. If you are recompiling, use materialize.",
     ReplaceWith("materialize"),
-    DeprecationLevel.HIDDEN
+    DeprecationLevel.HIDDEN,
 )
 fun Composer.materializeWithCompositionLocalInjection(modifier: Modifier): Modifier =
     materializeWithCompositionLocalInjectionInternal(modifier)

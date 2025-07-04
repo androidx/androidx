@@ -37,7 +37,7 @@ suspend fun launchingOnPrimaryActivityStack() {
         INTENT,
         ActivityOptionsCompat.makeBasic()
             .toBundle()!!
-            .setLaunchingActivityStack(primaryActivity, primaryActivityStack!!)
+            .setLaunchingActivityStack(primaryActivity, primaryActivityStack!!),
     )
 }
 
@@ -56,7 +56,7 @@ suspend fun launchingOnOverlayActivityStack() {
         INTENT,
         ActivityOptionsCompat.makeBasic()
             .toBundle()!!
-            .setLaunchingActivityStack(overlainActivity, overlayActivityStack!!)
+            .setLaunchingActivityStack(overlainActivity, overlayActivityStack!!),
     )
 }
 

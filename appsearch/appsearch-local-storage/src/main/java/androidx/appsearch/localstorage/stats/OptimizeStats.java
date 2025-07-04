@@ -16,12 +16,16 @@
 
 package androidx.appsearch.localstorage.stats;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.stats.BaseStats;
 
 import org.jspecify.annotations.NonNull;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Class holds detailed stats for Optimize.
@@ -29,7 +33,29 @@ import org.jspecify.annotations.NonNull;
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class OptimizeStats {
+public final class OptimizeStats extends BaseStats {
+
+    /**
+     * The cause of IcingSearchEngine recovering from a previous bad state during initialization.
+     */
+    @IntDef(value = {
+            // It needs to be sync with RecoveryCause in
+            // external/icing/proto/icing/proto/logging.proto#InitializeStatsProto
+            INDEX_TRANSLATION,
+            FULL_INDEX_REBUILD,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface IndexRestorationMode {
+    }
+
+    // The index has been translated in place to match the optimized document
+    // store.
+    public static final int INDEX_TRANSLATION  = 0;
+    // The index has been rebuilt from scratch during optimization. This could
+    // happen when we received a DATA_LOSS error from OptimizeDocumentStore,
+    // Index::Optimize failed, or rebuilding could be faster.
+    public static final int FULL_INDEX_REBUILD = 1;
+
     /**
      * The status code returned by {@link AppSearchResult#getResultCode()} for the call or
      * internal state.
@@ -63,8 +89,18 @@ public final class OptimizeStats {
     // The amount of time in millis since the last optimization ran calculated using wall clock time
     private final long mNativeTimeSinceLastOptimizeMillis;
 
+    // The mode of index restoration if there is any.
+    @IndexRestorationMode
+    private final int mIndexRestorationMode;
+
+    // Number of namespaces before the optimization.
+    private final int mNumOriginalNamespaces;
+
+    //Number of namespaces deleted.
+    private final int mNumDeletedNamespaces;
+
     OptimizeStats(@NonNull Builder builder) {
-        Preconditions.checkNotNull(builder);
+        super(builder);
         mStatusCode = builder.mStatusCode;
         mTotalLatencyMillis = builder.mTotalLatencyMillis;
         mNativeLatencyMillis = builder.mNativeLatencyMillis;
@@ -77,6 +113,9 @@ public final class OptimizeStats {
         mNativeStorageSizeBeforeBytes = builder.mNativeStorageSizeBeforeBytes;
         mNativeStorageSizeAfterBytes = builder.mNativeStorageSizeAfterBytes;
         mNativeTimeSinceLastOptimizeMillis = builder.mNativeTimeSinceLastOptimizeMillis;
+        mIndexRestorationMode = builder.mIndexRestorationMode;
+        mNumOriginalNamespaces = builder.mNumOriginalNamespaces;
+        mNumDeletedNamespaces = builder.mNumDeletedNamespaces;
     }
 
     /** Returns status code for this optimization. */
@@ -138,8 +177,24 @@ public final class OptimizeStats {
         return mNativeTimeSinceLastOptimizeMillis;
     }
 
+    /**  Returns the index restoration mode. */
+    @IndexRestorationMode
+    public int getIndexRestorationMode() {
+        return mIndexRestorationMode;
+    }
+
+    /** Returns number of namespaces before the optimization. */
+    public int getNumOriginalNamespaces() {
+        return mNumOriginalNamespaces;
+    }
+
+    /** Returns number of namespaces deleted. */
+    public int getNumDeletedNamespaces() {
+        return mNumDeletedNamespaces;
+    }
+
     /** Builder for {@link RemoveStats}. */
-    public static class Builder {
+    public static class Builder extends BaseStats.Builder<OptimizeStats.Builder> {
         /**
          * The status code returned by {@link AppSearchResult#getResultCode()} for the call or
          * internal state.
@@ -156,6 +211,10 @@ public final class OptimizeStats {
         long mNativeStorageSizeBeforeBytes;
         long mNativeStorageSizeAfterBytes;
         long mNativeTimeSinceLastOptimizeMillis;
+        @IndexRestorationMode
+        int mIndexRestorationMode;
+        int mNumOriginalNamespaces;
+        int mNumDeletedNamespaces;
 
         /** Sets the status code. */
         @CanIgnoreReturnValue
@@ -238,7 +297,30 @@ public final class OptimizeStats {
             return this;
         }
 
+        /**  Sets the index restoration mode. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setIndexRestorationMode(
+                @IndexRestorationMode int indexRestorationMode) {
+            mIndexRestorationMode = indexRestorationMode;
+            return this;
+        }
+
+        /**  Sets the number of namespaces before the optimization.  */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNumOriginalNamespaces(int numOriginalNamespaces) {
+            mNumOriginalNamespaces = numOriginalNamespaces;
+            return this;
+        }
+
+        /**  Sets the number of namespaces  deleted.  */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setNumDeletedNamespaces(int numDeletedNamespaces) {
+            mNumDeletedNamespaces = numDeletedNamespaces;
+            return this;
+        }
+
         /** Creates a {@link OptimizeStats}. */
+        @Override
         public @NonNull OptimizeStats build() {
             return new OptimizeStats(/* builder= */ this);
         }

@@ -50,6 +50,8 @@ import androidx.window.embedding.DividerAttributes;
 import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes;
 import androidx.window.embedding.DividerAttributes.FixedDividerAttributes;
 import androidx.window.embedding.EmbeddedActivityWindowInfo;
+import androidx.window.embedding.EmbeddingAnimationParams;
+import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec;
 import androidx.window.embedding.EmbeddingRule;
 import androidx.window.embedding.RuleController;
 import androidx.window.embedding.SplitAttributes;
@@ -231,6 +233,7 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
         ActivityRule configE = getRuleFor(SplitActivityE.class);
         mRecyclerViewBindingData.fullscreenECheckBox.setChecked(
                 configE != null && configE.getAlwaysExpand());
+
         mUpdatingConfigs = false;
     }
 
@@ -459,6 +462,16 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
             setCheckedChanged(mRecyclerViewBindingData.draggableDividerCheckBox);
         }
 
+        if (extensionVersion < 7) {
+            mRecyclerViewBindingData.openAnimationJumpCutCheckBox.setVisible(false);
+            mRecyclerViewBindingData.closeAnimationJumpCutCheckBox.setVisible(false);
+            mRecyclerViewBindingData.changeAnimationJumpCutCheckBox.setVisible(false);
+        } else {
+            setCheckedChanged(mRecyclerViewBindingData.openAnimationJumpCutCheckBox);
+            setCheckedChanged(mRecyclerViewBindingData.closeAnimationJumpCutCheckBox);
+            setCheckedChanged(mRecyclerViewBindingData.changeAnimationJumpCutCheckBox);
+        }
+
         // Listen for split configuration checkboxes to update the rules before launching
         // activities.
         setCheckedChanged(
@@ -481,7 +494,6 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
                         mRecyclerViewBindingData.useStickyPlaceholderCheckBox.setChecked(false);
                     }
                 });
-
         setCheckedChanged(mRecyclerViewBindingData.splitMainCheckBox);
         setCheckedChanged(mRecyclerViewBindingData.useStickyPlaceholderCheckBox);
         setCheckedChanged(mRecyclerViewBindingData.finishBCCheckBox);
@@ -532,6 +544,7 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
                 dividerAttributes =
                         new DraggableDividerAttributes.Builder()
                                 .setWidthDp(1)
+                                .setDraggingToFullscreenAllowed(true)
                                 .build();
             } else {
                 dividerAttributes = new FixedDividerAttributes.Builder().setWidthDp(1).build();
@@ -540,10 +553,24 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
             dividerAttributes = DividerAttributes.NO_DIVIDER;
         }
 
+        final EmbeddingAnimationParams.Builder animationParamsBuilder =
+                new EmbeddingAnimationParams.Builder();
+        if (mRecyclerViewBindingData.openAnimationJumpCutCheckBox.isChecked()) {
+            animationParamsBuilder.setOpenAnimation(AnimationSpec.JUMP_CUT);
+        }
+        if (mRecyclerViewBindingData.closeAnimationJumpCutCheckBox.isChecked()) {
+            animationParamsBuilder.setCloseAnimation(AnimationSpec.JUMP_CUT);
+        }
+        if (mRecyclerViewBindingData.changeAnimationJumpCutCheckBox.isChecked()) {
+            animationParamsBuilder.setChangeAnimation(AnimationSpec.JUMP_CUT);
+        }
+        final EmbeddingAnimationParams animationParams = animationParamsBuilder.build();
+
         final SplitAttributes defaultSplitAttributes =
                 new SplitAttributes.Builder()
                         .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
                         .setDividerAttributes(dividerAttributes)
+                        .setAnimationParams(animationParams)
                         .build();
 
         if (mRecyclerViewBindingData.splitMainCheckBox.isChecked()) {
@@ -569,6 +596,12 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
 
         mRecyclerViewBindingData.draggableDividerCheckBox.setEnabled(
                 mRecyclerViewBindingData.dividerCheckBox.isChecked());
+        final boolean isEnabled = mRecyclerViewBindingData.splitMainCheckBox.isChecked();
+        mRecyclerViewBindingData.openAnimationJumpCutCheckBox.setEnabled(isEnabled);
+        mRecyclerViewBindingData.closeAnimationJumpCutCheckBox.setEnabled(
+                mRecyclerViewBindingData.splitMainCheckBox.isChecked());
+        mRecyclerViewBindingData.changeAnimationJumpCutCheckBox.setEnabled(
+                mRecyclerViewBindingData.splitMainCheckBox.isChecked());
 
         if (mRecyclerViewBindingData.usePlaceholderCheckBox.isChecked()) {
             // Split B with placeholder.
@@ -666,7 +699,7 @@ public class SplitActivityBase extends EdgeToEdgeActivity {
 
     /** Updates the status label that says when an activity is embedded. */
     private void updateEmbeddedStatus(boolean isEmbedded) {
-        mRecyclerViewBindingData.embeddedStatusTextView.setVisible(isEmbedded);
+        mRecyclerViewBindingData.embeddedBoundsTextView.setVisible(isEmbedded);
     }
 
     private void updateEmbeddedWindowInfo(@NonNull EmbeddedActivityWindowInfo info) {

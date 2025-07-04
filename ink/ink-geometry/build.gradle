@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
   id("AndroidXPlugin")
-  id("com.android.library")
 }
 
 androidXMultiplatform {
   jvm()
-  android()
+  androidLibrary {
+    namespace = "androidx.ink.geometry"
+  }
 
   defaultPlatform(PlatformIdentifier.JVM)
 
@@ -84,13 +85,9 @@ androidXMultiplatform {
   }
 }
 
-android {
-  namespace = "androidx.ink.geometry"
-}
-
 androidx {
     name = "Ink Geometry"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Create beautiful strokes"
 }

@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="indeterminate" msgid="7933458017204019916">"برخی موارد علامت‌گذاری شده است"</string>
+    <string name="indeterminate" msgid="7933458017204019916">"ناقص علامت زده‌شده"</string>
     <string name="state_on" msgid="1490883874751719580">"روشن"</string>
     <string name="state_off" msgid="5834637030682409883">"خاموش"</string>
     <string name="switch_role" msgid="2561197295334830845">"کلید"</string>

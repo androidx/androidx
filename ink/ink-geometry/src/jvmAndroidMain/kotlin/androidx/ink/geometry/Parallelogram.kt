@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright (C) 2024-2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.ink.geometry.internal.ParallelogramNative
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.math.abs
 
 /**
@@ -36,7 +37,8 @@ import kotlin.math.abs
  * c + 𝛼 * u + 𝛽 * v, where `c` is the center, and `𝛼` and `𝛽` are real numbers in the interval
  * [-1, 1].
  *
- * Note: Java code should use the factory function Parallelogram.from*.
+ * Note: Java code should use the factory static function `from*` in [MutableParallelogram] or
+ * [ImmutableParallelogram] to create [Parallelogram] instances.
  *
  * A [Parallelogram] may have a positive or negative height; a positive height indicates that the
  * angle from the first semi-axis to the second will also be positive.
@@ -129,8 +131,6 @@ public abstract class Parallelogram internal constructor() {
             height,
             rotation,
             shearFactor,
-            ImmutableBox::class.java,
-            ImmutableVec::class.java,
         )
     }
 
@@ -177,7 +177,6 @@ public abstract class Parallelogram internal constructor() {
                 height,
                 rotation,
                 shearFactor,
-                ImmutableVec::class.java,
             )
             .toList()
     }
@@ -222,7 +221,6 @@ public abstract class Parallelogram internal constructor() {
                 height,
                 rotation,
                 shearFactor,
-                ImmutableVec::class.java,
             )
             .toList()
     }
@@ -341,4 +339,92 @@ public abstract class Parallelogram internal constructor() {
                     "shearFactor=$shearFactor)"
             }
     }
+}
+
+/** Native helper functions for Parallelogram. */
+@UsedByNative
+internal object ParallelogramNative {
+
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative
+    external fun createBoundingBox(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+    ): ImmutableBox
+
+    @UsedByNative
+    external fun populateBoundingBox(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+        outBox: MutableBox,
+    )
+
+    @UsedByNative
+    external fun createSemiAxes(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+    ): Array<ImmutableVec>
+
+    @UsedByNative
+    external fun populateSemiAxes(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+        outAxis1: MutableVec,
+        outAxis2: MutableVec,
+    )
+
+    @UsedByNative
+    external fun createCorners(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+    ): Array<ImmutableVec>
+
+    @UsedByNative
+    external fun populateCorners(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+        outCorner1: MutableVec,
+        outCorner2: MutableVec,
+        outCorner3: MutableVec,
+        outCorner4: MutableVec,
+    )
+
+    @UsedByNative
+    external fun contains(
+        centerX: Float,
+        centerY: Float,
+        width: Float,
+        height: Float,
+        rotation: Float,
+        shearFactor: Float,
+        pointX: Float,
+        pointY: Float,
+    ): Boolean
 }

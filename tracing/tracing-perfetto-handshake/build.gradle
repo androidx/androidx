@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BuildServerConfigurationKt
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -36,12 +36,12 @@ dependencies {
 }
 
 tasks.withType(Jar) {
-    destinationDirectory.set(BuildServerConfigurationKt.getDistributionDirectory(rootProject))
+    destinationDirectory.set(BuildServerConfigurationKt.getDistributionDirectory(project))
 }
 
 androidx {
     name = "Tracing Perfetto Handshake"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto Handshake"
 }

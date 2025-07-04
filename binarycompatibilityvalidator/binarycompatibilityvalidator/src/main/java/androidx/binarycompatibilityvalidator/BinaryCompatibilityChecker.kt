@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 @file:OptIn(ExperimentalLibraryAbiReader::class)
 
 package androidx.binarycompatibilityvalidator
@@ -34,15 +32,17 @@ import org.jetbrains.kotlin.library.abi.AbiType
 import org.jetbrains.kotlin.library.abi.AbiTypeArgument
 import org.jetbrains.kotlin.library.abi.AbiTypeArgument.StarProjection
 import org.jetbrains.kotlin.library.abi.AbiTypeArgument.TypeProjection
+import org.jetbrains.kotlin.library.abi.AbiTypeNullability
 import org.jetbrains.kotlin.library.abi.AbiTypeParameter
 import org.jetbrains.kotlin.library.abi.AbiValueParameter
+import org.jetbrains.kotlin.library.abi.AbiVariance
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.jetbrains.kotlin.library.abi.LibraryAbi
 
 @OptIn(ExperimentalLibraryAbiReader::class)
 class BinaryCompatibilityChecker(
     private val newLibraryAbi: LibraryAbi,
-    private val oldLibraryAbi: LibraryAbi
+    private val oldLibraryAbi: LibraryAbi,
 ) {
     private val newLibraryDeclarations by lazy {
         newLibraryAbi.allDeclarations().associateBy { it.asTypeString() }
@@ -53,20 +53,28 @@ class BinaryCompatibilityChecker(
 
     private fun checkBinariesAreCompatible(
         errors: CompatibilityErrors,
-        validate: Boolean
+        validate: Boolean,
+        shouldFreeze: Boolean = false,
     ): CompatibilityErrors {
-        return newLibraryAbi.checkIsBinaryCompatibleWith(oldLibraryAbi, errors, validate)
+        return newLibraryAbi.checkIsBinaryCompatibleWith(
+            oldLibraryAbi,
+            errors,
+            validate,
+            shouldFreeze,
+        )
     }
 
     private fun LibraryAbi.checkIsBinaryCompatibleWith(
         olderLibraryAbi: LibraryAbi,
         errors: CompatibilityErrors,
-        validate: Boolean
+        validate: Boolean,
+        shouldFreeze: Boolean,
     ): CompatibilityErrors {
         topLevelDeclarations.isBinaryCompatibleWith(
             olderLibraryAbi.topLevelDeclarations,
             uniqueName,
-            errors
+            errors,
+            shouldFreeze,
         )
         if (validate && errors.isNotEmpty()) {
             throw ValidationException(errors.toString())
@@ -77,32 +85,44 @@ class BinaryCompatibilityChecker(
     private fun AbiDeclarationContainer.isBinaryCompatibleWith(
         oldContainer: AbiDeclarationContainer,
         parentQualifiedName: String,
-        errors: CompatibilityErrors
+        errors: CompatibilityErrors,
+        shouldFreeze: Boolean,
     ) {
         val isBinaryCompatibleWith:
             AbiDeclaration.(AbiDeclaration, String, CompatibilityErrors) -> Unit =
             { other, /* parentQualifiedName */ _, errs ->
                 isBinaryCompatibleWith(other, errs)
             }
-        declarations.isBinaryCompatibleWith(
-            oldContainer.declarations,
-            entityName = "declaration",
-            uniqueId = AbiDeclaration::asTypeString,
-            isBinaryCompatibleWith = isBinaryCompatibleWith,
-            parentQualifiedName = parentQualifiedName,
-            errors = errors
-        )
+        decoratedDeclarations()
+            .isBinaryCompatibleWith(
+                oldContainer.decoratedDeclarations(),
+                entityName = "declaration",
+                uniqueId = AbiDeclaration::asTypeString,
+                isBinaryCompatibleWith = isBinaryCompatibleWith,
+                parentQualifiedName = parentQualifiedName,
+                errors = errors,
+                isAllowedAddition = { !shouldFreeze },
+            )
     }
+
+    private fun AbiDeclarationContainer.decoratedDeclarations() =
+        declarations.map {
+            when (it) {
+                is AbiFunction -> DecoratedAbiFunction(it, null)
+                is AbiProperty -> DecoratedAbiProperty(it, null)
+                else -> it
+            }
+        }
 
     private fun AbiDeclaration.isBinaryCompatibleWith(
         oldDeclaration: AbiDeclaration,
         @Suppress("UNUSED_PARAMETER") parentQualifiedName: String,
-        errors: CompatibilityErrors
+        errors: CompatibilityErrors,
     ) = isBinaryCompatibleWith(oldDeclaration, errors)
 
     private fun AbiDeclaration.isBinaryCompatibleWith(
         oldDeclaration: AbiDeclaration,
-        errors: CompatibilityErrors
+        errors: CompatibilityErrors,
     ) {
         // If we're comparing a class to a function, or any other type, they are not compatible and
         // it's not worth checking anything further. The code that calls this function should
@@ -110,15 +130,21 @@ class BinaryCompatibilityChecker(
         if (this::class.java != oldDeclaration::class.java) {
             errors.add(
                 "type changed from ${this::class.simpleName} to " +
-                    "${oldDeclaration::class.simpleName} for $qualifiedName",
+                    "${oldDeclaration::class.simpleName} for $qualifiedName"
             )
             return
         }
         when (this) {
             is AbiClass -> isBinaryCompatibleWith(oldDeclaration as AbiClass, errors)
-            is AbiFunction -> isBinaryCompatibleWith(oldDeclaration as AbiFunction, errors)
-            is AbiProperty -> isBinaryCompatibleWith(oldDeclaration as AbiProperty, errors)
+            is DecoratedAbiFunction ->
+                isBinaryCompatibleWith(oldDeclaration as DecoratedAbiFunction, errors)
+            is DecoratedAbiProperty ->
+                isBinaryCompatibleWith(oldDeclaration as DecoratedAbiProperty, errors)
             is AbiEnumEntry -> Unit
+            else ->
+                throw IllegalStateException(
+                    "All AbiFunctions and AbiProperties should be decorated"
+                )
         }
     }
 
@@ -163,7 +189,7 @@ class BinaryCompatibilityChecker(
                 uniqueId = AbiType::asString,
                 isBinaryCompatibleWith = AbiType::isBinaryCompatibleWith,
                 parentQualifiedName = qualifiedName.toString(),
-                errors = errors
+                errors = errors,
             )
         typeParameters.isBinaryCompatibleWith(
             oldClass.typeParameters,
@@ -172,7 +198,7 @@ class BinaryCompatibilityChecker(
             isBinaryCompatibleWith = AbiTypeParameter::isBinaryCompatibleWith,
             parentQualifiedName = qualifiedName.toString(),
             errors = errors,
-            isAllowedAddition = { false }
+            isAllowedAddition = { false },
         )
         val newDecs = allDeclarationsIncludingInherited(newLibraryDeclarations)
         val oldDecs = oldClass.allDeclarationsIncludingInherited(oldLibraryDeclarations)
@@ -190,7 +216,7 @@ class BinaryCompatibilityChecker(
                 }
             },
             parentQualifiedName = qualifiedName.toString(),
-            errors = errors
+            errors = errors,
         )
     }
 
@@ -210,17 +236,19 @@ class BinaryCompatibilityChecker(
         // Collect all the declarations directly on the class (without functions) +
         // + all functions, (including inherited). The filterNot is to avoid listing
         // functions directly on the class twice.
-        return declarations.filterNot { it is AbiFunction } +
-            allMethodsIncludingInherited(oldLibraryDeclarations)
+        return declarations.filterNot { it is AbiFunction }.filterNot { it is AbiProperty } +
+            allMethodsIncludingInherited(oldLibraryDeclarations) +
+            allPropertiesIncludingInherited(oldLibraryDeclarations)
     }
 
-    private fun AbiClass.allMethodsIncludingInherited(
-        oldLibraryDeclarations: Map<String, AbiDeclaration>
-    ): List<AbiFunction> {
-        val functionMap =
+    private fun AbiClass.allPropertiesIncludingInherited(
+        oldLibraryDeclarations: Map<String, AbiDeclaration>,
+        baseClass: AbiClass = this,
+    ): List<DecoratedAbiProperty> {
+        val propertyMap =
             declarations
-                .filterIsInstance<AbiFunction>()
-                .associateBy { it.asUnqualifiedTypeString() }
+                .filterIsInstance<AbiProperty>()
+                .associate { it.asUnqualifiedTypeString() to DecoratedAbiProperty(it, baseClass) }
                 .toMutableMap()
         superTypes
             .map {
@@ -228,15 +256,36 @@ class BinaryCompatibilityChecker(
                 oldLibraryDeclarations[it.asString()]
             }
             .filterIsInstance<AbiClass>()
-            .flatMap { it.allMethodsIncludingInherited(oldLibraryDeclarations) }
+            .flatMap { it.allPropertiesIncludingInherited(oldLibraryDeclarations, baseClass) }
+            .associateBy { it.asUnqualifiedTypeString() }
+            .forEach { (key, prop) -> propertyMap.putIfAbsent(key, prop) }
+        return propertyMap.values.toList()
+    }
+
+    private fun AbiClass.allMethodsIncludingInherited(
+        oldLibraryDeclarations: Map<String, AbiDeclaration>,
+        baseClass: AbiClass = this,
+    ): List<DecoratedAbiFunction> {
+        val functionMap =
+            declarations
+                .filterIsInstance<AbiFunction>()
+                .associate { it.asUnqualifiedTypeString() to DecoratedAbiFunction(it, baseClass) }
+                .toMutableMap()
+        superTypes
+            .map {
+                // we should throw here if we can't find the class in the package/dependencies
+                oldLibraryDeclarations[it.asString()]
+            }
+            .filterIsInstance<AbiClass>()
+            .flatMap { it.allMethodsIncludingInherited(oldLibraryDeclarations, baseClass) }
             .associateBy { it.asUnqualifiedTypeString() }
             .forEach { (key, func) -> functionMap.putIfAbsent(key, func) }
         return functionMap.values.toList()
     }
 
-    private fun AbiFunction.isBinaryCompatibleWith(
-        otherFunction: AbiFunction,
-        errors: CompatibilityErrors
+    private fun DecoratedAbiFunction.isBinaryCompatibleWith(
+        otherFunction: DecoratedAbiFunction,
+        errors: CompatibilityErrors,
     ) {
         if (isConstructor != otherFunction.isConstructor) {
             errors.add(
@@ -244,14 +293,14 @@ class BinaryCompatibilityChecker(
                     "$isConstructor for $qualifiedName"
             )
         }
-        if (modality != otherFunction.modality) {
+        if (effectiveModality != otherFunction.effectiveModality) {
             when {
-                modality == AbiModality.OPEN && otherFunction.modality == AbiModality.ABSTRACT ->
-                    Unit
+                effectiveModality == AbiModality.OPEN &&
+                    otherFunction.effectiveModality == AbiModality.ABSTRACT -> Unit
                 else ->
                     errors.add(
-                        "modality changed from ${otherFunction.modality} to " +
-                            "$modality for $qualifiedName"
+                        "modality changed from ${otherFunction.effectiveModality} to " +
+                            "$effectiveModality for $qualifiedName"
                     )
             }
         }
@@ -271,35 +320,50 @@ class BinaryCompatibilityChecker(
                     "$qualifiedName"
             )
         }
-        if (hasExtensionReceiverParameter != otherFunction.hasExtensionReceiverParameter) {
+        // We consider a function to be removed if the extension receiver parameter has changed
+        // so we should never make it this far, but leave the check for correctness
+        if (hasExtensionReceiverParameter() != otherFunction.hasExtensionReceiverParameter()) {
             errors.add(
                 "hasExtensionReceiverParameter changed from " +
-                    "${otherFunction.hasExtensionReceiverParameter} to " +
-                    "$hasExtensionReceiverParameter for $qualifiedName"
+                    "${otherFunction.hasExtensionReceiverParameter()} to " +
+                    "${hasExtensionReceiverParameter()} for $qualifiedName"
             )
         }
-        if (contextReceiverParametersCount != otherFunction.contextReceiverParametersCount) {
+        // Same as with extension functions if the context receiver param count changes we won't
+        // consider these to be the same function
+        if (contextReceiverParametersCount() != otherFunction.contextReceiverParametersCount()) {
             errors.add(
                 "contextReceiverParametersCount changed from " +
-                    "${otherFunction.contextReceiverParametersCount} to " +
-                    "$contextReceiverParametersCount for $qualifiedName"
+                    "${otherFunction.contextReceiverParametersCount()} to " +
+                    "${contextReceiverParametersCount()} for $qualifiedName"
             )
         }
         returnType.isBinaryCompatibleWith(
             otherFunction.returnType,
             qualifiedName.toString(),
             errors,
-            "Return type"
+            "Return type",
         )
 
-        valueParameters.isBinaryCompatibleWith(
-            otherFunction.valueParameters,
+        // bake the index into the data type for clearer reporting in error messages
+        val decoratedValueParameters: List<DecoratedAbiValueParameter> =
+            valueParameters.mapIndexed { index, valueParameter ->
+                DecoratedAbiValueParameter(index, valueParameter)
+            }
+        // by the time we get here, we already know that there are the same number of value
+        // parameters and that they have the same type. If they didn't they would be considered
+        // to be different functions. The following check is to give more detailed compatibility
+        // details on things like whether a param has a default, is vararg, etc
+        decoratedValueParameters.isBinaryCompatibleWith(
+            otherFunction.valueParameters.mapIndexed { index, valueParameter ->
+                DecoratedAbiValueParameter(index, valueParameter)
+            },
             entityName = "valueParameter",
             isAllowedAddition = { false },
-            uniqueId = AbiValueParameter::asString,
-            isBinaryCompatibleWith = AbiValueParameter::isBinaryCompatibleWith,
+            uniqueId = DecoratedAbiValueParameter::asString,
+            isBinaryCompatibleWith = DecoratedAbiValueParameter::isBinaryCompatibleWith,
             parentQualifiedName = qualifiedName.toString(),
-            errors = errors
+            errors = errors,
         )
         typeParameters.isBinaryCompatibleWith(
             otherFunction.typeParameters,
@@ -308,18 +372,18 @@ class BinaryCompatibilityChecker(
             uniqueId = AbiTypeParameter::tag,
             isBinaryCompatibleWith = AbiTypeParameter::isBinaryCompatibleWith,
             parentQualifiedName = qualifiedName.toString(),
-            errors = errors
+            errors = errors,
         )
     }
 
-    private fun AbiProperty.isBinaryCompatibleWith(
-        oldProperty: AbiProperty,
-        errors: CompatibilityErrors
+    private fun DecoratedAbiProperty.isBinaryCompatibleWith(
+        oldProperty: DecoratedAbiProperty,
+        errors: CompatibilityErrors,
     ) {
         if (kind != oldProperty.kind) {
             when {
                 kind == AbiPropertyKind.CONST_VAL && oldProperty.kind == AbiPropertyKind.VAL -> Unit
-                modality == AbiModality.FINAL &&
+                effectiveModality == AbiModality.FINAL &&
                     kind == AbiPropertyKind.VAR &&
                     oldProperty.kind == AbiPropertyKind.VAL -> Unit
                 // changing var to val is allowed as long as the setter was private / internal (null
@@ -328,19 +392,23 @@ class BinaryCompatibilityChecker(
                     kind == AbiPropertyKind.VAL &&
                     oldProperty.setter == null -> Unit
                 else ->
-                    errors.add("kind changed from ${oldProperty.kind} to $kind for $qualifiedName")
+                    errors.add(
+                        "kind changed from ${oldProperty.kind} to $kind for ${this.asTypeString()}"
+                    )
             }
         }
-        val newGetter = getter
-        val oldGetter = oldProperty.getter
+        val newGetter = getter?.let { DecoratedAbiFunction(it, parentClass) }
+        val oldGetter =
+            oldProperty.getter?.let { DecoratedAbiFunction(it, oldProperty.parentClass) }
         if (oldGetter != null && newGetter == null) {
             errors.add("removed getter from $qualifiedName")
         } else if (oldGetter != null && newGetter != null) {
             newGetter.isBinaryCompatibleWith(oldGetter, errors)
         }
 
-        val newSetter = setter
-        val oldSetter = oldProperty.setter
+        val newSetter = setter?.let { DecoratedAbiFunction(it, parentClass) }
+        val oldSetter =
+            oldProperty.setter?.let { DecoratedAbiFunction(it, oldProperty.parentClass) }
         if (oldSetter != null && newSetter == null) {
             errors.add("removed setter from $qualifiedName")
         } else if (oldSetter != null && newSetter != null) {
@@ -353,25 +421,42 @@ class BinaryCompatibilityChecker(
             newLibraries: Map<String, LibraryAbi>,
             oldLibraries: Map<String, LibraryAbi>,
             baselines: Set<String> = emptySet(),
-            validate: Boolean = true
+            validate: Boolean = true,
+            shouldFreeze: Boolean = false,
         ): List<CompatibilityError> {
+            val errors = CompatibilityErrors(baselines, "meta")
             val removedTargets = oldLibraries.keys - newLibraries.keys
+            val addedTargets = newLibraries.keys - oldLibraries.keys
             if (removedTargets.isNotEmpty()) {
-                val errors =
+                errors.addAll(
                     removedTargets.flatMap {
                         CompatibilityErrors(baselines, it).apply { add("Target was removed") }
                     }
+                )
+            }
+            if (shouldFreeze && addedTargets.isNotEmpty()) {
+                errors.addAll(
+                    addedTargets.flatMap {
+                        CompatibilityErrors(baselines, it).apply { add("Target was added") }
+                    }
+                )
+            }
+            if (errors.isNotEmpty()) {
                 if (validate) {
                     throw ValidationException(errors.toString())
                 }
                 return errors
             }
             return oldLibraries.keys.flatMap { target ->
-                val newLib = newLibraries[target]!!
+                val newLib =
+                    newLibraries[target]
+                        // We can't compare targets if they've been removed. We'll throw on removed
+                        // targets but if that removal is baselined we can still make it here.
+                        ?: return@flatMap emptyList()
                 val oldLib = oldLibraries[target]!!
-                val errors = CompatibilityErrors(baselines, target)
+                val errorsForTarget = CompatibilityErrors(baselines, target)
                 BinaryCompatibilityChecker(newLib, oldLib)
-                    .checkBinariesAreCompatible(errors, validate)
+                    .checkBinariesAreCompatible(errorsForTarget, validate, shouldFreeze)
             }
         }
 
@@ -379,13 +464,15 @@ class BinaryCompatibilityChecker(
             newLibraries: Map<String, LibraryAbi>,
             oldLibraries: Map<String, LibraryAbi>,
             baselineFile: File?,
-            validate: Boolean = true
+            validate: Boolean = true,
+            shouldFreeze: Boolean = false,
         ) =
             checkAllBinariesAreCompatible(
                 newLibraries,
                 oldLibraries,
                 baselineFile?.asBaselineErrors() ?: emptySet(),
-                validate
+                validate,
+                shouldFreeze,
             )
     }
 }
@@ -393,7 +480,7 @@ class BinaryCompatibilityChecker(
 internal fun AbiTypeParameter.isBinaryCompatibleWith(
     otherTypeParam: AbiTypeParameter,
     parentQualifiedName: String,
-    errors: CompatibilityErrors
+    errors: CompatibilityErrors,
 ) {
     if (isReified != otherTypeParam.isReified) {
         when {
@@ -411,38 +498,41 @@ internal fun AbiTypeParameter.isBinaryCompatibleWith(
                 "for type param $tag on $parentQualifiedName"
         )
     }
-    val upperBound = upperBounds.singleOrNull()
-    val otherUpperBound = otherTypeParam.upperBounds.singleOrNull()
-    if (upperBound == null && otherUpperBound == null) {
+    if (isUnbounded() && otherTypeParam.isUnbounded()) {
         return
     }
-    if (upperBounds.isUnbounded() && otherTypeParam.upperBounds.isUnbounded()) {
-        return
-    }
-    if (upperBound.valueAsString != otherUpperBound.valueAsString) {
+    if (upperBounds.asStrings() != otherTypeParam.upperBounds.asStrings()) {
         errors.add(
-            "upper bounds changed from ${otherUpperBound.valueAsString} to " +
-                "${upperBound.valueAsString} type param $tag on $parentQualifiedName"
+            "upper bounds changed from ${otherTypeParam.upperBounds.asString()} to " +
+                "${upperBounds.asString()} for type param $tag on $parentQualifiedName"
         )
     }
 }
 
-private val AbiType?.valueAsString: String
-    get() = this?.classNameOrTag ?: "Unit / null"
+private val AbiType?.asStringOrUnit: String
+    get() = this?.asString() ?: "Unit / null"
 
-private fun List<AbiType>.isUnbounded(): Boolean =
-    isEmpty() || single().className?.toString() == "kotlin/Any"
+private fun List<AbiType>.asStrings(): List<String> = map { it.asString() }
 
-private fun AbiValueParameter.isBinaryCompatibleWith(
-    otherParam: AbiValueParameter,
+private fun List<AbiType>.asString(): String = joinToString(",") { it.asString() }
+
+private fun AbiTypeParameter.isUnbounded(): Boolean =
+    (upperBounds.isEmpty() ||
+        (upperBounds.singleOrNull()?.let {
+            it.className.toString() == "kotlin/Any" &&
+                it.nullability == AbiTypeNullability.MARKED_NULLABLE
+        } ?: false))
+
+private fun DecoratedAbiValueParameter.isBinaryCompatibleWith(
+    otherParam: DecoratedAbiValueParameter,
     parentQualifiedName: String,
-    errors: CompatibilityErrors
+    errors: CompatibilityErrors,
 ) {
     type.isBinaryCompatibleWith(otherParam.type, parentQualifiedName, errors)
     if (isVararg != otherParam.isVararg) {
         errors.add(
             "isVararg changed from ${otherParam.isVararg} to $isVararg for parameter " +
-                "${type.classNameOrTag} of $parentQualifiedName"
+                "${asString()} of $parentQualifiedName"
         )
     }
     if (hasDefaultArg != otherParam.hasDefaultArg) {
@@ -451,20 +541,23 @@ private fun AbiValueParameter.isBinaryCompatibleWith(
             else ->
                 errors.add(
                     "hasDefaultArg changed from ${otherParam.hasDefaultArg} to $hasDefaultArg for " +
-                        "parameter ${type.classNameOrTag} of $parentQualifiedName"
+                        "parameter ${asString()} of $parentQualifiedName"
                 )
         }
+    }
+    if (isCrossinline && otherParam.isNoinline) {
+        return
     }
     if (isNoinline != otherParam.isNoinline) {
         errors.add(
             "isNoinline changed from ${otherParam.isNoinline} to $isNoinline for " +
-                "parameter ${type.classNameOrTag} of $parentQualifiedName"
+                "parameter ${asString()} of $parentQualifiedName"
         )
     }
     if (isCrossinline != otherParam.isCrossinline) {
         errors.add(
             "isCrossinline changed from ${otherParam.isCrossinline} to $isCrossinline for " +
-                "parameter ${type.classNameOrTag} of $parentQualifiedName"
+                "parameter ${asString()} of $parentQualifiedName"
         )
     }
 }
@@ -479,112 +572,137 @@ private fun AbiType?.isBinaryCompatibleWith(
     otherType: AbiType?,
     parentQualifiedName: String,
     errors: CompatibilityErrors,
-    kind: String = "type"
+    kind: String = "type",
 ) {
-    if (valueAsString != otherType.valueAsString) {
+    if (asStringOrUnit != otherType.asStringOrUnit) {
         errors.add(
-            "$kind changed from ${otherType.valueAsString} to " +
-                "$valueAsString for $parentQualifiedName"
+            "$kind changed from ${otherType.asStringOrUnit} to " +
+                "$asStringOrUnit for $parentQualifiedName"
         )
-        return
     }
-    if ((this == null) && otherType == null) {
-        return
-    }
-    when {
-        this is AbiType.Simple ->
-            isBinaryCompatible(otherType as AbiType.Simple, parentQualifiedName, errors, kind)
-    }
-}
-
-private fun AbiType.Simple.isBinaryCompatible(
-    otherType: AbiType.Simple,
-    parentQualifiedName: String,
-    errors: CompatibilityErrors,
-    kind: String
-) {
-    val classifierRef = classifierReference
-    val otherClassifierRef = otherType.classifierReference
-    val typeMatches =
-        when (classifierReference) {
-            is ClassReference -> {
-                classifierRef.className == otherClassifierRef.className
-            }
-            is TypeParameterReference -> {
-                classifierRef.tag == otherClassifierRef.tag
-            }
-        }
-    if (!typeMatches) {
-        errors.add("$kind did not match for $parentQualifiedName")
-        return
-    }
-    if (nullability != otherType.nullability) {
-        errors.add("$kind nullability did not match for $parentQualifiedName")
-        return
-    }
-    arguments.isBinaryCompatibleWith(
-        otherType.arguments,
-        entityName = "typeArgument",
-        isAllowedAddition = { false },
-        uniqueId = AbiTypeArgument::asString,
-        isBinaryCompatibleWith = AbiTypeArgument::isBinaryCompatibleWith,
-        parentQualifiedName = parentQualifiedName,
-        errors = errors
-    )
-}
-
-private fun AbiTypeArgument.isBinaryCompatibleWith(
-    otherTypeArgument: AbiTypeArgument,
-    parentQualifiedName: String,
-    errors: CompatibilityErrors
-) {
-    if (this is StarProjection && otherTypeArgument is StarProjection) {
-        return
-    }
-    if (this !is TypeProjection || otherTypeArgument !is TypeProjection) {
-        errors.add("Star projection and type projection don't match")
-        return
-    }
-    if (variance != otherTypeArgument.variance) {
-        errors.add("variance changed for type arg ${type.asString()}")
-    }
-    type.isBinaryCompatibleWith(otherTypeArgument.type, parentQualifiedName, errors)
 }
 
 private fun AbiDeclaration.asTypeString() =
     when (this) {
-        is AbiFunction -> qualifiedName.toString() + valueParameterString()
+        is AbiFunction -> asTypeString()
+        is AbiProperty -> asTypeString()
         else -> qualifiedName.toString()
     }
+
+private fun AbiFunction.asTypeString(name: String = qualifiedName.toString()): String {
+    return (contextReceiverParametersString() +
+        extensionReceiverParameterString() +
+        name +
+        regularValueParametersString())
+}
+
+private fun AbiProperty.asTypeString(name: String = qualifiedName.toString()): String {
+    val getterFunc = getter ?: return name
+    return (getterFunc.contextReceiverParametersString() +
+        getterFunc.extensionReceiverParameterString() +
+        name)
+}
+
+private fun AbiFunction.contextReceiverParameters(): List<AbiValueParameter> {
+    return valueParameters.take(contextReceiverParametersCount())
+}
+
+private fun AbiFunction.contextReceiverParametersString(): String {
+    if (contextReceiverParametersCount() == 0) {
+        return ""
+    }
+    return "context(" + contextReceiverParameters().joinToString(", ") { it.type.asString() } + ") "
+}
+
+private fun AbiFunction.extensionReceiverParameter(): AbiValueParameter? {
+    if (!hasExtensionReceiverParameter()) {
+        return null
+    }
+    return valueParameters[contextReceiverParametersCount()]
+}
+
+private fun AbiFunction.extensionReceiverParameterString(): String =
+    extensionReceiverParameter()?.let { "(${it.type.asString()})." } ?: ""
+
+private fun AbiFunction.regularValueParameters(): List<AbiValueParameter> {
+    return valueParameters.drop(contextReceiverParametersCount() + extensionReceiverParameterCount)
+}
+
+private fun AbiFunction.regularValueParametersString(): String =
+    "(" + regularValueParameters().joinToString(", ") { it.type.asString() } + ")"
+
+private val AbiFunction.extensionReceiverParameterCount: Int
+    get() =
+        if (hasExtensionReceiverParameter()) 1
+        else {
+            0
+        }
 
 private fun AbiDeclaration.asUnqualifiedTypeString(): String {
     val name = qualifiedName.relativeName.nameSegments.last().value
     return when (this) {
-        is AbiFunction -> name + valueParameterString()
+        is AbiFunction -> asTypeString(name)
+        is AbiProperty -> asTypeString(name)
         else -> name
     }
 }
 
-private fun AbiFunction.valueParameterString() =
-    "(${valueParameters.joinToString(", ") { it.type.asString() }})"
-
-private fun AbiType.asString() =
+// Based on implementation from AbiRendererImpl
+// https://github.com/JetBrains/kotlin/blob/e7edef36c6110276cb076d4bda3a780b49742022/compiler/util-klib-abi/src/org/jetbrains/kotlin/library/abi/impl/LibraryAbiRendererImpl.kt#L195
+fun AbiType.asString(): String =
     when (this) {
         is AbiType.Dynamic -> "dynamic"
         is AbiType.Error -> "error"
-        is AbiType.Simple ->
-            when (classifierReference) {
-                is ClassReference -> (classifierReference as ClassReference).className.toString()
-                is TypeParameterReference -> (classifierReference as TypeParameterReference).tag
+        is AbiType.Simple -> {
+            val builder = StringBuilder()
+            when (val classifier = classifierReference) {
+                is ClassReference -> {
+                    builder.append(classifier.className)
+                    if (arguments.isNotEmpty()) {
+                        builder.append("<")
+                        builder.append(
+                            arguments.joinToString(separator = ", ") { typeArgument ->
+                                typeArgument.asString()
+                            }
+                        )
+                        builder.append(">")
+                    }
+                    // We only care about marked nullable and not here, since unspecified
+                    // only applies to type parameters
+                    // https://github.com/JetBrains/kotlin/blob/e7edef36c6110276cb076d4bda3a780b49742022/compiler/ir/ir.tree/src/org/jetbrains/kotlin/ir/types/IrType.kt#L63
+                    if (nullability == AbiTypeNullability.MARKED_NULLABLE) {
+                        builder.append('?')
+                    }
+                }
+                is TypeParameterReference -> {
+                    builder.append('#').append(classifier.tag)
+                    builder.append(nullability.asString())
+                }
             }
+            builder.toString()
+        }
     }
 
-private fun AbiValueParameter.asString() = type.asString()
+private fun AbiVariance.asString(): String =
+    when (this) {
+        AbiVariance.INVARIANT -> ""
+        AbiVariance.IN -> "in "
+        AbiVariance.OUT -> "out "
+    }
 
-private fun AbiTypeArgument.asString() =
+private fun AbiTypeNullability.asString() =
+    when (this) {
+        AbiTypeNullability.MARKED_NULLABLE -> "?"
+        AbiTypeNullability.NOT_SPECIFIED -> ""
+        AbiTypeNullability.DEFINITELY_NOT_NULL -> "!!"
+    }
+
+private fun DecoratedAbiValueParameter.asString() = "$index: ${type.asString()}"
+
+private fun AbiTypeArgument.asString(): String =
     when (this) {
         is StarProjection -> "*"
-        is TypeProjection -> type.asString()
+        is TypeProjection -> variance.asString() + type.asString()
     }
 
 class ValidationException(errorMessage: String) : RuntimeException(errorMessage)
@@ -618,7 +736,7 @@ private fun <T> List<T>.isBinaryCompatibleWith(
     isBinaryCompatibleWith: T.(T, String, CompatibilityErrors) -> Unit,
     isAllowedAddition: T.() -> Boolean = { true },
     parentQualifiedName: String,
-    errors: CompatibilityErrors
+    errors: CompatibilityErrors,
 ) {
     val oldEntities = oldEntitiesList.associateBy { it.uniqueId() }
     val newEntities = associateBy { it.uniqueId() }
@@ -639,7 +757,7 @@ class CompatibilityErrors(private val baselines: Set<String>, val target: String
     MutableList<CompatibilityError> by mutableListOf() {
     fun add(
         message: String,
-        severity: CompatibilityErrorSeverity = CompatibilityErrorSeverity.ERROR
+        severity: CompatibilityErrorSeverity = CompatibilityErrorSeverity.ERROR,
     ) {
         val error = CompatibilityError(message, target, severity)
         if (baselines.contains(error.toString())) {
@@ -670,7 +788,7 @@ private fun File.asBaselineErrors(): Set<String> =
         val formatVersion =
             try {
                 it.removeFirst().split(":").last().trim()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 throw RuntimeException("Failed to parse baseline version from '${this.path}'")
             }
         return when (formatVersion) {
@@ -678,3 +796,30 @@ private fun File.asBaselineErrors(): Set<String> =
             else -> throw RuntimeException("Unrecognized baseline format: '$formatVersion'")
         }
     }
+
+private class DecoratedAbiFunction(abiFunction: AbiFunction, val parentClass: AbiClass?) :
+    AbiFunction by abiFunction {
+    val effectiveModality
+        get() =
+            when (parentClass?.modality) {
+                AbiModality.FINAL -> AbiModality.FINAL
+                else -> modality
+            }
+}
+
+private class DecoratedAbiProperty(abiProperty: AbiProperty, val parentClass: AbiClass?) :
+    AbiProperty by abiProperty {
+    val effectiveModality
+        get() =
+            when (parentClass?.modality) {
+                AbiModality.FINAL -> AbiModality.FINAL
+                else -> modality
+            }
+}
+
+private class DecoratedAbiValueParameter(val index: Int, param: AbiValueParameter) :
+    AbiValueParameter by param
+
+private fun AbiFunction.contextReceiverParametersCount() = contextReceiverParametersCount
+
+private fun AbiFunction.hasExtensionReceiverParameter() = hasExtensionReceiverParameter

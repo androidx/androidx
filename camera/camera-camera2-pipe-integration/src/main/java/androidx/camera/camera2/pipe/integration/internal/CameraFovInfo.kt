@@ -54,7 +54,7 @@ constructor(
         val focalLengths: FloatArray =
             Preconditions.checkNotNull(
                 cameraMetadata[CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS],
-                "The focal lengths can not be empty."
+                "The focal lengths can not be empty.",
             )
 
         Preconditions.checkState(focalLengths.isNotEmpty(), "The focal lengths can not be empty.")
@@ -79,25 +79,25 @@ constructor(
         var sensorSize: SizeF =
             Preconditions.checkNotNull(
                 cameraMetadata[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE],
-                "The sensor size can't be null."
+                "The sensor size can't be null.",
             )
 
         val activeArrayRect: Rect =
             Preconditions.checkNotNull(
                 cameraMetadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE],
-                "The sensor orientation can't be null."
+                "The sensor orientation can't be null.",
             )
 
         var pixelArraySize: Size =
             Preconditions.checkNotNull(
                 cameraMetadata[CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE],
-                "The active array size can't be null."
+                "The active array size can't be null.",
             )
 
         val sensorOrientation: Int =
             Preconditions.checkNotNull(
                 cameraMetadata[CameraCharacteristics.SENSOR_ORIENTATION],
-                "The pixel array size can't be null."
+                "The pixel array size can't be null.",
             )
 
         var activeArraySize = TransformUtils.rectToSize(activeArrayRect)
@@ -131,7 +131,7 @@ constructor(
             0,
             360,
             "The provided focal length and sensor length result in an invalid view" +
-                " angle degrees."
+                " angle degrees.",
         )
         return viewAngleDegrees
     }
@@ -146,7 +146,7 @@ constructor(
         try {
             return focalLengthToViewAngleDegrees(
                 getDefaultFocalLength(),
-                getSensorHorizontalLength()
+                getSensorHorizontalLength(),
             )
         } catch (e: Exception) {
             throw IllegalStateException("Failed to get a valid view angle", e)
@@ -181,18 +181,18 @@ constructor(
                 val cameraLensFacing =
                     Preconditions.checkNotNull(
                         cameraMetadata[CameraCharacteristics.LENS_FACING],
-                        "Failed to get CameraCharacteristics.LENS_FACING for $cameraId"
+                        "Failed to get CameraCharacteristics.LENS_FACING for $cameraId",
                     )
                 val currentLensFacing =
                     Preconditions.checkNotNull(
                         cameraProperties.metadata[CameraCharacteristics.LENS_FACING],
                         "Failed to get the required LENS_FACING" +
-                            " for ${cameraProperties.cameraId}"
+                            " for ${cameraProperties.cameraId}",
                     )
                 if (cameraLensFacing == currentLensFacing) {
                     return focalLengthToViewAngleDegrees(
                         getDefaultFocalLength(cameraMetadata),
-                        getSensorHorizontalLength(cameraMetadata)
+                        getSensorHorizontalLength(cameraMetadata),
                     )
                 }
             }

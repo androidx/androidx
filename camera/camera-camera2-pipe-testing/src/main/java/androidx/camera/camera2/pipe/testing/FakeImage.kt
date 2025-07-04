@@ -26,7 +26,7 @@ public class FakeImage(
     override val width: Int,
     override val height: Int,
     override val format: Int,
-    override val timestamp: Long
+    override val timestamp: Long,
 ) : ImageWrapper {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)

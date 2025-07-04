@@ -89,12 +89,12 @@ class SplitPlaceholderRule : SplitRule {
         minSmallestWidthDp,
         maxAspectRatioInPortrait,
         maxAspectRatioInLandscape,
-        defaultSplitAttributes
+        defaultSplitAttributes,
     ) {
         checkArgument(
             finishPrimaryWithPlaceholder != NEVER,
             "NEVER is not a valid configuration for SplitPlaceholderRule. " +
-                "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API."
+                "Please use FINISH_ALWAYS or FINISH_ADJACENT instead or refer to the current API.",
         )
         this.filters = filters.toSet()
         this.placeholderIntent = placeholderIntent
@@ -326,7 +326,7 @@ class SplitPlaceholderRule : SplitRule {
         if (other !is SplitPlaceholderRule) return false
         if (!super.equals(other)) return false
 
-        if (placeholderIntent != other.placeholderIntent) return false
+        if (!placeholderIntent.filterEquals(other.placeholderIntent)) return false
         if (isSticky != other.isSticky) return false
         if (finishPrimaryWithPlaceholder != other.finishPrimaryWithPlaceholder) return false
         if (filters != other.filters) return false
@@ -336,7 +336,7 @@ class SplitPlaceholderRule : SplitRule {
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + placeholderIntent.hashCode()
+        result = 31 * result + placeholderIntent.filterHashCode()
         result = 31 * result + isSticky.hashCode()
         result = 31 * result + finishPrimaryWithPlaceholder.hashCode()
         result = 31 * result + filters.hashCode()

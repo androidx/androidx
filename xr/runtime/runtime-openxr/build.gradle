@@ -23,8 +23,7 @@
  */
 
 import androidx.build.AndroidXConfig
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -38,6 +37,16 @@ dependencies {
     api(project(":xr:runtime:runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
+    testImplementation(project(":xr:runtime:runtime-testing"))
+    testImplementation("androidx.appcompat:appcompat:1.2.0")
 
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.junit)
@@ -46,28 +55,27 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
     androidTestImplementation(project(":kruth:kruth"))
+    androidTestImplementation(project(":xr:runtime:runtime-testing"))
 }
 
 android {
     namespace = "androidx.xr.runtime.openxr"
     sourceSets.main {
-        resources.srcDirs += "src/main/resources"
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/android")
+        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/android")
     }
     defaultConfig {
         consumerProguardFiles 'proguard-rules.pro'
+        minSdk = 23
     }
     sourceSets.androidTest {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/androidTest")
+        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
     }
 }
 
 androidx {
     name = "XR OpenXR Runtime"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "An implementation of the XR runtime using OpenXR."
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
-    // TODO: b/326456246
-    optOutJSpecify = true
+    enableRobolectric()
 }

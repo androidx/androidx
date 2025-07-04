@@ -1,0 +1,27 @@
+// Signature format: 4.0
+package androidx.sqlite.db.framework {
+
+  public final class FrameworkSQLiteOpenHelperFactory implements androidx.sqlite.db.SupportSQLiteOpenHelper.Factory {
+    ctor public FrameworkSQLiteOpenHelperFactory();
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration configuration);
+  }
+
+}
+
+package androidx.sqlite.driver {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class AndroidSQLiteConnection implements androidx.sqlite.SQLiteConnection {
+    ctor public AndroidSQLiteConnection(android.database.sqlite.SQLiteDatabase db);
+    method public void close();
+    method public android.database.sqlite.SQLiteDatabase getDb();
+    method public androidx.sqlite.SQLiteStatement prepare(String sql);
+    property public android.database.sqlite.SQLiteDatabase db;
+  }
+
+  public final class AndroidSQLiteDriver implements androidx.sqlite.SQLiteDriver {
+    ctor public AndroidSQLiteDriver();
+    method public androidx.sqlite.SQLiteConnection open(String fileName);
+  }
+
+}
+

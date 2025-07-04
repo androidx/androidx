@@ -33,7 +33,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -244,7 +243,7 @@ public class MultipleRootsTest {
         row1FirstTransition.setDuration(150);
         final Transition.TransitionListener row2FirstListener = new TransitionListenerAdapter() {
             @Override
-            public void onTransitionEnd(@NotNull @NonNull Transition transition) {
+            public void onTransitionEnd(@NonNull Transition transition) {
                 TransitionManager.beginDelayedTransition(views.mRow1, row1SecondTransition);
                 views.mRed.setVisibility(View.VISIBLE);
             }

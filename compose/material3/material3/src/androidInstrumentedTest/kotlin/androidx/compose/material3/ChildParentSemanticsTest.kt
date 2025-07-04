@@ -103,7 +103,7 @@ class ChildParentSemanticsTest {
             Box(Modifier.testTag(ParentTag).parentSemantics { onLongClick("longClick") { true } }) {
                 Text(
                     modifier = Modifier.semantics { contentDescription = "text" },
-                    text = "Foo Bar"
+                    text = "Foo Bar",
                 )
             }
         }

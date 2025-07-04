@@ -72,7 +72,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
                 state,
                 modifier = Modifier.testTag(TAG),
                 textStyle = defaultTextStyle,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
 
@@ -102,7 +102,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
                 state,
                 modifier = Modifier.testTag(TAG),
                 textStyle = defaultTextStyle,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
 
@@ -141,7 +141,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
                 modifier = Modifier.testTag(TAG),
                 textStyle = defaultTextStyle,
                 interactionSource = interactionSource,
-                decorator = { Box(modifier = Modifier.size(100.dp)) }
+                decorator = { Box(modifier = Modifier.size(100.dp)) },
             )
         }
 
@@ -171,7 +171,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
                 state,
                 modifier = Modifier.testTag(TAG),
                 textStyle = defaultTextStyle,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
 
@@ -211,7 +211,7 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
                 state,
                 modifier = Modifier.testTag(TAG),
                 textStyle = defaultTextStyle,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.material.internal.identityHashCode
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
@@ -73,15 +74,13 @@ internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteract
     override fun equals(other: Any?) = (other === this)
 }
 
-internal expect inline fun identityHashCode(value: Any): Int
-
 internal class MinimumInteractiveModifierNode :
     Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         val enforcement = isAttached && currentValueOf(LocalMinimumInteractiveComponentEnforcement)
         val size = minimumInteractiveComponentSize
@@ -117,8 +116,6 @@ internal class MinimumInteractiveModifierNode :
  * near to another component without any padding, there will not be enough space for an accessible
  * touch target.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
 val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Boolean> =
     staticCompositionLocalOf {
@@ -133,13 +130,11 @@ val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Bool
  * near to another component without any padding, there will not be enough space for an accessible
  * touch target.
  */
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalMaterialApi
 @ExperimentalMaterialApi
 @Deprecated(
     message = "Use LocalMinimumInteractiveComponentEnforcement instead.",
     replaceWith = ReplaceWith("LocalMinimumInteractiveComponentEnforcement"),
-    level = DeprecationLevel.WARNING
+    level = DeprecationLevel.WARNING,
 )
 val LocalMinimumTouchTargetEnforcement: ProvidableCompositionLocal<Boolean> =
     LocalMinimumInteractiveComponentEnforcement
@@ -147,7 +142,7 @@ val LocalMinimumTouchTargetEnforcement: ProvidableCompositionLocal<Boolean> =
 private class MinimumInteractiveComponentSizeModifier(val size: DpSize) : LayoutModifier {
     override fun MeasureScope.measure(
         measurable: Measurable,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
 
         val placeable = measurable.measure(constraints)

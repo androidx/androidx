@@ -65,7 +65,7 @@ class TextFieldInteractionsTest {
                 modifier = Modifier.testTag(testTag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
         val interactions = mutableListOf<Interaction>()
@@ -97,7 +97,7 @@ class TextFieldInteractionsTest {
                 modifier = Modifier.testTag(testTag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
         val interactions = mutableListOf<Interaction>()
@@ -130,11 +130,9 @@ class TextFieldInteractionsTest {
                 modifier = Modifier.testTag(testTag),
                 value = state.value,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
-            Box(
-                modifier = Modifier.requiredSize(10.dp).focusRequester(focusRequester).focusable(),
-            )
+            Box(modifier = Modifier.requiredSize(10.dp).focusRequester(focusRequester).focusable())
         }
         val interactions = mutableListOf<Interaction>()
 
@@ -169,7 +167,7 @@ class TextFieldInteractionsTest {
                 value = state.value,
                 singleLine = true,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
         val interactions = mutableListOf<Interaction>()
@@ -205,7 +203,7 @@ class TextFieldInteractionsTest {
                 value = state.value,
                 singleLine = true,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
         val interactions = mutableListOf<Interaction>()
@@ -241,7 +239,7 @@ class TextFieldInteractionsTest {
                 value = state.value,
                 maxLines = 3,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
         val interactions = mutableListOf<Interaction>()
@@ -277,7 +275,7 @@ class TextFieldInteractionsTest {
                 value = state.value,
                 maxLines = 3,
                 onValueChange = { state.value = it },
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
             )
         }
         val interactions = mutableListOf<Interaction>()

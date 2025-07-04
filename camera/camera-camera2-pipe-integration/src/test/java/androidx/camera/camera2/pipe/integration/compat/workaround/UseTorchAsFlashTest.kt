@@ -87,9 +87,9 @@ class UseTorchAsFlashTest {
                     StreamConfigurationMapBuilder.newBuilder().build(),
                     OutputSizesCorrector(
                         FakeCameraMetadata(),
-                        StreamConfigurationMapBuilder.newBuilder().build()
-                    )
-                )
+                        StreamConfigurationMapBuilder.newBuilder().build(),
+                    ),
+                ),
             )
         )
     }

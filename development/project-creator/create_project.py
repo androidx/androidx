@@ -23,8 +23,7 @@ from enum import Enum
 from textwrap import dedent
 from shutil import rmtree
 from shutil import copyfile
-from distutils.dir_util import copy_tree
-from distutils.dir_util import DistutilsFileError
+from shutil import copytree
 import re
 
 try:
@@ -82,8 +81,8 @@ def cp(src_path_dir, dst_path_dir):
         print_e('cp error: Source path %s does not exist.' % src_path_dir)
         return None
     try:
-        copy_tree(src_path_dir, dst_path_dir)
-    except DistutilsFileError as err:
+        copytree(src_path_dir, dst_path_dir, dirs_exist_ok=True)
+    except Error as err:
         print_e('FAIL: Unable to copy %s to destination %s' % (src_path_dir, dst_path_dir))
         return None
     return dst_path_dir
@@ -266,7 +265,7 @@ def run_update_api(group_id, artifact_id):
     return True
 
 def get_library_type(artifact_id):
-    """Returns the appropriate androidx.build.LibraryType for the project.
+    """Returns the appropriate androidx.build.SoftwareType for the project.
     """
     if "sample" in artifact_id:
         library_type = "SAMPLES"
@@ -387,6 +386,14 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
     else:
         cp(SAMPLE_JAVA_SRC_FP, full_artifact_path)
 
+    # Populate the library type
+    library_type = get_library_type(artifact_id)
+
+    # If it's a sample project, remove the api directory
+    if library_type == "SAMPLES":
+        api_dir_path = os.path.join(full_artifact_path, "api")
+        if os.path.exists(api_dir_path):
+            rm(api_dir_path)
     # Java only libraries have no dependency on android.
     # Java-only produces a jar, whereas an android library produces an aar.
     if (project_type == ProjectType.JAVA and
@@ -429,8 +436,6 @@ def create_directories(group_id, artifact_id, project_type, is_compose_project):
                         package_docs_filename)
         mv_dir(full_artifact_path + "/src/main/java/groupId", full_package_docs_dir)
 
-    # Populate the library type
-    library_type = get_library_type(artifact_id)
     if project_type == ProjectType.NATIVE and library_type == "PUBLISHED_LIBRARY":
         library_type = "PUBLISHED_NATIVE_LIBRARY"
     sed("<LIBRARY_TYPE>", library_type, full_artifact_path + "/build.gradle")
@@ -561,6 +566,8 @@ def update_docs_tip_of_tree_build_grade(group_id, artifact_id):
         cur_line = docs_tot_bg_lines[i]
         if "project" not in cur_line:
             continue
+        if new_docs_tot_bq_line == None:
+            return
         # Iterate through until you found the alphabetical place to insert the new line
         if new_docs_tot_bq_line.split("project")[1] <= cur_line.split("project")[1]:
             insert_line = i

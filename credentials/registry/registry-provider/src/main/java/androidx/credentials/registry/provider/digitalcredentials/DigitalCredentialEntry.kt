@@ -36,7 +36,4 @@ package androidx.credentials.registry.provider.digitalcredentials
  * @property entryDisplayPropertySet the display properties associated with the given entry
  */
 public abstract class DigitalCredentialEntry
-constructor(
-    public val id: String,
-    public val entryDisplayPropertySet: Set<EntryDisplayProperties>,
-)
+constructor(public val id: String, public val entryDisplayPropertySet: Set<EntryDisplayProperties>)

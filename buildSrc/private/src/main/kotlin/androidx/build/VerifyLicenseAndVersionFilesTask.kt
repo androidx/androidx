@@ -96,7 +96,7 @@ abstract class VerifyLicenseAndVersionFilesTask : DefaultTask() {
         val zipInputStream = ZipInputStream(inputStream)
         var entry: ZipEntry? = zipInputStream.nextEntry
         while (entry != null) {
-            if (licensePatterns.any { it.matches(entry!!.name) }) {
+            if (licensePatterns.any { it.matches(entry.name) }) {
                 return true
             }
             entry = zipInputStream.nextEntry

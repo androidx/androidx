@@ -22,11 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.recyclerview.widget.RecyclerView
 
-@RequiresApi(26)
 class PreCallEndpointsAdapter(private var mCurrentEndpoints: ArrayList<CallEndpointCompat>?) :
     RecyclerView.Adapter<PreCallEndpointsAdapter.ViewHolder>() {
     var mSelectedCallEndpoint: CallEndpointCompat? = null

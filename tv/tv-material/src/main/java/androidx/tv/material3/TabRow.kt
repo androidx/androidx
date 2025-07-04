@@ -99,11 +99,11 @@ fun TabRow(
             tabPositions.getOrNull(selectedTabIndex)?.let { currentTabPosition ->
                 TabRowDefaults.PillIndicator(
                     currentTabPosition = currentTabPosition,
-                    doesTabRowHaveFocus = doesTabRowHaveFocus
+                    doesTabRowHaveFocus = doesTabRowHaveFocus,
                 )
             }
         },
-    tabs: @Composable TabRowScope.() -> Unit
+    tabs: @Composable TabRowScope.() -> Unit,
 ) {
     val scrollState = rememberScrollState()
     var doesTabRowHaveFocus by remember { mutableStateOf(false) }
@@ -158,7 +158,7 @@ fun TabRow(
                     tabPositions.add(
                         this@SubcomposeLayout.buildTabPosition(
                             placeable = tabPlaceable,
-                            initialLeft = left
+                            initialLeft = left,
                         )
                     )
                     left += tabPlaceable.width
@@ -209,25 +209,22 @@ object TabRowDefaults {
         doesTabRowHaveFocus: Boolean,
         modifier: Modifier = Modifier,
         activeColor: Color = MaterialTheme.colorScheme.onSurface,
-        inactiveColor: Color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+        inactiveColor: Color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
     ) {
         val width by
-            animateDpAsState(
-                targetValue = currentTabPosition.width,
-                label = "PillIndicator.width",
-            )
+            animateDpAsState(targetValue = currentTabPosition.width, label = "PillIndicator.width")
         val height = currentTabPosition.height
         val leftOffset by
             animateDpAsState(
                 targetValue = currentTabPosition.left,
-                label = "PillIndicator.leftOffset"
+                label = "PillIndicator.leftOffset",
             )
         val topOffset = currentTabPosition.top
 
         val pillColor by
             animateColorAsState(
                 targetValue = if (doesTabRowHaveFocus) activeColor else inactiveColor,
-                label = "PillIndicator.pillColor"
+                label = "PillIndicator.pillColor",
             )
 
         Box(
@@ -301,7 +298,7 @@ object TabRowDefaults {
 private enum class TabRowSlots {
     Tabs,
     Indicator,
-    Separator
+    Separator,
 }
 
 /** Builds TabPosition based on placeable */

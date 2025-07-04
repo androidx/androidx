@@ -407,14 +407,14 @@ fun recalculateWindowInsetsSample() {
         ) {
             Button(
                 onClick = { hasFirstItem = !hasFirstItem },
-                Modifier.align(Alignment.TopCenter)
+                Modifier.align(Alignment.TopCenter),
             ) {
                 val action = if (hasFirstItem) "Remove" else "Add"
                 Text("$action First Item")
             }
             Button(
                 onClick = { hasLastItem = !hasLastItem },
-                Modifier.align(Alignment.BottomCenter)
+                Modifier.align(Alignment.BottomCenter),
             ) {
                 val action = if (hasLastItem) "Remove" else "Add"
                 Text("$action Last Item")

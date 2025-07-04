@@ -42,11 +42,7 @@ class OffsetMappingCalculatorTest {
             2 to TextRange(3),
             3 to TextRange(4),
         )
-        builder.assertMappingsFromDest(
-            0 to TextRange(0),
-            1 to TextRange(0),
-            2 to TextRange(1),
-        )
+        builder.assertMappingsFromDest(0 to TextRange(0), 1 to TextRange(0), 2 to TextRange(1))
     }
 
     @Test
@@ -54,11 +50,7 @@ class OffsetMappingCalculatorTest {
         val builder = TestEditBuffer("ab")
         builder.insert(1, "c")
         assertThat(builder.toString()).isEqualTo("acb")
-        builder.assertMappingsFromSource(
-            0 to TextRange(0),
-            1 to TextRange(1, 2),
-            2 to TextRange(3),
-        )
+        builder.assertMappingsFromSource(0 to TextRange(0), 1 to TextRange(1, 2), 2 to TextRange(3))
         builder.assertMappingsFromDest(
             0 to TextRange(0),
             1 to TextRange(1),
@@ -304,11 +296,7 @@ class OffsetMappingCalculatorTest {
             2 to TextRange(3),
             3 to TextRange(4),
         )
-        builder.assertMappingsFromDest(
-            0 to TextRange(0),
-            1 to TextRange(0),
-            2 to TextRange(1),
-        )
+        builder.assertMappingsFromDest(0 to TextRange(0), 1 to TextRange(0), 2 to TextRange(1))
     }
 
     @Test

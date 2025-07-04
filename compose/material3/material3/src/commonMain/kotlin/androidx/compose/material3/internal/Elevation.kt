@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.Dp
 internal suspend fun Animatable<Dp, *>.animateElevation(
     target: Dp,
     from: Interaction? = null,
-    to: Interaction? = null
+    to: Interaction? = null,
 ) {
     val spec =
         when {

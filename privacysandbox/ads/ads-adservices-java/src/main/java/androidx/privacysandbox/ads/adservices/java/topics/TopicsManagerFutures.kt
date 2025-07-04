@@ -34,7 +34,7 @@ import kotlinx.coroutines.async
  * This provides APIs for App and Ad-Sdks to get the user interest topics in a privacy preserving
  * way. This class can be used by Java clients.
  */
-abstract class TopicsManagerFutures internal constructor() {
+public abstract class TopicsManagerFutures internal constructor() {
     /**
      * Returns the topics.
      *
@@ -42,7 +42,9 @@ abstract class TopicsManagerFutures internal constructor() {
      * @return ListenableFuture to get the Topics response.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
-    abstract fun getTopicsAsync(request: GetTopicsRequest): ListenableFuture<GetTopicsResponse>
+    public abstract fun getTopicsAsync(
+        request: GetTopicsRequest
+    ): ListenableFuture<GetTopicsResponse>
 
     private class CommonApiJavaImpl(private val mTopicsManager: TopicsManager) :
         TopicsManagerFutures() {
@@ -57,7 +59,7 @@ abstract class TopicsManagerFutures internal constructor() {
         }
     }
 
-    companion object {
+    public companion object {
         /**
          * Creates [TopicsManagerFutures].
          *
@@ -65,7 +67,7 @@ abstract class TopicsManagerFutures internal constructor() {
          *   value returned is null.
          */
         @JvmStatic
-        fun from(context: Context): TopicsManagerFutures? {
+        public fun from(context: Context): TopicsManagerFutures? {
             return obtain(context)?.let { CommonApiJavaImpl(it) }
         }
     }

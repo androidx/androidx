@@ -84,8 +84,8 @@ class TopicsManagerFuturesTest {
             "maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion=*/ 4,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
         assertThat(from(mContext)).isEqualTo(null)
     }
@@ -97,8 +97,8 @@ class TopicsManagerFuturesTest {
             "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 4,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExtVersion)
@@ -132,8 +132,8 @@ class TopicsManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExtVersion)
@@ -217,7 +217,7 @@ class TopicsManagerFuturesTest {
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
             Assert.assertEquals(
                 expectedRequest.shouldRecordObservation(),
-                topicsRequest.shouldRecordObservation()
+                topicsRequest.shouldRecordObservation(),
             )
         }
 

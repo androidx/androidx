@@ -177,7 +177,7 @@ public final class DynamicBuilders {
 
     /**
      * Equality check (result = LHS == RHS). For floats, for equality check, small epsilon is used,
-     * i.e.: (result = abs(LHS - RHS) < epsilon).
+     * i.e.: (result = abs(LHS - RHS) &lt; epsilon).
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
     static final int COMPARISON_OP_TYPE_EQUALS = 1;
@@ -186,11 +186,11 @@ public final class DynamicBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     static final int COMPARISON_OP_TYPE_NOT_EQUALS = 2;
 
-    /** Strictly less than (result = LHS < RHS). */
+    /** Strictly less than (result = LHS &lt; RHS). */
     @RequiresSchemaVersion(major = 1, minor = 200)
     static final int COMPARISON_OP_TYPE_LESS_THAN = 3;
 
-    /** Less than or equal to (result = LHS <= RHS). */
+    /** Less than or equal to (result = LHS &lt;= RHS). */
     @RequiresSchemaVersion(major = 1, minor = 200)
     static final int COMPARISON_OP_TYPE_LESS_THAN_OR_EQUAL_TO = 4;
 
@@ -457,7 +457,7 @@ public final class DynamicBuilders {
 
     /**
      * An arithmetic operation, operating on two Int32 instances. This implements simple binary
-     * operations of the form "result = LHS <op> RHS", where the available operation types are
+     * operations of the form "result = LHS &lt;op> RHS", where the available operation types are
      * described in {@code ArithmeticOpType}.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
@@ -1379,8 +1379,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicInt32 fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicInt32 fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicInt32FromProto(
                         DynamicProto.DynamicInt32.parseFrom(
@@ -1468,8 +1468,8 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @RequiresSchemaVersion(major = 1, minor = 200)
-        static @NonNull DynamicInt32 animate(int start, int end,
-                @NonNull AnimationSpec animationSpec) {
+        static @NonNull DynamicInt32 animate(
+                int start, int end, @NonNull AnimationSpec animationSpec) {
             return new AnimatableFixedInt32.Builder()
                     .setFromValue(start)
                     .setToValue(end)
@@ -2288,8 +2288,8 @@ public final class DynamicBuilders {
 
                 /**
                  * Sets minimum number of integer digits for the formatter. Defaults to one if not
-                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer part
-                 * will not appear.
+                 * specified. If minIntegerDigits is zero and the -1 &lt; input &lt; 1, the Integer
+                 * part will not appear.
                  */
                 @RequiresSchemaVersion(major = 1, minor = 200)
                 public @NonNull Builder setMinIntegerDigits(
@@ -3118,8 +3118,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicString fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicString fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicStringFromProto(
                         DynamicProto.DynamicString.parseFrom(
@@ -3909,8 +3909,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicFloat fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicFloat fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicFloatFromProto(
                         DynamicProto.DynamicFloat.parseFrom(
@@ -4005,8 +4005,8 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @RequiresSchemaVersion(major = 1, minor = 200)
-        static @NonNull DynamicFloat animate(float start, float end,
-                @NonNull AnimationSpec animationSpec) {
+        static @NonNull DynamicFloat animate(
+                float start, float end, @NonNull AnimationSpec animationSpec) {
             return new AnimatableFixedFloat.Builder()
                     .setFromValue(start)
                     .setToValue(end)
@@ -4749,8 +4749,8 @@ public final class DynamicBuilders {
 
                 /**
                  * Sets minimum number of integer digits for the formatter. Defaults to one if not
-                 * specified. If minIntegerDigits is zero and the -1 < input < 1, the Integer part
-                 * will not appear.
+                 * specified. If minIntegerDigits is zero and the -1 &lt; input &lt; 1, the Integer
+                 * part will not appear.
                  */
                 @RequiresSchemaVersion(major = 1, minor = 200)
                 public @NonNull Builder setMinIntegerDigits(
@@ -5481,8 +5481,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicBool fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicBool fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicBoolFromProto(
                         DynamicProto.DynamicBool.parseFrom(
@@ -6184,8 +6184,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicColor fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicColor fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicColorFromProto(
                         DynamicProto.DynamicColor.parseFrom(
@@ -6651,8 +6651,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicInstant fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicInstant fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicInstantFromProto(
                         DynamicProto.DynamicInstant.parseFrom(
@@ -7685,8 +7685,8 @@ public final class DynamicBuilders {
          * @throws IllegalArgumentException if the byte array does not contain a valid serialization
          *     in the provided offset and length
          */
-        static @NonNull DynamicDuration fromByteArray(byte @NonNull [] byteArray, int offset,
-                int length) {
+        static @NonNull DynamicDuration fromByteArray(
+                byte @NonNull [] byteArray, int offset, int length) {
             try {
                 return dynamicDurationFromProto(
                         DynamicProto.DynamicDuration.parseFrom(

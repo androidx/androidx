@@ -97,7 +97,7 @@ public abstract class Segment internal constructor() {
     public fun computeLerpPoint(ratio: Float): ImmutableVec =
         ImmutableVec(
             (1.0f - ratio) * start.x + ratio * end.x,
-            (1.0f - ratio) * start.y + ratio * end.y
+            (1.0f - ratio) * start.y + ratio * end.y,
         )
 
     /**

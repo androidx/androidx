@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraStateRegistry;
 
 import org.jspecify.annotations.NonNull;
@@ -55,6 +56,17 @@ public interface CameraCoordinator {
             CAMERA_OPERATING_MODE_CONCURRENT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CameraOperatingMode {
+    }
+
+    /**
+     * Initializes the coordinator with a reference to the CameraRepository.
+     *
+     * <p>This must be called once before the coordinator is used.
+     *
+     * @param cameraRepository The CameraProvider's CameraRepository instance.
+     */
+    default void init(@NonNull CameraRepository cameraRepository) {
+        // No-op by default
     }
 
     /**

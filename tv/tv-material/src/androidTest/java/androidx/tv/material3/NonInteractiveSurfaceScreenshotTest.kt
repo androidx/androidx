@@ -94,7 +94,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    colors = SurfaceDefaults.colors(containerColor = Color.Green)
+                    colors = SurfaceDefaults.colors(containerColor = Color.Green),
                 ) {}
             }
         }
@@ -107,7 +107,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    colors = SurfaceDefaults.colors(contentColor = Color.Red)
+                    colors = SurfaceDefaults.colors(contentColor = Color.Red),
                 ) {}
             }
         }
@@ -120,11 +120,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    border =
-                        Border(
-                            border = BorderStroke(2.dp, Color.Red),
-                            inset = 4.dp,
-                        ),
+                    border = Border(border = BorderStroke(2.dp, Color.Red), inset = 4.dp),
                 ) {}
             }
         }
@@ -137,7 +133,7 @@ class NonInteractiveSurfaceScreenshotTest(private val scheme: ColorSchemeWrapper
             Box(containerModifier.testTag(wrapperTestTag)) {
                 Surface(
                     surfaceModifier(),
-                    glow = Glow(elevationColor = Color.Red, elevation = 2.dp)
+                    glow = Glow(elevationColor = Color.Red, elevation = 2.dp),
                 ) {}
             }
         }

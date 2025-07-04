@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
@@ -24,7 +25,6 @@ import androidx.room.migration.bundle.PrimaryKeyBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
-import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import org.junit.Test
 
@@ -41,15 +41,15 @@ class AutoMigrationProcessorTest {
                 public MyAutoMigration (int x) {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
-        runProcessorTestWithK1(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                     fromSchemaBundle = fromSchemaBundle.database,
-                    toSchemaBundle = toSchemaBundle.database
+                    toSchemaBundle = toSchemaBundle.database,
                 )
                 .process()
             invocation.assertCompilationResult {
@@ -68,15 +68,15 @@ class AutoMigrationProcessorTest {
             import androidx.room.migration.AutoMigrationSpec;
             public interface MyAutoMigration extends AutoMigrationSpec {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
-        runProcessorTestWithK1(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                     fromSchemaBundle = fromSchemaBundle.database,
-                    toSchemaBundle = toSchemaBundle.database
+                    toSchemaBundle = toSchemaBundle.database,
                 )
                 .process()
             invocation.assertCompilationResult {
@@ -97,10 +97,10 @@ class AutoMigrationProcessorTest {
                 class MyAutoMigration implements AutoMigrationSpec {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
-        runProcessorTestWithK1(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec =
@@ -108,7 +108,7 @@ class AutoMigrationProcessorTest {
                             "foo.bar.MyAutoMigrationDb.MyAutoMigration"
                         ),
                     fromSchemaBundle = fromSchemaBundle.database,
-                    toSchemaBundle = toSchemaBundle.database
+                    toSchemaBundle = toSchemaBundle.database,
                 )
                 .process()
             invocation.assertCompilationResult {
@@ -129,15 +129,15 @@ class AutoMigrationProcessorTest {
             import androidx.sqlite.db.SupportSQLiteDatabase;
             public class MyAutoMigration {}
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
-        runProcessorTestWithK1(listOf(source)) { invocation ->
+        runProcessorTest(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
                     fromSchemaBundle = fromSchemaBundle.database,
-                    toSchemaBundle = toSchemaBundle.database
+                    toSchemaBundle = toSchemaBundle.database,
                 )
                 .process()
             invocation.assertCompilationResult {
@@ -163,16 +163,16 @@ class AutoMigrationProcessorTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     )
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 
     val toSchemaBundle =
@@ -189,15 +189,15 @@ class AutoMigrationProcessorTest {
                         listOf(
                             FieldBundle("id", "id", "INTEGER", true, "1"),
                             FieldBundle("title", "title", "TEXT", true, ""),
-                            FieldBundle("length", "length", "INTEGER", true, "1")
+                            FieldBundle("length", "length", "INTEGER", true, "1"),
                         ),
                         PrimaryKeyBundle(false, mutableListOf("id")),
                         mutableListOf(),
-                        mutableListOf()
+                        mutableListOf(),
                     )
                 ),
                 mutableListOf(),
-                mutableListOf()
-            )
+                mutableListOf(),
+            ),
         )
 }

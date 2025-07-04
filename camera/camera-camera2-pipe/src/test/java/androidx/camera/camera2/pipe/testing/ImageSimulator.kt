@@ -30,7 +30,7 @@ class ImageSimulator(
     streamConfigs: List<CameraStream.Config>,
     imageStreams: Set<CameraStream.Config>? = null,
     defaultCameraMetadata: CameraMetadata? = null,
-    defaultStreamGraph: StreamGraph? = null
+    defaultStreamGraph: StreamGraph? = null,
 ) : AutoCloseable {
     private val fakeSurfaces = FakeSurfaces()
 
@@ -46,7 +46,7 @@ class ImageSimulator(
                 FakeImageSource(
                     cameraStream.id,
                     config.outputs.first().format,
-                    cameraStream.outputs.associate { it.id to it.size }
+                    cameraStream.outputs.associate { it.id to it.size },
                 )
             check(this[cameraStream.id] == null)
             this[cameraStream.id] = fakeImageSource

@@ -1,0 +1,76 @@
+// Signature format: 4.0
+package androidx.photopicker.compose {
+
+  @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public abstract class AbstractEmbeddedPhotoPickerState implements androidx.photopicker.compose.EmbeddedPhotoPickerState {
+    ctor public AbstractEmbeddedPhotoPickerState();
+    ctor public AbstractEmbeddedPhotoPickerState(optional boolean isExpanded, optional java.util.Set<? extends android.net.Uri> media);
+    method public final suspend Object? deselectUris(java.util.List<? extends android.net.Uri> uris, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final int getDisplayId();
+    method public final java.util.Set<android.net.Uri> getSelectedMedia();
+    method public final android.os.IBinder? getSurfaceHostToken();
+    method public final boolean isExpanded();
+    method public final boolean isReady();
+    method public final void notifyConfigurationChanged(android.content.res.Configuration config);
+    method public final void notifyResized(long size);
+    method @BytecodeOnly public final void notifyResized-ozmzZPI(long);
+    method public final suspend Object? runSession(android.widget.photopicker.EmbeddedPhotoPickerProvider provider, android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo featureInfo, kotlin.jvm.functions.Function1<? super android.widget.photopicker.EmbeddedPhotoPickerSession,kotlin.Unit> onReceiveSession, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final void setCurrentExpanded(boolean expanded);
+    method public final void setDisplayId(int);
+    method public final void setExpanded(boolean);
+    method public final void setReady(boolean);
+    method public final void setSurfaceHostToken(android.os.IBinder?);
+    property public final int displayId;
+    property public final boolean isExpanded;
+    property public final boolean isReady;
+    property public final java.util.Set<android.net.Uri> selectedMedia;
+    property public final android.os.IBinder? surfaceHostToken;
+    field public static final androidx.photopicker.compose.AbstractEmbeddedPhotoPickerState.Companion Companion;
+  }
+
+  public static final class AbstractEmbeddedPhotoPickerState.Companion {
+    method @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public android.widget.photopicker.EmbeddedPhotoPickerClient createEmbeddedPhotoPickerClient(kotlin.jvm.functions.Function1<? super android.widget.photopicker.EmbeddedPhotoPickerSession,kotlin.Unit> onSessionOpened, kotlin.jvm.functions.Function1<? super java.lang.Throwable,kotlin.Unit> onSessionError, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri>,kotlin.Unit> onUriPermissionGranted, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri>,kotlin.Unit> onUriPermissionRevoked, kotlin.jvm.functions.Function0<kotlin.Unit> onSelectionComplete);
+  }
+
+  public final class EmbeddedPhotoPickerKt {
+    method @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.compose.runtime.Composable @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static void EmbeddedPhotoPicker(androidx.photopicker.compose.EmbeddedPhotoPickerState state, optional androidx.compose.ui.Modifier modifier, optional android.widget.photopicker.EmbeddedPhotoPickerProvider? provider, optional android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo embeddedPhotoPickerFeatureInfo);
+    method @BytecodeOnly @SuppressCompatibility @RequiresExtension(extension=34, version=15) @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static void EmbeddedPhotoPicker(androidx.photopicker.compose.EmbeddedPhotoPickerState, androidx.compose.ui.Modifier?, android.widget.photopicker.EmbeddedPhotoPickerProvider?, android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @SuppressCompatibility @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public interface EmbeddedPhotoPickerState {
+    method public default suspend Object? deselectUri(android.net.Uri uri, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? deselectUris(java.util.List<? extends android.net.Uri> uris, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public int getDisplayId();
+    method public java.util.Set<android.net.Uri> getSelectedMedia();
+    method public android.os.IBinder? getSurfaceHostToken();
+    method public boolean isExpanded();
+    method public boolean isReady();
+    method public void notifyConfigurationChanged(android.content.res.Configuration config);
+    method public void notifyResized(long size);
+    method @BytecodeOnly public void notifyResized-ozmzZPI(long);
+    method public void onSelectionComplete();
+    method public void onSessionError(Throwable throwable);
+    method public void onUriPermissionGranted(java.util.List<? extends android.net.Uri> uris);
+    method public void onUriPermissionRevoked(java.util.List<? extends android.net.Uri> uris);
+    method @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) public suspend Object? runSession(android.widget.photopicker.EmbeddedPhotoPickerProvider provider, android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo featureInfo, kotlin.jvm.functions.Function1<? super android.widget.photopicker.EmbeddedPhotoPickerSession,kotlin.Unit> onReceiveSession, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public void setCurrentExpanded(boolean expanded);
+    method public void setDisplayId(int);
+    method public void setExpanded(boolean);
+    method public void setReady(boolean);
+    method public void setSurfaceHostToken(android.os.IBinder?);
+    property public abstract int displayId;
+    property public abstract boolean isExpanded;
+    property public abstract boolean isReady;
+    property public abstract java.util.Set<android.net.Uri> selectedMedia;
+    property public abstract android.os.IBinder? surfaceHostToken;
+  }
+
+  public final class EmbeddedPhotoPickerStateKt {
+    method @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=15) @androidx.compose.runtime.Composable @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static androidx.photopicker.compose.EmbeddedPhotoPickerState rememberEmbeddedPhotoPickerState(Object?[] inputs, optional boolean initialExpandedValue, optional java.util.Set<? extends android.net.Uri> initialMediaSelection, optional kotlin.jvm.functions.Function1<? super java.lang.Throwable,kotlin.Unit> onSessionError, optional kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri>,kotlin.Unit> onUriPermissionGranted, optional kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri>,kotlin.Unit> onUriPermissionRevoked, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelectionComplete);
+    method @BytecodeOnly @SuppressCompatibility @RequiresExtension(extension=34, version=15) @androidx.compose.runtime.Composable @androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi public static androidx.photopicker.compose.EmbeddedPhotoPickerState rememberEmbeddedPhotoPickerState(Object![], boolean, java.util.Set<? extends android.net.Uri!>?, kotlin.jvm.functions.Function1<? super java.lang.Throwable!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri!>!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super java.util.List<? extends android.net.Uri!>!,kotlin.Unit!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This PhotoPicker compose API is experimental and is likely to change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalPhotoPickerComposeApi {
+  }
+
+}
+

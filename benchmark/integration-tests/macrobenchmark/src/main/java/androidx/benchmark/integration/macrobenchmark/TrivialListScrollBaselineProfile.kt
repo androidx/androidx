@@ -59,7 +59,7 @@ class TrivialListScrollBaselineProfile {
                     recycler.drag(Point(0, recycler.visibleCenter.y / 3))
                     device.waitForIdle()
                 }
-            }
+            },
         )
     }
 
@@ -82,7 +82,7 @@ class TrivialListScrollBaselineProfile {
                     recycler.drag(Point(0, recycler.visibleCenter.y / 3))
                     device.waitForIdle()
                 }
-            }
+            },
         )
     }
 

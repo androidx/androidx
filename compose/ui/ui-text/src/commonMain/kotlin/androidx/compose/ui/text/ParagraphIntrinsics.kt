@@ -65,7 +65,7 @@ interface ParagraphIntrinsics {
     ReplaceWith(
         "ParagraphIntrinsics(text, style, spanStyles, placeholders, density, " +
             "fontFamilyResolver"
-    )
+    ),
 )
 fun ParagraphIntrinsics(
     text: String,
@@ -73,7 +73,7 @@ fun ParagraphIntrinsics(
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
-    resourceLoader: Font.ResourceLoader
+    resourceLoader: Font.ResourceLoader,
 ): ParagraphIntrinsics =
     ActualParagraphIntrinsics(
         text = text,
@@ -81,14 +81,14 @@ fun ParagraphIntrinsics(
         annotations = spanStyles,
         placeholders = placeholders,
         density = density,
-        fontFamilyResolver = createFontFamilyResolver(resourceLoader)
+        fontFamilyResolver = createFontFamilyResolver(resourceLoader),
     )
 
 @Deprecated(
     "Use an overload that takes `annotations` instead",
     ReplaceWith(
         "ParagraphIntrinsics(text, style, spanStyles, density, fontFamilyResolver, placeholders)"
-    )
+    ),
 )
 fun ParagraphIntrinsics(
     text: String,
@@ -96,7 +96,7 @@ fun ParagraphIntrinsics(
     spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
     placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ): ParagraphIntrinsics =
     ActualParagraphIntrinsics(
         text = text,
@@ -104,7 +104,7 @@ fun ParagraphIntrinsics(
         annotations = spanStyles,
         placeholders = placeholders,
         density = density,
-        fontFamilyResolver = fontFamilyResolver
+        fontFamilyResolver = fontFamilyResolver,
     )
 
 /**
@@ -121,7 +121,7 @@ fun ParagraphIntrinsics(
     annotations: List<AnnotatedString.Range<out AnnotatedString.Annotation>>,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver,
-    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf()
+    placeholders: List<AnnotatedString.Range<Placeholder>> = listOf(),
 ): ParagraphIntrinsics =
     ActualParagraphIntrinsics(
         text = text,
@@ -129,5 +129,5 @@ fun ParagraphIntrinsics(
         annotations = annotations,
         placeholders = placeholders,
         density = density,
-        fontFamilyResolver = fontFamilyResolver
+        fontFamilyResolver = fontFamilyResolver,
     )

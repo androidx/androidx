@@ -1,0 +1,45 @@
+{
+  "projectPath": ":hilt:hilt-work",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.dagger:dagger-compiler",
+        "resolvedVersion": "2.54"
+      },
+      "toConfiguration": "annotationProcessor"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.dagger:dagger",
+        "resolvedVersion": "2.54"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.dagger:hilt-android",
+        "resolvedVersion": "2.54"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "com.google.dagger:hilt-core",
+        "resolvedVersion": "2.54"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "javax.inject:javax.inject",
+        "resolvedVersion": "1"
+      },
+      "toConfiguration": "api"
+    }
+  ]
+}

@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Geen pincode, patroon of wachtwoord ingesteld."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Dit apparaat ondersteunt geen pincode, patroon of wachtwoord."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"Vingerafdrukicoon"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"Er is op de knop Meer opties in de contentweergave geklikt."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"Vingerafdruk gebruiken"</string>
     <string name="use_face_label" msgid="6533512708069459542">"Gezicht gebruiken"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"Biometrische gegevens gebruiken"</string>

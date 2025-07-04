@@ -462,7 +462,7 @@ class BoundsAssertionsTest {
             layout(
                 constraints.maxWidth,
                 constraints.maxHeight,
-                mapOf(TestLine to linePositionPx)
+                mapOf(TestLine to linePositionPx),
             ) {}
         }
     }
@@ -495,7 +495,7 @@ class BoundsAssertionsTest {
                     textLayoutResult.getBoundingBox(6).left,
                     textLayoutResult.getBoundingBox(6).top,
                     textLayoutResult.getBoundingBox(10).right,
-                    textLayoutResult.getBoundingBox(10).bottom
+                    textLayoutResult.getBoundingBox(10).bottom,
                 )
             )
     }
@@ -523,7 +523,7 @@ class BoundsAssertionsTest {
                     textLayoutResult.getBoundingBox(1).left,
                     textLayoutResult.getBoundingBox(1).top,
                     textLayoutResult.getBoundingBox(5).right,
-                    textLayoutResult.getBoundingBox(5).bottom
+                    textLayoutResult.getBoundingBox(5).bottom,
                 )
             )
     }
@@ -550,7 +550,7 @@ class BoundsAssertionsTest {
                     textLayoutResult.getBoundingBox(1).left,
                     textLayoutResult.getBoundingBox(1).top,
                     textLayoutResult.getBoundingBox(5).right,
-                    textLayoutResult.getBoundingBox(5).bottom
+                    textLayoutResult.getBoundingBox(5).bottom,
                 )
             )
     }
@@ -577,7 +577,7 @@ class BoundsAssertionsTest {
             BasicText(
                 buildAnnotatedString { withLink(Url("url")) { append("a") } },
                 onTextLayout = { textLayoutResult = it },
-                modifier = Modifier.offset(offset, offset)
+                modifier = Modifier.offset(offset, offset),
             )
         }
 
@@ -593,7 +593,7 @@ class BoundsAssertionsTest {
         rule.setContent {
             BasicText(
                 buildAnnotatedString { withLink(LinkAnnotation.Url("url")) { append("link") } },
-                modifier = Modifier.testTag(TAG).semantics { text = AnnotatedString("other text") }
+                modifier = Modifier.testTag(TAG).semantics { text = AnnotatedString("other text") },
             )
         }
         rule.onNodeWithTag(TAG).getFirstLinkBounds { true }
@@ -608,7 +608,7 @@ class BoundsAssertionsTest {
                 Box(Modifier.size(10.dp).semantics { text = AnnotatedString("no link text") })
                 BasicText(
                     buildAnnotatedString { withLink(LinkAnnotation.Url("url")) { append("a") } },
-                    onTextLayout = { textLayoutResult = it }
+                    onTextLayout = { textLayoutResult = it },
                 )
             }
         }
@@ -630,7 +630,7 @@ class BoundsAssertionsTest {
                 },
                 modifier = Modifier.width(20.dp),
                 style = TextStyle(fontSize = with(rule.density) { 20.dp.toSp() }),
-                onTextLayout = { textLayoutResult = it }
+                onTextLayout = { textLayoutResult = it },
             )
         }
 
@@ -640,7 +640,7 @@ class BoundsAssertionsTest {
                 textLayoutResult.getBoundingBox(1).left,
                 textLayoutResult.getBoundingBox(1).top,
                 textLayoutResult.getBoundingBox(1).right,
-                textLayoutResult.getBoundingBox(1).bottom
+                textLayoutResult.getBoundingBox(1).bottom,
             )
         assertThat(textLayoutResult.lineCount).isEqualTo(3)
         assertThat(textNode.getFirstLinkBounds { true }).isEqualTo(expected)
@@ -654,7 +654,7 @@ class BoundsAssertionsTest {
                 buildAnnotatedString { withLink(Url("url")) { append("abc") } },
                 modifier = Modifier.width(30.dp),
                 style = TextStyle(fontSize = with(rule.density) { 20.dp.toSp() }),
-                onTextLayout = { textLayoutResult = it }
+                onTextLayout = { textLayoutResult = it },
             )
         }
 
@@ -664,7 +664,7 @@ class BoundsAssertionsTest {
                 textLayoutResult.getBoundingBox(0).left,
                 textLayoutResult.getBoundingBox(0).top,
                 textLayoutResult.getBoundingBox(1).right,
-                textLayoutResult.getBoundingBox(1).bottom
+                textLayoutResult.getBoundingBox(1).bottom,
             )
         assertThat(textLayoutResult.lineCount).isEqualTo(2)
         assertThat(textNode.getFirstLinkBounds { true }).isEqualTo(expected)
@@ -680,7 +680,7 @@ class BoundsAssertionsTest {
                     addLink(Url("url"), 1, 4)
                 },
                 modifier = Modifier.testTag("tag"),
-                onTextLayout = { textLayoutResult = it }
+                onTextLayout = { textLayoutResult = it },
             )
         }
 

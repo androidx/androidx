@@ -22,11 +22,8 @@ package androidx.health.connect.client.units
  * - milliliters - see [Volume.milliliters], [Double.milliliters]
  * - US fluid ounces - see [Volume.fluidOuncesUs], [Double.fluidOuncesUs]
  */
-class Volume
-private constructor(
-    private val value: Double,
-    private val type: Type,
-) : Comparable<Volume> {
+class Volume private constructor(private val value: Double, private val type: Type) :
+    Comparable<Volume> {
 
     /** Returns the volume in liters. */
     @get:JvmName("getLiters")

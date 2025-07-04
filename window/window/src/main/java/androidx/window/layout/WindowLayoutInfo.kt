@@ -39,7 +39,7 @@ constructor(
         return displayFeatures.joinToString(
             separator = ", ",
             prefix = "WindowLayoutInfo{ DisplayFeatures[",
-            postfix = "] }"
+            postfix = "] }",
         )
     }
 

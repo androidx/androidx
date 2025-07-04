@@ -26,7 +26,15 @@ import java.time.Instant
 @IntDef(value = [TapType.DOWN, TapType.UP, TapType.CANCEL])
 public annotation class TapTypeIntDef
 
-/** The types of tap events the system can forward to the watch face. */
+/**
+ * The types of tap events the system can forward to the watch face.
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public object TapType {
     /**
      * Used to indicate a "down" touch event on the watch face.
@@ -64,11 +72,16 @@ public object TapType {
  * @param xPos X coordinate of the event
  * @param yPos Y coordinate of the event
  * @param tapTime The [Instant] at which the tap event occurred
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class TapEvent(
     @Px public val xPos: Int,
     @Px public val yPos: Int,
-    public val tapTime: Instant
+    public val tapTime: Instant,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -38,7 +38,7 @@ fun CameraControlRow(modifier: Modifier = Modifier, content: @Composable () -> U
                 .background(MaterialTheme.colors.secondary)
                 .padding(CAMERA_CONTROL_ROW_PADDING),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         content()
     }

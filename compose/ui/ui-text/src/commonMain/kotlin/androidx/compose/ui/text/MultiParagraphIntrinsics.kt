@@ -46,7 +46,7 @@ class MultiParagraphIntrinsics(
     style: TextStyle,
     val placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
-    fontFamilyResolver: FontFamily.Resolver
+    fontFamilyResolver: FontFamily.Resolver,
 ) : ParagraphIntrinsics {
 
     @Suppress("DEPRECATION")
@@ -56,20 +56,20 @@ class MultiParagraphIntrinsics(
             ReplaceWith(
                 "MultiParagraphIntrinsics(annotatedString, style, " +
                     "placeholders, density, fontFamilyResolver)"
-            )
+            ),
     )
     constructor(
         annotatedString: AnnotatedString,
         style: TextStyle,
         placeholders: List<AnnotatedString.Range<Placeholder>>,
         density: Density,
-        resourceLoader: Font.ResourceLoader
+        resourceLoader: Font.ResourceLoader,
     ) : this(
         annotatedString,
         style,
         placeholders,
         density,
-        createFontFamilyResolver(resourceLoader)
+        createFontFamilyResolver(resourceLoader),
     )
 
     // NOTE(text-perf-review): why are we using lazy here? Are there cases where these
@@ -110,13 +110,13 @@ class MultiParagraphIntrinsics(
                             placeholders =
                                 placeholders.getLocalPlaceholders(
                                     paragraphStyleItem.start,
-                                    paragraphStyleItem.end
+                                    paragraphStyleItem.end,
                                 ),
                             density = density,
-                            fontFamilyResolver = fontFamilyResolver
+                            fontFamilyResolver = fontFamilyResolver,
                         ),
                     startIndex = paragraphStyleItem.start,
-                    endIndex = paragraphStyleItem.end
+                    endIndex = paragraphStyleItem.end,
                 )
             }
     }
@@ -134,7 +134,7 @@ class MultiParagraphIntrinsics(
      */
     private fun resolveTextDirection(
         style: ParagraphStyle,
-        defaultStyle: ParagraphStyle
+        defaultStyle: ParagraphStyle,
     ): ParagraphStyle {
         return if (style.textDirection != TextDirection.Unspecified) style
         else style.copy(textDirection = defaultStyle.textDirection)
@@ -152,5 +152,5 @@ private fun List<AnnotatedString.Range<Placeholder>>.getLocalPlaceholders(start:
 internal data class ParagraphIntrinsicInfo(
     val intrinsics: ParagraphIntrinsics,
     val startIndex: Int,
-    val endIndex: Int
+    val endIndex: Int,
 )

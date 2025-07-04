@@ -299,21 +299,19 @@ class ScreenFlashTaskTest {
         )
     }
 
-    private fun createCameraCharacteristicsCompat(
-        addExternalFlashAeMode: Boolean = false,
-    ) =
+    private fun createCameraCharacteristicsCompat(addExternalFlashAeMode: Boolean = false) =
         CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
             ShadowCameraCharacteristics.newCameraCharacteristics().also {
                 Shadow.extract<ShadowCameraCharacteristics>(it).apply {
                     if (addExternalFlashAeMode) {
                         set(
                             CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
-                            intArrayOf(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
+                            intArrayOf(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
                         )
                     }
                 }
             },
-            CAMERA_ID
+            CAMERA_ID,
         )
 
     internal inner class FakeCamera2CameraControlImpl(
@@ -331,7 +329,7 @@ class ScreenFlashTaskTest {
                 override fun onCameraControlCaptureRequests(
                     captureConfigs: MutableList<CaptureConfig>
                 ) {}
-            }
+            },
         ) {
         private lateinit var captureResultListeners: MutableList<CaptureResultListener>
         var isTorchEnabled = false
@@ -353,8 +351,8 @@ class ScreenFlashTaskTest {
             return screenFlash
         }
 
-        override fun enableTorchInternal(torch: Boolean) {
-            isTorchEnabled = torch
+        override fun enableTorchInternal(torchState: Int) {
+            isTorchEnabled = torchState != TorchControl.OFF
         }
 
         override fun addCaptureResultListener(listener: CaptureResultListener) {
@@ -383,7 +381,7 @@ class ScreenFlashTaskTest {
 
     private fun <T : Throwable?> Future<*>.awaitException(
         timeoutMillis: Long,
-        exceptionType: Class<T>
+        exceptionType: Class<T>,
     ) {
         assertThrows(exceptionType) { get(timeoutMillis, TimeUnit.MILLISECONDS) }
     }

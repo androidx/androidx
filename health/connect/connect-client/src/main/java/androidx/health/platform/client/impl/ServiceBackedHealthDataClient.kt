@@ -57,7 +57,7 @@ class ServiceBackedHealthDataClient(
         clientConfiguration,
         connectionManager,
         IHealthDataService.Stub::asInterface,
-        IHealthDataService::getApiVersion
+        IHealthDataService::getApiVersion,
     ),
     HealthDataAsyncClient {
 
@@ -68,7 +68,7 @@ class ServiceBackedHealthDataClient(
             callingPackageName,
             SdkConfig.SDK_VERSION,
             PermissionTokenManager.getCurrentToken(context),
-            ForegroundStateChecker.isInForeground()
+            ForegroundStateChecker.isInForeground(),
         )
     }
 
@@ -78,25 +78,25 @@ class ServiceBackedHealthDataClient(
     ) : this(context, clientConfiguration, ProviderConnectionManager.getInstance(context))
 
     override fun getGrantedPermissions(
-        permissions: Set<PermissionProto.Permission>,
+        permissions: Set<PermissionProto.Permission>
     ): ListenableFuture<Set<PermissionProto.Permission>> {
         return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture ->
             service.getGrantedPermissions(
                 getRequestContext(),
                 permissions.map { Permission(it) }.toList(),
-                GetGrantedPermissionsCallback(resultFuture)
+                GetGrantedPermissionsCallback(resultFuture),
             )
         }
     }
 
     override fun filterGrantedPermissions(
-        permissions: Set<PermissionProto.Permission>,
+        permissions: Set<PermissionProto.Permission>
     ): ListenableFuture<Set<PermissionProto.Permission>> {
         return executeWithVersionCheck(min(MIN_API_VERSION, 5)) { service, resultFuture ->
             service.filterGrantedPermissions(
                 getRequestContext(),
                 permissions.map { Permission(it) }.toList(),
-                FilterGrantedPermissionsCallback(resultFuture)
+                FilterGrantedPermissionsCallback(resultFuture),
             )
         }
     }
@@ -105,7 +105,7 @@ class ServiceBackedHealthDataClient(
         return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture ->
             service.revokeAllPermissions(
                 getRequestContext(),
-                RevokeAllPermissionsCallback(resultFuture)
+                RevokeAllPermissionsCallback(resultFuture),
             )
         }
     }
@@ -128,7 +128,7 @@ class ServiceBackedHealthDataClient(
 
     override fun deleteData(
         uidsCollection: List<RequestProto.DataTypeIdPair>,
-        clientIdsCollection: List<RequestProto.DataTypeIdPair>
+        clientIdsCollection: List<RequestProto.DataTypeIdPair>,
     ): ListenableFuture<Unit> {
         val request = DeleteDataRequest(uidsCollection, clientIdsCollection)
         return executeWithVersionCheck(MIN_API_VERSION) { service, resultFuture ->
@@ -144,7 +144,7 @@ class ServiceBackedHealthDataClient(
             service.deleteDataRange(
                 getRequestContext(),
                 request,
-                DeleteDataRangeCallback(resultFuture)
+                DeleteDataRangeCallback(resultFuture),
             )
         }
     }
@@ -174,7 +174,7 @@ class ServiceBackedHealthDataClient(
             service.aggregate(
                 getRequestContext(),
                 AggregateDataRequest(request),
-                AggregateDataCallback(resultFuture)
+                AggregateDataCallback(resultFuture),
             )
         }
     }
@@ -186,7 +186,7 @@ class ServiceBackedHealthDataClient(
             service.getChangesToken(
                 getRequestContext(),
                 GetChangesTokenRequest(request),
-                GetChangesTokenCallback(resultFuture)
+                GetChangesTokenCallback(resultFuture),
             )
         }
     }
@@ -198,13 +198,13 @@ class ServiceBackedHealthDataClient(
             service.getChanges(
                 getRequestContext(),
                 GetChangesRequest(request),
-                GetChangesCallback(resultFuture)
+                GetChangesCallback(resultFuture),
             )
         }
     }
 
     override fun registerForDataNotifications(
-        request: RequestProto.RegisterForDataNotificationsRequest,
+        request: RequestProto.RegisterForDataNotificationsRequest
     ): ListenableFuture<Void> =
         executeWithVersionCheck(min(MIN_API_VERSION, 2)) { service, resultFuture ->
             service.registerForDataNotifications(
@@ -215,7 +215,7 @@ class ServiceBackedHealthDataClient(
         }
 
     override fun unregisterFromDataNotifications(
-        request: RequestProto.UnregisterFromDataNotificationsRequest,
+        request: RequestProto.UnregisterFromDataNotificationsRequest
     ): ListenableFuture<Void> =
         executeWithVersionCheck(min(MIN_API_VERSION, 2)) { service, resultFuture ->
             service.unregisterFromDataNotifications(

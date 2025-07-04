@@ -5,7 +5,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.SdkResourceGenerator
 
 plugins {
@@ -30,11 +30,8 @@ tasks.withType(Test).configureEach {
     }
 }
 
-apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
-
 dependencies {
-    implementation(findGradleKotlinDsl())
-    implementation("com.android.tools.build:gradle-api:8.0.0")
+    implementation("com.android.tools.build:gradle-api:8.8.0-alpha06")
     implementation(libs.kotlinStdlib)
     compileOnly(libs.androidGradlePlugin)
     compileOnly(libs.kspGradlePlugin)
@@ -42,10 +39,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
 
-    testPlugin("com.android.tools.build:gradle:8.0.0")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:linux")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:osx")
+    testPlugin("com.android.tools.build:gradle:8.8.0-alpha06")
+    testPlugin("com.android.tools.build:aapt2:8.8.0-alpha06-12006047")
+    testPlugin("com.android.tools.build:aapt2:8.8.0-alpha06-12006047:linux")
+    testPlugin("com.android.tools.build:aapt2:8.8.0-alpha06-120060479:osx")
+    testPlugin("com.google.devtools.ksp:symbol-processing-api:1.9.22-1.0.17")
     testPlugin(libs.kotlinGradlePlugin)
     testPlugin(libs.kspGradlePlugin)
 }
@@ -69,7 +67,7 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
 
 androidx {
     name = "androidx.privacysandbox.plugins:privacysandbox-library"
-    type = LibraryType.GRADLE_PLUGIN
+    type = SoftwareType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Privacy Sandbox Sdk Library Gradle Plugin"
 }

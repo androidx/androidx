@@ -252,7 +252,7 @@ class LazyCustomKeysTest {
             LazyVerticalStaggeredGrid(
                 StaggeredGridCells.Fixed(columns),
                 Modifier.size(itemSize * 2.5f),
-                state
+                state,
             ) {
                 items(list) { Item(remember { "$it" }) }
             }
@@ -273,7 +273,7 @@ class LazyCustomKeysTest {
             LazyVerticalStaggeredGrid(
                 StaggeredGridCells.Fixed(columns),
                 Modifier.size(itemSize * 2.5f),
-                state
+                state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -297,7 +297,7 @@ class LazyCustomKeysTest {
             LazyVerticalStaggeredGrid(
                 StaggeredGridCells.Fixed(1),
                 Modifier.size(itemSize * 2.5f),
-                state
+                state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -321,7 +321,7 @@ class LazyCustomKeysTest {
             LazyVerticalStaggeredGrid(
                 StaggeredGridCells.Fixed(columns),
                 Modifier.size(itemSize * 2.5f),
-                state
+                state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -345,7 +345,7 @@ class LazyCustomKeysTest {
             LazyVerticalStaggeredGrid(
                 StaggeredGridCells.Fixed(columns),
                 Modifier.size(itemSize * 2.5f),
-                state
+                state,
             ) {
                 items(list, key = { it }) { Item(remember { "$it" }) }
             }
@@ -370,7 +370,7 @@ class LazyCustomKeysTest {
                     key = {
                         keyCalls++
                         0
-                    }
+                    },
                 ) {
                     Item("item")
                 }

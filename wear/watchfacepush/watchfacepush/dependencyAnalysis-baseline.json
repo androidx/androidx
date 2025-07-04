@@ -1,0 +1,13 @@
+{
+  "projectPath": ":wear:watchfacepush:watchfacepush",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.1.0"
+      },
+      "fromConfiguration": "implementation"
+    }
+  ]
+}

@@ -97,7 +97,7 @@ class ConfigBuilder {
                 "appApk" to appApk?.name,
                 "appApkSha256" to appApk?.sha256,
                 "instrumentationArgs" to instrumentationArgsList,
-                "additionalApkKeys" to additionalApkKeys
+                "additionalApkKeys" to additionalApkKeys,
             )
         return gson.toJson(values)
     }
@@ -129,10 +129,10 @@ class ConfigBuilder {
                             "androidx.benchmark.output.payload.appApkSha256",
                             checkNotNull(appApksModel?.sha256()) {
                                 "app apk sha should be provided for macrobenchmarks."
-                            }
+                            },
                         ),
                         // suppress BaselineProfileRule in CI to save time
-                        InstrumentationArg("androidx.benchmark.enabledRules", "Macrobenchmark")
+                        InstrumentationArg("androidx.benchmark.enabledRules", "Macrobenchmark"),
                     )
                 )
             }
@@ -155,7 +155,7 @@ class ConfigBuilder {
         sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         appApksModel?.apkGroups?.forEach { group ->
             if (group.isUsingApkSplits()) {
-                val apkList = group.apks.map(ApkFile::name).joinToString(",")
+                val apkList = group.apks.joinToString(",", transform = ApkFile::name)
                 sb.append(APK_WITH_SPLITS_INSTALL_OPTION.replace("APK_LIST", apkList))
             } else {
                 sb.append(APK_INSTALL_OPTION.replace("APK_NAME", group.apks.single().name))
@@ -198,7 +198,7 @@ class ConfigBuilder {
 
 private fun mediaInstrumentationArgsForJson(
     isClientPrevious: Boolean,
-    isServicePrevious: Boolean
+    isServicePrevious: Boolean,
 ): List<InstrumentationArg> {
     return listOf(
         if (isClientPrevious) {
@@ -210,7 +210,7 @@ private fun mediaInstrumentationArgsForJson(
             InstrumentationArg(key = "service_version", value = "previous")
         } else {
             InstrumentationArg(key = "service_version", value = "tot")
-        }
+        },
     )
 }
 
@@ -231,7 +231,7 @@ fun buildMediaJson(
         listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")) +
             mediaInstrumentationArgsForJson(
                 isClientPrevious = isClientPrevious,
-                isServicePrevious = isServicePrevious
+                isServicePrevious = isServicePrevious,
             )
     val values =
         mapOf(
@@ -243,7 +243,7 @@ fun buildMediaJson(
             "appApk" to if (forClient) serviceApkName else clientApkName,
             "appApkSha256" to if (forClient) serviceApkSha256 else clientApkSha256,
             "instrumentationArgs" to instrumentationArgs,
-            "additionalApkKeys" to listOf<String>()
+            "additionalApkKeys" to listOf<String>(),
         )
     return gson.toJson(values)
 }

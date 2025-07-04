@@ -48,6 +48,8 @@
     <!-- Content description for the icon shown on the fingerprint dialog during authentication.
     This is not shown but may be read aloud to the user for accessibility. [CHAR LIMIT=NONE] -->
     <string name="fingerprint_dialog_icon_description">Fingerprint icon</string>
+    <!-- Error message shown when the more options button on content view is clicked. [CHAR LIMIT=NONE] -->
+    <string name="content_view_more_options_button_clicked">More options button in the content view is clicked.</string>
 
     <!-- Label for a button or in-app setting that allows the user to authenticate with their
     fingerprint. [CHAR LIMIT=70] -->

@@ -18,7 +18,6 @@ package androidx.sqlite.db
 import java.util.regex.Pattern
 
 /** A simple query builder to create SQL SELECT queries. */
-@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 public class SupportSQLiteQueryBuilder private constructor(private val table: String) {
     private var distinct = false
     private var columns: Array<out String>? = null
@@ -55,7 +54,7 @@ public class SupportSQLiteQueryBuilder private constructor(private val table: St
      */
     public fun selection(
         selection: String?,
-        bindArgs: Array<out Any?>?
+        bindArgs: Array<out Any?>?,
     ): SupportSQLiteQueryBuilder = apply {
         this.selection = selection
         this.bindArgs = bindArgs

@@ -31,7 +31,7 @@ public abstract class SuspendingComplicationDataSourceService : ComplicationData
 
     final override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         scope.launch { listener.onComplicationData(onComplicationRequest(request)) }
     }
@@ -67,7 +67,7 @@ public abstract class SuspendingTimelineComplicationDataSourceService :
 
     final override fun onComplicationRequest(
         request: ComplicationRequest,
-        listener: ComplicationRequestListener
+        listener: ComplicationRequestListener,
     ) {
         scope.launch { listener.onComplicationDataTimeline(onComplicationRequest(request)) }
     }

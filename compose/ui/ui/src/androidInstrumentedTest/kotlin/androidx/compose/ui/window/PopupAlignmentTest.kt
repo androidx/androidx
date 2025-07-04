@@ -328,7 +328,7 @@ class PopupAlignmentTest {
                                             Modifier.onGloballyPositioned {
                                                 measureLatch.countDown()
                                             },
-                                        content = {}
+                                        content = {},
                                     )
                                 }
                             }
@@ -369,7 +369,7 @@ class PopupAlignmentTest {
                         Alignment.TopStart.align(
                             IntSize(placeable.width, placeable.height),
                             IntSize(layoutWidth, layoutHeight),
-                            layoutDirection
+                            layoutDirection,
                         )
                     placeable.placeRelative(position.x, position.y)
                 }

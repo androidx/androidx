@@ -84,7 +84,7 @@ class InspectionPlugin : Plugin<Project> {
                             variant,
                             libExtension,
                             extension.name,
-                            shadowJar
+                            shadowJar,
                         )
 
                     publishNonDexedInspector.outgoing.variants {
@@ -189,7 +189,7 @@ fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
         IMPORT_INSPECTOR_DEPENDENCIES,
         libraryProject.dependencies.project(
             mapOf("path" to inspectorProjectPath, "configuration" to EXPORT_INSPECTOR_DEPENDENCIES)
-        )
+        ),
     )
 
     // When adding package inspector to a new project, add the artifactId here
@@ -233,11 +233,11 @@ private fun Configuration.setupReleaseAttribute() {
     attributes {
         it.attribute(
             Attribute.of("com.android.build.api.attributes.BuildTypeAttr", String::class.java),
-            "release"
+            "release",
         )
         it.attribute(
             Attribute.of("artifactType", String::class.java),
-            ArtifactTypeDefinition.JAR_TYPE
+            ArtifactTypeDefinition.JAR_TYPE,
         )
     }
 }

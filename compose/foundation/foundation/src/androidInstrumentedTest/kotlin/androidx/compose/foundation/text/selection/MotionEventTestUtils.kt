@@ -24,7 +24,7 @@ internal fun MotionEvent(
     numPointers: Int,
     actionIndex: Int,
     pointerProperties: Array<MotionEvent.PointerProperties>,
-    pointerCoords: Array<MotionEvent.PointerCoords>
+    pointerCoords: Array<MotionEvent.PointerCoords>,
 ) =
     MotionEvent.obtain(
         0,
@@ -40,7 +40,7 @@ internal fun MotionEvent(
         0,
         0,
         0,
-        0
+        0,
     )
 
 @Suppress("RemoveRedundantQualifierName")

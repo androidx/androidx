@@ -36,7 +36,7 @@ class SplitsDurationEquallyIntoTest(private val config: TestConfig) {
     data class TestConfig(
         val timestamps: List<Long>,
         val duration: Long,
-        val expectSuccess: Boolean
+        val expectSuccess: Boolean,
     ) {
         val expectError = !expectSuccess
     }
@@ -78,7 +78,7 @@ class SplitsDurationEquallyIntoTest(private val config: TestConfig) {
                 TestConfig(listOf(10L, 21L, 32L, 43L), 43L, false),
                 TestConfig(listOf(11L, 22L, 33L, 43L), 43L, false),
                 TestConfig(listOf(11L, 22L, 33L), 43L, false),
-                TestConfig(listOf(11L, 22L, 33L, 43L, 43L), 43L, false)
+                TestConfig(listOf(11L, 22L, 33L, 43L, 43L), 43L, false),
             )
         }
     }

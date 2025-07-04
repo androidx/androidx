@@ -211,8 +211,7 @@
 
         <service
             android:exported="false"
-            android:name=".MediaSessionService"
-            tools:ignore="MissingServiceExportedEqualsTrue" />
+            android:name=".MediaSessionService" />
 
         <activity
             android:name=".DatePickerActivity"

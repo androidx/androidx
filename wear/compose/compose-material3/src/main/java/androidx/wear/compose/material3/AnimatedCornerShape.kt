@@ -58,7 +58,7 @@ import androidx.graphics.shapes.toPath
 internal class AnimatedRoundedCornerShape(
     start: RoundedCornerShape,
     stop: RoundedCornerShape,
-    progress: () -> Float
+    progress: () -> Float,
 ) : Shape {
     private val topStart = AnimatedCornerSize(start.topStart, stop.topStart, progress)
     private val topEnd = AnimatedCornerSize(start.topEnd, stop.topEnd, progress)
@@ -68,7 +68,7 @@ internal class AnimatedRoundedCornerShape(
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline =
         Outline.Rounded(
             RoundRect(
@@ -88,7 +88,7 @@ internal class AnimatedRoundedCornerShape(
                 bottomLeft =
                     CornerRadius(
                         (if (layoutDirection == Ltr) bottomStart else bottomEnd).toPx(size, density)
-                    )
+                    ),
             )
         )
 }
@@ -97,7 +97,7 @@ internal class AnimatedRoundedCornerShape(
 internal class AnimatedCornerSize(
     val start: CornerSize,
     val stop: CornerSize,
-    val progress: () -> Float
+    val progress: () -> Float,
 ) : CornerSize {
     override fun toPx(shapeSize: Size, density: Density): Float =
         lerp(start.toPx(shapeSize, density), stop.toPx(shapeSize, density), progress())
@@ -107,7 +107,7 @@ internal class AnimatedCornerSize(
 internal fun rememberAnimatedRoundedCornerShape(
     shape: RoundedCornerShape,
     pressedShape: RoundedCornerShape,
-    progress: State<Float>
+    progress: State<Float>,
 ): Shape {
     return remember(shape, pressedShape, progress) {
         AnimatedRoundedCornerShape(shape, pressedShape) { progress.value }
@@ -122,7 +122,7 @@ internal fun rememberAnimatedRoundedCornerShape(
 internal class AnimatedMorphShape(
     private val shape: CornerBasedShape,
     private val pressedShape: CornerBasedShape,
-    private val progress: () -> Float
+    private val progress: () -> Float,
 ) : Shape {
 
     @Suppress("PrimitiveInCollection") // No way to get underlying Long of Size
@@ -131,7 +131,7 @@ internal class AnimatedMorphShape(
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         val morph =
             morphState.computeIfAbsent(size) {
@@ -174,7 +174,7 @@ internal class AnimatedMorphShape(
 internal fun CornerBasedShape.toRoundedPolygonOrNull(
     size: Size,
     density: Density,
-    layoutDirection: LayoutDirection
+    layoutDirection: LayoutDirection,
 ): RoundedPolygon? {
     return when (this) {
         is RoundedCornerShape -> toRoundedPolygon(size, density, layoutDirection).normalized()
@@ -188,7 +188,7 @@ internal fun CornerBasedShape.toRoundedPolygonOrNull(
 private fun RoundedCornerShape.toRoundedPolygon(
     size: Size,
     density: Density,
-    layoutDirection: LayoutDirection
+    layoutDirection: LayoutDirection,
 ) =
     RoundedPolygon.rectangle(
         size.width,
@@ -207,13 +207,13 @@ private fun RoundedCornerShape.toRoundedPolygon(
                 CornerRounding(
                     (if (layoutDirection == Ltr) topEnd else topStart).toPx(size, density)
                 ),
-            )
+            ),
     )
 
 private fun CutCornerShape.toRoundedPolygon(
     size: Size,
     density: Density,
-    layoutDirection: LayoutDirection
+    layoutDirection: LayoutDirection,
 ): RoundedPolygon {
     val topRightPx = (if (layoutDirection == Ltr) topEnd else topStart).toPx(size, density)
     val bottomRightPx = (if (layoutDirection == Ltr) bottomEnd else bottomStart).toPx(size, density)
@@ -241,7 +241,7 @@ private fun CutCornerShape.toRoundedPolygon(
             topRightPx,
             width,
             height - bottomRightPx,
-        ),
+        )
     )
 }
 
@@ -255,7 +255,7 @@ private fun AbsoluteRoundedCornerShape.toRoundedPolygon(size: Size, density: Den
                 CornerRounding(bottomStart.toPx(size, density)),
                 CornerRounding(topStart.toPx(size, density)),
                 CornerRounding(topEnd.toPx(size, density)),
-            )
+            ),
     )
 
 private fun AbsoluteCutCornerShape.toRoundedPolygon(size: Size, density: Density): RoundedPolygon {
@@ -285,7 +285,7 @@ private fun AbsoluteCutCornerShape.toRoundedPolygon(size: Size, density: Density
             topEndPx,
             width,
             height - bottomEndPx,
-        ),
+        )
     )
 }
 
@@ -307,7 +307,7 @@ private fun AbsoluteCutCornerShape.toRoundedPolygon(size: Size, density: Density
 internal fun rememberAnimatedCornerBasedShape(
     shape: CornerBasedShape,
     pressedShape: CornerBasedShape,
-    progress: State<Float>
+    progress: State<Float>,
 ): Shape {
     return remember(shape, pressedShape, progress) {
         AnimatedMorphShape(shape, pressedShape) { progress.value }
@@ -331,7 +331,7 @@ internal fun CornerBasedShape.fractionalRoundedCornerShape(fraction: Float) =
  */
 private class FractionalCornerSize(
     private val cornerSize: CornerSize,
-    @FloatRange(from = 0.0, to = 1.0) val fraction: Float = 1f
+    @FloatRange(from = 0.0, to = 1.0) val fraction: Float = 1f,
 ) : CornerSize {
     override fun toPx(shapeSize: Size, density: Density): Float {
         return cornerSize.toPx(shapeSize, density) * fraction

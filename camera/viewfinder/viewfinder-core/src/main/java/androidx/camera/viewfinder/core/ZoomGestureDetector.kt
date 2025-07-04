@@ -60,7 +60,7 @@ constructor(
     private val context: Context,
     @Px private val spanSlop: Int = ViewConfiguration.get(context).scaledTouchSlop * 2,
     @Px private val minSpan: Int = DEFAULT_MIN_SPAN,
-    private val listener: OnZoomGestureListener
+    private val listener: OnZoomGestureListener,
 ) {
     /**
      * The zoom event that contains extended info about event state.
@@ -74,7 +74,7 @@ constructor(
     private constructor(
         @IntRange(from = 0) val eventTime: Long,
         @Px @IntRange(from = 0) val focusX: Int,
-        @Px @IntRange(from = 0) val focusY: Int
+        @Px @IntRange(from = 0) val focusY: Int,
     ) {
         /**
          * The beginning of a zoom gesture. Reported by new pointers going down.
@@ -87,7 +87,7 @@ constructor(
         class Begin(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
-            @Px @IntRange(from = 0) focusY: Int
+            @Px @IntRange(from = 0) focusY: Int,
         ) : ZoomEvent(eventTime, focusX, focusY)
 
         /**
@@ -105,7 +105,7 @@ constructor(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int,
-            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float
+            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float,
         ) : ZoomEvent(eventTime, focusX, focusY)
 
         /**
@@ -123,7 +123,7 @@ constructor(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int,
-            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float
+            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float,
         ) : ZoomEvent(eventTime, focusX, focusY)
     }
 
@@ -249,7 +249,7 @@ constructor(
                     anchoredZoomMode = ANCHORED_ZOOM_MODE_DOUBLE_TAP
                     return true
                 }
-            }
+            },
         )
     private var eventBeforeOrAboveStartingGestureEvent = false
 

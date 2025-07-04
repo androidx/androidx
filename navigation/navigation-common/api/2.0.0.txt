@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.navigation {
 
   public final class ActionOnlyNavDirections implements androidx.navigation.NavDirections {
@@ -49,8 +49,8 @@ package androidx.navigation {
     method public final androidx.navigation.NavGraph? getParent();
     method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet);
     method protected static <C> Class<? extends C> parseClassFromName(android.content.Context, String, Class<? extends C>);
-    method public final void putAction(@IdRes int, @IdRes int);
     method public final void putAction(@IdRes int, androidx.navigation.NavAction);
+    method public final void putAction(@IdRes int, @IdRes int);
     method public final void removeAction(@IdRes int);
     method public final void removeArgument(String);
     method public final void setId(@IdRes int);
@@ -70,8 +70,8 @@ package androidx.navigation {
     ctor public NavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph>);
     method public final void addAll(androidx.navigation.NavGraph);
     method public final void addDestination(androidx.navigation.NavDestination);
-    method public final void addDestinations(java.util.Collection<androidx.navigation.NavDestination>);
     method public final void addDestinations(androidx.navigation.NavDestination...);
+    method public final void addDestinations(java.util.Collection<androidx.navigation.NavDestination>);
     method public final void clear();
     method public final androidx.navigation.NavDestination? findNode(@IdRes int);
     method @IdRes public final int getStartDestination();

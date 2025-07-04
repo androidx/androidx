@@ -46,7 +46,7 @@ class MultiBrowseTest {
                 availableSpace = 500f,
                 itemSpacing = 0f,
                 beforeContentPadding = 0f,
-                afterContentPadding = 0f
+                afterContentPadding = 0f,
             )
 
         assertThat(strategy.itemMainAxisSize).isEqualTo(itemSize)
@@ -69,7 +69,7 @@ class MultiBrowseTest {
                 availableSpace = 100f,
                 itemSpacing = 0f,
                 beforeContentPadding = 0f,
-                afterContentPadding = 0f
+                afterContentPadding = 0f,
             )
         val minSmallItemSize: Float = with(Density) { CarouselDefaults.MinSmallItemSize.toPx() }
         val keylines = strategy.defaultKeylines
@@ -101,7 +101,7 @@ class MultiBrowseTest {
                 availableSpace = minSmallItemSize,
                 itemSpacing = 0f,
                 beforeContentPadding = 0f,
-                afterContentPadding = 0f
+                afterContentPadding = 0f,
             )
         val keylines = strategy.defaultKeylines
 
@@ -142,7 +142,7 @@ class MultiBrowseTest {
                 availableSpace = carouselSize,
                 itemSpacing = 0f,
                 beforeContentPadding = 0f,
-                afterContentPadding = 0f
+                afterContentPadding = 0f,
             )
         val keylines = strategy.defaultKeylines
 
@@ -175,7 +175,7 @@ class MultiBrowseTest {
                 availableSpace = carouselSize,
                 itemSpacing = 0f,
                 beforeContentPadding = 0f,
-                afterContentPadding = 0f
+                afterContentPadding = 0f,
             )
         val keylines = strategy.defaultKeylines
 
@@ -195,7 +195,7 @@ class MultiBrowseTest {
                 carouselMainAxisSize = 380f,
                 preferredItemSize = 186f,
                 itemSpacing = 8f,
-                itemCount = 10
+                itemCount = 10,
             )
         val strategy =
             Strategy(
@@ -203,7 +203,7 @@ class MultiBrowseTest {
                 availableSpace = 380f,
                 itemSpacing = 8f,
                 beforeContentPadding = 0f,
-                afterContentPadding = 0f
+                afterContentPadding = 0f,
             )
 
         assertThat(keylineList.firstFocal.size).isEqualTo(186f)

@@ -32,6 +32,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_P
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_METERING_REPEATING_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_RESOLUTION_SELECTOR;
@@ -52,6 +53,7 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_STREAM_USE_CASE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
@@ -91,6 +93,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.featuregroup.GroupableFeature;
+import androidx.camera.core.featuregroup.impl.feature.ImageFormatFeature;
 import androidx.camera.core.imagecapture.ImageCaptureControl;
 import androidx.camera.core.imagecapture.ImagePipeline;
 import androidx.camera.core.imagecapture.PostviewSettings;
@@ -114,6 +118,7 @@ import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.StreamUseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
@@ -144,6 +149,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -450,6 +456,10 @@ public final class ImageCapture extends UseCase {
     @Override
     protected @NonNull UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
+        // Apply config like JPEG_R output format first so that configs like input format, dynamic
+        // range etc. can be set correctly later
+        applyFeatureGroupToConfig(builder);
+
         if (cameraInfo.getCameraQuirks().contains(SoftwareJpegEncodingPreferredQuirk.class)) {
             // Request software JPEG encoder if quirk exists on this device, and the software JPEG
             // option has not already been explicitly set.
@@ -507,7 +517,44 @@ public final class ImageCapture extends UseCase {
                 }
             }
         }
+
         return builder.getUseCaseConfig();
+    }
+
+    /**
+     * Applies {@link #mFeatureGroup} to the config for ImageCapture specific changes.
+     *
+     * <p> When the feature group mode is enabled (i.e. not null), the default for all config
+     * options should use the same default as of feature group API.
+     *
+     * <p> Note that feature group mode may be enabled with zero or single feature (e.g.
+     * when the preferred features user set are not supported). In such case, it is still better to
+     * configure the camera with feature group mode and its defaults since
+     * <ul>
+     *   <li>this is more consistent with other feature group results</li>
+     *   <li>may give more accurate query result</li>
+     *   <li>may also support additional resolution group</li>
+     * </ul>
+     *
+     * @see #setFeatureGroup
+     */
+    @OptIn(markerClass = ExperimentalSessionConfig.class)
+    private void applyFeatureGroupToConfig(UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
+        Set<@NonNull GroupableFeature> featureGroup = getFeatureGroup();
+
+        if (featureGroup != null) {
+            @OutputFormat int imageCaptureOutputFormat =
+                    ImageFormatFeature.DEFAULT_IMAGE_CAPTURE_OUTPUT_FORMAT;
+
+            for (GroupableFeature feature : featureGroup) {
+                if (feature instanceof ImageFormatFeature) {
+                    imageCaptureOutputFormat =
+                            ((ImageFormatFeature) feature).getImageCaptureOutputFormat();
+                }
+            }
+
+            builder.getMutableConfig().insertOption(OPTION_OUTPUT_FORMAT, imageCaptureOutputFormat);
+        }
     }
 
     private static boolean isImageFormatSupported(List<Pair<Integer, Size[]>> supportedSizes,
@@ -1302,6 +1349,8 @@ public final class ImageCapture extends UseCase {
     protected @NonNull StreamSpec onSuggestedStreamSpecUpdated(
             @NonNull StreamSpec primaryStreamSpec,
             @Nullable StreamSpec secondaryStreamSpec) {
+        Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
+                + ", secondaryStreamSpec " + secondaryStreamSpec);
         mSessionConfigBuilder = createPipeline(getCameraId(),
                 (ImageCaptureConfig) getCurrentConfig(), primaryStreamSpec);
 
@@ -1377,7 +1426,7 @@ public final class ImageCapture extends UseCase {
                         + supportedOutputFormats);
 
         PostviewSettings postviewSettings = isPostviewEnabled() ? calculatePostviewSettings(
-                resolution) : null;
+                config.getInputFormat(), resolution) : null;
 
         CameraCharacteristics cameraCharacteristics = null;
         if (getCamera() != null) {
@@ -1403,6 +1452,7 @@ public final class ImageCapture extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder =
                 mImagePipeline.createSessionConfigBuilder(streamSpec.getResolution());
+        sessionConfigBuilder.setSessionType(streamSpec.getSessionType());
         if (Build.VERSION.SDK_INT >= 23
                 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG
                 && !streamSpec.getZslDisabled()) {
@@ -1443,7 +1493,8 @@ public final class ImageCapture extends UseCase {
      * @return the settings for the postview, or <code>null</code> if no supported format or
      * output size can be found.
      */
-    private @Nullable PostviewSettings calculatePostviewSettings(@NonNull Size targetResolution) {
+    private @Nullable PostviewSettings calculatePostviewSettings(int stillImageFormat,
+            @NonNull Size targetResolution) {
         SessionProcessor sessionProcessor = getSessionProcessor();
 
         // No session processor can be found which is necessary for supporting postview
@@ -1455,13 +1506,23 @@ public final class ImageCapture extends UseCase {
                 targetResolution);
 
         int format = ImageFormat.UNKNOWN;
+
+        List<Integer> supportedPostviewFormats = new ArrayList<>();
+
         // Prefer YUV because it takes less time to decode to bitmap.
         if (isPostviewImageFormatSupported(formatSizesMap, ImageFormat.YUV_420_888)) {
-            format = ImageFormat.YUV_420_888;
-        } else if (isPostviewImageFormatSupported(formatSizesMap, ImageFormat.JPEG)) {
-            format = ImageFormat.JPEG;
-        } else if (isPostviewImageFormatSupported(formatSizesMap, ImageFormat.JPEG_R)) {
-            format = ImageFormat.JPEG_R;
+            supportedPostviewFormats.add(ImageFormat.YUV_420_888);
+        }
+        if (isPostviewImageFormatSupported(formatSizesMap, ImageFormat.JPEG)) {
+            supportedPostviewFormats.add(ImageFormat.JPEG);
+        }
+        if (isPostviewImageFormatSupported(formatSizesMap, ImageFormat.JPEG_R)) {
+            supportedPostviewFormats.add(ImageFormat.JPEG_R);
+        }
+
+        if (!supportedPostviewFormats.isEmpty()) {
+            format = getCamera().getExtendedConfig().getPostviewFormatSelector().select(
+                    stillImageFormat, supportedPostviewFormats);
         }
 
         // No supported postview image format can be found
@@ -1476,7 +1537,7 @@ public final class ImageCapture extends UseCase {
         if (postviewSizeSelector != null) {
             Collections.sort(sizes, new CompareSizesByArea(true));
             CameraInternal camera = getCamera();
-            Rect sensorRect = camera.getCameraControlInternal().getSensorRect();
+            Rect sensorRect = camera.getCameraInfoInternal().getSensorRect();
             CameraInfoInternal cameraInfo = camera.getCameraInfoInternal();
             Rational fullFov = new Rational(sensorRect.width(), sensorRect.height());
             List<Size> result =
@@ -1615,6 +1676,8 @@ public final class ImageCapture extends UseCase {
             mTakePictureManager.abortRequests();
             mTakePictureManager = null;
         }
+        // Always clear ZSL resources to release the RingBuffer.
+        getCameraControl().clearZslConfig();
     }
 
     /**
@@ -1661,6 +1724,13 @@ public final class ImageCapture extends UseCase {
      * configuration change.
      *
      * <p>The processing estimate can vary based on device processing load.
+     *
+     * <p>If this method returns
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_IMAGE_CAPTURE_LATENCY}, it means that the
+     * camera HAL doesn't provide latency information. In this case, this method will
+     * consistently return {@link ImageCaptureLatencyEstimate#UNDEFINED_IMAGE_CAPTURE_LATENCY}
+     * for the current camera configuration, as long as the UseCase and camera configuration
+     * remain unchanged (e.g., extensions mode and camera settings are kept the same).
      */
     public @NonNull ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate() {
         final CameraInternal camera = getCamera();
@@ -1669,8 +1739,9 @@ public final class ImageCapture extends UseCase {
         }
 
         final CameraConfig config = camera.getExtendedConfig();
-        final SessionProcessor sessionProcessor = config.getSessionProcessor();
-        final Pair<Long, Long> latencyEstimate = sessionProcessor.getRealtimeCaptureLatency();
+        final SessionProcessor sessionProcessor = config.getSessionProcessor(null);
+        final Pair<Long, Long> latencyEstimate =
+                sessionProcessor != null ? sessionProcessor.getRealtimeCaptureLatency() : null;
         if (latencyEstimate == null) {
             return ImageCaptureLatencyEstimate.UNDEFINED_IMAGE_CAPTURE_LATENCY;
         }
@@ -2021,6 +2092,7 @@ public final class ImageCapture extends UseCase {
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
+        private static final StreamUseCase DEFAULT_STREAM_USE_CASE = StreamUseCase.STILL_CAPTURE;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
         private static final int DEFAULT_OUTPUT_FORMAT = OUTPUT_FORMAT_JPEG;
 
@@ -2037,6 +2109,7 @@ public final class ImageCapture extends UseCase {
         static {
             Builder builder = new Builder()
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
+                    .setStreamUseCase(DEFAULT_STREAM_USE_CASE)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
                     .setOutputFormat(DEFAULT_OUTPUT_FORMAT)
@@ -2397,6 +2470,7 @@ public final class ImageCapture extends UseCase {
 
             setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
             setTargetClass(ImageCapture.class);
+            setMeteringRepeatingEnabled(true);
         }
 
         /**
@@ -2856,6 +2930,29 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
+        /**
+         * Sets whether the internal metering repeating session for the ImageCapture should be
+         * enabled.
+         *
+         * <p>By default, a repeating session will be added internally to handle focus and
+         * metering controls if there isn't a repeating session added explicitly, for example
+         * when a {@code ImageCapture} is the only bound use case.
+         *
+         * <p>Passing {@code false} to this method removes the metering repeating session.
+         * Disabling it can be useful if the extra session is not supported on the device.
+         * {@link CameraControl#startFocusAndMetering(FocusMeteringAction)} will throw an
+         * exception if called.
+         *
+         * @param enabled {@code true} to enabled the metering repeating session, otherwise
+         * {@code false}.
+         * @return The current {@code Builder}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public @NonNull Builder setMeteringRepeatingEnabled(boolean enabled) {
+            getMutableConfig().insertOption(OPTION_METERING_REPEATING_ENABLED, enabled);
+            return this;
+        }
+
         @RestrictTo(Scope.LIBRARY_GROUP)
         public @NonNull Builder setImageReaderProxyProvider(
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
@@ -3023,6 +3120,13 @@ public final class ImageCapture extends UseCase {
         public @NonNull Builder setCaptureType(
                 UseCaseConfigFactory.@NonNull CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public @NonNull Builder setStreamUseCase(@NonNull StreamUseCase streamUseCase) {
+            getMutableConfig().insertOption(OPTION_STREAM_USE_CASE, streamUseCase);
             return this;
         }
 

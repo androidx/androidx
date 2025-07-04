@@ -16,10 +16,14 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.testutils.assertPixels
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -77,7 +81,7 @@ class IconTest {
                     defaultWidth = width,
                     defaultHeight = height,
                     viewportWidth = width.value,
-                    viewportHeight = height.value
+                    viewportHeight = height.value,
                 )
                 .build()
         rule
@@ -170,7 +174,7 @@ class IconTest {
                 null,
                 // Force Icon to be 50dp
                 modifier = Modifier.requiredSize(50.dp).testTag(testTag),
-                tint = Color.Unspecified
+                tint = Color.Unspecified,
             )
             with(LocalDensity.current) {
                 val dimension = 50.dp.roundToPx()
@@ -230,7 +234,7 @@ class IconTest {
             Icon(
                 bitmap = ImageBitmap(100, 100),
                 contentDescription = "qwerty",
-                modifier = Modifier.testTag(testTag)
+                modifier = Modifier.testTag(testTag),
             )
         }
 
@@ -240,11 +244,269 @@ class IconTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Image))
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconRenderedCorrectlyInPaddedBox() {
+        val iconSize = 50.dp
+        val boxSize = 50.dp
+        val padding = 10.dp
+        val testTag = "testTag"
+        var expectedIntSize: IntSize? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val image: ImageBitmap
+            with(LocalDensity.current) {
+                image =
+                    createBitmapWithColor(
+                        this,
+                        iconSize.roundToPx(),
+                        iconSize.roundToPx(),
+                        Color.Red,
+                    )
+            }
+            Box(modifier = Modifier.size(size = boxSize), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = BitmapPainter(image),
+                    contentDescription = null,
+                    tint = null,
+                    modifier = Modifier.padding(padding).testTag(testTag),
+                )
+            }
+            with(LocalDensity.current) {
+                val dimension = iconSize.roundToPx() - 2 * padding.roundToPx()
+                expectedIntSize = IntSize(dimension, dimension)
+            }
+        }
+
+        rule
+            .onNodeWithTag(testTag)
+            .captureToImage()
+            // The icon should fit within the Box, considering its padding
+            // With null color provided for a tint, the icon should render the original pixels
+            .assertPixels(expectedSize = expectedIntSize!!) { Color.Red }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconWithSpecifiedTintRenderedCorrectlyInPaddedBox() {
+        val iconSize = 50.dp
+        val boxSize = 50.dp
+        val padding = 10.dp
+        val testTag = "testTag"
+        var expectedIntSize: IntSize? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val image: ImageBitmap
+            with(LocalDensity.current) {
+                image =
+                    createBitmapWithColor(
+                        this,
+                        iconSize.roundToPx(),
+                        iconSize.roundToPx(),
+                        Color.Red,
+                    )
+            }
+            Box(modifier = Modifier.size(size = boxSize), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = BitmapPainter(image),
+                    contentDescription = null,
+                    tint = Color.Blue,
+                    modifier = Modifier.padding(padding).testTag(testTag),
+                )
+            }
+            with(LocalDensity.current) {
+                val dimension = iconSize.roundToPx() - 2 * padding.roundToPx()
+                expectedIntSize = IntSize(dimension, dimension)
+            }
+        }
+
+        rule
+            .onNodeWithTag(testTag)
+            .captureToImage()
+            // The icon should fit within the Box, considering its padding
+            // With a tint color provided, all pixels should be blue
+            .assertPixels(expectedSize = expectedIntSize!!) { Color.Blue }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconRenderedCorrectlyInLargeBox() {
+        val iconSize = 50.dp
+        val boxSize = 150.dp
+        val padding = 10.dp
+        val testTag = "testTag"
+        var expectedIntSize: IntSize? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val image: ImageBitmap
+            with(LocalDensity.current) {
+                image =
+                    createBitmapWithColor(
+                        this,
+                        iconSize.roundToPx(),
+                        iconSize.roundToPx(),
+                        Color.Red,
+                    )
+            }
+            Box(modifier = Modifier.size(size = boxSize), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = BitmapPainter(image),
+                    contentDescription = null,
+                    tint = null,
+                    modifier = Modifier.padding(padding).testTag(testTag),
+                )
+            }
+            with(LocalDensity.current) {
+                val dimension = iconSize.roundToPx()
+                expectedIntSize = IntSize(dimension, dimension)
+            }
+        }
+
+        rule
+            .onNodeWithTag(testTag)
+            .captureToImage()
+            // The icon should keep its original size inside a larger box, unaffected by padding
+            // With null color provided for a tint, the icon should render the original pixels
+            .assertPixels(expectedSize = expectedIntSize!!) { Color.Red }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconWithSpecifiedTintRenderedCorrectlyInLargeBox() {
+        val iconSize = 50.dp
+        val boxSize = 150.dp
+        val padding = 10.dp
+        val testTag = "testTag"
+        var expectedIntSize: IntSize? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val image: ImageBitmap
+            with(LocalDensity.current) {
+                image =
+                    createBitmapWithColor(
+                        this,
+                        iconSize.roundToPx(),
+                        iconSize.roundToPx(),
+                        Color.Red,
+                    )
+            }
+            Box(modifier = Modifier.size(size = boxSize), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = BitmapPainter(image),
+                    contentDescription = null,
+                    tint = Color.Blue,
+                    modifier = Modifier.padding(padding).testTag(testTag),
+                )
+            }
+            with(LocalDensity.current) {
+                val dimension = iconSize.roundToPx()
+                expectedIntSize = IntSize(dimension, dimension)
+            }
+        }
+
+        rule
+            .onNodeWithTag(testTag)
+            .captureToImage()
+            // The icon should keep its original size inside a larger box, unaffected by padding
+            // With a tint color provided, all pixels should be blue
+            .assertPixels(expectedSize = expectedIntSize!!) { Color.Blue }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconRenderedCorrectlyInSmallBox() {
+        val iconSize = 500.dp
+        val boxSize = 150.dp
+        val padding = 10.dp
+        val testTag = "testTag"
+        var expectedIntSize: IntSize? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val image: ImageBitmap
+            with(LocalDensity.current) {
+                image =
+                    createBitmapWithColor(
+                        this,
+                        iconSize.roundToPx(),
+                        iconSize.roundToPx(),
+                        Color.Red,
+                    )
+            }
+            Box(modifier = Modifier.size(size = boxSize), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = BitmapPainter(image),
+                    contentDescription = null,
+                    tint = null,
+                    modifier = Modifier.padding(padding).testTag(testTag),
+                )
+            }
+            with(LocalDensity.current) {
+                val dimension = boxSize.roundToPx() - 2 * padding.roundToPx()
+                expectedIntSize = IntSize(dimension, dimension)
+            }
+        }
+
+        rule
+            .onNodeWithTag(testTag)
+            .captureToImage()
+            // The icon larger than the box scales down to the Box's modifier size
+            // With null color provided for a tint, the icon should render the original pixels
+            .assertPixels(expectedSize = expectedIntSize!!) { Color.Red }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun iconWithSpecifiedTintRenderedCorrectlyInSmallBox() {
+        val iconSize = 500.dp
+        val boxSize = 150.dp
+        val padding = 10.dp
+        val testTag = "testTag"
+        var expectedIntSize: IntSize? = null
+
+        rule.setMaterialContent(lightColorScheme()) {
+            val image: ImageBitmap
+            with(LocalDensity.current) {
+                image =
+                    createBitmapWithColor(
+                        this,
+                        iconSize.roundToPx(),
+                        iconSize.roundToPx(),
+                        Color.Red,
+                    )
+            }
+            Box(modifier = Modifier.size(size = boxSize), contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = BitmapPainter(image),
+                    contentDescription = null,
+                    tint = Color.Blue,
+                    modifier = Modifier.padding(padding).testTag(testTag),
+                )
+            }
+            with(LocalDensity.current) {
+                val dimension = boxSize.roundToPx() - 2 * padding.roundToPx()
+                expectedIntSize = IntSize(dimension, dimension)
+            }
+        }
+
+        rule
+            .onNodeWithTag(testTag)
+            .captureToImage()
+            // The icon larger than the box scales down to the Box's modifier size
+            // With a tint color provided, all pixels should be blue
+            .assertPixels(expectedSize = expectedIntSize!!) { Color.Blue }
+    }
+
     private fun createBitmapWithColor(
         density: Density,
         width: Int,
         height: Int,
-        color: Color
+        color: Color,
     ): ImageBitmap {
         val size = Size(width.toFloat(), height.toFloat())
         val image = ImageBitmap(width, height)

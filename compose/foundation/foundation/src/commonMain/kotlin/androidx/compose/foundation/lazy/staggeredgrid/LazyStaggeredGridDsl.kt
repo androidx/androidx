@@ -78,7 +78,7 @@ fun LazyVerticalStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: LazyStaggeredGridScope.() -> Unit
+    content: LazyStaggeredGridScope.() -> Unit,
 ) {
     LazyStaggeredGrid(
         modifier = modifier,
@@ -92,7 +92,7 @@ fun LazyVerticalStaggeredGrid(
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
         slots = rememberColumnSlots(columns, horizontalArrangement, contentPadding),
-        content = content
+        content = content,
     )
 }
 
@@ -108,7 +108,7 @@ fun LazyVerticalStaggeredGrid(
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(0.dp),
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    content: LazyStaggeredGridScope.() -> Unit
+    content: LazyStaggeredGridScope.() -> Unit,
 ) {
     LazyVerticalStaggeredGrid(
         columns = columns,
@@ -121,7 +121,7 @@ fun LazyVerticalStaggeredGrid(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = rememberOverscrollEffect(),
-        content = content
+        content = content,
     )
 }
 
@@ -130,13 +130,9 @@ fun LazyVerticalStaggeredGrid(
 private fun rememberColumnSlots(
     columns: StaggeredGridCells,
     horizontalArrangement: Arrangement.Horizontal,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
 ) =
-    remember<LazyGridStaggeredGridSlotsProvider>(
-        columns,
-        horizontalArrangement,
-        contentPadding,
-    ) {
+    remember<LazyGridStaggeredGridSlotsProvider>(columns, horizontalArrangement, contentPadding) {
         LazyStaggeredGridSlotCache { constraints ->
             requirePrecondition(constraints.maxWidth != Constraints.Infinity) {
                 "LazyVerticalStaggeredGrid's width should be bound by parent."
@@ -203,7 +199,7 @@ fun LazyHorizontalStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    content: LazyStaggeredGridScope.() -> Unit
+    content: LazyStaggeredGridScope.() -> Unit,
 ) {
     LazyStaggeredGrid(
         modifier = modifier,
@@ -217,7 +213,7 @@ fun LazyHorizontalStaggeredGrid(
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
         slots = rememberRowSlots(rows, verticalArrangement, contentPadding),
-        content = content
+        content = content,
     )
 }
 
@@ -233,7 +229,7 @@ fun LazyHorizontalStaggeredGrid(
     horizontalItemSpacing: Dp = 0.dp,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
-    content: LazyStaggeredGridScope.() -> Unit
+    content: LazyStaggeredGridScope.() -> Unit,
 ) {
     LazyHorizontalStaggeredGrid(
         rows = rows,
@@ -246,7 +242,7 @@ fun LazyHorizontalStaggeredGrid(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = rememberOverscrollEffect(),
-        content = content
+        content = content,
     )
 }
 
@@ -255,13 +251,9 @@ fun LazyHorizontalStaggeredGrid(
 private fun rememberRowSlots(
     rows: StaggeredGridCells,
     verticalArrangement: Arrangement.Vertical,
-    contentPadding: PaddingValues
+    contentPadding: PaddingValues,
 ) =
-    remember<LazyGridStaggeredGridSlotsProvider>(
-        rows,
-        verticalArrangement,
-        contentPadding,
-    ) {
+    remember<LazyGridStaggeredGridSlotsProvider>(rows, verticalArrangement, contentPadding) {
         LazyStaggeredGridSlotCache { constraints ->
             requirePrecondition(constraints.maxHeight != Constraints.Infinity) {
                 "LazyHorizontalStaggeredGrid's height should be bound by parent."
@@ -341,7 +333,7 @@ sealed interface LazyStaggeredGridScope {
         key: Any? = null,
         contentType: Any? = null,
         span: StaggeredGridItemSpan? = null,
-        content: @Composable LazyStaggeredGridItemScope.() -> Unit
+        content: @Composable LazyStaggeredGridItemScope.() -> Unit,
     )
 
     /**
@@ -370,7 +362,7 @@ sealed interface LazyStaggeredGridScope {
         key: ((index: Int) -> Any)? = null,
         contentType: (index: Int) -> Any? = { null },
         span: ((index: Int) -> StaggeredGridItemSpan)? = null,
-        itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit
+        itemContent: @Composable LazyStaggeredGridItemScope.(index: Int) -> Unit,
     )
 }
 
@@ -399,14 +391,14 @@ inline fun <T> LazyStaggeredGridScope.items(
     noinline key: ((item: T) -> Any)? = null,
     crossinline contentType: (item: T) -> Any? = { null },
     noinline span: ((item: T) -> StaggeredGridItemSpan)? = null,
-    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(item: T) -> Unit,
 ) {
     items(
         count = items.size,
         key = key?.let { { index -> key(items[index]) } },
         contentType = { index -> contentType(items[index]) },
         span = span?.let { { index -> span(items[index]) } },
-        itemContent = { index -> itemContent(items[index]) }
+        itemContent = { index -> itemContent(items[index]) },
     )
 }
 
@@ -435,14 +427,14 @@ inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     noinline span: ((index: Int, item: T) -> StaggeredGridItemSpan)? = null,
-    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(index: Int, item: T) -> Unit,
 ) {
     items(
         count = items.size,
         key = key?.let { { index -> key(index, items[index]) } },
         contentType = { index -> contentType(index, items[index]) },
         span = span?.let { { index -> span(index, items[index]) } },
-        itemContent = { index -> itemContent(index, items[index]) }
+        itemContent = { index -> itemContent(index, items[index]) },
     )
 }
 
@@ -471,14 +463,14 @@ inline fun <T> LazyStaggeredGridScope.items(
     noinline key: ((item: T) -> Any)? = null,
     crossinline contentType: (item: T) -> Any? = { null },
     noinline span: ((item: T) -> StaggeredGridItemSpan)? = null,
-    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(item: T) -> Unit
+    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(item: T) -> Unit,
 ) {
     items(
         count = items.size,
         key = key?.let { { index -> key(items[index]) } },
         contentType = { index -> contentType(items[index]) },
         span = span?.let { { index -> span(items[index]) } },
-        itemContent = { index -> itemContent(items[index]) }
+        itemContent = { index -> itemContent(items[index]) },
     )
 }
 
@@ -507,13 +499,13 @@ inline fun <T> LazyStaggeredGridScope.itemsIndexed(
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
     noinline span: ((index: Int, item: T) -> StaggeredGridItemSpan)? = null,
-    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyStaggeredGridItemScope.(index: Int, item: T) -> Unit,
 ) {
     items(
         count = items.size,
         key = key?.let { { index -> key(index, items[index]) } },
         contentType = { index -> contentType(index, items[index]) },
         span = span?.let { { index -> span(index, items[index]) } },
-        itemContent = { index -> itemContent(index, items[index]) }
+        itemContent = { index -> itemContent(index, items[index]) },
     )
 }

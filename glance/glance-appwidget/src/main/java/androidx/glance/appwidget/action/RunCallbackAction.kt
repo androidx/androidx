@@ -25,17 +25,17 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 
 @RestrictTo(Scope.LIBRARY_GROUP)
-class RunCallbackAction(
-    val callbackClass: Class<out ActionCallback>,
-    val parameters: ActionParameters
+public class RunCallbackAction(
+    public val callbackClass: Class<out ActionCallback>,
+    public val parameters: ActionParameters,
 ) : Action {
-    companion object {
+    public companion object {
 
-        suspend fun run(
+        public suspend fun run(
             context: Context,
             className: String,
             glanceId: GlanceId,
-            parameters: ActionParameters
+            parameters: ActionParameters,
         ) {
             val workClass = Class.forName(className)
 
@@ -54,7 +54,7 @@ class RunCallbackAction(
  * implementing class must have a public zero argument constructor, this is used to instantiate the
  * class at runtime.
  */
-interface ActionCallback {
+public interface ActionCallback {
     /**
      * Performs the work associated with this action. Called when the action is triggered.
      *
@@ -62,7 +62,7 @@ interface ActionCallback {
      * @param glanceId the [GlanceId] that triggered this action
      * @param parameters the parameters associated with the action
      */
-    suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters)
+    public suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters)
 }
 
 /**
@@ -71,9 +71,9 @@ interface ActionCallback {
  * @param callbackClass the class that implements [ActionCallback]
  * @param parameters the parameters associated with the action
  */
-fun <T : ActionCallback> actionRunCallback(
+public fun <T : ActionCallback> actionRunCallback(
     callbackClass: Class<T>,
-    parameters: ActionParameters = actionParametersOf()
+    parameters: ActionParameters = actionParametersOf(),
 ): Action = RunCallbackAction(callbackClass, parameters)
 
 /**
@@ -82,6 +82,6 @@ fun <T : ActionCallback> actionRunCallback(
  * @param parameters the parameters associated with the action
  */
 @Suppress("MissingNullability") // Shouldn't need to specify @NonNull. b/199284086
-inline fun <reified T : ActionCallback> actionRunCallback(
+public inline fun <reified T : ActionCallback> actionRunCallback(
     parameters: ActionParameters = actionParametersOf()
 ): Action = actionRunCallback(T::class.java, parameters)

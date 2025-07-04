@@ -60,7 +60,7 @@ fun mouseInputAnimateMoveAlong() {
                 val angle = 2 * PI * it / 1000
                 center + Offset(r * cos(angle).toFloat(), r * sin(angle).toFloat())
             },
-            durationMillis = 1000L
+            durationMillis = 1000L,
         )
     }
 }

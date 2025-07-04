@@ -84,7 +84,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         @ViewPager2.Orientation val orientation: Int,
         val totalPages: Int,
         val pageSequence: List<Int>,
-        val instantScrolls: Set<Int> = emptySet()
+        val instantScrolls: Set<Int> = emptySet(),
     )
 
     companion object {
@@ -142,7 +142,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         data class OnPageScrolledEvent(
             val position: Int,
             val positionOffset: Float,
-            val positionOffsetPixels: Int
+            val positionOffsetPixels: Int,
         ) : Event()
 
         data class OnPageSelectedEvent(val position: Int) : Event()
@@ -176,7 +176,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         override fun onPageScrolled(
             position: Int,
             positionOffset: Float,
-            positionOffsetPixels: Int
+            positionOffsetPixels: Int,
         ) {
             synchronized(events) {
                 events.add(OnPageScrolledEvent(position, positionOffset, positionOffsetPixels))
@@ -227,12 +227,12 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                     assertThat(
                         "Scroll event fired before page selected event",
                         target,
-                        not(equalTo(-1))
+                        not(equalTo(-1)),
                     )
                     assertThat(
                         "Scroll event not between start and destination",
                         currentPosition,
-                        isBetweenInInMinMax(prevPosition, target.toDouble())
+                        isBetweenInInMinMax(prevPosition, target.toDouble()),
                     )
                     prevPosition = currentPosition
                 }
@@ -262,72 +262,72 @@ private fun createTestSet(orientation: Int): List<TestConfig> {
                 title = "cone-increasing-slow",
                 orientation = orientation,
                 totalPages = 10,
-                pageSequence = listOf(1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 7, 3, 8, 4, 9)
+                pageSequence = listOf(1, 0, 2, 1, 3, 1, 4, 2, 5, 2, 6, 3, 7, 3, 8, 4, 9),
             ),
             TestConfig(
                 title = "cone-increasing-fast",
                 orientation = orientation,
                 totalPages = 19,
-                pageSequence = listOf(2, 1, 4, 2, 6, 3, 8, 4, 10)
+                pageSequence = listOf(2, 1, 4, 2, 6, 3, 8, 4, 10),
             ),
             TestConfig(
                 title = "cone-decreasing-slow",
                 orientation = orientation,
                 totalPages = 10,
-                pageSequence = listOf(9, 8, 9, 7, 8, 6, 8, 5, 7, 4, 7, 3, 6, 2, 6, 1, 5, 0)
+                pageSequence = listOf(9, 8, 9, 7, 8, 6, 8, 5, 7, 4, 7, 3, 6, 2, 6, 1, 5, 0),
             ),
             TestConfig(
                 title = "cone-decreasing-fast",
                 orientation = orientation,
                 totalPages = 11,
-                pageSequence = listOf(10, 8, 9, 6, 8, 4, 7, 2, 6, 0)
+                pageSequence = listOf(10, 8, 9, 6, 8, 4, 7, 2, 6, 0),
             ),
             TestConfig(
                 title = "regression-hump-positive",
                 orientation = orientation,
                 totalPages = 10,
-                pageSequence = listOf(7, 6, 0, 7, 6, 0, 7, 6)
+                pageSequence = listOf(7, 6, 0, 7, 6, 0, 7, 6),
             ),
             TestConfig(
                 title = "regression-hump-negative",
                 orientation = orientation,
                 totalPages = 10,
-                pageSequence = listOf(8, 2, 3, 8, 2, 3, 8, 2, 3)
+                pageSequence = listOf(8, 2, 3, 8, 2, 3, 8, 2, 3),
             ),
             TestConfig(
                 title = "regression-do-not-jump-forward",
                 orientation = orientation,
                 totalPages = 10,
-                pageSequence = listOf(3, 6, 9, 5)
+                pageSequence = listOf(3, 6, 9, 5),
             ),
             TestConfig(
                 title = "random-starts-with-noSmooth",
                 orientation = orientation,
                 totalPages = 12,
                 pageSequence = listOf(5, 11, 3, 8, 0, 10, 9, 7, 0, 4),
-                instantScrolls = setOf(0, 1, 2, 8)
+                instantScrolls = setOf(0, 1, 2, 8),
             ),
             TestConfig(
                 title = "random-ends-with-noSmooth",
                 orientation = orientation,
                 totalPages = 12,
                 pageSequence = listOf(2, 7, 10, 1, 6, 10, 2, 8, 9, 6),
-                instantScrolls = setOf(1, 7, 9)
+                instantScrolls = setOf(1, 7, 9),
             ),
             TestConfig(
                 title = "random-ends-with-double-noSmooth",
                 orientation = orientation,
                 totalPages = 12,
                 pageSequence = listOf(8, 7, 9, 7, 3, 0, 7, 11, 10, 0),
-                instantScrolls = setOf(1, 4, 5, 8, 9)
+                instantScrolls = setOf(1, 4, 5, 8, 9),
             ),
             TestConfig(
                 title = "smooth-instant-long_smooth",
                 orientation = orientation,
                 totalPages = 5,
                 pageSequence = listOf(3, 4, 0),
-                instantScrolls = setOf(1)
-            )
+                instantScrolls = setOf(1),
+            ),
         )
         .plus(List(RANDOM_TESTS_PER_CONFIG) { createRandomTest(orientation) })
     // To rerun a failed random test, lookup the seed and the orientation of the test in the test
@@ -352,7 +352,7 @@ private fun recreateRandomTest(
     name: String? = null,
     numScrolls: Int = 10,
     numPages: Int = 12,
-    noSmoothScrollPr: Float = .3f
+    noSmoothScrollPr: Float = .3f,
 ): TestConfig {
     val r = Random(seed)
     return TestConfig(
@@ -360,7 +360,7 @@ private fun recreateRandomTest(
         orientation = orientation,
         totalPages = numPages,
         pageSequence = generateRandomSequence(r, numScrolls, numPages),
-        instantScrolls = pickIndices(r, noSmoothScrollPr, numScrolls)
+        instantScrolls = pickIndices(r, noSmoothScrollPr, numScrolls),
     )
 }
 

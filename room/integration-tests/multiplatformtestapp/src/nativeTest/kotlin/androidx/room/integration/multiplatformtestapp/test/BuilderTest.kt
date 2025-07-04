@@ -31,7 +31,7 @@ class BuilderTest : BaseBuilderTest() {
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
         return Room.databaseBuilder<SampleDatabase>(
                 name = filename,
-                factory = SampleDatabaseConstructor::initialize
+                factory = SampleDatabaseConstructor::initialize,
             )
             .setDriver(BundledSQLiteDriver())
     }

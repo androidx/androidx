@@ -65,7 +65,7 @@ public suspend fun <T> ListenableFuture<T>.await(): T {
  */
 private class ToContinuation<T>(
     val futureToObserve: ListenableFuture<T>,
-    val continuation: CancellableContinuation<T>
+    val continuation: CancellableContinuation<T>,
 ) : Runnable {
     override fun run() {
         if (futureToObserve.isCancelled) {

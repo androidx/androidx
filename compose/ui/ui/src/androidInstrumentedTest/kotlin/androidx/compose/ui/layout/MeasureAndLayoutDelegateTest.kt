@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -1230,7 +1231,7 @@ class MeasureAndLayoutDelegateTest {
                             activeLayers--
                         }
                     }
-                }
+                },
             )
 
         assertThat(activeLayers).isEqualTo(1)
@@ -1276,7 +1277,7 @@ class MeasureAndLayoutDelegateTest {
                             activeLayers--
                         }
                     }
-                }
+                },
             )
 
         assertThat(activeLayers).isEqualTo(1)
@@ -1285,5 +1286,64 @@ class MeasureAndLayoutDelegateTest {
         delegate.measureAndLayout()
 
         assertThat(activeLayers).isEqualTo(0)
+    }
+
+    @Test
+    fun testPlacementInvalidationAboveLookaheadRootCrossOverToMeasure() {
+        val shouldMeasure = mutableStateOf(false)
+        val togglableMeasureNode = node {
+            measurePolicy = MeasurePolicy { measurables, constraints ->
+                if (shouldMeasure.value) {
+                    with(MeasureInMeasureBlock()) { measure(measurables, constraints) }
+                } else {
+                    layout(20, 20) {}
+                }
+            }
+            add(
+                node {
+                    modifier =
+                        Modifier.approachLayout({ true }) { m, c ->
+                            lookaheadSize
+                            m.measure(c).run { layout(width, height) { place(0, 0) } }
+                        }
+                }
+            )
+        }
+        val lookaheadRoot = virtualNode {
+            isVirtualLookaheadRoot = true
+            add(
+                node { // measure during placement
+                    measurePolicy = MeasurePolicy { measurables, constraints ->
+                        layout(20, 20) {
+                            measurables.single().measure(constraints).run { place(0, 0) }
+                        }
+                    }
+                    add(togglableMeasureNode)
+                }
+            )
+        }
+        val root = root { add(node { add(lookaheadRoot) }) }
+        val delegate = createDelegate(root)
+        delegate.measureAndLayout()
+        assertFalse(lookaheadRoot.children[0].lookaheadMeasurePending)
+        assertTrue(togglableMeasureNode.children[0].lookaheadMeasurePending)
+
+        shouldMeasure.value = true
+
+        // Request lookahead measure on a node lower in the tree and request relayout on the root,
+        // to verify that root re-layout does not happen before lower-level node's lookahead
+        // measurement.
+        root.requestRelayout()
+        // Mark the chain layout pending to ensure placement call goes down the tree rather than
+        // returning early
+        root.children[0].markLayoutPending()
+        root.children[0].children[0].markLayoutPending()
+
+        togglableMeasureNode.requestLookaheadRemeasure()
+        lookaheadRoot.children[0].requestRelayout()
+
+        delegate.measureAndLayout()
+        assertFalse(togglableMeasureNode.children[0].lookaheadMeasurePending)
+        assertFalse(togglableMeasureNode.lookaheadMeasurePending)
     }
 }

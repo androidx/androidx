@@ -38,7 +38,7 @@ class ButtonGroupTest {
     fun SimpleCase() {
         checkResult(
             listOf(100, 50, 50),
-            computeWidths(listOf(40f to 2f, 40f to 1f, 40f to 1f), 0, 200)
+            computeWidths(listOf(40f to 2f, 40f to 1f, 40f to 1f), 0, 200),
         )
     }
 
@@ -46,7 +46,7 @@ class ButtonGroupTest {
     fun UsesSpacing() {
         checkResult(
             listOf(80, 40, 40),
-            computeWidths(listOf(40f to 2f, 40f to 1f, 40f to 1f), 20, 200)
+            computeWidths(listOf(40f to 2f, 40f to 1f, 40f to 1f), 20, 200),
         )
     }
 
@@ -56,7 +56,7 @@ class ButtonGroupTest {
             // The weights alone will give 64 64 32, but that will put the last one under the
             // minimum
             listOf(60, 60, 40),
-            computeWidths(listOf(40f to 2f, 40f to 2f, 40f to 1f), 20, 200)
+            computeWidths(listOf(40f to 2f, 40f to 2f, 40f to 1f), 20, 200),
         )
     }
 
@@ -67,7 +67,7 @@ class ButtonGroupTest {
             // minimum, they give according to their weight
             // (they need to give 10, so they give 6 & 4)
             listOf(84, 56, 40),
-            computeWidths(listOf(40f to 3f, 40f to 2f, 40f to 1f), 0, 180)
+            computeWidths(listOf(40f to 3f, 40f to 2f, 40f to 1f), 0, 180),
         )
     }
 
@@ -78,16 +78,7 @@ class ButtonGroupTest {
             // Setting the first to 40 and redistributing gives: 40 39.722 43.333 46.444
             // Doing that again gives the final result.
             listOf(40, 40, 43, 47),
-            computeWidths(
-                listOf(
-                    40f to 1f,
-                    40f to 1.1f,
-                    40f to 1.2f,
-                    40f to 1.3f,
-                ),
-                10,
-                200
-            )
+            computeWidths(listOf(40f to 1f, 40f to 1.1f, 40f to 1.2f, 40f to 1.3f), 10, 200),
         ) // Actually available  = 200 - 3 * 10 = 170
     }
 
@@ -96,7 +87,7 @@ class ButtonGroupTest {
         checkResult(
             // Only items with weight > 0 grow
             listOf(80, 80, 40),
-            computeWidths(listOf(40f to 1f, 40f to 1f, 40f to 0f), 0, 200)
+            computeWidths(listOf(40f to 1f, 40f to 1f, 40f to 0f), 0, 200),
         )
     }
 
@@ -105,7 +96,7 @@ class ButtonGroupTest {
         checkResult(
             // Only items with weight > 0 grow, first item should be twice as big as second one.
             listOf(100, 50, 50),
-            computeWidths(listOf(40f to 2f, 40f to 1f, 50f to 0f), 0, 200)
+            computeWidths(listOf(40f to 2f, 40f to 1f, 50f to 0f), 0, 200),
         )
     }
 

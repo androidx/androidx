@@ -192,27 +192,27 @@ internal class FrameBufferPoolTest {
 
         assertEquals(
             Entry(5, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         assertEquals(
             Entry(3, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         assertEquals(
             Entry(null, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         assertEquals(
             Entry(1, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         assertEquals(
             Entry(4, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         // Verify that we return the first entry that satisfies the primary condition while there
@@ -221,12 +221,12 @@ internal class FrameBufferPoolTest {
         list[1].available = true
         assertEquals(
             Entry(4, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         assertEquals(
             Entry(2, false),
-            list.findEntryWith(primary, secondary)!!.apply { available = false }
+            list.findEntryWith(primary, secondary)!!.apply { available = false },
         )
 
         assertEquals(null, list.findEntryWith(primary, secondary))
@@ -237,7 +237,7 @@ internal class FrameBufferPoolTest {
         height: Int = 3,
         format: Int = HardwareBuffer.RGB_565,
         usage: Long = HardwareBuffer.USAGE_GPU_COLOR_OUTPUT,
-        maxPoolSize: Int = 2
+        maxPoolSize: Int = 2,
     ): FrameBufferPool = FrameBufferPool(width, height, format, usage, maxPoolSize)
 
     private fun withEGLSpec(block: (egl: EGLSpec) -> Unit = {}) {

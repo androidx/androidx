@@ -16,8 +16,6 @@
 
 package androidx.pdf.content
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents the list of selected content on a particular page of the PDF document. By default, the
  * selection boundary is represented from left to right. Note: Currently supports text selection
@@ -26,12 +24,11 @@ import androidx.annotation.RestrictTo
  * @param page: The page number of the selection.
  * @param start: Boundary where the selection starts.
  * @param stop: Boundary where the selection stops.
- * @param selectedContents: list of segments of selected text content.
+ * @param selectedTextContents: list of segments of selected text content.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PageSelection(
     public val page: Int,
     public val start: SelectionBoundary,
     public val stop: SelectionBoundary,
-    public val selectedTextContents: List<PdfPageTextContent>
+    public val selectedTextContents: List<PdfPageTextContent>,
 )

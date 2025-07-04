@@ -43,7 +43,7 @@ import kotlinx.coroutines.withContext
 /** An interactive watch face instance with SysUI and WCS facing interfaces. */
 internal class InteractiveWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
-    internal var instanceId: String
+    internal var instanceId: String,
 ) : IInteractiveWatchFace.Stub() {
     private companion object {
         private const val TAG = "InteractiveWatchFaceImpl"
@@ -60,15 +60,15 @@ internal class InteractiveWatchFaceImpl(
             val engineCopy = engine ?: return
             WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engineCopy,
-                "InteractiveWatchFaceImpl.sendTouchEvent"
+                "InteractiveWatchFaceImpl.sendTouchEvent",
             ) { watchFaceImpl ->
                 watchFaceImpl.onTapCommand(
                     tapType,
                     TapEvent(
                         xPos,
                         yPos,
-                        Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis())
-                    )
+                        Instant.ofEpochMilli(systemTimeProvider.getSystemTimeMillis()),
+                    ),
                 )
             }
         }
@@ -94,11 +94,11 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "getWatchFaceOverlayStyle") {
             WatchFaceService.awaitDeferredWatchFaceThenRunOnUiThread(
                 engine,
-                "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
+                "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle",
             ) {
                 WatchFaceOverlayStyleWireFormat(
                     it.overlayStyle.backgroundColor,
-                    it.overlayStyle.foregroundColor
+                    it.overlayStyle.foregroundColor,
                 )
             }
         }
@@ -107,7 +107,7 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "getContentDescriptionLabels") {
             return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "InteractiveWatchFaceImpl.getContentDescriptionLabels"
+                "InteractiveWatchFaceImpl.getContentDescriptionLabels",
             ) {
                 engine?.contentDescriptionLabels
             }
@@ -118,7 +118,7 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "renderWatchFaceToBitmap") {
             return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "InteractiveWatchFaceImpl.renderWatchFaceToBitmap"
+                "InteractiveWatchFaceImpl.renderWatchFaceToBitmap",
             ) { watchFaceImpl ->
                 watchFaceImpl.renderWatchFaceToBitmap(params)
             }
@@ -128,12 +128,12 @@ internal class InteractiveWatchFaceImpl(
     override fun createRemoteWatchFaceView(
         hostToken: IBinder,
         width: Int,
-        height: Int
+        height: Int,
     ): IRemoteWatchFaceView? =
         aidlMethod(TAG, "createRemoteWatchFaceView") {
             return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "InteractiveWatchFaceImpl.createRemoteWatchFaceView"
+                "InteractiveWatchFaceImpl.createRemoteWatchFaceView",
             ) { watchFaceImpl ->
                 watchFaceImpl.createRemoteWatchFaceView(hostToken, width, height)
             }
@@ -143,7 +143,7 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "getPreviewReferenceTimeMillis") {
             return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis"
+                "InteractiveWatchFaceImpl.getPreviewReferenceTimeMillis",
             ) { watchFaceImpl ->
                 watchFaceImpl.previewReferenceInstant.toEpochMilli()
             } ?: 0
@@ -153,7 +153,7 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "setWatchUiState") {
             WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "InteractiveWatchFaceImpl.setWatchUiState"
+                "InteractiveWatchFaceImpl.setWatchUiState",
             ) {
                 engine?.let { it.setWatchUiState(watchUiState, fromSysUi = true) }
                     ?: Log.d(TAG, "setWatchUiState ignored due to null engine id $instanceId")
@@ -202,21 +202,21 @@ internal class InteractiveWatchFaceImpl(
                 if ("user" != Build.TYPE) {
                     Log.d(
                         TAG,
-                        "updateComplicationData " + complicationDatumWireFormats.joinToString()
+                        "updateComplicationData " + complicationDatumWireFormats.joinToString(),
                     )
                 }
 
                 engine?.setComplicationDataList(complicationDatumWireFormats)
                     ?: Log.d(
                         TAG,
-                        "updateComplicationData ignored due to null engine id $instanceId"
+                        "updateComplicationData ignored due to null engine id $instanceId",
                     )
             }
         }
 
     override fun updateWatchfaceInstance(
         newInstanceId: String,
-        userStyle: UserStyleWireFormat
+        userStyle: UserStyleWireFormat,
     ): Unit =
         aidlMethod(TAG, "updateWatchfaceInstance") {
             /**
@@ -236,7 +236,7 @@ internal class InteractiveWatchFaceImpl(
 
     override fun updateWatchfaceInstanceSync(
         newInstanceId: String,
-        userStyle: UserStyleWireFormat
+        userStyle: UserStyleWireFormat,
     ): Unit =
         aidlMethod(TAG, "updateWatchfaceInstanceSync") {
             /**
@@ -260,7 +260,7 @@ internal class InteractiveWatchFaceImpl(
             return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engineCopy,
                 "InteractiveWatchFaceImpl.getComplicationDetails",
-                WatchFaceService.Companion.ExecutionThread.UI
+                WatchFaceService.Companion.ExecutionThread.UI,
             ) {
                 it.complicationSlotsManager.getComplicationsState(engineCopy!!.screenBounds)
             }
@@ -271,7 +271,7 @@ internal class InteractiveWatchFaceImpl(
             return WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engine,
                 "InteractiveWatchFaceImpl.getUserStyleSchema",
-                WatchFaceService.Companion.ExecutionThread.CURRENT
+                WatchFaceService.Companion.ExecutionThread.CURRENT,
             ) {
                 it.userStyleRepository.schema.toWireFormat()
             }
@@ -288,7 +288,7 @@ internal class InteractiveWatchFaceImpl(
                 engine?.addWatchfaceReadyListener(listener)
                     ?: Log.d(
                         TAG,
-                        "addWatchfaceReadyListener ignored due to null engine id $instanceId"
+                        "addWatchfaceReadyListener ignored due to null engine id $instanceId",
                     )
             }
         }
@@ -297,7 +297,7 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "getComplicationIdAt") {
             return WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
                 engine,
-                "InteractiveWatchFaceImpl.getComplicationIdAt"
+                "InteractiveWatchFaceImpl.getComplicationIdAt",
             ) {
                 it.complicationSlotsManager.getComplicationSlotAt(xPos, yPos)?.id?.toLong()
             } ?: Long.MIN_VALUE
@@ -308,7 +308,7 @@ internal class InteractiveWatchFaceImpl(
             WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
                 engine,
                 "InteractiveWatchFaceImpl.getUserStyleFlavors",
-                WatchFaceService.Companion.ExecutionThread.CURRENT
+                WatchFaceService.Companion.ExecutionThread.CURRENT,
             ) {
                 it.userStyleFlavors.toWireFormat()
             }
@@ -321,7 +321,7 @@ internal class InteractiveWatchFaceImpl(
             engine?.overrideComplicationsForEditing(
                 complicationDatumWireFormats.associateBy(
                     { it.id },
-                    { it.complicationData.toApiComplicationData() }
+                    { it.complicationData.toApiComplicationData() },
                 )
             )
         }

@@ -32,7 +32,7 @@ class MapQueryResultAdapter(
             addLocalVariable(
                 name = outVarName,
                 typeName = mapValueResultAdapter.getDeclarationTypeName(),
-                assignExpr = mapValueResultAdapter.getInstantiationCodeBlock()
+                assignExpr = mapValueResultAdapter.getInstantiationCodeBlock(),
             )
             beginControlFlow("while (%L.step())", stmtVarName)
                 .apply {
@@ -59,7 +59,7 @@ class MapQueryResultAdapter(
                 it.onStatementReady(
                     indices = indexVarNames,
                     stmtVarName = stmtVarName,
-                    scope = scope
+                    scope = scope,
                 )
             }
         } else {

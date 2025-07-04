@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.colorspace.ColorSpace as ComposeColorSpace
 import androidx.ink.brush.color.colorspace.ColorSpaces as ComposeColorSpaces
+import androidx.ink.brush.color.colorspace.Rgb as ComposeRgbColorSpace
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ComposeColor.toColorInInkSupportedColorSpace(): ComposeColor {
@@ -34,6 +35,13 @@ internal fun ComposeColorSpace.toInkColorSpaceId() =
     when (this) {
         ComposeColorSpaces.Srgb -> 0
         ComposeColorSpaces.DisplayP3 -> 1
+        else -> throw IllegalArgumentException("Unsupported Compose color space")
+    }
+
+internal fun composeColorSpaceFromInkColorSpaceId(id: Int): ComposeRgbColorSpace =
+    when (id) {
+        0 -> ComposeColorSpaces.Srgb
+        1 -> ComposeColorSpaces.DisplayP3
         else -> throw IllegalArgumentException("Unsupported Compose color space")
     }
 

@@ -41,12 +41,12 @@ import kotlin.reflect.KType
     ReplaceWith(
         "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): NavGraph = DynamicNavGraphBuilder(this, id, startDestination).apply(builder).build()
 
 /**
@@ -62,12 +62,12 @@ public inline fun NavigatorProvider.navigation(
     ReplaceWith(
         "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun DynamicNavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): Unit = destination(DynamicNavGraphBuilder(provider, id, startDestination).apply(builder))
 
 /**
@@ -80,7 +80,7 @@ public inline fun DynamicNavGraphBuilder.navigation(
 public inline fun NavigatorProvider.navigation(
     startDestination: String,
     route: String? = null,
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): NavGraph = DynamicNavGraphBuilder(this, startDestination, route).apply(builder).build()
 
 /**
@@ -93,7 +93,7 @@ public inline fun NavigatorProvider.navigation(
 public inline fun DynamicNavGraphBuilder.navigation(
     startDestination: String,
     route: String,
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): Unit = destination(DynamicNavGraphBuilder(provider, startDestination, route).apply(builder))
 
 /**
@@ -110,7 +110,7 @@ public inline fun NavigatorProvider.navigation(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): NavGraph = DynamicNavGraphBuilder(this, startDestination, route, typeMap).apply(builder).build()
 
 /**
@@ -127,7 +127,7 @@ public inline fun NavigatorProvider.navigation(
     startDestination: Any,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): NavGraph = DynamicNavGraphBuilder(this, startDestination, route, typeMap).apply(builder).build()
 
 /**
@@ -143,7 +143,7 @@ public inline fun NavigatorProvider.navigation(
 public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicNavGraphBuilder(provider, startDestination, T::class, typeMap).apply(builder)
@@ -162,7 +162,7 @@ public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
 public inline fun <reified T : Any> DynamicNavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicNavGraphBuilder.() -> Unit
+    builder: DynamicNavGraphBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicNavGraphBuilder(provider, startDestination, T::class, typeMap).apply(builder)
@@ -180,12 +180,12 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
         ReplaceWith(
             "DynamicNavGraphBuilder(provider, startDestination = startDestination.toString(), " +
                 "route = id.toString())"
-        )
+        ),
     )
     public constructor(
         provider: NavigatorProvider,
         @IdRes id: Int,
-        @IdRes startDestination: Int
+        @IdRes startDestination: Int,
     ) : super(provider, id, startDestination) {
         this.startDestinationId = startDestination
     }
@@ -193,7 +193,7 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
     public constructor(
         provider: NavigatorProvider,
         startDestination: String,
-        route: String? = null
+        route: String? = null,
     ) : super(provider, startDestination, route) {
         this.startDestinationRoute = startDestination
     }
@@ -213,7 +213,7 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
         provider: NavigatorProvider,
         startDestination: KClass<*>,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : super(provider, startDestination, route, typeMap)
 
     /**
@@ -231,7 +231,7 @@ public class DynamicNavGraphBuilder : NavGraphBuilder {
         provider: NavigatorProvider,
         startDestination: Any,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : super(provider, startDestination, route, typeMap)
 
     /**

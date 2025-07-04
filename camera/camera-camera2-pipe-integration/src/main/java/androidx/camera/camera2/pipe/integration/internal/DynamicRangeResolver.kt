@@ -38,7 +38,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
     public fun resolveAndValidateDynamicRanges(
         existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>,
-        useCasePriorityOrder: List<Int>
+        useCasePriorityOrder: List<Int>,
     ): Map<UseCaseConfig<*>, DynamicRange> {
         // Create an ordered set of already-attached surface's dynamic ranges. These are assumed
         // to be valid since they are already attached.
@@ -101,7 +101,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
                     orderedExistingDynamicRanges,
                     orderedNewDynamicRanges,
                     config,
-                    combinedConstraints
+                    combinedConstraints,
                 )
             resolvedDynamicRanges[config] = resolvedDynamicRange
             if (!orderedExistingDynamicRanges.contains(resolvedDynamicRange)) {
@@ -116,7 +116,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
         orderedExistingDynamicRanges: Set<DynamicRange>,
         orderedNewDynamicRanges: Set<DynamicRange>,
         config: UseCaseConfig<*>,
-        outCombinedConstraints: MutableSet<DynamicRange>
+        outCombinedConstraints: MutableSet<DynamicRange>,
     ): DynamicRange {
         val requestedDynamicRange = config.dynamicRange
         val resolvedDynamicRange: DynamicRange? =
@@ -125,7 +125,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
                 outCombinedConstraints,
                 orderedExistingDynamicRanges,
                 orderedNewDynamicRanges,
-                config.targetName
+                config.targetName,
             )
         if (resolvedDynamicRange != null) {
             updateConstraints(outCombinedConstraints, resolvedDynamicRange, dynamicRangesInfo)
@@ -141,7 +141,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
                     "Supported dynamic ranges:\n" +
                     "  $supportedDynamicRanges\n" +
                     "Constrained set of concurrent dynamic ranges:\n" +
-                    "  $outCombinedConstraints",
+                    "  $outCombinedConstraints"
             )
         }
         return resolvedDynamicRange
@@ -165,7 +165,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
         combinedConstraints: Set<DynamicRange>,
         orderedExistingDynamicRanges: Set<DynamicRange>,
         orderedNewDynamicRanges: Set<DynamicRange>,
-        rangeOwnerLabel: String
+        rangeOwnerLabel: String,
     ): DynamicRange? {
 
         // Dynamic range is already resolved if it is fully specified.
@@ -197,7 +197,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
             findSupportedHdrMatch(
                 requestedDynamicRange,
                 orderedExistingDynamicRanges,
-                combinedConstraints
+                combinedConstraints,
             )
         if (resolvedDynamicRange != null) {
             Log.debug {
@@ -215,7 +215,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
             findSupportedHdrMatch(
                 requestedDynamicRange,
                 orderedNewDynamicRanges,
-                combinedConstraints
+                combinedConstraints,
             )
         if (resolvedDynamicRange != null) {
             Log.debug {
@@ -235,7 +235,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
             canResolveWithinConstraints(
                 requestedDynamicRange,
                 DynamicRange.SDR,
-                combinedConstraints
+                combinedConstraints,
             )
         ) {
             Log.debug {
@@ -322,11 +322,11 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
     private fun updateConstraints(
         combinedConstraints: MutableSet<DynamicRange>,
         newDynamicRange: DynamicRange,
-        dynamicRangesInfo: DynamicRangeProfilesCompat
+        dynamicRangesInfo: DynamicRangeProfilesCompat,
     ) {
         Preconditions.checkState(
             combinedConstraints.isNotEmpty(),
-            "Cannot update already-empty constraints."
+            "Cannot update already-empty constraints.",
         )
         val newConstraints =
             dynamicRangesInfo.getDynamicRangeCaptureRequestConstraints(newDynamicRange)
@@ -355,7 +355,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
     private fun findSupportedHdrMatch(
         rangeToMatch: DynamicRange,
         fullySpecifiedCandidateRanges: Collection<DynamicRange>,
-        constraints: Set<DynamicRange>
+        constraints: Set<DynamicRange>,
     ): DynamicRange? {
         // SDR can never match with HDR
         if (rangeToMatch.encoding == DynamicRange.ENCODING_SDR) {
@@ -405,7 +405,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
     private fun canResolveWithinConstraints(
         rangeToResolve: DynamicRange,
         candidateRange: DynamicRange,
-        constraints: Set<DynamicRange>
+        constraints: Set<DynamicRange>,
     ): Boolean {
         if (!constraints.contains(candidateRange)) {
             Log.debug {
@@ -429,7 +429,7 @@ public class DynamicRangeResolver(public val cameraMetadata: CameraMetadata) {
      */
     private fun canResolveDynamicRange(
         testRange: DynamicRange,
-        fullySpecifiedRange: DynamicRange
+        fullySpecifiedRange: DynamicRange,
     ): Boolean {
         check(fullySpecifiedRange.isFullySpecified) {
             "Fully specified range $fullySpecifiedRange not actually fully specified."

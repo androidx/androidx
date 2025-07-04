@@ -60,8 +60,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum ComplicationType {
-    method public static androidx.wear.watchface.complications.data.ComplicationType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.watchface.complications.data.ComplicationType[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType EMPTY;
     enum_constant @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static final androidx.wear.watchface.complications.data.ComplicationType GOAL_PROGRESS;
     enum_constant public static final androidx.wear.watchface.complications.data.ComplicationType LONG_TEXT;
@@ -447,8 +445,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum SmallImageType {
-    method public static androidx.wear.watchface.complications.data.SmallImageType valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.watchface.complications.data.SmallImageType[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.SmallImageType ICON;
     enum_constant public static final androidx.wear.watchface.complications.data.SmallImageType PHOTO;
   }
@@ -471,8 +467,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum TimeDifferenceStyle {
-    method public static androidx.wear.watchface.complications.data.TimeDifferenceStyle valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.watchface.complications.data.TimeDifferenceStyle[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.TimeDifferenceStyle SHORT_DUAL_UNIT;
     enum_constant public static final androidx.wear.watchface.complications.data.TimeDifferenceStyle SHORT_SINGLE_UNIT;
     enum_constant public static final androidx.wear.watchface.complications.data.TimeDifferenceStyle SHORT_WORDS_SINGLE_UNIT;
@@ -496,8 +490,6 @@ package androidx.wear.watchface.complications.data {
   }
 
   public enum TimeFormatStyle {
-    method public static androidx.wear.watchface.complications.data.TimeFormatStyle valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.watchface.complications.data.TimeFormatStyle[] values();
     enum_constant public static final androidx.wear.watchface.complications.data.TimeFormatStyle DEFAULT;
     enum_constant public static final androidx.wear.watchface.complications.data.TimeFormatStyle LOWER_CASE;
     enum_constant public static final androidx.wear.watchface.complications.data.TimeFormatStyle UPPER_CASE;

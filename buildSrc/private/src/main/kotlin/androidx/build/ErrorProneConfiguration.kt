@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.checkapi.CompilationInputs
 import com.android.build.api.variant.AndroidComponentsExtension
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -27,12 +26,11 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.process.CommandLineArgumentProvider
-import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 
 const val ERROR_PRONE_TASK = "runErrorProne"
 
@@ -47,21 +45,17 @@ fun Project.configureErrorProneForJava() {
         )
     }
     val kmpExtension = project.multiplatformExtension
-    if (kmpExtension?.targets?.any { it is KotlinJvmTarget && it.withJavaEnabled } == false) {
-        // only configure error prone when Kotlin adds compileJava task
-        return
-    }
-
     log.info("Configuring error-prone for ${project.path}")
-    if (kmpExtension != null) {
-        val jvmJarProvider = tasks.named(kmpExtension.jvm().artifactsTaskName, Jar::class.java)
-        makeKmpErrorProneTask(
-            COMPILE_JAVA_TASK_NAME,
-            jvmJarProvider,
-            CompilationInputs.fromKmpJvmTarget(project)
-        )
-    } else {
-        makeErrorProneTask(COMPILE_JAVA_TASK_NAME)
+    if (kmpExtension != null) { // KMP project
+        val compileJavaTaskProvider =
+            kmpExtension
+                .jvm()
+                .compilations
+                .getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+                .compileJavaTaskProvider
+        makeErrorProneTask(compileJavaTaskProvider)
+    } else { // non-KMP project
+        makeErrorProneTask(tasks.withType(JavaCompile::class.java).named(COMPILE_JAVA_TASK_NAME))
     }
 }
 
@@ -75,12 +69,20 @@ fun Project.configureErrorProneForAndroid() {
                 .extendsFrom(errorProneConfiguration)
 
             log.info("Configuring error-prone for ${variant.name}'s java compile")
-            makeErrorProneTask("compile${variant.name.camelCase()}JavaWithJavac") { javaCompile ->
-                @Suppress("UnstableApiUsage")
-                val annotationArgs = variant.javaCompilation.annotationProcessor.arguments
-                javaCompile.options.compilerArgumentProviders.add(
-                    CommandLineArgumentProviderAdapter(annotationArgs)
-                )
+            androidComponents.finalizeDsl {
+                makeErrorProneTask(
+                    compileTaskProvider =
+                        tasks
+                            .withType(JavaCompile::class.java)
+                            .named("compile${variant.name.camelCase()}JavaWithJavac"),
+                    taskSuffix = variant.name.camelCase(),
+                ) { javaCompile ->
+                    @Suppress("UnstableApiUsage") // JavaCompilation b/397707182
+                    val annotationArgs = variant.javaCompilation.annotationProcessor.arguments
+                    javaCompile.options.compilerArgumentProviders.add(
+                        CommandLineArgumentProviderAdapter(annotationArgs)
+                    )
+                }
             }
         }
     }
@@ -121,7 +123,7 @@ private fun JavaCompile.configureWithErrorProne() {
             "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
             "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
             "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
         )
     )
     val compilerArgs = this.options.compilerArgs
@@ -132,6 +134,9 @@ private fun JavaCompile.configureWithErrorProne() {
             "-XDcompilePolicy=simple", // Workaround for b/36098770
             listOf(
                     "-Xplugin:ErrorProne",
+
+                    // : Disables warnings in classes annotated with @Generated
+                    "-XepDisableWarningsInGeneratedCode",
 
                     // Ignore intermediate build output, generated files, and external sources. Also
                     // sources
@@ -262,43 +267,10 @@ private fun JavaCompile.configureWithErrorProne() {
                     // Nullaway
                     "-XepIgnoreUnknownCheckNames", // https://github.com/uber/NullAway/issues/25
                     "-Xep:NullAway:ERROR",
-                    "-XepOpt:NullAway:AnnotatedPackages=android.arch,android.support,androidx"
+                    "-XepOpt:NullAway:AnnotatedPackages=android.arch,android.support,androidx",
                 )
-                .joinToString(" ")
+                .joinToString(" "),
         )
-}
-
-/**
- * Given a [JavaCompile] task, creates a task that runs the ErrorProne compiler with the same
- * settings, including any kotlin source provided by [jvmCompileInputs].
- *
- * Note: Since ErrorProne only understands Java files which may be dependent on Kotlin source, using
- * this method to register ErrorProne task causes it to be dependent on jvmJar task.
- *
- * @param jvmCompileInputs [CompilationInputs] that specifies jvm source including Kotlin sources.
- */
-private fun Project.makeKmpErrorProneTask(
-    compileTaskName: String,
-    jvmJarTaskProvider: TaskProvider<Jar>,
-    jvmCompileInputs: CompilationInputs
-) {
-    makeErrorProneTask(compileTaskName) { errorProneTask ->
-        // ErrorProne doesn't understand Kotlin source, so first let kotlinCompile finish, then
-        // take the resulting jar and add it to the classpath.
-        val jvmJarTask = jvmJarTaskProvider.get()
-        val jvmJarFileCollection = files(provider { jvmJarTask.archiveFile.get().asFile })
-        errorProneTask.dependsOn(jvmJarTaskProvider.name)
-        errorProneTask.classpath = jvmCompileInputs.dependencyClasspath.plus(jvmJarFileCollection)
-        errorProneTask.source =
-            jvmCompileInputs.sourcePaths
-                // flatMap src dirs into src files so we can read the extensions.
-                .asFileTree
-                // ErrorProne normally skips non-java source, but we need to explicitly filter for
-                // it
-                // since non-empty list with no java source will throw an exception.
-                .filter { it.extension.equals("java", ignoreCase = true) }
-                .asFileTree
-    }
 }
 
 /**
@@ -309,29 +281,28 @@ private fun Project.makeKmpErrorProneTask(
  *   any additional configuration such as overriding default settings.
  */
 private fun Project.makeErrorProneTask(
-    compileTaskName: String,
-    onConfigure: (errorProneTask: JavaCompile) -> Unit = {}
+    compileTaskProvider: TaskProvider<out JavaCompile>?,
+    taskSuffix: String = "",
+    onConfigure: (errorProneTask: JavaCompile) -> Unit = {},
 ) = afterEvaluate {
+    val compileTaskProviderExists = provider { compileTaskProvider != null }
     val errorProneTaskProvider =
-        maybeRegister<JavaCompile>(
-            name = ERROR_PRONE_TASK,
-            onConfigure = {
-                val compileTask =
-                    tasks.withType(JavaCompile::class.java).named(compileTaskName).get()
-                it.classpath = compileTask.classpath
-                it.source = compileTask.source
-                it.destinationDirectory.set(layout.buildDirectory.dir("errorProne"))
-                it.options.compilerArgs = compileTask.options.compilerArgs.toMutableList()
-                it.options.annotationProcessorPath = compileTask.options.annotationProcessorPath
-                it.options.bootstrapClasspath = compileTask.options.bootstrapClasspath
-                it.sourceCompatibility = compileTask.sourceCompatibility
-                it.targetCompatibility = compileTask.targetCompatibility
-                it.configureWithErrorProne()
-                it.dependsOn(compileTask.dependsOn)
+        tasks.register("$ERROR_PRONE_TASK$taskSuffix", JavaCompile::class.java) {
+            it.onlyIf { compileTaskProviderExists.get() }
+            val compileTask = compileTaskProvider?.get() ?: return@register
+            it.classpath = compileTask.classpath
+            it.source = compileTask.source
+            it.destinationDirectory.set(layout.buildDirectory.dir("errorProne/$taskSuffix"))
+            it.options.compilerArgs = compileTask.options.compilerArgs.toMutableList()
+            it.options.annotationProcessorPath = compileTask.options.annotationProcessorPath
+            it.options.bootstrapClasspath = compileTask.options.bootstrapClasspath
+            it.sourceCompatibility = compileTask.sourceCompatibility
+            it.targetCompatibility = compileTask.targetCompatibility
+            it.configureWithErrorProne()
+            it.dependsOn(compileTask.dependsOn)
 
-                onConfigure(it)
-            },
-            onRegister = { errorProneProvider -> project.addToCheckTask(errorProneProvider) }
-        )
+            onConfigure(it)
+        }
+    addToCheckTask(errorProneTaskProvider)
     addToBuildOnServer(errorProneTaskProvider)
 }

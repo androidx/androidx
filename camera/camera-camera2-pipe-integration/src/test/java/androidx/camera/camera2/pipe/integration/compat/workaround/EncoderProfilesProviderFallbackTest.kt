@@ -134,7 +134,7 @@ class EncoderProfilesProviderFallbackTest {
             encoderProfilesProviderFallback.resolveProvider(
                 CAMERA_ID_EXTERNAL_0,
                 quirks,
-                cameraDevices
+                cameraDevices,
             )
 
         assertThat(result).isSameInstanceAs(profilesProviderExternal0)
@@ -150,7 +150,7 @@ class EncoderProfilesProviderFallbackTest {
             encoderProfilesProviderFallback.resolveProvider(
                 CAMERA_ID_EXTERNAL_1,
                 quirks,
-                cameraDevices
+                cameraDevices,
             )
 
         // Assert.
@@ -213,7 +213,7 @@ class EncoderProfilesProviderFallbackTest {
                     mapOf(
                         backendId to
                             listOf(metadata0, metadata1, metadataExternal0, metadataExternal1)
-                    )
+                    ),
             )
     }
 

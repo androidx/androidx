@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.camera2.pipe.integration.impl.TorchControl.TorchMode
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
@@ -93,7 +94,7 @@ constructor(
 
     public fun setFlashAsync(
         @ImageCapture.FlashMode flashMode: Int,
-        cancelPreviousTask: Boolean = true
+        cancelPreviousTask: Boolean = true,
     ): Deferred<Unit> {
         debug { "setFlashAsync: flashMode = $flashMode, requestControl = $requestControl" }
         val signal = CompletableDeferred<Unit>()
@@ -237,10 +238,12 @@ constructor(
             return null
         }
 
-        return torchControl.setTorchAsync(torch = true, ignoreFlashUnitAvailability = true).also {
-            debug { "setTorchIfRequired: need to wait for torch control to be completed" }
-            it.invokeOnCompletion { debug { "setTorchIfRequired: torch control completed" } }
-        }
+        return torchControl
+            .setTorchAsync(mode = TorchMode.USED_AS_FLASH, ignoreFlashUnitAvailability = true)
+            .also {
+                debug { "setTorchIfRequired: need to wait for torch control to be completed" }
+                it.invokeOnCompletion { debug { "setTorchIfRequired: torch control completed" } }
+            }
     }
 
     public suspend fun stopScreenFlashCaptureTasks() {
@@ -255,7 +258,7 @@ constructor(
         }
 
         if (useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
-            torchControl.setTorchAsync(torch = false, ignoreFlashUnitAvailability = true)
+            torchControl.setTorchAsync(mode = TorchMode.OFF, ignoreFlashUnitAvailability = true)
         }
     }
 

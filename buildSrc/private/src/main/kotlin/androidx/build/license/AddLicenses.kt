@@ -21,11 +21,10 @@ import androidx.build.ZipStubAarTask
 import androidx.build.androidXExtension
 import androidx.build.getSupportRootFolder
 import androidx.build.multiplatformExtension
-import com.android.build.gradle.tasks.BundleAar
 import java.io.File
 import java.nio.file.Files
-import kotlin.io.path.readBytes
 import org.gradle.api.Project
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -49,8 +48,10 @@ internal fun Project.addLicensesToPublishedArtifacts(license: License) {
 
     // Remove when AGP creates API for adding license file and setting its location:
     // https://issuetracker.google.com/337785420
-    tasks.withType<BundleAar>().configureEach { task ->
-        task.from(licenseFile) { it.into("META-INF/$projectSubdir") }
+    tasks.withType<Zip>().configureEach { task ->
+        if (task.name.startsWith("bundle") && task.name.endsWith("Aar")) {
+            task.from(licenseFile) { it.into("META-INF/$projectSubdir") }
+        }
     }
 
     tasks.withType<ZipStubAarTask>().configureEach { task ->

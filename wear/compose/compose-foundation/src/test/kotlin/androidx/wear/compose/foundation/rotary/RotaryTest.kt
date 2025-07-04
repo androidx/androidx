@@ -19,7 +19,7 @@ package androidx.wear.compose.foundation.rotary
 import android.content.Context
 import android.os.Build
 import android.view.ViewConfiguration
-import androidx.annotation.RequiresApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -43,6 +43,7 @@ import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
@@ -111,6 +112,7 @@ class ThresholdHandlerTest {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @RunWith(RobolectricTestRunner::class)
 class RotaryFlingHandlerTest {
 
@@ -126,12 +128,12 @@ class RotaryFlingHandlerTest {
         val mockFlingBehavior: FlingBehavior = mock {}
         val rotaryFlingHandler =
             RotaryFlingHandler(
-                mockScrollState,
-                mockFlingBehavior,
+                scrollableState = mockScrollState,
+                flingBehavior = mockFlingBehavior,
                 flingTimeframe = 100,
-                mockViewConfiguration,
+                viewConfiguration = mockViewConfiguration,
                 inputDeviceId = 0,
-                initialTimestamp = 0
+                initialTimestamp = 0,
             )
         rotaryFlingHandler.observeEvent(0, 0f)
 
@@ -140,7 +142,7 @@ class RotaryFlingHandlerTest {
         verify(mockViewConfiguration).scaledMinimumFlingVelocity
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     @Config(sdk = [34])
     fun testFlingVelocityCalled_api34() {
@@ -150,12 +152,12 @@ class RotaryFlingHandlerTest {
         val mockFlingBehavior: FlingBehavior = mock {}
         val rotaryFlingHandler =
             RotaryFlingHandler(
-                mockScrollState,
-                mockFlingBehavior,
+                scrollableState = mockScrollState,
+                flingBehavior = mockFlingBehavior,
                 flingTimeframe = 100,
-                mockViewConfiguration,
+                viewConfiguration = mockViewConfiguration,
                 inputDeviceId = 0,
-                initialTimestamp = 0
+                initialTimestamp = 0,
             )
         rotaryFlingHandler.observeEvent(0, 0f)
 
@@ -164,7 +166,7 @@ class RotaryFlingHandlerTest {
         verify(mockViewConfiguration).getScaledMinimumFlingVelocity(any(), any(), any())
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     @Config(sdk = [33])
     fun flingIsTriggered() = runTest {
@@ -193,12 +195,12 @@ class RotaryFlingHandlerTest {
             }
         val rotaryFlingHandler =
             RotaryFlingHandler(
-                scrollState,
-                flingBehavior,
+                scrollableState = scrollState,
+                flingBehavior = flingBehavior,
                 flingTimeframe = 10,
-                mockViewConfiguration,
+                viewConfiguration = mockViewConfiguration,
                 inputDeviceId = 0,
-                initialTimestamp = 0
+                initialTimestamp = 0,
             )
 
         // Sending events to simulate rotary scroll
@@ -207,7 +209,12 @@ class RotaryFlingHandlerTest {
         rotaryFlingHandler.observeEvent(3, 10f)
 
         var beforeFlingCalled = false
-        rotaryFlingHandler.performFlingIfRequired(this, { beforeFlingCalled = true }, {})
+        rotaryFlingHandler.performFlingIfRequired(
+            this,
+            { beforeFlingCalled = true },
+            RotaryScrollLogic(null, null, false),
+            {},
+        )
 
         delay(1000L)
 
@@ -215,7 +222,7 @@ class RotaryFlingHandlerTest {
         assert(beforeFlingCalled)
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     @Config(sdk = [33])
     fun flingIsNotTriggered() = runTest {
@@ -237,18 +244,20 @@ class RotaryFlingHandlerTest {
             object : FlingBehavior {
                 override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
                     // Scroll by the fixed amount.
-                    scrollBy(10f)
+                    if (initialVelocity != 0f) {
+                        scrollBy(10f)
+                    }
                     return initialVelocity
                 }
             }
         val rotaryFlingHandler =
             RotaryFlingHandler(
-                scrollState,
-                flingBehavior,
+                scrollableState = scrollState,
+                flingBehavior = flingBehavior,
                 flingTimeframe = 10,
-                mockViewConfiguration,
+                viewConfiguration = mockViewConfiguration,
                 inputDeviceId = 0,
-                initialTimestamp = 0
+                initialTimestamp = 0,
             )
 
         // Sending events to simulate rotary scroll
@@ -257,11 +266,16 @@ class RotaryFlingHandlerTest {
         rotaryFlingHandler.observeEvent(3, 10f)
 
         var beforeFlingCalled = false
-        rotaryFlingHandler.performFlingIfRequired(this, { beforeFlingCalled = true }, {})
+        rotaryFlingHandler.performFlingIfRequired(
+            this,
+            { beforeFlingCalled = true },
+            RotaryScrollLogic(null, null, false),
+            {},
+        )
 
         delay(1000L)
 
-        assert(scrollIncrement == 0f)
+        assertEquals(0f, scrollIncrement)
         assert(!beforeFlingCalled)
     }
 }
@@ -310,7 +324,7 @@ class RotaryFlingTest {
                 advanceEventTime(10)
                 rotateToScrollVertically(itemSizePx * 6)
             },
-            lowRes = lowRes
+            lowRes = lowRes,
         )
 
         rule.runOnIdle {
@@ -323,7 +337,7 @@ class RotaryFlingTest {
     private fun testScroll(
         beforeScroll: () -> Unit,
         rotaryAction: RotaryInjectionScope.() -> Unit,
-        lowRes: Boolean
+        lowRes: Boolean,
     ) {
         rule.setContent {
             state = rememberLazyListState()
@@ -335,7 +349,7 @@ class RotaryFlingTest {
                             .testTag(TEST_TAG)
                             .rotaryScrollable(
                                 RotaryScrollableDefaults.behavior(state),
-                                focusRequester
+                                focusRequester,
                             ),
                     state = state,
                 ) {
@@ -362,11 +376,7 @@ class RotaryFlingTest {
 
         Mockito.doReturn(mockPackageManager).`when`(mockContext).packageManager
 
-        CompositionLocalProvider(
-            LocalContext provides mockContext,
-        ) {
-            content()
-        }
+        CompositionLocalProvider(LocalContext provides mockContext) { content() }
     }
 
     val TEST_TAG = "test-tag"

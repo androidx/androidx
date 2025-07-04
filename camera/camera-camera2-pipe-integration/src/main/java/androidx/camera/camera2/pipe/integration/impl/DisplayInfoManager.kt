@@ -45,11 +45,9 @@ public class DisplayInfoManager @Inject constructor(context: Context) {
          * small and no correct display size can be retrieved from DisplaySizeCorrector.
          */
         private val FALLBACK_DISPLAY_SIZE: Size = Size(640, 480)
-        private var lazyMaxDisplay: Display? = null
         private var lazyPreviewSize: Size? = null
 
         internal fun invalidateLazyFields() {
-            lazyMaxDisplay = null
             lazyPreviewSize = null
         }
 
@@ -76,9 +74,6 @@ public class DisplayInfoManager @Inject constructor(context: Context) {
         }
     }
 
-    public val defaultDisplay: Display
-        get() = getMaxSizeDisplay()
-
     private var previewSize: Size? = null
 
     /** Update the preview size according to current display size. */
@@ -99,12 +94,12 @@ public class DisplayInfoManager @Inject constructor(context: Context) {
         return previewSize as Size
     }
 
-    private fun getMaxSizeDisplay(): Display {
-        lazyMaxDisplay?.let {
-            return it
-        }
-
+    public fun getMaxSizeDisplay(skipStateOffDisplay: Boolean = true): Display {
         val displays = displayManager.displays
+
+        if (displays.size == 1) {
+            return displays[0]
+        }
 
         var maxDisplayWhenStateNotOff: Display? = null
         var maxDisplaySizeWhenStateNotOff = -1
@@ -130,9 +125,14 @@ public class DisplayInfoManager @Inject constructor(context: Context) {
             }
         }
 
-        lazyMaxDisplay = maxDisplayWhenStateNotOff ?: maxDisplay
+        val result =
+            if (skipStateOffDisplay) {
+                maxDisplayWhenStateNotOff ?: maxDisplay
+            } else {
+                maxDisplay
+            }
 
-        return checkNotNull(lazyMaxDisplay) { "No displays found from ${displayManager.displays}!" }
+        return checkNotNull(result) { "No displays found from ${displayManager.displays}!" }
     }
 
     /** Calculates the device's screen resolution, or MAX_PREVIEW_SIZE, whichever is smaller. */
@@ -150,7 +150,7 @@ public class DisplayInfoManager @Inject constructor(context: Context) {
 
     private fun getCorrectedDisplaySize(): Size {
         val displaySize = Point()
-        defaultDisplay.getRealSize(displaySize)
+        getMaxSizeDisplay(false).getRealSize(displaySize)
         var displayViewSize = Size(displaySize.x, displaySize.y)
 
         // Checks whether the display size is abnormally small.

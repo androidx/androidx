@@ -91,23 +91,23 @@ private fun SingleEagerListDemo() {
 
     Column(
         modifier = Modifier.fillMaxSize().wrapContentHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             "This is some scrollable content. When a screenshot is taken, it should let you " +
                 "capture the entire content, not just the part currently visible.",
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text("Full-width")
             Switch(fullWidth, onCheckedChange = { fullWidth = it })
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text("Full-height")
             Switch(fullHeight, onCheckedChange = { fullHeight = it })
@@ -133,12 +133,12 @@ private fun SingleEagerListDemo() {
 private fun SingleLazyListDemo() {
     Column(
         modifier = Modifier.fillMaxSize().wrapContentHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             "This is some scrollable content. When a screenshot is taken, it should let you " +
                 "capture the entire content, not just the part currently visible.",
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
         )
 
         LazyColumn(
@@ -169,23 +169,23 @@ private fun LazyListContentPaddingDemo() {
         topBar = {
             TopAppBar(
                 title = { Text("Top bar") },
-                backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f)
+                backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f),
             )
         },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.primarySurface.copy(alpha = 0.5f)) {
                 Text("Bottom bar")
             }
-        }
+        },
     ) { contentPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().background(Color.Red),
-            contentPadding = contentPadding
+            contentPadding = contentPadding,
         ) {
             items(15) { index ->
                 Button(
                     onClick = {},
-                    Modifier.background(Color.LightGray).padding(8.dp).fillMaxWidth()
+                    Modifier.background(Color.LightGray).padding(8.dp).fillMaxWidth(),
                 ) {
                     Text("Button $index")
                 }
@@ -198,22 +198,22 @@ private fun LazyListContentPaddingDemo() {
 private fun BigInLittleDemo() {
     Column(
         modifier = Modifier.fillMaxSize().wrapContentHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             "This is a small scroll container that has a much larger scroll container inside it. " +
                 "The inner scroll container should be captured.",
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
         )
 
         LazyColumn(
             Modifier.border(1.dp, Color.Black).weight(1f).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             items(4) {
                 Text(
                     "Header $it",
-                    Modifier.fillMaxWidth().background(Color.LightGray).padding(16.dp)
+                    Modifier.fillMaxWidth().background(Color.LightGray).padding(16.dp),
                 )
                 Box(
                     Modifier.background(Color.Magenta)
@@ -224,7 +224,7 @@ private fun BigInLittleDemo() {
                 }
                 Text(
                     "Footer $it",
-                    Modifier.fillMaxWidth().background(Color.LightGray).padding(16.dp)
+                    Modifier.fillMaxWidth().background(Color.LightGray).padding(16.dp),
                 )
             }
         }
@@ -278,7 +278,7 @@ private fun AndroidViewDemo() {
                         }
                     )
                 },
-                LayoutParams(MATCH_PARENT, 0, 1f)
+                LayoutParams(MATCH_PARENT, 0, 1f),
             )
             addView(TextView(context).also { it.text = "AndroidView Footer" })
         }
@@ -296,7 +296,7 @@ private fun AndroidViewDemo() {
                     modifier =
                         Modifier.background(Color.Magenta)
                             .fillParentMaxHeight(0.5f)
-                            .padding(horizontal = 16.dp)
+                            .padding(horizontal = 16.dp),
                 )
             }
             items(5) { Text("Compose item", Modifier.padding(16.dp)) }
@@ -384,7 +384,7 @@ private fun LazyListWithStickiesDemo() {
             Text(
                 "Header 1",
                 textAlign = TextAlign.Center,
-                modifier = Modifier.background(Color.Green).fillMaxWidth().padding(16.dp)
+                modifier = Modifier.background(Color.Green).fillMaxWidth().padding(16.dp),
             )
         }
         item { Box(Modifier.background(Color.Magenta).fillMaxWidth().fillParentMaxHeight()) }
@@ -396,7 +396,7 @@ private fun LazyListWithStickiesDemo() {
                 Text(
                     "Header ${it + 2}",
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.background(Color.Green).fillMaxWidth().padding(16.dp)
+                    modifier = Modifier.background(Color.Green).fillMaxWidth().padding(16.dp),
                 )
             }
             item {
@@ -415,7 +415,7 @@ private fun ReverseScrollingCaptureDemo() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            Modifier.fillMaxSize().verticalScroll(rememberScrollState(), reverseScrolling = true)
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState(), reverseScrolling = true),
     ) {
         repeat(50) { index -> Text("Row $index", Modifier.heightIn(min = 40.dp).padding(8.dp)) }
     }

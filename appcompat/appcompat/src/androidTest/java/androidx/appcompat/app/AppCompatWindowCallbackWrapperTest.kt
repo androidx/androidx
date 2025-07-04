@@ -114,8 +114,8 @@ class AppCompatWindowCallbackWrapperTest {
                         0,
                         WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
                         0,
-                        PixelFormat.TRANSLUCENT
-                    )
+                        PixelFormat.TRANSLUCENT,
+                    ),
                 )
                 (activity.delegate as? AppCompatDelegateImpl)?.closePanel(st, true)
             }

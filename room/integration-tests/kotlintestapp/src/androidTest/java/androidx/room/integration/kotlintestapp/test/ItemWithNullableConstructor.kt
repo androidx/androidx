@@ -44,7 +44,7 @@ class ItemWithNullableConstructor {
         db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    Db::class.java
+                    Db::class.java,
                 )
                 .build()
     }
@@ -63,7 +63,7 @@ class ItemWithNullableConstructor {
     @Entity
     data class TestItem(
         @PrimaryKey(autoGenerate = true) val id: Long? = null,
-        val nullable: Boolean?
+        val nullable: Boolean?,
     )
 
     @Dao

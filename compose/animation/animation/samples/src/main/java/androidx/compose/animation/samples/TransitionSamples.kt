@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 
 private enum class ComponentState {
     Pressed,
-    Released
+    Released,
 }
 
 @Sampled
@@ -121,7 +121,7 @@ fun GestureAnimationSample() {
     Column {
         Button(
             modifier = Modifier.padding(10.dp).align(Alignment.CenterHorizontally),
-            onClick = { useRed = !useRed }
+            onClick = { useRed = !useRed },
         ) {
             Text("Change Color")
         }
@@ -157,8 +157,8 @@ fun InfiniteTransitionSample() {
                         // start again from the [initialValue] defined above.
                         // This is the default [RepeatMode]. See [RepeatMode.Reverse] below for an
                         // alternative.
-                        repeatMode = RepeatMode.Restart
-                    )
+                        repeatMode = RepeatMode.Restart,
+                    ),
             )
 
         // Creates a Color animation as a part of the [InfiniteTransition].
@@ -175,8 +175,8 @@ fun InfiniteTransitionSample() {
                         // TargetValue to InitialValue). Then again from InitialValue to
                         // TargetValue. This
                         // [RepeatMode] ensures that the animation value is *always continuous*.
-                        repeatMode = RepeatMode.Reverse
-                    )
+                        repeatMode = RepeatMode.Reverse,
+                    ),
             )
 
         Box(Modifier.fillMaxSize()) {
@@ -185,7 +185,7 @@ fun InfiniteTransitionSample() {
                 contentDescription = null,
                 modifier =
                     Modifier.align(Alignment.Center).graphicsLayer(scaleX = scale, scaleY = scale),
-                tint = color
+                tint = color,
             )
         }
     }

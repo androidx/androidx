@@ -303,7 +303,7 @@ internal class MouseInjectionScopeImpl(private val baseScope: MultiModalInjectio
  */
 fun MouseInjectionScope.click(
     position: Offset = center,
-    button: MouseButton = MouseButton.Primary
+    button: MouseButton = MouseButton.Primary,
 ) {
     if (position.isSpecified) {
         updatePointerTo(position)
@@ -344,7 +344,7 @@ private val ViewConfiguration.defaultDoubleTapDelayMillis: Long
  */
 fun MouseInjectionScope.doubleClick(
     position: Offset = center,
-    button: MouseButton = MouseButton.Primary
+    button: MouseButton = MouseButton.Primary,
 ) {
     click(position, button)
     advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
@@ -364,7 +364,7 @@ fun MouseInjectionScope.doubleClick(
  */
 fun MouseInjectionScope.tripleClick(
     position: Offset = center,
-    button: MouseButton = MouseButton.Primary
+    button: MouseButton = MouseButton.Primary,
 ) {
     click(position, button)
     advanceEventTime(viewConfiguration.defaultDoubleTapDelayMillis)
@@ -386,7 +386,7 @@ fun MouseInjectionScope.tripleClick(
  */
 fun MouseInjectionScope.longClick(
     position: Offset = center,
-    button: MouseButton = MouseButton.Primary
+    button: MouseButton = MouseButton.Primary,
 ) {
     if (position.isSpecified) {
         updatePointerTo(position)
@@ -411,13 +411,13 @@ fun MouseInjectionScope.longClick(
  */
 fun MouseInjectionScope.animateMoveTo(
     position: Offset,
-    durationMillis: Long = DefaultMouseGestureDurationMillis
+    durationMillis: Long = DefaultMouseGestureDurationMillis,
 ) {
     val durationFloat = durationMillis.toFloat()
     val start = currentPosition
     animateMoveAlong(
         curve = { lerp(start, position, it / durationFloat) },
-        durationMillis = durationMillis
+        durationMillis = durationMillis,
     )
 }
 
@@ -433,7 +433,7 @@ fun MouseInjectionScope.animateMoveTo(
  */
 fun MouseInjectionScope.animateMoveBy(
     delta: Offset,
-    durationMillis: Long = DefaultMouseGestureDurationMillis
+    durationMillis: Long = DefaultMouseGestureDurationMillis,
 ) {
     animateMoveTo(currentPosition + delta, durationMillis)
 }
@@ -455,7 +455,7 @@ fun MouseInjectionScope.animateMoveBy(
  */
 fun MouseInjectionScope.animateMoveAlong(
     curve: (timeMillis: Long) -> Offset,
-    durationMillis: Long = DefaultMouseGestureDurationMillis
+    durationMillis: Long = DefaultMouseGestureDurationMillis,
 ) {
     require(durationMillis > 0) { "Duration is 0" }
     val start = curve(0)
@@ -495,7 +495,7 @@ fun MouseInjectionScope.dragAndDrop(
     start: Offset,
     end: Offset,
     button: MouseButton = MouseButton.Primary,
-    durationMillis: Long = DefaultMouseGestureDurationMillis
+    durationMillis: Long = DefaultMouseGestureDurationMillis,
 ) {
     updatePointerTo(start)
     press(button)
@@ -522,7 +522,7 @@ fun MouseInjectionScope.dragAndDrop(
 fun MouseInjectionScope.smoothScroll(
     scrollAmount: Float,
     durationMillis: Long = DefaultMouseGestureDurationMillis,
-    scrollWheel: ScrollWheel = ScrollWheel.Vertical
+    scrollWheel: ScrollWheel = ScrollWheel.Vertical,
 ) {
     var step = 0
     // How many steps will we take in durationMillis?

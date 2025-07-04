@@ -172,7 +172,13 @@ import org.xmlpull.v1.XmlPullParserException
  * instance, a short text complication with an icon that is drawn on square bounds would draw the
  * icon above the short text, but a short text complication with an icon that is drawn on wide
  * rectangular bounds might draw the icon to the left of the short text instead.
+ *
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ComplicationDrawable : Drawable {
     /** Returns the [Context] used to render the complication. */
     public var context: Context? = null
@@ -321,7 +327,7 @@ public class ComplicationDrawable : Drawable {
             complicationStyle.backgroundColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_backgroundColor,
-                    r.getColor(R.color.complicationDrawable_backgroundColor, null)
+                    r.getColor(R.color.complicationDrawable_backgroundColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_backgroundDrawable)) {
@@ -332,21 +338,21 @@ public class ComplicationDrawable : Drawable {
             complicationStyle.textColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_textColor,
-                    r.getColor(R.color.complicationDrawable_textColor, null)
+                    r.getColor(R.color.complicationDrawable_textColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleColor)) {
             complicationStyle.titleColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_titleColor,
-                    r.getColor(R.color.complicationDrawable_titleColor, null)
+                    r.getColor(R.color.complicationDrawable_titleColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textTypeface)) {
             complicationStyle.setTextTypeface(
                 Typeface.create(
                     a.getString(R.styleable.ComplicationDrawable_textTypeface),
-                    Typeface.NORMAL
+                    Typeface.NORMAL,
                 )
             )
         }
@@ -354,7 +360,7 @@ public class ComplicationDrawable : Drawable {
             complicationStyle.setTitleTypeface(
                 Typeface.create(
                     a.getString(R.styleable.ComplicationDrawable_titleTypeface),
-                    Typeface.NORMAL
+                    Typeface.NORMAL,
                 )
             )
         }
@@ -362,91 +368,91 @@ public class ComplicationDrawable : Drawable {
             complicationStyle.textSize =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_textSize,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleSize)) {
             complicationStyle.titleSize =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_titleSize,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_iconColor)) {
             complicationStyle.iconColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_iconColor,
-                    r.getColor(R.color.complicationDrawable_iconColor, null)
+                    r.getColor(R.color.complicationDrawable_iconColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderColor)) {
             complicationStyle.borderColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_borderColor,
-                    r.getColor(R.color.complicationDrawable_borderColor, null)
+                    r.getColor(R.color.complicationDrawable_borderColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderRadius)) {
             complicationStyle.borderRadius =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_borderRadius,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderStyle)) {
             complicationStyle.borderStyle =
                 a.getInt(
                     R.styleable.ComplicationDrawable_borderStyle,
-                    r.getInteger(R.integer.complicationDrawable_borderStyle)
+                    r.getInteger(R.integer.complicationDrawable_borderStyle),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderDashWidth)) {
             complicationStyle.borderDashWidth =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_borderDashWidth,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderDashGap)) {
             complicationStyle.borderDashGap =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_borderDashGap,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderWidth)) {
             complicationStyle.borderWidth =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_borderWidth,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueRingWidth)) {
             complicationStyle.rangedValueRingWidth =
                 a.getDimensionPixelSize(
                     R.styleable.ComplicationDrawable_rangedValueRingWidth,
-                    r.getDimensionPixelSize(R.dimen.complicationDrawable_rangedValueRingWidth)
+                    r.getDimensionPixelSize(R.dimen.complicationDrawable_rangedValueRingWidth),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValuePrimaryColor)) {
             complicationStyle.rangedValuePrimaryColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_rangedValuePrimaryColor,
-                    r.getColor(R.color.complicationDrawable_rangedValuePrimaryColor, null)
+                    r.getColor(R.color.complicationDrawable_rangedValuePrimaryColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueSecondaryColor)) {
             complicationStyle.rangedValueSecondaryColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_rangedValueSecondaryColor,
-                    r.getColor(R.color.complicationDrawable_rangedValueSecondaryColor, null)
+                    r.getColor(R.color.complicationDrawable_rangedValueSecondaryColor, null),
                 )
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_highlightColor)) {
             complicationStyle.highlightColor =
                 a.getColor(
                     R.styleable.ComplicationDrawable_highlightColor,
-                    r.getColor(R.color.complicationDrawable_highlightColor, null)
+                    r.getColor(R.color.complicationDrawable_highlightColor, null),
                 )
         }
         a.recycle()
@@ -467,7 +473,7 @@ public class ComplicationDrawable : Drawable {
         r: Resources,
         parser: XmlPullParser,
         attrs: AttributeSet,
-        theme: Resources.Theme?
+        theme: Resources.Theme?,
     ) {
         check(!isInflatedFromXml) { "inflate may be called once only." }
         isInflatedFromXml = true
@@ -496,7 +502,7 @@ public class ComplicationDrawable : Drawable {
             } else {
                 Log.w(
                     "ComplicationDrawable",
-                    "Unknown element: $name for ComplicationDrawable $this"
+                    "Unknown element: $name for ComplicationDrawable $this",
                 )
             }
         }
@@ -517,7 +523,7 @@ public class ComplicationDrawable : Drawable {
             isInAmbientMode,
             isLowBitAmbient,
             isBurnInProtectionOn,
-            isHighlighted
+            isHighlighted,
         )
     }
 
@@ -571,7 +577,7 @@ public class ComplicationDrawable : Drawable {
      */
     public fun setComplicationData(
         complicationData: ComplicationData,
-        loadDrawablesAsync: Boolean
+        loadDrawablesAsync: Boolean,
     ) {
         this.complicationData = complicationData
         assertInitialized()
@@ -593,7 +599,7 @@ public class ComplicationDrawable : Drawable {
         } else {
             complicationRenderer?.setComplicationData(
                 complicationData.asWireComplicationData(),
-                false
+                false,
             )
         }
     }
@@ -654,7 +660,7 @@ public class ComplicationDrawable : Drawable {
                                 context!!,
                                 ComponentName(context!!, context!!.javaClass),
                                 /* complicationDenied */ null,
-                                /* complicationRationale */ null
+                                /* complicationRationale */ null,
                             )
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     )
@@ -749,13 +755,13 @@ public class ComplicationDrawable : Drawable {
             style.setTextTypeface(
                 Typeface.create(
                     r.getString(R.string.complicationDrawable_textTypeface),
-                    Typeface.NORMAL
+                    Typeface.NORMAL,
                 )
             )
             style.setTitleTypeface(
                 Typeface.create(
                     r.getString(R.string.complicationDrawable_titleTypeface),
-                    Typeface.NORMAL
+                    Typeface.NORMAL,
                 )
             )
             style.textSize = r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)

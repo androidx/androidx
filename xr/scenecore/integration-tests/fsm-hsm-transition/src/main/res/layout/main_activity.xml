@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    android:orientation="vertical"
+    tools:context=".FSMAndHSMTransitionActivity">
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal">
+    <Switch
+        android:id="@+id/movableSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/movable"
+        android:background="@android:color/white" />
+    <Switch
+        android:id="@+id/resizableSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/resizable"
+        android:background="@android:color/white" />
+    <Button
+        android:id="@+id/resizePortraitFsm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/resize_portrait_fsm" />
+    <Button
+        android:id="@+id/resizeLandscapeFsm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/resize_landscape_fsm" />
+  </LinearLayout>
+  <Button
+      android:id="@+id/buttonFsm"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/request_fsm"
+      android:textSize="34sp" />
+  <Button
+      android:id="@+id/buttonHsm"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/request_hsm"
+      android:textSize="34sp" />
+  <Button
+      android:id="@+id/buttonLaunchInFsm"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/launch_in_fsm"
+      android:textSize="15sp" />
+  <Button
+      android:id="@+id/buttonLaunchInFsmWithEnvironmentInherited"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/launch_in_fsm_with_environment_inherited"
+      android:visibility="gone" />
+  <LinearLayout
+      android:id="@+id/skyboxButtons"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:visibility="gone">
+    <Button
+        android:id="@+id/buttonLoadSkybox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/load_skybox"
+        android:textSize="15sp" />
+    <Button
+        android:id="@+id/buttonRemoveSkybox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/remove_skybox"
+        android:textSize="15sp" />
+  </LinearLayout>
+  <RadioGroup
+      android:id="@+id/radioGroup1"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:checkedButton="@id/radioButton1"
+      android:background="@android:color/white">
+    <RadioButton
+        android:id="@+id/radioButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/any_aspect_ratio_label"
+        android:textSize="15sp" />
+    <RadioButton
+        android:id="@+id/radioButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/portrait_label"
+        android:textSize="15sp" />
+    <RadioButton
+        android:id="@+id/radioButton3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/landscape_label"
+        android:textSize="15sp" />
+    <TextView
+        android:id="@+id/radioLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/radio_label"
+        android:textSize="15sp"
+        android:textColor="#FF0000"
+        android:visibility="gone" />
+  </RadioGroup>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal">
+    <TextView
+        android:id="@+id/dimensionsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dimensions_label"
+        android:textSize="15sp" />
+    <TextView
+        android:id="@+id/textDimensions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="15sp" />
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal">
+    <TextView
+        android:id="@+id/mainPanelDimensionsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_panel_dimensions_label"
+        android:textSize="15sp" />
+    <TextView
+        android:id="@+id/mainPanelPixelDimensions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="15sp" />
+  </LinearLayout>
+  <androidx.xr.scenecore.samples.commontestview.CommonTestView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" />
+</LinearLayout>

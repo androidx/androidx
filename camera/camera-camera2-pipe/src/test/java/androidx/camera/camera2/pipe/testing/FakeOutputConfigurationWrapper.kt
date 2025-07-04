@@ -27,7 +27,7 @@ class FakeOutputConfigurationWrapper(
     override val physicalCameraId: CameraId? = null,
     override val surfaceSharing: Boolean = false,
     override val maxSharedSurfaceCount: Int = 1,
-    override val surfaceGroupId: Int = -1
+    override val surfaceGroupId: Int = -1,
 ) : OutputConfigurationWrapper {
     private val _surfaces = mutableListOf<Surface>()
 

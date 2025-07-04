@@ -59,7 +59,7 @@ class OldClientAidlCompatTest {
                                     Option.Id("RED_STYLE"),
                                     CONTEXT.resources,
                                     R.string.colors_style_red,
-                                    R.string.colors_style_red_screen_reader
+                                    R.string.colors_style_red_screen_reader,
                                 )
                                 .setIcon(Icon.createWithResource(CONTEXT, R.drawable.red_style))
                                 .build(),
@@ -67,7 +67,7 @@ class OldClientAidlCompatTest {
                                     Option.Id("GREEN_STYLE"),
                                     CONTEXT.resources,
                                     R.string.colors_style_green,
-                                    R.string.colors_style_green_screen_reader
+                                    R.string.colors_style_green_screen_reader,
                                 )
                                 .setIcon(Icon.createWithResource(CONTEXT, R.drawable.green_style))
                                 .build(),
@@ -75,19 +75,19 @@ class OldClientAidlCompatTest {
                                     Option.Id("BLUE_STYLE"),
                                     CONTEXT.resources,
                                     R.string.colors_style_blue,
-                                    R.string.colors_style_blue_screen_reader
+                                    R.string.colors_style_blue_screen_reader,
                                 )
                                 .setIcon(Icon.createWithResource(CONTEXT, R.drawable.blue_style))
-                                .build()
+                                .build(),
                         ),
                     listOf(
                         WatchFaceLayer.BASE,
                         WatchFaceLayer.COMPLICATIONS,
-                        WatchFaceLayer.COMPLICATIONS_OVERLAY
+                        WatchFaceLayer.COMPLICATIONS_OVERLAY,
                     ),
                     CONTEXT.resources,
                     R.string.colors_style_setting,
-                    R.string.colors_style_setting_description
+                    R.string.colors_style_setting_description,
                 )
                 .build()
 
@@ -98,7 +98,7 @@ class OldClientAidlCompatTest {
                     true,
                     CONTEXT.resources,
                     R.string.watchface_pips_setting,
-                    R.string.watchface_pips_setting_description
+                    R.string.watchface_pips_setting_description,
                 )
                 .build()
 
@@ -111,7 +111,7 @@ class OldClientAidlCompatTest {
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     CONTEXT.resources,
                     R.string.watchface_hand_length_setting,
-                    R.string.watchface_hand_length_setting_description
+                    R.string.watchface_hand_length_setting_description,
                 )
                 .build()
 
@@ -128,7 +128,7 @@ class OldClientAidlCompatTest {
                             // NB this list is empty because each [ComplicationSlotOverlay] is
                             // applied on top of the initial config.
                             listOf(),
-                            null
+                            null,
                         ),
                         @Suppress("deprecation")
                         ComplicationSlotsOption(
@@ -142,9 +142,9 @@ class OldClientAidlCompatTest {
                                     .build(),
                                 ComplicationSlotOverlay.Builder(complicationSlotId = 2)
                                     .setEnabled(false)
-                                    .build()
+                                    .build(),
                             ),
-                            null
+                            null,
                         ),
                         @Suppress("deprecation")
                         ComplicationSlotsOption(
@@ -157,7 +157,7 @@ class OldClientAidlCompatTest {
                                     .setEnabled(false)
                                     .build()
                             ),
-                            null
+                            null,
                         ),
                         @Suppress("deprecation")
                         ComplicationSlotsOption(
@@ -170,13 +170,13 @@ class OldClientAidlCompatTest {
                                     .setEnabled(false)
                                     .build()
                             ),
-                            null
+                            null,
                         ),
                     ),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     CONTEXT.resources,
                     R.string.watchface_complications_setting,
-                    R.string.watchface_complications_setting_description
+                    R.string.watchface_complications_setting_description,
                 )
                 .build()
 
@@ -189,7 +189,7 @@ class OldClientAidlCompatTest {
                     listOf(WatchFaceLayer.BASE),
                     CONTEXT.resources,
                     R.string.watchface_draw_hours_freq_setting,
-                    R.string.watchface_draw_hours_freq_setting_description
+                    R.string.watchface_draw_hours_freq_setting_description,
                 )
                 .build()
 
@@ -200,7 +200,7 @@ class OldClientAidlCompatTest {
                     DRAW_HOUR_PIPS_SETTING,
                     WATCH_HAND_LENGTH_SETTING,
                     COMPLICATIONS_STYLE_SETTING,
-                    LONG_RANGE_SETTING
+                    LONG_RANGE_SETTING,
                 )
             )
 
@@ -241,7 +241,7 @@ class OldClientAidlCompatTest {
 
                     override fun onServiceDisconnected(p0: ComponentName?) {}
                 },
-                Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT
+                Context.BIND_AUTO_CREATE or Context.BIND_IMPORTANT,
             )
 
         if (!bound) {

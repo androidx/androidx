@@ -55,8 +55,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * <a href="https://material.io/components/buttons#contained-button" class="external"
- * target="_blank">Material Design contained button</a>.
+ * [Material Design contained button](https://material.io/components/buttons#contained-button)
  *
  * Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They
  * contain actions that are primary to your app.
@@ -103,7 +102,7 @@ fun Button(
     border: BorderStroke? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -117,19 +116,19 @@ fun Button(
         contentColor = contentColor.copy(alpha = 1f),
         border = border,
         elevation = elevation?.elevation(enabled, interactionSource)?.value ?: 0.dp,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(value = MaterialTheme.typography.button) {
                 Row(
                     Modifier.defaultMinSize(
                             minWidth = ButtonDefaults.MinWidth,
-                            minHeight = ButtonDefaults.MinHeight
+                            minHeight = ButtonDefaults.MinHeight,
                         )
                         .padding(contentPadding),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
-                    content = content
+                    content = content,
                 )
             }
         }
@@ -137,8 +136,7 @@ fun Button(
 }
 
 /**
- * <a href="https://material.io/components/buttons#outlined-button" class="external"
- * target="_blank">Material Design outlined button</a>.
+ * [Material Design outlined button](https://material.io/components/buttons#outlined-button)
  *
  * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but aren't
  * the primary action in an app.
@@ -179,7 +177,7 @@ fun OutlinedButton(
     border: BorderStroke? = ButtonDefaults.outlinedBorder,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -191,12 +189,11 @@ fun OutlinedButton(
         border = border,
         colors = colors,
         contentPadding = contentPadding,
-        content = content
+        content = content,
     )
 
 /**
- * <a href="https://material.io/components/buttons#text-button" class="external"
- * target="_blank">Material Design text button</a>.
+ * [Material Design text button](https://material.io/components/buttons#text-button)
  *
  * Text buttons are typically used for less-pronounced actions, including those located in dialogs
  * and cards. In cards, text buttons help maintain an emphasis on card content.
@@ -237,7 +234,7 @@ fun TextButton(
     border: BorderStroke? = null,
     colors: ButtonColors = ButtonDefaults.textButtonColors(),
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) =
     Button(
         onClick = onClick,
@@ -249,7 +246,7 @@ fun TextButton(
         border = border,
         colors = colors,
         contentPadding = contentPadding,
-        content = content
+        content = content,
     )
 
 /**
@@ -303,7 +300,7 @@ object ButtonDefaults {
             start = ButtonHorizontalPadding,
             top = ButtonVerticalPadding,
             end = ButtonHorizontalPadding,
-            bottom = ButtonVerticalPadding
+            bottom = ButtonVerticalPadding,
         )
 
     /**
@@ -346,7 +343,7 @@ object ButtonDefaults {
     fun elevation(
         defaultElevation: Dp = 2.dp,
         pressedElevation: Dp = 8.dp,
-        disabledElevation: Dp = 0.dp
+        disabledElevation: Dp = 0.dp,
     ): ButtonElevation =
         elevation(
             defaultElevation,
@@ -381,14 +378,14 @@ object ButtonDefaults {
             pressedElevation,
             disabledElevation,
             hoveredElevation,
-            focusedElevation
+            focusedElevation,
         ) {
             DefaultButtonElevation(
                 defaultElevation = defaultElevation,
                 pressedElevation = pressedElevation,
                 disabledElevation = disabledElevation,
                 hoveredElevation = hoveredElevation,
-                focusedElevation = focusedElevation
+                focusedElevation = focusedElevation,
             )
         }
     }
@@ -411,13 +408,13 @@ object ButtonDefaults {
                 .copy(alpha = 0.12f)
                 .compositeOver(MaterialTheme.colors.surface),
         disabledContentColor: Color =
-            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
+            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
     ): ButtonColors =
         DefaultButtonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             disabledBackgroundColor = disabledBackgroundColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     /**
@@ -433,13 +430,13 @@ object ButtonDefaults {
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = MaterialTheme.colors.primary,
         disabledContentColor: Color =
-            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
+            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
     ): ButtonColors =
         DefaultButtonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             disabledBackgroundColor = backgroundColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     /**
@@ -455,13 +452,13 @@ object ButtonDefaults {
         backgroundColor: Color = Color.Transparent,
         contentColor: Color = MaterialTheme.colors.primary,
         disabledContentColor: Color =
-            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
+            MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled),
     ): ButtonColors =
         DefaultButtonColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             disabledBackgroundColor = backgroundColor,
-            disabledContentColor = disabledContentColor
+            disabledContentColor = disabledContentColor,
         )
 
     /** The default color opacity used for an [OutlinedButton]'s border color */
@@ -476,7 +473,7 @@ object ButtonDefaults {
         get() =
             BorderStroke(
                 OutlinedBorderSize,
-                MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
+                MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity),
             )
 
     private val TextButtonHorizontalPadding = 8.dp
@@ -487,7 +484,7 @@ object ButtonDefaults {
             start = TextButtonHorizontalPadding,
             top = ContentPadding.calculateTopPadding(),
             end = TextButtonHorizontalPadding,
-            bottom = ContentPadding.calculateBottomPadding()
+            bottom = ContentPadding.calculateBottomPadding(),
         )
 }
 
@@ -563,7 +560,7 @@ private class DefaultButtonElevation(
                     animatable.animateElevation(
                         from = lastInteraction,
                         to = interaction,
-                        target = target
+                        target = target,
                     )
                 }
             }
@@ -579,7 +576,7 @@ private class DefaultButtonColors(
     private val backgroundColor: Color,
     private val contentColor: Color,
     private val disabledBackgroundColor: Color,
-    private val disabledContentColor: Color
+    private val disabledContentColor: Color,
 ) : ButtonColors {
     @Composable
     override fun backgroundColor(enabled: Boolean): State<Color> {

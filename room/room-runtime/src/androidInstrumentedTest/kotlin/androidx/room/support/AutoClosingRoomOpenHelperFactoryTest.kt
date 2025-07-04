@@ -59,7 +59,7 @@ class AutoClosingRoomOpenHelperFactoryTest {
         autoClosingRoomOpenHelperFactory =
             AutoClosingRoomOpenHelperFactory(
                 delegate = FrameworkSQLiteOpenHelperFactory(),
-                autoCloser = autoCloser
+                autoCloser = autoCloser,
             )
     }
 
@@ -90,7 +90,7 @@ class AutoClosingRoomOpenHelperFactoryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
             }
 
@@ -143,7 +143,7 @@ class AutoClosingRoomOpenHelperFactoryTest {
                 override fun onUpgrade(
                     db: SupportSQLiteDatabase,
                     oldVersion: Int,
-                    newVersion: Int
+                    newVersion: Int,
                 ) {}
             }
 

@@ -55,7 +55,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         modifier: Modifier,
         style: TextStyle,
         onTextLayout: (TextLayoutResult) -> Unit,
-        maxLines: Int
+        maxLines: Int,
     ) {
         BasicTextField(
             text,
@@ -63,7 +63,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             modifier = modifier,
             textStyle = style,
             onTextLayout = onTextLayout,
-            maxLines = Int.MAX_VALUE
+            maxLines = Int.MAX_VALUE,
         )
     }
 
@@ -132,10 +132,10 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
                             text = AnnotatedString(Text),
                             style = TextStyle.Default,
                             density = density,
-                            fontFamilyResolver = fontFamilyResolver
+                            fontFamilyResolver = fontFamilyResolver,
                         ),
                     recomposeScope = scope,
-                    keyboardController = null
+                    keyboardController = null,
                 )
             }
             // Required for the drag observers to actually update the selection.
@@ -146,7 +146,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
                     TextFieldDelegate.layout(
                         selectionManager.state!!.textDelegate,
                         constraints = Constraints(),
-                        layoutDirection = LayoutDirection.Ltr
+                        layoutDirection = LayoutDirection.Ltr,
                     )
                 selectionManager.state!!.layoutResult = TextLayoutResultProxy(result)
                 onDispose {}

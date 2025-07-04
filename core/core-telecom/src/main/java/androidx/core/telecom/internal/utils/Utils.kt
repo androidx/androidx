@@ -16,6 +16,8 @@
 
 package androidx.core.telecom.internal.utils
 
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
@@ -24,6 +26,7 @@ import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
 
@@ -81,6 +84,33 @@ internal class Utils {
             return VERSION.SDK_INT >= VERSION_CODES.P
         }
 
+        /**
+         * Checks if the application has the necessary Bluetooth permissions.
+         *
+         * For API level 31 and above, this checks for BLUETOOTH_CONNECT permission. For API levels
+         * 28-30, it checks for BLUETOOTH and BLUETOOTH_ADMIN permissions.
+         *
+         * @param context The application context.
+         * @return `true` if the required permissions are granted, `false` otherwise.
+         */
+        fun hasBluetoothPermissions(context: Context): Boolean {
+            return if (VERSION.SDK_INT >= VERSION_CODES.S) {
+                // API level 31+
+                ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.BLUETOOTH_CONNECT,
+                ) == PackageManager.PERMISSION_GRANTED
+            } else {
+                // API levels 28-30
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH) ==
+                    PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        android.Manifest.permission.BLUETOOTH_ADMIN,
+                    ) == PackageManager.PERMISSION_GRANTED
+            }
+        }
+
         @RequiresApi(VERSION_CODES.O)
         fun remapJetpackCapsToPlatformCaps(
             @CallsManager.Companion.Capability clientBitmapSelection: Int
@@ -125,7 +155,7 @@ internal class Utils {
 
         fun getBundleWithPhoneAccountHandle(
             callAttributes: CallAttributesCompat,
-            handle: PhoneAccountHandle
+            handle: PhoneAccountHandle,
         ): Bundle {
             return if (VERSION.SDK_INT >= VERSION_CODES.M) {
                 Api23PlusImpl.createExtras(callAttributes, handle)
@@ -139,14 +169,14 @@ internal class Utils {
             @JvmStatic
             fun createExtras(
                 callAttributes: CallAttributesCompat,
-                handle: PhoneAccountHandle
+                handle: PhoneAccountHandle,
             ): Bundle {
                 val extras = Bundle()
                 extras.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, handle)
                 if (!callAttributes.isOutgoingCall()) {
                     extras.putParcelable(
                         TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
-                        callAttributes.address
+                        callAttributes.address,
                     )
                 }
                 return extras

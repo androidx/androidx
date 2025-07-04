@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint.replacewith
 
+import com.android.tools.lint.useFirUast
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -25,18 +29,19 @@ class ReplaceWithDetectorKotlinConstructorTest {
 
     @Test
     fun constructorStaticClass() {
+        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
-                javaSample("replacewith.ConstructorKotlinStaticClass")
+                javaSample("replacewith.ConstructorKotlinStaticClass"),
             )
 
         val expected =
             """
-src/replacewith/ConstructorKotlinStaticClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/ConstructorKotlinStaticClass.java:25: Hint: Replacement available [ReplaceWith]
         new ReplaceWithUsageKotlin("parameter");
             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 
@@ -57,18 +62,19 @@ Fix for src/replacewith/ConstructorKotlinStaticClass.java line 25: Replace with 
 
     @Test
     fun constructorNonStaticClass() {
+        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
-                javaSample("replacewith.ConstructorKotlinNonStaticClass")
+                javaSample("replacewith.ConstructorKotlinNonStaticClass"),
             )
 
         val expected =
             """
-src/replacewith/ConstructorKotlinNonStaticClass.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/ConstructorKotlinNonStaticClass.java:25: Hint: Replacement available [ReplaceWith]
         new ReplaceWithUsageKotlin().new InnerClass("param");
                                          ~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 
@@ -86,18 +92,19 @@ Fix for src/replacewith/ConstructorKotlinNonStaticClass.java line 25: Replace wi
 
     @Test
     fun constructorToStaticMethod() {
+        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
-                javaSample("replacewith.ConstructorKotlinToStaticMethod")
+                javaSample("replacewith.ConstructorKotlinToStaticMethod"),
             )
 
         val expected =
             """
-src/replacewith/ConstructorKotlinToStaticMethod.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/ConstructorKotlinToStaticMethod.java:25: Hint: Replacement available [ReplaceWith]
         new ReplaceWithUsageKotlin(10000);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 

@@ -39,7 +39,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.AdapterCameraControl
+import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.ImageOutputConfig
@@ -91,15 +91,14 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ResolutionSelectorDeviceTest(
+    private val testName: String,
+    private val cameraSelector: CameraSelector,
     private val implName: String,
-    private var cameraSelector: CameraSelector,
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
     val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName.contains(CameraPipeConfig::class.simpleName!!),
-        )
+        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
 
     @get:Rule
     val cameraRule =
@@ -115,35 +114,34 @@ class ResolutionSelectorDeviceTest(
         mapOf(
             Pair(Preview::class.java, ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE),
             Pair(ImageCapture::class.java, ImageFormat.JPEG),
-            Pair(ImageAnalysis::class.java, ImageFormat.YUV_420_888)
+            Pair(ImageAnalysis::class.java, ImageFormat.YUV_420_888),
         )
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() =
-            listOf(
-                arrayOf(
-                    "back+" + Camera2Config::class.simpleName,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    Camera2Config.defaultConfig(),
-                ),
-                arrayOf(
-                    "front+" + Camera2Config::class.simpleName,
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    Camera2Config.defaultConfig(),
-                ),
-                arrayOf(
-                    "back+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                ),
-                arrayOf(
-                    "front+" + CameraPipeConfig::class.simpleName,
-                    CameraSelector.DEFAULT_FRONT_CAMERA,
-                    CameraPipeConfig.defaultConfig(),
-                ),
-            )
+            mutableListOf<Array<Any?>>().apply {
+                CameraUtil.getAvailableCameraSelectors().forEach { selector ->
+                    val lens = selector.lensFacing
+                    add(
+                        arrayOf(
+                            "config=${Camera2Config::class.simpleName} lensFacing={$lens}",
+                            selector,
+                            Camera2Config::class.simpleName,
+                            Camera2Config.defaultConfig(),
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
+                            selector,
+                            CameraPipeConfig::class.simpleName,
+                            CameraPipeConfig.defaultConfig(),
+                        )
+                    )
+                }
+            }
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -202,7 +200,7 @@ class ResolutionSelectorDeviceTest(
                 cameraSelector,
                 preview,
                 imageCapture,
-                imageAnalysis
+                imageAnalysis,
             )
         }
         assertThat(isResolutionAspectRatioBestMatched(preview, targetAspectRatio)).isTrue()
@@ -212,12 +210,12 @@ class ResolutionSelectorDeviceTest(
 
     private fun isResolutionAspectRatioBestMatched(
         useCase: UseCase,
-        targetAspectRatio: Int
+        targetAspectRatio: Int,
     ): Boolean {
         val isMatched =
             hasMatchingAspectRatio(
                 useCase.attachedSurfaceResolution!!,
-                aspectRatioToRational(targetAspectRatio)
+                aspectRatioToRational(targetAspectRatio),
             )
 
         if (isMatched) {
@@ -237,7 +235,7 @@ class ResolutionSelectorDeviceTest(
             "ResolutionSelectorDeviceTest",
             "The selected resolution (${useCase.attachedSurfaceResolution!!}) does not exactly" +
                 " match the target aspect ratio. It is selected from the closest aspect ratio" +
-                " sizes: $closestAspectRatioSizes"
+                " sizes: $closestAspectRatioSizes",
         )
 
         return closestAspectRatioSizes.contains(useCase.attachedSurfaceResolution!!)
@@ -269,7 +267,7 @@ class ResolutionSelectorDeviceTest(
 
     private fun <T : UseCase> canSelectResolutionByResolutionStrategy(
         useCaseClass: Class<T>,
-        ratio: Int
+        ratio: Int,
     ) {
         // Filters the output sizes matching the target aspect ratio
         cameraInfoInternal
@@ -286,7 +284,7 @@ class ResolutionSelectorDeviceTest(
                                 aspectRatioStrategyFallbackRule = FALLBACK_RULE_AUTO,
                                 boundSize = boundSize,
                                 resolutionStrategyFallbackRule =
-                                    FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+                                    FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
                             )
                         instrumentation.runOnMainSync {
                             cameraProvider.unbindAll()
@@ -306,7 +304,7 @@ class ResolutionSelectorDeviceTest(
             // than PREVIEW size can be selected.
             cameraInfoInternal
                 .getSupportedResolutions(useCaseFormatMap[Preview::class.java]!!)
-                .maxWithOrNull(CompareSizesByArea())
+                .maxWithOrNull(CompareSizesByArea()),
         )
 
     @Test
@@ -328,26 +326,26 @@ class ResolutionSelectorDeviceTest(
     private fun <T : UseCase> canSelectAnyResolutionByResolutionFilter(
         useCaseClass: Class<T>,
         boundSize: Size? = null,
-        resolutionStrategyFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+        resolutionStrategyFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
     ) =
         canSelectAnyResolutionByResolutionFilter(
             useCaseClass,
             cameraInfoInternal.getSupportedResolutions(useCaseFormatMap[useCaseClass]!!),
             boundSize,
-            resolutionStrategyFallbackRule
+            resolutionStrategyFallbackRule,
         )
 
     private fun <T : UseCase> canSelectAnyHighResolutionByResolutionFilter(
         useCaseClass: Class<T>,
         boundSize: Size? = null,
-        resolutionStrategyFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+        resolutionStrategyFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
     ) =
         canSelectAnyResolutionByResolutionFilter(
             useCaseClass,
             cameraInfoInternal.getSupportedHighResolutions(useCaseFormatMap[useCaseClass]!!),
             boundSize,
             resolutionStrategyFallbackRule,
-            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE,
         )
 
     private fun <T : UseCase> canSelectAnyResolutionByResolutionFilter(
@@ -355,7 +353,7 @@ class ResolutionSelectorDeviceTest(
         outputSizes: List<Size>,
         boundSize: Size? = null,
         resolutionStrategyFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
-        allowedResolutionMode: Int = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
+        allowedResolutionMode: Int = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
     ) {
         outputSizes.forEach { targetResolution ->
             val useCase =
@@ -364,7 +362,7 @@ class ResolutionSelectorDeviceTest(
                     boundSize = boundSize,
                     resolutionStrategyFallbackRule = resolutionStrategyFallbackRule,
                     resolutionFilter = { _, _ -> mutableListOf(targetResolution) },
-                    allowedResolutionMode = allowedResolutionMode
+                    allowedResolutionMode = allowedResolutionMode,
                 )
             instrumentation.runOnMainSync {
                 cameraProvider.unbindAll()
@@ -408,7 +406,7 @@ class ResolutionSelectorDeviceTest(
         boundSize: Size? = null,
         resolutionStrategyFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        allowedResolutionMode: Int = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
+        allowedResolutionMode: Int = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
     ): UseCase {
         val builder =
             when (useCaseClass) {
@@ -425,7 +423,7 @@ class ResolutionSelectorDeviceTest(
                 boundSize,
                 resolutionStrategyFallbackRule,
                 resolutionFilter,
-                allowedResolutionMode
+                allowedResolutionMode,
             )
         )
 
@@ -438,7 +436,7 @@ class ResolutionSelectorDeviceTest(
         boundSize: Size? = null,
         resolutionFallbackRule: Int = FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
         resolutionFilter: ResolutionFilter? = null,
-        allowedResolutionMode: Int = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
+        allowedResolutionMode: Int = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
     ) =
         ResolutionSelector.Builder()
             .apply {
@@ -464,7 +462,7 @@ class ResolutionSelectorDeviceTest(
 
     private fun <T : UseCase> getClosestAspectRatioSizesUnderPreviewSize(
         targetAspectRatio: Int,
-        useCaseClass: Class<T>
+        useCaseClass: Class<T>,
     ): List<Size> {
         val outputSizes =
             cameraInfoInternal.getSupportedResolutions(useCaseFormatMap[useCaseClass]!!)
@@ -475,7 +473,7 @@ class ResolutionSelectorDeviceTest(
 
     private fun <T : UseCase> getClosestAspectRatioSizes(
         targetAspectRatio: Int,
-        useCaseClass: Class<T>
+        useCaseClass: Class<T>,
     ): List<Size> {
         val outputSizes =
             cameraInfoInternal.getSupportedResolutions(useCaseFormatMap[useCaseClass]!!)
@@ -499,13 +497,13 @@ class ResolutionSelectorDeviceTest(
     }
 
     private fun List<Size>.getClosestAspectRatioSublist(targetAspectRatio: Int): List<Size> {
-        val sensorRect = (camera.cameraControl as AdapterCameraControl).sensorRect
+        val sensorRect = (camera.cameraInfo as AdapterCameraInfo).sensorRect
         val aspectRatios = getResolutionListGroupingAspectRatioKeys(this)
         val sortedAspectRatios =
             aspectRatios.sortedWith(
                 AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
                     aspectRatioToRational(targetAspectRatio),
-                    Rational(sensorRect.width(), sensorRect.height())
+                    Rational(sensorRect.width(), sensorRect.height()),
                 )
             )
         val groupedRatioToSizesMap = groupSizesByAspectRatio(this)

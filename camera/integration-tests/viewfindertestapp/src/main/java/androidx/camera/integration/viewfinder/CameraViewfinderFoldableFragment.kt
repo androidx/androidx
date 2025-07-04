@@ -54,16 +54,18 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.camera.viewfinder.CameraViewfinder
-import androidx.camera.viewfinder.CameraViewfinderExt.requestSurface
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.camera.viewfinder.core.ScaleType
 import androidx.camera.viewfinder.core.ViewfinderSurfaceRequest
-import androidx.camera.viewfinder.core.populateFromCharacteristics
+import androidx.camera.viewfinder.core.camera2.Camera2TransformationInfo
+import androidx.camera.viewfinder.view.ViewfinderView
+import androidx.camera.viewfinder.view.requestSurfaceSession
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
@@ -83,29 +85,33 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.sign
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 
 /** Fold aware fragment for {@link CameraViewfinder}. */
 class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
-
-    private val cameraOpenCloseLock = Mutex()
 
     private val onImageAvailableListener =
         ImageReader.OnImageAvailableListener {
             cameraHandler?.post(
                 ImageSaver(
                     it.acquireNextImage(),
-                    checkNotNull(file) { "file cannot be null when saving image" }
+                    checkNotNull(file) { "file cannot be null when saving image" },
                 )
             )
         }
 
     private lateinit var cameraManager: CameraManager
 
-    private lateinit var cameraViewfinder: CameraViewfinder
+    private lateinit var mViewfinderView: ViewfinderView
 
     private lateinit var windowInfoTracker: WindowInfoTracker
 
@@ -121,8 +127,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
     private var characteristics: CameraCharacteristics? = null
 
-    private var cameraId: String? = null
-
     private var file: File? = null
 
     private var imageReader: ImageReader? = null
@@ -135,16 +139,21 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
     private var isViewfinderInLeftTop = true
 
-    private var viewfinderSurfaceRequest: ViewfinderSurfaceRequest? = null
-
     private var resolution: Size? = null
 
     private var layoutChangedListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
+    private val implementationModeState =
+        MutableStateFlow<ImplementationMode>(ImplementationMode.EXTERNAL)
+
+    private var cameraIdList: List<String>? = null
+
+    private val cameraIdState = MutableStateFlow<String?>(null)
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? = inflater.inflate(R.layout.fragment_camera_view_finder_foldable, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -154,7 +163,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
         view.findViewById<View>(R.id.bitmap).setOnClickListener(this)
         view.findViewById<View>(R.id.switch_area).setOnClickListener(this)
 
-        cameraViewfinder = view.findViewById(R.id.view_finder)
+        mViewfinderView = view.findViewById(R.id.view_finder)
         windowInfoTracker = WindowInfoTracker.getOrCreate(requireContext())
         requireActivity().apply {
             cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -168,70 +177,85 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                         when (item.itemId) {
                             R.id.implementationMode -> {
                                 val implementationMode =
-                                    when (cameraViewfinder.surfaceImplementationMode) {
+                                    when (implementationModeState.value) {
                                         ImplementationMode.EXTERNAL -> ImplementationMode.EMBEDDED
                                         else -> ImplementationMode.EXTERNAL
                                     }
 
-                                lifecycleScope.launch {
-                                    closeCamera()
-                                    sendSurfaceRequest(implementationMode, false)
-                                }
+                                implementationModeState.value = implementationMode
                             }
-                            R.id.fitCenter -> cameraViewfinder.scaleType = ScaleType.FIT_CENTER
-                            R.id.fillCenter -> cameraViewfinder.scaleType = ScaleType.FILL_CENTER
-                            R.id.fitStart -> cameraViewfinder.scaleType = ScaleType.FIT_START
-                            R.id.fitEnd -> cameraViewfinder.scaleType = ScaleType.FIT_END
+                            R.id.fitCenter -> mViewfinderView.scaleType = ScaleType.FIT_CENTER
+                            R.id.fillCenter -> mViewfinderView.scaleType = ScaleType.FILL_CENTER
+                            R.id.fitStart -> mViewfinderView.scaleType = ScaleType.FIT_START
+                            R.id.fitEnd -> mViewfinderView.scaleType = ScaleType.FIT_END
                         }
                         return true
                     }
 
                     override fun onPrepareMenu(menu: Menu) {
-                        val title = "Current impl: ${cameraViewfinder.surfaceImplementationMode}"
+                        val title = "Current impl: ${mViewfinderView.surfaceImplementationMode}"
                         menu.findItem(R.id.implementationMode)?.title = title
                     }
                 }
             )
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        cameraThread = HandlerThread("CameraThread").apply { start() }
-        cameraHandler =
-            Handler(checkNotNull(cameraThread) { "camera thread cannot be null" }.looper)
-        imageReaderThread = HandlerThread("ImageThread").apply { start() }
-        imageReaderHandler =
-            Handler(checkNotNull(imageReaderThread) { "image reader thread cannot be null" }.looper)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                try {
+                    cameraThread = HandlerThread("CameraThread").apply { start() }
+                    cameraHandler =
+                        Handler(
+                            checkNotNull(cameraThread) { "camera thread cannot be null" }.looper
+                        )
+                    imageReaderThread = HandlerThread("ImageThread").apply { start() }
+                    imageReaderHandler =
+                        Handler(
+                            checkNotNull(imageReaderThread) { "image reader thread cannot be null" }
+                                .looper
+                        )
 
-        layoutChangedListener =
-            ViewTreeObserver.OnGlobalLayoutListener {
-                cameraViewfinder.viewTreeObserver.removeOnGlobalLayoutListener(
-                    layoutChangedListener
-                )
-                layoutChangedListener = null
+                    layoutChangedListener =
+                        ViewTreeObserver.OnGlobalLayoutListener {
+                            mViewfinderView.viewTreeObserver.removeOnGlobalLayoutListener(
+                                layoutChangedListener
+                            )
+                            layoutChangedListener = null
+                        }
+                    mViewfinderView.viewTreeObserver.addOnGlobalLayoutListener(
+                        layoutChangedListener
+                    )
 
-                sendSurfaceRequest(null, false)
-            }
-        cameraViewfinder.viewTreeObserver.addOnGlobalLayoutListener(layoutChangedListener)
+                    launch {
+                        windowInfoTracker.windowLayoutInfo(requireActivity()).collect {
+                            newLayoutInfo ->
+                            Log.d(TAG, "newLayoutInfo: $newLayoutInfo")
+                            activeWindowLayoutInfo = newLayoutInfo
+                            adjustPreviewByFoldingState()
+                        }
+                    }
 
-        lifecycleScope.launch {
-            windowInfoTracker.windowLayoutInfo(requireActivity()).collect { newLayoutInfo ->
-                Log.d(TAG, "newLayoutInfo: $newLayoutInfo")
-                activeWindowLayoutInfo = newLayoutInfo
-                adjustPreviewByFoldingState()
+                    cameraIdList =
+                        withContext(Dispatchers.IO) { cameraManager.cameraIdList.toList() }
+
+                    cameraIdState.update { old -> old ?: cameraIdList?.get(0) }
+
+                    combine(implementationModeState, cameraIdState.filterNotNull()) {
+                            implementationMode,
+                            cameraId ->
+                            Pair(implementationMode, cameraId)
+                        }
+                        .collectLatest { (implementationMode, cameraId) ->
+                            runCamera(implementationMode, cameraId)
+                        }
+                } finally {
+                    withContext(NonCancellable) {
+                        cameraThread?.quitSafely()
+                        imageReaderThread?.quitSafely()
+                    }
+                }
             }
         }
-    }
-
-    override fun onPause() {
-        lifecycleScope.launch {
-            closeCamera()
-            cameraThread?.quitSafely()
-            imageReaderThread?.quitSafely()
-            viewfinderSurfaceRequest?.markSurfaceSafeToRelease()
-        }
-        super.onPause()
     }
 
     override fun onClick(view: View) {
@@ -247,106 +271,94 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
     }
 
     // ------------- Create Capture Session --------------
-    private fun sendSurfaceRequest(implementationMode: ImplementationMode?, toggleCamera: Boolean) =
-        lifecycleScope.launch {
-            if (isAdded && context != null) {
-                setUpCameraOutputs(toggleCamera)
-                val builder =
-                    ViewfinderSurfaceRequest.Builder(resolution!!)
-                        .populateFromCharacteristics(characteristics!!)
-                if (implementationMode != null) {
-                    builder.setImplementationMode(implementationMode)
-                }
-                viewfinderSurfaceRequest = builder.build()
-                val surface = cameraViewfinder.requestSurface(viewfinderSurfaceRequest!!)
-                initializeCamera(surface)
-            }
-        }
+    private suspend fun runCamera(implementationMode: ImplementationMode?, cameraId: String) {
+        setUpCameraOutputs(cameraId)
 
-    private fun setUpCameraOutputs(toggleCamera: Boolean) {
+        val chosenResolution = requireNotNull(resolution)
+
+        val viewfinderSurfaceRequest =
+            ViewfinderSurfaceRequest(
+                width = chosenResolution.width,
+                height = chosenResolution.height,
+                implementationMode = implementationMode,
+            )
+
+        val transformationInfo =
+            Camera2TransformationInfo.createFromCharacteristics(
+                cameraCharacteristics = requireNotNull(characteristics)
+            )
+
         try {
-            for (cameraId in cameraManager.cameraIdList) {
-                characteristics = cameraManager.getCameraCharacteristics(cameraId)
-                relativeOrientation =
-                    OrientationLiveData(
-                            requireContext(),
-                            checkNotNull(characteristics) {
-                                "camera characteristics cannot be null"
-                            }
-                        )
-                        .apply {
-                            observe(viewLifecycleOwner) { orientation ->
-                                Log.d(TAG, "Orientation changed: $orientation")
-                            }
+            mViewfinderView.transformationInfo = transformationInfo
+            mViewfinderView.requestSurfaceSession(viewfinderSurfaceRequest).use {
+                initializeCamera(cameraId, it.surface)
+                awaitCancellation()
+            }
+        } finally {
+            withContext(NonCancellable) { closeCamera() }
+        }
+    }
+
+    private fun setUpCameraOutputs(cameraId: String) {
+        try {
+            characteristics = cameraManager.getCameraCharacteristics(cameraId)
+            relativeOrientation =
+                OrientationLiveData(
+                        requireContext(),
+                        checkNotNull(characteristics) { "camera characteristics cannot be null" },
+                    )
+                    .apply {
+                        observe(viewLifecycleOwner) { orientation ->
+                            Log.d(TAG, "Orientation changed: $orientation")
                         }
-
-                val facing =
-                    checkNotNull(characteristics) { "camera characteristics cannot be null" }
-                        .get(CameraCharacteristics.LENS_FACING)
-
-                // Toggle the front and back camera
-                if (toggleCamera) {
-                    val currentFacing: Int? =
-                        cameraManager
-                            .getCameraCharacteristics(
-                                checkNotNull(this.cameraId) { "camera id cannot be null" }
-                            )
-                            .get(CameraCharacteristics.LENS_FACING)
-                    if (currentFacing == facing) {
-                        continue
                     }
+
+            val map =
+                checkNotNull(
+                    checkNotNull(characteristics) { "camera characteristics cannot be null" }
+                        .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                ) {
+                    "stream configuration map cannot be null"
                 }
 
-                val map =
-                    checkNotNull(characteristics) { "camera characteristics cannot be null" }
-                        .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP) ?: continue
-
-                // For still image captures, we use the largest available size.
-                resolution =
-                    Collections.max(
-                        /* coll = */ listOf(*map.getOutputSizes(ImageFormat.JPEG)),
-                        /* comp = */ CompareSizesByArea()
+            // For still image captures, we use the largest available size.
+            resolution =
+                Collections.max(
+                    /* coll = */ listOf(*map.getOutputSizes(ImageFormat.JPEG)),
+                    /* comp = */ CompareSizesByArea(),
+                )
+            imageReader =
+                ImageReader.newInstance(
+                        resolution!!.width,
+                        resolution!!.height,
+                        ImageFormat.JPEG, /*maxImages*/
+                        2,
                     )
-                imageReader =
-                    ImageReader.newInstance(
-                            resolution!!.width,
-                            resolution!!.height,
-                            ImageFormat.JPEG, /*maxImages*/
-                            2
-                        )
-                        .apply {
-                            setOnImageAvailableListener(
-                                onImageAvailableListener,
-                                imageReaderHandler
-                            )
-                        }
+                    .apply {
+                        setOnImageAvailableListener(onImageAvailableListener, imageReaderHandler)
+                    }
 
-                this.cameraId = cameraId
-                this.characteristics = cameraManager.getCameraCharacteristics(cameraId)
-                return
-            }
+            this.characteristics = cameraManager.getCameraCharacteristics(cameraId)
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.toString())
         }
     }
 
-    private suspend fun initializeCamera(surface: Surface) {
-        cameraOpenCloseLock.lock()
-
+    private suspend fun initializeCamera(cameraId: String, surface: Surface) {
         withContext(Dispatchers.IO) {
             // Open the selected camera
             camera =
                 openCamera(
                     cameraManager,
                     checkNotNull(cameraId) { "camera id cannot be null" },
-                    cameraHandler
+                    cameraHandler,
                 )
 
             // Creates list of Surfaces where the camera will output frames
             val targets =
                 listOf(
                     surface,
-                    checkNotNull(imageReader?.surface) { "image reader surface cannot be null" }
+                    checkNotNull(imageReader?.surface) { "image reader surface cannot be null" },
                 )
 
             try {
@@ -356,7 +368,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                     createCaptureSession(
                         checkNotNull(camera) { "camera cannot be null" },
                         targets,
-                        cameraHandler
+                        cameraHandler,
                     )
 
                 val captureRequest =
@@ -381,7 +393,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
     private suspend fun openCamera(
         manager: CameraManager,
         cameraId: String,
-        handler: Handler? = null
+        handler: Handler? = null,
     ): CameraDevice =
         withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { cont ->
@@ -390,13 +402,11 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                         cameraId,
                         object : CameraDevice.StateCallback() {
                             override fun onOpened(device: CameraDevice) {
-                                cameraOpenCloseLock.unlock()
                                 cont.resume(device)
                             }
 
                             override fun onDisconnected(device: CameraDevice) {
                                 Log.w(TAG, "Camera $cameraId has been disconnected")
-                                cameraOpenCloseLock.unlock()
                             }
 
                             override fun onError(device: CameraDevice, error: Int) {
@@ -412,7 +422,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                                 Log.e(TAG, "Camera $cameraId error: ($error) $msg")
                             }
                         },
-                        handler
+                        handler,
                     )
                 } catch (e: CameraAccessException) {
                     Log.e(TAG, "openCamera CameraAccessException")
@@ -427,7 +437,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
     private suspend fun closeCamera() =
         withContext(Dispatchers.IO) {
             try {
-                cameraOpenCloseLock.lock()
                 session?.close()
                 camera?.close()
                 imageReader?.close()
@@ -436,8 +445,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                 imageReader = null
             } catch (exc: Throwable) {
                 Log.e(TAG, "Error closing camera", exc)
-            } finally {
-                cameraOpenCloseLock.unlock()
             }
         }
 
@@ -445,7 +452,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
     private suspend fun createCaptureSession(
         device: CameraDevice,
         targets: List<Surface>,
-        handler: Handler? = null
+        handler: Handler? = null,
     ): CameraCaptureSession =
         withContext(Dispatchers.IO) {
             suspendCoroutine { cont ->
@@ -467,22 +474,33 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                             cont.resumeWithException(exc)
                         }
                     },
-                    handler
+                    handler,
                 )
             }
         }
 
     // ------------- Toggle Camera -----------
     private fun toggleCamera() {
-        lifecycleScope.launch {
-            closeCamera()
-            sendSurfaceRequest(null, true)
+        cameraIdList?.let {
+            val currentFacing = characteristics?.get(CameraCharacteristics.LENS_FACING)
+            for (cameraId in it) {
+                // Toggle the front and back camera
+                val newFacing: Int? =
+                    cameraManager
+                        .getCameraCharacteristics(
+                            checkNotNull(cameraId) { "camera id cannot be null" }
+                        )
+                        .get(CameraCharacteristics.LENS_FACING)
+                if (currentFacing != newFacing) {
+                    cameraIdState.value = cameraId
+                }
+            }
         }
     }
 
     // ------------- Save Bitmap ------------
     private fun saveBitmap() {
-        val bitmap: Bitmap? = cameraViewfinder.bitmap
+        val bitmap: Bitmap? = mViewfinderView.bitmap
         bitmap?.let { saveBitmapAsFile(it) }
     }
 
@@ -502,7 +520,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                 bitmap.compress(
                     Bitmap.CompressFormat.PNG,
                     100,
-                    checkNotNull(fos) { "fos cannot be null" }
+                    checkNotNull(fos) { "fos cannot be null" },
                 )
                 fos.close()
                 showToast("Saved: $displayName")
@@ -515,7 +533,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                 val file =
                     File(
                         getBatchDirectoryName(),
-                        dateFormat.format(Date()) + "_ViewfinderBitmap.png"
+                        dateFormat.format(Date()) + "_ViewfinderBitmap.png",
                     )
                 val fos = FileOutputStream(file)
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
@@ -562,46 +580,44 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
             ?.firstOrNull { it is FoldingFeature }
             ?.let {
                 val rect =
-                    getFeaturePositionInViewRect(it, cameraViewfinder.parent as View) ?: return@let
+                    getFeaturePositionInViewRect(it, mViewfinderView.parent as View) ?: return@let
                 val foldingFeature = it as FoldingFeature
                 if (foldingFeature.state == FoldingFeature.State.HALF_OPENED) {
                     btnSwitchArea.visibility = View.VISIBLE
                     when (foldingFeature.orientation) {
                         FoldingFeature.Orientation.VERTICAL -> {
                             if (isViewfinderInLeftTop) {
-                                cameraViewfinder.moveToLeftOf(rect)
+                                mViewfinderView.moveToLeftOf(rect)
                                 val blankAreaWidth =
                                     (btnSwitchArea.parent as View).width - rect.right
                                 btnSwitchArea.x =
                                     rect.right + (blankAreaWidth - btnSwitchArea.width) / 2f
                                 btnSwitchArea.y =
-                                    (cameraViewfinder.height - btnSwitchArea.height) / 2f
+                                    (mViewfinderView.height - btnSwitchArea.height) / 2f
                             } else {
-                                cameraViewfinder.moveToRightOf(rect)
+                                mViewfinderView.moveToRightOf(rect)
                                 btnSwitchArea.x = (rect.left - btnSwitchArea.width) / 2f
                                 btnSwitchArea.y =
-                                    (cameraViewfinder.height - btnSwitchArea.height) / 2f
+                                    (mViewfinderView.height - btnSwitchArea.height) / 2f
                             }
                         }
                         FoldingFeature.Orientation.HORIZONTAL -> {
                             if (isViewfinderInLeftTop) {
-                                cameraViewfinder.moveToTopOf(rect)
+                                mViewfinderView.moveToTopOf(rect)
                                 val blankAreaHeight =
                                     (btnSwitchArea.parent as View).height - rect.bottom
-                                btnSwitchArea.x =
-                                    (cameraViewfinder.width - btnSwitchArea.width) / 2f
+                                btnSwitchArea.x = (mViewfinderView.width - btnSwitchArea.width) / 2f
                                 btnSwitchArea.y =
                                     rect.bottom + (blankAreaHeight - btnSwitchArea.height) / 2f
                             } else {
-                                cameraViewfinder.moveToBottomOf(rect)
-                                btnSwitchArea.x =
-                                    (cameraViewfinder.width - btnSwitchArea.width) / 2f
+                                mViewfinderView.moveToBottomOf(rect)
+                                btnSwitchArea.x = (mViewfinderView.width - btnSwitchArea.width) / 2f
                                 btnSwitchArea.y = (rect.top - btnSwitchArea.height) / 2f
                             }
                         }
                     }
                 } else {
-                    cameraViewfinder.restore()
+                    mViewfinderView.restore()
                     btnSwitchArea.x = 0f
                     btnSwitchArea.y = 0f
                     btnSwitchArea.visibility = View.INVISIBLE
@@ -645,7 +661,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
     private fun getFeaturePositionInViewRect(
         displayFeature: DisplayFeature,
         view: View,
-        includePadding: Boolean = true
+        includePadding: Boolean = true,
     ): Rect? {
         // The location of the view in window to be in the same coordinate space as the feature.
         val viewLocationInWindow = IntArray(2)
@@ -657,7 +673,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                 viewLocationInWindow[0],
                 viewLocationInWindow[1],
                 viewLocationInWindow[0] + view.width,
-                viewLocationInWindow[1] + view.height
+                viewLocationInWindow[1] + view.height,
             )
 
         // Include padding if needed
@@ -714,7 +730,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                 Log.d(TAG, "Image available in queue: ${image.timestamp}")
                 imageQueue.add(image)
             },
-            imageReaderHandler
+            imageReaderHandler,
         )
 
         val captureRequest =
@@ -730,7 +746,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                         session: CameraCaptureSession,
                         request: CaptureRequest,
                         timestamp: Long,
-                        frameNumber: Long
+                        frameNumber: Long,
                     ) {
                         super.onCaptureStarted(session, request, timestamp, frameNumber)
                     }
@@ -738,7 +754,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                     override fun onCaptureCompleted(
                         session: CameraCaptureSession,
                         request: CaptureRequest,
-                        result: TotalCaptureResult
+                        result: TotalCaptureResult,
                     ) {
                         super.onCaptureCompleted(session, request, result)
                         val resultTimestamp = result.get(CaptureResult.SENSOR_TIMESTAMP)
@@ -749,7 +765,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                         val timeoutRunnable = Runnable { cont.resumeWithException(exc) }
                         imageReaderHandler?.postDelayed(
                             timeoutRunnable,
-                            IMAGE_CAPTURE_TIMEOUT_MILLIS
+                            IMAGE_CAPTURE_TIMEOUT_MILLIS,
                         )
 
                         // Loop in the coroutine's context until an image with matching timestamp
@@ -796,7 +812,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                                         result,
                                         exifOrientation,
                                         checkNotNull(imageReader) { "image reader cannot be null" }
-                                            .imageFormat
+                                            .imageFormat,
                                     )
                                 )
                                 // There is no need to break out of the loop, this coroutine will
@@ -805,7 +821,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                         }
                     }
                 },
-                cameraHandler
+                cameraHandler,
             )
         }
     }
@@ -834,7 +850,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                 val dngCreator =
                     DngCreator(
                         checkNotNull(characteristics) { "camera characteristics cannot be null" },
-                        result.metadata
+                        result.metadata,
                     )
                 try {
                     val output = createFile("dng")
@@ -906,7 +922,7 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
             val image: Image,
             val metadata: CaptureResult,
             val orientation: Int,
-            val format: Int
+            val format: Int,
         ) : Closeable {
             override fun close() = image.close()
         }

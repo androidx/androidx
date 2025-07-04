@@ -19,6 +19,7 @@ package androidx.browser.auth;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM;
+import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_CLOSE_BUTTON_ICON;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_COLOR_SCHEME;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_COLOR_SCHEME_PARAMS;
 import static androidx.browser.customtabs.CustomTabsIntent.EXTRA_ENABLE_EPHEMERAL_BROWSING;
@@ -29,6 +30,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -42,8 +44,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.browser.customtabs.ExperimentalEphemeralBrowsing;
 import androidx.browser.customtabs.ExperimentalPendingSession;
+import androidx.core.content.IntentCompat;
 import androidx.core.os.BundleCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -101,7 +103,6 @@ import java.lang.annotation.RetentionPolicy;
  * <p> Note: The constants below are public for the browser implementation's benefit. You are
  * strongly encouraged to use {@link AuthTabIntent.Builder}.
  */
-@ExperimentalAuthTab
 public class AuthTabIntent {
     /** Boolean extra that triggers an Auth Tab launch. */
     public static final String EXTRA_LAUNCH_AUTH_TAB =
@@ -193,7 +194,6 @@ public class AuthTabIntent {
     /**
      * Returns whether ephemeral browsing is enabled.
      */
-    @ExperimentalEphemeralBrowsing
     public boolean isEphemeralBrowsingEnabled() {
         return intent.getBooleanExtra(EXTRA_ENABLE_EPHEMERAL_BROWSING, false);
     }
@@ -227,13 +227,6 @@ public class AuthTabIntent {
         return defaults;
     }
 
-    private AuthTabIntent(@NonNull Intent intent, @Nullable AuthTabSession session,
-            AuthTabSession.@Nullable PendingSession pendingSession) {
-        this.intent = intent;
-        mSession = session;
-        mPendingSession = pendingSession;
-    }
-
     @Nullable
     public AuthTabSession getSession() {
         return mSession;
@@ -242,6 +235,21 @@ public class AuthTabIntent {
     @ExperimentalPendingSession
     public AuthTabSession.@Nullable PendingSession getPendingSession() {
         return mPendingSession;
+    }
+
+    /**
+     * Returns the close button icon {@link Bitmap}.
+     */
+    @Nullable
+    public Bitmap getCloseButtonIcon() {
+        return IntentCompat.getParcelableExtra(intent, EXTRA_CLOSE_BUTTON_ICON, Bitmap.class);
+    }
+
+    private AuthTabIntent(@NonNull Intent intent, @Nullable AuthTabSession session,
+            AuthTabSession.@Nullable PendingSession pendingSession) {
+        this.intent = intent;
+        mSession = session;
+        mPendingSession = pendingSession;
     }
 
     /**
@@ -264,6 +272,8 @@ public class AuthTabIntent {
          *
          * Guarantees that the {@link Intent} will be sent to the same component as the one the
          * session is associated with.
+         *
+         * @param session The {@link AuthTabSession} to associate the intent with.
          */
         public @NonNull Builder setSession(@NonNull AuthTabSession session) {
             mSession = session;
@@ -275,6 +285,8 @@ public class AuthTabIntent {
         /**
          * Associates the {@link Intent} with the given {@link AuthTabSession.PendingSession}.
          * Overrides the effect of {@link #setSession}.
+         *
+         * @param session The {@link AuthTabSession.PendingSession} to associate the intent with.
          */
         @ExperimentalPendingSession
         public @NonNull Builder setPendingSession(AuthTabSession.@NonNull PendingSession session) {
@@ -302,7 +314,6 @@ public class AuthTabIntent {
          * @param enabled Whether ephemeral browsing is enabled.
          * @see CustomTabsIntent#EXTRA_ENABLE_EPHEMERAL_BROWSING
          */
-        @ExperimentalEphemeralBrowsing
         public AuthTabIntent.@NonNull Builder setEphemeralBrowsingEnabled(boolean enabled) {
             mIntent.putExtra(EXTRA_ENABLE_EPHEMERAL_BROWSING, enabled);
             return this;
@@ -394,6 +405,20 @@ public class AuthTabIntent {
         }
 
         /**
+         * Sets the close button icon for the Auth Tab.
+         *
+         * A 24x24dp icon is recommended, though it may be scaled to fit the toolbar. The icon will
+         * be tinted according to the toolbar's color scheme; its original color is ignored, but the
+         * alpha channel is preserved.
+         *
+         * @param icon The icon {@link Bitmap}.
+         */
+        public @NonNull Builder setCloseButtonIcon(@NonNull Bitmap icon) {
+            mIntent.putExtra(EXTRA_CLOSE_BUTTON_ICON, icon);
+            return this;
+        }
+
+        /**
          * Combines all the options that have been set and returns a new {@link AuthTabIntent}
          * object.
          */
@@ -402,10 +427,8 @@ public class AuthTabIntent {
 
             // Put a null EXTRA_SESSION as a fallback so that this is interpreted as a Custom Tab
             // intent by browser implementations that don't support Auth Tab.
-            {
-                Bundle bundle = new Bundle();
-                bundle.putBinder(EXTRA_SESSION, null);
-                mIntent.putExtras(bundle);
+            if (!mIntent.hasExtra(EXTRA_SESSION)) {
+                setSessionParameters(null, null);
             }
 
             mIntent.putExtras(mDefaultColorSchemeBuilder.build().toBundle());

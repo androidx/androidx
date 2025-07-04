@@ -43,7 +43,7 @@ fun AdvancedFloatingActionButton(
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
         LocalRippleConfiguration provides if (enabled) RippleConfiguration() else null
@@ -60,7 +60,7 @@ fun AdvancedFloatingActionButton(
             backgroundColor = if (enabled) backgroundColor else Color.Gray,
             contentColor = contentColor,
             elevation = elevation,
-            content = content
+            content = content,
         )
     }
 }

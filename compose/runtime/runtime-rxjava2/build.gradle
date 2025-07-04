@@ -22,8 +22,7 @@
  * modifying its settings.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -48,11 +47,9 @@ dependencies {
 
 androidx {
     name = "Compose RxJava 2 integration"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose integration with RxJava 2"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:runtime:runtime-rxjava2:runtime-rxjava2-samples"))
 }
 

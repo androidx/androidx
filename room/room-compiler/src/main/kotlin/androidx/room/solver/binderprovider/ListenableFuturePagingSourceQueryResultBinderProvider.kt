@@ -31,11 +31,11 @@ fun ListenableFuturePagingSourceQueryResultBinderProvider(
     return MultiTypedPagingSourceQueryResultBinderProvider(
             context = context,
             roomPagingClassName = limitOffsetListenableFuturePagingSource,
-            pagingSourceTypeName = PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE
+            pagingSourceTypeName = PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE,
         )
         .requireArtifact(
             context = context,
             requiredType = limitOffsetListenableFuturePagingSource,
-            missingArtifactErrorMsg = MISSING_ROOM_PAGING_GUAVA_ARTIFACT
+            missingArtifactErrorMsg = MISSING_ROOM_PAGING_GUAVA_ARTIFACT,
         )
 }

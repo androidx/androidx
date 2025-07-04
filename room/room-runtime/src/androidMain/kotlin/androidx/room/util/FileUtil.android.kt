@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 @file:JvmName("FileUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 
 package androidx.room.util
 
@@ -35,7 +35,7 @@ import java.nio.channels.ReadableByteChannel
  */
 @SuppressLint("LambdaLast")
 @Throws(IOException::class)
-fun copy(input: ReadableByteChannel, output: FileChannel) {
+public fun copy(input: ReadableByteChannel, output: FileChannel) {
     try {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             output.transferFrom(input, 0, Long.MAX_VALUE)

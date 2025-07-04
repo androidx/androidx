@@ -21,5 +21,5 @@ import androidx.room.Embedded
 data class BookWithPublisher(
     val bookId: String,
     val title: String,
-    @Embedded val publisher: Publisher
+    @Embedded val publisher: Publisher,
 )

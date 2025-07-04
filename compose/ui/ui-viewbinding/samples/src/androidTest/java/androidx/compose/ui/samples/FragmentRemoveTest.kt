@@ -198,10 +198,7 @@ class ComposeInflatedFragmentActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AndroidViewBinding(
-                TestFragmentLayoutBinding::inflate,
-                Modifier.requiredSize(50.dp),
-            )
+            AndroidViewBinding(TestFragmentLayoutBinding::inflate, Modifier.requiredSize(50.dp))
         }
 
         composeView =

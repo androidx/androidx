@@ -35,12 +35,12 @@ import androidx.compose.ui.text.TextStyle
 internal fun ProvideContentColorTextStyle(
     contentColor: Color,
     textStyle: TextStyle,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val mergedStyle = LocalTextStyle.current.merge(textStyle)
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
         LocalTextStyle provides mergedStyle,
-        content = content
+        content = content,
     )
 }

@@ -11,16 +11,16 @@ package androidx.emoji2.emojipicker {
     method public void setEmojiGridRows(float);
     method public void setOnEmojiPickedListener(androidx.core.util.Consumer<androidx.emoji2.emojipicker.EmojiViewItem>? onEmojiPickedListener);
     method public void setRecentEmojiProvider(androidx.emoji2.emojipicker.RecentEmojiProvider recentEmojiProvider);
-    property public final int emojiGridColumns;
-    property public final float emojiGridRows;
+    property public int emojiGridColumns;
+    property public float emojiGridRows;
   }
 
   public final class EmojiViewItem {
     ctor public EmojiViewItem(String emoji, java.util.List<java.lang.String> variants);
     method public String getEmoji();
     method public java.util.List<java.lang.String> getVariants();
-    property public final String emoji;
-    property public final java.util.List<java.lang.String> variants;
+    property public String emoji;
+    property public java.util.List<java.lang.String> variants;
   }
 
   public interface RecentEmojiAsyncProvider {

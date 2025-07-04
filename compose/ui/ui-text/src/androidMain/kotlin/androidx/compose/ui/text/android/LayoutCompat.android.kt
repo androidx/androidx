@@ -59,7 +59,7 @@ internal object LayoutCompat {
         HYPHENATION_FREQUENCY_NORMAL,
         HYPHENATION_FREQUENCY_NORMAL_FAST,
         HYPHENATION_FREQUENCY_FULL,
-        HYPHENATION_FREQUENCY_FULL_FAST
+        HYPHENATION_FREQUENCY_FULL_FAST,
     )
     internal annotation class HyphenationFrequency
 
@@ -81,7 +81,7 @@ internal object LayoutCompat {
         LINE_BREAK_STYLE_NONE,
         LINE_BREAK_STYLE_LOOSE,
         LINE_BREAK_STYLE_NORMAL,
-        LINE_BREAK_STYLE_STRICT
+        LINE_BREAK_STYLE_STRICT,
     )
     internal annotation class LineBreakStyle
 
@@ -106,7 +106,7 @@ internal object LayoutCompat {
         TEXT_DIRECTION_FIRST_STRONG_LTR,
         TEXT_DIRECTION_FIRST_STRONG_RTL,
         TEXT_DIRECTION_ANY_RTL_LTR,
-        TEXT_DIRECTION_LOCALE
+        TEXT_DIRECTION_LOCALE,
     )
     internal annotation class TextDirection
 
@@ -114,10 +114,7 @@ internal object LayoutCompat {
     const val TEXT_GRANULARITY_WORD = 1
 
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        TEXT_GRANULARITY_CHARACTER,
-        TEXT_GRANULARITY_WORD,
-    )
+    @IntDef(TEXT_GRANULARITY_CHARACTER, TEXT_GRANULARITY_WORD)
     internal annotation class TextGranularity
 
     const val DEFAULT_ALIGNMENT = ALIGN_NORMAL

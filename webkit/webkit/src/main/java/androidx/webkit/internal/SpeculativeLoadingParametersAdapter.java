@@ -17,6 +17,7 @@
 package androidx.webkit.internal;
 
 import androidx.webkit.NoVarySearchHeader;
+import androidx.webkit.Profile;
 import androidx.webkit.SpeculativeLoadingParameters;
 
 import org.chromium.support_lib_boundary.SpeculativeLoadingParametersBoundaryInterface;
@@ -28,6 +29,7 @@ import java.lang.reflect.InvocationHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+@Profile.ExperimentalUrlPrefetch
 public class SpeculativeLoadingParametersAdapter
         implements SpeculativeLoadingParametersBoundaryInterface {
 

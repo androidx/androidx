@@ -69,7 +69,7 @@ class ParameterizedHelperTest {
                     listOf(false, false),
                     listOf(false, true),
                     listOf(true, false),
-                    listOf(true, true)
+                    listOf(true, true),
                 )
             )
         assertThat(
@@ -89,7 +89,7 @@ class ParameterizedHelperTest {
                     listOf(true, 1, "low"),
                     listOf(true, 1, "hi"),
                     listOf(true, 2, "low"),
-                    listOf(true, 2, "hi")
+                    listOf(true, 2, "hi"),
                 )
             )
     }

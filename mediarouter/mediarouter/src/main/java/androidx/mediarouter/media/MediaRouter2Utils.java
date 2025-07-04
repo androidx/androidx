@@ -72,10 +72,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.ArraySet;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
@@ -87,9 +87,12 @@ import java.util.Set;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRouter2Utils {
+    private static final String TAG = "MediaRouter2Utils";
     static final String FEATURE_EMPTY = "android.media.route.feature.EMPTY";
-    static final String FEATURE_REMOTE_GROUP_PLAYBACK =
+    private static final String FEATURE_REMOTE_GROUP_PLAYBACK =
             "android.media.route.feature.REMOTE_GROUP_PLAYBACK";
+    private static final String FEATURE_REMOTE_DYNAMIC_GROUP_ROUTE =
+            "android.media.route.feature.REMOTE_DYNAMIC_GROUP_ROUTE";
 
     // Used in MediaRoute2Info#getExtras()
     static final String KEY_EXTRAS = "androidx.mediarouter.media.KEY_EXTRAS";
@@ -97,6 +100,8 @@ class MediaRouter2Utils {
     static final String KEY_DEVICE_TYPE = "androidx.mediarouter.media.KEY_DEVICE_TYPE";
     static final String KEY_PLAYBACK_TYPE = "androidx.mediarouter.media.KEY_PLAYBACK_TYPE";
     static final String KEY_ORIGINAL_ROUTE_ID = "androidx.mediarouter.media.KEY_ORIGINAL_ROUTE_ID";
+    private static final String KEY_GROUP_MEMBER_IDS =
+            "androidx.mediarouter.media.KEY_GROUP_MEMBER_IDS";
 
     // Used in RoutingController#getControlHints()
     static final String KEY_MESSENGER = "androidx.mediarouter.media.KEY_MESSENGER";
@@ -117,7 +122,6 @@ class MediaRouter2Utils {
 
     private MediaRouter2Utils() {}
 
-    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static MediaRoute2Info toFwkMediaRoute2Info(@Nullable MediaRouteDescriptor descriptor) {
         if (descriptor == null) {
@@ -155,8 +159,8 @@ class MediaRouter2Utils {
             case DEVICE_TYPE_REMOTE_SPEAKER:
                 builder.addFeature(FEATURE_REMOTE_AUDIO_PLAYBACK);
         }
-        if (!descriptor.getGroupMemberIds().isEmpty()) {
-            builder.addFeature(FEATURE_REMOTE_GROUP_PLAYBACK);
+        if (descriptor.isDynamicGroupRoute()) {
+            builder.addFeature(FEATURE_REMOTE_DYNAMIC_GROUP_ROUTE);
         }
 
         // Since MediaRouter2Info has no public APIs to get/set device types and control filters,
@@ -168,6 +172,13 @@ class MediaRouter2Utils {
         extras.putInt(KEY_DEVICE_TYPE, descriptor.getDeviceType());
         extras.putInt(KEY_PLAYBACK_TYPE, descriptor.getPlaybackType());
         extras.putString(KEY_ORIGINAL_ROUTE_ID, descriptor.getId());
+
+        if (!descriptor.getGroupMemberIds().isEmpty()) {
+            builder.addFeature(FEATURE_REMOTE_GROUP_PLAYBACK);
+            extras.putStringArrayList(
+                    KEY_GROUP_MEMBER_IDS, new ArrayList<>(descriptor.getGroupMemberIds()));
+        }
+
         builder.setExtras(extras);
 
         // This is a workaround for preventing IllegalArgumentException in MediaRoute2Info.
@@ -232,9 +243,18 @@ class MediaRouter2Utils {
             builder.addControlFilters(controlFilters);
         }
 
-        // TODO: Set 'dynamic group route' related values properly
-        // builder.setIsDynamicGroupRoute();
-        // builder.addGroupMemberIds();
+        List<String> features = fwkMediaRoute2Info.getFeatures();
+        if (features.contains(FEATURE_REMOTE_DYNAMIC_GROUP_ROUTE)) {
+            builder.setIsDynamicGroupRoute(true);
+        }
+        if (features.contains(FEATURE_REMOTE_GROUP_PLAYBACK)) {
+            ArrayList<String> groupMemberIds = extras.getStringArrayList(KEY_GROUP_MEMBER_IDS);
+            if (groupMemberIds == null || groupMemberIds.isEmpty()) {
+                Log.w(TAG, "Invalid feature of a group without members");
+            } else {
+                builder.addGroupMemberIds(groupMemberIds);
+            }
+        }
 
         return builder.build();
     }

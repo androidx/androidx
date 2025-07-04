@@ -172,7 +172,7 @@ class MultiContentLayoutTest {
             val fifth = @Composable { Item(4) }
             Layout(
                 contents = listOf(first, second, third, fourth, fifth),
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(100.dp),
             ) { (firstSlot, secondSlot, thirdSlot, fourthSlot, fifthSlot), constraints ->
                 assertThat(firstSlot.size).isEqualTo(1)
                 assertThat(secondSlot.size).isEqualTo(1)
@@ -181,7 +181,7 @@ class MultiContentLayoutTest {
                 assertThat(fifthSlot.size).isEqualTo(1)
                 layoutAsRow(
                     constraints,
-                    firstSlot + secondSlot + thirdSlot + fourthSlot + fifthSlot
+                    firstSlot + secondSlot + thirdSlot + fourthSlot + fifthSlot,
                 )
             }
         }
@@ -268,29 +268,29 @@ class MultiContentLayoutTest {
                         object : MultiContentMeasurePolicy {
                             override fun MeasureScope.measure(
                                 measurables: List<List<Measurable>>,
-                                constraints: Constraints
+                                constraints: Constraints,
                             ) = throw IllegalStateException("shouldn't be called")
 
                             override fun IntrinsicMeasureScope.minIntrinsicWidth(
                                 measurables: List<List<IntrinsicMeasurable>>,
-                                height: Int
+                                height: Int,
                             ): Int = measurables[1].first().minIntrinsicWidth(height)
 
                             override fun IntrinsicMeasureScope.minIntrinsicHeight(
                                 measurables: List<List<IntrinsicMeasurable>>,
-                                width: Int
+                                width: Int,
                             ): Int = measurables[1].first().minIntrinsicHeight(width)
 
                             override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                                 measurables: List<List<IntrinsicMeasurable>>,
-                                height: Int
+                                height: Int,
                             ): Int = measurables[1].first().maxIntrinsicWidth(height)
 
                             override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                                 measurables: List<List<IntrinsicMeasurable>>,
-                                width: Int
+                                width: Int,
                             ): Int = measurables[1].first().maxIntrinsicHeight(width)
-                        }
+                        },
                 )
             }) { measurables, _ ->
                 val box = measurables[0]
@@ -325,7 +325,7 @@ class MultiContentLayoutTest {
 
 private fun MeasureScope.layoutAsRow(
     constraints: Constraints,
-    list: List<Measurable>
+    list: List<Measurable>,
 ): MeasureResult {
     val childConstraints =
         Constraints(maxWidth = constraints.maxWidth, maxHeight = constraints.maxHeight)
@@ -346,29 +346,29 @@ private fun BoxWithIntrinsics(minWidth: Int, minHeight: Int, maxWidth: Int, maxH
             object : MeasurePolicy {
                 override fun MeasureScope.measure(
                     measurables: List<Measurable>,
-                    constraints: Constraints
+                    constraints: Constraints,
                 ): MeasureResult {
                     TODO("Not yet implemented")
                 }
 
                 override fun IntrinsicMeasureScope.minIntrinsicWidth(
                     measurables: List<IntrinsicMeasurable>,
-                    height: Int
+                    height: Int,
                 ) = minWidth
 
                 override fun IntrinsicMeasureScope.minIntrinsicHeight(
                     measurables: List<IntrinsicMeasurable>,
-                    width: Int
+                    width: Int,
                 ) = minHeight
 
                 override fun IntrinsicMeasureScope.maxIntrinsicWidth(
                     measurables: List<IntrinsicMeasurable>,
-                    height: Int
+                    height: Int,
                 ) = maxWidth
 
                 override fun IntrinsicMeasureScope.maxIntrinsicHeight(
                     measurables: List<IntrinsicMeasurable>,
-                    width: Int
+                    width: Int,
                 ) = maxHeight
             }
     )

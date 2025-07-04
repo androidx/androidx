@@ -24,7 +24,6 @@ import androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviou
 
 import org.junit.Test;
 
-
 public class ChainHeadTest {
 
     @Test

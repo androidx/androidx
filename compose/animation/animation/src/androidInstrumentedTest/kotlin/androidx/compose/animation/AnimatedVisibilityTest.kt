@@ -100,7 +100,7 @@ class AnimatedVisibilityTest {
                     exit =
                         shrinkOut(
                             tween(160, easing = FastOutSlowInEasing),
-                            Alignment.CenterStart
+                            Alignment.CenterStart,
                         ) { fullSize ->
                             IntSize(fullSize.width / 10, fullSize.height / 5)
                         },
@@ -470,7 +470,7 @@ class AnimatedVisibilityTest {
                     visible,
                     testModifier,
                     enter = EnterTransition.None,
-                    exit = ExitTransition.None
+                    exit = ExitTransition.None,
                 ) {
                     Box(Modifier.requiredSize(100.dp, 100.dp)) {
                         DisposableEffect(Unit) { onDispose { disposed = true } }
@@ -500,7 +500,7 @@ class AnimatedVisibilityTest {
     private enum class TestState {
         State1,
         State2,
-        State3
+        State3,
     }
 
     @OptIn(ExperimentalAnimationApi::class)
@@ -522,7 +522,7 @@ class AnimatedVisibilityTest {
                     // Must use LinearEasing otherwise the target size will be reached before the
                     // animation finishes running.
                     enter = expandIn(animationSpec = tween(100, easing = LinearEasing)),
-                    exit = shrinkOut(animationSpec = tween(100, easing = LinearEasing))
+                    exit = shrinkOut(animationSpec = tween(100, easing = LinearEasing)),
                 ) {
                     Box(Modifier.requiredSize(100.dp, 100.dp)) {
                         DisposableEffect(Unit) { onDispose { disposed = true } }
@@ -572,7 +572,7 @@ class AnimatedVisibilityTest {
                                 slideInVertically(animationSpec = spec()) { 200 },
                         exit =
                             scaleOut(animationSpec = spec()) +
-                                shrinkHorizontally(animationSpec = spec())
+                                shrinkHorizontally(animationSpec = spec()),
                     ) {
                         Box(Modifier.size(200.dp))
                     }
@@ -587,7 +587,7 @@ class AnimatedVisibilityTest {
             transition.setPlaytimeAfterInitialAndTargetStateEstablished(
                 false,
                 true,
-                playTimeMs * 1_000_000L
+                playTimeMs * 1_000_000L,
             )
             rule.waitForIdle()
             assertEquals(200_000_000L, transition.totalDurationNanos)
@@ -621,7 +621,7 @@ class AnimatedVisibilityTest {
             transition.setPlaytimeAfterInitialAndTargetStateEstablished(
                 true,
                 false,
-                playTimeMs * 1_000_000L
+                playTimeMs * 1_000_000L,
             )
             rule.waitForIdle()
             assertEquals(200_000_000L, transition.totalDurationNanos)
@@ -711,7 +711,7 @@ class AnimatedVisibilityTest {
                         } else {
                             // Only this transition should apply
                             slideOutHorizontally(animation()) { expectedExitDistance }
-                        }
+                        },
                 ) {
                     Box(
                         Modifier.requiredSize(boxSizePx.toDp())

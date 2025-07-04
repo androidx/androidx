@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat
 
 import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.compat.workaround.InactiveSurfaceCloser
-import androidx.camera.camera2.pipe.integration.compat.workaround.Lock3ABehaviorWhenCaptureImage
 import androidx.camera.camera2.pipe.integration.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdate
@@ -35,7 +34,6 @@ import dagger.Module
             UseFlashModeTorchFor3aUpdate.Bindings::class,
             UseTorchAsFlash.Bindings::class,
             TemplateParamsOverride.Bindings::class,
-            Lock3ABehaviorWhenCaptureImage.Bindings::class,
-        ],
+        ]
 )
 public abstract class CameraCompatModule

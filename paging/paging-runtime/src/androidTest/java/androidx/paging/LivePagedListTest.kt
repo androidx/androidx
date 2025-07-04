@@ -38,7 +38,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
@@ -167,7 +167,7 @@ class LivePagedListTest {
 
             override fun onCreateViewHolder(
                 parent: ViewGroup,
-                viewType: Int
+                viewType: Int,
             ): RecyclerView.ViewHolder {
                 return object : RecyclerView.ViewHolder(View(parent.context)) {}
             }
@@ -178,7 +178,7 @@ class LivePagedListTest {
         val livePagedList =
             LivePagedListBuilder(
                     factory,
-                    PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(30).build()
+                    PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(30).build(),
                 )
                 .build()
 
@@ -200,12 +200,12 @@ class LivePagedListTest {
     @OptIn(ExperimentalStdlibApi::class)
     @Test
     fun initialLoad_loadResultInvalid() =
-        testScope.runBlockingTest {
+        testScope.runTest {
             val dispatcher = coroutineContext[CoroutineDispatcher.Key]!!
             val pagingSources = mutableListOf<TestPagingSource>()
             val factory = {
                 TestPagingSource().also {
-                    if (pagingSources.size == 0)
+                    if (pagingSources.isEmpty())
                         it.nextLoadResult = PagingSource.LoadResult.Invalid()
                     pagingSources.add(it)
                 }
@@ -241,12 +241,12 @@ class LivePagedListTest {
             object : PositionalDataSource<String>() {
                 override fun loadInitial(
                     params: LoadInitialParams,
-                    callback: LoadInitialCallback<String>
+                    callback: LoadInitialCallback<String>,
                 ) {}
 
                 override fun loadRange(
                     params: LoadRangeParams,
-                    callback: LoadRangeCallback<String>
+                    callback: LoadRangeCallback<String>,
                 ) {}
             }
 

@@ -74,7 +74,7 @@ class ModelReadsTest {
                             // read from the model
                             offset.value
                             drawLatch.countDown()
-                        }
+                        },
                 ) { _, _ ->
                     layout(10, 10) {
                         // read from the model
@@ -118,7 +118,7 @@ class ModelReadsTest {
                             // read from the model
                             drawModel.value
                             drawLatch.countDown()
-                        }
+                        },
                 ) { _, _ ->
                     layout(10, 10) {
                         // read from the model
@@ -160,7 +160,7 @@ class ModelReadsTest {
                             // read from the model
                             offset.value
                             drawLatch.countDown()
-                        }
+                        },
                 ) { _, _ ->
                     measureLatch.countDown()
                     // read from the model
@@ -239,7 +239,7 @@ class ModelReadsTest {
                                 model.value
                             }
                             latch.countDown()
-                        }
+                        },
                 ) {}
             }
         }
@@ -506,7 +506,7 @@ class ModelReadsTest {
                             }
                             latch.countDown()
                         }
-                    )
+                    ),
                 ) { _, _ ->
                     layout(10, 10) {}
                 }
@@ -533,7 +533,7 @@ class ModelReadsTest {
                             }
                             latch.countDown()
                         }
-                    )
+                    ),
                 ) { _, _ ->
                     layout(10, 10) {}
                 }
@@ -560,7 +560,7 @@ class ModelReadsTest {
                                 model.value
                                 latch.countDown()
                             }
-                        )
+                        ),
                     ) { _, _ ->
                         layout(10, 10) {}
                     }
@@ -606,7 +606,7 @@ class ModelReadsTest {
                                 model.value
                                 latch.countDown()
                             }
-                        )
+                        ),
                     ) { _, _ ->
                         layout(10, 10) {}
                     }
@@ -725,7 +725,7 @@ class ModelReadsTest {
     fun assertCountDownOnlyWhileEnabled(
         enableModel: MutableState<Boolean>,
         valueModel: MutableState<Int>,
-        triggeredByEnableSwitch: Boolean = true
+        triggeredByEnableSwitch: Boolean = true,
     ) {
         latch = CountDownLatch(1)
         rule.runOnUiThread { valueModel.value++ }

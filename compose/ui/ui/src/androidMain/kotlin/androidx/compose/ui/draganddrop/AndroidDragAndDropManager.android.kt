@@ -32,7 +32,7 @@ internal class AndroidDragAndDropManager(
         (
             transferData: DragAndDropTransferData,
             decorationSize: Size,
-            drawDragDecoration: DrawScope.() -> Unit
+            drawDragDecoration: DrawScope.() -> Unit,
         ) -> Boolean
 ) : View.OnDragListener, DragAndDropManager {
 
@@ -69,14 +69,9 @@ internal class AndroidDragAndDropManager(
                 override fun startDragAndDropTransfer(
                     transferData: DragAndDropTransferData,
                     decorationSize: Size,
-                    drawDragDecoration: DrawScope.() -> Unit
+                    drawDragDecoration: DrawScope.() -> Unit,
                 ): Boolean {
-                    isTransferStarted =
-                        startDrag(
-                            transferData,
-                            decorationSize,
-                            drawDragDecoration,
-                        )
+                    isTransferStarted = startDrag(transferData, decorationSize, drawDragDecoration)
                     return isTransferStarted
                 }
             }

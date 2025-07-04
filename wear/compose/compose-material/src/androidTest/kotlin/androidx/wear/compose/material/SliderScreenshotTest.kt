@@ -58,7 +58,7 @@ class SliderScreenshotTest {
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -79,7 +79,7 @@ class SliderScreenshotTest {
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -107,11 +107,11 @@ class SliderScreenshotTest {
                         disabledBackgroundColor = Color.DarkGray,
                         disabledSpacerColor = Color.LightGray,
                         disabledSelectedBarColor = Color.Red,
-                        disabledUnselectedBarColor = Color.Blue
+                        disabledUnselectedBarColor = Color.Blue,
                     ),
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -133,7 +133,7 @@ class SliderScreenshotTest {
                 increaseIcon = {
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -162,11 +162,11 @@ class SliderScreenshotTest {
                         disabledBackgroundColor = Color.DarkGray,
                         disabledSpacerColor = Color.LightGray,
                         disabledSelectedBarColor = Color.Red,
-                        disabledUnselectedBarColor = Color.Blue
+                        disabledUnselectedBarColor = Color.Blue,
                     ),
                 onValueChange = {},
                 valueRange = 1f..4f,
-                steps = 2
+                steps = 2,
             )
         }
 
@@ -189,7 +189,7 @@ class SliderScreenshotTest {
                 increaseIcon = {
                     Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
                 },
-                steps = 2
+                steps = 2,
             )
         }
 

@@ -54,7 +54,7 @@ class CustomEffectContextTest {
             runOnIdle {
                 val elementFromComposition =
                     compositionScope.coroutineContext[TestCoroutineContextElement]
-                Truth.assertThat(elementFromComposition).isSameInstanceAs(testElement)
+                assertThat(elementFromComposition).isSameInstanceAs(testElement)
             }
         }
     }

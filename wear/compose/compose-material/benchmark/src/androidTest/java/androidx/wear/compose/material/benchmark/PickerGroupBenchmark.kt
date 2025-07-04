@@ -80,11 +80,11 @@ internal class PickerGroupTestCase : LayeredComposeTestCase() {
         PickerGroup(
             PickerGroupItem(
                 PickerState(20),
-                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) }
+                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) },
             ),
             PickerGroupItem(
                 PickerState(20),
-                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) }
+                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) },
             ),
         )
     }

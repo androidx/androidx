@@ -24,7 +24,7 @@ import androidx.compose.ui.semantics.CollectionInfo
 
 internal fun LazyLayoutSemanticState(
     state: LazyListState,
-    isVertical: Boolean
+    isVertical: Boolean,
 ): LazyLayoutSemanticState =
     object : LazyLayoutSemanticState {
 
@@ -32,7 +32,7 @@ internal fun LazyLayoutSemanticState(
             get() =
                 estimatedLazyScrollOffset(
                     state.firstVisibleItemIndex,
-                    state.firstVisibleItemScrollOffset
+                    state.firstVisibleItemScrollOffset,
                 )
 
         override val maxScrollOffset: Float
@@ -40,7 +40,7 @@ internal fun LazyLayoutSemanticState(
                 estimatedLazyMaxScrollOffset(
                     state.firstVisibleItemIndex,
                     state.firstVisibleItemScrollOffset,
-                    state.canScrollForward
+                    state.canScrollForward,
                 )
 
         override suspend fun scrollToItem(index: Int) {
@@ -49,9 +49,9 @@ internal fun LazyLayoutSemanticState(
 
         override fun collectionInfo(): CollectionInfo =
             if (isVertical) {
-                CollectionInfo(rowCount = -1, columnCount = 1)
+                CollectionInfo(rowCount = state.layoutInfo.totalItemsCount, columnCount = 1)
             } else {
-                CollectionInfo(rowCount = 1, columnCount = -1)
+                CollectionInfo(rowCount = 1, columnCount = state.layoutInfo.totalItemsCount)
             }
 
         override val viewport: Int

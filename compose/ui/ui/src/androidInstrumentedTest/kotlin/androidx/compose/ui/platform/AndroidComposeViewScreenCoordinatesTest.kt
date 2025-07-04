@@ -292,7 +292,7 @@ class AndroidComposeViewScreenCoordinatesTest {
                         val placeable = measurable.measure(Constraints.fixed(10, 10))
                         layout(
                             width = innerOffset.x + placeable.width,
-                            height = innerOffset.y + placeable.height
+                            height = innerOffset.y + placeable.height,
                         ) {
                             placeable.place(innerOffset)
                         }

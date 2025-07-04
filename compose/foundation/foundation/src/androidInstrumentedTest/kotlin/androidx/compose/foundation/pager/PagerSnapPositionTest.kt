@@ -41,7 +41,7 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
                 object : PageSize {
                     override fun Density.calculateMainAxisPageSize(
                         availableSpace: Int,
-                        pageSpacing: Int
+                        pageSpacing: Int,
                     ): Int {
                         return (availableSpace + pageSpacing) / 2
                     }
@@ -51,7 +51,7 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
                     modifier = Modifier.fillMaxSize(),
                     pageSize = PageSize,
                     orientation = it.orientation,
-                    snapPosition = it.snapPosition.first
+                    snapPosition = it.snapPosition.first,
                 )
             }
 
@@ -78,11 +78,11 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
                     object : PageSize {
                         override fun Density.calculateMainAxisPageSize(
                             availableSpace: Int,
-                            pageSpacing: Int
+                            pageSpacing: Int,
                         ) = ((availableSpace - 2 * pageSpacing) / 2.5).roundToInt()
                     },
                 orientation = it.orientation,
-                snapPosition = it.snapPosition.first
+                snapPosition = it.snapPosition.first,
             )
         }
 
@@ -103,7 +103,7 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
                 with(param) {
                     swipeWithVelocityAcrossMainAxis(
                         velocity = velocity,
-                        delta = (pageSize / 2f) * (scrollForwardSign * -1)
+                        delta = (pageSize / 2f) * (scrollForwardSign * -1),
                     )
                 }
             }
@@ -131,7 +131,7 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
                 with(param) {
                     swipeWithVelocityAcrossMainAxis(
                         velocity = velocity,
-                        delta = (pageSize / 2f) * scrollForwardSign
+                        delta = (pageSize / 2f) * scrollForwardSign,
                     )
                 }
             }
@@ -160,7 +160,7 @@ class PagerSnapPositionTest : SingleParamBasePagerTest() {
                         add(
                             SingleParamConfig(
                                 orientation = orientation,
-                                snapPosition = snapPosition
+                                snapPosition = snapPosition,
                             )
                         )
                     }

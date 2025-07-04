@@ -62,7 +62,7 @@ public class MyDao_Impl(
           }
           _result = SongWithArtist(_tmpSong,_tmpArtist)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <SongWithArtist>.")
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'SongWithArtist'.")
         }
         _result
       } finally {
@@ -71,8 +71,7 @@ public class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection,
-      _map: MutableMap<ByteArrayWrapper, Artist?>) {
+  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: MutableMap<ByteArrayWrapper, Artist?>) {
     val __mapKeySet: Set<ByteArrayWrapper> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return

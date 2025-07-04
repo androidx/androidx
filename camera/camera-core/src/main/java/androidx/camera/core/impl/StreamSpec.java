@@ -21,6 +21,8 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.camera.core.DynamicRange;
+import androidx.camera.core.ViewPort;
+import androidx.camera.core.streamsharing.StreamSharing;
 
 import com.google.auto.value.AutoValue;
 
@@ -46,10 +48,32 @@ public abstract class StreamSpec {
     public abstract @NonNull Size getResolution();
 
     /**
+     * Returns the original resolution configured by the camera. This value is useful for
+     * debugging and analysis, as it represents the initial resolution intended for the stream,
+     * even if the stream is later modified.
+     *
+     * <p>This value typically matches the resolution returned by {@link #getResolution()},
+     * but may differ if the stream is modified (e.g., cropped, scaled, or rotated)
+     * after being configured by the camera. For example, {@link StreamSharing} first determines
+     * which child use case's requested resolution to be its configured resolution and then
+     * request a larger resolution from the camera. The camera stream is further modified (e.g.,
+     * cropped, scaled, or rotated) to fit the configured resolution and other requirements such
+     * as {@link ViewPort} and rotation. The final resolution after these
+     * modifications would be reflected by {@link #getResolution()}, while this method returns the
+     * original configured resolution.
+     *
+     * @return The originally configured camera resolution.
+     */
+    public abstract @NonNull Size getOriginalConfiguredResolution();
+
+    /**
      * Returns the {@link DynamicRange} for the stream associated with this stream specification.
      * @return the dynamic range for the stream.
      */
     public abstract @NonNull DynamicRange getDynamicRange();
+
+    /** Returns the session type associated with this stream. */
+    public abstract int getSessionType();
 
     /**
      * Returns the expected frame rate range for the stream associated with this stream
@@ -74,6 +98,8 @@ public abstract class StreamSpec {
     public static @NonNull Builder builder(@NonNull Size resolution) {
         return new AutoValue_StreamSpec.Builder()
                 .setResolution(resolution)
+                .setOriginalConfiguredResolution(resolution)
+                .setSessionType(SessionConfig.DEFAULT_SESSION_TYPE)
                 .setExpectedFrameRateRange(FRAME_RATE_RANGE_UNSPECIFIED)
                 .setDynamicRange(DynamicRange.SDR)
                 .setZslDisabled(false);
@@ -92,6 +118,31 @@ public abstract class StreamSpec {
         /** Sets the resolution, overriding the existing resolution set in this builder. */
         public abstract @NonNull Builder setResolution(@NonNull Size resolution);
 
+        /**
+         * Sets the original resolution configured by the camera. This value is useful for
+         * debugging and analysis, as it represents the initial resolution intended by the stream
+         * consumer, even if the stream is later modified.
+         *
+         * <p>This value typically matches the resolution set by {@link #setResolution(Size)},
+         * but may differ if the stream is modified (e.g., cropped, scaled, or rotated)
+         * after being configured by the camera. For example, {@link StreamSharing} first
+         * determines which child use case's requested resolution to be its configured resolution
+         * and then request a larger resolution from the camera. The camera stream is further
+         * modified (e.g., cropped, scaled, or rotated) to fit the configured resolution and other
+         * requirements such as {@link ViewPort} and rotation. The final resolution after these
+         * modifications is set by {@link #setResolution(Size)}, while this method retains the
+         * original configured resolution.
+         *
+         * <p>If not set, this value will default to the resolution set in this builder.
+         */
+        public abstract @NonNull Builder setOriginalConfiguredResolution(@NonNull Size resolution);
+
+        /**
+         * Sets the session type.
+         *
+         * <p>If not set, the default session type is {@link SessionConfig#DEFAULT_SESSION_TYPE}.
+         */
+        public abstract @NonNull Builder setSessionType(int sessionType);
         /**
          * Sets the dynamic range.
          *

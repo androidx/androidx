@@ -97,7 +97,7 @@ class PaddingTest : LayoutTest() {
     fun symmetricEqualToAbsoluteWithExplicitSides() {
         Assert.assertEquals(
             Modifier.padding(10.dp, 20.dp, 10.dp, 20.dp),
-            Modifier.padding(10.dp, 20.dp)
+            Modifier.padding(10.dp, 20.dp),
         )
     }
 
@@ -146,7 +146,7 @@ class PaddingTest : LayoutTest() {
             paddingLeft,
             paddingTop,
             paddingRight,
-            paddingBottom
+            paddingBottom,
         ) { child: @Composable () -> Unit ->
             TestBox(modifier = padding, content = child)
         }
@@ -312,13 +312,13 @@ class PaddingTest : LayoutTest() {
 
             assertEquals(
                 Offset((rootWidth - padding1 - padding2 - size * 2).toFloat(), 0f),
-                childPosition[1]
+                childPosition[1],
             )
             assertEquals(IntSize(size, size), childSize[1])
 
             assertEquals(
                 Offset((rootWidth - size * 3 - padding1 * 2 - padding2 - padding3).toFloat(), 0f),
-                childPosition[2]
+                childPosition[2],
             )
             assertEquals(IntSize(size, size), childSize[2])
         }
@@ -374,7 +374,7 @@ class PaddingTest : LayoutTest() {
 
             assertEquals(
                 Offset((rootWidth - size * 2 - padding1 - padding2 - padding3).toFloat(), 0f),
-                childPosition[1]
+                childPosition[1],
             )
         }
 
@@ -414,7 +414,7 @@ class PaddingTest : LayoutTest() {
                 ValueElement("start", 10.dp),
                 ValueElement("top", 20.dp),
                 ValueElement("end", 30.dp),
-                ValueElement("bottom", 40.dp)
+                ValueElement("bottom", 40.dp),
             )
     }
 
@@ -437,7 +437,7 @@ class PaddingTest : LayoutTest() {
                 ValueElement("left", 10.dp),
                 ValueElement("top", 20.dp),
                 ValueElement("right", 30.dp),
-                ValueElement("bottom", 40.dp)
+                ValueElement("bottom", 40.dp),
             )
     }
 
@@ -451,7 +451,7 @@ class PaddingTest : LayoutTest() {
 
     private fun testPaddingIsAppliedImplementation(
         padding: Dp,
-        paddingContainer: @Composable (@Composable () -> Unit) -> Unit
+        paddingContainer: @Composable (@Composable () -> Unit) -> Unit,
     ) =
         with(density) {
             val sizeDp = 50.dp
@@ -465,7 +465,7 @@ class PaddingTest : LayoutTest() {
                 Box(Modifier.fillMaxSize()) {
                     ConstrainedBox(
                         constraints = DpConstraints.fixed(sizeDp, sizeDp),
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     ) {
                         val content =
                             @Composable {
@@ -499,7 +499,7 @@ class PaddingTest : LayoutTest() {
         top: Dp,
         right: Dp,
         bottom: Dp,
-        paddingContainer: @Composable ((@Composable () -> Unit) -> Unit)
+        paddingContainer: @Composable ((@Composable () -> Unit) -> Unit),
     ) =
         with(density) {
             val sizeDp = 50.dp
@@ -512,7 +512,7 @@ class PaddingTest : LayoutTest() {
                 Box(Modifier.fillMaxSize()) {
                     ConstrainedBox(
                         constraints = DpConstraints.fixed(sizeDp, sizeDp),
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     ) {
                         val content =
                             @Composable {
@@ -540,7 +540,7 @@ class PaddingTest : LayoutTest() {
             val paddingBottom = bottom.roundToPx()
             assertEquals(
                 IntSize(size - paddingLeft - paddingRight, size - paddingTop - paddingBottom),
-                childSize
+                childSize,
             )
             val viewLeft = ((root.width - size) / 2f).roundToInt() + paddingLeft
             val viewTop = ((root.height - size) / 2f).roundToInt() + paddingTop
@@ -549,7 +549,7 @@ class PaddingTest : LayoutTest() {
 
     private fun testPaddingWithInsufficientSpaceImplementation(
         padding: Dp,
-        paddingContainer: @Composable (@Composable () -> Unit) -> Unit
+        paddingContainer: @Composable (@Composable () -> Unit) -> Unit,
     ) =
         with(density) {
             val sizeDp = 50.dp
@@ -563,7 +563,7 @@ class PaddingTest : LayoutTest() {
                 Box(Modifier.fillMaxSize()) {
                     ConstrainedBox(
                         constraints = DpConstraints.fixed(sizeDp, sizeDp),
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     ) {
                         paddingContainer {
                             Container(
@@ -601,7 +601,7 @@ class PaddingTest : LayoutTest() {
             val placeable = measurables.first().measure(constraints)
             layout(
                 placeable.width.coerceAtMost(constraints.maxWidth),
-                placeable.height.coerceAtMost(constraints.maxHeight)
+                placeable.height.coerceAtMost(constraints.maxHeight),
             ) {
                 placeable.placeRelative(0, 0)
             }

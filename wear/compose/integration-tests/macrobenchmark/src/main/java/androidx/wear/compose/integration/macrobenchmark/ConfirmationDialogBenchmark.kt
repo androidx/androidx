@@ -56,17 +56,14 @@ class ConfirmationDialogBenchmark(private val compilationMode: CompilationMode) 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-                ),
+                listOf(FrameTimingGfxInfoMetric(), MemoryUsageMetric(MemoryUsageMetric.Mode.Last)),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
                 intent.action = CONFIRMATION_DIALOG_ACTIVITY
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             device
                 .wait(Until.findObject(By.desc(OPEN_CONFIRMATION_DIALOG)), FIND_OBJECT_TIMEOUT_MS)

@@ -124,7 +124,7 @@ class FoldableCameraActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
@@ -198,7 +198,7 @@ class FoldableCameraActivity : AppCompatActivity() {
                 ImageCapture.OutputFileOptions.Builder(
                         contentResolver,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues
+                        contentValues,
                     )
                     .build()
 
@@ -210,7 +210,7 @@ class FoldableCameraActivity : AppCompatActivity() {
                         Toast.makeText(
                                 this@FoldableCameraActivity,
                                 "Image captured successfully",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                             .show()
                     }
@@ -219,11 +219,11 @@ class FoldableCameraActivity : AppCompatActivity() {
                         Toast.makeText(
                                 this@FoldableCameraActivity,
                                 "Failed to capture",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             )
                             .show()
                     }
-                }
+                },
             )
         }
 
@@ -463,7 +463,7 @@ class FoldableCameraActivity : AppCompatActivity() {
     fun getFeaturePositionInViewRect(
         displayFeature: DisplayFeature,
         view: View,
-        includePadding: Boolean = true
+        includePadding: Boolean = true,
     ): Rect? {
         // The location of the view in window to be in the same coordinate space as the feature.
         val viewLocationInWindow = IntArray(2)
@@ -475,7 +475,7 @@ class FoldableCameraActivity : AppCompatActivity() {
                 viewLocationInWindow[0],
                 viewLocationInWindow[1],
                 viewLocationInWindow[0] + view.width,
-                viewLocationInWindow[1] + view.height
+                viewLocationInWindow[1] + view.height,
             )
 
         // Include padding if needed

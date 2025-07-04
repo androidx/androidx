@@ -100,7 +100,7 @@ class AudioToHapticAttributesTest {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     put(
                         AudioAttributes.USAGE_ASSISTANT,
-                        HapticAttributes.USAGE_COMMUNICATION_REQUEST
+                        HapticAttributes.USAGE_COMMUNICATION_REQUEST,
                     )
                 }
             }

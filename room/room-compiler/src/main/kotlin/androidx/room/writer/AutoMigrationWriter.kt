@@ -64,7 +64,7 @@ class AutoMigrationWriter(
                             XCodeBlock.ofNewInstance(autoMigration.specClassName)
                         } else {
                             null
-                        }
+                        },
                 )
             }
             addFunction(createConstructor())
@@ -85,10 +85,7 @@ class AutoMigrationWriter(
                     XCodeBlock.of("%L", autoMigration.to),
                 )
                 if (autoMigration.isSpecProvided) {
-                    addParameter(
-                        typeName = RoomTypeNames.AUTO_MIGRATION_SPEC,
-                        name = "callback",
-                    )
+                    addParameter(typeName = RoomTypeNames.AUTO_MIGRATION_SPEC, name = "callback")
                     addStatement("this.callback = callback")
                 }
             }
@@ -103,10 +100,7 @@ class AutoMigrationWriter(
                     isOverride = true,
                 )
                 .apply {
-                    addParameter(
-                        typeName = CONNECTION,
-                        name = "connection",
-                    )
+                    addParameter(typeName = CONNECTION, name = "connection")
                     addMigrationStatements(this)
                     if (autoMigration.specClassName != null) {
                         addStatement("callback.onPostMigrate(connection)")
@@ -173,7 +167,7 @@ class AutoMigrationWriter(
                         migrateBuilder,
                         oldEntityBundle,
                         newEntityBundle,
-                        renamedColumnsMap
+                        renamedColumnsMap,
                     )
                 } else {
                     addStatementsToCreateNewTable(newEntityBundle, migrateBuilder)
@@ -183,13 +177,13 @@ class AutoMigrationWriter(
                         oldEntityBundle,
                         newEntityBundle,
                         renamedColumnsMap,
-                        migrateBuilder
+                        migrateBuilder,
                     )
                     addStatementsToDropTableAndRenameTempTable(
                         oldEntityBundle.tableName,
                         newEntityBundle.tableName,
                         tableNameWithNewPrefix,
-                        migrateBuilder
+                        migrateBuilder,
                     )
                     if (newEntityBundle is EntityBundle) {
                         addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
@@ -209,7 +203,7 @@ class AutoMigrationWriter(
         migrateBuilder: XFunSpec.Builder,
         oldTable: BaseEntityBundle,
         newTable: BaseEntityBundle,
-        renamedColumnsMap: MutableMap<String, String>
+        renamedColumnsMap: MutableMap<String, String>,
     ) {
         addDatabaseExecuteSqlStatement(migrateBuilder, "DROP TABLE `${oldTable.tableName}`")
         addDatabaseExecuteSqlStatement(migrateBuilder, newTable.createTable())
@@ -228,7 +222,7 @@ class AutoMigrationWriter(
             newEntityBundle = newTable,
             renamedColumnsMap = renamedColumnsMap,
             migrateBuilder = migrateBuilder,
-            isFtsTableContentTransfer = true
+            isFtsTableContentTransfer = true,
         )
     }
 
@@ -254,7 +248,7 @@ class AutoMigrationWriter(
      */
     private fun addStatementsToCreateNewTable(
         newTable: BaseEntityBundle,
-        migrateBuilder: XFunSpec.Builder
+        migrateBuilder: XFunSpec.Builder,
     ) {
         addDatabaseExecuteSqlStatement(migrateBuilder, newTable.createNewTable())
     }
@@ -287,7 +281,7 @@ class AutoMigrationWriter(
         newEntityBundle: BaseEntityBundle,
         renamedColumnsMap: MutableMap<String, String>,
         migrateBuilder: XFunSpec.Builder,
-        isFtsTableContentTransfer: Boolean = false
+        isFtsTableContentTransfer: Boolean = false,
     ) {
         val newColumnSequence =
             newEntityBundle.fieldsByColumnName.keys
@@ -317,9 +311,9 @@ class AutoMigrationWriter(
                     "INSERT INTO `$tableNameWithNewPrefix` " +
                         "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
                         " SELECT ${selectColumnSequence.joinToString(",") { "`$it`" }} FROM " +
-                        "`$oldTableName`",
+                        "`$oldTableName`"
                 )
-            }
+            },
         )
     }
 
@@ -336,12 +330,12 @@ class AutoMigrationWriter(
         oldTableName: String,
         newTableName: String,
         tableNameWithNewPrefix: String,
-        migrateBuilder: XFunSpec.Builder
+        migrateBuilder: XFunSpec.Builder,
     ) {
         addDatabaseExecuteSqlStatement(migrateBuilder, "DROP TABLE `$oldTableName`")
         addDatabaseExecuteSqlStatement(
             migrateBuilder,
-            "ALTER TABLE `$tableNameWithNewPrefix` RENAME TO `$newTableName`"
+            "ALTER TABLE `$tableNameWithNewPrefix` RENAME TO `$newTableName`",
         )
     }
 
@@ -353,7 +347,7 @@ class AutoMigrationWriter(
      */
     private fun addStatementsToRecreateIndexes(
         table: EntityBundle,
-        migrateBuilder: XFunSpec.Builder
+        migrateBuilder: XFunSpec.Builder,
     ) {
         table.indices.forEach { index ->
             addDatabaseExecuteSqlStatement(migrateBuilder, index.getCreateSql(table.tableName))
@@ -441,8 +435,8 @@ class AutoMigrationWriter(
             XCodeBlock.ofExtensionCall(
                 memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
                 receiverVarName = "connection",
-                args = XCodeBlock.of("%S", sql)
-            )
+                args = XCodeBlock.of("%S", sql),
+            ),
         )
     }
 }

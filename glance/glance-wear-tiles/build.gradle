@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -51,7 +51,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
@@ -75,26 +74,21 @@ android {
         minSdk = 26
         compileSdk = 35
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
 
-    lintOptions {
+    lint {
         // TODO(b/191286558): Remove when lint is fixed.
-        disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
-        // protobuf generates unannotated methods
-        disable "UnknownNullness"
+        disable.add("UnsafeOptInUsageError")
     }
     namespace = "androidx.glance.wear.tiles"
 }
 
 androidx {
     name = "Glance for Wear Tiles"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."
-    legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     addGoldenImageAssets()
+    enableRobolectric()
 }

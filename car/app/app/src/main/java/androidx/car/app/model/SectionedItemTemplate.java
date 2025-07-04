@@ -16,9 +16,12 @@
 
 package androidx.car.app.model;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -26,6 +29,8 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,9 +38,39 @@ import java.util.Objects;
 
 /** A template that contains sections of items like rows, grid items, etc. */
 @KeepFields
+@RequiresCarApi(8)
 @CarProtocol
 @ExperimentalCarApi
 public final class SectionedItemTemplate implements Template {
+    /**
+     * Denotes possible strategies for preserving a user's scroll position when this template is
+     * refreshed.
+     */
+    @IntDef(value = {SCROLL_STATE_RESET_TO_TOP, SCROLL_STATE_PRESERVE_INDEX})
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface ScrollStatePersistenceStrategy {
+    }
+
+    /**
+     * Indicate that the scroll position should reset back to the top when this template is
+     * refreshed.
+     *
+     * <p>This is the default behavior if not explicitly set.
+     */
+    @ScrollStatePersistenceStrategy
+    public static final int SCROLL_STATE_RESET_TO_TOP = 0;
+
+    /**
+     * Indicate that the scroll position should be preserved by scrolling back down to the same
+     * index that the user had scrolled to.
+     *
+     * <p>If the index no longer exists, the scroll position will be set to the bottom of the new
+     * list.
+     */
+    @ScrollStatePersistenceStrategy
+    public static final int SCROLL_STATE_PRESERVE_INDEX = 1;
+
     private final @NonNull List<Section<?>> mSections;
 
     private final @NonNull List<Action> mActions;
@@ -46,6 +81,8 @@ public final class SectionedItemTemplate implements Template {
 
     private final boolean mIsAlphabeticalIndexingAllowed;
 
+    private final int mScrollStatePersistenceStrategy;
+
     // Empty constructor for serialization
     private SectionedItemTemplate() {
         mSections = Collections.emptyList();
@@ -53,6 +90,7 @@ public final class SectionedItemTemplate implements Template {
         mHeader = null;
         mIsLoading = false;
         mIsAlphabeticalIndexingAllowed = false;
+        mScrollStatePersistenceStrategy = SCROLL_STATE_RESET_TO_TOP;
     }
 
     /** Creates a {@link SectionedItemTemplate} from the {@link Builder}. */
@@ -62,6 +100,7 @@ public final class SectionedItemTemplate implements Template {
         mHeader = builder.mHeader;
         mIsLoading = builder.mIsLoading;
         mIsAlphabeticalIndexingAllowed = builder.mIsAlphabeticalIndexingAllowed;
+        mScrollStatePersistenceStrategy = builder.mScrollStatePersistenceStrategy;
     }
 
     /** Returns the list of sections within this template. */
@@ -100,13 +139,23 @@ public final class SectionedItemTemplate implements Template {
         return mIsAlphabeticalIndexingAllowed;
     }
 
+    /**
+     * Returns the strategy to use when this template is used as a refresh.
+     *
+     * See {@link Builder#setScrollStatePersistenceStrategy(int)}
+     */
+    public int getScrollStatePersistenceStrategy() {
+        return mScrollStatePersistenceStrategy;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(mSections,
                 mActions,
                 mHeader,
                 mIsLoading,
-                mIsAlphabeticalIndexingAllowed
+                mIsAlphabeticalIndexingAllowed,
+                mScrollStatePersistenceStrategy
         );
     }
 
@@ -126,7 +175,8 @@ public final class SectionedItemTemplate implements Template {
                 && Objects.equals(mActions, template.mActions)
                 && Objects.equals(mHeader, template.mHeader)
                 && mIsLoading == template.mIsLoading
-                && mIsAlphabeticalIndexingAllowed == template.mIsAlphabeticalIndexingAllowed;
+                && mIsAlphabeticalIndexingAllowed == template.mIsAlphabeticalIndexingAllowed
+                && mScrollStatePersistenceStrategy == template.mScrollStatePersistenceStrategy;
     }
 
     @Override
@@ -153,7 +203,10 @@ public final class SectionedItemTemplate implements Template {
         private @Nullable Header mHeader = null;
 
         private boolean mIsLoading = false;
+
         private boolean mIsAlphabeticalIndexingAllowed = false;
+
+        private int mScrollStatePersistenceStrategy = SCROLL_STATE_RESET_TO_TOP;
 
         /** Create a new {@link SectionedItemTemplate} builder. */
         public Builder() {
@@ -169,6 +222,7 @@ public final class SectionedItemTemplate implements Template {
             mHeader = template.mHeader;
             mIsLoading = template.mIsLoading;
             mIsAlphabeticalIndexingAllowed = template.mIsAlphabeticalIndexingAllowed;
+            mScrollStatePersistenceStrategy = template.mScrollStatePersistenceStrategy;
         }
 
         /**
@@ -276,6 +330,26 @@ public final class SectionedItemTemplate implements Template {
         public @NonNull Builder setAlphabeticalIndexingAllowed(
                 boolean alphabeticalIndexingAllowed) {
             mIsAlphabeticalIndexingAllowed = alphabeticalIndexingAllowed;
+            return this;
+        }
+
+        /**
+         * Set how to handle a user's scroll position when this template is used as a refresh of
+         * another {@link SectionedItemTemplate}.
+         *
+         * <p>For example, if a user is currently scrolled down to item 10 in an existing
+         * {@link SectionedItemTemplate}, setting this field to
+         * {@link SectionedItemTemplate#SCROLL_STATE_PRESERVE_INDEX} would cause the user to
+         * be shown item 10 from this template. Alternatively,
+         * {@link SectionedItemTemplate#SCROLL_STATE_RESET_TO_TOP} would cause the user to be reset
+         * to the top of this template.
+         *
+         * <p>By default, this is set to {@link SectionedItemTemplate#SCROLL_STATE_RESET_TO_TOP}.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setScrollStatePersistenceStrategy(
+                @ScrollStatePersistenceStrategy int scrollStatePersistenceStrategy) {
+            mScrollStatePersistenceStrategy = scrollStatePersistenceStrategy;
             return this;
         }
 

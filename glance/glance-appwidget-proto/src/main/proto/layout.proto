@@ -89,3 +89,44 @@ enum LayoutType {
   RADIO_COLUMN = 21;
   SIZE_BOX = 22;
 }
+
+message AsyncRequest {
+  oneof request {
+    Update update = 1;
+    OptionsChanged options_changed = 2;
+    Delete delete = 3;
+    Lambda lambda = 4;
+    RunCallback run_callback = 5;
+    MyPackageReplaced my_package_replaced = 6;
+  }
+
+  message Update {
+    string receiver = 1;
+    repeated int32 app_widget_ids = 2;
+  }
+
+  message OptionsChanged {
+    string receiver = 1;
+    int32 app_widget_id = 2;
+    bytes bundle = 3;
+  }
+
+  message Delete {
+    string receiver = 1;
+    repeated int32 app_widget_ids = 2;
+  }
+
+  message Lambda {
+    string receiver = 1;
+    int32 app_widget_id = 2;
+    string actionKey = 3;
+  }
+
+  message RunCallback {
+    string class_name = 1;
+    int32 app_widget_id = 2;
+    bytes action_parameters = 3;
+  }
+
+  message MyPackageReplaced {}
+}

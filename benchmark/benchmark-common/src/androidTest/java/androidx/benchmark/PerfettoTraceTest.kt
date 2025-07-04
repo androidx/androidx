@@ -48,14 +48,14 @@ class PerfettoTraceTest {
         var perfettoTrace: PerfettoTrace? = null
         PerfettoTrace.record(
             fileLabel = "testTrace",
-            traceCallback = { trace -> perfettoTrace = trace }
+            traceCallback = { trace -> perfettoTrace = trace },
         ) {
             // noop
         }
         assertNotNull(perfettoTrace)
         assertTrue(
             perfettoTrace!!.path.matches(Regex(".*/testTrace_[0-9-]+.perfetto-trace")),
-            "$perfettoTrace didn't match!"
+            "$perfettoTrace didn't match!",
         )
     }
 
@@ -65,14 +65,14 @@ class PerfettoTraceTest {
         PerfettoTrace.record(
             fileLabel = label,
             config = config,
-            traceCallback = { trace -> perfettoTrace = trace }
+            traceCallback = { trace -> perfettoTrace = trace },
         ) {
             // noop
         }
         assertNotNull(perfettoTrace)
         assertTrue(
             perfettoTrace!!.path.matches(Regex(".*/${label}_[0-9-]+.perfetto-trace")),
-            "$perfettoTrace didn't match!"
+            "$perfettoTrace didn't match!",
         )
     }
 
@@ -83,7 +83,7 @@ class PerfettoTraceTest {
                 PerfettoTrace.record(
                     fileLabel = "failTrace",
                     config = config,
-                    traceCallback = { trace -> perfettoTrace = trace }
+                    traceCallback = { trace -> perfettoTrace = trace },
                 ) {
                     // noop
                 }
@@ -145,7 +145,7 @@ class PerfettoTraceTest {
                                     .targetContext
                                     .packageName
                             ),
-                        stackSamplingConfig = null
+                        stackSamplingConfig = null,
                     )
                     .validateAndEncode()
             )
@@ -157,13 +157,13 @@ class PerfettoTraceTest {
         var perfettoTrace: PerfettoTrace? = null
         PerfettoTrace.record(
             fileLabel = "outer",
-            traceCallback = { trace -> perfettoTrace = trace }
+            traceCallback = { trace -> perfettoTrace = trace },
         ) {
             // tracing while tracing should fail
             assertFailsWith<IllegalStateException> {
                 PerfettoTrace.record(
                     fileLabel = "inner",
-                    traceCallback = { _ -> fail("inner trace should not complete / record") }
+                    traceCallback = { _ -> fail("inner trace should not complete / record") },
                 ) {
                     // noop
                 }

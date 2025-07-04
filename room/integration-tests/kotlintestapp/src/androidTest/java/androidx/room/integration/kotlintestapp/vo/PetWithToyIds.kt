@@ -26,7 +26,7 @@ class PetWithToyIds {
         parentColumn = "mPetId",
         entityColumn = "mPetId",
         projection = ["mId"],
-        entity = Toy::class
+        entity = Toy::class,
     )
     var mToyIds: List<Int>? = null
 

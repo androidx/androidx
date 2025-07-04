@@ -48,7 +48,7 @@ internal class EmojiPickerHeaderAdapter(
                 layoutInflater.inflate(
                     R.layout.header_icon_holder,
                     parent,
-                    /* attachToRoot = */ false
+                    /* attachToRoot = */ false,
                 )
             ) {}
     }
@@ -58,7 +58,7 @@ internal class EmojiPickerHeaderAdapter(
         val headerIcon =
             ViewCompat.requireViewById<ImageView>(
                     viewHolder.itemView,
-                    R.id.emoji_picker_header_icon
+                    R.id.emoji_picker_header_icon,
                 )
                 .apply {
                     setImageDrawable(context.getDrawable(emojiPickerItems.getHeaderIconId(i)))

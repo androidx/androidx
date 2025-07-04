@@ -77,7 +77,7 @@ class TextOverflowTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalDensity provides density,
-                LocalFontFamilyResolver provides fontFamilyResolver
+                LocalFontFamilyResolver provides fontFamilyResolver,
             ) {
                 Box(Modifier.testTag(BoxTag).size(boxWidth.dp, boxHeight.dp)) {
                     BasicText(
@@ -91,9 +91,9 @@ class TextOverflowTest {
                                 fontSize = 20.sp,
                                 fontFamily = fontFamily,
                                 color = Color.Red,
-                                lineHeight = 20.sp
+                                lineHeight = 20.sp,
                             ),
-                        overflow = TextOverflow.Visible
+                        overflow = TextOverflow.Visible,
                     )
                 }
             }
@@ -119,7 +119,7 @@ class TextOverflowTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalDensity provides density,
-                LocalFontFamilyResolver provides fontFamilyResolver
+                LocalFontFamilyResolver provides fontFamilyResolver,
             ) {
                 Box(Modifier.testTag(BoxTag).size(boxWidth.dp, boxHeight.dp)) {
                     BasicText(
@@ -133,9 +133,9 @@ class TextOverflowTest {
                                 fontSize = 20.sp,
                                 fontFamily = fontFamily,
                                 color = Color.Red,
-                                lineHeight = 20.sp
+                                lineHeight = 20.sp,
                             ),
-                        overflow = TextOverflow.Visible
+                        overflow = TextOverflow.Visible,
                     )
                 }
             }

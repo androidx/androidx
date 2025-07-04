@@ -39,9 +39,7 @@ package androidx.health.connect.client.testing.stubs
  *   is empty.
  * @see Stub
  */
-public class MutableStub<T, R : Any>(
-    public var defaultHandler: (T) -> R? = { null },
-) : Stub<T, R> {
+public class MutableStub<T, R : Any>(public var defaultHandler: (T) -> R? = { null }) : Stub<T, R> {
     internal val queue = ArrayDeque<R>()
 
     override fun next(request: T): R? {

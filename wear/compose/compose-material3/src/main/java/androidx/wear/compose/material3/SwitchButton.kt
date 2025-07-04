@@ -55,6 +55,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -109,6 +111,8 @@ import androidx.wear.compose.materialcore.isLayoutDirectionRtl
  *   emitting [Interaction]s for this button's "toggleable" tap area. You can use this to change the
  *   button's appearance or preview the button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
+ * @param transformation Transformation to be used when button appears inside a container that needs
+ *   to dynamically change its content separately from the background.
  * @param icon An optional slot for providing an icon to indicate the purpose of the button. The
  *   contents are expected to be a horizontally and vertically center aligned icon of size 24.dp.
  * @param secondaryLabel A slot for providing the button's secondary label. The contents are
@@ -126,9 +130,10 @@ public fun SwitchButton(
     colors: SwitchButtonColors = SwitchButtonDefaults.switchButtonColors(),
     contentPadding: PaddingValues = SwitchButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
+    transformation: SurfaceTransformation? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    label: @Composable RowScope.() -> Unit
+    label: @Composable RowScope.() -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -150,7 +155,7 @@ public fun SwitchButton(
                         maxLines = 3,
                         textAlign = TextAlign.Start,
                     ),
-                content = label
+                content = label,
             ),
         toggleControl = {
             Switch(
@@ -167,7 +172,7 @@ public fun SwitchButton(
                 },
                 trackBorderColor = { enabled, checked ->
                     colors.trackBorderColor(enabled = enabled, checked = checked)
-                }
+                },
             )
         },
         selectionControl = null,
@@ -175,7 +180,7 @@ public fun SwitchButton(
         icon =
             provideNullableScopeContent(
                 contentColor = colors.iconColor(enabled = enabled, checked),
-                content = icon
+                content = icon,
             ),
         secondaryLabel =
             provideNullableScopeContent(
@@ -187,13 +192,17 @@ public fun SwitchButton(
                         maxLines = 2,
                         textAlign = TextAlign.Start,
                     ),
-                content = secondaryLabel
+                content = secondaryLabel,
             ),
         background = { isEnabled, isChecked ->
             val backgroundColor =
                 colors.containerColor(enabled = isEnabled, checked = isChecked).value
 
-            Modifier.background(backgroundColor)
+            Modifier.surface(
+                transformation = transformation,
+                shape = shape,
+                painter = ColorPainter(backgroundColor),
+            )
         },
         enabled = enabled,
         interactionSource = interactionSource,
@@ -204,7 +213,7 @@ public fun SwitchButton(
         labelSpacerSize = SwitchButtonDefaults.LabelSpacerSize,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = ripple()
+        ripple = ripple(),
     )
 }
 
@@ -256,6 +265,8 @@ public fun SwitchButton(
  *   and emitting [Interaction]s for this button's main body "clickable" tap area. You can use this
  *   to change the button's appearance or preview the button in different states. Note that if
  *   `null` is provided, interactions will still happen internally.
+ * @param transformation Transformation to be used when button appears inside a container that needs
+ *   to dynamically change its content separately from the background.
  * @param containerClickLabel Optional click label on the main body of the button for accessibility.
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content.
@@ -276,10 +287,11 @@ public fun SplitSwitchButton(
     colors: SplitSwitchButtonColors = SwitchButtonDefaults.splitSwitchButtonColors(),
     toggleInteractionSource: MutableInteractionSource? = null,
     containerInteractionSource: MutableInteractionSource? = null,
+    transformation: SurfaceTransformation? = null,
     containerClickLabel: String? = null,
     contentPadding: PaddingValues = SwitchButtonDefaults.ContentPadding,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    label: @Composable RowScope.() -> Unit
+    label: @Composable RowScope.() -> Unit,
 ) {
     val containerColor = colors.containerColor(enabled, checked).value
 
@@ -290,7 +302,12 @@ public fun SplitSwitchButton(
                 .defaultMinSize(minHeight = MIN_HEIGHT)
                 .height(IntrinsicSize.Min)
                 .width(IntrinsicSize.Max)
-                .clip(shape = shape)
+                .graphicsLayer {
+                    clip = true
+                    this.shape = shape
+                    val transformation = transformation ?: return@graphicsLayer
+                    with(transformation) { applyContainerTransformation() }
+                },
     ) {
         Row(
             modifier =
@@ -320,7 +337,7 @@ public fun SplitSwitchButton(
                                 maxLines = 3,
                                 textAlign = TextAlign.Start,
                             ),
-                        content = label
+                        content = label,
                     ),
                 secondaryLabel =
                     provideNullableScopeContent(
@@ -333,9 +350,9 @@ public fun SplitSwitchButton(
                                 maxLines = 2,
                                 textAlign = TextAlign.Start,
                             ),
-                        content = secondaryLabel
+                        content = secondaryLabel,
                     ),
-                spacerSize = SwitchButtonDefaults.LabelSpacerSize
+                spacerSize = SwitchButtonDefaults.LabelSpacerSize,
             )
         }
 
@@ -358,7 +375,7 @@ public fun SplitSwitchButton(
                             onCheckedChange(it)
                         },
                         indication = ripple(),
-                        interactionSource = toggleInteractionSource
+                        interactionSource = toggleInteractionSource,
                     )
                     .fillMaxHeight()
                     .clip(SPLIT_SECTIONS_SHAPE)
@@ -371,7 +388,7 @@ public fun SplitSwitchButton(
                     }
                     .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
-                    .padding(contentPadding)
+                    .padding(contentPadding),
         ) {
             Switch(
                 checked = checked,
@@ -393,7 +410,7 @@ public fun SplitSwitchButton(
                 },
                 trackBorderColor = { enabled, checked ->
                     colors.trackBorderColor(enabled = enabled, checked = checked)
-                }
+                },
             )
         }
     }
@@ -662,7 +679,7 @@ public object SwitchButtonDefaults {
             disabledUncheckedTrackBorderColor = disabledUncheckedTrackBorderColor,
         )
 
-    internal val LabelSpacerSize = 2.dp
+    internal val LabelSpacerSize = 1.dp
     private val HorizontalPadding = 14.dp
     private val VerticalPadding = 8.dp
 
@@ -672,7 +689,7 @@ public object SwitchButtonDefaults {
             start = HorizontalPadding,
             top = VerticalPadding,
             end = HorizontalPadding,
-            bottom = VerticalPadding
+            bottom = VerticalPadding,
         )
 
     private val ColorScheme.defaultSwitchButtonColors: SwitchButtonColors
@@ -774,7 +791,7 @@ public object SwitchButtonDefaults {
                                 .toDisabledColor(
                                     disabledAlpha =
                                         SwitchButtonTokens.DisabledUncheckedTrackBorderOpacity
-                                )
+                                ),
                     )
                     .also { defaultSwitchButtonColorsCached = it }
         }
@@ -973,7 +990,7 @@ public class SwitchButtonColors(
     public val disabledUncheckedSecondaryContentColor: Color,
     public val disabledUncheckedIconColor: Color,
     public val disabledUncheckedThumbColor: Color,
-    public val disabledUncheckedTrackBorderColor: Color
+    public val disabledUncheckedTrackBorderColor: Color,
 ) {
     /**
      * Returns a copy of this SwitchButtonColors optionally overriding some of the values.
@@ -1128,7 +1145,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedContainerColor,
             disabledCheckedColor = disabledCheckedContainerColor,
             disabledUncheckedColor = disabledUncheckedContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1146,7 +1163,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedContentColor,
             disabledCheckedColor = disabledCheckedContentColor,
             disabledUncheckedColor = disabledUncheckedContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1164,7 +1181,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedSecondaryContentColor,
             disabledCheckedColor = disabledCheckedSecondaryContentColor,
             disabledUncheckedColor = disabledUncheckedSecondaryContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1183,7 +1200,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedIconColor,
             disabledCheckedColor = disabledCheckedIconColor,
             disabledUncheckedColor = disabledUncheckedIconColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1202,7 +1219,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedThumbColor,
             disabledCheckedColor = disabledCheckedThumbColor,
             disabledUncheckedColor = disabledUncheckedThumbColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1221,7 +1238,7 @@ public class SwitchButtonColors(
             uncheckedColor = Color.Transparent,
             disabledCheckedColor = disabledCheckedThumbIconColor,
             disabledUncheckedColor = Color.Transparent,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1240,7 +1257,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedTrackColor,
             disabledCheckedColor = disabledCheckedTrackColor,
             disabledUncheckedColor = Color.Transparent,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1259,7 +1276,7 @@ public class SwitchButtonColors(
             uncheckedColor = uncheckedTrackBorderColor,
             disabledCheckedColor = disabledCheckedTrackBorderColor,
             disabledUncheckedColor = disabledUncheckedTrackBorderColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -1592,7 +1609,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedContainerColor,
             disabledCheckedColor = disabledCheckedContainerColor,
             disabledUncheckedColor = disabledUncheckedContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1611,7 +1628,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedContentColor,
             disabledCheckedColor = disabledCheckedContentColor,
             disabledUncheckedColor = disabledUncheckedContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1630,7 +1647,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedSecondaryContentColor,
             disabledCheckedColor = disabledCheckedSecondaryContentColor,
             disabledUncheckedColor = disabledUncheckedSecondaryContentColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1649,7 +1666,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedSplitContainerColor,
             disabledCheckedColor = disabledCheckedSplitContainerColor,
             disabledUncheckedColor = disabledUncheckedSplitContainerColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1668,7 +1685,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedThumbColor,
             disabledCheckedColor = disabledCheckedThumbColor,
             disabledUncheckedColor = disabledUncheckedThumbColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1687,7 +1704,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = Color.Transparent,
             disabledCheckedColor = disabledCheckedThumbIconColor,
             disabledUncheckedColor = Color.Transparent,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1706,7 +1723,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedTrackColor,
             disabledCheckedColor = disabledCheckedTrackColor,
             disabledUncheckedColor = Color.Transparent,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     /**
@@ -1725,7 +1742,7 @@ public class SplitSwitchButtonColors(
             uncheckedColor = uncheckedTrackBorderColor,
             disabledCheckedColor = disabledCheckedTrackBorderColor,
             disabledUncheckedColor = disabledUncheckedTrackBorderColor,
-            animationSpec = COLOR_ANIMATION_SPEC
+            animationSpec = COLOR_ANIMATION_SPEC,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -1825,7 +1842,7 @@ private fun Switch(
     val thumbProgress =
         transition.animateFloat(
             transitionSpec = { SWITCH_PROGRESS_ANIMATION_SPEC },
-            label = "switchTransition"
+            label = "switchTransition",
         ) {
             when (it) {
                 SelectionStage.Unchecked -> 0f
@@ -1850,7 +1867,7 @@ private fun Switch(
                             Color.Transparent
                         } else {
                             actualTrackBorderColor
-                        }
+                        },
                 )
                 .background(color = actualTrackColor, shape = CircleShape)
                 .drawBehind {
@@ -1860,7 +1877,7 @@ private fun Switch(
                         actualThumbColor,
                         thumbProgress.value,
                         actualThumbIconColor,
-                        isRtl
+                        isRtl,
                     )
                 }
                 .wrapContentSize(Alignment.CenterEnd)
@@ -1873,7 +1890,7 @@ private fun DrawScope.drawThumbAndTick(
     thumbColor: Color,
     progress: Float,
     thumbIconColor: Color,
-    isRtl: Boolean
+    isRtl: Boolean,
 ) {
 
     val thumbPaddingUnchecked = SWITCH_INNER_HEIGHT / 2 - THUMB_RADIUS_UNCHECKED
@@ -1883,7 +1900,7 @@ private fun DrawScope.drawThumbAndTick(
         lerp(
             start = THUMB_RADIUS_UNCHECKED.toPx(),
             stop = THUMB_RADIUS_CHECKED.toPx(),
-            fraction = progress
+            fraction = progress,
         )
 
     val switchTrackLengthPx = SWITCH_WIDTH.toPx()
@@ -1894,19 +1911,19 @@ private fun DrawScope.drawThumbAndTick(
             lerp(
                 start = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingUnchecked.toPx(),
                 stop = switchThumbRadiusPx + thumbPaddingChecked.toPx(),
-                fraction = progress
+                fraction = progress,
             )
         else
             lerp(
                 start = switchThumbRadiusPx + thumbPaddingUnchecked.toPx(),
                 stop = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingChecked.toPx(),
-                fraction = progress
+                fraction = progress,
             )
 
     drawCircle(
         color = thumbColor,
         radius = switchThumbRadiusPx,
-        center = Offset(thumbProgressPx, center.y)
+        center = Offset(thumbProgressPx, center.y),
     )
 
     val ltrAdditionalOffset = 5.dp.toPx()
@@ -1926,7 +1943,7 @@ private fun DrawScope.drawThumbAndTick(
         checked = checked,
         tickColor = thumbIconColor,
         tickProgress = progress,
-        startXOffset = distMoved.toDp()
+        startXOffset = distMoved.toDp(),
     )
 }
 
@@ -1934,7 +1951,7 @@ private fun DrawScope.drawThumbAndTick(
 private fun RowScope.Labels(
     label: @Composable RowScope.() -> Unit,
     secondaryLabel: @Composable (RowScope.() -> Unit)?,
-    spacerSize: Dp
+    spacerSize: Dp,
 ) {
     Column(modifier = Modifier.weight(1.0f)) {
         Row(content = label)

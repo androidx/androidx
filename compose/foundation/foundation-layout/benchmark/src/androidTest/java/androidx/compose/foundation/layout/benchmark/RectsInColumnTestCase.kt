@@ -36,14 +36,16 @@ import androidx.compose.ui.unit.dp
  *
  * Note: Each rectangle has its own model so changes should always affect only the first one.
  */
-class RectsInColumnTestCase(private val amountOfRectangles: Int) :
-    LayeredComposeTestCase(), ToggleableTestCase {
+class RectsInColumnTestCase(
+    private val amountOfRectangles: Int,
+    private val modifier: Modifier = Modifier,
+) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val states = mutableListOf<MutableState<Color>>()
 
     @Composable
     override fun MeasuredContent() {
-        Column { repeat(amountOfRectangles) { ColoredRectWithModel() } }
+        Column(modifier) { repeat(amountOfRectangles) { ColoredRectWithModel() } }
     }
 
     override fun toggleState() {

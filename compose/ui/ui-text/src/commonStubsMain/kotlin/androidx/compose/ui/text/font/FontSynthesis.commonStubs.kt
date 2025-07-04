@@ -22,5 +22,5 @@ internal actual fun FontSynthesis.synthesizeTypeface(
     typeface: Any,
     font: Font,
     requestedWeight: FontWeight,
-    requestedStyle: FontStyle
+    requestedStyle: FontStyle,
 ): Any = implementedInJetBrainsFork()

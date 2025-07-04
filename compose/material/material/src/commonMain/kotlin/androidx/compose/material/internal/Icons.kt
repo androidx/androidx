@@ -52,14 +52,14 @@ internal object Icons {
 
 private inline fun materialIcon(
     name: String,
-    block: ImageVector.Builder.() -> ImageVector.Builder
+    block: ImageVector.Builder.() -> ImageVector.Builder,
 ): ImageVector =
     ImageVector.Builder(
             name = name,
             defaultWidth = MaterialIconDimension.dp,
             defaultHeight = MaterialIconDimension.dp,
             viewportWidth = MaterialIconDimension,
-            viewportHeight = MaterialIconDimension
+            viewportHeight = MaterialIconDimension,
         )
         .block()
         .build()
@@ -68,7 +68,7 @@ private inline fun ImageVector.Builder.materialPath(
     fillAlpha: Float = 1f,
     strokeAlpha: Float = 1f,
     pathFillType: PathFillType = DefaultFillType,
-    pathBuilder: PathBuilder.() -> Unit
+    pathBuilder: PathBuilder.() -> Unit,
 ) =
     path(
         fill = SolidColor(Color.Black),
@@ -80,7 +80,7 @@ private inline fun ImageVector.Builder.materialPath(
         strokeLineJoin = StrokeJoin.Bevel,
         strokeLineMiter = 1f,
         pathFillType = pathFillType,
-        pathBuilder = pathBuilder
+        pathBuilder = pathBuilder,
     )
 
 private const val MaterialIconDimension = 24f

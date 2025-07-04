@@ -51,7 +51,7 @@ fun CatalogTopAppBar(
     onIssueClick: () -> Unit = {},
     onTermsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
-    onLicensesClick: () -> Unit = {}
+    onLicensesClick: () -> Unit = {},
 ) {
     var moreMenuExpanded by remember { mutableStateOf(false) }
     TopAppBar(
@@ -63,7 +63,7 @@ fun CatalogTopAppBar(
                     IconButton(onClick = onThemeClick) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_palette_24dp),
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                     IconButton(onClick = { moreMenuExpanded = true }) {
@@ -100,7 +100,7 @@ fun CatalogTopAppBar(
                     onLicensesClick = {
                         onLicensesClick()
                         moreMenuExpanded = false
-                    }
+                    },
                 )
             }
         },
@@ -110,13 +110,13 @@ fun CatalogTopAppBar(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
             } else {
                 null
-            }
+            },
     )
 }
 

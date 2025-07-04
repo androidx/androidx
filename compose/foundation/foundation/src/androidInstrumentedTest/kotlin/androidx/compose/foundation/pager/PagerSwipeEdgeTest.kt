@@ -48,7 +48,7 @@ class PagerSwipeEdgeTest(val config: ParamConfig) : BasePagerTest(config) {
         rule.onNodeWithTag("0").performTouchInput {
             swipeWithVelocityAcrossMainAxis(
                 with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                delta * -1.0f
+                delta * -1.0f,
             )
         }
         rule.waitForIdle()
@@ -61,7 +61,7 @@ class PagerSwipeEdgeTest(val config: ParamConfig) : BasePagerTest(config) {
         onPager().performTouchInput {
             swipeWithVelocityAcrossMainAxis(
                 with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                delta
+                delta,
             )
         }
         rule.waitForIdle()
@@ -83,7 +83,7 @@ class PagerSwipeEdgeTest(val config: ParamConfig) : BasePagerTest(config) {
                     snapshotFlow { pagerState.currentPageOffsetFraction }
                         .collect { collectedFractions.add(it) }
                 }
-            }
+            },
         )
 
         val delta = pageSize * 0.4f * scrollForwardSign
@@ -106,7 +106,7 @@ class PagerSwipeEdgeTest(val config: ParamConfig) : BasePagerTest(config) {
         createPager(
             modifier = Modifier.fillMaxSize(),
             initialPage = DefaultPageCount - 1,
-            pageSpacing = 40.dp // use a large spacing
+            pageSpacing = 40.dp, // use a large spacing
         )
 
         val delta = pageSize * 0.4f * scrollForwardSign
@@ -132,7 +132,7 @@ class PagerSwipeEdgeTest(val config: ParamConfig) : BasePagerTest(config) {
                                 ParamConfig(
                                     orientation = orientation,
                                     reverseLayout = reverseLayout,
-                                    layoutDirection = layoutDirection
+                                    layoutDirection = layoutDirection,
                                 )
                             )
                         }

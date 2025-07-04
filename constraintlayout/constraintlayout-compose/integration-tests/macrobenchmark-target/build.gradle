@@ -42,7 +42,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.appcompat:appcompat:1.4.1")
     implementation("androidx.cardview:cardview:1.0.0")
     // old version of common-java8 conflicts with newer version, because both have

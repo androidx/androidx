@@ -29,7 +29,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.credentials.CallingAppInfo;
 
-import androidx.annotation.RequiresApi;
 import androidx.credentials.CreatePasswordResponse;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.PasswordCredential;
@@ -47,7 +46,6 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Collections;
 
-@RequiresApi(34)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")

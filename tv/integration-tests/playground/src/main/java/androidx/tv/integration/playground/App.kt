@@ -53,12 +53,12 @@ fun App() {
                             restoreState = true
                         }
                     }
-                }
+                },
             )
 
             NavHost(
                 navController = navController,
-                startDestination = initialSelectedTab.toRouteValue()
+                startDestination = initialSelectedTab.toRouteValue(),
             ) {
                 Navigation.values().forEach { routeNavigation ->
                     composable(routeNavigation.toRouteValue()) { routeNavigation.action() }

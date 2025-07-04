@@ -43,11 +43,7 @@ fun HorizontalPageIndicatorSample() {
     var finalValue by remember { mutableStateOf(0) }
 
     val animatedSelectedPage by
-        animateFloatAsState(
-            targetValue = selectedPage.toFloat(),
-        ) {
-            finalValue = it.toInt()
-        }
+        animateFloatAsState(targetValue = selectedPage.toFloat()) { finalValue = it.toInt() }
 
     val pageIndicatorState: PageIndicatorState = remember {
         object : PageIndicatorState {
@@ -69,7 +65,7 @@ fun HorizontalPageIndicatorSample() {
             increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
             decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
             valueProgression = 0 until maxPages,
-            onValueChange = { selectedPage = it }
+            onValueChange = { selectedPage = it },
         )
         HorizontalPageIndicator(pageIndicatorState = pageIndicatorState)
     }

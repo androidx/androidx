@@ -61,6 +61,8 @@
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"Zbaliť dolný hárok"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"Zavrieť dolný hárok"</string>
     <string name="m3c_bottom_sheet_expand_description" msgid="6670819569745899763">"Rozbaliť dolný hárok"</string>
+    <string name="m3c_floating_toolbar_collapse" msgid="6072492480528318635">"Zbaliť panel s nástrojmi"</string>
+    <string name="m3c_floating_toolbar_expand" msgid="6880757017246780255">"Rozbaliť panel s nástrojmi"</string>
     <string name="m3c_tooltip_pane_description" msgid="5460405025248574620">"Popis"</string>
     <string name="m3c_tooltip_long_press_label" msgid="1805687647081129904">"Zobraziť popis"</string>
     <string name="m3c_time_picker_pm" msgid="6616362054113087709">"PM"</string>
@@ -75,6 +77,10 @@
     <string name="m3c_time_picker_hour" msgid="2349193472625211372">"Hodina"</string>
     <string name="m3c_time_picker_minute_text_field" msgid="7661234488295443182">"minúty"</string>
     <string name="m3c_time_picker_hour_text_field" msgid="6973808109666874069">"hodiny"</string>
+    <string name="m3c_time_picker_toggle_keyboard" msgid="4145073906612931838">"Ak chcete zadať čas, prepnite na režim zadávania textu"</string>
+    <string name="m3c_time_picker_toggle_touch" msgid="8841786098195101324">"Ak chcete zadať čas, prepnite na režim hodín"</string>
+    <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Vyberte čas"</string>
+    <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Zadajte čas"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Zavrieť pruh"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Navigačný pruh"</string>
 </resources>

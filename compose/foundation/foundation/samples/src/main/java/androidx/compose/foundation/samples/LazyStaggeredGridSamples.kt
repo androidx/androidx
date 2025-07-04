@@ -81,19 +81,19 @@ fun LazyVerticalStaggeredGridSpanSample() {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(3),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalItemSpacing = 16.dp
+        verticalItemSpacing = 16.dp,
     ) {
         sections.forEachIndexed { index, items ->
             item(span = StaggeredGridItemSpan.FullLine) {
                 Text(
                     "This is section $index",
-                    Modifier.border(1.dp, Color.Gray).height(80.dp).wrapContentSize()
+                    Modifier.border(1.dp, Color.Gray).height(80.dp).wrapContentSize(),
                 )
             }
             items(
                 items,
                 // not required as it is the default
-                span = { StaggeredGridItemSpan.SingleLane }
+                span = { StaggeredGridItemSpan.SingleLane },
             ) {
                 Text("Item $it", Modifier.border(1.dp, Color.Blue).height(80.dp).wrapContentSize())
             }
@@ -127,19 +127,19 @@ fun LazyHorizontalStaggeredGridSpanSample() {
     LazyHorizontalStaggeredGrid(
         rows = StaggeredGridCells.Fixed(3),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalItemSpacing = 16.dp
+        horizontalItemSpacing = 16.dp,
     ) {
         sections.forEachIndexed { index, items ->
             item(span = StaggeredGridItemSpan.FullLine) {
                 Text(
                     "This is section $index",
-                    Modifier.border(1.dp, Color.Gray).padding(16.dp).wrapContentSize()
+                    Modifier.border(1.dp, Color.Gray).padding(16.dp).wrapContentSize(),
                 )
             }
             items(
                 items,
                 // not required as it is the default
-                span = { StaggeredGridItemSpan.SingleLane }
+                span = { StaggeredGridItemSpan.SingleLane },
             ) {
                 Text("Item $it", Modifier.border(1.dp, Color.Blue).width(80.dp).wrapContentSize())
             }
@@ -183,7 +183,7 @@ fun LazyStaggeredGridCustomScrollUsingLazyLayoutScrollScopeSample() {
                         androidx.compose.animation.core.animate(
                             0f,
                             distance,
-                            animationSpec = tween(5_000)
+                            animationSpec = tween(5_000),
                         ) { currentValue, _ ->
                             previousValue += scrollBy(currentValue - previousValue)
                         }
@@ -196,7 +196,7 @@ fun LazyStaggeredGridCustomScrollUsingLazyLayoutScrollScopeSample() {
         LazyHorizontalStaggeredGrid(
             state = state,
             rows = StaggeredGridCells.Fixed(3),
-            modifier = Modifier.height(600.dp).fillMaxWidth()
+            modifier = Modifier.height(600.dp).fillMaxWidth(),
         ) {
             items(itemsList) {
                 Box(Modifier.padding(2.dp).background(Color.Red).size(45.dp)) {

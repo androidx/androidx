@@ -44,7 +44,7 @@ class PagerGestureTest(private val paramConfig: ParamConfig) : BasePagerTest(con
             onPager().performTouchInput {
                 swipeWithVelocityAcrossMainAxis(
                     with(rule.density) { 0.5f * MinFlingVelocityDp.toPx() },
-                    delta
+                    delta,
                 )
             }
         }

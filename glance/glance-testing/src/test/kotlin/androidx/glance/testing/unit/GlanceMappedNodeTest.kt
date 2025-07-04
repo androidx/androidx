@@ -42,7 +42,7 @@ class GlanceMappedNodeTest {
             .containsExactly(
                 GlanceMappedNode(childNode1),
                 GlanceMappedNode(childNode2),
-                GlanceMappedNode(childNode3)
+                GlanceMappedNode(childNode3),
             )
             .inOrder()
     }

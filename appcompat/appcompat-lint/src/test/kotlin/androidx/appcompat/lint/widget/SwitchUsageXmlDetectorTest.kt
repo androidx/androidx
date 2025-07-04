@@ -38,7 +38,7 @@ class SwitchUsageXmlDetectorTest {
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>
-        """
+        """,
                 )
                 .indented()
                 .within("res")
@@ -66,7 +66,7 @@ class SwitchUsageXmlDetectorTest {
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>
-        """
+        """,
                 )
                 .indented()
                 .within("res")

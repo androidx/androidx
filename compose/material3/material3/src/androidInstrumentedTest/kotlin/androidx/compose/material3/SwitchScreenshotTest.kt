@@ -107,7 +107,7 @@ class SwitchScreenshotTest {
                 Switch(
                     checked = true,
                     onCheckedChange = {},
-                    colors = SwitchDefaults.colors(checkedThumbColor = Color.Red)
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.Red),
                 )
             }
         }
@@ -250,7 +250,7 @@ class SwitchScreenshotTest {
                 Switch(
                     checked = true,
                     onCheckedChange = {},
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier.focusRequester(focusRequester),
                 )
             }
         }

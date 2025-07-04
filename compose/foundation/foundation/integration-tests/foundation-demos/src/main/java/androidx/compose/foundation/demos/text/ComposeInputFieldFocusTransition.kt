@@ -53,7 +53,7 @@ fun TextFieldFocusTransition() {
 @Composable
 private fun TextFieldWithFocusRequesters(
     focusRequester: FocusRequester,
-    nextFocusRequester: FocusRequester
+    nextFocusRequester: FocusRequester,
 ) {
     val state = rememberSaveable { mutableStateOf("Focus Transition Test") }
     var color by remember { mutableStateOf(Black) }
@@ -67,6 +67,6 @@ private fun TextFieldWithFocusRequesters(
                 .focusProperties { next = nextFocusRequester },
         textStyle = TextStyle(color = color, fontSize = 32.sp),
         onValueChange = { state.value = it },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
     )
 }

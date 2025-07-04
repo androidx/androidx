@@ -76,7 +76,7 @@ class CrossfadeDetectorTest : LintDetectorTest() {
         pmBjk/z5IQVZzMQSFuGzFN+K2Ra2R/w07U/N6Hh8TyYO78R2Hc9oLxI6R7fP
         nyNRwkIJiyWqJlfCMu6X8AAPz8EiPMLKOdIRxiI8jrAaIRvBjrAWGTD1G1Xc
         nh8uBAAA
-        """
+        """,
         )
 
     @Test
@@ -104,7 +104,7 @@ class CrossfadeDetectorTest : LintDetectorTest() {
             """
                 ),
                 CrossfadeStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -167,7 +167,7 @@ src/test/foo/test.kt:16: Error: Target state parameter _ is not used [UnusedCros
             """
                 ),
                 CrossfadeStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expect(
@@ -243,7 +243,7 @@ src/test/foo/test.kt:20: Error: Target state parameter param is not used [Unused
         """
                 ),
                 CrossfadeStub,
-                Stubs.Composable
+                Stubs.Composable,
             )
             .run()
             .expectClean()

@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 internal class QueryInterceptorOpenHelper(
     override val delegate: SupportSQLiteOpenHelper,
     private val queryCallbackScope: CoroutineScope,
-    private val queryCallback: RoomDatabase.QueryCallback
+    private val queryCallback: RoomDatabase.QueryCallback,
 ) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
 
     override val writableDatabase: SupportSQLiteDatabase

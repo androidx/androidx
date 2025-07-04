@@ -100,6 +100,11 @@
     <string name="mute_audio_audio_is_muted">Audio is muted.</string>
     <string name="mute_audio_audio_is_unmuted">Audio is unmuted.</string>
 
+    <!-- PaymentRequest -->
+    <string name="payment_request_activity_title">PaymentRequest</string>
+    <string name="payment_request_toggle_label">PaymentRequest enabled:</string>
+    <string name="has_enrolled_instrument_toggle_label">hasEnrolledInstrument enabled:</string>
+
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>
     <string name="proxy_override_requests_served">Requests served: %d</string>

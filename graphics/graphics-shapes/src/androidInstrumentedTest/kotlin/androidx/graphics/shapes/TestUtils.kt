@@ -50,19 +50,19 @@ internal fun cubicsEqualish(c0: Cubic, c1: Cubic): Boolean {
 internal fun assertCubicsEqualish(expected: Cubic, actual: Cubic) {
     assertPointsEqualish(
         Point(expected.anchor0X, expected.anchor0Y),
-        Point(actual.anchor0X, actual.anchor0Y)
+        Point(actual.anchor0X, actual.anchor0Y),
     )
     assertPointsEqualish(
         Point(expected.control0X, expected.control0Y),
-        Point(actual.control0X, actual.control0Y)
+        Point(actual.control0X, actual.control0Y),
     )
     assertPointsEqualish(
         Point(expected.control1X, expected.control1Y),
-        Point(actual.control1X, actual.control1Y)
+        Point(actual.control1X, actual.control1Y),
     )
     assertPointsEqualish(
         Point(expected.anchor1X, expected.anchor1Y),
-        Point(actual.anchor1X, actual.anchor1Y)
+        Point(actual.anchor1X, actual.anchor1Y),
     )
 }
 

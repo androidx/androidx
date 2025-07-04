@@ -21,6 +21,8 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.compat.Camera2DeviceManager
 import androidx.camera.camera2.pipe.compat.VirtualCamera
 import androidx.camera.camera2.pipe.graph.GraphListener
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 
 internal class FakeCamera2DeviceManager : Camera2DeviceManager {
 
@@ -31,7 +33,7 @@ internal class FakeCamera2DeviceManager : Camera2DeviceManager {
         sharedCameraIds: List<CameraId>,
         graphListener: GraphListener,
         isPrewarm: Boolean,
-        isForegroundObserver: (Unit) -> Boolean
+        isForegroundObserver: (Unit) -> Boolean,
     ): VirtualCamera {
         return FakeVirtualCamera(cameraId).also { fakeVirtualCameraMap[cameraId] = it }
     }
@@ -40,12 +42,14 @@ internal class FakeCamera2DeviceManager : Camera2DeviceManager {
         // No-op.
     }
 
-    override fun close(cameraId: CameraId) {
+    override fun close(cameraId: CameraId): Deferred<Unit> {
         fakeVirtualCameraMap.remove(cameraId)
+        return CompletableDeferred(Unit)
     }
 
-    override fun closeAll() {
+    override fun closeAll(): Deferred<Unit> {
         fakeVirtualCameraMap.clear()
+        return CompletableDeferred(Unit)
     }
 
     suspend fun simulateCameraOpen(cameraId: CameraId) {

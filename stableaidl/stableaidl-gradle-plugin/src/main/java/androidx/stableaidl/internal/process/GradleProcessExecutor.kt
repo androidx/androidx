@@ -41,7 +41,7 @@ class GradleProcessExecutor(private val execOperations: Function<Action<in ExecS
     ProcessExecutor {
     override fun submit(
         processInfo: ProcessInfo,
-        processOutputHandler: ProcessOutputHandler
+        processOutputHandler: ProcessOutputHandler,
     ): ListenableFuture<ProcessResult> {
         val res = SettableFuture.create<ProcessResult>()
         object : Thread() {
@@ -60,7 +60,7 @@ class GradleProcessExecutor(private val execOperations: Function<Action<in ExecS
 
     override fun execute(
         processInfo: ProcessInfo,
-        processOutputHandler: ProcessOutputHandler
+        processOutputHandler: ProcessOutputHandler,
     ): ProcessResult {
         val output = processOutputHandler.createOutput()
         val result: ExecResult =
@@ -87,7 +87,7 @@ class GradleProcessExecutor(private val execOperations: Function<Action<in ExecS
 
     private class ExecAction(
         private val processInfo: ProcessInfo,
-        private val processOutput: ProcessOutput
+        private val processOutput: ProcessOutput,
     ) : Action<ExecSpec> {
         override fun execute(execSpec: ExecSpec) {
 

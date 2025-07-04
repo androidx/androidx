@@ -19,6 +19,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room.concurrent.AtomicBoolean
+import androidx.room.concurrent.AtomicInt
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
@@ -27,7 +29,6 @@ import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.collections.removeFirst as removeFirstKt
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
@@ -37,6 +38,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -346,12 +348,12 @@ class InvalidationTrackerTest {
     fun refreshAndCloseDbWithSlowObserver() = runTest {
         // Validates that a slow observer will finish notification after database closing
         val invalidatedLatch = CountDownLatch(1)
-        val invalidated = atomic(false)
+        val invalidated = AtomicBoolean(false)
         tracker.addObserver(
             object : InvalidationTracker.Observer("a") {
                 override fun onInvalidated(tables: Set<String>) {
                     invalidatedLatch.countDown()
-                    assertThat(invalidated.compareAndSet(expect = false, update = true)).isTrue()
+                    assertThat(invalidated.compareAndSet(false, true)).isTrue()
                     runBlocking { delay(100) }
                 }
             }
@@ -361,7 +363,7 @@ class InvalidationTrackerTest {
         testScheduler.advanceUntilIdle()
         invalidatedLatch.await()
         roomDatabase.close()
-        assertThat(invalidated.value).isTrue()
+        assertThat(invalidated.get()).isTrue()
     }
 
     @Test
@@ -473,7 +475,7 @@ class InvalidationTrackerTest {
 
     @Test
     fun weakObserver() = runTest {
-        val invalidated = atomic(0)
+        val invalidated = AtomicInt(0)
         var observer: InvalidationTracker.Observer? =
             object : InvalidationTracker.Observer("a") {
                 override fun onInvalidated(tables: Set<String>) {
@@ -484,7 +486,7 @@ class InvalidationTrackerTest {
 
         sqliteDriver.setInvalidatedTables(0)
         tracker.awaitRefreshAsync()
-        assertThat(invalidated.value).isEqualTo(1)
+        assertThat(invalidated.get()).isEqualTo(1)
 
         // Attempt to perform garbage collection in a loop so that weak observer is discarded
         // and it stops receiving invalidation notifications. If GC fails to collect the observer
@@ -511,7 +513,7 @@ class InvalidationTrackerTest {
 
         sqliteDriver.setInvalidatedTables(0)
         tracker.awaitRefreshAsync()
-        assertThat(invalidated.value).isEqualTo(1)
+        assertThat(invalidated.get()).isEqualTo(1)
     }
 
     @Test
@@ -585,6 +587,7 @@ class InvalidationTrackerTest {
     private fun runTest(testBody: suspend TestScope.() -> Unit) =
         testCoroutineScope.runTest {
             testBody.invoke(this)
+            testScheduler.advanceUntilIdle()
             roomDatabase.close()
         }
 
@@ -629,7 +632,7 @@ class InvalidationTrackerTest {
     private inner class FakeRoomDatabase(
         private val shadowTablesMap: Map<String, String>,
         private val viewTables: Map<String, @JvmSuppressWildcards Set<String>>,
-        private val tableNames: Array<String>
+        private val tableNames: Array<String>,
     ) : RoomDatabase() {
 
         override fun createInvalidationTracker(): InvalidationTracker {
@@ -673,6 +676,8 @@ class InvalidationTrackerTest {
         }
 
         private inner class FakeSQLiteConnection : SQLiteConnection {
+
+            override fun inTransaction() = false
 
             override fun prepare(sql: String): SQLiteStatement {
                 preparedQueries.add(sql)

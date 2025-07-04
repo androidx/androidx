@@ -71,10 +71,10 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
                     },
-                    colors = ListItemDefaults.colors(containerColor = Color.Red)
+                    colors = ListItemDefaults.colors(containerColor = Color.Red),
                 )
             }
         }
@@ -89,7 +89,7 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 DenseListItem(
                     selected = false,
                     onClick = {},
-                    headlineContent = { Text("One line dense list item") }
+                    headlineContent = { Text("One line dense list item") },
                 )
             }
         }
@@ -109,9 +109,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -127,13 +127,13 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     selected = false,
                     onClick = {},
                     headlineContent = { Text("Two line dense list item") },
-                    supportingContent = { Text("Secondary text") }
+                    supportingContent = { Text("Secondary text") },
                 )
                 DenseListItem(
                     selected = false,
                     onClick = {},
                     headlineContent = { Text("Two line dense list item") },
-                    overlineContent = { Text("OVERLINE") }
+                    overlineContent = { Text("OVERLINE") },
                 )
             }
         }
@@ -154,9 +154,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
                 DenseListItem(
                     selected = false,
@@ -167,9 +167,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -186,7 +186,7 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     onClick = {},
                     headlineContent = { Text("Three line dense list item") },
                     overlineContent = { Text("OVERLINE") },
-                    supportingContent = { Text("Secondary text") }
+                    supportingContent = { Text("Secondary text") },
                 )
             }
         }
@@ -208,9 +208,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -230,9 +230,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -259,9 +259,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -282,9 +282,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -310,9 +310,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -332,9 +332,9 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -362,16 +362,16 @@ class DenseListItemScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
                     },
                     trailingContent = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = null,
-                            modifier = Modifier.size(ListItemDefaults.IconSizeDense)
+                            modifier = Modifier.size(ListItemDefaults.IconSizeDense),
                         )
-                    }
+                    },
                 )
             }
         }

@@ -209,7 +209,7 @@ class AndroidComposeTestCaseRunnerTest {
         lateinit var focusState: FocusState
         composeTestRule
             .forGivenContent {
-                val focusRequester = FocusRequester()
+                val focusRequester = remember { FocusRequester() }
                 Box(
                     Modifier.fillMaxSize()
                         .onFocusChanged { focusState = it }
@@ -309,7 +309,7 @@ class AndroidComposeTestCaseRunnerTest {
 
     private inline fun <reified T : Throwable> assertFailsWith(
         expectedErrorMessage: String? = null,
-        block: () -> Any
+        block: () -> Any,
     ) {
         try {
             block()

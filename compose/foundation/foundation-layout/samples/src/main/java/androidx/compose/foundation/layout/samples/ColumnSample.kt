@@ -113,13 +113,13 @@ fun SimpleRelativeToSiblingsInColumn() {
             Modifier.alignBy(end),
             color = Color.Magenta,
             width = 80.dp,
-            height = 40.dp
+            height = 40.dp,
         )
         RectangleWithStartEnd(
             Modifier.alignBy(start),
             color = Color.Red,
             width = 80.dp,
-            height = 40.dp
+            height = 40.dp,
         )
     }
 }

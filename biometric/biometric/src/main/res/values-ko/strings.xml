@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"PIN, 패턴, 비밀번호가 설정되지 않았습니다."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"PIN, 패턴, 비밀번호를 지원하지 않는 기기입니다."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"지문 아이콘"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"콘텐츠 뷰의 옵션 더보기 버튼을 클릭했습니다."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"지문 사용"</string>
     <string name="use_face_label" msgid="6533512708069459542">"얼굴 인식 사용"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"생체 인식 사용"</string>

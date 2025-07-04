@@ -58,7 +58,7 @@ fun ExpandableWithItemsSample() {
                     Spacer(Modifier.size(6.dp))
                     Icon(painterResource(R.drawable.ic_expand_more_24), "Expand")
                 },
-                onClick = { expandableState.expanded = true }
+                onClick = { expandableState.expanded = true },
             )
         }
     }
@@ -79,7 +79,7 @@ fun ExpandableTextSample() {
                     "Our Customer Service team is available 24 hours a day, " +
                     "7 days a week to answer your account or product support question.",
                 maxLines = if (expanded) 20 else 3,
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(horizontal = 10.dp),
             )
         }
 
@@ -90,7 +90,7 @@ fun ExpandableTextSample() {
                     Spacer(Modifier.size(6.dp))
                     Icon(painterResource(R.drawable.ic_expand_more_24), "Expand")
                 },
-                onClick = { expandableState.expanded = true }
+                onClick = { expandableState.expanded = true },
             )
         }
     }

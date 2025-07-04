@@ -51,7 +51,7 @@ class UpdateAdCounterHistogramRequestTest {
             UpdateAdCounterHistogramRequest(
                 1234L,
                 FrequencyCapFilters.AD_EVENT_TYPE_CLICK,
-                AdTechIdentifier("1234")
+                AdTechIdentifier("1234"),
             )
         Truth.assertThat(updateAdCounterHistogramRequest1 == updateAdCounterHistogramRequest2)
             .isTrue()
@@ -60,7 +60,7 @@ class UpdateAdCounterHistogramRequestTest {
             UpdateAdCounterHistogramRequest(
                 1234L,
                 FrequencyCapFilters.AD_EVENT_TYPE_VIEW,
-                AdTechIdentifier("1234")
+                AdTechIdentifier("1234"),
             )
         Truth.assertThat(updateAdCounterHistogramRequest1 == updateAdCounterHistogramRequest3)
             .isFalse()
@@ -72,7 +72,7 @@ class UpdateAdCounterHistogramRequestTest {
                 UpdateAdCounterHistogramRequest(
                     1234L,
                     -1 /* Invalid adEventType */,
-                    AdTechIdentifier("1234")
+                    AdTechIdentifier("1234"),
                 )
             }
             .hasMessageThat()
@@ -88,7 +88,7 @@ class UpdateAdCounterHistogramRequestTest {
                 UpdateAdCounterHistogramRequest(
                     1234L,
                     FrequencyCapFilters.AD_EVENT_TYPE_WIN,
-                    AdTechIdentifier("1234")
+                    AdTechIdentifier("1234"),
                 )
             }
             .hasMessageThat()

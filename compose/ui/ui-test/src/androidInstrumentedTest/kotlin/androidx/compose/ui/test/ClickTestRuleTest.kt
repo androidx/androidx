@@ -56,7 +56,7 @@ fun Counter() {
 class ClickTestRuleTest(private val config: TestConfig) {
     data class TestConfig(
         val activityClass: Class<out ComponentActivity>?,
-        val setContentInTest: Boolean
+        val setContentInTest: Boolean,
     ) {
         override fun toString(): String =
             "activity=${activityClass?.simpleName}, rule.setContent=$setContentInTest"

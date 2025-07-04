@@ -22,50 +22,47 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
 }
 
 dependencies {
-    api(libs.jspecify)
-    api("androidx.annotation:annotation:1.8.1")
+    api(libs.androidx.annotation)
+    api(libs.guavaAndroid)
     api(libs.guavaListenableFuture)
-
-    implementation "androidx.concurrent:concurrent-futures:1.1.0"
-    implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
-    implementation("androidx.core:core:1.7.0")
-    implementation "androidx.wear:wear:1.2.0"
-
+    api(libs.jspecify)
     api(project(":wear:protolayout:protolayout"))
+    api(project(':wear:protolayout:protolayout-expression'))
+
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation(libs.androidx.core)
+    implementation("androidx.wear:wear:1.2.0")
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.kotlinCoroutinesCore)
     implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:protolayout:protolayout-renderer"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-proto"))
-    implementation(libs.kotlinCoroutinesCore)
-    implementation(libs.kotlinCoroutinesAndroid)
 
-    androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.protobuf)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":test:screenshot:screenshot"))
 
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testExtTruth)
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRunner)
-    testImplementation(libs.testRules)
+    testImplementation(libs.junit)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
     testImplementation(libs.truth)
 }
 
@@ -77,10 +74,6 @@ android {
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
-
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
-
     namespace = "androidx.wear.tiles.renderer"
 }
 
@@ -100,11 +93,12 @@ protobuf {
 
 androidx {
     name = "Android Wear Tiles Renderer"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."
     legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
+    enableRobolectric()
 }
 

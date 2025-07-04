@@ -22,5 +22,8 @@ internal actual fun String.findPrecedingBreak(index: Int): Int = implementedInJe
 
 internal actual fun String.findFollowingBreak(index: Int): Int = implementedInJetBrainsFork()
 
+internal actual fun String.findCodePointOrEmojiStartBefore(index: Int, ifNotFound: Int): Int =
+    implementedInJetBrainsFork()
+
 internal actual fun StringBuilder.appendCodePointX(codePoint: Int): StringBuilder =
     implementedInJetBrainsFork()

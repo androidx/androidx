@@ -1,3 +1,5 @@
 // Baseline format: 1.0
-AddedMethod: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#GetTopicsRequest():
-    Added constructor androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest()
+BecameUnchecked: androidx.privacysandbox.ads.adservices.customaudience.CustomAudience#getAuctionServerRequestFlags():
+    Removed method androidx.privacysandbox.ads.adservices.customaudience.CustomAudience.getAuctionServerRequestFlags() from compatibility checked API surface
+BecameUnchecked: androidx.privacysandbox.ads.adservices.customaudience.CustomAudience#getPriority():
+    Removed method androidx.privacysandbox.ads.adservices.customaudience.CustomAudience.getPriority() from compatibility checked API surface

@@ -18,8 +18,9 @@ package androidx.recyclerview.selection.testing;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup;
+
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nullable;
 

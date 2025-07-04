@@ -28,10 +28,7 @@ import org.junit.Test
 @MediumTest
 @SdkSuppress(minSdkVersion = 24)
 class ArtMetricTest {
-    data class SubMetric(
-        val count: Long,
-        val sum: Double,
-    )
+    data class SubMetric(val count: Long, val sum: Double)
 
     @Test
     fun basic() =
@@ -40,7 +37,7 @@ class ArtMetricTest {
             artMainlineVersion = null, // unknown, but not important on 35
             expectedJit = SubMetric(177, 433.488508),
             expectedClassLoad = SubMetric(2013, 147.052337),
-            expectedClassVerify = SubMetric(0, 0.0)
+            expectedClassVerify = SubMetric(0, 0.0),
         )
 
     @Test
@@ -50,7 +47,7 @@ class ArtMetricTest {
             artMainlineVersion = DeviceInfo.ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING - 1,
             expectedJit = SubMetric(177, 433.488508),
             expectedClassLoad = null, // drops class load
-            expectedClassVerify = SubMetric(0, 0.0)
+            expectedClassVerify = SubMetric(0, 0.0),
         )
 
     @Test
@@ -60,7 +57,7 @@ class ArtMetricTest {
             artMainlineVersion = DeviceInfo.ART_MAINLINE_MIN_VERSION_CLASS_LOAD_TRACING,
             expectedJit = SubMetric(177, 433.488508),
             expectedClassLoad = SubMetric(2013, 147.052337),
-            expectedClassVerify = SubMetric(0, 0.0)
+            expectedClassVerify = SubMetric(0, 0.0),
         )
 
     companion object {
@@ -69,12 +66,12 @@ class ArtMetricTest {
             artMainlineVersion: Long?,
             expectedJit: SubMetric,
             expectedClassLoad: SubMetric?,
-            expectedClassVerify: SubMetric
+            expectedClassVerify: SubMetric,
         ) {
             val tracePath =
                 createTempFileFromAsset(
                         prefix = "api35_startup_cold_classinit",
-                        suffix = ".perfetto-trace"
+                        suffix = ".perfetto-trace",
                     )
                     .absolutePath
 
@@ -96,7 +93,7 @@ class ArtMetricTest {
                         // note that most args are incorrect here, but currently
                         // only targetPackageName matters in this context
                         captureInfo = captureInfo,
-                        traceSession = this
+                        traceSession = this,
                     )
                 }
 
@@ -112,7 +109,7 @@ class ArtMetricTest {
                             Metric.Measurement("artClassLoadSumMs", expectedClassLoad.sum),
                             Metric.Measurement(
                                 "artClassLoadCount",
-                                expectedClassLoad.count.toDouble()
+                                expectedClassLoad.count.toDouble(),
                             ),
                         )
                     } else {
@@ -123,7 +120,7 @@ class ArtMetricTest {
             assertEqualMeasurements(
                 expected = expectedMeasurements,
                 observed = result,
-                threshold = 0.001
+                threshold = 0.001,
             )
         }
     }

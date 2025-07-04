@@ -113,12 +113,16 @@ public class DocumentMapGenerator {
     private static CodeBlock getMapConstructionCode(
             @NonNull Map<String, List<String>> documentClassMap) {
         CodeBlock.Builder mapContentBuilder = CodeBlock.builder();
-        for (Map.Entry<String, List<String>> entry : documentClassMap.entrySet()) {
-            String valueString = entry.getValue().stream().map(
-                    value -> "\"" + value + "\"").collect(Collectors.joining(", "));
-            mapContentBuilder.addStatement("result.put($S, $T.asList($L))", entry.getKey(),
-                    ClassName.get(Arrays.class), valueString);
-        }
+
+        documentClassMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEachOrdered(entry -> {
+                    String valueString = entry.getValue().stream().map(
+                            value -> "\"" + value + "\"").collect(Collectors.joining(", "));
+                    mapContentBuilder.addStatement("result.put($S, $T.asList($L))", entry.getKey(),
+                            ClassName.get(Arrays.class), valueString);
+                });
         return mapContentBuilder.build();
     }
 

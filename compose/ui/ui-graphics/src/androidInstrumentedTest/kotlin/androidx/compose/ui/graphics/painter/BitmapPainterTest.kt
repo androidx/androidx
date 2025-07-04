@@ -109,7 +109,7 @@ class BitmapPainterTest {
             bitmapPainter,
             Canvas(dst),
             srcSize,
-            colorFilter = ColorFilter.tint(Color.Cyan, BlendMode.SrcIn)
+            colorFilter = ColorFilter.tint(Color.Cyan, BlendMode.SrcIn),
         )
 
         val pixelmap = dst.toPixelMap()

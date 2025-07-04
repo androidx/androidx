@@ -45,7 +45,7 @@ class ProviderCreateCredentialRequestTest {
         val request =
             ProviderCreateCredentialRequest(
                 CreatePasswordRequest("id", "password", "origin"),
-                getTestCallingAppInfo("origin")
+                getTestCallingAppInfo("origin"),
             )
 
         val actualRequest =

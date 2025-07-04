@@ -42,7 +42,7 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): ListenableFuture<WatchFace> {
         return Futures.immediateFuture(
             WatchFace(
@@ -54,20 +54,20 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
                             currentUserStyleRepository,
                             watchState,
                             CanvasType.SOFTWARE,
-                            16
+                            16,
                         ) {
                         override fun render(
                             canvas: Canvas,
                             bounds: Rect,
-                            zonedDateTime: ZonedDateTime
+                            zonedDateTime: ZonedDateTime,
                         ) {}
 
                         override fun renderHighlightLayer(
                             canvas: Canvas,
                             bounds: Rect,
-                            zonedDateTime: ZonedDateTime
+                            zonedDateTime: ZonedDateTime,
                         ) {}
-                    }
+                    },
                 )
                 .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
         )
@@ -77,13 +77,13 @@ private class TestListenableWatchFaceService : ListenableWatchFaceService() {
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): WatchFace =
         createWatchFace(
             surfaceHolder,
             watchState,
             complicationSlotsManager,
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
 }
 
@@ -106,7 +106,7 @@ public class ListenableWatchFaceServiceTest {
                     mockSurfaceHolder,
                     MutableWatchState().asWatchState(),
                     complicationsSlotManager,
-                    currentUserStyleRepository
+                    currentUserStyleRepository,
                 )
 
             // Simple check that [watchFace] looks sensible.

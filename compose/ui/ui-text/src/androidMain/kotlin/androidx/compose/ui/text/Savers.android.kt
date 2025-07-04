@@ -30,9 +30,9 @@ private val PlatformParagraphStyleSaver =
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             PlatformParagraphStyle(
                 includeFontPadding = restore(list[0])!!,
-                emojiSupportMatch = restore(list[1])!!
+                emojiSupportMatch = restore(list[1])!!,
             )
-        }
+        },
     )
 
 internal actual val LineBreak.Companion.Saver: Saver<LineBreak, Any>
@@ -50,5 +50,5 @@ private val TextMotionSaver =
         restore = {
             @Suppress("UNCHECKED_CAST") val list = it as List<Any>
             TextMotion(linearity = restore(list[0])!!, subpixelTextPositioning = restore(list[1])!!)
-        }
+        },
     )

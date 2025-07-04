@@ -66,7 +66,7 @@ abstract class BaseQueryTest {
                 dao.getSingleItemRaw(
                         RoomRawQuery(
                             sql = "SELECT * FROM SampleEntity WHERE pk = ?",
-                            onBindStatement = { it.bindLong(1, 1) }
+                            onBindStatement = { it.bindLong(1, 1) },
                         )
                     )
                     .pk
@@ -111,9 +111,7 @@ abstract class BaseQueryTest {
         assertThat(dao.getItemList().map { it.pk }).containsExactly(1L, 2L, 3L)
 
         // Perform multiple delete in transaction successfully
-        dao.deleteList(
-            pks = listOf(1L, 3L),
-        )
+        dao.deleteList(pks = listOf(1L, 3L))
         assertThat(dao.getItemList().map { it.pk }).containsExactly(2L)
     }
 
@@ -127,19 +125,11 @@ abstract class BaseQueryTest {
         assertThat(channel.receive()).containsExactly(SampleEntity(1))
 
         dao.insertItem(2)
-        assertThat(channel.receive())
-            .containsExactly(
-                SampleEntity(1),
-                SampleEntity(2),
-            )
+        assertThat(channel.receive()).containsExactly(SampleEntity(1), SampleEntity(2))
 
         dao.insertItem(3)
         assertThat(channel.receive())
-            .containsExactly(
-                SampleEntity(1),
-                SampleEntity(2),
-                SampleEntity(3),
-            )
+            .containsExactly(SampleEntity(1), SampleEntity(2), SampleEntity(3))
 
         channel.cancel()
     }
@@ -390,16 +380,12 @@ abstract class BaseQueryTest {
 
         assertThat(channel.receive()).isEmpty()
 
-        // Validates that a write using the connection directly will cause invalidation when
-        // a refresh is requested.
+        // Validates that a write using the connection directly will cause invalidation without
+        // the need to do a manual refresh.
         db.useWriterConnection { connection ->
             connection.execSQL("INSERT INTO SampleEntity (pk) VALUES (13)")
         }
-        db.invalidationTracker.refreshAsync()
-        assertThat(channel.receive())
-            .containsExactly(
-                SampleEntity(13),
-            )
+        assertThat(channel.receive()).containsExactly(SampleEntity(13))
 
         channel.cancel()
     }

@@ -58,7 +58,7 @@ private class TestAsyncXmlListenableWatchFaceService(testContext: Context) :
                     CanvasComplicationDrawable(
                         ComplicationDrawable(),
                         watchState,
-                        invalidateCallback
+                        invalidateCallback,
                     )
                 }
         }
@@ -73,20 +73,20 @@ private class TestAsyncXmlListenableWatchFaceService(testContext: Context) :
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ) =
         createWatchFaceFuture(
             surfaceHolder,
             watchState,
             complicationSlotsManager,
-            currentUserStyleRepository
+            currentUserStyleRepository,
         )
 
     override fun createWatchFaceFuture(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
         complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository
+        currentUserStyleRepository: CurrentUserStyleRepository,
     ): ListenableFuture<WatchFace> {
         val future = SettableFuture.create<WatchFace>()
         // Post a task to resolve the future.
@@ -94,7 +94,7 @@ private class TestAsyncXmlListenableWatchFaceService(testContext: Context) :
             future.set(
                 WatchFace(
                         WatchFaceType.DIGITAL,
-                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository)
+                        FakeRenderer(surfaceHolder, watchState, currentUserStyleRepository),
                     )
                     .apply { setOverridePreviewReferenceInstant(REFERENCE_PREVIEW_TIME) }
             )
@@ -127,7 +127,7 @@ public class AsyncXmlListenableWatchFaceServiceTest {
                 mockSurfaceHolder,
                 MutableWatchState().asWatchState(),
                 complicationSlotsManager,
-                currentUserStyleRepository
+                currentUserStyleRepository,
             )
 
         val latch = CountDownLatch(1)

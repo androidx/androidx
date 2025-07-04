@@ -30,6 +30,7 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ಯಾವುದೇ ಪಿನ್, ಪ್ಯಾಟರ್ನ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಹೊಂದಿಸಿಲ್ಲ."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ಈ ಸಾಧನವು ಪಿನ್, ಪ್ಯಾಟರ್ನ್ ಅಥವಾ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಬೆಂಬಲಿಸುವುದಿಲ್ಲ."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"ಫಿಂಗರ್‌ಪ್ರಿಂಟ್ ಐಕಾನ್"</string>
+    <string name="content_view_more_options_button_clicked" msgid="5031325658202184259">"ಕಂಟೆಂಟ್ ವೀಕ್ಷಣೆಯಲ್ಲಿ ಹೆಚ್ಚಿನ ಆಯ್ಕೆಗಳು ಬಟನ್ ಅನ್ನು ಕ್ಲಿಕ್ ಮಾಡಲಾಗಿದೆ."</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"ಫಿಂಗರ್ ಪ್ರಿಂಟ್ ಬಳಸಿ"</string>
     <string name="use_face_label" msgid="6533512708069459542">"ಮುಖವನ್ನು ಬಳಸಿ"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"ಬಯೋಮೆಟ್ರಿಕ್ಸ್ ಬಳಸಿ"</string>

@@ -47,13 +47,13 @@ public interface Plane : Trackable {
     public class Type private constructor(private val name: Int) {
         public companion object {
             /** A horizontal plane facing upward (e.g. floor or tabletop). */
-            @JvmField public val HorizontalUpwardFacing: Type = Type(0)
+            @JvmField public val HORIZONTAL_UPWARD_FACING: Type = Type(0)
 
             /** A horizontal plane facing downward (e.g. a ceiling). */
-            @JvmField public val HorizontalDownwardFacing: Type = Type(1)
+            @JvmField public val HORIZONTAL_DOWNWARD_FACING: Type = Type(1)
 
             /** A vertical plane (e.g. a wall). */
-            @JvmField public val Vertical: Type = Type(2)
+            @JvmField public val VERTICAL: Type = Type(2)
         }
     }
 
@@ -61,19 +61,19 @@ public interface Plane : Trackable {
     public class Label private constructor(private val name: Int) {
         public companion object {
             /** A plane of unknown type. */
-            @JvmField public val Unknown: Label = Label(0)
+            @JvmField public val UNKNOWN: Label = Label(0)
 
             /** A plane that represents a wall. */
-            @JvmField public val Wall: Label = Label(1)
+            @JvmField public val WALL: Label = Label(1)
 
             /** A plane that represents a floor. */
-            @JvmField public val Floor: Label = Label(2)
+            @JvmField public val FLOOR: Label = Label(2)
 
             /** A plane that represents a ceiling. */
-            @JvmField public val Ceiling: Label = Label(3)
+            @JvmField public val CEILING: Label = Label(3)
 
             /** A plane that represents a table. */
-            @JvmField public val Table: Label = Label(4)
+            @JvmField public val TABLE: Label = Label(4)
         }
     }
 }

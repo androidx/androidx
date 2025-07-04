@@ -28,10 +28,12 @@ import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.Draggable2DState
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.Scrollable2DState
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.gestures.scrollable2D
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.InteractionSource
@@ -90,11 +92,12 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
             listOf(
                 *modifier("Modifier") { Modifier },
                 *modifier("emptyElement", true) { Modifier.emptyElement() },
-                // (discouraged) composed overload that defaults to LocalIndication. Since we don't
-                // provide MaterialTheme in this benchmark, it will just be the debug indication
+                // clickable with no explicit indication parameter - this will internally query
+                // LocalIndication.current (which should be the default debug indication in this
+                // benchmark - practically since the indication will be created lazily the
+                // indication itself won't show up in the cost)
                 *modifier("clickable", true) { Modifier.clickable { capture(it) } },
-                // overload with explicit InteractionSource parameter and a ripple - this more
-                // accurately models how clickable is used in common components like Button.
+                // overload with explicit indication parameter and a ripple
                 *modifier("clickableWithRipple", true) {
                     Modifier.clickable(
                         // null interactionSource for lazy indication creation
@@ -122,13 +125,13 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
                             ColorIndicationNodeFactory(Color.Blue)
                         } else {
                             ColorIndicationNodeFactory(Color.Red)
-                        }
+                        },
                     )
                 },
                 *modifier("draggable") {
                     Modifier.draggable(
                         draggableState,
-                        if (it) Orientation.Vertical else Orientation.Horizontal
+                        if (it) Orientation.Vertical else Orientation.Horizontal,
                     )
                 },
                 *modifier("draggable2D") { Modifier.draggable2D(draggable2DState) },
@@ -136,8 +139,11 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
                 *modifier("scrollable") {
                     Modifier.scrollable(
                         scrollableState,
-                        if (it) Orientation.Vertical else Orientation.Horizontal
+                        if (it) Orientation.Vertical else Orientation.Horizontal,
                     )
+                },
+                *modifier("scrollable2D") {
+                    Modifier.scrollable2D(scrollable2DState, enabled = it)
                 },
                 *modifier("toggleable") { Modifier.toggleable(it) { capture(it) } },
                 *modifier("onFocusEvent") { Modifier.onFocusEvent { capture(it) } },
@@ -148,15 +154,15 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
                     Modifier.border(
                         if (it) 4.dp else 2.dp,
                         if (it) Color.Black else Color.Blue,
-                        CircleShape
+                        CircleShape,
                     )
                 },
                 *modifier("graphicsLayer") {
                     Modifier.graphicsLayer(
                         translationX = if (it) 1f else 2f,
-                        shape = if (it) RectangleShape else CircleShape
+                        shape = if (it) RectangleShape else CircleShape,
                     )
-                }
+                },
             )
 
         private val focusRequester = FocusRequester()
@@ -194,7 +200,7 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
             object : DraggableState {
                 override suspend fun drag(
                     dragPriority: MutatePriority,
-                    block: suspend DragScope.() -> Unit
+                    block: suspend DragScope.() -> Unit,
                 ) {}
 
                 override fun dispatchRawDelta(delta: Float) {}
@@ -203,23 +209,24 @@ class ModifiersBenchmark(val name: String, val count: Int, val modifierFn: (Bool
             object : Draggable2DState {
                 override suspend fun drag(
                     dragPriority: MutatePriority,
-                    block: suspend Drag2DScope.() -> Unit
+                    block: suspend Drag2DScope.() -> Unit,
                 ) {}
 
                 override fun dispatchRawDelta(delta: Offset) {}
             }
         private val scrollableState = ScrollableState { it }
+        private val scrollable2DState = Scrollable2DState { it }
 
         fun modifier(
             name: String,
             allCounts: Boolean = false,
-            modifierFn: (Boolean) -> Modifier
+            modifierFn: (Boolean) -> Modifier,
         ): Array<Array<Any>> {
             return if (allCounts) {
                 arrayOf(
                     arrayOf(name, 1, modifierFn),
                     arrayOf(name, 10, modifierFn),
-                    arrayOf(name, 100, modifierFn)
+                    arrayOf(name, 100, modifierFn),
                 )
             } else {
                 arrayOf(arrayOf(name, 10, modifierFn))

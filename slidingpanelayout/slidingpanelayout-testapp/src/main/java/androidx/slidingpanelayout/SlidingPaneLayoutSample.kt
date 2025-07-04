@@ -18,11 +18,31 @@ package androidx.slidingpanelayout
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.View
+import android.view.animation.Interpolator
+import androidx.slidingpanelayout.widget.SlidingPaneLayout
 
 class SlidingPaneLayoutSample : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(androidx.slidingpanelayout.demo.R.layout.activity_slidingpanelayout_sample)
+
+        val spl = findViewById<SlidingPaneLayout>(androidx.slidingpanelayout.demo.R.id.spl)
+        findViewById<View>(androidx.slidingpanelayout.demo.R.id.view1).also {
+            it.setOnClickListener { spl.openPane(3000, testInterpolator) }
+        }
+
+        findViewById<View>(androidx.slidingpanelayout.demo.R.id.view2).also {
+            it.setOnClickListener { spl.closePane(100, testInterpolator) }
+        }
     }
+
+    private val testInterpolator =
+        object : Interpolator {
+            override fun getInterpolation(input: Float): Float {
+                val t = input - 1f
+                return t * t * t * t * t + 1f
+            }
+        }
 }

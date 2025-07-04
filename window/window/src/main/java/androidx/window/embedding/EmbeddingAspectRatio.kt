@@ -34,7 +34,7 @@ private constructor(
      * parent window bounds. It will act as special identifiers for [ALWAYS_ALLOW] and
      * [ALWAYS_DISALLOW].
      */
-    internal val value: Float
+    internal val value: Float,
 ) {
     override fun toString() = "EmbeddingAspectRatio($description)"
 

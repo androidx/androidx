@@ -29,7 +29,7 @@ data class FtsOptions(
     val matchInfo: MatchInfo,
     val notIndexedColumns: List<String>,
     val prefixSizes: List<Int>,
-    val preferredOrder: Order
+    val preferredOrder: Order,
 ) : HasSchemaIdentity {
 
     override fun getIdKey(): String {
@@ -89,7 +89,7 @@ data class FtsOptions(
             matchInfo.name,
             notIndexedColumns,
             prefixSizes,
-            preferredOrder.name
+            preferredOrder.name,
         )
 
     companion object {
@@ -102,7 +102,7 @@ data class FtsOptions(
                 // create
                 // the table, therefore treat it as a custom tokenizer. b/201753224
                 // androidx.room.FtsOptions.TOKENIZER_ICU,
-                androidx.room.FtsOptions.TOKENIZER_UNICODE61
+                androidx.room.FtsOptions.TOKENIZER_UNICODE61,
             )
     }
 }

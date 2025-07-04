@@ -128,7 +128,7 @@ abstract class BaseTelecomTest {
         val serviceIntent =
             Intent(
                 InstrumentationRegistry.getInstrumentation().context,
-                TestInCallService::class.java
+                TestInCallService::class.java,
             )
         val service =
             async(Dispatchers.IO) {
@@ -141,7 +141,7 @@ abstract class BaseTelecomTest {
         // cascading failures and instead help better point to the test that caused the issue.
         Assume.assumeFalse(
             "Telecom could not be unbound - check previous test failures",
-            service.isTelecomBound()
+            service.isTelecomBound(),
         )
         var testException: Throwable? = null
         try {
@@ -155,7 +155,7 @@ abstract class BaseTelecomTest {
             if (testException == null) {
                 Assert.assertFalse(
                     "Invalid State: Telecom could not be unbound",
-                    service.isTelecomBound()
+                    service.isTelecomBound(),
                 )
             } else {
                 throw testException
@@ -174,7 +174,7 @@ abstract class BaseTelecomTest {
                 "isInCall=[${isInCallXmCallsDump.first}], " +
                 "mCalls={${isInCallXmCallsDump.second}}, " +
                 "sdkInt=[${Build.VERSION.SDK_INT}], " +
-                "phoneAccounts=[${getPhoneAccountsFromTelDumpsys(telecomDumpsysString)}]"
+                "phoneAccounts=[${getPhoneAccountsFromTelDumpsys(telecomDumpsysString)}]",
         )
     }
 
@@ -210,7 +210,7 @@ abstract class BaseTelecomTest {
      */
     suspend fun assertWithinTimeout_addCall(
         attributes: CallAttributesCompat,
-        assertBlock: CallControlScope.() -> (Unit)
+        assertBlock: CallControlScope.() -> (Unit),
     ) {
         Log.i(TestUtils.LOG_TAG, "assertWithinTimeout_addCall")
         var callControlScope: CallControlScope? = null

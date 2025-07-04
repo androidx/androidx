@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("ExposedDropdownMenu_android")
+
 package androidx.compose.material
 
 import android.graphics.Rect as ViewRect
@@ -51,7 +53,7 @@ internal actual fun OnPlatformWindowBoundsChange(block: () -> Unit) {
  */
 private class OnGlobalLayoutListener(
     private val view: View,
-    private val onGlobalLayoutCallback: () -> Unit
+    private val onGlobalLayoutCallback: () -> Unit,
 ) : View.OnAttachStateChangeListener, ViewTreeObserver.OnGlobalLayoutListener {
     private var isListeningToGlobalLayout = false
 

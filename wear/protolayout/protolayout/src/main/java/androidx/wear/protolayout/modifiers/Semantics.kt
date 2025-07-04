@@ -23,34 +23,11 @@ import androidx.wear.protolayout.ModifiersBuilders.SemanticsRole
 import androidx.wear.protolayout.TypeBuilders.StringProp
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
 import androidx.wear.protolayout.expression.RequiresSchemaVersion
+import androidx.wear.protolayout.modifiers.BaseSemanticElement.Companion.CLEAR_SEMANTIC_ELEMENT
 import java.util.Objects
 
-internal class BaseSemanticElement(
-    val contentDescription: StringProp? = null,
-    @SemanticsRole val semanticsRole: Int = SEMANTICS_ROLE_NONE
-) : LayoutModifier.Element {
-    @SuppressLint("ProtoLayoutMinSchema")
-    fun foldIn(initial: Semantics.Builder?): Semantics.Builder =
-        (initial ?: Semantics.Builder()).apply {
-            contentDescription?.let { setContentDescription(it) }
-            if (semanticsRole != SEMANTICS_ROLE_NONE) {
-                setRole(semanticsRole)
-            }
-        }
-
-    override fun equals(other: Any?): Boolean =
-        other is BaseSemanticElement &&
-            contentDescription == other.contentDescription &&
-            semanticsRole == other.semanticsRole
-
-    override fun hashCode(): Int = Objects.hash(contentDescription, semanticsRole)
-
-    override fun toString(): String =
-        "BaseSemanticElement[contentDescription=$contentDescription, semanticRole=$semanticsRole"
-}
-
 /**
- * Adds content description to be read by Talkback.
+ * Adds content description to be read by accessibility services.
  *
  * @param staticValue The static content description. This value will be used if [dynamicValue] is
  *   null, or if can't be resolved.
@@ -60,7 +37,7 @@ internal class BaseSemanticElement(
 @SuppressLint("ProtoLayoutMinSchema") // 1.2 schema only used when dynamicValue is non-null
 fun LayoutModifier.contentDescription(
     staticValue: String,
-    @RequiresSchemaVersion(major = 1, minor = 200) dynamicValue: DynamicString? = null
+    @RequiresSchemaVersion(major = 1, minor = 200) dynamicValue: DynamicString? = null,
 ): LayoutModifier =
     this then
         BaseSemanticElement(
@@ -76,3 +53,51 @@ fun LayoutModifier.contentDescription(
  */
 fun LayoutModifier.semanticsRole(@SemanticsRole semanticsRole: Int): LayoutModifier =
     this then BaseSemanticElement(semanticsRole = semanticsRole)
+
+/** Mark the element as heading for a section of content for accessibility purpose. */
+@RequiresSchemaVersion(major = 1, minor = 600)
+fun LayoutModifier.semanticsHeading(heading: Boolean): LayoutModifier =
+    this then BaseSemanticElement(heading = heading)
+
+/** Clears the semantics, including [contentDescription] and [semanticsRole], from the modifier. */
+fun LayoutModifier.clearSemantics(): LayoutModifier = this then CLEAR_SEMANTIC_ELEMENT
+
+internal class BaseSemanticElement(
+    val contentDescription: StringProp? = null,
+    @SemanticsRole val semanticsRole: Int? = null,
+    val heading: Boolean? = null,
+) : BaseProtoLayoutModifiersElement<Semantics.Builder> {
+    @SuppressLint("ProtoLayoutMinSchema")
+    override fun mergeTo(initialBuilder: Semantics.Builder?): Semantics.Builder? =
+        if (contentDescription == null && semanticsRole == null && heading == null) {
+            null
+        } else {
+            (initialBuilder ?: Semantics.Builder()).apply {
+                contentDescription?.let { setContentDescription(it) }
+                if (semanticsRole != null && semanticsRole != SEMANTICS_ROLE_NONE) {
+                    setRole(semanticsRole)
+                }
+                if (heading != null) {
+                    setHeading(heading)
+                }
+            }
+        }
+
+    override fun equals(other: Any?): Boolean =
+        other is BaseSemanticElement &&
+            contentDescription == other.contentDescription &&
+            semanticsRole == other.semanticsRole &&
+            heading == other.heading
+
+    override fun hashCode(): Int = Objects.hash(contentDescription, semanticsRole, heading)
+
+    override fun toString(): String =
+        "BaseSemanticElement[" +
+            "contentDescription=$contentDescription," +
+            "semanticRole=$semanticsRole," +
+            "heading=$heading]"
+
+    companion object {
+        val CLEAR_SEMANTIC_ELEMENT = BaseSemanticElement()
+    }
+}

@@ -30,16 +30,22 @@ class FoundationIssueRegistry : IssueRegistry() {
     override val issues
         get() =
             listOf(
-                LazyLayoutStateReadInCompositionDetector.FrequentlyChangedStateReadInComposition,
-                UnrememberedMutableInteractionSourceDetector.UnrememberedMutableInteractionSource,
                 NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload,
-                BoxWithConstraintsDetector.UnusedConstraintsParameter
+                BoxWithConstraintsDetector.UnusedConstraintsParameter,
             )
+
+    override val deletedIssues =
+        listOf(
+            // Now handled by RememberInComposition
+            "UnrememberedMutableInteractionSource",
+            // Now handled by FrequentlyChangingValue
+            "FrequentlyChangedStateReadInComposition",
+        )
 
     override val vendor =
         Vendor(
             vendorName = "Jetpack Compose",
             identifier = "androidx.compose.foundation",
-            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128"
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=612128",
         )
 }

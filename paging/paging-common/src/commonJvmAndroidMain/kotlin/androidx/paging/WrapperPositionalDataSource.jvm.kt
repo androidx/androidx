@@ -21,7 +21,7 @@ import androidx.arch.core.util.Function
 @Suppress("DEPRECATION")
 internal class WrapperPositionalDataSource<A : Any, B : Any>(
     private val source: PositionalDataSource<A>,
-    val listFunction: Function<List<A>, List<B>>
+    val listFunction: Function<List<A>, List<B>>,
 ) : PositionalDataSource<B>() {
     override val isInvalid
         get() = source.isInvalid
@@ -45,7 +45,7 @@ internal class WrapperPositionalDataSource<A : Any, B : Any>(
 
                 override fun onResult(data: List<A>, position: Int) =
                     callback.onResult(convert(listFunction, data), position)
-            }
+            },
         )
     }
 
@@ -55,7 +55,7 @@ internal class WrapperPositionalDataSource<A : Any, B : Any>(
             object : LoadRangeCallback<A>() {
                 override fun onResult(data: List<A>) =
                     callback.onResult(convert(listFunction, data))
-            }
+            },
         )
     }
 }

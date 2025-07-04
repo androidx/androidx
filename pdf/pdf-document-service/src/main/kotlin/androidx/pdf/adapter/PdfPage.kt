@@ -17,11 +17,14 @@
 package androidx.pdf.adapter
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.graphics.pdf.RenderParams
 import android.graphics.pdf.content.PdfPageGotoLinkContent
 import android.graphics.pdf.content.PdfPageImageContent
 import android.graphics.pdf.content.PdfPageLinkContent
 import android.graphics.pdf.content.PdfPageTextContent
+import android.graphics.pdf.models.FormEditRecord
+import android.graphics.pdf.models.FormWidgetInfo
 import android.graphics.pdf.models.PageMatchBounds
 import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
@@ -66,7 +69,7 @@ public interface PdfPage : AutoCloseable {
         left: Int,
         top: Int,
         scaledPageWidth: Int,
-        scaledPageHeight: Int
+        scaledPageHeight: Int,
     )
 
     /**
@@ -82,6 +85,22 @@ public interface PdfPage : AutoCloseable {
      * @return A list of [PdfPageImageContent] objects representing the images on the page.
      */
     public fun getPageImageContents(): List<PdfPageImageContent>
+
+    /**
+     * Retrieves information about all form widgets on the page, returns an empty list if there are
+     * no form widgets on the page.
+     *
+     * @return A list of [FormWidgetInfo] objects representing the form widgets on the page.
+     */
+    public fun getFormWidgetInfos(): List<FormWidgetInfo>
+
+    /**
+     * Retrieves a list of [FormWidgetInfo] objects for all the form widgets of the given types.
+     *
+     * @param types an array of the types of form widgets to retrieve
+     * @return A list of [FormWidgetInfo] objects representing the form widgets of the given types.
+     */
+    public fun getFormWidgetInfos(types: IntArray): List<FormWidgetInfo>
 
     /**
      * Selects text on the page based on the given boundaries.
@@ -125,4 +144,12 @@ public interface PdfPage : AutoCloseable {
      * @return The [RenderParams] for this page.
      */
     public fun getRenderParams(): RenderParams
+
+    /**
+     * Applies a [FormEditRecord] to the given PDF.
+     *
+     * @param editRecord The [FormEditRecord] to apply to the PDF.
+     * @return Rectangular areas of the page bitmap that have been invalidated by this action.
+     */
+    public fun applyEdit(editRecord: FormEditRecord): List<Rect>
 }

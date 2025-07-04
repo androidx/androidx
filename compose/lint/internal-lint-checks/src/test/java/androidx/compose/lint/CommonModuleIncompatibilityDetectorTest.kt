@@ -33,7 +33,7 @@ class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
         mutableListOf(
             CommonModuleIncompatibilityDetector.IMPORT_ISSUE,
             CommonModuleIncompatibilityDetector.REFERENCE_ISSUE,
-            CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE
+            CommonModuleIncompatibilityDetector.EXTENDS_LAMBDA_ISSUE,
         )
 
     @Test
@@ -49,7 +49,7 @@ class CommonModuleIncompatibilityDetectorTest : LintDetectorTest() {
                 import java.*
                 import android.os.Bundle
                 import android.*
-            """
+            """,
                 )
                 .within("src")
 
@@ -99,7 +99,7 @@ src/commonMain/test/TestFile.kt:8: Error: Platform-dependent import in a common 
                     return true
                   }
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -142,7 +142,7 @@ src/commonMain/test/TestFile.kt:12: Error: Platform reference in a common module
                 val a = object : () -> Unit {
                     override fun invoke() {}
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -179,7 +179,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 import java.*
                 import android.os.Bundle
                 import android.*
-            """
+            """,
                 )
                 .within("src")
 
@@ -193,7 +193,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 import java.*
                 import android.os.Bundle
                 import android.*
-            """
+            """,
                 )
                 .within("src")
 
@@ -207,7 +207,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 import java.*
                 import android.os.Bundle
                 import android.*
-            """
+            """,
                 )
                 .within("src")
 
@@ -234,7 +234,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                     return true
                   }
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -256,7 +256,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                     return true
                   }
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -278,7 +278,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                     return true
                   }
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -301,7 +301,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 val a = object : () -> Unit {
                     override fun invoke() {}
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -319,7 +319,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 val a = object : () -> Unit {
                     override fun invoke() {}
                 }
-            """
+            """,
                 )
                 .within("src")
 
@@ -337,7 +337,7 @@ src/commonMain/test/TestFile.kt:9: Error: Extending Kotlin lambda interfaces is 
                 val a = object : () -> Unit {
                     override fun invoke() {}
                 }
-            """
+            """,
                 )
                 .within("src")
 

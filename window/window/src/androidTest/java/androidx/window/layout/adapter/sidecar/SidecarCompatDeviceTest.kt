@@ -42,7 +42,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatcher
@@ -86,7 +85,6 @@ class SidecarCompatDeviceTest : WindowTestBase() {
         }
     }
 
-    @Ignore("b/241174887")
     @Test
     fun testWindowLayoutCallbackOnConfigChange() {
         val testScope = TestScope(UnconfinedTestDispatcher())
@@ -126,7 +124,7 @@ class SidecarCompatDeviceTest : WindowTestBase() {
                     SidecarAdapter()
                         .translate(
                             updatedSidecarWindowLayoutInfo,
-                            sidecarCompat.sidecar!!.deviceState
+                            sidecarCompat.sidecar!!.deviceState,
                         )
                 verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(any(), eq(expected))
             }

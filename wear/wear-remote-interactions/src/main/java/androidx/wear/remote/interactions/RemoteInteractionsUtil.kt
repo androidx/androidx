@@ -18,6 +18,7 @@ package androidx.wear.remote.interactions
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 
 internal object RemoteInteractionsUtil {
@@ -31,5 +32,12 @@ internal object RemoteInteractionsUtil {
         @JvmStatic
         fun hasSystemFeature(context: Context) =
             context.packageManager.hasSystemFeature(SYSTEM_FEATURE_WATCH)
+    }
+
+    /** Logs message as debug if level is set or if the build type is not user. */
+    internal fun logDOrNotUser(tag: String, message: String) {
+        if (Log.isLoggable(tag, Log.DEBUG) || !Build.TYPE.equals("user")) {
+            Log.d(tag, message)
+        }
     }
 }

@@ -16,7 +16,15 @@
 
 package androidx.wear.watchface.style
 
-/** Describes part of watchface. Used as a parameter for rendering. */
+/**
+ * Describes part of watchface. Used as a parameter for rendering.
+ *
+ * @deprecated use Watch Face Format instead
+ */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public enum class WatchFaceLayer {
     /** The watch excluding complications and anything that may render on top of complications. */
     BASE,

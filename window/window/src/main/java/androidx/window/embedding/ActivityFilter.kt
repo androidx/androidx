@@ -49,7 +49,7 @@ internal constructor(
      * If it is not `null`, the [ActivityFilter] will check the activity [Intent.getAction] besides
      * the component name. If it is `null`, [Intent.getAction] will be ignored.
      */
-    val intentAction: String?
+    val intentAction: String?,
 ) {
 
     /**
@@ -68,7 +68,7 @@ internal constructor(
      */
     constructor(
         componentName: ComponentName,
-        intentAction: String?
+        intentAction: String?,
     ) : this(ActivityComponentInfo(componentName), intentAction)
 
     init {

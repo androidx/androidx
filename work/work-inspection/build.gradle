@@ -21,12 +21,14 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("androidx.inspection")
 }
 
@@ -36,7 +38,7 @@ dependencies {
     compileOnly("androidx.inspection:inspection:1.0.0")
     compileOnly(project(":lifecycle:lifecycle-runtime"))
     compileOnly(project(":work:work-runtime"))
-    compileOnly("androidx.room:room-runtime:2.6.1")
+    compileOnly("androidx.room:room-runtime:2.7.0")
     androidTestImplementation(project(":inspection:inspection-testing"))
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":work:work-runtime"))
@@ -50,10 +52,10 @@ dependencies {
 
 androidx {
     name = "WorkManager Inspector"
-    type = LibraryType.IDE_PLUGIN
+    type = SoftwareType.IDE_PLUGIN
+    kotlinTarget = KotlinTarget.KOTLIN_2_1
     inceptionYear = "2020"
     description = "The implementation of WorkManager Inspector."
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

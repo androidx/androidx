@@ -29,6 +29,8 @@ import kotlin.math.floor
 /**
  * Interface used by Text composables to override text size to automatically grow or shrink text to
  * fill the layout bounds.
+ *
+ * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 interface TextAutoSize {
     /**
@@ -41,7 +43,7 @@ interface TextAutoSize {
      */
     fun TextAutoSizeLayoutScope.getFontSize(
         constraints: Constraints,
-        text: AnnotatedString
+        text: AnnotatedString,
     ): TextUnit
 
     /**
@@ -65,6 +67,11 @@ interface TextAutoSize {
         /**
          * Automatically size the text with the biggest font size that fits the available space.
          *
+         * When text auto size is performed with [TextOverflow.Ellipsis],
+         * [TextOverflow.StartEllipsis] or [TextOverflow.MiddleEllipsis] (e.g. by specifying
+         * textOverflow on BasicText), this implementation will consider the text to be fitting the
+         * available space if it is *not* ellipsized.
+         *
          * @param minFontSize The smallest potential font size of the text. Default = 12.sp. This
          *   must be smaller than [maxFontSize]; an [IllegalArgumentException] will be thrown
          *   otherwise.
@@ -82,12 +89,12 @@ interface TextAutoSize {
         fun StepBased(
             minFontSize: TextUnit = TextAutoSizeDefaults.MinFontSize,
             maxFontSize: TextUnit = TextAutoSizeDefaults.MaxFontSize,
-            stepSize: TextUnit = 0.25.sp
+            stepSize: TextUnit = 0.25.sp,
         ): TextAutoSize =
             AutoSizeStepBased(
                 minFontSize = minFontSize,
                 maxFontSize = maxFontSize,
-                stepSize = stepSize
+                stepSize = stepSize,
             )
     }
 }
@@ -101,65 +108,10 @@ object TextAutoSizeDefaults {
     val MaxFontSize = 112.sp
 }
 
-/**
- * Interface used by Text composables to override text size to automatically grow or shrink text to
- * fill the layout bounds.
- */
-@Deprecated(
-    message = "AutoSize has been renamed to TextAutoSize",
-    replaceWith = ReplaceWith("TextAutoSize")
-)
-sealed interface AutoSize {
-    companion object {
-        /**
-         * Automatically size the text with the biggest font size that fits the available space.
-         *
-         * @param minFontSize The smallest potential font size of the text. Default = 12.sp. This
-         *   must be smaller than [maxFontSize]; an [IllegalArgumentException] will be thrown
-         *   otherwise.
-         * @param maxFontSize The largest potential font size of the text. Default = 112.sp. This
-         *   must be larger than [minFontSize]; an [IllegalArgumentException] will be thrown
-         *   otherwise.
-         * @param stepSize The smallest difference between potential font sizes. Specifically, every
-         *   font size, when subtracted by [minFontSize], is divisible by [stepSize]. Default =
-         *   0.25.sp. This must not be less than `0.0001f.sp`; an [IllegalArgumentException] will be
-         *   thrown otherwise. If [stepSize] is greater than the difference between [minFontSize]
-         *   and [maxFontSize], [minFontSize] will be used for the layout.
-         * @return AutoSize instance with the step-based configuration. Using this in a compatible
-         *   composable will cause its text to be sized as above.
-         */
-        @Deprecated(
-            message = "AutoSize has been renamed to TextAutoSize",
-            replaceWith = ReplaceWith("TextAutoSize.StepBased")
-        )
-        @Suppress("Deprecation")
-        fun StepBased(
-            minFontSize: TextUnit = AutoSizeDefaults.MinFontSize,
-            maxFontSize: TextUnit = AutoSizeDefaults.MaxFontSize,
-            stepSize: TextUnit = 0.25.sp
-        ): TextAutoSize = TextAutoSize.StepBased(minFontSize, maxFontSize, stepSize)
-    }
-}
-
-/** Contains defaults for [AutoSize] APIs. */
-@Deprecated(
-    message = "AutoSizeDefaults has been renamed to TextAutoSizeDefaults",
-    replaceWith = ReplaceWith("TextAutoSizeDefaults")
-)
-object AutoSizeDefaults {
-    /** The default minimum font size for [AutoSize]. */
-    val MinFontSize: TextUnit
-        get() = TextAutoSizeDefaults.MinFontSize
-
-    /** The default maximum font size for [AutoSize]. */
-    val MaxFontSize: TextUnit
-        get() = TextAutoSizeDefaults.MaxFontSize
-}
-
 private class AutoSizeStepBased(
     private var minFontSize: TextUnit,
     private val maxFontSize: TextUnit,
-    private val stepSize: TextUnit
+    private val stepSize: TextUnit,
 ) : TextAutoSize {
     init {
         // Checks for validity of AutoSize instance
@@ -204,12 +156,9 @@ private class AutoSizeStepBased(
         }
     }
 
-    private val TextLayoutResult.isLastLineEllipsized: Boolean
-        get() = if (lineCount > 0) isLineEllipsized(lineCount - 1) else false
-
     override fun TextAutoSizeLayoutScope.getFontSize(
         constraints: Constraints,
-        text: AnnotatedString
+        text: AnnotatedString,
     ): TextUnit {
         val stepSize = stepSize.toPx()
         val smallest = minFontSize.toPx()
@@ -221,30 +170,7 @@ private class AutoSizeStepBased(
 
         while ((max - min) >= stepSize) {
             val layoutResult = performLayout(constraints, text, current.toSp())
-            val didOverflow =
-                when (layoutResult.layoutInput.overflow) {
-                    TextOverflow.Clip,
-                    TextOverflow.Visible -> {
-                        layoutResult.didOverflowWidth || layoutResult.didOverflowHeight
-                    }
-                    TextOverflow.StartEllipsis,
-                    TextOverflow.MiddleEllipsis,
-                    TextOverflow.Ellipsis -> {
-                        // If any line was ellipsized, we've overflowed.
-                        var lineIndex = 0
-                        while (lineIndex < layoutResult.lineCount) {
-                            if (layoutResult.isLineEllipsized(lineIndex)) break
-                            lineIndex++
-                        }
-                        lineIndex > 0
-                    }
-                    else ->
-                        throw IllegalArgumentException(
-                            "TextOverflow type" +
-                                " ${layoutResult.layoutInput.overflow} is not supported."
-                        )
-                }
-            if (didOverflow) {
+            if (layoutResult.didOverflow()) {
                 max = current
             } else {
                 min = current
@@ -257,14 +183,56 @@ private class AutoSizeStepBased(
         // We have found a size that fits, but we can still try one step up
         if ((current + stepSize) <= largest) {
             val layoutResult = performLayout(constraints, text, (current + stepSize).toSp())
-            val didOverflow = layoutResult.didOverflowWidth || layoutResult.didOverflowHeight
-            if (!didOverflow) {
+            if (!layoutResult.didOverflow()) {
                 current += stepSize
             }
         }
 
         return current.toSp()
     }
+
+    private fun TextLayoutResult.didOverflow() =
+        when (layoutInput.overflow) {
+            TextOverflow.Clip,
+            TextOverflow.Visible -> didOverflowBounds()
+            TextOverflow.StartEllipsis,
+            TextOverflow.MiddleEllipsis,
+            TextOverflow.Ellipsis -> didOverflowByEllipsize()
+            else ->
+                throw IllegalArgumentException(
+                    "TextOverflow type ${layoutInput.overflow} is not supported."
+                )
+        }
+
+    private fun TextLayoutResult.didOverflowBounds() = didOverflowWidth || didOverflowHeight
+
+    /**
+     * Whether a [TextLayoutResult] with any ellipsize [TextOverflow] did overflow, that is:
+     * - [TextOverflow.StartEllipsis] and [TextOverflow.MiddleEllipsis]: if the text is single line,
+     *   ellipsize was performed. If it is multiline, the text overflowed (see [TextOverflow]) after
+     *   falling back to clip.
+     * - [TextOverflow.Ellipsis]: If ellipsize was performed on the last line of text
+     */
+    private fun TextLayoutResult.didOverflowByEllipsize(): Boolean =
+        when (lineCount) {
+            0 -> false
+            // Text only gets start- or middle-ellipsized if it is single line, so we can check if
+            //  the first line is ellipsized to cover all single-line ellipsis overflow
+            1 -> isLineEllipsized(0)
+            else ->
+                when (layoutInput.overflow) {
+                    // If the text is not single line but start or middle ellipsis has been set,
+                    // fall
+                    //  back to the behavior for TextOverflow.Clip
+                    TextOverflow.StartEllipsis,
+                    TextOverflow.MiddleEllipsis -> didOverflowBounds()
+                    // TextOverflow.Ellipsis is supported for multiline text and happens at the end
+                    // of
+                    //  the text, so we only need to check the last line
+                    TextOverflow.Ellipsis -> isLineEllipsized(lineCount - 1)
+                    else -> false
+                }
+        }
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true

@@ -1,0 +1,119 @@
+// Signature format: 4.0
+package androidx.text.vertical {
+
+  public final class EmphasisSpan extends android.text.style.MetricAffectingSpan {
+    ctor public EmphasisSpan(optional int style, optional boolean filled, optional float scale);
+    method public String getLetter();
+    method public float getScale();
+    method public void updateDrawState(android.text.TextPaint? p0);
+    method public void updateMeasureState(android.text.TextPaint p0);
+    property public String letter;
+    property public float scale;
+    field public static final androidx.text.vertical.EmphasisSpan.Companion Companion;
+    field public static final boolean DEFAULT_EMPHASIS_FILL = true;
+    field public static final int DEFAULT_EMPHASIS_STYLE = 0; // 0x0
+    field public static final float DEFAULT_SCALE = 0.5f;
+  }
+
+  public static final class EmphasisSpan.Companion {
+    property public static boolean DEFAULT_EMPHASIS_FILL;
+    property public static int DEFAULT_EMPHASIS_STYLE;
+    property public static float DEFAULT_SCALE;
+  }
+
+  public final class EmphasisStyle {
+    property public static int CIRCLE;
+    property public static int DOT;
+    property public static int DOUBLE_CIRCLE;
+    property public static int SESAME;
+    property public static int TRIANGLE;
+    field public static final int CIRCLE = 1; // 0x1
+    field public static final int DOT = 0; // 0x0
+    field public static final int DOUBLE_CIRCLE = 2; // 0x2
+    field public static final androidx.text.vertical.EmphasisStyle INSTANCE;
+    field public static final int SESAME = 4; // 0x4
+    field public static final int TRIANGLE = 3; // 0x3
+  }
+
+  public final class FontShearSpan extends android.text.style.MetricAffectingSpan {
+    ctor public FontShearSpan();
+    ctor public FontShearSpan(optional float fontShear);
+    method public float getFontShear();
+    method public void updateDrawState(android.text.TextPaint? p0);
+    method public void updateMeasureState(android.text.TextPaint p0);
+    property public float fontShear;
+    field public static final androidx.text.vertical.FontShearSpan.Companion Companion;
+    field public static final float DEFAULT_FONT_SHEAR = 0.1678842f;
+  }
+
+  public static final class FontShearSpan.Companion {
+    property public static float DEFAULT_FONT_SHEAR;
+  }
+
+  public final class RubySpan {
+    method public int getOrientation();
+    method public CharSequence getText();
+    method public float getTextScale();
+    property public int orientation;
+    property public CharSequence text;
+    property public float textScale;
+  }
+
+  public static final class RubySpan.Builder {
+    ctor public RubySpan.Builder(CharSequence text);
+    method public androidx.text.vertical.RubySpan build();
+    method public androidx.text.vertical.RubySpan.Builder setOrientation(int orientation);
+    method public androidx.text.vertical.RubySpan.Builder setTextScale(float textScale);
+  }
+
+  public final class TextOrientation {
+    property public static int MIXED;
+    property public static int SIDEWAYS;
+    property public static int UPRIGHT;
+    field public static final androidx.text.vertical.TextOrientation INSTANCE;
+    field public static final int MIXED = 0; // 0x0
+    field public static final int SIDEWAYS = 2; // 0x2
+    field public static final int UPRIGHT = 1; // 0x1
+  }
+
+  public sealed interface TextOrientationSpan {
+  }
+
+  public static final class TextOrientationSpan.Sideways implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.Sideways();
+  }
+
+  public static final class TextOrientationSpan.TextCombineUpright implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.TextCombineUpright();
+  }
+
+  public static final class TextOrientationSpan.Upright implements androidx.text.vertical.TextOrientationSpan {
+    ctor public TextOrientationSpan.Upright();
+  }
+
+  public final class VerticalTextLayout {
+    method public void draw(android.graphics.Canvas canvas, @Px float x, @Px float y);
+    method public int getEnd();
+    method public float getHeight();
+    method public int getOrientation();
+    method public android.text.TextPaint getPaint();
+    method public int getStart();
+    method public CharSequence getText();
+    method @Px public float getWidth();
+    property public int end;
+    property @Px public float height;
+    property public int orientation;
+    property public android.text.TextPaint paint;
+    property public int start;
+    property public CharSequence text;
+    property @Px public float width;
+  }
+
+  public static final class VerticalTextLayout.Builder {
+    ctor public VerticalTextLayout.Builder(CharSequence text, int start, int end, android.text.TextPaint paint, @Px float height);
+    method public androidx.text.vertical.VerticalTextLayout build();
+    method public androidx.text.vertical.VerticalTextLayout.Builder setOrientation(int orientation);
+  }
+
+}
+

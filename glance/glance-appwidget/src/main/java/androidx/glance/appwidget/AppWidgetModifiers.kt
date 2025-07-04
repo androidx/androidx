@@ -33,7 +33,8 @@ internal data class ClipToOutlineModifier(val clip: Boolean) : GlanceModifier.El
  * the Android View meaning of enabled.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun GlanceModifier.enabled(enabled: Boolean) = this.then(EnabledModifier(enabled))
+public fun GlanceModifier.enabled(enabled: Boolean): GlanceModifier =
+    this.then(EnabledModifier(enabled))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class EnabledModifier(val enabled: Boolean) : GlanceModifier.Element
+public data class EnabledModifier(val enabled: Boolean) : GlanceModifier.Element

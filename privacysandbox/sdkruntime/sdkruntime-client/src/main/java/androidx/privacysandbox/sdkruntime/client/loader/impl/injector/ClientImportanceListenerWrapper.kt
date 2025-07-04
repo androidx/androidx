@@ -48,17 +48,17 @@ private constructor(private val listenerOnForegroundImportanceChangedMethod: Met
                 Class.forName(
                     "androidx.privacysandbox.sdkruntime.core.SdkSandboxClientImportanceListenerCompat",
                     /* initialize = */ false,
-                    classLoader
+                    classLoader,
                 )
             val listenerOnForegroundImportanceChangedMethod =
                 sdkSandboxActivityHandlerCompatClass.getMethod(
                     "onForegroundImportanceChanged",
-                    Boolean::class.javaPrimitiveType
+                    Boolean::class.javaPrimitiveType,
                 )
 
             return ClientImportanceListenerWrapper(
                 listenerOnForegroundImportanceChangedMethod =
-                    listenerOnForegroundImportanceChangedMethod,
+                    listenerOnForegroundImportanceChangedMethod
             )
         }
     }

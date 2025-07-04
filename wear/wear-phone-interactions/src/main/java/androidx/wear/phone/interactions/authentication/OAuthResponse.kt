@@ -26,7 +26,7 @@ internal constructor(
     @ErrorCode public val errorCode: Int = RemoteAuthClient.NO_ERROR,
 
     /** The Url of the auth response. In case of an error it will be null. */
-    public val responseUrl: Uri?
+    public val responseUrl: Uri?,
 ) {
     /** Builder for constructing new instance of authentication response. */
     public class Builder {

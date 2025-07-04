@@ -17,7 +17,9 @@
 package androidx.datastore
 
 import android.content.Context
+import android.os.Build
 import androidx.datastore.core.DataMigration
+import androidx.datastore.core.deviceProtectedDataStoreFile
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -59,12 +61,15 @@ val Context.dsWithMigrationTo123 by
                     override suspend fun cleanUp() {}
                 }
             )
-        }
+        },
     )
+
+const val USER_ENCRYPTED_FILE_NAME = "userStorage"
+
+val Context.userEncryptedDs by dataStore(USER_ENCRYPTED_FILE_NAME, TestingSerializer())
 
 @ExperimentalCoroutinesApi
 class DataStoreDelegateTest {
-
     @get:Rule val tmp = TemporaryFolder()
 
     private lateinit var context: Context
@@ -82,12 +87,35 @@ class DataStoreDelegateTest {
             context.globalDs.data.first()
         }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
-    @SdkSuppress(minSdkVersion = 24)
-    fun testBasicWithDifferentContext() =
+    fun testInitUserEncryptedDelegateWithDeviceEncryptedContext() =
         runBlocking<Unit> {
-            context.createDeviceProtectedStorageContext().globalDs.updateData { 123 }
-            assertThat(context.globalDs.data.first()).isEqualTo(123)
+            // Initialize a datastore via "by dataStore" delegate, with a
+            // DeviceProtectedStorageContext.
+            val deviceEncryptedContext = context.createDeviceProtectedStorageContext()
+            deviceEncryptedContext.userEncryptedDs.updateData { 123 }
+
+            // Under the hood, the DeviceProtectedStorageContext is expected to be switched to a
+            // user encrypted Context, and the dataStore file should be in the user encrypted
+            // storage directory.
+            val userEncryptedContext = deviceEncryptedContext.applicationContext
+
+            val userEncryptedStorageDirectory: List<File> =
+                userEncryptedContext.filesDir.resolve("datastore").listFiles()?.toList()
+                    ?: emptyList()
+            val deviceEncryptedStorageDirectory =
+                deviceEncryptedContext.filesDir.resolve("datastore").listFiles()?.toList()
+                    ?: emptyList()
+
+            // Assert that the datastore was not created in the DE storage.
+            assertThat(deviceEncryptedStorageDirectory)
+                .doesNotContain(
+                    deviceEncryptedContext.deviceProtectedDataStoreFile(USER_ENCRYPTED_FILE_NAME)
+                )
+            // Assert that the datastore was created in the UE storage.
+            assertThat(userEncryptedStorageDirectory)
+                .contains(userEncryptedContext.dataStoreFile(USER_ENCRYPTED_FILE_NAME))
         }
 
     @Test

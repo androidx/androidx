@@ -26,13 +26,14 @@ dependencies {
     implementation(project(":navigation:navigation-fragment"))
     implementation(project(":navigation:navigation-runtime"))
     implementation(project(":navigation:navigation-ui"))
+    implementation(project(":activity:activity"))
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.1")
     implementation("androidx.core:core:1.13.0")
     implementation("androidx.customview:customview:1.1.0")
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
-    implementation("androidx.fragment:fragment:1.8.3")
+    implementation(project(":fragment:fragment"))
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
@@ -45,7 +46,7 @@ dependencies {
 
 android {
     namespace = "androidx.navigation.testapp"
-    compileSdk = 35
+    compileSdk = 36
 }
 
 tasks["check"].dependsOn(tasks["connectedCheck"])

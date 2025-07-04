@@ -217,7 +217,7 @@ sealed class KspHasModifiers(protected val declaration: KSDeclaration) : XHasMod
     companion object {
         fun createForSyntheticAccessor(
             property: KSPropertyDeclaration,
-            accessor: KSPropertyAccessor?
+            accessor: KSPropertyAccessor?,
         ): XHasModifiers {
             if (accessor != null) {
                 return PropertyFieldAccessor(accessor)

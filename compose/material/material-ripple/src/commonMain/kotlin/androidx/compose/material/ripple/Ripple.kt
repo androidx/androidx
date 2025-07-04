@@ -93,7 +93,7 @@ public fun createRippleModifierNode(
     bounded: Boolean,
     radius: Dp,
     color: ColorProducer,
-    rippleAlpha: () -> RippleAlpha
+    rippleAlpha: () -> RippleAlpha,
 ): DelegatableNode {
     return createPlatformRippleNode(interactionSource, bounded, radius, color, rippleAlpha)
 }
@@ -134,14 +134,14 @@ public fun createRippleModifierNode(
         "system library, use createRippleNode to create your own custom ripple implementation " +
         "that queries your own theme values. For a migration guide and background " +
         "information, please visit developer.android.com",
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.ERROR,
 )
 @Suppress("DEPRECATION", "TYPEALIAS_EXPANSION_DEPRECATION")
 @Composable
 public fun rememberRipple(
     bounded: Boolean = true,
     radius: Dp = Dp.Unspecified,
-    color: Color = Color.Unspecified
+    color: Color = Color.Unspecified,
 ): Indication {
     val colorState = rememberUpdatedState(color)
     return remember(bounded, radius) { PlatformRipple(bounded, radius, colorState) }
@@ -153,7 +153,7 @@ internal expect fun createPlatformRippleNode(
     bounded: Boolean,
     radius: Dp,
     color: ColorProducer,
-    rippleAlpha: () -> RippleAlpha
+    rippleAlpha: () -> RippleAlpha,
 ): DelegatableNode
 
 /**
@@ -181,7 +181,7 @@ internal expect fun createPlatformRippleNode(
 internal abstract class Ripple(
     private val bounded: Boolean,
     private val radius: Dp,
-    private val color: State<Color>
+    private val color: State<Color>,
 ) : Indication {
     @Suppress("DEPRECATION_ERROR")
     @Deprecated("Super method is deprecated")
@@ -223,7 +223,7 @@ internal abstract class Ripple(
         bounded: Boolean,
         radius: Dp,
         color: State<Color>,
-        rippleAlpha: State<RippleAlpha>
+        rippleAlpha: State<RippleAlpha>,
     ): RippleIndicationInstance
 
     // To force stability on this Ripple we need equals and hashcode, there's no value in
@@ -262,7 +262,7 @@ internal expect class PlatformRipple(bounded: Boolean, radius: Dp, color: State<
         bounded: Boolean,
         radius: Dp,
         color: State<Color>,
-        rippleAlpha: State<RippleAlpha>
+        rippleAlpha: State<RippleAlpha>,
     ): RippleIndicationInstance
 }
 
@@ -276,7 +276,7 @@ internal expect class PlatformRipple(bounded: Boolean, radius: Dp, color: State<
 @Deprecated("Replaced by the new RippleNode implementation")
 internal abstract class RippleIndicationInstance(
     private val bounded: Boolean,
-    rippleAlpha: State<RippleAlpha>
+    rippleAlpha: State<RippleAlpha>,
 ) : androidx.compose.foundation.IndicationInstance {
     private val stateLayer = StateLayer(bounded) { rippleAlpha.value }
 
@@ -311,7 +311,7 @@ internal abstract class RippleNode(
     protected val bounded: Boolean,
     private val radius: Dp,
     private val color: ColorProducer,
-    protected val rippleAlpha: () -> RippleAlpha
+    protected val rippleAlpha: () -> RippleAlpha,
 ) :
     Modifier.Node(),
     CompositionLocalConsumerModifierNode,
@@ -469,7 +469,7 @@ private class StateLayer(private val bounded: Boolean, private val rippleAlpha: 
             if (newInteraction != null) {
                 val rippleAlpha = rippleAlpha()
                 val targetAlpha =
-                    when (interaction) {
+                    when (newInteraction) {
                         is HoverInteraction.Enter -> rippleAlpha.hoveredAlpha
                         is FocusInteraction.Focus -> rippleAlpha.focusedAlpha
                         is DragInteraction.Start -> rippleAlpha.draggedAlpha

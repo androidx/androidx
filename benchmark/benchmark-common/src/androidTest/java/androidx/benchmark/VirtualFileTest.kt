@@ -53,7 +53,7 @@ class VirtualFileTest(
                     ShellFile.inTempDir("test2.file"),
                     "/data/local/tmp/test1.file",
                     "ShellFile",
-                )
+                ),
             )
     }
 

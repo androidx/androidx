@@ -17,6 +17,7 @@
 package androidx.xr.runtime.internal
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -30,7 +31,7 @@ class HitResultTest {
             throw NotImplementedError("Not implemented")
         }
 
-        override val trackingState: TrackingState = TrackingState.Stopped
+        override val trackingState: TrackingState = TrackingState.STOPPED
     }
 
     @Test

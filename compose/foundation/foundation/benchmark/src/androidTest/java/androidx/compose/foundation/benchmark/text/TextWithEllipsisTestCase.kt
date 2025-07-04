@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.TextUnit
 class TextWithEllipsisTestCase(
     private val texts: List<String>,
     private val width: Dp,
-    private val fontSize: TextUnit
+    private val fontSize: TextUnit,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
 
     private val align = mutableStateOf(TextAlign.Left)
@@ -50,7 +50,7 @@ class TextWithEllipsisTestCase(
                 fontSize = fontSize,
                 overflow = TextOverflow.Ellipsis,
                 softWrap = true,
-                modifier = Modifier.heightIn(max = height)
+                modifier = Modifier.heightIn(max = height),
             )
         }
     }

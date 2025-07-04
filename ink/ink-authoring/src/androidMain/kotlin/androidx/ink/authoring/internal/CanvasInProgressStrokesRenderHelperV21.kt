@@ -143,12 +143,18 @@ internal class CanvasInProgressStrokesRenderHelperV21(
     override fun drawInModifiedRegion(
         inProgressStroke: InProgressStroke,
         strokeToMainViewTransform: Matrix,
+        textureAnimationProgress: Float,
     ) {
         assertOnUiThread()
         val canvas =
             checkNotNull(canvasForCurrentDraw) { "Can only render during Callback.onDraw." }
         canvas.withMatrix(strokeToMainViewTransform) {
-            renderer.draw(canvas, inProgressStroke, strokeToMainViewTransform)
+            renderer.draw(
+                canvas,
+                inProgressStroke,
+                strokeToMainViewTransform,
+                textureAnimationProgress,
+            )
         }
     }
 

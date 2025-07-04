@@ -46,7 +46,7 @@ import kotlinx.coroutines.flow.onEach
 @OptIn(ExperimentalAppActions::class)
 internal class RaiseHandActionImpl(
     private val participants: StateFlow<Set<Participant>>,
-    private val onRaisedHandsChanged: suspend (List<Participant>) -> Unit
+    private val onRaisedHandsChanged: suspend (List<Participant>) -> Unit,
 ) : RaiseHandAction {
     companion object {
         const val TAG = CallExtensionScopeImpl.TAG + "(RHCA)"
@@ -83,7 +83,7 @@ internal class RaiseHandActionImpl(
     internal fun initialize(
         callScope: CoroutineScope,
         isSupported: Boolean,
-        callbacks: ParticipantStateCallbackRepository
+        callbacks: ParticipantStateCallbackRepository,
     ) {
         Log.d(TAG, "initialize, isSupported=$isSupported")
         this.isSupported = isSupported

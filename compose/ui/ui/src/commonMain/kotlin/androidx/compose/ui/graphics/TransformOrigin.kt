@@ -59,7 +59,7 @@ value class TransformOrigin internal constructor(@PublishedApi internal val pack
      */
     fun copy(
         pivotFractionX: Float = this.pivotFractionX,
-        pivotFractionY: Float = this.pivotFractionY
+        pivotFractionY: Float = this.pivotFractionY,
     ) = TransformOrigin(pivotFractionX, pivotFractionY)
 
     companion object {

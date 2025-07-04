@@ -34,7 +34,7 @@ import kotlin.concurrent.withLock
 /** Manages and dispatches update of [EmbeddedActivityWindowInfo]. */
 @RequiresWindowSdkExtension(6)
 internal open class ActivityWindowInfoCallbackController(
-    private val embeddingExtension: ActivityEmbeddingComponent,
+    private val embeddingExtension: ActivityEmbeddingComponent
 ) {
     private val globalLock = ReentrantLock()
 
@@ -64,7 +64,7 @@ internal open class ActivityWindowInfoCallbackController(
                 // Register when the first callback is added.
                 embeddingExtension.setEmbeddedActivityWindowInfoCallback(
                     Runnable::run,
-                    extensionsCallback
+                    extensionsCallback,
                 )
             }
 
@@ -100,14 +100,14 @@ internal open class ActivityWindowInfoCallbackController(
         return EmbeddedActivityWindowInfo(
             isEmbedded = info.isEmbedded,
             parentHostBounds = parentHostBounds,
-            boundsInParentHost = boundsInParentHost
+            boundsInParentHost = boundsInParentHost,
         )
     }
 
     @VisibleForTesting
     internal inner class CallbackWrapper(
         private val activity: Activity,
-        val callback: JetpackConsumer<EmbeddedActivityWindowInfo>
+        val callback: JetpackConsumer<EmbeddedActivityWindowInfo>,
     ) {
         var lastReportedInfo: EmbeddedActivityWindowInfo? = null
 

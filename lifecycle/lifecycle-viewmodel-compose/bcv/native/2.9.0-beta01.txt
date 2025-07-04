@@ -1,0 +1,18 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.lifecycle:lifecycle-viewmodel-compose>
+final object androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner { // androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner|null[0]
+    final val current // androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.current|{}current[0]
+        final fun <get-current>(): androidx.lifecycle/ViewModelStoreOwner? // androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.current.<get-current>|<get-current>(){}[0]
+
+    final fun provides(androidx.lifecycle/ViewModelStoreOwner): androidx.compose.runtime/ProvidedValue<androidx.lifecycle/ViewModelStoreOwner?> // androidx.lifecycle.viewmodel.compose/LocalViewModelStoreOwner.provides|provides(androidx.lifecycle.ViewModelStoreOwner){}[0]
+}
+
+final fun <#A: androidx.lifecycle/ViewModel> androidx.lifecycle.viewmodel.compose/viewModel(kotlin.reflect/KClass<#A>, androidx.lifecycle/ViewModelStoreOwner = ..., kotlin/String? = ..., androidx.lifecycle/ViewModelProvider.Factory? = ..., androidx.lifecycle.viewmodel/CreationExtras = ...): #A // androidx.lifecycle.viewmodel.compose/viewModel|viewModel(kotlin.reflect.KClass<0:0>;androidx.lifecycle.ViewModelStoreOwner;kotlin.String?;androidx.lifecycle.ViewModelProvider.Factory?;androidx.lifecycle.viewmodel.CreationExtras){0§<androidx.lifecycle.ViewModel>}[0]
+final inline fun <#A: reified androidx.lifecycle/ViewModel> androidx.lifecycle.viewmodel.compose/viewModel(androidx.lifecycle/ViewModelStoreOwner = ..., kotlin/String? = ..., androidx.lifecycle/ViewModelProvider.Factory? = ..., androidx.lifecycle.viewmodel/CreationExtras = ...): #A // androidx.lifecycle.viewmodel.compose/viewModel|viewModel(androidx.lifecycle.ViewModelStoreOwner;kotlin.String?;androidx.lifecycle.ViewModelProvider.Factory?;androidx.lifecycle.viewmodel.CreationExtras){0§<androidx.lifecycle.ViewModel>}[0]
+final inline fun <#A: reified androidx.lifecycle/ViewModel> androidx.lifecycle.viewmodel.compose/viewModel(androidx.lifecycle/ViewModelStoreOwner = ..., kotlin/String? = ..., noinline kotlin/Function1<androidx.lifecycle.viewmodel/CreationExtras, #A>): #A // androidx.lifecycle.viewmodel.compose/viewModel|viewModel(androidx.lifecycle.ViewModelStoreOwner;kotlin.String?;kotlin.Function1<androidx.lifecycle.viewmodel.CreationExtras,0:0>){0§<androidx.lifecycle.ViewModel>}[0]

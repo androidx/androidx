@@ -83,13 +83,13 @@ inline fun Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val measurePolicy = columnMeasurePolicy(verticalArrangement, horizontalAlignment)
     Layout(
         content = { ColumnScopeInstance.content() },
         measurePolicy = measurePolicy,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -104,7 +104,7 @@ internal val DefaultColumnMeasurePolicy: MeasurePolicy =
 @Composable
 internal fun columnMeasurePolicy(
     verticalArrangement: Arrangement.Vertical,
-    horizontalAlignment: Alignment.Horizontal
+    horizontalAlignment: Alignment.Horizontal,
 ): MeasurePolicy =
     if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
         DefaultColumnMeasurePolicy
@@ -119,7 +119,7 @@ internal fun columnMeasurePolicy(
 
 internal data class ColumnMeasurePolicy(
     private val verticalArrangement: Arrangement.Vertical,
-    private val horizontalAlignment: Alignment.Horizontal
+    private val horizontalAlignment: Alignment.Horizontal,
 ) : MeasurePolicy, RowColumnMeasurePolicy {
 
     override fun Placeable.mainAxisSize(): Int = height
@@ -130,7 +130,7 @@ internal data class ColumnMeasurePolicy(
         mainAxisLayoutSize: Int,
         childrenMainAxisSize: IntArray,
         mainAxisPositions: IntArray,
-        measureScope: MeasureScope
+        measureScope: MeasureScope,
     ) {
         with(verticalArrangement) {
             measureScope.arrange(mainAxisLayoutSize, childrenMainAxisSize, mainAxisPositions)
@@ -147,7 +147,7 @@ internal data class ColumnMeasurePolicy(
         crossAxisOffset: IntArray?,
         currentLineIndex: Int,
         startIndex: Int,
-        endIndex: Int
+        endIndex: Int,
     ): MeasureResult {
         return with(measureScope) {
             layout(crossAxisLayoutSize, mainAxisLayoutSize) {
@@ -158,12 +158,9 @@ internal data class ColumnMeasurePolicy(
                             placeable.rowColumnParentData,
                             crossAxisLayoutSize,
                             beforeCrossAxisAlignmentLine,
-                            measureScope.layoutDirection
+                            measureScope.layoutDirection,
                         )
-                    placeable.place(
-                        crossAxisPosition,
-                        mainAxisPositions[i],
-                    )
+                    placeable.place(crossAxisPosition, mainAxisPositions[i])
                 }
             }
         }
@@ -174,15 +171,15 @@ internal data class ColumnMeasurePolicy(
         parentData: RowColumnParentData?,
         crossAxisLayoutSize: Int,
         beforeCrossAxisAlignmentLine: Int,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ): Int {
         val childCrossAlignment = parentData?.crossAxisAlignment
         return childCrossAlignment?.align(
             size = crossAxisLayoutSize - placeable.width,
             layoutDirection = layoutDirection,
             placeable = placeable,
-            beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine
-        ) ?: horizontalAlignment.align(0, crossAxisLayoutSize - placeable.width, layoutDirection)
+            beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,
+        ) ?: horizontalAlignment.align(placeable.width, crossAxisLayoutSize, layoutDirection)
     }
 
     override fun createConstraints(
@@ -190,20 +187,20 @@ internal data class ColumnMeasurePolicy(
         crossAxisMin: Int,
         mainAxisMax: Int,
         crossAxisMax: Int,
-        isPrioritizing: Boolean
+        isPrioritizing: Boolean,
     ): Constraints {
         return createColumnConstraints(
             isPrioritizing,
             mainAxisMin,
             crossAxisMin,
             mainAxisMax,
-            crossAxisMax
+            crossAxisMax,
         )
     }
 
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
-        constraints: Constraints
+        constraints: Constraints,
     ): MeasureResult {
         return measure(
             constraints.minHeight,
@@ -215,13 +212,13 @@ internal data class ColumnMeasurePolicy(
             measurables,
             arrayOfNulls(measurables.size),
             0,
-            measurables.size
+            measurables.size,
         )
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ) =
         IntrinsicMeasureBlocks.VerticalMinWidth(
             measurables,
@@ -231,7 +228,7 @@ internal data class ColumnMeasurePolicy(
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ) =
         IntrinsicMeasureBlocks.VerticalMinHeight(
             measurables,
@@ -241,7 +238,7 @@ internal data class ColumnMeasurePolicy(
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
-        height: Int
+        height: Int,
     ) =
         IntrinsicMeasureBlocks.VerticalMaxWidth(
             measurables,
@@ -251,7 +248,7 @@ internal data class ColumnMeasurePolicy(
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
-        width: Int
+        width: Int,
     ) =
         IntrinsicMeasureBlocks.VerticalMaxHeight(
             measurables,
@@ -272,14 +269,14 @@ internal fun createColumnConstraints(
             minHeight = mainAxisMin,
             minWidth = crossAxisMin,
             maxHeight = mainAxisMax,
-            maxWidth = crossAxisMax
+            maxWidth = crossAxisMax,
         )
     } else {
         Constraints.fitPrioritizingHeight(
             minHeight = mainAxisMin,
             minWidth = crossAxisMin,
             maxHeight = mainAxisMax,
-            maxWidth = crossAxisMax
+            maxWidth = crossAxisMax,
         )
     }
 }
@@ -308,7 +305,7 @@ interface ColumnScope {
     @Stable
     fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
-        fill: Boolean = true
+        fill: Boolean = true,
     ): Modifier
 
     /**
@@ -365,7 +362,7 @@ internal object ColumnScopeInstance : ColumnScope {
             LayoutWeightElement(
                 // Coerce Float.POSITIVE_INFINITY to Float.MAX_VALUE to avoid errors
                 weight = weight.coerceAtMost(Float.MAX_VALUE),
-                fill = fill
+                fill = fill,
             )
         )
     }

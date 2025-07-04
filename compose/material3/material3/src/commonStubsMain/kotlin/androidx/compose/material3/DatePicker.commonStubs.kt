@@ -19,11 +19,11 @@ package androidx.compose.material3
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun formatDatePickerNavigateToYearString(
     template: String,
-    localizedYear: String
+    localizedYear: String,
 ): String = implementedInJetBrainsFork()
 
 @Suppress("NOTHING_TO_INLINE")
 internal actual inline fun formatHeadlineDescription(
     template: String,
-    verboseDateDescription: String
+    verboseDateDescription: String,
 ): String = implementedInJetBrainsFork()

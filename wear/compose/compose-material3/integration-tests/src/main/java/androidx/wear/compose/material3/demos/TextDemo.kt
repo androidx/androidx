@@ -37,7 +37,7 @@ fun TextWeightDemo() {
             Text(
                 text = "Label Small",
                 style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight(800)
+                fontWeight = FontWeight(800),
             )
         }
 
@@ -48,7 +48,7 @@ fun TextWeightDemo() {
             Text(
                 text = "Label Medium",
                 style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight(800)
+                fontWeight = FontWeight(800),
             )
         }
 
@@ -59,7 +59,7 @@ fun TextWeightDemo() {
             Text(
                 text = "Label Large",
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight(800)
+                fontWeight = FontWeight(800),
             )
         }
 
@@ -68,7 +68,7 @@ fun TextWeightDemo() {
         item {
             Text(
                 text = "Body Extra Small",
-                style = MaterialTheme.typography.bodyExtraSmall.copy(fontWeight = FontWeight(800))
+                style = MaterialTheme.typography.bodyExtraSmall.copy(fontWeight = FontWeight(800)),
             )
         }
 
@@ -78,7 +78,7 @@ fun TextWeightDemo() {
         item {
             Text(
                 text = "Body Small",
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight(800))
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight(800)),
             )
         }
 
@@ -87,7 +87,7 @@ fun TextWeightDemo() {
         item {
             Text(
                 text = "Body Medium",
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight(800))
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight(800)),
             )
         }
 
@@ -97,7 +97,7 @@ fun TextWeightDemo() {
         item {
             Text(
                 text = "Body Large",
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight(800))
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight(800)),
             )
         }
     }

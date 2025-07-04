@@ -49,13 +49,13 @@ class FakeBufferProvider(
                                     submittedBufferCalls.accept(inputBuffer)
                                 }
                             },
-                            directExecutor()
+                            directExecutor(),
                         )
                     } catch (e: ExecutionException) {
                         // Ignored.
                     }
                 },
-                directExecutor()
+                directExecutor(),
             )
             return bufferFuture
         } else {
@@ -69,7 +69,7 @@ class FakeBufferProvider(
 
     override fun addObserver(
         executor: Executor,
-        observer: Observable.Observer<in BufferProvider.State>
+        observer: Observable.Observer<in BufferProvider.State>,
     ) {
         observers[observer] = executor
         executor.execute { observer.onNewData(state) }

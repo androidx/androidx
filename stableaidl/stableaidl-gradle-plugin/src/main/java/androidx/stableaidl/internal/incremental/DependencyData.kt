@@ -54,7 +54,7 @@ class DependencyData internal constructor() {
         OUTPUT,
         MAIN,
         SECONDARY,
-        DONE
+        DONE,
     }
 
     override fun toString(): String {

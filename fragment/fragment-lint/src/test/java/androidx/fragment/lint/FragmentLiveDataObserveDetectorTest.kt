@@ -91,7 +91,7 @@ class Foo {
     fun observe(fragment: Fragment) {}
 }
             """
-                )
+                ),
             )
             .expectClean()
     }
@@ -143,7 +143,7 @@ class TestFragment extends Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -216,7 +216,7 @@ class TestFragment : Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -296,7 +296,7 @@ class TestFragment : Fragment {
     }
 }
             """
-                )
+                ),
             )
     }
 
@@ -338,7 +338,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """
@@ -394,7 +394,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """
@@ -501,7 +501,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expectClean()
     }
@@ -551,7 +551,7 @@ class Foo {
     }
 }
             """
-                )
+                ),
             )
             .expect(
                 """
@@ -614,7 +614,7 @@ class TestFragment: Fragment {
                 }
                     """
                         .trimIndent()
-                )
+                ),
             )
     }
 

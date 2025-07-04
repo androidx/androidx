@@ -20,9 +20,10 @@ import android.graphics.Canvas;
 import android.os.Build;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
+
+import org.jspecify.annotations.NonNull;
 
 /**
  * Package private class to keep implementations. Putting them inside ItemTouchUIUtil makes them

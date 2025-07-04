@@ -16,9 +16,10 @@
 
 package androidx.room.integration.testapp.vo;
 
-import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import org.jspecify.annotations.NonNull;
 
 @Entity(tableName = "products")
 public class Product {
@@ -26,7 +27,9 @@ public class Product {
     @PrimaryKey(autoGenerate = true)
     public final long id;
 
-    @NonNull
+    // This project is tested against a version of the room compiler that doesn't recognize JSpecify
+    @SuppressWarnings("JSpecifyNullness")
+    @androidx.annotation.NonNull
     public final String name;
 
     public Product(long id, @NonNull String name) {

@@ -107,7 +107,7 @@ class ComposeInputMethodManagerTest {
 
 private class TestView(
     context: Context,
-    val createInputConnection: (EditorInfo?) -> InputConnection? = { null }
+    val createInputConnection: (EditorInfo?) -> InputConnection? = { null },
 ) : View(context) {
 
     init {

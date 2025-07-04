@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import androidx.xr.runtime.internal.SpatializerConstants as RtSpatializerConstants
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,29 +27,29 @@ class SpatializerConstantsTest {
 
     @Test
     fun sourceTypeToJXRExtension_createsCorrectIntDefType() {
-        val rtBypass = JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_BYPASS
+        val rtBypass = RtSpatializerConstants.SOURCE_TYPE_BYPASS
         assertThat(rtBypass.sourceTypeToJxr()).isEqualTo(SpatializerConstants.SOURCE_TYPE_BYPASS)
 
-        val rtPointSource = JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_POINT_SOURCE
+        val rtPointSource = RtSpatializerConstants.SOURCE_TYPE_POINT_SOURCE
         assertThat(rtPointSource.sourceTypeToJxr())
             .isEqualTo(SpatializerConstants.SOURCE_TYPE_POINT_SOURCE)
 
-        val rtSoundField = JxrPlatformAdapter.SpatializerConstants.SOURCE_TYPE_SOUND_FIELD
+        val rtSoundField = RtSpatializerConstants.SOURCE_TYPE_SOUND_FIELD
         assertThat(rtSoundField.sourceTypeToJxr())
             .isEqualTo(SpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
     }
 
     @Test
     fun ambisonicsOrderToJXR_createCorrectIntDefType() {
-        val rtFirstOrder = JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
+        val rtFirstOrder = RtSpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER
         assertThat(rtFirstOrder.ambisonicsOrderToJxr())
             .isEqualTo(SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
 
-        val rtSecondOrder = JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
+        val rtSecondOrder = RtSpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER
         assertThat(rtSecondOrder.ambisonicsOrderToJxr())
             .isEqualTo(SpatializerConstants.AMBISONICS_ORDER_SECOND_ORDER)
 
-        val rtThirdOrder = JxrPlatformAdapter.SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
+        val rtThirdOrder = RtSpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER
         assertThat(rtThirdOrder.ambisonicsOrderToJxr())
             .isEqualTo(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER)
     }

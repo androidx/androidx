@@ -63,29 +63,10 @@ class QualityRatioToResolutionsTableTest {
     fun commonSD() {
         // Arrange.
         val common4By3 =
-            listOf(
-                Size(800, 600),
-                Size(720, 540),
-                Size(640, 480),
-                Size(544, 408),
-                Size(480, 360),
-            )
-        val common16By9 =
-            listOf(
-                Size(960, 540),
-                Size(864, 480),
-                Size(736, 412),
-                Size(640, 360),
-            )
-        val otherRatios =
-            listOf(
-                Size(400, 400),
-            )
-        val otherQualities =
-            listOf(
-                Size(1280, 720),
-                Size(480, 240),
-            )
+            listOf(Size(800, 600), Size(720, 540), Size(640, 480), Size(544, 408), Size(480, 360))
+        val common16By9 = listOf(Size(960, 540), Size(864, 480), Size(736, 412), Size(640, 360))
+        val otherRatios = listOf(Size(400, 400))
+        val otherQualities = listOf(Size(1280, 720), Size(480, 240))
         val input = common4By3 + common16By9 + otherRatios + otherQualities
 
         // Act.
@@ -103,38 +84,17 @@ class QualityRatioToResolutionsTableTest {
             .inOrder()
 
         assertThat(table.getResolutions(SD, RATIO_16_9))
-            .containsExactly(
-                Size(736, 412),
-                Size(640, 360),
-                Size(864, 480),
-                Size(960, 540),
-            )
+            .containsExactly(Size(736, 412), Size(640, 360), Size(864, 480), Size(960, 540))
             .inOrder()
     }
 
     @Test
     fun commonHD() {
         // Arrange.
-        val common4By3 =
-            listOf(
-                Size(1280, 960),
-                Size(1024, 768),
-                Size(960, 720),
-            )
-        val common16By9 =
-            listOf(
-                Size(1280, 720),
-            )
-        val otherRatios =
-            listOf(
-                Size(1280, 768),
-                Size(1440, 720),
-            )
-        val otherQualities =
-            listOf(
-                Size(1920, 1080),
-                Size(640, 480),
-            )
+        val common4By3 = listOf(Size(1280, 960), Size(1024, 768), Size(960, 720))
+        val common16By9 = listOf(Size(1280, 720))
+        val otherRatios = listOf(Size(1280, 768), Size(1440, 720))
+        val otherQualities = listOf(Size(1920, 1080), Size(640, 480))
         val input = common4By3 + common16By9 + otherRatios + otherQualities
 
         // Act.
@@ -142,42 +102,19 @@ class QualityRatioToResolutionsTableTest {
 
         // Assert.
         assertThat(table.getResolutions(HD, RATIO_4_3))
-            .containsExactly(
-                Size(1024, 768),
-                Size(960, 720),
-                Size(1280, 960),
-            )
+            .containsExactly(Size(1024, 768), Size(960, 720), Size(1280, 960))
             .inOrder()
 
-        assertThat(table.getResolutions(HD, RATIO_16_9))
-            .containsExactly(
-                Size(1280, 720),
-            )
-            .inOrder()
+        assertThat(table.getResolutions(HD, RATIO_16_9)).containsExactly(Size(1280, 720)).inOrder()
     }
 
     @Test
     fun commonFHD() {
         // Arrange.
-        val common4By3 =
-            listOf(
-                Size(1632, 1224),
-                Size(1440, 1080),
-            )
-        val common16By9 =
-            listOf(
-                Size(1920, 1080),
-            )
-        val otherRatios =
-            listOf(
-                Size(1080, 1080),
-                Size(1440, 720),
-            )
-        val otherQualities =
-            listOf(
-                Size(2560, 1440),
-                Size(1280, 720),
-            )
+        val common4By3 = listOf(Size(1632, 1224), Size(1440, 1080))
+        val common16By9 = listOf(Size(1920, 1080))
+        val otherRatios = listOf(Size(1080, 1080), Size(1440, 720))
+        val otherQualities = listOf(Size(2560, 1440), Size(1280, 720))
         val input = common4By3 + common16By9 + otherRatios + otherQualities
 
         // Act.
@@ -185,16 +122,11 @@ class QualityRatioToResolutionsTableTest {
 
         // Assert.
         assertThat(table.getResolutions(FHD, RATIO_4_3))
-            .containsExactly(
-                Size(1632, 1224),
-                Size(1440, 1080),
-            )
+            .containsExactly(Size(1632, 1224), Size(1440, 1080))
             .inOrder()
 
         assertThat(table.getResolutions(FHD, RATIO_16_9))
-            .containsExactly(
-                Size(1920, 1080),
-            )
+            .containsExactly(Size(1920, 1080))
             .inOrder()
     }
 
@@ -210,21 +142,9 @@ class QualityRatioToResolutionsTableTest {
                 Size(3648, 2736),
                 Size(4000, 3000),
             )
-        val common16By9 =
-            listOf(
-                Size(4128, 2322),
-                Size(3840, 2160),
-            )
-        val otherRatios =
-            listOf(
-                Size(3456, 3456),
-                Size(2736, 2736),
-            )
-        val otherQualities =
-            listOf(
-                Size(7680, 4320),
-                Size(1920, 1080),
-            )
+        val common16By9 = listOf(Size(4128, 2322), Size(3840, 2160))
+        val otherRatios = listOf(Size(3456, 3456), Size(2736, 2736))
+        val otherQualities = listOf(Size(7680, 4320), Size(1920, 1080))
         val input = common4By3 + common16By9 + otherRatios + otherQualities
 
         // Act.
@@ -243,10 +163,7 @@ class QualityRatioToResolutionsTableTest {
             .inOrder()
 
         assertThat(table.getResolutions(UHD, RATIO_16_9))
-            .containsExactly(
-                Size(3840, 2160),
-                Size(4128, 2322),
-            )
+            .containsExactly(Size(3840, 2160), Size(4128, 2322))
             .inOrder()
     }
 }

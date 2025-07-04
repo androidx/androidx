@@ -79,7 +79,7 @@ class MotionEventHelper(private val view: View) {
                     0,
                     0,
                     0,
-                    0
+                    0,
                 )
                 .apply {
                     offsetLocation(-locationOnScreen[0].toFloat(), -locationOnScreen[1].toFloat())
@@ -95,12 +95,12 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(caseFactory: () -> LazyBe
         runOnUiThread { doFramesUntilNoChangesPending() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 assertNoPendingRecompositionMeasureOrLayout()
                 getTestCase().setUp()
             }
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 if (hasPendingChanges() || hasPendingMeasureOrLayout()) {
                     doFrame()
                 }
@@ -110,7 +110,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(caseFactory: () -> LazyBe
 
             performToggle(getTestCase()) // move
 
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().afterToggleCheck()
                 getTestCase().tearDown()
                 assertNoPendingRecompositionMeasureOrLayout()
@@ -148,7 +148,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
         runOnUiThread { doFrame() }
 
         measureRepeatedOnUiThread {
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 // reset the state and draw
                 getTestCase().setUp()
                 getTestCase().beforeToggleCheck()
@@ -164,7 +164,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
                 drawPrepare()
             }
             draw()
-            runWithTimingDisabled {
+            runWithMeasurementDisabled {
                 getTestCase().afterToggleCheck()
                 getTestCase().tearDown()
                 drawFinish()
@@ -175,7 +175,7 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
 
 abstract class LazyBenchmarkTestCase(
     private val isVertical: Boolean,
-    private val usePointerInput: Boolean
+    private val usePointerInput: Boolean,
 ) : ComposeTestCase {
 
     lateinit var scrollingHelper: ScrollingHelper
@@ -198,7 +198,7 @@ abstract class LazyBenchmarkTestCase(
                     scrollAmount,
                     isVertical,
                     usePointerInput,
-                    ::programmaticScroll
+                    ::programmaticScroll,
                 )
     }
 
@@ -222,7 +222,7 @@ class ScrollingHelper(
     val scrollAmount: Int,
     private val isVertical: Boolean,
     private val usePointerInput: Boolean,
-    private val programmaticScroll: suspend (scrollAmount: Int) -> Unit
+    private val programmaticScroll: suspend (scrollAmount: Int) -> Unit,
 ) {
 
     fun onScroll() {
@@ -233,7 +233,7 @@ class ScrollingHelper(
             motionEventHelper.sendEvent(MotionEvent.ACTION_MOVE, touchSlop.toSingleAxisOffset())
             motionEventHelper.sendEvent(
                 MotionEvent.ACTION_MOVE,
-                -scrollAmount.toFloat().toSingleAxisOffset()
+                -scrollAmount.toFloat().toSingleAxisOffset(),
             )
             motionEventHelper.sendEvent(MotionEvent.ACTION_UP, Offset.Zero)
         } else {

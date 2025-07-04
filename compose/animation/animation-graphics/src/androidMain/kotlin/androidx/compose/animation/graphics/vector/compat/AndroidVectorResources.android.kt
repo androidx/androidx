@@ -36,7 +36,7 @@ internal object AndroidVectorResources {
             0x010101c0,
             0x010102de,
             0x010102df,
-            0x010102e0
+            0x010102e0,
         )
     const val STYLEABLE_ANIMATOR_INTERPOLATOR = 0
     const val STYLEABLE_ANIMATOR_DURATION = 1

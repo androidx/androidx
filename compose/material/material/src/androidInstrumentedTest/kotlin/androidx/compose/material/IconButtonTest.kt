@@ -267,7 +267,7 @@ class IconButtonTest {
                     IconToggleButton(
                         checked = checked,
                         onCheckedChange = { checked = it },
-                        modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag)
+                        modifier = Modifier.align(Alignment.Center).requiredSize(2.dp).testTag(tag),
                     ) {
                         Box(Modifier.size(2.dp))
                     }

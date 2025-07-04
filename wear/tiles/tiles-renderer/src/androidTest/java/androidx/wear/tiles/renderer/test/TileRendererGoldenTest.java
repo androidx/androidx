@@ -17,17 +17,23 @@
 package androidx.wear.tiles.renderer.test;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.wear.tiles.renderer.test.GoldenTestActivity.EXTRA_LAYOUT_KEY;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.widget.FrameLayout;
 
 import androidx.core.content.ContextCompat;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
 import androidx.wear.protolayout.LayoutElementBuilders;
@@ -49,6 +55,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -58,63 +65,64 @@ import java.util.concurrent.TimeUnit;
 @RunWith(Parameterized.class)
 @LargeTest
 public class TileRendererGoldenTest {
-    @Parameterized.Parameters(name = "{0}")
+    // Defines the name of the textproto and whether to use fullscreen or not.
+    @Parameterized.Parameters(name = "{0} - fullscreen={1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new Object[][] {
-                    {"all_modifiers"},
-                    {"arc_above_360"},
-                    {"arc_alignment_mixed_types"},
-                    {"arc_alignment"},
-                    {"arc_anchors"},
-                    {"arc_text_and_lines"},
-                    {"arc_with_buttons_rotated"},
-                    {"arc_with_buttons_unrotated"},
-                    {"box_with_corners_and_border_rtlaware"},
-                    {"box_with_corners_and_border"},
-                    {"box_with_fixed_size"},
-                    {"broken_drawable"},
-                    {"column_with_alignment_rtlaware"},
-                    {"column_with_alignment"},
-                    {"column_with_height"},
-                    {"expanded_box_horizontal_right_align"},
-                    {"expanded_box_horizontal"},
-                    {"expanded_box_vertical"},
-                    {"expanded_children_in_row"},
-                    {"font_weights_in_arc"},
-                    {"font_weights_in_spannable"},
-                    {"image_expanded_to_parent"},
-                    {"image_expand_modes"},
-                    {"image_oversized_in_box_proportional"},
-                    {"image_oversized_in_box"},
-                    {"image_proportional_resize"},
-                    {"image_with_dimensions"},
-                    {"image_with_inline_data"},
-                    {"image_with_padding"},
-                    {"line_in_arc"},
-                    {"line_multi_height"},
-                    {"long_text"},
-                    {"mixed_language_text"},
-                    {"multi_line_text_alignment"},
-                    {"row_column_space_test"},
-                    {"row_with_alignment"},
-                    {"row_with_width"},
-                    {"simple_text"},
-                    {"single_line_text_alignment"},
-                    {"spacer_horizontal"},
-                    {"spacer_in_arc"},
-                    {"spacer_vertical"},
-                    {"spannable_image"},
-                    {"spannable_image_with_clickable"},
-                    {"spannable_image_wrapped"},
-                    {"spannable_text"},
-                    {"text_and_image_in_box"},
-                    {"text_default_size"},
-                    {"text_in_column"},
-                    {"text_in_row"},
-                    {"text_with_font_weights_italic"},
-                    {"text_with_font_weights"},
-                    {"text_with_spacing"},
+                    {"all_modifiers", false},
+                    {"arc_above_360", false},
+                    {"arc_alignment_mixed_types", true},
+                    {"arc_alignment", false},
+                    {"arc_anchors", false},
+                    {"arc_text_and_lines", false},
+                    {"arc_with_buttons_rotated", true},
+                    {"arc_with_buttons_unrotated", true},
+                    {"box_with_corners_and_border_rtlaware", false},
+                    {"box_with_corners_and_border", false},
+                    {"box_with_fixed_size", false},
+                    {"broken_drawable", false},
+                    {"column_with_alignment_rtlaware", false},
+                    {"column_with_alignment", false},
+                    {"column_with_height", false},
+                    {"expanded_box_horizontal_right_align", false},
+                    {"expanded_box_horizontal", false},
+                    {"expanded_box_vertical", false},
+                    {"expanded_children_in_row", false},
+                    {"font_weights_in_arc", false},
+                    {"font_weights_in_spannable", false},
+                    {"image_expanded_to_parent", false},
+                    {"image_expand_modes", false},
+                    {"image_oversized_in_box_proportional", false},
+                    {"image_oversized_in_box", false},
+                    {"image_proportional_resize", false},
+                    {"image_with_dimensions", false},
+                    {"image_with_inline_data", false},
+                    {"image_with_padding", true},
+                    {"line_in_arc", false},
+                    {"line_multi_height", true},
+                    {"long_text", false},
+                    {"mixed_language_text", false},
+                    {"multi_line_text_alignment", false},
+                    {"row_column_space_test", false},
+                    {"row_with_alignment", false},
+                    {"row_with_width", false},
+                    {"simple_text", false},
+                    {"single_line_text_alignment", false},
+                    {"spacer_horizontal", false},
+                    {"spacer_in_arc", true},
+                    {"spacer_vertical", false},
+                    {"spannable_image", false},
+                    {"spannable_image_with_clickable", false},
+                    {"spannable_image_wrapped", false},
+                    {"spannable_text", false},
+                    {"text_and_image_in_box", false},
+                    {"text_default_size", false},
+                    {"text_in_column", false},
+                    {"text_in_row", false},
+                    {"text_with_font_weights_italic", false},
+                    {"text_with_font_weights", false},
+                    {"text_with_spacing", false},
                 });
     }
 
@@ -132,9 +140,11 @@ public class TileRendererGoldenTest {
     private static final int INLINE_IMAGE_PIXEL_STRIDE = 2; // RGB565 = 2 bytes per pixel
 
     private final String mProtoFile;
+    private final boolean mUseFullScreen;
 
-    public TileRendererGoldenTest(String protoFile) {
+    public TileRendererGoldenTest(String protoFile, boolean useFullScreen) {
         mProtoFile = protoFile;
+        mUseFullScreen = useFullScreen;
     }
 
     @Test
@@ -144,7 +154,11 @@ public class TileRendererGoldenTest {
                         .getResources()
                         .getIdentifier(mProtoFile, "raw", getApplicationContext().getPackageName());
 
-        runSingleScreenshotTest(id, mProtoFile);
+        if (mUseFullScreen) {
+            runFullScreenScreenshotTest(id, mProtoFile);
+        } else {
+            runSingleScreenshotTest(id, mProtoFile);
+        }
     }
 
     private static Resources generateResources() {
@@ -209,12 +223,7 @@ public class TileRendererGoldenTest {
                 .build();
     }
 
-    private void runSingleScreenshotTest(int protoResId, String expectedKey) throws Exception {
-        FrameLayout mainFrame = new FrameLayout(getApplicationContext());
-        mainFrame.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-
-        Context appContext = getApplicationContext();
-
+    private LayoutElement parseLayoutElement(int protoResId) throws IOException {
         // This is a hack, but use the full proto lib to translate the textproto into a serialized
         // proto, then pass into a Layout.
         TextFormat.Parser parser = TextFormat.getParser();
@@ -231,9 +240,17 @@ public class TileRendererGoldenTest {
 
         byte[] contents = layoutElementProto.build().toByteArray();
 
-        // Inflate and go!
-        LayoutElement rootElement = LayoutElement.parseFrom(contents);
+        return LayoutElement.parseFrom(contents);
+    }
 
+    private void runSingleScreenshotTest(int protoResId, String expectedKey) throws Exception {
+        FrameLayout mainFrame = new FrameLayout(getApplicationContext());
+        mainFrame.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+
+        Context appContext = getApplicationContext();
+        LayoutElement rootElement = parseLayoutElement(protoResId);
+
+        // Inflate and go!
         TileRenderer renderer =
                 new TileRenderer.Builder(
                                 appContext,
@@ -271,5 +288,49 @@ public class TileRendererGoldenTest {
         mainFrame.draw(canvas);
 
         screenshotRule.assertBitmapAgainstGolden(bmp, expectedKey, new MSSIMMatcher());
+    }
+
+    @SuppressLint("BanThreadSleep")
+    private static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (Exception ex) {
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            Log.e("TileRendererGoldenTest", "Error sleeping", ex);
+        }
+    }
+
+    private void runFullScreenScreenshotTest(int protoResId, String expectedKEy) throws Exception {
+        LayoutElement rootElement = parseLayoutElement(protoResId);
+        Layout layout = Layout.newBuilder().setRoot(rootElement).build();
+
+        Intent startIntent =
+                new Intent(
+                        InstrumentationRegistry.getInstrumentation().getTargetContext(),
+                        GoldenTestActivity.class);
+        startIntent.putExtra(EXTRA_LAYOUT_KEY, layout.toByteArray());
+
+        ActivityScenario<GoldenTestActivity> ignored = ActivityScenario.launch(startIntent);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        // Wait 100ms after launching the activity. This allows for the old white layout in the
+        // bootstrap activity to fully go away before proceeding.
+        sleep(100);
+
+        Bitmap bitmap =
+                Bitmap.createBitmap(
+                        InstrumentationRegistry.getInstrumentation()
+                                .getUiAutomation()
+                                .takeScreenshot(),
+                        0,
+                        0,
+                        SCREEN_WIDTH,
+                        SCREEN_HEIGHT);
+
+        // Increase the threshold of Structural Similarity Index for image comparison to 0.995,
+        // so that we do not miss the image differences.
+        screenshotRule.assertBitmapAgainstGolden(bitmap, expectedKEy, new MSSIMMatcher(0.995));
     }
 }

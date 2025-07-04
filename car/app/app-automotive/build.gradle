@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,7 +50,6 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation("androidx.fragment:fragment-testing:1.2.3")
     testImplementation(project(":car:app:app-testing"))
@@ -71,13 +70,13 @@ android {
         }
     }
     useLibrary 'android.car'
-    testOptions.unitTests.includeAndroidResources = true
     namespace = "androidx.car.app.automotive"
 }
 
 androidx {
     name = "Android for Cars App Automotive Extension"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Automotive OS specific functionality to build navigation, parking, and charging apps for cars"
+    enableRobolectric()
 }

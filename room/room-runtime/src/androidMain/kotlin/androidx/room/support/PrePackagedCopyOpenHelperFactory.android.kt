@@ -25,7 +25,7 @@ internal class PrePackagedCopyOpenHelperFactory(
     private val copyFromAssetPath: String?,
     private val copyFromFile: File?,
     private val copyFromInputStream: Callable<InputStream>?,
-    private val delegate: SupportSQLiteOpenHelper.Factory
+    private val delegate: SupportSQLiteOpenHelper.Factory,
 ) : SupportSQLiteOpenHelper.Factory {
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration
@@ -36,7 +36,7 @@ internal class PrePackagedCopyOpenHelperFactory(
             copyFromFile,
             copyFromInputStream,
             configuration.callback.version,
-            delegate.create(configuration)
+            delegate.create(configuration),
         )
     }
 }

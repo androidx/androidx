@@ -39,7 +39,7 @@ import kotlin.reflect.KClass
     AnnotationTarget.FUNCTION,
     AnnotationTarget.VALUE_PARAMETER,
     AnnotationTarget.FIELD,
-    AnnotationTarget.CLASS
+    AnnotationTarget.CLASS,
 )
 @Retention(AnnotationRetention.BINARY)
 public annotation class TypeConverters(
@@ -55,5 +55,5 @@ public annotation class TypeConverters(
      * Configure whether Room can use various built in converters for common types. See
      * [BuiltInTypeConverters] for details.
      */
-    val builtInTypeConverters: BuiltInTypeConverters = BuiltInTypeConverters()
+    val builtInTypeConverters: BuiltInTypeConverters = BuiltInTypeConverters(),
 )

@@ -52,12 +52,12 @@ fun SampleScrollingTooltipScreen() {
                     TooltipBox(
                         positionProvider = rememberTooltipPositionProvider(),
                         tooltip = { PlainTooltip { Text(text = "Navigation icon") } },
-                        state = rememberTooltipState()
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = {}) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Navigation icon"
+                                contentDescription = "Navigation icon",
                             )
                         }
                     }
@@ -66,34 +66,34 @@ fun SampleScrollingTooltipScreen() {
                     TooltipBox(
                         positionProvider = rememberTooltipPositionProvider(),
                         tooltip = { PlainTooltip { Text(text = "Search") } },
-                        state = rememberTooltipState()
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = {}) {
                             Icon(
                                 imageVector = Icons.Default.Search,
-                                contentDescription = "Search icon"
+                                contentDescription = "Search icon",
                             )
                         }
                     }
                     TooltipBox(
                         positionProvider = rememberTooltipPositionProvider(),
                         tooltip = { PlainTooltip { Text(text = "Settings") } },
-                        state = rememberTooltipState()
+                        state = rememberTooltipState(),
                     ) {
                         IconButton(onClick = {}) {
                             Icon(
                                 imageVector = Icons.Default.Settings,
-                                contentDescription = "Settings icon"
+                                contentDescription = "Settings icon",
                             )
                         }
                     }
-                }
+                },
             )
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.padding(paddingValues).fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(40) { index ->
                 Text(text = "Item ${index + 1}", style = MaterialTheme.typography.bodyLarge)

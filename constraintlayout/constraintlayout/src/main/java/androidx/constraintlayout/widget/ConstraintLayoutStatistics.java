@@ -22,7 +22,6 @@ import android.util.Log;
 import androidx.constraintlayout.core.Metrics;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 
 /**
  * This provide metrics of the complexity of the layout that is being solved.

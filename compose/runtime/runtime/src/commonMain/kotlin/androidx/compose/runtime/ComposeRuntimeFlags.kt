@@ -19,7 +19,7 @@ package androidx.compose.runtime
 import kotlin.jvm.JvmField
 
 @ExperimentalComposeApi
-object ComposeRuntimeFlags {
+public object ComposeRuntimeFlags {
     /**
      * A feature flag that can be used to disable detecting nested movable content.
      *
@@ -32,5 +32,23 @@ object ComposeRuntimeFlags {
      * This feature flag will eventually be depreciated and removed. All applications should be
      * updated to ensure they are compatible with the new behavior.
      */
-    @JvmField @Suppress("MutableBareField") var isMovingNestedMovableContentEnabled = true
+    @JvmField
+    @Suppress("MutableBareField")
+    public var isMovingNestedMovableContentEnabled: Boolean = true
+
+    /**
+     * A feature flag that can be used to enable movable content usage tracking.
+     *
+     * With this feature flag enabled the usage of movable content instances is tracked to avoid
+     * deferring the insert of content that is not currently in use. When movable content is
+     * inserted (e.g. a movable content lambda is called for the first time, instead of being
+     * recomposed) the insert is deferred until after all other composition has completed. This
+     * allows detecting when instances of the movable content is removed from elsewhere in any
+     * composition and can be moved to the location of the new call. However, when movable content
+     * is not used this deferral will never end up finding removed content that matches so
+     * deferring, in this case, is unnecessary.
+     */
+    @JvmField
+    @Suppress("MutableBareField")
+    public var isMovableContentUsageTrackingEnabled: Boolean = false
 }

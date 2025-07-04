@@ -42,7 +42,7 @@ class GraphDataSortedRingBuffer {
     /** Fetches data points in time window with the given end and of the given length */
     fun getPointsInTimeWindow(
         timeWindowLengthNanos: Long,
-        timeWindowEndNanos: Long
+        timeWindowEndNanos: Long,
     ): List<GraphDataPoint> {
         if (timeWindowLengthNanos <= 0)
             throw IllegalArgumentException("Time window's length must be greater than 0")

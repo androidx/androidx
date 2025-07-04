@@ -21,7 +21,7 @@ import android.graphics.Color
 import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Parcel
-import androidx.annotation.RequiresApi
+import androidx.test.filters.SdkSuppress
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ColorUserStyleSetting
@@ -49,7 +49,7 @@ private const val NAME_RESOURCE_ID = 123456
 private const val SCREEN_READER_NAME_RESOURCE_ID = 567890
 
 @RunWith(StyleTestRunner::class)
-@RequiresApi(34)
+@SdkSuppress(minSdkVersion = 34)
 public class StyleParcelableTest {
     private val icon1 = Icon.createWithContentUri("icon1")
     private val icon2 = Icon.createWithContentUri("icon2")
@@ -90,7 +90,7 @@ public class StyleParcelableTest {
                     listOf(option1, option2, option3),
                     listOf(WatchFaceLayer.BASE),
                     "displayName",
-                    "description"
+                    "description",
                 )
                 .setIcon(settingIcon)
                 .build()
@@ -164,7 +164,7 @@ public class StyleParcelableTest {
                 companionIcon1,
                 listOf(option1, option2),
                 listOf(WatchFaceLayer.BASE),
-                watchFaceEditorData = WatchFaceEditorData(watchEditorIcon1)
+                watchFaceEditorData = WatchFaceEditorData(watchEditorIcon1),
             )
         val styleSetting2 =
             ListUserStyleSetting(
@@ -174,7 +174,7 @@ public class StyleParcelableTest {
                 companionIcon2,
                 listOf(option3, option4),
                 listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
-                watchFaceEditorData = WatchFaceEditorData(watchEditorIcon2)
+                watchFaceEditorData = WatchFaceEditorData(watchEditorIcon2),
             )
         val styleSetting3 =
             BooleanUserStyleSetting(
@@ -183,12 +183,12 @@ public class StyleParcelableTest {
                 "description3",
                 null,
                 listOf(WatchFaceLayer.BASE),
-                true
+                true,
             )
         val styleSetting4 =
             LargeCustomValueUserStyleSetting(
                 listOf(WatchFaceLayer.BASE),
-                "default".encodeToByteArray()
+                "default".encodeToByteArray(),
             )
         val srcSchema =
             UserStyleSchema(listOf(styleSetting1, styleSetting2, styleSetting3, styleSetting4))
@@ -281,7 +281,7 @@ public class StyleParcelableTest {
                 "Clock style setting",
                 null,
                 listOf(twelveHourClockOption, twentyFourHourClockOption),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             )
 
         val digitalWatchFaceType =
@@ -290,7 +290,7 @@ public class StyleParcelableTest {
                 "Digital",
                 "Digital setting",
                 icon = null,
-                childSettings = listOf(digitalClockStyleSetting)
+                childSettings = listOf(digitalClockStyleSetting),
             )
 
         val settingIcon1 = Icon.createWithContentUri("settingIcon1")
@@ -303,7 +303,7 @@ public class StyleParcelableTest {
                 "description1",
                 settingIcon1,
                 listOf(option1, option2),
-                listOf(WatchFaceLayer.BASE)
+                listOf(WatchFaceLayer.BASE),
             )
 
         val styleSetting2 =
@@ -313,7 +313,7 @@ public class StyleParcelableTest {
                 "description2",
                 settingIcon2,
                 listOf(option3, option4),
-                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY)
+                listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
             )
 
         val analogWatchFaceType =
@@ -322,7 +322,7 @@ public class StyleParcelableTest {
                 "Analog",
                 "Analog setting",
                 icon = null,
-                childSettings = listOf(styleSetting1, styleSetting2)
+                childSettings = listOf(styleSetting1, styleSetting2),
             )
 
         val watchFaceType =
@@ -332,7 +332,7 @@ public class StyleParcelableTest {
                 "Analog or digital",
                 icon = null,
                 options = listOf(digitalWatchFaceType, analogWatchFaceType),
-                WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+                WatchFaceLayer.ALL_WATCH_FACE_LAYERS,
             )
 
         val srcSchema =
@@ -398,7 +398,7 @@ public class StyleParcelableTest {
                     listOf(option1, option2),
                     listOf(WatchFaceLayer.BASE),
                     "displayName1",
-                    "description1"
+                    "description1",
                 )
                 .setIcon(settingIcon1)
                 .build()
@@ -408,7 +408,7 @@ public class StyleParcelableTest {
                     listOf(option3, option4),
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .setIcon(settingIcon2)
                 .build()
@@ -417,7 +417,7 @@ public class StyleParcelableTest {
             UserStyle(
                 hashMapOf(
                     styleSetting1 as UserStyleSetting to option2 as UserStyleSetting.Option,
-                    styleSetting2 as UserStyleSetting to option3 as UserStyleSetting.Option
+                    styleSetting2 as UserStyleSetting to option3 as UserStyleSetting.Option,
                 )
             )
 
@@ -445,7 +445,7 @@ public class StyleParcelableTest {
                     Option.Id("color1"),
                     "Red/Gray",
                     "Red/Gray",
-                    listOf(Color.RED, Color.GRAY)
+                    listOf(Color.RED, Color.GRAY),
                 )
                 .build()
         val blackWhite =
@@ -470,7 +470,7 @@ public class StyleParcelableTest {
                     listOf(redGray, blackWhite, greenMagenta),
                     listOf(WatchFaceLayer.BASE),
                     "Color",
-                    "Of the backgroud"
+                    "Of the backgroud",
                 )
                 .setIcon(settingIcon)
                 .build()
@@ -500,7 +500,7 @@ public class StyleParcelableTest {
                     listOf(WatchFaceLayer.BASE),
                     true,
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertTrue(booleanUserStyleSettingDefaultTrue.getDefaultValue())
@@ -511,7 +511,7 @@ public class StyleParcelableTest {
                     listOf(WatchFaceLayer.BASE),
                     false,
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertFalse(booleanUserStyleSettingDefaultFalse.getDefaultValue())
@@ -527,7 +527,7 @@ public class StyleParcelableTest {
                     -1.0,
                     listOf(WatchFaceLayer.BASE),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertThat(doubleRangeUserStyleSettingDefaultMin.defaultValue).isEqualTo(-1.0)
@@ -540,7 +540,7 @@ public class StyleParcelableTest {
                     0.5,
                     listOf(WatchFaceLayer.BASE),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertThat(doubleRangeUserStyleSettingDefaultMid.defaultValue).isEqualTo(0.5)
@@ -553,7 +553,7 @@ public class StyleParcelableTest {
                     1.0,
                     listOf(WatchFaceLayer.BASE),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertThat(doubleRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(1.0)
@@ -569,7 +569,7 @@ public class StyleParcelableTest {
                     -1,
                     listOf(WatchFaceLayer.BASE),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertThat(longRangeUserStyleSettingDefaultMin.defaultValue).isEqualTo(-1)
@@ -582,7 +582,7 @@ public class StyleParcelableTest {
                     5,
                     listOf(WatchFaceLayer.BASE),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertThat(longRangeUserStyleSettingDefaultMid.defaultValue).isEqualTo(5)
@@ -595,7 +595,7 @@ public class StyleParcelableTest {
                     10,
                     listOf(WatchFaceLayer.BASE),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .build()
         assertThat(longRangeUserStyleSettingDefaultMax.defaultValue).isEqualTo(10)
@@ -613,36 +613,30 @@ public class StyleParcelableTest {
                                 Option.Id("LEFT_AND_RIGHT_COMPLICATIONS"),
                                 listOf(),
                                 "Both",
-                                "Both complications visible"
+                                "Both complications visible",
                             )
                             .build(),
                         ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
                                 Option.Id("NO_COMPLICATIONS"),
                                 listOf(
                                     ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
-                                        .Builder(
-                                            leftComplicationID,
-                                        )
+                                        .Builder(leftComplicationID)
                                         .setEnabled(false)
                                         .build(),
                                     ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
-                                        .Builder(
-                                            rightComplicationID,
-                                        )
+                                        .Builder(rightComplicationID)
                                         .setEnabled(false)
-                                        .build()
+                                        .build(),
                                 ),
                                 "None",
-                                "No complications visible"
+                                "No complications visible",
                             )
                             .build(),
                         ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
                                 Option.Id("LEFT_COMPLICATION"),
                                 listOf(
                                     ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
-                                        .Builder(
-                                            rightComplicationID,
-                                        )
+                                        .Builder(rightComplicationID)
                                         .setEnabled(false)
                                         .build(),
                                     ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
@@ -652,10 +646,10 @@ public class StyleParcelableTest {
                                         .setScreenReaderNameResourceId(
                                             SCREEN_READER_NAME_RESOURCE_ID
                                         )
-                                        .build()
+                                        .build(),
                                 ),
                                 "Left",
-                                "Left complication visible"
+                                "Left complication visible",
                             )
                             .build(),
                         ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
@@ -667,7 +661,7 @@ public class StyleParcelableTest {
                                         .build()
                                 ),
                                 "Right",
-                                "Right complication visible"
+                                "Right complication visible",
                             )
                             .build(),
                         ComplicationSlotsUserStyleSetting.ComplicationSlotsOption.Builder(
@@ -678,19 +672,19 @@ public class StyleParcelableTest {
                                         .setComplicationSlotBounds(
                                             ComplicationSlotBounds(
                                                 RectF(0.1f, 0.2f, 0.3f, 0.4f),
-                                                RectF(0.5f, 0.6f, 0.7f, 0.8f)
+                                                RectF(0.5f, 0.6f, 0.7f, 0.8f),
                                             )
                                         )
                                         .build()
                                 ),
                                 "MoveRight",
-                                "Right complication moved"
+                                "Right complication moved",
                             )
-                            .build()
+                            .build(),
                     ),
                     listOf(WatchFaceLayer.COMPLICATIONS),
                     "Complications",
-                    "Number and position"
+                    "Number and position",
                 )
                 .build()
 
@@ -765,7 +759,7 @@ public class StyleParcelableTest {
                     listOf(option1, option2),
                     listOf(WatchFaceLayer.BASE),
                     "displayName1",
-                    "description1"
+                    "description1",
                 )
                 .setIcon(settingIcon1)
                 .build()
@@ -775,7 +769,7 @@ public class StyleParcelableTest {
                     listOf(option3, option4),
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .setIcon(settingIcon2)
                 .build()
@@ -785,7 +779,7 @@ public class StyleParcelableTest {
                     listOf(WatchFaceLayer.BASE),
                     true,
                     "displayName3",
-                    "description3"
+                    "description3",
                 )
                 .build()
         val styleSetting4 =
@@ -812,7 +806,7 @@ public class StyleParcelableTest {
                     listOf(option1, option2),
                     listOf(WatchFaceLayer.BASE),
                     "displayName1",
-                    "description1"
+                    "description1",
                 )
                 .setIcon(settingIcon1)
                 .build()
@@ -822,7 +816,7 @@ public class StyleParcelableTest {
                     listOf(option3, option4),
                     listOf(WatchFaceLayer.COMPLICATIONS_OVERLAY),
                     "displayName2",
-                    "description2"
+                    "description2",
                 )
                 .setIcon(settingIcon2)
                 .build()

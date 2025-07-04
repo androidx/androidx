@@ -70,7 +70,7 @@ class PlatformParagraphStyleTest {
                 platformStyle =
                     PlatformParagraphStyle(
                         emojiSupportMatch = EmojiSupportMatch.None,
-                        includeFontPadding = false
+                        includeFontPadding = false,
                     )
             )
 
@@ -96,7 +96,7 @@ class PlatformParagraphStyleTest {
                 platformStyle =
                     PlatformParagraphStyle(
                         emojiSupportMatch = EmojiSupportMatch.None,
-                        includeFontPadding = true
+                        includeFontPadding = true,
                     )
             )
 
@@ -105,7 +105,7 @@ class PlatformParagraphStyleTest {
                 platformStyle =
                     PlatformParagraphStyle(
                         emojiSupportMatch = EmojiSupportMatch.Default,
-                        includeFontPadding = false
+                        includeFontPadding = false,
                     )
             )
 
@@ -123,7 +123,7 @@ class PlatformParagraphStyleTest {
                 platformStyle =
                     PlatformParagraphStyle(
                         emojiSupportMatch = EmojiSupportMatch.None,
-                        includeFontPadding = true
+                        includeFontPadding = true,
                     )
             )
 
@@ -132,7 +132,7 @@ class PlatformParagraphStyleTest {
                 platformStyle =
                     PlatformParagraphStyle(
                         emojiSupportMatch = EmojiSupportMatch.Default,
-                        includeFontPadding = false
+                        includeFontPadding = false,
                     )
             )
         val lerpedStyle = lerp(style, otherStyle, 1f)

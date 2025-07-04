@@ -58,10 +58,15 @@ private fun getComponentName(context: Context) =
  *   empty.
  * @param currentUserStyleRepository The [CurrentUserStyleRepository] used to listen for
  *   [ComplicationSlotsUserStyleSetting] changes and apply them.
+ * @deprecated use Watch Face Format instead
  */
+@Deprecated(
+    message =
+        "AndroidX watchface libraries are deprecated, use Watch Face Format instead. For more info see: https://developer.android.com/training/wearables/wff"
+)
 public class ComplicationSlotsManager(
     complicationSlotCollection: Collection<ComplicationSlot>,
-    private val currentUserStyleRepository: CurrentUserStyleRepository
+    private val currentUserStyleRepository: CurrentUserStyleRepository,
 ) {
     internal companion object {
         internal const val TAG = "ComplicationSlotsManager"
@@ -124,7 +129,7 @@ public class ComplicationSlotsManager(
         val enabled: Boolean,
         val accessibilityTraversalIndex: Int,
         val nameResourceId: Int?,
-        val screenReaderNameResourceId: Int?
+        val screenReaderNameResourceId: Int?,
     )
 
     // Copy of the original complication configs. This is necessary because the semantics of
@@ -139,9 +144,9 @@ public class ComplicationSlotsManager(
                     it.enabled,
                     it.accessibilityTraversalIndex,
                     it.nameResourceId,
-                    it.screenReaderNameResourceId
+                    it.screenReaderNameResourceId,
                 )
-            }
+            },
         )
 
     private val complicationListeners = HashSet<TapCallback>()
@@ -156,7 +161,7 @@ public class ComplicationSlotsManager(
     public constructor(
         complicationSlotCollection: Collection<ComplicationSlot>,
         currentUserStyleRepository: CurrentUserStyleRepository,
-        renderer: Renderer
+        renderer: Renderer,
     ) : this(complicationSlotCollection, currentUserStyleRepository) {
         this.renderer = renderer
     }
@@ -214,7 +219,7 @@ public class ComplicationSlotsManager(
     @WorkerThread
     internal fun init(
         renderer: Renderer,
-        complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener
+        complicationSlotInvalidateListener: ComplicationSlot.InvalidateListener,
     ) =
         TraceEvent("ComplicationSlotsManager.init").use {
             this.renderer = renderer
@@ -222,7 +227,7 @@ public class ComplicationSlotsManager(
             for ((_, complication) in complicationSlots) {
                 complication.init(
                     complicationSlotInvalidateListener,
-                    renderer.watchState.isHeadless
+                    renderer.watchState.isHeadless,
                 )
 
                 // Force lazy construction of renderers.
@@ -297,7 +302,7 @@ public class ComplicationSlotsManager(
                             complication.defaultDataSourcePolicy.dataSourcesAsList(),
                             complication.defaultDataSourcePolicy.systemDataSourceFallback,
                             complication.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
-                                .toWireComplicationType()
+                                .toWireComplicationType(),
                         )
                     }
 
@@ -342,7 +347,7 @@ public class ComplicationSlotsManager(
             Log.e(
                 TAG,
                 "onComplicationDataUpdate failed due to invalid complicationSlotId=" +
-                    "$complicationSlotId with data=$data"
+                    "$complicationSlotId with data=$data",
             )
             return
         }
@@ -369,7 +374,7 @@ public class ComplicationSlotsManager(
                     Log.e(
                         TAG,
                         "setComplicationDataForScreenshot failed due to invalid " +
-                            "complicationSlotId=$id with data=$data"
+                            "complicationSlotId=$id with data=$data",
                     )
                     continue
                 }
@@ -417,7 +422,7 @@ public class ComplicationSlotsManager(
                     renderer.screenBounds,
                     x,
                     y,
-                    includeMargins = false
+                    includeMargins = false,
                 )
         }
             ?: findLowestIdMatchingComplicationOrNull { complication ->
@@ -427,7 +432,7 @@ public class ComplicationSlotsManager(
                         renderer.screenBounds,
                         x,
                         y,
-                        includeMargins = true
+                        includeMargins = true,
                     )
             }
 
@@ -477,7 +482,7 @@ public class ComplicationSlotsManager(
                             watchFaceHostApi.getContext(),
                             getComponentName(watchFaceHostApi.getContext()),
                             watchFaceHostApi.getComplicationDeniedIntent(),
-                            watchFaceHostApi.getComplicationRationaleIntent()
+                            watchFaceHostApi.getComplicationRationaleIntent(),
                         )
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 )
@@ -538,8 +543,8 @@ public class ComplicationSlotsManager(
                     it.value.configExtras,
                     it.value.nameResourceId,
                     it.value.screenReaderNameResourceId,
-                    it.value.boundingArc?.toWireFormat()
-                )
+                    it.value.boundingArc?.toWireFormat(),
+                ),
             )
         }
 
@@ -593,7 +598,7 @@ public class ComplicationSlotsManager(
                     it.value.defaultDataSourcePolicy.dataSourcesAsList(),
                     it.value.defaultDataSourcePolicy.systemDataSourceFallback,
                     it.value.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType
-                        .toWireComplicationType()
+                        .toWireComplicationType(),
                 )
             }
             .toTypedArray()

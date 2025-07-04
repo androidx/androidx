@@ -63,7 +63,7 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
                  */
                 class ComposableLambdaParameterInfo(
                     val parameter: UParameter,
-                    val functionType: KtFunctionType
+                    val functionType: KtFunctionType,
                 )
 
                 // Filter all parameters to only contain composable lambda parameters
@@ -122,7 +122,7 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
                             .text(name)
                             .with("content")
                             .autoFix()
-                            .build()
+                            .build(),
                     )
                 }
 
@@ -132,7 +132,7 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
                         uElement,
                         context.getNameLocation(uElement),
                         "Composable lambda parameter should be the last parameter so it can be used " +
-                            "as a trailing lambda"
+                            "as a trailing lambda",
                         // Hard to make a lint fix for this and keep parameter formatting, so ignore
                         // it
                     )
@@ -155,8 +155,8 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         ComposableLambdaParameterDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
 
         val ComposableLambdaParameterPosition =
@@ -174,8 +174,8 @@ class ComposableLambdaParameterDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(
                         ComposableLambdaParameterDetector::class.java,
-                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                    )
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                    ),
             )
     }
 }

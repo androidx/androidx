@@ -83,7 +83,7 @@ internal object FragmentTransition {
         outFragment: Fragment,
         isPop: Boolean,
         sharedElements: ArrayMap<String, View>,
-        isStart: Boolean
+        isStart: Boolean,
     ) {
         val sharedElementCallback =
             if (isPop) {

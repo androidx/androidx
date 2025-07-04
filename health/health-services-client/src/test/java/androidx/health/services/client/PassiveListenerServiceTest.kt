@@ -80,7 +80,7 @@ class PassiveListenerServiceTest {
         Shadows.shadowOf(context)
             .setComponentNameAndServiceForBindService(
                 ComponentName(context, FakeService::class.java),
-                service.IPassiveListenerServiceWrapper()
+                service.IPassiveListenerServiceWrapper(),
             )
     }
 
@@ -89,7 +89,7 @@ class PassiveListenerServiceTest {
         context.bindService(
             Intent(context, FakeService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
         val listenerEvent =
             PassiveListenerEvent.createPassiveUpdateResponse(
@@ -98,7 +98,7 @@ class PassiveListenerServiceTest {
                         DataPointContainer(
                             listOf(DataPoints.dailySteps(100, 10.duration(), 20.duration()))
                         ),
-                        listOf()
+                        listOf(),
                     )
                 )
             )
@@ -116,14 +116,14 @@ class PassiveListenerServiceTest {
         context.bindService(
             Intent(context, FakeService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
         val listenerEvent =
             PassiveListenerEvent.createPassiveUpdateResponse(
                 PassiveMonitoringUpdateResponse(
                     PassiveMonitoringUpdate(
                         DataPointContainer(listOf()),
-                        listOf(UserActivityInfo(USER_ACTIVITY_PASSIVE, null, 42.instant()))
+                        listOf(UserActivityInfo(USER_ACTIVITY_PASSIVE, null, 42.instant())),
                     )
                 )
             )
@@ -141,7 +141,7 @@ class PassiveListenerServiceTest {
         context.bindService(
             Intent(context, FakeService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
         val listenerEvent =
             PassiveListenerEvent.createPassiveUpdateResponse(
@@ -153,11 +153,11 @@ class PassiveListenerServiceTest {
                                 USER_ACTIVITY_EXERCISE,
                                 ExerciseInfo(
                                     ExerciseTrackedStatus.OWNED_EXERCISE_IN_PROGRESS,
-                                    ExerciseType.RUNNING
+                                    ExerciseType.RUNNING,
                                 ),
-                                42.instant()
+                                42.instant(),
                             )
-                        )
+                        ),
                     )
                 )
             )
@@ -177,7 +177,7 @@ class PassiveListenerServiceTest {
         context.bindService(
             Intent(context, FakeService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
         val listenerEvent =
             PassiveListenerEvent.createPassiveGoalResponse(
@@ -199,7 +199,7 @@ class PassiveListenerServiceTest {
         context.bindService(
             Intent(context, FakeService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
         val listenerEvent =
             PassiveListenerEvent.createHealthEventResponse(
@@ -207,7 +207,7 @@ class PassiveListenerServiceTest {
                     HealthEvent(
                         FALL_DETECTED,
                         42.instant(),
-                        DataPointContainer(listOf(DataPoints.heartRate(42.0, 84.duration())))
+                        DataPointContainer(listOf(DataPoints.heartRate(42.0, 84.duration()))),
                     )
                 )
             )
@@ -226,7 +226,7 @@ class PassiveListenerServiceTest {
         context.bindService(
             Intent(context, FakeService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
 
         stub.onPassiveListenerEvent(PassiveListenerEvent.createPermissionLostResponse())

@@ -27,7 +27,7 @@ class StateGraphView(
     context: Context,
     beginTimeNanos: Long,
     private val stateGraphDataHolder: GraphDataHolderStateImpl,
-    private val paints: Paints
+    private val paints: Paints,
 ) : GraphView(context, beginTimeNanos, stateGraphDataHolder, paints) {
 
     override var unitHeight by Delegates.notNull<Float>()
@@ -43,7 +43,7 @@ class StateGraphView(
         y1: Float,
         x2: Float,
         y2: Float,
-        paint: Paint
+        paint: Paint,
     ) = canvas.drawRect(x1, y2, x2, y2 - unitHeight, paints.whiteFillPaint)
 
     /** Draws description text for each state in the correct section */

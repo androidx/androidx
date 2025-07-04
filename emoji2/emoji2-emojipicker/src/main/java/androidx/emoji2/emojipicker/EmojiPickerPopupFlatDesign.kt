@@ -26,7 +26,7 @@ internal class EmojiPickerPopupFlatDesign(
     override val targetEmojiView: View,
     override val variants: List<String>,
     override val popupView: LinearLayout,
-    override val emojiViewOnClickListener: View.OnClickListener
+    override val emojiViewOnClickListener: View.OnClickListener,
 ) : EmojiPickerPopupDesign() {
     init {
         template = arrayOf(variants.indices.map { it + 1 }.toIntArray())

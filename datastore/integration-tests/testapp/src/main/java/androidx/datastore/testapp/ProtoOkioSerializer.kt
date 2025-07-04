@@ -33,7 +33,7 @@ internal class ProtoOkioSerializer<T : MessageLite>(
      * necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
      */
     private val extensionRegistryLite: ExtensionRegistryLite =
-        ExtensionRegistryLite.getEmptyRegistry()
+        ExtensionRegistryLite.getEmptyRegistry(),
 ) : OkioSerializer<T> {
     @Suppress("UNCHECKED_CAST")
     override suspend fun readFrom(source: BufferedSource): T {

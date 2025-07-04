@@ -29,7 +29,7 @@ internal data class DependencyRequest(
     val name: String,
     val type: TypeName,
     val isAssisted: Boolean,
-    val qualifier: AnnotationSpec? = null
+    val qualifier: AnnotationSpec? = null,
 ) {
     val isProvider = type is ParameterizedTypeName && type.rawType == ClassNames.PROVIDER
 
@@ -59,6 +59,6 @@ internal fun XVariableElement.toDependencyRequest(): DependencyRequest {
         isAssisted =
             (this.hasAnnotation(ClassNames.ANDROIDX_ASSISTED) ||
                 this.hasAnnotation(ClassNames.ASSISTED)) && qualifier == null,
-        qualifier = qualifier
+        qualifier = qualifier,
     )
 }

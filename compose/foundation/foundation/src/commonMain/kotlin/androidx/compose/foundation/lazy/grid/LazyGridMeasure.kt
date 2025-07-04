@@ -77,7 +77,7 @@ internal fun measureLazyGrid(
     graphicsContext: GraphicsContext,
     prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
     stickyItemsScrollBehavior: StickyItemsPlacement?,
-    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
+    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): LazyGridMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "negative beforeContentPadding" }
     requirePrecondition(afterContentPadding >= 0) { "negative afterContentPadding" }
@@ -99,7 +99,7 @@ internal fun measureLazyGrid(
             layoutMinOffset = 0,
             layoutMaxOffset = 0,
             coroutineScope = coroutineScope,
-            graphicsContext = graphicsContext
+            graphicsContext = graphicsContext,
         )
         if (!isLookingAhead) {
             val disappearingItemsSize = itemAnimator.minSizeToFitDisappearingItems
@@ -127,7 +127,7 @@ internal fun measureLazyGrid(
             density = density,
             slotsPerLine = slotsPerLine,
             coroutineScope = coroutineScope,
-            prefetchInfoRetriever = prefetchInfoRetriever
+            prefetchInfoRetriever = prefetchInfoRetriever,
         )
     } else {
         var currentFirstLineIndex = firstVisibleLineIndex
@@ -291,7 +291,7 @@ internal fun measureLazyGrid(
                 pinnedItems = pinnedItems,
                 measuredItemProvider = measuredItemProvider,
                 measuredLineProvider = measuredLineProvider,
-                filter = { it in 0 until firstItemIndex }
+                filter = { it in 0 until firstItemIndex },
             )
 
         val linesRetainedForLookahead =
@@ -301,7 +301,7 @@ internal fun measureLazyGrid(
                 measuredLineProvider,
                 isLookingAhead = isLookingAhead,
                 visibleLines = visibleLines,
-                lastApproachLayoutInfo = approachLayoutInfo
+                lastApproachLayoutInfo = approachLayoutInfo,
             )
 
         val extraItemsAfter =
@@ -315,7 +315,7 @@ internal fun measureLazyGrid(
                             !linesRetainedForLookahead.fastAny { line ->
                                 line.items.any { item -> item.index == it }
                             })
-                }
+                },
             )
 
         // even if we compose lines to fill before content padding we should ignore lines fully
@@ -365,7 +365,7 @@ internal fun measureLazyGrid(
                 verticalArrangement = verticalArrangement,
                 horizontalArrangement = horizontalArrangement,
                 reverseLayout = reverseLayout,
-                density = density
+                density = density,
             )
 
         itemAnimator.onMeasured(
@@ -382,7 +382,7 @@ internal fun measureLazyGrid(
             layoutMinOffset = currentFirstLineScrollOffset,
             layoutMaxOffset = currentMainAxisOffset,
             coroutineScope = coroutineScope,
-            graphicsContext = graphicsContext
+            graphicsContext = graphicsContext,
         )
 
         if (!isLookingAhead) {
@@ -403,12 +403,14 @@ internal fun measureLazyGrid(
         // apply sticky items logic.
         val stickingItems =
             stickyItemsScrollBehavior.applyStickyItems(
+                firstItemIndex,
+                lastItemIndex,
                 positionedItems,
                 measuredItemProvider.headerIndices,
                 beforeContentPadding,
                 afterContentPadding,
                 layoutWidth,
-                layoutHeight
+                layoutHeight,
             ) {
                 val span = measuredLineProvider.spanOf(it)
                 val childConstraints = measuredLineProvider.childConstraints(0, span)
@@ -416,7 +418,7 @@ internal fun measureLazyGrid(
                     index = it,
                     constraints = childConstraints,
                     lane = 0,
-                    span = span
+                    span = span,
                 )
             }
 
@@ -453,7 +455,7 @@ internal fun measureLazyGrid(
             density = density,
             slotsPerLine = slotsPerLine,
             coroutineScope = coroutineScope,
-            prefetchInfoRetriever = prefetchInfoRetriever
+            prefetchInfoRetriever = prefetchInfoRetriever,
         )
     }
 }
@@ -462,7 +464,7 @@ private inline fun calculateExtraItems(
     pinnedItems: List<Int>,
     measuredItemProvider: LazyGridMeasuredItemProvider,
     measuredLineProvider: LazyGridMeasuredLineProvider,
-    filter: (Int) -> Boolean
+    filter: (Int) -> Boolean,
 ): List<LazyGridMeasuredItem> {
     var items: MutableList<LazyGridMeasuredItem>? = null
 
@@ -475,7 +477,7 @@ private inline fun calculateExtraItems(
                     index = index,
                     constraints = constraints,
                     lane = 0,
-                    span = span
+                    span = span,
                 )
             if (items == null) {
                 items = mutableListOf()
@@ -498,7 +500,7 @@ private fun linesRetainedForLookahead(
     measuredLineProvider: LazyGridMeasuredLineProvider,
     isLookingAhead: Boolean,
     visibleLines: List<LazyGridMeasuredLine>,
-    lastApproachLayoutInfo: LazyGridLayoutInfo?
+    lastApproachLayoutInfo: LazyGridLayoutInfo?,
 ): List<LazyGridMeasuredLine> {
     var list: MutableList<LazyGridMeasuredLine>? = null
 

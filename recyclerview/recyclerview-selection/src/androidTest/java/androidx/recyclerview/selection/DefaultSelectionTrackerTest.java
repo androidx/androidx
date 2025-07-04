@@ -23,7 +23,6 @@ import static org.junit.Assert.assertTrue;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.selection.testing.Bundles;
@@ -34,6 +33,7 @@ import androidx.recyclerview.selection.testing.TestSelectionObserver;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

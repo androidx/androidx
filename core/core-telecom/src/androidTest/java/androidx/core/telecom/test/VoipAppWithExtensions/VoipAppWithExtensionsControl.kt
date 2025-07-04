@@ -53,11 +53,13 @@ open class VoipAppWithExtensionsControl : Service() {
     var mCallsManager: CallsManager? = null
     private var mScope: CoroutineScope? = null
     private var mCallback: ITestAppControlCallback? = null
-    private var participantsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
+    private var participantsFlow: MutableStateFlow<List<Participant>> =
+        MutableStateFlow(emptyList())
     private var activeParticipantFlow: MutableStateFlow<Participant?> = MutableStateFlow(null)
     private var raisedHandsFlow: MutableStateFlow<List<Participant>> = MutableStateFlow(emptyList())
     // TODO:: b/364316364 should be Pair(callId:String, value: Boolean)
     private var isLocallySilencedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var callIconFlow: MutableStateFlow<Uri> = MutableStateFlow(Uri.EMPTY)
 
     companion object {
         val TAG = VoipAppWithExtensionsControl::class.java.simpleName
@@ -88,7 +90,7 @@ open class VoipAppWithExtensionsControl : Service() {
             override fun addCall(
                 requestId: Int,
                 capabilities: List<Capability>,
-                isOutgoing: Boolean
+                isOutgoing: Boolean,
             ) {
                 Log.i(TAG, "VoipAppWithExtensionsControl: addCall: request")
                 runBlocking {
@@ -99,12 +101,12 @@ open class VoipAppWithExtensionsControl : Service() {
                                 CallAttributesCompat(
                                     "displayName" /* TODO:: make helper */,
                                     Uri.parse("tel:123") /* TODO:: make helper */,
-                                    if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING
+                                    if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING,
                                 ),
                                 mOnAnswerLambda,
                                 mOnDisconnectLambda,
                                 mOnSetActiveLambda,
-                                mOnSetInActiveLambda
+                                mOnSetInActiveLambda,
                             ) {
                                 launch { setActive() }
                                 isMuted
@@ -138,6 +140,14 @@ open class VoipAppWithExtensionsControl : Service() {
                                         localCallSilenceUpdater?.updateIsLocallySilenced(it)
                                     }
                                     .launchIn(this)
+                                callIconFlow
+                                    .drop(1)
+                                    .onEach {
+                                        Log.i(TAG, "VoIP callIconFlow=[$it]")
+                                        callIconUpdater?.updateCallIconUri(it)
+                                    }
+                                    .launchIn(this)
+
                                 mCallback?.onCallAdded(requestId, this.getCallId().toString())
                             }
                         }
@@ -146,7 +156,7 @@ open class VoipAppWithExtensionsControl : Service() {
             }
 
             override fun updateParticipants(setOfParticipants: List<ParticipantParcelable>) {
-                participantsFlow.value = setOfParticipants.map { it.toParticipant() }.toSet()
+                participantsFlow.value = setOfParticipants.map { it.toParticipant() }
             }
 
             override fun updateActiveParticipant(participant: ParticipantParcelable?) {
@@ -160,6 +170,10 @@ open class VoipAppWithExtensionsControl : Service() {
             // TODO:: b/364316364 add CallId arg.  Should be changing on a per call basis
             override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
                 isLocallySilencedFlow.value = isLocallySilenced
+            }
+
+            override fun updateCallIcon(uri: Uri) {
+                callIconFlow.value = uri
             }
         }
 
@@ -176,7 +190,7 @@ open class VoipAppWithExtensionsControl : Service() {
         mScope?.cancel(CancellationException("Control interface is unbinding"))
         mScope = null
         mCallback = null
-        participantsFlow.value = emptySet()
+        participantsFlow.value = emptyList()
         activeParticipantFlow.value = null
         raisedHandsFlow.value = emptyList()
         return false

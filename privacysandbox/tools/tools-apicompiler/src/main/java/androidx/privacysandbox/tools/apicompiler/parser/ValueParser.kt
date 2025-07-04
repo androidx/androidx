@@ -58,7 +58,7 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
         return if (isDataClass) {
             AnnotatedDataClass(
                 type = typeParser.parseFromDeclaration(value),
-                properties = value.getAllProperties().map(::parseProperty).toList()
+                properties = value.getAllProperties().map(::parseProperty).toList(),
             )
         } else {
             parseEnumClass(value)
@@ -73,7 +73,7 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
                 .toList()
         return AnnotatedEnumClass(
             type = typeParser.parseFromDeclaration(classDeclaration),
-            variants = variants
+            variants = variants,
         )
     }
 
@@ -93,7 +93,7 @@ internal class ValueParser(private val logger: KSPLogger, private val typeParser
                             ClassKind.OBJECT,
                             ClassKind.INTERFACE,
                             ClassKind.ENUM_CLASS,
-                            ClassKind.CLASS
+                            ClassKind.CLASS,
                         )
                         .contains(it.classKind)
                 }

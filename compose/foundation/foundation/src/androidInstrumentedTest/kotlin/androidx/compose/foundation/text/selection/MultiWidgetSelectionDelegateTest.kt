@@ -70,7 +70,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val selectableInvalidId = 2L
@@ -83,15 +83,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableInvalidId
+                        selectableId = selectableInvalidId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableInvalidId
+                        selectableId = selectableInvalidId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -117,7 +117,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val selectableInvalidId = 2L
@@ -130,15 +130,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableInvalidId
+                        selectableId = selectableInvalidId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableInvalidId
+                        selectableId = selectableInvalidId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -165,7 +165,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('h')
@@ -177,15 +177,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -212,7 +212,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('o')
@@ -224,15 +224,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -259,7 +259,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D1')
@@ -271,15 +271,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -307,7 +307,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D5')
@@ -319,15 +319,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -357,7 +357,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D0')
@@ -369,15 +369,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -406,7 +406,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D0')
@@ -418,15 +418,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -453,7 +453,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('h')
@@ -465,15 +465,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -494,7 +494,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity,
-                maxLines = 1
+                maxLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -505,7 +505,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('h')
@@ -517,15 +517,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -555,7 +555,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('o')
@@ -567,15 +567,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -596,7 +596,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity,
-                maxLines = 1
+                maxLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -607,7 +607,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('r')
@@ -619,15 +619,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -654,7 +654,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D1')
@@ -666,15 +666,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -702,7 +702,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D5')
@@ -714,15 +714,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -744,7 +744,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity,
-                maxLines = 1
+                maxLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -755,7 +755,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D1')
@@ -767,15 +767,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Rtl,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Rtl,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -796,7 +796,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 fontSize = fontSize,
                 density = defaultDensity,
-                maxLines = 1
+                maxLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -807,7 +807,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D5')
@@ -819,15 +819,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Rtl,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Rtl,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -856,7 +856,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('e')
@@ -868,15 +868,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = false
+                handlesCrossed = false,
             )
 
         // Act.
@@ -904,7 +904,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = selectableId,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val startOffset = text.indexOf('\u05D2')
@@ -916,15 +916,15 @@ class MultiWidgetSelectionDelegateTest {
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
                 end =
                     Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = endOffset,
-                        selectableId = selectableId
+                        selectableId = selectableId,
                     ),
-                handlesCrossed = true
+                handlesCrossed = true,
             )
 
         // Act.
@@ -945,7 +945,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         assertThat(selectable.getText()).isEqualTo(AnnotatedString(""))
@@ -969,7 +969,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         assertThat(selectable.getText()).isEqualTo(AnnotatedString(text, spanStyle))
@@ -991,7 +991,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val textOffset = text.indexOf('w')
@@ -1021,7 +1021,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1047,7 +1047,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1076,7 +1076,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 selectableId = 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1102,7 +1102,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1125,7 +1125,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1148,7 +1148,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1171,7 +1171,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1194,7 +1194,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1217,7 +1217,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1240,7 +1240,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1263,7 +1263,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1284,7 +1284,7 @@ class MultiWidgetSelectionDelegateTest {
                 density = defaultDensity,
                 fontSize = fontSize,
                 constraints =
-                    Constraints(maxHeight = with(defaultDensity) { fontSize.roundToPx() } * 1)
+                    Constraints(maxHeight = with(defaultDensity) { fontSize.roundToPx() } * 1),
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1294,7 +1294,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1317,7 +1317,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1338,7 +1338,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         assertThat(selectable.getLastVisibleOffset()).isEqualTo(text.length)
@@ -1360,7 +1360,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 overflow = TextOverflow.Clip,
                 maxLines = 1,
-                softWrap = true
+                softWrap = true,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1370,7 +1370,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1388,7 +1388,7 @@ class MultiWidgetSelectionDelegateTest {
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 softWrap = true,
-                widthInCharacters = 10
+                widthInCharacters = 10,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1398,7 +1398,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1416,7 +1416,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
-                softWrap = false
+                softWrap = false,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1426,7 +1426,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1444,7 +1444,7 @@ class MultiWidgetSelectionDelegateTest {
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 softWrap = false,
-                widthInCharacters = 10
+                widthInCharacters = 10,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1454,7 +1454,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1474,7 +1474,7 @@ class MultiWidgetSelectionDelegateTest {
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 softWrap = true,
-                widthInCharacters = 4
+                widthInCharacters = 4,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1484,7 +1484,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1505,7 +1505,7 @@ class MultiWidgetSelectionDelegateTest {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 softWrap = true,
-                widthInCharacters = 10
+                widthInCharacters = 10,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1515,7 +1515,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1534,7 +1534,7 @@ class MultiWidgetSelectionDelegateTest {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
-                widthInCharacters = 5
+                widthInCharacters = 5,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1544,7 +1544,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1563,7 +1563,7 @@ class MultiWidgetSelectionDelegateTest {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
-                widthInCharacters = 20
+                widthInCharacters = 20,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1573,7 +1573,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1599,7 +1599,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 overflow = TextOverflow.Clip,
                 softWrap = true,
-                maxHeightInLines = 1
+                maxHeightInLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1609,7 +1609,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1627,7 +1627,7 @@ class MultiWidgetSelectionDelegateTest {
                 overflow = TextOverflow.Clip,
                 softWrap = true,
                 widthInCharacters = 10,
-                maxHeightInLines = 2
+                maxHeightInLines = 2,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1637,7 +1637,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1655,7 +1655,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 overflow = TextOverflow.Clip,
                 softWrap = false,
-                maxHeightInLines = 1
+                maxHeightInLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1665,7 +1665,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1683,7 +1683,7 @@ class MultiWidgetSelectionDelegateTest {
                 overflow = TextOverflow.Clip,
                 softWrap = false,
                 widthInCharacters = 10,
-                maxHeightInLines = 1
+                maxHeightInLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1693,7 +1693,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1723,7 +1723,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1741,7 +1741,7 @@ class MultiWidgetSelectionDelegateTest {
                 overflow = TextOverflow.Ellipsis,
                 softWrap = true,
                 widthInCharacters = 10,
-                maxHeightInLines = 1
+                maxHeightInLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1751,7 +1751,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1775,7 +1775,7 @@ class MultiWidgetSelectionDelegateTest {
                 text = text,
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
-                maxHeightInLines = 1
+                maxHeightInLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1785,7 +1785,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1804,7 +1804,7 @@ class MultiWidgetSelectionDelegateTest {
                 overflow = TextOverflow.Ellipsis,
                 softWrap = false,
                 widthInCharacters = 20,
-                maxHeightInLines = 1
+                maxHeightInLines = 1,
             )
 
         val layoutCoordinates = mock<LayoutCoordinates>()
@@ -1814,7 +1814,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val lastVisibleOffset = selectable.getLastVisibleOffset()
@@ -1849,7 +1849,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val textOffset = text.indexOf('h')
@@ -1882,7 +1882,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val textOffset = text.length
@@ -1915,7 +1915,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 1,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         val textOffset = text.indexOf("w")
@@ -1940,7 +1940,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -1970,7 +1970,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -2000,7 +2000,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -2030,7 +2030,7 @@ class MultiWidgetSelectionDelegateTest {
             MultiWidgetSelectionDelegate(
                 0,
                 coordinatesCallback = { layoutCoordinates },
-                layoutResultCallback = { layoutResult }
+                layoutResultCallback = { layoutResult },
             )
 
         // Act.
@@ -2048,27 +2048,27 @@ class MultiWidgetSelectionDelegateTest {
         fontSize: TextUnit = TextUnit.Unspecified,
         density: Density,
         maxLines: Int = Int.MAX_VALUE,
-        constraints: Constraints = Constraints()
+        constraints: Constraints = Constraints(),
     ) =
         annotatedTextLayout(
             text = AnnotatedString(text, SpanStyle(fontSize = fontSize, fontFamily = fontFamily)),
             density = density,
             maxLines = maxLines,
-            constraints = constraints
+            constraints = constraints,
         )
 
     private fun annotatedTextLayout(
         text: AnnotatedString,
         density: Density,
         maxLines: Int = Int.MAX_VALUE,
-        constraints: Constraints = Constraints()
+        constraints: Constraints = Constraints(),
     ): TextLayoutResult {
         return TextDelegate(
                 text = text,
                 style = TextStyle(),
                 density = density,
                 maxLines = maxLines,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
             )
             .layout(constraints, LayoutDirection.Ltr)
     }
@@ -2081,7 +2081,7 @@ class MultiWidgetSelectionDelegateTest {
         overflow: TextOverflow = TextOverflow.Clip,
         softWrap: Boolean = true,
         widthInCharacters: Int = 20,
-        maxHeightInLines: Int = Int.MAX_VALUE
+        maxHeightInLines: Int = Int.MAX_VALUE,
     ): TextLayoutResult {
         val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
         val annotatedString = AnnotatedString(text, spanStyle)
@@ -2095,7 +2095,7 @@ class MultiWidgetSelectionDelegateTest {
                         Int.MAX_VALUE
                     } else {
                         with(density) { fontSize.roundToPx() } * maxHeightInLines
-                    }
+                    },
             )
         return TextDelegate(
                 text = annotatedString,
@@ -2104,7 +2104,7 @@ class MultiWidgetSelectionDelegateTest {
                 fontFamilyResolver = fontFamilyResolver,
                 maxLines = maxLines,
                 overflow = overflow,
-                softWrap = softWrap
+                softWrap = softWrap,
             )
             .layout(constraints, LayoutDirection.Ltr)
     }

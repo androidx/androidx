@@ -366,7 +366,7 @@ class ColorUtilTest {
                     "; output was " +
                     Integer.toHexString(reconstructedFromHct),
                 color.toLong(),
-                reconstructedFromHct.toLong()
+                reconstructedFromHct.toLong(),
             )
         }
     }

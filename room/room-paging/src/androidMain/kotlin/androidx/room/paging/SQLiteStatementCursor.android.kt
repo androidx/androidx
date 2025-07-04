@@ -22,7 +22,7 @@ import androidx.sqlite.SQLiteStatement
 /** Cursor backed by a SQLiteStatement used for backwards compatibility of Paging APIs. */
 internal class SQLiteStatementCursor(
     private val statement: SQLiteStatement,
-    private val rowCount: Int
+    private val rowCount: Int,
 ) : AbstractCursor() {
     override fun getCount(): Int = rowCount
 

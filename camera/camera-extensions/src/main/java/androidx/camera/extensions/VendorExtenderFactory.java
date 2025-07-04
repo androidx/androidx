@@ -23,5 +23,7 @@ import org.jspecify.annotations.NonNull;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 interface VendorExtenderFactory {
-    @NonNull VendorExtender createVendorExtender(@ExtensionMode.Mode int extensionMode);
+    @NonNull
+    VendorExtender createVendorExtender(@ExtensionMode.Mode int extensionMode,
+            boolean useCamera2Extensions);
 }

@@ -81,7 +81,7 @@ class PickerGroupScreenshotTest {
                     .fillMaxWidth()
                     .background(MaterialTheme.colors.background)
                     .testTag(TEST_TAG),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             PickerGroup(
                 pickers = getPickerColumns(pickerCount),
@@ -97,7 +97,7 @@ class PickerGroupScreenshotTest {
 
     private fun verifyScreenshot(
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) { content() }
@@ -114,7 +114,7 @@ class PickerGroupScreenshotTest {
         Array(count) {
             PickerGroupItem(
                 pickerState = PickerState(10),
-                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) }
+                option = { optionIndex, _ -> Text("%02d".format(optionIndex)) },
             )
         }
 }

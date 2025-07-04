@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.VisibleForTesting
-import androidx.paging.internal.ReentrantLock
+import androidx.paging.internal.SynchronizedLock
 import androidx.paging.internal.withLock
 
 /** Helper class for thread-safe invalidation callback tracking + triggering on registration. */
@@ -26,7 +26,7 @@ internal class InvalidateCallbackTracker<T>(
     /** User-provided override of DataSource.isInvalid */
     private val invalidGetter: (() -> Boolean)? = null,
 ) {
-    private val lock = ReentrantLock()
+    private val lock = SynchronizedLock()
     private val callbacks = mutableListOf<T>()
     internal var invalid = false
         private set

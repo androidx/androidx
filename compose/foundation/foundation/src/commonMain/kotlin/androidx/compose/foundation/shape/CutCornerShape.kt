@@ -42,13 +42,13 @@ class CutCornerShape(
     topStart: CornerSize,
     topEnd: CornerSize,
     bottomEnd: CornerSize,
-    bottomStart: CornerSize
+    bottomStart: CornerSize,
 ) :
     CornerBasedShape(
         topStart = topStart,
         topEnd = topEnd,
         bottomEnd = bottomEnd,
-        bottomStart = bottomStart
+        bottomStart = bottomStart,
     ) {
 
     override fun createOutline(
@@ -57,7 +57,7 @@ class CutCornerShape(
         topEnd: Float,
         bottomEnd: Float,
         bottomStart: Float,
-        layoutDirection: LayoutDirection
+        layoutDirection: LayoutDirection,
     ) =
         if (topStart + topEnd + bottomStart + bottomEnd == 0.0f) {
             Outline.Rectangle(size.toRect())
@@ -84,13 +84,13 @@ class CutCornerShape(
         topStart: CornerSize,
         topEnd: CornerSize,
         bottomEnd: CornerSize,
-        bottomStart: CornerSize
+        bottomStart: CornerSize,
     ) =
         CutCornerShape(
             topStart = topStart,
             topEnd = topEnd,
             bottomEnd = bottomEnd,
-            bottomStart = bottomStart
+            bottomStart = bottomStart,
         )
 
     override fun toString(): String {
@@ -152,13 +152,13 @@ fun CutCornerShape(
     topStart: Dp = 0.dp,
     topEnd: Dp = 0.dp,
     bottomEnd: Dp = 0.dp,
-    bottomStart: Dp = 0.dp
+    bottomStart: Dp = 0.dp,
 ) =
     CutCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
         bottomEnd = CornerSize(bottomEnd),
-        bottomStart = CornerSize(bottomStart)
+        bottomStart = CornerSize(bottomStart),
     )
 
 /** Creates [CutCornerShape] with sizes defined in float. */
@@ -166,13 +166,13 @@ fun CutCornerShape(
     topStart: Float = 0.0f,
     topEnd: Float = 0.0f,
     bottomEnd: Float = 0.0f,
-    bottomStart: Float = 0.0f
+    bottomStart: Float = 0.0f,
 ) =
     CutCornerShape(
         topStart = CornerSize(topStart),
         topEnd = CornerSize(topEnd),
         bottomEnd = CornerSize(bottomEnd),
-        bottomStart = CornerSize(bottomStart)
+        bottomStart = CornerSize(bottomStart),
     )
 
 /**
@@ -191,11 +191,11 @@ fun CutCornerShape(
     @IntRange(from = 0, to = 100) topStartPercent: Int = 0,
     @IntRange(from = 0, to = 100) topEndPercent: Int = 0,
     @IntRange(from = 0, to = 100) bottomEndPercent: Int = 0,
-    @IntRange(from = 0, to = 100) bottomStartPercent: Int = 0
+    @IntRange(from = 0, to = 100) bottomStartPercent: Int = 0,
 ) =
     CutCornerShape(
         topStart = CornerSize(topStartPercent),
         topEnd = CornerSize(topEndPercent),
         bottomEnd = CornerSize(bottomEndPercent),
-        bottomStart = CornerSize(bottomStartPercent)
+        bottomStart = CornerSize(bottomStartPercent),
     )

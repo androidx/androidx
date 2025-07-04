@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.Velocity
 @ExperimentalMotionApi
 internal class TransitionHandler(
     private val motionMeasurer: MotionMeasurer,
-    private val motionProgress: MutableFloatState
+    private val motionProgress: MutableFloatState,
 ) {
     private val transition: androidx.constraintlayout.core.state.Transition
         get() = motionMeasurer.transition
@@ -49,7 +49,7 @@ internal class TransitionHandler(
                 motionMeasurer.layoutCurrentWidth,
                 motionMeasurer.layoutCurrentHeight,
                 dragAmount.x,
-                dragAmount.y
+                dragAmount.y,
             )
         var newProgress = motionProgress.floatValue + progressDelta
         newProgress = newProgress.coerceIn(0f, 1f)

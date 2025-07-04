@@ -94,7 +94,7 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         }
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG,
-            sessionBuilder.build()
+            sessionBuilder.build(),
         )
         val captureBuilder = CaptureConfig.Builder()
         when (captureType) {
@@ -116,7 +116,7 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         }
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG,
-            captureBuilder.build()
+            captureBuilder.build(),
         )
 
         // Only CAPTURE_TYPE_IMAGE_CAPTURE has its own ImageCaptureOptionUnpacker. Other
@@ -127,11 +127,11 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                 ImageCaptureOptionUnpacker.INSTANCE
             } else {
                 DefaultCaptureOptionsUnpacker.INSTANCE
-            }
+            },
         )
         mutableConfig.insertOption(
             UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER,
-            DefaultSessionOptionsUnpacker
+            DefaultSessionOptionsUnpacker,
         )
 
         if (captureType == CaptureType.PREVIEW) {
@@ -141,7 +141,7 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
 
         mutableConfig.insertOption(
             ImageOutputConfig.OPTION_TARGET_ROTATION,
-            displayInfoManager.defaultDisplay.rotation
+            displayInfoManager.getMaxSizeDisplay().rotation,
         )
         return OptionsBundle.from(mutableConfig)
     }
@@ -209,7 +209,7 @@ public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         override fun unpack(
             resolution: Size,
             config: UseCaseConfig<*>,
-            builder: SessionConfig.Builder
+            builder: SessionConfig.Builder,
         ) {
             val defaultSessionConfig = config.getDefaultSessionConfig(/* valueIfMissing= */ null)
 

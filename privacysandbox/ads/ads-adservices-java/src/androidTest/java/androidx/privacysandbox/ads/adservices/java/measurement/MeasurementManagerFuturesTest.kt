@@ -103,7 +103,7 @@ class MeasurementManagerFuturesTest {
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion=*/ 5,
                 /* minExtServicesVersionS=*/ 9,
-            )
+            ),
         )
         assertThat(from(mContext)).isEqualTo(null)
     }
@@ -115,8 +115,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -135,7 +135,7 @@ class MeasurementManagerFuturesTest {
             .deleteRegistrations(
                 any<android.adservices.measurement.DeletionRequest>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, java.lang.Exception>>()
+                any<OutcomeReceiver<Any, java.lang.Exception>>(),
             )
 
         // Actually invoke the compat code.
@@ -146,7 +146,7 @@ class MeasurementManagerFuturesTest {
                 Instant.now(),
                 Instant.now(),
                 listOf(uri1),
-                listOf(uri1)
+                listOf(uri1),
             )
 
         managerCompat!!.deleteRegistrationsAsync(request).get()
@@ -158,7 +158,7 @@ class MeasurementManagerFuturesTest {
             .deleteRegistrations(
                 captor.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, java.lang.Exception>>()
+                any<OutcomeReceiver<Any, java.lang.Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -172,8 +172,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -193,7 +193,7 @@ class MeasurementManagerFuturesTest {
                 any<Uri>(),
                 any<InputEvent>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Actually invoke the compat code.
@@ -207,7 +207,7 @@ class MeasurementManagerFuturesTest {
                 captor1.capture(),
                 captor2.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -222,8 +222,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -249,7 +249,7 @@ class MeasurementManagerFuturesTest {
             .registerTrigger(
                 captor1.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -263,8 +263,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -282,7 +282,7 @@ class MeasurementManagerFuturesTest {
             .registerWebSource(
                 any<android.adservices.measurement.WebSourceRegistrationRequest>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         val request =
@@ -302,7 +302,7 @@ class MeasurementManagerFuturesTest {
             .registerWebSource(
                 captor1.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -321,8 +321,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -340,7 +340,7 @@ class MeasurementManagerFuturesTest {
             .registerWebTrigger(
                 any<android.adservices.measurement.WebTriggerRegistrationRequest>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         val request = WebTriggerRegistrationRequest(listOf(WebTriggerParams(uri1, false)), uri2)
@@ -357,7 +357,7 @@ class MeasurementManagerFuturesTest {
             .registerWebTrigger(
                 captor1.capture(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Verify that the request that the compat code makes to the platform is correct.
@@ -375,8 +375,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -414,8 +414,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -435,7 +435,7 @@ class MeasurementManagerFuturesTest {
                 any<Uri>(),
                 any<InputEvent>(),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
 
         // Actually invoke the compat code.
@@ -449,14 +449,14 @@ class MeasurementManagerFuturesTest {
                 eq(uri1),
                 eq(inputEvent),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
         verify(mMeasurementManager)
             .registerSource(
                 eq(uri2),
                 eq(inputEvent),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
     }
 
@@ -468,8 +468,8 @@ class MeasurementManagerFuturesTest {
             "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion= */ 5,
-                /* minExtServicesVersion=*/ 9
-            )
+                /* minExtServicesVersion=*/ 9,
+            ),
         )
 
         val mMeasurementManager =
@@ -501,7 +501,7 @@ class MeasurementManagerFuturesTest {
                                 eq(uri),
                                 any<InputEvent>(),
                                 any<Executor>(),
-                                any<OutcomeReceiver<Any, Exception>>()
+                                any<OutcomeReceiver<Any, Exception>>(),
                             )
                     } else {
                         doAnswer(successCallback)
@@ -510,7 +510,7 @@ class MeasurementManagerFuturesTest {
                                 eq(uri),
                                 any<InputEvent>(),
                                 any<Executor>(),
-                                any<OutcomeReceiver<Any, Exception>>()
+                                any<OutcomeReceiver<Any, Exception>>(),
                             )
                     }
                     uri
@@ -539,14 +539,14 @@ class MeasurementManagerFuturesTest {
                 any<Uri>(),
                 eq(mockInputEvent),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
         verify(mMeasurementManager, atMost(20))
             .registerSource(
                 any<Uri>(),
                 eq(mockInputEvent),
                 any<Executor>(),
-                any<OutcomeReceiver<Any, Exception>>()
+                any<OutcomeReceiver<Any, Exception>>(),
             )
     }
 
@@ -560,7 +560,7 @@ class MeasurementManagerFuturesTest {
 
         private fun mockMeasurementManager(
             spyContext: Context,
-            isExtServices: Boolean
+            isExtServices: Boolean,
         ): MeasurementManager {
             val measurementManager = mock(MeasurementManager::class.java)
             // mock the .get() method if using extServices version, otherwise mock getSystemService

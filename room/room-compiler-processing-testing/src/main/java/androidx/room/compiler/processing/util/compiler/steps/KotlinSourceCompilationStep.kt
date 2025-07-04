@@ -30,7 +30,7 @@ internal object KotlinSourceCompilationStep : KotlinCompilationStep {
 
     override fun execute(
         workingDir: File,
-        arguments: CompilationStepArguments
+        arguments: CompilationStepArguments,
     ): CompilationStepResult {
         if (arguments.sourceSets.none { it.hasKotlinSource }) {
             return CompilationStepResult.skip(arguments)
@@ -54,10 +54,10 @@ internal object KotlinSourceCompilationStep : KotlinCompilationStep {
                     // NOTE: ideally, we should remove kotlin sources but we know that there are no
                     // more
                     // kotlin steps so we skip unnecessary work
-                    sourceSets = arguments.sourceSets
+                    sourceSets = arguments.sourceSets,
                 ),
             outputClasspath = listOf(result.compiledClasspath),
-            generatedResources = emptyList()
+            generatedResources = emptyList(),
         )
     }
 

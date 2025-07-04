@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2025 The Android Open Source Project
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+    <string name="app_name">JXR Scenecore Tests</string>
+
+    <string name="common_test_panel_name">Common Test Panel</string>
+    <string name="activity_panel_name">Create Activity Panel</string>
+
+    <string name="anchor_test">Anchor Test</string>
+    <string name="switch_to_fsm_button_text">Switch To FSM</string>
+    <string name="switch_to_hsm_button_text">Switch To HSM</string>
+    <string name="spatial_capabilities_test">Spatial Capabilities Test</string>
+    <string name="spawn_anchor_entity_button_text">Spawn Anchor Entity</string>
+
+    <string name="cuj_activity_panel_test">Activity Panel Test Case</string>
+    <string name="cuj_anchor_test">Anchoring Test Case</string>
+    <string name="cuj_spatial_capabilities_test">Spatial Capabilities Test Case</string>
+    <string name="cuj_visibility_test">Show/Hide Entity Test Case</string>
+    <string name="cuj_fsm_hsm_transition_test">Home Space Mode / Full Space Mode Test Case</string>
+    <string name="cuj_spatial_user_test">Spatial User Test Case</string>
+    <string name="cuj_environment_test">SetEnvironment Test Case</string>
+    <string name="cuj_transformation_test">Transformation APIs Test Case</string>
+    <string name="cuj_scene_viewer_test">3D Model Viewer - SceneViewer XR Test Case</string>
+    <string name="cuj_standalone_test">Positional Test Case</string>
+    <string name="cuj_movable_test">AnchorPlacement Test Case</string>
+    <string name="cuj_panel_rounded_corner">Rounded Corners Test Case</string>
+    <string name="cuj_head_locked_ui_test">Headlocked UI Test Case </string>
+    <string name="cuj_input_move_resize_test">InteractableComponent Test Case</string>
+    <string name="cuj_movable_component_test">MovableComponent Test Case</string>
+    <string name="cuj_resizeable_component_test">ResizableComponent Test Case</string>
+    <string name="cuj_spatial_audio_test">Spatial Audio Point Source Test Case</string>
+    <string name="cuj_spatial_audio_ambisonic_test">Spatial Audio Ambisonic/SoundField Test Case</string>
+    <string name="cuj_spatial_audio_setting_pointsourceparams_test">Spatial Audio Setting PointSourceParams Test Case</string>
+    <string name="cuj_field_of_view_visibility_test">Field Of View Visibility Test Case</string>
+    <string name="cuj_hit_test">Digital Hit Test Case</string>
+
+    <string name="recreate_activity" description="button text to recreate current activity [CHAR LIMIT=40]">Recreate Activity</string>
+    <string name="panel_text" description="Arbitrary test string which appears in a TestPanel. [CHAR_LIMIT=30]">Dragons!!</string>
+    <string name="pauseSwitch" description="Pause/Play the animations. [CHAR_LIMIT=30]">Pause Animations</string>
+    <string name="movePanelSwitch" description="Allows moving the main panel [CHAR_LIMIT=30]">Allow Panel Movement</string>
+
+    <string name="panel_entity_text" description="String indicating that this is a PanelEntity. [CHAR_LIMIT=30]">Panel Entity</string>
+    <string name="main_panel_switch_text" description="String indicating that this will update the Main Panel.[CHAR_LIMIT=30]">Main Panel Corner</string>
+    <string name="activity_panel_switch_text" description="String indicating that this will update the Activity Panel. [CHAR_LIMIT=30]">Activity Panel Corner</string>
+    <string name="panel_entity_switch_text" description="String indicating that this will update the Panel Entity. [CHAR_LIMIT=30]">Panel Entity Corner</string>
+
+    <string name="build_fingerprint_label">Build Fingerprint:</string>
+    <string name="build_hardware_label">Hardware:</string>
+    <string name="build_date_label">Build Date:</string>
+    <string name="cl_number_label" description="Label for the JXRCore CL Number [CHAR LIMIT=30]">JXR Core CL: </string>
+
+    <!-- fsmhsmtransition -->
+    <string name="movable" description="Label for switch that enables main panel move [CHAR_LIMIT=30]">Movable in FSM</string>
+    <string name="resizable" description="Label for switch that enables main panel resize [CHAR_LIMIT=30]">Resizable in FSM</string>
+    <string name="resize_portrait_fsm" description="Label for change the main panel size [CHAR_LIMIT=30]">Resize in FSM (portrait)</string>
+    <string name="resize_landscape_fsm" description="Label for change the main panel size [CHAR_LIMIT=30]">Resize in FSM (landscape)</string>
+    <string name="request_fsm" description="Label for button that requests Full Space Mode [CHAR_LIMIT=30]">Request FSM</string>
+    <string name="request_hsm" description="Label for button that requests Home Space Mode [CHAR_LIMIT=30]">Request HSM</string>
+    <string name="launch_in_fsm" description="Label for button that launches Settings app [CHAR_LIMIT=100]">Launch Settings app in a new task in FSM</string>
+    <string name="launch_in_fsm_with_environment_inherited" description="Label for button that launches Settings app with environment inherited (if any) [CHAR_LIMIT=100]">Launch Settings app in a new task in FSM with environment inherited</string>
+    <string name="any_aspect_ratio_label" description="Label for the aspect ratio radio button [CHAR LIMIT=50]">Any aspect ratio in HSM</string>
+    <string name="portrait_label" description="Label for the aspect ratio radio button [CHAR LIMIT=30]">Portrait</string>
+    <string name="landscape_label" description="Label for the aspect ratio radio button [CHAR LIMIT=30]">Landscape</string>
+    <string name="radio_label" description="Label for the aspect ratio radio button [CHAR LIMIT=60]">[No-op while in FSM]</string>
+    <string name="load_skybox" description="Label for button that loads a skybox [CHAR_LIMIT=30]">Load skybox</string>
+    <string name="remove_skybox" description="Label for button that removes a skybox [CHAR_LIMIT=30]">Remove skybox</string>
+    <string name="dimensions_label" description="Label for the dimensions returned by the OnBoundsChanged callback of the ActivitySpace[CHAR LIMIT=50]">ActivitySpace Dimensions: </string>
+    <string name="main_panel_dimensions_label" description="Label for the dimensions returned by the main panel's getPixelDimensions[CHAR LIMIT=50]">MainPanel Dimensions: </string>
+
+    <!-- movable -->
+    <string name="movable_panel_text" description="String which appears in a movable TestPanel. [CHAR_LIMIT=30]">Movable Panel</string>
+    <string name="stationary_panel_text" description="String which appears in a stationary TestPanel. [CHAR_LIMIT=30]">Stationary Panel</string>
+    <string name="system_move_switch_text" description="String indicating panel will be moved by system [CHAR_LIMIT=30]">System Moveable</string>
+    <string name="scale_z_switch_text" description="String indicating panel will be scale in Z. [CHAR_LIMIT=30]">Scale In Z</string>
+    <string name="anchorable_switch_text" description="String indicating panel will be anchorable. [CHAR_LIMIT=30]">Anchorable</string>
+    <string name="parent_switch_text" description="String indicating the if the panel is a child of a panel. [CHAR_LIMIT=30]">Child of Panel</string>
+    <string name="plane_semantic" description="text label indicating plane semantic options. [CHAR_LIMIT=30]">Plane Semantic</string>
+    <string name="plane_type" description="text label indicating plane type options. [CHAR_LIMIT=30]">Plane Type</string>
+    <string name="any" description="Checkbox label for the Any plane semantic and type options. [CHAR_LIMIT=30]">Any</string>
+    <string name="wall" description="Checkbox label for the Wall plane semantic option. [CHAR_LIMIT=30]">Wall</string>
+    <string name="floor" description="Checkbox label for the Floor plane semantic option. [CHAR_LIMIT=30]">Floor</string>
+    <string name="ceiling" description="Checkbox label for the Ceiling plane semantic option. [CHAR_LIMIT=30]">Ceiling</string>
+    <string name="table" description="Checkbox label for the Table plane semantic option. [CHAR_LIMIT=30]">Table</string>
+    <string name="horizontal" description="Checkbox label for the Horizontal plane Type option. [CHAR_LIMIT=30]">Horizontal</string>
+    <string name="vertical" description="Checkbox label for the Vertical plane Type option. [CHAR_LIMIT=30]">Vertical</string>
+    <string name="movable_panel_test" description="Label for the main panel. [CHAR_LIMIT=30]">Movable Panel Test</string>
+
+    <!-- inputmoveresize -->
+    <string name="movable_label" description="Label for switch that enables main panel move [CHAR_LIMIT=30]">Movable</string>
+    <string name="resizable_label" description="Label for switch that enables main panel resize [CHAR_LIMIT=30]">Resizable</string>
+    <string name="system_movable_label" description="Label for the aspect ratio radio button [CHAR LIMIT=50]">System Movable</string>
+    <string name="scale_in_z_label" description="Label for the aspect ratio radio button [CHAR LIMIT=30]">Scale In Z</string>
+
+    <string name="launch_settings_app_in_fsm">Launch Settings App in a new task in FSM</string>
+    <string name="fsm_hsm_transition_test">FSM/HSM Transition Test</string>
+    <string name="intent_into_scene_viewer">Intent into Scene Viewer</string>
+
+    <string name="image_used_to_test_head_locked_ui" translatable="false">Image used to test head locked UI</string>
+    <string name="switch_movable_in_fsm">Movable in FSM</string>
+    <string name="switch_resizeable_in_fsm">Resizeable in FSM</string>
+    <string name="button_resize_in_fsm_portrait">Resize in FSM (Portrait)</string>
+    <string name="button_resize_in_fsm_landscape">Resize in FSM (Landscape)</string>
+    <string name="button_toggle_skybox">Toggle Skybox</string>
+    <string name="choice_any_aspect_ratio_in_hsm">Any Aspect Ragio in HSM</string>
+    <string name="choice_portrait_in_hsm">Portrait</string>
+    <string name="choice_landscape_in_hsm">Landscape</string>
+    <string name="text_activity_space_dimensions">Activity Space Dimensions</string>
+    <string name="text_main_panel_dimensions">Main Panel Dimensions</string>
+    <string name="text_main_panel_dimensions_value">Text 4</string>
+    <string name="activity_panel_test">Activity Panel Test</string>
+    <string name="fab_recreate_activity_tooltip">Recreate Activity</string>
+    <string name="toast_missing_required_permissions">Missing required permissions</string>
+    <string name="switch_movable_system_movable">System Movable</string>
+    <string name="switch_movable_scale_in_z">Scale In Z</string>
+    <string name="switch_movable_anchorable">Anchorable</string>
+    <string name="switch_movable_child_of_panel">Child of Panel</string>
+    <string name="input_move_resize_test">Input Move Resize Test</string>
+
+    <!-- spatialaudiotest -->
+    <string name="spatial_panel_label" description="Label for the spatial audio panel. [CHAR_LIMIT=50]">Spatial Audio Panel</string>
+    <string name="sound_panel_help_text">Drag around this panel to experience the spatial audio</string>
+
+</resources>

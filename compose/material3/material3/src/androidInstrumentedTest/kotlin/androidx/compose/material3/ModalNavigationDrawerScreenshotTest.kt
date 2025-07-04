@@ -81,7 +81,7 @@ class ModalNavigationDrawerScreenshotTest {
                     },
                     content = {
                         Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
-                    }
+                    },
                 )
             }
         }
@@ -101,7 +101,7 @@ class ModalNavigationDrawerScreenshotTest {
                                 Modifier.fillMaxSize()
                                     .background(MaterialTheme.colorScheme.background)
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -256,7 +256,7 @@ private fun ModalNavigationDrawerPredictiveBack(progress: Float, swipeEdgeLeft: 
                 isRtl = false,
                 maxScaleXDistanceGrow = maxScaleXDistanceGrow,
                 maxScaleXDistanceShrink = maxScaleXDistanceShrink,
-                maxScaleYDistance = maxScaleYDistance
+                maxScaleYDistance = maxScaleYDistance,
             )
         }
 
@@ -273,7 +273,7 @@ private fun ModalNavigationDrawerPredictiveBack(progress: Float, swipeEdgeLeft: 
                 DrawerDefaults.shape,
                 DrawerDefaults.modalContainerColor,
                 contentColorFor(DrawerDefaults.modalContainerColor),
-                DrawerDefaults.ModalDrawerElevation
+                DrawerDefaults.ModalDrawerElevation,
             ) {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     Spacer(Modifier.height(12.dp))
@@ -283,12 +283,12 @@ private fun ModalNavigationDrawerPredictiveBack(progress: Float, swipeEdgeLeft: 
                             label = { Text(item.name) },
                             selected = item == Icons.Default.AccountCircle,
                             onClick = {},
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding),
                         )
                     }
                 }
             }
         },
-        content = { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) }
+        content = { Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) },
     )
 }

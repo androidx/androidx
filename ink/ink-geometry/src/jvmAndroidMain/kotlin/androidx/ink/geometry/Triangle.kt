@@ -84,7 +84,7 @@ public abstract class Triangle internal constructor() {
      * the Triangle's boundary are considered to be contained.
      */
     public operator fun contains(point: Vec): Boolean =
-        TriangleNative.nativeContains(
+        TriangleNative.contains(
             triangleP0X = p0.x,
             triangleP0Y = p0.y,
             triangleP1X = p1.x,
@@ -194,6 +194,7 @@ public abstract class Triangle internal constructor() {
 }
 
 /** Helper object to contain native JNI calls. */
+@UsedByNative
 private object TriangleNative {
 
     init {
@@ -202,7 +203,7 @@ private object TriangleNative {
 
     /** Helper method to check if a native `ink::Triangle` contains the native `ink::Point`. */
     @UsedByNative
-    external fun nativeContains(
+    external fun contains(
         triangleP0X: Float,
         triangleP0Y: Float,
         triangleP1X: Float,

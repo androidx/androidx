@@ -26,7 +26,7 @@ import kotlinx.parcelize.Parcelize
 @SuppressLint("BanParcelableUsage")
 @Parcelize
 internal class InterProcessCompletable<T : Parcelable>(
-    private val key: String = UUID.randomUUID().toString(),
+    private val key: String = UUID.randomUUID().toString()
 ) : Parcelable {
     suspend fun complete(subject: TwoWayIpcSubject, value: T) {
         IpcLogger.log("will complete $key")
@@ -74,7 +74,7 @@ private class CrossProcessCompletableController(private val subject: TwoWayIpcSu
     @Parcelize
     private data class CompleteCompletableAction<T : Parcelable>(
         private val key: String,
-        private val value: T
+        private val value: T,
     ) : IpcAction<IpcUnit>() {
         override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
             subject.crossProcessCompletableController.completeInCurrentProcess(key, value)

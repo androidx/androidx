@@ -27,8 +27,8 @@ import android.os.Bundle
  * If the request type is [TYPE_CLEAR_RESTORE_CREDENTIAL], then the request will be sent to the
  * restore credential provider to delete any stored [RestoreCredential].
  *
- * @constructor creates a new ClearCredentialStateRequest
  * @property requestType the type of this request
+ * @constructor creates a new ClearCredentialStateRequest
  * @throws IllegalArgumentException if the [requestType] is unsupported type.
  */
 class ClearCredentialStateRequest

@@ -1,0 +1,29 @@
+{
+  "projectPath": ":glance:glance-material",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.annotation:annotation",
+        "resolvedVersion": "1.8.1"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.compose.runtime:runtime",
+        "resolvedVersion": "1.6.8"
+      },
+      "fromConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.compose.ui:ui-graphics",
+        "resolvedVersion": "1.6.8"
+      },
+      "toConfiguration": "implementation"
+    }
+  ]
+}

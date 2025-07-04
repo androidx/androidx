@@ -48,7 +48,7 @@ class TouchExplorationStateProviderTest {
         }
         assertEquals(
             accessibilityStatus.value,
-            accessibilityManager.isEnabled && accessibilityManager.isTouchExplorationEnabled
+            accessibilityManager.isEnabled && accessibilityManager.isTouchExplorationEnabled,
         )
     }
 }

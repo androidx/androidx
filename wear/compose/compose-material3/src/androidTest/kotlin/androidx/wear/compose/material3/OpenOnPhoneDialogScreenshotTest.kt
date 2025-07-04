@@ -52,7 +52,7 @@ class OpenOnPhoneDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             advanceTimeBy = OpenOnPhoneDialogDefaults.DurationMillis / 2,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -62,7 +62,7 @@ class OpenOnPhoneDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             advanceTimeBy = OpenOnPhoneDialogDefaults.DurationMillis,
-            screenSize = screenSize
+            screenSize = screenSize,
         )
     }
 
@@ -75,10 +75,13 @@ class OpenOnPhoneDialogScreenshotTest {
         rule.mainClock.autoAdvance = false
         setContentWithTheme {
             ScreenConfiguration(screenSize.size) {
+                val text = OpenOnPhoneDialogDefaults.text
+                val style = OpenOnPhoneDialogDefaults.curvedTextStyle
                 OpenOnPhoneDialog(
-                    show = true,
+                    visible = true,
                     modifier = Modifier.size(screenSize.size.dp).testTag(TEST_TAG),
                     onDismissRequest = {},
+                    curvedText = { openOnPhoneDialogCurvedText(text = text, style = style) },
                 )
             }
         }

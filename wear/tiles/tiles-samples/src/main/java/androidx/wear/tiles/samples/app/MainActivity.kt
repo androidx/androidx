@@ -47,7 +47,7 @@ fun WearApp() {
     MaterialTheme {
         Box(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             TimeText()
             Greeting()
@@ -61,6 +61,6 @@ fun Greeting() {
         modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         color = MaterialTheme.colors.primary,
-        text = stringResource(R.string.app_message)
+        text = stringResource(R.string.app_message),
     )
 }

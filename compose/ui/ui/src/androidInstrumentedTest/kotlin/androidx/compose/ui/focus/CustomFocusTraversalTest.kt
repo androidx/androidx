@@ -50,7 +50,7 @@ import org.junit.runners.Parameterized.Parameters
 @RunWith(Parameterized::class)
 class CustomFocusTraversalTest(
     private val moveFocusProgrammatically: Boolean,
-    private val useFocusOrderModifier: Boolean
+    private val useFocusOrderModifier: Boolean,
 ) {
     @get:Rule val rule = createComposeRule()
 
@@ -62,7 +62,7 @@ class CustomFocusTraversalTest(
                 arrayOf(true, true),
                 arrayOf(true, false),
                 arrayOf(false, true),
-                arrayOf(false, false)
+                arrayOf(false, false),
             )
     }
 

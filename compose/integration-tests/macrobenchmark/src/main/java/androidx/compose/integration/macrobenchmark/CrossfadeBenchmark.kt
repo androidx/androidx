@@ -43,7 +43,7 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
             setupBlock = {
                 val intent = Intent().apply { action = Action }
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             repeat(2) {
                 device.findObject(By.desc(ToggleCrossfadeDescription)).click()
@@ -62,7 +62,7 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
             setupBlock = {
                 val intent = Intent().apply { action = Action }
                 startActivityAndWait(intent)
-            }
+            },
         ) {
             repeat(2) {
                 device.findObject(By.desc(ToggleTargetStateDescription)).click()

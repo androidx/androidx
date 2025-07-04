@@ -32,8 +32,35 @@ constructor(
     val result: AggregationResult,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
+    shouldSkipValidation: Boolean = false,
 ) {
     init {
-        require(startTime.isBefore(endTime)) { "start time must be before end time" }
+        if (!shouldSkipValidation) {
+            require(startTime.isBefore(endTime)) { "start time must be before end time" }
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AggregationResultGroupedByPeriod
+
+        if (result != other.result) return false
+        if (startTime != other.startTime) return false
+        if (endTime != other.endTime) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var hash = result.hashCode()
+        hash = 31 * hash + startTime.hashCode()
+        hash = 31 * hash + endTime.hashCode()
+        return hash
+    }
+
+    override fun toString(): String {
+        return "AggregationResultGroupedByPeriod(result=$result, startTime=$startTime, endTime=$endTime)"
     }
 }

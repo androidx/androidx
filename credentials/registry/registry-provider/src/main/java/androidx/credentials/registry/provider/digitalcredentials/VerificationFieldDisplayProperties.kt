@@ -22,12 +22,12 @@ import androidx.credentials.registry.provider.digitalcredentials.DigitalCredenti
  * The display metadata associated with a [DigitalCredentialField] to be rendered in a selector UI
  * style serving the verification purpose.
  *
- * @constructor
  * @property displayName the localized display value for the name of this field; for example, the
  *   display name of an ISO mDL age-over-twenty-one property may be "Age over 21" localized
  * @property displayValue the localized display value for the value of this field; for example, the
  *   display value of an ISO mDL age-over-twenty-one property may be "Yes" localized; a null value
  *   means only the display name will be rendered to the user
+ * @constructor
  */
 public class VerificationFieldDisplayProperties(
     public val displayName: CharSequence,

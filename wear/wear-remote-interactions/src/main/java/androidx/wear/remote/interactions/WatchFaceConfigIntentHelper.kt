@@ -98,7 +98,7 @@ public class WatchFaceConfigIntentHelper private constructor() {
         @NonNull
         public fun putWatchFaceComponentExtra(
             watchFaceIntent: Intent,
-            componentName: ComponentName
+            componentName: ComponentName,
         ): Intent = watchFaceIntent.putExtra(EXTRA_WATCH_FACE_COMPONENT, componentName)
 
         /**

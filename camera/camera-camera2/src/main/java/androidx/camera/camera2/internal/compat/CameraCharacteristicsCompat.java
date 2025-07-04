@@ -22,6 +22,7 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector;
 
@@ -128,6 +129,45 @@ public class CameraCharacteristicsCompat {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the default torch strength level.
+     */
+    public int getDefaultTorchStrengthLevel() {
+        Integer defaultLevel = null;
+        if (hasFlashUnit() && Build.VERSION.SDK_INT >= 35) {
+            defaultLevel = get(CameraCharacteristics.FLASH_TORCH_STRENGTH_DEFAULT_LEVEL);
+        }
+        // The framework returns 1 when the device doesn't support configuring torch strength. So
+        // also return 1 if the device doesn't have flash unit or is unable to provide the
+        // information.
+        return defaultLevel == null ? 1 : defaultLevel;
+    }
+
+    /**
+     * Returns the maximum torch strength level.
+     */
+    @IntRange(from = 1)
+    public int getMaxTorchStrengthLevel() {
+        Integer maxLevel = null;
+        if (hasFlashUnit() && Build.VERSION.SDK_INT >= 35) {
+            maxLevel = get(CameraCharacteristics.FLASH_TORCH_STRENGTH_MAX_LEVEL);
+        }
+        // The framework returns 1 when the device doesn't support configuring torch strength. So
+        // also return 1 if the device doesn't have flash unit or is unable to provide the
+        // information.
+        return maxLevel == null ? 1 : maxLevel;
+    }
+
+    public boolean isTorchStrengthLevelSupported() {
+        return hasFlashUnit() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+                && getMaxTorchStrengthLevel() > 1;
+    }
+
+    private boolean hasFlashUnit() {
+        Boolean flashInfoAvailable = get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+        return flashInfoAvailable != null && flashInfoAvailable;
     }
 
     /**

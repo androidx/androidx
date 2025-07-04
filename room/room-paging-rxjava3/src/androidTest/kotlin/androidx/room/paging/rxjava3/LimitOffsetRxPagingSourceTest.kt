@@ -383,7 +383,7 @@ class LimitOffsetRxPagingSourceTest {
         val testDb =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java
+                    LimitOffsetTestDb::class.java,
                 )
                 .setQueryExecutor(queryExecutor)
                 .build()
@@ -422,7 +422,7 @@ class LimitOffsetRxPagingSourceTest {
         val testDb =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java
+                    LimitOffsetTestDb::class.java,
                 )
                 .build()
 
@@ -459,7 +459,7 @@ class LimitOffsetRxPagingSourceTest {
                 LimitOffsetRxPagingSource<TestItem>(
                     db = db,
                     supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
                 ) {
                 override fun convertRows(cursor: Cursor): List<TestItem> {
                     return convertRowsHelper(cursor)
@@ -479,7 +479,7 @@ class LimitOffsetRxPagingSourceTest {
                 LimitOffsetRxPagingSource<TestItem>(
                     db = db,
                     supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
                 ) {
                 override fun convertRows(cursor: Cursor): List<TestItem> {
                     return convertRowsHelper(cursor)
@@ -499,7 +499,7 @@ class LimitOffsetRxPagingSourceTest {
                 LimitOffsetRxPagingSource<TestItem>(
                     db = db,
                     supportSQLiteQuery =
-                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC")
+                        SimpleSQLiteQuery("SELECT * FROM $tableName ORDER BY id ASC"),
                 ) {
                 override fun convertRows(cursor: Cursor): List<TestItem> {
                     return convertRowsHelper(cursor)
@@ -522,7 +522,7 @@ class LimitOffsetRxPagingSourceTest {
         val db =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
-                    LimitOffsetTestDb::class.java
+                    LimitOffsetTestDb::class.java,
                 )
                 .build()
 
@@ -538,7 +538,7 @@ private class LimitOffsetRxPagingSourceImpl(
     LimitOffsetRxPagingSource<TestItem>(
         db = db,
         sourceQuery = RoomSQLiteQuery.acquire(query, 0),
-        tables = arrayOf(tableName)
+        tables = arrayOf(tableName),
     ) {
     override fun convertRows(cursor: Cursor): List<TestItem> = convertRowsHelper(cursor)
 }
@@ -554,55 +554,31 @@ private fun convertRowsHelper(cursor: Cursor): List<TestItem> {
 }
 
 private fun LimitOffsetRxPagingSource<TestItem>.refresh(
-    key: Int? = null,
+    key: Int? = null
 ): Single<LoadResult<Int, TestItem>> {
-    return loadSingle(
-        createLoadParam(
-            loadType = LoadType.REFRESH,
-            key = key,
-        )
-    )
+    return loadSingle(createLoadParam(loadType = LoadType.REFRESH, key = key))
 }
 
 private fun LimitOffsetRxPagingSource<TestItem>.append(
-    key: Int? = -1,
+    key: Int? = -1
 ): Single<LoadResult<Int, TestItem>> {
     itemCount.set(ITEMS_LIST.size) // to bypass check for initial load
-    return loadSingle(
-        createLoadParam(
-            loadType = LoadType.APPEND,
-            key = key,
-        )
-    )
+    return loadSingle(createLoadParam(loadType = LoadType.APPEND, key = key))
 }
 
 private fun LimitOffsetRxPagingSource<TestItem>.prepend(
-    key: Int? = -1,
+    key: Int? = -1
 ): Single<LoadResult<Int, TestItem>> {
     itemCount.set(ITEMS_LIST.size) // to bypass check for initial load
-    return loadSingle(
-        createLoadParam(
-            loadType = LoadType.PREPEND,
-            key = key,
-        )
-    )
+    return loadSingle(createLoadParam(loadType = LoadType.PREPEND, key = key))
 }
 
-private val CONFIG =
-    PagingConfig(
-        pageSize = 5,
-        enablePlaceholders = true,
-        initialLoadSize = 15,
-    )
+private val CONFIG = PagingConfig(pageSize = 5, enablePlaceholders = true, initialLoadSize = 15)
 
 private val ITEMS_LIST = createItemsForDb(0, 100)
 
 private fun createItemsForDb(startId: Int, count: Int): List<TestItem> {
-    return List(count) {
-        TestItem(
-            id = it + startId,
-        )
-    }
+    return List(count) { TestItem(id = it + startId) }
 }
 
 private fun createLoadParam(
@@ -610,28 +586,28 @@ private fun createLoadParam(
     key: Int? = null,
     initialLoadSize: Int = CONFIG.initialLoadSize,
     pageSize: Int = CONFIG.pageSize,
-    placeholdersEnabled: Boolean = CONFIG.enablePlaceholders
+    placeholdersEnabled: Boolean = CONFIG.enablePlaceholders,
 ): LoadParams<Int> {
     return when (loadType) {
         LoadType.REFRESH -> {
             LoadParams.Refresh(
                 key = key,
                 loadSize = initialLoadSize,
-                placeholdersEnabled = placeholdersEnabled
+                placeholdersEnabled = placeholdersEnabled,
             )
         }
         LoadType.APPEND -> {
             LoadParams.Append(
                 key = key ?: -1,
                 loadSize = pageSize,
-                placeholdersEnabled = placeholdersEnabled
+                placeholdersEnabled = placeholdersEnabled,
             )
         }
         LoadType.PREPEND -> {
             LoadParams.Prepend(
                 key = key ?: -1,
                 loadSize = pageSize,
-                placeholdersEnabled = placeholdersEnabled
+                placeholdersEnabled = placeholdersEnabled,
             )
         }
     }

@@ -80,6 +80,7 @@ package androidx.customview.widget {
     method public boolean settleCapturedViewAt(int, int);
     method public boolean shouldInterceptTouchEvent(android.view.MotionEvent);
     method public boolean smoothSlideViewTo(android.view.View, int, int);
+    method public boolean smoothSlideViewTo(android.view.View, int, int, int, android.view.animation.Interpolator?);
     field public static final int DIRECTION_ALL = 3; // 0x3
     field public static final int DIRECTION_HORIZONTAL = 1; // 0x1
     field public static final int DIRECTION_VERTICAL = 2; // 0x2

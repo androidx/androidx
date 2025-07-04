@@ -20,7 +20,6 @@ package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.use
 import kotlin.jvm.JvmName
 
 /**
@@ -31,8 +30,8 @@ import kotlin.jvm.JvmName
  * See (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#last_insert_rowid]
  * for details.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun getLastInsertedRowId(connection: SQLiteConnection): Long {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun getLastInsertedRowId(connection: SQLiteConnection): Long {
     if (getTotalChangedRows(connection) == 0) {
         return -1
     }
@@ -49,8 +48,8 @@ fun getLastInsertedRowId(connection: SQLiteConnection): Long {
  * See the (official SQLite documentation)[http://www.sqlite.org/lang_corefunc.html#changes] for
  * details.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-fun getTotalChangedRows(connection: SQLiteConnection): Int {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+public fun getTotalChangedRows(connection: SQLiteConnection): Int {
     return connection.prepare("SELECT changes()").use {
         it.step()
         it.getLong(0).toInt()

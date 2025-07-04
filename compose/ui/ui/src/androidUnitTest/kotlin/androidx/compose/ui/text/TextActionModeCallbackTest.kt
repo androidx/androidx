@@ -46,7 +46,7 @@ class TextActionModeCallbackTest {
                 onPasteRequested = {},
                 onCutRequested = {},
                 onSelectAllRequested = {},
-                onAutofillRequested = {}
+                onAutofillRequested = {},
             )
         val menu = ItemTrackingFakeMenu()
         callback.onCreateActionMode(mock(), menu)
@@ -60,7 +60,6 @@ class TextActionModeCallbackTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    @RequiresApi(26)
     fun onCreateActionMode_afterApi26() {
         // TODO(mnuzen): investigate why `NullDevice` has API level 0
         if (Build.VERSION.SDK_INT == 0) {
@@ -72,7 +71,7 @@ class TextActionModeCallbackTest {
                 onPasteRequested = {},
                 onCutRequested = {},
                 onSelectAllRequested = {},
-                onAutofillRequested = {}
+                onAutofillRequested = {},
             )
         val menu = ItemTrackingFakeMenu()
         callback.onCreateActionMode(mock(), menu)
@@ -105,7 +104,7 @@ class TextActionModeCallbackTest {
         val callback = TextActionModeCallback({})
         callback.updateMenuItems(menu)
 
-        assertThat(menu.menuItems.isEmpty())
+        assertThat(menu.menuItems).isEmpty()
     }
 
     @Test
@@ -188,7 +187,7 @@ private class ItemTrackingFakeMenu : Menu {
         specifics: Array<out Intent>?,
         intent: Intent?,
         flags: Int,
-        outSpecificItems: Array<out MenuItem>?
+        outSpecificItems: Array<out MenuItem>?,
     ): Int {
         TODO("Not yet implemented")
     }
@@ -249,14 +248,14 @@ private class ItemTrackingFakeMenu : Menu {
 private class FakeMenuItem(
     private val testId: Int,
     private val testOrder: Int,
-    private val testTitleRes: Int
+    private val testTitleRes: Int,
 ) : MenuItem {
     constructor(
         menuItemOption: MenuItemOption
     ) : this(
         testId = menuItemOption.id,
         testOrder = menuItemOption.order,
-        testTitleRes = menuItemOption.titleResource
+        testTitleRes = menuItemOption.titleResource,
     )
 
     override fun getItemId(): Int {

@@ -96,7 +96,7 @@ class TypedArrayTest {
 
         assertEquals(
             1,
-            array.getDimensionPixelSizeOrThrow(R.styleable.TypedArrayTypes_dimension_present)
+            array.getDimensionPixelSizeOrThrow(R.styleable.TypedArrayTypes_dimension_present),
         )
 
         assertThrows<IllegalArgumentException> {
@@ -113,7 +113,7 @@ class TypedArrayTest {
 
         assertEquals(
             1,
-            array.getDimensionPixelOffsetOrThrow(R.styleable.TypedArrayTypes_dimension_present)
+            array.getDimensionPixelOffsetOrThrow(R.styleable.TypedArrayTypes_dimension_present),
         )
 
         assertThrows<IllegalArgumentException> {
@@ -201,7 +201,7 @@ class TypedArrayTest {
 
         assertEquals(
             R.font.inconsolata_regular,
-            array.getResourceIdOrThrow(R.styleable.TypedArrayTypes_resource_present)
+            array.getResourceIdOrThrow(R.styleable.TypedArrayTypes_resource_present),
         )
 
         assertThrows<IllegalArgumentException> {

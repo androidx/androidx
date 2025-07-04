@@ -231,6 +231,11 @@
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Демо за шаблон на порака"</string>
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Пораката оди овде.\nУште текст во вториот ред."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Демо на шаблон за кратка порака"</string>
+    <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Демо на поделен шаблон со ставки"</string>
+    <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Дел за тркалезно копче"</string>
+    <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Дел за вклучување/исклучување"</string>
+    <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Многу делови за редови"</string>
+    <string name="sectioned_item_template_grid_item_section_title" msgid="565528119467142741">"Дел за ставки на мрежа"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демо за шаблон на окно"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демо за шаблон на список со места"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Прелистувајте места"</string>

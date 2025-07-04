@@ -49,7 +49,7 @@ val HDR10_UNCONSTRAINED by lazy {
             LATENCY_NONE, // HLG is mandated
             HDR10,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -62,7 +62,7 @@ val HDR10_PLUS_UNCONSTRAINED by lazy {
             LATENCY_NONE, // HLG is mandated
             HDR10_PLUS,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -78,7 +78,7 @@ val HDR10_HDR10_PLUS_UNCONSTRAINED by lazy {
             LATENCY_NONE,
             HDR10_PLUS,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -91,7 +91,7 @@ val DOLBY_VISION_10B_UNCONSTRAINED by lazy {
             LATENCY_NONE, // HLG is mandated
             DOLBY_VISION_10B_HDR_OEM,
             CONSTRAINTS_NONE,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }
@@ -104,7 +104,7 @@ val DOLBY_VISION_10B_UNCONSTRAINED_SLOW by lazy {
             LATENCY_NONE, // HLG is mandated
             DOLBY_VISION_10B_HDR_OEM,
             CONSTRAINTS_NONE,
-            LATENCY_NON_ZERO
+            LATENCY_NON_ZERO,
         )
     )
 }
@@ -143,7 +143,7 @@ val DOLBY_VISION_CONSTRAINED by lazy {
             LATENCY_NONE,
             DOLBY_VISION_8B_HDR_OEM,
             DOLBY_VISION_8B_HDR_OEM or DOLBY_VISION_10B_HDR_OEM,
-            LATENCY_NONE
+            LATENCY_NONE,
         )
     )
 }

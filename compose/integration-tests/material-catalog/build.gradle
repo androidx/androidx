@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.ApkCopyHelperKt
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -50,11 +50,11 @@ android {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":compose:material:material"))
+    implementation("androidx.compose.runtime:runtime:1.7.5")
+    implementation("androidx.compose.ui:ui:1.7.5")
+    implementation("androidx.compose.foundation:foundation-layout:1.7.5")
     implementation("androidx.compose.material:material-icons-core:1.6.7")
+    implementation(project(":compose:material:material"))
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:material:material:integration-tests:material-catalog"))
     implementation(project(":compose:material3:material3:integration-tests:material3-catalog"))
@@ -73,7 +73,7 @@ ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 androidx {
     name = "Compose Material Catalog app"
-    type = LibraryType.TEST_APPLICATION
+    type = SoftwareType.TEST_APPLICATION
     inceptionYear = "2021"
     description = "This is a project for the Compose Material Catalog app."
 }

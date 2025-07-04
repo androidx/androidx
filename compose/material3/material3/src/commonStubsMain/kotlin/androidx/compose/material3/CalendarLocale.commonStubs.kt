@@ -34,5 +34,5 @@ internal actual fun defaultLocale(): CalendarLocale = implementedInJetBrainsFork
 internal actual fun Int.toLocalString(
     minDigits: Int,
     maxDigits: Int,
-    isGroupingUsed: Boolean
+    isGroupingUsed: Boolean,
 ): String = implementedInJetBrainsFork()

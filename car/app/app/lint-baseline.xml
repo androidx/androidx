@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+<issues format="6" by="lint 8.11.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.11.0-alpha10)" variant="all" version="8.11.0-alpha10">
 
     <issue
         id="MissingPermission"
@@ -8,6 +8,15 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/AppManager.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `assertThat` is not used"
+        errorLine1="        assertThat(signIn.getPinCode().toString().length() == 12);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/signin/PinSignInMethodTest.java"/>
     </issue>
 
     <issue
@@ -373,8 +382,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private final List&lt;CarZone> mCarZones;"
-        errorLine2="                       ~~~~~~~">
+        errorLine1="    private final @NonNull List&lt;CarZone> mCarZones;"
+        errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/CarValue.java"/>
     </issue>
@@ -382,8 +391,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private final Badge mBadge;"
-        errorLine2="                  ~~~~~">
+        errorLine1="    private final @Nullable Badge mBadge;"
+        errorLine2="                            ~~~~~">
         <location
             file="src/main/java/androidx/car/app/model/GridItem.java"/>
     </issue>
@@ -391,8 +400,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        Badge mBadge;"
-        errorLine2="        ~~~~~">
+        errorLine1="        @Nullable Badge mBadge;"
+        errorLine2="                  ~~~~~">
         <location
             file="src/main/java/androidx/car/app/model/GridItem.java"/>
     </issue>

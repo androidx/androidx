@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.10.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.0-alpha07)" variant="all" version="8.10.0-alpha07">
+
+    <issue
+        id="NoCollectCallFound"
+        message="You must call collect() on Flow _"
+        errorLine1="            PredictiveBackHandler { _ ->"
+        errorLine2="                                    ~">
+        <location
+            file="src/androidTest/java/androidx/activity/compose/PredictiveBackHandlerTest.kt"/>
+    </issue>
+
+</issues>

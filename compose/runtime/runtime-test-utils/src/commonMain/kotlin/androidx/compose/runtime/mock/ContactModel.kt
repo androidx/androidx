@@ -19,7 +19,7 @@ package androidx.compose.runtime.mock
 class ContactModel(
     var filter: String = "",
     var contacts: List<Contact>,
-    var selected: Contact? = null
+    var selected: Contact? = null,
 ) {
     val filtered
         get() = contacts.filter { it.name.contains(filter) }

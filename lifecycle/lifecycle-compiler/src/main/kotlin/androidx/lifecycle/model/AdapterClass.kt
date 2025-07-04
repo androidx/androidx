@@ -24,7 +24,7 @@ import javax.lang.model.element.TypeElement
 data class AdapterClass(
     val type: TypeElement,
     val calls: List<EventMethodCall>,
-    val syntheticMethods: Set<ExecutableElement>
+    val syntheticMethods: Set<ExecutableElement>,
 )
 
 fun getAdapterName(type: TypeElement): String {

@@ -46,7 +46,7 @@ private val MAX_DELAY_MS = TimeUnit.HOURS.toMillis(1)
 internal fun CoroutineScope.maybeLaunchUnfinishedWorkListener(
     appContext: Context,
     configuration: Configuration,
-    db: WorkDatabase
+    db: WorkDatabase,
 ) {
     // Only register this in the designated process.
     if (isDefaultProcess(appContext, configuration)) {
@@ -65,7 +65,7 @@ internal fun CoroutineScope.maybeLaunchUnfinishedWorkListener(
                 PackageManagerHelper.setComponentEnabled(
                     appContext,
                     RescheduleReceiver::class.java,
-                    hasUnfinishedWork
+                    hasUnfinishedWork,
                 )
             }
             .launchIn(this)

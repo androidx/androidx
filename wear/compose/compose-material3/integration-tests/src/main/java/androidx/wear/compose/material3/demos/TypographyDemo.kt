@@ -26,12 +26,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -63,7 +63,7 @@ var TypographyDemos =
                 ComposableDemo("Arc Large") {
                     ArcWithLetterSpacing(MaterialTheme.typography.arcLarge, "Arc Large")
                 },
-            )
+            ),
         ),
         DemoCategory(
             "Display",
@@ -73,7 +73,7 @@ var TypographyDemos =
                         Text(
                             "Display\nSmall",
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.displaySmall
+                            style = MaterialTheme.typography.displaySmall,
                         )
                     }
                 },
@@ -82,7 +82,7 @@ var TypographyDemos =
                         Text(
                             "Display\nMedium",
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.displayMedium
+                            style = MaterialTheme.typography.displayMedium,
                         )
                     }
                 },
@@ -91,11 +91,11 @@ var TypographyDemos =
                         Text(
                             "Display\nLarge",
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.displayLarge
+                            style = MaterialTheme.typography.displayLarge,
                         )
                     }
-                }
-            )
+                },
+            ),
         ),
         ComposableDemo("Title") {
             Centralize {
@@ -103,17 +103,17 @@ var TypographyDemos =
                     Text(
                         "Title\nSmall",
                         style = MaterialTheme.typography.titleSmall,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Title\nMedium",
                         style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Title\nLarge",
                         style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -124,17 +124,17 @@ var TypographyDemos =
                     Text(
                         "Label\nSmall",
                         style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Label\nMedium",
                         style = MaterialTheme.typography.labelMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Label\nLarge",
                         style = MaterialTheme.typography.labelLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -145,22 +145,22 @@ var TypographyDemos =
                     Text(
                         "Body\nExtra\nSmall",
                         style = MaterialTheme.typography.bodyExtraSmall,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Body\nSmall",
                         style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Body\nMedium",
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     Text(
                         "Body\nLarge",
                         style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -188,17 +188,20 @@ var TypographyDemos =
                     Centralize {
                         Text("0123\n6789", style = MaterialTheme.typography.numeralExtraLarge)
                     }
-                }
-            )
+                },
+            ),
         ),
     )
 
 @Composable
-private fun ArcWithLetterSpacing(arcStyle: TextStyle, label: String) {
-    var topLetterSpacing by remember { mutableStateOf(0.6f) }
-    var bottomLetterSpacing by remember { mutableStateOf(2.0f) }
-    val topCurvedStyle = CurvedTextStyle(arcStyle).copy(letterSpacing = topLetterSpacing.sp)
-    val bottomCurvedStyle = CurvedTextStyle(arcStyle).copy(letterSpacing = bottomLetterSpacing.sp)
+private fun ArcWithLetterSpacing(baseStyle: CurvedTextStyle, label: String) {
+    var topLetterSpacing by remember { mutableFloatStateOf(0.6f) }
+    var bottomLetterSpacing by remember { mutableFloatStateOf(2.0f) }
+    val curvedStyle =
+        baseStyle.copy(
+            letterSpacing = topLetterSpacing.sp,
+            letterSpacingCounterClockwise = bottomLetterSpacing.sp,
+        )
     val mmms = "MMMMMMMMMMMMMMMMMMMM"
     var useMMMs by remember { mutableStateOf(true) }
 
@@ -206,48 +209,48 @@ private fun ArcWithLetterSpacing(arcStyle: TextStyle, label: String) {
         CurvedLayout {
             curvedText(
                 if (useMMMs) mmms else label,
-                style = topCurvedStyle,
+                style = curvedStyle,
                 maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
         CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.Reversed) {
             curvedText(
                 if (useMMMs) mmms else label,
-                style = bottomCurvedStyle,
+                style = curvedStyle,
                 maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
         Column(
             modifier = Modifier.fillMaxSize().padding(32.dp),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 "Top=$topLetterSpacing, bottom = $bottomLetterSpacing",
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             Slider(
                 value = topLetterSpacing,
                 onValueChange = { topLetterSpacing = it },
                 valueRange = 0f..4f,
                 steps = 39,
-                segmented = false
+                segmented = false,
             )
             Slider(
                 value = bottomLetterSpacing,
                 onValueChange = { bottomLetterSpacing = it },
                 valueRange = 0f..4f,
                 steps = 39,
-                segmented = false
+                segmented = false,
             )
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 TextToggleButton(
                     checked = useMMMs,
                     onCheckedChange = { useMMMs = !useMMMs },
-                    modifier = Modifier.height(36.dp)
+                    modifier = Modifier.height(36.dp),
                 ) {
                     Text(text = "MMM")
                 }

@@ -37,17 +37,12 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class LazyStaggeredGridReverseLayoutTest(
-    val orientation: Orientation,
-) : BaseLazyStaggeredGridWithOrientation(orientation) {
+class LazyStaggeredGridReverseLayoutTest(val orientation: Orientation) :
+    BaseLazyStaggeredGridWithOrientation(orientation) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun initOrientation(): Array<Any> =
-            arrayOf(
-                Orientation.Vertical,
-                Orientation.Horizontal,
-            )
+        fun initOrientation(): Array<Any> = arrayOf(Orientation.Vertical, Orientation.Horizontal)
     }
 
     private val StaggeredGridTag = "LazyStaggeredGrid"
@@ -66,7 +61,7 @@ class LazyStaggeredGridReverseLayoutTest(
             LazyStaggeredGrid(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 4),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 item {
                     Box(Modifier.size(itemSize * 2).testTag("0"))
@@ -92,7 +87,7 @@ class LazyStaggeredGridReverseLayoutTest(
             LazyStaggeredGrid(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 4),
-                reverseLayout = true
+                reverseLayout = true,
             ) {
                 items(4) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -124,7 +119,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 4),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(4) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -144,7 +139,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 4).testTag(StaggeredGridTag),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(4) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -170,7 +165,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 2).testTag(StaggeredGridTag),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -202,7 +197,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 2).testTag(StaggeredGridTag),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -230,7 +225,7 @@ class LazyStaggeredGridReverseLayoutTest(
                     modifier =
                         Modifier.axisSize(itemSize * 2, itemSize * 2).testTag(StaggeredGridTag),
                     reverseLayout = true,
-                    state = state
+                    state = state,
                 ) {
                     items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
                 }
@@ -269,7 +264,7 @@ class LazyStaggeredGridReverseLayoutTest(
                     modifier =
                         Modifier.axisSize(itemSize * 2, itemSize * 2).testTag(StaggeredGridTag),
                     reverseLayout = true,
-                    state = state
+                    state = state,
                 ) {
                     items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
                 }
@@ -317,7 +312,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 2).testTag(StaggeredGridTag),
                 reverseLayout = reverseLayout,
-                state = state
+                state = state,
             ) {
                 items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -351,7 +346,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 contentPadding =
                     PaddingValues(beforeContent = itemSize, afterContent = itemSize * 2),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -376,7 +371,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 5).testTag(StaggeredGridTag),
                 contentPadding = PaddingValues(afterContent = itemSize * 2),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
             }
@@ -400,7 +395,7 @@ class LazyStaggeredGridReverseLayoutTest(
                 lanes = 2,
                 modifier = Modifier.axisSize(itemSize * 2, itemSize * 2).testTag(StaggeredGridTag),
                 reverseLayout = true,
-                state = state
+                state = state,
             ) {
                 items(6) { Box(Modifier.size(itemSize).testTag("$it")) }
             }

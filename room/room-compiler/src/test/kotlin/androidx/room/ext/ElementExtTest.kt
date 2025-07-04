@@ -25,7 +25,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.runProcessorTestWithK1
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -49,7 +49,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                 public static void parentStaticPublic() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val childCode =
             Source.java(
@@ -66,7 +66,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                 public static void childStaticPublic() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         runTest(sources = listOf(parentCode, childCode)) {
@@ -79,7 +79,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                     "parentPublic",
                     "parentStaticPrivate",
                     "parentStaticPublic",
-                    "overridden"
+                    "overridden",
                 )
             val childMethods =
                 listOf(
@@ -87,7 +87,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                     "childPublic",
                     "childStaticPrivate",
                     "childStaticPublic",
-                    "overridden"
+                    "overridden",
                 )
             assertThat(parent.getDeclaredMethods().names()).containsExactlyElementsIn(parentMethods)
             assertThat(parent.getAllMethods().names())
@@ -115,7 +115,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                             "childPrivate",
                             "childStaticPrivate",
                             "childStaticPublic",
-                            "overridden"
+                            "overridden",
                         ) + "overridden" // add 1 overridden back
                 )
 
@@ -139,7 +139,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                 public static void parentStaticPublic() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         val childCode =
             Source.java(
@@ -154,7 +154,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                 public static void childStaticPublic() {}
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         runTest(sources = listOf(parentCode, childCode)) {
@@ -204,7 +204,7 @@ class ElementExtTest(private val preCompile: Boolean) {
                 }
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
 
         runTest(sources = listOf(testCode)) {
@@ -229,12 +229,12 @@ class ElementExtTest(private val preCompile: Boolean) {
               fun durationFunction(): kotlin.time.Duration = TODO()
             }
             """
-                    .trimIndent()
+                    .trimIndent(),
             )
         runKspTest(
             sources = listOf(src),
             config =
-                XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
+                XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false),
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("foo.Subject")
             subject
@@ -272,7 +272,7 @@ class ElementExtTest(private val preCompile: Boolean) {
             } else {
                 sources to emptyList()
             }
-        runProcessorTestWithK1(sources = sources, classpath = classpath, handler = handler)
+        runProcessorTest(sources = sources, classpath = classpath, handler = handler)
     }
 
     private fun XTestInvocation.objectMethodNames(): List<String> {

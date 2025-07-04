@@ -57,6 +57,6 @@ internal class DefaultKspType(
         ksType: KSType,
         originalKSAnnotations: Sequence<KSAnnotation>,
         scope: KSTypeVarianceResolverScope?,
-        typeAlias: KSType?
+        typeAlias: KSType?,
     ) = DefaultKspType(env, ksType, originalKSAnnotations, scope, typeAlias)
 }

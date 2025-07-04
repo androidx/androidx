@@ -41,7 +41,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.DisplayMetrics;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.managers.ResultManager;
@@ -405,15 +404,14 @@ public class CarContextTest {
         mCarContext.getCarService(ScreenManager.class).push(mScreen1);
         mCarContext.getCarService(ScreenManager.class).push(mScreen2);
 
-        OnBackPressedCallback callback = mock(OnBackPressedCallback.class);
-        when(callback.isEnabled()).thenReturn(true);
+        TestOnBackPressedCallback callback = new TestOnBackPressedCallback();
 
         TestLifecycleOwner callbackLifecycle = new TestLifecycleOwner();
         callbackLifecycle.mRegistry.setCurrentState(State.STARTED);
         mCarContext.getOnBackPressedDispatcher().addCallback(callbackLifecycle, callback);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
-        verify(callback).handleOnBackPressed();
+        assertThat(callback.getPressedCount()).isEqualTo(1);
         verify(mMockScreen1, never()).dispatchLifecycleEvent(Event.ON_DESTROY);
         verify(mMockScreen2, never()).dispatchLifecycleEvent(Event.ON_DESTROY);
     }
@@ -423,15 +421,14 @@ public class CarContextTest {
         mCarContext.getCarService(ScreenManager.class).push(mScreen1);
         mCarContext.getCarService(ScreenManager.class).push(mScreen2);
 
-        OnBackPressedCallback callback = mock(OnBackPressedCallback.class);
-        when(callback.isEnabled()).thenReturn(true);
+        TestOnBackPressedCallback callback = new TestOnBackPressedCallback();
 
         TestLifecycleOwner callbackLifecycle = new TestLifecycleOwner();
         callbackLifecycle.mRegistry.setCurrentState(State.CREATED);
         mCarContext.getOnBackPressedDispatcher().addCallback(callbackLifecycle, callback);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
-        verify(callback, never()).handleOnBackPressed();
+        assertThat(callback.getPressedCount()).isEqualTo(0);
         verify(mMockScreen1, never()).dispatchLifecycleEvent(Event.ON_DESTROY);
         verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
     }
@@ -441,21 +438,18 @@ public class CarContextTest {
         mCarContext.getCarService(ScreenManager.class).push(mScreen1);
         mCarContext.getCarService(ScreenManager.class).push(mScreen2);
 
-        OnBackPressedCallback callback = mock(OnBackPressedCallback.class);
-        when(callback.isEnabled()).thenReturn(true);
+        TestOnBackPressedCallback callback = new TestOnBackPressedCallback();
 
         TestLifecycleOwner callbackLifecycle = new TestLifecycleOwner();
         callbackLifecycle.mRegistry.setCurrentState(State.CREATED);
         mCarContext.getOnBackPressedDispatcher().addCallback(callbackLifecycle, callback);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
 
-        verify(callback, never()).handleOnBackPressed();
+        assertThat(callback.getPressedCount()).isEqualTo(0);
         verify(mMockScreen2).dispatchLifecycleEvent(Event.ON_DESTROY);
-
         callbackLifecycle.mRegistry.setCurrentState(State.STARTED);
         mCarContext.getOnBackPressedDispatcher().onBackPressed();
-
-        verify(callback).handleOnBackPressed();
+        assertThat(callback.getPressedCount()).isEqualTo(1);
     }
 
     @Test

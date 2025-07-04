@@ -714,12 +714,14 @@ public abstract class BaseViewPagerTest<T extends Activity> {
         assertStripInteraction(smoothScroll);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264231
     @Test
     @LargeTest
     public void testPagerStripImmediate() {
         verifyPagerStrip(false);
     }
 
+    @SdkSuppress(maxSdkVersion = 34) // b/427264231
     @Test
     @LargeTest
     public void testPagerStripSmooth() {
